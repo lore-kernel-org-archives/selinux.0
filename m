@@ -1,128 +1,126 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com [209.85.219.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6725C7EF1C
-	for <selinux@vger.kernel.org>; Tue, 30 Jan 2024 23:23:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F201360
+	for <selinux@vger.kernel.org>; Wed, 31 Jan 2024 00:10:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706657033; cv=none; b=oRaSxFc8bhUrfcHlu6+rtWNR/D3+wHJiyQn1NXl9yionLVwh86jxGZLo9ltvMG/62nGv//cdyYkEqEEjHNzGWccyd24h2WbdMEP5ZBjyyWw79XU9UUPp9xbKhNVzNMKYig7U/Mu8L8qBLaBoBgkgvDEE63FLYYY1zZdHQ81OMbE=
+	t=1706659803; cv=none; b=auHuScGcIgtIV83+ri53LqMJUUonfQbQxUeWEy70K3AA9jslAsWNsK9sg1gP3UbDzlkmUhzfFWN9yjFTwaKbEW+w2xkpDqJT3Ss5NG+tGLtHj6lNWcqHSq3gy8CRHj77K1JKwPfwsRCKR/HfmPD0kLOnXEXjLUYqNJ9fvoPyBC0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706657033; c=relaxed/simple;
-	bh=KaH0QUD1q+piteLn/yCiCZ/Wdvk28XLfRi249e4sUFk=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=BIi6r8FfbHevwSntWvox02RzG3S9Ud4gYnTKTTirdU4m4CKIIIdGZtaVt0vugXR3ki64nvKAj5gfRnmXaqgutbEi0M4qsog6Zrk+zTEU+dXtXo/mE4XjkFhEy9T9q9tyW1M2j4n0rSa5z1fKt8zsw1aojxqa42BaQJJBGWiUO28=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=RTAbLIT6; arc=none smtp.client-ip=209.85.222.181
+	s=arc-20240116; t=1706659803; c=relaxed/simple;
+	bh=xV6L6Ymilq/nlG7DvJBbGQsqFIg9Gci2q0NrbobrYho=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=e4ckcsBTk0qug23d9slrtH30TMnaV2ZYj8jkwLRlgX4ObUkX8PINT3S52B0G1Uk8d7UAqhDqBVVCO8MmXRdh4n14HMqof9ba/jkjszsi3n9LGBUqSVL6BPX+48yzYKPArX64swdlE33TQSAD2jg/Aza8nhUPKhCRoq9O6MSnHVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=RPzSY7dO; arc=none smtp.client-ip=209.85.219.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="RTAbLIT6"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-783d4b3ad96so466646385a.3
-        for <selinux@vger.kernel.org>; Tue, 30 Jan 2024 15:23:51 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="RPzSY7dO"
+Received: by mail-yb1-f170.google.com with SMTP id 3f1490d57ef6-dc6b69f0973so432626276.2
+        for <selinux@vger.kernel.org>; Tue, 30 Jan 2024 16:10:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1706657030; x=1707261830; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=CBoZs69oMSn/l8E58cvpIZGyzqHES5TzIqLPNloGyuI=;
-        b=RTAbLIT6nvIya93HecfNQNKc4va46HWL2xv+8dS+4USb4jkv5wcK9iI3KQgB9AYiy4
-         SwgrrIybjCWWtr/ptmCuw09jgq9xvVrxtRs51atFoUouYl/IA3583L0T0v08rnoIFWY8
-         +RMQW7+PU9m3CV8AXUCZXAPqGVRIw+K+/bwx5mgKn6PU4wR0736/QcaPXT5TGo2XSUIx
-         ZbKQnfloP7G6Q8PqlAHaedjDXBE+v+f3h5O8lyxPL8IO0lTqglIIfRaoB5HFSP+RXrg7
-         lBp6BlqynuazyxPrcyGXVdyCUcOZMoNX9O7+w6OI3BqI8IUBG9djnkZ8IGasU0V4Dxr5
-         Xi2w==
+        d=paul-moore.com; s=google; t=1706659800; x=1707264600; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LKTptMC1WQHlaB5jTzHxrSzmxkkZFO1cYogZobPN9Ns=;
+        b=RPzSY7dO0uW6c0UxPy5HhogAePaey+7kKKUvioFMSDeIEG7KeJ1+i562jt79dAGDj6
+         SxMYTNCMfoxeVCCIKcFCeWjtNf+bVGKMlm51ilbWxM7l8q5u6NQK0tCmEuwsLsdDBMb7
+         XJuzno2p0xQfgxBQ3ul05i6RG/xvfyDhTsL0cCOIWeint1IRXesJZz44OX/Yvy7+v9aL
+         zRkEpxQ4IyPjxA6161ArAwt7kXcJyAm03zWUePfg23kmTHBaFRIueROjEQ3IFgP7x2I7
+         AtCMYXgaoybxWHkyPxg0WcRnRACid9MFnyX57OwfzxA/wU1jEH0kIMhQRbiVFjGu4AYp
+         jUZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706657030; x=1707261830;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CBoZs69oMSn/l8E58cvpIZGyzqHES5TzIqLPNloGyuI=;
-        b=XCUmYLYeRWMlRe7BTGme+DVTytBJBU8UtF55P9W46H/Eq0N7DZU5+1kQE9jw6CIio+
-         BRqSQhr2374L8QQvfTRM4R50y8Esn+fuVFARrrDsRytwdAb5v4x023PpXzIqgwuphail
-         zM4x7StgVzw78pZact/R2lVJz8a128AVeiJ7FRXmkDJPMc0HP2hwozK74y7d+BSHayVa
-         2hxcT3Hj9e2qYFkolrp1sNTw6ndLnzXV8thb6rV4Wv8CO7o+kt8ye9P7mP2QPWjkqsq/
-         bBvUN/h1NJ+/jXVVP99svGH7bS3/2Qof+iqWDK8acOdtcpmC/YLrROJ++laWi3XitJDs
-         4wlQ==
-X-Gm-Message-State: AOJu0YzfN7la2jMqUD69FPPyy7kmsVACt+hbnWPcJpZjnSUvrfHz6oiM
-	spGb40FQxBYX+JrzUEAEVTVlnVduNyFwofGb99UpOpoDVdaqYnSFMTd8UkZ8mQWSg8e814xS1yo
-	=
-X-Google-Smtp-Source: AGHT+IFGb7n56hWYasqDVS13B+iRP+jFhqZivZGj22VNNYkUMtokMSZaI+mK6Uq3OzEMckEuYBnGtA==
-X-Received: by 2002:a05:620a:319f:b0:784:db3:33fe with SMTP id bi31-20020a05620a319f00b007840db333femr3229462qkb.75.1706657030087;
-        Tue, 30 Jan 2024 15:23:50 -0800 (PST)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id 9-20020a05620a04c900b00783fa16e063sm2434745qks.102.2024.01.30.15.23.49
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jan 2024 15:23:49 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH] selinux: correct return values in selinux_socket_getpeersec_dgram()
-Date: Tue, 30 Jan 2024 18:23:43 -0500
-Message-ID: <20240130232342.378342-2-paul@paul-moore.com>
-X-Mailer: git-send-email 2.43.0
+        d=1e100.net; s=20230601; t=1706659800; x=1707264600;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=LKTptMC1WQHlaB5jTzHxrSzmxkkZFO1cYogZobPN9Ns=;
+        b=DHSnq9vrBTlmlpnsI3K3gmgFdDhbmfXz/k/746wlaT5iAJaZkhXyfNvyeDCEOnXWvC
+         4tAyNp+Rwr6DcMeczcp49Y+2cBo2u0dz0gQG4UCNbOBGDUCWoRt1lIK/MreubKXyc+mu
+         PQKMXogmmpFP1Z/wLxl9wU8ftsEH3HI/yjtLebw22qo2pCNUyitgQK069rZUADNVwIno
+         G5RtRxtZJxD7bGpbEVTIkv6vkydPbkUtqpEcw3Na3mTmMuQzbzH6S05Bk82rOBXXq4nH
+         H+eAdDE7sOKR2yUDuEcLkN8azWdjxgpilM2Nh0PHCpswP1wC9MCBVMPiBZwS5yNLGIRN
+         YErQ==
+X-Gm-Message-State: AOJu0YzQnDWh33wq5LBkmiiU6N8KihA4TlMyrZv5084YEVqIPI85J4qd
+	mIEuiaqX0OMcsvW/6RJn5vq7H410/xW3Kt0we952j0IksFpX6IYkoVdXspN+d6z4wZHsyHO3Uir
+	PdzB/pBtwt56+DJZ+8a0dy3ExrMULbSf5hOdp
+X-Google-Smtp-Source: AGHT+IE7TZMN3BC26M7jWlTTO+Fc+C+rbQ0sRDoOZRxuD6ci2eQf3EiAM2HB2KNiAmfIOHwnKdCgI5H4KOHX9zn875U=
+X-Received: by 2002:a25:e911:0:b0:dc2:2d05:186f with SMTP id
+ n17-20020a25e911000000b00dc22d05186fmr137948ybd.46.1706659800231; Tue, 30 Jan
+ 2024 16:10:00 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1822; i=paul@paul-moore.com; h=from:subject; bh=KaH0QUD1q+piteLn/yCiCZ/Wdvk28XLfRi249e4sUFk=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBluYT+3EYuvbxzdDoPyDlLTwIIMOt3pgPyvLqQd ZokDQG8h7+JAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZbmE/gAKCRDqIPLalzeJ c5V2D/95z6lgbk4BeaslbS3vpyU4L7nrG+6imw2aaWilCera4/yurkB63bNsfOK+RjoNjvSGTqx qBmqQZeOu2sYtEVtIryuZSQRaN+Y+w8PMYwYE0N7+Rtr2kGL4tywA/o2jMCq4gJaEX7zh0A04fT r8oL2PYMViyrzM0A/UD/cfsF8BjsLDSN8s4cRpct0HgYRNXuYuIW7IUqW1+IkwQWU/GEEQQRxIC RUDjEv9kRkVxqBSzm5nIp0svIMr5N0eImyCr26Dk71nt7BZSJzu6gBTk7aAya0lZ1RQlR1zj+or lxdw3BwkJLez1qGgyTmTcY2SOf+gc2bAaeORc+OFHusLJhFKrzwq9/aNnm+rl14vBXKlKyLvU/G DVVOQJSbvh3vE6rkkuq2scg/bUVkYekDM4gAzkCbzT6iwrIdbzNR2vEDt8QB0wVfAGA3CA+rLA5 QyRbsgYq5+HN93Fkue8t5pf/ESQhP7nZnhsS5ArOAQt7hhGrmYcZXPR9Y78dr/hVQlC0mZo2VB1 sBLxE0Bfp4yGWUV6tD9+fCjskbGW3E7zg30NAAju0Yq2qnlZ/T5WZ1o1IKIK+allu4rKsxLKoq2 iyafccBYiQci/3nfB1EyHExOMscp7PC2JNgBwE7SN3wMud3q0NaA6Aq5p1Qx/H8Ajrn89e6GZlP Kf5rxjlr8gr7xJA==
-X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
-Content-Transfer-Encoding: 8bit
+References: <20240129133058.1627971-1-omosnace@redhat.com>
+In-Reply-To: <20240129133058.1627971-1-omosnace@redhat.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 30 Jan 2024 19:09:49 -0500
+Message-ID: <CAHC9VhSzdvJ2DAgV75Tdxk+tOLuhY-vM+BTT--Mfn6xoxVKbxQ@mail.gmail.com>
+Subject: Re: [PATCH] security: fix no-op hook logic in security_inode_{set,remove}xattr()
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Instead of returning -EINVAL if any type of error occurs, limit
--EINVAL to only those errors caused by passing a bad/invalid socket
-or packet/skb.  In other cases where everything is correct but there
-isn't a valid peer label we return -ENOPROTOOPT.
+On Mon, Jan 29, 2024 at 8:31=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
+m> wrote:
+>
+> These two hooks currently work like this:
+> 1. If no LSM registers the hook, cap_inode_{set,remove}xattr() is
+>    called.
+> 2. If an LSM hook call returns 0, the loop continues to call further
+>    LSMs (and only stops on an error return value).
+> 3. The "default" return value is 0, so e.g. the default BPF LSM hook
+>    just returns 0.
+>
+> This works if BPF LSM is enabled along with SELinux or SMACK (or not
+> enabled at all), but if it's the only LSM implementing the hook, then
+> the cap_inode_{set,remove}xattr() is erroneously skipped.
+>
+> Fix this by using 1 as the default return value and make the loop
+> recognize it as a no-op return value (i.e. if an LSM returns this value
+> it is treated as if it wasn't called at all). The final logic is similar
+> to that of security_fs_context_parse_param().
+>
+> Fixes: 98e828a0650f ("security: Refactor declaration of LSM hooks")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  include/linux/lsm_hook_defs.h |  4 ++--
+>  security/security.c           | 45 +++++++++++++++++++++++++----------
+>  2 files changed, 35 insertions(+), 14 deletions(-)
 
-This helps make selinux_socket_getpeersec_dgram() more consistent
-with selinux_socket_getpeersec_stream().
+Thanks for working on this Ondrej, I've got a couple of thoughts on
+the approach taken here, but we definitely need to fix this.
 
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- security/selinux/hooks.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+My first thought is that we really should move the
+cap_inode_setxattr() and cap_inode_removexattr() calls in security.c
+over to using the LSM hook infrastructure just as we do with other
+capability hooks in commoncap.c:
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 48ae90327fa4..630ada3d208c 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5193,11 +5193,11 @@ static int selinux_socket_getpeersec_stream(struct socket *sock,
- 	return err;
- }
- 
--static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
-+static int selinux_socket_getpeersec_dgram(struct socket *sock,
-+					   struct sk_buff *skb, u32 *secid)
- {
- 	u32 peer_secid = SECSID_NULL;
- 	u16 family;
--	struct inode_security_struct *isec;
- 
- 	if (skb && skb->protocol == htons(ETH_P_IP))
- 		family = PF_INET;
-@@ -5205,19 +5205,21 @@ static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *
- 		family = PF_INET6;
- 	else if (sock)
- 		family = sock->sk->sk_family;
--	else
--		goto out;
-+	else {
-+		*secid = SECSID_NULL;
-+		return -EINVAL;
-+	}
- 
- 	if (sock && family == PF_UNIX) {
-+		struct inode_security_struct *isec;
- 		isec = inode_security_novalidate(SOCK_INODE(sock));
- 		peer_secid = isec->sid;
- 	} else if (skb)
- 		selinux_skb_peerlbl_sid(skb, family, &peer_secid);
- 
--out:
- 	*secid = peer_secid;
- 	if (peer_secid == SECSID_NULL)
--		return -EINVAL;
-+		return -ENOPROTOOPT;
- 	return 0;
- }
- 
--- 
-2.43.0
+  LSM_HOOK_INIT(inode_setxattr, cap_inode_setxattr);
+  LSM_HOOK_INIT(inode_removexattr, cap_inode_removexattr);
 
+... of course we will need to adjust cap_inode_setxattr to take (and
+ignore the idmap) parameter, but that is easy enough.  It looks like
+cap_inode_removexattr() can be used as-is.  Modifications to the only
+two LSMs, SELinux and Smack, which explicitly call out to these
+capability hooks looks rather straightforward as well.  Doing this
+should simplify the LSM hooks significantly, and lower the chance of a
+future LSM mistakenly not doing the required capability calls.  There
+should also be a slight performance bump for the few (one? two?)
+people running both SELinux and Smack in a production environment.
+
+My second thought is that we *really* need to add to the function
+header block comment/description for both these hooks.  Of course the
+details here will change depending on the bits above about the
+capability hooks, but if we need any special handling like you're
+proposing here we really should document it in the hook's header
+block.
+
+--=20
+paul-moore.com
