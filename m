@@ -1,52 +1,52 @@
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69FCE3770D
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 163F07AE68
 	for <selinux@vger.kernel.org>; Wed, 31 Jan 2024 13:08:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706706533; cv=none; b=M4S4t+5oGpVJTvNglKdSektnLgY20MPFUwYHbQyBCQHAFvM5n/Tzfci4r6WI7AHr7MCYJrBsvns4C/M0WX9DR9GWLI5GZyh8QZxiYfreYwOv/AtHHIvp3d7kMiQHJWzqCuLQFVeVFpUHTRlgXyo4bYmO1PUbswUkrpLX2hJrDOw=
+	t=1706706533; cv=none; b=I0/PpmfpAUj7hRl7bhykUByIbgEtZY58dhtfKArO/YWigyBzZI2y9a0YQDoXJVnCRW26ncrjB+jhsdnC/YGgl5ZrlTTnwWXfl9JXRfvj/eDmIfejhIdSmIPAX54se6w2xVF3XcmsIUZnO762YFJk0k+aV/McWQGY53gviOJk7j8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1706706533; c=relaxed/simple;
-	bh=Rko/Z9f9+8RoY7GaIKD/Ck/VhvpzZ3Q3vSoY2camtso=;
+	bh=F7Gk6Sk9WIUbIfyh+1/JIzwqebLGAPkOfTgJBpgMsiY=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=npBbNFoAMEXrwWnQCq1jmSaZe6VvDqlKNi6wOSlTm/cdwZcvmoZo7HDb8rXg0teql6h1YmRTl2l/QlaSqa9DsuUqs++EegrLfZqP4WLL5OSX0deVxQEnanmgTgaVGP/cDLrDuSrQ8pKoS7y70pSReFUhFICZtVi2XCHgHqjlMkc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=fPx5w8K+; arc=none smtp.client-ip=209.85.208.43
+	 MIME-Version:Content-Type; b=VW1SdIynv6KyrKP0Hr+lx2BLtDShtKERR8nXFw4YTgjnqe3uaop2jv0gXtrdqjY7BTYzNu01eo+mnJ8zjM2V5D2iwS/Eu/HqbjhKJ7L7JDgbN+LQXXy3wABdhvjItf2NXWZCIBD4mLMR2VdFYmL0SU3hGLeMd56kr+ZARhiKMP4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=N47gOul5; arc=none smtp.client-ip=209.85.218.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="fPx5w8K+"
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-55c2cf644f3so5421210a12.1
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="N47gOul5"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-a2f22bfb4e6so730159166b.0
         for <selinux@vger.kernel.org>; Wed, 31 Jan 2024 05:08:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1706706529; x=1707311329; darn=vger.kernel.org;
+        d=googlemail.com; s=20230601; t=1706706530; x=1707311330; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=ToK4XXgZ5kkZunydINKtvzubqHvkuDujxfP8g7u1RoU=;
-        b=fPx5w8K+uH9fGg8bG/54nPoEi+CD6l6vkcNizXbTcK3XplUEbz+CiTsOErAwqI04gN
-         Vj0fLbsI19JNHBfd37PfWj86kcOgqsJjavBG66qYmcSPLbgx9igXFVXi9zixojbdrflJ
-         mL+52qFGcZedYZnaX08IXlRjT99uuTUIJGR5NA9v2ueJxAlZdl91SOaz0pxOKyRfNndK
-         DBoP/9gUjrr7hhkus2Auz8iT0YPtStYHUGhEmOHKEvHEJpXgHzKeJlLdsAMRgXDWBVZv
-         weG6XEQx6PfgaiCtvsSPaiI+9+2aU6HfAQ+4phgsmgmcjo8mkAonyp8970WEBYB89CU/
-         Qp2w==
+        bh=AFIdkKtGWgenTqspVu4qxQWtQsq7J2gjHKGQWHLZvqM=;
+        b=N47gOul5/pQdFY9cbbsCqZ9+7U4Mk+AaoBKDLY/rxu+F1zwv6puO6iUfcEXjab7PVg
+         UMhDov+Unw1dkCVLy1DWhtAekSpJJt7TvS+vFgYTpWBnVoi6uv8vo4+njRaAVM7Ku7OM
+         W3R0iJZ7/ci1JpJdCz3qgRYNy9gNavxk3tuel4kmhKBVMA908YYGIJECSfkUhnztMuZq
+         DsscGr33f3yhuWra5fLbbmHMrRcIhbyOEqPcYnFLxhgLKL6iM96Q61C/Hg5cVU8g4wRQ
+         2cfIITVRe8caE8NYuuXhhqELlF/J+uu8ZD7WI3yHJz6ZrtfmdKuGvov9Hhucd/It9e8w
+         iqcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706706529; x=1707311329;
+        d=1e100.net; s=20230601; t=1706706530; x=1707311330;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ToK4XXgZ5kkZunydINKtvzubqHvkuDujxfP8g7u1RoU=;
-        b=CPuIn3qTAZ15lAPZbKpf+9zqBXM3EIqNgx7csRhrzH8+Cj+2vRzvQsECYhdMjJylh5
-         NsCnuZfR4bBtEAt5OWuZx2vb4M7hxXn/uoKmZpHf1O5hHQahchWjl0Qo2wzeJv8J10Xz
-         QJCOB7X4+JhrwThVKFS6VYTU5fHZQyfhyJH0Puavg0gAvyrxcrcqKDf7vl4iPbwmXJFh
-         IgnIkvd/PEu3VmB67nX7yenz6g9uhd2lFv6KTg+w+qSAdmQ15nPc1SWwufN+EczSIyON
-         pkXKSwBHV4nN3/a7b2i+qD1iYNFo8jnNc/hy919BSS1Uu3NtmvMw14oodPyc8uP7rTAa
-         r6SQ==
-X-Gm-Message-State: AOJu0YzwAoyCdh8ddiIH+bIPAonFoE/VrKY1VYV6CNEP/5PSI8/j09/R
-	eQSeG1KpRh24Sds8/4lbReK2hyAMU/l8cW7zfNaTiSsa58BUtp09u1x8Yek7
-X-Google-Smtp-Source: AGHT+IHaJdPWXzYR47nqrh7f/Yby3JbpiQN1Rh0WXirrrG5yLoUqcP1IP8E8/vSHlXsHbSAzZC3Fgg==
-X-Received: by 2002:a17:906:1152:b0:a31:1c94:3431 with SMTP id i18-20020a170906115200b00a311c943431mr1070341eja.46.1706706529554;
-        Wed, 31 Jan 2024 05:08:49 -0800 (PST)
+        bh=AFIdkKtGWgenTqspVu4qxQWtQsq7J2gjHKGQWHLZvqM=;
+        b=jOV5rYxxjskWPLqRfq2BECT14FdItmsPi57UwgjFDSR90YAo50btbgXgHj41EHzcp8
+         pTkJ4MOlURZd/GZc+z/OQx+zXNP2T0Cyi3Vtj/FYlNimcCd2TrpydRKV2sa1mzSX0vEg
+         fmh7/SGHcoBUw3P1t8JUY8VKfVxw/ej68X6jFjES34BQ8FT4q8CPRfO3C/z/QKirNPqC
+         dcW9F4xhg0YI3T74I72hNjX1CuCLyyojyqbGonsJdoFgElq/Mz107hVaP0gbBxE0LHu1
+         t1YH+Z/GdE7LD5nGtc0caDlnBOGr1wIqPEB9jqB0eP/NQC6CEYyxHo9KVjcF7lwn3ysm
+         PjTg==
+X-Gm-Message-State: AOJu0YyZcq50ue1XPxdW4pRG9kjStrL7k/XA7tGdJkoQd9ZKsE9ZMSh+
+	MJ1GcLFFy2HNo0iUW+gcqyl+8FKaP6pvghF20mYBeVs3TydDAZmhhAnLAH+6
+X-Google-Smtp-Source: AGHT+IEize0tymeCmNvcP0awrTVRcxVLsblr6LGBgG8MZGhWzix/0z0FtTBO3SxX9JPZ0Nc+uwzu8Q==
+X-Received: by 2002:a17:906:35d8:b0:a28:ec67:185f with SMTP id p24-20020a17090635d800b00a28ec67185fmr1120432ejb.60.1706706530209;
+        Wed, 31 Jan 2024 05:08:50 -0800 (PST)
 Received: from ddev.DebianHome (dynamic-078-050-045-093.78.50.pool.telefonica.de. [78.50.45.93])
         by smtp.gmail.com with ESMTPSA id p14-20020a170906784e00b00a365c673251sm890351ejm.216.2024.01.31.05.08.49
         for <selinux@vger.kernel.org>
@@ -54,9 +54,9 @@ Received: from ddev.DebianHome (dynamic-078-050-045-093.78.50.pool.telefonica.de
         Wed, 31 Jan 2024 05:08:49 -0800 (PST)
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To: selinux@vger.kernel.org
-Subject: [RFC PATCH v2 4/9] libselinux: add unique id to sidtab entries
-Date: Wed, 31 Jan 2024 14:08:30 +0100
-Message-ID: <20240131130840.48155-5-cgzones@googlemail.com>
+Subject: [RFC PATCH v2 5/9] libselinux: sidtab updates
+Date: Wed, 31 Jan 2024 14:08:31 +0100
+Message-ID: <20240131130840.48155-6-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240131130840.48155-1-cgzones@googlemail.com>
 References: <20240131130840.48155-1-cgzones@googlemail.com>
@@ -69,68 +69,156 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Reinterpret the currently unused - and always initialized to 1 - member
-refcnt of the struct security_id to hold a unique number identifying
-the sidtab entry.  This identifier can be used instead of the full
-context string within other data structures to minimize memory usage.
+Add sidtab_context_lookup() to just lookup a context, not inserting
+non-existent ones.
+
+Tweak sidtab_destroy() to accept a zero'ed struct sidtab.
+
+Remove redundant lookup in sidtab_context_to_sid() after insertion by
+returning the newly created node directly from sidtab_insert().
+
+Drop declaration of only internal used sidtab_insert().
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
 v2:
   add patch
 ---
- libselinux/include/selinux/avc.h | 2 +-
- libselinux/src/avc_sidtab.c      | 9 +++++++--
- 2 files changed, 8 insertions(+), 3 deletions(-)
+ libselinux/src/avc_sidtab.c | 55 +++++++++++++++++++++----------------
+ libselinux/src/avc_sidtab.h |  2 +-
+ 2 files changed, 32 insertions(+), 25 deletions(-)
 
-diff --git a/libselinux/include/selinux/avc.h b/libselinux/include/selinux/avc.h
-index 4bbd2382..361c5611 100644
---- a/libselinux/include/selinux/avc.h
-+++ b/libselinux/include/selinux/avc.h
-@@ -20,7 +20,7 @@ extern "C" {
-  */
- struct security_id {
- 	char * ctx;
--	unsigned int refcnt;
-+	unsigned int id;
- };
- typedef struct security_id *security_id_t;
- 
 diff --git a/libselinux/src/avc_sidtab.c b/libselinux/src/avc_sidtab.c
-index fce5bddf..9475dcb0 100644
+index 9475dcb0..3d347cea 100644
 --- a/libselinux/src/avc_sidtab.c
 +++ b/libselinux/src/avc_sidtab.c
-@@ -4,6 +4,7 @@
-  * Author : Eamon Walsh, <ewalsh@epoch.ncsc.mil>
-  */
- #include <errno.h>
-+#include <limits.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <stdint.h>
-@@ -50,6 +51,11 @@ int sidtab_insert(struct sidtab *s, const char * ctx)
+@@ -44,28 +44,23 @@ int sidtab_init(struct sidtab *s)
+ 	return rc;
+ }
+ 
+-int sidtab_insert(struct sidtab *s, const char * ctx)
++static struct sidtab_node *
++sidtab_insert(struct sidtab *s, const char * ctx)
+ {
+ 	unsigned hvalue;
+-	int rc = 0;
  	struct sidtab_node *newnode;
  	char * newctx;
  
-+	if (s->nel >= UINT_MAX - 1) {
-+		rc = -1;
-+		goto out;
-+	}
-+
+-	if (s->nel >= UINT_MAX - 1) {
+-		rc = -1;
+-		goto out;
+-	}
++	if (s->nel >= UINT_MAX - 1)
++		return NULL;
+ 
  	newnode = (struct sidtab_node *)avc_malloc(sizeof(*newnode));
- 	if (!newnode) {
- 		rc = -1;
-@@ -65,9 +71,8 @@ int sidtab_insert(struct sidtab *s, const char * ctx)
+-	if (!newnode) {
+-		rc = -1;
+-		goto out;
+-	}
++	if (!newnode)
++		return NULL;
+ 	newctx = strdup(ctx);
+ 	if (!newctx) {
+-		rc = -1;
+ 		avc_free(newnode);
+-		goto out;
++		return NULL;
+ 	}
+ 
  	hvalue = sidtab_hash(newctx);
- 	newnode->next = s->htable[hvalue];
+@@ -73,8 +68,25 @@ int sidtab_insert(struct sidtab *s, const char * ctx)
  	newnode->sid_s.ctx = newctx;
--	newnode->sid_s.refcnt = 1;	/* unused */
-+	newnode->sid_s.id = ++s->nel;
+ 	newnode->sid_s.id = ++s->nel;
  	s->htable[hvalue] = newnode;
--	s->nel++;
-       out:
- 	return rc;
+-      out:
+-	return rc;
++	return newnode;
++}
++
++const struct security_id *
++sidtab_context_lookup(const struct sidtab *s, const char *ctx)
++{
++	unsigned hvalue;
++	const struct sidtab_node *cur;
++
++	hvalue = sidtab_hash(ctx);
++
++	cur = s->htable[hvalue];
++	while (cur != NULL && strcmp(cur->sid_s.ctx, ctx))
++		cur = cur->next;
++
++	if (cur == NULL)
++		return NULL;
++
++	return &cur->sid_s;
  }
+ 
+ int
+@@ -82,27 +94,23 @@ sidtab_context_to_sid(struct sidtab *s,
+ 		      const char * ctx, security_id_t * sid)
+ {
+ 	unsigned hvalue;
+-	int rc = 0;
+ 	struct sidtab_node *cur;
+ 
+ 	*sid = NULL;
+ 	hvalue = sidtab_hash(ctx);
+ 
+-      loop:
+ 	cur = s->htable[hvalue];
+ 	while (cur != NULL && strcmp(cur->sid_s.ctx, ctx))
+ 		cur = cur->next;
+ 
+ 	if (cur == NULL) {	/* need to make a new entry */
+-		rc = sidtab_insert(s, ctx);
+-		if (rc)
+-			goto out;
+-		goto loop;	/* find the newly inserted node */
++		cur = sidtab_insert(s, ctx);
++		if (cur == NULL)
++			return -1;
+ 	}
+ 
+ 	*sid = &cur->sid_s;
+-      out:
+-	return rc;
++	return 0;
+ }
+ 
+ void sidtab_sid_stats(const struct sidtab *s, char *buf, size_t buflen)
+@@ -138,7 +146,7 @@ void sidtab_destroy(struct sidtab *s)
+ 	int i;
+ 	struct sidtab_node *cur, *temp;
+ 
+-	if (!s)
++	if (!s || !s->htable)
+ 		return;
+ 
+ 	for (i = 0; i < SIDTAB_SIZE; i++) {
+@@ -149,7 +157,6 @@ void sidtab_destroy(struct sidtab *s)
+ 			freecon(temp->sid_s.ctx);
+ 			avc_free(temp);
+ 		}
+-		s->htable[i] = NULL;
+ 	}
+ 	avc_free(s->htable);
+ 	s->htable = NULL;
+diff --git a/libselinux/src/avc_sidtab.h b/libselinux/src/avc_sidtab.h
+index e823e3f3..f62fd353 100644
+--- a/libselinux/src/avc_sidtab.h
++++ b/libselinux/src/avc_sidtab.h
+@@ -24,8 +24,8 @@ struct sidtab {
+ };
+ 
+ int sidtab_init(struct sidtab *s) ;
+-int sidtab_insert(struct sidtab *s, const char * ctx) ;
+ 
++const struct security_id * sidtab_context_lookup(const struct sidtab *s, const char *ctx);
+ int sidtab_context_to_sid(struct sidtab *s,
+ 			  const char * ctx, security_id_t * sid) ;
+ 
 -- 
 2.43.0
 
