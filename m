@@ -1,54 +1,54 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01EBD20DE0
-	for <selinux@vger.kernel.org>; Wed, 31 Jan 2024 02:49:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54B8AFBE1
+	for <selinux@vger.kernel.org>; Wed, 31 Jan 2024 03:03:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706669376; cv=none; b=QwOAdueYBfcqrk+HuiqUBx+ceMcSng3yEeM5/UATC9JVsDDWcdDhts5Z3IuzZsMxPil8cAdYj9Bq2jwBi4yJNd92bhfsmMyUpU6o63pP/xx3/r5pNhICXTglYvynP4n0tflF0p3WQSpGsAGh4vt/kZpQ7T5/WKlDBpdpoAeex1Q=
+	t=1706670205; cv=none; b=T9Dh2Zw0yI1JrlzHT5j6D2AO3y0zjYZGDOnvF57Pt0kzBFi69Sep1IoKVvUS0np31UVSYzWBLh8sdwe6K+ckXL5yw6+/Zm5QUdq/owz/xgFpRrTdKi09T65PMQIml4UE1xaV8JpB5k+tKGEWJtrQui7dXreRSvttpMrntwxi6v4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706669376; c=relaxed/simple;
-	bh=RlmyJyIylrUzk1YvfWXedQyeB66NZqSGvdmvgJV7oOY=;
+	s=arc-20240116; t=1706670205; c=relaxed/simple;
+	bh=daUKYDL/6IzbcpClNbJr9o4qH2Hmr8Hjfbl3notoBnY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=M3v3Laujsz7g+WGVEbXHO3Ni24P27s6AqFUrSANGhXEGaf3BjlSjZX+KFfQPHPx9l4g32i1oxqX+lS0VjzqZdrSODy40sUvsAuJeSz820iiPUfZn70zvvZYgMBdmBCuJ1jODSHJdvLF2CwtUw+mgzzKB9V9glSJXvtmkgjrrM0I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Md0FZZcA; arc=none smtp.client-ip=209.85.221.53
+	 To:Content-Type; b=rYoUbcRByuGKh9vwcoLal9dflLYIY7kliw4Mr3Mtjy+lsPmgfK2/SHU66dqsKw17Lxno6Sjex7Kyhz8lS3Lg/HRVTHI2J8IB1s/nMiD8f8YH6CiAVn6bLijdM9LMeOkz/zfHgl6ypl4NXGv4wGX3rhwTnpk8xxX9KplQmdEJzRk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=PuRi4O+a; arc=none smtp.client-ip=209.85.128.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Md0FZZcA"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-33ae3154cf8so2387420f8f.3
-        for <selinux@vger.kernel.org>; Tue, 30 Jan 2024 18:49:32 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PuRi4O+a"
+Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-602c91a76b1so56346237b3.2
+        for <selinux@vger.kernel.org>; Tue, 30 Jan 2024 19:03:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1706669371; x=1707274171; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1706670202; x=1707275002; darn=vger.kernel.org;
         h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wYQ8gTBRLiGySvKGrOGxzt+4RSI39tQPtIzomroXra4=;
-        b=Md0FZZcARNo/0DZ/KbllOj38Qwuae5ZJkjVJpe+sUTCD+Nudm5fu5XWd+SCxQrNreB
-         G1GWkfUsDK0VEWHzPtmXUNNJg+ySMBlQUXqWKBhn69SWyK+rxJDu/mF38j4OVDvd1tU5
-         p3KNtqk3c+BfFNrL1xRsxKjrOrNbUfJVpEU5nvEw8lyknzXY4kXHS6smA6NC+T9R+1C1
-         TJPyFoWpAFs5tEalal+zgI/xgCj2laqP5zTA90oPS9irnjdDlFqdadw7VD8g43ez5N2N
-         PAZ6DmZ8BZCDADFeYnAJxlN4LIrfuRQCNrDkEYmyTu92nm9J2ubDcqRwJUTWx9T6v0wN
-         LVtg==
+        bh=OeaIbFJEjMZ0jRQys0Xul9vkIHuknBKw4VAfLwsPlGE=;
+        b=PuRi4O+aBk0/meGg0iuPjbnu6f9d38eDCFRfIrOx4k6NCYjOg5ZBIFJ4hEuFD3n7iU
+         SW+J73818oSlnBs1Zk1j8XCVJPhm7DjOiF8Y240ArAkGMVsdyOxTk9tRLBpVEG9/+p3U
+         jHI1n14PnH3N6hJgF8ADKcgVLnDRarPN0M5GGgRACcniDhWkNmcdvrFOQc0J4qJTtC3J
+         QR5Do1cqmi7SsD/njMMeQ8Cf5lKa5PmN4d6DI7ZFt6JY+2PgXlAADAjli76QrqlkYAmN
+         nHosi6+g+Zog51I9KOVwaaL2EFXrYdr1DfodIfoCpXc2sy6HsPgYfu6ait2clqwmsQTf
+         ZUuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706669371; x=1707274171;
+        d=1e100.net; s=20230601; t=1706670202; x=1707275002;
         h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wYQ8gTBRLiGySvKGrOGxzt+4RSI39tQPtIzomroXra4=;
-        b=vEG2ec6Ag4+BJvYR89tukqwHa4/V5qtPKEbLUGLtnZQ+dtq7cY2wbtPd60+2gD4wWu
-         9cyKev04XK/lRcjq+5DlWQcvL3oS/bqDSr/w5zkA9xsYCQFHVZQCavWOR7fK822SKrY3
-         CarncHMgYNcinLYjb2w762QVSX/jJPLRBto9Vu/ZQKmqeviJU9sKZVM1rufO0ADvl0k9
-         Ncgn9S7TYpaOFgImKHb8p8OABmqzSePotgpODRnZDz601ADvMOoCottjJasVzF0kIx1E
-         QYVK1W6FwLSVakeezqP10h5ZbLVtqzSPyTjTqUceCf5oFzi2GWY3iQNdJk0Hp1LiFxkF
-         Kg0g==
-X-Gm-Message-State: AOJu0YzXLlOtDtHep8rtpl4thsoxWcyW+DP4x/d7EH4K3HYqdmA5yMq8
-	voZpthgXDYXwVnbFJTu0elweYIa57rwFROoaGxcMRBL+eFsgSW/e2iV4DIW3YjlWQmw6p1/wHau
-	w94QDwnEnbjeMtGH6KLWrXWSn/fJBcQz46bsP
-X-Google-Smtp-Source: AGHT+IG7wcb9vYs+AAUsO3Z81zsWKixUNJg3SN9xB9b3+2lWHIr4RLb2jJWfFoKZlejiIXVcUOTbBwQYx9/KMpClraU=
-X-Received: by 2002:a5d:49d2:0:b0:33a:ff90:77ca with SMTP id
- t18-20020a5d49d2000000b0033aff9077camr186815wrs.29.1706669370979; Tue, 30 Jan
- 2024 18:49:30 -0800 (PST)
+        bh=OeaIbFJEjMZ0jRQys0Xul9vkIHuknBKw4VAfLwsPlGE=;
+        b=nIOMZRGoDbr8v2vwfhf5wzclVrxuf3uWN2U3TYgscXbcYSTrzbJSSvq3++YWn4/SaP
+         lNEosrBX3mbfM0H7Bf8PTpeVChG3rIKGEmmFBH0ZX3LsrKQu2X+wcmNhtrk7mHhSsmG3
+         kd8tkt+Pke/0bKw82jd+UV0ASA+ssXzpLyW17k5lVb4v8JjSXD2+0+b6e/winnbDg9rH
+         /b14Bo27WXaaeFLh188FJ9WD9gsawnCRkdyBOVApiu/ozFbQN2TThmsriO5ElECveeRC
+         LzYT7jGN4Md/tjs2NyQOK2Z7hi+iPot55iUAzST84hVGWRxJ76OKfdXu2NQ3OjNzvpHk
+         I/+w==
+X-Gm-Message-State: AOJu0Yyzy2RydRC2bb7ZaAvVylRkDjGl4XsDbBgnjNf/7xa5Mg57HIPu
+	l7C7Xb2gje7MZEvERCXeGRWXgmxSs5/cbiqq9Ws6PRFd+lVBb6RgLzcYs76kUk5WQrDaatPRHtY
+	47jKePqLp3Y94kBVBthUzbNGzpl7CuaYa1cpY
+X-Google-Smtp-Source: AGHT+IE3JqiRxQpLsHDzLnwnusIVr4AxaI4+mlcuADQqpwyZllmFdJ4pO9RklMYhNvbRs55AaiTnw4zSNQf/C/pPmLE=
+X-Received: by 2002:a81:ae16:0:b0:604:4f5:f258 with SMTP id
+ m22-20020a81ae16000000b0060404f5f258mr290649ywh.25.1706670201976; Tue, 30 Jan
+ 2024 19:03:21 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -60,9 +60,9 @@ References: <20240129193512.123145-1-lokeshgidra@google.com>
  <CAJuCfpFS=h8h1Tgn55Hv+cr9bUFFoUvejiFQsHGN5yT7utpDMg@mail.gmail.com>
  <CA+EESO5r+b7QPYM5po--rxQBa9EPi4x1EZ96rEzso288dbpuow@mail.gmail.com> <20240130025803.2go3xekza5qubxgz@revolver>
 In-Reply-To: <20240130025803.2go3xekza5qubxgz@revolver>
-From: Lokesh Gidra <lokeshgidra@google.com>
-Date: Tue, 30 Jan 2024 18:49:18 -0800
-Message-ID: <CA+EESO4+ExV-2oo0rFNpw0sL+_tWZ_MH_rUh-wvssN0y_hr+LA@mail.gmail.com>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Tue, 30 Jan 2024 19:03:11 -0800
+Message-ID: <CAJuCfpF0J_7vgTZim3vfH6=ExRTsCRtpg+beJ+bJfYEqD5Se8g@mail.gmail.com>
 Subject: Re: [PATCH v2 3/3] userfaultfd: use per-vma locks in userfaultfd operations
 To: "Liam R. Howlett" <Liam.Howlett@oracle.com>, Lokesh Gidra <lokeshgidra@google.com>, 
 	Suren Baghdasaryan <surenb@google.com>, akpm@linux-foundation.org, 
@@ -92,13 +92,6 @@ gle.com> wrote:
 > No.  It returns the vma that contains the address passed.  If there
 > isn't one, you will get NULL.  This is why the range check is not
 > needed.
-
-This is what we need. IIUC, with vma_lookup() and lock_vma_under_rcu()
-the only validation required is
-
-if (vma && vma->vm_end >=3D dst_start + len)
-
-Thanks for clarifying.
 >
 > find_vma() walks to the address passed and if it is NULL, it returns a
 > vma that has a higher start address than the one passed (or, rarely NULL
@@ -291,8 +284,6 @@ e vma
 >
 > Fair enough, what if we didn't use the sequence number and just locked
 > the vma directly?
-
-Looks good to me, unless someone else has any objections.
 >
 > /* This will wait on the vma lock, so once we return it's locked */
 > void vma_aquire_read_lock(struct vm_area_struct *vma)
@@ -321,18 +312,8 @@ Looks good to me, unless someone else has any objections.
 >          */
 >         vma =3D lookup_vma(mm, addr);
 >         if (vma)
-We can take care of anon_vma as well here right? I can take a bool
-parameter ('prepare_anon' or something) and then:
-
-           if (vma) {
-                    if (prepare_anon && vma_is_anonymous(vma)) &&
-!anon_vma_prepare(vma)) {
-                                      vma =3D ERR_PTR(-ENOMEM);
-                                      goto out_unlock;
-                   }
 >                 vma_aquire_read_lock(vma);
-           }
-out_unlock:
+>
 >         mmap_read_unlock(mm);
 >         return vma;
 > }
@@ -342,8 +323,6 @@ out_unlock:
 > - and they will be short lived.
 >
 > This would allow us to simplify your code.
-
-Agreed! Thanks for the suggestion.
 >
 > > > >
 > > > > Once you are done with the vma do a vma_end_read(vma).  Don't forge=
@@ -528,6 +507,11 @@ k.
 >
 > Sorry, I'm confused on how your locking scheme avoids rmap from trying
 > to use the VMA with the atomic increment part.
+
+I'm also a bit confused. Which atomic increment are you referring to?
+AFAIU move_pages() will lock both src_vma and dst_vma, so even if rmap
+finds them it can't modify them, no?
+
 >
 > > > > >
 > > > > > +     dst_vma =3D NULL;
@@ -622,3 +606,8 @@ map
 > > > > > 2.43.0.429.g432eaa2c6b-goog
 > > > > >
 > > > > >
+>
+> --
+> To unsubscribe from this group and stop receiving emails from it, send an=
+ email to kernel-team+unsubscribe@android.com.
+>
