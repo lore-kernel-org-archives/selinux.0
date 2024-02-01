@@ -1,257 +1,519 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4459B39ACA;
-	Wed, 31 Jan 2024 21:43:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706737440; cv=fail; b=pmZXDlVuO+sNa3Yo2PfLb3vVDVvYkEOBGMki81Anq1yQ6Dv7j3e2U8iqNGhq9VRFLod/6Ttt+UF4Yych72E2liAA0ND1UsVpdEy8j3IL+aM+dyE+Z7JgMe0hJEfRkRlsMTuP2iSR/esqh4HPNIA5Jp/JbKI5Qb0Slw3OFKCZFEs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706737440; c=relaxed/simple;
-	bh=yAww3gInc5TCLniyKmSoh2EVGnrcv/9j4aoMlA9Wiss=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=FxIGnlFLwSWs7+89UDaQmxQCtqtqAuNh3Q90rlWTWyAfVqH08T66X8tSQyswRn6Cnc8rSVHrJFXAg1KzLwtLD4yRUP2co5vC5S10/I4Gl9cTPMh5v0v47/QPzjXPw5qY7vFgxQhY4HM2pHHZ5AmLLNT33huaMZwoAhYoENxXM8s=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=Oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=f0Zu+RuT; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=xxY6Ru8S; arc=fail smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=Oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E94D3F8D3
+	for <selinux@vger.kernel.org>; Thu,  1 Feb 2024 21:49:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1706824155; cv=none; b=S2F6CSj+NJO4oMUoHbwz8FZG1deXlRu82F5cV3kd1IaAQUFI0PhKb/Rd76ll8EdE/UQPcCo8DYN1PsMCb654GA33jHFrKGsXrPKHQvxrZqnzsROEA8BZp1AamSSA1J3qSJCsCFfiIwmiMcUcrUh6kpylGS+dc2IzJPyFITqzzvA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1706824155; c=relaxed/simple;
+	bh=MWpANplFyDmC6mBjEIIH6zLrLM06nOz8ofDh3qbIV00=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=r79TVRrgrlVV4TY5PagAb4Bu4ST16DdnPeOauOCNk312MaWAqCwHHPq1IHyCvAMAUmj660aWvID37ylackeVBbK0iDzh60r6H//Wuy3ukizYmT40rAo96LF9opeQNp5XGHxGh+RRj38C8Osmr1A+HF2HHK2olDBBB/QjCsDvZRU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LaPSnhIb; arc=none smtp.client-ip=209.85.167.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="f0Zu+RuT";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="xxY6Ru8S"
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 40VHBswE029067;
-	Wed, 31 Jan 2024 21:43:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : references : content-type :
- content-transfer-encoding : in-reply-to : mime-version; s=corp-2023-11-20;
- bh=8yxQj7MEQIDNJw7X0m/AhfJuk9Ltub/0IP3/TEU4g4w=;
- b=f0Zu+RuTaCpfFw8yn/erdUgYT7TQrIcZ6gYE8J2z8RpP4kRf0Q6HHq9k44yuMU3RfpUX
- 6hKgEuEBNeXPs8I1xNU42bijrvlOl4J9sPk7v+SjO3EwJXnaHfuZOXSu324hD6/GhWt0
- 3f++mDCRuHz+Z38Ld0v5nXqF8be05gX0GJoUHyl6ZMjGRCuGy+Iub7z2kRfRqWZwi0xX
- 5vA9UMYO6ZwilPFp/cH9L24YBDmDmzQS8EwGLb0KM4jRfM5m4PPt2KNovhFiPKBg6apB
- eBT4S7vqbLpg1tpYTyXSxk3mDNoGTkrOLg2Lx7Zbf84PB44sJcoaMVoZLM/5S7kmFN6M DA== 
-Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3vvrrck61r-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 31 Jan 2024 21:43:34 +0000
-Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 40VKBGJ2028423;
-	Wed, 31 Jan 2024 21:43:33 GMT
-Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2040.outbound.protection.outlook.com [104.47.66.40])
-	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3vvr99n4ds-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 31 Jan 2024 21:43:33 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=N5XDYGcKs6JAaRo+ExTMtvQbTFl7ex71nIwQ0KC/kXFUzT2naXbZ85jej7ycFkr0gw8Z25Kr4qcpVpP/EOdaB1JSKcWuVV8OtcRHNQ1M01SfELFw3cXCpTP42excJ2GdkXDnRcL5Uw+THA1yHUXP3kq1RsyMqp6GhXo9TS0Q7jaKJWBBKWgUumwROb1VSTNs/Nue1NAsM5gnbOUUQMXi+h6SZgbnpKiHlt/7QPjpdGb7Ba83sS00IaO8D8zjrvsUoDcbxiriWN0Myq0YEBaDmANnoSu5XaYiLm7Lp2TsALSBKXwibsDsSVt66LKqJR8uMWzEMdIerbLhqV7V6v6zAg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=8yxQj7MEQIDNJw7X0m/AhfJuk9Ltub/0IP3/TEU4g4w=;
- b=c8dIvTn2VxQUGUXr3cC8YRXAo+XiXWtEEnJhrWuQ5OVPuqp69vl04XRmck7jVk30XKlyn4rVBQqMXjMW4k+fmpeCMAu93mqv2U+zt4ulwtYwkXkCv0YytXrmQdp92XEvhgXBIfNbUrimI24Dxv7MQVPpt+3TKl/WGTzECEPe6bYZkVAYr+BGz5RHvxl844dskdq4IjS4VlrvnOiW7GfRKZsoTf4nFrh1D/xTl+jIwtXKHAzi9GvLuhSi4DRuZXONT+Z2q0GBNNThJfvLBgH5zKHj/B4/CWjaAFxm500m9CZDjmzOHXmN6fFQV4BN6aOXjayDRvEXc8IE45ZyJzrn/A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LaPSnhIb"
+Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-510218c4a0eso2463099e87.1
+        for <selinux@vger.kernel.org>; Thu, 01 Feb 2024 13:49:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=8yxQj7MEQIDNJw7X0m/AhfJuk9Ltub/0IP3/TEU4g4w=;
- b=xxY6Ru8SD4tiyEyPw9zdpelE7n7pvo/LThE8KWNfOan0co5V56gKR+M1jVHmq7rNBZO7lCnmdRwwcnBuYOvKvHshE+h5wjQGBJ02S+FTyNGG3BYyaZZJ2mUHVMHwGzNwEh6EUxOk9mdfYtzMdMHbVBdvk8N7AyUMHST+dgwCI9U=
-Received: from DS0PR10MB7933.namprd10.prod.outlook.com (2603:10b6:8:1b8::15)
- by SJ0PR10MB5671.namprd10.prod.outlook.com (2603:10b6:a03:3ee::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7228.37; Wed, 31 Jan
- 2024 21:43:19 +0000
-Received: from DS0PR10MB7933.namprd10.prod.outlook.com
- ([fe80::20c8:7efa:f9a8:7606]) by DS0PR10MB7933.namprd10.prod.outlook.com
- ([fe80::20c8:7efa:f9a8:7606%4]) with mapi id 15.20.7249.017; Wed, 31 Jan 2024
- 21:43:19 +0000
-Date: Wed, 31 Jan 2024 16:43:16 -0500
-From: "Liam R. Howlett" <Liam.Howlett@Oracle.com>
-To: Suren Baghdasaryan <surenb@google.com>
-Cc: Lokesh Gidra <lokeshgidra@google.com>, akpm@linux-foundation.org,
-        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
-        kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com,
-        david@redhat.com, axelrasmussen@google.com, bgeffon@google.com,
-        willy@infradead.org, jannh@google.com, kaleshsingh@google.com,
-        ngeoffray@google.com, timmurray@google.com, rppt@kernel.org
-Subject: Re: [PATCH v2 3/3] userfaultfd: use per-vma locks in userfaultfd
- operations
-Message-ID: <20240131214316.vteh6vzbb3ubdzqf@revolver>
-Mail-Followup-To: "Liam R. Howlett" <Liam.Howlett@Oracle.com>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Lokesh Gidra <lokeshgidra@google.com>, akpm@linux-foundation.org,
-	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
-	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com,
-	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com,
-	willy@infradead.org, jannh@google.com, kaleshsingh@google.com,
-	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org
-References: <20240129193512.123145-1-lokeshgidra@google.com>
- <20240129193512.123145-4-lokeshgidra@google.com>
- <20240129203626.uq5tdic4z5qua5qy@revolver>
- <CAJuCfpFS=h8h1Tgn55Hv+cr9bUFFoUvejiFQsHGN5yT7utpDMg@mail.gmail.com>
- <CA+EESO5r+b7QPYM5po--rxQBa9EPi4x1EZ96rEzso288dbpuow@mail.gmail.com>
- <20240130025803.2go3xekza5qubxgz@revolver>
- <CAJuCfpF0J_7vgTZim3vfH6=ExRTsCRtpg+beJ+bJfYEqD5Se8g@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <CAJuCfpF0J_7vgTZim3vfH6=ExRTsCRtpg+beJ+bJfYEqD5Se8g@mail.gmail.com>
-User-Agent: NeoMutt/20220429
-X-ClientProxiedBy: YT4P288CA0045.CANP288.PROD.OUTLOOK.COM
- (2603:10b6:b01:d3::18) To DS0PR10MB7933.namprd10.prod.outlook.com
- (2603:10b6:8:1b8::15)
+        d=gmail.com; s=20230601; t=1706824149; x=1707428949; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PqESp86TXiugM4u063AWbavc9SKMY/pLAaPH1XEwLmg=;
+        b=LaPSnhIbYqk0K5KHRSmpQGGslMdG2L9qBbnCgGSehUK2NAeGTLZKTvV+UKoVmvJQBZ
+         E9h8XKUZ50CW9+/LuQokNcy70DJISk6qnjOYddYSBVtBTpCyWGf39byNQQ/zWBWvp9jO
+         A7+ivRuQIWV6YKjn4YKlRMPr1E93IjszpAUmeHaKzuGm9SzkmakVz+l01fpqe7uiQsrn
+         2dofP7DsJSsg4FN+dKVbaKam1Ee2k6C99Ssshv+8HWZv2pIyKk3mm8ltxkswJARrBt1E
+         Nc4miEnBTPf8mlx+DUduijc5u9Iyj9Uuye5T7GL8P2haIUMu4IldvPwRE6/wEYdP5Lc3
+         U0TA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706824149; x=1707428949;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PqESp86TXiugM4u063AWbavc9SKMY/pLAaPH1XEwLmg=;
+        b=oli7J6LTOWS6Pc8fdN82DTwcbw6SWpEl1OId6F76o8eU+a2gLLLNCrgyWe6j9txOZe
+         4nDWfHHTyySOkgC7qCq8aAl1SUNJHFEUXINMXl+qYqZeFt+BtBysluWdQvjCnsacarHt
+         +qVzzp2ejzdpzvZQMCmdISga1K7yQtGWAvUwEwHC20HpxcjDEwlAiOCJCmpFeeATiO72
+         7yV9OTdZj5vJm1QLMvU5NjIu185sVRiDp9ZQBcjRnNwwDlpzytD6/dp7+CGQRggzEF1E
+         a1hOYB9sN9t0iKk2PbA/eDgeFZhjDvl4WkGUAp+4avjjtGvudFCRr9jBhhmXUJMbBuRu
+         cUzw==
+X-Gm-Message-State: AOJu0YzqXtqEAUFF1KEuwoyccHb9ZKJweCq7bri0vqDf4xmeSzKORdix
+	ie40r8W5EUOaLtMhwAZ5m/oFEXDnq9MIBW8Y2XDidEAcGPnoNXzHxS+4jYFzfyhKdWwF1tgblAd
+	Q8VtJcpr+Yv31dGPuWWWhkEhn01DrTEDPUe0=
+X-Google-Smtp-Source: AGHT+IHMgKqoGE3aLhffIZGPWUpwtBbU0ih3tLYNriVXL6Suc4GZxi9EbUDxnRgcudQSkgiqcpAUNscE1dDlklp5S4k=
+X-Received: by 2002:a19:2d59:0:b0:511:3134:532c with SMTP id
+ t25-20020a192d59000000b005113134532cmr81046lft.15.1706824148327; Thu, 01 Feb
+ 2024 13:49:08 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR10MB7933:EE_|SJ0PR10MB5671:EE_
-X-MS-Office365-Filtering-Correlation-Id: d11f6c60-f05c-4f27-b1c0-08dc22a5a37d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 
-	OxxGdSaJlPNyvlbpvwYtgb17YQBxb+UJ87cST1qnmM2AdIs/ObFXnGxPJZ3o7zpN2GhZzRgS7dC8T31ivsyjw937xr2veH9/p0GPprN9y5EeUB5m6fouZ3NnOy9wKN+MRuUDrLPptML57apfyCDk8SwvgCGGn2sw7a4eMwDo8Pzbl4v6Rq5VThTIP1dKKf7HOvWJZdf4XI3VJKqD99h2bjUpxL3hE9S57Of5ASgODCP4ErSzeNWuA7GxgQsf/1BepD5ZSYjyMU8tUgGpzs1uQbcszlf530Tl68vy3ih/a0gFoVhgJPHDAoRNZxhkvCcQ4R7MDHJe7kZRLlWrlkzG502WW6XxZL0HnjOl69Jk/aWpIntVxUsqx8uQfesKDFhNlGxrgLX30+jUBdeie9WpaGRR6Sq01pZIuQKBYw4n3SCM0eEcml4ckSLW0ePYAPv2gT/hLpRVEng9FNUlLttZdqJOaaS4pVHvy7myDP0VL0ljMKzhc1yHVCjgPK3DmG0rQ7GBiquR2RSEEh97cBjHmguaSvxNf7QOJ9F4nKFb3Sj2d/4uK1q6O6T/3yYfo0vr
-X-Forefront-Antispam-Report: 
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR10MB7933.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(7916004)(366004)(396003)(346002)(39860400002)(136003)(376002)(230922051799003)(64100799003)(1800799012)(451199024)(186009)(66476007)(66556008)(66946007)(6486002)(53546011)(6512007)(9686003)(478600001)(316002)(6916009)(8936002)(4326008)(6666004)(8676002)(6506007)(26005)(1076003)(83380400001)(2906002)(38100700002)(7416002)(5660300002)(86362001)(33716001)(41300700001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: 
-	=?utf-8?B?YkpjNFROLzlLSHpZMk51b2pVaC9NeHBYREJDZWZJa2M4VnRkRWpkeWNVenha?=
- =?utf-8?B?L00xckVYVkpQZ1YyQ0szQUZVeWtsKzJJREtHMFlTaWdHQUorcXd2SENEemRZ?=
- =?utf-8?B?Q1lPZGxDc1RDVFp2WDBSSVRBVzV3Z1V2ZC8vbkZaOXoxcVQ5SmxRY1dBVkNC?=
- =?utf-8?B?N1FtOFdTZUswZmJOQjdYNWZ4YWNHbm5YdWFUQ0RzU2s3OUNTdTR1VDgwZFdt?=
- =?utf-8?B?NUs2dzNKTmQ1VE5WZmhtcUFZR0drbENxRVpoY1QvbG9QRUsxa3VaWFM0WGdp?=
- =?utf-8?B?dkFXODdBTzF5eFNqSnFrbDRiMzFyVlpCOUxVWm5tOS9SY1VuM3ZmTmhQSG9y?=
- =?utf-8?B?Z0EzR0xXTVNiVzBJQzZlSGI1ZHpXQ0lzbjkwcUZkb1VHWjN1NDFFb1cxZFlq?=
- =?utf-8?B?b2UwVDZNM0ptN3B5TnYvR1FHTW1rODRNdUx5S1JGTUYzd0RsL0prb3ZqZXRZ?=
- =?utf-8?B?NWNTbVBYN3JMMDZHVVdGN2RtMnc5N25UQ0xFU0o1ekJhSmhZWEFMQm94djVn?=
- =?utf-8?B?cDNCOXBOa2hTYkFTNFVwQTQzTDdLdy9pWlhYZ2NySFNSUnlEdld6M1gzVjlp?=
- =?utf-8?B?b0VtTmQxbWc4Y0JUMnNhdmgyK3ppTThmRUhNeDd5SEVlOFZIOXNza1d4bWl6?=
- =?utf-8?B?U1Qwdk1rOGkyVllOc0w0dUVJNS9JNjJYNlhYTkFoOXFMcGRiblo1Uk1rVVNz?=
- =?utf-8?B?VHVNL201RlNaWmVXb2llUVlQZFJaY0xXcUN6MVAzSHhpRHhNOWV2YVd3aUVa?=
- =?utf-8?B?UEtYbEVVMmJVSEJnZFZDQkFldFpIa2pvU04wb2NWVml1T3h0OVhSa3Y0VTNP?=
- =?utf-8?B?aUVaTHUrZmdPK2U0ZDBnOFBjdHpTOUxMRktYSGV2QWZiM2xqSEpkUklyd1VW?=
- =?utf-8?B?NlZFb0VCd25TQ3hHTUhRWWRQUzY3L00xZnpHZW1pK3dGYVRrb3loMnQ1MW83?=
- =?utf-8?B?MjVNYXZlbTBlaG1JQjhlTjd5b0ZtMjNUV0h6QS80U3dnU3FTSWpFeFh6VUFJ?=
- =?utf-8?B?VnRTVVZEWmY2aGtITjNXUFNibkh5OXU2dklVcy92Rk9VTCtKQ0RYVEdscElh?=
- =?utf-8?B?Sis3VjU0MFY3WHZPTk55RkN1NWc2Y1RTcktDbUhoUHZXTUNGT1c4eDhmZmpv?=
- =?utf-8?B?SU01aTVqTEpzM2llNWZHZG00b1MrbXVKaGV6L3cyZG0zVkIvK2hiOHRoTGkz?=
- =?utf-8?B?Q00xUmF2WXB3Z0x0K0FVMVpaampRQzlabktLc1ZqMmhuSlJjS2g0U0VPb0w5?=
- =?utf-8?B?b0RWSVh4azNScUQzL3hwWmh4TWVJamptWGM1VG05NXhGME9PSEpEVUIvZUhR?=
- =?utf-8?B?NkVnUjF6WXBGQ0FOQ1ZRN2dONjVtMjJtTVBIbndjUGtKbDV4M0pMQWRLSkdh?=
- =?utf-8?B?L0FFc2NQSXNTMmtkbnB4Nng3VTNtUXdEbkdXbEtxemhBTGRhM0Jyd1BtRHV2?=
- =?utf-8?B?dkFpdjhqdXhYTmNkMjk4QTRGUjBjRmQzSjJOT2g0dXNxZ1BjQlI2YlB6Rmdz?=
- =?utf-8?B?ekdsY0wwbTRtdnN3YWxRaTExYkg0U0puMThTWG5zQjlaN2owRU52emdFZ1l5?=
- =?utf-8?B?bUpYQ1BOaEcwbm5Tc3JZc1AybDhUcXhWV3NpdWc2bnpyTm1rUGI5d0hTeTNx?=
- =?utf-8?B?UFkxc3ZpWTRXZW5TM1l0aUU2UlVSWlhQMGNMbmw3R29sWjlVNDRDTVUzczB2?=
- =?utf-8?B?Qm5wbnMwWVFScVdLc01weUlSRXYyNU9ISU5haGV2YU9lencvaDA4S1UyaXdB?=
- =?utf-8?B?L0pobHJUQzUySUJmUFc1TjVKVDFMSjhTc2N4QXNCSkxyNHEvV1hpbitLL0lt?=
- =?utf-8?B?YkdzZGJQNFFvQk1FR21nMEp6ZHNVUlVVNWxnQnhleE1hVFlzSFl4K3JrcHhk?=
- =?utf-8?B?MHBwdDIyc2dtazZZOFdmQ1ZadDZsL0dxdlFIZlhKdlpVcEh5WDAvOFVoak9p?=
- =?utf-8?B?QkVrczFRcTJJcXFjbWI1RllTODlQbWFSZW52UEhuTGU3ZU5wZGdOWVd0SHJ0?=
- =?utf-8?B?UndPcmRnYUhQMVRRaEdZQVE1bWhzOVl2MHJsU09GbWVCOS9uOTNQQ09maTc0?=
- =?utf-8?B?Zm04YmVnYVV1WjVTMVlzNVNSQ2dwRzB0bFYzY3JnVlU3R2ZVd2d4ODFrYTJr?=
- =?utf-8?Q?hChM+BRF+cqcOYAewrwSxCulD?=
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
-	vqk+JgUIyYqQDja9dJCrL5iLZVeNBAiYsgETpU44zuTvU4yTwYmzYSrwE29MbDCmnUftL6pRjKP4BSVLDJQ+6vhOm+p3U75El2FPEF7BZOyi0RqVAjlTy+aeRmivzi397zKnSDV6hleckk7z9IyJy0E+4grPXltFVUfIxeCDHlGJuT1rvBwi6PURtCEttx+tftWiYPJyAIIRwXtQ5RkJkIvIMVRwIovLVM1lFWFcZimrTnSvk+VpvUKqHRzVbUnadrB3c7ayZ1sd5uwaPsU1ZFCz+iYDkDpIF3t3g6GbMHSz5kK1Vo1S9dTnnGCDXRhDnktdWffbpX7YZBZ52OySRLyFHoEzyTWnFTSby8cJ0Z4EIk3zm98FyU4u6/3/I1frwDqlMVykROGyNqNmzgkXk0VWNGlqmBFm9rKbbDP3ESnziN7lqXk7EE5ldKXmfbd8VWrleSMeWSvtYFO6Zj4+SRulBWHH8DeYVElF01SR4NEPA9KkMG8T83CBT9sXbaDT47XRswPeV37om/E/Lp495OlSnmEE7Lnmon+gV755pHqND8O8VJQsbnPBC7cThNIqF7cN4+iNK0BbsRtNbhlF8lNiVSAX5FnYjSLyFqv4O98=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d11f6c60-f05c-4f27-b1c0-08dc22a5a37d
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR10MB7933.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Jan 2024 21:43:18.9108
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: qlysWkEeZ+J6YLvuqpLST3uvNNDq+8B9vWH5h4oSW3hs1PDYvcIWI8ls2uKBDVGWZZ8rFaP8vQYMkqX7TKzFIw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB5671
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-31_10,2024-01-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 bulkscore=0 malwarescore=0
- mlxscore=0 mlxlogscore=999 spamscore=0 adultscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2401310169
-X-Proofpoint-ORIG-GUID: TxjNT9A8cChat4JaGh6re1rbjpdGoaay
-X-Proofpoint-GUID: TxjNT9A8cChat4JaGh6re1rbjpdGoaay
+References: <20240124124538.1258402-1-vmojzis@redhat.com>
+In-Reply-To: <20240124124538.1258402-1-vmojzis@redhat.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 1 Feb 2024 16:48:56 -0500
+Message-ID: <CAP+JOzQiC5AVpc7UreV4tafG3PnNCz8O7o4QrD=dLnLdO2oxCw@mail.gmail.com>
+Subject: Re: [PATCH] python/semanage: Allow modifying records on "add"
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-* Suren Baghdasaryan <surenb@google.com> [240130 22:03]:
-> On Mon, Jan 29, 2024 at 6:58=E2=80=AFPM Liam R. Howlett <Liam.Howlett@ora=
-cle.com> wrote:
+On Wed, Jan 24, 2024 at 7:46=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> wro=
+te:
+>
+> When trying to add a record with a key that already exists, modify
+> the existing record instead.
+>
+> Also, fix "semanage -m -e" (add_equal was called instead of
+> modify_equal), which meant that existing local equivalency couldn't be
+> modified (though a user could remove it and add a modified
+> equivalency).
+>
+> Fixes:
+>   https://github.com/SELinuxProject/selinux/issues/412
+>   When a port or login definition present in the policy is modified
+>   using "semanage port -m", "semanage export" exports the command as
+>   "port -a" instead of "port -m". This results in "semanage import"
+>   failing (port already defined). The same is true for port, user,
+>   login, ibpkey, ibendport, node, interface and fcontext.
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
-...
+Acked-by: James Carter <jwcart2@gmail.com>
 
-> > > > > > @@ -730,7 +759,7 @@ static __always_inline ssize_t mfill_atomic=
-(struct userfaultfd_ctx *ctx,
-> > > > > >
-> > > > > >  out_unlock:
-> > > > > >       up_read(&ctx->map_changing_lock);
-> > > > > > -     mmap_read_unlock(dst_mm);
-> > > > > > +     unpin_vma(dst_mm, dst_vma, &mmap_locked);
-> > > > > >  out:
-> > > > > >       if (folio)
-> > > > > >               folio_put(folio);
-> > > > > > @@ -1285,8 +1314,6 @@ static int validate_move_areas(struct use=
-rfaultfd_ctx *ctx,
-> > > > > >   * @len: length of the virtual memory range
-> > > > > >   * @mode: flags from uffdio_move.mode
-> > > > > >   *
-> > > > > > - * Must be called with mmap_lock held for read.
-> > > > > > - *
-> > > > > >   * move_pages() remaps arbitrary anonymous pages atomically in=
- zero
-> > > > > >   * copy. It only works on non shared anonymous pages because t=
-hose can
-> > > > > >   * be relocated without generating non linear anon_vmas in the=
- rmap
-> > > > > > @@ -1353,15 +1380,16 @@ static int validate_move_areas(struct u=
-serfaultfd_ctx *ctx,
-> > > > > >   * could be obtained. This is the only additional complexity a=
-dded to
-> > > > > >   * the rmap code to provide this anonymous page remapping func=
-tionality.
-> > > > > >   */
-> > > > > > -ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_stru=
-ct *mm,
-> > > > > > -                unsigned long dst_start, unsigned long src_sta=
-rt,
-> > > > > > -                unsigned long len, __u64 mode)
-> > > > > > +ssize_t move_pages(struct userfaultfd_ctx *ctx, unsigned long =
-dst_start,
-> > > > > > +                unsigned long src_start, unsigned long len, __=
-u64 mode)
-> > > > > >  {
-> > > > > > +     struct mm_struct *mm =3D ctx->mm;
-> > > > > >       struct vm_area_struct *src_vma, *dst_vma;
-> > > > > >       unsigned long src_addr, dst_addr;
-> > > > > >       pmd_t *src_pmd, *dst_pmd;
-> > > > > >       long err =3D -EINVAL;
-> > > > > >       ssize_t moved =3D 0;
-> > > > > > +     bool mmap_locked =3D false;
-> > > > > >
-> > > > > >       /* Sanitize the command parameters. */
-> > > > > >       if (WARN_ON_ONCE(src_start & ~PAGE_MASK) ||
-> > > > > > @@ -1374,28 +1402,52 @@ ssize_t move_pages(struct userfaultfd_c=
-tx *ctx, struct mm_struct *mm,
-> > > > > >           WARN_ON_ONCE(dst_start + len <=3D dst_start))
-> > > > > >               goto out;
-> > > > >
-> > > > > Ah, is this safe for rmap?  I think you need to leave this read l=
-ock.
-> > > > >
-> > > I didn't fully understand you here.
-> >
-> > Sorry, I'm confused on how your locking scheme avoids rmap from trying
-> > to use the VMA with the atomic increment part.
->=20
-> I'm also a bit confused. Which atomic increment are you referring to?
-> AFAIU move_pages() will lock both src_vma and dst_vma, so even if rmap
-> finds them it can't modify them, no?
-
-The uffd atomic, mmap_changing.
-
-...
+> ---
+>  python/semanage/semanage    |   2 +-
+>  python/semanage/seobject.py | 206 +++++++++++++++++++++++++-----------
+>  2 files changed, 145 insertions(+), 63 deletions(-)
+>
+> diff --git a/python/semanage/semanage b/python/semanage/semanage
+> index 4fdb490f..b269b9fc 100644
+> --- a/python/semanage/semanage
+> +++ b/python/semanage/semanage
+> @@ -322,7 +322,7 @@ def handleFcontext(args):
+>              OBJECT.add(args.file_spec, args.type, args.ftype, args.range=
+, args.seuser)
+>      if args.action =3D=3D "modify":
+>          if args.equal:
+> -            OBJECT.add_equal(args.file_spec, args.equal)
+> +            OBJECT.modify_equal(args.file_spec, args.equal)
+>          else:
+>              OBJECT.modify(args.file_spec, args.type, args.ftype, args.ra=
+nge, args.seuser)
+>      if args.action =3D=3D "delete":
+> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+> index cc944ae2..dfb15b1d 100644
+> --- a/python/semanage/seobject.py
+> +++ b/python/semanage/seobject.py
+> @@ -557,11 +557,6 @@ class loginRecords(semanageRecords):
+>          if rc < 0:
+>              raise ValueError(_("Could not create a key for %s") % name)
+>
+> -        (rc, exists) =3D semanage_seuser_exists(self.sh, k)
+> -        if rc < 0:
+> -            raise ValueError(_("Could not check if login mapping for %s =
+is defined") % name)
+> -        if exists:
+> -            raise ValueError(_("Login mapping for %s is already defined"=
+) % name)
+>          if name[0] =3D=3D '%':
+>              try:
+>                  grp.getgrnam(name[1:])
+> @@ -600,11 +595,29 @@ class loginRecords(semanageRecords):
+>      def add(self, name, sename, serange):
+>          try:
+>              self.begin()
+> -            self.__add(name, sename, serange)
+> +            # Add a new mapping, or modify an existing one
+> +            if self.__exists(name):
+> +                print(_("Login mapping for %s is already defined, modify=
+ing instead") % name)
+> +                self.__modify(name, sename, serange)
+> +            else:
+> +                self.__add(name, sename, serange)
+>              self.commit()
+>          except ValueError as error:
+>              raise error
+>
+> +    # check if login mapping for given user exists
+> +    def __exists(self, name):
+> +        (rc, k) =3D semanage_seuser_key_create(self.sh, name)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not create a key for %s") % name)
+> +
+> +        (rc, exists) =3D semanage_seuser_exists(self.sh, k)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not check if login mapping for %s =
+is defined") % name)
+> +        semanage_seuser_key_free(k)
+> +
+> +        return exists
+> +
+>      def __modify(self, name, sename=3D"", serange=3D""):
+>          rec, self.oldsename, self.oldserange =3D selinux.getseuserbyname=
+(name)
+>          if sename =3D=3D "" and serange =3D=3D "":
+> @@ -821,12 +834,6 @@ class seluserRecords(semanageRecords):
+>          if rc < 0:
+>              raise ValueError(_("Could not create a key for %s") % name)
+>
+> -        (rc, exists) =3D semanage_user_exists(self.sh, k)
+> -        if rc < 0:
+> -            raise ValueError(_("Could not check if SELinux user %s is de=
+fined") % name)
+> -        if exists:
+> -            raise ValueError(_("SELinux user %s is already defined") % n=
+ame)
+> -
+>          (rc, u) =3D semanage_user_create(self.sh)
+>          if rc < 0:
+>              raise ValueError(_("Could not create SELinux user for %s") %=
+ name)
+> @@ -866,12 +873,28 @@ class seluserRecords(semanageRecords):
+>      def add(self, name, roles, selevel, serange, prefix):
+>          try:
+>              self.begin()
+> -            self.__add(name, roles, selevel, serange, prefix)
+> +            if self.__exists(name):
+> +                print(_("SELinux user %s is already defined, modifying i=
+nstead") % name)
+> +                self.__modify(name, roles, selevel, serange, prefix)
+> +            else:
+> +                self.__add(name, roles, selevel, serange, prefix)
+>              self.commit()
+>          except ValueError as error:
+>              self.mylog.commit(0)
+>              raise error
+>
+> +    def __exists(self, name):
+> +        (rc, k) =3D semanage_user_key_create(self.sh, name)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not create a key for %s") % name)
+> +
+> +        (rc, exists) =3D semanage_user_exists(self.sh, k)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not check if SELinux user %s is de=
+fined") % name)
+> +        semanage_user_key_free(k)
+> +
+> +        return exists
+> +
+>      def __modify(self, name, roles=3D[], selevel=3D"", serange=3D"", pre=
+fix=3D""):
+>          oldserole =3D ""
+>          oldserange =3D ""
+> @@ -1103,12 +1126,6 @@ class portRecords(semanageRecords):
+>
+>          (k, proto_d, low, high) =3D self.__genkey(port, proto)
+>
+> -        (rc, exists) =3D semanage_port_exists(self.sh, k)
+> -        if rc < 0:
+> -            raise ValueError(_("Could not check if port {proto}/{port} i=
+s defined").format(proto=3Dproto, port=3Dport))
+> -        if exists:
+> -            raise ValueError(_("Port {proto}/{port} already defined").fo=
+rmat(proto=3Dproto, port=3Dport))
+> -
+>          (rc, p) =3D semanage_port_create(self.sh)
+>          if rc < 0:
+>              raise ValueError(_("Could not create port for {proto}/{port}=
+").format(proto=3Dproto, port=3Dport))
+> @@ -1152,9 +1169,23 @@ class portRecords(semanageRecords):
+>
+>      def add(self, port, proto, serange, type):
+>          self.begin()
+> -        self.__add(port, proto, serange, type)
+> +        if self.__exists(port, proto):
+> +            print(_("Port {proto}/{port} already defined, modifying inst=
+ead").format(proto=3Dproto, port=3Dport))
+> +            self.__modify(port, proto, serange, type)
+> +        else:
+> +            self.__add(port, proto, serange, type)
+>          self.commit()
+>
+> +    def __exists(self, port, proto):
+> +        (k, proto_d, low, high) =3D self.__genkey(port, proto)
+> +
+> +        (rc, exists) =3D semanage_port_exists(self.sh, k)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not check if port {proto}/{port} i=
+s defined").format(proto=3Dproto, port=3Dport))
+> +        semanage_port_key_free(k)
+> +
+> +        return exists
+> +
+>      def __modify(self, port, proto, serange, setype):
+>          if serange =3D=3D "" and setype =3D=3D "":
+>              if is_mls_enabled =3D=3D 1:
+> @@ -1377,12 +1408,6 @@ class ibpkeyRecords(semanageRecords):
+>
+>          (k, subnet_prefix, low, high) =3D self.__genkey(pkey, subnet_pre=
+fix)
+>
+> -        (rc, exists) =3D semanage_ibpkey_exists(self.sh, k)
+> -        if rc < 0:
+> -            raise ValueError(_("Could not check if ibpkey {subnet_prefix=
+}/{pkey} is defined").formnat(subnet_prefix=3Dsubnet_prefix, pkey=3Dpkey))
+> -        if exists:
+> -            raise ValueError(_("ibpkey {subnet_prefix}/{pkey} already de=
+fined").format(subnet_prefix=3Dsubnet_prefix, pkey=3Dpkey))
+> -
+>          (rc, p) =3D semanage_ibpkey_create(self.sh)
+>          if rc < 0:
+>              raise ValueError(_("Could not create ibpkey for {subnet_pref=
+ix}/{pkey}").format(subnet_prefix=3Dsubnet_prefix, pkey=3Dpkey))
+> @@ -1424,9 +1449,23 @@ class ibpkeyRecords(semanageRecords):
+>
+>      def add(self, pkey, subnet_prefix, serange, type):
+>          self.begin()
+> -        self.__add(pkey, subnet_prefix, serange, type)
+> +        if self.__exists(pkey, subnet_prefix):
+> +            print(_("ibpkey {subnet_prefix}/{pkey} already defined, modi=
+fying instead").format(subnet_prefix=3Dsubnet_prefix, pkey=3Dpkey))
+> +            self.__modify(pkey, subnet_prefix, serange, type)
+> +        else:
+> +            self.__add(pkey, subnet_prefix, serange, type)
+>          self.commit()
+>
+> +    def __exists(self, pkey, subnet_prefix):
+> +        (k, subnet_prefix, low, high) =3D self.__genkey(pkey, subnet_pre=
+fix)
+> +
+> +        (rc, exists) =3D semanage_ibpkey_exists(self.sh, k)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not check if ibpkey {subnet_prefix=
+}/{pkey} is defined").formnat(subnet_prefix=3Dsubnet_prefix, pkey=3Dpkey))
+> +        semanage_ibpkey_key_free(k)
+> +
+> +        return exists
+> +
+>      def __modify(self, pkey, subnet_prefix, serange, setype):
+>          if serange =3D=3D "" and setype =3D=3D "":
+>              if is_mls_enabled =3D=3D 1:
+> @@ -1631,12 +1670,6 @@ class ibendportRecords(semanageRecords):
+>              raise ValueError(_("Type %s is invalid, must be an ibendport=
+ type") % type)
+>          (k, ibendport, port) =3D self.__genkey(ibendport, ibdev_name)
+>
+> -        (rc, exists) =3D semanage_ibendport_exists(self.sh, k)
+> -        if rc < 0:
+> -            raise ValueError(_("Could not check if ibendport {ibdev_name=
+}/{port} is defined").format(ibdev_name=3Dibdev_name, port=3Dport))
+> -        if exists:
+> -            raise ValueError(_("ibendport {ibdev_name}/{port} already de=
+fined").format(ibdev_name=3Dibdev_name, port=3Dport))
+> -
+>          (rc, p) =3D semanage_ibendport_create(self.sh)
+>          if rc < 0:
+>              raise ValueError(_("Could not create ibendport for {ibdev_na=
+me}/{port}").format(ibdev_name=3Dibdev_name, port=3Dport))
+> @@ -1678,9 +1711,23 @@ class ibendportRecords(semanageRecords):
+>
+>      def add(self, ibendport, ibdev_name, serange, type):
+>          self.begin()
+> -        self.__add(ibendport, ibdev_name, serange, type)
+> +        if self.__exists(ibendport, ibdev_name):
+> +            print(_("ibendport {ibdev_name}/{port} already defined, modi=
+fying instead").format(ibdev_name=3Dibdev_name, port=3Dport))
+> +            self.__modify(ibendport, ibdev_name, serange, type)
+> +        else:
+> +            self.__add(ibendport, ibdev_name, serange, type)
+>          self.commit()
+>
+> +    def __exists(self, ibendport, ibdev_name):
+> +        (k, ibendport, port) =3D self.__genkey(ibendport, ibdev_name)
+> +
+> +        (rc, exists) =3D semanage_ibendport_exists(self.sh, k)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not check if ibendport {ibdev_name=
+}/{port} is defined").format(ibdev_name=3Dibdev_name, port=3Dport))
+> +        semanage_ibendport_key_free(k)
+> +
+> +        return exists
+> +
+>      def __modify(self, ibendport, ibdev_name, serange, setype):
+>          if serange =3D=3D "" and setype =3D=3D "":
+>              if is_mls_enabled =3D=3D 1:
+> @@ -1902,12 +1949,6 @@ class nodeRecords(semanageRecords):
+>          if rc < 0:
+>              raise ValueError(_("Could not create key for %s") % addr)
+>
+> -        (rc, exists) =3D semanage_node_exists(self.sh, k)
+> -        if rc < 0:
+> -            raise ValueError(_("Could not check if addr %s is defined") =
+% addr)
+> -        if exists:
+> -            raise ValueError(_("Addr %s already defined") % addr)
+> -
+>          (rc, node) =3D semanage_node_create(self.sh)
+>          if rc < 0:
+>              raise ValueError(_("Could not create addr for %s") % addr)
+> @@ -1955,9 +1996,25 @@ class nodeRecords(semanageRecords):
+>
+>      def add(self, addr, mask, proto, serange, ctype):
+>          self.begin()
+> -        self.__add(addr, mask, proto, serange, ctype)
+> +        if self.__exists(addr, mask, proto):
+> +            print(_("Addr %s already defined, modifying instead") % addr=
+)
+> +            self.__modify(addr, mask, proto, serange, ctype)
+> +        else:
+> +            self.__add(addr, mask, proto, serange, ctype)
+>          self.commit()
+>
+> +    def __exists(self, addr, mask, proto):
+> +        (rc, k) =3D semanage_node_key_create(self.sh, addr, mask, proto)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not create key for %s") % addr)
+> +
+> +        (rc, exists) =3D semanage_node_exists(self.sh, k)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not check if addr %s is defined") =
+% addr)
+> +        semanage_node_key_free(k)
+> +
+> +        return exists
+> +
+>      def __modify(self, addr, mask, proto, serange, setype):
+>          addr, mask, proto, audit_proto =3D self.validate(addr, mask, pro=
+to)
+>
+> @@ -2111,12 +2168,6 @@ class interfaceRecords(semanageRecords):
+>          if rc < 0:
+>              raise ValueError(_("Could not create key for %s") % interfac=
+e)
+>
+> -        (rc, exists) =3D semanage_iface_exists(self.sh, k)
+> -        if rc < 0:
+> -            raise ValueError(_("Could not check if interface %s is defin=
+ed") % interface)
+> -        if exists:
+> -            raise ValueError(_("Interface %s already defined") % interfa=
+ce)
+> -
+>          (rc, iface) =3D semanage_iface_create(self.sh)
+>          if rc < 0:
+>              raise ValueError(_("Could not create interface for %s") % in=
+terface)
+> @@ -2163,9 +2214,25 @@ class interfaceRecords(semanageRecords):
+>
+>      def add(self, interface, serange, ctype):
+>          self.begin()
+> -        self.__add(interface, serange, ctype)
+> +        if self.__exists(interface):
+> +            print(_("Interface %s already defined, modifying instead") %=
+ interface)
+> +            self.__modify(interface, serange, ctype)
+> +        else:
+> +            self.__add(interface, serange, ctype)
+>          self.commit()
+>
+> +    def __exists(self, interface):
+> +        (rc, k) =3D semanage_iface_key_create(self.sh, interface)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not create key for %s") % interfac=
+e)
+> +
+> +        (rc, exists) =3D semanage_iface_exists(self.sh, k)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not check if interface %s is defin=
+ed") % interface)
+> +        semanage_iface_key_free(k)
+> +
+> +        return exists
+> +
+>      def __modify(self, interface, serange, setype):
+>          if serange =3D=3D "" and setype =3D=3D "":
+>              raise ValueError(_("Requires setype or serange"))
+> @@ -2353,7 +2420,13 @@ class fcontextRecords(semanageRecords):
+>              raise ValueError(_("Substitute %s is not valid. Substitute i=
+s not allowed to end with '/'") % substitute)
+>
+>          if target in self.equiv.keys():
+> -            raise ValueError(_("Equivalence class for %s already exists"=
+) % target)
+> +            print(_("Equivalence class for %s already exists, modifying =
+instead") % target)
+> +            self.equiv[target] =3D substitute
+> +            self.equal_ind =3D True
+> +            self.mylog.log_change("resrc=3Dfcontext op=3Dmodify-equal %s=
+ %s" % (audit.audit_encode_nv_string("sglob", target, 0), audit.audit_encod=
+e_nv_string("tglob", substitute, 0)))
+> +            self.commit()
+> +            return
+> +
+>          self.validate(target)
+>
+>          for fdict in (self.equiv, self.equiv_dist):
+> @@ -2429,18 +2502,6 @@ class fcontextRecords(semanageRecords):
+>          if rc < 0:
+>              raise ValueError(_("Could not create key for %s") % target)
+>
+> -        (rc, exists) =3D semanage_fcontext_exists(self.sh, k)
+> -        if rc < 0:
+> -            raise ValueError(_("Could not check if file context for %s i=
+s defined") % target)
+> -
+> -        if not exists:
+> -            (rc, exists) =3D semanage_fcontext_exists_local(self.sh, k)
+> -            if rc < 0:
+> -                raise ValueError(_("Could not check if file context for =
+%s is defined") % target)
+> -
+> -        if exists:
+> -            raise ValueError(_("File context for %s already defined") % =
+target)
+> -
+>          (rc, fcontext) =3D semanage_fcontext_create(self.sh)
+>          if rc < 0:
+>              raise ValueError(_("Could not create file context for %s") %=
+ target)
+> @@ -2479,9 +2540,30 @@ class fcontextRecords(semanageRecords):
+>
+>      def add(self, target, type, ftype=3D"", serange=3D"", seuser=3D"syst=
+em_u"):
+>          self.begin()
+> -        self.__add(target, type, ftype, serange, seuser)
+> +        if self.__exists(target, ftype):
+> +            print(_("File context for %s already defined, modifying inst=
+ead") % target)
+> +            self.__modify(target, type, ftype, serange, seuser)
+> +        else:
+> +            self.__add(target, type, ftype, serange, seuser)
+>          self.commit()
+>
+> +    def __exists(self, target, ftype):
+> +        (rc, k) =3D semanage_fcontext_key_create(self.sh, target, file_t=
+ypes[ftype])
+> +        if rc < 0:
+> +            raise ValueError(_("Could not create key for %s") % target)
+> +
+> +        (rc, exists) =3D semanage_fcontext_exists(self.sh, k)
+> +        if rc < 0:
+> +            raise ValueError(_("Could not check if file context for %s i=
+s defined") % target)
+> +
+> +        if not exists:
+> +            (rc, exists) =3D semanage_fcontext_exists_local(self.sh, k)
+> +            if rc < 0:
+> +                raise ValueError(_("Could not check if file context for =
+%s is defined") % target)
+> +        semanage_fcontext_key_free(k)
+> +
+> +        return exists
+> +
+>      def __modify(self, target, setype, ftype, serange, seuser):
+>          if serange =3D=3D "" and setype =3D=3D "" and seuser =3D=3D "":
+>              raise ValueError(_("Requires setype, serange or seuser"))
+> --
+> 2.43.0
+>
+>
