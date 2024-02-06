@@ -1,643 +1,270 @@
-Received: from mail-yb1-f202.google.com (mail-yb1-f202.google.com [209.85.219.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 138D56FB1
-	for <selinux@vger.kernel.org>; Tue,  6 Feb 2024 01:09:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76F3E6FB0;
+	Tue,  6 Feb 2024 01:32:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707181801; cv=none; b=lpvCS585voq80RSVnjtPaXhhcflurri9cCKo2N6dnTDpYtPi+TIZDADMDAt4maihA+OmOIc+R+b8N/YPpZBNxJwRPAaKu64057IG+h8o6nsk7uT4fcTPv0DL+O4f5Yvz+GJ2TaYeUPZJ4p7dStho1TYyd9H0MPvlDiA7/1xgyw4=
+	t=1707183178; cv=none; b=ksDrI43oR0OqXFQZK7Afl/3qfjHnRGU14Yn7YXPAABacFzPUubqPl/zE8fzvjPAUtMmtMM88wyDEb2jcJvscsqzTzcM42wNBkeM193zJxwkb5CS+gGaujgcsODNuYGLfYXgHN3unz+ZUpRBx6wIDSIjDxtiiPNr6zZ7V7NNEWIk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707181801; c=relaxed/simple;
-	bh=et1bk2HClvxxx+KlnYCYoJxbCpB22sDtDyEdKKTZUY0=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=My0W1q/xDVgH5sCDDxk3pk2VubnZ+TgDDVWO7HR1CnLdtz2mwXK7xd8gTB9pMEQPRgRb6LlLWQdKlVrgpqi1E2jn8lF351+Go9b73zQaNpaKVVcJWd73VcYvW3oYx6w+my6qEhzQOrusfDzCi2fN5i/BgAY60O3rs9aMmxwe9G0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--lokeshgidra.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=NhIySEU6; arc=none smtp.client-ip=209.85.219.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--lokeshgidra.bounces.google.com
+	s=arc-20240116; t=1707183178; c=relaxed/simple;
+	bh=SK7BUVmWI8e3vR555Ph71rlM/avdD4/Eeg+aPP6iOt4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kdKKkK7XZCIxJ5WiXQU/eG9TJLmCU+Bnhsxf/3PEHC3xyX8D8kvcRks6ZReDY/6d2MAZQymWmMrtTWMTt0Gu57afApW0qXPIZVpGT878BSHla6iAlBBlVvGAWM4N9v+QzTN4zbJ0DPNRB8H5n00btsgzhDMp6bb+5HfZcx7t2/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GPfzIhge; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="NhIySEU6"
-Received: by mail-yb1-f202.google.com with SMTP id 3f1490d57ef6-dc6b269686aso555854276.1
-        for <selinux@vger.kernel.org>; Mon, 05 Feb 2024 17:09:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1707181798; x=1707786598; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=nOqm5rsZhzJMvjR9+dAhD+eAWB3F8dZk7DoU+bZxnlo=;
-        b=NhIySEU6evwVfhRcDqh/yRLLNAQ444JW1YiT7baNb/pe4a21Q6ByNwLRV/8eevtFzH
-         GRjodO6oCUkEaOqErqczmia7dipf7mIAXhZ6E91CLb5My67MH02/Ul5CBwFKXlE7uy0R
-         Z1dydJqE7Qd0yniNv839F10PC3Jem3Jy5hAsPMR0F8DpTx1jpdb4EOLZkSF1TqCBBlJS
-         g9a0EC56QyDWRqmNaHFdXfwvrTchjagyE0YVOOxErqK3TQZ/SQmCowTEVpZMJ0DL/kuP
-         Dmgxyo/HGepJLMlfqBV2Hw14Dw+F25L9mTQAlHyOEAkL7+fbgX8SBxjiJymiHG1t2dIS
-         kj0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707181798; x=1707786598;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=nOqm5rsZhzJMvjR9+dAhD+eAWB3F8dZk7DoU+bZxnlo=;
-        b=KDdszIL0DYN49kAMNirxwZR00m0LmseaIATeY4aHyfYIfUW2B/qWS9AEkhHRZ2GPo7
-         0c2ylSVgBYOk+CJJ+fNmNawbro4EyqvSDacDiwogQ1N9gGEBUK6nad1pT4mNKzZMf82f
-         UEUzl8+wJbXbudWco5kxi0cqRs7IQH38/cHCt9I14U3RGAo1gvWxvfNg5ydlEGVC6k1u
-         lXI9nyvYNVFvgyhDGwVcTx7Ie+Giip1Kj2zOIWXW7NIH90GcOKq+DPahDf1F9yj0XBsm
-         BnjbvvtMZ+v4a/shZpyW7Y0+pYbmMwJ//q35J5GJDktG8Dcd1c8uGvPCxTaXHAp1YXRA
-         kLOg==
-X-Gm-Message-State: AOJu0YwitRMEmYf/YhZTVY3yg8+A6QXYkCMKumdM2eY4cJw6esfcyHk7
-	WYNwMQl0UhDd+fgVPHzQoK1wXRVIP47InlotfHO4K6sc+awGyj2r8Rtj54iOasE4jo4gHa+1Ar2
-	M/mPhHkdoVDSVb5y/2TboWQ==
-X-Google-Smtp-Source: AGHT+IFYxfY6Ge56ali6DMQRIXX2ISa1rBsLQcS+PmAp5ZBB9lJ2RO73M/vP9jb/DuDtls5ONW17Z8++ijURLhrH/Q==
-X-Received: from lg.mtv.corp.google.com ([2620:15c:211:202:713:bb2c:e0e8:becb])
- (user=lokeshgidra job=sendgmr) by 2002:a05:6902:1b06:b0:dc2:3247:89d5 with
- SMTP id eh6-20020a0569021b0600b00dc2324789d5mr7221ybb.4.1707181798107; Mon,
- 05 Feb 2024 17:09:58 -0800 (PST)
-Date: Mon,  5 Feb 2024 17:09:19 -0800
-In-Reply-To: <20240206010919.1109005-1-lokeshgidra@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GPfzIhge"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB1D6C433F1;
+	Tue,  6 Feb 2024 01:32:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1707183178;
+	bh=SK7BUVmWI8e3vR555Ph71rlM/avdD4/Eeg+aPP6iOt4=;
+	h=From:To:Cc:Subject:Date:From;
+	b=GPfzIhgeaeM7jS/S68VCmgXDwU3b54ge5vhTEAlFasFYm8eaQVjaObBjCke88E9/T
+	 n0+aJAE2WFu1rZ+8oonOY2KVhrpBq8QH24KdncABOastyeHEdqKOxL4C+0dQOUQ0gY
+	 08O4oy6U7ZR2cfsGfoFGbUqHL3DJQj9YBtoA6gdmqO9umgefzEmSEZtdC6HbTlV8PR
+	 wCSbOR6Q0pD+8loCCMB/giVLtjeUO2Of79shn5/teoeD/ddEsK8BxbZtrR6awU4ELx
+	 x87YITXtBrqtwgo3fCeOTTxPDqgFIDK8terX3xgnMLnKCHw+dvw+rGsGW7VmuKaawt
+	 +3CisSAge8E8g==
+From: Eric Biggers <ebiggers@kernel.org>
+To: stable@vger.kernel.org
+Cc: linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	Alfred Piccioni <alpic@google.com>,
+	Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH 5.4,4.19] lsm: new security_file_ioctl_compat() hook
+Date: Mon,  5 Feb 2024 17:29:53 -0800
+Message-ID: <20240206012953.114308-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20240206010919.1109005-1-lokeshgidra@google.com>
-X-Mailer: git-send-email 2.43.0.594.gd9cf4e227d-goog
-Message-ID: <20240206010919.1109005-4-lokeshgidra@google.com>
-Subject: [PATCH v3 3/3] userfaultfd: use per-vma locks in userfaultfd operations
-From: Lokesh Gidra <lokeshgidra@google.com>
-To: akpm@linux-foundation.org
-Cc: lokeshgidra@google.com, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, surenb@google.com, 
-	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com, 
-	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com, 
-	willy@infradead.org, jannh@google.com, kaleshsingh@google.com, 
-	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org, 
-	Liam.Howlett@oracle.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-All userfaultfd operations, except write-protect, opportunistically use
-per-vma locks to lock vmas. On failure, attempt again inside mmap_lock
-critical section.
+From: Alfred Piccioni <alpic@google.com>
 
-Write-protect operation requires mmap_lock as it iterates over multiple
-vmas.
+commit f1bb47a31dff6d4b34fb14e99850860ee74bb003 upstream.
+[Please apply to 5.4-stable and 4.19-stable.  The upstream commit failed
+to apply to these kernels.  This patch resolves the conflicts.]
 
-Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+Some ioctl commands do not require ioctl permission, but are routed to
+other permissions such as FILE_GETATTR or FILE_SETATTR. This routing is
+done by comparing the ioctl cmd to a set of 64-bit flags (FS_IOC_*).
+
+However, if a 32-bit process is running on a 64-bit kernel, it emits
+32-bit flags (FS_IOC32_*) for certain ioctl operations. These flags are
+being checked erroneously, which leads to these ioctl operations being
+routed to the ioctl permission, rather than the correct file
+permissions.
+
+This was also noted in a RED-PEN finding from a while back -
+"/* RED-PEN how should LSM module know it's handling 32bit? */".
+
+This patch introduces a new hook, security_file_ioctl_compat(), that is
+called from the compat ioctl syscall. All current LSMs have been changed
+to support this hook.
+
+Reviewing the three places where we are currently using
+security_file_ioctl(), it appears that only SELinux needs a dedicated
+compat change; TOMOYO and SMACK appear to be functional without any
+change.
+
+Cc: stable@vger.kernel.org
+Fixes: 0b24dcb7f2f7 ("Revert "selinux: simplify ioctl checking"")
+Signed-off-by: Alfred Piccioni <alpic@google.com>
+Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+[PM: subject tweak, line length fixes, and alignment corrections]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- fs/userfaultfd.c              |  13 +-
- include/linux/mm.h            |  16 +++
- include/linux/userfaultfd_k.h |   5 +-
- mm/memory.c                   |  48 +++++++
- mm/userfaultfd.c              | 242 +++++++++++++++++++++-------------
- 5 files changed, 222 insertions(+), 102 deletions(-)
+ fs/compat_ioctl.c          |  3 +--
+ include/linux/lsm_hooks.h  |  9 +++++++++
+ include/linux/security.h   |  9 +++++++++
+ security/security.c        | 17 +++++++++++++++++
+ security/selinux/hooks.c   | 28 ++++++++++++++++++++++++++++
+ security/smack/smack_lsm.c |  1 +
+ security/tomoyo/tomoyo.c   |  1 +
+ 7 files changed, 66 insertions(+), 2 deletions(-)
 
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index c00a021bcce4..60dcfafdc11a 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -2005,17 +2005,8 @@ static int userfaultfd_move(struct userfaultfd_ctx *ctx,
- 		return -EINVAL;
- 
- 	if (mmget_not_zero(mm)) {
--		mmap_read_lock(mm);
--
--		/* Re-check after taking map_changing_lock */
--		down_read(&ctx->map_changing_lock);
--		if (likely(!atomic_read(&ctx->mmap_changing)))
--			ret = move_pages(ctx, mm, uffdio_move.dst, uffdio_move.src,
--					 uffdio_move.len, uffdio_move.mode);
--		else
--			ret = -EAGAIN;
--		up_read(&ctx->map_changing_lock);
--		mmap_read_unlock(mm);
-+		ret = move_pages(ctx, uffdio_move.dst, uffdio_move.src,
-+				 uffdio_move.len, uffdio_move.mode);
- 		mmput(mm);
- 	} else {
- 		return -ESRCH;
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 0d1f98ab0c72..e69dfe2edcce 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -753,6 +753,11 @@ static inline void release_fault_lock(struct vm_fault *vmf)
- 		mmap_read_unlock(vmf->vma->vm_mm);
- }
- 
-+static inline void unlock_vma(struct mm_struct *mm, struct vm_area_struct *vma)
-+{
-+	vma_end_read(vma);
-+}
-+
- static inline void assert_fault_locked(struct vm_fault *vmf)
- {
- 	if (vmf->flags & FAULT_FLAG_VMA_LOCK)
-@@ -774,6 +779,9 @@ static inline void vma_assert_write_locked(struct vm_area_struct *vma)
- 		{ mmap_assert_write_locked(vma->vm_mm); }
- static inline void vma_mark_detached(struct vm_area_struct *vma,
- 				     bool detached) {}
-+static inline void vma_acquire_read_lock(struct vm_area_struct *vma) {
-+	mmap_assert_locked(vma->vm_mm);
-+}
- 
- static inline struct vm_area_struct *lock_vma_under_rcu(struct mm_struct *mm,
- 		unsigned long address)
-@@ -786,6 +794,11 @@ static inline void release_fault_lock(struct vm_fault *vmf)
- 	mmap_read_unlock(vmf->vma->vm_mm);
- }
- 
-+static inline void unlock_vma(struct mm_struct *mm, struct vm_area_struct *vma)
-+{
-+	mmap_read_unlock(mm);
-+}
-+
- static inline void assert_fault_locked(struct vm_fault *vmf)
- {
- 	mmap_assert_locked(vmf->vma->vm_mm);
-@@ -794,6 +807,9 @@ static inline void assert_fault_locked(struct vm_fault *vmf)
- #endif /* CONFIG_PER_VMA_LOCK */
- 
- extern const struct vm_operations_struct vma_dummy_vm_ops;
-+extern struct vm_area_struct *lock_vma(struct mm_struct *mm,
-+				       unsigned long address,
-+				       bool prepare_anon);
- 
- /*
-  * WARNING: vma_init does not initialize vma->vm_lock.
-diff --git a/include/linux/userfaultfd_k.h b/include/linux/userfaultfd_k.h
-index 3210c3552976..05d59f74fc88 100644
---- a/include/linux/userfaultfd_k.h
-+++ b/include/linux/userfaultfd_k.h
-@@ -138,9 +138,8 @@ extern long uffd_wp_range(struct vm_area_struct *vma,
- /* move_pages */
- void double_pt_lock(spinlock_t *ptl1, spinlock_t *ptl2);
- void double_pt_unlock(spinlock_t *ptl1, spinlock_t *ptl2);
--ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
--		   unsigned long dst_start, unsigned long src_start,
--		   unsigned long len, __u64 flags);
-+ssize_t move_pages(struct userfaultfd_ctx *ctx, unsigned long dst_start,
-+		   unsigned long src_start, unsigned long len, __u64 flags);
- int move_pages_huge_pmd(struct mm_struct *mm, pmd_t *dst_pmd, pmd_t *src_pmd, pmd_t dst_pmdval,
- 			struct vm_area_struct *dst_vma,
- 			struct vm_area_struct *src_vma,
-diff --git a/mm/memory.c b/mm/memory.c
-index b05fd28dbce1..393ab3b0d6f3 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -5760,8 +5760,56 @@ struct vm_area_struct *lock_vma_under_rcu(struct mm_struct *mm,
- 	count_vm_vma_lock_event(VMA_LOCK_ABORT);
- 	return NULL;
- }
-+
-+static void vma_acquire_read_lock(struct vm_area_struct *vma)
-+{
-+	/*
-+	 * We cannot use vma_start_read() as it may fail due to false locked
-+	 * (see comment in vma_start_read()). We can avoid that by directly
-+	 * locking vm_lock under mmap_lock, which guarantees that nobody could
-+	 * have locked the vma for write (vma_start_write()).
-+	 */
-+	mmap_assert_locked(vma->vm_mm);
-+	down_read(&vma->vm_lock->lock);
-+}
- #endif /* CONFIG_PER_VMA_LOCK */
- 
-+/*
-+ * lock_vma() - Lookup and lock VMA corresponding to @address.
-+ * @prepare_anon: If true, then prepare the VMA (if anonymous) with anon_vma.
-+ *
-+ * Should be called without holding mmap_lock. VMA should be unlocked after use
-+ * with unlock_vma().
-+ *
-+ * Return: A locked VMA containing @address, NULL of no VMA is found, or
-+ * -ENOMEM if anon_vma couldn't be allocated.
-+ */
-+struct vm_area_struct *lock_vma(struct mm_struct *mm,
-+				unsigned long address,
-+				bool prepare_anon)
-+{
-+	struct vm_area_struct *vma;
-+
-+	vma = lock_vma_under_rcu(mm, address);
-+
-+	if (vma)
-+		return vma;
-+
-+	mmap_read_lock(mm);
-+	vma = vma_lookup(mm, address);
-+	if (vma) {
-+		if (prepare_anon && vma_is_anonymous(vma) &&
-+		    anon_vma_prepare(vma))
-+			vma = ERR_PTR(-ENOMEM);
-+		else
-+			vma_acquire_read_lock(vma);
-+	}
-+
-+	if (IS_ENABLED(CONFIG_PER_VMA_LOCK) || !vma || PTR_ERR(vma) == -ENOMEM)
-+		mmap_read_unlock(mm);
-+	return vma;
-+}
-+
- #ifndef __PAGETABLE_P4D_FOLDED
- /*
-  * Allocate p4d page table.
-diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
-index 74aad0831e40..64e22e467e4f 100644
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -19,20 +19,25 @@
- #include <asm/tlb.h>
- #include "internal.h"
- 
--static __always_inline
--struct vm_area_struct *find_dst_vma(struct mm_struct *dst_mm,
--				    unsigned long dst_start,
--				    unsigned long len)
-+/* Search for VMA and make sure it is valid. */
-+static struct vm_area_struct *find_and_lock_dst_vma(struct mm_struct *dst_mm,
-+						    unsigned long dst_start,
-+						    unsigned long len)
- {
--	/*
--	 * Make sure that the dst range is both valid and fully within a
--	 * single existing vma.
--	 */
- 	struct vm_area_struct *dst_vma;
- 
--	dst_vma = find_vma(dst_mm, dst_start);
--	if (!range_in_vma(dst_vma, dst_start, dst_start + len))
--		return NULL;
-+	/* Ensure anon_vma is assigned for anonymous vma */
-+	dst_vma = lock_vma(dst_mm, dst_start, true);
-+
-+	if (!dst_vma)
-+		return ERR_PTR(-ENOENT);
-+
-+	if (PTR_ERR(dst_vma) == -ENOMEM)
-+		return dst_vma;
-+
-+	/* Make sure that the dst range is fully within dst_vma. */
-+	if (dst_start + len > dst_vma->vm_end)
-+		goto out_unlock;
- 
- 	/*
- 	 * Check the vma is registered in uffd, this is required to
-@@ -40,9 +45,12 @@ struct vm_area_struct *find_dst_vma(struct mm_struct *dst_mm,
- 	 * time.
- 	 */
- 	if (!dst_vma->vm_userfaultfd_ctx.ctx)
--		return NULL;
-+		goto out_unlock;
- 
- 	return dst_vma;
-+out_unlock:
-+	unlock_vma(dst_mm, dst_vma);
-+	return ERR_PTR(-ENOENT);
- }
- 
- /* Check if dst_addr is outside of file's size. Must be called with ptl held. */
-@@ -350,7 +358,8 @@ static pmd_t *mm_alloc_pmd(struct mm_struct *mm, unsigned long address)
- #ifdef CONFIG_HUGETLB_PAGE
- /*
-  * mfill_atomic processing for HUGETLB vmas.  Note that this routine is
-- * called with mmap_lock held, it will release mmap_lock before returning.
-+ * called with either vma-lock or mmap_lock held, it will release the lock
-+ * before returning.
-  */
- static __always_inline ssize_t mfill_atomic_hugetlb(
- 					      struct userfaultfd_ctx *ctx,
-@@ -361,7 +370,6 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 					      uffd_flags_t flags)
- {
- 	struct mm_struct *dst_mm = dst_vma->vm_mm;
--	int vm_shared = dst_vma->vm_flags & VM_SHARED;
- 	ssize_t err;
- 	pte_t *dst_pte;
- 	unsigned long src_addr, dst_addr;
-@@ -380,7 +388,7 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 	 */
- 	if (uffd_flags_mode_is(flags, MFILL_ATOMIC_ZEROPAGE)) {
- 		up_read(&ctx->map_changing_lock);
--		mmap_read_unlock(dst_mm);
-+		unlock_vma(dst_mm, dst_vma);
- 		return -EINVAL;
- 	}
- 
-@@ -403,24 +411,28 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 	 * retry, dst_vma will be set to NULL and we must lookup again.
- 	 */
- 	if (!dst_vma) {
-+		dst_vma = find_and_lock_dst_vma(dst_mm, dst_start, len);
-+		if (IS_ERR(dst_vma)) {
-+			err = PTR_ERR(dst_vma);
-+			goto out;
-+		}
-+
- 		err = -ENOENT;
--		dst_vma = find_dst_vma(dst_mm, dst_start, len);
--		if (!dst_vma || !is_vm_hugetlb_page(dst_vma))
--			goto out_unlock;
-+		if (!is_vm_hugetlb_page(dst_vma))
-+			goto out_unlock_vma;
- 
- 		err = -EINVAL;
- 		if (vma_hpagesize != vma_kernel_pagesize(dst_vma))
--			goto out_unlock;
-+			goto out_unlock_vma;
- 
--		vm_shared = dst_vma->vm_flags & VM_SHARED;
--	}
--
--	/*
--	 * If not shared, ensure the dst_vma has a anon_vma.
--	 */
--	err = -ENOMEM;
--	if (!vm_shared) {
--		if (unlikely(anon_vma_prepare(dst_vma)))
-+		/*
-+		 * If memory mappings are changing because of non-cooperative
-+		 * operation (e.g. mremap) running in parallel, bail out and
-+		 * request the user to retry later
-+		 */
-+		down_read(&ctx->map_changing_lock);
-+		err = -EAGAIN;
-+		if (atomic_read(&ctx->mmap_changing))
- 			goto out_unlock;
- 	}
- 
-@@ -465,7 +477,7 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 
- 		if (unlikely(err == -ENOENT)) {
- 			up_read(&ctx->map_changing_lock);
--			mmap_read_unlock(dst_mm);
-+			unlock_vma(dst_mm, dst_vma);
- 			BUG_ON(!folio);
- 
- 			err = copy_folio_from_user(folio,
-@@ -474,17 +486,6 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 				err = -EFAULT;
- 				goto out;
- 			}
--			mmap_read_lock(dst_mm);
--			down_read(&ctx->map_changing_lock);
--			/*
--			 * If memory mappings are changing because of non-cooperative
--			 * operation (e.g. mremap) running in parallel, bail out and
--			 * request the user to retry later
--			 */
--			if (atomic_read(&ctx->mmap_changing)) {
--				err = -EAGAIN;
--				break;
--			}
- 
- 			dst_vma = NULL;
- 			goto retry;
-@@ -505,7 +506,8 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 
- out_unlock:
- 	up_read(&ctx->map_changing_lock);
--	mmap_read_unlock(dst_mm);
-+out_unlock_vma:
-+	unlock_vma(dst_mm, dst_vma);
- out:
- 	if (folio)
- 		folio_put(folio);
-@@ -597,7 +599,15 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	copied = 0;
- 	folio = NULL;
- retry:
--	mmap_read_lock(dst_mm);
-+	/*
-+	 * Make sure the vma is not shared, that the dst range is
-+	 * both valid and fully within a single existing vma.
-+	 */
-+	dst_vma = find_and_lock_dst_vma(dst_mm, dst_start, len);
-+	if (IS_ERR(dst_vma)) {
-+		err = PTR_ERR(dst_vma);
-+		goto out;
-+	}
- 
- 	/*
- 	 * If memory mappings are changing because of non-cooperative
-@@ -609,15 +619,6 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	if (atomic_read(&ctx->mmap_changing))
- 		goto out_unlock;
- 
--	/*
--	 * Make sure the vma is not shared, that the dst range is
--	 * both valid and fully within a single existing vma.
--	 */
--	err = -ENOENT;
--	dst_vma = find_dst_vma(dst_mm, dst_start, len);
--	if (!dst_vma)
--		goto out_unlock;
--
- 	err = -EINVAL;
- 	/*
- 	 * shmem_zero_setup is invoked in mmap for MAP_ANONYMOUS|MAP_SHARED but
-@@ -647,16 +648,6 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	    uffd_flags_mode_is(flags, MFILL_ATOMIC_CONTINUE))
- 		goto out_unlock;
- 
--	/*
--	 * Ensure the dst_vma has a anon_vma or this page
--	 * would get a NULL anon_vma when moved in the
--	 * dst_vma.
--	 */
--	err = -ENOMEM;
--	if (!(dst_vma->vm_flags & VM_SHARED) &&
--	    unlikely(anon_vma_prepare(dst_vma)))
--		goto out_unlock;
--
- 	while (src_addr < src_start + len) {
- 		pmd_t dst_pmdval;
- 
-@@ -699,7 +690,8 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 			void *kaddr;
- 
- 			up_read(&ctx->map_changing_lock);
--			mmap_read_unlock(dst_mm);
-+			unlock_vma(dst_mm, dst_vma);
-+
- 			BUG_ON(!folio);
- 
- 			kaddr = kmap_local_folio(folio, 0);
-@@ -730,7 +722,7 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 
- out_unlock:
- 	up_read(&ctx->map_changing_lock);
--	mmap_read_unlock(dst_mm);
-+	unlock_vma(dst_mm, dst_vma);
- out:
- 	if (folio)
- 		folio_put(folio);
-@@ -1267,16 +1259,82 @@ static int validate_move_areas(struct userfaultfd_ctx *ctx,
- 	if (!vma_is_anonymous(src_vma) || !vma_is_anonymous(dst_vma))
- 		return -EINVAL;
- 
--	/*
--	 * Ensure the dst_vma has a anon_vma or this page
--	 * would get a NULL anon_vma when moved in the
--	 * dst_vma.
--	 */
--	if (unlikely(anon_vma_prepare(dst_vma)))
--		return -ENOMEM;
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PER_VMA_LOCK
-+static int find_and_lock_move_vmas(struct mm_struct *mm,
-+				   unsigned long dst_start,
-+				   unsigned long src_start,
-+				   struct vm_area_struct **dst_vmap,
-+				   struct vm_area_struct **src_vmap)
-+{
-+	int err;
-+
-+	/* There is no need to prepare anon_vma for src_vma */
-+	*src_vmap = lock_vma(mm, src_start, false);
-+	if (!*src_vmap)
-+		return -ENOENT;
-+
-+	/* Ensure anon_vma is assigned for anonymous vma */
-+	*dst_vmap = lock_vma(mm, dst_start, true);
-+	err = -ENOENT;
-+	if (!*dst_vmap)
-+		goto out_unlock;
-+
-+	err = -ENOMEM;
-+	if (PTR_ERR(*dst_vmap) == -ENOMEM)
-+		goto out_unlock;
- 
- 	return 0;
-+out_unlock:
-+	unlock_vma(mm, *src_vmap);
-+	return err;
-+}
-+
-+static void unlock_move_vmas(struct mm_struct *mm,
-+			     struct vm_area_struct *dst_vma,
-+			     struct vm_area_struct *src_vma)
-+{
-+	unlock_vma(mm, dst_vma);
-+	unlock_vma(mm, src_vma);
- }
-+#else
-+static int find_and_lock_move_vmas(struct mm_struct *mm,
-+				   unsigned long dst_start,
-+				   unsigned long src_start,
-+				   struct vm_area_struct **dst_vmap,
-+				   struct vm_area_struct **src_vmap)
-+{
-+	int err = -ENOENT;
-+	mmap_read_lock(mm);
-+
-+	*src_vmap = vma_lookup(mm, src_start);
-+	if (!*src_vmap)
-+		goto out_unlock;
-+
-+	*dst_vmap = vma_lookup(mm, dst_start);
-+	if (!*dst_vmap)
-+		goto out_unlock;
-+
-+	/* Ensure anon_vma is assigned */
-+	err = -ENOMEM;
-+	if (vma_is_anonymous(*dst_vmap) && !anon_vma_prepare(*dst_vmap))
-+		goto out_unlock;
-+
-+	return 0;
-+out_unlock:
-+	mmap_read_unlock(mm);
-+	return err;
-+}
-+
-+static void unlock_move_vmas(struct mm_struct *mm,
-+			     struct vm_area_struct *dst_vma,
-+			     struct vm_area_struct *src_vma)
-+{
-+	mmap_read_unlock(mm);
-+}
-+#endif
- 
- /**
-  * move_pages - move arbitrary anonymous pages of an existing vma
-@@ -1287,8 +1345,6 @@ static int validate_move_areas(struct userfaultfd_ctx *ctx,
-  * @len: length of the virtual memory range
-  * @mode: flags from uffdio_move.mode
-  *
-- * Must be called with mmap_lock held for read.
-- *
-  * move_pages() remaps arbitrary anonymous pages atomically in zero
-  * copy. It only works on non shared anonymous pages because those can
-  * be relocated without generating non linear anon_vmas in the rmap
-@@ -1355,10 +1411,10 @@ static int validate_move_areas(struct userfaultfd_ctx *ctx,
-  * could be obtained. This is the only additional complexity added to
-  * the rmap code to provide this anonymous page remapping functionality.
-  */
--ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
--		   unsigned long dst_start, unsigned long src_start,
--		   unsigned long len, __u64 mode)
-+ssize_t move_pages(struct userfaultfd_ctx *ctx, unsigned long dst_start,
-+		   unsigned long src_start, unsigned long len, __u64 mode)
- {
-+	struct mm_struct *mm = ctx->mm;
- 	struct vm_area_struct *src_vma, *dst_vma;
- 	unsigned long src_addr, dst_addr;
- 	pmd_t *src_pmd, *dst_pmd;
-@@ -1376,28 +1432,35 @@ ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
- 	    WARN_ON_ONCE(dst_start + len <= dst_start))
+diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
+index 8fcc53d83af2d..22f7dc6688dee 100644
+--- a/fs/compat_ioctl.c
++++ b/fs/compat_ioctl.c
+@@ -994,8 +994,7 @@ COMPAT_SYSCALL_DEFINE3(ioctl, unsigned int, fd, unsigned int, cmd,
+ 	if (!f.file)
  		goto out;
  
-+	err = find_and_lock_move_vmas(mm, dst_start, src_start,
-+				      &dst_vma, &src_vma);
-+	if (err)
-+		goto out;
+-	/* RED-PEN how should LSM module know it's handling 32bit? */
+-	error = security_file_ioctl(f.file, cmd, arg);
++	error = security_file_ioctl_compat(f.file, cmd, arg);
+ 	if (error)
+ 		goto out_fput;
+ 
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index a21dc5413653e..0f4897e97c70f 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -498,6 +498,12 @@
+  *	simple integer value.  When @arg represents a user space pointer, it
+  *	should never be used by the security module.
+  *	Return 0 if permission is granted.
++ * @file_ioctl_compat:
++ *	@file contains the file structure.
++ *	@cmd contains the operation to perform.
++ *	@arg contains the operational arguments.
++ *	Check permission for a compat ioctl operation on @file.
++ *	Return 0 if permission is granted.
+  * @mmap_addr :
+  *	Check permissions for a mmap operation at @addr.
+  *	@addr contains virtual address that will be used for the operation.
+@@ -1602,6 +1608,8 @@ union security_list_options {
+ 	void (*file_free_security)(struct file *file);
+ 	int (*file_ioctl)(struct file *file, unsigned int cmd,
+ 				unsigned long arg);
++	int (*file_ioctl_compat)(struct file *file, unsigned int cmd,
++				unsigned long arg);
+ 	int (*mmap_addr)(unsigned long addr);
+ 	int (*mmap_file)(struct file *file, unsigned long reqprot,
+ 				unsigned long prot, unsigned long flags);
+@@ -1907,6 +1915,7 @@ struct security_hook_heads {
+ 	struct hlist_head file_alloc_security;
+ 	struct hlist_head file_free_security;
+ 	struct hlist_head file_ioctl;
++	struct hlist_head file_ioctl_compat;
+ 	struct hlist_head mmap_addr;
+ 	struct hlist_head mmap_file;
+ 	struct hlist_head file_mprotect;
+diff --git a/include/linux/security.h b/include/linux/security.h
+index aa5c7141c8d17..1a99958b850b5 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -362,6 +362,8 @@ int security_file_permission(struct file *file, int mask);
+ int security_file_alloc(struct file *file);
+ void security_file_free(struct file *file);
+ int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
++int security_file_ioctl_compat(struct file *file, unsigned int cmd,
++			       unsigned long arg);
+ int security_mmap_file(struct file *file, unsigned long prot,
+ 			unsigned long flags);
+ int security_mmap_addr(unsigned long addr);
+@@ -907,6 +909,13 @@ static inline int security_file_ioctl(struct file *file, unsigned int cmd,
+ 	return 0;
+ }
+ 
++static inline int security_file_ioctl_compat(struct file *file,
++					     unsigned int cmd,
++					     unsigned long arg)
++{
++	return 0;
++}
 +
-+	/* Re-check after taking map_changing_lock */
-+	down_read(&ctx->map_changing_lock);
-+	if (likely(atomic_read(&ctx->mmap_changing))) {
-+		err = -EAGAIN;
-+		goto out_unlock;
-+	}
+ static inline int security_mmap_file(struct file *file, unsigned long prot,
+ 				     unsigned long flags)
+ {
+diff --git a/security/security.c b/security/security.c
+index 460c3826f6401..6c06296548c21 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1422,6 +1422,23 @@ int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	return call_int_hook(file_ioctl, 0, file, cmd, arg);
+ }
+ 
++/**
++ * security_file_ioctl_compat() - Check if an ioctl is allowed in compat mode
++ * @file: associated file
++ * @cmd: ioctl cmd
++ * @arg: ioctl arguments
++ *
++ * Compat version of security_file_ioctl() that correctly handles 32-bit
++ * processes running on 64-bit kernels.
++ *
++ * Return: Returns 0 if permission is granted.
++ */
++int security_file_ioctl_compat(struct file *file, unsigned int cmd,
++			       unsigned long arg)
++{
++	return call_int_hook(file_ioctl_compat, 0, file, cmd, arg);
++}
++
+ static inline unsigned long mmap_prot(struct file *file, unsigned long prot)
+ {
  	/*
- 	 * Make sure the vma is not shared, that the src and dst remap
- 	 * ranges are both valid and fully within a single existing
- 	 * vma.
- 	 */
--	src_vma = find_vma(mm, src_start);
--	if (!src_vma || (src_vma->vm_flags & VM_SHARED))
--		goto out;
--	if (src_start < src_vma->vm_start ||
--	    src_start + len > src_vma->vm_end)
--		goto out;
-+	if (src_vma->vm_flags & VM_SHARED)
-+		goto out_unlock;
-+	if (src_start + len > src_vma->vm_end)
-+		goto out_unlock;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index c1bf319b459a9..6fec9fba41a84 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3668,6 +3668,33 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
+ 	return error;
+ }
  
--	dst_vma = find_vma(mm, dst_start);
--	if (!dst_vma || (dst_vma->vm_flags & VM_SHARED))
--		goto out;
--	if (dst_start < dst_vma->vm_start ||
--	    dst_start + len > dst_vma->vm_end)
--		goto out;
-+	if (dst_vma->vm_flags & VM_SHARED)
-+		goto out_unlock;
-+	if (dst_start + len > dst_vma->vm_end)
-+		goto out_unlock;
++static int selinux_file_ioctl_compat(struct file *file, unsigned int cmd,
++			      unsigned long arg)
++{
++	/*
++	 * If we are in a 64-bit kernel running 32-bit userspace, we need to
++	 * make sure we don't compare 32-bit flags to 64-bit flags.
++	 */
++	switch (cmd) {
++	case FS_IOC32_GETFLAGS:
++		cmd = FS_IOC_GETFLAGS;
++		break;
++	case FS_IOC32_SETFLAGS:
++		cmd = FS_IOC_SETFLAGS;
++		break;
++	case FS_IOC32_GETVERSION:
++		cmd = FS_IOC_GETVERSION;
++		break;
++	case FS_IOC32_SETVERSION:
++		cmd = FS_IOC_SETVERSION;
++		break;
++	default:
++		break;
++	}
++
++	return selinux_file_ioctl(file, cmd, arg);
++}
++
+ static int default_noexec;
  
- 	err = validate_move_areas(ctx, src_vma, dst_vma);
- 	if (err)
--		goto out;
-+		goto out_unlock;
+ static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
+@@ -6933,6 +6960,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(file_permission, selinux_file_permission),
+ 	LSM_HOOK_INIT(file_alloc_security, selinux_file_alloc_security),
+ 	LSM_HOOK_INIT(file_ioctl, selinux_file_ioctl),
++	LSM_HOOK_INIT(file_ioctl_compat, selinux_file_ioctl_compat),
+ 	LSM_HOOK_INIT(mmap_file, selinux_mmap_file),
+ 	LSM_HOOK_INIT(mmap_addr, selinux_mmap_addr),
+ 	LSM_HOOK_INIT(file_mprotect, selinux_file_mprotect),
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 9e48c8b36b678..6f2613f874fa9 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4648,6 +4648,7 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
  
- 	for (src_addr = src_start, dst_addr = dst_start;
- 	     src_addr < src_start + len;) {
-@@ -1514,6 +1577,9 @@ ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
- 		moved += step_size;
- 	}
- 
-+out_unlock:
-+	up_read(&ctx->map_changing_lock);
-+	unlock_move_vmas(mm, dst_vma, src_vma);
- out:
- 	VM_WARN_ON(moved < 0);
- 	VM_WARN_ON(err > 0);
+ 	LSM_HOOK_INIT(file_alloc_security, smack_file_alloc_security),
+ 	LSM_HOOK_INIT(file_ioctl, smack_file_ioctl),
++	LSM_HOOK_INIT(file_ioctl_compat, smack_file_ioctl),
+ 	LSM_HOOK_INIT(file_lock, smack_file_lock),
+ 	LSM_HOOK_INIT(file_fcntl, smack_file_fcntl),
+ 	LSM_HOOK_INIT(mmap_file, smack_mmap_file),
+diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+index 716c92ec941ad..0176612bac967 100644
+--- a/security/tomoyo/tomoyo.c
++++ b/security/tomoyo/tomoyo.c
+@@ -554,6 +554,7 @@ static struct security_hook_list tomoyo_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(path_rename, tomoyo_path_rename),
+ 	LSM_HOOK_INIT(inode_getattr, tomoyo_inode_getattr),
+ 	LSM_HOOK_INIT(file_ioctl, tomoyo_file_ioctl),
++	LSM_HOOK_INIT(file_ioctl_compat, tomoyo_file_ioctl),
+ 	LSM_HOOK_INIT(path_chmod, tomoyo_path_chmod),
+ 	LSM_HOOK_INIT(path_chown, tomoyo_path_chown),
+ 	LSM_HOOK_INIT(path_chroot, tomoyo_path_chroot),
+
+base-commit: f0602893f43a54097fcf22bd8c2f7b8e75ca643e
 -- 
-2.43.0.594.gd9cf4e227d-goog
+2.43.0
 
