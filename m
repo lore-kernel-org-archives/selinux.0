@@ -1,206 +1,253 @@
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C12A1127B41
-	for <selinux@vger.kernel.org>; Wed,  7 Feb 2024 20:25:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CFE313A243
+	for <selinux@vger.kernel.org>; Wed,  7 Feb 2024 21:22:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707337508; cv=none; b=FvOVnnTcLLiuqesaTGCeMnbMZsgGD1hTqJv6ac/CMp2kIag1agR+NL8GqytZ7SeU38urCRtX0MUEFoK5vkAVo2lCxt035fu8iNP5ZbBHu1V5PD5xP0LNSSaKNoSvNI0BulAqJrZxjuxWxNuj4Mq3dQUOWO63qm/kHOGNGq1SbVs=
+	t=1707340965; cv=none; b=MA3oMkXIgXyvN7pXDxk0gzrKuVofsCIDNQTBQpjWapE9NTDvhQwryPHcVHsTPtHvll0pKDHlEgmQKk4F4N8TirKNjyyomC6nMvjypQeriP/Z8qMs6M8Ec0S31b6/cSDhfRyaCZuQ/PPBNhgcICYdSnCdfJKgj44r1cwK2SxY1PM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707337508; c=relaxed/simple;
-	bh=vFnk6DQ8EIJEAZ/DRRBigdf0kxotx3XgDLJZVdGyWlw=;
+	s=arc-20240116; t=1707340965; c=relaxed/simple;
+	bh=ZyZ3Ebl4a/ZrZxa6zZ+a5DGa9m6vvBXjcdd+ZrG51ig=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=taEio2EdWsd3AZmc/usljEuGYyzUIhYctzihSXdtwbR2qokba5Fl7GoG72ddvyZIrXDj1Evr0k/rMNzN5NqyT8uO9r3CvDzPoUMrX+P6BXVDgp0iOYDLWQTi0vzBNvxK+bFtb4/pcrfFYnccgndd7lbhOPhzw58M8ewa7unukwo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=PaleEkjV; arc=none smtp.client-ip=209.85.221.43
+	 To:Cc:Content-Type; b=hcOqmt/gukcqzi7gfdcfkddj+q3iomU7dxCW6vJwur4Kr3dY1DGNZOghdO7WoKEv534ZC3jMJbcTaPQU7pDWr/j9PnStbuHc5xd5dRly5WueaVjdQTf8T0IC7PnWsch+dR6JGCEOE3xPEDxewATfwTrMVefCtW+TRNlEVxEglFs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=4j/lklQe; arc=none smtp.client-ip=209.85.208.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PaleEkjV"
-Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-33b436dbdcfso832232f8f.0
-        for <selinux@vger.kernel.org>; Wed, 07 Feb 2024 12:25:06 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="4j/lklQe"
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-560530f4e21so3551a12.1
+        for <selinux@vger.kernel.org>; Wed, 07 Feb 2024 13:22:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1707337505; x=1707942305; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1707340961; x=1707945761; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=RAp9QYmAagl4q8JstQaVuR+UzMqpGvUOafiaUGshjJs=;
-        b=PaleEkjVXxGy63Ac5y+TKCmm1XTs6lU90cBz6EKTDiixC8bMAajNTFdbP/uBiFLuc6
-         1fSeICo9XL6/4DsMG4oQVTviu5Z0givtNpXrtGaHkiFSiZbyjVRMRXGOBPgvivHeyDry
-         ziZXUHPTDftXbxAnkw/t+AjODhrGARwGNeKk8TSgZ0KMio+yab3vVm4hZqIbM8ZVGeaB
-         8zPQ8ky9N5JqVnCvn93JVm9rgJN3Sc/cKV1qRJmIdfIkFPTnC4oBv4U97xf9nr9GrrkH
-         fKJWSRdGossRtu9mvcWPzPlMnBVBocf/U0xZrotiMOJFShN+yRVOztwXAbsW/kDKMHjN
-         I3Vw==
+        bh=nOqzPRykbp6YnfN+MvcqOmBBzcnuz5hTg+hCiKSQFW4=;
+        b=4j/lklQearcxeBiYUi2PgC78h+J+EosM3sNVhSiKbKIkmRR2bIvmtn2WSOGSm2bn/n
+         sbw3/voahtz0suO8kDG+s/icIJ6CuOn/J/7FurACtZiGPe3JRzwtyZUTTzTl0kgjtNol
+         F5PPlWzxpp/j0gj+Dn8G5dIxZOTXDRi06jrbOq1r2MR1/a69uFTuBl68lav4sx6M9rHn
+         32H6zlxWBLhynUPnR2nYoRbnE8KKzSp1+dFyXbl79DBSf+lBdP8YUyl3J3c9uXG8JGjg
+         FAf4IE9BcLSk5nZvr8UN72p/KOOV5C8JEotzAab99GrbHH5uCGaJTmFIuyifsQfvgvE4
+         I5wA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707337505; x=1707942305;
+        d=1e100.net; s=20230601; t=1707340961; x=1707945761;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=RAp9QYmAagl4q8JstQaVuR+UzMqpGvUOafiaUGshjJs=;
-        b=B9OV9TE3zkujZQhsOj2edywYfgQqmObcGXKi/iA1Cg+9/XHODs0rAZ21/Qgb5vHml9
-         RTR7K2RpF1Cr6+3H/gYEBJ17GUKVyACQtsK8P6DtPNHlVh3nImCXOi05hhFsHtk68O5q
-         pA3enToeJ4NNji7iyvDzWFKblUIGPta23Ymr/+chDOMc+2/HlvC1t3f+M4JIixoq//S/
-         5/6UJPP/lqNie8hWzewmogUxJGaYC1qsXOu68XsKNd+VPC6EksWUtOQ1zDsdnmJHh3bb
-         J7Z+n2m+wBcvhbFDnlz1BZR3EJBhi4Rdw5IK6Yk/AEsd9Svg+ibDzdRDfC9T6dWnO9uH
-         fJwQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVEKPI3O1ogjpZSrybavu2GI3565tK4kVj98EJJYU0/vTvTx4kqvLvOh6JvEeMbnH57r1Ev4RfUuoS0eGtyGO7cu40I3KEyDg==
-X-Gm-Message-State: AOJu0YzXeNmUsuTxSwWnoMNQVQDrx89k6si2u6rQ21NNF4fdhNcTitOY
-	KoYGzEL2O6uppVikYPrA6tCJlv3Q/2kxuIOvP5Mufao8y1QfNLRNJ0omLpqsPP6wbIGHDXSbyvZ
-	zGS2sE4r+8sMmsGb9Z7jUX5/WskqhpU0qY2GK
-X-Google-Smtp-Source: AGHT+IGQqWin6xslOwihUtxiZ2GFaThvfVui+rAPsrOr+dtRa0BkT869a3jIv2EUBTyktcfXEleTmaU5Z1oYmEKy778=
-X-Received: by 2002:adf:ff91:0:b0:33b:2177:2228 with SMTP id
- j17-20020adfff91000000b0033b21772228mr4665957wrr.59.1707337504834; Wed, 07
- Feb 2024 12:25:04 -0800 (PST)
+        bh=nOqzPRykbp6YnfN+MvcqOmBBzcnuz5hTg+hCiKSQFW4=;
+        b=aJaEW54HpAcykDJNFaHCA7jlQza8ULzITN/1SxhEHcxlnZQcG0ex+ZcWKsFOQpLkKt
+         3QRNtKX6AhYuAlWPEmm5HxMk+THcUtce0cOtvD0LlpAhjwI9I375vP7P3X2h9+gYYqPu
+         RRrmKgMn8y5DwcdQKETYeKXpElygG1Vb+TSYIpRvOdIAJ3BoDKF4x04FkcAzbLAmW3WW
+         +0MNaE1Ag44UdQUe5zfnloTY6UhGLnRDGWJqZf8yJzOyLljU/6jxzAYx+kHvMMSI/gp+
+         7jRV6TlaS6lD1Ry+cBIUO3MJRYo9ny/wDWOy/1Gie3QsSj85kVvnEkMCz9YCy2PffV/y
+         9YoQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXlmwURbXF0LZy03JjfLfGPLVKywpCFUw45VvqdAimn8VnghNkAIbWGbsrIOgZTvRxUZygQ5qab/hy8MYj4zfP54LQOVBRaMA==
+X-Gm-Message-State: AOJu0YxrLq/czmBvPv5LAiGa4g4mEbMJyRVUNoNgA3Byi/01lcp9C0yp
+	EgtaovrbpUk3TXOrbLvTbmmIRh02aPhSipaP/2Vtb5dZjM7FaYXK8IzsySKLqK3e5p2d5WMI0eh
+	HBVmK0p+NGWCLXSomuiSLt9u98i4r9gUCeYf9
+X-Google-Smtp-Source: AGHT+IFZLDOLewby3fPcJ2/xTe7Q7BYva9t0F0dbjHitWJFDydBe0Rgh+gs9IznsVWYrixoO8DjRgm80BJu8J4yc2Tw=
+X-Received: by 2002:a50:d64e:0:b0:560:f37e:2d5d with SMTP id
+ c14-20020a50d64e000000b00560f37e2d5dmr101860edj.5.1707340961021; Wed, 07 Feb
+ 2024 13:22:41 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240129193512.123145-1-lokeshgidra@google.com>
- <20240129193512.123145-3-lokeshgidra@google.com> <20240129210014.troxejbr3mzorcvx@revolver>
- <CA+EESO6XiPfbUBgU3FukGvi_NG5XpAQxWKu7vg534t=rtWmGXg@mail.gmail.com>
- <20240130034627.4aupq27mksswisqg@revolver> <Zbi5bZWI3JkktAMh@kernel.org>
- <20240130172831.hv5z7a7bhh4enoye@revolver> <CA+EESO7W=yz1DyNsuDRd-KJiaOg51QWEQ_MfpHxEL99ZeLS=AA@mail.gmail.com>
- <Zb9mgL8XHBZpEVe7@kernel.org> <CA+EESO7RNn0aQhLxY+NDddNNNT6586qX08=rphU1-XmyoP5mZQ@mail.gmail.com>
- <ZcOhW8NR9XWhVnKS@kernel.org>
-In-Reply-To: <ZcOhW8NR9XWhVnKS@kernel.org>
-From: Lokesh Gidra <lokeshgidra@google.com>
-Date: Wed, 7 Feb 2024 12:24:52 -0800
-Message-ID: <CA+EESO6V9HiPtFpG7-cjvadj_BcKzGvi4GSdJBXD_zTM+EQu5A@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] userfaultfd: protect mmap_changing with rw_sem in userfaulfd_ctx
-To: Mike Rapoport <rppt@kernel.org>
-Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>, akpm@linux-foundation.org, 
-	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, surenb@google.com, 
-	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com, 
-	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com, 
-	willy@infradead.org, jannh@google.com, kaleshsingh@google.com, 
-	ngeoffray@google.com, timmurray@google.com
+References: <20240206010919.1109005-1-lokeshgidra@google.com>
+ <20240206010919.1109005-4-lokeshgidra@google.com> <CAG48ez0AdTijvuh0xueg_spwNE9tVcPuvqT9WpvmtiNNudQFMw@mail.gmail.com>
+ <CA+EESO4mVVFjx1bSpWwwhsY9V_LTzerKyivvCO=hdPbY1JFsPQ@mail.gmail.com>
+In-Reply-To: <CA+EESO4mVVFjx1bSpWwwhsY9V_LTzerKyivvCO=hdPbY1JFsPQ@mail.gmail.com>
+From: Jann Horn <jannh@google.com>
+Date: Wed, 7 Feb 2024 22:22:03 +0100
+Message-ID: <CAG48ez1ttahpqz1AT+FQ8fHjOQnh4cvfpo_AeyfBoWOUE=zyrQ@mail.gmail.com>
+Subject: Re: [PATCH v3 3/3] userfaultfd: use per-vma locks in userfaultfd operations
+To: Lokesh Gidra <lokeshgidra@google.com>
+Cc: akpm@linux-foundation.org, linux-fsdevel@vger.kernel.org, 
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, selinux@vger.kernel.org, 
+	surenb@google.com, kernel-team@android.com, aarcange@redhat.com, 
+	peterx@redhat.com, david@redhat.com, axelrasmussen@google.com, 
+	bgeffon@google.com, willy@infradead.org, kaleshsingh@google.com, 
+	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org, 
+	Liam.Howlett@oracle.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 7, 2024 at 7:27=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wrot=
+On Wed, Feb 7, 2024 at 7:50=E2=80=AFPM Lokesh Gidra <lokeshgidra@google.com=
+> wrote:
+> On Tue, Feb 6, 2024 at 10:28=E2=80=AFAM Jann Horn <jannh@google.com> wrot=
 e:
->
-> On Mon, Feb 05, 2024 at 12:53:33PM -0800, Lokesh Gidra wrote:
-> > On Sun, Feb 4, 2024 at 2:27=E2=80=AFAM Mike Rapoport <rppt@kernel.org> =
-wrote:
+> > On Tue, Feb 6, 2024 at 2:09=E2=80=AFAM Lokesh Gidra <lokeshgidra@google=
+.com> wrote:
+> > > All userfaultfd operations, except write-protect, opportunistically u=
+se
+> > > per-vma locks to lock vmas. On failure, attempt again inside mmap_loc=
+k
+> > > critical section.
 > > >
-> > > > 3) Based on [1] I see how mmap_changing helps in eliminating duplic=
-ate
-> > > > work (background copy) by uffd monitor, but didn't get if there is =
-a
-> > > > correctness aspect too that I'm missing? I concur with Amit's point=
- in
-> > > > [1] that getting -EEXIST when setting up the pte will avoid memory
-> > > > corruption, no?
+> > > Write-protect operation requires mmap_lock as it iterates over multip=
+le
+> > > vmas.
 > > >
-> > > In the fork case without mmap_changing the child process may be get d=
-ata or
-> > > zeroes depending on the race for mmap_lock between the fork and
-> > > uffdio_copy and -EEXIST is not enough for monitor to detect what was =
-the
-> > > ordering between fork and uffdio_copy.
+> > > Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+> > [...]
+> > > diff --git a/mm/memory.c b/mm/memory.c
+> > > index b05fd28dbce1..393ab3b0d6f3 100644
+> > > --- a/mm/memory.c
+> > > +++ b/mm/memory.c
+> > [...]
+> > > +/*
+> > > + * lock_vma() - Lookup and lock VMA corresponding to @address.
+> > > + * @prepare_anon: If true, then prepare the VMA (if anonymous) with =
+anon_vma.
+> > > + *
+> > > + * Should be called without holding mmap_lock. VMA should be unlocke=
+d after use
+> > > + * with unlock_vma().
+> > > + *
+> > > + * Return: A locked VMA containing @address, NULL of no VMA is found=
+, or
+> > > + * -ENOMEM if anon_vma couldn't be allocated.
+> > > + */
+> > > +struct vm_area_struct *lock_vma(struct mm_struct *mm,
+> > > +                               unsigned long address,
+> > > +                               bool prepare_anon)
+> > > +{
+> > > +       struct vm_area_struct *vma;
+> > > +
+> > > +       vma =3D lock_vma_under_rcu(mm, address);
+> > > +
+> > > +       if (vma)
+> > > +               return vma;
+> > > +
+> > > +       mmap_read_lock(mm);
+> > > +       vma =3D vma_lookup(mm, address);
+> > > +       if (vma) {
+> > > +               if (prepare_anon && vma_is_anonymous(vma) &&
+> > > +                   anon_vma_prepare(vma))
+> > > +                       vma =3D ERR_PTR(-ENOMEM);
+> > > +               else
+> > > +                       vma_acquire_read_lock(vma);
 > >
-> > This is extremely helpful. IIUC, there is a window after mmap_lock
-> > (write-mode) is released and before the uffd monitor thread is
-> > notified of fork. In that window, the monitor doesn't know that fork
-> > has already happened. So, without mmap_changing it would have done
-> > background copy only in the parent, thereby causing data inconsistency
-> > between parent and child processes.
->
-> Yes.
->
-> > It seems to me that the correctness argument for mmap_changing is
-> > there in case of FORK event and REMAP when mremap is called with
-> > MREMAP_DONTUNMAP. In all other cases its only benefit is by avoiding
-> > unnecessary background copies, right?
->
-> Yes, I think you are right, but it's possible I've forgot some nasty race
-> that will need mmap_changing for other events.
->
-> > > > > > > > > > @@ -783,7 +788,9 @@ bool userfaultfd_remove(struct vm_a=
-rea_struct *vma,
-> > > > > > > > > >               return true;
-> > > > > > > > > >
-> > > > > > > > > >       userfaultfd_ctx_get(ctx);
-> > > > > > > > > > +     down_write(&ctx->map_changing_lock);
-> > > > > > > > > >       atomic_inc(&ctx->mmap_changing);
-> > > > > > > > > > +     up_write(&ctx->map_changing_lock);
-> > > > > > > > > >       mmap_read_unlock(mm);
-> > > > > > > > > >
-> > > > > > > > > >       msg_init(&ewq.msg);
-> > > > > > >
-> > > > > > > If this happens in read mode, then why are you waiting for th=
-e readers
-> > > > > > > to leave?  Can't you just increment the atomic?  It's fine ha=
-ppening in
-> > > > > > > read mode today, so it should be fine with this new rwsem.
-> > > > > >
-> > > > > > It's been a while and the details are blurred now, but if I rem=
-ember
-> > > > > > correctly, having this in read mode forced non-cooperative uffd=
- monitor to
-> > > > > > be single threaded. If a monitor runs, say uffdio_copy, and in =
-parallel a
-> > > > > > thread in the monitored process does MADV_DONTNEED, the latter =
-will wait
-> > > > > > for userfaultfd_remove notification to be processed in the moni=
-tor and drop
-> > > > > > the VMA contents only afterwards. If a non-cooperative monitor =
-would
-> > > > > > process notification in parallel with uffdio ops, MADV_DONTNEED=
- could
-> > > > > > continue and race with uffdio_copy, so read mode wouldn't be en=
-ough.
-> > > > > >
-> > > > >
-> > > > > Right now this function won't stop to wait for readers to exit th=
-e
-> > > > > critical section, but with this change there will be a pause (sin=
-ce the
-> > > > > down_write() will need to wait for the readers with the read lock=
-).  So
-> > > > > this is adding a delay in this call path that isn't necessary (?)=
- nor
-> > > > > existed before.  If you have non-cooperative uffd monitors, then =
-you
-> > > > > will have to wait for them to finish to mark the uffd as being re=
-moved,
-> > > > > where as before it was a fire & forget, this is now a wait to tel=
-l.
-> > > > >
-> > > > I think a lot will be clearer once we get a response to my question=
-s
-> > > > above. IMHO not only this write-lock is needed here, we need to fix
-> > > > userfaultfd_remove() by splitting it into userfaultfd_remove_prep()
-> > > > and userfaultfd_remove_complete() (like all other non-cooperative
-> > > > operations) as well. This patch enables us to do that as we remove
-> > > > mmap_changing's dependency on mmap_lock for synchronization.
+> > This new code only calls anon_vma_prepare() for VMAs where
+> > vma_is_anonymous() is true (meaning they are private anonymous).
+> >
+> > [...]
+> > > diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
+> > > index 74aad0831e40..64e22e467e4f 100644
+> > > --- a/mm/userfaultfd.c
+> > > +++ b/mm/userfaultfd.c
+> > > @@ -19,20 +19,25 @@
+> > >  #include <asm/tlb.h>
+> > >  #include "internal.h"
 > > >
-> > > The write-lock is not a requirement here for correctness and I don't =
-see
-> > > why we would need userfaultfd_remove_prep().
+> > > -static __always_inline
+> > > -struct vm_area_struct *find_dst_vma(struct mm_struct *dst_mm,
+> > > -                                   unsigned long dst_start,
+> > > -                                   unsigned long len)
+> > > +/* Search for VMA and make sure it is valid. */
+> > > +static struct vm_area_struct *find_and_lock_dst_vma(struct mm_struct=
+ *dst_mm,
+> > > +                                                   unsigned long dst=
+_start,
+> > > +                                                   unsigned long len=
+)
+> > >  {
+> > > -       /*
+> > > -        * Make sure that the dst range is both valid and fully withi=
+n a
+> > > -        * single existing vma.
+> > > -        */
+> > >         struct vm_area_struct *dst_vma;
 > > >
-> > > As I've said earlier, having a write-lock here will let CRIU to run
-> > > background copy in parallel with processing of uffd events, but I don=
-'t
-> > > feel strongly about doing it.
+> > > -       dst_vma =3D find_vma(dst_mm, dst_start);
+> > > -       if (!range_in_vma(dst_vma, dst_start, dst_start + len))
+> > > -               return NULL;
+> > > +       /* Ensure anon_vma is assigned for anonymous vma */
+> > > +       dst_vma =3D lock_vma(dst_mm, dst_start, true);
+> >
+> > lock_vma() is now used by find_and_lock_dst_vma(), which is used by
+> > mfill_atomic().
+> >
+> > > +       if (!dst_vma)
+> > > +               return ERR_PTR(-ENOENT);
+> > > +
+> > > +       if (PTR_ERR(dst_vma) =3D=3D -ENOMEM)
+> > > +               return dst_vma;
+> > > +
+> > > +       /* Make sure that the dst range is fully within dst_vma. */
+> > > +       if (dst_start + len > dst_vma->vm_end)
+> > > +               goto out_unlock;
 > > >
-> > Got it. Anyways, such a change needn't be part of this patch, so I'm
-> > going to keep it unchanged.
+> > >         /*
+> > >          * Check the vma is registered in uffd, this is required to
+> > [...]
+> > > @@ -597,7 +599,15 @@ static __always_inline ssize_t mfill_atomic(stru=
+ct userfaultfd_ctx *ctx,
+> > >         copied =3D 0;
+> > >         folio =3D NULL;
+> > >  retry:
+> > > -       mmap_read_lock(dst_mm);
+> > > +       /*
+> > > +        * Make sure the vma is not shared, that the dst range is
+> > > +        * both valid and fully within a single existing vma.
+> > > +        */
+> > > +       dst_vma =3D find_and_lock_dst_vma(dst_mm, dst_start, len);
+> > > +       if (IS_ERR(dst_vma)) {
+> > > +               err =3D PTR_ERR(dst_vma);
+> > > +               goto out;
+> > > +       }
+> > >
+> > >         /*
+> > >          * If memory mappings are changing because of non-cooperative
+> > > @@ -609,15 +619,6 @@ static __always_inline ssize_t mfill_atomic(stru=
+ct userfaultfd_ctx *ctx,
+> > >         if (atomic_read(&ctx->mmap_changing))
+> > >                 goto out_unlock;
+> > >
+> > > -       /*
+> > > -        * Make sure the vma is not shared, that the dst range is
+> > > -        * both valid and fully within a single existing vma.
+> > > -        */
+> > > -       err =3D -ENOENT;
+> > > -       dst_vma =3D find_dst_vma(dst_mm, dst_start, len);
+> > > -       if (!dst_vma)
+> > > -               goto out_unlock;
+> > > -
+> > >         err =3D -EINVAL;
+> > >         /*
+> > >          * shmem_zero_setup is invoked in mmap for MAP_ANONYMOUS|MAP_=
+SHARED but
+> > > @@ -647,16 +648,6 @@ static __always_inline ssize_t mfill_atomic(stru=
+ct userfaultfd_ctx *ctx,
+> > >             uffd_flags_mode_is(flags, MFILL_ATOMIC_CONTINUE))
+> > >                 goto out_unlock;
+> > >
+> > > -       /*
+> > > -        * Ensure the dst_vma has a anon_vma or this page
+> > > -        * would get a NULL anon_vma when moved in the
+> > > -        * dst_vma.
+> > > -        */
+> > > -       err =3D -ENOMEM;
+> > > -       if (!(dst_vma->vm_flags & VM_SHARED) &&
+> > > -           unlikely(anon_vma_prepare(dst_vma)))
+> > > -               goto out_unlock;
+> >
+> > But the check mfill_atomic() used to do was different, it checked for V=
+M_SHARED.
 >
-> You mean with a read lock?
-
-No, I think write lock is good as it enables parallel background copy.
-Also because it brings consistency in blocking userfaultfd operations.
-
-I meant encapsulating remove operations within
-userfaultfd_remove_prep() and userfaultfd_remove_complete(). I
-couldn't figure out any need for that.
-
-
+> Thanks so much for catching this.
+> >
+> > Each VMA has one of these three types:
+> >
+> > 1. shared (marked by VM_SHARED; does not have an anon_vma)
+> > 2. private file-backed (needs to have anon_vma when storing PTEs)
+> > 3. private anonymous (what vma_is_anonymous() detects; needs to have
+> > anon_vma when storing PTEs)
 >
-> --
-> Sincerely yours,
-> Mike.
+> As in the case of mfill_atomic(), it seems to me that checking for
+> VM_SHARED flag will cover both (2) and (3) right?
+
+Yes, I think that should work.
