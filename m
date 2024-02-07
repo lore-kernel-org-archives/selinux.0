@@ -1,241 +1,127 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B059134A8
-	for <selinux@vger.kernel.org>; Tue,  6 Feb 2024 18:28:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F1EA7E77B
+	for <selinux@vger.kernel.org>; Wed,  7 Feb 2024 15:00:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707244083; cv=none; b=U5X5NYx6822atNOhY7JWK6Xcfm0lQj4nbveOW8BzP2P1BIneawTYdYajutPeyQa5TCseHIlTxP7UKEJlvRAlsuIjBEJqz+RD5O2EvbaiFrAwlOSzhCVicyuyuWSRkIAVkjWP3bTKThGKNkEDMjOjR1w9dw9+/O61dD8/K9tXy3o=
+	t=1707318013; cv=none; b=mdce8mOLToTc7k8D8sFgAuPI5KgLL4PMrVt+abPwvIAICQDfQ+P2unl06jO7La7YK0uvSkPi4J0QSqmZ81VJobn/U51nb6U47sQU4d7LzgV9gscmJ5mfisnE5FPZoMO5YL9wkpJBnT6Pic+oE/kUb1HLPx6XvCeypCZyyBj4B2s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707244083; c=relaxed/simple;
-	bh=XHTHEUL3c1zqoIkdhMoTUTEvYUg9rrTol977ov8Dor4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DDkN7xwUMBWETx5xBa+yYY6YbDcJDRsB5YgHzSSB/WI4dC3xkGjlxLa3pXBefIJfanu1dZA0HZKgBi8pclAVjBZ/a06cx5Yx08h2uuxQ6zVKDO/UrE/Q+4p/VXxMpVXTo2KECGEvzdlJxoKQD0HjwzdB7xnw2LmDfSApSPyypok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Ffu3b+xg; arc=none smtp.client-ip=209.85.208.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1707318013; c=relaxed/simple;
+	bh=DY/mrStOHGW+fHjOHvriCucdKsutI+Jg+5TAmC+mymY=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=NmZvYgk7S5VdeYWuz3qafamoc1x3IwDEw0GQkcz2RcWy4AllQwbOA7dyi7Go4dGh7Nc9vdU+fZ2lOZyt0yVox2xSjIBefRjkhgvvikVm3KC/ZYxrPpVZ9f4Bgj86QZ3QBcV+FlCCCyqWLo0A2F8lvvYySKmIEBx0xhc6QSJ+iuU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ajlRiE+k; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Ffu3b+xg"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-55f5d62d024so717a12.1
-        for <selinux@vger.kernel.org>; Tue, 06 Feb 2024 10:28:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1707244080; x=1707848880; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mssWr8/tMwfYzRYqB7GAnBjReP7gos18KJNG0Y4GNVI=;
-        b=Ffu3b+xgSQL4YWVMxwIquI/txW3BMRUO5/jdLgfhkOZ/4V03tHGZ5WSTv5JPuK9O1J
-         XTsTVX+svLiCOaFYp30WGZWeSwZaqTSgahL74D3neblDb5xuFWNTEpqbN0JoRne+1OdU
-         99ShoRmlgvGLynDaifqKYrj4jdEK3AAmHn1ztx6yz3NEsZvaTLAPdfBocOSTBYy/O2wP
-         RkzxtZmgtodczPvTfUoYAfIR9fgoI8NiWNf1BMCZAnd4QIAXav9zxS0RFBtDQPRrrb4l
-         TEyd1ENpRgu+cVNG1bO6KT6PT6V5Q0poaI/mgkHhJoYWM3dwt4iCc2R9+9TiXbESGTl9
-         AFfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707244080; x=1707848880;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=mssWr8/tMwfYzRYqB7GAnBjReP7gos18KJNG0Y4GNVI=;
-        b=HXWRPLRJiaHN7ba8nGLaux+iIB1fOGB30zvaZnk9KWrv+6NJ6Chw01nFceY6NCtzSt
-         D3IHBHBd46jkK7jHspF/lu8uRtOIibMsw3zvV6Nug9yta9CwcZ8Z/6rKGjH0gGukakFD
-         ABoOjwlZchObfVzxIiwQwxbPBKSWIVjpRIkJP5GFY6AcYQ4vojG3iGzR/+lY+PWDvhcQ
-         Iy+yhclNqTxRFdpCp1QLMP5VQAAYk4cNtl5qtFF1NOSUb0M+0wBBvtp29hNv+IkNfQ3P
-         FjkGvci0lIFGueAZapSFVNkOI0ePgzzDFspFZNwjgQspNKnRvgJv1YleSY8uCBl9TJ/H
-         GCVQ==
-X-Gm-Message-State: AOJu0YyLLXjBeA/+gwFLnR5Cg7eHkCBkKU1g7WgcuzQ/dkI836w90cCp
-	Ww3Frdg0wPb1mwjRNqGHXXJRJj+kn9ikKOntNXeOnQdMgt9WVOy8QgC05vI8k8W76H21hofuNwE
-	VDdnAi/1PFe2Rc7EuS7nUe1dH0q/31j1FSYVw
-X-Google-Smtp-Source: AGHT+IGlFHjhMsclmD9laqfjKedcH6F5arabPzzT/YJDR4LP/EEGeTRmgXeW7NgKrSk3f6qUrTPuh0ae6i59DgzppUw=
-X-Received: by 2002:a50:ccd6:0:b0:560:1b3:970 with SMTP id b22-20020a50ccd6000000b0056001b30970mr7470edj.7.1707244080137;
- Tue, 06 Feb 2024 10:28:00 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ajlRiE+k"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1707318010;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=EVhLcaa8TG78Kz48PNlh/yYFXjfEmKuv+E0PY5F0pPo=;
+	b=ajlRiE+kNxZRk2D5IlEhYPRajJcbUChHwGfJ5uXJkkcEeBBaA15kIfD1/J4RSc52Z2KRaE
+	hwi7Zhmm2JwBIsrXO3GiQfmyn51uOek5YDwYKmI5l1GS8E9Azuej3+EHo9e34mhYh+bBOA
+	9m91j28+SgBF4lUycz7RQNsTk1iKpVE=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-665-wOoquvl5MMSoAkE8xxv1wg-1; Wed, 07 Feb 2024 10:00:08 -0500
+X-MC-Unique: wOoquvl5MMSoAkE8xxv1wg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 7F07C811E81
+	for <selinux@vger.kernel.org>; Wed,  7 Feb 2024 15:00:08 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.226.157])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 26DDD1103A
+	for <selinux@vger.kernel.org>; Wed,  7 Feb 2024 15:00:08 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH] python/semanage: Do not sort local fcontext definitions
+Date: Wed,  7 Feb 2024 15:46:23 +0100
+Message-ID: <20240207150003.174701-1-vmojzis@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240206010919.1109005-1-lokeshgidra@google.com> <20240206010919.1109005-4-lokeshgidra@google.com>
-In-Reply-To: <20240206010919.1109005-4-lokeshgidra@google.com>
-From: Jann Horn <jannh@google.com>
-Date: Tue, 6 Feb 2024 19:27:22 +0100
-Message-ID: <CAG48ez0AdTijvuh0xueg_spwNE9tVcPuvqT9WpvmtiNNudQFMw@mail.gmail.com>
-Subject: Re: [PATCH v3 3/3] userfaultfd: use per-vma locks in userfaultfd operations
-To: Lokesh Gidra <lokeshgidra@google.com>
-Cc: akpm@linux-foundation.org, linux-fsdevel@vger.kernel.org, 
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, selinux@vger.kernel.org, 
-	surenb@google.com, kernel-team@android.com, aarcange@redhat.com, 
-	peterx@redhat.com, david@redhat.com, axelrasmussen@google.com, 
-	bgeffon@google.com, willy@infradead.org, kaleshsingh@google.com, 
-	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org, 
-	Liam.Howlett@oracle.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
 
-On Tue, Feb 6, 2024 at 2:09=E2=80=AFAM Lokesh Gidra <lokeshgidra@google.com=
-> wrote:
-> All userfaultfd operations, except write-protect, opportunistically use
-> per-vma locks to lock vmas. On failure, attempt again inside mmap_lock
-> critical section.
->
-> Write-protect operation requires mmap_lock as it iterates over multiple
-> vmas.
->
-> Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-[...]
-> diff --git a/mm/memory.c b/mm/memory.c
-> index b05fd28dbce1..393ab3b0d6f3 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-[...]
-> +/*
-> + * lock_vma() - Lookup and lock VMA corresponding to @address.
-> + * @prepare_anon: If true, then prepare the VMA (if anonymous) with anon=
-_vma.
-> + *
-> + * Should be called without holding mmap_lock. VMA should be unlocked af=
-ter use
-> + * with unlock_vma().
-> + *
-> + * Return: A locked VMA containing @address, NULL of no VMA is found, or
-> + * -ENOMEM if anon_vma couldn't be allocated.
-> + */
-> +struct vm_area_struct *lock_vma(struct mm_struct *mm,
-> +                               unsigned long address,
-> +                               bool prepare_anon)
-> +{
-> +       struct vm_area_struct *vma;
-> +
-> +       vma =3D lock_vma_under_rcu(mm, address);
-> +
-> +       if (vma)
-> +               return vma;
-> +
-> +       mmap_read_lock(mm);
-> +       vma =3D vma_lookup(mm, address);
-> +       if (vma) {
-> +               if (prepare_anon && vma_is_anonymous(vma) &&
-> +                   anon_vma_prepare(vma))
-> +                       vma =3D ERR_PTR(-ENOMEM);
-> +               else
-> +                       vma_acquire_read_lock(vma);
+Entries in file_contexts.local are processed from the most recent one to
+the oldest, with first match being used. Therefore it is important to
+preserve their order when listing (semanage fcontext -lC) and exporting
+(semanage export).
 
-This new code only calls anon_vma_prepare() for VMAs where
-vma_is_anonymous() is true (meaning they are private anonymous).
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+Not sure if this is the best solution since the local file context
+customizations are still sorted in the output of "semanage fcontext -l".
+Adding a new section for "Local file context changes" would make it
+clear that such changes are treated differently, but it would make it
+harder to find context definitions affecting specific path.
+The most important part of this patch is the change to "customized"
+since that stops "semanage export | semanage import" from reordering the
+local customizations.
 
-[...]
-> diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
-> index 74aad0831e40..64e22e467e4f 100644
-> --- a/mm/userfaultfd.c
-> +++ b/mm/userfaultfd.c
-> @@ -19,20 +19,25 @@
->  #include <asm/tlb.h>
->  #include "internal.h"
->
-> -static __always_inline
-> -struct vm_area_struct *find_dst_vma(struct mm_struct *dst_mm,
-> -                                   unsigned long dst_start,
-> -                                   unsigned long len)
-> +/* Search for VMA and make sure it is valid. */
-> +static struct vm_area_struct *find_and_lock_dst_vma(struct mm_struct *ds=
-t_mm,
-> +                                                   unsigned long dst_sta=
-rt,
-> +                                                   unsigned long len)
->  {
-> -       /*
-> -        * Make sure that the dst range is both valid and fully within a
-> -        * single existing vma.
-> -        */
->         struct vm_area_struct *dst_vma;
->
-> -       dst_vma =3D find_vma(dst_mm, dst_start);
-> -       if (!range_in_vma(dst_vma, dst_start, dst_start + len))
-> -               return NULL;
-> +       /* Ensure anon_vma is assigned for anonymous vma */
-> +       dst_vma =3D lock_vma(dst_mm, dst_start, true);
+Note: The order of dictionary.keys() is only guaranteed in python 3.6+.
 
-lock_vma() is now used by find_and_lock_dst_vma(), which is used by
-mfill_atomic().
+Note2: The change to fcontextPage can only be seen when the user
+disables ordering by "File specification" column, which is enabled by
+defalut.
 
-> +       if (!dst_vma)
-> +               return ERR_PTR(-ENOENT);
-> +
-> +       if (PTR_ERR(dst_vma) =3D=3D -ENOMEM)
-> +               return dst_vma;
-> +
-> +       /* Make sure that the dst range is fully within dst_vma. */
-> +       if (dst_start + len > dst_vma->vm_end)
-> +               goto out_unlock;
->
->         /*
->          * Check the vma is registered in uffd, this is required to
-[...]
-> @@ -597,7 +599,15 @@ static __always_inline ssize_t mfill_atomic(struct u=
-serfaultfd_ctx *ctx,
->         copied =3D 0;
->         folio =3D NULL;
->  retry:
-> -       mmap_read_lock(dst_mm);
-> +       /*
-> +        * Make sure the vma is not shared, that the dst range is
-> +        * both valid and fully within a single existing vma.
-> +        */
-> +       dst_vma =3D find_and_lock_dst_vma(dst_mm, dst_start, len);
-> +       if (IS_ERR(dst_vma)) {
-> +               err =3D PTR_ERR(dst_vma);
-> +               goto out;
-> +       }
->
->         /*
->          * If memory mappings are changing because of non-cooperative
-> @@ -609,15 +619,6 @@ static __always_inline ssize_t mfill_atomic(struct u=
-serfaultfd_ctx *ctx,
->         if (atomic_read(&ctx->mmap_changing))
->                 goto out_unlock;
->
-> -       /*
-> -        * Make sure the vma is not shared, that the dst range is
-> -        * both valid and fully within a single existing vma.
-> -        */
-> -       err =3D -ENOENT;
-> -       dst_vma =3D find_dst_vma(dst_mm, dst_start, len);
-> -       if (!dst_vma)
-> -               goto out_unlock;
-> -
->         err =3D -EINVAL;
->         /*
->          * shmem_zero_setup is invoked in mmap for MAP_ANONYMOUS|MAP_SHAR=
-ED but
-> @@ -647,16 +648,6 @@ static __always_inline ssize_t mfill_atomic(struct u=
-serfaultfd_ctx *ctx,
->             uffd_flags_mode_is(flags, MFILL_ATOMIC_CONTINUE))
->                 goto out_unlock;
->
-> -       /*
-> -        * Ensure the dst_vma has a anon_vma or this page
-> -        * would get a NULL anon_vma when moved in the
-> -        * dst_vma.
-> -        */
-> -       err =3D -ENOMEM;
-> -       if (!(dst_vma->vm_flags & VM_SHARED) &&
-> -           unlikely(anon_vma_prepare(dst_vma)))
-> -               goto out_unlock;
+ gui/fcontextPage.py         | 6 +++++-
+ python/semanage/seobject.py | 9 +++++++--
+ 2 files changed, 12 insertions(+), 3 deletions(-)
 
-But the check mfill_atomic() used to do was different, it checked for VM_SH=
-ARED.
+diff --git a/gui/fcontextPage.py b/gui/fcontextPage.py
+index 767664f2..c88df580 100644
+--- a/gui/fcontextPage.py
++++ b/gui/fcontextPage.py
+@@ -133,7 +133,11 @@ class fcontextPage(semanagePage):
+         self.fcontext = seobject.fcontextRecords()
+         self.store.clear()
+         fcon_dict = self.fcontext.get_all(self.local)
+-        for k in sorted(fcon_dict.keys()):
++        if self.local:
++            fkeys = fcon_dict.keys()
++        else:
++            fkeys = sorted(fcon_dict.keys())
++        for k in fkeys:
+             if not self.match(fcon_dict, k, filter):
+                 continue
+             iter = self.store.append()
+diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+index dfb15b1d..25ec4315 100644
+--- a/python/semanage/seobject.py
++++ b/python/semanage/seobject.py
+@@ -2735,7 +2735,7 @@ class fcontextRecords(semanageRecords):
+     def customized(self):
+         l = []
+         fcon_dict = self.get_all(True)
+-        for k in sorted(fcon_dict.keys()):
++        for k in fcon_dict.keys():
+             if fcon_dict[k]:
+                 if fcon_dict[k][3]:
+                     l.append("-a -f %s -t %s -r '%s' '%s'" % (file_type_str_to_option[k[1]], fcon_dict[k][2], fcon_dict[k][3], k[0]))
+@@ -2752,7 +2752,12 @@ class fcontextRecords(semanageRecords):
+         if len(fcon_dict) != 0:
+             if heading:
+                 print("%-50s %-18s %s\n" % (_("SELinux fcontext"), _("type"), _("Context")))
+-            for k in sorted(fcon_dict.keys()):
++            # do not sort local customizations since they are evaluated based on the order they where added in
++            if locallist:
++                fkeys = fcon_dict.keys()
++            else:
++                fkeys = sorted(fcon_dict.keys())
++            for k in fkeys:
+                 if fcon_dict[k]:
+                     if is_mls_enabled:
+                         print("%-50s %-18s %s:%s:%s:%s " % (k[0], k[1], fcon_dict[k][0], fcon_dict[k][1], fcon_dict[k][2], translate(fcon_dict[k][3], False)))
+-- 
+2.43.0
 
-Each VMA has one of these three types:
-
-1. shared (marked by VM_SHARED; does not have an anon_vma)
-2. private file-backed (needs to have anon_vma when storing PTEs)
-3. private anonymous (what vma_is_anonymous() detects; needs to have
-anon_vma when storing PTEs)
-
-This old code would call anon_vma_prepare() for both private VMA types
-(which is correct). The new code only calls anon_vma_prepare() for
-private anonymous VMAs, not for private file-backed ones. I think this
-code will probably crash with a BUG_ON() in __folio_set_anon() if you
-try to use userfaultfd to insert a PTE into a private file-backed VMA
-of a shmem file. (Which you should be able to get by creating a file
-in /dev/shm/ and then mapping that file with mmap(NULL, <size>,
-PROT_READ|PROT_WRITE, MAP_PRIVATE, <fd>, 0).)
