@@ -1,102 +1,118 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFC0D149E1D
-	for <selinux@vger.kernel.org>; Wed,  7 Feb 2024 22:11:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84E3B1D52B
+	for <selinux@vger.kernel.org>; Thu,  8 Feb 2024 03:18:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707343888; cv=none; b=nvkEHA2cIr4L7wxjcaos8Rlmt7dqh7qlUlgkGA/HWXiuQa9JQMrVCQLqQrd6rxU1qCqaAWPoUHMSVl0lb926D9B8e/n46qf0e/0jdObuIAzO7OFxa6TggGCN0CnJl+Y9jLHzSbOGkyjXgP/WVFusQmry2SgeoIREXehwde74RBY=
+	t=1707362315; cv=none; b=S2FdHo7poM0O+LACiBVu1zS4DSkg2xEktoJ/KG6FqoGRPXSPiOMQEse21FgLH7Lz+qHDiziGTYaFtm53R0ieHTD7Xic7V/0B7Zf53DxV5tAuHll6RRXdIYkcvmlzvIpHZHZ+vViDfVjVhtwa5nZhS4nf9LPb38/hTUi93qopwnw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707343888; c=relaxed/simple;
-	bh=T+xsOiFjNR+63CEA+G99uFG/TWED50uemjfpeROhEl8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lKIlu/bw2vb+SSg3JUt6NxxhHln9leeu0GTyld554yfiN4Af9s0sij4fkqdlDgbP1i7zx9EWw0vXFYpDqZOVLHXLzj4CQtBOsrqUB/Y63gmx7hFt6WVZCTL9hp6io3Q7MX3cWjr+3nFpSpAjA7K5F32841PAxmM+PedRVCRqVZM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jNX0jqR5; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1707362315; c=relaxed/simple;
+	bh=CwXu+mEYRI9NtMHVFqk3Ff2/WozQDRsM1R/qG5WWA8w=;
+	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
+	 From:To:Cc:Subject:References:In-Reply-To; b=bcJ7/vLExo6K1CGoOHYITDAazgrTvGhQ9oZEufpaTvP9w7XTpDSKNif5w0/zytu8RCUZKXINJ7ZPcGSCICQPbyUjUxTU3ANAj/6+JTyUL5tEaVEVVbo+uEL9R0dU5ySZF81G5OmtYTSkZlxB4fnT3e2Uu3klcpqS131ZYFIl5+8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=RBYcfQLZ; arc=none smtp.client-ip=209.85.160.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jNX0jqR5"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-40fe59b22dbso9424205e9.3
-        for <selinux@vger.kernel.org>; Wed, 07 Feb 2024 14:11:26 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="RBYcfQLZ"
+Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-42a4516ec5dso9585181cf.3
+        for <selinux@vger.kernel.org>; Wed, 07 Feb 2024 19:18:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1707343885; x=1707948685; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0/QLPuK75GUrGk9HoWYSYpwUJ1LKTuAKQV/adMnofcU=;
-        b=jNX0jqR51CQAEBl71aejJVZE4rB6C1SXW+jYd3fXvvLPJxKyhKSNWHf4bLO5Io+z7j
-         kGmhgmh24qB+ag4l4YmKtbDVQQ02HIO7S6a5wU71Uk95JGJblXtS09UHPv6FQF7hEgYh
-         o8PUjysMJA3h3bciAn6hqziCDJvk9OHriGgFNQeBPAwRNG9PDDFSUTnN2Lkys7HNhb67
-         sk8ngnmZNiqK9W2FoKHx5lJ4Nr+yUgmY6Dn72BjE0yGR/+wiabessXcwGbsRTIqJ/YyJ
-         CHUtiyyVvU4OgJbFX9rdRTug+aiv4I4WQ1mxWB0bjncObfIUBq3jLi6g8VvDTQo0/qVC
-         J/OQ==
+        d=paul-moore.com; s=google; t=1707362312; x=1707967112; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-disposition:mime-version:message-id:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=hK0BeESH0EV8j47xzGv04cLJ4LIyRw2g36A76+PXBk8=;
+        b=RBYcfQLZMf5lpVN7fxjLnX2DoVMoSKm+6dNz3zT+9CR45fEDT0NAvMtZmSWYMD0WS4
+         Nuz1VPnBK2CSkLuq60y0qaUkH5HMvOqNC4oQDKnBTNQzgRohE84R1wN8HCGtViitA/Ka
+         RPdOOsnku53l5/uKuBYdU9Jl7s3PAkEz+Hzb/FsdU036fCh0i0h4VlL4TeOi5v23o4eX
+         K3lfzFTFg5KVng1ZPqzn1qT09KT/mFOyo7RBmSYBBIczy7V3B1qvf7RhqyQc2piqrP86
+         Um5G5MhCFleg+gSRquvszS0DeHmMIfWHIIRmdhfgQaY5mzE4EfVCfHFdvo6QuVXyOW06
+         3uMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707343885; x=1707948685;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0/QLPuK75GUrGk9HoWYSYpwUJ1LKTuAKQV/adMnofcU=;
-        b=TmC+KxwenRlYr7qhr2XHqXer3U1r29L0XevOChakYR9UX/gJhnWBEFH3Sktyop9IzG
-         34J8TzzkFzDyIgwYYgqQRDXguZ2fT4W0PTdp2niu45/BGcRrsSETq2/2Tm0TPlTEHG5r
-         v7j+D7baEBUDDrFe3pjAdk/63KI78ioTMCJNRtmLezTp6DoNNEYAQa/22kkjZO/FFXQN
-         ptIpr9rBEK6FEt7YVfTiTS21K1rBpDyWIPhAqT0etFpaqByD63kPEwNhOHGRJKny1QNS
-         6JSbxgXSiES1dmXPl3JYAu+YbtMA+b8wglSoRghOl8/YRn/8SFH6XuAFxfioZNDp9/xn
-         dy9Q==
-X-Gm-Message-State: AOJu0Yx8i/FHPj+z+hDPjwI055Ij0Np9dGbVjbfEzDOtsqoOkDKesDrW
-	Y+wp39dqmhT2yD6eK0yoaglU9l7xyw89U7GRBSOTQC39BYRg1YdmdRZ5dk88JhDDLKvHgRLY7Y7
-	JNW8C2vvq763JqUyMkgIO6+owrPE=
-X-Google-Smtp-Source: AGHT+IH9eT505oCCr2u2Na5KCI660hU8Qbu2ZpQqQEdU+i17iITI+YUQFXD0dAwVT8Kw01fo7P85w7DxCUR8f5bpTM8=
-X-Received: by 2002:a5d:4b0e:0:b0:33b:4acd:22dc with SMTP id
- v14-20020a5d4b0e000000b0033b4acd22dcmr3426447wrq.16.1707343884667; Wed, 07
- Feb 2024 14:11:24 -0800 (PST)
+        d=1e100.net; s=20230601; t=1707362312; x=1707967112;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-disposition:mime-version:message-id:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=hK0BeESH0EV8j47xzGv04cLJ4LIyRw2g36A76+PXBk8=;
+        b=Ed3V6k+EbmvmKC1fq4L/FE8nTkH7YXvEF3Am3OeIQscxwThgFR3CtXNxJ1kLkikL7q
+         Gevw4RPl4Ab0MCjEM18/1N4QG2+I81wBh5zWU8/CKpN6vpi5HbXibqm05tTnJMetIuPP
+         sE1xn1OBkFbOluDabS4t39SljjIuWYnQ/0jZd+d3aRJowiiUtiSPDB2O0ZVMZYVCwiOs
+         zVw9UH7/jaJvcDav0iZahCaaC44sK7cJhkslECHCpwrE9neVzE6eOn2UwKoMKrxvg/CT
+         V5JXTySLEm/G4vr855ZS8T/u9u2Flvjzr3Ea0dX7swgsGwTekZR+E2C8xvykUMkzbkyu
+         GPrw==
+X-Forwarded-Encrypted: i=1; AJvYcCUGOkVsNIaGMJ2zCVPbp0ABrfMegbwaRNGMf7PiL7kC4i/Zj6QbIos6gAlKu4P9gPuNP+bQLTK3P/YTjemSObBvRIlQJ08/1g==
+X-Gm-Message-State: AOJu0YzCDk8CSYRH5CoQUp4XREqgkrJ96hZoETiXC0mjnKOjG1y/bD7q
+	Drz2Qj+yCmjAt4lnr6TmV0wf37bPGc/VKr0iH2zR4WQ9qOR4s8bj4Ox8JWyYOA==
+X-Google-Smtp-Source: AGHT+IGpZWRS7BciYc0E1wVHDo3UpmFl3VgGAmCTU/eLWbmLvCNB5DRi1BbJML+2QLswaRfYEk1Scg==
+X-Received: by 2002:a05:622a:5094:b0:42a:8a40:e33c with SMTP id fp20-20020a05622a509400b0042a8a40e33cmr7154113qtb.57.1707362312345;
+        Wed, 07 Feb 2024 19:18:32 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUevVJKwGdSjfdxiP74JGQH+dsVjTsQ22eS+EDgBhq5kdojHKMCot0Gi/z8CEm12WoDxxkC3fcVtiK1dC0B3jq9yqLGeT5IFivl8m7XQJWgO55sQ9GXn1H7Ahms5bxBd6ZCyxKAdFNl2BYS72MgAwJD8S9UW4n1izwi2zeo/x/6ETDHNdxssLHxhaFub0YwbvtgYkQ+Ts4QIs7hmF61Y0SEo7j5ZG0Xamly6PoTUHvENvAy+ub6SJ4HG1A22OmY8yClktBlY+zrwL3Ab0EVQ+0lI+ybXc96Pd02q8LtBA9SI8XhGCFyO4N68F6edRmx6KaVTqS3OPyjAl2iOkAN2e3UnfK9zHTj/4KCXUV9tyxtLZ9dbGoCXN1hn+ZmobXJRfCWvYks8nMbQXj8Wc/kf7EB42miI/kXnvD8VqHV5+s51PqtdtyrqA5Gz2WNVfPSdGXsBW0LACDd760AbQCozTmHErxN6lEAyEBt03J7rcruNSyNpM6Wn+umVt7c7/VVoivjVOXcU+sxKnheAA2vtSugW1dN38s2OpNzvrFgApBY/MxAf4nddsTPkXLHFoiA6ZYqJJm6Da0e955UOduupoYwOoj0vZF4IZQ8xNOty6rkZ5kRzAGJWo3Paz4OmvTnMBQ+nvI/304hJMLv9S+syJjaw7s9Ze27m3HM28DvziGUmI8ETXbrbIMjexxmysGJIMnpQa3tif2wEvfrl2D6BkN7Dh4pYcvIqjIkwq0sZLEIggav8FBhb83axn0lwmF0E59LNP182o3Lbhyu3ia5Liy98P3Ihe7jst+qOisYHc6KBfQD70sSyyITvsLhAF8CSzxECMO+c1DJ0NNdDiISpQJlXVfA1iJUidOs2SNjtGWBHBJ5cu10lvsZQwX6TACxjEwZhJo+WXEuJQIWx5uasUCUwLZyA6h3QHchFf9sBvNtRjPwoGvF
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id b24-20020ac86bd8000000b0042bed7dc558sm1071255qtt.6.2024.02.07.19.18.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 07 Feb 2024 19:18:31 -0800 (PST)
+Date: Wed, 07 Feb 2024 22:18:31 -0500
+Message-ID: <d54ca249c3071522218c7ba7b4984bab@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20240128100035.82170-1-debug.penguin32@gmail.com> <CAHC9VhSsyOpZuHwT1ZZz3h=kWYXnWoCGfy_pLwEktXAfswkRAQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhSsyOpZuHwT1ZZz3h=kWYXnWoCGfy_pLwEktXAfswkRAQ@mail.gmail.com>
-From: Ronald Monthero <debug.penguin32@gmail.com>
-Date: Thu, 8 Feb 2024 08:10:48 +1000
-Message-ID: <CALk6Uxr+WY9ioCtBGvfAZyzSwmYPbcerVaXGa43Z7eTdfn77Cw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: Use kfree_sensitive for certain code paths of security
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org, stephen.smalley.work@gmail.com, 
-	cgzones@googlemail.com, omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=utf-8 
+Content-Disposition: inline 
+Content-Transfer-Encoding: 8bit
+From: Paul Moore <paul@paul-moore.com>
+To: Roberto Sassu <roberto.sassu@huaweicloud.com>, viro@zeniv.linux.org.uk, brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com, jmorris@namei.org, serge@hallyn.com, zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, eric.snowberg@oracle.com, dhowells@redhat.com, jarkko@kernel.org, stephen.smalley.work@gmail.com, eparis@parisplace.org, casey@schaufler-ca.com, shuah@kernel.org, mic@digikod.net
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, keyrings@vger.kernel.org, selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
+Subject: Re: [PATCH v9 0/25] security: Move IMA and EVM to the LSM
+ infrastructure
+References: <20240115181809.885385-1-roberto.sassu@huaweicloud.com>
+In-Reply-To: <20240115181809.885385-1-roberto.sassu@huaweicloud.com>
 
-Thanks Paul and Casey for taking the time to review. I'll let that be,
-as it may not be needed until further particularity.
+On Jan 15, 2024 Roberto Sassu <roberto.sassu@huaweicloud.com> wrote:
+> 
+> IMA and EVM are not effectively LSMs, especially due to the fact that in
+> the past they could not provide a security blob while there is another LSM
+> active.
+> 
+> That changed in the recent years, the LSM stacking feature now makes it
+> possible to stack together multiple LSMs, and allows them to provide a
+> security blob for most kernel objects. While the LSM stacking feature has
+> some limitations being worked out, it is already suitable to make IMA and
+> EVM as LSMs.
+> 
+> The main purpose of this patch set is to remove IMA and EVM function calls,
+> hardcoded in the LSM infrastructure and other places in the kernel, and to
+> register them as LSM hook implementations, so that those functions are
+> called by the LSM infrastructure like other regular LSMs.
 
-BR,
-ronald
+Thanks Roberto, this is looking good.  I appreciate all the work you've
+put into making this happen; when I first mentioned this idea I figured
+it would be something that would happen much farther into the future, I
+wasn't expecting to see you pick this up and put in the work to make it
+happen - thank you.
 
-On Tue, Jan 30, 2024 at 7:58=E2=80=AFAM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Sun, Jan 28, 2024 at 5:02=E2=80=AFAM Ronald Monthero
-> <debug.penguin32@gmail.com> wrote:
-> >
-> > As with kfree_sensitive() it does kfree() and memzero_explicit()
-> > internally to clear sensitive data. The patch includes some of
-> > the code paths to free data such as keys, hash table and
-> > scontext and tcontext of selinux, which would benefit
-> > from kfree_sensitive() to replace kfree()
-> >
-> > Signed-off-by: Ronald Monthero <debug.penguin32@gmail.com>
-> > ---
-> >  security/selinux/avc.c            |  4 ++--
-> >  security/selinux/ima.c            |  2 +-
-> >  security/selinux/selinuxfs.c      | 16 ++++++++--------
-> >  security/selinux/ss/conditional.c |  4 ++--
-> >  security/selinux/ss/hashtab.c     |  2 +-
-> >  security/selinux/ss/policydb.c    |  6 +++---
-> >  6 files changed, 17 insertions(+), 17 deletions(-)
->
-> I agree with Casey's comment, I'm not seeing anything in the SELinux
-> code that would warrant the use of kfree_sensitive().
->
-> --
-> paul-moore.com
+I had some pretty minor comments but I think the only thing I saw that
+I think needs a change/addition is a comment in the Makefile regarding
+the IMA/EVM ordering; take a look and let me know what you think.
+
+There are also a few patches in the patchset that don't have an
+ACK/review tag from Mimi, although now that you are co-maininting IMA/EVM
+with Mimi I don't know if that matters.  If the two of you can let me
+know how you want me to handle LSM patches that are IMA/EVM related I
+would appreciate it (two ACKs, one or other, something else?).
+
+Once you add a Makefile commane and we sort out the IMA/EVM approval
+process I think we're good to get this into linux-next.  A while back
+Mimi and I had a chat offline and if I recall everything correctly she
+preferred that I take this patchset via the LSM tree.  I don't have a
+problem with that, and to be honest I would probably prefer
+that too, but I wanted to check with everyone that is still the case.
+Just in case, I've added my ACKs/reviews to this patchset in case this
+needs to be merged via the integrity tree.
+
+--
+paul-moore.com
