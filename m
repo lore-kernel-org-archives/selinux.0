@@ -1,137 +1,750 @@
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D3812E630;
-	Fri,  9 Feb 2024 12:03:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=14.137.139.23
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F13317E770
+	for <selinux@vger.kernel.org>; Fri,  9 Feb 2024 18:02:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707480211; cv=none; b=CXrAZ42b1z5HqaoB0Sn778zf1t4xyZH0kN+ddfOQDYZrizn9Ba5xTCs9G0FIy3lXwGHKF0pGAnB2dRarUL8M2CUJyjwdcYwWseTJW0MWA0JrgNXMAVuRo+8Gmgwuu5w8yIgfi0EuM3lay/YwVkCTV5rYQEeDtWamWrM6y/ZuiaM=
+	t=1707501733; cv=none; b=DwYT+LxbrSDCoX40qf2C1rVKPBiYoDbQf6zDspYIl/UhZ6vfBuN/CYXdEZdU1YSm1eyvD3op4orLtV3MhLoZaOr0gsGWV9FxggD6Gxnn9IePe3LKj4qsoipX+0G/rDFPXnGDw0XcNUJFtvQhWhE8hPrNOGuKtJdV/pUAgz8qAmY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707480211; c=relaxed/simple;
-	bh=BhA/UikenM4m0IyfeHs3E+dkP69p7UWIJfw5VFHgk24=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=brJx/cQC5LWOZnAB7EiCvcPfLjwyigMZaHefHf1hZyqHCwZh4ThybmE52nP5ARE0e50TmXZEEBD+TO+mV2w5BbAQASuTVnKtgyjHUnzHnKZ7S7wckaYJgH0+F0KRz43oVDuKke+K6FfAHDqNY1l7ILNKjUEDXUfvd4JtboShyn4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=14.137.139.23
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.18.186.51])
-	by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4TWXDB6LM8z9xvhR;
-	Fri,  9 Feb 2024 19:48:10 +0800 (CST)
-Received: from mail02.huawei.com (unknown [7.182.16.27])
-	by mail.maildlp.com (Postfix) with ESMTP id DB61B14086B;
-	Fri,  9 Feb 2024 20:03:09 +0800 (CST)
-Received: from [127.0.0.1] (unknown [10.204.63.22])
-	by APP2 (Coremail) with SMTP id GxC2BwAXBChtFMZlv1EoAg--.21619S2;
-	Fri, 09 Feb 2024 13:03:09 +0100 (CET)
-Message-ID: <f61cb90858d866ed3eb7a2b607152c4aa2a52f5d.camel@huaweicloud.com>
-Subject: Re: [PATCH v9 12/25] security: Introduce file_post_open hook
-From: Roberto Sassu <roberto.sassu@huaweicloud.com>
-To: Christian Brauner <brauner@kernel.org>
-Cc: viro@zeniv.linux.org.uk, chuck.lever@oracle.com, jlayton@kernel.org, 
- neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com, 
- paul@paul-moore.com, jmorris@namei.org, serge@hallyn.com,
- zohar@linux.ibm.com,  dmitry.kasatkin@gmail.com, eric.snowberg@oracle.com,
- dhowells@redhat.com,  jarkko@kernel.org, stephen.smalley.work@gmail.com,
- eparis@parisplace.org,  casey@schaufler-ca.com, shuah@kernel.org,
- mic@digikod.net,  linux-kernel@vger.kernel.org,
- linux-fsdevel@vger.kernel.org,  linux-nfs@vger.kernel.org,
- linux-security-module@vger.kernel.org,  linux-integrity@vger.kernel.org,
- keyrings@vger.kernel.org,  selinux@vger.kernel.org,
- linux-kselftest@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
- Stefan Berger <stefanb@linux.ibm.com>
-Date: Fri, 09 Feb 2024 13:02:49 +0100
-In-Reply-To: <20240209-giert-erlenholz-b131fa85ee36@brauner>
-References: <20240115181809.885385-1-roberto.sassu@huaweicloud.com>
-	 <20240115181809.885385-13-roberto.sassu@huaweicloud.com>
-	 <20240209-luftleer-jobangebote-6d6ab29b7191@brauner>
-	 <86ab971f45c2ff11dcbdeab78b4b050f07495f55.camel@huaweicloud.com>
-	 <20240209-giert-erlenholz-b131fa85ee36@brauner>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.44.4-0ubuntu2 
+	s=arc-20240116; t=1707501733; c=relaxed/simple;
+	bh=j1ZRr+H8uqc3feM+iw8u54XjPaa3tM5OcfCLLY05eEI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=Ms3MUhwT5xkZGFhohs2MsXkMDKRrvc9dtKfwjRS9DEanpEsycOYJ0J4bLtjsCcwzfMGuXL3r8Z1t1+kD1rb/nXvrZOmNNoR/ldb6gQeTAXDSTxhvqmngqNRyVtiMtf0g37PtsnPC+qoffU7nsoaSZ8byySfSp/Bgl5ixqqjvHi4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ku3cNm/y; arc=none smtp.client-ip=209.85.221.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ku3cNm/y"
+Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-33b6ae05d12so54825f8f.0
+        for <selinux@vger.kernel.org>; Fri, 09 Feb 2024 10:02:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1707501729; x=1708106529; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1Rz1CqVXfmhrDkg4FYloOaiy8RD5Kx1e3kEoF6csDqY=;
+        b=ku3cNm/ynWmVulp8F3xmlU4l9iQKf1Ez1cB8P3XLdGLU84eWY+xXBmXmpTdH5SGvz6
+         AItpoBA9l/MVjdHOPQf7L45hvCV9c4i5Q0Yg6eKLKRf71cxFhlLPwoFBkDZfbx3lhvU/
+         T9mabF4mmY7i8O9OQIMKbH9gdMse59uuhSqFLT2ZmfYKVa6CFItKyICWZ970ZZvaV8HW
+         YnXLttxposajqKluPsZ0PooPAKCLOZAdWk7mLxXkvL2jRN985hUX3A5dwFl6vFDVIQn2
+         RJ3yN87dODSDtC1DNDCri+gaQ5pp9A/57X8gRcq6nVfY6fkJJOrEkTxVyKtBFRph+LZa
+         YW2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707501729; x=1708106529;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1Rz1CqVXfmhrDkg4FYloOaiy8RD5Kx1e3kEoF6csDqY=;
+        b=tSHWG9xpftwbx4pCfG7B/b0qIDU5GtChTZoFPiisldyzbxDOaMUYeKY2LrOwMR6kf8
+         rb6sXacCDW0Y5lkiTbah5j4vDBjDtj/gVI++FJmdzbTmYBCADr/Ay4cDjYiM0wd/dieS
+         ISPtbhkv/ENvRsbJlX6RM7K7mOg4gwsBRwn3X3LAzRWgRvaqqwvvLM8cvo8FZG9li4U2
+         U5JkMVkncFbLE/U5hnHaZHwGkIKBN3IO+s5JbZOAKw6U148NYXHvVKTycbpGNE4trtee
+         LSd1+8aPWqkpiQOuoDe7B7OGn5+RmmFFX4G9s2eOVIasfI3VRTQ8jPyr0G9w8Yph49gx
+         U6aA==
+X-Gm-Message-State: AOJu0YxdNZGu7QHJPULp8ak9a9HGUMbZdPBSTO7hHVHNJ69AUgh54Uw0
+	yFRBJo0iHbYwNJQE+2Q/++XpOS2A1kKY5ghMCOiXhIJvBz/JgKlTYRy5OqW4CMn4/RRkm10e8dl
+	mF7htwWps+7G/HyppTHg4U5RTe+Not6FxOW2e
+X-Google-Smtp-Source: AGHT+IHKItOZOihLBD4ELXODk2DVxVUYYxt55u/opR4OMKbKScaIynza0YIbt6N/VCGBDopOHo5iqKrk06xgN1c/CkE=
+X-Received: by 2002:a5d:5707:0:b0:33b:14f8:732a with SMTP id
+ a7-20020a5d5707000000b0033b14f8732amr1767772wrv.45.1707501728811; Fri, 09 Feb
+ 2024 10:02:08 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-CM-TRANSID:GxC2BwAXBChtFMZlv1EoAg--.21619S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxJr4UAr1ftFWDuF4xKF17KFg_yoW8Kw4rpa
-	y5J3Z8GF4kGry7Cr9IvF90qFnYg392qFyUXrZxX34UArnFqrnI9F47Cr15uFyqqr1xGr10
-	vr429r9xWr1UArJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUkYb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-	xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-	AFwI0_Gr1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
-	6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
-	Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28IcxkI
-	7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxV
-	Cjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY
-	6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6x
-	AIw20EY4v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv
-	6xkF7I0E14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7IU1c4S7UUUUU==
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAIBF1jj5Y3PwAAsh
+References: <20240208212204.2043140-1-lokeshgidra@google.com>
+ <20240208212204.2043140-4-lokeshgidra@google.com> <20240209030654.lxh4krmxmiuszhab@revolver>
+In-Reply-To: <20240209030654.lxh4krmxmiuszhab@revolver>
+From: Lokesh Gidra <lokeshgidra@google.com>
+Date: Fri, 9 Feb 2024 10:01:56 -0800
+Message-ID: <CA+EESO4Ar8o3HMPF_b9KGbH2ytk1gNSJo0ucNAdMDX_OhgTe=A@mail.gmail.com>
+Subject: Re: [PATCH v4 3/3] userfaultfd: use per-vma locks in userfaultfd operations
+To: "Liam R. Howlett" <Liam.Howlett@oracle.com>, Lokesh Gidra <lokeshgidra@google.com>, 
+	akpm@linux-foundation.org, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, surenb@google.com, 
+	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com, 
+	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com, 
+	willy@infradead.org, jannh@google.com, kaleshsingh@google.com, 
+	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2024-02-09 at 12:34 +0100, Christian Brauner wrote:
-> On Fri, Feb 09, 2024 at 11:46:16AM +0100, Roberto Sassu wrote:
-> > On Fri, 2024-02-09 at 11:12 +0100, Christian Brauner wrote:
-> > > On Mon, Jan 15, 2024 at 07:17:56PM +0100, Roberto Sassu wrote:
-> > > > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > > >=20
-> > > > In preparation to move IMA and EVM to the LSM infrastructure, intro=
-duce the
-> > > > file_post_open hook. Also, export security_file_post_open() for NFS=
-.
-> > > >=20
-> > > > Based on policy, IMA calculates the digest of the file content and
-> > > > extends the TPM with the digest, verifies the file's integrity base=
-d on
-> > > > the digest, and/or includes the file digest in the audit log.
-> > > >=20
-> > > > LSMs could similarly take action depending on the file content and =
-the
-> > > > access mask requested with open().
-> > > >=20
-> > > > The new hook returns a value and can cause the open to be aborted.
-> > > >=20
-> > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > > > Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-> > > > Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-> > > > Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-> > > > ---
-> > > >  fs/namei.c                    |  2 ++
-> > > >  fs/nfsd/vfs.c                 |  6 ++++++
-> > > >  include/linux/lsm_hook_defs.h |  1 +
-> > > >  include/linux/security.h      |  6 ++++++
-> > > >  security/security.c           | 17 +++++++++++++++++
-> > > >  5 files changed, 32 insertions(+)
-> > > >=20
-> > > > diff --git a/fs/namei.c b/fs/namei.c
-> > > > index 71c13b2990b4..fb93d3e13df6 100644
-> > > > --- a/fs/namei.c
-> > > > +++ b/fs/namei.c
-> > > > @@ -3620,6 +3620,8 @@ static int do_open(struct nameidata *nd,
-> > > >  	error =3D may_open(idmap, &nd->path, acc_mode, open_flag);
-> > > >  	if (!error && !(file->f_mode & FMODE_OPENED))
-> > > >  		error =3D vfs_open(&nd->path, file);
-> > > > +	if (!error)
-> > > > +		error =3D security_file_post_open(file, op->acc_mode);
-> > >=20
-> > > What does it do for O_CREAT? IOW, we managed to create that thing and=
- we
-> > > managed to open that thing. Can security_file_post_open() and
-> > > ima_file_check() fail afterwards even for newly created files?
-> >=20
-> > $ strace touch test-file
-> > ...
-> > openat(AT_FDCWD, "test-file", O_WRONLY|O_CREAT|O_NOCTTY|O_NONBLOCK, 066=
-6) =3D -1 EPERM (Operation not permitted)
->=20
-> Ah, meh. I was hoping IMA just wouldn't care about this case.
+On Thu, Feb 8, 2024 at 7:07=E2=80=AFPM Liam R. Howlett <Liam.Howlett@oracle=
+.com> wrote:
+>
+> * Lokesh Gidra <lokeshgidra@google.com> [240208 16:22]:
+> > All userfaultfd operations, except write-protect, opportunistically use
+> > per-vma locks to lock vmas. On failure, attempt again inside mmap_lock
+> > critical section.
+> >
+> > Write-protect operation requires mmap_lock as it iterates over multiple
+> > vmas.
+> >
+> > Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+> > ---
+> >  fs/userfaultfd.c              |  13 +-
+> >  include/linux/userfaultfd_k.h |   5 +-
+> >  mm/userfaultfd.c              | 356 ++++++++++++++++++++++++++--------
+> >  3 files changed, 275 insertions(+), 99 deletions(-)
+> >
+> > diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+> > index c00a021bcce4..60dcfafdc11a 100644
+> > --- a/fs/userfaultfd.c
+> > +++ b/fs/userfaultfd.c
+> > @@ -2005,17 +2005,8 @@ static int userfaultfd_move(struct userfaultfd_c=
+tx *ctx,
+> >               return -EINVAL;
+> >
+> >       if (mmget_not_zero(mm)) {
+> > -             mmap_read_lock(mm);
+> > -
+> > -             /* Re-check after taking map_changing_lock */
+> > -             down_read(&ctx->map_changing_lock);
+> > -             if (likely(!atomic_read(&ctx->mmap_changing)))
+> > -                     ret =3D move_pages(ctx, mm, uffdio_move.dst, uffd=
+io_move.src,
+> > -                                      uffdio_move.len, uffdio_move.mod=
+e);
+> > -             else
+> > -                     ret =3D -EAGAIN;
+> > -             up_read(&ctx->map_changing_lock);
+> > -             mmap_read_unlock(mm);
+> > +             ret =3D move_pages(ctx, uffdio_move.dst, uffdio_move.src,
+> > +                              uffdio_move.len, uffdio_move.mode);
+> >               mmput(mm);
+> >       } else {
+> >               return -ESRCH;
+> > diff --git a/include/linux/userfaultfd_k.h b/include/linux/userfaultfd_=
+k.h
+> > index 3210c3552976..05d59f74fc88 100644
+> > --- a/include/linux/userfaultfd_k.h
+> > +++ b/include/linux/userfaultfd_k.h
+> > @@ -138,9 +138,8 @@ extern long uffd_wp_range(struct vm_area_struct *vm=
+a,
+> >  /* move_pages */
+> >  void double_pt_lock(spinlock_t *ptl1, spinlock_t *ptl2);
+> >  void double_pt_unlock(spinlock_t *ptl1, spinlock_t *ptl2);
+> > -ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
+> > -                unsigned long dst_start, unsigned long src_start,
+> > -                unsigned long len, __u64 flags);
+> > +ssize_t move_pages(struct userfaultfd_ctx *ctx, unsigned long dst_star=
+t,
+> > +                unsigned long src_start, unsigned long len, __u64 flag=
+s);
+> >  int move_pages_huge_pmd(struct mm_struct *mm, pmd_t *dst_pmd, pmd_t *s=
+rc_pmd, pmd_t dst_pmdval,
+> >                       struct vm_area_struct *dst_vma,
+> >                       struct vm_area_struct *src_vma,
+> > diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
+> > index 74aad0831e40..1e25768b2136 100644
+> > --- a/mm/userfaultfd.c
+> > +++ b/mm/userfaultfd.c
+> > @@ -19,20 +19,12 @@
+> >  #include <asm/tlb.h>
+> >  #include "internal.h"
+> >
+> > -static __always_inline
+> > -struct vm_area_struct *find_dst_vma(struct mm_struct *dst_mm,
+> > -                                 unsigned long dst_start,
+> > -                                 unsigned long len)
+>
+> You could probably leave the __always_inline for this.
 
-Actually it doesn't. I added code to artifically create the situation
-(to see what happens if a new LSM does that).
+Sure
+>
+> > +static bool validate_dst_vma(struct vm_area_struct *dst_vma,
+> > +                          unsigned long dst_end)
+> >  {
+> > -     /*
+> > -      * Make sure that the dst range is both valid and fully within a
+> > -      * single existing vma.
+> > -      */
+> > -     struct vm_area_struct *dst_vma;
+> > -
+> > -     dst_vma =3D find_vma(dst_mm, dst_start);
+> > -     if (!range_in_vma(dst_vma, dst_start, dst_start + len))
+> > -             return NULL;
+> > +     /* Make sure that the dst range is fully within dst_vma. */
+> > +     if (dst_end > dst_vma->vm_end)
+> > +             return false;
+> >
+> >       /*
+> >        * Check the vma is registered in uffd, this is required to
+> > @@ -40,11 +32,125 @@ struct vm_area_struct *find_dst_vma(struct mm_stru=
+ct *dst_mm,
+> >        * time.
+> >        */
+> >       if (!dst_vma->vm_userfaultfd_ctx.ctx)
+> > -             return NULL;
+> > +             return false;
+> > +
+> > +     return true;
+> > +}
+> > +
+> > +#ifdef CONFIG_PER_VMA_LOCK
+> > +/*
+> > + * lock_vma() - Lookup and lock vma corresponding to @address.
+> > + * @mm: mm to search vma in.
+> > + * @address: address that the vma should contain.
+> > + * @prepare_anon: If true, then prepare the vma (if private) with anon=
+_vma.
+> > + *
+> > + * Should be called without holding mmap_lock. vma should be unlocked =
+after use
+> > + * with unlock_vma().
+> > + *
+> > + * Return: A locked vma containing @address, NULL if no vma is found, =
+or
+> > + * -ENOMEM if anon_vma couldn't be allocated.
+> > + */
+> > +static struct vm_area_struct *lock_vma(struct mm_struct *mm,
+> > +                                    unsigned long address,
+> > +                                    bool prepare_anon)
+> > +{
+> > +     struct vm_area_struct *vma;
+> > +
+> > +     vma =3D lock_vma_under_rcu(mm, address);
+> > +     if (vma) {
+> > +             /*
+> > +              * lock_vma_under_rcu() only checks anon_vma for private
+> > +              * anonymous mappings. But we need to ensure it is assign=
+ed in
+> > +              * private file-backed vmas as well.
+> > +              */
+> > +             if (prepare_anon && !(vma->vm_flags & VM_SHARED) &&
+> > +                 !vma->anon_vma)
+> > +                     vma_end_read(vma);
+> > +             else
+> > +                     return vma;
+> > +     }
+> > +
+> > +     mmap_read_lock(mm);
+> > +     vma =3D vma_lookup(mm, address);
+> > +     if (vma) {
+> > +             if (prepare_anon && !(vma->vm_flags & VM_SHARED) &&
+> > +                 anon_vma_prepare(vma)) {
+> > +                     vma =3D ERR_PTR(-ENOMEM);
+> > +             } else {
+> > +                     /*
+> > +                      * We cannot use vma_start_read() as it may fail =
+due to
+> > +                      * false locked (see comment in vma_start_read())=
+. We
+> > +                      * can avoid that by directly locking vm_lock und=
+er
+> > +                      * mmap_lock, which guarantees that nobody can lo=
+ck the
+> > +                      * vma for write (vma_start_write()) under us.
+> > +                      */
+> > +                     down_read(&vma->vm_lock->lock);
+> > +             }
+> > +     }
+> > +
+> > +     mmap_read_unlock(mm);
+> > +     return vma;
+> > +}
+> > +
+> > +static void unlock_vma(struct vm_area_struct *vma)
+> > +{
+> > +     vma_end_read(vma);
+> > +}
+> > +
+> > +static struct vm_area_struct *find_and_lock_dst_vma(struct mm_struct *=
+dst_mm,
+> > +                                                 unsigned long dst_sta=
+rt,
+> > +                                                 unsigned long len)
+> > +{
+> > +     struct vm_area_struct *dst_vma;
+> > +
+> > +     /* Ensure anon_vma is assigned for private vmas */
+> > +     dst_vma =3D lock_vma(dst_mm, dst_start, true);
+> > +
+> > +     if (!dst_vma)
+> > +             return ERR_PTR(-ENOENT);
+> > +
+> > +     if (PTR_ERR(dst_vma) =3D=3D -ENOMEM)
+> > +             return dst_vma;
+> > +
+> > +     if (!validate_dst_vma(dst_vma, dst_start + len))
+> > +             goto out_unlock;
+> >
+> >       return dst_vma;
+> > +out_unlock:
+> > +     unlock_vma(dst_vma);
+> > +     return ERR_PTR(-ENOENT);
+> >  }
+> >
+> > +#else
+> > +
+> > +static struct vm_area_struct *lock_mm_and_find_dst_vma(struct mm_struc=
+t *dst_mm,
+> > +                                                    unsigned long dst_=
+start,
+> > +                                                    unsigned long len)
+> > +{
+> > +     struct vm_area_struct *dst_vma;
+> > +     int err =3D -ENOENT;
+> > +
+> > +     mmap_read_lock(dst_mm);
+> > +     dst_vma =3D vma_lookup(dst_mm, dst_start);
+> > +     if (!dst_vma)
+> > +             goto out_unlock;
+> > +
+> > +     /* Ensure anon_vma is assigned for private vmas */
+> > +     if (!(dst_vma->vm_flags & VM_SHARED) && anon_vma_prepare(dst_vma)=
+) {
+> > +             err =3D -ENOMEM;
+> > +             goto out_unlock;
+> > +     }
+> > +
+> > +     if (!validate_dst_vma(dst_vma, dst_start + len))
+> > +             goto out_unlock;
+> > +
+> > +     return dst_vma;
+> > +out_unlock:
+> > +     mmap_read_unlock(dst_mm);
+> > +     return ERR_PTR(err);
+> > +}
+> > +#endif
+> > +
+> >  /* Check if dst_addr is outside of file's size. Must be called with pt=
+l held. */
+> >  static bool mfill_file_over_size(struct vm_area_struct *dst_vma,
+> >                                unsigned long dst_addr)
+> > @@ -350,7 +456,8 @@ static pmd_t *mm_alloc_pmd(struct mm_struct *mm, un=
+signed long address)
+> >  #ifdef CONFIG_HUGETLB_PAGE
+> >  /*
+> >   * mfill_atomic processing for HUGETLB vmas.  Note that this routine i=
+s
+> > - * called with mmap_lock held, it will release mmap_lock before return=
+ing.
+> > + * called with either vma-lock or mmap_lock held, it will release the =
+lock
+> > + * before returning.
+> >   */
+> >  static __always_inline ssize_t mfill_atomic_hugetlb(
+> >                                             struct userfaultfd_ctx *ctx=
+,
+> > @@ -361,7 +468,6 @@ static __always_inline ssize_t mfill_atomic_hugetlb=
+(
+> >                                             uffd_flags_t flags)
+> >  {
+> >       struct mm_struct *dst_mm =3D dst_vma->vm_mm;
+> > -     int vm_shared =3D dst_vma->vm_flags & VM_SHARED;
+> >       ssize_t err;
+> >       pte_t *dst_pte;
+> >       unsigned long src_addr, dst_addr;
+> > @@ -380,7 +486,11 @@ static __always_inline ssize_t mfill_atomic_hugetl=
+b(
+> >        */
+> >       if (uffd_flags_mode_is(flags, MFILL_ATOMIC_ZEROPAGE)) {
+> >               up_read(&ctx->map_changing_lock);
+> > +#ifdef CONFIG_PER_VMA_LOCK
+> > +             unlock_vma(dst_vma);
+> > +#else
+> >               mmap_read_unlock(dst_mm);
+> > +#endif
+> >               return -EINVAL;
+> >       }
+> >
+> > @@ -403,24 +513,32 @@ static __always_inline ssize_t mfill_atomic_huget=
+lb(
+> >        * retry, dst_vma will be set to NULL and we must lookup again.
+> >        */
+> >       if (!dst_vma) {
+> > +#ifdef CONFIG_PER_VMA_LOCK
+> > +             dst_vma =3D find_and_lock_dst_vma(dst_mm, dst_start, len)=
+;
+> > +#else
+> > +             dst_vma =3D lock_mm_and_find_dst_vma(dst_mm, dst_start, l=
+en);
+> > +#endif
+> > +             if (IS_ERR(dst_vma)) {
+> > +                     err =3D PTR_ERR(dst_vma);
+> > +                     goto out;
+> > +             }
+> > +
+> >               err =3D -ENOENT;
+> > -             dst_vma =3D find_dst_vma(dst_mm, dst_start, len);
+> > -             if (!dst_vma || !is_vm_hugetlb_page(dst_vma))
+> > -                     goto out_unlock;
+> > +             if (!is_vm_hugetlb_page(dst_vma))
+> > +                     goto out_unlock_vma;
+> >
+> >               err =3D -EINVAL;
+> >               if (vma_hpagesize !=3D vma_kernel_pagesize(dst_vma))
+> > -                     goto out_unlock;
+> > -
+> > -             vm_shared =3D dst_vma->vm_flags & VM_SHARED;
+> > -     }
+> > +                     goto out_unlock_vma;
+> >
+> > -     /*
+> > -      * If not shared, ensure the dst_vma has a anon_vma.
+> > -      */
+> > -     err =3D -ENOMEM;
+> > -     if (!vm_shared) {
+> > -             if (unlikely(anon_vma_prepare(dst_vma)))
+> > +             /*
+> > +              * If memory mappings are changing because of non-coopera=
+tive
+> > +              * operation (e.g. mremap) running in parallel, bail out =
+and
+> > +              * request the user to retry later
+> > +              */
+> > +             down_read(&ctx->map_changing_lock);
+> > +             err =3D -EAGAIN;
+> > +             if (atomic_read(&ctx->mmap_changing))
+> >                       goto out_unlock;
+> >       }
+> >
+> > @@ -465,7 +583,11 @@ static __always_inline ssize_t mfill_atomic_hugetl=
+b(
+> >
+> >               if (unlikely(err =3D=3D -ENOENT)) {
+> >                       up_read(&ctx->map_changing_lock);
+> > +#ifdef CONFIG_PER_VMA_LOCK
+> > +                     unlock_vma(dst_vma);
+> > +#else
+> >                       mmap_read_unlock(dst_mm);
+> > +#endif
+> >                       BUG_ON(!folio);
+> >
+> >                       err =3D copy_folio_from_user(folio,
+> > @@ -474,17 +596,6 @@ static __always_inline ssize_t mfill_atomic_hugetl=
+b(
+> >                               err =3D -EFAULT;
+> >                               goto out;
+> >                       }
+> > -                     mmap_read_lock(dst_mm);
+> > -                     down_read(&ctx->map_changing_lock);
+> > -                     /*
+> > -                      * If memory mappings are changing because of non=
+-cooperative
+> > -                      * operation (e.g. mremap) running in parallel, b=
+ail out and
+> > -                      * request the user to retry later
+> > -                      */
+> > -                     if (atomic_read(&ctx->mmap_changing)) {
+> > -                             err =3D -EAGAIN;
+> > -                             break;
+> > -                     }
+> >
+> >                       dst_vma =3D NULL;
+> >                       goto retry;
+> > @@ -505,7 +616,12 @@ static __always_inline ssize_t mfill_atomic_hugetl=
+b(
+> >
+> >  out_unlock:
+> >       up_read(&ctx->map_changing_lock);
+> > +out_unlock_vma:
+> > +#ifdef CONFIG_PER_VMA_LOCK
+> > +     unlock_vma(dst_vma);
+> > +#else
+> >       mmap_read_unlock(dst_mm);
+> > +#endif
+> >  out:
+> >       if (folio)
+> >               folio_put(folio);
+> > @@ -597,7 +713,19 @@ static __always_inline ssize_t mfill_atomic(struct=
+ userfaultfd_ctx *ctx,
+> >       copied =3D 0;
+> >       folio =3D NULL;
+> >  retry:
+> > -     mmap_read_lock(dst_mm);
+> > +     /*
+> > +      * Make sure the vma is not shared, that the dst range is
+> > +      * both valid and fully within a single existing vma.
+> > +      */
+> > +#ifdef CONFIG_PER_VMA_LOCK
+> > +     dst_vma =3D find_and_lock_dst_vma(dst_mm, dst_start, len);
+> > +#else
+> > +     dst_vma =3D lock_mm_and_find_dst_vma(dst_mm, dst_start, len);
+> > +#endif
+> > +     if (IS_ERR(dst_vma)) {
+> > +             err =3D PTR_ERR(dst_vma);
+> > +             goto out;
+> > +     }
+> >
+> >       /*
+> >        * If memory mappings are changing because of non-cooperative
+> > @@ -609,15 +737,6 @@ static __always_inline ssize_t mfill_atomic(struct=
+ userfaultfd_ctx *ctx,
+> >       if (atomic_read(&ctx->mmap_changing))
+> >               goto out_unlock;
+> >
+> > -     /*
+> > -      * Make sure the vma is not shared, that the dst range is
+> > -      * both valid and fully within a single existing vma.
+> > -      */
+> > -     err =3D -ENOENT;
+> > -     dst_vma =3D find_dst_vma(dst_mm, dst_start, len);
+> > -     if (!dst_vma)
+> > -             goto out_unlock;
+> > -
+> >       err =3D -EINVAL;
+> >       /*
+> >        * shmem_zero_setup is invoked in mmap for MAP_ANONYMOUS|MAP_SHAR=
+ED but
+> > @@ -647,16 +766,6 @@ static __always_inline ssize_t mfill_atomic(struct=
+ userfaultfd_ctx *ctx,
+> >           uffd_flags_mode_is(flags, MFILL_ATOMIC_CONTINUE))
+> >               goto out_unlock;
+> >
+> > -     /*
+> > -      * Ensure the dst_vma has a anon_vma or this page
+> > -      * would get a NULL anon_vma when moved in the
+> > -      * dst_vma.
+> > -      */
+> > -     err =3D -ENOMEM;
+> > -     if (!(dst_vma->vm_flags & VM_SHARED) &&
+> > -         unlikely(anon_vma_prepare(dst_vma)))
+> > -             goto out_unlock;
+> > -
+> >       while (src_addr < src_start + len) {
+> >               pmd_t dst_pmdval;
+> >
+> > @@ -699,7 +808,11 @@ static __always_inline ssize_t mfill_atomic(struct=
+ userfaultfd_ctx *ctx,
+> >                       void *kaddr;
+> >
+> >                       up_read(&ctx->map_changing_lock);
+> > +#ifdef CONFIG_PER_VMA_LOCK
+> > +                     unlock_vma(dst_vma);
+> > +#else
+> >                       mmap_read_unlock(dst_mm);
+> > +#endif
+> >                       BUG_ON(!folio);
+> >
+> >                       kaddr =3D kmap_local_folio(folio, 0);
+> > @@ -730,7 +843,11 @@ static __always_inline ssize_t mfill_atomic(struct=
+ userfaultfd_ctx *ctx,
+> >
+> >  out_unlock:
+> >       up_read(&ctx->map_changing_lock);
+> > +#ifdef CONFIG_PER_VMA_LOCK
+> > +     unlock_vma(dst_vma);
+> > +#else
+> >       mmap_read_unlock(dst_mm);
+> > +#endif
+> >  out:
+> >       if (folio)
+> >               folio_put(folio);
+> > @@ -1267,16 +1384,67 @@ static int validate_move_areas(struct userfault=
+fd_ctx *ctx,
+> >       if (!vma_is_anonymous(src_vma) || !vma_is_anonymous(dst_vma))
+> >               return -EINVAL;
+> >
+> > -     /*
+> > -      * Ensure the dst_vma has a anon_vma or this page
+> > -      * would get a NULL anon_vma when moved in the
+> > -      * dst_vma.
+> > -      */
+> > -     if (unlikely(anon_vma_prepare(dst_vma)))
+> > -             return -ENOMEM;
+> > +     return 0;
+> > +}
+> > +
+> > +#ifdef CONFIG_PER_VMA_LOCK
+> > +static int find_and_lock_vmas(struct mm_struct *mm,
+> > +                           unsigned long dst_start,
+> > +                           unsigned long src_start,
+> > +                           struct vm_area_struct **dst_vmap,
+> > +                           struct vm_area_struct **src_vmap)
+> > +{
+> > +     int err;
+> > +
+> > +     /* There is no need to prepare anon_vma for src_vma */
+> > +     *src_vmap =3D lock_vma(mm, src_start, false);
+> > +     if (!*src_vmap)
+> > +             return -ENOENT;
+> > +
+> > +     /* Ensure anon_vma is assigned for anonymous vma */
+> > +     *dst_vmap =3D lock_vma(mm, dst_start, true);
+> > +     err =3D -ENOENT;
+> > +     if (!*dst_vmap)
+> > +             goto out_unlock;
+> > +
+> > +     err =3D -ENOMEM;
+> > +     if (PTR_ERR(*dst_vmap) =3D=3D -ENOMEM)
+> > +             goto out_unlock;
+>
+> If you change lock_vma() to return the vma or ERR_PTR(-ENOENT) /
+> ERR_PTR(-ENOMEM), then you could change this to check IS_ERR() and
+> return the PTR_ERR().
+>
+> You could also use IS_ERR_OR_NULL here, but the first suggestion will
+> simplify your life for find_and_lock_dst_vma() and the error type to
+> return.
 
-Roberto
+Good suggestion. I'll make the change. Thanks
+>
+> What you have here will work though.
+>
+> >
+> >       return 0;
+> > +out_unlock:
+> > +     unlock_vma(*src_vmap);
+> > +     return err;
+> >  }
+> > +#else
+> > +static int lock_mm_and_find_vmas(struct mm_struct *mm,
+> > +                              unsigned long dst_start,
+> > +                              unsigned long src_start,
+> > +                              struct vm_area_struct **dst_vmap,
+> > +                              struct vm_area_struct **src_vmap)
+> > +{
+> > +     int err =3D -ENOENT;
+>
+> Nit: new line after declarations.
+>
+> > +     mmap_read_lock(mm);
+> > +
+> > +     *src_vmap =3D vma_lookup(mm, src_start);
+> > +     if (!*src_vmap)
+> > +             goto out_unlock;
+> > +
+> > +     *dst_vmap =3D vma_lookup(mm, dst_start);
+> > +     if (!*dst_vmap)
+> > +             goto out_unlock;
+> > +
+> > +     /* Ensure anon_vma is assigned */
+> > +     err =3D -ENOMEM;
+> > +     if (vma_is_anonymous(*dst_vmap) && anon_vma_prepare(*dst_vmap))
+> > +             goto out_unlock;
+> > +
+> > +     return 0;
+> > +out_unlock:
+> > +     mmap_read_unlock(mm);
+> > +     return err;
+> > +}
+> > +#endif
+> >
+> >  /**
+> >   * move_pages - move arbitrary anonymous pages of an existing vma
+> > @@ -1287,8 +1455,6 @@ static int validate_move_areas(struct userfaultfd=
+_ctx *ctx,
+> >   * @len: length of the virtual memory range
+> >   * @mode: flags from uffdio_move.mode
+> >   *
+> > - * Must be called with mmap_lock held for read.
+> > - *
+>
+> Will either use the mmap_lock in read mode or per-vma locking ?
 
+Makes sense. Will add it.
+>
+> >   * move_pages() remaps arbitrary anonymous pages atomically in zero
+> >   * copy. It only works on non shared anonymous pages because those can
+> >   * be relocated without generating non linear anon_vmas in the rmap
+> > @@ -1355,10 +1521,10 @@ static int validate_move_areas(struct userfault=
+fd_ctx *ctx,
+> >   * could be obtained. This is the only additional complexity added to
+> >   * the rmap code to provide this anonymous page remapping functionalit=
+y.
+> >   */
+> > -ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
+> > -                unsigned long dst_start, unsigned long src_start,
+> > -                unsigned long len, __u64 mode)
+> > +ssize_t move_pages(struct userfaultfd_ctx *ctx, unsigned long dst_star=
+t,
+> > +                unsigned long src_start, unsigned long len, __u64 mode=
+)
+> >  {
+> > +     struct mm_struct *mm =3D ctx->mm;
+>
+> You dropped the argument, but left the comment for the argument.
+
+Thanks, will fix it.
+>
+> >       struct vm_area_struct *src_vma, *dst_vma;
+> >       unsigned long src_addr, dst_addr;
+> >       pmd_t *src_pmd, *dst_pmd;
+> > @@ -1376,28 +1542,40 @@ ssize_t move_pages(struct userfaultfd_ctx *ctx,=
+ struct mm_struct *mm,
+> >           WARN_ON_ONCE(dst_start + len <=3D dst_start))
+> >               goto out;
+> >
+> > +#ifdef CONFIG_PER_VMA_LOCK
+> > +     err =3D find_and_lock_vmas(mm, dst_start, src_start,
+> > +                              &dst_vma, &src_vma);
+> > +#else
+> > +     err =3D lock_mm_and_find_vmas(mm, dst_start, src_start,
+> > +                                 &dst_vma, &src_vma);
+> > +#endif
+>
+> I was hoping you could hide this completely, but it's probably better to
+> show what's going on and the function names document it well.
+
+I wanted to hide unlock as it's called several times, but then I
+thought you wanted explicit calls to mmap_read_unlock() so didn't hide
+it. If you are ok can I define unlock_vma() for !CONFIG_PER_VMA_LOCK
+as well, calling mmap_read_unlock()?
+>
+> > +     if (err)
+> > +             goto out;
+> > +
+> > +     /* Re-check after taking map_changing_lock */
+> > +     down_read(&ctx->map_changing_lock);
+> > +     if (likely(atomic_read(&ctx->mmap_changing))) {
+> > +             err =3D -EAGAIN;
+> > +             goto out_unlock;
+> > +     }
+> >       /*
+> >        * Make sure the vma is not shared, that the src and dst remap
+> >        * ranges are both valid and fully within a single existing
+> >        * vma.
+> >        */
+> > -     src_vma =3D find_vma(mm, src_start);
+> > -     if (!src_vma || (src_vma->vm_flags & VM_SHARED))
+> > -             goto out;
+> > -     if (src_start < src_vma->vm_start ||
+> > -         src_start + len > src_vma->vm_end)
+> > -             goto out;
+> > +     if (src_vma->vm_flags & VM_SHARED)
+> > +             goto out_unlock;
+> > +     if (src_start + len > src_vma->vm_end)
+> > +             goto out_unlock;
+> >
+> > -     dst_vma =3D find_vma(mm, dst_start);
+> > -     if (!dst_vma || (dst_vma->vm_flags & VM_SHARED))
+> > -             goto out;
+> > -     if (dst_start < dst_vma->vm_start ||
+> > -         dst_start + len > dst_vma->vm_end)
+> > -             goto out;
+> > +     if (dst_vma->vm_flags & VM_SHARED)
+> > +             goto out_unlock;
+> > +     if (dst_start + len > dst_vma->vm_end)
+> > +             goto out_unlock;
+> >
+> >       err =3D validate_move_areas(ctx, src_vma, dst_vma);
+> >       if (err)
+> > -             goto out;
+> > +             goto out_unlock;
+> >
+> >       for (src_addr =3D src_start, dst_addr =3D dst_start;
+> >            src_addr < src_start + len;) {
+> > @@ -1514,6 +1692,14 @@ ssize_t move_pages(struct userfaultfd_ctx *ctx, =
+struct mm_struct *mm,
+> >               moved +=3D step_size;
+> >       }
+> >
+> > +out_unlock:
+> > +     up_read(&ctx->map_changing_lock);
+> > +#ifdef CONFIG_PER_VMA_LOCK
+> > +     unlock_vma(dst_vma);
+> > +     unlock_vma(src_vma);
+> > +#else
+> > +     mmap_read_unlock(mm);
+> > +#endif
+> >  out:
+> >       VM_WARN_ON(moved < 0);
+> >       VM_WARN_ON(err > 0);
+> > --
+> > 2.43.0.687.g38aa6559b0-goog
+> >
