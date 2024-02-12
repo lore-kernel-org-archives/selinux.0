@@ -1,153 +1,184 @@
-Received: from mail-ua1-f52.google.com (mail-ua1-f52.google.com [209.85.222.52])
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB2E13FB2E
-	for <selinux@vger.kernel.org>; Mon, 12 Feb 2024 22:30:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 083FE4DA1F
+	for <selinux@vger.kernel.org>; Mon, 12 Feb 2024 22:31:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707777030; cv=none; b=SInV0+5NYaT9yhDQYiSNubtwlTvaIpae9LHuUD127KoSQZGcvM31yd6kZ1OVU4eC6jXNGhhxEEYS2JreQ1R7smYnNi1SrAVkheh5adzWWRpPVmqBM3w+E27LTzZsL+ZMt3S4dUl7C9+XAoIFrzZYTPQXKhQZwE568MSna46VE90=
+	t=1707777071; cv=none; b=OtWdfaN20uuyyWu5jmrDxNSNlIPxx93EcKZ3I/3Khe0G96RtDQrbmg2dodJry9b4qIjAjD2EJfGlESkG/O2Q8wXZy7KZ8OK7Ln084SBBXafghVV2TnIbfFzTIuwneuYdVLvyqT91o0uYRLoJfywfIuNiGLG1VSAN+eXpJwZq7m8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707777030; c=relaxed/simple;
-	bh=a9il1Vhu93eqlQ5+HkMwL82HT6AXoPS4anMQR9TI+QU=;
+	s=arc-20240116; t=1707777071; c=relaxed/simple;
+	bh=OMjB46gs2wW9dar/91UoPpBUG+X9qus0cmG6eJvNhs8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PmIhvpG07HE4S5UnAOJ9WcVd4Rh6XB8gAVfXx9SReVVi7EI2YyVV6T6HpkOEALtvJIKA4huD+qkFVNuqPCMyUFs8ULZSB4qQJVy8RT7WJcpcfWkjIb0kD2DiVcOaCf0bRo0a9HZkIg7mVxaiUH6QQGitq6wn7EYvgoNiLVLMqPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Bfi/HI3g; arc=none smtp.client-ip=209.85.222.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Content-Type; b=ek/CTdFXKBTHZg0qB902+sT6zBlGusN4OOYAglk+LA2sezy1g8DC5iQF5rFVbiRTUfsTRkLa/LGuTcBIH9c5py34gzhh5gWRWHPDpJ2QJgFN5AVB45fIZatLeEmbG/79mLdTgZujLx17GII5lyarz7AW7ZHZNaLzWZFaWfFEZ20=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=xrILMhsZ; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bfi/HI3g"
-Received: by mail-ua1-f52.google.com with SMTP id a1e0cc1a2514c-7d625a3ace6so2773368241.0
-        for <selinux@vger.kernel.org>; Mon, 12 Feb 2024 14:30:28 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="xrILMhsZ"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-410deab9c56so9240245e9.0
+        for <selinux@vger.kernel.org>; Mon, 12 Feb 2024 14:31:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1707777028; x=1708381828; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=google.com; s=20230601; t=1707777068; x=1708381868; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=TkN3AtfmCflnQXNcyjve620mHSt4WrIwTL6cd3dZKMI=;
-        b=Bfi/HI3g1AD2+v384hc4IrNpAw6VOaLUH18piqRBg3V0n0O0z+1yXlqaBBKOtAsDMS
-         M32v4s15UeRBHsZqHG1y7N7zPz6vq6Y+Jt0cwlWLXp1YFXUrikHFOvEsClQu/lHatxUB
-         EWnObNDrojjQGlpIuEPWVEx2ATTxQ1USvHTiQ7qJz/2qDBVuFWn6QwjHyoCs4saxUe9t
-         M9b8RJPCG3NSM8MMI2tr2JHcuc8mOFNDFxSE9tj1XsyTK7L/5L8ZyizYiqZrB5PIy+kY
-         LdQGDA9XYYDcs/+ZWimoHV5GQ9kGZkE5lcoiCWnnX+WADlrg3HAAmNYFd8FH7h9CNIWz
-         fm5Q==
+        bh=l9mO69PHSXpV4KszXXC4FO0K4MGQhMEHtnBuaX2b1wA=;
+        b=xrILMhsZe+Zg2w/xQ5ese8QL9tTX2Vooc/yrQ4r2hBhmVFw/fF4nNeymXlW7gUjWYk
+         mXS4Qo6mLJEBICQB1IBkpngVR0ivuoBznUpftvW4PHlIE6BNgpFZFu2rGfcuMSw4Y9kt
+         OuKRe5cesh72hF2WaDSr0IurdSDESVpwrrojtTlfm3FbUQNE9JTWCFDGdaTl0N7BV4O0
+         fYnI+LO1tcan4GUOk0PzzdCqfXX3EGYI4fUUQ/AmOOXXc8xCgAG51j5OV/y3U400TC8f
+         EXSR4h2ssiW6FCVu7VppeOEOssi3StexXTE4Ciu2Luo/5jdxFlysY1G7k25nSD6RR4FB
+         zu5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707777028; x=1708381828;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=1e100.net; s=20230601; t=1707777068; x=1708381868;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=TkN3AtfmCflnQXNcyjve620mHSt4WrIwTL6cd3dZKMI=;
-        b=OpTlfS99gHeNVWsyRLgK7T6jEGv6MR3eLBXEGlzFeqfyCXYpQUKpxZ/yOAO4TAF46a
-         3aHh4Kp+ZZHN2SXqeHEPXfBXmu7BfuC8z+mQS7cS+PQTpnanE/dyCjOkVd4fvHLcjifr
-         mx44vVhHv0OYSwL7Z7dqKjXX1eXEiRmGa7omHlFwX5fC9XwX8lJxoM1HfRpNRva1oy97
-         3MENGyXBkIt4mDmeRHwLsRWDxpU+xyVwzDN0Yglw2ZPOiHFvT4h7DiLbDY6+KlGlIsr+
-         Fm7RuDJtDR+f48/i+lMgvDTDGoRLegNre3Ug3c2g/kyb9R3qPnXjGHry+tHM3gYO9ycG
-         ICXw==
-X-Gm-Message-State: AOJu0Yy03dCA6QE1uub0K6orYWXfO7CGkQ2hPyWBA1XpQAcFdeUryrcQ
-	NcUdH4bI95OeXwlR+Qi/VCphnXe5DeffjitNZtQfG2qIq9zgQjej7q7KC5aJqTwCqLQkx917ipf
-	V0NQNrlJh5zrE3uZaJWGPpvI9hmjYhxnTbCM=
-X-Google-Smtp-Source: AGHT+IG33TgwGigcgx8+OHajqqlcnE8wr/Dvl3wAWT6yzSjUpZuU2ges7lwpDUv4VvTe2517kuQ2nMiYMvbbAhYf+Ho=
-X-Received: by 2002:a05:6102:94b:b0:46e:c4dd:2986 with SMTP id
- a11-20020a056102094b00b0046ec4dd2986mr1148574vsi.4.1707777027795; Mon, 12 Feb
- 2024 14:30:27 -0800 (PST)
+        bh=l9mO69PHSXpV4KszXXC4FO0K4MGQhMEHtnBuaX2b1wA=;
+        b=oe0vNMjvLBDxCWuC6uTPnk2E3xGQfMclc1uzHrBldV2Gj4BEV5Fv/bE7FHkO3pK1pA
+         M6gyeBcabnuY80dYkX7LULfSd8ssNhpLFYHEL0j74mQd8MH2dx1sXpVM5B05pxYBdR41
+         INFS1WWN22zMCPNZa6UGzvX/GlG/dx9T2KmpXklyCy0xPMcEieRXY9c6fFA5YUh65osz
+         wO7rEwyJ/FunJjrlbp/PcIOWQVNJMNg3hNZ3jMLAeBSkpZaXWWT5E0rjLC8k2E3vqcS1
+         vEdYW0xrhEvlVc6JBJPOUJYp0yRT2k0OgKrOW2Vthojb8TGkjlPBNBFFVmmE1iNYZJM5
+         eTfg==
+X-Forwarded-Encrypted: i=1; AJvYcCUYHvbuV/Q1XWuWp7QMeazc5GrSiRA9nSEgOQOapqXOFBknETZA19TnvFe90xjZNyCkaOVmBEokDKtXee/FyWLVlKjbS8Ylmg==
+X-Gm-Message-State: AOJu0Ywy9m4uwee3b6ergHVXEKTpr+hAr5OSGn6m+KvZS9x1kFP4lZ3o
+	V5cdfVpivzOoV1kF9KjcTYnoGCE/71D0n0viSNHp8Rw/DHcHs0x3IU+pOeNIRAl2pggHggZeHyD
+	QWWc1djiiHZNlHXMHz+W9bCzHNtK1p5+KhU4U
+X-Google-Smtp-Source: AGHT+IFZvGus6qBaDKHVpEnYLxBVaPb/kTrQZBtuxYaA/mFQXqriiKZKEZmpVs+/oJ+VH2Y/q/TlTzvux7Yi7IHL9oc=
+X-Received: by 2002:adf:ed90:0:b0:33b:47d0:52ce with SMTP id
+ c16-20020adfed90000000b0033b47d052cemr6385336wro.25.1707777068103; Mon, 12
+ Feb 2024 14:31:08 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240122135507.63506-1-cgzones@googlemail.com> <20240122135507.63506-10-cgzones@googlemail.com>
-In-Reply-To: <20240122135507.63506-10-cgzones@googlemail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Mon, 12 Feb 2024 17:30:16 -0500
-Message-ID: <CAP+JOzR6ph5pN_yLyvVh2+0deknKOmD_MZs39sd0ZbEnfL3O+A@mail.gmail.com>
-Subject: Re: [PATCH 10/15] libsepol: add copy member to level_datum
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
+References: <20240208212204.2043140-1-lokeshgidra@google.com>
+ <20240208212204.2043140-4-lokeshgidra@google.com> <20240209030654.lxh4krmxmiuszhab@revolver>
+ <CA+EESO4Ar8o3HMPF_b9KGbH2ytk1gNSJo0ucNAdMDX_OhgTe=A@mail.gmail.com>
+ <20240209190605.7gokzhg7afy7ibyf@revolver> <CA+EESO7uR4azkf-V=E4XWTCaDL7xxNwNxcdnRi4hKaJQWxyxcA@mail.gmail.com>
+ <20240209193110.ltfdc6nolpoa2ccv@revolver> <CA+EESO4mbS_zB6AutaGZz1Jdx1uLFy5JqhyjnDHND4tY=3bn7Q@mail.gmail.com>
+ <20240212151959.vnpqzvpvztabxpiv@revolver> <CA+EESO706V0OuX4pmX87t4YqrOxa9cLVXhhTPkFh22wLbVDD8Q@mail.gmail.com>
+ <20240212201134.fqys2zlixy4z565s@revolver>
+In-Reply-To: <20240212201134.fqys2zlixy4z565s@revolver>
+From: Lokesh Gidra <lokeshgidra@google.com>
+Date: Mon, 12 Feb 2024 14:30:55 -0800
+Message-ID: <CA+EESO6=tVK6xUGTHG+6yCUGarXb_vHmjOuqEQ_d4gCe8V3=xA@mail.gmail.com>
+Subject: Re: [PATCH v4 3/3] userfaultfd: use per-vma locks in userfaultfd operations
+To: "Liam R. Howlett" <Liam.Howlett@oracle.com>, Lokesh Gidra <lokeshgidra@google.com>, 
+	akpm@linux-foundation.org, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, surenb@google.com, 
+	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com, 
+	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com, 
+	willy@infradead.org, jannh@google.com, kaleshsingh@google.com, 
+	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 22, 2024 at 9:02=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Mon, Feb 12, 2024 at 12:11=E2=80=AFPM Liam R. Howlett
+<Liam.Howlett@oracle.com> wrote:
 >
-> Add a new member to the struct level_datum to indicate whether the
-> member `level` is owned by the current instance, and free it on cleanup
-> only then.
+> * Lokesh Gidra <lokeshgidra@google.com> [240212 13:08]:
+> > On Mon, Feb 12, 2024 at 7:20=E2=80=AFAM Liam R. Howlett <Liam.Howlett@o=
+racle.com> wrote:
+> ...
 >
-> This helps to implement a fix for a use-after-free issue in the
-> checkpolicy(8) compiler.
+> > > >
+> > > > The current implementation has a deadlock problem:
+> ...
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  libsepol/include/sepol/policydb/policydb.h | 1 +
->  libsepol/src/policydb.c                    | 6 ++++--
->  libsepol/src/policydb_validate.c           | 3 +++
->  3 files changed, 8 insertions(+), 2 deletions(-)
+> > > On contention you will now abort vs block.
+> >
+> > Is it? On contention mmap_read_trylock() will fail and we do the whole
+> > operation using lock_mm_and_find_vmas() which blocks on mmap_lock. Am
+> > I missing something?
 >
-> diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/includ=
-e/sepol/policydb/policydb.h
-> index 6682069e..06231574 100644
-> --- a/libsepol/include/sepol/policydb/policydb.h
-> +++ b/libsepol/include/sepol/policydb/policydb.h
-> @@ -218,6 +218,7 @@ typedef struct level_datum {
->         mls_level_t *level;     /* sensitivity and associated categories =
-*/
->         unsigned char isalias;  /* is this sensitivity an alias for anoth=
-er? */
->         unsigned char defined;
-> +       unsigned char copy;     /* whether the level is a non-owned copy =
-(compile time only) */
->  } level_datum_t;
+> You are right, I missed the taking of the lock in the function call.
 >
+> > >
+> > > >               }
+> > > >               return 0;
+> > > > }
+> > > >
+> > > > Of course this would need defining lock_mm_and_find_vmas() regardle=
+ss
+> > > > of CONFIG_PER_VMA_LOCK. I can also remove the prepare_anon conditio=
+n
+> > > > in lock_vma().
+> > >
+> > > You are adding a lot of complexity for a relatively rare case, which =
+is
+> > > probably not worth optimising.
+> > >
+> ...
+>
+> >
+> > Agreed on reduced complexity. But as Suren pointed out in one of his
+> > replies that lock_vma_under_rcu() may fail due to seq overflow. That's
+> > why lock_vma() uses vma_lookup() followed by direct down_read() on
+> > vma-lock.
+>
+> I'd rather see another function that doesn't care about anon (I think
+> src is special that way?), and avoid splitting the locking across
+> functions as much as possible.
+>
+Fair point about not splitting locking across functions.
+>
+> > IMHO what we need here is exactly lock_mm_and_find_vmas()
+> > and the code can be further simplified as follows:
+> >
+> > err =3D lock_mm_and_find_vmas(...);
+> > if (!err) {
+> >           down_read(dst_vma...);
+> >           if (dst_vma !=3D src_vma)
+> >                        down_read(src_vma....);
+> >           mmap_read_unlock(mm);
+> > }
+> > return err;
+>
+> If we exactly needed lock_mm_and_find_vmas(), there wouldn't be three
+> lock/unlock calls depending on the return code.
+>
+> The fact that lock_mm_and_find_vmas() returns with the mm locked or
+> unlocked depending on the return code is not reducing the complexity of
+> this code.
+>
+> You could use a widget that does something with dst, and a different
+> widget that does something with src (if they are different).  The dst
+> widget can be used for the lock_vma(), and in the
+> lock_mm_and_find_vmas(), while the src one can be used in this and the
+> lock_mm_and_find_vmas(). Neither widget would touch the locks.  This way
+> you can build your functions that have the locking and unlocking
+> co-located (except the obvious necessity of holding the mmap_read lock
+> for the !per-vma case).
+>
+I think I have managed to minimize the code duplication while not
+complicating locking/unlocking.
 
-I don't think this field needs to be added. See below.
+I have added a find_vmas_mm_locked() handler which, as the name
+suggests, expects mmap_lock is held and finds the two vmas and ensures
+anon_vma for dst_vma is populated. I call this handler from
+lock_mm_and_find_vmas() and find_and_lock_vmas() in the fallback case.
 
->  /* Category attributes */
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index f10a8a95..322ab745 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -1390,8 +1390,10 @@ static int sens_destroy(hashtab_key_t key, hashtab=
-_datum_t datum, void *p
->         if (key)
->                 free(key);
->         levdatum =3D (level_datum_t *) datum;
-> -       mls_level_destroy(levdatum->level);
-> -       free(levdatum->level);
-> +       if (!levdatum->copy) {
+I have also introduced a handler for finding dst_vma and preparing its
+anon_vma, which is used in lock_vma() and find_vmas_mm_locked().
 
-I believe that the following can be made to work:
-if (!levdatum->isalias || levdatum->defined) {
+Sounds good?
 
-To work, clone_level() and define_level() will need to be modified, so
-that defined is not set until right before finishing the call.
-
-Jim
-
-
-> +               mls_level_destroy(levdatum->level);
-> +               free(levdatum->level);
-> +       }
->         level_datum_destroy(levdatum);
->         free(levdatum);
->         return 0;
-> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
-idate.c
-> index d86f885e..e3af7ccd 100644
-> --- a/libsepol/src/policydb_validate.c
-> +++ b/libsepol/src/policydb_validate.c
-> @@ -623,6 +623,9 @@ static int validate_level_datum(__attribute__ ((unuse=
-d)) hashtab_key_t k, hashta
->         level_datum_t *level =3D d;
->         validate_t *flavors =3D args;
+> I've also thought of how you can name the abstraction in the functions:
+> use a 'prepare() and complete()' to find/lock and unlock what you need.
+> Might be worth exploring?  If we fail to 'prepare()' then we don't need
+> to 'complete()', which means there won't be mismatched locking hanging
+> around.  Maybe it's too late to change to this sort of thing, but I
+> thought I'd mention it.
 >
-> +       if (level->copy)
-> +               return -1;
-> +
->         return validate_mls_level(level->level, &flavors[SYM_LEVELS], &fl=
-avors[SYM_CATS]);
->  }
->
-> --
-> 2.43.0
->
->
+Nice suggestion! But after (fortunately) finding the function names
+that are self-explanatory, dropping them seems like going in the wrong
+direction. Please let me know if you think this is a missing piece. I
+am open to incorporating this.
+
+> Thanks,
+> Liam
