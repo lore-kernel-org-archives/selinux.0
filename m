@@ -1,226 +1,190 @@
-Received: from mail-ua1-f50.google.com (mail-ua1-f50.google.com [209.85.222.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64D4060B85
-	for <selinux@vger.kernel.org>; Tue, 13 Feb 2024 20:39:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.50
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707856759; cv=none; b=QPtfXPcBhqbeFYsjmXP5PPYGkIpitmC3SFLf3m5Bj5CRs2x8zieIU9KW84xl7rqBQ66of2E7obxN1k+KN4k64eyl9x7R+hN8DEP25B7Y5ZduYpKmSD69d7fnNC8ByENVi2MLDUWjVa5P8cu6CXKyrxRL98d5Mm0nuUmOPsaDbTs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707856759; c=relaxed/simple;
-	bh=smhuk4NaP6XtZ0OEsMkWWmcjrw7Do964tN0dV2WpLMo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Wh1B59cstOit73ldfN/FfJs7t7wcCo2k0ow9lr2lTJd0CecFCc2FgRq3+PFzmk7icG+IKC2awMS3A37/WWl7NGHy32zmMFW4sGiviC26D9MIqICd4kxjln4CEfeLH5CY/GT2vVYfOhQZTqyLBwBKqoxHd1DhsmMAlpQbzJqZHhE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fIVb9BJQ; arc=none smtp.client-ip=209.85.222.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC2C858122;
+	Tue, 13 Feb 2024 20:40:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.177.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1707856847; cv=fail; b=Kt67saPgCdDOJ1l6RL9rBpbyAiUAeEslq1NZfH62yxSAN2uEn+RLEad25atIJt/41AcP4vdF9a3DO1rRPs0nH1o3P63hLVUQKgJRZi163t5b1yU8u7HicuAmKuoq/KzG1ltvfmdwBsK7RJcQgWHNWMJdADgmAiNQ1VcSJ09zEOE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1707856847; c=relaxed/simple;
+	bh=qrLPCD0Nf9I4Z77gOjeWAjbLLYVP6xHhY3QQ84fqvRM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=O4HRdXaJTLyoRd2I1gD0ncX56MiD0VVSpwcFXL9Vj9oQLrXo6OudBM06jiiQXeA5l+EaLwkefoODkJ5qSMhWhP4yANqDAoaJqpy/UWpJo4eHmIUYA/gWM912By1nQwKghQr4sJxOJudGR4+OxL/pd6sSs8Igj7+61szN85FlCjU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=Oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=dej3rK7n; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=fixnuxrj; arc=fail smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=Oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fIVb9BJQ"
-Received: by mail-ua1-f50.google.com with SMTP id a1e0cc1a2514c-7d2e16b552dso2460743241.1
-        for <selinux@vger.kernel.org>; Tue, 13 Feb 2024 12:39:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="dej3rK7n";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="fixnuxrj"
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41DKXxAw009657;
+	Tue, 13 Feb 2024 20:40:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=corp-2023-11-20;
+ bh=06in32XoVAzynwMUVtypK39CA81SutdZUxm90UA3lbA=;
+ b=dej3rK7nZLGtCNHQrICqUFSnfdHy9oAEns6V6U/H1m47mwL7QV5DR7tjIvNp29/irpIh
+ x+GPBGfiIE4ow/jBAhtbLPGIxTNjHN0rZdKlUjIPs0u4fWOLBbGj84a2c8nGsxulca2X
+ RTAg9L/vuiGF7GDARK8S1W9qFGwQLsV+FKxyt62bEh4lHpvkjl2mUOOrGJwSqpYDqC1d
+ UAJpQEk0gekxNlVRdBGg6LZ+1rdbfaJ/GwjOrwttS2pcyeAm1aNlbWcvgVS2sRztutt9
+ D5ybQeWKtGQhMbek04npqoj2wlajt6A/H9W5xakUKYVkgsre8NmhVbt6xrOlMiblQpZ3 XA== 
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3w8f5dr2gr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 13 Feb 2024 20:40:28 +0000
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 41DJrJfM014990;
+	Tue, 13 Feb 2024 20:40:27 GMT
+Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2101.outbound.protection.outlook.com [104.47.55.101])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3w5yk7ne9q-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 13 Feb 2024 20:40:27 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=E2ECEw3yDM4FHL5IJwob6bShRlGbD6iDmhzk7NyOGr1o/YFuSWS90NbgqbWh/V2deDyzGmlsqKxJ8wjTI5zmpWY/rXVkgyFupmLcNWHW0EfACYLqtUgcavafO1XcOQo7FlRZoN07RlXZGnr3/gXnu4Zbw080gtwEbrVpH0fBKwlsc3UYKx57EMUybvYbJfbArvZYH1A+/vrPk/oMHlRdm51SBWyv80CffGOvV/jDjyeudwABZODC/UXP0SAUQs8Hqwshi8vCydeFtOaxxloY5UWl1Y8Ea8nvXGZldmnciwPrak1Q1KHL7kwJXoAp+uJoGRMUy5EZVr7977qsZBx/xw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=06in32XoVAzynwMUVtypK39CA81SutdZUxm90UA3lbA=;
+ b=e/w6gZK/+5khlbqTGx+cHyanT/0Wz6+ITyBcHsV6KLNXlpnPcHzQ5ooy3p/MKRapCUxS34hn/Xkm1UiNIQb4bOmbTfg6g+NFdOsHhHXedhdPa+juanuUNgp0RDkBgQ5w4H9oJ/BX3HtngUfiPQ+WGUHLgn3pIT4CHFw3lAlTcK0aHsn8lA4nbHd7eaJHlu5v/qoiVKHbe0poaIYhfi+aY7B0/9x2n+TMxYuqGvdj198dPvBbSvUl8ddwoWVF2sj/KjOgG0VJt4E2fV3P6qP0IBKjbj2GPreqBMzkNhyHkY0Wym240vdMHteehOkgktGIAY/awg+IDeqWRA5L9K3THw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1707856756; x=1708461556; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xuliSBF/4Xlm553I29feevvqsRAV4wm0eyDMHtpdyXs=;
-        b=fIVb9BJQAd4T7XydvPaADHCv+K/H1sLJFWwfdnCnSumlS4fKYwYEkc+mBtWzcYdHFt
-         NC5CG/AbJHrcYgrdNNkdqe+KK/0SSmlx/nLibJIzI5Q3Jyk+G6mmLvU1EAM8eheO4yjk
-         CA6Xteoyy6xU48NUCXFgvfoEDLnw6RBNX7kgEN/rpH7LO2i5Op9iIrb8iYJCY9qZUYUq
-         Txdcbo/qoiNozlZlcPJ2eVORhJuwH6WyUoxgMbpZwFDkQfGpzr3aa0or7p3iEYjRHUvV
-         MoggXk4ojlwmXnBQbzwHOXcAJY+uOviI7tz2GmIVvo+DHGQbpfhFJsCYJgXP39xqj/rN
-         gSQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707856756; x=1708461556;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=xuliSBF/4Xlm553I29feevvqsRAV4wm0eyDMHtpdyXs=;
-        b=U//bxl4vBLISeJ0TppXaS4DMCIElqDxjcBGVcKSliLHJzy5/wAd2G8FmtozyBWgCtk
-         oTVfJUn5hp13FR36VK7F5ZO3osAkHh/cA/j6g36uIdj/090yxWR6/qnhroo8sF7yPKDc
-         /4CQ8qOl5DE9fhmhIleKYeWnjkasTlsvJWbGgGrr3RW3KbsxMkhmD5CZ60zK8hAMGGxU
-         MV8d7k8xyGjxkfsBhvSQaiWZ333hkzMcDU96mpj7bPtzhPEEz+K+wAJP8y1dqMw6SbEU
-         jGY1msBxrAbfwT4aMaoUx3Usg0/AItFuLr6vkBfmCZ8eZCvfiYLO4TF3Ff42ykeOK8ay
-         KAIg==
-X-Gm-Message-State: AOJu0YxtinZHzSL8yTU0fMbo9CxtgSLXiDL18b6kiMAvYEBvtOGlkY+w
-	+55yJzfbFWOBmexeVF8zGqW+Nb75l8yg12RGRVxo2rzLqKY+VsoSsaOm5qaod3rkJVAeXESR/jb
-	6txvZwoK0pu1Nz2nYPW3TA1w4eCSYsS8qHzk=
-X-Google-Smtp-Source: AGHT+IE3xqiWTFgvtcKnBwoxiYMzUPM5HO/GVZAWk30Zi5+qvnSXcYLd5HL9mx2pIAcqce6AovZhMbL5V7lEUlvWT30=
-X-Received: by 2002:a67:eb41:0:b0:46d:3597:9f9e with SMTP id
- x1-20020a67eb41000000b0046d35979f9emr758094vso.31.1707856756250; Tue, 13 Feb
- 2024 12:39:16 -0800 (PST)
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=06in32XoVAzynwMUVtypK39CA81SutdZUxm90UA3lbA=;
+ b=fixnuxrjfirx+MDkZO15slZjP3fSaqRYaNiFY5npaiBs+U+UvNOGbKuUohnGMmj3hapsKqUKwuOKv5Q9RYPlXqkngRicSoLqdw7p1K7y+WgAfQPTPDklyq//AWsFYF9+AGrCLj11tupi3gx1V/6p09qVVqrQAQFU3DMWUCHfPnk=
+Received: from DS0PR10MB7933.namprd10.prod.outlook.com (2603:10b6:8:1b8::15)
+ by MN6PR10MB7491.namprd10.prod.outlook.com (2603:10b6:208:47c::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7270.38; Tue, 13 Feb
+ 2024 20:40:24 +0000
+Received: from DS0PR10MB7933.namprd10.prod.outlook.com
+ ([fe80::20c8:7efa:f9a8:7606]) by DS0PR10MB7933.namprd10.prod.outlook.com
+ ([fe80::20c8:7efa:f9a8:7606%4]) with mapi id 15.20.7270.033; Tue, 13 Feb 2024
+ 20:40:24 +0000
+Date: Tue, 13 Feb 2024 15:40:22 -0500
+From: "Liam R. Howlett" <Liam.Howlett@Oracle.com>
+To: Lokesh Gidra <lokeshgidra@google.com>
+Cc: Suren Baghdasaryan <surenb@google.com>, akpm@linux-foundation.org,
+        linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
+        kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com,
+        david@redhat.com, axelrasmussen@google.com, bgeffon@google.com,
+        willy@infradead.org, jannh@google.com, kaleshsingh@google.com,
+        ngeoffray@google.com, timmurray@google.com, rppt@kernel.org
+Subject: Re: [PATCH v5 3/3] userfaultfd: use per-vma locks in userfaultfd
+ operations
+Message-ID: <20240213204022.civ75deudnajxkdp@revolver>
+Mail-Followup-To: "Liam R. Howlett" <Liam.Howlett@Oracle.com>,
+	Lokesh Gidra <lokeshgidra@google.com>,
+	Suren Baghdasaryan <surenb@google.com>, akpm@linux-foundation.org,
+	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
+	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com,
+	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com,
+	willy@infradead.org, jannh@google.com, kaleshsingh@google.com,
+	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org
+References: <CA+EESO5URPpJj35-jQy+Lrp1EtKms8r1ri2ZY3ZOpsSJU+CScw@mail.gmail.com>
+ <CAJuCfpFXWJovv6G4ou2nK2W1D2-JGb5Hw8m77-pOq4Rh24-q9A@mail.gmail.com>
+ <20240213184905.tp4i2ifbglfzlwi6@revolver>
+ <CAJuCfpG+8uypn3Mw0GNBj0TUM51gaSdAnGZB-RE4HdJs7dKb0A@mail.gmail.com>
+ <CA+EESO6M5VudYK-CqT2snvs25dnrdTLzzKAjoSe7368X-PcFew@mail.gmail.com>
+ <20240213192744.5fqwrlqz5bbvqtf5@revolver>
+ <CAJuCfpEvdK-jOS9a7yv1_KnFeyu8665gFtk871ac-y+3BiMbVw@mail.gmail.com>
+ <CA+EESO6TowKNh10+tzwawBemykVcVDP+_ep1fg-_RiqBzfR7ew@mail.gmail.com>
+ <20240213195125.yhg5ti6qrchpela6@revolver>
+ <CA+EESO5F7RB-_AwgxPV=9tCKx=E59sbaxvtc4q3u4sCL6PpcTg@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+EESO5F7RB-_AwgxPV=9tCKx=E59sbaxvtc4q3u4sCL6PpcTg@mail.gmail.com>
+User-Agent: NeoMutt/20220429
+X-ClientProxiedBy: YT4P288CA0057.CANP288.PROD.OUTLOOK.COM
+ (2603:10b6:b01:d2::14) To DS0PR10MB7933.namprd10.prod.outlook.com
+ (2603:10b6:8:1b8::15)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240122135507.63506-1-cgzones@googlemail.com> <20240122135507.63506-15-cgzones@googlemail.com>
-In-Reply-To: <20240122135507.63506-15-cgzones@googlemail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Tue, 13 Feb 2024 15:39:05 -0500
-Message-ID: <CAP+JOzTcxy57oU6Qyqk50n+ks2fFx1O4LSP5P7JchcXxOcCHSQ@mail.gmail.com>
-Subject: Re: [PATCH 15/15] checkpolicy: misc policy_define.c cleanup
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS0PR10MB7933:EE_|MN6PR10MB7491:EE_
+X-MS-Office365-Filtering-Correlation-Id: be5573b4-3c17-4f18-3cff-08dc2cd40154
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 
+	K4oRntG3rbYTwdKRnbDGbTWZ6b5u/rqTvfPTNfaIwgf5gwsqoKLQG7mg5cxe7BRS+TpOVxJu4Xcr7AIvbtjTdRgBa4lOoSRoaDsZlLU0AIePvCu4yRiUEwjt7Q0L0VipnmR3vlvcb+CRxX2eAvcymlhvUXllPCU9cHwd3ClBJ8yMaJIcKbe4wfo5A51oomQZeYryga/NygRWLs4WkyILwp42GD6jHLXV8cMjj6sqI6CPFqkcMHx4N6NcBzRvgBJhQA4vik9zdchUug0vdzEdUmUglVfj2bmODBBhDTS7w7IepW2CoaNNYBB4LnI9GXjszuDQGMOXIlXq8/Fz8QJIDJUH/Rb9s3g2vZLORT5FCe92PQgn8cXdmBVCT0FmxVeoimJKEBW2dZseT9nnJPe0HJIQJifTbQ+lhyiBgZshW23q+0Ll+t+hScpqkd/pfJAeD+iaEnGJcEdmZHscMhIszgV/e7btw70T3fJVjgdqIQRQt2Tg76w6lDuH7YyrvDdLpGgvZv2ISHDbhGC25DY5ykP0EGME4IzrWiZmLQ9rbYon5jGt3/Hb8ZH43xcQm5bA
+X-Forefront-Antispam-Report: 
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR10MB7933.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(7916004)(39860400002)(136003)(376002)(346002)(396003)(366004)(230922051799003)(64100799003)(451199024)(1800799012)(186009)(2906002)(4744005)(7416002)(33716001)(478600001)(8936002)(66946007)(66476007)(41300700001)(6486002)(4326008)(6512007)(6916009)(26005)(6506007)(66556008)(5660300002)(8676002)(9686003)(1076003)(316002)(38100700002)(86362001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: 
+	=?us-ascii?Q?6Q1mvsKn9LICl0ECbQiWHKwkAangckunXl5zjJ/H8hxP2USzBxxC5pcngI4D?=
+ =?us-ascii?Q?SjyVm3OeBX8hrzwsYWEWeQxHJr/ZaslqvrAQk/HCJ9s6lQ7iVuUfjMeFQMNc?=
+ =?us-ascii?Q?5gOOwxrHYlOv8791V5zYzV49gc/EWNfVImzWiwHZCMk8FsmNtm2glxY08+pA?=
+ =?us-ascii?Q?oqKctP5fLurP+WG3M8gPI4TCAFhnJACB2FQnLdDIjp6oZocVCKI+sLsy7jJ8?=
+ =?us-ascii?Q?vUrYCgAHzbGxxKmKjNOx6/Qih0oLtJoNNhYDwHEjhLVoh2SXIKZphFrZ8F9Z?=
+ =?us-ascii?Q?9hwzGz667R1lbJval/+lxxsaavkoRyhT2B6wiWqnfm0aXmWMz+hwvcE8hpbE?=
+ =?us-ascii?Q?kYpkmdzmpd29mRrxvrmJWnzhrj7D7HGST9og3SydjtpTLKbeN8fhbzs8EQQE?=
+ =?us-ascii?Q?Up3+IQi1N9ujoyS26qunjySJyT6q70XqXmZx/+D09luW06Fn1ell2B8HvRpW?=
+ =?us-ascii?Q?jTcNBLgJL8050rMywZnjcqFdle2fQq0LtzjmS2SrBdEETJU8nJ1eShiEyCB5?=
+ =?us-ascii?Q?FeSzpv1YYuesMhtHLxsWBdH2vbVb1WM0jjsnVNBlq2uvXwOZxcT8ZVdvZ1Eq?=
+ =?us-ascii?Q?9TPIhDnf1+BgNTFoO4WR3l1lmUL1lYLPd/Gl1sGdO13IozQ+a1cEXcYWSmX0?=
+ =?us-ascii?Q?Uz0nqqNFRGzG7z+17tuxt3yXqGBs/WZjjg00RWxe8mk0R7TAQ0QwMDobcpda?=
+ =?us-ascii?Q?KcVtP0G4isx8wbYs3AX1jY2RNC2wwJwGCMlyUs0nQX796Dh4zTr6juN4Y4Q9?=
+ =?us-ascii?Q?TNEYabbOm+tQFvNevi0IznKoFZ3b+zjKEUjTwDHX3Vj2yN0ut6DL+ehbeRc7?=
+ =?us-ascii?Q?HfA9BjnY8bY8i6SrZtLxrqTq+PqlBj8wD6lM8/NjgQ30Aq0iwv4q0XuYEIeF?=
+ =?us-ascii?Q?dvVBFGlA0YqUKnUcexivdmJ/FJMItcB9Iqqx384IDvV+fVm7mN9SRkSgGw0k?=
+ =?us-ascii?Q?8RvQi4+g/sR/J0QM4YiS4IqbFpTCYlFs7z9rH2NWcn0vlRMDdWL1PwsgjiRW?=
+ =?us-ascii?Q?HRQsEqV5usjAJop4Nd6zeXYIkXuHeLQ8RNqPSrr5fAsYozlFZhHC/6IWtG36?=
+ =?us-ascii?Q?eed8MryjghC2F817F3810OSyBt8lkjD9flxXGLDHWaMKxiPhcZx7/FJc8HoY?=
+ =?us-ascii?Q?ZtDbIeundi7PJmlLkF7e9hFFWPStBoNU3/yPZ2AypEAIpbs8bBHq2LMmYVvK?=
+ =?us-ascii?Q?JB3VT8cOh78wjB4Oh4AXc15s69GOfkD9SZx+7DgEiOpDPqMLKqTdvvvQt4jd?=
+ =?us-ascii?Q?lY9IBSYT0Y/WSi97eUklQ0u0KkZgf4omtiL3S2GtRVPg8q+nL2mhrGIOkFs3?=
+ =?us-ascii?Q?CxZH0PZmXq9eR4EWLjuIX1L8GzdWWSQz1Q5C+D5H8EeoUYwUX9e8nRasrKd4?=
+ =?us-ascii?Q?TDdR6i9ncK7fQeYnYKu3qB5rl/YftwTayVAoTISpE5RKUDe0cOn6mAc+BaQh?=
+ =?us-ascii?Q?dXDqb28eCGZ4A6IyuN4Z5TaSmZy9oxHFP09+KkioGGgUraNFwfHKd9OGV3pn?=
+ =?us-ascii?Q?+BY3jgLyR/17gNUDKlOsw7LweqsgvSPBxuU/BatP3CwspCLoHmRUoX4B5DDN?=
+ =?us-ascii?Q?aDW5KwvcaFXmn7zNxfQmWw8EAbhY6Os7tKPtu7V5sKT6KKv43zJKzXC6lgmn?=
+ =?us-ascii?Q?PQ=3D=3D?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
+	7CvJG7reg8gD2uG0evLbQGL3DFdUYkAQq4QDk3AwcpXO0p9i4WiQncaP2qBzvlH5J5zdGEkyPt1QDM+rJd/M7Wtg7Gt0JmRPqt2fvuITTvudA8OXUlHRSlj7Rndnosl3Tvv6Wt3QzM2tsEzQMQ2jJ1k8RKkO1L57+9g5JwXQFlXAl8+nuEGqJHdzVrrxC87AIk4kJRgkxQ64foy9G9gmiB3IIHzCiH0CPPWy0vmpql34d4ChYIYqNXlcHe6rnpHclLNIHiaN5NP/F0XV1sJEpuOT6BQBgHAkL8qtLS4nQ6eB/HEvFDwn7WsCVpyqn9C+p2kK3VMxetkgVTSxArraa+UN10yT0AEb1G9oE7ao45MHuOg+x4UFojS8JFIYfv0nIR8ALx8QO2aF/XtlmXNdJRGXdE/7GgpHllnPlrVpXaiKAGYlNNBjYWDpb3vme3be4Y0pqLZcnwwV3RSpVqAI4afVOOFml9gbGQKnI8W++HYCjOkIR43ZS/C6MkLB6N6civ0kXSe0aX5ORcvYEUiVq/XRZ/ZYfNRno5Dae8ibVayKpKWkrULREo/R3ZdgOenu7hOAZS3lPqUN7A7cSSFgMwiygnbhm5Ff8u7euS0jRqc=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: be5573b4-3c17-4f18-3cff-08dc2cd40154
+X-MS-Exchange-CrossTenant-AuthSource: DS0PR10MB7933.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Feb 2024 20:40:24.8079
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: wFYGcS0DaYGm9eoO252tNRFnjYH4sq77AwmPYDVqtNKcss5mJmq43a9GdcjWtb6FuTdBejM75USbSdskVi+uwg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN6PR10MB7491
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-13_12,2024-02-12_03,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0 spamscore=0
+ mlxlogscore=825 bulkscore=0 phishscore=0 mlxscore=0 suspectscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402130164
+X-Proofpoint-ORIG-GUID: i4v-bZrey174Yt7dSv4nPga-CjVfMrdI
+X-Proofpoint-GUID: i4v-bZrey174Yt7dSv4nPga-CjVfMrdI
 
-On Mon, Jan 22, 2024 at 9:02=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Sync function parameter names.
->
-> Drop superfluous return value.
->
->   The function avrule_merge_ioctls() has no failure conditions and
->   always returns 0.
->
-> Drop duplicate include.
->
-> Use native type for ranges.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+* Lokesh Gidra <lokeshgidra@google.com> [240213 14:55]:
+...
 
-Acked-by: James Carter <jwcart2@gmail.com>
+> 
+> Regarding int vs long for 'err' type, I'm assuming you are ok with my
+> explanation and I should keep long?
 
-> ---
->  checkpolicy/policy_define.c | 27 ++++++++++++---------------
->  checkpolicy/policy_define.h |  2 +-
->  2 files changed, 13 insertions(+), 16 deletions(-)
->
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index cd49cae3..79d67a78 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -44,7 +44,6 @@
->  #define IPPROTO_SCTP 132
->  #endif
->  #include <arpa/inet.h>
-> -#include <stdlib.h>
->  #include <limits.h>
->  #include <inttypes.h>
->  #include <ctype.h>
-> @@ -1096,7 +1095,7 @@ int define_level(void)
->
->         while ((id =3D queue_remove(id_queue))) {
->                 cat_datum_t *cdatum;
-> -               int range_start, range_end, i;
-> +               uint32_t range_start, range_end, i;
->
->                 if (id_has_dot(id)) {
->                         char *id_start =3D id;
-> @@ -1932,7 +1931,7 @@ error:
->         return -1;
->  }
->
-> -static int avrule_merge_ioctls(struct av_ioctl_range_list **rangehead)
-> +static void avrule_merge_ioctls(struct av_ioctl_range_list **rangehead)
->  {
->         struct av_ioctl_range_list *r, *tmp;
->         r =3D *rangehead;
-> @@ -1949,7 +1948,6 @@ static int avrule_merge_ioctls(struct av_ioctl_rang=
-e_list **rangehead)
->                 }
->                 r =3D r->next;
->         }
-> -       return 0;
->  }
->
->  static int avrule_read_ioctls(struct av_ioctl_range_list **rangehead)
-> @@ -2070,8 +2068,7 @@ static int avrule_ioctl_ranges(struct av_ioctl_rang=
-e_list **rangelist)
->         /* sort and merge the input ioctls */
->         if (avrule_sort_ioctls(&rangehead))
->                 return -1;
-> -       if (avrule_merge_ioctls(&rangehead))
-> -               return -1;
-> +       avrule_merge_ioctls(&rangehead);
->         /* flip ranges if these are omitted */
->         if (omit) {
->                 if (avrule_omit_ioctls(&rangehead))
-> @@ -3854,7 +3851,7 @@ uintptr_t define_cexpr(uint32_t expr_type, uintptr_=
-t arg1, uintptr_t arg2)
->         return 0;
->  }
->
-> -int define_conditional(cond_expr_t * expr, avrule_t * t, avrule_t * f)
-> +int define_conditional(cond_expr_t * expr, avrule_t * t_list, avrule_t *=
- f_list)
->  {
->         cond_expr_t *e;
->         int depth, booleans, tunables;
-> @@ -3866,15 +3863,15 @@ int define_conditional(cond_expr_t * expr, avrule=
-_t * t, avrule_t * f)
->                 yyerror("illegal conditional expression");
->                 return -1;
->         }
-> -       if (!t) {
-> -               if (!f) {
-> +       if (!t_list) {
-> +               if (!f_list) {
->                         /* empty is fine, destroy expression and return *=
-/
->                         cond_expr_destroy(expr);
->                         return 0;
->                 }
->                 /* Invert */
-> -               t =3D f;
-> -               f =3D 0;
-> +               t_list =3D f_list;
-> +               f_list =3D NULL;
->                 expr =3D define_cond_expr(COND_NOT, expr, 0);
->                 if (!expr) {
->                         yyerror("unable to invert conditional expression"=
-);
-> @@ -3940,8 +3937,8 @@ int define_conditional(cond_expr_t * expr, avrule_t=
- * t, avrule_t * f)
->         /*  use tmp conditional node to partially build new node */
->         memset(&cn, 0, sizeof(cn));
->         cn.expr =3D expr;
-> -       cn.avtrue_list =3D t;
-> -       cn.avfalse_list =3D f;
-> +       cn.avtrue_list =3D t_list;
-> +       cn.avfalse_list =3D f_list;
->
->         /* normalize/precompute expression */
->         if (cond_normalize_expr(policydbp, &cn) < 0) {
-> @@ -4117,7 +4114,7 @@ static int set_user_roles(role_set_t * set, char *i=
-d)
->  static int parse_categories(char *id, level_datum_t * levdatum, ebitmap_=
-t * cats)
->  {
->         cat_datum_t *cdatum;
-> -       int range_start, range_end, i;
-> +       uint32_t range_start, range_end, i;
->
->         if (id_has_dot(id)) {
->                 char *id_start =3D id;
-> @@ -5527,7 +5524,7 @@ static int define_genfs_context_helper(char *fstype=
-, int has_type)
->         class_datum_t *cladatum;
->         char *type =3D NULL;
->         const char *sclass;
-> -       int len, len2;
-> +       size_t len, len2;
->
->         if (policydbp->target_platform !=3D SEPOL_TARGET_SELINUX) {
->                 yyerror("genfs not supported for target");
-> diff --git a/checkpolicy/policy_define.h b/checkpolicy/policy_define.h
-> index 075b048d..bcbfe4f3 100644
-> --- a/checkpolicy/policy_define.h
-> +++ b/checkpolicy/policy_define.h
-> @@ -13,7 +13,7 @@
->  #define FALSE 0
->
->  avrule_t *define_cond_compute_type(int which);
-> -avrule_t *define_cond_pol_list(avrule_t *avlist, avrule_t *stmt);
-> +avrule_t *define_cond_pol_list(avrule_t *avlist, avrule_t *sl);
->  avrule_t *define_cond_te_avtab(int which);
->  avrule_t *define_cond_filename_trans(void);
->  cond_expr_t *define_cond_expr(uint32_t expr_type, void *arg1, void* arg2=
-);
-> --
-> 2.43.0
->
->
+For such things, I check for consensus in existing code:
+mm/mmap.c - int is used when not returning an address or struct
+fs/userfaultfd.c - decoded to int before returning
+
+I'd use int to keep consistent with fs/userfaultfd.c
+
+Thanks,
+Liam
