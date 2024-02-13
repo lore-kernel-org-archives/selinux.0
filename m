@@ -1,237 +1,103 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FCFA374C9
-	for <selinux@vger.kernel.org>; Tue, 13 Feb 2024 11:25:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22A4D4E1D7;
+	Tue, 13 Feb 2024 12:59:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=14.137.139.23
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707823509; cv=none; b=ScR79aBwTsmYEvePEWer5xzo1ec4cS+ZLMKSVw2DIi/yJv3mVkigW1sDNeH3Umtlu1nIP3QPjdNTt2mKXGfEbYysr3vTpYaCqnwt5q4M0rRmv9h93JKAd1eT+F+/nZShXbevxtgQtWghfW2Yyw2t+tKXyPGKsqUod9AXMIUPFac=
+	t=1707829153; cv=none; b=tLtKstzmfck0y7CB04LXKJOWfKiF3FiK5iGm1H0IKuik6Ag+dtciA3cD2YtKIyVb9vkqN5BDXgsOyaCnkuSFjWfbjQGdIeQva7ZwuuWhoBlOHUbDtdKj6EglOJHapBaIF0ALTvKPeAjJqpaURoKqTOcN0CN+HAeqi4KYMezhoHM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707823509; c=relaxed/simple;
-	bh=Zw8haxAapUBG44nEylJwQccZGFGgWD0ChLnhmjrvZNE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=SktGz7SnHpk1orIefYh+BNNrNRy6AGq/fKEGESvdEml/HdxD8AsZLYQXeY9/WQ6T45yuFB53PCBCKpcl1rzW/2OcATq5+haruEnvKK1K0MHPaXJzHmRTm6C7U1q5kpo7Xv7S9FeY4+jp+rPHQfkObvLK/meV0cymfCZ1YYGqbKw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=nWOUkteQ; arc=none smtp.client-ip=209.85.221.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="nWOUkteQ"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-33ce2d6a243so7038f8f.1
-        for <selinux@vger.kernel.org>; Tue, 13 Feb 2024 03:25:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1707823505; x=1708428305; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=c7B1VdNEjxdBHUG+t3lw56dnlzhGxxWmEE0AwtlQokM=;
-        b=nWOUkteQTjFRGq8xUbJgA4b5tA7kklIZ/tVCWet1dHXNrVQJb+gUS7YOwVIa3TOosf
-         0prgb7d8lsWlmXuUI5tDovUulHiIBp4+rvRkoNOqvW/dMA07R4EH/J5Nxa2iFJhqvmKc
-         GjSFjCxXL9mfOHgirVkERoYLEO+G6tvqh5pCAsuDQZpixsGQuiOQ4PRIm6eKnwLIxFSx
-         U1vEegxGPnCRDPoKyCgd8hJC5OOrYu+BtURGK6pewwl95PmIgP6eBM9xAnxQI4W4Zhka
-         97yRPiyQxpF3Fmv2veKvOe8Y1UyhkQcfyM+dl1xvCHFYOQz9sn1bsg5n5JuIkqFxmcAs
-         9q1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707823505; x=1708428305;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=c7B1VdNEjxdBHUG+t3lw56dnlzhGxxWmEE0AwtlQokM=;
-        b=o1pZiUkaZNxOyuCg7yZmDX5146VHzN11nyKFWOeXuSKBMTlQGty4EDFTVZ2IcdCmOY
-         P1NlXvv2w3c4Y/wBvQFUouG9q0AdIjQISSD34jvtw6HGrBqUPBIIVhihZMccppaYBZ2R
-         1RiYkFdR7bgG/v9Tm21Vctn70F8GBLEBaQQa9yobJUbW8p0jYULukO0RiFLWlOtjsCjY
-         zm1h8aeK5q9arvQwgq+tK3rxbDMwVzxTk9WP/CnIxDja66fxnqXYIeV5hoE+gK1Zc8iC
-         nMj/M7M3sCSl2is2/J4UgB16j6Do6krz0Ew6tGQStYEpOW3ImCm9OH2Z4WkZ4UhXLMYu
-         N6lQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUPdsVLzsD65IDjSYukO5tVQBXq+AjCTyXQkNoonFqfaYs0oqnySzGGa6kgdFaShYtuPvddKNg8L3+/Vq9CPEf2ODNg6smOhw==
-X-Gm-Message-State: AOJu0Yxkum8ocbnNcKkAen7a6vYfEQgD36CbWStqKFa9nJQY2CdP8It9
-	AQa/o83SyZr04UJ4pEUYZbcJ2LlvnMqygI9Dqh32gzdHq0fkQPWc/lCF44j15wP5U6uCfxvMEIA
-	/+O+8gP6ONM5rgX4puSiIcqQRg/QtU/fzGCKQ
-X-Google-Smtp-Source: AGHT+IFDvKZilqGPmprSihukL2cOV+DX1TDTDe1cz5RyBlvdIbIU9j0HXFdr6eKEBuH81WUcfNsiM9yJ0Ex2CNjDRAA=
-X-Received: by 2002:adf:eec9:0:b0:33b:2281:ef32 with SMTP id
- a9-20020adfeec9000000b0033b2281ef32mr7382022wrp.69.1707823505374; Tue, 13 Feb
- 2024 03:25:05 -0800 (PST)
+	s=arc-20240116; t=1707829153; c=relaxed/simple;
+	bh=RM51wWriDMRxA4AuvhOUrEAbEnWZNqSpiSOaePt63sc=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=vBs5OPN1360osxLSegdEclHMHiAAQv4eAhR8byPhrJD98oJNlKVUwCYlwVNKUu5QikDeAjDxawdrMw2CQOXeBFlgCXPWP6BoY1c+a56BuZOf935QBmeBQF3l1kHgFxitqrr/9OrvrcPhCstMGfji91RxxHN5dfq/j6ZKhnyKKWg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=14.137.139.23
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.18.186.51])
+	by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4TZ1Gc3VDyz9xvh1;
+	Tue, 13 Feb 2024 20:43:52 +0800 (CST)
+Received: from mail02.huawei.com (unknown [7.182.16.27])
+	by mail.maildlp.com (Postfix) with ESMTP id 2A8F614065B;
+	Tue, 13 Feb 2024 20:59:01 +0800 (CST)
+Received: from [127.0.0.1] (unknown [10.204.63.22])
+	by APP2 (Coremail) with SMTP id GxC2BwB3sCSFZ8tliwppAg--.56469S2;
+	Tue, 13 Feb 2024 13:59:00 +0100 (CET)
+Message-ID: <05ad625b0f5a0e6c095abee5507801da255b36cd.camel@huaweicloud.com>
+Subject: Re: [PATCH v9 12/25] security: Introduce file_post_open hook
+From: Roberto Sassu <roberto.sassu@huaweicloud.com>
+To: Paul Moore <paul@paul-moore.com>, Mimi Zohar <zohar@linux.ibm.com>
+Cc: viro@zeniv.linux.org.uk, brauner@kernel.org, chuck.lever@oracle.com, 
+ jlayton@kernel.org, neilb@suse.de, kolga@netapp.com, Dai.Ngo@oracle.com, 
+ tom@talpey.com, jmorris@namei.org, serge@hallyn.com,
+ dmitry.kasatkin@gmail.com,  eric.snowberg@oracle.com, dhowells@redhat.com,
+ jarkko@kernel.org,  stephen.smalley.work@gmail.com, eparis@parisplace.org,
+ casey@schaufler-ca.com,  shuah@kernel.org, mic@digikod.net,
+ linux-kernel@vger.kernel.org,  linux-fsdevel@vger.kernel.org,
+ linux-nfs@vger.kernel.org,  linux-security-module@vger.kernel.org,
+ linux-integrity@vger.kernel.org,  keyrings@vger.kernel.org,
+ selinux@vger.kernel.org,  linux-kselftest@vger.kernel.org, Roberto Sassu
+ <roberto.sassu@huawei.com>,  Stefan Berger <stefanb@linux.ibm.com>
+Date: Tue, 13 Feb 2024 13:58:43 +0100
+In-Reply-To: <CAHC9VhQ7DgPJtNTRCYneu_XnpRmuwfPCW+FqVuS=k6U5-F6pJw@mail.gmail.com>
+References: <20240115181809.885385-1-roberto.sassu@huaweicloud.com>
+	 <20240115181809.885385-13-roberto.sassu@huaweicloud.com>
+	 <305cd1291a73d788c497fe8f78b574d771b8ba41.camel@linux.ibm.com>
+	 <CAHC9VhQ7DgPJtNTRCYneu_XnpRmuwfPCW+FqVuS=k6U5-F6pJw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.4-0ubuntu2 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240213001920.3551772-1-lokeshgidra@google.com>
- <20240213001920.3551772-4-lokeshgidra@google.com> <20240213033307.zbhrpjigco7vl56z@revolver>
-In-Reply-To: <20240213033307.zbhrpjigco7vl56z@revolver>
-From: Lokesh Gidra <lokeshgidra@google.com>
-Date: Tue, 13 Feb 2024 03:24:53 -0800
-Message-ID: <CA+EESO5TNubw4vi08P6BO-4XKTLNVeNfjM92ieZJTd_oJt9Ygw@mail.gmail.com>
-Subject: Re: [PATCH v5 3/3] userfaultfd: use per-vma locks in userfaultfd operations
-To: "Liam R. Howlett" <Liam.Howlett@oracle.com>, Lokesh Gidra <lokeshgidra@google.com>, 
-	akpm@linux-foundation.org, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, surenb@google.com, 
-	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com, 
-	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com, 
-	willy@infradead.org, jannh@google.com, kaleshsingh@google.com, 
-	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-CM-TRANSID:GxC2BwB3sCSFZ8tliwppAg--.56469S2
+X-Coremail-Antispam: 1UD129KBjvdXoWrKw47Ar17Ar1UCFWfuFyrtFb_yoW3ZrgEgr
+	yqvwn7Grs8Z3WrAanxAF1rAFWqg3W8Jr4rC395Xr1UZ3sxXay8WF4kJrnaqw4fGF40yFsI
+	93Z5WFyfAwnrXjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUbzAYFVCjjxCrM7AC8VAFwI0_Wr0E3s1l1xkIjI8I6I8E6xAIw20E
+	Y4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwV
+	A0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x02
+	67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r4j6F4UM28EF7xvwVC2z280aVCY1x0267
+	AKxVW8JVW8Jr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2
+	j2WlYx0E2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7x
+	kEbVWUJVW8JwACjcxG0xvEwIxGrwACI402YVCY1x02628vn2kIc2xKxwCF04k20xvY0x0E
+	wIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E74
+	80Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_WrylIxkGc2Ij64vIr41lIxAIcVC0
+	I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04
+	k26cxKx2IYs7xG6Fyj6rWUJwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF
+	7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUOlksDUUUU
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQAMBF1jj5pP-AABsQ
 
-On Mon, Feb 12, 2024 at 7:33=E2=80=AFPM Liam R. Howlett <Liam.Howlett@oracl=
-e.com> wrote:
->
-> * Lokesh Gidra <lokeshgidra@google.com> [240212 19:19]:
-> > All userfaultfd operations, except write-protect, opportunistically use
-> > per-vma locks to lock vmas. On failure, attempt again inside mmap_lock
-> > critical section.
-> >
-> > Write-protect operation requires mmap_lock as it iterates over multiple
-> > vmas.
-> >
-> > Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-> > ---
-> >  fs/userfaultfd.c              |  13 +-
-> >  include/linux/userfaultfd_k.h |   5 +-
-> >  mm/userfaultfd.c              | 392 ++++++++++++++++++++++++++--------
-> >  3 files changed, 312 insertions(+), 98 deletions(-)
-> >
-> ...
->
-> > +
-> > +static __always_inline
-> > +struct vm_area_struct *find_vma_and_prepare_anon(struct mm_struct *mm,
-> > +                                              unsigned long addr)
-> > +{
-> > +     struct vm_area_struct *vma;
-> > +
-> > +     mmap_assert_locked(mm);
-> > +     vma =3D vma_lookup(mm, addr);
-> > +     if (!vma)
-> > +             vma =3D ERR_PTR(-ENOENT);
-> > +     else if (!(vma->vm_flags & VM_SHARED) && anon_vma_prepare(vma))
-> > +             vma =3D ERR_PTR(-ENOMEM);
->
-> Nit: I just noticed that the code below says anon_vma_prepare() is unlike=
-ly.
->
-Thanks for catching this. I'll add it in next version.
-> ...
->
-> > +static struct vm_area_struct *lock_mm_and_find_dst_vma(struct mm_struc=
-t *dst_mm,
-> > +                                                    unsigned long dst_=
-start,
-> > +                                                    unsigned long len)
-> > +{
-> > +     struct vm_area_struct *dst_vma;
-> > +     int err;
-> > +
-> > +     mmap_read_lock(dst_mm);
-> > +     dst_vma =3D find_vma_and_prepare_anon(dst_mm, dst_start);
-> > +     if (IS_ERR(dst_vma)) {
-> > +             err =3D PTR_ERR(dst_vma);
->
-> It's sort of odd you decode then re-encode this error, but it's correct
-> the way you have it written.  You could just encode ENOENT instead?
+On Mon, 2024-02-12 at 16:16 -0500, Paul Moore wrote:
+> On Mon, Feb 12, 2024 at 4:06=E2=80=AFPM Mimi Zohar <zohar@linux.ibm.com> =
+wrote:
+> >=20
+> > Hi Roberto,
+> >=20
+> >=20
+> > > diff --git a/security/security.c b/security/security.c
+> > > index d9d2636104db..f3d92bffd02f 100644
+> > > --- a/security/security.c
+> > > +++ b/security/security.c
+> > > @@ -2972,6 +2972,23 @@ int security_file_open(struct file *file)
+> > >       return fsnotify_perm(file, MAY_OPEN);  <=3D=3D=3D  Conflict
+> >=20
+> > Replace with "return fsnotify_open_perm(file);"
+> >=20
+> > >  }
+> > >=20
+> >=20
+> > The patch set doesn't apply cleaning to 6.8-rcX without this change.  U=
+nless
+> > there are other issues, I can make the change.
+>=20
+> I take it this means you want to pull this via the IMA/EVM tree?
 
-Thanks. It was an oversight. I'll fix it.
->
-> > +             goto out_unlock;
-> > +     }
-> > +
-> > +     if (validate_dst_vma(dst_vma, dst_start + len))
-> > +             return dst_vma;
-> > +
-> > +     err =3D -ENOENT;
-> > +out_unlock:
-> > +     mmap_read_unlock(dst_mm);
-> > +     return ERR_PTR(err);
-> >  }
-> > +#endif
-> >
-> ...
->
-> > +static __always_inline
-> > +long find_vmas_mm_locked(struct mm_struct *mm,
->
-> int would probably do?
-> > +                      unsigned long dst_start,
-> > +                      unsigned long src_start,
-> > +                      struct vm_area_struct **dst_vmap,
-> > +                      struct vm_area_struct **src_vmap)
-> > +{
-> > +     struct vm_area_struct *vma;
-> > +
-> > +     mmap_assert_locked(mm);
-> > +     vma =3D find_vma_and_prepare_anon(mm, dst_start);
-> > +     if (IS_ERR(vma))
-> > +             return PTR_ERR(vma);
-> > +
-> > +     *dst_vmap =3D vma;
-> > +     /* Skip finding src_vma if src_start is in dst_vma */
-> > +     if (src_start >=3D vma->vm_start && src_start < vma->vm_end)
-> > +             goto out_success;
-> > +
-> > +     vma =3D vma_lookup(mm, src_start);
-> > +     if (!vma)
-> > +             return -ENOENT;
-> > +out_success:
-> > +     *src_vmap =3D vma;
-> > +     return 0;
-> > +}
-> > +
-> > +#ifdef CONFIG_PER_VMA_LOCK
-> > +static long find_and_lock_vmas(struct mm_struct *mm,
->
-> This could also be an int return type, I must be missing something?
+Not sure about that, but I have enough changes to do to make a v10.
 
-If you look at ERR_PTR() etc. macros, they all use 'long' for
-conversions. Also, this file uses long/ssize_t/int at different
-places. So I went in favor of long. I'm sure int would work just fine
-too. Let me know if you want me to change it to int.
->
-> ...
->
-> > +     *src_vmap =3D lock_vma_under_rcu(mm, src_start);
-> > +     if (likely(*src_vmap))
-> > +             return 0;
-> > +
-> > +     /* Undo any locking and retry in mmap_lock critical section */
-> > +     vma_end_read(*dst_vmap);
-> > +
-> > +     mmap_read_lock(mm);
-> > +     err =3D find_vmas_mm_locked(mm, dst_start, src_start, dst_vmap, s=
-rc_vmap);
-> > +     if (!err) {
-> > +             /*
-> > +              * See comment in lock_vma() as to why not using
-> > +              * vma_start_read() here.
-> > +              */
-> > +             down_read(&(*dst_vmap)->vm_lock->lock);
-> > +             if (*dst_vmap !=3D *src_vmap)
-> > +                     down_read(&(*src_vmap)->vm_lock->lock);
-> > +     }
-> > +     mmap_read_unlock(mm);
-> > +     return err;
-> > +}
-> > +#else
-> > +static long lock_mm_and_find_vmas(struct mm_struct *mm,
-> > +                               unsigned long dst_start,
-> > +                               unsigned long src_start,
-> > +                               struct vm_area_struct **dst_vmap,
-> > +                               struct vm_area_struct **src_vmap)
-> > +{
-> > +     long err;
-> > +
-> > +     mmap_read_lock(mm);
-> > +     err =3D find_vmas_mm_locked(mm, dst_start, src_start, dst_vmap, s=
-rc_vmap);
-> > +     if (err)
-> > +             mmap_read_unlock(mm);
-> > +     return err;
-> >  }
-> > +#endif
->
-> This section is much easier to understand.  Thanks.
+Roberto
 
-I'm glad finally the patch is easier to follow. Thanks so much for
-your prompt reviews.
->
-> Thanks,
-> Liam
+
