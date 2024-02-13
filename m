@@ -1,178 +1,140 @@
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
+Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 920E260872
-	for <selinux@vger.kernel.org>; Tue, 13 Feb 2024 20:56:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05C24629EC
+	for <selinux@vger.kernel.org>; Tue, 13 Feb 2024 21:57:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707857772; cv=none; b=KEQXaYXchbvWosJxQj0yfOFR8nEdrZjkElf65YTzahC7+CyWKZXvhSqWfFOR7ANUAEflUWvHU9qeA5kD6aDh7J1SPfyKtVB8BsPebhgPjGWdsmOBQ5KNjQ8pga4VO+RWStQ3ijaaf+YyEfNgxDQulUv4zL21VDjeSCVVFatGTZ0=
+	t=1707861477; cv=none; b=dv70A1Nm6pC3QCUx/sbfg9ngbWuH9Lzg1iieUJO3FmDcprVDG/97O5RzpB4QPY3SvQyp5325APVvwGFYcC3OdXT1aCXR4VCIHGKnmIK39cXIe7nlkNwHIFqcmCzv0tACIcNn7NcyL6pmZNrkCd3d8WeNLBqhv3RIgKUo8iEw0HY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707857772; c=relaxed/simple;
-	bh=dGKLBGa59XRydJInzor93qNhwgdzYLGC6t33BncqeqU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FDCuyv41AZLq8kLv1JxBhYd8H5C7OyjGI65d321BkD929iQ0fIpffyzidyzY4dXAuKkbKNu3felrO91pDkRG7o0Eo8sKrasKjX1pWwDMmLiGXopU6KXFKhXbSEvsYCrVZDHKIVX83fwM9btQr/Ae4NdgFHhiwYDCl/kM4EyY9n8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SZ+fs/09; arc=none smtp.client-ip=209.85.219.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1707861477; c=relaxed/simple;
+	bh=LC9aLap2APj/OH/lobM36oEQVV0oPuQPtnUuvAgE1is=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=oMzPpm2tpK5PPHWtVrzQR1IYXkaXIzIff9dpKVhf61cOveyct1F1xMHocybMqoxxQq2s3bjNHjYZC4gAU0SA9qz7uuDZdZF7W2D5CZA/GJtguxVfS02Dr+sfHILsxlHBlwwUuteZAmgRfCSdFjkP3zFCgyCPESjilKdW5BNP7OU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--lokeshgidra.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Z2syN5LN; arc=none smtp.client-ip=209.85.128.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--lokeshgidra.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SZ+fs/09"
-Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-68ee2c0a237so1002776d6.1
-        for <selinux@vger.kernel.org>; Tue, 13 Feb 2024 12:56:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Z2syN5LN"
+Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-60781e8709eso2580387b3.1
+        for <selinux@vger.kernel.org>; Tue, 13 Feb 2024 13:57:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1707857769; x=1708462569; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=uQzYGCT5St57ckKrn0eybsw3cMnW4dkwWw0ip/LdObQ=;
-        b=SZ+fs/09M7FenEdu1UaANyu2Unec3NhJiVbHgSSMqWxTfFfrMDBwGMmzWaZv6f/X2/
-         QZ7e8dBEiF2wUxogLCswpobl2eb6eiLG9OxM5dvn+Uw1AT7X/y9j7dREKNQn+yoO31uF
-         vls7ZOHsJZT0ebceEKhYJJj/TLNyP6jqBIL845kYtqFMKiOiYn+XIDMwsn1uTnBIV2cs
-         +8cnlGlPzVowHYEFwDFUX8cntpq3lilZFMMyOchsMi92EkGMR2FO2IRb9l42guXWKjRy
-         H9tTfth5UWvwG/Ag30sBGRsYyMgKfxbUeS7xBy6OlQVaH4glLegsATx4JhrypzE5QEvi
-         oI+g==
+        d=google.com; s=20230601; t=1707861473; x=1708466273; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=ir4+0EAbk6DmHSJMCOQ+63RTEjcKM6OBoUCHYQ558Qo=;
+        b=Z2syN5LNhc2RrVTe9Wh5aUgM42WA5VdKdJTmY84ptaaTakQ+cs4Ey/MNDxzMC7fBTV
+         eKysJJJgcHq6/Vckrs/T0ms7yu08hgDyqoYkmLgh4IJUnI/+A+BDuuv4ZHPGiuyV6Wgz
+         SCzYA9zLbFh2+TXaktRIfRDawTsN/RuDXR9uNHu7QcR/4rDvanhKpXIF2ortyeVMIrNE
+         wgiCDxvS0VSLN+qPR2GqIw7KktiFpU/bAJqfHxUwrCiMR1XaSm5aj8zwz2WTBB2HD9WN
+         fMxTMCu+j5SrkDqlbIzaYiGhZX9w4uOZhfleKzle0Oc5ZCPpGLiW+ObD6V47fFzzafq/
+         0Icg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707857769; x=1708462569;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=uQzYGCT5St57ckKrn0eybsw3cMnW4dkwWw0ip/LdObQ=;
-        b=Iwcw44o9cAaR8b0WUVglTbqF9PE12uviinlyFzmw4oJMgNEbeSqu46rnKc1Vt/hP9n
-         sWIheAMMZxppCZp789CUvjfOKIvOMDJTvOJPgqEXTp3XO3S5bE3yByqaaRYmhyUFO2Yx
-         7GqZp1e7859UJ8vg1PukToKgOccEftnRWlDrS+R9LDpM02QmtbPHQ8pNZbEQJHOWCTEf
-         40hjJH+0mbR4BQnpDjh9K4djU1F18Q8lUK6EIn5pvEb7mpod3c0pZeTy3pO4bfyoLC+K
-         7X8PFDwmPRf5sZgoCf362dWCFZd5e1TILRx530i7NQT4sbZQMrqeokaIRVItmJ/hPdMQ
-         xCzg==
-X-Gm-Message-State: AOJu0YwQRGrYJG8ho3B7DsaoRbu6LaD2qxnec7SzijPo5zSW+gie9RSF
-	t18b3vD7WJczwkEyZ2pYCCk3Iuibr7n7m+TFYLUMahLHHzdSCk1cWP9wk4j+
-X-Google-Smtp-Source: AGHT+IHAnX8kQ+Clo5ruadMvbypU2LOAja1O3DgOag5vcAqfIPOflwwRBljOJwm/eLgcwgQdGwCCtQ==
-X-Received: by 2002:a0c:aa95:0:b0:68c:ae6d:2abb with SMTP id f21-20020a0caa95000000b0068cae6d2abbmr1093590qvb.15.1707857768994;
-        Tue, 13 Feb 2024 12:56:08 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUOs89M6l99N7nu9JXEksj/7SRm8rptljHVHYSfvP6NasFPc8NhDbzCthDKR1ZFztGIfRFhJPpG03JQrJJwqdbVYw==
-Received: from electric.. (c-69-140-100-37.hsd1.md.comcast.net. [69.140.100.37])
-        by smtp.gmail.com with ESMTPSA id nh9-20020a056214390900b0068c6d56d4f7sm1595570qvb.92.2024.02.13.12.56.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Feb 2024 12:56:08 -0800 (PST)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: cgzones@googlemail.com,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH] checkpolicy, libsepol: Fix potential double free of mls_level_t
-Date: Tue, 13 Feb 2024 15:56:05 -0500
-Message-ID: <20240213205605.830719-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        d=1e100.net; s=20230601; t=1707861473; x=1708466273;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ir4+0EAbk6DmHSJMCOQ+63RTEjcKM6OBoUCHYQ558Qo=;
+        b=ry1pYDvCmHes85XwHl/3GTCJJAGbwYdWqV7rETzoiOFql1WAu8z4VUlSSi0wAvnV34
+         HzZ8PEpkMkGEP0hF93Sfhabwf4aaTis+GeEWpnKl1VlMivBRbuk2p+jNwK7KSFdy1Iu7
+         RSBHjyk7LBcxjB2xZ50xzhxK9hbemlm1Q8QqQbJGadd+qkinPmBWBKxXLHj5JPz3scP2
+         JTCjQU1GQzzczUAGA/mmdz7OKL8Zh5oA0jQapbIwr6s623oZYeq/J+kn95Mg2PkmWFAG
+         rvbgGD0Ukkz3cUFnDJ9+LjoDlKLuaNpocO8aKU0fyZXlfvwwaJsSmtzcwESLyyaZ9YEs
+         M2/g==
+X-Forwarded-Encrypted: i=1; AJvYcCUDSVYXVJd+TqfJ8VTOEspUo1mRrqcrWnbrOxTr7ZyPjYRQ/b/QTUksftQlFN3LrwdFn1vkBr5PqCd2cksNpa+O4EK1S2bM3g==
+X-Gm-Message-State: AOJu0YyfNNtYT4TVCE5pofp7KLkrMYyRA0YDUk4EAPF71SkEljqS624r
+	Xwapm86nXuPhky10GL3n5amqBgzW3TJx9F4cZ3bwIBgaNgFeM7RlKzM0mTIc0gNSe+Z4Cg9Api/
+	CBVbxL546n5LORdDeIn/sfw==
+X-Google-Smtp-Source: AGHT+IFDSd5xu2FB72V4FXpKTmeqW1QesEeAS6gwaRywm0PkcXIJA1oGvUM9nR5x/IAVPoUhZ5UVHHp7Mrodt7B/AA==
+X-Received: from lg.mtv.corp.google.com ([2620:15c:211:202:ce6c:821f:a756:b4b8])
+ (user=lokeshgidra job=sendgmr) by 2002:a81:5702:0:b0:5ff:6ec3:b8da with SMTP
+ id l2-20020a815702000000b005ff6ec3b8damr12240ywb.1.1707861473107; Tue, 13 Feb
+ 2024 13:57:53 -0800 (PST)
+Date: Tue, 13 Feb 2024 13:57:38 -0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.43.0.687.g38aa6559b0-goog
+Message-ID: <20240213215741.3816570-1-lokeshgidra@google.com>
+Subject: [PATCH v6 0/3] per-vma locks in userfaultfd
+From: Lokesh Gidra <lokeshgidra@google.com>
+To: akpm@linux-foundation.org
+Cc: lokeshgidra@google.com, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, surenb@google.com, 
+	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com, 
+	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com, 
+	willy@infradead.org, jannh@google.com, kaleshsingh@google.com, 
+	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org, 
+	Liam.Howlett@oracle.com
+Content-Type: text/plain; charset="UTF-8"
 
-In checkpolicy, sensitivities that have aliases will temporarily
-share the mls_level_t structure until a level statement defines the
-categories for the level and the alias is updated to have its own
-mls_level_t structure. Currently, this does not cause a problem
-because checkpolicy does very little clean-up before exiting when
-an error is detected. But if the policydb is destroyed before exiting
-due to an error after a sensitivity and its alias is declared, but
-before a level statement involving either of them, then a double
-free of the shared mls_level_t will occur.
+Performing userfaultfd operations (like copy/move etc.) in critical
+section of mmap_lock (read-mode) causes significant contention on the
+lock when operations requiring the lock in write-mode are taking place
+concurrently. We can use per-vma locks instead to significantly reduce
+the contention issue.
 
-The defined field of the level_datum_t is set after a level statement
-is processed for the level_datum_t. This means that we know the alias
-has its own mls_level_t if the defined field is set. This means that
-the defined field can be used to determine whether or not the
-mls_level_t pointed to by an alias level_datum_t should be destroyed.
+Android runtime's Garbage Collector uses userfaultfd for concurrent
+compaction. mmap-lock contention during compaction potentially causes
+jittery experience for the user. During one such reproducible scenario,
+we observed the following improvements with this patch-set:
 
-Since the defined field is not set when reading or expanding a policy,
-update libsepol to set the defined field.
+- Wall clock time of compaction phase came down from ~3s to <500ms
+- Uninterruptible sleep time (across all threads in the process) was
+  ~10ms (none in mmap_lock) during compaction, instead of >20s
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- checkpolicy/policy_define.c | 11 +++++++----
- libsepol/src/expand.c       |  1 +
- libsepol/src/policydb.c     |  7 +++++--
- 3 files changed, 13 insertions(+), 6 deletions(-)
+Changes since v5 [5]:
+- Use abstract function names (like uffd_mfill_lock/uffd_mfill_unlock)
+  to avoid using too many #ifdef's, per Suren Baghdasaryan and Liam
+  Howlett
+- Use 'unlikely' (as earlier) to anon_vma related checks, per Liam Howlett
+- Eliminate redundant ptr->err->ptr conversion, per Liam Howlett
+- Use 'int' instead of 'long' for error return type, per Liam Howlett
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 260e609d..542bb978 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -1006,9 +1006,10 @@ static int clone_level(hashtab_key_t key __attribute__ ((unused)), hashtab_datum
- 	mls_level_t *level = (mls_level_t *) arg, *newlevel;
- 
- 	if (levdatum->level == level) {
--		levdatum->defined = 1;
--		if (!levdatum->isalias)
-+		if (!levdatum->isalias) {
-+			levdatum->defined = 1;
- 			return 0;
-+		}
- 		newlevel = (mls_level_t *) malloc(sizeof(mls_level_t));
- 		if (!newlevel)
- 			return -1;
-@@ -1017,6 +1018,7 @@ static int clone_level(hashtab_key_t key __attribute__ ((unused)), hashtab_datum
- 			return -1;
- 		}
- 		levdatum->level = newlevel;
-+		levdatum->defined = 1;
- 	}
- 	return 0;
- }
-@@ -1057,8 +1059,6 @@ int define_level(void)
- 	}
- 	free(id);
- 
--	levdatum->defined = 1;
--
- 	while ((id = queue_remove(id_queue))) {
- 		cat_datum_t *cdatum;
- 		int range_start, range_end, i;
-@@ -1121,6 +1121,9 @@ int define_level(void)
- 		free(id);
- 	}
- 
-+	if (!levdatum->isalias)
-+		levdatum->defined = 1;
-+
- 	if (hashtab_map
- 	    (policydbp->p_levels.table, clone_level, levdatum->level)) {
- 		yyerror("out of memory");
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index e63414b1..0e16c502 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -1191,6 +1191,7 @@ static int sens_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 		goto out_of_mem;
- 	}
- 	new_level->isalias = level->isalias;
-+	new_level->defined = 1;
- 	state->out->p_levels.nprim++;
- 
- 	if (hashtab_insert(state->out->p_levels.table,
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index f10a8a95..0c950bf1 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -1390,8 +1390,10 @@ static int sens_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p
- 	if (key)
- 		free(key);
- 	levdatum = (level_datum_t *) datum;
--	mls_level_destroy(levdatum->level);
--	free(levdatum->level);
-+	if (!levdatum->isalias || levdatum->defined) {
-+		mls_level_destroy(levdatum->level);
-+		free(levdatum->level);
-+	}
- 	level_datum_destroy(levdatum);
- 	free(levdatum);
- 	return 0;
-@@ -3357,6 +3359,7 @@ static int sens_read(policydb_t * p
- 		goto bad;
- 
- 	levdatum->isalias = le32_to_cpu(buf[1]);
-+	levdatum->defined = 1;
- 
- 	levdatum->level = malloc(sizeof(mls_level_t));
- 	if (!levdatum->level || mls_read_level(levdatum->level, fp))
+Changes since v4 [4]:
+- Fix possible deadlock in find_and_lock_vmas() which may arise if
+  lock_vma() is used for both src and dst vmas.
+- Ensure we lock vma only once if src and dst vmas are same.
+- Fix error handling in move_pages() after successfully locking vmas.
+- Introduce helper function for finding dst vma and preparing its
+  anon_vma when done in mmap_lock critical section, per Liam Howlett.
+- Introduce helper function for finding dst and src vmas when done in
+  mmap_lock critical section.
+
+Changes since v3 [3]:
+- Rename function names to clearly reflect which lock is being taken,
+  per Liam Howlett.
+- Have separate functions and abstractions in mm/userfaultfd.c to avoid
+  confusion around which lock is being acquired/released, per Liam Howlett.
+- Prepare anon_vma for all private vmas, anonymous or file-backed,
+  per Jann Horn.
+
+Changes since v2 [2]:
+- Implement and use lock_vma() which uses mmap_lock critical section
+  to lock the VMA using per-vma lock if lock_vma_under_rcu() fails,
+  per Liam R. Howlett. This helps simplify the code and also avoids
+  performing the entire userfaultfd operation under mmap_lock.
+
+Changes since v1 [1]:
+- rebase patches on 'mm-unstable' branch
+
+[1] https://lore.kernel.org/all/20240126182647.2748949-1-lokeshgidra@google.com/
+[2] https://lore.kernel.org/all/20240129193512.123145-1-lokeshgidra@google.com/
+[3] https://lore.kernel.org/all/20240206010919.1109005-1-lokeshgidra@google.com/
+[4] https://lore.kernel.org/all/20240208212204.2043140-1-lokeshgidra@google.com/
+[5] https://lore.kernel.org/all/20240213001920.3551772-1-lokeshgidra@google.com/
+
+Lokesh Gidra (3):
+  userfaultfd: move userfaultfd_ctx struct to header file
+  userfaultfd: protect mmap_changing with rw_sem in userfaulfd_ctx
+  userfaultfd: use per-vma locks in userfaultfd operations
+
+ fs/userfaultfd.c              |  86 ++-----
+ include/linux/userfaultfd_k.h |  75 ++++--
+ mm/userfaultfd.c              | 438 +++++++++++++++++++++++++---------
+ 3 files changed, 405 insertions(+), 194 deletions(-)
+
 -- 
-2.43.0
+2.43.0.687.g38aa6559b0-goog
 
