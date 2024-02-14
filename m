@@ -1,183 +1,161 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF2D860EF9
-	for <selinux@vger.kernel.org>; Wed, 14 Feb 2024 17:12:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4692613A888;
+	Wed, 14 Feb 2024 20:08:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707930761; cv=none; b=r4lBoW/lcNMH2AeCR7wNh2U6qVTnk0kQ5gkybsPV0rg1tsv6psYQHiDUB8NE3JKMgFUGd/ecrguLX1jFhJbvJqVMtrek44MjL9KQfmARFCwcyWY8AcWy5aDzcyN7fspJsrlEWFTSC54vml0ZUOZHk5NkXpLw8YHYIs8tNyC/sjs=
+	t=1707941289; cv=none; b=lK7rO3tuBI7LPpW2KD9dewlV0nI2AnsXyvixk5penrGsX/RpBYFAc4bu79UkwW+5PRZFrze/YmyO5bnWQnPYE3CtsBdsCOrGn10ktliBz2LNvHHo58Ouk3idDKxQtMTm9AAq504tF03BB/W7CbJ/Q+yz9ZJDIDbkuzkEbNc5Oo4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707930761; c=relaxed/simple;
-	bh=Gh7oxSHsP82j/NtR9dieUvefvWia2hcgh7qbSU1EVI4=;
-	h=From:To:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=SG2KXxo9EDpMHoufSwFsBpn8TNRIU7GWTWOlyDBxXkZ4czMyONggjNZ9AaoaibIaNRoPil3X/ZbZlfvaToEe9KFheaIGLGkeibFIxsTe3AtXSzVPkYOzs+zD5cFQNgJXWD7LFeFWenafq6JH3yzwlpO9pYFOgkIZvnOPN8K1u4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Cs0zd7GV; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1707941289; c=relaxed/simple;
+	bh=0c27WM48Hr69yQ4BRbSljfY+8max5aVHrUQMsvmvoT0=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:Mime-Version; b=rGXh9vzZ+mmwWZGkm30yg52gEsaQcN2MOdm5gRYvMIdxaKslP0BZQw507K2stJttasCJvxsGAQrGRECj1RgUwRfX+49JAoELWj51pe4/JuYCYQGglmNn9WTR/jZHmIoVCzd9zTBbuep2lySmnAl+6/sf281G10LWA2luIhM2VLw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=XO4ti+F8; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Cs0zd7GV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1707930758;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8P/D+2idC4JKjrMNRwK5pEt+Jxif6mDXe9XrUcX20D8=;
-	b=Cs0zd7GV0TSo6yLLIl1rjf2sL4F8z0F1lBiMjTPaCTFpHLl+ld07vWWantG9J68LDC2ww9
-	x3WZ0FW+I0s/GcQa8ZR44dJK7gSnY4Uh+7Yiuy/kW6c9amAViX17MJSYOhs0Nf+xrsYM8S
-	ZYk1CZKKbiiXWKzi/N1OGYc/U+0+8J4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-266-ZLkwbLugM06GpmEC1wLfOA-1; Wed, 14 Feb 2024 12:12:36 -0500
-X-MC-Unique: ZLkwbLugM06GpmEC1wLfOA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A24D185A58A
-	for <selinux@vger.kernel.org>; Wed, 14 Feb 2024 17:12:36 +0000 (UTC)
-Received: from localhost (unknown [10.45.226.21])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 619188CED;
-	Wed, 14 Feb 2024 17:12:36 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
-Subject: Re: [PATCH] python/semanage: Do not sort local fcontext definitions
-In-Reply-To: <20240207150003.174701-1-vmojzis@redhat.com>
-References: <20240207150003.174701-1-vmojzis@redhat.com>
-Date: Wed, 14 Feb 2024 18:12:35 +0100
-Message-ID: <87zfw3dl6k.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XO4ti+F8"
+Received: from pps.filterd (m0353726.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41EJvFTF004798;
+	Wed, 14 Feb 2024 20:07:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=mXHxoZ42mf/ESBqj6s5bnVAfG0vN7uRQxTDbGz8SwAo=;
+ b=XO4ti+F8dvznCzwOMommY2wHzUPRF12PQUnYJO8wcMld4+xLiaDZrncmLdNb92rQ7TNe
+ RQ+9rYnPchBKUFw5S9Fl7I38jgR7LO6LKwUUOB0dExBhkPLH6UbwCM16YyMy4XS2iK2r
+ +0gh0WxTiNUirdOxbsuLbSFMGF0eadMRe4+BzFbNOEyWOpeZYWi0E0go6AeH/J1ElsT2
+ sExdubjt5KshLHd61G8KyAJvOgkxAqxFZJV+1qsKFpJwgPGTcHLj9XBxFxl787CNPkXw
+ AuT6Oi0YJiz5OVwSzTfJppPGbBIYD6oTQ2vUShlvwWT49EtCY3XXiM+cGR1oI6+ZznNS ug== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w944jranh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 14 Feb 2024 20:07:32 +0000
+Received: from m0353726.ppops.net (m0353726.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 41EJvn2l007248;
+	Wed, 14 Feb 2024 20:07:32 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w944jramk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 14 Feb 2024 20:07:31 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41EIYP1m004329;
+	Wed, 14 Feb 2024 20:07:30 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w6kv0gd5r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 14 Feb 2024 20:07:30 +0000
+Received: from smtpav04.dal12v.mail.ibm.com (smtpav04.dal12v.mail.ibm.com [10.241.53.103])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41EK7RHI19005960
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 14 Feb 2024 20:07:29 GMT
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8504C5805A;
+	Wed, 14 Feb 2024 20:07:27 +0000 (GMT)
+Received: from smtpav04.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EF2835805E;
+	Wed, 14 Feb 2024 20:07:25 +0000 (GMT)
+Received: from li-5cd3c5cc-21f9-11b2-a85c-a4381f30c2f3.ibm.com (unknown [9.61.101.207])
+	by smtpav04.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 14 Feb 2024 20:07:25 +0000 (GMT)
+Message-ID: <63afc94126521629bb7656b6e6783d6614ee898a.camel@linux.ibm.com>
+Subject: Re: [PATCH v9 12/25] security: Introduce file_post_open hook
+From: Mimi Zohar <zohar@linux.ibm.com>
+To: Paul Moore <paul@paul-moore.com>,
+        Roberto Sassu
+	 <roberto.sassu@huaweicloud.com>
+Cc: viro@zeniv.linux.org.uk, brauner@kernel.org, chuck.lever@oracle.com,
+        jlayton@kernel.org, neilb@suse.de, kolga@netapp.com,
+        Dai.Ngo@oracle.com, tom@talpey.com, jmorris@namei.org,
+        serge@hallyn.com, dmitry.kasatkin@gmail.com, eric.snowberg@oracle.com,
+        dhowells@redhat.com, jarkko@kernel.org, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, casey@schaufler-ca.com, shuah@kernel.org,
+        mic@digikod.net, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-nfs@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
+        keyrings@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kselftest@vger.kernel.org,
+        Roberto Sassu
+ <roberto.sassu@huawei.com>,
+        Stefan Berger <stefanb@linux.ibm.com>
+Date: Wed, 14 Feb 2024 15:07:25 -0500
+In-Reply-To: <CAHC9VhR2M_MWHs34kn-WH3Wr0sgT09WKveecy7onkFhUb1-gEg@mail.gmail.com>
+References: <20240115181809.885385-1-roberto.sassu@huaweicloud.com>
+	 <20240115181809.885385-13-roberto.sassu@huaweicloud.com>
+	 <305cd1291a73d788c497fe8f78b574d771b8ba41.camel@linux.ibm.com>
+	 <CAHC9VhQ7DgPJtNTRCYneu_XnpRmuwfPCW+FqVuS=k6U5-F6pJw@mail.gmail.com>
+	 <05ad625b0f5a0e6c095abee5507801da255b36cd.camel@huaweicloud.com>
+	 <CAHC9VhR2M_MWHs34kn-WH3Wr0sgT09WKveecy7onkFhUb1-gEg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-22.el8) 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 3pmfVPR_ZkYzTv8MNJbgBILvsfAhufy_
+X-Proofpoint-GUID: pUskxnPY1Bl82nL8IEpe0UmPvkoY0NWY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-14_12,2024-02-14_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ lowpriorityscore=0 phishscore=0 clxscore=1015 priorityscore=1501
+ spamscore=0 suspectscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402140157
 
-Vit Mojzis <vmojzis@redhat.com> writes:
+On Tue, 2024-02-13 at 10:33 -0500, Paul Moore wrote:
+> On Tue, Feb 13, 2024 at 7:59 AM Roberto Sassu
+> <roberto.sassu@huaweicloud.com> wrote:
+> > On Mon, 2024-02-12 at 16:16 -0500, Paul Moore wrote:
+> > > On Mon, Feb 12, 2024 at 4:06 PM Mimi Zohar <zohar@linux.ibm.com> wrote:
+> > > > Hi Roberto,
+> > > > 
+> > > > 
+> > > > > diff --git a/security/security.c b/security/security.c
+> > > > > index d9d2636104db..f3d92bffd02f 100644
+> > > > > --- a/security/security.c
+> > > > > +++ b/security/security.c
+> > > > > @@ -2972,6 +2972,23 @@ int security_file_open(struct file *file)
+> > > > >       return fsnotify_perm(file, MAY_OPEN);  <===  Conflict
+> > > > 
+> > > > Replace with "return fsnotify_open_perm(file);"
+> > > > 
+> > > > >  }
+> > > > > 
+> > > > 
+> > > > The patch set doesn't apply cleaning to 6.8-rcX without this
+> > > > change.  Unless
+> > > > there are other issues, I can make the change.
+> > > 
+> > > I take it this means you want to pull this via the IMA/EVM tree?
+> > 
+> > Not sure about that, but I have enough changes to do to make a v10.
 
-> Entries in file_contexts.local are processed from the most recent one to
-> the oldest, with first match being used. Therefore it is important to
-> preserve their order when listing (semanage fcontext -lC) and exporting
-> (semanage export).
->
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
->
+@Roberto:  please add my "Reviewed-by" to the remaining patches.
 
-I think it's good approach. I just hit the following ui issue:
+> 
+> Sorry, I should have been more clear, the point I was trying to
+> resolve was who was going to take this patchset (eventually).  There
+> are other patches destined for the LSM tree that touch the LSM hooks
+> in a way which will cause conflicts with this patchset, and if
+> you/Mimi are going to take this via the IMA/EVM tree - which is fine
+> with me - I need to take that into account when merging things in the
+> LSM tree during this cycle.  It's not a big deal either way, it would
+> just be nice to get an answer on that within the next week.
 
+Similarly there are other changes for IMA and EVM.  If you're willing to create
+a topic branch for just the v10 patch set that can be merged into your tree and
+into my tree, I'm fine with your upstreaming v10. (I'll wait to send my pull
+request after yours.)  Roberto will add my Ack's to the integrity, IMA, and EVM
+related patches.  However if you're not willing to create a topic branch, I'll
+upstream the v10 patch set.
 
-[root@localhost ~]# semanage fcontext -a -t httpd_sys_content_t '/opt/selinux_testing(/.*)?'
-[root@localhost ~]# semanage fcontext -a -t httpd_sys_content_rw_t '/opt/selinux_testing/webroot(/.*)?'
-[root@localhost ~]# semanage fcontext -a -t httpd_log_t '/opt/selinux_testing/logs(/.*)?'
-[root@localhost ~]# semanage fcontext -l -C
-SELinux fcontext                                   type               Context
+thanks,
 
-/opt/selinux_testing(/.*)?                         all files          system_u:object_r:httpd_sys_content_t:s0 
-/opt/selinux_testing/webroot(/.*)?                 all files          system_u:object_r:httpd_sys_rw_content_t:s0 
-/opt/selinux_testing/logs(/.*)?                    all files          system_u:object_r:httpd_log_t:s0
-
-[root@localhost ~]# matchpathcon /opt/selinux_testing/logs /opt/selinux_testing/webroot/
-/opt/selinux_testing/logs       system_u:object_r:httpd_log_t:s0
-/opt/selinux_testing/webroot    system_u:object_r:httpd_sys_rw_content_t:s0
-
-
-If it's first match, I'd expect that both would be matched with
-'/opt/selinux_testing(/.*)?' -> httpd_sys_content_t
-
-
-
-[root@localhost ~]# semanage fcontext -d '/opt/selinux_testing(/.*)?'
-[root@localhost ~]# semanage fcontext -a -t httpd_sys_content_t '/opt/selinux_testing(/.*)?'
-[root@localhost ~]# semanage fcontext -l -C
-SELinux fcontext                                   type               Context
-
-/opt/selinux_testing/webroot(/.*)?                 all files          system_u:object_r:httpd_sys_rw_content_t:s0 
-/opt/selinux_testing/logs(/.*)?                    all files          system_u:object_r:httpd_log_t:s0 
-/opt/selinux_testing(/.*)?                         all files          system_u:object_r:httpd_sys_content_t:s0
-
-[root@localhost ~]# matchpathcon /opt/selinux_testing/logs /opt/selinux_testing/webroot/
-/opt/selinux_testing/logs       system_u:object_r:httpd_sys_content_t:s0
-/opt/selinux_testing/webroot    system_u:object_r:httpd_sys_content_t:s0
-
-And here it looks like it should match webroot, resp logs.
-
-
-So it's first match but from bottom to top. It kind of make sense as the
-last added item is at bottom. OTOH people generally reads from top to
-bottom.
-
-What do you think?
-
-
-
-
-
-> ---
-> Not sure if this is the best solution since the local file context
-> customizations are still sorted in the output of "semanage fcontext -l".
-> Adding a new section for "Local file context changes" would make it
-> clear that such changes are treated differently, but it would make it
-> harder to find context definitions affecting specific path.
-> The most important part of this patch is the change to "customized"
-> since that stops "semanage export | semanage import" from reordering the
-> local customizations.
->
-> Note: The order of dictionary.keys() is only guaranteed in python 3.6+.
->
-> Note2: The change to fcontextPage can only be seen when the user
-> disables ordering by "File specification" column, which is enabled by
-> defalut.
->
->  gui/fcontextPage.py         | 6 +++++-
->  python/semanage/seobject.py | 9 +++++++--
->  2 files changed, 12 insertions(+), 3 deletions(-)
->
-> diff --git a/gui/fcontextPage.py b/gui/fcontextPage.py
-> index 767664f2..c88df580 100644
-> --- a/gui/fcontextPage.py
-> +++ b/gui/fcontextPage.py
-> @@ -133,7 +133,11 @@ class fcontextPage(semanagePage):
->          self.fcontext = seobject.fcontextRecords()
->          self.store.clear()
->          fcon_dict = self.fcontext.get_all(self.local)
-> -        for k in sorted(fcon_dict.keys()):
-> +        if self.local:
-> +            fkeys = fcon_dict.keys()
-> +        else:
-> +            fkeys = sorted(fcon_dict.keys())
-> +        for k in fkeys:
->              if not self.match(fcon_dict, k, filter):
->                  continue
->              iter = self.store.append()
-> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-> index dfb15b1d..25ec4315 100644
-> --- a/python/semanage/seobject.py
-> +++ b/python/semanage/seobject.py
-> @@ -2735,7 +2735,7 @@ class fcontextRecords(semanageRecords):
->      def customized(self):
->          l = []
->          fcon_dict = self.get_all(True)
-> -        for k in sorted(fcon_dict.keys()):
-> +        for k in fcon_dict.keys():
->              if fcon_dict[k]:
->                  if fcon_dict[k][3]:
->                      l.append("-a -f %s -t %s -r '%s' '%s'" % (file_type_str_to_option[k[1]], fcon_dict[k][2], fcon_dict[k][3], k[0]))
-> @@ -2752,7 +2752,12 @@ class fcontextRecords(semanageRecords):
->          if len(fcon_dict) != 0:
->              if heading:
->                  print("%-50s %-18s %s\n" % (_("SELinux fcontext"), _("type"), _("Context")))
-> -            for k in sorted(fcon_dict.keys()):
-> +            # do not sort local customizations since they are evaluated based on the order they where added in
-> +            if locallist:
-> +                fkeys = fcon_dict.keys()
-> +            else:
-> +                fkeys = sorted(fcon_dict.keys())
-> +            for k in fkeys:
->                  if fcon_dict[k]:
->                      if is_mls_enabled:
->                          print("%-50s %-18s %s:%s:%s:%s " % (k[0], k[1], fcon_dict[k][0], fcon_dict[k][1], fcon_dict[k][2], translate(fcon_dict[k][3], False)))
-> -- 
-> 2.43.0
+Mimi
 
