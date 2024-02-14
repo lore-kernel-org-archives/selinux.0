@@ -1,674 +1,468 @@
-Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04128626D6
-	for <selinux@vger.kernel.org>; Tue, 13 Feb 2024 21:57:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 267EE2C19D
+	for <selinux@vger.kernel.org>; Wed, 14 Feb 2024 12:27:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707861482; cv=none; b=AqnU+Ldio7EkfYwDY8Fun9XV3PVBuAVLxVEqK8VfYETYi1PP2AxpQPe9Seh+p2O0Fc9EFP984sBDqtmZ9Xb6Cq2b1lRE/j3SpeUxqoD3g7miIK+u/+V5K7Co+SctKsp7UZxybqcnfZd20GdMz/S3dIGg8i3NuVt/1FzgoxOBJ3Y=
+	t=1707913639; cv=none; b=e4Nu8tuhAdyknBDCR7W+NaZoDfXp4JqVZCxMlu9B2kOWdMz1A6mCo47F1kFSHAwmJn05ftUyqc9Tidb8HhptD7T5w+NuQmYsrU1mnWYDUd3VInF6zSn8QkxowyE8SMEuPeyZFRNs1WcqGMXVvFdoKYeeX4dUVvNkWeunOmg18VQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707861482; c=relaxed/simple;
-	bh=XUGeHpQkV/9HsTCyFVXOfk5NMRMbRKZRbtNS631SG20=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=heBtX1XHrKViqb9ohLHkFt4cwAjff4WmjpwP5QoSskcyAdqzqPOlO1L1kcrOmwVdRB+AQKvVwklHWYzGwxqRWJLyVVus89DMllpuUz9/jXXxoMBvNqOHyuO8mgFNLfkKqU1cRpDE/2fX5xqcuEY9cXtuVKILiHFUcrgLKX58NeY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--lokeshgidra.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=2RN2es7S; arc=none smtp.client-ip=209.85.128.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--lokeshgidra.bounces.google.com
+	s=arc-20240116; t=1707913639; c=relaxed/simple;
+	bh=Qbvr7nDP8FANY0HdxtxSWkgNLiUpcPFzx8MpZazFTic=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=VI8QCUiHk3C6wAmBUsON5FHR+l1N4hti0d9KQ+d1lMB9H0jhvDYaRH49GcHIkvQgj/2P/nbkSLdBvwEtb6huKHhAfWojOfUFoYx9EnUqQhGI+XQJGppXR7Fn8KJ/izZzxqEs84zebPfwo22n+OgqcMRF/ecOhJmRVkW8kjNVAtI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bKMMHUq5; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="2RN2es7S"
-Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-6077ec913f0so30619167b3.0
-        for <selinux@vger.kernel.org>; Tue, 13 Feb 2024 13:57:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1707861479; x=1708466279; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=S/WOyhn1Esqfkwtwj2LaOT451Ry7/NR5qcNsraXDTSQ=;
-        b=2RN2es7S+8jcAW4vQ9pIu6TB5UZSayYOWEgLsV8s5G739pWQy7olFzCuOFUtxPY5sA
-         PwV4JciqsUJKLECahVL7Bq528lmhEqAuaojS57NC4Tz9MWpXhl5XWs8CRbKAzdzaXmfe
-         pUkjhiXZ5K5wzSZv/kio9UTOinhn0vbBucxg4AxjKF0C+ZJ7jKBBNc6yD9YkZDKEkDOy
-         Hr1U6BGWoXFZf8telrGTs1cq5foCggSy+gOfCB5HFIl1I/yosoHxGPppyWwdRgZCqHP7
-         279QPd1eJt2QKcrs5cBoB+n/l4cdZ2GKqxQ517SIvAlw4hgjJsdWlMFbbs2od1TZ8xo1
-         ViyA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707861479; x=1708466279;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=S/WOyhn1Esqfkwtwj2LaOT451Ry7/NR5qcNsraXDTSQ=;
-        b=PmP6NxfMsD9VzrD6XTGNE7ujigwP+KZyiHVmtiTQziywvZqsAyzOKSR1qaUFz0Rh3b
-         qtpF/8ASpz0FGkLGhRkYt6nCQgWEktFKOXNM50P7zyT5nDmwKxymBbe5vS9ovNM52Pj/
-         R84Zus8d+1aU/y7CzQYJnM5GD7b5a+FGMxD5JtWEOmkvcsBMcu0nmhzYrhAnTDx62PXj
-         HFsIm9BaE4DRNvtSXnnrb2iw6323oz/EbwIRL2U395KS67/XDw350q1VmuSlylbwUBcK
-         0YRwt5o0O8C+zHYq6PUEHACeyskVSrWFtAvOi+AGPEywsTql55h7IDMXl8le4l1mXDFq
-         662g==
-X-Forwarded-Encrypted: i=1; AJvYcCXyzOFP359sq+exIQvqucDOz5XFUcMM2JRF4qRBUSTI/Jyqe8D8vpDUrxJKYJHnw4rL3S1ACVZbohX/7zpRV9UZd8IRZ2DMuQ==
-X-Gm-Message-State: AOJu0Yx7p2gYC5SI5KJJL83c7VhYlWrXUHcK7pZlPyj3ODONDyMxHlRL
-	hp3TKXcs2kXnBCFcD05l9dhOVsBmuWrW1o8ZA84CNUp9upVswGd4+LewUjyCd+M9CSBzgBJGKkl
-	lBrprfaLRm3NSr7IwFOvu4A==
-X-Google-Smtp-Source: AGHT+IHJIuj37L0FH95ttZFfcm6tTpnuKI2ov+Gsmwkus7z86ConSVyz4Fbc9PZvGiQunLpi5PNtvfrZ0M1s41aMJA==
-X-Received: from lg.mtv.corp.google.com ([2620:15c:211:202:ce6c:821f:a756:b4b8])
- (user=lokeshgidra job=sendgmr) by 2002:a05:6902:1007:b0:dc9:5ef8:2b2d with
- SMTP id w7-20020a056902100700b00dc95ef82b2dmr149426ybt.4.1707861479206; Tue,
- 13 Feb 2024 13:57:59 -0800 (PST)
-Date: Tue, 13 Feb 2024 13:57:41 -0800
-In-Reply-To: <20240213215741.3816570-1-lokeshgidra@google.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bKMMHUq5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1707913635;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iv775jahZszMMHopszNlXcJ1tY+eG0uBwytwVygTcNQ=;
+	b=bKMMHUq5pWCXjayDxw/htYhac+RwS5AZx3O32mlLLKVbbPkVqeWzOrz6yaPUoUdNfP6Qgv
+	g0P3wp9Dm7IY24IgLvnJBJ3eV0vA+DXVldrLVZ8OXENrIvB3RaYcNF1zkDnXAjwGU7pG8l
+	UcBJl24DwpX7Fyj9lsc+pIaxv6NwpgU=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-60-iIFXq1k2MnWXYl7UxaT9BQ-1; Wed,
+ 14 Feb 2024 07:27:13 -0500
+X-MC-Unique: iIFXq1k2MnWXYl7UxaT9BQ-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CF2443811F23
+	for <selinux@vger.kernel.org>; Wed, 14 Feb 2024 12:27:11 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.225.6])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 59F48492BC6
+	for <selinux@vger.kernel.org>; Wed, 14 Feb 2024 12:27:11 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH v2] python/semanage: Allow modifying records on "add"
+Date: Wed, 14 Feb 2024 13:08:40 +0100
+Message-ID: <20240214122706.522873-1-vmojzis@redhat.com>
+In-Reply-To: <CAP+JOzQiC5AVpc7UreV4tafG3PnNCz8O7o4QrD=dLnLdO2oxCw@mail.gmail.com>
+References: <CAP+JOzQiC5AVpc7UreV4tafG3PnNCz8O7o4QrD=dLnLdO2oxCw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <20240213215741.3816570-1-lokeshgidra@google.com>
-X-Mailer: git-send-email 2.43.0.687.g38aa6559b0-goog
-Message-ID: <20240213215741.3816570-4-lokeshgidra@google.com>
-Subject: [PATCH v6 3/3] userfaultfd: use per-vma locks in userfaultfd operations
-From: Lokesh Gidra <lokeshgidra@google.com>
-To: akpm@linux-foundation.org
-Cc: lokeshgidra@google.com, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, surenb@google.com, 
-	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com, 
-	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com, 
-	willy@infradead.org, jannh@google.com, kaleshsingh@google.com, 
-	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org, 
-	Liam.Howlett@oracle.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 
-All userfaultfd operations, except write-protect, opportunistically use
-per-vma locks to lock vmas. On failure, attempt again inside mmap_lock
-critical section.
+When trying to add a record with a key that already exists, modify
+the existing record instead.
 
-Write-protect operation requires mmap_lock as it iterates over multiple
-vmas.
+Also, fix "semanage -m -e" (add_equal was called instead of
+modify_equal), which meant that existing local equivalency couldn't be
+modified (though a user could remove it and add a modified
+equivalency).
 
-Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+Fixes:
+  https://github.com/SELinuxProject/selinux/issues/412
+  When a port or login definition present in the policy is modified
+  using "semanage port -m", "semanage export" exports the command as
+  "port -a" instead of "port -m". This results in "semanage import"
+  failing (port already defined). The same is true for port, user,
+  login, ibpkey, ibendport, node, interface and fcontext.
+
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- fs/userfaultfd.c              |  13 +-
- include/linux/userfaultfd_k.h |   5 +-
- mm/userfaultfd.c              | 380 ++++++++++++++++++++++++++--------
- 3 files changed, 296 insertions(+), 102 deletions(-)
+Added "self.validate" for nodeRecord since it modifies address, mask and
+protocol values.
 
-diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index c00a021bcce4..60dcfafdc11a 100644
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -2005,17 +2005,8 @@ static int userfaultfd_move(struct userfaultfd_ctx *ctx,
- 		return -EINVAL;
+Fixes:
+ #semanage node -a -M 255.255.255.0 -p ipv4 -t node_t 192.168.0.123
+ Traceback (most recent call last):
+  File "/usr/sbin/semanage", line 976, in <module>
+    do_parser()
+  File "/usr/sbin/semanage", line 951, in do_parser
+    args.func(args)
+  File "/usr/sbin/semanage", line 642, in handleNode
+    OBJECT.add(args.node, args.netmask, args.proto, args.range, args.type)
+  File "/usr/lib/python3.9/site-packages/seobject.py", line 1999, in add
+    if self.__exists(addr, mask, proto):
+  File "/usr/lib/python3.9/site-packages/seobject.py", line 2007, in __exists
+    (rc, k) = semanage_node_key_create(self.sh, addr, mask, proto)
+  File "/usr/lib64/python3.9/site-packages/semanage.py", line 1013, in semanage_node_key_create
+    return _semanage.semanage_node_key_create(handle, addr, mask, proto)
+ TypeError: in method 'semanage_node_key_create', argument 4 of type 'int'
+
+ python/semanage/semanage    |   2 +-
+ python/semanage/seobject.py | 208 +++++++++++++++++++++++++-----------
+ 2 files changed, 147 insertions(+), 63 deletions(-)
+
+diff --git a/python/semanage/semanage b/python/semanage/semanage
+index 4fdb490f..b269b9fc 100644
+--- a/python/semanage/semanage
++++ b/python/semanage/semanage
+@@ -322,7 +322,7 @@ def handleFcontext(args):
+             OBJECT.add(args.file_spec, args.type, args.ftype, args.range, args.seuser)
+     if args.action == "modify":
+         if args.equal:
+-            OBJECT.add_equal(args.file_spec, args.equal)
++            OBJECT.modify_equal(args.file_spec, args.equal)
+         else:
+             OBJECT.modify(args.file_spec, args.type, args.ftype, args.range, args.seuser)
+     if args.action == "delete":
+diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+index cc944ae2..12133b53 100644
+--- a/python/semanage/seobject.py
++++ b/python/semanage/seobject.py
+@@ -557,11 +557,6 @@ class loginRecords(semanageRecords):
+         if rc < 0:
+             raise ValueError(_("Could not create a key for %s") % name)
  
- 	if (mmget_not_zero(mm)) {
--		mmap_read_lock(mm);
+-        (rc, exists) = semanage_seuser_exists(self.sh, k)
+-        if rc < 0:
+-            raise ValueError(_("Could not check if login mapping for %s is defined") % name)
+-        if exists:
+-            raise ValueError(_("Login mapping for %s is already defined") % name)
+         if name[0] == '%':
+             try:
+                 grp.getgrnam(name[1:])
+@@ -600,11 +595,29 @@ class loginRecords(semanageRecords):
+     def add(self, name, sename, serange):
+         try:
+             self.begin()
+-            self.__add(name, sename, serange)
++            # Add a new mapping, or modify an existing one
++            if self.__exists(name):
++                print(_("Login mapping for %s is already defined, modifying instead") % name)
++                self.__modify(name, sename, serange)
++            else:
++                self.__add(name, sename, serange)
+             self.commit()
+         except ValueError as error:
+             raise error
+ 
++    # check if login mapping for given user exists
++    def __exists(self, name):
++        (rc, k) = semanage_seuser_key_create(self.sh, name)
++        if rc < 0:
++            raise ValueError(_("Could not create a key for %s") % name)
++
++        (rc, exists) = semanage_seuser_exists(self.sh, k)
++        if rc < 0:
++            raise ValueError(_("Could not check if login mapping for %s is defined") % name)
++        semanage_seuser_key_free(k)
++
++        return exists
++
+     def __modify(self, name, sename="", serange=""):
+         rec, self.oldsename, self.oldserange = selinux.getseuserbyname(name)
+         if sename == "" and serange == "":
+@@ -821,12 +834,6 @@ class seluserRecords(semanageRecords):
+         if rc < 0:
+             raise ValueError(_("Could not create a key for %s") % name)
+ 
+-        (rc, exists) = semanage_user_exists(self.sh, k)
+-        if rc < 0:
+-            raise ValueError(_("Could not check if SELinux user %s is defined") % name)
+-        if exists:
+-            raise ValueError(_("SELinux user %s is already defined") % name)
 -
--		/* Re-check after taking map_changing_lock */
--		down_read(&ctx->map_changing_lock);
--		if (likely(!atomic_read(&ctx->mmap_changing)))
--			ret = move_pages(ctx, mm, uffdio_move.dst, uffdio_move.src,
--					 uffdio_move.len, uffdio_move.mode);
--		else
--			ret = -EAGAIN;
--		up_read(&ctx->map_changing_lock);
--		mmap_read_unlock(mm);
-+		ret = move_pages(ctx, uffdio_move.dst, uffdio_move.src,
-+				 uffdio_move.len, uffdio_move.mode);
- 		mmput(mm);
- 	} else {
- 		return -ESRCH;
-diff --git a/include/linux/userfaultfd_k.h b/include/linux/userfaultfd_k.h
-index 3210c3552976..05d59f74fc88 100644
---- a/include/linux/userfaultfd_k.h
-+++ b/include/linux/userfaultfd_k.h
-@@ -138,9 +138,8 @@ extern long uffd_wp_range(struct vm_area_struct *vma,
- /* move_pages */
- void double_pt_lock(spinlock_t *ptl1, spinlock_t *ptl2);
- void double_pt_unlock(spinlock_t *ptl1, spinlock_t *ptl2);
--ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
--		   unsigned long dst_start, unsigned long src_start,
--		   unsigned long len, __u64 flags);
-+ssize_t move_pages(struct userfaultfd_ctx *ctx, unsigned long dst_start,
-+		   unsigned long src_start, unsigned long len, __u64 flags);
- int move_pages_huge_pmd(struct mm_struct *mm, pmd_t *dst_pmd, pmd_t *src_pmd, pmd_t dst_pmdval,
- 			struct vm_area_struct *dst_vma,
- 			struct vm_area_struct *src_vma,
-diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
-index 74aad0831e40..4744d6a96f96 100644
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -20,19 +20,11 @@
- #include "internal.h"
+         (rc, u) = semanage_user_create(self.sh)
+         if rc < 0:
+             raise ValueError(_("Could not create SELinux user for %s") % name)
+@@ -866,12 +873,28 @@ class seluserRecords(semanageRecords):
+     def add(self, name, roles, selevel, serange, prefix):
+         try:
+             self.begin()
+-            self.__add(name, roles, selevel, serange, prefix)
++            if self.__exists(name):
++                print(_("SELinux user %s is already defined, modifying instead") % name)
++                self.__modify(name, roles, selevel, serange, prefix)
++            else:
++                self.__add(name, roles, selevel, serange, prefix)
+             self.commit()
+         except ValueError as error:
+             self.mylog.commit(0)
+             raise error
  
- static __always_inline
--struct vm_area_struct *find_dst_vma(struct mm_struct *dst_mm,
--				    unsigned long dst_start,
--				    unsigned long len)
-+bool validate_dst_vma(struct vm_area_struct *dst_vma, unsigned long dst_end)
- {
--	/*
--	 * Make sure that the dst range is both valid and fully within a
--	 * single existing vma.
--	 */
--	struct vm_area_struct *dst_vma;
++    def __exists(self, name):
++        (rc, k) = semanage_user_key_create(self.sh, name)
++        if rc < 0:
++            raise ValueError(_("Could not create a key for %s") % name)
++
++        (rc, exists) = semanage_user_exists(self.sh, k)
++        if rc < 0:
++            raise ValueError(_("Could not check if SELinux user %s is defined") % name)
++        semanage_user_key_free(k)
++
++        return exists
++
+     def __modify(self, name, roles=[], selevel="", serange="", prefix=""):
+         oldserole = ""
+         oldserange = ""
+@@ -1103,12 +1126,6 @@ class portRecords(semanageRecords):
+ 
+         (k, proto_d, low, high) = self.__genkey(port, proto)
+ 
+-        (rc, exists) = semanage_port_exists(self.sh, k)
+-        if rc < 0:
+-            raise ValueError(_("Could not check if port {proto}/{port} is defined").format(proto=proto, port=port))
+-        if exists:
+-            raise ValueError(_("Port {proto}/{port} already defined").format(proto=proto, port=port))
 -
--	dst_vma = find_vma(dst_mm, dst_start);
--	if (!range_in_vma(dst_vma, dst_start, dst_start + len))
--		return NULL;
-+	/* Make sure that the dst range is fully within dst_vma. */
-+	if (dst_end > dst_vma->vm_end)
-+		return false;
+         (rc, p) = semanage_port_create(self.sh)
+         if rc < 0:
+             raise ValueError(_("Could not create port for {proto}/{port}").format(proto=proto, port=port))
+@@ -1152,9 +1169,23 @@ class portRecords(semanageRecords):
  
- 	/*
- 	 * Check the vma is registered in uffd, this is required to
-@@ -40,11 +32,122 @@ struct vm_area_struct *find_dst_vma(struct mm_struct *dst_mm,
- 	 * time.
- 	 */
- 	if (!dst_vma->vm_userfaultfd_ctx.ctx)
--		return NULL;
-+		return false;
-+
-+	return true;
-+}
-+
-+static __always_inline
-+struct vm_area_struct *find_vma_and_prepare_anon(struct mm_struct *mm,
-+						 unsigned long addr)
-+{
-+	struct vm_area_struct *vma;
-+
-+	mmap_assert_locked(mm);
-+	vma = vma_lookup(mm, addr);
-+	if (!vma)
-+		vma = ERR_PTR(-ENOENT);
-+	else if (!(vma->vm_flags & VM_SHARED) &&
-+		 unlikely(anon_vma_prepare(vma)))
-+		vma = ERR_PTR(-ENOMEM);
-+
-+	return vma;
-+}
-+
-+#ifdef CONFIG_PER_VMA_LOCK
-+/*
-+ * lock_vma() - Lookup and lock vma corresponding to @address.
-+ * @mm: mm to search vma in.
-+ * @address: address that the vma should contain.
-+ *
-+ * Should be called without holding mmap_lock. vma should be unlocked after use
-+ * with unlock_vma().
-+ *
-+ * Return: A locked vma containing @address, -ENOENT if no vma is found, or
-+ * -ENOMEM if anon_vma couldn't be allocated.
-+ */
-+static struct vm_area_struct *lock_vma(struct mm_struct *mm,
-+				       unsigned long address)
-+{
-+	struct vm_area_struct *vma;
-+
-+	vma = lock_vma_under_rcu(mm, address);
-+	if (vma) {
-+		/*
-+		 * lock_vma_under_rcu() only checks anon_vma for private
-+		 * anonymous mappings. But we need to ensure it is assigned in
-+		 * private file-backed vmas as well.
-+		 */
-+		if (!(vma->vm_flags & VM_SHARED) && unlikely(!vma->anon_vma))
-+			vma_end_read(vma);
-+		else
-+			return vma;
-+	}
-+
-+	mmap_read_lock(mm);
-+	vma = find_vma_and_prepare_anon(mm, address);
-+	if (!IS_ERR(vma)) {
-+		/*
-+		 * We cannot use vma_start_read() as it may fail due to
-+		 * false locked (see comment in vma_start_read()). We
-+		 * can avoid that by directly locking vm_lock under
-+		 * mmap_lock, which guarantees that nobody can lock the
-+		 * vma for write (vma_start_write()) under us.
-+		 */
-+		down_read(&vma->vm_lock->lock);
-+	}
-+
-+	mmap_read_unlock(mm);
-+	return vma;
-+}
-+
-+static struct vm_area_struct *uffd_mfill_lock(struct mm_struct *dst_mm,
-+					      unsigned long dst_start,
-+					      unsigned long len)
-+{
-+	struct vm_area_struct *dst_vma;
+     def add(self, port, proto, serange, type):
+         self.begin()
+-        self.__add(port, proto, serange, type)
++        if self.__exists(port, proto):
++            print(_("Port {proto}/{port} already defined, modifying instead").format(proto=proto, port=port))
++            self.__modify(port, proto, serange, type)
++        else:
++            self.__add(port, proto, serange, type)
+         self.commit()
  
-+	dst_vma = lock_vma(dst_mm, dst_start);
-+	if (IS_ERR(dst_vma) || validate_dst_vma(dst_vma, dst_start + len))
-+		return dst_vma;
++    def __exists(self, port, proto):
++        (k, proto_d, low, high) = self.__genkey(port, proto)
 +
-+	vma_end_read(dst_vma);
-+	return ERR_PTR(-ENOENT);
-+}
++        (rc, exists) = semanage_port_exists(self.sh, k)
++        if rc < 0:
++            raise ValueError(_("Could not check if port {proto}/{port} is defined").format(proto=proto, port=port))
++        semanage_port_key_free(k)
 +
-+static void uffd_mfill_unlock(struct vm_area_struct *vma)
-+{
-+	vma_end_read(vma);
-+}
++        return exists
 +
-+#else
-+
-+static struct vm_area_struct *uffd_mfill_lock(struct mm_struct *dst_mm,
-+					      unsigned long dst_start,
-+					      unsigned long len)
-+{
-+	struct vm_area_struct *dst_vma;
-+
-+	mmap_read_lock(dst_mm);
-+	dst_vma = find_vma_and_prepare_anon(dst_mm, dst_start);
-+	if (IS_ERR(dst_vma))
-+		goto out_unlock;
-+
-+	if (validate_dst_vma(dst_vma, dst_start + len))
-+		return dst_vma;
-+
-+	dst_vma = ERR_PTR(-ENOENT);
-+out_unlock:
-+	mmap_read_unlock(dst_mm);
- 	return dst_vma;
- }
+     def __modify(self, port, proto, serange, setype):
+         if serange == "" and setype == "":
+             if is_mls_enabled == 1:
+@@ -1377,12 +1408,6 @@ class ibpkeyRecords(semanageRecords):
  
-+static void uffd_mfill_unlock(struct vm_area_struct *vma)
-+{
-+	mmap_read_unlock(vma->vm_mm);
-+}
-+#endif
-+
- /* Check if dst_addr is outside of file's size. Must be called with ptl held. */
- static bool mfill_file_over_size(struct vm_area_struct *dst_vma,
- 				 unsigned long dst_addr)
-@@ -350,7 +453,8 @@ static pmd_t *mm_alloc_pmd(struct mm_struct *mm, unsigned long address)
- #ifdef CONFIG_HUGETLB_PAGE
- /*
-  * mfill_atomic processing for HUGETLB vmas.  Note that this routine is
-- * called with mmap_lock held, it will release mmap_lock before returning.
-+ * called with either vma-lock or mmap_lock held, it will release the lock
-+ * before returning.
-  */
- static __always_inline ssize_t mfill_atomic_hugetlb(
- 					      struct userfaultfd_ctx *ctx,
-@@ -361,7 +465,6 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 					      uffd_flags_t flags)
- {
- 	struct mm_struct *dst_mm = dst_vma->vm_mm;
--	int vm_shared = dst_vma->vm_flags & VM_SHARED;
- 	ssize_t err;
- 	pte_t *dst_pte;
- 	unsigned long src_addr, dst_addr;
-@@ -380,7 +483,7 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 	 */
- 	if (uffd_flags_mode_is(flags, MFILL_ATOMIC_ZEROPAGE)) {
- 		up_read(&ctx->map_changing_lock);
--		mmap_read_unlock(dst_mm);
-+		uffd_mfill_unlock(dst_vma);
- 		return -EINVAL;
- 	}
+         (k, subnet_prefix, low, high) = self.__genkey(pkey, subnet_prefix)
  
-@@ -403,24 +506,28 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 	 * retry, dst_vma will be set to NULL and we must lookup again.
- 	 */
- 	if (!dst_vma) {
-+		dst_vma = uffd_mfill_lock(dst_mm, dst_start, len);
-+		if (IS_ERR(dst_vma)) {
-+			err = PTR_ERR(dst_vma);
-+			goto out;
-+		}
-+
- 		err = -ENOENT;
--		dst_vma = find_dst_vma(dst_mm, dst_start, len);
--		if (!dst_vma || !is_vm_hugetlb_page(dst_vma))
--			goto out_unlock;
-+		if (!is_vm_hugetlb_page(dst_vma))
-+			goto out_unlock_vma;
- 
- 		err = -EINVAL;
- 		if (vma_hpagesize != vma_kernel_pagesize(dst_vma))
--			goto out_unlock;
+-        (rc, exists) = semanage_ibpkey_exists(self.sh, k)
+-        if rc < 0:
+-            raise ValueError(_("Could not check if ibpkey {subnet_prefix}/{pkey} is defined").formnat(subnet_prefix=subnet_prefix, pkey=pkey))
+-        if exists:
+-            raise ValueError(_("ibpkey {subnet_prefix}/{pkey} already defined").format(subnet_prefix=subnet_prefix, pkey=pkey))
 -
--		vm_shared = dst_vma->vm_flags & VM_SHARED;
--	}
-+			goto out_unlock_vma;
+         (rc, p) = semanage_ibpkey_create(self.sh)
+         if rc < 0:
+             raise ValueError(_("Could not create ibpkey for {subnet_prefix}/{pkey}").format(subnet_prefix=subnet_prefix, pkey=pkey))
+@@ -1424,9 +1449,23 @@ class ibpkeyRecords(semanageRecords):
  
--	/*
--	 * If not shared, ensure the dst_vma has a anon_vma.
--	 */
--	err = -ENOMEM;
--	if (!vm_shared) {
--		if (unlikely(anon_vma_prepare(dst_vma)))
-+		/*
-+		 * If memory mappings are changing because of non-cooperative
-+		 * operation (e.g. mremap) running in parallel, bail out and
-+		 * request the user to retry later
-+		 */
-+		down_read(&ctx->map_changing_lock);
-+		err = -EAGAIN;
-+		if (atomic_read(&ctx->mmap_changing))
- 			goto out_unlock;
- 	}
+     def add(self, pkey, subnet_prefix, serange, type):
+         self.begin()
+-        self.__add(pkey, subnet_prefix, serange, type)
++        if self.__exists(pkey, subnet_prefix):
++            print(_("ibpkey {subnet_prefix}/{pkey} already defined, modifying instead").format(subnet_prefix=subnet_prefix, pkey=pkey))
++            self.__modify(pkey, subnet_prefix, serange, type)
++        else:
++            self.__add(pkey, subnet_prefix, serange, type)
+         self.commit()
  
-@@ -465,7 +572,7 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
++    def __exists(self, pkey, subnet_prefix):
++        (k, subnet_prefix, low, high) = self.__genkey(pkey, subnet_prefix)
++
++        (rc, exists) = semanage_ibpkey_exists(self.sh, k)
++        if rc < 0:
++            raise ValueError(_("Could not check if ibpkey {subnet_prefix}/{pkey} is defined").formnat(subnet_prefix=subnet_prefix, pkey=pkey))
++        semanage_ibpkey_key_free(k)
++
++        return exists
++
+     def __modify(self, pkey, subnet_prefix, serange, setype):
+         if serange == "" and setype == "":
+             if is_mls_enabled == 1:
+@@ -1631,12 +1670,6 @@ class ibendportRecords(semanageRecords):
+             raise ValueError(_("Type %s is invalid, must be an ibendport type") % type)
+         (k, ibendport, port) = self.__genkey(ibendport, ibdev_name)
  
- 		if (unlikely(err == -ENOENT)) {
- 			up_read(&ctx->map_changing_lock);
--			mmap_read_unlock(dst_mm);
-+			uffd_mfill_unlock(dst_vma);
- 			BUG_ON(!folio);
- 
- 			err = copy_folio_from_user(folio,
-@@ -474,17 +581,6 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 				err = -EFAULT;
- 				goto out;
- 			}
--			mmap_read_lock(dst_mm);
--			down_read(&ctx->map_changing_lock);
--			/*
--			 * If memory mappings are changing because of non-cooperative
--			 * operation (e.g. mremap) running in parallel, bail out and
--			 * request the user to retry later
--			 */
--			if (atomic_read(&ctx->mmap_changing)) {
--				err = -EAGAIN;
--				break;
--			}
- 
- 			dst_vma = NULL;
- 			goto retry;
-@@ -505,7 +601,8 @@ static __always_inline ssize_t mfill_atomic_hugetlb(
- 
- out_unlock:
- 	up_read(&ctx->map_changing_lock);
--	mmap_read_unlock(dst_mm);
-+out_unlock_vma:
-+	uffd_mfill_unlock(dst_vma);
- out:
- 	if (folio)
- 		folio_put(folio);
-@@ -597,7 +694,15 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	copied = 0;
- 	folio = NULL;
- retry:
--	mmap_read_lock(dst_mm);
-+	/*
-+	 * Make sure the vma is not shared, that the dst range is
-+	 * both valid and fully within a single existing vma.
-+	 */
-+	dst_vma = uffd_mfill_lock(dst_mm, dst_start, len);
-+	if (IS_ERR(dst_vma)) {
-+		err = PTR_ERR(dst_vma);
-+		goto out;
-+	}
- 
- 	/*
- 	 * If memory mappings are changing because of non-cooperative
-@@ -609,15 +714,6 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	if (atomic_read(&ctx->mmap_changing))
- 		goto out_unlock;
- 
--	/*
--	 * Make sure the vma is not shared, that the dst range is
--	 * both valid and fully within a single existing vma.
--	 */
--	err = -ENOENT;
--	dst_vma = find_dst_vma(dst_mm, dst_start, len);
--	if (!dst_vma)
--		goto out_unlock;
+-        (rc, exists) = semanage_ibendport_exists(self.sh, k)
+-        if rc < 0:
+-            raise ValueError(_("Could not check if ibendport {ibdev_name}/{port} is defined").format(ibdev_name=ibdev_name, port=port))
+-        if exists:
+-            raise ValueError(_("ibendport {ibdev_name}/{port} already defined").format(ibdev_name=ibdev_name, port=port))
 -
- 	err = -EINVAL;
- 	/*
- 	 * shmem_zero_setup is invoked in mmap for MAP_ANONYMOUS|MAP_SHARED but
-@@ -647,16 +743,6 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 	    uffd_flags_mode_is(flags, MFILL_ATOMIC_CONTINUE))
- 		goto out_unlock;
+         (rc, p) = semanage_ibendport_create(self.sh)
+         if rc < 0:
+             raise ValueError(_("Could not create ibendport for {ibdev_name}/{port}").format(ibdev_name=ibdev_name, port=port))
+@@ -1678,9 +1711,23 @@ class ibendportRecords(semanageRecords):
  
--	/*
--	 * Ensure the dst_vma has a anon_vma or this page
--	 * would get a NULL anon_vma when moved in the
--	 * dst_vma.
--	 */
--	err = -ENOMEM;
--	if (!(dst_vma->vm_flags & VM_SHARED) &&
--	    unlikely(anon_vma_prepare(dst_vma)))
--		goto out_unlock;
+     def add(self, ibendport, ibdev_name, serange, type):
+         self.begin()
+-        self.__add(ibendport, ibdev_name, serange, type)
++        if self.__exists(ibendport, ibdev_name):
++            print(_("ibendport {ibdev_name}/{port} already defined, modifying instead").format(ibdev_name=ibdev_name, port=port))
++            self.__modify(ibendport, ibdev_name, serange, type)
++        else:
++            self.__add(ibendport, ibdev_name, serange, type)
+         self.commit()
+ 
++    def __exists(self, ibendport, ibdev_name):
++        (k, ibendport, port) = self.__genkey(ibendport, ibdev_name)
++
++        (rc, exists) = semanage_ibendport_exists(self.sh, k)
++        if rc < 0:
++            raise ValueError(_("Could not check if ibendport {ibdev_name}/{port} is defined").format(ibdev_name=ibdev_name, port=port))
++        semanage_ibendport_key_free(k)
++
++        return exists
++
+     def __modify(self, ibendport, ibdev_name, serange, setype):
+         if serange == "" and setype == "":
+             if is_mls_enabled == 1:
+@@ -1902,12 +1949,6 @@ class nodeRecords(semanageRecords):
+         if rc < 0:
+             raise ValueError(_("Could not create key for %s") % addr)
+ 
+-        (rc, exists) = semanage_node_exists(self.sh, k)
+-        if rc < 0:
+-            raise ValueError(_("Could not check if addr %s is defined") % addr)
+-        if exists:
+-            raise ValueError(_("Addr %s already defined") % addr)
 -
- 	while (src_addr < src_start + len) {
- 		pmd_t dst_pmdval;
+         (rc, node) = semanage_node_create(self.sh)
+         if rc < 0:
+             raise ValueError(_("Could not create addr for %s") % addr)
+@@ -1955,9 +1996,27 @@ class nodeRecords(semanageRecords):
  
-@@ -699,7 +785,7 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
- 			void *kaddr;
+     def add(self, addr, mask, proto, serange, ctype):
+         self.begin()
+-        self.__add(addr, mask, proto, serange, ctype)
++        if self.__exists(addr, mask, proto):
++            print(_("Addr %s already defined, modifying instead") % addr)
++            self.__modify(addr, mask, proto, serange, ctype)
++        else:
++            self.__add(addr, mask, proto, serange, ctype)
+         self.commit()
  
- 			up_read(&ctx->map_changing_lock);
--			mmap_read_unlock(dst_mm);
-+			uffd_mfill_unlock(dst_vma);
- 			BUG_ON(!folio);
++    def __exists(self, addr, mask, proto):
++        addr, mask, proto, audit_proto = self.validate(addr, mask, proto)
++
++        (rc, k) = semanage_node_key_create(self.sh, addr, mask, proto)
++        if rc < 0:
++            raise ValueError(_("Could not create key for %s") % addr)
++
++        (rc, exists) = semanage_node_exists(self.sh, k)
++        if rc < 0:
++            raise ValueError(_("Could not check if addr %s is defined") % addr)
++        semanage_node_key_free(k)
++
++        return exists
++
+     def __modify(self, addr, mask, proto, serange, setype):
+         addr, mask, proto, audit_proto = self.validate(addr, mask, proto)
  
- 			kaddr = kmap_local_folio(folio, 0);
-@@ -730,7 +816,7 @@ static __always_inline ssize_t mfill_atomic(struct userfaultfd_ctx *ctx,
+@@ -2111,12 +2170,6 @@ class interfaceRecords(semanageRecords):
+         if rc < 0:
+             raise ValueError(_("Could not create key for %s") % interface)
  
- out_unlock:
- 	up_read(&ctx->map_changing_lock);
--	mmap_read_unlock(dst_mm);
-+	uffd_mfill_unlock(dst_vma);
- out:
- 	if (folio)
- 		folio_put(folio);
-@@ -1267,27 +1353,136 @@ static int validate_move_areas(struct userfaultfd_ctx *ctx,
- 	if (!vma_is_anonymous(src_vma) || !vma_is_anonymous(dst_vma))
- 		return -EINVAL;
+-        (rc, exists) = semanage_iface_exists(self.sh, k)
+-        if rc < 0:
+-            raise ValueError(_("Could not check if interface %s is defined") % interface)
+-        if exists:
+-            raise ValueError(_("Interface %s already defined") % interface)
+-
+         (rc, iface) = semanage_iface_create(self.sh)
+         if rc < 0:
+             raise ValueError(_("Could not create interface for %s") % interface)
+@@ -2163,9 +2216,25 @@ class interfaceRecords(semanageRecords):
  
-+	return 0;
-+}
-+
-+static __always_inline
-+int find_vmas_mm_locked(struct mm_struct *mm,
-+			unsigned long dst_start,
-+			unsigned long src_start,
-+			struct vm_area_struct **dst_vmap,
-+			struct vm_area_struct **src_vmap)
-+{
-+	struct vm_area_struct *vma;
-+
-+	mmap_assert_locked(mm);
-+	vma = find_vma_and_prepare_anon(mm, dst_start);
-+	if (IS_ERR(vma))
-+		return PTR_ERR(vma);
-+
-+	*dst_vmap = vma;
-+	/* Skip finding src_vma if src_start is in dst_vma */
-+	if (src_start >= vma->vm_start && src_start < vma->vm_end)
-+		goto out_success;
-+
-+	vma = vma_lookup(mm, src_start);
-+	if (!vma)
-+		return -ENOENT;
-+out_success:
-+	*src_vmap = vma;
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PER_VMA_LOCK
-+static int uffd_move_lock(struct mm_struct *mm,
-+			  unsigned long dst_start,
-+			  unsigned long src_start,
-+			  struct vm_area_struct **dst_vmap,
-+			  struct vm_area_struct **src_vmap)
-+{
-+	struct vm_area_struct *vma;
-+	int err;
-+
-+	vma = lock_vma(mm, dst_start);
-+	if (IS_ERR(vma))
-+		return PTR_ERR(vma);
-+
-+	*dst_vmap = vma;
- 	/*
--	 * Ensure the dst_vma has a anon_vma or this page
--	 * would get a NULL anon_vma when moved in the
--	 * dst_vma.
-+	 * Skip finding src_vma if src_start is in dst_vma. This also ensures
-+	 * that we don't lock the same vma twice.
- 	 */
--	if (unlikely(anon_vma_prepare(dst_vma)))
--		return -ENOMEM;
-+	if (src_start >= vma->vm_start && src_start < vma->vm_end) {
-+		*src_vmap = vma;
-+		return 0;
-+	}
+     def add(self, interface, serange, ctype):
+         self.begin()
+-        self.__add(interface, serange, ctype)
++        if self.__exists(interface):
++            print(_("Interface %s already defined, modifying instead") % interface)
++            self.__modify(interface, serange, ctype)
++        else:
++            self.__add(interface, serange, ctype)
+         self.commit()
  
--	return 0;
-+	/*
-+	 * Using lock_vma() to get src_vma can lead to following deadlock:
-+	 *
-+	 * Thread1				Thread2
-+	 * -------				-------
-+	 * vma_start_read(dst_vma)
-+	 *					mmap_write_lock(mm)
-+	 *					vma_start_write(src_vma)
-+	 * vma_start_read(src_vma)
-+	 * mmap_read_lock(mm)
-+	 *					vma_start_write(dst_vma)
-+	 */
-+	*src_vmap = lock_vma_under_rcu(mm, src_start);
-+	if (likely(*src_vmap))
-+		return 0;
++    def __exists(self, interface):
++        (rc, k) = semanage_iface_key_create(self.sh, interface)
++        if rc < 0:
++            raise ValueError(_("Could not create key for %s") % interface)
 +
-+	/* Undo any locking and retry in mmap_lock critical section */
-+	vma_end_read(*dst_vmap);
++        (rc, exists) = semanage_iface_exists(self.sh, k)
++        if rc < 0:
++            raise ValueError(_("Could not check if interface %s is defined") % interface)
++        semanage_iface_key_free(k)
 +
-+	mmap_read_lock(mm);
-+	err = find_vmas_mm_locked(mm, dst_start, src_start, dst_vmap, src_vmap);
-+	if (!err) {
-+		/*
-+		 * See comment in lock_vma() as to why not using
-+		 * vma_start_read() here.
-+		 */
-+		down_read(&(*dst_vmap)->vm_lock->lock);
-+		if (*dst_vmap != *src_vmap)
-+			down_read(&(*src_vmap)->vm_lock->lock);
-+	}
-+	mmap_read_unlock(mm);
-+	return err;
-+}
++        return exists
 +
-+static void uffd_move_unlock(struct vm_area_struct *dst_vma,
-+			     struct vm_area_struct *src_vma)
-+{
-+	vma_end_read(src_vma);
-+	if (src_vma != dst_vma)
-+		vma_end_read(dst_vma);
- }
+     def __modify(self, interface, serange, setype):
+         if serange == "" and setype == "":
+             raise ValueError(_("Requires setype or serange"))
+@@ -2353,7 +2422,13 @@ class fcontextRecords(semanageRecords):
+             raise ValueError(_("Substitute %s is not valid. Substitute is not allowed to end with '/'") % substitute)
  
-+#else
+         if target in self.equiv.keys():
+-            raise ValueError(_("Equivalence class for %s already exists") % target)
++            print(_("Equivalence class for %s already exists, modifying instead") % target)
++            self.equiv[target] = substitute
++            self.equal_ind = True
++            self.mylog.log_change("resrc=fcontext op=modify-equal %s %s" % (audit.audit_encode_nv_string("sglob", target, 0), audit.audit_encode_nv_string("tglob", substitute, 0)))
++            self.commit()
++            return
 +
-+static int uffd_move_lock(struct mm_struct *mm,
-+			  unsigned long dst_start,
-+			  unsigned long src_start,
-+			  struct vm_area_struct **dst_vmap,
-+			  struct vm_area_struct **src_vmap)
-+{
-+	int err;
+         self.validate(target)
+ 
+         for fdict in (self.equiv, self.equiv_dist):
+@@ -2429,18 +2504,6 @@ class fcontextRecords(semanageRecords):
+         if rc < 0:
+             raise ValueError(_("Could not create key for %s") % target)
+ 
+-        (rc, exists) = semanage_fcontext_exists(self.sh, k)
+-        if rc < 0:
+-            raise ValueError(_("Could not check if file context for %s is defined") % target)
+-
+-        if not exists:
+-            (rc, exists) = semanage_fcontext_exists_local(self.sh, k)
+-            if rc < 0:
+-                raise ValueError(_("Could not check if file context for %s is defined") % target)
+-
+-        if exists:
+-            raise ValueError(_("File context for %s already defined") % target)
+-
+         (rc, fcontext) = semanage_fcontext_create(self.sh)
+         if rc < 0:
+             raise ValueError(_("Could not create file context for %s") % target)
+@@ -2479,9 +2542,30 @@ class fcontextRecords(semanageRecords):
+ 
+     def add(self, target, type, ftype="", serange="", seuser="system_u"):
+         self.begin()
+-        self.__add(target, type, ftype, serange, seuser)
++        if self.__exists(target, ftype):
++            print(_("File context for %s already defined, modifying instead") % target)
++            self.__modify(target, type, ftype, serange, seuser)
++        else:
++            self.__add(target, type, ftype, serange, seuser)
+         self.commit()
+ 
++    def __exists(self, target, ftype):
++        (rc, k) = semanage_fcontext_key_create(self.sh, target, file_types[ftype])
++        if rc < 0:
++            raise ValueError(_("Could not create key for %s") % target)
 +
-+	mmap_read_lock(mm);
-+	err = find_vmas_mm_locked(mm, dst_start, src_start, dst_vmap, src_vmap);
-+	if (err)
-+		mmap_read_unlock(mm);
-+	return err;
-+}
++        (rc, exists) = semanage_fcontext_exists(self.sh, k)
++        if rc < 0:
++            raise ValueError(_("Could not check if file context for %s is defined") % target)
 +
-+static void uffd_move_unlock(struct vm_area_struct *dst_vma,
-+			     struct vm_area_struct *src_vma)
-+{
-+	mmap_assert_locked(src_vma->vm_mm);
-+	mmap_read_unlock(dst_vma->vm_mm);
-+}
-+#endif
++        if not exists:
++            (rc, exists) = semanage_fcontext_exists_local(self.sh, k)
++            if rc < 0:
++                raise ValueError(_("Could not check if file context for %s is defined") % target)
++        semanage_fcontext_key_free(k)
 +
- /**
-  * move_pages - move arbitrary anonymous pages of an existing vma
-  * @ctx: pointer to the userfaultfd context
-- * @mm: the address space to move pages
-  * @dst_start: start of the destination virtual memory range
-  * @src_start: start of the source virtual memory range
-  * @len: length of the virtual memory range
-  * @mode: flags from uffdio_move.mode
-  *
-- * Must be called with mmap_lock held for read.
-+ * It will either use the mmap_lock in read mode or per-vma locks
-  *
-  * move_pages() remaps arbitrary anonymous pages atomically in zero
-  * copy. It only works on non shared anonymous pages because those can
-@@ -1355,10 +1550,10 @@ static int validate_move_areas(struct userfaultfd_ctx *ctx,
-  * could be obtained. This is the only additional complexity added to
-  * the rmap code to provide this anonymous page remapping functionality.
-  */
--ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
--		   unsigned long dst_start, unsigned long src_start,
--		   unsigned long len, __u64 mode)
-+ssize_t move_pages(struct userfaultfd_ctx *ctx, unsigned long dst_start,
-+		   unsigned long src_start, unsigned long len, __u64 mode)
- {
-+	struct mm_struct *mm = ctx->mm;
- 	struct vm_area_struct *src_vma, *dst_vma;
- 	unsigned long src_addr, dst_addr;
- 	pmd_t *src_pmd, *dst_pmd;
-@@ -1376,28 +1571,34 @@ ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
- 	    WARN_ON_ONCE(dst_start + len <= dst_start))
- 		goto out;
- 
-+	err = uffd_move_lock(mm, dst_start, src_start, &dst_vma, &src_vma);
-+	if (err)
-+		goto out;
++        return exists
 +
-+	/* Re-check after taking map_changing_lock */
-+	err = -EAGAIN;
-+	down_read(&ctx->map_changing_lock);
-+	if (likely(atomic_read(&ctx->mmap_changing)))
-+		goto out_unlock;
- 	/*
- 	 * Make sure the vma is not shared, that the src and dst remap
- 	 * ranges are both valid and fully within a single existing
- 	 * vma.
- 	 */
--	src_vma = find_vma(mm, src_start);
--	if (!src_vma || (src_vma->vm_flags & VM_SHARED))
--		goto out;
--	if (src_start < src_vma->vm_start ||
--	    src_start + len > src_vma->vm_end)
--		goto out;
-+	err = -EINVAL;
-+	if (src_vma->vm_flags & VM_SHARED)
-+		goto out_unlock;
-+	if (src_start + len > src_vma->vm_end)
-+		goto out_unlock;
- 
--	dst_vma = find_vma(mm, dst_start);
--	if (!dst_vma || (dst_vma->vm_flags & VM_SHARED))
--		goto out;
--	if (dst_start < dst_vma->vm_start ||
--	    dst_start + len > dst_vma->vm_end)
--		goto out;
-+	if (dst_vma->vm_flags & VM_SHARED)
-+		goto out_unlock;
-+	if (dst_start + len > dst_vma->vm_end)
-+		goto out_unlock;
- 
- 	err = validate_move_areas(ctx, src_vma, dst_vma);
- 	if (err)
--		goto out;
-+		goto out_unlock;
- 
- 	for (src_addr = src_start, dst_addr = dst_start;
- 	     src_addr < src_start + len;) {
-@@ -1514,6 +1715,9 @@ ssize_t move_pages(struct userfaultfd_ctx *ctx, struct mm_struct *mm,
- 		moved += step_size;
- 	}
- 
-+out_unlock:
-+	up_read(&ctx->map_changing_lock);
-+	uffd_move_unlock(dst_vma, src_vma);
- out:
- 	VM_WARN_ON(moved < 0);
- 	VM_WARN_ON(err > 0);
+     def __modify(self, target, setype, ftype, serange, seuser):
+         if serange == "" and setype == "" and seuser == "":
+             raise ValueError(_("Requires setype, serange or seuser"))
 -- 
-2.43.0.687.g38aa6559b0-goog
+2.43.0
 
