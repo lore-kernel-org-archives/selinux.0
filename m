@@ -1,196 +1,117 @@
-Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
+Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com [209.85.128.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF413DDD9
-	for <selinux@vger.kernel.org>; Thu, 15 Feb 2024 18:41:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE8601419A9
+	for <selinux@vger.kernel.org>; Thu, 15 Feb 2024 22:19:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708022496; cv=none; b=E043H79oG+i/eK7wdPAK6dugH+jIHDiiXUhHmO3ghM66+b7gynWsGNSAKuP7uVqAIKOD7MXZFsgZA1EKPnsM3lE2ge2E7FOX374YiXfgChatn7RonKknanYbr2IKJWl94YOaRz0WnAJes5cluSczXukCrcHdZuFQygPGnsu25ac=
+	t=1708035596; cv=none; b=XFNRf3tUcfkKjBb5DQCzj7Me+MW9cAyZsRlKUptwEDgzMy5Ccv5slIeYm4Cwe9l7N3rS+0wydohHm+DqlJx0inEux6x89MwMrLAWSQ+2fAvqkUpqXhrXvYGLuEAbSVRIclUHHjGR1/QCi9rWRq7b7JVGt/lOHj0wM+k8BWrGjQs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708022496; c=relaxed/simple;
-	bh=cTk9sf5TlU71O3IlTKaYQ0BMfi6luC/sn5i3xEKNoQ0=;
+	s=arc-20240116; t=1708035596; c=relaxed/simple;
+	bh=aF59DJKg+GxnyqLQw5fUxg2rlzvMMS+kzrvQ8I5o6Ws=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mrFKPps0YL+N8Cr01xymF++76WcPI6X/ijnG49QTXGJ/z6YwdILlgh3kd+0wKhv0NCNCJlSdSdJRWjZSmuHUwb1M2hKRxpUyAtlsJ/+Dt81kDUQw6Vnm8bPRPx5g9IeGk3f6oEhgTD3P5H8NEbnKCNZetlvMjRmvCaF01cnklyw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=lEG99ksW; arc=none smtp.client-ip=209.85.128.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	 To:Cc:Content-Type; b=UYaQ8wU0S44eMrjyCVLvx+ZQegFI9kQkqFbL4DRJvfw/E3qDZ9Z1RKDJytNOTqWNheXbyU9Q3MdLjBq+VPRJROdW0gdVHUPlAVopJGN+palSrnQRRxSYTpRV5RxP1wKqh93u1s1zCwElqYoeqRgX8d+sHqgzXBW48gqEpRp6o9E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=rLeRCuRX; arc=none smtp.client-ip=209.85.128.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="lEG99ksW"
-Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-60495209415so12527237b3.3
-        for <selinux@vger.kernel.org>; Thu, 15 Feb 2024 10:41:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="rLeRCuRX"
+Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-607d9c4fa90so10704747b3.2
+        for <selinux@vger.kernel.org>; Thu, 15 Feb 2024 14:19:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1708022493; x=1708627293; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=CwUJShXq7XURZTvCJwNdc3OzbzaIKs1Vn0oVwZhBvlQ=;
-        b=lEG99ksWyV3LMcDJZVP/3IUFTdmWd9hnwnvM+ZFDXGh3OKGH2neiNN7BjXXYX/9AZ6
-         C3Aqx24EkNVWzMmsi3oLQiFjVm872FsFwctbDD8eza0OFwWWI+JcxaVMRIJc1h0zGepf
-         qgRr6Zo+xbCMdknxEvikUqKkrNqrs4pMGWHIljr34UtFnlA1/vwP8j2B1AdodncFDkbH
-         eCwKGLJP35O2QeRmkF/BFp4ZDktdO35r23lFYo/DcmgRZiO1dAraY3zzFCW/9kiNp4Kr
-         mXEpb7zcse0bi1ATwWnsXronWDYSkyaJlATLDEMBzkFJxgV1yiLPdRAK7SMQmPEiPGGH
-         RZVw==
+        d=google.com; s=20230601; t=1708035593; x=1708640393; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=EIA+RVykCQtMd4uKP0jMkGSiYfomHvLOKfcmRsJzzt8=;
+        b=rLeRCuRXKcK1Rj3wRjnFm7dlMhDJOfW4VOdLOttjB9eTtl9P4zZFgDbbDYRjNCMpOQ
+         2sAvga2xfZEakbYsnnd7bjfe9Bu9Z4/Enjznm/2ivr4Asehln6I+DGgoq3R+ALnTMnez
+         xI4kazCh33YX+RP0EJcOqDrckkL7AMdhOA0HWNS1Z8UsHHrHsTX8kJLoy7MgJG685wnc
+         YZ56JWLJXtrdTR8Z5QKFbvi/DXOArSV3axdAOeyF5PZkdrwhG/jFeimrKsuKkBeJ2FSc
+         8r48k9iRVzJQ6kn9Nmer+ObPtgTMJ0U1ixcTrY9q23ZdYrPZ8MU8pmEpEqdoHlyx+zmG
+         7G6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708022493; x=1708627293;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=CwUJShXq7XURZTvCJwNdc3OzbzaIKs1Vn0oVwZhBvlQ=;
-        b=kFdkzxt4YUCwsA/wrK0okDgnQC+7a++jCniC2v135T6Mmygbfsa6EhaWefrtobbB8L
-         pPkapRY/WKm8ppVVDnF3EXzBkDvkrZwYfAx/ffYGRpku8kOkWeupG2kAVb4fxM1/hvyb
-         LopJUrpumvCkLTl/HX4pLO2+yZrxWw+DS94n/cDaYScXn8rhzlt5HU5UABxnrB/VDG6i
-         +S1u10WrDGls2vzSmapzXTcyenwZAwV3XqmwPu50QXmfjTNjGkk9DMq9L3KmSY7ej6X2
-         WGnkteA6X4hNppzfFRRjDPTybkf2TxhT29wBN1idjQc4tYZ2q1FJxS/W90bpJkW8+ZWs
-         sm2w==
-X-Gm-Message-State: AOJu0YzEfr2wuzaR7IsZU/sK8e6mfQtdxxNMn/pXa0WKSyJIIeEur3Ko
-	vsU8UVH7iC12M0MEIX5uHgOvwjjHaDAjEbPLc7Iei8NQo+BEdb5jW6If12g8980cC3mLoEENXKF
-	VHKQTejOTt1FxtQF+pQ90utmQORWVoqTPSbE=
-X-Google-Smtp-Source: AGHT+IHWy5J1wwVgG+Trf+C83OocV5axfazFqyfoK7/tS48jBXLR6cwA4E0FL41BzUilDwmaanXaZPNjgryfCL09/18=
-X-Received: by 2002:a0d:db08:0:b0:607:7e98:763b with SMTP id
- d8-20020a0ddb08000000b006077e98763bmr2622504ywe.12.1708022493515; Thu, 15 Feb
- 2024 10:41:33 -0800 (PST)
+        d=1e100.net; s=20230601; t=1708035593; x=1708640393;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=EIA+RVykCQtMd4uKP0jMkGSiYfomHvLOKfcmRsJzzt8=;
+        b=EuUX4uiI9bKEw9S2htBB4C/HKjxRVtjbEqxWnSMgwvnKEB3vVtzgjFnNnzovilKON+
+         Ijyk+JcAwi5n3x0KaxN7l2nwGO4VvlRvf6dM6l/n6vAKxqBNlLiOUKWynHxRWz0Y6WEe
+         yMXxqqPX5/cnkifEt1EM4TKLGU+gz/3SFmMs77hrjIQtMiuOe7byAZvszNuF2r7uUOFA
+         HrH9ic2XhGZV0YdmYGELrhABU/97WtKCr+CsPXuASbkRdWHF/ojFyI8QT0WuAxF5Y+42
+         cm4n8DFb62U/nm4GMs2NztePX5reHcKAMNwe9ZTAdUAJN0OX7nxQMl8YkIA1IIv3dWvG
+         ueiQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU/GjNgNYqfyooU5OtMg5IRuJcX6uXA0hTCdBLX2mos0eLggDTmXLE+7c2Yg/bdRG86IiT6c2CnrRRdnv4pzZDY4B7yFskvQQ==
+X-Gm-Message-State: AOJu0YxkG8qSRQq8X0x5MCXSlY7IiBU7y9kWzij+eaedPE5cBiU0PUPG
+	S4SjcXRD/s2m/7WTIGSd3ZYYemQeE+HVqTCDpm8ivEVU+j0VVHDHAmnpLLAs+OwerQtus7OAAt5
+	CUDmKL4GldJuXHwBRafGImqvPiumMy/JnHC7E
+X-Google-Smtp-Source: AGHT+IH5Y8G4M+psLtl5ozUOu2RjeWfSvT5C53fM4Wva+peYjIwy6mOS42gzLlAZlpmBSbzeIubfKTtWZadUROXeA8I=
+X-Received: by 2002:a81:a103:0:b0:607:c8fe:c4c3 with SMTP id
+ y3-20020a81a103000000b00607c8fec4c3mr3441262ywg.30.1708035592344; Thu, 15 Feb
+ 2024 14:19:52 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240213205605.830719-1-jwcart2@gmail.com>
-In-Reply-To: <20240213205605.830719-1-jwcart2@gmail.com>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Thu, 15 Feb 2024 19:41:22 +0100
-Message-ID: <CAJ2a_Dfj7kLxm1JKKZXjqD7cfdamDoW0pDXqyNBtJaHi_5bxbg@mail.gmail.com>
-Subject: Re: [PATCH] checkpolicy, libsepol: Fix potential double free of mls_level_t
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
+References: <20240215182756.3448972-1-lokeshgidra@google.com> <20240215182756.3448972-4-lokeshgidra@google.com>
+In-Reply-To: <20240215182756.3448972-4-lokeshgidra@google.com>
+From: Suren Baghdasaryan <surenb@google.com>
+Date: Thu, 15 Feb 2024 14:19:41 -0800
+Message-ID: <CAJuCfpFe2spt082fdB99ow+pqGj+DKnep6cHxoVYRVYgyO9uhg@mail.gmail.com>
+Subject: Re: [PATCH v7 3/4] mm: add vma_assert_locked() for !CONFIG_PER_VMA_LOCK
+To: Lokesh Gidra <lokeshgidra@google.com>
+Cc: akpm@linux-foundation.org, linux-fsdevel@vger.kernel.org, 
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org, selinux@vger.kernel.org, 
+	kernel-team@android.com, aarcange@redhat.com, peterx@redhat.com, 
+	david@redhat.com, axelrasmussen@google.com, bgeffon@google.com, 
+	willy@infradead.org, jannh@google.com, kaleshsingh@google.com, 
+	ngeoffray@google.com, timmurray@google.com, rppt@kernel.org, 
+	Liam.Howlett@oracle.com, ryan.roberts@arm.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 13 Feb 2024 at 21:56, James Carter <jwcart2@gmail.com> wrote:
+On Thu, Feb 15, 2024 at 10:28=E2=80=AFAM Lokesh Gidra <lokeshgidra@google.c=
+om> wrote:
 >
-> In checkpolicy, sensitivities that have aliases will temporarily
-> share the mls_level_t structure until a level statement defines the
-> categories for the level and the alias is updated to have its own
-> mls_level_t structure. Currently, this does not cause a problem
-> because checkpolicy does very little clean-up before exiting when
-> an error is detected. But if the policydb is destroyed before exiting
-> due to an error after a sensitivity and its alias is declared, but
-> before a level statement involving either of them, then a double
-> free of the shared mls_level_t will occur.
+> vma_assert_locked() is needed to replace mmap_assert_locked() once we
+> start using per-vma locks in userfaultfd operations.
 >
-> The defined field of the level_datum_t is set after a level statement
-> is processed for the level_datum_t. This means that we know the alias
-> has its own mls_level_t if the defined field is set. This means that
-> the defined field can be used to determine whether or not the
-> mls_level_t pointed to by an alias level_datum_t should be destroyed.
->
-> Since the defined field is not set when reading or expanding a policy,
-> update libsepol to set the defined field.
+> In !CONFIG_PER_VMA_LOCK case when mm is locked, it implies that the
+> given VMA is locked.
 
-I tried to avoid touching anything related to the `defined` member in
-the checkpolicy patchset, since my plan was to remove the member in a
-couple months, when the fuzzer has verified it is redundant after the
-new member `copy` was introduced.
-Currently the member `defined` is only checked once in the entire code
-base: in a sanity check in checkpolicy that I never saw triggered.
-So it is unused during binary policy parsing and CIL policy
-compilation (and also unnecessary for correct cleanup there, since the
-two active fuzzers have not found any related use-after-free issue or
-leak).
-Thus my preference is to have in the end only the `copy` member from
-my patch 10/15, which does not need to be set everywhere manually
-since the default calloc'ed value of 0 is the correct default, and
-it's only going to be used in three places:
-libsepol/src/policydb.c:sens_destroy(),
-checkpolicy/policy_define.c:define_sens() and
-checkpolicy/policy_define.c:clone_level().
+Yes, makes sense. With per-vma locks used in more places, this makes
+replacing mmap_assert_locked() with vma_assert_locked() very
+straight-forward.
 
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+>
+> Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
+
+Reviewed-by: Suren Baghdasaryan <surenb@google.com>
+
 > ---
->  checkpolicy/policy_define.c | 11 +++++++----
->  libsepol/src/expand.c       |  1 +
->  libsepol/src/policydb.c     |  7 +++++--
->  3 files changed, 13 insertions(+), 6 deletions(-)
+>  include/linux/mm.h | 5 +++++
+>  1 file changed, 5 insertions(+)
 >
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index 260e609d..542bb978 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -1006,9 +1006,10 @@ static int clone_level(hashtab_key_t key __attribute__ ((unused)), hashtab_datum
->         mls_level_t *level = (mls_level_t *) arg, *newlevel;
->
->         if (levdatum->level == level) {
-> -               levdatum->defined = 1;
-> -               if (!levdatum->isalias)
-> +               if (!levdatum->isalias) {
-> +                       levdatum->defined = 1;
->                         return 0;
-> +               }
->                 newlevel = (mls_level_t *) malloc(sizeof(mls_level_t));
->                 if (!newlevel)
->                         return -1;
-> @@ -1017,6 +1018,7 @@ static int clone_level(hashtab_key_t key __attribute__ ((unused)), hashtab_datum
->                         return -1;
->                 }
->                 levdatum->level = newlevel;
-> +               levdatum->defined = 1;
->         }
->         return 0;
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index 3c85634b186c..5ece3ad34ef8 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -781,6 +781,11 @@ static inline struct vm_area_struct *lock_vma_under_=
+rcu(struct mm_struct *mm,
+>         return NULL;
 >  }
-> @@ -1057,8 +1059,6 @@ int define_level(void)
->         }
->         free(id);
 >
-> -       levdatum->defined = 1;
-> -
->         while ((id = queue_remove(id_queue))) {
->                 cat_datum_t *cdatum;
->                 int range_start, range_end, i;
-> @@ -1121,6 +1121,9 @@ int define_level(void)
->                 free(id);
->         }
->
-> +       if (!levdatum->isalias)
-> +               levdatum->defined = 1;
+> +static inline void vma_assert_locked(struct vm_area_struct *vma)
+> +{
+> +       mmap_assert_locked(vma->vm_mm);
+> +}
 > +
->         if (hashtab_map
->             (policydbp->p_levels.table, clone_level, levdatum->level)) {
->                 yyerror("out of memory");
-> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> index e63414b1..0e16c502 100644
-> --- a/libsepol/src/expand.c
-> +++ b/libsepol/src/expand.c
-> @@ -1191,6 +1191,7 @@ static int sens_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
->                 goto out_of_mem;
->         }
->         new_level->isalias = level->isalias;
-> +       new_level->defined = 1;
->         state->out->p_levels.nprim++;
->
->         if (hashtab_insert(state->out->p_levels.table,
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index f10a8a95..0c950bf1 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -1390,8 +1390,10 @@ static int sens_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p
->         if (key)
->                 free(key);
->         levdatum = (level_datum_t *) datum;
-> -       mls_level_destroy(levdatum->level);
-> -       free(levdatum->level);
-> +       if (!levdatum->isalias || levdatum->defined) {
-> +               mls_level_destroy(levdatum->level);
-> +               free(levdatum->level);
-> +       }
->         level_datum_destroy(levdatum);
->         free(levdatum);
->         return 0;
-> @@ -3357,6 +3359,7 @@ static int sens_read(policydb_t * p
->                 goto bad;
->
->         levdatum->isalias = le32_to_cpu(buf[1]);
-> +       levdatum->defined = 1;
->
->         levdatum->level = malloc(sizeof(mls_level_t));
->         if (!levdatum->level || mls_read_level(levdatum->level, fp))
+>  static inline void release_fault_lock(struct vm_fault *vmf)
+>  {
+>         mmap_read_unlock(vmf->vma->vm_mm);
 > --
-> 2.43.0
+> 2.43.0.687.g38aa6559b0-goog
 >
