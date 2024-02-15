@@ -1,414 +1,142 @@
-Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com [209.85.219.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71543131742;
-	Thu, 15 Feb 2024 10:39:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=14.137.139.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9C8E12EBDB
+	for <selinux@vger.kernel.org>; Thu, 15 Feb 2024 15:03:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707993600; cv=none; b=di8aXNlW16WyUxURB8WlhpZQ71Zm0wJyKlKK22pbXAJO0T8WTnIZkZfQyuwagFooYuN3POgVYP1ajL/p1Opcev5rn6+n5daMdcELFz1A1yWLS5SCugyjEKZQINlxguOyqLiaTQn+r9gGb/2dXpHk/weFGrT3D19H/uyCc+ibdoQ=
+	t=1708009389; cv=none; b=GYAS+MgqbEK71gOh7dgnrjmxSqvCaT3JgNozlG97tkWLwaC0vcrlWxzu4U/lBfZa4gRnEMlkx4XvZAKBezLdD8G9D2VxKpJFQlLn/oaoYDrnZGhDoEBKX3K8WYFLNVdkKkrAOACtrkQbDRosoWFuk4qYXnnjUjn4OKkPYqf/Eug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707993600; c=relaxed/simple;
-	bh=xzVxo+pz89esXqXypP0zK8EBUx994TIoRv/UmpnrbNo=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=CMb1lrSVZQa3hhLRYwaNJVmK7/lzBe3bNjaDUHm1xxZ8oKfv8PNXL2/fq/5ZuYoPp2nEEg6jzlfbpqGgRd1WRicU+9+SSh2CA7hJULz2iqIPDFsSmr3/ifd1B2HThIkk3VnsLWlFHLo7c3q7v7N+vUL1zMhjNxEQIxrYFJ4oX4Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=14.137.139.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.18.186.51])
-	by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4TbB541JRtz9yB7M;
-	Thu, 15 Feb 2024 18:24:40 +0800 (CST)
-Received: from mail02.huawei.com (unknown [7.182.16.47])
-	by mail.maildlp.com (Postfix) with ESMTP id 080FD1405A1;
-	Thu, 15 Feb 2024 18:39:46 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.204.63.22])
-	by APP1 (Coremail) with SMTP id LxC2BwAHABmc6c1lwxGNAg--.11795S7;
-	Thu, 15 Feb 2024 11:39:45 +0100 (CET)
-From: Roberto Sassu <roberto.sassu@huaweicloud.com>
-To: viro@zeniv.linux.org.uk,
-	brauner@kernel.org,
-	jack@suse.cz,
-	chuck.lever@oracle.com,
-	jlayton@kernel.org,
-	neilb@suse.de,
-	kolga@netapp.com,
-	Dai.Ngo@oracle.com,
-	tom@talpey.com,
-	paul@paul-moore.com,
-	jmorris@namei.org,
-	serge@hallyn.com,
-	zohar@linux.ibm.com,
-	dmitry.kasatkin@gmail.com,
-	eric.snowberg@oracle.com,
-	dhowells@redhat.com,
-	jarkko@kernel.org,
-	stephen.smalley.work@gmail.com,
-	omosnace@redhat.com,
-	casey@schaufler-ca.com,
-	shuah@kernel.org,
-	mic@digikod.net
-Cc: linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-nfs@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	linux-integrity@vger.kernel.org,
-	keyrings@vger.kernel.org,
-	selinux@vger.kernel.org,
-	linux-kselftest@vger.kernel.org,
-	Roberto Sassu <roberto.sassu@huawei.com>,
-	Stefan Berger <stefanb@linux.ibm.com>
-Subject: [PATCH v10 25/25] integrity: Remove LSM
-Date: Thu, 15 Feb 2024 11:31:13 +0100
-Message-Id: <20240215103113.2369171-26-roberto.sassu@huaweicloud.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240215103113.2369171-1-roberto.sassu@huaweicloud.com>
-References: <20240215103113.2369171-1-roberto.sassu@huaweicloud.com>
+	s=arc-20240116; t=1708009389; c=relaxed/simple;
+	bh=H/soAYrrSeRXs7NdxjAoiXIbfPiwXFyYm3AeSchaEI4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=BSFOBWfJqXjlMHDN/5wUq3UCjkAwMaaKyVj/6sEWaMKRCE4GmJ8XsYj/i6j7oQyvCfXvdQKzxlB4swGI2vPRp5JpxVZAZhvEPrDSUGhjsJ/MwEXkuxXwGAtnAbHf71+FLeA0naZ73Y1sZy1ULOZbYHJ9phPd+/9TeO/p67RDHVs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=BvCcjRui; arc=none smtp.client-ip=209.85.219.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="BvCcjRui"
+Received: by mail-yb1-f178.google.com with SMTP id 3f1490d57ef6-dcbf82cdf05so1011034276.2
+        for <selinux@vger.kernel.org>; Thu, 15 Feb 2024 07:03:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1708009387; x=1708614187; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QFQm0M3CmcqPtJRvHCagf6VByOoqALYCn6DYTnpLumI=;
+        b=BvCcjRuitUc+Jbgo0sp3PCdep+zPiLjHHISuCWRbRj5zlagvp1mRDi5h0MkuTvX0//
+         kKFmWQ84wtQUvVFX7M4QQpgxJ8rFy4t+zIfZk3S6KuKig1e9Rv9NFUfX0McHjF0scydJ
+         LL1qIK01pmxD2GLJOi+LuF3xy+NJOI3IQ5LUTpb44+zeKcv8z54CH0STHOGFzUXfBAMS
+         TAq+ZWy6N164kUht9XRqx+J1c3iTspPw5VqXXl2gajHwj538dfYf0cEmYjWTqLRtOehu
+         89KfbYiyM4ZLFNX7XgOMClOoY+pgxGHsk+QeanDljYRohIPxXvnng7wisUlrJlDutl7h
+         W1lw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708009387; x=1708614187;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QFQm0M3CmcqPtJRvHCagf6VByOoqALYCn6DYTnpLumI=;
+        b=ImtVzdZ1YGPiKM/Vheq2Yin32ePGfLYRve+WdWFzcaXar0/xYd0pD6hnstyrlo1QCH
+         BVhH6+krOAVC+89P7GH3x5/6R15d0oEbdv8SKow68kvL8XfArSQQDkiOH4/sSl+B3KRh
+         fsf7IkPrPtUEJ1G5/4T/xZIqxwpjxG1AYHjj8XVnmJ5Crgr2NcYRGy1VZB06Y81qEFXH
+         CP5bMPA+jD0Uv7ASqftYEdAbXCaBKqbhTAReshccc4QTlToEM62SJDlbZe9iylhKMKBX
+         pqOlP0aONWV2xZ4mPeiAiYGbVuA4pLWkbOPHtrUJKNr8jTTZ02+6GeoxyEeigE73xkFc
+         kA1A==
+X-Forwarded-Encrypted: i=1; AJvYcCWReXmMt5IiS61UcxCxl63s4xsWJJYnDgF3XIKF1i7dkiRg6+EHH6JfVPp0KIH4HJw5LF4yDvHxvcqr74dDh09zMIK0GXHZhA==
+X-Gm-Message-State: AOJu0YyMyEvBWXvu9EePq6WdguTuLbnlTmEOlqsX05aRlUep5bKq8AYX
+	7TRdbLtKEmjwzqTCg8CA08099xVtEmsw2UPs2MjZRJEu57rWWRiIwkw0O4B2v/P1vRfcWwFOG+T
+	2T80dva8z4wVGxBbIUDFt2Kh+K3U6HPqLW4Qp
+X-Google-Smtp-Source: AGHT+IFDJqcQ/zvtSSzS7L8oaKPQoNT7OfyWLmtX0/ZWHRG8kJBAwvm75pg5JW6QaleHBtWyvIXsCWPJtgsfjWAGRcM=
+X-Received: by 2002:a5b:692:0:b0:dc7:4935:a889 with SMTP id
+ j18-20020a5b0692000000b00dc74935a889mr1745565ybq.50.1708009385102; Thu, 15
+ Feb 2024 07:03:05 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:LxC2BwAHABmc6c1lwxGNAg--.11795S7
-X-Coremail-Antispam: 1UD129KBjvJXoWxKFWxAw4fAw1DAFW7Gr4kZwb_yoWfuw4xpF
-	W7KayUJr4rZFW0kF4vyFy5ur4fK34qgFZ7W34Ykw1kAFyqvrn0qFs8AryUuF1rGrWFq34I
-	qr4akr45ZF1DtrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBab4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAV
-	Cq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0
-	rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267
-	AKxVWxJr0_GcWl84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAF
-	wI0_Cr1j6rxdM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7
-	xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Y
-	z7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2
-	Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s02
-	6x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26rWY6r4UJwCIc40Y0x0EwIxGrwCI42
-	IY6xIIjxv20xvE14v26ryj6F1UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWxJr0_GcWlIxAI
-	cVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2js
-	IEc7CjxVAFwI0_Cr1j6rxdYxBIdaVFxhVjvjDU0xZFpf9x07UWVbkUUUUU=
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAOBF1jj5Zf6QAAsZ
+References: <20240115181809.885385-1-roberto.sassu@huaweicloud.com>
+ <20240115181809.885385-13-roberto.sassu@huaweicloud.com> <305cd1291a73d788c497fe8f78b574d771b8ba41.camel@linux.ibm.com>
+ <CAHC9VhQ7DgPJtNTRCYneu_XnpRmuwfPCW+FqVuS=k6U5-F6pJw@mail.gmail.com>
+ <05ad625b0f5a0e6c095abee5507801da255b36cd.camel@huaweicloud.com>
+ <CAHC9VhR2M_MWHs34kn-WH3Wr0sgT09WKveecy7onkFhUb1-gEg@mail.gmail.com>
+ <63afc94126521629bb7656b6e6783d6614ee898a.camel@linux.ibm.com>
+ <CAHC9VhQGiSq2LTm7TBvCwDB_NcMe_JjORLbuHVfC4UpJQi_N4g@mail.gmail.com> <6ffcd054ff81d64b92b52baf097ed21f8ea4d870.camel@linux.ibm.com>
+In-Reply-To: <6ffcd054ff81d64b92b52baf097ed21f8ea4d870.camel@linux.ibm.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 15 Feb 2024 10:02:53 -0500
+Message-ID: <CAHC9VhSQCAUDV7_LgvWw-=u2sxixr-=yKkvoOM7LGxmSy0HzYw@mail.gmail.com>
+Subject: Re: [PATCH v9 12/25] security: Introduce file_post_open hook
+To: Mimi Zohar <zohar@linux.ibm.com>
+Cc: Roberto Sassu <roberto.sassu@huaweicloud.com>, viro@zeniv.linux.org.uk, 
+	brauner@kernel.org, chuck.lever@oracle.com, jlayton@kernel.org, neilb@suse.de, 
+	kolga@netapp.com, Dai.Ngo@oracle.com, tom@talpey.com, jmorris@namei.org, 
+	serge@hallyn.com, dmitry.kasatkin@gmail.com, eric.snowberg@oracle.com, 
+	dhowells@redhat.com, jarkko@kernel.org, stephen.smalley.work@gmail.com, 
+	eparis@parisplace.org, casey@schaufler-ca.com, shuah@kernel.org, 
+	mic@digikod.net, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	linux-integrity@vger.kernel.org, keyrings@vger.kernel.org, 
+	selinux@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+	Roberto Sassu <roberto.sassu@huawei.com>, Stefan Berger <stefanb@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+On Thu, Feb 15, 2024 at 3:18=E2=80=AFAM Mimi Zohar <zohar@linux.ibm.com> wr=
+ote:
+> On Wed, 2024-02-14 at 16:21 -0500, Paul Moore wrote:
+> > I'm not a big fan of sharing topic branches across different subsystem
+> > trees, I'd much rather just agree that one tree or another takes the
+> > patchset and the others plan accordingly.
+>
+> Just curious why not?
 
-Since now IMA and EVM use their own integrity metadata, it is safe to
-remove the 'integrity' LSM, with its management of integrity metadata.
+I don't like the idea of cross-tree dependencies, I realize the term
+"dependency" isn't a great fit for a shared topic branch - no one
+needs to feel the need to explain how pulls and merges work - but it's
+the conceptual idea of there being a dependency across different trees
+that bothers me.  I also tend to dislike the idea that a new feature
+*absolutely* *must* *be* *in* *a* *certain* *release* to the point
+that we need to subvert our normal processes to make it happen.
 
-Keep the iint.c file only for loading IMA and EVM keys at boot, and for
-creating the integrity directory in securityfs (we need to keep it for
-retrocompatibility reasons).
+Further, I believe that shared topic branches also discourages
+cooperation and collaboration.  With a topic branch, anyone who wants
+to build on top of it simply merges the topic branch and off they go;
+without a shared topic branch there needs to be a discussion about
+which other patches are affected, which trees are involved, who is
+going to carry the patches, when are they going up to Linus, etc.  As
+someone who feels strongly that we need more collaboration across
+kernel subsystems, I'm always going to pick the option that involves
+developers talking with other developers outside their immediate
+subsystem.
 
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-Acked-by: Paul Moore <paul@paul-moore.com>
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-Acked-by: Mimi Zohar <zohar@linux.ibm.com>
----
- include/linux/integrity.h      |  14 ---
- security/integrity/iint.c      | 197 +--------------------------------
- security/integrity/integrity.h |  25 -----
- security/security.c            |   2 -
- 4 files changed, 2 insertions(+), 236 deletions(-)
+Hopefully that makes sense.
 
-diff --git a/include/linux/integrity.h b/include/linux/integrity.h
-index ef0f63ef5ebc..459b79683783 100644
---- a/include/linux/integrity.h
-+++ b/include/linux/integrity.h
-@@ -19,24 +19,10 @@ enum integrity_status {
- 	INTEGRITY_UNKNOWN,
- };
- 
--/* List of EVM protected security xattrs */
- #ifdef CONFIG_INTEGRITY
--extern struct integrity_iint_cache *integrity_inode_get(struct inode *inode);
--extern void integrity_inode_free(struct inode *inode);
- extern void __init integrity_load_keys(void);
- 
- #else
--static inline struct integrity_iint_cache *
--				integrity_inode_get(struct inode *inode)
--{
--	return NULL;
--}
--
--static inline void integrity_inode_free(struct inode *inode)
--{
--	return;
--}
--
- static inline void integrity_load_keys(void)
- {
- }
-diff --git a/security/integrity/iint.c b/security/integrity/iint.c
-index d4419a2a1e24..068ac6c2ae1e 100644
---- a/security/integrity/iint.c
-+++ b/security/integrity/iint.c
-@@ -6,207 +6,14 @@
-  * Mimi Zohar <zohar@us.ibm.com>
-  *
-  * File: integrity_iint.c
-- *	- implements the integrity hooks: integrity_inode_alloc,
-- *	  integrity_inode_free
-- *	- cache integrity information associated with an inode
-- *	  using a rbtree tree.
-+ *	- initialize the integrity directory in securityfs
-+ *	- load IMA and EVM keys
-  */
--#include <linux/slab.h>
--#include <linux/init.h>
--#include <linux/spinlock.h>
--#include <linux/rbtree.h>
--#include <linux/file.h>
--#include <linux/uaccess.h>
- #include <linux/security.h>
--#include <linux/lsm_hooks.h>
- #include "integrity.h"
- 
--static struct rb_root integrity_iint_tree = RB_ROOT;
--static DEFINE_RWLOCK(integrity_iint_lock);
--static struct kmem_cache *iint_cache __ro_after_init;
--
- struct dentry *integrity_dir;
- 
--/*
-- * __integrity_iint_find - return the iint associated with an inode
-- */
--static struct integrity_iint_cache *__integrity_iint_find(struct inode *inode)
--{
--	struct integrity_iint_cache *iint;
--	struct rb_node *n = integrity_iint_tree.rb_node;
--
--	while (n) {
--		iint = rb_entry(n, struct integrity_iint_cache, rb_node);
--
--		if (inode < iint->inode)
--			n = n->rb_left;
--		else if (inode > iint->inode)
--			n = n->rb_right;
--		else
--			return iint;
--	}
--
--	return NULL;
--}
--
--/*
-- * integrity_iint_find - return the iint associated with an inode
-- */
--struct integrity_iint_cache *integrity_iint_find(struct inode *inode)
--{
--	struct integrity_iint_cache *iint;
--
--	if (!IS_IMA(inode))
--		return NULL;
--
--	read_lock(&integrity_iint_lock);
--	iint = __integrity_iint_find(inode);
--	read_unlock(&integrity_iint_lock);
--
--	return iint;
--}
--
--#define IMA_MAX_NESTING (FILESYSTEM_MAX_STACK_DEPTH+1)
--
--/*
-- * It is not clear that IMA should be nested at all, but as long is it measures
-- * files both on overlayfs and on underlying fs, we need to annotate the iint
-- * mutex to avoid lockdep false positives related to IMA + overlayfs.
-- * See ovl_lockdep_annotate_inode_mutex_key() for more details.
-- */
--static inline void iint_lockdep_annotate(struct integrity_iint_cache *iint,
--					 struct inode *inode)
--{
--#ifdef CONFIG_LOCKDEP
--	static struct lock_class_key iint_mutex_key[IMA_MAX_NESTING];
--
--	int depth = inode->i_sb->s_stack_depth;
--
--	if (WARN_ON_ONCE(depth < 0 || depth >= IMA_MAX_NESTING))
--		depth = 0;
--
--	lockdep_set_class(&iint->mutex, &iint_mutex_key[depth]);
--#endif
--}
--
--static void iint_init_always(struct integrity_iint_cache *iint,
--			     struct inode *inode)
--{
--	iint->ima_hash = NULL;
--	iint->version = 0;
--	iint->flags = 0UL;
--	iint->atomic_flags = 0UL;
--	iint->ima_file_status = INTEGRITY_UNKNOWN;
--	iint->ima_mmap_status = INTEGRITY_UNKNOWN;
--	iint->ima_bprm_status = INTEGRITY_UNKNOWN;
--	iint->ima_read_status = INTEGRITY_UNKNOWN;
--	iint->ima_creds_status = INTEGRITY_UNKNOWN;
--	iint->evm_status = INTEGRITY_UNKNOWN;
--	iint->measured_pcrs = 0;
--	mutex_init(&iint->mutex);
--	iint_lockdep_annotate(iint, inode);
--}
--
--static void iint_free(struct integrity_iint_cache *iint)
--{
--	kfree(iint->ima_hash);
--	mutex_destroy(&iint->mutex);
--	kmem_cache_free(iint_cache, iint);
--}
--
--/**
-- * integrity_inode_get - find or allocate an iint associated with an inode
-- * @inode: pointer to the inode
-- * @return: allocated iint
-- *
-- * Caller must lock i_mutex
-- */
--struct integrity_iint_cache *integrity_inode_get(struct inode *inode)
--{
--	struct rb_node **p;
--	struct rb_node *node, *parent = NULL;
--	struct integrity_iint_cache *iint, *test_iint;
--
--	iint = integrity_iint_find(inode);
--	if (iint)
--		return iint;
--
--	iint = kmem_cache_alloc(iint_cache, GFP_NOFS);
--	if (!iint)
--		return NULL;
--
--	iint_init_always(iint, inode);
--
--	write_lock(&integrity_iint_lock);
--
--	p = &integrity_iint_tree.rb_node;
--	while (*p) {
--		parent = *p;
--		test_iint = rb_entry(parent, struct integrity_iint_cache,
--				     rb_node);
--		if (inode < test_iint->inode) {
--			p = &(*p)->rb_left;
--		} else if (inode > test_iint->inode) {
--			p = &(*p)->rb_right;
--		} else {
--			write_unlock(&integrity_iint_lock);
--			kmem_cache_free(iint_cache, iint);
--			return test_iint;
--		}
--	}
--
--	iint->inode = inode;
--	node = &iint->rb_node;
--	inode->i_flags |= S_IMA;
--	rb_link_node(node, parent, p);
--	rb_insert_color(node, &integrity_iint_tree);
--
--	write_unlock(&integrity_iint_lock);
--	return iint;
--}
--
--/**
-- * integrity_inode_free - called on security_inode_free
-- * @inode: pointer to the inode
-- *
-- * Free the integrity information(iint) associated with an inode.
-- */
--void integrity_inode_free(struct inode *inode)
--{
--	struct integrity_iint_cache *iint;
--
--	if (!IS_IMA(inode))
--		return;
--
--	write_lock(&integrity_iint_lock);
--	iint = __integrity_iint_find(inode);
--	rb_erase(&iint->rb_node, &integrity_iint_tree);
--	write_unlock(&integrity_iint_lock);
--
--	iint_free(iint);
--}
--
--static void iint_init_once(void *foo)
--{
--	struct integrity_iint_cache *iint = (struct integrity_iint_cache *) foo;
--
--	memset(iint, 0, sizeof(*iint));
--}
--
--static int __init integrity_iintcache_init(void)
--{
--	iint_cache =
--	    kmem_cache_create("iint_cache", sizeof(struct integrity_iint_cache),
--			      0, SLAB_PANIC, iint_init_once);
--	return 0;
--}
--DEFINE_LSM(integrity) = {
--	.name = "integrity",
--	.init = integrity_iintcache_init,
--	.order = LSM_ORDER_LAST,
--};
--
--
- /*
-  * integrity_kernel_read - read data from the file
-  *
-diff --git a/security/integrity/integrity.h b/security/integrity/integrity.h
-index 671fc50255f9..50d6f798e613 100644
---- a/security/integrity/integrity.h
-+++ b/security/integrity/integrity.h
-@@ -102,31 +102,6 @@ struct ima_file_id {
- 	__u8 hash[HASH_MAX_DIGESTSIZE];
- } __packed;
- 
--/* integrity data associated with an inode */
--struct integrity_iint_cache {
--	struct rb_node rb_node;	/* rooted in integrity_iint_tree */
--	struct mutex mutex;	/* protects: version, flags, digest */
--	struct inode *inode;	/* back pointer to inode in question */
--	u64 version;		/* track inode changes */
--	unsigned long flags;
--	unsigned long measured_pcrs;
--	unsigned long atomic_flags;
--	unsigned long real_ino;
--	dev_t real_dev;
--	enum integrity_status ima_file_status:4;
--	enum integrity_status ima_mmap_status:4;
--	enum integrity_status ima_bprm_status:4;
--	enum integrity_status ima_read_status:4;
--	enum integrity_status ima_creds_status:4;
--	enum integrity_status evm_status:4;
--	struct ima_digest_data *ima_hash;
--};
--
--/* rbtree tree calls to lookup, insert, delete
-- * integrity data associated with an inode.
-- */
--struct integrity_iint_cache *integrity_iint_find(struct inode *inode);
--
- int integrity_kernel_read(struct file *file, loff_t offset,
- 			  void *addr, unsigned long count);
- 
-diff --git a/security/security.c b/security/security.c
-index de8a9a7b2a30..4317bcd6ec6a 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -19,7 +19,6 @@
- #include <linux/kernel.h>
- #include <linux/kernel_read_file.h>
- #include <linux/lsm_hooks.h>
--#include <linux/integrity.h>
- #include <linux/fsnotify.h>
- #include <linux/mman.h>
- #include <linux/mount.h>
-@@ -1598,7 +1597,6 @@ static void inode_free_by_rcu(struct rcu_head *head)
-  */
- void security_inode_free(struct inode *inode)
- {
--	integrity_inode_free(inode);
- 	call_void_hook(inode_free_security, inode);
- 	/*
- 	 * The inode may still be referenced in a path walk and
--- 
-2.34.1
+> > Based on our previous
+> > discussions I was under the impression that you wanted me to merge
+> > this patchset into lsm/dev, but it looks like that is no longer the
+> > case - which is okay by me.
+>
+> Paul, I don't recall saying that.  Please go ahead and upstream it.  Robe=
+rto can
+> add my acks accordingly.
 
+I believe it was during an off-list chat when we were discussing an
+earlier revision of the patchset, however, as I said earlier I'm not
+bothered by who merges the patches, as long as they eventually end up
+in Linus' tree I'm happy :)  I *really* want to stress that last bit,
+if you and Roberto have stuff queued for the IMA/EVM tree that depends
+on this patchset, please go ahead and merge it; you've got my ACKs on
+the patches that need them, and I believe I've reviewed most of the
+other patches that don't require my ACK.  While there are a some LSM
+related patches that would sit on top of this patchset, there is
+nothing that is so critical that it must go in now.
+
+If I don't hear anything back from you, I'll go ahead and merge these
+into lsm/dev later tonight (probably in about ~12 hours from this
+email as I have some personal commitments early this evening) just so
+we can get them into linux-next as soon as possible.
+
+--=20
+paul-moore.com
