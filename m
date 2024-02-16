@@ -1,217 +1,213 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8449A129A6D
-	for <selinux@vger.kernel.org>; Fri, 16 Feb 2024 13:13:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708089187; cv=none; b=eJv6Yjd6G/h8Qtc7LKpKtEkh6Ug5lhITp7v9BG3a8baIJfR0F92E0aL5eTfmpLhRhIKFMkdF0cm2yJf7k/03MAiJcd1Awdc5VKKWiPxyHY5GDNWXWnJt9vesLSHO7w8JioR/oD2Z8H1Uka0ERxh/sAdgq1gFgHtCUJtYiQxZht0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708089187; c=relaxed/simple;
-	bh=nCJzXAk+K2Rh/iSSyNp90i7jMi+iLnIlZ/HDsIu/Rw8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=OBc78SkIoWKxKPrZGc9ZdYsvcUUHtx+WLwxMRHqWHu4QkQlP+hO1DrHpg241Ka+dYkC73PczN6Ym7weYxgLzqT1zPYhagSy/ZKgSbACqJmBajFgjIPWgAO2tIKZURQSr++KfAOa1FLxpVwXm1qjqSRWWWvXRtTnDp/qUYqf4jaQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c3lzEHti; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82918146904;
+	Fri, 16 Feb 2024 22:35:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1708122958; cv=fail; b=LGtL8I8483EvqUVtIpfi/uhC5pq0xbj9bEq+FVmeQC3wKl1/7LgXAILhxf4kSZwTku6IglNaBKW/CXr1hJeMcGUdosL4sUxdAu9+Eji9V8yO+/qX9gECm9/HoaeargprQr+XGcjOSSy/zN5o4uC3egMoZUxvd0tJNUI5o3AO+NI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1708122958; c=relaxed/simple;
+	bh=cIJaD1+R9P0F5yXhNQaTbMgJV9BONgaOrTJLWGjKX2g=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=eDCFYKHPja8b2VSoiT8D7zdGAEIT+fdjREbXoPYBmXOlXpKYzEsWfioreoDsyvVSRh9pEoOnLZP7TzIpFDi0hQdylTb+xa1D6y5soHpidx+x4e+9xJps907P6naSdVquT9sWNj+LH9mWcyrirAWF/gf66I0r1cRiAJGm8LZt3A8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=TSERdHjp; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=AD9iKjE/; arc=fail smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c3lzEHti"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1708089184;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=eKJ82vPXcJhVcWiq3JCOb2acWuelTsxZYE4afuOX0bQ=;
-	b=c3lzEHtiYmyO2W6ETcDL6qFf9/ERCXGr+Oe6h22NshUrpvo00RLRbwdEcgdvSq9xl/aWb2
-	9zKMpylx2lcD+3jhJe9Kv7rtOcwGcC+BMei3S82Tx2Sw8OcSR66/nfJJIHmlH/tw8cMPSu
-	fGUmKIDBnA2xn3fH/lPN6bYD+mD5QjY=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-148-SM58ncCqOUCJ-025XxnSVg-1; Fri, 16 Feb 2024 08:12:44 -0500
-X-MC-Unique: SM58ncCqOUCJ-025XxnSVg-1
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4120a19da9dso10563455e9.3
-        for <selinux@vger.kernel.org>; Fri, 16 Feb 2024 05:12:43 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708089162; x=1708693962;
-        h=content-transfer-encoding:in-reply-to:from:references:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=eKJ82vPXcJhVcWiq3JCOb2acWuelTsxZYE4afuOX0bQ=;
-        b=c6UAQlW4XRotiXrweXT/WenybRNPHw5P8xnyYCxr/WCi2ycMl8itWf1hbhe8tOcbYI
-         ni9jly1IC5ok0oMJq3kUezdFrrB4Ktdv5nq7yNhTRq6q4SkYRKPsHavJjRARswYr88Ma
-         Qon7TPEouYOSYcfX5bePZqpwHQTIu5T5STYG5W0fB5bvyCW/ZD5lpJIY6xI2fuDEe+dY
-         y6tsAROqPe0m+93lJOCLHC5ja4R25cWN+iq9OQxSyYQq+qZ7wCuplh9Y6/ZznRC9f7+G
-         IW9m2tn5XRdmMV+tkDrUYt5OpSyVW/jtxpxY2zfs4UerzHqrH42639XfPdHInRCWGJs5
-         DuRA==
-X-Forwarded-Encrypted: i=1; AJvYcCW+grOPFxzPkhk4bnZS97apw3FFVfbf8xmC0lP1NN+Z4XGFLKbivKj+XHExhRfPBgysknL/2B0vUkEXxR/qkAFUNwuq+Ymxkg==
-X-Gm-Message-State: AOJu0Yyn8JUphFacWdxJhaJNSkDD9lwIfvE+77GTwq+Hi7fQttThk4lQ
-	D45syo//mWglCTothnfVoAsB65TfboiYAiAKzHE9ySMrV2WWfBKqJcHL5OAqq7A6hnLM52oZ1cP
-	/WcG9+DIz2IZmEEUo4+X/qnRkhP6JYE0C4uczk1srObc3z3h00Ezdh5eddVXGJbE=
-X-Received: by 2002:a05:600c:a385:b0:40e:c06a:3ed5 with SMTP id hn5-20020a05600ca38500b0040ec06a3ed5mr3923381wmb.2.1708089162688;
-        Fri, 16 Feb 2024 05:12:42 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHZkUIXyY57ejO8zsh9mZZXy/5wdeOUObkQNLNxYgsDD5OKU6IFAxTlu50w0Neb1OOi7Q7e9w==
-X-Received: by 2002:a05:600c:a385:b0:40e:c06a:3ed5 with SMTP id hn5-20020a05600ca38500b0040ec06a3ed5mr3923359wmb.2.1708089162214;
-        Fri, 16 Feb 2024 05:12:42 -0800 (PST)
-Received: from [192.168.0.116] ([86.49.156.126])
-        by smtp.gmail.com with ESMTPSA id g17-20020a05600c4ed100b0040ecdd672fasm2388586wmq.13.2024.02.16.05.12.41
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 16 Feb 2024 05:12:41 -0800 (PST)
-Message-ID: <fcac920c-7bd1-476a-88dd-478b1f3992a1@redhat.com>
-Date: Fri, 16 Feb 2024 14:12:40 +0100
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="TSERdHjp";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="AD9iKjE/"
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41GKEUu7014707;
+	Fri, 16 Feb 2024 22:35:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : references : in-reply-to : content-type :
+ content-id : content-transfer-encoding : mime-version; s=corp-2023-11-20;
+ bh=cIJaD1+R9P0F5yXhNQaTbMgJV9BONgaOrTJLWGjKX2g=;
+ b=TSERdHjpKK/KSnU+C8LV2jvqT06G/v30NUVeSroKMRWX6H2OL3uK4fSRL3X6cJnXgcQS
+ pm2Bcirv3OHaUNAaCWda2I4dYgkdQTAHOxvxSAGa/2jbxbWvgRch9TqZH1SLjYS7jZIu
+ G5z3/Z+elAFKUFrvMy1EkmtCyby47eKDFX3iC++TbIW4S1dl/euEj7yzVx2DgxQxliBu
+ jdpUVjHwlUJnjLgxwG4QpUc+xeARUVnBvjbcSWCd9cTnuNHyKBl1ap2oKGchsfjZCJM3
+ uv77+RJwpEuvpzlfuwiNnoxZ5SDbQzyGqCPdBNvc5HTt+eQzhdcJwegG9ljk7+eDf7C8 Rw== 
+Received: from phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta03.appoci.oracle.com [138.1.37.129])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3w92s7693r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 16 Feb 2024 22:34:59 +0000
+Received: from pps.filterd (phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 41GKjWqY013876;
+	Fri, 16 Feb 2024 22:34:59 GMT
+Received: from nam02-bn1-obe.outbound.protection.outlook.com (mail-bn1nam02lp2041.outbound.protection.outlook.com [104.47.51.41])
+	by phxpaimrmta03.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3w6apfs9sa-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 16 Feb 2024 22:34:59 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=YujU1n1ktxlSByBGtrJc8rDP5qfa0WwewbckLpB15bXqquBw+YAknnkN6nWPDJqGs1SHtHX9/gGX1nrmW0ua4+g/Gdi3a3xuC/lTQoi+JoUtW5hZY72h24dfgVcDlmxe05KgQqovUzsphxauswl56wdQ3wcTP48cFmobBynmmYbD99CK4m5nLOQI0Ce3o7PM/T2NF67B5KnYQS1PfZVx3A0OkY0amLYpjNkUimP99frryNzRjCMdFX3MpXi61eUBaTgbhH5d7dvnq2nbFLZGpfrjIjixFKPUu84ue0yEA/aTzGJ0O2sIdPerUmddYLhmcMR+JVfeowLUnHHEsMr8GQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=cIJaD1+R9P0F5yXhNQaTbMgJV9BONgaOrTJLWGjKX2g=;
+ b=Pblh018GAGLhF0Iq8gjX/qwEogaSwVQ6zHXXddaPfloZgQZOHwal8M+ZaxRWLOKHv5k2lD3G2j6SalzACH93dL71hyP7d5XT4i6Ct794uFnc1gf6svnRuT3c/cxI85g4GUFQsXug+pMm64sYrt2BuVd8dvDVTzC2eJKbFt57FboIijZdDAqka88Qlc+WQKNARbbOHcpzu/C67OYgz9YoDqBErCmCsB8tkLSjHLkq75yMhOjTZv+608ExXNqHGIbz+u3ADMDgAr6uiHipIUAIoDcFlqUmRxUPma0QAUyWyxHcvagadHZMG1G0rhKowIHuGb949tL9rmIS00Hh32i8qw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=cIJaD1+R9P0F5yXhNQaTbMgJV9BONgaOrTJLWGjKX2g=;
+ b=AD9iKjE/rJ79mlXKW96z/Rap4gSEpN08xrUuP8fWFUDdt9iaQCIYAFSFFx6411JGKVlUHfKKqDHJvunK2rS9fSVo2NQK7NIr294x8OD0HIfy+Gau+TN0st8ky+RJ0b+mfsB5d8cHFv/10/p08rigXjO3m9JJZq6nmA9KRjKfhq4=
+Received: from CH2PR10MB4150.namprd10.prod.outlook.com (2603:10b6:610:ac::13)
+ by SJ2PR10MB7016.namprd10.prod.outlook.com (2603:10b6:a03:4cf::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.31; Fri, 16 Feb
+ 2024 22:34:55 +0000
+Received: from CH2PR10MB4150.namprd10.prod.outlook.com
+ ([fe80::9ade:bfad:c78e:e1f9]) by CH2PR10MB4150.namprd10.prod.outlook.com
+ ([fe80::9ade:bfad:c78e:e1f9%7]) with mapi id 15.20.7292.029; Fri, 16 Feb 2024
+ 22:34:55 +0000
+From: Eric Snowberg <eric.snowberg@oracle.com>
+To: Roberto Sassu <roberto.sassu@huaweicloud.com>
+CC: "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
+        Christian Brauner
+	<brauner@kernel.org>, "jack@suse.cz" <jack@suse.cz>,
+        Chuck Lever III
+	<chuck.lever@oracle.com>,
+        Jeff Layton <jlayton@kernel.org>, "neilb@suse.de"
+	<neilb@suse.de>,
+        "kolga@netapp.com" <kolga@netapp.com>, Dai Ngo
+	<dai.ngo@oracle.com>,
+        "tom@talpey.com" <tom@talpey.com>,
+        "paul@paul-moore.com" <paul@paul-moore.com>,
+        "jmorris@namei.org"
+	<jmorris@namei.org>,
+        "serge@hallyn.com" <serge@hallyn.com>,
+        "zohar@linux.ibm.com" <zohar@linux.ibm.com>,
+        "dmitry.kasatkin@gmail.com"
+	<dmitry.kasatkin@gmail.com>,
+        "dhowells@redhat.com" <dhowells@redhat.com>,
+        "jarkko@kernel.org" <jarkko@kernel.org>,
+        "stephen.smalley.work@gmail.com"
+	<stephen.smalley.work@gmail.com>,
+        "omosnace@redhat.com"
+	<omosnace@redhat.com>,
+        "casey@schaufler-ca.com" <casey@schaufler-ca.com>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "mic@digikod.net" <mic@digikod.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org"
+	<linux-security-module@vger.kernel.org>,
+        "linux-integrity@vger.kernel.org"
+	<linux-integrity@vger.kernel.org>,
+        "keyrings@vger.kernel.org"
+	<keyrings@vger.kernel.org>,
+        "selinux@vger.kernel.org"
+	<selinux@vger.kernel.org>,
+        "linux-kselftest@vger.kernel.org"
+	<linux-kselftest@vger.kernel.org>,
+        Roberto Sassu <roberto.sassu@huawei.com>
+Subject: Re: [PATCH v10 00/25] security: Move IMA and EVM to the LSM
+ infrastructure
+Thread-Topic: [PATCH v10 00/25] security: Move IMA and EVM to the LSM
+ infrastructure
+Thread-Index: AQHaX/o17zz0uZ0bUEuo4nwd69V4MLENkLgA
+Date: Fri, 16 Feb 2024 22:34:55 +0000
+Message-ID: <CF351A03-7B5C-4796-B597-535DF17CFD32@oracle.com>
+References: <20240215103113.2369171-1-roberto.sassu@huaweicloud.com>
+In-Reply-To: <20240215103113.2369171-1-roberto.sassu@huaweicloud.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: Apple Mail (2.3774.400.31)
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: CH2PR10MB4150:EE_|SJ2PR10MB7016:EE_
+x-ms-office365-filtering-correlation-id: a769e208-c31b-4b9c-d047-08dc2f3f800d
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 
+ Y6BuVC2qS+jeWJ7omycQrzi1jh6bBj3Dd7KhxvuhBmb2NPL2gAe1GdvAr42qFuW/U0410XcoxObtyA1utn/IbFVjcUzXH4xTY+809fk2fsUYV+fs45GX6o9057NEaIOd4eiMXzR7Wiv8VgRS/6vNBT8CJln02yKOBiZ08WfkW9M4Y9l+1fBY3ER9+3WncjJapr5UniitGH836Jk1EMRwHfTMQNc+tygF3P+lkxaqlzLZOorI4vmbEYvmuRy9c3G8JHjEEP19drpAv74E8J2ez+FUFgLSbGUZcbxKDIfPPB46Tx9+S7gZdhbxuiWihMB7k0hOLl4Efkd1oa4brJkp3CauaRkiW0mZ4RuW9f6bE7Wi+rYGGjatH8oj3rpNQP3XFmaz6+V8QI97k+L3jAXlW7UD3SUhbch4quNaBUbBxESN67itqrn6BP+Zb8Cm+beedyboQBsXbC+KL5Qif7aGpNa/hZwNWb1mW7qDQC0rECEf3n5n7SWOCnfPl0oZcfatiIxClF6HHv76LB3LhYSR+t+toZLvA1q/PhvRmDReC96c8YkRf6epelZfez3FBujGLUD/Y6vWu4bEwUtcauICYnwRSY7i3gXhTBUc+BoOR27u0+A7D4U8sQWkhaXy+Xc+
+x-forefront-antispam-report: 
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH2PR10MB4150.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(39860400002)(136003)(396003)(366004)(376002)(346002)(230922051799003)(186009)(1800799012)(451199024)(64100799003)(44832011)(4744005)(5660300002)(7416002)(76116006)(6916009)(66946007)(4326008)(66556008)(66446008)(64756008)(66476007)(8936002)(8676002)(316002)(2906002)(38070700009)(33656002)(122000001)(86362001)(26005)(6512007)(36756003)(71200400001)(6486002)(54906003)(38100700002)(6506007)(41300700001)(2616005)(53546011)(478600001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: 
+ =?utf-8?B?MkZGRzdyQW1oeENJMDdTNnUraG9laHFnNm5VNWhLNjVSYUlYZmZjMnhodmlH?=
+ =?utf-8?B?WWZVbjNhUTJpcmY4TGFDd1J1T1RTbzRYRlljTWdkOHp6dTUwL09RKzBzYkdD?=
+ =?utf-8?B?UlJpQ0diaU05YnljNUtkbW5NQzBDMnlPa1B2b1A5dXVVWk91Y3EwbFBZTVFK?=
+ =?utf-8?B?Z0RsL3pTNW1zTVpOdWdacWRQYmZvVkZwVTVaZ24rNXBCTzRWek5rdnlsMW5q?=
+ =?utf-8?B?TXFDVUFLakRocW1PendKZk02MkhsQTRKRS9vTmZZc1BFZEJiVklLVkdWSktt?=
+ =?utf-8?B?N0o4NS8vckZrYkJSemhkaFp4N0NNQnVWUGpFQlpNMDBGOEg3SVJ1cHhLN1ZI?=
+ =?utf-8?B?b1ZWeG85QWlpdzJyU3IvOHl4TXNKUXJxRThYOTRTNzNDU2dxUUhwTnRYODJr?=
+ =?utf-8?B?NlVCVkRBQ0grQ2pEUEV4MXprWkVwbGgvVUdQcGJVYnJBWmhGOXFtaU1ubjFn?=
+ =?utf-8?B?SVlIc2llZWk0bE1lNVRNcFRsYlloSHMvN0dQSXMvaTVSNDVrejdtVTZmaU0x?=
+ =?utf-8?B?WTFUNi9FL2hHQVlRaTRieDE3OTFSNG5ibFMvK25yREdQYUNxZmNXR1psNXc5?=
+ =?utf-8?B?citaajd3Ym1oVkl0OG1qZnh0Vzc0QlN3aCtMb1BxWFAwOStyY0k1dkNpdHo3?=
+ =?utf-8?B?U3dkMXJlVGlmTDRWR2F0MTFaWG1kQzRlVFplQVY5VzczUGhCVlV0enFWR1pu?=
+ =?utf-8?B?R0hFTlg1WVNuRVNwcFpIUGx2S3M2elpEd2dQQTRNc0lrWmh4UDg3SEJ4LzZJ?=
+ =?utf-8?B?QXlRMFdPbUhMdXhQTE9oOFhmSEFQSlJrdVowSkxDRGhnTUFWUlFXa2hqQTdy?=
+ =?utf-8?B?bDYyUEtzcExtK3JDMEEzWmJYSERkbW9JZkplSDFMdTZBV3MwRTNvYlVPRmdl?=
+ =?utf-8?B?Z3gzQitRNGI5TjZzem53MjlMaGNnRkt2UjVSUVJ2VWREVlhYQXZvc2YwMHcy?=
+ =?utf-8?B?UGd6TzNMWkxOLzM2bmp6S3JGVVlrK0ZRYzZucjlHSEJLd3BYM3ZtRXJxNUEx?=
+ =?utf-8?B?RzBFQXVlQm9tRTdRY2s5RzFPdFNsYXRBRTlrd2plUlNjRUJxbGIyeTFtRmFo?=
+ =?utf-8?B?U3I0eFFXUXMyaVdtZDU0VXp4emM5dFE4am1maGZueDJ0Z1c1NUFFNVhpUmww?=
+ =?utf-8?B?VDdoL3oyaDliRHJZTGd6VU1ZNlhndEYzdkEwNDFCbllINVJuRyt6T0pSL1dY?=
+ =?utf-8?B?MWF5U2VuRS8yUEcvRWdkblg3NERNY29qeGhvSldlOHZUZm55ZlllZkNUam5w?=
+ =?utf-8?B?Q3hmeE9rVlBmZWpGcTFNWXA1cTNPTW9OVFI3U0Q4THd1a3RXcXJzMGVSalpS?=
+ =?utf-8?B?NElHTGR5VWdDSHZkRW81NE1lSGoyN0dLYjhXSmFFNmk4MndnVmlxSzRqVTgr?=
+ =?utf-8?B?MGxPV1lKc2NNTjV0eDJUVDZRNDBWQngrQ3FSTmU3aFp1RDc4R1oxM011Y2Fk?=
+ =?utf-8?B?LzUxU3owNVNpaE1XSTl0cFdmdy80Zm9Bc1gvTWw4WkRaOUQ5cVdXVDUxREh0?=
+ =?utf-8?B?TlFvZnhxQkJJUkYvL0huWE9SWkU4dFFtY2hzbWRlbk1WRWxlSm4xRExPU3Vt?=
+ =?utf-8?B?Zi9nNGgvL2MwNEF4azA2U01MRS9DeXlvdDNpaENxYkNiUXZXbkl2elRxSUJk?=
+ =?utf-8?B?U25yVEZJdWZ1U2FpMEJMdmFXdXdaOEdJdUtBSlNJRnZadlBHWHJGUkdqYmY2?=
+ =?utf-8?B?cTdlUE4yQTF2OXFxWGpTQmNtY3hJbTVRbytXNmIwY3ZwaW1iRnZnQU4vWXNh?=
+ =?utf-8?B?OFNYdzN0aXZkM2FmMHY5VER5QzNGSDhObGx6aXlodWwrTG0wNitrWEVDQ3RM?=
+ =?utf-8?B?WThNamVpMU1OUWJqalMvOWR3RXVwdzg3NTdnUzM3aFltZFJtczE1TldYRTVq?=
+ =?utf-8?B?VGF0RjBtQ1NyOGNsSUdJeHN2ZkR1Yklnc0FsSFQ0ZHFiMWhBcncyVHNIU3Nu?=
+ =?utf-8?B?QmdmNzVzb0wrc3RPb1Q4MndhbytFMTFvYXNweFZXdFdSNlhGcFhwbDNkN3ZE?=
+ =?utf-8?B?YkZqYXlrVVkwM0J4ZFZmSTdmTzFKcUp4bXdDZjVEQXNOV00ybjQzaG4zdUFT?=
+ =?utf-8?B?bnBwNS9XUlB3UHdwbUlUOGlhaStZSnh0TDJiZXhCVEovSlU1REljSlZEbzcr?=
+ =?utf-8?B?ZWpxRGlwcUJuU0NuaWQyT04vL1hsc2F4dFg4WCtHUGdNN2tUMXRiZEVzdytN?=
+ =?utf-8?B?ckE9PQ==?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <FA53A82EA4A8194197AAA8835E08ADE8@namprd10.prod.outlook.com>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] python/semanage: Do not sort local fcontext definitions
-Content-Language: en-US
-To: Petr Lautrbach <lautrbach@redhat.com>, selinux@vger.kernel.org
-References: <20240207150003.174701-1-vmojzis@redhat.com>
- <87zfw3dl6k.fsf@redhat.com>
-From: Vit Mojzis <vmojzis@redhat.com>
-In-Reply-To: <87zfw3dl6k.fsf@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 
+	JC1/bcCRtYE2Cz5MoNck83/fLirH/VpOrKHKy8EeiCpiX4xdCYnaKGCSR2EbcQC7rlf0el9CiAHYkf6DKbJvBfZ6SSKvEEjUWGzaf559ItVmfkEiLMn1US/3RgpSDxpaEIFRzVBabyj7ybH9DGM4oUk7T6/ikH13sO2teptYW9WuSmzKCJVLUA6KZtFHPVU2GSvoR3GGDQQERr1LCwOlKZdjfpE4/TrN0m77QWYd3gH2KDfmD3xQOyhmI2Swpo40V/OuWeaEZbKVJAEi11eYzLrj1j+czhRK6s8EnjTGFJJUhBAs/Lmm8FT64B6+hgTkes5qaa1+v+zdN+EE+Bg5NPTs1rROjC19XwH4X3ZtrvMXeDgR66hBJp+8cQYqcnMTbuSU7JUOrBvO+I8KnSOMRbGRvFqhMLm9LjHNZsFxyXfXzqh9tgotvS7j7c4gJCfpHnboEsHcq2rNMldYVOcx8wAwyMXncN9DS8GQKBKwp3hmdqiEsppkg1qxDjv82khGIyTuRVfiQzfMLjc8tcPUrd09IXourTeVhwV5xtNAA6gJ6mPw3UKOxbPxoNdGBNB1EOphfbEPWjHzBco9bwHtei5nCsxR4BdXI/wefYZknG0=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CH2PR10MB4150.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a769e208-c31b-4b9c-d047-08dc2f3f800d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Feb 2024 22:34:55.7258
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: TN4Cc8+k93vqbNlK3ezbaWNMNqboqTeC1AEZeRrPSG8texoRmPWoG539LMTBhATZtViOzVvE5jHbWU8QLgp1klNfCqRQT4tAE/KLor9SFUc=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR10MB7016
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-16_22,2024-02-16_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 adultscore=0
+ suspectscore=0 mlxscore=0 phishscore=0 bulkscore=0 malwarescore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402160178
+X-Proofpoint-GUID: KeDUHV_WteXHfEUoTJI4tmc6j5vU_uiP
+X-Proofpoint-ORIG-GUID: KeDUHV_WteXHfEUoTJI4tmc6j5vU_uiP
 
-On 2/14/24 18:12, Petr Lautrbach wrote:
-> Vit Mojzis <vmojzis@redhat.com> writes:
-> 
->> Entries in file_contexts.local are processed from the most recent one to
->> the oldest, with first match being used. Therefore it is important to
->> preserve their order when listing (semanage fcontext -lC) and exporting
->> (semanage export).
->>
->> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
->>
-> 
-> I think it's good approach. I just hit the following ui issue:
-> 
-> 
-> [root@localhost ~]# semanage fcontext -a -t httpd_sys_content_t '/opt/selinux_testing(/.*)?'
-> [root@localhost ~]# semanage fcontext -a -t httpd_sys_content_rw_t '/opt/selinux_testing/webroot(/.*)?'
-> [root@localhost ~]# semanage fcontext -a -t httpd_log_t '/opt/selinux_testing/logs(/.*)?'
-> [root@localhost ~]# semanage fcontext -l -C
-> SELinux fcontext                                   type               Context
-> 
-> /opt/selinux_testing(/.*)?                         all files          system_u:object_r:httpd_sys_content_t:s0
-> /opt/selinux_testing/webroot(/.*)?                 all files          system_u:object_r:httpd_sys_rw_content_t:s0
-> /opt/selinux_testing/logs(/.*)?                    all files          system_u:object_r:httpd_log_t:s0
-> 
-> [root@localhost ~]# matchpathcon /opt/selinux_testing/logs /opt/selinux_testing/webroot/
-> /opt/selinux_testing/logs       system_u:object_r:httpd_log_t:s0
-> /opt/selinux_testing/webroot    system_u:object_r:httpd_sys_rw_content_t:s0
-> 
-> 
-> If it's first match, I'd expect that both would be matched with
-> '/opt/selinux_testing(/.*)?' -> httpd_sys_content_ >
-> 
-> 
-> [root@localhost ~]# semanage fcontext -d '/opt/selinux_testing(/.*)?'
-> [root@localhost ~]# semanage fcontext -a -t httpd_sys_content_t '/opt/selinux_testing(/.*)?'
-> [root@localhost ~]# semanage fcontext -l -C
-> SELinux fcontext                                   type               Context
-> 
-> /opt/selinux_testing/webroot(/.*)?                 all files          system_u:object_r:httpd_sys_rw_content_t:s0
-> /opt/selinux_testing/logs(/.*)?                    all files          system_u:object_r:httpd_log_t:s0
-> /opt/selinux_testing(/.*)?                         all files          system_u:object_r:httpd_sys_content_t:s0
-> 
-> [root@localhost ~]# matchpathcon /opt/selinux_testing/logs /opt/selinux_testing/webroot/
-> /opt/selinux_testing/logs       system_u:object_r:httpd_sys_content_t:s0
-> /opt/selinux_testing/webroot    system_u:object_r:httpd_sys_content_t:s0
-> 
-> And here it looks like it should match webroot, resp logs.
-> 
-> 
-> So it's first match but from bottom to top. It kind of make sense as the
-> last added item is at bottom. OTOH people generally reads from top to
-> bottom.
-> 
-> What do you think?
-
-To me it makes more sense to leave it as is, since the fist added item 
-is at the top (same as file_contexts.local file).
-The man page also says that entries are processed from the most recent 
-one to the oldest, so you should read them from the bottom up.
-
-But I'm happy to reverse the order if you feel it will be more intuitive 
-for users.
-
-Vit
-
-> 
-> 
-> 
-> 
-> 
->> ---
->> Not sure if this is the best solution since the local file context
->> customizations are still sorted in the output of "semanage fcontext -l".
->> Adding a new section for "Local file context changes" would make it
->> clear that such changes are treated differently, but it would make it
->> harder to find context definitions affecting specific path.
->> The most important part of this patch is the change to "customized"
->> since that stops "semanage export | semanage import" from reordering the
->> local customizations.
->>
->> Note: The order of dictionary.keys() is only guaranteed in python 3.6+.
->>
->> Note2: The change to fcontextPage can only be seen when the user
->> disables ordering by "File specification" column, which is enabled by
->> defalut.
->>
->>   gui/fcontextPage.py         | 6 +++++-
->>   python/semanage/seobject.py | 9 +++++++--
->>   2 files changed, 12 insertions(+), 3 deletions(-)
->>
->> diff --git a/gui/fcontextPage.py b/gui/fcontextPage.py
->> index 767664f2..c88df580 100644
->> --- a/gui/fcontextPage.py
->> +++ b/gui/fcontextPage.py
->> @@ -133,7 +133,11 @@ class fcontextPage(semanagePage):
->>           self.fcontext = seobject.fcontextRecords()
->>           self.store.clear()
->>           fcon_dict = self.fcontext.get_all(self.local)
->> -        for k in sorted(fcon_dict.keys()):
->> +        if self.local:
->> +            fkeys = fcon_dict.keys()
->> +        else:
->> +            fkeys = sorted(fcon_dict.keys())
->> +        for k in fkeys:
->>               if not self.match(fcon_dict, k, filter):
->>                   continue
->>               iter = self.store.append()
->> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
->> index dfb15b1d..25ec4315 100644
->> --- a/python/semanage/seobject.py
->> +++ b/python/semanage/seobject.py
->> @@ -2735,7 +2735,7 @@ class fcontextRecords(semanageRecords):
->>       def customized(self):
->>           l = []
->>           fcon_dict = self.get_all(True)
->> -        for k in sorted(fcon_dict.keys()):
->> +        for k in fcon_dict.keys():
->>               if fcon_dict[k]:
->>                   if fcon_dict[k][3]:
->>                       l.append("-a -f %s -t %s -r '%s' '%s'" % (file_type_str_to_option[k[1]], fcon_dict[k][2], fcon_dict[k][3], k[0]))
->> @@ -2752,7 +2752,12 @@ class fcontextRecords(semanageRecords):
->>           if len(fcon_dict) != 0:
->>               if heading:
->>                   print("%-50s %-18s %s\n" % (_("SELinux fcontext"), _("type"), _("Context")))
->> -            for k in sorted(fcon_dict.keys()):
->> +            # do not sort local customizations since they are evaluated based on the order they where added in
->> +            if locallist:
->> +                fkeys = fcon_dict.keys()
->> +            else:
->> +                fkeys = sorted(fcon_dict.keys())
->> +            for k in fkeys:
->>                   if fcon_dict[k]:
->>                       if is_mls_enabled:
->>                           print("%-50s %-18s %s:%s:%s:%s " % (k[0], k[1], fcon_dict[k][0], fcon_dict[k][1], fcon_dict[k][2], translate(fcon_dict[k][3], False)))
->> -- 
->> 2.43.0
-> 
-
+DQoNCj4gT24gRmViIDE1LCAyMDI0LCBhdCAzOjMw4oCvQU0sIFJvYmVydG8gU2Fzc3UgPHJvYmVy
+dG8uc2Fzc3VAaHVhd2VpY2xvdWQuY29tPiB3cm90ZToNCj4gDQo+IEZyb206IFJvYmVydG8gU2Fz
+c3UgPHJvYmVydG8uc2Fzc3VAaHVhd2VpLmNvbT4NCj4gDQo+IFRoZSBwYXRjaCBzZXQgYXBwbGll
+cyBvbiB0b3Agb2YgbHNtL25leHQsIGNvbW1pdCA5NzI4MGZhMWVkOTQgKCJBdXRvbWF0ZWQNCj4g
+bWVyZ2Ugb2YgJ2RldicgaW50byAnbmV4dCciKS4NCg0KSSBoYXZlIHRlc3RlZCB0aGUgaW1hIGFw
+cHJhaXNhbCBwb3J0aW9uIGFuZCBoYXZlIG5vdCBvYnNlcnZlZCBhbnkgcmVncmVzc2lvbnMgd2l0
+aA0KdGhpcyBzZXJpZXMuICBGb3IgdGhhdCBwYXJ0IG9mIHRoZSBjb2RlLCBpZiB5b3Ugd2FudCwg
+ZmVlbCBmcmVlIHRvIGFkZDoNCg0KVGVzdGVkLWJ5OiBFcmljIFNub3diZXJnIDxlcmljLnNub3di
+ZXJnQG9yYWNsZS5jb20+DQoNCg==
