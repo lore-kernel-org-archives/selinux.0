@@ -1,288 +1,788 @@
-Received: from smtp-relay-canonical-1.canonical.com (smtp-relay-canonical-1.canonical.com [185.125.188.121])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7337115C0
-	for <selinux@vger.kernel.org>; Sun, 18 Feb 2024 03:08:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.121
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 422AC1DFF2
+	for <selinux@vger.kernel.org>; Sun, 18 Feb 2024 20:52:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708225708; cv=none; b=PxqCsT2VBzTDOpy0xnzmlZcPNDmRDPZv7fxHDOSCTV1SUm7ogT51QcFIx3fNAVPbvv1LJc9Fwi2rhEzZerHwOikxI+NAblwW8I8s0ZkDcrGX4Re5iKy4Ct5vMMg1NEu5j7akzK2crlgQr/gI+aEecrKISgHbmQKiAogaJmnED1A=
+	t=1708289553; cv=none; b=WvmGB2sWs/6QYw8/DETESxuYpj56PcNhp+Tu3zXbCaJv+UOQB7VSQyG7aa74UVEIyKqhjM23JH+KAIEUzaYRBsD+hK9wF2P6zYWU/xxyxoHvTgNE5p1mVbe8iQ4FaCRROkr8ylh+4Ne+WqJz8txhIutrBMGS0kQxNaPl1RlUQt4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708225708; c=relaxed/simple;
-	bh=mS4De8VlLBQ0BP3Va/kEJkQONCO5/Dwit8HsxxmJ9Gw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=swDZ5tix0CJptxRsI1/n9Ig+JpPWsuR+xCFZSaJE4cOwhzYTxGvnvmLhRS02NcjSw1W8RVYkLnf8b9alWVcL2hZlrsoC9qkyVaZmPDsnMK45tl6bL9FwRKdZuhrUJLXv3Q/w8DOhyiMTwnMPSTEfpVi1DFHQTpiEhgcW2dAlses=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=oCeEHcKy; arc=none smtp.client-ip=185.125.188.121
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
+	s=arc-20240116; t=1708289553; c=relaxed/simple;
+	bh=TcUIvtdKq8AQTubq2wazMe6nfPEdjSO2RAo2BMiDubU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QBNXhkHfCKk6tf761w0derIoPAxQhTi1h2gSCUSdxkSGYer6XJPVlqLzwfRev7fVESdkFSwI6hPd2+H62H+oM5bWq2gLvtiA3b8sq99NAHvEZ7QOD/mBeQEszzk9fhNCeC/UBLyE6nfu77idLKOQQn8+4DTPN2qRFiuj84zFh2E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i2usCuTB; arc=none smtp.client-ip=209.85.167.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="oCeEHcKy"
-Received: from homer.dodds.net (1.general.vorlon.us.vpn [10.172.64.74])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id B799840EB1;
-	Sun, 18 Feb 2024 03:08:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1708225697;
-	bh=VqytLV67zEiewsFfN9/6ylOxkjo6b26a/R3GnH8ViVc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:In-Reply-To;
-	b=oCeEHcKyG9w3Lde2GAe/BMZv9kPw+8UASiP8ovOXvGFKfHt1+Kc5bNgETRxLanEUY
-	 BUau39IWHdXVu211LI9p5x1QCGaxtl0Mb8sBsC6/HkvukXqzV90snRTF+Z+8DyYd3+
-	 xVTfCfj1yMU1T53Se9GkIl2y9QV+HlJiuXqY8bfHoSWU80ihnT8HncZ4FYx461n3SX
-	 j/J3QpER+lnPSSFiG4sriQMYLsLpqrS5AgLaUMHH9IZC+5rkRtWjQ+JqKpd4tKwy1S
-	 VDFLxwX/3K7pEWZUFavhlgQxPc78Zp4+yreMxo6d0kGykF+DT/Sx+s0bZFbWaXkdxv
-	 ks8ekb+GcQlbg==
-Received: by homer.dodds.net (Postfix, from userid 1000)
-	id B0AF21104; Sat, 17 Feb 2024 19:08:14 -0800 (PST)
-Date: Sat, 17 Feb 2024 19:08:14 -0800
-From: Steve Langasek <steve.langasek@canonical.com>
-To: Kees Cook <keescook@chromium.org>
-Cc: selinux@vger.kernel.org
-Subject: Re: [PATCH] Always build for LFS mode on 32-bit archs.
-Message-ID: <ZdF0no51QNtKq8Ri@homer.dodds.net>
-References: <20240216003252.29057-1-steve.langasek@canonical.com>
- <Zc6tzKPsYZRICHya@homer.dodds.net>
- <202402171351.439742DA@keescook>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i2usCuTB"
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-512b25893c9so377045e87.3
+        for <selinux@vger.kernel.org>; Sun, 18 Feb 2024 12:52:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1708289548; x=1708894348; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=7v/RV1WuO+ShKQROXaIo9DWTPIN8A7TZfclNntCeggE=;
+        b=i2usCuTBmItWEIwEcnEGdNNTKEV9lbByjbRbeQT1OFwyJx8fbGJpU6m3sp+l29ygy4
+         u0ID9eG2/borO0c9rLT3fNqBgJ2UNK6LeRU906KqoWKQRlRO7QzPx8zRe2L0tUh9RhLy
+         Kgt2+hqPZrnrhLAja7oDrNDMFjubwByFA6Pi1IFtfX0hx5q1K+eGndRjG8gmhASuP+pz
+         YEVHedLHq+1eJ3nyqWTikY91ArBt1fEG9W9KPU7yfe3Ze+90Vn7kBh8NzRYL9r1GsdyA
+         p+DdOuTzlxcP7l69riIE8l8oGKVetRmWq7hKJWN03UfwLhMX/Ao3tdPZBPonXm1CbYS+
+         X9AQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708289548; x=1708894348;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=7v/RV1WuO+ShKQROXaIo9DWTPIN8A7TZfclNntCeggE=;
+        b=jpP4bmNEUYPD+BuTzm37yuKU+tf2D/6zX/EzsJXrXZkyVM2nIAXqV7nvKncR4+MjHX
+         8eVOLg2ATU7IctdxLT8Wv3uO28vkI85WDs8+LCA1nlYUerqmwsam8gc8JKdk+eT9EMW/
+         HN1jDJH+lnXIm3abMC7RKpxTmyeccFXqQp06YcIPSXNSpFdqsTT+a6nC7HmBBl9DKD44
+         z11HfarSUYsb4MGGEMuPHllx4lyY4J/0NbAXFEB2nzrAc25dm+Fsk25Edxnvl6H4olhO
+         i53St2NBgT4owdGu893bu7+2awmeIXoeQhe0KG77ZEg/P74KOrmrUog0nh7tBum4lIN6
+         viww==
+X-Gm-Message-State: AOJu0Yx4isUDVxCgigbXcLPYkgbS93Upxn3OihKabkdeYLx1HjhE5Bi6
+	xLWAEAT9HTkz17bYjYXjWfO51/BimRRb9F2B2UVesi7xr8uCW86xTqVq6WJE
+X-Google-Smtp-Source: AGHT+IFn3fIAqXIv2CAsw3XSDcvbXi3kPRS2CsHQ+JsUWSDRKt6IhM9McHV0ZD3OHvlJZtv1Mo+p2Q==
+X-Received: by 2002:a05:6512:445:b0:512:b318:c1fd with SMTP id y5-20020a056512044500b00512b318c1fdmr800642lfk.54.1708289547295;
+        Sun, 18 Feb 2024 12:52:27 -0800 (PST)
+Received: from localhost.localdomain (85-156-69-24.elisa-laajakaista.fi. [85.156.69.24])
+        by smtp.gmail.com with ESMTPSA id j7-20020a05651231c700b00512a5e9fa69sm558059lfe.64.2024.02.18.12.52.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 18 Feb 2024 12:52:27 -0800 (PST)
+From: Topi Miettinen <toiwoton@gmail.com>
+To: selinux@vger.kernel.org
+Cc: Topi Miettinen <toiwoton@gmail.com>
+Subject: [PATCH PR#420] audit2allow: CIL output mode
+Date: Sun, 18 Feb 2024 22:51:31 +0200
+Message-ID: <20240218205130.92063-2-toiwoton@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="rDYyGtdsdJaCalvT"
-Content-Disposition: inline
-In-Reply-To: <202402171351.439742DA@keescook>
+Content-Transfer-Encoding: 8bit
 
+New flag -C for audit2allow sets output format to CIL instead of
+Policy Language.
 
---rDYyGtdsdJaCalvT
-Content-Type: multipart/mixed; boundary="AdWj9Bovr3+GiSIj"
-Content-Disposition: inline
+Example:
+;============= mozilla_t ==============
 
+;!!!! This avc is allowed in the current policy
+(allow mozilla_t user_sudo_t (fd (use)))
 
---AdWj9Bovr3+GiSIj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+;============= user_t ==============
 
-Hi Kees,
+;!!!! This avc can be allowed using the boolean 'allow_execmem'
+(allow user_t self (process (execmem)))
+(allow user_t chromium_t (process (noatsecure rlimitinh siginh)))
 
-On Sat, Feb 17, 2024 at 01:54:14PM -0800, Kees Cook wrote:
-> On Thu, Feb 15, 2024 at 04:35:24PM -0800, Steve Langasek wrote:
-> > index a0948853..78953870 100644
-> > --- a/libselinux/include/selinux/selinux.h
-> > +++ b/libselinux/include/selinux/selinux.h
-> > @@ -1,6 +1,7 @@
-> >  #ifndef _SELINUX_H_
-> >  #define _SELINUX_H_
-> > =20
-> > +#include <stdint.h>
-> >  #include <sys/types.h>
-> >  #include <stdarg.h>
-> > =20
-> > @@ -521,7 +522,11 @@ extern int matchpathcon_index(const char *path,
-> >     with the same inode (e.g. due to multiple hard links).  If so, then
-> >     use the latter of the two specifications based on their order in th=
-e=20
-> >     file contexts configuration.  Return the used specification index. =
-*/
-> > -extern int matchpathcon_filespec_add(ino_t ino, int specind, const cha=
-r *file);
-> > +typedef uint64_t libselinux_ino_t;
-> > +#if _FILE_OFFSET_BITS =3D=3D 64 && __BITS_PER_LONG < 64
-> > +#define matchpathcon_filespec_add matchpathcon_filespec_add64
-> > +#endif
-> > +extern int matchpathcon_filespec_add(libselinux_ino_t ino, int specind=
-, const char *file);
+;!!!! This avc is a constraint violation.  You would need to modify the attributes of either the source or target types to allow this access.
+;Constraint rule:
+;       constrain dir { ioctl read write create getattr setattr lock relabelfrom relabelto append map unlink link rename execute quotaon mounton audit_access open execmod watch watch_mount watch_sb watch_with_perm watch_reads add_name remove_name reparent search rmdir } ((u1 == u2 -Fail-)  or (u1 == system_u -Fail-)  or (u1 == unconfined_u -Fail-)  or (u1 == sysadm_u -Fail-)  or (u2 == system_u -Fail-)  or (t1 != ubac_constrained_type -Fail-)  or (t2 != ubac_constrained_type -Fail-)  or (t1 == ubacfile -Fail-) ); Constraint DENIED
 
-> What's the ABI goal here? I think the type is wrong -- doesn't this need
-> to be uint32_t not a uint64_t for the wrapper?
+;       Possible cause is the source user (user_u) and target user (sysadm_u) are different.
+(allow user_t user_home_dir_t (dir (getattr relabelto)))
 
-Thanks for the review!  The intent is that there are 3 cases:
-
-- on 64-bit archs, matchpathcon_filespec_add64() is not defined because the
-  ino_t passed to matchpathcon_filespec_add() is already 64-bit
-- on 32-bit archs when LFS support is defined, references to
-  matchpathcon_filespec_add() will be rewritten to
-  matchpathcon_filespec_add64() because the ino_t argument passed to _add()
-  is* 32-bit
-- on 32-bit archs when LFS support is not defined, the existing
-  matchpathcon_filespec_add() entry point should be used as-is.
-
-And in the process of articulating this, I've come to recognize there was a
-bug here, because in the case where our arch is 32-bit and our caller is NOT
-being invoked with LFS build flags, we are exposing the previous
-matchpathcon_filespec_add() but have wrongly modified the prototype here to
-take a 64-bit ino_t.
-
-I believe the attached revised patch corrects this.
-
---=20
-Steve Langasek                   Give me a lever long enough and a Free OS
-Debian Developer                   to set it on, and I can move the world.
-Ubuntu Developer                                   https://www.debian.org/
-slangasek@ubuntu.com                                     vorlon@debian.org
-
-* may be.  There are some 32-bit archs defined in glibc/Linux that do not
-  treat 32-bit time_t as an option and AIUI thus also have 64-bit ino_t; in
-  which case the additional entry point is unnecessary but also of
-  low impact.
-
---AdWj9Bovr3+GiSIj
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0001-Always-build-for-LFS-mode-on-32-bit-archs.patch"
-Content-Transfer-Encoding: quoted-printable
-
-=46rom b23c9044b542b8807f57f4691f4bd1149cbee04c Mon Sep 17 00:00:00 2001
-=46rom: Steve Langasek <steve.langasek@canonical.com>
-Date: Thu, 15 Feb 2024 15:22:45 -0800
-Subject: [PATCH] Always build for LFS mode on 32-bit archs.
-
-Maintains the type signature of the existing matchpathcon_filespec_add()
-entry point on 32-bit archs but maps the API to a new
-matchpathcon_filespec_add64() entry point that takes a 64-bit ino_t argument
-instead.
-
-Software on 32-bit Linux ports which historically use a 32-bit time_t (thus
-affected by the y2038 problem) have, as a precondition of migrating to
-64-bit time_t, that they also migrate to large filesystem support because
-glibc does not provide entry points for the cross-product of
-(LFS: yes, LFS: no) x (time_t: 32, time_t: 64).
-
-In order to support smooth migration of such operating systems from 32-bit
-time_t to 64-bit time_t, it is useful for libselinux to:
-
-- provide entry points on 32-bit systems for both LFS and non-LFS variants
-  of the API (as glibc itself does)
-- use LFS internally for all filesystem calls (just in case)
-- map the API call to the correct implementation based on the build
-  environment of the caller.
-
-Signed-off-by: Steve Langasek <steve.langasek@canonical.com>
+Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
 ---
- libselinux/include/selinux/selinux.h | 11 ++++++++++-
- libselinux/src/Makefile              |  1 +
- libselinux/src/libselinux.map        |  1 +
- libselinux/src/matchpathcon.c        | 15 ++++++++++++++-
- 4 files changed, 26 insertions(+), 2 deletions(-)
+ python/audit2allow/audit2allow            |  14 +-
+ python/audit2allow/audit2allow.1          |   3 +
+ python/sepolgen/src/sepolgen/output.py    |   5 +
+ python/sepolgen/src/sepolgen/policygen.py |  29 ++-
+ python/sepolgen/src/sepolgen/refpolicy.py | 300 ++++++++++++++++------
+ 5 files changed, 265 insertions(+), 86 deletions(-)
 
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/seli=
-nux/selinux.h
-index a0948853..040629c3 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -1,6 +1,7 @@
- #ifndef _SELINUX_H_
- #define _SELINUX_H_
-=20
-+#include <stdint.h>
- #include <sys/types.h>
- #include <stdarg.h>
-=20
-@@ -521,7 +522,15 @@ extern int matchpathcon_index(const char *path,
-    with the same inode (e.g. due to multiple hard links).  If so, then
-    use the latter of the two specifications based on their order in the=20
-    file contexts configuration.  Return the used specification index. */
--extern int matchpathcon_filespec_add(ino_t ino, int specind, const char *f=
-ile);
-+#if _FILE_OFFSET_BITS =3D=3D 64
-+typedef uint64_t libselinux_ino_t;
-+#if __BITS_PER_LONG < 64
-+#define matchpathcon_filespec_add matchpathcon_filespec_add64
-+#endif
-+#else
-+typedef uint32_t libselinux_ino_t;
-+#endif
-+extern int matchpathcon_filespec_add(libselinux_ino_t ino, int specind, co=
-nst char *file);
-=20
- /* Destroy any inode associations that have been added, e.g. to restart
-    for a new filesystem. */
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index d3b981fc..267291aa 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -87,6 +87,7 @@ CFLAGS ?=3D -O -Wall -W -Wundef -Wformat-y2k -Wformat-sec=
-urity -Winit-self -Wmissi
-           -fstack-protector-all --param=3Dssp-buffer-size=3D4 -fexceptions=
- \
-           -fasynchronous-unwind-tables -fdiagnostics-show-option \
-           -Werror -Wno-aggregate-return \
-+          -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=3D64 \
-           $(EXTRA_CFLAGS)
-=20
- LD_SONAME_FLAGS=3D-soname,$(LIBSO),--version-script=3Dlibselinux.map,-z,de=
-fs,-z,relro
-diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
-index 5e00f45b..88c9b3e5 100644
---- a/libselinux/src/libselinux.map
-+++ b/libselinux/src/libselinux.map
-@@ -251,4 +251,5 @@ LIBSELINUX_3.5 {
-   global:
-     getpidprevcon;
-     getpidprevcon_raw;
-+    matchpathcon_filespec_add64;
- } LIBSELINUX_3.4;
-diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-index e44734c3..189e00fb 100644
---- a/libselinux/src/matchpathcon.c
-+++ b/libselinux/src/matchpathcon.c
-@@ -195,7 +195,8 @@ static file_spec_t *fl_head;
-  * then use the specification that occurs later in the
-  * specification array.
-  */
--int matchpathcon_filespec_add(ino_t ino, int specind, const char *file)
-+int matchpathcon_filespec_add(libselinux_ino_t ino, int specind,
-+                              const char *file)
- {
- 	file_spec_t *prevfl, *fl;
- 	int h, ret;
-@@ -261,6 +262,18 @@ int matchpathcon_filespec_add(ino_t ino, int specind, =
-const char *file)
- 	return -1;
- }
-=20
-+#if _FILE_OFFSET_BITS =3D=3D 64 && __BITS_PER_LONG < 64
-+/* alias defined in the public header but we undefine it here */
-+#undef matchpathcon_filespec_add
+diff --git a/python/audit2allow/audit2allow b/python/audit2allow/audit2allow
+index 35b0b151..b5927ec1 100644
+--- a/python/audit2allow/audit2allow
++++ b/python/audit2allow/audit2allow
+@@ -75,6 +75,7 @@ class AuditToPolicy:
+                           help="generate policy with dontaudit rules")
+         parser.add_option("-R", "--reference", action="store_true", dest="refpolicy",
+                           default=True, help="generate refpolicy style output")
++        parser.add_option("-C", "--cil", action="store_true", dest="cil", help="generate CIL output")
+ 
+         parser.add_option("-N", "--noreference", action="store_false", dest="refpolicy",
+                           default=False, help="do not generate refpolicy style output")
+@@ -114,7 +115,7 @@ class AuditToPolicy:
+                 sys.stderr.write('error: module names must begin with a letter, optionally followed by letters, numbers, "-", "_", "."\n')
+                 sys.exit(2)
+ 
+-        # Make -M and -o conflict
++        # Make -M and -o or -C conflict
+         if options.module_package:
+             if options.output:
+                 sys.stderr.write("error: --module-package conflicts with --output\n")
+@@ -122,6 +123,9 @@ class AuditToPolicy:
+             if options.module:
+                 sys.stderr.write("error: --module-package conflicts with --module\n")
+                 sys.exit(2)
++            if options.cil:
++                sys.stderr.write("error: --module-package conflicts with --cil\n")
++                sys.exit(2)
+ 
+         self.__options = options
+ 
+@@ -341,6 +345,10 @@ semodule -i {packagename}
+         if self.__options.requires:
+             g.set_gen_requires(True)
+ 
++        # CIL output
++        if self.__options.cil:
++            g.set_gen_cil(True)
 +
-+/* ABI backwards-compatible shim for non-LFS 32-bit systems */
-+int matchpathcon_filespec_add(unsigned long ino, int specind,
-+                              const char *file)
-+{
-+	return matchpathcon_filespec_add64(ino, specind, file);
-+}
-+#endif
+         # Generate the policy
+         g.add_access(self.__avs)
+         g.add_role_types(self.__role_types)
+@@ -348,6 +356,10 @@ semodule -i {packagename}
+         # Output
+         writer = output.ModuleWriter()
+ 
++        # CIL output
++        if self.__options.cil:
++            writer.set_gen_cil(True)
 +
- /*
-  * Evaluate the association hash table distribution.
-  */
---=20
-2.40.1
+         # Module package
+         if self.__options.module_package:
+             self.__output_modulepackage(writer, g)
+diff --git a/python/audit2allow/audit2allow.1 b/python/audit2allow/audit2allow.1
+index c208b3b2..2834234d 100644
+--- a/python/audit2allow/audit2allow.1
++++ b/python/audit2allow/audit2allow.1
+@@ -74,6 +74,9 @@ Generate module/require output <modulename>
+ .B "\-M <modulename>" 
+ Generate loadable module package, conflicts with \-o
+ .TP
++.B "\-C"
++Generate CIL output, conflicts with \-M
++.TP
+ .B "\-p <policyfile>"  | "\-\-policy <policyfile>"
+ Policy file to use for analysis
+ .TP
+diff --git a/python/sepolgen/src/sepolgen/output.py b/python/sepolgen/src/sepolgen/output.py
+index aeeaafc8..57380cad 100644
+--- a/python/sepolgen/src/sepolgen/output.py
++++ b/python/sepolgen/src/sepolgen/output.py
+@@ -40,6 +40,7 @@ class ModuleWriter:
+         self.module = None
+         self.sort = True
+         self.requires = True
++        self.gen_cil = False
+ 
+     def write(self, module, fd):
+         self.module = module
+@@ -49,8 +50,12 @@ class ModuleWriter:
+ 
+         # FIXME - make this handle nesting
+         for node, depth in refpolicy.walktree(self.module, showdepth=True):
++            node.set_gen_cil(self.gen_cil)
+             fd.write("%s\n" % str(node))
+ 
++    def set_gen_cil(self, gen_cil):
++        self.gen_cil = gen_cil
++
+ # Helper functions for sort_filter - this is all done old school
+ # C style rather than with polymorphic methods because this sorting
+ # is specific to output. It is not necessarily the comparison you
+diff --git a/python/sepolgen/src/sepolgen/policygen.py b/python/sepolgen/src/sepolgen/policygen.py
+index 183b41a9..93d02cf0 100644
+--- a/python/sepolgen/src/sepolgen/policygen.py
++++ b/python/sepolgen/src/sepolgen/policygen.py
+@@ -86,6 +86,8 @@ class PolicyGenerator:
+         self.xperms = False
+ 
+         self.domains = None
++        self.gen_cil = False
++        self.comment_start = '#'
+     def set_gen_refpol(self, if_set=None, perm_maps=None):
+         """Set whether reference policy interfaces are generated.
+ 
+@@ -128,6 +130,10 @@ class PolicyGenerator:
+         """
+         self.xperms = xperms
+ 
++    def set_gen_cil(self, gen_cil):
++        self.gen_cil = gen_cil
++        self.comment_start = ';'
++
+     def __set_module_style(self):
+         if self.ifgen:
+             refpolicy = True
+@@ -173,26 +179,27 @@ class PolicyGenerator:
+             rule.comment = str(refpolicy.Comment(explain_access(av, verbosity=self.explain)))
+ 
+         if av.type == audit2why.ALLOW:
+-            rule.comment += "\n#!!!! This avc is allowed in the current policy"
++            rule.comment += "\n%s!!!! This avc is allowed in the current policy" % self.comment_start
+ 
+             if av.xperms:
+-                rule.comment += "\n#!!!! This av rule may have been overridden by an extended permission av rule"
++                rule.comment += "\n%s!!!! This av rule may have been overridden by an extended permission av rule" % self.comment_start
+ 
+         if av.type == audit2why.DONTAUDIT:
+-            rule.comment += "\n#!!!! This avc has a dontaudit rule in the current policy"
++            rule.comment += "\n%s!!!! This avc has a dontaudit rule in the current policy" % self.comment_start
+ 
+         if av.type == audit2why.BOOLEAN:
+             if len(av.data) > 1:
+-                rule.comment += "\n#!!!! This avc can be allowed using one of the these booleans:\n#     %s" % ", ".join([x[0] for x in av.data])
++                rule.comment += "\n%s!!!! This avc can be allowed using one of the these booleans:\n%s     %s" % (self.comment_start, self.comment_start, ", ".join([x[0] for x in av.data]))
+             else:
+-                rule.comment += "\n#!!!! This avc can be allowed using the boolean '%s'" % av.data[0][0]
++                rule.comment += "\n%s!!!! This avc can be allowed using the boolean '%s'" % (self.comment_start, av.data[0][0])
+ 
+         if av.type == audit2why.CONSTRAINT:
+-            rule.comment += "\n#!!!! This avc is a constraint violation.  You would need to modify the attributes of either the source or target types to allow this access."
+-            rule.comment += "\n#Constraint rule: "
+-            rule.comment += "\n#\t" + av.data[0]
++            rule.comment += "\n%s!!!! This avc is a constraint violation.  You would need to modify the attributes of either the source or target types to allow this access." % self.comment_start
++            rule.comment += "\n%sConstraint rule: " % self.comment_start
++            rule.comment += "\n%s\t" % self.comment_start + av.data[0]
+             for reason in av.data[1:]:
+-                rule.comment += "\n#\tPossible cause is the source %s and target %s are different." % reason
++                rule.comment += "\n%s" % self.comment_start
++                rule.comment += "\tPossible cause is the source %s and target %s are different." % reason
+ 
+         try:
+             if ( av.type == audit2why.TERULE and
+@@ -206,9 +213,9 @@ class PolicyGenerator:
+                     if i not in self.domains:
+                         types.append(i)
+                 if len(types) == 1:
+-                    rule.comment += "\n#!!!! The source type '%s' can write to a '%s' of the following type:\n# %s\n" % ( av.src_type, av.obj_class, ", ".join(types))
++                    rule.comment += "\n%s!!!! The source type '%s' can write to a '%s' of the following type:\n# %s\n" % (self.comment_start, av.src_type, av.obj_class, ", ".join(types))
+                 elif len(types) >= 1:
+-                    rule.comment += "\n#!!!! The source type '%s' can write to a '%s' of the following types:\n# %s\n" % ( av.src_type, av.obj_class, ", ".join(types))
++                    rule.comment += "\n%s!!!! The source type '%s' can write to a '%s' of the following types:\n# %s\n" % (self.comment_start, av.src_type, av.obj_class, ", ".join(types))
+         except:
+             pass
+ 
+diff --git a/python/sepolgen/src/sepolgen/refpolicy.py b/python/sepolgen/src/sepolgen/refpolicy.py
+index 9cac1b95..19aecb66 100644
+--- a/python/sepolgen/src/sepolgen/refpolicy.py
++++ b/python/sepolgen/src/sepolgen/refpolicy.py
+@@ -53,6 +53,7 @@ class PolicyBase:
+     def __init__(self, parent=None):
+         self.parent = None
+         self.comment = None
++        self.gen_cil = False
+ 
+ class Node(PolicyBase):
+     """Base class objects produced from parsing the reference policy.
+@@ -150,6 +151,8 @@ class Node(PolicyBase):
+     def to_string(self):
+         return ""
+ 
++    def set_gen_cil(self, gen_cil):
++        self.gen_cil = gen_cil
+ 
+ class Leaf(PolicyBase):
+     def __init__(self, parent=None):
+@@ -167,6 +170,8 @@ class Leaf(PolicyBase):
+     def to_string(self):
+         return ""
+ 
++    def set_gen_cil(self, gen_cil):
++        self.gen_cil = gen_cil
+ 
+ 
+ # Utility functions
+@@ -426,7 +431,13 @@ class TypeAttribute(Leaf):
+         self.attributes = IdSet()
+ 
+     def to_string(self):
+-        return "typeattribute %s %s;" % (self.type, self.attributes.to_comma_str())
++        if self.gen_cil:
++            s = ""
++            for a in self.attributes:
++                s += "(typeattribute %s %s)" % (self.type, a)
++            return s
++        else:
++            return "typeattribute %s %s;" % (self.type, self.attributes.to_comma_str())
+ 
+ class RoleAttribute(Leaf):
+     """SElinux roleattribute statement.
+@@ -451,7 +462,10 @@ class Role(Leaf):
+     def to_string(self):
+         s = ""
+         for t in self.types:
+-            s += "role %s types %s;\n" % (self.role, t)
++            if self.gen_cil:
++                s += "(roletype %s %s)\n" % (self.role, t)
++            else:
++                s += "role %s types %s;\n" % (self.role, t)
+         return s
+ 
+ class Type(Leaf):
+@@ -462,12 +476,20 @@ class Type(Leaf):
+         self.aliases = IdSet()
+ 
+     def to_string(self):
+-        s = "type %s" % self.name
+-        if len(self.aliases) > 0:
+-            s = s + "alias %s" % self.aliases.to_space_str()
+-        if len(self.attributes) > 0:
+-            s = s + ", %s" % self.attributes.to_comma_str()
+-        return s + ";"
++        if self.gen_cil:
++            s = "(type %s)" % self.name
++            for a in self.aliases:
++                s += "(typealiasactual %s %s)\n" % (self.name, a)
++            for a in self.attributes:
++                s += "(typeattributeset %s %s)\n" % (self.name, a)
++            return s
++        else:
++            s = "type %s" % self.name
++            if len(self.aliases) > 0:
++                s = s + "alias %s" % self.aliases.to_space_str()
++            if len(self.attributes) > 0:
++                s = s + ", %s" % self.attributes.to_comma_str()
++            return s + ";"
+ 
+ class TypeAlias(Leaf):
+     def __init__(self, parent=None):
+@@ -476,7 +498,13 @@ class TypeAlias(Leaf):
+         self.aliases = IdSet()
+ 
+     def to_string(self):
+-        return "typealias %s alias %s;" % (self.type, self.aliases.to_space_str())
++        if self.gen_cil:
++            s = ""
++            for a in self.aliases:
++                s += "(typealias %s %s)\n" % (self.type, a)
++            return s
++        else:
++            return "typealias %s alias %s;" % (self.type, self.aliases.to_space_str())
+ 
+ class Attribute(Leaf):
+     def __init__(self, name="", parent=None):
+@@ -484,7 +512,10 @@ class Attribute(Leaf):
+         self.name = name
+ 
+     def to_string(self):
+-        return "attribute %s;" % self.name
++        if self.gen_cil:
++            return "attribute %s;" % self.name
++        else:
++            return "(typeattribute %s)" % self.name
+ 
+ class Attribute_Role(Leaf):
+     def __init__(self, name="", parent=None):
+@@ -492,7 +523,10 @@ class Attribute_Role(Leaf):
+         self.name = name
+ 
+     def to_string(self):
+-        return "attribute_role %s;" % self.name
++        if self.gen_cil:
++            return "(roleattribute %s)" % self.name
++        else:
++            return "attribute_role %s;" % self.name
+ 
+ 
+ # Classes representing rules
+@@ -555,11 +589,21 @@ class AVRule(Leaf):
+         that is a valid policy language representation (assuming
+         that the types, object class, etc. are valie).
+         """
+-        return "%s %s %s:%s %s;" % (self.__rule_type_str(),
+-                                     self.src_types.to_space_str(),
+-                                     self.tgt_types.to_space_str(),
+-                                     self.obj_classes.to_space_str(),
+-                                     self.perms.to_space_str())
++        if self.gen_cil:
++            s = ""
++            for src in self.src_types:
++                for tgt in self.tgt_types:
++                    for obj in self.obj_classes:
++                        s += "(%s %s %s (%s (%s)))" % (self.__rule_type_str(),
++                                                       src, tgt, obj,
++                                                       " ".join(self.perms))
++            return s
++        else:
++            return "%s %s %s:%s %s;" % (self.__rule_type_str(),
++                                        self.src_types.to_space_str(),
++                                        self.tgt_types.to_space_str(),
++                                        self.obj_classes.to_space_str(),
++                                        self.perms.to_space_str())
+ 
+ class AVExtRule(Leaf):
+     """Extended permission access vector rule.
+@@ -597,6 +641,16 @@ class AVExtRule(Leaf):
+         elif self.rule_type == self.NEVERALLOWXPERM:
+             return "neverallowxperm"
+ 
++    def __rule_type_str_cil(self):
++        if self.rule_type == self.ALLOWXPERM:
++            return "allowx"
++        elif self.rule_type == self.DONTAUDITXPERM:
++            return "dontauditx"
++        elif self.rule_type == self.AUDITALLOWXPERM:
++            return "auditallowx"
++        elif self.rule_type == self.NEVERALLOWXPERM:
++            return "neverallowx"
++
+     def from_av(self, av, op):
+         self.src_types.add(av.src_type)
+         if av.src_type == av.tgt_type:
+@@ -612,12 +666,22 @@ class AVExtRule(Leaf):
+         a valid policy language representation (assuming that
+         the types, object class, etc. are valid).
+         """
+-        return "%s %s %s:%s %s %s;" % (self.__rule_type_str(),
+-                                     self.src_types.to_space_str(),
+-                                     self.tgt_types.to_space_str(),
+-                                     self.obj_classes.to_space_str(),
+-                                     self.operation,
+-                                     self.xperms.to_string())
++        if self.gen_cil:
++            for src in self.src_types:
++                for tgt in self.tgt_types:
++                    for obj in self.obj_classes:
++                        s += "(%s %s %s (%s (%s)))" % (self.__rule_type_str_cil(),
++                                                       src, tgt, obj,
++                                                       " ".join(self.xperms))
++            return s
++        else:
++            return "%s %s %s:%s %s %s;" % (self.__rule_type_str(),
++                                           self.src_types.to_space_str(),
++                                           self.tgt_types.to_space_str(),
++                                           self.obj_classes.to_space_str(),
++                                           self.operation,
++                                           self.xperms.to_string())
++
+ 
+ class TypeRule(Leaf):
+     """SELinux type rules.
+@@ -646,12 +710,28 @@ class TypeRule(Leaf):
+         else:
+             return "type_member"
+ 
++    def __rule_type_str_cil(self):
++        if self.rule_type == self.TYPE_TRANSITION:
++            return "typetransition"
++        elif self.rule_type == self.TYPE_CHANGE:
++            return "typechange"
++        else:
++            return "typemember"
++
+     def to_string(self):
+-        return "%s %s %s:%s %s;" % (self.__rule_type_str(),
+-                                     self.src_types.to_space_str(),
+-                                     self.tgt_types.to_space_str(),
+-                                     self.obj_classes.to_space_str(),
+-                                     self.dest_type)
++        if self.gen_cil:
++            return "(%s %s %s %s %s)" % (self.__rule_type_str_cil(),
++                                         self.src_types.to_space_str(),
++                                         self.tgt_types.to_space_str(),
++                                         self.obj_classes.to_space_str(),
++                                         self.dest_type)
++        else:
++            return "%s %s %s:%s %s;" % (self.__rule_type_str(),
++                                        self.src_types.to_space_str(),
++                                        self.tgt_types.to_space_str(),
++                                        self.obj_classes.to_space_str(),
++                                        self.dest_type)
++
+ class TypeBound(Leaf):
+     """SElinux typebound statement.
+ 
+@@ -663,8 +743,13 @@ class TypeBound(Leaf):
+         self.tgt_types = IdSet()
+ 
+     def to_string(self):
+-        return "typebounds %s %s;" % (self.type, self.tgt_types.to_comma_str())
+-
++        if self.gen_cil:
++            s = ""
++            for t in self.tgt_types:
++                s += "(typebounds %s %s)" % (self.type, t)
++            return s
++        else:
++            return "typebounds %s %s;" % (self.type, self.tgt_types.to_comma_str())
+ 
+ class RoleAllow(Leaf):
+     def __init__(self, parent=None):
+@@ -673,8 +758,15 @@ class RoleAllow(Leaf):
+         self.tgt_roles = IdSet()
+ 
+     def to_string(self):
+-        return "allow %s %s;" % (self.src_roles.to_comma_str(),
+-                                 self.tgt_roles.to_comma_str())
++        if self.gen_cil:
++            s = ""
++            for src in self.src_roles:
++                for tgt in self.tgt_roles:
++                    s += "(roleallow %s %s)" % (src, tgt)
++            return s
++        else:
++            return "allow %s %s;" % (self.src_roles.to_comma_str(),
++                                     self.tgt_roles.to_comma_str())
+ 
+ class RoleType(Leaf):
+     def __init__(self, parent=None):
+@@ -685,7 +777,10 @@ class RoleType(Leaf):
+     def to_string(self):
+         s = ""
+         for t in self.types:
+-            s += "role %s types %s;\n" % (self.role, t)
++            if self.gen_cil:
++                s += "(roletype %s %s)\n" % (self.role, t)
++            else:
++                s += "role %s types %s;\n" % (self.role, t)
+         return s
+ 
+ class ModuleDeclaration(Leaf):
+@@ -696,10 +791,13 @@ class ModuleDeclaration(Leaf):
+         self.refpolicy = False
+ 
+     def to_string(self):
+-        if self.refpolicy:
+-            return "policy_module(%s, %s)" % (self.name, self.version)
++        if self.gen_cil:
++            return ""
+         else:
+-            return "module %s %s;" % (self.name, self.version)
++            if self.refpolicy:
++                return "policy_module(%s, %s)" % (self.name, self.version)
++            else:
++                return "module %s %s;" % (self.name, self.version)
+ 
+ class Conditional(Node):
+     def __init__(self, parent=None):
+@@ -729,7 +827,10 @@ class InitialSid(Leaf):
+         self.context = None
+ 
+     def to_string(self):
+-        return "sid %s %s" % (self.name, str(self.context))
++        if self.gen_cil:
++            return "(sid %s %s)" % (self.name, str(self.context))
++        else:
++            return "sid %s %s" % (self.name, str(self.context))
+ 
+ class GenfsCon(Leaf):
+     def __init__(self, parent=None):
+@@ -739,7 +840,10 @@ class GenfsCon(Leaf):
+         self.context = None
+ 
+     def to_string(self):
+-        return "genfscon %s %s %s" % (self.filesystem, self.path, str(self.context))
++        if self.gen_cil:
++            return "(genfscon %s %s %s)" % (self.filesystem, self.path, str(self.context))
++        else:
++            return "genfscon %s %s %s" % (self.filesystem, self.path, str(self.context))
+ 
+ class FilesystemUse(Leaf):
+     XATTR = 1
+@@ -754,14 +858,24 @@ class FilesystemUse(Leaf):
+ 
+     def to_string(self):
+         s = ""
+-        if self.type == self.XATTR:
+-            s = "fs_use_xattr "
+-        elif self.type == self.TRANS:
+-            s = "fs_use_trans "
+-        elif self.type == self.TASK:
+-            s = "fs_use_task "
++        if self.gen_cil:
++            if self.type == self.XATTR:
++                s = "fsuse xattr "
++            elif self.type == self.TRANS:
++                s = "fsuse trans "
++            elif self.type == self.TASK:
++                s = "fsuse task "
++
++            return "(%s %s %s)" % (s, self.filesystem, str(self.context))
++        else:
++            if self.type == self.XATTR:
++                s = "fs_use_xattr "
++            elif self.type == self.TRANS:
++                s = "fs_use_trans "
++            elif self.type == self.TASK:
++                s = "fs_use_task "
+ 
+-        return "%s %s %s;" % (s, self.filesystem, str(self.context))
++            return "%s %s %s;" % (s, self.filesystem, str(self.context))
+ 
+ class PortCon(Leaf):
+     def __init__(self, parent=None):
+@@ -771,7 +885,10 @@ class PortCon(Leaf):
+         self.context = None
+ 
+     def to_string(self):
+-        return "portcon %s %s %s" % (self.port_type, self.port_number, str(self.context))
++        if self.gen_cil:
++            return "(portcon %s %s %s)" % (self.port_type, self.port_number, str(self.context))
++        else:
++            return "portcon %s %s %s" % (self.port_type, self.port_number, str(self.context))
+ 
+ class NodeCon(Leaf):
+     def __init__(self, parent=None):
+@@ -781,7 +898,10 @@ class NodeCon(Leaf):
+         self.context = None
+ 
+     def to_string(self):
+-        return "nodecon %s %s %s" % (self.start, self.end, str(self.context))
++        if self.gen_cil:
++            return "(nodecon %s %s %s)" % (self.start, self.end, str(self.context))
++        else:
++            return "nodecon %s %s %s" % (self.start, self.end, str(self.context))
+ 
+ class NetifCon(Leaf):
+     def __init__(self, parent=None):
+@@ -791,8 +911,13 @@ class NetifCon(Leaf):
+         self.packet_context = None
+ 
+     def to_string(self):
+-        return "netifcon %s %s %s" % (self.interface, str(self.interface_context),
+-                                   str(self.packet_context))
++        if self.gen_cil:
++            return "(netifcon %s %s %s)" % (self.interface, str(self.interface_context),
++                                            str(self.packet_context))
++        else:
++            return "netifcon %s %s %s" % (self.interface, str(self.interface_context),
++                                          str(self.packet_context))
++
+ class PirqCon(Leaf):
+     def __init__(self, parent=None):
+         Leaf.__init__(self, parent)
+@@ -800,7 +925,10 @@ class PirqCon(Leaf):
+         self.context = None
+ 
+     def to_string(self):
+-        return "pirqcon %s %s" % (self.pirq_number, str(self.context))
++        if self.gen_cil:
++            return "(pirqcon %s %s)" % (self.pirq_number, str(self.context))
++        else:
++            return "pirqcon %s %s" % (self.pirq_number, str(self.context))
+ 
+ class IomemCon(Leaf):
+     def __init__(self, parent=None):
+@@ -809,7 +937,10 @@ class IomemCon(Leaf):
+         self.context = None
+ 
+     def to_string(self):
+-        return "iomemcon %s %s" % (self.device_mem, str(self.context))
++        if self.gen_cil:
++            return "(iomemcon %s %s)" % (self.device_mem, str(self.context))
++        else:
++            return "iomemcon %s %s" % (self.device_mem, str(self.context))
+ 
+ class IoportCon(Leaf):
+     def __init__(self, parent=None):
+@@ -818,7 +949,10 @@ class IoportCon(Leaf):
+         self.context = None
+ 
+     def to_string(self):
+-        return "ioportcon %s %s" % (self.ioport, str(self.context))
++        if self.gen_cil:
++            return "(ioportcon %s %s)" % (self.ioport, str(self.context))
++        else:
++            return "ioportcon %s %s" % (self.ioport, str(self.context))
+ 
+ class PciDeviceCon(Leaf):
+     def __init__(self, parent=None):
+@@ -827,7 +961,10 @@ class PciDeviceCon(Leaf):
+         self.context = None
+ 
+     def to_string(self):
+-        return "pcidevicecon %s %s" % (self.device, str(self.context))
++        if self.gen_cil:
++            return "(pcidevicecon %s %s)" % (self.device, str(self.context))
++        else:
++            return "pcidevicecon %s %s" % (self.device, str(self.context))
+ 
+ class DeviceTreeCon(Leaf):
+     def __init__(self, parent=None):
+@@ -836,7 +973,10 @@ class DeviceTreeCon(Leaf):
+         self.context = None
+ 
+     def to_string(self):
+-        return "devicetreecon %s %s" % (self.path, str(self.context))
++        if self.gen_cil:
++            return "(devicetreecon %s %s)" % (self.path, str(self.context))
++        else:
++            return "devicetreecon %s %s" % (self.path, str(self.context))
+ 
+ # Reference policy specific types
+ 
+@@ -993,25 +1133,33 @@ class Require(Leaf):
+ 
+     def to_string(self):
+         s = []
+-        s.append("require {")
+-        for type in self.types:
+-            s.append("\ttype %s;" % type)
+-        for obj_class, perms in self.obj_classes.items():
+-            s.append("\tclass %s %s;" % (obj_class, perms.to_space_str()))
+-        for role in self.roles:
+-            s.append("\trole %s;" % role)
+-        for bool in self.data:
+-            s.append("\tbool %s;" % bool)
+-        for user in self.users:
+-            s.append("\tuser %s;" % user)
+-        s.append("}")
+-
+-        # Handle empty requires
+-        if len(s) == 2:
+-            return ""
+-
+-        return "\n".join(s)
+-
++        if self.gen_cil:
++            # Can't require classes, perms, booleans, users
++            for type in self.types:
++                s.append("(typeattributeset cil_gen_require %s)" % type)
++            for role in self.roles:
++                s.append("(roleattributeset cil_gen_require %s)" % role)
++
++            return "\n".join(s)
++        else:
++            s.append("require {")
++            for type in self.types:
++                s.append("\ttype %s;" % type)
++            for obj_class, perms in self.obj_classes.items():
++                s.append("\tclass %s %s;" % (obj_class, perms.to_space_str()))
++            for role in self.roles:
++                s.append("\trole %s;" % role)
++            for bool in self.data:
++                s.append("\tbool %s;" % bool)
++            for user in self.users:
++                s.append("\tuser %s;" % user)
++            s.append("}")
++
++            # Handle empty requires
++            if len(s) == 2:
++                return ""
++
++            return "\n".join(s)
+ 
+ class ObjPermSet:
+     def __init__(self, name):
+@@ -1044,7 +1192,10 @@ class Comment:
+         else:
+             out = []
+             for line in self.lines:
+-                out.append("#" + line)
++                if self.gen_cil:
++                    out.append(";" + line)
++                else:
++                    out.append("#" + line)
+             return "\n".join(out)
+ 
+     def merge(self, other):
+@@ -1056,4 +1207,5 @@ class Comment:
+     def __str__(self):
+         return self.to_string()
+ 
+-
++    def set_gen_cil(self, gen_cil):
++        self.gen_cil = gen_cil
 
+base-commit: 82195e77e317d322dd9b5fc31d402462d6845357
+-- 
+2.43.0
 
---AdWj9Bovr3+GiSIj--
-
---rDYyGtdsdJaCalvT
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErEg/aN5yj0PyIC/KVo0w8yGyEz0FAmXRdJcACgkQVo0w8yGy
-Ez2RXg//dyu/zcp5xlLuh8SsXq6NX3Iv92KaZnF6bm4lEqzSAjncwp6eW3XnauAM
-q8tBDaGWtbbMH2WUy9UcdbW9LU+/sU7CH+3lF8+7oV7IODSfZgEFsGw3GFH0ei6p
-eMJ15IVutnSvDGtjcJPF1oAbXd97oBZycxqLwUtRy5wW/ncMG9KYVhYyZW4Y4whj
-gtgWQ1pz+YzPZg3s/KgzUV8ffbcs7P07RYTiTVLpeVC3r0Eh9Z2aWEiX+uChVkD4
-0k+IOuMUJhBYdEpzW3i83F05H4PsVoSJQTQMK8F+wlUtWzTR7/YeY4DpSZGdto+7
-fb3YLMm49J55z5vqjsZWpJorDBSFgfCBm5GMzqOgvOUyH6MyMZeqDC3jM8AtROgl
-/BBGXNyiQpnm5CkO3I7ZJOwJAJuY6pvK13O3nU9Q71CuulZhqVokgswybmIWEJ9a
-2Opc+IgI1A/6e9sAn/tjbp8Z0X1MmmqTo9EdQRvS9uLnhW7f9LEArWkDsqrQDl2t
-yycNF9pMWm4wA/gskRuBY7w23771EgMeooIwmZV15+NSOCi9QX3bV8kNPa0LvEJj
-C+xvjinRbvYBRTrpRQS3rZuDE/tSDYqwqJy8pGTwV4LVCFmojPZaeKjANrrxE5bx
-kdq8e1n+L2cQDat0KDhEICrhZUJb+Pm+/sfSNpcJKQCO4LtAu54=
-=reFr
------END PGP SIGNATURE-----
-
---rDYyGtdsdJaCalvT--
