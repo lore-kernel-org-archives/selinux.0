@@ -1,60 +1,60 @@
 Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 422AC1DFF2
-	for <selinux@vger.kernel.org>; Sun, 18 Feb 2024 20:52:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E2B23B19D
+	for <selinux@vger.kernel.org>; Mon, 19 Feb 2024 20:19:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708289553; cv=none; b=WvmGB2sWs/6QYw8/DETESxuYpj56PcNhp+Tu3zXbCaJv+UOQB7VSQyG7aa74UVEIyKqhjM23JH+KAIEUzaYRBsD+hK9wF2P6zYWU/xxyxoHvTgNE5p1mVbe8iQ4FaCRROkr8ylh+4Ne+WqJz8txhIutrBMGS0kQxNaPl1RlUQt4=
+	t=1708373956; cv=none; b=RC/hCjamk0A6kr8Kea08rrAbwMCE6vaGPhf7lUR4UZ0bI7ZFkuRNtBuuuZQ3TF4ik0bXXUBUsOJ4R9tBkXwk8XxKzOKV4CGLsosKSGefA/p32uNNgLwNArF1DLI69SmFAPtfCTaD6C6m4ztvneYbZVqq4uAMHobDDfKjtsW855o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708289553; c=relaxed/simple;
-	bh=TcUIvtdKq8AQTubq2wazMe6nfPEdjSO2RAo2BMiDubU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QBNXhkHfCKk6tf761w0derIoPAxQhTi1h2gSCUSdxkSGYer6XJPVlqLzwfRev7fVESdkFSwI6hPd2+H62H+oM5bWq2gLvtiA3b8sq99NAHvEZ7QOD/mBeQEszzk9fhNCeC/UBLyE6nfu77idLKOQQn8+4DTPN2qRFiuj84zFh2E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i2usCuTB; arc=none smtp.client-ip=209.85.167.51
+	s=arc-20240116; t=1708373956; c=relaxed/simple;
+	bh=WVmrihnxPNXyjxCNPMkBMCmWeuoDdpn4j+tcLsXn97s=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QRWmQ/KnNkbPyJa8i5QeXBSo7IihI1fzitlI4F4i724NWbZJmGYeax9lQnGad15o6Sj1MdA6d4kU4oG3g50l4my8eVBKe8sAYVADF1IngmV0rd27p3C68ZB7/xfVzNYbSwhTIlcaZ6YESFCHgAJ9okt/m933Una7zfs7unG/pVk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jMSX5J4N; arc=none smtp.client-ip=209.85.167.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i2usCuTB"
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-512b25893c9so377045e87.3
-        for <selinux@vger.kernel.org>; Sun, 18 Feb 2024 12:52:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jMSX5J4N"
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-51181d8f52fso6204130e87.3
+        for <selinux@vger.kernel.org>; Mon, 19 Feb 2024 12:19:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1708289548; x=1708894348; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1708373951; x=1708978751; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=7v/RV1WuO+ShKQROXaIo9DWTPIN8A7TZfclNntCeggE=;
-        b=i2usCuTBmItWEIwEcnEGdNNTKEV9lbByjbRbeQT1OFwyJx8fbGJpU6m3sp+l29ygy4
-         u0ID9eG2/borO0c9rLT3fNqBgJ2UNK6LeRU906KqoWKQRlRO7QzPx8zRe2L0tUh9RhLy
-         Kgt2+hqPZrnrhLAja7oDrNDMFjubwByFA6Pi1IFtfX0hx5q1K+eGndRjG8gmhASuP+pz
-         YEVHedLHq+1eJ3nyqWTikY91ArBt1fEG9W9KPU7yfe3Ze+90Vn7kBh8NzRYL9r1GsdyA
-         p+DdOuTzlxcP7l69riIE8l8oGKVetRmWq7hKJWN03UfwLhMX/Ao3tdPZBPonXm1CbYS+
-         X9AQ==
+        bh=XUaWyv6CTz78uwsr2xlj/YVGkAXgwUSgokt1H3PKZVM=;
+        b=jMSX5J4Nh2zuxTlIBXqVID1hSZHAdqYHkJtFThXRwUIQyd/OgkhOhv0/izIdnp3fUo
+         gKeOo1KGIrztxAqR6cpGKYxISBxVXVBfAO4x0vcWNlbZCyBmL7usxrU3QXZwv7uPh+Xu
+         MUD7n6DvkipokfDngW9DM4vyLB3jx+eBGGnwEW06nKppZsSViob5TbcdoV0cSTFq3oM4
+         G4k2cYJP9i3e/soZToosy3andtyzgN2e0k8n7dLwNO7eOrBSm0yNTuxmRDe/KP0Pt6zv
+         HYFAcgKy6Oel3s6T2xxHIUowdfYKSqkSgOVjFSHEwCJzhcrr0+GvxYlvJAHGeOgnPaWw
+         sBUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708289548; x=1708894348;
+        d=1e100.net; s=20230601; t=1708373951; x=1708978751;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=7v/RV1WuO+ShKQROXaIo9DWTPIN8A7TZfclNntCeggE=;
-        b=jpP4bmNEUYPD+BuTzm37yuKU+tf2D/6zX/EzsJXrXZkyVM2nIAXqV7nvKncR4+MjHX
-         8eVOLg2ATU7IctdxLT8Wv3uO28vkI85WDs8+LCA1nlYUerqmwsam8gc8JKdk+eT9EMW/
-         HN1jDJH+lnXIm3abMC7RKpxTmyeccFXqQp06YcIPSXNSpFdqsTT+a6nC7HmBBl9DKD44
-         z11HfarSUYsb4MGGEMuPHllx4lyY4J/0NbAXFEB2nzrAc25dm+Fsk25Edxnvl6H4olhO
-         i53St2NBgT4owdGu893bu7+2awmeIXoeQhe0KG77ZEg/P74KOrmrUog0nh7tBum4lIN6
-         viww==
-X-Gm-Message-State: AOJu0Yx4isUDVxCgigbXcLPYkgbS93Upxn3OihKabkdeYLx1HjhE5Bi6
-	xLWAEAT9HTkz17bYjYXjWfO51/BimRRb9F2B2UVesi7xr8uCW86xTqVq6WJE
-X-Google-Smtp-Source: AGHT+IFn3fIAqXIv2CAsw3XSDcvbXi3kPRS2CsHQ+JsUWSDRKt6IhM9McHV0ZD3OHvlJZtv1Mo+p2Q==
-X-Received: by 2002:a05:6512:445:b0:512:b318:c1fd with SMTP id y5-20020a056512044500b00512b318c1fdmr800642lfk.54.1708289547295;
-        Sun, 18 Feb 2024 12:52:27 -0800 (PST)
+        bh=XUaWyv6CTz78uwsr2xlj/YVGkAXgwUSgokt1H3PKZVM=;
+        b=rGiAwGs9xm4NZ/RNUVM1RpsTq3rENZMS1xxYAqtn/tTs1JoJxGnnLaRXCmQtJqZMG5
+         fxRkqsVfJeNAbrYf9L8DMm7ZmGhQqe1No6f4saiJ1vmkY7LUJcjttPb9S6ughzDdLNKJ
+         kd4HtIJ1ucuu28bc3I0zEekrtQZL0K5aKJ+dtLVlVGx6lSL89O6kTw8Vy3RSnL8K3bGp
+         z3s7T9OXQMKY58tHUbad7/mcH5gpjvsANwKA4nxUFJODe6Iot0EFEer8/QdXIPE4s+Fm
+         zzQTDjQoL19P0vUipY0lNBWwCq/+vpCgE2U+lGckJ6zMz7WEw8Ag5A1aOsoBBzyqth92
+         8IqA==
+X-Gm-Message-State: AOJu0YyI0IOnClvMe7gI5LP5rsB3H84OtxgWpDPsvGIhQgprSjkEwuqw
+	dKyrnRcci/r8lIr29JnKRutx0akdZ/HDUNgj2UKxWkSBwDdIz/Lrl3okUXny
+X-Google-Smtp-Source: AGHT+IGdquASr1Iv9g+d7pihhxb1P4jk8rwFDlxpJ9oM04XuDAJptL9ky/IaohgPkV8c3WOTpr8UTw==
+X-Received: by 2002:a05:6512:1250:b0:512:b914:794c with SMTP id fb16-20020a056512125000b00512b914794cmr2177685lfb.65.1708373950463;
+        Mon, 19 Feb 2024 12:19:10 -0800 (PST)
 Received: from localhost.localdomain (85-156-69-24.elisa-laajakaista.fi. [85.156.69.24])
-        by smtp.gmail.com with ESMTPSA id j7-20020a05651231c700b00512a5e9fa69sm558059lfe.64.2024.02.18.12.52.26
+        by smtp.gmail.com with ESMTPSA id p4-20020a056512312400b005112ae5fd93sm1023559lfd.244.2024.02.19.12.19.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Feb 2024 12:52:27 -0800 (PST)
+        Mon, 19 Feb 2024 12:19:10 -0800 (PST)
 From: Topi Miettinen <toiwoton@gmail.com>
 To: selinux@vger.kernel.org
 Cc: Topi Miettinen <toiwoton@gmail.com>
-Subject: [PATCH PR#420] audit2allow: CIL output mode
-Date: Sun, 18 Feb 2024 22:51:31 +0200
-Message-ID: <20240218205130.92063-2-toiwoton@gmail.com>
+Subject: [PATCH PR#420 v2] audit2allow: CIL output mode
+Date: Mon, 19 Feb 2024 22:18:17 +0200
+Message-ID: <20240219201816.37260-2-toiwoton@gmail.com>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -88,12 +88,14 @@ Example:
 
 Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
 ---
+v2: fix uninitialized variable detected by CI
+---
  python/audit2allow/audit2allow            |  14 +-
  python/audit2allow/audit2allow.1          |   3 +
  python/sepolgen/src/sepolgen/output.py    |   5 +
  python/sepolgen/src/sepolgen/policygen.py |  29 ++-
- python/sepolgen/src/sepolgen/refpolicy.py | 300 ++++++++++++++++------
- 5 files changed, 265 insertions(+), 86 deletions(-)
+ python/sepolgen/src/sepolgen/refpolicy.py | 301 ++++++++++++++++------
+ 5 files changed, 266 insertions(+), 86 deletions(-)
 
 diff --git a/python/audit2allow/audit2allow b/python/audit2allow/audit2allow
 index 35b0b151..b5927ec1 100644
@@ -261,7 +263,7 @@ index 183b41a9..93d02cf0 100644
              pass
  
 diff --git a/python/sepolgen/src/sepolgen/refpolicy.py b/python/sepolgen/src/sepolgen/refpolicy.py
-index 9cac1b95..19aecb66 100644
+index 9cac1b95..8877db85 100644
 --- a/python/sepolgen/src/sepolgen/refpolicy.py
 +++ b/python/sepolgen/src/sepolgen/refpolicy.py
 @@ -53,6 +53,7 @@ class PolicyBase:
@@ -427,7 +429,7 @@ index 9cac1b95..19aecb66 100644
      def from_av(self, av, op):
          self.src_types.add(av.src_type)
          if av.src_type == av.tgt_type:
-@@ -612,12 +666,22 @@ class AVExtRule(Leaf):
+@@ -612,12 +666,23 @@ class AVExtRule(Leaf):
          a valid policy language representation (assuming that
          the types, object class, etc. are valid).
          """
@@ -438,6 +440,7 @@ index 9cac1b95..19aecb66 100644
 -                                     self.operation,
 -                                     self.xperms.to_string())
 +        if self.gen_cil:
++            s = ""
 +            for src in self.src_types:
 +                for tgt in self.tgt_types:
 +                    for obj in self.obj_classes:
@@ -456,7 +459,7 @@ index 9cac1b95..19aecb66 100644
  
  class TypeRule(Leaf):
      """SELinux type rules.
-@@ -646,12 +710,28 @@ class TypeRule(Leaf):
+@@ -646,12 +711,28 @@ class TypeRule(Leaf):
          else:
              return "type_member"
  
@@ -490,7 +493,7 @@ index 9cac1b95..19aecb66 100644
  class TypeBound(Leaf):
      """SElinux typebound statement.
  
-@@ -663,8 +743,13 @@ class TypeBound(Leaf):
+@@ -663,8 +744,13 @@ class TypeBound(Leaf):
          self.tgt_types = IdSet()
  
      def to_string(self):
@@ -506,7 +509,7 @@ index 9cac1b95..19aecb66 100644
  
  class RoleAllow(Leaf):
      def __init__(self, parent=None):
-@@ -673,8 +758,15 @@ class RoleAllow(Leaf):
+@@ -673,8 +759,15 @@ class RoleAllow(Leaf):
          self.tgt_roles = IdSet()
  
      def to_string(self):
@@ -524,7 +527,7 @@ index 9cac1b95..19aecb66 100644
  
  class RoleType(Leaf):
      def __init__(self, parent=None):
-@@ -685,7 +777,10 @@ class RoleType(Leaf):
+@@ -685,7 +778,10 @@ class RoleType(Leaf):
      def to_string(self):
          s = ""
          for t in self.types:
@@ -536,7 +539,7 @@ index 9cac1b95..19aecb66 100644
          return s
  
  class ModuleDeclaration(Leaf):
-@@ -696,10 +791,13 @@ class ModuleDeclaration(Leaf):
+@@ -696,10 +792,13 @@ class ModuleDeclaration(Leaf):
          self.refpolicy = False
  
      def to_string(self):
@@ -553,7 +556,7 @@ index 9cac1b95..19aecb66 100644
  
  class Conditional(Node):
      def __init__(self, parent=None):
-@@ -729,7 +827,10 @@ class InitialSid(Leaf):
+@@ -729,7 +828,10 @@ class InitialSid(Leaf):
          self.context = None
  
      def to_string(self):
@@ -565,7 +568,7 @@ index 9cac1b95..19aecb66 100644
  
  class GenfsCon(Leaf):
      def __init__(self, parent=None):
-@@ -739,7 +840,10 @@ class GenfsCon(Leaf):
+@@ -739,7 +841,10 @@ class GenfsCon(Leaf):
          self.context = None
  
      def to_string(self):
@@ -577,7 +580,7 @@ index 9cac1b95..19aecb66 100644
  
  class FilesystemUse(Leaf):
      XATTR = 1
-@@ -754,14 +858,24 @@ class FilesystemUse(Leaf):
+@@ -754,14 +859,24 @@ class FilesystemUse(Leaf):
  
      def to_string(self):
          s = ""
@@ -609,7 +612,7 @@ index 9cac1b95..19aecb66 100644
  
  class PortCon(Leaf):
      def __init__(self, parent=None):
-@@ -771,7 +885,10 @@ class PortCon(Leaf):
+@@ -771,7 +886,10 @@ class PortCon(Leaf):
          self.context = None
  
      def to_string(self):
@@ -621,7 +624,7 @@ index 9cac1b95..19aecb66 100644
  
  class NodeCon(Leaf):
      def __init__(self, parent=None):
-@@ -781,7 +898,10 @@ class NodeCon(Leaf):
+@@ -781,7 +899,10 @@ class NodeCon(Leaf):
          self.context = None
  
      def to_string(self):
@@ -633,7 +636,7 @@ index 9cac1b95..19aecb66 100644
  
  class NetifCon(Leaf):
      def __init__(self, parent=None):
-@@ -791,8 +911,13 @@ class NetifCon(Leaf):
+@@ -791,8 +912,13 @@ class NetifCon(Leaf):
          self.packet_context = None
  
      def to_string(self):
@@ -649,7 +652,7 @@ index 9cac1b95..19aecb66 100644
  class PirqCon(Leaf):
      def __init__(self, parent=None):
          Leaf.__init__(self, parent)
-@@ -800,7 +925,10 @@ class PirqCon(Leaf):
+@@ -800,7 +926,10 @@ class PirqCon(Leaf):
          self.context = None
  
      def to_string(self):
@@ -661,7 +664,7 @@ index 9cac1b95..19aecb66 100644
  
  class IomemCon(Leaf):
      def __init__(self, parent=None):
-@@ -809,7 +937,10 @@ class IomemCon(Leaf):
+@@ -809,7 +938,10 @@ class IomemCon(Leaf):
          self.context = None
  
      def to_string(self):
@@ -673,7 +676,7 @@ index 9cac1b95..19aecb66 100644
  
  class IoportCon(Leaf):
      def __init__(self, parent=None):
-@@ -818,7 +949,10 @@ class IoportCon(Leaf):
+@@ -818,7 +950,10 @@ class IoportCon(Leaf):
          self.context = None
  
      def to_string(self):
@@ -685,7 +688,7 @@ index 9cac1b95..19aecb66 100644
  
  class PciDeviceCon(Leaf):
      def __init__(self, parent=None):
-@@ -827,7 +961,10 @@ class PciDeviceCon(Leaf):
+@@ -827,7 +962,10 @@ class PciDeviceCon(Leaf):
          self.context = None
  
      def to_string(self):
@@ -697,7 +700,7 @@ index 9cac1b95..19aecb66 100644
  
  class DeviceTreeCon(Leaf):
      def __init__(self, parent=None):
-@@ -836,7 +973,10 @@ class DeviceTreeCon(Leaf):
+@@ -836,7 +974,10 @@ class DeviceTreeCon(Leaf):
          self.context = None
  
      def to_string(self):
@@ -709,7 +712,7 @@ index 9cac1b95..19aecb66 100644
  
  # Reference policy specific types
  
-@@ -993,25 +1133,33 @@ class Require(Leaf):
+@@ -993,25 +1134,33 @@ class Require(Leaf):
  
      def to_string(self):
          s = []
@@ -762,7 +765,7 @@ index 9cac1b95..19aecb66 100644
  
  class ObjPermSet:
      def __init__(self, name):
-@@ -1044,7 +1192,10 @@ class Comment:
+@@ -1044,7 +1193,10 @@ class Comment:
          else:
              out = []
              for line in self.lines:
@@ -774,7 +777,7 @@ index 9cac1b95..19aecb66 100644
              return "\n".join(out)
  
      def merge(self, other):
-@@ -1056,4 +1207,5 @@ class Comment:
+@@ -1056,4 +1208,5 @@ class Comment:
      def __str__(self):
          return self.to_string()
  
