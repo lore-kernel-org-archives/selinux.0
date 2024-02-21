@@ -1,222 +1,222 @@
-Received: from mail-yb1-f173.google.com (mail-yb1-f173.google.com [209.85.219.173])
+Received: from mail-vs1-f50.google.com (mail-vs1-f50.google.com [209.85.217.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B4133A1DB
-	for <selinux@vger.kernel.org>; Wed, 21 Feb 2024 21:08:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64F0786AE6
+	for <selinux@vger.kernel.org>; Wed, 21 Feb 2024 21:12:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708549689; cv=none; b=i9ZbZnFltCkARC1tWGjRxq7ug4TuFKUhP5pGHLtw+LlbAIJgoH3NjKIj/L68hoG17Qz4p99Ie7BdJcv2927PvvxkL0pPtXdBpDDjB3DaBoQpR1WtCuBTR2Du3tt+guSHUaUB4PLvtTFk30/YGnmVmq4iqZ/6PCqK2droLgyOBxY=
+	t=1708549960; cv=none; b=d0xrWyHUMiEAPj2xJ3HDrcU+xNKwqXAQ47FvkxMXTsnP2DTXOt60xOlfyj4FYuE/izErRcCMbM+Msg+LTN3McX/pYaeiNH2IN/tPlgowXBQNXDceDa1PExixoU2XLRtYs4PAh1ooeGenqM6YqxSGsKWK3/xc7d/Sr0UfBDccqaI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708549689; c=relaxed/simple;
-	bh=kNmisPuU8vqMuXGDqFtBV4skkF0kG+B01CpCKwI6HBI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=egQdLUso3pUyti1jF/2wa3vDcn8XGZM76ycwzJ1f/DFA7USLXZ8fITMO55RhvVasX+8v+66LauF/40mWEukHg0zd2IU5lxoKWz+DA9l77/9aXqzZIZ8R4QgRH6gnCH4OI13Em/NKtfHE3ApqF3nVknwv1qLZpBpurrRbtvoBx7c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VB2v/MbD; arc=none smtp.client-ip=209.85.219.173
+	s=arc-20240116; t=1708549960; c=relaxed/simple;
+	bh=Jb21i/UQUL61dAlma/o3I+VvaMjSL0dr7Di0qR01kZo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ZXWKjaocEhVPosaishTa7KIKfU6fBJcEkAL8qyjMMhD4D3koGfcdyQuIoQR9kcvdVK8Jpe5BZtCNCxKLwbwsSomWrkOQHooQ277L+KEPV44vKJN2eg0LT7Hr4w+ws+xdJf9WkNoRuVVh5q3mzjojp7LsaP3fKy7Y5mj3YG16KhY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ecYqcvYi; arc=none smtp.client-ip=209.85.217.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VB2v/MbD"
-Received: by mail-yb1-f173.google.com with SMTP id 3f1490d57ef6-dcc80d6004bso1250162276.0
-        for <selinux@vger.kernel.org>; Wed, 21 Feb 2024 13:08:07 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ecYqcvYi"
+Received: by mail-vs1-f50.google.com with SMTP id ada2fe7eead31-470455b5352so726713137.2
+        for <selinux@vger.kernel.org>; Wed, 21 Feb 2024 13:12:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1708549686; x=1709154486; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=PTOSr8eTEeyR/I4eZ+nJG/iPPz8e1J+oO9HXrfhMV6Y=;
-        b=VB2v/MbDAKTzcQiI6V/CsXvCj8nfIfQGyRVN5S+YOXuh7nI/tis8lIo5o8Ov4XStIO
-         myNfTriyNVFz3NAe6BaIb+A+dJrscPPZCPx4JwkZZ9r27k/kX4MPVM5u/zrz7eM+6Fcb
-         QDXQymXH+wwx3Tu83oi6Yk0WGQRBmRnniEDkwmIWZXXcmhEM3k3ghrgkfhAVXHCy5/1m
-         aYgmKywe8Hoxzsk0UqeM6SbEfJbvCNu6Srp2KquO7rQI8zgTBKT6jz1jMTggqUcllp+v
-         YX4bJlRBUHkhE/nDt+Z+pK8ojkYvc5rGGnljc3iNK2YMkbqmG8WUF9PqJgqM1W9OJYWZ
-         xvbw==
+        d=gmail.com; s=20230601; t=1708549957; x=1709154757; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gr/8xLpZ6aWpThStwubCn9Fgkx2VR1N7CUC+2MPNsUM=;
+        b=ecYqcvYiTy86K6AupB4toa2oG8vh6nYGI8W3UDTy7FPazTrsM1TBOoDFeBcl8fdgYF
+         fL8k2pYdwNorydGGpNpUOZpSxE/Yu1d3d8HTbSTzsGI0fonfvPMGBDGH/etzPvD8SH3d
+         ucGnll+uCQUgdZWiNHD3TVTZSSm9r/QRTcPuDwwDoIoeGZliGdEv7JJvGPXKP3/jjpiG
+         l9t+QbER2lus/J3wMkxtYwwCvQKra1lF5VKCpMySzwvtrX/ULSQO5NPwzm29xnjziKUv
+         m02/hPmxjN96BoY4z21SNl0bfonjW+kxiLfDp4/7VGPqzYGI6CUffB9DguaVnjERgtsA
+         0q7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708549686; x=1709154486;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=PTOSr8eTEeyR/I4eZ+nJG/iPPz8e1J+oO9HXrfhMV6Y=;
-        b=v9mR3Zc4vDtX4yKpwPiT7XZgxwgamWHXGj9HRDRlXgdCRWykFzDL2ncmULf+XV8MY4
-         6o16peemCkqLSOXhJSEQZ+yzH58w+NBN2fcc33zjS3FUAlqi/alzun/RF9j2E4fD588c
-         kRXmJn6rghPV5SqWgrURNRAW+E7gq/MkjGbaefgSWSRmXv1Zv34RYbFkBNjEfhU2QKOP
-         dUgqsIWoxO0HCc3JBFChEKk4bQmxWk0iZjoN/K3GWSSxXUI1QAfHMFd6bphNO9RlyAs9
-         notKElc0HzbKBqNkDES5Wr/zM7+5lUtkVjchxG3DR7x+eOG28/24qk6MqoEs177Gd4cK
-         bqGA==
-X-Gm-Message-State: AOJu0Yy82ph0bMXGj7HOwZDItHsinmXeq/dxyp8yf/hxxXBSIV5SoHN4
-	+KlJzO58NgqUbHEL9xFmaNnvtVpLqE/hB6Tc5YtzqZNbJONRy1g6ydmx9RoO
-X-Google-Smtp-Source: AGHT+IFOnpruguYcif52keeQ84kYxPfsmwvTwhQEE9XIvjV9hkYvC630avKKna6uO1zEhOxh/dp57Q==
-X-Received: by 2002:a25:ce0a:0:b0:dbf:6267:eba4 with SMTP id x10-20020a25ce0a000000b00dbf6267eba4mr483046ybe.27.1708549685773;
-        Wed, 21 Feb 2024 13:08:05 -0800 (PST)
-Received: from electric.. (c-69-140-100-37.hsd1.md.comcast.net. [69.140.100.37])
-        by smtp.gmail.com with ESMTPSA id v1-20020a056902028100b00dc7622402b9sm2472502ybh.43.2024.02.21.13.08.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Feb 2024 13:08:05 -0800 (PST)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: cgzones@googlemail.com,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH v2] checkpolicy, libsepol: Fix potential double free of mls_level_t
-Date: Wed, 21 Feb 2024 16:07:59 -0500
-Message-ID: <20240221210759.1310310-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        d=1e100.net; s=20230601; t=1708549957; x=1709154757;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gr/8xLpZ6aWpThStwubCn9Fgkx2VR1N7CUC+2MPNsUM=;
+        b=YiP2HkYWKoF9Lc0DSltTaV/TgljSkzHiNFgYX5fAZ6ZxhmPz+/cjZoYLFidzCCT93u
+         EMrPQMztVBn+DN2+i6v2Tll3CSsua9C8gWUpvnbEZnKXsLaRVdkiBgEoqPucFBSpMaqV
+         Z799Qi5nmyyy4AOaRLIcVejvPDgaLEelwa3gk1UDTTJUSA2dRPfVQLuhvHJ/3J7bI1GB
+         PtSDQVzenO3ZMj6s8lWXE6Y37yvmJjFGISaoEeVo3QE9VZ9f8sD6q3vVftbllnvFpEMc
+         20jo3bHmWt52zr+QD59VSULP3mHl4/GVFNA9xtyBAbAU7OR+QIhTXPBx+7alSQIvnCP5
+         O2tw==
+X-Gm-Message-State: AOJu0YxAGrYPVQcCXXKp+ij2wymbvgd/1ZQOBJ/eRMG2TKOYCZsZr1+S
+	Md712h0LyOne/qBM3xEq7zni0nPlxFG4gAUC3rkOwnnSDOgKrtI9L2GE9t89XoyNOznvuvRQi98
+	3irvf49/hOtPzYTEeO0A+HMqcs8TKlvE+
+X-Google-Smtp-Source: AGHT+IFOL5zkZZiIY35htumUARfSzN5+AjJTaG3C3Vt9iwA1braYh5KXsKjZ7RXmj+aXn6pK65ZGHPHKDBqU+syyLMY=
+X-Received: by 2002:a67:f1cb:0:b0:470:3da4:1a3a with SMTP id
+ v11-20020a67f1cb000000b004703da41a3amr12553529vsm.6.1708549956985; Wed, 21
+ Feb 2024 13:12:36 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240213205605.830719-1-jwcart2@gmail.com> <CAJ2a_Dfj7kLxm1JKKZXjqD7cfdamDoW0pDXqyNBtJaHi_5bxbg@mail.gmail.com>
+In-Reply-To: <CAJ2a_Dfj7kLxm1JKKZXjqD7cfdamDoW0pDXqyNBtJaHi_5bxbg@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 21 Feb 2024 16:12:25 -0500
+Message-ID: <CAP+JOzQZ4Nf-8puo0HWZT1+d4ud0QVNUKNcNo4CNJmUe96=nkg@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy, libsepol: Fix potential double free of mls_level_t
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-In checkpolicy, a sensitivity that has one or more aliases will
-temporarily share the mls_level_t structure with its aliases until
-a level statement is processed for the sensitivity (or one of the
-aliases) and the aliases are updated to have their own mls_level_t
-structure. If the policydb is destroyed while they are sharing the
-mls_level_t structure, then a double free of the shared mls_level_t
-will occur. This does not currently occur only because checkpolicy
-does very little clean-up before exiting.
+On Thu, Feb 15, 2024 at 1:41=E2=80=AFPM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> On Tue, 13 Feb 2024 at 21:56, James Carter <jwcart2@gmail.com> wrote:
+> >
+> > In checkpolicy, sensitivities that have aliases will temporarily
+> > share the mls_level_t structure until a level statement defines the
+> > categories for the level and the alias is updated to have its own
+> > mls_level_t structure. Currently, this does not cause a problem
+> > because checkpolicy does very little clean-up before exiting when
+> > an error is detected. But if the policydb is destroyed before exiting
+> > due to an error after a sensitivity and its alias is declared, but
+> > before a level statement involving either of them, then a double
+> > free of the shared mls_level_t will occur.
+> >
+> > The defined field of the level_datum_t is set after a level statement
+> > is processed for the level_datum_t. This means that we know the alias
+> > has its own mls_level_t if the defined field is set. This means that
+> > the defined field can be used to determine whether or not the
+> > mls_level_t pointed to by an alias level_datum_t should be destroyed.
+> >
+> > Since the defined field is not set when reading or expanding a policy,
+> > update libsepol to set the defined field.
+>
+> I tried to avoid touching anything related to the `defined` member in
+> the checkpolicy patchset, since my plan was to remove the member in a
+> couple months, when the fuzzer has verified it is redundant after the
+> new member `copy` was introduced.
+> Currently the member `defined` is only checked once in the entire code
+> base: in a sanity check in checkpolicy that I never saw triggered.
+> So it is unused during binary policy parsing and CIL policy
+> compilation (and also unnecessary for correct cleanup there, since the
+> two active fuzzers have not found any related use-after-free issue or
+> leak).
+> Thus my preference is to have in the end only the `copy` member from
+> my patch 10/15, which does not need to be set everywhere manually
+> since the default calloc'ed value of 0 is the correct default, and
+> it's only going to be used in three places:
+> libsepol/src/policydb.c:sens_destroy(),
+> checkpolicy/policy_define.c:define_sens() and
+> checkpolicy/policy_define.c:clone_level().
+>
 
-The "defined" field of the level_datum_t is set after a level
-statement is processed for a sensitivity and its aliases. This means
-that we know an alias has its own mls_level_t if the "defined" field
-is set. The double free can be avoided by not destroying the
-mls_leve_t structure for an alias unless the "defined" field is set.
+I like the idea of not having to set the value outside of checkpolicy.
+I don't like the idea of having both a "defined" and a "copy" field in
+the struct.
+Checkpolicy needs the "defined" field to check if a sensitivity has a
+level statement associated with it.
 
-Since the "defined" field is only set to false while the mls_level_t
-structure is being shared, it would be clearer to rename the field
-as "notdefined". It would only be set during the time the sensitivity
-and its aliases are sharing the mls_level_t structure. Outside of
-checkpolicy, the "notdefined" field will always be set to 0.
+I sent v2 of the patch where I change the field to "notdefined". It is
+a bit awkward, but it does mean that the "notdefined" field is never
+set except for in checkpolicy.
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
-v2: Change the field name from "defined" to "notdefined" and change
-    the logic to match.
+Thanks for the comments,
+Jim
 
- checkpolicy/checkpolicy.c                  |  7 +++----
- checkpolicy/policy_define.c                | 10 ++++++----
- libsepol/cil/src/cil_binary.c              |  3 ---
- libsepol/include/sepol/policydb/policydb.h |  2 +-
- libsepol/src/policydb.c                    |  6 ++++--
- 5 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-index fcec6e51..d7cafaa4 100644
---- a/checkpolicy/checkpolicy.c
-+++ b/checkpolicy/checkpolicy.c
-@@ -370,10 +370,9 @@ static int check_level(hashtab_key_t key, hashtab_datum_t datum, void *arg __att
- {
- 	level_datum_t *levdatum = (level_datum_t *) datum;
- 
--	if (!levdatum->isalias && !levdatum->defined) {
--		fprintf(stderr,
--			"Error:  sensitivity %s was not used in a level definition!\n",
--			key);
-+	if (!levdatum->isalias && levdatum->notdefined) {
-+		fprintf(stderr, "Error:  sensitivity %s was not used in a level definition!\n",
-+				key);
- 		return -1;
- 	}
- 	return 0;
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 260e609d..ac215086 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -743,6 +743,7 @@ int define_sens(void)
- 	level_datum_init(datum);
- 	datum->isalias = FALSE;
- 	datum->level = level;
-+	datum->notdefined = TRUE;
- 
- 	ret = declare_symbol(SYM_LEVELS, id, datum, &value, &value);
- 	switch (ret) {
-@@ -780,6 +781,7 @@ int define_sens(void)
- 		level_datum_init(aliasdatum);
- 		aliasdatum->isalias = TRUE;
- 		aliasdatum->level = level;
-+		aliasdatum->notdefined = TRUE;
- 
- 		ret = declare_symbol(SYM_LEVELS, id, aliasdatum, NULL, &value);
- 		switch (ret) {
-@@ -1006,9 +1008,10 @@ static int clone_level(hashtab_key_t key __attribute__ ((unused)), hashtab_datum
- 	mls_level_t *level = (mls_level_t *) arg, *newlevel;
- 
- 	if (levdatum->level == level) {
--		levdatum->defined = 1;
--		if (!levdatum->isalias)
-+		if (!levdatum->isalias) {
-+			levdatum->notdefined = FALSE;
- 			return 0;
-+		}
- 		newlevel = (mls_level_t *) malloc(sizeof(mls_level_t));
- 		if (!newlevel)
- 			return -1;
-@@ -1017,6 +1020,7 @@ static int clone_level(hashtab_key_t key __attribute__ ((unused)), hashtab_datum
- 			return -1;
- 		}
- 		levdatum->level = newlevel;
-+		levdatum->notdefined = FALSE;
- 	}
- 	return 0;
- }
-@@ -1057,8 +1061,6 @@ int define_level(void)
- 	}
- 	free(id);
- 
--	levdatum->defined = 1;
--
- 	while ((id = queue_remove(id_queue))) {
- 		cat_datum_t *cdatum;
- 		int range_start, range_end, i;
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index a8e3616a..95bd18ba 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -907,7 +907,6 @@ static int cil_sensalias_to_policydb(policydb_t *pdb, struct cil_alias *cil_alia
- 		goto exit;
- 	}
- 	sepol_alias->level = mls_level;
--	sepol_alias->defined = 1;
- 	sepol_alias->isalias = 1;
- 
- 	return SEPOL_OK;
-@@ -3163,8 +3162,6 @@ int cil_sepol_level_define(policydb_t *pdb, struct cil_sens *cil_sens)
- 		}
- 	}
- 
--	sepol_level->defined = 1;
--
- 	return SEPOL_OK;
- 
- exit:
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index 6682069e..66d93999 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -217,7 +217,7 @@ typedef struct user_datum {
- typedef struct level_datum {
- 	mls_level_t *level;	/* sensitivity and associated categories */
- 	unsigned char isalias;	/* is this sensitivity an alias for another? */
--	unsigned char defined;
-+	unsigned char notdefined;
- } level_datum_t;
- 
- /* Category attributes */
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index f10a8a95..0c23a7a2 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -1390,8 +1390,10 @@ static int sens_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p
- 	if (key)
- 		free(key);
- 	levdatum = (level_datum_t *) datum;
--	mls_level_destroy(levdatum->level);
--	free(levdatum->level);
-+	if (!levdatum->isalias || !levdatum->notdefined) {
-+		mls_level_destroy(levdatum->level);
-+		free(levdatum->level);
-+	}
- 	level_datum_destroy(levdatum);
- 	free(levdatum);
- 	return 0;
--- 
-2.43.0
-
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > ---
+> >  checkpolicy/policy_define.c | 11 +++++++----
+> >  libsepol/src/expand.c       |  1 +
+> >  libsepol/src/policydb.c     |  7 +++++--
+> >  3 files changed, 13 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> > index 260e609d..542bb978 100644
+> > --- a/checkpolicy/policy_define.c
+> > +++ b/checkpolicy/policy_define.c
+> > @@ -1006,9 +1006,10 @@ static int clone_level(hashtab_key_t key __attri=
+bute__ ((unused)), hashtab_datum
+> >         mls_level_t *level =3D (mls_level_t *) arg, *newlevel;
+> >
+> >         if (levdatum->level =3D=3D level) {
+> > -               levdatum->defined =3D 1;
+> > -               if (!levdatum->isalias)
+> > +               if (!levdatum->isalias) {
+> > +                       levdatum->defined =3D 1;
+> >                         return 0;
+> > +               }
+> >                 newlevel =3D (mls_level_t *) malloc(sizeof(mls_level_t)=
+);
+> >                 if (!newlevel)
+> >                         return -1;
+> > @@ -1017,6 +1018,7 @@ static int clone_level(hashtab_key_t key __attrib=
+ute__ ((unused)), hashtab_datum
+> >                         return -1;
+> >                 }
+> >                 levdatum->level =3D newlevel;
+> > +               levdatum->defined =3D 1;
+> >         }
+> >         return 0;
+> >  }
+> > @@ -1057,8 +1059,6 @@ int define_level(void)
+> >         }
+> >         free(id);
+> >
+> > -       levdatum->defined =3D 1;
+> > -
+> >         while ((id =3D queue_remove(id_queue))) {
+> >                 cat_datum_t *cdatum;
+> >                 int range_start, range_end, i;
+> > @@ -1121,6 +1121,9 @@ int define_level(void)
+> >                 free(id);
+> >         }
+> >
+> > +       if (!levdatum->isalias)
+> > +               levdatum->defined =3D 1;
+> > +
+> >         if (hashtab_map
+> >             (policydbp->p_levels.table, clone_level, levdatum->level)) =
+{
+> >                 yyerror("out of memory");
+> > diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> > index e63414b1..0e16c502 100644
+> > --- a/libsepol/src/expand.c
+> > +++ b/libsepol/src/expand.c
+> > @@ -1191,6 +1191,7 @@ static int sens_copy_callback(hashtab_key_t key, =
+hashtab_datum_t datum,
+> >                 goto out_of_mem;
+> >         }
+> >         new_level->isalias =3D level->isalias;
+> > +       new_level->defined =3D 1;
+> >         state->out->p_levels.nprim++;
+> >
+> >         if (hashtab_insert(state->out->p_levels.table,
+> > diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> > index f10a8a95..0c950bf1 100644
+> > --- a/libsepol/src/policydb.c
+> > +++ b/libsepol/src/policydb.c
+> > @@ -1390,8 +1390,10 @@ static int sens_destroy(hashtab_key_t key, hasht=
+ab_datum_t datum, void *p
+> >         if (key)
+> >                 free(key);
+> >         levdatum =3D (level_datum_t *) datum;
+> > -       mls_level_destroy(levdatum->level);
+> > -       free(levdatum->level);
+> > +       if (!levdatum->isalias || levdatum->defined) {
+> > +               mls_level_destroy(levdatum->level);
+> > +               free(levdatum->level);
+> > +       }
+> >         level_datum_destroy(levdatum);
+> >         free(levdatum);
+> >         return 0;
+> > @@ -3357,6 +3359,7 @@ static int sens_read(policydb_t * p
+> >                 goto bad;
+> >
+> >         levdatum->isalias =3D le32_to_cpu(buf[1]);
+> > +       levdatum->defined =3D 1;
+> >
+> >         levdatum->level =3D malloc(sizeof(mls_level_t));
+> >         if (!levdatum->level || mls_read_level(levdatum->level, fp))
+> > --
+> > 2.43.0
+> >
