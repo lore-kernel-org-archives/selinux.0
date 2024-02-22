@@ -1,63 +1,63 @@
-Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65D1113BAD8
-	for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 23:59:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B92C17C6B
+	for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 23:59:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708646385; cv=none; b=YguQOlFi3aYYJRLaEAxdOCRdsT0PwHbAh03zg3sMEPhjvAGYpILPzHxu1RXd+3UKucwyrBwKnr3BH2/gQBjWM3dmmO5MMVBE6LB+6TwTmUXM3vCjVkcioBTqnIRRGVAkKqbuCy4//FDD4XrpWrkqScYhcpAOFM9hpEaQREXDsNA=
+	t=1708646386; cv=none; b=g2ZAFPfHOCAckQPcPLMSACgCu11wz79srt8MjW6h9yci7X6uvV2BR7njXRYvzsT31dHG39VNe5CyVsTCxfxPy3g51Ro3zd0Xo0AgTO4N0b2Q4o5J9RY5D1tRIu6fDtqGx47KI21gUIFep3PTeDjDUS3yQUTMyz30FidfH1v9kxo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708646385; c=relaxed/simple;
-	bh=0myqjR7bL7e9jczq8U37pmJ9D5uz1aYn/yTKEm8VFcg=;
+	s=arc-20240116; t=1708646386; c=relaxed/simple;
+	bh=+cHF7sSQC5d599SYzT8pAFGlUiNcrmMwJHCpKGYqWv0=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HzzuYQ/QT2t3zSirfQYP2STtx0ibFoU6iVSS17J4F4mfw1AKVV/FGHiHlR/8HC9GnsG+2gnJZ0wi2fORiZ2y4rDVVJvepdZ44wsurkLdttfPWM8+o5t43rmweMu9bZdrlcIbKqKcrmn9TeREPOULZWmUwJ/O6zqRSqJYWaY8kYU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=QMDWCx1A; arc=none smtp.client-ip=209.85.128.179
+	 MIME-Version; b=a3pEZcIH2+saJlhFxAwygCUubc5XHEySJjpIC5n5u84MNgrRTZyU6smh4VJ8zBXoX/EwXqyi7trucGTmsE/9MpiuVj1IKr8EjTE43cHM51JHMLUfXE94TzpUuG9BBPz92wrJEk4kQBjeiUI4kh+SYVpE02q8vTkxguUhHKgc1Cg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Dwi9uhz1; arc=none smtp.client-ip=209.85.160.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="QMDWCx1A"
-Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-6080a3eecd4so3266807b3.2
-        for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 15:59:43 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Dwi9uhz1"
+Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-42e323a2e39so2619171cf.1
+        for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 15:59:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1708646382; x=1709251182; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1708646383; x=1709251183; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=fWYpiilN4nTrPbR6MOLP0d0xEslY2d0ttJvDdoofzd4=;
-        b=QMDWCx1A+B49CHxKRt+egSyU2uIyaBX2a3TkC5KnHxgTJxVWNWTaCYJ52MXBHg66PJ
-         wL4RMcWJVJCwrTbk6gHmyiqqxVcnacq+6nVgtWUj+3uY628Lbm9+rvgF7Q/INEFBy6Wz
-         r5iAzEcrvweBsoM1escNy6AV8h46ClimC1vT0iZWk4a/pFi1wXnVXM97ENF1mDwxRoU8
-         reG7pLfn8W572dwz0pd+11tSqvjznISDWT5wi6+DfqEcOW+zAsYouz93QNayrlxEhC35
-         WLK2YH5qMm8P8O8H+NLwXfSJnRw00rEQj24efgOGXB4lL2EJv1D67CKSvQxKfrf1AHGb
-         5OAw==
+        bh=MOArciuZ8srbs0iBxL3Baqw1i4J8+zhAZs4Cj/MRiIk=;
+        b=Dwi9uhz1sMzf9iT6kLjp+hnIHXJ0ZJf6enExOAulCLjDvkBZj83njw7VEzoRLAlhKt
+         9Si+jEEZxrYlbXftF/sni2wertn8nKI1iCfTvatahlhIfOSxAwxsvzODZDzj1cpPwZee
+         vzvoICqQqmPMiRPMyQsnyrIjN1hwpqs5o6mJeHazLZiWstmsYtcZ9b3KCwfUOYj5Bk+k
+         olTppGOWKizEa29DqesQwMj9xlPkqzOYECoyr/bWdzW4zOFCac83SemtXde5G+HHSaRP
+         h8MAZPKcNV9rY7307l8gQRnNmYLTkdDfn9k26CH/hLBEMStynysSn22LFDsgf/Q0U8SR
+         k7pA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708646382; x=1709251182;
+        d=1e100.net; s=20230601; t=1708646383; x=1709251183;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=fWYpiilN4nTrPbR6MOLP0d0xEslY2d0ttJvDdoofzd4=;
-        b=rCPQZCCA5kadNIZasD3Jq0jq2G3PplF5dSu83rdHH02KgOgfq07Cn2+CjD5GhU+LDG
-         Gel8QNIj4DM2ZYP3AhWSJUhEtMpOpJGwOitY5qbCrUC65zWmj28fjC1vcMdQ27W9rOao
-         3EflseQmylsgBzwhCx+V2avc1XcE6CGer8ruDKXsVxcMLp14XArgjrG/M3FEebqi3YVa
-         elyppzWBUwhwn3w5YedQKfktfmXaZtCdQfBMqDkwm5JRDos7QWBC5Vvv691gfb/gZhNL
-         TknSVNm8jctLqpEYZrDgRm7IwhoQvnv/x2uHGEUpcDfObH3G/iJ1NjJNneLUEc+F4AQF
-         5TdA==
-X-Gm-Message-State: AOJu0YwtPCM9yTqjSdiybRr5fhCfQrA97ZovDVuuLnDMsz8QEKTdJAFH
-	9Hmplxj1gWfxtnm+lWoHM3a6vU+9jHt1p6k289eBBn3v8o5bqtYgW+cnhCJOVUP0JWDZE5MTfCo
+        bh=MOArciuZ8srbs0iBxL3Baqw1i4J8+zhAZs4Cj/MRiIk=;
+        b=Z5o6MrCGcoF9hQX8rWNt5E0MbSh0rtFw7k23PGqPFWKyP50rdyDklVPm7p3xQ/kPfE
+         hIPcWsmkK6/zjgb1OqWBVGIi4UYDvNYN0lv5fzAecv1dklUoQ/jdy+Qk1M1fzkx8lpcM
+         WmRfFveGC0a4UU1zTRHhWPJpHYoxN/Z8TfuRqWkQeMgnRi5qbHk/yHF/OXrgIT/aiYQ9
+         iCuatcCz2GGvKjIHfjcjgxBoE20MfBDjTy0MR/19P+BXj3AklhVihaMN9/0vXBdjWsSy
+         2g/wQtUQ4y/wCqP7NljzqZ2Xt0llL6bhV8lXt7Of5sN0kv11+YwJCuTtWqN3IWMTq9Bm
+         vNcw==
+X-Gm-Message-State: AOJu0YxSqE8qEO4ejwuf4NewcqHq1aL76xOzkRshPRonZD6SrVDmCerD
+	gMW2RO3z+m7+nU7SCfO5qMhYpJjhcVzBjiSi1pZC58oGEHhtyqV5FJDkl+G/5c1RZ7Qh8UPOTLw
 	=
-X-Google-Smtp-Source: AGHT+IGh53pUJTrrzw2OGrJoTzIaVEAywSlNuNGhzkCiO8Z9S5f3d2drKfw+16Oz0OxJAAjjMGGVRg==
-X-Received: by 2002:a05:690c:368f:b0:607:cc6a:58aa with SMTP id fu15-20020a05690c368f00b00607cc6a58aamr821000ywb.23.1708646382107;
-        Thu, 22 Feb 2024 15:59:42 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHdDoqvQWfEplCkBht7Q0RLMg79FFRAvS96axMn4bBMDyJl9/8bNKMbmBEfPBrFSVDSLQsuHw==
+X-Received: by 2002:a05:622a:15c7:b0:42e:6299:6cf2 with SMTP id d7-20020a05622a15c700b0042e62996cf2mr8007qty.4.1708646383173;
+        Thu, 22 Feb 2024 15:59:43 -0800 (PST)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id x6-20020ac81206000000b0042e5da69d93sm262513qti.1.2024.02.22.15.59.41
+        by smtp.gmail.com with ESMTPSA id ks17-20020ac86211000000b0042e56fb8e0bsm734732qtb.93.2024.02.22.15.59.42
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Feb 2024 15:59:41 -0800 (PST)
+        Thu, 22 Feb 2024 15:59:42 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 09/21] selinux: fix style issues in security/selinux/ss/ebitmap.c
-Date: Thu, 22 Feb 2024 18:52:27 -0500
-Message-ID: <20240222235708.386652-32-paul@paul-moore.com>
+Subject: [PATCH 10/21] selinux: fix style issues in security/selinux/ss/hashtab.h
+Date: Thu, 22 Feb 2024 18:52:28 -0500
+Message-ID: <20240222235708.386652-33-paul@paul-moore.com>
 X-Mailer: git-send-email 2.43.2
 In-Reply-To: <20240222235708.386652-23-paul@paul-moore.com>
 References: <20240222235708.386652-23-paul@paul-moore.com>
@@ -67,7 +67,7 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=6400; i=paul@paul-moore.com; h=from:subject; bh=0myqjR7bL7e9jczq8U37pmJ9D5uz1aYn/yTKEm8VFcg=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBl19+GJK5U7fQIfy5/hXNXI63a4SXgFNJqBTX/E Qz5LA35n6mJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZdffhgAKCRDqIPLalzeJ czMlEACNadQ7Z5UgunXJVkG4+JAHbpHlGJptwq1qD/voDRx4EGwd7mox2r71KyzXGfnaMDYtZed 5lHH+gxK9KLEs/iS+zHe2muYc7YiLZDApUWKDHNRxZ677aZ4HPUxzL/JFTipcpB9Ad9XOi4OYw6 /RV2g9gSG7F8XH+70OuzkrxdnwRdDN/jmCnCbFsRGQL7CmD0sbvXeXQZ1joA7cVSMdNBaOOJqSi i1u+J6qOBbg/fVSNbiXmsmXPi069RoXVrwrIKFrimqH41PJ8U4pvhSgrKFlUkU+V3x8p35k7y2b PDG5xvhHUoTC+vkX9f3t1RLvj4FNoqezH6uUnFzXW8+lD66H24o/4s4vFSRY3BpPghnAk5HzNp3 5xIxSDbuKmQ/t+2fzn2+Cgr3ZhS4O8qhMJV1y2rQ1dpBf6u6yG0kiXIvd1gASdU4L2NF8lIaRi6 cf7W4ZUyDn8i1+NCUfNUrY8IqPkxH93uzrQJ47DyJC5OueHkY5Rg7ajnzQrGkY3npZVSKqj9tAG XYB0QPYGEkDM8W1vJwH5xBSgqBmh34JftdKjMrlINDiNlg7BtUI/b+MmCpn1axM7kG07The5oyG fy16Kd7Z4197Jq/+6ZgWi+KBkXdwgiODR8cfi0VC25ImpP1jQl8oCZtzjsIGSRNjEXRp+KlV7VJ VeZ7Ta44AhFNsWg==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3677; i=paul@paul-moore.com; h=from:subject; bh=+cHF7sSQC5d599SYzT8pAFGlUiNcrmMwJHCpKGYqWv0=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBl19+Na8YRZ6/2zHwg9SiSFZKvHcXrVSxZ4NReA /unXFf6HxGJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZdffjQAKCRDqIPLalzeJ c161EACBrc5/koOqhxUrmih9q2dJ05b9ABeFgLsyOLyi3MM3jCqj/qDsJxb70JeqRUxg91Xcjlo y3jr308nemgfMPJRuj8xOkGUO/xrW/XPee8m/LG1mz2n4XqmlN/dCgHSHT4w1hkbkRSwYWrtFXS MUx0bN43rzPxxkbjLp6XuLIqTtgrQFDSjdZhA5wm8vKqubP5sYryTjeg9clpMZ1wq1WypjQ4tKj lXE8mHQ/lIQOB4u1XfhnApKzZbpVngp3+/9Y00zvVcdU/ClFazj+VkqRoBhi4v87VxSqiMLWxuP mtEXp1nPtzjhFJePpVcEzPLKGB6biz0qCvF5qM6VyS9S3T4JH2UaA6B7OqHt8VR5r8PAh5apjJF x01DxGfTQsKQt2n0TbdGzsQNiIxSCNVrtXQ4mpChroR28xCR+9Wq3fLA05wY9uoR41FbtwQhDWg gYcpj5GlhABMkVhpG9mo9WHFzesvZKlLGEv3OilQZzxG8qSUxsYD/01cxZEqyb4N8K3XvHGXos4 ARtuyunq5HS5Y0GRgShXyKQSj3qfke+/C97nX0xbCYdM289pkGEMPXuBu1WG4WNLV4G37yTAJKc w/QIsShxGgrbGV4ZDMmJoIx2VeZIFPg2G8pGsAnIeOX/f0imOPANrEx3RpRJCstR3z67M0WgEbA o5RgWDF1rRlmVxg==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
@@ -81,177 +81,102 @@ changes fit in well with the rest of the SELinux kernel code.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/ss/ebitmap.c | 56 +++++++++++++++++------------------
- 1 file changed, 28 insertions(+), 28 deletions(-)
+ security/selinux/ss/hashtab.h | 35 +++++++++++++++++------------------
+ 1 file changed, 17 insertions(+), 18 deletions(-)
 
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index 77875ad355f7..67c1a73cd5ee 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -1,4 +1,4 @@
--// SPDX-License-Identifier: GPL-2.0
-+/* SPDX-License-Identifier: GPL-2.0 */
- /*
-  * Implementation of the extensible bitmap type.
+diff --git a/security/selinux/ss/hashtab.h b/security/selinux/ss/hashtab.h
+index 09b0a3744937..5f74dcc1360f 100644
+--- a/security/selinux/ss/hashtab.h
++++ b/security/selinux/ss/hashtab.h
+@@ -8,6 +8,7 @@
   *
-@@ -6,14 +6,11 @@
+  * Author : Stephen Smalley, <stephen.smalley.work@gmail.com>
   */
++
+ #ifndef _SS_HASHTAB_H_
+ #define _SS_HASHTAB_H_
+ 
+@@ -15,12 +16,11 @@
+ #include <linux/errno.h>
+ #include <linux/sched.h>
+ 
+-#define HASHTAB_MAX_NODES	U32_MAX
++#define HASHTAB_MAX_NODES U32_MAX
+ 
+ struct hashtab_key_params {
+-	u32 (*hash)(const void *key);	/* hash function */
+-	int (*cmp)(const void *key1, const void *key2);
+-					/* key comparison function */
++	u32 (*hash)(const void *key); /* hash func */
++	int (*cmp)(const void *key1, const void *key2); /* comparison func */
+ };
+ 
+ struct hashtab_node {
+@@ -30,9 +30,9 @@ struct hashtab_node {
+ };
+ 
+ struct hashtab {
+-	struct hashtab_node **htable;	/* hash table */
+-	u32 size;			/* number of slots in hash table */
+-	u32 nel;			/* number of elements in hash table */
++	struct hashtab_node **htable; /* hash table */
++	u32 size; /* number of slots in hash table */
++	u32 nel; /* number of elements in hash table */
+ };
+ 
+ struct hashtab_info {
+@@ -48,8 +48,8 @@ struct hashtab_info {
+  */
+ int hashtab_init(struct hashtab *h, u32 nel_hint);
+ 
+-int __hashtab_insert(struct hashtab *h, struct hashtab_node **dst,
+-		     void *key, void *datum);
++int __hashtab_insert(struct hashtab *h, struct hashtab_node **dst, void *key,
++		     void *datum);
+ 
  /*
-  * Updated: Hewlett-Packard <paul@paul-moore.com>
-+ *          Added support to import/export the NetLabel category bitmap
-+ *          (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-  *
-- *      Added support to import/export the NetLabel category bitmap
-- *
-- * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-- */
--/*
-  * Updated: KaiGai Kohei <kaigai@ak.jp.nec.com>
-- *      Applied standard bit operations to improve bitmap scanning.
-+ *          Applied standard bit operations to improve bitmap scanning.
+  * Inserts the specified (key, datum) pair into the specified hash table.
+@@ -84,8 +84,8 @@ static inline int hashtab_insert(struct hashtab *h, void *key, void *datum,
+ 		cur = cur->next;
+ 	}
+ 
+-	return __hashtab_insert(h, prev ? &prev->next : &h->htable[hvalue],
+-				key, datum);
++	return __hashtab_insert(h, prev ? &prev->next : &h->htable[hvalue], key,
++				datum);
+ }
+ 
+ /*
+@@ -133,15 +133,13 @@ void hashtab_destroy(struct hashtab *h);
+  * iterating through the hash table and will propagate the error
+  * return to its caller.
   */
+-int hashtab_map(struct hashtab *h,
+-		int (*apply)(void *k, void *d, void *args),
++int hashtab_map(struct hashtab *h, int (*apply)(void *k, void *d, void *args),
+ 		void *args);
  
- #include <linux/kernel.h>
-@@ -24,7 +21,7 @@
- #include "ebitmap.h"
- #include "policydb.h"
+ int hashtab_duplicate(struct hashtab *new, struct hashtab *orig,
+-		int (*copy)(struct hashtab_node *new,
+-			struct hashtab_node *orig, void *args),
+-		int (*destroy)(void *k, void *d, void *args),
+-		void *args);
++		      int (*copy)(struct hashtab_node *new,
++				  struct hashtab_node *orig, void *args),
++		      int (*destroy)(void *k, void *d, void *args), void *args);
  
--#define BITS_PER_U64	(sizeof(u64) * 8)
-+#define BITS_PER_U64 (sizeof(u64) * 8)
- 
- static struct kmem_cache *ebitmap_node_cachep __ro_after_init;
- 
-@@ -37,8 +34,7 @@ int ebitmap_cmp(const struct ebitmap *e1, const struct ebitmap *e2)
- 
- 	n1 = e1->node;
- 	n2 = e2->node;
--	while (n1 && n2 &&
--	       (n1->startbit == n2->startbit) &&
-+	while (n1 && n2 && (n1->startbit == n2->startbit) &&
- 	       !memcmp(n1->maps, n2->maps, EBITMAP_SIZE / 8)) {
- 		n1 = n1->next;
- 		n2 = n2->next;
-@@ -79,14 +75,16 @@ int ebitmap_cpy(struct ebitmap *dst, const struct ebitmap *src)
- 	return 0;
- }
- 
--int ebitmap_and(struct ebitmap *dst, const struct ebitmap *e1, const struct ebitmap *e2)
-+int ebitmap_and(struct ebitmap *dst, const struct ebitmap *e1,
-+		const struct ebitmap *e2)
+ #ifdef CONFIG_SECURITY_SELINUX_DEBUG
+ /* Fill info with some hash table statistics */
+@@ -149,7 +147,8 @@ void hashtab_stat(struct hashtab *h, struct hashtab_info *info);
+ #else
+ static inline void hashtab_stat(struct hashtab *h, struct hashtab_info *info)
  {
- 	struct ebitmap_node *n;
- 	int bit, rc;
- 
- 	ebitmap_init(dst);
- 
--	ebitmap_for_each_positive_bit(e1, n, bit) {
-+	ebitmap_for_each_positive_bit(e1, n, bit)
-+	{
- 		if (ebitmap_get_bit(e2, bit)) {
- 			rc = ebitmap_set_bit(dst, bit, 1);
- 			if (rc < 0)
-@@ -96,7 +94,6 @@ int ebitmap_and(struct ebitmap *dst, const struct ebitmap *e1, const struct ebit
- 	return 0;
++	return;
  }
+ #endif
  
--
- #ifdef CONFIG_NETLABEL
- /**
-  * ebitmap_netlbl_export - Export an ebitmap into a NetLabel category bitmap
-@@ -131,10 +128,8 @@ int ebitmap_netlbl_export(struct ebitmap *ebmap,
- 		for (iter = 0; iter < EBITMAP_UNIT_NUMS; iter++) {
- 			e_map = e_iter->maps[iter];
- 			if (e_map != 0) {
--				rc = netlbl_catmap_setlong(catmap,
--							   offset,
--							   e_map,
--							   GFP_ATOMIC);
-+				rc = netlbl_catmap_setlong(catmap, offset,
-+							   e_map, GFP_ATOMIC);
- 				if (rc != 0)
- 					goto netlbl_export_failure;
- 			}
-@@ -185,7 +180,8 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
- 		if (e_iter == NULL ||
- 		    offset >= e_iter->startbit + EBITMAP_SIZE) {
- 			e_prev = e_iter;
--			e_iter = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
-+			e_iter = kmem_cache_zalloc(ebitmap_node_cachep,
-+						   GFP_ATOMIC);
- 			if (e_iter == NULL)
- 				goto netlbl_import_failure;
- 			e_iter->startbit = offset - (offset % EBITMAP_SIZE);
-@@ -218,7 +214,8 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
-  * if last_e2bit is non-zero, the highest set bit in e2 cannot exceed
-  * last_e2bit.
-  */
--int ebitmap_contains(const struct ebitmap *e1, const struct ebitmap *e2, u32 last_e2bit)
-+int ebitmap_contains(const struct ebitmap *e1, const struct ebitmap *e2,
-+		     u32 last_e2bit)
- {
- 	const struct ebitmap_node *n1, *n2;
- 	int i;
-@@ -234,8 +231,8 @@ int ebitmap_contains(const struct ebitmap *e1, const struct ebitmap *e2, u32 las
- 			n1 = n1->next;
- 			continue;
- 		}
--		for (i = EBITMAP_UNIT_NUMS - 1; (i >= 0) && !n2->maps[i]; )
--			i--;	/* Skip trailing NULL map entries */
-+		for (i = EBITMAP_UNIT_NUMS - 1; (i >= 0) && !n2->maps[i];)
-+			i--; /* Skip trailing NULL map entries */
- 		if (last_e2bit && (i >= 0)) {
- 			u32 lastsetbit = n2->startbit + i * EBITMAP_UNIT_SIZE +
- 					 __fls(n2->maps[i]);
-@@ -302,8 +299,8 @@ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value)
- 					 * within the bitmap
- 					 */
- 					if (prev)
--						e->highbit = prev->startbit
--							     + EBITMAP_SIZE;
-+						e->highbit = prev->startbit +
-+							     EBITMAP_SIZE;
- 					else
- 						e->highbit = 0;
- 				}
-@@ -424,7 +421,8 @@ int ebitmap_read(struct ebitmap *e, void *fp)
- 
- 		if (!n || startbit >= n->startbit + EBITMAP_SIZE) {
- 			struct ebitmap_node *tmp;
--			tmp = kmem_cache_zalloc(ebitmap_node_cachep, GFP_KERNEL);
-+			tmp = kmem_cache_zalloc(ebitmap_node_cachep,
-+						GFP_KERNEL);
- 			if (!tmp) {
- 				pr_err("SELinux: ebitmap: out of memory\n");
- 				rc = -ENOMEM;
-@@ -481,7 +479,8 @@ int ebitmap_write(const struct ebitmap *e, void *fp)
- 	count = 0;
- 	last_bit = 0;
- 	last_startbit = -1;
--	ebitmap_for_each_positive_bit(e, n, bit) {
-+	ebitmap_for_each_positive_bit(e, n, bit)
-+	{
- 		if (rounddown(bit, (int)BITS_PER_U64) > last_startbit) {
- 			count++;
- 			last_startbit = rounddown(bit, BITS_PER_U64);
-@@ -497,7 +496,8 @@ int ebitmap_write(const struct ebitmap *e, void *fp)
- 
- 	map = 0;
- 	last_startbit = INT_MIN;
--	ebitmap_for_each_positive_bit(e, n, bit) {
-+	ebitmap_for_each_positive_bit(e, n, bit)
-+	{
- 		if (rounddown(bit, (int)BITS_PER_U64) > last_startbit) {
- 			__le64 buf64[1];
- 
-@@ -559,6 +559,6 @@ u32 ebitmap_hash(const struct ebitmap *e, u32 hash)
- void __init ebitmap_cache_init(void)
- {
- 	ebitmap_node_cachep = kmem_cache_create("ebitmap_node",
--							sizeof(struct ebitmap_node),
--							0, SLAB_PANIC, NULL);
-+						sizeof(struct ebitmap_node), 0,
-+						SLAB_PANIC, NULL);
- }
+-#endif	/* _SS_HASHTAB_H */
++#endif /* _SS_HASHTAB_H */
 -- 
 2.43.2
 
