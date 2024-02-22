@@ -1,121 +1,389 @@
-Received: from mail-oi1-f179.google.com (mail-oi1-f179.google.com [209.85.167.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 442C21468ED
-	for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 15:14:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AFCE14C586;
+	Thu, 22 Feb 2024 15:20:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708614857; cv=none; b=a99nPrwzl/wMEMbvbETDFy98fqqn02e6oq6IcSseKr2JBqd+rU1sFYA9hTPOzJH6PgmJAtRtudgjIVJ6fHvLtkJmi+eFNahVRzXWOpYm4ONauwCHFebIXQWMbvWAltmT+gkbVDwrJd+zTNqUgzxCaMC0GnjspJf8t+V2ZwqQM7g=
+	t=1708615217; cv=none; b=pEh8HaDtR2+20lqKM9CdlGsnUKvai9G0dsr7EPhhNXtdSewyCoOvmFMg2MAEr1DZP7kxJAePik1fr6q+y1U7ZAQxShTSFQL08Iz1fsFftJ00l/l67dE6wthAw46lwxZ4ybGHPvZTtO+QW2uqpwtFz6xxI0/CTEl3A6itWkXGp6s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708614857; c=relaxed/simple;
-	bh=L+n5OpWBmpV3L+udk1uMH2VFjM5EZkEKnVmkgmKzQ7c=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gOaSIonFtHBrTlmmmJDvsUgfbRkBBOW3w7DdBtwzEwKBRovhn/7zTXw9W6WAqkI+6BfkugEDgcEL+K+4p2OdnMgpNBHSwltXRNrPY99K1QbZGjzMSliodr2aNYOA7P+snlS6yBzoscx5g743bRy3Y6ZWWfadtk6SB9GRlYz3HRg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aYpsBfVF; arc=none smtp.client-ip=209.85.167.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1708615217; c=relaxed/simple;
+	bh=bml6ArFFJiK9FnYAWmn7RGCZrjEyDDwWD5hm+jZMO0o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Nnimt7SFlpu2SKl+TofhDE6clODJ1ZJYh4lss+FHPi2xnKGUL/1Ey543rcMoe+wyYnGikLRIgf+oKMQ8yI3Yb3H4YlWehfE89TtP2djAOZilmlaWzWS+ANRx/BBX5mgs6+9cUg7WXA/YuX0kkexv5s9RwNdKCKI7mp0Cu0+meMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gqftgMjW; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aYpsBfVF"
-Received: by mail-oi1-f179.google.com with SMTP id 5614622812f47-3c132695f1bso6057994b6e.2
-        for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 07:14:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1708614855; x=1709219655; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Vh4AQRDnCH38ENoHPQKIHhDEFBfmfJfmmmklcmO5Qho=;
-        b=aYpsBfVFZTBkdmTPlu9WHlGibUVci0jPOGZvT0QLKKNP/Ar3bxd9scestotpcuNl8p
-         Ip4UGlLrf60U7BdJ+GBCAVQkamVL/Q8AULwTjp3YIK1mo09/M/5ztZKFmY5xZSIdMz+9
-         c8sZdeYur+XYztKnw7Euby7oU2LozUM+fsU+MTZmLQoNv38znT2gw8MIMmXim/xtmli3
-         NZ9+h+js+HRZGcpvSdQHrziUkiF3h0cNLFE8hiNCyhAWrtYOS9W8WwkcKIQc1EM9QD7I
-         vWb11ktL5OQTcI4Y8lEeZ0eGaLpDKna/11DU4wNixsRgvXeTKEECSto3WrrvH9r4+lXm
-         Li5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708614855; x=1709219655;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Vh4AQRDnCH38ENoHPQKIHhDEFBfmfJfmmmklcmO5Qho=;
-        b=OT0zqlpgKK++76Lry2JlT6ipV90f9Q0QVVeFlXXTklQ8FYWbTHT5RnYok65vizTjYc
-         +KqsvbMS73Y9F2fXlObssOHgNuwjTGZcmjZ+1Sr8RFyBomUDLiWpRaYyhvquoKWOGLTw
-         txcM9+P6C+zjw8XABdIO7N/5y2JCowjZyLc02a1h1XnHDQK1UmoItw+G/chC8tBldDXy
-         ohHc9InTl7TWmM0/X0Alfxg3PreSjMA64VwcjBxqFH+ucfDn94ABocponbYal5oGP/yg
-         ie7NMhWQ34/y6eSq99JT3NDGV2Io9X3vNDSnqxqYxDnrP5AKyd3SUontPcnv8tqktfQK
-         VTDQ==
-X-Gm-Message-State: AOJu0Yz/8MqkYfoI7JtR+nvRmz7v/319lkB/Qm8WWHPuCiMgfUXw9/dt
-	Rm/0VlvSnhXVLn1+IU9R+VAu78o4rclMBtnxdzruBtKwwrwn9Vgitiwz6zq735J5D2uTbQhqsPb
-	5qY2B2TpAHVsRBucZOs7p9dXvHTCNAYyqaxw=
-X-Google-Smtp-Source: AGHT+IHg74HhuyFy4kgvaR5WxMFIuM77brWXUdp4oJpRm5Wsg5IOBaX+Walv0JuNg3rU46BdHgerzwf91XTpNhD1uX8=
-X-Received: by 2002:a05:6808:2108:b0:3c1:5f16:6c47 with SMTP id
- r8-20020a056808210800b003c15f166c47mr12670736oiw.11.1708614855287; Thu, 22
- Feb 2024 07:14:15 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gqftgMjW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3351DC433C7;
+	Thu, 22 Feb 2024 15:20:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1708615216;
+	bh=bml6ArFFJiK9FnYAWmn7RGCZrjEyDDwWD5hm+jZMO0o=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=gqftgMjWYOF9UPiyM8r9+2nv8zPGgJDKe7h4qZcmhX8n6WCVe/NIJDb7JIxYL5WeQ
+	 h9Pf+CJ8nHdi3DuCu34SgjvFDP7e1lP3LXl8N3riHnp5XoOM+N0XOKUbjl1a71PmSk
+	 +IvV0WxzzNHQJRsAr5OHPsbwPlppuJHq0+VGF0in9geLIlTrLRB9/TZDaiT5C/4kiS
+	 VKf7+ttF2Ovqs7aHvwMd9iS0g9PwfoW6r1nKbBYm+eYw4wBy3ET7GyFrP5bzi8Gt0w
+	 9eTr97ZAUn/ngpuRKDfU9HT3AJlBlyihrNFE0KIFjA9Pnt9LyfoWxEHEfNP71+Z8fS
+	 4q3RZvbTlzBeg==
+Date: Thu, 22 Feb 2024 16:20:08 +0100
+From: Christian Brauner <brauner@kernel.org>
+To: "Seth Forshee (DigitalOcean)" <sforshee@kernel.org>
+Cc: Serge Hallyn <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>, 
+	Eric Paris <eparis@redhat.com>, James Morris <jmorris@namei.org>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Mimi Zohar <zohar@linux.ibm.com>, 
+	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
+	Eric Snowberg <eric.snowberg@oracle.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
+	Jonathan Corbet <corbet@lwn.net>, Miklos Szeredi <miklos@szeredi.hu>, 
+	Amir Goldstein <amir73il@gmail.com>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, audit@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-integrity@vger.kernel.org, linux-doc@vger.kernel.org, linux-unionfs@vger.kernel.org
+Subject: Re: [PATCH v2 06/25] capability: provide helpers for converting
+ between xattrs and vfs_caps
+Message-ID: <20240222-wieweit-eiskunstlauf-0dbab2007754@brauner>
+References: <20240221-idmap-fscap-refactor-v2-0-3039364623bd@kernel.org>
+ <20240221-idmap-fscap-refactor-v2-6-3039364623bd@kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240131125623.45758-1-cgzones@googlemail.com>
-In-Reply-To: <20240131125623.45758-1-cgzones@googlemail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Thu, 22 Feb 2024 10:14:04 -0500
-Message-ID: <CAP+JOzT+xzAxFaGBcrGK_ye1SPnLb_DvJtr7B2L25F2mfDrsSQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libsepol: ensure transitivity in compare functions
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20240221-idmap-fscap-refactor-v2-6-3039364623bd@kernel.org>
 
-On Wed, Jan 31, 2024 at 8:06=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Ensure comparison functions used by qsort(3) fulfill transitivity, since
-> otherwise the resulting array might not be sorted correctly or worse[1]
-> in case of integer overflows.
->
-> [1]: https://www.qualys.com/2024/01/30/qsort.txt
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-
-For these three patches:
-Acked-by: James Carter <jwcart2@gmail.com>
-
+On Wed, Feb 21, 2024 at 03:24:37PM -0600, Seth Forshee (DigitalOcean) wrote:
+> To pass around vfs_caps instead of raw xattr data we will need to
+> convert between the two representations near userspace and disk
+> boundaries. We already convert xattrs from disks to vfs_caps, so move
+> that code into a helper, and change get_vfs_caps_from_disk() to use the
+> helper.
+> 
+> When converting vfs_caps to xattrs we have different considerations
+> depending on the destination of the xattr data. For xattrs which will be
+> written to disk we need to reject the xattr if the rootid does not map
+> into the filesystem's user namespace, whereas xattrs read by userspace
+> may need to undergo a conversion from v3 to v2 format when the rootid
+> does not map. So this helper is split into an internal and an external
+> interface. The internal interface does not return an error if the rootid
+> has no mapping in the target user namespace and will be used for
+> conversions targeting userspace. The external interface returns
+> EOVERFLOW if the rootid has no mapping and will be used for all other
+> conversions.
+> 
+> Signed-off-by: Seth Forshee (DigitalOcean) <sforshee@kernel.org>
 > ---
->  libsepol/src/kernel_to_common.c | 2 +-
->  libsepol/src/module_to_cil.c    | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_com=
-mon.c
-> index 2422eed0..44f0be23 100644
-> --- a/libsepol/src/kernel_to_common.c
-> +++ b/libsepol/src/kernel_to_common.c
-> @@ -503,7 +503,7 @@ static int ibendport_data_cmp(const void *a, const vo=
-id *b)
->         if (rc)
->                 return rc;
->
-> -       return (*aa)->u.ibendport.port - (*bb)->u.ibendport.port;
-> +       return spaceship_cmp((*aa)->u.ibendport.port, (*bb)->u.ibendport.=
-port);
+>  include/linux/capability.h |  10 ++
+>  security/commoncap.c       | 228 +++++++++++++++++++++++++++++++++++----------
+>  2 files changed, 187 insertions(+), 51 deletions(-)
+> 
+> diff --git a/include/linux/capability.h b/include/linux/capability.h
+> index eb46d346bbbc..a0893ac4664b 100644
+> --- a/include/linux/capability.h
+> +++ b/include/linux/capability.h
+> @@ -209,6 +209,16 @@ static inline bool checkpoint_restore_ns_capable(struct user_namespace *ns)
+>  		ns_capable(ns, CAP_SYS_ADMIN);
 >  }
->
->  static int pirq_data_cmp(const void *a, const void *b)
-> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index ee22dbbd..c8dae562 100644
-> --- a/libsepol/src/module_to_cil.c
-> +++ b/libsepol/src/module_to_cil.c
-> @@ -1680,7 +1680,7 @@ static int class_perm_cmp(const void *a, const void=
- *b)
->         const struct class_perm_datum *aa =3D a;
->         const struct class_perm_datum *bb =3D b;
->
-> -       return aa->val - bb->val;
-> +       return spaceship_cmp(aa->val, bb->val);
+>  
+> +/* helpers to convert between xattr and in-kernel representations */
+> +int vfs_caps_from_xattr(struct mnt_idmap *idmap,
+> +			struct user_namespace *src_userns,
+> +			struct vfs_caps *vfs_caps,
+> +			const void *data, size_t size);
+> +ssize_t vfs_caps_to_xattr(struct mnt_idmap *idmap,
+> +			  struct user_namespace *dest_userns,
+> +			  const struct vfs_caps *vfs_caps,
+> +			  void *data, size_t size);
+> +
+>  /* audit system wants to get cap info from files as well */
+>  int get_vfs_caps_from_disk(struct mnt_idmap *idmap,
+>  			   const struct dentry *dentry,
+> diff --git a/security/commoncap.c b/security/commoncap.c
+> index a0b5c9740759..7531c9634997 100644
+> --- a/security/commoncap.c
+> +++ b/security/commoncap.c
+> @@ -619,54 +619,41 @@ static inline int bprm_caps_from_vfs_caps(struct vfs_caps *caps,
 >  }
->
->  static int common_to_cil(char *key, void *data, void *UNUSED(arg))
-> --
+>  
+>  /**
+> - * get_vfs_caps_from_disk - retrieve vfs caps from disk
+> + * vfs_caps_from_xattr - convert raw caps xattr data to vfs_caps
+>   *
+> - * @idmap:	idmap of the mount the inode was found from
+> - * @dentry:	dentry from which @inode is retrieved
+> - * @cpu_caps:	vfs capabilities
+> + * @idmap:      idmap of the mount the inode was found from
+> + * @src_userns: user namespace for ids in xattr data
+> + * @vfs_caps:   destination buffer for vfs_caps data
+> + * @data:       rax xattr caps data
+> + * @size:       size of xattr data
+>   *
+> - * Extract the on-exec-apply capability sets for an executable file.
+> + * Converts a raw security.capability xattr into the kernel-internal
+> + * capabilities format.
+>   *
+> - * If the inode has been found through an idmapped mount the idmap of
+> - * the vfsmount must be passed through @idmap. This function will then
+> - * take care to map the inode according to @idmap before checking
+> - * permissions. On non-idmapped mounts or if permission checking is to be
+> - * performed on the raw inode simply pass @nop_mnt_idmap.
+> + * If the xattr is being read or written through an idmapped mount the
+> + * idmap of the vfsmount must be passed through @idmap. This function
+> + * will then take care to map the rootid according to @idmap.
+> + *
+> + * Return: On success, return 0; on error, return < 0.
+>   */
+> -int get_vfs_caps_from_disk(struct mnt_idmap *idmap,
+> -			   const struct dentry *dentry,
+> -			   struct vfs_caps *cpu_caps)
+> +int vfs_caps_from_xattr(struct mnt_idmap *idmap,
+> +			struct user_namespace *src_userns,
+> +			struct vfs_caps *vfs_caps,
+> +			const void *data, size_t size)
+>  {
+> -	struct inode *inode = d_backing_inode(dentry);
+>  	__u32 magic_etc;
+> -	int size;
+> -	struct vfs_ns_cap_data data, *nscaps = &data;
+> -	struct vfs_cap_data *caps = (struct vfs_cap_data *) &data;
+> +	const struct vfs_ns_cap_data *ns_caps = data;
+> +	struct vfs_cap_data *caps = (struct vfs_cap_data *)ns_caps;
+>  	kuid_t rootkuid;
+> -	vfsuid_t rootvfsuid;
+> -	struct user_namespace *fs_ns;
+> -
+> -	memset(cpu_caps, 0, sizeof(struct vfs_caps));
+> -
+> -	if (!inode)
+> -		return -ENODATA;
+>  
+> -	fs_ns = inode->i_sb->s_user_ns;
+> -	size = __vfs_getxattr((struct dentry *)dentry, inode,
+> -			      XATTR_NAME_CAPS, &data, XATTR_CAPS_SZ);
+> -	if (size == -ENODATA || size == -EOPNOTSUPP)
+> -		/* no data, that's ok */
+> -		return -ENODATA;
+> -
+> -	if (size < 0)
+> -		return size;
+> +	memset(vfs_caps, 0, sizeof(*vfs_caps));
+>  
+>  	if (size < sizeof(magic_etc))
+>  		return -EINVAL;
+>  
+> -	cpu_caps->magic_etc = magic_etc = le32_to_cpu(caps->magic_etc);
+> +	vfs_caps->magic_etc = magic_etc = le32_to_cpu(caps->magic_etc);
+>  
+> -	rootkuid = make_kuid(fs_ns, 0);
+> +	rootkuid = make_kuid(src_userns, 0);
+>  	switch (magic_etc & VFS_CAP_REVISION_MASK) {
+>  	case VFS_CAP_REVISION_1:
+>  		if (size != XATTR_CAPS_SZ_1)
+> @@ -679,39 +666,178 @@ int get_vfs_caps_from_disk(struct mnt_idmap *idmap,
+>  	case VFS_CAP_REVISION_3:
+>  		if (size != XATTR_CAPS_SZ_3)
+>  			return -EINVAL;
+> -		rootkuid = make_kuid(fs_ns, le32_to_cpu(nscaps->rootid));
+> +		rootkuid = make_kuid(src_userns, le32_to_cpu(ns_caps->rootid));
+>  		break;
+>  
+>  	default:
+>  		return -EINVAL;
+>  	}
+>  
+> -	rootvfsuid = make_vfsuid(idmap, fs_ns, rootkuid);
+> -	if (!vfsuid_valid(rootvfsuid))
+> -		return -ENODATA;
+> +	vfs_caps->rootid = make_vfsuid(idmap, src_userns, rootkuid);
+> +	if (!vfsuid_valid(vfs_caps->rootid))
+> +		return -EOVERFLOW;
+>  
+> -	/* Limit the caps to the mounter of the filesystem
+> -	 * or the more limited uid specified in the xattr.
+> +	vfs_caps->permitted.val = le32_to_cpu(caps->data[0].permitted);
+> +	vfs_caps->inheritable.val = le32_to_cpu(caps->data[0].inheritable);
+> +
+> +	/*
+> +	 * Rev1 had just a single 32-bit word, later expanded
+> +	 * to a second one for the high bits
+>  	 */
+> -	if (!rootid_owns_currentns(rootvfsuid))
+> -		return -ENODATA;
+> +	if ((magic_etc & VFS_CAP_REVISION_MASK) != VFS_CAP_REVISION_1) {
+> +		vfs_caps->permitted.val += (u64)le32_to_cpu(caps->data[1].permitted) << 32;
+> +		vfs_caps->inheritable.val += (u64)le32_to_cpu(caps->data[1].inheritable) << 32;
+
+That + makes this even more difficult to read. This should be rewritten.
+
+> +	}
+> +
+> +	vfs_caps->permitted.val &= CAP_VALID_MASK;
+> +	vfs_caps->inheritable.val &= CAP_VALID_MASK;
+> +
+> +	return 0;
+> +}
+> +
+> +/*
+> + * Inner implementation of vfs_caps_to_xattr() which does not return an
+> + * error if the rootid does not map into @dest_userns.
+> + */
+> +static ssize_t __vfs_caps_to_xattr(struct mnt_idmap *idmap,
+> +				   struct user_namespace *dest_userns,
+> +				   const struct vfs_caps *vfs_caps,
+> +				   void *data, size_t size)
+> +{
+> +	struct vfs_ns_cap_data *ns_caps = data;
+> +	struct vfs_cap_data *caps = (struct vfs_cap_data *)ns_caps;
+> +	kuid_t rootkuid;
+> +	uid_t rootid;
+> +
+> +	memset(ns_caps, 0, size);
+> +
+> +	rootid = 0;
+> +	switch (vfs_caps->magic_etc & VFS_CAP_REVISION_MASK) {
+> +	case VFS_CAP_REVISION_1:
+> +		if (size < XATTR_CAPS_SZ_1)
+> +			return -EINVAL;
+> +		size = XATTR_CAPS_SZ_1;
+> +		break;
+> +	case VFS_CAP_REVISION_2:
+> +		if (size < XATTR_CAPS_SZ_2)
+> +			return -EINVAL;
+> +		size = XATTR_CAPS_SZ_2;
+> +		break;
+> +	case VFS_CAP_REVISION_3:
+> +		if (size < XATTR_CAPS_SZ_3)
+> +			return -EINVAL;
+> +		size = XATTR_CAPS_SZ_3;
+> +		rootkuid = from_vfsuid(idmap, dest_userns, vfs_caps->rootid);
+> +		rootid = from_kuid(dest_userns, rootkuid);
+> +		ns_caps->rootid = cpu_to_le32(rootid);
+> +		break;
+>  
+> -	cpu_caps->permitted.val = le32_to_cpu(caps->data[0].permitted);
+> -	cpu_caps->inheritable.val = le32_to_cpu(caps->data[0].inheritable);
+> +	default:
+> +		return -EINVAL;
+> +	}
+> +
+> +	caps->magic_etc = cpu_to_le32(vfs_caps->magic_etc);
+> +
+> +	caps->data[0].permitted = cpu_to_le32(lower_32_bits(vfs_caps->permitted.val));
+> +	caps->data[0].inheritable = cpu_to_le32(lower_32_bits(vfs_caps->inheritable.val));
+>  
+>  	/*
+>  	 * Rev1 had just a single 32-bit word, later expanded
+>  	 * to a second one for the high bits
+>  	 */
+> -	if ((magic_etc & VFS_CAP_REVISION_MASK) != VFS_CAP_REVISION_1) {
+> -		cpu_caps->permitted.val += (u64)le32_to_cpu(caps->data[1].permitted) << 32;
+> -		cpu_caps->inheritable.val += (u64)le32_to_cpu(caps->data[1].inheritable) << 32;
+> +	if ((vfs_caps->magic_etc & VFS_CAP_REVISION_MASK) != VFS_CAP_REVISION_1) {
+> +		caps->data[1].permitted =
+> +			cpu_to_le32(upper_32_bits(vfs_caps->permitted.val));
+> +		caps->data[1].inheritable =
+> +			cpu_to_le32(upper_32_bits(vfs_caps->inheritable.val));
+>  	}
+>  
+> -	cpu_caps->permitted.val &= CAP_VALID_MASK;
+> -	cpu_caps->inheritable.val &= CAP_VALID_MASK;
+> +	return size;
+> +}
+> +
+> +
+> +/**
+> + * vfs_caps_to_xattr - convert vfs_caps to raw caps xattr data
+> + *
+> + * @idmap:       idmap of the mount the inode was found from
+> + * @dest_userns: user namespace for ids in xattr data
+> + * @vfs_caps:    source vfs_caps data
+> + * @data:        destination buffer for rax xattr caps data
+> + * @size:        size of the @data buffer
+> + *
+> + * Converts a kernel-internal capability into the raw security.capability
+> + * xattr format.
+> + *
+> + * If the xattr is being read or written through an idmapped mount the
+> + * idmap of the vfsmount must be passed through @idmap. This function
+> + * will then take care to map the rootid according to @idmap.
+> + *
+> + * Return: On success, return the size of the xattr data. On error,
+> + * return < 0.
+> + */
+> +ssize_t vfs_caps_to_xattr(struct mnt_idmap *idmap,
+> +			  struct user_namespace *dest_userns,
+> +			  const struct vfs_caps *vfs_caps,
+> +			  void *data, size_t size)
+> +{
+> +	struct vfs_ns_cap_data *caps = data;
+> +	int ret;
+
+This should very likely be ssize_t ret.
+
+> +
+> +	ret = __vfs_caps_to_xattr(idmap, dest_userns, vfs_caps, data, size);
+> +	if (ret > 0 &&
+> +	    (vfs_caps->magic_etc & VFS_CAP_REVISION_MASK) == VFS_CAP_REVISION_3 &&
+> +	     le32_to_cpu(caps->rootid) == (uid_t)-1)
+> +		return -EOVERFLOW;
+> +	return ret;
+> +}
+> +
+> +/**
+> + * get_vfs_caps_from_disk - retrieve vfs caps from disk
+> + *
+> + * @idmap:	idmap of the mount the inode was found from
+> + * @dentry:	dentry from which @inode is retrieved
+> + * @cpu_caps:	vfs capabilities
+> + *
+> + * Extract the on-exec-apply capability sets for an executable file.
+> + *
+> + * If the inode has been found through an idmapped mount the idmap of
+> + * the vfsmount must be passed through @idmap. This function will then
+> + * take care to map the inode according to @idmap before checking
+> + * permissions. On non-idmapped mounts or if permission checking is to be
+> + * performed on the raw inode simply pass @nop_mnt_idmap.
+> + */
+> +int get_vfs_caps_from_disk(struct mnt_idmap *idmap,
+> +			   const struct dentry *dentry,
+> +			   struct vfs_caps *cpu_caps)
+> +{
+> +	struct inode *inode = d_backing_inode(dentry);
+> +	int size, ret;
+> +	struct vfs_ns_cap_data data, *nscaps = &data;
+> +
+> +	if (!inode)
+> +		return -ENODATA;
+>  
+> -	cpu_caps->rootid = rootvfsuid;
+> +	size = __vfs_getxattr((struct dentry *)dentry, inode,
+> +			      XATTR_NAME_CAPS, &data, XATTR_CAPS_SZ);
+> +	if (size == -ENODATA || size == -EOPNOTSUPP)
+> +		/* no data, that's ok */
+> +		return -ENODATA;
+> +
+> +	if (size < 0)
+> +		return size;
+> +
+> +	ret = vfs_caps_from_xattr(idmap, inode->i_sb->s_user_ns,
+> +				  cpu_caps, nscaps, size);
+> +	if (ret == -EOVERFLOW)
+> +		return -ENODATA;
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* Limit the caps to the mounter of the filesystem
+> +	 * or the more limited uid specified in the xattr.
+> +	 */
+> +	if (!rootid_owns_currentns(cpu_caps->rootid))
+> +		return -ENODATA;
+>  
+>  	return 0;
+>  }
+> 
+> -- 
 > 2.43.0
->
->
+> 
