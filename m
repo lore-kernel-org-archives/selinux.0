@@ -1,63 +1,63 @@
-Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8D1918049
-	for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 23:59:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1B8213BAE4
+	for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 23:59:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708646377; cv=none; b=ZmQi++kTbuhX4ZZvuKEJcCBSMFy7Z4SIF7NtAM6pZueV1Y5/ETOaR6PqCaFN33H4YBSqrRuUWTkXon8Vzkjm1uC+gt09xhxfCgyR7JB/KwgoRCDE2HV9sB8iLANJhl0gz3WWdhueFvbRKeiNuNy0zhfyviQqKfI+iSigY9xiU+I=
+	t=1708646378; cv=none; b=AjNDIBtkAJBWmthMz2sdPRaTRT9s14KmgcfTcpW3yhMIlxKgJGbXifH18W9UzdRXrYst8LwQEUSi4/G1UexxOG/RFZ/eczv0CT1QCWlxo5U3Ryn0iXMtTW7mW3WRGPXcDhllsizf8YJhjHBmlqBw7yeAd0ESIIbzf084eaGceIY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708646377; c=relaxed/simple;
-	bh=fvL7WoYVtfWDA0eSgIz2/uxmggKJ3caMkp6L58c1Vzg=;
+	s=arc-20240116; t=1708646378; c=relaxed/simple;
+	bh=0fVSh2FjiZdmeQLP8Uxj8vTi9A5AAMiY1pz5LNo1qEU=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fHz+pN9akWQRqJURd0CE4yY4AgoTfIP6jMMLY4ScPDic65GExY+/p8iUAihW5kl6lLZJjm6S6rclgv6ZsPIY52OEa6ioDCxoLfOTfXf9o4CXPH8jiwoCMxZzn7WLC+00Ey0wqNam5njlXbPIZ/RuU5fN5fEDbJMMSUt+zqWDlIc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=SnCNfmRZ; arc=none smtp.client-ip=209.85.222.169
+	 MIME-Version; b=CrPNjOyZ6lArD9jfa6fRUA2XKhUE17+DFp93CwC48MyQHvZOz5HJlmiW6XmIIdJ/Zpqk6IaMHKkNoOlQH+k1W9NUo3SV0gUf7JolbgBWz2C0UfWiR147JAWOuHQ6xjt1pGcwpMkz791kep+q/jCL8UiSN8RafsBedsutnkbalpw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=WaSrDbYx; arc=none smtp.client-ip=209.85.219.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="SnCNfmRZ"
-Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-787a2e56b11so15776685a.3
-        for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 15:59:35 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="WaSrDbYx"
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-68f41af71ebso3038386d6.1
+        for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 15:59:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1708646374; x=1709251174; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1708646375; x=1709251175; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=lrYECuMGVE9PrAxQaTbZ/EU8UxUGn9u8rh+su4zaWr4=;
-        b=SnCNfmRZE61w2w4t2qa+dfe8kHcu5qjhidjN7DMpooHOkZPDW6yRxXd7++TqwUnmiH
-         29mHjWYVask4dGOlFm+LyxKAzEuHr42LMX1guUTq6madXw/8TPeOGlxBisU9bRdSdnyS
-         8+tie6g5GnfO4lwbiIfYtHqHrwA9wbYcDgy74j8y62MXPYHj7+rKmhnp65KdHAjDVRYx
-         nq5IZSH1gt4xhDj0h8cqkjVV/HguCXI4WPEGvyu9bDxw5+BAiSr4WnOknz8jM9RlrjdO
-         K1wSpvRSYsfpQvhBfWtAGmrIxd5CBtdNMRnmQXgiKDU1Kh0ULz6MyZM1zmGXwAwCR01N
-         hxQA==
+        bh=C6NCNpAh9fK3zsSUfb8VZalzo09bT41aWRdPAN/2tmQ=;
+        b=WaSrDbYxn8Scal0hMmPCRc1JSzfYd7V8VraLHPSOP5j1mYM6VcTv7bMLwWB7D7PfOA
+         KbNehzI4zRdh0LeH495Odu7sEemTSjZWOGBIUgxwbyXwm1lblU9YXtwNM+Bh44+sC3pA
+         9DKBb2gvPp1L//dXxL+WT7u37nPqnXG61dNzGavI1WFeWtyiQdcD/qNhigIRYZi1bWeX
+         hDCekhmxc9NdoEjk8rMwEvo2ceNk9KGhc64YzyUZcWON7XBlyegR3MR+xLKgCpQ2C2kn
+         UFbeo8w6qtB8vHDT1Y+Ue2FVmCWhuwbKgI4ctWPYoHVuvsE85O9lTKIaQ85E6BuaqJVd
+         QAww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708646374; x=1709251174;
+        d=1e100.net; s=20230601; t=1708646375; x=1709251175;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lrYECuMGVE9PrAxQaTbZ/EU8UxUGn9u8rh+su4zaWr4=;
-        b=UTYkBOJXXseMiZ6ChPLUVpHnqmDpN7jvV05zEAKNB1fsb/c2G3uWRAW1mqOWE1/iLP
-         4t+i5S0p6YwU79IoRRbGJIDdginXuPkzHiz4lrkVVNKTrA7LGvv6s/olgJVI2JOPkjke
-         3smQludcPmSgld7b9pr4FgEL4KmC6hPqOXkWzcW/umVgvy/+uPMYDMYVm+9jlL4D1EMA
-         +R5d2GzAptXY+EOYvX57ME2QNjSPmxpsPAeLT0SyENqR6xVxfcW2UBmYzz5JZRjPZU26
-         uGqLCk4tP6c/IhMEqWsZi1ls0cZ5gWyjiLY+kNCZHGHzSPcUCY6VmCPTe8iGzylqVQlw
-         GdvA==
-X-Gm-Message-State: AOJu0YydppQ9Qd4MHuLIILVraa9Qu/A108HOLOJ8qiP63bb5qF6dzFO7
-	Zn5dBnzd+9hSv8+w8S5oNqPJ33SN9t5hm65iPQcMlhIDl0SaDd1pXhmG2u1yTxazKnYdkRdmZdU
+        bh=C6NCNpAh9fK3zsSUfb8VZalzo09bT41aWRdPAN/2tmQ=;
+        b=sh7MyQPe+mGWNkwt0NYzKTjdMU4H/uCIwHGX5d5EGos/1rsg+i1DsMkPMof+0QMHWq
+         nYvNOV+Cr8xs0TjAwMk9UvHHThrgG9Gefa3Oyd+2zE4oxaVVY1LivLq88Rd2lNsjVmD0
+         zfmgAMewO3Qg2qNZqII6gA6wwVr+RlcEto7+kn0O1yURKuxDIEKQC7wuK2p5iEl+eHuz
+         LLsSh8VVtmAo9rJECj8/1dpQWmp6O6t/sBxmQXu8znHZQVuS1gZ+VT5ty2utIbtgrYcO
+         C71ZzAzvutgEtG1PWR2Pt+Xb1sucdNsc2mQ5whhed6W1muLqJxmCoB9Vqb2yfj1aX7la
+         HcdA==
+X-Gm-Message-State: AOJu0YyYJcL0NjRMkVTVtU7250lZFng7wrYmwj/VHq6lahCgbsTFIiNl
+	x/hgcn+bKBt9z6Vqle/Yfp2nMEjqVyQREMgWPEYzujxHC2vmXdrcvM0S2drn7281Lp9jCQUN6dg
 	=
-X-Google-Smtp-Source: AGHT+IFOGw7RmDIztTNvTmK5NwvVqQ9Z2qktRtH7EJLz10mrWlVQQSQyHCH4ZCuRJi+rkgcQ1OoNGQ==
-X-Received: by 2002:a05:620a:1727:b0:787:88a1:6852 with SMTP id az39-20020a05620a172700b0078788a16852mr730605qkb.16.1708646374294;
-        Thu, 22 Feb 2024 15:59:34 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IH+x3XLztcH74tchXvJjxeHF4/sC/GrP297WF8ShsdDG9kzYANrE6/VzHtN9xN3PxHqAeOrWQ==
+X-Received: by 2002:a05:6214:29e4:b0:68f:2f2d:d01 with SMTP id jv4-20020a05621429e400b0068f2f2d0d01mr642666qvb.10.1708646375396;
+        Thu, 22 Feb 2024 15:59:35 -0800 (PST)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id s13-20020a05620a0bcd00b007878458ba10sm2103168qki.59.2024.02.22.15.59.33
+        by smtp.gmail.com with ESMTPSA id d11-20020a05621416cb00b0068d11cf887bsm7475661qvz.55.2024.02.22.15.59.34
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Thu, 22 Feb 2024 15:59:34 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 01/21] selinux: fix style issues in security/selinux/ss/avtab.h
-Date: Thu, 22 Feb 2024 18:52:19 -0500
-Message-ID: <20240222235708.386652-24-paul@paul-moore.com>
+Subject: [PATCH 02/21] selinux: fix style issues in security/selinux/ss/avtab.c
+Date: Thu, 22 Feb 2024 18:52:20 -0500
+Message-ID: <20240222235708.386652-25-paul@paul-moore.com>
 X-Mailer: git-send-email 2.43.2
 In-Reply-To: <20240222235708.386652-23-paul@paul-moore.com>
 References: <20240222235708.386652-23-paul@paul-moore.com>
@@ -67,7 +67,7 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5595; i=paul@paul-moore.com; h=from:subject; bh=fvL7WoYVtfWDA0eSgIz2/uxmggKJ3caMkp6L58c1Vzg=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBl199UpyYtdgLaBUcvEp7Q425Na4B5rZo5ffzeI chK5iROot6JAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZdffVAAKCRDqIPLalzeJ c8hJEAClqTJhxDzqsCx5Uq3YxYi+ThgY+dsI7yjj75OQWfRCsKMpxl099+4QJ030AIhuEJLTzg1 SOOmTF+JWnqRC0ZKsBA0Yc87Acd1mH5v0wK2irrQ0A53wq5pWP1hL4lx6Lrcq7clikKbLRGMkew uUC3qwwKxJddvfkvCPwa7aPCsSAKa9YS2HWTCEQxR3mZCqHCqBK/kxzNyLq5atr0GOGVY/C3Xte MZynrLC+p5QQXmxW/53Hg9YVpblx5hzU8TYSbVHx92iZ+iowFcVDhqePutu9UWly5zPSH+bAN35 IWzHa+q0zUEQ56Eg5pNZg8A1jYdf0a7RoNoLpAyOeIpHqUzecXuVXsYvycQunbyW9h2Ge42a7jo GeI4uW/b2aSyOw0C7MYWdc1Vrc1kGV3xCJ6KyCVwulvKu1mK4VGlXlNjPd+wTd1Alhv8TZqNV9B Q5AlIpP+5fSbBQ+a57qMGA46R6rv7uleaTFTIlSLcyouml+2GIC25cq0AStYqoIM9g8vnFXI2Wh SKe469oXkeTrxrZsXJp6tPCoMA+dT+YEVt5YkzPIpjtFyU6qC8URup6W5X3DrwSSvNPDl3vAOrV vUoFdCMKel21yYlKNCOup263GFM8z3gXXBGZYUQuAtW/Kmv72vpyDnpVh9dOAdmyZ1ORPQO4JdA CJhJfAJJIMcQUHg==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=10549; i=paul@paul-moore.com; h=from:subject; bh=0fVSh2FjiZdmeQLP8Uxj8vTi9A5AAMiY1pz5LNo1qEU=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBl199b8FKGaDhUD8aWuiNiaStUOCwmEHaGIu8+J y97UfoWjnaJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZdffWwAKCRDqIPLalzeJ c/BRD/9+nBy7Y5UgvcP5ZmvUctXWh8L4xFgdgBozWLi9fIJMMcBrOBuESacb6iapIk+TJ0UdC/e 9bkTAuqM+llbwu9Pb97bcwfkSFwRG0m0yvH6Pf7+ZAZXEeuGwIp88hKla35eSwBzOYRIuAdxa1a iFQU4sj1A5Fy5kmxs29zECBJATLPsVNUxktO0RDUZvQFKqBfQGDEnwDTjlCApMjW6ANaXk+qWgA yc1F7SXxuXUMhRabYcBKvaKoPh6uhx42USRkapbxYOo5PEADDxIbD5/ZRbtVXHXeU2EsfRXPP2b Drk0Wcla912rOiiw1lEx4HZ9oeKhHb6RRZsniIDT4CqmueIvsyn+72JJ5RZC+m3T0008xYJzBvV H1TaBz4fQSRU+8TLTQ1Y8dEN5AhjaNqPmBxSWeEUbAZ4iAJRadULqneaaKmtbHglaQvVyNJEUt0 588+1Z8XVyREIfi69UMKa5hGiIsmBZS/Gs8Z/6DHI/bj0pO4/+FmngGO9YnYd9zw4qVBOG8xinN EvexDjp1Q8uOOdjJUYfHW7gi6KlcwKw1yT/UepKx/i0k1H3htO92KTrKBQ96fGfWsPvekhUpg/R +N8UadfMznejM+h71q913vNPxzeoWGkDyEeIg1dQHcdH14cmlTtEa99US2uaRobER8h44REZDxA 14K6SBPAMhOgUxw==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
@@ -81,139 +81,274 @@ changes fit in well with the rest of the SELinux kernel code.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/ss/avtab.h | 74 ++++++++++++++++++-------------------
- 1 file changed, 37 insertions(+), 37 deletions(-)
+ security/selinux/ss/avtab.c | 105 ++++++++++++++++++------------------
+ 1 file changed, 51 insertions(+), 54 deletions(-)
 
-diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
-index 3c3904bf02b0..8e8820484c55 100644
---- a/security/selinux/ss/avtab.h
-+++ b/security/selinux/ss/avtab.h
-@@ -9,42 +9,42 @@
-  *  Author : Stephen Smalley, <stephen.smalley.work@gmail.com>
+diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+index 697eb4352439..2ad98732d052 100644
+--- a/security/selinux/ss/avtab.c
++++ b/security/selinux/ss/avtab.c
+@@ -1,20 +1,17 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
+ /*
+  * Implementation of the access vector table type.
+  *
+  * Author : Stephen Smalley, <stephen.smalley.work@gmail.com>
   */
  
 -/* Updated: Frank Mayer <mayerf@tresys.com> and Karl MacMillan <kmacmillan@tresys.com>
 - *
-- * 	Added conditional policy language extensions
+- *	Added conditional policy language extensions
 - *
 - * Copyright (C) 2003 Tresys Technology, LLC
+- *	This program is free software; you can redistribute it and/or modify
+- *	it under the terms of the GNU General Public License as published by
+- *	the Free Software Foundation, version 2.
 +/* Updated: Frank Mayer <mayerf@tresys.com> and
 + *          Karl MacMillan <kmacmillan@tresys.com>
 + *          Added conditional policy language extensions
 + *          Copyright (C) 2003 Tresys Technology, LLC
   *
   * Updated: Yuichi Nakamura <ynakam@hitachisoft.jp>
-- * 	Tuned number of hash slots for avtab to reduce memory usage
+- *	Tuned number of hash slots for avtab to reduce memory usage
 + *          Tuned number of hash slots for avtab to reduce memory usage
   */
-+
- #ifndef _SS_AVTAB_H_
- #define _SS_AVTAB_H_
  
- #include "security.h"
+ #include <linux/bitops.h>
+@@ -36,19 +33,20 @@ static inline u32 avtab_hash(const struct avtab_key *keyp, u32 mask)
+ 	static const u32 c2 = 0x1b873593;
+ 	static const u32 r1 = 15;
+ 	static const u32 r2 = 13;
+-	static const u32 m  = 5;
+-	static const u32 n  = 0xe6546b64;
++	static const u32 m = 5;
++	static const u32 n = 0xe6546b64;
  
- struct avtab_key {
--	u16 source_type;	/* source type */
--	u16 target_type;	/* target type */
--	u16 target_class;	/* target object class */
--#define AVTAB_ALLOWED		0x0001
--#define AVTAB_AUDITALLOW	0x0002
--#define AVTAB_AUDITDENY		0x0004
--#define AVTAB_AV		(AVTAB_ALLOWED | AVTAB_AUDITALLOW | AVTAB_AUDITDENY)
--#define AVTAB_TRANSITION	0x0010
--#define AVTAB_MEMBER		0x0020
--#define AVTAB_CHANGE		0x0040
--#define AVTAB_TYPE		(AVTAB_TRANSITION | AVTAB_MEMBER | AVTAB_CHANGE)
-+	u16 source_type; /* source type */
-+	u16 target_type; /* target type */
-+	u16 target_class; /* target object class */
-+#define AVTAB_ALLOWED	 0x0001
-+#define AVTAB_AUDITALLOW 0x0002
-+#define AVTAB_AUDITDENY	 0x0004
-+#define AVTAB_AV	 (AVTAB_ALLOWED | AVTAB_AUDITALLOW | AVTAB_AUDITDENY)
-+#define AVTAB_TRANSITION 0x0010
-+#define AVTAB_MEMBER	 0x0020
-+#define AVTAB_CHANGE	 0x0040
-+#define AVTAB_TYPE	 (AVTAB_TRANSITION | AVTAB_MEMBER | AVTAB_CHANGE)
- /* extended permissions */
- #define AVTAB_XPERMS_ALLOWED	0x0100
--#define AVTAB_XPERMS_AUDITALLOW	0x0200
-+#define AVTAB_XPERMS_AUDITALLOW 0x0200
- #define AVTAB_XPERMS_DONTAUDIT	0x0400
--#define AVTAB_XPERMS		(AVTAB_XPERMS_ALLOWED | \
--				AVTAB_XPERMS_AUDITALLOW | \
--				AVTAB_XPERMS_DONTAUDIT)
--#define AVTAB_ENABLED_OLD   0x80000000 /* reserved for used in cond_avtab */
--#define AVTAB_ENABLED		0x8000 /* reserved for used in cond_avtab */
--	u16 specified;	/* what field is specified */
-+#define AVTAB_XPERMS                                      \
-+	(AVTAB_XPERMS_ALLOWED | AVTAB_XPERMS_AUDITALLOW | \
-+	 AVTAB_XPERMS_DONTAUDIT)
-+#define AVTAB_ENABLED_OLD 0x80000000 /* reserved for used in cond_avtab */
-+#define AVTAB_ENABLED	  0x8000 /* reserved for used in cond_avtab */
-+	u16 specified; /* what field is specified */
- };
+ 	u32 hash = 0;
  
- /*
-@@ -53,8 +53,8 @@ struct avtab_key {
-  */
- struct avtab_extended_perms {
- /* These are not flags. All 256 values may be used */
--#define AVTAB_XPERMS_IOCTLFUNCTION	0x01
--#define AVTAB_XPERMS_IOCTLDRIVER	0x02
-+#define AVTAB_XPERMS_IOCTLFUNCTION 0x01
-+#define AVTAB_XPERMS_IOCTLDRIVER   0x02
- 	/* extension of the avtab_key specified */
- 	u8 specified; /* ioctl, netfilter, ... */
- 	/*
-@@ -82,9 +82,9 @@ struct avtab_node {
+-#define mix(input) do { \
+-		u32 v = input; \
+-		v *= c1; \
+-		v = (v << r1) | (v >> (32 - r1)); \
+-		v *= c2; \
+-		hash ^= v; \
++#define mix(input)                                         \
++	do {                                               \
++		u32 v = input;                             \
++		v *= c1;                                   \
++		v = (v << r1) | (v >> (32 - r1));          \
++		v *= c2;                                   \
++		hash ^= v;                                 \
+ 		hash = (hash << r2) | (hash >> (32 - r2)); \
+-		hash = hash * m + n; \
++		hash = hash * m + n;                       \
+ 	} while (0)
  
- struct avtab {
- 	struct avtab_node **htable;
--	u32 nel;	/* number of elements */
--	u32 nslot;      /* number of hash slots */
--	u32 mask;       /* mask to compute hash func */
-+	u32 nel; /* number of elements */
-+	u32 nslot; /* number of hash slots */
-+	u32 mask; /* mask to compute hash func */
- };
+ 	mix(keyp->target_class);
+@@ -66,9 +64,10 @@ static inline u32 avtab_hash(const struct avtab_key *keyp, u32 mask)
+ 	return hash & mask;
+ }
  
- void avtab_init(struct avtab *h);
-@@ -92,6 +92,9 @@ int avtab_alloc(struct avtab *, u32);
- int avtab_alloc_dup(struct avtab *new, const struct avtab *orig);
- void avtab_destroy(struct avtab *h);
+-static struct avtab_node*
+-avtab_insert_node(struct avtab *h, struct avtab_node **dst,
+-		  const struct avtab_key *key, const struct avtab_datum *datum)
++static struct avtab_node *avtab_insert_node(struct avtab *h,
++					    struct avtab_node **dst,
++					    const struct avtab_key *key,
++					    const struct avtab_datum *datum)
+ {
+ 	struct avtab_node *newnode;
+ 	struct avtab_extended_perms *xperms;
+@@ -99,7 +98,7 @@ avtab_insert_node(struct avtab *h, struct avtab_node **dst,
+ static int avtab_node_cmp(const struct avtab_key *key1,
+ 			  const struct avtab_key *key2)
+ {
+-	u16 specified = key1->specified & ~(AVTAB_ENABLED|AVTAB_ENABLED_OLD);
++	u16 specified = key1->specified & ~(AVTAB_ENABLED | AVTAB_ENABLED_OLD);
  
-+#define MAX_AVTAB_HASH_BITS    16
-+#define MAX_AVTAB_HASH_BUCKETS (1 << MAX_AVTAB_HASH_BITS)
-+
- #ifdef CONFIG_SECURITY_SELINUX_DEBUG
- void avtab_hash_eval(struct avtab *h, const char *tag);
- #else
-@@ -107,7 +110,8 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
- 		    void *p);
+ 	if (key1->source_type == key2->source_type &&
+ 	    key1->target_type == key2->target_type &&
+@@ -129,8 +128,7 @@ static int avtab_insert(struct avtab *h, const struct avtab_key *key,
+ 		return -EINVAL;
  
- int avtab_read(struct avtab *a, void *fp, struct policydb *pol);
--int avtab_write_item(struct policydb *p, const struct avtab_node *cur, void *fp);
-+int avtab_write_item(struct policydb *p, const struct avtab_node *cur,
-+		     void *fp);
- int avtab_write(struct policydb *p, struct avtab *a, void *fp);
+ 	hvalue = avtab_hash(key, h->mask);
+-	for (prev = NULL, cur = h->htable[hvalue];
+-	     cur;
++	for (prev = NULL, cur = h->htable[hvalue]; cur;
+ 	     prev = cur, cur = cur->next) {
+ 		cmp = avtab_node_cmp(key, &cur->key);
+ 		/* extended perms may not be unique */
+@@ -163,8 +161,7 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
+ 	if (!h || !h->nslot || h->nel == U32_MAX)
+ 		return NULL;
+ 	hvalue = avtab_hash(key, h->mask);
+-	for (prev = NULL, cur = h->htable[hvalue];
+-	     cur;
++	for (prev = NULL, cur = h->htable[hvalue]; cur;
+ 	     prev = cur, cur = cur->next) {
+ 		cmp = avtab_node_cmp(key, &cur->key);
+ 		if (cmp <= 0)
+@@ -188,8 +185,7 @@ struct avtab_node *avtab_search_node(struct avtab *h,
+ 		return NULL;
  
- struct avtab_node *avtab_insert_nonunique(struct avtab *h,
-@@ -116,11 +120,7 @@ struct avtab_node *avtab_insert_nonunique(struct avtab *h,
+ 	hvalue = avtab_hash(key, h->mask);
+-	for (cur = h->htable[hvalue]; cur;
+-	     cur = cur->next) {
++	for (cur = h->htable[hvalue]; cur; cur = cur->next) {
+ 		cmp = avtab_node_cmp(key, &cur->key);
+ 		if (cmp == 0)
+ 			return cur;
+@@ -199,8 +195,8 @@ struct avtab_node *avtab_search_node(struct avtab *h,
+ 	return NULL;
+ }
  
- struct avtab_node *avtab_search_node(struct avtab *h,
- 				     const struct avtab_key *key);
+-struct avtab_node*
+-avtab_search_node_next(struct avtab_node *node, u16 specified)
 +struct avtab_node *avtab_search_node_next(struct avtab_node *node,
-+					  u16 specified);
++					  u16 specified)
+ {
+ 	struct avtab_key tmp_key;
+ 	struct avtab_node *cur;
+@@ -314,17 +310,19 @@ void avtab_hash_eval(struct avtab *h, const char *tag)
  
--struct avtab_node *avtab_search_node_next(struct avtab_node *node, u16 specified);
+ 			if (chain_len > max_chain_len)
+ 				max_chain_len = chain_len;
+-			chain2_len_sum += (unsigned long long)chain_len * chain_len;
++			chain2_len_sum +=
++				(unsigned long long)chain_len * chain_len;
+ 		}
+ 	}
+ 
+ 	pr_debug("SELinux: %s:  %d entries and %d/%d buckets used, "
+-	       "longest chain length %d, sum of chain length^2 %llu\n",
+-	       tag, h->nel, slots_used, h->nslot, max_chain_len,
+-	       chain2_len_sum);
++		 "longest chain length %d, sum of chain length^2 %llu\n",
++		 tag, h->nel, slots_used, h->nslot, max_chain_len,
++		 chain2_len_sum);
+ }
+ #endif /* CONFIG_SECURITY_SELINUX_DEBUG */
+ 
++/* clang-format off */
+ static const uint16_t spec_order[] = {
+ 	AVTAB_ALLOWED,
+ 	AVTAB_AUDITDENY,
+@@ -336,6 +334,7 @@ static const uint16_t spec_order[] = {
+ 	AVTAB_XPERMS_AUDITALLOW,
+ 	AVTAB_XPERMS_DONTAUDIT
+ };
++/* clang-format on */
+ 
+ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+ 		    int (*insertf)(struct avtab *a, const struct avtab_key *k,
+@@ -365,9 +364,8 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+ 		if (items2 > ARRAY_SIZE(buf32)) {
+ 			pr_err("SELinux: avtab: entry overflow\n");
+ 			return -EINVAL;
 -
--#define MAX_AVTAB_HASH_BITS 16
--#define MAX_AVTAB_HASH_BUCKETS (1 << MAX_AVTAB_HASH_BITS)
+ 		}
+-		rc = next_entry(buf32, fp, sizeof(u32)*items2);
++		rc = next_entry(buf32, fp, sizeof(u32) * items2);
+ 		if (rc) {
+ 			pr_err("SELinux: avtab: truncated entry\n");
+ 			return rc;
+@@ -400,8 +398,7 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+ 			pr_err("SELinux: avtab: null entry\n");
+ 			return -EINVAL;
+ 		}
+-		if ((val & AVTAB_AV) &&
+-		    (val & AVTAB_TYPE)) {
++		if ((val & AVTAB_AV) && (val & AVTAB_TYPE)) {
+ 			pr_err("SELinux: avtab: entry has both access vectors and types\n");
+ 			return -EINVAL;
+ 		}
+@@ -428,7 +425,7 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+ 		return 0;
+ 	}
+ 
+-	rc = next_entry(buf16, fp, sizeof(u16)*4);
++	rc = next_entry(buf16, fp, sizeof(u16) * 4);
+ 	if (rc) {
+ 		pr_err("SELinux: avtab: truncated entry\n");
+ 		return rc;
+@@ -454,10 +451,11 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+ 	}
+ 
+ 	if ((vers < POLICYDB_VERSION_XPERMS_IOCTL) &&
+-			(key.specified & AVTAB_XPERMS)) {
++	    (key.specified & AVTAB_XPERMS)) {
+ 		pr_err("SELinux:  avtab:  policy version %u does not "
+-				"support extended permissions rules and one "
+-				"was specified\n", vers);
++		       "support extended permissions rules and one "
++		       "was specified\n",
++		       vers);
+ 		return -EINVAL;
+ 	} else if (key.specified & AVTAB_XPERMS) {
+ 		memset(&xperms, 0, sizeof(struct avtab_extended_perms));
+@@ -471,7 +469,8 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+ 			pr_err("SELinux: avtab: truncated entry\n");
+ 			return rc;
+ 		}
+-		rc = next_entry(buf32, fp, sizeof(u32)*ARRAY_SIZE(xperms.perms.p));
++		rc = next_entry(buf32, fp,
++				sizeof(u32) * ARRAY_SIZE(xperms.perms.p));
+ 		if (rc) {
+ 			pr_err("SELinux: avtab: truncated entry\n");
+ 			return rc;
+@@ -507,7 +506,6 @@ int avtab_read(struct avtab *a, void *fp, struct policydb *pol)
+ 	__le32 buf[1];
+ 	u32 nel, i;
+ 
 -
--#endif	/* _SS_AVTAB_H_ */
--
-+#endif /* _SS_AVTAB_H_ */
+ 	rc = next_entry(buf, fp, sizeof(u32));
+ 	if (rc < 0) {
+ 		pr_err("SELinux: avtab: truncated table\n");
+@@ -561,7 +559,8 @@ int avtab_write_item(struct policydb *p, const struct avtab_node *cur, void *fp)
+ 		return rc;
+ 
+ 	if (cur->key.specified & AVTAB_XPERMS) {
+-		rc = put_entry(&cur->datum.u.xperms->specified, sizeof(u8), 1, fp);
++		rc = put_entry(&cur->datum.u.xperms->specified, sizeof(u8), 1,
++			       fp);
+ 		if (rc)
+ 			return rc;
+ 		rc = put_entry(&cur->datum.u.xperms->driver, sizeof(u8), 1, fp);
+@@ -570,7 +569,7 @@ int avtab_write_item(struct policydb *p, const struct avtab_node *cur, void *fp)
+ 		for (i = 0; i < ARRAY_SIZE(cur->datum.u.xperms->perms.p); i++)
+ 			buf32[i] = cpu_to_le32(cur->datum.u.xperms->perms.p[i]);
+ 		rc = put_entry(buf32, sizeof(u32),
+-				ARRAY_SIZE(cur->datum.u.xperms->perms.p), fp);
++			       ARRAY_SIZE(cur->datum.u.xperms->perms.p), fp);
+ 	} else {
+ 		buf32[0] = cpu_to_le32(cur->datum.u.data);
+ 		rc = put_entry(buf32, sizeof(u32), 1, fp);
+@@ -593,8 +592,7 @@ int avtab_write(struct policydb *p, struct avtab *a, void *fp)
+ 		return rc;
+ 
+ 	for (i = 0; i < a->nslot; i++) {
+-		for (cur = a->htable[i]; cur;
+-		     cur = cur->next) {
++		for (cur = a->htable[i]; cur; cur = cur->next) {
+ 			rc = avtab_write_item(p, cur, fp);
+ 			if (rc)
+ 				return rc;
+@@ -606,10 +604,9 @@ int avtab_write(struct policydb *p, struct avtab *a, void *fp)
+ 
+ void __init avtab_cache_init(void)
+ {
+-	avtab_node_cachep = kmem_cache_create("avtab_node",
+-					      sizeof(struct avtab_node),
+-					      0, SLAB_PANIC, NULL);
+-	avtab_xperms_cachep = kmem_cache_create("avtab_extended_perms",
+-						sizeof(struct avtab_extended_perms),
+-						0, SLAB_PANIC, NULL);
++	avtab_node_cachep = kmem_cache_create(
++		"avtab_node", sizeof(struct avtab_node), 0, SLAB_PANIC, NULL);
++	avtab_xperms_cachep = kmem_cache_create(
++		"avtab_extended_perms", sizeof(struct avtab_extended_perms), 0,
++		SLAB_PANIC, NULL);
+ }
 -- 
 2.43.2
 
