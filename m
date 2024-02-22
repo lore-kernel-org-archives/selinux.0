@@ -1,63 +1,63 @@
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0A28140372
-	for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 23:59:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06015140364
+	for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 23:59:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708646388; cv=none; b=Q6+MmzZn1AgRymAZu8QJu20Kh5f7lStldQydRVN2V29JSxfU0DCfx2nNnu4hN1LgcAzy59yvyrsB1R/CPl2O/QzDjbUibTFy8oGW7+fGxu1EUY/byRbWw+086Aogl3x6l8NAVqjQAaXOdSwke/Xx8+mj6I4FLBap+OPT3MwDgsc=
+	t=1708646389; cv=none; b=nsFSQe/fvC1Gdjuiq3u6DPk0QaTpUydpY1FHK9BZuMLccWXzbMlsGE66sfH3PnGbkF1V6M4eaLa497lQ8i3bQLT2mAMUn5gOGFiiGZpTYo60PxKYnbvMykvRIRJFUMK7UyOD/Zth/HU8fT0UNapLrE6MppJes8TWznmwBkE29o0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708646388; c=relaxed/simple;
-	bh=SZ+zGVhSU6F3hsL4f/fO1qnXio9nfJN9GFUBbsVQj60=;
+	s=arc-20240116; t=1708646389; c=relaxed/simple;
+	bh=WcWMOGj6EzXlnXxjWOjbIXFHZT51YtOWAmDHFnbMrw4=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PhyW5YETIkisPSaXOYbPaEkPQOEJaDfhKTjnUthbspb7h75iblB7SznUitFbts7Eo4sykdU09kOATgNEUd4bd8Dy01OdHL1YpcIiEbeCPzsXtyfKaXRMCWLFO/W42MeTIBtroE+ANwAnh5L9iYqEswWyxkGGWU4rhD9LNI6lwj0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ew4QP6L1; arc=none smtp.client-ip=209.85.219.43
+	 MIME-Version; b=kqIYhSH7KnTDF5IdlNI2AR4865j6/6tF90hIhoFd9SP+GwIZ4M3RxNG7SO8eDnTe8AFnjhnQvsPEihdz0HqwGPR+U3VGlCMhxvSni3N4iWJD+P5tw/hogsrfmIG6rAO+GuZwiRBImHy4PePgJyFfD3I1lIPyVj4wsa/xyi8XAp0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=E/lTGZIv; arc=none smtp.client-ip=209.85.219.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ew4QP6L1"
-Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-68f51c5f9baso2002476d6.3
-        for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 15:59:46 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="E/lTGZIv"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-68f51ba7043so2484946d6.3
+        for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 15:59:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1708646386; x=1709251186; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1708646387; x=1709251187; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=G2UG23iVUyi2LU1m26pPSBPDlo3EpeahzkQM9ckCXSY=;
-        b=ew4QP6L1vTt4DBAJxyfAx2yCROKgMp53uICwVRWvXv6c4jCmvbKIvX+d03P1HZt6VI
-         udlKDIBzPtbwLEvDn97gLnO31lpM7t5DG+y76UkIVy93pkucYQJzlBz8WZ3CHtC8xjtb
-         Jyu+uqJ1rVcPbrE2qscvvn71NtNrLtnZtkozarfPEla1b3X4HB5KKqfm+yoFGgKbCjiA
-         Nj0x+qhD3Pmj322Ktb3QAECXqj1PPg4nF5snBEObtKwpbXOLuSj9HXYa3pJJe81IcDdp
-         zjKFlS4ramk0BSzWBMMciwQYeObuayZD/vfyuMCDGfrKcmgtjVpdGCe1pDQJBA8a2cqj
-         wUug==
+        bh=JbjtEbXipWVl4XZCnmkxFTAmBVbWul7Lt80nOFerUuM=;
+        b=E/lTGZIvNpV+moGaXzqChLsiyBHvcHV/1sobmSmQEb1D7As3QnXK9DZZrQJSr3UL5p
+         GSZ+dIWBhKbYu1VQRJeYGuJ7BPEvJ+VZsBsqzBkdC3DnrbWd7K8VxtSmY/6CKNQHXFhG
+         ie9IodNzInMXKxbJfIGp8Q0tgQqizFbqtbdZkjDip9OOAa5vcUL4K0VndQfS60BX2rYr
+         Q9U6l13ow6en8uSxvLGy5s/Ww2RbtxY5Y7O+oYhe7gTw/qRMcx9yNGVEg+pQRjUp2L7v
+         uVvz6MUL1TQjwm1qJhytD2XJ/JDI0c1K6Ccl0GHh+OgbmVyc5ostJCCgDqhKqPO+LX2g
+         mcdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708646386; x=1709251186;
+        d=1e100.net; s=20230601; t=1708646387; x=1709251187;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=G2UG23iVUyi2LU1m26pPSBPDlo3EpeahzkQM9ckCXSY=;
-        b=o5zh/AlNL0cFVyqm9d3DLk3lu5/GIW1yVQM2+LEd/7E6DWRVG7aezJNWZl2KpuLqmt
-         lqkvc0vT3+oRwy5wXLs2+zCYiywvw4tmsBGd7s6+qGQv8MXkK2yracX7Yd9DJKp6K6fF
-         aH4XDDOoSvq5VpIpA8XYdxtMV+WXWq0N1v0+gBQgMaA2HhTGO28Y5hJiH12kgYuAjtJI
-         aiK4KAgbfv1K/zSyVJQMivZDWoT2IjB593PLVvSNCXwZxgvG2yrUg2cVfngF4KdAy61m
-         H/gqeGTeJgufOX8KNXwBoUsqrXcOQvnGH4UPjsC/mcF8/8dZjQ6q5gX9Ew8dViYCBcNT
-         2P5A==
-X-Gm-Message-State: AOJu0Yy4Rp7ZXFT5Ss1ApUNxjrIaMq0F0Xwx/KQMcVry4XGD2wS3hu4N
-	BPhnTbV2qZ14nEq/UrmVj2bW3Klu0hQL70rC9KFfDtfxa7IHNqgxSqQU2VPMdHG6BmDOx+eUhlM
+        bh=JbjtEbXipWVl4XZCnmkxFTAmBVbWul7Lt80nOFerUuM=;
+        b=uPks1ZOiczHlg1LImeGulW389mAD7+r0HRPYYOjYyz/tUiGSi9AlGsU93DQEA7d8zU
+         epEw+w9hTqAks8ZUl0JHgx9wySvvQipgKPQ4zui2kQ01JVkHg6D7cJ0scqpdoBMbs2si
+         fe2VgRCD53jsJxixl9PpEIcls5bPUIGGXwpz07Bqd2hRMrHCnRkAL40bfqIEipN3OKVj
+         yZVdUPbGf1dnsv7Xgnp5AXjoXww4gOuGMFLDrZnQ5YWtP89PJdY84OqVc5nttRVAx0MM
+         ctNX6AdAtsFUYxS1VuiUXXOAD7cSnLY8JKVNFUyiIx0JrSWik0Vw/2I7WJbC8hfKTKQw
+         V9GQ==
+X-Gm-Message-State: AOJu0YzQXJnVPKQS0pdPLy2Tzsi/LX9uMHmHD8ld4aJ9ScAHsoJ96KCt
+	86ZFaUoJY3exrDklRurgsR6zSxPuQQ46xpZ1JYP6pvE9HNrTQdoBavjVEo1wehLq2rFmjTWJnjI
 	=
-X-Google-Smtp-Source: AGHT+IHDVGKKq5P97M/7E/G/eaoH/YSa4oQdSsdk0rK9IWjXLr1BddPAHqptNtMJHKfRvRo9or7d9g==
-X-Received: by 2002:a0c:cb89:0:b0:68f:2eac:5e1e with SMTP id p9-20020a0ccb89000000b0068f2eac5e1emr649183qvk.38.1708646385794;
-        Thu, 22 Feb 2024 15:59:45 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFA5+2mvc6EugLdBJwo7w7PJpjIHmXMsCyzehIsrOlrbmqqa/hj4E7MOD6C+5KkozNstjapSA==
+X-Received: by 2002:ad4:5743:0:b0:68f:22b1:8e24 with SMTP id q3-20020ad45743000000b0068f22b18e24mr886760qvx.28.1708646386601;
+        Thu, 22 Feb 2024 15:59:46 -0800 (PST)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id ql9-20020a056214540900b0068f920768a5sm3675403qvb.140.2024.02.22.15.59.45
+        by smtp.gmail.com with ESMTPSA id ld11-20020a056214418b00b00686ac3c9db4sm7478899qvb.98.2024.02.22.15.59.46
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Feb 2024 15:59:45 -0800 (PST)
+        Thu, 22 Feb 2024 15:59:46 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 13/21] selinux: fix style issues in security/selinux/ss/mls.c
-Date: Thu, 22 Feb 2024 18:52:31 -0500
-Message-ID: <20240222235708.386652-36-paul@paul-moore.com>
+Subject: [PATCH 14/21] selinux: fix style issues in security/selinux/ss/mls_types.h
+Date: Thu, 22 Feb 2024 18:52:32 -0500
+Message-ID: <20240222235708.386652-37-paul@paul-moore.com>
 X-Mailer: git-send-email 2.43.2
 In-Reply-To: <20240222235708.386652-23-paul@paul-moore.com>
 References: <20240222235708.386652-23-paul@paul-moore.com>
@@ -67,7 +67,7 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=7905; i=paul@paul-moore.com; h=from:subject; bh=SZ+zGVhSU6F3hsL4f/fO1qnXio9nfJN9GFUBbsVQj60=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBl19+iw/R+bBjm6QWeIaPJ9BZqxOriyLbLRzhGM da28F09aOyJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZdffogAKCRDqIPLalzeJ c+uYD/9lEu1WjEW/dqrBwD5YKuoGfJFThlkPlUVQ23q6g9V1hfTYkBjZcCN1tJiuH71rCZr/Dj7 ukDlt/iSoxuU41zirxuINir+rRHhGqEsvlV3p3UHJgEdzgz+m7o7s2QF6Hc44A8ZBCdz4GelI6F a6WhwvIILsiRlV99we3BlXEK8td/8QDEmMdI0qsueU9oN7/Hay3ZNzE194xHLv1yXH5bYNHG0Rw re76ZEm5uZydeN2zWl36tbGW2I17LZ7J3s14AqtIMERz+8ncuMFBtbUET8tfsl9oJLHCxtUQDAm HJm8AUp3nheDeko31Q/5+ln0wQelmlaQe33cyiagsDlBqOxQwXMW456OPCSEeoNmJXxs1Nh+YK8 1i0Ozj6mymuCW92PMksZWpB91lmdS3ILokmn8m8RENZpHVBB65ruyV/UEJICBOdVyuRXfo2w1a9 c0UVA7acQepjxXKeNF8CXMyEezL/7Hh7TSdOsJXKBkXTPSultbIypBcsBN+n1yyrVfOXnBHH5du OZcPLEVUhZ76lmgVKZ9LmLRca/NyQofBF3FoBBl8SX6umb453j25cPBf7+1ec1FfpLY8Yb/8S12 rut/JNB3byEca1enCL0yodFMhf06qZDaMw+yHYOUWG1Q6MyCzYskmkUleHC7H3R9kpywXT8Xh9/ vyanZ2rou7OX2Ww==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2962; i=paul@paul-moore.com; h=from:subject; bh=WcWMOGj6EzXlnXxjWOjbIXFHZT51YtOWAmDHFnbMrw4=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBl19+puZGruday0MFQyUHWsQQzxbxkr+voStNIC ZBZEDvHbjiJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZdffqQAKCRDqIPLalzeJ c+AuD/wNSHz3IOM6OtC/7mopxtcJsVglfzcP0tOP0f197N4/bloHWNpNxCDOPp0yrQ+rGhQy8xe A/K3T9zXhUMzeQhdO+pMKp+Q3+FY3pdacBfB6auKEUZuOzhMirylie1NuOs95DfFmgxPmng+nqO MKdGQoCRb8L3DF0fjrG2kL9SSi0Uo4/kmu5Esek+dFlBc1kh6aCkywgICxmCN/IU12QtqZngCcF urECBl0GbqUK7cg7P/OX1qCPb00ZSum+3PsxRdeOYxAnbzqf+PPwDydL59jpqLGTj6eGk/Gitr1 Bi56ttNnJ6/+LQ6ZbPL/KW7JzbZA8QzHSpWm2y87l4j9UoAClORuaa3RvD0wL/qg4S3183Lpa/O jdguuzbnt5ZDQebCg1JvsqLjzaKfHdRpR4TeIv5KyXLuUa4bBHsvL/kxrD/oiGbbS3uACfKoTv6 Wy9GecJp23RQuNWK0t5kdHwjVf7zRUiZldZAV2By6m0CKm/eLPmpfb+ge4AOuPWwgFVXyfDxV2Y mOjEGFPqx5H69Lp/tbjFwhwmddLZVrVArsIobXwUbFa44mAwTYO4wGVUZOmK9dJsOL/B3ZC7Ivf Ijd8l7MrQBfXuidkAMRha/fwlYPuOs2X9EvBWFwXx6rtZmY3l/M8gBsdyW79mIARdqRBTie+COE mBrjM25cG2ioFNQ==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
@@ -81,219 +81,77 @@ changes fit in well with the rest of the SELinux kernel code.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/ss/mls.c | 83 ++++++++++++++++-----------------------
- 1 file changed, 33 insertions(+), 50 deletions(-)
+ security/selinux/ss/mls_types.h | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index cd38f5913b63..989c809d310d 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -4,19 +4,15 @@
+diff --git a/security/selinux/ss/mls_types.h b/security/selinux/ss/mls_types.h
+index f492cf148891..7ef6e8cb0cf4 100644
+--- a/security/selinux/ss/mls_types.h
++++ b/security/selinux/ss/mls_types.h
+@@ -4,12 +4,11 @@
   *
   * Author : Stephen Smalley, <stephen.smalley.work@gmail.com>
   */
 +
  /*
   * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-+ *          Support for enhanced MLS infrastructure.
-+ *          Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-  *
+- *
 - *	Support for enhanced MLS infrastructure.
 - *
-- * Copyright (C) 2004-2006 Trusted Computer Solutions, Inc.
-- */
--/*
-  * Updated: Hewlett-Packard <paul@paul-moore.com>
-- *
-- *      Added support to import/export the MLS label from NetLabel
-- *
-- * (c) Copyright Hewlett-Packard Development Company, L.P., 2006
-+ *          Added support to import/export the MLS label from NetLabel
-+ *          Copyright (C) Hewlett-Packard Development Company, L.P., 2006
+- * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
++ *          Support for enhanced MLS infrastructure.
++ *          Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
   */
  
- #include <linux/kernel.h>
-@@ -52,7 +48,8 @@ int mls_compute_context_len(struct policydb *p, struct context *context)
- 		head = -2;
- 		prev = -2;
- 		e = &context->range.level[l].cat;
--		ebitmap_for_each_positive_bit(e, node, i) {
-+		ebitmap_for_each_positive_bit(e, node, i)
-+		{
- 			if (i - prev > 1) {
- 				/* one or more negative bits are skipped */
- 				if (head != prev) {
-@@ -86,8 +83,7 @@ int mls_compute_context_len(struct policydb *p, struct context *context)
-  * the MLS fields of `context' into the string `*scontext'.
-  * Update `*scontext' to point to the end of the MLS fields.
-  */
--void mls_sid_to_context(struct policydb *p,
--			struct context *context,
-+void mls_sid_to_context(struct policydb *p, struct context *context,
- 			char **scontext)
+ #ifndef _SS_MLS_TYPES_H_
+@@ -19,34 +18,35 @@
+ #include "ebitmap.h"
+ 
+ struct mls_level {
+-	u32 sens;		/* sensitivity */
+-	struct ebitmap cat;	/* category set */
++	u32 sens; /* sensitivity */
++	struct ebitmap cat; /* category set */
+ };
+ 
+ struct mls_range {
+ 	struct mls_level level[2]; /* low == level[0], high == level[1] */
+ };
+ 
+-static inline int mls_level_eq(const struct mls_level *l1, const struct mls_level *l2)
++static inline int mls_level_eq(const struct mls_level *l1,
++			       const struct mls_level *l2)
  {
- 	char *scontextp, *nm;
-@@ -112,7 +108,8 @@ void mls_sid_to_context(struct policydb *p,
- 		head = -2;
- 		prev = -2;
- 		e = &context->range.level[l].cat;
--		ebitmap_for_each_positive_bit(e, node, i) {
-+		ebitmap_for_each_positive_bit(e, node, i)
-+		{
- 			if (i - prev > 1) {
- 				/* one or more negative bits are skipped */
- 				if (prev != head) {
-@@ -230,12 +227,8 @@ int mls_context_isvalid(struct policydb *p, struct context *c)
-  * Policy read-lock must be held for sidtab lookup.
-  *
-  */
--int mls_context_to_sid(struct policydb *pol,
--		       char oldc,
--		       char *scontext,
--		       struct context *context,
--		       struct sidtab *s,
--		       u32 def_sid)
-+int mls_context_to_sid(struct policydb *pol, char oldc, char *scontext,
-+		       struct context *context, struct sidtab *s, u32 def_sid)
- {
- 	char *sensitivity, *cur_cat, *next_cat, *rngptr;
- 	struct level_datum *levdatum;
-@@ -333,7 +326,8 @@ int mls_context_to_sid(struct policydb *pol,
- 				return -EINVAL;
- 
- 			for (i = catdatum->value; i < rngdatum->value; i++) {
--				rc = ebitmap_set_bit(&context->range.level[l].cat, i, 1);
-+				rc = ebitmap_set_bit(
-+					&context->range.level[l].cat, i, 1);
- 				if (rc)
- 					return rc;
- 			}
-@@ -371,8 +365,8 @@ int mls_from_string(struct policydb *p, char *str, struct context *context,
- 	if (!tmpstr) {
- 		rc = -ENOMEM;
- 	} else {
--		rc = mls_context_to_sid(p, ':', tmpstr, context,
--					NULL, SECSID_NULL);
-+		rc = mls_context_to_sid(p, ':', tmpstr, context, NULL,
-+					SECSID_NULL);
- 		kfree(tmpstr);
- 	}
- 
-@@ -382,8 +376,7 @@ int mls_from_string(struct policydb *p, char *str, struct context *context,
- /*
-  * Copies the MLS range `range' into `context'.
-  */
--int mls_range_set(struct context *context,
--				struct mls_range *range)
-+int mls_range_set(struct context *context, struct mls_range *range)
- {
- 	int l, rc = 0;
- 
-@@ -399,9 +392,8 @@ int mls_range_set(struct context *context,
- 	return rc;
+-	return ((l1->sens == l2->sens) &&
+-		ebitmap_cmp(&l1->cat, &l2->cat));
++	return ((l1->sens == l2->sens) && ebitmap_cmp(&l1->cat, &l2->cat));
  }
  
--int mls_setup_user_range(struct policydb *p,
--			 struct context *fromcon, struct user_datum *user,
--			 struct context *usercon)
-+int mls_setup_user_range(struct policydb *p, struct context *fromcon,
-+			 struct user_datum *user, struct context *usercon)
+-static inline int mls_level_dom(const struct mls_level *l1, const struct mls_level *l2)
++static inline int mls_level_dom(const struct mls_level *l1,
++				const struct mls_level *l2)
  {
- 	if (p->mls_enabled) {
- 		struct mls_level *fromcon_sen = &(fromcon->range.level[0]);
-@@ -444,10 +436,8 @@ int mls_setup_user_range(struct policydb *p,
-  * policy `oldp' to the values specified in the policy `newp',
-  * storing the resulting context in `newc'.
-  */
--int mls_convert_context(struct policydb *oldp,
--			struct policydb *newp,
--			struct context *oldc,
--			struct context *newc)
-+int mls_convert_context(struct policydb *oldp, struct policydb *newp,
-+			struct context *oldc, struct context *newc)
- {
- 	struct level_datum *levdatum;
- 	struct cat_datum *catdatum;
-@@ -468,8 +458,9 @@ int mls_convert_context(struct policydb *oldp,
- 			return -EINVAL;
- 		newc->range.level[l].sens = levdatum->level->sens;
- 
--		ebitmap_for_each_positive_bit(&oldc->range.level[l].cat,
--					      node, i) {
-+		ebitmap_for_each_positive_bit(&oldc->range.level[l].cat, node,
-+					      i)
-+		{
- 			int rc;
- 
- 			catdatum = symtab_search(&newp->p_cats,
-@@ -486,13 +477,9 @@ int mls_convert_context(struct policydb *oldp,
- 	return 0;
+ 	return ((l1->sens >= l2->sens) &&
+ 		ebitmap_contains(&l1->cat, &l2->cat, 0));
  }
  
--int mls_compute_sid(struct policydb *p,
--		    struct context *scontext,
--		    struct context *tcontext,
--		    u16 tclass,
--		    u32 specified,
--		    struct context *newcontext,
--		    bool sock)
-+int mls_compute_sid(struct policydb *p, struct context *scontext,
-+		    struct context *tcontext, u16 tclass, u32 specified,
-+		    struct context *newcontext, bool sock)
- {
- 	struct range_trans rtr;
- 	struct mls_range *r;
-@@ -532,8 +519,8 @@ int mls_compute_sid(struct policydb *p,
- 		case DEFAULT_TARGET_LOW_HIGH:
- 			return mls_context_cpy(newcontext, tcontext);
- 		case DEFAULT_GLBLUB:
--			return mls_context_glblub(newcontext,
--						  scontext, tcontext);
-+			return mls_context_glblub(newcontext, scontext,
-+						  tcontext);
- 		}
+ #define mls_level_incomp(l1, l2) \
+-(!mls_level_dom((l1), (l2)) && !mls_level_dom((l2), (l1)))
++	(!mls_level_dom((l1), (l2)) && !mls_level_dom((l2), (l1)))
  
- 		fallthrough;
-@@ -563,8 +550,7 @@ int mls_compute_sid(struct policydb *p,
-  * NetLabel MLS sensitivity level field.
-  *
-  */
--void mls_export_netlbl_lvl(struct policydb *p,
--			   struct context *context,
-+void mls_export_netlbl_lvl(struct policydb *p, struct context *context,
- 			   struct netlbl_lsm_secattr *secattr)
- {
- 	if (!p->mls_enabled)
-@@ -585,8 +571,7 @@ void mls_export_netlbl_lvl(struct policydb *p,
-  * NetLabel MLS sensitivity level into the context.
-  *
-  */
--void mls_import_netlbl_lvl(struct policydb *p,
--			   struct context *context,
-+void mls_import_netlbl_lvl(struct policydb *p, struct context *context,
- 			   struct netlbl_lsm_secattr *secattr)
- {
- 	if (!p->mls_enabled)
-@@ -607,8 +592,7 @@ void mls_import_netlbl_lvl(struct policydb *p,
-  * MLS category field.  Returns zero on success, negative values on failure.
-  *
-  */
--int mls_export_netlbl_cat(struct policydb *p,
--			  struct context *context,
-+int mls_export_netlbl_cat(struct policydb *p, struct context *context,
- 			  struct netlbl_lsm_secattr *secattr)
- {
- 	int rc;
-@@ -637,8 +621,7 @@ int mls_export_netlbl_cat(struct policydb *p,
-  * negative values on failure.
-  *
-  */
--int mls_import_netlbl_cat(struct policydb *p,
--			  struct context *context,
-+int mls_import_netlbl_cat(struct policydb *p, struct context *context,
- 			  struct netlbl_lsm_secattr *secattr)
- {
- 	int rc;
+ #define mls_level_between(l1, l2, l3) \
+-(mls_level_dom((l1), (l2)) && mls_level_dom((l3), (l1)))
++	(mls_level_dom((l1), (l2)) && mls_level_dom((l3), (l1)))
+ 
+-#define mls_range_contains(r1, r2) \
+-(mls_level_dom(&(r2).level[0], &(r1).level[0]) && \
+- mls_level_dom(&(r1).level[1], &(r2).level[1]))
++#define mls_range_contains(r1, r2)                        \
++	(mls_level_dom(&(r2).level[0], &(r1).level[0]) && \
++	 mls_level_dom(&(r1).level[1], &(r2).level[1]))
+ 
+-#endif	/* _SS_MLS_TYPES_H_ */
++#endif /* _SS_MLS_TYPES_H_ */
 -- 
 2.43.2
 
