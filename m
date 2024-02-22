@@ -1,67 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f179.google.com (mail-oi1-f179.google.com [209.85.167.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D38A1332AD;
-	Thu, 22 Feb 2024 14:25:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 442C21468ED
+	for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 15:14:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708611916; cv=none; b=bFTqTiVjZWS9kdDIxpgioFBUz7ifFclZaL8hT+jhXYSWbFGyO24hKY14VcsNdUWBZHSF0Fus1CryMe5cERVreUOSK1wI62NbN2DRkZXtQFrgnmDUvq9KGyYDLXTkRkaiHxRW8hsauCV5mkMcmdK1eO62B+aCp34Tv9r6DYCJoo0=
+	t=1708614857; cv=none; b=a99nPrwzl/wMEMbvbETDFy98fqqn02e6oq6IcSseKr2JBqd+rU1sFYA9hTPOzJH6PgmJAtRtudgjIVJ6fHvLtkJmi+eFNahVRzXWOpYm4ONauwCHFebIXQWMbvWAltmT+gkbVDwrJd+zTNqUgzxCaMC0GnjspJf8t+V2ZwqQM7g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708611916; c=relaxed/simple;
-	bh=JtPn97F2Ii4Jbu6c1i5egJu0rHoewIinCG21qiikLiA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=J5xoMmOk8k/BSaToAuMiz7mUHR8m7nlL0Z6H9YEk3ysd+mINMb4SJSqkbdcidfOXpRlbQYpYG8OYTDohSbrD7FMBJDFe+NEVrI8PDX2FrzlhLlJB+/KK2dwNTkIFqZ90Hi6Ly+Ii8awSvZVEwUKAEwK1Qe7uMKSpYENn0mZ+27U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nCe4JnuZ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1708614857; c=relaxed/simple;
+	bh=L+n5OpWBmpV3L+udk1uMH2VFjM5EZkEKnVmkgmKzQ7c=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gOaSIonFtHBrTlmmmJDvsUgfbRkBBOW3w7DdBtwzEwKBRovhn/7zTXw9W6WAqkI+6BfkugEDgcEL+K+4p2OdnMgpNBHSwltXRNrPY99K1QbZGjzMSliodr2aNYOA7P+snlS6yBzoscx5g743bRy3Y6ZWWfadtk6SB9GRlYz3HRg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aYpsBfVF; arc=none smtp.client-ip=209.85.167.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nCe4JnuZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97681C433F1;
-	Thu, 22 Feb 2024 14:25:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1708611915;
-	bh=JtPn97F2Ii4Jbu6c1i5egJu0rHoewIinCG21qiikLiA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=nCe4JnuZ6f7TvKSPeX6qSl5MwubUKSFW+E62GzuTnfuV8CeU+irIheZ5ugSwG/pgA
-	 C6YXsUsVnfD61qqaqYzz3tIf3PUl+rZ5kwKh1SNVrguyyhjBisj3DmUEznDPxR8vjS
-	 YPk/9iy0luzVyxs9yBTpRHovHP3XSktGKn5gwjzoQODh9MROWaTUB8EKskF9lPf4Ut
-	 prWuraXTx5qQwMX+CPSVplIvlRlGvlvrDeQjewn4FL+uMagdpK7Du/IWEer8RnaeIx
-	 YaxV+oxvNORTxMwCnSqHcOuT0I8kQkoRpzJyOuXsoVKFwsDqYJYwF8tairn9Z7lZgR
-	 PFYaygpSCqAuA==
-Date: Thu, 22 Feb 2024 15:25:08 +0100
-From: Christian Brauner <brauner@kernel.org>
-To: "Seth Forshee (DigitalOcean)" <sforshee@kernel.org>
-Cc: Serge Hallyn <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>, 
-	Eric Paris <eparis@redhat.com>, James Morris <jmorris@namei.org>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Mimi Zohar <zohar@linux.ibm.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, 
-	Eric Snowberg <eric.snowberg@oracle.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
-	Jonathan Corbet <corbet@lwn.net>, Miklos Szeredi <miklos@szeredi.hu>, 
-	Amir Goldstein <amir73il@gmail.com>, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, audit@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-integrity@vger.kernel.org, linux-doc@vger.kernel.org, linux-unionfs@vger.kernel.org
-Subject: Re: [PATCH v2 05/25] capability: use vfsuid_t for vfs_caps rootids
-Message-ID: <20240222-inhalieren-einbog-1ab3ab2a9aaf@brauner>
-References: <20240221-idmap-fscap-refactor-v2-0-3039364623bd@kernel.org>
- <20240221-idmap-fscap-refactor-v2-5-3039364623bd@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aYpsBfVF"
+Received: by mail-oi1-f179.google.com with SMTP id 5614622812f47-3c132695f1bso6057994b6e.2
+        for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 07:14:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1708614855; x=1709219655; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Vh4AQRDnCH38ENoHPQKIHhDEFBfmfJfmmmklcmO5Qho=;
+        b=aYpsBfVFZTBkdmTPlu9WHlGibUVci0jPOGZvT0QLKKNP/Ar3bxd9scestotpcuNl8p
+         Ip4UGlLrf60U7BdJ+GBCAVQkamVL/Q8AULwTjp3YIK1mo09/M/5ztZKFmY5xZSIdMz+9
+         c8sZdeYur+XYztKnw7Euby7oU2LozUM+fsU+MTZmLQoNv38znT2gw8MIMmXim/xtmli3
+         NZ9+h+js+HRZGcpvSdQHrziUkiF3h0cNLFE8hiNCyhAWrtYOS9W8WwkcKIQc1EM9QD7I
+         vWb11ktL5OQTcI4Y8lEeZ0eGaLpDKna/11DU4wNixsRgvXeTKEECSto3WrrvH9r4+lXm
+         Li5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1708614855; x=1709219655;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Vh4AQRDnCH38ENoHPQKIHhDEFBfmfJfmmmklcmO5Qho=;
+        b=OT0zqlpgKK++76Lry2JlT6ipV90f9Q0QVVeFlXXTklQ8FYWbTHT5RnYok65vizTjYc
+         +KqsvbMS73Y9F2fXlObssOHgNuwjTGZcmjZ+1Sr8RFyBomUDLiWpRaYyhvquoKWOGLTw
+         txcM9+P6C+zjw8XABdIO7N/5y2JCowjZyLc02a1h1XnHDQK1UmoItw+G/chC8tBldDXy
+         ohHc9InTl7TWmM0/X0Alfxg3PreSjMA64VwcjBxqFH+ucfDn94ABocponbYal5oGP/yg
+         ie7NMhWQ34/y6eSq99JT3NDGV2Io9X3vNDSnqxqYxDnrP5AKyd3SUontPcnv8tqktfQK
+         VTDQ==
+X-Gm-Message-State: AOJu0Yz/8MqkYfoI7JtR+nvRmz7v/319lkB/Qm8WWHPuCiMgfUXw9/dt
+	Rm/0VlvSnhXVLn1+IU9R+VAu78o4rclMBtnxdzruBtKwwrwn9Vgitiwz6zq735J5D2uTbQhqsPb
+	5qY2B2TpAHVsRBucZOs7p9dXvHTCNAYyqaxw=
+X-Google-Smtp-Source: AGHT+IHg74HhuyFy4kgvaR5WxMFIuM77brWXUdp4oJpRm5Wsg5IOBaX+Walv0JuNg3rU46BdHgerzwf91XTpNhD1uX8=
+X-Received: by 2002:a05:6808:2108:b0:3c1:5f16:6c47 with SMTP id
+ r8-20020a056808210800b003c15f166c47mr12670736oiw.11.1708614855287; Thu, 22
+ Feb 2024 07:14:15 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20240221-idmap-fscap-refactor-v2-5-3039364623bd@kernel.org>
+References: <20240131125623.45758-1-cgzones@googlemail.com>
+In-Reply-To: <20240131125623.45758-1-cgzones@googlemail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 22 Feb 2024 10:14:04 -0500
+Message-ID: <CAP+JOzT+xzAxFaGBcrGK_ye1SPnLb_DvJtr7B2L25F2mfDrsSQ@mail.gmail.com>
+Subject: Re: [PATCH 1/3] libsepol: ensure transitivity in compare functions
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 21, 2024 at 03:24:36PM -0600, Seth Forshee (DigitalOcean) wrote:
-> The rootid is a kuid_t, but it contains an id which maped into a mount
-> idmapping, so it is really a vfsuid. This is confusing and creates
-> potential for misuse of the value, so change it to vfsuid_t.
-> 
-> Acked-by: Paul Moore <paul@paul-moore.com>
-> Signed-off-by: Seth Forshee (DigitalOcean) <sforshee@kernel.org>
+On Wed, Jan 31, 2024 at 8:06=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Ensure comparison functions used by qsort(3) fulfill transitivity, since
+> otherwise the resulting array might not be sorted correctly or worse[1]
+> in case of integer overflows.
+>
+> [1]: https://www.qualys.com/2024/01/30/qsort.txt
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+
+For these three patches:
+Acked-by: James Carter <jwcart2@gmail.com>
+
 > ---
-
-Looks good,
-Reviewed-by: Christian Brauner <brauner@kernel.org>
+>  libsepol/src/kernel_to_common.c | 2 +-
+>  libsepol/src/module_to_cil.c    | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_com=
+mon.c
+> index 2422eed0..44f0be23 100644
+> --- a/libsepol/src/kernel_to_common.c
+> +++ b/libsepol/src/kernel_to_common.c
+> @@ -503,7 +503,7 @@ static int ibendport_data_cmp(const void *a, const vo=
+id *b)
+>         if (rc)
+>                 return rc;
+>
+> -       return (*aa)->u.ibendport.port - (*bb)->u.ibendport.port;
+> +       return spaceship_cmp((*aa)->u.ibendport.port, (*bb)->u.ibendport.=
+port);
+>  }
+>
+>  static int pirq_data_cmp(const void *a, const void *b)
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index ee22dbbd..c8dae562 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -1680,7 +1680,7 @@ static int class_perm_cmp(const void *a, const void=
+ *b)
+>         const struct class_perm_datum *aa =3D a;
+>         const struct class_perm_datum *bb =3D b;
+>
+> -       return aa->val - bb->val;
+> +       return spaceship_cmp(aa->val, bb->val);
+>  }
+>
+>  static int common_to_cil(char *key, void *data, void *UNUSED(arg))
+> --
+> 2.43.0
+>
+>
