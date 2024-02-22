@@ -1,63 +1,63 @@
-Received: from mail-yb1-f182.google.com (mail-yb1-f182.google.com [209.85.219.182])
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9902017C6B
-	for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 23:59:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C68313BAD8
+	for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 23:59:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708646381; cv=none; b=Ai6OpWftRJSVqjRsYbG2OLLoB+caUJmV82EqUNsUtM0peX2vA8OEaaXQDf05CjFSF68xpPwNzb1sTsKapKgaXyeifRe6wAU9H+Sbqeo6blxppJ6FLLD2k0lN6mc6HtOQPpouq1MozI8al1ZkWv3f9y7zPB5iJwUsU1a2kjpGYS8=
+	t=1708646382; cv=none; b=RYvoiogE7T1yMQLATrP/Gl4RDWleQzebni3fu3DEXQnOv0MUnxwtBQ/fDh4UIf3a+K+oUiCNBxcck4LYfuAMlTyHdGyvRVfCVXCymThBeLl8MdMnt++HQ6lwMD0BAM/OHWYWS+SWGziJHUTpELRN7Spkb+Uko1HW5MkKNUMn35g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708646381; c=relaxed/simple;
-	bh=Iihe8s1sFaOvE4CS3K2TO5MWVkqI4zzguQZqRU/8ZzA=;
+	s=arc-20240116; t=1708646382; c=relaxed/simple;
+	bh=nWclI/WNaY953BNWPwF0H3A/2zAf4SLm8p/pX6i8ELg=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PFkkZFqmw5kmD2crMOfIfFg9BMZXZyQ/1DEiYr9H4s1bM/7bXb1kZF8Vx1fy/RCOx609mGgnmKjDrCse+vMimDTTGgZaC84S3z6kuu/y/3dprexEfgAFUTW5/ZzuSBUpN9TMv/Ep+NxsN70GIAwV7zDsmOOj7uxBPe1uH1HCt84=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=HtXSFk9N; arc=none smtp.client-ip=209.85.219.182
+	 MIME-Version; b=PybEAwCbTAJmTYN2x4ILJOs3NG2W1nCOrqo2Kg/kUEb416u+iJ2/cxHO/921dICP/c/POUhJkG3aou+qxvM+8fnj4VgMOkfOZQakBwbU2/ZldvTmHTKh6tGYQRVkDLmb42aUkwJEA5Y/+apFeoeHko5d/dMLT7ohhVbZgxC8DqE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=gOa97s6R; arc=none smtp.client-ip=209.85.222.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="HtXSFk9N"
-Received: by mail-yb1-f182.google.com with SMTP id 3f1490d57ef6-dc74e33fe1bso302349276.0
-        for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 15:59:39 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="gOa97s6R"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-785d60ae6d5so17463285a.2
+        for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 15:59:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1708646378; x=1709251178; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1708646380; x=1709251180; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=1UW1y8eGbJV0lEMF+NxX+J6VP42PfeC1qW7qh9t/xVs=;
-        b=HtXSFk9NSOAoSwatZ8il0eCIkoNYQ/T9ckDM+cM+XGIf0VnLMJceQT+lWvc50wsKwy
-         8d0MjB4P7+d6iMzpCDywY0qYDmCSjeSvixV7H6g0lYupbSOTAHDkbdyRnn8FRSoc3ugF
-         taFHHdfzLAi7JgmcC+Wc2tN+1SKRkeCS8l3w/bTYedh0yFHsVQwekVmsZ2qesGdQH07W
-         Bpum5IMntjCPGaBUrMJB4pgGxF1080XxWhGecQLhJxxVDes2hgWUQJ207ClSFSz29HBP
-         4FGmXC/1rxxU6n1sc31fk+bt/qP1r+RegZQrAmm6e8X0ohtseHUL1AAO/W73k7MYEEPl
-         Ob3w==
+        bh=XhRMDzIqMN9vAgL7g4G+De5ERjBqKSmTwN4GVi7IUac=;
+        b=gOa97s6Rth76G3ByhQA+KRvpdfkWlzvNjqeQr1Dtp9cDJ83kHnqwoCM7yrbsK05PR3
+         B/M1CYQnRlzkm0BE0e6nrNNcbIrMUSrzkDny1ft5CA1PH3RUJffy2Tsd2NmdAGBvIWGn
+         0N8JNxWKBt80a4XxA6dpDQkTBaMPCe+nauIxysrCaYMQPJ4NmgfCl1wIrPa8d779awal
+         YPN0/zNQuOLkKrI/dX6uDJn75h4tkooFkNsLjaqijanxUU5YWi5k6xM9P4V+YiFLFjOq
+         6MkL3f04Ue1uoOJKonHSA56q389g2ClGMQvsBGz88sBBoTxFGd8SybbVhZAox9sscWHr
+         nFYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708646378; x=1709251178;
+        d=1e100.net; s=20230601; t=1708646380; x=1709251180;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=1UW1y8eGbJV0lEMF+NxX+J6VP42PfeC1qW7qh9t/xVs=;
-        b=kyqfdPGLVUqsh1Ah+FB7FxFFDoJC0a71FNgsZfQ35yCuub96W4TJNLB4Lkw7r7ieOM
-         fzSdNxw1/DvnCOrhosXYXuD3fmvf6umSTXYUWjilUMdA3n5SQPuzvz1Iw3sLyEbJfble
-         m1oITIbfO2Bt73EBGXNSd34QBC9UjH6yxofrd8P0x4gOqNyy36gjOeppJcG2dFbBeIpa
-         iK8o2Q9X0sLtZ6zJEW6t6lr+SuH9NDC+t2scaZcVctmSTcHKpVpcNCv2ckRQS5k5Xh/H
-         sX3qulgeWWJyeGcwmh4lqMed/1jEAs8MLNI5fNq/Qps8yEGf4qbENX1Wvm5oEFAM0bBZ
-         WH8Q==
-X-Gm-Message-State: AOJu0YxIE6PsPaq85e+q2LvJlMwleNkfwYcSI7nCN5fucyWcNnPxeVq6
-	jGDu+fnVcdVGl2z0T5c6+7IuYX6M1nvPkRO9qZVXdoylPF1nEPPrY9hw4iwQHt9d6ZT5IurPyqI
+        bh=XhRMDzIqMN9vAgL7g4G+De5ERjBqKSmTwN4GVi7IUac=;
+        b=LZcJ4il4CfE+VuaGuMTA/dvqPLo9SoBEeKlqa1AvJI5OQY5Hkf6eGue6hc/AEd4ZGG
+         CgImMyCNjIRVpqFtCnHmWTa1uXkSbkIrPBgDFWwo/gu4rYvX/3J4m9qOEvy+X07GNpSs
+         +JXiV1rYp6yvTAI7650u/4B4aO9yyUWMB4M6zg9bIhtmkgmo4hwudKFr0Rjm9VyCsrwr
+         BHuo8rhcqim2PxN7Z+d0krKFS4G6eeN/YzWdTEvWIhj1YB60uAN9sngGX/QW+Rbsk/gJ
+         zwXHbEDhcdcyCc0VAED5bQ9vWbb9r12nd9T7OkTMZyWbwMb/1x5FGuD2cE0fSGDqWG1v
+         OYLA==
+X-Gm-Message-State: AOJu0YziqFWPfW3OXx4x86+788aBX7C5Iy22RMLyuA/2J+x8+JqwVmdj
+	bB/59txUZ0wVrsYjKsYR8XQ2B56RBNJ8ObQiC2dnVTXjrKFjAHcFwzzunXUTXw+e+wIKgQpJpQU
 	=
-X-Google-Smtp-Source: AGHT+IHbmBilW1WasHK5Bm1hy7x7bDsQQw9pxSFtg6kBl9wmXa3iX9UBOppil+x+3p3WcGY8ES9Vdg==
-X-Received: by 2002:a81:bc45:0:b0:607:d46d:f8ac with SMTP id b5-20020a81bc45000000b00607d46df8acmr663090ywl.32.1708646378306;
-        Thu, 22 Feb 2024 15:59:38 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHu9aAH4ZGz6CWdA6vIG0/BwWXPtH7hC7B9rkkOb+YgVhJdzhUbEWTSLozGOw6t7Hu/B7+E4Q==
+X-Received: by 2002:a05:620a:ec7:b0:785:ce02:4f82 with SMTP id x7-20020a05620a0ec700b00785ce024f82mr634123qkm.17.1708646379287;
+        Thu, 22 Feb 2024 15:59:39 -0800 (PST)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id lr9-20020a0562145bc900b0068fd10638c0sm320559qvb.20.2024.02.22.15.59.37
+        by smtp.gmail.com with ESMTPSA id u3-20020ae9c003000000b007873306737fsm5833299qkk.87.2024.02.22.15.59.38
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Feb 2024 15:59:37 -0800 (PST)
+        Thu, 22 Feb 2024 15:59:38 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 05/21] selinux: fix style issues in security/selinux/ss/constraint.h
-Date: Thu, 22 Feb 2024 18:52:23 -0500
-Message-ID: <20240222235708.386652-28-paul@paul-moore.com>
+Subject: [PATCH 06/21] selinux: fix style issues in security/selinux/ss/context.h
+Date: Thu, 22 Feb 2024 18:52:24 -0500
+Message-ID: <20240222235708.386652-29-paul@paul-moore.com>
 X-Mailer: git-send-email 2.43.2
 In-Reply-To: <20240222235708.386652-23-paul@paul-moore.com>
 References: <20240222235708.386652-23-paul@paul-moore.com>
@@ -67,7 +67,7 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4000; i=paul@paul-moore.com; h=from:subject; bh=Iihe8s1sFaOvE4CS3K2TO5MWVkqI4zzguQZqRU/8ZzA=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBl199tJazjAr2sUJW8+HDFz+gAx4XeQ3cj3NMuJ VqJ83RUzoyJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZdffbQAKCRDqIPLalzeJ c6HuEACjMQ4Vt7o7FLOBUreS0Ws0bAGFCDPl7DLTb39YZZVMn4TJ6O66il94s0Cgs4bDv7c0LRo vBcezRE8RCCmkVMZ74VKuO+5uAA7DEXKtO3rEzLeLewVfULQyzkJHqcu88zS6mfpkPpVyfCcfJC AUGW7uWwVJ6FQedHgqGZD7xBoBOuS8/OLFpfK9zuuT2zeex3PC0aCRZ6V24P0kcaIlacAFqn9GV Y/Hc9WypniHPDBhgqEwC1lIAIxfFT3us1aOWoDNZfIVGMPj6k+d0BAjgB4cYxlZYtpl+eYjl2OI trzB3ifwHMPYZHYU3esSjLfTYinU/u9eLlqiFzfBgkMrl7oBj+KSTbnqkcP6tvcBiy3bPfB8F7Z eNZgjz5k014o3slxoSx1x2wh0vLORRzGq3Lbts5gbtC/Moe9pa/bgKH/Vy9KURHabXZwd2b/z7/ /kIj0O6F3R4kQ0ROaE8CzHnVIx66VK0+4tFSTeZ47e+xK9iEWhCJdVx+CkMWqhRgc5Um2LVzh/r BCeH4FMzH174Ap314Ob2ypmOqgXEKM/TJnVeFqY8zsIzwpadSRHycij4ZfyF5tuXxeENZAETHXO dbny9cYGURYfnxt/ubOufNZpIPZzdKtXSzD22uRyjUmNwRYSvw5yfyP6oF/PvVPivPiUfhbNNg3 L4IV6f08GrRUOQg==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4730; i=paul@paul-moore.com; h=from:subject; bh=nWclI/WNaY953BNWPwF0H3A/2zAf4SLm8p/pX6i8ELg=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBl199zOeOr5DsTx3StwAehE3ck5MryfzdVXkNLr euyIyfQIUmJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZdffcwAKCRDqIPLalzeJ c6jVEADeTrp2S0+NkvBw+lJ/fc2t6brZyQOS1XCvUfohcbCMRwxJJdLwzW1DK+S9ysXgUPE67G9 OOKnLadGqO7A1mJawvswslRgX5H3UWrmK6xVnMK2KhCynj/CvTE7CNC1Dco/8e5tz8YWT4UfPie irC3oJ6cjOXhHxtxUY2e8TfX2pQhFO0IKZmy3eNkFFt3tpWsifX6CwPaK9xrib+cXe+emYmsKAf 7THmPOxKuoI3Z22P8+LvKr6qYmNVlHQJmADalTt2gm1Dg3wg3DBDCGW9UyvDGRBrNDeXKqf3Us6 gpwvRP/oPOuma+KNbHZTS+OaCFmoVXsdtDG7Ner+fCgJIQaMb2aIiFonhAtVHu7sXniaTacETva v6OKjv026qgLS/loNTWtA0OxRL9y5pwtGu+Ifr0xIrtuxYP/LiRxQDk4aAHuqvvbQ8IRhh6PQ74 8UQzo6rcBhbvDBDNgoegsm9dVSqCNe9CcjwuLchGMWqS6Csp6mC4fjoz0VLzTCTi9x/Vk02ZTts J6HNrTrJ5YB9cWsdIygkLNhTTPvETmvSdyl1U7io58E6fifZGu0STnw5HD578WYtahTIypze8dP nmRm/pXFW2SvLKLodU3FrQWG/5rYHo5clZ7hXMSlbiKSeg081XTatIuJQvl8AGN0Nj9ul0HxA0H Npk04EGneXmjTqw==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
@@ -81,95 +81,128 @@ changes fit in well with the rest of the SELinux kernel code.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/ss/constraint.h | 61 ++++++++++++++++----------------
- 1 file changed, 31 insertions(+), 30 deletions(-)
+ security/selinux/ss/context.h | 41 +++++++++++++++++++----------------
+ 1 file changed, 22 insertions(+), 19 deletions(-)
 
-diff --git a/security/selinux/ss/constraint.h b/security/selinux/ss/constraint.h
-index f76eb3128ad5..203033cfad67 100644
---- a/security/selinux/ss/constraint.h
-+++ b/security/selinux/ss/constraint.h
+diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+index 1f59468c0759..7ccab2e6965f 100644
+--- a/security/selinux/ss/context.h
++++ b/security/selinux/ss/context.h
 @@ -13,6 +13,7 @@
   *
   * Author : Stephen Smalley, <stephen.smalley.work@gmail.com>
   */
 +
- #ifndef _SS_CONSTRAINT_H_
- #define _SS_CONSTRAINT_H_
+ #ifndef _SS_CONTEXT_H_
+ #define _SS_CONTEXT_H_
  
-@@ -21,43 +22,43 @@
- #define CEXPR_MAXDEPTH 5
- 
- struct constraint_expr {
--#define CEXPR_NOT		1 /* not expr */
--#define CEXPR_AND		2 /* expr and expr */
--#define CEXPR_OR		3 /* expr or expr */
--#define CEXPR_ATTR		4 /* attr op attr */
--#define CEXPR_NAMES		5 /* attr op names */
--	u32 expr_type;		/* expression type */
-+#define CEXPR_NOT   1 /* not expr */
-+#define CEXPR_AND   2 /* expr and expr */
-+#define CEXPR_OR    3 /* expr or expr */
-+#define CEXPR_ATTR  4 /* attr op attr */
-+#define CEXPR_NAMES 5 /* attr op names */
-+	u32 expr_type; /* expression type */
- 
--#define CEXPR_USER 1		/* user */
--#define CEXPR_ROLE 2		/* role */
--#define CEXPR_TYPE 4		/* type */
--#define CEXPR_TARGET 8		/* target if set, source otherwise */
--#define CEXPR_XTARGET 16	/* special 3rd target for validatetrans rule */
--#define CEXPR_L1L2 32		/* low level 1 vs. low level 2 */
--#define CEXPR_L1H2 64		/* low level 1 vs. high level 2 */
--#define CEXPR_H1L2 128		/* high level 1 vs. low level 2 */
--#define CEXPR_H1H2 256		/* high level 1 vs. high level 2 */
--#define CEXPR_L1H1 512		/* low level 1 vs. high level 1 */
--#define CEXPR_L2H2 1024		/* low level 2 vs. high level 2 */
--	u32 attr;		/* attribute */
-+#define CEXPR_USER    1 /* user */
-+#define CEXPR_ROLE    2 /* role */
-+#define CEXPR_TYPE    4 /* type */
-+#define CEXPR_TARGET  8 /* target if set, source otherwise */
-+#define CEXPR_XTARGET 16 /* special 3rd target for validatetrans rule */
-+#define CEXPR_L1L2    32 /* low level 1 vs. low level 2 */
-+#define CEXPR_L1H2    64 /* low level 1 vs. high level 2 */
-+#define CEXPR_H1L2    128 /* high level 1 vs. low level 2 */
-+#define CEXPR_H1H2    256 /* high level 1 vs. high level 2 */
-+#define CEXPR_L1H1    512 /* low level 1 vs. high level 1 */
-+#define CEXPR_L2H2    1024 /* low level 2 vs. high level 2 */
-+	u32 attr; /* attribute */
- 
--#define CEXPR_EQ     1		/* == or eq */
--#define CEXPR_NEQ    2		/* != */
--#define CEXPR_DOM    3		/* dom */
--#define CEXPR_DOMBY  4		/* domby  */
--#define CEXPR_INCOMP 5		/* incomp */
--	u32 op;			/* operator */
-+#define CEXPR_EQ     1 /* == or eq */
-+#define CEXPR_NEQ    2 /* != */
-+#define CEXPR_DOM    3 /* dom */
-+#define CEXPR_DOMBY  4 /* domby  */
-+#define CEXPR_INCOMP 5 /* incomp */
-+	u32 op; /* operator */
- 
--	struct ebitmap names;	/* names */
-+	struct ebitmap names; /* names */
- 	struct type_set *type_names;
- 
--	struct constraint_expr *next;   /* next expression */
-+	struct constraint_expr *next; /* next expression */
+@@ -28,9 +29,9 @@ struct context {
+ 	u32 user;
+ 	u32 role;
+ 	u32 type;
+-	u32 len;        /* length of string in bytes */
++	u32 len; /* length of string in bytes */
+ 	struct mls_range range;
+-	char *str;	/* string representation if context cannot be mapped. */
++	char *str; /* string representation if context cannot be mapped. */
  };
  
- struct constraint_node {
--	u32 permissions;	/* constrained permissions */
--	struct constraint_expr *expr;	/* constraint on permissions */
--	struct constraint_node *next;	/* next constraint */
-+	u32 permissions; /* constrained permissions */
-+	struct constraint_expr *expr; /* constraint on permissions */
-+	struct constraint_node *next; /* next constraint */
- };
+ static inline void mls_context_init(struct context *c)
+@@ -38,7 +39,8 @@ static inline void mls_context_init(struct context *c)
+ 	memset(&c->range, 0, sizeof(c->range));
+ }
  
--#endif	/* _SS_CONSTRAINT_H_ */
-+#endif /* _SS_CONSTRAINT_H_ */
+-static inline int mls_context_cpy(struct context *dst, const struct context *src)
++static inline int mls_context_cpy(struct context *dst,
++				  const struct context *src)
+ {
+ 	int rc;
+ 
+@@ -58,7 +60,8 @@ static inline int mls_context_cpy(struct context *dst, const struct context *src
+ /*
+  * Sets both levels in the MLS range of 'dst' to the low level of 'src'.
+  */
+-static inline int mls_context_cpy_low(struct context *dst, const struct context *src)
++static inline int mls_context_cpy_low(struct context *dst,
++				      const struct context *src)
+ {
+ 	int rc;
+ 
+@@ -78,7 +81,8 @@ static inline int mls_context_cpy_low(struct context *dst, const struct context
+ /*
+  * Sets both levels in the MLS range of 'dst' to the high level of 'src'.
+  */
+-static inline int mls_context_cpy_high(struct context *dst, const struct context *src)
++static inline int mls_context_cpy_high(struct context *dst,
++				       const struct context *src)
+ {
+ 	int rc;
+ 
+@@ -95,9 +99,9 @@ static inline int mls_context_cpy_high(struct context *dst, const struct context
+ 	return rc;
+ }
+ 
+-
+ static inline int mls_context_glblub(struct context *dst,
+-				     const struct context *c1, const struct context *c2)
++				     const struct context *c1,
++				     const struct context *c2)
+ {
+ 	struct mls_range *dr = &dst->range;
+ 	const struct mls_range *r1 = &c1->range, *r2 = &c2->range;
+@@ -114,13 +118,13 @@ static inline int mls_context_glblub(struct context *dst,
+ 	/* Take the least of the high */
+ 	dr->level[1].sens = min(r1->level[1].sens, r2->level[1].sens);
+ 
+-	rc = ebitmap_and(&dr->level[0].cat,
+-			 &r1->level[0].cat, &r2->level[0].cat);
++	rc = ebitmap_and(&dr->level[0].cat, &r1->level[0].cat,
++			 &r2->level[0].cat);
+ 	if (rc)
+ 		goto out;
+ 
+-	rc = ebitmap_and(&dr->level[1].cat,
+-			 &r1->level[1].cat, &r2->level[1].cat);
++	rc = ebitmap_and(&dr->level[1].cat, &r1->level[1].cat,
++			 &r2->level[1].cat);
+ 	if (rc)
+ 		goto out;
+ 
+@@ -128,7 +132,8 @@ static inline int mls_context_glblub(struct context *dst,
+ 	return rc;
+ }
+ 
+-static inline int mls_context_cmp(const struct context *c1, const struct context *c2)
++static inline int mls_context_cmp(const struct context *c1,
++				  const struct context *c2)
+ {
+ 	return ((c1->range.level[0].sens == c2->range.level[0].sens) &&
+ 		ebitmap_cmp(&c1->range.level[0].cat, &c2->range.level[0].cat) &&
+@@ -183,19 +188,17 @@ static inline void context_destroy(struct context *c)
+ 	mls_context_destroy(c);
+ }
+ 
+-static inline int context_cmp(const struct context *c1, const struct context *c2)
++static inline int context_cmp(const struct context *c1,
++			      const struct context *c2)
+ {
+ 	if (c1->len && c2->len)
+ 		return (c1->len == c2->len && !strcmp(c1->str, c2->str));
+ 	if (c1->len || c2->len)
+ 		return 0;
+-	return ((c1->user == c2->user) &&
+-		(c1->role == c2->role) &&
+-		(c1->type == c2->type) &&
+-		mls_context_cmp(c1, c2));
++	return ((c1->user == c2->user) && (c1->role == c2->role) &&
++		(c1->type == c2->type) && mls_context_cmp(c1, c2));
+ }
+ 
+ u32 context_compute_hash(const struct context *c);
+ 
+-#endif	/* _SS_CONTEXT_H_ */
+-
++#endif /* _SS_CONTEXT_H_ */
 -- 
 2.43.2
 
