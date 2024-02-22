@@ -1,63 +1,63 @@
-Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C68313BAD8
-	for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 23:59:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4076F18049
+	for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 23:59:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708646382; cv=none; b=RYvoiogE7T1yMQLATrP/Gl4RDWleQzebni3fu3DEXQnOv0MUnxwtBQ/fDh4UIf3a+K+oUiCNBxcck4LYfuAMlTyHdGyvRVfCVXCymThBeLl8MdMnt++HQ6lwMD0BAM/OHWYWS+SWGziJHUTpELRN7Spkb+Uko1HW5MkKNUMn35g=
+	t=1708646382; cv=none; b=ZPZdH5B992BsokdmM9KUya2BaxqTak7WMdH0PgctvVIs9BisGyKo1HPjVLvsL2fefWGfKZ5O4MsUGTkjhejKzLUKBIG8EWSDja0s3qYRwptCVB0rJHPvahnUc6Eyvx7RvJVAWUHYLtUFhpCl8XN8V+Q2GPemQxHsUf5xGLVDOPY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1708646382; c=relaxed/simple;
-	bh=nWclI/WNaY953BNWPwF0H3A/2zAf4SLm8p/pX6i8ELg=;
+	bh=X6GvxoH9upAtZZCKBtoNzCj/Cj+wYIc8saKdJBgRo48=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PybEAwCbTAJmTYN2x4ILJOs3NG2W1nCOrqo2Kg/kUEb416u+iJ2/cxHO/921dICP/c/POUhJkG3aou+qxvM+8fnj4VgMOkfOZQakBwbU2/ZldvTmHTKh6tGYQRVkDLmb42aUkwJEA5Y/+apFeoeHko5d/dMLT7ohhVbZgxC8DqE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=gOa97s6R; arc=none smtp.client-ip=209.85.222.179
+	 MIME-Version; b=IRUMgB5PVIsNSsNiXFy9VqGJpMY/DP32HpIr30toFcddpElYbGTu8HKvd0hs1cAQl78jdlFPCqCEIyMIUqMssu6LyrgWBKPY27lHNY900Uw4OwH9osN8xHNLmqysaTrFn6HDK/mGK7r+deFLCsebOxYZ2ohhZz36IfQxkiO4xgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=IFEJwwxX; arc=none smtp.client-ip=209.85.219.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="gOa97s6R"
-Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-785d60ae6d5so17463285a.2
-        for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 15:59:40 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="IFEJwwxX"
+Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-68facd7ea4aso3687546d6.0
+        for <selinux@vger.kernel.org>; Thu, 22 Feb 2024 15:59:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore.com; s=google; t=1708646380; x=1709251180; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=XhRMDzIqMN9vAgL7g4G+De5ERjBqKSmTwN4GVi7IUac=;
-        b=gOa97s6Rth76G3ByhQA+KRvpdfkWlzvNjqeQr1Dtp9cDJ83kHnqwoCM7yrbsK05PR3
-         B/M1CYQnRlzkm0BE0e6nrNNcbIrMUSrzkDny1ft5CA1PH3RUJffy2Tsd2NmdAGBvIWGn
-         0N8JNxWKBt80a4XxA6dpDQkTBaMPCe+nauIxysrCaYMQPJ4NmgfCl1wIrPa8d779awal
-         YPN0/zNQuOLkKrI/dX6uDJn75h4tkooFkNsLjaqijanxUU5YWi5k6xM9P4V+YiFLFjOq
-         6MkL3f04Ue1uoOJKonHSA56q389g2ClGMQvsBGz88sBBoTxFGd8SybbVhZAox9sscWHr
-         nFYQ==
+        bh=4SvuoRk8B655yhxkpxtSUFejc6HdgaEv+APTwGrMM7c=;
+        b=IFEJwwxXCTnL03MJqt5xFiUsL0VpYZJiemQi9YnOzcHfEHOSWF8FihKpB5oN+2AugP
+         unyWg1ZnNNMF+vZuIBlc/PFyCraNBI4zq84lHMXnp/PDwkGmDxhzQs5WW1inKLM4dM8c
+         b50I8mMS5IFhPCdABS67JCJQJum+4fCN7seV4hZ0yE6gbXLcpOVrAQiMn+l6g31gmQvG
+         +JBF+dX1FjPMWZdGFTT1zCB6qS7rC9G5wPpSsR+Xu739ED/2tyWkQZsJI2mh/++zuxll
+         A9YA2MDUSZ/gBPFJ5EmhR+1JxcG9K4lIl922HI8jSaEserc0onSFPHJpqSeBOy/H/VMX
+         I/DQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1708646380; x=1709251180;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=XhRMDzIqMN9vAgL7g4G+De5ERjBqKSmTwN4GVi7IUac=;
-        b=LZcJ4il4CfE+VuaGuMTA/dvqPLo9SoBEeKlqa1AvJI5OQY5Hkf6eGue6hc/AEd4ZGG
-         CgImMyCNjIRVpqFtCnHmWTa1uXkSbkIrPBgDFWwo/gu4rYvX/3J4m9qOEvy+X07GNpSs
-         +JXiV1rYp6yvTAI7650u/4B4aO9yyUWMB4M6zg9bIhtmkgmo4hwudKFr0Rjm9VyCsrwr
-         BHuo8rhcqim2PxN7Z+d0krKFS4G6eeN/YzWdTEvWIhj1YB60uAN9sngGX/QW+Rbsk/gJ
-         zwXHbEDhcdcyCc0VAED5bQ9vWbb9r12nd9T7OkTMZyWbwMb/1x5FGuD2cE0fSGDqWG1v
-         OYLA==
-X-Gm-Message-State: AOJu0YziqFWPfW3OXx4x86+788aBX7C5Iy22RMLyuA/2J+x8+JqwVmdj
-	bB/59txUZ0wVrsYjKsYR8XQ2B56RBNJ8ObQiC2dnVTXjrKFjAHcFwzzunXUTXw+e+wIKgQpJpQU
+        bh=4SvuoRk8B655yhxkpxtSUFejc6HdgaEv+APTwGrMM7c=;
+        b=pkVEi34X4oYp87sM8hUfErUJ0IwbOKJGDQ/ktXhnaZLdgMHDYCnot+eEOzM9bYs7Qm
+         01F6l4vKVm6ipIp+MAi4OEc/sqs0KNhNkEOQD0uR1TLMrVy2L9M8fFrfH5BhqhZ2ly1a
+         46r8ciOQqOZvzcUA1YlRBNiLioqwHhydZ5ZOlXxZB6Xli9EYEV4jHUnZ9Tf0AzALnc+5
+         +dk/WEqyNtAUBIz7tLSJdzaWXC4hZbCDOdEHUn7jlm57XiWL5pZ/0hWai3WeCOMtPnPg
+         odWQf1KMxoaZ8tHiXno6S8RyitJynPhmASAoOsSvu91NMrtn8FMdg++cySnUHzAWcl9L
+         6pzQ==
+X-Gm-Message-State: AOJu0YzUmEm90M5VbmIio78Dja2nb0azugJDKiuVEdkiMIXoeakwGadi
+	eoPX88jiXwLzdScwdVoak+A8yj/xt9nAr/vcALQ9jiL6VQLqxiiRmVCRkLUp/N5JVa2dILLdfTw
 	=
-X-Google-Smtp-Source: AGHT+IHu9aAH4ZGz6CWdA6vIG0/BwWXPtH7hC7B9rkkOb+YgVhJdzhUbEWTSLozGOw6t7Hu/B7+E4Q==
-X-Received: by 2002:a05:620a:ec7:b0:785:ce02:4f82 with SMTP id x7-20020a05620a0ec700b00785ce024f82mr634123qkm.17.1708646379287;
-        Thu, 22 Feb 2024 15:59:39 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IFcDAbW0M2d6xhqk6e93O0izsklps/YVECiPVH99iW5UeWqTE9AO3slXW2inmEwqzJdj19pMQ==
+X-Received: by 2002:a0c:f3c4:0:b0:68f:a7ff:1106 with SMTP id f4-20020a0cf3c4000000b0068fa7ff1106mr908487qvm.13.1708646380086;
+        Thu, 22 Feb 2024 15:59:40 -0800 (PST)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id u3-20020ae9c003000000b007873306737fsm5833299qkk.87.2024.02.22.15.59.38
+        by smtp.gmail.com with ESMTPSA id ly10-20020a0562145c0a00b0068f4520e42dsm2115572qvb.16.2024.02.22.15.59.39
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Feb 2024 15:59:38 -0800 (PST)
+        Thu, 22 Feb 2024 15:59:39 -0800 (PST)
 From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 06/21] selinux: fix style issues in security/selinux/ss/context.h
-Date: Thu, 22 Feb 2024 18:52:24 -0500
-Message-ID: <20240222235708.386652-29-paul@paul-moore.com>
+Subject: [PATCH 07/21] selinux: fix style issues in security/selinux/ss/context.h
+Date: Thu, 22 Feb 2024 18:52:25 -0500
+Message-ID: <20240222235708.386652-30-paul@paul-moore.com>
 X-Mailer: git-send-email 2.43.2
 In-Reply-To: <20240222235708.386652-23-paul@paul-moore.com>
 References: <20240222235708.386652-23-paul@paul-moore.com>
@@ -67,7 +67,7 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4730; i=paul@paul-moore.com; h=from:subject; bh=nWclI/WNaY953BNWPwF0H3A/2zAf4SLm8p/pX6i8ELg=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBl199zOeOr5DsTx3StwAehE3ck5MryfzdVXkNLr euyIyfQIUmJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZdffcwAKCRDqIPLalzeJ c6jVEADeTrp2S0+NkvBw+lJ/fc2t6brZyQOS1XCvUfohcbCMRwxJJdLwzW1DK+S9ysXgUPE67G9 OOKnLadGqO7A1mJawvswslRgX5H3UWrmK6xVnMK2KhCynj/CvTE7CNC1Dco/8e5tz8YWT4UfPie irC3oJ6cjOXhHxtxUY2e8TfX2pQhFO0IKZmy3eNkFFt3tpWsifX6CwPaK9xrib+cXe+emYmsKAf 7THmPOxKuoI3Z22P8+LvKr6qYmNVlHQJmADalTt2gm1Dg3wg3DBDCGW9UyvDGRBrNDeXKqf3Us6 gpwvRP/oPOuma+KNbHZTS+OaCFmoVXsdtDG7Ner+fCgJIQaMb2aIiFonhAtVHu7sXniaTacETva v6OKjv026qgLS/loNTWtA0OxRL9y5pwtGu+Ifr0xIrtuxYP/LiRxQDk4aAHuqvvbQ8IRhh6PQ74 8UQzo6rcBhbvDBDNgoegsm9dVSqCNe9CcjwuLchGMWqS6Csp6mC4fjoz0VLzTCTi9x/Vk02ZTts J6HNrTrJ5YB9cWsdIygkLNhTTPvETmvSdyl1U7io58E6fifZGu0STnw5HD578WYtahTIypze8dP nmRm/pXFW2SvLKLodU3FrQWG/5rYHo5clZ7hXMSlbiKSeg081XTatIuJQvl8AGN0Nj9ul0HxA0H Npk04EGneXmjTqw==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=971; i=paul@paul-moore.com; h=from:subject; bh=X6GvxoH9upAtZZCKBtoNzCj/Cj+wYIc8saKdJBgRo48=; b=kA0DAAgB6iDy2pc3iXMByyZiAGXX33qgXiKs52iOO7n6pVXNtVRfI2LqesyAzIG4LQPFSQrQg YkCMwQAAQgAHRYhBEtCqM8H8pnVVJd+7+og8tqXN4lzBQJl1996AAoJEOog8tqXN4lzcgcP/RA9 yncbudnYTuI5fcR9XKLiKeF/AgXPHMuLJ13F5IEjj8Fwpt0S6UF/QLCEQWav3/m0T4BkGcY4WmA LmL0wlkmwtXhrlP+wx8aL4/OYub2A3Ch8RoEmhnMsr5Sjs2GLSSidAnspuDNP9ZofgKcf/v/2nq /cO9cc6TWuE5wX450gDuKFBhKrxMfSz0sr16vCq2OHb+MimO+bJNc+zI88Wns0XJb/HdDzfjtoy mIVbG5Ymmi9+h58mlppLVEzP3O3vM9ikhcMwvnOoVeyPfkWRHfHrAeyW5m4glRGuVsdfpkECuTM n372NxwhQYgqGWpKAbKRJku2+iil1dPSEHNb4j7CdIU8sHK8u4GBbA+BMR429s5qfVoZK68Hfa3 RoYwq8aQPTzA6ZzOF2Zzr1f3hLmFcnf8M3XyxgYRPeeac9djTgRx2ZbEZ5XheXrh5wXvmouViwk Ro+BxnurYavFTk6UTIoHGnl+EfQForaD/6PifME0MQhiL5u+hEMHKbZeorziRZb2cxXYl4QiE4a hwvGk4OFPpuObyFaqqUVS+dnDba8LtZCXzYujpW+30zmW6rRRIDpyonBgynQzabA44370eNmA8B jp7Sh9L9cnhnkIzBNTEiX2IchAe6eJSESBl+Br98iB9Em2yAPchWkz6aO6i9kKZsMzSiaKgkdGF A4HPv
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
@@ -81,128 +81,19 @@ changes fit in well with the rest of the SELinux kernel code.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/ss/context.h | 41 +++++++++++++++++++----------------
- 1 file changed, 22 insertions(+), 19 deletions(-)
+ security/selinux/ss/context.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
-index 1f59468c0759..7ccab2e6965f 100644
---- a/security/selinux/ss/context.h
-+++ b/security/selinux/ss/context.h
-@@ -13,6 +13,7 @@
+diff --git a/security/selinux/ss/context.c b/security/selinux/ss/context.c
+index 38bc0aa524a6..e39990f494dd 100644
+--- a/security/selinux/ss/context.c
++++ b/security/selinux/ss/context.c
+@@ -1,4 +1,4 @@
+-// SPDX-License-Identifier: GPL-2.0
++/* SPDX-License-Identifier: GPL-2.0 */
+ /*
+  * Implementations of the security context functions.
   *
-  * Author : Stephen Smalley, <stephen.smalley.work@gmail.com>
-  */
-+
- #ifndef _SS_CONTEXT_H_
- #define _SS_CONTEXT_H_
- 
-@@ -28,9 +29,9 @@ struct context {
- 	u32 user;
- 	u32 role;
- 	u32 type;
--	u32 len;        /* length of string in bytes */
-+	u32 len; /* length of string in bytes */
- 	struct mls_range range;
--	char *str;	/* string representation if context cannot be mapped. */
-+	char *str; /* string representation if context cannot be mapped. */
- };
- 
- static inline void mls_context_init(struct context *c)
-@@ -38,7 +39,8 @@ static inline void mls_context_init(struct context *c)
- 	memset(&c->range, 0, sizeof(c->range));
- }
- 
--static inline int mls_context_cpy(struct context *dst, const struct context *src)
-+static inline int mls_context_cpy(struct context *dst,
-+				  const struct context *src)
- {
- 	int rc;
- 
-@@ -58,7 +60,8 @@ static inline int mls_context_cpy(struct context *dst, const struct context *src
- /*
-  * Sets both levels in the MLS range of 'dst' to the low level of 'src'.
-  */
--static inline int mls_context_cpy_low(struct context *dst, const struct context *src)
-+static inline int mls_context_cpy_low(struct context *dst,
-+				      const struct context *src)
- {
- 	int rc;
- 
-@@ -78,7 +81,8 @@ static inline int mls_context_cpy_low(struct context *dst, const struct context
- /*
-  * Sets both levels in the MLS range of 'dst' to the high level of 'src'.
-  */
--static inline int mls_context_cpy_high(struct context *dst, const struct context *src)
-+static inline int mls_context_cpy_high(struct context *dst,
-+				       const struct context *src)
- {
- 	int rc;
- 
-@@ -95,9 +99,9 @@ static inline int mls_context_cpy_high(struct context *dst, const struct context
- 	return rc;
- }
- 
--
- static inline int mls_context_glblub(struct context *dst,
--				     const struct context *c1, const struct context *c2)
-+				     const struct context *c1,
-+				     const struct context *c2)
- {
- 	struct mls_range *dr = &dst->range;
- 	const struct mls_range *r1 = &c1->range, *r2 = &c2->range;
-@@ -114,13 +118,13 @@ static inline int mls_context_glblub(struct context *dst,
- 	/* Take the least of the high */
- 	dr->level[1].sens = min(r1->level[1].sens, r2->level[1].sens);
- 
--	rc = ebitmap_and(&dr->level[0].cat,
--			 &r1->level[0].cat, &r2->level[0].cat);
-+	rc = ebitmap_and(&dr->level[0].cat, &r1->level[0].cat,
-+			 &r2->level[0].cat);
- 	if (rc)
- 		goto out;
- 
--	rc = ebitmap_and(&dr->level[1].cat,
--			 &r1->level[1].cat, &r2->level[1].cat);
-+	rc = ebitmap_and(&dr->level[1].cat, &r1->level[1].cat,
-+			 &r2->level[1].cat);
- 	if (rc)
- 		goto out;
- 
-@@ -128,7 +132,8 @@ static inline int mls_context_glblub(struct context *dst,
- 	return rc;
- }
- 
--static inline int mls_context_cmp(const struct context *c1, const struct context *c2)
-+static inline int mls_context_cmp(const struct context *c1,
-+				  const struct context *c2)
- {
- 	return ((c1->range.level[0].sens == c2->range.level[0].sens) &&
- 		ebitmap_cmp(&c1->range.level[0].cat, &c2->range.level[0].cat) &&
-@@ -183,19 +188,17 @@ static inline void context_destroy(struct context *c)
- 	mls_context_destroy(c);
- }
- 
--static inline int context_cmp(const struct context *c1, const struct context *c2)
-+static inline int context_cmp(const struct context *c1,
-+			      const struct context *c2)
- {
- 	if (c1->len && c2->len)
- 		return (c1->len == c2->len && !strcmp(c1->str, c2->str));
- 	if (c1->len || c2->len)
- 		return 0;
--	return ((c1->user == c2->user) &&
--		(c1->role == c2->role) &&
--		(c1->type == c2->type) &&
--		mls_context_cmp(c1, c2));
-+	return ((c1->user == c2->user) && (c1->role == c2->role) &&
-+		(c1->type == c2->type) && mls_context_cmp(c1, c2));
- }
- 
- u32 context_compute_hash(const struct context *c);
- 
--#endif	/* _SS_CONTEXT_H_ */
--
-+#endif /* _SS_CONTEXT_H_ */
 -- 
 2.43.2
 
