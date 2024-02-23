@@ -1,115 +1,163 @@
-Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com [209.85.219.178])
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90A931482FF
-	for <selinux@vger.kernel.org>; Fri, 23 Feb 2024 21:05:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63A341448F3
+	for <selinux@vger.kernel.org>; Fri, 23 Feb 2024 21:26:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708722330; cv=none; b=TJ+UJngXBjyZqsclXpIIMBZtRpAGo9lZ/KMIU846hpi1N+12e6iAd3E29F5o51LjQg7M2SRn3ICJ/7YIr4u4nwI2wCBTwfEdTG58lPfHrfXwVj8QJkybdw8mUtOYU/r9uBOlJD3oSg2MUrdh4fuQrLL1S281IQhhhxpHm12hSak=
+	t=1708723613; cv=none; b=fOthIdlBahbBYPytRZ1s622JPsTmdG+REIvegxKvNflh0+4w3v9tU4fIWinCKoZ4zYyT40QZyElGHo49SHwwlaH+7Xfv8LEVOPD8WdrF28eo2P4KyH69wuhqN3eOY1k0hiKDGcb9slS9giGqBsMWiAWS3pLaFEcC7T2YUwJvqCQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708722330; c=relaxed/simple;
-	bh=R/+O8H4O8BwAv9+xJIMOzoReW2oS/QadBD8zkAnLLDY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WrKVj9COnaEaa5mjpkHMSlHi0GLKeiOhuTOHe/E3cLW8r6+HyAj+PxFiPg4J6TvoxKKJ9qX0RA5qIoGQuSU1H+wC3u0nqbezYkJR+UnxIZz8GO0HgJTfdm7DPKwp2LK9o74GQ9gZ7x/GvkTgw+ahSQp/2vwjSfX1fSKQNVAmpW0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=McsG/xV1; arc=none smtp.client-ip=209.85.219.178
+	s=arc-20240116; t=1708723613; c=relaxed/simple;
+	bh=lyizb5ZyX13qKB7u9619mSQCHd6r4E8qYGIQRneFufE=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=VFuVt695nuGT+46OYa/+pgnk2W5j/tcp9opqsAONCcUqto1dax83XQWoUx8IK9cDubZu0AlMnJdLPato3dZ3qsR3ArW1158tWIgpFJcGvqTKs8XnPhCFDP7BdK/816VGm9q+9XK+fdnTZVEnpO/Na4+10JmFGBHOeKE2oLl50zc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Xj1Qt7nD; arc=none smtp.client-ip=209.85.222.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="McsG/xV1"
-Received: by mail-yb1-f178.google.com with SMTP id 3f1490d57ef6-dccb1421bdeso950363276.1
-        for <selinux@vger.kernel.org>; Fri, 23 Feb 2024 13:05:28 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Xj1Qt7nD"
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-787a843003eso79631785a.0
+        for <selinux@vger.kernel.org>; Fri, 23 Feb 2024 13:26:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1708722327; x=1709327127; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ytWrr/Z6XKokLdRa6LccyRlNuSfIGCRB1ohMJ1fqRns=;
-        b=McsG/xV1Q6wYwr0hBiL8gQeBgfp9QLQCnz1I6NLyCHktW9rh10xkCwRtX0St8yoNQq
-         /Ht/LQzBV0OaCYUlMiAIDqIP+1fia1PNf1+v8WxJaqCj0RR2bSWhW8tJ0z7evZpeqOL2
-         tNnxB0sIaVaqcsLZlXrF8ucmB/4B9FpP0s8xO2XpmqZISqV/ss+MoRARStuh/cO+3/9h
-         pEI+WO3EFFlMvbK0cdj0T63DTQXZJRMbHzox6kRF8a3usSaOoMf7EetFZbkgtM0PNvBL
-         ygVSJ2UbkD8CQVbEMf+qHwG4N+bol0bNRqYHIhecnSGum/RSz5wPq9OCd4KTA3IEUr0O
-         m5/A==
+        d=paul-moore.com; s=google; t=1708723610; x=1709328410; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Y74s1yO/Ih0ePzv7Di1f6ypeFTeV8ZLPlXHemkSd4cU=;
+        b=Xj1Qt7nDb1kw1lxzxVoQoCQpE7v+9epbIOMHmtiMUIx4Sus3+7eIQ66rhAjyFsPp7i
+         r7605OHGJrtmPfqA7CZVPJbaG2fJig+8vrV9uU/lC8VV38lBXaarhDivoTm7ATKBnPXI
+         69oW+srMbNVu6k2vV+2gutgbbwIgaG/2A4xQCIhIPrEoEFGHZRce6KLs8aGVsYbGC0L2
+         KKfzDCbvkL86HkjoaWcxTt3XkEMVEj62zzi/IOXH06OlJ0Q6jF7C33KUmfV5rYhWZ8i1
+         0pZpEbU8FuCIYVA11LkVB0s7dx2OL13BOr49n2wblYcSzBckwGU9/MhUVSPLUJlpvBhx
+         cKog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708722327; x=1709327127;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ytWrr/Z6XKokLdRa6LccyRlNuSfIGCRB1ohMJ1fqRns=;
-        b=FH8GMbO0COZoYUlXbht7B28mnjFrJTKP3RhC3Ovnv1Ek1ma1WWRSJR+S/IC5rE7n0e
-         ffAnf4ZqVrQA78iHam9m1BKKOKt9Tgt0LScSI8mBcz5DvMDgj+WT2i9yjyL+xUpxmOg8
-         +mL9xbMLB8vWd00+ZsH+9k1DVDzMgAa+uyecvSBbaiXE3TMCi4VwcOCuUAhAAknimZdD
-         /JJL6PtAKyFZwnl8DXQK0UrsolvsqcEk8ci+JxHPy/5lrkseUjB581tdxoPiJuidiZ92
-         Wc842iZn1zhSdPL1qO6aMxLOAnyydnAkHdOXhca2ALooUpKfUkrSRxZqpKu+k3itzUIG
-         WUVA==
-X-Forwarded-Encrypted: i=1; AJvYcCW4spwv06bO4YQF+gQF9nzpjsfcbd5f1BC25YowUwKVgPTnlV1/2qIgCWvEjWAsRSj/YSjedTkAJfskLiVpBZiiWJ7k3iUD4Q==
-X-Gm-Message-State: AOJu0YwXYdBWMT9Bvv6RjqRP7QUd8vuYBUrPRtDKNc/BwMUiW/gKXlip
-	mTwQLd1Pg3VbzQq2b4FH/ono1NK5NPJPNDDkxUNy30+hkvmOijPx2qUsziKksjwteR+xabxehRt
-	9MGQTbNqLzx2PRO1l8ln50Hne7LkYMg+4C5BiAFHoO1s/tLjUkA==
-X-Google-Smtp-Source: AGHT+IEpVFDrzEuIGmXD+usw6kJRjPirAlh3UAEtBi1UxjtPyCLhEp1Orc6J/F3wzIU5WK49aEGT3jx6+SyrtibdDLc=
-X-Received: by 2002:a25:2bc6:0:b0:dc7:6d9a:37f2 with SMTP id
- r189-20020a252bc6000000b00dc76d9a37f2mr1120688ybr.38.1708722327204; Fri, 23
- Feb 2024 13:05:27 -0800 (PST)
+        d=1e100.net; s=20230601; t=1708723610; x=1709328410;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Y74s1yO/Ih0ePzv7Di1f6ypeFTeV8ZLPlXHemkSd4cU=;
+        b=hknfKSPOodLo+XiFq1Z7dflv8pjXm3vY2ImOLNWeOM5p5lBLJnlU2Gs6N/i1y8V9A2
+         aWg65wK+JCvtSwfpbtlYf7zfFI/93bJp32R6qXUzP7iB0KxRmvTrZhI2D/rcNriB90jr
+         xCE6BkaEchRgApDLQul+G2+iNUcCWvv1WU0fLcr4EH1zyvTl92Fy58VpjmasEYUs5N5h
+         VwfqjYSj1s4j8jiNkStSbXJ/faijVoIfSK0GUQu7ZWHYb39jEnT50KPnxN3dblVJ766w
+         mRROg57+h9nxqMk2gdmXejOM6ldQDx8zpa5fUpd+CUz+esSOHBLP1Wveo8krGn8MIzee
+         rnNw==
+X-Gm-Message-State: AOJu0Ywm0vZktUQWkMwsijYUgIbtSsSxANbb0Xy5o9kriF/qB9tCXl42
+	axH/VbzenrXFkylgir0yI8goWKja4E4SeCHG4x9qxcPr3HlVN05Eu/5TjxDgjftaB5akT5hdJuI
+	=
+X-Google-Smtp-Source: AGHT+IFEfK7kIpwORdo/k06sKpCdQdbZlS1/ye1Z+ymrl0ng61a4y+oo8dBGuauLUKIVCT+ZNuYKEQ==
+X-Received: by 2002:a05:620a:444f:b0:787:a7ef:7c1e with SMTP id w15-20020a05620a444f00b00787a7ef7c1emr1187767qkp.47.1708723610057;
+        Fri, 23 Feb 2024 13:26:50 -0800 (PST)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id vq5-20020a05620a558500b00787289fa901sm6821054qkn.36.2024.02.23.13.26.49
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Feb 2024 13:26:49 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH] selinux: cleanup selinux_lsm_getattr()
+Date: Fri, 23 Feb 2024 16:26:40 -0500
+Message-ID: <20240223212640.305789-2-paul@paul-moore.com>
+X-Mailer: git-send-email 2.43.2
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240223190546.3329966-1-mic@digikod.net> <20240223.ieSh2aegurig@digikod.net>
- <20240223.eij0Oudai0Ia@digikod.net>
-In-Reply-To: <20240223.eij0Oudai0Ia@digikod.net>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 23 Feb 2024 16:05:16 -0500
-Message-ID: <CAHC9VhRdRK3FztE-Th=3M+0ZjCZQJ+5sTiXPwfK6xXX_=SFHhA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] SELinux: Fix lsm_get_self_attr()
-To: =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
-Cc: Casey Schaufler <casey@schaufler-ca.com>, John Johansen <john.johansen@canonical.com>, 
-	James Morris <jmorris@namei.org>, "Serge E . Hallyn" <serge@hallyn.com>, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, stable@vger.kernel.org, 
-	selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2397; i=paul@paul-moore.com; h=from:subject; bh=lyizb5ZyX13qKB7u9619mSQCHd6r4E8qYGIQRneFufE=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBl2Q2QRF03fCEr5nhQ/JFzgCp/QcDxGkBpbs0iW QZsK2qeqeyJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZdkNkAAKCRDqIPLalzeJ c2fFD/9+KMDJaLUKhyYuZ4OQqbiQemcpJ6ETvloBZisfSZa/mbax9/vQ+5JJwSaEGRTpx7Yonj5 TxiGI2yXQosNTNIfZezhQAiD3gMD+I56XlAwZNtsejLQ2OqNtEoHh1aem1p0cJimdrg6wvJC4uT 5e7+dmuDdOaq4+AW2U+2rq1keeUyt4wVzojLyjBrOrvqcS+m5z3EKVq1tJgbySKj0biIWL35VU7 pv8Ex4CvQD5wFR070Dq+MKWbVqSvgbwlc43lOAIC35O5Gqzm3qYR4hRjbusZ9cmdXB7hGaE4AHM DKD27s2/aZQAdJASA4Od5C5PBcB7w7pVccbsOPNAe+BI9faCkCw8Oq23UMQe8UbXFiQN/lyAjOB qjyn/W/z1rNqdPjpeM119QtnxaKhS58ttI70N4ipP40GREDMN1c8dEWfsOmGX9hvDCwAsXInxkK IPEHio1rhFdEH8JW9ollmEGIVZ0IJ+5FysUX/qjCmFBks32yFa/B/gg8BWmi+qMN5QodIr0ETAP MtE9TwUn13776K9e7Fzb1rs3Irx0SuTfJg4fRy4MfDYvvz3sVp5H2JhBbB5BRV14eHZUN38yq8S mcCYB3bC1IgCwPldQdjPuZ0PMrxi5h4gpDX9V0jClwbvdELd3TTaQb4eRmOP4roKzWdRNBK8WZT SQ5swpTVODsmBEw==
+X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
+Content-Transfer-Encoding: 8bit
 
-On Fri, Feb 23, 2024 at 3:04=E2=80=AFPM Micka=C3=ABl Sala=C3=BCn <mic@digik=
-od.net> wrote:
->
-> On Fri, Feb 23, 2024 at 08:59:34PM +0100, Micka=C3=ABl Sala=C3=BCn wrote:
-> > On Fri, Feb 23, 2024 at 08:05:45PM +0100, Micka=C3=ABl Sala=C3=BCn wrot=
-e:
-> > > selinux_lsm_getattr() may not initialize the value's pointer in some
-> > > case.  As for proc_pid_attr_read(), initialize this pointer to NULL i=
-n
-> > > selinux_getselfattr() to avoid an UAF in the kfree() call.
-> >
-> > Not UAF but NULL pointer dereference (both patches)...
->
-> Well, that may be the result (as observed with the kfree() call), but
-> the cause is obviously an uninitialized pointer.
+A number of small changes to selinux_lsm_getattr() to improve the
+quality and readability of the code:
 
-Adding the SELinux list to the CC line; SELinux folks the original post is =
-here:
+* Explicitly set the `value` parameter to NULL in the case where an
+  attribute has not been set.
+* Rename the `__tsec` variable to `tsec` to better fit the SELinux code.
+* Rename `bad` to `err_unlock` to better indicate the jump target drops
+  the RCU lock.
 
-* https://lore.kernel.org/all/20240223190546.3329966-1-mic@digikod.net
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/hooks.c | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-Thanks for finding this and testing the patch, based on our off-list
-discussion, do you mind if I add a Suggested-by?  Looking at this a
-bit more I think we'll want to make a few changes to
-selinux_lsm_getattr() later, but this patch is a good one for stable
-as it not only fixes the bug, but it is a trivial one-liner with very
-low risk.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index a0fde0641f77..011b2ab08995 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6347,55 +6347,55 @@ static void selinux_d_instantiate(struct dentry *dentry, struct inode *inode)
+ static int selinux_lsm_getattr(unsigned int attr, struct task_struct *p,
+ 			       char **value)
+ {
+-	const struct task_security_struct *__tsec;
+-	u32 sid;
++	const struct task_security_struct *tsec;
+ 	int error;
+-	unsigned len;
++	u32 sid;
++	u32 len;
+ 
+ 	rcu_read_lock();
+-	__tsec = selinux_cred(__task_cred(p));
+-
+-	if (current != p) {
+-		error = avc_has_perm(current_sid(), __tsec->sid,
++	tsec = selinux_cred(__task_cred(p));
++	if (p != current) {
++		error = avc_has_perm(current_sid(), tsec->sid,
+ 				     SECCLASS_PROCESS, PROCESS__GETATTR, NULL);
+ 		if (error)
+-			goto bad;
++			goto err_unlock;
+ 	}
+-
+ 	switch (attr) {
+ 	case LSM_ATTR_CURRENT:
+-		sid = __tsec->sid;
++		sid = tsec->sid;
+ 		break;
+ 	case LSM_ATTR_PREV:
+-		sid = __tsec->osid;
++		sid = tsec->osid;
+ 		break;
+ 	case LSM_ATTR_EXEC:
+-		sid = __tsec->exec_sid;
++		sid = tsec->exec_sid;
+ 		break;
+ 	case LSM_ATTR_FSCREATE:
+-		sid = __tsec->create_sid;
++		sid = tsec->create_sid;
+ 		break;
+ 	case LSM_ATTR_KEYCREATE:
+-		sid = __tsec->keycreate_sid;
++		sid = tsec->keycreate_sid;
+ 		break;
+ 	case LSM_ATTR_SOCKCREATE:
+-		sid = __tsec->sockcreate_sid;
++		sid = tsec->sockcreate_sid;
+ 		break;
+ 	default:
+ 		error = -EOPNOTSUPP;
+-		goto bad;
++		goto err_unlock;
+ 	}
+ 	rcu_read_unlock();
+ 
+-	if (!sid)
++	if (sid == SECSID_NULL) {
++		*value = NULL;
+ 		return 0;
++	}
+ 
+ 	error = security_sid_to_context(sid, value, &len);
+ 	if (error)
+ 		return error;
+ 	return len;
+ 
+-bad:
++err_unlock:
+ 	rcu_read_unlock();
+ 	return error;
+ }
+-- 
+2.43.2
 
-I do think we need to tweak the commit description a bit, what do you
-think of the following?
-
-  "selinux_getselfattr() doesn't properly initialize the string
-   pointer it passes to selinux_lsm_getattr() which can cause a
-   problem when an attribute hasn't been explicitly set;
-   selinux_lsm_getattr() returns 0/success, but does not set or
-   initialize the string label/attribute.  Failure to properly
-   initialize the string causes problems later in
-   selinux_getselfattr() when the function attempts to kfree()
-   the string."
-
---=20
-paul-moore.com
