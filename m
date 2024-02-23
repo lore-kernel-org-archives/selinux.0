@@ -1,163 +1,96 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-42af.mail.infomaniak.ch (smtp-42af.mail.infomaniak.ch [84.16.66.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63A341448F3
-	for <selinux@vger.kernel.org>; Fri, 23 Feb 2024 21:26:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5843F1493B1
+	for <selinux@vger.kernel.org>; Fri, 23 Feb 2024 22:03:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.16.66.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708723613; cv=none; b=fOthIdlBahbBYPytRZ1s622JPsTmdG+REIvegxKvNflh0+4w3v9tU4fIWinCKoZ4zYyT40QZyElGHo49SHwwlaH+7Xfv8LEVOPD8WdrF28eo2P4KyH69wuhqN3eOY1k0hiKDGcb9slS9giGqBsMWiAWS3pLaFEcC7T2YUwJvqCQ=
+	t=1708725828; cv=none; b=B3+hyrMIBA8wb9uIIyIb/dUdEHh/OL2TgBatUAGpXtKMlw6eKgWawyWBAIKeurdOIoYzbA0XNLKYKdjPgXpzI3fDvdTi7dqJyl08BcRdBa/mpZhYAlv9iTZnDh8eRJYSvfO3BYaULm3ZLOjI1gZqaqZnO4Z5D3/oDn5J2ZNhBxg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708723613; c=relaxed/simple;
-	bh=lyizb5ZyX13qKB7u9619mSQCHd6r4E8qYGIQRneFufE=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=VFuVt695nuGT+46OYa/+pgnk2W5j/tcp9opqsAONCcUqto1dax83XQWoUx8IK9cDubZu0AlMnJdLPato3dZ3qsR3ArW1158tWIgpFJcGvqTKs8XnPhCFDP7BdK/816VGm9q+9XK+fdnTZVEnpO/Na4+10JmFGBHOeKE2oLl50zc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Xj1Qt7nD; arc=none smtp.client-ip=209.85.222.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1708725828; c=relaxed/simple;
+	bh=es1a7/Jx7I4y7wvmf+og2jZ8waD2Y9vlkAkSgE79mA0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WtFHKYjfHV4UeIkRcxLIA/WE8s3d511DavTmwYdd1+FryKHHyHgmKwjAGAcTc7XzLciPv1r9a0Bq+2LttrSUCOak3S3IO3ZfwthwLuaB8o1aQx0271A5wEJTSCQEooZkTMs605SDhiA0sW9962A+lz+HdKbhgaDJZHzhUGZt8i8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net; spf=pass smtp.mailfrom=digikod.net; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=Hz++FGzn; arc=none smtp.client-ip=84.16.66.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Xj1Qt7nD"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-787a843003eso79631785a.0
-        for <selinux@vger.kernel.org>; Fri, 23 Feb 2024 13:26:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1708723610; x=1709328410; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Y74s1yO/Ih0ePzv7Di1f6ypeFTeV8ZLPlXHemkSd4cU=;
-        b=Xj1Qt7nDb1kw1lxzxVoQoCQpE7v+9epbIOMHmtiMUIx4Sus3+7eIQ66rhAjyFsPp7i
-         r7605OHGJrtmPfqA7CZVPJbaG2fJig+8vrV9uU/lC8VV38lBXaarhDivoTm7ATKBnPXI
-         69oW+srMbNVu6k2vV+2gutgbbwIgaG/2A4xQCIhIPrEoEFGHZRce6KLs8aGVsYbGC0L2
-         KKfzDCbvkL86HkjoaWcxTt3XkEMVEj62zzi/IOXH06OlJ0Q6jF7C33KUmfV5rYhWZ8i1
-         0pZpEbU8FuCIYVA11LkVB0s7dx2OL13BOr49n2wblYcSzBckwGU9/MhUVSPLUJlpvBhx
-         cKog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708723610; x=1709328410;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Y74s1yO/Ih0ePzv7Di1f6ypeFTeV8ZLPlXHemkSd4cU=;
-        b=hknfKSPOodLo+XiFq1Z7dflv8pjXm3vY2ImOLNWeOM5p5lBLJnlU2Gs6N/i1y8V9A2
-         aWg65wK+JCvtSwfpbtlYf7zfFI/93bJp32R6qXUzP7iB0KxRmvTrZhI2D/rcNriB90jr
-         xCE6BkaEchRgApDLQul+G2+iNUcCWvv1WU0fLcr4EH1zyvTl92Fy58VpjmasEYUs5N5h
-         VwfqjYSj1s4j8jiNkStSbXJ/faijVoIfSK0GUQu7ZWHYb39jEnT50KPnxN3dblVJ766w
-         mRROg57+h9nxqMk2gdmXejOM6ldQDx8zpa5fUpd+CUz+esSOHBLP1Wveo8krGn8MIzee
-         rnNw==
-X-Gm-Message-State: AOJu0Ywm0vZktUQWkMwsijYUgIbtSsSxANbb0Xy5o9kriF/qB9tCXl42
-	axH/VbzenrXFkylgir0yI8goWKja4E4SeCHG4x9qxcPr3HlVN05Eu/5TjxDgjftaB5akT5hdJuI
-	=
-X-Google-Smtp-Source: AGHT+IFEfK7kIpwORdo/k06sKpCdQdbZlS1/ye1Z+ymrl0ng61a4y+oo8dBGuauLUKIVCT+ZNuYKEQ==
-X-Received: by 2002:a05:620a:444f:b0:787:a7ef:7c1e with SMTP id w15-20020a05620a444f00b00787a7ef7c1emr1187767qkp.47.1708723610057;
-        Fri, 23 Feb 2024 13:26:50 -0800 (PST)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id vq5-20020a05620a558500b00787289fa901sm6821054qkn.36.2024.02.23.13.26.49
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Feb 2024 13:26:49 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH] selinux: cleanup selinux_lsm_getattr()
-Date: Fri, 23 Feb 2024 16:26:40 -0500
-Message-ID: <20240223212640.305789-2-paul@paul-moore.com>
-X-Mailer: git-send-email 2.43.2
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="Hz++FGzn"
+Received: from smtp-3-0001.mail.infomaniak.ch (smtp-3-0001.mail.infomaniak.ch [10.4.36.108])
+	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4ThPCs1Rf8zZRj;
+	Fri, 23 Feb 2024 23:03:37 +0100 (CET)
+Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4ThPCr0vQCzMpnPg;
+	Fri, 23 Feb 2024 23:03:35 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=digikod.net;
+	s=20191114; t=1708725817;
+	bh=es1a7/Jx7I4y7wvmf+og2jZ8waD2Y9vlkAkSgE79mA0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Hz++FGznJqTL3Js2fp1GXoxxXyLcT+3A5NeL2RF7uNhRSpuXH8YS7+2ZyYwm4eXAA
+	 7CjszwGhQaeSBrRtnbKCvpbipBzSrRs6egBGG6j5QT07UiCupqJbfCBIMepCa1qrHq
+	 JGGwhlftxpHF4X8Ff0i7nSEzJoPIp5hkb+gXOPNo=
+Date: Fri, 23 Feb 2024 23:03:27 +0100
+From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, 
+	John Johansen <john.johansen@canonical.com>, James Morris <jmorris@namei.org>, 
+	"Serge E . Hallyn" <serge@hallyn.com>, linux-kernel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, stable@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH 1/2] SELinux: Fix lsm_get_self_attr()
+Message-ID: <20240223.goo9Xei0xa9S@digikod.net>
+References: <20240223190546.3329966-1-mic@digikod.net>
+ <20240223.ieSh2aegurig@digikod.net>
+ <20240223.eij0Oudai0Ia@digikod.net>
+ <CAHC9VhRdRK3FztE-Th=3M+0ZjCZQJ+5sTiXPwfK6xXX_=SFHhA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2397; i=paul@paul-moore.com; h=from:subject; bh=lyizb5ZyX13qKB7u9619mSQCHd6r4E8qYGIQRneFufE=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBl2Q2QRF03fCEr5nhQ/JFzgCp/QcDxGkBpbs0iW QZsK2qeqeyJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZdkNkAAKCRDqIPLalzeJ c2fFD/9+KMDJaLUKhyYuZ4OQqbiQemcpJ6ETvloBZisfSZa/mbax9/vQ+5JJwSaEGRTpx7Yonj5 TxiGI2yXQosNTNIfZezhQAiD3gMD+I56XlAwZNtsejLQ2OqNtEoHh1aem1p0cJimdrg6wvJC4uT 5e7+dmuDdOaq4+AW2U+2rq1keeUyt4wVzojLyjBrOrvqcS+m5z3EKVq1tJgbySKj0biIWL35VU7 pv8Ex4CvQD5wFR070Dq+MKWbVqSvgbwlc43lOAIC35O5Gqzm3qYR4hRjbusZ9cmdXB7hGaE4AHM DKD27s2/aZQAdJASA4Od5C5PBcB7w7pVccbsOPNAe+BI9faCkCw8Oq23UMQe8UbXFiQN/lyAjOB qjyn/W/z1rNqdPjpeM119QtnxaKhS58ttI70N4ipP40GREDMN1c8dEWfsOmGX9hvDCwAsXInxkK IPEHio1rhFdEH8JW9ollmEGIVZ0IJ+5FysUX/qjCmFBks32yFa/B/gg8BWmi+qMN5QodIr0ETAP MtE9TwUn13776K9e7Fzb1rs3Irx0SuTfJg4fRy4MfDYvvz3sVp5H2JhBbB5BRV14eHZUN38yq8S mcCYB3bC1IgCwPldQdjPuZ0PMrxi5h4gpDX9V0jClwbvdELd3TTaQb4eRmOP4roKzWdRNBK8WZT SQ5swpTVODsmBEw==
-X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHC9VhRdRK3FztE-Th=3M+0ZjCZQJ+5sTiXPwfK6xXX_=SFHhA@mail.gmail.com>
+X-Infomaniak-Routing: alpha
 
-A number of small changes to selinux_lsm_getattr() to improve the
-quality and readability of the code:
+On Fri, Feb 23, 2024 at 04:05:16PM -0500, Paul Moore wrote:
+> On Fri, Feb 23, 2024 at 3:04 PM Mickaël Salaün <mic@digikod.net> wrote:
+> >
+> > On Fri, Feb 23, 2024 at 08:59:34PM +0100, Mickaël Salaün wrote:
+> > > On Fri, Feb 23, 2024 at 08:05:45PM +0100, Mickaël Salaün wrote:
+> > > > selinux_lsm_getattr() may not initialize the value's pointer in some
+> > > > case.  As for proc_pid_attr_read(), initialize this pointer to NULL in
+> > > > selinux_getselfattr() to avoid an UAF in the kfree() call.
+> > >
+> > > Not UAF but NULL pointer dereference (both patches)...
+> >
+> > Well, that may be the result (as observed with the kfree() call), but
+> > the cause is obviously an uninitialized pointer.
+> 
+> Adding the SELinux list to the CC line; SELinux folks the original post is here:
+> 
+> * https://lore.kernel.org/all/20240223190546.3329966-1-mic@digikod.net
+> 
+> Thanks for finding this and testing the patch, based on our off-list
+> discussion, do you mind if I add a Suggested-by?  Looking at this a
 
-* Explicitly set the `value` parameter to NULL in the case where an
-  attribute has not been set.
-* Rename the `__tsec` variable to `tsec` to better fit the SELinux code.
-* Rename `bad` to `err_unlock` to better indicate the jump target drops
-  the RCU lock.
+Sure! I was in a hurry and didn't give it the attention it needed...
 
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- security/selinux/hooks.c | 36 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
+> bit more I think we'll want to make a few changes to
+> selinux_lsm_getattr() later, but this patch is a good one for stable
+> as it not only fixes the bug, but it is a trivial one-liner with very
+> low risk.
+> 
+> I do think we need to tweak the commit description a bit, what do you
+> think of the following?
+> 
+>   "selinux_getselfattr() doesn't properly initialize the string
+>    pointer it passes to selinux_lsm_getattr() which can cause a
+>    problem when an attribute hasn't been explicitly set;
+>    selinux_lsm_getattr() returns 0/success, but does not set or
+>    initialize the string label/attribute.  Failure to properly
+>    initialize the string causes problems later in
+>    selinux_getselfattr() when the function attempts to kfree()
+>    the string."
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index a0fde0641f77..011b2ab08995 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6347,55 +6347,55 @@ static void selinux_d_instantiate(struct dentry *dentry, struct inode *inode)
- static int selinux_lsm_getattr(unsigned int attr, struct task_struct *p,
- 			       char **value)
- {
--	const struct task_security_struct *__tsec;
--	u32 sid;
-+	const struct task_security_struct *tsec;
- 	int error;
--	unsigned len;
-+	u32 sid;
-+	u32 len;
- 
- 	rcu_read_lock();
--	__tsec = selinux_cred(__task_cred(p));
--
--	if (current != p) {
--		error = avc_has_perm(current_sid(), __tsec->sid,
-+	tsec = selinux_cred(__task_cred(p));
-+	if (p != current) {
-+		error = avc_has_perm(current_sid(), tsec->sid,
- 				     SECCLASS_PROCESS, PROCESS__GETATTR, NULL);
- 		if (error)
--			goto bad;
-+			goto err_unlock;
- 	}
--
- 	switch (attr) {
- 	case LSM_ATTR_CURRENT:
--		sid = __tsec->sid;
-+		sid = tsec->sid;
- 		break;
- 	case LSM_ATTR_PREV:
--		sid = __tsec->osid;
-+		sid = tsec->osid;
- 		break;
- 	case LSM_ATTR_EXEC:
--		sid = __tsec->exec_sid;
-+		sid = tsec->exec_sid;
- 		break;
- 	case LSM_ATTR_FSCREATE:
--		sid = __tsec->create_sid;
-+		sid = tsec->create_sid;
- 		break;
- 	case LSM_ATTR_KEYCREATE:
--		sid = __tsec->keycreate_sid;
-+		sid = tsec->keycreate_sid;
- 		break;
- 	case LSM_ATTR_SOCKCREATE:
--		sid = __tsec->sockcreate_sid;
-+		sid = tsec->sockcreate_sid;
- 		break;
- 	default:
- 		error = -EOPNOTSUPP;
--		goto bad;
-+		goto err_unlock;
- 	}
- 	rcu_read_unlock();
- 
--	if (!sid)
-+	if (sid == SECSID_NULL) {
-+		*value = NULL;
- 		return 0;
-+	}
- 
- 	error = security_sid_to_context(sid, value, &len);
- 	if (error)
- 		return error;
- 	return len;
- 
--bad:
-+err_unlock:
- 	rcu_read_unlock();
- 	return error;
- }
--- 
-2.43.2
-
+Much better!
