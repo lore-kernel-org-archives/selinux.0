@@ -1,232 +1,248 @@
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
+Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7498B53E3B
-	for <selinux@vger.kernel.org>; Mon, 26 Feb 2024 16:33:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA20F12B167
+	for <selinux@vger.kernel.org>; Mon, 26 Feb 2024 17:52:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708965210; cv=none; b=PkPLisyvngWE02T7RU3wa+qzI0p6LPkiAedp3vWWDV0Txss1BeEKlXbDHvkG9BZrwmJUEuUoeydxR4hPfy7gC/JuHxk5sMLlZWuIYvCkWa0wGmaRm4Y0z8ho38vIv1gT16CP8OCKeAHd4Mu2UuOGK0ntyPRVf4X5Rrkps0GpCGg=
+	t=1708969944; cv=none; b=OGdsTS4fYYWT1D7gGWw7Y1orrAk981Rv5Nj7WUtbnKPCbc4ffNktAAUlcsRa4JYhnkyfkMenTQCA9J3GkrAw1FzN8Sfp2GeEp7fbKbvTAmCVgJ/L582AGrg46rju2bgNeAiuCWv/9ZDtQqUnGnNphzAS45yzemZ4a2AKhWjGrBk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708965210; c=relaxed/simple;
-	bh=pJvO8vvnZZGgG/5lOdtqriziIiTQdn8TZRRtGfAPFhE=;
+	s=arc-20240116; t=1708969944; c=relaxed/simple;
+	bh=qOjaIoAn7rhfXijfP7X7TjfAqHJ1v+xwgD2w5LN/svE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hazQOocxUqRKcsWFEH5XA/SOkF0+rJQC+p+OPt6XxhDUNvLW0IUq5vbR09GO+FQR7dxT97FHSOQ3mShSHg80J5cZDhscHb86VnClsNaunAEVlRCeLah3+cjyI2tM4vrq4wKfrl3ZwZ/FxR6IOug0Ps1HD2+ZUu9LER941oNB/wg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=A9bLf0u/; arc=none smtp.client-ip=209.85.128.174
+	 To:Cc:Content-Type; b=PK+rFMunDPhQVuPp2gGMgisBve5Fz3QWyem8MopgK0itN39uCCS8IJG9nqetZKNSXPvmzyrzy/XPa4rwlQRHVPKc5CYNwM7R9rrYnbOOwQ+6CrMLb6uOvLEVjLh4S+HFtA9HBSpCDT1uSu7U9XiSxG7ifR4/OHWgb1VYYebHt54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=Ai8ZCFsZ; arc=none smtp.client-ip=209.85.128.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="A9bLf0u/"
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-608841dfcafso28480867b3.2
-        for <selinux@vger.kernel.org>; Mon, 26 Feb 2024 08:33:28 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="Ai8ZCFsZ"
+Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-6091e12b01fso4473837b3.2
+        for <selinux@vger.kernel.org>; Mon, 26 Feb 2024 09:52:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1708965207; x=1709570007; darn=vger.kernel.org;
+        d=googlemail.com; s=20230601; t=1708969941; x=1709574741; darn=vger.kernel.org;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=d4gjOSJvpiRXnuajEbWOWldvqaD+PToBKzWCKCkbErY=;
-        b=A9bLf0u/jgSfXhAu5+iPYW+H59H8e19GnCn2sV2lHfZeuHiBTqBF7Bw5bjbQRAWr0Q
-         O4bV2QaesxLGi5WTo8fw4YLhEDiBZ7zKcaGn41v//15CtBnIh+5pDq6EjY4o5LMbS43p
-         CBdMgZlSnGFbh+xsklyW4TJdGkoNkj/URLOcBAoN4qt6xMO2HSfqaQuKKsASyFf7Kz2C
-         /R8L6g45A+YwFAkzZgoyJzN5yhQCo6PK/XbIQeqHZyA7BJ7XNsgtDpgsgvarZSGI/9sO
-         N/AMoxHVFxm+2tIlvlLXZFYiT6GKa1MC4uJ0kFxEinvIgN1TYBMtjlcF1YNzAuKTdKJd
-         m2BQ==
+        bh=VTyOMDg4C+qDvCcgquOeWy9jAsfHsOMh08YM7YSq6SI=;
+        b=Ai8ZCFsZvCngKQDyD/QdBlQ1aMEysniSOmXUwBcEZKpT8gnXqWdMz7EXz31hlYPJft
+         ZI2vyV9uxLQ4K8FCXRNnjH64gJSIxJUmhKhPT/Ximqngn1i203Kp6Rbh26gpr4taJwch
+         V9TstJMKdM4xhnQ0Azr+/xTAijYCETidO6reHmVvXuCaRyHgTBzQyE3jJym11KyLI+kB
+         lLbGn6Gmlh5S0qDtF7Jwjqf2PSVP+kMseGvRQGEx9ZsewdBWQ2zXN3tFZdby8oo4aHgQ
+         mRsCjdaLVioBdaB9BkvLVTtKjI0aRvKHbUd/Ge/NGWosFnfxmhdk2+f9oELnF5ki8z2Y
+         D9tw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1708965207; x=1709570007;
+        d=1e100.net; s=20230601; t=1708969941; x=1709574741;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=d4gjOSJvpiRXnuajEbWOWldvqaD+PToBKzWCKCkbErY=;
-        b=NbZL5stCkZg1Hlyn6IpZKVbJckAnLcQxWsIouJjZlL0caVDBZlyhYkMcFIL+ZRVpLX
-         QkzCDbnnZEod9AJtCYX2HpBPXKzs2hX6QORpX/AVBx73QzG6uurlYVpZoAagEMD5i6BO
-         hPQiv96c7BR5ZkpM/7HOjo9RaOW7rs575birEltkxW5duU0aPk14VqnPO42bfhHb4ObO
-         BRE3GfWcSXM5EthrzraRgipH2YMjzZX0X+9euQk548s86C7+0gs/H8MdCdygCDpbQ6do
-         sw0+eqkIvONJT1ZICd85UuaRXs+Pkq6vuYzErd9JOHyjRI8ZUToCqyxQdbOlHyu+ueUk
-         sA3g==
-X-Gm-Message-State: AOJu0Yy5lTWokY/UdvfVbJ2iKKeClpMwu2Yi1de/CgyCm8AoKcs05k8K
-	wrW7GB0qKgjAbjo0GA5Bp4EJpq8+4f2qjxdyCs4wDW9kesALzCCgMF2MNUyZRAizXNfg5T7MvyE
-	mem+vWZ06CJgd2eN78t6XFMyyQ40=
-X-Google-Smtp-Source: AGHT+IGTsRHUP9IO5MSbvnjZdrHpTG8q05NsuIf3zJloL8o8jC9Uk76VdS8bEcDfd9tUxHq3iQgue5JePw5BwnfWsnQ=
-X-Received: by 2002:a0d:eb16:0:b0:608:8b1e:cee with SMTP id
- u22-20020a0deb16000000b006088b1e0ceemr7684949ywe.25.1708965207316; Mon, 26
- Feb 2024 08:33:27 -0800 (PST)
+        bh=VTyOMDg4C+qDvCcgquOeWy9jAsfHsOMh08YM7YSq6SI=;
+        b=hWFLJL0wpfvQbMdLIB632mysp7ixnv3LjBkS0Yh4I/PlT07lFbWTx2BOGRHfrZI2cJ
+         gk0KGn3BFJWpCZE9kkRcDQXheNxMvmZoxeNHTw4HkSJAOdg6+J4lnlTsrM6D0la0O+k1
+         UJZywM7RRxstPKsXkNlxqyWzZp/9RmN/DFHwA6LGMroOabBNX1m/XKPOhCACkizT38Y5
+         g+kHF3Sy4KDFNXRHxt7mRMZAfL8apXsFm80+61SRIlA5lWgCN8sQbDMo48Q9OO+JNH12
+         Q7MVCCLphi12zwmNJBlNcEy9MOcb84bh3mAusVGjsfkLJ6Ramg3xyJmJkS159/BIDgy3
+         QG4g==
+X-Forwarded-Encrypted: i=1; AJvYcCXLR8hzX5XCjCrLCzSBKV/ZLYnqxPwlm6t/C4RYKhg5BbeHiK1gcjYmQ5wlCVloxRyQ4KyDjsm3R4amIzxZxPwvMurdBgMKSg==
+X-Gm-Message-State: AOJu0YxGCMXb614um0xzwJvEt+GDEI9QgEXWCHhECrQh4Vy5TBOkE9kb
+	b30EqepmagGpD60/aS8RSYK8wYTjJDr1WMcDRgysySRCUb8DtAWrBU4+GeAIKLZWB8PJ5QlGGEk
+	JF84sjK4QUsjGY8Z/oGyQuHGD5CU=
+X-Google-Smtp-Source: AGHT+IHMS3TJOpx4CyXsO7nrObfFjud+HdsQOIOQFh/3KtOn3p3Kd2qbZzHOY4pFcmOwzRG0pkm79PuZSpjRdaDKTH8=
+X-Received: by 2002:a81:af67:0:b0:608:ba29:9a46 with SMTP id
+ x39-20020a81af67000000b00608ba299a46mr6371371ywj.12.1708969941579; Mon, 26
+ Feb 2024 09:52:21 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240221210759.1310310-1-jwcart2@gmail.com>
-In-Reply-To: <20240221210759.1310310-1-jwcart2@gmail.com>
+References: <20240216003252.29057-1-steve.langasek@canonical.com>
+ <Zc6tzKPsYZRICHya@homer.dodds.net> <202402171351.439742DA@keescook>
+ <ZdF0no51QNtKq8Ri@homer.dodds.net> <Zdrh/euXdvdWlVSp@homer.dodds.net>
+In-Reply-To: <Zdrh/euXdvdWlVSp@homer.dodds.net>
 From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Mon, 26 Feb 2024 17:33:16 +0100
-Message-ID: <CAJ2a_DcNB7nd2OejzukWiWKa+zpCitXzx1GMs0Ei0dszZYUG4Q@mail.gmail.com>
-Subject: Re: [PATCH v2] checkpolicy, libsepol: Fix potential double free of mls_level_t
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
+Date: Mon, 26 Feb 2024 18:52:10 +0100
+Message-ID: <CAJ2a_DeQFFgo+b6xf3_79bsfsvWeGWOephtgsJTK+RxJ7epG4Q@mail.gmail.com>
+Subject: Re: [PATCH] Always build for LFS mode on 32-bit archs.
+To: Steve Langasek <vorlon@debian.org>
+Cc: James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 
-On Wed, 21 Feb 2024 at 22:08, James Carter <jwcart2@gmail.com> wrote:
+On Sun, 25 Feb 2024 at 07:45, Steve Langasek <vorlon@debian.org> wrote:
 >
-> In checkpolicy, a sensitivity that has one or more aliases will
-> temporarily share the mls_level_t structure with its aliases until
-> a level statement is processed for the sensitivity (or one of the
-> aliases) and the aliases are updated to have their own mls_level_t
-> structure. If the policydb is destroyed while they are sharing the
-> mls_level_t structure, then a double free of the shared mls_level_t
-> will occur. This does not currently occur only because checkpolicy
-> does very little clean-up before exiting.
+> Hi,
 >
-> The "defined" field of the level_datum_t is set after a level
-> statement is processed for a sensitivity and its aliases. This means
-> that we know an alias has its own mls_level_t if the "defined" field
-> is set. The double free can be avoided by not destroying the
-> mls_leve_t structure for an alias unless the "defined" field is set.
+> Adding James and Christian directly to the email, as frequent contributors
+> to libselinux, for visibility.
 >
-> Since the "defined" field is only set to false while the mls_level_t
-> structure is being shared, it would be clearer to rename the field
-> as "notdefined". It would only be set during the time the sensitivity
-> and its aliases are sharing the mls_level_t structure. Outside of
-> checkpolicy, the "notdefined" field will always be set to 0.
+> Debian and Ubuntu are going to have to do something with libselinux within
+> the week, and I'd greatly prefer that the "something" not be breaking ABI
+> compatibility with upstream.
 >
-> Signed-off-by: James Carter <jwcart2@gmail.com>
-> ---
-> v2: Change the field name from "defined" to "notdefined" and change
->     the logic to match.
-
-Thanks, in my opinion this is a much nicer approach.
-
-Maybe check in libsepol/src/policydb_validate.c:validate_level_datum()
-that notdefined is FALSE?
-
->  checkpolicy/checkpolicy.c                  |  7 +++----
->  checkpolicy/policy_define.c                | 10 ++++++----
->  libsepol/cil/src/cil_binary.c              |  3 ---
->  libsepol/include/sepol/policydb/policydb.h |  2 +-
->  libsepol/src/policydb.c                    |  6 ++++--
->  5 files changed, 14 insertions(+), 14 deletions(-)
->
-> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-> index fcec6e51..d7cafaa4 100644
-> --- a/checkpolicy/checkpolicy.c
-> +++ b/checkpolicy/checkpolicy.c
-> @@ -370,10 +370,9 @@ static int check_level(hashtab_key_t key, hashtab_datum_t datum, void *arg __att
->  {
->         level_datum_t *levdatum = (level_datum_t *) datum;
->
-> -       if (!levdatum->isalias && !levdatum->defined) {
-> -               fprintf(stderr,
-> -                       "Error:  sensitivity %s was not used in a level definition!\n",
-> -                       key);
-> +       if (!levdatum->isalias && levdatum->notdefined) {
-> +               fprintf(stderr, "Error:  sensitivity %s was not used in a level definition!\n",
-> +                               key);
->                 return -1;
->         }
->         return 0;
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index 260e609d..ac215086 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -743,6 +743,7 @@ int define_sens(void)
->         level_datum_init(datum);
->         datum->isalias = FALSE;
->         datum->level = level;
-> +       datum->notdefined = TRUE;
->
->         ret = declare_symbol(SYM_LEVELS, id, datum, &value, &value);
->         switch (ret) {
-> @@ -780,6 +781,7 @@ int define_sens(void)
->                 level_datum_init(aliasdatum);
->                 aliasdatum->isalias = TRUE;
->                 aliasdatum->level = level;
-> +               aliasdatum->notdefined = TRUE;
->
->                 ret = declare_symbol(SYM_LEVELS, id, aliasdatum, NULL, &value);
->                 switch (ret) {
-> @@ -1006,9 +1008,10 @@ static int clone_level(hashtab_key_t key __attribute__ ((unused)), hashtab_datum
->         mls_level_t *level = (mls_level_t *) arg, *newlevel;
->
->         if (levdatum->level == level) {
-> -               levdatum->defined = 1;
-> -               if (!levdatum->isalias)
-> +               if (!levdatum->isalias) {
-> +                       levdatum->notdefined = FALSE;
->                         return 0;
-> +               }
->                 newlevel = (mls_level_t *) malloc(sizeof(mls_level_t));
->                 if (!newlevel)
->                         return -1;
-> @@ -1017,6 +1020,7 @@ static int clone_level(hashtab_key_t key __attribute__ ((unused)), hashtab_datum
->                         return -1;
->                 }
->                 levdatum->level = newlevel;
-> +               levdatum->notdefined = FALSE;
->         }
->         return 0;
->  }
-> @@ -1057,8 +1061,6 @@ int define_level(void)
->         }
->         free(id);
->
-> -       levdatum->defined = 1;
-> -
->         while ((id = queue_remove(id_queue))) {
->                 cat_datum_t *cdatum;
->                 int range_start, range_end, i;
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-> index a8e3616a..95bd18ba 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -907,7 +907,6 @@ static int cil_sensalias_to_policydb(policydb_t *pdb, struct cil_alias *cil_alia
->                 goto exit;
->         }
->         sepol_alias->level = mls_level;
-> -       sepol_alias->defined = 1;
->         sepol_alias->isalias = 1;
->
->         return SEPOL_OK;
-> @@ -3163,8 +3162,6 @@ int cil_sepol_level_define(policydb_t *pdb, struct cil_sens *cil_sens)
->                 }
->         }
->
-> -       sepol_level->defined = 1;
-> -
->         return SEPOL_OK;
->
->  exit:
-> diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-> index 6682069e..66d93999 100644
-> --- a/libsepol/include/sepol/policydb/policydb.h
-> +++ b/libsepol/include/sepol/policydb/policydb.h
-> @@ -217,7 +217,7 @@ typedef struct user_datum {
->  typedef struct level_datum {
->         mls_level_t *level;     /* sensitivity and associated categories */
->         unsigned char isalias;  /* is this sensitivity an alias for another? */
-> -       unsigned char defined;
-> +       unsigned char notdefined;
-
-Maybe add a small comment that it's only used as an optimization in
-checkpolicy and is 0 for fully parsed or generated policies?
-
->  } level_datum_t;
->
->  /* Category attributes */
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index f10a8a95..0c23a7a2 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -1390,8 +1390,10 @@ static int sens_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p
->         if (key)
->                 free(key);
->         levdatum = (level_datum_t *) datum;
-> -       mls_level_destroy(levdatum->level);
-> -       free(levdatum->level);
-> +       if (!levdatum->isalias || !levdatum->notdefined) {
-> +               mls_level_destroy(levdatum->level);
-> +               free(levdatum->level);
-> +       }
->         level_datum_destroy(levdatum);
->         free(levdatum);
->         return 0;
+> Thanks,
 > --
-> 2.43.0
+> Steve Langasek                   Give me a lever long enough and a Free OS
+> Debian Developer                   to set it on, and I can move the world.
+> Ubuntu Developer                                   https://www.debian.org/
+> slangasek@ubuntu.com                                     vorlon@debian.org
 >
+> On Sat, Feb 17, 2024 at 07:08:14PM -0800, Steve Langasek wrote:
+> > From b23c9044b542b8807f57f4691f4bd1149cbee04c Mon Sep 17 00:00:00 2001
+> > From: Steve Langasek <steve.langasek@canonical.com>
+> > Date: Thu, 15 Feb 2024 15:22:45 -0800
+> > Subject: [PATCH] Always build for LFS mode on 32-bit archs.
+> >
+> > Maintains the type signature of the existing matchpathcon_filespec_add()
+> > entry point on 32-bit archs but maps the API to a new
+> > matchpathcon_filespec_add64() entry point that takes a 64-bit ino_t argument
+> > instead.
+> >
+> > Software on 32-bit Linux ports which historically use a 32-bit time_t (thus
+> > affected by the y2038 problem) have, as a precondition of migrating to
+> > 64-bit time_t, that they also migrate to large filesystem support because
+> > glibc does not provide entry points for the cross-product of
+> > (LFS: yes, LFS: no) x (time_t: 32, time_t: 64).
+> >
+> > In order to support smooth migration of such operating systems from 32-bit
+> > time_t to 64-bit time_t, it is useful for libselinux to:
+> >
+> > - provide entry points on 32-bit systems for both LFS and non-LFS variants
+> >   of the API (as glibc itself does)
+> > - use LFS internally for all filesystem calls (just in case)
+> > - map the API call to the correct implementation based on the build
+> >   environment of the caller.
+> >
+> > Signed-off-by: Steve Langasek <steve.langasek@canonical.com>
+> > ---
+> >  libselinux/include/selinux/selinux.h | 11 ++++++++++-
+> >  libselinux/src/Makefile              |  1 +
+> >  libselinux/src/libselinux.map        |  1 +
+> >  libselinux/src/matchpathcon.c        | 15 ++++++++++++++-
+> >  4 files changed, 26 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+> > index a0948853..040629c3 100644
+> > --- a/libselinux/include/selinux/selinux.h
+> > +++ b/libselinux/include/selinux/selinux.h
+> > @@ -1,6 +1,7 @@
+> >  #ifndef _SELINUX_H_
+> >  #define _SELINUX_H_
+> >
+> > +#include <stdint.h>
+
+I needed <asm/bitsperlong.h> aswell for __BITS_PER_LONG
+
+> >  #include <sys/types.h>
+> >  #include <stdarg.h>
+> >
+> > @@ -521,7 +522,15 @@ extern int matchpathcon_index(const char *path,
+> >     with the same inode (e.g. due to multiple hard links).  If so, then
+> >     use the latter of the two specifications based on their order in the
+> >     file contexts configuration.  Return the used specification index. */
+> > -extern int matchpathcon_filespec_add(ino_t ino, int specind, const char *file);
+> > +#if _FILE_OFFSET_BITS == 64
+
+One should probably check for existence:
+
+#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64
+
+> > +typedef uint64_t libselinux_ino_t;
+> > +#if __BITS_PER_LONG < 64
+> > +#define matchpathcon_filespec_add matchpathcon_filespec_add64
+> > +#endif
+> > +#else
+> > +typedef uint32_t libselinux_ino_t;
+> > +#endif
+
+Is the typedef libselinux_ino_t really necessary, isn't it always just
+equal to ino_t?
+
+> > +extern int matchpathcon_filespec_add(libselinux_ino_t ino, int specind, const char *file);
+> >
+> >  /* Destroy any inode associations that have been added, e.g. to restart
+> >     for a new filesystem. */
+> > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> > index d3b981fc..267291aa 100644
+> > --- a/libselinux/src/Makefile
+> > +++ b/libselinux/src/Makefile
+> > @@ -87,6 +87,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
+> >            -fstack-protector-all --param=ssp-buffer-size=4 -fexceptions \
+> >            -fasynchronous-unwind-tables -fdiagnostics-show-option \
+> >            -Werror -Wno-aggregate-return \
+> > +          -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 \
+
+This won't work if CFLAGS are customized during build (e.g. by dpkg).
+Also utils/ is unaffected.
+Maybe use something like:
+
+libselinux/Makefile:
+
+USE_LFS ?= y
+export USE_LFS
+
+libselinux/{src,utils}/Makefile:
+
+ifeq ($(USE_LFS),y)
+       override CFLAGS += -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
+endif
+
+
+> >            $(EXTRA_CFLAGS)
+> >
+> >  LD_SONAME_FLAGS=-soname,$(LIBSO),--version-script=libselinux.map,-z,defs,-z,relro
+> > diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
+> > index 5e00f45b..88c9b3e5 100644
+> > --- a/libselinux/src/libselinux.map
+> > +++ b/libselinux/src/libselinux.map
+> > @@ -251,4 +251,5 @@ LIBSELINUX_3.5 {
+> >    global:
+> >      getpidprevcon;
+> >      getpidprevcon_raw;
+> > +    matchpathcon_filespec_add64;
+> >  } LIBSELINUX_3.4;
+
+For downstream this seems fine, for upstream this should go into a new
+LIBSELINUX_3.6 section.
+
+> > diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
+> > index e44734c3..189e00fb 100644
+> > --- a/libselinux/src/matchpathcon.c
+> > +++ b/libselinux/src/matchpathcon.c
+> > @@ -195,7 +195,8 @@ static file_spec_t *fl_head;
+> >   * then use the specification that occurs later in the
+> >   * specification array.
+> >   */
+> > -int matchpathcon_filespec_add(ino_t ino, int specind, const char *file)
+> > +int matchpathcon_filespec_add(libselinux_ino_t ino, int specind,
+> > +                              const char *file)
+> >  {
+> >       file_spec_t *prevfl, *fl;
+> >       int h, ret;
+> > @@ -261,6 +262,18 @@ int matchpathcon_filespec_add(ino_t ino, int specind, const char *file)
+> >       return -1;
+> >  }
+> >
+> > +#if _FILE_OFFSET_BITS == 64 && __BITS_PER_LONG < 64
+> > +/* alias defined in the public header but we undefine it here */
+> > +#undef matchpathcon_filespec_add
+> > +
+> > +/* ABI backwards-compatible shim for non-LFS 32-bit systems */
+
+Missing extern declaration to avoid a missing-prototype warning.
+
+> > +int matchpathcon_filespec_add(unsigned long ino, int specind,
+
+Are there 32-bit architectures we like to support where unsigned long
+is not 4 (but 8) bytes in size?
+
+> > +                              const char *file)
+> > +{
+> > +     return matchpathcon_filespec_add64(ino, specind, file);
+> > +}
+> > +#endif
+> > +
+> >  /*
+> >   * Evaluate the association hash table distribution.
+> >   */
+> > --
+> > 2.40.1
+> >
