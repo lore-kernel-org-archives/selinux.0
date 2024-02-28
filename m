@@ -1,403 +1,571 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f44.google.com (mail-vs1-f44.google.com [209.85.217.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66B65364C7
-	for <selinux@vger.kernel.org>; Wed, 28 Feb 2024 09:20:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01FC714D44A
+	for <selinux@vger.kernel.org>; Wed, 28 Feb 2024 13:47:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709112029; cv=none; b=jYWz1yh+7+av0Q7RGiJlgCZ3A8XIBOS4MWAfICBixVilxdkYKeu5KriZ0jqRgRURY/sBpN9skyYpzJW1QIZrMlIU+/TnUbtSVslDU4uObYDA0/Ps8q9XDlPzlIWWAm7ehUpTbmShbPLFqVco2CSlaPf4olcNb7ocvGu8kqvkCEw=
+	t=1709128077; cv=none; b=VqxuFMds+RBhe1SHSq8R7wumlPKTSmcY4LOEhlg0DYZzz0eNWtHNOUlw0jhbj4ddVOdpnqKv1p1ffKz9WQmw28PE70uEgGPKoJsGo007Iv6ELbDGB4o2+0lbYjS6N5Mc7NYkpu/5h/tzgLqX0oTFfM6kRjLzGWbo/zsNZkKDGrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709112029; c=relaxed/simple;
-	bh=wUryHteOIZ/Yklc11wt93u5bxop2vaC3MV6gG0a+JiA=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=GGDpp2KJTyNBnehPufy33CHyJK3RTEbfIuY4jfEhQWCmXf34LTB1AMRFVEjpk0hscxA0RdvMQTWG+lh2X551osjknY8un7s43LkcnNVchIC9HUxW7Fz7c6Zr7M/p+FpvGExz1hOPS1z1nFXdXuXpPZvKoaBFKncmblTohvz8Nd8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Y0iI0Gcm; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1709128077; c=relaxed/simple;
+	bh=WQQINVNAsX8521Dw/eFN5W/2mTs8TyAegk6u+mFD52c=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=d7fMA3NHpQRxV6prWu0+MuV1tSLEM2gGyAiJv0J1icDM7rQGTO+qw5Mx5mcfK2JybDbnFRyeR4Y00Rs2tfri/Iuu4HjVqzXpQZSJIMwwXac3Sm32wpMgLAHLf7rvXbmEdL511HKdQDJWyVyfPPZ609uI7QCcJ54nOmES8isQTaU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SSfEINgC; arc=none smtp.client-ip=209.85.217.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y0iI0Gcm"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1709112025;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ruhs/e7LO8urfpLQlwBjy5qPXTs5t9bZHuUQnqi0934=;
-	b=Y0iI0GcmQWeaHaUUPhq8JfxQUBavSh25GryHZcBj611ZAjfOoYlpbof9deAfFquOFal581
-	Z1tDc+L+OiLo06kLfT7ilvJZ2iL9XZk22MM/+Eha/nwjRNN98heO9g5MfG7aH6WBeTPHbP
-	FB2OkWqa3O1W0jLoH/ASV/GrAmtHMv0=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-672-NOQVdpvuNEegTyUxAODJNw-1; Wed,
- 28 Feb 2024 04:20:24 -0500
-X-MC-Unique: NOQVdpvuNEegTyUxAODJNw-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9B4711C05AEA;
-	Wed, 28 Feb 2024 09:20:23 +0000 (UTC)
-Received: from localhost (unknown [10.45.224.176])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 39BFEAC17;
-	Wed, 28 Feb 2024 09:20:23 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: Steve Langasek <vorlon@debian.org>, Christian =?utf-8?Q?G=C3=B6ttsche?=
- <cgzones@googlemail.com>
-Cc: James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
-Subject: Re: [PATCH] Always build for LFS mode on 32-bit archs.
-In-Reply-To: <Zd7OnevwfxbiJUVj@homer.dodds.net>
-References: <20240216003252.29057-1-steve.langasek@canonical.com>
- <Zc6tzKPsYZRICHya@homer.dodds.net> <202402171351.439742DA@keescook>
- <ZdF0no51QNtKq8Ri@homer.dodds.net> <Zdrh/euXdvdWlVSp@homer.dodds.net>
- <CAJ2a_DeQFFgo+b6xf3_79bsfsvWeGWOephtgsJTK+RxJ7epG4Q@mail.gmail.com>
- <Zd2IcMMLagkTZGJp@homer.dodds.net>
- <CAJ2a_Df75EDn27iHSg=aAh0ZzRE40SqyanzRkfzv6ETmFiE8ug@mail.gmail.com>
- <Zd7OnevwfxbiJUVj@homer.dodds.net>
-Date: Wed, 28 Feb 2024 10:20:22 +0100
-Message-ID: <877cipc5d5.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SSfEINgC"
+Received: by mail-vs1-f44.google.com with SMTP id ada2fe7eead31-47273838a21so193756137.1
+        for <selinux@vger.kernel.org>; Wed, 28 Feb 2024 05:47:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1709128074; x=1709732874; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Zd1y3+vlK5Pi84N60LKdnXri8ycbTVa8xA+C1MEqlIE=;
+        b=SSfEINgCoHaybRti6nK94C9RcvX4XbmULMJZQ/PURmOwiniVPkR5gzdwtlSDoFZs8Q
+         w/obLrSLbv4RFzgDroOG15/8M4VKcJDI/8WWD5vRmxiFLqHso3JLf/AI7TcPclmRQbbq
+         573eebEz22xxsCS91FMy0SlZn/APBouEi5btvuFZXymbZ53mxGyuamA439t1bJybiTev
+         +3Loxx9Zu89ORprMVeXYX/aVpQEBb1nxCapqIDznayMNJyIutq+OoCnKgukG7noX0YMv
+         6XzpWYBSJ3XWyfnWArdci3RJkz2e7J5YWZjn+YQ6IYb0gn2jn2IgidyIH8LX/Mr3XhrV
+         jeAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709128074; x=1709732874;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Zd1y3+vlK5Pi84N60LKdnXri8ycbTVa8xA+C1MEqlIE=;
+        b=HsSP7Ajs47NGsb4TEoxM3BVsj9Snjfrz2RHUaQBdDXXrDyKz2EQT1UYGDN4vswexKv
+         T21Zr+mUSV2c9HUoSxYWy9zwkZBUi9Y6iQlgmumxVjhrNS7ho0qIJvLRQBUaCnOr3/8H
+         RufFH5/W2RKyI4lOP6qqA5p2Al8pJ7fVbysiUmGwMF+vVnIthvXFbpbGLcWI/pj8IcZG
+         0JO6XHclqqlTEahlh9L5+rKD8N1KDU4Bfy+VicA9DGCjiifJbobdC9MyXJ5jy3SzNuQu
+         EqAHiNhnerbkufo1J2qVpAeDW+wFFt5b2JrR1qmePP36TMfALIycg8t7w1CHQJDZf6v4
+         UNaQ==
+X-Gm-Message-State: AOJu0YwiOIssIQnQaZXPrjYc3lwwvlh4gyfaxoFZ73mvEK8ANY3qqFin
+	2F6+M/0mw6SpZfb/WWb3Ao8zborJz/X0qxPqC35oi6Ks5RAxB2k3DobGetWWMRBfVKiqq9eIwFH
+	p0n+9m68ovoLOlsbnL0E6mLmEVl8=
+X-Google-Smtp-Source: AGHT+IFl+AOXZcGl1+cgq4rZ4HLegkGKj6HeSUuQnSve72oJmIsBvEeuyT3OKjkHQIhNzUQJy2QY0FYcOBul0zpV8sE=
+X-Received: by 2002:a67:fe94:0:b0:471:b75f:d9cc with SMTP id
+ b20-20020a67fe94000000b00471b75fd9ccmr1768633vsr.4.1709128073278; Wed, 28 Feb
+ 2024 05:47:53 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20231212151103.1113711-1-jwcart2@gmail.com> <CAJ2a_DcjPwm-EM2SVwtLTd70uJQ3deA_Sbw5GGvkBDxKuW-WiA@mail.gmail.com>
+In-Reply-To: <CAJ2a_DcjPwm-EM2SVwtLTd70uJQ3deA_Sbw5GGvkBDxKuW-WiA@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 28 Feb 2024 08:47:41 -0500
+Message-ID: <CAP+JOzTV3gCncZTP0tBw-pn5GcP4s+8ZaYj7kUhGVYQk+ZFg2g@mail.gmail.com>
+Subject: Re: [PATCH v2] libsepol: Use a dynamic buffer in sepol_av_to_string()
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.1
 
-Steve Langasek <vorlon@debian.org> writes:
+On Mon, Feb 26, 2024 at 11:25=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> On Tue, 12 Dec 2023 at 16:11, James Carter <jwcart2@gmail.com> wrote:
+> >
+> > In the internal function sepol_av_to_string(), use a dynamically
+> > allocated buffer for the permission names of an access vector instead
+> > of a fixed static buffer to support very long permission names.
+> >
+> > Update the internal users of sepol_av_to_string() to free the buffer.
+> >
+> > The exported function sepol_perm_to_string() is just a wrapper to
+> > the internal function. To avoid changing the behavior of this function,
+> > use a static buffer and copy the resulting string from the internal
+> > function. If the string is too long for the buffer or there was an
+> > error in creating the string, return a string indicating the error.
+> >
+> > All of the changes to the internal function and users was the work
+> > of Christian G=C3=B6ttsche <cgzones@googlemail.com>.
+> >
+> > Reported-by: oss-fuzz (issue 64832, 64933)
+> > Suggested-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > ---
+> > v2: In sepol_av_perm_to_string():
+> >       - Use "sizeof(avbuf)" instead of 1024
+> >       - Added "free(avstr)"
+> >     In sepol_av_to_string():
+> >       - Added "*p =3D '\0';" to ensure buffer is initialized
+>
+> Kindly Ping.
+> Any progress on this one?
+>
 
-> Thanks again for the feedback.
->
-> Since you weren't cc:ed on my earlier email, I'd like to pull out my comm=
-ent
-> at the top of the thread:
->
->   As this problem has been discovered rather late in our transition proce=
-ss, I
->   have a bit of a time crunch on my side which is not your problem, but I
->   would ask that whether or not the patch is ready to land, we reach a
->   consensus ASAP on:
->
->     - whether it is acceptable to introduce a new entry point for this on
->       32-bit architectures
->     - the name this new entry point should use (including symbol version)
->     - that it is acceptable to upstream that we proceed on implementing t=
-his
->       at the distro level in advance of the patch landing upstream.
->
-> Since all of your comments have been about the mechanics of the patch
-> landing, am I able to take it as agreed that libselinux will add a new en=
-try
-> point of matchpathcon_filespec_add64@LIBSELINUX_3.6 in the next release, =
-and
-> the rest is details?
+I plan on merging this soon.
+Thanks,
+Jim
 
-Technical detail: next release will be 3.7 therefore I'd expect
-matchpathcon_filespec_add64@LIBSELINUX_3.7
-
-
-
-> On Tue, Feb 27, 2024 at 06:13:47PM +0100, Christian G=C3=B6ttsche wrote:
->> On Tue, 27 Feb 2024 at 08:00, Steve Langasek <vorlon@debian.org> wrote:
->> >
->> > Thanks for the feedback.
->> >
->> > On Mon, Feb 26, 2024 at 06:52:10PM +0100, Christian G=C3=B6ttsche wrot=
-e:
->> > > > > +#include <stdint.h>
->
->> > > I needed <asm/bitsperlong.h> aswell for __BITS_PER_LONG
->
->> > Can you tell me about the platform you were building on?  In my tests,=
- the
->> > code with this patch behaved as intended on Ubuntu 24.04 pre-release w=
-ith
->> > glibc 2.38, on both armhf and amd64, with no additional includes requi=
-red.
->
->> Debian sid.
->
-> Ok.  https://codesearch.debian.net/search?q=3D%3Casm%2Fbitsperlong.h%3E&l=
-iteral=3D1
-> shows it's uncommon to include asm/bitsperlong directly from userspace
-> packages, but not unprecedented, so I'll go ahead and make that change.
->
->> > > > > +#if _FILE_OFFSET_BITS =3D=3D 64
->
->> > > One should probably check for existence:
->
->> > > #if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64
->
->> > Should we not consider it an error if this is not defined?  I can't th=
-ink of
->> > any reason why _FILE_OFFSET_BITS would legitimately be missing and in =
-my
->> > view it's ambiguous what we should do in this circumstance.  Using the
->> > define without checking for existence first implicitly gives an error =
-if
->> > it's missing.  If preferred, we could be explicit as in:
->> >
->> > #if !defined(_FILE_OFFSET_BITS)
->> > #error [...]
->> > #endif
->> > #if _FILE_OFFSET_BITS =3D=3D 64
->> > [...]
->
->> During my testing yesterday _FILE_OFFSET_BITS was not defined by
->> default (gcc-13/gcc-14/clang-18 on Debian sid).
->
-> It occurs to me that I only did a test build of libselinux itself with th=
-is
-> change, and maybe you're trying to build other software against it and
-> therefore running into the issue when including this public header.  Ok,
-> 'defined &&' it is.
->
->> > > > > +typedef uint64_t libselinux_ino_t;
->> > > > > +#if __BITS_PER_LONG < 64
->> > > > > +#define matchpathcon_filespec_add matchpathcon_filespec_add64
->> > > > > +#endif
->> > > > > +#else
->> > > > > +typedef uint32_t libselinux_ino_t;
->> > > > > +#endif
->
->> > > Is the typedef libselinux_ino_t really necessary, isn't it always ju=
-st
->> > > equal to ino_t?
->
->> > When _FILE_OFFSET_BITS =3D=3D 64, ino_t is a 64-bit type and we need to
->> > explicitly declare a 32-bit type for the compatibility interface.  From
->> > sys/stat.h:
->
->> > # ifndef __ino_t_defined
->> > #  ifndef __USE_FILE_OFFSET64
->> > typedef __ino_t ino_t;
->> > #  else
->> > typedef __ino64_t ino_t;
->> > #  endif
->> > #  define __ino_t_defined
->> > # endif
->
->> But isn't this the identical logic as for libselinux_ino_t?
->> If _FILE_OFFSET_BITS is defined to be 64 libselinux_ino_t is
->> typedef'ed to uint64_t and ino_t should also be a 64-bit integer.
->> If _FILE_OFFSET_BITS is not 64 libselinux_ino_t is typedef'ed to
->> uint32_t and ino_t should also be a 32-bit integer.
->
-> You're right, I overlooked this when refactoring based on Kees's feedback=
- in
-> <https://lore.kernel.org/selinux/Zdrh%2FeuXdvdWlVSp@homer.dodds.net/T/#m1=
-d767f13e043e662555f6b8d8ddbffe033435d33>.
->
-> We want the entry point exposed to the caller to always be the one using =
-the
-> same ino_t size as the rest of the calling code.  So there's no need for
-> this extra typedef; fixed.
->
->> > > > > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
->> > > > > index d3b981fc..267291aa 100644
->> > > > > --- a/libselinux/src/Makefile
->> > > > > +++ b/libselinux/src/Makefile
->> > > > > @@ -87,6 +87,7 @@ CFLAGS ?=3D -O -Wall -W -Wundef -Wformat-y2k -=
-Wformat-security -Winit-self -Wmissi
->> > > > >            -fstack-protector-all --param=3Dssp-buffer-size=3D4 -=
-fexceptions \
->> > > > >            -fasynchronous-unwind-tables -fdiagnostics-show-optio=
-n \
->> > > > >            -Werror -Wno-aggregate-return \
->> > > > > +          -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=3D64 \
->
->> > > This won't work if CFLAGS are customized during build (e.g. by dpkg).
->> > > Also utils/ is unaffected.
->> > > Maybe use something like:
->
->> > > libselinux/Makefile:
->
->> > > USE_LFS ?=3D y
->> > > export USE_LFS
->
->> > > libselinux/{src,utils}/Makefile:
->
->> > > ifeq ($(USE_LFS),y)
->> > >        override CFLAGS +=3D -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=
-=3D64
->> > > endif
->
->> > Thanks, I'm happy to amend the patch to do that (but will wait to conv=
-erge
->> > on the other points above before I resubmit).
->
-> As an aside here, it doesn't actually matter if the utils are built with =
-LFS
-> support for this purpose; the point is to make sure the library isn't bro=
-ken
-> for callers, whether they have LFS enabled or not.  But as long as we're
-> changing the library anyway to always be LFS-compatible, there's no harm =
-in
-> also turning it on for the utils.
->
-> Attached an updated patch which I think addresses all your feedback.
->
-> --=20
-> Steve Langasek                   Give me a lever long enough and a Free OS
-> Debian Developer                   to set it on, and I can move the world.
-> Ubuntu Developer                                   https://www.debian.org/
-> slangasek@ubuntu.com                                     vorlon@debian.org
-> From fb2e5ecaa84a2bb3d9f1f3946968add62e0ce5df Mon Sep 17 00:00:00 2001
-> From: Steve Langasek <steve.langasek@canonical.com>
-> Date: Thu, 15 Feb 2024 15:22:45 -0800
-> Subject: [PATCH] Always build for LFS mode on 32-bit archs.
->
-> Maintains the type signature of the existing matchpathcon_filespec_add()
-> entry point on 32-bit archs but maps the API to a new
-> matchpathcon_filespec_add64() entry point that takes a 64-bit ino_t argum=
-ent
-> instead.
->
-> Software on 32-bit Linux ports which historically use a 32-bit time_t (th=
-us
-> affected by the y2038 problem) have, as a precondition of migrating to
-> 64-bit time_t, that they also migrate to large filesystem support because
-> glibc does not provide entry points for the cross-product of
-> (LFS: yes, LFS: no) x (time_t: 32, time_t: 64).
->
-> In order to support smooth migration of such operating systems from 32-bit
-> time_t to 64-bit time_t, it is useful for libselinux to:
->
-> - provide entry points on 32-bit systems for both LFS and non-LFS variants
->   of the API (as glibc itself does)
-> - use LFS internally for all filesystem calls (just in case)
-> - map the API call to the correct implementation based on the build
->   environment of the caller.
->
-> Signed-off-by: Steve Langasek <steve.langasek@canonical.com>
-> ---
->  libselinux/Makefile                  |  6 ++++++
->  libselinux/include/selinux/selinux.h |  5 +++++
->  libselinux/src/Makefile              |  2 ++
->  libselinux/src/libselinux.map        |  5 +++++
->  libselinux/src/matchpathcon.c        | 16 ++++++++++++++++
->  libselinux/utils/Makefile            |  2 ++
->  6 files changed, 36 insertions(+)
->
-> diff --git a/libselinux/Makefile b/libselinux/Makefile
-> index 6d9e2736..a50b6491 100644
-> --- a/libselinux/Makefile
-> +++ b/libselinux/Makefile
-> @@ -34,6 +34,12 @@ PCRE_CFLAGS +=3D $(shell $(PKG_CONFIG) --cflags $(PCRE=
-_MODULE))
->  PCRE_LDLIBS :=3D $(shell $(PKG_CONFIG) --libs $(PCRE_MODULE))
->  export PCRE_MODULE PCRE_CFLAGS PCRE_LDLIBS
->=20=20
-> +USE_LFS ?=3D y
-> +ifeq ($(USE_LFS),y)
-> +	LFS_CFLAGS :=3D -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=3D64
-> +endif
-> +export LFS_CFLAGS
-> +
->  OS :=3D $(shell uname)
->  export OS
->=20=20
-> diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/se=
-linux/selinux.h
-> index a0948853..080b486c 100644
-> --- a/libselinux/include/selinux/selinux.h
-> +++ b/libselinux/include/selinux/selinux.h
-> @@ -1,8 +1,10 @@
->  #ifndef _SELINUX_H_
->  #define _SELINUX_H_
->=20=20
-> +#include <stdint.h>
->  #include <sys/types.h>
->  #include <stdarg.h>
-> +#include <asm/bitsperlong.h>
->=20=20
->  #ifdef __cplusplus
->  extern "C" {
-> @@ -521,6 +523,9 @@ extern int matchpathcon_index(const char *path,
->     with the same inode (e.g. due to multiple hard links).  If so, then
->     use the latter of the two specifications based on their order in the=
-=20
->     file contexts configuration.  Return the used specification index. */
-> +#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && __BITS_=
-PER_LONG < 64
-> +#define matchpathcon_filespec_add matchpathcon_filespec_add64
-> +#endif
->  extern int matchpathcon_filespec_add(ino_t ino, int specind, const char =
-*file);
->=20=20
->  /* Destroy any inode associations that have been added, e.g. to restart
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index d3b981fc..9580cce8 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -89,6 +89,8 @@ CFLAGS ?=3D -O -Wall -W -Wundef -Wformat-y2k -Wformat-s=
-ecurity -Winit-self -Wmissi
->            -Werror -Wno-aggregate-return \
->            $(EXTRA_CFLAGS)
->=20=20
-> +override CFLAGS +=3D $(LFS_CFLAGS)
-> +
->  LD_SONAME_FLAGS=3D-soname,$(LIBSO),--version-script=3Dlibselinux.map,-z,=
-defs,-z,relro
->=20=20
->  ifeq ($(OS), Darwin)
-> diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
-> index 5e00f45b..5176c8a9 100644
-> --- a/libselinux/src/libselinux.map
-> +++ b/libselinux/src/libselinux.map
-> @@ -252,3 +252,8 @@ LIBSELINUX_3.5 {
->      getpidprevcon;
->      getpidprevcon_raw;
->  } LIBSELINUX_3.4;
-> +
-> +LIBSELINUX_3.6 {
-> +  global:
-> +    matchpathcon_filespec_add64;
-> +} LIBSELINUX_3.5;
-> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-> index e44734c3..f8ee4b4b 100644
-> --- a/libselinux/src/matchpathcon.c
-> +++ b/libselinux/src/matchpathcon.c
-> @@ -261,6 +261,22 @@ int matchpathcon_filespec_add(ino_t ino, int specind=
-, const char *file)
->  	return -1;
->  }
->=20=20
-> +#if _FILE_OFFSET_BITS =3D=3D 64 && __BITS_PER_LONG < 64
-> +/* alias defined in the public header but we undefine it here */
-> +#undef matchpathcon_filespec_add
-> +
-> +/* ABI backwards-compatible shim for non-LFS 32-bit systems */
-> +
-> +extern int matchpathcon_filespec_add(unsigned long ino, int specind,
-> +                                     const char *file);
-> +
-> +int matchpathcon_filespec_add(unsigned long ino, int specind,
-> +                              const char *file)
-> +{
-> +	return matchpathcon_filespec_add64(ino, specind, file);
-> +}
-> +#endif
-> +
->  /*
->   * Evaluate the association hash table distribution.
->   */
-> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-> index f3cedc11..0d7095b1 100644
-> --- a/libselinux/utils/Makefile
-> +++ b/libselinux/utils/Makefile
-> @@ -36,6 +36,8 @@ CFLAGS ?=3D -O -Wall -W -Wundef -Wformat-y2k -Wformat-s=
-ecurity -Winit-self -Wmissi
->            -Werror -Wno-aggregate-return -Wno-redundant-decls -Wstrict-ov=
-erflow=3D5 \
->            $(EXTRA_CFLAGS)
->=20=20
-> +override CFLAGS +=3D $(LFS_CFLAGS)
-> +
->  ifeq ($(OS), Darwin)
->  override CFLAGS +=3D -I/opt/local/include -I../../libsepol/include
->  override LDFLAGS +=3D -L../../libsepol/src -undefined dynamic_lookup
-> --=20
-> 2.40.1
-
+> >  checkpolicy/test/dismod.c              | 11 +++---
+> >  checkpolicy/test/dispol.c              |  7 ++--
+> >  libsepol/include/sepol/policydb/util.h |  2 +-
+> >  libsepol/src/assertion.c               | 16 ++++++---
+> >  libsepol/src/hierarchy.c               |  7 ++--
+> >  libsepol/src/kernel_to_cil.c           |  7 ++++
+> >  libsepol/src/kernel_to_conf.c          | 15 +++++---
+> >  libsepol/src/module_to_cil.c           |  7 ++++
+> >  libsepol/src/services.c                | 26 ++++++++++++--
+> >  libsepol/src/util.c                    | 50 +++++++++++++++-----------
+> >  10 files changed, 103 insertions(+), 45 deletions(-)
+> >
+> > diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
+> > index ac2d61d2..bd45c95e 100644
+> > --- a/checkpolicy/test/dismod.c
+> > +++ b/checkpolicy/test/dismod.c
+> > @@ -118,12 +118,11 @@ static __attribute__((__noreturn__)) void usage(c=
+onst char *progname)
+> >  static void render_access_mask(uint32_t mask, uint32_t class, policydb=
+_t * p,
+> >                                FILE * fp)
+> >  {
+> > -       char *perm;
+> > +       char *perm =3D sepol_av_to_string(p, class, mask);
+> >         fprintf(fp, "{");
+> > -       perm =3D sepol_av_to_string(p, class, mask);
+> > -       if (perm)
+> > -               fprintf(fp, "%s ", perm);
+> > +       fprintf(fp, "%s ", perm ?: "<format-failure>");
+> >         fprintf(fp, "}");
+> > +       free(perm);
+> >  }
+> >
+> >  static void render_access_bitmap(ebitmap_t * map, uint32_t class,
+> > @@ -135,8 +134,8 @@ static void render_access_bitmap(ebitmap_t * map, u=
+int32_t class,
+> >         for (i =3D ebitmap_startbit(map); i < ebitmap_length(map); i++)=
+ {
+> >                 if (ebitmap_get_bit(map, i)) {
+> >                         perm =3D sepol_av_to_string(p, class, UINT32_C(=
+1) << i);
+> > -                       if (perm)
+> > -                               fprintf(fp, "%s", perm);
+> > +                       fprintf(fp, "%s", perm ?: "<format-failure>");
+> > +                       free(perm);
+> >                 }
+> >         }
+> >         fprintf(fp, " }");
+> > diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
+> > index 944ef7ec..2662048e 100644
+> > --- a/checkpolicy/test/dispol.c
+> > +++ b/checkpolicy/test/dispol.c
+> > @@ -93,12 +93,11 @@ static __attribute__((__noreturn__)) void usage(con=
+st char *progname)
+> >  static int render_access_mask(uint32_t mask, avtab_key_t * key, policy=
+db_t * p,
+> >                        FILE * fp)
+> >  {
+> > -       char *perm;
+> > +       char *perm =3D sepol_av_to_string(p, key->target_class, mask);
+> >         fprintf(fp, "{");
+> > -       perm =3D sepol_av_to_string(p, key->target_class, mask);
+> > -       if (perm)
+> > -               fprintf(fp, "%s ", perm);
+> > +       fprintf(fp, "%s ", perm ?: "<format-failure>");
+> >         fprintf(fp, "}");
+> > +       free(perm);
+> >         return 0;
+> >  }
+> >
+> > diff --git a/libsepol/include/sepol/policydb/util.h b/libsepol/include/=
+sepol/policydb/util.h
+> > index db8da213..70c531d3 100644
+> > --- a/libsepol/include/sepol/policydb/util.h
+> > +++ b/libsepol/include/sepol/policydb/util.h
+> > @@ -31,7 +31,7 @@ extern "C" {
+> >
+> >  extern int add_i_to_a(uint32_t i, uint32_t * cnt, uint32_t ** a);
+> >
+> > -extern char *sepol_av_to_string(policydb_t * policydbp, uint32_t tclas=
+s,
+> > +extern char *sepol_av_to_string(const policydb_t *policydbp, sepol_sec=
+urity_class_t tclass,
+> >                                 sepol_access_vector_t av);
+> >
+> >  char *sepol_extended_perms_to_string(avtab_extended_perms_t *xperms);
+> > diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
+> > index 6de7d031..3076babe 100644
+> > --- a/libsepol/src/assertion.c
+> > +++ b/libsepol/src/assertion.c
+> > @@ -48,26 +48,30 @@ static void report_failure(sepol_handle_t *handle, =
+policydb_t *p, const avrule_t
+> >                            unsigned int stype, unsigned int ttype,
+> >                            const class_perm_node_t *curperm, uint32_t p=
+erms)
+> >  {
+> > +       char *permstr =3D sepol_av_to_string(p, curperm->tclass, perms)=
+;
+> > +
+> >         if (avrule->source_filename) {
+> >                 ERR(handle, "neverallow on line %lu of %s (or line %lu =
+of %s) violated by allow %s %s:%s {%s };",
+> >                     avrule->source_line, avrule->source_filename, avrul=
+e->line, policy_name(p),
+> >                     p->p_type_val_to_name[stype],
+> >                     p->p_type_val_to_name[ttype],
+> >                     p->p_class_val_to_name[curperm->tclass - 1],
+> > -                   sepol_av_to_string(p, curperm->tclass, perms));
+> > +                   permstr ?: "<format-failure>");
+> >         } else if (avrule->line) {
+> >                 ERR(handle, "neverallow on line %lu violated by allow %=
+s %s:%s {%s };",
+> >                     avrule->line, p->p_type_val_to_name[stype],
+> >                     p->p_type_val_to_name[ttype],
+> >                     p->p_class_val_to_name[curperm->tclass - 1],
+> > -                   sepol_av_to_string(p, curperm->tclass, perms));
+> > +                   permstr ?: "<format-failure>");
+> >         } else {
+> >                 ERR(handle, "neverallow violated by allow %s %s:%s {%s =
+};",
+> >                     p->p_type_val_to_name[stype],
+> >                     p->p_type_val_to_name[ttype],
+> >                     p->p_class_val_to_name[curperm->tclass - 1],
+> > -                   sepol_av_to_string(p, curperm->tclass, perms));
+> > +                   permstr ?: "<format-failure>");
+> >         }
+> > +
+> > +       free(permstr);
+> >  }
+> >
+> >  static int match_any_class_permissions(class_perm_node_t *cp, uint32_t=
+ class, uint32_t data)
+> > @@ -200,13 +204,17 @@ static int report_assertion_extended_permissions(=
+sepol_handle_t *handle,
+> >
+> >         /* failure on the regular permissions */
+> >         if (!found_xperm) {
+> > +               char *permstr =3D sepol_av_to_string(p, curperm->tclass=
+, perms);
+> > +
+> >                 ERR(handle, "neverallowxperm on line %lu of %s (or line=
+ %lu of %s) violated by\n"
+> >                                 "allow %s %s:%s {%s };",
+> >                                 avrule->source_line, avrule->source_fil=
+ename, avrule->line, policy_name(p),
+> >                                 p->p_type_val_to_name[stype],
+> >                                 p->p_type_val_to_name[ttype],
+> >                                 p->p_class_val_to_name[curperm->tclass =
+- 1],
+> > -                               sepol_av_to_string(p, curperm->tclass, =
+perms));
+> > +                               permstr ?: "<format-failure>");
+> > +
+> > +               free(permstr);
+> >                 errors++;
+> >
+> >         }
+> > diff --git a/libsepol/src/hierarchy.c b/libsepol/src/hierarchy.c
+> > index 350443a8..06e05310 100644
+> > --- a/libsepol/src/hierarchy.c
+> > +++ b/libsepol/src/hierarchy.c
+> > @@ -443,12 +443,15 @@ static void bounds_report(sepol_handle_t *handle,=
+ policydb_t *p, uint32_t child,
+> >             p->p_type_val_to_name[child - 1],
+> >             p->p_type_val_to_name[parent - 1]);
+> >         for (; cur; cur =3D cur->next) {
+> > +               char *permstr =3D sepol_av_to_string(p, cur->key.target=
+_class, cur->datum.data);
+> > +
+> >                 ERR(handle, "    %s %s : %s { %s }",
+> >                     p->p_type_val_to_name[cur->key.source_type - 1],
+> >                     p->p_type_val_to_name[cur->key.target_type - 1],
+> >                     p->p_class_val_to_name[cur->key.target_class - 1],
+> > -                   sepol_av_to_string(p, cur->key.target_class,
+> > -                                      cur->datum.data));
+> > +                   permstr ?: "<format-failure>");
+> > +
+> > +               free(permstr);
+> >         }
+> >  }
+> >
+> > diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.=
+c
+> > index bcb58eee..634826d5 100644
+> > --- a/libsepol/src/kernel_to_cil.c
+> > +++ b/libsepol/src/kernel_to_cil.c
+> > @@ -297,6 +297,11 @@ static int class_constraint_rules_to_strs(struct p=
+olicydb *pdb, char *classkey,
+> >                 }
+> >
+> >                 perms =3D sepol_av_to_string(pdb, class->s.value, curr-=
+>permissions);
+> > +               if (!perms) {
+> > +                       ERR(NULL, "Failed to generate permission string=
+");
+> > +                       rc =3D -1;
+> > +                       goto exit;
+> > +               }
+> >
+> >                 if (is_mls) {
+> >                         key_word =3D "mlsconstrain";
+> > @@ -307,6 +312,7 @@ static int class_constraint_rules_to_strs(struct po=
+licydb *pdb, char *classkey,
+> >                 }
+> >
+> >                 rc =3D strs_create_and_add(strs, "(%s (%s (%s)) %s)", k=
+ey_word, classkey, perms+1, expr);
+> > +               free(perms);
+> >                 free(expr);
+> >                 if (rc !=3D 0) {
+> >                         goto exit;
+> > @@ -1772,6 +1778,7 @@ static char *avtab_node_to_str(struct policydb *p=
+db, avtab_key_t *key, avtab_dat
+> >                 }
+> >                 rule =3D create_str("(%s %s %s (%s (%s)))",
+> >                                   flavor, src, tgt, class, perms+1);
+> > +               free(perms);
+> >         } else if (key->specified & AVTAB_XPERMS) {
+> >                 perms =3D xperms_to_str(datum->xperms);
+> >                 if (perms =3D=3D NULL) {
+> > diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_con=
+f.c
+> > index 83f46e0f..de1d9e09 100644
+> > --- a/libsepol/src/kernel_to_conf.c
+> > +++ b/libsepol/src/kernel_to_conf.c
+> > @@ -292,6 +292,11 @@ static int class_constraint_rules_to_strs(struct p=
+olicydb *pdb, char *classkey,
+> >                 }
+> >
+> >                 perms =3D sepol_av_to_string(pdb, class->s.value, curr-=
+>permissions);
+> > +               if (!perms) {
+> > +                       ERR(NULL, "Failed to generate permission string=
+");
+> > +                       rc =3D -1;
+> > +                       goto exit;
+> > +               }
+> >                 if (strchr(perms, ' ')) {
+> >                         perm_prefix =3D "{ ";
+> >                         perm_suffix =3D " }";
+> > @@ -311,6 +316,7 @@ static int class_constraint_rules_to_strs(struct po=
+licydb *pdb, char *classkey,
+> >                                          flavor, classkey,
+> >                                          perm_prefix, perms+1, perm_suf=
+fix,
+> >                                          expr);
+> > +               free(perms);
+> >                 free(expr);
+> >                 if (rc !=3D 0) {
+> >                         goto exit;
+> > @@ -1682,7 +1688,7 @@ static char *avtab_node_to_str(struct policydb *p=
+db, avtab_key_t *key, avtab_dat
+> >  {
+> >         uint32_t data =3D datum->data;
+> >         type_datum_t *type;
+> > -       const char *flavor, *src, *tgt, *class, *perms, *new;
+> > +       const char *flavor, *src, *tgt, *class, *new;
+> >         char *rule =3D NULL, *permstring;
+> >
+> >         switch (0xFFF & key->specified) {
+> > @@ -1730,13 +1736,14 @@ static char *avtab_node_to_str(struct policydb =
+*pdb, avtab_key_t *key, avtab_dat
+> >         class =3D pdb->p_class_val_to_name[key->target_class - 1];
+> >
+> >         if (key->specified & AVTAB_AV) {
+> > -               perms =3D sepol_av_to_string(pdb, key->target_class, da=
+ta);
+> > -               if (perms =3D=3D NULL) {
+> > +               permstring =3D sepol_av_to_string(pdb, key->target_clas=
+s, data);
+> > +               if (permstring =3D=3D NULL) {
+> >                         ERR(NULL, "Failed to generate permission string=
+");
+> >                         goto exit;
+> >                 }
+> >                 rule =3D create_str("%s %s %s:%s { %s };",
+> > -                                 flavor, src, tgt, class, perms+1);
+> > +                                 flavor, src, tgt, class, permstring+1=
+);
+> > +               free(permstring);
+> >         } else if (key->specified & AVTAB_XPERMS) {
+> >                 permstring =3D sepol_extended_perms_to_string(datum->xp=
+erms);
+> >                 if (permstring =3D=3D NULL) {
+> > diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.=
+c
+> > index ee22dbbd..2ec66292 100644
+> > --- a/libsepol/src/module_to_cil.c
+> > +++ b/libsepol/src/module_to_cil.c
+> > @@ -597,6 +597,7 @@ static int avrule_to_cil(int indent, struct policyd=
+b *pdb, uint32_t type, const
+> >                                         rule, src, tgt,
+> >                                         pdb->p_class_val_to_name[classp=
+erm->tclass - 1],
+> >                                         perms + 1);
+> > +                       free(perms);
+> >                 } else {
+> >                         cil_println(indent, "(%s %s %s %s %s)",
+> >                                         rule, src, tgt,
+> > @@ -1967,7 +1968,13 @@ static int constraints_to_cil(int indent, struct=
+ policydb *pdb, char *classkey,
+> >
+> >                 if (is_constraint) {
+> >                         perms =3D sepol_av_to_string(pdb, class->s.valu=
+e, node->permissions);
+> > +                       if (perms =3D=3D NULL) {
+> > +                               ERR(NULL, "Failed to generate permissio=
+n string");
+> > +                               rc =3D -1;
+> > +                               goto exit;
+> > +                       }
+> >                         cil_println(indent, "(%sconstrain (%s (%s)) %s)=
+", mls, classkey, perms + 1, expr);
+> > +                       free(perms);
+> >                 } else {
+> >                         cil_println(indent, "(%svalidatetrans %s %s)", =
+mls, classkey, expr);
+> >                 }
+> > diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+> > index 0eeee7ec..36e2368f 100644
+> > --- a/libsepol/src/services.c
+> > +++ b/libsepol/src/services.c
+> > @@ -347,9 +347,11 @@ static char *get_class_info(sepol_security_class_t=
+ tclass,
+> >                 p +=3D len;
+> >                 buf_used +=3D len;
+> >                 if (state_num < 2) {
+> > +                       char *permstr =3D sepol_av_to_string(policydb, =
+tclass, constraint->permissions);
+> > +
+> >                         len =3D snprintf(p, class_buf_len - buf_used, "=
+{%s } (",
+> > -                       sepol_av_to_string(policydb, tclass,
+> > -                               constraint->permissions));
+> > +                                      permstr ?: "<format-failure>");
+> > +                       free(permstr);
+> >                 } else {
+> >                         len =3D snprintf(p, class_buf_len - buf_used, "=
+(");
+> >                 }
+> > @@ -1237,7 +1239,25 @@ out:
+> >   const char *sepol_av_perm_to_string(sepol_security_class_t tclass,
+> >                                         sepol_access_vector_t av)
+> >  {
+> > -       return sepol_av_to_string(policydb, tclass, av);
+> > +       static char avbuf[1024];
+> > +       char *avstr =3D sepol_av_to_string(policydb, tclass, av);
+> > +       size_t len;
+> > +
+> > +       memset(avbuf, 0, sizeof(avbuf));
+> > +
+> > +       if (avstr) {
+> > +               len =3D strlen(avstr);
+> > +               if (len < sizeof(avbuf)) {
+> > +                       strcpy(avbuf, avstr);
+> > +               } else {
+> > +                       sprintf(avbuf, "<access-vector overflowed buffe=
+r>");
+> > +               }
+> > +               free(avstr);
+> > +       } else {
+> > +               sprintf(avbuf, "<format-failure>");
+> > +       }
+> > +
+> > +       return avbuf;
+> >  }
+> >
+> >  /*
+> > diff --git a/libsepol/src/util.c b/libsepol/src/util.c
+> > index 2f877920..dcbdccf1 100644
+> > --- a/libsepol/src/util.c
+> > +++ b/libsepol/src/util.c
+> > @@ -32,7 +32,7 @@
+> >
+> >  struct val_to_name {
+> >         unsigned int val;
+> > -       char *name;
+> > +       const char *name;
+> >  };
+> >
+> >  /* Add an unsigned integer to a dynamically reallocated array.  *cnt
+> > @@ -82,20 +82,27 @@ static int perm_name(hashtab_key_t key, hashtab_dat=
+um_t datum, void *data)
+> >         return 0;
+> >  }
+> >
+> > -char *sepol_av_to_string(policydb_t * policydbp, uint32_t tclass,
+> > +char *sepol_av_to_string(const policydb_t *policydbp, sepol_security_c=
+lass_t tclass,
+> >                          sepol_access_vector_t av)
+> >  {
+> >         struct val_to_name v;
+> > -       static char avbuf[1024];
+> > -       class_datum_t *cladatum;
+> > -       char *perm =3D NULL, *p;
+> > -       unsigned int i;
+> > +       const class_datum_t *cladatum =3D policydbp->class_val_to_struc=
+t[tclass - 1];
+> > +       uint32_t i;
+> >         int rc;
+> > -       int avlen =3D 0, len;
+> > +       char *buffer =3D NULL, *p;
+> > +       int len;
+> > +       size_t remaining, size =3D 64;
+> > +
+> > +retry:
+> > +       if (__builtin_mul_overflow(size, 2, &size))
+> > +               goto err;
+> > +       p =3D realloc(buffer, size);
+> > +       if (!p)
+> > +               goto err;
+> > +       *p =3D '\0'; /* Just in case there are no permissions */
+> > +       buffer =3D p;
+> > +       remaining =3D size;
+> >
+> > -       memset(avbuf, 0, sizeof avbuf);
+> > -       cladatum =3D policydbp->class_val_to_struct[tclass - 1];
+> > -       p =3D avbuf;
+> >         for (i =3D 0; i < cladatum->permissions.nprim; i++) {
+> >                 if (av & (UINT32_C(1) << i)) {
+> >                         v.val =3D i + 1;
+> > @@ -106,22 +113,23 @@ char *sepol_av_to_string(policydb_t * policydbp, =
+uint32_t tclass,
+> >                                                  permissions.table, per=
+m_name,
+> >                                                  &v);
+> >                         }
+> > -                       if (rc)
+> > -                               perm =3D v.name;
+> > -                       if (perm) {
+> > -                               len =3D
+> > -                                   snprintf(p, sizeof(avbuf) - avlen, =
+" %s",
+> > -                                            perm);
+> > -                               if (len < 0
+> > -                                   || (size_t) len >=3D (sizeof(avbuf)=
+ - avlen))
+> > -                                       return NULL;
+> > +                       if (rc =3D=3D 1) {
+> > +                               len =3D snprintf(p, remaining, " %s", v=
+.name);
+> > +                               if (len < 0)
+> > +                                       goto err;
+> > +                               if ((size_t) len >=3D remaining)
+> > +                                       goto retry;
+> >                                 p +=3D len;
+> > -                               avlen +=3D len;
+> > +                               remaining -=3D len;
+> >                         }
+> >                 }
+> >         }
+> >
+> > -       return avbuf;
+> > +       return buffer;
+> > +
+> > +err:
+> > +       free(buffer);
+> > +       return NULL;
+> >  }
+> >
+> >  #define next_bit_in_range(i, p) (((i) + 1 < sizeof(p)*8) && xperm_test=
+(((i) + 1), p))
+> > --
+> > 2.43.0
+> >
