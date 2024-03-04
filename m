@@ -1,54 +1,54 @@
-Received: from mail-ua1-f48.google.com (mail-ua1-f48.google.com [209.85.222.48])
+Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com [209.85.217.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC3B478B53
-	for <selinux@vger.kernel.org>; Mon,  4 Mar 2024 19:20:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9660E7993A
+	for <selinux@vger.kernel.org>; Mon,  4 Mar 2024 19:20:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709580029; cv=none; b=gpYA4tJfSUdXfdoxz90IkOQD0B+1eJGL4KnGZk9QTBhWdrntY6w4atv+HTINe0NeP8QCtHLEDP4Ov+lYQ4mTlwHi/NTKDZvxcsOQA5aXuwBd4ZGqRBFB2WQlsfBwwrdpNOQbg0aMDSutDA9jcK82CM8RUjk9Ou5A6LrjT62EPPo=
+	t=1709580049; cv=none; b=iXf+EZ/HvgSPIAvN1M+sp2g8beLak5B7Sf6SJ4O2IZVFM0VdzNErTMzpSvm5amPuen2GBCjE9XufUW1/SIUMbUEH0pBjwzI8njYk7z3qxQYfi10jsI7Ki/wbdxYzvnCIX9JGwxpaeLXy8KJn/Vkqekfa5vZBOS15Dutz7mMD9iQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709580029; c=relaxed/simple;
-	bh=aHbmfTERmUo6EG/+NxQ0/MtlT9EMtQNF+ETWdkZy+eo=;
+	s=arc-20240116; t=1709580049; c=relaxed/simple;
+	bh=MLnoSwzciePAC69W2osA8nn8pjNGy/PPS/3+zb7uBM8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=EarsBcHdvdq7IU2ueFoEwsigNla9qz49ivW8BYANfQh8qs86oAxWeg47q6eNGyEsb3VeVvkxUSmy3wCqVQshR5vclOVhyuy4DmGtW/uMM8awCaRv6EpuW3LrzjjReU8INRQLatUepl6aD6A3mqdCtqy70cGPHYbKRYseblSEUt0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fZfj1aJE; arc=none smtp.client-ip=209.85.222.48
+	 To:Cc:Content-Type; b=aaXEog/kdoQ3p09pIvAktrtPSGUdarXhpI17lMIb5Y0p1Z7Od/4uXrFwAA6yGjkfMaP7t6vEjXBtfuL5vIKPsn0PF2Dk5rv4sKYjIo5dRNb8TlqPWDyUEsNxEh3WlYOzHQ4lnSBhfEI6nZ/tqqXiSKybP4RajhAHiduW7yZ3HP0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZF7LfzLT; arc=none smtp.client-ip=209.85.217.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fZfj1aJE"
-Received: by mail-ua1-f48.google.com with SMTP id a1e0cc1a2514c-7db36dbd474so638669241.2
-        for <selinux@vger.kernel.org>; Mon, 04 Mar 2024 11:20:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZF7LfzLT"
+Received: by mail-vs1-f52.google.com with SMTP id ada2fe7eead31-472b77fd2c3so209719137.2
+        for <selinux@vger.kernel.org>; Mon, 04 Mar 2024 11:20:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1709580027; x=1710184827; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1709580046; x=1710184846; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=msU16zVwWF7jIrJMDEWosHx8LmkK4IGfNB9n7kEiW/M=;
-        b=fZfj1aJEyVBjAlbHAs8F8FyI9oWLntmT9l+wtFPXfJimb0qM/ItfxOURt7Q6F90ksh
-         tO9famSWVTu2w94AzaatLNrAh4giGlG7AJF601Ka4H882QDPN4afnzifNalrGlPRuhcH
-         iwIIaN/DQ7L1q1KWjC+ozlSFaEc659Y1flroozsCVFH37BgehVU99rVTNYeFpK1OpTTW
-         +V6C3QIOtyjh7j9ulcEmBxddAQsloZ/cHF/BIqapSB99vVRbWMfhYDAQqsDnDPlhDwQI
-         c7UcAY6niT2FsZS4/w9PfZO4slBLcccGsF00nqjb9XrNPzMNntgBm3KYCBbAtj6lRMlr
-         FJ2A==
+        bh=zhV08p+5KmHW5mxuBoES2xTzLRJi/3GBi8lFLPU6mak=;
+        b=ZF7LfzLTDWTTsulP3W6txuJNO9HPQIa2Tb6PeuvkcHET1b3eqWdcGhLze5PtJhL+31
+         /r7JssKowSkbR2QVTIwnRmgeWqYLE7CFgGZe4/g7HPvt7WpGPfE9BZm4HgDSVUc38JCd
+         twtGD4fyeEUydexli4z4prLokKtvYE5E2pwTNzQPv7C2Ci1LnZGYLE6hH8SdlMSzm5Qz
+         oFntcHukNSbPrOSMByv/H9GQKefKaqBr1nlBjbor+1jxSZb7JpHXbmleo1v55ntNlwGe
+         P5+2+AkgvsEY+KE2WvCvU8EugMpfOLuKRmpsW+i082aapvpzAAScJm8UndCXKCfXJxzC
+         hmyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709580027; x=1710184827;
+        d=1e100.net; s=20230601; t=1709580046; x=1710184846;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=msU16zVwWF7jIrJMDEWosHx8LmkK4IGfNB9n7kEiW/M=;
-        b=Bl0tfmoWJ/Y01zEdAZFaIw72Y03ll8iMPBd2CiF9hMg1MrxxK+xx6YsxadcSp89ayh
-         rqA3S5qNWZXZObQf1XHBV9UjpkGWPIm7RnYmQm5fFU7D/0Mt5hFKE3ru1DF+ltPQxoLh
-         iDkTM3c8z3DSlEeM8paDoqIlW4+upeQ5G4hefwk+f6rAjZSdg/WHoxbDBwQCdygEfURC
-         K34pcBtIEnyU1af4m3XfEEndXJgd26Ze85RqYWXwv8FbvFysYH4eRAWhjuFHmR3RoQar
-         ygNvyEmaNH/LeJgL3NxNFaOKqcK7TM4NuUUJGviwo3fwWQ5xbVlmJZeRzpxKI5LmXcqt
-         hwzg==
-X-Gm-Message-State: AOJu0YywhglSc8wuNY7BaD0huulJ8LZjw9QqanWdgMqq3v/e24NUDd7N
-	/kq63uvhRpaKVHbeJg701/Zj0BXJKYTJX2Z8KXNPeEQFfCN3dG6Mrwfn4l5P1nnis2TT/yOCbuA
-	M71VFBeNXsXZiJqBlK2bFz5FdmcQ=
-X-Google-Smtp-Source: AGHT+IEZnZgonniPI3x6ndX7M9/QtK9raVj526pm/2ZJio8wuRuxt9siiuGGVrLloOiqhkrNyZwNwglTnsMYQCbC3Ig=
-X-Received: by 2002:a05:6102:34e5:b0:470:6f7f:d94b with SMTP id
- bi5-20020a05610234e500b004706f7fd94bmr6037796vsb.33.1709580026722; Mon, 04
- Mar 2024 11:20:26 -0800 (PST)
+        bh=zhV08p+5KmHW5mxuBoES2xTzLRJi/3GBi8lFLPU6mak=;
+        b=AGI8dRkekaxjx+pOvHIZi1AlQSD75zDzr6wNZ0dBP4hYHP6M2FLdwFm+lt9GQ8s2z3
+         6bZUvUHtCOHq70LMjLpMJ2XmCtI0WotgCqh4rYQRT62QaBdgtOUJ4Qife69xFgZvMwdU
+         4cyYdN0Hs2YXQ7MSM1QlaXoCDf2Q01udw9FJU2kUXJVLK8eG1uPEzTUYCb1X7+zOI10w
+         Ylv9z2JHyWkjfCsvsByvE7d6DJyZJJz1vkzrniKeIaaXhKT5y2cCZH60eDIBLXEQ95KI
+         AfztlVWHIUmY/aHZGc3OiJeCuPUtu77XVu2m+lftKQ5jESBQytkGWSFOUSnkG+ogG3di
+         KlKw==
+X-Gm-Message-State: AOJu0YzoqnsVr3u/ie6KkzCTydpLsV+nCVTHT2Qyi3rDziQ+CSRoTEgM
+	zWMAaJ+lBQYlp49hpQxf9PLqCgGswH+lmmoV56UQnyoHkAI9+ZiBB/CRqN10cN6qnm1gFiw2kqZ
+	i7nF5+SJECFQn5cgOhJSRUdSXFFU=
+X-Google-Smtp-Source: AGHT+IGGNEJTjO2iPP53YTWDYKlAw9IlMxvNbUwPC1ZH3m674JmCLhbMfyCEk5JFt/7j4jBQCxrZJ3aWtxQm5Q/pfiI=
+X-Received: by 2002:a05:6102:274f:b0:472:65e5:3da5 with SMTP id
+ p15-20020a056102274f00b0047265e53da5mr6434986vsu.4.1709580046621; Mon, 04 Mar
+ 2024 11:20:46 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -56,12 +56,12 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20240122135507.63506-1-cgzones@googlemail.com>
- <20240122135507.63506-13-cgzones@googlemail.com> <CAP+JOzSD6eZcsP-EcnCdb9aJEm=9Qi1b_rt-WT=HJ8fNL4V62w@mail.gmail.com>
-In-Reply-To: <CAP+JOzSD6eZcsP-EcnCdb9aJEm=9Qi1b_rt-WT=HJ8fNL4V62w@mail.gmail.com>
+ <20240122135507.63506-14-cgzones@googlemail.com> <CAP+JOzR5L4r-2EFYa3XUMOBJbAANVJE_4-9njWhKJJ3JV9KGSw@mail.gmail.com>
+In-Reply-To: <CAP+JOzR5L4r-2EFYa3XUMOBJbAANVJE_4-9njWhKJJ3JV9KGSw@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Mon, 4 Mar 2024 14:20:15 -0500
-Message-ID: <CAP+JOzTyM_qCQmVCCAbFnVsG4PaQwJgNwxEoBvkmn2urv8jgXQ@mail.gmail.com>
-Subject: Re: [PATCH 13/15] checkpolicy: free temporary bounds type
+Date: Mon, 4 Mar 2024 14:20:35 -0500
+Message-ID: <CAP+JOzTGTQU7drFx0isDrx80myDdgMOx1wXMnz4EOUPW31ySzQ@mail.gmail.com>
+Subject: Re: [PATCH 14/15] checkpolicy: avoid assigning garbage values
 To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -73,7 +73,16 @@ ote:
 > On Mon, Jan 22, 2024 at 9:02=E2=80=AFAM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > Free the temporary bounds type in the error branches.
+> > Only assign the computed value on success, since it is not set by
+> > declare_symbol() on failure.
+> >
+> > Reported by GCC:
+> >
+> >     module_compiler.c: In function 'create_role':
+> >     module_compiler.c:287:24: warning: use of uninitialized value 'valu=
+e' [CWE-457] [-Wanalyzer-use-of-uninitialized-value]
+> >       287 |         datum->s.value =3D value;
+> >           |         ~~~~~~~~~~~~~~~^~~~~~~
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
@@ -84,54 +93,58 @@ Thanks,
 Jim
 
 > > ---
-> >  checkpolicy/module_compiler.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
+> >  checkpolicy/module_compiler.c | 8 ++++----
+> >  1 file changed, 4 insertions(+), 4 deletions(-)
 > >
 > > diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compile=
 r.c
-> > index 119b7e36..464897cc 100644
+> > index 464897cc..6ff91b8f 100644
 > > --- a/checkpolicy/module_compiler.c
 > > +++ b/checkpolicy/module_compiler.c
-> > @@ -234,6 +234,7 @@ static int role_implicit_bounds(hashtab_t roles_tab=
-,
-> >         if (!bounds) {
-> >                 yyerror2("role %s doesn't exist, is implicit bounds of =
-%s",
-> >                          bounds_id, role_id);
-> > +               free(bounds_id);
-> >                 return -1;
+> > @@ -284,9 +284,8 @@ static int create_role(uint32_t scope, unsigned cha=
+r isattr, role_datum_t **role
+> >                 ret =3D require_symbol(SYM_ROLES, id, datum, &value, &v=
+alue);
 > >         }
 > >
-> > @@ -243,6 +244,7 @@ static int role_implicit_bounds(hashtab_t roles_tab=
-,
-> >                 yyerror2("role %s has inconsistent bounds %s/%s",
-> >                          role_id, bounds_id,
-> >                          policydbp->p_role_val_to_name[role->bounds - 1=
-]);
-> > +               free(bounds_id);
-> >                 return -1;
-> >         }
-> >         free(bounds_id);
-> > @@ -479,6 +481,7 @@ static int user_implicit_bounds(hashtab_t users_tab=
-,
-> >         if (!bounds) {
-> >                 yyerror2("user %s doesn't exist, is implicit bounds of =
-%s",
-> >                          bounds_id, user_id);
-> > +               free(bounds_id);
-> >                 return -1;
+> > -       datum->s.value =3D value;
+> > -
+> >         if (ret =3D=3D 0) {
+> > +               datum->s.value =3D value;
+> >                 *role =3D datum;
+> >                 *key =3D strdup(id);
+> >                 if (*key =3D=3D NULL) {
+> > @@ -303,6 +302,7 @@ static int create_role(uint32_t scope, unsigned cha=
+r isattr, role_datum_t **role
+> >                         free(datum);
+> >                         return -1;
+> >                 }
+> > +               datum->s.value =3D value;
+> >                 *role =3D datum;
+> >                 *key =3D id;
+> >         } else {
+> > @@ -529,9 +529,8 @@ static int create_user(uint32_t scope, user_datum_t=
+ **user, char **key)
+> >                 ret =3D require_symbol(SYM_USERS, id, datum, &value, &v=
+alue);
 > >         }
 > >
-> > @@ -488,6 +491,7 @@ static int user_implicit_bounds(hashtab_t users_tab=
-,
-> >                 yyerror2("user %s has inconsistent bounds %s/%s",
-> >                          user_id, bounds_id,
-> >                          policydbp->p_role_val_to_name[user->bounds - 1=
-]);
-> > +               free(bounds_id);
-> >                 return -1;
-> >         }
-> >         free(bounds_id);
+> > -       datum->s.value =3D value;
+> > -
+> >         if (ret =3D=3D 0) {
+> > +               datum->s.value =3D value;
+> >                 *user =3D datum;
+> >                 *key =3D strdup(id);
+> >                 if (*key =3D=3D NULL) {
+> > @@ -539,6 +538,7 @@ static int create_user(uint32_t scope, user_datum_t=
+ **user, char **key)
+> >                         return -1;
+> >                 }
+> >         } else if (ret =3D=3D 1) {
+> > +               datum->s.value =3D value;
+> >                 *user =3D datum;
+> >                 *key =3D id;
+> >         } else {
 > > --
 > > 2.43.0
 > >
