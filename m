@@ -1,54 +1,54 @@
-Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com [209.85.222.47])
+Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 301D678B53
-	for <selinux@vger.kernel.org>; Mon,  4 Mar 2024 19:17:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C08278B53
+	for <selinux@vger.kernel.org>; Mon,  4 Mar 2024 19:18:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709579881; cv=none; b=o1CX9HQUqsu51rtuLyVoilpGqBkxYMjNjMmNdIsok3NldWDh70L1UrosKymfLvtXf+og9hrhDhCvoGXmYE1GhhdW1KkfQ8+oLdCQ2teGXcxLgBvsgG47HNB7Yunyj1vtjPerUcc/b/hCU27nPRNbeNmALJTy4JzT7vdzCysZYtM=
+	t=1709579904; cv=none; b=qeRjdmup6bfaPe1WDhyMP8Q9Qxg9HdKofe9NwwPdgx8LHZ/hglE15xm216QP0vKskRJvbZPsle36jgkQTrCMZWE68dQFco06QRFmJtV38WCCoLSDeIdJwrQM3bRSKCmkzxDJuqfsLsEqvs94W6YQ3hHq6l6i5mPJ8EKu1tcGJfU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709579881; c=relaxed/simple;
-	bh=5yLyBrNe8gtiI1iBjjrXl4HSHUzt7phMpftxsezUKxI=;
+	s=arc-20240116; t=1709579904; c=relaxed/simple;
+	bh=r+KJaOWDMo5NqSELoaQ/QbtLkLrVYzBQnqhYBoFxYZA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=JYGCrb1WF+/l5EFwT8c07v0cAB0ZJYieEEeGj4jU5HlpR/U+/RHMEdSr/cBhXGIiZcqdx1TgyTW9mTTBch4jOxlzMYTk8wrrgmdIqamOljqPf69xt1Zxs3J5oWCEmy8o9izUYIW3Yz7CQVzytvWjZ5pgiBZk0UR0KypdI0gdqOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=keUwOzRy; arc=none smtp.client-ip=209.85.222.47
+	 To:Cc:Content-Type; b=btpZ27FhnJ0ref78P34QEzMN8pFfy/AB2PLxI/8dTTL0mfTHVDHNXZ6bGCX9F5YesNuFYsvLAVsvuubENoWWzmAOHNoo47G7duawVK4GiPTto2m5RwiYoOQb3i569aeDICa7EI79pFJ1ujp4BGcOVeK2d7CRrfDaTUVzpUDpvi0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V15rQG79; arc=none smtp.client-ip=209.85.217.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="keUwOzRy"
-Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-7db1a2c1f96so1507214241.0
-        for <selinux@vger.kernel.org>; Mon, 04 Mar 2024 11:17:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V15rQG79"
+Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-472640aba12so1038132137.2
+        for <selinux@vger.kernel.org>; Mon, 04 Mar 2024 11:18:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1709579879; x=1710184679; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1709579902; x=1710184702; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=k4xRyhu7OoJjo6mc8gHxYCTXj7uy2ty10FUsOmNCIlw=;
-        b=keUwOzRyJytm67DyyV8mnQZXb+I7DJH+OFOJIKEdKh7bXu5z+aMJ+KcK9bx5YOu4Nn
-         Eiv0KDpamCcLz5rm/F+EpMTWBG6+oCQn1gR9kLaTBpC7ovMkL0FoTREULe6LIClraCuG
-         KaX+JYmBS/pNs8yxBllBpmjrkHa1YuGfbK8Mi/KmHFzRcOY8tu0suiTGANev5MgvgmRM
-         iM9emQi/BaA599TCoxjAkTkNVxflKdm5LLgW3ot9UPbJWewVRJcFARF3EX6zXfKclrkO
-         ORErtDCyyxPeKp9U9b/iZgxDHKVladCTGfxXhtoYALpXusyF9vEAzd997cOF653GyAHL
-         jKdg==
+        bh=QWlSwcBARmOYRzOVys6YPJPMXUyk6lSryzPwD7yywbw=;
+        b=V15rQG79Qtjb6OgmClzDtpKbd+47S+aPif09onenTwFD11SGQcVqkQPTfhtFnDJ3Ow
+         2Yp/8E/kJSVZhx963655JI8igWP10JWMnPybN4/g/9jGhWuVGOe34XVeSXlL53Ijc0eO
+         2+Glh948fgglHHw3CGs4germVxBegkAsLtaJd2juBR8mDy1CeMzJQTZt02d0a9mi2P3p
+         ZusW4Ms2dlEXSgonIL/jDptASN/jftwgpvz7EmU4BwXhhqLiwx93+uHkbUdtaVPnANuq
+         y5JgpZI4EYuG7XihSVy/QC4PQYrUqnRQS+Co5W4liFod5GfqIxJAe2LhsVGEHjXjsK+d
+         j5Ow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1709579879; x=1710184679;
+        d=1e100.net; s=20230601; t=1709579902; x=1710184702;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=k4xRyhu7OoJjo6mc8gHxYCTXj7uy2ty10FUsOmNCIlw=;
-        b=SxCf0TX2mR7c2A3ruk0U3GTCKI3hLOUmjPD8ZVp/3Yt/7nrkrCI7EKqKWMscnuE0th
-         S5bES7onllWYE/TTSOHcoaaK77X1EQ4FUDqeexDyAXRvAGdC0CgbAuBgdGw+SEpbi9lt
-         LVEQxJdBoKjc0G0uWEItXzabNbeNYMzeX2WLWF5Hgoc7XS6CVjto7pz7yoyiuC9MEqEp
-         roylfGdwHLybfHv6A5KUrZEoUP5xYw+LjoteChsjqUeF3m1HEIGqDuoE9asKKOqGrlSn
-         D4J8cpgNolY8i8vaqJTzxiuP4Yxi1y55uP98trkel8795FHDnmIlbRMkLxmG60vsEGHR
-         KoAg==
-X-Gm-Message-State: AOJu0YxpI6IH9FiZ0085MtDc26RH0tKSrDpkgnG88EhqYJWPWiPaEM3F
-	HRoHbdeNYDFKu8NTDX43/+clcVJqZDECHEjucKawf/5eswA0ivm1Ae2m30coN2FEqYFNu5kc6OI
-	sjLrzYbX5amWqVjRjdx6rZUvKzL7mbm8C
-X-Google-Smtp-Source: AGHT+IGGaXrl79oIl2yTC2G9POvC9MmX/HSBUcry0lGU8E1PHbCbm0cM5jag+y7cgN/yJorAV4lRC6z9Z15T6i1uH6w=
-X-Received: by 2002:a67:f15a:0:b0:472:727c:fb5d with SMTP id
- t26-20020a67f15a000000b00472727cfb5dmr5579151vsm.35.1709579878167; Mon, 04
- Mar 2024 11:17:58 -0800 (PST)
+        bh=QWlSwcBARmOYRzOVys6YPJPMXUyk6lSryzPwD7yywbw=;
+        b=le9JGRteFEFKMfETVmjJ2jqLA98O7a7uDkM7romoUEYcOw5R2FAIPG/v5B7eoMT3Ra
+         sfkvIrbIrwshBsQrrBqDDmbUBuRKcbNzvtPW72S00JkHQVVx9feIPkLy4huZOpPZOOBq
+         L+9eeldzBClxoh7GXzjxrK1QfcMvvpfrdt+kj63JMPeAPNPncKkTd1YTDogHdsL9hBOw
+         tsjvpGgYQXhz9kG2en89ZengsG0ME2NCoVGTb3LpeiGdL6IlNMgHIm3zKCtWdyY1bpZ4
+         jLw7/+hELVmaN/5NsKKCJNo29NkE5E1MAt9CzJcW7EyhVwE1EIs1NQNyWsyjbhIWItFm
+         nIAQ==
+X-Gm-Message-State: AOJu0Yym1yy0flApvGKAs7RIr7vbymEiOfNqI1je+zd5rshpylhU2BjI
+	sEt2qtj9TouY//ao/o7S1nxZvCsMQ3mey0xKVlTXp2IVDZvmgRHCgp50AyvAnLVkU4jipDqkYYx
+	4AtNkXjYbA9ce3NhDSE+eQzqNavRQuTYx
+X-Google-Smtp-Source: AGHT+IHbbD3KnjY4RTzHBpfAJ+tkBBg+ptOCigIGmdoN6oTA2HcuUAOudnljQd3QHXarwGGHRUBHkvKmDB4S4FwB494=
+X-Received: by 2002:a05:6102:49a:b0:472:65e5:3da8 with SMTP id
+ n26-20020a056102049a00b0047265e53da8mr6464482vsa.35.1709579902309; Mon, 04
+ Mar 2024 11:18:22 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -56,12 +56,13 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20240122135507.63506-1-cgzones@googlemail.com>
- <20240122135507.63506-4-cgzones@googlemail.com> <CAP+JOzT3dYjoT_ugVbM_paVVfsU31=W+341aNz0yh4+7R1ewkA@mail.gmail.com>
-In-Reply-To: <CAP+JOzT3dYjoT_ugVbM_paVVfsU31=W+341aNz0yh4+7R1ewkA@mail.gmail.com>
+ <20240122135507.63506-5-cgzones@googlemail.com> <CAP+JOzTOeH8uB2V9+zt1i44QeCg7VaqWM8eHiBtzuunLxgaqew@mail.gmail.com>
+In-Reply-To: <CAP+JOzTOeH8uB2V9+zt1i44QeCg7VaqWM8eHiBtzuunLxgaqew@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Mon, 4 Mar 2024 14:17:47 -0500
-Message-ID: <CAP+JOzQs5mFrgvcpQ61fstanE6VkmNYr1x4o9jTuBAVr5vNU=w@mail.gmail.com>
-Subject: Re: [PATCH 04/15] checkpolicy: free ebitmap on error
+Date: Mon, 4 Mar 2024 14:18:11 -0500
+Message-ID: <CAP+JOzSdmmRLYN2qX48_7QJN555+JWE+WwphD1=9-V-z+d5Vcw@mail.gmail.com>
+Subject: Re: [PATCH 05/15] checkpolicy: check allocation and free memory on
+ error at type definition
 To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -70,7 +71,7 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Feb 13, 2024 at 3:35=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
-> On Mon, Jan 22, 2024 at 9:02=E2=80=AFAM Christian G=C3=B6ttsche
+> On Mon, Jan 22, 2024 at 9:37=E2=80=AFAM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
@@ -82,53 +83,57 @@ Thanks,
 Jim
 
 > > ---
-> >  checkpolicy/policy_define.c | 8 +++++---
-> >  1 file changed, 5 insertions(+), 3 deletions(-)
+> >  checkpolicy/policy_define.c | 23 +++++++++++++++++------
+> >  1 file changed, 17 insertions(+), 6 deletions(-)
 > >
 > > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> > index db7e9d0e..053156df 100644
+> > index 053156df..ec19da9d 100644
 > > --- a/checkpolicy/policy_define.c
 > > +++ b/checkpolicy/policy_define.c
-> > @@ -2544,6 +2544,8 @@ static int define_te_avtab_helper(int which, avru=
-le_t ** rule)
-> >         int add =3D 1, ret =3D 0;
-> >         int suppress =3D 0;
-> >
-> > +       ebitmap_init(&tclasses);
-> > +
-> >         avrule =3D (avrule_t *) malloc(sizeof(avrule_t));
-> >         if (!avrule) {
-> >                 yyerror("memory error");
-> > @@ -2607,7 +2609,6 @@ static int define_te_avtab_helper(int which, avru=
-le_t ** rule)
-> >                 }
-> >         }
-> >
-> > -       ebitmap_init(&tclasses);
-> >         ret =3D read_classes(&tclasses);
-> >         if (ret)
-> >                 goto out;
-> > @@ -2693,8 +2694,6 @@ static int define_te_avtab_helper(int which, avru=
-le_t ** rule)
-> >                 free(id);
-> >         }
-> >
-> > -       ebitmap_destroy(&tclasses);
-> > -
-> >         avrule->perms =3D perms;
-> >         *rule =3D avrule;
-> >
-> > @@ -2703,6 +2702,9 @@ static int define_te_avtab_helper(int which, avru=
-le_t ** rule)
-> >                 avrule_destroy(avrule);
-> >                 free(avrule);
-> >         }
-> > +
-> > +       ebitmap_destroy(&tclasses);
-> > +
-> >         return ret;
-> >
+> > @@ -1399,7 +1399,7 @@ int define_typeattribute(void)
+> >         return 0;
 > >  }
+> >
+> > -static int define_typebounds_helper(char *bounds_id, char *type_id)
+> > +static int define_typebounds_helper(const char *bounds_id, const char =
+*type_id)
+> >  {
+> >         type_datum_t *bounds, *type;
+> >
+> > @@ -1482,15 +1482,26 @@ int define_type(int alias)
+> >                  * old name based hierarchy.
+> >                  */
+> >                 if ((id =3D queue_remove(id_queue))) {
+> > -                       char *bounds, *delim;
+> > +                       const char *delim;
+> > +
+> > +                       if ((delim =3D strrchr(id, '.'))) {
+> > +                               int ret;
+> > +                               char *bounds =3D strdup(id);
+> > +                               if (!bounds) {
+> > +                                       yyerror("out of memory");
+> > +                                       free(id);
+> > +                                       return -1;
+> > +                               }
+> >
+> > -                       if ((delim =3D strrchr(id, '.'))
+> > -                           && (bounds =3D strdup(id))) {
+> >                                 bounds[(size_t)(delim - id)] =3D '\0';
+> >
+> > -                               if (define_typebounds_helper(bounds, id=
+))
+> > -                                       return -1;
+> > +                               ret =3D define_typebounds_helper(bounds=
+, id);
+> >                                 free(bounds);
+> > +                               if (ret) {
+> > +                                       free(id);
+> > +                                       return -1;
+> > +                               }
+> > +
+> >                         }
+> >                         free(id);
+> >                 }
 > > --
 > > 2.43.0
 > >
