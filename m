@@ -1,285 +1,94 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C00578B43;
-	Wed,  6 Mar 2024 12:56:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 014DE7FBDC
+	for <selinux@vger.kernel.org>; Wed,  6 Mar 2024 14:34:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709729812; cv=none; b=J4roJNEK+d2i9VDfkv5w2Cl9m5ZE3qCcaQcdoG+B/3TQqPfcj8bd0pp4jD4N12RnghlIGUdZjH06sc0iDBWd0mRwO7e5DC9HlFVBnlJyLLIxWCUWgkLmtADoNHA3/VyA/g9/Zb+zvdrLB81lxBqesBccLzpca9/T2XfDkvvZkdo=
+	t=1709735698; cv=none; b=T5mz6nwIvwTpbcgM2PtmZs+a1zg9VsdUOYPLpSViWXE/gou4EAnbp9l3cHdK2SucE+GgMQRLg2gcKlz6z4/a/no9auRfqxSVuJRewTj044Iskgwg2g8+vXrpERH3lDjKsF1CkyNY2DbtbBU9b/41cQZ46XlOmuHo3buBJPPcQ4k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709729812; c=relaxed/simple;
-	bh=K+4T1t1fYlm3bHNZus2J5bKmrA/rIRHnPXRpNPk2kdw=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=ClrvxDjMcrWGGIPENGYL6WOX5YyNmrKdOWgzGVDHKfWcBQOfAx9zWqUPB6hhPZnyIwJmOZppyTFkYm+QhwN/vsPut8OsxUsfXRRwFblZ/3vBqQCZDgJTJD2zXZYDFiO87olzQIhWyJ7Bn/Qzs/ak2kDw0YTRelHiqPCsb+iXUEo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Kv+721DW; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1709735698; c=relaxed/simple;
+	bh=xCbHelLmFu+LfIJrn8vZ6+Id7Y2BQwNk2VulJKyzeI4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QkT741hQPRpnn9uSe02z9PPMbYZlG6isodKHHoutjftgrzBV86VKNQYERJoN7AjcEaryBU5SKxmGV4lC4R7fClj/SssMkHr0vqfP8nac9tnPcIfLhTrzyyBzrdygVRa1sllE9gdEESlTtgfJqlLOb97qk56I8xAlAoLrmiMr7a4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MsZxdtZe; arc=none smtp.client-ip=209.85.222.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Kv+721DW"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 426CbNqQ023639;
-	Wed, 6 Mar 2024 12:56:18 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=TIC8QxWYz2/20GTl1RuwrLMGb//tdSoQQWTLa00LA50=;
- b=Kv+721DWzkixjrNTWyEw8mweoVcjXE+6Ow3tv30mh1Mw9JWNTjzyH74F/Uzko94nRGX7
- xUOoVgH0CSqA8TPCt0deAYmWzFX+xsLQ9Rj3Ur2vF3eEGOSaXw1XX4l6KiDIE4u0p3mb
- ZiIkz+Xh3rrO8DW4QlInR4URU8SB04vu0mmc9Qs6SN6wfnSAI4gUoof+j+yygEqjDTNs
- KCRoeTemlCQ/ogAHM2sC0bpsU4yWsN2oS/j8fGi5T91Lml7dtJ+z7ep6GTZFYXV4ClEO
- YLXt0zm4rjT0qjUuVRHfFHhQwkMc0KfpSUkW9a8aQ0h4dxSylAnSLnPCujk69J1tc4F5 hA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wprna0d00-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Mar 2024 12:56:17 +0000
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 426Csk1S010054;
-	Wed, 6 Mar 2024 12:56:16 GMT
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wprna0ct6-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Mar 2024 12:56:16 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 426ChIah006073;
-	Wed, 6 Mar 2024 12:56:10 GMT
-Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wmeet6ygw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Mar 2024 12:56:10 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 426Cu7ox35783124
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 6 Mar 2024 12:56:09 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0501A58051;
-	Wed,  6 Mar 2024 12:56:07 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 807F65805A;
-	Wed,  6 Mar 2024 12:56:05 +0000 (GMT)
-Received: from li-5cd3c5cc-21f9-11b2-a85c-a4381f30c2f3.ibm.com (unknown [9.61.175.142])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  6 Mar 2024 12:56:05 +0000 (GMT)
-Message-ID: <da450fd44278913fda27542f6e9c0d26b0148829.camel@linux.ibm.com>
-Subject: Re: [PATCH v2 24/25] commoncap: use vfs fscaps interfaces
-From: Mimi Zohar <zohar@linux.ibm.com>
-To: Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        Christian Brauner
-	 <brauner@kernel.org>,
-        "Seth Forshee (DigitalOcean)" <sforshee@kernel.org>
-Cc: Serge Hallyn <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>,
-        Eric
- Paris <eparis@redhat.com>, James Morris <jmorris@namei.org>,
-        Alexander Viro
- <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
-        Stephen Smalley
- <stephen.smalley.work@gmail.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Roberto Sassu
- <roberto.sassu@huawei.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Eric Snowberg <eric.snowberg@oracle.com>,
-        "Matthew Wilcox (Oracle)"
- <willy@infradead.org>,
-        Jonathan Corbet <corbet@lwn.net>, Miklos Szeredi
- <miklos@szeredi.hu>,
-        Amir Goldstein <amir73il@gmail.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
-        audit@vger.kernel.org, selinux@vger.kernel.org,
-        linux-integrity@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-unionfs@vger.kernel.org
-Date: Wed, 06 Mar 2024 07:56:05 -0500
-In-Reply-To: <1217017cc1928842abfdb40a7fa50bad8ae5e99f.camel@huaweicloud.com>
-References: <20240221-idmap-fscap-refactor-v2-0-3039364623bd@kernel.org>
-	 <20240221-idmap-fscap-refactor-v2-24-3039364623bd@kernel.org>
-	 <dcbd9e7869d2fcce69546b53851d694b8ebad54e.camel@huaweicloud.com>
-	 <ZeXpbOsdRTbLsYe9@do-x1extreme>
-	 <a7124afa6bed2fcadcb66efa08e256828cd6f8ab.camel@huaweicloud.com>
-	 <ZeX9MRhU/EGhHkCY@do-x1extreme>
-	 <20240305-fachjargon-abmontieren-75b1d6c67a83@brauner>
-	 <3098aef3e5f924e5717b4ba4a34817d9f22ec479.camel@huaweicloud.com>
-	 <7058e2f93d16f910336a5380877b14a2e069ee9d.camel@huaweicloud.com>
-	 <10773e5b90ec9378cbc69fa9cfeb61a84273edc2.camel@linux.ibm.com>
-	 <1217017cc1928842abfdb40a7fa50bad8ae5e99f.camel@huaweicloud.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-22.el8) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: E5j-kc7WvevmTwvKk7T6_RIK4OIKy8vW
-X-Proofpoint-GUID: uSeR4qO7CSvtOXS7HNLBLLt_jgvGmJpS
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MsZxdtZe"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-781753f52afso478253185a.2
+        for <selinux@vger.kernel.org>; Wed, 06 Mar 2024 06:34:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1709735695; x=1710340495; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=PbJPeLYG11ygp18NhJ8hVYjJ5zA97l6uMQaoqKwYsjM=;
+        b=MsZxdtZektV7Q28h/sYZEuql3/mY4ZaN1IWasIOfF+4XOF6AmZAkiuQK+3N/CUlWJu
+         jBbbdBc+Y87euQ4JaN14DgO6zGX7AXybtLl7JRqVhKEFUO7S66vud5YGW72AG+hEEUW5
+         5ESlmMR6r7EJe/6b5YiYxULtA/5UoyzWPKW+LROAqzlT5luJx7AhVDPYz+ZXFbkDEaZw
+         32bXZXMQ3kq4jR9J7+ruWRlHWgNCKEZ6hB9Z1MBodZ24ZNdexgcbUTnoqmntXYD0i5Hd
+         hJZsbZ5Zfa8ESxb9F0Ws/DbnPZkGJNtTRdZK+5mkyt88Sb/VcF4pWyu38Haoh6HrQaMb
+         EZVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709735695; x=1710340495;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=PbJPeLYG11ygp18NhJ8hVYjJ5zA97l6uMQaoqKwYsjM=;
+        b=A9yiXBc6AwVfc5Nz7EUJgR4RFgYHMPC7ZlKFTo4oj042gvEDY0kpsp3+ilGPxMsT1F
+         tq5IMk1+/UXupqyPOxm8y/1Qz4ur2T0nqp2sD4dk+DCteC6sajGWMQS+ioz1wdqTmoqt
+         BFVhnhn/p9EHVheGtOf6d7cuQURqeXmSf0GboN7Gr52NvZm7SGak9wLYc7knHg5m2diN
+         w9bTsiJGFPWlixshOJH7P2sbTUvIVb08/xfXd1E/s6vbzTNfOwhNwbEGSeEQJGLiIeUF
+         c7KXPnzGEILIVScNH3Ni0HhCBFcfupuH3DhQeFsOBVxFlv5YzmxrcaVUTX/L0XPttN+g
+         0q5A==
+X-Gm-Message-State: AOJu0Yxny3qaQclEcvqlVHB2IRJ6ZbZgO5om9VVBPCNbtyri5Bw/sg5N
+	HBa/vxd22RkoFpF2DDd8HtJmOIdtgB4Fhgz1KZAjop8NU1/g5alCB/kS9zMr
+X-Google-Smtp-Source: AGHT+IGrlr56bh4wXe5DvpnbT8jBIH3VJqxl2OmlM4E0F2m8a3kKmB/Cfm5G4OYjuqpTv0G1JP43/w==
+X-Received: by 2002:a05:620a:4094:b0:788:4240:2af4 with SMTP id f20-20020a05620a409400b0078842402af4mr1216591qko.72.1709735695600;
+        Wed, 06 Mar 2024 06:34:55 -0800 (PST)
+Received: from electric.. (c-69-140-100-37.hsd1.md.comcast.net. [69.140.100.37])
+        by smtp.gmail.com with ESMTPSA id x16-20020a05620a0ed000b00787b95c91d3sm6660965qkm.62.2024.03.06.06.34.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Mar 2024 06:34:55 -0800 (PST)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: cgzones@googlemail.com,
+	James Carter <jwcart2@gmail.com>
+Subject: [PATCH] checkpolicy/fuzz: Update check_level() to use notdefined field
+Date: Wed,  6 Mar 2024 09:34:51 -0500
+Message-ID: <20240306143451.2256235-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.44.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-03-06_08,2024-03-05_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 mlxscore=0 suspectscore=0 phishscore=0 malwarescore=0
- lowpriorityscore=0 clxscore=1015 impostorscore=0 mlxlogscore=999
- bulkscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2403060104
+Content-Transfer-Encoding: 8bit
 
-On Wed, 2024-03-06 at 09:25 +0100, Roberto Sassu wrote:
-> On Tue, 2024-03-05 at 21:17 -0500, Mimi Zohar wrote:
-> > On Tue, 2024-03-05 at 18:11 +0100, Roberto Sassu wrote:
-> > > On Tue, 2024-03-05 at 13:46 +0100, Roberto Sassu wrote:
-> > > > On Tue, 2024-03-05 at 10:12 +0100, Christian Brauner wrote:
-> > > > > On Mon, Mar 04, 2024 at 10:56:17AM -0600, Seth Forshee (DigitalOcean)
-> > > > > wrote:
-> > > > > > On Mon, Mar 04, 2024 at 05:17:57PM +0100, Roberto Sassu wrote:
-> > > > > > > On Mon, 2024-03-04 at 09:31 -0600, Seth Forshee (DigitalOcean)
-> > > > > > > wrote:
-> > > > > > > > On Mon, Mar 04, 2024 at 11:19:54AM +0100, Roberto Sassu wrote:
-> > > > > > > > > On Wed, 2024-02-21 at 15:24 -0600, Seth Forshee (DigitalOcean)
-> > > > > > > > > wrote:
-> > > > > > > > > > Use the vfs interfaces for fetching file capabilities for
-> > > > > > > > > > killpriv
-> > > > > > > > > > checks and from get_vfs_caps_from_disk(). While there,
-> > > > > > > > > > update
-> > > > > > > > > > the
-> > > > > > > > > > kerneldoc for get_vfs_caps_from_disk() to explain how it is
-> > > > > > > > > > different
-> > > > > > > > > > from vfs_get_fscaps_nosec().
-> > > > > > > > > > 
-> > > > > > > > > > Signed-off-by: Seth Forshee (DigitalOcean) <
-> > > > > > > > > > sforshee@kernel.org>
-> > > > > > > > > > ---
-> > > > > > > > > >  security/commoncap.c | 30 +++++++++++++-----------------
-> > > > > > > > > >  1 file changed, 13 insertions(+), 17 deletions(-)
-> > > > > > > > > > 
-> > > > > > > > > > diff --git a/security/commoncap.c b/security/commoncap.c
-> > > > > > > > > > index a0ff7e6092e0..751bb26a06a6 100644
-> > > > > > > > > > --- a/security/commoncap.c
-> > > > > > > > > > +++ b/security/commoncap.c
-> > > > > > > > > > @@ -296,11 +296,12 @@ int cap_capset(struct cred *new,
-> > > > > > > > > >   */
-> > > > > > > > > >  int cap_inode_need_killpriv(struct dentry *dentry)
-> > > > > > > > > >  {
-> > > > > > > > > > -	struct inode *inode = d_backing_inode(dentry);
-> > > > > > > > > > +	struct vfs_caps caps;
-> > > > > > > > > >  	int error;
-> > > > > > > > > >  
-> > > > > > > > > > -	error = __vfs_getxattr(dentry, inode, XATTR_NAME_CAPS,
-> > > > > > > > > > NULL, 0);
-> > > > > > > > > > -	return error > 0;
-> > > > > > > > > > +	/* Use nop_mnt_idmap for no mapping here as mapping is
-> > > > > > > > > > unimportant */
-> > > > > > > > > > +	error = vfs_get_fscaps_nosec(&nop_mnt_idmap, dentry,
-> > > > > > > > > > &caps);
-> > > > > > > > > > +	return error == 0;
-> > > > > > > > > >  }
-> > > > > > > > > >  
-> > > > > > > > > >  /**
-> > > > > > > > > > @@ -323,7 +324,7 @@ int cap_inode_killpriv(struct mnt_idmap
-> > > > > > > > > > *idmap, struct dentry *dentry)
-> > > > > > > > > >  {
-> > > > > > > > > >  	int error;
-> > > > > > > > > >  
-> > > > > > > > > > -	error = __vfs_removexattr(idmap, dentry,
-> > > > > > > > > > XATTR_NAME_CAPS);
-> > > > > > > > > > +	error = vfs_remove_fscaps_nosec(idmap, dentry);
-> > > > > > > > > 
-> > > > > > > > > Uhm, I see that the change is logically correct... but the
-> > > > > > > > > original
-> > > > > > > > > code was not correct, since the EVM post hook is not called
-> > > > > > > > > (thus
-> > > > > > > > > the
-> > > > > > > > > HMAC is broken, or an xattr change is allowed on a portable
-> > > > > > > > > signature
-> > > > > > > > > which should be not).
-> > > > > > > > > 
-> > > > > > > > > For completeness, the xattr change on a portable signature
-> > > > > > > > > should
-> > > > > > > > > not
-> > > > > > > > > happen in the first place, so cap_inode_killpriv() would not
-> > > > > > > > > be
-> > > > > > > > > called.
-> > > > > > > > > However, since EVM allows same value change, we are here.
-> > > > > > > > 
-> > > > > > > > I really don't understand EVM that well and am pretty hesitant
-> > > > > > > > to
-> > > > > > > > try an
-> > > > > > > > change any of the logic around it. But I'll hazard a thought:
-> > > > > > > > should
-> > > > > > > > EVM
-> > > > > > > > have a inode_need_killpriv hook which returns an error in this
-> > > > > > > > situation?
-> > > > > > > 
-> > > > > > > Uhm, I think it would not work without modifying
-> > > > > > > security_inode_need_killpriv() and the hook definition.
-> > > > > > > 
-> > > > > > > Since cap_inode_need_killpriv() returns 1, the loop stops and EVM
-> > > > > > > would
-> > > > > > > not be invoked. We would need to continue the loop and let EVM
-> > > > > > > know
-> > > > > > > what is the current return value. Then EVM can reject the change.
-> > > > > > > 
-> > > > > > > An alternative way would be to detect that actually we are setting
-> > > > > > > the
-> > > > > > > same value for inode metadata, and maybe not returning 1 from
-> > > > > > > cap_inode_need_killpriv().
-> > > > > > > 
-> > > > > > > I would prefer the second, since EVM allows same value change and
-> > > > > > > we
-> > > > > > > would have an exception if there are fscaps.
-> > > > > > > 
-> > > > > > > This solves only the case of portable signatures. We would need to
-> > > > > > > change cap_inode_need_killpriv() anyway to update the HMAC for
-> > > > > > > mutable
-> > > > > > > files.
-> > > > > > 
-> > > > > > I see. In any case this sounds like a matter for a separate patch
-> > > > > > series.
-> > > > > 
-> > > > > Agreed.
-> > > > 
-> > > > Christian, how realistic is that we don't kill priv if we are setting
-> > > > the same owner?
-> > > > 
-> > > > Serge, would we be able to replace __vfs_removexattr() (or now
-> > > > vfs_get_fscaps_nosec()) with a security-equivalent alternative?
-> > > 
-> > > It seems it is not necessary.
-> > > 
-> > > security.capability removal occurs between evm_inode_setattr() and
-> > > evm_inode_post_setattr(), after the HMAC has been verified and before
-> > > the new HMAC is recalculated (without security.capability).
-> > > 
-> > > So, all good.
-> > > 
-> > > Christian, Seth, I pushed the kernel and the updated tests (all patches
-> > > are WIP):
-> > > 
-> > > https://github.com/robertosassu/linux/commits/evm-fscaps-v2/
-> > 
-> > Resetting the IMA status flag is insufficient.  The EVM status needs to be
-> > reset
-> > as well.  Stefan's "ima: re-evaluate file integrity on file metadata change"
-> > patch does something similar for overlay.
-> 
-> Both the IMA and EVM status are reset. The IMA one is reset based on
-> the evm_revalidate_status() call, similarly to ACLs.
+Commit e16f586 (Fix potential double free of mls_level_t) renamed
+the "defined" field to "notdefined", but did not update this use of
+it.
 
-Agreed. Oh, evm_status is being reset in evm_inode_post_set_fscaps().
+Use the new field "notdefined" for the check.
 
-> 
-> 
-> > https://lore.kernel.org/linux-integrity/20240223172513.4049959-8-stefanb@linux.ibm.com/
-> > 
-> > > https://github.com/robertosassu/ima-evm-utils/commits/evm-fscaps-v2/
-> > > 
-> > > 
-> > > The tests are passing:
-> > > 
-> > > https://github.com/robertosassu/ima-evm-utils/actions/runs/8159877004/job/22305521359
-> > > 
-> > > Roberto
-> > > 
-> > > 
-> 
-> 
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ checkpolicy/fuzz/checkpolicy-fuzzer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/checkpolicy/fuzz/checkpolicy-fuzzer.c b/checkpolicy/fuzz/checkpolicy-fuzzer.c
+index 0d749a02..a3da0b57 100644
+--- a/checkpolicy/fuzz/checkpolicy-fuzzer.c
++++ b/checkpolicy/fuzz/checkpolicy-fuzzer.c
+@@ -135,7 +135,7 @@ static int check_level(hashtab_key_t key, hashtab_datum_t datum, void *arg __att
+ 	const level_datum_t *levdatum = (level_datum_t *) datum;
+ 
+ 	// TODO: drop member defined if proven to be always set
+-	if (!levdatum->isalias && !levdatum->defined) {
++	if (!levdatum->isalias && levdatum->notdefined) {
+ 		fprintf(stderr,
+ 			"Error:  sensitivity %s was not used in a level definition!\n",
+ 			key);
+-- 
+2.44.0
 
