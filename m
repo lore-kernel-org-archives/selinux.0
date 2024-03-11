@@ -1,146 +1,154 @@
-Received: from mail-yb1-f169.google.com (mail-yb1-f169.google.com [209.85.219.169])
+Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com [209.85.219.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54ABD36AE4
-	for <selinux@vger.kernel.org>; Mon, 11 Mar 2024 12:48:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C555E3FBAC
+	for <selinux@vger.kernel.org>; Mon, 11 Mar 2024 13:48:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710161317; cv=none; b=rO75K+G00Z1zLWu+Q6HuyZZ9G9o5OegxqtPmxYt95qmU181xvsvZccwQAcAHA7bW4X75eJttfS8ff8ZNFXbn7U0Ww/ZIJzDo3hyJszZFjSEK/OWyuQICF5IH0ESwTVJoyCHofn+vfTQhuKWPzpI2qTOE5UFH20BAnmjYXOSotMA=
+	t=1710164928; cv=none; b=Ne0iUK6HwWqMayIgs4HcVvoT5hQmhwIitjsyEAK+K+kcVmLKy5uhjBmdRUB9k51Nd9OmlsaDecdyHSmyoF/QAPdt7kSOI24MH2YSYGIGlSxTQwQYs4nxnx+iHjM32ItCsRXHiiNdBNqO62Ybpn9GY4LLUp1fx2Bk1upzm26uh9o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710161317; c=relaxed/simple;
-	bh=C4qyoLT1+SXgMEtOqviCxeuqZDKQ/UygvAw4KdX67dU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sL5ncAmqtemadSe7fNPwxQ2fKuxZq2pb4QozYjkChgaIiU9qQ3P6JAjYLBJEmdfNz7nKYIyErfPVcn8+8MwJqOLRmokBVBB4XARjn/DDWfKWu+iQIHCqEs/9eUoSsZS72wNI2svtB6+TINZXFLH9GxXX6o2XJkdUhKvw0xD4dJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Yt+0s0n+; arc=none smtp.client-ip=209.85.219.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1710164928; c=relaxed/simple;
+	bh=zF2sZ8mVA+ZwHOD6no60HRuzpIyG7PFBzfXctSQgz08=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dpZ1maB8l4v0AUrgHxKh+6DFfZUng0TuJ08cdQqLU74DL9bkR8cFc3seBX7iZ7sUqFa84J8Q8SDANHM3gXlw+DkyMqI5cKrmFU5D4pVrVwglSW2infcuJpgKku2S5/mbbHrwy6SAPLee/+dd5j4EYtIJZPwdHb9UfdOVH2KPvVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=WZyDnJFy; arc=none smtp.client-ip=209.85.219.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Yt+0s0n+"
-Received: by mail-yb1-f169.google.com with SMTP id 3f1490d57ef6-dcc80d6004bso4132348276.0
-        for <selinux@vger.kernel.org>; Mon, 11 Mar 2024 05:48:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="WZyDnJFy"
+Received: by mail-yb1-f180.google.com with SMTP id 3f1490d57ef6-db4364ecd6aso2928236276.2
+        for <selinux@vger.kernel.org>; Mon, 11 Mar 2024 06:48:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710161315; x=1710766115; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=nJ/NOb5/LbGKq0ewQufJCaqO1Qpcu5Y9Qc4RaTqYDAA=;
-        b=Yt+0s0n+63YYA2Lnm0nAaJFvon+1EuyKcyr4bg8UcueSbCA8SUefNsswSt9Qoqkekj
-         uIfgUwegKtQBlOUm+JXOVlWigEV2iJQG0Cw0x7K8gTdX/vUVGY6FMWIU1ecAEm51hSjK
-         4/e9ZKhKcjs1s3304bwX9cYTovXGCm6+0aZnNW3/zbcnvDxxtRShsMJ/c4J5h4HruM+O
-         RwCmdHFtZqA+vkCoMFK0amMkrVzbioa32Y0YfDEzf5BRxQWhO37VADMDrVhy3w8SgLpv
-         hcHYQdWSyeKpKh+MoDZ8FX2K/D77HS+Fk2WKQ6HUIdhcLTqUUzapPSJ3sLNmRbIIiqkk
-         YsmA==
+        d=googlemail.com; s=20230601; t=1710164926; x=1710769726; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=UY9zn1SWCBl2RNnf1JhZuSoVtSgGddWnM12KsGbbpLQ=;
+        b=WZyDnJFymdip+54bmo9/jGmqF6kHtCsLKwbWN1K3uwF5eVK7OWJ45osARKjlquMhR7
+         mPCc/dFjlyPZGuIdlPj0GwdcmRUNq1Svn5iQ1AFntCkf8uTJ71UO0IAmWKh2w1zZdQp2
+         ZFh2JHaOtDIzzHfVLrGUmsQgU5cApUclV4WqpJnVIcTjR908TX/pPFnYiFavEi3HzjRA
+         lG5CLQhNT6zWg3w7ZCfJ0qwtRCuh1Z36e4UF9StVhE0qlIrQlQkNbSrL7hhvLobzg/xG
+         t6/LDbEel1JYWAZghPeAb4+9Zo1V+L4vf+3AnCf8fFLXso285D1l+qpwJCu1rsWWg2Ft
+         3uQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710161315; x=1710766115;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=1e100.net; s=20230601; t=1710164926; x=1710769726;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=nJ/NOb5/LbGKq0ewQufJCaqO1Qpcu5Y9Qc4RaTqYDAA=;
-        b=e1GpHqXRevzRLdoFHB92Cuvj0u8tHp/o4uN8uXioXSz8RAYo/6cAl823zba6njw0qm
-         PCw9yf8kVvSsliz34Mf4dt6+Oiz9V/Cgcs2I/R4hJ/gq6U+cxlnuMJP1koueVi0mCz0+
-         TBSwUIJGUqrsxZwSet5oLHuY9scqrLehPrUVe1SXTgIOhuEsyPwj8JdBR+QQdP3RL2k6
-         HNsZ29bqzfBumWUJbMTxSi+Va3qbPjLGGlxklusLvOZsurQLrElLF5a/oma9MyKo2gaF
-         dZXGYtt6EJHNl4dKppfqY49sa9K89GkLfGEIXBGVX+phbpqpVUBOBsT6qyIEIywR1yQJ
-         krBA==
-X-Gm-Message-State: AOJu0Yyae/P3KPzNoFu420IIJnJ860XoLnYyaxFp4FGAyFYXiseOAnjl
-	wVieMuxC2mg+II5rkrVdA8GYBKyh4pV4Jl22s1WLZy9oV1z3gJpKxaVd6pPF
-X-Google-Smtp-Source: AGHT+IFaJWW8vJKF4dx8edwvMwbfUM6I+XMXZU220F0SdnIVjfVxihX9wStSnTpqPSafGCRiJ2o89A==
-X-Received: by 2002:a25:2182:0:b0:dc2:2d75:5fde with SMTP id h124-20020a252182000000b00dc22d755fdemr4642114ybh.29.1710161314668;
-        Mon, 11 Mar 2024 05:48:34 -0700 (PDT)
-Received: from electric.. (c-69-140-100-37.hsd1.md.comcast.net. [69.140.100.37])
-        by smtp.gmail.com with ESMTPSA id ki4-20020a05622a770400b0042e6be98dbasm2677866qtb.31.2024.03.11.05.48.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Mar 2024 05:48:34 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH] libsepol: Fix buffer overflow when using sepol_av_to_string()
-Date: Mon, 11 Mar 2024 08:48:31 -0400
-Message-ID: <20240311124832.2659731-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.44.0
+        bh=UY9zn1SWCBl2RNnf1JhZuSoVtSgGddWnM12KsGbbpLQ=;
+        b=HeIMVVM7qZjzAV7n5BHPwMsRX6a8y7OHwTCdThLJouaTc876QpuPcRau4/I0VRzV4q
+         nb0qWP8o94iVZ6nNWaFXAjETxdY5c5s58t2f3n7WEYz0kI6jZyFIMvSCfE2W5ZoBOSM8
+         4tSU2C0MwVcGwCD3Me18LSgvm0e0SwBwSawKgR/Zk2NgSVIxzoNAue/S6vrI6KfCiNGc
+         S63m9/Gpiiz/UVx27aycKarUcB3irNHRqEKrdhpBebePPP6Uk3oL+8MePWCG7yHAZ9I+
+         2oRMrHAIJWkvdFiJlIHj8jLv5Ng11J9t4UpRVAPf18mpwaL6rLXd+z2R1+3oNpc2+s+F
+         Ow0Q==
+X-Gm-Message-State: AOJu0YzDH99500CdrdHfGchWbq3kOQcBSXcXNmykyJ6TL+sbDVhSFKIZ
+	aEERYxUcez5qQxnvN+EbfNt79Gki1Q5BgbuRFw2BQLv2s5WjQbhiLJI05qHhGCOncJePyFvfk9L
+	KGoBal0xEiUP9PWILw0swzj2+a/I=
+X-Google-Smtp-Source: AGHT+IH9mJbubBUp59jAQlssVegE7x6uyeR+TdxfekCrEmuAqhs0at4k0AcPU0Gi+CW5CLuNHlid6Q0/5V9+NPUX4u0=
+X-Received: by 2002:a5b:c8a:0:b0:dc7:43fe:e124 with SMTP id
+ i10-20020a5b0c8a000000b00dc743fee124mr3614207ybq.11.1710164925695; Mon, 11
+ Mar 2024 06:48:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240311124832.2659731-1-jwcart2@gmail.com>
+In-Reply-To: <20240311124832.2659731-1-jwcart2@gmail.com>
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Mon, 11 Mar 2024 14:48:34 +0100
+Message-ID: <CAJ2a_Df=V+sMzA9K1Qu-1PVYnrthq=kQMgtMZL3txO-a+jytsg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Fix buffer overflow when using sepol_av_to_string()
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-The function sepol_av_to_string() returns a list of permissions
-with a space at the beginning. This fits the normal formating of
-permisisons for a policy.conf policy which uses a format of
-"{ p1 p2 ... pn }", but not the formating for a CIL policy which uses
-a format of "(p1 p2 ... pn)". Both kernel_to_cil and module_to_cil
-skip the space by using "perms+1", but this is a problem if there
-are no permissions because sepol_av_to_string() returns '\0'.
+On Mon, 11 Mar 2024 at 13:48, James Carter <jwcart2@gmail.com> wrote:
+>
+> The function sepol_av_to_string() returns a list of permissions
+> with a space at the beginning. This fits the normal formating of
+> permisisons for a policy.conf policy which uses a format of
+> "{ p1 p2 ... pn }", but not the formating for a CIL policy which uses
+> a format of "(p1 p2 ... pn)". Both kernel_to_cil and module_to_cil
+> skip the space by using "perms+1", but this is a problem if there
+> are no permissions because sepol_av_to_string() returns '\0'.
+>
+> In kernel_to_cil and module_to_cil, check for the permission string
+> being '\0' and return an error if it is.
+>
+> Reported-by: oss-fuzz (issue 67276)
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+>  libsepol/src/kernel_to_cil.c | 11 +++++++++++
+>  libsepol/src/module_to_cil.c | 12 ++++++++++++
 
-In kernel_to_cil and module_to_cil, check for the permission string
-being '\0' and return an error if it is.
+I think there are also two occurrences in libsepol/src/kernel_to_conf.c.
 
-Reported-by: oss-fuzz (issue 67276)
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/src/kernel_to_cil.c | 11 +++++++++++
- libsepol/src/module_to_cil.c | 12 ++++++++++++
- 2 files changed, 23 insertions(+)
+Also: s/permisisons/permissions/
 
-diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-index a081915e..e20ba4af 100644
---- a/libsepol/src/kernel_to_cil.c
-+++ b/libsepol/src/kernel_to_cil.c
-@@ -302,6 +302,12 @@ static int class_constraint_rules_to_strs(struct policydb *pdb, char *classkey,
- 			rc = -1;
- 			goto exit;
- 		}
-+		if (*perms == '\0') {
-+			ERR(NULL, "No permisisons in permission string");
-+			free(perms);
-+			rc = -1;
-+			goto exit;
-+		}
- 
- 		if (is_mls) {
- 			key_word = "mlsconstrain";
-@@ -1775,6 +1781,11 @@ static char *avtab_node_to_str(struct policydb *pdb, avtab_key_t *key, avtab_dat
- 			ERR(NULL, "Failed to generate permission string");
- 			goto exit;
- 		}
-+		if (*perms == '\0') {
-+			ERR(NULL, "No permisisons in permission string");
-+			free(perms);
-+			goto exit;
-+		}
- 		rule = create_str("(%s %s %s (%s (%s)))",
- 				  flavor, src, tgt, class, perms+1);
- 		free(perms);
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 6699a46b..3b3480bf 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -593,6 +593,12 @@ static int avrule_to_cil(int indent, struct policydb *pdb, uint32_t type, const
- 				rc = -1;
- 				goto exit;
- 			}
-+			if (*perms == '\0') {
-+				ERR(NULL, "No permissions in permission string");
-+				free(perms);
-+				rc = -1;
-+				goto exit;
-+			}
- 			cil_println(indent, "(%s %s %s (%s (%s)))",
- 					rule, src, tgt,
- 					pdb->p_class_val_to_name[classperm->tclass - 1],
-@@ -1973,6 +1979,12 @@ static int constraints_to_cil(int indent, struct policydb *pdb, char *classkey,
- 				rc = -1;
- 				goto exit;
- 			}
-+			if (*perms == '\0') {
-+				ERR(NULL, "No permissions in permission string");
-+				free(perms);
-+				rc = -1;
-+				goto exit;
-+			}
- 			cil_println(indent, "(%sconstrain (%s (%s)) %s)", mls, classkey, perms + 1, expr);
- 			free(perms);
- 		} else {
--- 
-2.44.0
-
+>  2 files changed, 23 insertions(+)
+>
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index a081915e..e20ba4af 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -302,6 +302,12 @@ static int class_constraint_rules_to_strs(struct policydb *pdb, char *classkey,
+>                         rc = -1;
+>                         goto exit;
+>                 }
+> +               if (*perms == '\0') {
+> +                       ERR(NULL, "No permisisons in permission string");
+> +                       free(perms);
+> +                       rc = -1;
+> +                       goto exit;
+> +               }
+>
+>                 if (is_mls) {
+>                         key_word = "mlsconstrain";
+> @@ -1775,6 +1781,11 @@ static char *avtab_node_to_str(struct policydb *pdb, avtab_key_t *key, avtab_dat
+>                         ERR(NULL, "Failed to generate permission string");
+>                         goto exit;
+>                 }
+> +               if (*perms == '\0') {
+> +                       ERR(NULL, "No permisisons in permission string");
+> +                       free(perms);
+> +                       goto exit;
+> +               }
+>                 rule = create_str("(%s %s %s (%s (%s)))",
+>                                   flavor, src, tgt, class, perms+1);
+>                 free(perms);
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index 6699a46b..3b3480bf 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -593,6 +593,12 @@ static int avrule_to_cil(int indent, struct policydb *pdb, uint32_t type, const
+>                                 rc = -1;
+>                                 goto exit;
+>                         }
+> +                       if (*perms == '\0') {
+> +                               ERR(NULL, "No permissions in permission string");
+> +                               free(perms);
+> +                               rc = -1;
+> +                               goto exit;
+> +                       }
+>                         cil_println(indent, "(%s %s %s (%s (%s)))",
+>                                         rule, src, tgt,
+>                                         pdb->p_class_val_to_name[classperm->tclass - 1],
+> @@ -1973,6 +1979,12 @@ static int constraints_to_cil(int indent, struct policydb *pdb, char *classkey,
+>                                 rc = -1;
+>                                 goto exit;
+>                         }
+> +                       if (*perms == '\0') {
+> +                               ERR(NULL, "No permissions in permission string");
+> +                               free(perms);
+> +                               rc = -1;
+> +                               goto exit;
+> +                       }
+>                         cil_println(indent, "(%sconstrain (%s (%s)) %s)", mls, classkey, perms + 1, expr);
+>                         free(perms);
+>                 } else {
+> --
+> 2.44.0
+>
+>
