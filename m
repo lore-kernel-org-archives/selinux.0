@@ -1,175 +1,171 @@
-Received: from mail-oa1-f47.google.com (mail-oa1-f47.google.com [209.85.160.47])
+Received: from mail-oi1-f173.google.com (mail-oi1-f173.google.com [209.85.167.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5460956772
-	for <selinux@vger.kernel.org>; Mon, 11 Mar 2024 21:19:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 126A046551
+	for <selinux@vger.kernel.org>; Tue, 12 Mar 2024 23:18:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710191991; cv=none; b=I3nzEmZX2zC48cHOKf4o9Jt1rcA9j7hruRhRmzblhXtylW/3QX9CKyUUvPKWS1VmRM68+8+KI1ssOvsw/wL2/c7tj/C0KDsB45U0KYGOK/O+Cnmyz29t6YEqJRypLnihLCAA99ZZB+DRzu+7QsgXW4WM08YlA8pcw7Vgjp7nI0U=
+	t=1710285509; cv=none; b=ReIjE0J6540CWi6l0ltMnA0tP3G1Ovh5M/xKzgES54WAQRxVbMKZnjkEMoeyCuBKCSJWMA1bk8MsNUlP2zVq4FX4ccrE+a4P/KqjH/JtlF9sMkbQ5v3ACoi1hKTS13WhKh6nQPrFaGhcQavnrnWz4ZppOAGmictgs34rKfB0RWU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710191991; c=relaxed/simple;
-	bh=10mhg0PhVvawNV/ssQLxLQJ9elB+Wl87tnuRvG7RrPM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Tgi0KjRMLRjuey7OIWq9vrgB7aMpTm3Z6z83gn+JU2DR/ZY+YeSFPFhzPvMZ+AGEoTk5DrTK8aZZ5VSAPHZ5tk9xP29wxOkUiOlItm2BS9ZV9BiqYuY/L1eEE/6eyk5FJUjxJKaimrSyPKFmQ1Rbzg4yj49HzjPlZi3QB8FR5Aw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N3hx2H9z; arc=none smtp.client-ip=209.85.160.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1710285509; c=relaxed/simple;
+	bh=q39NurgIHCOT4qDzjQ4+UPaZ8eobe8ngIwBFL/onrQs=;
+	h=Date:Message-ID:From:To:Cc:Subject; b=RZ0IuAh93LcXNtKRPeyZb+dP8SirRzccZ7koCxMBK7Zqd+P8YQ97aDvHJ2c5xdjriJ6BFpXTUa4r1gII60sVsxXJxobOyimsOX2c3b7c7WLnttw3AyBB+uYS4OBOkTh8TtKbU16nElengdCoXTlTymtRSrOcq/R4OXYy0zkMnr0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=IlqU9ob9; arc=none smtp.client-ip=209.85.167.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N3hx2H9z"
-Received: by mail-oa1-f47.google.com with SMTP id 586e51a60fabf-2210865d962so1908672fac.3
-        for <selinux@vger.kernel.org>; Mon, 11 Mar 2024 14:19:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="IlqU9ob9"
+Received: by mail-oi1-f173.google.com with SMTP id 5614622812f47-3c19aaedfdaso371554b6e.2
+        for <selinux@vger.kernel.org>; Tue, 12 Mar 2024 16:18:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710191989; x=1710796789; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=uHRH0MRsQv4qEZrXvuF1WeCnYQYOs7EEEN7SzgZePYc=;
-        b=N3hx2H9zwV6zvGilVfutUaU5UCtQeLSOc7NWIeud9ny4+ORPBqfszCY75wrzgtyw3x
-         hSNWM3SlTXdHRqUZTkBNlfxR11pmckSPl0hKBdpRi0jTcqAlAS5/wOa7V0hcAfAWafl4
-         9/t2ZGXOd3H6FovFuCZpZ6S11yVhHlBqQnTKP/KIqmWftFuX/tN9Zf1WD0o5xqkhFUt7
-         r/LH32uHgkzkisL51HTK5g8LeSpH5yXlAY9Fp8C3vpIEPIV8l7jU0vBIlc4Tv0QNUGCb
-         yhDDchUdvpzRmTsIoLxtRSOIuQvh2S5yGKL3fmmL62A18Fb3tcXnReYu/MWMzsGKP6Yi
-         Nflw==
+        d=paul-moore.com; s=google; t=1710285507; x=1710890307; darn=vger.kernel.org;
+        h=subject:cc:to:from:message-id:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ODZOS4ijNm0/2adr74Or0gSBtAKP6h+U6y8x5b0LRUw=;
+        b=IlqU9ob9nM29aBlyNTRHy9g4eoFB1UXjTd5CcH0kwS0tDgDpscH07VWUjAUacgDGGQ
+         NF+/VhNg8jgSKnGKzcHtO3MO6LtPOksacBYiokCTdAysJaAfU9QqONU6ZuiPfVSG9jhT
+         vR6A7Lp3PO58Wdmh/AVlys0oNIzGuLjfwy8aZDrnKkomZ10qJ4J2Ln1YgMo2SPuFvA6e
+         rokER93JPuXDLT51pKeZ3FYRjL2QT/OkUO6nw8YFRjxmsRVK9AHb4o3nwlhvQyr/Hu9f
+         KUy1wq28cJ4aYsjIpGwMRvwAyjKlusW2AVxkL5eZW3rBNJLzfiSKSF52/QxeAm9KNtIi
+         AXlw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710191989; x=1710796789;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=uHRH0MRsQv4qEZrXvuF1WeCnYQYOs7EEEN7SzgZePYc=;
-        b=R16Vkr/jMJHeJNQD0asNyYorDal5NB8NYz/jubCJRoErHQoxTLb3IKxuL+OzSTvfqm
-         tGCA37b0yfUn5qMy4PxO9a0JNKuQh03nkPCp8/Dv7r8kG4w8eTivkkpB9Q0D2AjGKl4y
-         CtbzXNk7bAezgTThoA7+kWdVuJAqeTEHCiHMbHKV3VqRLAVqa4ZqTY25FO0IdjCGmSLP
-         Zk18t4hZoG53uFheFZMAF8WxZNlh4cI9k6SG09LKmyuDh4BJorye8gHNzvyr79F6NwA6
-         KCHb3TphIBeodfcYdO+G/S0JS+Gf1JG+x05AHa49H2YQN6UKyBJArlGDzI7OXTRW3oCG
-         fD/Q==
-X-Gm-Message-State: AOJu0YwmKXrhrJuT848E7Yyrcz2AgeQgHa31th74ml1Osou++wANEmSU
-	9nEI2N8OYVDMzmOYHdM/xIl8X5YVHhOj5yRH5nOFrTfd4dwat/AcCedMEqiA
-X-Google-Smtp-Source: AGHT+IHsOX/hO5q1gyNwZACZWEfcj7Vbl1bYT7/NTQwkrS7IX8jVgiy9XCifWnTlL1Tg+MhEBCiWFg==
-X-Received: by 2002:a05:6870:32ce:b0:21e:df09:fbb6 with SMTP id r14-20020a05687032ce00b0021edf09fbb6mr8451614oac.41.1710191989027;
-        Mon, 11 Mar 2024 14:19:49 -0700 (PDT)
-Received: from electric.. (c-69-140-100-37.hsd1.md.comcast.net. [69.140.100.37])
-        by smtp.gmail.com with ESMTPSA id v13-20020a05620a090d00b007884103dfcesm3021725qkv.87.2024.03.11.14.19.48
+        d=1e100.net; s=20230601; t=1710285507; x=1710890307;
+        h=subject:cc:to:from:message-id:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ODZOS4ijNm0/2adr74Or0gSBtAKP6h+U6y8x5b0LRUw=;
+        b=eCYPcPfKe8EPAPXaYeh89GRwqF/yNPuvJOlHGG5416PT2aWm+LUOn/cv0xY5/SHkq0
+         l6kmhZKHuL19O5AWByRrqQ+HJirFsXop5+VQRtwLZlfG+AKC4+nWeKY3/Jvlwh/2ZDVs
+         9oYA3WICGT7KKATAg6WpzMAuAXNHH/XXLpFOHTNf1jEqaMGY8uF9HSguncGRGRprJEu+
+         L1oDg4A9of0KI1t9dS9Mx03Q/SP1R2QQxqqRlXefEUAu07bevewXrBzeLcsDV6h9qiY8
+         cKZPJYAn/hB4RRPIAQOrryKw+jr4u9HO9DxMnYJs95BdjpZRJZ9UEhMEPAE+ZEfyJQ27
+         swig==
+X-Gm-Message-State: AOJu0YzR5o++kYNoEfDHIRDzgbOpzj0m0TAey6uyS0mHOUi+lRKeR7TF
+	jA8UnGgmJePGOMs58l3nzNOnoi3HEphu5RwDmunKu+Zvq3keI8CrGdu/cz9tBg==
+X-Google-Smtp-Source: AGHT+IE/A50saUIS2DU+jf2y6h4ZR3UoebNxqmu2cL/8eRDB6toXSOlnwm7IByHka4/goR5f3+ORAA==
+X-Received: by 2002:a05:6808:a0b:b0:3c2:261c:7829 with SMTP id n11-20020a0568080a0b00b003c2261c7829mr4258326oij.52.1710285507128;
+        Tue, 12 Mar 2024 16:18:27 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id dw15-20020a0562140a0f00b0069102f97e08sm554827qvb.97.2024.03.12.16.18.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Mar 2024 14:19:48 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: cgzones@googlemail.com,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH v2] libsepol: Fix buffer overflow when using sepol_av_to_string()
-Date: Mon, 11 Mar 2024 17:19:46 -0400
-Message-ID: <20240311211946.2691879-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.44.0
+        Tue, 12 Mar 2024 16:18:26 -0700 (PDT)
+Date: Tue, 12 Mar 2024 19:18:26 -0400
+Message-ID: <f584f8da8096351cc7e941d0586b2fa3@paul-moore.com>
+From: Paul Moore <paul@paul-moore.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] selinux/selinux-pr-20240312
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-The function sepol_av_to_string() normally returns a list of
-permissions with a space at the beginning, but it will return '\0'
-if there are no permissions. Unfortunately, functions in
-kernel_to_cil, kernel_to_conf, and module_to_cil assume there is a
-space at the beginning and skip the space by using "perms+1".
+Hi Linus,
 
-In kernel_to_cil, kernel_to_conf, and module_to_cil, check for the
-permission string being '\0' and return an error if it is.
+There are a number of SELinux patches for the Linux v6.9 merge window,
+but as you'll see there are really only a few notable changes:
 
-Reported-by: oss-fuzz (issue 67276)
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/src/kernel_to_cil.c  | 11 +++++++++++
- libsepol/src/kernel_to_conf.c | 11 +++++++++++
- libsepol/src/module_to_cil.c  | 12 ++++++++++++
- 3 files changed, 34 insertions(+)
+- Continue the coding style/formatting fixup work
 
-diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-index a081915e..e20ba4af 100644
---- a/libsepol/src/kernel_to_cil.c
-+++ b/libsepol/src/kernel_to_cil.c
-@@ -302,6 +302,12 @@ static int class_constraint_rules_to_strs(struct policydb *pdb, char *classkey,
- 			rc = -1;
- 			goto exit;
- 		}
-+		if (*perms == '\0') {
-+			ERR(NULL, "No permisisons in permission string");
-+			free(perms);
-+			rc = -1;
-+			goto exit;
-+		}
- 
- 		if (is_mls) {
- 			key_word = "mlsconstrain";
-@@ -1775,6 +1781,11 @@ static char *avtab_node_to_str(struct policydb *pdb, avtab_key_t *key, avtab_dat
- 			ERR(NULL, "Failed to generate permission string");
- 			goto exit;
- 		}
-+		if (*perms == '\0') {
-+			ERR(NULL, "No permisisons in permission string");
-+			free(perms);
-+			goto exit;
-+		}
- 		rule = create_str("(%s %s %s (%s (%s)))",
- 				  flavor, src, tgt, class, perms+1);
- 		free(perms);
-diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
-index 956fb6e8..5860a513 100644
---- a/libsepol/src/kernel_to_conf.c
-+++ b/libsepol/src/kernel_to_conf.c
-@@ -297,6 +297,12 @@ static int class_constraint_rules_to_strs(struct policydb *pdb, char *classkey,
- 			rc = -1;
- 			goto exit;
- 		}
-+		if (*perms == '\0') {
-+			ERR(NULL, "No permisisons in permission string");
-+			free(perms);
-+			rc = -1;
-+			goto exit;
-+		}
- 		if (strchr(perms, ' ')) {
- 			perm_prefix = "{ ";
- 			perm_suffix = " }";
-@@ -1741,6 +1747,11 @@ static char *avtab_node_to_str(struct policydb *pdb, avtab_key_t *key, avtab_dat
- 			ERR(NULL, "Failed to generate permission string");
- 			goto exit;
- 		}
-+		if (*permstring == '\0') {
-+			ERR(NULL, "No permisisons in permission string");
-+			free(permstring);
-+			goto exit;
-+		}
- 		rule = create_str("%s %s %s:%s { %s };",
- 				  flavor, src, tgt, class, permstring+1);
- 		free(permstring);
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 6699a46b..3b3480bf 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -593,6 +593,12 @@ static int avrule_to_cil(int indent, struct policydb *pdb, uint32_t type, const
- 				rc = -1;
- 				goto exit;
- 			}
-+			if (*perms == '\0') {
-+				ERR(NULL, "No permissions in permission string");
-+				free(perms);
-+				rc = -1;
-+				goto exit;
-+			}
- 			cil_println(indent, "(%s %s %s (%s (%s)))",
- 					rule, src, tgt,
- 					pdb->p_class_val_to_name[classperm->tclass - 1],
-@@ -1973,6 +1979,12 @@ static int constraints_to_cil(int indent, struct policydb *pdb, char *classkey,
- 				rc = -1;
- 				goto exit;
- 			}
-+			if (*perms == '\0') {
-+				ERR(NULL, "No permissions in permission string");
-+				free(perms);
-+				rc = -1;
-+				goto exit;
-+			}
- 			cil_println(indent, "(%sconstrain (%s (%s)) %s)", mls, classkey, perms + 1, expr);
- 			free(perms);
- 		} else {
--- 
-2.44.0
+This is the bulk of the diffstat in this pull request, with the focus
+this time around being the security/selinux/ss directory.  We've only
+got a couple of files left to cleanup and once we're done with that
+we can start enabling some automatic style verfication and introduce
+tooling to help new folks format their code correctly.
 
+- Don't restrict xattr copy-up when SELinux policy is not loaded
+
+This helps systems that use overlayfs, or similar filesystems,
+preserve their SELinux labels during early boot when the SELinux
+policy has yet to be loaded.
+
+- Reduce the work we do during inode initialization time
+
+This isn't likely to show up in any benchmark results, but we removed
+an unnecessary SELinux object class lookup/calculation during inode
+initialization.
+
+- Correct the return values in selinux_socket_getpeersec_dgram()
+
+We had some inconsistencies with respect to our return values across
+selinux_socket_getpeersec_dgram() and selinux_socket_getpeersec_stream().
+This pull request provides a more uniform set of error codes across
+the two functions and should help make it easier for users to identify
+the source of a failure.
+
+Please merge when you have the chance,
+-Paul
+
+--
+The following changes since commit 6613476e225e090cc9aad49be7fa504e290dd33d:
+
+  Linux 6.8-rc1 (2024-01-21 14:11:32 -0800)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+    tags/selinux-pr-20240312
+
+for you to fetch changes up to a1fc79343abbdc5bebb80c2a9032063442df8b59:
+
+  selinux: fix style issues in security/selinux/ss/symtab.c
+    (2024-02-23 17:26:09 -0500)
+
+----------------------------------------------------------------
+selinux/stable-6.9 PR 20240312
+
+----------------------------------------------------------------
+David Disseldorp (1):
+      selinux: only filter copy-up xattrs following initialization
+
+Paul Moore (23):
+      selinux: reduce the object class calculations at inode init time
+      selinux: correct return values in selinux_socket_getpeersec_dgram()
+      selinux: fix style issues in security/selinux/ss/avtab.h
+      selinux: fix style issues in security/selinux/ss/avtab.c
+      selinux: fix style issues in security/selinux/ss/conditional.h
+      selinux: fix style issues in security/selinux/ss/conditional.c
+      selinux: fix style issues in security/selinux/ss/constraint.h
+      selinux: fix style issues in security/selinux/ss/context.h
+      selinux: fix style issues in security/selinux/ss/context.h
+      selinux: fix style issues in security/selinux/ss/ebitmap.h
+      selinux: fix style issues in security/selinux/ss/ebitmap.c
+      selinux: fix style issues in security/selinux/ss/hashtab.h
+      selinux: fix style issues in security/selinux/ss/hashtab.c
+      selinux: fix style issues in security/selinux/ss/mls.h
+      selinux: fix style issues in security/selinux/ss/mls.c
+      selinux: fix style issues in security/selinux/ss/mls_types.h
+      selinux: fix style issues in security/selinux/ss/policydb.h
+      selinux: fix style issues in security/selinux/ss/policydb.c
+      selinux: fix style issues in security/selinux/ss/services.h
+      selinux: fix style issues in security/selinux/ss/sidtab.h
+      selinux: fix style issues in security/selinux/ss/sidtab.c
+      selinux: fix style issues in security/selinux/ss/symtab.h
+      selinux: fix style issues in security/selinux/ss/symtab.c
+
+ security/selinux/hooks.c          |  28 +--
+ security/selinux/ss/avtab.c       | 105 +++++-----
+ security/selinux/ss/avtab.h       |  74 +++----
+ security/selinux/ss/conditional.c |  68 ++++---
+ security/selinux/ss/conditional.h |  23 ++-
+ security/selinux/ss/constraint.h  |  61 +++---
+ security/selinux/ss/context.c     |   2 +-
+ security/selinux/ss/context.h     |  41 ++--
+ security/selinux/ss/ebitmap.c     |  56 +++---
+ security/selinux/ss/ebitmap.h     |  42 ++--
+ security/selinux/ss/hashtab.c     |  23 ++-
+ security/selinux/ss/hashtab.h     |  35 ++--
+ security/selinux/ss/mls.c         |  83 ++++----
+ security/selinux/ss/mls.h         |  58 ++----
+ security/selinux/ss/mls_types.h   |  32 +--
+ security/selinux/ss/policydb.c    | 405 ++++++++++++++++++++------------------
+ security/selinux/ss/policydb.h    | 192 +++++++++---------
+ security/selinux/ss/services.h    |   3 +-
+ security/selinux/ss/sidtab.c      |  69 ++++---
+ security/selinux/ss/sidtab.h      |  36 ++--
+ security/selinux/ss/symtab.c      |   4 +-
+ security/selinux/ss/symtab.h      |   9 +-
+ 22 files changed, 721 insertions(+), 728 deletions(-)
+
+--
+paul-moore.com
