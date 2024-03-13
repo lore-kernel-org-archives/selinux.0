@@ -1,131 +1,119 @@
-Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com [209.85.222.47])
+Received: from mail-ua1-f48.google.com (mail-ua1-f48.google.com [209.85.222.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82EB15A10F
-	for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 22:50:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9361B5B20F
+	for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 22:52:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710370256; cv=none; b=VSPngP531xYBoMFll41/VBWiesDd5wXDoRsTeNdDXfckT4IngmSyvji7taF9fA6exBqc1P6iX7vuezC05t7kapTORhlpJw6xq1bU/AV/8KBQ+GNH3yV9ndHKjxIJFTHI9A/a/rDLMJ5vwyBmzzY4N+/ga+Sc1H67kBdZBJUVonw=
+	t=1710370343; cv=none; b=EanfIakNlHso5ERsxEr/hEfOa9LfBE4gMa3vxUQgHELLc5BV2+goOZBnsWNnyIwgReb6KjeRfnMJuWJi01ctf9SzU0yyuyI74YHB7YX4hLx4PZ+Yckb3SSzbM+MAs0xPuA7iX6x/zCeajySbKWHkouaiMSBhL9t6Q+fxFXE1hPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710370256; c=relaxed/simple;
-	bh=GcKDAAfJf3beZXXRGW8RLaXzDrrLrRjXiG73YBVKScI=;
+	s=arc-20240116; t=1710370343; c=relaxed/simple;
+	bh=gwccbfhnAcKiCf/TWrB5dzkQRnNWT0W42H/DreCzlm4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mXx9+kGxlf1Y+EsYIZlcqUiJ7uMbvVqGQxP1ap36uAq2USJnDPx5Pj2rMlJMicszpTIch6LQcNyYzD2TzmPUW7zdkGs+2MuANB1LIoqkOsuCtNLZ5PzP/nc1dTtjFr0UNa+DRicduQ29qvX4WMvtgrC1Iu2cSr/U2b75fRBD11k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mUjHHJJ2; arc=none smtp.client-ip=209.85.222.47
+	 To:Cc:Content-Type; b=dVat516WTQXJb3kQgs7G9wE26gOS3zOG7jFszzktAcA3vwuudqvR3FurAPC01tPxi1VvzDinRypmsEBzz28twb0N621dxDMToaDc/bpDqW6IW7to6th7skOdKeio9RmL0hQKgalwy0zdLelUdLE4LtHIFc+He/7iRbA7x2gz7js=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TBNTWtUP; arc=none smtp.client-ip=209.85.222.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mUjHHJJ2"
-Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-7db44846727so144003241.0
-        for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 15:50:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TBNTWtUP"
+Received: by mail-ua1-f48.google.com with SMTP id a1e0cc1a2514c-7d5fce59261so239074241.3
+        for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 15:52:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710370253; x=1710975053; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1710370340; x=1710975140; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=oqjvSeNDmzODzXqNAUhavPBW9aeqjXOHes/p2bsMPMA=;
-        b=mUjHHJJ2bSNLKUevv9SzwLNsMfeE1dsS7LwCMAA10IlyvyheFiSIx9oJr1NtnLFlcd
-         s2RLTR85SBr8O5NZMk9+vb6t9cAAzND5ZJVtez/To6XsBg+y8Tx5yFAynVGvZq24lFz2
-         uOpNLsrL1+/e7N4AfbSPssC+YUbtzEnFNqxRJ0QyF2WefLyUajYzA7D3x8RWtoi3qK48
-         dGKVSzIh3x+lDxW2eFPpkXfcWHZ+yc4U6g/tOw/WpHpBY3Jm1Ov7mGyEJ7ki3z97aCV0
-         J9cZthzjrF5+NJlJKKkeJG5uXmMj3lDpFZamQSNEE4bNxSeaPJm/BEA79i9YIJCXaPZc
-         x1LQ==
+        bh=Mo4zQLcjGs/1cQrGh2gi+kezjnDbLcnxbVoJeKyq3b4=;
+        b=TBNTWtUPrts4CDrRUxFhL2VJrkpCqe62t1cqF+lVsubWUhf4NQTqCOUQm8dQZUoVgu
+         HFoI2kqlRApsigYuM5MsErJqk0f7IBlGL1JZFkOS6G2BgeO9AFWy1ogdEdv+5Z/cc5vl
+         AabzKb7wzRXeIXZeVAczZNrQnr3Vh2HSOtHAsSHqx13eNitNstVPTk6BqpS+cERLfs+8
+         xHLlXM9B+8j3MlYVD2iRlo3fxifOGWj7Qy+jrHZSiP7nOtOCDyuK4aJJb5HWrFRbtPKq
+         jfGdV5DCReYZYC1qhQ3H5UdsBgUxHxK1aXqDEYbjJjtk9K6F3bCaqc8weSM8g5Nbz7lJ
+         w/wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710370253; x=1710975053;
+        d=1e100.net; s=20230601; t=1710370340; x=1710975140;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=oqjvSeNDmzODzXqNAUhavPBW9aeqjXOHes/p2bsMPMA=;
-        b=YRnDGD0OoR30/grq31DnV3w6JoHWpPlwwuS7d2dvwjDurSmJcyvvjgb9TGfB9v5orz
-         VKp3LNcdIC+Z+JnlMW6cAqhNyjYeTi03k+vgRBDJd34F3XgYv2uOS8pPU45FQ+0J+cUF
-         i/RxF1y/iM8NSo/R/tiefu4kGWSHYDScvlqD9STDavJbfYkInPQvxhfbA90z+MTyQTuv
-         EvFurqZTcZNk57WPJjHZQI9t/EKGmowJf7NNJL1pAA/7GZy9r6J7C+b5zETTagiK6MNH
-         l6qzc5cBssZK22PaGGYftxY+Pdb9sVjD1KizQ6p8AblClaQvbRDD3zx0jx7tdPR4NDCw
-         C/iw==
-X-Gm-Message-State: AOJu0YzDSjRZBgW7X3uWKfvijn3UmyYpvw4WJ5IXmZoUITfRs/M1QAM8
-	s/V83Yz1ZIvlHIhpJVNTbToTjhQYG+wOcVf/di2O6losUofkkhVHu0nnZGV/iSQO+F9MYS9HhU4
-	/ViQOK2fL7h5T0ZEc21GaOAaKihFzAh8s
-X-Google-Smtp-Source: AGHT+IHM+QzBNiqE3YX3UgztIjJMZsKsdzD+sES3if/XNEzegW9NZiCHI1P7ra9Xu4AeLlLC7wNXThyjz2Dfo0Nuqys=
-X-Received: by 2002:a67:f5d9:0:b0:473:3431:4f78 with SMTP id
- t25-20020a67f5d9000000b0047334314f78mr328611vso.10.1710370253335; Wed, 13 Mar
- 2024 15:50:53 -0700 (PDT)
+        bh=Mo4zQLcjGs/1cQrGh2gi+kezjnDbLcnxbVoJeKyq3b4=;
+        b=CnHXR+SzziDXPUMUpgK7FrMgZZI5QuzpBrH9kzjyITj0FNDEEBPPBfiSjqzkEa1sAz
+         YbzDkuqhd/CskJaQZMZYjKI76wbhH+v+vd5FLXysd8GY9WZB2yEAQ6pQ4WVPU2DK2dJN
+         8xnWlLwLoH+3nViujTsnoB8zfbxnedF7wOHMy+TuhdOGxw5U8WsddJMdJ1xCwNMmpW0D
+         aSRfefPOqHBCDPqHh6CSsx7cBFI0rNo20VSE4iMTMYdWaxq7351L6yNt/1FFVItvy5qu
+         0oMydKxHuTsyP8E1WFS5BkqGcZEVeenEzfMEG3CnjKF6I8x44KKTfppdY+DlAi6cIFtk
+         y9tg==
+X-Gm-Message-State: AOJu0Yw/B9y8XSeA1TiE7fNdvLagx2kksrzxgp/JOnpLvdiu/y9StL+L
+	NOdZytAoyOalHcoWa02xWgGeVcavtbjaxCzzzUOoabOlfFuzCrw3zPGKz/tRWDUDbILepS4lDpL
+	YeWm9zfYMI7XWpypvUG5KGqDQuPk=
+X-Google-Smtp-Source: AGHT+IHoz/3D9TKyhaE7em/hPeIZyKc1CCt4AXgaqj9ObpdkudY1NfSbLX7s57PeHYdGZt89UJc6aTjpNHQwGCzLAPU=
+X-Received: by 2002:a05:6102:19cb:b0:473:ac7f:8663 with SMTP id
+ jn11-20020a05610219cb00b00473ac7f8663mr381440vsb.1.1710370340449; Wed, 13 Mar
+ 2024 15:52:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240229164439.20521-1-winfried_mb2@xmsnet.nl>
-In-Reply-To: <20240229164439.20521-1-winfried_mb2@xmsnet.nl>
+References: <d5120a64-04f3-444d-aaf8-3cfc6c1d9953@jwillikers.com>
+In-Reply-To: <d5120a64-04f3-444d-aaf8-3cfc6c1d9953@jwillikers.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 13 Mar 2024 18:50:42 -0400
-Message-ID: <CAP+JOzQMATOACnaC=WMT5PS+YdGaJtCFzWy2nPVwSmFmuZABzg@mail.gmail.com>
-Subject: Re: [PATCH] libsepoll/src/Makefile: Fix reallocarray detection when cross-compiling
-To: Winfried Dobbe <winfried_mb2@xmsnet.nl>
+Date: Wed, 13 Mar 2024 18:52:09 -0400
+Message-ID: <CAP+JOzQ1iE7QZZAKoLy-BN9n=Hm-MfejdxtKzu1O+EtgH-mU8A@mail.gmail.com>
+Subject: Re: [PATCH] libselinux/src/Makefile: fix reallocarray strlcpy detection
+To: Jordan Williams <jordan@jwillikers.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 29, 2024 at 11:45=E2=80=AFAM Winfried Dobbe <winfried_mb2@xmsne=
-t.nl> wrote:
+On Fri, Mar 1, 2024 at 12:03=E2=80=AFPM Jordan Williams <jordan@jwillikers.=
+com> wrote:
 >
-> In addition to commit 3e3661f602fe7d7dc972bf695fd178370bbd7e54, CFLAGS
-> are also needed for the reallocarray detection when cross-compiling
-> libsepoll.
+> Pass CFLAGS and LDFLAGS when checking for realocarray and strlcpy.
+> This brings things inline with the fixes for libsepol/src/Makefile.
+> This better supports cross-compiling scenarios.
+> There, flags like -sysroot need to included when running these checks.
 >
-> For example when cross-compiling for Arm Cortex-A9 the compiler finds
-> stdlib.h (after the addition of LDFLAGS in above mentioned 3e3661f).
-> But then tries to include soft-float stubs because gcc options
-> -mfpu=3Dneon -mfloat-abi=3Dhard are missing. See output of detection:
+> Signed-off-by: Jordan Williams <jordan@jwillikers.com>
 >
-> In file included from /home/wdobbe/.conan2/p/b/swpt_fb08c05e04578/p/sysro=
-ots/cortexa9hf-neon-poky-linux-gnueabi/usr/include/gnu/stubs.h:40,
->                  from /home/wdobbe/.conan2/p/b/swpt_fb08c05e04578/p/sysro=
-ots/cortexa9hf-neon-poky-linux-gnueabi/usr/include/features.h:474,
->                  from /home/wdobbe/.conan2/p/b/swpt_fb08c05e04578/p/sysro=
-ots/cortexa9hf-neon-poky-linux-gnueabi/usr/include/bits/libc-header-start.h=
-:33,
->                  from /home/wdobbe/.conan2/p/b/swpt_fb08c05e04578/p/sysro=
-ots/cortexa9hf-neon-poky-linux-gnueabi/usr/include/stdlib.h:25,
->                  from <stdin>:2:
-> /home/wdobbe/.conan2/p/b/swpt_fb08c05e04578/p/sysroots/cortexa9hf-neon-po=
-ky-linux-gnueabi/usr/include/gnu/stubs-32.h:7:11: fatal error: gnu/stubs-so=
-ft.h: No such file or directory
->     7 | # include <gnu/stubs-soft.h>
->       |           ^~~~~~~~~~~~~~~~~~
-> compilation terminated.
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index d3b981fc..3a9b5300 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -104,13 +104,13 @@ override CFLAGS +=3D -I../include -D_GNU_SOURCE
+> $(DISABLE_FLAGS) $(PCRE_CFLAGS)
 >
-> Signed-off-by: Winfried Dobbe <winfried_mb2@xmsnet.nl>
-> ---
->  libsepol/src/Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>   # check for strlcpy(3) availability
+>   H :=3D \#
+> -ifeq (yes,$(shell printf '${H}include <string.h>\nint
+> main(void){char*d,*s;strlcpy(d, s, 0);return 0;}' | $(CC) -x c -o
+> /dev/null - >/dev/null 2>&1 && echo yes))
+> +ifeq (yes,$(shell printf '${H}include <string.h>\nint
+> main(void){char*d,*s;strlcpy(d, s, 0);return 0;}' | $(CC) $(CFLAGS)
+> $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
+>   override CFLAGS +=3D -DHAVE_STRLCPY
+>   endif
 >
-> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-> index 16b9bd5e..fd6329d4 100644
-> --- a/libsepol/src/Makefile
-> +++ b/libsepol/src/Makefile
-> @@ -31,7 +31,7 @@ endif
+>   # check for reallocarray(3) availability
+>   H :=3D \#
+> -ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint
+> main(void){reallocarray(NULL, 0, 0);return 0;}' | $(CC) -x c -o
+> /dev/null - >/dev/null 2>&1 && echo yes))
+> +ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint
+> main(void){reallocarray(NULL, 0, 0);return 0;}' | $(CC) $(CFLAGS)
+> $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
+>   override CFLAGS +=3D -DHAVE_REALLOCARRAY
+>   endif
 >
->  # check for reallocarray(3) availability
->  H :=3D \#
-> -ifeq (yes,$(shell printf '${H}define _GNU_SOURCE\n${H}include <stdlib.h>=
-\nint main(void){void*p=3Dreallocarray(NULL, 1, sizeof(char));return 0;}' |=
- $(CC) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-> +ifeq (yes,$(shell printf '${H}define _GNU_SOURCE\n${H}include <stdlib.h>=
-\nint main(void){void*p=3Dreallocarray(NULL, 1, sizeof(char));return 0;}' |=
- $(CC) $(CFLAGS) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes=
-))
 
-The default CFLAGS causes the compilation to fail even if reallocarray
-exists on the system.
+The default CFLAGS causes the compilation to fail even if strlcpy() or
+reallocarray() exist.
 See if the patch I sent to the list works for you.
 Thanks,
 Jim
 
->  override CFLAGS +=3D -DHAVE_REALLOCARRAY
->  endif
->
+
 > --
-> 2.35.3
+> 2.44.0
 >
 >
