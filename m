@@ -1,62 +1,62 @@
-Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1CFD3E47B
-	for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 11:10:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86CC53E485
+	for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 11:10:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710328235; cv=none; b=d14buXVCquVWS9hAyg5nkHUYCVWbuI3gmfYmO8KPd5ZojAyc7uqLqGeyvMbgeiFeDeVZu8DuGduX2t1/4UusEbVSj+a8ZGbX2CnthK0LLKRSl8P/YDcWw9UQ2bdeEujSLF9MpbRq3fzHAWtMkNztf5z/lvgl9bgnqEZ3FaJ/d2w=
+	t=1710328236; cv=none; b=E5u9OYG4SaXCVBQSutUEZI0UyvNURbp4W8OZfmUR3mcH2qFKLlUybFkGmSZv29/LPzHFA8HN/tnMet3uFpHhzboPDdCWlHwBZtvbNYRmnYzMs00daXB2vItNhx64FwXepP2hnBJBcZG6daQAyqmCW/Kebfwt91K3BEo8bQ5IUqY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710328235; c=relaxed/simple;
-	bh=bQYDVkhBgBOdmA61qu81po4LJ64Z487VJCIMbOgdgwg=;
+	s=arc-20240116; t=1710328236; c=relaxed/simple;
+	bh=YNkYPrG7fvZxEtzqy9wPNMC5SdohhkDdgdldd5C6QqI=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=V87fjGmN6IMuzetaNfcLVT0ixHTFYH1qNhWO2GlfSwZQ+OtDwNDtdHrG5jWAiUv3lPpk5r6jMIS8tQQBi8fsC2qIcaoP26NylMfYqK3E1rH9Ak3ds/A7ZMhAvW0nLeVwJ2C/GGjwCcwyUoNMeSl5YYgCT617GRTo/kMaYuPnxp0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=C31hZm1P; arc=none smtp.client-ip=209.85.218.52
+	 MIME-Version:Content-Type; b=CgQ2lGxs2Pj5VdklNXGZO9o8tzCr3JP5fY8FmMFB9/6BlALHgltX8hT8S3XYsqn7+7uNj2NBLJZJekdsfawUgB705FVHJAY218QHdKPI7BIPEgvIBozJ+IcAYIO6b2cYQbKoL7g48QSnojtNCC4MA3kO9tukbeBvmRgM0KDDbpA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=erDwSIiC; arc=none smtp.client-ip=209.85.218.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="C31hZm1P"
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-a44f2d894b7so115695966b.1
-        for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 04:10:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="erDwSIiC"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-a446b5a08f0so143694366b.1
+        for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 04:10:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1710328232; x=1710933032; darn=vger.kernel.org;
+        d=googlemail.com; s=20230601; t=1710328233; x=1710933033; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=/Nlr0ShxQsXechQCG3JvBvFo9DZYTPenBB00fdvURE4=;
-        b=C31hZm1PO/OkeyWEtKj+otsh1JrvhSjJ8DXSZjIrzKgexmt6Zc0qbCSAp4OrwxQn94
-         zdCofJJP4E6SiDdkbWerQGT+ljlJVmLne+ojoy0RuuHtVmaEan+ysz2W/5fttOUx6EOd
-         lKwdVUv+wxRURocfc6bwx1E8H5G4UwoMwDfJBrLq5sU9z/fXl4PQHWCLhgKcfhQJk5mQ
-         PrDkRx7WSpe4blxPt5QeyQNWC1JsaHFTIRemJeGjITVDB7PIHLLUGuh6tQgZSl7tyBRG
-         VJl3alkpBVHxmkTfzAMVoGeVmT5N4esn2RcTz3XIR37BhI7uN0+O9PDgvwMoWwGHSq+f
-         1+sg==
+        bh=K9qC+iM2S2WUfE9gOxWe3reFZNxsGfGHkcrkvT+r35U=;
+        b=erDwSIiC/UxM5kARqfALLHrfT9EboURg2U7YjdGnDJjQkfePwdKOHZTk5RpOTshDog
+         4GoYc+t7R0A+s5La/2XjKazXjXhIhCatMSZwJQYXBGZa5utABgAxsb26Blh8T8/QD8FT
+         xXk6Cds7XnMQ50MzkG8/wDzkwEqA2wo32ftdiIYV9ZQynvTnPfpxdkDJat9gvE75MmnC
+         A1q54Edyw94xhNHf0QpbNuAXegaffvNCcTUVRESfVk1IQq/mSSFDF1fQFQYD7pkhAAmg
+         Rq0M+0m1P+GdfDy1/AxUdrgHThk4Z0+CwPo2EaeS1r+qtk7d9DaMlhyJehMONm3xxkEN
+         +YKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710328232; x=1710933032;
+        d=1e100.net; s=20230601; t=1710328233; x=1710933033;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/Nlr0ShxQsXechQCG3JvBvFo9DZYTPenBB00fdvURE4=;
-        b=Q9x+4W2o97hMTBtN1yrAEsnfXzkF8PMgUfhzeRVDh9/26Quwe3azMid5QhjQi/F/am
-         ktVIP8DMNul+c4FQHrHU54cfqn3SMex3CGCJluqqmFXrkHV2dcFwaRJIh6AMi0FL8lBM
-         sldB/fd8XO1FXG/k3Cj+bcmLSCGvGAbIHCQgukkwfBKMOld8UBEg1MoCOLm4Ao+/gQD9
-         mG6oI4rlBnQKjLqZMU9Q0ppjk9ueX98Byvh7BFVl+Mn8jysmp/Jneheog9rtPhK4Bnsh
-         bo9h1s1giNPunI+wmDN4FX/o7ekGXV61u+WzwdpquilBDHu0GnJzPUSB1vg+m8VZ2KEP
-         2awQ==
-X-Gm-Message-State: AOJu0YzxNy8ODcSBhdFCzHULZHbOdF9SQg3LMrrQssLRPZ7vMuWL9zjo
-	Xc5yDSekBQ7AXGt9kAhVVNaM1IJ/XaX/3qV7tzYu7mziO3rSj+aX69tbWJ3caEA=
-X-Google-Smtp-Source: AGHT+IH8DuG9/u/Vye82OWxn46S40kJruffUWSiU3PJmmp09xbiDPKbqh7RfVcsCnPOAGE8+/vo2EA==
-X-Received: by 2002:a17:907:785a:b0:a45:f468:581d with SMTP id lb26-20020a170907785a00b00a45f468581dmr4613854ejc.65.1710328232114;
+        bh=K9qC+iM2S2WUfE9gOxWe3reFZNxsGfGHkcrkvT+r35U=;
+        b=t+5vfhNWw6m0xig/KunQIdD4aQJAuc6kBMTEWJ8cLK36L3KGat6ZAaQnjyzP2ScKe6
+         oSCnMuR3yRq4/MF0pno3l67S0faCLID92EKAD1ISAO/Z5DmRBGSA70PijkBgc2y85dqU
+         o6JDdpBqbEbM37DgaZNS/DSa/+t0Hw4G/+JU4wOx0rMTebNYIqzPKBqAU6AvRNmvphA6
+         H9p6K0owFl+ea8aM8dB8vZgRQdvzAFKPZ5ashte50rVZ6FkghMccon0xPDtm5bJoQOFH
+         BFPb097sAxmVmYI3g9VNMP9Hc7AfsBhRsaCuV3D71IDFUR5wbe+WE4HaVPxXS2mUwuqf
+         z0sg==
+X-Gm-Message-State: AOJu0YwoEmWkptYrhRGNErNiOwcPtnpBhHbbhEc3vXabrQcnr/cRI8SZ
+	Z26mePP5UvTYDgJkS2OO2zvvTDrrbO6lI1k6jFFRREYiDgCsn64oSOWUwzKe8Wk=
+X-Google-Smtp-Source: AGHT+IGzvtYzlVh49SzGFMjN9id44od63FEUUSE5fyFiTfhqJRm+j/8l2YAkdKEJmj86/BKrR7ReVA==
+X-Received: by 2002:a17:907:d50a:b0:a3e:4d7c:9ce1 with SMTP id wb10-20020a170907d50a00b00a3e4d7c9ce1mr2383664ejc.21.1710328232806;
         Wed, 13 Mar 2024 04:10:32 -0700 (PDT)
 Received: from ddev.DebianHome (dynamic-077-001-104-044.77.1.pool.telefonica.de. [77.1.104.44])
-        by smtp.gmail.com with ESMTPSA id hg22-20020a1709072cd600b00a463c821e4dsm1794319ejc.10.2024.03.13.04.10.31
+        by smtp.gmail.com with ESMTPSA id hg22-20020a1709072cd600b00a463c821e4dsm1794319ejc.10.2024.03.13.04.10.32
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Mar 2024 04:10:31 -0700 (PDT)
+        Wed, 13 Mar 2024 04:10:32 -0700 (PDT)
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 2/5] libselinux/utils/selabel_digest: cleanup
-Date: Wed, 13 Mar 2024 12:10:22 +0100
-Message-ID: <20240313111025.43720-2-cgzones@googlemail.com>
+Subject: [PATCH 3/5] libselinux/utils/selabel_digest: avoid buffer overflow
+Date: Wed, 13 Mar 2024 12:10:23 +0100
+Message-ID: <20240313111025.43720-3-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240313111025.43720-1-cgzones@googlemail.com>
 References: <20240313111025.43720-1-cgzones@googlemail.com>
@@ -69,59 +69,86 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Avoid global variable.
-Constify read-only parameters.
+In case the specfiles have very long paths or there are too many abort
+instead of writing past the stack buffer.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/utils/selabel_digest.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ libselinux/utils/selabel_digest.c | 45 ++++++++++++++++++++++++-------
+ 1 file changed, 36 insertions(+), 9 deletions(-)
 
 diff --git a/libselinux/utils/selabel_digest.c b/libselinux/utils/selabel_digest.c
-index 50f55311..db0d443a 100644
+index db0d443a..64051070 100644
 --- a/libselinux/utils/selabel_digest.c
 +++ b/libselinux/utils/selabel_digest.c
-@@ -6,8 +6,6 @@
- #include <selinux/selinux.h>
- #include <selinux/label.h>
- 
--static size_t digest_len;
--
- static __attribute__ ((__noreturn__)) void usage(const char *progname)
- {
- 	fprintf(stderr,
-@@ -25,11 +23,11 @@ static __attribute__ ((__noreturn__)) void usage(const char *progname)
- 	exit(1);
- }
- 
--static int run_check_digest(char *cmd, char *selabel_digest)
-+static int run_check_digest(const char *cmd, const char *selabel_digest, size_t digest_len)
- {
- 	FILE *fp;
- 	char files_digest[128];
--	char *files_ptr;
-+	const char *files_ptr;
- 	int rc = 0;
- 
- 	fp = popen(cmd, "r");
-@@ -64,7 +62,7 @@ int main(int argc, char **argv)
- 	char *baseonly = NULL, *file = NULL, *digest = (char *)1;
- 	char **specfiles = NULL;
- 	unsigned char *sha1_digest = NULL;
--	size_t i, num_specfiles;
-+	size_t digest_len, i, num_specfiles;
+@@ -66,7 +66,7 @@ int main(int argc, char **argv)
  
  	char cmd_buf[4096];
  	char *cmd_ptr;
-@@ -181,7 +179,7 @@ int main(int argc, char **argv)
- 		sprintf(cmd_ptr, "| /usr/bin/openssl dgst -sha1 -hex");
+-	char *sha1_buf;
++	char *sha1_buf = NULL;
  
- 		if (validate)
--			rc = run_check_digest(cmd_buf, sha1_buf);
-+			rc = run_check_digest(cmd_buf, sha1_buf, digest_len);
+ 	struct selabel_handle *hnd;
+ 	struct selinux_opt selabel_option[] = {
+@@ -167,23 +167,50 @@ int main(int argc, char **argv)
+ 	printf("calculated using the following specfile(s):\n");
+ 
+ 	if (specfiles) {
+-		cmd_ptr = &cmd_buf[0];
+-		sprintf(cmd_ptr, "/usr/bin/cat ");
+-		cmd_ptr = &cmd_buf[0] + strlen(cmd_buf);
++		size_t cmd_rem = sizeof(cmd_buf);
++		int ret;
++
++		if (validate) {
++			cmd_ptr = &cmd_buf[0];
++			ret = snprintf(cmd_ptr, cmd_rem, "/usr/bin/cat ");
++			if (ret < 0 || (size_t)ret >= cmd_rem) {
++				fprintf(stderr, "Could not format validate command\n");
++				rc = -1;
++				goto err;
++			}
++			cmd_ptr += ret;
++			cmd_rem -= ret;
++		}
+ 
+ 		for (i = 0; i < num_specfiles; i++) {
+-			sprintf(cmd_ptr, "%s ", specfiles[i]);
+-			cmd_ptr += strlen(specfiles[i]) + 1;
++			if (validate) {
++				ret = snprintf(cmd_ptr, cmd_rem, "%s ", specfiles[i]);
++				if (ret < 0 || (size_t)ret >= cmd_rem) {
++					fprintf(stderr, "Could not format validate command\n");
++					rc = -1;
++					goto err;
++				}
++				cmd_ptr += ret;
++				cmd_rem -= ret;
++			}
++
+ 			printf("%s\n", specfiles[i]);
+ 		}
+-		sprintf(cmd_ptr, "| /usr/bin/openssl dgst -sha1 -hex");
+ 
+-		if (validate)
++		if (validate) {
++			ret = snprintf(cmd_ptr, cmd_rem, "| /usr/bin/openssl dgst -sha1 -hex");
++			if (ret < 0 || (size_t)ret >= cmd_rem) {
++				fprintf(stderr, "Could not format validate command\n");
++				rc = -1;
++				goto err;
++			}
++
+ 			rc = run_check_digest(cmd_buf, sha1_buf, digest_len);
++		}
  	}
  
- 	free(sha1_buf);
+-	free(sha1_buf);
+ err:
++	free(sha1_buf);
+ 	selabel_close(hnd);
+ 	return rc;
+ }
 -- 
 2.43.0
 
