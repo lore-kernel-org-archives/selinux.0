@@ -1,124 +1,131 @@
-Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com [209.85.217.52])
+Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com [209.85.222.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F2295CDF0
-	for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 22:48:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82EB15A10F
+	for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 22:50:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710370093; cv=none; b=ARd2+M5FkiGiCQ1ldiLGmbJFeaf/NOCnrQ+y2DyVfKw4ZrLZmgppOtDTg83MiIsFKSVVorvp/AAbG3Uz5ooLzqePns/N4gK82K1lpwriwM4X6VQYT6kKqCQmfqz+14dFhcuYNke1Ffv3CLGBn56xonavgoKYY3pBv0eo6Xpa8+4=
+	t=1710370256; cv=none; b=VSPngP531xYBoMFll41/VBWiesDd5wXDoRsTeNdDXfckT4IngmSyvji7taF9fA6exBqc1P6iX7vuezC05t7kapTORhlpJw6xq1bU/AV/8KBQ+GNH3yV9ndHKjxIJFTHI9A/a/rDLMJ5vwyBmzzY4N+/ga+Sc1H67kBdZBJUVonw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710370093; c=relaxed/simple;
-	bh=oFXHpPygG078XZExbKHdeebLuaW47YzUDcxD2CzRpHY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hlOmze/8Q4LH0aNh4L17dF+mL/yd83EWMjaOJMgofJ/32CfOaJlVSC7qs8o2is+oP8BC8r6QuTOo2L4+tBFLWiOD8SR1S2yS9AfgQPc1zWkrk8/iY1mLf/l6pXDLk2uJW4znJrZci/hfXKC57uWISBO3uzpKpa3mLrW86e+bLPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gUF7K7Xo; arc=none smtp.client-ip=209.85.217.52
+	s=arc-20240116; t=1710370256; c=relaxed/simple;
+	bh=GcKDAAfJf3beZXXRGW8RLaXzDrrLrRjXiG73YBVKScI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mXx9+kGxlf1Y+EsYIZlcqUiJ7uMbvVqGQxP1ap36uAq2USJnDPx5Pj2rMlJMicszpTIch6LQcNyYzD2TzmPUW7zdkGs+2MuANB1LIoqkOsuCtNLZ5PzP/nc1dTtjFr0UNa+DRicduQ29qvX4WMvtgrC1Iu2cSr/U2b75fRBD11k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mUjHHJJ2; arc=none smtp.client-ip=209.85.222.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gUF7K7Xo"
-Received: by mail-vs1-f52.google.com with SMTP id ada2fe7eead31-4725acb539cso138206137.3
-        for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 15:48:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mUjHHJJ2"
+Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-7db44846727so144003241.0
+        for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 15:50:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710370090; x=1710974890; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=XM7owhmDA7HD8TmoWLADk0dFg6YuZytg5OibyU9oNXM=;
-        b=gUF7K7XopEVJUfdLsQRUavThkP0w81oshe1iDlYzYPQhTw0lB7uycZykGzex56MsAM
-         bfqWCMUxXKj/pfkGwb82ZBd8dsYjc5jKWFsxTlW6rwY0cfq8e0byjqci+4r4q8ItFt81
-         /EcmVdlKmbCbXxNFAke3X3E0QYgzIGSgkSttnambR4Etd5BX3uWcnP/2MVR4x7JCLjw2
-         WYs3pcsl03E7fGlCNup+LWOibK/nTiq9c71UpA4BRiyTBf5pU6pRjeovoDcUEOFYJ7/c
-         5zQ4OetG5XCU1eg4R4ubu3u+ptRbHZD58H+QcmNx5/fKK8xsoV2poAN9gkCv3qPkYU2g
-         7BOQ==
+        d=gmail.com; s=20230601; t=1710370253; x=1710975053; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=oqjvSeNDmzODzXqNAUhavPBW9aeqjXOHes/p2bsMPMA=;
+        b=mUjHHJJ2bSNLKUevv9SzwLNsMfeE1dsS7LwCMAA10IlyvyheFiSIx9oJr1NtnLFlcd
+         s2RLTR85SBr8O5NZMk9+vb6t9cAAzND5ZJVtez/To6XsBg+y8Tx5yFAynVGvZq24lFz2
+         uOpNLsrL1+/e7N4AfbSPssC+YUbtzEnFNqxRJ0QyF2WefLyUajYzA7D3x8RWtoi3qK48
+         dGKVSzIh3x+lDxW2eFPpkXfcWHZ+yc4U6g/tOw/WpHpBY3Jm1Ov7mGyEJ7ki3z97aCV0
+         J9cZthzjrF5+NJlJKKkeJG5uXmMj3lDpFZamQSNEE4bNxSeaPJm/BEA79i9YIJCXaPZc
+         x1LQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710370090; x=1710974890;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=XM7owhmDA7HD8TmoWLADk0dFg6YuZytg5OibyU9oNXM=;
-        b=NsIKf7yAzvHaDS3c8Y69CF84+1HRWBNLIZ3xvm9deH22NGjRWiDQUTbK+feUT862cK
-         aP5mnHfqjjg1lhCcTVyBO2ejyE5aiuC2B6RWn6hxIOWvxqdSqORM8zHNYcnp/tx8/9eS
-         bWo3lEvk91MEtjrKrRS7TFlcj3pc4uEGI6vcz4qjB73msv9dJdamFCb+y3VF2VWq/+UD
-         aW9mLIzrqwewCu+fsUVUyZJh3YiNxOWw8fG2ThG0b/JeAJd3ANUh3vuPfL/+8r/7ER1R
-         CAN7iqz0qobUxF6F4AvR8RKgPtG9QXYnfoc7K03XfRLvVEsf9P2SD9J52NUNM4E/VO/z
-         7DXg==
-X-Gm-Message-State: AOJu0YznVa6yCUBWThLqwx+jv51FQrxYVNvPMtyGy7SApHQPp3a9E7it
-	bW1DxXCidmnMdwoDjKeU7EbY4KDNHYpdjIzpcIUhMY3HyYHMxHd22X5bw9aW
-X-Google-Smtp-Source: AGHT+IE4qCAp8AbPn9vR2Gm3IsFzj5OO//Cc/K9H+YGO8ZNV47KtgkgZphLQW7ox6F8WLQUp9YnYtA==
-X-Received: by 2002:a67:f059:0:b0:473:1fcf:ed0f with SMTP id q25-20020a67f059000000b004731fcfed0fmr310786vsm.29.1710370090592;
-        Wed, 13 Mar 2024 15:48:10 -0700 (PDT)
-Received: from electric.. (c-69-140-100-37.hsd1.md.comcast.net. [69.140.100.37])
-        by smtp.gmail.com with ESMTPSA id u5-20020ad45aa5000000b00690d56626b3sm119017qvg.132.2024.03.13.15.48.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Mar 2024 15:48:10 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jordan@jwillikers.com,
-	winfried_mb2@xmsnet.nl,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH] libselinux, libsepol: Add CFLAGS and LDFLAGS to Makefile checks
-Date: Wed, 13 Mar 2024 18:48:06 -0400
-Message-ID: <20240313224806.2859045-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.44.0
+        d=1e100.net; s=20230601; t=1710370253; x=1710975053;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=oqjvSeNDmzODzXqNAUhavPBW9aeqjXOHes/p2bsMPMA=;
+        b=YRnDGD0OoR30/grq31DnV3w6JoHWpPlwwuS7d2dvwjDurSmJcyvvjgb9TGfB9v5orz
+         VKp3LNcdIC+Z+JnlMW6cAqhNyjYeTi03k+vgRBDJd34F3XgYv2uOS8pPU45FQ+0J+cUF
+         i/RxF1y/iM8NSo/R/tiefu4kGWSHYDScvlqD9STDavJbfYkInPQvxhfbA90z+MTyQTuv
+         EvFurqZTcZNk57WPJjHZQI9t/EKGmowJf7NNJL1pAA/7GZy9r6J7C+b5zETTagiK6MNH
+         l6qzc5cBssZK22PaGGYftxY+Pdb9sVjD1KizQ6p8AblClaQvbRDD3zx0jx7tdPR4NDCw
+         C/iw==
+X-Gm-Message-State: AOJu0YzDSjRZBgW7X3uWKfvijn3UmyYpvw4WJ5IXmZoUITfRs/M1QAM8
+	s/V83Yz1ZIvlHIhpJVNTbToTjhQYG+wOcVf/di2O6losUofkkhVHu0nnZGV/iSQO+F9MYS9HhU4
+	/ViQOK2fL7h5T0ZEc21GaOAaKihFzAh8s
+X-Google-Smtp-Source: AGHT+IHM+QzBNiqE3YX3UgztIjJMZsKsdzD+sES3if/XNEzegW9NZiCHI1P7ra9Xu4AeLlLC7wNXThyjz2Dfo0Nuqys=
+X-Received: by 2002:a67:f5d9:0:b0:473:3431:4f78 with SMTP id
+ t25-20020a67f5d9000000b0047334314f78mr328611vso.10.1710370253335; Wed, 13 Mar
+ 2024 15:50:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240229164439.20521-1-winfried_mb2@xmsnet.nl>
+In-Reply-To: <20240229164439.20521-1-winfried_mb2@xmsnet.nl>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 13 Mar 2024 18:50:42 -0400
+Message-ID: <CAP+JOzQMATOACnaC=WMT5PS+YdGaJtCFzWy2nPVwSmFmuZABzg@mail.gmail.com>
+Subject: Re: [PATCH] libsepoll/src/Makefile: Fix reallocarray detection when cross-compiling
+To: Winfried Dobbe <winfried_mb2@xmsnet.nl>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-In libselinux there is an availability check for strlcpy() and
-in both libselinux and libsepol there are availability checks for
-reallocarray() in the src Makfiles. CFLAGS and LDFLAGS are needed
-for cross-compiling, but, unfortunately, the default CFLAGS cause
-all of these availability checks to fail to compile because of
-compilationerrors (rather than just the function not being available).
+On Thu, Feb 29, 2024 at 11:45=E2=80=AFAM Winfried Dobbe <winfried_mb2@xmsne=
+t.nl> wrote:
+>
+> In addition to commit 3e3661f602fe7d7dc972bf695fd178370bbd7e54, CFLAGS
+> are also needed for the reallocarray detection when cross-compiling
+> libsepoll.
+>
+> For example when cross-compiling for Arm Cortex-A9 the compiler finds
+> stdlib.h (after the addition of LDFLAGS in above mentioned 3e3661f).
+> But then tries to include soft-float stubs because gcc options
+> -mfpu=3Dneon -mfloat-abi=3Dhard are missing. See output of detection:
+>
+> In file included from /home/wdobbe/.conan2/p/b/swpt_fb08c05e04578/p/sysro=
+ots/cortexa9hf-neon-poky-linux-gnueabi/usr/include/gnu/stubs.h:40,
+>                  from /home/wdobbe/.conan2/p/b/swpt_fb08c05e04578/p/sysro=
+ots/cortexa9hf-neon-poky-linux-gnueabi/usr/include/features.h:474,
+>                  from /home/wdobbe/.conan2/p/b/swpt_fb08c05e04578/p/sysro=
+ots/cortexa9hf-neon-poky-linux-gnueabi/usr/include/bits/libc-header-start.h=
+:33,
+>                  from /home/wdobbe/.conan2/p/b/swpt_fb08c05e04578/p/sysro=
+ots/cortexa9hf-neon-poky-linux-gnueabi/usr/include/stdlib.h:25,
+>                  from <stdin>:2:
+> /home/wdobbe/.conan2/p/b/swpt_fb08c05e04578/p/sysroots/cortexa9hf-neon-po=
+ky-linux-gnueabi/usr/include/gnu/stubs-32.h:7:11: fatal error: gnu/stubs-so=
+ft.h: No such file or directory
+>     7 | # include <gnu/stubs-soft.h>
+>       |           ^~~~~~~~~~~~~~~~~~
+> compilation terminated.
+>
+> Signed-off-by: Winfried Dobbe <winfried_mb2@xmsnet.nl>
+> ---
+>  libsepol/src/Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+> index 16b9bd5e..fd6329d4 100644
+> --- a/libsepol/src/Makefile
+> +++ b/libsepol/src/Makefile
+> @@ -31,7 +31,7 @@ endif
+>
+>  # check for reallocarray(3) availability
+>  H :=3D \#
+> -ifeq (yes,$(shell printf '${H}define _GNU_SOURCE\n${H}include <stdlib.h>=
+\nint main(void){void*p=3Dreallocarray(NULL, 1, sizeof(char));return 0;}' |=
+ $(CC) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
+> +ifeq (yes,$(shell printf '${H}define _GNU_SOURCE\n${H}include <stdlib.h>=
+\nint main(void){void*p=3Dreallocarray(NULL, 1, sizeof(char));return 0;}' |=
+ $(CC) $(CFLAGS) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes=
+))
 
-Add CFLAGS and LDFLAGS to the availibility checks, update the checks
-so that a compilation error will only happen if the function being
-checked for is not available, and make checks for the same function
-the same in both libselinux and libsepol.
+The default CFLAGS causes the compilation to fail even if reallocarray
+exists on the system.
+See if the patch I sent to the list works for you.
+Thanks,
+Jim
 
-Suggested-by: Jordan Williams <jordan@jwillikers.com>
-Suggested-by: Winfried Dobbe <winfried_mb2@xmsnet.nl>
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libselinux/src/Makefile | 4 ++--
- libsepol/src/Makefile   | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index d3b981fc..41cfbdca 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -104,13 +104,13 @@ override CFLAGS += -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
- 
- # check for strlcpy(3) availability
- H := \#
--ifeq (yes,$(shell printf '${H}include <string.h>\nint main(void){char*d,*s;strlcpy(d, s, 0);return 0;}' | $(CC) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-+ifeq (yes,$(shell printf '${H}include <string.h>\nint main(void){char d[2];const char *s="a";return (size_t)strlcpy(d,s,sizeof(d))>=sizeof(d);}' | $(CC) $(CFLAGS) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
- override CFLAGS += -DHAVE_STRLCPY
- endif
- 
- # check for reallocarray(3) availability
- H := \#
--ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){reallocarray(NULL, 0, 0);return 0;}' | $(CC) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-+ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){return reallocarray(NULL,0,0)==NULL;}' | $(CC) $(CFLAGS) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
- override CFLAGS += -DHAVE_REALLOCARRAY
- endif
- 
-diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-index 16b9bd5e..7b0e8446 100644
---- a/libsepol/src/Makefile
-+++ b/libsepol/src/Makefile
-@@ -31,7 +31,7 @@ endif
- 
- # check for reallocarray(3) availability
- H := \#
--ifeq (yes,$(shell printf '${H}define _GNU_SOURCE\n${H}include <stdlib.h>\nint main(void){void*p=reallocarray(NULL, 1, sizeof(char));return 0;}' | $(CC) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-+ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){return reallocarray(NULL,0,0)==NULL;}' | $(CC) $(CFLAGS) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
- override CFLAGS += -DHAVE_REALLOCARRAY
- endif
- 
--- 
-2.44.0
-
+>  override CFLAGS +=3D -DHAVE_REALLOCARRAY
+>  endif
+>
+> --
+> 2.35.3
+>
+>
