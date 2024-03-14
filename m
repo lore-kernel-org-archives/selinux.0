@@ -1,102 +1,202 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 906DE5C611
-	for <selinux@vger.kernel.org>; Thu, 14 Mar 2024 16:06:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6584D1EB34;
+	Thu, 14 Mar 2024 16:58:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710432383; cv=none; b=mRSLztoZdj5nsJiS5mMAjae0QOOpOCs7ocUd1+PF6kvMw/NGLGtMJzTAYlk2tGVAoQx3XkL002By+mJIL+Jc38eIa3vVVFl8CfJCldBnAUOkbhfGYER8SC5gqb+QMSDwC0ZrL1aaxsAcrDhdaFueeF59Jbarr4lktC/z2cvarSo=
+	t=1710435486; cv=none; b=Vcs77zsqIn9OruxtzeUdAOrJhUYLw+iYoFLIzWGw/W1n/H2zKqN5I1yG9u5alCNlf3pNPTfHuREtZOlBEzJS0fzW7a9v20Ko9xJfnrzJbAb1Is7iRYCAwb5GtlzMLZLZdG1Fn3cHee7QZ7COTyOrYZxE6RDu4X1820poWEiZfbI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710432383; c=relaxed/simple;
-	bh=lcieb4z21BBGDUcVVHu8A4xphYc29J/IN9KzGo8y0iw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=u7CX7hIsWiN8iDWhkjENQfD3fPN6juTHCYtgBYinAaRapzAuzyBVGZzhQqL7RDAksF/62pyXbhjbKVZolWD1XLpwyrkY/niGCvCHOfgvScbzMYERmugteLqBzuiDpGCwR+9tfD7W3JFPDizOpAZMXNJwHx43iPDRzH3sopBcpRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BgWAwlMi; arc=none smtp.client-ip=209.85.222.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1710435486; c=relaxed/simple;
+	bh=fcf8GvnNI2NlxwWa/BLBUBs674hhRLyrkoAa66D2RKo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nE9Dvb4jlx6h5vXrX4A9HOeg58e+rGh2c7tkkgerxTH4oqbOienOHOVPcy/KYUA6XDZf6V+m6gCBjqy5QTyf7NcGJc9/rDTvrPmiASibu9GsfnMNXtwivmFvh9LqXtIIbs5WA4+yEvd/cAiOkfmsi8qZbL7NfrNIwdhyRUBBxTM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Upxp6VnM; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BgWAwlMi"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-7887649cc6cso180931385a.1
-        for <selinux@vger.kernel.org>; Thu, 14 Mar 2024 09:06:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710432380; x=1711037180; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GJYz4ohIRcs0f5/1O/EsOIgaBDwiQLoyjNUgQYS4NMI=;
-        b=BgWAwlMiO6acc2VTAPfnO+Nzunf8TmI9Jr+yj8cTpa5y6bR45ADtNW9Q6HoJQ/zSBH
-         Kn5WXRCBD9G/o6dfClY+gtUfP73F5qdnuyZDqTlz1l57EZ83yLONZkPv1eXUEtvIwAHQ
-         fK14JD65A5SXlxmtWJz2hgjzn8LiWJWYNFWkSS9jJ4mb2euddYELR9enC8lrVoi9lnRh
-         WdxNrGPcietg7oGsxXXQdPF39yAFcJ7NKMH5hOlFiX2SIulFY3f0pGKvGEQAXa47zs77
-         pv3cXR5SYRxyFgTbG+kQJyxAMHDdcXLIM3CYZ9Wpc8B8BCXa1VFzaYARf5XTG+eWpvXS
-         nU0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710432380; x=1711037180;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=GJYz4ohIRcs0f5/1O/EsOIgaBDwiQLoyjNUgQYS4NMI=;
-        b=HfF7HUeK/yF1KM2HatxKvwkc+es0fcJJP9c9Lt32L1QrHFwDTSCu69GxQOANFYH5EN
-         Hv7WzTyjSE51E0kAGdSSkcII4ly43doCmDrZop2GTvPwyeShBajrGSplBY2BB50nJ9cr
-         w7COp/A6m19HFmSIcR/KCez7NXLfknEKffFZpWWJgzb/xjvmBcodXDUs+/BO7xN8x357
-         cvf6F6IPhadDGcYSgaBo7Kp3ieYmIfoh8DSpQXuMxXiMKp1ZJhVHTXzXr9HHCfqpD8R2
-         oJ0zVk3vBCZmwMO50m5jFBcdfCLZSBdiHJBiAlV0dtv5aFYDdFqnVsSh3tJuDNod/5dU
-         Tvpw==
-X-Gm-Message-State: AOJu0YyJWzmRRMvvhZWB2O3rHaShQKCGzKms6XG/Bp0Mi5QmrroYE8ux
-	Eg8P3c20h/ABdf3C9K1NacN3nm5YFY+zP0AYhHO2BXeYUoRNfP2jLW7gw0Bj4bDRh+ZPbVU50xd
-	1nBHrUgO8q42lvCk6wwpCRx8unE1lDZzfepQ=
-X-Google-Smtp-Source: AGHT+IFpRQ00PqBST8Azi90Mx5Im9MS1MFQm0xZ5N2A+3b+jg5YmKMiVAjjkJIGixmrmWUCuJWlAQQWpReJ+4Bcc/1Q=
-X-Received: by 2002:a05:620a:40c5:b0:787:ad37:4a0 with SMTP id
- g5-20020a05620a40c500b00787ad3704a0mr5724139qko.22.1710432380356; Thu, 14 Mar
- 2024 09:06:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Upxp6VnM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1710435484; x=1741971484;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=fcf8GvnNI2NlxwWa/BLBUBs674hhRLyrkoAa66D2RKo=;
+  b=Upxp6VnMtVVIh5OrjLy1m4x53O33vUT82Px9mA1yIg4XVcMfwTQJFixh
+   7LgJMYtNRqx/gFI4UZaFZANBwyUZ2125tyWFO/h/8aNJY3Ssz6Q5mTtSq
+   z2Rj4kEpS4nJkn25okzKvdQv4rbbJF9HCHjqQ9B/Jb64bwio9XG/KBlJp
+   J699SnKSz1nj/E2RkWAJaF9YVeUpsaCsOXlpHs5uHkESF9K3aOaQpXess
+   FCsbM8DPR2tGCmMJCjBmNp+30GvOQOM0FuzvdY/0Dl1c7H5pm+EbBsxtB
+   SWZno7PLV95EK9E7rTZWvtAMKbMAY13rhlzTtvMhwYJfdAqn3LBycbVbu
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11013"; a="22731667"
+X-IronPort-AV: E=Sophos;i="6.07,126,1708416000"; 
+   d="scan'208";a="22731667"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 09:58:02 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,126,1708416000"; 
+   d="scan'208";a="16952403"
+Received: from aschofie-mobl2.amr.corp.intel.com (HELO aschofie-mobl2) ([10.209.72.214])
+  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 09:57:59 -0700
+Date: Thu, 14 Mar 2024 09:57:57 -0700
+From: Alison Schofield <alison.schofield@intel.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	Linux Trace Kernel <linux-trace-kernel@vger.kernel.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+	linux-block@vger.kernel.org, linux-cxl@vger.kernel.org,
+	linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	amd-gfx@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
+	freedreno@lists.freedesktop.org, virtualization@lists.linux.dev,
+	linux-rdma@vger.kernel.org, linux-pm@vger.kernel.org,
+	iommu@lists.linux.dev, linux-tegra@vger.kernel.org,
+	netdev@vger.kernel.org, linux-hyperv@vger.kernel.org,
+	ath10k@lists.infradead.org, linux-wireless@vger.kernel.org,
+	ath11k@lists.infradead.org, ath12k@lists.infradead.org,
+	brcm80211@lists.linux.dev, brcm80211-dev-list.pdl@broadcom.com,
+	linux-usb@vger.kernel.org, linux-bcachefs@vger.kernel.org,
+	linux-nfs@vger.kernel.org, ocfs2-devel@lists.linux.dev,
+	linux-cifs@vger.kernel.org, linux-xfs@vger.kernel.org,
+	linux-edac@vger.kernel.org, selinux@vger.kernel.org,
+	linux-btrfs@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+	linux-f2fs-devel@lists.sourceforge.net, linux-hwmon@vger.kernel.org,
+	io-uring@vger.kernel.org, linux-sound@vger.kernel.org,
+	bpf@vger.kernel.org, linux-wpan@vger.kernel.org,
+	dev@openvswitch.org, linux-s390@vger.kernel.org,
+	tipc-discussion@lists.sourceforge.net,
+	Julia Lawall <Julia.Lawall@inria.fr>
+Subject: Re: [FYI][PATCH] tracing/treewide: Remove second parameter of
+ __assign_str()
+Message-ID: <ZfMslbCmCtyEaEWN@aschofie-mobl2>
+References: <20240223125634.2888c973@gandalf.local.home>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240313111025.43720-1-cgzones@googlemail.com>
-In-Reply-To: <20240313111025.43720-1-cgzones@googlemail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Thu, 14 Mar 2024 12:06:09 -0400
-Message-ID: <CAP+JOzRWQRtnR56bkLNmCB0F3fGR-2v-DRyTg8Jd=wxFMUv=hg@mail.gmail.com>
-Subject: Re: [PATCH 1/5] libselinux/utils/selabel_digest: drop unsupported
- option -d
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240223125634.2888c973@gandalf.local.home>
 
-On Wed, Mar 13, 2024 at 7:12=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> The command line option -d is not supported, drop from usage message.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-
-For these 5 patches:
-Acked-by: James Carter <jwcart2@gmail.com>
-
+On Fri, Feb 23, 2024 at 12:56:34PM -0500, Steven Rostedt wrote:
+> From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+> 
+> [
+>    This is a treewide change. I will likely re-create this patch again in
+>    the second week of the merge window of v6.9 and submit it then. Hoping
+>    to keep the conflicts that it will cause to a minimum.
+> ]
+> 
+> With the rework of how the __string() handles dynamic strings where it
+> saves off the source string in field in the helper structure[1], the
+> assignment of that value to the trace event field is stored in the helper
+> value and does not need to be passed in again.
+> 
+> This means that with:
+> 
+>   __string(field, mystring)
+> 
+> Which use to be assigned with __assign_str(field, mystring), no longer
+> needs the second parameter and it is unused. With this, __assign_str()
+> will now only get a single parameter.
+> 
+> There's over 700 users of __assign_str() and because coccinelle does not
+> handle the TRACE_EVENT() macro I ended up using the following sed script:
+> 
+>   git grep -l __assign_str | while read a ; do
+>       sed -e 's/\(__assign_str([^,]*[^ ,]\) *,[^;]*/\1)/' $a > /tmp/test-file;
+>       mv /tmp/test-file $a;
+>   done
+> 
+> I then searched for __assign_str() that did not end with ';' as those
+> were multi line assignments that the sed script above would fail to catch.
+> 
+> Note, the same updates will need to be done for:
+> 
+>   __assign_str_len()
+>   __assign_rel_str()
+>   __assign_rel_str_len()
+>   __assign_bitmask()
+>   __assign_rel_bitmask()
+>   __assign_cpumask()
+>   __assign_rel_cpumask()
+> 
+> [1] https://lore.kernel.org/linux-trace-kernel/20240222211442.634192653@goodmis.org/
+> 
+> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 > ---
->  libselinux/utils/selabel_digest.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/libselinux/utils/selabel_digest.c b/libselinux/utils/selabel=
-_digest.c
-> index bf22b472..50f55311 100644
-> --- a/libselinux/utils/selabel_digest.c
-> +++ b/libselinux/utils/selabel_digest.c
-> @@ -11,7 +11,7 @@ static size_t digest_len;
->  static __attribute__ ((__noreturn__)) void usage(const char *progname)
->  {
->         fprintf(stderr,
-> -               "usage: %s -b backend [-d] [-v] [-B] [-i] [-f file]\n\n"
-> +               "usage: %s -b backend [-v] [-B] [-i] [-f file]\n\n"
->                 "Where:\n\t"
->                 "-b  The backend - \"file\", \"media\", \"x\", \"db\" or =
-"
->                         "\"prop\"\n\t"
-> --
-> 2.43.0
->
->
+>  arch/arm64/kernel/trace-events-emulation.h    |   2 +-
+>  arch/powerpc/include/asm/trace.h              |   4 +-
+>  arch/x86/kvm/trace.h                          |   2 +-
+>  drivers/base/regmap/trace.h                   |  18 +--
+>  drivers/base/trace.h                          |   2 +-
+>  drivers/block/rnbd/rnbd-srv-trace.h           |  12 +-
+>  drivers/cxl/core/trace.h                      |  24 ++--
+
+snip to CXL
+
+
+> diff --git a/drivers/cxl/core/trace.h b/drivers/cxl/core/trace.h
+> index bdf117a33744..07ba4e033347 100644
+> --- a/drivers/cxl/core/trace.h
+> +++ b/drivers/cxl/core/trace.h
+
+snip to poison
+
+> @@ -668,8 +668,8 @@ TRACE_EVENT(cxl_poison,
+>  	    ),
+>  
+>  	TP_fast_assign(
+> -		__assign_str(memdev, dev_name(&cxlmd->dev));
+> -		__assign_str(host, dev_name(cxlmd->dev.parent));
+> +		__assign_str(memdev);
+> +		__assign_str(host);
+
+I think I get that the above changes work because the TP_STRUCT__entry for
+these did:
+	__string(memdev, dev_name(&cxlmd->dev))
+	__string(host, dev_name(cxlmd->dev.parent))
+
+>  		__entry->serial = cxlmd->cxlds->serial;
+>  		__entry->overflow_ts = cxl_poison_overflow(flags, overflow_ts);
+>  		__entry->dpa = cxl_poison_record_dpa(record);
+> @@ -678,12 +678,12 @@ TRACE_EVENT(cxl_poison,
+>  		__entry->trace_type = trace_type;
+>  		__entry->flags = flags;
+>  		if (region) {
+> -			__assign_str(region, dev_name(&region->dev));
+> +			__assign_str(region);
+>  			memcpy(__entry->uuid, &region->params.uuid, 16);
+>  			__entry->hpa = cxl_trace_hpa(region, cxlmd,
+>  						     __entry->dpa);
+>  		} else {
+> -			__assign_str(region, "");
+> +			__assign_str(region);
+>  			memset(__entry->uuid, 0, 16);
+>  			__entry->hpa = ULLONG_MAX;
+
+For the above 2, there was no helper in TP_STRUCT__entry. A recently
+posted patch is fixing that up to be __string(region, NULL) See [1],
+with the actual assignment still happening in TP_fast_assign.
+
+Does that assign logic need to move to the TP_STRUCT__entry definition
+when you merge these changes? I'm not clear how much logic is able to be
+included, ie like 'C' style code in the TP_STRUCT__entry.
+
+[1]
+https://lore.kernel.org/linux-cxl/20240314044301.2108650-1-alison.schofield@intel.com/
+
+Thanks for helping,
+Alison
+
+
+>  		}
+
+
+
