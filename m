@@ -1,129 +1,109 @@
-Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from 2.mo583.mail-out.ovh.net (2.mo583.mail-out.ovh.net [178.33.109.111])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87A6158AB4
-	for <selinux@vger.kernel.org>; Thu, 14 Mar 2024 13:19:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 936F26DCE3
+	for <selinux@vger.kernel.org>; Thu, 14 Mar 2024 14:00:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.33.109.111
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710422364; cv=none; b=aiBHQFF9Dmv8GFahhgXSb9wDOjH85vWfAh9ozgGochbUpDwJLYZNhCWGHyyDwB5/FuuvGFBau1CXD/uk2JgTsGXVy9PIF+Q9fi1NjqzPM26a7mGMH+lCf8QK8b33c+DK+vLsODVawYGJwDnfT+SmrXQvbp/5WXqm2B8KMKgEKO4=
+	t=1710424844; cv=none; b=sTSBeYQCyjSChrZukvTNZUfWfqySQD0kK1xhdxQErF636gTp6KTpVs6+uNXHQBEyEcBSC8Sn4OABthdygISWqnQMqH6QDY/dNo7Hlw2p1/NWAR3c2Apl8mjtn2K3V5eaik1715z3OXh5hiBWro44MwaRj11tiukHs2NgiMKPYxc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710422364; c=relaxed/simple;
-	bh=/FOdKgx1fqU16oij9TiXe/gckVl9X7JF7/pn+BFVXCE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Yd/Zf5iGi8rSgU6XvjmwTHnRBr3TRKN2w61AfCyl48fuqzLE6qwrtO7YvNpwJCNzuB7UV7BF8fb8D4AisuzaEy6GNHgTtbeFMu/VstuIVQRc1B504KOwQkXTOir31+/P8S9W7zVI9KZmmbobhoxhBRaswKVs+ERuTPlEJZzl3i0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D9HxojU/; arc=none smtp.client-ip=209.85.219.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D9HxojU/"
-Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-dcd7c526cc0so804287276.1
-        for <selinux@vger.kernel.org>; Thu, 14 Mar 2024 06:19:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710422361; x=1711027161; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Cb80toS0cyKHDMnjZwPrB9Rgv1aCjruop80aYwcTj0g=;
-        b=D9HxojU/iGLELnY6ngdTV7kvGsiIxJkY3SBcmXsDhuQBv5KhALo/LkqMYIbJpy+w/Y
-         RmSY5A8Z13hw5nLj5Ddaqq9UwpWF9ck9C8UHdX1UhGTsTn2jhS5kEEzA3Q5jvfFQlRTH
-         HXnOb/R4ZzKUu5kWz4DPSWzkjAL1GLlS1igcFoxCpE8Xigs+D70KpAdaZEIVHdTrLK+n
-         ydI/rYqD8la/HD1DVtH62f5eJRzQO7RpoI13Uro9lJzdPjpLvTQ/EajPdpeA2zLqyJrs
-         UY6qFiPCn2shpUV0YqRYS8IMg1OhhB1UqX14NbDtsPM8PS9iX4sFJzUKVpdDN6hqe24V
-         wHDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710422361; x=1711027161;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Cb80toS0cyKHDMnjZwPrB9Rgv1aCjruop80aYwcTj0g=;
-        b=bfjs+VBI4m/YYDEKk4dMQHVqbopKgLtI8YWNbmt5Wxf9WRTQEKW1g34bbCw4B1chC8
-         Ahdfjdq4A45Gyn8/AwqOOGP03RwFthEcWhgvOOmNQh8WTCaKCC8xgzMNGzuu8l+G46MW
-         ORHHua2+N9sox62D4hm9G3tu2NlqBEV03FZSQGCoP3pBQh5npoLoDFfUe4Ixux625D2a
-         Kvtu1YHRaxvJPCVKzamoPg+MoJ1Hk1iNBCKUozZlArWzHpvmZldXjcnA0XTzES+iAybC
-         est4kY6JJl4XlBW9t7yKHwDXzLBhkTDXroyGJD2CCZEs6IonzyVqwz3HZOzsw3onGab8
-         HUTg==
-X-Gm-Message-State: AOJu0Yx/0Qj1fFsm3U8Nf972LQzLDcuLsa1h11FRHr6Kj5+fhFzlTWVb
-	TjCpMYqY3lkjO3P/g0qFfCMe06VY4L5s9j3zCBP+NCASJBbb0pIOUCWqXcULzPbVFLAx7FBNWge
-	HjAhGmGJsHSawobmK3X7agDVz5429nl342Oo=
-X-Google-Smtp-Source: AGHT+IEWJEkE8za26yNoiqOqwc3sByUE6RvaVpB/EiXR3XNU2VtoFCqHquDsffBZh7ySl9vAWscUdsU6fUwBkuvMvy0=
-X-Received: by 2002:a25:8142:0:b0:dc6:ddfc:1736 with SMTP id
- j2-20020a258142000000b00dc6ddfc1736mr1604593ybm.17.1710422361501; Thu, 14 Mar
- 2024 06:19:21 -0700 (PDT)
+	s=arc-20240116; t=1710424844; c=relaxed/simple;
+	bh=U+xowBtqIre3LWrYMqV9TTZdASkB2YrieNdqOR172Po=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:Cc:From:
+	 In-Reply-To:Content-Type; b=RvyYwQMGZdKth1TkfpYW5PcLG0X2uMtBgAmD3f+gsQk0f1c1CW/0/VM6lspe2EnckCynOY9Tw8SbVE527ly+p2HlDzssa/D4TZgafSsYGmrauoF2Ipw5SG+T4MVlHvC7oaRou82vWhhMeAUw1eEyLHJ3KQ8ykicV1zlEyv9/nBQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jwillikers.com; spf=pass smtp.mailfrom=jwillikers.com; arc=none smtp.client-ip=178.33.109.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jwillikers.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jwillikers.com
+Received: from director7.ghost.mail-out.ovh.net (unknown [10.108.17.203])
+	by mo583.mail-out.ovh.net (Postfix) with ESMTP id 4TwTX43b8Mz1NXG
+	for <selinux@vger.kernel.org>; Thu, 14 Mar 2024 13:59:32 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-b2v6c (unknown [10.111.174.60])
+	by director7.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 385DE1FEE7;
+	Thu, 14 Mar 2024 13:59:31 +0000 (UTC)
+Received: from jwillikers.com ([37.59.142.110])
+	by ghost-submission-6684bf9d7b-b2v6c with ESMTPSA
+	id pvS4A8MC82X4zQAA60DLjw
+	(envelope-from <jordan@jwillikers.com>); Thu, 14 Mar 2024 13:59:31 +0000
+Authentication-Results:garm.ovh; auth=pass (GARM-110S00409d8e42d-f973-47ad-9005-3728d640a575,
+                    8CF15EA0C2CF9E4DB08C403A31B0CB6F73BB2D81) smtp.auth=jordan@jwillikers.com
+X-OVh-ClientIp:69.5.141.1
+Message-ID: <f87f2db0-3c2b-4ac9-94f3-ef7f0d95d3e8@jwillikers.com>
+Date: Thu, 14 Mar 2024 08:59:29 -0500
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240311145706.34885-1-cgzones@googlemail.com>
-In-Reply-To: <20240311145706.34885-1-cgzones@googlemail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Thu, 14 Mar 2024 09:19:10 -0400
-Message-ID: <CAP+JOzQ7BspHg7ZMQs2WSJQ0RDdz=hjSB=DohU6KZvQhLOyG-g@mail.gmail.com>
-Subject: Re: [PATCH 1/5] checkpolicy/fuzz: drop redundant notdefined check
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] libselinux, libsepol: Add CFLAGS and LDFLAGS to Makefile
+ checks
+Content-Language: en-US
+To: selinux@vger.kernel.org
+References: <20240313224806.2859045-1-jwcart2@gmail.com>
+Cc: James Carter <jwcart2@gmail.com>, jordan@jwillikers.com,
+ winfried_mb2@xmsnet.nl
+From: Jordan Williams <jordan@jwillikers.com>
+In-Reply-To: <20240313224806.2859045-1-jwcart2@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Ovh-Tracer-Id: 199284286430477599
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvledrjeejgdehjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkffggfgfuvfhfvefhjggtgfesthejredttddvjeenucfhrhhomheplfhorhgurghnucghihhllhhirghmshcuoehjohhruggrnhesjhifihhllhhikhgvrhhsrdgtohhmqeenucggtffrrghtthgvrhhnpefggfdvffelvdevfeeghfetkeeiieejuddtieetueeijeevtdelleeghffgiedtudenucfkphepuddvjedrtddrtddruddpieelrdehrddugedurddupdefjedrheelrddugedvrdduuddtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpehjohhruggrnhesjhifihhllhhikhgvrhhsrdgtohhmpdhnsggprhgtphhtthhopedupdhrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheekfedpmhhouggvpehsmhhtphhouhht
 
-On Mon, Mar 11, 2024 at 10:59=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On 3/13/24 17:48, James Carter wrote:
+> In libselinux there is an availability check for strlcpy() and
+> in both libselinux and libsepol there are availability checks for
+> reallocarray() in the src Makfiles. CFLAGS and LDFLAGS are needed
+> for cross-compiling, but, unfortunately, the default CFLAGS cause
+> all of these availability checks to fail to compile because of
+> compilationerrors (rather than just the function not being available).
 >
-> The level_datum_t member notdefined is checked to be 1 during validation
-> and the fuzzer calls policydb_validate().
-> Drop the redundant check (as announced in the TODO).
+> Add CFLAGS and LDFLAGS to the availibility checks, update the checks
+> so that a compilation error will only happen if the function being
+> checked for is not available, and make checks for the same function
+> the same in both libselinux and libsepol.
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-
-For these 5 patches:
-Acked-by: James Carter <jwcart2@gmail.com>
-
+> Suggested-by: Jordan Williams <jordan@jwillikers.com>
+> Suggested-by: Winfried Dobbe <winfried_mb2@xmsnet.nl>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 > ---
->  checkpolicy/fuzz/checkpolicy-fuzzer.c | 17 -----------------
->  1 file changed, 17 deletions(-)
+>   libselinux/src/Makefile | 4 ++--
+>   libsepol/src/Makefile   | 2 +-
+>   2 files changed, 3 insertions(+), 3 deletions(-)
 >
-> diff --git a/checkpolicy/fuzz/checkpolicy-fuzzer.c b/checkpolicy/fuzz/che=
-ckpolicy-fuzzer.c
-> index a3da0b57..f3a17cce 100644
-> --- a/checkpolicy/fuzz/checkpolicy-fuzzer.c
-> +++ b/checkpolicy/fuzz/checkpolicy-fuzzer.c
-> @@ -130,21 +130,6 @@ static int read_source_policy(policydb_t *p, const u=
-int8_t *data, size_t size)
->         return 0;
->  }
->
-> -static int check_level(hashtab_key_t key, hashtab_datum_t datum, void *a=
-rg __attribute__ ((unused)))
-> -{
-> -       const level_datum_t *levdatum =3D (level_datum_t *) datum;
-> -
-> -       // TODO: drop member defined if proven to be always set
-> -       if (!levdatum->isalias && levdatum->notdefined) {
-> -               fprintf(stderr,
-> -                       "Error:  sensitivity %s was not used in a level d=
-efinition!\n",
-> -                       key);
-> -               abort();
-> -       }
-> -
-> -       return 0;
-> -}
-> -
->  static int write_binary_policy(FILE *outfp, policydb_t *p)
->  {
->         struct policy_file pf;
-> @@ -198,8 +183,6 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_=
-t size)
->         if (read_source_policy(&parsepolicydb, data, size))
->                 goto exit;
->
-> -       (void) hashtab_map(parsepolicydb.p_levels.table, check_level, NUL=
-L);
-> -
->         if (parsepolicydb.policy_type =3D=3D POLICY_BASE) {
->                 if (link_modules(NULL, &parsepolicydb, NULL, 0, VERBOSE))
->                         goto exit;
-> --
-> 2.43.0
->
->
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index d3b981fc..41cfbdca 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -104,13 +104,13 @@ override CFLAGS += -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
+>   
+>   # check for strlcpy(3) availability
+>   H := \#
+> -ifeq (yes,$(shell printf '${H}include <string.h>\nint main(void){char*d,*s;strlcpy(d, s, 0);return 0;}' | $(CC) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
+> +ifeq (yes,$(shell printf '${H}include <string.h>\nint main(void){char d[2];const char *s="a";return (size_t)strlcpy(d,s,sizeof(d))>=sizeof(d);}' | $(CC) $(CFLAGS) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
+>   override CFLAGS += -DHAVE_STRLCPY
+>   endif
+>   
+>   # check for reallocarray(3) availability
+>   H := \#
+> -ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){reallocarray(NULL, 0, 0);return 0;}' | $(CC) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
+> +ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){return reallocarray(NULL,0,0)==NULL;}' | $(CC) $(CFLAGS) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
+>   override CFLAGS += -DHAVE_REALLOCARRAY
+>   endif
+>   
+> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+> index 16b9bd5e..7b0e8446 100644
+> --- a/libsepol/src/Makefile
+> +++ b/libsepol/src/Makefile
+> @@ -31,7 +31,7 @@ endif
+>   
+>   # check for reallocarray(3) availability
+>   H := \#
+> -ifeq (yes,$(shell printf '${H}define _GNU_SOURCE\n${H}include <stdlib.h>\nint main(void){void*p=reallocarray(NULL, 1, sizeof(char));return 0;}' | $(CC) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
+> +ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){return reallocarray(NULL,0,0)==NULL;}' | $(CC) $(CFLAGS) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
+>   override CFLAGS += -DHAVE_REALLOCARRAY
+>   endif
+>   
+This works great, thanks!
