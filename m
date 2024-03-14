@@ -1,126 +1,102 @@
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.186])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E12671747
-	for <selinux@vger.kernel.org>; Thu, 14 Mar 2024 15:12:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.121.94.186
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 906DE5C611
+	for <selinux@vger.kernel.org>; Thu, 14 Mar 2024 16:06:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710429148; cv=none; b=jrYY1Zpi7hrFkoX85PCXUF/zekFECUvBwi9lD2DwaT16T1DU8z+vOr54Q/HuwmnwhzfzyK7ADGdE2b/EdA7AyQmNfGB81mnAtNSmVxpZyBW0KyPyP1DGFAwO7US4qeRDNOLHsR/xUFKLcYpCT/yY9QjAWVUDBKAKbX1qNQOSu/4=
+	t=1710432383; cv=none; b=mRSLztoZdj5nsJiS5mMAjae0QOOpOCs7ocUd1+PF6kvMw/NGLGtMJzTAYlk2tGVAoQx3XkL002By+mJIL+Jc38eIa3vVVFl8CfJCldBnAUOkbhfGYER8SC5gqb+QMSDwC0ZrL1aaxsAcrDhdaFueeF59Jbarr4lktC/z2cvarSo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710429148; c=relaxed/simple;
-	bh=Thm9T1/0T5it6qIG3pC/2CtUUjSKOa3iZKBNw/SaTFA=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type; b=mQPwsUZnCQu0i0qMl0coBnZPsCEAb8QgRaQh+6WPuWDmyuz8uBwAT4h6vZi+WDU8tsdWRqkOaGIPiMusXS4fpZLyPMiq8NBd+yL/FMY660XUsn3YDD9uHHqtsNAz3k5zD2AQjYzc/bnHVge9AZ1b12Ou20p4pTQ8DdoqXPEtbxQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=xmsnet.nl; spf=pass smtp.mailfrom=xmsnet.nl; dkim=pass (1024-bit key) header.d=xmsnet.nl header.i=@xmsnet.nl header.b=jTOc5Q5O; arc=none smtp.client-ip=195.121.94.186
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=xmsnet.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xmsnet.nl
+	s=arc-20240116; t=1710432383; c=relaxed/simple;
+	bh=lcieb4z21BBGDUcVVHu8A4xphYc29J/IN9KzGo8y0iw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=u7CX7hIsWiN8iDWhkjENQfD3fPN6juTHCYtgBYinAaRapzAuzyBVGZzhQqL7RDAksF/62pyXbhjbKVZolWD1XLpwyrkY/niGCvCHOfgvScbzMYERmugteLqBzuiDpGCwR+9tfD7W3JFPDizOpAZMXNJwHx43iPDRzH3sopBcpRw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BgWAwlMi; arc=none smtp.client-ip=209.85.222.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=xmsnet.nl header.i=@xmsnet.nl header.b="jTOc5Q5O"
-X-KPN-MessageId: 17b81548-e215-11ee-9a83-00505699b430
-Received: from mta.kpnmail.nl (unknown [10.31.161.189])
-	by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-	id 17b81548-e215-11ee-9a83-00505699b430;
-	Thu, 14 Mar 2024 16:11:11 +0100 (CET)
-Received: from mtaoutbound.kpnmail.nl (unknown [10.128.135.189])
-	by mta.kpnmail.nl (Halon) with ESMTP
-	id 199f2b03-e215-11ee-b054-0050569981f5;
-	Thu, 14 Mar 2024 16:11:14 +0100 (CET)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BgWAwlMi"
+Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-7887649cc6cso180931385a.1
+        for <selinux@vger.kernel.org>; Thu, 14 Mar 2024 09:06:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=xmsnet.nl; s=xmsnet01;
-	h=content-type:mime-version:subject:message-id:to:from:date;
-	bh=PfMIUeu0DdQ/Z86KbUFGlZWMRGZi1XY1HONCBD0NupU=;
-	b=jTOc5Q5OS8DPKmKdn6i4sZrIXZBsl4fVbonCTFz3Ep3coZiq3OdxvBk4UZ35MUaDPw8g2mOdVKlZM
-	 VrwJK5cjPqHgHCkN4UHwFv5roRkaZUDjOERaNFPtCPBk76Ub3iYyAbkRl45lR0mjgZg4XIzycf9MuL
-	 da2BOHaek955EAh8=
-X-KPN-MID: 33|5v+gIGvaUgLJZyNRJYcCUl9HYBIUizNiZX46AWnmNAkSc/PRlXoxI/Qy89D6fA8
- 2LaVIZ15ZxB7qHl+zbX8FWg==
-X-CMASSUN: 33|y5CB2FCvwLm2alN3ZP7M+Y3m5DVfi03OUElGy6tdc+ODR6w0WEJf2gAvL3ZFrQQ
- 8sRtqLL7CRZ8ZAKu7WZohX5+Sw55CxIhUCxZdgSK230Y=
-X-KPN-VerifiedSender: Yes
-Received: from cpxoxapps-mh05 (cpxoxapps-mh05.personalcloud.so.kpn.org [10.128.135.211])
-	by mtaoutbound.kpnmail.nl (Halon) with ESMTPSA
-	id 19936e64-e215-11ee-ae78-00505699eff2;
-	Thu, 14 Mar 2024 16:11:14 +0100 (CET)
-Date: Thu, 14 Mar 2024 16:11:14 +0100 (CET)
-From: Winfried <winfried_mb2@xmsnet.nl>
-To: Jordan Williams <jordan@jwillikers.com>, selinux@vger.kernel.org
-Cc: James Carter <jwcart2@gmail.com>
-Message-ID: <663367736.1859904.1710429074631@kpc.webmail.kpnmail.nl>
-In-Reply-To: <f87f2db0-3c2b-4ac9-94f3-ef7f0d95d3e8@jwillikers.com>
-References: <20240313224806.2859045-1-jwcart2@gmail.com>
- <f87f2db0-3c2b-4ac9-94f3-ef7f0d95d3e8@jwillikers.com>
-Subject: Re: [PATCH] libselinux, libsepol: Add CFLAGS and LDFLAGS to
- Makefile checks
+        d=gmail.com; s=20230601; t=1710432380; x=1711037180; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GJYz4ohIRcs0f5/1O/EsOIgaBDwiQLoyjNUgQYS4NMI=;
+        b=BgWAwlMiO6acc2VTAPfnO+Nzunf8TmI9Jr+yj8cTpa5y6bR45ADtNW9Q6HoJQ/zSBH
+         Kn5WXRCBD9G/o6dfClY+gtUfP73F5qdnuyZDqTlz1l57EZ83yLONZkPv1eXUEtvIwAHQ
+         fK14JD65A5SXlxmtWJz2hgjzn8LiWJWYNFWkSS9jJ4mb2euddYELR9enC8lrVoi9lnRh
+         WdxNrGPcietg7oGsxXXQdPF39yAFcJ7NKMH5hOlFiX2SIulFY3f0pGKvGEQAXa47zs77
+         pv3cXR5SYRxyFgTbG+kQJyxAMHDdcXLIM3CYZ9Wpc8B8BCXa1VFzaYARf5XTG+eWpvXS
+         nU0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710432380; x=1711037180;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=GJYz4ohIRcs0f5/1O/EsOIgaBDwiQLoyjNUgQYS4NMI=;
+        b=HfF7HUeK/yF1KM2HatxKvwkc+es0fcJJP9c9Lt32L1QrHFwDTSCu69GxQOANFYH5EN
+         Hv7WzTyjSE51E0kAGdSSkcII4ly43doCmDrZop2GTvPwyeShBajrGSplBY2BB50nJ9cr
+         w7COp/A6m19HFmSIcR/KCez7NXLfknEKffFZpWWJgzb/xjvmBcodXDUs+/BO7xN8x357
+         cvf6F6IPhadDGcYSgaBo7Kp3ieYmIfoh8DSpQXuMxXiMKp1ZJhVHTXzXr9HHCfqpD8R2
+         oJ0zVk3vBCZmwMO50m5jFBcdfCLZSBdiHJBiAlV0dtv5aFYDdFqnVsSh3tJuDNod/5dU
+         Tvpw==
+X-Gm-Message-State: AOJu0YyJWzmRRMvvhZWB2O3rHaShQKCGzKms6XG/Bp0Mi5QmrroYE8ux
+	Eg8P3c20h/ABdf3C9K1NacN3nm5YFY+zP0AYhHO2BXeYUoRNfP2jLW7gw0Bj4bDRh+ZPbVU50xd
+	1nBHrUgO8q42lvCk6wwpCRx8unE1lDZzfepQ=
+X-Google-Smtp-Source: AGHT+IFpRQ00PqBST8Azi90Mx5Im9MS1MFQm0xZ5N2A+3b+jg5YmKMiVAjjkJIGixmrmWUCuJWlAQQWpReJ+4Bcc/1Q=
+X-Received: by 2002:a05:620a:40c5:b0:787:ad37:4a0 with SMTP id
+ g5-20020a05620a40c500b00787ad3704a0mr5724139qko.22.1710432380356; Thu, 14 Mar
+ 2024 09:06:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-Importance: Normal
+References: <20240313111025.43720-1-cgzones@googlemail.com>
+In-Reply-To: <20240313111025.43720-1-cgzones@googlemail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 14 Mar 2024 12:06:09 -0400
+Message-ID: <CAP+JOzRWQRtnR56bkLNmCB0F3fGR-2v-DRyTg8Jd=wxFMUv=hg@mail.gmail.com>
+Subject: Re: [PATCH 1/5] libselinux/utils/selabel_digest: drop unsupported
+ option -d
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Fine with me as well. 
-Thanks, 
-Winfried
+On Wed, Mar 13, 2024 at 7:12=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> The command line option -d is not supported, drop from usage message.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-> Op 14-03-2024 14:59 CET schreef Jordan Williams <jordan@jwillikers.com>:
-> 
->  
-> On 3/13/24 17:48, James Carter wrote:
-> > In libselinux there is an availability check for strlcpy() and
-> > in both libselinux and libsepol there are availability checks for
-> > reallocarray() in the src Makfiles. CFLAGS and LDFLAGS are needed
-> > for cross-compiling, but, unfortunately, the default CFLAGS cause
-> > all of these availability checks to fail to compile because of
-> > compilationerrors (rather than just the function not being available).
-> >
-> > Add CFLAGS and LDFLAGS to the availibility checks, update the checks
-> > so that a compilation error will only happen if the function being
-> > checked for is not available, and make checks for the same function
-> > the same in both libselinux and libsepol.
-> >
-> > Suggested-by: Jordan Williams <jordan@jwillikers.com>
-> > Suggested-by: Winfried Dobbe <winfried_mb2@xmsnet.nl>
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
-> > ---
-> >   libselinux/src/Makefile | 4 ++--
-> >   libsepol/src/Makefile   | 2 +-
-> >   2 files changed, 3 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> > index d3b981fc..41cfbdca 100644
-> > --- a/libselinux/src/Makefile
-> > +++ b/libselinux/src/Makefile
-> > @@ -104,13 +104,13 @@ override CFLAGS += -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
-> >   
-> >   # check for strlcpy(3) availability
-> >   H := \#
-> > -ifeq (yes,$(shell printf '${H}include <string.h>\nint main(void){char*d,*s;strlcpy(d, s, 0);return 0;}' | $(CC) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-> > +ifeq (yes,$(shell printf '${H}include <string.h>\nint main(void){char d[2];const char *s="a";return (size_t)strlcpy(d,s,sizeof(d))>=sizeof(d);}' | $(CC) $(CFLAGS) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-> >   override CFLAGS += -DHAVE_STRLCPY
-> >   endif
-> >   
-> >   # check for reallocarray(3) availability
-> >   H := \#
-> > -ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){reallocarray(NULL, 0, 0);return 0;}' | $(CC) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-> > +ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){return reallocarray(NULL,0,0)==NULL;}' | $(CC) $(CFLAGS) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-> >   override CFLAGS += -DHAVE_REALLOCARRAY
-> >   endif
-> >   
-> > diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-> > index 16b9bd5e..7b0e8446 100644
-> > --- a/libsepol/src/Makefile
-> > +++ b/libsepol/src/Makefile
-> > @@ -31,7 +31,7 @@ endif
-> >   
-> >   # check for reallocarray(3) availability
-> >   H := \#
-> > -ifeq (yes,$(shell printf '${H}define _GNU_SOURCE\n${H}include <stdlib.h>\nint main(void){void*p=reallocarray(NULL, 1, sizeof(char));return 0;}' | $(CC) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-> > +ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){return reallocarray(NULL,0,0)==NULL;}' | $(CC) $(CFLAGS) $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
-> >   override CFLAGS += -DHAVE_REALLOCARRAY
-> >   endif
-> >   
-> This works great, thanks!
+For these 5 patches:
+Acked-by: James Carter <jwcart2@gmail.com>
+
+> ---
+>  libselinux/utils/selabel_digest.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/libselinux/utils/selabel_digest.c b/libselinux/utils/selabel=
+_digest.c
+> index bf22b472..50f55311 100644
+> --- a/libselinux/utils/selabel_digest.c
+> +++ b/libselinux/utils/selabel_digest.c
+> @@ -11,7 +11,7 @@ static size_t digest_len;
+>  static __attribute__ ((__noreturn__)) void usage(const char *progname)
+>  {
+>         fprintf(stderr,
+> -               "usage: %s -b backend [-d] [-v] [-B] [-i] [-f file]\n\n"
+> +               "usage: %s -b backend [-v] [-B] [-i] [-f file]\n\n"
+>                 "Where:\n\t"
+>                 "-b  The backend - \"file\", \"media\", \"x\", \"db\" or =
+"
+>                         "\"prop\"\n\t"
+> --
+> 2.43.0
+>
+>
