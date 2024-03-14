@@ -1,119 +1,129 @@
-Received: from mail-ua1-f48.google.com (mail-ua1-f48.google.com [209.85.222.48])
+Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9361B5B20F
-	for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 22:52:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87A6158AB4
+	for <selinux@vger.kernel.org>; Thu, 14 Mar 2024 13:19:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710370343; cv=none; b=EanfIakNlHso5ERsxEr/hEfOa9LfBE4gMa3vxUQgHELLc5BV2+goOZBnsWNnyIwgReb6KjeRfnMJuWJi01ctf9SzU0yyuyI74YHB7YX4hLx4PZ+Yckb3SSzbM+MAs0xPuA7iX6x/zCeajySbKWHkouaiMSBhL9t6Q+fxFXE1hPs=
+	t=1710422364; cv=none; b=aiBHQFF9Dmv8GFahhgXSb9wDOjH85vWfAh9ozgGochbUpDwJLYZNhCWGHyyDwB5/FuuvGFBau1CXD/uk2JgTsGXVy9PIF+Q9fi1NjqzPM26a7mGMH+lCf8QK8b33c+DK+vLsODVawYGJwDnfT+SmrXQvbp/5WXqm2B8KMKgEKO4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710370343; c=relaxed/simple;
-	bh=gwccbfhnAcKiCf/TWrB5dzkQRnNWT0W42H/DreCzlm4=;
+	s=arc-20240116; t=1710422364; c=relaxed/simple;
+	bh=/FOdKgx1fqU16oij9TiXe/gckVl9X7JF7/pn+BFVXCE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dVat516WTQXJb3kQgs7G9wE26gOS3zOG7jFszzktAcA3vwuudqvR3FurAPC01tPxi1VvzDinRypmsEBzz28twb0N621dxDMToaDc/bpDqW6IW7to6th7skOdKeio9RmL0hQKgalwy0zdLelUdLE4LtHIFc+He/7iRbA7x2gz7js=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TBNTWtUP; arc=none smtp.client-ip=209.85.222.48
+	 To:Cc:Content-Type; b=Yd/Zf5iGi8rSgU6XvjmwTHnRBr3TRKN2w61AfCyl48fuqzLE6qwrtO7YvNpwJCNzuB7UV7BF8fb8D4AisuzaEy6GNHgTtbeFMu/VstuIVQRc1B504KOwQkXTOir31+/P8S9W7zVI9KZmmbobhoxhBRaswKVs+ERuTPlEJZzl3i0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D9HxojU/; arc=none smtp.client-ip=209.85.219.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TBNTWtUP"
-Received: by mail-ua1-f48.google.com with SMTP id a1e0cc1a2514c-7d5fce59261so239074241.3
-        for <selinux@vger.kernel.org>; Wed, 13 Mar 2024 15:52:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D9HxojU/"
+Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-dcd7c526cc0so804287276.1
+        for <selinux@vger.kernel.org>; Thu, 14 Mar 2024 06:19:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710370340; x=1710975140; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1710422361; x=1711027161; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Mo4zQLcjGs/1cQrGh2gi+kezjnDbLcnxbVoJeKyq3b4=;
-        b=TBNTWtUPrts4CDrRUxFhL2VJrkpCqe62t1cqF+lVsubWUhf4NQTqCOUQm8dQZUoVgu
-         HFoI2kqlRApsigYuM5MsErJqk0f7IBlGL1JZFkOS6G2BgeO9AFWy1ogdEdv+5Z/cc5vl
-         AabzKb7wzRXeIXZeVAczZNrQnr3Vh2HSOtHAsSHqx13eNitNstVPTk6BqpS+cERLfs+8
-         xHLlXM9B+8j3MlYVD2iRlo3fxifOGWj7Qy+jrHZSiP7nOtOCDyuK4aJJb5HWrFRbtPKq
-         jfGdV5DCReYZYC1qhQ3H5UdsBgUxHxK1aXqDEYbjJjtk9K6F3bCaqc8weSM8g5Nbz7lJ
-         w/wg==
+        bh=Cb80toS0cyKHDMnjZwPrB9Rgv1aCjruop80aYwcTj0g=;
+        b=D9HxojU/iGLELnY6ngdTV7kvGsiIxJkY3SBcmXsDhuQBv5KhALo/LkqMYIbJpy+w/Y
+         RmSY5A8Z13hw5nLj5Ddaqq9UwpWF9ck9C8UHdX1UhGTsTn2jhS5kEEzA3Q5jvfFQlRTH
+         HXnOb/R4ZzKUu5kWz4DPSWzkjAL1GLlS1igcFoxCpE8Xigs+D70KpAdaZEIVHdTrLK+n
+         ydI/rYqD8la/HD1DVtH62f5eJRzQO7RpoI13Uro9lJzdPjpLvTQ/EajPdpeA2zLqyJrs
+         UY6qFiPCn2shpUV0YqRYS8IMg1OhhB1UqX14NbDtsPM8PS9iX4sFJzUKVpdDN6hqe24V
+         wHDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710370340; x=1710975140;
+        d=1e100.net; s=20230601; t=1710422361; x=1711027161;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Mo4zQLcjGs/1cQrGh2gi+kezjnDbLcnxbVoJeKyq3b4=;
-        b=CnHXR+SzziDXPUMUpgK7FrMgZZI5QuzpBrH9kzjyITj0FNDEEBPPBfiSjqzkEa1sAz
-         YbzDkuqhd/CskJaQZMZYjKI76wbhH+v+vd5FLXysd8GY9WZB2yEAQ6pQ4WVPU2DK2dJN
-         8xnWlLwLoH+3nViujTsnoB8zfbxnedF7wOHMy+TuhdOGxw5U8WsddJMdJ1xCwNMmpW0D
-         aSRfefPOqHBCDPqHh6CSsx7cBFI0rNo20VSE4iMTMYdWaxq7351L6yNt/1FFVItvy5qu
-         0oMydKxHuTsyP8E1WFS5BkqGcZEVeenEzfMEG3CnjKF6I8x44KKTfppdY+DlAi6cIFtk
-         y9tg==
-X-Gm-Message-State: AOJu0Yw/B9y8XSeA1TiE7fNdvLagx2kksrzxgp/JOnpLvdiu/y9StL+L
-	NOdZytAoyOalHcoWa02xWgGeVcavtbjaxCzzzUOoabOlfFuzCrw3zPGKz/tRWDUDbILepS4lDpL
-	YeWm9zfYMI7XWpypvUG5KGqDQuPk=
-X-Google-Smtp-Source: AGHT+IHoz/3D9TKyhaE7em/hPeIZyKc1CCt4AXgaqj9ObpdkudY1NfSbLX7s57PeHYdGZt89UJc6aTjpNHQwGCzLAPU=
-X-Received: by 2002:a05:6102:19cb:b0:473:ac7f:8663 with SMTP id
- jn11-20020a05610219cb00b00473ac7f8663mr381440vsb.1.1710370340449; Wed, 13 Mar
- 2024 15:52:20 -0700 (PDT)
+        bh=Cb80toS0cyKHDMnjZwPrB9Rgv1aCjruop80aYwcTj0g=;
+        b=bfjs+VBI4m/YYDEKk4dMQHVqbopKgLtI8YWNbmt5Wxf9WRTQEKW1g34bbCw4B1chC8
+         Ahdfjdq4A45Gyn8/AwqOOGP03RwFthEcWhgvOOmNQh8WTCaKCC8xgzMNGzuu8l+G46MW
+         ORHHua2+N9sox62D4hm9G3tu2NlqBEV03FZSQGCoP3pBQh5npoLoDFfUe4Ixux625D2a
+         Kvtu1YHRaxvJPCVKzamoPg+MoJ1Hk1iNBCKUozZlArWzHpvmZldXjcnA0XTzES+iAybC
+         est4kY6JJl4XlBW9t7yKHwDXzLBhkTDXroyGJD2CCZEs6IonzyVqwz3HZOzsw3onGab8
+         HUTg==
+X-Gm-Message-State: AOJu0Yx/0Qj1fFsm3U8Nf972LQzLDcuLsa1h11FRHr6Kj5+fhFzlTWVb
+	TjCpMYqY3lkjO3P/g0qFfCMe06VY4L5s9j3zCBP+NCASJBbb0pIOUCWqXcULzPbVFLAx7FBNWge
+	HjAhGmGJsHSawobmK3X7agDVz5429nl342Oo=
+X-Google-Smtp-Source: AGHT+IEWJEkE8za26yNoiqOqwc3sByUE6RvaVpB/EiXR3XNU2VtoFCqHquDsffBZh7ySl9vAWscUdsU6fUwBkuvMvy0=
+X-Received: by 2002:a25:8142:0:b0:dc6:ddfc:1736 with SMTP id
+ j2-20020a258142000000b00dc6ddfc1736mr1604593ybm.17.1710422361501; Thu, 14 Mar
+ 2024 06:19:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <d5120a64-04f3-444d-aaf8-3cfc6c1d9953@jwillikers.com>
-In-Reply-To: <d5120a64-04f3-444d-aaf8-3cfc6c1d9953@jwillikers.com>
+References: <20240311145706.34885-1-cgzones@googlemail.com>
+In-Reply-To: <20240311145706.34885-1-cgzones@googlemail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 13 Mar 2024 18:52:09 -0400
-Message-ID: <CAP+JOzQ1iE7QZZAKoLy-BN9n=Hm-MfejdxtKzu1O+EtgH-mU8A@mail.gmail.com>
-Subject: Re: [PATCH] libselinux/src/Makefile: fix reallocarray strlcpy detection
-To: Jordan Williams <jordan@jwillikers.com>
+Date: Thu, 14 Mar 2024 09:19:10 -0400
+Message-ID: <CAP+JOzQ7BspHg7ZMQs2WSJQ0RDdz=hjSB=DohU6KZvQhLOyG-g@mail.gmail.com>
+Subject: Re: [PATCH 1/5] checkpolicy/fuzz: drop redundant notdefined check
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 1, 2024 at 12:03=E2=80=AFPM Jordan Williams <jordan@jwillikers.=
-com> wrote:
+On Mon, Mar 11, 2024 at 10:59=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> Pass CFLAGS and LDFLAGS when checking for realocarray and strlcpy.
-> This brings things inline with the fixes for libsepol/src/Makefile.
-> This better supports cross-compiling scenarios.
-> There, flags like -sysroot need to included when running these checks.
+> The level_datum_t member notdefined is checked to be 1 during validation
+> and the fuzzer calls policydb_validate().
+> Drop the redundant check (as announced in the TODO).
 >
-> Signed-off-by: Jordan Williams <jordan@jwillikers.com>
->
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index d3b981fc..3a9b5300 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -104,13 +104,13 @@ override CFLAGS +=3D -I../include -D_GNU_SOURCE
-> $(DISABLE_FLAGS) $(PCRE_CFLAGS)
->
->   # check for strlcpy(3) availability
->   H :=3D \#
-> -ifeq (yes,$(shell printf '${H}include <string.h>\nint
-> main(void){char*d,*s;strlcpy(d, s, 0);return 0;}' | $(CC) -x c -o
-> /dev/null - >/dev/null 2>&1 && echo yes))
-> +ifeq (yes,$(shell printf '${H}include <string.h>\nint
-> main(void){char*d,*s;strlcpy(d, s, 0);return 0;}' | $(CC) $(CFLAGS)
-> $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
->   override CFLAGS +=3D -DHAVE_STRLCPY
->   endif
->
->   # check for reallocarray(3) availability
->   H :=3D \#
-> -ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint
-> main(void){reallocarray(NULL, 0, 0);return 0;}' | $(CC) -x c -o
-> /dev/null - >/dev/null 2>&1 && echo yes))
-> +ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint
-> main(void){reallocarray(NULL, 0, 0);return 0;}' | $(CC) $(CFLAGS)
-> $(LDFLAGS) -x c -o /dev/null - >/dev/null 2>&1 && echo yes))
->   override CFLAGS +=3D -DHAVE_REALLOCARRAY
->   endif
->
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-The default CFLAGS causes the compilation to fail even if strlcpy() or
-reallocarray() exist.
-See if the patch I sent to the list works for you.
-Thanks,
-Jim
+For these 5 patches:
+Acked-by: James Carter <jwcart2@gmail.com>
 
-
+> ---
+>  checkpolicy/fuzz/checkpolicy-fuzzer.c | 17 -----------------
+>  1 file changed, 17 deletions(-)
+>
+> diff --git a/checkpolicy/fuzz/checkpolicy-fuzzer.c b/checkpolicy/fuzz/che=
+ckpolicy-fuzzer.c
+> index a3da0b57..f3a17cce 100644
+> --- a/checkpolicy/fuzz/checkpolicy-fuzzer.c
+> +++ b/checkpolicy/fuzz/checkpolicy-fuzzer.c
+> @@ -130,21 +130,6 @@ static int read_source_policy(policydb_t *p, const u=
+int8_t *data, size_t size)
+>         return 0;
+>  }
+>
+> -static int check_level(hashtab_key_t key, hashtab_datum_t datum, void *a=
+rg __attribute__ ((unused)))
+> -{
+> -       const level_datum_t *levdatum =3D (level_datum_t *) datum;
+> -
+> -       // TODO: drop member defined if proven to be always set
+> -       if (!levdatum->isalias && levdatum->notdefined) {
+> -               fprintf(stderr,
+> -                       "Error:  sensitivity %s was not used in a level d=
+efinition!\n",
+> -                       key);
+> -               abort();
+> -       }
+> -
+> -       return 0;
+> -}
+> -
+>  static int write_binary_policy(FILE *outfp, policydb_t *p)
+>  {
+>         struct policy_file pf;
+> @@ -198,8 +183,6 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_=
+t size)
+>         if (read_source_policy(&parsepolicydb, data, size))
+>                 goto exit;
+>
+> -       (void) hashtab_map(parsepolicydb.p_levels.table, check_level, NUL=
+L);
+> -
+>         if (parsepolicydb.policy_type =3D=3D POLICY_BASE) {
+>                 if (link_modules(NULL, &parsepolicydb, NULL, 0, VERBOSE))
+>                         goto exit;
 > --
-> 2.44.0
+> 2.43.0
 >
 >
