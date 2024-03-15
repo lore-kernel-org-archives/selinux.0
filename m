@@ -1,211 +1,185 @@
-Received: from alln-iport-8.cisco.com (alln-iport-8.cisco.com [173.37.142.95])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D272210A2B;
-	Thu, 14 Mar 2024 23:51:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=173.37.142.95
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710460268; cv=fail; b=FpBMq7yR/yDt/uHVojKsevHc376kCbuZUO6v6Tt1kotHkEFrjxr4Z8ltcwLtJJkLxSsZM5K8SmKY4NzxtAQCrtUTZgqQ+xnhoxcV2/y8jrfqgdI+DL2IENpsHwQcsszqMaaPZabPVOaAxNMF7YhU8oPrwfZ+mNmkCI9v5Q83+kg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710460268; c=relaxed/simple;
-	bh=sok2APe2uZ4iOZX3HOgT/VXglPEEfYGblT8jWPFQIdc=;
-	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=g7sNPUVumkOnGExFMQYI6Ar7ZnAspDRM/HSW5IqYdRy61amZCQvuehPTzFogpKxfa1fonPtPF5t89uRbL6nqA6c9ba5GSbkkx4+elxN9gL0kRWPLhztma5LT7liyyDevCGWHx7XPTwtbLM5CyRqw+VzgYHGEseoy5uI5ZWtiNWE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cisco.com; spf=pass smtp.mailfrom=cisco.com; dkim=pass (1024-bit key) header.d=cisco.com header.i=@cisco.com header.b=PlW/74j8; dkim=pass (1024-bit key) header.d=cisco.com header.i=@cisco.com header.b=eCUkvD4a; arc=fail smtp.client-ip=173.37.142.95
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cisco.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cisco.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4332A1B7E1;
+	Fri, 15 Mar 2024 11:38:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1710502741; cv=none; b=pjOuI7u4gVZifmoaTNV0oK/mWk8iquHe/ySDvFcP14hOi2dbl3t2NPyVacW6sBnEyRIv1zXCCxoCip2+pWQyZuxt2yiSyfKSvyQz5yoURBX/lduNmfJ7pXPWq5MN7+9m58XNdy75Z62/L/RWfXlDQklIAi3Gh11P8/B6BnUYDSQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1710502741; c=relaxed/simple;
+	bh=YhK/jnk1sN0Eu2k73vdEasVnkAA21VPShol4SbhmQDE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=AigQL+p0k9xR64d7kScCl9sY/XShtfoyniyE0HcHQNI4ap1dvUMmQG2lH6PL4MI3h3r4TP4tepeWkHdyLFKkgO0XSFGnhr5NGX1EGZ7AH63bpUrUD8J/TvHLqfQeX0Muye8zOC9/tccoaOzG4EPgPviJqUUWDUcXKdCry4ONHR8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=KUfLwR3Y; arc=none smtp.client-ip=209.85.208.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=cisco.com header.i=@cisco.com header.b="PlW/74j8";
-	dkim=pass (1024-bit key) header.d=cisco.com header.i=@cisco.com header.b="eCUkvD4a"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="KUfLwR3Y"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-568a3292916so1984175a12.1;
+        Fri, 15 Mar 2024 04:38:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=cisco.com; i=@cisco.com; l=594; q=dns/txt; s=iport;
-  t=1710460266; x=1711669866;
-  h=from:to:cc:subject:date:message-id:content-id:
-   content-transfer-encoding:mime-version;
-  bh=sok2APe2uZ4iOZX3HOgT/VXglPEEfYGblT8jWPFQIdc=;
-  b=PlW/74j8snSU4o8gPfOwG+xYjSqdZY3kiH4DuPMz+YQfKy99S6E5upCI
-   d/tVLO0RJSHcIpDO4Il0/VmnqaK7CmScgJYpjHUzetHYJ5+pkN354dzp1
-   OiuD7aCSCB5I+zSCteRaB1BdZyLc/UHA83hnWGDdfXa+ku1Q1oDbQOpJy
-   k=;
-X-CSE-ConnectionGUID: 2RJnAPA4SEufgwz7l/0QmQ==
-X-CSE-MsgGUID: TVuAl+MTT9iyqatogXPh9Q==
-X-IPAS-Result: =?us-ascii?q?A0BIAQDci/NlmIQNJK1agQklgSqBZ1J6AoEFEkiIIAOFL?=
- =?us-ascii?q?YhOhhqMZ4smgSUDVg8BAQENAQE7CQQBAYUGiAMCJjQJDgECAgIBAQEBAwIDA?=
- =?us-ascii?q?QEBAQEBAQEGAQEFAQEBAgEHBRQBAQEBAQEBAR4ZBQ4QJ4VsAQyGURYoBgEBN?=
- =?us-ascii?q?wERAT4gIScEDg4Zgl4Bgl8DARCoEwGBQAKKKHiBNIEBggoBAQYEBbJ4CRiBM?=
- =?us-ascii?q?IgmAYVZGoQ+JxuBSUSBFYZJAgKBRoZbhVKWNYdVgVMcA4EFaxsQHjcREBMNA?=
- =?us-ascii?q?whuHQIxOgMFAwQyChIMCx8FEkIDQwZJCwMCGgUDAwSBLgUNGgIQLCYDAxJJA?=
- =?us-ascii?q?hAUAxsdAwMGAwoxMIEWDFADZB8yCTwPDBoCLw0kIwIsSgoQAhYDHRowEQkLJ?=
- =?us-ascii?q?gMqBjYCEgwGBgZdIBYJBCUDCAQDUgMgchEDBBoECwc6PoM/BBNHgUSHXYJFg?=
- =?us-ascii?q?0IqgXeBEWoDRB1AA3g9NRQbBiKjHgGDaCuBRmcPP8UoCoQSogeDX6Y8g1KHM?=
- =?us-ascii?q?o1bIKgzAgQCBAUCDgEBBoFkOi2BLnAVgyIJSRkPjjmDYYUUimV4OwIHCwEBA?=
- =?us-ascii?q?wmKaAEB?=
-IronPort-PHdr: A9a23:dFdyABcSZWHxf5Bqi2zkUgaYlGM/eYqcDmcuAtIPgrZKdOGk55v9e
- RGZ7vR2h1iPVoLeuLpIiOvT5rjpQndIoY2Av3YLbIFWWlcbhN8XkQ0tDI/NCUDyIPPwKS1vN
- M9DT1RiuXq8NBsdA97wMmXbuWb69jsOAlP6PAtxKP7yH9vehsK22uSt8rXYYh5Dg3y2ZrYhZ
- BmzpB/a49EfmpAqar5k0BbLr3BUM+hX3jZuIlSe3l7ws8yx55VktS9Xvpoc
-IronPort-Data: A9a23:eOdol6rVfbdGbsR+LNxB4jOiE/deBmICZRIvgKrLsJaIsI4StFCzt
- garIBmFbquMa2Twedl2Odm1pEpS7cKDn9FgTAFq/yEzFi4R9ePIVI+TRqvS04x+DSFioGZPt
- Zh2hgzodZhsJpPkjk7wdOCn9T8ljf3gqoPUUIbsIjp2SRJvVBAvgBdin/9RqoNziLBVOSvV0
- T/Ji5OZYADNNwJcaDpOt/rY8U835pwehRtB1rAATaET1LPhvyF94KI3fcmZM3b+S49IKe+2L
- 86rIGaRpz6xE78FU7tJo56jGqE4aue60Tum1hK6b5Ofbi1q/UTe5EqU2M00Mi+7gx3R9zx4J
- U4kWZaYEW/FNYWU8AgRvoUx/yxWZcV7FLH7zXeX6/axyWT+WifX7uhgA14kYolfot9yODQbn
- RAYAGhlghGrjuayxvewTfNhw517asLqJ4gY/HpnyFk1D95/HsuFGPuMvIQehWxq7ixNNa62i
- 84xZTNpbRnEfBRnMVYMA5V4l+Ct7pX6W2cC+Q3M9ftmvAA/yiRN7qXENJnwRuDbRNRMl1qfq
- VL+/zXAV0Ry2Nu3kmfdrSn22YcjhxjTXIMUCa398PBxqEOcy3ZVCxAMU1a/5/6jhSaWQN9bK
- koJ6gIwoqUosk+mVN/wW1u/unHsg/IHc9NUF+t/4waXx++Nu0CSB3MPSXhKb9lOWNIKqSICj
- GWrmfrRLGBUnaCbRm2PqbPT9Qq3AH1ARYMdXhMsQQwA6tjlhYg8iBPTU9pueJJZaPWrQ1kcJ
- BjU9kADa6UvsCId60msEbn6b9+Er5zNSEs+4R/aGzv9qAh4f4WiIYev7DA3DMqszq7HFTFtX
- 1Bdx6ByCdzi67nWy0Rhp81WQdmUCw6tamG0vLKWN8BJG86R03CiZ5tMxzp1OV1kNM0JERewP
- xaL5V8IvMAJYCf3BUOSX25XI5l7pUQHPYm1Ps04kvIQCnSMXFbeo3EwPxL4M57FwBF9+U3AB
- XtrWZ3xVSlBU/sPIMueTOYG2rhj3TEl2W7WXtj6yR/huYdyl1bLIYrpxGCmN7hjhIvd+V292
- 48Ga6OilU4FOMWgOXa/zGLmBQ1QRZTNLcqo+5U/my/qClcOJVzN/NePmul9INE/xPs9eyWh1
- ijVZ3K0AWHX3BXvAQ6LcXtkLrjoWP5CQbgTZETA4X7AN6AfXLuS
-IronPort-HdrOrdr: A9a23:xJxHEaDne0dA3zHlHejqsseALOsnbusQ8zAXPh9KOH9om52j9/
- xGws576fatskdvZJhBo7y90KnpewKkyXbsibNhcotKLzOWxldAS7sSo7cKogeQVxEWk9Qtt5
- uIHJIOdeEYYWIK6voSgzPIUurIouP3jJxA7N22pxwCPGQaD52IhD0JcjpzZ3cGPjWucqBJb6
- Z0iPA3wQZIUE5nHviTNz0uZcSGjdvNk57tfB4BADAayCTmt1mVwY+/OSK1mjMFXR1y4ZpKyw
- X4egrCiZmLgrWe8FvxxmXT55NZlJ/K0d1YHvGBjcATN3HFlhuoTJ4JYczAgBkF5MWUrHo6mt
- jFpBkte+5p7WnKQ22zqRzxnyH9zTcV7WP4w1PwuwqgnSW5fkN+NyNyv/MfTvLr0TtngDi66t
- MT44utjesSMfoHplWk2zGHbWAwqqP+mwtSrQdatQ0tbWJZUs4QkWTal3klTavp20nBmdoaOf
- grA8fG6PlMd1SGK3jfo2l02dSpGm8+BxGcXyE5y4eoOhVt7TlEJnEjtYQit2ZF8Ih4R4hP5u
- zCPKgtnLZSTtUOZaY4AOsaW8O4BmHEXBqJaQupUBnaPbBCP2iIp4/84b0z6u3vcJsUzIEqkJ
- CEVF9Dr2Y9d0/nFMXL1pxW9RLGRnm7QF3Wu4tjzok8vqe5SKvgMCWFRlxrm8y8o+8HCsmeQP
- q3MII+OY6UEYIvI/c/4+TTYegnFZBFarxmhj8SYSP6nv72
-X-Talos-CUID: 9a23:qMDCIG5pK4nT0T9Sd9ssrnQ2HOkdWyHm4WreLFCqVmIuEISQcArF
-X-Talos-MUID: 9a23:qp0RYgTEGEu3UxL9RXTQuixLMIRN35j/CVEUmIkBtPm8NX1JbmI=
-X-IronPort-Anti-Spam-Filtered: true
-Received: from alln-core-10.cisco.com ([173.36.13.132])
-  by alln-iport-8.cisco.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 23:49:56 +0000
-Received: from alln-opgw-5.cisco.com (alln-opgw-5.cisco.com [173.37.147.253])
-	by alln-core-10.cisco.com (8.15.2/8.15.2) with ESMTPS id 42ENnuV5019108
-	(version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 14 Mar 2024 23:49:56 GMT
-X-CSE-ConnectionGUID: 6HbF0S5wQ3eqP1qVftk6nA==
-X-CSE-MsgGUID: nhcq3V+ITpC1VKWEtqaRMw==
-Authentication-Results: alln-opgw-5.cisco.com; dkim=pass (signature verified) header.i=@cisco.com; spf=Pass smtp.mailfrom=danielwa@cisco.com; dmarc=pass (p=reject dis=none) d=cisco.com
-X-IronPort-AV: E=Sophos;i="6.07,126,1708387200"; 
-   d="scan'208";a="5733102"
-Received: from mail-bn8nam12lp2168.outbound.protection.outlook.com (HELO NAM12-BN8-obe.outbound.protection.outlook.com) ([104.47.55.168])
-  by alln-opgw-5.cisco.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Mar 2024 23:49:56 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BtaAcNN4N0ZAzOsvrPBsT5MnAkkXXyi8aUpry3x88PXhEd0A6rKh70CyLJVYk6qPMLo25WWz9ImJZ70B+nM2O2HfuYte3ZZPcplo+vrSN73yywFJHlMYOL6XhjVtZWc3v+jAiXHFS77PeQ/ESIOaK/+yuq6iV9vsY30ujv0YRzfcizvAzxTudmeeIgTr693+A+qR7rJnwQM9z26ggVhkoRLT+iZ8hvvbMKRJN8BA8FXmKkzrJItgogL3e2wTwI8XBiDc44l+VvX2LNyJapaJ6TD6EP4nyik840JAk4VIyp88chzYWIJzUYpqLh3IxxUsyI1p5X+M3Qeem67lyb4Rcg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=sok2APe2uZ4iOZX3HOgT/VXglPEEfYGblT8jWPFQIdc=;
- b=b80YAJxXDAkkSFC2aygW+9/YcjlMexhMHp5V/6ozRlfu9A6K4X9rltRv4vHkCJjutp/K2XtDF5qglrCmdJbWyIcGy9kGq3AWelL505H+Me9OKuuvol6/D/ODZvFNlXdlzMDvTfieWnCa5Ryv6ecGm1vF5Ko8ccqrF1ndTEBWbjoyXXA05uHxYTkiAyvj4nLxckMjYPK2+iMa9/PoEW6AcQTboYoWy9Dm5we+DLcjh3ZVIm7Zk2RxtDyn2zUD545skMSaUSm6cBkHkOIcOowxyVOeR2erlW5QM+ac3MH8VGycNT6U0IiAWuLkxaoKLVk4dbpDdE79Drz1IL+Qj/XfvA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=cisco.com; dmarc=pass action=none header.from=cisco.com;
- dkim=pass header.d=cisco.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cisco.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=sok2APe2uZ4iOZX3HOgT/VXglPEEfYGblT8jWPFQIdc=;
- b=eCUkvD4aFm3k26MzylgZHYSDd0EbUwZSbc8X78Axz8QVJOJXVcTanSE0SBJVb+Nx3+Ure2IER4HQBAVftv+53njb19a25He2GxqMCEf9LON3G9i1o5jvJwEdRMbtJdbCSy/e3MYjMgN7zM3rVina+nmEHqLN6VYjKFnWd+MAW8Q=
-Received: from SJ0PR11MB5790.namprd11.prod.outlook.com (2603:10b6:a03:422::15)
- by CH0PR11MB5316.namprd11.prod.outlook.com (2603:10b6:610:bf::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7386.18; Thu, 14 Mar
- 2024 23:49:54 +0000
-Received: from SJ0PR11MB5790.namprd11.prod.outlook.com
- ([fe80::22f4:4617:117:7a44]) by SJ0PR11MB5790.namprd11.prod.outlook.com
- ([fe80::22f4:4617:117:7a44%6]) with mapi id 15.20.7386.015; Thu, 14 Mar 2024
- 23:49:53 +0000
-From: "Daniel Walker (danielwa)" <danielwa@cisco.com>
-To: "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-CC: "xe-linux-external(mailer list)" <xe-linux-external@cisco.com>,
-        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>
-Subject: nfs client uses different MAC policy or model 
-Thread-Topic: nfs client uses different MAC policy or model 
-Thread-Index: AQHadmpPdLuamV23IU6d6aCv68CZjQ==
-Date: Thu, 14 Mar 2024 23:49:53 +0000
-Message-ID: <ZfONIThp2RIfmu1O@goliath>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-Auto-Response-Suppress: DR, OOF, AutoReply
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SJ0PR11MB5790:EE_|CH0PR11MB5316:EE_
-x-ms-office365-filtering-correlation-id: ff164007-1068-4042-9eae-08dc44817231
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info:
- SVt1R5xTHXwl9cD5gMZxrO9hksehLrm68o+2YNa+7fjGr3ljcaSkBe7RbTdBvc+63bTYbmXaZfBlGi2RG1KfHWKVJzpgrzRsxrpwsaGZ99LYqnxYPzEQVLmI8M5HwVyBIkiYlE5GHmA1e82EoBJ/yQDPpHaGxkiPT/zAGaV4M1Tkg7B28CnjspkaqzBVUBATDceXBukQiBWg+g3xrRvQeT/U73lumMTfDE4fd3q39PuK95BoLKh7E3cDVs8CuWjXBmmvncvJxr8WDwPbQZsK9/obsGrsrmBqq9dCMPd0igv0UPzL0tSycIfEYdl7M4TNudeIpNTYvazp3O2Vhgf/QxTNop10L76AiCFoTyDS0vCP9Jvx6X7hjC0AF8fO+Sb7PXf0icWSPg2qW7+KnsOL0FUXzBPJt/U/cSaT9bBmoZkXN+FJVUII9PnCwCqzINUkHmVA1QjOQ66wFJJVspRvw++O5LAd7UR3LagQ0MVTV7dlwzZ7Fsihr7ILLRj9561y02tjeloLpuccI/aFdJadAiy1TUlybXAa5Cryv0KjzRByJDZnQgOAGWa3Vn21L3M5Q9+GOr3lF1S++6zURkVxOI6/vGHvYRYac130vAto3tZ20MuwWpJ6mf7clBO+tEwwcDEfSaI+1ZvEU+JkDIUyxEO7IolmE1qfJqZ+IvO9keU=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR11MB5790.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(1800799015)(366007)(38070700009);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?W0+DlWLSRpOYYo5lulwL48HKW6ZePzg7o3qpJlQ0+oKmLSJXhRuj+t2a5BLo?=
- =?us-ascii?Q?ejMxLFG9PVexet26FGiet/lrLO51XsU8YV5/0v/K0y7M+WV3oJwYD9CObcdc?=
- =?us-ascii?Q?YHL/C7tkUSFdhsmC+KfgEhZw7LzgROqFsheLBGGZHdPKpV89w6Ijv18WDPCt?=
- =?us-ascii?Q?ay6nb37f7TitUcNeplOccCWaozcOeAPp1vwv8c8HIWeLvkn6L9JhxLFzXSPG?=
- =?us-ascii?Q?mBanC5b8tXVmwzuh8i8DECpcKBHP6GLnEAPZfjGw7nJKNiOgDKDdVMgnaq/g?=
- =?us-ascii?Q?FdsW51JlJlnu84n3I0WpKRRj73CRo+c79vKPRtOLETRTzSoxoaIGB7iv/v/H?=
- =?us-ascii?Q?nzcZClRQf+FfFC/xiv6Vfbag2a0qGdfaP2cKe6OtJOQC4rK88OIMndfRINxU?=
- =?us-ascii?Q?iarGZGnleJ6PE2/y7gNkvPYKjB97q6ttsEpyCdx3Y4ZSJmZhgxUgjnN5Ouah?=
- =?us-ascii?Q?zKNK5mB+48CAIKgKy7YekwYMfrwQaQ664asgRLtRnpIvgsmoaZXVBVHD9h6O?=
- =?us-ascii?Q?eM0Rk9nnJ6YwYwgwr4Yjs+/VORA89ehzE7VabLSNDGigJucQrWfTnUQFeWmG?=
- =?us-ascii?Q?GsaHzmbIm/MLyXzZv78gZyRNMLVlXN4VV2ubE7vAh34tclYXssezaa8zFwMn?=
- =?us-ascii?Q?qEnuXjYApprb6bambg6Ze32pTTq+fSKpfxMiel0iS/RVpSnlu6vjyXe+9zkM?=
- =?us-ascii?Q?0artFd8oVsFfPirApYhlgpnQkCElu+iJtcsqH9Gc7oBeesk1FM+ody+7ouXv?=
- =?us-ascii?Q?mu8xQ/CYu+goPpqGZmTz0XQQ0NhIVPUT+7YqfZaaxuWyF+OruupddYCgEX+W?=
- =?us-ascii?Q?4nFPSdIWpH3HEljYyBvly4mgr2fN8yp/gUgNkx+Yfx97LZD01Ew88UscW+Fk?=
- =?us-ascii?Q?J/S6G7TWfcj+iSdl7lswAXKT3ASpIGpLkApHW5jyVFkV8tWodGd4draQu5gI?=
- =?us-ascii?Q?nGM5bkN0QO1MgDb6YytuWaU8gw1NlQaN4NGqcE/ixH28/ZYpM4j+wA+lx27k?=
- =?us-ascii?Q?Ssk5yVHZvUE8uYSZb6Zy1IJ+3vCb1LUbOkSWlNMoAldLefwya0qQNuTUHBVs?=
- =?us-ascii?Q?MRgsqfHdk8kIvbMmYmDQENHYxjLNJLjsAVAQDUeIG55PT1zsyLfXeYNreC54?=
- =?us-ascii?Q?a2FzyQj4uO07+zBbAFEr0JnoB3iAk+gSBX7zf+BM3uQ8K/qLKINJrymc8/PY?=
- =?us-ascii?Q?Af5kKIQkGJxrBF2K/sQn1x8364LtbK2qADL9G1pT17q3tNEaZpE8NGMPIHW5?=
- =?us-ascii?Q?plMd+fvJ1qdHNhSfFkmNpivE7fnCbIU71p2Rq9NEJW8FIIBy4eC7894/yBZx?=
- =?us-ascii?Q?HfqL5yGE/qHa6UF0SLNQjFsHMQxQKTo7r4m0CqYzMxnmhJY3x11NKQE6zWwC?=
- =?us-ascii?Q?c+BCuezH8YqQyz7530m/AWJAjnNRMCcfSHUNxaHInZCLwSCPIF10b2GDL5iR?=
- =?us-ascii?Q?UgHz4n/3crax5XlT0Bmzof1+Ep3W9gJTti82/46l8yEZvBYEcFRPmWYGI2R1?=
- =?us-ascii?Q?ia/HnCmPt4MYGjRkbBSmXxM+WI6qX0uOpwHACA3GFXL8A1iDC68feh6t8RZS?=
- =?us-ascii?Q?0FXEv5IJWycLmTNel9ddYIEPeLzx2bxSEalLKzoW?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <D2A5410F7557464C86D6A82D0989A516@namprd11.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        d=googlemail.com; s=20230601; t=1710502738; x=1711107538; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ret+NQ/Tw5LK56vjyJDNxqW8M+4jtEPqZMI9umR9cCI=;
+        b=KUfLwR3YydJAheGuADHmPCFzOmeuutYh+cPx3pAcCH1JXoYknT4HVT9fGpGQHhLJDi
+         olBOT21+QWtaOksGCZZ8CHd6EMVD8QEJg4918AHNhf2I62E5flo7lL4zqJRsMDU7tSkI
+         /KjLHhFQ3LP3wzTAq9iTpNJKHaTZeFHWPLaYFzQS6+mtrg4S3DEG2suKfDmG7En7mxhc
+         Yll27I7dKJujo45T8mZwgFHw8iEAhJm92aNa3iQzb/IFiwXvwqqCsR/8Pw6SplacDztV
+         N+9d6NozKyapLVifsnOheV49lTQZGZjObh9/llKi/FIhSOFBYJdC+nf5erbPQW8rhuao
+         V40Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1710502738; x=1711107538;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Ret+NQ/Tw5LK56vjyJDNxqW8M+4jtEPqZMI9umR9cCI=;
+        b=er0RKIzF0IcU+kWC90ZhsiiCBSbhUkp2gA5VaqtcF2On1rKBtbSs1mQqtkmD0zvV1Y
+         cqxNAKCjrWRra/Zo1WagShjBECx7tJsGMbm8s0e+iJkhu+AJug6VbHmLMF9iyirBqIjr
+         ueeon/g/EYndS3y1pM5Efjjw0eAvybhA23DNVaaVrLDjSrT1PWVvxUZRL3pD0TA5vH5M
+         PNSjCrjt69l2mMZBqcEOVpLgFlAkoTp6YSkYnWj49PGME05TccHUqiuI8obX0/LqDfcV
+         9z/ZcA/jd03Mmq637BbxTxK0p9koyNzLR705XgJ+QbgocOaoa9/PF0hUMev6jNXvpfUg
+         y7EQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWTWCZDE67T9IvmI0YS4CbbuhFeKCMu6uUu1Zg9qo+Z8onEHrZknnbxYsBA+Pbs5O3h2UVy5ZIAdhCyc+QqDYjPvsp77hQ4qYAIU6kb91XS6xVeH9MzljrD0ODBA8UsYfRULFOKuFhVXwyX1n4+qDo8H0DqxqozFaUC1A==
+X-Gm-Message-State: AOJu0Ywzp54EqvzcF+2uV6FJxeco5CfEWjSddoxAOHAJXAk1QRjZ7rAs
+	ZQshyNSg7RA1BJS464uoBN4fZqaPA7dXXo75oGC8IzDJQUKBAWDAKKSqAO/B++3GPQ==
+X-Google-Smtp-Source: AGHT+IHxB7FB377TOoio0unYbfIwnkxt4g5n3Z4MDqCqa7L7No5w/MvY3FrF55UMKEirChoiUMRGJg==
+X-Received: by 2002:a05:6402:530a:b0:568:797a:f2d with SMTP id eo10-20020a056402530a00b00568797a0f2dmr2968341edb.27.1710502737191;
+        Fri, 15 Mar 2024 04:38:57 -0700 (PDT)
+Received: from ddev.DebianHome (dynamic-095-119-217-226.95.119.pool.telefonica.de. [95.119.217.226])
+        by smtp.gmail.com with ESMTPSA id fg3-20020a056402548300b005682f47aea7sm1610024edb.94.2024.03.15.04.38.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 Mar 2024 04:38:56 -0700 (PDT)
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To: linux-security-module@vger.kernel.org
+Cc: linux-block@vger.kernel.org,
+	Paul Moore <paul@paul-moore.com>,
+	John Johansen <john.johansen@canonical.com>,
+	James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Christian Brauner <brauner@kernel.org>,
+	Roberto Sassu <roberto.sassu@huawei.com>,
+	Mimi Zohar <zohar@linux.ibm.com>,
+	Khadija Kamran <kamrankhadijadj@gmail.com>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	linux-kernel@vger.kernel.org,
+	apparmor@lists.ubuntu.com,
+	selinux@vger.kernel.org,
+	bpf@vger.kernel.org
+Subject: [PATCH 01/10] capability: introduce new capable flag CAP_OPT_NOAUDIT_ONDENY
+Date: Fri, 15 Mar 2024 12:37:22 +0100
+Message-ID: <20240315113828.258005-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: cisco.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SJ0PR11MB5790.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ff164007-1068-4042-9eae-08dc44817231
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Mar 2024 23:49:53.6649
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5ae1af62-9505-4097-a69a-c1553ef7840e
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 8by/onizw86Mr9fbiBwOBjVmkkh2LYVNlu62e7EKwDC+xn1auVFG6G8J6zZuxvCU++TaviZyhu/SMXkO53C71w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR11MB5316
-X-Outbound-SMTP-Client: 173.37.147.253, alln-opgw-5.cisco.com
-X-Outbound-Node: alln-core-10.cisco.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
+Introduce a new capable flag, CAP_OPT_NOAUDIT_ONDENY, to not generate
+an audit event if the requested capability is not granted.  This will be
+used in a new capable_any() functionality to reduce the number of
+necessary capable calls.
 
-Hi,
+Handle the flag accordingly in AppArmor and SELinux.
 
-It seems there is/was a problem using NFS security labels where the server =
-and client use
-different MAC policy or model.=20
+CC: linux-block@vger.kernel.org
+Suggested-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v5:
+   rename flag to CAP_OPT_NOAUDIT_ONDENY, suggested by Serge:
+     https://lore.kernel.org/all/20230606190013.GA640488@mail.hallyn.com/
+---
+ include/linux/security.h       |  2 ++
+ security/apparmor/capability.c |  8 +++++---
+ security/selinux/hooks.c       | 14 ++++++++------
+ 3 files changed, 15 insertions(+), 9 deletions(-)
 
-I was reading this page,
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 41a8f667bdfa..c60cae78ff8b 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -70,6 +70,8 @@ struct lsm_ctx;
+ #define CAP_OPT_NOAUDIT BIT(1)
+ /* If capable is being called by a setid function */
+ #define CAP_OPT_INSETID BIT(2)
++/* If capable should audit the security request for authorized requests only */
++#define CAP_OPT_NOAUDIT_ONDENY BIT(3)
+ 
+ /* LSM Agnostic defines for security_sb_set_mnt_opts() flags */
+ #define SECURITY_LSM_NATIVE_LABELS	1
+diff --git a/security/apparmor/capability.c b/security/apparmor/capability.c
+index 9934df16c843..08c9c9a0fc19 100644
+--- a/security/apparmor/capability.c
++++ b/security/apparmor/capability.c
+@@ -108,7 +108,8 @@ static int audit_caps(struct apparmor_audit_data *ad, struct aa_profile *profile
+  * profile_capable - test if profile allows use of capability @cap
+  * @profile: profile being enforced    (NOT NULL, NOT unconfined)
+  * @cap: capability to test if allowed
+- * @opts: CAP_OPT_NOAUDIT bit determines whether audit record is generated
++ * @opts: CAP_OPT_NOAUDIT/CAP_OPT_NOAUDIT_ONDENY bit determines whether audit
++ *	record is generated
+  * @ad: audit data (MAY BE NULL indicating no auditing)
+  *
+  * Returns: 0 if allowed else -EPERM
+@@ -126,7 +127,7 @@ static int profile_capable(struct aa_profile *profile, int cap,
+ 	else
+ 		error = -EPERM;
+ 
+-	if (opts & CAP_OPT_NOAUDIT) {
++	if ((opts & CAP_OPT_NOAUDIT) || ((opts & CAP_OPT_NOAUDIT_ONDENY) && error)) {
+ 		if (!COMPLAIN_MODE(profile))
+ 			return error;
+ 		/* audit the cap request in complain mode but note that it
+@@ -143,7 +144,8 @@ static int profile_capable(struct aa_profile *profile, int cap,
+  * @subj_cred: cred we are testing capability against
+  * @label: label being tested for capability (NOT NULL)
+  * @cap: capability to be tested
+- * @opts: CAP_OPT_NOAUDIT bit determines whether audit record is generated
++ * @opts: CAP_OPT_NOAUDIT/CAP_OPT_NOAUDIT_ONDENY bit determines whether audit
++ *	record is generated
+  *
+  * Look up capability in profile capability set.
+  *
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 3448454c82d0..1a2c7c1a89be 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1624,7 +1624,7 @@ static int cred_has_capability(const struct cred *cred,
+ 	u16 sclass;
+ 	u32 sid = cred_sid(cred);
+ 	u32 av = CAP_TO_MASK(cap);
+-	int rc;
++	int rc, rc2;
+ 
+ 	ad.type = LSM_AUDIT_DATA_CAP;
+ 	ad.u.cap = cap;
+@@ -1643,11 +1643,13 @@ static int cred_has_capability(const struct cred *cred,
+ 	}
+ 
+ 	rc = avc_has_perm_noaudit(sid, sid, sclass, av, 0, &avd);
+-	if (!(opts & CAP_OPT_NOAUDIT)) {
+-		int rc2 = avc_audit(sid, sid, sclass, av, &avd, rc, &ad);
+-		if (rc2)
+-			return rc2;
+-	}
++	if ((opts & CAP_OPT_NOAUDIT) || ((opts & CAP_OPT_NOAUDIT_ONDENY) && rc))
++		return rc;
++
++	rc2 = avc_audit(sid, sid, sclass, av, &avd, rc, &ad);
++	if (rc2)
++		return rc2;
++
+ 	return rc;
+ }
+ 
+-- 
+2.43.0
 
-http://www.selinuxproject.org/page/Labeled_NFS/TODO#Label_Translation_Frame=
-work
-
-It seems like this problem was known in 2009 when this page was written. Is
-there a way to accomplish having extended attributes shared over NFS to a c=
-lient
-with different selinux policies ?
-
-Maybe it's possible to allow the client to write local file context without
-writing that down to the remote filesystem.
-
-Thanks,
-Daniel
