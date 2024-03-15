@@ -1,82 +1,64 @@
-Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D43E71B810;
-	Fri, 15 Mar 2024 18:10:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C84954F1EE;
+	Fri, 15 Mar 2024 18:12:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710526245; cv=none; b=M6nxZ0FF/+/5ZgYTQBRxgUBt5ClyGglOLub2lsp0c2QH1ku4jLG494bCS77TnI5gyn7fs+yHxjEHC8gv1V7IT2nBpiNkGNK28ueK/946pMM27vL1hV7cuERX40Ldf5/3VZBGPfdG6QzDF5mNKwEBsRubDZWOT/M+lTbX/rsaBAY=
+	t=1710526330; cv=none; b=fNKTJOnYXYRI++Z6GQiRkAjphEq2AfTl0RRX6YHdFCwBX11rZrWx2bvoA08BEy/P5/fVNK5i45tWNiZtTc44ao2Ftw3JS7J/SDqH94e5Dt44owbeYx0/F7X+f7WIhwe9rHQfm59cSuLYRKKw6FFhr0i+8M8C2Jl8XM8w08Kxu+k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710526245; c=relaxed/simple;
-	bh=qP8nHFMJofHjWsKPWlJWonj+i8kGEwps7Wxqod3/LYs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=nblBjGYFC9GrASyImke+ymuJOYd3P2VVNVrAsng9wqahATFW2M4E5rObPzxwZXejzuo5u0HrLTxPQp8AqvtpFm2XlpNNUXeFjpexAaizze/UMPSwU5lHJBGIO4d5hu4/yg0jIipsfiBaBcvYIDpAwBJfb3wsob/UEX2fankOkg8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=BZpOY7Gf; arc=none smtp.client-ip=209.85.167.48
+	s=arc-20240116; t=1710526330; c=relaxed/simple;
+	bh=0e2hTLzqSzWSLW52Z9nltO5UKSGGXIc9zzq/LGh+H/U=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=t5z4DoCKaREiwBiNfKRZExF+UOgMLZ3VsXMVwdJ1Oemec/ilaz7vtV8JpMJlijXCYB+U0rDbRzB0NZ/JmtLZb2k7L56huypNd7ek0We53/uqKsp9KRHPsaKsMcVUF7iB4Npw7jqxXtmktPNW+NDAo5X1M78Td+N2rAu78tkut4w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=EBmaaAzM; arc=none smtp.client-ip=209.85.218.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="BZpOY7Gf"
-Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-513dbb5a1f9so996466e87.2;
-        Fri, 15 Mar 2024 11:10:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="EBmaaAzM"
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-a461c50deccso303813866b.0;
+        Fri, 15 Mar 2024 11:12:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1710526240; x=1711131040; darn=vger.kernel.org;
+        d=googlemail.com; s=20230601; t=1710526327; x=1711131127; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=uZ0fcTtTD0fe4SyWRrePksxxOrhm45+SyvujsTCShkE=;
-        b=BZpOY7Gfxc0fq5sCCAMJNife7+wlXKE5RxnxURWpuSrqQd8HGMwmnzcpiGwRw6grru
-         f0D+x1HDGuuGtrYNd/Mb3eAYoGtxcJSizrH9By5B39nWAr6a32RHrKDoGORoWSlezNeL
-         SN0Ha4YCHPFucob969rsICHJSbdPfnFIb+RAsXoxeR5bcBNqEh9BqvHww1S3puBhB4Hi
-         1JY5jrGdytjM8LPsOK7qMLuW0sE9wEncLeE4KVihFmZllU0C0284Z9/xXmtb/MJSwdXT
-         nk/VrMVp3aG5QogGiFhUWvWR8hZE8Bgu8LUViBw9caS0AIp2vw/dnGEZ9yGoWP0wRaJd
-         p8vw==
+        bh=YocCyKVkREiO6SEkYbFtG3eZAFhKtO/ltd371FGqMMc=;
+        b=EBmaaAzM22HZ3h2mUD7iqSm4N8VstY6fVnb7SUS0/RxyHjDcOVP5cmmFsVThhR99vk
+         h2hjdAG+8lT4L6uQ9/pOJ4rNiV4+XZDsu/sYunMAwLCvYR3uAFh9zkvxsO7TS8qmFG4h
+         WvtOjHaPhPX1l0Dxgay1mfN6KyfiHcZUd2fXvimt6NjUqvkKVqeuGN7MZ/F1WM87YkKB
+         aeI19H36OZQWGhgya/tEUtMy1rGDcNpE+BcAINJxvleqcHiYBFvaCcdTL6gGbVNRR/g9
+         OBDH+ugGayNlKLcjJUn8IpT6/im03vEer3Nm+Zl/og3POdJGdc8PWydAKT6AQbv018XA
+         0xqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710526240; x=1711131040;
+        d=1e100.net; s=20230601; t=1710526327; x=1711131127;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=uZ0fcTtTD0fe4SyWRrePksxxOrhm45+SyvujsTCShkE=;
-        b=Ij8FE/aUNhpCXw9QZqL7hOkRtwusZzIlIhau0qqLwtHJUPog7oNUggPwtcC4SsdnKY
-         Vay0jPaaFDkKcl4sXdLYDrHy+xETHNhg6tsAJRRIgHgfLEFm/Wa4+xN3GHjtsl9iVnnu
-         x3XTDfHgDbyVbfOs5JF80vVXTd3lqwrs1na53odaHs10MVOyF0vu1Tqvdg6DLztL7/L3
-         V03gqOHwsc1BMWVTF4zZl+4r/wDWJAQnvQTSwn54MPvsvRgJZdaCCtNc4b/NejM843Hf
-         oIg/gneAyhJdDPbkYj3YiQXVvp7MA0/dOiopi27NOLdVu8oMlMHBgTzCd2KOfIGHnhNI
-         BhOg==
-X-Forwarded-Encrypted: i=1; AJvYcCVGmhyByAx3lDcMhrvuRWGCTdxKEhR/vsEh5bHHJUk28T7s21BNaOFX49Hr1YL79cfGYvrcmxxt2bTj3IRHmSBjbTgkWO2S72DGScNJ2/oLlI8FXmzW3WDX2vi5tstlj2oCPn1Do6y+xJUe3aeh948J8brw/TD6NM78e8I/KjeVJmOr6Z0=
-X-Gm-Message-State: AOJu0YwRMDMfrqO5YYZ84PVCDSJjCEtu8lUMY2kqJ6NJyKKf/HO7QtAo
-	FY1ygImY3AyCTAVVtrXU719xBjluCaPOZ4FSMTrP28uJTShFF9Ij6qb8vP/cT3WHAQ==
-X-Google-Smtp-Source: AGHT+IEmiwrd4RrzijlKpRPRn/2mZElzaqpXLjQrJS1Vo5fvprxZg222wGzTFeFiS5qSlSXAJenLSA==
-X-Received: by 2002:a19:3850:0:b0:513:c757:33d9 with SMTP id d16-20020a193850000000b00513c75733d9mr3931656lfj.53.1710526239712;
-        Fri, 15 Mar 2024 11:10:39 -0700 (PDT)
+        bh=YocCyKVkREiO6SEkYbFtG3eZAFhKtO/ltd371FGqMMc=;
+        b=AD4yk6dgJqEak/UNxu4OR1NoUfGtwAGqEwAEQKhmqdBCibKIKkDOB9IzddUVlzy9wH
+         NP/Q0WNJ1hGIEAYMH2TmpLoQ9WrxRFY78hx1EPwJrabftJfqEVu/yvhzcKkG784dfTRV
+         xfZ+ziky7GC+tv/ht91zAkDTNUmSJdmO8KVp3AbwOahKrUy3UP5fYcqxIClIL8sZ8jmY
+         GcrkKLx2iuEXeCKY9dEq1Hk5INY/VzrSTSEdRW4g+DhTCG70Hj5cayHHU8Zt67msd7Zw
+         QMwsVkortsCWnLivIZCRhNPxW+I2/Gb1HXF6XnnLINtxjvKZZqgKUmK8GQz9ghOySVZ9
+         WMeg==
+X-Forwarded-Encrypted: i=1; AJvYcCVs2LHYBnYECo5+RRxaYamrWUGetFoY9nmjCHBL8qaOZcFkvyp6F8BJKvN7NVvhS7nAJGn7NYViKwuv2UWwzwyDUD+blwa5GPy/ZYYJ
+X-Gm-Message-State: AOJu0YztGvrEdOdwsG/EwrF4VQhJh3X4DF6iRSDltTHCoV2ai8oTyaxw
+	eNlTxG33IGE/PbmMbcz8jge6DlYDNOk4z9fDWMUdUdIoH0cHYsZcbWESSlCgpqBU5Q==
+X-Google-Smtp-Source: AGHT+IHkiHOlyaF2CCvrzBL2FiDyb0mSCQv703B1AwmSl6Oa+P7muTJf0VbnAXzaGUoH3C80G0YqOg==
+X-Received: by 2002:a17:906:c30f:b0:a46:2a85:b37b with SMTP id s15-20020a170906c30f00b00a462a85b37bmr3441990ejz.51.1710526327041;
+        Fri, 15 Mar 2024 11:12:07 -0700 (PDT)
 Received: from ddev.DebianHome (dynamic-095-119-217-226.95.119.pool.telefonica.de. [95.119.217.226])
-        by smtp.gmail.com with ESMTPSA id jx11-20020a170906ca4b00b00a46937bc44esm510480ejb.135.2024.03.15.11.10.38
+        by smtp.gmail.com with ESMTPSA id jy5-20020a170907762500b00a4675490095sm1650064ejc.42.2024.03.15.11.12.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Mar 2024 11:10:39 -0700 (PDT)
+        Fri, 15 Mar 2024 11:12:06 -0700 (PDT)
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To: linux-security-module@vger.kernel.org
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>,
-	Jan Kara <jack@suse.cz>,
-	Eric Biederman <ebiederm@xmission.com>,
-	Kees Cook <keescook@chromium.org>,
-	Paul Moore <paul@paul-moore.com>,
-	James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
+To: selinux@vger.kernel.org
+Cc: Paul Moore <paul@paul-moore.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Ondrej Mosnacek <omosnace@redhat.com>,
-	Khadija Kamran <kamrankhadijadj@gmail.com>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Casey Schaufler <casey@schaufler-ca.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Roberto Sassu <roberto.sassu@huawei.com>,
-	Guillaume Nault <gnault@redhat.com>,
-	John Johansen <john.johansen@canonical.com>,
-	Alfred Piccioni <alpic@google.com>,
-	linux-fsdevel@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	selinux@vger.kernel.org
-Subject: [RFC PATCH 2/2] selinux: wire up new execstack LSM hook
-Date: Fri, 15 Mar 2024 19:08:47 +0100
-Message-ID: <20240315181032.645161-1-cgzones@googlemail.com>
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3] selinux: optimize ebitmap_and()
+Date: Fri, 15 Mar 2024 19:11:55 +0100
+Message-ID: <20240315181204.647182-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -87,62 +69,87 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Perform a process { execstack } check unless virtual memory is marked
-executable by default.
+Iterate on nodes instead of single bits to save node resolution for each
+single bit.
+
+Similar to userspace patch efcd00814879 ("libsepol: optimize
+ebitmap_and").
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/hooks.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+v3:
+  apply format style
+v2:
+  fix array size computation
+---
+ security/selinux/ss/ebitmap.c | 50 +++++++++++++++++++++++++++++------
+ 1 file changed, 42 insertions(+), 8 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index a0fde0641f77..daf901916836 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -113,6 +113,8 @@ struct selinux_state selinux_state;
- /* SECMARK reference count */
- static atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
- 
-+static int default_noexec __ro_after_init;
-+
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
- static int selinux_enforcing_boot __initdata;
- 
-@@ -2221,6 +2223,18 @@ static int selinux_vm_enough_memory(struct mm_struct *mm, long pages)
- 	return cap_sys_admin;
- }
- 
-+static int selinux_vm_execstack(void)
-+{
-+	u32 sid;
-+
-+	if (!default_noexec)
-+		return 0;
-+
-+	sid = current_sid();
-+	return avc_has_perm(sid, sid, SECCLASS_PROCESS,
-+			    PROCESS__EXECSTACK, NULL);
-+}
-+
- /* binprm security operations */
- 
- static u32 ptrace_parent_sid(void)
-@@ -3767,8 +3781,6 @@ static int selinux_file_ioctl_compat(struct file *file, unsigned int cmd,
- 	return selinux_file_ioctl(file, cmd, arg);
- }
- 
--static int default_noexec __ro_after_init;
--
- static int file_map_prot_check(struct file *file, unsigned long prot, int shared)
+diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+index 67c1a73cd5ee..47cb90106118 100644
+--- a/security/selinux/ss/ebitmap.c
++++ b/security/selinux/ss/ebitmap.c
+@@ -78,19 +78,53 @@ int ebitmap_cpy(struct ebitmap *dst, const struct ebitmap *src)
+ int ebitmap_and(struct ebitmap *dst, const struct ebitmap *e1,
+ 		const struct ebitmap *e2)
  {
- 	const struct cred *cred = current_cred();
-@@ -7120,6 +7132,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
- 	LSM_HOOK_INIT(quota_on, selinux_quota_on),
- 	LSM_HOOK_INIT(syslog, selinux_syslog),
- 	LSM_HOOK_INIT(vm_enough_memory, selinux_vm_enough_memory),
-+	LSM_HOOK_INIT(vm_execstack, selinux_vm_execstack),
+-	struct ebitmap_node *n;
+-	int bit, rc;
++	const struct ebitmap_node *n1, *n2;
++	struct ebitmap_node *new = NULL, **prev;
  
- 	LSM_HOOK_INIT(netlink_send, selinux_netlink_send),
+ 	ebitmap_init(dst);
+ 
+-	ebitmap_for_each_positive_bit(e1, n, bit)
+-	{
+-		if (ebitmap_get_bit(e2, bit)) {
+-			rc = ebitmap_set_bit(dst, bit, 1);
+-			if (rc < 0)
+-				return rc;
++	prev = &dst->node;
++	n1 = e1->node;
++	n2 = e2->node;
++	while (n1 && n2) {
++		if (n1->startbit == n2->startbit) {
++			unsigned long testmap[EBITMAP_UNIT_NUMS];
++			unsigned int i;
++			bool match = false;
++
++			for (i = 0; i < ARRAY_SIZE(testmap); i++) {
++				testmap[i] = n1->maps[i] & n2->maps[i];
++				if (testmap[i] != 0)
++					match = true;
++			}
++
++			if (match) {
++				new = kmem_cache_zalloc(ebitmap_node_cachep,
++							GFP_ATOMIC);
++				if (!new) {
++					ebitmap_destroy(dst);
++					return -ENOMEM;
++				}
++				new->startbit = n1->startbit;
++				memcpy(new->maps, testmap, EBITMAP_SIZE / 8);
++				new->next = NULL;
++
++				*prev = new;
++				prev = &(new->next);
++			}
++
++			n1 = n1->next;
++			n2 = n2->next;
++		} else if (n1->startbit > n2->startbit) {
++			n2 = n2->next;
++		} else {
++			n1 = n1->next;
+ 		}
+ 	}
++
++	if (new)
++		dst->highbit = new->startbit + EBITMAP_SIZE;
++
+ 	return 0;
+ }
  
 -- 
 2.43.0
