@@ -1,81 +1,79 @@
-Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 001D585927
-	for <selinux@vger.kernel.org>; Wed, 20 Mar 2024 20:05:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41B2E8594E
+	for <selinux@vger.kernel.org>; Wed, 20 Mar 2024 20:06:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710965161; cv=none; b=ayb7a2TCnsgNp50uMm2X6Ue6Lw04cudIILjoXP0nOp/aTEAIsKk24RctGWiAoWugAXRma3A5L70EPOkiZT8HCqk1ugOVjzmDPSaAmf4IZ5u9LTcpETz1CymbEJ7zuZCuJF1iinjVh9Mj7jKf179qMg0bi0ePBz5vfsSm19EDihU=
+	t=1710965196; cv=none; b=nRpMFz2iRLM+SWRIhzD8hQqPEKZlomDtb+pykO4oFp/ZPIL2DHeu1Tj2lNE1uPojtTwVF5oOcfzOv8vvX2OaP5DXWVvfbvXyIx3lUwnn+czaU+hzfSYeuhi+Ja/AXigCIs0HYytpX0P0/obYEscnbwjlTFDCLnoxKFyaSyHKDlI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710965161; c=relaxed/simple;
-	bh=TzmpKjd12/LGzS3Lk7R5NBSQSonUHYl/Ju82ExsxypI=;
+	s=arc-20240116; t=1710965196; c=relaxed/simple;
+	bh=uomyBCiPFIhzRJM+qwL+JrZhDGfnVS8jguHF7Zuxr6s=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kf5k7kJ6SpC6CXn22+cZ6hBFIJSHhENyHQqys3iMvaaOm4LNWTA/aJaXNExvCsIQKa64V/A62miIe/TmCs0I8ZG6FmrStjpfdPxXJs9ASJET2PMoB8HftXPdGgwPvnHMR7Ddb5zow5MX7MIIuXoqKBz3c/y6IZY0AG3jImL/Svc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UU4Ay5rH; arc=none smtp.client-ip=209.85.128.179
+	 To:Cc:Content-Type; b=Geo4svwulA+I8zwfwU6j4Uhe33Ic5Z9jnBAsPDeyCcZGB8krYQpvEP5ptLDp8Ec8p1VoZONp9n3xUIMU5pUW/d88WCiPZPqZxfarTNrA11Aa66ojsUd4YOEPFDUbX55eLICHgOPhOhp9pPKgiv/Be99E9nNXsdOYIM/nncOLKKI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ig6B3xFa; arc=none smtp.client-ip=209.85.128.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UU4Ay5rH"
-Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-609fb0450d8so2162857b3.0
-        for <selinux@vger.kernel.org>; Wed, 20 Mar 2024 13:05:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ig6B3xFa"
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-60a068e26d8so2087667b3.3
+        for <selinux@vger.kernel.org>; Wed, 20 Mar 2024 13:06:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710965159; x=1711569959; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1710965194; x=1711569994; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=13vuA3tC9HjZkFHl+1pNdwTjAtmYzMmOh+oHSsbUJPs=;
-        b=UU4Ay5rH3V2DNlnA1xYuU1Aj3EIBippyXIj9EFokkZgWhCmxmOesIyKdVPFu9gDaHK
-         vNP7/b6jw3HAphypVAYoGwGQU5OR9wZwas7ufMmUG5T4htr/Qb+C6HbtavMJeeAB6hwi
-         Hqub53dModCatV4QQqHqFI2sgvjhRgvEswhFMy5Tei7sFTpE+prPnNYNezmDrFCmiDrG
-         TXXP1U9HYovlljEU50fsvQCKipJM8LoxSYp/JSweHP5qpwbcC5wXi9xf9asqWie/n55I
-         x2bhCwSkaL8O/yMSCB4K1zCuhgvOc7AkjcwpPJZ+slQj2aaQxlX+1/gzKoHCos7xugLB
-         ELaw==
+        bh=Rz5XGgwFL9mDFWWShVBEiNXTXonC9P8YNdUF+I9OwIE=;
+        b=ig6B3xFavA03IaslDXQmi5rQNw9KqGyXSHvUxBwUZSS87JYNGx6MGpEAGMksxh7oaF
+         3Acken5uQKDoqXtNxmkxBxATJODAzW3RsQSCotXH2QF9922jx0U6nPp6XrQJnfz/B2bI
+         MI0Y7HhlVBUrO3WcIvbYRI4bdak5FaZnrVv2rPlsSbKktuhnRlb1bsnuqFLzZ3K+pD45
+         NAenvfbYRHKxX1JTjDhFnzxzyQwzPeD0glVMppms+1m6VsAexRrFYGl9GRBsT+VLCjVQ
+         eRN3DVTDN6WnuegIB8RtGY2aMyqwgTVISR7TZH9qY3Uf9cdt+sZaGRNlH5y0SzZtAbGV
+         Bzsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710965159; x=1711569959;
+        d=1e100.net; s=20230601; t=1710965194; x=1711569994;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=13vuA3tC9HjZkFHl+1pNdwTjAtmYzMmOh+oHSsbUJPs=;
-        b=ugiC93k0wNns5VnarNXGuAKl16ZJ9F6GxZMDAw7H/N+SYyC8eOLyL7jHDEkDUOkhDX
-         oN9FyYLS+VALCT7qXKct0d5Dpk1PbArtqXhBKksBrxrK4a3L4FyBycTKbvTbmQXHpa17
-         qJ698gvlnyDQr86ubgTpjoZLOM/h9HJ43xKddgHEZJ7LpFB0QAox/nwsky0jycpOpeKP
-         0y+v5oEwcSbxbhyZQz/MmkiLwZIaxDDgwM0TubfZVA65rIezIbG5kZ8SsV/I0M35exlA
-         Amy2xCLEWygPa8CpIEf4WeOm4ToHRrUl+bp2iBYvMivbV5ubJ/rLlCuDNeIFSAQdgwhH
-         sKFw==
-X-Gm-Message-State: AOJu0Yx+G3Boje6kfCoxz4Avp7iP7V2Dr7vGG3Y+F6qgSh/y/0rsk6i4
-	IfMkXZST6jZ+QBCQdsoHuxDK3XL1g2iV9fUwhH4YVfbMZcCAo976ccruLqtWjlo1vt8FcFuYjiJ
-	6d2hb9bXnDesX42EvEHpsypjnl2ApRpGY
-X-Google-Smtp-Source: AGHT+IHhbKeMfszZEZQ2m6dhDx3zCcg4FhRG1u+MBMfE8eiR9xwjZs3Rtj7D6WFyTYZRhed/3L3r54mqS6zfRvvq2X0=
-X-Received: by 2002:a0d:f905:0:b0:608:13ee:8f3f with SMTP id
- j5-20020a0df905000000b0060813ee8f3fmr3210442ywf.27.1710965157758; Wed, 20 Mar
- 2024 13:05:57 -0700 (PDT)
+        bh=Rz5XGgwFL9mDFWWShVBEiNXTXonC9P8YNdUF+I9OwIE=;
+        b=M+lfQj8znDQYoHCQZ0Psi2MmKFHw0OzpRKoK/nHx33xB/Pc2xbWFduy9JVJ8FlG7qq
+         AGt9rSBd+BHFDAKYLcGOW0VtPchCtHHY71vWlGqx+UABVWwYDPXmf6u8ICDZVfbj/FfI
+         rfmfyrUbKjqnQvYCI0wZVCI1AFjRkY18ql9b2KkWcsh/EZSXoRDz+ntTt8UKWLzATHVD
+         RM7M4sJNGaLl0YD23hRIIDwIB8EcAVlzQiYCMGn6Kzd4JVPQ/SCcGXtpNfi+HPVJ9SDM
+         0Jw/Bjp++jC6XyUhDcL6IwQcYIaW+Dh/5y86iVWrCoEZ9JPQot10Z/UgpxmghTssSEi9
+         6wxQ==
+X-Gm-Message-State: AOJu0Yz/BpExIZRZcgDwgIRvQFJWfSY0mF6q31zfN0cWzYmyRUIYMQEV
+	CQ7lOV/G4FT5sBCqNHnT2VuXLR/4PD/mGrZkkJ61aj6eWpdfc2bZXt4jQdoT1K5LTRhWxNQN3n+
+	eAexs2XYFkVrEUlV2TmdHkQBkhBywIfQk
+X-Google-Smtp-Source: AGHT+IEGYVRriFb3alESj66wkW1P9FBeI8dwCl67o8r+RxXa6id8W0t9QzVSXG7oFP0OaWzYJPuY+OZ/nkgdhyKi2fs=
+X-Received: by 2002:a81:9253:0:b0:608:e694:ffcd with SMTP id
+ j80-20020a819253000000b00608e694ffcdmr18318469ywg.43.1710965194159; Wed, 20
+ Mar 2024 13:06:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240311145706.34885-1-cgzones@googlemail.com> <CAP+JOzQ7BspHg7ZMQs2WSJQ0RDdz=hjSB=DohU6KZvQhLOyG-g@mail.gmail.com>
-In-Reply-To: <CAP+JOzQ7BspHg7ZMQs2WSJQ0RDdz=hjSB=DohU6KZvQhLOyG-g@mail.gmail.com>
+References: <20240313111025.43720-1-cgzones@googlemail.com> <CAP+JOzRWQRtnR56bkLNmCB0F3fGR-2v-DRyTg8Jd=wxFMUv=hg@mail.gmail.com>
+In-Reply-To: <CAP+JOzRWQRtnR56bkLNmCB0F3fGR-2v-DRyTg8Jd=wxFMUv=hg@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 20 Mar 2024 16:05:46 -0400
-Message-ID: <CAP+JOzTO_HLCvDrpi4NE8MFPsZ0gw9VikCYQgA+6piuiOXws9w@mail.gmail.com>
-Subject: Re: [PATCH 1/5] checkpolicy/fuzz: drop redundant notdefined check
+Date: Wed, 20 Mar 2024 16:06:23 -0400
+Message-ID: <CAP+JOzQX0NBMZDOUVYL7S2vryoFr6AGVVBrwER9F8oMU0gCaEQ@mail.gmail.com>
+Subject: Re: [PATCH 1/5] libselinux/utils/selabel_digest: drop unsupported
+ option -d
 To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 14, 2024 at 9:19=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
-ote:
+On Thu, Mar 14, 2024 at 12:06=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
+rote:
 >
-> On Mon, Mar 11, 2024 at 10:59=E2=80=AFAM Christian G=C3=B6ttsche
+> On Wed, Mar 13, 2024 at 7:12=E2=80=AFAM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > The level_datum_t member notdefined is checked to be 1 during validatio=
-n
-> > and the fuzzer calls policydb_validate().
-> > Drop the redundant check (as announced in the TODO).
+> > The command line option -d is not supported, drop from usage message.
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
@@ -88,51 +86,25 @@ Thanks,
 Jim
 
 > > ---
-> >  checkpolicy/fuzz/checkpolicy-fuzzer.c | 17 -----------------
-> >  1 file changed, 17 deletions(-)
+> >  libselinux/utils/selabel_digest.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
 > >
-> > diff --git a/checkpolicy/fuzz/checkpolicy-fuzzer.c b/checkpolicy/fuzz/c=
-heckpolicy-fuzzer.c
-> > index a3da0b57..f3a17cce 100644
-> > --- a/checkpolicy/fuzz/checkpolicy-fuzzer.c
-> > +++ b/checkpolicy/fuzz/checkpolicy-fuzzer.c
-> > @@ -130,21 +130,6 @@ static int read_source_policy(policydb_t *p, const=
- uint8_t *data, size_t size)
-> >         return 0;
-> >  }
-> >
-> > -static int check_level(hashtab_key_t key, hashtab_datum_t datum, void =
-*arg __attribute__ ((unused)))
-> > -{
-> > -       const level_datum_t *levdatum =3D (level_datum_t *) datum;
-> > -
-> > -       // TODO: drop member defined if proven to be always set
-> > -       if (!levdatum->isalias && levdatum->notdefined) {
-> > -               fprintf(stderr,
-> > -                       "Error:  sensitivity %s was not used in a level=
- definition!\n",
-> > -                       key);
-> > -               abort();
-> > -       }
-> > -
-> > -       return 0;
-> > -}
-> > -
-> >  static int write_binary_policy(FILE *outfp, policydb_t *p)
+> > diff --git a/libselinux/utils/selabel_digest.c b/libselinux/utils/selab=
+el_digest.c
+> > index bf22b472..50f55311 100644
+> > --- a/libselinux/utils/selabel_digest.c
+> > +++ b/libselinux/utils/selabel_digest.c
+> > @@ -11,7 +11,7 @@ static size_t digest_len;
+> >  static __attribute__ ((__noreturn__)) void usage(const char *progname)
 > >  {
-> >         struct policy_file pf;
-> > @@ -198,8 +183,6 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, siz=
-e_t size)
-> >         if (read_source_policy(&parsepolicydb, data, size))
-> >                 goto exit;
-> >
-> > -       (void) hashtab_map(parsepolicydb.p_levels.table, check_level, N=
-ULL);
-> > -
-> >         if (parsepolicydb.policy_type =3D=3D POLICY_BASE) {
-> >                 if (link_modules(NULL, &parsepolicydb, NULL, 0, VERBOSE=
-))
-> >                         goto exit;
+> >         fprintf(stderr,
+> > -               "usage: %s -b backend [-d] [-v] [-B] [-i] [-f file]\n\n=
+"
+> > +               "usage: %s -b backend [-v] [-B] [-i] [-f file]\n\n"
+> >                 "Where:\n\t"
+> >                 "-b  The backend - \"file\", \"media\", \"x\", \"db\" o=
+r "
+> >                         "\"prop\"\n\t"
 > > --
 > > 2.43.0
 > >
