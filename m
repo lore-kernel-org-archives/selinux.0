@@ -1,23 +1,23 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF9B3481A5
-	for <selinux@vger.kernel.org>; Fri, 22 Mar 2024 14:56:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A36384D135
+	for <selinux@vger.kernel.org>; Fri, 22 Mar 2024 14:58:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711119392; cv=none; b=SOL/P+ncqXvIXIJG600FlGp6PC1h7AmLIl5A3Nfy4yGiv+P6uMtBByn2teT9vbcbjoAPcEH7PPJ63QU0JT2pFhDMnfD7y3ZL/a+bQpBDHuaAfa2LXe5m6FfNkmRo8oEbbi/mCNN+A9OFOmToYWa/hsDF0A+hjg6zIyO8kmqwMm8=
+	t=1711119502; cv=none; b=nYWBKrdhS2X73yObCfgBDYttP6cElt4TBUQhM+ig2d1YvXblCbMC+8dKzfe/iM9dp2KH8mRxTSb1MmTslrPewTHFQPiPLVbBFdpHmi1k5om+WXBgNTqT+8Mj0cIOirIRNaAIUmG5qnbXPMkgkfSDbvj12p2yEAhBd4fhtcEUxR4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711119392; c=relaxed/simple;
+	s=arc-20240116; t=1711119502; c=relaxed/simple;
 	bh=gxQcX5XS05rm/d39mf8nu23DfHDZePJzMyU7BxqIti8=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jqzRNkWjz40MG8sdnRsYWnIsEqC84YLsGmoq196Z4AqumVvZbKteapuLLiaQUs/py9RCyCrlp9CCu2m+zUTKXBzFgePeYW5BuKFd7zBR/kWsgnu2XpUMBBNPstKEolZs+4fOxCnqHPADlw5BZp68GVcyBAeuZ8MSczXKEvEfVaA=
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=PV7dXV9W68uqx+jmXpLo6siUMk+1nVv8DDKYfeWkitId7M7+HvIMSKo4ryHCG2zCy8SB/6SVOQJxUOlEOViQXnuKYPNVgShwZGGDvBLLU4F5GMIRe4Po4DY7jaUoneVzi1xnzthVdWOBxGuMXc5hKJVPPVcWZRSPQD5zXy1kLEg=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=googlemail.com; spf=fail smtp.mailfrom=googlemail.com; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=googlemail.com
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To: selinux@vger.kernel.org
 Subject: [PATCH v2] libselinux: avoid logs in get_ordered_context_list() without policy
-Date: Fri, 22 Mar 2024 15:56:21 +0100
-Message-ID: <20240322145621.61520-1-cgzones@googlemail.com>
+Date: Fri, 22 Mar 2024 15:50:19 +0100
+Message-ID: <20240322145019.60220-1-cgzones@googlemail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
