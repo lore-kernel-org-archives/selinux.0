@@ -1,87 +1,91 @@
-Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92CD213D523
-	for <selinux@vger.kernel.org>; Tue, 26 Mar 2024 20:40:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0554523CB
+	for <selinux@vger.kernel.org>; Tue, 26 Mar 2024 20:42:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711485605; cv=none; b=bJZ86uq1AYJKnNHos9CBtSD9VBhgCzsULStfKwyEMxzK3f2L9YBBGrM5m90f6rfFr8rMc4p9JcS93lTHCuzou26Scg5Sh8sHW+bZu3fGiA3n38kLDFXThydqndmbutMJZciXwKWsmC+VkjwvKmbmjcxuKvNIrNwLyBAydT4oqvw=
+	t=1711485731; cv=none; b=sMHDTGA8LlOv1RczFITKnt/iQl4lr+51v2o0lFAuQLB2BphfBsblKAbOdDwCxoMuWZhTOCKeqze4kpqj15fOOtvrclFhyVFlr+0rgZA1jodFI5JStyYXc5Aw2hmynFhGbxR5MM0ICrtNmmi1VrZXRyRjOZ1k1cO3sbmp/2Gdn4s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711485605; c=relaxed/simple;
-	bh=WruQOz9RaEv3HVSegh36YJN7OSGfDHYA1SUjz10NO3U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cNxaI2709RyiKeDai6McewZ8pE0Wr/m05ToT824CiaErNPuMJiTnIfh6ILmK2JGjaD9/uJ0zxGXtAsjO3/PS3tKfj1z3c7n6W6C1B2yaWBffTZbCre3QQzTH7kd7RplNVP+GcGXaBLLcyz9ADPKqjdSESMkHXrPPJv4MQJSW7AI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=EDF0sf5Y; arc=none smtp.client-ip=209.85.128.172
+	s=arc-20240116; t=1711485731; c=relaxed/simple;
+	bh=vh1A8OrMRYeLT3872Oz/e5YixZaZUTnYa+237JO+dQE=;
+	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
+	 From:To:Subject:References:In-Reply-To; b=QQW0HvGX9H/mmBu6wfwpAOQdejt2WP7vmYY3aEEZdchoNpQwIIDHqkq2hCLvkSFiCUTXAi0qXYDMsDSmfGVu2miVAhWKZyJuqalBD8yAAapa+aJhk1T7Obmerg304BqJA62fDWNOduILQrvtvkmycm2ZNO4ZOmegqiRlRxaPr9s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Bzvo+mND; arc=none smtp.client-ip=209.85.219.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="EDF0sf5Y"
-Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-60a0a54869bso1934867b3.1
-        for <selinux@vger.kernel.org>; Tue, 26 Mar 2024 13:40:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Bzvo+mND"
+Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-6918781a913so48928076d6.3
+        for <selinux@vger.kernel.org>; Tue, 26 Mar 2024 13:42:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1711485602; x=1712090402; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MfA6Bw+OqHDFIH02i3SdSOQOzi8KrIdytQiZZA87Vsk=;
-        b=EDF0sf5YQ0IellJZEMR50G7XA1/CyYTEIdVXam2F7o4cdYEV8eIsSeV/J6As+iBxvh
-         2yQa0UF/6oxk1g3Zpv/4F4nqu0j+iLG7H06h5kkA26vtF3QW8QiMIIpb+Oq9jX9ltiah
-         K8aRRMYtKumV/UgWqBzNFJR8WguMxzqSuFtNHU1I0dX9jKIyjAMYh1WM0r0nPfybnfFe
-         mHcs85loQkHFlzAO1fkjgBkSF5d5cHJ4NqmR9zIuyDuh+eEoImAexZfICL5hjnf47Nv+
-         oBpOxqTblKi+wSj5FrnG2xEUnQPYKJVV9nOYcRPKPOnggolhiqdZ8NU0MCLGg7Sof/au
-         jpCg==
+        d=paul-moore.com; s=google; t=1711485729; x=1712090529; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:to:from:content-transfer-encoding
+         :content-disposition:mime-version:message-id:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=QvyrjjNtAtR0EBTZmobaPZt23sMSuMsDkZ8UZ0l5DKI=;
+        b=Bzvo+mNDd4dHyWR9o79K9fgcaLnVtYYzuNtYYAyufe3yWQ54hMe0QfGN2lrNGjHwZ+
+         Dj2zxNNoH1Smd1y/nQ51T8Ai0yuhg38dz+7AZ3VR0LOl2AJQgn8CBemOc2jL+NMi7qy5
+         0Bvc1VpAMBWOj4vcOO10r2XcZMMBo2mQ2KPzfWGFpWybJwgZYgtJhNcDG1QDRBNViFfu
+         +SeqtgYb+FoFxR3C2KrSp/DCsxzPJksBiW38dtE9UYOAGJ9RRceOHjdqMmfxb9HhvYip
+         dBvgy8K8B5AKOIp09h7GK38SWK4OMXMe6iMcOn3cZCO5XZgDoW0WMeRa/i6DuZmqGAqg
+         Y8MQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711485602; x=1712090402;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MfA6Bw+OqHDFIH02i3SdSOQOzi8KrIdytQiZZA87Vsk=;
-        b=krvrsjlorW77RBVxWdc/PfuFtxwzvK97slovazts5+/szahAuVgVG8F+0CZN4hz1Cp
-         Vcjm9G5oHw5ki1TedX3YOj6apOhiKwJwhWhzwr0UYERUMhgsSCHwdAfMyS1bJyFLAbbz
-         Fw5YLs0DGxpTl7w0HyG+Z3D9F5eb4XVKeuBSeS/iIpoudY/Slncm17Df2kiTZ2hEdekf
-         VaB28KPQiqMGFJvmVahfWbZt28pr7GnlLKB8WUyVXAdSJvAr9pBWxQdN83friJr8VjaP
-         VjWflWxS+9Gm44FEPkt13oda4Q2fbCNSBO6xYCLX54Cx+z0s96CXYtEvbST8Ppnv1xkb
-         vN+w==
-X-Gm-Message-State: AOJu0YyOw4Mr32zX0mc+tkvY7oAG7O+DHKYFImheBt0nJr1NJALL+MVK
-	a8J6M0Km4uN528GptyLO223E1nk0iJ7HSHx0yDbmSMhCzyemvDRZ9eUnNohwPy6Ys0NUWpmkfMX
-	v2FtESy4mSWk5O0l+RNZLHnS+a+bkAgcYvJIZ
-X-Google-Smtp-Source: AGHT+IGojsm7tQ5IjgAZja3ZCicVNmkHB0OiNPAhpMRvWu2bsnClyYgJZH/nGSm005+lB31cavBaGPAdYzYaSe2kNak=
-X-Received: by 2002:a0d:eb45:0:b0:611:71b0:4ee2 with SMTP id
- u66-20020a0deb45000000b0061171b04ee2mr1807908ywe.23.1711485602560; Tue, 26
- Mar 2024 13:40:02 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1711485729; x=1712090529;
+        h=in-reply-to:references:subject:to:from:content-transfer-encoding
+         :content-disposition:mime-version:message-id:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=QvyrjjNtAtR0EBTZmobaPZt23sMSuMsDkZ8UZ0l5DKI=;
+        b=D69MGf5mGj4jIOWbHHdqKxedVvHCT3Amy8//Ec7sGcmIXqShc7hF0TG5l0Bsjwbvmt
+         PiZE7gTqyU2PIvqmbO2Eup2lagC27Hfm+XEx6W0GEW1ETRMVEvslYbUugiKK84W44dNg
+         mW8NPCgxW5MN5fGPuI5nLHDWEvll1Lrqt44RyitU1uKH/QzRc/YxkxzjlmumLR7bLaW3
+         GOPFmdro2ixV59kEZRoAw0iShjgtKo8kkXrvtVM6oNi8rkbiKgXDbdQrA9fOWdQRy4kL
+         dYoywPOgEytPrWI7iiFEZffr2c3ybAgJePD4iDQCygnl/rh27gPuQ6t1jrmWgzVNCMIM
+         qp6A==
+X-Gm-Message-State: AOJu0YyrTDPDYQq4sxdgoud5iIWzcK37JkUfpPBQ0M/nxy2cz7bg/qMU
+	DIiKxRIQ2T5z0x6vkWGswXc3HSjMS6stVLyyUZhk9l8hT3HXQt6QSD5fNRdoWiblZ+5YCdgWAP8
+	=
+X-Google-Smtp-Source: AGHT+IHzuwodAlcTWWhS3SnJC9szguZ9ijfKpFGlFo8Ktvn1jRnpD1klqsYDfo05ih2Bm+CbieGHNg==
+X-Received: by 2002:ad4:5969:0:b0:691:4425:c7a3 with SMTP id eq9-20020ad45969000000b006914425c7a3mr729221qvb.53.1711485728701;
+        Tue, 26 Mar 2024 13:42:08 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id gi9-20020a056214248900b006962b97c97asm5570610qvb.135.2024.03.26.13.42.08
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 Mar 2024 13:42:08 -0700 (PDT)
+Date: Tue, 26 Mar 2024 16:42:07 -0400
+Message-ID: <8b302186f4c9a2ef1165cde418b92583@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20240315173105.636749-1-cgzones@googlemail.com> <20240315173105.636749-2-cgzones@googlemail.com>
-In-Reply-To: <20240315173105.636749-2-cgzones@googlemail.com>
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=utf-8 
+Content-Disposition: inline 
+Content-Transfer-Encoding: 8bit
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 26 Mar 2024 16:39:51 -0400
-Message-ID: <CAHC9VhS-nTktDCbdrb2Zos_GtbN1C87VijJUqB88sZWpn+6m=w@mail.gmail.com>
-Subject: Re: [PATCH 1/2] selinux: avoid identifier using reserved name
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To: selinux@vger.kernel.org
+Subject: Re: [PATCH] selinux: improve error checking in sel_write_load()
+References: <20240305031221.492421-2-paul@paul-moore.com>
+In-Reply-To: <20240305031221.492421-2-paul@paul-moore.com>
 
-On Fri, Mar 15, 2024 at 1:31=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Avoid using an identifier starting with double underscores, which
-> signals a reserved identifier.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+On Mar  4, 2024 Paul Moore <paul@paul-moore.com> wrote:
+> 
+> Move our existing input sanity checking to the top of sel_write_load()
+> and add a check to ensure the buffer size is non-zero.
+> 
+> Move a local variable initialization from the declaration to before it
+> is used.
+> 
+> Minor style adjustments.
+> 
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 > ---
->  security/selinux/hooks.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
+>  security/selinux/selinuxfs.c | 30 ++++++++++++++++--------------
+>  1 file changed, 16 insertions(+), 14 deletions(-)
 
-Thank you for the patch, but this was addressed by the patch below
-which was posted on February 23rd.
+Merged into selinux/dev.
 
-https://lore.kernel.org/selinux/20240223212640.305789-2-paul@paul-moore.com
-
---=20
+--
 paul-moore.com
