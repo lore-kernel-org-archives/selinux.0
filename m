@@ -1,207 +1,135 @@
-Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
+Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com [209.85.219.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 911EB14EC5F
-	for <selinux@vger.kernel.org>; Wed, 27 Mar 2024 19:07:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5A661514D1
+	for <selinux@vger.kernel.org>; Wed, 27 Mar 2024 19:07:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711566445; cv=none; b=DT9eAu0xF4LZFRocIKYXjBc6SNc+7gLjNggsBnAif6wAGY483kO7KoktH37Mgvl3wJ+JD4Y8mkAxeE+qH9Os7Ox9+iW35fGz6Qp9M3BLNFPSoib2I3PVYRRvFiVp7dXZTy4xCI8xc8iIxt5bFdoex3kaeqhkl7coqwAfEvceBu4=
+	t=1711566477; cv=none; b=cwrJOXWdEMp7c/unr1gNxg6ArX6LfW/4jy2gayPubGkY6sV418r1INqiW1Pe1Mrkt7jJEM4HCfVpDE+ZpePpLFkTig+DGLE5xlrfzr2bMth9BT70BvkMIsdhevcXZxIufbZXUolSnUQkcTCRDaOJXVsemoYO8R74wk7QU9qgsgw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711566445; c=relaxed/simple;
-	bh=svUs9oTJNbJMJUc0sFRPs42L6QZC1B/GIaVefoMzAkc=;
+	s=arc-20240116; t=1711566477; c=relaxed/simple;
+	bh=rX8bJAJlWtQb9za+TVSbAx1jnWvcZZB7sZCqFLgfs2Q=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NRXA7yEqNWXwURYppy1D1xOUDesK6/uO4SGSbAOpPPuxBJQuvvhBR1ax9mDjTvX59U+Hlf70kLkq+oFF44gmrrhc2HyJ2MNlMhBORqmBGOukt1uJQro0GW/5Q3MNT8PbovEzsYoerijD2Cimai3InBaZtbpanaGn0DFvGq3BWPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=POQbzTjv; arc=none smtp.client-ip=209.85.128.170
+	 To:Cc:Content-Type; b=s5Z6maDZUD4wMtbnBm0ILvyWLtuYRsS5caZiZq2d+/oUIgXSy4hdMNhaJY5LfNjGZzsX57wRMCT4omkX11+1dySB2w/tJKJ5AEVDV51ysZDmhGtg6cGCd5lonwPhshUFW7EnnCLHNGBq1qaUqf/g7wgRDtzIzzidVm3Il/KK33Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ep0ezpiA; arc=none smtp.client-ip=209.85.219.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="POQbzTjv"
-Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-60a068e26d8so2010847b3.3
-        for <selinux@vger.kernel.org>; Wed, 27 Mar 2024 12:07:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ep0ezpiA"
+Received: by mail-yb1-f180.google.com with SMTP id 3f1490d57ef6-dc236729a2bso151418276.0
+        for <selinux@vger.kernel.org>; Wed, 27 Mar 2024 12:07:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1711566442; x=1712171242; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1711566474; x=1712171274; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ANrmRIp6fTmSzZ7B+4azFAltAC4/1gOfIhcFz4T39rk=;
-        b=POQbzTjvFEiN7do+8oh37+WK38HklYyWDbEE8+Vc24DXgot55LBBVRmgOykiK+dmr0
-         gEdqtYnSv+UjFWpeTG8/6fFlNHqtgm9+ZmB44zqEghXRtu6RKbdoL71q9JQqBrsCruNU
-         TjkYuinly0eEXEhrqzIivs1G3W52FH32Xy3Si/XfAcfsWctgJOwM65tAGbtftOq4ZbbL
-         +tFkgppMtwxH/h7X000i+zm7v/5yDBf/9hbaIzk1FgjhXYEQg0ppODllnsaFYDYtIWX1
-         j66yUL9Al5SlOAi+wOOFx8vKOjxrVOCyboLfKjIlfMCVeB33AEFTcET6fZMS/8dmsAOs
-         KNKQ==
+        bh=Dx/kHEKE1w/dleGiLbpSrHOD3qQNQS+wo6GVYnJL17Q=;
+        b=ep0ezpiAtH/K2c15Q4hna38DkYeBv8wkyeGE0ku1pO05ETYxvhrnkKXC0hIprl14lT
+         J+1KpIYSTMBmQLCIGylFhv5lv7ElFLvB5AmHieZsxkKeFMAZgsWYsJ6LWjkJbd23Qx3P
+         8mH3oZJeyVRJAvVwDeKS5D/qtnnAs8eRES3CIhTkKkhF9y3A7TO7TzZnz9hQFOZ8UdLy
+         1sB3YxJ7N0FfQh2AulhY76Rr7uYddGmwk14jHDj6PzQmiga+ZuWLWvPzQXb8TbxoAZt0
+         1SAgLvoM+JT0CPkPs9k0WFKODOsZy9QslaAyBzCDqeN7eBGelziOGh3giGajBqtS5UbC
+         9r2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711566442; x=1712171242;
+        d=1e100.net; s=20230601; t=1711566474; x=1712171274;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ANrmRIp6fTmSzZ7B+4azFAltAC4/1gOfIhcFz4T39rk=;
-        b=SCtKV36AnLoj+fek/79tbdnDuXd9+G59yWS8Tx//O1RFYqE4yelrjUvpBomLc2YHAG
-         8B4o1SPpfbyfRsfVVYl4GgJRcIEUADrLyGyTr4HRiEtgEInbC2gGo8q+ZMaX9xud1uFU
-         S2RXHgXm58pT8mSukJ/QN6QcHFySANb04iGL8RCYzaOZEsLfrLiCFsvOeBYBfHHzIt05
-         CxEB8s3u2tYpHgkZRXtDfprw6ByTLv0X5PCiiIr+Cvrczn9chdJJRKQmglzphLuUXgqp
-         ZBDKZTHRArNY6Oe2DTS7QKfUIF92G5RZyiHFVgX3IhWWQfNSYp+HPGQ/YzVYzCDjdE3x
-         TnJg==
-X-Gm-Message-State: AOJu0YzINdY+eDjmquA9PW/3mD/vqnV+C7f7vsVGAVraVI7oiLXea0fk
-	uuAY5uCYHSl/DP8WuQujPpQxe66j8PmJk0fXudFOVZdQNOpdCiESWOZQZqy/FVyVONGFyyaRhsj
-	pWrkMZPZUIM9z1EaJb6h5hdDDkJwXyN7X
-X-Google-Smtp-Source: AGHT+IGbeqBuVmoPQ+Eq4OjS/Ja+ZajN5ZKGvBdST6EdIwAM+rx2sHWAapjI1QDtCpUvKf7fk90+nHi8OmE6HJI8060=
-X-Received: by 2002:a25:bccf:0:b0:dcc:96db:fc0d with SMTP id
- l15-20020a25bccf000000b00dcc96dbfc0dmr683522ybm.25.1711566442571; Wed, 27 Mar
- 2024 12:07:22 -0700 (PDT)
+        bh=Dx/kHEKE1w/dleGiLbpSrHOD3qQNQS+wo6GVYnJL17Q=;
+        b=tgBhYupe6HEwDRHVDELDD2b+f0WhDT7KnxLUB/l9ONTlIJNBMUyx35X8QUl074uASW
+         VYW8TEZmEuHcU+7UPsZxOIyps8GefjkwLObVHGkyBqTNU9P0oyZPlp278nex5pfoK1Df
+         dhY/UWHdS4l8sDlINSfgD4N8MNXyo/bYeVoMueCi8t/kbeiPV4eonuCkQcadcCtNpOEf
+         jYrObEBrlFV0C3JNoVWktlXUwUE6xzkQLTXdxs7b4Pa4xHVDisSNSoifSg7dZWYkwwDt
+         +UwEAuIfBCa//w+96492S7XTXwFz7kIRxVawfHs0cKoxGd93+9HcuzcQHr2yy3YbywSe
+         mTsw==
+X-Gm-Message-State: AOJu0Yznq/+IdvxTJ/gwH0KCtIDl169VffAjeYZFUh4CgXNL4TXaa88r
+	/iG65kjMPA5Evnu6bbtjAsiHnBaMNo8+bJzpaSGzXdASy3Ld0FQWFNkq5NSarW8SEqDJ47GUani
+	8Cg0K0ZKHwysQFOCBjkEpQg2Kk3k=
+X-Google-Smtp-Source: AGHT+IEm6a0vloiAejFkXulJZKvZZrhgzIseGZWvcl2JGltQUnSTWH9DcCnG/kwjd905w0+aEwiT2mzojSa9MWiRkEY=
+X-Received: by 2002:a25:bf89:0:b0:dc7:46ef:8b9e with SMTP id
+ l9-20020a25bf89000000b00dc746ef8b9emr781685ybk.29.1711566474632; Wed, 27 Mar
+ 2024 12:07:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240322145019.60220-1-cgzones@googlemail.com> <CAP+JOzSdKAkRSHqN9jd=f8Thj3a316yRheExf4od90N3iQ4TTg@mail.gmail.com>
-In-Reply-To: <CAP+JOzSdKAkRSHqN9jd=f8Thj3a316yRheExf4od90N3iQ4TTg@mail.gmail.com>
+References: <20240322145049.60340-1-cgzones@googlemail.com> <CAP+JOzQH0gLqUTmYq5Ou2qt_P9nzvaQY6gscTuQpsU_Mg5rz7Q@mail.gmail.com>
+In-Reply-To: <CAP+JOzQH0gLqUTmYq5Ou2qt_P9nzvaQY6gscTuQpsU_Mg5rz7Q@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 27 Mar 2024 15:07:11 -0400
-Message-ID: <CAP+JOzSxEewe8HdW3RM7LZmqmsmU1xHDPVPtJt=nNer1RiEq0A@mail.gmail.com>
-Subject: Re: [PATCH v2] libselinux: avoid logs in get_ordered_context_list()
- without policy
+Date: Wed, 27 Mar 2024 15:07:43 -0400
+Message-ID: <CAP+JOzT8XBJAxss=M_DVbM6zQZEY3XMaTpSwAzKRV+=JMdzgjg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] checkpolicy: use YYerror only when available
 To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 25, 2024 at 3:10=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+On Mon, Mar 25, 2024 at 1:13=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
-> On Fri, Mar 22, 2024 at 10:59=E2=80=AFAM Christian G=C3=B6ttsche
+> On Fri, Mar 22, 2024 at 10:54=E2=80=AFAM Christian G=C3=B6ttsche
 > <cgzones@googlemail.com> wrote:
 > >
-> > If no policy has been loaded yet and thus the current context is still
-> > "kernel" avoid logging failures in get_ordered_context_list(), like:
+> > The special error value YYerror is only available since bison 3.6
+> > (released 2020).  For example the version used by oss-fuzz does not
+> > support it.
 > >
-> >     get_ordered_context_list:  error in processing configuration file /=
-etc/selinux/debian/contexts/users/root
-> >     get_ordered_context_list:  error in processing configuration file /=
-etc/selinux/debian/contexts/default_contexts
-> >
-> > Move the context parsing from get_context_user() to its caller
-> > get_ordered_context_list(), so an invalid context is not treated as an
-> > get_context_user() failure and not logged.
+> > Use a special token in case YYerror is not available.  Only downside is
+> > a duplicate error message, one from the manual yyerror() call and one
+> > from within bison for the unexpected special token (which would be
+> > omitted by using YYerror).
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
+> For these two patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
-Merged.
+
+These two patches have been merged.
 Thanks,
 Jim
 
 > > ---
-> > v2:
-> >   - move the context parsing from get_context_user() to its caller
-> >   - add Signed-off-by
-> > ---
-> >  libselinux/src/get_context_list.c | 24 ++++++++++++------------
-> >  1 file changed, 12 insertions(+), 12 deletions(-)
+> >  checkpolicy/policy_parse.y | 1 +
+> >  checkpolicy/policy_scan.l  | 9 ++++++++-
+> >  2 files changed, 9 insertions(+), 1 deletion(-)
 > >
-> > diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_con=
-text_list.c
-> > index 7e23be05..0ad24654 100644
-> > --- a/libselinux/src/get_context_list.c
-> > +++ b/libselinux/src/get_context_list.c
-> > @@ -130,7 +130,7 @@ static int is_in_reachable(char **reachable, const =
-char *usercon_str)
-> >  }
+> > diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+> > index e0103502..1b275ebc 100644
+> > --- a/checkpolicy/policy_parse.y
+> > +++ b/checkpolicy/policy_parse.y
+> > @@ -153,6 +153,7 @@ typedef int (* require_func_t)(int pass);
+> >  %token FILESYSTEM
+> >  %token DEFAULT_USER DEFAULT_ROLE DEFAULT_TYPE DEFAULT_RANGE
+> >  %token LOW_HIGH LOW HIGH GLBLUB
+> > +%token INVALID_CHAR
 > >
-> >  static int get_context_user(FILE * fp,
-> > -                            const char * fromcon,
-> > +                            context_t fromcon,
-> >                              const char * user,
-> >                              char ***reachable,
-> >                              unsigned int *nreachable)
-> > @@ -146,7 +146,6 @@ static int get_context_user(FILE * fp,
-> >         char **new_reachable =3D NULL;
-> >         char *usercon_str;
-> >         const char *usercon_str2;
-> > -       context_t con;
-> >         context_t usercon;
-> >
-> >         int rc;
-> > @@ -155,14 +154,10 @@ static int get_context_user(FILE * fp,
-> >
-> >         /* Extract the role and type of the fromcon for matching.
-> >            User identity and MLS range can be variable. */
-> > -       con =3D context_new(fromcon);
-> > -       if (!con)
-> > -               return -1;
-> > -       fromrole =3D context_role_get(con);
-> > -       fromtype =3D context_type_get(con);
-> > -       fromlevel =3D context_range_get(con);
-> > +       fromrole =3D context_role_get(fromcon);
-> > +       fromtype =3D context_type_get(fromcon);
-> > +       fromlevel =3D context_range_get(fromcon);
-> >         if (!fromrole || !fromtype) {
-> > -               context_free(con);
-> >                 return -1;
-> >         }
-> >
-> > @@ -296,7 +291,6 @@ static int get_context_user(FILE * fp,
-> >         rc =3D 0;
-> >
-> >        out:
-> > -       context_free(con);
-> >         free(line);
-> >         return rc;
-> >  }
-> > @@ -418,6 +412,7 @@ int get_ordered_context_list(const char *user,
-> >         char *fname =3D NULL;
-> >         size_t fname_len;
-> >         const char *user_contexts_path =3D selinux_user_contexts_path()=
-;
-> > +       context_t con =3D NULL;
-> >
-> >         if (!fromcon) {
-> >                 /* Get the current context and use it for the starting =
-context */
-> > @@ -427,6 +422,10 @@ int get_ordered_context_list(const char *user,
-> >                 fromcon =3D backup_fromcon;
-> >         }
-> >
-> > +       con =3D context_new(fromcon);
-> > +       if (!con)
-> > +               goto failsafe;
-> > +
-> >         /* Determine the ordering to apply from the optional per-user c=
-onfig
-> >            and from the global config. */
-> >         fname_len =3D strlen(user_contexts_path) + strlen(user) + 2;
-> > @@ -437,7 +436,7 @@ int get_ordered_context_list(const char *user,
-> >         fp =3D fopen(fname, "re");
-> >         if (fp) {
-> >                 __fsetlocking(fp, FSETLOCKING_BYCALLER);
-> > -               rc =3D get_context_user(fp, fromcon, user, &reachable, =
-&nreachable);
-> > +               rc =3D get_context_user(fp, con, user, &reachable, &nre=
-achable);
-> >
-> >                 fclose(fp);
-> >                 if (rc < 0 && errno !=3D ENOENT) {
-> > @@ -451,7 +450,7 @@ int get_ordered_context_list(const char *user,
-> >         fp =3D fopen(selinux_default_context_path(), "re");
-> >         if (fp) {
-> >                 __fsetlocking(fp, FSETLOCKING_BYCALLER);
-> > -               rc =3D get_context_user(fp, fromcon, user, &reachable, =
-&nreachable);
-> > +               rc =3D get_context_user(fp, con, user, &reachable, &nre=
-achable);
-> >                 fclose(fp);
-> >                 if (rc < 0 && errno !=3D ENOENT) {
-> >                         selinux_log(SELINUX_ERROR,
-> > @@ -472,6 +471,7 @@ int get_ordered_context_list(const char *user,
-> >         else
-> >                 freeconary(reachable);
-> >
-> > +       context_free(con);
-> >         freecon(backup_fromcon);
-> >
-> >         return rc;
+> >  %left OR
+> >  %left XOR
+> > diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+> > index 1926129c..c4d8e937 100644
+> > --- a/checkpolicy/policy_scan.l
+> > +++ b/checkpolicy/policy_scan.l
+> > @@ -308,7 +308,14 @@ GLBLUB                             { return(GLBLUB=
+); }
+> >  "]" |
+> >  "~" |
+> >  "*"                            { return(yytext[0]); }
+> > -.                               { yyerror("unrecognized character"); r=
+eturn YYerror; }
+> > +.                               { yyerror("unrecognized character");
+> > +/* Available since bison 3.6, avoids duplicate error message */
+> > +#ifdef YYerror
+> > +                                 return YYerror;
+> > +#else
+> > +                                 return INVALID_CHAR;
+> > +#endif
+> > +                               }
+> >  %%
+> >  int yyerror(const char *msg)
+> >  {
 > > --
 > > 2.43.0
 > >
