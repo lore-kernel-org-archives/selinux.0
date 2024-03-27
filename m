@@ -1,102 +1,112 @@
-Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com [209.85.219.172])
+Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F325B14D444
-	for <selinux@vger.kernel.org>; Wed, 27 Mar 2024 16:56:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1B441514E5
+	for <selinux@vger.kernel.org>; Wed, 27 Mar 2024 19:02:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711558587; cv=none; b=XZYkMdxtoQP0CPg6/l8QbDkPvaRSHK8nTutmHu5FoGAhhBshI1q/DdrT2ukOIbAG3xv9ngPkvhF8238VpMgIe5obITkEjMXX4P52oIgymOGKFgBlRoYmF1jL8wtsjFvEt7c5103PopaYn/aVlrsjDPREiL/1vl0LYHdeQskMBwk=
+	t=1711566177; cv=none; b=BjwCoxxOdNnH9NuqRe/JC5HOn5spVaxYfuRLtgpvEUK3iAhp8hUd0LpftOGmn98Z5EAIsdxQq/yasi1Y1Eq2GKP9BAMw7srJdPmEFfGq4cjraaGbEbQveCYRMBWQNg/+yn7nQ1dnYXli5x5kgoj91cuGsdPJKvCNozpS1+cP5Rw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711558587; c=relaxed/simple;
-	bh=4a5q5dgIFfgFSbTuqq5J6bB/FieeXf1/IEeoLjPXFYA=;
+	s=arc-20240116; t=1711566177; c=relaxed/simple;
+	bh=D8a5ZfXMpPXAwPj5kiiz0KDYFu4aJWCrtp+mhKqVfls=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gsBJPZeIeWWOYpl8SeSUvHz7I4wgD9YyCPgnOgGIdHHmrCNEyNLomAC9e7RWGPZm75A2Fp5HVgAfk1xo6PG/Tjn0TnnbncGNLRrfupXqWc5qxJcIE96TpithZiYlQ+z6LmiBjkJh4z48X/QfG9M90AvR8O3wY66Glp5pai2aDhY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=YvTR/yer; arc=none smtp.client-ip=209.85.219.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	 To:Cc:Content-Type; b=LvLZ1nY3Abm5yaBAMFgcb4aZOEmQ+4wLKNQZCgURBFyqaXBFq2a+MBdrC2SbqqLc+SznrMJXiBcSNWBG8HFznYyy8E/sEfBdN1QSgOeCVmpjEvAhS9XIdviItu9qktADA2qkNSRPZeIJdFduD5XTAuMeLwz8DGgxTQM0C2o2P6I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=JH1UMNn1; arc=none smtp.client-ip=209.85.128.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="YvTR/yer"
-Received: by mail-yb1-f172.google.com with SMTP id 3f1490d57ef6-dc6d8bd612dso6809803276.1
-        for <selinux@vger.kernel.org>; Wed, 27 Mar 2024 09:56:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="JH1UMNn1"
+Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-607c5679842so1587207b3.2
+        for <selinux@vger.kernel.org>; Wed, 27 Mar 2024 12:02:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1711558584; x=1712163384; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=qLUTDYSXasZ3zz7pI1IjOBJvAqeSImkwCNvEMNN/S1E=;
-        b=YvTR/yerzSytSjjJxVceUhxdEfDQrhAZXXi5K6ljiSu7ktKv48qmt4lPAFFbD63G0l
-         9+hzuHbvWu6b7OHS0dYZ2onek46VsSU8rVlQ4jeIApkBZ8POZiiejkWbHDlxDnciAW/U
-         whq3XqOL6UJChaKy7Iaft1r6A/Bz+p2l4CtAhi/vVJN6el9mr6GNoh7WySOW6NLfOVCh
-         5PIlqAOpTkLAashobcAhSAj9rfwwW5hA6rSLl4AmOHGG9wtiPmfRh5ylp+NsKzEhxfQC
-         jcpBhZBTnp+p/4DG4lTOyxw3e0+TWkhdrw2xy8X/V5NOSy7YPZ9LbG9o+rhOlisY+Mek
-         9b3Q==
+        d=paul-moore.com; s=google; t=1711566174; x=1712170974; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mL5128psZuAbV8STCgbOfU47SK+zDLdVx4j+fOAWeow=;
+        b=JH1UMNn1JOrBqCVb/hXMJB3NpFl8XLc2114Jz6Wj7pOu2WJ2tjwCOkTHo3FtvnUNQz
+         luaU1TDKel12CVx2oqCqVz5tDQLbJmNibkyEgICzAwt6Pf9i4ZQxfbywjeLlOUaM6ZEy
+         NHbmR1AVgmFg68+xSKZdPkwTbMz8zWbevRHKG+3Eyfl2GWCSoKYxS6ndXqZj7REm/2Kw
+         ATICr9mTwzcEhi35zf6+7WYZ5ea8t+81w63lZbknJfOkPiI2dPInwzXqyicn+JuLmy/g
+         nM/vDgNNsfLKD5vvVf0aAp9RdM4nL5anTR8rDu0UjTLHkQI2A0RMNpOIOPaJhvkU2t56
+         DKiw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711558584; x=1712163384;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=qLUTDYSXasZ3zz7pI1IjOBJvAqeSImkwCNvEMNN/S1E=;
-        b=lTDkFW1SiOp/TBxieFttcngKJh4iNx2DEv4g4h/LI1xEztrOvh4p5bKHXQpVByfm0z
-         clsHsPkm2OushZX+5T3apOWBp++0M6nbBuxQUruz3Ne8vaGGtGpswEU8iJ4rz4+B7Pzl
-         829id5Gh+HScGpnF0VumHpvdImXzLdFE54qb6fFlxicu2sG1vBZhKP/Xl0bq0qA+md9m
-         YG2zK1zVbq2rS+RQMNm1gUVhoZNLSk/8lUvcUur1g2sCVdwy3eJXibrNyq4esm4yoOzi
-         ZzMVoRm4ReD3larKdienGzloR1BWSf/eLOm+entHWu3u2wRzuM/nG37wjAmE+2F5934Y
-         iTrQ==
-X-Gm-Message-State: AOJu0YyURg1RpMB029V1b1+esQCVid4owVyqYNxv+bMqzEjVAwy7b4Ao
-	QixfkkUrG5pPBsQ0YEjTZjT7tsTikzB+py0GL22faDGKe/fkxqzW8h3WQt96R7UuCU0lBpRZiqj
-	NYeJ0T4jkJSgO2TtdiYfWUbmQU/U=
-X-Google-Smtp-Source: AGHT+IESZekPFMdnEm9pNgaGmH/nxgzaEcuHIRHKb6C56huHRoCUeCSM8ov9ygSFZKQ85BorFXdrCDDDe+7nsREpLiY=
-X-Received: by 2002:a25:804a:0:b0:dcd:5635:5c11 with SMTP id
- a10-20020a25804a000000b00dcd56355c11mr410636ybn.45.1711558583959; Wed, 27 Mar
- 2024 09:56:23 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1711566174; x=1712170974;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mL5128psZuAbV8STCgbOfU47SK+zDLdVx4j+fOAWeow=;
+        b=HuN9ZGPXCLPYUCUVGnNJPO8az6xgfhT+fQ1idTVL5TBhNMPGKbI/CeK1Gv7auA/J4Z
+         cKw7ZQ3fzc0vZzqPmfVWeHyGxgyJg6lqk4qD5q85D32zu3thNTns6vhTgidKSDqo2emu
+         evFHJs9asNkrp7Ws21uFMpPYjqUWo6quF6wS3jYSQZu002J2LxZNSeRjJ5G/5LBwC1oJ
+         ADWO8XVa/SDyL3eUz+cTQ8IeeIwKelA1UbPqjAut+swGR0WzKT+9B/A7/FlD4QZjna62
+         NrxOJXnnN+gXXReyEVIe6VW3VKATfKIrFpH+V8iz90GTJcD77zVESfkgB107ORdaADyY
+         jqEw==
+X-Gm-Message-State: AOJu0YzXK456Y5mTtHBHEd3aVNcnAU+bQcSC4tFQSWLeJBB7GQ0Q6SkD
+	09T6eWAh2f/fpnVIG9RaE/C89CjNC9f1FyR08M/taz7ebb2iCRmuCctEjRgxahaBzRqEb9XZ+lK
+	J9QmU9/LCJG3ErfGGDHtGGsjb2Tm4vFScuYi3Tyt8MBE52kg=
+X-Google-Smtp-Source: AGHT+IGR5g0iXLoSfOOA2vGxuNjZw+n9wVLKxoj+FnZHokF7/VsBYWr6Q9ZfUo/kafkMthuDRnOIZKc6EANHucp+Ylo=
+X-Received: by 2002:a25:a1c8:0:b0:dcc:ec02:38b0 with SMTP id
+ a66-20020a25a1c8000000b00dccec0238b0mr665287ybi.64.1711566173577; Wed, 27 Mar
+ 2024 12:02:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240327155201.117066-2-paul@paul-moore.com>
-In-Reply-To: <20240327155201.117066-2-paul@paul-moore.com>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Wed, 27 Mar 2024 17:56:13 +0100
-Message-ID: <CAJ2a_De6-AfBZ6fAwe-3hzT-r4v=RfaxQ8YyQ4v-MWNei0j_Pw@mail.gmail.com>
+References: <20240327155201.117066-2-paul@paul-moore.com> <CAJ2a_De6-AfBZ6fAwe-3hzT-r4v=RfaxQ8YyQ4v-MWNei0j_Pw@mail.gmail.com>
+In-Reply-To: <CAJ2a_De6-AfBZ6fAwe-3hzT-r4v=RfaxQ8YyQ4v-MWNei0j_Pw@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 27 Mar 2024 15:02:42 -0400
+Message-ID: <CAHC9VhSxmUQ+DiL68Hk-P_q1bT3LGExObxU0AoymUktuvZxqdw@mail.gmail.com>
 Subject: Re: [PATCH] selinux: fix pr_err() format specifier in ebitmap_read()
-To: Paul Moore <paul@paul-moore.com>
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 27 Mar 2024 at 16:52, Paul Moore <paul@paul-moore.com> wrote:
+On Wed, Mar 27, 2024 at 12:56=E2=80=AFPM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+> On Wed, 27 Mar 2024 at 16:52, Paul Moore <paul@paul-moore.com> wrote:
+> >
+> > Correct the use of integer specifiers when printing ebitmap and
+> > ebitmap_node information.
+> >
+> > Fixes: 0142c56682fb ("selinux: reject invalid ebitmaps")
+> > Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > ---
+> >  security/selinux/ss/ebitmap.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitma=
+p.c
+> > index f1ba333f127d..13d5fb47a2bb 100644
+> > --- a/security/selinux/ss/ebitmap.c
+> > +++ b/security/selinux/ss/ebitmap.c
+> > @@ -461,7 +461,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+> >         }
+> >
+> >         if (n && n->startbit + EBITMAP_SIZE !=3D e->highbit) {
+> > -               pr_err("SELinux: ebitmap: high bit %d is not equal to t=
+he expected value %ld\n",
+> > +               pr_err("SELinux: ebitmap: high bit %u is not equal to t=
+he expected value %lu\n",
+> >                        e->highbit, n->startbit + EBITMAP_SIZE);
 >
-> Correct the use of integer specifiers when printing ebitmap and
-> ebitmap_node information.
->
-> Fixes: 0142c56682fb ("selinux: reject invalid ebitmaps")
-> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->  security/selinux/ss/ebitmap.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-> index f1ba333f127d..13d5fb47a2bb 100644
-> --- a/security/selinux/ss/ebitmap.c
-> +++ b/security/selinux/ss/ebitmap.c
-> @@ -461,7 +461,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
->         }
->
->         if (n && n->startbit + EBITMAP_SIZE != e->highbit) {
-> -               pr_err("SELinux: ebitmap: high bit %d is not equal to the expected value %ld\n",
-> +               pr_err("SELinux: ebitmap: high bit %u is not equal to the expected value %lu\n",
->                        e->highbit, n->startbit + EBITMAP_SIZE);
+> Maybe %zu is more appropriate for the second argument?
 
-Maybe %zu is more appropriate for the second argument?
-`n->startbit + EBITMAP_SIZE` should be of type size_t since
-EBITMAP_SIZE is computed via sizeof().
+Agreed, that would be better.  Did you want to submit a patch with
+this?  I can always update my patch, but it's always nice when the
+original patch author fixes the problems in their patch.
 
-See https://www.kernel.org/doc/html/v6.8/core-api/printk-formats.html
+The catch is that you would need to submit the patch soon.
 
->                 goto bad;
->         }
-> --
-> 2.44.0
+> `n->startbit + EBITMAP_SIZE` should be of type size_t since
+> EBITMAP_SIZE is computed via sizeof().
 >
->
+> See https://www.kernel.org/doc/html/v6.8/core-api/printk-formats.html
+
+--=20
+paul-moore.com
