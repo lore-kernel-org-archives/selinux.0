@@ -1,60 +1,59 @@
-Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9875154C05
-	for <selinux@vger.kernel.org>; Wed, 27 Mar 2024 23:26:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4D09193
+	for <selinux@vger.kernel.org>; Thu, 28 Mar 2024 00:08:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711581987; cv=none; b=Xmc1E1bJpAIaK8jM8YK85pLsoUSliIorI7D32LEppGGZ8rRR/dZEdoaFJPOKss8cEeW1XPSVYTsD34sfB7VO8R1PGTPvL34f4NI4Prvqp3lPGVRejM76vzMuxeD3yWMYvw+b2NLk3+eoLxd7+hgVTbOawCDVqvwyHsHkLeoBgZU=
+	t=1711584538; cv=none; b=NZkRS6PfBt2tnH3l8CapFAx98LRxKJWl6ojYDWNq7Mdsa2md+vuJb7mgjOqX7f1DIE5XPKVWHJ2SkCmIZhT//95L1TysAh4HRphru1zUYdwHnxoJVzCGLoS5Zs6JnKmoo4yyhMnhlpK5CU5bpBJ1SmilT1pYt1lGNQzB6PbnBoY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711581987; c=relaxed/simple;
-	bh=+oCABmCPcwsGI+OhvQ5+d6UIKy/f+/yNNpmYX+NieJY=;
+	s=arc-20240116; t=1711584538; c=relaxed/simple;
+	bh=+hVgvJhRkV9zAky4dYe3lOHAIoU37e/j8bI++LQDzpM=;
 	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
-	 From:To:Cc:Subject:References:In-Reply-To; b=kmIrQ4wjbteiy3E+hpfg2N2s5VxBW9VkFpzfQqazVlXYWm/3v53tMQZpjkq74WP/oqMaOCaB+VOazHI55hemrXLR8IBntUpELBkhlmJwW5lw5a8u8hA1EdM1mbFgOGUs0j38ilmN55YYaYHSYUBM/A5Zfaab9keTL4Wf/eCDhno=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=JQNepPW7; arc=none smtp.client-ip=209.85.160.181
+	 From:To:Cc:Subject:References:In-Reply-To; b=a/Trm+i1WrFrjptynIxZp7AYU5xlFXhPPunAWmdzTXeagJf/BI/AdSn/YgEM9u4B40xiLQZG+E+Tt0bXOWu6wfQZUaFC9C4UeVe4MT3SkY4YEdK1TJ19oqfGXgSm9l5zzDJ5CCIiSvL5t/VlNoVG+VCZp4LMukmQQjbFkxBpVPQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=etO8HyR4; arc=none smtp.client-ip=209.85.222.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="JQNepPW7"
-Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-430c4b1a439so2051331cf.3
-        for <selinux@vger.kernel.org>; Wed, 27 Mar 2024 16:26:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="etO8HyR4"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-789db18e24eso21562585a.1
+        for <selinux@vger.kernel.org>; Wed, 27 Mar 2024 17:08:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1711581984; x=1712186784; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1711584535; x=1712189335; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-disposition:mime-version:message-id:date:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=gqkZ3v0W1Swr1887NZEacpasAkv1jS/mgA7NWhO8GpI=;
-        b=JQNepPW7vDsJNSH4p6RKkvKnojO92Puk+tn77PZ/YicU8UM83rG7TsxDxxOngz8duk
-         01BVL6WBSklDqX5YXvFGVf2UiRN6K4jXvj1kDtkY50TkVb0R4/jOIk0J6J2uqT3oKq1w
-         hCLA0mFrjvAGs6Mim2c7z7npV0Higph9DQBWrCuL2LclpmT3QzB0KUmbkY8WJf4bAOBd
-         mcaAafqyJQ9CucEfnRBZ3s4kqr1OBuGVQREBuf3J77lmcHaeb0cHbLQXLRTixTBHG2dm
-         69WMayd8/yxSYgpz9nztuDGAYHWzY2l5yL+vWMJwR9oJRk3bJc4QHGUg8FLBARXsNqdm
-         FsaA==
+        bh=hqu5KZ7ANiufBKIVwu8ItEdmpm8TUn3oazGE5q2jtwQ=;
+        b=etO8HyR40NrGl3wB4MpxK+0TU/OOsBLu43JRTLcH4VslHBbYjw8X7N9foIwpJ9Ua8O
+         EF9+NzNG7IzQchCIJsFZLG61V7PjxCHoX7opurPv8az1jH8Brvq2PcvBvMsANCD0f6X2
+         bk/LhIgtXZlvTG1ot4z0BucPeBZWgKpXAe7T3MRmlMSAVbozzqvihr87n2ud6qN6f5E3
+         c3VfbNuyiTKbwhsrG/nzlE87vkyWt4cGfz3nWwH9oNe7BGt235q8i+u53X7BVDZnZ2iN
+         FQ6s41+YSvATGuZfUDBNgpor/uLJ5FqFlxmLMyL8WW9rhJzipwty0RuWNWrEynDQfRm2
+         tUvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711581984; x=1712186784;
+        d=1e100.net; s=20230601; t=1711584535; x=1712189335;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-disposition:mime-version:message-id:date:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=gqkZ3v0W1Swr1887NZEacpasAkv1jS/mgA7NWhO8GpI=;
-        b=hYOgSw9SZARDeVLD/g8dPR8xe/tAcOjqoOaRYlACFwt5b7CeZ6auuFmw3iQCMTqeUu
-         29Gh4jd6oxvDAkY7XdW99v2ML82ixDCmuIX+LovFMO2SHhRqW3zQEoiHghezE25Knj7y
-         1mI8uBqdvrNjwUnPou7WXmuXQ7FlxJqxmmg9hLmhtqBWKcalJ4tug14iRyJpL8yAxFN9
-         POF3IZK+y2GNCzSNGzCbLDYAz+XFqHqcvCQI8wfAJ2VjaFboVzt9pWMS46z62qUlaDYt
-         W4siGwRAumxbIoGw4TJLcpok4EZwpBKLypUDqV5M3oX0qOcQPVQv++25ylhoZQp/LeIS
-         qFSA==
-X-Forwarded-Encrypted: i=1; AJvYcCUXy0WN4mKpoMKQFenJTbXMmVm45OgLfHgIuvNIDqokNToRo1rPLpvgbRFg1KxFpSmw7z5bM+sFWQSM53HPgLdqtlOm2hrz/A==
-X-Gm-Message-State: AOJu0YwXg4qYITUTrzjc7C5AQ5IygUhDIp31FUfsuoDI+mr1F9nJ163E
-	IFFHW6I7skwJeZNSFg6JKa+eKdIGdxiANYxlsd5UzdNmCRetiCc8xG5XVpsH5DWtzVfZKa9mQwg
-	=
-X-Google-Smtp-Source: AGHT+IGHHtvVIRpffHHM8Wdp7ieP8QGpfN/LOSUG5hir/HCGtrR8F2jvWgTd2q8lMFIIPMJ0RMrQMA==
-X-Received: by 2002:a0c:8e01:0:b0:696:a7f3:92fd with SMTP id v1-20020a0c8e01000000b00696a7f392fdmr935941qvb.65.1711581984604;
-        Wed, 27 Mar 2024 16:26:24 -0700 (PDT)
+        bh=hqu5KZ7ANiufBKIVwu8ItEdmpm8TUn3oazGE5q2jtwQ=;
+        b=pw7rYZMw9kpHLqtq1iTZqQbM6sFpHKlHQVvu/1fELG3nTrdBi8g2ZUKgKIUiL3opBX
+         QW5iXEdNMA3Z0kmaOTaY0QqeJdMlbG9zao2FU79UMCcHWj4+Elj5IGuVW+YX3n4OjJw3
+         LfyyhRwHI4l6GCcnJZbAoam9N+s1Yv2+naeIKeY5A3Bx++/bI9YI0eP5caNUcW59W6zc
+         8MTlAVtBXqWiG29fbHDoPxyIhrUZRcKhQwXX59l5VVwkWoz6XEkZiqewWVpTHQQkRKGq
+         6Z1kF6H0kq/5n1T7MMjm5eySaqfkYTAaKRt5OplnmlmRiDQOz6VaYOlZuGBeuENb3vWc
+         cikw==
+X-Forwarded-Encrypted: i=1; AJvYcCUcyeLSxSG7Q0VznEi4q0nBraOlkUC/dhlR6r5dpXa1ZWYZoF4S/SDvjR3v3gF18spshbWAhlm2UCnke8xwm5x3UDII7zw++A==
+X-Gm-Message-State: AOJu0YzyouBSVZaPII7FAtX7aL79kaMnmYEbHsUGG+djZBYrkzALmcMt
+	RDNt+nQ8F9gLzz7ksDGZBtE4CyZV+NMuyl3cY/O6f1Nyp9dC1fgv85wuNS+Ggw==
+X-Google-Smtp-Source: AGHT+IEuIiA6yL+s6fMX+s9dyz58T/Y6tcHTA6rblF3C6b6P+/XkoqUiOpYvjDoJ26nVCFVeRsH9Lw==
+X-Received: by 2002:a05:620a:2016:b0:78b:b5d4:d86e with SMTP id c22-20020a05620a201600b0078bb5d4d86emr760810qka.40.1711584534784;
+        Wed, 27 Mar 2024 17:08:54 -0700 (PDT)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id me18-20020a0562145d1200b00696a03c6bc0sm90410qvb.7.2024.03.27.16.26.24
+        by smtp.gmail.com with ESMTPSA id j15-20020a05620a146f00b00788481cdf4csm111872qkl.111.2024.03.27.17.08.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Mar 2024 16:26:24 -0700 (PDT)
-Date: Wed, 27 Mar 2024 19:26:23 -0400
-Message-ID: <eef33b146490969c6741cefdf353dcf4@paul-moore.com>
+        Wed, 27 Mar 2024 17:08:54 -0700 (PDT)
+Date: Wed, 27 Mar 2024 20:08:54 -0400
+Message-ID: <54c3ff6d6a7c8e8aed0e5e3facf00271@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -67,49 +66,37 @@ Content-Transfer-Encoding: 8bit
 From: Paul Moore <paul@paul-moore.com>
 To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>, selinux@vger.kernel.org
 Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] selinux: improve symtab string hashing
-References: <20240315181414.649045-1-cgzones@googlemail.com>
-In-Reply-To: <20240315181414.649045-1-cgzones@googlemail.com>
+Subject: Re: [PATCH] selinux: use u32 as bit type in ebitmap code
+References: <20240315173234.637629-1-cgzones@googlemail.com>
+In-Reply-To: <20240315173234.637629-1-cgzones@googlemail.com>
 
 On Mar 15, 2024 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com> wrote:
 > 
-> The number of buckets is calculated by performing a binary AND against
-> the mask of the hash table, which is one less than its size (which is a
-> power of two).  This leads to all top bits being discarded, requiring
-> for short or similar inputs a hash function with a good avalanche
-> effect.
-> 
-> Use djb2a:
-> 
->     # current
->     common prefixes:  7 entries and 5/8 buckets used, longest chain length 2, sum of chain length^2 11
->     classes:  134 entries and 100/256 buckets used, longest chain length 5, sum of chain length^2 234
->     roles:  15 entries and 6/16 buckets used, longest chain length 5, sum of chain length^2 57
->     types:  4448 entries and 3016/8192 buckets used, longest chain length 41, sum of chain length^2 14922
->     users:  7 entries and 3/8 buckets used, longest chain length 3, sum of chain length^2 17
->     bools:  306 entries and 221/512 buckets used, longest chain length 4, sum of chain length^2 524
->     levels:  1 entries and 1/1 buckets used, longest chain length 1, sum of chain length^2 1
->     categories:  1024 entries and 400/1024 buckets used, longest chain length 4, sum of chain length^2 2740
-> 
->     # patch
->     common prefixes:  7 entries and 5/8 buckets used, longest chain length 2, sum of chain length^2 11
->     classes:  134 entries and 101/256 buckets used, longest chain length 3, sum of chain length^2 210
->     roles:  15 entries and 9/16 buckets used, longest chain length 3, sum of chain length^2 31
->     types:  4448 entries and 3459/8192 buckets used, longest chain length 5, sum of chain length^2 6778
->     users:  7 entries and 5/8 buckets used, longest chain length 3, sum of chain length^2 13
->     bools:  306 entries and 236/512 buckets used, longest chain length 5, sum of chain length^2 470
->     levels:  1 entries and 1/1 buckets used, longest chain length 1, sum of chain length^2 1
->     categories:  1024 entries and 518/1024 buckets used, longest chain length 7, sum of chain length^2 2992
+> The extensible bitmap supports bit positions up to U32_MAX due to the
+> type of the member highbit being u32.  Use u32 consistently as the type
+> for bit positions to announce to callers what range of values is
+> supported.
 > 
 > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
-> v2:
->    add licensing note
+> v4:
+>   - apply format style
+>   I hope i addressed all comment from [1] in [2].
+> v3:
+>   - revert type change of unrelated iter variable
+>   - use U32_MAX instead of (u32)-1
+> v2: avoid declarations in init-clauses of for loops
+> 
+> [1]: https://lore.kernel.org/selinux/67cee6245e2895e81a0177c4c1ed01ba.paul@paul-moore.com/
+> [2]: https://lore.kernel.org/selinux/CAJ2a_DdLR40CB6Ua5cNjYhtexNmGkzQRsVrJn+dhVaZO-aVKsA@mail.gmail.com/
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->  security/selinux/ss/symtab.c | 22 +++++++++++-----------
->  1 file changed, 11 insertions(+), 11 deletions(-)
+>  security/selinux/ss/ebitmap.c | 31 +++++++++++++++-------------
+>  security/selinux/ss/ebitmap.h | 38 ++++++++++++++++-------------------
+>  2 files changed, 34 insertions(+), 35 deletions(-)
 
-Merged into selinux/dev, thanks.
+Merged into selinux/dev, thanks for following up on this.
 
 --
 paul-moore.com
