@@ -1,77 +1,73 @@
-Received: from mail.spsk4.lublin.pl (mail.spsk4.lublin.pl [94.230.25.82])
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 441C513C9AF
-	for <selinux@vger.kernel.org>; Fri, 29 Mar 2024 22:16:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=94.230.25.82
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFB972D638
+	for <selinux@vger.kernel.org>; Sat, 30 Mar 2024 13:35:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711750580; cv=none; b=O/xnu8me4AvtQMk7+k6FPtlxZqJCm+qjEUFbelPofrM5BTRaOIXA7GHm16qOA8neqXdLdj+KcaN/MLTqCMmtfu6zv2kuYU/xqgWXjm/gXnOxXuoWy5LinlYtC2m73HWQRMeMdr1nA24p14t83DwQ3aEnRCfIFKQj0xkmd2i1M0o=
+	t=1711805717; cv=none; b=s5Lf0OGfjHaOaym7JNg5bvGrtxkF08Xtw2+bLuN7j1l0NZMQtRfvPOye0QID07OerNuDzdXCVApi+568xOVRN8KFM8qZOeGu/cqWuNKRxbbw4+0FikZFmLbghrk8Y6/qN9e/wwtKoFdZU4zNor0ujLWtf//GaqQlyDnlDlS3/NQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711750580; c=relaxed/simple;
-	bh=q4rTwUPJuDETNQyVcOOIdY1HrVloy8b4sJypBic8xRo=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=XHo/uNls+FPnFk+gkvbQQge3CvPHl6TLDW0c3ltQiwYmnEt/S1KkV/IQc6KRpP3jOdilwi0P1Fc6XVFU938RuZJw6tWCfQ9UKmOhL9foW3QDfEtEqcILVtJ0OsNiZkYMOm/5jX/z2+noW5k5giqCWTgdKYi58lvxwW2s31qKLlc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=spsk4.lublin.pl; spf=pass smtp.mailfrom=spsk4.lublin.pl; dkim=pass (2048-bit key) header.d=spsk4.lublin.pl header.i=@spsk4.lublin.pl header.b=ezj8aGTx; arc=none smtp.client-ip=94.230.25.82
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=spsk4.lublin.pl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=spsk4.lublin.pl
+	s=arc-20240116; t=1711805717; c=relaxed/simple;
+	bh=nEZT0BkXZZx7wg4wW2cR+sudF2dT4QXmOoWmgqGmG+A=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Tm+cBOTo1MkJv6A0Q5cOHtwir6TBZUamnIz/c00TOhiJ/YW6G0DSgXffSMXNFv65nxwVM1sYBLghHfjY/7SuhrJG7SZ7H9bvz7axMoovK09/70ITR3JLgg+jPVtJggz1oPZZndNEskULK17ba1rB5XjT4m0NSIJCqH0p+8eQtyI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=H0rdd+mw; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=spsk4.lublin.pl header.i=@spsk4.lublin.pl header.b="ezj8aGTx"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.spsk4.lublin.pl (Postfix) with ESMTP id AF0A122A4D
-	for <selinux@vger.kernel.org>; Fri, 29 Mar 2024 23:09:53 +0100 (CET)
-Received: from mail.spsk4.lublin.pl ([127.0.0.1])
-	by localhost (zimbra-mta.spsk4.lublin.pl [127.0.0.1]) (amavisd-new, port 10032)
-	with ESMTP id 9ppUJnt9tvSV for <selinux@vger.kernel.org>;
-	Fri, 29 Mar 2024 23:09:53 +0100 (CET)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.spsk4.lublin.pl (Postfix) with ESMTP id 88B3A22ACE
-	for <selinux@vger.kernel.org>; Fri, 29 Mar 2024 23:09:53 +0100 (CET)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.spsk4.lublin.pl 88B3A22ACE
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=spsk4.lublin.pl;
-	s=0B6D5DC2-FF57-11EB-9505-2F96557CE46E; t=1711750193;
-	bh=q4rTwUPJuDETNQyVcOOIdY1HrVloy8b4sJypBic8xRo=;
-	h=From:To:Date:Message-ID:MIME-Version;
-	b=ezj8aGTxvaOTokILTtpInvSOif+4pszCRZWE+ETL48fW6HaKT10OZvGStBpBEz4Sm
-	 LH6j/p1YMpJpQe0sGsn+dV2qquH/YL/llhwxnHhwCZWlEsEgyvxeKEZgqhsKauzvk/
-	 4UbXFb7am9Kt/VhVf8KOYGBjNyiis/UXgE0grWR+3nJ/Np3nQ7YleTyqme7w9HD+/A
-	 QPDhVhIxISqP/itMxi0r0ELmg5WRKAWMKg6Si8693P3sl6irgwldrBG7lLhj93gQs/
-	 2BYscF4pORKZMWh9qQCC+j6caUAfe+pbd/E3JYgzlDAlh7kSUIqDV4Gck+0f4HsiAw
-	 hgql/wz3BHXOQ==
-X-Virus-Scanned: amavisd-new at 
-Received: from mail.spsk4.lublin.pl ([127.0.0.1])
-	by localhost (zimbra-mta.spsk4.lublin.pl [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id SqFwYqDvNRDX for <selinux@vger.kernel.org>;
-	Fri, 29 Mar 2024 23:09:53 +0100 (CET)
-Received: from spsk4.lublin.pl (unknown [176.10.248.205])
-	by mail.spsk4.lublin.pl (Postfix) with ESMTPSA id AB3F722A4D
-	for <selinux@vger.kernel.org>; Fri, 29 Mar 2024 23:09:52 +0100 (CET)
-Reply-To: recruitment@truvista.net
-From: "Beckie Varnadore"<oddzial.onkologii@spsk4.lublin.pl>
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="H0rdd+mw"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1711805707;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=FL+HPM37Sh+2TJbLGu++gSudPM0Q9plpzqpGyNmGUbY=;
+	b=H0rdd+mwGYP67tzvat+Ws1JIpXC/ys3uyMpLdtq43s7BtA6VmvbqshiW5VBG5sVMIbWCf+
+	dXnM8J4coLbk0j7qDqTp7DUD5VaKMYyWN3XJr5N4cVFoPxmoINk9OpQ48EgFfwH7qqW/As
+	6RzX6Y9rvJjmeuuF6KKhqm7eO+pTSISm9EepZWPBFQGFItvKEoz5sDAV8/XsCjor8EOZId
+	0VVlcSGFtBcq+wRXOX7y4vkXl23Cd8oWtaTTuyUfna130pRKJUciq97L7OKKjyut54X82p
+	So5qSsaTnmePyRMFJjrVZP0HplTMRpkNaFs1uxUllF4WE8IU6odmoTR8egWvpA==
 To: selinux@vger.kernel.org
-Subject: Re: Job Offer
-Date: 30 Mar 2024 09:08:37 +1100
-Message-ID: <20240330090837.A393C356452A8F39@spsk4.lublin.pl>
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH 2/2] checkpolicy: update error diagnostic
+Date: Sat, 30 Mar 2024 14:35:02 +0100
+Message-ID: <20240330133502.72795-2-cgoettsche@seltendoof.de>
+In-Reply-To: <20240330133502.72795-1-cgoettsche@seltendoof.de>
+References: <20240330133502.72795-1-cgoettsche@seltendoof.de>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hello,
+From: Christian Göttsche <cgzones@googlemail.com>
 
-Truvista is currently hiring for a Data Entry/Excel position that=20
-can be done remotely. No prior experience is necessary. The job=20
-entails working only three days a week for a minimum of three to=20
-four hours a day at your convenience. You can earn $1500 bi-
-weekly.
+I am not sure what "hoge" supposed to mean; use a message similar to
+other diagnostics.
 
-If you're interested in this position, please respond to this=20
-email with your full name and cell number or send your CV.
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ checkpolicy/policy_define.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Best regards,
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 92d1e5f2..4fc6c417 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -1426,7 +1426,7 @@ static int define_typebounds_helper(const char *bounds_id, const char *type_id)
+ 
+ 	bounds = hashtab_search(policydbp->p_types.table, bounds_id);
+ 	if (!bounds || bounds->flavor == TYPE_ATTRIB) {
+-		yyerror2("hoge unknown type %s", bounds_id);
++		yyerror2("type %s is not declared", bounds_id);
+ 		return -1;
+ 	}
+ 
+-- 
+2.43.0
 
-Beckie Varnadore
-Human Resources Specialist - TruVista
