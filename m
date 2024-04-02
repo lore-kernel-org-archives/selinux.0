@@ -1,108 +1,142 @@
-Received: from mail-ua1-f49.google.com (mail-ua1-f49.google.com [209.85.222.49])
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 779644E1D5
-	for <selinux@vger.kernel.org>; Mon,  1 Apr 2024 16:52:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 914BDEAC7
+	for <selinux@vger.kernel.org>; Tue,  2 Apr 2024 02:05:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711990347; cv=none; b=VtspxNmtV8W3A7gyalmWyz9R2G/J4eCYKVdqIbyVW9KNfNgCxFYcDsgo49GadFdU0bq9+Q8+OBhNDVv0c5cXzLqCu9RTkwlfUb1ZW4lMi7VXQvagQD2qJyNghZwsLUqTVJRqqQr93DQfVFV90wJVV7hInzGJp1bPHOFT+wyMZ4c=
+	t=1712023540; cv=none; b=qisJA16eo3gv5BBd1ltmuAfn25WUWSX1wc4vxVkDLVTnXsCQTo/0OP6sUAVQQ3zcCHC6YPLSMBPdLKU3zJ3bEPnvVsGOJKvkbXslHq71egO3FQY4QHZFbpXFbc3ZY7ahwSaRbfPCDe3zeNAlB7bqM+r5rigntCk+vFQIj5he2ow=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711990347; c=relaxed/simple;
-	bh=fMzBeJZspaBaS+VO/OhO/AaRhd4TiODjmXNONPHY0+A=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=D3+HFuqxtwpDMVSAzOgnwGN0bZh/fgcf3PN+XNBA2o6sdUHiJFFemwvYV6O97xqEakR26hu+qXZv9gmZMwLzrxYJS1SP36tFM7cN/efZIJdLCJQQJldbEx9lsrO/DvPstaUxN4+gnSuPDgRpvAMYBEpCvox1S6ZLJPHLNtfCqRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HzNSK4b5; arc=none smtp.client-ip=209.85.222.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1712023540; c=relaxed/simple;
+	bh=kTESJIjnLh2iUzZrS5nNXmn45E/2gzWxb2HO4dTbt80=;
+	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
+	 From:To:Cc:Subject:References:In-Reply-To; b=bmAeTw9U1cvT8HR51ncHucuHLUImf3Z7lQQyTdE1LsOv0MsYo8Dkuw2n8dxIIqFHT46TTV+dfo7zfCPQhIHZUsjw4Weczxe1PQA29E2VHH3g6V2BiDnrEEcgkkBUElwK9YaTZ9LCBrf+2Szan8DFt7fzqvhaJ9k1n70N3cR250o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=CidJe68b; arc=none smtp.client-ip=209.85.222.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HzNSK4b5"
-Received: by mail-ua1-f49.google.com with SMTP id a1e0cc1a2514c-7e31fd5553dso1190533241.0
-        for <selinux@vger.kernel.org>; Mon, 01 Apr 2024 09:52:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="CidJe68b"
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-78bd7d306d6so196214085a.1
+        for <selinux@vger.kernel.org>; Mon, 01 Apr 2024 19:05:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1711990344; x=1712595144; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MHxLhh0dBl9gG/GyBGY2li8Tzowl2oMWrWEZqkSG1gU=;
-        b=HzNSK4b5byivWfwz4agmH5C7MLtFtPzv7QR//oYREg+4PzHvxQg5Ve2ynl6Hz/Md7N
-         QLmls1fKfExXne5rxM4hXa7k2Hocn2bXiE2XvIdMaEfeuR7rZG7cEO4eaIVpEpvLtOR3
-         gS0UgYYgCluoaqRa+m9c68wRRLhiMjuv7DRsiVSFD8hX58S0nii9hfX4DaWSYrvwB9Ha
-         sdmlh3/diiqlPrdUTkgtrHesf+zjBRgkTvu6hl7ZhIEkxt8ce+cH7egspbnYQXpu81Qv
-         qER/Kn21xHA/5CIdpqC/jntci7/fBk7ZIqt32l8DKpwW9Yc/piRe3gsyvKbGtQptGbC2
-         4xqQ==
+        d=paul-moore.com; s=google; t=1712023537; x=1712628337; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-disposition:mime-version:message-id:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=673vxTCBsMoin/XyLHaXT7ifjDYyGSKEp4ZoPOVVSIw=;
+        b=CidJe68b2KDfMsaMNvLlrXKbCAhDD8poawKG4EjYuusHXUun9UgO/PvDscTstZsa3F
+         PsVDGeVw7wL+dHzbrk3c3FLLadJhIN3VLcPDmL3EPgaWl2vjeQCTsuZrilRdK35z7LEP
+         SYtl51ykVnkvvx2sO+ZO+AAUlw7+ifMiqctquTRxXJb2ITry7qHVwKRoGZFZTJR0JeRX
+         K9zKb1RlB3NXA1q3BCxN6KMXZ+R4xUOvtbQCe2Mk5fjdOmavNpFhFG4kOQxI58jzH5s0
+         d6TeE9Lrld8+2V8DsV4wOeOWd+fYJaBgAwXyJSEzUS71zCfpA9jgVwd8as8I9zuD/OVj
+         U7lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711990344; x=1712595144;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MHxLhh0dBl9gG/GyBGY2li8Tzowl2oMWrWEZqkSG1gU=;
-        b=Q9Wn1Cb9OZ7cM0Ag5muNXHec6SBaxJFp0pdvW6cWv0Isy0TnyM2LAzQ68LWXlwNgeT
-         eux14KYJWxeRHCf5hzqJuM4iBxC8QvmKhgTLGimtRvDIURVPJdXGc81Yb3S+KJMaDK2d
-         jgDqphrbE//mMdEz2xODnlHfn8ZCM06pxYtaW+gl01C/jyqGRbGgO3QRwuFA5Br3qB+0
-         7ZkOn001JGYUnMfRMfgT7uUcJXwMq3M3q1TJtoS2V73FtOEiCP5QPe+uSa+M0MbPegjo
-         D3kpT2tMjVD0MKCewdE7/pOZAjcKMdnk/4t7jO7OeMwct+hTZz5U4oUQoVYSMv2BQujm
-         TT2A==
-X-Gm-Message-State: AOJu0YyW9ghAgMS4+aBBI8bsNuNLldckfeeNSjYEZau3c95+5UFXfXid
-	RXBRDLw1Q7MQ4Dxf6HVnluk+YILB83pGTmp2WkeWEgiWWSf4ZE8GMWOTY5SsTWy52qXo85KStSx
-	omJt8m6859hB/vFutLBZOU1DsUgE=
-X-Google-Smtp-Source: AGHT+IGtpT0lijQrpmAX8iGX1TL3ki/CHBXfzD6v4DVZE4tR66G9Yie/1kLpoI4bXn9xAwH3CgXnSm4hW7swfxei6XU=
-X-Received: by 2002:a67:e455:0:b0:478:45b1:5d0a with SMTP id
- n21-20020a67e455000000b0047845b15d0amr7433760vsm.27.1711990344373; Mon, 01
- Apr 2024 09:52:24 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1712023537; x=1712628337;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-disposition:mime-version:message-id:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=673vxTCBsMoin/XyLHaXT7ifjDYyGSKEp4ZoPOVVSIw=;
+        b=RlhqcgrR40rylvfyVB0BcGk6u2UaQV/yAa1EaVgYEAgKmA1aZ5PDBUjAGwWAIjZxCn
+         XQBTkuLC0LNysBZNWomEWuOAvWvMXJcTXhFrY80feXdThtXEfWZ2x6mbU66WP1J7UPDe
+         GOGdZPdxrESj/WbvXbvUhpHz7asDP9w3g+zuLenGjnAI5z87cTW2idVkSBw0v4j1/ppg
+         dRvNbHFaZ9QYCi1qP11ejtocYcAUBQ05y/STTiuPY4+/ig+MndH37InU8sb+ioObvd8F
+         GmxSlOLMq6L3fNPTyb5BBDxhmIbFDcJ6SBP/gFm8wvVymnXH57apJkhCuAlnRlLimxLF
+         U0Aw==
+X-Forwarded-Encrypted: i=1; AJvYcCUm0ecPS9o+6XEjH+xvLeSFV5Xyehnrrwj7llVrDw0OObccNpfGvXyPjJEbHPFLWWp1thlq0f8ECUSZakh3juvt9whG4O5nuA==
+X-Gm-Message-State: AOJu0YwtU5qR5c/8UpaTjyCreVxC9jHOmGclrxeowuZu/6vdaT0+7Nz1
+	ERH4V6ZQb5fDeBSr65IdoyC8qYZnTqIlkEI88mrZMpDsSpfk/dDUXaFPhm858w==
+X-Google-Smtp-Source: AGHT+IHyWlw0kULPIY1VAwRk0ivgLnWEgDEkbUR9Ndffc5TB+QQGY3DooRe001Kn40blj523YwmQ5w==
+X-Received: by 2002:a05:620a:6403:b0:78b:d152:703f with SMTP id pz3-20020a05620a640300b0078bd152703fmr15859894qkn.21.1712023537502;
+        Mon, 01 Apr 2024 19:05:37 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id a5-20020a05620a02e500b0078bdce0acecsm1816630qko.80.2024.04.01.19.05.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Apr 2024 19:05:36 -0700 (PDT)
+Date: Mon, 01 Apr 2024 22:05:36 -0400
+Message-ID: <c5bd8689343995e38ff90368013dd80c@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20240330133502.72795-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20240330133502.72795-1-cgoettsche@seltendoof.de>
-From: James Carter <jwcart2@gmail.com>
-Date: Mon, 1 Apr 2024 12:52:13 -0400
-Message-ID: <CAP+JOzSbXFWTTft7+pM+WueX+rx+SH9hJ6Y150QEdadYJC4i0g@mail.gmail.com>
-Subject: Re: [PATCH 1/2] checkpolicy: free identifiers on invalid typebounds
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-Cc: selinux@vger.kernel.org, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=utf-8 
+Content-Disposition: inline 
+Content-Transfer-Encoding: 8bit
+From: Paul Moore <paul@paul-moore.com>
+To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>, selinux@vger.kernel.org
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: Re: [PATCH] selinux: avoid dereference of garbage after mount failure
+References: <20240328191658.210221-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20240328191658.210221-1-cgoettsche@seltendoof.de>
 
-On Sat, Mar 30, 2024 at 9:35=E2=80=AFAM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
->
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> Free the two identifiers on an invalid typebounds in the error branch,
-> similar to the success branch.
->
-> Reported-by: oss-fuzz (issue 67700)
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-
-For these two patches:
-Acked-by: James Carter <jwcart2@gmail.com>
-
+On Mar 28, 2024 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de> wrote:
+> 
+> In case kern_mount() fails and returns an error pointer return in the
+> error branch instead of continuing and dereferencing the error pointer.
+> 
+> While on it drop the never read static variable selinuxfs_mount.
+> 
+> Fixes: 0619f0f5e36f ("selinux: wrap selinuxfs state")
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->  checkpolicy/policy_define.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index 0cf938ea..92d1e5f2 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -1477,8 +1477,12 @@ int define_typebounds(void)
->         }
->
->         while ((id =3D queue_remove(id_queue))) {
-> -               if (define_typebounds_helper(bounds, id))
-> +               if (define_typebounds_helper(bounds, id)) {
-> +                       free(bounds);
-> +                       free(id);
->                         return -1;
-> +               }
+>  security/selinux/selinuxfs.c | 12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
+> 
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index d18581d741e8..7e9aa5d151b4 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -2125,7 +2125,6 @@ static struct file_system_type sel_fs_type = {
+>  	.kill_sb	= sel_kill_sb,
+>  };
+>  
+> -static struct vfsmount *selinuxfs_mount __ro_after_init;
+>  struct path selinux_null __ro_after_init;
+>  
+>  static int __init init_sel_fs(void)
+> @@ -2147,18 +2146,21 @@ static int __init init_sel_fs(void)
+>  		return err;
+>  	}
+>  
+> -	selinux_null.mnt = selinuxfs_mount = kern_mount(&sel_fs_type);
+> -	if (IS_ERR(selinuxfs_mount)) {
+> +	selinux_null.mnt = kern_mount(&sel_fs_type);
+> +	if (IS_ERR(selinux_null.mnt)) {
+>  		pr_err("selinuxfs:  could not mount!\n");
+> -		err = PTR_ERR(selinuxfs_mount);
+> -		selinuxfs_mount = NULL;
+> +		err = PTR_ERR(selinux_null.mnt);
+> +		selinux_null.mnt = NULL;
+> +		return err;
+>  	}
 > +
->                 free(id);
->         }
->         free(bounds);
-> --
+>  	selinux_null.dentry = d_hash_and_lookup(selinux_null.mnt->mnt_root,
+>  						&null_name);
+>  	if (IS_ERR(selinux_null.dentry)) {
+>  		pr_err("selinuxfs:  could not lookup null!\n");
+>  		err = PTR_ERR(selinux_null.dentry);
+>  		selinux_null.dentry = NULL;
+> +		return err;
+
+Casey's correct in that we probably don't need this, but it does harden
+the source a bit against future changes so it isn't entirely a bad
+thing.  If nothing else, some new kernel dev will get excited writing a
+oneliner several years from now that removes the redundant return; I'm
+getting exited about the patch just thinking about it.
+
+Anyway, thanks for noticing this and submitting a patch Christian,
+beyond the above nitpick, everything looks good to me.  I'm going to
+merge this into selinux/stable-6.9 with a stable marking and assuming
+all goes well I'll send this up to Linus in a few days.
+
+Thanks!
+
+>  	}
+>  
+>  	return err;
+> -- 
 > 2.43.0
->
->
+
+--
+paul-moore.com
