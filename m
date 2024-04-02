@@ -1,39 +1,39 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72F9212F39B
-	for <selinux@vger.kernel.org>; Tue,  2 Apr 2024 15:29:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CED0D12F398
+	for <selinux@vger.kernel.org>; Tue,  2 Apr 2024 15:29:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712071784; cv=none; b=kYdeLzooT5sN9xGEqKsniJEfoNG0nN+BqhuLw6pyjF4olhr0sxEecDEWO2FHYtNa1WP0FU+dny2DJVYVRZUc3/Qg8jVKTPj3lgnlOPvjUg8FMWEjmZwxinzIu3/ZpoLax0dG/gtZ5CFXuDlMmX2GKYX30V1tN5feMywHgyYo/JQ=
+	t=1712071786; cv=none; b=EBWYyWYfQzGWB8FTNwY8+bzfoX3uncvkykUskIw21acINHrIQ6epn7mppw7OiBPV8FIqZ4iV954qQ0fYi/S/CxmsG1dAh0Cc8yVYS77PHiVciHvjP2Azysxax2vrHB8xa+1u7rPHPnOyZcBGg7uY72NTZjbr7PVVcWNV220rDyk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712071784; c=relaxed/simple;
-	bh=pZ5+temZd6PzjiYP8OD7OYa38fF/HLXZYtmQBOTAGSo=;
+	s=arc-20240116; t=1712071786; c=relaxed/simple;
+	bh=yHJzMLggUhHjmv/Oq1rL8ejYdp0Mb40x6vIy31LAnb0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=oDmbVtxoHgFafh7rHpQ5XzSzw17winMRAdYNiPTNJibMJxxPMlIePrzhsovVWVpsq7eJXTMudqGcGKGness3JrduiReoAKX67qd4S+HllSNyb25ZcxN8JGIVN6A/73Hn3Gbb316mZFR4URbLWEfI7dye+WzUVGbIqYmhNWaq6ow=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=UfZwOn3W; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=lu28VbtChu3Gp3Q6qE1f/DLt0cuhr6djJcWqYm9uZMkjVZ4NtR/Hw5Vzd/lS4JsPjckeq2gDjruAvkQsR/i17QTN9jGt5jzEZqNU30jBWd/IANopzSr8d+jdoOkTuAUfR2AExeCfHjGffq/8R3mw9TVi0I2tHgHfS4UJRQBP+QA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=l1RzH72T; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="UfZwOn3W"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="l1RzH72T"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1712071772;
+	s=2023072701; t=1712071773;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=wHuxbGwi0qIp9uGC0VAWPMH/KydQ5wdYiML8RwPwrU8=;
-	b=UfZwOn3WKnjaBoMsH1RmIajmpPmFOnPlQ8rgZF1rKJJLQM1wgwAb9Fuk3eZ2OjnOMObseD
-	gCrS/WyBF3d/Ei/veyKNbQx3RXw3xae1wuv2tzeF/OVlritaCRt5NyF1DYCorUgTil4oxo
-	T4UlwjfkA/GOKqKWASLFgHiJF7kI3qhX+qUue44WlbT7dM1j0xK1gJ/x3fVHz/VQzp5Yuc
-	P2Cm1onhSaamAYP25BhX34RMds/OMGbbUA/7yRDehB+IwY2SSkJ8Ur+Xl+wCYB4hiYHq4P
-	dqu26cFGoyVLTK29/g4na7krJ2TB23Qrct23xzeT5uXbKeUDEA2cTS39wzF67Q==
+	bh=CQKXK6uGLKYuM1UQkrHtlBQ5uWGclKVNoTlWXyP7Hpg=;
+	b=l1RzH72TZlX0FDmtwgWG6w5sO0JcfimFR6gqOv0jXEdvGZGf8wpMxO6rEUI14m5FqCC/wB
+	zn+Mlyf9qa33hVUMEFHEGtM48/au0X6s2pdKgR1PGOxolLSIGX+W0dnUs8Ynafphyx/B9P
+	xgAseo9eWk+mWRtyHmJVIzW1XJTu2VDpOorgeO4n4jGw/N0yN+co3hFbMzhCGCMlw8BCiE
+	bQhqc/mzrjT+V0fQn3Tw6bXXXN60W8/YXzRKVgheFdpdoweY3rZHnqqmDWwmWFmjpJT37X
+	+jUN9TjEwyL/VjVnoB0DUILfBRNTHTTqCx/cRnpgZNSOY0eLCQ6eJM+4ejEMIg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 5/6] checkpolicy: drop union stack_item_u
-Date: Tue,  2 Apr 2024 17:29:24 +0200
-Message-ID: <20240402152925.99781-5-cgoettsche@seltendoof.de>
+Subject: [PATCH 6/6] checkpolicy: free complete role_allow_rule on error
+Date: Tue,  2 Apr 2024 17:29:25 +0200
+Message-ID: <20240402152925.99781-6-cgoettsche@seltendoof.de>
 In-Reply-To: <20240402152925.99781-1-cgoettsche@seltendoof.de>
 References: <20240402152925.99781-1-cgoettsche@seltendoof.de>
 Precedence: bulk
@@ -47,49 +47,34 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-The union stack_item_u is only used as a member in struct scope_stack,
-but actually never used.
+Free the ebitmaps inside the rolesets on error.
 
+Reported-by: oss-fuzz (issue 67769)
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- checkpolicy/module_compiler.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ checkpolicy/policy_define.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
-index e25a77b4..4efd77bf 100644
---- a/checkpolicy/module_compiler.c
-+++ b/checkpolicy/module_compiler.c
-@@ -21,14 +21,8 @@
- #include "queue.h"
- #include "module_compiler.h"
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 4fc6c417..1c019a3b 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -3186,6 +3186,7 @@ int define_role_allow(void)
  
--union stack_item_u {
--	avrule_block_t *avrule;
--	cond_list_t *cond_list;
--};
--
- typedef struct scope_stack {
--	union stack_item_u u;
--	int type;		/* for above union: 1 = avrule block, 2 = conditional */
-+	int type;		/* 1 = avrule block, 2 = conditional */
- 	avrule_decl_t *decl;	/* if in an avrule block, which
- 				 * declaration is current */
- 	avrule_t *last_avrule;
-@@ -1464,12 +1458,12 @@ static int push_stack(int stack_type, ...)
- 	va_start(ap, stack_type);
- 	switch (s->type = stack_type) {
- 	case 1:{
--			s->u.avrule = va_arg(ap, avrule_block_t *);
-+			va_arg(ap, avrule_block_t *);
- 			s->decl = va_arg(ap, avrule_decl_t *);
- 			break;
+ 	while ((id = queue_remove(id_queue))) {
+ 		if (set_roles(&ra->roles, id)) {
++			role_allow_rule_destroy(ra);
+ 			free(ra);
+ 			return -1;
  		}
- 	case 2:{
--			s->u.cond_list = va_arg(ap, cond_list_t *);
-+			va_arg(ap, cond_list_t *);
- 			break;
+@@ -3193,6 +3194,7 @@ int define_role_allow(void)
+ 
+ 	while ((id = queue_remove(id_queue))) {
+ 		if (set_roles(&ra->new_roles, id)) {
++			role_allow_rule_destroy(ra);
+ 			free(ra);
+ 			return -1;
  		}
- 	default:
 -- 
 2.43.0
 
