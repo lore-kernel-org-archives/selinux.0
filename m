@@ -1,41 +1,37 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72F1512D76A
-	for <selinux@vger.kernel.org>; Tue,  2 Apr 2024 15:29:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC44A5466B
+	for <selinux@vger.kernel.org>; Tue,  2 Apr 2024 15:29:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712071782; cv=none; b=HDi7enwHL4ARG/hHARTmlsDySN19KtgvdrM+xbPLdP+ohb/UpOASKtBHhj/Fk2lLjdlj6WUFlJgQ/qFN8maKxdR+YATW2QJvVCOeBHWigru+k7jVeqHskMEx/jH0YDTmNSB9m5dRf5BSVn2fNoY+V17alvYRJhzGqIxQwsrPi8U=
+	t=1712071783; cv=none; b=YmUurSHwf2YR0UYEbYeJAhk0aT+UybcHEyYVWLRe8CdcFY/ItBCYB3PRLAourwb0NnjuBsunMqNcwf4JWHE8K0nFCl952nSWmMaiBzY25/gADS02O8r/NdT0n85g+XzU/qaQvFr9SDJf9LDpa+YwSRvygwrmMoYBKud9mEzfrzc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712071782; c=relaxed/simple;
-	bh=SxBpJdtFCFEzvKOudO6pgFbLf4W/kxZkF21S0DbD530=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qGw/Hu4+T/iS5YiifQFPQIUfWqCxrup0Ni+G+aV1bTMAmI5+JhsgRC6ebcUKc3HaP76J5NlMsi9DsY46oUl9HUnOtP6nx4me0izEojwrlir+B54/f6C1TaIZhw0cE0ipcgJkCc3/qft+jcQ2lq0bnqdhEwigu9RVzAtQf+qOuFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=COfO5+Ct; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1712071783; c=relaxed/simple;
+	bh=cCt1ctL021gBslllCvMTAH+gAnjLgxwSy7yzALCPXFg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=qvT+MG9URYoDLSntc2zUDkkM2eGoJ2o3H3cQcyC7o5CG0enf333u3OnVHltXLWPk0N5gtkL4M3x78K8ZEEa0db8DDUlJjsOJ91w6hU9rm2/CVoiMBbi0gnc8XC3o2Drzh+8eKtKy1jN0W+J86HoVgOix4ij4vR1znOUg0hFHLrM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=GsupiqSK; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="COfO5+Ct"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="GsupiqSK"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1712071772;
+	s=2023072701; t=1712071770;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=1ykRh5F9oZW4xZQLz5wG+Dg/BTp1Xi2IK3m+VKvTx54=;
-	b=COfO5+Ctm3uN5kfVuYnvMccEhP7Ws4NxIaJvRhP215c48TX8uR+QqSJEZsCShHEVBX3Yh8
-	/py8b5PnPDwHpcAirP8xL8XQXXFx1nMCjmwQBAbiSthhxt+m/oLfXaOZACS2LJoP6eg9Ni
-	BFQDRFNnP1uSvc5RZYoTbOtLa0M62TodPGjDj6tYwGoANdFvnhs1lLjXt+2mq0B1MSzkWK
-	MdDK15ZMrUIfdznkTeYkWkhV4uJ+MFxBkESdp5BziV33v7c8FfjksIriG9+vWt9i1LUb3t
-	YxDF0zsBVNpzCz9qEQTIbqsva0G0yt8quVkv55AcIKMWf0GhfyQOCc7udmRZHw==
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=j0629k++Ott5gvpVbA/IfliX+zpQbVvdRnVTnqY7fyI=;
+	b=GsupiqSKTnpOLyW2bqiFpjSZgNJBEX1DYb9vpIiQCzmgkz8UKblSiKDlQ9HehuirNHo8pv
+	zSbD1mb+k52PmGWvQ2LnojKk23QUHJuVTBy6ehYJAP8oX1xPrXnxYm4hIJsSFISyxPQo2f
+	25QfAW4DJg752RCKb6x0TYkADHHMnD0N7t6MGyPV8osYkiWJu8zv88j4dxT4TRMndPc0g9
+	/0fex+hzxBCinMg+GPiE/5tX21JPihUKabM3BNUQTbujNxWMNaYUfrs7+QIN/qA8WnHnwh
+	/FicDNZu93bm7FJ0lQBxDEGt0RNHpersdc3GtsgvUqCEOSK8Ndx37X0l+RZaiQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 4/6] checkpolicy: drop never read member
-Date: Tue,  2 Apr 2024 17:29:23 +0200
-Message-ID: <20240402152925.99781-4-cgoettsche@seltendoof.de>
-In-Reply-To: <20240402152925.99781-1-cgoettsche@seltendoof.de>
-References: <20240402152925.99781-1-cgoettsche@seltendoof.de>
+Subject: [PATCH 1/6] checkpolicy: include <ctype.h> for isprint(3)
+Date: Tue,  2 Apr 2024 17:29:20 +0200
+Message-ID: <20240402152925.99781-1-cgoettsche@seltendoof.de>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -47,44 +43,40 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-The struct scope_stack member child is never read, drop it.
+Include the necessary header for isprint(3) to avoid an implicit
+function declaration:
 
+    policy_scan.l: In function ‘yyerror’:
+    policy_scan.l:342:13: warning: implicit declaration of function ‘isprint’ [-Wimplicit-function-declaration]
+      342 |         if (isprint((unsigned char)yytext[0])) {
+          |             ^~~~~~~
+    policy_scan.l:36:1: note: include ‘<ctype.h>’ or provide a declaration of ‘isprint’
+       35 | #include "y.tab.h"
+      +++ |+#include <ctype.h>
+       36 | #endif
+
+This does not currently break the build cause -Werror is stripped for
+the parsing code to avoid breakage on old flex/bison versions that might
+not generate warning free code.
+
+Fixes: 39b3cc51350a ("checkpolicy: handle unprintable token")
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- checkpolicy/module_compiler.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ checkpolicy/policy_scan.l | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
-index 6ff91b8f..e25a77b4 100644
---- a/checkpolicy/module_compiler.c
-+++ b/checkpolicy/module_compiler.c
-@@ -34,7 +34,7 @@ typedef struct scope_stack {
- 	avrule_t *last_avrule;
- 	int in_else;		/* if in an avrule block, within ELSE branch */
- 	int require_given;	/* 1 if this block had at least one require */
--	struct scope_stack *parent, *child;
-+	struct scope_stack *parent;
- } scope_stack_t;
+diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+index d7cf2896..62f28c11 100644
+--- a/checkpolicy/policy_scan.l
++++ b/checkpolicy/policy_scan.l
+@@ -22,6 +22,7 @@
  
- extern policydb_t *policydbp;
-@@ -1478,7 +1478,6 @@ static int push_stack(int stack_type, ...)
- 	}
- 	va_end(ap);
- 	s->parent = stack_top;
--	s->child = NULL;
- 	stack_top = s;
- 	return 0;
- }
-@@ -1490,9 +1489,6 @@ static void pop_stack(void)
- 	scope_stack_t *parent;
- 	assert(stack_top != NULL);
- 	parent = stack_top->parent;
--	if (parent != NULL) {
--		parent->child = NULL;
--	}
- 	free(stack_top);
- 	stack_top = parent;
- }
+ %{
+ #include <sys/types.h>
++#include <ctype.h>
+ #include <limits.h>
+ #include <stdint.h>
+ #include <string.h>
 -- 
 2.43.0
 
