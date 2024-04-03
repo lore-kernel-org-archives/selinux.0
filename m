@@ -1,138 +1,117 @@
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
+Received: from mail-ua1-f54.google.com (mail-ua1-f54.google.com [209.85.222.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D33A1534E6
-	for <selinux@vger.kernel.org>; Wed,  3 Apr 2024 18:13:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2D64155751
+	for <selinux@vger.kernel.org>; Wed,  3 Apr 2024 19:35:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712167995; cv=none; b=EGjJKZOD2UNKmmVBQ7eSkYgGEz8Jx644XGUoVKZeA8H5f8yPf/6ZUjotlr2O64L9EmBn4hNcQFUGTYsBzX5DKCWNdhCV4qT5nZh3SPlyt6zPWBFrsjtpq751Qqa/IKHBcUyqXWgd6t3GrPNz/PsIQn03JDyP2eLx7Aetz8assgI=
+	t=1712172941; cv=none; b=Xa8IcapCpBN4wFXPUc7hUG+Yk6N/52uttkqnT3MTfksrRmm+GNhL0B4h+xV0zFyJIfknS8aBVQDPoy3vPQ0j9XOBCoVaaNmfYBo0ljxvdyffztmAP9Fl2hc8Bwg9IFg6ZDGZHSoapfe1/MUtlMjYrfKo4L80f4hXfN0wsdql3fo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712167995; c=relaxed/simple;
-	bh=f+8LjMdVO7K0WG90wq65VPqMPCFrsCw2mVe2YokVQig=;
+	s=arc-20240116; t=1712172941; c=relaxed/simple;
+	bh=pAgeyRMt2Cc1Mn2I7zLHVVPSNEVZb3Ldrmy5gPpyNpA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Qtva6avdk1mXASGbhVxmqxMFhyb/Z5s/IuilWWoo0j5WOucMo5D1LWu5J+aJbIDDzGLAcexUBxgqWREhcGv7Afe+j0a1i+DMR6PjJ3EXLrMjNq4FDIscO7XszeDFuNvKsKfgzYmVwyxHRt7g3oWddOUTxXGb0YlMGMzyFs7fdrw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=GZeXZX6P; arc=none smtp.client-ip=209.85.128.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=KG32v0UaFqs2GeSi0JPisIhqEFIIxKVDNMJx6M5BpnSRX96E4fQ2fQvDvg6gcOOhbn4zf+040FcgXEw1frDXgpubzBv3L7WgqIWOgZrOrI42r/EZ4L0T0iRxc45NKFsK9X4h0A2LBixfj0fB0JYlSp6/u3ou7ybj6OYOhw+zQI4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NgXUX5a6; arc=none smtp.client-ip=209.85.222.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="GZeXZX6P"
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-6151e2d037dso1482067b3.3
-        for <selinux@vger.kernel.org>; Wed, 03 Apr 2024 11:13:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NgXUX5a6"
+Received: by mail-ua1-f54.google.com with SMTP id a1e0cc1a2514c-7e307f172efso89771241.1
+        for <selinux@vger.kernel.org>; Wed, 03 Apr 2024 12:35:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1712167992; x=1712772792; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1712172938; x=1712777738; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=65HXhw9ivZVZNEzuuTHRqM+1g8PgZdkCA+dRhBXvkow=;
-        b=GZeXZX6PVliB2LjBpMTDrbQ/hIhwpSZvAlj7a9a+9Sk1OBHmeFsMvuwqc4LNpgAxHK
-         NfBjXFlYV9pmakd9Ln+XkUEuBrgacjyaHLiF9OPOWiOLzgwzIWRtLesk2pRSSLGdp96Y
-         RKrMWGNmDJ2RrrWFM41EJeEUEUJO0Kl3l2BcU743bHSwIMfP9KIjBSd84NkmFEc6xlDS
-         K+WOMX+oiJ5gGH4h3B7pZIEBbhIdWiRo2+8XxF9CNaQiLtT0piN7XSkqSWSaEekoC6f1
-         y6BCMhJzc2nLTTbgMQz0pkI/jFhOe8VLL1DTIeyGLgQSCtqMK82f3Csecp0GbsE9rkSj
-         Fplw==
+        bh=722kJhZ069XfrsO0LwXdN64R3C+5rKFxPzrSSJ7FLHI=;
+        b=NgXUX5a6unqFdl6LmIaSGK397848eGVVt2IcBOO+fYLmTN518QwRt2c+tBpjio6XaN
+         0zM10ZOwYWdtU9WqdGRh9u/UmIKyzD/D37rMj8UND79vEGA5YRswCnhGWj0YbZpldUdb
+         HKScPVPrHKJ55BB6W80yTEhG5excGWddrBSyw5mQWAkEQdPXtSju8D4UCxoSl5+y1ovN
+         dZR0bTl1xP7Bgrp/3kD8XPaCe8D1EnaximwpnBvJCCdT3dr0xTVJdSLPGIuQ92/YolwE
+         zvzEhxBdzb2hf3Qkk1IlxbHOHfCTAARSUwdhUVZtED6yW3uJdytTAUE9FUAHxoTskAlu
+         MCSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712167992; x=1712772792;
+        d=1e100.net; s=20230601; t=1712172938; x=1712777738;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=65HXhw9ivZVZNEzuuTHRqM+1g8PgZdkCA+dRhBXvkow=;
-        b=f02sKu2S7GOSaRRdvYOiOI6gb7CgOJS5DVaMs22URSgsNNKeFlty979qFoFmSlXUFH
-         BHTXt6+uDkq97vTPaDuPNBaDpIapa4v/nttJ2Bd8Y73SxBgZzlKQz2b5upZElvFr09ku
-         gB5OsKgELcT/92CfM9JIRSESgnQV/cAsZVBrzcVsApxWVsU9oN2psf8OfJO3EsQ/HrhB
-         0/mhnAwflcUsKPqekyJ0+4G+YatOnaZxuuNGkxjBiO8Uf+fseLs9J2HBPFXntdTVmaRC
-         F1gJdXnxSMKYZZcYFk9ke2UPHvl40xCGrN4xh7DgwJht8jVycsQYOeir9bwoy5/7j+mj
-         +6Rg==
-X-Forwarded-Encrypted: i=1; AJvYcCVbvPYswZcLIRvktfHuEbE80GrJsrm5/9SRvzf+KAwOli4fUy682VCeKaqKOQyBzWXHWrnAI+wJFhBi0HI8cDaC57xMTELW1g==
-X-Gm-Message-State: AOJu0YxD8prWmOWCtT+EmuPahB6WIjQjVVnIO2vgGAX2qGH94VOmuvr4
-	L+egES/d3dCPmBMqs5NBmfQ69eAOftLaCfsKR48sv0h4wznf+YICBzbmZvNq2hRo90acbfOHaoN
-	Qq/GW9rzaX8HpV76qW9YTAqwJ7JX/07Wpb8L8
-X-Google-Smtp-Source: AGHT+IH8D2SmnbXfUy0KSSf63DzBgDDzy/L75tMAMknjUzbWNz9GFRZUS/osB4yuEw9jA896naaKejUJfVdp897Oczs=
-X-Received: by 2002:a0d:e2d0:0:b0:60a:2c16:da3f with SMTP id
- l199-20020a0de2d0000000b0060a2c16da3fmr182394ywe.28.1712167992082; Wed, 03
- Apr 2024 11:13:12 -0700 (PDT)
+        bh=722kJhZ069XfrsO0LwXdN64R3C+5rKFxPzrSSJ7FLHI=;
+        b=gwm6/Li7Ay9yXLqh9yl/KI1YWyt6Fw/weKQ62+3KdbAJQkVX0HghNLVus7LDg2daSs
+         CwSJeLfPyitUuFdy1rtHLKNMolMGAy8+YAwXyuA8K9vtNtB2OVmFS/NEyrG2zdSAO4Tb
+         lbw2b8UAeBH2jSAVl+pa5vMGPQIxsbK61jvHL/fhD+/Gyzp4YZDR8YeT8D5nfsdu0JFt
+         3sugZ9pY+Sz95rDTs/Biz/ulfXNIbZ+PC9DkDmmeXZ8XpUo3RNI/buyUP5bZnxrnY6M8
+         pWFtqq+QZ9Vm4tIftJYqP4FoKJkiX0MlLE6xvrgbzRX2im8DZ/fK2tB8hO61WwITGoMG
+         V50w==
+X-Gm-Message-State: AOJu0YynsVJamCtHPVypo5KFcb3lkXGzjaQDcR9U/RdmRH/8xXJkHGst
+	59GEPL3ZWdAqRZ0EIc5ZHuGTYU92j/4GhFuoyBKFG8JWHp02xyveolakcEm/q6V1B+2HdK2EdcU
+	gvxaFx+QgRG0hk9qUk6Q5WeqRXec=
+X-Google-Smtp-Source: AGHT+IFEtMCRuz2cm45/jBnKy2Oss9B+3Zckk0+nbaZPdTphVL8KfwJGVK/GDuZY8l9u/PyJVSRU0qSTGk4/20F2pHI=
+X-Received: by 2002:a67:f70d:0:b0:472:eca1:46c with SMTP id
+ m13-20020a67f70d000000b00472eca1046cmr282303vso.30.1712172938594; Wed, 03 Apr
+ 2024 12:35:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <722b90c4-1f4b-42ff-a6c2-108ea262bd10@moroto.mountain>
-In-Reply-To: <722b90c4-1f4b-42ff-a6c2-108ea262bd10@moroto.mountain>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 3 Apr 2024 14:13:01 -0400
-Message-ID: <CAHC9VhRU2OC2EWNAsiLKXAqH_QHYiD9Sytu1rPObcQmofCL+Gg@mail.gmail.com>
-Subject: Re: [bug report] selinux: optimize storage of filename transitions
-To: Dan Carpenter <dan.carpenter@linaro.org>
-Cc: omosnace@redhat.com, selinux@vger.kernel.org
+References: <20240402152925.99781-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20240402152925.99781-1-cgoettsche@seltendoof.de>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 3 Apr 2024 15:35:27 -0400
+Message-ID: <CAP+JOzQruPoyL1YLLmfRR-nxTGGbXb91Zc7q__jreFMty0v4Fw@mail.gmail.com>
+Subject: Re: [PATCH 1/6] checkpolicy: include <ctype.h> for isprint(3)
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+Cc: selinux@vger.kernel.org, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 3, 2024 at 4:38=E2=80=AFAM Dan Carpenter <dan.carpenter@linaro.=
-org> wrote:
+On Tue, Apr 2, 2024 at 11:29=E2=80=AFAM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
 >
-> Hello Ondrej Mosnacek,
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Commit c3a276111ea2 ("selinux: optimize storage of filename
-> transitions") from Feb 18, 2020 (linux-next), leads to the following
-> Smatch static checker warning:
+> Include the necessary header for isprint(3) to avoid an implicit
+> function declaration:
 >
->         security/selinux/ss/policydb.c:1953 filename_trans_read_helper_co=
-mpat()
->         warn: missing error code 'rc'
+>     policy_scan.l: In function =E2=80=98yyerror=E2=80=99:
+>     policy_scan.l:342:13: warning: implicit declaration of function =E2=
+=80=98isprint=E2=80=99 [-Wimplicit-function-declaration]
+>       342 |         if (isprint((unsigned char)yytext[0])) {
+>           |             ^~~~~~~
+>     policy_scan.l:36:1: note: include =E2=80=98<ctype.h>=E2=80=99 or prov=
+ide a declaration of =E2=80=98isprint=E2=80=99
+>        35 | #include "y.tab.h"
+>       +++ |+#include <ctype.h>
+>        36 | #endif
 >
-> security/selinux/ss/policydb.c
->     1916 static int filename_trans_read_helper_compat(struct policydb *p,=
- void *fp)
->     1917 {
->     1918         struct filename_trans_key key, *ft =3D NULL;
->     1919         struct filename_trans_datum *last, *datum =3D NULL;
->     1920         char *name =3D NULL;
->     1921         u32 len, stype, otype;
->     1922         __le32 buf[4];
->     1923         int rc;
->     1924
->     1925         /* length of the path component string */
->     1926         rc =3D next_entry(buf, fp, sizeof(u32));
->     1927         if (rc)
->     1928                 return rc;
->     1929         len =3D le32_to_cpu(buf[0]);
->     1930
->     1931         /* path component string */
->     1932         rc =3D str_read(&name, GFP_KERNEL, fp, len);
->     1933         if (rc)
->     1934                 return rc;
->     1935
->     1936         rc =3D next_entry(buf, fp, sizeof(u32) * 4);
->     1937         if (rc)
->     1938                 goto out;
->     1939
->     1940         stype =3D le32_to_cpu(buf[0]);
->     1941         key.ttype =3D le32_to_cpu(buf[1]);
->     1942         key.tclass =3D le32_to_cpu(buf[2]);
->     1943         key.name =3D name;
->     1944
->     1945         otype =3D le32_to_cpu(buf[3]);
->     1946
->     1947         last =3D NULL;
->     1948         datum =3D policydb_filenametr_search(p, &key);
->     1949         while (datum) {
->     1950                 if (unlikely(ebitmap_get_bit(&datum->stypes, sty=
-pe - 1))) {
->     1951                         /* conflicting/duplicate rules are ignor=
-ed */
->     1952                         datum =3D NULL;
-> --> 1953                         goto out;
+> This does not currently break the build cause -Werror is stripped for
+> the parsing code to avoid breakage on old flex/bison versions that might
+> not generate warning free code.
 >
-> It's not clear just from looking at this, if it should return zero or an
-> error code.  The way to silence these warnings in smatch is to add a
-> "rc =3D 0;" within 5 lines of the goto.  Or a comment would also help
-> reviewers.
+> Fixes: 39b3cc51350a ("checkpolicy: handle unprintable token")
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Thanks Dan,
+For these six patches:
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Based on the comment and rest of the function I believe the right
-choice is to set @rc to zero before the 'goto'.  However, let's give
-Ondrej a chance to comment and submit a patch.
-
---=20
-paul-moore.com
+> ---
+>  checkpolicy/policy_scan.l | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+> index d7cf2896..62f28c11 100644
+> --- a/checkpolicy/policy_scan.l
+> +++ b/checkpolicy/policy_scan.l
+> @@ -22,6 +22,7 @@
+>
+>  %{
+>  #include <sys/types.h>
+> +#include <ctype.h>
+>  #include <limits.h>
+>  #include <stdint.h>
+>  #include <string.h>
+> --
+> 2.43.0
+>
+>
