@@ -1,234 +1,99 @@
-Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
+Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13BC015D5C9
-	for <selinux@vger.kernel.org>; Tue,  2 Apr 2024 20:21:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 435C61BF5C
+	for <selinux@vger.kernel.org>; Wed,  3 Apr 2024 03:11:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712089305; cv=none; b=X9dYoktHDMKVr7m6d/7yUqTd1kFnmqq/wQtvpe780DRVteiZroaPZuVI8HWym1AbOyGPBvUkek+iKvBX88W56/HJfDu2BM9/G9wrAhJQ540A0jVVA5JfsZJQheXARm1KgbcvilGFag6eswC3FSJuqAGAm3W3tsiTq7kwrdX0HgI=
+	t=1712113910; cv=none; b=DdiKCZXWcCkmG1mbPb7uKZShh48Lqve0unIZOp/oCh0nU9ko+se1+z6R9UCBueNKznljciwrP/tCkVdOF+Q73mz6xnCxn6dXYuZHhNFb4OY84V69o7n1HBOMX+S6zOe/X4GqUm++gZOz/v/Qs/mzFB1uqbKjsewW6X7xM6mTF8w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712089305; c=relaxed/simple;
-	bh=IZIDwcfWCppF6kkZhViuuPmc3C/DYrOU15I4JqgUs/g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KryWZRnhXS3UO6gUq2pSJ0lzH3Mc/ITL9JtJUrsfR+lvMhDrTw4FmmH9eg6mRxhbeWL/U5ZOOSL01Edcnv+3maqkHH21P1+Tf45gEMKAoT7OrlqluvWPQkDWXCDH1Jmc+XfOFMamLBAQ2QfK7rjuXLJeODV4ZKwvqf5CU0nI/ys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=gfKmvRsX; arc=none smtp.client-ip=209.85.128.176
+	s=arc-20240116; t=1712113910; c=relaxed/simple;
+	bh=JrM1uuFnTIVBKbjDsmBuCX7sxswHD1aKYDxO96MS6V0=;
+	h=Date:Message-ID:From:To:Cc:Subject; b=V92BLM1VNMlKz5UvQG92GWgLvI3WdyINQ2Noge7UMT0FCPtv3tkS1SXBloX2sEswuHHG+oSp3R825vRaV6sVgnXDp9AP72kQfAE++eImhXgEX+pNhYNrf0+Id6tuNBIECkVSrrnOPaeDy+E+2HFHDF5C9kLy5lxOuQ+iR8OKTnc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=gn+CaIq7; arc=none smtp.client-ip=209.85.160.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="gfKmvRsX"
-Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-61495e769bdso23881187b3.0
-        for <selinux@vger.kernel.org>; Tue, 02 Apr 2024 13:21:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="gn+CaIq7"
+Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-432d5b5f00bso4731271cf.0
+        for <selinux@vger.kernel.org>; Tue, 02 Apr 2024 20:11:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1712089302; x=1712694102; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1712113907; x=1712718707; darn=vger.kernel.org;
+        h=subject:cc:to:from:message-id:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=V1qhSOp2+13zuALIdBEDhoImynyxkU8w83XkU9dAVvU=;
-        b=gfKmvRsXQGNMgItc9fcvRdopT4C4kgdIg1IlHDFU+In9D4fAjXPu/nTFJWEdJ5XzhU
-         ReX5Xl2KQXoDyAyYnwyGlD33Vmj3OytbMMuvzatheKVVpfRJSn0D/ZHRuHBzZ6MYX3ox
-         UvYIHzL+Hud3d4eyQX90Sz7otGC4xGRtXSC7CyCffaKKWhjBPDEvBW2WT33/KQdSBjzQ
-         YpdhQtOhFDz7wescRqXpjpkdyQt6mL9W7COe2E0tSshQPoe8gtAoKzEjo0yVvqZ4Gzz0
-         Lx9VssgCVkp5YJY6Sc48bglF2qpWZM/opTd4B33WYYU+hO3dbmd7kzTvTIyb9TNoPJKK
-         5wqQ==
+        bh=10kPDwtnOEt8AZOr3ERW9xy/nQdgWpYkiYiozTsU2nU=;
+        b=gn+CaIq7e0C/FTM3wnme0xjlmWmFpeRSGdYQE9wd5msEJ1e67odLHVokusixkHkG1Z
+         SowUMEQfzMJbQD8prpk9GtuzLbE0qKdLX0ptS/emTFqZQJTxwIG8Fr4FabJbocUJmYyL
+         Y3ODP7gr2atYEmXCgIicf1tSxSh/IEqI/FCXfFKkueK1bRgj0qynD0SNGa2wNXjfP+y2
+         Vtd8ABtS6ujLw8E6cTpnIXFY9vOjw/Z7AMJk8GEKpRecTvJX831XfE9BIMGDxgbjirWD
+         r6L+diK6v4E4cazySK3Hy45i2JuIHMfJLBxSls9RjhPD9KHwOpumWQf8TdYGg2BxTRfZ
+         cc9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712089302; x=1712694102;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1712113907; x=1712718707;
+        h=subject:cc:to:from:message-id:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=V1qhSOp2+13zuALIdBEDhoImynyxkU8w83XkU9dAVvU=;
-        b=PfiA2HOMrqiICjxicwJwMsSHmA+M6Z6QmZYOiSjgJSrPYgZP63PhWsga7DJ2oZSVdi
-         FtQqJlR5xJTvZwPQ3zhCjtbQO7FYEat/74NgZbo7wA8095spWd6QmTTHcqFUpUbCCA4k
-         MAHzfByKeYVaMC/80DLThPuKI1WCOCCTCShQhnRF9ekjbH7qXcDIc/3abZ+bfdzuPTSL
-         WG/3mYxeBfFtSN9XtYEEH6aG9VVjH/2o+74xYx8wKRYHi4VyL7SFqyYSudxY3rQOc04B
-         DR0SKM227XnIZJMcEtc1hR7pTxTAS8R5uHuxPTFOM6jf7Hxjvl6SdU98y8NUflxDA+D9
-         3MgQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX9paAGnR/ExBBSrW6U5A9LdN5VNL+8kmFb7ouEcPgo6RdqUaBrBdvplEucfPCzfaJSgtQENGb/EGiUATlDUMJ6+BXcGmmNJw==
-X-Gm-Message-State: AOJu0YyPLklHpo43gNOwB9cmuPzQ64uQkTj4McEflaXf074hhR3OfhTY
-	qJt4FvdCSShMdIkaFxA03T0W1ZFvPGCOlMLofxQoLW4V7B6XbvixosNHDlHk5RxohY1gv9NA3qF
-	9vDwfTrgb6XHiHnyuA9+/2AJ0ktpEFF4ooUxg
-X-Google-Smtp-Source: AGHT+IHXLQH0aIHnSidxi1fpeDAS1mgaCXB9btrUX8/PTIbQhJ4V8YENVs07wOD06ctY0KhZ6Qr/6vvK/ph00/95dSM=
-X-Received: by 2002:a81:6c0b:0:b0:615:1a0:78ea with SMTP id
- h11-20020a816c0b000000b0061501a078eamr4719313ywc.34.1712089301854; Tue, 02
- Apr 2024 13:21:41 -0700 (PDT)
+        bh=10kPDwtnOEt8AZOr3ERW9xy/nQdgWpYkiYiozTsU2nU=;
+        b=SCb9qHx+E5x2z2Ni0fdlQ68FExaMSTFm7xrMb/1KDDXzWd4lbuvgJh6PUvkaGsWk+o
+         NTTRxsCSQrMMtn6zaM/jwIdw6joXkufFjCKQYyfqFELNDnlgiyMxdUDmctu0dM+PkIwY
+         QEdMEhz1NgDWTghUZ9xhhGjczWoy2x6Rwpve/U9/OKkjt4SMHaTUMrRx8MiS/dYP4y13
+         iVqtidHO+Wfs1ZPXFiJeq1lIUrG2bkJjAEGBM+M8dPVQQhlzIuWHO5PbYApOSZLZkd71
+         ZAoK7JS1Y9uDWiirxuSDRbtNnbRHyuI/+AUTV5HZEPMXWJbaeV3uiGdFzq0sJdu6ukSL
+         lQxg==
+X-Gm-Message-State: AOJu0YyF7M7d6xOBm5vqLG0PKZy6s+K9xIex2Bq31WzChOIYQgOckota
+	OiZ8e2Vy6RKnJjPgMHs4G/TgL17nHLAvqAa4/B1AOA8ZaQMjTYXfyOJMS68nIHXHpr3bsfCt6Z0
+	=
+X-Google-Smtp-Source: AGHT+IE78oAKuIVYbax+koIpgJJOpn/ZYMkQ/QoOzelQ16IOpVq6C4shR8C6h7JU+WX+5bbERMuWHg==
+X-Received: by 2002:a05:622a:1711:b0:432:f37e:d274 with SMTP id h17-20020a05622a171100b00432f37ed274mr2421865qtk.8.1712113907185;
+        Tue, 02 Apr 2024 20:11:47 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id bb12-20020a05622a1b0c00b00432ff561b2esm1776656qtb.79.2024.04.02.20.11.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Apr 2024 20:11:46 -0700 (PDT)
+Date: Tue, 02 Apr 2024 23:11:46 -0400
+Message-ID: <cf11f516883d7fbf75a34f7981174e73@paul-moore.com>
+From: Paul Moore <paul@paul-moore.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] selinux/selinux-pr-20240402
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20240305170501.2185811-1-juraj@jurajmarcin.com>
- <486c37d889583bb7351dba9793a2e709@paul-moore.com> <20240402153526.ua7jdw7xtgda6qo2@jmarcin-t14s-01>
-In-Reply-To: <20240402153526.ua7jdw7xtgda6qo2@jmarcin-t14s-01>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 2 Apr 2024 16:21:30 -0400
-Message-ID: <CAHC9VhQF+-y+Fy_RS250sbo3-R+eKKc0Q5kSiUnUaSfGBMA0dA@mail.gmail.com>
-Subject: Re: [PATCH v5] selinux: add prefix/suffix matching to filename type transitions
-To: Juraj Marcin <juraj@jurajmarcin.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org, 
-	Ondrej Mosnacek <omosnace@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 2, 2024 at 11:35=E2=80=AFAM Juraj Marcin <juraj@jurajmarcin.com=
-> wrote:
->
-> Hi Paul
->
-> Thank you for your feedback!
+Hi Linus,
 
-Thank you for the patch :)
+A single patch for SELinux to fix a problem where we could potentially
+dereference an error pointer if we failed to successfully mount
+selinuxfs.  Please merge for the next v6.9-rcX tag.
 
-> On 2024-03-27 21:22, Paul Moore wrote:
-> > On Mar  5, 2024 Juraj Marcin <juraj@jurajmarcin.com> wrote:
+Thanks,
+-Paul
 
-...
+--
+The following changes since commit 4cece764965020c22cff7665b18a012006359095:
 
-> > >    | Mem   | Binary | Policy  | Create    | osbench [2]
-> > >    | Usage | policy | load    | tty [1]   | create
-> > >    |       | size   | time    |           | files
-> > >    | (MiB) | (KiB)  | (ms)    | (ms/file) | (us/file)
-> > > ---+-------+--------+---------+-----------+-----------
-> > >  1 |   430 |   3682 |  46.930 |    2.4569 |   43.4431
-> > >    | sd=3D 8 |        | sd=3D0.25 |  sd=3D0.043 |  sd=3D0.434
-> > >  2 |   410 |   3682 |  46.829 |    2.4623 |   43.4112
-> > >    | sd=3D20 |        | sd=3D0.27 |  sd=3D0.053 |  sd=3D0.442
-> > >  3 |   419 |   3682 |  46.823 |    2.4257 |   43.0575
-> > >    | sd=3D14 |        | sd=3D0.18 |  sd=3D0.057 |  sd=3D0.416
-> > >  4 |   420 |   2585 |  42.044 |    2.5028 |   43.7907
-> > >    | sd=3D10 |        | sd=3D0.19 |  sd=3D0.067 |  sd=3D0.382
-> >
-> > Thanks for the updated patchset :)
-> >
-> > I like the improvements in #2 and #3, with only one test being slightly
-> > worse than #1, I think we're okay there.  However, it looks like there
-> > has been a regression in #4 in terms of runtime performance ... hmmm.
->
-> It might look like a regression but there is some variance between runs,
-> even though I ran single benchmark many times and cases right after the
-> previous one. There is a similar difference but in the other direction
-> between #2 and #3 even though they both run with the same kernel and
-> basically the same policy (the only difference being explicit zero
-> counts of prefix and suffix rules in the policy file for #3).
->
-> I ran the whole benchmark suite again 2 times with the same reference
-> and patched kernels and got the following results:
->
->    | Mem   | Binary | Policy  | Create    | osbench [2]
->    | Usage | policy | load    | tty [1]   | create
->    |       | size   | time    |           | files
->    | (MiB) | (KiB)  | (ms)    | (ms/file) | (us/file)
-> ---+-------+--------+---------+-----------+-----------
->  1 |   436 |   3682 |  48.955 |    2.5037 |   43.7484
->    | sd=3D20 |        | sd=3D0.25 |  sd=3D0.048 |  sd=3D0.445
->  2 |   434 |   3682 |  48.331 |    2.4314 |   43.6714
->    | sd=3D16 |        | sd=3D0.25 |  sd=3D0.044 |  sd=3D0.422
->  3 |   421 |   3682 |  47.592 |    2.4633 |   43.5746
->    | sd=3D19 |        | sd=3D0.28 |  sd=3D0.056 |  sd=3D0.375
->  4 |   413 |   2585 |  41.895 |    2.4608 |   43.7485
->    | sd=3D13 |        | sd=3D0.19 |  sd=3D0.063 |  sd=3D0.378
->
->    | Mem   | Binary | Policy  | Create    | osbench [2]
->    | Usage | policy | load    | tty [1]   | create
->    |       | size   | time    |           | files
->    | (MiB) | (KiB)  | (ms)    | (ms/file) | (us/file)
-> ---+-------+--------+---------+-----------+-----------
->  1 |   442 |   3682 |  48.639 |    2.4741 |   43.4764
->    | sd=3D23 |        | sd=3D0.21 |  sd=3D0.059 |  sd=3D0.487
->  2 |   422 |   3682 |  48.305 |    2.4191 |   43.6313
->    | sd=3D10 |        | sd=3D0.21 |  sd=3D0.064 |  sd=3D0.460
->  3 |   427 |   3682 |  47.524 |    2.4798 |   43.7239
->    | sd=3D21 |        | sd=3D0.17 |  sd=3D0.055 |  sd=3D0.590
->  4 |   416 |   2585 |  41.764 |    2.4272 |   43.6712
->    | sd=3D 8 |        | sd=3D0.20 |  sd=3D0.052 |  sd=3D0.376
->
-> As can be seen, sometimes one case is the fastest one for the given test
-> by a few tenths of a millisecond/microsecond, sometimes it is the other
-> way around. Regression in one test case would result in it being slower
-> consistently between runs.
+  Linux 6.9-rc1 (2024-03-24 14:10:05 -0700)
 
-In all three reported results, test #4 is slower than test #1 in every
-case, although it is within 0.001 in one result.  While I agree there
-does appear to be variation in the tests, the fact that none of the
-results show #4 as being faster than #1 does seem to indicate a
-performance regression in test #4.
+are available in the Git repository at:
 
-> > > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/pol=
-icydb.c
-> > > index 3d22d5baa829b..5de22ba840673 100644
-> > > --- a/security/selinux/ss/policydb.c
-> > > +++ b/security/selinux/ss/policydb.c
-> > > @@ -429,7 +434,11 @@ static int filenametr_cmp(const void *k1, const =
-void *k2)
-> > >     if (v)
-> > >             return v;
-> > >
-> > > -   return strcmp(ft1->name, ft2->name);
-> > > +   v =3D strncmp(ft1->name, ft2->name, min(ft1->name_len, ft2->name_=
-len));
-> > > +   if (ft1->name_len =3D=3D ft2->name_len || v)
-> > > +           return v;
-> > > +   /* if one name is prefix of the other, the longer is greater */
-> > > +   return (int)ft1->name_len - (int)ft2->name_len;
-> > >  }
-> >
-> > I'm probably missing some subtlety in the code above, but I think we
-> > might be able to optimize this a bit more:
-> >
-> >   if (ft1->name_len !=3D ft2->name_len)
-> >     return (int)ft1->name_len - (int)ft2->name_len;
-> >   return strcmp(ft1->name, ft2->name);
-> >
-> > I expect being able to avoid a string comparison in some cases should
-> > result in a small performance bump.
->
-> That optimization would lead to a different ordering than before with
-> the plain `strcmp()` - it would sort the strings by length first and
-> only then alphabetically. In fact, the `name_len` comparison could be
-> removed from the condition entirely without changing the ordering. This
-> could make it more clear.
->
-> However, this change in ordering might not matter as it is only a key
-> comparator function for the hash table and items from the policy are
-> inserted one by one. I will also ask Ondrej about this.
+  https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+    tags/selinux-pr-20240402
 
-With hashtab_search() exiting early on a negative result from
-filenametr_cmp() it may look like the ordering within the bucket
-matters, but so long as we use the same sorting order when
-accessing/inserting entries it shouldn't matter.  The important thing
-is that we can search through the bucket entries as fast as possible,
-and performing integer comparisons/math is going to be a lot faster
-than performing a string comparison.
+for you to fetch changes up to 37801a36b4d68892ce807264f784d818f8d0d39b:
 
-> > > diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/pol=
-icydb.h
-> > > index 4bba386264a3d..78abb959e7205 100644
-> > > --- a/security/selinux/ss/policydb.h
-> > > +++ b/security/selinux/ss/policydb.h
-> > > @@ -232,6 +233,11 @@ struct genfs {
-> > >  #define OCON_IBENDPORT 8 /* Infiniband end ports */
-> > >  #define OCON_NUM       9
-> > >
-> > > +#define FILENAME_TRANS_MATCH_EXACT 0
-> > > +#define FILENAME_TRANS_MATCH_PREFIX 1
-> > > +#define FILENAME_TRANS_MATCH_SUFFIX 2
-> > > +#define FILENAME_TRANS_MATCH_NUM 3
-> >
-> > I think we should probably tweak things to help indicate that the last
-> > macro/define above is not a usable value, how about this renaming it to
-> > FILENAME_TRANS_MATCH_MAX?  I'm open to other suggestions too ...
->
-> I thought being consistent with other array indices (`SYM_*`, `OCON_*`)
-> would be better, but I am also open to change the suffix to `_MAX` if
-> there are no objections.
+  selinux: avoid dereference of garbage after mount failure
+    (2024-04-01 23:32:35 -0400)
 
-Ugh, yes, you're right.  We should change those other #defines, but
-let's leave that for another time.  Stick with _NUM.
+----------------------------------------------------------------
+selinux/stable-6.9 PR 20240402
 
-> Then possibly update also `SYM_NUM` and `OCON_NUM` defines in another
-> patch.
+----------------------------------------------------------------
+Christian Göttsche (1):
+      selinux: avoid dereference of garbage after mount failure
 
-Yes, that's the right approach as far as I'm concerned, but that's
-something for later.
+ security/selinux/selinuxfs.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---=20
+--
 paul-moore.com
