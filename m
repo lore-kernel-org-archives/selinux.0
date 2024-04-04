@@ -1,124 +1,157 @@
-Received: from mail-vs1-f43.google.com (mail-vs1-f43.google.com [209.85.217.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0B8D155310
-	for <selinux@vger.kernel.org>; Wed,  3 Apr 2024 19:52:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A2C07442F
+	for <selinux@vger.kernel.org>; Thu,  4 Apr 2024 13:00:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712173923; cv=none; b=ab52MGax1KixR4k4j0RljgdclJMoqWl1Z2na3wZ4ckQmuHSQcla+TJfn/XEnxgm5a7wuzQjrGfo55sl/ckthRU3vzk7CZsF+8yXVYN1PCogm2mcuxwDtAVidixb1DmoHowYD6lz3n/Vxny2rRIOYRI8uvs+FWauurr7z4dms57U=
+	t=1712235615; cv=none; b=rzneSLDeAdOof2zIQfnWhjCyxMqNeBy6UAL0qA32F4VGqDoHBqg/N71D8W2IdiwFZIxz8G3n7GUXJFskU76aYO6OjsgRY6JszvriNIniG3mmSil/8qa2xzJ42NaMdgfNnZy/5C8Jhw6WeLunli+3c9O8QQViB2M+hiLGS0zrqzA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712173923; c=relaxed/simple;
-	bh=I3XTpXzN3ks5xyIRVbA9u+ll/cSnD7eMTgcxcK1nm6Y=;
+	s=arc-20240116; t=1712235615; c=relaxed/simple;
+	bh=66Q/o6J5YMXvMiPRZzIoBojWcHEUtSX7xhvQJAT3yTY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Y2Ghl/CfDpppZX2tqBWreofwQIggB8exlYqC3S3M1fIMfTPC/jj4viXx3wPVYI/bMCNoPh7PeiGE9IMz2f2J2WKAPJTlgSVQ4vY7I587fKRhRQE8d5O7R8QpVoYN3O5vr821ykq/ENLFOKHjFU6HAbuntB9rJ2l6vYXYOliFhbI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nXt7HAYn; arc=none smtp.client-ip=209.85.217.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=ZBv4PRwnpCOpOjT+Vulh+qUsWqVrQw+8ZLHMQ/xHoV74uWZO5wlArkArQdlPJokTqxlUYlbFIm98id4jkKqQPTVZmiZIo7jyQJEcuorGd8yOaYUgO+RPg4VUD3BIiB6gY4iHXdl+QijzrjrxpkjmHvcaTuuOpqdfvx9PUSD6HUI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KwnPf/zl; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nXt7HAYn"
-Received: by mail-vs1-f43.google.com with SMTP id ada2fe7eead31-4766e56ccccso121637137.0
-        for <selinux@vger.kernel.org>; Wed, 03 Apr 2024 12:52:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712173920; x=1712778720; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+fYolUpTvTrkz9WT/6+uTINXTWNsYGYfblwqSqwee+w=;
-        b=nXt7HAYnQlpf7brydKa7Y49gzsSP5ri2sjmsPwYB8nQemPTrwhd9U5pCW7Nn+JLcJf
-         r6OJ6wpp+5JRYuB17kzMG3TGfpN5rMDlx+Jh8uyHsU0Uy2D5vcsGijE6qxnnPp+AJgk0
-         D0Bi6VZx0L0M9/+LovsHe753aP/Ec0DKENeOhmdysu4LLOmnECmqP3SlC8a1MHuMOSur
-         +taXTBROZmviwxWx1LsTYqu/O8aNZ+4lxzD/xIz1vYiiymqK04dGmWohVK/FQYSpH3Xc
-         gQPojQAQwXY9JhGoFU8qPdkrs/5UQNu14sprBHwNeR9qS7jamp0aKVAomYSKBcZze5HV
-         JT1Q==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KwnPf/zl"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712235613;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=MJkpvdgkFTj2qXCxr5vKH7jDGmMVs/rKWRhLLKkfGPg=;
+	b=KwnPf/zl4SmW3IiecWEjGn8ubI/VMo5ZcXEsI1TbtMiUn3f38evOzVdXEHtcHxNf6Uwx9m
+	NxQMfBUQdx5z3POiu5UVM7g2YIzv2PJNhdXvBXTsvWQtc7GQimjgZvwB+1zIAGHO/mnqLM
+	baUvfiF1NslaEzQbMq9wKUgJxQbXmrY=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-215-imfJ0-GKNVm0EF82_ipYMw-1; Thu, 04 Apr 2024 09:00:11 -0400
+X-MC-Unique: imfJ0-GKNVm0EF82_ipYMw-1
+Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-5dcbb769a71so879276a12.3
+        for <selinux@vger.kernel.org>; Thu, 04 Apr 2024 06:00:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712173920; x=1712778720;
+        d=1e100.net; s=20230601; t=1712235610; x=1712840410;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=+fYolUpTvTrkz9WT/6+uTINXTWNsYGYfblwqSqwee+w=;
-        b=c1Z8K3I9WSKh7bYfg9+S/6OuqQfUvDBsBVEYKjSxNbiSDHeFWDRzl+VVWa8e9WbP2r
-         JgnWIgByvExGfw4UeVIro5COw6zyrDqyNE/Va8dtFkwLY9K/fFro36Blm0m+stC4+PVm
-         8CFp9i3ySSIyOZ6yqgXsvvPz0MyoEOCV+0S4l/iQ38vSUaz+O8EnoY4mm11+Cko3KfZU
-         41FoKVt/tPi0nvn/jvQdf/kaMiSWf7iJbeAgUDnWmOxLCKmFqkil0Y5LZKaTVqUa/2NC
-         3KIh4e7qcLEKKez2BemxnLZ4Gk91H1/Hy6ZM+nUVDch6eso6lzWaCk3qwbmu6KbDjCQU
-         D8kg==
-X-Gm-Message-State: AOJu0YyTYfQY1+cb9Qksz7gTIWHoLCL7n5QVnbexClTk9fi325jWwQV6
-	cY3Q/TOcn6gjPg29WI/o5rkMel2sfsBNBpKN14hHIlc10ggw3pdCrQWsQuzbwqdM877XHj4oYiP
-	lGqAChwpz4w8jZsOHzQld9wdCulfMk/8Dth8=
-X-Google-Smtp-Source: AGHT+IEf0gwM15lEojdacEMSWh80yoe6it94S75xMmeW/Z+FuSISS6V8+9sw5FtMqEprvOV5D4JOeXxmJyD7XnL7zhE=
-X-Received: by 2002:a05:6102:4a06:b0:474:d382:1cbe with SMTP id
- jw6-20020a0561024a0600b00474d3821cbemr415590vsb.16.1712173920558; Wed, 03 Apr
- 2024 12:52:00 -0700 (PDT)
+        bh=MJkpvdgkFTj2qXCxr5vKH7jDGmMVs/rKWRhLLKkfGPg=;
+        b=eJb7XdMbk1f+NHf4caSBTetUog3KKqxvNQtwTBqd0H9ZUGpelD5aLmNlGUj6AiECqe
+         xKMgIRXkuI+OzxoS3MdUTTiep0OH4DnoNvohVvAMkqEIA08kFtx4FfAvw57WLiebl2f7
+         nevE+O19B4sBQCxanQVlT0BkC2H7edhUXGqeN06XC2mQUpUHXykbg7stOmf2Ep2pQvij
+         AcOfJ6cq6xCd88sGw24XFxKI1O46oWOl8lcODa9PKIKKmqIZWehkPwbMIPNMvTYSNd1P
+         bS+OGwuDihuZEaXS6acAACnRAR4K5kCrnxaDCPfUtYB7EEaGuUx0LMPFQBPX+eRgzqrw
+         z5wQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV4qbEVrlsnR/WjkksQbHahvnTwK9oBxw4Jgb6qKbLX08IfpeAzHbJtqM5cPsOyvKDptPJCz6HzPnkeRqGFIcdmz4EOv4wuQg==
+X-Gm-Message-State: AOJu0YxWzMGUxU/4glppYnKs6+NjkepX9XSCAtq71hzq8J/TuFIlh+VC
+	sQ/2h+6QwMOYq237jQEaPy1smCpg142GkJr3qAH/xsBE97PL+caV9lr5bsWC/ThJOYbf+qwx0I0
+	EWNGoeQOJeTDInaDGfDYQXth9V2qNxq8O0hHhVe3TP/XEsqF1hFBSaoy0Dq2/jiNNtAkO1SiJ+s
+	xF+LmARqNu56N+R+stPeqKeqIh0obx8VU7amolKvdq
+X-Received: by 2002:a05:6a21:1506:b0:1a5:6bfd:6bdd with SMTP id nq6-20020a056a21150600b001a56bfd6bddmr2818470pzb.50.1712235606688;
+        Thu, 04 Apr 2024 06:00:06 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGIwf6AuTpKrth5bCw/jYQJ7YX6plk7AFxTlPGbXFSgSqfWM4ZyT164EcujHQBQ4hoc0VXJb90EWEwtOiK2Xmo=
+X-Received: by 2002:a05:6a21:1506:b0:1a5:6bfd:6bdd with SMTP id
+ nq6-20020a056a21150600b001a56bfd6bddmr2818413pzb.50.1712235605878; Thu, 04
+ Apr 2024 06:00:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240402154238.104378-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20240402154238.104378-1-cgoettsche@seltendoof.de>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 3 Apr 2024 15:51:49 -0400
-Message-ID: <CAP+JOzQ9eHY6TxmSB+uDwB0wWvRiNSZ8_KpzQKjo14yve_zxwg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: constify function pointer arrays
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-Cc: selinux@vger.kernel.org, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+References: <722b90c4-1f4b-42ff-a6c2-108ea262bd10@moroto.mountain> <CAHC9VhRU2OC2EWNAsiLKXAqH_QHYiD9Sytu1rPObcQmofCL+Gg@mail.gmail.com>
+In-Reply-To: <CAHC9VhRU2OC2EWNAsiLKXAqH_QHYiD9Sytu1rPObcQmofCL+Gg@mail.gmail.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Thu, 4 Apr 2024 14:59:54 +0200
+Message-ID: <CAFqZXNstaBpRAPqtLDa9vurVSGGv0-XYw7ded85+84g94Lo3xA@mail.gmail.com>
+Subject: Re: [bug report] selinux: optimize storage of filename transitions
+To: Paul Moore <paul@paul-moore.com>
+Cc: Dan Carpenter <dan.carpenter@linaro.org>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 2, 2024 at 11:46=E2=80=AFAM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
+On Wed, Apr 3, 2024 at 8:13=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
+te:
 >
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> On Wed, Apr 3, 2024 at 4:38=E2=80=AFAM Dan Carpenter <dan.carpenter@linar=
+o.org> wrote:
+> >
+> > Hello Ondrej Mosnacek,
+> >
+> > Commit c3a276111ea2 ("selinux: optimize storage of filename
+> > transitions") from Feb 18, 2020 (linux-next), leads to the following
+> > Smatch static checker warning:
+> >
+> >         security/selinux/ss/policydb.c:1953 filename_trans_read_helper_=
+compat()
+> >         warn: missing error code 'rc'
+> >
+> > security/selinux/ss/policydb.c
+> >     1916 static int filename_trans_read_helper_compat(struct policydb *=
+p, void *fp)
+> >     1917 {
+> >     1918         struct filename_trans_key key, *ft =3D NULL;
+> >     1919         struct filename_trans_datum *last, *datum =3D NULL;
+> >     1920         char *name =3D NULL;
+> >     1921         u32 len, stype, otype;
+> >     1922         __le32 buf[4];
+> >     1923         int rc;
+> >     1924
+> >     1925         /* length of the path component string */
+> >     1926         rc =3D next_entry(buf, fp, sizeof(u32));
+> >     1927         if (rc)
+> >     1928                 return rc;
+> >     1929         len =3D le32_to_cpu(buf[0]);
+> >     1930
+> >     1931         /* path component string */
+> >     1932         rc =3D str_read(&name, GFP_KERNEL, fp, len);
+> >     1933         if (rc)
+> >     1934                 return rc;
+> >     1935
+> >     1936         rc =3D next_entry(buf, fp, sizeof(u32) * 4);
+> >     1937         if (rc)
+> >     1938                 goto out;
+> >     1939
+> >     1940         stype =3D le32_to_cpu(buf[0]);
+> >     1941         key.ttype =3D le32_to_cpu(buf[1]);
+> >     1942         key.tclass =3D le32_to_cpu(buf[2]);
+> >     1943         key.name =3D name;
+> >     1944
+> >     1945         otype =3D le32_to_cpu(buf[3]);
+> >     1946
+> >     1947         last =3D NULL;
+> >     1948         datum =3D policydb_filenametr_search(p, &key);
+> >     1949         while (datum) {
+> >     1950                 if (unlikely(ebitmap_get_bit(&datum->stypes, s=
+type - 1))) {
+> >     1951                         /* conflicting/duplicate rules are ign=
+ored */
+> >     1952                         datum =3D NULL;
+> > --> 1953                         goto out;
+> >
+> > It's not clear just from looking at this, if it should return zero or a=
+n
+> > error code.  The way to silence these warnings in smatch is to add a
+> > "rc =3D 0;" within 5 lines of the goto.  Or a comment would also help
+> > reviewers.
 >
-> The function pointer arrays are never changed, declare them const.
+> Thanks Dan,
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Based on the comment and rest of the function I believe the right
+> choice is to set @rc to zero before the 'goto'.  However, let's give
+> Ondrej a chance to comment and submit a patch.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Yes, it should be set to zero in that path (and already happens to be
+as a result of lines 1936-1937). I will send a patch to set it
+explicitly just before the goto to make it clear and less error-prone.
 
-> ---
->  libsepol/src/policydb.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index 0c23a7a2..49f9e8af 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -1126,7 +1126,7 @@ static int cat_index(hashtab_key_t key, hashtab_dat=
-um_t datum, void *datap)
->         return 0;
->  }
->
-> -static int (*index_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t datum=
-,
-> +static int (*const index_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t=
- datum,
->                                 void *datap) =3D {
->  common_index, class_index, role_index, type_index, user_index,
->             cond_index_bool, sens_index, cat_index,};
-> @@ -1409,7 +1409,7 @@ static int cat_destroy(hashtab_key_t key, hashtab_d=
-atum_t datum, void *p
->         return 0;
->  }
->
-> -static int (*destroy_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t dat=
-um,
-> +static int (*const destroy_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum=
-_t datum,
->                                   void *datap) =3D {
->  common_destroy, class_destroy, role_destroy, type_destroy, user_destroy,
->             cond_destroy_bool, sens_destroy, cat_destroy,};
-> @@ -3410,7 +3410,7 @@ static int cat_read(policydb_t * p
->         return -1;
->  }
->
-> -static int (*read_f[SYM_NUM]) (policydb_t * p, hashtab_t h,
-> +static int (*const read_f[SYM_NUM]) (policydb_t * p, hashtab_t h,
->                                struct policy_file * fp) =3D {
->  common_read, class_read, role_read, type_read, user_read,
->             cond_read_bool, sens_read, cat_read,};
-> --
-> 2.43.0
->
->
+Thank you for the report!
+
+--=20
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
