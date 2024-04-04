@@ -1,124 +1,132 @@
-Received: from mail-oi1-f182.google.com (mail-oi1-f182.google.com [209.85.167.182])
+Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78922101DB
-	for <selinux@vger.kernel.org>; Thu,  4 Apr 2024 16:23:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7F57101DB
+	for <selinux@vger.kernel.org>; Thu,  4 Apr 2024 16:23:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712247788; cv=none; b=iwICrah9Gz1O8dG+OKC693PMPnzhhivhNjRlHW/oVb7CqEpE6P6LAOlZeIzaI+3rhvZx89OQAz3sm2NQlwq6bZ6qJ/OHhfJcdYkm9iryAdUt9yuFe3CiOyKV4h+6/XTGU/EYOMWd5wFsgYqYpQ6fk0hkisKcas5TPMdEn10YLoU=
+	t=1712247821; cv=none; b=bUffVTvqTKbPAhgQ6QAQkBFHvElSBWTElFbdMKSUSVowSCXgO+gPKYzroODE6qfNnp28+iTlY+1gnw1cvEPP4hO9eQoH7TzphxJRab60Rr7jYoq18TYDr+P+7tQ4ifM/U23bH3WPN8rRwDdt6HkccJgNlt5NjwZjruiYJNM+Ed0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712247788; c=relaxed/simple;
-	bh=aZvVNt8xYJrCJrmAd98etx0MXP6KwOuYZO8IAbJIWVg=;
+	s=arc-20240116; t=1712247821; c=relaxed/simple;
+	bh=wk8pbwn125LZ3Y1r6/e83o6f3IXsAaaEVlMKBHjFfw8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nCd9dI4woLIZ13BX1Ug41I6C1+GMGO7NwoLMVs0sUbdYqNA4xaX7PdnwjNHN87GOW+o+Tkwcyh5u5H7CfRLuSstIxwJSs1Mvar2A0PI7I/O770EiDl1m4CS8CahKyCjyQK8xP6z/z8ChLeFGT6vzvFzET78QDNhwx2H4CdiPS+s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KJ+POrX0; arc=none smtp.client-ip=209.85.167.182
+	 To:Cc:Content-Type; b=Iu3FFqnYppxxGrKQ76jxWVRMVCI9+P/NGdhFI2lXPbcEEfmbSidm5iuNFfSnkaqhpVm4MLzREGOA5w2inuKrveQcW8AHLRgUJFBz2ekMsRiJ2L1bTNsnlsl1TgLLJcZP3znBfYikYfTUGp3knizE9APrEtSf+LtI9OFiGJw+eEo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z7Xj9der; arc=none smtp.client-ip=209.85.217.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KJ+POrX0"
-Received: by mail-oi1-f182.google.com with SMTP id 5614622812f47-3bbbc6e51d0so644376b6e.3
-        for <selinux@vger.kernel.org>; Thu, 04 Apr 2024 09:23:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z7Xj9der"
+Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-479c3616fceso377773137.3
+        for <selinux@vger.kernel.org>; Thu, 04 Apr 2024 09:23:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712247786; x=1712852586; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1712247819; x=1712852619; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=qkRtJWJLbX8A0kWXt6plgiIOMd/RPm3PO6Fz+z8Qs+c=;
-        b=KJ+POrX0RL6V9NKwFgJf9dsltJtkCRRBsuDAIYwr7uXnscIpyRMd2CoStXXVWTAtWC
-         9veSxcWkRNN9cvPBGFPcoverMajeEujYNoMhSqFBhydQCPp0bTNh8p9sXHmCmyUT0sj1
-         3s7BvI8SY3tRaa3kCi/lPtYTCuG+MqB0fPFSc2wsSz+PLJTPCjurgipOLOOxs1QkWdO9
-         FmA/2mdbF9krqDUBYA3QlDoqrMXu1tDxHl+fxdi2kAXc3yBOkkRXjXo8yetoNMQ3+UEi
-         Lb0i8FLDiGeF10j7mf0WsasxWvPVPRqewjpOqyzcwA4NxFzwsNndZ4RUnuAdZheiordM
-         gqeg==
+        bh=QETQDs8yy2cqYA123elZGPGcV3x84ynFTQH8eTVtIGI=;
+        b=Z7Xj9dertdnAS1E1bBcny/HplViprttY1aQC6UkKPidLLCXid+i/G2E4OwuvW+cj/k
+         I0kdSpgFDL1zsDZO4BwOLX088oxQsN8Q8ekLfVr5etSd7YqMpU7GeOTz6Q1VBxN63JZ+
+         5wHRo45bi/rjhqQRjI39gWeix+FAfFIhVB5J5OVhv38bFcprvfY1WJ7nr2pjV0t+KFex
+         ALGOwgkPBsre/HJ6aXAsfif17Y4599lXgQj6D+vGJJuqP8YGuERdmC8BtV45N22pYlZl
+         0voQ4z4zJ0faYXlEe5vcMInKA10OvVdvjx1nhpCUIZuAqGCDIXFzMKRVtIeP/GQdIFs6
+         ZM3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712247786; x=1712852586;
+        d=1e100.net; s=20230601; t=1712247819; x=1712852619;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=qkRtJWJLbX8A0kWXt6plgiIOMd/RPm3PO6Fz+z8Qs+c=;
-        b=HeYGAhzYKh6OogCBwKGZIjnUaZXfdXDo+YscBMpKtIrQzOY6zzMpaDA9i8ef8veBZX
-         BionjJ1vz7uLQvXF0+PojP/mD+4uie6zfFE6ZY5XBF7K353RAISKa+NvFoUoGyc1x8Rb
-         kQjMBtSj1QXiuyhG/wNWSrQjwzU8zAwkCQ6+l8BWviINPIqAh47u36UzXwQONjLrBxEl
-         SUFcDVu6zIOW8sCU0JKwrHBmergsGNJ9d72ixPoIKAEQffkKqR/ZPZUCWxoTs2CmIL2I
-         6yXx//H+8SqwV4eOjrWwD78KTZlot9qSO32rBXxO8N2nws12OakTj3W5IwLgupU9cHQh
-         Nfdw==
-X-Gm-Message-State: AOJu0Ywo6A4rXiC4wwNQy0cjlguwLXUbSInSyApXxnrX6AOcyhbsPjuh
-	TWxGdbJQNZohtAPrDaA1pxEtRmmmkQGFjRxkCai/xfbTPJ9HEglFyAaqDJM1V3USa7CN4/4jZyA
-	1LV+hZwhjSxJV7w6g0M62OnH+T9ssgmes
-X-Google-Smtp-Source: AGHT+IEVzD2Fg7cUK5AbFlayjy5wxSis3DcEhuGviKvkifCunZuU7eiKhDRGTzroOMnsc7JQg+7S9/l2drfcxHLngP4=
-X-Received: by 2002:a05:6808:1183:b0:3c3:e4c7:d6c1 with SMTP id
- j3-20020a056808118300b003c3e4c7d6c1mr3374624oil.3.1712247786360; Thu, 04 Apr
- 2024 09:23:06 -0700 (PDT)
+        bh=QETQDs8yy2cqYA123elZGPGcV3x84ynFTQH8eTVtIGI=;
+        b=FhXwkpYOu1u8FtYi0aumbLO0l+H9jvauwRIbeAZChquVcFO5sj8gKr1n9uNnhh7s82
+         uyni9qOzlOcEcCatUNXtZT9M9sHqE12Bv1mzYj+TocUdSfr8i8xofR9nV0oUJpDUEeqt
+         iIlzKT53fzxorS8nRGiJkHVcQ9ryVIFC0yrvsJC+4BVyH1JELI4NYL/5oRHMCdNbf1ah
+         K4D1J//KTD9LIU+m8jq5Hv/odoE8of9YuMltePWTQbs+5j9XCq3GUZkHS0Fd7Fk/5Z1H
+         AclVweSL24XZi82gXgbCqPT2i2ETk4QX7x+uanmjyi0fTsD5Cfz3y3t0SyEKpsF5kc6N
+         PiVA==
+X-Gm-Message-State: AOJu0YwSiBQPRONM4ZNuxjwrIDzyELU8MUE60TAn7drHMBvi1Ep2nLhB
+	G9ZaE+x8+fAS62Ps2MghDPoWG0+RAoWCCxqQMpxVf5F4Hv1Duq+ruPhUaNHphS/Rxf1baf80RAI
+	uAdlndz1hnwuMbWUp92vUWjm8EjE=
+X-Google-Smtp-Source: AGHT+IGMPWy5YynmR9/gFHcQWMpTslrvD3zQdWBKNcx4XaTys6nCQVmnU7F6u9QCcyj5+CfgHFGytlg95mc8bUeYEAM=
+X-Received: by 2002:a05:6102:954:b0:479:d42d:f92e with SMTP id
+ a20-20020a056102095400b00479d42df92emr1417323vsi.24.1712247818682; Thu, 04
+ Apr 2024 09:23:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240402152925.99781-1-cgoettsche@seltendoof.de> <CAP+JOzQruPoyL1YLLmfRR-nxTGGbXb91Zc7q__jreFMty0v4Fw@mail.gmail.com>
-In-Reply-To: <CAP+JOzQruPoyL1YLLmfRR-nxTGGbXb91Zc7q__jreFMty0v4Fw@mail.gmail.com>
+References: <20240402154238.104378-1-cgoettsche@seltendoof.de> <CAP+JOzQ9eHY6TxmSB+uDwB0wWvRiNSZ8_KpzQKjo14yve_zxwg@mail.gmail.com>
+In-Reply-To: <CAP+JOzQ9eHY6TxmSB+uDwB0wWvRiNSZ8_KpzQKjo14yve_zxwg@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Thu, 4 Apr 2024 12:22:50 -0400
-Message-ID: <CAP+JOzTukDxnt+ckOm3Q6cb1vwASM5s+KoJEEC2tC9qDqao1vw@mail.gmail.com>
-Subject: Re: [PATCH 1/6] checkpolicy: include <ctype.h> for isprint(3)
+Date: Thu, 4 Apr 2024 12:23:23 -0400
+Message-ID: <CAP+JOzT+6jsx9A1Rz5WvP3ctvWzhH5dj8Kt4C4HGBxnoLPaRqg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: constify function pointer arrays
 To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 Cc: selinux@vger.kernel.org, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 3, 2024 at 3:35=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
+On Wed, Apr 3, 2024 at 3:51=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
 te:
 >
-> On Tue, Apr 2, 2024 at 11:29=E2=80=AFAM Christian G=C3=B6ttsche
+> On Tue, Apr 2, 2024 at 11:46=E2=80=AFAM Christian G=C3=B6ttsche
 > <cgoettsche@seltendoof.de> wrote:
 > >
 > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > >
-> > Include the necessary header for isprint(3) to avoid an implicit
-> > function declaration:
+> > The function pointer arrays are never changed, declare them const.
 > >
-> >     policy_scan.l: In function =E2=80=98yyerror=E2=80=99:
-> >     policy_scan.l:342:13: warning: implicit declaration of function =E2=
-=80=98isprint=E2=80=99 [-Wimplicit-function-declaration]
-> >       342 |         if (isprint((unsigned char)yytext[0])) {
-> >           |             ^~~~~~~
-> >     policy_scan.l:36:1: note: include =E2=80=98<ctype.h>=E2=80=99 or pr=
-ovide a declaration of =E2=80=98isprint=E2=80=99
-> >        35 | #include "y.tab.h"
-> >       +++ |+#include <ctype.h>
-> >        36 | #endif
-> >
-> > This does not currently break the build cause -Werror is stripped for
-> > the parsing code to avoid breakage on old flex/bison versions that migh=
-t
-> > not generate warning free code.
-> >
-> > Fixes: 39b3cc51350a ("checkpolicy: handle unprintable token")
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> For these six patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
-These six patches have been merged.
+
+Merged.
 Thanks,
 Jim
 
 > > ---
-> >  checkpolicy/policy_scan.l | 1 +
-> >  1 file changed, 1 insertion(+)
+> >  libsepol/src/policydb.c | 6 +++---
+> >  1 file changed, 3 insertions(+), 3 deletions(-)
 > >
-> > diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
-> > index d7cf2896..62f28c11 100644
-> > --- a/checkpolicy/policy_scan.l
-> > +++ b/checkpolicy/policy_scan.l
-> > @@ -22,6 +22,7 @@
+> > diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> > index 0c23a7a2..49f9e8af 100644
+> > --- a/libsepol/src/policydb.c
+> > +++ b/libsepol/src/policydb.c
+> > @@ -1126,7 +1126,7 @@ static int cat_index(hashtab_key_t key, hashtab_d=
+atum_t datum, void *datap)
+> >         return 0;
+> >  }
 > >
-> >  %{
-> >  #include <sys/types.h>
-> > +#include <ctype.h>
-> >  #include <limits.h>
-> >  #include <stdint.h>
-> >  #include <string.h>
+> > -static int (*index_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t dat=
+um,
+> > +static int (*const index_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum=
+_t datum,
+> >                                 void *datap) =3D {
+> >  common_index, class_index, role_index, type_index, user_index,
+> >             cond_index_bool, sens_index, cat_index,};
+> > @@ -1409,7 +1409,7 @@ static int cat_destroy(hashtab_key_t key, hashtab=
+_datum_t datum, void *p
+> >         return 0;
+> >  }
+> >
+> > -static int (*destroy_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t d=
+atum,
+> > +static int (*const destroy_f[SYM_NUM]) (hashtab_key_t key, hashtab_dat=
+um_t datum,
+> >                                   void *datap) =3D {
+> >  common_destroy, class_destroy, role_destroy, type_destroy, user_destro=
+y,
+> >             cond_destroy_bool, sens_destroy, cat_destroy,};
+> > @@ -3410,7 +3410,7 @@ static int cat_read(policydb_t * p
+> >         return -1;
+> >  }
+> >
+> > -static int (*read_f[SYM_NUM]) (policydb_t * p, hashtab_t h,
+> > +static int (*const read_f[SYM_NUM]) (policydb_t * p, hashtab_t h,
+> >                                struct policy_file * fp) =3D {
+> >  common_read, class_read, role_read, type_read, user_read,
+> >             cond_read_bool, sens_read, cat_read,};
 > > --
 > > 2.43.0
 > >
