@@ -1,88 +1,109 @@
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9168616FF41
-	for <selinux@vger.kernel.org>; Fri,  5 Apr 2024 15:50:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7261F16FF30;
+	Fri,  5 Apr 2024 16:04:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712332244; cv=none; b=hLNBBbyR0++vNYuj9Iq7e9ZlHpu3Cty/zUXy4CvhVjwlWBR8PIbp0PAjTy/5KialVVREW9NFeZfVOrUDSfTBHRUuenoZe6XmZ+lpne/qSDQ8HAMxggR1ouf+3kBPUQhpKs/PHX5gBEPWd4GAC4MSq8tzDDxvREKMGcEvWb32XcQ=
+	t=1712333041; cv=none; b=aeg/i9CHK3QZ7mTykUcLMujnXeyET2e4OgF6f2EY17NpA05fSIhL6mraTqAUWACawIOiFBRjo5UBJSA8HeSDaO3flokh8mzwHVkJzNUATPj+/tDOKuXPe3YQs/V+kK0S7oH3lt1gaqVxUSyLMDJV5iPcIudev1Hj8fPmLAn9I3U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712332244; c=relaxed/simple;
-	bh=Gv/fJlJ3mfBhk6l8a5NGyTgsSle77m1evsLyVnaHjN8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ZzKJfc5wYmn3XAyeEWUgziZ+3YD5nnda8KxzHvsO9YSvZ+9rJsK930y02EyNAwpNpmTvsGUxuZIeDlJuV3jYTkSfHSBc+ctH6apwK2cAds1NBoNUqphCuSQswOKf44QmNt5jvRSlOVgUIFJn6MYKhpZ2EkjJ9uRJD79GRjoJg5o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=VLb7BdyE; arc=none smtp.client-ip=168.119.48.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	s=arc-20240116; t=1712333041; c=relaxed/simple;
+	bh=XZEbvzuSGL/q8fWAhduZQ1/BD/N6nnhdCQ9Uj8IkLD8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YW7suM23lAhc1kedxbN8R/pcxPA9VWB3mS6jn7L0XEYiTc0XUPg7d9Uqw7JZRRMrPY0Q13dxjjWIyNYaTnS7v7/uifUfgqLHeJlZkYJQfoBTsusPJnVWzhj6zS/Hj7ydJtxP3zMLuFaeqOGxHJxd2cHcyzYEHTZZVSEpsyO1Itk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O/LhSlfy; arc=none smtp.client-ip=209.85.214.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="VLb7BdyE"
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1712332238;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=D4QrOavOqfb19KGkE05NRrQiGyIJet0DDswwdD6Ytzg=;
-	b=VLb7BdyEnOY2FLHdJSD9fuIg9fB9ru/7xZIbSOpkg49pDMXB2KVKO+jjdsT8THVDTxDFoj
-	eBToyqXv+6dAOUKEsNYUdjWfzF3IWfcgXg3Gy6gkOXIOG5AtefQ79m5NPCkgXL4okHsG+i
-	LfE/469GzRBTbwi+uJ9p6o8om2zso7rn7yD/5L3SvSTXIKvps9b618pJQi6rDa3Lk/HLQL
-	x55+HiTc42m4f8oFDenCI66QAgPytpX3mrSQI46sXuB/3+nmIF01AZHXQJ3yXP9Ra3+nez
-	5guly612c7eh/zbiFtMcmFOpaa+RLAWDLKXW5d09gv4pPoK3Va19PuYAuWYhsw==
-To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2] selinux: pre-allocate the status page
-Date: Fri,  5 Apr 2024 17:50:33 +0200
-Message-ID: <20240405155033.249321-1-cgoettsche@seltendoof.de>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O/LhSlfy"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-1e244c7cbf8so20894395ad.0;
+        Fri, 05 Apr 2024 09:04:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1712333040; x=1712937840; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=etbSwzYuABShtb+O6Ks2+ioR0GpoW20VrH8Vqwfvekc=;
+        b=O/LhSlfymIxX+AB66D074I6kkAn2sNQy4E3jLFLpx8XjatqqZm/X82DPglf9f66Z0+
+         cJslajx92fKH2NwCKOeBdufELmx+mW9nuEcCJM91v84JObjFkVDF5EALV7JQxhhWQQQ6
+         AkpQiPIF6xg5Ommq27M/uiLDJq/P2itFkapyUFmkLwFMVCB7X00LGCx+rrJ3ycDdljuu
+         +cyEKm+9Fb0JD4vkyMxZJEow5ZZfCji2yOHI9XLrnldMBR+iANQf7tq5nhXW1XF+GUek
+         6JlgZl6RoMS1F6o7WN1DAtHpl/paitSoRLqdBXcdqtGO4kh6zEGojD9gSSAcs96vJZg8
+         SmLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712333040; x=1712937840;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=etbSwzYuABShtb+O6Ks2+ioR0GpoW20VrH8Vqwfvekc=;
+        b=JBCUAdrslRKRJs7NKQOZgIQlO/zthOaq72dPaimaUX73wzRAQ1kTkAMuHCVGbFqWFc
+         v+94A6Qd1qLZpmFJ0FzDps33pTqoOTCMHI2pZZdB7gvbTZRP8cSOjM4AZ6IgyrIy7PpY
+         XhOsyg2DXz2gcabvLjrZZy6vccjoaxJH7lZBkBfOvRiI7Muj32qi89t8Mr4bdCx9YpVm
+         j0yuSzwJ1V5oJ4O6d9k3VskyrwwNL9AdLPSw7K6hMLlMDlEC8lM1d9KCT6KbNoGQq3yV
+         Q9/fax/v50x5e84qmwbj0bDr6AxLR00C8OTJynb+2xNVzpTU1Ui5QoA9JlNh1TXQu7RK
+         Lvhw==
+X-Forwarded-Encrypted: i=1; AJvYcCUna/TLsQwdVvJ5nr+cCmLvmnLv1mr9ANPIuYHIFu3tJ1CBsX8NzP0pmw4F3RbA1JTnHfBBlp7AW1zeILqjXcU2TDxVeXWdMIHUpP1GnhcXnTnzXerbacxMwU6QxyC9zY77qhpuzg==
+X-Gm-Message-State: AOJu0YykM6tjRTMRuiDk6ALGpb3Nu3S1nc3xABtJcybgew5S1UfMzeTV
+	96hbSCKh1x2GxbGLmIzez46rM6yFQ6qBAKyhd++4hdK1cWqPTE657NCHqcdlyLzI/E83+841vMU
+	Y6uGvZyNwLLAP4H7fsxkEtEsoRDl4TWeM
+X-Google-Smtp-Source: AGHT+IHtg0bOFEUGXO3Rcvw1vYQBIFhqv/Q71ImZaJBf3ONgwUEQAilOGCikPeqFD/kJi4YqaRmPl71ZJuLlK6IzDm4=
+X-Received: by 2002:a17:902:f813:b0:1dd:c288:899f with SMTP id
+ ix19-20020a170902f81300b001ddc288899fmr1583349plb.18.1712333039584; Fri, 05
+ Apr 2024 09:03:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20240405141907.166334-1-richard120310@gmail.com>
+In-Reply-To: <20240405141907.166334-1-richard120310@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 5 Apr 2024 12:03:48 -0400
+Message-ID: <CAEjxPJ7C=fq3uM0t_uQJ00ZZbieMP5ZO3BXMVY7FzB0ENJU1Nw@mail.gmail.com>
+Subject: Re: [PATCH] netlink: Remove the include of files doesn't exist
+To: I Hsin Cheng <richard120310@gmail.com>
+Cc: akpm@linux-foundation.org, paul@paul-moore.com, eparis@parisplace.org, 
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Christian Göttsche <cgzones@googlemail.com>
+On Fri, Apr 5, 2024 at 10:19=E2=80=AFAM I Hsin Cheng <richard120310@gmail.c=
+om> wrote:
+>
+> The file for /security/selinux/security.h and the file for
+> /include/linux/selinux_netlink.h are no long exist. However the
+> preprocessor still performs the inclusion of those files, these
+> behaviors should be removed to ensure it's bug-free.
+>
+> Signed-off-by: I Hsin Cheng <richard120310@gmail.com>
 
-Since the status page is currently only allocated on first use, the
-sequence number of the initial policyload (i.e. 1) is not stored,
-leading to the observable sequence of 0, 2, 3, 4, ...
+NAK. You are incorrect on both counts and evidently didn't try compiling.
+At a purely source level, I agree it might look confusing, but the
+Makefile adds the security/selinux/include directory (where security.h
+lives) to the include path and selinux_netlink.h lives under
+include/uapi/linux which is auto-magically included.
 
-Try to pre-allocate the status page during the initialization of the
-selinuxfs, so selinux_status_update_policyload() will set the sequence
-number.
-
-This brings the status page to return the actual sequence number for the
-initial policy load, which is also observable via the netlink socket.
-I could not find any occurrence where userspace depends on the actual
-value returned by selinux_status_policyload(3), thus the breakage should
-be unnoticed.
-
-Reported-by: Milos Malik
-Closes: https://lore.kernel.org/selinux/87o7fmua12.fsf@redhat.com/
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-v2: ignore allocation failure
----
- security/selinux/selinuxfs.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 7e9aa5d151b4..e172f182b65c 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -2163,6 +2163,12 @@ static int __init init_sel_fs(void)
- 		return err;
- 	}
- 
-+	/*
-+	 * Try to pre-allocate the status page, so the sequence number of the
-+	 * initial policy load can be stored.
-+	 */
-+	(void) selinux_kernel_status_page();
-+
- 	return err;
- }
- 
--- 
-2.43.0
-
+> ---
+>  security/selinux/netlink.c | 2 --
+>  1 file changed, 2 deletions(-)
+>
+> diff --git a/security/selinux/netlink.c b/security/selinux/netlink.c
+> index 1760aee71..8ce36abaa 100644
+> --- a/security/selinux/netlink.c
+> +++ b/security/selinux/netlink.c
+> @@ -13,11 +13,9 @@
+>  #include <linux/kernel.h>
+>  #include <linux/export.h>
+>  #include <linux/skbuff.h>
+> -#include <linux/selinux_netlink.h>
+>  #include <net/net_namespace.h>
+>  #include <net/netlink.h>
+>
+> -#include "security.h"
+>
+>  static struct sock *selnl __ro_after_init;
+>
+> --
+> 2.34.1
+>
