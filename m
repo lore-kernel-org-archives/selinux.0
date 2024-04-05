@@ -1,99 +1,101 @@
-Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F598763FD
-	for <selinux@vger.kernel.org>; Thu,  4 Apr 2024 20:38:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E9C36CDB7;
+	Fri,  5 Apr 2024 14:19:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712263119; cv=none; b=QA/sYoivzVt7DChDlESqp2OzVJvBhuzqJCXClaEiWbgf/hYSq8a8sW7BOV/SB6JFDv4BhL1AENQD5cobRraVMPdAP1F77L511cKJ6Q4PULAW6iJ+STCBLVr/DcRh9CPNVkPZNndOLNHOlmdWDsBGCuOnfyh07ENboVJOJ9N+A5A=
+	t=1712326760; cv=none; b=CV7iWT4ogBKuIoExOYGk6RjnoLcM44kgvyr96Wfhr48Dgm+vGpQXPvAykHDk24p52gQqGJpQspDk9mdthfMtwgaw47BBAmlhbxhd6rByPqkDihfirrodkzYdUsu/tA4HpH2KoqZWDyN/8iszSWG/QXwzEEnOXgVHEFpkPiAT4uU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712263119; c=relaxed/simple;
-	bh=Kt+a7KP4YuLI232695cT2koS4lSJOEpJmBLk++N1oEA=;
-	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
-	 From:To:Cc:Subject:References:In-Reply-To; b=uW0jo1dijpF5Lwi9GpzuYd0fKvbyURlWmtaShgfo1m+cUZsQeWr6HDpEGd8sYlv0nGUNb9oz9kP/3SbJIYLrxfJk4h8EYMcATJA4mZ4pc0QrLWAJUrokNR6HTJ0H1VDa3bKH9jlfkR2RcmA0KZYuT21ZhOKz/TKQI56tYCvW5dU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=PKFdlnqu; arc=none smtp.client-ip=209.85.160.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1712326760; c=relaxed/simple;
+	bh=4Hju7fF0SxNzZ2mqAHW0f5V/ApFhN7MqJVSisoucAV8=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=df1fNRiURF6uCocp8L/ih17DpjuIwlcIgFhvx3R+vQCki/s9YNvIc2l2FvrudTua+QMA0O+btQO2zxzg/E2VCwKKDjceJWvi9YfbGAqtumEG5Czf85CdIhdR0BaXLcrx5IkwP3D0tlZCxrp3poJ1cWA7CJb1vvD67/kAk6boLb0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eBtGdjT3; arc=none smtp.client-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PKFdlnqu"
-Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-430a25ed4e7so8226661cf.0
-        for <selinux@vger.kernel.org>; Thu, 04 Apr 2024 13:38:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eBtGdjT3"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-6ecf1d22d78so323460b3a.0;
+        Fri, 05 Apr 2024 07:19:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1712263116; x=1712867916; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-disposition:mime-version:message-id:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=IJ/NA77srV9WcwNy1jrRxiIjXCG+fGyfe1SHGcwnkW8=;
-        b=PKFdlnquu02Z3zQEWAGSlMorrPcWzgyAdIDJglf9Q7U6ToM+/XUn/aa0sMv0xd/INI
-         LW8x5OesgCWv3PMxrg/SxkTbAgmBLR8MyNotDUbUhtaRAIYFVrF3VrbpdiHQMF1OYQR0
-         OJsBmXgJA6ynwONYzsUGabDQzGsrt8x1VKvG8GpLYvNEDEnkUxNH+i93ogtB0jZ22lf/
-         dsqI2+g2rOcplY6D5ZvKVtoG4Ocv/HEP08a9g46NesFiz3VsQRX4VP6T8IQVlejT80oP
-         dph4zoIQdKdhA0cFocZJuaAN89G2jcFK5YKYJyKok+O5Ns4cTXUA5WMByZwO6ctWGBAh
-         LlLA==
+        d=gmail.com; s=20230601; t=1712326758; x=1712931558; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=7GqB8UKznuUkiOvF78HZkc7ki6tNhayp05XdI7Kg1aI=;
+        b=eBtGdjT3PR4eAw7+FaadhlZZQbd+YdwBHhCre05tQvmeB6fLq6UfIASAhP54o+WXrj
+         t7hEik4RdbfeQXGN02U0qwZyWwlT0od7juR0HLRrqIKtWmcyX4IQBzKRsoU9sVZNh7DF
+         My3DnDr3niH2Slxla2mBOlGKkCEuS9Wo8OfzQaYxSfdjfjGJJROL7PKwChwh9Rpj5e3I
+         71ZPMQilhXa10sK8PLMhtAjP+ppcNz2qq3PiUb/NJR9JnKJxhn0K1PUB3Q8aTCxheUPQ
+         aHzk1fQiM4gD/uo7flNA4N6d6D8Zg844328JfZ1yuvt5hoKVu6TXdMKrRFCO2Zc5aQhJ
+         BxFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712263116; x=1712867916;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-disposition:mime-version:message-id:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=IJ/NA77srV9WcwNy1jrRxiIjXCG+fGyfe1SHGcwnkW8=;
-        b=thkdPOj8UK6XjTxEkhMFW5AsnPmxN1iJQ1Thy5zAh/5BpFHolaBeMxJbk8eKa9dj3t
-         xPsRbiR8kc66OcxUrNjSQ0UK/tKbpk1DwYvyCa74nURg9oWKTCd7k5u2wG+zPRW7jCKD
-         FSOwMviUTfk2oGJyqjY3lRnJ0Xd5vHWGtl5BoFwhVatbDquckfQhfGGNRBdmOdyHZuB3
-         UlJZPrSUkBGdQi7cLLTwCoG6PTCMQ8q/Jp5xmjknbiSjfbR4bXhiEADj5GzJc6DcHHSn
-         78S1kzcofvvI6JRyJ2Vw9VokrhqiwQgpmUmtASNErsUkNkuFDSGMvH8pb6OyssskOD3U
-         DB8g==
-X-Gm-Message-State: AOJu0YyyoBWxm6NnfTkg+syFpxadISlo+VoIw5aLKt6whHs46LQDxYm5
-	PcBLFez7zyeQyiboyFQaHhUcNGMXORWvND9nBjYG+OdWCe/2rIHwaN40a6NtSg==
-X-Google-Smtp-Source: AGHT+IHOnJ4PYaM+Fflxdefz8VXngJscu4bg29joNsIBMd0PqrzbSN2zn/5e2SVJFndcZetWCPV4uw==
-X-Received: by 2002:a05:6214:487:b0:699:12d7:bc91 with SMTP id pt7-20020a056214048700b0069912d7bc91mr4318243qvb.29.1712263116441;
-        Thu, 04 Apr 2024 13:38:36 -0700 (PDT)
-Received: from localhost ([136.226.84.189])
-        by smtp.gmail.com with ESMTPSA id b2-20020a0cfb42000000b006993cbb1ab4sm42650qvq.117.2024.04.04.13.38.35
+        d=1e100.net; s=20230601; t=1712326758; x=1712931558;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=7GqB8UKznuUkiOvF78HZkc7ki6tNhayp05XdI7Kg1aI=;
+        b=Ys+Bfb32l/v5xYF/bR0YFV0/hawp7CKzqQ64D6ZzquiVjcn7JPkCPLmBV1jMLlVojH
+         g0S/DrpLs/FJRIbfO46LTou+QdCqapdsOF03+8m3HsiNzUngWgov4J6l6bXg5WC+goUm
+         zPTgah4GF5pq6R7PG7s797u55IZfy0diAZOKa2rRcpEY+jr/xxhXAJBcBb59PE2sbuNq
+         i2li2E1uJpR9ndyqZZv7uMVWMAEmrUGryrZYFErzPlmqcvLtVvJYRcdygC58hxAWvDN5
+         CuCZWOGf8YZb+9A5cSU0hGJuW0O5brIEooawBRa3tKBLOpUL7UzZTh4CeGf6aegJoQNc
+         ZV4w==
+X-Forwarded-Encrypted: i=1; AJvYcCU5/ddig6sX2RV4PJcVAg+jdCutBCEZ95aWE0IKMPz9wIGT7P55dbL7dmEm9hYye2EZHs+Afl53GwvojqG9ScSc1eoghB8OVl9k3eU9nNbIbPCIdrdmSxVaLPCujEW58GVlRvJFiA==
+X-Gm-Message-State: AOJu0YzYS3xyqKs6SoXGh6jqTJAvwyrz661ETGjtyFd97HnzbaNKWSIq
+	w3mgXuyGdbm2X0csQjMcLtl3gUkvxne9LV6dukmtPVSUkh1596MP
+X-Google-Smtp-Source: AGHT+IE9oG9PsE4yWU92U/WhklJgYXEaJSffwUYKajT+v1E4FkogjW6qYtR2PTR08ZgCK+Re7YC//g==
+X-Received: by 2002:a05:6a20:a115:b0:1a3:a936:eb07 with SMTP id q21-20020a056a20a11500b001a3a936eb07mr1839289pzk.2.1712326758470;
+        Fri, 05 Apr 2024 07:19:18 -0700 (PDT)
+Received: from vaxr-BM6660-BM6360.. ([2001:288:7001:2703:acae:28e3:27f5:a1b4])
+        by smtp.gmail.com with ESMTPSA id ei51-20020a056a0080f300b006e5f754646csm1524264pfb.139.2024.04.05.07.19.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Apr 2024 13:38:35 -0700 (PDT)
-Date: Thu, 04 Apr 2024 16:38:35 -0400
-Message-ID: <1bf08f31513935dc011115e0ab912818@paul-moore.com>
+        Fri, 05 Apr 2024 07:19:16 -0700 (PDT)
+From: I Hsin Cheng <richard120310@gmail.com>
+To: akpm@linux-foundation.org
+Cc: paul@paul-moore.com,
+	stephen.smalley.work@gmail.com,
+	eparis@parisplace.org,
+	selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	I Hsin Cheng <richard120310@gmail.com>
+Subject: [PATCH] netlink: Remove the include of files doesn't exist
+Date: Fri,  5 Apr 2024 22:19:07 +0800
+Message-Id: <20240405141907.166334-1-richard120310@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=utf-8 
-Content-Disposition: inline 
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-From: Paul Moore <paul@paul-moore.com>
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: selinux@vger.kernel.org, Dan Carpenter <dan.carpenter@linaro.org>
-Subject: Re: [PATCH] selinux: clarify return code in  filename_trans_read_helper_compat()
-References: <20240404151619.868283-1-omosnace@redhat.com>
-In-Reply-To: <20240404151619.868283-1-omosnace@redhat.com>
 
-On Apr  4, 2024 Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> 
-> For the "conflicting/duplicate rules" branch in
-> filename_trans_read_helper_compat() the Smatch static checker reports:
-> 
->     security/selinux/ss/policydb.c:1953 filename_trans_read_helper_compat()
->     warn: missing error code 'rc'
-> 
-> While the value of rc will already always be zero here, it is not
-> obvious that it's the case and that it's the intended return value
-> (Smatch expects rc to be assigned within 5 lines from the goto).
-> Therefore, add an explicit assignment just before the goto to make the
-> intent more clear and the code less error-prone.
-> 
-> Fixes: c3a276111ea2 ("selinux: optimize storage of filename transitions")
-> Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
-> Link: https://lore.kernel.org/selinux/722b90c4-1f4b-42ff-a6c2-108ea262bd10@moroto.mountain/
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  security/selinux/ss/policydb.c | 1 +
->  1 file changed, 1 insertion(+)
+The file for /security/selinux/security.h and the file for
+/include/linux/selinux_netlink.h are no long exist. However the
+preprocessor still performs the inclusion of those files, these
+behaviors should be removed to ensure it's bug-free.
 
-As this really only impacts static analysis I don't think this rises to
-the level of warranting a stable tag so I'm going to merge this via the
-selinux/dev branch.  Thanks everyone!
+Signed-off-by: I Hsin Cheng <richard120310@gmail.com>
+---
+ security/selinux/netlink.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---
-paul-moore.com
+diff --git a/security/selinux/netlink.c b/security/selinux/netlink.c
+index 1760aee71..8ce36abaa 100644
+--- a/security/selinux/netlink.c
++++ b/security/selinux/netlink.c
+@@ -13,11 +13,9 @@
+ #include <linux/kernel.h>
+ #include <linux/export.h>
+ #include <linux/skbuff.h>
+-#include <linux/selinux_netlink.h>
+ #include <net/net_namespace.h>
+ #include <net/netlink.h>
+ 
+-#include "security.h"
+ 
+ static struct sock *selnl __ro_after_init;
+ 
+-- 
+2.34.1
+
