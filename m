@@ -1,320 +1,260 @@
-Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com [209.85.217.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19592249E8
-	for <selinux@vger.kernel.org>; Fri, 12 Apr 2024 20:49:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E977942072
+	for <selinux@vger.kernel.org>; Mon, 15 Apr 2024 16:52:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712954955; cv=none; b=eyEkNNskyEtjFn6WlWg8tAWypRpOBQ3hQlR32AkUYNeBiV9YVYadsVpUUV/A7tDz1iSTYDRHdwskpTQclnBi3XWeZE7KJOAgHDKjI1CQGSMpaNK62TNzQEmdFaigZ0cbh/n31tEvEm9C1zflYPPZhIVlvMZi6GyL2lxkj1naXRA=
+	t=1713199981; cv=none; b=PmNd9cEZP/O/0F8b04hZ+4utSAE0Ttao+VV4FQt8MJuee6wESaWxq+WBzQccykHYKEjsW/cedMqFPAdwvFuI8hUzvqM4PD+rmF7p7zuwTSXCCrB8jMgkXd0c0cLgxxUSLhBCzTMoABSCj8VXYIu9c/ct5jrrjUIFSMS/Z7G8DlI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712954955; c=relaxed/simple;
-	bh=qizxo+oHLcJuPpAW8YrY9USCn6TPdjkQl6p7UVouVoE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YY/4mihXHN8NrlqsVxpfEp2nL+ScewdIbcwMmAZUdtMELvRTjhXpOnpa7Vd/1/inw2vvUZgZYs7DqI99g0KFgSsxCQJ33cN5ghB2ISdHe6vc4+XaA+qeaV4IpLEzJ5iUGsjBMNiXZgIXEgcgnJDZGCt4NyszrROyatdLd4tT2zc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mZjdFLfT; arc=none smtp.client-ip=209.85.217.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1713199981; c=relaxed/simple;
+	bh=SN7rjKYSmlRVirjvbXsEJGxxF0yzHoibKG7ZYQ0/MA0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=EmOlEAmq/P279bNVf0jMMC3M66P7+2YOElheMMcv+ACLlJVEHoHkWmy6K4Ag33A0jX5j19eipuygsq6puFQOkdY3JSmW91H4aL9kIAZqspg+7Xs5mBUf71P0m+R38M6TMKekWfuCf/qzcKncfVd0Z6L/vQ1KxnyFWskF5Ga92RM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=SNQMrTan; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mZjdFLfT"
-Received: by mail-vs1-f52.google.com with SMTP id ada2fe7eead31-479ef9db155so556193137.1
-        for <selinux@vger.kernel.org>; Fri, 12 Apr 2024 13:49:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1712954953; x=1713559753; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xVOB6MLbCzsFGJywm8oHa1EWCeNYqcvevJgewQ54gdw=;
-        b=mZjdFLfT2sZ6HCVo4QdgelZfDzt/45TX1GKhEMKAwzVai0AsQWKVBThyE2t7mqrZgJ
-         Psl51dUdJoyd4pGLmbh3IaUOuIHuk1WooC0mSksxAHjIA5V3lc2plGHZD0E1M7pXA8oV
-         8ySA4Wh66YXM7sUJsY0U4tu+8sRvq0lH/h2+4uxL8D5b6Jed7V2hwLUD5JOnlgIj3bd5
-         5uJARjirQXdauLErgE46Yt9VRCoyGJ2VeYvOixS9gJsUrDrGUgcIFKL6ppFfQmkNIN2R
-         keNaOOrdaC4G4B71p35XK+vWIa6blKEFsplb1s5ZjzJflshV5rFqeznj94z5ENLwf7CK
-         3dHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712954953; x=1713559753;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=xVOB6MLbCzsFGJywm8oHa1EWCeNYqcvevJgewQ54gdw=;
-        b=kP4QAnYiKyvswJuAQB7V+IpO6aYlQfn1mWGXu1LN6VzHc8DxJlhl7fHp52pP8kABc7
-         jGh7Mde96rcabI5XpBfn+9kJ1gZEDFaFPqwpAalBDX2a4ScOalbmF84htd5knyCWgFox
-         kqWDwSDZnlKAVvHn0p0N81UNYAReinadedOul5jEAuAVrzol8vxB9DgoG4TH2WCWml6L
-         N8ejFrLfxv+1/R9HGYo4BOfykoVzLb6RkU1AlXM+oEnGMKKWh0R1/nLn3inWnqG2sJGx
-         sNEG6zZ/dawxdYW77B3Y6vPt6WtbLQ/6S6W9JlNXIxjUT2inMZmgYeXQ2V7BxIFSKR4F
-         yY3w==
-X-Gm-Message-State: AOJu0YwMTE4R/SyRRnccVG3lVOZdVEz9bEI0mByAEUztXtdacSa3d03s
-	jRxbRekGRQ7s0glZe8aTONJKMr8I3arrlFp3gsdK+TMYn9YYvwijq+mW4Os4Grq0rLCiTS1YVLG
-	Pf2JD+O1Scdkp0+lBjKOOY0+zlqQVhg==
-X-Google-Smtp-Source: AGHT+IGbunSqjoiDAF4zeiIFZFGC6LfvkBVUCyFQU41uQido0V/JHDymWZ7KuslAr8cBbNU5+mdKEZytIZw4NdTsrwE=
-X-Received: by 2002:a05:6102:e09:b0:47a:36b9:16d8 with SMTP id
- o9-20020a0561020e0900b0047a36b916d8mr4727430vst.25.1712954952860; Fri, 12 Apr
- 2024 13:49:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="SNQMrTan"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1713199966;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=ho244Ag0/66b+nyyci1F+nQxld7qdgfUefwYF9WmXQY=;
+	b=SNQMrTanOSUo1Z5zCHydiXkFAqVX7sRZj3kMzGIDaCKMZkNftieNIXyDpYdO66n880VNR1
+	kPehkEWLzMRTrr1dQ5on/muhWH3QLf336VtsrvshlN2XlxoRe+c0UC0lAf4Xdiwooe3E9u
+	Cy8acSfB/sozUUT+yNL6le4ZMQ5Sb3/poZkAvS7IK91Zw6xCsE3xI67rqu5YBbhZIz8G8w
+	nZRA/Tzq7g7Ik5cEg3pz6S97Rk2mOUhjHd6Qm0/KJ7W4Uehpd5GV02LEuU9s2dKDfS/1e1
+	PEUZYjmOWMLbisPFyQ93afLxKZh0SRLhUOrqXCRmbvNGsbuO3vzgbEWccpkAog==
+To: selinux@vger.kernel.org
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH v2] libsepol: validate class permissions
+Date: Mon, 15 Apr 2024 18:52:42 +0200
+Message-ID: <20240415165242.108230-1-cgoettsche@seltendoof.de>
+Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240408150531.63085-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20240408150531.63085-1-cgoettsche@seltendoof.de>
-From: James Carter <jwcart2@gmail.com>
-Date: Fri, 12 Apr 2024 16:49:01 -0400
-Message-ID: <CAP+JOzShcf30aDV52UFL_vd0iHKEX7b6kuj3Z0kKB6JPaviSog@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: validate class permissions
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Mon, Apr 8, 2024 at 11:05=E2=80=AFAM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
->
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> Validate the symbol tables for permissions of security classes and
-> common classes:
->   * check their value is valid
->   * check their values are unique
->   * check permission values of classes do not reuse values from
->     inherited permissions
->
-> This simplifies validating permissions of access vectors a lot, since it
-> is now only a binary and against the valid permission mask of the class.
->
-> Use UINT32_MAX instead of 0 as the special value for validating
-> constraints signaling a validate-trans rule, since classes with no
-> permissions are permitted, but they must not have a normal constraint
-> attached.
->
-> Reported-by: oss-fuzz (issue 67893)
-> Improves: 8c64e5bb6fe7 ("libsepol: validate access vector permissions")
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  libsepol/src/policydb_validate.c | 101 ++++++++++++++++++++-----------
->  1 file changed, 66 insertions(+), 35 deletions(-)
->
-> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
-idate.c
-> index c4f8c300..a5051416 100644
-> --- a/libsepol/src/policydb_validate.c
-> +++ b/libsepol/src/policydb_validate.c
-> @@ -11,6 +11,7 @@
->
->  #define bool_xor(a, b) (!(a) !=3D !(b))
->  #define bool_xnor(a, b) (!bool_xor(a, b))
-> +#define PERMISSION_MASK(nprim) ((nprim) =3D=3D PERM_SYMTAB_SIZE ? (~UINT=
-32_C(0)) : ((UINT32_C(1) << (nprim)) - 1))
->
->  typedef struct validate {
->         uint32_t nprim;
-> @@ -23,6 +24,12 @@ typedef struct map_arg {
->         const policydb_t *policy;
->  } map_arg_t;
->
-> +typedef struct perm_arg {
-> +       uint32_t visited;
-> +       const uint32_t nprim;
-> +       const uint32_t inherited_nprim;
-> +} perm_arg_t;
-> +
->  static int create_gap_ebitmap(char **val_to_name, uint32_t nprim, ebitma=
-p_t *gaps)
->  {
->         uint32_t i;
-> @@ -230,14 +237,17 @@ bad:
->  static int validate_constraint_nodes(sepol_handle_t *handle, unsigned in=
-t nperms, const constraint_node_t *cons, validate_t flavors[])
->  {
->         const constraint_expr_t *cexp;
-> +       const int is_validatetrans =3D (nperms =3D=3D UINT32_MAX);
->         int depth;
->
->         for (; cons; cons =3D cons->next) {
-> -               if (nperms =3D=3D 0 && cons->permissions !=3D 0)
-> +               if (is_validatetrans && cons->permissions !=3D 0)
-> +                       goto bad;
-> +               if (!is_validatetrans && nperms =3D=3D 0)
+From: Christian Göttsche <cgzones@googlemail.com>
 
-This conditional does not need to be in the loop and is_validatetrans
-will always be false if nperms =3D=3D 0.
+Validate the symbol tables for permissions of security classes and
+common classes:
+  * check their value is valid
+  * check their values are unique
+  * check permission values of classes do not reuse values from
+    inherited permissions
 
-The rest of the patch looks good.
+This simplifies validating permissions of access vectors a lot, since it
+is now only a binary and against the valid permission mask of the class.
 
-Thanks,
-Jim
+Use UINT32_MAX instead of 0 as the special value for validating
+constraints signaling a validate-trans rule, since classes with no
+permissions are permitted, but they must not have a normal constraint
+attached.
 
->                         goto bad;
-> -               if (nperms > 0 && cons->permissions =3D=3D 0)
-> +               if (!is_validatetrans && cons->permissions =3D=3D 0)
->                         goto bad;
-> -               if (nperms > 0 && nperms !=3D PERM_SYMTAB_SIZE && cons->p=
-ermissions >=3D (UINT32_C(1) << nperms))
-> +               if (!is_validatetrans && nperms !=3D PERM_SYMTAB_SIZE && =
-cons->permissions >=3D (UINT32_C(1) << nperms))
->                         goto bad;
->
->                 if (!cons->expr)
-> @@ -251,7 +261,7 @@ static int validate_constraint_nodes(sepol_handle_t *=
-handle, unsigned int nperms
->                                         goto bad;
->                                 depth++;
->
-> -                               if (cexp->attr & CEXPR_XTARGET && nperms =
-!=3D 0)
-> +                               if (cexp->attr & CEXPR_XTARGET && !is_val=
-idatetrans)
->                                         goto bad;
->                                 if (!(cexp->attr & CEXPR_TYPE)) {
->                                         if (validate_empty_type_set(cexp-=
->type_names))
-> @@ -366,11 +376,49 @@ bad:
->         return -1;
->  }
->
-> +static int perm_visit(__attribute__((__unused__)) hashtab_key_t k, hasht=
-ab_datum_t d, void *args)
-> +{
-> +       perm_arg_t *pargs =3D args;
-> +       const perm_datum_t *perdatum =3D d;
-> +
-> +       if (!value_isvalid(perdatum->s.value, pargs->nprim))
-> +               return -1;
-> +
-> +       if (pargs->inherited_nprim !=3D 0 && value_isvalid(perdatum->s.va=
-lue, pargs->inherited_nprim))
-> +               return -1;
-> +
-> +       if ((UINT32_C(1) << (perdatum->s.value - 1)) & pargs->visited)
-> +               return -1;
-> +
-> +       pargs->visited |=3D (UINT32_C(1) << (perdatum->s.value - 1));
-> +       return 0;
-> +}
-> +
-> +static int validate_permission_symtab(sepol_handle_t *handle, const symt=
-ab_t *permissions, uint32_t inherited_nprim)
-> +{
-> +       /* Check each entry has a different valid value and is not overri=
-ding an inherited one */
-> +
-> +       perm_arg_t pargs =3D { .visited =3D 0, .nprim =3D permissions->np=
-rim, .inherited_nprim =3D inherited_nprim };
-> +
-> +       if (hashtab_map(permissions->table, perm_visit, &pargs))
-> +               goto bad;
-> +
-> +       return 0;
-> +
-> +bad:
-> +       ERR(handle, "Invalid permission table");
-> +       return -1;
-> +}
-> +
->  static int validate_common_datum(sepol_handle_t *handle, const common_da=
-tum_t *common, validate_t flavors[])
->  {
->         if (validate_value(common->s.value, &flavors[SYM_COMMONS]))
->                 goto bad;
-> -       if (common->permissions.table->nel =3D=3D 0 || common->permission=
-s.nprim > PERM_SYMTAB_SIZE)
-> +       if (common->permissions.nprim =3D=3D 0 || common->permissions.npr=
-im > PERM_SYMTAB_SIZE)
-> +               goto bad;
-> +       if (common->permissions.nprim !=3D common->permissions.table->nel=
-)
-> +               goto bad;
-> +       if (validate_permission_symtab(handle, &common->permissions, 0))
->                 goto bad;
->
->         return 0;
-> @@ -393,11 +441,17 @@ static int validate_class_datum(sepol_handle_t *han=
-dle, const class_datum_t *cla
->                 goto bad;
->         if (class->comdatum && validate_common_datum(handle, class->comda=
-tum, flavors))
->                 goto bad;
-> -       if (class->permissions.nprim > PERM_SYMTAB_SIZE)
-> +       /* empty classes are permitted */
-> +       if (class->permissions.nprim > PERM_SYMTAB_SIZE || class->permiss=
-ions.table->nel > PERM_SYMTAB_SIZE)
-> +               goto bad;
-> +       if (class->permissions.nprim !=3D
-> +           (class->permissions.table->nel + (class->comdatum ? class->co=
-mdatum->permissions.table->nel : 0)))
-> +               goto bad;
-> +       if (validate_permission_symtab(handle, &class->permissions, class=
-->comdatum ? class->comdatum->permissions.nprim : 0))
->                 goto bad;
->         if (validate_constraint_nodes(handle, class->permissions.nprim, c=
-lass->constraints, flavors))
->                 goto bad;
-> -       if (validate_constraint_nodes(handle, 0, class->validatetrans, fl=
-avors))
-> +       if (validate_constraint_nodes(handle, UINT32_MAX, class->validate=
-trans, flavors))
->                 goto bad;
->
->         switch (class->default_user) {
-> @@ -877,46 +931,23 @@ bad:
->         return -1;
->  }
->
-> -static int perm_match(__attribute__ ((unused)) hashtab_key_t key, hashta=
-b_datum_t datum, void *data)
-> -{
-> -       const uint32_t *v =3D data;
-> -       const perm_datum_t *perdatum =3D datum;
-> -
-> -       return *v =3D=3D perdatum->s.value;
-> -}
-> -
->  static int validate_access_vector(sepol_handle_t *handle, const policydb=
-_t *p, sepol_security_class_t tclass,
->                                   sepol_access_vector_t av)
->  {
->         const class_datum_t *cladatum =3D p->class_val_to_struct[tclass -=
- 1];
-> -       uint32_t i;
->
->         /*
->          * Check that at least one permission bit is valid.
->          * Older compilers might set invalid bits for the wildcard permis=
-sion.
->          */
-> -       for (i =3D 0; i < cladatum->permissions.nprim; i++) {
-> -               if (av & (UINT32_C(1) << i)) {
-> -                       uint32_t v =3D i + 1;
-> -                       int rc;
-> -
-> -                       rc =3D hashtab_map(cladatum->permissions.table, p=
-erm_match, &v);
-> -                       if (rc =3D=3D 1)
-> -                               goto good;
-> -
-> -                       if (cladatum->comdatum) {
-> -                               rc =3D hashtab_map(cladatum->comdatum->pe=
-rmissions.table, perm_match, &v);
-> -                               if (rc =3D=3D 1)
-> -                                       goto good;
-> -                       }
-> -               }
-> -       }
-> +       if (!(av & PERMISSION_MASK(cladatum->permissions.nprim)))
-> +               goto bad;
->
-> +       return 0;
-> +
-> +bad:
->         ERR(handle, "Invalid access vector");
->         return -1;
-> -
-> -good:
-> -       return 0;
->  }
->
->  static int validate_avtab_key_and_datum(avtab_key_t *k, avtab_datum_t *d=
-, void *args)
-> --
-> 2.43.0
->
->
+Reported-by: oss-fuzz (issue 67893)
+Improves: 8c64e5bb6fe7 ("libsepol: validate access vector permissions")
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v2:
+   - move check independent of individual constraints out of the loop
+   - change nperms parameter type of validate_constraint_nodes() from
+     unsigned int to uint32_t
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libsepol/src/policydb_validate.c | 104 ++++++++++++++++++++-----------
+ 1 file changed, 68 insertions(+), 36 deletions(-)
+
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index c4f8c300..e1623172 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -11,6 +11,7 @@
+ 
+ #define bool_xor(a, b) (!(a) != !(b))
+ #define bool_xnor(a, b) (!bool_xor(a, b))
++#define PERMISSION_MASK(nprim) ((nprim) == PERM_SYMTAB_SIZE ? (~UINT32_C(0)) : ((UINT32_C(1) << (nprim)) - 1))
+ 
+ typedef struct validate {
+ 	uint32_t nprim;
+@@ -23,6 +24,12 @@ typedef struct map_arg {
+ 	const policydb_t *policy;
+ } map_arg_t;
+ 
++typedef struct perm_arg {
++	uint32_t visited;
++	const uint32_t nprim;
++	const uint32_t inherited_nprim;
++} perm_arg_t;
++
+ static int create_gap_ebitmap(char **val_to_name, uint32_t nprim, ebitmap_t *gaps)
+ {
+ 	uint32_t i;
+@@ -227,17 +234,21 @@ bad:
+ 	return -1;
+ }
+ 
+-static int validate_constraint_nodes(sepol_handle_t *handle, unsigned int nperms, const constraint_node_t *cons, validate_t flavors[])
++static int validate_constraint_nodes(sepol_handle_t *handle, uint32_t nperms, const constraint_node_t *cons, validate_t flavors[])
+ {
+ 	const constraint_expr_t *cexp;
++	const int is_validatetrans = (nperms == UINT32_MAX);
+ 	int depth;
+ 
++	if (cons && nperms == 0)
++		goto bad;
++
+ 	for (; cons; cons = cons->next) {
+-		if (nperms == 0 && cons->permissions != 0)
++		if (is_validatetrans && cons->permissions != 0)
+ 			goto bad;
+-		if (nperms > 0 && cons->permissions == 0)
++		if (!is_validatetrans && cons->permissions == 0)
+ 			goto bad;
+-		if (nperms > 0 && nperms != PERM_SYMTAB_SIZE && cons->permissions >= (UINT32_C(1) << nperms))
++		if (!is_validatetrans && nperms != PERM_SYMTAB_SIZE && cons->permissions >= (UINT32_C(1) << nperms))
+ 			goto bad;
+ 
+ 		if (!cons->expr)
+@@ -251,7 +262,7 @@ static int validate_constraint_nodes(sepol_handle_t *handle, unsigned int nperms
+ 					goto bad;
+ 				depth++;
+ 
+-				if (cexp->attr & CEXPR_XTARGET && nperms != 0)
++				if (cexp->attr & CEXPR_XTARGET && !is_validatetrans)
+ 					goto bad;
+ 				if (!(cexp->attr & CEXPR_TYPE)) {
+ 					if (validate_empty_type_set(cexp->type_names))
+@@ -366,11 +377,49 @@ bad:
+ 	return -1;
+ }
+ 
++static int perm_visit(__attribute__((__unused__)) hashtab_key_t k, hashtab_datum_t d, void *args)
++{
++	perm_arg_t *pargs = args;
++	const perm_datum_t *perdatum = d;
++
++	if (!value_isvalid(perdatum->s.value, pargs->nprim))
++		return -1;
++
++	if (pargs->inherited_nprim != 0 && value_isvalid(perdatum->s.value, pargs->inherited_nprim))
++		return -1;
++
++	if ((UINT32_C(1) << (perdatum->s.value - 1)) & pargs->visited)
++		return -1;
++
++	pargs->visited |= (UINT32_C(1) << (perdatum->s.value - 1));
++	return 0;
++}
++
++static int validate_permission_symtab(sepol_handle_t *handle, const symtab_t *permissions, uint32_t inherited_nprim)
++{
++	/* Check each entry has a different valid value and is not overriding an inherited one */
++
++	perm_arg_t pargs = { .visited = 0, .nprim = permissions->nprim, .inherited_nprim = inherited_nprim };
++
++	if (hashtab_map(permissions->table, perm_visit, &pargs))
++		goto bad;
++
++	return 0;
++
++bad:
++	ERR(handle, "Invalid permission table");
++	return -1;
++}
++
+ static int validate_common_datum(sepol_handle_t *handle, const common_datum_t *common, validate_t flavors[])
+ {
+ 	if (validate_value(common->s.value, &flavors[SYM_COMMONS]))
+ 		goto bad;
+-	if (common->permissions.table->nel == 0 || common->permissions.nprim > PERM_SYMTAB_SIZE)
++	if (common->permissions.nprim == 0 || common->permissions.nprim > PERM_SYMTAB_SIZE)
++		goto bad;
++	if (common->permissions.nprim != common->permissions.table->nel)
++		goto bad;
++	if (validate_permission_symtab(handle, &common->permissions, 0))
+ 		goto bad;
+ 
+ 	return 0;
+@@ -393,11 +442,17 @@ static int validate_class_datum(sepol_handle_t *handle, const class_datum_t *cla
+ 		goto bad;
+ 	if (class->comdatum && validate_common_datum(handle, class->comdatum, flavors))
+ 		goto bad;
+-	if (class->permissions.nprim > PERM_SYMTAB_SIZE)
++	/* empty classes are permitted */
++	if (class->permissions.nprim > PERM_SYMTAB_SIZE || class->permissions.table->nel > PERM_SYMTAB_SIZE)
++		goto bad;
++	if (class->permissions.nprim !=
++	    (class->permissions.table->nel + (class->comdatum ? class->comdatum->permissions.table->nel : 0)))
++		goto bad;
++	if (validate_permission_symtab(handle, &class->permissions, class->comdatum ? class->comdatum->permissions.nprim : 0))
+ 		goto bad;
+ 	if (validate_constraint_nodes(handle, class->permissions.nprim, class->constraints, flavors))
+ 		goto bad;
+-	if (validate_constraint_nodes(handle, 0, class->validatetrans, flavors))
++	if (validate_constraint_nodes(handle, UINT32_MAX, class->validatetrans, flavors))
+ 		goto bad;
+ 
+ 	switch (class->default_user) {
+@@ -877,46 +932,23 @@ bad:
+ 	return -1;
+ }
+ 
+-static int perm_match(__attribute__ ((unused)) hashtab_key_t key, hashtab_datum_t datum, void *data)
+-{
+-	const uint32_t *v = data;
+-	const perm_datum_t *perdatum = datum;
+-
+-	return *v == perdatum->s.value;
+-}
+-
+ static int validate_access_vector(sepol_handle_t *handle, const policydb_t *p, sepol_security_class_t tclass,
+ 				  sepol_access_vector_t av)
+ {
+ 	const class_datum_t *cladatum = p->class_val_to_struct[tclass - 1];
+-	uint32_t i;
+ 
+ 	/*
+ 	 * Check that at least one permission bit is valid.
+ 	 * Older compilers might set invalid bits for the wildcard permission.
+ 	 */
+-	for (i = 0; i < cladatum->permissions.nprim; i++) {
+-		if (av & (UINT32_C(1) << i)) {
+-			uint32_t v = i + 1;
+-			int rc;
+-
+-			rc = hashtab_map(cladatum->permissions.table, perm_match, &v);
+-			if (rc == 1)
+-				goto good;
+-
+-			if (cladatum->comdatum) {
+-				rc = hashtab_map(cladatum->comdatum->permissions.table, perm_match, &v);
+-				if (rc == 1)
+-					goto good;
+-			}
+-		}
+-	}
++	if (!(av & PERMISSION_MASK(cladatum->permissions.nprim)))
++		goto bad;
+ 
++	return 0;
++
++bad:
+ 	ERR(handle, "Invalid access vector");
+ 	return -1;
+-
+-good:
+-	return 0;
+ }
+ 
+ static int validate_avtab_key_and_datum(avtab_key_t *k, avtab_datum_t *d, void *args)
+-- 
+2.43.0
+
