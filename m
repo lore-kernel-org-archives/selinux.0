@@ -1,188 +1,172 @@
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vk1-f182.google.com (mail-vk1-f182.google.com [209.85.221.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A45144653C;
-	Tue, 23 Apr 2024 07:30:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94A2E134A8
+	for <selinux@vger.kernel.org>; Wed, 24 Apr 2024 20:10:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713857453; cv=none; b=thE4lC/tF7LXh3mjz3DTfKue+KaVMRuNntUwv7VycRu2uR5vi3osr2bGpkc+cJ/wMfG3oMciNegSfxx5V3iZoSRwtjXwh9XoIfLNff2DjwyNrY6OQd+tSPLpy81B68Fuof6JBR24NwG7TXrvrlGgd+Cmb9ZV7x1ciDDXFhXBa00=
+	t=1713989441; cv=none; b=CaLxXuuLS5OMn35F9ykOuh9TAI3BIkqlRFSstVk1aIvfOl4h1xwH9YhThTrmXhs6G6IJn0xg+Di5jndxg2coqJ2g+ervXE87GLhIWNvaTwznx+ISOrWncTfv12iqOXVOjBSyqQ0XpznVME3I+apYNBtWtU947EQydhIRVafpy/4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713857453; c=relaxed/simple;
-	bh=q462vC39AecMNVd/EL95VnrcK352LxnpAt6CtLncM4k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=YFCHpQ2QFrQ1d2O+/gCKp9qdE56eUh+zxsnvK8HEa9wnv5tflS6Qi7P/fvR8G0b0gJwqioTBOw/PtWfmchHdbNW6g5AD04Xog1yLDH/VAPZ/30FJgE+C8fnnxbPepOnwjdd0m53AHm1Z2oJ4nIfRIIe+8Mll6SnZ9kXIqZqG/SY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.252])
-	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4VNtxS6dGvzvQ5f;
-	Tue, 23 Apr 2024 15:27:40 +0800 (CST)
-Received: from dggpemm500024.china.huawei.com (unknown [7.185.36.203])
-	by mail.maildlp.com (Postfix) with ESMTPS id 2490818007D;
-	Tue, 23 Apr 2024 15:30:41 +0800 (CST)
-Received: from [10.67.110.173] (10.67.110.173) by
- dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.35; Tue, 23 Apr 2024 15:30:40 +0800
-Message-ID: <b972d368-81e9-c5cc-0b63-ed7f3953d446@huawei.com>
-Date: Tue, 23 Apr 2024 15:30:40 +0800
+	s=arc-20240116; t=1713989441; c=relaxed/simple;
+	bh=i8yOY5QIyvnaufvO3NU5AXfsUfxnItSjdOHrD5J+6iA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=cdoNEaxgFvdYpWU5hPSiyWR/yX0xcbBhvq7x/cX/bUw7c+jaUtiJsYYKgoX4XQdR13F7g/uPHqFImnQTOQrOWNG1h12pak0KUhCkne2vkK6+D02CVW5qcK2K9wr1IfDXJsFgralGWg4euyHtg5iluV5mLOKkDPq+flvydKJUzjw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ALO8SYmc; arc=none smtp.client-ip=209.85.221.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ALO8SYmc"
+Received: by mail-vk1-f182.google.com with SMTP id 71dfb90a1353d-4dae34a3806so627683e0c.1
+        for <selinux@vger.kernel.org>; Wed, 24 Apr 2024 13:10:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1713989438; x=1714594238; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lrAZbjRDhrF0r9z5a3OhRbewPQ1/z1XopfM5Bq0x7Do=;
+        b=ALO8SYmcvy9G4heVWeD3saPnRsV0u55Q4XvxQYkW9+61sTNZoTY1sgL2uy0oc/4ogJ
+         H9vT60yHmmtRoUs0Z0N4OL+dOJ5ED3I5QRAx2SjF4ljoiO4Xscc51do1REnDWfhsGstL
+         UWeuH6OCwV+772YY2QYJKK9u0Y0TJrigGmBNLI0qo6dUEmutJ+7d/6b8x9kQyaemcMUI
+         w2K723lF3lUDmeGd5hPJT43ZFD8dCPS4SYZTdtKMSz0Fb99k95AR0wkiqYfuapRvMp1n
+         MVprlK9tyAxHIffSKaxo7qAxbQMf/f52cbFN3HV3CRGJO6eTkWiYeHAeWAUQmW9pgQNZ
+         McdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1713989438; x=1714594238;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=lrAZbjRDhrF0r9z5a3OhRbewPQ1/z1XopfM5Bq0x7Do=;
+        b=nkfEeubR1t790bedXal5uQexyMiYi9FtYsR/vEvwDoZKvOIr0FM+ndwrCKNPaVxmyK
+         GthhVBYdfQaP8ukqFyTQDXqNxPjPkoIZe7RM3gEDUet2g4os0j0ahgXetVyMtYGgci9u
+         68jCy1wbI0vJU9s/F2w7K4awaqTn0+hOnBbpYenK9+p1Lj0DCitNerc9COWawV0KgC2o
+         aQkf1Epnm3ZOGGuTGxZ4Sqrw4451HWwB+ilxLi09nO4AMoeAUyU3OLbXmVG0UfxhnAc4
+         /xpd6erXfjzwswp29hfyFWvo/6d1lKOLrXMO9KBJhU1Mb8ul68u8t69bWEj8grHfoJqa
+         VtrA==
+X-Gm-Message-State: AOJu0YzAhLoFaL4uypwJVErxQ2xIRpM9obsnRVatGIeadmhegNK6lSjt
+	BNpT4o8GEV1EMrabdbqYJMazzG3dNf5iylrCWlUB4aoqMgxAXLxbGzgmGj6kPZm0me41OtQ1t3U
+	FBj8WkrQKihW9B10HpgE1CDPg1fpqqsDP
+X-Google-Smtp-Source: AGHT+IHj0KzubRCbxnC+iA837BXrkCvkKJ0PTJez4Dxayi1OT7xll7+b/KL0skR0d54jaT7kTFXY03polgDpvhPZEMM=
+X-Received: by 2002:a05:6122:310d:b0:4da:ae51:b755 with SMTP id
+ cg13-20020a056122310d00b004daae51b755mr1368322vkb.3.1713989438377; Wed, 24
+ Apr 2024 13:10:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] ima: Avoid blocking in RCU read-side critical section
-Content-Language: en-US
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-CC: <zohar@linux.ibm.com>, <roberto.sassu@huawei.com>,
-	<dmitry.kasatkin@gmail.com>, <paul@paul-moore.com>, <jmorris@namei.org>,
-	<serge@hallyn.com>, <eric.snowberg@oracle.com>, <omosnace@redhat.com>,
-	<linux-integrity@vger.kernel.org>, <selinux@vger.kernel.org>
-References: <20240417074444.2834769-1-guozihua@huawei.com>
- <CAEjxPJ52FzbBsVfbawiE=fx7UuMNp3pq2xuJnSebcPUhg6gc-A@mail.gmail.com>
- <8b814f56-3987-5503-313d-fc3c3104e028@huawei.com>
- <CAEjxPJ7mTgOG=POD0XfSmnE-vFx5wXT2TRnx_DoTPW6QNoGAMg@mail.gmail.com>
-From: "Guozihua (Scott)" <guozihua@huawei.com>
-In-Reply-To: <CAEjxPJ7mTgOG=POD0XfSmnE-vFx5wXT2TRnx_DoTPW6QNoGAMg@mail.gmail.com>
+References: <20240408154107.72419-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20240408154107.72419-1-cgoettsche@seltendoof.de>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 24 Apr 2024 16:10:27 -0400
+Message-ID: <CAP+JOzTdtAQC+Ltef4ZCK5RoxAGiRxVAeabb9wzkc4D97WnTNg@mail.gmail.com>
+Subject: Re: [PATCH] github: bump Python and Ruby versions
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpemm500024.china.huawei.com (7.185.36.203)
+Content-Transfer-Encoding: quoted-printable
 
-On 2024/4/22 20:18, Stephen Smalley wrote:
-> On Sun, Apr 21, 2024 at 9:26 PM Guozihua (Scott) <guozihua@huawei.com> wrote:
->>
->> On 2024/4/20 5:41, Stephen Smalley wrote:
->>> On Wed, Apr 17, 2024 at 12:49 AM GUO Zihua <guozihua@huawei.com> wrote:
->>>>
->>>> A panic happens in ima_match_policy:
->>>>
->>>> BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
->>>> PGD 42f873067 P4D 0
->>>> Oops: 0000 [#1] SMP NOPTI
->>>> CPU: 5 PID: 1286325 Comm: kubeletmonit.sh Kdump: loaded Tainted: P
->>>> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
->>>> RIP: 0010:ima_match_policy+0x84/0x450
->>>> Code: 49 89 fc 41 89 cf 31 ed 89 44 24 14 eb 1c 44 39 7b 18 74 26 41 83 ff 05 74 20 48 8b 1b 48 3b 1d f2 b9 f4 00 0f 84 9c 01 00 00 <44> 85 73 10 74 ea 44 8b 6b 14 41 f6 c5 01 75 d4 41 f6 c5 02 74 0f
->>>> RSP: 0018:ff71570009e07a80 EFLAGS: 00010207
->>>> RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000200
->>>> RDX: ffffffffad8dc7c0 RSI: 0000000024924925 RDI: ff3e27850dea2000
->>>> RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffffabfce739
->>>> R10: ff3e27810cc42400 R11: 0000000000000000 R12: ff3e2781825ef970
->>>> R13: 00000000ff3e2785 R14: 000000000000000c R15: 0000000000000001
->>>> FS:  00007f5195b51740(0000) GS:ff3e278b12d40000(0000) knlGS:0000000000000000
->>>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->>>> CR2: 0000000000000010 CR3: 0000000626d24002 CR4: 0000000000361ee0
->>>> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->>>> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->>>> Call Trace:
->>>>  ima_get_action+0x22/0x30
->>>>  process_measurement+0xb0/0x830
->>>>  ima_file_check+0x64/0x90
->>>>  path_openat+0x571/0x1720
->>>>  do_filp_open+0x9b/0x110
->>>>  do_sys_open+0x1bd/0x250
->>>>  do_syscall_64+0x5d/0x1d0
->>>>  entry_SYSCALL_64_after_hwframe+0x65/0xca
->>>>
->>>> (stack trace marked with ? is deleted)
->>>>
->>>> Commit c7423dbdbc9e ("ima: Handle -ESTALE returned by
->>>> ima_filter_rule_match()") introduced call to ima_lsm_copy_rule within a
->>>> RCU read-side critical section which contains kmalloc with GFP_KERNEL.
->>>> This implies a possible sleep and violates limitations of RCU read-side
->>>> critical sections on non-PREEMPT systems.
->>>>
->>>> Sleeping within RCU read-side critical section might cause
->>>> synchronize_rcu() returning early and break RCU protection, allowing a
->>>> UAF to happen.
->>>>
->>>> The root cause of this issue could be described as follows:
->>>> |       Thread A        |       Thread B        |
->>>> |                       |ima_match_policy       |
->>>> |                       |  rcu_read_lock        |
->>>> |ima_lsm_update_rule    |                       |
->>>> |  synchronize_rcu      |                       |
->>>> |                       |    kmalloc(GFP_KERNEL)|
->>>> |                       |      sleep            |
->>>> ==> synchronize_rcu returns early
->>>> |  kfree(entry)         |                       |
->>>> |                       |    entry = entry->next|
->>>> ==> UAF happens and entry now becomes NULL (or could be anything).
->>>> |                       |    entry->action      |
->>>> ==> Accessing entry might cause panic.
->>>>
->>>> To fix this issue, we are converting all kmalloc that is called within
->>>> RCU read-side critical section to use GFP_ATOMIC.
->>>>
->>>> Fixes: c7423dbdbc9e ("ima: Handle -ESTALE returned by ima_filter_rule_match()")
->>>> Cc: stable@vger.kernel.org
->>>> Signed-off-by: GUO Zihua <guozihua@huawei.com>
->>>> ---
->>>>  security/integrity/ima/ima_policy.c | 2 +-
->>>>  security/selinux/ss/services.c      | 2 +-
->>>>  2 files changed, 2 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
->>>> index c0556907c2e6..c0cf9b6a01f0 100644
->>>> --- a/security/integrity/ima/ima_policy.c
->>>> +++ b/security/integrity/ima/ima_policy.c
->>>> @@ -410,7 +410,7 @@ static struct ima_rule_entry *ima_lsm_copy_rule(struct ima_rule_entry *entry)
->>>>          * Immutable elements are copied over as pointers and data; only
->>>>          * lsm rules can change
->>>>          */
->>>> -       nentry = kmemdup(entry, sizeof(*nentry), GFP_KERNEL);
->>>> +       nentry = kmemdup(entry, sizeof(*nentry), GFP_ATOMIC);
->>>>         if (!nentry)
->>>>                 return NULL;
->>>>
->>>> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
->>>> index e88b1b6c4adb..b7cfad1a2964 100644
->>>> --- a/security/selinux/ss/services.c
->>>> +++ b/security/selinux/ss/services.c
->>>> @@ -3549,7 +3549,7 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
->>>>                 return -EINVAL;
->>>>         }
->>>>
->>>> -       tmprule = kzalloc(sizeof(struct selinux_audit_rule), GFP_KERNEL);
->>>> +       tmprule = kzalloc(sizeof(struct selinux_audit_rule), GFP_ATOMIC);
->>>
->>> I would suggest passing in gfp flags from the callers and only using
->>> GFP_ATOMIC for the particular call chain that requires atomic
->>> allocations, or re-factoring the caller to perform the allocating
->>> operations outside of the critical section.
->>
->> Well unfortunately the SELinux involved in this patch is called via
->> security hooks. Adding new flags would mean define macros as well as all
->> the callers and implementations would have to be changed.
-> 
-> That is ok if it is what is required to fix this correctly. However,
-> if you can re-factor the caller to move the allocation outside of the
-> RCU read lock, or eliminate the need for an allocation altogether,
-> that would be better.
+On Mon, Apr 8, 2024 at 11:41=E2=80=AFAM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
+>
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Bump the maximum Python version to 3.12 and the maximum Ruby version to
+> 3.3 in the GitHub CI.
+>
+> Also bump the setup-python action to v5.
+>
+> Since Python 3.12 dropped setuptools, install manually.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-This does not seems to be possible for now. The RCU lock circulates the
-whole list access while there might be more LSM related rules within the
-list. Besides we cannot release the RCU lock before allocation, this
-would trigger an UAF immediately.
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Will send a v2 adding a GFP mask for security hook as well as
-ima_lsm_copy_rule.
-> 
->>> Sidebar: the refactoring of the SELinux policy loading logic may have
->>> made it possible to revisit the approaches here to permit holding a
->>> reference to the policy from which the rule was derived so that we
->>> don't have to return -ESTALE in this scenario.
->>
->> This would be nice if we are able to make this re-init happen in-place
->> which would spare IMA from initializing a temporary rule and the list
->> replace behavior.
-> 
-> Yes, that would be best if possible.
-
--- 
-Best
-GUO Zihua
-
+> ---
+>  .github/workflows/run_tests.yml | 43 +++++++++++++++++++--------------
+>  1 file changed, 25 insertions(+), 18 deletions(-)
+>
+> diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_test=
+s.yml
+> index 3bd859a3..f8b6f146 100644
+> --- a/.github/workflows/run_tests.yml
+> +++ b/.github/workflows/run_tests.yml
+> @@ -10,36 +10,39 @@ jobs:
+>        matrix:
+>          compiler: [gcc, clang]
+>          python-ruby-version:
+> -          - {python: '3.11', ruby: '3.1'}
+> -          - {python: '3.11', ruby: '3.1', other: 'test-flags-override'}
+> -          - {python: '3.11', ruby: '3.1', other: 'test-debug'}
+> -          - {python: '3.11', ruby: '3.1', other: 'linker-bfd'}
+> -          - {python: '3.11', ruby: '3.1', other: 'linker-gold'}
+> +          - {python: '3.12', ruby: '3.3'}
+> +          - {python: '3.12', ruby: '3.3', other: 'test-flags-override'}
+> +          - {python: '3.12', ruby: '3.3', other: 'test-debug'}
+> +          - {python: '3.12', ruby: '3.3', other: 'linker-bfd'}
+> +          - {python: '3.12', ruby: '3.3', other: 'linker-gold'}
+>            # Test several Python versions with the latest Ruby version
+> -          - {python: '3.10', ruby: '3.1'}
+> -          - {python: '3.9', ruby: '3.1'}
+> -          - {python: '3.8', ruby: '3.1'}
+> -          - {python: '3.7', ruby: '3.1'}
+> -          - {python: 'pypy3.7', ruby: '3.1'}
+> +          - {python: '3.11', ruby: '3.3'}
+> +          - {python: '3.10', ruby: '3.3'}
+> +          - {python: '3.9', ruby: '3.3'}
+> +          - {python: '3.8', ruby: '3.3'}
+> +          - {python: '3.7', ruby: '3.3'}
+> +          - {python: 'pypy3.7', ruby: '3.3'}
+>            # Test several Ruby versions with the latest Python version
+> -          - {python: '3.11', ruby: '3.0'}
+> -          - {python: '3.11', ruby: '2.7'}
+> -          - {python: '3.11', ruby: '2.6'}
+> -          - {python: '3.11', ruby: '2.5'}
+> +          - {python: '3.12', ruby: '3.2'}
+> +          - {python: '3.12', ruby: '3.1'}
+> +          - {python: '3.12', ruby: '3.0'}
+> +          - {python: '3.12', ruby: '2.7'}
+> +          - {python: '3.12', ruby: '2.6'}
+> +          - {python: '3.12', ruby: '2.5'}
+>          exclude:
+>            - compiler: clang
+> -            python-ruby-version: {python: '3.11', ruby: '3.1', other: 'l=
+inker-bfd'}
+> +            python-ruby-version: {python: '3.12', ruby: '3.3', other: 'l=
+inker-bfd'}
+>            - compiler: clang
+> -            python-ruby-version: {python: '3.11', ruby: '3.1', other: 'l=
+inker-gold'}
+> +            python-ruby-version: {python: '3.12', ruby: '3.3', other: 'l=
+inker-gold'}
+>          include:
+>            - compiler: gcc
+> -            python-ruby-version: {python: '3.11', ruby: '3.1', other: 's=
+anitizers'}
+> +            python-ruby-version: {python: '3.12', ruby: '3.3', other: 's=
+anitizers'}
+>
+>      steps:
+>      - uses: actions/checkout@v4
+>
+>      - name: Set up Python ${{ matrix.python-ruby-version.python }}
+> -      uses: actions/setup-python@v4
+> +      uses: actions/setup-python@v5
+>        with:
+>          python-version: ${{ matrix.python-ruby-version.python }}
+>
+> @@ -69,6 +72,10 @@ jobs:
+>
+>          pip install flake8
+>
+> +    - name: Install Python setuptools
+> +      if: matrix.python-ruby-version.python =3D=3D '3.12'
+> +      run: pip install setuptools
+> +
+>      - name: Install Clang
+>        if: ${{ matrix.compiler =3D=3D 'clang' }}
+>        run: sudo apt-get install -qqy clang
+> --
+> 2.43.0
+>
+>
