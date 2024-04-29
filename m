@@ -1,21 +1,21 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E49553201
-	for <selinux@vger.kernel.org>; Mon, 29 Apr 2024 16:31:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8710184D0B
+	for <selinux@vger.kernel.org>; Mon, 29 Apr 2024 16:31:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714408298; cv=none; b=eojdANKIIMK2Kv7nLF4B8718f56ak2/5tUiam2In0ycHk+8nsStHAtpNgDx6422Qw2FTjZKehsfyLo3VHaRDloLr7lgUm9OJs8slhHLrny9+Ij1xXHDX77X5ctHLpAxu6MFba42HEqSdQhcJg7Zup4PT3MY+tISkHgIQn5qNZ54=
+	t=1714408298; cv=none; b=tqpnrmp9wnSeXqwIPrwEoIEmes9wSP9irCiRD5vutqx+YKqtUtObkMIqXllSYFRS+a37Io6qGV0boJEkGCviRqnFGkcflRwNjrWlSaDvfpdzXvBiYEJvCm/3Y2UkxxdWqP6iZUFf/tlAKpR1ipFc3MBqY2jxbTx2c2JfBjI872Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1714408298; c=relaxed/simple;
-	bh=6499/ii48CkgrX12Lso9/KXHRZldY0iwa1WYK6BJNQM=;
+	bh=2Ksz3HFsz8lv9fCcQGfjGu2bxdrckywQ2xdnE4tFWuw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=otb9PlGVcUSFYs6CGUli1HoS6OUnCawbDbKDTXScqnChRUoNHCRYzt8k1o4bV+EgeTvZo2rVDT+DEZEdPglqqua9Y/YG9nsXdkKp/yxa/3lcmDhtEdZQ5Fbt7HXKsUlcTskS7bpCtpNA4z9Pt6MmrUV+22D/yfbSI0to+9yLV1E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=eUSDgOAQ; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=Wq/+WdUD9j8aEMT92HkwTpXHwRaxOgvClRqhpoFC5r+rwarW8+fu69tXiof5KnSZhiQR0n3s1x3vgCkv8TgRC09uKd7xBPfDvEvORE4xJfvhk0cJpulMWY8HwKfyX/QWfXplE1oNyMSL4VvCtj8todzTP4aDi++AvEuGOqtlt1Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=nOA4GVMx; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="eUSDgOAQ"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="nOA4GVMx"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1714408287;
@@ -24,17 +24,17 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Me4XeS2tn2r9weOFR6wllI1UqSR+ZZRRYcoLWWLAI9o=;
-	b=eUSDgOAQwiRT1tId949KniZplYYbxliFCWMXiZYhiqNeZcZnHflLwaSruQ1jNd0LPmeVHA
-	9NDW0DsnIlmN/AAHmOM/DE85Ihy+PRaE4J1pC8W5APx/buu0+rsX6HE8bFzBOMnsZ3h6ig
-	VtbyrooCs6eeDdaS1JtEyUSqB9M4xOTJ6WrbWTegZO70EHJMCNbIYn8jEIZgQdPsk3yhz6
-	ymXzX74o/LlfTuNlHpW92RH3BRHyo/glo/Ea4Tm2LswzJGALGOa4ZmFGnjemHWFnVl3rpz
-	ywA99jphBk5C7Szj2D73qLlL9ztM7+lqNkLxW0G/8WVNgjWEGBKuMq+ZhgYuwg==
+	bh=hacdkDRiPTOZCSK+irBshyhb+T7/7yQsg34/4JXp39c=;
+	b=nOA4GVMx85aX8T7vVjHavfqXXRlOi587IZ80vfu17konbGxcOH+rLqScW7/unWxt9mvfY5
+	JARW+p6vm+XE3VkAByKIARIUc+UhnNciWuXRWj/02fwaBSCTKFJLxT+S7Iv/JevUJJ3+mI
+	/eA/18qOXxB/1EuQJhgl3DzbjzdQLDD/HNUIRoJtz1catT0ZJQgei+KANBtCre2Wrh0n33
+	Y/Lh9IShEs624QfM8KLbm9H+0qz3RWGGdN/xyFbl7/8Tn8NlFczhAFsRnqW88VJyUCltCZ
+	S1C7vTc38t3oNRCGEuCgqLjA/Y8M01M7VLyyVb99asByLrGrzNldy2RDfOFY/A==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 3/5] libselinux/man: use void in synopses
-Date: Mon, 29 Apr 2024 18:31:19 +0200
-Message-ID: <20240429163122.63181-3-cgoettsche@seltendoof.de>
+Subject: [PATCH 4/5] libselinux/man: add format attribute for set_matchpathcon_printf(3)
+Date: Mon, 29 Apr 2024 18:31:20 +0200
+Message-ID: <20240429163122.63181-4-cgoettsche@seltendoof.de>
 In-Reply-To: <20240429163122.63181-1-cgoettsche@seltendoof.de>
 References: <20240429163122.63181-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,44 +49,33 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-For functions that do not take any argument use consistently void
-instead of empty parenthesis.
+The parameter for set_matchpathcon_printf(3) is a function pointer that
+takes a format string with variable arguments.  Add a GNU printf
+function attribute, if supported, to enable compilers checking for
+format string inconsistencies.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/man/man3/is_selinux_enabled.3  | 4 ++--
- libselinux/man/man3/security_policyvers.3 | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ libselinux/include/selinux/selinux.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/libselinux/man/man3/is_selinux_enabled.3 b/libselinux/man/man3/is_selinux_enabled.3
-index a887b48c..16b7cd3c 100644
---- a/libselinux/man/man3/is_selinux_enabled.3
-+++ b/libselinux/man/man3/is_selinux_enabled.3
-@@ -8,9 +8,9 @@ is_selinux_mls_enabled \- check whether SELinux is enabled for (Multi Level Secu
- .SH "SYNOPSIS"
- .B #include <selinux/selinux.h>
- .sp
--.B int is_selinux_enabled();
-+.B int is_selinux_enabled(void);
- .sp
--.B int is_selinux_mls_enabled();
-+.B int is_selinux_mls_enabled(void);
- .
- .SH "DESCRIPTION"
- .BR is_selinux_enabled ()
-diff --git a/libselinux/man/man3/security_policyvers.3 b/libselinux/man/man3/security_policyvers.3
-index 041ff3a7..b2f6185b 100644
---- a/libselinux/man/man3/security_policyvers.3
-+++ b/libselinux/man/man3/security_policyvers.3
-@@ -4,7 +4,7 @@ security_policyvers \- get the version of the SELinux policy
- .SH "SYNOPSIS"
- .B #include <selinux/selinux.h>
- .sp
--.B int security_policyvers();
-+.B int security_policyvers(void);
- .
- .SH "DESCRIPTION"
- .BR security_policyvers ()
+diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+index a0948853..83ea871c 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -443,7 +443,11 @@ extern void selinux_flush_class_cache(void);
+ /* Set the function used by matchpathcon_init when displaying
+    errors about the file_contexts configuration.  If not set,
+    then this defaults to fprintf(stderr, fmt, ...). */
+-extern void set_matchpathcon_printf(void (*f) (const char *fmt, ...));
++extern void set_matchpathcon_printf(void
++#ifdef __GNUC__
++   __attribute__ ((format(printf, 1, 2)))
++#endif
++   (*f) (const char *fmt, ...));
+ 
+ /* Set the function used by matchpathcon_init when checking the
+    validity of a context in the file contexts configuration.  If not set,
 -- 
 2.43.0
 
