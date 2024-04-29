@@ -1,42 +1,37 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0583E8624B
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 057FA8624A
 	for <selinux@vger.kernel.org>; Mon, 29 Apr 2024 16:39:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714408749; cv=none; b=kcDnBrhua2BqAbeUmxFt1f7SIy8zP7u+ylFyQT+VviHBOMsl4rI5m19ajtCUgAewrdZUJPxf6sp/cKTuJA5wGCGDxlScJv6CSvbqgBPlNmMcxT36ldgtz0EzERczFPWjqCr9qBUHs7H8IsxFLIoNoD1C2PfCDKWH3tWOL0omLeY=
+	t=1714408749; cv=none; b=KW4GQg1jPgyEgWLBoDQJE6iq/2CCCF+CF8SkD9QNDRP9q+/QzQVEfGvAGBWu8e460ngQs3CK3h6c4/+dTHUyzHV9iZ0Fj7jznF1n3G3UVmnjBpydNkFo9z7FtJ2m+q4qtePbH7xofZkL2OYJhONxyoGtQ9INoek7tXToseTrttE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1714408749; c=relaxed/simple;
-	bh=Gvxur05Brx5t9q8HIfbC6Da2pahDKpHlTA8npQoM7Rw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=RZKyn9byZiknb+TA1BI8lTcvYS7velEDyR1qrDSu+brhNY5PP25bGTIxoiHO5D5v4mzVUZjgqICsSA9ppA/HCvtccFkBbnVQYkmiUl87ZXCpZAzpZlqfPwRYolE4bA4m0EutRv22ngoxp9XflV6w5VbUK+ZaGnUIqjorNPA+5iM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=FXpN8sUD; arc=none smtp.client-ip=168.119.48.163
+	bh=sH7c4Agew8m8raT0/bfIQm7I0qJqGiLPzOig+KhMUBY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=U6UGgk2uwJoRrZAd2TsK5Vymrjb2yfUL4lHToM/pqsqK8/6ODO+AqrqqnUK3iSFNxd6/h2iLAKtbzRvt40bQt/QBzafs4lZ7lxa71iAo4UrwGsYskpL09/2nVxO7mcJpdWNeBoKwCgyUrSxIgwXWd+1LgeNFFv5ZP5270ThYtdQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=iHCZe6US; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="FXpN8sUD"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="iHCZe6US"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1714408746;
+	s=2023072701; t=1714408745;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=mVQpZpsJpw8vxez0LS2SQbCW39B8iShTaTkMHVEviWE=;
-	b=FXpN8sUDYXQTbgbCf8ouYixx/t+VKApwUU/iMdwmiFud3APttxp/Rjv9PuctGzB3ApKx4a
-	MmCmkgLUtuqLgqh2jrqQ4De3zjHanzZqaVcQ/rW16L8Ps+28lSRLm2fVxgXWwJfbqAiEHi
-	ecTTOhfu5XEcNRP47QwYseaexmGN3qDVU8XPQHlKX4n6XltwlWhYqk48zRsP8Cvkjiyd+E
-	JyArMv12H23+gGoF2UrV67tKDaoRyDBjyy29yGgxYPHaLxUQxIwnIOIhQfCpDkZW/9NEdE
-	96EH7GinQXVdKJTTEO4rFczkNcQz5ebZ7HoLYeoE2HT+zC8UrwR518UlUgwUuA==
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=bo0+gobzquwxjmjN7pi76NBU4VKrJI5A0KEUz0qROlg=;
+	b=iHCZe6USDCFfjzQ5C7HqJ4TsGSvrnooQF+eeoeYtfho5+KeQi5jLXITrxxIQ2MZL+2Zu6+
+	uMEXLjpJ/HCT9qrv3kE6FvSTN02TtlU7hLm6OttTJrWT0TIFC2Nqo1Mv93mWWjzX9zwDKZ
+	k1I5UGLpl3NZOF4SFwG07y+IcGJaNDg8gHBS9ohmjniM2DhDcGNdnBtIrdzMZrDZcAZViJ
+	CeBMVXl2ZXeP3UI+Ogo9Yw7eeaFEfgV3fjjySWu6jifDqhqmjQc9K7UXtFS91MGTHZjOjc
+	FKQjvhqSJkZXHmxhcyWNShmFHMDO6i5R3xUGb2VhkyveLo3Syi6w5jUzBDXSOg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 2/3] libselinux: avoid pointer dereference before check
-Date: Mon, 29 Apr 2024 18:39:00 +0200
-Message-ID: <20240429163901.65239-2-cgoettsche@seltendoof.de>
-In-Reply-To: <20240429163901.65239-1-cgoettsche@seltendoof.de>
-References: <20240429163901.65239-1-cgoettsche@seltendoof.de>
+Subject: [PATCH 1/3] libselinux: free empty scandir(3) result
+Date: Mon, 29 Apr 2024 18:38:59 +0200
+Message-ID: <20240429163901.65239-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -49,61 +44,35 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Since commit 5876aca0 ("libselinux: free data on selabel open failure")
-the close handler of label backends must support partial initialized
-state, e.g. ->data being NULL.  Thus checks for NULL were added, but in
-two cases the pointers in question were already dereferenced before.
+In case scandir(3) finds no entries still free the returned result to
+avoid leaking it.
 
-Reorder the dereference after the NULL-checks.
+Also do not override errno in case of a failure.
 
-Fixes: 5876aca0 ("libselinux: free data on selabel open failure")
-Reported-by: Cppcheck
+Reported.by: Cppcheck
+
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/label_media.c | 4 +++-
- libselinux/src/label_x.c     | 4 +++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ libselinux/src/booleans.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
-index 94a58062..852aeada 100644
---- a/libselinux/src/label_media.c
-+++ b/libselinux/src/label_media.c
-@@ -164,12 +164,14 @@ finish:
- static void close(struct selabel_handle *rec)
- {
- 	struct saved_data *data = (struct saved_data *)rec->data;
--	struct spec *spec, *spec_arr = data->spec_arr;
-+	struct spec *spec, *spec_arr;
- 	unsigned int i;
+diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
+index c557df65..1ede8e2d 100644
+--- a/libselinux/src/booleans.c
++++ b/libselinux/src/booleans.c
+@@ -53,7 +53,11 @@ int security_get_boolean_names(char ***names, int *len)
  
- 	if (!data)
- 		return;
- 
-+	spec_arr = data->spec_arr;
-+
- 	for (i = 0; i < data->nspec; i++) {
- 		spec = &spec_arr[i];
- 		free(spec->key);
-diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
-index f994eefa..a8decc7a 100644
---- a/libselinux/src/label_x.c
-+++ b/libselinux/src/label_x.c
-@@ -191,12 +191,14 @@ finish:
- static void close(struct selabel_handle *rec)
- {
- 	struct saved_data *data = (struct saved_data *)rec->data;
--	struct spec *spec, *spec_arr = data->spec_arr;
-+	struct spec *spec, *spec_arr;
- 	unsigned int i;
- 
- 	if (!data)
- 		return;
- 
-+	spec_arr = data->spec_arr;
-+
- 	for (i = 0; i < data->nspec; i++) {
- 		spec = &spec_arr[i];
- 		free(spec->key);
+ 	snprintf(path, sizeof path, "%s%s", selinux_mnt, SELINUX_BOOL_DIR);
+ 	*len = scandir(path, &namelist, &filename_select, alphasort);
+-	if (*len <= 0) {
++	if (*len < 0) {
++		return -1;
++	}
++	if (*len == 0) {
++		free(namelist);
+ 		errno = ENOENT;
+ 		return -1;
+ 	}
 -- 
 2.43.0
 
