@@ -1,42 +1,42 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 870CA548EC
-	for <selinux@vger.kernel.org>; Mon, 29 Apr 2024 16:31:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0583E8624B
+	for <selinux@vger.kernel.org>; Mon, 29 Apr 2024 16:39:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714408299; cv=none; b=uVLCii98vWyxn7D2U6nWMn9ogKtvUrBXh/oagAy/OSDQhHJhRvNll9IlWljFfkpeEfSXKf9vkZFHfo+mfpUjMSnEG2oR6Cgoj1eWYIzLnhqeGS0YyK9oSI25EpBXLyejIkpRZLetAUbNd+b/RH1nAu9FdVwHlSk03HB8cyVGgLg=
+	t=1714408749; cv=none; b=kcDnBrhua2BqAbeUmxFt1f7SIy8zP7u+ylFyQT+VviHBOMsl4rI5m19ajtCUgAewrdZUJPxf6sp/cKTuJA5wGCGDxlScJv6CSvbqgBPlNmMcxT36ldgtz0EzERczFPWjqCr9qBUHs7H8IsxFLIoNoD1C2PfCDKWH3tWOL0omLeY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714408299; c=relaxed/simple;
-	bh=W+cSSzuBYlc8eO5ZzVm/xIkknQqC3v81HqO4SqkIQyo=;
+	s=arc-20240116; t=1714408749; c=relaxed/simple;
+	bh=Gvxur05Brx5t9q8HIfbC6Da2pahDKpHlTA8npQoM7Rw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=CmWZVo2qQSFnFDeeer7x4Xg2YhESD/oi780V64yWYvVVNjHftWv/oKHMli9m89bJnQnM0tvrAkTKIigXMCM8Nl6mOBsW4tajmmEZHzfQE2sQZR0jydp13GMhS0kbogiB9Xe7xnRgU7biriKN+wdd+WtcRgrq5c4uxn8JnKW5L+I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=N7bgGvm+; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=RZKyn9byZiknb+TA1BI8lTcvYS7velEDyR1qrDSu+brhNY5PP25bGTIxoiHO5D5v4mzVUZjgqICsSA9ppA/HCvtccFkBbnVQYkmiUl87ZXCpZAzpZlqfPwRYolE4bA4m0EutRv22ngoxp9XflV6w5VbUK+ZaGnUIqjorNPA+5iM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=FXpN8sUD; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="N7bgGvm+"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="FXpN8sUD"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1714408287;
+	s=2023072701; t=1714408746;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=yEx8KhJiTbJDB7GlODof8TZc2nBqt4YunESv2bgsXRw=;
-	b=N7bgGvm+nJCaJJJWZUq/W2fg3bt9xCrGyZt+C/DyLl8KTLTfS68IsnOoRXeJG7/owsrqj3
-	Oss2NVjWR/Lmvqkomm+JcQskPP3dzwWF7tpgdqA8GYzqMjmdXaMPjUb6Cc7uIJkvM11WYb
-	wSxy8d34xlZ3TEzV0zdSc3kT8mkcJuN0ZMHs9YlpgcHNA3ZL1wCTUxoBpK26dtS2zPhlDp
-	e+x7KcIkVXyQT2FEeThYCFbUkcE0nj7byAnJ/UV3uPj1WPawhyv/yDy1NCHVPc/U3r7bwg
-	lj19FnvsNOfsPPlXRwrtKauuYvO8k21sRxmzwToF5zejgFX1aWJO6E+xuUfwKg==
+	bh=mVQpZpsJpw8vxez0LS2SQbCW39B8iShTaTkMHVEviWE=;
+	b=FXpN8sUDYXQTbgbCf8ouYixx/t+VKApwUU/iMdwmiFud3APttxp/Rjv9PuctGzB3ApKx4a
+	MmCmkgLUtuqLgqh2jrqQ4De3zjHanzZqaVcQ/rW16L8Ps+28lSRLm2fVxgXWwJfbqAiEHi
+	ecTTOhfu5XEcNRP47QwYseaexmGN3qDVU8XPQHlKX4n6XltwlWhYqk48zRsP8Cvkjiyd+E
+	JyArMv12H23+gGoF2UrV67tKDaoRyDBjyy29yGgxYPHaLxUQxIwnIOIhQfCpDkZW/9NEdE
+	96EH7GinQXVdKJTTEO4rFczkNcQz5ebZ7HoLYeoE2HT+zC8UrwR518UlUgwUuA==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 5/5] libselinux: constify selinux_set_mapping(3) parameter
-Date: Mon, 29 Apr 2024 18:31:21 +0200
-Message-ID: <20240429163122.63181-5-cgoettsche@seltendoof.de>
-In-Reply-To: <20240429163122.63181-1-cgoettsche@seltendoof.de>
-References: <20240429163122.63181-1-cgoettsche@seltendoof.de>
+Subject: [PATCH 2/3] libselinux: avoid pointer dereference before check
+Date: Mon, 29 Apr 2024 18:39:00 +0200
+Message-ID: <20240429163901.65239-2-cgoettsche@seltendoof.de>
+In-Reply-To: <20240429163901.65239-1-cgoettsche@seltendoof.de>
+References: <20240429163901.65239-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -49,64 +49,61 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-The map parameter of selinux_set_mapping(3) is only read from and not
-modified, thus declare it const.
+Since commit 5876aca0 ("libselinux: free data on selabel open failure")
+the close handler of label backends must support partial initialized
+state, e.g. ->data being NULL.  Thus checks for NULL were added, but in
+two cases the pointers in question were already dereferenced before.
 
+Reorder the dereference after the NULL-checks.
+
+Fixes: 5876aca0 ("libselinux: free data on selabel open failure")
+Reported-by: Cppcheck
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/include/selinux/selinux.h      | 2 +-
- libselinux/man/man3/selinux_set_mapping.3 | 2 +-
- libselinux/src/mapping.c                  | 4 ++--
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ libselinux/src/label_media.c | 4 +++-
+ libselinux/src/label_x.c     | 4 +++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index 83ea871c..61c1422b 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -413,7 +413,7 @@ struct security_class_mapping {
-  * starting at 1, and have one security_class_mapping structure entry
-  * per define.
-  */
--extern int selinux_set_mapping(struct security_class_mapping *map);
-+extern int selinux_set_mapping(const struct security_class_mapping *map);
- 
- /* Common helpers */
- 
-diff --git a/libselinux/man/man3/selinux_set_mapping.3 b/libselinux/man/man3/selinux_set_mapping.3
-index a1f82e5a..bb48eb43 100644
---- a/libselinux/man/man3/selinux_set_mapping.3
-+++ b/libselinux/man/man3/selinux_set_mapping.3
-@@ -15,7 +15,7 @@ struct security_class_mapping {
- };
- .fi
- .sp
--.BI "int selinux_set_mapping(struct security_class_mapping *" map ");"
-+.BI "int selinux_set_mapping(const struct security_class_mapping *" map ");"
- .
- .SH "DESCRIPTION"
- .BR selinux_set_mapping ()
-diff --git a/libselinux/src/mapping.c b/libselinux/src/mapping.c
-index dd2f1039..d863e449 100644
---- a/libselinux/src/mapping.c
-+++ b/libselinux/src/mapping.c
-@@ -31,7 +31,7 @@ static security_class_t current_mapping_size = 0;
-  */
- 
- int
--selinux_set_mapping(struct security_class_mapping *map)
-+selinux_set_mapping(const struct security_class_mapping *map)
+diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
+index 94a58062..852aeada 100644
+--- a/libselinux/src/label_media.c
++++ b/libselinux/src/label_media.c
+@@ -164,12 +164,14 @@ finish:
+ static void close(struct selabel_handle *rec)
  {
- 	size_t size = sizeof(struct selinux_mapping);
- 	security_class_t i, j;
-@@ -64,7 +64,7 @@ selinux_set_mapping(struct security_class_mapping *map)
- 	/* Store the raw class and permission values */
- 	j = 0;
- 	while (map[j].name) {
--		struct security_class_mapping *p_in = map + (j++);
-+		const struct security_class_mapping *p_in = map + (j++);
- 		struct selinux_mapping *p_out = current_mapping + j;
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+-	struct spec *spec, *spec_arr = data->spec_arr;
++	struct spec *spec, *spec_arr;
+ 	unsigned int i;
  
- 		p_out->value = string_to_security_class(p_in->name);
+ 	if (!data)
+ 		return;
+ 
++	spec_arr = data->spec_arr;
++
+ 	for (i = 0; i < data->nspec; i++) {
+ 		spec = &spec_arr[i];
+ 		free(spec->key);
+diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
+index f994eefa..a8decc7a 100644
+--- a/libselinux/src/label_x.c
++++ b/libselinux/src/label_x.c
+@@ -191,12 +191,14 @@ finish:
+ static void close(struct selabel_handle *rec)
+ {
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+-	struct spec *spec, *spec_arr = data->spec_arr;
++	struct spec *spec, *spec_arr;
+ 	unsigned int i;
+ 
+ 	if (!data)
+ 		return;
+ 
++	spec_arr = data->spec_arr;
++
+ 	for (i = 0; i < data->nspec; i++) {
+ 		spec = &spec_arr[i];
+ 		free(spec->key);
 -- 
 2.43.0
 
