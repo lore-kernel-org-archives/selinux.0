@@ -1,122 +1,132 @@
-Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
+Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 728CB152780
-	for <selinux@vger.kernel.org>; Tue, 30 Apr 2024 14:35:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73AD7770F3
+	for <selinux@vger.kernel.org>; Tue, 30 Apr 2024 14:53:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714487711; cv=none; b=MJw3t+Pe02TSscvXJnDWX4nLd7nCBgQF+NonAtVOf2vPAD4PuSgapj3JP60IUiKDAMtceuPDKJtSxxM6bLLhH1LfccvGY+SiIPTE8dttGBF9uXROprTcCa791r0lYjNZOUAAkrm6ew/KV9ZFyfVIFwCl7J22nyR9VDD52bky7Os=
+	t=1714488792; cv=none; b=eLgf4fQjtAg90GNNJlVf5LKvKFWiQyX6Pi/ezMQd+07B3NrzdiXSt1OuTSxZvECNIMZFDD8dzgMod5WtOuk8DeQqH8JPJ27nvYhU8Lb9Rzlb+TlA2LABwU9Ji23PFFstljIOFKznXng/WxjFRzC4OzYmhzTVYoKvG/JuFbcXsw4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714487711; c=relaxed/simple;
-	bh=YL6koUX0BdlS1hncc5D1mQT/A6cPkKriaeDk3Rr0i7g=;
+	s=arc-20240116; t=1714488792; c=relaxed/simple;
+	bh=rOj/ZsngU+4tkrgVPmeMwNXhLRFu+2igTmpEP1F6q8o=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Eqqy0tiheeHg79mDsE3/BzL7nt7wJU5kUSH5qsfKk07iwgXDHMB9DaMNg4l4fhj/cRZY7dlqNs8rxQN0soV1v4zTiODbn7BVlLl1IyHEH7xPtyLfJEEQ0DVCEsB4yxA2aIM5KPBB1Y73dLTEhWzfvZGnY0qZHe/MP47i/L8ZOlE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=P+2TpgMm; arc=none smtp.client-ip=209.85.219.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	 To:Cc:Content-Type; b=cEyyzTnmkwxqx7oj/MkXrc817mW75d9XQ+sAo74MBHGTYQUgXDgz99fBZdfXotqVOgH08ym5v0fQOnusj4NF9bc83B5MyDjDgVncMp5/BKYBjDJWAhBWuufWwQxrHOfi+0H1ye1Qp+GHQLHm4+HtTpNrkR3DyxSyhRP8hr4LbYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cZL7nQld; arc=none smtp.client-ip=209.85.208.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="P+2TpgMm"
-Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-dcc71031680so5673410276.2
-        for <selinux@vger.kernel.org>; Tue, 30 Apr 2024 07:35:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cZL7nQld"
+Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-2df83058d48so45398451fa.1
+        for <selinux@vger.kernel.org>; Tue, 30 Apr 2024 07:53:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1714487708; x=1715092508; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1714488788; x=1715093588; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=kd/v48658EeV5QYtcovKLT+8sAJ3pHzW3fp3ptN4Y8c=;
-        b=P+2TpgMmCPzrMcZlyPhrNGGiSClfN5Dys7T2JuJ177roZhr0a5BCE7R9QTrg9/OR91
-         +op8eVUC/JXlp9joHmV8XoVy1FS1k2wsof6YlgR0+kqjS2XonTGMUdPY6W7JdjVqICkb
-         pvB+fiHxTq29x5YhJNE4NJGlxe2ruc9WdR3CoghYjXNffTGqGOJwvzxU0qaYIFAHZ+GX
-         ddpO+/k7AEGlJzhoAV2iqvPa6rE8SFxoxSSUx2rI+gJA8fKkNJEvzD8JVo9EfNogpqla
-         cPfU1WSSr0iHfwNWcoHlBQtdxUz12/YtCfV9OBsoZVkeCBtATHgDRi556jgZKJuiZMRs
-         cQKw==
+        bh=54dqPvbwT8028Dw9TRygCGwZe1M50J+Bz2yhm2amJuU=;
+        b=cZL7nQld7tUcAO3KFpHrGTsmtBbOpEqkQlv4U3GMTAYWBdZ5s2Mt1NguzULkeLixgp
+         eFzHneIUGxuxyJN51KMelydpRjEVJgaQrpdvFpMroogurEsr0RuCACj9nkrjuds8H2Vq
+         DKpcYZsMBQZKDKXjDB6U2GOSZL6EabrGxunE++AvY1HZKUNAOgelpWsCeB4tn/gFQ721
+         /LK9v1bSweKniZj3sMeq46fQ5b+gSBTkHIu7k6pK+ucbsiy7zdzlGrPbO7Zy+3MTa0Uw
+         jo1epjKYUtn6ZjvL5GBYjI6qenRPsNIU/ny1CbsOIW5ESUcKfUEKGHCuRTJJA9xek6Fp
+         ZTaw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714487708; x=1715092508;
+        d=1e100.net; s=20230601; t=1714488788; x=1715093588;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=kd/v48658EeV5QYtcovKLT+8sAJ3pHzW3fp3ptN4Y8c=;
-        b=UGRPzyIOFksqBhNSgWfWxW/YpBi4dHrli7WhUjKODxoITm4H7gVXhs+fa4LYfCASQx
-         ICb7nS9t96Cuh3vMNBit9L14vKZQiycgsvkIo7aHExkUIZhhI/j78ilBBQ0yAp1Y6RN6
-         CSKz9wkV6qD69jH0NXJPQ+QDlk94uQK9JjmE0M9eVy6J3slQDhbARZ0KL3h7r0s7dyYj
-         0VFqu6vS8a9xtAcDnFSQfDu/xdUJEqYYerr4bjIbLJU/3WZ6A+iIZT9SzvTSfLBaL9GV
-         zDyreF/TJ8q1e19/951N379SRoAEi/4x70kt4pcHKllSlCfubS9qVS8f6tCH94eSeZ6w
-         vqTQ==
-X-Gm-Message-State: AOJu0Ywl2LfIWg9rZGqjbADOZPRIt8l+BCDMXfp4YsOS4Zq93zH1e9LQ
-	aplHM8ab17OciKW1TNGMDor2rN2A10fluyVJf1h9Dim/5OO4vlIiv9+U7WwI2okmXpbyrYIsHp6
-	W5QFdomuKLHhW3Dbx8Ge28gL/ftc=
-X-Google-Smtp-Source: AGHT+IHbPCnDHHKtw4tGbtVVvEESEb3dNBXt+nnjuA97xWo1JqG9tMIm4OqvADSdWstfvEfkDNzlZi6fcqg6ekiMlms=
-X-Received: by 2002:a25:ac02:0:b0:de6:d19:837a with SMTP id
- w2-20020a25ac02000000b00de60d19837amr3520039ybi.34.1714487708045; Tue, 30 Apr
- 2024 07:35:08 -0700 (PDT)
+        bh=54dqPvbwT8028Dw9TRygCGwZe1M50J+Bz2yhm2amJuU=;
+        b=sJvD9+UzvFvZqzEBeQZIwld0dHalxR2c2y6b5cCelVoQ6091UnxeG919+MZb81WjA8
+         1lZAGpbNIY0CclEa4KNO/4RftaSwC7QaIuoBvdk4+2CCLt8dUpPn9Pfe6TxDlsokBeDJ
+         yL3K3EA2TzJaDYGeEJe53zeeD37ZDA8clfsM5N4+2FcQk8NrDI8yUxv/JXZARDp0Ij2u
+         tjZuK0CRjtsWF9xIbQSngIitsx60EOs0+eKc6sgUfpUDjOky/VGk+LpqPkiGXbaFQ1qB
+         hJNMZjLdNXCtDVHOiFXly0R5nMCoImkZiU4Fxy53c5dD/XxzbN5d3WGIeEwSPaEN1zsv
+         reJQ==
+X-Gm-Message-State: AOJu0YxzQexuyvOaNj2e5XyxqVW7m8nm2HMK8vUEiZQVjtlXLIWBo090
+	lVC0+kKo69s7DGOJnkqONA94O88gqwGyt+bMUoFd1JL0PMsxx8yhs0Y5AsExrcEI9hTRc5hlAqG
+	kxpcXICsOV5o9q72V8+Ci8QSaldEqTw==
+X-Google-Smtp-Source: AGHT+IGB+H5ZSOrZ8VT9rlBln7/6jmO543pdvhXuMg7bgTDfMRYERu7Fz/vcQ+UaMyFz6bls+okDlAlXNEiiqmGHuFg=
+X-Received: by 2002:a2e:88cb:0:b0:2df:b2d5:590d with SMTP id
+ a11-20020a2e88cb000000b002dfb2d5590dmr2151451ljk.10.1714488788273; Tue, 30
+ Apr 2024 07:53:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240429163901.65239-1-cgoettsche@seltendoof.de> <CAFftDdqRZcQm4kW8+pAOYQDQ46Ze9Q0zzpqsKYi9KNz-1wduTw@mail.gmail.com>
-In-Reply-To: <CAFftDdqRZcQm4kW8+pAOYQDQ46Ze9Q0zzpqsKYi9KNz-1wduTw@mail.gmail.com>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Tue, 30 Apr 2024 16:34:57 +0200
-Message-ID: <CAJ2a_Dcy-WHrV5FY3FHLTFBuJErKhwfyFc2R4CjZsO2PHYJ77Q@mail.gmail.com>
+References: <20240429163901.65239-1-cgoettsche@seltendoof.de>
+ <CAFftDdqRZcQm4kW8+pAOYQDQ46Ze9Q0zzpqsKYi9KNz-1wduTw@mail.gmail.com> <CAJ2a_Dcy-WHrV5FY3FHLTFBuJErKhwfyFc2R4CjZsO2PHYJ77Q@mail.gmail.com>
+In-Reply-To: <CAJ2a_Dcy-WHrV5FY3FHLTFBuJErKhwfyFc2R4CjZsO2PHYJ77Q@mail.gmail.com>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Tue, 30 Apr 2024 09:52:56 -0500
+Message-ID: <CAFftDdreHzHTjpFgR5Tf_XF627Zrr5TabYC7ZLr4r07gQ69iaA@mail.gmail.com>
 Subject: Re: [PATCH 1/3] libselinux: free empty scandir(3) result
-To: William Roberts <bill.c.roberts@gmail.com>
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, 29 Apr 2024 at 22:35, William Roberts <bill.c.roberts@gmail.com> wr=
-ote:
+On Tue, Apr 30, 2024 at 9:35=E2=80=AFAM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> On Mon, Apr 29, 2024 at 11:39=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
+> On Mon, 29 Apr 2024 at 22:35, William Roberts <bill.c.roberts@gmail.com> =
+wrote:
 > >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > On Mon, Apr 29, 2024 at 11:39=E2=80=AFAM Christian G=C3=B6ttsche
+> > <cgoettsche@seltendoof.de> wrote:
+> > >
+> > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > >
+> > > In case scandir(3) finds no entries still free the returned result to
+> > > avoid leaking it.
+> > >
+> > > Also do not override errno in case of a failure.
+> > >
+> > > Reported.by: Cppcheck
+> > >
+> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > > ---
+> > >  libselinux/src/booleans.c | 6 +++++-
+> > >  1 file changed, 5 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
+> > > index c557df65..1ede8e2d 100644
+> > > --- a/libselinux/src/booleans.c
+> > > +++ b/libselinux/src/booleans.c
+> > > @@ -53,7 +53,11 @@ int security_get_boolean_names(char ***names, int =
+*len)
+> > >
+> > >         snprintf(path, sizeof path, "%s%s", selinux_mnt, SELINUX_BOOL=
+_DIR);
+> > >         *len =3D scandir(path, &namelist, &filename_select, alphasort=
+);
+> > > -       if (*len <=3D 0) {
+> > > +       if (*len < 0) {
+> > > +               return -1;
+> > > +       }
+> > > +       if (*len =3D=3D 0) {
 > >
-> > In case scandir(3) finds no entries still free the returned result to
-> > avoid leaking it.
-> >
-> > Also do not override errno in case of a failure.
-> >
-> > Reported.by: Cppcheck
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> >  libselinux/src/booleans.c | 6 +++++-
-> >  1 file changed, 5 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
-> > index c557df65..1ede8e2d 100644
-> > --- a/libselinux/src/booleans.c
-> > +++ b/libselinux/src/booleans.c
-> > @@ -53,7 +53,11 @@ int security_get_boolean_names(char ***names, int *l=
-en)
-> >
-> >         snprintf(path, sizeof path, "%s%s", selinux_mnt, SELINUX_BOOL_D=
-IR);
-> >         *len =3D scandir(path, &namelist, &filename_select, alphasort);
-> > -       if (*len <=3D 0) {
-> > +       if (*len < 0) {
-> > +               return -1;
-> > +       }
-> > +       if (*len =3D=3D 0) {
+> > Changing this will allow scandir to fail and it continue, what's the po=
+int?
 >
-> Changing this will allow scandir to fail and it continue, what's the poin=
-t?
+> What do you mean by "continue"?
+> The function will still return -1 with errno set if scandir(3) returns
+> <=3D 0, like it does currently.
+> But currently if scandir() returns 0, we currently leak the pointer to
+> the empty array.
 
-What do you mean by "continue"?
-The function will still return -1 with errno set if scandir(3) returns
-<=3D 0, like it does currently.
-But currently if scandir() returns 0, we currently leak the pointer to
-the empty array.
+I completely misread that, my apologies. I just mocked scandir for all
+those paths
+with the leak sanitizer enabled, lgtm.
 
 >
-> > +               free(namelist);
-> >                 errno =3D ENOENT;
-> >                 return -1;
-> >         }
-> > --
-> > 2.43.0
 > >
-> >
+> > > +               free(namelist);
+> > >                 errno =3D ENOENT;
+> > >                 return -1;
+> > >         }
+> > > --
+> > > 2.43.0
+> > >
+> > >
