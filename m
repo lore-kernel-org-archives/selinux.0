@@ -1,132 +1,80 @@
-Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73AD7770F3
-	for <selinux@vger.kernel.org>; Tue, 30 Apr 2024 14:53:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85A92173343
+	for <selinux@vger.kernel.org>; Tue, 30 Apr 2024 15:30:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714488792; cv=none; b=eLgf4fQjtAg90GNNJlVf5LKvKFWiQyX6Pi/ezMQd+07B3NrzdiXSt1OuTSxZvECNIMZFDD8dzgMod5WtOuk8DeQqH8JPJ27nvYhU8Lb9Rzlb+TlA2LABwU9Ji23PFFstljIOFKznXng/WxjFRzC4OzYmhzTVYoKvG/JuFbcXsw4=
+	t=1714491035; cv=none; b=WDDYvgjcaSf0OZ14jWhBpqbj+iQKSInGI/CVTQvgMNj+TRue2gV7g/HWpRYUbh7d7fwkCaiuluAdRZUb4lXPjkq8Hc2bLuq3flbTEU+0lYToaHs7jk/RNv5P8UMB0wXm63HpiGI2HS6SrhVQA3DyZaGkKu8DmwxDDA1nryOHfV8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714488792; c=relaxed/simple;
-	bh=rOj/ZsngU+4tkrgVPmeMwNXhLRFu+2igTmpEP1F6q8o=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cEyyzTnmkwxqx7oj/MkXrc817mW75d9XQ+sAo74MBHGTYQUgXDgz99fBZdfXotqVOgH08ym5v0fQOnusj4NF9bc83B5MyDjDgVncMp5/BKYBjDJWAhBWuufWwQxrHOfi+0H1ye1Qp+GHQLHm4+HtTpNrkR3DyxSyhRP8hr4LbYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cZL7nQld; arc=none smtp.client-ip=209.85.208.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1714491035; c=relaxed/simple;
+	bh=2dn4XU+ak6lQZknAhUSKhro9BT+tEjh4PQiYbozYKK0=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=rE5BW6ClnB8tLtxsdRsK65y7JOGs7DaEi/W7b7fTlzUo48WdLUvwc6q3ov78yrpWAFFpemHMhqGp0Ammoo+SWV+O+mnOjbd38/Nz1O7XWrUwMrDOqgTRFDhVAbF00i7Kh2VguIJAGTU+4i1SvnUeM/fsXxqi8zmrTBWrZ/13L+Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fNux5EYu; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cZL7nQld"
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-2df83058d48so45398451fa.1
-        for <selinux@vger.kernel.org>; Tue, 30 Apr 2024 07:53:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1714488788; x=1715093588; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=54dqPvbwT8028Dw9TRygCGwZe1M50J+Bz2yhm2amJuU=;
-        b=cZL7nQld7tUcAO3KFpHrGTsmtBbOpEqkQlv4U3GMTAYWBdZ5s2Mt1NguzULkeLixgp
-         eFzHneIUGxuxyJN51KMelydpRjEVJgaQrpdvFpMroogurEsr0RuCACj9nkrjuds8H2Vq
-         DKpcYZsMBQZKDKXjDB6U2GOSZL6EabrGxunE++AvY1HZKUNAOgelpWsCeB4tn/gFQ721
-         /LK9v1bSweKniZj3sMeq46fQ5b+gSBTkHIu7k6pK+ucbsiy7zdzlGrPbO7Zy+3MTa0Uw
-         jo1epjKYUtn6ZjvL5GBYjI6qenRPsNIU/ny1CbsOIW5ESUcKfUEKGHCuRTJJA9xek6Fp
-         ZTaw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714488788; x=1715093588;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=54dqPvbwT8028Dw9TRygCGwZe1M50J+Bz2yhm2amJuU=;
-        b=sJvD9+UzvFvZqzEBeQZIwld0dHalxR2c2y6b5cCelVoQ6091UnxeG919+MZb81WjA8
-         1lZAGpbNIY0CclEa4KNO/4RftaSwC7QaIuoBvdk4+2CCLt8dUpPn9Pfe6TxDlsokBeDJ
-         yL3K3EA2TzJaDYGeEJe53zeeD37ZDA8clfsM5N4+2FcQk8NrDI8yUxv/JXZARDp0Ij2u
-         tjZuK0CRjtsWF9xIbQSngIitsx60EOs0+eKc6sgUfpUDjOky/VGk+LpqPkiGXbaFQ1qB
-         hJNMZjLdNXCtDVHOiFXly0R5nMCoImkZiU4Fxy53c5dD/XxzbN5d3WGIeEwSPaEN1zsv
-         reJQ==
-X-Gm-Message-State: AOJu0YxzQexuyvOaNj2e5XyxqVW7m8nm2HMK8vUEiZQVjtlXLIWBo090
-	lVC0+kKo69s7DGOJnkqONA94O88gqwGyt+bMUoFd1JL0PMsxx8yhs0Y5AsExrcEI9hTRc5hlAqG
-	kxpcXICsOV5o9q72V8+Ci8QSaldEqTw==
-X-Google-Smtp-Source: AGHT+IGB+H5ZSOrZ8VT9rlBln7/6jmO543pdvhXuMg7bgTDfMRYERu7Fz/vcQ+UaMyFz6bls+okDlAlXNEiiqmGHuFg=
-X-Received: by 2002:a2e:88cb:0:b0:2df:b2d5:590d with SMTP id
- a11-20020a2e88cb000000b002dfb2d5590dmr2151451ljk.10.1714488788273; Tue, 30
- Apr 2024 07:53:08 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fNux5EYu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1714491031;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=NJ9K0L1LGD/8QcTWqXH1ZUd6AzpIZVlyA1LfFztlMQA=;
+	b=fNux5EYuDCTkizizCQ2LLSBr1WOuBdwJOaKvMWYA62uE7YOzGHcZH0bxAnEyd7bXdDMxrX
+	AwWHzvRAdem0V83M04PqQInvR4hFSE6rTMJf7U0K2oM5VuXHIaF0RJEt6oAmckNVsyzcGU
+	k36lxfLxN4En39uTiLxZloMcPeqVr0Y=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-94-YuCejnc9OdO0NQTjiRZ4AA-1; Tue, 30 Apr 2024 11:30:28 -0400
+X-MC-Unique: YuCejnc9OdO0NQTjiRZ4AA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 918F380017B
+	for <selinux@vger.kernel.org>; Tue, 30 Apr 2024 15:30:28 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.224.95])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 3491D40B4979
+	for <selinux@vger.kernel.org>; Tue, 30 Apr 2024 15:30:28 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH] libsepol/cil: Fix detected RESOURCE_LEAK (CWE-772)
+Date: Tue, 30 Apr 2024 17:30:24 +0200
+Message-ID: <20240430153024.790044-1-vmojzis@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240429163901.65239-1-cgoettsche@seltendoof.de>
- <CAFftDdqRZcQm4kW8+pAOYQDQ46Ze9Q0zzpqsKYi9KNz-1wduTw@mail.gmail.com> <CAJ2a_Dcy-WHrV5FY3FHLTFBuJErKhwfyFc2R4CjZsO2PHYJ77Q@mail.gmail.com>
-In-Reply-To: <CAJ2a_Dcy-WHrV5FY3FHLTFBuJErKhwfyFc2R4CjZsO2PHYJ77Q@mail.gmail.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Tue, 30 Apr 2024 09:52:56 -0500
-Message-ID: <CAFftDdreHzHTjpFgR5Tf_XF627Zrr5TabYC7ZLr4r07gQ69iaA@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libselinux: free empty scandir(3) result
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.2
 
-On Tue, Apr 30, 2024 at 9:35=E2=80=AFAM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> On Mon, 29 Apr 2024 at 22:35, William Roberts <bill.c.roberts@gmail.com> =
-wrote:
-> >
-> > On Mon, Apr 29, 2024 at 11:39=E2=80=AFAM Christian G=C3=B6ttsche
-> > <cgoettsche@seltendoof.de> wrote:
-> > >
-> > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > >
-> > > In case scandir(3) finds no entries still free the returned result to
-> > > avoid leaking it.
-> > >
-> > > Also do not override errno in case of a failure.
-> > >
-> > > Reported.by: Cppcheck
-> > >
-> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > > ---
-> > >  libselinux/src/booleans.c | 6 +++++-
-> > >  1 file changed, 5 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
-> > > index c557df65..1ede8e2d 100644
-> > > --- a/libselinux/src/booleans.c
-> > > +++ b/libselinux/src/booleans.c
-> > > @@ -53,7 +53,11 @@ int security_get_boolean_names(char ***names, int =
-*len)
-> > >
-> > >         snprintf(path, sizeof path, "%s%s", selinux_mnt, SELINUX_BOOL=
-_DIR);
-> > >         *len =3D scandir(path, &namelist, &filename_select, alphasort=
-);
-> > > -       if (*len <=3D 0) {
-> > > +       if (*len < 0) {
-> > > +               return -1;
-> > > +       }
-> > > +       if (*len =3D=3D 0) {
-> >
-> > Changing this will allow scandir to fail and it continue, what's the po=
-int?
->
-> What do you mean by "continue"?
-> The function will still return -1 with errno set if scandir(3) returns
-> <=3D 0, like it does currently.
-> But currently if scandir() returns 0, we currently leak the pointer to
-> the empty array.
+libsepol-3.6/cil/src/cil_binary.c:902: alloc_fn: Storage is returned from allocation function "cil_malloc".
+libsepol-3.6/cil/src/cil_binary.c:902: var_assign: Assigning: "mls_level" = storage returned from "cil_malloc(24UL)".
+libsepol-3.6/cil/src/cil_binary.c:903: noescape: Resource "mls_level" is not freed or pointed-to in "mls_level_init".
+libsepol-3.6/cil/src/cil_binary.c:905: noescape: Resource "mls_level" is not freed or pointed-to in "mls_level_cpy".
+libsepol-3.6/cil/src/cil_binary.c:919: leaked_storage: Variable "mls_level" going out of scope leaks the storage it points to.
 
-I completely misread that, my apologies. I just mocked scandir for all
-those paths
-with the leak sanitizer enabled, lgtm.
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ libsepol/cil/src/cil_binary.c | 1 +
+ 1 file changed, 1 insertion(+)
 
->
-> >
-> > > +               free(namelist);
-> > >                 errno =3D ENOENT;
-> > >                 return -1;
-> > >         }
-> > > --
-> > > 2.43.0
-> > >
-> > >
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 95bd18ba..c8144a5a 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -904,6 +904,7 @@ static int cil_sensalias_to_policydb(policydb_t *pdb, struct cil_alias *cil_alia
+ 
+ 	rc = mls_level_cpy(mls_level, sepol_level->level);
+ 	if (rc != SEPOL_OK) {
++		free(mls_level);
+ 		goto exit;
+ 	}
+ 	sepol_alias->level = mls_level;
+-- 
+2.43.0
+
