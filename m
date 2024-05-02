@@ -1,55 +1,55 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6891D15FD17
-	for <selinux@vger.kernel.org>; Thu,  2 May 2024 19:51:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D446415E5B7
+	for <selinux@vger.kernel.org>; Thu,  2 May 2024 19:54:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714679469; cv=none; b=KQLN2n7wkR6yMuI9V5FHDEySH7g4u/g7fheyXZvku80ZOE4B0XDVuKNvPGWVozyNeDbpF3NhoES4Fr4xl8TYKgU3q694E/ypGWM0VJ9rga7koCuP6mwj50FA1s2etefqCHnHkzqjVaBL2nVOSIuHmIWLhbbDvqHe5AL4pIQ1L0o=
+	t=1714679691; cv=none; b=MDmrqDZK02T449AYGtLvEfHjVuT59eIG2WtF3Pzj3xm8RLFJKfosbrhKSi4Bb/vgz6+8gtOTfW+tQ9kP3eoVXCeQIcNW8DlsLj1dalHuobsnaCsNgwwN53HkCvwIKaO9/Uja9JJWYE4hJmTZadpDRdBNrMq2ft1TepU0B0T4y78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714679469; c=relaxed/simple;
-	bh=E4rCgQ7L5VNfgLMPXgSDb4qd2N3O2il29djqvK5vXyE=;
+	s=arc-20240116; t=1714679691; c=relaxed/simple;
+	bh=5pgUpqR3hyRMbHCdQINrSFiOXutWb2+59iVdKx+/xV0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=re61nLafOX1knoqEL/uRhjFBw1E9Eb2QAqY2xRljd3SpYeVwRmLpNlIUgvje3e3F18g8xsfALSJJI9cCPeD1D/zyLFakbJjwU8BhCcy+QGqcKG2sfd0yDq5uXUHTUXCM58nIMiwGeiXwTYtEfpuFduh+4biCjqlNfLKUivTuEos=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XNFMdaCK; arc=none smtp.client-ip=209.85.215.182
+	 To:Cc:Content-Type; b=DLgHyUAx0+349Fb1wyTVJOPahlHFjuJ8zkm0Ex/gKeBDPtmzbd81q8mAPfL2u2VNLVEGbqgiZFU61kpGq+S68kvzbyr2Sq70VCq3YMCiGpHsWckJ+9R1fczDU7VattBASz3NExIcRrvAZzL5ly0QVHRdiTf25Dic682sTDpoBiA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VWXpeO8S; arc=none smtp.client-ip=209.85.216.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XNFMdaCK"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-5ce2aada130so5865928a12.1
-        for <selinux@vger.kernel.org>; Thu, 02 May 2024 12:51:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VWXpeO8S"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-2b27eec1eb1so2456186a91.0
+        for <selinux@vger.kernel.org>; Thu, 02 May 2024 12:54:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1714679466; x=1715284266; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1714679689; x=1715284489; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Pd3IYjvFv7AIksIBgd+vunFjz27XjTImpbv4h8gtuSo=;
-        b=XNFMdaCKuk+wW4WDJkE+4xCjjeuEcvtM158351xDpZjdfT6V2eLj6ilOIFLh6r8dMh
-         vfgZH2zbRkcOu1ZqIrStQMxZg4oBJUKAbNTFIdYYsUwmpR2I1GHdayk7WbDv6weeooip
-         gmFMrA3HUXNx6N+nYUH5aDaV3lThtBwKksU1F1yrQfgJDxe9ckAhueXMS/zdQqk8v+Wo
-         By4Ek2CXGFhTNFcl1wocPPxfUcveEIMmmSSW65S1bYnRrbFNjf8Hy94AdAiTky3xX6uX
-         s7rKpBO3vALk7eznuZJc0mvoU95aDPIs0HxN85yiFUxi/8uYFxuhqEmEzpC6AdVRse84
-         jDMQ==
+        bh=xCMp38uQSxCX4S+sStXbmQRXGDxX3UcQ8SNQxBc/Qd8=;
+        b=VWXpeO8S+rD+jIrWCZMCrrv42zqqPGjpm5UHJug4m4gzmJrUUnrNoaQxOKhF0aFGqH
+         qtCuAbHBlade+4yGeJ+jbQdnOgP0gx7k8UIsJi3oHMKFNdOancIz0r9KO9JoCvFIvEKU
+         AVoGMwDqBU/hCyc6i+8Bq2JqYCyMP5QDx3H5wTRrPRYlOLvZa8H97sV8SCtXYFBC/km/
+         WyGLKh9tc4LcoG1yGCGQdiFVESP8qzmzY1+U3i19fa50mA9dO5eNr7FYkSDzwOBYaIGq
+         NxW8Amvhje9EE+UWs+A4jQaXXUQWGtE1/8luvJyWx51PrT2wuLg/D+YIRnQ5fGfKQPF5
+         3+NQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714679466; x=1715284266;
+        d=1e100.net; s=20230601; t=1714679689; x=1715284489;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Pd3IYjvFv7AIksIBgd+vunFjz27XjTImpbv4h8gtuSo=;
-        b=FtyxkhLz9+23T9bNAsjaP3PXbLesaQFAnqPnVkx/MS5JzLS2KhmxlrnFXPrlaLHgxa
-         kM6I/+S0ILERaIrLMdjUYnJYzFuFKud3Kb0fNIMMjudofmSJT72WnszAR5eorT0R3Mxs
-         Z65nY5hPwgEfSP3cd7vTJcnn+8OTMESO9rFpCilqRGo649yVI87h2tk2ibaza8UroZjs
-         g8mpiI5OC/g264ybKvFSF+21bYJXTTM9Xy4kS/1/9dU1Ms527ndeY5xRoYbkr7f/5/nG
-         04E3IbxIPNcozVgRmnW2el9lQjkNcPdVz7o/8Vt2Zp7W/OpakyaM898QKJjNew91QvbE
-         1d2A==
-X-Forwarded-Encrypted: i=1; AJvYcCWZ70y3ZEZ7dHD+7lZwA27FJDXJK75dwLxKNeCxFWmB01J4yOm5uSjQMQPz5qkT4QxKKgjAbX06K0sGH+AZIX8Ni/En4uJtoQ==
-X-Gm-Message-State: AOJu0Yw5ZnAMl3cWFfqd3ku+5+tjr5gD3XIEkhDdNJWUj8QN9OeMMLKz
-	tHLc71hUK7yXdC1NQc1YpFYHbGFUXcWoqwJDdDy/CTqX0w7LUavlF5nVn5IAru35HHRqXpGQmgE
-	CH/d0G8Fx/BzerAE4mJZg/IY1wSk=
-X-Google-Smtp-Source: AGHT+IEOLPChVY9ApxEJvzrGOJQ2BFB+j3dgsilC8EknoJ+1vtZMFmiUiVq9g5aihkpHE6gxsoJf2tDSoZ7CobfGA70=
-X-Received: by 2002:a17:90a:b898:b0:2b1:616f:c1a7 with SMTP id
- o24-20020a17090ab89800b002b1616fc1a7mr781232pjr.32.1714679466604; Thu, 02 May
- 2024 12:51:06 -0700 (PDT)
+        bh=xCMp38uQSxCX4S+sStXbmQRXGDxX3UcQ8SNQxBc/Qd8=;
+        b=cmpVGLOym6cfF3hC6sGTa1F8hzRLCrWrbkbmAZh7V8UoIMrTILF428Kjgtl8uplchj
+         W9m2HyXDYdwjkWGIrSmodlaMI2NBIZUKCYcHj/WvKrTvvE6ufyjvZiAdIKkemdAM75lJ
+         F0ZhGVuEwOp2ZAComZ4zp4HmcqHayXd1K8Gy76ozn+VOnoVU5D0kY6tQu8LDEKz2CXWw
+         I2BW3h7zmF7ZQuKMQLtrstahTkapAWk3b2VXBWalcuihMEoffeIvB1qvVb3cPWAPZ8ZT
+         TTn1l0qzl8Duj8voC86QQAPOJy14YNa8qPfJF0YdrYuGToijxwXb3hemi8NMsFMphV/a
+         iKyg==
+X-Forwarded-Encrypted: i=1; AJvYcCXvj8AMyxEj1DzuNG7evTEe2l14OZuURAHE3M5QdWyjJxt89dgG5UuAIJI2wvCKmTbbbZSE2oqCC6w/3dBi8ozpfMeZexqoSg==
+X-Gm-Message-State: AOJu0YxkWnuo0RfhhmWYwVPJDYF8BD39CpAC550FOe/mTyI7om139gB8
+	ZaiUJ6j6eDEP9umW41O5BAEgWQMt4wIBp7AubtVzr5WQ0N4rwEIhC6eX264pRUfNokvcLhb9Bqf
+	n0FVpxSGy39clNXiPaPReq6DkdKQ=
+X-Google-Smtp-Source: AGHT+IE6yLCwyuImq6REs+lcRLS2l0/uW5OxjNSg5/A5rrDmrZVQ03tA9MeIv0sKMLrGAcP+Yz6zl3x5RssrXYSQeKw=
+X-Received: by 2002:a17:90a:cb13:b0:2b2:d001:db41 with SMTP id
+ z19-20020a17090acb1300b002b2d001db41mr773309pjt.40.1714679688953; Thu, 02 May
+ 2024 12:54:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -67,57 +67,67 @@ References: <CAEjxPJ4ev-pasUwGx48fDhnmjBnq_Wh90jYPwRQRAqXxmOKD4Q@mail.gmail.com>
  <CAEjxPJ4LvVr8w3bPLXrB7Aw=RS=CVnVwH0q7egQTP+F1Qzq1jw@mail.gmail.com>
  <CAEjxPJ4FxSe2RqLbnN0brsj32LspZ2Gh6r4GPWixv==X3X0oag@mail.gmail.com>
  <CAHC9VhRTfUO_b+dfWRNtFBPUCnk5iRCkCfT4PcNBt+b856t-iw@mail.gmail.com>
- <CAFqZXNuqHKAJUdZ-3VL64Be0hp8jPjztk2NaUv4+XFcgUe23CQ@mail.gmail.com> <CAEjxPJ7LJR9Xv7fzPxNYToRniDXAdUo3dqNN5OTVUYyy3ct+dQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7LJR9Xv7fzPxNYToRniDXAdUo3dqNN5OTVUYyy3ct+dQ@mail.gmail.com>
+ <CAFqZXNuqHKAJUdZ-3VL64Be0hp8jPjztk2NaUv4+XFcgUe23CQ@mail.gmail.com>
+ <CAEjxPJ7LJR9Xv7fzPxNYToRniDXAdUo3dqNN5OTVUYyy3ct+dQ@mail.gmail.com> <CAEjxPJ4YJsKcXQREL9i66-i9fzmsxLwH23eFqMs+pbXuxYK54g@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4YJsKcXQREL9i66-i9fzmsxLwH23eFqMs+pbXuxYK54g@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 2 May 2024 15:50:54 -0400
-Message-ID: <CAEjxPJ4YJsKcXQREL9i66-i9fzmsxLwH23eFqMs+pbXuxYK54g@mail.gmail.com>
+Date: Thu, 2 May 2024 15:54:37 -0400
+Message-ID: <CAEjxPJ7BD9rHAiCCtf6Dxhxm=1gbVioFLXSbL7fcqXDnvpkbww@mail.gmail.com>
 Subject: Re: selinux-testsuite nfs tests?
 To: Ondrej Mosnacek <omosnace@redhat.com>
 Cc: Paul Moore <paul@paul-moore.com>, SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 2, 2024 at 3:18=E2=80=AFPM Stephen Smalley
+On Thu, May 2, 2024 at 3:50=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Fri, Jan 26, 2024 at 5:12=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.=
-com> wrote:
+> On Thu, May 2, 2024 at 3:18=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
 > >
-> > On Thu, Jan 25, 2024 at 5:09=E2=80=AFPM Paul Moore <paul@paul-moore.com=
-> wrote:
+> > On Fri, Jan 26, 2024 at 5:12=E2=80=AFAM Ondrej Mosnacek <omosnace@redha=
+t.com> wrote:
 > > >
-> > > On Thu, Jan 25, 2024 at 10:59=E2=80=AFAM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > > So as a side-bar is anyone running ./tools/nfs.sh on a regular basi=
-s
-> > > > or has it been wired up into the automated testing by anyone? If no=
-t
-> > > > and if we can get it back to a clean state, that would be good to d=
-o.
+> > > On Thu, Jan 25, 2024 at 5:09=E2=80=AFPM Paul Moore <paul@paul-moore.c=
+om> wrote:
+> > > >
+> > > > On Thu, Jan 25, 2024 at 10:59=E2=80=AFAM Stephen Smalley
+> > > > <stephen.smalley.work@gmail.com> wrote:
+> > > > > So as a side-bar is anyone running ./tools/nfs.sh on a regular ba=
+sis
+> > > > > or has it been wired up into the automated testing by anyone? If =
+not
+> > > > > and if we can get it back to a clean state, that would be good to=
+ do.
+> > > >
+> > > > I am not as part of my kernel-secnext testing, I should, but I have=
+n't
+> > > > had the time to configure that as part of the test run.  Building a=
+nd
+> > > > testing on Debian in addition to Fedora is still higher on my
+> > > > kernel-secnext todo list, and I haven't made much progress there.
+> > > >
+> > > > I believe the IBM/RH folks are doing regular testing, perhaps they
+> > > > have something in place?
 > > >
-> > > I am not as part of my kernel-secnext testing, I should, but I haven'=
-t
-> > > had the time to configure that as part of the test run.  Building and
-> > > testing on Debian in addition to Fedora is still higher on my
-> > > kernel-secnext todo list, and I haven't made much progress there.
-> > >
-> > > I believe the IBM/RH folks are doing regular testing, perhaps they
-> > > have something in place?
+> > > We don't currently run the NFS-backed selinux-testsuite,
+> > > unfortunately. Looking at my unmerged branches, I can see I tried to
+> > > add it over 2 years ago, but the note I had left for myself says
+> > > "doesn't work yet due to NFS bug", so presumably it wasn't passing
+> > > even back then.
 > >
-> > We don't currently run the NFS-backed selinux-testsuite,
-> > unfortunately. Looking at my unmerged branches, I can see I tried to
-> > add it over 2 years ago, but the note I had left for myself says
-> > "doesn't work yet due to NFS bug", so presumably it wasn't passing
-> > even back then.
+> > I finally tracked down the source of one bug (not setting the label on
+> > new files properly) and sent a patch for that. Several of the other
+> > failures were introduced by the use of fifos for synchronization;
+> > apparently fifos on NFS aren't expected to work and hence unix_socket
+> > and other tests that rely on those won't work there.
 >
-> I finally tracked down the source of one bug (not setting the label on
-> new files properly) and sent a patch for that. Several of the other
-> failures were introduced by the use of fifos for synchronization;
-> apparently fifos on NFS aren't expected to work and hence unix_socket
-> and other tests that rely on those won't work there.
+> Actually, it seems that I misinterpreted earlier test results. With my
+> patch applied on top of nfs-next, the entire ./tools/nfs.sh run
+> passes, including unix_socket and friends. Huzzah! Can we get this
+> wired up into automated regression testing to keep it that way?
 
-Actually, it seems that I misinterpreted earlier test results. With my
-patch applied on top of nfs-next, the entire ./tools/nfs.sh run
-passes, including unix_socket and friends. Huzzah! Can we get this
-wired up into automated regression testing to keep it that way?
+Sorry, sent too soon. It does pass running the entire
+selinux-testsuite on a NFS mount with security labeling enabled, but
+then starts hitting some failures during the later context mount
+tests. Likely bears further investigation.
