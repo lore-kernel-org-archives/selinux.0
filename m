@@ -1,154 +1,118 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-yb1-f171.google.com (mail-yb1-f171.google.com [209.85.219.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC0A8171080;
-	Thu,  2 May 2024 18:00:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CEB41553BB
+	for <selinux@vger.kernel.org>; Thu,  2 May 2024 18:04:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714672829; cv=none; b=tMVHETJuPw0RFtX2gXNOZSMnMZw5NNmPkA5l2Tkd5t3oJB5op1SogYcM64XDjYtzPEURFv4m9ichF2Nryx//RFTNx48XU4MNioA6J3Rvu1VrmbyazmCa34YZ31nc5RVSb+PE5FsUTDNSjEBBaKxISrWP+zsgyjN620cAP8yva9w=
+	t=1714673050; cv=none; b=FCnZyzPuWLRvfHsJt80hpt0ug5huDi+unlbHrD0k+IUOxW5q4tq5mL4dOrk4eM66wnW0IJTpKxFPVMFbRNElAvVbvUELfC54rG+h2EPilebMCgypVUptEc/F0mlg0FiAfeaXqy1IbCF0xzQUoeybKgWUR4zxSXFfP1+Age8NIdo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714672829; c=relaxed/simple;
-	bh=QDXTnY5oZWprMy/6g95ltVBXAjwW3gizThBMdvsLY7Y=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=BOJL4DN9DfBBxXULeSdJsNXLWR+8Px/Asju7Pf6lR0uxTJU0kV1ds3RyR98ZIHPK/yk8xNzoW41lC5mf3VjA2EPNU6G14dEw76a9eUa2YOTPxi3OOujKQwn//3ZlsccqHXv/Q5yeCbdWxdBy3jlBjXrRmuBl0ez+WMGSyU4jsl4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TuvvuHNH; arc=none smtp.client-ip=209.85.222.177
+	s=arc-20240116; t=1714673050; c=relaxed/simple;
+	bh=Z46eq9Vo7oPNP5cfJYSsrPaKopEYSC/nzRD7+MCUHXo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nJc5blAw5MJUyfLayDPaq6qPVlLAYu8vnKKhxjJx4Y1rxk9APtjIkyknRtIo5S9NbJylIqglMeFdOf2YmvQh7hbW8aonJkSpLH6tE5tRw4SIIRBOk44N3HhhKC974XZSil5L18E/hezYTWQYyMQ0DkC6Jq4LxD1xyLjHL8oebLk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j+FXdUrB; arc=none smtp.client-ip=209.85.219.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TuvvuHNH"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-78f05e56cb3so514234385a.1;
-        Thu, 02 May 2024 11:00:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j+FXdUrB"
+Received: by mail-yb1-f171.google.com with SMTP id 3f1490d57ef6-de610800da0so3832189276.2
+        for <selinux@vger.kernel.org>; Thu, 02 May 2024 11:04:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1714672826; x=1715277626; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=jflkGh1PW9nu6fE5YGWWi/1uR1xUydBgrE4IGl9JWJM=;
-        b=TuvvuHNHuk84AtWzP63snD1I9ozXeWvc4mBOlW8E15nnWlx2BWgi7Ig0ImhM+b7pVs
-         36C7GALR0neCL0oHykCZaj+Aq1tN63mfQYyjJTCMTVNSyg6Rf/Ac6rwA/PxmlUy48IwI
-         YWKnnd5W96Y8q9tMcD6vRjTGPKo5fudpGO7rJaf9h4Ny7uMHYiddO69APWzEWZi/wP1a
-         WJy1S0OUwie59a3v0eOwkcEm6WQl3auZpLXkGBEH6fH0WlIZ232ZLw+7KApAcZZ41FH5
-         oygOtMXVt+kBNUP97SdWSLaVifevFcWkIcZXoBy1D77tsOE6R9b4BbsPPGuMN4FQVREL
-         dHiQ==
+        d=gmail.com; s=20230601; t=1714673047; x=1715277847; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Fd3MgpuYiQplIUa13mx2Nt/EMPDBby43kAh+dB/Ivgs=;
+        b=j+FXdUrB1ey94WwFtqZp740jwT7ZSI44HPP2VspRla5pi32ojLsDwWtxurQ6ftSU8S
+         9ZjAGNIA5kH/Bs8O3Jws2bpDucC2Xe/oOK3elB6hVLY1nssdYcUxQIMkHoS4ApNoZ29p
+         7UUGNqifODGuEkTX57a79z7SIemDilyY3oKc7u4hV2LaMzfqCsXEr/TbuutVbOcKY3Ww
+         LkPBy4dELhZ4awfP5cU1D6ubmoVcbal+WtLty+GtMjvTzDmXXWHeJ6TMSSxgr5wfhr/W
+         S2JLQzK6P1Ucvh0RPynfVVvZIWLfUhR9mJSmGLaseCo1A7suVvgiy94fQSsECS/ZqZh2
+         CMKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714672826; x=1715277626;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=jflkGh1PW9nu6fE5YGWWi/1uR1xUydBgrE4IGl9JWJM=;
-        b=TDbIT2gAFeSJokOy8HdJ7lcn7nNFjY+T5fP7nGVx1puPY6NcXiQqSnqTGCjOxRZhUN
-         GuaiTYMepcrwDqJDIlwuzCMQxQ5h8whLRPTecnZ8HoF4W2CHn/dM2PbLNmDCp47XRPxP
-         UiYugC6FmeAF6NHjSWxbEBMdlkuXYDTMm2td21XloBBwa46O21LSrc/J4JejlJab9/yn
-         7kgSlAZBL8w3SNu6Ds4uvNStE1vN+qwYmuWP1N6n3gdxeiitz04D6ILf71WV+MJpFwGY
-         nliacu6f6LJ+9p2LC2hEGVUu/0ZFNzbfytzi9xvGrHmzivQ8iFTvLKVk0DpFH1RVxhPR
-         xeIw==
-X-Forwarded-Encrypted: i=1; AJvYcCW+AW64H92OjC0zXdifdKA63RFyKtglgd7tSvtDp2bFi2AT1WFy9EXkg+8qaNSK0Fop0mXV+DwqohxEtLyTLwQpzsTiKAZRHtn3lFYtmCQRY3N+2LOZhouL8FKqj+TP6s6jGwypxpXix695WKB4HVH7
-X-Gm-Message-State: AOJu0YybmgvzF+BUICelOjlXUS4GO1pgifSWWzUyjUuL6VCdv4hDbhk8
-	emsS0IWMVzfvZlIMPRKs/Lfnm+R0oVs4Gu/3C+XUcgHsnJQyqI49V3UaWg==
-X-Google-Smtp-Source: AGHT+IH0uUBvTsO5EBUgye00Z5uyZfFBMYEPiOD1EKtzl4/7UMaN2rqHawVPjv7wbPFZoFdEFR3DKQ==
-X-Received: by 2002:ac8:5a83:0:b0:43a:ffa5:3f24 with SMTP id c3-20020ac85a83000000b0043affa53f24mr246459qtc.58.1714672826045;
-        Thu, 02 May 2024 11:00:26 -0700 (PDT)
-Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id fx7-20020a05622a4ac700b004366d3eef03sm670826qtb.68.2024.05.02.11.00.25
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 02 May 2024 11:00:25 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org,
-	linux-nfs@vger.kernel.org,
-	chuck.lever@oracle.com,
-	jlayton@kernel.org,
-	neilb@suse.de
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	linux-security-module@vger.kernel.org,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [RFC][PATCH] nfsd: set security label during create operations
-Date: Thu,  2 May 2024 13:58:19 -0400
-Message-Id: <20240502175818.21890-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.40.1
+        d=1e100.net; s=20230601; t=1714673047; x=1715277847;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Fd3MgpuYiQplIUa13mx2Nt/EMPDBby43kAh+dB/Ivgs=;
+        b=C0soEWZO1i+l6r4DVdpq4EgzAHGn4ixsjARHID+veYGMpuwJOAWGxUdCGSiaaNLM+V
+         D/IcfCPh7MnsqEvflg7ebagFFvbQKBz+vC24cUhgkFH1PNPRB+BzKQxB9jULHUi39nKW
+         0rQPtRvUcidnXAfMg2BShX9zFgWWb5T9O6Zssd6P3Kgnc7nnGfvCzCGhVoHwHGmpx54P
+         Bf+Akf4aIJPYh1WvVOYSIpm2QivwPdtbED/2O4edrXHzD5nv84sKLEnVf2wMpGV72Gxb
+         esh6Zi86fHHHqT+GogIRuaoLb69bUSXE84036Ct29G19scisp9k5/XOfLT11w9TU/b3j
+         qKHA==
+X-Gm-Message-State: AOJu0YxY45T8TxCvHQAARi6L5FX/05TWIe+wT0Q5CQdXZksrPNaD5RZ2
+	jXm8cIR0OJp7LQDSuMqeaRKDVlhw0SMrdYd8yi9FGFQU0729uLwIq7kYPFYLyByvlK5BDlLMEr2
+	lNU8Etm01n7DIJbnh5oMcOzt/L4iqkA==
+X-Google-Smtp-Source: AGHT+IE2ZYnuGIKNiS74J6kpNzGUzaJ3Yy7vqXHt2OcBW3MaHl2y23/K+NoRgDsToQ/OHsaOnFkYvfiPkBvFIQcSwdA=
+X-Received: by 2002:a05:6902:240f:b0:de5:965d:7965 with SMTP id
+ dr15-20020a056902240f00b00de5965d7965mr697839ybb.64.1714673047615; Thu, 02
+ May 2024 11:04:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240408150802.63941-1-cgoettsche@seltendoof.de> <CAP+JOzSk1oNHeLDS9W=94j1+GH9CjwPuMiKvKSp2D=ja==7kdg@mail.gmail.com>
+In-Reply-To: <CAP+JOzSk1oNHeLDS9W=94j1+GH9CjwPuMiKvKSp2D=ja==7kdg@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 2 May 2024 14:03:56 -0400
+Message-ID: <CAP+JOzTUuKC43nGDSuaP6LsrO0J3=gXP3CRg0_sdBOQvC6sKMA@mail.gmail.com>
+Subject: Re: [PATCH 1/4] libsepol: improve policy lookup failure message
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-When security labeling is enabled, the client can pass a file security
-label as part of a create operation for the new file, similar to mode
-and other attributes. At present, the security label is received by nfsd
-and passed down to nfsd_create_setattr(), but nfsd_setattr() is never
-called and therefore the label is never set on the new file. I couldn't
-tell if this has always been broken or broke at some point in time. Looking
-at nfsd_setattr() I am uncertain as to whether the same issue presents for
-file ACLs and therefore requires a similar fix for those. I am not overly
-confident that this is the right solution.
+On Mon, Apr 22, 2024 at 4:48=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+ote:
+>
+> On Mon, Apr 8, 2024 at 11:08=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
+> >
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > If a policy version cannot be found include the policy target, and a
+> > module prefix for non kernel policies in the message.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> For these four patches:
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
 
-An alternative approach would be to introduce a new LSM hook to set the
-"create SID" of the current task prior to the actual file creation, which
-would atomically label the new inode at creation time. This would be better
-for SELinux and a similar approach has been used previously
-(see security_dentry_create_files_as) but perhaps not usable by other LSMs.
+These four patches have been merged.
+Thanks,
+Jim
 
-Reproducer:
-1. Install a Linux distro with SELinux - Fedora is easiest
-2. git clone https://github.com/SELinuxProject/selinux-testsuite
-3. Install the requisite dependencies per selinux-testsuite/README.md
-4. Run something like the following script:
-MOUNT=$HOME/selinux-testsuite
-sudo systemctl start nfs-server
-sudo exportfs -o rw,no_root_squash,security_label localhost:$MOUNT
-sudo mkdir -p /mnt/selinux-testsuite
-sudo mount -t nfs -o vers=4.2 localhost:$MOUNT /mnt/selinux-testsuite
-pushd /mnt/selinux-testsuite/
-sudo make -C policy load
-pushd tests/filesystem
-sudo runcon -t test_filesystem_t ./create_file -f trans_test_file \
-	-e test_filesystem_filetranscon_t -v
-sudo rm -f trans_test_file
-popd
-sudo make -C policy unload
-popd
-sudo umount /mnt/selinux-testsuite
-sudo exportfs -u localhost:$MOUNT
-sudo rmdir /mnt/selinux-testsuite
-sudo systemctl stop nfs-server
-
-Expected output:
-<eliding noise from commands run prior to or after the test itself>
-Process context:
-	unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
-Created file: trans_test_file
-File context: unconfined_u:object_r:test_filesystem_filetranscon_t:s0
-File context is correct
-
-Actual output:
-<eliding noise from commands run prior to or after the test itself>
-Process context:
-	unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
-Created file: trans_test_file
-File context: system_u:object_r:test_file_t:s0
-File context error, expected:
-	test_filesystem_filetranscon_t
-got:
-	test_file_t
-
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- fs/nfsd/vfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
-index 2e41eb4c3cec..9b777ea7ef26 100644
---- a/fs/nfsd/vfs.c
-+++ b/fs/nfsd/vfs.c
-@@ -1422,7 +1422,7 @@ nfsd_create_setattr(struct svc_rqst *rqstp, struct svc_fh *fhp,
- 	 * Callers expect new file metadata to be committed even
- 	 * if the attributes have not changed.
- 	 */
--	if (iap->ia_valid)
-+	if (iap->ia_valid || (attrs->na_seclabel && attrs->na_seclabel->len))
- 		status = nfsd_setattr(rqstp, resfhp, attrs, NULL);
- 	else
- 		status = nfserrno(commit_metadata(resfhp));
--- 
-2.40.1
-
+> > ---
+> >  libsepol/src/write.c | 6 ++++--
+> >  1 file changed, 4 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+> > index 283d11c8..2fcc1701 100644
+> > --- a/libsepol/src/write.c
+> > +++ b/libsepol/src/write.c
+> > @@ -2252,8 +2252,10 @@ int policydb_write(policydb_t * p, struct policy=
+_file *fp)
+> >         info =3D policydb_lookup_compat(p->policyvers, p->policy_type,
+> >                                         p->target_platform);
+> >         if (!info) {
+> > -               ERR(fp->handle, "compatibility lookup failed for policy=
+ "
+> > -                   "version %d", p->policyvers);
+> > +               ERR(fp->handle, "compatibility lookup failed for %s%s p=
+olicy version %d",
+> > +                   p->target_platform =3D=3D SEPOL_TARGET_SELINUX ? "s=
+elinux" : "xen",
+> > +                   p->policy_type =3D=3D POLICY_KERN ? "" : " module",
+> > +                   p->policyvers);
+> >                 return POLICYDB_ERROR;
+> >         }
+> >
+> > --
+> > 2.43.0
+> >
+> >
