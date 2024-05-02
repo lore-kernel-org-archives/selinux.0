@@ -1,123 +1,110 @@
-Received: from mail-oa1-f51.google.com (mail-oa1-f51.google.com [209.85.160.51])
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D65C179954
-	for <selinux@vger.kernel.org>; Thu,  2 May 2024 19:16:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75CD117A93F
+	for <selinux@vger.kernel.org>; Thu,  2 May 2024 19:18:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714677371; cv=none; b=N6SonwAUizsUbrHxa78IFMivmZIEX9VhPLDaJ47mnL5/zAirK1PNL+mSn9KkVYl69HtHAxtrhsP/UJKwLyyz9tOGHI5zAnYO+kj7TdTyq8CQesyQq4/D3p86cpRnm9rGLidpM+wtEzPpsf2lgab/2uIPaGmIOmldFKCDW7eAZUU=
+	t=1714677506; cv=none; b=YFHgD56hlNpvCHuFN3nZzHtNwYB7iq+Gq6MKw1MfStfr3Ytx5XrLgZeEGT2ttjgh5lTISTVUg7Kc0Q6ge1vdCSa1XdnMCzszNsQimooMY5XU6wwobfNDD7GGu+4UoKrQBdaaEjtXC1kx2s97bY6ZkOPgIBIpv7apa/ogU86zD1Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714677371; c=relaxed/simple;
-	bh=o8lls9EFOsyIOPRxoP+DAWDxN8rUumtXRDXkAFWCrmw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kjBh9B6liN1QY+i9ye9BT4teg05tx6nXzBaak5YgYjqlJ8F0GTRwpa7lFPJ+NO6DYzA5qQNCkcRGvkbRKC25eN4694kyp4iLqU/6zeczNytJphT4MDzBu3G0sewwVf1LbG170L7ah3mHU6GbE/bPDk/fAd2Gi8MBa//TMFRhNKU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ieee.org; spf=pass smtp.mailfrom=ieee.org; dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b=CSYQekpH; arc=none smtp.client-ip=209.85.160.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ieee.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ieee.org
+	s=arc-20240116; t=1714677506; c=relaxed/simple;
+	bh=Fnk5jzZAXekmfUvaw16/NO8l13HxJrYwkKjVo4a9IeQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dRCjexHQIX2uL6Gkn8p6bTjCtyI38au65G5ytEFTBgapGHVJW2e/IVfiyhYp/aoBgK3SCXTDQlGvlOxLQTvCeVunRl4VQNyfDcVJUfw9jYW7G9nLaUh986RHlMvDBHdG7xugr8NW0L/Fwf3VDeerTfv3/pBlJ4Vs1cBzKE6qFVs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TQrApy72; arc=none smtp.client-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="CSYQekpH"
-Received: by mail-oa1-f51.google.com with SMTP id 586e51a60fabf-23e0296af17so466400fac.3
-        for <selinux@vger.kernel.org>; Thu, 02 May 2024 12:16:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TQrApy72"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-6ed5109d924so7141678b3a.0
+        for <selinux@vger.kernel.org>; Thu, 02 May 2024 12:18:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ieee.org; s=google; t=1714677367; x=1715282167; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=fozIR0QL8Kf40VkzTMgRAXTX6MAsA7Ps39lFgqWTXwg=;
-        b=CSYQekpHeQhZ/N2RbWMP/igXMWfYcP1Vz39+fDln1hc370E8aJoyUpY54vds+4iVrP
-         a/UJDHwel/JzDD5k+rPrKtV4bMy4AFPFxZQU5d4U/5ZRV3QWUQL7kG3MPn8I7RYkP4HE
-         Q/2r5lB2g3VC9BROxksnFb/coOjWEpFUhJKbY=
+        d=gmail.com; s=20230601; t=1714677504; x=1715282304; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yAB5qC4KZOmHewkmbSqDiUCG0bWqrGvmB4ATHPl5eIE=;
+        b=TQrApy72HNQXQb9Wgd5Q+lj4YLPpydtAAgAeGD+fG1boEYs71KRAI5ZHeVR5uhnrNY
+         3PlvvnzuLSrZZnLjagVn5E79Fz+zgyxTmLU0IhjHB8Y7p/QQlMYULILeuy2twnf6DXSb
+         Ojfpd4GjPSVcyy+L6bUXZNcVUm6gEBVv+bDvwy21QvFCACsuLZF8PZUFoJeDzuWU/2yU
+         JRTaTQK3cIEZyQEGwUtw/0A/ik1VweUghg+G9uDGNXMWS3pYAkuz7dKvTgmQy7SFDMF0
+         wTaNj+lKm4ZYfjlCtKyhFiKKPyKAr5Deq7SKiqzZy5SezSmPa1ziYf6nVhxw91/7/5yE
+         T/XQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714677367; x=1715282167;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=fozIR0QL8Kf40VkzTMgRAXTX6MAsA7Ps39lFgqWTXwg=;
-        b=uaoqgsb92UmU6nwCb3rRuEMlS2N2mvhVyxGLckDxHac8fpzKH5b1wOhKs4jKsnJIrY
-         2n1TrfQmISAc4oshYwmQ+/+H20I/U75CxJK8463FQV9BNT/K5L06GboYH7aONk4ZMFrk
-         psaicJq1r3qL5RvFjqxuqw9vnlS4tsFgJLddgUFLtDYbWufvIjkTPFAjEYL2D9A14Nvp
-         vdix/BHixiy+S9L5mRrayNRzNVbW/JHDCd035L4nfhauBsam8FMuTsBkwO/4KcsmIZzj
-         TS62Z0CU58AEmSwZpvJi9vh5/g+fGfXZxtXEXw3BSFM/+FAvL203Vx9S20isslTB+Nwa
-         7NKg==
-X-Gm-Message-State: AOJu0YxegGgu/sX00Or6uFrOY8N8c6thCWu+RhzoDUWPDVLaywYwoZ0E
-	LZOTqyWMXTWsgXob4TOMcAl3wnuhuzagb6+TiACyUN4ph5GqVKXXsQMTbWVXrA==
-X-Google-Smtp-Source: AGHT+IF0tIQtnC0BJ79vbnzlHoQObj2eEgOKzFsY7aXIm9+gDy/XOKDNsKSVUL1khrptjDxL/Z4stw==
-X-Received: by 2002:a05:6871:5213:b0:23c:6619:5970 with SMTP id ht19-20020a056871521300b0023c66195970mr982212oac.7.1714677367596;
-        Thu, 02 May 2024 12:16:07 -0700 (PDT)
-Received: from ?IPV6:2601:145:c200:2c70:2020:2d0f:26df:59fc? ([2601:145:c200:2c70:2020:2d0f:26df:59fc])
-        by smtp.gmail.com with ESMTPSA id f19-20020ac84713000000b00437392f1c20sm733156qtp.76.2024.05.02.12.16.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 May 2024 12:16:07 -0700 (PDT)
-Message-ID: <2f3f2911-bed9-499a-a117-56a404ddbe33@ieee.org>
-Date: Thu, 2 May 2024 15:16:04 -0400
+        d=1e100.net; s=20230601; t=1714677504; x=1715282304;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yAB5qC4KZOmHewkmbSqDiUCG0bWqrGvmB4ATHPl5eIE=;
+        b=UFRsNg7lQCD4WtrJ2tTdW0BIb3zHhvFU5L1v2Qc1wr9FHlM2DBtlU0vclX+dWuN5aj
+         hptm0v6NOmP2L7kwMjfyYSYicRVRR3Y5n1rjKkXeoJbc3ulskiw7Hh1wR66yEtz183Be
+         nS/4v1EUozJaJRwqwrOtF4Bt2sHPV0e+RoJa3tNEpUz5rDKTKq8HIc1OOx1sZ6a7yhwu
+         HWMri9xSBEPzgaJQe46xv8IGtCsTZXsrCHtiw+/IiC6SQgPELX2OA1HyNDd0ipcJQHUj
+         WiBV0I02JmTaYOHUobfPPuP19gf9lejRk4zls4iwoG88TAC1DK03FIYLqHU61Wb1+pn7
+         Og0w==
+X-Forwarded-Encrypted: i=1; AJvYcCXD6C8UlAltFpyuYhB3f22YALi1brwlz9/6PKIB1RiCTtoBsi1HYjIkwmRDIzmQc/b1XYXHiM0OfnK+Hsi2GfV0ameUzr+LJQ==
+X-Gm-Message-State: AOJu0Yw1N77CYQB60hWnUaIuXkxg3LGtdVewARRqcYUNJG0MkJP0fuoT
+	cyx06Kaj9O8UyLiJMJcAIEcKHZAC6idgfNW2VAqSN5lF8/OmM5WkyeW5rO96IGrl4HkcRMwUUeA
+	5KDdcS/BGIBcz+rtmTZGVm8fVNL8=
+X-Google-Smtp-Source: AGHT+IG+mCBvA2eNsxPu3tDYA60wqoZ+xQvt09TWYnmdfPdwZKQqdGmRVjB/M+Ae5tPA2wpES45hUfxFAjVUm2CUQAg=
+X-Received: by 2002:a05:6a20:1055:b0:1a7:79b2:ff1b with SMTP id
+ gt21-20020a056a20105500b001a779b2ff1bmr682367pzc.27.1714677503737; Thu, 02
+ May 2024 12:18:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: cgroup2 labeling status
-To: Stephen Smalley <stephen.smalley.work@gmail.com>,
- Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>
-Cc: SElinux mailing list <selinux@vger.kernel.org>
-References: <d3c9593d-fc73-4016-b057-57706e94d170@ieee.org>
- <CAEjxPJ6uFiUjb0siO4+D8a7Z9ZB=WWNdO=54m1RsCO8HT9n5Yw@mail.gmail.com>
-Content-Language: en-US
-From: Chris PeBenito <pebenito@ieee.org>
-In-Reply-To: <CAEjxPJ6uFiUjb0siO4+D8a7Z9ZB=WWNdO=54m1RsCO8HT9n5Yw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <CAEjxPJ4ev-pasUwGx48fDhnmjBnq_Wh90jYPwRQRAqXxmOKD4Q@mail.gmail.com>
+ <CAEjxPJ46kPOA3N7PAgqWs-z74siF7bMoGSU254dYReQwFCNoXA@mail.gmail.com>
+ <CAHC9VhQKXtdA4YS7=fB9ffGTDnd7qPkCZVCTO3fvaQWjzwUT=Q@mail.gmail.com>
+ <CAEjxPJ4czKz+4SfTo6g3s6ztSRbfyOv_GBkgp=k38nGDFssRiw@mail.gmail.com>
+ <CAEjxPJ5_SQDmR9b-+0woBLg25omtERSLBKawTV9AqLpZAHFvcg@mail.gmail.com>
+ <CAHC9VhT_zOjJpg-JOaJQ4s9ybArfq2Ez_OiFAk0siPiqEC0KiQ@mail.gmail.com>
+ <CAFqZXNvSn-Ct04ghSxiceKkRBgfyUeWJc3J0tjnU-Mm8mfPtAg@mail.gmail.com>
+ <CAHC9VhQ4hopKwh6y=M2kZfgM=cdcWvqAbGAD9HMRhDDj88R_xw@mail.gmail.com>
+ <CAEjxPJ4LvVr8w3bPLXrB7Aw=RS=CVnVwH0q7egQTP+F1Qzq1jw@mail.gmail.com>
+ <CAEjxPJ4FxSe2RqLbnN0brsj32LspZ2Gh6r4GPWixv==X3X0oag@mail.gmail.com>
+ <CAHC9VhRTfUO_b+dfWRNtFBPUCnk5iRCkCfT4PcNBt+b856t-iw@mail.gmail.com> <CAFqZXNuqHKAJUdZ-3VL64Be0hp8jPjztk2NaUv4+XFcgUe23CQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNuqHKAJUdZ-3VL64Be0hp8jPjztk2NaUv4+XFcgUe23CQ@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 2 May 2024 15:18:12 -0400
+Message-ID: <CAEjxPJ7LJR9Xv7fzPxNYToRniDXAdUo3dqNN5OTVUYyy3ct+dQ@mail.gmail.com>
+Subject: Re: selinux-testsuite nfs tests?
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Paul Moore <paul@paul-moore.com>, SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 5/2/2024 2:53 PM, Stephen Smalley wrote:
-> On Thu, May 2, 2024 at 2:37 PM Chris PeBenito <pebenito@ieee.org> wrote:
->>
->> The state of cgroup2 labeling and memory.pressure came up for me again.
->> This was discussed March last year[1]. To summarize, refpolicy has a
->> type_transition for the memory.pressure file in cgroup2 to a default of
->> memory_pressure_t. For example this file:
->>
->> /sys/fs/cgroup/system.slice/systemd-journald.service/memory.pressure
->>
->> with the idea that we allow daemons to write to this without allowing
->> writes to all cgroup_t.  Unfortunately, the thread ended and I haven't
->> seen any improvement.
->>
->> The conclusion was[3]:
->>
->>> Ah, now I remembered that we made it such that the transitions would
->>> only apply if the parent directory has a label explicitly set by
->>> userspace (via setxattr). Not sure if we can improve it easily, since
->>> we can't use the normal inode-based logic for cgroupfs (the xattrs are
->>> stored in kernfs nodes, each of which can be exposed via multiple
->>> inodes if there is more than one cgroupfs mount).
->>
->> Testing on a 6.6 kernel and systemd 255, I still see the same issues,
->> where most are stuck at cgroup_t, with user.slice entries get
->> memory_pressure_t[2].  Based on my investigations, the user.slice works
->> because systemd sets the user.invocation_id xattr on these dirs.
->>
->> Next, I tried modifying systemd to use it's version of
->> setfscreatecon()+mkdir() when it creates the cgroup directories.  This
->> did not change the labeling behavior.  Next I changed the code to a
->> post-mkdir setfilecon() and then all the memory.pressures finally had
->> expected labeling.
->>
->> This setxattr() requirement is unfortunate, and the fact the
->> setfscreatecon() doesn't work makes it more unfortunate.  Is there any
->> improvement being worked?
-> 
-> Possibly I misunderstand, but selinux_kernfs_init_security() appears
-> to honor the create_sid (setfscreatecon) if set, so I would have
-> expected that to work.
+On Fri, Jan 26, 2024 at 5:12=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
+m> wrote:
+>
+> On Thu, Jan 25, 2024 at 5:09=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
+> >
+> > On Thu, Jan 25, 2024 at 10:59=E2=80=AFAM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > > So as a side-bar is anyone running ./tools/nfs.sh on a regular basis
+> > > or has it been wired up into the automated testing by anyone? If not
+> > > and if we can get it back to a clean state, that would be good to do.
+> >
+> > I am not as part of my kernel-secnext testing, I should, but I haven't
+> > had the time to configure that as part of the test run.  Building and
+> > testing on Debian in addition to Fedora is still higher on my
+> > kernel-secnext todo list, and I haven't made much progress there.
+> >
+> > I believe the IBM/RH folks are doing regular testing, perhaps they
+> > have something in place?
+>
+> We don't currently run the NFS-backed selinux-testsuite,
+> unfortunately. Looking at my unmerged branches, I can see I tried to
+> add it over 2 years ago, but the note I had left for myself says
+> "doesn't work yet due to NFS bug", so presumably it wasn't passing
+> even back then.
 
-Does there need to be an xattr on the cgroup2 fs root directory for this 
-to work?  Based on the tracing I did on the systemd code, the post-mkdir 
-setfilecon() would have happened on the root dir, but the 
-setfscreatcon() version of the code change obviously wouldn't have 
-changed anything when it ran on the cgroup2 root dir.
-
-
--- 
-Chris PeBenito
-
+I finally tracked down the source of one bug (not setting the label on
+new files properly) and sent a patch for that. Several of the other
+failures were introduced by the use of fifos for synchronization;
+apparently fifos on NFS aren't expected to work and hence unix_socket
+and other tests that rely on those won't work there.
