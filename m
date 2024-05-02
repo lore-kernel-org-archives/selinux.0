@@ -1,113 +1,115 @@
-Received: from mail-ot1-f50.google.com (mail-ot1-f50.google.com [209.85.210.50])
+Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com [209.85.219.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F9BD154457
-	for <selinux@vger.kernel.org>; Thu,  2 May 2024 18:05:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB26B154457
+	for <selinux@vger.kernel.org>; Thu,  2 May 2024 18:06:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714673156; cv=none; b=X31BOIZvJqKikuQoyvB4v7XFjBnFDcRh9cnJz52zJPwHtqP8vRVYcCdN/MDbgStHRs9mR9OpEJHkUQ3RBmM9yC746CqzsReswF/K9LOjcd35kCxGCHe3z8WhmOxFYsipf/srzceE1elGux0Wf4Q01qVU0iQq2h5hkQ/6cUFgBpk=
+	t=1714673186; cv=none; b=JAI5oMsbd7xwsz6f5xZ9f2Ur1+LixCCytssJ0lrn5howK33ATiXMoQJLKY6YxC7Ixejrie2qfjMLRGqiRfM81jVxH2BEzkNY7vXdDP0x1YH4Vo01yQ3Xixohj2dLIUyLI0o6FOGRxTrDa22Kl1EmIdKIR5Xgv6K5TyDzfXULnBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714673156; c=relaxed/simple;
-	bh=3uXCoyI7/LM5rNNYnx7uT0iYEZ+8r+/q1w7mLCunUaI=;
+	s=arc-20240116; t=1714673186; c=relaxed/simple;
+	bh=9vKjkX1yYi+ND0kP2cl3IAaeikZjDGdKw9HuzLQcwqc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XGiqQGexJ9sH78aIGNSL9GuBNsO/rsQUFzAdQTSDvMrVtNOQQ98ITJrBq0aQWFXcEM4Gv0OQmn60M0/2+yc2/pB4z3L3BbREOALjrnHaRP3/0TqwVsuGWMaS4MscDZ29c5qnfPNhBNBJ7UkmDtnh2mOkimRHv+6DL2cINi8VaJE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f7N8MfSv; arc=none smtp.client-ip=209.85.210.50
+	 To:Cc:Content-Type; b=WzJ6cggkhUDm115APcfSV9uqsnp40vdmu/nRCPzxYTR4NIvIJe0MGdrl6pjmG/nuIxhQsxHGaTtPlIVih9mQMT3b9bkrV99NDWk5OQTzzz8FL6+hV5kRbOQ+VwT6IpLlwVO7CQx39IwDpPYEcp682AA0jwzPxzJ27NflGYs4wLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZNMVoirk; arc=none smtp.client-ip=209.85.219.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f7N8MfSv"
-Received: by mail-ot1-f50.google.com with SMTP id 46e09a7af769-6eb93ec8804so4638804a34.2
-        for <selinux@vger.kernel.org>; Thu, 02 May 2024 11:05:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZNMVoirk"
+Received: by mail-yb1-f174.google.com with SMTP id 3f1490d57ef6-de477949644so9294163276.1
+        for <selinux@vger.kernel.org>; Thu, 02 May 2024 11:06:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1714673154; x=1715277954; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1714673183; x=1715277983; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4P1aCo0JXOM2BMYyDtTWUBEJxxU/W3PeZ3RcrnOXQ3c=;
-        b=f7N8MfSvwWwnwKsrWpVJqfKAH3sab18hUNd6N7Rv5SliehdBHaHT982iGY7pxDmVtz
-         vX7mcuLCC6heR5hZjf6rkW33Ap1bJU6cqbjiN7rg8bnzb5t3lKwcAHRSEauYXdGR1TA2
-         CUQ/s9uyWpnkyd/woBwduTuKW0YjmsG/FK2Q5GHeGkd7kWgBM1fb8ten/mlDpAr37AIY
-         n0jM/Clb1NMTs6+H1ZhtnIS44TgWbykofYTss7QITwph1DL21xgAtQ1oxjbdniI9scOA
-         MXuxIrgkjalSPO0c4jS47AGU0/DNJmSdvMjNfR6Po2VRE0F3Crd/Us//qFmpYIJj04E2
-         HdgQ==
+        bh=xALQZIoIwd9ZTOcZya2LT7PCf/JYyhnjEJCrFgnwZHk=;
+        b=ZNMVoirkjWWHCiOvkHi+sGtwRrqz/tX9H9781WYi/U3HSyPctZ+xvcGYwQGrYPgCTS
+         bZiASCc/eO669WacR1dajcM5nbFn2HLh7mDEkISy9z216+W1I+D7plU9h35/eLrfO6hg
+         CjEE28hsa+di7wm5iFlwOHUfT0k14d0JLXbNu7qVRe4LsHefAix1rxBzlGxHC7JMBbP2
+         Pjb86CTGS75MSjHOaQOciWX7bZrTjZ6gjYZx/rDReQUoAP8LfFNBc22svjt3M4+QCYR9
+         Fu+IvcBWvJ7qvSq6WMMQ+zmiIyZXVo87KWp8ynqqHzFtZfZbvushNinzxxAHuOmuzNgL
+         boBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714673154; x=1715277954;
+        d=1e100.net; s=20230601; t=1714673183; x=1715277983;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=4P1aCo0JXOM2BMYyDtTWUBEJxxU/W3PeZ3RcrnOXQ3c=;
-        b=UdwLqPElLrhir/KEhskSnQx9cgQQk2VhFygeqME+4dKBIwQSvB0PAAN532G8mF0tX1
-         dvd3ky/d3sTDCRHVsbvLHqKIMFYMNbTHGvwv5FZod+MOgui/u9SPxD1fNReQmxTIl9FE
-         tNp61UvvvErCmZkszdgxz0PDm3iDegLtianVFqdWOHY4D59+wSae/QKIiY5gyEJX4jz3
-         I3mzKrwsUAnKAh2L1cKP67YEPU4PMuJ2ZZNSJKv7lc7eh+xAwUAnSxfkKv658EIuRDE8
-         TKqLI4HNNbzPM8mqzV2A/YVK8oJTOa7h+99IWaJDkSswwc+goR1HcETsgsfaRzg0Cwkr
-         N7FA==
-X-Gm-Message-State: AOJu0Ywi3196V4AAAkr9QVecL6+36xtBU4QwWbj3gpWzW/L5DE5Rf7/9
-	Q+cPlh5JoyzBMhTlEKivzfFN7u8sqHWZdwLbKIqpmCJgIatQ7ZuZ4NgxjG0xDgxiDRDf4SEK5Fl
-	aGlGcuo9hCOnKHSJzX39h8B3V07NX6A==
-X-Google-Smtp-Source: AGHT+IEKmAFNdiwluRZNmkCwbjNG7W3zYfRW7tq5PcjQKhO4q1bDIslLdEImZRIDoeA8n9bqSKBXvtN2L8iZ1w1QE9I=
-X-Received: by 2002:a05:6830:91b:b0:6ed:d4bc:1b72 with SMTP id
- v27-20020a056830091b00b006edd4bc1b72mr981155ott.5.1714673154526; Thu, 02 May
- 2024 11:05:54 -0700 (PDT)
+        bh=xALQZIoIwd9ZTOcZya2LT7PCf/JYyhnjEJCrFgnwZHk=;
+        b=SSrpstYsrKND/8jGBP5JlyEvOwJ96dwX/9GRuuRarKRXZToEHpAOBmqEOclAl70qK7
+         yYqnTAAlMZrv46z+iOtFnTVmYMmI75xIGOKcyGhATiNEnw8d17r8im11S4PwgvFc3Djw
+         veIUeb4Fb0n0BV0dCzJ/eJYtoU8DUmoNIc/e2Qu20YT/pb5HUBLN++daROTwzw9rXXq8
+         45U+TEiuB4W1htZe5GnOBP27EXy4duJaEEVTRq9IUoIWeYa5L7fsmZoGk9d9rsDCrtyA
+         k0X2ACn7+ClYAyKVyFN1xJgzPgeKAMDLw2D9++9mc9arRztHOMUM2vqXMomCgllnpByw
+         xAog==
+X-Gm-Message-State: AOJu0YwN5N0skdQVL+4YLBisA8Ji5C6oLPDItVgXqH+KM4hjrK2JDdzO
+	rJzUHFl12bhbdsIQMO4BPs+xTuNLo4fo6WPFET57IK9objOOD9oaopq18FfqX8Dg5f08bvDCnHo
+	uboiefmQgym2I2Jr+ZCz/VN2SciV9EA==
+X-Google-Smtp-Source: AGHT+IHwC0cCmBc0j0XtZ230hX+ufslkiHggZqVJye9cq0e/Wd1BMtEuBFgHGY888kmRllSPkFPMReW2at1P05ts2Zg=
+X-Received: by 2002:a25:ae91:0:b0:dcd:a9ad:7d67 with SMTP id
+ b17-20020a25ae91000000b00dcda9ad7d67mr715677ybj.8.1714673183195; Thu, 02 May
+ 2024 11:06:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240429163122.63181-1-cgoettsche@seltendoof.de> <CAP+JOzSc7kZP3BxaZAgR5uML1xWJzwrEptKVopsoOV_PbeA4Yw@mail.gmail.com>
-In-Reply-To: <CAP+JOzSc7kZP3BxaZAgR5uML1xWJzwrEptKVopsoOV_PbeA4Yw@mail.gmail.com>
+References: <20240430153024.790044-1-vmojzis@redhat.com> <CAP+JOzQ01q=P2W6WX5Edp1sO8yxB30uSTSJrgF+k=mQiggnzCg@mail.gmail.com>
+In-Reply-To: <CAP+JOzQ01q=P2W6WX5Edp1sO8yxB30uSTSJrgF+k=mQiggnzCg@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Thu, 2 May 2024 14:05:43 -0400
-Message-ID: <CAP+JOzRJvZmjWbvu7z7fAtP0+581R0qdOrW8GVCz6aiwW_ursQ@mail.gmail.com>
-Subject: Re: [PATCH 1/5] libselinux/man: correct file extension of man pages
-To: cgzones@googlemail.com
+Date: Thu, 2 May 2024 14:06:12 -0400
+Message-ID: <CAP+JOzR-+j1u8+yYn7HzvX6NJHy-vncLVxvBubdGQ87iSFq0rw@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Fix detected RESOURCE_LEAK (CWE-772)
+To: Vit Mojzis <vmojzis@redhat.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 30, 2024 at 10:07=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
-rote:
+On Tue, Apr 30, 2024 at 1:31=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+ote:
 >
-> On Mon, Apr 29, 2024 at 12:31=E2=80=AFPM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
+> On Tue, Apr 30, 2024 at 11:34=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> =
+wrote:
 > >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > libsepol-3.6/cil/src/cil_binary.c:902: alloc_fn: Storage is returned fr=
+om allocation function "cil_malloc".
+> > libsepol-3.6/cil/src/cil_binary.c:902: var_assign: Assigning: "mls_leve=
+l" =3D storage returned from "cil_malloc(24UL)".
+> > libsepol-3.6/cil/src/cil_binary.c:903: noescape: Resource "mls_level" i=
+s not freed or pointed-to in "mls_level_init".
+> > libsepol-3.6/cil/src/cil_binary.c:905: noescape: Resource "mls_level" i=
+s not freed or pointed-to in "mls_level_cpy".
+> > libsepol-3.6/cil/src/cil_binary.c:919: leaked_storage: Variable "mls_le=
+vel" going out of scope leaks the storage it points to.
 > >
-> > Set the correct file extension .3 (instead of .c) for the
-> > security_validatetrans(3) and security_validatetrans_raw(3) man pages.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 >
-> For these five patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-These five patches have been merged.
+Merged.
 Thanks,
 Jim
 
 > > ---
-> >  .../man3/{security_validatetrans.c =3D> security_validatetrans.3}   | =
-0
-> >  ...{security_validatetrans_raw.c =3D> security_validatetrans_raw.3} | =
-0
-> >  2 files changed, 0 insertions(+), 0 deletions(-)
-> >  rename libselinux/man/man3/{security_validatetrans.c =3D> security_val=
-idatetrans.3} (100%)
-> >  rename libselinux/man/man3/{security_validatetrans_raw.c =3D> security=
-_validatetrans_raw.3} (100%)
+> >  libsepol/cil/src/cil_binary.c | 1 +
+> >  1 file changed, 1 insertion(+)
 > >
-> > diff --git a/libselinux/man/man3/security_validatetrans.c b/libselinux/=
-man/man3/security_validatetrans.3
-> > similarity index 100%
-> > rename from libselinux/man/man3/security_validatetrans.c
-> > rename to libselinux/man/man3/security_validatetrans.3
-> > diff --git a/libselinux/man/man3/security_validatetrans_raw.c b/libseli=
-nux/man/man3/security_validatetrans_raw.3
-> > similarity index 100%
-> > rename from libselinux/man/man3/security_validatetrans_raw.c
-> > rename to libselinux/man/man3/security_validatetrans_raw.3
+> > diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binar=
+y.c
+> > index 95bd18ba..c8144a5a 100644
+> > --- a/libsepol/cil/src/cil_binary.c
+> > +++ b/libsepol/cil/src/cil_binary.c
+> > @@ -904,6 +904,7 @@ static int cil_sensalias_to_policydb(policydb_t *pd=
+b, struct cil_alias *cil_alia
+> >
+> >         rc =3D mls_level_cpy(mls_level, sepol_level->level);
+> >         if (rc !=3D SEPOL_OK) {
+> > +               free(mls_level);
+> >                 goto exit;
+> >         }
+> >         sepol_alias->level =3D mls_level;
 > > --
 > > 2.43.0
 > >
