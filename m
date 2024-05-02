@@ -1,116 +1,150 @@
-Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com [209.85.219.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB26B154457
-	for <selinux@vger.kernel.org>; Thu,  2 May 2024 18:06:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88E07171E71;
+	Thu,  2 May 2024 18:28:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714673186; cv=none; b=JAI5oMsbd7xwsz6f5xZ9f2Ur1+LixCCytssJ0lrn5howK33ATiXMoQJLKY6YxC7Ixejrie2qfjMLRGqiRfM81jVxH2BEzkNY7vXdDP0x1YH4Vo01yQ3Xixohj2dLIUyLI0o6FOGRxTrDa22Kl1EmIdKIR5Xgv6K5TyDzfXULnBc=
+	t=1714674526; cv=none; b=nW7aMf/BOnXbobzOp+kwHWzy6O8Plm7f2WAHTy/PkHvwQl7gWJXoXoqd8IE5IeuO/l0vkHlxpqDhXCLTJJQqiMvgAJkqXKUM5OKHFXucRn9Vmm3U/jTEscxQUtJtJPljLqbfJHSpYcGYgrbZI1Ly4JYF7caCtJX7tZTK1bIw4jE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714673186; c=relaxed/simple;
-	bh=9vKjkX1yYi+ND0kP2cl3IAaeikZjDGdKw9HuzLQcwqc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WzJ6cggkhUDm115APcfSV9uqsnp40vdmu/nRCPzxYTR4NIvIJe0MGdrl6pjmG/nuIxhQsxHGaTtPlIVih9mQMT3b9bkrV99NDWk5OQTzzz8FL6+hV5kRbOQ+VwT6IpLlwVO7CQx39IwDpPYEcp682AA0jwzPxzJ27NflGYs4wLU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZNMVoirk; arc=none smtp.client-ip=209.85.219.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1714674526; c=relaxed/simple;
+	bh=zvfNEW688eZzDoKlk1nclcnOhbVaDpSdqpExSUFNPak=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=TCnihNlc8qmHpFqlt2rNrSnEtHoghSFa+rxNudnCeorUvHnCEYel4nyIR+7FZQKN6cEjp74PaaQSoYOaDnoCaJKwDBVX7twF4lf1rPjiwr6Vz0Q5GP7lpBsKNGYwHeW8u1RShGFcrLJcOV4qXMo7bzQNr2DB6R/X+A/x3N0AEUs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KtqjsePK; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZNMVoirk"
-Received: by mail-yb1-f174.google.com with SMTP id 3f1490d57ef6-de477949644so9294163276.1
-        for <selinux@vger.kernel.org>; Thu, 02 May 2024 11:06:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1714673183; x=1715277983; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xALQZIoIwd9ZTOcZya2LT7PCf/JYyhnjEJCrFgnwZHk=;
-        b=ZNMVoirkjWWHCiOvkHi+sGtwRrqz/tX9H9781WYi/U3HSyPctZ+xvcGYwQGrYPgCTS
-         bZiASCc/eO669WacR1dajcM5nbFn2HLh7mDEkISy9z216+W1I+D7plU9h35/eLrfO6hg
-         CjEE28hsa+di7wm5iFlwOHUfT0k14d0JLXbNu7qVRe4LsHefAix1rxBzlGxHC7JMBbP2
-         Pjb86CTGS75MSjHOaQOciWX7bZrTjZ6gjYZx/rDReQUoAP8LfFNBc22svjt3M4+QCYR9
-         Fu+IvcBWvJ7qvSq6WMMQ+zmiIyZXVo87KWp8ynqqHzFtZfZbvushNinzxxAHuOmuzNgL
-         boBA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714673183; x=1715277983;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=xALQZIoIwd9ZTOcZya2LT7PCf/JYyhnjEJCrFgnwZHk=;
-        b=SSrpstYsrKND/8jGBP5JlyEvOwJ96dwX/9GRuuRarKRXZToEHpAOBmqEOclAl70qK7
-         yYqnTAAlMZrv46z+iOtFnTVmYMmI75xIGOKcyGhATiNEnw8d17r8im11S4PwgvFc3Djw
-         veIUeb4Fb0n0BV0dCzJ/eJYtoU8DUmoNIc/e2Qu20YT/pb5HUBLN++daROTwzw9rXXq8
-         45U+TEiuB4W1htZe5GnOBP27EXy4duJaEEVTRq9IUoIWeYa5L7fsmZoGk9d9rsDCrtyA
-         k0X2ACn7+ClYAyKVyFN1xJgzPgeKAMDLw2D9++9mc9arRztHOMUM2vqXMomCgllnpByw
-         xAog==
-X-Gm-Message-State: AOJu0YwN5N0skdQVL+4YLBisA8Ji5C6oLPDItVgXqH+KM4hjrK2JDdzO
-	rJzUHFl12bhbdsIQMO4BPs+xTuNLo4fo6WPFET57IK9objOOD9oaopq18FfqX8Dg5f08bvDCnHo
-	uboiefmQgym2I2Jr+ZCz/VN2SciV9EA==
-X-Google-Smtp-Source: AGHT+IHwC0cCmBc0j0XtZ230hX+ufslkiHggZqVJye9cq0e/Wd1BMtEuBFgHGY888kmRllSPkFPMReW2at1P05ts2Zg=
-X-Received: by 2002:a25:ae91:0:b0:dcd:a9ad:7d67 with SMTP id
- b17-20020a25ae91000000b00dcda9ad7d67mr715677ybj.8.1714673183195; Thu, 02 May
- 2024 11:06:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KtqjsePK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ECEFC113CC;
+	Thu,  2 May 2024 18:28:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1714674526;
+	bh=zvfNEW688eZzDoKlk1nclcnOhbVaDpSdqpExSUFNPak=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=KtqjsePKJ1PFvwEkhaJPOyYLsBVjFUGCd8NAZ/+zU4hqtGUB6gsAcMEIM6Mcv+dgV
+	 hfFBPRIwrcy73w2tJxF4CU/zZ4oFlFKs+ASBc1mRFxxVl3xTp1U2ZIxOmjr9j7UQRh
+	 xiBpNwguhD97cTBMj35nmFxLQMe202xxyI2eK3TEqALt37g21YyQPkHHKLcAXcRY14
+	 PtDKe+aCk6hnH0Ny6qkuvV6kIbUXwRh+Dm9rK70BYEGmljXksThVICGRlanSR1wrJZ
+	 7FsnWsLZt6eiROaBGgQ8jmVE07VVtlCTQGH5weLnOnjgmbfZys9WqLk4IMgsQB3KQX
+	 gb8ea3hSeN8fw==
+Message-ID: <732fab0f79c5e0f1e521a3a5dfa652f80d83eac5.camel@kernel.org>
+Subject: Re: [RFC][PATCH] nfsd: set security label during create operations
+From: Jeffrey Layton <jlayton@kernel.org>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>,
+ selinux@vger.kernel.org,  linux-nfs@vger.kernel.org,
+ chuck.lever@oracle.com, neilb@suse.de
+Cc: paul@paul-moore.com, omosnace@redhat.com, 
+	linux-security-module@vger.kernel.org
+Date: Thu, 02 May 2024 14:28:44 -0400
+In-Reply-To: <20240502175818.21890-1-stephen.smalley.work@gmail.com>
+References: <20240502175818.21890-1-stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.0 (3.52.0-1.fc40app1) 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240430153024.790044-1-vmojzis@redhat.com> <CAP+JOzQ01q=P2W6WX5Edp1sO8yxB30uSTSJrgF+k=mQiggnzCg@mail.gmail.com>
-In-Reply-To: <CAP+JOzQ01q=P2W6WX5Edp1sO8yxB30uSTSJrgF+k=mQiggnzCg@mail.gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Thu, 2 May 2024 14:06:12 -0400
-Message-ID: <CAP+JOzR-+j1u8+yYn7HzvX6NJHy-vncLVxvBubdGQ87iSFq0rw@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Fix detected RESOURCE_LEAK (CWE-772)
-To: Vit Mojzis <vmojzis@redhat.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 30, 2024 at 1:31=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
-ote:
->
-> On Tue, Apr 30, 2024 at 11:34=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> =
-wrote:
-> >
-> > libsepol-3.6/cil/src/cil_binary.c:902: alloc_fn: Storage is returned fr=
-om allocation function "cil_malloc".
-> > libsepol-3.6/cil/src/cil_binary.c:902: var_assign: Assigning: "mls_leve=
-l" =3D storage returned from "cil_malloc(24UL)".
-> > libsepol-3.6/cil/src/cil_binary.c:903: noescape: Resource "mls_level" i=
-s not freed or pointed-to in "mls_level_init".
-> > libsepol-3.6/cil/src/cil_binary.c:905: noescape: Resource "mls_level" i=
-s not freed or pointed-to in "mls_level_cpy".
-> > libsepol-3.6/cil/src/cil_binary.c:919: leaked_storage: Variable "mls_le=
-vel" going out of scope leaks the storage it points to.
-> >
-> > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
->
-> Acked-by: James Carter <jwcart2@gmail.com>
->
+On Thu, 2024-05-02 at 13:58 -0400, Stephen Smalley wrote:
+> When security labeling is enabled, the client can pass a file security
+> label as part of a create operation for the new file, similar to mode
+> and other attributes. At present, the security label is received by nfsd
+> and passed down to nfsd_create_setattr(), but nfsd_setattr() is never
+> called and therefore the label is never set on the new file. I couldn't
+> tell if this has always been broken or broke at some point in time. Looki=
+ng
+> at nfsd_setattr() I am uncertain as to whether the same issue presents fo=
+r
+> file ACLs and therefore requires a similar fix for those. I am not overly
+> confident that this is the right solution.
+>=20
 
-Merged.
+Nice catch. I think you're correct on file ACLs too.
+
+We're probably saved in many cases by the fact that clients usually
+send ACLs and seclabels alongside other attributes during a create.
+Obviously, that's not _always_ the case though.
+
+> An alternative approach would be to introduce a new LSM hook to set the
+> "create SID" of the current task prior to the actual file creation, which
+> would atomically label the new inode at creation time. This would be bett=
+er
+> for SELinux and a similar approach has been used previously
+> (see security_dentry_create_files_as) but perhaps not usable by other LSM=
+s.
+>=20
+> Reproducer:
+> 1. Install a Linux distro with SELinux - Fedora is easiest
+> 2. git clone https://github.com/SELinuxProject/selinux-testsuite
+> 3. Install the requisite dependencies per selinux-testsuite/README.md
+> 4. Run something like the following script:
+> MOUNT=3D$HOME/selinux-testsuite
+> sudo systemctl start nfs-server
+> sudo exportfs -o rw,no_root_squash,security_label localhost:$MOUNT
+> sudo mkdir -p /mnt/selinux-testsuite
+> sudo mount -t nfs -o vers=3D4.2 localhost:$MOUNT /mnt/selinux-testsuite
+> pushd /mnt/selinux-testsuite/
+> sudo make -C policy load
+> pushd tests/filesystem
+> sudo runcon -t test_filesystem_t ./create_file -f trans_test_file \
+> 	-e test_filesystem_filetranscon_t -v
+> sudo rm -f trans_test_file
+> popd
+> sudo make -C policy unload
+> popd
+> sudo umount /mnt/selinux-testsuite
+> sudo exportfs -u localhost:$MOUNT
+> sudo rmdir /mnt/selinux-testsuite
+> sudo systemctl stop nfs-server
+>=20
+> Expected output:
+> <eliding noise from commands run prior to or after the test itself>
+> Process context:
+> 	unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
+> Created file: trans_test_file
+> File context: unconfined_u:object_r:test_filesystem_filetranscon_t:s0
+> File context is correct
+>=20
+> Actual output:
+> <eliding noise from commands run prior to or after the test itself>
+> Process context:
+> 	unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
+> Created file: trans_test_file
+> File context: system_u:object_r:test_file_t:s0
+> File context error, expected:
+> 	test_filesystem_filetranscon_t
+> got:
+> 	test_file_t
+>=20
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  fs/nfsd/vfs.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
+> index 2e41eb4c3cec..9b777ea7ef26 100644
+> --- a/fs/nfsd/vfs.c
+> +++ b/fs/nfsd/vfs.c
+> @@ -1422,7 +1422,7 @@ nfsd_create_setattr(struct svc_rqst *rqstp, struct =
+svc_fh *fhp,
+>  	 * Callers expect new file metadata to be committed even
+>  	 * if the attributes have not changed.
+>  	 */
+> -	if (iap->ia_valid)
+> +	if (iap->ia_valid || (attrs->na_seclabel && attrs->na_seclabel->len))
+>  		status =3D nfsd_setattr(rqstp, resfhp, attrs, NULL);
+>  	else
+>  		status =3D nfserrno(commit_metadata(resfhp));
+
+This looks like the right approach to me, but can we instead add a
+nfsd_attrs_valid() helper function that checks ia_valid and does the
+test above?
+
+Then we can add similar tests for ACLs to it later, once we do a bit
+more investigation.
+
 Thanks,
-Jim
-
-> > ---
-> >  libsepol/cil/src/cil_binary.c | 1 +
-> >  1 file changed, 1 insertion(+)
-> >
-> > diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binar=
-y.c
-> > index 95bd18ba..c8144a5a 100644
-> > --- a/libsepol/cil/src/cil_binary.c
-> > +++ b/libsepol/cil/src/cil_binary.c
-> > @@ -904,6 +904,7 @@ static int cil_sensalias_to_policydb(policydb_t *pd=
-b, struct cil_alias *cil_alia
-> >
-> >         rc =3D mls_level_cpy(mls_level, sepol_level->level);
-> >         if (rc !=3D SEPOL_OK) {
-> > +               free(mls_level);
-> >                 goto exit;
-> >         }
-> >         sepol_alias->level =3D mls_level;
-> > --
-> > 2.43.0
-> >
-> >
+--=20
+Jeffrey Layton <jlayton@kernel.org>
