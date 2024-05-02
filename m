@@ -1,181 +1,113 @@
-Received: from mail-ot1-f43.google.com (mail-ot1-f43.google.com [209.85.210.43])
+Received: from mail-ot1-f50.google.com (mail-ot1-f50.google.com [209.85.210.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99F29154457
-	for <selinux@vger.kernel.org>; Thu,  2 May 2024 18:05:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F9BD154457
+	for <selinux@vger.kernel.org>; Thu,  2 May 2024 18:05:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714673127; cv=none; b=QZbDZZGmBW4W998dLQShIoLgyRoPOp/sDvTuofZchNEtfBCPTrMsCm6/CH2a/KgZULGOu+1w77vGg5kuCbk6nYotHngD+nuIFE4uq83dT1cfAa78Yrj4ytPBpEgEMcivV8Nam2kDPTihaS2hfwMZiTYHiCDywv1WfrteGc+SarA=
+	t=1714673156; cv=none; b=X31BOIZvJqKikuQoyvB4v7XFjBnFDcRh9cnJz52zJPwHtqP8vRVYcCdN/MDbgStHRs9mR9OpEJHkUQ3RBmM9yC746CqzsReswF/K9LOjcd35kCxGCHe3z8WhmOxFYsipf/srzceE1elGux0Wf4Q01qVU0iQq2h5hkQ/6cUFgBpk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714673127; c=relaxed/simple;
-	bh=ASWV/URkORvl1tRbDClg9y85rDFzth5BgKi7A19DdQc=;
+	s=arc-20240116; t=1714673156; c=relaxed/simple;
+	bh=3uXCoyI7/LM5rNNYnx7uT0iYEZ+8r+/q1w7mLCunUaI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PZAQrKb2XXFi0daqsjlDAf4vAsLAx840QKvK7ucXfy4snyS7flVGA0RmUXwzk8WhVXIG5wajhxFh4DRRsOyDQ2PyMWAvthUGPDM7NOQgVesEZZHQTPn3Vvm5VLRfAB1ZRkns/VhxI0Y2UcFQrXF8s2aVwWbNGfLjwdzPjsAn9nk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PHwTVOjj; arc=none smtp.client-ip=209.85.210.43
+	 To:Cc:Content-Type; b=XGiqQGexJ9sH78aIGNSL9GuBNsO/rsQUFzAdQTSDvMrVtNOQQ98ITJrBq0aQWFXcEM4Gv0OQmn60M0/2+yc2/pB4z3L3BbREOALjrnHaRP3/0TqwVsuGWMaS4MscDZ29c5qnfPNhBNBJ7UkmDtnh2mOkimRHv+6DL2cINi8VaJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f7N8MfSv; arc=none smtp.client-ip=209.85.210.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PHwTVOjj"
-Received: by mail-ot1-f43.google.com with SMTP id 46e09a7af769-6ee3a49bdcfso2616636a34.0
-        for <selinux@vger.kernel.org>; Thu, 02 May 2024 11:05:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f7N8MfSv"
+Received: by mail-ot1-f50.google.com with SMTP id 46e09a7af769-6eb93ec8804so4638804a34.2
+        for <selinux@vger.kernel.org>; Thu, 02 May 2024 11:05:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1714673125; x=1715277925; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1714673154; x=1715277954; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9o0JwQ9F90f0tAF1fTJYcUyBw2lbdtfjYEbb8lHbDbg=;
-        b=PHwTVOjjvj2ZAiDplqw+wDJD5Etdf/tbN7UUJLe/kqxBpbFaWkL4hEL1RReJwI5IIt
-         ynvfxlAUyOrlTLKGmqPUtNm96QEr+Vb6SqoXyJ4UgQbks3UV+4FSyQ30ohfl7cGb/PkN
-         VjDUKVIuoGce/kM2W/EGDnkjaPy0Na/lj3IqK8Xz/ViQUIRGRznUvrrhmLKpeQN6QEFR
-         1bmf1zRsOSuke2v7e9sYKimHfmxjcckewjsCqvtIh8dCEcc+nPboEd0mmxpG1CfYM0k0
-         fQA2aRg8OEY5u5h6Oo9NcGYcgHhVoyrKDLUKF4CjXAYgb0R5DHBQbclLtmHiJO0dAO2W
-         FY/g==
+        bh=4P1aCo0JXOM2BMYyDtTWUBEJxxU/W3PeZ3RcrnOXQ3c=;
+        b=f7N8MfSvwWwnwKsrWpVJqfKAH3sab18hUNd6N7Rv5SliehdBHaHT982iGY7pxDmVtz
+         vX7mcuLCC6heR5hZjf6rkW33Ap1bJU6cqbjiN7rg8bnzb5t3lKwcAHRSEauYXdGR1TA2
+         CUQ/s9uyWpnkyd/woBwduTuKW0YjmsG/FK2Q5GHeGkd7kWgBM1fb8ten/mlDpAr37AIY
+         n0jM/Clb1NMTs6+H1ZhtnIS44TgWbykofYTss7QITwph1DL21xgAtQ1oxjbdniI9scOA
+         MXuxIrgkjalSPO0c4jS47AGU0/DNJmSdvMjNfR6Po2VRE0F3Crd/Us//qFmpYIJj04E2
+         HdgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714673125; x=1715277925;
+        d=1e100.net; s=20230601; t=1714673154; x=1715277954;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=9o0JwQ9F90f0tAF1fTJYcUyBw2lbdtfjYEbb8lHbDbg=;
-        b=ETLJUakB8iWPO2Lq3XptrME29fF71alNSmQ/V/YQy2tQfwjMzH36Ui0lBOPNAwaCug
-         DfKQu6Eki3ZtfQDdRLm2EvJRGKwRcrYjMm1gDcAVt2wiNHRTQnDNo1joc5mk+ts1BvPI
-         wk5pvEmDRANAN8crhlEvEkzMT5k5A9B/GDwYGwf5rzSVj5X6cEBgU338IOA1LAj2OgRW
-         +XphHEKV7M6R4alQ3AMRICbj7PfN5aH/8+vW0Sjl6a/BHUmiSsW9LUSrXe1Ab5CGOVSm
-         NAMzgjCDZbS9kFhkafGYj/uuYEMDOYaD0luoYEATXzbQsq1rCZvGNKZ3+tWlguvhAZww
-         kepQ==
-X-Gm-Message-State: AOJu0Yxqwq0mPd05XvChztrZRexeUxEEXFXpI4rlWFTkwGGEFlKF1eM5
-	igfPBhxRx+z2Asti7j+efZjfzloYNxJdbF+i7hy6Fi7cxJo2Xf7/tpwjav5F9m8Beit466fgbPf
-	Pu0y7p3TOvvl/lnv9UsUZv8eXC5Y=
-X-Google-Smtp-Source: AGHT+IGVyCxz4WLh3l1RkhMXKeXPImszX5dlFCbN+7NjI0BJ7RO44RMTnlVIGtuQknsCZ6xNrib7aE0AennZLOAoKaQ=
-X-Received: by 2002:a9d:7848:0:b0:6ee:1e31:4ff1 with SMTP id
- c8-20020a9d7848000000b006ee1e314ff1mr552450otm.16.1714673124752; Thu, 02 May
- 2024 11:05:24 -0700 (PDT)
+        bh=4P1aCo0JXOM2BMYyDtTWUBEJxxU/W3PeZ3RcrnOXQ3c=;
+        b=UdwLqPElLrhir/KEhskSnQx9cgQQk2VhFygeqME+4dKBIwQSvB0PAAN532G8mF0tX1
+         dvd3ky/d3sTDCRHVsbvLHqKIMFYMNbTHGvwv5FZod+MOgui/u9SPxD1fNReQmxTIl9FE
+         tNp61UvvvErCmZkszdgxz0PDm3iDegLtianVFqdWOHY4D59+wSae/QKIiY5gyEJX4jz3
+         I3mzKrwsUAnKAh2L1cKP67YEPU4PMuJ2ZZNSJKv7lc7eh+xAwUAnSxfkKv658EIuRDE8
+         TKqLI4HNNbzPM8mqzV2A/YVK8oJTOa7h+99IWaJDkSswwc+goR1HcETsgsfaRzg0Cwkr
+         N7FA==
+X-Gm-Message-State: AOJu0Ywi3196V4AAAkr9QVecL6+36xtBU4QwWbj3gpWzW/L5DE5Rf7/9
+	Q+cPlh5JoyzBMhTlEKivzfFN7u8sqHWZdwLbKIqpmCJgIatQ7ZuZ4NgxjG0xDgxiDRDf4SEK5Fl
+	aGlGcuo9hCOnKHSJzX39h8B3V07NX6A==
+X-Google-Smtp-Source: AGHT+IEKmAFNdiwluRZNmkCwbjNG7W3zYfRW7tq5PcjQKhO4q1bDIslLdEImZRIDoeA8n9bqSKBXvtN2L8iZ1w1QE9I=
+X-Received: by 2002:a05:6830:91b:b0:6ed:d4bc:1b72 with SMTP id
+ v27-20020a056830091b00b006edd4bc1b72mr981155ott.5.1714673154526; Thu, 02 May
+ 2024 11:05:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240408154107.72419-1-cgoettsche@seltendoof.de> <CAP+JOzTdtAQC+Ltef4ZCK5RoxAGiRxVAeabb9wzkc4D97WnTNg@mail.gmail.com>
-In-Reply-To: <CAP+JOzTdtAQC+Ltef4ZCK5RoxAGiRxVAeabb9wzkc4D97WnTNg@mail.gmail.com>
+References: <20240429163122.63181-1-cgoettsche@seltendoof.de> <CAP+JOzSc7kZP3BxaZAgR5uML1xWJzwrEptKVopsoOV_PbeA4Yw@mail.gmail.com>
+In-Reply-To: <CAP+JOzSc7kZP3BxaZAgR5uML1xWJzwrEptKVopsoOV_PbeA4Yw@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Thu, 2 May 2024 14:05:13 -0400
-Message-ID: <CAP+JOzSV8F8mRQrAuEKLSq=Ep5vhZ3qhEOfVZHhO_ry3Jyis1g@mail.gmail.com>
-Subject: Re: [PATCH] github: bump Python and Ruby versions
+Date: Thu, 2 May 2024 14:05:43 -0400
+Message-ID: <CAP+JOzRJvZmjWbvu7z7fAtP0+581R0qdOrW8GVCz6aiwW_ursQ@mail.gmail.com>
+Subject: Re: [PATCH 1/5] libselinux/man: correct file extension of man pages
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 24, 2024 at 4:10=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
-ote:
+On Tue, Apr 30, 2024 at 10:07=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+rote:
 >
-> On Mon, Apr 8, 2024 at 11:41=E2=80=AFAM Christian G=C3=B6ttsche
+> On Mon, Apr 29, 2024 at 12:31=E2=80=AFPM Christian G=C3=B6ttsche
 > <cgoettsche@seltendoof.de> wrote:
 > >
 > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > >
-> > Bump the maximum Python version to 3.12 and the maximum Ruby version to
-> > 3.3 in the GitHub CI.
-> >
-> > Also bump the setup-python action to v5.
-> >
-> > Since Python 3.12 dropped setuptools, install manually.
+> > Set the correct file extension .3 (instead of .c) for the
+> > security_validatetrans(3) and security_validatetrans_raw(3) man pages.
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
+> For these five patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-Merged.
+These five patches have been merged.
 Thanks,
 Jim
 
 > > ---
-> >  .github/workflows/run_tests.yml | 43 +++++++++++++++++++--------------
-> >  1 file changed, 25 insertions(+), 18 deletions(-)
+> >  .../man3/{security_validatetrans.c =3D> security_validatetrans.3}   | =
+0
+> >  ...{security_validatetrans_raw.c =3D> security_validatetrans_raw.3} | =
+0
+> >  2 files changed, 0 insertions(+), 0 deletions(-)
+> >  rename libselinux/man/man3/{security_validatetrans.c =3D> security_val=
+idatetrans.3} (100%)
+> >  rename libselinux/man/man3/{security_validatetrans_raw.c =3D> security=
+_validatetrans_raw.3} (100%)
 > >
-> > diff --git a/.github/workflows/run_tests.yml b/.github/workflows/run_te=
-sts.yml
-> > index 3bd859a3..f8b6f146 100644
-> > --- a/.github/workflows/run_tests.yml
-> > +++ b/.github/workflows/run_tests.yml
-> > @@ -10,36 +10,39 @@ jobs:
-> >        matrix:
-> >          compiler: [gcc, clang]
-> >          python-ruby-version:
-> > -          - {python: '3.11', ruby: '3.1'}
-> > -          - {python: '3.11', ruby: '3.1', other: 'test-flags-override'=
-}
-> > -          - {python: '3.11', ruby: '3.1', other: 'test-debug'}
-> > -          - {python: '3.11', ruby: '3.1', other: 'linker-bfd'}
-> > -          - {python: '3.11', ruby: '3.1', other: 'linker-gold'}
-> > +          - {python: '3.12', ruby: '3.3'}
-> > +          - {python: '3.12', ruby: '3.3', other: 'test-flags-override'=
-}
-> > +          - {python: '3.12', ruby: '3.3', other: 'test-debug'}
-> > +          - {python: '3.12', ruby: '3.3', other: 'linker-bfd'}
-> > +          - {python: '3.12', ruby: '3.3', other: 'linker-gold'}
-> >            # Test several Python versions with the latest Ruby version
-> > -          - {python: '3.10', ruby: '3.1'}
-> > -          - {python: '3.9', ruby: '3.1'}
-> > -          - {python: '3.8', ruby: '3.1'}
-> > -          - {python: '3.7', ruby: '3.1'}
-> > -          - {python: 'pypy3.7', ruby: '3.1'}
-> > +          - {python: '3.11', ruby: '3.3'}
-> > +          - {python: '3.10', ruby: '3.3'}
-> > +          - {python: '3.9', ruby: '3.3'}
-> > +          - {python: '3.8', ruby: '3.3'}
-> > +          - {python: '3.7', ruby: '3.3'}
-> > +          - {python: 'pypy3.7', ruby: '3.3'}
-> >            # Test several Ruby versions with the latest Python version
-> > -          - {python: '3.11', ruby: '3.0'}
-> > -          - {python: '3.11', ruby: '2.7'}
-> > -          - {python: '3.11', ruby: '2.6'}
-> > -          - {python: '3.11', ruby: '2.5'}
-> > +          - {python: '3.12', ruby: '3.2'}
-> > +          - {python: '3.12', ruby: '3.1'}
-> > +          - {python: '3.12', ruby: '3.0'}
-> > +          - {python: '3.12', ruby: '2.7'}
-> > +          - {python: '3.12', ruby: '2.6'}
-> > +          - {python: '3.12', ruby: '2.5'}
-> >          exclude:
-> >            - compiler: clang
-> > -            python-ruby-version: {python: '3.11', ruby: '3.1', other: =
-'linker-bfd'}
-> > +            python-ruby-version: {python: '3.12', ruby: '3.3', other: =
-'linker-bfd'}
-> >            - compiler: clang
-> > -            python-ruby-version: {python: '3.11', ruby: '3.1', other: =
-'linker-gold'}
-> > +            python-ruby-version: {python: '3.12', ruby: '3.3', other: =
-'linker-gold'}
-> >          include:
-> >            - compiler: gcc
-> > -            python-ruby-version: {python: '3.11', ruby: '3.1', other: =
-'sanitizers'}
-> > +            python-ruby-version: {python: '3.12', ruby: '3.3', other: =
-'sanitizers'}
-> >
-> >      steps:
-> >      - uses: actions/checkout@v4
-> >
-> >      - name: Set up Python ${{ matrix.python-ruby-version.python }}
-> > -      uses: actions/setup-python@v4
-> > +      uses: actions/setup-python@v5
-> >        with:
-> >          python-version: ${{ matrix.python-ruby-version.python }}
-> >
-> > @@ -69,6 +72,10 @@ jobs:
-> >
-> >          pip install flake8
-> >
-> > +    - name: Install Python setuptools
-> > +      if: matrix.python-ruby-version.python =3D=3D '3.12'
-> > +      run: pip install setuptools
-> > +
-> >      - name: Install Clang
-> >        if: ${{ matrix.compiler =3D=3D 'clang' }}
-> >        run: sudo apt-get install -qqy clang
+> > diff --git a/libselinux/man/man3/security_validatetrans.c b/libselinux/=
+man/man3/security_validatetrans.3
+> > similarity index 100%
+> > rename from libselinux/man/man3/security_validatetrans.c
+> > rename to libselinux/man/man3/security_validatetrans.3
+> > diff --git a/libselinux/man/man3/security_validatetrans_raw.c b/libseli=
+nux/man/man3/security_validatetrans_raw.3
+> > similarity index 100%
+> > rename from libselinux/man/man3/security_validatetrans_raw.c
+> > rename to libselinux/man/man3/security_validatetrans_raw.3
 > > --
 > > 2.43.0
 > >
