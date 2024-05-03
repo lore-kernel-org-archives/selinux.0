@@ -1,127 +1,157 @@
-Received: from sonic301-38.consmr.mail.ne1.yahoo.com (sonic301-38.consmr.mail.ne1.yahoo.com [66.163.184.207])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0F7A157480
-	for <selinux@vger.kernel.org>; Fri,  3 May 2024 16:41:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.207
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA08013B593;
+	Fri,  3 May 2024 17:31:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714754520; cv=none; b=kZHykwtPwN4boNFx20THan8io5Bal32WA2+JLF4Wzf9gP0t0VLyAyM+9IO+vUte2+dcnmWSYvfDUF5rw2HzItUDgAi52PIq+pe5EmfzUpgJSkhrdZ0rkXrwNcsOGDkP+6Y9qsVJdvmwgZzi9OumBJk/KWA2NQKieYBZnwEivZKE=
+	t=1714757511; cv=none; b=PWu6CAzctSvX32glWmxRdywHcZI8m2Pofa59a90N5MbkjH6XmxfhL9/Ah3iJBVg6Eqwq7U8EDepbFNfx+4XAQT0jJKOwHHW1SBGHk9Oj0hy99ArdUFIXNLKiuZZw21YqFKvd54FzOnkKlR68PwdO+ZRxQ4/ZZmGGP6lPG3Ll9ZY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714754520; c=relaxed/simple;
-	bh=VYjBXXMBApPcl0cqzZQVwBrgLkcTHw+J9dEIwXz+nA4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ArE2D8wWihbDMFjwXvKV5stvB0ivAeVkpT6VYXp/POR2gQDwunyJRzuzuA4Iw9/78E/mhgnHdUelK2eyLcKA/GkAkXnhSqEQRfu9zlSZbeewy8E9ZWuWcpPExIbHsscGkU7MvBOBhFoOuSNtpL6OQn1j8cJnbmYVyOBRVU8KH1s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=qhju/WeK; arc=none smtp.client-ip=66.163.184.207
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1714757511; c=relaxed/simple;
+	bh=NA8Lb6bNRP/z+eXkOqMJbaWB5ZBHyOdDEvk7/px99vE=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Txh4cZtuM+F9KYoUA8zevIK3v+IBrb9Ygbniyvs05WsPqvayOrJN8l5zzfRNbzNMU8v7Peylb0hw+u0A3wZM5R5t3nF/7/1qFYbRVzqpBDma6kDlwN/AhrB8pp7w2rCYGYYAZXc64vEZEVzDEm6zIRcyopFtY6QpVe38ltO47Xo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ymaer843; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="qhju/WeK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1714754512; bh=zD9tsz1NnfEzyHia9o6fF5mGiwIsbCvABxP7MKxZeGg=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=qhju/WeKI00ddW8Kni4MDHOkzKo+K/wmDH0+07NVk5HYytZRGzmxd3V0/9XcRmYyv60UpfvePpvhbEJR8kPOVOXlDltyuk7yFoQSe4fepuKZi2Ix6CIr4EZwk57RTuoufLyLsN5hXm4QC5UlCQdfQ2dxkarEXVuW2d6sKijpFOcnZOrb1wlDcWFYU7brTPBe7YkbQqTv7XkJxRJMFZz/LmJniOVHw5Unhtcxjtev7FW9EnccViuaWviaaXnKwX60uArp/3TVwRLdEaAWpF3tRv9HdiuGPdLl5R1aCoiDfv4WwoLZJSdxNnQBGUu+etYdatsSmssjG9iuYTCGOJLxYQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1714754512; bh=4VB1D/RvcDYwht1T97qPE/cdGt4Sx68a2TibwiDWWZx=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=tjE4aBDFINfO+iDAzpnrqF18f5xwBH3+aoe5arQtEICDkDC26p7r1tTo3VtnsxkhYcHMnOd5/mWjXgDQUt9uCCd6SZ6LSW8ifewLud4x7CDom2PiY54IiUles+m4yiQ3EanTrvUjRmvXPN/Yq1ka17yKp3HRFZTEj72GczguKcDVxrBQyb5ncdQq5cdS509XM9pvn1M600uVkQJsY7L1wz0Hvt15/0hhL31NNpNR/Lqd/KDZ130SBiqe8rAvmGYPojClrSD50PuqGxqHjDdmkN0qqP8K5z0UVzDP4qUedUmQXLnrlHciI8BJz3OkjlVCDgq2sMsg3eEssyse62h/SQ==
-X-YMail-OSG: trJ6hPIVM1lHtbcO3HChc6fAU5qwDQ0NG9qze7K4tBS_vRp_9HuxG6ynuV5GloM
- qVS2ry.M1mYEHX0r.Tuz.9JIFzlx8D2OrN11jom6Fg7wugEwJH2KCqVnkGVGkPhal1SdOIcOxkn9
- Wm0iEy4KaZN4YPrzX5ikHfn5dVTlN2cXMflYRag1_XULiDRntCbKkLp.Oazoo4kmsY.nq7FHAuqv
- kSXUSpe08VkTturjcri.6.UP6sYrTy4FwCo6AzaUVTq3JWMaBkl7O2NpBzYm3BJZFkM04q4.K5tg
- N3nhWiC7HOxEGe1LQuZcq5wYJy9BgNqBwf6BNYvuprLaTCqczvQRkDmiQGe.9RORM0novOIVVP7m
- wI2JBKcFzoT_RHfVgMRtu0TfOAu_DsIYh9C2ZJhk1IUUJwgKoXPLLsPLgZSmzih0MTTX9glGy7CN
- 1mpTtgbIm9hO6lcxucwV4voK1gwshTwH.RbPBdbhl8fXK23ENyuXCXqXBAAgMUIU6FOlE.Ze7iaq
- D3SwFjs9K0YLXRFHHnP2.S7Jk_oLpYmnVbzTC3JC.FYnp1vbO8hnCZO6fQacM72z7fpGjPMKWzvO
- pyUskqDkePs4ljF5cZFU2RMxIkzz6Xl2YjIuZKO_ax.dRSzhM5bCscDZipiqFwZFjQ9Yg_B3ICuy
- AFAmK1ShUf0amSH82zBsFRiHX2HnoBZz.c24UGi16XB_Gr2Slp_lHU_dTjc0G8E0oKyylqttuh7U
- bYGQmvYj8n90RziFdl.JMSMxP5gXVtxVafoSd_nLpbnDln_rO0A12dV9QW4nkbfFI9fY6TQqFm2A
- qozg7aAMf9.cm.0EOffO4Lh8gjClWaEPIiGUrOFcAyg578qnv5ZokYap68A83ggRa7toJeGn8Wwd
- HOdwIxNFUppwasRgtHrvM2A7Tbk6zWk94Ik.RSMe8baEZm7ksOnzycUbCVFKpIoc3gKTCpH_lHtO
- W18JDdzOlDrFsQjQn611hf6krHt7MGALGQ2vLrfyobRyabnmzhBJUCgVuTfT27dwqeDrt0R5Jz07
- s8AJGV178hXYTWXZCNtqXZOtwrdEECeaF6su3Ist8XGhga3UhMkW3U1LBh0JsLtG0DKgN51QltHG
- crvegW1QE.UdWeKqbEh0ywMxP6AOq6t4nLMB6VXOAqouctIDNEOrXCDqhBir0Po1mFDK5FzidcdI
- oGnCzYrtj6B3RKvqgGFDhLvjH2ChHz3l78ZQ8S6Y5tQSIpkGi8tA8sb90BC9pl_QsDAtDat.xBTL
- 1TnOiYGt1r7ribMec6OtnVbTB9jnRkcLE5xQvcbw3y8AymkQ9qhjaYKsv382bBry465.Fh1sOLJN
- I_4S_nnfgyHGDQtvwdmq19ATLq2pTDo.._x1iqMk43f6AHNvkXeDFdd2ybw1izhgd9hr6vAkPkpT
- RDWqYUQXlUiDt.fEF2XTxuC32GABT.qbVi6ujIKOtSwj02Os8bnccmDoTkuZKNy_a30c7ieJsZBk
- PEivAgIQy5_hNGsUfDIPM8EuLRkuhOBj42X8QyecO7ldTDkLXyklvf3V0sZgQgRcSvFU4v8khOCf
- jLeGNPoG99lVMzoHCfRCBqeWsPlb6rg8SkFcYQabheZvw0MRSAqPi7j0i5PAV.WNJq5xNNMTTTtv
- gQKNq5RKXkSpKiHWhHIyJWHHRV01iVwCp1xaRL9glWDHRkiE_guIUr49dfRwzc53yYmqH0JU8isc
- F8t4.nA9oEKx_Q_nbnP9SSbMtpXSYQhSmd99r3QjifmbvViKso3j6oFw58.iYHixGU.TWle.GFWr
- 7FfUWbfHF_9Cya..zh_.tVXBTe3VNJUmMyz5LvtJWgZeXgPBUUsbZ5Dd1Ccl1PwncX7MdDOCAr2H
- 1TruQP5uw4ERlJfrpv_GVaZPK7ynaIumAPzI3Gn71A5Hnw3O9uV3xfxPgzjXzZ0MYj47zkdf5DgF
- meDf5Cfl0f4tjHP7ya75qv6YL5a6ajN2xYQAxk2Su3a_nIDa8BjsSZpT7ia7jl18X1OSBlRzYsgy
- BN_2_yjWR30cnfAlwDpNQlR8sXr6.ht0TuXik_F9g1g_jj88cutShSmqTjUF4OCSOvyDks_z8SVc
- xZbJM4FtYZJwXHwBtYII8pfWFvaoFvtS8MlkYx.luyQi5SAs15WOA1uf3fetn5MALalSAlGaHugR
- tCo_EmL5EctaCV7HYSZLZB0Nan2d_Spf7TNWuh9DCIKxjeE55myJhWhSzC_s6nIhBUFwHMhDRzgs
- UmahUsjACvg1.1_ANzXBOLkvZl2EQXY3nNldsmBpbYVB414uTiEevkfyJjsKvr01H2sVI5Obbogr
- eQsbxYW6lx43vJS4Vs2M_Rz6lMQ--
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 795d5e57-7b76-43b7-a737-82ee981f36d9
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Fri, 3 May 2024 16:41:52 +0000
-Received: by hermes--production-gq1-59c575df44-zhcxz (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 84f5c52a964e238d162837c8de9e3480;
-          Fri, 03 May 2024 16:41:46 +0000 (UTC)
-Message-ID: <d5c467aa-9458-42f9-b89b-b6e883a1c715@schaufler-ca.com>
-Date: Fri, 3 May 2024 09:41:44 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ymaer843"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EE06C116B1;
+	Fri,  3 May 2024 17:31:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1714757511;
+	bh=NA8Lb6bNRP/z+eXkOqMJbaWB5ZBHyOdDEvk7/px99vE=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=Ymaer8435Ebdaect7lbFLXNBCiCR7vefJwiSLtATML7X7AB9Y42zxiCxjCi8i0uhl
+	 x4Ofqfee+0612S+XyoA8TMbb6bHWc5IKCWo8mboFDL//wPCgSBay1iONOqgvEIaD2/
+	 kWwkzsOmrVo4QvTGrx+3u4sZqDjVvbggmV2fgWIFt2sSGc6R9pnT5UKI50WAvfD4ss
+	 lUxVGlbu5FVlZPX7HHPCA+YNZksr5qOAk+2SSbllflaBk2Pt+510BOOAF9VnvjufuH
+	 0AODC+0ZUQCZIZbi+xockPgylcSkKIhBloGpqLn9CC5sxrQSD+NlOIXiWrmYnSxYCm
+	 ClyFqNcJKehaw==
+Message-ID: <53810d77218a7a67fc35f5977584664d54d0e575.camel@kernel.org>
+Subject: Re: [PATCH v3] nfsd: set security label during create operations
+From: Jeffrey Layton <jlayton@kernel.org>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>,
+ selinux@vger.kernel.org,  linux-nfs@vger.kernel.org,
+ chuck.lever@oracle.com, neilb@suse.de
+Cc: paul@paul-moore.com, omosnace@redhat.com, 
+	linux-security-module@vger.kernel.org
+Date: Fri, 03 May 2024 13:31:49 -0400
+In-Reply-To: <20240503130905.16823-1-stephen.smalley.work@gmail.com>
+References: <20240503130905.16823-1-stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.0 (3.52.0-1.fc40app1) 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH] lsm: fixup the inode xattr capability handling
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
- Ondrej Mosnacek <omosnace@redhat.com>, Felix Fu <fuzhen5@huawei.com>,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20240503005850.466144-2-paul@paul-moore.com>
- <06dc0e21-f44b-48c0-8552-9840147facfc@schaufler-ca.com>
- <CAHC9VhQUW42aicyiMAVaSEsCR-G8E+uVZJVCXodDv8obC3V0VA@mail.gmail.com>
- <18c63d96-d574-4ce2-8fd3-7755d2da6c74@schaufler-ca.com>
- <CAHC9VhQcUrxxejcJP9m5SwyN8D=Y0rOiF7=w6SQR4=fF=nBNDw@mail.gmail.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAHC9VhQcUrxxejcJP9m5SwyN8D=Y0rOiF7=w6SQR4=fF=nBNDw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.22256 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On 5/3/2024 9:26 AM, Paul Moore wrote:
-> On Fri, May 3, 2024 at 11:51 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
->> On 5/3/2024 8:36 AM, Paul Moore wrote:
->>> On Fri, May 3, 2024 at 11:26 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
->>>> On 5/2/2024 5:58 PM, Paul Moore wrote:
->>>>> The current security_inode_setxattr() and security_inode_removexattr()
->>>>> hooks rely on individual LSMs to either call into the associated
->>>>> capability hooks (cap_inode_setxattr() or cap_inode_removexattr()), or
->>>>> return a magic value of 1 to indicate that the LSM layer itself should
->>>>> perform the capability checks.  Unfortunately, with the default return
->>>>> value for these LSM hooks being 0, an individual LSM hook returning a
->>>>> 1 will cause the LSM hook processing to exit early, potentially
->>>>> skipping a LSM.  Thankfully, with the exception of the BPF LSM, none
->>>>> of the LSMs which currently register inode xattr hooks should end up
->>>>> returning a value of 1, and in the BPF LSM case, with the BPF LSM hooks
->>>>> executing last there should be no real harm in stopping processing of
->>>>> the LSM hooks.  However, the reliance on the individual LSMs to either
->>>>> call the capability hooks themselves, or signal the LSM with a return
->>>>> value of 1, is fragile and relies on a specific set of LSMs being
->>>>> enabled.  This patch is an effort to resolve, or minimize, these
->>>>> issues.
->>>>>
->>>>> Before we discuss the solution,
->>>> https://lore.kernel.org/lkml/20231215221636.105680-1-casey@schaufler-ca.com/T/#mac61625dc1983d13ee5e8015fd22e1165381f079
->>>>
->>>> ... or am I missing something?
->>> Yes, that patch, as well as some of the others that have been posted,
->>> change the ordering of the access control checks, moving the LSM-based
->>> checks ahead of the capability-based checks.  The patch I'm proposing
->>> here not only preserves the current ordering, but it sticks with our
->>> access control convention of DAC-before-LSM.
->> Fair enough.
-> Are you okay with the patch otherwise?  It's too late for v6.9, but if
-> everyone is okay with this approach I'd like to merge this after the
-> v6.10 merge window closes.
+On Fri, 2024-05-03 at 09:09 -0400, Stephen Smalley wrote:
+> When security labeling is enabled, the client can pass a file security
+> label as part of a create operation for the new file, similar to mode
+> and other attributes. At present, the security label is received by nfsd
+> and passed down to nfsd_create_setattr(), but nfsd_setattr() is never
+> called and therefore the label is never set on the new file. This bug
+> may have been introduced on or around commit d6a97d3f589a ("NFSD:
+> add security label to struct nfsd_attrs"). Looking at nfsd_setattr()
+> I am uncertain as to whether the same issue presents for
+> file ACLs and therefore requires a similar fix for those.
+>=20
+> An alternative approach would be to introduce a new LSM hook to set the
+> "create SID" of the current task prior to the actual file creation, which
+> would atomically label the new inode at creation time. This would be bett=
+er
+> for SELinux and a similar approach has been used previously
+> (see security_dentry_create_files_as) but perhaps not usable by other LSM=
+s.
+>=20
+> Reproducer:
+> 1. Install a Linux distro with SELinux - Fedora is easiest
+> 2. git clone https://github.com/SELinuxProject/selinux-testsuite
+> 3. Install the requisite dependencies per selinux-testsuite/README.md
+> 4. Run something like the following script:
+> MOUNT=3D$HOME/selinux-testsuite
+> sudo systemctl start nfs-server
+> sudo exportfs -o rw,no_root_squash,security_label localhost:$MOUNT
+> sudo mkdir -p /mnt/selinux-testsuite
+> sudo mount -t nfs -o vers=3D4.2 localhost:$MOUNT /mnt/selinux-testsuite
+> pushd /mnt/selinux-testsuite/
+> sudo make -C policy load
+> pushd tests/filesystem
+> sudo runcon -t test_filesystem_t ./create_file -f trans_test_file \
+> 	-e test_filesystem_filetranscon_t -v
+> sudo rm -f trans_test_file
+> popd
+> sudo make -C policy unload
+> popd
+> sudo umount /mnt/selinux-testsuite
+> sudo exportfs -u localhost:$MOUNT
+> sudo rmdir /mnt/selinux-testsuite
+> sudo systemctl stop nfs-server
+>=20
+> Expected output:
+> <eliding noise from commands run prior to or after the test itself>
+> Process context:
+> 	unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
+> Created file: trans_test_file
+> File context: unconfined_u:object_r:test_filesystem_filetranscon_t:s0
+> File context is correct
+>=20
+> Actual output:
+> <eliding noise from commands run prior to or after the test itself>
+> Process context:
+> 	unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
+> Created file: trans_test_file
+> File context: system_u:object_r:test_file_t:s0
+> File context error, expected:
+> 	test_filesystem_filetranscon_t
+> got:
+> 	test_file_t
+>=20
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+> v3 removes the erroneous and unnecessary change to NFSv2 and updates the
+> description to note the possible origin of the bug. I did not add a=20
+> Fixes tag however as I have not yet tried confirming that.
+>=20
+>  fs/nfsd/vfs.c | 2 +-
+>  fs/nfsd/vfs.h | 8 ++++++++
+>  2 files changed, 9 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
+> index 2e41eb4c3cec..29b1f3613800 100644
+> --- a/fs/nfsd/vfs.c
+> +++ b/fs/nfsd/vfs.c
+> @@ -1422,7 +1422,7 @@ nfsd_create_setattr(struct svc_rqst *rqstp, struct =
+svc_fh *fhp,
+>  	 * Callers expect new file metadata to be committed even
+>  	 * if the attributes have not changed.
+>  	 */
+> -	if (iap->ia_valid)
+> +	if (nfsd_attrs_valid(attrs))
+>  		status =3D nfsd_setattr(rqstp, resfhp, attrs, NULL);
+>  	else
+>  		status =3D nfserrno(commit_metadata(resfhp));
+> diff --git a/fs/nfsd/vfs.h b/fs/nfsd/vfs.h
+> index c60fdb6200fd..57cd70062048 100644
+> --- a/fs/nfsd/vfs.h
+> +++ b/fs/nfsd/vfs.h
+> @@ -60,6 +60,14 @@ static inline void nfsd_attrs_free(struct nfsd_attrs *=
+attrs)
+>  	posix_acl_release(attrs->na_dpacl);
+>  }
+> =20
+> +static inline bool nfsd_attrs_valid(struct nfsd_attrs *attrs)
+> +{
+> +	struct iattr *iap =3D attrs->na_iattr;
+> +
+> +	return (iap->ia_valid || (attrs->na_seclabel &&
+> +		attrs->na_seclabel->len));
+> +}
+> +
+>  __be32		nfserrno (int errno);
+>  int		nfsd_cross_mnt(struct svc_rqst *rqstp, struct dentry **dpp,
+>  		                struct svc_export **expp);
 
-I'm not real happy with the shear size of the change, but I
-don't see a better approach that meets the stated objectives.
-You can add my Acked-by.
-
-> I also need to track down the appropriate commits for the 'Fixes:'
-> tag(s); I'm not entirely convinced that some of the other patches were
-> targeting the proper commit ...
->
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
