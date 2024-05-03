@@ -1,130 +1,172 @@
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3B8B14F9F9
-	for <selinux@vger.kernel.org>; Fri,  3 May 2024 12:00:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCD97152788;
+	Fri,  3 May 2024 12:48:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714737628; cv=none; b=P9NVv708L7DBP7B7HCphB/1I4TF3LU0o/7xNn6I+2FnS7RXBjDI/6v7+O8rsj1cHyDZ3tmzTsofD7gM4pcfZyGd9RzoaBYRC9WAMpudwFpnrQ9yn5/0Bmh9qqRjWfZyrMCaDquBrbPAXYPvi+5M46HmP2ZnhvZcNiEE1fszVhWg=
+	t=1714740536; cv=none; b=V1xq2vylZ8gvEQzKthAXuhDplw22Lvitedkgk+thivv5zB4Yo4rUWGnEJdVTLPEuJvdDro7NJCz0gIeF4WguYYFX+++crsYSB0iB8J9jRwuNVZ2CMcSXlkQTJIbztgVOb3DgWOYXMdMhPKKJfU5IR7q3aNa7+2zxTR0LUZolZNg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714737628; c=relaxed/simple;
-	bh=QuYkDdOR8zSzktmSfK2b3ONlrBpj4bWO9v8TddYdYSM=;
+	s=arc-20240116; t=1714740536; c=relaxed/simple;
+	bh=GmZ5L8T1pqxa1hc7nHK6JLmX7g5vBxYUL5gKbPt9ZIg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bJ0pWSgOJk3oKIfoUl+gVb9Q0oO7ZuZRB8sMuDUUWEDeIbSThVWIJCI4WmEq5CcC8K9DYxg5/SleNzX7x2fY44ffiEI5Mj2xD7EHlOQpBaeXTWx+lTpc3prBmvURFcnxkOAkNQBMKB0pUytCplAEOuiItuqrY6PUdOQ0XvD5rZQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dfbEa7ph; arc=none smtp.client-ip=209.85.210.175
+	 To:Cc:Content-Type; b=Wg7FdRHA3fhDhw0Js4l/nGqjCmZuSrHF4/YqhwKpmvEOj8R2m/QLjuU5FLlIke50lT9uVBviw9esN1gDR6nx8rWhzHfZfyG/zJy+4ioDnOBc15i8IQRdol8N7D9n/CNFyNf0cajE05JBQGi9eRJmByWA882F1lYvpkXHfhwOn1o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=euTKUyXY; arc=none smtp.client-ip=209.85.215.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dfbEa7ph"
-Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-6f44dd41a5cso328818b3a.0
-        for <selinux@vger.kernel.org>; Fri, 03 May 2024 05:00:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="euTKUyXY"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-53fa455cd94so7003548a12.2;
+        Fri, 03 May 2024 05:48:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1714737626; x=1715342426; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1714740534; x=1715345334; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=M9d4e1dPI4GidFYYLkRdf2JPHQYv0rHWg3o7B5HV5Yc=;
-        b=dfbEa7phM5DrufyT2He+Y9tOvYM/ECTb8QUWcjWKc5lNwIekbVSvqNkoO3c0Epv/bD
-         qv957u/NE/sYbefChDr89Yo/M1Xf3q31YsWh1cpBPO3sEt75zuqvxgDvuriOFbWUrowx
-         N07GlKzhUCn78l5uce+IVJsOH2KKRLlVoPdQTFF2XcKDHnrgu/RYkTwMTZY2IqbDA3/Q
-         c2+0NWiM/H3Ln45it9zH9M05VDzZ7cdZYKkqmdaD8GvHzhZ7VAkcjly9lQz8BHdhvBv7
-         sF/KmuQNb1w7jNAc/uZ91RU6xy0WViBO6tT6YfdVCii8s22vuMoCAGc0pgE1zUQScPfU
-         Milg==
+        bh=5Y5k4LZDSx2AIqs23NmgFSme0AlhbpWJougf2C8BhMM=;
+        b=euTKUyXY8UVmIJp2OGg6dvymEwvnrqYQVwPgssapxCsKkX37yeIhExilod/Dn25AY3
+         +0H6OxEx3ay5rASBbulZ2iMWTL9fkTd17KUslDdRz+HHuPu7rPTIiz6Rl2RnXFlWL76u
+         Lgvl6ft3kLvRHBppPBu2UtdP9cuh7wcsv/wIDXXX12nJoCP3H4n70Q22jfUX8Ybi7arP
+         5U9HW9g8XMSm/aPvf9JKBABT3id/auhSFqHGH6blAYpv5qRt8D/Nvbm6JGi904aIDoqt
+         o7mztdAHXIZDEFL5gBuhYbX6T03K3TmA7Gj8wC/x3HcHGiF6kWnz7e5BBlIwH4VWes/8
+         7aAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714737626; x=1715342426;
+        d=1e100.net; s=20230601; t=1714740534; x=1715345334;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=M9d4e1dPI4GidFYYLkRdf2JPHQYv0rHWg3o7B5HV5Yc=;
-        b=SnyL46tVozEapacBxffwMoiqOLCYGd4RPm098DMqWApCFbOZeaG+4CM2XtcPV3XxLx
-         fmeASCC6adnKPwfFrdsTHtNo+9hcxh330p+c1cnbK9KpQ9amn6LaENk+ucNhlo9vUbnG
-         eT9gS80iG170/DJepT1W8t8+sr+gTW505qnQq1YNJaS0zZbFWvC8GgWIilYcn0jon0qu
-         duB6sINjRVmFtHYCsyjKRxS9yuTkvJIN6ZXWxnKJMA6NDkWyytKriCHr4DMULxokBgA+
-         A8OM2GxdpJMNVI/ndzI8OvLu1Y9SKrrWni6VHXxq9NQswf7R2fAe6o+qfKfModikVtF4
-         47VA==
-X-Forwarded-Encrypted: i=1; AJvYcCVlGTU2sDE7FuCp2o4L1Gr5JtfT1JocPKZu+8b0n2hqKt6tZ3CTCEXksZt5mmIZNsA3HYpH/iNcgLvScBbkX1o5rBMgUdeQPw==
-X-Gm-Message-State: AOJu0Yyx67grOUx9jyPUc/qP5dq5t44LufV41OSckXqLclelyEvqlHPz
-	p/DB36PCuZdoE2B5aka2tiNYrTPVPcdxoxlxFzkwtgzv4CFlBeJnPTYDipyaIHI3D+rtMylQ8kT
-	kL72ig5zSye4H9k9x7wocDPA3I5+w2w==
-X-Google-Smtp-Source: AGHT+IEZoc13S21AfM9RkjG74tSt7HYRe0e9qBI567S4j1RudoTpiQrnrSZmzclCyfF5jiVVB4xKw5yNoeD9uE9RrBU=
-X-Received: by 2002:a05:6a21:2c98:b0:1a9:3cf2:508d with SMTP id
- ua24-20020a056a212c9800b001a93cf2508dmr2238892pzb.38.1714737626181; Fri, 03
- May 2024 05:00:26 -0700 (PDT)
+        bh=5Y5k4LZDSx2AIqs23NmgFSme0AlhbpWJougf2C8BhMM=;
+        b=VMkrh1WGdSmsoRv9wAXdarXi8KjibQJ54asNKEbLKCGNf4CeortZbmS74VrOrDVM0I
+         YI/UNb+h+mgedaXVJa62qFEyfPC9A4Xal3cv6TvxFPPCMfxh0PCrGYZu1nlwfw631/nA
+         kl1zIW/OSLGv81v1SCyeD+2Bk2hxJK+y7JwC8wnittOlyRvgr6TCdkRUQZYyeclCQ9hv
+         GTRiVngsrj8EgIdZEINgT6Rad7r1kV1FGPRrehkrSCErZkcYgbbCZ1bHa00uLhakBQwE
+         ZWpgIAwWlpzwZAcZdbrK5SEe/T61BG01/6/CmAzil5JP/htAGu/RQQuORrCvLiwFik6K
+         yydA==
+X-Forwarded-Encrypted: i=1; AJvYcCXUZo0jyKZUtxUuNy6FWR/ry0uoEUi1+xWKQT03QzVcW5q9ez3nRyUKVU8EWdLPrqxvXHj6SfOIHvV9Gs1KkiVNVhcjD3n2yerrNr9/IlDxS/MmewmvPXYLnKkmkkFbV7DbZdlMX9i1wfAjziYkRoRS
+X-Gm-Message-State: AOJu0Yxv0CL2BaPRQkWlSoGvLgI9HrV/Q25V7kAvd90zQ9QDIy+1a/LB
+	5bSLMQGqZcrcVVx2rU2wmGBrOgxloaSwzSNXwAeX48e6SsXqJs+Jt/FfQNUVOHz8KC/8qswIjNg
+	9dlk6TQ6/Fk1WJrHgVeAJhgVdpgo=
+X-Google-Smtp-Source: AGHT+IG/+cPDi8XmRteN8iGgp/HY5GfisHcVrygGBl1hI+oPOsdzF9I13aUiDQgWCbghPd1bzWGj7YXlpBQ8mS26X4g=
+X-Received: by 2002:a17:90a:9f88:b0:2a4:b831:5017 with SMTP id
+ o8-20020a17090a9f8800b002a4b8315017mr2359132pjp.48.1714740533994; Fri, 03 May
+ 2024 05:48:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <d3c9593d-fc73-4016-b057-57706e94d170@ieee.org>
- <CAEjxPJ6uFiUjb0siO4+D8a7Z9ZB=WWNdO=54m1RsCO8HT9n5Yw@mail.gmail.com> <2f3f2911-bed9-499a-a117-56a404ddbe33@ieee.org>
-In-Reply-To: <2f3f2911-bed9-499a-a117-56a404ddbe33@ieee.org>
+References: <20240502195800.3252-1-stephen.smalley.work@gmail.com> <70273db57aa4b6df43ae1f73e6bf3b80abf0c599.camel@kernel.org>
+In-Reply-To: <70273db57aa4b6df43ae1f73e6bf3b80abf0c599.camel@kernel.org>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 3 May 2024 08:00:13 -0400
-Message-ID: <CAEjxPJ66_2jic8erKo6RBE4psXxF3AK=1jvS7ERpB7Hmot0PCw@mail.gmail.com>
-Subject: Re: cgroup2 labeling status
-To: Chris PeBenito <pebenito@ieee.org>
-Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	SElinux mailing list <selinux@vger.kernel.org>
+Date: Fri, 3 May 2024 08:48:42 -0400
+Message-ID: <CAEjxPJ6O-Zo=7xJ9j2=mOLEO0dWPYx9AHVRtPqaUPYx9rbsVpA@mail.gmail.com>
+Subject: Re: [PATCH v2] nfsd: set security label during create operations
+To: Jeffrey Layton <jlayton@kernel.org>
+Cc: selinux@vger.kernel.org, linux-nfs@vger.kernel.org, chuck.lever@oracle.com, 
+	neilb@suse.de, paul@paul-moore.com, omosnace@redhat.com, 
+	linux-security-module@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 2, 2024 at 3:16=E2=80=AFPM Chris PeBenito <pebenito@ieee.org> w=
-rote:
+On Thu, May 2, 2024 at 6:34=E2=80=AFPM Jeffrey Layton <jlayton@kernel.org> =
+wrote:
 >
-> On 5/2/2024 2:53 PM, Stephen Smalley wrote:
-> > On Thu, May 2, 2024 at 2:37=E2=80=AFPM Chris PeBenito <pebenito@ieee.or=
-g> wrote:
-> >>
-> >> The state of cgroup2 labeling and memory.pressure came up for me again=
-.
-> >> This was discussed March last year[1]. To summarize, refpolicy has a
-> >> type_transition for the memory.pressure file in cgroup2 to a default o=
-f
-> >> memory_pressure_t. For example this file:
-> >>
-> >> /sys/fs/cgroup/system.slice/systemd-journald.service/memory.pressure
-> >>
-> >> with the idea that we allow daemons to write to this without allowing
-> >> writes to all cgroup_t.  Unfortunately, the thread ended and I haven't
-> >> seen any improvement.
-> >>
-> >> The conclusion was[3]:
-> >>
-> >>> Ah, now I remembered that we made it such that the transitions would
-> >>> only apply if the parent directory has a label explicitly set by
-> >>> userspace (via setxattr). Not sure if we can improve it easily, since
-> >>> we can't use the normal inode-based logic for cgroupfs (the xattrs ar=
-e
-> >>> stored in kernfs nodes, each of which can be exposed via multiple
-> >>> inodes if there is more than one cgroupfs mount).
-> >>
-> >> Testing on a 6.6 kernel and systemd 255, I still see the same issues,
-> >> where most are stuck at cgroup_t, with user.slice entries get
-> >> memory_pressure_t[2].  Based on my investigations, the user.slice work=
-s
-> >> because systemd sets the user.invocation_id xattr on these dirs.
-> >>
-> >> Next, I tried modifying systemd to use it's version of
-> >> setfscreatecon()+mkdir() when it creates the cgroup directories.  This
-> >> did not change the labeling behavior.  Next I changed the code to a
-> >> post-mkdir setfilecon() and then all the memory.pressures finally had
-> >> expected labeling.
-> >>
-> >> This setxattr() requirement is unfortunate, and the fact the
-> >> setfscreatecon() doesn't work makes it more unfortunate.  Is there any
-> >> improvement being worked?
+> On Thu, 2024-05-02 at 15:58 -0400, Stephen Smalley wrote:
+> > When security labeling is enabled, the client can pass a file security
+> > label as part of a create operation for the new file, similar to mode
+> > and other attributes. At present, the security label is received by nfs=
+d
+> > and passed down to nfsd_create_setattr(), but nfsd_setattr() is never
+> > called and therefore the label is never set on the new file. I couldn't
+> > tell if this has always been broken or broke at some point in time. Loo=
+king
+> > at nfsd_setattr() I am uncertain as to whether the same issue presents =
+for
+> > file ACLs and therefore requires a similar fix for those. I am not over=
+ly
+> > confident that this is the right solution.
 > >
-> > Possibly I misunderstand, but selinux_kernfs_init_security() appears
-> > to honor the create_sid (setfscreatecon) if set, so I would have
-> > expected that to work.
+> > An alternative approach would be to introduce a new LSM hook to set the
+> > "create SID" of the current task prior to the actual file creation, whi=
+ch
+> > would atomically label the new inode at creation time. This would be be=
+tter
+> > for SELinux and a similar approach has been used previously
+> > (see security_dentry_create_files_as) but perhaps not usable by other L=
+SMs.
+> >
+> > Reproducer:
+> > 1. Install a Linux distro with SELinux - Fedora is easiest
+> > 2. git clone https://github.com/SELinuxProject/selinux-testsuite
+> > 3. Install the requisite dependencies per selinux-testsuite/README.md
+> > 4. Run something like the following script:
+> > MOUNT=3D$HOME/selinux-testsuite
+> > sudo systemctl start nfs-server
+> > sudo exportfs -o rw,no_root_squash,security_label localhost:$MOUNT
+> > sudo mkdir -p /mnt/selinux-testsuite
+> > sudo mount -t nfs -o vers=3D4.2 localhost:$MOUNT /mnt/selinux-testsuite
+> > pushd /mnt/selinux-testsuite/
+> > sudo make -C policy load
+> > pushd tests/filesystem
+> > sudo runcon -t test_filesystem_t ./create_file -f trans_test_file \
+> >       -e test_filesystem_filetranscon_t -v
+> > sudo rm -f trans_test_file
+> > popd
+> > sudo make -C policy unload
+> > popd
+> > sudo umount /mnt/selinux-testsuite
+> > sudo exportfs -u localhost:$MOUNT
+> > sudo rmdir /mnt/selinux-testsuite
+> > sudo systemctl stop nfs-server
+> >
+> > Expected output:
+> > <eliding noise from commands run prior to or after the test itself>
+> > Process context:
+> >       unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
+> > Created file: trans_test_file
+> > File context: unconfined_u:object_r:test_filesystem_filetranscon_t:s0
+> > File context is correct
+> >
+> > Actual output:
+> > <eliding noise from commands run prior to or after the test itself>
+> > Process context:
+> >       unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
+> > Created file: trans_test_file
+> > File context: system_u:object_r:test_file_t:s0
+> > File context error, expected:
+> >       test_filesystem_filetranscon_t
+> > got:
+> >       test_file_t
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+> > v2 introduces a nfsd_attrs_valid() helper and uses it as suggested by
+> > Jeffrey Layton <jlayton@kernel.org>.
+> >
+> >  fs/nfsd/nfsproc.c | 2 +-
+> >  fs/nfsd/vfs.c     | 2 +-
+> >  fs/nfsd/vfs.h     | 8 ++++++++
+> >  3 files changed, 10 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/fs/nfsd/nfsproc.c b/fs/nfsd/nfsproc.c
+> > index 36370b957b63..3e438159f561 100644
+> > --- a/fs/nfsd/nfsproc.c
+> > +++ b/fs/nfsd/nfsproc.c
+> > @@ -389,7 +389,7 @@ nfsd_proc_create(struct svc_rqst *rqstp)
+> >                * open(..., O_CREAT|O_TRUNC|O_WRONLY).
+> >                */
+> >               attr->ia_valid &=3D ATTR_SIZE;
+> > -             if (attr->ia_valid)
+> > +             if (nfsd_attrs_valid(attr))
+> >                       resp->status =3D nfsd_setattr(rqstp, newfhp, &att=
+rs,
+> >                                                   NULL);
+> >       }
 >
-> Does there need to be an xattr on the cgroup2 fs root directory for this
-> to work?  Based on the tracing I did on the systemd code, the post-mkdir
-> setfilecon() would have happened on the root dir, but the
-> setfscreatcon() version of the code change obviously wouldn't have
-> changed anything when it ran on the cgroup2 root dir.
+> This function is for NFSv2, which doesn't support any inode attributes
+> that aren't represented in ia_valid. We could leave this as-is, but
+> this is fine too.
 
-That could be the case, based on Ondrej's statement on the earlier
-thread. So it isn't a limitation of the SELinux code per se but rather
-the cgroup2/kernfs code.
+Sorry, I got over-eager with trying to fix all ia_valid checks. It's
+actually wrong so I'll send a 3rd version without it.
