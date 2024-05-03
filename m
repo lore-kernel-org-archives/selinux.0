@@ -1,177 +1,364 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f43.google.com (mail-ot1-f43.google.com [209.85.210.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7C008462;
-	Thu,  2 May 2024 22:34:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C2DFBE58
+	for <selinux@vger.kernel.org>; Fri,  3 May 2024 00:58:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714689288; cv=none; b=hNmQhGKs2vgge+GO65xyv1Dj2f9h2lxd8tLSGn0dvj35yts3FLOLcRB7cS0yYxBvG4WSnAEuhthQ8vBfWzgzuLqzh6n04Bph91RLt+SsYH71DEr7DXZH4xGjGXCZCtIM8HxWqaXernSH2Xwi/OKUMwtCdDuCl1e537dQ6iEebcw=
+	t=1714697941; cv=none; b=Np551IES5ZySMPoqJhe/YoNK2S1EocunjrRCFA5ElCk4iq9bEiVRYrATWLtdMGa03glMSD4/jCUdhxjJPx+tbEdG+AZbGeDOkRVp2lgAlwryfCMg5dkqT+38BGf+VrzyddTpz3Qt2vavSQ5GN64k8G84qpMB9XxUFYh8E/YPRxw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714689288; c=relaxed/simple;
-	bh=YA45pVuZxp2RA0fd/vUvVfJbao2NkHscxPlRveTOCO4=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=XpsIk5GITcxDaq7TnW6vMRUmjDFSaXkyrhSEKTLuK1iKYQHHMQexhk87exgPkGcw4h907/fEHuS/+Yb3fjcv2N6vtQNv6M53XBwU/C6jMfOC0ZskOmqnbvSpMFQHxscPn9ya8bOgAq7vyBRvVH6HE94HUKNIhbTw00L1Ud+lMCg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z/K2b98e; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1714697941; c=relaxed/simple;
+	bh=/EYdu4J5Yrr+nX8xFUhcXqsJTgMA3B+MT9nsk8PHUVE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=et1/Y11uSiD9O/+FmyZPabWgucZq8luFy/eGRo5vqfM7alom7Xc8SVNSTxs3RtXWhhKEJZm6+XhCtP0Ti0ZUtjU9I3O6/wy/enTwbpeUZ0zj8gyurBEWYIjiFrjMRwTE4EZinlgFkO2UWjWToiDq23IZ+ftN8RlZdt9Br8NaSeg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=YSve/i9D; arc=none smtp.client-ip=209.85.210.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z/K2b98e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A41EC113CC;
-	Thu,  2 May 2024 22:34:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714689288;
-	bh=YA45pVuZxp2RA0fd/vUvVfJbao2NkHscxPlRveTOCO4=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-	b=Z/K2b98e04YHxRv6PuSeIxmvQ/RZZLkw9tcffrKVIaT9Uaz+zlCtJ/5M9CpIL1pqe
-	 xAh1X5pNCca+uNUaKt2OD8PAvstKmh88cAnAq68Ns//iosWb+DGxjCDCw51HL6mCk8
-	 U5jy3Vn1KNIcydNOWdd2zgN3KuJODEeREwq4K+RbSEedxfa6NjJ4sBvj8j5v0py4Pn
-	 m1JtWKTQesHRqcpcdGfWJiXL685aWTi+oTg5MmCP+jsA9K6+Y5iW2Z7t09y+xONb/g
-	 x/gXROVB5oMMQDWiPwKCfM5F9O0WbuMFEKrpXDebUrMLPOppU6lb0X0iNbHWcM40TJ
-	 F4Sxom2G1f9GA==
-Message-ID: <70273db57aa4b6df43ae1f73e6bf3b80abf0c599.camel@kernel.org>
-Subject: Re: [PATCH v2] nfsd: set security label during create operations
-From: Jeffrey Layton <jlayton@kernel.org>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>,
- selinux@vger.kernel.org,  linux-nfs@vger.kernel.org,
- chuck.lever@oracle.com, neilb@suse.de
-Cc: paul@paul-moore.com, omosnace@redhat.com, 
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="YSve/i9D"
+Received: by mail-ot1-f43.google.com with SMTP id 46e09a7af769-6ed3587b93bso5104528a34.1
+        for <selinux@vger.kernel.org>; Thu, 02 May 2024 17:58:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1714697938; x=1715302738; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=y9D4+n+3a1WWKT287lWZ6oJ8Q/WS8JryuqbqGEFZEBs=;
+        b=YSve/i9D56ji1H4xKE4AfysBjQLUR7Ky35dcyXgTuWxOHBjfhewHwIZjVza6NIFd8L
+         iYYUpSQ7jsiVyGgjQ2hMvuUFxjw9sNeXMua8HtR5c52VZlPKnkJrFL/ZAc8HmbzqCuye
+         tbEFApcwr8K5V5EyPPqAvx+TyIHdRlr6qvUKH9U2FoE9z8R5DRUFxZsWRxI7My8GQzex
+         llaxkvz6kgDwE87nkJRQDqokQ9oBN0Oh8juhqMpgoDC/ZRyVb8pXTMd1buBe2yRYZz/5
+         voirMwH8rRRoITnabnz8hPk7M4Ea9R61q978k0FpLckliqNvCr/RpTtpDb1XFamo26lz
+         SMRA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1714697938; x=1715302738;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=y9D4+n+3a1WWKT287lWZ6oJ8Q/WS8JryuqbqGEFZEBs=;
+        b=l1IUObW7yMZBIStU2dIsGuvdnXBxlgCM9Thgt5enn8DwaiWg+k15uDSWyMwMNRifCk
+         VcnDZ9uWwpDvVc0tiLZx3ShyMv7UK+dRFhlouSv2ccTlBn4vh1iGprBaYIhL7yEDHsAh
+         qCpBvcN+hfvKVb/5V/qFbGU1OFi7kO7PUx8/zOeplsQC3PmQL5RaMO5SlOzR69sN39vx
+         CUWuNFXYP+l5W79Sh2doFxhttnPSUjyXnNHRf8PpwoYFfymx/VF9b+Vzc7JrP52wlbPH
+         l8eoSbBUrhnm+jRoEpua3Vuia4thRc9lgmeR/3Ixtq/7G2/bBN2ojibOm/uSvqz0BO+Q
+         N/FQ==
+X-Gm-Message-State: AOJu0Yxn2SYVwBLOhga6eJWqDvyDwRVtHmXdqxnI700ChclOPl6eLiW9
+	K4SRb4lauNK9/qjI3A979ygj6CTFHH2sfNK2UAyAshP1/kDf8RZdq/GNash++y2p93lfoimPG6w
+	=
+X-Google-Smtp-Source: AGHT+IElcc9QEkTiy4t+ELMgojkNZAKs4dF7A6+ccl4lQRtYNFPZxtu7vQpaoucJRRs2DRST7uFDvA==
+X-Received: by 2002:a05:6808:3186:b0:3c8:624d:35d3 with SMTP id cd6-20020a056808318600b003c8624d35d3mr2123719oib.54.1714697937620;
+        Thu, 02 May 2024 17:58:57 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id k9-20020a056214024900b006a0fbcab221sm775476qvt.3.2024.05.02.17.58.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 May 2024 17:58:57 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: selinux@vger.kernel.org,
 	linux-security-module@vger.kernel.org
-Date: Thu, 02 May 2024 18:34:46 -0400
-In-Reply-To: <20240502195800.3252-1-stephen.smalley.work@gmail.com>
-References: <20240502195800.3252-1-stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.0 (3.52.0-1.fc40app1) 
+Cc: Ondrej Mosnacek <omosnace@redhat.com>,
+	Felix Fu <fuzhen5@huawei.com>,
+	Casey Schaufler <casey@schaufler-ca.com>
+Subject: [RFC PATCH] lsm: fixup the inode xattr capability handling
+Date: Thu,  2 May 2024 20:58:51 -0400
+Message-ID: <20240503005850.466144-2-paul@paul-moore.com>
+X-Mailer: git-send-email 2.45.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=13087; i=paul@paul-moore.com; h=from:subject; bh=/EYdu4J5Yrr+nX8xFUhcXqsJTgMA3B+MT9nsk8PHUVE=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBmNDbKzzOytPXK7wXHf4PAan3tVzmEYvutcWUUd 4CdBWfbYvmJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZjQ2ygAKCRDqIPLalzeJ c5eaEADA4CScLy9wcojfkkfg7FifjOMlB0P2XRT+MwbyfO6dEsclY2Q4YBNHXYIVT9jCVcAGxqH wvoxvQl2+OeaGruJnzPWzUZwnqhSkZ2xkrUczjY0nPqNU7kfdJtOSzsl+FrD4h8vnAplNWncjB+ MXld/Nn18bg/n9RKjNfAQ/AhowkgE8TPgTIfEdKOAm7dHQWbcbVfCgfMtQvM2/UkMnBNX9Wbe4E wHHSXxvdaBagOVbMoOR6qgKT31htr5eJhTqrON89e8VuHKp2o/SDdozWVr2rTW5oF2YFby7mRsT ggfFRdlXZSJ9SVUX39xgkrdIm+BXXC1oPMxnaMY9U89vQkOrcaTmhe76tv7/RBW92NyHJHgNI4H ZJV9RWrHMaKx7q8GvEmouJLe47n43/teIlAcTPPUi7Cbk+JFfKDMr75qrMajw9WDS56tVTJAvqF CUDTqvok/1FoDzd4JeiDwR1QppPK0aYL5RayR+Zo6xuKhe1u7lgDwt1kol3f/CRyZoXWdYWyR4X xJCWsQ/brTtM5hwlufNHRMaLpVyKnDyx6YN4c6DGzw26l4/JCcbFU9QoG4k8MOgke1+wuYbV2PV POTvCsspSNnrBGcD+JHmtAaOXQbBp1/QL5L+QfwJqs4f1PnKPTtknwXEfqNnK7khe3cC7b57lzU unMilVId2qjz9nA==
+X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
+Content-Transfer-Encoding: 8bit
 
-On Thu, 2024-05-02 at 15:58 -0400, Stephen Smalley wrote:
-> When security labeling is enabled, the client can pass a file security
-> label as part of a create operation for the new file, similar to mode
-> and other attributes. At present, the security label is received by nfsd
-> and passed down to nfsd_create_setattr(), but nfsd_setattr() is never
-> called and therefore the label is never set on the new file. I couldn't
-> tell if this has always been broken or broke at some point in time. Looki=
-ng
-> at nfsd_setattr() I am uncertain as to whether the same issue presents fo=
-r
-> file ACLs and therefore requires a similar fix for those. I am not overly
-> confident that this is the right solution.
->=20
-> An alternative approach would be to introduce a new LSM hook to set the
-> "create SID" of the current task prior to the actual file creation, which
-> would atomically label the new inode at creation time. This would be bett=
-er
-> for SELinux and a similar approach has been used previously
-> (see security_dentry_create_files_as) but perhaps not usable by other LSM=
-s.
->=20
-> Reproducer:
-> 1. Install a Linux distro with SELinux - Fedora is easiest
-> 2. git clone https://github.com/SELinuxProject/selinux-testsuite
-> 3. Install the requisite dependencies per selinux-testsuite/README.md
-> 4. Run something like the following script:
-> MOUNT=3D$HOME/selinux-testsuite
-> sudo systemctl start nfs-server
-> sudo exportfs -o rw,no_root_squash,security_label localhost:$MOUNT
-> sudo mkdir -p /mnt/selinux-testsuite
-> sudo mount -t nfs -o vers=3D4.2 localhost:$MOUNT /mnt/selinux-testsuite
-> pushd /mnt/selinux-testsuite/
-> sudo make -C policy load
-> pushd tests/filesystem
-> sudo runcon -t test_filesystem_t ./create_file -f trans_test_file \
-> 	-e test_filesystem_filetranscon_t -v
-> sudo rm -f trans_test_file
-> popd
-> sudo make -C policy unload
-> popd
-> sudo umount /mnt/selinux-testsuite
-> sudo exportfs -u localhost:$MOUNT
-> sudo rmdir /mnt/selinux-testsuite
-> sudo systemctl stop nfs-server
->=20
-> Expected output:
-> <eliding noise from commands run prior to or after the test itself>
-> Process context:
-> 	unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
-> Created file: trans_test_file
-> File context: unconfined_u:object_r:test_filesystem_filetranscon_t:s0
-> File context is correct
->=20
-> Actual output:
-> <eliding noise from commands run prior to or after the test itself>
-> Process context:
-> 	unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
-> Created file: trans_test_file
-> File context: system_u:object_r:test_file_t:s0
-> File context error, expected:
-> 	test_filesystem_filetranscon_t
-> got:
-> 	test_file_t
->=20
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
-> v2 introduces a nfsd_attrs_valid() helper and uses it as suggested by
-> Jeffrey Layton <jlayton@kernel.org>.
->=20
->  fs/nfsd/nfsproc.c | 2 +-
->  fs/nfsd/vfs.c     | 2 +-
->  fs/nfsd/vfs.h     | 8 ++++++++
->  3 files changed, 10 insertions(+), 2 deletions(-)
->=20
-> diff --git a/fs/nfsd/nfsproc.c b/fs/nfsd/nfsproc.c
-> index 36370b957b63..3e438159f561 100644
-> --- a/fs/nfsd/nfsproc.c
-> +++ b/fs/nfsd/nfsproc.c
-> @@ -389,7 +389,7 @@ nfsd_proc_create(struct svc_rqst *rqstp)
->  		 * open(..., O_CREAT|O_TRUNC|O_WRONLY).
->  		 */
->  		attr->ia_valid &=3D ATTR_SIZE;
-> -		if (attr->ia_valid)
-> +		if (nfsd_attrs_valid(attr))
->  			resp->status =3D nfsd_setattr(rqstp, newfhp, &attrs,
->  						    NULL);
->  	}
+The current security_inode_setxattr() and security_inode_removexattr()
+hooks rely on individual LSMs to either call into the associated
+capability hooks (cap_inode_setxattr() or cap_inode_removexattr()), or
+return a magic value of 1 to indicate that the LSM layer itself should
+perform the capability checks.  Unfortunately, with the default return
+value for these LSM hooks being 0, an individual LSM hook returning a
+1 will cause the LSM hook processing to exit early, potentially
+skipping a LSM.  Thankfully, with the exception of the BPF LSM, none
+of the LSMs which currently register inode xattr hooks should end up
+returning a value of 1, and in the BPF LSM case, with the BPF LSM hooks
+executing last there should be no real harm in stopping processing of
+the LSM hooks.  However, the reliance on the individual LSMs to either
+call the capability hooks themselves, or signal the LSM with a return
+value of 1, is fragile and relies on a specific set of LSMs being
+enabled.  This patch is an effort to resolve, or minimize, these
+issues.
 
-This function is for NFSv2, which doesn't support any inode attributes
-that aren't represented in ia_valid. We could leave this as-is, but
-this is fine too.
+Before we discuss the solution, there are a few observations and
+considerations that we need to take into account:
+* BPF LSM registers an implementation for every LSM hook, and that
+  implementation simply returns the hook's default return value, a
+  0 in this case.  We want to ensure that the default BPF LSM behavior
+  results in the capability checks being called.
+* SELinux and Smack do not expect the traditional capability checks
+  to be applied to the xattrs that they "own".
+* SELinux and Smack are currently written in such a way that the
+  xattr capability checks happen before any additional LSM specific
+  access control checks.  SELinux does apply SELinux specific access
+  controls to all xattrs, even those not "owned" by SELinux.
+* IMA and EVM also register xattr hooks but assume that the LSM layer
+  and specific LSMs have already authorized the basic xattr operation.
 
-> diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
-> index 2e41eb4c3cec..29b1f3613800 100644
-> --- a/fs/nfsd/vfs.c
-> +++ b/fs/nfsd/vfs.c
-> @@ -1422,7 +1422,7 @@ nfsd_create_setattr(struct svc_rqst *rqstp, struct =
-svc_fh *fhp,
->  	 * Callers expect new file metadata to be committed even
->  	 * if the attributes have not changed.
->  	 */
-> -	if (iap->ia_valid)
-> +	if (nfsd_attrs_valid(attrs))
->  		status =3D nfsd_setattr(rqstp, resfhp, attrs, NULL);
->  	else
->  		status =3D nfserrno(commit_metadata(resfhp));
-> diff --git a/fs/nfsd/vfs.h b/fs/nfsd/vfs.h
-> index c60fdb6200fd..57cd70062048 100644
-> --- a/fs/nfsd/vfs.h
-> +++ b/fs/nfsd/vfs.h
-> @@ -60,6 +60,14 @@ static inline void nfsd_attrs_free(struct nfsd_attrs *=
-attrs)
->  	posix_acl_release(attrs->na_dpacl);
->  }
-> =20
-> +static inline bool nfsd_attrs_valid(struct nfsd_attrs *attrs)
-> +{
-> +	struct iattr *iap =3D attrs->na_iattr;
-> +
-> +	return (iap->ia_valid || (attrs->na_seclabel &&
-> +		attrs->na_seclabel->len));
-> +}
-> +
->  __be32		nfserrno (int errno);
->  int		nfsd_cross_mnt(struct svc_rqst *rqstp, struct dentry **dpp,
->  		                struct svc_export **expp);
+In order to ensure we perform the capability based access controls
+before the individual LSM access controls, perform only one capability
+access control check for each operation, and clarify the logic around
+applying the capability controls, we need a mechanism to determine if
+any of the enabled LSMs "own" a particular xattr and want to take
+responsibility for controlling access to that xattr.  The solution in
+this patch is to create a new LSM hook, 'inode_xattr_skipcap', that is
+not exported to the rest of the kernel via a security_XXX() function,
+but is used by the LSM layer to determine if a LSM wants to control
+access to a given xattr and avoid the traditional capability controls.
+Registering an inode_xattr_skipcap hook is optional, if a LSM declines
+to register an implementation, or uses an implementation that simply
+returns the default value (0), there is no effect as the LSM continues
+to enforce the capability based controls (unless another LSM takes
+ownership of the xattr).  If none of the LSMs signal that the
+capability checks should be skipped, the capability check is performed
+and if access is granted the individual LSM xattr access control hooks
+are executed, keeping with the DAC-before-LSM convention.
 
-Reviewed-by: Jeffrey Layton <jlayton@kernel.org>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ include/linux/lsm_hook_defs.h |  1 +
+ security/security.c           | 70 ++++++++++++++++++++++++-----------
+ security/selinux/hooks.c      | 28 ++++++++++----
+ security/smack/smack_lsm.c    | 31 +++++++++++++++-
+ 4 files changed, 98 insertions(+), 32 deletions(-)
+
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 334e00efbde4..6e54dae3256b 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -144,6 +144,7 @@ LSM_HOOK(int, 0, inode_setattr, struct mnt_idmap *idmap, struct dentry *dentry,
+ LSM_HOOK(void, LSM_RET_VOID, inode_post_setattr, struct mnt_idmap *idmap,
+ 	 struct dentry *dentry, int ia_valid)
+ LSM_HOOK(int, 0, inode_getattr, const struct path *path)
++LSM_HOOK(int, 0, inode_xattr_skipcap, const char *name)
+ LSM_HOOK(int, 0, inode_setxattr, struct mnt_idmap *idmap,
+ 	 struct dentry *dentry, const char *name, const void *value,
+ 	 size_t size, int flags)
+diff --git a/security/security.c b/security/security.c
+index 7e118858b545..1f5c68e2a62a 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -2278,7 +2278,20 @@ int security_inode_getattr(const struct path *path)
+  * @size: size of xattr value
+  * @flags: flags
+  *
+- * Check permission before setting the extended attributes.
++ * This hook performs the desired permission checks before setting the extended
++ * attributes (xattrs) on @dentry.  It is important to note that we have some
++ * additional logic before the main LSM implementation calls to detect if we
++ * need to perform an additional capability check at the LSM layer.
++ *
++ * Normally we enforce a capability check prior to executing the various LSM
++ * hook implementations, but if a LSM wants to avoid this capability check,
++ * it can register a 'inode_xattr_skipcap' hook and return a value of 1 for
++ * xattrs that it wants to avoid the capability check, leaving the LSM fully
++ * responsible for enforcing the access control for the specific xattr.  If all
++ * of the enabled LSMs refrain from registering a 'inode_xattr_skipcap' hook,
++ * or return a 0 (the default return value), the capability check is still
++ * performed.  If no 'inode_xattr_skipcap' hooks are registered the capability
++ * check is performed.
+  *
+  * Return: Returns 0 if permission is granted.
+  */
+@@ -2286,20 +2299,20 @@ int security_inode_setxattr(struct mnt_idmap *idmap,
+ 			    struct dentry *dentry, const char *name,
+ 			    const void *value, size_t size, int flags)
+ {
+-	int ret;
++	int rc;
+ 
+ 	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
+ 		return 0;
+-	/*
+-	 * SELinux and Smack integrate the cap call,
+-	 * so assume that all LSMs supplying this call do so.
+-	 */
+-	ret = call_int_hook(inode_setxattr, idmap, dentry, name, value, size,
+-			    flags);
+ 
+-	if (ret == 1)
+-		ret = cap_inode_setxattr(dentry, name, value, size, flags);
+-	return ret;
++	/* enforce the capability checks at the lsm layer, if needed */
++	if (!call_int_hook(inode_xattr_skipcap, name)) {
++		rc = cap_inode_setxattr(dentry, name, value, size, flags);
++		if (rc)
++			return rc;
++	}
++
++	return call_int_hook(inode_setxattr, idmap, dentry, name, value, size,
++			     flags);
+ }
+ 
+ /**
+@@ -2452,26 +2465,39 @@ int security_inode_listxattr(struct dentry *dentry)
+  * @dentry: file
+  * @name: xattr name
+  *
+- * Check permission before removing the extended attribute identified by @name
+- * for @dentry.
++ * This hook performs the desired permission checks before setting the extended
++ * attributes (xattrs) on @dentry.  It is important to note that we have some
++ * additional logic before the main LSM implementation calls to detect if we
++ * need to perform an additional capability check at the LSM layer.
++ *
++ * Normally we enforce a capability check prior to executing the various LSM
++ * hook implementations, but if a LSM wants to avoid this capability check,
++ * it can register a 'inode_xattr_skipcap' hook and return a value of 1 for
++ * xattrs that it wants to avoid the capability check, leaving the LSM fully
++ * responsible for enforcing the access control for the specific xattr.  If all
++ * of the enabled LSMs refrain from registering a 'inode_xattr_skipcap' hook,
++ * or return a 0 (the default return value), the capability check is still
++ * performed.  If no 'inode_xattr_skipcap' hooks are registered the capability
++ * check is performed.
+  *
+  * Return: Returns 0 if permission is granted.
+  */
+ int security_inode_removexattr(struct mnt_idmap *idmap,
+ 			       struct dentry *dentry, const char *name)
+ {
+-	int ret;
++	int rc;
+ 
+ 	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
+ 		return 0;
+-	/*
+-	 * SELinux and Smack integrate the cap call,
+-	 * so assume that all LSMs supplying this call do so.
+-	 */
+-	ret = call_int_hook(inode_removexattr, idmap, dentry, name);
+-	if (ret == 1)
+-		ret = cap_inode_removexattr(idmap, dentry, name);
+-	return ret;
++
++	/* enforce the capability checks at the lsm layer, if needed */
++	if (!call_int_hook(inode_xattr_skipcap, name)) {
++		rc = cap_inode_removexattr(idmap, dentry, name);
++		if (rc)
++			return rc;
++	}
++
++	return call_int_hook(inode_removexattr, idmap, dentry, name);
+ }
+ 
+ /**
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 3448454c82d0..7be385ebf09b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3181,6 +3181,23 @@ static bool has_cap_mac_admin(bool audit)
+ 	return true;
+ }
+ 
++/**
++ * selinux_inode_xattr_skipcap - Skip the xattr capability checks?
++ * @name: name of the xattr
++ *
++ * Returns 1 to indicate that SELinux "owns" the access control rights to xattrs
++ * named @name; the LSM layer should avoid enforcing any traditional
++ * capability based access controls on this xattr.  Returns 0 to indicate that
++ * SELinux does not "own" the access control rights to xattrs named @name and is
++ * deferring to the LSM layer for further access controls, including capability
++ * based controls.
++ */
++static int selinux_inode_xattr_skipcap(const char *name)
++{
++	/* require capability check if not a selinux xattr */
++	return !strcmp(name, XATTR_NAME_SELINUX);
++}
++
+ static int selinux_inode_setxattr(struct mnt_idmap *idmap,
+ 				  struct dentry *dentry, const char *name,
+ 				  const void *value, size_t size, int flags)
+@@ -3192,15 +3209,9 @@ static int selinux_inode_setxattr(struct mnt_idmap *idmap,
+ 	u32 newsid, sid = current_sid();
+ 	int rc = 0;
+ 
+-	if (strcmp(name, XATTR_NAME_SELINUX)) {
+-		rc = cap_inode_setxattr(dentry, name, value, size, flags);
+-		if (rc)
+-			return rc;
+-
+-		/* Not an attribute we recognize, so just check the
+-		   ordinary setattr permission. */
++	/* if not a selinux xattr, only check the ordinary setattr perm */
++	if (strcmp(name, XATTR_NAME_SELINUX))
+ 		return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
+-	}
+ 
+ 	if (!selinux_initialized())
+ 		return (inode_owner_or_capable(idmap, inode) ? 0 : -EPERM);
+@@ -7185,6 +7196,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(inode_permission, selinux_inode_permission),
+ 	LSM_HOOK_INIT(inode_setattr, selinux_inode_setattr),
+ 	LSM_HOOK_INIT(inode_getattr, selinux_inode_getattr),
++	LSM_HOOK_INIT(inode_xattr_skipcap, selinux_inode_xattr_skipcap),
+ 	LSM_HOOK_INIT(inode_setxattr, selinux_inode_setxattr),
+ 	LSM_HOOK_INIT(inode_post_setxattr, selinux_inode_post_setxattr),
+ 	LSM_HOOK_INIT(inode_getxattr, selinux_inode_getxattr),
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 146667937811..6e37df0465a4 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -1282,6 +1282,33 @@ static int smack_inode_getattr(const struct path *path)
+ 	return rc;
+ }
+ 
++/**
++ * smack_inode_xattr_skipcap - Skip the xattr capability checks?
++ * @name: name of the xattr
++ *
++ * Returns 1 to indicate that Smack "owns" the access control rights to xattrs
++ * named @name; the LSM layer should avoid enforcing any traditional
++ * capability based access controls on this xattr.  Returns 0 to indicate that
++ * Smack does not "own" the access control rights to xattrs named @name and is
++ * deferring to the LSM layer for further access controls, including capability
++ * based controls.
++ */
++static int smack_inode_xattr_skipcap(const char *name)
++{
++	if (strncmp(name, XATTR_SMACK_SUFFIX, strlen(XATTR_SMACK_SUFFIX)))
++		return 0;
++
++	if (strcmp(name, XATTR_NAME_SMACK) == 0 ||
++	    strcmp(name, XATTR_NAME_SMACKIPIN) == 0 ||
++	    strcmp(name, XATTR_NAME_SMACKIPOUT) == 0 ||
++	    strcmp(name, XATTR_NAME_SMACKEXEC) == 0 ||
++	    strcmp(name, XATTR_NAME_SMACKMMAP) == 0 ||
++	    strcmp(name, XATTR_NAME_SMACKTRANSMUTE) == 0)
++		return 1;
++
++	return 0;
++}
++
+ /**
+  * smack_inode_setxattr - Smack check for setting xattrs
+  * @idmap: idmap of the mount
+@@ -1325,8 +1352,7 @@ static int smack_inode_setxattr(struct mnt_idmap *idmap,
+ 		    size != TRANS_TRUE_SIZE ||
+ 		    strncmp(value, TRANS_TRUE, TRANS_TRUE_SIZE) != 0)
+ 			rc = -EINVAL;
+-	} else
+-		rc = cap_inode_setxattr(dentry, name, value, size, flags);
++	}
+ 
+ 	if (check_priv && !smack_privileged(CAP_MAC_ADMIN))
+ 		rc = -EPERM;
+@@ -5050,6 +5076,7 @@ static struct security_hook_list smack_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(inode_permission, smack_inode_permission),
+ 	LSM_HOOK_INIT(inode_setattr, smack_inode_setattr),
+ 	LSM_HOOK_INIT(inode_getattr, smack_inode_getattr),
++	LSM_HOOK_INIT(inode_xattr_skipcap, smack_inode_xattr_skipcap),
+ 	LSM_HOOK_INIT(inode_setxattr, smack_inode_setxattr),
+ 	LSM_HOOK_INIT(inode_post_setxattr, smack_inode_post_setxattr),
+ 	LSM_HOOK_INIT(inode_getxattr, smack_inode_getxattr),
+-- 
+2.45.0
+
