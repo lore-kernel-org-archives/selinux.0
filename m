@@ -1,249 +1,184 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE31845944;
-	Mon,  6 May 2024 05:46:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBFD076410
+	for <selinux@vger.kernel.org>; Mon,  6 May 2024 13:32:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714974409; cv=none; b=I8wfFN8quZY6MYylRVQogxo8hXzWvpcYFCyHl3Da/1p5m4d0MYdhqPPJtuKU3kJvWGOdCMFh6q005HVip13qO26KMHzVz7BfbRnLo+gBOWaZQbJqT0wbVUQbTJUSVDor5awu0TQN3VL8rcGzUoSN4dM4xiNAAyHWcDy86rvmJjY=
+	t=1715002378; cv=none; b=ojQa6m6raiNI1GzWkFwaA3h+5eeKxgpEqzsW+UcqoVXOPQSJHZQc4OCMOwc8/GMZBoHMlJNxfUcqVdSx2LQIm3Y72xYP7pS4MZycx4Ry4CbabRvNgCduQuuk1aEHnbdyygO1IA7EkZhREkpbfZAJMwRmu6B9l3Jls/1JNy6F5s4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714974409; c=relaxed/simple;
-	bh=aa7G9OraNqIaG4CQVfabrd6LwF/tctqeAh8Wzpizg+Q=;
-	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
-	 References:Date:Message-id; b=acbjSmWob6ytOpxK9xjO5H6P+V0azKKPbNqw0NTYh/tbpQm4KUIIpNgxh4yaPSfSyROcCojm/qBaKPQbfrDXoOTtKvqkacky8kldWk7UFBghkRJFQiRi63bPxbROoKNrL5BfXSHjxcYMSuibg96RrmZU9ILTaJXUpMHEq0AHxgs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=BolWuP78; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=lLu+0GT0; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=BolWuP78; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=lLu+0GT0; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1715002378; c=relaxed/simple;
+	bh=qrx0MfyDpm5OOF0ed394+bCzYso2aK0diQJsP+2bpWI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=IH2mEoTkjHeJWGNboTWMxKPxuCM/meJChd1s0XT4H9T0CXFOpEb6jY1w1zAJEC5fjv+W4nj5CgqePrDS7HCSPD0I8z/woO1gA8rZuo3PGBI901mJDbCKzOlvso/OVBL0KQ7ZLkqaiWbDn+mtUfCZq95V+WUKGKJ52YFWviqVJQc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ieee.org; spf=pass smtp.mailfrom=ieee.org; dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b=Jrcb7E7x; arc=none smtp.client-ip=209.85.219.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ieee.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ieee.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="BolWuP78";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="lLu+0GT0";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="BolWuP78";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="lLu+0GT0"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 259C85D2C4;
-	Mon,  6 May 2024 05:46:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1714974406; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5CvcLGZ4YTWAstQCMQoInkF1Pq1UgMZ85xsTp6fXaZc=;
-	b=BolWuP78hBVM2IA0G6vg6iWNSNJBZCY64x6IU+DvND4W2s+3JiE+F9y2e41jstlLSvTMBE
-	XAA/tCxlEXXYX1vRBICtlhNuBA7nWRzfyGi2xAT+fW38MQGSf8el8H0fQKseDUTBc0AY8b
-	aivFIfQg2yPcQhHuwfqC5JAVuYVd1aM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1714974406;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5CvcLGZ4YTWAstQCMQoInkF1Pq1UgMZ85xsTp6fXaZc=;
-	b=lLu+0GT0CgFcFoBp+4LYO9xZGPvRbdXFAnMm/gsHZJ+5+5kbckOdnqK1N/7boByK0+ZE9C
-	uXI54qZlDORQKaBg==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1714974406; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5CvcLGZ4YTWAstQCMQoInkF1Pq1UgMZ85xsTp6fXaZc=;
-	b=BolWuP78hBVM2IA0G6vg6iWNSNJBZCY64x6IU+DvND4W2s+3JiE+F9y2e41jstlLSvTMBE
-	XAA/tCxlEXXYX1vRBICtlhNuBA7nWRzfyGi2xAT+fW38MQGSf8el8H0fQKseDUTBc0AY8b
-	aivFIfQg2yPcQhHuwfqC5JAVuYVd1aM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1714974406;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5CvcLGZ4YTWAstQCMQoInkF1Pq1UgMZ85xsTp6fXaZc=;
-	b=lLu+0GT0CgFcFoBp+4LYO9xZGPvRbdXFAnMm/gsHZJ+5+5kbckOdnqK1N/7boByK0+ZE9C
-	uXI54qZlDORQKaBg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C65D4134C3;
-	Mon,  6 May 2024 05:46:42 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([10.150.64.162])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id I4BsGsJuOGZpOgAAD6G6ig
-	(envelope-from <neilb@suse.de>); Mon, 06 May 2024 05:46:42 +0000
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="Jrcb7E7x"
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-69b6c2e9ed9so7766476d6.1
+        for <selinux@vger.kernel.org>; Mon, 06 May 2024 06:32:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ieee.org; s=google; t=1715002375; x=1715607175; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=SAZ33dW+Fk9wcRrFJJa9x5mvT6yDVkknJ1g4uODUMrs=;
+        b=Jrcb7E7xxTQJ893DVqMrcaPSYDDIJCbafRKdRO5COw8Lz3hEOf8jv9PyCnuNjf8Orh
+         2zxQww5BFp94qW0M3DwVcMiilUUhccfVaGoA3QGueG8HdRGm3dmbcTfd4oR3Z0Yo7RhE
+         1srrJBBTaDJ2/zYWOQVH8sWjk9Br7oBYpoH/E=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715002375; x=1715607175;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=SAZ33dW+Fk9wcRrFJJa9x5mvT6yDVkknJ1g4uODUMrs=;
+        b=ogS5RAtCDzY6LuZDrzd+qBx5pKT4R5jiyd147PQgnR2bX0EPs+us4L+RffGEKMLI9K
+         Ieyw7LWsDmU0+BnoyCgQMV8nd/ceKCP6O4nKsRcZsOtzz5T1B6NglCNReKeqyCIfYzRB
+         rFWXIj8yB19tZQFC4rqX4GsCq+6tknT/DCRExCtaT53P1KNeL/6fD6LEs4OzXP4P+oOe
+         4V31uD3Tr5L2D7eVJhpvZHdorcLsjs2jV3apB5/eQhQfHLc10iN/rhom2Sy13rS/qoB5
+         eFcWpRn+f208xM7tE31n93lgh/MrunCQmpShniDPu/yA9rsCzqMpO39qluxGRvPQhidB
+         cyMg==
+X-Forwarded-Encrypted: i=1; AJvYcCXg7ZvVEYNJYlwJKF/YOZ5ZTfyqZkbZD6b4rqK6lpHrlqEYW5orextA0884Co5v6q0/W4+eWEm0/5MLkbluYOyBNkpvQ2OQyw==
+X-Gm-Message-State: AOJu0YymgB24850wQOfyhIAdlh2zm9HOHEhbJ1LctXCdjp3m2lYGUC7h
+	r52BwOAmgVtMyTRazEFAq+lwfV269lFcobFByiLjY42qZioPv+J5RKgPUGzaiNFXqgBzzmClJzU
+	=
+X-Google-Smtp-Source: AGHT+IEm7s0Eb11AVwtLOR+i9Tj3k2oWi3P53WEptV9ONO81YZqDyothyklpzAJfLs606Ez/6JeDhw==
+X-Received: by 2002:a05:6214:cca:b0:6a0:cbab:771 with SMTP id 10-20020a0562140cca00b006a0cbab0771mr11609393qvx.35.1715002374757;
+        Mon, 06 May 2024 06:32:54 -0700 (PDT)
+Received: from ?IPV6:2601:145:c200:2c70:1d3e:7cfe:cfb0:535e? ([2601:145:c200:2c70:1d3e:7cfe:cfb0:535e])
+        by smtp.gmail.com with ESMTPSA id y5-20020a056214016500b006a0cb461f89sm3725398qvs.6.2024.05.06.06.32.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 06 May 2024 06:32:54 -0700 (PDT)
+Message-ID: <485379b5-93c2-4f24-86b8-e101ed7bc3c6@ieee.org>
+Date: Mon, 6 May 2024 09:32:52 -0400
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: "NeilBrown" <neilb@suse.de>
-To: "Stephen Smalley" <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, linux-nfs@vger.kernel.org, chuck.lever@oracle.com,
- jlayton@kernel.org, paul@paul-moore.com, omosnace@redhat.com,
- linux-security-module@vger.kernel.org,
- "Stephen Smalley" <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH v3] nfsd: set security label during create operations
-In-reply-to: <20240503130905.16823-1-stephen.smalley.work@gmail.com>
-References: <20240503130905.16823-1-stephen.smalley.work@gmail.com>
-Date: Mon, 06 May 2024 15:46:34 +1000
-Message-id: <171497439414.9775.6998904788791406674@noble.neil.brown.name>
-X-Spam-Level: 
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_TLS_ALL(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	ARC_NA(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TO_DN_SOME(0.00)[];
-	FREEMAIL_TO(0.00)[gmail.com];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[vger.kernel.org,oracle.com,kernel.org,paul-moore.com,redhat.com,gmail.com];
-	RCPT_COUNT_SEVEN(0.00)[9];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
-X-Spam-Score: -2.80
-X-Spam-Flag: NO
+User-Agent: Mozilla Thunderbird
+Subject: Re: cgroup2 labeling status
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>,
+ SElinux mailing list <selinux@vger.kernel.org>
+References: <d3c9593d-fc73-4016-b057-57706e94d170@ieee.org>
+ <CAEjxPJ6uFiUjb0siO4+D8a7Z9ZB=WWNdO=54m1RsCO8HT9n5Yw@mail.gmail.com>
+ <2f3f2911-bed9-499a-a117-56a404ddbe33@ieee.org>
+ <CAEjxPJ66_2jic8erKo6RBE4psXxF3AK=1jvS7ERpB7Hmot0PCw@mail.gmail.com>
+Content-Language: en-US
+From: Chris PeBenito <pebenito@ieee.org>
+In-Reply-To: <CAEjxPJ66_2jic8erKo6RBE4psXxF3AK=1jvS7ERpB7Hmot0PCw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Fri, 03 May 2024, Stephen Smalley wrote:
-> When security labeling is enabled, the client can pass a file security
-> label as part of a create operation for the new file, similar to mode
-> and other attributes. At present, the security label is received by nfsd
-> and passed down to nfsd_create_setattr(), but nfsd_setattr() is never
-> called and therefore the label is never set on the new file. This bug
-> may have been introduced on or around commit d6a97d3f589a ("NFSD:
-> add security label to struct nfsd_attrs"). Looking at nfsd_setattr()
-> I am uncertain as to whether the same issue presents for
-> file ACLs and therefore requires a similar fix for those.
->=20
-> An alternative approach would be to introduce a new LSM hook to set the
-> "create SID" of the current task prior to the actual file creation, which
-> would atomically label the new inode at creation time. This would be better
-> for SELinux and a similar approach has been used previously
-> (see security_dentry_create_files_as) but perhaps not usable by other LSMs.
->=20
-> Reproducer:
-> 1. Install a Linux distro with SELinux - Fedora is easiest
-> 2. git clone https://github.com/SELinuxProject/selinux-testsuite
-> 3. Install the requisite dependencies per selinux-testsuite/README.md
-> 4. Run something like the following script:
-> MOUNT=3D$HOME/selinux-testsuite
-> sudo systemctl start nfs-server
-> sudo exportfs -o rw,no_root_squash,security_label localhost:$MOUNT
-> sudo mkdir -p /mnt/selinux-testsuite
-> sudo mount -t nfs -o vers=3D4.2 localhost:$MOUNT /mnt/selinux-testsuite
-> pushd /mnt/selinux-testsuite/
-> sudo make -C policy load
-> pushd tests/filesystem
-> sudo runcon -t test_filesystem_t ./create_file -f trans_test_file \
-> 	-e test_filesystem_filetranscon_t -v
-> sudo rm -f trans_test_file
-> popd
-> sudo make -C policy unload
-> popd
-> sudo umount /mnt/selinux-testsuite
-> sudo exportfs -u localhost:$MOUNT
-> sudo rmdir /mnt/selinux-testsuite
-> sudo systemctl stop nfs-server
->=20
-> Expected output:
-> <eliding noise from commands run prior to or after the test itself>
-> Process context:
-> 	unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
-> Created file: trans_test_file
-> File context: unconfined_u:object_r:test_filesystem_filetranscon_t:s0
-> File context is correct
->=20
-> Actual output:
-> <eliding noise from commands run prior to or after the test itself>
-> Process context:
-> 	unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
-> Created file: trans_test_file
-> File context: system_u:object_r:test_file_t:s0
-> File context error, expected:
-> 	test_filesystem_filetranscon_t
-> got:
-> 	test_file_t
->=20
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
-> v3 removes the erroneous and unnecessary change to NFSv2 and updates the
-> description to note the possible origin of the bug. I did not add a=20
-> Fixes tag however as I have not yet tried confirming that.
+On 5/3/2024 8:00 AM, Stephen Smalley wrote:
+> On Thu, May 2, 2024 at 3:16 PM Chris PeBenito <pebenito@ieee.org> wrote:
+>>
+>> On 5/2/2024 2:53 PM, Stephen Smalley wrote:
+>>> On Thu, May 2, 2024 at 2:37 PM Chris PeBenito <pebenito@ieee.org> wrote:
+>>>>
+>>>> The state of cgroup2 labeling and memory.pressure came up for me again.
+>>>> This was discussed March last year[1]. To summarize, refpolicy has a
+>>>> type_transition for the memory.pressure file in cgroup2 to a default of
+>>>> memory_pressure_t. For example this file:
+>>>>
+>>>> /sys/fs/cgroup/system.slice/systemd-journald.service/memory.pressure
+>>>>
+>>>> with the idea that we allow daemons to write to this without allowing
+>>>> writes to all cgroup_t.  Unfortunately, the thread ended and I haven't
+>>>> seen any improvement.
+>>>>
+>>>> The conclusion was[3]:
+>>>>
+>>>>> Ah, now I remembered that we made it such that the transitions would
+>>>>> only apply if the parent directory has a label explicitly set by
+>>>>> userspace (via setxattr). Not sure if we can improve it easily, since
+>>>>> we can't use the normal inode-based logic for cgroupfs (the xattrs are
+>>>>> stored in kernfs nodes, each of which can be exposed via multiple
+>>>>> inodes if there is more than one cgroupfs mount).
+>>>>
+>>>> Testing on a 6.6 kernel and systemd 255, I still see the same issues,
+>>>> where most are stuck at cgroup_t, with user.slice entries get
+>>>> memory_pressure_t[2].  Based on my investigations, the user.slice works
+>>>> because systemd sets the user.invocation_id xattr on these dirs.
+>>>>
+>>>> Next, I tried modifying systemd to use it's version of
+>>>> setfscreatecon()+mkdir() when it creates the cgroup directories.  This
+>>>> did not change the labeling behavior.  Next I changed the code to a
+>>>> post-mkdir setfilecon() and then all the memory.pressures finally had
+>>>> expected labeling.
+>>>>
+>>>> This setxattr() requirement is unfortunate, and the fact the
+>>>> setfscreatecon() doesn't work makes it more unfortunate.  Is there any
+>>>> improvement being worked?
+>>>
+>>> Possibly I misunderstand, but selinux_kernfs_init_security() appears
+>>> to honor the create_sid (setfscreatecon) if set, so I would have
+>>> expected that to work.
+>>
+>> Does there need to be an xattr on the cgroup2 fs root directory for this
+>> to work?  Based on the tracing I did on the systemd code, the post-mkdir
+>> setfilecon() would have happened on the root dir, but the
+>> setfscreatcon() version of the code change obviously wouldn't have
+>> changed anything when it ran on the cgroup2 root dir.
+> 
+> That could be the case, based on Ondrej's statement on the earlier
+> thread. So it isn't a limitation of the SELinux code per se but rather
+> the cgroup2/kernfs code.
 
-I think this bug has always been present - since label support was
-added.
-Commit d6a97d3f589a ("NFSD: add security label to struct nfsd_attrs")
-should have fixed it, but was missing the extra test that you provide.
+I think I've reached the end of what I can debug from userspace.  I 
+changed the genfscon to no_access_t so it would be obvious where the 
+genfs label was still in use on a file.  It indicated a relabel is 
+needed due to entries being created during initramfs, despite systemd 
+supposedly relabeling /sys/fs/cgroup (still looking into this) just 
+after loading the policy.  I added a tmpfiles.d entry to get the fs 
+relabeled and retried the setfscreatecon() version and the results were 
+quite weird:
 
-So=20
-Fixes: 0c71b7ed5de8 ("nfsd: introduce file_cache_mutex")
-might be appropriate - it fixes the patch, though not a bug introduced
-by the patch.
+root [ /home/pebenito ]# ls -lZ /sys/fs/cgroup/*/*/memory.pressure
+-rw-r--r--. 1 root            root 
+system_u:object_r:cgroup_t:s0          0 May  6 12:21 
+/sys/fs/cgroup/system.slice/auditd.service/memory.pressure
+-rw-r--r--. 1 root            root 
+system_u:object_r:memory_pressure_t:s0 0 May  6 12:19 
+/sys/fs/cgroup/system.slice/boot-efi.mount/memory.pressure
+-rw-r--r--. 1 root            root 
+system_u:object_r:cgroup_t:s0          0 May  6 12:19 
+/sys/fs/cgroup/system.slice/chronyd.service/memory.pressure
+-rw-r--r--. 1 root            root 
+system_u:object_r:cgroup_t:s0          0 May  6 12:19 
+/sys/fs/cgroup/system.slice/crond.service/memory.pressure
+-rw-r--r--. 1 messagebus      messagebus 
+system_u:object_r:cgroup_t:s0          0 May  6 12:19 
+/sys/fs/cgroup/system.slice/dbus.service/memory.pressure
+-rw-r--r--. 1 root            root 
+system_u:object_r:cgroup_t:s0          0 May  6 12:19 
+/sys/fs/cgroup/system.slice/hypervkvpd.service/memory.pressure
+-rw-r--r--. 1 root            root 
+system_u:object_r:cgroup_t:s0          0 May  6 12:19 
+/sys/fs/cgroup/system.slice/hypervvssd.service/memory.pressure
+-rw-r--r--. 1 root            root 
+system_u:object_r:cgroup_t:s0          0 May  6 12:19 
+/sys/fs/cgroup/system.slice/irqbalance.service/memory.pressure
+-rw-r--r--. 1 root            root 
+system_u:object_r:cgroup_t:s0          0 May  6 12:19 
+/sys/fs/cgroup/system.slice/sshd.service/memory.pressure
+-rw-r--r--. 1 root            root 
+system_u:object_r:memory_pressure_t:s0 0 May  6 12:19 
+/sys/fs/cgroup/system.slice/sysroot.mount/memory.pressure
+-rw-r--r--. 1 root            root 
+system_u:object_r:memory_pressure_t:s0 0 May  6 12:19 
+/sys/fs/cgroup/system.slice/system-getty.slice/memory.pressure
+[...]
 
-Thanks for this patch!
-Reviewed-by: NeilBrown <neilb@suse.de>
+In case it was due to entries created in the initramfs, I tried 
+restarting auditd and still got cgroup_t on the memory.pressure.  I 
+added a type_transition for all domains, but still get cgroup_t.  I 
+can't explain why some memory.pressures would get the expected label, 
+but others not.
 
-NeilBrown
-
-
-
->=20
->  fs/nfsd/vfs.c | 2 +-
->  fs/nfsd/vfs.h | 8 ++++++++
->  2 files changed, 9 insertions(+), 1 deletion(-)
->=20
-> diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
-> index 2e41eb4c3cec..29b1f3613800 100644
-> --- a/fs/nfsd/vfs.c
-> +++ b/fs/nfsd/vfs.c
-> @@ -1422,7 +1422,7 @@ nfsd_create_setattr(struct svc_rqst *rqstp, struct sv=
-c_fh *fhp,
->  	 * Callers expect new file metadata to be committed even
->  	 * if the attributes have not changed.
->  	 */
-> -	if (iap->ia_valid)
-> +	if (nfsd_attrs_valid(attrs))
->  		status =3D nfsd_setattr(rqstp, resfhp, attrs, NULL);
->  	else
->  		status =3D nfserrno(commit_metadata(resfhp));
-> diff --git a/fs/nfsd/vfs.h b/fs/nfsd/vfs.h
-> index c60fdb6200fd..57cd70062048 100644
-> --- a/fs/nfsd/vfs.h
-> +++ b/fs/nfsd/vfs.h
-> @@ -60,6 +60,14 @@ static inline void nfsd_attrs_free(struct nfsd_attrs *at=
-trs)
->  	posix_acl_release(attrs->na_dpacl);
->  }
-> =20
-> +static inline bool nfsd_attrs_valid(struct nfsd_attrs *attrs)
-> +{
-> +	struct iattr *iap =3D attrs->na_iattr;
-> +
-> +	return (iap->ia_valid || (attrs->na_seclabel &&
-> +		attrs->na_seclabel->len));
-> +}
-> +
->  __be32		nfserrno (int errno);
->  int		nfsd_cross_mnt(struct svc_rqst *rqstp, struct dentry **dpp,
->  		                struct svc_export **expp);
-> --=20
-> 2.40.1
->=20
->=20
+-- 
+Chris PeBenito
 
