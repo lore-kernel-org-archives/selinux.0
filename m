@@ -1,137 +1,86 @@
-Received: from mail-vs1-f42.google.com (mail-vs1-f42.google.com [209.85.217.42])
+Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AEF7157E7A
-	for <selinux@vger.kernel.org>; Mon,  6 May 2024 17:51:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4314215ADBA
+	for <selinux@vger.kernel.org>; Mon,  6 May 2024 20:52:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715017882; cv=none; b=eK7SjsAeQM9ANWrmgK+8v1HAliCYvNB1vYa0PBAE2hu7a/42OQTHSbOAy/MV8dIPzNL6Kiv23coaGFwUZZliLdj2sWh1mO3rnLUlrx4H6/Kz2Knk1K9h49H4hrOAj2sZSP7gUdxR9g9m8owH0smIJu6ro6ya1MVN6uTIsPUKDK4=
+	t=1715028731; cv=none; b=PcyFvWHXynBtkA0rTvfyePQ0rif31YCL1mZygkXDNzz3M/MtASAgCxGn4h/9TkQw7PJrhWkj06usgn8/9DRgnIjU1qq6sF7MH0ak6nGf68PeXlLpH5VTh0HVzCol7LVT8lIdoJD9RvXGOUGZbuyoIDMLx1/WBfC5JQsk1WchU1o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715017882; c=relaxed/simple;
-	bh=CK2r7HvzKruSoYwqTMTbF8R2Xp7tLM6RFpFQbjbvUDs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=PjUxRXEIOQTpV//sZU2CaWkEPp/ecrxwivDgMwRbIjBY93XD9Q0qSCNrCJSxxtJNmNq7BEtjfiu84XsCeIb7wIeZ7N41kqn3dcKmYCGBA7Lz7zOoxMaCoMMp8l9NGpVWdb/O1Mm4QEO9qccYz0iCF1WE/gDrWfFgLwn4wt+uULU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jBiXgsUU; arc=none smtp.client-ip=209.85.217.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1715028731; c=relaxed/simple;
+	bh=yCMlnDHuNBx/qGNlq8EvYeBs5TQNlNp2+Evuv2MUEr4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=JBX1gVIgDkKxaf1JOMw9VlX9ABavT87O1RFBaoh6bDw74GJLmXrRsO+nKDmtCG/N2sj46kpBENRFA9J9Vo3II4D/21iAV+o3yTIJds57BSWiUS/ZbkLvp+kF/oJC+VUvrc/rI9HUiH0bd6r0gxl6LWHx/cf/oNaL2NxqPO3m4cI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Gt8MPEO2; arc=none smtp.client-ip=209.85.128.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jBiXgsUU"
-Received: by mail-vs1-f42.google.com with SMTP id ada2fe7eead31-47f00074f54so298189137.0
-        for <selinux@vger.kernel.org>; Mon, 06 May 2024 10:51:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Gt8MPEO2"
+Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-61bed5ce32fso26902517b3.2
+        for <selinux@vger.kernel.org>; Mon, 06 May 2024 13:52:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1715017880; x=1715622680; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1715028729; x=1715633529; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gfkmUQUKIeE8fONyOCbH5PmvFN4SMUt7vE49Lb00RBM=;
-        b=jBiXgsUUuqEju+AiTeVuhG9G4bOFhIYtJVWQNV4K5dqKdQeYvQR2EneBC+ck11fRDL
-         vozo8uMkjNPuSRUIQSh0AawiJ58SG+DNBSNE41Yc7NxK7bd1cZ6FEiW6BVRmYmfijv6C
-         6OVQU0tD8YVcgXrsqR6MU74CL87FlBg68TOWQmioHAW1SQcmC7AVkSAtW3PajpbNrMcr
-         4+mtnSkXwwSx6HYzX8NOkh1dC17K4iT4NmMA6Y3rbzmnowffhXTiSq3C2tTrqMIt8j95
-         uXYAPuBSyFRsbXtNDyKAhwfwVc8lIsFTrK2IqHe1kQ4mauancG12bxigJk3IxMjrMk3+
-         7S9A==
+        bh=O0aJldxObbqmwqRdokwOXsjkINM3Yq1p+ZO6p6LLpxY=;
+        b=Gt8MPEO2qHWJ2stCzOWna5dNZ1O0qOonRuibtrYqYbsgnNpr6Z05meLxSTGs/5FdIi
+         I+SA65HrZOv/ZBQYoV8kJsawBf73kqZsVlMGmUAd2g3DokCdr4p+BAAK+f2+2juR1r75
+         3LOlc9/LS35Mz1h+vcJdWpxa8J8uxq4jFHA5YIrg+oHW96CUk6Ji14iu3WnD/apHPFDK
+         1kq/gibn2HNy3ET38RIBMFfbd5JB+2eyi6Hb+ocztnXapRNcpRNGzRO0uk1T6uNQ4COn
+         9enHzHigD3tumB6hmwu3q3d8uyFqisoK7B1ozmutjePwpkdHOenNJWSLAtb6bUBHu+oB
+         ZGTg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715017880; x=1715622680;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1715028729; x=1715633529;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=gfkmUQUKIeE8fONyOCbH5PmvFN4SMUt7vE49Lb00RBM=;
-        b=LH8iV0G0VA8FsZ8qNM82fynWcpb/OZJRD3IV3YqlxDlr4vBtRnLM/Rb8QQNonxXtHY
-         WIfS0dvTfdZlx2YFbOhO2tqyVgcgs1pArvF+geOi9gvks8qgyYrp4TTUpnreIWOClqlt
-         cxVxVjvjw95On9T8mVbE9HM7KzFte4ZyOyVAQ5p7XXQF+yiwt27Y8SVsGMHxKZ9VGDlK
-         j/+/9mMqf17gKfjZqq6VoNo88wKA+lLPF3gY6JzKRCs00+VYENDNXxBtdTJoD41PDPig
-         CALEoh+9+nH30o2WhmiW+XcAhVyz6usJt53M3jnKi7/BdqpUbfrcwwKpQW/hsjjdBVhA
-         h+iA==
-X-Gm-Message-State: AOJu0YzNqP62q1mqGbP8MGtHv1WrUg/scPCcd/lyziMe95/kxaz4eiyl
-	zDyoLoprQuTZD9o62Gj0RT1aOIw1YdOh3z+ba/iEJWg5WPAeWb5fcQAl/w==
-X-Google-Smtp-Source: AGHT+IEkiw+gJmaWosLXMAbSsJxzGd+JYPapGc6ECjr45RivopXHkoi45fMWh2olMwiY18VLbkVQ2g==
-X-Received: by 2002:a05:6102:443:b0:47c:bff:41ff with SMTP id e3-20020a056102044300b0047c0bff41ffmr13087842vsq.14.1715017879508;
-        Mon, 06 May 2024 10:51:19 -0700 (PDT)
-Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id i4-20020a0cfcc4000000b006a0fa7bc030sm3887086qvq.25.2024.05.06.10.51.18
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 06 May 2024 10:51:19 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 2/2 testsuite] tools/nfs.sh: comment out the fscontext= tests for now
-Date: Mon,  6 May 2024 13:49:50 -0400
-Message-Id: <20240506174948.26314-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20240506174948.26314-1-stephen.smalley.work@gmail.com>
-References: <20240506174948.26314-1-stephen.smalley.work@gmail.com>
+        bh=O0aJldxObbqmwqRdokwOXsjkINM3Yq1p+ZO6p6LLpxY=;
+        b=n2xNwJtWaj+Jb7Fxq7ql8m4xWdnLJIe59gaae4TkBT5hedV++VXNYgi8i7flbZyg9r
+         n4rLE0YtVUEdTb741LRxKU2ngIdwq4leCANtsgp7DgX8ZgQIO4cthY84mmc7uL/5Mahr
+         aZd8Jvd1X3dOAX6/V7F0WfgqKVs38IiyvaUkhEtvud6Uq1ktlV0/IAvkA+Zygs0zos5A
+         PFTDNVX+GBRAOismKYv9mGbabFt8hc5XCQScHwfZm/6K3g2oOZxog0LdLMP6ezrB3K1t
+         U8oS/2zOwF5nTLQCGPqsJmbGfCE2kxMkupyRib/u6uCl0dITDTJlyS2Z9ZOWVxRW5aiZ
+         ZJVA==
+X-Gm-Message-State: AOJu0YwoyXOCHf1fAdTKtEwOA3JDdppW/I/sOu0gzydzTXFZLH2QZth2
+	Te0Mw4bmDrFGb9Ndb+RuGA1ZmrZvtrF9W7VSbGYmSsGxJ/Y33XSebEqE1CXmlU97zUX5cEHodr1
+	fPntAnSUEu6/9bjj5p9SiVpazhzwgFADDbyr1
+X-Google-Smtp-Source: AGHT+IGGFF3TGiRUMqSCC2WlHp4ApQwoT7T5/bWXwE/yklkvddWz3a47WbLGzgAyNG5Ymg5QfgMiGuECEknHhVdfwc0=
+X-Received: by 2002:a0d:ccd1:0:b0:61b:33c8:7bcd with SMTP id
+ o200-20020a0dccd1000000b0061b33c87bcdmr10805724ywd.21.1715028729248; Mon, 06
+ May 2024 13:52:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20240503005850.466144-2-paul@paul-moore.com> <06dc0e21-f44b-48c0-8552-9840147facfc@schaufler-ca.com>
+ <CAHC9VhQUW42aicyiMAVaSEsCR-G8E+uVZJVCXodDv8obC3V0VA@mail.gmail.com>
+ <18c63d96-d574-4ce2-8fd3-7755d2da6c74@schaufler-ca.com> <CAHC9VhQcUrxxejcJP9m5SwyN8D=Y0rOiF7=w6SQR4=fF=nBNDw@mail.gmail.com>
+In-Reply-To: <CAHC9VhQcUrxxejcJP9m5SwyN8D=Y0rOiF7=w6SQR4=fF=nBNDw@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 6 May 2024 16:51:58 -0400
+Message-ID: <CAHC9VhRdwgorXdBt7jUuQ7tLNbtCggGrbrhxw-Um7aCmk0JgmQ@mail.gmail.com>
+Subject: Re: [RFC PATCH] lsm: fixup the inode xattr capability handling
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Felix Fu <fuzhen5@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-These tests currently fail on mount(2) calls due to the directory being
-unlabeled at the point where search access is checked. Until we can resolve
-the underlying issue, comment out these tests to allow the NFS tests to
-be run.
+On Fri, May 3, 2024 at 12:26=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+> I also need to track down the appropriate commits for the 'Fixes:'
+> tag(s); I'm not entirely convinced that some of the other patches were
+> targeting the proper commit ...
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- tools/nfs.sh | 40 ++++++++++++++++++++--------------------
- 1 file changed, 20 insertions(+), 20 deletions(-)
+Looking at this again, I'm not sure we can easily narrow this down to
+one or two commits as the current flawed situation is really the
+result of a lot of things.  If I had to pick two may be the addition
+of the BPF LSM and the introduction of the LSM hook macros?  I think
+this patch may just get a stable tag without an explicit set of
+'Fixes', which should be okay.
 
-diff --git a/tools/nfs.sh b/tools/nfs.sh
-index cf4912c..688903e 100755
---- a/tools/nfs.sh
-+++ b/tools/nfs.sh
-@@ -77,27 +77,27 @@ POPD=0
- popd >/dev/null 2>&1
- umount /mnt/selinux-testsuite
- #
--echo -e "Run 'filesystem' tests with mount context option:\n\t$FS_CTX"
--mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
--pushd /mnt/selinux-testsuite >/dev/null 2>&1
--POPD=1
--cd tests
--./nfsruntests.pl filesystem/test
--cd ../
--POPD=0
--popd >/dev/null 2>&1
--umount /mnt/selinux-testsuite
-+#echo -e "Run 'filesystem' tests with mount context option:\n\t$FS_CTX"
-+#mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
-+#pushd /mnt/selinux-testsuite >/dev/null 2>&1
-+#POPD=1
-+#cd tests
-+#./nfsruntests.pl filesystem/test
-+#cd ../
-+#POPD=0
-+#popd >/dev/null 2>&1
-+#umount /mnt/selinux-testsuite
- #
--echo -e "Run 'fs_filesystem' tests with mount context option:\n\t$FS_CTX"
--mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
--pushd /mnt/selinux-testsuite >/dev/null 2>&1
--POPD=1
--cd tests
--./nfsruntests.pl fs_filesystem/test
--cd ../
--POPD=0
--popd >/dev/null 2>&1
--umount /mnt/selinux-testsuite
-+#echo -e "Run 'fs_filesystem' tests with mount context option:\n\t$FS_CTX"
-+#mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
-+#pushd /mnt/selinux-testsuite >/dev/null 2>&1
-+#POPD=1
-+#cd tests
-+#./nfsruntests.pl fs_filesystem/test
-+#cd ../
-+#POPD=0
-+#popd >/dev/null 2>&1
-+#umount /mnt/selinux-testsuite
- #
- echo "Run NFS context specific tests"
- cd tests
--- 
-2.40.1
-
+--=20
+paul-moore.com
