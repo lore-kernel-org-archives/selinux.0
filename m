@@ -1,127 +1,161 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 029C1155757
-	for <selinux@vger.kernel.org>; Mon,  6 May 2024 16:20:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65972137744;
+	Mon,  6 May 2024 16:31:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715012460; cv=none; b=kH3ku7oY0bOXVqDrcsS7a5ecgFYntXesQxzW+ThYN85H/uBo8V5nv2j6+BdKJAzaFBgFy3AyFnGZkR5TObgq3QGzoPCPQ/wua4sikUheqF8GEovI/SvJ5PcozXh9fbIk2j8OeAQNYZ9pNmk1DjtDHeEsYGzu6PHMaERTPSS1gOA=
+	t=1715013099; cv=none; b=QiV0CWDpDrmTuNChQtUSgJmEfnJXp0kdGFxUHU1gloaiSMPGrxP47vvKjnVSQtesSSyxZtADLeS0PQQx/PV8lyz7yp+dXNVWXQM1pUwMOhULvEcwhP+rNqMbZscLYseEUEv+4RW/rKDaciijlLMeX8jI0cdYbSFg3RhzNbB/Olw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715012460; c=relaxed/simple;
-	bh=BssCodaqu33MUIfYVQG2oqQr41T5dZB3ECr7+PBwOpc=;
+	s=arc-20240116; t=1715013099; c=relaxed/simple;
+	bh=8dSu5OUf4aL6t7cBki8n9BViUwsxV++G2jh1J3aVvkk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=SlEhh9cUHrMRkSL2G1KjZUEx2xCYcfE8l6Wi+631SQzUcOVMzdysoY6iZwu3LjjpTjN/9loFWlkIkJMhDXuiKAj0SfwTkTxwssOJYiAoQIPqd55CCd2vcz8MA0jkOe7Tb1Phs1lPRoMxYRfiGsWFlMQUXnZ1Aw6U/uZ6auO5WwA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZptO6r+q; arc=none smtp.client-ip=209.85.215.176
+	 To:Cc:Content-Type; b=ppvBkJN5NYGyVi++xDQSa95JyMo8b1WYK2GIINQAQlkNNWVSFEOFW+Hav6GPJxSVCWQneL3Hs6ht/7fL8af2j7ln+TG90U1TB5WqNJgKxjt5oHLhBEBlpsM5YIvV6gFX1CyPCn+QS45p07uoSni7fDHXkljH2YvZb0SB30ncqUE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bq6JQNYT; arc=none smtp.client-ip=209.85.215.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZptO6r+q"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-5c6bd3100fcso1240306a12.3
-        for <selinux@vger.kernel.org>; Mon, 06 May 2024 09:20:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bq6JQNYT"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-5d42e7ab8a9so1171854a12.3;
+        Mon, 06 May 2024 09:31:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1715012458; x=1715617258; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
+        d=gmail.com; s=20230601; t=1715013098; x=1715617898; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=U98anwabhazhWdTC9GPHJ3m6Ff/e+zDn7XrjGKGSo9o=;
-        b=ZptO6r+qZo1a5ZhmZPhXgr0/eL34PBKPcgihJygSmC1tDboHoFlaLI8OKvB83TS9xB
-         zbk5jVTxI34nIfohdeuTTFzjU258KRsHhdgTR16Qb9e1xo4Zp7LmPMGKUh2pAxgVy7V/
-         lC5vOf6iToAH793NxrbQ0EQI70QpmQASqMlROl4kMB/FoiiriRjDe5GNKWJeLRoc5Avt
-         a6rawlr58PuRLAUY8YVlk9Bjba4zkeLlffrrX1uCWH1mgx+BtwXFWMALldYU1NWo+frK
-         g6/tjzqbX7IEb2xWpuYSz5cJ635amF1mbrPvihkbTUO1oozgXoeqfYshr/dxeyCbfGXr
-         stIw==
+        bh=9ZYzqMI4a34TBdeHoO+OcvRoLuw5bJXTxl6XLoPFdTU=;
+        b=bq6JQNYTVmGHUi7chnvVo/T5C0GWEcNkBWgUrmJyPpP8cP1JwB4ngKPw/CUdTMUVJ2
+         VZ31dIAcBbU/wIOPgM/F3QSPtFfD5fNx0DYiwt7Gnm+G85XjjIuzAS6vWLV43bkX0CB0
+         OOJl0kboEr2bRFmWAZ2EgC6KAr+3NS70A0af5b96fP3eDM6d9tnPTuGUOvXp0gSS5IXM
+         Lqd8H//4NpVKEbS+DqNzIZjwWWr3GUfIRtEkQIM70dd7OOLxogAOvVL2qMcNICumBhGU
+         87Z7ObaSqCCXc5YghUBb/LNoTx/KrVB/JlBpRGWUG49fJaVYk+yfufcXr4ibJZkx8FXw
+         1TWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715012458; x=1715617258;
-        h=content-transfer-encoding:to:subject:message-id:date:from
+        d=1e100.net; s=20230601; t=1715013098; x=1715617898;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=U98anwabhazhWdTC9GPHJ3m6Ff/e+zDn7XrjGKGSo9o=;
-        b=T+D1qsoT/bpISJfmvhwjeLQNRmjK+Q2dAlMLpzichH1J/SsjV+0O8oIQxPaNiwNPNm
-         aPx2eUqMlCpmUEN9+YcZPWGaep7NSWijO7BFtDyd4MOfHkqgJYmGp/LNVOlhXwla83YC
-         yOySWyZyL5ke8CFoDlLXAxjdL8r47rTYZ+C+ofjWeeGg2Ste7eTLhpOqAOqaRbRU7uPO
-         kmBjUuyMNlMR3Hk4RxIrlZGoMOaX53uH20bmBZiM7kX38cN8J39YNMxPz+UFMbxzzfnX
-         mXtGYl2pkhlRv1/SsqSNYuTBqDmqL/vdPeN6YhKoUfnLR0WsIuvv71l4H8HQP5ZBIDm8
-         2Uxg==
-X-Forwarded-Encrypted: i=1; AJvYcCVjgh3TjZ2gyuR/8watL4dgFcWzAbSHGptlGCUZgmZy5eV4xNUGYyRzFYmolruL+lhqqrpClaDTiTX5cxRWyQKKlja3gDJsQQ==
-X-Gm-Message-State: AOJu0YwGBHPonxfVI/Rzn9UEfzDQP6OvkohTP+9tZv6XIwFZ1rJLA2ej
-	iMi7k99KA5mcg2CxvUGSY+DG60mfQP3rxP7elCwKYb2tc8v7REmTKCfroquocmyjlTgp3mEa5Mv
-	yplXB/SF45AoOymIXxjyLILSGcPR6v6VL
-X-Google-Smtp-Source: AGHT+IF7cHlz74THlM7aWDDi7mtlSNQeTtgkip/GF+5CYmn63zIe7CT+bVGHk4M3PO53xvPUoB9kGGRBJTAVDpTuHO4=
-X-Received: by 2002:a17:90a:d48f:b0:2af:53c6:5fb0 with SMTP id
- s15-20020a17090ad48f00b002af53c65fb0mr7522361pju.28.1715012457933; Mon, 06
- May 2024 09:20:57 -0700 (PDT)
+        bh=9ZYzqMI4a34TBdeHoO+OcvRoLuw5bJXTxl6XLoPFdTU=;
+        b=grewcvEqhyR1mHX2tqelifMAwp+NL/8KMnY+uG8IMu9vtaYL4hixw0k3fxXrRUdUm4
+         Mf3omVtOc31VCAgfCL8uRm2GqI5BD07WkiH+fT+cgI8u08bvaQgewne0pM+dWCahOlr3
+         5pcBEXHy+2YPMPjDLKBmam5onK/6zgNbhRKSBgtoUk9B1sIdY+Ql3ZPo28umtU5EJiuj
+         kFMo3Xu0VrK+V4dv00ePwse0WAGdOJSiul8l59pbLZOAKioZGhEt5OKwGp+J5+DCaVCF
+         NWMSVWAObSUk4XGUlmADVfw1+WIrVw+eTvZ+Sm8II+a/tePeIu2O0ZOA2OZZZTZoyBQS
+         IITQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU0zfYPrQcgNO1rJnKlTFaySspEUa/RlsfEbHO6opgC+Q746FmOK0s8TOung/WF73ex3GUKYr4V0ZSc5DlYlE8NfNmZ+2Yw8ugXSx0Z7rvTUSKFYxY/mimjKQ3aGNZh3TvVPVjrD6q+DvgYt4ilWt6a
+X-Gm-Message-State: AOJu0YxZcT+0GHobZ3+3t1G7D95IeSq8OGcdgaiHmD/zwIsm+9kyEUcP
+	ftjvA6n2UX2PYYE3gmKA+htPXYdac/BAtdkHk0RtLDSJv4DGorASPAptSTIn/Vjw8oKyITOE+HP
+	fSlC94iPA8QKqKikt7QAhF5QMamk=
+X-Google-Smtp-Source: AGHT+IF5fO7Xh9sTtZ3HipswRhggNjgY82it0ZdBxZVyLU8eQ001kl///r/CLlTpVuW4VE8j+8wHYH3nLxjJdrJW//k=
+X-Received: by 2002:a17:90a:8581:b0:2b2:7c42:bf6e with SMTP id
+ m1-20020a17090a858100b002b27c42bf6emr8220162pjn.12.1715013097473; Mon, 06 May
+ 2024 09:31:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ67XPMa2DhZ-O1EJG+Q2ZUrjSspUf=rY1DahymiEvew3w@mail.gmail.com>
-In-Reply-To: <CAEjxPJ67XPMa2DhZ-O1EJG+Q2ZUrjSspUf=rY1DahymiEvew3w@mail.gmail.com>
+References: <20240503130905.16823-1-stephen.smalley.work@gmail.com> <171497439414.9775.6998904788791406674@noble.neil.brown.name>
+In-Reply-To: <171497439414.9775.6998904788791406674@noble.neil.brown.name>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 6 May 2024 12:20:46 -0400
-Message-ID: <CAEjxPJ6+J+c5tjVjzV4p16NzKEnSwt3J11pyeTjhVvi8whVhDw@mail.gmail.com>
-Subject: Re: NFS context mount failures
-To: Ondrej Mosnacek <omosnace@redhat.com>, Paul Moore <paul@paul-moore.com>, 
-	SElinux list <selinux@vger.kernel.org>
+Date: Mon, 6 May 2024 12:31:26 -0400
+Message-ID: <CAEjxPJ6W7UGvPUMt82+_tB2MPmcmG7JaUjH6HhgjwTqOzQL_xA@mail.gmail.com>
+Subject: Re: [PATCH v3] nfsd: set security label during create operations
+To: NeilBrown <neilb@suse.de>
+Cc: selinux@vger.kernel.org, linux-nfs@vger.kernel.org, chuck.lever@oracle.com, 
+	jlayton@kernel.org, paul@paul-moore.com, omosnace@redhat.com, 
+	linux-security-module@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 6, 2024 at 10:29=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Mon, May 6, 2024 at 1:46=E2=80=AFAM NeilBrown <neilb@suse.de> wrote:
 >
-> So I'm looking into the remaining failures when running the nfs.sh
-> tests in the selinux-testsuite, and the next failures are during
-> mount(2) when using the fscontext mount option, with the following
-> messages showing up repeatedly in dmesg output:
-> [  446.205230] SELinux: inode_doinit_use_xattr:  getxattr returned 95
-> for dev=3D0:59 ino=3D632702863
-> [  446.205344] SELinux: inode_doinit_use_xattr:  getxattr returned 95
-> for dev=3D0:59 ino=3D632702863
-> [  446.205383] SELinux: inode_doinit_use_xattr:  getxattr returned 95
-> for dev=3D0:59 ino=3D632702863
-> [  446.205387] SELinux: inode_doinit_use_xattr:  getxattr returned 95
-> for dev=3D0:59 ino=3D632702863
+> On Fri, 03 May 2024, Stephen Smalley wrote:
+> > When security labeling is enabled, the client can pass a file security
+> > label as part of a create operation for the new file, similar to mode
+> > and other attributes. At present, the security label is received by nfs=
+d
+> > and passed down to nfsd_create_setattr(), but nfsd_setattr() is never
+> > called and therefore the label is never set on the new file. This bug
+> > may have been introduced on or around commit d6a97d3f589a ("NFSD:
+> > add security label to struct nfsd_attrs"). Looking at nfsd_setattr()
+> > I am uncertain as to whether the same issue presents for
+> > file ACLs and therefore requires a similar fix for those.
+> >
+> > An alternative approach would be to introduce a new LSM hook to set the
+> > "create SID" of the current task prior to the actual file creation, whi=
+ch
+> > would atomically label the new inode at creation time. This would be be=
+tter
+> > for SELinux and a similar approach has been used previously
+> > (see security_dentry_create_files_as) but perhaps not usable by other L=
+SMs.
+> >
+> > Reproducer:
+> > 1. Install a Linux distro with SELinux - Fedora is easiest
+> > 2. git clone https://github.com/SELinuxProject/selinux-testsuite
+> > 3. Install the requisite dependencies per selinux-testsuite/README.md
+> > 4. Run something like the following script:
+> > MOUNT=3D$HOME/selinux-testsuite
+> > sudo systemctl start nfs-server
+> > sudo exportfs -o rw,no_root_squash,security_label localhost:$MOUNT
+> > sudo mkdir -p /mnt/selinux-testsuite
+> > sudo mount -t nfs -o vers=3D4.2 localhost:$MOUNT /mnt/selinux-testsuite
+> > pushd /mnt/selinux-testsuite/
+> > sudo make -C policy load
+> > pushd tests/filesystem
+> > sudo runcon -t test_filesystem_t ./create_file -f trans_test_file \
+> >       -e test_filesystem_filetranscon_t -v
+> > sudo rm -f trans_test_file
+> > popd
+> > sudo make -C policy unload
+> > popd
+> > sudo umount /mnt/selinux-testsuite
+> > sudo exportfs -u localhost:$MOUNT
+> > sudo rmdir /mnt/selinux-testsuite
+> > sudo systemctl stop nfs-server
+> >
+> > Expected output:
+> > <eliding noise from commands run prior to or after the test itself>
+> > Process context:
+> >       unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
+> > Created file: trans_test_file
+> > File context: unconfined_u:object_r:test_filesystem_filetranscon_t:s0
+> > File context is correct
+> >
+> > Actual output:
+> > <eliding noise from commands run prior to or after the test itself>
+> > Process context:
+> >       unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
+> > Created file: trans_test_file
+> > File context: system_u:object_r:test_file_t:s0
+> > File context error, expected:
+> >       test_filesystem_filetranscon_t
+> > got:
+> >       test_file_t
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+> > v3 removes the erroneous and unnecessary change to NFSv2 and updates th=
+e
+> > description to note the possible origin of the bug. I did not add a
+> > Fixes tag however as I have not yet tried confirming that.
 >
-> The errno 95 corresponds to EOPNOTSUPP. __vfs_getxattr() returns this
-> when there is no handler for the attribute name. The NFS handler for
-> getting security.* is nfs4_xattr_get_nfs4_label(), which calls
-> security_ismaclabel() to check whether the name is in fact the
-> attribute name that corresponds to the MAC label, and SELinux returns
-> 1 for its name so I am unclear as to why we are getting this error.
+> I think this bug has always been present - since label support was
+> added.
+> Commit d6a97d3f589a ("NFSD: add security label to struct nfsd_attrs")
+> should have fixed it, but was missing the extra test that you provide.
 >
-> Line 709 of tests/filesystem/test is the first such failure:
-> print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
-> print "Using mount options:\n\t$mount_opts\n";
-> $result =3D system(
-> "runcon -t test_filesystem_no_getattr_t $basedir/mount -s $dev -t
-> $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts -v"
-> );
-> ok( $result eq 0 );
+> So
+> Fixes: 0c71b7ed5de8 ("nfsd: introduce file_cache_mutex")
+> might be appropriate - it fixes the patch, though not a bug introduced
+> by the patch.
 >
-> Verbose output is:
-> Run 'filesystem' tests with mount context option:
-> fscontext=3Dsystem_u:object_r:test_filesystem_file_t:s0
-> filesystem/test .. 1/41 Failed mount(2): Permission denied
+> Thanks for this patch!
+> Reviewed-by: NeilBrown <neilb@suse.de>
 >
-> AVC message is:
-> type=3DAVC msg=3Daudit(05/06/2024 10:14:42.359:3649) : avc:  denied  {
-> search } for  pid=3D11312 comm=3Dmount name=3Dmntpoint dev=3D"0:54"
-> ino=3D285625107 scontext=3Dunconfined_u:unconfined_r:test_filesystem_no_g=
-etattr_t:s0-s0:c0.c1023
-> tcontext=3Dsystem_u:object_r:unlabeled_t:s0 tclass=3Ddir permissive=3D0
->
-> Unsurprising that it is unlabeled_t since the getxattr failed, so the
-> getxattr failure seems to be the key here.
->
-> Maybe because this is happening during mount(2), the server isn't yet
-> offering labels and that's the cause? I know we had a similar problem
-> with FUSE filesystems when we were trying to allow labeling of
-> those...
+> NeilBrown
 
-Ok, if I undo the one part of commit cec5fe700799b ("selinux: make
-labeled NFS work when mounted before policy load") that changed
-inode_doinit_with_dentry() to fall through to the USE_XATTR case from
-USE_NATIVE, then we no longer get the messages from
-inode_doinit_use_xattr() but still fail the permission check on the
-unlabeled directory and thus fail the mount operation.
+Thanks for confirming. Do we need to also check for the ACL case in
+nfsd_attrs_valid() or is that covered in some other way?
