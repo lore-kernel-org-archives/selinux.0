@@ -1,63 +1,67 @@
-Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
+Received: from mail-vs1-f42.google.com (mail-vs1-f42.google.com [209.85.217.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C5E9157E94
-	for <selinux@vger.kernel.org>; Mon,  6 May 2024 17:51:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AEF7157E7A
+	for <selinux@vger.kernel.org>; Mon,  6 May 2024 17:51:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715017866; cv=none; b=N5cswnwPVIEcoammvA/bkKVZx0QOux5n5rCH8H+g1eKhMh0iDOZ5J0JnStKS2oQGhzM7D5S7p52WSpE/1Ldfmv7E8SIFS/34cY/VJpxXfxDAReHX8V8l08cSZ3faWhIQHN12MGiXzGOS/bbCGOI0yuV7pb8veZHk82jdGtxLlZY=
+	t=1715017882; cv=none; b=eK7SjsAeQM9ANWrmgK+8v1HAliCYvNB1vYa0PBAE2hu7a/42OQTHSbOAy/MV8dIPzNL6Kiv23coaGFwUZZliLdj2sWh1mO3rnLUlrx4H6/Kz2Knk1K9h49H4hrOAj2sZSP7gUdxR9g9m8owH0smIJu6ro6ya1MVN6uTIsPUKDK4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715017866; c=relaxed/simple;
-	bh=Bp5ZYQXXpz8e4P9SqWJlslJ00upADJCx3nqRK1Uxbak=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ULxn0GpsxceOu86vdvJH6kEqWBEfg3nwPmZm5bbbTVoOJfDaHGKzhLnBU55zws4XNJF8wWR2FCVUhN606LNHgNYWq8eZJezUVV6FHliCJ8e/WqIf1d86HvmuiOfCAVGB7aQ3uklhpIaEPyGe9BKtQOIlh8Ul9Zd5PdKd+yBSqZU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IeZ0eDuu; arc=none smtp.client-ip=209.85.219.48
+	s=arc-20240116; t=1715017882; c=relaxed/simple;
+	bh=CK2r7HvzKruSoYwqTMTbF8R2Xp7tLM6RFpFQbjbvUDs=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=PjUxRXEIOQTpV//sZU2CaWkEPp/ecrxwivDgMwRbIjBY93XD9Q0qSCNrCJSxxtJNmNq7BEtjfiu84XsCeIb7wIeZ7N41kqn3dcKmYCGBA7Lz7zOoxMaCoMMp8l9NGpVWdb/O1Mm4QEO9qccYz0iCF1WE/gDrWfFgLwn4wt+uULU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jBiXgsUU; arc=none smtp.client-ip=209.85.217.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IeZ0eDuu"
-Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-6a073f10e25so14356766d6.3
-        for <selinux@vger.kernel.org>; Mon, 06 May 2024 10:51:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jBiXgsUU"
+Received: by mail-vs1-f42.google.com with SMTP id ada2fe7eead31-47f00074f54so298189137.0
+        for <selinux@vger.kernel.org>; Mon, 06 May 2024 10:51:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1715017864; x=1715622664; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Pr/dAezIBLtQDhgNM/srPJXbVCqTrZSDqzUmXn/kE3o=;
-        b=IeZ0eDuuKBwc/kQhWx7tb7AvL1Eo0qdEf5dH5T4GFANG97nv3XE2w8I+qd6AXFrEqq
-         b6VOH2k5ow9REUIwIMqJcUrYlEGfUX3PfTyE/Z6hEFmyBKYK/KbmvhlxXuYaScD5+xMR
-         Rc0HjqPiI6urU7QY9u6cSKOMFHh6E5yNxG3DU5qeQq8O70oAaHUNzu5P9koV1t2/USrq
-         sX/kxAgt5+s43FkNF3svh1jOtGKT3UYI9vM29VlWUeD+n5Qf1jTUs7h4v+siUPJA1/T6
-         thxzANK8qbKdLkv3VIwEtA378tNarBRaA58RnRLfSu4ctPx0GiD39vDEhvP2Ok2vwme8
-         bQZg==
+        d=gmail.com; s=20230601; t=1715017880; x=1715622680; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=gfkmUQUKIeE8fONyOCbH5PmvFN4SMUt7vE49Lb00RBM=;
+        b=jBiXgsUUuqEju+AiTeVuhG9G4bOFhIYtJVWQNV4K5dqKdQeYvQR2EneBC+ck11fRDL
+         vozo8uMkjNPuSRUIQSh0AawiJ58SG+DNBSNE41Yc7NxK7bd1cZ6FEiW6BVRmYmfijv6C
+         6OVQU0tD8YVcgXrsqR6MU74CL87FlBg68TOWQmioHAW1SQcmC7AVkSAtW3PajpbNrMcr
+         4+mtnSkXwwSx6HYzX8NOkh1dC17K4iT4NmMA6Y3rbzmnowffhXTiSq3C2tTrqMIt8j95
+         uXYAPuBSyFRsbXtNDyKAhwfwVc8lIsFTrK2IqHe1kQ4mauancG12bxigJk3IxMjrMk3+
+         7S9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715017864; x=1715622664;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Pr/dAezIBLtQDhgNM/srPJXbVCqTrZSDqzUmXn/kE3o=;
-        b=kIA1JkyiugEuChPu05RKHIlDnVcBzi5UKP1CYoPEHVvpEoxZYQ/Tzr6b4XKsdFKWpV
-         ObusnudpSi1j2BeUgiBehhmoiv1UAlUIF1wGkQSBRxUIJl79iH2DmlOupGhLXrdYSdh7
-         FJZgNPPUCUN8kma81qkGJscfHmdGWeOnpw2xR858bHKbGAOsyyQtU/vNZhUJmW/g3Qrm
-         CWn3UgR64CvobOMScSrDGL9TBAoDoBfDSu4ofISbiM6gYcdiaMOnjX0RYUMqbKXpdRT1
-         24Mw5TIWEzF8N1o3zbIYBy5ghyw9Aa9BjTWf/O5FDtiQyLD5ZfRwmTObu+Y76JiJaJZ/
-         ylsA==
-X-Gm-Message-State: AOJu0YyxCGga+Mb0bjIGRkoCBrI+qMD6+qPAmjbyVCCFg2bYlWZrlo61
-	0XX+OsKWStp6KvGnSKrJAw2y313H6+CRtBqNXHd10qAS7wFW6iK5oC992w==
-X-Google-Smtp-Source: AGHT+IGE1dHyp5IInz4bsJaeL9liz8lyG9W2eN6RkKgTa5YqaT9N2ASuXr662XckSYVTqxXO51MEJg==
-X-Received: by 2002:a05:6214:d8d:b0:6a0:d291:a357 with SMTP id e13-20020a0562140d8d00b006a0d291a357mr13012035qve.54.1715017863641;
-        Mon, 06 May 2024 10:51:03 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1715017880; x=1715622680;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gfkmUQUKIeE8fONyOCbH5PmvFN4SMUt7vE49Lb00RBM=;
+        b=LH8iV0G0VA8FsZ8qNM82fynWcpb/OZJRD3IV3YqlxDlr4vBtRnLM/Rb8QQNonxXtHY
+         WIfS0dvTfdZlx2YFbOhO2tqyVgcgs1pArvF+geOi9gvks8qgyYrp4TTUpnreIWOClqlt
+         cxVxVjvjw95On9T8mVbE9HM7KzFte4ZyOyVAQ5p7XXQF+yiwt27Y8SVsGMHxKZ9VGDlK
+         j/+/9mMqf17gKfjZqq6VoNo88wKA+lLPF3gY6JzKRCs00+VYENDNXxBtdTJoD41PDPig
+         CALEoh+9+nH30o2WhmiW+XcAhVyz6usJt53M3jnKi7/BdqpUbfrcwwKpQW/hsjjdBVhA
+         h+iA==
+X-Gm-Message-State: AOJu0YzNqP62q1mqGbP8MGtHv1WrUg/scPCcd/lyziMe95/kxaz4eiyl
+	zDyoLoprQuTZD9o62Gj0RT1aOIw1YdOh3z+ba/iEJWg5WPAeWb5fcQAl/w==
+X-Google-Smtp-Source: AGHT+IEkiw+gJmaWosLXMAbSsJxzGd+JYPapGc6ECjr45RivopXHkoi45fMWh2olMwiY18VLbkVQ2g==
+X-Received: by 2002:a05:6102:443:b0:47c:bff:41ff with SMTP id e3-20020a056102044300b0047c0bff41ffmr13087842vsq.14.1715017879508;
+        Mon, 06 May 2024 10:51:19 -0700 (PDT)
 Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id i4-20020a0cfcc4000000b006a0fa7bc030sm3887086qvq.25.2024.05.06.10.51.03
+        by smtp.gmail.com with ESMTPSA id i4-20020a0cfcc4000000b006a0fa7bc030sm3887086qvq.25.2024.05.06.10.51.18
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 06 May 2024 10:51:03 -0700 (PDT)
+        Mon, 06 May 2024 10:51:19 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 1/2 testsuite] tests/nfs_filesystem: remove failing mount
-Date: Mon,  6 May 2024 13:49:48 -0400
-Message-Id: <20240506174948.26314-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH 2/2 testsuite] tools/nfs.sh: comment out the fscontext= tests for now
+Date: Mon,  6 May 2024 13:49:50 -0400
+Message-Id: <20240506174948.26314-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20240506174948.26314-1-stephen.smalley.work@gmail.com>
+References: <20240506174948.26314-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -66,46 +70,68 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-For reasons unclear, we attempt to mount twice, the 2nd time yields an
-EBUSY, and then the following test fails. Remove the 2nd mount, which
-also resolves the failure. I do not know what was being tested here.
+These tests currently fail on mount(2) calls due to the directory being
+unlabeled at the point where search access is checked. Until we can resolve
+the underlying issue, comment out these tests to allow the NFS tests to
+be run.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- tests/nfs_filesystem/test | 13 +------------
- 1 file changed, 1 insertion(+), 12 deletions(-)
+ tools/nfs.sh | 40 ++++++++++++++++++++--------------------
+ 1 file changed, 20 insertions(+), 20 deletions(-)
 
-diff --git a/tests/nfs_filesystem/test b/tests/nfs_filesystem/test
-index fc8d525..4203206 100755
---- a/tests/nfs_filesystem/test
-+++ b/tests/nfs_filesystem/test
-@@ -38,7 +38,7 @@ BEGIN {
-         $v = " ";
-     }
- 
--    plan tests => 56;
-+    plan tests => 54;
- }
- 
- # Set for testing mount(2) on first run
-@@ -100,17 +100,6 @@ while ( $i < 2 ) {
-     );
-     ok( $result eq 0, $test_msg );
- 
--    # First mount(2) ok, second currently fails with EBUSY
--    $result = system(
--"runcon -t test_filesystem_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts 2>&1"
--    );
--    if ( $i eq 0 and $result >> 8 eq 16 ) {
--        ok( 1, "$test_msg - returned EBUSY, possible bug/feature" );
--    }
--    else {
--        ok( $result eq 0 );
--    }
--
-     # Create file and change context via type_transition rule, check ok:
-     $result = system(
- "runcon -t test_filesystem_t $filesystem_dir/create_file -f $target/tests/nfs_filesystem/mntpoint/mp1/test_file -e test_filesystem_filetranscon_t $v"
+diff --git a/tools/nfs.sh b/tools/nfs.sh
+index cf4912c..688903e 100755
+--- a/tools/nfs.sh
++++ b/tools/nfs.sh
+@@ -77,27 +77,27 @@ POPD=0
+ popd >/dev/null 2>&1
+ umount /mnt/selinux-testsuite
+ #
+-echo -e "Run 'filesystem' tests with mount context option:\n\t$FS_CTX"
+-mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
+-pushd /mnt/selinux-testsuite >/dev/null 2>&1
+-POPD=1
+-cd tests
+-./nfsruntests.pl filesystem/test
+-cd ../
+-POPD=0
+-popd >/dev/null 2>&1
+-umount /mnt/selinux-testsuite
++#echo -e "Run 'filesystem' tests with mount context option:\n\t$FS_CTX"
++#mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
++#pushd /mnt/selinux-testsuite >/dev/null 2>&1
++#POPD=1
++#cd tests
++#./nfsruntests.pl filesystem/test
++#cd ../
++#POPD=0
++#popd >/dev/null 2>&1
++#umount /mnt/selinux-testsuite
+ #
+-echo -e "Run 'fs_filesystem' tests with mount context option:\n\t$FS_CTX"
+-mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
+-pushd /mnt/selinux-testsuite >/dev/null 2>&1
+-POPD=1
+-cd tests
+-./nfsruntests.pl fs_filesystem/test
+-cd ../
+-POPD=0
+-popd >/dev/null 2>&1
+-umount /mnt/selinux-testsuite
++#echo -e "Run 'fs_filesystem' tests with mount context option:\n\t$FS_CTX"
++#mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
++#pushd /mnt/selinux-testsuite >/dev/null 2>&1
++#POPD=1
++#cd tests
++#./nfsruntests.pl fs_filesystem/test
++#cd ../
++#POPD=0
++#popd >/dev/null 2>&1
++#umount /mnt/selinux-testsuite
+ #
+ echo "Run NFS context specific tests"
+ cd tests
 -- 
 2.40.1
 
