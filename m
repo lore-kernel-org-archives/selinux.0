@@ -1,96 +1,136 @@
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A606916D9BC
-	for <selinux@vger.kernel.org>; Tue,  7 May 2024 19:18:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73453187320;
+	Tue,  7 May 2024 20:28:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715109483; cv=none; b=ajaJj0PLS5xyZnZra/te35RPhdJt3cg7LMvGPYKbCppfS7iRKQLot5y1W8b+uHdGCj3t9USq8ZLtthTYZ3ZCeSqXydxVgsaCc1D2RK+pBRG4Tk+jKeCyoUDhzEGpq//aV4lKPwZrD6IXWHk7iXG0OPtFRUAO7VdmuqdfbSsruSA=
+	t=1715113708; cv=none; b=PYoo4tCfuFXZ7wglfcQTdWXr0m42VVk57mFHL7OXLy8EuKiXyZwlAg0Q/ZISuzFQDDnaiMuPGlX3pyPeCpUK+fKwfmlbfoDt2Cnvg6Kp7j6s5ZkVvGawygMTjfR4Keign9SOOZWbHSvD7rvpkjTzRhfHgBi2D+Z5i4bQUPfZKsU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715109483; c=relaxed/simple;
-	bh=gJG2RhP5yjo+VUpaj6pMQlkab5QI2HJRpPvMeNdy28c=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NVgBKpbzLbEX/qSUpdya39aeBXO+brHLutS02ct0ImWG02+3YLuo3RfZ042B7d2IvRQMhHn74Iba3muvXwMYNdo0ZzYli1AorOn7OxKLXrNd4JbOzercNRRnDJgIf5zMqrAvvYNWABxsZ9L/LyFlxNNOqHsb5gIRKRYsPwIp5bw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=bUCJ2sIU; arc=none smtp.client-ip=209.85.128.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1715113708; c=relaxed/simple;
+	bh=x1GHjcPDDJTl+ZsQCF/flnxznBJUw6U2MMSDZ/gOtY0=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:Mime-Version; b=kYwiTxnN6t/ols3EZRmc031e9GOh9SIXo5gFDtmfsYMm0rlQrMcfmJiEyPmJz0HNTykercqXpmgEQkaViJU5TMfOlUjpqGbFHE1UuiSPGHMOySd5v4hwchIlOzTHrUJN6bLOPaQFwlA403/hFuW+rxdfFpa0SAgN+QMJynrD6QI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=r9sTzlzC; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="bUCJ2sIU"
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-61be4b9869dso37225267b3.1
-        for <selinux@vger.kernel.org>; Tue, 07 May 2024 12:18:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1715109480; x=1715714280; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=RkUnJY0EFDu9PZambZs1IeCNxuSIB/aK1oktUOoldtY=;
-        b=bUCJ2sIUiNaWigwdUVTOmpH5p7brYDKQmax8OPLuBgx256LQr9kpl/c+WaND+L+kLC
-         GXf7aVlYDkZLXHI4ZWDfIszdBOg3Sc97ng3xKLhRPvPDT+geLQgiI2CrHlYynGRQOUtb
-         XBgBB9X+dL5NQE9QS9S2UWdFk96DFoqBGn0J/jLgqJZVhVUVeadPTbHKrgmaL3w2AJKz
-         v/kjeLqf3m2bjWmgDJp8xXWQAaY/YRcgyo77MX//OjRH2fAtfYjRTcitt+bmHKBL6d9/
-         2awKbvwKksINC4R2c1Nr96ZyE8tLoSkOyn/pUo3ReIXXdCOXXnXNhKl4RUerwzCvnYnQ
-         sSBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715109480; x=1715714280;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RkUnJY0EFDu9PZambZs1IeCNxuSIB/aK1oktUOoldtY=;
-        b=RSiGjAnVh3oU37c9Iq1i/vhY2tq3TzNC6B1tU8Z25AYU561lE66VhgN47jKwP2M4pp
-         SX3NV0HIReI3rRI+lpesiAuG+WJhsW9VdmCq8Y22qXZDkBqNi+4jSALcmkDo+TCsR6VB
-         CsvwNYwfzhgNuTSBsf2RHufm0SEZspPXCicr+XloGkLGtpsNPKzEvd25K2OiZakxyxPk
-         kt9TVGOw4a1I+hySXAYyKDhOAxBEAOwMWP+OSkrjjqKNmgmOA0xXjmzstYHup2EZ5n05
-         k0+4vqbyn+bigtQpS8ewrVd0p3/omN8+VcG8Oa5PJG6nGrCiwPDhFsOeQr7fu6LvGoZX
-         HO7Q==
-X-Gm-Message-State: AOJu0YwOw++Mu6CZDCc9g5+9V3f5J4zbV8NGOzCWpN46FkfrdcgQXqcy
-	8+Pq43pXRUEhzEe17JwK4Vh2Nj4ZOJMYIESblxpigkU/DpFivk/xNNPufW1pvchwOoTBvqLvy0J
-	8xDDVVJ16XdDUrVYefjWaZ1AbElZlvTVBvnZB
-X-Google-Smtp-Source: AGHT+IHFh6fuPBDaALHcRGT86x6XUd5Gly/WjOFrrTl9D0oTiWSCEWhjSAxd+tkJ7qiDY205bvSs1K21OSV+FoXwzUQ=
-X-Received: by 2002:a0d:c803:0:b0:610:cd34:439e with SMTP id
- 00721157ae682-620862f530dmr6343667b3.49.1715109480658; Tue, 07 May 2024
- 12:18:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="r9sTzlzC"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 447KPtZg014781;
+	Tue, 7 May 2024 20:27:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=idlRHBWRT8oxEc2fgBMDrdVapLVifpy7E0T+mI4TCgQ=;
+ b=r9sTzlzC20dBN0730gS45SxoLTg3UYYGGzZvkAR04Nr8EHvnrzT8iJd7Bm+SE35Bjzi5
+ iUzlsAG/I7QQosztWusqrjQaSIZhbDVu3TNqpIodqix7LElBld1jloLHHuf/mXFqWPTg
+ +I9DBa2bAnjQEY1b0bvH1UCdj2esAwrhnUWTgaD6Kw5sYuqhuduUdHMmP3oX9ODEIb4y
+ i+VDKwd8Zb1di/+VmFXu+drqbL2jQZDNrZQJbD62t5axRqTMX6mAdZ9b6wfAH6VB5EAO
+ E7jUdTC50OugLsbLQ7zR+fUHMPl+pW0vq4gRWZ1iPdHqWwuqNPM4sPtj8BAYh5MQfhB2 8A== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyua3r0ma-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 May 2024 20:27:53 +0000
+Received: from m0353725.ppops.net (m0353725.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 447KRr7C017939;
+	Tue, 7 May 2024 20:27:53 GMT
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyua3r0m8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 May 2024 20:27:53 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 447IJhib009488;
+	Tue, 7 May 2024 20:27:52 GMT
+Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xysfx8mt9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 07 May 2024 20:27:52 +0000
+Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
+	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 447KRnEp21430898
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 7 May 2024 20:27:52 GMT
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C27D25805A;
+	Tue,  7 May 2024 20:27:49 +0000 (GMT)
+Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C2EA158051;
+	Tue,  7 May 2024 20:27:48 +0000 (GMT)
+Received: from li-5cd3c5cc-21f9-11b2-a85c-a4381f30c2f3.watson.ibm.com (unknown [9.31.110.109])
+	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue,  7 May 2024 20:27:48 +0000 (GMT)
+Message-ID: <cc11e15bdbfbb36415b36a796387e130b764fd6a.camel@linux.ibm.com>
+Subject: Re: [RFC][PATCH] ima: Use sequence number to wait for policy updates
+From: Mimi Zohar <zohar@linux.ibm.com>
+To: Roberto Sassu <roberto.sassu@huaweicloud.com>, dmitry.kasatkin@gmail.com,
+        eric.snowberg@oracle.com, paul@paul-moore.com, jmorris@namei.org,
+        serge@hallyn.com, john.johansen@canonical.com,
+        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
+        eparis@redhat.com
+Cc: linux-integrity@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, guozihua@huawei.com, omosnace@redhat.com,
+        audit@vger.kernel.org, apparmor@lists.ubuntu.com,
+        selinux@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>
+Date: Tue, 07 May 2024 16:27:33 -0400
+In-Reply-To: <e6e2b31983610bf566d8046edbac0e00c8453233.camel@huaweicloud.com>
+References: <20240507092831.3590793-1-roberto.sassu@huaweicloud.com>
+	 <e6e2b31983610bf566d8046edbac0e00c8453233.camel@huaweicloud.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-25.el8_9) 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20240503005850.466144-2-paul@paul-moore.com> <06dc0e21-f44b-48c0-8552-9840147facfc@schaufler-ca.com>
- <CAHC9VhQUW42aicyiMAVaSEsCR-G8E+uVZJVCXodDv8obC3V0VA@mail.gmail.com>
- <18c63d96-d574-4ce2-8fd3-7755d2da6c74@schaufler-ca.com> <CAHC9VhQcUrxxejcJP9m5SwyN8D=Y0rOiF7=w6SQR4=fF=nBNDw@mail.gmail.com>
- <CAHC9VhRdwgorXdBt7jUuQ7tLNbtCggGrbrhxw-Um7aCmk0JgmQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhRdwgorXdBt7jUuQ7tLNbtCggGrbrhxw-Um7aCmk0JgmQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 7 May 2024 15:17:49 -0400
-Message-ID: <CAHC9VhQUi8vo+gZ0OXYXGSbLpuSaCaNx+7CzXw0eAJyQ48X80w@mail.gmail.com>
-Subject: Re: [RFC PATCH] lsm: fixup the inode xattr capability handling
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Felix Fu <fuzhen5@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: DQc8ykwpdROiUFHjkXQPSgVcCkMS1H8j
+X-Proofpoint-ORIG-GUID: kZPJ7Ktfupkc_F6AbfPESwKX_GFbzKBl
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-05-07_12,2024-05-06_02,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 spamscore=0
+ adultscore=0 suspectscore=0 clxscore=1011 lowpriorityscore=0 bulkscore=0
+ impostorscore=0 priorityscore=1501 mlxscore=0 mlxlogscore=987
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2405010000 definitions=main-2405070143
 
-On Mon, May 6, 2024 at 4:51=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
-te:
->
-> On Fri, May 3, 2024 at 12:26=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> > I also need to track down the appropriate commits for the 'Fixes:'
-> > tag(s); I'm not entirely convinced that some of the other patches were
-> > targeting the proper commit ...
->
-> Looking at this again, I'm not sure we can easily narrow this down to
-> one or two commits as the current flawed situation is really the
-> result of a lot of things.  If I had to pick two may be the addition
-> of the BPF LSM and the introduction of the LSM hook macros?  I think
-> this patch may just get a stable tag without an explicit set of
-> 'Fixes', which should be okay.
+Hi Roberto,
 
-I merged this patch, with Casey's ACK and a stable tag, into
-lsm/dev-staging.  Assuming no issues are uncovered during testing, or
-mentioned on-list, I'll plan to merge this into lsm/dev after the
-upcoming merge window closes; I'll send another note when that
-happens.
+On Tue, 2024-05-07 at 11:32 +0200, Roberto Sassu wrote:
+> On Tue, 2024-05-07 at 11:28 +0200, Roberto Sassu wrote:
+> > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > 
+> > Maintain a global sequence number, and set it to individual policy rules,
+> > when they are created.
+> 
+> Just did an attempt, to see if this path is viable.
+> 
+> This patch would be an alternative to:
+> 
+> [PATCH v3] ima: Avoid blocking in RCU read-side critical section
 
---=20
-paul-moore.com
+Stephen had said,
+   "Sidebar: the refactoring of the SELinux policy loading logic may have
+   made it possible to revisit the approaches here to permit holding a
+   reference to the policy from which the rule was derived so that we
+   don't have to return -ESTALE in this scenario."
+
+Removing -ESTALE would be the best solution.  We could then remove the -ESTALE
+detection.
+
+I assume the change would be in selinux_policy_commit(). Instead of freeing the
+old policy, define and increment a per policy reference count for each
+registered notifier callback.
+
+        /* Free the old policy */
+        synchronize_rcu();
+        selinux_policy_free(oldpolicy);
+        kfree(load_state->convert_data);
+
+        /* Notify others of the policy change */
+        selinux_notify_policy_change(seqno);
+
+Mimi
+
