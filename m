@@ -1,179 +1,271 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95C627E8;
-	Tue,  7 May 2024 20:35:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D65B22338;
+	Wed,  8 May 2024 06:54:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715114139; cv=none; b=CBvtlIKsBJbtn+LEL15UFcySyd6Aj93rlGLEptZBjqoyUxO12U420XSkmmtfKPpKZEjBE6C+I5J805H0DQ+M2zNql5gtWtA6l5GS9LflCsVUnqpT0k89Pde0bxwZNcqY2zEzEBwFVgm1Wk99nvFRFPZ/rmkWncNwKyQ7c5cvZao=
+	t=1715151276; cv=none; b=mq+VxLiIq/qR0LuSqslWBzR1cKwu/IaP/cFCMG6cZGs6TPT2KFYklPpumoynUVI7KaYTq+vYJxaWOfqbgXlT3uUFdXTB9+CMCmhHg7im1I3B00EXzPaIUl1LSFRmevkJKazUPSfgfssMZJaf8XoQUmqPy9jj6iYponVEM/VGI54=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715114139; c=relaxed/simple;
-	bh=/hQFwKajUmSDYddOIMkszabWA0jbTOM01QuyhmRAdgs=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:Mime-Version; b=Tb3+qACGwR/sCxCpvY5+WVIq9WUjaoJ9HvfWKKvHWRzXwOMHpjFxpiaE0hnJa7G7dWrOllysTTgspvThd6UGjHi1QcAla37wJV69M6q1UKFttbjk6H/qk/umML983QkfSpfLDR3bnUEGPj1ev4rBPH8nmPmH85k3X4bhA2ON+7k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=BGMOWqdO; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1715151276; c=relaxed/simple;
+	bh=W5YKaZoQaIweD0X4GgzncnBDS/tkINhgL4sKlP5282k=;
+	h=Content-Type:MIME-Version:From:To:Cc:Subject:In-reply-to:
+	 References:Date:Message-id; b=Z7tBLTZotCNf1CP7JBWCWle/O/y1TwGGY+uehpXtHfTyA5ZZ6soQ5ECrhwRd69whmiqEk+LonnFnZj5g4D0Go3IhYvOZdf91ua/Jn3BvEf3cbHesCFTIJieatr+6NA+7aCm/CaKK5Lo/HSFZe/rCKS6MZbPH4tUywnUDeEyurqg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=cvdHfVks; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=smy8940K; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=cvdHfVks; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=smy8940K; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="BGMOWqdO"
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 447KOGod016540;
-	Tue, 7 May 2024 20:35:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=pPR5VFYaenM75DSdig4P/qic+Uhq7iNJTG/mpVAKqv4=;
- b=BGMOWqdO15PZURkO7FPmLqszbzBvZ31qD0BK1Mssh6Ur1zAcqTalXcSS/zOrTiQUlIOE
- yYFd1+3QSvJemGNgKQRr9vvRYjhAJhv+Gpf3j/MuwBts3Tv68W0gnrWGm/j+f4OPhDEl
- zLMFh0iBPmlu6rvYD9dQouMHExp1j67utT7HHIladvFIie3OnFk5hAPapD2U0lEfNCba
- X2TYq46hkeaeF8zkJH+xF9fE4WG5lCrjTyZeSV0Sa3SvqHNOV18tDQhalEgMNfv0Y1Rf
- 7F8+oInDBXS/gys6zUhAuAvnnZqZKTkSLOZihvpyGajFpeWhR2BEwr+2sJni+SKlX6we HA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyua1r16w-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 May 2024 20:35:23 +0000
-Received: from m0353723.ppops.net (m0353723.ppops.net [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 447KZNnh004017;
-	Tue, 7 May 2024 20:35:23 GMT
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xyua1r16u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 May 2024 20:35:23 +0000
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 447ILSTc003964;
-	Tue, 7 May 2024 20:35:22 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xysgs8nnx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 07 May 2024 20:35:22 +0000
-Received: from smtpav02.dal12v.mail.ibm.com (smtpav02.dal12v.mail.ibm.com [10.241.53.101])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 447KZJxx28050034
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 7 May 2024 20:35:22 GMT
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C04E65805A;
-	Tue,  7 May 2024 20:35:19 +0000 (GMT)
-Received: from smtpav02.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DD4B85805E;
-	Tue,  7 May 2024 20:35:18 +0000 (GMT)
-Received: from li-5cd3c5cc-21f9-11b2-a85c-a4381f30c2f3.watson.ibm.com (unknown [9.31.110.109])
-	by smtpav02.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Tue,  7 May 2024 20:35:18 +0000 (GMT)
-Message-ID: <a8dbecc2ae70d9ee00d44a7a1c7b1151eeba93cb.camel@linux.ibm.com>
-Subject: Re: [PATCH v3] ima: Avoid blocking in RCU read-side critical section
-From: Mimi Zohar <zohar@linux.ibm.com>
-To: GUO Zihua <guozihua@huawei.com>, paul@paul-moore.com,
-        john.johansen@canonical.com, jmorris@namei.org, serge@hallyn.com,
-        roberto.sassu@huawei.com, dmitry.kasatkin@gmail.com,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        eparis@redhat.com
-Cc: eric.snowberg@oracle.com, omosnace@redhat.com, audit@vger.kernel.org,
-        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Date: Tue, 07 May 2024 16:35:18 -0400
-In-Reply-To: <20240507012541.796421-1-guozihua@huawei.com>
-References: <20240507012541.796421-1-guozihua@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-25.el8_9) 
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="cvdHfVks";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="smy8940K";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="cvdHfVks";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="smy8940K"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 136655C509;
+	Wed,  8 May 2024 06:54:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1715151273; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sgI7PUIiVJJDn5EVTzirnarsfZdzpeWQPUTrE4Ft8uk=;
+	b=cvdHfVksVbZVaqcrHpD6mFbO9cToG770lVBEFfLtqDg4QPV0N+9DShzUa5/Fl2N1RB0vtF
+	3UnL4B4mHW1AXvEo/LiD4P1+GrXb2xi0sU7nBeaEzwEQoha52R+gqlGU05W9/+2d31fYen
+	aeT4DGq6rGgkC5OWE+HnsIii52Nf94s=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1715151273;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sgI7PUIiVJJDn5EVTzirnarsfZdzpeWQPUTrE4Ft8uk=;
+	b=smy8940KXPHOcgagZuWTALD62t4d+CvRPu5elF2pH/NMv3KHDK5sKkNvcoL5/XpRlxSNyt
+	aRBVzlU4kasYXbCw==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=cvdHfVks;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=smy8940K
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1715151273; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sgI7PUIiVJJDn5EVTzirnarsfZdzpeWQPUTrE4Ft8uk=;
+	b=cvdHfVksVbZVaqcrHpD6mFbO9cToG770lVBEFfLtqDg4QPV0N+9DShzUa5/Fl2N1RB0vtF
+	3UnL4B4mHW1AXvEo/LiD4P1+GrXb2xi0sU7nBeaEzwEQoha52R+gqlGU05W9/+2d31fYen
+	aeT4DGq6rGgkC5OWE+HnsIii52Nf94s=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1715151273;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sgI7PUIiVJJDn5EVTzirnarsfZdzpeWQPUTrE4Ft8uk=;
+	b=smy8940KXPHOcgagZuWTALD62t4d+CvRPu5elF2pH/NMv3KHDK5sKkNvcoL5/XpRlxSNyt
+	aRBVzlU4kasYXbCw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id AA1051386E;
+	Wed,  8 May 2024 06:54:29 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([10.150.64.162])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id GBjaEqUhO2YnZgAAD6G6ig
+	(envelope-from <neilb@suse.de>); Wed, 08 May 2024 06:54:29 +0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: HwohNo-AYcaw3f3Un-66RODftgTlEsup
-X-Proofpoint-ORIG-GUID: 1mi1uAOuzInkcZUp0OARcpoYCaSlS7WX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-05-07_12,2024-05-06_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
- priorityscore=1501 impostorscore=0 bulkscore=0 adultscore=0
- lowpriorityscore=0 clxscore=1015 mlxscore=0 mlxlogscore=999 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2405010000 definitions=main-2405070143
+MIME-Version: 1.0
+From: "NeilBrown" <neilb@suse.de>
+To: "Stephen Smalley" <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, linux-nfs@vger.kernel.org, chuck.lever@oracle.com,
+ jlayton@kernel.org, paul@paul-moore.com, omosnace@redhat.com,
+ linux-security-module@vger.kernel.org
+Subject: Re: [PATCH v3] nfsd: set security label during create operations
+In-reply-to:
+ <CAEjxPJ6W7UGvPUMt82+_tB2MPmcmG7JaUjH6HhgjwTqOzQL_xA@mail.gmail.com>
+References:
+ <>, <CAEjxPJ6W7UGvPUMt82+_tB2MPmcmG7JaUjH6HhgjwTqOzQL_xA@mail.gmail.com>
+Date: Wed, 08 May 2024 16:54:25 +1000
+Message-id: <171515126555.4857.14866053620991695880@noble.neil.brown.name>
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
+X-Rspamd-Action: no action
+X-Rspamd-Queue-Id: 136655C509
+X-Spam-Level: 
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_TO(0.00)[gmail.com];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_TRACE(0.00)[suse.de:+];
+	MIME_TRACE(0.00)[0:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[8];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	MISSING_XM_UA(0.00)[];
+	TO_DN_SOME(0.00)[]
 
-Hi Scott,
+On Tue, 07 May 2024, Stephen Smalley wrote:
+> On Mon, May 6, 2024 at 1:46=E2=80=AFAM NeilBrown <neilb@suse.de> wrote:
+> >
+> > On Fri, 03 May 2024, Stephen Smalley wrote:
+> > > When security labeling is enabled, the client can pass a file security
+> > > label as part of a create operation for the new file, similar to mode
+> > > and other attributes. At present, the security label is received by nfsd
+> > > and passed down to nfsd_create_setattr(), but nfsd_setattr() is never
+> > > called and therefore the label is never set on the new file. This bug
+> > > may have been introduced on or around commit d6a97d3f589a ("NFSD:
+> > > add security label to struct nfsd_attrs"). Looking at nfsd_setattr()
+> > > I am uncertain as to whether the same issue presents for
+> > > file ACLs and therefore requires a similar fix for those.
+> > >
+> > > An alternative approach would be to introduce a new LSM hook to set the
+> > > "create SID" of the current task prior to the actual file creation, whi=
+ch
+> > > would atomically label the new inode at creation time. This would be be=
+tter
+> > > for SELinux and a similar approach has been used previously
+> > > (see security_dentry_create_files_as) but perhaps not usable by other L=
+SMs.
+> > >
+> > > Reproducer:
+> > > 1. Install a Linux distro with SELinux - Fedora is easiest
+> > > 2. git clone https://github.com/SELinuxProject/selinux-testsuite
+> > > 3. Install the requisite dependencies per selinux-testsuite/README.md
+> > > 4. Run something like the following script:
+> > > MOUNT=3D$HOME/selinux-testsuite
+> > > sudo systemctl start nfs-server
+> > > sudo exportfs -o rw,no_root_squash,security_label localhost:$MOUNT
+> > > sudo mkdir -p /mnt/selinux-testsuite
+> > > sudo mount -t nfs -o vers=3D4.2 localhost:$MOUNT /mnt/selinux-testsuite
+> > > pushd /mnt/selinux-testsuite/
+> > > sudo make -C policy load
+> > > pushd tests/filesystem
+> > > sudo runcon -t test_filesystem_t ./create_file -f trans_test_file \
+> > >       -e test_filesystem_filetranscon_t -v
+> > > sudo rm -f trans_test_file
+> > > popd
+> > > sudo make -C policy unload
+> > > popd
+> > > sudo umount /mnt/selinux-testsuite
+> > > sudo exportfs -u localhost:$MOUNT
+> > > sudo rmdir /mnt/selinux-testsuite
+> > > sudo systemctl stop nfs-server
+> > >
+> > > Expected output:
+> > > <eliding noise from commands run prior to or after the test itself>
+> > > Process context:
+> > >       unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
+> > > Created file: trans_test_file
+> > > File context: unconfined_u:object_r:test_filesystem_filetranscon_t:s0
+> > > File context is correct
+> > >
+> > > Actual output:
+> > > <eliding noise from commands run prior to or after the test itself>
+> > > Process context:
+> > >       unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
+> > > Created file: trans_test_file
+> > > File context: system_u:object_r:test_file_t:s0
+> > > File context error, expected:
+> > >       test_filesystem_filetranscon_t
+> > > got:
+> > >       test_file_t
+> > >
+> > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > ---
+> > > v3 removes the erroneous and unnecessary change to NFSv2 and updates the
+> > > description to note the possible origin of the bug. I did not add a
+> > > Fixes tag however as I have not yet tried confirming that.
+> >
+> > I think this bug has always been present - since label support was
+> > added.
+> > Commit d6a97d3f589a ("NFSD: add security label to struct nfsd_attrs")
+> > should have fixed it, but was missing the extra test that you provide.
+> >
+> > So
+> > Fixes: 0c71b7ed5de8 ("nfsd: introduce file_cache_mutex")
+> > might be appropriate - it fixes the patch, though not a bug introduced
+> > by the patch.
+> >
+> > Thanks for this patch!
+> > Reviewed-by: NeilBrown <neilb@suse.de>
+> >
+> > NeilBrown
+>=20
+> Thanks for confirming. Do we need to also check for the ACL case in
+> nfsd_attrs_valid() or is that covered in some other way?
+>=20
 
-On Tue, 2024-05-07 at 01:25 +0000, GUO Zihua wrote:
-> A panic happens in ima_match_policy:
-> 
-> BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
-> PGD 42f873067 P4D 0
-> Oops: 0000 [#1] SMP NOPTI
-> CPU: 5 PID: 1286325 Comm: kubeletmonit.sh Kdump: loaded Tainted: P
-> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
-> RIP: 0010:ima_match_policy+0x84/0x450
-> Code: 49 89 fc 41 89 cf 31 ed 89 44 24 14 eb 1c 44 39 7b 18 74 26 41 83 ff 05 74 20 48 8b 1b 48 3b 1d f2 b9 f4 00 0f 84 9c 01 00 00 <44> 85 73 10 74 ea 44 8b 6b 14 41 f6 c5 01 75 d4 41 f6 c5 02 74 0f
-> RSP: 0018:ff71570009e07a80 EFLAGS: 00010207
-> RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000200
-> RDX: ffffffffad8dc7c0 RSI: 0000000024924925 RDI: ff3e27850dea2000
-> RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffffabfce739
-> R10: ff3e27810cc42400 R11: 0000000000000000 R12: ff3e2781825ef970
-> R13: 00000000ff3e2785 R14: 000000000000000c R15: 0000000000000001
-> FS:  00007f5195b51740(0000) GS:ff3e278b12d40000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 0000000000000010 CR3: 0000000626d24002 CR4: 0000000000361ee0
-> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> Call Trace:
->  ima_get_action+0x22/0x30
->  process_measurement+0xb0/0x830
->  ? page_add_file_rmap+0x15/0x170
->  ? alloc_set_pte+0x269/0x4c0
->  ? prep_new_page+0x81/0x140
->  ? simple_xattr_get+0x75/0xa0
->  ? selinux_file_open+0x9d/0xf0
->  ima_file_check+0x64/0x90
->  path_openat+0x571/0x1720
->  do_filp_open+0x9b/0x110
->  ? page_counter_try_charge+0x57/0xc0
->  ? files_cgroup_alloc_fd+0x38/0x60
->  ? __alloc_fd+0xd4/0x250
->  ? do_sys_open+0x1bd/0x250
->  do_sys_open+0x1bd/0x250
->  do_syscall_64+0x5d/0x1d0
->  entry_SYSCALL_64_after_hwframe+0x65/0xca
-> 
-> Commit c7423dbdbc9e ("ima: Handle -ESTALE returned by
-> ima_filter_rule_match()") introduced call to ima_lsm_copy_rule within a
-> RCU read-side critical section which contains kmalloc with GFP_KERNEL.
-> This implies a possible sleep and violates limitations of RCU read-side
-> critical sections on non-PREEMPT systems.
+Thanks a good question.  I should have asked it myself!
+No, ACLs aren't covered some other way.  They have the same problem.
 
-I would move the problem description before the traceback.
+I'm tempted to suggest that we simple drop the guard and call
+nfsd_setattr() unconditionally.  The cost is primarily the we call
+inode_lock() without needing to do anything.
 
-> 
-> Sleeping within RCU read-side critical section might cause
-> synchronize_rcu() returning early and break RCU protection, allowing a
-> UAF to happen.
-> 
-> The root cause of this issue could be described as follows:
-> > 	Thread A	|	Thread B	|
-> > 			|ima_match_policy	|
-> > 			|  rcu_read_lock	|
-> > ima_lsm_update_rule	|			|
-> >  synchronize_rcu	|			|
-> > 			|    kmalloc(GFP_KERNEL)|
-> > 			|      sleep		|
-> ==> synchronize_rcu returns early
-> >  kfree(entry)		|			|
-> > 			|    entry = entry->next|
-> ==> UAF happens and entry now becomes NULL (or could be anything).
-> > 			|    entry->action	|
-> ==> Accessing entry might cause panic.
-> 
-> To fix this issue, we are converting all kmalloc that is called within
-> RCU read-side critical section to use GFP_ATOMIC.
-> 
-> Fixes: c7423dbdbc9e ("ima: Handle -ESTALE returned by ima_filter_rule_match()")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: GUO Zihua <guozihua@huawei.com>
+Maybe moving the test inside nfsd_setattr() makes it a bit more obvious
+what is needed:
 
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
+index 2e41eb4c3cec..c738e9dfd72f 100644
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -499,6 +499,14 @@ nfsd_setattr(struct svc_rqst *rqstp, struct svc_fh *fhp,
+ 	bool		size_change =3D (iap->ia_valid & ATTR_SIZE);
+ 	int		retries;
+=20
++	if (!(iap->ia_valid ||
++	      (attr->na_seclabel && attr->na_seclabel->len) ||
++	      (IS_ENABLED(CONFIG_FS_POSIX_ACL) && attr->na_pacl) ||
++	      (IS_ENABLED(CONFIG_FS_POSIX_ACL) &&
++	       !attr->na_aclerr && attr->na_dpacl && S_ISDIR(inode->i_mode))))
++		/* Don't bother with inode_lock() */
++		goto out;
++
+ 	if (iap->ia_valid & ATTR_SIZE) {
+ 		accmode |=3D NFSD_MAY_WRITE|NFSD_MAY_OWNER_OVERRIDE;
+ 		ftype =3D S_IFREG;
+@@ -1418,14 +1426,7 @@ nfsd_create_setattr(struct svc_rqst *rqstp, struct svc=
+_fh *fhp,
+ 	if (!uid_eq(current_fsuid(), GLOBAL_ROOT_UID))
+ 		iap->ia_valid &=3D ~(ATTR_UID|ATTR_GID);
+=20
+-	/*
+-	 * Callers expect new file metadata to be committed even
+-	 * if the attributes have not changed.
+-	 */
+-	if (iap->ia_valid)
+-		status =3D nfsd_setattr(rqstp, resfhp, attrs, NULL);
+-	else
+-		status =3D nfserrno(commit_metadata(resfhp));
++	status =3D nfsd_setattr(rqstp, resfhp, attrs, NULL);
+=20
+ 	/*
+ 	 * Transactional filesystems had a chance to commit changes
 
-thanks,
 
-Mimi
+Thoughts?
 
+Thanks,
+NeilBrown
