@@ -1,63 +1,107 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com [209.85.222.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84683800;
-	Wed, 15 May 2024 16:35:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42AB34AEF7
+	for <selinux@vger.kernel.org>; Wed, 15 May 2024 20:16:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715790907; cv=none; b=iG6g/ueFfvMLgkBn/epT3yDoNBI3tS6vg3hv9vStAa2CZy67kXGCqlqw2zieyj/YwD7A897TgHClYslvsR16NB+LHpvRoEY9+owdX/HLNr1Zb3y8y311b9G3ZuVzzhlkNnb4EkIuGOfOyxEdEj8WtOomdRLA4Fnw7haMWi8KsdY=
+	t=1715804217; cv=none; b=o9hZwD7zr4x/9+a2NSrVIiAfLhTN1KL3/3dD26JJpD4+kdCL7poGubvdzAcfpNA90y5LGZRUooo2bfUmcZFVWb7LDxnMsy3dgj8xxJEZYiedYLpcete3KwT2OV9CfpYxYYsvkk+gX/WHfEq7MiqjoWF0LsFXVC1YvGx8YYip2pE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715790907; c=relaxed/simple;
-	bh=PoivPBOAhAAaQPcPeSYxBCrpVaH2Dxvmlh72fQacjy0=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=oKNrOi+8LtlIdMl3wUVBzxlzqvqfG6YZfbIc1+caRU4bDE3idR3fKfWRn2SWYKHtOvf7pzln75CCFB7PK77xPEFrDTrVJtQoS+Ld7hlQ1ss6hBzUMzcsMFhUJIapBftpVtbTaMczdvUxqzzoIAsVDRPHoc1Zu5X9v0gwO1KbZFU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i+BO7M0Y; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715804217; c=relaxed/simple;
+	bh=5Xy9YZ/ViKzMIATDCQV7uTKq7RowBL7+HNXgin2CdwE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=csSqnZF5LvDIDR5oEf3cZSb/14Q7U7ylbK4Tnnpy0SVgf2r66mQ3vn3xduFXjpU+iCg/9hEkcd03XnmflmZXrq5cSZqG7WsWlnlLtTM5QGyemdNIcoZ8LFBTaD3gLwKYswJHdZP0sorbXXkV5Wu6QVlMy18UUpjKpXWEvfoA6sU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c9T57Ooy; arc=none smtp.client-ip=209.85.222.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i+BO7M0Y"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 631FAC116B1;
-	Wed, 15 May 2024 16:35:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715790907;
-	bh=PoivPBOAhAAaQPcPeSYxBCrpVaH2Dxvmlh72fQacjy0=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=i+BO7M0Yi5kg6PyKIPG48oywJoh9XI7SE/K7f5EfIF8Zf0Xt7AAemOsznXTrcYHnr
-	 PWNBGZvlFwc/JgK5YfOOHD1dwHDP1ikgdpWHEWODRBsiE6f+EQ9jK3nyVB3Zma8sOf
-	 qPpmHVjB8lrgg11JC9i6POEg+dBQLQRyX7PvX3LwwnJWKQTbulg2Tgczng8cUZXy0U
-	 RsqZNiHziIt6TKCgfc6k67tkulpsFJazY0tFRuiy1YhIEAP5fDGErSyHOjnCLdKqd7
-	 aipouS95e+9nPCVCNMk00qLotMkasjAQGZvdZXICmOvPmSPC1LOO6fg3C20IE31kh3
-	 HUppaVHHyXKcw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 594FEC433A2;
-	Wed, 15 May 2024 16:35:07 +0000 (UTC)
-Subject: Re: [GIT PULL] selinux/selinux-pr-20240513
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <32b581d2da1208a912f4ad200b08bdf1@paul-moore.com>
-References: <32b581d2da1208a912f4ad200b08bdf1@paul-moore.com>
-X-PR-Tracked-List-Id: <selinux.vger.kernel.org>
-X-PR-Tracked-Message-Id: <32b581d2da1208a912f4ad200b08bdf1@paul-moore.com>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20240513
-X-PR-Tracked-Commit-Id: 581646c3fb98494009671f6d347ea125bc0e663a
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: ccae19c6239ae810242d2edc03b02bdcc12fc5ab
-Message-Id: <171579090735.28973.14194535403813876767.pr-tracker-bot@kernel.org>
-Date: Wed, 15 May 2024 16:35:07 +0000
-To: Paul Moore <paul@paul-moore.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c9T57Ooy"
+Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-7f8df927790so2425309241.3
+        for <selinux@vger.kernel.org>; Wed, 15 May 2024 13:16:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1715804215; x=1716409015; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=jpZu23BHhywxjL/yzhis/IMDICTIkTlNybqTlGS4Xns=;
+        b=c9T57OoyayA1pveG/ad1z3e+2IPRpnaXJtuPJDlKKTpqpmANgEwTldl9UbpQXRHChf
+         pFIdfk++Xb3WR/V3vgYQpa0Unob7duikMFCXotZiSby4ACvknBXnv8Fm3ZtPSh/xj7lm
+         K1Cs/dnx/3Ju+/F8d6M7+pLsmCxngcsz2H2z39q1NeqpT50iviIfwNjx9bURS9SRCprS
+         5KEdDDbJLjboYh2QkYKN1k9nfha32fjY6Y4GILMunoKTKtYOaE0J24skk8nXeSGwL6NU
+         HOxzlJ13kmBVbsEen4xnIqtX8e3+2iW2oF/J8xwDDMhPZnZOHMUVIzVfTfFaw5iQ7HPi
+         fN5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1715804215; x=1716409015;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jpZu23BHhywxjL/yzhis/IMDICTIkTlNybqTlGS4Xns=;
+        b=kLA5A+Rl7xnzyOAvBJ7NbRSA4QS8Efwh7BBUod9hbIsBedozt31Qbw3Hv257wziBe7
+         xlFwPKipBocVVK7vc2/6Dzi+YTRnnfK1Gxjp7SHyFEdCAWA8Q/KKu3l3m1WhfUDwDMma
+         oJ+hHHmi9MurK1f/aC/FbHBbP6h9c9HVGcV+XX0/HrbADK3HyfvEfT7W4p/s5HhHCObY
+         E64dH8am0W+3TLzi5GcuoDjZ2243iy8nyp1Z28LmqhgVWqO+r3qqsl+8njtGaZTkSs2U
+         OjvxMT4YCruyUGWvFF+PCkIL/spmie/w0RKY5Ws4n1ddtVidGq4PRTiqEa/g82NOmMOy
+         6ETw==
+X-Gm-Message-State: AOJu0YzCOIUEqmb0zg7voXltTGoc+XNXQc7rUmyUmElVpL2Baoy34Vhf
+	Da/cnPOMpGbpU0h80Ag0E+d77ItTg7qPHGyPq+ctWYmUDyk5l5PXnocl8Sr/z6/KjGI1ZEiW3K5
+	XG+Uf4DlQRWH4vSwPbsytPDlRlcI=
+X-Google-Smtp-Source: AGHT+IHEWzBefe1BCv2vI3INgkbhP8ijjY4rZcF2IVx4MJHdft8M5iQjtjwDMTC0/4Y2/mrq3VLdq2Tll5pM+kH4suo=
+X-Received: by 2002:a05:6102:3f4c:b0:47a:40f9:5bb5 with SMTP id
+ ada2fe7eead31-48077e79c94mr17758629137.22.1715804215081; Wed, 15 May 2024
+ 13:16:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20240508170422.1396740-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20240508170422.1396740-1-cgoettsche@seltendoof.de>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 15 May 2024 16:16:44 -0400
+Message-ID: <CAP+JOzT-5hq2bx-XbXWMsFORY2FX7jAO5Lae=87+pRqZza1bXg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] checkpolicy: perform contiguous check in host byte order
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The pull request you sent on Mon, 13 May 2024 17:23:02 -0400:
+On Wed, May 8, 2024 at 1:04=E2=80=AFPM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
+>
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> The contiguous check for network masks requires host byte order on the
+> underlying integers.
+> Convert from network byte order to avoid wrong warnings.
+>
+> Fixes: 01b88ac3 ("checkpolicy: warn on bogus IP address or netmask in nod=
+econ statement")
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20240513
+For these two patches:
+Acked-by: James Carter <jwcart2@gmail.com>
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/ccae19c6239ae810242d2edc03b02bdcc12fc5ab
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+> ---
+>  checkpolicy/policy_define.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index aa2ac2e6..9671906f 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -5292,7 +5292,7 @@ int define_ipv4_node_context(void)
+>
+>         free(id);
+>
+> -       if (mask.s_addr !=3D 0 && ((~mask.s_addr + 1) & ~mask.s_addr) !=
+=3D 0) {
+> +       if (mask.s_addr !=3D 0 && ((~be32toh(mask.s_addr) + 1) & ~be32toh=
+(mask.s_addr)) !=3D 0) {
+>                 yywarn("ipv4 mask is not contiguous");
+>         }
+>
+> --
+> 2.43.0
+>
+>
