@@ -1,160 +1,150 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D09CF57CA1;
-	Wed, 15 May 2024 14:52:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8EE015573B
+	for <selinux@vger.kernel.org>; Wed, 15 May 2024 14:55:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715784735; cv=none; b=jLMt2wi+zdKyBgi4AxhygTN2js48GWdle0DpmqQFlaUlCGkhpUIPKwrpBF4XJK7YjuzJr+ifQB+0s6/NnxhJt9SoHqj8tXWD9K/UVJCLT0A9YQIGZ8wfWYlcrn+n/NuNxUcTUhFHuKtOygWS725hyyW+vqUqdAQKIP1YhAotZzY=
+	t=1715784902; cv=none; b=JGxEL5+DCkila+xgubpPi8V5iCWogg9Qsys7cJBV6lTVAwPbZAJ0DROp/QaIYD2aNAChFn9NcOG1RDxiQ0TEhqxnEHiE0kD0Hm12SmD43Bp/xtgibI5BxvrBBPMSblQA8HuVIvYnDP4jTEA5RyvHYem1R5AaszekyCc8N4Je9GU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715784735; c=relaxed/simple;
-	bh=mfIWBKjyaGtpfqqPaQXhJaL2BgJixSHpCSI3TbRvwWI=;
+	s=arc-20240116; t=1715784902; c=relaxed/simple;
+	bh=SpqZH8oLApqAkwFG0KeVMt8fgv3XUuoCN/Npf2FPpV0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=M7YJ+iwphaq7YBo3IOdqUpXVEvbCGywiODP01VOu1zVSZTUCkGPkAKwk6+uIC4gx4n7NOjCjPhYQ1I3XhgetiTvk/ldNiO5APUagl0w6MAv7xTE0KT1iPZYA1hG1YwHzxhk5Q+FdCZ0o6dH5K/CGy2Yw0r9+RaQdRU3zxi8o/Iw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hZZV665u; arc=none smtp.client-ip=209.85.214.175
+	 To:Cc:Content-Type; b=pqHIdGVAJ9g+BNQNyOCwqnON4/NkAC15yAitMYxKDT3kPI+y8pCZmlERWZtWlAZbB5hJ/n0i7/VBTO2TIvG3x7Favwra/riIYhSQH+6MzJNfz7fRZn3h73QRRU/eMOaoHw3L+4rUXjK1AmDhlLiUGC7f1MTKBh7CpRSZHeRi/QQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fMpDkrLM; arc=none smtp.client-ip=209.85.215.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hZZV665u"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-1ecd9a81966so55610655ad.0;
-        Wed, 15 May 2024 07:52:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fMpDkrLM"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-6123726725eso5565657a12.3
+        for <selinux@vger.kernel.org>; Wed, 15 May 2024 07:55:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1715784733; x=1716389533; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1715784900; x=1716389700; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Dyd4g9Mj6udeAMgwbujT15lk0egPi/YMbqByHib0kUE=;
-        b=hZZV665uFO7NGWa8XzZ7KyohlwJnBkLZEn9AYcxgf2Dig8RqjKANpwtkT0nxS/vH15
-         ov+hSoVD3YX5EitLuOJYvhBvh9pwP9Ds4oefJmJwel9bQYStcSqOfBt00EU0qjOrof4L
-         v24MW+Q7zBLvKvYKHRcvaMntW03OzkWJ2pH63B6iqO5aNTmjyP0yBEn6C7SvXe/HC0RO
-         sv0cRIvbbKbqcfX4EAq7ofkfLHf9rXqnWMlAGuVOp4dVib/isJ85/jaex06TApnY20ho
-         WogOPNVbkmkw3r8ST7304lBrRI6y0XLynDpPyhCL3XJuQA3vD9YJbhOvYb6RkZPEw/oO
-         yuWQ==
+        bh=xCZ+dLKJBmzrInnK2GAj0dcoB93GbxOAncGE+URNsJo=;
+        b=fMpDkrLMSCBfcm5Hs3F4RWpqKvM9LW267JnivGYcZrEVo4hXVTOLRPR57nVJ4Y5FHc
+         ZgSuoOWbGXDd8UeXbpNS5H+yZ9OujKfKHA6elPY0FRmb/6+eseKUA/C4ymfVgVq5q7cc
+         fuA8E0hMP2RkJ9yBilg9DQ3Yrp+hkGH9BPQkqYXZnc0052KxHC2XAariv3aurNFFmHzx
+         BDsWYR6fmvH+EJmGq6Gv3GMUc9t3cHxDunKAl2+V1iWk9GsBtkFWMOJQGOrYRExNo6FF
+         Bg3ZoNZJxDO7stbfAilF8z4l6qniOIeAVmraJPrqccwx6ZNJWyI7z25fAbcxKX6gXhLK
+         1EOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715784733; x=1716389533;
+        d=1e100.net; s=20230601; t=1715784900; x=1716389700;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Dyd4g9Mj6udeAMgwbujT15lk0egPi/YMbqByHib0kUE=;
-        b=j4zd3lmuv9wvaU2vJXe8le/StFvKaTNQO9plHr+Inku+sxzLu+CTuXLYPHhvpUvBVt
-         3kGm3LQTd2kVPgTh0y0URHKH/J/gs9Pqv4bzLiu/aSCVrCly1f1yTEUWsftOTAiQHeBi
-         lpgSc0gBWZdPvWdA/3PQynz37jSSw+iu+Ilf2tFxRfz9gMC8bjc8L3OYf3lK2/KukEop
-         O9KmEEr2wIdRuyYou5BDFxuA7FMvUtHVi0FmvrT6hzIlqROxeevFNLa4XL+zF7zZtMv9
-         cOTsMWzMoF8eu45e9Bh+BnTf1RSk9qMrauWrNIrr9MVxIdej4miTCTxJynR9COqrOq3c
-         knnA==
-X-Forwarded-Encrypted: i=1; AJvYcCWrJMij3OtFpBlfedza+IsFjmQrVoYvFWu9EV194uDEc6cHcoouaEAGbAm+2MUL+Bve8rPL3ngvS+OMSEMsb9HEqVieLniZS6RpuG+tW/ABy6dTHoeZ7hXxPXKNJNfxvItUtt9bWO1U37b6X9nscQOT
-X-Gm-Message-State: AOJu0YwMylmvCT/XdTsRqbffuugfm/rZ65pGvVmU8ZAE4NKLEujRlJX7
-	orespycBLzc9l+y//vgv0oo3TibTndcf32culf9ENTF67qxEmM4KtvpyAdmXBxUd8sIsactvwuj
-	Io+XWic6mn9bYX+IukVzpajdxJD4=
-X-Google-Smtp-Source: AGHT+IEBX22RX9w1vE00S9nBou9S9ivxyjpVGwDAKjzpwjQAP1/Pb2AKyIRA1BYuB73/SpuaEfwQls/e50YW11bQYuk=
-X-Received: by 2002:a17:902:d2d0:b0:1e4:59a2:d7c1 with SMTP id
- d9443c01a7336-1eefa58c6ebmr289967395ad.33.1715784733009; Wed, 15 May 2024
- 07:52:13 -0700 (PDT)
+        bh=xCZ+dLKJBmzrInnK2GAj0dcoB93GbxOAncGE+URNsJo=;
+        b=C27NihjlzK3OwFQhm+hxsDqqGU4mVpyroVd3GfLj8Sz3T3rZePekQPB9vAD54R/fvC
+         XIaeBaMAwHx4WJcGUh1J16tfIyK9USK92MoG+v0GzS4IbfbgYKMNcFg01taPHgxYQ/hg
+         kdO5RG3fAouEj0NEBnhm/7KBpxZzp03bi18ZWQmh5KY4rJyx5qKrihaksUWS9y+ceNdT
+         uSapVSYVidZFeQIL5ExsUKYUZBtAbQuzafZ6Awrvt1b4NPaEk+5lKbVt2kiR6g6OFgFQ
+         HHBhLpnrC3ZvcJe3JfaxQ5TGpbs0bjARTp8RinwiwcaFi6oN4Q2nI0E+q6tRrdSsMJml
+         9FHg==
+X-Gm-Message-State: AOJu0YwPs9cwjTEuSFgJb9BWrsB4/nYbiGkefwFWSHuNRjm1iByd7Cc+
+	5lSJOYgTzppezFfHf8ldvCjlRgqmmJV2mVwLPAIXiKm7HkCkyyirYDoyibYZ+kCD33+iwB51FYx
+	xoreBBHFUhuu4DeTlSmYgUfzNkRSKEg==
+X-Google-Smtp-Source: AGHT+IEVTGRdb+9RCnVE/7PAoxWTDokYVrH6Sv3U0R1MSmKLQqf2JvVQbLznXK6++FkafyM6JrAVkFKJdEpYjFIfObE=
+X-Received: by 2002:a17:90a:db0d:b0:2b2:b02d:3ffd with SMTP id
+ 98e67ed59e1d1-2b6cc44fa69mr13298207a91.15.1715784899934; Wed, 15 May 2024
+ 07:54:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240503130905.16823-1-stephen.smalley.work@gmail.com> <171497439414.9775.6998904788791406674@noble.neil.brown.name>
-In-Reply-To: <171497439414.9775.6998904788791406674@noble.neil.brown.name>
+References: <20240506174948.26314-1-stephen.smalley.work@gmail.com> <20240506174948.26314-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20240506174948.26314-2-stephen.smalley.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 15 May 2024 10:52:01 -0400
-Message-ID: <CAEjxPJ6DTNY3p9MmdV0K1A7No7joczGTeOe26Q4wr6yujk9zKA@mail.gmail.com>
-Subject: Re: [PATCH v3] nfsd: set security label during create operations
-To: NeilBrown <neilb@suse.de>
-Cc: selinux@vger.kernel.org, linux-nfs@vger.kernel.org, chuck.lever@oracle.com, 
-	jlayton@kernel.org, paul@paul-moore.com, omosnace@redhat.com, 
-	linux-security-module@vger.kernel.org
+Date: Wed, 15 May 2024 10:54:48 -0400
+Message-ID: <CAEjxPJ6dsy-E98gmfGioYa8aVEZGLC230ZNVyCZL7f9=5Ev35g@mail.gmail.com>
+Subject: Re: [PATCH 2/2 testsuite] tools/nfs.sh: comment out the fscontext=
+ tests for now
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 6, 2024 at 1:46=E2=80=AFAM NeilBrown <neilb@suse.de> wrote:
+On Mon, May 6, 2024 at 1:51=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Fri, 03 May 2024, Stephen Smalley wrote:
-> > When security labeling is enabled, the client can pass a file security
-> > label as part of a create operation for the new file, similar to mode
-> > and other attributes. At present, the security label is received by nfs=
-d
-> > and passed down to nfsd_create_setattr(), but nfsd_setattr() is never
-> > called and therefore the label is never set on the new file. This bug
-> > may have been introduced on or around commit d6a97d3f589a ("NFSD:
-> > add security label to struct nfsd_attrs"). Looking at nfsd_setattr()
-> > I am uncertain as to whether the same issue presents for
-> > file ACLs and therefore requires a similar fix for those.
-> >
-> > An alternative approach would be to introduce a new LSM hook to set the
-> > "create SID" of the current task prior to the actual file creation, whi=
-ch
-> > would atomically label the new inode at creation time. This would be be=
-tter
-> > for SELinux and a similar approach has been used previously
-> > (see security_dentry_create_files_as) but perhaps not usable by other L=
-SMs.
-> >
-> > Reproducer:
-> > 1. Install a Linux distro with SELinux - Fedora is easiest
-> > 2. git clone https://github.com/SELinuxProject/selinux-testsuite
-> > 3. Install the requisite dependencies per selinux-testsuite/README.md
-> > 4. Run something like the following script:
-> > MOUNT=3D$HOME/selinux-testsuite
-> > sudo systemctl start nfs-server
-> > sudo exportfs -o rw,no_root_squash,security_label localhost:$MOUNT
-> > sudo mkdir -p /mnt/selinux-testsuite
-> > sudo mount -t nfs -o vers=3D4.2 localhost:$MOUNT /mnt/selinux-testsuite
-> > pushd /mnt/selinux-testsuite/
-> > sudo make -C policy load
-> > pushd tests/filesystem
-> > sudo runcon -t test_filesystem_t ./create_file -f trans_test_file \
-> >       -e test_filesystem_filetranscon_t -v
-> > sudo rm -f trans_test_file
-> > popd
-> > sudo make -C policy unload
-> > popd
-> > sudo umount /mnt/selinux-testsuite
-> > sudo exportfs -u localhost:$MOUNT
-> > sudo rmdir /mnt/selinux-testsuite
-> > sudo systemctl stop nfs-server
-> >
-> > Expected output:
-> > <eliding noise from commands run prior to or after the test itself>
-> > Process context:
-> >       unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
-> > Created file: trans_test_file
-> > File context: unconfined_u:object_r:test_filesystem_filetranscon_t:s0
-> > File context is correct
-> >
-> > Actual output:
-> > <eliding noise from commands run prior to or after the test itself>
-> > Process context:
-> >       unconfined_u:unconfined_r:test_filesystem_t:s0-s0:c0.c1023
-> > Created file: trans_test_file
-> > File context: system_u:object_r:test_file_t:s0
-> > File context error, expected:
-> >       test_filesystem_filetranscon_t
-> > got:
-> >       test_file_t
-> >
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > ---
-> > v3 removes the erroneous and unnecessary change to NFSv2 and updates th=
-e
-> > description to note the possible origin of the bug. I did not add a
-> > Fixes tag however as I have not yet tried confirming that.
->
-> I think this bug has always been present - since label support was
-> added.
-> Commit d6a97d3f589a ("NFSD: add security label to struct nfsd_attrs")
-> should have fixed it, but was missing the extra test that you provide.
->
-> So
-> Fixes: 0c71b7ed5de8 ("nfsd: introduce file_cache_mutex")
-> might be appropriate - it fixes the patch, though not a bug introduced
-> by the patch.
->
-> Thanks for this patch!
-> Reviewed-by: NeilBrown <neilb@suse.de>
+> These tests currently fail on mount(2) calls due to the directory being
+> unlabeled at the point where search access is checked. Until we can resol=
+ve
+> the underlying issue, comment out these tests to allow the NFS tests to
+> be run.
 
-FWIW, I finally got around to testing Linux v5.14 and it did pass
-these NFS tests so this was a regression. I haven't been able to
-bisect yet.
+With these two patches, I can run the nfs.sh script to completion with
+all tests passing on not only the latest kernel w/ the fix but also
+Linux v5.14 with no changes. So it is unclear to me that the tests
+being disabled by these two patches ever worked...
+
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  tools/nfs.sh | 40 ++++++++++++++++++++--------------------
+>  1 file changed, 20 insertions(+), 20 deletions(-)
+>
+> diff --git a/tools/nfs.sh b/tools/nfs.sh
+> index cf4912c..688903e 100755
+> --- a/tools/nfs.sh
+> +++ b/tools/nfs.sh
+> @@ -77,27 +77,27 @@ POPD=3D0
+>  popd >/dev/null 2>&1
+>  umount /mnt/selinux-testsuite
+>  #
+> -echo -e "Run 'filesystem' tests with mount context option:\n\t$FS_CTX"
+> -mount -t nfs -o vers=3D4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-tests=
+uite
+> -pushd /mnt/selinux-testsuite >/dev/null 2>&1
+> -POPD=3D1
+> -cd tests
+> -./nfsruntests.pl filesystem/test
+> -cd ../
+> -POPD=3D0
+> -popd >/dev/null 2>&1
+> -umount /mnt/selinux-testsuite
+> +#echo -e "Run 'filesystem' tests with mount context option:\n\t$FS_CTX"
+> +#mount -t nfs -o vers=3D4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-test=
+suite
+> +#pushd /mnt/selinux-testsuite >/dev/null 2>&1
+> +#POPD=3D1
+> +#cd tests
+> +#./nfsruntests.pl filesystem/test
+> +#cd ../
+> +#POPD=3D0
+> +#popd >/dev/null 2>&1
+> +#umount /mnt/selinux-testsuite
+>  #
+> -echo -e "Run 'fs_filesystem' tests with mount context option:\n\t$FS_CTX=
+"
+> -mount -t nfs -o vers=3D4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-tests=
+uite
+> -pushd /mnt/selinux-testsuite >/dev/null 2>&1
+> -POPD=3D1
+> -cd tests
+> -./nfsruntests.pl fs_filesystem/test
+> -cd ../
+> -POPD=3D0
+> -popd >/dev/null 2>&1
+> -umount /mnt/selinux-testsuite
+> +#echo -e "Run 'fs_filesystem' tests with mount context option:\n\t$FS_CT=
+X"
+> +#mount -t nfs -o vers=3D4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-test=
+suite
+> +#pushd /mnt/selinux-testsuite >/dev/null 2>&1
+> +#POPD=3D1
+> +#cd tests
+> +#./nfsruntests.pl fs_filesystem/test
+> +#cd ../
+> +#POPD=3D0
+> +#popd >/dev/null 2>&1
+> +#umount /mnt/selinux-testsuite
+>  #
+>  echo "Run NFS context specific tests"
+>  cd tests
+> --
+> 2.40.1
+>
