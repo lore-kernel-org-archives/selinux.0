@@ -1,107 +1,64 @@
-Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com [209.85.222.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42AB34AEF7
-	for <selinux@vger.kernel.org>; Wed, 15 May 2024 20:16:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B56B13FD93
+	for <selinux@vger.kernel.org>; Thu, 16 May 2024 09:15:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715804217; cv=none; b=o9hZwD7zr4x/9+a2NSrVIiAfLhTN1KL3/3dD26JJpD4+kdCL7poGubvdzAcfpNA90y5LGZRUooo2bfUmcZFVWb7LDxnMsy3dgj8xxJEZYiedYLpcete3KwT2OV9CfpYxYYsvkk+gX/WHfEq7MiqjoWF0LsFXVC1YvGx8YYip2pE=
+	t=1715850957; cv=none; b=LjmoehMhtvB72kBvGbTYLpzaFR0g7r21OyLXAQCK6Q+Xyo0YjFcYmmrOXCRY8MQfT79er2ArbvzkucW7JpI8guFIzvwwUAacSSPaSyWP+myt1l9+W/z2XUWLtVCGOgT1rQ6RZ8+JwPtJNrCOjAuhT08ee+HNy+TiAAhLXArIrxU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715804217; c=relaxed/simple;
-	bh=5Xy9YZ/ViKzMIATDCQV7uTKq7RowBL7+HNXgin2CdwE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=csSqnZF5LvDIDR5oEf3cZSb/14Q7U7ylbK4Tnnpy0SVgf2r66mQ3vn3xduFXjpU+iCg/9hEkcd03XnmflmZXrq5cSZqG7WsWlnlLtTM5QGyemdNIcoZ8LFBTaD3gLwKYswJHdZP0sorbXXkV5Wu6QVlMy18UUpjKpXWEvfoA6sU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c9T57Ooy; arc=none smtp.client-ip=209.85.222.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1715850957; c=relaxed/simple;
+	bh=B4ocFBNvOdhGocu0AsPy1qb1IjWcomFMPp8+T9ktqdI=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=gVW2Z/mJbShCa3RbVgX466jQ16JLTKKtxCY/PsCTTKF+kDFuhjBLApv4ixONvMq4r1nVGdjLW23O5qpNEfP6LSd+yB4LApCm/VyqPoGBkD00eLkH1jJpM37dtMReP6ptUA0UpeYe2qO+EUNSNdho8hdnMH7qJF1ZJkVScqS6qW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f9fL3/Tr; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c9T57Ooy"
-Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-7f8df927790so2425309241.3
-        for <selinux@vger.kernel.org>; Wed, 15 May 2024 13:16:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1715804215; x=1716409015; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jpZu23BHhywxjL/yzhis/IMDICTIkTlNybqTlGS4Xns=;
-        b=c9T57OoyayA1pveG/ad1z3e+2IPRpnaXJtuPJDlKKTpqpmANgEwTldl9UbpQXRHChf
-         pFIdfk++Xb3WR/V3vgYQpa0Unob7duikMFCXotZiSby4ACvknBXnv8Fm3ZtPSh/xj7lm
-         K1Cs/dnx/3Ju+/F8d6M7+pLsmCxngcsz2H2z39q1NeqpT50iviIfwNjx9bURS9SRCprS
-         5KEdDDbJLjboYh2QkYKN1k9nfha32fjY6Y4GILMunoKTKtYOaE0J24skk8nXeSGwL6NU
-         HOxzlJ13kmBVbsEen4xnIqtX8e3+2iW2oF/J8xwDDMhPZnZOHMUVIzVfTfFaw5iQ7HPi
-         fN5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1715804215; x=1716409015;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jpZu23BHhywxjL/yzhis/IMDICTIkTlNybqTlGS4Xns=;
-        b=kLA5A+Rl7xnzyOAvBJ7NbRSA4QS8Efwh7BBUod9hbIsBedozt31Qbw3Hv257wziBe7
-         xlFwPKipBocVVK7vc2/6Dzi+YTRnnfK1Gxjp7SHyFEdCAWA8Q/KKu3l3m1WhfUDwDMma
-         oJ+hHHmi9MurK1f/aC/FbHBbP6h9c9HVGcV+XX0/HrbADK3HyfvEfT7W4p/s5HhHCObY
-         E64dH8am0W+3TLzi5GcuoDjZ2243iy8nyp1Z28LmqhgVWqO+r3qqsl+8njtGaZTkSs2U
-         OjvxMT4YCruyUGWvFF+PCkIL/spmie/w0RKY5Ws4n1ddtVidGq4PRTiqEa/g82NOmMOy
-         6ETw==
-X-Gm-Message-State: AOJu0YzCOIUEqmb0zg7voXltTGoc+XNXQc7rUmyUmElVpL2Baoy34Vhf
-	Da/cnPOMpGbpU0h80Ag0E+d77ItTg7qPHGyPq+ctWYmUDyk5l5PXnocl8Sr/z6/KjGI1ZEiW3K5
-	XG+Uf4DlQRWH4vSwPbsytPDlRlcI=
-X-Google-Smtp-Source: AGHT+IHEWzBefe1BCv2vI3INgkbhP8ijjY4rZcF2IVx4MJHdft8M5iQjtjwDMTC0/4Y2/mrq3VLdq2Tll5pM+kH4suo=
-X-Received: by 2002:a05:6102:3f4c:b0:47a:40f9:5bb5 with SMTP id
- ada2fe7eead31-48077e79c94mr17758629137.22.1715804215081; Wed, 15 May 2024
- 13:16:55 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f9fL3/Tr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1715850954;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type;
+	bh=f7iMN7oQko6zC1Zvoet+ReFLU62XTephKFE2nnJyoQc=;
+	b=f9fL3/Tr9WzhBSPkPAc3u8iyaEYX/RqQhQZr6Tb2P1/cb8rnBVFzu/tv/spn40SrxbaSVc
+	P1x+D2roKKuGXMCMjTCuZRDt7R3bOp8KxH7OTBf4o683+TYXk4eUUb6CCI8PL8ZDXUQwwj
+	daAkTyYgONja7UOweh60vM6WJfVfVhc=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-637-BuLmOaUwMJCfoe07uCZyNw-1; Thu, 16 May 2024 05:15:52 -0400
+X-MC-Unique: BuLmOaUwMJCfoe07uCZyNw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D541E812296
+	for <selinux@vger.kernel.org>; Thu, 16 May 2024 09:15:51 +0000 (UTC)
+Received: from localhost (unknown [10.45.225.153])
+	by smtp.corp.redhat.com (Postfix) with ESMTP id 96885100046D
+	for <selinux@vger.kernel.org>; Thu, 16 May 2024 09:15:51 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Subject: Intent to release 3.7
+Date: Thu, 16 May 2024 11:15:50 +0200
+Message-ID: <87v83eyv5l.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240508170422.1396740-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20240508170422.1396740-1-cgoettsche@seltendoof.de>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 15 May 2024 16:16:44 -0400
-Message-ID: <CAP+JOzT-5hq2bx-XbXWMsFORY2FX7jAO5Lae=87+pRqZza1bXg@mail.gmail.com>
-Subject: Re: [PATCH 1/2] checkpolicy: perform contiguous check in host byte order
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.3
 
-On Wed, May 8, 2024 at 1:04=E2=80=AFPM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
->
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> The contiguous check for network masks requires host byte order on the
-> underlying integers.
-> Convert from network byte order to avoid wrong warnings.
->
-> Fixes: 01b88ac3 ("checkpolicy: warn on bogus IP address or netmask in nod=
-econ statement")
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+Hello,
 
-For these two patches:
-Acked-by: James Carter <jwcart2@gmail.com>
+It's been almost 6 months since the last release so we're going to start
+the release process.
 
-> ---
->  checkpolicy/policy_define.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index aa2ac2e6..9671906f 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -5292,7 +5292,7 @@ int define_ipv4_node_context(void)
->
->         free(id);
->
-> -       if (mask.s_addr !=3D 0 && ((~mask.s_addr + 1) & ~mask.s_addr) !=
-=3D 0) {
-> +       if (mask.s_addr !=3D 0 && ((~be32toh(mask.s_addr) + 1) & ~be32toh=
-(mask.s_addr)) !=3D 0) {
->                 yywarn("ipv4 mask is not contiguous");
->         }
->
-> --
-> 2.43.0
->
->
+I'll tag and announce 3.7-rc1 on next Wednesday, May 22, 2024 and
+continue with next rcX every two weeks. The target for the final release
+is Wednesday, June 19, 2024. 
+
+Petr
+
