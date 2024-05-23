@@ -1,179 +1,156 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00A641422AE
-	for <selinux@vger.kernel.org>; Wed, 22 May 2024 17:35:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA61E14A4D1
+	for <selinux@vger.kernel.org>; Thu, 23 May 2024 12:59:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716399339; cv=none; b=M8/zCJsApoJjcMOAUnDjP8lG714CfNXnugw+BwJIW7fN3ufgpNr6T1jm06KD7g9ivZXF14hFUv9mrVGLQzN4DfStp1/JujryYmqq+jK15iqXEnpxEsJS+Lin94UaT7xdwVpG18oZp9QRcPA9wpLnEtWSRVVsJi0C91wAPQwDV70=
+	t=1716469173; cv=none; b=SjM/TyI5dksDEY1yj+0W6wYtIzRSTxMI3+Q4VUjk+K/ivEZ4B8u1atAgKDTCem7BDnM4cTE9fkRAMJGSlQAQWnnjwLRd2VrmfNmC69XdG5ETiI6dscPI+t1nSt2170VWgHQ/Rk8AZ5xN3K09mVmPDYHLKq8DBYxbMnOJYtpA3N8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716399339; c=relaxed/simple;
-	bh=Wyrx98biIfrfMRzU75kfMc57QqiLkgc/NQUCXRNdoKw=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=DrmEHALacau5UtFr0RDkxNyDkfbvmxF3QjsY0nj/P6LboferJfiQFD44VWbecNSAf7y/6ybIbJINBDvujeO6N8zp0cm7uP6pPw0xT4xkL5dQTNph87A2l6p1p7an7LyOeR+0KZPQaaPl2ji2QQ/lqjGP1i+yN20wHJuY1dMa2Q8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KgZaqEjs; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1716469173; c=relaxed/simple;
+	bh=HlH9Uov7/RKbim2C7RfU1l63LBUoOUn2zBXMiygVTko=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=h+2R7nJOSyclRCLkjnfvQRrwjlv0at0LzCmTSVtSIrCUY/pYxTulHoUzvHEytjEascZbZ5J+4mPJPWuJjRsHFxJririKVuOKY21LwqDMty8FHR4LLAncr9GqTlmLFD7L9LrMxZX9gbIaimXwl3Ft6PsU0DtEkshV6iHRjgJfxtw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SjhmTPHc; arc=none smtp.client-ip=209.85.215.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KgZaqEjs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1716399336;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=UGStwJ+fsx1bqJhPQeKA/a7adQZKcf5jZcYCDuZLH8Y=;
-	b=KgZaqEjswgiknFtlVh5UL7WKlGoOqsCTWSDVi0oeOnKOorA9SyzKgsP937umbC0XrFJrPF
-	WiGD6ZOoZk65TwDKp7yT9ZygI6TsgGm2wixPQkCbiF7bKf2aK9JJhk0ySWsMnqGJ3l6o+G
-	8GAAkuyok9zaasgISh7ZZoLg3QlLGYM=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-48-OF4bvpYjPTOLPwooqj468A-1; Wed,
- 22 May 2024 13:35:35 -0400
-X-MC-Unique: OF4bvpYjPTOLPwooqj468A-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0EFC6380008A
-	for <selinux@vger.kernel.org>; Wed, 22 May 2024 17:35:35 +0000 (UTC)
-Received: from localhost (unknown [10.45.224.140])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id C2AD02026D68
-	for <selinux@vger.kernel.org>; Wed, 22 May 2024 17:35:34 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: selinux@vger.kernel.org
-Subject: ANN: SELinux userspace 3.7-rc1 release
-Date: Wed, 22 May 2024 19:35:34 +0200
-Message-ID: <87pltdzr4p.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SjhmTPHc"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-67af6c66159so680744a12.1
+        for <selinux@vger.kernel.org>; Thu, 23 May 2024 05:59:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1716469171; x=1717073971; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TvbO77ASLyR8cLOVcq6znc2C+ckXLvfooUriIysuIPc=;
+        b=SjhmTPHcY2gM4vKUIGviLyJ5t3ec9RaLIYTrwuZIXj68vGKnb6WI8bwo3lYU+1guES
+         t3k7UELnlB1QDK+UiASBvxzpoUrfOWRp9190M95zfdiuVrXdUy1ZUsY9pU54uZdYHuf6
+         38RB7FKOhgY8CEQzslN1zMQo0lGlXeTfyx3wNbnFVs5eXLHt6Brusoti600ngcCPfkfp
+         A+isVoTYQbi0PK0JL10gNKlBJosKFUwjbJqqYBsuBWd3cG6SDq43UAWIAAWlt/vn8Blb
+         LKljXeU7SWlM93meDmcb6ZEmDX0WNglqS551VamVBj+9bVC7+Meo6DJC4I1DOmsTU/Lf
+         HWZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716469171; x=1717073971;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TvbO77ASLyR8cLOVcq6znc2C+ckXLvfooUriIysuIPc=;
+        b=f5jEcky13/A9tpUKWgNlxBcrFqN7kFcygCMYsMi6fGz8i+7tmgyXgyyGuOZ71lh6YD
+         RggU1bkLvbrpcXIgon1lfdHCcjZCvJtS9gVFJnwErH9jg2aVZiukqaycGWVkR5tSY+B8
+         2ZTOBlviFxSyalaJtIxY2LvGFmE/1oF4RZ3C0Vsd8DsiNVMQe1D7gVo8sXWVg0GNQtX8
+         BMPCeNTMtro65ZFBDNrYzv0C+KD/tx8z+QU/QK5AG5Mi5lNNhX1pDlsSzC5DkOaXrFer
+         3ompNEQ4uoQSEM/H53Laf1NC5l884mwuFd+RnhUiZGMzH6qtOSIzIXYisL3/zSaE+ydN
+         ZIBA==
+X-Gm-Message-State: AOJu0Yy/EHenXVizUWBwP3TJIYjDjT2oVd9Dw7ViidszkOex78adFoGx
+	msfa3eqgzArysiFezXAfOzxGLTiW8WAhuC4+/BPkU/HgGHKcm2Gr5mIj8lNJiVZsNFxSgIEkrK1
+	blkN1eVnkxl/3OmwtktADLBVE6my1tw==
+X-Google-Smtp-Source: AGHT+IE2cWQvOSz8P9eacrGEBnrA9LdGsPX9nseBPt4aE2Iz8jCgtR3KwwBo4myMPyqgrBmdPevo0aYzV/NLf5snUOY=
+X-Received: by 2002:a17:90a:740f:b0:2a4:79ef:4973 with SMTP id
+ 98e67ed59e1d1-2bddce8fb0bmr3118356a91.14.1716469170628; Thu, 23 May 2024
+ 05:59:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20240506174948.26314-1-stephen.smalley.work@gmail.com>
+ <20240506174948.26314-2-stephen.smalley.work@gmail.com> <CAEjxPJ6dsy-E98gmfGioYa8aVEZGLC230ZNVyCZL7f9=5Ev35g@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6dsy-E98gmfGioYa8aVEZGLC230ZNVyCZL7f9=5Ev35g@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 23 May 2024 08:59:18 -0400
+Message-ID: <CAEjxPJ78Ak9Nc1Mgc=6=4bYcp48AxgCSjcHC+iaeag2ME6G75Q@mail.gmail.com>
+Subject: Re: [PATCH 2/2 testsuite] tools/nfs.sh: comment out the fscontext=
+ tests for now
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com, omosnace@redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.4
 
-Hello!
+On Wed, May 15, 2024 at 10:54=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Mon, May 6, 2024 at 1:51=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > These tests currently fail on mount(2) calls due to the directory being
+> > unlabeled at the point where search access is checked. Until we can res=
+olve
+> > the underlying issue, comment out these tests to allow the NFS tests to
+> > be run.
+>
+> With these two patches, I can run the nfs.sh script to completion with
+> all tests passing on not only the latest kernel w/ the fix but also
+> Linux v5.14 with no changes. So it is unclear to me that the tests
+> being disabled by these two patches ever worked...
 
-The 3.7-rc1 release for the SELinux userspace is now available at:
+Last call - any objections to me applying these two patches?
 
-https://github.com/SELinuxProject/selinux/wiki/Releases
-
-I signed all tarballs using my gpg key, see .asc files.
-You can download the public key from
-https://github.com/bachradsusi.gpg
-
-Thanks to all the contributors, reviewers, testers and reporters!
-
-If you miss something important not mentioned bellow, please let me know.
-
-User-visible changes
---------------------
-
-* `audit2allow -C` for CIL output mode
-
-* sepolgen: adjust parse for refpolicy
-
-* semanage: Allow modifying records on "add"
-
-* semanage: Do not sort local fcontext definitions
-
-* Improved man pages
-
-* Code improvements and bug fixes
-
-Shortlog of the changes since 3.6 release
------------------------------------------
-Christian G=C3=B6ttsche (66):
-      libselinux/man: mention errno for regex compilation failure
-      libselinux/man: sync selinux_check_securetty_context(3)
-      libselinux/utils: free allocated resources
-      libselinux/utils: improve compute_av output
-      libselinux: align SELABEL_OPT_DIGEST usage with man page
-      libselinux: fail selabel_open(3) on invalid option
-      libselinux: use logging wrapper in getseuser(3) and get_default_conte=
-xt(3) family
-      libselinux: support huge passwd/group entries
-      libsemanage: support huge passwd entries
-      libselinux: enable usage with pedantic UB sanitizers
-      setfiles: avoid unsigned integer underflow
-      libsepol: reorder calloc(3) arguments
-      libselinux: reorder calloc(3) arguments
-      sandbox: do not override warning CFLAGS
-      mcstrans: check memory allocations
-      libselinux: use reentrant strtok_r(3)
-      checkpolicy: add libfuzz based fuzzer
-      checkpolicy: cleanup resources on parse error
-      checkpolicy: cleanup identifiers on error
-      checkpolicy: free ebitmap on error
-      checkpolicy: check allocation and free memory on error at type defini=
-tion
-      checkpolicy: clean expression on error
-      checkpolicy: call YYABORT on parse errors
-      checkpolicy: bail out on invalid role
-      libsepol: use typedef
-      checkpolicy: provide more descriptive error messages
-      checkpolicy: free temporary bounds type
-      checkpolicy: avoid assigning garbage values
-      checkpolicy: misc policy_define.c cleanup
-      libsepol: ensure transitivity in compare functions
-      libsepol/cil: ensure transitivity in compare functions
-      mcstrans: ensure transitivity in compare functions
-      sepolgen: adjust parse for refpolicy
-      checkpolicy/fuzz: drop redundant notdefined check
-      checkpolicy: clone level only once
-      checkpolicy: return YYerror on invalid character
-      libsepol: reject MLS support in pre-MLS policies
-      checkpolicy/fuzz: scan Xen policies
-      libselinux/utils/selabel_digest: drop unsupported option -d
-      libselinux/utils/selabel_digest: cleanup
-      libselinux/utils/selabel_digest: avoid buffer overflow
-      libselinux: free data on selabel open failure
-      libselinux/utils/selabel_digest: pass BASEONLY only for file backend
-      libselinux: avoid logs in get_ordered_context_list() without policy
-      checkpolicy: use YYerror only when available
-      checkpolicy: handle unprintable token
-      checkpolicy: free identifiers on invalid typebounds
-      checkpolicy: update error diagnostic
-      checkpolicy: include <ctype.h> for isprint(3)
-      checkpolicy/fuzz: override YY_FATAL_ERROR
-      libsepol: validate access vector permissions
-      checkpolicy: drop never read member
-      checkpolicy: drop union stack_item_u
-      checkpolicy: free complete role_allow_rule on error
-      libsepol: constify function pointer arrays
-      libsepol: improve policy lookup failure message
-      checkpolicy/tests: add test for splitting xperm rule
-      checkpolicy: declare file local variable static
-      checkpolicy: drop global policyvers variable
-      github: bump Python and Ruby versions
-      libsepol: validate class permissions
-      libselinux/man: correct file extension of man pages
-      libselinux/man: sync const qualifiers
-      libselinux/man: use void in synopses
-      libselinux/man: add format attribute for set_matchpathcon_printf(3)
-      libselinux: constify selinux_set_mapping(3) parameter
-
-Fabrice Fontaine (1):
-      libsepol/src/Makefile: fix reallocarray detection
-
-James Carter (7):
-      libselinux: Fix ordering of arguments to calloc
-      libsepol: Use a dynamic buffer in sepol_av_to_string()
-      checkpolicy, libsepol: Fix potential double free of mls_level_t
-      checkpolicy/fuzz: Update check_level() to use notdefined field
-      libsepol: Fix buffer overflow when using sepol_av_to_string()
-      libselinux, libsepol: Add CFLAGS and LDFLAGS to Makefile checks
-      libsepol/cil: Check common perms when verifiying "all"
-
-Petr Lautrbach (1):
-      Update VERSIONs to 3.7-rc1 for release.
-
-Topi Miettinen (1):
-      audit2allow: CIL output mode
-
-Vit Mojzis (3):
-      python/semanage: Do not sort local fcontext definitions
-      python/semanage: Allow modifying records on "add"
-      libsepol/cil: Fix detected RESOURCE_LEAK (CWE-772)
-
+>
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+> >  tools/nfs.sh | 40 ++++++++++++++++++++--------------------
+> >  1 file changed, 20 insertions(+), 20 deletions(-)
+> >
+> > diff --git a/tools/nfs.sh b/tools/nfs.sh
+> > index cf4912c..688903e 100755
+> > --- a/tools/nfs.sh
+> > +++ b/tools/nfs.sh
+> > @@ -77,27 +77,27 @@ POPD=3D0
+> >  popd >/dev/null 2>&1
+> >  umount /mnt/selinux-testsuite
+> >  #
+> > -echo -e "Run 'filesystem' tests with mount context option:\n\t$FS_CTX"
+> > -mount -t nfs -o vers=3D4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-tes=
+tsuite
+> > -pushd /mnt/selinux-testsuite >/dev/null 2>&1
+> > -POPD=3D1
+> > -cd tests
+> > -./nfsruntests.pl filesystem/test
+> > -cd ../
+> > -POPD=3D0
+> > -popd >/dev/null 2>&1
+> > -umount /mnt/selinux-testsuite
+> > +#echo -e "Run 'filesystem' tests with mount context option:\n\t$FS_CTX=
+"
+> > +#mount -t nfs -o vers=3D4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-te=
+stsuite
+> > +#pushd /mnt/selinux-testsuite >/dev/null 2>&1
+> > +#POPD=3D1
+> > +#cd tests
+> > +#./nfsruntests.pl filesystem/test
+> > +#cd ../
+> > +#POPD=3D0
+> > +#popd >/dev/null 2>&1
+> > +#umount /mnt/selinux-testsuite
+> >  #
+> > -echo -e "Run 'fs_filesystem' tests with mount context option:\n\t$FS_C=
+TX"
+> > -mount -t nfs -o vers=3D4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-tes=
+tsuite
+> > -pushd /mnt/selinux-testsuite >/dev/null 2>&1
+> > -POPD=3D1
+> > -cd tests
+> > -./nfsruntests.pl fs_filesystem/test
+> > -cd ../
+> > -POPD=3D0
+> > -popd >/dev/null 2>&1
+> > -umount /mnt/selinux-testsuite
+> > +#echo -e "Run 'fs_filesystem' tests with mount context option:\n\t$FS_=
+CTX"
+> > +#mount -t nfs -o vers=3D4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-te=
+stsuite
+> > +#pushd /mnt/selinux-testsuite >/dev/null 2>&1
+> > +#POPD=3D1
+> > +#cd tests
+> > +#./nfsruntests.pl fs_filesystem/test
+> > +#cd ../
+> > +#POPD=3D0
+> > +#popd >/dev/null 2>&1
+> > +#umount /mnt/selinux-testsuite
+> >  #
+> >  echo "Run NFS context specific tests"
+> >  cd tests
+> > --
