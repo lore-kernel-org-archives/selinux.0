@@ -1,114 +1,136 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com [209.85.217.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A251D126F14
-	for <selinux@vger.kernel.org>; Fri, 24 May 2024 12:24:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8DCC39FF4
+	for <selinux@vger.kernel.org>; Fri, 24 May 2024 13:49:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716553466; cv=none; b=RNPzUSsGeHbKY4v1GGAAl7rzqxojeiFsbIgxjUWMULriPx7GUEJN4yKvBnB7zDm33XJmyLiPGNRzbijLLsS6xwcWGWGqQCxG4UFM3+tAeqIwVNQLaVxogHBcJzKvonGUs77KxfkZm2C8JRwJGngBvge6h/8S73m6yyeLU/vpswk=
+	t=1716558558; cv=none; b=qaU8tHAiSONBTRUy9/z9XbpSvFgWJSUs3nlWMAIy6dAVLI6PjquV1YO9WfycJjGMe9esIG+v25Kozvy82c7pAYzhnodeVjswLEwPuQw/FvJ3WIb/Ty0Ko6QOireyvdzJ64drOO5Oi+35yfOcOGz3RkUutm2efOojK1mDXV9JVTk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716553466; c=relaxed/simple;
-	bh=yGpga7IeYI33iGsUpANQuONWyhzS0ndlo/su4E38WCA=;
+	s=arc-20240116; t=1716558558; c=relaxed/simple;
+	bh=OBG8D2YxN5PDpzH5B1w0UWfu8d6y81BQ+k1YwktQ3tI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=A8KLczP3sANmAWepZT9GL3NOEZaDMFEZ3rDZESx3xJPZfPxAPm/7x/NQ4nqL2GnlIApq7aZ/1Pg2rzyvryzyD4DJqIKfUSmhPHwH5b2aItfVHfC6j+9c+HU0J+TOuQ5qXwpgrYskje7cgVjPeVbk41AQoY4/VAT/+al7czQlYio=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JJeS4ySd; arc=none smtp.client-ip=209.85.216.46
+	 To:Cc:Content-Type; b=MgC+Ahw5xB7kVR5eXznb4+sxH2VErXcfwcjeB/bmNVx2ialvGcIvicw8lPv1fglBndPjAipo7nV66++mQZkPESj7vgxfhuL7Z8FXGa7fEwvsLLi2IufOpAC1XglQBrckcg8nmcM+kKua0CH7GTLkr2EKO72mnBfLcrP9XWamUR0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bJWdKWHV; arc=none smtp.client-ip=209.85.217.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JJeS4ySd"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-2bf5baa2773so752450a91.0
-        for <selinux@vger.kernel.org>; Fri, 24 May 2024 05:24:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bJWdKWHV"
+Received: by mail-vs1-f52.google.com with SMTP id ada2fe7eead31-48a39e3923fso289538137.3
+        for <selinux@vger.kernel.org>; Fri, 24 May 2024 06:49:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1716553464; x=1717158264; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1716558555; x=1717163355; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lvFUmxyEKvJdx4WIzjIszPj7rPxjzjRKKM/69Uv0/+w=;
-        b=JJeS4ySd2KaGpY36miGtOcBmli70ToHEL5M+UpW6UNAENKQXQTB1YpsRYDW86YJDG/
-         iCtwjM+x+GjiELBmclcV0wwlm/016xv51W2sj2U3pZbltrKBmXZOM7MDA28nHscI4QS/
-         PYdrFlCC48gNI4PIdLQin52gEVagfHUdYd7pV49QFKAWmpZziJ25mU/hixmxhgVV7v7z
-         8l+dZK+5zrUhAWvaSBG/N0CMAWJMdHBtj09dMItXrtEvlsAaAIJy8cY8ir1D/OkuGoff
-         r4c6yqDI9r/29AYNI157OiFsNbZvj78+jyRnM/FBrfOQRE1KPe353Zpe5MZH4UIO2aeA
-         QPoQ==
+        bh=CIC2J5Qtkk9q6607+NWVSIFtxPk1VgNXzLSbIwcMHeQ=;
+        b=bJWdKWHVaxgTuDOUYTujz0U0DBLKcVeDw5M0bKeKdk0ZSulwSN5/3MJSZANhfOnYq4
+         m5xUcYcs/7mKv2c6qpK/WY13bPVNmApnPdwDlRIvF/9tWgYqhfJroT87dqKZj+VlV9Fq
+         QcJcL7j0c3mZXOVRc1r7FomrvtLu3exrr3/W4tp1xeoqkJ8cK2/eDZTmfs6lPC5h/f1b
+         yV0S8ct+JQ9bgSsojdQ9uDCWpPqbcJCWNLhdI2lGvh8OGRRFuTiQ2cM6o3X06JoQLlrt
+         eI2gqFlxcQ4RJqTHHMjPcUEU3PAHaCV+UhqdU0Dg37UTQ8rnHQdSoSfe3t2xcqO0u/BN
+         bKhA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716553464; x=1717158264;
+        d=1e100.net; s=20230601; t=1716558555; x=1717163355;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lvFUmxyEKvJdx4WIzjIszPj7rPxjzjRKKM/69Uv0/+w=;
-        b=FyUokyZmiT6lXEC7WR9RCBWe1XM8WjG/7trvJkm65d0+BgpcHfhY13mF4tNtENAde6
-         X34Lt+AoP7UovXtQL2iTYTS02v/UlRf4lVFdrVccQk+pVaCylCDLfrL/AW8nbPGxUAVT
-         JtE6iB4BaFjxUp5K26gSJCFX66cq/9NSuj+Bq6TWJ+pRg6Q1fgnMnzsf+cFPgiLfBGWp
-         7CMlpbKU3TI4XGQbJSb3Lxn0zktE64GjpAlGtgkqhkWkzi/UQ95zp4Gb4fcLtVWkNvkS
-         GUpfDralWIEMPB8m5sXNkyk4UfQ9pU+azHtgbmyrAwutS3vRq2WnJqzmpy3AVMUl577K
-         P/sw==
-X-Gm-Message-State: AOJu0YyMF9D58K1CSFSij45eHNtBYjJnzOuo03iHgNMbx2gdkHnaCawE
-	CcAbI1TW///ttdsY2HuMrIMM0BhNdNkL+Y1IvbFiNJCEY5ddRuYsK5oayhceBxEzmCL7zibs3Gj
-	Dg346rhNPagWwxKIvdbFIC+2m53M=
-X-Google-Smtp-Source: AGHT+IHBslWAP97vaxVoOWhxw9fAWKDv+pIDMUPrUxlr/h4cbSU0LK7lu1HPQNwFRfVqxs1rWlDTj0D+wrTBlzeeWM4=
-X-Received: by 2002:a17:90a:17a3:b0:2bd:feb2:aa99 with SMTP id
- 98e67ed59e1d1-2bf5ee14914mr2105041a91.19.1716553463868; Fri, 24 May 2024
- 05:24:23 -0700 (PDT)
+        bh=CIC2J5Qtkk9q6607+NWVSIFtxPk1VgNXzLSbIwcMHeQ=;
+        b=F02KOFWM6RxhV1RkW5M2dh3osOrHVe8bqT8W8Dfif9xl3TDIDmQz5PaCaWOnlMyZNz
+         VftmEcXl+myQGeZO9HPj/ceIZlskOAwJKdJ4glPE0bN5ArhlO4y/dZAAn4mLibZTK0oT
+         9pf5ZeqWLQrIILqf6vTmBxia5k5NZFmlOBFvrp0eiZKuHt65dDj4nV+7mzakA9BCMaz1
+         TbW0msKyx5VPn4DgyES6+/fmzP9ShYqcmhGaaZPkLf4iST6/ynRUxA7LlQFIkAq0oZU6
+         wl4BAI5St0cSPqVJ0AKQuRVCEwhiHba3UqdNqkF7fa6anNWbJqU2ujTKWyeVoi0xi4Is
+         MFHA==
+X-Gm-Message-State: AOJu0YyarREmYxBXe43wzAyZjDdBY0eGQEvbw0KLICBW8VSFQmXDQDPI
+	6JwhtMAoRl+SxWnm8Z3zSwg3bKuaVD1DnZ+AAK4ff2omBas3JP6qpgQjpoUDf2lVtj2j2/FBoMC
+	OO8fa9H2jHJEMZq9hRRHvamuuStsaHA==
+X-Google-Smtp-Source: AGHT+IHUSTIwVtGn0AtLUFhAQAnh5tsok6zCmEBE5KcfZh0Nb0UaE4TYzfhO3wzT+UeocW2vQKN2CQ24Vx8iyHgciHY=
+X-Received: by 2002:a05:6102:98:b0:47b:614e:cbd with SMTP id
+ ada2fe7eead31-48a386d7d64mr2261231137.31.1716558555701; Fri, 24 May 2024
+ 06:49:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240506174948.26314-1-stephen.smalley.work@gmail.com>
- <20240506174948.26314-2-stephen.smalley.work@gmail.com> <CAEjxPJ6dsy-E98gmfGioYa8aVEZGLC230ZNVyCZL7f9=5Ev35g@mail.gmail.com>
- <CAEjxPJ78Ak9Nc1Mgc=6=4bYcp48AxgCSjcHC+iaeag2ME6G75Q@mail.gmail.com> <CAHC9VhRfnc5aV1UCEYHfZVw9K69SwNDHHVfJ=5-Znx87QX4-6A@mail.gmail.com>
-In-Reply-To: <CAHC9VhRfnc5aV1UCEYHfZVw9K69SwNDHHVfJ=5-Znx87QX4-6A@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 24 May 2024 08:24:11 -0400
-Message-ID: <CAEjxPJ5cXmbbmUGuFM=rhd83sO11Kpk_Cjz77HZBu+ePXaeLFg@mail.gmail.com>
-Subject: Re: [PATCH 2/2 testsuite] tools/nfs.sh: comment out the fscontext=
- tests for now
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org, omosnace@redhat.com
+References: <20240506173110.220702-1-cgoettsche@seltendoof.de> <CAP+JOzQHF9Y35MTVZfKw5gCPVwmsNZe4fbDk_ED2iSbXVza7tQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzQHF9Y35MTVZfKw5gCPVwmsNZe4fbDk_ED2iSbXVza7tQ@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Fri, 24 May 2024 09:49:03 -0400
+Message-ID: <CAP+JOzRRU1QEfwcnfpTqYPtZL7Tu2J2ou2cr37oRjTYK9DuWvA@mail.gmail.com>
+Subject: Re: [PATCH 1/4] libsepol: reject self flag in type rules in old policies
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 23, 2024 at 4:00=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
+On Wed, May 8, 2024 at 2:50=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
+te:
 >
-> On Thu, May 23, 2024 at 8:59=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Wed, May 15, 2024 at 10:54=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Mon, May 6, 2024 at 1:51=E2=80=AFPM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > >
-> > > > These tests currently fail on mount(2) calls due to the directory b=
-eing
-> > > > unlabeled at the point where search access is checked. Until we can=
- resolve
-> > > > the underlying issue, comment out these tests to allow the NFS test=
-s to
-> > > > be run.
-> > >
-> > > With these two patches, I can run the nfs.sh script to completion wit=
-h
-> > > all tests passing on not only the latest kernel w/ the fix but also
-> > > Linux v5.14 with no changes. So it is unclear to me that the tests
-> > > being disabled by these two patches ever worked...
+> On Mon, May 6, 2024 at 1:31=E2=80=AFPM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
 > >
-> > Last call - any objections to me applying these two patches?
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > The flag RULE_SELF in type rules is only supported in modular policies
+> > since version 21 (MOD_POLICYDB_VERSION_SELF_TYPETRANS).
+> >
+> > Reported-by: oss-fuzz (issue 68731)
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Do we have any hope of resolving the issues anytime soon?  It might be
-> nice to see an in-depth discussion/brain-dump of the issues in the
-> commit description so that someone looking at this at a later date has
-> some hope of understanding the problem.
+> For these four patches:
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
 
-I already put what I knew into the commit messages, unless I missed somethi=
-ng.
-I am not sure the tests I am commenting out ever worked, and Ondrej
-said earlier that he never enabled the NFS tests as part of his
-automated testing because they still weren't working fully last he
-tried. Meanwhile, we've had two separate regressions in labeled NFS
-since that time, one from Neil Brown's patches and one from Ondrej's
-patches, and only just discovered the one long after it was
-introduced. Hence, to me the value of getting the tests running so we
-can turn them on in automated testing far outweighs any benefit we get
-from retaining these tests that may have never worked at all.
+These four patches have been merged.
+Thanks,
+Jim
+
+> > ---
+> >  libsepol/src/policydb_validate.c | 14 +++++++++++++-
+> >  1 file changed, 13 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_v=
+alidate.c
+> > index e1623172..be3ebe5f 100644
+> > --- a/libsepol/src/policydb_validate.c
+> > +++ b/libsepol/src/policydb_validate.c
+> > @@ -1077,6 +1077,10 @@ static int validate_avrules(sepol_handle_t *hand=
+le, const avrule_t *avrule, int
+> >                 switch(avrule->flags) {
+> >                 case 0:
+> >                 case RULE_SELF:
+> > +                       if (p->policyvers !=3D POLICY_KERN &&
+> > +                           p->policyvers < MOD_POLICYDB_VERSION_SELF_T=
+YPETRANS &&
+> > +                           (avrule->specified & AVRULE_TYPE))
+> > +                               goto bad;
+> >                         break;
+> >                 case RULE_NOTSELF:
+> >                         switch(avrule->specified) {
+> > @@ -1503,8 +1507,16 @@ static int validate_filename_trans_rules(sepol_h=
+andle_t *handle, const filename_
+> >                         goto bad;
+> >
+> >                 /* currently only the RULE_SELF flag can be set */
+> > -               if ((filename_trans->flags & ~RULE_SELF) !=3D 0)
+> > +               switch (filename_trans->flags) {
+> > +               case 0:
+> > +                       break;
+> > +               case RULE_SELF:
+> > +                       if (p->policyvers !=3D POLICY_KERN && p->policy=
+vers < MOD_POLICYDB_VERSION_SELF_TYPETRANS)
+> > +                               goto bad;
+> > +                       break;
+> > +               default:
+> >                         goto bad;
+> > +               }
+> >         }
+> >
+> >         return 0;
+> > --
+> > 2.43.0
+> >
+> >
