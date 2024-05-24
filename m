@@ -1,135 +1,114 @@
-Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com [209.85.217.52])
+Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8DCC39FF4
-	for <selinux@vger.kernel.org>; Fri, 24 May 2024 13:49:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5A8A39FF4
+	for <selinux@vger.kernel.org>; Fri, 24 May 2024 13:49:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716558558; cv=none; b=qaU8tHAiSONBTRUy9/z9XbpSvFgWJSUs3nlWMAIy6dAVLI6PjquV1YO9WfycJjGMe9esIG+v25Kozvy82c7pAYzhnodeVjswLEwPuQw/FvJ3WIb/Ty0Ko6QOireyvdzJ64drOO5Oi+35yfOcOGz3RkUutm2efOojK1mDXV9JVTk=
+	t=1716558592; cv=none; b=oEuJNZaV4V2N+LgdxnxUpA/8QOFPADEDUcnTXmW6tVVmldnxAy0EJeTu/O2S/C481ZzMXQoUGTPyQgQmCCDw0cp3sPz3oHjWkbtplaxQ9tVmycEZuTnuGXmtyHu8r/6Eu4L6g2nXt4xQOorT295MOIqARhCoKKUPK5NL/YcPKhU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716558558; c=relaxed/simple;
-	bh=OBG8D2YxN5PDpzH5B1w0UWfu8d6y81BQ+k1YwktQ3tI=;
+	s=arc-20240116; t=1716558592; c=relaxed/simple;
+	bh=cu576r8YtmA4/xWbyiCXBgp+mXpiqYf81yanCi65XMs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MgC+Ahw5xB7kVR5eXznb4+sxH2VErXcfwcjeB/bmNVx2ialvGcIvicw8lPv1fglBndPjAipo7nV66++mQZkPESj7vgxfhuL7Z8FXGa7fEwvsLLi2IufOpAC1XglQBrckcg8nmcM+kKua0CH7GTLkr2EKO72mnBfLcrP9XWamUR0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bJWdKWHV; arc=none smtp.client-ip=209.85.217.52
+	 To:Cc:Content-Type; b=gt4G3gOgKCDPae4piJ8zQQi6nRKaXeiM2vTvb+fp0rNexLGB6Zm5CTf5y09iE7PKsAfZOob1TmBlOpWTkUT6oUHdN1XIvv49oGFxEmunwx8IjMMuY37vkQGHrntY1qY0r7bxD+cQDzFnTsvgJ1sqjq4O4lTkE1cXLwx3t0mTrYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eWWlH5f6; arc=none smtp.client-ip=209.85.217.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bJWdKWHV"
-Received: by mail-vs1-f52.google.com with SMTP id ada2fe7eead31-48a39e3923fso289538137.3
-        for <selinux@vger.kernel.org>; Fri, 24 May 2024 06:49:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eWWlH5f6"
+Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-481e9c27378so1088358137.3
+        for <selinux@vger.kernel.org>; Fri, 24 May 2024 06:49:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1716558555; x=1717163355; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1716558589; x=1717163389; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=CIC2J5Qtkk9q6607+NWVSIFtxPk1VgNXzLSbIwcMHeQ=;
-        b=bJWdKWHVaxgTuDOUYTujz0U0DBLKcVeDw5M0bKeKdk0ZSulwSN5/3MJSZANhfOnYq4
-         m5xUcYcs/7mKv2c6qpK/WY13bPVNmApnPdwDlRIvF/9tWgYqhfJroT87dqKZj+VlV9Fq
-         QcJcL7j0c3mZXOVRc1r7FomrvtLu3exrr3/W4tp1xeoqkJ8cK2/eDZTmfs6lPC5h/f1b
-         yV0S8ct+JQ9bgSsojdQ9uDCWpPqbcJCWNLhdI2lGvh8OGRRFuTiQ2cM6o3X06JoQLlrt
-         eI2gqFlxcQ4RJqTHHMjPcUEU3PAHaCV+UhqdU0Dg37UTQ8rnHQdSoSfe3t2xcqO0u/BN
-         bKhA==
+        bh=kkCJLeVms57bj4B47hgkODunbUclPyxvyxSRsZAD9qc=;
+        b=eWWlH5f6MEXup0M35R5pP4GKh4wHIcYp5sf8RhqLU9YFRbgRJH39ionzg2wB+remr5
+         +LD3kp/qATMzthdg+TEHLPHAtM48zxjE7rVRDVgnYO+TfiaRS1giqzBhHHFiKo5+Jz4p
+         Pyts6BwK7a4/w1n4ETqS4UlL4HxqUrKzNr8uc+TBUblj+5aNiGxFwHQpGALi1EakxgvQ
+         znZ+VN5hwYcIIDylz8IQCFpLOZOtogBl3XL60a4LG0OnXu10OZ7QncRvAt6CjKZXti8K
+         DIJvwmrozD0N63gi6O5vagoj3oaTavWgqpitqXiRqlPOrz2kO4bFDGj1KLN5iJf3s4A8
+         aE6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716558555; x=1717163355;
+        d=1e100.net; s=20230601; t=1716558589; x=1717163389;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=CIC2J5Qtkk9q6607+NWVSIFtxPk1VgNXzLSbIwcMHeQ=;
-        b=F02KOFWM6RxhV1RkW5M2dh3osOrHVe8bqT8W8Dfif9xl3TDIDmQz5PaCaWOnlMyZNz
-         VftmEcXl+myQGeZO9HPj/ceIZlskOAwJKdJ4glPE0bN5ArhlO4y/dZAAn4mLibZTK0oT
-         9pf5ZeqWLQrIILqf6vTmBxia5k5NZFmlOBFvrp0eiZKuHt65dDj4nV+7mzakA9BCMaz1
-         TbW0msKyx5VPn4DgyES6+/fmzP9ShYqcmhGaaZPkLf4iST6/ynRUxA7LlQFIkAq0oZU6
-         wl4BAI5St0cSPqVJ0AKQuRVCEwhiHba3UqdNqkF7fa6anNWbJqU2ujTKWyeVoi0xi4Is
-         MFHA==
-X-Gm-Message-State: AOJu0YyarREmYxBXe43wzAyZjDdBY0eGQEvbw0KLICBW8VSFQmXDQDPI
-	6JwhtMAoRl+SxWnm8Z3zSwg3bKuaVD1DnZ+AAK4ff2omBas3JP6qpgQjpoUDf2lVtj2j2/FBoMC
-	OO8fa9H2jHJEMZq9hRRHvamuuStsaHA==
-X-Google-Smtp-Source: AGHT+IHUSTIwVtGn0AtLUFhAQAnh5tsok6zCmEBE5KcfZh0Nb0UaE4TYzfhO3wzT+UeocW2vQKN2CQ24Vx8iyHgciHY=
-X-Received: by 2002:a05:6102:98:b0:47b:614e:cbd with SMTP id
- ada2fe7eead31-48a386d7d64mr2261231137.31.1716558555701; Fri, 24 May 2024
- 06:49:15 -0700 (PDT)
+        bh=kkCJLeVms57bj4B47hgkODunbUclPyxvyxSRsZAD9qc=;
+        b=jfSyhv8RWFvXyjAlAf46Op9ZERMDpDWhj0KjTPVqKh0iOXNLQkzZJjRKrCZWYkEEtF
+         dkgSNzvDgIRBPo+fHAYMmjwkf15wi8fD4ksYTVIsvGoZGsUawsuHZ0+5AlYhzm74xhZQ
+         JhEEZXvSWys3sgIPhnQbw4rB9uZrzah54RpMC7t5blOjgnlIWwDOJ7mbp468w3cvJgaR
+         uxlwFVlrddH2k4ZXpojU62NWH5lMh4YwLxuKq74/h3/cC6lqaXMP1h3qXH/n6GqXe8lk
+         mJ0pLw3uvKDXDET/dQo7NfoNnKB3QO9Fed5nDO/cNAzj53ygkMKley0u0Moew0+GYKRm
+         J9tQ==
+X-Gm-Message-State: AOJu0YwqY3Cui99EBkeApo37g0/Stk2DfuXCsFyVD1ICRJL5iG9/vcxd
+	dI6pZgBzC95HPQCGqktBRtCC2X29cPYdhVzw5fxxkHRCG7asr7ID4+NV2zY1mpQQCs3YTvAyh7R
+	Q5JEw3P83vzg6B7umb9qWUxObcPJEuw==
+X-Google-Smtp-Source: AGHT+IGC7VebQPYRrgPwHZxrHtRZMMR4glGBIHBuNtGnLMQqkuFfbuyj/FxQc/HiKlVZiGN2lJIFeaX0Bj5jjw9W5lU=
+X-Received: by 2002:a67:f2c7:0:b0:485:9a12:ca5 with SMTP id
+ ada2fe7eead31-48a385c72eamr2261913137.17.1716558589517; Fri, 24 May 2024
+ 06:49:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240506173110.220702-1-cgoettsche@seltendoof.de> <CAP+JOzQHF9Y35MTVZfKw5gCPVwmsNZe4fbDk_ED2iSbXVza7tQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzQHF9Y35MTVZfKw5gCPVwmsNZe4fbDk_ED2iSbXVza7tQ@mail.gmail.com>
+References: <20240508170422.1396740-1-cgoettsche@seltendoof.de> <CAP+JOzT-5hq2bx-XbXWMsFORY2FX7jAO5Lae=87+pRqZza1bXg@mail.gmail.com>
+In-Reply-To: <CAP+JOzT-5hq2bx-XbXWMsFORY2FX7jAO5Lae=87+pRqZza1bXg@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Fri, 24 May 2024 09:49:03 -0400
-Message-ID: <CAP+JOzRRU1QEfwcnfpTqYPtZL7Tu2J2ou2cr37oRjTYK9DuWvA@mail.gmail.com>
-Subject: Re: [PATCH 1/4] libsepol: reject self flag in type rules in old policies
+Date: Fri, 24 May 2024 09:49:38 -0400
+Message-ID: <CAP+JOzSkv6F4pZLXp2gQp2TYpYDJW4jSy1FpvC0Y8ErxqEa1iA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] checkpolicy: perform contiguous check in host byte order
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 8, 2024 at 2:50=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
-te:
+On Wed, May 15, 2024 at 4:16=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+ote:
 >
-> On Mon, May 6, 2024 at 1:31=E2=80=AFPM Christian G=C3=B6ttsche
+> On Wed, May 8, 2024 at 1:04=E2=80=AFPM Christian G=C3=B6ttsche
 > <cgoettsche@seltendoof.de> wrote:
 > >
 > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > >
-> > The flag RULE_SELF in type rules is only supported in modular policies
-> > since version 21 (MOD_POLICYDB_VERSION_SELF_TYPETRANS).
+> > The contiguous check for network masks requires host byte order on the
+> > underlying integers.
+> > Convert from network byte order to avoid wrong warnings.
 > >
-> > Reported-by: oss-fuzz (issue 68731)
+> > Fixes: 01b88ac3 ("checkpolicy: warn on bogus IP address or netmask in n=
+odecon statement")
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> For these four patches:
+> For these two patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-These four patches have been merged.
+These two patches have been merged.
 Thanks,
 Jim
 
 > > ---
-> >  libsepol/src/policydb_validate.c | 14 +++++++++++++-
-> >  1 file changed, 13 insertions(+), 1 deletion(-)
+> >  checkpolicy/policy_define.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
 > >
-> > diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_v=
-alidate.c
-> > index e1623172..be3ebe5f 100644
-> > --- a/libsepol/src/policydb_validate.c
-> > +++ b/libsepol/src/policydb_validate.c
-> > @@ -1077,6 +1077,10 @@ static int validate_avrules(sepol_handle_t *hand=
-le, const avrule_t *avrule, int
-> >                 switch(avrule->flags) {
-> >                 case 0:
-> >                 case RULE_SELF:
-> > +                       if (p->policyvers !=3D POLICY_KERN &&
-> > +                           p->policyvers < MOD_POLICYDB_VERSION_SELF_T=
-YPETRANS &&
-> > +                           (avrule->specified & AVRULE_TYPE))
-> > +                               goto bad;
-> >                         break;
-> >                 case RULE_NOTSELF:
-> >                         switch(avrule->specified) {
-> > @@ -1503,8 +1507,16 @@ static int validate_filename_trans_rules(sepol_h=
-andle_t *handle, const filename_
-> >                         goto bad;
+> > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> > index aa2ac2e6..9671906f 100644
+> > --- a/checkpolicy/policy_define.c
+> > +++ b/checkpolicy/policy_define.c
+> > @@ -5292,7 +5292,7 @@ int define_ipv4_node_context(void)
 > >
-> >                 /* currently only the RULE_SELF flag can be set */
-> > -               if ((filename_trans->flags & ~RULE_SELF) !=3D 0)
-> > +               switch (filename_trans->flags) {
-> > +               case 0:
-> > +                       break;
-> > +               case RULE_SELF:
-> > +                       if (p->policyvers !=3D POLICY_KERN && p->policy=
-vers < MOD_POLICYDB_VERSION_SELF_TYPETRANS)
-> > +                               goto bad;
-> > +                       break;
-> > +               default:
-> >                         goto bad;
-> > +               }
+> >         free(id);
+> >
+> > -       if (mask.s_addr !=3D 0 && ((~mask.s_addr + 1) & ~mask.s_addr) !=
+=3D 0) {
+> > +       if (mask.s_addr !=3D 0 && ((~be32toh(mask.s_addr) + 1) & ~be32t=
+oh(mask.s_addr)) !=3D 0) {
+> >                 yywarn("ipv4 mask is not contiguous");
 > >         }
 > >
-> >         return 0;
 > > --
 > > 2.43.0
 > >
