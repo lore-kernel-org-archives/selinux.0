@@ -1,115 +1,121 @@
-Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5A8A39FF4
-	for <selinux@vger.kernel.org>; Fri, 24 May 2024 13:49:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B396716D4D0
+	for <selinux@vger.kernel.org>; Tue, 28 May 2024 14:46:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716558592; cv=none; b=oEuJNZaV4V2N+LgdxnxUpA/8QOFPADEDUcnTXmW6tVVmldnxAy0EJeTu/O2S/C481ZzMXQoUGTPyQgQmCCDw0cp3sPz3oHjWkbtplaxQ9tVmycEZuTnuGXmtyHu8r/6Eu4L6g2nXt4xQOorT295MOIqARhCoKKUPK5NL/YcPKhU=
+	t=1716907607; cv=none; b=B/9eCLfJGEafZ5SKbrlU6rz9husMfw5tnI5UL+gQRwypXCK46Fa4jT0qXoO7O3Kj9UhT0gHUpQeC2y9BgEST0EGaNBEoJsiaFyTi83/+seg2o+/EqEceFFBk942a3vzrHAtfMkDLsBrIf9+r2YtsXqEDzxyFJUpOxT7zN9Kk6es=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716558592; c=relaxed/simple;
-	bh=cu576r8YtmA4/xWbyiCXBgp+mXpiqYf81yanCi65XMs=;
+	s=arc-20240116; t=1716907607; c=relaxed/simple;
+	bh=lMBMtqYnISfl/1/LgQnaoH7oWjt5B2VJXUZ+vcMX3vI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gt4G3gOgKCDPae4piJ8zQQi6nRKaXeiM2vTvb+fp0rNexLGB6Zm5CTf5y09iE7PKsAfZOob1TmBlOpWTkUT6oUHdN1XIvv49oGFxEmunwx8IjMMuY37vkQGHrntY1qY0r7bxD+cQDzFnTsvgJ1sqjq4O4lTkE1cXLwx3t0mTrYc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eWWlH5f6; arc=none smtp.client-ip=209.85.217.47
+	 To:Cc:Content-Type; b=BtfaYvh5mQXABoGbbNtzluyDjqidDrdVPHfx2+MxFg2njR7tBYQUt9ZeCvLDt4nGLXFUwpx8UUhViKPXUPsB2suA0OuXreQICM+fbjd6K7yYg8OCTZnguKov99TSsjj9ak9JyeFj1BDFOn2r206uuOmPy0/8FXL4psD2cM//+uA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CfE1WJXL; arc=none smtp.client-ip=209.85.215.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eWWlH5f6"
-Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-481e9c27378so1088358137.3
-        for <selinux@vger.kernel.org>; Fri, 24 May 2024 06:49:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CfE1WJXL"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-6818811cb8aso601518a12.0
+        for <selinux@vger.kernel.org>; Tue, 28 May 2024 07:46:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1716558589; x=1717163389; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1716907605; x=1717512405; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=kkCJLeVms57bj4B47hgkODunbUclPyxvyxSRsZAD9qc=;
-        b=eWWlH5f6MEXup0M35R5pP4GKh4wHIcYp5sf8RhqLU9YFRbgRJH39ionzg2wB+remr5
-         +LD3kp/qATMzthdg+TEHLPHAtM48zxjE7rVRDVgnYO+TfiaRS1giqzBhHHFiKo5+Jz4p
-         Pyts6BwK7a4/w1n4ETqS4UlL4HxqUrKzNr8uc+TBUblj+5aNiGxFwHQpGALi1EakxgvQ
-         znZ+VN5hwYcIIDylz8IQCFpLOZOtogBl3XL60a4LG0OnXu10OZ7QncRvAt6CjKZXti8K
-         DIJvwmrozD0N63gi6O5vagoj3oaTavWgqpitqXiRqlPOrz2kO4bFDGj1KLN5iJf3s4A8
-         aE6w==
+        bh=016AUnP8pJ8Ej44ZDrPDkGF7KdxOeenV5eHAYCbwf2M=;
+        b=CfE1WJXL409djX0nzF+pVaNFUIblUzpaoIOUl1NX/svIdwdncpSk/EQKJWJMyGmnvz
+         ajTI4vZvJebFgBnMJ05+ZNqNbQQLIgQYm8yrxkNpbXV9hMlsBSalBhHnrMlpIrr6R+tX
+         SK7ebWIIEXk4JD07xfhQ8a8nwfted6QFav2F37fVaBXhMONw44F9tUGCeyLanfBpP7BE
+         krIhQsh18i9Z3mh5aLOoiw1zxHozeCincndp+nyV8k3h8JoTFHA7FxKkS5jvvIAExEhw
+         4zdIf/tjpHupE+ecghWEyrgHfEOjNm5KMXdjx9B2IJJp74yr3MqBlTRv4Zlzy2yaA38c
+         UWLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716558589; x=1717163389;
+        d=1e100.net; s=20230601; t=1716907605; x=1717512405;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=kkCJLeVms57bj4B47hgkODunbUclPyxvyxSRsZAD9qc=;
-        b=jfSyhv8RWFvXyjAlAf46Op9ZERMDpDWhj0KjTPVqKh0iOXNLQkzZJjRKrCZWYkEEtF
-         dkgSNzvDgIRBPo+fHAYMmjwkf15wi8fD4ksYTVIsvGoZGsUawsuHZ0+5AlYhzm74xhZQ
-         JhEEZXvSWys3sgIPhnQbw4rB9uZrzah54RpMC7t5blOjgnlIWwDOJ7mbp468w3cvJgaR
-         uxlwFVlrddH2k4ZXpojU62NWH5lMh4YwLxuKq74/h3/cC6lqaXMP1h3qXH/n6GqXe8lk
-         mJ0pLw3uvKDXDET/dQo7NfoNnKB3QO9Fed5nDO/cNAzj53ygkMKley0u0Moew0+GYKRm
-         J9tQ==
-X-Gm-Message-State: AOJu0YwqY3Cui99EBkeApo37g0/Stk2DfuXCsFyVD1ICRJL5iG9/vcxd
-	dI6pZgBzC95HPQCGqktBRtCC2X29cPYdhVzw5fxxkHRCG7asr7ID4+NV2zY1mpQQCs3YTvAyh7R
-	Q5JEw3P83vzg6B7umb9qWUxObcPJEuw==
-X-Google-Smtp-Source: AGHT+IGC7VebQPYRrgPwHZxrHtRZMMR4glGBIHBuNtGnLMQqkuFfbuyj/FxQc/HiKlVZiGN2lJIFeaX0Bj5jjw9W5lU=
-X-Received: by 2002:a67:f2c7:0:b0:485:9a12:ca5 with SMTP id
- ada2fe7eead31-48a385c72eamr2261913137.17.1716558589517; Fri, 24 May 2024
- 06:49:49 -0700 (PDT)
+        bh=016AUnP8pJ8Ej44ZDrPDkGF7KdxOeenV5eHAYCbwf2M=;
+        b=oY3KdLRmG5GVDwGyOQxHevuQHiY0P54DW1EmycQqw74wZAk8vG5cJS91w5zJbKoHB/
+         L+WU36USg3TnCAwEMTYxWqlhEl13y87frJ4+o0WXZs2zl2FTjQV57CiiPre0apgRFI3q
+         jSweMQ51gykxM59UdQy0GUMfj2tzS+xyG45vTp4JEvailccof2TFtIvzTfDrNUMiJnqs
+         RfBGrL1C3qzLZTSZy6YTiWmrFj8+PK2C00+3OnkPvJNtxesUzsjWAxAwIJ2aCEKs6kFS
+         5RYjypZ1dH7DWtlQfNuQG9QsZ8xv1F0/dAuzwXiHuV7gHzLIsnkbGUwtjO5qH8v7vMVQ
+         ZarA==
+X-Gm-Message-State: AOJu0YzX6VkbYPAcp+HSP/B6pv10QqoUKrZJMNKKJ/bxt+k5rz5tLD+s
+	KaKgjdOfxou9ixe7p4uLuh4r8pL+0b9LcpbFLlPz9atJbFT2w4mzDnCh0VimMt4z9XfO0IFSr1w
+	fEXsYAmn8hejTM9d0Tz0+WC+S7Iw=
+X-Google-Smtp-Source: AGHT+IEPDkNv83ca2jKneTCrey3Tl8VO2tjiIRv8K9hulokpt3tjMeVJgAuT7NfZ4Kfcx4hw6rzCc88OLl4YGVTGDz4=
+X-Received: by 2002:a17:90b:4b4e:b0:2be:b9:da18 with SMTP id
+ 98e67ed59e1d1-2bf5e13707cmr11663584a91.2.1716907604806; Tue, 28 May 2024
+ 07:46:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240508170422.1396740-1-cgoettsche@seltendoof.de> <CAP+JOzT-5hq2bx-XbXWMsFORY2FX7jAO5Lae=87+pRqZza1bXg@mail.gmail.com>
-In-Reply-To: <CAP+JOzT-5hq2bx-XbXWMsFORY2FX7jAO5Lae=87+pRqZza1bXg@mail.gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Fri, 24 May 2024 09:49:38 -0400
-Message-ID: <CAP+JOzSkv6F4pZLXp2gQp2TYpYDJW4jSy1FpvC0Y8ErxqEa1iA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] checkpolicy: perform contiguous check in host byte order
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org
+References: <20240506174948.26314-1-stephen.smalley.work@gmail.com>
+ <20240506174948.26314-2-stephen.smalley.work@gmail.com> <CAEjxPJ6dsy-E98gmfGioYa8aVEZGLC230ZNVyCZL7f9=5Ev35g@mail.gmail.com>
+ <CAEjxPJ78Ak9Nc1Mgc=6=4bYcp48AxgCSjcHC+iaeag2ME6G75Q@mail.gmail.com>
+ <CAHC9VhRfnc5aV1UCEYHfZVw9K69SwNDHHVfJ=5-Znx87QX4-6A@mail.gmail.com> <CAEjxPJ5cXmbbmUGuFM=rhd83sO11Kpk_Cjz77HZBu+ePXaeLFg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5cXmbbmUGuFM=rhd83sO11Kpk_Cjz77HZBu+ePXaeLFg@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 28 May 2024 10:46:32 -0400
+Message-ID: <CAEjxPJ6HoSvB-rL55wOXPuJ0P33Rci-AznbQ_tg8aMAn=st8CA@mail.gmail.com>
+Subject: Re: [PATCH 2/2 testsuite] tools/nfs.sh: comment out the fscontext=
+ tests for now
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@vger.kernel.org, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 15, 2024 at 4:16=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
-ote:
+On Fri, May 24, 2024 at 8:24=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Wed, May 8, 2024 at 1:04=E2=80=AFPM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
+> On Thu, May 23, 2024 at 4:00=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
 > >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > On Thu, May 23, 2024 at 8:59=E2=80=AFAM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > > On Wed, May 15, 2024 at 10:54=E2=80=AFAM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > >
+> > > > On Mon, May 6, 2024 at 1:51=E2=80=AFPM Stephen Smalley
+> > > > <stephen.smalley.work@gmail.com> wrote:
+> > > > >
+> > > > > These tests currently fail on mount(2) calls due to the directory=
+ being
+> > > > > unlabeled at the point where search access is checked. Until we c=
+an resolve
+> > > > > the underlying issue, comment out these tests to allow the NFS te=
+sts to
+> > > > > be run.
+> > > >
+> > > > With these two patches, I can run the nfs.sh script to completion w=
+ith
+> > > > all tests passing on not only the latest kernel w/ the fix but also
+> > > > Linux v5.14 with no changes. So it is unclear to me that the tests
+> > > > being disabled by these two patches ever worked...
+> > >
+> > > Last call - any objections to me applying these two patches?
 > >
-> > The contiguous check for network masks requires host byte order on the
-> > underlying integers.
-> > Convert from network byte order to avoid wrong warnings.
-> >
-> > Fixes: 01b88ac3 ("checkpolicy: warn on bogus IP address or netmask in n=
-odecon statement")
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > Do we have any hope of resolving the issues anytime soon?  It might be
+> > nice to see an in-depth discussion/brain-dump of the issues in the
+> > commit description so that someone looking at this at a later date has
+> > some hope of understanding the problem.
 >
-> For these two patches:
-> Acked-by: James Carter <jwcart2@gmail.com>
->
+> I already put what I knew into the commit messages, unless I missed somet=
+hing.
+> I am not sure the tests I am commenting out ever worked, and Ondrej
+> said earlier that he never enabled the NFS tests as part of his
+> automated testing because they still weren't working fully last he
+> tried. Meanwhile, we've had two separate regressions in labeled NFS
+> since that time, one from Neil Brown's patches and one from Ondrej's
+> patches, and only just discovered the one long after it was
+> introduced. Hence, to me the value of getting the tests running so we
+> can turn them on in automated testing far outweighs any benefit we get
+> from retaining these tests that may have never worked at all.
 
-These two patches have been merged.
-Thanks,
-Jim
-
-> > ---
-> >  checkpolicy/policy_define.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> > index aa2ac2e6..9671906f 100644
-> > --- a/checkpolicy/policy_define.c
-> > +++ b/checkpolicy/policy_define.c
-> > @@ -5292,7 +5292,7 @@ int define_ipv4_node_context(void)
-> >
-> >         free(id);
-> >
-> > -       if (mask.s_addr !=3D 0 && ((~mask.s_addr + 1) & ~mask.s_addr) !=
-=3D 0) {
-> > +       if (mask.s_addr !=3D 0 && ((~be32toh(mask.s_addr) + 1) & ~be32t=
-oh(mask.s_addr)) !=3D 0) {
-> >                 yywarn("ipv4 mask is not contiguous");
-> >         }
-> >
-> > --
-> > 2.43.0
-> >
-> >
+Also, FWIW, with these two patches applied to the testsuite, current
+linus/master passes all remaining NFS tests.
