@@ -1,63 +1,67 @@
-Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0B0C158DD7
-	for <selinux@vger.kernel.org>; Fri, 31 May 2024 13:13:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60EC0176247
+	for <selinux@vger.kernel.org>; Fri, 31 May 2024 13:14:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717161219; cv=none; b=lXh0wAEGMmA380T2CQ5SB23KvCIzgplNu1kry3ND+lrn7fikDakrLn0MWx1V7llS1wSVsnN8WcdeD388vgWA0AQBJB+TVYuRe5GIr+dJM9EUz5u2Km4qfYbKKjvd1Umnho0GB2IUbpeu9OdElpsnl6SEuBvG0S+akCOpiMKMsyQ=
+	t=1717161263; cv=none; b=qGx4JEDTZaUR+Vq90E9FemdF1l97zeDo/yUQR3vM0RQCAjM51MhiaxZAGvQoAo5ShDGNLiPysmNxPJsGAW3awWs6Jp0As/bOsTHzg7MKpPXEVt3xOauECRbSqX2/eaNQBz39adZZ2hEdoDP3ktTsc9dvCy7nvKq85B20noU24/0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717161219; c=relaxed/simple;
-	bh=2rL0QKiOnPsO2+W2YMal9hO7tOZdQkO/v9I+ZJozL34=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=loXCcExbSYuHVDKOuyMq8CImIXLjaMQdmmIp+h4T+G6yfj8IlqV8qiQE43u7NnajhEw0sAwElRffi/WW1CBv0BY0PcPBRHaERhCqrZT8ZPhVX0bdFLouz8mf2p1DF2JqliUU9HIl7L6QMzuWIKgXboKWOvf5ipk6+qEJfT2xcho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iA0MlEcI; arc=none smtp.client-ip=209.85.222.170
+	s=arc-20240116; t=1717161263; c=relaxed/simple;
+	bh=foBeSO5wuzh1s8jjAZZn7D4MIXgsMyElbPPPCPiG/qM=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=Rb+VITWkvDvTYiRBrSJZVes5ovTlxUxyzjHLB3+r++VwAmO0rOui4dsJVgrxrHuJpB1Zq+8vj4y6QU4x+ha3B3sRMY/DGhzFJgPrTjXtC1em7SA7Ti0Y6Ig1Q4UjKg+kM3BeKnBrXEPrHZeaVi5qcx2eCvcqokou7n8+YjyrZBk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KtuOcpRs; arc=none smtp.client-ip=209.85.160.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iA0MlEcI"
-Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-794f5fc6e8dso44763485a.0
-        for <selinux@vger.kernel.org>; Fri, 31 May 2024 06:13:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KtuOcpRs"
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-43fdb990b3aso10159761cf.1
+        for <selinux@vger.kernel.org>; Fri, 31 May 2024 06:14:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1717161216; x=1717766016; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Yke1TcFI6OXBKQ2zEq28+NrjdIiWuMUz2ZpucbGE6qA=;
-        b=iA0MlEcI0AtfukHHkyNcjd1rOhaHLsuCsBTmp5cbkI65f4aC86cGnIALGMIIlFbcRf
-         cZoMY76HP1c8ItaVXDpQCLzzMABpHOQX2zjRpLeZN8SunWlyV0iWC+gAD9SDppsmt2pr
-         HH1CGepNIoIPs/+exRSUKMyIY1alIgtjjncvcV3RC9gBkqCYqS3D4ShkgKM8zw4Edepx
-         9OoVa4BWFOevQzaTouiTdFTHG3PwSh0cUDX+3XTK+OVJKSTa4nXzg99zPD0zdgEPsQnR
-         2yViq/Bz3Zas/n5YllQ8K45qwcOP050Y5D5Jn5rjGkD3UFh2EpJfZmd5NtHcv1+KAL8L
-         wIJA==
+        d=gmail.com; s=20230601; t=1717161261; x=1717766061; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GLlSH14Pm63dyV87tbiL9WR2b6xzutVQZ4gYa8/7pmw=;
+        b=KtuOcpRsBsLQyQ6Z7qeBxzHEpn9YIkkx3XU/XdkOBc0umYdHvyd4AdMBImcFBYRM3H
+         aSYxffHMTgnAv9cnd81eSvzjHBCLq8+PTZKakYAgHtMwoS58ikiCC1nHSMLouSORlShI
+         OWwaVrhyEzG8yU5zni8BmWRhaw9XhdmyPyZJakrKM+G72x27IO18lXQtv79Hh8njGCJo
+         KMaxwBWtBAPSK8lts2q+no6UQ8LkxouyKPiim/ci3lxN5G/96dITXlaJmpd2Pa3d6JUW
+         wVq/YX06oA8O7q4zBntVZuenf/IWOuVr/erFy6BGaV7WA2iq1spORIr+wUr5WFYLODA5
+         BRvg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717161216; x=1717766016;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Yke1TcFI6OXBKQ2zEq28+NrjdIiWuMUz2ZpucbGE6qA=;
-        b=TY/WC2hxsd457e2bRvwgvpPIbkGPGrEN6+m1/5DCXqIwUd4k88kWluXoV/KRPDzB/F
-         wsJtEL66s5K5vl6GJ3nbxTJTPiOKZUd1W3bzqQkZmIZrP9RA8ZgUFYbTzJKi+ViK5DUk
-         MizdbdzYOPrrRhmuQYPqUk/1V9YMz+DtELXifaH+lx8o1swRMIaYXoS3lB21OR/ZzM+n
-         0NRv7ad0R49KQ63qxKn8dcRDl4NWUSUWWXaEXnTxlKZkgaSb9+b2T8IxDa5GwIjRlmNm
-         PVlmN3O+uywnSwZQ4MzhRqGg106iGLXNcRp5OEvpuPMrQX3sVlV5pdkOAhLj+UcmDASn
-         BIHg==
-X-Gm-Message-State: AOJu0YyR00XQQ7dDa1tzMKAD4xaybtyQatoB1aSPoCNlyy4Q+OJM1QoE
-	rjqIbXJBK6MyVf0DvfGhBJlkEpa/CSMeTGn00lNitkgzgFbavndW+jNwjg==
-X-Google-Smtp-Source: AGHT+IF3rrddHJsFE56NxxWJKLxKfhlvqi6O+tButBWr3zG7xWHyKoD6HCY4AcD9TGUFkjMWj/hViw==
-X-Received: by 2002:a05:620a:37aa:b0:794:cbe5:f502 with SMTP id af79cd13be357-794f5c90f9cmr162611585a.39.1717161216122;
-        Fri, 31 May 2024 06:13:36 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1717161261; x=1717766061;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=GLlSH14Pm63dyV87tbiL9WR2b6xzutVQZ4gYa8/7pmw=;
+        b=Z64bIsuEkVTGa/it/Rts0qDovFvOBGRrCMg4b//rnGRiJNPjpi+eVc2Ljc6+3Ocbwu
+         8UjTueIqCMpvGL3PNe7uzOiMk6XLZmcd/E7uF28WeRYpRdFS7ZXktEgDoY3fBiPdeLde
+         +h8z8bmNe6FzmatDwfabaTmEjmqn2TsmyE3kAMrEh9GuIMPNK4dzyWakm5jpPcQTODuU
+         +rM32NjFfPS/bR2n0VHr0Yq+/XJk0SLzQ8rWNX6duUytkAg+CaUXU8aWWw/0WK+wHYQO
+         BOxWZChyV/VWZSJltAbhPdTNAVkFyyGpGwLBHpozs2nifrfW65B/jjl+yFCFO7SLFtoq
+         8vkA==
+X-Gm-Message-State: AOJu0YwIXsW38lY4e50O7wOzShCYBHGaat7nMnvQVznnN/Y1PvClcfdu
+	mMwqezU56dA47ClvpLl6F5G+UMF5hjQaN0P7e0D2pqGH/c7X+N7KDfcNHQ==
+X-Google-Smtp-Source: AGHT+IH+qUa0vKJUYfQyXiVtAS6jCtliARK9XhN5+79DQka0paF+DWTwnxx/CTX8XNNkPq+CcJJyww==
+X-Received: by 2002:ac8:7f49:0:b0:43d:f4e8:3b14 with SMTP id d75a77b69052e-43ff5297056mr19359311cf.39.1717161260946;
+        Fri, 31 May 2024 06:14:20 -0700 (PDT)
 Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-43ff23e269bsm8020781cf.46.2024.05.31.06.13.35
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-43ff23e269bsm8020781cf.46.2024.05.31.06.14.20
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 31 May 2024 06:13:35 -0700 (PDT)
+        Fri, 31 May 2024 06:14:20 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v3 1/2 testsuite] tools/nfs.sh: comment out the fscontext= tests for now
-Date: Fri, 31 May 2024 09:12:37 -0400
-Message-Id: <20240531131237.16666-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH v3 2/2 testsuite] tests/nfs_filesystem: comment out failing mount
+Date: Fri, 31 May 2024 09:12:39 -0400
+Message-Id: <20240531131237.16666-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20240531131237.16666-1-stephen.smalley.work@gmail.com>
+References: <20240531131237.16666-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -66,138 +70,92 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-These tests currently fail on mount(2) calls due to the directory being
-unlabeled at the point where search access is checked. Until we can resolve
-the underlying issue, comment out these tests to allow the NFS tests to
-be run. It is unclear that these tests ever passed and retaining them
-prevents enabling the NFS tests in automated testing.
+For reasons unclear, we attempt to mount twice, the 2nd time yields EBUSY,
+and then the following test fails. Comment out the 2nd mount, which also
+resolves the failure.
 
 This bug is tracked in
-https://github.com/SELinuxProject/selinux-testsuite/issues/91
+https://github.com/SELinuxProject/selinux-testsuite/issues/92
 
 Before:
-Run 'filesystem' tests with mount context option:
-	fscontext=system_u:object_r:test_filesystem_file_t:s0
-filesystem/test .. 1/41 Failed mount(2): Permission denied
+Run NFS context specific tests
+nfs_filesystem/test .. 2/56 creat(2) Failed: Permission denied
 
-#   Failed test at filesystem/test line 709.
-Failed umount(2): Permission denied
+#   Failed test at nfs_filesystem/test line 118.
+nfs_filesystem/test .. 30/56 creat(2) Failed: Permission denied
 
-#   Failed test at filesystem/test line 720.
-Failed mount(2): Permission denied
-
-#   Failed test at filesystem/test line 744.
-Failed umount(2): Permission denied
-
-#   Failed test at filesystem/test line 756.
-Failed mount(2): Permission denied
-
-#   Failed test at filesystem/test line 780.
-Failed umount(2): No such file or directory
-
-#   Failed test at filesystem/test line 793.
-Failed mount(2): Permission denied
-
-#   Failed test at filesystem/test line 851.
-Failed umount(2): Permission denied
-
-#   Failed test at filesystem/test line 863.
-Failed mount(2): Permission denied
-
-#   Failed test at filesystem/test line 887.
-Failed umount(2): Permission denied
-
-#   Failed test at filesystem/test line 899.
-Failed mount(2): Permission denied
-
-#   Failed test at filesystem/test line 923.
-Failed umount(2): Permission denied
-
-#   Failed test at filesystem/test line 935.
-
-#   Failed test at filesystem/test line 978.
-# Looks like you failed 13 tests of 41.
-filesystem/test .. Dubious, test returned 13 (wstat 3328, 0xd00)
-Failed 13/41 subtests
+#   Failed test at nfs_filesystem/test line 118.
+nfs_filesystem/test .. 53/56 # Looks like you failed 2 tests of 56.
+nfs_filesystem/test .. Dubious, test returned 2 (wstat 512, 0x200)
+Failed 2/56 subtests
 
 Test Summary Report
 -------------------
-filesystem/test (Wstat: 3328 (exited 13) Tests: 41 Failed: 13)
-  Failed tests:  23, 25-26, 28-29, 31-32, 34-35, 37-38, 40-41
-  Non-zero exit status: 13
-Files=1, Tests=41,  1 wallclock secs ( 0.02 usr  0.00 sys +  0.22 cusr  0.36 csys =  0.60 CPU)
+nfs_filesystem/test (Wstat: 512 (exited 2) Tests: 56 Failed: 2)
+  Failed tests:  7, 35
+  Non-zero exit status: 2
+Files=1, Tests=56, 12 wallclock secs ( 0.02 usr  0.00 sys +  0.15 cusr  0.25 csys =  0.42 CPU)
 Result: FAIL
-Failed 1/1 test programs. 13/41 subtests failed.
-Test failed on line: 85 - Closing down NFS
+Failed 1/1 test programs. 2/56 subtests failed.
+Error on line: 104 - Closing down NFS
+umount: /mnt/selinux-testsuite: not mounted.
 NFS Closed down
 
-$ sudo ausearch -m AVC -ts recent | grep unlabeled
-type=AVC msg=audit(1716989714.176:42466): avc:  denied  { search } for  pid=170755 comm="mount" name="mntpoint" dev="0:60" ino=822109802 scontext=unconfined_u:unconfined_r:test_filesystem_no_watch_mount_t:s0-s0:c0.c1023 tcontext=system_u:object_r:unlabeled_t:s0 tclass=dir permissive=0
-
 After:
-No failing tests.
+No errors from this test script.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- tools/nfs.sh | 44 ++++++++++++++++++++++++--------------------
- 1 file changed, 24 insertions(+), 20 deletions(-)
+ tests/nfs_filesystem/test | 29 ++++++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
 
-diff --git a/tools/nfs.sh b/tools/nfs.sh
-index cf4912c..80eba92 100755
---- a/tools/nfs.sh
-+++ b/tools/nfs.sh
-@@ -77,27 +77,31 @@ POPD=0
- popd >/dev/null 2>&1
- umount /mnt/selinux-testsuite
- #
--echo -e "Run 'filesystem' tests with mount context option:\n\t$FS_CTX"
--mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
--pushd /mnt/selinux-testsuite >/dev/null 2>&1
--POPD=1
--cd tests
--./nfsruntests.pl filesystem/test
--cd ../
--POPD=0
--popd >/dev/null 2>&1
--umount /mnt/selinux-testsuite
-+# The block below is commented out since these tests do not pass
-+# on any known kernel.
-+# See https://github.com/SELinuxProject/selinux-testsuite/issues/91
- #
--echo -e "Run 'fs_filesystem' tests with mount context option:\n\t$FS_CTX"
--mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
--pushd /mnt/selinux-testsuite >/dev/null 2>&1
--POPD=1
--cd tests
--./nfsruntests.pl fs_filesystem/test
--cd ../
--POPD=0
--popd >/dev/null 2>&1
--umount /mnt/selinux-testsuite
-+#echo -e "Run 'filesystem' tests with mount context option:\n\t$FS_CTX"
-+#mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
-+#pushd /mnt/selinux-testsuite >/dev/null 2>&1
-+#POPD=1
-+#cd tests
-+#./nfsruntests.pl filesystem/test
-+#cd ../
-+#POPD=0
-+#popd >/dev/null 2>&1
-+#umount /mnt/selinux-testsuite
-+#
-+#echo -e "Run 'fs_filesystem' tests with mount context option:\n\t$FS_CTX"
-+#mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
-+#pushd /mnt/selinux-testsuite >/dev/null 2>&1
-+#POPD=1
-+#cd tests
-+#./nfsruntests.pl fs_filesystem/test
-+#cd ../
-+#POPD=0
-+#popd >/dev/null 2>&1
-+#umount /mnt/selinux-testsuite
- #
- echo "Run NFS context specific tests"
- cd tests
+diff --git a/tests/nfs_filesystem/test b/tests/nfs_filesystem/test
+index fc8d525..f765ab7 100755
+--- a/tests/nfs_filesystem/test
++++ b/tests/nfs_filesystem/test
+@@ -38,7 +38,11 @@ BEGIN {
+         $v = " ";
+     }
+ 
+-    plan tests => 56;
++    # A test (called twice) is commented out because it does not work
++    # for any known kernel.
++    # See https://github.com/SELinuxProject/selinux-testsuite/issues/92
++    #plan tests => 56;
++    plan tests => 54;
+ }
+ 
+ # Set for testing mount(2) on first run
+@@ -100,16 +104,19 @@ while ( $i < 2 ) {
+     );
+     ok( $result eq 0, $test_msg );
+ 
+-    # First mount(2) ok, second currently fails with EBUSY
+-    $result = system(
+-"runcon -t test_filesystem_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts 2>&1"
+-    );
+-    if ( $i eq 0 and $result >> 8 eq 16 ) {
+-        ok( 1, "$test_msg - returned EBUSY, possible bug/feature" );
+-    }
+-    else {
+-        ok( $result eq 0 );
+-    }
++# The following test is commented out because it does not work
++# for any known kernel.
++# See https://github.com/SELinuxProject/selinux-testsuite/issues/92
++# First mount(2) ok, second currently fails with EBUSY
++#    $result = system(
++# "runcon -t test_filesystem_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts 2>&1"
++#    );
++#    if ( $i eq 0 and $result >> 8 eq 16 ) {
++#        ok( 1, "$test_msg - returned EBUSY, possible bug/feature" );
++#    }
++#    else {
++#        ok( $result eq 0 );
++#    }
+ 
+     # Create file and change context via type_transition rule, check ok:
+     $result = system(
 -- 
 2.40.1
 
