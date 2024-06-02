@@ -1,54 +1,49 @@
-Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+Received: from out02.mta.xmission.com (out02.mta.xmission.com [166.70.13.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 602CB21362
-	for <selinux@vger.kernel.org>; Sun,  2 Jun 2024 16:40:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 229305EE78;
+	Sun,  2 Jun 2024 17:53:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=166.70.13.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717346438; cv=none; b=g26AKZ5bwRLo8xI7fsqx/EPel5dKpWsiI00fPUPZpRbWQeoYqicm9fX9Bb+kGYhBIx4Jw2DvVJXoLlEhzwzOQpIy6sKFvUWnFnn5Wf321W2MBPe4abL0XhpsuKPc+Rr1G+URVBM1RJ5sGQwkUIV8uYLCCa0EKPDdWnv06phzxKE=
+	t=1717350786; cv=none; b=BE3sYbA6/RYVnP0v40G7+usr4kqdCkW+bDHy7AhaLl62APCG4zBg7GgnBoNToSbOGsSZ8fdCKLyrgsJh4PtHY9gsa0FENRRi37P2eKAiuEtUrBoh+ipFs6mjEg4lIdbxa51WVGKy8EwlUVTN4bhYXD9mSE1F/4OR4R674PDc2+8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717346438; c=relaxed/simple;
-	bh=ekooY0k2u40Xrb/QBXJym9d+uZigX4j8Q1vFb7AO1/I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cBw7KdA3Iv2D4GyBlzYoQ1wBLsUh/iRC+UhTlfPZ2o5myw1dMpZrviwU5vO02jIFgu3tEF3w7phmGZLpfoAOZIku7JbBGWpa4+vCukhNvCZTDEKgr3857yOTIFz9Ss7llWe3KmkaNNQ4qzs2BPpb3JBhRkYadkYsFqk/t09owzE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=XI6hJc5i; arc=none smtp.client-ip=82.195.75.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="XI6hJc5i"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
-	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=wM+46XNyhhnly3asZ7mT7mOkF7JgwXvdPkqZq868jKE=; b=XI6hJc5i3t5eYbkv5jc1QVYKCv
-	Bjz1HfGW5aRzTUl/cQLrVP/6bSkfcqwg9WcoKOUrVlMq+SLALf7qbIs/ZosXd/tgviq9Ze5c1eGPY
-	HprxVlp1nmL5wdFHr67jJw4rV3Od77i58WmrdUUq4TCREX5m8NKBGalTXrnnlLBGpNrmgUVpAuHBY
-	Ke+bW/msuyqkSlww6PNq5EaSx8K7c9gqCYfjtKrHeKcM5BdUvB1kpx7/+6reEdjgYH+4ueQZrivHV
-	5o0qCKqEmemTm+aLXDJIpzYECDqMS0gLPjXPoNe7NTKsnVoLrklPJSTgfsj4ldf8rZt8gRDzQz/lR
-	J+pvzbFw==;
-Received: from authenticated user
-	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.94.2)
-	(envelope-from <zeha@debian.org>)
-	id 1sDoFq-005qrX-Nz; Sun, 02 Jun 2024 16:40:22 +0000
-Date: Sun, 2 Jun 2024 18:40:20 +0200
-From: Chris Hofstaedtler <zeha@debian.org>
-To: Petr Lautrbach <lautrbach@redhat.com>, 
-	James Carter <jwcart2@gmail.com>
-Cc: Steve Langasek <vorlon@debian.org>, 
-	Christian =?utf-8?B?R8O2dHRzY2hl?= <cgzones@googlemail.com>, James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
-Subject: Re: [PATCH] Always build for LFS mode on 32-bit archs.
-Message-ID: <6obaf7iqj2jsm2dvu4gpvym2dihyw5kehr6ygny322tyh5fbka@uvo66lyivom4>
-References: <Zc6tzKPsYZRICHya@homer.dodds.net>
- <202402171351.439742DA@keescook>
- <ZdF0no51QNtKq8Ri@homer.dodds.net>
- <Zdrh/euXdvdWlVSp@homer.dodds.net>
- <CAJ2a_DeQFFgo+b6xf3_79bsfsvWeGWOephtgsJTK+RxJ7epG4Q@mail.gmail.com>
- <Zd2IcMMLagkTZGJp@homer.dodds.net>
- <CAJ2a_Df75EDn27iHSg=aAh0ZzRE40SqyanzRkfzv6ETmFiE8ug@mail.gmail.com>
- <Zd7OnevwfxbiJUVj@homer.dodds.net>
- <877cipc5d5.fsf@redhat.com>
- <ZeQuOBwQ2eSbkUAS@homer.dodds.net>
+	s=arc-20240116; t=1717350786; c=relaxed/simple;
+	bh=6jfHG90M+1tBb/pTVXVS1yCPQEFkng4uNS3p4WDfUg4=;
+	h=From:To:Cc:References:Date:In-Reply-To:Message-ID:MIME-Version:
+	 Content-Type:Subject; b=kLif1vc3rt8T/qurW0ZRKZuymd7EgSJDGFjbXJF1GUsn0bFCNXgzwZBtfhPpL2JbPAuu0Iim7i3jLJb8f0oM3flqW2sLzFV5StWM2qqZbZMmQgOaAnebynuozhVGTwYgNAvCgRBYZFvOCQ6NEWcCMi3EPuSURez9GXzb1mfYaWs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=xmission.com; spf=pass smtp.mailfrom=xmission.com; arc=none smtp.client-ip=166.70.13.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=xmission.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xmission.com
+Received: from in01.mta.xmission.com ([166.70.13.51]:60110)
+	by out02.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.93)
+	(envelope-from <ebiederm@xmission.com>)
+	id 1sDpOB-00FHij-7D; Sun, 02 Jun 2024 11:53:03 -0600
+Received: from ip68-227-168-167.om.om.cox.net ([68.227.168.167]:39904 helo=email.froward.int.ebiederm.org.xmission.com)
+	by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.93)
+	(envelope-from <ebiederm@xmission.com>)
+	id 1sDpOA-003geg-4A; Sun, 02 Jun 2024 11:53:02 -0600
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc: Yafang Shao <laoar.shao@gmail.com>,  Linus Torvalds
+ <torvalds@linux-foundation.org>,  linux-mm <linux-mm@kvack.org>,
+  Linux-Fsdevel <linux-fsdevel@vger.kernel.org>,  linux-trace-kernel
+ <linux-trace-kernel@vger.kernel.org>,  audit@vger.kernel.org,  LSM List
+ <linux-security-module@vger.kernel.org>,  selinux@vger.kernel.org,  bpf
+ <bpf@vger.kernel.org>,  Alexander Viro <viro@zeniv.linux.org.uk>,
+  Christian Brauner <brauner@kernel.org>,  Jan Kara <jack@suse.cz>,  Kees
+ Cook <keescook@chromium.org>
+References: <20240602023754.25443-1-laoar.shao@gmail.com>
+	<20240602023754.25443-2-laoar.shao@gmail.com>
+	<87ikysdmsi.fsf@email.froward.int.ebiederm.org>
+	<CALOAHbAASdjLjfDv5ZH7uj=oChKE6iYnwjKFMu6oabzqfs2QUw@mail.gmail.com>
+	<CAADnVQJ_RPg_xTjuO=+3G=4auZkS-t-F2WTs18rU2PbVdJVbdQ@mail.gmail.com>
+Date: Sun, 02 Jun 2024 12:52:07 -0500
+In-Reply-To: <CAADnVQJ_RPg_xTjuO=+3G=4auZkS-t-F2WTs18rU2PbVdJVbdQ@mail.gmail.com>
+	(Alexei Starovoitov's message of "Sun, 2 Jun 2024 09:35:19 -0700")
+Message-ID: <874jabdygo.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.2 (gnu/linux)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -56,30 +51,100 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <ZeQuOBwQ2eSbkUAS@homer.dodds.net>
-X-Debian-User: zeha
+Content-Transfer-Encoding: quoted-printable
+X-XM-SPF: eid=1sDpOA-003geg-4A;;;mid=<874jabdygo.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.168.167;;;frm=ebiederm@xmission.com;;;spf=pass
+X-XM-AID: U2FsdGVkX1+Ptg8m9UOQAWOg+UUM4tiPArdjNGCwU1g=
+X-SA-Exim-Connect-IP: 68.227.168.167
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+X-Spam-Level: **
+X-Spam-Report: 
+	* -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+	*  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+	*      [score: 0.4996]
+	*  1.5 XMNoVowels Alpha-numberic number with no vowels
+	*  0.7 XMSubLong Long Subject
+	*  0.0 XM_B_Unicode BODY: Testing for specific types of unicode
+	*  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
+	* -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
+	*      [sa05 1397; Body=1 Fuz1=1 Fuz2=1]
+	*  0.2 XM_B_SpammyWords One or more commonly used spammy words
+	*  0.0 T_TooManySym_03 6+ unique symbols in subject
+	*  0.0 T_TooManySym_02 5+ unique symbols in subject
+	*  0.0 T_TooManySym_01 4+ unique symbols in subject
+X-Spam-DCC: XMission; sa05 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: **;Alexei Starovoitov <alexei.starovoitov@gmail.com>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 486 ms - load_scoreonly_sql: 0.05 (0.0%),
+	signal_user_changed: 13 (2.7%), b_tie_ro: 11 (2.3%), parse: 1.54
+	(0.3%), extract_message_metadata: 18 (3.7%), get_uri_detail_list: 2.7
+	(0.6%), tests_pri_-2000: 19 (3.8%), tests_pri_-1000: 4.0 (0.8%),
+	tests_pri_-950: 1.51 (0.3%), tests_pri_-900: 1.25 (0.3%),
+	tests_pri_-90: 118 (24.2%), check_bayes: 115 (23.8%), b_tokenize: 10
+	(2.1%), b_tok_get_all: 9 (1.9%), b_comp_prob: 3.2 (0.7%),
+	b_tok_touch_all: 89 (18.2%), b_finish: 1.16 (0.2%), tests_pri_0: 290
+	(59.6%), check_dkim_signature: 0.76 (0.2%), check_dkim_adsp: 3.4
+	(0.7%), poll_dns_idle: 0.97 (0.2%), tests_pri_10: 4.1 (0.8%),
+	tests_pri_500: 12 (2.5%), rewrite_mail: 0.00 (0.0%)
+Subject: Re: [PATCH 1/6] fs/exec: Drop task_lock() inside __get_task_comm()
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 
-Hi,
+Alexei Starovoitov <alexei.starovoitov@gmail.com> writes:
 
-* Steve Langasek <vorlon@debian.org> [700101 01:00]:
-> On Wed, Feb 28, 2024 at 10:20:22AM +0100, Petr Lautrbach wrote:
-> > Steve Langasek <vorlon@debian.org> writes:
-> 
-> > > Since all of your comments have been about the mechanics of the patch
-> > > landing, am I able to take it as agreed that libselinux will add a new entry
-> > > point of matchpathcon_filespec_add64@LIBSELINUX_3.6 in the next release, and
-> > > the rest is details?
-> 
-> > Technical detail: next release will be 3.7 therefore I'd expect
-> > matchpathcon_filespec_add64@LIBSELINUX_3.7
-> 
-> Ok, patch updated.
+> On Sat, Jun 1, 2024 at 11:57=E2=80=AFPM Yafang Shao <laoar.shao@gmail.com=
+> wrote:
+>>
+>> On Sun, Jun 2, 2024 at 11:52=E2=80=AFAM Eric W. Biederman <ebiederm@xmis=
+sion.com> wrote:
+>> >
+>> > Yafang Shao <laoar.shao@gmail.com> writes:
+>> >
+>> > > Quoted from Linus [0]:
+>> > >
+>> > >   Since user space can randomly change their names anyway, using loc=
+king
+>> > >   was always wrong for readers (for writers it probably does make se=
+nse
+>> > >   to have some lock - although practically speaking nobody cares the=
+re
+>> > >   either, but at least for a writer some kind of race could have
+>> > >   long-term mixed results
+>> >
+>> > Ugh.
+>> > Ick.
+>> >
+>> > This code is buggy.
+>> >
+>> > I won't argue that Linus is wrong, about removing the
+>> > task_lock.
+>> >
+>> > Unfortunately strscpy_pad does not work properly with the
+>> > task_lock removed, and buf_size larger that TASK_COMM_LEN.
+>> > There is a race that will allow reading past the end
+>> > of tsk->comm, if we read while tsk->common is being
+>> > updated.
+>>
+>> It appears so. Thanks for pointing it out. Additionally, other code,
+>> such as the BPF helper bpf_get_current_comm(), also uses strscpy_pad()
+>> directly without the task_lock. It seems we should change that as
+>> well.
+>
+> Hmm. What race do you see?
+> If lock is removed from __get_task_comm() it probably can be removed from
+> __set_task_comm() as well.
+> And both are calling strscpy_pad to write and read comm.
+> So I don't see how it would read past sizeof(comm),
+> because 'buf' passed into __set_task_comm is NUL-terminated.
+> So the concurrent read will find it.
 
-Is there something blocking applying this patch to libselinux?
+The read may race with a write that is changing the location
+of '\0'.  Especially if the new value is shorter than
+the old value.
 
-I cannot see it in the history of selinux.git, so far.
+If you are performing lockless reads and depending upon a '\0'
+terminator without limiting yourself to the size of the buffer
+there needs to be a big fat comment as to how in the world
+you are guaranteed that a '\0' inside the buffer will always
+be found.
 
-Thanks,
-Chris
-
+Eric
