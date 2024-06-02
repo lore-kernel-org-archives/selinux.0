@@ -1,55 +1,55 @@
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B50C18E11;
-	Sun,  2 Jun 2024 06:57:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F1DF4778C;
+	Sun,  2 Jun 2024 16:35:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717311422; cv=none; b=N+7QB4f//PG61jMvjyfnWuiO4jI1ZpD9/4jukbPMP5tDeFyQcHfCOy1AcdShbMdkzhdUnsLDrinj2EK51KrhwNc6hUb7Mhw4OAM1XjGFcyHCsqVSJXUKOL2jhbl8fPFJYlhwW2HK+qbZiW7gyxdJhUKa9h/Tr69rDj5HP6yFRQc=
+	t=1717346134; cv=none; b=j6vpniDYZWD6y1/mxQLawKOG2KReIJ11EnVJ+TvoRF7s2EazFCI9dSvk4PmNFZMZxtDwqLys7W4aSmpB9louPUdqG9I74xQMVT0gw0jDf5lVAMJlhTIn+4k3S4T7oHgTcurxNQ4IEui5tEqba+97JutZw4SSlvu6RNXIUdMOXS4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717311422; c=relaxed/simple;
-	bh=kNaAdwj4JXsTfPgEJdtdgcc05WNgvnkp0WyXnDIgbWY=;
+	s=arc-20240116; t=1717346134; c=relaxed/simple;
+	bh=r82fZk9re4kiB+HKLO6WiG+MsU1AilTXXjpCSldZGF4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hpS53aY4x7LyMJ4aTYvPfY3nUt9sQXBjbXaXov3VJsCRH0OAkEQFCOt5HL5c8YTZAEKdv9MyhkiLiedrmu4xHXA6Z65/7ZylUjvw3bBIiviXaXt2mbvXoXVD81YITjqaPdcmLW9PgIRcehfwkP392CSdqLNkPh+eJm0kq13XUms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WLoWVB8A; arc=none smtp.client-ip=209.85.219.41
+	 To:Cc:Content-Type; b=cgiusQ02nKF9IbKvqjPUre0ANZUKP3qYfw2iMxvCrdmaDNWlLP7nq9vbu2N1fNSAM39MibB7vmYEbEugTH+8+GsCVrWzeXyS58t+ku+kL2OWw5bkKewZh2YbK+PDUxwNwmrmCLlSlSs9c6+YBLTrTFGtjPxnS7iqm7Spk83enVY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dq0bR5SS; arc=none smtp.client-ip=209.85.221.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WLoWVB8A"
-Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-6ae279e6427so14716346d6.1;
-        Sat, 01 Jun 2024 23:57:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dq0bR5SS"
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-35e4be5bd7fso1031565f8f.1;
+        Sun, 02 Jun 2024 09:35:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1717311420; x=1717916220; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1717346131; x=1717950931; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=AAUPbRzuyrXUUhAbCV+RswkSNoR9RTLDNyX2Ucwmfqo=;
-        b=WLoWVB8ARGhW9CHP6QC1567Gawsr3LZmSR2SXlu/OVL2xD8emi2TqPu9l6kJC3vE/8
-         ZISgbrVy3432imlcxjziw7+jRLS78gabV0Rf50pmCYqv65TLwz4S1C3Ey34d39U3yWLl
-         IAXy95KCmyJzgvvcQCZR8g6rDJx5R5hPEvL4VWHMrXJXnCUSW2CzK5BKp41b9NWq0nDh
-         8PX28VgxhMnBqYiDWeVQSX1A2rqBfU9BN+frUhVvntbEw6unSB5hWJh/97e+HJricNV/
-         Ln5zfhPa+cmkyayd0PwbjzaUciz/gQEi7gKRkNo/aI3uYtKc7t4Ph4B1YfdYYt68QoeW
-         Vi7Q==
+        bh=d3F/P98Vvj42F4uAlpuFuX2wB1pLK9ulXz/7ywvM+Wo=;
+        b=Dq0bR5SSvLVJ/5Dn6QjQ5w2YIldf+IfZ0xkc1xKade5APFOCExr0/FnICwX0lhQRa8
+         jr/tfDnYEaaqa2SjNZFCLZ9tWsoKdP/+m2vzQhuB7TG24oIUT8hKTdi+PDPTb2fgz+B+
+         bViAs8giwixJNssKv8VB8B9rWj/dGMxdx1raTiwqO41ER4j3J3WGCKgE+Xa2xkji3GSY
+         Ty3gTenupusY+/gxFtmzg2VuTMLS8LlthcCJM5etJMCKmOhnEOqnyUiszitFwbV/bXvR
+         uTAtItJMIDRNaitycIrd/1cj60VtVg2pD/hkrMMZrzyNDt2e56+ndzNDIiTpgEpRFFy0
+         jNlQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717311420; x=1717916220;
+        d=1e100.net; s=20230601; t=1717346131; x=1717950931;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=AAUPbRzuyrXUUhAbCV+RswkSNoR9RTLDNyX2Ucwmfqo=;
-        b=YgpJkIt/36YCc/t+koT3YH6xrLyrkCoT/tJZiW0dL925oQKMCzkJ+ekk2BEFVR8eKg
-         AhotUzBJK5fyY3RWFBzgR4grtjifgBI9dr26tvdL6clS0bMCX9QLvlzwRJl/B1zEsN1z
-         h1v9EOXWNSkvqWbyP8zWsUWBsYMJRtZRokRAuDV+9UzS4l9LFRgEWBhDe5E/x2joqtNu
-         NNwNn23JyZq+OeI8DH3Q9FMvSqhE9HTa/ILemlVGm77VS4XIgz4ftx+3HpXlUBund9lx
-         JOYA0Inhqty70pKHujXggfT3ZX6X9V8uPM1C1exrl8Y9qxOjUsQ9ZUWvS6vuI7vrIWrj
-         5qYA==
-X-Forwarded-Encrypted: i=1; AJvYcCXdOnO1kBtKrircJXJb5t/SwIv1MlXfXcuV6rLEDG4CuAuv1KMKUcvvjfw+f0kRg38aGLABA0RzYTOh9oJE7u4gHmiubhrYTe136WwU9e8YqfkdJV61IG+uqE8uLaQytdqhZQ+nbY3ruHqOWo7cqxyAHGD0t51IscuyL21l2PR7djiNHYoO6Qm574urD861Dog7p0AbEOjnMYWYGzDcxFWyMRN+4FwpVu9C1bBKtOfjEAgUPiodg1Oa0/k4jgUCYq5Ls3PprtNqrDWKOEUqm+6Z07oSxQvcrsZ3cSjagQ==
-X-Gm-Message-State: AOJu0Ywb+6Hb8Pp33Noz83GuzFPNy0UhXKTRBvPXSbFpd/pYoR5P8tui
-	aXC2iFwowTIUHcl8pWPh4MZqW/CwQkkhXeQIr0hLGOZb0eWTrPpPcUPIJzEOH9x6UBEFAXmIJM4
-	Hsa0a9HBZwlHZyFH9Fp0tqkCgT90=
-X-Google-Smtp-Source: AGHT+IHBO8CcAWYey7pRZVURNsZzP8hqqeNI4aNYwlr3UTd/2FxO0+zZYuavJGm6rllryB0FhnqOhCZpQ6HL1oaZSiY=
-X-Received: by 2002:a05:6214:4891:b0:6ab:9492:7d89 with SMTP id
- 6a1803df08f44-6aecd6f054bmr77058646d6.52.1717311419907; Sat, 01 Jun 2024
- 23:56:59 -0700 (PDT)
+        bh=d3F/P98Vvj42F4uAlpuFuX2wB1pLK9ulXz/7ywvM+Wo=;
+        b=b6kdWulmwitQk0J5s2r7V5rr9H1yDphIPItGHTZkFok5s1ix5zhZWF2Ej9xsoUc+LD
+         jyqZDCmzsryiYasG/BBqGBQrcEPw3851lKI9TPvQzmuIFgU8hM2wCEsSY7L0SLbvPM56
+         +cryL9zlrsm9nH44zYfC20WAwjFtpe6vuzVgV0is6zI51uj+jVEWzTlkvw3Rr3IZTrrz
+         3fWGL0TqQzccOYdLgJDs9yHA/OpXL3ICYdj/yHjH2eel7or6aIsGO5m66S5jVeUhI/rg
+         MaHoe2VZVmqdmZfc226khIVnkwHeJ+pSOXxIMEMOrutCKdaiLKTAlpqoDazX2Ib8lF4E
+         CzNw==
+X-Forwarded-Encrypted: i=1; AJvYcCVrgmXB0PuuGJj+puScnUvFQ7aWafW6MAxiyptzbF4HYsBhX4eEt5rjfMPUeSlco4CVYXmK+ck6HDIA561M6DQyt5yl7rN6hnjj+wiD/oqEahEUDCidZspBg9e6yLEQp2bF1fjIYkNrx9/x3D9KBFKMnGckzwOBrFX6lzilWGqjuD7ls0EH3/cUGxw/kbyIwSryGQvVioruwycl8kqYyAZTMulQrE7uUd6abqXLTW3Q86mBwQRWAIj/rGCLmVGKd8e4mcJomb3aElRf1cD73EaTEU7j5lQxgYlLrPq07w==
+X-Gm-Message-State: AOJu0YykYsI3+waM/jc63H4bVjXouhyZQ/nF80QtBMAaidTWNor++76H
+	pF8Ul1cb1wTCY7DlaJC77feJ80Bi57AU4yrrPipLkav1c5WyJ6kfMesb4cMUGqaz63d/GZG660V
+	HwcOo8vctnSUFv0kjukbktrhlblQ=
+X-Google-Smtp-Source: AGHT+IGhoPhpe51Y6Tp0rsrrRoTYtVnReDI2hgHxSRyGOSVnzBaep7p/mha6bjIlUVzy7MousDnj/U19epRohpFPBTE=
+X-Received: by 2002:a5d:4f01:0:b0:354:f66f:9292 with SMTP id
+ ffacd0b85a97d-35e0f28441amr4419798f8f.28.1717346131116; Sun, 02 Jun 2024
+ 09:35:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -57,87 +57,93 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20240602023754.25443-1-laoar.shao@gmail.com> <20240602023754.25443-2-laoar.shao@gmail.com>
- <87ikysdmsi.fsf@email.froward.int.ebiederm.org>
-In-Reply-To: <87ikysdmsi.fsf@email.froward.int.ebiederm.org>
-From: Yafang Shao <laoar.shao@gmail.com>
-Date: Sun, 2 Jun 2024 14:56:23 +0800
-Message-ID: <CALOAHbAASdjLjfDv5ZH7uj=oChKE6iYnwjKFMu6oabzqfs2QUw@mail.gmail.com>
+ <87ikysdmsi.fsf@email.froward.int.ebiederm.org> <CALOAHbAASdjLjfDv5ZH7uj=oChKE6iYnwjKFMu6oabzqfs2QUw@mail.gmail.com>
+In-Reply-To: <CALOAHbAASdjLjfDv5ZH7uj=oChKE6iYnwjKFMu6oabzqfs2QUw@mail.gmail.com>
+From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Date: Sun, 2 Jun 2024 09:35:19 -0700
+Message-ID: <CAADnVQJ_RPg_xTjuO=+3G=4auZkS-t-F2WTs18rU2PbVdJVbdQ@mail.gmail.com>
 Subject: Re: [PATCH 1/6] fs/exec: Drop task_lock() inside __get_task_comm()
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: torvalds@linux-foundation.org, linux-mm@kvack.org, 
-	linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
-	audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, bpf@vger.kernel.org, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	Kees Cook <keescook@chromium.org>
+To: Yafang Shao <laoar.shao@gmail.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Linus Torvalds <torvalds@linux-foundation.org>, 
+	linux-mm <linux-mm@kvack.org>, Linux-Fsdevel <linux-fsdevel@vger.kernel.org>, 
+	linux-trace-kernel <linux-trace-kernel@vger.kernel.org>, audit@vger.kernel.org, 
+	LSM List <linux-security-module@vger.kernel.org>, selinux@vger.kernel.org, 
+	bpf <bpf@vger.kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Kees Cook <keescook@chromium.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jun 2, 2024 at 11:52=E2=80=AFAM Eric W. Biederman <ebiederm@xmissio=
-n.com> wrote:
+On Sat, Jun 1, 2024 at 11:57=E2=80=AFPM Yafang Shao <laoar.shao@gmail.com> =
+wrote:
 >
-> Yafang Shao <laoar.shao@gmail.com> writes:
->
-> > Quoted from Linus [0]:
+> On Sun, Jun 2, 2024 at 11:52=E2=80=AFAM Eric W. Biederman <ebiederm@xmiss=
+ion.com> wrote:
 > >
-> >   Since user space can randomly change their names anyway, using lockin=
-g
-> >   was always wrong for readers (for writers it probably does make sense
-> >   to have some lock - although practically speaking nobody cares there
-> >   either, but at least for a writer some kind of race could have
-> >   long-term mixed results
+> > Yafang Shao <laoar.shao@gmail.com> writes:
+> >
+> > > Quoted from Linus [0]:
+> > >
+> > >   Since user space can randomly change their names anyway, using lock=
+ing
+> > >   was always wrong for readers (for writers it probably does make sen=
+se
+> > >   to have some lock - although practically speaking nobody cares ther=
+e
+> > >   either, but at least for a writer some kind of race could have
+> > >   long-term mixed results
+> >
+> > Ugh.
+> > Ick.
+> >
+> > This code is buggy.
+> >
+> > I won't argue that Linus is wrong, about removing the
+> > task_lock.
+> >
+> > Unfortunately strscpy_pad does not work properly with the
+> > task_lock removed, and buf_size larger that TASK_COMM_LEN.
+> > There is a race that will allow reading past the end
+> > of tsk->comm, if we read while tsk->common is being
+> > updated.
 >
-> Ugh.
-> Ick.
->
-> This code is buggy.
->
-> I won't argue that Linus is wrong, about removing the
-> task_lock.
->
-> Unfortunately strscpy_pad does not work properly with the
-> task_lock removed, and buf_size larger that TASK_COMM_LEN.
-> There is a race that will allow reading past the end
-> of tsk->comm, if we read while tsk->common is being
-> updated.
+> It appears so. Thanks for pointing it out. Additionally, other code,
+> such as the BPF helper bpf_get_current_comm(), also uses strscpy_pad()
+> directly without the task_lock. It seems we should change that as
+> well.
 
-It appears so. Thanks for pointing it out. Additionally, other code,
-such as the BPF helper bpf_get_current_comm(), also uses strscpy_pad()
-directly without the task_lock. It seems we should change that as
-well.
+Hmm. What race do you see?
+If lock is removed from __get_task_comm() it probably can be removed from
+__set_task_comm() as well.
+And both are calling strscpy_pad to write and read comm.
+So I don't see how it would read past sizeof(comm),
+because 'buf' passed into __set_task_comm is NUL-terminated.
+So the concurrent read will find it.
 
+> >
+> > So __get_task_comm needs to look something like:
+> >
+> > char *__get_task_comm(char *buf, size_t buf_size, struct task_struct *t=
+sk)
+> > {
+> >         size_t len =3D buf_size;
+> >         if (len > TASK_COMM_LEN)
+> >                 len =3D TASK_COMM_LEN;
+> >         memcpy(buf, tsk->comm, len);
+> >         buf[len -1] =3D '\0';
+> >         return buf;
+> > }
 >
-> So __get_task_comm needs to look something like:
+> Thanks for your suggestion.
 >
-> char *__get_task_comm(char *buf, size_t buf_size, struct task_struct *tsk=
-)
-> {
->         size_t len =3D buf_size;
->         if (len > TASK_COMM_LEN)
->                 len =3D TASK_COMM_LEN;
->         memcpy(buf, tsk->comm, len);
->         buf[len -1] =3D '\0';
->         return buf;
-> }
+> >
+> > What shows up in buf past the '\0' is not guaranteed in the above
+> > version but I would be surprised if anyone cares.
+>
+> I believe we pad it to prevent the leakage of kernel data. In this
+> case, since no kernel data will be leaked, the following change may be
+> unnecessary.
 
-Thanks for your suggestion.
-
->
-> What shows up in buf past the '\0' is not guaranteed in the above
-> version but I would be surprised if anyone cares.
-
-I believe we pad it to prevent the leakage of kernel data. In this
-case, since no kernel data will be leaked, the following change may be
-unnecessary.
-
->
-> If people do care the code can do something like:
-> char *last =3D strchr(buf);
-> memset(last, '\0', buf_size - (last - buf));
->
-> To zero everything in the buffer past the first '\0' byte.
->
-
---=20
-Regards
-Yafang
+It's not about leaking of kernel data, but more about not writing
+garbage past NUL.
+Because comm[] is a part of some record that is used as a key
+in a hash map.
