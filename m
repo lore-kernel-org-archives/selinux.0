@@ -1,109 +1,179 @@
-Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com [209.85.210.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out02.mta.xmission.com (out02.mta.xmission.com [166.70.13.232])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C08511859;
-	Sun,  2 Jun 2024 02:47:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7BD3BE47;
+	Sun,  2 Jun 2024 04:08:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=166.70.13.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717296439; cv=none; b=ZIT8vHVGHi1UeboLtSA7UFAJvsglPSMC7IMUiJdWhINswhu2aHIdYk5MawARVlF521ENcywam3iWQG5Vv7yXHfQSnpd+zB3wlozD91WCkPbVKhzHLj3stt6FCxdna2B49Q1gNSU3Gb38EDlIi2CszhSwNjHjQvDFiEKeY3LJ/F4=
+	t=1717301334; cv=none; b=Tbqj6E8c4oLuZ4y0DJJQDGQX2hikOXcJnguSQAGXY616qmKOK3IKfbB67m0ktHOqBsYqAEuWvlkpmeEgTDJQldKa8vCHq08sKVWV9cxj/jrJVPccOEme3+RWtUUZQI+0G77WYbeI0QqfvBr+tJAE3l/+NqA+K4G+i6pSVXOjPWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717296439; c=relaxed/simple;
-	bh=c88VhkTo2sPOlFRrPrweVXH7AtkGnW5PCWNhKi/l810=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=JflzSeNzv1gCwu3QLQrUK7IhYC/G8gCDse/Du+rBfN4l3lvQfXQX15ucA2Y9qBCqZDV8dMaKqaAQB2QPNaBaTgTnMewbQyvqCwK0/p6gTDUBwAstUrowY40jtzKWJM7LTF1pwS4hqErBfTXQbFSH3m6fnMr58B+sO8sZ0Ixj2ic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ItFYeV9i; arc=none smtp.client-ip=209.85.210.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ItFYeV9i"
-Received: by mail-ot1-f41.google.com with SMTP id 46e09a7af769-6f8d2ec8652so1988066a34.3;
-        Sat, 01 Jun 2024 19:47:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1717296437; x=1717901237; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bu3o/1wkpiEjxw3AW0N2UpaOJE3SQdUz6rVg/pLPlFs=;
-        b=ItFYeV9ieaE51n7dzNZlB6kO4BqgAQKRiL/8br0Y62A6z6DfUA+fRhpcRDQLsUX3vU
-         qpYYs8Cy64JdtA5wulLNM0aradWFlG/v6L06xB4/4Utnrq1ecZ4qgRooXEl0I2kghZXM
-         3xrTE7yWzAq4TfsjsDn+JP2vemz6LF5YugPbiS7Aznz1uaQepsJ+ly0Tn1wldWnoVSxT
-         Mk2JnrUp0hmtHNY8emGIO+wPyIoK39ki8FSy3bhnnxGeyH6WZjCbOtGOMVr5uT4qibRs
-         ztARHSmX9TNz5MYAFhbREhXDHpDXl68ZABIh3vDf6d1Kw+7xnvJK88Aj/kwcdH0msYbO
-         4gig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717296437; x=1717901237;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bu3o/1wkpiEjxw3AW0N2UpaOJE3SQdUz6rVg/pLPlFs=;
-        b=WWAW4lXZ0XDtBw/hMdv2H8G80gMmR0LR3sOaGxMnD7KGJnPxJVA80CVDY/didzCliW
-         rYW4e9SFrkmgdEWPiEW7fP9b4BS0jdORgjdZYVHSevww2ZMbdny8XEHfLlbYh2Oy8xNL
-         Ff3JMtAIbEBuCYexh2mEQgo22xiqN+RkZukHm2PYu/qkMWR+IX3Xb9Y87GHUODJg7Z1W
-         Usqb24ZolUhU24oNZFeIRVi2xu37qAgNyCvprg78yg/faCuIgQr075D/7K7aQMqhz+CV
-         HElS9FCWbYCKW9wRWKTnD8icqYMXkyn4iV5qgokhjUWAuLqjCOfDbKrSZWRFS5IFlJnO
-         NtkA==
-X-Forwarded-Encrypted: i=1; AJvYcCVriXAF4w3RiaVCNBR6yIDqxHc3RDau5/NyCVkKXTmGQZ4vcvQdAawZV9Gl4xJo8aIS50GV5/Q9DdAa9Qq3c1Gl1SMJ3+wUwOcqWhrtYuIdlSYRbC5ts5iWuUEwgLNjPzbC1dMm+9s/8db5ScxUlP/cdpU4nyzEYkIu9s8yqD3YwxPTb8AQCT5nmjbrxeuPPCFLk1/7bOtFj9SrzCu38hM+sgD4cLWqIkEPRlOClwIZoG50OEV847FLeP/QjobxUqAzA/GglmNWc2XHvDJkj1aXVSmKYlOnIEPW04gS0A==
-X-Gm-Message-State: AOJu0YzYLVQl6VaUK1BeFk55sZSGBDauDybmzq3aoODxoRO/D4+luS32
-	9nsFFN7SwzRkbmiS7Dy8IypZUG+8vgz6CrBn+yq0z/CBHw5i9B0/
-X-Google-Smtp-Source: AGHT+IFc6pB9c2/xDQu9bENUVRyBXhBelq6v1sdhKRdECc7iHQz2zEq+tFq0IQc1xoKSQZnnKrMN/w==
-X-Received: by 2002:a9d:6c07:0:b0:6f9:91c:f275 with SMTP id 46e09a7af769-6f911fba0c7mr5694846a34.38.1717296436688;
-        Sat, 01 Jun 2024 19:47:16 -0700 (PDT)
-Received: from localhost.localdomain ([39.144.45.187])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-6c353f0aef3sm3289959a12.10.2024.06.01.19.47.10
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 01 Jun 2024 19:47:16 -0700 (PDT)
-From: Yafang Shao <laoar.shao@gmail.com>
-To: laoar.shao@gmail.com,
-	torvalds@linux-foundation.org
-Cc: linux-mm@kvack.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org,
-	audit@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org,
-	bpf@vger.kernel.org,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Eduard Zingerman <eddyz87@gmail.com>,
-	Mykola Lysenko <mykolal@fb.com>
-Subject: [PATCH 6/6] selftests/bpf: Replace memcpy() with __get_task_comm()
-Date: Sun,  2 Jun 2024 10:46:58 +0800
-Message-Id: <20240602024658.25922-1-laoar.shao@gmail.com>
-X-Mailer: git-send-email 2.30.1 (Apple Git-130)
-In-Reply-To: <20240602023754.25443-1-laoar.shao@gmail.com>
+	s=arc-20240116; t=1717301334; c=relaxed/simple;
+	bh=zt/mCGLUmVzFbMigp4I4greEWSN7ilXHuSeRteZ0s7s=;
+	h=From:To:Cc:References:Date:In-Reply-To:Message-ID:MIME-Version:
+	 Content-Type:Subject; b=L6nUy9WgrZi+DmP0TfUf6zR6GmrNu5RTSIZYo7ingCNtcEvP3fjdAEMTew9nB8wcSs0vOyYbxZVzkh3YEujbsHiBBN6wHZkuzmOLYlTGugNZITX6AeW9GvpsA/uwrXDy57JJvv+V1qKN7Wqxufd6VPo2AOqOdnSbfDkUQGOosYQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=xmission.com; spf=pass smtp.mailfrom=xmission.com; arc=none smtp.client-ip=166.70.13.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=xmission.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xmission.com
+Received: from in02.mta.xmission.com ([166.70.13.52]:36664)
+	by out02.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.93)
+	(envelope-from <ebiederm@xmission.com>)
+	id 1sDcGs-00Eawn-4E; Sat, 01 Jun 2024 21:52:38 -0600
+Received: from ip68-227-168-167.om.om.cox.net ([68.227.168.167]:34300 helo=email.froward.int.ebiederm.org.xmission.com)
+	by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.93)
+	(envelope-from <ebiederm@xmission.com>)
+	id 1sDcGq-00F7Wn-Mp; Sat, 01 Jun 2024 21:52:37 -0600
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+To: Yafang Shao <laoar.shao@gmail.com>
+Cc: torvalds@linux-foundation.org,  linux-mm@kvack.org,
+  linux-fsdevel@vger.kernel.org,  linux-trace-kernel@vger.kernel.org,
+  audit@vger.kernel.org,  linux-security-module@vger.kernel.org,
+  selinux@vger.kernel.org,  bpf@vger.kernel.org,  Alexander Viro
+ <viro@zeniv.linux.org.uk>,  Christian Brauner <brauner@kernel.org>,  Jan
+ Kara <jack@suse.cz>,  Kees Cook <keescook@chromium.org>
 References: <20240602023754.25443-1-laoar.shao@gmail.com>
+	<20240602023754.25443-2-laoar.shao@gmail.com>
+Date: Sat, 01 Jun 2024 22:51:57 -0500
+In-Reply-To: <20240602023754.25443-2-laoar.shao@gmail.com> (Yafang Shao's
+	message of "Sun, 2 Jun 2024 10:37:49 +0800")
+Message-ID: <87ikysdmsi.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.2 (gnu/linux)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-XM-SPF: eid=1sDcGq-00F7Wn-Mp;;;mid=<87ikysdmsi.fsf@email.froward.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=68.227.168.167;;;frm=ebiederm@xmission.com;;;spf=pass
+X-XM-AID: U2FsdGVkX1860tjt8nodVMvTZzeRt1UmJFO9w9v1+IM=
+X-SA-Exim-Connect-IP: 68.227.168.167
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+X-Spam-Level: **
+X-Spam-Report: 
+	* -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+	*  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+	*      [score: 0.5000]
+	*  1.5 XMNoVowels Alpha-numberic number with no vowels
+	*  0.7 XMSubLong Long Subject
+	*  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
+	* -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
+	*      [sa04 1397; Body=1 Fuz1=1 Fuz2=1]
+	*  0.0 T_TooManySym_03 6+ unique symbols in subject
+	*  0.0 T_TooManySym_01 4+ unique symbols in subject
+	*  0.0 T_TooManySym_02 5+ unique symbols in subject
+X-Spam-DCC: XMission; sa04 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: **;Yafang Shao <laoar.shao@gmail.com>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 817 ms - load_scoreonly_sql: 0.07 (0.0%),
+	signal_user_changed: 14 (1.7%), b_tie_ro: 12 (1.4%), parse: 1.68
+	(0.2%), extract_message_metadata: 39 (4.7%), get_uri_detail_list: 4.4
+	(0.5%), tests_pri_-2000: 39 (4.8%), tests_pri_-1000: 2.8 (0.3%),
+	tests_pri_-950: 1.37 (0.2%), tests_pri_-900: 1.09 (0.1%),
+	tests_pri_-90: 126 (15.4%), check_bayes: 93 (11.4%), b_tokenize: 10
+	(1.3%), b_tok_get_all: 10 (1.3%), b_comp_prob: 3.1 (0.4%),
+	b_tok_touch_all: 65 (8.0%), b_finish: 1.24 (0.2%), tests_pri_0: 357
+	(43.7%), check_dkim_signature: 0.57 (0.1%), check_dkim_adsp: 3.2
+	(0.4%), poll_dns_idle: 215 (26.3%), tests_pri_10: 2.0 (0.3%),
+	tests_pri_500: 229 (28.0%), rewrite_mail: 0.00 (0.0%)
+Subject: Re: [PATCH 1/6] fs/exec: Drop task_lock() inside __get_task_comm()
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 
-Using __get_task_comm() to read the task comm ensures that the name is
-always NUL-terminated, regardless of the source string. This approach also
-facilitates future extensions to the task comm.
+Yafang Shao <laoar.shao@gmail.com> writes:
 
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Eduard Zingerman <eddyz87@gmail.com>
-Cc: Mykola Lysenko <mykolal@fb.com>
----
- tools/testing/selftests/bpf/bpf_testmod/bpf_testmod-events.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Quoted from Linus [0]:
+>
+>   Since user space can randomly change their names anyway, using locking
+>   was always wrong for readers (for writers it probably does make sense
+>   to have some lock - although practically speaking nobody cares there
+>   either, but at least for a writer some kind of race could have
+>   long-term mixed results
 
-diff --git a/tools/testing/selftests/bpf/bpf_testmod/bpf_testmod-events.h b/tools/testing/selftests/bpf/bpf_testmod/bpf_testmod-events.h
-index 11ee801e75e7..e5df95b56c53 100644
---- a/tools/testing/selftests/bpf/bpf_testmod/bpf_testmod-events.h
-+++ b/tools/testing/selftests/bpf/bpf_testmod/bpf_testmod-events.h
-@@ -20,7 +20,7 @@ TRACE_EVENT(bpf_testmod_test_read,
- 	),
- 	TP_fast_assign(
- 		__entry->pid = task->pid;
--		memcpy(__entry->comm, task->comm, TASK_COMM_LEN);
-+		__get_task_comm(__entry->comm, TASK_COMM_LEN, task);
- 		__entry->off = ctx->off;
- 		__entry->len = ctx->len;
- 	),
--- 
-2.39.1
+Ugh.
+Ick.
 
+This code is buggy.
+
+I won't argue that Linus is wrong, about removing the
+task_lock.
+
+Unfortunately strscpy_pad does not work properly with the
+task_lock removed, and buf_size larger that TASK_COMM_LEN.
+There is a race that will allow reading past the end
+of tsk->comm, if we read while tsk->common is being
+updated.
+
+So __get_task_comm needs to look something like:
+
+char *__get_task_comm(char *buf, size_t buf_size, struct task_struct *tsk)
+{
+	size_t len = buf_size;
+        if (len > TASK_COMM_LEN)
+        	len = TASK_COMM_LEN;
+	memcpy(buf, tsk->comm, len);
+        buf[len -1] = '\0';
+	return buf;
+}
+
+What shows up in buf past the '\0' is not guaranteed in the above
+version but I would be surprised if anyone cares.
+
+If people do care the code can do something like:
+char *last = strchr(buf);
+memset(last, '\0', buf_size - (last - buf));
+
+To zero everything in the buffer past the first '\0' byte.
+
+
+Eric
+
+
+> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Link: https://lore.kernel.org/all/CAHk-=wivfrF0_zvf+oj6==Sh=-npJooP8chLPEfaFV0oNYTTBA@mail.gmail.com [0]
+> Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> Cc: Christian Brauner <brauner@kernel.org>
+> Cc: Jan Kara <jack@suse.cz>
+> Cc: Eric Biederman <ebiederm@xmission.com>
+> Cc: Kees Cook <keescook@chromium.org>
+> ---
+>  fs/exec.c             | 7 +++++--
+>  include/linux/sched.h | 2 +-
+>  2 files changed, 6 insertions(+), 3 deletions(-)
+>
+> diff --git a/fs/exec.c b/fs/exec.c
+> index b3c40fbb325f..b43992d35a8a 100644
+> --- a/fs/exec.c
+> +++ b/fs/exec.c
+> @@ -1227,12 +1227,15 @@ static int unshare_sighand(struct task_struct *me)
+>  	return 0;
+>  }
+>  
+> +/*
+> + * User space can randomly change their names anyway, so locking for readers
+> + * doesn't make sense. For writers, locking is probably necessary, as a race
+> + * condition could lead to long-term mixed results.
+> + */
+>  char *__get_task_comm(char *buf, size_t buf_size, struct task_struct *tsk)
+>  {
+> -	task_lock(tsk);
+>  	/* Always NUL terminated and zero-padded */
+>  	strscpy_pad(buf, tsk->comm, buf_size);
+> -	task_unlock(tsk);
+>  	return buf;
+>  }
+>  EXPORT_SYMBOL_GPL(__get_task_comm);
+> diff --git a/include/linux/sched.h b/include/linux/sched.h
+> index c75fd46506df..56a927393a38 100644
+> --- a/include/linux/sched.h
+> +++ b/include/linux/sched.h
+> @@ -1083,7 +1083,7 @@ struct task_struct {
+>  	 *
+>  	 * - normally initialized setup_new_exec()
+>  	 * - access it with [gs]et_task_comm()
+> -	 * - lock it with task_lock()
+> +	 * - lock it with task_lock() for writing
+>  	 */
+>  	char				comm[TASK_COMM_LEN];
