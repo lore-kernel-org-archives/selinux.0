@@ -1,149 +1,85 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F1DF4778C;
-	Sun,  2 Jun 2024 16:35:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 602CB21362
+	for <selinux@vger.kernel.org>; Sun,  2 Jun 2024 16:40:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717346134; cv=none; b=j6vpniDYZWD6y1/mxQLawKOG2KReIJ11EnVJ+TvoRF7s2EazFCI9dSvk4PmNFZMZxtDwqLys7W4aSmpB9louPUdqG9I74xQMVT0gw0jDf5lVAMJlhTIn+4k3S4T7oHgTcurxNQ4IEui5tEqba+97JutZw4SSlvu6RNXIUdMOXS4=
+	t=1717346438; cv=none; b=g26AKZ5bwRLo8xI7fsqx/EPel5dKpWsiI00fPUPZpRbWQeoYqicm9fX9Bb+kGYhBIx4Jw2DvVJXoLlEhzwzOQpIy6sKFvUWnFnn5Wf321W2MBPe4abL0XhpsuKPc+Rr1G+URVBM1RJ5sGQwkUIV8uYLCCa0EKPDdWnv06phzxKE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717346134; c=relaxed/simple;
-	bh=r82fZk9re4kiB+HKLO6WiG+MsU1AilTXXjpCSldZGF4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cgiusQ02nKF9IbKvqjPUre0ANZUKP3qYfw2iMxvCrdmaDNWlLP7nq9vbu2N1fNSAM39MibB7vmYEbEugTH+8+GsCVrWzeXyS58t+ku+kL2OWw5bkKewZh2YbK+PDUxwNwmrmCLlSlSs9c6+YBLTrTFGtjPxnS7iqm7Spk83enVY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dq0bR5SS; arc=none smtp.client-ip=209.85.221.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1717346438; c=relaxed/simple;
+	bh=ekooY0k2u40Xrb/QBXJym9d+uZigX4j8Q1vFb7AO1/I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cBw7KdA3Iv2D4GyBlzYoQ1wBLsUh/iRC+UhTlfPZ2o5myw1dMpZrviwU5vO02jIFgu3tEF3w7phmGZLpfoAOZIku7JbBGWpa4+vCukhNvCZTDEKgr3857yOTIFz9Ss7llWe3KmkaNNQ4qzs2BPpb3JBhRkYadkYsFqk/t09owzE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=XI6hJc5i; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dq0bR5SS"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-35e4be5bd7fso1031565f8f.1;
-        Sun, 02 Jun 2024 09:35:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1717346131; x=1717950931; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=d3F/P98Vvj42F4uAlpuFuX2wB1pLK9ulXz/7ywvM+Wo=;
-        b=Dq0bR5SSvLVJ/5Dn6QjQ5w2YIldf+IfZ0xkc1xKade5APFOCExr0/FnICwX0lhQRa8
-         jr/tfDnYEaaqa2SjNZFCLZ9tWsoKdP/+m2vzQhuB7TG24oIUT8hKTdi+PDPTb2fgz+B+
-         bViAs8giwixJNssKv8VB8B9rWj/dGMxdx1raTiwqO41ER4j3J3WGCKgE+Xa2xkji3GSY
-         Ty3gTenupusY+/gxFtmzg2VuTMLS8LlthcCJM5etJMCKmOhnEOqnyUiszitFwbV/bXvR
-         uTAtItJMIDRNaitycIrd/1cj60VtVg2pD/hkrMMZrzyNDt2e56+ndzNDIiTpgEpRFFy0
-         jNlQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717346131; x=1717950931;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=d3F/P98Vvj42F4uAlpuFuX2wB1pLK9ulXz/7ywvM+Wo=;
-        b=b6kdWulmwitQk0J5s2r7V5rr9H1yDphIPItGHTZkFok5s1ix5zhZWF2Ej9xsoUc+LD
-         jyqZDCmzsryiYasG/BBqGBQrcEPw3851lKI9TPvQzmuIFgU8hM2wCEsSY7L0SLbvPM56
-         +cryL9zlrsm9nH44zYfC20WAwjFtpe6vuzVgV0is6zI51uj+jVEWzTlkvw3Rr3IZTrrz
-         3fWGL0TqQzccOYdLgJDs9yHA/OpXL3ICYdj/yHjH2eel7or6aIsGO5m66S5jVeUhI/rg
-         MaHoe2VZVmqdmZfc226khIVnkwHeJ+pSOXxIMEMOrutCKdaiLKTAlpqoDazX2Ib8lF4E
-         CzNw==
-X-Forwarded-Encrypted: i=1; AJvYcCVrgmXB0PuuGJj+puScnUvFQ7aWafW6MAxiyptzbF4HYsBhX4eEt5rjfMPUeSlco4CVYXmK+ck6HDIA561M6DQyt5yl7rN6hnjj+wiD/oqEahEUDCidZspBg9e6yLEQp2bF1fjIYkNrx9/x3D9KBFKMnGckzwOBrFX6lzilWGqjuD7ls0EH3/cUGxw/kbyIwSryGQvVioruwycl8kqYyAZTMulQrE7uUd6abqXLTW3Q86mBwQRWAIj/rGCLmVGKd8e4mcJomb3aElRf1cD73EaTEU7j5lQxgYlLrPq07w==
-X-Gm-Message-State: AOJu0YykYsI3+waM/jc63H4bVjXouhyZQ/nF80QtBMAaidTWNor++76H
-	pF8Ul1cb1wTCY7DlaJC77feJ80Bi57AU4yrrPipLkav1c5WyJ6kfMesb4cMUGqaz63d/GZG660V
-	HwcOo8vctnSUFv0kjukbktrhlblQ=
-X-Google-Smtp-Source: AGHT+IGhoPhpe51Y6Tp0rsrrRoTYtVnReDI2hgHxSRyGOSVnzBaep7p/mha6bjIlUVzy7MousDnj/U19epRohpFPBTE=
-X-Received: by 2002:a5d:4f01:0:b0:354:f66f:9292 with SMTP id
- ffacd0b85a97d-35e0f28441amr4419798f8f.28.1717346131116; Sun, 02 Jun 2024
- 09:35:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="XI6hJc5i"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=wM+46XNyhhnly3asZ7mT7mOkF7JgwXvdPkqZq868jKE=; b=XI6hJc5i3t5eYbkv5jc1QVYKCv
+	Bjz1HfGW5aRzTUl/cQLrVP/6bSkfcqwg9WcoKOUrVlMq+SLALf7qbIs/ZosXd/tgviq9Ze5c1eGPY
+	HprxVlp1nmL5wdFHr67jJw4rV3Od77i58WmrdUUq4TCREX5m8NKBGalTXrnnlLBGpNrmgUVpAuHBY
+	Ke+bW/msuyqkSlww6PNq5EaSx8K7c9gqCYfjtKrHeKcM5BdUvB1kpx7/+6reEdjgYH+4ueQZrivHV
+	5o0qCKqEmemTm+aLXDJIpzYECDqMS0gLPjXPoNe7NTKsnVoLrklPJSTgfsj4ldf8rZt8gRDzQz/lR
+	J+pvzbFw==;
+Received: from authenticated user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.94.2)
+	(envelope-from <zeha@debian.org>)
+	id 1sDoFq-005qrX-Nz; Sun, 02 Jun 2024 16:40:22 +0000
+Date: Sun, 2 Jun 2024 18:40:20 +0200
+From: Chris Hofstaedtler <zeha@debian.org>
+To: Petr Lautrbach <lautrbach@redhat.com>, 
+	James Carter <jwcart2@gmail.com>
+Cc: Steve Langasek <vorlon@debian.org>, 
+	Christian =?utf-8?B?R8O2dHRzY2hl?= <cgzones@googlemail.com>, James Carter <jwcart2@gmail.com>, selinux@vger.kernel.org
+Subject: Re: [PATCH] Always build for LFS mode on 32-bit archs.
+Message-ID: <6obaf7iqj2jsm2dvu4gpvym2dihyw5kehr6ygny322tyh5fbka@uvo66lyivom4>
+References: <Zc6tzKPsYZRICHya@homer.dodds.net>
+ <202402171351.439742DA@keescook>
+ <ZdF0no51QNtKq8Ri@homer.dodds.net>
+ <Zdrh/euXdvdWlVSp@homer.dodds.net>
+ <CAJ2a_DeQFFgo+b6xf3_79bsfsvWeGWOephtgsJTK+RxJ7epG4Q@mail.gmail.com>
+ <Zd2IcMMLagkTZGJp@homer.dodds.net>
+ <CAJ2a_Df75EDn27iHSg=aAh0ZzRE40SqyanzRkfzv6ETmFiE8ug@mail.gmail.com>
+ <Zd7OnevwfxbiJUVj@homer.dodds.net>
+ <877cipc5d5.fsf@redhat.com>
+ <ZeQuOBwQ2eSbkUAS@homer.dodds.net>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240602023754.25443-1-laoar.shao@gmail.com> <20240602023754.25443-2-laoar.shao@gmail.com>
- <87ikysdmsi.fsf@email.froward.int.ebiederm.org> <CALOAHbAASdjLjfDv5ZH7uj=oChKE6iYnwjKFMu6oabzqfs2QUw@mail.gmail.com>
-In-Reply-To: <CALOAHbAASdjLjfDv5ZH7uj=oChKE6iYnwjKFMu6oabzqfs2QUw@mail.gmail.com>
-From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date: Sun, 2 Jun 2024 09:35:19 -0700
-Message-ID: <CAADnVQJ_RPg_xTjuO=+3G=4auZkS-t-F2WTs18rU2PbVdJVbdQ@mail.gmail.com>
-Subject: Re: [PATCH 1/6] fs/exec: Drop task_lock() inside __get_task_comm()
-To: Yafang Shao <laoar.shao@gmail.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Linus Torvalds <torvalds@linux-foundation.org>, 
-	linux-mm <linux-mm@kvack.org>, Linux-Fsdevel <linux-fsdevel@vger.kernel.org>, 
-	linux-trace-kernel <linux-trace-kernel@vger.kernel.org>, audit@vger.kernel.org, 
-	LSM List <linux-security-module@vger.kernel.org>, selinux@vger.kernel.org, 
-	bpf <bpf@vger.kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Kees Cook <keescook@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <ZeQuOBwQ2eSbkUAS@homer.dodds.net>
+X-Debian-User: zeha
 
-On Sat, Jun 1, 2024 at 11:57=E2=80=AFPM Yafang Shao <laoar.shao@gmail.com> =
-wrote:
->
-> On Sun, Jun 2, 2024 at 11:52=E2=80=AFAM Eric W. Biederman <ebiederm@xmiss=
-ion.com> wrote:
-> >
-> > Yafang Shao <laoar.shao@gmail.com> writes:
-> >
-> > > Quoted from Linus [0]:
-> > >
-> > >   Since user space can randomly change their names anyway, using lock=
-ing
-> > >   was always wrong for readers (for writers it probably does make sen=
-se
-> > >   to have some lock - although practically speaking nobody cares ther=
-e
-> > >   either, but at least for a writer some kind of race could have
-> > >   long-term mixed results
-> >
-> > Ugh.
-> > Ick.
-> >
-> > This code is buggy.
-> >
-> > I won't argue that Linus is wrong, about removing the
-> > task_lock.
-> >
-> > Unfortunately strscpy_pad does not work properly with the
-> > task_lock removed, and buf_size larger that TASK_COMM_LEN.
-> > There is a race that will allow reading past the end
-> > of tsk->comm, if we read while tsk->common is being
-> > updated.
->
-> It appears so. Thanks for pointing it out. Additionally, other code,
-> such as the BPF helper bpf_get_current_comm(), also uses strscpy_pad()
-> directly without the task_lock. It seems we should change that as
-> well.
+Hi,
 
-Hmm. What race do you see?
-If lock is removed from __get_task_comm() it probably can be removed from
-__set_task_comm() as well.
-And both are calling strscpy_pad to write and read comm.
-So I don't see how it would read past sizeof(comm),
-because 'buf' passed into __set_task_comm is NUL-terminated.
-So the concurrent read will find it.
+* Steve Langasek <vorlon@debian.org> [700101 01:00]:
+> On Wed, Feb 28, 2024 at 10:20:22AM +0100, Petr Lautrbach wrote:
+> > Steve Langasek <vorlon@debian.org> writes:
+> 
+> > > Since all of your comments have been about the mechanics of the patch
+> > > landing, am I able to take it as agreed that libselinux will add a new entry
+> > > point of matchpathcon_filespec_add64@LIBSELINUX_3.6 in the next release, and
+> > > the rest is details?
+> 
+> > Technical detail: next release will be 3.7 therefore I'd expect
+> > matchpathcon_filespec_add64@LIBSELINUX_3.7
+> 
+> Ok, patch updated.
 
-> >
-> > So __get_task_comm needs to look something like:
-> >
-> > char *__get_task_comm(char *buf, size_t buf_size, struct task_struct *t=
-sk)
-> > {
-> >         size_t len =3D buf_size;
-> >         if (len > TASK_COMM_LEN)
-> >                 len =3D TASK_COMM_LEN;
-> >         memcpy(buf, tsk->comm, len);
-> >         buf[len -1] =3D '\0';
-> >         return buf;
-> > }
->
-> Thanks for your suggestion.
->
-> >
-> > What shows up in buf past the '\0' is not guaranteed in the above
-> > version but I would be surprised if anyone cares.
->
-> I believe we pad it to prevent the leakage of kernel data. In this
-> case, since no kernel data will be leaked, the following change may be
-> unnecessary.
+Is there something blocking applying this patch to libselinux?
 
-It's not about leaking of kernel data, but more about not writing
-garbage past NUL.
-Because comm[] is a part of some record that is used as a key
-in a hash map.
+I cannot see it in the history of selinux.git, so far.
+
+Thanks,
+Chris
+
