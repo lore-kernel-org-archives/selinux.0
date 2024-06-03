@@ -1,159 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84DDF824B9;
-	Mon,  3 Jun 2024 21:19:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2975313C809
+	for <selinux@vger.kernel.org>; Mon,  3 Jun 2024 21:42:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717449540; cv=none; b=b65ZmroNdr4hmzfEmEfumgiy+9uYV6EszTZv/0u1uMrOJnzp0EaUh6mvcwOx/gm/YcVNOLm0D6SfBo38xlWijGLI1FLpAE0278v8Aiqqk48UHAh5UQUCxt3nbrAsrYR+pg/z4vB1TRjBNYZb9WS1bSeUcmQLaAYNwlCLDnLVNHY=
+	t=1717450952; cv=none; b=Tkt0/N46IKglBNF/Vt0PX6pK9k4Ma1Y1wxj1zY5csj0Zs9sU0DLXdJPrxUJo47b9TWMo6k8iVQY0ui3FP4XbQyyoy0bx25c6xjKhtt1ctF7Bvl2rC3YKSVY/YyEEzVlHBQq90WNHB3RYbjJgaXFWSq5Cbw18UhoCN+nNSTxtpWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717449540; c=relaxed/simple;
-	bh=ScoySN/oj4utKm4Ctnzn/XmRIoTSg+GkDzPM2hb7tOA=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=A4Ip5xhOSmWpgABqt/cPBx9fdX3yYetOLa6q6mIgn8eOUdbXCqRZhtykMb79g2m3eKAswrxI4Uw6SeptRR/yk3i8v4tZGYQjJILxVMNa5sLg8zz2Ck9Ouw7yWDN3gVXfjxRCGJtXpy5VWXM8+4+CVMLCTFI6OBsmjxC7PDP+Fyc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ACC8C2BD10;
-	Mon,  3 Jun 2024 21:18:58 +0000 (UTC)
-Date: Mon, 3 Jun 2024 17:20:08 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Yafang Shao <laoar.shao@gmail.com>
-Cc: torvalds@linux-foundation.org, linux-mm@kvack.org,
- linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- audit@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@vger.kernel.org, bpf@vger.kernel.org, Masami Hiramatsu
- <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Subject: Re: [PATCH 2/6] tracing: Replace memcpy() with __get_task_comm()
-Message-ID: <20240603172008.19ba98ff@gandalf.local.home>
-In-Reply-To: <20240602023754.25443-3-laoar.shao@gmail.com>
-References: <20240602023754.25443-1-laoar.shao@gmail.com>
-	<20240602023754.25443-3-laoar.shao@gmail.com>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1717450952; c=relaxed/simple;
+	bh=t2+3hpTAkuvcywD1/Fq+cZAsXxs3N6zMjhMfwGrJHIM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fd2ClzfMrCWQ0CJBGDDRxY3ms3zxnHvZ0DPZluubXNPBBJfBg/dCRxxb56+IYkLuyQelX1Mhvu31c00nCuOLsPudRWIN4AAuFBnDqaOTGb1vkbCy4S9Nv+umxiRLBieYll4RclMtneUbTX0Kw2UeouDfJ2KWZsZqhRQCQ8VJHBk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=N1eI4ZhZ; arc=none smtp.client-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="N1eI4ZhZ"
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a6267778b3aso436310866b.3
+        for <selinux@vger.kernel.org>; Mon, 03 Jun 2024 14:42:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1717450949; x=1718055749; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=R+C9bWbF6JQXXqqT/WHs93C1W49YzDnZgVk3vpecOx4=;
+        b=N1eI4ZhZlPjf68UnhLGKgEctRtMjOntNIkVhWbizskPmuiRECFIehLROdwxyzTQ9AH
+         S9cP0MBrkfaqe7srvrEyx01OYady8bCw+zGe0+e6RweNuBb176fwD8b5ZT0cNBTt5D0R
+         vn7DjORx+6oRGzNKhQi4sA6ri3UvO20Z+ast4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717450949; x=1718055749;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=R+C9bWbF6JQXXqqT/WHs93C1W49YzDnZgVk3vpecOx4=;
+        b=k8Z3F52ghKUfMrO5q7WoKNzOwcRwD49IDiAwFy2H3ZxHTDf3YS30uAwLSqvSSW7lCi
+         dxgjQQGKWLQeCnGUhALwwvMHQ06jqX1qArEUiCFeT1ttylp/kpqfrsRTcxp/I8m5USyF
+         O2Dm+ok49oDMTue0T7I3gbBGzsTM0pEht9PDiU5aLQW7JLyUlMciWgq3eRU9wBk3rEr6
+         jJPVEehRonasexDS/WWtxVMRrwLTR49zNFz50dCO8mD1jUih2hYNyGxbg5sv6io/m10f
+         z3+hkdTJhexZeg/EkXSLHOpDI3UMMz1Xm971oZbFtU1tan16AFmM793modNkwsUh59HA
+         4YJg==
+X-Forwarded-Encrypted: i=1; AJvYcCW4H5ZBfKM3I6XhsuUYN5AVE+ZVfvxfrW6cHY9WvBdrbE/FNCrF6j09fxw8wgw7fnOfff/lhhWBg9FsVH1jGh5/v5yj4DZfPA==
+X-Gm-Message-State: AOJu0YwY3ATevCP7odmrVh4GZrlPffnHiWek5o2OxM1vSCMdrt8V3qb0
+	A2l/Wf+hTidnrzNJHfHRFh3WxHzExRFGY+zWlftnAafocXoXGbZlTOwOxFWnyZwuTY0eNqxi3D6
+	eFaU=
+X-Google-Smtp-Source: AGHT+IEoG6VIVYS3oE9vxJTwluugo7rEuHnfKkFpfLzHbR+HlyLQpgvMBLeCxCYDu8vsbEAuXfhdcg==
+X-Received: by 2002:a17:906:e948:b0:a68:98fe:f779 with SMTP id a640c23a62f3a-a6898fef87emr544787266b.43.1717450949409;
+        Mon, 03 Jun 2024 14:42:29 -0700 (PDT)
+Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com. [209.85.218.50])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a68ea36329fsm310950366b.165.2024.06.03.14.42.27
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Jun 2024 14:42:27 -0700 (PDT)
+Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-a683868f463so434675866b.0
+        for <selinux@vger.kernel.org>; Mon, 03 Jun 2024 14:42:27 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXCyugGxiSDDOqE/qf5RIfvNnvKSJ/2jJPRVSlnlK7Cnfe5otNgeGf+1aZ9Iks/FgT4TTovSOuJ87c+4RNiTWDVWbyE27F1MA==
+X-Received: by 2002:a17:907:9482:b0:a68:c6c1:cd63 with SMTP id
+ a640c23a62f3a-a68c6c1d466mr478691866b.13.1717450947222; Mon, 03 Jun 2024
+ 14:42:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20240602023754.25443-1-laoar.shao@gmail.com> <20240602023754.25443-3-laoar.shao@gmail.com>
+ <20240603172008.19ba98ff@gandalf.local.home>
+In-Reply-To: <20240603172008.19ba98ff@gandalf.local.home>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Mon, 3 Jun 2024 14:42:10 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whPUBbug2PACOzYXFbaHhA6igWgmBzpr5tOQYzMZinRnA@mail.gmail.com>
+Message-ID: <CAHk-=whPUBbug2PACOzYXFbaHhA6igWgmBzpr5tOQYzMZinRnA@mail.gmail.com>
+Subject: Re: [PATCH 2/6] tracing: Replace memcpy() with __get_task_comm()
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Yafang Shao <laoar.shao@gmail.com>, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	bpf@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>, 
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Sun,  2 Jun 2024 10:37:50 +0800
-Yafang Shao <laoar.shao@gmail.com> wrote:
+On Mon, 3 Jun 2024 at 14:19, Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> -               __array(        char,   comm,   TASK_COMM_LEN   )
+> +               __string(       comm,   strlen(comm)            )
 
-> Using __get_task_comm() to read the task comm ensures that the name is
-> always NUL-terminated, regardless of the source string. This approach also
-> facilitates future extensions to the task comm.
-> 
-> Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-> Cc: Steven Rostedt <rostedt@goodmis.org>
-> Cc: Masami Hiramatsu <mhiramat@kernel.org>
-> Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-> ---
->  include/linux/tracepoint.h     |  4 ++--
->  include/trace/events/block.h   | 10 +++++-----
->  include/trace/events/oom.h     |  2 +-
->  include/trace/events/osnoise.h |  2 +-
->  include/trace/events/sched.h   | 27 ++++++++++++++-------------
->  include/trace/events/signal.h  |  2 +-
->  include/trace/events/task.h    |  4 ++--
->  7 files changed, 26 insertions(+), 25 deletions(-)
-> 
-[..]
+Is this actually safe is 'comm[]' is being modified at the same time?
+The 'strlen()' will not be consistent with the string copy.
 
-> diff --git a/include/trace/events/sched.h b/include/trace/events/sched.h
-> index 68973f650c26..2a9d7c62c58a 100644
-> --- a/include/trace/events/sched.h
-> +++ b/include/trace/events/sched.h
-> @@ -9,6 +9,7 @@
->  #include <linux/sched/numa_balancing.h>
->  #include <linux/tracepoint.h>
->  #include <linux/binfmts.h>
-> +#include <linux/sched.h>
->  
->  /*
->   * Tracepoint for calling kthread_stop, performed to end a kthread:
-> @@ -25,7 +26,7 @@ TRACE_EVENT(sched_kthread_stop,
->  	),
->  
->  	TP_fast_assign(
-> -		memcpy(__entry->comm, t->comm, TASK_COMM_LEN);
-> +		__get_task_comm(__entry->comm, TASK_COMM_LEN, t);
->  		__entry->pid	= t->pid;
->  	),
->  
-> @@ -152,7 +153,7 @@ DECLARE_EVENT_CLASS(sched_wakeup_template,
->  	),
->  
->  	TP_fast_assign(
-> -		memcpy(__entry->comm, p->comm, TASK_COMM_LEN);
-> +		__get_task_comm(__entry->comm, TASK_COMM_LEN, p);
->  		__entry->pid		= p->pid;
->  		__entry->prio		= p->prio; /* XXX SCHED_DEADLINE */
->  		__entry->target_cpu	= task_cpu(p);
+Because that is very much the case. It's not a stable source.
 
+For example, strlen() may return 5. But by the time  you then actually
+copy the data, the string may have changed, and there would not
+necessarily be a NUL character at comm[5] any more. It might be
+further in the string, or it might be earlier.
 
-> @@ -239,11 +240,11 @@ TRACE_EVENT(sched_switch,
->  	),
->  
->  	TP_fast_assign(
-> -		memcpy(__entry->next_comm, next->comm, TASK_COMM_LEN);
-> +		__get_task_comm(__entry->next_comm, TASK_COMM_LEN, next);
->  		__entry->prev_pid	= prev->pid;
->  		__entry->prev_prio	= prev->prio;
->  		__entry->prev_state	= __trace_sched_switch_state(preempt, prev_state, prev);
-> -		memcpy(__entry->prev_comm, prev->comm, TASK_COMM_LEN);
-> +		__get_task_comm(__entry->prev_comm, TASK_COMM_LEN, prev);
->  		__entry->next_pid	= next->pid;
->  		__entry->next_prio	= next->prio;
->  		/* XXX SCHED_DEADLINE */
-
-sched_switch is special so we could probably hold off, but the rest should
-be converted to the normal way strings are processed in trace events. That
-is, to use __string(), __assign_str() and __get_str() for task->comm. I've
-been wanting to do that for a while, but thought that memcpy() was a bit
-faster than the need for strlen(). But this now needs to test the length of
-comm. This method will also allow comms to be recorded that are larger than
-16 bytes (if we extend comm).
-
-TRACE_EVENT(sched_migrate_task,
-
-	TP_PROTO(struct task_struct *p, int dest_cpu),
-
-	TP_ARGS(p, dest_cpu),
-
-	TP_STRUCT__entry(
--		__array(	char,	comm,	TASK_COMM_LEN	)
-+		__string(	comm,	strlen(comm)		)
-		__field(	pid_t,	pid			)
-		__field(	int,	prio			)
-		__field(	int,	orig_cpu		)
-		__field(	int,	dest_cpu		)
-	),
-
-	TP_fast_assign(
--		memcpy(__entry->comm, p->comm, TASK_COMM_LEN);
-+		__assign_str(comm);
-		__entry->pid		= p->pid;
-		__entry->prio		= p->prio; /* XXX SCHED_DEADLINE */
-		__entry->orig_cpu	= task_cpu(p);
-		__entry->dest_cpu	= dest_cpu;
-	),
-
-	TP_printk("comm=%s pid=%d prio=%d orig_cpu=%d dest_cpu=%d",
--		  __entry->comm, __entry->pid, __entry->prio,
-+		  __get_str(comm), __entry->pid, __entry->prio,
-		  __entry->orig_cpu, __entry->dest_cpu)
-);
-
--- Steve
-
-
-> @@ -286,7 +287,7 @@ TRACE_EVENT(sched_migrate_task,
->  	),
->  
->  	TP_fast_assign(
-> -		memcpy(__entry->comm, p->comm, TASK_COMM_LEN);
-> +		__get_task_comm(__entry->comm, TASK_COMM_LEN, p);
->  		__entry->pid		= p->pid;
->  		__entry->prio		= p->prio; /* XXX SCHED_DEADLINE */
->  		__entry->orig_cpu	= task_cpu(p);
+                  Linus
