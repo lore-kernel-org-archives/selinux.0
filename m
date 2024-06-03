@@ -1,98 +1,102 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 189E613C9A1
-	for <selinux@vger.kernel.org>; Mon,  3 Jun 2024 22:24:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B0C21386BB
+	for <selinux@vger.kernel.org>; Mon,  3 Jun 2024 22:33:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717453450; cv=none; b=gdgPbQ1jUIq3OGTIwPdehyLiXCH/9r2dtSfx7RyzlU5Wg0FUOHKtaQH71WS0seTiqCufhNxWIHALNwIvt41qQRjOMSkzrO7+ipOJNXGXgbASIFYyJ4hI+c2Q+RQFPeirgB9O61e6FLtJ2cHB3qZjVLMv8jzQjke9/CLpisS0UHk=
+	t=1717453988; cv=none; b=gb28bvOv1y9yBTHtr+pZvJdDrgQA8hkBaLBe31Zmzczbl8QcZGYVDMvjYPpoB44KM+4kNEUp4GCYbcuVd4L2gzdqpObQaIcuNZlwyQwKXrP0yssepDEvBOKBvuF5ZvnDP854JfY05o3QlKv0y953YHWpQ0cwAAqtMCjlF+kCr6g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717453450; c=relaxed/simple;
-	bh=AFfU/PEC+zuhNdQ2tMeUL2Lz6Nhx2hQNDlZEumLFtHY=;
+	s=arc-20240116; t=1717453988; c=relaxed/simple;
+	bh=TrBwn/d0GqpAZPrdLpc4RcvWvhLgItWxHDsohsEZ+mo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DCWp3SsjT/MIaeIkKoIBJpGPShTSfArdaDgE+Fywx/571UKEbu/4goureipv5JVRf58FuCHcVoUls0LDwTphnJViS5WLVlubZDu5gRaaDy9lmhet+cLzPy6fOMb/67Ye+oWICdtJYF+0Rhlw2KMKe6Ed8g5N+N1LVsGvg8tneQw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=NvlNM94t; arc=none smtp.client-ip=209.85.218.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	 To:Cc:Content-Type; b=UDcQiQwryyiUD7cCZiMnGbM8ukdwCOIHVdaA1e9kQYgqsUxzYKKrIS0bFxndhfCpMLMc2Dt9SlYbIwtgJBvTDd11qP5yUVBx+aIPidOWpqmHpiXWezsQvIIB1V2VRVVBGWMpj/hkD5eFx8ucMUJbdeomuDzKUCYIffdbkStJPtI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Cqk3uWBH; arc=none smtp.client-ip=209.85.128.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="NvlNM94t"
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-a6269885572so865696766b.1
-        for <selinux@vger.kernel.org>; Mon, 03 Jun 2024 15:24:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Cqk3uWBH"
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-62a08b250a2so5076457b3.3
+        for <selinux@vger.kernel.org>; Mon, 03 Jun 2024 15:33:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1717453447; x=1718058247; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=vUfCTj7RhneZiyZGwU4My8ep0xDaKOVngko5RyaH/ts=;
-        b=NvlNM94t6sll7sF2XotPG849RkvwqA2mzJ7yLghmdoWCe/+h99vmOGCGjvSseh3s6r
-         S/GfB/Qh0OaiI3bRW58c5ghzkxxojQrnJFc064N7uvD/XG7B0PItbqmuoTwHykQXxJCr
-         +nEcQxl8fJ8V30NsnGDoJNRo9gdlJTmDzbEkA=
+        d=paul-moore.com; s=google; t=1717453986; x=1718058786; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=m2SrD9AjsN7hWG3w/JbHlDonIw+G9fSsvP6AVFkewqI=;
+        b=Cqk3uWBHO5xkcSR9OvfeaYwHFU2Nz+N7UgMH5n1qAYOO8wqBNB0VbfSGLRZJJYUgoI
+         2kj+OERIQMbTonNExd7yXScSt3DqB0Oim6pjUuwW2rh4iO6fj9gMeL/RZSnhyi9Z2KOn
+         l9D4mnqAjBmJE+VUOCEw2y59h3ca/CAkpZ04HbZ74+zpD6B+h73yC50iCvG+zCW/+ASA
+         YlZSQbxCqeCd76xnNPFPIWlkWmnWjD9BVuoA7ykJtoyyP3SRpCoqYhkqri/C3z/Oupov
+         lhbkpNki4YfemDE66lgUF3Que4IhTAvbkcwVevhfLkTU1/ItbT7bWO4m5U8U7QHusB2u
+         M3ig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717453447; x=1718058247;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=vUfCTj7RhneZiyZGwU4My8ep0xDaKOVngko5RyaH/ts=;
-        b=qgA6lIEYKOLZRo7rxNYZuMASmDL/PaEhI9WhhLTXsu9jmWbtE3PJd3w+UgyALdtJmV
-         iqfC4gA8bb3kie3p6b0UV0Z75lyV54NC5yGXOhjRWM6AePh/MFJNpQM9DyYcOfqJQunm
-         xoZQQY0gSj2fPLHLBNblM5HuNQF9yPYj0mnY/NRxnTOWt38ZgcdknKa5qjk85ii0hcUX
-         YDUGlyWr0j2fjnQkwLRTLbkjFRHLGZA9dSq18uDxB7C4Texm7XbZLjqUZcF1hpvdiSVs
-         Kt4w5Q6PL4jeyE6TNReRuDoRUvxqOyCCCCg9ppHPKCMgnJMYg58aaSskkzUa2wtvyh6T
-         izBw==
-X-Forwarded-Encrypted: i=1; AJvYcCVkhVIFpvDO3uFlX8dSZyAaF2Sy6p8QS+UfPg8+C88gAEzU064RP69FTHdOZXF1KhokBbfO0tnPoaIxKILaNlVlKYNyHbzP1Q==
-X-Gm-Message-State: AOJu0YyNSDjcUGhOn14Qh27C7hWuDJSOjIQ3YF4VlS+U3UCjqFn6QZfV
-	fu0qNKcK0rP4o02tZ7Et8k2oRPC+MuY0QaReqwTVmkF1OsyMf4OCFLEM5NShgDwMGbRVsbR4vIx
-	x2Az1xw==
-X-Google-Smtp-Source: AGHT+IHQAXI/FHvuJcs9FYZ6UyQFLEvIIRuFgfbX9QTHwbooECG43kWWEevd/jOKMMQcR4XQ2R50bg==
-X-Received: by 2002:a17:906:fa0e:b0:a68:f4fe:48df with SMTP id a640c23a62f3a-a69543b4032mr64690666b.22.1717453446935;
-        Mon, 03 Jun 2024 15:24:06 -0700 (PDT)
-Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com. [209.85.218.43])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a68ce706436sm348024466b.119.2024.06.03.15.24.05
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 03 Jun 2024 15:24:05 -0700 (PDT)
-Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-a68fc86acfaso256684166b.1
-        for <selinux@vger.kernel.org>; Mon, 03 Jun 2024 15:24:05 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUrQnoHvP2OAUhTsqE/8RGXzpXHEY6hPMtC7znJDCZi7BkggXAe2SDfCoDEMvStB8B0y9WkDVEb6XT2nBf5/lxfskKXV/+/lA==
-X-Received: by 2002:a17:906:d217:b0:a62:49ae:cd7b with SMTP id
- a640c23a62f3a-a69543e118emr67505166b.24.1717453445163; Mon, 03 Jun 2024
- 15:24:05 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1717453986; x=1718058786;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=m2SrD9AjsN7hWG3w/JbHlDonIw+G9fSsvP6AVFkewqI=;
+        b=BY7Cu9y3JBOK23/Qa4vUOTDjgkyFE9cDuUEiIJL7qJCvNZ0bYNIxqkykLE32/DqWYM
+         qx2P4/TubbHYsOKnR2ZLos11zxiPQK9ijwAk6+bDcwPrBnP352n1+DJtzpBMYiIWZnHM
+         eF+TuTWcCQ4cgiF3+5ApRlZS00tuMNbs9TBhbUyooaE/cJeAwLuFILaQAIYwSHmqMJFA
+         jXxgJIvlM7sudhP1IaiPoMIxoShDYLnF3H0OBpZQhP5WbCnL7qw3b4RBvRa2bfSFNzcG
+         SYDcA6RBPwL2DPmM/kpBCFj13tOC/WVfM8y5pWtOL3AoY2wHB1BzScZzwGqSXIzdrMtg
+         h8Lg==
+X-Gm-Message-State: AOJu0YyAzhp+ouYiEUuydT2Tikv9PRfjgeMVnDi1S+J8A+IPm2+DRvLL
+	oafciW6hFAsn1w8MV5wv85aWi5vnD+4LmsfIIDaXilmGaVxlDG9pjA5J9PQ87OFKpUxJRJiHAPl
+	OJs48HTSJ7Siz2OhryQZoCy64suCdBJg8TLDl
+X-Google-Smtp-Source: AGHT+IEoFZngLQNS1XtJnekiPwFn2p+z+HRz+Ler08TZyqvLEc0Sw3TmueJSUNY7Se/9laGlczTR31R2relv4GZbMUQ=
+X-Received: by 2002:a0d:c884:0:b0:61b:3402:805f with SMTP id
+ 00721157ae682-62c79626ca6mr107691097b3.10.1717453985979; Mon, 03 Jun 2024
+ 15:33:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240602023754.25443-1-laoar.shao@gmail.com> <20240602023754.25443-3-laoar.shao@gmail.com>
- <20240603172008.19ba98ff@gandalf.local.home> <CAHk-=whPUBbug2PACOzYXFbaHhA6igWgmBzpr5tOQYzMZinRnA@mail.gmail.com>
- <20240603181943.09a539aa@gandalf.local.home>
-In-Reply-To: <20240603181943.09a539aa@gandalf.local.home>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Mon, 3 Jun 2024 15:23:48 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wgDWUpz2LG5KEztbg-S87N9GjPf5Tv2CVFbxKJJ0uwfSQ@mail.gmail.com>
-Message-ID: <CAHk-=wgDWUpz2LG5KEztbg-S87N9GjPf5Tv2CVFbxKJJ0uwfSQ@mail.gmail.com>
-Subject: Re: [PATCH 2/6] tracing: Replace memcpy() with __get_task_comm()
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Yafang Shao <laoar.shao@gmail.com>, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	bpf@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>, 
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+References: <20240503005850.466144-2-paul@paul-moore.com> <06dc0e21-f44b-48c0-8552-9840147facfc@schaufler-ca.com>
+ <CAHC9VhQUW42aicyiMAVaSEsCR-G8E+uVZJVCXodDv8obC3V0VA@mail.gmail.com>
+ <18c63d96-d574-4ce2-8fd3-7755d2da6c74@schaufler-ca.com> <CAHC9VhQcUrxxejcJP9m5SwyN8D=Y0rOiF7=w6SQR4=fF=nBNDw@mail.gmail.com>
+ <CAHC9VhRdwgorXdBt7jUuQ7tLNbtCggGrbrhxw-Um7aCmk0JgmQ@mail.gmail.com> <CAHC9VhQUi8vo+gZ0OXYXGSbLpuSaCaNx+7CzXw0eAJyQ48X80w@mail.gmail.com>
+In-Reply-To: <CAHC9VhQUi8vo+gZ0OXYXGSbLpuSaCaNx+7CzXw0eAJyQ48X80w@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 3 Jun 2024 18:32:55 -0400
+Message-ID: <CAHC9VhRQBpOPEwKec7K9hdsbZ3RZbj51yy5YuyjGfQQNLjb7RQ@mail.gmail.com>
+Subject: Re: [RFC PATCH] lsm: fixup the inode xattr capability handling
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Felix Fu <fuzhen5@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 3 Jun 2024 at 15:18, Steven Rostedt <rostedt@goodmis.org> wrote:
+On Tue, May 7, 2024 at 3:17=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
+te:
 >
-> The logic behind __string() and __assign_str() will always add a NUL
-> character.
+> On Mon, May 6, 2024 at 4:51=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
+rote:
+> >
+> > On Fri, May 3, 2024 at 12:26=E2=80=AFPM Paul Moore <paul@paul-moore.com=
+> wrote:
+> > > I also need to track down the appropriate commits for the 'Fixes:'
+> > > tag(s); I'm not entirely convinced that some of the other patches wer=
+e
+> > > targeting the proper commit ...
+> >
+> > Looking at this again, I'm not sure we can easily narrow this down to
+> > one or two commits as the current flawed situation is really the
+> > result of a lot of things.  If I had to pick two may be the addition
+> > of the BPF LSM and the introduction of the LSM hook macros?  I think
+> > this patch may just get a stable tag without an explicit set of
+> > 'Fixes', which should be okay.
+>
+> I merged this patch, with Casey's ACK and a stable tag, into
+> lsm/dev-staging.  Assuming no issues are uncovered during testing, or
+> mentioned on-list, I'll plan to merge this into lsm/dev after the
+> upcoming merge window closes; I'll send another note when that
+> happens.
 
-Ok. But then you still end up with the issue that now the profiles are
-different, and you have a 8-byte pointer to dynamically allocated
-memory instead of just the simpler comm[TASK_COMM_LEN].
+Quick update to let everyone know that I've just merged this into lsm/dev.
 
-Is that actually a good idea for tracing?
-
-We're trying to fix the core code to be cleaner for places that may
-actually *care* (like 'ps').
-
-Would we really want to touch this part of tracing?
-
-            Linus
+--=20
+paul-moore.com
