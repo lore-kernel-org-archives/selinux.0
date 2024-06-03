@@ -1,169 +1,176 @@
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10CAB288DF;
-	Mon,  3 Jun 2024 11:35:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D2A212F5A5;
+	Mon,  3 Jun 2024 14:45:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717414545; cv=none; b=iNov4I8FhBu5E1RYWIOGf4i4lTcbjxddVsUmWUivUrh8+A1weKZGSwT5tFix0B+3T4MOrgjEtsPoBdTaK62se7lvOpM45SroWo0wjx/tBQePQVfk2r6aTpIObP0qWWAMv/JDXl5ZLwgC/txcX+coZCgKkL3oa9wwXiqtCKEQEE8=
+	t=1717425958; cv=none; b=uP/fYSQRHR8/z/Ft8C2e2kcTVzmDpLUWcPJXKAYZbPzWak46Wv8e26czWfz8MN6AR5VUUazjm/QlkcTx5Dyyd59RLDpwsHDXgKo+f+5wF7S3cWpMe3CcA2yPmbbEm59xoMOGfNL4oBrfltPx4OkkKEmlwdygh72kZephaO/S6zY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717414545; c=relaxed/simple;
-	bh=aoxYSkwX+tV+MwMpCD6gcgbnNLkztkC6LLaSmt3gHik=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Q/LVAdOifGPR+tJ2cMFLo61q9P5stzivv+tDyY0EHb5ENw9d9Ji1mQWBHXgltnH44v/KRRbRFb211RWAxpzVnaEXPPdsBuQw7u5diCfyF5c69fSHSYQFzMs+pim9M4JBMeIDjUIDFDNKQRfeTg0253NFejRW2cCXNGVBPM82xtw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IY7MjAQv; arc=none smtp.client-ip=209.85.219.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1717425958; c=relaxed/simple;
+	bh=1jYxKPjXg52VO9Tfw68RPBsSKvMAMUOU29bjQ09IDCQ=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:Mime-Version; b=PU1fXTak6fjVYEkONfJsSb/y9gw7KEcRaLHxEVXkEpO4vMo/DNDlyQ9wyT8lPaUTC8yZyy40oLStojHIx4+4QgDzFNaV4RzKJn0ytdrb0kF0ICpiJiUUBq9ZcK65RgJkv7v3PwIPHK8EBjUzrRSN4XaKW2yH2oYKGmlonBbOVfc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=ozwC8m/Z; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IY7MjAQv"
-Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-6ae0abdf095so22586686d6.2;
-        Mon, 03 Jun 2024 04:35:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1717414543; x=1718019343; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2/pL0kZCeM1y16ZAOktPzW9q0OBMB22PikjjFd/rS+w=;
-        b=IY7MjAQvE5fw1U2yiXaOKJVtYjdd8A0wTJf5Jdgaoer2my4WfCLhM2QRBTH4gYplIi
-         /zoEFv1/xxK4LjVo+NbIj8cIm7OodTBmArb4w4c76iocR4JWKuiBHKytb1NvEZ2DNdIC
-         jfk2piiZny5R51T095op3y2Kx7XL1tudJY3hQ2/7l89CVGoIt+fJTIom02cK4ctk8WJY
-         maXInlVdOcPQgz7QwoH6CzUmkej8aSuwwakoXGC60w+d18pT9nsnoRpmtS0ONoiO+I8z
-         4+poAGOhiy81wZ6ScIdyKseKHQ6zOW3bMyg8rOWA48RDsudsAEHkh9ZZJrfTiV2TYE6x
-         hx2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717414543; x=1718019343;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2/pL0kZCeM1y16ZAOktPzW9q0OBMB22PikjjFd/rS+w=;
-        b=MHg1qeWG/6HyOFNucbfFbBf4o9xvhd6JQOpQiDqs1nMoqJA+/7Srf/2YgmtMx96K8Y
-         VApz/zO4PI2Zuo6o7xH2ePoAPP4yzXYvVxV8lr8SRq6tjHgJakSby4mHDeaJr9JZEX2M
-         PazPPqjhlY2Vew77eda7pgMWPv9b7BChtSUkFhe/HnJN/vuHw/2kuFncelJnFnvKYgAd
-         Xl0k6tuO2XUpLg4WnHJR2mWNNXLCtHxOr0r7WhPb78DR9UpnYzbL6FYIcXgMTIJE4YGw
-         yz4Jtvz9XcckRcprvLHN2sWtfrD8nY38dujEbnx1sKc42hXtlsx1H1knBFtnjjdLsGm8
-         Ds5w==
-X-Forwarded-Encrypted: i=1; AJvYcCVSSY3nVl6kSgaELn5nHbTRYLjQLj8LMljC+VIoJKbl585Vfg3xCPvM81RAyoIKNFU/7MqEn1WY43pP+rJi//6RKaPYCdIs1qQ+HrPl9xUXi08LatEatPZ1Ao+SKDaL6pjXJ2ifLTxFs+YvJ3auy4jfCiCWxALw3/O4zneIeZ6ze8aGgBVGFaXC5V/05uXEVLreoQGZDcX9BzkyUy0PZXbrwXmH7Bw6r1CSalhS80dkoF+jL6l5CCQUvHAy1NLhyFo0nXjdARGIAvtwZQ+5uid3xl15ik3ln+OgJlmfNQ==
-X-Gm-Message-State: AOJu0Yw4yruvQ15d3ZEGIk3GO1xM+Y/g4IzO5XG1C/KfZM7MgwVtr9TV
-	NMyHF5Fg6U3Lqk8SvYdrpUlUFMgo/jWxGhlRK2ry09yX+qomTzEte3eoUBvsWs+Dj0G/EqYHhsS
-	Aeked5ch6Yplkfs5ra2ZocyPbIwY=
-X-Google-Smtp-Source: AGHT+IEMPGXe1xq7rGBpGwfaIRAsELArfyOIl90qn3qIm6Yayy3B/d/0+DEKGHoLO4/5D6X82RkZyCrmvpduHJpXVSc=
-X-Received: by 2002:a05:6214:3d99:b0:6af:c64c:d1a0 with SMTP id
- 6a1803df08f44-6afc64cd5b7mr18050666d6.56.1717414542934; Mon, 03 Jun 2024
- 04:35:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="ozwC8m/Z"
+Received: from pps.filterd (m0353724.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 453DPNhu016043;
+	Mon, 3 Jun 2024 14:45:02 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc :
+ content-transfer-encoding : content-type : date : from : in-reply-to :
+ message-id : mime-version : references : subject : to; s=pp1;
+ bh=YsgzQz8uYU8eXG6yyEbFzdlJsmLqJBWa7QxTrJ00BDE=;
+ b=ozwC8m/ZepnpUW20F67ypgBVzNGjiZOu2X6c01AXAr8i5o24tS4x51bN0UHajLOB9MxS
+ a1iGuuZtD7Z5K0cb0bgEwTQdPJgVHC2mQq4/v8nwaAaW88Cx5crVDm6bGvieVz+plNGu
+ FdaAmNEiPfnDYkgp8HHFwpb5YnGlqtKCbwLUGex/ei3G9zeBaK9wF7/Fc23K1PCm2pZh
+ Eo/wh0lkEaeSPrKjFeC+CcPJpQq2w/XUO9nrzHmXGTNUjLGcelCtw8CaED3/sY3KDBhd
+ qu3eHnatb/rAhqYVKcghAIfYI8I31gksYNHSmDJ1tFWFBuzCZYDEiEEKiq7X2s7rbtVv rQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yhdx7gc56-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Jun 2024 14:45:01 +0000
+Received: from m0353724.ppops.net (m0353724.ppops.net [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 453Ej1LB005912;
+	Mon, 3 Jun 2024 14:45:01 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yhdx7gc52-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Jun 2024 14:45:01 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 453CRiTs008517;
+	Mon, 3 Jun 2024 14:45:00 GMT
+Received: from smtprelay05.wdc07v.mail.ibm.com ([172.16.1.72])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ygec0gk79-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 03 Jun 2024 14:45:00 +0000
+Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
+	by smtprelay05.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 453EivLK27066938
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 3 Jun 2024 14:44:59 GMT
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8389258055;
+	Mon,  3 Jun 2024 14:44:57 +0000 (GMT)
+Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8123958043;
+	Mon,  3 Jun 2024 14:44:56 +0000 (GMT)
+Received: from li-5cd3c5cc-21f9-11b2-a85c-a4381f30c2f3.ibm.com (unknown [9.61.35.127])
+	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Mon,  3 Jun 2024 14:44:56 +0000 (GMT)
+Message-ID: <777f5b3d2a94b39bad76bdc64421cdcd026f0144.camel@linux.ibm.com>
+Subject: Re: [PATCH v3] ima: Avoid blocking in RCU read-side critical section
+From: Mimi Zohar <zohar@linux.ibm.com>
+To: Casey Schaufler <casey@schaufler-ca.com>, GUO Zihua
+ <guozihua@huawei.com>,
+        paul@paul-moore.com, john.johansen@canonical.com, jmorris@namei.org,
+        serge@hallyn.com, roberto.sassu@huawei.com, dmitry.kasatkin@gmail.com,
+        stephen.smalley.work@gmail.com, eparis@redhat.com
+Cc: eric.snowberg@oracle.com, omosnace@redhat.com, audit@vger.kernel.org,
+        apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Date: Mon, 03 Jun 2024 10:44:56 -0400
+In-Reply-To: <a46c9c3f-9fec-43b0-8d21-e6ed1e42ee67@schaufler-ca.com>
+References: <20240507012541.796421-1-guozihua@huawei.com>
+	 <a46c9c3f-9fec-43b0-8d21-e6ed1e42ee67@schaufler-ca.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5 (3.28.5-25.el8_9) 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20240602023754.25443-1-laoar.shao@gmail.com> <20240602023754.25443-2-laoar.shao@gmail.com>
- <87ikysdmsi.fsf@email.froward.int.ebiederm.org> <CALOAHbAASdjLjfDv5ZH7uj=oChKE6iYnwjKFMu6oabzqfs2QUw@mail.gmail.com>
- <CAADnVQJ_RPg_xTjuO=+3G=4auZkS-t-F2WTs18rU2PbVdJVbdQ@mail.gmail.com>
- <874jabdygo.fsf@email.froward.int.ebiederm.org> <CAADnVQ+9T4n=ZhNMd57qfu2w=VqHM8Dzx-7UAAinU5MoORg63w@mail.gmail.com>
-In-Reply-To: <CAADnVQ+9T4n=ZhNMd57qfu2w=VqHM8Dzx-7UAAinU5MoORg63w@mail.gmail.com>
-From: Yafang Shao <laoar.shao@gmail.com>
-Date: Mon, 3 Jun 2024 19:35:04 +0800
-Message-ID: <CALOAHbARXwZvr0GBxKc_c-3nay--h4NhvZbSyt8eZwijNW1a0w@mail.gmail.com>
-Subject: Re: [PATCH 1/6] fs/exec: Drop task_lock() inside __get_task_comm()
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Linus Torvalds <torvalds@linux-foundation.org>, 
-	linux-mm <linux-mm@kvack.org>, Linux-Fsdevel <linux-fsdevel@vger.kernel.org>, 
-	linux-trace-kernel <linux-trace-kernel@vger.kernel.org>, audit@vger.kernel.org, 
-	LSM List <linux-security-module@vger.kernel.org>, selinux@vger.kernel.org, 
-	bpf <bpf@vger.kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Kees Cook <keescook@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 8o9lAtBz3mIkoSKcjVks4pGKTtAsnhwZ
+X-Proofpoint-ORIG-GUID: K2k60IGobr0wNSbclXnFNHfptOzvly27
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
+ definitions=2024-06-03_11,2024-05-30_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 phishscore=0 impostorscore=0 malwarescore=0
+ suspectscore=0 spamscore=0 adultscore=0 clxscore=1011 mlxlogscore=834
+ bulkscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2405010000 definitions=main-2406030122
 
-On Mon, Jun 3, 2024 at 2:23=E2=80=AFAM Alexei Starovoitov
-<alexei.starovoitov@gmail.com> wrote:
->
-> On Sun, Jun 2, 2024 at 10:53=E2=80=AFAM Eric W. Biederman <ebiederm@xmiss=
-ion.com> wrote:
-> >
-> > Alexei Starovoitov <alexei.starovoitov@gmail.com> writes:
-> >
-> > > On Sat, Jun 1, 2024 at 11:57=E2=80=AFPM Yafang Shao <laoar.shao@gmail=
-.com> wrote:
-> > >>
-> > >> On Sun, Jun 2, 2024 at 11:52=E2=80=AFAM Eric W. Biederman <ebiederm@=
-xmission.com> wrote:
-> > >> >
-> > >> > Yafang Shao <laoar.shao@gmail.com> writes:
-> > >> >
-> > >> > > Quoted from Linus [0]:
-> > >> > >
-> > >> > >   Since user space can randomly change their names anyway, using=
- locking
-> > >> > >   was always wrong for readers (for writers it probably does mak=
-e sense
-> > >> > >   to have some lock - although practically speaking nobody cares=
- there
-> > >> > >   either, but at least for a writer some kind of race could have
-> > >> > >   long-term mixed results
-> > >> >
-> > >> > Ugh.
-> > >> > Ick.
-> > >> >
-> > >> > This code is buggy.
-> > >> >
-> > >> > I won't argue that Linus is wrong, about removing the
-> > >> > task_lock.
-> > >> >
-> > >> > Unfortunately strscpy_pad does not work properly with the
-> > >> > task_lock removed, and buf_size larger that TASK_COMM_LEN.
-> > >> > There is a race that will allow reading past the end
-> > >> > of tsk->comm, if we read while tsk->common is being
-> > >> > updated.
-> > >>
-> > >> It appears so. Thanks for pointing it out. Additionally, other code,
-> > >> such as the BPF helper bpf_get_current_comm(), also uses strscpy_pad=
-()
-> > >> directly without the task_lock. It seems we should change that as
-> > >> well.
-> > >
-> > > Hmm. What race do you see?
-> > > If lock is removed from __get_task_comm() it probably can be removed =
-from
-> > > __set_task_comm() as well.
-> > > And both are calling strscpy_pad to write and read comm.
-> > > So I don't see how it would read past sizeof(comm),
-> > > because 'buf' passed into __set_task_comm is NUL-terminated.
-> > > So the concurrent read will find it.
-> >
-> > The read may race with a write that is changing the location
-> > of '\0'.  Especially if the new value is shorter than
-> > the old value.
->
-> so ?
-> strscpy_pad in __[gs]et_task_comm will read/write either long
-> or byte at a time.
-> Assume 64 bit and, say, we had comm where 2nd u64 had NUL.
-> Now two cpus are racing. One is writing shorter comm.
-> Another is reading.
-> The latter can read 1st u64 without NUL and will proceed
-> to read 2nd u64. Either it will read the old u64 with NUL in it
-> or it will read all zeros in 2nd u64 or some zeros in 2nd u64
-> depending on how the compiler generated memset(.., 0, ..)
-> as part of strscpy_pad().
-> _pad() part is critical here.
-> If it was just strscpy() then there would indeed be a chance
-> of reading both u64-s and not finding NUL in any of them.
->
-> > If you are performing lockless reads and depending upon a '\0'
-> > terminator without limiting yourself to the size of the buffer
-> > there needs to be a big fat comment as to how in the world
-> > you are guaranteed that a '\0' inside the buffer will always
-> > be found.
->
-> I think Yafang can certainly add such a comment next to
-> __[gs]et_task_comm.
->
-> I prefer to avoid open coding memcpy + mmemset when strscpy_pad works.
+On Fri, 2024-05-10 at 09:03 -0700, Casey Schaufler wrote:
+> On 5/6/2024 6:25 PM, GUO Zihua wrote:
+> > A panic happens in ima_match_policy:
+> > 
+> > BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
+> > PGD 42f873067 P4D 0
+> > Oops: 0000 [#1] SMP NOPTI
+> > CPU: 5 PID: 1286325 Comm: kubeletmonit.sh Kdump: loaded Tainted: P
+> > Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
+> > RIP: 0010:ima_match_policy+0x84/0x450
+> > Code: 49 89 fc 41 89 cf 31 ed 89 44 24 14 eb 1c 44 39 7b 18 74 26 41 83 ff 05 74 20 48 8b 1b 48 3b 1d f2 b9 f4 00 0f 84 9c 01 00 00 <44> 85 73 10 74 ea 44 8b 6b 14 41 f6 c5 01 75 d4 41 f6 c5 02 74 0f
+> > RSP: 0018:ff71570009e07a80 EFLAGS: 00010207
+> > RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000200
+> > RDX: ffffffffad8dc7c0 RSI: 0000000024924925 RDI: ff3e27850dea2000
+> > RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffffabfce739
+> > R10: ff3e27810cc42400 R11: 0000000000000000 R12: ff3e2781825ef970
+> > R13: 00000000ff3e2785 R14: 000000000000000c R15: 0000000000000001
+> > FS:  00007f5195b51740(0000) GS:ff3e278b12d40000(0000) knlGS:0000000000000000
+> > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > CR2: 0000000000000010 CR3: 0000000626d24002 CR4: 0000000000361ee0
+> > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > Call Trace:
+> >  ima_get_action+0x22/0x30
+> >  process_measurement+0xb0/0x830
+> >  ? page_add_file_rmap+0x15/0x170
+> >  ? alloc_set_pte+0x269/0x4c0
+> >  ? prep_new_page+0x81/0x140
+> >  ? simple_xattr_get+0x75/0xa0
+> >  ? selinux_file_open+0x9d/0xf0
+> >  ima_file_check+0x64/0x90
+> >  path_openat+0x571/0x1720
+> >  do_filp_open+0x9b/0x110
+> >  ? page_counter_try_charge+0x57/0xc0
+> >  ? files_cgroup_alloc_fd+0x38/0x60
+> >  ? __alloc_fd+0xd4/0x250
+> >  ? do_sys_open+0x1bd/0x250
+> >  do_sys_open+0x1bd/0x250
+> >  do_syscall_64+0x5d/0x1d0
+> >  entry_SYSCALL_64_after_hwframe+0x65/0xca
+> > 
+> > Commit c7423dbdbc9e ("ima: Handle -ESTALE returned by
+> > ima_filter_rule_match()") introduced call to ima_lsm_copy_rule within a
+> > RCU read-side critical section which contains kmalloc with GFP_KERNEL.
+> > This implies a possible sleep and violates limitations of RCU read-side
+> > critical sections on non-PREEMPT systems.
+> > 
+> > Sleeping within RCU read-side critical section might cause
+> > synchronize_rcu() returning early and break RCU protection, allowing a
+> > UAF to happen.
+> > 
+> > The root cause of this issue could be described as follows:
+> > > 	Thread A	|	Thread B	|
+> > > 			|ima_match_policy	|
+> > > 			|  rcu_read_lock	|
+> > > ima_lsm_update_rule	|			|
+> > >  synchronize_rcu	|			|
+> > > 			|    kmalloc(GFP_KERNEL)|
+> > > 			|      sleep		|
+> > ==> synchronize_rcu returns early
+> > >  kfree(entry)		|			|
+> > > 			|    entry = entry->next|
+> > ==> UAF happens and entry now becomes NULL (or could be anything).
+> > > 			|    entry->action	|
+> > ==> Accessing entry might cause panic.
+> > 
+> > To fix this issue, we are converting all kmalloc that is called within
+> > RCU read-side critical section to use GFP_ATOMIC.
+> > 
+> > Fixes: c7423dbdbc9e ("ima: Handle -ESTALE returned by ima_filter_rule_match()")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: GUO Zihua <guozihua@huawei.com>
+> 
+> Looks fine from the Smack perspective.
+> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
 
-Thanks for your explanation.
-I will add a comment for it in the next version.
+Thanks, Casey. JJ? Paul?
 
---=20
-Regards
-Yafang
+
