@@ -1,102 +1,90 @@
-Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B0C21386BB
-	for <selinux@vger.kernel.org>; Mon,  3 Jun 2024 22:33:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDA3784FB7;
+	Mon,  3 Jun 2024 22:36:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717453988; cv=none; b=gb28bvOv1y9yBTHtr+pZvJdDrgQA8hkBaLBe31Zmzczbl8QcZGYVDMvjYPpoB44KM+4kNEUp4GCYbcuVd4L2gzdqpObQaIcuNZlwyQwKXrP0yssepDEvBOKBvuF5ZvnDP854JfY05o3QlKv0y953YHWpQ0cwAAqtMCjlF+kCr6g=
+	t=1717454194; cv=none; b=lpjrhF5dYxszCpdKSn2H+LxZIAwHthyjpeFqx6CbBM4XoiD7NNWXRgiGmQ3lCiUkoT3ayR2vHfN+b08J9ItdYRK2pEt6/h7D2kq8EuY6gzG5O1x9KET3BxIgIvmiznZ5lgKG2FpAl+NB55vLmQW7o5fEPyrK/VvavSvwmirWeBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717453988; c=relaxed/simple;
-	bh=TrBwn/d0GqpAZPrdLpc4RcvWvhLgItWxHDsohsEZ+mo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UDcQiQwryyiUD7cCZiMnGbM8ukdwCOIHVdaA1e9kQYgqsUxzYKKrIS0bFxndhfCpMLMc2Dt9SlYbIwtgJBvTDd11qP5yUVBx+aIPidOWpqmHpiXWezsQvIIB1V2VRVVBGWMpj/hkD5eFx8ucMUJbdeomuDzKUCYIffdbkStJPtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Cqk3uWBH; arc=none smtp.client-ip=209.85.128.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Cqk3uWBH"
-Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-62a08b250a2so5076457b3.3
-        for <selinux@vger.kernel.org>; Mon, 03 Jun 2024 15:33:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1717453986; x=1718058786; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=m2SrD9AjsN7hWG3w/JbHlDonIw+G9fSsvP6AVFkewqI=;
-        b=Cqk3uWBHO5xkcSR9OvfeaYwHFU2Nz+N7UgMH5n1qAYOO8wqBNB0VbfSGLRZJJYUgoI
-         2kj+OERIQMbTonNExd7yXScSt3DqB0Oim6pjUuwW2rh4iO6fj9gMeL/RZSnhyi9Z2KOn
-         l9D4mnqAjBmJE+VUOCEw2y59h3ca/CAkpZ04HbZ74+zpD6B+h73yC50iCvG+zCW/+ASA
-         YlZSQbxCqeCd76xnNPFPIWlkWmnWjD9BVuoA7ykJtoyyP3SRpCoqYhkqri/C3z/Oupov
-         lhbkpNki4YfemDE66lgUF3Que4IhTAvbkcwVevhfLkTU1/ItbT7bWO4m5U8U7QHusB2u
-         M3ig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717453986; x=1718058786;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=m2SrD9AjsN7hWG3w/JbHlDonIw+G9fSsvP6AVFkewqI=;
-        b=BY7Cu9y3JBOK23/Qa4vUOTDjgkyFE9cDuUEiIJL7qJCvNZ0bYNIxqkykLE32/DqWYM
-         qx2P4/TubbHYsOKnR2ZLos11zxiPQK9ijwAk6+bDcwPrBnP352n1+DJtzpBMYiIWZnHM
-         eF+TuTWcCQ4cgiF3+5ApRlZS00tuMNbs9TBhbUyooaE/cJeAwLuFILaQAIYwSHmqMJFA
-         jXxgJIvlM7sudhP1IaiPoMIxoShDYLnF3H0OBpZQhP5WbCnL7qw3b4RBvRa2bfSFNzcG
-         SYDcA6RBPwL2DPmM/kpBCFj13tOC/WVfM8y5pWtOL3AoY2wHB1BzScZzwGqSXIzdrMtg
-         h8Lg==
-X-Gm-Message-State: AOJu0YyAzhp+ouYiEUuydT2Tikv9PRfjgeMVnDi1S+J8A+IPm2+DRvLL
-	oafciW6hFAsn1w8MV5wv85aWi5vnD+4LmsfIIDaXilmGaVxlDG9pjA5J9PQ87OFKpUxJRJiHAPl
-	OJs48HTSJ7Siz2OhryQZoCy64suCdBJg8TLDl
-X-Google-Smtp-Source: AGHT+IEoFZngLQNS1XtJnekiPwFn2p+z+HRz+Ler08TZyqvLEc0Sw3TmueJSUNY7Se/9laGlczTR31R2relv4GZbMUQ=
-X-Received: by 2002:a0d:c884:0:b0:61b:3402:805f with SMTP id
- 00721157ae682-62c79626ca6mr107691097b3.10.1717453985979; Mon, 03 Jun 2024
- 15:33:05 -0700 (PDT)
+	s=arc-20240116; t=1717454194; c=relaxed/simple;
+	bh=aHFLneUiM7Y8KGK9AriZOavkvqFrckBGJd50BYmAOIM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=sxChJSAoH5ww8L0WHokSb+YE0+UPdCMbke4p/srpw9Fee2ZqpP6ExSdzrvF+rURsKiHJhurjlV/OlXGnos+8t/YGZG49qPwNZWpGHiCRYl6lK+I8IxsaEriki0F3pGxMc+Z04XG86p78DMdIA0AlZj9wRPQE7O30EZbhTI1TZHA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF7A3C2BD10;
+	Mon,  3 Jun 2024 22:36:31 +0000 (UTC)
+Date: Mon, 3 Jun 2024 18:37:42 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Yafang Shao <laoar.shao@gmail.com>, linux-mm@kvack.org,
+ linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ audit@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@vger.kernel.org, bpf@vger.kernel.org, Masami Hiramatsu
+ <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Subject: Re: [PATCH 2/6] tracing: Replace memcpy() with __get_task_comm()
+Message-ID: <20240603183742.17b34bc3@gandalf.local.home>
+In-Reply-To: <CAHk-=wgDWUpz2LG5KEztbg-S87N9GjPf5Tv2CVFbxKJJ0uwfSQ@mail.gmail.com>
+References: <20240602023754.25443-1-laoar.shao@gmail.com>
+	<20240602023754.25443-3-laoar.shao@gmail.com>
+	<20240603172008.19ba98ff@gandalf.local.home>
+	<CAHk-=whPUBbug2PACOzYXFbaHhA6igWgmBzpr5tOQYzMZinRnA@mail.gmail.com>
+	<20240603181943.09a539aa@gandalf.local.home>
+	<CAHk-=wgDWUpz2LG5KEztbg-S87N9GjPf5Tv2CVFbxKJJ0uwfSQ@mail.gmail.com>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240503005850.466144-2-paul@paul-moore.com> <06dc0e21-f44b-48c0-8552-9840147facfc@schaufler-ca.com>
- <CAHC9VhQUW42aicyiMAVaSEsCR-G8E+uVZJVCXodDv8obC3V0VA@mail.gmail.com>
- <18c63d96-d574-4ce2-8fd3-7755d2da6c74@schaufler-ca.com> <CAHC9VhQcUrxxejcJP9m5SwyN8D=Y0rOiF7=w6SQR4=fF=nBNDw@mail.gmail.com>
- <CAHC9VhRdwgorXdBt7jUuQ7tLNbtCggGrbrhxw-Um7aCmk0JgmQ@mail.gmail.com> <CAHC9VhQUi8vo+gZ0OXYXGSbLpuSaCaNx+7CzXw0eAJyQ48X80w@mail.gmail.com>
-In-Reply-To: <CAHC9VhQUi8vo+gZ0OXYXGSbLpuSaCaNx+7CzXw0eAJyQ48X80w@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 3 Jun 2024 18:32:55 -0400
-Message-ID: <CAHC9VhRQBpOPEwKec7K9hdsbZ3RZbj51yy5YuyjGfQQNLjb7RQ@mail.gmail.com>
-Subject: Re: [RFC PATCH] lsm: fixup the inode xattr capability handling
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Felix Fu <fuzhen5@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Tue, May 7, 2024 at 3:17=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
-te:
->
-> On Mon, May 6, 2024 at 4:51=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
-rote:
+On Mon, 3 Jun 2024 15:23:48 -0700
+Linus Torvalds <torvalds@linux-foundation.org> wrote:
+
+> On Mon, 3 Jun 2024 at 15:18, Steven Rostedt <rostedt@goodmis.org> wrote:
 > >
-> > On Fri, May 3, 2024 at 12:26=E2=80=AFPM Paul Moore <paul@paul-moore.com=
-> wrote:
-> > > I also need to track down the appropriate commits for the 'Fixes:'
-> > > tag(s); I'm not entirely convinced that some of the other patches wer=
-e
-> > > targeting the proper commit ...
-> >
-> > Looking at this again, I'm not sure we can easily narrow this down to
-> > one or two commits as the current flawed situation is really the
-> > result of a lot of things.  If I had to pick two may be the addition
-> > of the BPF LSM and the introduction of the LSM hook macros?  I think
-> > this patch may just get a stable tag without an explicit set of
-> > 'Fixes', which should be okay.
->
-> I merged this patch, with Casey's ACK and a stable tag, into
-> lsm/dev-staging.  Assuming no issues are uncovered during testing, or
-> mentioned on-list, I'll plan to merge this into lsm/dev after the
-> upcoming merge window closes; I'll send another note when that
-> happens.
+> > The logic behind __string() and __assign_str() will always add a NUL
+> > character.  
+> 
+> Ok. But then you still end up with the issue that now the profiles are
+> different, and you have a 8-byte pointer to dynamically allocated
+> memory instead of just the simpler comm[TASK_COMM_LEN].
 
-Quick update to let everyone know that I've just merged this into lsm/dev.
+It's actually a 4 byte meta data that holds it.
 
---=20
-paul-moore.com
+	__data_offsets->item##_ptr_ = src;
+
+The __data_offsets is a local helper structure that holds the information
+about where the string data will be in the ring buffer event, while the
+event is being recorded. The actual data in the ring buffer is a 4 byte
+word, where 2 bytes is for the size of the string and 2 bytes is for the
+offset into the event.
+
+If you have a task->comm = "ps", that will take up 12 bytes in the ring buffer.
+
+   field: 2 bytes: for where in the event the "ps" is.
+          2 bytes: for the length of ps.
+
+Then after the data, you have 3 or 4 bytes to hold "ps\0". (the data always
+ends on a 4 byte alignment).
+
+The amount of data in the ring buffer to hold "ps" just went from 16 bytes
+down to 12 bytes, and nothing is truncated if we extend the size of comm.
+
+> 
+> Is that actually a good idea for tracing?
+> 
+> We're trying to fix the core code to be cleaner for places that may
+> actually *care* (like 'ps').
+> 
+> Would we really want to touch this part of tracing?
+
+Note, I've been wanting to get rid of the hard coded TASK_COMM_LEN from the
+events for a while. As I mentioned before, the only reason the memcpy exists
+is because it was added before the __string() logic was. Then it became
+somewhat of a habit to do that for everything that referenced task->comm. :-/
+
+-- Steve
