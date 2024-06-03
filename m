@@ -1,147 +1,132 @@
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D39F9F9E9
-	for <selinux@vger.kernel.org>; Mon,  3 Jun 2024 18:52:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AE62134409
+	for <selinux@vger.kernel.org>; Mon,  3 Jun 2024 21:04:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717440724; cv=none; b=XxqWxFTU60ywojB+2INXHZfVOKDxEFGXWX+tFBAWO2WSKs9jOELGps/Ra84PBrn8kOidCqEGHvsgTmtYW7dCmTxhm/cRXLsS93NDoINfXqVBsn5C+xiTYHOKdWIlfQk0weXGcrkIx4dAE6yweXk6d1q1PIinC2eez8PZmyIdyag=
+	t=1717448650; cv=none; b=YqNCzm8xzkfamrnrbkX7Ha/nqtt0an44Kxlz5PAi8GqMVSFTnmv+TTW8U1DXl9x+wUtBdzqkBpNKqFiXyq4QLneErUWTy7i8RBiC5lPnSenEKOcA/cuRvi4FCdyiA4PdC3uwk2sKKwDbtzBk0bGp81dSI030Ri4U78C7Eb1ytJg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717440724; c=relaxed/simple;
-	bh=IHG17KVnZfK+VmAV5pLbW7T9M59h09dKmPcxHIHGato=;
+	s=arc-20240116; t=1717448650; c=relaxed/simple;
+	bh=kx2kvEZgNc5XsnnewjVka9co2H4QjUYDuU73T0I0Hl8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Y/+mYaD1EXKq+765abs3FkBbBicnoA4+0qEiWNajWH3s6l+u8APC8IjJwxLEKBCWp0DveICgP9K+6MFNIFbfgOgQlYFPudc8XCxXglmrd0FL6TQgoyGy/L/0Zj3SDO/0tMsDS6Gbjomm1+356nqMu3KppXzPCwUh/Z9x+sLtEjU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=feVGbWGS; arc=none smtp.client-ip=209.85.167.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=F/GENLWXQGfw28ieQbRjuSa59+XfgAiH/AOhkO2toG5yLjFg2XWj4Ovia4xBVcee5pyyMbWYK1EwwtJq0Qyik2RSny807wAe40ITcdmttWVqj7qiQbnJAg3LU3QawKy3+90SYtWRyZ0l5zTXgmz+tdvLPn5SGLN3N2reM4vkdh4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=VMn4yVx1; arc=none smtp.client-ip=209.85.128.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="feVGbWGS"
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-52b90038cf7so3109876e87.0
-        for <selinux@vger.kernel.org>; Mon, 03 Jun 2024 11:52:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="VMn4yVx1"
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-62a087c3a92so3957537b3.2
+        for <selinux@vger.kernel.org>; Mon, 03 Jun 2024 14:04:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1717440721; x=1718045521; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1717448647; x=1718053447; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ABmB9yzxEmjE+T1F1c6I0GOGohFjI8O09HojmM8pbjQ=;
-        b=feVGbWGSSUcpKizlKF3kt+Ij/JEtwjz3w9tEs/MD1Mk3ttIdpfjdJo58PWNA2qIFP5
-         6JaXj7+8uR+0OVzUj264VeNNJj5+T0i7UDBT4fIFeiY6Y83ba4ZK8LFmtSbw7gK4yZFK
-         mGmU8G5Ns3mmPYyZLvERSr+L3ipW1lZ2P/A9iv4IPbLMntLsHH70wlgpZjeCKxrJNQLE
-         0Gv28QVwiEiOemBjxIYsAiFcCcPAsyJA+GrzRjo19Cm3JHDdALxwhgThitlMYpeje03h
-         7ShAfGomkB/ZfvTOZ9MzEw6KMBPS0/X31v5eNpsq8WK8nBcgYsbHvHareCAVcM7V4KDL
-         AKkg==
+        bh=A4Xwo04AxfSK0W6mUhqUjoHJv2i+cgsYyuXRU+BzfeA=;
+        b=VMn4yVx1AYSFygWtRu5+IglA1BVBZXIDkLMZdFsI6Mm7qdpKVMCWvLyJPV3NTT4HzC
+         0CulDm2WXkRXh1cnRTQGZUtR3Xd4CuCUWIplnYH4Q3S0QWgiNSXrdHbBrfIf9vdhPVrR
+         Ad6jqImA/J1vJLVb4a1EsfeN6pYWwd5afsuAj2gK97uEYtYJ3MTdvbi7irvogUFApxI6
+         o+zdNcpF0+/AvnYCUQoTJ8CGE/+vgqlhwNKZ0nBNaDibw5tpHyEg0a8f2NWwBwJOZCzv
+         5smUPWJI72Y4dnho+rlH2lXeDxKpR2tLinCMumyyk/0/96vhtngi+EtetW0uJgE4wux+
+         87pg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717440721; x=1718045521;
+        d=1e100.net; s=20230601; t=1717448647; x=1718053447;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ABmB9yzxEmjE+T1F1c6I0GOGohFjI8O09HojmM8pbjQ=;
-        b=hmeFnIB6TJBBJHMpylmcRUFWWr0Rg947Xb0azMnl2KJKaOGLdv+eqkerccs0dhf5vf
-         gmUL1/KnQ04O0NokJ0jD9q/YpaxNcIUfZbCEeUyFa3SQz2qNiBl/rwz1Eizb7nYD2YX+
-         cWHupPY5LOPweyNC3D7pd7cfd31AT6H6gbLETHOAwx0ThOKYK55CDKp0Jd9YePlwwT4r
-         Eg5rP21JtZJA81AI/WxzZvf8CUJi9iXI0bLZ961FDJRouDlSBOkDupgADoC1o3Czi85p
-         wfU7d4pcnotK7o3rFaHrwGy3LJZ2/AC0AGW1jQTgnb3A0acUwYuIP7rEB3S7XB9+mJIF
-         UgHQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV7hThEN9mJeZVh1YQ45eHCbdy84Gi50tz1gs7DE/dkrT3qM4Rj9DWlv4blc1WjjMtavDvZv2twTnGzjEbVSTf1ib/EWVNJMQ==
-X-Gm-Message-State: AOJu0Yyo1TkPl83aqsYTXCd5xvOqx0+IjUm4iUc5fm1xsssw3836N3ar
-	QZBC2nBe+mSCPoILsupCUCn0hW9VU0NQidTtVc7KSdzCtlR9o1ak4mXHcZFB4Tf+v7mYToi+nF0
-	+ChRXSqw1T1yataCgkHVe7iTKFdk=
-X-Google-Smtp-Source: AGHT+IF3uv0DfmGdIEzAMIrNlm8HqBcghj7c9vfApQRFt1bVR3ALB/jHkkyu6yHw4qupmd7jzLPgEmlXKemsoLWhHGU=
-X-Received: by 2002:a19:a40a:0:b0:529:a55d:8d7 with SMTP id
- 2adb3069b0e04-52b895583e6mr6087955e87.14.1717440720591; Mon, 03 Jun 2024
- 11:52:00 -0700 (PDT)
+        bh=A4Xwo04AxfSK0W6mUhqUjoHJv2i+cgsYyuXRU+BzfeA=;
+        b=keZnmKS1wWpYcZTaZjrYfLsK2BuYanmftudEXjj64C+nwF0kgRayHPzK+ZnuLsj9qB
+         e6Mpi9iLSweFkvzEgjJrB2jIEVA9elPfxbdDTTU7FdRtmJV7UEndJsbeG/uKmcH6pIwg
+         822eE/X6Md1yMDNTxHPBVGfnry6PyJEx8IcMqdOenbxWEtDBUX/BuhrmAGHskLyTH4e4
+         Had4s+w7RhOti6S4a+7hKpuJJWPelp4eEmDZbP4hkR9ydYph5o8uKYz7vSiGuZC0SPu9
+         oFDTi90Cp72EVL670vvYEOohgebSZphaD8ewKPaTPOsi1NZSkF6eArAJIVR630mghl/3
+         EGiQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXl4cHMaL2gcHvjb+cpgRGYYXy2s6YItJol/OC3ZvwyIteKf4jx8NLZGGW3LDQWDLKNg959yspCaRHjVSfQs6sz5v8voGClSQ==
+X-Gm-Message-State: AOJu0YygRfQAL4c8/cBgBnfzLHYiNeLxGbyYI6lwNWABDrSWQ7Gt3yQm
+	ZiLn1sAJtn/EjE7PVfvMUgXUjid2cVbXh3PHAIhxstcdEiiB0MJdzjHfMmCWsKBwa+gl9M5vAgM
+	/tjg5GDCO46U5T8dHnu5p+Hk7avA0o0N63Owh
+X-Google-Smtp-Source: AGHT+IGR+FpbhgOaypOj8EHAJX7D2rLdNzF0sO2h5xEd4/ttL81NSVdpzxrwxGxotbOO4RE/GArlcQx7GP4z1mOA6C8=
+X-Received: by 2002:a05:690c:82e:b0:627:de5d:cf36 with SMTP id
+ 00721157ae682-62c79777753mr103683987b3.39.1717448646572; Mon, 03 Jun 2024
+ 14:04:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240429163901.65239-1-cgoettsche@seltendoof.de>
- <CAFftDdqRZcQm4kW8+pAOYQDQ46Ze9Q0zzpqsKYi9KNz-1wduTw@mail.gmail.com>
- <CAJ2a_Dcy-WHrV5FY3FHLTFBuJErKhwfyFc2R4CjZsO2PHYJ77Q@mail.gmail.com> <CAFftDdreHzHTjpFgR5Tf_XF627Zrr5TabYC7ZLr4r07gQ69iaA@mail.gmail.com>
-In-Reply-To: <CAFftDdreHzHTjpFgR5Tf_XF627Zrr5TabYC7ZLr4r07gQ69iaA@mail.gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Mon, 3 Jun 2024 14:51:48 -0400
-Message-ID: <CAP+JOzSScrkud6dBAhqXosWBq7KCTHDr-C2_s1=TqJrpeOwWkg@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libselinux: free empty scandir(3) result
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	selinux@vger.kernel.org
+References: <20240602023754.25443-1-laoar.shao@gmail.com> <20240602023754.25443-4-laoar.shao@gmail.com>
+In-Reply-To: <20240602023754.25443-4-laoar.shao@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 3 Jun 2024 17:03:55 -0400
+Message-ID: <CAHC9VhRBN94QRGAmjZKDk_H0GxAEn-PBE4_2tTwuwfXps1Hr5A@mail.gmail.com>
+Subject: Re: [PATCH 3/6] auditsc: Replace memcpy() with __get_task_comm()
+To: Yafang Shao <laoar.shao@gmail.com>
+Cc: torvalds@linux-foundation.org, linux-mm@kvack.org, 
+	linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+	audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, bpf@vger.kernel.org, Eric Paris <eparis@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 30, 2024 at 10:57=E2=80=AFAM William Roberts
-<bill.c.roberts@gmail.com> wrote:
+On Sat, Jun 1, 2024 at 10:38=E2=80=AFPM Yafang Shao <laoar.shao@gmail.com> =
+wrote:
 >
-> On Tue, Apr 30, 2024 at 9:35=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > On Mon, 29 Apr 2024 at 22:35, William Roberts <bill.c.roberts@gmail.com=
-> wrote:
-> > >
-> > > On Mon, Apr 29, 2024 at 11:39=E2=80=AFAM Christian G=C3=B6ttsche
-> > > <cgoettsche@seltendoof.de> wrote:
-> > > >
-> > > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > > >
-> > > > In case scandir(3) finds no entries still free the returned result =
-to
-> > > > avoid leaking it.
-> > > >
-> > > > Also do not override errno in case of a failure.
-> > > >
-> > > > Reported.by: Cppcheck
-> > > >
-> > > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > > > ---
-> > > >  libselinux/src/booleans.c | 6 +++++-
-> > > >  1 file changed, 5 insertions(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
-> > > > index c557df65..1ede8e2d 100644
-> > > > --- a/libselinux/src/booleans.c
-> > > > +++ b/libselinux/src/booleans.c
-> > > > @@ -53,7 +53,11 @@ int security_get_boolean_names(char ***names, in=
-t *len)
-> > > >
-> > > >         snprintf(path, sizeof path, "%s%s", selinux_mnt, SELINUX_BO=
-OL_DIR);
-> > > >         *len =3D scandir(path, &namelist, &filename_select, alphaso=
-rt);
-> > > > -       if (*len <=3D 0) {
-> > > > +       if (*len < 0) {
-> > > > +               return -1;
-> > > > +       }
-> > > > +       if (*len =3D=3D 0) {
-> > >
-> > > Changing this will allow scandir to fail and it continue, what's the =
-point?
-> >
-> > What do you mean by "continue"?
-> > The function will still return -1 with errno set if scandir(3) returns
-> > <=3D 0, like it does currently.
-> > But currently if scandir() returns 0, we currently leak the pointer to
-> > the empty array.
+> Using __get_task_comm() to read the task comm ensures that the name is
+> always NUL-terminated, regardless of the source string. This approach als=
+o
+> facilitates future extensions to the task comm.
 >
-> I completely misread that, my apologies. I just mocked scandir for all
-> those paths
-> with the leak sanitizer enabled, lgtm.
+> Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Eric Paris <eparis@redhat.com>
+> ---
+>  kernel/auditsc.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+
+Assuming you've sorted out all the problems identified earlier in the
+patchset and __get_task_comm() no longer takes task_lock() this should
+be okay from an audit perspective.
+
+Acked-by: Paul Moore <paul@paul-moore.com>
+
+> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+> index 6f0d6fb6523f..0459a141dc86 100644
+> --- a/kernel/auditsc.c
+> +++ b/kernel/auditsc.c
+> @@ -2730,7 +2730,7 @@ void __audit_ptrace(struct task_struct *t)
+>         context->target_uid =3D task_uid(t);
+>         context->target_sessionid =3D audit_get_sessionid(t);
+>         security_task_getsecid_obj(t, &context->target_sid);
+> -       memcpy(context->target_comm, t->comm, TASK_COMM_LEN);
+> +       __get_task_comm(context->target_comm, TASK_COMM_LEN, t);
+>  }
 >
-
-I assume that is an ack for this patch as well as the other two?
-
-Thanks,
-Jim
-
-
-> >
-> > >
-> > > > +               free(namelist);
-> > > >                 errno =3D ENOENT;
-> > > >                 return -1;
-> > > >         }
-> > > > --
-> > > > 2.43.0
-> > > >
-> > > >
+>  /**
+> @@ -2757,7 +2757,7 @@ int audit_signal_info_syscall(struct task_struct *t=
+)
+>                 ctx->target_uid =3D t_uid;
+>                 ctx->target_sessionid =3D audit_get_sessionid(t);
+>                 security_task_getsecid_obj(t, &ctx->target_sid);
+> -               memcpy(ctx->target_comm, t->comm, TASK_COMM_LEN);
+> +               __get_task_comm(ctx->target_comm, TASK_COMM_LEN, t);
+>                 return 0;
+>         }
 >
+> @@ -2778,7 +2778,7 @@ int audit_signal_info_syscall(struct task_struct *t=
+)
+>         axp->target_uid[axp->pid_count] =3D t_uid;
+>         axp->target_sessionid[axp->pid_count] =3D audit_get_sessionid(t);
+>         security_task_getsecid_obj(t, &axp->target_sid[axp->pid_count]);
+> -       memcpy(axp->target_comm[axp->pid_count], t->comm, TASK_COMM_LEN);
+> +       __get_task_comm(axp->target_comm[axp->pid_count], TASK_COMM_LEN, =
+t);
+>         axp->pid_count++;
+>
+>         return 0;
+> --
+> 2.39.1
+
+--=20
+paul-moore.com
