@@ -1,127 +1,99 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E121C17DE0B
-	for <selinux@vger.kernel.org>; Thu,  6 Jun 2024 09:51:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62B4014A8E
+	for <selinux@vger.kernel.org>; Sat,  8 Jun 2024 17:18:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717667469; cv=none; b=LbN/bhNBTvxYwn9wR3CeyGhB/SlKqD2I1LLA+5siwsIg3Cf3Ykwznvl3twhSHV0gs9tanS5BOmbljXSm6Zhl9jd0u78QmDKth6IrKCD1zfpIxL7BgfWUz/nPdyv4PC9+pzHnQ8++hD7RPbxpJ9auua8ltP5F/mBiSnJEvROYiC8=
+	t=1717867127; cv=none; b=BrVJOQy5NCfOCz6QIh9ZDQvsVkSPKgY0v3uwzwTHDRYFYBlZX36hleQ6raTCyCzb8G4UyF4/9zX6ltbxciQpru2Wc2XZP6TnLfBbYXo/5W/fSEDz/F/uPcqOczGOjpnoQnQ2MgYxgqIi5d3z47FIXsXOPNEAWTc0Sq3VJFHQmsg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717667469; c=relaxed/simple;
-	bh=j+bOLM/7ksiUc9hSiDaju8xHpBv8BUoR/wuLDm2TtFI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-type; b=Nxx74h+M7WMxBVv7uRQCNWCSK1CPLk1AaMvFo3wwbgbgfdxMlYato9+U09HNCk2PMePzhbDrk9NjT4poxbFh3Da77cWlwp6cxiy51tu4j3QTQOfsva+pQkdvhgSV+nGaQEDPmLG5SLeVlS+fTiBmb1lxCcrzobqPoiPxSMMYFRk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YXMNht3l; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1717867127; c=relaxed/simple;
+	bh=jVJlxr4cCG5OlYoTp1Huv9XgOcZuSzWZ+ixH6XOuYiw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=TcOrBCUJra7R5ylZT5/Cvv1tShncWfk52D6dmGu5Kiu1gU+ypJOMg8+9HxyJ5x1Yix/mreGgKVsYZ08LZYJvSDz+TUtq3r+1ax1ZmsVr0dcqzLnVZhas5Pvv/0CIhbGpD4XyStV+4yBacFGPINyzkpcwuqX243Eg1ykpyU/zBhE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=XYNQWadq; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YXMNht3l"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1717667464;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=qWZzRHXwiD9UXrWBWkMS1Tvqjhpfq8N3kxS7P/ghNCU=;
-	b=YXMNht3ldFFRh5A9f8SCszL3nFQHIzL+qONoeaJlfIjyhZuNwcuwuqT036LvCCSLj/5rX0
-	dT4pQGCatVyrVkDODVfZy3UJbEkNnVZ/n/J/1dxTBvarcwQ7xGBjWuj8NY9uF4bfAfKJ8D
-	hdRg5lRNuRFSU6QtMdw1La3e0K6op+g=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-186-iR9vyNM-MESLmXram3gy8g-1; Thu, 06 Jun 2024 05:51:03 -0400
-X-MC-Unique: iR9vyNM-MESLmXram3gy8g-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 07275800074
-	for <selinux@vger.kernel.org>; Thu,  6 Jun 2024 09:51:03 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.45.224.134])
-	by smtp.corp.redhat.com (Postfix) with ESMTP id 46EBE492BF1;
-	Thu,  6 Jun 2024 09:51:02 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="XYNQWadq"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1717867121;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=PZdSkofHMHe53CuVfPH+3iV/NOZ2JWDGYULAXqAik5Y=;
+	b=XYNQWadqOOXZlcV+YpbcQmKMLMhbI6XE8mxIQ3tJLuPp0xd927rTblTX8fqXP8bbzdYuIh
+	Scc284pyR0pCUmMf//eknmvf2IpdA+ji5Ll3JFxncA1nrUF2GvO2JFr9ENiBHqQuf/JqzV
+	+YAtmYpMPyh6Fim20oc+79+KZ68fOs3dajEN1WKhNunLqCZLg/091vubsLZGEB92gwpAoo
+	UnitP8/dmMUPw4LXtqKdCKAV8etvaFaqHNrfQZ27o7GNv+tn5c3F0a+rmNZaMXlPly1q57
+	LKcwP1IiZwLd7uGkazzVWrproHWt0ZamxWSMXLrFIr2PhODZa11dHuWxlNSVNA==
 To: selinux@vger.kernel.org
-Cc: Petr Lautrbach <lautrbach@redhat.com>
-Subject: [PATCH] fixfiles: drop unnecessary \ line endings
-Date: Thu,  6 Jun 2024 11:50:39 +0200
-Message-ID: <20240606095039.50456-1-lautrbach@redhat.com>
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH] libsepol: validate attribute-type maps
+Date: Sat,  8 Jun 2024 19:18:38 +0200
+Message-ID: <20240608171838.136163-1-cgoettsche@seltendoof.de>
+Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-type: text/plain
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.9
 
-See https://github.com/koalaman/shellcheck/issues/2769
+From: Christian Göttsche <cgzones@googlemail.com>
 
-Fixes:
-    $ shellcheck -S error fixfiles
+Ensure the attribute-to-type maps contain no invalid entries, required
+for generating typeattributeset statements when converting to CIL.
 
-    In fixfiles line 189:
-            # These two sorts need to be separate commands \
-                                                            ^-- SC1143 (error): This backslash is part of a comment and does not continue the line.
-
-    For more information:
-      https://www.shellcheck.net/wiki/SC1143 -- This backslash is part of a comme...
-
-Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+Reported-by: oss-fuzz (issue 69283)
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- policycoreutils/scripts/fixfiles | 32 ++++++++++++++++----------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
+ libsepol/src/policydb_validate.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
-index 166af6f360a2..cb50fef3ca65 100755
---- a/policycoreutils/scripts/fixfiles
-+++ b/policycoreutils/scripts/fixfiles
-@@ -173,10 +173,10 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
- 	test -z "$TEMPFILE" && exit
- 	PREFCTEMPFILE=`mktemp ${PREFC}.XXXXXXXXXX`
- 	sed -r -e 's,:s0, ,g' $PREFC | sort -u > ${PREFCTEMPFILE}
--	sed -r -e 's,:s0, ,g' $FC | sort -u | \
--	/usr/bin/diff -b ${PREFCTEMPFILE} - | \
--	    grep '^[<>]'|cut -c3-| grep ^/ | \
--	    grep -Ev '(^/home|^/root|^/tmp)' |\
-+	sed -r -e 's,:s0, ,g' $FC | sort -u |
-+	/usr/bin/diff -b ${PREFCTEMPFILE} - |
-+	    grep '^[<>]'|cut -c3-| grep ^/ |
-+	    grep -Ev '(^/home|^/root|^/tmp)' |
- 	sed -r -e 's,[[:blank:]].*,,g' \
- 	       -e 's|\(([/[:alnum:]]+)\)\?|{\1,}|g' \
- 	       -e 's|([/[:alnum:]])\?|{\1,}|g' \
-@@ -185,19 +185,19 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
- 	       -e 's|\(.*|*|g' \
- 	       -e 's|\[.*|*|g' \
- 	       -e 's|\.\*.*|*|g' \
--	       -e 's|\.\+.*|*|g' | \
--	    # These two sorts need to be separate commands \
--	sort -u | \
--	sort -d | \
--	while read pattern ; \
--	    do if ! echo "$pattern" | grep -q -f ${TEMPFILE} 2>/dev/null; then \
--		  echo "$pattern"; \
--		  case "$pattern" in *"*") \
-+	       -e 's|\.\+.*|*|g' |
-+	    # These two sorts need to be separate commands
-+	sort -u |
-+	sort -d |
-+	while read pattern ;
-+	    do if ! echo "$pattern" | grep -q -f ${TEMPFILE} 2>/dev/null; then
-+		  echo "$pattern";
-+		  case "$pattern" in *"*")
- 		       echo "$pattern" | sed -e 's,^,^,' -e 's,\*$,,g' >> ${TEMPFILE};;
--		  esac; \
--	       fi; \
--	    done | \
--	${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $* -i -R -f -; \
-+		  esac;
-+	       fi;
-+	    done |
-+	${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $* -i -R -f -;
- 	rm -f ${TEMPFILE} ${PREFCTEMPFILE}
- fi
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index 84c1071c..9746f562 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -1654,6 +1654,26 @@ bad:
+ 	return -1;
  }
+ 
++static int validate_attrtype_map(sepol_handle_t *handle, const policydb_t *p, validate_t flavors[])
++{
++	const ebitmap_t *maps = p->attr_type_map;
++	uint32_t i;
++
++	if (p->policy_type == POLICY_KERN) {
++		for (i = 0; i < p->p_types.nprim; i++) {
++			if (validate_ebitmap(&maps[i], &flavors[SYM_TYPES]))
++				goto bad;
++		}
++	} else if (maps)
++		goto bad;
++
++	return 0;
++
++bad:
++	ERR(handle, "Invalid attr type map");
++	return -1;
++}
++
+ static int validate_properties(sepol_handle_t *handle, const policydb_t *p)
+ {
+ 	switch (p->policy_type) {
+@@ -1790,6 +1810,9 @@ int policydb_validate(sepol_handle_t *handle, const policydb_t *p)
+ 	if (validate_typeattr_map(handle, p, flavors))
+ 		goto bad;
+ 
++	if (validate_attrtype_map(handle, p, flavors))
++		goto bad;
++
+ 	validate_array_destroy(flavors);
+ 
+ 	return 0;
 -- 
-2.45.2
+2.45.1
 
