@@ -1,37 +1,37 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6CB8C13D
-	for <selinux@vger.kernel.org>; Sat,  8 Jun 2024 17:20:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D736134AC
+	for <selinux@vger.kernel.org>; Sat,  8 Jun 2024 17:21:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717867233; cv=none; b=IRertvZk5mvAsNU4LAE1hQGbSHUw+TVExjIrAFIg6EtbIjoggTeC/vc+R4yGtgF+xf8+PgWc0XNUPFIhfDgGrlWYsF25rUhyMm6EVW6i19hDB2NlGbPykRzsVRxWWJxbFPHSXV9McTZYG0soViyHa8PwncVIBjXTunqFrhxVAI8=
+	t=1717867310; cv=none; b=qBKJlQfNCex+YaBL5iLeBbX9ae0xxsVttm11eSVVBXmwrdiRZmpJ9Nn9LEh7zRplPkUJx2nIxkUCuXIrJAWTWv2L7pNaKCySxtpfRdRv9cskKQ+8ZtNt7A4/17qFRy9MgdEkXRTJQhF1OAdcavpELPKVS8bh7/tL3MGC/lBFcFM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717867233; c=relaxed/simple;
-	bh=Slql2Q0FSLoJlF63qd+sSRmYLzbmHqU3Q64Lx26rg2g=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=W8QIkiPQ5w/UDfE/t0Sh5hc5bsZxjPWyG6Raq0ZYxVXqi9JpA1w8NRwyS3R6snmzWTXKtsaw9nHL7Te46B+DkXkk+pXSSO2ZeHo1wmVYdZ0d3zKomsCZtVnTftdiQ5Gld5HswloZIUo2gLqVfDnKTEHbi1k6IN4bG7LeZEpQSeA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=ZYCEWmrf; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1717867310; c=relaxed/simple;
+	bh=tjEhWkNG+fhkzYSFEX86MWxP5lgar0USYmBYQPvxR+I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=V8FQO5A+N5t/te7U+bnR7apERvlzlqCowGdPFs4CkVZjQJHdbiQi9mZOABUymFI2CxvTughQoUAvyDCrpgH46vWvpmbHh+9k5/+LOf4omj4qehikJqPBqDIv9OKs329YdpnQnIwqq/bgVLhGpRAZdvrj1Pc62dL/kqZP+O1m2l4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=D+NiwjB/; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="ZYCEWmrf"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="D+NiwjB/"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1717867228;
+	s=2023072701; t=1717867306;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=SeOsM/IvsDi9l1MgI2UpIPI57d86HeMzi4sDacOGM5I=;
-	b=ZYCEWmrfgve4YYlVIurMZgnXYD08N9KkVpT0Jq01h3aCjLakF4RDFh6jmOHH7+uaEal830
-	9uztxLiQ9yXq7YhDeqbHxn5sqC1o+1P2pLRbWIPNZMv/EFJz5FMeKDz4VPoEImawgQwY41
-	e/ECqKzl+2JEEjcQIaH3ZlTt/B95NDlYQxr81cwVYEQa+868lwDAOs3U2rgs8iEW+Ye/Pw
-	wBg7GE2a2VsRd+vS/nNLoGEmrGZPz5Jv5WE49zK3RN+wrbVUiGv0ptWTtcqNVPg5Pgclnt
-	Yi68amlHziWS2xfMv+oyNtWVq7MkQ003CKfQUYSdTIIrR5XTIc0hRdPibIVRvA==
+	bh=pPM1nSCsZ7RCT4H7ex8RC5zWKEtEXmxBurv3IZ82uog=;
+	b=D+NiwjB/vUVMbrkqtH+OP8pFqXKpK6fdGNHsGwm5i13HRf809vjASMsaCgZctgkqOBLDqF
+	CRhjONA0fUXd+b8DAUbTHwOl7fQ2wf2016nEfMd1xB9mFGcN0qbuQFWOXfG697Ot0kCAKi
+	kEZoiBjK+1ECGJlK6/8MkP8Qj5kvTqJRUCMqlgOmY0PK5w4I+Opl664henNSAg43yZGwds
+	NaQTHUp1GnEBYMv2miM7NdUFFDmFDma+It3r39MJxNWIU6KesumQ2gENpIFJjv4wTkw1L3
+	MW/b8A5R9ZegN8/DtDmgpcGpawXdOQEBUztMTd3V+UaUfahuuuA+ExQ40KvOpA==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 1/2] libselinux: deprecate security_disable(3)
-Date: Sat,  8 Jun 2024 19:20:24 +0200
-Message-ID: <20240608172025.137795-1-cgoettsche@seltendoof.de>
+Subject: [PATCH 1/2] libsepol: move unchanged data out of loop
+Date: Sat,  8 Jun 2024 19:21:41 +0200
+Message-ID: <20240608172142.138894-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -44,46 +44,84 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-The runtime disable functionality has been removed in Linux 6.4.  Thus
-security_disable(3) will no longer work on these kernels.
+Perform the lookup whether the class is in the current scope once, and
+not for every permission.
+This also ensures the class is checked to be in the current scope if
+there are no permissions attached.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/include/selinux/selinux.h   | 6 +++++-
- libselinux/man/man3/security_disable.3 | 3 ++-
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ libsepol/src/link.c | 38 ++++++++++++++++++--------------------
+ 1 file changed, 18 insertions(+), 20 deletions(-)
 
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index 61c1422b..1318a66a 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -367,7 +367,11 @@ extern int security_deny_unknown(void);
- /* Get the checkreqprot value */
- extern int security_get_checkreqprot(void);
+diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+index b8272308..a6f2a251 100644
+--- a/libsepol/src/link.c
++++ b/libsepol/src/link.c
+@@ -1925,7 +1925,7 @@ static int find_perm(hashtab_key_t key, hashtab_datum_t datum, void *varg)
+  * Note that if a declaration had no requirement at all (e.g., an ELSE
+  * block) this returns 1. */
+ static int is_decl_requires_met(link_state_t * state,
+-				avrule_decl_t * decl,
++				const avrule_decl_t * decl,
+ 				struct missing_requirement *req)
+ {
+ 	/* (This algorithm is very unoptimized.  It performs many
+@@ -1933,9 +1933,9 @@ static int is_decl_requires_met(link_state_t * state,
+ 	 * which symbols have been verified, so that they do not need
+ 	 * to be re-checked.) */
+ 	unsigned int i, j;
+-	ebitmap_t *bitmap;
+-	char *id, *perm_id;
+-	policydb_t *pol = state->base;
++	const ebitmap_t *bitmap;
++	const char *id, *perm_id;
++	const policydb_t *pol = state->base;
+ 	ebitmap_node_t *node;
  
--/* Disable SELinux at runtime (must be done prior to initial policy load). */
-+/* Disable SELinux at runtime (must be done prior to initial policy load).
-+   Unsupported since Linux 6.4. */
-+#ifdef __GNUC__
-+__attribute__ ((deprecated))
-+#endif
- extern int security_disable(void);
+ 	/* check that all symbols have been satisfied */
+@@ -1961,27 +1961,25 @@ static int is_decl_requires_met(link_state_t * state,
+ 	}
+ 	/* check that all classes and permissions have been satisfied */
+ 	for (i = 0; i < decl->required.class_perms_len; i++) {
++		const class_datum_t *cladatum = pol->class_val_to_struct[i];
++		const scope_datum_t *scope;
++
++		bitmap = &decl->required.class_perms_map[i];
++		id = pol->p_class_val_to_name[i];
++
++
++		scope = hashtab_search(state->base->p_classes_scope.table, id);
++		if (scope == NULL) {
++			ERR(state->handle,
++				"Could not find scope information for class %s",
++				id);
++			return -1;
++		}
  
- /* Get the policy version number. */
-diff --git a/libselinux/man/man3/security_disable.3 b/libselinux/man/man3/security_disable.3
-index 072923ce..5ad8b778 100644
---- a/libselinux/man/man3/security_disable.3
-+++ b/libselinux/man/man3/security_disable.3
-@@ -14,7 +14,8 @@ disables the SELinux kernel code, unregisters selinuxfs from
- and then unmounts
- .IR /sys/fs/selinux .
- .sp
--This function can only be called at runtime and prior to the initial policy
-+This function is only supported on Linux 6.3 and earlier, and can only be
-+called at runtime and prior to the initial policy
- load. After the initial policy load, the SELinux kernel code cannot be disabled,
- but only placed in "permissive" mode by using
- .BR security_setenforce(3).
+-		bitmap = decl->required.class_perms_map + i;
+ 		ebitmap_for_each_positive_bit(bitmap, node, j) {
+ 			struct find_perm_arg fparg;
+-			class_datum_t *cladatum;
+ 			uint32_t perm_value = j + 1;
+ 			int rc;
+-			scope_datum_t *scope;
+-
+-			id = pol->p_class_val_to_name[i];
+-			cladatum = pol->class_val_to_struct[i];
+-
+-			scope =
+-			    hashtab_search(state->base->p_classes_scope.table,
+-					   id);
+-			if (scope == NULL) {
+-				ERR(state->handle,
+-				    "Could not find scope information for class %s",
+-				    id);
+-				return -1;
+-			}
+ 
+ 			fparg.valuep = perm_value;
+ 			fparg.key = NULL;
 -- 
 2.45.1
 
