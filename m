@@ -1,38 +1,105 @@
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
+Received: from flow3-smtp.messagingengine.com (flow3-smtp.messagingengine.com [103.168.172.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0F3E15EA2
-	for <selinux@vger.kernel.org>; Sat,  8 Jun 2024 17:27:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAC7217554;
+	Sun,  9 Jun 2024 10:39:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717867641; cv=none; b=qNJFlkYtVDBF7PC6LWhzFWyYA2j/Z9dn7R1dXfrAR0GtVomCht7Oj0EdRtbCU0xRwKFeZDk7BKMg2JAwa/ttlxPUCduVhc2uqmPKcDs1t0ed9on3F0eTcktlyAu85AXOYl62h21yEFxHdM5DyjZrk49m8pg2A2PFvNjYIP8M7TM=
+	t=1717929588; cv=none; b=ZlPnLeXNeaMAX1GiAh1VccFelQa8PvMFVoJHX6sh5NF0A22y3Qqy0r6SxCYYS4DeycHMdj0JdEpOiQozm8KXTKBjPbtCOGeoMv7EVaU5+/3N9IAt2IP5OXp8SIvti9mCtZhP2VewlVYzRjwL3nf2xC33RmUulN1dHMvSL7w5RN8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717867641; c=relaxed/simple;
-	bh=+nAtKmNWtc01Nz6HAoP04Zpt+jRD9jSlCHS+7h6dx0A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=BonH1SjuY/8prAqznzv87oPzlEVDOAUOJA/3LX3iOgGNo7f9pdFeD1Ju52pWOJNhb46EpztRZ3mfZD3rvZU0upnekAQ9+ZRdR1jTh7Nc+h4wrBucGLL7H9D1D9ttm9O2on8olPpibKgT2Qdwr8QCsCKXqwYiEflj0b21TFqy8sY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=R4itgVbl; arc=none smtp.client-ip=168.119.48.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	s=arc-20240116; t=1717929588; c=relaxed/simple;
+	bh=dKaNr1T+2ZoKYO9xvZbhamHUunp15XF6FR3PVyK6ofs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=YyfpeObEHeB9j2CAM8UpsCuM+iKk0I56wGlpW2MH/hAnK8jjLkZLq6FpteEbqXQdrCHM2eAhzdA2Yj2MK9F1Bi/1Bdm8Gt3601FGGQRuZ9DRVuhMhUhe/eY4Cv08fYv095zJQg37Rz4x7PJC8Dccf1Hswp6OSWn5do/B9Bvk5Ro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=3xx0.net; spf=pass smtp.mailfrom=3xx0.net; dkim=pass (2048-bit key) header.d=3xx0.net header.i=@3xx0.net header.b=A6+uuzE1; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=AoEnVlYQ; arc=none smtp.client-ip=103.168.172.138
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=3xx0.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=3xx0.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="R4itgVbl"
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1717867081;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=WhYBVpDJZZ3zgi+kDDYqAFKCcir/u+FPGgbLKdp/cPw=;
-	b=R4itgVblYqAXLgJBvVQ6dO5Nt4rVKJCmMWqhJ0VsOf6alPBtP/sRd9VtkxUYXsZLfzETii
-	PM0cZbnbLlXS3LDg19uPSK77JyjilVuIXRVRKil0XyDNUSil0zXV7UaDjAWJq3vzX/IrP2
-	VXkSxgh5WGl+B4pS8Q6Lo/DJUQt4Y7V1QQp3A/qDAzJsiq/P/4+0PAVqSbI2Lx4cMPwjcS
-	xpMWLzUvO89gcicsva4SzD1S4rlSZ0jzjkAcXWFLtomVr06Spx2uqCd2yd1qVfw0kKWLJD
-	SCzy0FbHyMdccoNfS1nwSAquQyy97Ss86vP4rEY/vAHW/bG8xI3baJFT925f2A==
-To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH] libsepol: contify function pointer arrays
-Date: Sat,  8 Jun 2024 19:17:39 +0200
-Message-ID: <20240608171739.135501-1-cgoettsche@seltendoof.de>
-Reply-To: cgzones@googlemail.com
+	dkim=pass (2048-bit key) header.d=3xx0.net header.i=@3xx0.net header.b="A6+uuzE1";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="AoEnVlYQ"
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+	by mailflow.nyi.internal (Postfix) with ESMTP id E12AC200151;
+	Sun,  9 Jun 2024 06:39:45 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 09 Jun 2024 06:39:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=3xx0.net; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:message-id:mime-version:reply-to
+	:subject:subject:to:to; s=fm1; t=1717929585; x=1717933185; bh=/O
+	0tfbzHKuHaojRdWTQXNBZb0w0SRZ82f5WuNVpAO8c=; b=A6+uuzE1rHNWSsZTV2
+	nh1GgNpjc352DgFM/jZmNgD1WhF905rYRmEKbvxZUpXDOMmDeBGRo63NyA943gXB
+	ljW4aI2qdH8o9+YWN9GGDLPEsJEvMaLl3TwU6HWh4C0SGTs/DDfsn0FIEBqiS6AA
+	DkZIjmnKSDloyVn9VQDpcrAu6vCm1QK24jjFQpP9/eUnEjws0WhLBrrVh4ZNvIGG
+	k3TMnL3/B9kNLkDUh/ctpKkeDQpzNdUiWe9Hz+703TzBOwdkoVuai/31wZuczjn/
+	YoUIG97TJBy2DJUMfUJgnKU6dZA8tdEX2Nf8gGGUlgq5bUpxralJlmIJH81XI5wH
+	cr6A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
+	:subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+	:x-sasl-enc; s=fm1; t=1717929585; x=1717933185; bh=/O0tfbzHKuHao
+	jRdWTQXNBZb0w0SRZ82f5WuNVpAO8c=; b=AoEnVlYQzmapn7PSxAEaGwMl5HKnC
+	Gi+eLp2B2yPpYpKhrgYJbaf1CNuuBb8Nj0EZn5xeqCj/OYQNpSn0N+Sez1NTsyvE
+	o4zzTqq98s08xqhcKsfLLAqfDAJbkr6QW2qGF56RrKkMycCf4a8NuVxGOQ00A4x4
+	I7coXhOtpc6Np3R/o6XT04/Z2yhSdT2YA1jmCw3fjv+o7vQ4+5NrJ72ELB+9FJRL
+	zUlPUqUz8Z2Mov+4pST/+REpzCp9BeZ8zp5lPOmbYZ5KSpvijRSlJTHWvVBZI804
+	dZWBSTfN7LVZodknvVRVtJNFAN9wg0VZPFxZDHl/e0Q8cgnlMx9XY5L1Q==
+X-ME-Sender: <xms:cYZlZk0NrIt22oj_PCTv7GPk8BKAdSC4CvBNBtXMlKrOds-jXCX6kg>
+    <xme:cYZlZvHzJl2uMqjDCy3roIoo-wPALzr84HqJipIzv4B8BezJaghk90YZwAoLHZaiY
+    m6JB2LvR0uL0Rgub5A>
+X-ME-Received: <xmr:cYZlZs67TIAQXuRvS4LNJsxIfRhJCMyiWqLUXp3W9CszFQYAOSHyy3BskIrFs2z4wP4f_IFOCGRfLW-6pzjocKeQK7xB5wKEeX-c2uzDAIy6Cw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrfedtjedgfedtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvvefufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeflohhnrght
+    hhgrnhcuvegrlhhmvghlshcuoehjtggrlhhmvghlshesfeiggidtrdhnvghtqeenucggtf
+    frrghtthgvrhhnpefhieevtdektdekvdfftdetudejvdejudekffelvdegteejueeujeeu
+    fefhieegfeenucffohhmrghinhepphgrmhgptggrphdrshhopdhkvghrnhgvlhdrohhrgh
+    enucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehjtggr
+    lhhmvghlshesfeiggidtrdhnvght
+X-ME-Proxy: <xmx:cYZlZt12MpxahFlMi53JTtlMs2HyPQa9_US94TsFreIjarv_5keVTg>
+    <xmx:cYZlZnHuRk7vWBuaU_r-RtQjzMj_tt4zI_yGC5SVMw6LoOjX-kDXRA>
+    <xmx:cYZlZm-of11IqdzrJfcOfQNEqi19HaNDmVivU5F753rXVxPN1UYGtw>
+    <xmx:cYZlZskCoHs4JNkY3J6Og298J1wP6jL-wswP_utkz1mzpGJkfCz-1Q>
+    <xmx:cYZlZnGSnk2LavPUrcuXBV7haSMyAl3K3F7V8QEGPjlkJBm2S4l_yIuo>
+Feedback-ID: i76614979:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 9 Jun 2024 06:39:41 -0400 (EDT)
+From: Jonathan Calmels <jcalmels@3xx0.net>
+To: brauner@kernel.org,	ebiederm@xmission.com,
+	Jonathan Corbet <corbet@lwn.net>,	Paul Moore <paul@paul-moore.com>,
+	James Morris <jmorris@namei.org>,	"Serge E. Hallyn" <serge@hallyn.com>,
+	KP Singh <kpsingh@kernel.org>,	Matt Bobrowski <mattbobrowski@google.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Eduard Zingerman <eddyz87@gmail.com>,	Song Liu <song@kernel.org>,
+	Yonghong Song <yonghong.song@linux.dev>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Stanislav Fomichev <sdf@google.com>,	Hao Luo <haoluo@google.com>,
+	Jiri Olsa <jolsa@kernel.org>,	Luis Chamberlain <mcgrof@kernel.org>,
+	Kees Cook <kees@kernel.org>,	Joel Granados <j.granados@samsung.com>,
+	John Johansen <john.johansen@canonical.com>,
+	David Howells <dhowells@redhat.com>,	Jarkko Sakkinen <jarkko@kernel.org>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,	Mykola Lysenko <mykolal@fb.com>,
+	Shuah Khan <shuah@kernel.org>
+Cc: containers@lists.linux.dev,
+	Jonathan Calmels <jcalmels@3xx0.net>,
+	linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-doc@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	bpf@vger.kernel.org,
+	apparmor@lists.ubuntu.com,
+	keyrings@vger.kernel.org,
+	selinux@vger.kernel.org,
+	linux-kselftest@vger.kernel.org
+Subject: [PATCH v2 0/4] Introduce user namespace capabilities
+Date: Sun,  9 Jun 2024 03:43:33 -0700
+Message-ID: <20240609104355.442002-1-jcalmels@3xx0.net>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -42,85 +109,99 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Christian Göttsche <cgzones@googlemail.com>
+This patch series introduces a new user namespace capability set, as
+well as some plumbing around it (i.e. sysctl, secbit, lsm support).
 
-These function pointers are never modified.
+First patch goes over the motivations for this as well as prior art.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+In summary, while user namespaces are a great success today in that they
+avoid running a lot of code as root, they also expand the attack surface
+of the kernel substantially which is often abused by attackers. 
+Methods exist to limit the creation of such namespaces [1], however,
+application developers often need to assume that user namespaces are
+available for various tasks such as sandboxing. Thus, instead of
+restricting the creation of user namespaces, we offer ways for userspace
+to limit the capabilities granted to them.
+
+Why a new capability set and not something specific to the userns (e.g.
+ioctl_ns)?
+
+    1. We can't really expect userspace to patch every single callsite
+    and opt-in this new security mechanism. 
+
+    2. We don't necessarily want policies enforced at said callsites.
+    For example a service like systemd-machined or a PAM session need to
+    be able to place restrictions on any namespace spawned under it.
+
+    3. We would need to come up with inheritance rules, querying
+    capabilities, etc. At this point we're just reinventing capability
+    sets.
+
+    4. We can easily define interactions between capability sets, thus
+    helping with adoption (patch 2 is an example of this)
+
+Some examples of how this could be leveraged in userspace:
+
+    - Prevent user from getting CAP_NET_ADMIN in user namespaces under SSH:
+        echo "auth optional pam_cap.so" >> /etc/pam.d/sshd
+        echo "!cap_net_admin $USER"     >> /etc/security/capability.conf
+        capsh --secbits=$((1 << 8)) -- -c /usr/sbin/sshd
+
+    - Prevent containers from ever getting CAP_DAC_OVERRIDE:
+        systemd-run -p CapabilityBoundingSet=~CAP_DAC_OVERRIDE \
+                    -p SecureBits=userns-strict-caps \
+                    /usr/bin/dockerd
+        systemd-run -p UserNSCapabilities=~CAP_DAC_OVERRIDE \
+                    /usr/bin/incusd
+
+    - Kernel could be vulnerable to CAP_SYS_RAWIO exploits, prevent it:
+        sysctl -w cap_bound_userns_mask=0x1fffffdffff
+
+    - Drop CAP_SYS_ADMIN for this shell and all the user namespaces below it:
+        bwrap --unshare-user --cap-drop CAP_SYS_ADMIN /bin/sh
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7cd4c5c2101cb092db00f61f69d24380cf7a0ee8
+
 ---
- libsepol/src/link.c          | 4 ++--
- libsepol/src/module_to_cil.c | 8 ++++----
- libsepol/src/write.c         | 2 +-
- 3 files changed, 7 insertions(+), 7 deletions(-)
+Changes since v1:
+- Add documentation
+- Change commit wording
+- Cleanup various aspects of the code based on feedback
+- Add new CAP_SYS_CONTROL capability for sysctl check
+- Add BPF-LSM support for modifying userns capabilities
+---
+Jonathan Calmels (4):
+  capabilities: Add user namespace capabilities
+  capabilities: Add securebit to restrict userns caps
+  capabilities: Add sysctl to mask off userns caps
+  bpf,lsm: Allow editing capabilities in BPF-LSM hooks
 
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index b8272308..048d742e 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -749,7 +749,7 @@ static int cat_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 	return 0;
- }
- 
--static int (*copy_callback_f[SYM_NUM]) (hashtab_key_t key,
-+static int (*const copy_callback_f[SYM_NUM]) (hashtab_key_t key,
- 					hashtab_datum_t datum, void *datap) = {
- NULL, class_copy_callback, role_copy_callback, type_copy_callback,
- 	    user_copy_callback, bool_copy_callback, sens_copy_callback,
-@@ -1215,7 +1215,7 @@ static int user_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
- 	return -1;
- }
- 
--static int (*fix_callback_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t datum,
-+static int (*const fix_callback_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t datum,
- 				       void *datap) = {
- NULL, NULL, role_fix_callback, type_fix_callback, user_fix_callback,
- 	    NULL, NULL, NULL};
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 3b3480bf..2dbf137e 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -2951,8 +2951,8 @@ static int ocontexts_to_cil(struct policydb *pdb)
- 	int rc = -1;
- 	int ocon;
- 
--	static int (**ocon_funcs)(struct policydb *pdb, struct ocontext *ocon);
--	static int (*ocon_selinux_funcs[OCON_NUM])(struct policydb *pdb, struct ocontext *ocon) = {
-+	static int (*const *ocon_funcs)(struct policydb *pdb, struct ocontext *ocon);
-+	static int (*const ocon_selinux_funcs[OCON_NUM])(struct policydb *pdb, struct ocontext *ocon) = {
- 		ocontext_selinux_isid_to_cil,
- 		ocontext_selinux_fs_to_cil,
- 		ocontext_selinux_port_to_cil,
-@@ -2963,7 +2963,7 @@ static int ocontexts_to_cil(struct policydb *pdb)
- 		ocontext_selinux_ibpkey_to_cil,
- 		ocontext_selinux_ibendport_to_cil,
- 	};
--	static int (*ocon_xen_funcs[OCON_NUM])(struct policydb *pdb, struct ocontext *ocon) = {
-+	static int (*const ocon_xen_funcs[OCON_NUM])(struct policydb *pdb, struct ocontext *ocon) = {
- 		ocontext_xen_isid_to_cil,
- 		ocontext_xen_pirq_to_cil,
- 		ocontext_xen_ioport_to_cil,
-@@ -3404,7 +3404,7 @@ exit:
- }
- 
- 
--static int (*func_to_cil[SYM_NUM])(int indent, struct policydb *pdb, struct avrule_block *block, struct stack *decl_stack, char *key, void *datum, int scope) = {
-+static int (*const func_to_cil[SYM_NUM])(int indent, struct policydb *pdb, struct avrule_block *block, struct stack *decl_stack, char *key, void *datum, int scope) = {
- 	NULL,	// commons, only stored in the global symtab, handled elsewhere
- 	class_to_cil,
- 	role_to_cil,
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index f8cd9e1d..a52e2e82 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -1344,7 +1344,7 @@ static int user_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 	return POLICYDB_SUCCESS;
- }
- 
--static int (*write_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t datum,
-+static int (*const write_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t datum,
- 				void *datap) = {
- common_write, class_write, role_write, type_write, user_write,
- 	    cond_write_bool, sens_write, cat_write,};
+ Documentation/filesystems/proc.rst            |  1 +
+ Documentation/security/credentials.rst        |  6 ++
+ fs/proc/array.c                               |  9 +++
+ include/linux/cred.h                          |  3 +
+ include/linux/lsm_hook_defs.h                 |  2 +-
+ include/linux/securebits.h                    |  1 +
+ include/linux/security.h                      |  4 +-
+ include/linux/user_namespace.h                |  7 ++
+ include/uapi/linux/capability.h               |  6 +-
+ include/uapi/linux/prctl.h                    |  7 ++
+ include/uapi/linux/securebits.h               | 11 ++-
+ kernel/bpf/bpf_lsm.c                          | 55 +++++++++++++
+ kernel/cred.c                                 |  3 +
+ kernel/sysctl.c                               | 10 +++
+ kernel/umh.c                                  | 15 ++++
+ kernel/user_namespace.c                       | 80 +++++++++++++++++--
+ security/apparmor/lsm.c                       |  2 +-
+ security/commoncap.c                          | 62 +++++++++++++-
+ security/keys/process_keys.c                  |  3 +
+ security/security.c                           |  6 +-
+ security/selinux/hooks.c                      |  2 +-
+ security/selinux/include/classmap.h           |  5 +-
+ .../selftests/bpf/prog_tests/deny_namespace.c | 12 ++-
+ .../selftests/bpf/progs/test_deny_namespace.c |  7 +-
+ 24 files changed, 291 insertions(+), 28 deletions(-)
+
 -- 
-2.45.1
+2.45.2
 
