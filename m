@@ -1,154 +1,153 @@
-Received: from mail-ot1-f45.google.com (mail-ot1-f45.google.com [209.85.210.45])
+Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38E3B22EEF
-	for <selinux@vger.kernel.org>; Mon, 10 Jun 2024 18:14:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49AB21B812
+	for <selinux@vger.kernel.org>; Mon, 10 Jun 2024 20:12:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718043262; cv=none; b=AoxrvCqU8RsdbXDI8dOyG/Er2AtBW7f9rpuYO7K08pHzhV+dTCl6qKBIYOzw45DWEO/IiGpyMd+6CdwlO1TEwrPiL2mcDy0BWucLldc6AgaOkiQ9LL6dkPMQeaJ3Xr8D7LYqVLl4HgPfWN5x4ArGyYqir0blDOT/OX8CWjy4DVA=
+	t=1718050350; cv=none; b=HXnIG69fragqVEcqKbFrMd4pgz7wniT8gFB3ezzBiaVlM4B7HohJiZathgDhoG4E1xN4iS30NMLWIECSsLVUVIQU/akBvKZuMXMPLgjpY7BN5qHb3l7pO64TTb54tPIRYBbLUC5YrF5hoi125SvyMhAKAlQ57rAmKLfMVCXh+gc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718043262; c=relaxed/simple;
-	bh=8leRe8Mpm3gw4yv6n6mivDP0cGB+FrxXAiji3lTIXEw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pJ7OfwtXJpkAnwjimh+q5SPTVrmcKlCdJEq5ZAnacwaTomSY2jbC0Hjx+wpwwsI63/5E6uG+fKx9TZCV7iWp8bjxgv8Li1SvgVgPJWBvhWgX8LwlXF3e0e1GluBanXkHG0SUe1dJ8JpnyYMYEf2GA5rQvvZHIJw+uDaOIIKqXpk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AQBT4zDq; arc=none smtp.client-ip=209.85.210.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1718050350; c=relaxed/simple;
+	bh=b7+MwoWNMLPQ7YyhI/4+4s4P3K4STGUIbLhPZG0Mamc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=U1Ksp9aMobKGY5Nomh1ky6KiPYtSN150cpkubwM9YSQ/S0WiBGXOgi/DnELIcnwBBHtJqxZoHjJvujWFsQNDElFdhHe6QHBmqC+gi/3N28ErHv2shcjFCzAkGXG2gcRrFXC1yK+TNaQ+r7Wh4NAMG9NJ5DNsyuHlle92QUxaULY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=toxicpanda.com; spf=none smtp.mailfrom=toxicpanda.com; dkim=pass (2048-bit key) header.d=toxicpanda-com.20230601.gappssmtp.com header.i=@toxicpanda-com.20230601.gappssmtp.com header.b=LYwY4ug2; arc=none smtp.client-ip=209.85.128.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=toxicpanda.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=toxicpanda.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AQBT4zDq"
-Received: by mail-ot1-f45.google.com with SMTP id 46e09a7af769-6f8d0a1e500so3457703a34.3
-        for <selinux@vger.kernel.org>; Mon, 10 Jun 2024 11:14:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=toxicpanda-com.20230601.gappssmtp.com header.i=@toxicpanda-com.20230601.gappssmtp.com header.b="LYwY4ug2"
+Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-62a087c3a92so48860387b3.2
+        for <selinux@vger.kernel.org>; Mon, 10 Jun 2024 13:12:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1718043260; x=1718648060; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NOK6unOytaZV5IOBcr9JmA0k+OAO0pOD12cvM2kfOAQ=;
-        b=AQBT4zDqlMTMtM4JyNyyVQYyAvQQ4I3qJscg6OfSUaDfvNskxQVATh+jp09X5hfLR0
-         sGEwWXuZ/tQFUcqh6km9U02pE1Xc+u1jjQlLeVZXn3DCE+qhfG3Rr4cNguqXbzcOKgfV
-         2rbKeC59X/ydjY2wNBhi/F8aEsme7/KcdA4gRZFle47vKaCc4v3zOUMUbItJUJPw6kzy
-         P0GaoPcSbUB2ZlEU4NWi4SXwerBv5MPAlFM/M0w/flGXnN62whaLlgnhmrNBXUZdJgdF
-         AIra/afOFXTjEJLUP8EL+bPljiv+QwqP2+NIs/xYaheBFAosEeBb8K9l3bSDFoveM2QE
-         ggvw==
+        d=toxicpanda-com.20230601.gappssmtp.com; s=20230601; t=1718050348; x=1718655148; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=q8U88OhWZh1tCo+0WQ1tID8xLxoIwnJftDZHFtRwK3o=;
+        b=LYwY4ug2iL/vJ4DIUm0/Hp2MvpGURHFsHfCR8hKgvsmAqgzRPxBeFZzp5Tfo48EbCo
+         Euj3YFKE98R3xDK+TVi4X08MQrChZxoR0ZdwAIKYcBEyuT6J6pRA6MFIWpmGlK1QH6yk
+         ayaE24UINt0NKI07iU6nbvvP+ur4CK0DddjWE0Gtpl8JlrD2yRSechl/xjLYVx0XPb6G
+         i76retKit/NIZmraE8AuogV1B4ponmQt72v7gY3tzehh7ckEOuDJ8LHGOKzXVFo5n2E+
+         4LMkjHweMxF1v6LeN1NaZpvEMI8QBe5KxGttDTh645mywME2cc7oJs1j5M/rPYABPg7M
+         UNcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718043260; x=1718648060;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NOK6unOytaZV5IOBcr9JmA0k+OAO0pOD12cvM2kfOAQ=;
-        b=qAxJLxuR1HAbzvMl03vHsCYZWgLWnpvNBSCfKuBX2lAWPH/oM5UR8Ybfm0IWyEUJco
-         65tguFFNsel8EnORCEM2n1WeIbnnQRvvLHDttv9VcK22LgwhPBwnYURsMh/Az4biYF8I
-         jY0W78RvuM3xveGL/afO9zZ2SpETwhOMKMs0CaeL1PS4Yym/FcQOdTDv19yYV4iIPQpg
-         CUkMyOo1CPxDeHIDwhgHmzeNqbGkD2b18d/wzRfwVoPHTdXRKuNBeUYKF1PXGQqcy+Ij
-         BHDsLfw5MFRGZ/9tPqD6fy9FuT1nGZpwhxScdeR1fhDW89Dq68FRGwTOiQc2KvoefZ9e
-         b27g==
-X-Gm-Message-State: AOJu0YzsgJiin3j21DYdzcaUeHaz+T/PB88el+UbVoWpsBUwQFWrb6YW
-	tLZneMXPQzkXb58vw6rrraoIes3weo3z6syBLazg5npcnYycB+ScE75l/RSsJySAqYJvgFErVbv
-	XOlM1bXy7LuJr9IFI/QFKjEk8pZQ=
-X-Google-Smtp-Source: AGHT+IFUrp2TJYd1zeOoJZvwig3bvWsY7dSdWHMUIoTwGWR/1Q41d7JPbq3LYVgW6S1FEr5THhmYJ2uqpUrid4y1WXI=
-X-Received: by 2002:a05:6808:1b1f:b0:3d2:2e33:9a63 with SMTP id
- 5614622812f47-3d22e33a94amr2554540b6e.46.1718043260133; Mon, 10 Jun 2024
- 11:14:20 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1718050348; x=1718655148;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=q8U88OhWZh1tCo+0WQ1tID8xLxoIwnJftDZHFtRwK3o=;
+        b=RQ4OrjTB3pdfHj28FkFD3qUszWsgyN4HQGGkJX84NZOLlUyQRN1W9GLyPRkCQDMmj2
+         rKh5nICsanYDKmsWJaYH9jUO1uhgZMKf7v6XpQ2JLxPL5OE0hGTyoLQnCyQlvtcHmag4
+         9w0s7ERLjTYeCbA9lzOqWtEQpIIyZa930RbGUGOhBzqVIK6GHH9tUE3u0f6GxS7mBeAM
+         ZrGi+NpEfzd1Qfkq1LRusr5JNt4Vpss+77l8282AvAwHDSeGp503fYuoe+zuTEfVBJbn
+         PO+VMlV5V1P1QbvBlJPkeTmsqkkWO9KVc+8zKBwLRoP9mAZHOSnGvEvEwG79JSJMFTtH
+         2HNA==
+X-Forwarded-Encrypted: i=1; AJvYcCX1Bf5/2eoiUpGay1e5HKQWV45vQUvotftZ7QKSzFBganynET9HSgl0milXVtWLkXoLj5TYsJn2mV8wvB4GWcWda6xh3B27og==
+X-Gm-Message-State: AOJu0YwnWpuBBDwJaxRMepd4d60BLoy3rmqT4xjUp/XOsG0yn8V+y4c2
+	ovaiiJmnIByt56e02itMnB/FNjAmYgLfQxpoW/EDK6HUhQTjhnSUZuJQJ3rQ+Hc=
+X-Google-Smtp-Source: AGHT+IHAq2uat/BxStlvycvWIMemf9chq6bKvr5RgwVh7JekY7oKEJ33MFsCJYBOa4s18l+17nIrDA==
+X-Received: by 2002:a81:ef0e:0:b0:61a:f206:bad6 with SMTP id 00721157ae682-62cd55f6755mr90104707b3.30.1718050348318;
+        Mon, 10 Jun 2024 13:12:28 -0700 (PDT)
+Received: from localhost (syn-076-182-020-124.res.spectrum.com. [76.182.20.124])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-62ccaef2825sm17372997b3.139.2024.06.10.13.12.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Jun 2024 13:12:27 -0700 (PDT)
+Date: Mon, 10 Jun 2024 16:12:27 -0400
+From: Josef Bacik <josef@toxicpanda.com>
+To: Jonathan Calmels <jcalmels@3xx0.net>
+Cc: brauner@kernel.org, ebiederm@xmission.com,
+	Jonathan Corbet <corbet@lwn.net>, Paul Moore <paul@paul-moore.com>,
+	James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>, KP Singh <kpsingh@kernel.org>,
+	Matt Bobrowski <mattbobrowski@google.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
+	Yonghong Song <yonghong.song@linux.dev>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
+	Jiri Olsa <jolsa@kernel.org>, Luis Chamberlain <mcgrof@kernel.org>,
+	Kees Cook <kees@kernel.org>, Joel Granados <j.granados@samsung.com>,
+	John Johansen <john.johansen@canonical.com>,
+	David Howells <dhowells@redhat.com>,
+	Jarkko Sakkinen <jarkko@kernel.org>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>,
+	containers@lists.linux.dev, linux-kernel@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, linux-doc@vger.kernel.org,
+	linux-security-module@vger.kernel.org, bpf@vger.kernel.org,
+	apparmor@lists.ubuntu.com, keyrings@vger.kernel.org,
+	selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH v2 0/4] Introduce user namespace capabilities
+Message-ID: <20240610201227.GD235772@perftesting>
+References: <20240609104355.442002-1-jcalmels@3xx0.net>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240606095039.50456-1-lautrbach@redhat.com>
-In-Reply-To: <20240606095039.50456-1-lautrbach@redhat.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Mon, 10 Jun 2024 14:14:09 -0400
-Message-ID: <CAP+JOzQLqRBsnssdHwUJK8===J5sQ67hEpfE5i4z8BJCKgn65g@mail.gmail.com>
-Subject: Re: [PATCH] fixfiles: drop unnecessary \ line endings
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240609104355.442002-1-jcalmels@3xx0.net>
 
-On Thu, Jun 6, 2024 at 5:51=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.com=
-> wrote:
->
-> See https://github.com/koalaman/shellcheck/issues/2769
->
-> Fixes:
->     $ shellcheck -S error fixfiles
->
->     In fixfiles line 189:
->             # These two sorts need to be separate commands \
->                                                             ^-- SC1143 (e=
-rror): This backslash is part of a comment and does not continue the line.
->
->     For more information:
->       https://www.shellcheck.net/wiki/SC1143 -- This backslash is part of=
- a comme...
->
-> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+On Sun, Jun 09, 2024 at 03:43:33AM -0700, Jonathan Calmels wrote:
+> This patch series introduces a new user namespace capability set, as
+> well as some plumbing around it (i.e. sysctl, secbit, lsm support).
+> 
+> First patch goes over the motivations for this as well as prior art.
+> 
+> In summary, while user namespaces are a great success today in that they
+> avoid running a lot of code as root, they also expand the attack surface
+> of the kernel substantially which is often abused by attackers. 
+> Methods exist to limit the creation of such namespaces [1], however,
+> application developers often need to assume that user namespaces are
+> available for various tasks such as sandboxing. Thus, instead of
+> restricting the creation of user namespaces, we offer ways for userspace
+> to limit the capabilities granted to them.
+> 
+> Why a new capability set and not something specific to the userns (e.g.
+> ioctl_ns)?
+> 
+>     1. We can't really expect userspace to patch every single callsite
+>     and opt-in this new security mechanism. 
+> 
+>     2. We don't necessarily want policies enforced at said callsites.
+>     For example a service like systemd-machined or a PAM session need to
+>     be able to place restrictions on any namespace spawned under it.
+> 
+>     3. We would need to come up with inheritance rules, querying
+>     capabilities, etc. At this point we're just reinventing capability
+>     sets.
+> 
+>     4. We can easily define interactions between capability sets, thus
+>     helping with adoption (patch 2 is an example of this)
+> 
+> Some examples of how this could be leveraged in userspace:
+> 
+>     - Prevent user from getting CAP_NET_ADMIN in user namespaces under SSH:
+>         echo "auth optional pam_cap.so" >> /etc/pam.d/sshd
+>         echo "!cap_net_admin $USER"     >> /etc/security/capability.conf
+>         capsh --secbits=$((1 << 8)) -- -c /usr/sbin/sshd
+> 
+>     - Prevent containers from ever getting CAP_DAC_OVERRIDE:
+>         systemd-run -p CapabilityBoundingSet=~CAP_DAC_OVERRIDE \
+>                     -p SecureBits=userns-strict-caps \
+>                     /usr/bin/dockerd
+>         systemd-run -p UserNSCapabilities=~CAP_DAC_OVERRIDE \
+>                     /usr/bin/incusd
+> 
+>     - Kernel could be vulnerable to CAP_SYS_RAWIO exploits, prevent it:
+>         sysctl -w cap_bound_userns_mask=0x1fffffdffff
+> 
+>     - Drop CAP_SYS_ADMIN for this shell and all the user namespaces below it:
+>         bwrap --unshare-user --cap-drop CAP_SYS_ADMIN /bin/sh
+> 
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Where are the tests for this patchset?  I see you updated the bpf tests for the
+bpf lsm bits, but there's nothing to validate this new behavior or exercise the
+new ioctl you've added.  Thanks,
 
-> ---
->  policycoreutils/scripts/fixfiles | 32 ++++++++++++++++----------------
->  1 file changed, 16 insertions(+), 16 deletions(-)
->
-> diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/f=
-ixfiles
-> index 166af6f360a2..cb50fef3ca65 100755
-> --- a/policycoreutils/scripts/fixfiles
-> +++ b/policycoreutils/scripts/fixfiles
-> @@ -173,10 +173,10 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
->         test -z "$TEMPFILE" && exit
->         PREFCTEMPFILE=3D`mktemp ${PREFC}.XXXXXXXXXX`
->         sed -r -e 's,:s0, ,g' $PREFC | sort -u > ${PREFCTEMPFILE}
-> -       sed -r -e 's,:s0, ,g' $FC | sort -u | \
-> -       /usr/bin/diff -b ${PREFCTEMPFILE} - | \
-> -           grep '^[<>]'|cut -c3-| grep ^/ | \
-> -           grep -Ev '(^/home|^/root|^/tmp)' |\
-> +       sed -r -e 's,:s0, ,g' $FC | sort -u |
-> +       /usr/bin/diff -b ${PREFCTEMPFILE} - |
-> +           grep '^[<>]'|cut -c3-| grep ^/ |
-> +           grep -Ev '(^/home|^/root|^/tmp)' |
->         sed -r -e 's,[[:blank:]].*,,g' \
->                -e 's|\(([/[:alnum:]]+)\)\?|{\1,}|g' \
->                -e 's|([/[:alnum:]])\?|{\1,}|g' \
-> @@ -185,19 +185,19 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
->                -e 's|\(.*|*|g' \
->                -e 's|\[.*|*|g' \
->                -e 's|\.\*.*|*|g' \
-> -              -e 's|\.\+.*|*|g' | \
-> -           # These two sorts need to be separate commands \
-> -       sort -u | \
-> -       sort -d | \
-> -       while read pattern ; \
-> -           do if ! echo "$pattern" | grep -q -f ${TEMPFILE} 2>/dev/null;=
- then \
-> -                 echo "$pattern"; \
-> -                 case "$pattern" in *"*") \
-> +              -e 's|\.\+.*|*|g' |
-> +           # These two sorts need to be separate commands
-> +       sort -u |
-> +       sort -d |
-> +       while read pattern ;
-> +           do if ! echo "$pattern" | grep -q -f ${TEMPFILE} 2>/dev/null;=
- then
-> +                 echo "$pattern";
-> +                 case "$pattern" in *"*")
->                        echo "$pattern" | sed -e 's,^,^,' -e 's,\*$,,g' >>=
- ${TEMPFILE};;
-> -                 esac; \
-> -              fi; \
-> -           done | \
-> -       ${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $=
-* -i -R -f -; \
-> +                 esac;
-> +              fi;
-> +           done |
-> +       ${RESTORECON} ${VERBOSE} ${EXCLUDEDIRS} ${FORCEFLAG} ${THREADS} $=
-* -i -R -f -;
->         rm -f ${TEMPFILE} ${PREFCTEMPFILE}
->  fi
->  }
-> --
-> 2.45.2
->
->
+Josef
