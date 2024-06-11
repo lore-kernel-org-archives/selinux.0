@@ -1,172 +1,196 @@
-Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com [209.85.222.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 985034315B
-	for <selinux@vger.kernel.org>; Tue, 11 Jun 2024 17:13:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 560FE249E5
+	for <selinux@vger.kernel.org>; Tue, 11 Jun 2024 18:25:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718125990; cv=none; b=rmhwgtS7khXNfIW2WEM5iCAn/uUq+szbvIzOOzHRBRtkYdIZNQ6pcnB1OgKxciHpq19glEbqRC8Vl0znfsl+yodmQuJu49+fXFLiBfit4uHOd2OwCeHptPWhRDCeGOfqMGbyE0qeTKFRRSw5LJ9QY1ocjxDXzyuiZCGdHE7i06Q=
+	t=1718130359; cv=none; b=WueGytOCJ6r1u0u5gfb8NcsdSb8Sj0L90UNHuWvqDlOgvx5pipr3OirsMRpIV5HxCIi+faxrP87HIdsulVzEn3e+z6KoW3KORTnMchSmAMWnsucm48I2lUk0JQrXQ+YO5czq7UOLjgHxP0pt4G2EnUQlUDjRS2YnazbLhKNqunI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718125990; c=relaxed/simple;
-	bh=FLLL/i8E2UXzLr12JBZYcLTpB/iMpWxvltq6cSZ9SHo=;
+	s=arc-20240116; t=1718130359; c=relaxed/simple;
+	bh=Wgo1dAJDge0MRIk0FPWox1ptqh9lKjJPVdWPjlgqE20=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rHp2CSCfOS9i992GCMsS8SLHUDdt6t/ZiWP5GErXtrZ7CRllcX3yDQZ5EfQOZemhJ326Tp7Pbp9mkOBWsGusrz1TZXBCxgxZcPaiK/o+15Hp+CTqoLW5FVqgLPjarADe/qB24+X1OEDVDHDzNwgDHkGsZblIXTCIIf1p2IKptnM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ezF6JDZH; arc=none smtp.client-ip=209.85.160.175
+	 To:Cc:Content-Type; b=Et2M6Bvxh6UXvznxvDidCqAacfc9QuMmDSEA4iqUOZz9QMTkVA6AH/5k8qIATtpsJGRRyDGPBh3pQ8G14wWxtSPlb8mOzyHKQyu99j7Hz8TXH46ffelaABR/zTSTLmBZJZLKrg5BvLKZcN/Gs1XkCf1Gu5BHvbrTXkdjzeOxqG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nZHocSgX; arc=none smtp.client-ip=209.85.222.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ezF6JDZH"
-Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-4405fb741ccso373491cf.1
-        for <selinux@vger.kernel.org>; Tue, 11 Jun 2024 10:13:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nZHocSgX"
+Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-80ae49954d3so1518371241.1
+        for <selinux@vger.kernel.org>; Tue, 11 Jun 2024 11:25:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1718125987; x=1718730787; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1718130357; x=1718735157; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Hjf23uHllzVqVdtUKTr+ruuGq1i83PYwuKbaCDWmT4o=;
-        b=ezF6JDZHuw0FlB+sRcjxZZTnajtuuOo7vryUNhWtgBp1eaYm6uS28Xgwkt6VLXOoeS
-         cgMs3gJNNS54kdvhs02GhlfzAPTmCrwhwnNm/JHn4UPtf0fQgPux7Dcb63NMyHe34bm5
-         lLZxwy8PqFZ03hj7w+sZw+yTg64/MHshTgt0b6EVBBpbx44W8j7RPfdQWgGYY7P7ax7e
-         s0k/AdHw4PkOrqXCRWtwVpTN3eHEVUP61sF7Gx4wV54+MA/HH+QMCZX8MfOBh0mGbqj2
-         3RivnhxEXdmqdDYwfldzIkcay//ovno1MQ9GDTAaX6RMty8zlRHCZw0qPDtRhA01pxD0
-         +WSA==
+        bh=MoZRY1vnie/n0RlxPBvb+SSCf8FCqlnPW6PLAX91/QM=;
+        b=nZHocSgX3mTT5UsIBUhbAnFZoNAVDz4SXicrHTRbtp/ZGc/1YKnjrAD/6ce+MyRRFF
+         c9PgfgOYGdHXosLkHy/GgGXPrtw5TSs42cqV3SC4nTqmiuTlWRBoPHesDw4U0umxotmk
+         YvOPoUFykxd3pxgR/LfQXzxh+Jq1eY10Hjw4CiLmTZi0QH6//cXcUlsoZUlFr9G1Uw36
+         EWWTSyLJWxkboqs/sdKIS7JYGwyTyoGcHFvZHK9gB60JykUpyuByaGm90HpL39mWOAGi
+         IMO95f3ju/LiIUa2n/PJ08XI2/B4Bt9/edz94iGAs1FdSWBdmV1m2NJrpJNujtjGjRIb
+         XMmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718125987; x=1718730787;
+        d=1e100.net; s=20230601; t=1718130357; x=1718735157;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Hjf23uHllzVqVdtUKTr+ruuGq1i83PYwuKbaCDWmT4o=;
-        b=IwGq7MKyUglxXKJK3cxTTBDe/bG7Yln2BOdT4AkptfNDr+FEZyjGWG0KzAO3XlBBom
-         6ZGsx1ucyvFYyrdQ5QJYYgROq+NZMY6HVdxwFM9uMKVonyhJbyfxPxYLKMtKSwu9QDtb
-         70A3CSXTihAUYsKJLJM0Y6KIl3ncRMKrwq6CXDNP+a44w+uc/N1bN50UeMuIJCvq4jFp
-         QaG0FCd6KOFMBQiECjqN4VpMePez648WvblSHoAzxPA82A02XVUrW/buulKEoKB/+ZyL
-         PL5jhaNUv9H8FxO2tzX9LFDKE6tIuH7mBJWi8MAhKFhUafcOayzKXRRsYDLos2w7iW0y
-         35xw==
-X-Gm-Message-State: AOJu0YwisNUGy+kiF816uaxWalSrMSUgcfOEVn7qICDco1CoGSWKgVYk
-	khuW6Su/tduWoohR4FIsiKMj9g46yn77vJaPDjCgVEXGp6o4AP1p7Jwa0DndBXaK9CP2FNRjTIb
-	d+vxBgWJGq4NeC5X8iYCvG9cSf//7WLTp
-X-Google-Smtp-Source: AGHT+IG0ytYpwGwpbeev2n4FI/yLVfIqWL5pR3sPrWIFsiGFqGCNJW19+jiixRNdxTaN5U/zZxqPyT8kCMFo0aqj7yg=
-X-Received: by 2002:ac8:5843:0:b0:440:6592:64b7 with SMTP id
- d75a77b69052e-4413aeb2966mr46524001cf.17.1718125987340; Tue, 11 Jun 2024
- 10:13:07 -0700 (PDT)
+        bh=MoZRY1vnie/n0RlxPBvb+SSCf8FCqlnPW6PLAX91/QM=;
+        b=K6IAZP+9hrHfF+KbRMCnYMDgfRMhFtx7FgSmpJ+YWrjW8XfkVpVXS+VLvXfRF6rM0S
+         lEs4Rp0MgInZfMSuE06o7Ka6y+fN0vAvznhK6EbmIc8HrAMamMu8nrAwV+9b/W/ISvPj
+         ipcKbWahH4n9P801LJ175DjN6RkHUIn3Oj6dJ6hVE8UNM7Polh4ucDlX1/wxbzicoWGK
+         4vwBKv7b8KIAnDtcfYYZ0qxJyit/y9H7wbewDkDOKkYaPCWU6lTvl9yK/jCtlfXEOD/1
+         HkTIeNCIJLvM6nthvduH8pvhYmmaCCkuGmu95+QUyIrDtdxRAJpUIHy3vjR1J6lawjyk
+         632w==
+X-Gm-Message-State: AOJu0Yz1ifvCQzEBGcAJYSUYb3rOq6wXD4BNhmADVJh48hTKFdB7/qzw
+	Bq1qayoxpYdUgYBBu5GcMQYPYxUXd8zsS/92fKVDbkXsDWkvN6v30zm1glo9I75yFjzpgnGJnZH
+	4GIsonBwDi2rRm+Ps09Lx0TdBv0RUOQ==
+X-Google-Smtp-Source: AGHT+IEFdGHfVqCy9vhrM4N3lGTFgO3+PJaDQheMYb4SqLEOcykQEDJ7JxxRwzOwZ8cdTQrRVayxWXbv9ZJy+jFJ9rQ=
+X-Received: by 2002:a67:fd53:0:b0:48c:3c3a:55a4 with SMTP id
+ ada2fe7eead31-48c3c3a578cmr8303332137.35.1718130357266; Tue, 11 Jun 2024
+ 11:25:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240608171923.136765-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20240608171923.136765-1-cgoettsche@seltendoof.de>
+References: <20240608172142.138894-1-cgoettsche@seltendoof.de> <20240608172142.138894-2-cgoettsche@seltendoof.de>
+In-Reply-To: <20240608172142.138894-2-cgoettsche@seltendoof.de>
 From: James Carter <jwcart2@gmail.com>
-Date: Tue, 11 Jun 2024 13:14:30 -0400
-Message-ID: <CAP+JOzT2Fo3T8zzdCCaLZKdximUCWC6My3ZzoNqhsDhiSV0c4A@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: hashtab: save one comparison on hit
+Date: Tue, 11 Jun 2024 14:27:19 -0400
+Message-ID: <CAP+JOzSOa4DRcZprPSMmY0FKUaVrqfdRgO6v_LVWs1ke=LXtbg@mail.gmail.com>
+Subject: Re: [PATCH 2/2] libsepol: rework permission enabled check
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jun 8, 2024 at 1:19=E2=80=AFPM Christian G=C3=B6ttsche
+On Sat, Jun 8, 2024 at 1:22=E2=80=AFPM Christian G=C3=B6ttsche
 <cgoettsche@seltendoof.de> wrote:
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> When the comparison function returns 0, avoid a repeated call to it.
+> Check the class is defined once, and not for every permission via
+> is_perm_enabled(). Also pass the class datum to avoid an unnecessary
+> name lookup.
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-
-Acked-by: James Carter <jwcart2@gmail.com>
-
 > ---
->  libsepol/src/hashtab.c | 53 +++++++++++++++++++++++++-----------------
->  1 file changed, 32 insertions(+), 21 deletions(-)
+>  .../include/sepol/policydb/avrule_block.h     |  4 +--
+>  libsepol/src/avrule_block.c                   | 27 +++++++------------
+>  libsepol/src/link.c                           |  6 ++++-
+>  3 files changed, 17 insertions(+), 20 deletions(-)
 >
-> diff --git a/libsepol/src/hashtab.c b/libsepol/src/hashtab.c
-> index 2af3a9bf..399582b1 100644
-> --- a/libsepol/src/hashtab.c
-> +++ b/libsepol/src/hashtab.c
-> @@ -112,15 +112,17 @@ int hashtab_insert(hashtab_t h, hashtab_key_t key, =
-hashtab_datum_t datum)
->         hashtab_check_resize(h);
+> diff --git a/libsepol/include/sepol/policydb/avrule_block.h b/libsepol/in=
+clude/sepol/policydb/avrule_block.h
+> index 27047d43..18a1dc78 100644
+> --- a/libsepol/include/sepol/policydb/avrule_block.h
+> +++ b/libsepol/include/sepol/policydb/avrule_block.h
+> @@ -35,8 +35,8 @@ extern avrule_decl_t *get_avrule_decl(policydb_t * p, u=
+int32_t decl_id);
+>  extern cond_list_t *get_decl_cond_list(policydb_t * p,
+>                                        avrule_decl_t * decl,
+>                                        cond_list_t * cond);
+> -extern int is_id_enabled(char *id, policydb_t * p, int symbol_table);
+> -extern int is_perm_enabled(char *class_id, char *perm_id, policydb_t * p=
+);
+> +extern int is_id_enabled(const char *id, const policydb_t * p, int symbo=
+l_table);
+> +extern int is_perm_existent(const class_datum_t *cladatum, const char *p=
+erm_id);
 >
->         hvalue =3D h->hash_value(h, key);
-> -       prev =3D NULL;
-> -       cur =3D h->htable[hvalue];
-> -       while (cur && h->keycmp(h, key, cur->key) > 0) {
-> -               prev =3D cur;
-> -               cur =3D cur->next;
-> -       }
+>  #ifdef __cplusplus
+>  }
+> diff --git a/libsepol/src/avrule_block.c b/libsepol/src/avrule_block.c
+> index dcfce8b8..547021e9 100644
+> --- a/libsepol/src/avrule_block.c
+> +++ b/libsepol/src/avrule_block.c
+> @@ -152,11 +152,11 @@ cond_list_t *get_decl_cond_list(policydb_t * p, avr=
+ule_decl_t * decl,
+>   * marked as SCOPE_DECL, and any of its declaring block has been enabled=
+,
+>   * then return 1.  Otherwise return 0. Can only be called after the
+>   * decl_val_to_struct index has been created */
+> -int is_id_enabled(char *id, policydb_t * p, int symbol_table)
+> +int is_id_enabled(const char *id, const policydb_t * p, int symbol_table=
+)
+>  {
+> -       scope_datum_t *scope =3D
+> +       const scope_datum_t *scope =3D
+>             (scope_datum_t *) hashtab_search(p->scope[symbol_table].table=
+, id);
+> -       avrule_decl_t *decl;
+> +       const avrule_decl_t *decl;
+>         uint32_t len;
 >
-> -       if (cur && (h->keycmp(h, key, cur->key) =3D=3D 0))
-> -               return SEPOL_EEXIST;
-> +       for (prev =3D NULL, cur =3D h->htable[hvalue]; cur; prev =3D cur,=
- cur =3D cur->next) {
-> +               int cmp;
-> +
-> +               cmp =3D h->keycmp(h, key, cur->key);
-> +               if (cmp > 0)
-> +                       continue;
-> +               if (cmp =3D=3D 0)
-> +                       return SEPOL_EEXIST;
-> +               break;
-> +       }
->
->         newnode =3D (hashtab_ptr_t) malloc(sizeof(hashtab_node_t));
->         if (newnode =3D=3D NULL)
-> @@ -151,14 +153,19 @@ int hashtab_remove(hashtab_t h, hashtab_key_t key,
->                 return SEPOL_ENOENT;
->
->         hvalue =3D h->hash_value(h, key);
-> -       last =3D NULL;
-> -       cur =3D h->htable[hvalue];
-> -       while (cur !=3D NULL && h->keycmp(h, key, cur->key) > 0) {
-> -               last =3D cur;
-> -               cur =3D cur->next;
-> +
-> +       for (last =3D NULL, cur =3D h->htable[hvalue]; cur; last =3D cur,=
- cur =3D cur->next) {
-> +               int cmp;
-> +
-> +               cmp =3D h->keycmp(h, key, cur->key);
-> +               if (cmp > 0)
-> +                       continue;
-> +               if (cmp =3D=3D 0)
-> +                       break;
-> +               return SEPOL_ENOENT;
->         }
->
-> -       if (cur =3D=3D NULL || (h->keycmp(h, key, cur->key) !=3D 0))
-> +       if (cur =3D=3D NULL)
->                 return SEPOL_ENOENT;
->
->         if (last =3D=3D NULL)
-> @@ -183,14 +190,18 @@ hashtab_datum_t hashtab_search(hashtab_t h, const_h=
-ashtab_key_t key)
->                 return NULL;
->
->         hvalue =3D h->hash_value(h, key);
-> -       cur =3D h->htable[hvalue];
-> -       while (cur !=3D NULL && h->keycmp(h, key, cur->key) > 0)
-> -               cur =3D cur->next;
-> -
-> -       if (cur =3D=3D NULL || (h->keycmp(h, key, cur->key) !=3D 0))
-> -               return NULL;
-> +       for (cur =3D h->htable[hvalue]; cur; cur =3D cur->next) {
-> +               int cmp;
-> +
-> +               cmp =3D h->keycmp(h, key, cur->key);
-> +               if (cmp > 0)
-> +                       continue;
-> +               if (cmp =3D=3D 0)
-> +                       return cur->datum;
-> +               break;
-> +       }
->
-> -       return cur->datum;
-> +       return NULL;
+>         if (scope =3D=3D NULL) {
+> @@ -189,21 +189,14 @@ int is_id_enabled(char *id, policydb_t * p, int sym=
+bol_table)
+>         return 0;
 >  }
 >
->  void hashtab_destroy(hashtab_t h)
+> -/* Check if a particular permission is present within the given class,
+> - * and that the class is enabled.  Returns 1 if both conditions are
+> - * true, 0 if neither could be found or if the class id disabled. */
+> -int is_perm_enabled(char *class_id, char *perm_id, policydb_t * p)
+> +/* Check if a particular permission is present within the given class.
+> + * Whether the class is enabled is NOT checked.
+> + * Returns 1 if both conditions are true,
+> + * 0 if neither could be found or if the class id disabled. */
+
+It returns 0 only if the permission is not found.
+
+Everything else looks good to me.
+Thanks,
+Jim
+
+
+> +int is_perm_existent(const class_datum_t *cladatum, const char *perm_id)
+>  {
+> -       class_datum_t *cladatum;
+> -       perm_datum_t *perm;
+> -       if (!is_id_enabled(class_id, p, SYM_CLASSES)) {
+> -               return 0;
+> -       }
+> -       cladatum =3D
+> -           (class_datum_t *) hashtab_search(p->p_classes.table, class_id=
+);
+> -       if (cladatum =3D=3D NULL) {
+> -               return 0;
+> -       }
+> +       const perm_datum_t *perm;
+> +
+>         perm =3D hashtab_search(cladatum->permissions.table, perm_id);
+>         if (perm =3D=3D NULL && cladatum->comdatum !=3D 0) {
+>                 /* permission was not in this class.  before giving
+> diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+> index a6f2a251..9281a986 100644
+> --- a/libsepol/src/link.c
+> +++ b/libsepol/src/link.c
+> @@ -1968,6 +1968,10 @@ static int is_decl_requires_met(link_state_t * sta=
+te,
+>                 id =3D pol->p_class_val_to_name[i];
+>
+>
+> +               if (!is_id_enabled(id, state->base, SYM_CLASSES)) {
+> +                       return 0;
+> +               }
+> +
+>                 scope =3D hashtab_search(state->base->p_classes_scope.tab=
+le, id);
+>                 if (scope =3D=3D NULL) {
+>                         ERR(state->handle,
+> @@ -1994,7 +1998,7 @@ static int is_decl_requires_met(link_state_t * stat=
+e,
+>                         perm_id =3D fparg.key;
+>
+>                         assert(perm_id !=3D NULL);
+> -                       if (!is_perm_enabled(id, perm_id, state->base)) {
+> +                       if (!is_perm_existent(cladatum, perm_id)) {
+>                                 if (req !=3D NULL) {
+>                                         req->symbol_type =3D SYM_CLASSES;
+>                                         req->symbol_value =3D i + 1;
 > --
 > 2.45.1
 >
