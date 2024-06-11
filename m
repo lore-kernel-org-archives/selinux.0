@@ -1,105 +1,158 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from wflow1-smtp.messagingengine.com (wflow1-smtp.messagingengine.com [64.147.123.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFA9717545;
-	Mon, 10 Jun 2024 23:01:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8680F2AF11;
+	Tue, 11 Jun 2024 08:04:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=64.147.123.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718060508; cv=none; b=ckhifRV77swfR9hBzi3Ec7WzqH8bUtuaJYthL1nV2kcwCJH85FYuAd1pNPvplv4QA9pUrpebWyjB1kfMql0DsESsLXlL0GY6Q/FUIFtp/onCtsWAWVJBKgPlkce7JxbnJspX0vZLmH1+uSVwbDZa1EfkVDo3qwCfqG4CAPMnO7o=
+	t=1718093058; cv=none; b=LpRQaluXdGoY9wdkM0LDCP2nWoyRcndKsrHuryRKk/9BpO26aPUQcJsshSSGXdaZspDc97Dg/GhP3aftLokTGPDCgWfi3uoenQZWotQitOda0av5MHwuVXxgzXf02rk/LqgCNc1caiakLGW2QuH1BlD5PRSZUlUZL3GUFS9GwwQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718060508; c=relaxed/simple;
-	bh=ls7HTQ+/jbzpvqw5yh4Yy1Cb/Btht+DdhN/vrACOwIg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kgQwm4NwyjrcgkCAfTzKYYHBpxY0zSLjn9OF08xTzEYaKrMff4tF6RALinZj7qt35Hf1Sgot/jDSD2OnhpAmEtvGz60lw9NBiCK5gt5c0tqVGP2IgG45WkkM2WrJZ9fG6CLoKvy0Cc39BFKQQfgI/lHg7CGoHt8UMAS1fpKiQYg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EPHqPPzM; arc=none smtp.client-ip=209.85.221.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1718093058; c=relaxed/simple;
+	bh=i5PCbp0/q6PWz4TVWQpu/XHWdtU4gQtsM/eIXXS5bCo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ndaXJxABZVuXLCM7HDiVozNF3AcEvkenzxNJktu9GPWi5pNyxrhh/Z0cJ0cv6bJgTbW09F3os1xaPZ+kMeEQg3S54G/hR7e3meuB6edA/LcQu9eK+iEdINOcass02d2GF55W6Ezj8UdgVrWOfebkwfhxvQ3ESqrANUImEp2FsKA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=3xx0.net; spf=pass smtp.mailfrom=3xx0.net; dkim=pass (2048-bit key) header.d=3xx0.net header.i=@3xx0.net header.b=mZQbjnu5; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=CSZrK0Kd; arc=none smtp.client-ip=64.147.123.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=3xx0.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=3xx0.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EPHqPPzM"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-354be94c874so348980f8f.3;
-        Mon, 10 Jun 2024 16:01:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1718060505; x=1718665305; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ls7HTQ+/jbzpvqw5yh4Yy1Cb/Btht+DdhN/vrACOwIg=;
-        b=EPHqPPzMRMtgNgc1IFkone2e2fgn5zwJresoDmHoi7KgEpiytQXHoNCYxCZ8kAyPZh
-         SCQfoBiGOUueYsgcYJ+a6ALOKbOCpFvRNJlO1J1XsfclePBznS94f41SmR9M99W4Fpxt
-         lVzSLppQKP0ZLggixrdEnCxPFtO2Nf7r+eHmLudL2JqjDl+PlEbfO7dftsxjZ3lktn2T
-         L5oKqcb1rvY/EVn6pRMDGbAusdqSXigaYGaIDoii2MxjObru5NZLUKewakdTiJkC7k2v
-         i2ac+rBejacP8iYPaejxlDzOPfDWINSXT/gt6hr/6q+XgZ5vxN//TfCmtp7STXLNm8dg
-         H5Bg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718060505; x=1718665305;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ls7HTQ+/jbzpvqw5yh4Yy1Cb/Btht+DdhN/vrACOwIg=;
-        b=jifApUcNwiCgBMNF3jjKVqKU40InEWofM9TUyC1QylAyCJ9/80ZLCYStddC1PgH1ZS
-         q3RE49J28ytCIyqfdLZq/oyVN+58gSxDVOOQuYmeKT9K2g2bENkRMXJDSZFj7gpi8bJO
-         8f/l8Ed3UR6ThSxKMvkgzV4ke4rpGdz4ggOGKQ/WpHcf4k4P1s1gpYAgO67PU7VeG9h4
-         RFzy1+/MYm87GiWADCRj7MkhL2LIuX+6w57dGkmodA4vu4SlWB9+1jQu40q7YVY+qpOL
-         jzt0XkFsoICUOJNVKPb0YtTuuBf0Gns58XEhpJxQfo5tEEI368nc5Kb8OJ5LvB9eCq1y
-         z4tA==
-X-Forwarded-Encrypted: i=1; AJvYcCXAwj1ns+F9X6iWGxHUd7nQA6xfsOqAn74d0LNn332J8tj0LHhNwmPgWC8AzkqXfQk/GBMdXWCkKOwaESVwbYU3dUlJQYODXyPZu/f28kDvBAOzpKyDY305E6BPEy6PjpPdvhRJ07R+56kMY4H7yeXUE69MYQwNfNANyQtRPDrKn/ufjNsV7ke8VY+zB0YbRHHvRLqfo0RWmjOHfVN7NfTPFPmGh23ZkfZYRcKo0LUlmKwHSCtB+mCJewtISdZ6Id0rYgkN4K9RjC0WwHXmEzNxxh4JyTjqKINrvZxDSA==
-X-Gm-Message-State: AOJu0YxaSus8oZ5TqaFF59lXGkCOIzeYGN8sXMBDLcRvKswnmoL+wGuU
-	ZQme110pQKvePi6FMXXXsWlLXgcE45/QZIYhMjUcNi9fTy24VNJeiL1Ct6cm3xpxmrjhr7LsBwy
-	nDri5FVOIynAnqCaw925IvyjHheI=
-X-Google-Smtp-Source: AGHT+IG9rTv9XLL+c9x3TKAtlg11qCt3Ry3LNyhJckbX7PwJtMcxvlnWL84CmLkok90u60BS/pZg9lk0L5MvUxg112g=
-X-Received: by 2002:adf:fc0f:0:b0:35f:90e:a1d2 with SMTP id
- ffacd0b85a97d-35f090ea26fmr7973708f8f.9.1718060505013; Mon, 10 Jun 2024
- 16:01:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=3xx0.net header.i=@3xx0.net header.b="mZQbjnu5";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="CSZrK0Kd"
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+	by mailflow.west.internal (Postfix) with ESMTP id 282092CC0167;
+	Tue, 11 Jun 2024 04:04:12 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Tue, 11 Jun 2024 04:04:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=3xx0.net; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1718093051;
+	 x=1718096651; bh=T/+yVl2zv0+WWZAFjJjZWDjIEaS6BfN4J4jIExynF6o=; b=
+	mZQbjnu5j3Y6c5s3NSn+f0d3nDl8PoIpV2J7xwyMi9/WvD/RY1kTze8DRKg5Ob/9
+	qdcDzg8z1JIHwDnn25DSApXsXTn6/bVuJosk8d9RnWp8rWzskRXM9PaWfzjSQcbO
+	L/pICtn0oU8vqHYGhaUI1WhxzlfiEW2Clz2RiIucnveZEE0r7ic4GSTumjSm/+sx
+	TwBH7RXzTN8uCCs8xL8Sbb4/3Mi1fvUv0uRTk5azsCKbpc82kY8WVMIrYDFbESmz
+	tAKWOi8hA8Yb3/3nHam8loFLXet5LCOSdm5CHxishmCypoFw7WMqzrS6+GZqpoKW
+	KSv/GyUZaUeeojOfo+9Vzg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1718093051; x=
+	1718096651; bh=T/+yVl2zv0+WWZAFjJjZWDjIEaS6BfN4J4jIExynF6o=; b=C
+	SZrK0KdQEkfShTQPNyvj4mlnKZ0Xbt96wH2Bk8SLgKtBosrmcGOS62Nxz2GgpRKh
+	RM+s1SmAOHc8jwTQYcbXY4HfhyvA1X/BpdzYexyb3voF546hIMFrftL6byx/8Gq5
+	CyxDkiIDN9oLRqT0Nf/LaUiqqX05eT1btd9UsyUmbwFpTvbGTA6DT3DuQvwfUBKc
+	qA52qqMKRKtPR/9fjA9TbeDBTjsdN+FQxV3vQB7Zo6Dn7FU+V32DBRBd2xsUo4KD
+	epx9fxt2GbDP3IDJj7N9Sx6AiW6gmuCXgkH2QW1AZX1ds1Dhu6HORajf9Tf9GL0+
+	Sd5Mo8tvMorsvB3tmZk0Q==
+X-ME-Sender: <xms:-wRoZpXrMrwrS2LBoRUf1CscHpzfEOrNAJKNPFtQhnL2ou4ekXBebw>
+    <xme:-wRoZplIqIz-jLey3ypWwohXbLo_axCWylNtXJSop0FrUIU_rmjonZ32jdlWwBPFT
+    iyChc6HdYd2moNtCsY>
+X-ME-Received: <xmr:-wRoZla3TKdjigG_1iaNu_jfnqUKH-kmyaTaQ8PEpjIy_KzdOf026xrOdaJZbZ3hsIKHSjAW1_0YIc-XzHE-Kz8>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrfeduuddguddvfecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvvefukfhfgggtugfgjgestheksfdttddtjeenucfhrhhomheplfho
+    nhgrthhhrghnucevrghlmhgvlhhsuceojhgtrghlmhgvlhhsseefgiigtddrnhgvtheqne
+    cuggftrfgrthhtvghrnhepleekffehueelieehveekjeeggfdufefffeeuvdetkeeigefg
+    veekvedtfeegffegnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdplhgruhhntghhph
+    grugdrnhgvthenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhr
+    ohhmpehjtggrlhhmvghlshesfeiggidtrdhnvght
+X-ME-Proxy: <xmx:-wRoZsW_jAS-81zAUR-g6jdd9E8ilJENs9OUd1rRv-1c8UA21Ym8_A>
+    <xmx:-wRoZjlpGEBpk6d50L2m4A98pvBaAsuSdPz6BQm4X_y5dld9sd84LA>
+    <xmx:-wRoZpefYCike81RvCyTXCdE9YDoVGo62yxfwbbeJ0ekaL6W3FmwhA>
+    <xmx:-wRoZtEuV4QOEfDqcw9_xN4BTBgS0yEpp8zMtZ8VcYlL1hMBle_ObQ>
+    <xmx:-wRoZtmBixysWk2mkeQa9y_IPYYypQgmdhR9RwxVXuUx8F-uV7TEZXxX>
+Feedback-ID: i76614979:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 11 Jun 2024 04:04:07 -0400 (EDT)
+Date: Tue, 11 Jun 2024 01:09:18 -0700
+From: Jonathan Calmels <jcalmels@3xx0.net>
+To: Paul Moore <paul@paul-moore.com>
+Cc: brauner@kernel.org, ebiederm@xmission.com,
+ 	Jonathan Corbet <corbet@lwn.net>, James Morris <jmorris@namei.org>,
+ 	"Serge E. Hallyn" <serge@hallyn.com>, KP Singh <kpsingh@kernel.org>,
+ 	Matt Bobrowski <mattbobrowski@google.com>,
+ Alexei Starovoitov <ast@kernel.org>,
+ 	Daniel Borkmann <daniel@iogearbox.net>,
+ Andrii Nakryiko <andrii@kernel.org>,
+ 	Martin KaFai Lau <martin.lau@linux.dev>,
+ Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
+ 	Yonghong Song <yonghong.song@linux.dev>,
+ John Fastabend <john.fastabend@gmail.com>,
+ 	Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
+ Jiri Olsa <jolsa@kernel.org>, 	Luis Chamberlain <mcgrof@kernel.org>,
+ Kees Cook <kees@kernel.org>, 	Joel Granados <j.granados@samsung.com>,
+ John Johansen <john.johansen@canonical.com>,
+ 	David Howells <dhowells@redhat.com>,
+ Jarkko Sakkinen <jarkko@kernel.org>,
+ 	Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>, 	Mykola Lysenko <mykolal@fb.com>,
+ Shuah Khan <shuah@kernel.org>, containers@lists.linux.dev,
+ 	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ linux-doc@vger.kernel.org, 	linux-security-module@vger.kernel.org,
+ bpf@vger.kernel.org, apparmor@lists.ubuntu.com,
+ 	keyrings@vger.kernel.org, selinux@vger.kernel.org,
+ linux-kselftest@vger.kernel.org
+Subject: Re: [PATCH v2 4/4] bpf,lsm: Allow editing capabilities in BPF-LSM
+ hooks
+Message-ID: <z2bgjrzeq7crqx24chdbxnaanuhczbjnq6da3xw6al6omjj5xz@mqbzzzfva5sw>
+References: <20240609104355.442002-1-jcalmels@3xx0.net>
+ <20240609104355.442002-5-jcalmels@3xx0.net>
+ <CAHC9VhT5XWbhoY2Nw5jQz4GxpDriUdHw=1YsQ4xLVUtSnFxciA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240602023754.25443-1-laoar.shao@gmail.com> <20240602023754.25443-2-laoar.shao@gmail.com>
- <87ikysdmsi.fsf@email.froward.int.ebiederm.org> <CALOAHbAASdjLjfDv5ZH7uj=oChKE6iYnwjKFMu6oabzqfs2QUw@mail.gmail.com>
- <CAADnVQJ_RPg_xTjuO=+3G=4auZkS-t-F2WTs18rU2PbVdJVbdQ@mail.gmail.com>
- <874jabdygo.fsf@email.froward.int.ebiederm.org> <CAADnVQ+9T4n=ZhNMd57qfu2w=VqHM8Dzx-7UAAinU5MoORg63w@mail.gmail.com>
- <87ikyhrn7q.fsf@email.froward.int.ebiederm.org>
-In-Reply-To: <87ikyhrn7q.fsf@email.froward.int.ebiederm.org>
-From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date: Mon, 10 Jun 2024 16:01:33 -0700
-Message-ID: <CAADnVQKaHdy-KvHCejYgr8N8VNBQBjbmFDiE5mtm76GZGkOsaw@mail.gmail.com>
-Subject: Re: [PATCH 1/6] fs/exec: Drop task_lock() inside __get_task_comm()
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Yafang Shao <laoar.shao@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, 
-	linux-mm <linux-mm@kvack.org>, Linux-Fsdevel <linux-fsdevel@vger.kernel.org>, 
-	linux-trace-kernel <linux-trace-kernel@vger.kernel.org>, audit@vger.kernel.org, 
-	LSM List <linux-security-module@vger.kernel.org>, selinux@vger.kernel.org, 
-	bpf <bpf@vger.kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Kees Cook <keescook@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHC9VhT5XWbhoY2Nw5jQz4GxpDriUdHw=1YsQ4xLVUtSnFxciA@mail.gmail.com>
 
-On Mon, Jun 10, 2024 at 5:34=E2=80=AFAM Eric W. Biederman <ebiederm@xmissio=
-n.com> wrote:
->
-> Alexei Starovoitov <alexei.starovoitov@gmail.com> writes:
->
-> > On Sun, Jun 2, 2024 at 10:53=E2=80=AFAM Eric W. Biederman <ebiederm@xmi=
-ssion.com> wrote:
-> >>
-> >> If you are performing lockless reads and depending upon a '\0'
-> >> terminator without limiting yourself to the size of the buffer
-> >> there needs to be a big fat comment as to how in the world
-> >> you are guaranteed that a '\0' inside the buffer will always
-> >> be found.
+On Sun, Jun 09, 2024 at 08:18:48PM GMT, Paul Moore wrote:
+> On Sun, Jun 9, 2024 at 6:40 AM Jonathan Calmels <jcalmels@3xx0.net> wrote:
 > >
-> > I think Yafang can certainly add such a comment next to
-> > __[gs]et_task_comm.
+> > This patch allows modifying the various capabilities of the struct cred
+> > in BPF-LSM hooks. More specifically, the userns_create hook called
+> > prior to creating a new user namespace.
 > >
-> > I prefer to avoid open coding memcpy + mmemset when strscpy_pad works.
->
-> Looking through the code in set_task_comm
-> strscpy_pad only works when both the source and designation are aligned.
-> Otherwise it performs a byte a time copy, and is most definitely
-> susceptible to the race I observed.
+> > With the introduction of userns capabilities, this effectively provides
+> > a simple way for LSMs to control the capabilities granted to a user
+> > namespace and all its descendants.
+> >
+> > Update the selftests accordingly by dropping CAP_SYS_ADMIN in
+> > namespaces and checking the resulting task's bounding set.
+> >
+> > Signed-off-by: Jonathan Calmels <jcalmels@3xx0.net>
+> > ---
+> >  include/linux/lsm_hook_defs.h                 |  2 +-
+> >  include/linux/security.h                      |  4 +-
+> >  kernel/bpf/bpf_lsm.c                          | 55 +++++++++++++++++++
+> >  security/apparmor/lsm.c                       |  2 +-
+> >  security/security.c                           |  6 +-
+> >  security/selinux/hooks.c                      |  2 +-
+> >  .../selftests/bpf/prog_tests/deny_namespace.c | 12 ++--
+> >  .../selftests/bpf/progs/test_deny_namespace.c |  7 ++-
+> >  8 files changed, 76 insertions(+), 14 deletions(-)
+> 
+> I'm not sure we want to go down the path of a LSM modifying the POSIX
+> capabilities of a task, other than the capabilities/commoncap LSM.  It
+> sets a bad precedent and could further complicate issues around LSM
+> ordering.
 
-Byte copy doesn't have an issue either.
-Due to padding there is always a zero there.
-Worst case in the last byte. So dst buffer will be zero terminated.
+Well unless I'm misunderstanding, this does allow modifying the
+capabilities/commoncap LSM through BTF. The reason for allowing
+`userns_create` to be modified is that it is functionally very similar
+to `cred_prepare` in that it operates with new creds (but specific to
+user namespaces because of reasons detailed in [1]). 
+
+There were some concerns in previous threads that the userns caps by
+themselves wouldn't be granular enough, hence the LSM integration.
+Ubuntu for example, currently has to resort to a hardcoded profile
+transition to achieve this [2].
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7cd4c5c2101cb092db00f61f69d24380cf7a0ee8
+[2] https://git.launchpad.net/~ubuntu-kernel/ubuntu/+source/linux/+git/noble/commit/?id=43a6c29532f517179fea8c94949d657d71f4fc13
