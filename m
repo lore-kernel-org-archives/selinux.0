@@ -1,166 +1,173 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5896217C224
-	for <selinux@vger.kernel.org>; Tue, 11 Jun 2024 12:56:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 985034315B
+	for <selinux@vger.kernel.org>; Tue, 11 Jun 2024 17:13:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718110605; cv=none; b=ae3lyn8YKlpqXx39JBBkRdHCI+d5vsSWdkJd62MkolEbvDZWeZs35rFHI7zrorRQ2kfnF4iC5Pye/vLls0MnUAWQldvT/Er62nRPLC2fQrfpHVx5T9nbqbyynfi7IeLq9SjLlYbN4QODepwHMDMvUt0EO8PdZyOAOXENtpXfDz0=
+	t=1718125990; cv=none; b=rmhwgtS7khXNfIW2WEM5iCAn/uUq+szbvIzOOzHRBRtkYdIZNQ6pcnB1OgKxciHpq19glEbqRC8Vl0znfsl+yodmQuJu49+fXFLiBfit4uHOd2OwCeHptPWhRDCeGOfqMGbyE0qeTKFRRSw5LJ9QY1ocjxDXzyuiZCGdHE7i06Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718110605; c=relaxed/simple;
-	bh=ZQIBzSnmvKTtb2Sm7Xu+Z1pSLn+1Ue3SpK73A0Y+UuA=;
+	s=arc-20240116; t=1718125990; c=relaxed/simple;
+	bh=FLLL/i8E2UXzLr12JBZYcLTpB/iMpWxvltq6cSZ9SHo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=C40XDkZ6rvXvn0WaA6WvvwXfzAQkHMDsh/GcWeMEZZuRvB4+9/STWgehyVhfQQk7nxtl1olzKb2m+ld7ObpeI3HKrUPaNL3jfLmi4YzQKTPCIfmS/0NTwhjzOe2CNCg8I0vspMlG5Aw6FEABfMOm/27BeuioXTXZvHgrZhqWYvs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VuMHcWm2; arc=none smtp.client-ip=209.85.216.48
+	 To:Cc:Content-Type; b=rHp2CSCfOS9i992GCMsS8SLHUDdt6t/ZiWP5GErXtrZ7CRllcX3yDQZ5EfQOZemhJ326Tp7Pbp9mkOBWsGusrz1TZXBCxgxZcPaiK/o+15Hp+CTqoLW5FVqgLPjarADe/qB24+X1OEDVDHDzNwgDHkGsZblIXTCIIf1p2IKptnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ezF6JDZH; arc=none smtp.client-ip=209.85.160.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VuMHcWm2"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-2c2eb98a64fso2367696a91.2
-        for <selinux@vger.kernel.org>; Tue, 11 Jun 2024 05:56:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ezF6JDZH"
+Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-4405fb741ccso373491cf.1
+        for <selinux@vger.kernel.org>; Tue, 11 Jun 2024 10:13:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1718110603; x=1718715403; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1718125987; x=1718730787; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=oT0Xaja7Xnb4mtum1zFweXcEoQ6YC7Xr71uqL9pGOXI=;
-        b=VuMHcWm2HhxD68SaaHE5jkkCPbglsBNjgWFpAOuiIdu0hA/JmOI3cPWvU+3AncZehY
-         CBxXrVQQhBJl26I2d3sI8I5/Ogx/Mh4+scyRLe6pAeYq/oHV+Y1PVZfMzMlrmV+bhehc
-         unKwLfLJ/FtFObG8YWSV/gHQPBLLwNud6xg0d96b02jN2Ivku8vqlpBOLwxXyFvxHWIV
-         bucUD+L1R7ObdqhR/57THyMIDPvzuz2oRazxDLdUo4vcWK9owgoW6JWsnvw9cYubPL1X
-         fbcghZOZWLZsUd7pnXLP1q6K6WGc4PTLezMAxweF1PSe9bPEYO8aA+8fHM7NzLF5QvT7
-         hs7A==
+        bh=Hjf23uHllzVqVdtUKTr+ruuGq1i83PYwuKbaCDWmT4o=;
+        b=ezF6JDZHuw0FlB+sRcjxZZTnajtuuOo7vryUNhWtgBp1eaYm6uS28Xgwkt6VLXOoeS
+         cgMs3gJNNS54kdvhs02GhlfzAPTmCrwhwnNm/JHn4UPtf0fQgPux7Dcb63NMyHe34bm5
+         lLZxwy8PqFZ03hj7w+sZw+yTg64/MHshTgt0b6EVBBpbx44W8j7RPfdQWgGYY7P7ax7e
+         s0k/AdHw4PkOrqXCRWtwVpTN3eHEVUP61sF7Gx4wV54+MA/HH+QMCZX8MfOBh0mGbqj2
+         3RivnhxEXdmqdDYwfldzIkcay//ovno1MQ9GDTAaX6RMty8zlRHCZw0qPDtRhA01pxD0
+         +WSA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718110603; x=1718715403;
+        d=1e100.net; s=20230601; t=1718125987; x=1718730787;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=oT0Xaja7Xnb4mtum1zFweXcEoQ6YC7Xr71uqL9pGOXI=;
-        b=Bp7pc916MQK2pk8uHKDeSeZmn7SQlV7en+Uq4z0Oh8c0SGe65LQfDHjWXX3bQuf6cf
-         Uu1FFPxz/z4ou7QrItO79xIWlbYp/+okzngLpoduikWUiGVBV8ZgUsZhuHbrH2AMJibl
-         UrgNU5BogTvcOuEupGmMZbTojknNEy7tAdZO6m/DKHpZoZ9JLYvvh2loJUn9bks9Pc0/
-         EkW8dlLTA+cWhHB2P7oPx0hQaVLBHFUUE3m1KX3ybqA4WtNOjg3ufOjTDDZ9vhsYzqy8
-         NTeZIjqu2+VmgUoRdJqIGzzvlqFzVhLhB8fk0n9zW8mvCNgF/En3Txd0BXkN1fbGIdFB
-         qKYg==
-X-Gm-Message-State: AOJu0Yw9+YE20A4dBvZj5+wH6Af68nrjMh6pr6wqybslSs2qFOXs8v1r
-	z0+4EWl1reMEjCxqtjgG0MkNVZieT3NsNocJj53LESwJBmC3tFDnX9YBrE/15gnFJQYyHCxE6r3
-	5Hkdij7Uw6Vdem9Ljgs5s66zwvUAcinq1
-X-Google-Smtp-Source: AGHT+IHqIUajR6f8+cfJ/mOw8jgT5KjkzlnkBzKT6Kqn8J6PvCWuKKGq/c3fhLz+h7zdUcPG9XNdCBgMZL5p4GP1NeA=
-X-Received: by 2002:a17:90a:2c48:b0:2c1:a99b:7467 with SMTP id
- 98e67ed59e1d1-2c2bcafc9ccmr11390671a91.19.1718110603514; Tue, 11 Jun 2024
- 05:56:43 -0700 (PDT)
+        bh=Hjf23uHllzVqVdtUKTr+ruuGq1i83PYwuKbaCDWmT4o=;
+        b=IwGq7MKyUglxXKJK3cxTTBDe/bG7Yln2BOdT4AkptfNDr+FEZyjGWG0KzAO3XlBBom
+         6ZGsx1ucyvFYyrdQ5QJYYgROq+NZMY6HVdxwFM9uMKVonyhJbyfxPxYLKMtKSwu9QDtb
+         70A3CSXTihAUYsKJLJM0Y6KIl3ncRMKrwq6CXDNP+a44w+uc/N1bN50UeMuIJCvq4jFp
+         QaG0FCd6KOFMBQiECjqN4VpMePez648WvblSHoAzxPA82A02XVUrW/buulKEoKB/+ZyL
+         PL5jhaNUv9H8FxO2tzX9LFDKE6tIuH7mBJWi8MAhKFhUafcOayzKXRRsYDLos2w7iW0y
+         35xw==
+X-Gm-Message-State: AOJu0YwisNUGy+kiF816uaxWalSrMSUgcfOEVn7qICDco1CoGSWKgVYk
+	khuW6Su/tduWoohR4FIsiKMj9g46yn77vJaPDjCgVEXGp6o4AP1p7Jwa0DndBXaK9CP2FNRjTIb
+	d+vxBgWJGq4NeC5X8iYCvG9cSf//7WLTp
+X-Google-Smtp-Source: AGHT+IG0ytYpwGwpbeev2n4FI/yLVfIqWL5pR3sPrWIFsiGFqGCNJW19+jiixRNdxTaN5U/zZxqPyT8kCMFo0aqj7yg=
+X-Received: by 2002:ac8:5843:0:b0:440:6592:64b7 with SMTP id
+ d75a77b69052e-4413aeb2966mr46524001cf.17.1718125987340; Tue, 11 Jun 2024
+ 10:13:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240531131237.16666-1-stephen.smalley.work@gmail.com> <CAFqZXNscp9KkR9=jJHo+_JEUNgBry0=k2DW+1FcNHkomV8bLMg@mail.gmail.com>
-In-Reply-To: <CAFqZXNscp9KkR9=jJHo+_JEUNgBry0=k2DW+1FcNHkomV8bLMg@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 11 Jun 2024 08:56:31 -0400
-Message-ID: <CAEjxPJ6qVfV6Q8pqLEv_AQTawAGgVSdL5nu_+jNT9M=3vqksLA@mail.gmail.com>
-Subject: Re: [PATCH v3 1/2 testsuite] tools/nfs.sh: comment out the fscontext=
- tests for now
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: selinux@vger.kernel.org, paul@paul-moore.com
+References: <20240608171923.136765-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20240608171923.136765-1-cgoettsche@seltendoof.de>
+From: James Carter <jwcart2@gmail.com>
+Date: Tue, 11 Jun 2024 13:14:30 -0400
+Message-ID: <CAP+JOzT2Fo3T8zzdCCaLZKdximUCWC6My3ZzoNqhsDhiSV0c4A@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: hashtab: save one comparison on hit
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 3, 2024 at 4:44=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.com=
-> wrote:
+On Sat, Jun 8, 2024 at 1:19=E2=80=AFPM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
 >
-> On Fri, May 31, 2024 at 3:13=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > These tests currently fail on mount(2) calls due to the directory being
-> > unlabeled at the point where search access is checked. Until we can res=
-olve
-> > the underlying issue, comment out these tests to allow the NFS tests to
-> > be run. It is unclear that these tests ever passed and retaining them
-> > prevents enabling the NFS tests in automated testing.
-> >
-> > This bug is tracked in
-> > https://github.com/SELinuxProject/selinux-testsuite/issues/91
-> >
-> > Before:
-> > Run 'filesystem' tests with mount context option:
-> >         fscontext=3Dsystem_u:object_r:test_filesystem_file_t:s0
-> > filesystem/test .. 1/41 Failed mount(2): Permission denied
-> >
-> > #   Failed test at filesystem/test line 709.
-> > Failed umount(2): Permission denied
-> >
-> > #   Failed test at filesystem/test line 720.
-> > Failed mount(2): Permission denied
-> >
-> > #   Failed test at filesystem/test line 744.
-> > Failed umount(2): Permission denied
-> >
-> > #   Failed test at filesystem/test line 756.
-> > Failed mount(2): Permission denied
-> >
-> > #   Failed test at filesystem/test line 780.
-> > Failed umount(2): No such file or directory
-> >
-> > #   Failed test at filesystem/test line 793.
-> > Failed mount(2): Permission denied
-> >
-> > #   Failed test at filesystem/test line 851.
-> > Failed umount(2): Permission denied
-> >
-> > #   Failed test at filesystem/test line 863.
-> > Failed mount(2): Permission denied
-> >
-> > #   Failed test at filesystem/test line 887.
-> > Failed umount(2): Permission denied
-> >
-> > #   Failed test at filesystem/test line 899.
-> > Failed mount(2): Permission denied
-> >
-> > #   Failed test at filesystem/test line 923.
-> > Failed umount(2): Permission denied
-> >
-> > #   Failed test at filesystem/test line 935.
-> >
-> > #   Failed test at filesystem/test line 978.
-> > # Looks like you failed 13 tests of 41.
-> > filesystem/test .. Dubious, test returned 13 (wstat 3328, 0xd00)
-> > Failed 13/41 subtests
-> >
-> > Test Summary Report
-> > -------------------
-> > filesystem/test (Wstat: 3328 (exited 13) Tests: 41 Failed: 13)
-> >   Failed tests:  23, 25-26, 28-29, 31-32, 34-35, 37-38, 40-41
-> >   Non-zero exit status: 13
-> > Files=3D1, Tests=3D41,  1 wallclock secs ( 0.02 usr  0.00 sys +  0.22 c=
-usr  0.36 csys =3D  0.60 CPU)
-> > Result: FAIL
-> > Failed 1/1 test programs. 13/41 subtests failed.
-> > Test failed on line: 85 - Closing down NFS
-> > NFS Closed down
-> >
-> > $ sudo ausearch -m AVC -ts recent | grep unlabeled
-> > type=3DAVC msg=3Daudit(1716989714.176:42466): avc:  denied  { search } =
-for  pid=3D170755 comm=3D"mount" name=3D"mntpoint" dev=3D"0:60" ino=3D82210=
-9802 scontext=3Dunconfined_u:unconfined_r:test_filesystem_no_watch_mount_t:=
-s0-s0:c0.c1023 tcontext=3Dsystem_u:object_r:unlabeled_t:s0 tclass=3Ddir per=
-missive=3D0
-> >
-> > After:
-> > No failing tests.
-> >
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > ---
-> >  tools/nfs.sh | 44 ++++++++++++++++++++++++--------------------
-> >  1 file changed, 24 insertions(+), 20 deletions(-)
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Thanks! The two patches are now applied:
-> https://github.com/SELinuxProject/selinux-testsuite/commit/7738f9f68cedfe=
-36ace71a15ae49ed3d9dd85b36
-> https://github.com/SELinuxProject/selinux-testsuite/commit/0815abcd70b382=
-e13592264ce39bf48742421cc8
+> When the comparison function returns 0, avoid a repeated call to it.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Thanks. What do we need to do to get tools/nfs.sh running as part of
-the automated tests? It is passing on 6.10-rc1. Only additional
-dependency required should be nfs-utils.
+Acked-by: James Carter <jwcart2@gmail.com>
+
+> ---
+>  libsepol/src/hashtab.c | 53 +++++++++++++++++++++++++-----------------
+>  1 file changed, 32 insertions(+), 21 deletions(-)
+>
+> diff --git a/libsepol/src/hashtab.c b/libsepol/src/hashtab.c
+> index 2af3a9bf..399582b1 100644
+> --- a/libsepol/src/hashtab.c
+> +++ b/libsepol/src/hashtab.c
+> @@ -112,15 +112,17 @@ int hashtab_insert(hashtab_t h, hashtab_key_t key, =
+hashtab_datum_t datum)
+>         hashtab_check_resize(h);
+>
+>         hvalue =3D h->hash_value(h, key);
+> -       prev =3D NULL;
+> -       cur =3D h->htable[hvalue];
+> -       while (cur && h->keycmp(h, key, cur->key) > 0) {
+> -               prev =3D cur;
+> -               cur =3D cur->next;
+> -       }
+>
+> -       if (cur && (h->keycmp(h, key, cur->key) =3D=3D 0))
+> -               return SEPOL_EEXIST;
+> +       for (prev =3D NULL, cur =3D h->htable[hvalue]; cur; prev =3D cur,=
+ cur =3D cur->next) {
+> +               int cmp;
+> +
+> +               cmp =3D h->keycmp(h, key, cur->key);
+> +               if (cmp > 0)
+> +                       continue;
+> +               if (cmp =3D=3D 0)
+> +                       return SEPOL_EEXIST;
+> +               break;
+> +       }
+>
+>         newnode =3D (hashtab_ptr_t) malloc(sizeof(hashtab_node_t));
+>         if (newnode =3D=3D NULL)
+> @@ -151,14 +153,19 @@ int hashtab_remove(hashtab_t h, hashtab_key_t key,
+>                 return SEPOL_ENOENT;
+>
+>         hvalue =3D h->hash_value(h, key);
+> -       last =3D NULL;
+> -       cur =3D h->htable[hvalue];
+> -       while (cur !=3D NULL && h->keycmp(h, key, cur->key) > 0) {
+> -               last =3D cur;
+> -               cur =3D cur->next;
+> +
+> +       for (last =3D NULL, cur =3D h->htable[hvalue]; cur; last =3D cur,=
+ cur =3D cur->next) {
+> +               int cmp;
+> +
+> +               cmp =3D h->keycmp(h, key, cur->key);
+> +               if (cmp > 0)
+> +                       continue;
+> +               if (cmp =3D=3D 0)
+> +                       break;
+> +               return SEPOL_ENOENT;
+>         }
+>
+> -       if (cur =3D=3D NULL || (h->keycmp(h, key, cur->key) !=3D 0))
+> +       if (cur =3D=3D NULL)
+>                 return SEPOL_ENOENT;
+>
+>         if (last =3D=3D NULL)
+> @@ -183,14 +190,18 @@ hashtab_datum_t hashtab_search(hashtab_t h, const_h=
+ashtab_key_t key)
+>                 return NULL;
+>
+>         hvalue =3D h->hash_value(h, key);
+> -       cur =3D h->htable[hvalue];
+> -       while (cur !=3D NULL && h->keycmp(h, key, cur->key) > 0)
+> -               cur =3D cur->next;
+> -
+> -       if (cur =3D=3D NULL || (h->keycmp(h, key, cur->key) !=3D 0))
+> -               return NULL;
+> +       for (cur =3D h->htable[hvalue]; cur; cur =3D cur->next) {
+> +               int cmp;
+> +
+> +               cmp =3D h->keycmp(h, key, cur->key);
+> +               if (cmp > 0)
+> +                       continue;
+> +               if (cmp =3D=3D 0)
+> +                       return cur->datum;
+> +               break;
+> +       }
+>
+> -       return cur->datum;
+> +       return NULL;
+>  }
+>
+>  void hashtab_destroy(hashtab_t h)
+> --
+> 2.45.1
+>
+>
