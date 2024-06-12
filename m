@@ -1,179 +1,175 @@
-Received: from mail-oi1-f182.google.com (mail-oi1-f182.google.com [209.85.167.182])
+Received: from mail-vs1-f44.google.com (mail-vs1-f44.google.com [209.85.217.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE11316E895
-	for <selinux@vger.kernel.org>; Wed, 12 Jun 2024 18:10:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E3554C62E
+	for <selinux@vger.kernel.org>; Wed, 12 Jun 2024 18:42:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718215819; cv=none; b=OUP/EB8TvwEtRZfyFSrV2uTaOA8GNn3Fs6TZTM9G0qA3vHUqpvxdD1iQZjgNsWw0z1AWmXmeXCDNqOKcsNd+Yz9JHDM6fLchNdiDPI0OIgVwZSgPBcF8HiON+RMTSKu2JqL8Qo6aLusdlAZau7zpjA5JIhZADUULAU87vJD2kVo=
+	t=1718217728; cv=none; b=CijAb9wza9paPi1QiViev6vvo7I+daUksREZ4t/Zz5m981a3TvOuE6bpcazNSfA2HPfF7myIBR8PZxgIOMOYhYOhaY0twrUkm1jZm6aVBX7PDNhmBnHinsi1bbNKvUk9vyqUFjuBgbHWF4f8oF4MaCOWdv2HL0QsY0SOS+zvf1o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718215819; c=relaxed/simple;
-	bh=YpJfc60fzON/bmbYJZiDJBe6HVFzjKN7f6Fss3w4g+0=;
+	s=arc-20240116; t=1718217728; c=relaxed/simple;
+	bh=k85njiGjcjmF1lfUJ/j/YLEDdKTcUTiICQa4p6cjfh4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oUK/5ccB+RKoniAbl3Ze68N4muqmkau77nYU8I0AjgRlSn0rBzoLf55FBkiaszBDBB5XxGeVEUTMyoTlp252wizcpE/v4wg9KM+I0LD9eT8btnkbpctu6bMefaxd6puaIPZwGWAEywPjUiNYwZzQmMs3BrgcEX+A3jzgpRcy8ps=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iIsCZu+L; arc=none smtp.client-ip=209.85.167.182
+	 To:Cc:Content-Type; b=C2UJyP3G7UYvTNv8jK3Uy6q/LRhRj/01ohlv4pqXFWPwpvoGOhy1sTgKhyenG80HfTFvOOZCnGq+m/ECqPuNo2sig5M6D4Q6fbHXtVzPYe/A6V7vSHawxG6z1hTdYDem0ok3bXQSZxceHgOiU/ogeJ7tKGnITWUTXvYYpdT/2wM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=m8e3qq/q; arc=none smtp.client-ip=209.85.217.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iIsCZu+L"
-Received: by mail-oi1-f182.google.com with SMTP id 5614622812f47-3cabac56b38so16753b6e.3
-        for <selinux@vger.kernel.org>; Wed, 12 Jun 2024 11:10:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m8e3qq/q"
+Received: by mail-vs1-f44.google.com with SMTP id ada2fe7eead31-48c50daef1fso59058137.1
+        for <selinux@vger.kernel.org>; Wed, 12 Jun 2024 11:42:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1718215817; x=1718820617; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1718217725; x=1718822525; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gHM6tNGnMdwoIpBJCjWrbaRtH1vLkhAzUY58hOQsyME=;
-        b=iIsCZu+LRqH0BodvZX6JTqv/EL70f10F2KtXN8z3j9LeXeo3tzPul6IQM775HGAZHa
-         qkgvFmktoWf0uaEX3akHDcB4rKDo078+vhXXKVdrnesj3fEI4CwqwONjq099M5JNatZk
-         ARgCxYcrLlgGvAvLmcrXIyGGE1PS5R+grAXiZNp7/7w1FkRlybj9aVm7UVVsVcPFpxYq
-         9JHl3Ey6J6vqS5S+RIfie4i4c/68Aqp8YmEUdo50sJFRpeTLOJLmxACp5Aa90MHVaWZb
-         9aSs0w7+oeJShkutoheHAxYt0n0S0tVf+0mAxA4L+HxTgW/pEr1fYmQ9OTQaGH1i44CT
-         yqyg==
+        bh=wyjNx6mhpvW9YXiiGRFtRdyYH38iCG9XWhLjCi2XuMc=;
+        b=m8e3qq/qDvKG3dXPYRK+4U66bVmp2LDWcVq7ZcX6C/Zg3+UHMyX+ftogWMadGGlogw
+         6N7W4A8C4PazO9wgmyNEsA9prGzN+/fIT2cyBusYC8hldbad/EGKWK5A+pKcRgAAZOpZ
+         n+TBRNzS/rQMmB4QL0hzVcpEMO4fANm1iVLcDJRVUdBRaMnHSoIros6TroIDhyPARPSI
+         5aFBGZOtO+RKANz4SjcE93j0C3ti/jNP71t5k2y+AJ4LZvBLHXZ9Hve6QjVKVMMuwNZh
+         /mfxNseAsI6OdyygzrNEVG4QO6b8s/Xk43uLJYPbo58BW8aSTxUP/u4gBnV70ZLcZFAm
+         g0VQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718215817; x=1718820617;
+        d=1e100.net; s=20230601; t=1718217725; x=1718822525;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=gHM6tNGnMdwoIpBJCjWrbaRtH1vLkhAzUY58hOQsyME=;
-        b=sND/PRH1Blz4DJUjTBaDJtRCPuS1sDt3szzQ4mpIxCGYNQzfUNxEy4F/VeqJoUXpF1
-         vYI0S/o6aVoFOOxeD0alhaoHjbZymtI2snf88nlgvu8wjN34kp/3hgpadHTFl0K0jHiA
-         gryNUWzNoTIk6HRvrI28BYvDUUBlnpc+Fh3kGpaGN2L8ng/eitN3EKri2/4XhAwU++Pz
-         J7aa2dCmKX8uNbCfDhVPKS599Bqgv5J1VDDH03xXpgMcJqW8KdSREjM1DwktGajICSAP
-         r51Xn7yE4+UqygziFwzNyoj0AkVHeckjcPgInTSuWgpFIM1knT5ye+Bt5/E74JXU7H3s
-         Wr1w==
-X-Gm-Message-State: AOJu0Yz/YgY/c0CowKV8A07D6mTuH7ci2KxtXXDT/pQdiIl0Uc3dST4Z
-	HZhLVGfYaQCwzcN9OOKfvSRiFfctbvPpkLrNR2oriO6Om/pnBtd8sDO9GYn846mJvHAGbPllh2Y
-	BS1IdacV1xp6pFavgEbh0cb+J8PetBCdv
-X-Google-Smtp-Source: AGHT+IGMgonVwdAkRdA+YWDxo8TquBWMe4mEj6GL5VEFwaytDhJjdfNvqIwzjMjWYwIQULL/wrgiyh/sEnvZFH9kQn4=
-X-Received: by 2002:a05:6808:3096:b0:3d2:2703:2573 with SMTP id
- 5614622812f47-3d23dfb5b5amr3147879b6e.8.1718215816872; Wed, 12 Jun 2024
- 11:10:16 -0700 (PDT)
+        bh=wyjNx6mhpvW9YXiiGRFtRdyYH38iCG9XWhLjCi2XuMc=;
+        b=L3Agz++Gj9/m/fCqIZjfPohXxZcM5uWuAtOGH4Y+aMDlz5EzLFiMo8p0NKdcq/pIcI
+         xsCjlH9bObTB3t3DU0TREfaWJVODO2qTORUfTrBVaWP4y590Z5ilDK0snDb168BqvwS4
+         tw7y8M9Qw+/DUzaLPylNufndbamnE3r67DurQIz/WCzqjOX8T5Cgx2cjV7+4XkNL97zD
+         dzHyi3Dzi3P0NWinMrUea7SlgxC/nfLzFr0o4AQ+d0aub4liHQ8/dvn9/5JxTekMD7g4
+         0gzeMHqzQtX1d8vatynIv9tPpb5fKZwUY1WWjzR7E/ZgRHDZIn+BfDkyHK8UDtlwg52j
+         C/GA==
+X-Gm-Message-State: AOJu0Yy72eX5OO8Z1Gl/5y4od54VfQr/e2SMSOTpdjF8MKoga5d1IdZn
+	euvgCd2myURhrSVCcZEUsViSboKjYBPMa09GJ1YD68kiAJXZnsNd45+TB1fJeNR/bULtLqNuLQr
+	nqp9SfNA7voLsjF15gJP3EoHkhJ5wKRN8
+X-Google-Smtp-Source: AGHT+IHKzgeu8juG4KtB+91WBvdMYPwzps3/LALf0oWkvP1ZFxtrC5W52S1jsHKBE2hKuA2pPngG9w47ul7RhKIrdr8=
+X-Received: by 2002:a05:6102:32c6:b0:48d:920a:bd43 with SMTP id
+ ada2fe7eead31-48d920ac0admr3822024137.29.1718217725081; Wed, 12 Jun 2024
+ 11:42:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240608172332.140336-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20240608172332.140336-1-cgoettsche@seltendoof.de>
+References: <20240608171739.135501-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20240608171739.135501-1-cgoettsche@seltendoof.de>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 12 Jun 2024 14:10:05 -0400
-Message-ID: <CAP+JOzQPRyF06cb=y4LQ-ASt3ei48bb7WCwSUoivsx+yus2oUg@mail.gmail.com>
-Subject: Re: [PATCH] tree-wide: fix misc typos
+Date: Wed, 12 Jun 2024 14:41:54 -0400
+Message-ID: <CAP+JOzRhMS5WWgsBXnOVYKAe92EQDf64FjkqL_GZhp7RztGLMA@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: contify function pointer arrays
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jun 8, 2024 at 1:23=E2=80=AFPM Christian G=C3=B6ttsche
+On Sat, Jun 8, 2024 at 1:27=E2=80=AFPM Christian G=C3=B6ttsche
 <cgoettsche@seltendoof.de> wrote:
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> These function pointers are never modified.
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libselinux/utils/sefcontext_compile.c | 2 +-
->  libsepol/src/kernel_to_cil.c          | 4 ++--
->  libsepol/src/kernel_to_conf.c         | 4 ++--
->  secilc/docs/cil_reference_guide.md    | 4 ++--
->  4 files changed, 7 insertions(+), 7 deletions(-)
+>  libsepol/src/link.c          | 4 ++--
+>  libsepol/src/module_to_cil.c | 8 ++++----
+>  libsepol/src/write.c         | 2 +-
+>  3 files changed, 7 insertions(+), 7 deletions(-)
 >
-> diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sef=
-context_compile.c
-> index 6c32172d..8677189e 100644
-> --- a/libselinux/utils/sefcontext_compile.c
-> +++ b/libselinux/utils/sefcontext_compile.c
-> @@ -189,7 +189,7 @@ static int write_binary_file(struct saved_data *data,=
- int fd,
->                 if (len !=3D 1)
->                         goto err;
+> diff --git a/libsepol/src/link.c b/libsepol/src/link.c
+> index b8272308..048d742e 100644
+> --- a/libsepol/src/link.c
+> +++ b/libsepol/src/link.c
+> @@ -749,7 +749,7 @@ static int cat_copy_callback(hashtab_key_t key, hasht=
+ab_datum_t datum,
+>         return 0;
+>  }
 >
-> -               /* original context strin (including nul) */
-> +               /* original context string (including nul) */
->                 len =3D fwrite(context, sizeof(char), to_write, bin_file)=
-;
->                 if (len !=3D to_write)
->                         goto err;
-> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-> index e20ba4af..f94cb245 100644
-> --- a/libsepol/src/kernel_to_cil.c
-> +++ b/libsepol/src/kernel_to_cil.c
-> @@ -303,7 +303,7 @@ static int class_constraint_rules_to_strs(struct poli=
-cydb *pdb, char *classkey,
->                         goto exit;
->                 }
->                 if (*perms =3D=3D '\0') {
-> -                       ERR(NULL, "No permisisons in permission string");
-> +                       ERR(NULL, "No permissions in permission string");
->                         free(perms);
->                         rc =3D -1;
->                         goto exit;
-> @@ -1782,7 +1782,7 @@ static char *avtab_node_to_str(struct policydb *pdb=
-, avtab_key_t *key, avtab_dat
->                         goto exit;
->                 }
->                 if (*perms =3D=3D '\0') {
-> -                       ERR(NULL, "No permisisons in permission string");
-> +                       ERR(NULL, "No permissions in permission string");
->                         free(perms);
->                         goto exit;
->                 }
-> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
-c
-> index 5860a513..ca91ffae 100644
-> --- a/libsepol/src/kernel_to_conf.c
-> +++ b/libsepol/src/kernel_to_conf.c
-> @@ -298,7 +298,7 @@ static int class_constraint_rules_to_strs(struct poli=
-cydb *pdb, char *classkey,
->                         goto exit;
->                 }
->                 if (*perms =3D=3D '\0') {
-> -                       ERR(NULL, "No permisisons in permission string");
-> +                       ERR(NULL, "No permissions in permission string");
->                         free(perms);
->                         rc =3D -1;
->                         goto exit;
-> @@ -1748,7 +1748,7 @@ static char *avtab_node_to_str(struct policydb *pdb=
-, avtab_key_t *key, avtab_dat
->                         goto exit;
->                 }
->                 if (*permstring =3D=3D '\0') {
-> -                       ERR(NULL, "No permisisons in permission string");
-> +                       ERR(NULL, "No permissions in permission string");
->                         free(permstring);
->                         goto exit;
->                 }
-> diff --git a/secilc/docs/cil_reference_guide.md b/secilc/docs/cil_referen=
-ce_guide.md
-> index d1d3ff16..5ae5a3a3 100644
-> --- a/secilc/docs/cil_reference_guide.md
-> +++ b/secilc/docs/cil_reference_guide.md
-> @@ -281,7 +281,7 @@ The number of `expr_set`'s in an `expr` is dependent =
-on the statement type (ther
->          (mlsconstrain (process (transition dyntransition))
->              (or (and (eq h1 h2) (eq l1 l2)) (eq t1 mlstrustedsubject)))
+> -static int (*copy_callback_f[SYM_NUM]) (hashtab_key_t key,
+> +static int (*const copy_callback_f[SYM_NUM]) (hashtab_key_t key,
+>                                         hashtab_datum_t datum, void *data=
+p) =3D {
+>  NULL, class_copy_callback, role_copy_callback, type_copy_callback,
+>             user_copy_callback, bool_copy_callback, sens_copy_callback,
+> @@ -1215,7 +1215,7 @@ static int user_fix_callback(hashtab_key_t key, has=
+htab_datum_t datum,
+>         return -1;
+>  }
 >
-> -        ; The equivalent policy language mlsconstrain statememt is:
-> +        ; The equivalent policy language mlsconstrain statement is:
->          ;mlsconstrain process { transition dyntransition }
->          ;    ((h1 eq h2 and l1 eq l2) or t1 =3D=3D mlstrustedsubject);
+> -static int (*fix_callback_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_=
+t datum,
+> +static int (*const fix_callback_f[SYM_NUM]) (hashtab_key_t key, hashtab_=
+datum_t datum,
+>                                        void *datap) =3D {
+>  NULL, NULL, role_fix_callback, type_fix_callback, user_fix_callback,
+>             NULL, NULL, NULL};
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index 3b3480bf..2dbf137e 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -2951,8 +2951,8 @@ static int ocontexts_to_cil(struct policydb *pdb)
+>         int rc =3D -1;
+>         int ocon;
 >
-> @@ -289,7 +289,7 @@ The number of `expr_set`'s in an `expr` is dependent =
-on the statement type (ther
->          (mlsconstrain (process (getsched getsession getpgid getcap getat=
-tr ptrace share))
->              (or (dom l1 l2) (eq t1 mlstrustedsubject)))
+> -       static int (**ocon_funcs)(struct policydb *pdb, struct ocontext *=
+ocon);
+> -       static int (*ocon_selinux_funcs[OCON_NUM])(struct policydb *pdb, =
+struct ocontext *ocon) =3D {
+> +       static int (*const *ocon_funcs)(struct policydb *pdb, struct ocon=
+text *ocon);
+> +       static int (*const ocon_selinux_funcs[OCON_NUM])(struct policydb =
+*pdb, struct ocontext *ocon) =3D {
+>                 ocontext_selinux_isid_to_cil,
+>                 ocontext_selinux_fs_to_cil,
+>                 ocontext_selinux_port_to_cil,
+> @@ -2963,7 +2963,7 @@ static int ocontexts_to_cil(struct policydb *pdb)
+>                 ocontext_selinux_ibpkey_to_cil,
+>                 ocontext_selinux_ibendport_to_cil,
+>         };
+> -       static int (*ocon_xen_funcs[OCON_NUM])(struct policydb *pdb, stru=
+ct ocontext *ocon) =3D {
+> +       static int (*const ocon_xen_funcs[OCON_NUM])(struct policydb *pdb=
+, struct ocontext *ocon) =3D {
+>                 ocontext_xen_isid_to_cil,
+>                 ocontext_xen_pirq_to_cil,
+>                 ocontext_xen_ioport_to_cil,
+> @@ -3404,7 +3404,7 @@ exit:
+>  }
 >
-> -        ; The equivalent policy language mlsconstrain statememt is:
-> +        ; The equivalent policy language mlsconstrain statement is:
->          ;mlsconstrain process { getsched getsession getpgid getcap getat=
-tr ptrace share }
->          ;    (l1 dom l2 or t1 =3D=3D mlstrustedsubject);
->      ```
+>
+> -static int (*func_to_cil[SYM_NUM])(int indent, struct policydb *pdb, str=
+uct avrule_block *block, struct stack *decl_stack, char *key, void *datum, =
+int scope) =3D {
+> +static int (*const func_to_cil[SYM_NUM])(int indent, struct policydb *pd=
+b, struct avrule_block *block, struct stack *decl_stack, char *key, void *d=
+atum, int scope) =3D {
+>         NULL,   // commons, only stored in the global symtab, handled els=
+ewhere
+>         class_to_cil,
+>         role_to_cil,
+> diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+> index f8cd9e1d..a52e2e82 100644
+> --- a/libsepol/src/write.c
+> +++ b/libsepol/src/write.c
+> @@ -1344,7 +1344,7 @@ static int user_write(hashtab_key_t key, hashtab_da=
+tum_t datum, void *ptr)
+>         return POLICYDB_SUCCESS;
+>  }
+>
+> -static int (*write_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t datum=
+,
+> +static int (*const write_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t=
+ datum,
+>                                 void *datap) =3D {
+>  common_write, class_write, role_write, type_write, user_write,
+>             cond_write_bool, sens_write, cat_write,};
 > --
 > 2.45.1
 >
