@@ -1,255 +1,436 @@
-Received: from wflow5-smtp.messagingengine.com (wflow5-smtp.messagingengine.com [64.147.123.140])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f43.google.com (mail-vs1-f43.google.com [209.85.217.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A355416D305;
-	Wed, 12 Jun 2024 08:15:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=64.147.123.140
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D8E5176ACD
+	for <selinux@vger.kernel.org>; Wed, 12 Jun 2024 13:29:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718180148; cv=none; b=deuYjV9nKHnGLkYfwfED7o3lUPR0/MFNmCpqhtaDOvm4EMBvbcEOnUGBfjSRpbCZcJSZ1RYIi1EqN0ngido1OsgXDYs9h45fPWfuR62w80ykrEgkKAMVaQAQzT1nvvR2b5KE/OVCXUgwM1FGMxnCbcjt4kXC31Vc58JfCGmhFZE=
+	t=1718198972; cv=none; b=XSv7shBA33nfFCbosyFEMaKzI/LlmgayJ3yDKTPbMufvruqi337XszWAPDh7llDohcsPJMV3epeNwDKQ+RWcMQi+bSbI/MqmqLVzjUQGnMD6kQeJx9KHr/X4KjGbzFKPj8y7zJNdACkBPrTW9rMVJR9F0OZr618FIFC5QAyy2HI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718180148; c=relaxed/simple;
-	bh=U6hukzBbxKrvojtraGdCUg5S848y4qN0OYQuMf0rzt8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nPBxECaVt8IPUzcE/h+brj/Pizn8iUe3t2kAg62fb/+qwW2rPShxzVf6zJ0EySVPwHHfZ0eyhGJsbcdCffXlAO3GPjnL+ds62jqBijMwMOoHFu5117epb8GpQR+LhzUFHoNfSVCcb0LsDWnz+smHkKyXonCz6SYTrQzGvHYfoZM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=3xx0.net; spf=pass smtp.mailfrom=3xx0.net; dkim=pass (2048-bit key) header.d=3xx0.net header.i=@3xx0.net header.b=T/COupJO; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Q1t7Oopg; arc=none smtp.client-ip=64.147.123.140
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=3xx0.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=3xx0.net
+	s=arc-20240116; t=1718198972; c=relaxed/simple;
+	bh=BamJPPgu8Bs+li/Fn065jODvIDBv8wlxz0jJ0qHyORw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=piiRVi474kpRDfsULRBHZVIK2CrRHd1r0XtW2cIuE5A1lT5V6PjjS91jFhWM29cJlM61hm+UE0XsDngLHUKKfwBb6git9xuGcleyR4UkWmuaCfdeKHUEViEy8+fmyW0faamBPRivH9mIFev2i2ywkIuKR5N+lPezohKxisiiPew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ACq+Rd6k; arc=none smtp.client-ip=209.85.217.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=3xx0.net header.i=@3xx0.net header.b="T/COupJO";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Q1t7Oopg"
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-	by mailflow.west.internal (Postfix) with ESMTP id 56FE02CC01F5;
-	Wed, 12 Jun 2024 04:15:43 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute4.internal (MEProxy); Wed, 12 Jun 2024 04:15:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=3xx0.net; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1718180142;
-	 x=1718183742; bh=HeipJvuPUXcxMs0ABdL536egEdVvkPwYQPNqw34NrRM=; b=
-	T/COupJOcGQBBzKb4rbSed3jgNiyDZbxjs5JEtO62DxXUNSbNnBaXJ6I3BPKd6Z+
-	6ARsd0guK71kwjXw1RDdKg5FDdOuWZkhwcyazmIZQ+0GGUiPXA//nZRmjiyKDLNQ
-	H3/FNjklRKt6S0bTwlxmBGERxBLF6m4484BT0r9L+hTKInVQ+3ZYLh5YNyhJQYXp
-	ZZZMseNCt+e5LtkzAJE90jHuYM3sIq1I7W7lunhkpVB8TAmty1La50EuAaJ2vR/x
-	PTEbGgbt62p4WoIo7bG36hXKZCWOBjYI6WmrR/4jUJFSGtN1AaNl7FrHu6maHb+C
-	adktYiXIICDWSH7ngkbRJg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1718180142; x=
-	1718183742; bh=HeipJvuPUXcxMs0ABdL536egEdVvkPwYQPNqw34NrRM=; b=Q
-	1t7OopgDslFmy8Sn7kpNoKmWbzt3Z2MGoExLH6bfO3TYPzfnfQmHEmYzcMmDYeHV
-	4dOdhWYUwwev8eBSiP2BjHKfakaj7tjqMPnm2sdSXNNRycOPLgtwenCOF46yNAyx
-	pPGsiB5WI1cN0szwAA8d9Y57IMMJlW3Ei1JOljlO9f5ryb0xDOh5eGgEy9Jj/ToU
-	J12o9vnGWKGOfi3Pf99MDmRwkD/fZLuT0kChTde7Io3QW+/d+bIpBFmWeAnhDtLL
-	Sktq4hNvnEGvGrHexapT4Ja5f4O0hdjtDsDaNSAJp70b6y8l05Fy5XHVTfs3iZLk
-	IGtT76BrLZv7Sbyt6kHjw==
-X-ME-Sender: <xms:LllpZr8xON2t8JBtvP8z2r9RPYAmVXKWxpra7VsoLzksHIWrVAqsTw>
-    <xme:LllpZnvkqHMbLn7nTwJpStwes9BHkU7PymLNoNE0gBFFBIWcXFG3r7Wg35DH8sg6E
-    Ww3SmzOnbYfBIBkWs8>
-X-ME-Received: <xmr:LllpZpAi9D44gg8B35OwmmG863qQRbZ6qMZRrXVT34TXUCAV6qQheTcH-4QZDZnznyXra_ThPng13sWtDhfFg7Y>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrfedugedgtdduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvfevuffkfhggtggugfgjsehtkefstddttdejnecuhfhrohhmpeflohhn
-    rghthhgrnhcuvegrlhhmvghlshcuoehjtggrlhhmvghlshesfeiggidtrdhnvghtqeenuc
-    ggtffrrghtthgvrhhnpeetgedutdfggeetleefhfeuhedtheduteekieduvdeigeegvdev
-    vddtieekiedvheenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfh
-    hrohhmpehjtggrlhhmvghlshesfeiggidtrdhnvght
-X-ME-Proxy: <xmx:LllpZneDoyZ-RX3X4rVUuUmiN2s53H0HQpEPmjarSlJmdbeNsrC-cg>
-    <xmx:LllpZgOos_vdtrYhH4zy-fXOAUsMnhJPoF2-A5YI2fB8xlNbQzKhqQ>
-    <xmx:LllpZpnXG5LqLB-ZltLJVdyjPBFYDlsy8SHeGNxT_BRuOggOAb-DYg>
-    <xmx:LllpZqvTNxszjuD5ehQbJyHiu7_SOSqdldAZXDNby64nJkUiYieeqQ>
-    <xmx:LllpZquORTNviG0fl8x754yxTGr1qD6L8k5YykdTsQFtiAHXFTPbkZnD>
-Feedback-ID: i76614979:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 12 Jun 2024 04:15:38 -0400 (EDT)
-Date: Wed, 12 Jun 2024 01:20:49 -0700
-From: Jonathan Calmels <jcalmels@3xx0.net>
-To: Paul Moore <paul@paul-moore.com>
-Cc: John Johansen <john.johansen@canonical.com>, brauner@kernel.org,
- 	ebiederm@xmission.com, Jonathan Corbet <corbet@lwn.net>,
- 	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
- 	KP Singh <kpsingh@kernel.org>,
- Matt Bobrowski <mattbobrowski@google.com>,
- 	Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- 	Andrii Nakryiko <andrii@kernel.org>,
- Martin KaFai Lau <martin.lau@linux.dev>,
- 	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
- 	Yonghong Song <yonghong.song@linux.dev>,
- John Fastabend <john.fastabend@gmail.com>,
- 	Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
- Jiri Olsa <jolsa@kernel.org>, 	Luis Chamberlain <mcgrof@kernel.org>,
- Kees Cook <kees@kernel.org>, 	Joel Granados <j.granados@samsung.com>,
- David Howells <dhowells@redhat.com>,
- 	Jarkko Sakkinen <jarkko@kernel.org>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- 	Ondrej Mosnacek <omosnace@redhat.com>, Mykola Lysenko <mykolal@fb.com>,
- Shuah Khan <shuah@kernel.org>, 	containers@lists.linux.dev,
- linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- 	linux-doc@vger.kernel.org, linux-security-module@vger.kernel.org,
- bpf@vger.kernel.org, 	apparmor@lists.ubuntu.com,
- keyrings@vger.kernel.org, selinux@vger.kernel.org,
- 	linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH v2 4/4] bpf,lsm: Allow editing capabilities in BPF-LSM
- hooks
-Message-ID: <rgzhcsblub7wedm734n56cw2qf6czjb4jgck6l5miur6odhovo@n5tgrco74zce>
-References: <20240609104355.442002-1-jcalmels@3xx0.net>
- <20240609104355.442002-5-jcalmels@3xx0.net>
- <CAHC9VhT5XWbhoY2Nw5jQz4GxpDriUdHw=1YsQ4xLVUtSnFxciA@mail.gmail.com>
- <z2bgjrzeq7crqx24chdbxnaanuhczbjnq6da3xw6al6omjj5xz@mqbzzzfva5sw>
- <887a3658-2d8d-4f9e-98f2-27124bb6f8e6@canonical.com>
- <CAHC9VhQFNPJTOct5rUv3HT6Z2S20mYdW75seiG8no5=fZd7JjA@mail.gmail.com>
- <uuvwcdsy7o4ulmrdzwffr6uywfacmlkjrontmjdj44luantpok@dtatxaa6tzyv>
- <CAHC9VhRnthf8+KgfuzFHXWEAc9RShDO0G_g0kc1OJ-UTih1ywg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ACq+Rd6k"
+Received: by mail-vs1-f43.google.com with SMTP id ada2fe7eead31-48cdd1eaa0aso705599137.3
+        for <selinux@vger.kernel.org>; Wed, 12 Jun 2024 06:29:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1718198969; x=1718803769; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Garp3QbFOeM0woGnEnirihjgDD4XZ1VUmTHJv+jAmH4=;
+        b=ACq+Rd6k5sQjPaAE9o/oNjDsFExFHvlSQI9XpwpjRnvnxSyMklooiApzkaYHtlHyc9
+         i5rjF3l1Nb3QOe7MlTHMc5tAKOxZ9ld2R4U6Du990SiZnlyofLuEp/+zml6PjqbDxD2Y
+         b3RwGrp0uP9ZRRpV2v9K4zvpSvDTzzg9O2eCi//VWtySZZhMtGTk7vboPnurcSxQBnHd
+         ksGsr4KTNFYeF2eKjfo/5ojY8Zh1jiX/jVp0gMa2iVeERPb0kgs8k2gbD7jkUujTOz02
+         BZCpgJFuIF8Gju8yejsm/Osa0c3PLydeUEs4qfeQUcyv4mOfF3zsNN/s+iiIQkIhGI8v
+         gE1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718198969; x=1718803769;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Garp3QbFOeM0woGnEnirihjgDD4XZ1VUmTHJv+jAmH4=;
+        b=Sefr0bAsNG6vDYCctx+f0BQDbtFA4+9WSp9Hwjbkp2QmBOzRxOA3NG60D+yEgoV6z2
+         o7SlbTx+XNKFBmqE4ZzKGDa+drK+uLRngnFCQ0DEvCjD1Vl+/V55CCJLFGgh11U2obfp
+         v+jrPvCEW1FCGTA7bbRwXLNxQfr0cD9a3VoZ+xBpIDi3astMPMusYk4ZKfB3UBON6lfp
+         pN7Rxz9fKo8xM45JsDT0SOm4HVvEvd3L72TkMk5qj8veKymJ4uVhR5WHFohF9qSsozUB
+         d2YSNYHJWA4o1UTnkMEvcNEbgvefCRvnjP7oYAuip8B/ztOLsmBkWW2yPJNQnuHERZyR
+         Av4A==
+X-Gm-Message-State: AOJu0YxauQj1Tjd7W8iYicflUEy3H1tAJJYjASxNwQxQ6okAtAnIGqQQ
+	YIFM1NJwstfVUsEK6aDg8cjicplkbwSfOImqxURnpk6MNaPiE1fdWbV+6P6emjgCFNjYHi6aQAL
+	dkMAc8xKf0Ly9FEDU7bqkJ0CB/Ff5PVnH
+X-Google-Smtp-Source: AGHT+IG6XYXtGmPKjcUY5dpv1/7g7gkImKmf+I+9x0PWX/Ps04eaW1sT0ufRzZ/hIjzou07ve7GY0zyAUDzJBHXxRoY=
+X-Received: by 2002:a05:6102:ccd:b0:48d:8284:180a with SMTP id
+ ada2fe7eead31-48d91e84accmr2266108137.24.1718198969318; Wed, 12 Jun 2024
+ 06:29:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHC9VhRnthf8+KgfuzFHXWEAc9RShDO0G_g0kc1OJ-UTih1ywg@mail.gmail.com>
+References: <20240608172233.139679-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20240608172233.139679-1-cgoettsche@seltendoof.de>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 12 Jun 2024 09:29:17 -0400
+Message-ID: <CAP+JOzQsZUbquuChoMchiENi8zEiiFu-4wgFtqfRa5kFS6hCAA@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy: reject duplicate nodecon statements
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 11, 2024 at 06:38:31PM GMT, Paul Moore wrote:
-> On Tue, Jun 11, 2024 at 6:15 PM Jonathan Calmels <jcalmels@3xx0.net> wrote:
-> > On Tue, Jun 11, 2024 at 03:01:01PM GMT, Paul Moore wrote:
-> > > On Tue, Jun 11, 2024 at 6:32 AM John Johansen
-> > > <john.johansen@canonical.com> wrote:
-> > > >
-> > > > On 6/11/24 01:09, Jonathan Calmels wrote:
-> > > > > On Sun, Jun 09, 2024 at 08:18:48PM GMT, Paul Moore wrote:
-> > > > >> On Sun, Jun 9, 2024 at 6:40 AM Jonathan Calmels <jcalmels@3xx0.net> wrote:
-> > > > >>>
-> > > > >>> This patch allows modifying the various capabilities of the struct cred
-> > > > >>> in BPF-LSM hooks. More specifically, the userns_create hook called
-> > > > >>> prior to creating a new user namespace.
-> > > > >>>
-> > > > >>> With the introduction of userns capabilities, this effectively provides
-> > > > >>> a simple way for LSMs to control the capabilities granted to a user
-> > > > >>> namespace and all its descendants.
-> > > > >>>
-> > > > >>> Update the selftests accordingly by dropping CAP_SYS_ADMIN in
-> > > > >>> namespaces and checking the resulting task's bounding set.
-> > > > >>>
-> > > > >>> Signed-off-by: Jonathan Calmels <jcalmels@3xx0.net>
-> > > > >>> ---
-> > > > >>>   include/linux/lsm_hook_defs.h                 |  2 +-
-> > > > >>>   include/linux/security.h                      |  4 +-
-> > > > >>>   kernel/bpf/bpf_lsm.c                          | 55 +++++++++++++++++++
-> > > > >>>   security/apparmor/lsm.c                       |  2 +-
-> > > > >>>   security/security.c                           |  6 +-
-> > > > >>>   security/selinux/hooks.c                      |  2 +-
-> > > > >>>   .../selftests/bpf/prog_tests/deny_namespace.c | 12 ++--
-> > > > >>>   .../selftests/bpf/progs/test_deny_namespace.c |  7 ++-
-> > > > >>>   8 files changed, 76 insertions(+), 14 deletions(-)
-> > > > >>
-> > > > >> I'm not sure we want to go down the path of a LSM modifying the POSIX
-> > > > >> capabilities of a task, other than the capabilities/commoncap LSM.  It
-> > > > >> sets a bad precedent and could further complicate issues around LSM
-> > > > >> ordering.
-> > > > >
-> > > > > Well unless I'm misunderstanding, this does allow modifying the
-> > > > > capabilities/commoncap LSM through BTF. The reason for allowing
-> > > > > `userns_create` to be modified is that it is functionally very similar
-> > > > > to `cred_prepare` in that it operates with new creds (but specific to
-> > > > > user namespaces because of reasons detailed in [1]).
-> > > >
-> > > > yes
-> > > >
-> > > > > There were some concerns in previous threads that the userns caps by
-> > > > > themselves wouldn't be granular enough, hence the LSM integration.
-> > > >
-> > > > > Ubuntu for example, currently has to resort to a hardcoded profile
-> > > > > transition to achieve this [2].
-> > > > >
-> > > >
-> > > > The hard coded profile transition, is because the more generic solution
-> > > > as part of policy just wasn't ready. The hard coding will go away before
-> > > > it is upstreamed.
-> > > >
-> > > > But yes, updating the cred really is necessary for the flexibility needed
-> > > > whether it is modifying the POSIX capabilities of the task or the LSM
-> > > > modifying its own security blob.
-> > > >
-> > > > I do share some of Paul's concerns about the LSM modifying the POSIX
-> > > > capabilities of the task, but also thing the LSM here needs to be
-> > > > able to modify its own blob.
-> > >
-> > > To be clear, this isn't about a generic LSM needing to update its own
-> > > blob (LSM state), it is about the BPF LSM updating the capability
-> > > sets.  While we obviously must support a LSM updating its own state,
-> > > I'm currently of the opinion that allowing one LSM to update the state
-> > > of another LSM is only going to lead to problems.  We wouldn't want to
-> > > allow Smack to update AppArmor state, and from my current perspective
-> > > allowing the BPF LSM to update the capability state is no different.
-> > >
-> > > It's also important to keep in mind that if we allow one LSM to do
-> > > something, we need to allow all LSMs to do something.  If we allow
-> > > multiple LSMs to manipulate the capability sets, how do we reconcile
-> > > differences in the desired capability state?  Does that resolution
-> > > change depending on what LSMs are enabled at build time?  Enabled at
-> > > boot?  Similarly, what about custom LSM ordering?
-> > >
-> > > What about those LSMs that use a task's capabilities as an input to an
-> > > access control decision?  If those LSMs allow an access based on a
-> > > given capability set only to have a LSM later in the ordering modify
-> > > that capability set to something which would have resulted in an
-> > > access denial, do we risk a security regression?
-> >
-> > I understand the concerns, what I fail to understand however, is how is
-> > it any different from say the `cred_prepare` hook today?
-> 
-> The existing cred_prepare hooks only operate on their own small
-> portion of the cred::security blob.  What you are proposing would be
-> the BPF LSM operating on the capability sets that it does not "own"
-> (they belong to the capability LSM).
-> 
-> If you see that as a minor difference, please understand that if you
-> skip past that you have all the issues I mentioned in my previous
-> message to deal with.
-> 
-> > > Our current approach to handling multiple LSMs is that each LSM is
-> > > limited to modifying its own state, and I'm pretty confident that we
-> > > stick to this model if we have any hope of preserving the sanity of
-> > > the LSM layer as a whole.  If you want to modify the capability set
-> > > you need to do so within the confines of the capability LSM and/or
-> > > modify the other related kernel subsystems (which I'm guessing will
-> > > likely necessitate a change in the LSMs, but that avenue is very
-> > > unclear if such an option even exists).
-> >
-> > What do you mean by "within the confines of the capability LSM" here?
-> 
-> Basically security/commoncap.c.  One could make a lot of arguments
-> about if it is, or isn't, a LSM, but commoncap.c registers LSM hooks
-> which is pretty much the definition of a LSM from an implementation
-> point of view.
+On Sat, Jun 8, 2024 at 1:22=E2=80=AFPM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
+>
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Reject multiple nodecon declarations with the same address and netmask.
+> Avoids mistakes when defining them in different places or using both the
+> address-with-netmask and CIDR-notation syntax.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Yes, hence the proposal to give it more fine-grained controls than
-what's currently available. But to your point, unlike the others,
-its own state (i.e. capsets) is shared, so this gets questionable.
+Acked-by: James Carter <jwcart2@gmail.com>
 
-> > Arguably, if we do want fine-grained userns policies, we need LSMs to
-> > influence the userns capset at some point.
-> 
-> One could always use, or develop, a LSM that offers additional
-> controls around exercising capabilities.  There are currently four
-> in-tree LSMs, including the capabilities LSM, which supply a
-> security_capable() hook that is used by the capability-based access
-> controls in the kernel; all of these hook implementations work
-> together within the LSM framework and provide an additional level of
-> control/granularity beyond the existing capabilities.
-
-Right, but the idea was to have a simple and easy way to reuse/trigger
-as much of the commoncap one as possible from BPF. If we're saying we
-need to reimplement and/or use a whole new framework, then there is
-little value.
-
-TBH, I don't feel strongly about this, which is why it is absent from
-v1. However, as John pointed out, we should at least be able to modify
-the blob if we want flexible userns caps policies down the road.
+> ---
+>  checkpolicy/policy_define.c | 186 +++++++++++++++++-------------------
+>  1 file changed, 87 insertions(+), 99 deletions(-)
+>
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index 1d17f73d..4931f23d 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -5238,12 +5238,45 @@ int define_netif_context(void)
+>         return 0;
+>  }
+>
+> +static int insert_ipv4_node(ocontext_t *newc)
+> +{
+> +       ocontext_t *c, *l;
+> +       char addr[INET_ADDRSTRLEN];
+> +       char mask[INET_ADDRSTRLEN];
+> +
+> +       /* Create order of most specific to least retaining
+> +          the order specified in the configuration. */
+> +       for (l =3D NULL, c =3D policydbp->ocontexts[OCON_NODE]; c; l =3D =
+c, c =3D c->next) {
+> +               if (newc->u.node.mask =3D=3D c->u.node.mask &&
+> +                   newc->u.node.addr =3D=3D c->u.node.addr) {
+> +                       yyerror2("duplicate entry for network node %s %s"=
+,
+> +                                inet_ntop(AF_INET, &newc->u.node.addr, a=
+ddr, INET_ADDRSTRLEN) ?: "<invalid>",
+> +                                inet_ntop(AF_INET, &newc->u.node.mask, m=
+ask, INET_ADDRSTRLEN) ?: "<invalid>");
+> +                       context_destroy(&newc->context[0]);
+> +                       free(newc);
+> +                       return -1;
+> +               }
+> +
+> +               if (newc->u.node.mask > c->u.node.mask)
+> +                       break;
+> +       }
+> +
+> +       newc->next =3D c;
+> +
+> +       if (l)
+> +               l->next =3D newc;
+> +       else
+> +               policydbp->ocontexts[OCON_NODE] =3D newc;
+> +
+> +       return 0;
+> +}
+> +
+>  int define_ipv4_node_context(void)
+>  {
+>         char *id;
+>         int rc =3D 0;
+>         struct in_addr addr, mask;
+> -       ocontext_t *newc, *c, *l, *head;
+> +       ocontext_t *newc;
+>
+>         if (policydbp->target_platform !=3D SEPOL_TARGET_SELINUX) {
+>                 yyerror("nodecon not supported for target");
+> @@ -5254,40 +5287,34 @@ int define_ipv4_node_context(void)
+>                 free(queue_remove(id_queue));
+>                 free(queue_remove(id_queue));
+>                 parse_security_context(NULL);
+> -               goto out;
+> +               return 0;
+>         }
+>
+>         id =3D queue_remove(id_queue);
+>         if (!id) {
+>                 yyerror("failed to read ipv4 address");
+> -               rc =3D -1;
+> -               goto out;
+> +               return -1;
+>         }
+>
+>         rc =3D inet_pton(AF_INET, id, &addr);
+>         if (rc < 1) {
+>                 yyerror2("failed to parse ipv4 address %s", id);
+>                 free(id);
+> -               if (rc =3D=3D 0)
+> -                       rc =3D -1;
+> -               goto out;
+> +               return -1;
+>         }
+>         free(id);
+>
+>         id =3D queue_remove(id_queue);
+>         if (!id) {
+>                 yyerror("failed to read ipv4 address");
+> -               rc =3D -1;
+> -               goto out;
+> +               return -1;
+>         }
+>
+>         rc =3D inet_pton(AF_INET, id, &mask);
+>         if (rc < 1) {
+>                 yyerror2("failed to parse ipv4 mask %s", id);
+>                 free(id);
+> -               if (rc =3D=3D 0)
+> -                       rc =3D -1;
+> -               goto out;
+> +               return -1;
+>         }
+>
+>         free(id);
+> @@ -5303,8 +5330,7 @@ int define_ipv4_node_context(void)
+>         newc =3D malloc(sizeof(ocontext_t));
+>         if (!newc) {
+>                 yyerror("out of memory");
+> -               rc =3D -1;
+> -               goto out;
+> +               return -1;
+>         }
+>
+>         memset(newc, 0, sizeof(ocontext_t));
+> @@ -5316,23 +5342,7 @@ int define_ipv4_node_context(void)
+>                 return -1;
+>         }
+>
+> -       /* Create order of most specific to least retaining
+> -          the order specified in the configuration. */
+> -       head =3D policydbp->ocontexts[OCON_NODE];
+> -       for (l =3D NULL, c =3D head; c; l =3D c, c =3D c->next) {
+> -               if (newc->u.node.mask > c->u.node.mask)
+> -                       break;
+> -       }
+> -
+> -       newc->next =3D c;
+> -
+> -       if (l)
+> -               l->next =3D newc;
+> -       else
+> -               policydbp->ocontexts[OCON_NODE] =3D newc;
+> -       rc =3D 0;
+> -out:
+> -       return rc;
+> +       return insert_ipv4_node(newc);
+>  }
+>
+>  int define_ipv4_cidr_node_context(void)
+> @@ -5341,7 +5351,7 @@ int define_ipv4_cidr_node_context(void)
+>         unsigned long mask_bits;
+>         uint32_t mask;
+>         struct in_addr addr;
+> -       ocontext_t *newc, *c, *l, *head;
+> +       ocontext_t *newc;
+>         int rc;
+>
+>         if (policydbp->target_platform !=3D SEPOL_TARGET_SELINUX) {
+> @@ -5411,22 +5421,7 @@ int define_ipv4_cidr_node_context(void)
+>                 return -1;
+>         }
+>
+> -       /* Create order of most specific to least retaining
+> -          the order specified in the configuration. */
+> -       head =3D policydbp->ocontexts[OCON_NODE];
+> -       for (l =3D NULL, c =3D head; c; l =3D c, c =3D c->next) {
+> -               if (newc->u.node.mask > c->u.node.mask)
+> -                       break;
+> -       }
+> -
+> -       newc->next =3D c;
+> -
+> -       if (l)
+> -               l->next =3D newc;
+> -       else
+> -               policydbp->ocontexts[OCON_NODE] =3D newc;
+> -
+> -       return 0;
+> +       return insert_ipv4_node(newc);
+>  }
+>
+>  static int ipv6_is_mask_contiguous(const struct in6_addr *mask)
+> @@ -5483,12 +5478,45 @@ static void ipv6_cidr_bits_to_mask(unsigned long =
+cidr_bits, struct in6_addr *mas
+>         }
+>  }
+>
+> +static int insert_ipv6_node(ocontext_t *newc)
+> +{
+> +       ocontext_t *c, *l;
+> +       char addr[INET6_ADDRSTRLEN];
+> +       char mask[INET6_ADDRSTRLEN];
+> +
+> +       /* Create order of most specific to least retaining
+> +          the order specified in the configuration. */
+> +       for (l =3D NULL, c =3D policydbp->ocontexts[OCON_NODE6]; c; l =3D=
+ c, c =3D c->next) {
+> +               if (memcmp(&newc->u.node6.mask, &c->u.node6.mask, 16) =3D=
+=3D 0 &&
+> +                   memcmp(&newc->u.node6.addr, &c->u.node6.addr, 16) =3D=
+=3D 0) {
+> +                       yyerror2("duplicate entry for network node %s %s"=
+,
+> +                                inet_ntop(AF_INET6, &newc->u.node6.addr,=
+ addr, INET6_ADDRSTRLEN) ?: "<invalid>",
+> +                                inet_ntop(AF_INET6, &newc->u.node6.mask,=
+ mask, INET6_ADDRSTRLEN) ?: "<invalid>");
+> +                       context_destroy(&newc->context[0]);
+> +                       free(newc);
+> +                       return -1;
+> +               }
+> +
+> +               if (memcmp(&newc->u.node6.mask, &c->u.node6.mask, 16) > 0=
+)
+> +                       break;
+> +       }
+> +
+> +       newc->next =3D c;
+> +
+> +       if (l)
+> +               l->next =3D newc;
+> +       else
+> +               policydbp->ocontexts[OCON_NODE6] =3D newc;
+> +
+> +       return 0;
+> +}
+> +
+>  int define_ipv6_node_context(void)
+>  {
+>         char *id;
+>         int rc =3D 0;
+>         struct in6_addr addr, mask;
+> -       ocontext_t *newc, *c, *l, *head;
+> +       ocontext_t *newc;
+>
+>         if (policydbp->target_platform !=3D SEPOL_TARGET_SELINUX) {
+>                 yyerror("nodecon not supported for target");
+> @@ -5499,23 +5527,20 @@ int define_ipv6_node_context(void)
+>                 free(queue_remove(id_queue));
+>                 free(queue_remove(id_queue));
+>                 parse_security_context(NULL);
+> -               goto out;
+> +               return 0;
+>         }
+>
+>         id =3D queue_remove(id_queue);
+>         if (!id) {
+>                 yyerror("failed to read ipv6 address");
+> -               rc =3D -1;
+> -               goto out;
+> +               return -1;
+>         }
+>
+>         rc =3D inet_pton(AF_INET6, id, &addr);
+>         if (rc < 1) {
+>                 yyerror2("failed to parse ipv6 address %s", id);
+>                 free(id);
+> -               if (rc =3D=3D 0)
+> -                       rc =3D -1;
+> -               goto out;
+> +               return -1;
+>         }
+>
+>         free(id);
+> @@ -5523,17 +5548,14 @@ int define_ipv6_node_context(void)
+>         id =3D queue_remove(id_queue);
+>         if (!id) {
+>                 yyerror("failed to read ipv6 address");
+> -               rc =3D -1;
+> -               goto out;
+> +               return -1;
+>         }
+>
+>         rc =3D inet_pton(AF_INET6, id, &mask);
+>         if (rc < 1) {
+>                 yyerror2("failed to parse ipv6 mask %s", id);
+>                 free(id);
+> -               if (rc =3D=3D 0)
+> -                       rc =3D -1;
+> -               goto out;
+> +               return -1;
+>         }
+>
+>         free(id);
+> @@ -5549,8 +5571,7 @@ int define_ipv6_node_context(void)
+>         newc =3D malloc(sizeof(ocontext_t));
+>         if (!newc) {
+>                 yyerror("out of memory");
+> -               rc =3D -1;
+> -               goto out;
+> +               return -1;
+>         }
+>
+>         memset(newc, 0, sizeof(ocontext_t));
+> @@ -5559,28 +5580,10 @@ int define_ipv6_node_context(void)
+>
+>         if (parse_security_context(&newc->context[0])) {
+>                 free(newc);
+> -               rc =3D -1;
+> -               goto out;
+> -       }
+> -
+> -       /* Create order of most specific to least retaining
+> -          the order specified in the configuration. */
+> -       head =3D policydbp->ocontexts[OCON_NODE6];
+> -       for (l =3D NULL, c =3D head; c; l =3D c, c =3D c->next) {
+> -               if (memcmp(&newc->u.node6.mask, &c->u.node6.mask, 16) > 0=
+)
+> -                       break;
+> +               return -1;
+>         }
+>
+> -       newc->next =3D c;
+> -
+> -       if (l)
+> -               l->next =3D newc;
+> -       else
+> -               policydbp->ocontexts[OCON_NODE6] =3D newc;
+> -
+> -       rc =3D 0;
+> -      out:
+> -       return rc;
+> +       return insert_ipv6_node(newc);
+>  }
+>
+>  int define_ipv6_cidr_node_context(void)
+> @@ -5589,7 +5592,7 @@ int define_ipv6_cidr_node_context(void)
+>         unsigned long mask_bits;
+>         int rc;
+>         struct in6_addr addr, mask;
+> -       ocontext_t *newc, *c, *l, *head;
+> +       ocontext_t *newc;
+>
+>         if (policydbp->target_platform !=3D SEPOL_TARGET_SELINUX) {
+>                 yyerror("nodecon not supported for target");
+> @@ -5658,22 +5661,7 @@ int define_ipv6_cidr_node_context(void)
+>                 return -1;
+>         }
+>
+> -       /* Create order of most specific to least retaining
+> -          the order specified in the configuration. */
+> -       head =3D policydbp->ocontexts[OCON_NODE6];
+> -       for (l =3D NULL, c =3D head; c; l =3D c, c =3D c->next) {
+> -               if (memcmp(&newc->u.node6.mask, &c->u.node6.mask, 16) > 0=
+)
+> -                       break;
+> -       }
+> -
+> -       newc->next =3D c;
+> -
+> -       if (l)
+> -               l->next =3D newc;
+> -       else
+> -               policydbp->ocontexts[OCON_NODE6] =3D newc;
+> -
+> -       return 0;
+> +       return insert_ipv6_node(newc);
+>  }
+>
+>  int define_fs_use(int behavior)
+> --
+> 2.45.1
+>
+>
