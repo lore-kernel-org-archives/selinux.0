@@ -1,137 +1,180 @@
-Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
+Received: from mail-oi1-f182.google.com (mail-oi1-f182.google.com [209.85.167.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7ACF18309E
-	for <selinux@vger.kernel.org>; Wed, 12 Jun 2024 17:29:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE11316E895
+	for <selinux@vger.kernel.org>; Wed, 12 Jun 2024 18:10:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718213362; cv=none; b=KbZ5EBZA9H2DDe0RUzeR9swD4sKAcr77sOo3F/R7t763+hXfMS2uzdkIiobZjF6Qt6gFsaqt2ezuAyxrmKXA+SD2908Qr6uybyuZBG3thJe9YYZVS3zRucB07UVkS+nb+TzbQOHRq3SqI9F/ypC/qJGfx7GwqASfFs5TQ/b3aW0=
+	t=1718215819; cv=none; b=OUP/EB8TvwEtRZfyFSrV2uTaOA8GNn3Fs6TZTM9G0qA3vHUqpvxdD1iQZjgNsWw0z1AWmXmeXCDNqOKcsNd+Yz9JHDM6fLchNdiDPI0OIgVwZSgPBcF8HiON+RMTSKu2JqL8Qo6aLusdlAZau7zpjA5JIhZADUULAU87vJD2kVo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718213362; c=relaxed/simple;
-	bh=SqHXwxyX0hOMrGyXlbcSlWw9tiq1bd472LhKjNZO0j4=;
+	s=arc-20240116; t=1718215819; c=relaxed/simple;
+	bh=YpJfc60fzON/bmbYJZiDJBe6HVFzjKN7f6Fss3w4g+0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MhS/xX8285cwx6pzMhp2JlCW+81LRyB3Ymsl1JCCdmAz4oLqnSE7Arrt1Zdq4WZ9aD5Yj/3RIrunmL+6nYat+3ep9GeZicYtvz9apUdrbrnMhvKsxDeGbpU95p8aGqxvT5pLYT+zEQrN0297sz7s3tMDy/48JfKpWs++tqTiq/E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=cHTfEDbH; arc=none smtp.client-ip=209.85.219.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=oUK/5ccB+RKoniAbl3Ze68N4muqmkau77nYU8I0AjgRlSn0rBzoLf55FBkiaszBDBB5XxGeVEUTMyoTlp252wizcpE/v4wg9KM+I0LD9eT8btnkbpctu6bMefaxd6puaIPZwGWAEywPjUiNYwZzQmMs3BrgcEX+A3jzgpRcy8ps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iIsCZu+L; arc=none smtp.client-ip=209.85.167.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="cHTfEDbH"
-Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-df771b6cc9cso103402276.3
-        for <selinux@vger.kernel.org>; Wed, 12 Jun 2024 10:29:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iIsCZu+L"
+Received: by mail-oi1-f182.google.com with SMTP id 5614622812f47-3cabac56b38so16753b6e.3
+        for <selinux@vger.kernel.org>; Wed, 12 Jun 2024 11:10:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1718213359; x=1718818159; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1718215817; x=1718820617; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=60lvPuusqxavVhRXfVcmrSoiIVupdLi0rpCh21972os=;
-        b=cHTfEDbHk6HIEEn0Ouvd1wUDoXpMYFN/HZO3ahKHW+K15xPGFiMJcf8MVBZfy7Lndu
-         9B0gJUKFP12+r7Xc0M3Fq2RqW+bZgItpodmOakdof6kuTbSmAdWWeM2ubU1BlyQiebMb
-         MvuxAQamRDwQeIW9ZFBIcvc59CZMvSKdRtNzitNXU8JHVrEMDHNC/i5Yf9gBEwfkTVAI
-         KAIunmbnZvUDIKtLlMs0yrTuey7ImwDoH+0hvUxrPZx76Hy4yG9yQD5DOFiP9PpUxuj6
-         EIcmmCaIDNDCFGvrURI3v936AvRLS4oTV3eYPx2TdJldxRqJalPrHlTJbKC7D+B/tmAO
-         4PzQ==
+        bh=gHM6tNGnMdwoIpBJCjWrbaRtH1vLkhAzUY58hOQsyME=;
+        b=iIsCZu+LRqH0BodvZX6JTqv/EL70f10F2KtXN8z3j9LeXeo3tzPul6IQM775HGAZHa
+         qkgvFmktoWf0uaEX3akHDcB4rKDo078+vhXXKVdrnesj3fEI4CwqwONjq099M5JNatZk
+         ARgCxYcrLlgGvAvLmcrXIyGGE1PS5R+grAXiZNp7/7w1FkRlybj9aVm7UVVsVcPFpxYq
+         9JHl3Ey6J6vqS5S+RIfie4i4c/68Aqp8YmEUdo50sJFRpeTLOJLmxACp5Aa90MHVaWZb
+         9aSs0w7+oeJShkutoheHAxYt0n0S0tVf+0mAxA4L+HxTgW/pEr1fYmQ9OTQaGH1i44CT
+         yqyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718213359; x=1718818159;
+        d=1e100.net; s=20230601; t=1718215817; x=1718820617;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=60lvPuusqxavVhRXfVcmrSoiIVupdLi0rpCh21972os=;
-        b=xLo4NzPT/X2Qdw+kCrmbvQDEK8Mb39+yYj7UeWxTNATBalZmFwSs8KTJ6a1n82k+Sw
-         ao8uqV0QDQh51kWkkrJGTrzQhyABmlM3YqmeeK1T4tlDLSGBLfQdG4A2twHUFhTMH2tI
-         bcATyLo/naCncbRkRR95iY2cQn9YAbYAl6xE23lMPzbDbVeMg7dwLMp/iBRb0KgeQL90
-         ekfzVrVLr1uXtd25Y2FlzZp5lNbfJdX+17EgBW5FQyr0aLrK9mPHlGibkLiXmmss1aF8
-         DKNgiUTu/IT3OdbzA+UYsnV/Fo8lmh/S6kmhfzJrvcVJn1fNz3UlIqhtBPiwt0qR+aPF
-         PpcA==
-X-Forwarded-Encrypted: i=1; AJvYcCVhVL6jF4p9IQHp//F+in9hwB2fRnefQcHGT8xiYMsTRK8OLblbe4UTSz6DeXoORB86F6k1lzFdRQbhyaTgtxboszDJV5Yjug==
-X-Gm-Message-State: AOJu0YzYlrV7qgxJYcQe2ihKD5vOxHO7jjFg395i+ecR8jbLO+387zbL
-	Trj/Mk0a0Sot+ISeEWPldIuYula0LPsKKfZp6R2s1WFFkzbsWcLiQmgu6G0qS9nckJxOcg5hUyu
-	9aoCsj/gxxQ6Wbtqd6yFfwS5/UGBSiOKZoCQY
-X-Google-Smtp-Source: AGHT+IEhGQzLLgCG9zMe0EWuDP1y2oVPtsHywKe/9At+CIXkctODudh6oHfrQfYIPwmYuFhbkIgUb9iq6CY+5R6qw6E=
-X-Received: by 2002:a25:7:0:b0:de6:1695:13a3 with SMTP id 3f1490d57ef6-dfe62f1a60dmr2505543276.0.1718213358736;
- Wed, 12 Jun 2024 10:29:18 -0700 (PDT)
+        bh=gHM6tNGnMdwoIpBJCjWrbaRtH1vLkhAzUY58hOQsyME=;
+        b=sND/PRH1Blz4DJUjTBaDJtRCPuS1sDt3szzQ4mpIxCGYNQzfUNxEy4F/VeqJoUXpF1
+         vYI0S/o6aVoFOOxeD0alhaoHjbZymtI2snf88nlgvu8wjN34kp/3hgpadHTFl0K0jHiA
+         gryNUWzNoTIk6HRvrI28BYvDUUBlnpc+Fh3kGpaGN2L8ng/eitN3EKri2/4XhAwU++Pz
+         J7aa2dCmKX8uNbCfDhVPKS599Bqgv5J1VDDH03xXpgMcJqW8KdSREjM1DwktGajICSAP
+         r51Xn7yE4+UqygziFwzNyoj0AkVHeckjcPgInTSuWgpFIM1knT5ye+Bt5/E74JXU7H3s
+         Wr1w==
+X-Gm-Message-State: AOJu0Yz/YgY/c0CowKV8A07D6mTuH7ci2KxtXXDT/pQdiIl0Uc3dST4Z
+	HZhLVGfYaQCwzcN9OOKfvSRiFfctbvPpkLrNR2oriO6Om/pnBtd8sDO9GYn846mJvHAGbPllh2Y
+	BS1IdacV1xp6pFavgEbh0cb+J8PetBCdv
+X-Google-Smtp-Source: AGHT+IGMgonVwdAkRdA+YWDxo8TquBWMe4mEj6GL5VEFwaytDhJjdfNvqIwzjMjWYwIQULL/wrgiyh/sEnvZFH9kQn4=
+X-Received: by 2002:a05:6808:3096:b0:3d2:2703:2573 with SMTP id
+ 5614622812f47-3d23dfb5b5amr3147879b6e.8.1718215816872; Wed, 12 Jun 2024
+ 11:10:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240609104355.442002-1-jcalmels@3xx0.net> <20240609104355.442002-5-jcalmels@3xx0.net>
- <CAHC9VhT5XWbhoY2Nw5jQz4GxpDriUdHw=1YsQ4xLVUtSnFxciA@mail.gmail.com>
- <z2bgjrzeq7crqx24chdbxnaanuhczbjnq6da3xw6al6omjj5xz@mqbzzzfva5sw>
- <887a3658-2d8d-4f9e-98f2-27124bb6f8e6@canonical.com> <CAHC9VhQFNPJTOct5rUv3HT6Z2S20mYdW75seiG8no5=fZd7JjA@mail.gmail.com>
- <uuvwcdsy7o4ulmrdzwffr6uywfacmlkjrontmjdj44luantpok@dtatxaa6tzyv>
- <CAHC9VhRnthf8+KgfuzFHXWEAc9RShDO0G_g0kc1OJ-UTih1ywg@mail.gmail.com> <rgzhcsblub7wedm734n56cw2qf6czjb4jgck6l5miur6odhovo@n5tgrco74zce>
-In-Reply-To: <rgzhcsblub7wedm734n56cw2qf6czjb4jgck6l5miur6odhovo@n5tgrco74zce>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 12 Jun 2024 13:29:06 -0400
-Message-ID: <CAHC9VhRGJTND25MFk4gR-FGxoLhMmgUrMpz_YoMFOwL6kr28zQ@mail.gmail.com>
-Subject: Re: [PATCH v2 4/4] bpf,lsm: Allow editing capabilities in BPF-LSM hooks
-To: Jonathan Calmels <jcalmels@3xx0.net>
-Cc: John Johansen <john.johansen@canonical.com>, brauner@kernel.org, ebiederm@xmission.com, 
-	Jonathan Corbet <corbet@lwn.net>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	KP Singh <kpsingh@kernel.org>, Matt Bobrowski <mattbobrowski@google.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, 
-	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
-	Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Luis Chamberlain <mcgrof@kernel.org>, Kees Cook <kees@kernel.org>, 
-	Joel Granados <j.granados@samsung.com>, David Howells <dhowells@redhat.com>, 
-	Jarkko Sakkinen <jarkko@kernel.org>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>, 
-	containers@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-doc@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, bpf@vger.kernel.org, 
-	apparmor@lists.ubuntu.com, keyrings@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-kselftest@vger.kernel.org
+References: <20240608172332.140336-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20240608172332.140336-1-cgoettsche@seltendoof.de>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 12 Jun 2024 14:10:05 -0400
+Message-ID: <CAP+JOzQPRyF06cb=y4LQ-ASt3ei48bb7WCwSUoivsx+yus2oUg@mail.gmail.com>
+Subject: Re: [PATCH] tree-wide: fix misc typos
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 12, 2024 at 4:15=E2=80=AFAM Jonathan Calmels <jcalmels@3xx0.net=
-> wrote:
-> On Tue, Jun 11, 2024 at 06:38:31PM GMT, Paul Moore wrote:
-> > On Tue, Jun 11, 2024 at 6:15=E2=80=AFPM Jonathan Calmels <jcalmels@3xx0=
-.net> wrote:
-
-...
-
-> > > Arguably, if we do want fine-grained userns policies, we need LSMs to
-> > > influence the userns capset at some point.
-> >
-> > One could always use, or develop, a LSM that offers additional
-> > controls around exercising capabilities.  There are currently four
-> > in-tree LSMs, including the capabilities LSM, which supply a
-> > security_capable() hook that is used by the capability-based access
-> > controls in the kernel; all of these hook implementations work
-> > together within the LSM framework and provide an additional level of
-> > control/granularity beyond the existing capabilities.
+On Sat, Jun 8, 2024 at 1:23=E2=80=AFPM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
 >
-> Right, but the idea was to have a simple and easy way to reuse/trigger
-> as much of the commoncap one as possible from BPF. If we're saying we
-> need to reimplement and/or use a whole new framework, then there is
-> little value.
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-I can appreciate how allowing direct manipulation of capability bits
-from a BPF LSM looks attractive, but my hope is that our discussion
-here revealed that as you look deeper into making it work there are a
-number of pitfalls which prevent this from being a safe option for
-generalized systems.
+Acked-by: James Carter <jwcart2@gmail.com>
 
-> TBH, I don't feel strongly about this, which is why it is absent from
-> v1. However, as John pointed out, we should at least be able to modify
-> the blob if we want flexible userns caps policies down the road.
-
-As discussed in this thread, there are existing ways to provide fine
-grained control over exercising capabilities that can be safely used
-within the LSM framework.  I don't want to speak to what John is
-envisioning, but he should be aware of these mechanisms, and if I
-recall he did voice a level of concern about the same worries I
-mentioned.
-
-I'm happy to discuss ways in which we can adjust the LSM hooks/layer
-to support different approaches to capability controls, but one LSM
-directly manipulating the state of another is going to be a no vote
-from me.
-
---=20
-paul-moore.com
+> ---
+>  libselinux/utils/sefcontext_compile.c | 2 +-
+>  libsepol/src/kernel_to_cil.c          | 4 ++--
+>  libsepol/src/kernel_to_conf.c         | 4 ++--
+>  secilc/docs/cil_reference_guide.md    | 4 ++--
+>  4 files changed, 7 insertions(+), 7 deletions(-)
+>
+> diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sef=
+context_compile.c
+> index 6c32172d..8677189e 100644
+> --- a/libselinux/utils/sefcontext_compile.c
+> +++ b/libselinux/utils/sefcontext_compile.c
+> @@ -189,7 +189,7 @@ static int write_binary_file(struct saved_data *data,=
+ int fd,
+>                 if (len !=3D 1)
+>                         goto err;
+>
+> -               /* original context strin (including nul) */
+> +               /* original context string (including nul) */
+>                 len =3D fwrite(context, sizeof(char), to_write, bin_file)=
+;
+>                 if (len !=3D to_write)
+>                         goto err;
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index e20ba4af..f94cb245 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -303,7 +303,7 @@ static int class_constraint_rules_to_strs(struct poli=
+cydb *pdb, char *classkey,
+>                         goto exit;
+>                 }
+>                 if (*perms =3D=3D '\0') {
+> -                       ERR(NULL, "No permisisons in permission string");
+> +                       ERR(NULL, "No permissions in permission string");
+>                         free(perms);
+>                         rc =3D -1;
+>                         goto exit;
+> @@ -1782,7 +1782,7 @@ static char *avtab_node_to_str(struct policydb *pdb=
+, avtab_key_t *key, avtab_dat
+>                         goto exit;
+>                 }
+>                 if (*perms =3D=3D '\0') {
+> -                       ERR(NULL, "No permisisons in permission string");
+> +                       ERR(NULL, "No permissions in permission string");
+>                         free(perms);
+>                         goto exit;
+>                 }
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
+c
+> index 5860a513..ca91ffae 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -298,7 +298,7 @@ static int class_constraint_rules_to_strs(struct poli=
+cydb *pdb, char *classkey,
+>                         goto exit;
+>                 }
+>                 if (*perms =3D=3D '\0') {
+> -                       ERR(NULL, "No permisisons in permission string");
+> +                       ERR(NULL, "No permissions in permission string");
+>                         free(perms);
+>                         rc =3D -1;
+>                         goto exit;
+> @@ -1748,7 +1748,7 @@ static char *avtab_node_to_str(struct policydb *pdb=
+, avtab_key_t *key, avtab_dat
+>                         goto exit;
+>                 }
+>                 if (*permstring =3D=3D '\0') {
+> -                       ERR(NULL, "No permisisons in permission string");
+> +                       ERR(NULL, "No permissions in permission string");
+>                         free(permstring);
+>                         goto exit;
+>                 }
+> diff --git a/secilc/docs/cil_reference_guide.md b/secilc/docs/cil_referen=
+ce_guide.md
+> index d1d3ff16..5ae5a3a3 100644
+> --- a/secilc/docs/cil_reference_guide.md
+> +++ b/secilc/docs/cil_reference_guide.md
+> @@ -281,7 +281,7 @@ The number of `expr_set`'s in an `expr` is dependent =
+on the statement type (ther
+>          (mlsconstrain (process (transition dyntransition))
+>              (or (and (eq h1 h2) (eq l1 l2)) (eq t1 mlstrustedsubject)))
+>
+> -        ; The equivalent policy language mlsconstrain statememt is:
+> +        ; The equivalent policy language mlsconstrain statement is:
+>          ;mlsconstrain process { transition dyntransition }
+>          ;    ((h1 eq h2 and l1 eq l2) or t1 =3D=3D mlstrustedsubject);
+>
+> @@ -289,7 +289,7 @@ The number of `expr_set`'s in an `expr` is dependent =
+on the statement type (ther
+>          (mlsconstrain (process (getsched getsession getpgid getcap getat=
+tr ptrace share))
+>              (or (dom l1 l2) (eq t1 mlstrustedsubject)))
+>
+> -        ; The equivalent policy language mlsconstrain statememt is:
+> +        ; The equivalent policy language mlsconstrain statement is:
+>          ;mlsconstrain process { getsched getsession getpgid getcap getat=
+tr ptrace share }
+>          ;    (l1 dom l2 or t1 =3D=3D mlstrustedsubject);
+>      ```
+> --
+> 2.45.1
+>
+>
