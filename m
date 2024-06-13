@@ -1,158 +1,133 @@
-Received: from wind.enjellic.com (wind.enjellic.com [76.10.64.91])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 06DAB137C25;
-	Thu, 13 Jun 2024 10:46:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=76.10.64.91
+Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9830E1459F1;
+	Thu, 13 Jun 2024 12:10:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718275596; cv=none; b=Zb8mOEiiqoXAw47nrbxpL2tlvE9WlQgDOuwDcJgpwwYDwHJzdRJLawVGgny8cz6TRsePa/YTYS8W+eNZS7TVmGpfOBDMzXP2seFENsJHwEn/XCjIwqPE7Q8QT/71pa31G9bZY50yvZH5uz631QF1DynXeVFtcdMq14MSPeMvFiU=
+	t=1718280656; cv=none; b=LGBfSI5mer9YQbhCE0Kgjcwixa+0MK67hV7XIeVJ88Me5h5N+UgK0jYHtHY+yMktJkQcst9JMEqQGKmcWoINCYN0yESjoQSNT40zwinIrvHiNDHj/t4d0XiyvSqAgOrSbW3LbfSxGm0RlbqyyxFkEru1dmEbIgu/DdpIk1JQI0c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718275596; c=relaxed/simple;
-	bh=NNoLj6NG7+/lmRKiScF9b/hfIGCzN5rkCrwpdxpZr1Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Mime-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kG1Le8SS6adOcmmB1k7GI0L1yFL4wiYCwqlEDde+nC0HM0cj8W9qVczZFEFPQYTJXgmxwiPYpzXBbgDycXZLPjpFQEn/TKqV8ccwcSue+GEiAlhrPQlXDBB2aGbFXT51AtXltmCdgPsq+jlQlsiXpeOUvkn+nKInqNlBvcdVmIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enjellic.com; spf=pass smtp.mailfrom=wind.enjellic.com; arc=none smtp.client-ip=76.10.64.91
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enjellic.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wind.enjellic.com
-Received: from wind.enjellic.com (localhost [127.0.0.1])
-	by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id 45DAjF41023155;
-	Thu, 13 Jun 2024 05:45:15 -0500
-Received: (from greg@localhost)
-	by wind.enjellic.com (8.15.2/8.15.2/Submit) id 45DAjC98023150;
-	Thu, 13 Jun 2024 05:45:12 -0500
-Date: Thu, 13 Jun 2024 05:45:12 -0500
-From: "Dr. Greg" <greg@enjellic.com>
-To: John Johansen <john.johansen@canonical.com>
-Cc: Paul Moore <paul@paul-moore.com>, Jonathan Calmels <jcalmels@3xx0.net>,
-        brauner@kernel.org, ebiederm@xmission.com,
-        Jonathan Corbet <corbet@lwn.net>, James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>, KP Singh <kpsingh@kernel.org>,
-        Matt Bobrowski <mattbobrowski@google.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
-        Yonghong Song <yonghong.song@linux.dev>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
-        Jiri Olsa <jolsa@kernel.org>, Luis Chamberlain <mcgrof@kernel.org>,
-        Kees Cook <kees@kernel.org>, Joel Granados <j.granados@samsung.com>,
-        David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>, Mykola Lysenko <mykolal@fb.com>,
-        Shuah Khan <shuah@kernel.org>, containers@lists.linux.dev,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-security-module@vger.kernel.org,
-        bpf@vger.kernel.org, apparmor@lists.ubuntu.com,
-        keyrings@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH v2 4/4] bpf,lsm: Allow editing capabilities in BPF-LSM hooks
-Message-ID: <20240613104512.GA22971@wind.enjellic.com>
-Reply-To: "Dr. Greg" <greg@enjellic.com>
-References: <20240609104355.442002-5-jcalmels@3xx0.net> <CAHC9VhT5XWbhoY2Nw5jQz4GxpDriUdHw=1YsQ4xLVUtSnFxciA@mail.gmail.com> <z2bgjrzeq7crqx24chdbxnaanuhczbjnq6da3xw6al6omjj5xz@mqbzzzfva5sw> <887a3658-2d8d-4f9e-98f2-27124bb6f8e6@canonical.com> <CAHC9VhQFNPJTOct5rUv3HT6Z2S20mYdW75seiG8no5=fZd7JjA@mail.gmail.com> <uuvwcdsy7o4ulmrdzwffr6uywfacmlkjrontmjdj44luantpok@dtatxaa6tzyv> <CAHC9VhRnthf8+KgfuzFHXWEAc9RShDO0G_g0kc1OJ-UTih1ywg@mail.gmail.com> <rgzhcsblub7wedm734n56cw2qf6czjb4jgck6l5miur6odhovo@n5tgrco74zce> <CAHC9VhRGJTND25MFk4gR-FGxoLhMmgUrMpz_YoMFOwL6kr28zQ@mail.gmail.com> <ba8d88c8-a251-4c1f-8653-1082b0a101dd@canonical.com>
+	s=arc-20240116; t=1718280656; c=relaxed/simple;
+	bh=H9BiII9YUZgE5S9VCr50+FtSHFlNjcFnzHb9qUOtYcE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=u41sFb8t6abD48V3d2sEJ6w6HTWq//aiJarmr3Q6lLxIePbwSr5JyDFNFLN6mlAep8IxihH4Ye3OQ9XhxwEfNJB+vfQS9KQIrqU2/bs/GtVRdRx1rXITHEvHXPnfy4Chjbfah+tPtrnM0PZzGe+S/dAW0RIBchUDMj9XaPDWAW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hpLx5daL; arc=none smtp.client-ip=209.85.128.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hpLx5daL"
+Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-62f86abc8abso10153057b3.0;
+        Thu, 13 Jun 2024 05:10:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1718280653; x=1718885453; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=jilhcaruJb2IBiLjemWE46i5/PUFqJsWXVunml9StIM=;
+        b=hpLx5daL6vNpOfWV4Fef5kfL4DjNXjb2vErXr7bBYlrXes1/hJcYP+dFNZ8YNqxyLx
+         Z5zmHxG2DYAIo76SD7I6u8sJS8viNL/AAzQOh0L8WMXCy6cjZ2pzKlN8m/2zkq3rK9Ws
+         AkEglgy49r/YFPWisRqg0H81QICipnuuoAj5sZg9aej7eA2yJW1m5wrqiCP+CLL9mVrF
+         9/m2nbIvJ7MJsACfshNSjeUc1s4j3gYWP0uQa0Xc1AY9z5GbFvWTQBB2XvrSNfgyHtCW
+         9qhmjc4Lf4iAwoXbn/pv1v8f7dQCjj3BLvHw9IrVNf42exHpl2N12AYm1Fcz9d50k1Ha
+         hFsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1718280653; x=1718885453;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=jilhcaruJb2IBiLjemWE46i5/PUFqJsWXVunml9StIM=;
+        b=bPbTB4/Js5dLXnArVEJsgM0U4yD5c3LDTny5dBCezxnQzdka5WPzW4R1thfDxePrST
+         yjg/c6DaEVC+gOOnaNNZpRVTjK/KDBlNkNwuu5zY61vkHawc9497NWRIOyhA0PHYeEqr
+         3D5EJywvvr3y3FJWTHR+ysvc6Tnr6KBqYnYX4RtR+MEVXWBLxBxHhDp4DxvtzHlck4K+
+         BoXSjxrt6i/cQSe9gTbuNm75O+3ZrEwqe1X2oVhuBNVUViIYU8NZCzLjgqmwGwfzRbh7
+         v1iFwOoDWrkElfzoLsIrxbWEKX3QT4NDkP4N1oscgYYiU2C+IwmM7mjyWvLR1NjKjyzQ
+         kjtg==
+X-Forwarded-Encrypted: i=1; AJvYcCWp3EZjm0QKRpYHJsylbAQ1PB93AG+mc5+cVx+IZB55Zq4CLV+d3LoJhymLHCo4Z3LnTrXKQmAZaO1bmF4leZJMWltxNvchAarAHzY1v/5D0iLpZkhzodOyEcE7hQul0kgWfGqmsnmjvr0ekrnGNH7puOlzggJbCTtq6XuH6KfiSvwUP3TU90+GTGKxPH1LL5Q0saQxYd+tvjwMDyHFTvO7yEKBjvce+d27EszhPX4x6gNDG3Tp/i6TejKOudk81VHKfF2vBiyQGDgAUWedrv+Htg3dHXtdN6DfX7OjWzDvvZ87rjhsH5CpY+bgZKcCMoLqTRU/hA==
+X-Gm-Message-State: AOJu0YxKnSzMvK473IntlLzPBskKGebiieCaxXtMpat8SOswUYUhwtBE
+	yGhFNFEiy3cSTLItuihb3PFwVlbVEYHxnAhO4ux8m0jfv06M/CR+j9wFIXLwlg8BnPhbHK9uSuo
+	d8KwEZ/NmALKeYYfqHCrVSNGb9Aw=
+X-Google-Smtp-Source: AGHT+IECeNpAbuMBJduU/4vfo0TDc0y586W3/bKZ6gp1RqZAixArBbb8xY+5b1a7GzKTFusgDcdldUI00nJxS7Gmy8k=
+X-Received: by 2002:a05:690c:6683:b0:61a:c316:9953 with SMTP id
+ 00721157ae682-62fb857416emr57999367b3.11.1718280653503; Thu, 13 Jun 2024
+ 05:10:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ba8d88c8-a251-4c1f-8653-1082b0a101dd@canonical.com>
-User-Agent: Mutt/1.4i
-X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Thu, 13 Jun 2024 05:45:15 -0500 (CDT)
+MIME-Version: 1.0
+References: <20240613023044.45873-1-laoar.shao@gmail.com> <20240613023044.45873-7-laoar.shao@gmail.com>
+ <Zmqvu-1eUpdZ39PD@arm.com>
+In-Reply-To: <Zmqvu-1eUpdZ39PD@arm.com>
+From: Yafang Shao <laoar.shao@gmail.com>
+Date: Thu, 13 Jun 2024 20:10:17 +0800
+Message-ID: <CALOAHbB3Uiwsp2ieiPZ-_CKyZPgW6_gF_y-HEGHN3KWhGh0LDg@mail.gmail.com>
+Subject: Re: [PATCH v2 06/10] mm/kmemleak: Replace strncpy() with __get_task_comm()
+To: Catalin Marinas <catalin.marinas@arm.com>
+Cc: torvalds@linux-foundation.org, ebiederm@xmission.com, 
+	alexei.starovoitov@gmail.com, rostedt@goodmis.org, linux-mm@kvack.org, 
+	linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+	audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 12, 2024 at 08:54:28PM -0700, John Johansen wrote:
-
-Good morning, I hope the day is going well for everyone.
-
-> On 6/12/24 10:29, Paul Moore wrote:
-> >On Wed, Jun 12, 2024 at 4:15???AM Jonathan Calmels <jcalmels@3xx0.net> 
-> >wrote:
-> >>On Tue, Jun 11, 2024 at 06:38:31PM GMT, Paul Moore wrote:
-> >>>On Tue, Jun 11, 2024 at 6:15???PM Jonathan Calmels <jcalmels@3xx0.net> 
-> >>>wrote:
+On Thu, Jun 13, 2024 at 4:37=E2=80=AFPM Catalin Marinas <catalin.marinas@ar=
+m.com> wrote:
+>
+> On Thu, Jun 13, 2024 at 10:30:40AM +0800, Yafang Shao wrote:
+> > Using __get_task_comm() to read the task comm ensures that the name is
+> > always NUL-terminated, regardless of the source string. This approach a=
+lso
+> > facilitates future extensions to the task comm.
 > >
-> >...
+> > Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+> > Cc: Catalin Marinas <catalin.marinas@arm.com>
+> > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > ---
+> >  mm/kmemleak.c | 8 +-------
+> >  1 file changed, 1 insertion(+), 7 deletions(-)
 > >
-> >>>>Arguably, if we do want fine-grained userns policies, we need LSMs to
-> >>>>influence the userns capset at some point.
-> >>>
-> >>>One could always use, or develop, a LSM that offers additional
-> >>>controls around exercising capabilities.  There are currently four
-> >>>in-tree LSMs, including the capabilities LSM, which supply a
-> >>>security_capable() hook that is used by the capability-based access
-> >>>controls in the kernel; all of these hook implementations work
-> >>>together within the LSM framework and provide an additional level of
-> >>>control/granularity beyond the existing capabilities.
-> >>
-> >>Right, but the idea was to have a simple and easy way to reuse/trigger
-> >>as much of the commoncap one as possible from BPF. If we're saying we
-> >>need to reimplement and/or use a whole new framework, then there is
-> >>little value.
-> >
-> >I can appreciate how allowing direct manipulation of capability bits
-> >from a BPF LSM looks attractive, but my hope is that our discussion
-> >here revealed that as you look deeper into making it work there are a
-> >number of pitfalls which prevent this from being a safe option for
-> >generalized systems.
-> >
-> >>TBH, I don't feel strongly about this, which is why it is absent from
-> >>v1. However, as John pointed out, we should at least be able to modify
-> >>the blob if we want flexible userns caps policies down the road.
-> >
-> >As discussed in this thread, there are existing ways to provide fine
-> >grained control over exercising capabilities that can be safely used
-> >within the LSM framework.  I don't want to speak to what John is
-> >envisioning, but he should be aware of these mechanisms, and if I
-> >recall he did voice a level of concern about the same worries I
-> >mentioned.
-> >
-> 
-> sorry, I should have been more clear. I envision LSMs being able to
-> update their own state in the userns hook.
-> 
-> Basically the portion of the patch that removes const from the
-> userns hook.
-> 
-> An LSM updating the capset is worrysome for all the reasons you
-> pointed out, and I think a few more. I haven't had a chance to really
-> look at v2 yet, so I didn't want to speak directly on the bpf part of
-> the patch without first giving a good once over.
-> 
-> >I'm happy to discuss ways in which we can adjust the LSM hooks/layer
-> >to support different approaches to capability controls, but one LSM
-> >directly manipulating the state of another is going to be a no vote
-> >from me.
-> >
-> I might not be as hard no as Paul here, I am always willing to listen
-> to arguments, but it would have to be a really good argument to
-> modify the capset, when there are multiple LSMs in play on a system.
+> > diff --git a/mm/kmemleak.c b/mm/kmemleak.c
+> > index d5b6fba44fc9..ef29aaab88a0 100644
+> > --- a/mm/kmemleak.c
+> > +++ b/mm/kmemleak.c
+> > @@ -663,13 +663,7 @@ static struct kmemleak_object *__alloc_object(gfp_=
+t gfp)
+> >               strncpy(object->comm, "softirq", sizeof(object->comm));
+> >       } else {
+> >               object->pid =3D current->pid;
+> > -             /*
+> > -              * There is a small chance of a race with set_task_comm()=
+,
+> > -              * however using get_task_comm() here may cause locking
+> > -              * dependency issues with current->alloc_lock. In the wor=
+st
+> > -              * case, the command line is not correct.
+> > -              */
+> > -             strncpy(object->comm, current->comm, sizeof(object->comm)=
+);
+> > +             __get_task_comm(object->comm, sizeof(object->comm), curre=
+nt);
+> >       }
+>
+> You deleted the comment stating why it does not use get_task_comm()
+> without explaining why it would be safe now. I don't recall the details
+> but most likely lockdep warned of some potential deadlocks with this
+> function being called with the task_lock held.
+>
+> So, you either show why this is safe or just use strscpy() directly here
+> (not sure we'd need strscpy_pad(); I think strscpy() would do, we just
+> need the NUL-termination).
 
-Putting my pragmatic operations hat on, it isn't just the impact on
-multiple LSM's.
+The task_lock was dropped in patch #1 [0]. My apologies for not
+including you in the CC for that change. After this modification, it
+is now safe to use __get_task_comm().
 
-The security vendors, CrowdStrike's Falcon comes immediately to mind,
-are installing BPF hooks as part of their agent systems.
+[0] https://lore.kernel.org/all/20240613023044.45873-2-laoar.shao@gmail.com=
+/
 
-Given that the issue of signing BPF programs is still an open
-question, allowing the ability of a BPF program to modify the security
-capabilities of a process opens the door to supply chain attacks that
-would seem unbounded in scope.
-
-On the other side of the fence, installing a BPF program is a
-privileged operation.  If a decision is made to allow that kind of
-privilege on a system the argument can be made that you get to keep
-both pieces.
-
-Of course that needs to be paired against the fact that system's
-administrators are not given any choice as to the wisdom of that type
-of permission being afforded to security applications.
-
-Best wishes for a productive remainder of the week.
-
-As always,
-Dr. Greg
-
-The Quixote Project - Flailing at the Travails of Cybersecurity
-              https://github.com/Quixote-Project
+--=20
+Regards
+Yafang
