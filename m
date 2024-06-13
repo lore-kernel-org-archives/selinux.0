@@ -1,133 +1,229 @@
-Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
+Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9830E1459F1;
-	Thu, 13 Jun 2024 12:10:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A20F514A623
+	for <selinux@vger.kernel.org>; Thu, 13 Jun 2024 18:26:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718280656; cv=none; b=LGBfSI5mer9YQbhCE0Kgjcwixa+0MK67hV7XIeVJ88Me5h5N+UgK0jYHtHY+yMktJkQcst9JMEqQGKmcWoINCYN0yESjoQSNT40zwinIrvHiNDHj/t4d0XiyvSqAgOrSbW3LbfSxGm0RlbqyyxFkEru1dmEbIgu/DdpIk1JQI0c=
+	t=1718303216; cv=none; b=K2oWf6lVBbgWoWOTj158W0BMsi1hnxzeR5BTgGpvn0kfeKlOL/5nedKL1Kb1haejbYIcq9DZVRHjvjhXCqJpzFjQgWjJcCfiiAAmq5/CZoo56BxuwIEEIK/+TE8rf6YCkJ5v8hZDII99L52xinl59PD1J+8hQhkm3Eyw0IaNIbY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718280656; c=relaxed/simple;
-	bh=H9BiII9YUZgE5S9VCr50+FtSHFlNjcFnzHb9qUOtYcE=;
+	s=arc-20240116; t=1718303216; c=relaxed/simple;
+	bh=VLw0bWZBkfRfVs06AEgEM820Gqa5lkBzbVmDwF233Eo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=u41sFb8t6abD48V3d2sEJ6w6HTWq//aiJarmr3Q6lLxIePbwSr5JyDFNFLN6mlAep8IxihH4Ye3OQ9XhxwEfNJB+vfQS9KQIrqU2/bs/GtVRdRx1rXITHEvHXPnfy4Chjbfah+tPtrnM0PZzGe+S/dAW0RIBchUDMj9XaPDWAW0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hpLx5daL; arc=none smtp.client-ip=209.85.128.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=l/6gmEzS0g9h64PeGSOdEocluazs68UraENC265Dx1RIDriMd09P0EvuYoiN0VmrP2J33BPPpLWQXFVtQOTkN3HLE5no4nxRuFy250A1khrl2ApV/yhY70SebsFhZQ2p4DsEnNIBPR470Wyvceh967AgE7svDIcwe2fk50x3IjE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=YFFSDk4R; arc=none smtp.client-ip=209.85.128.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hpLx5daL"
-Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-62f86abc8abso10153057b3.0;
-        Thu, 13 Jun 2024 05:10:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="YFFSDk4R"
+Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-630640c1e14so19742067b3.1
+        for <selinux@vger.kernel.org>; Thu, 13 Jun 2024 11:26:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1718280653; x=1718885453; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1718303214; x=1718908014; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jilhcaruJb2IBiLjemWE46i5/PUFqJsWXVunml9StIM=;
-        b=hpLx5daL6vNpOfWV4Fef5kfL4DjNXjb2vErXr7bBYlrXes1/hJcYP+dFNZ8YNqxyLx
-         Z5zmHxG2DYAIo76SD7I6u8sJS8viNL/AAzQOh0L8WMXCy6cjZ2pzKlN8m/2zkq3rK9Ws
-         AkEglgy49r/YFPWisRqg0H81QICipnuuoAj5sZg9aej7eA2yJW1m5wrqiCP+CLL9mVrF
-         9/m2nbIvJ7MJsACfshNSjeUc1s4j3gYWP0uQa0Xc1AY9z5GbFvWTQBB2XvrSNfgyHtCW
-         9qhmjc4Lf4iAwoXbn/pv1v8f7dQCjj3BLvHw9IrVNf42exHpl2N12AYm1Fcz9d50k1Ha
-         hFsQ==
+        bh=NUZMZYdmH0PD0W1ckRqY92IjQ0umZRiAKgV8BSjjNmU=;
+        b=YFFSDk4RTJVQ4wJDU3a9MCS2itsq9jf7OdJNnvZFA1zyM3OqnX2hGWPM1cPvWadPgK
+         0NnKJlpnXvQ7rgmWWxZzWdIfQEYAt/sten0dE2w0z9I4TsDpK/zMtKdGrTFk7BmZpTFk
+         onnHCe36ym/gZsB3gbgN20iO1DAuDkh//Nss/8QFM5yfKisvz5Lacneq0AavWKmBn+ZO
+         6sOF/Rql6qIVFnLMp9eFJb3hPQ7hzH8+9zSi5Jbw0AnXiuv6bmwdB1zuruAQANrWAbjM
+         bfJ27qf0hA1oJxLEVDyJfVPAlYUGLAbvJV9K+MHyhakn+mTCWrmdhIgUVsaMmDnvOiVG
+         UdqQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718280653; x=1718885453;
+        d=1e100.net; s=20230601; t=1718303214; x=1718908014;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jilhcaruJb2IBiLjemWE46i5/PUFqJsWXVunml9StIM=;
-        b=bPbTB4/Js5dLXnArVEJsgM0U4yD5c3LDTny5dBCezxnQzdka5WPzW4R1thfDxePrST
-         yjg/c6DaEVC+gOOnaNNZpRVTjK/KDBlNkNwuu5zY61vkHawc9497NWRIOyhA0PHYeEqr
-         3D5EJywvvr3y3FJWTHR+ysvc6Tnr6KBqYnYX4RtR+MEVXWBLxBxHhDp4DxvtzHlck4K+
-         BoXSjxrt6i/cQSe9gTbuNm75O+3ZrEwqe1X2oVhuBNVUViIYU8NZCzLjgqmwGwfzRbh7
-         v1iFwOoDWrkElfzoLsIrxbWEKX3QT4NDkP4N1oscgYYiU2C+IwmM7mjyWvLR1NjKjyzQ
-         kjtg==
-X-Forwarded-Encrypted: i=1; AJvYcCWp3EZjm0QKRpYHJsylbAQ1PB93AG+mc5+cVx+IZB55Zq4CLV+d3LoJhymLHCo4Z3LnTrXKQmAZaO1bmF4leZJMWltxNvchAarAHzY1v/5D0iLpZkhzodOyEcE7hQul0kgWfGqmsnmjvr0ekrnGNH7puOlzggJbCTtq6XuH6KfiSvwUP3TU90+GTGKxPH1LL5Q0saQxYd+tvjwMDyHFTvO7yEKBjvce+d27EszhPX4x6gNDG3Tp/i6TejKOudk81VHKfF2vBiyQGDgAUWedrv+Htg3dHXtdN6DfX7OjWzDvvZ87rjhsH5CpY+bgZKcCMoLqTRU/hA==
-X-Gm-Message-State: AOJu0YxKnSzMvK473IntlLzPBskKGebiieCaxXtMpat8SOswUYUhwtBE
-	yGhFNFEiy3cSTLItuihb3PFwVlbVEYHxnAhO4ux8m0jfv06M/CR+j9wFIXLwlg8BnPhbHK9uSuo
-	d8KwEZ/NmALKeYYfqHCrVSNGb9Aw=
-X-Google-Smtp-Source: AGHT+IECeNpAbuMBJduU/4vfo0TDc0y586W3/bKZ6gp1RqZAixArBbb8xY+5b1a7GzKTFusgDcdldUI00nJxS7Gmy8k=
-X-Received: by 2002:a05:690c:6683:b0:61a:c316:9953 with SMTP id
- 00721157ae682-62fb857416emr57999367b3.11.1718280653503; Thu, 13 Jun 2024
- 05:10:53 -0700 (PDT)
+        bh=NUZMZYdmH0PD0W1ckRqY92IjQ0umZRiAKgV8BSjjNmU=;
+        b=qDC1in1hkGBnyPA0zTk9Dim8C7NO3YGMsZ/M6Mi5kz89EGyf5kc7dHXd2Uve6XdEDu
+         aTognBnKC+i1xQjs5WyGgw36kao5qTB+lH9W3BEfYITUbyCelzMRF5Zu3vXBdaq/S3pO
+         wLuXFaz0roReCAJ8taJRAI3rfcMtuyHv5+vaRLA6LpAzaM8piheiGOWA0DvYN1NkgPbU
+         7iFXm9KmGyqLZDNtqKyszzolx0bN9sbsRGaTR5OrakYMHIm34pEC3bsmVLzi0+QClInr
+         FiTbrnwW/5b9rO+bX4KWhark0z+PpqgnYf61ea5xGv2G0tiTrCeiUrXkj+EhDawssyIb
+         jqLw==
+X-Forwarded-Encrypted: i=1; AJvYcCUn/Sm1/98I5pEIVt7YAL97lvARxHr9oFEJdyBwzYoeQPJLtvjIEF8MiBctLI8z5PIEQ56J/PzBAVx9JSdWDlWvMr21d4nNYA==
+X-Gm-Message-State: AOJu0Yydq1OTnDkwZyK09qd5yVFBdud/uXKWdfS+qQe8Kg4Uq1P9qEZN
+	15B7xU50/PBvL59igQCgmKgaUO3/3l86ZKhdRjEwa9uyeRqi6J1kAm0VRbd6jd3x5LlSTmmyGcq
+	w30jnYWvAlMytDglxgm0eYCMZwjD6FtH1SgsH
+X-Google-Smtp-Source: AGHT+IFsylxSbj2uZgSGOJg0LMaFfRq7IjLxJeN2QodiQ5UR3ur142ShbPh1aawzB6Sp1Ix5B6xJW8rBRuAPSk+Aesw=
+X-Received: by 2002:a81:a548:0:b0:62f:7ba7:d5a4 with SMTP id
+ 00721157ae682-6322265df68mr2812027b3.16.1718303213265; Thu, 13 Jun 2024
+ 11:26:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240613023044.45873-1-laoar.shao@gmail.com> <20240613023044.45873-7-laoar.shao@gmail.com>
- <Zmqvu-1eUpdZ39PD@arm.com>
-In-Reply-To: <Zmqvu-1eUpdZ39PD@arm.com>
-From: Yafang Shao <laoar.shao@gmail.com>
-Date: Thu, 13 Jun 2024 20:10:17 +0800
-Message-ID: <CALOAHbB3Uiwsp2ieiPZ-_CKyZPgW6_gF_y-HEGHN3KWhGh0LDg@mail.gmail.com>
-Subject: Re: [PATCH v2 06/10] mm/kmemleak: Replace strncpy() with __get_task_comm()
-To: Catalin Marinas <catalin.marinas@arm.com>
-Cc: torvalds@linux-foundation.org, ebiederm@xmission.com, 
-	alexei.starovoitov@gmail.com, rostedt@goodmis.org, linux-mm@kvack.org, 
-	linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
-	audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, Andrew Morton <akpm@linux-foundation.org>
+References: <20240507012541.796421-1-guozihua@huawei.com> <00d88046025c611f2bf94708ffc65ecc@paul-moore.com>
+In-Reply-To: <00d88046025c611f2bf94708ffc65ecc@paul-moore.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 13 Jun 2024 14:26:42 -0400
+Message-ID: <CAHC9VhRqvBsdy+U-wr+X6QmawLv6DnB32nwAO7Ex6L7cdR=mSg@mail.gmail.com>
+Subject: Re: [PATCH v3] ima: Avoid blocking in RCU read-side critical section
+To: GUO Zihua <guozihua@huawei.com>, john.johansen@canonical.com, jmorris@namei.org, 
+	serge@hallyn.com, zohar@linux.ibm.com, roberto.sassu@huawei.com, 
+	dmitry.kasatkin@gmail.com, stephen.smalley.work@gmail.com, 
+	casey@schaufler-ca.com, eparis@redhat.com
+Cc: eric.snowberg@oracle.com, omosnace@redhat.com, audit@vger.kernel.org, 
+	apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org, 
+	linux-integrity@vger.kernel.org, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 13, 2024 at 4:37=E2=80=AFPM Catalin Marinas <catalin.marinas@ar=
-m.com> wrote:
->
-> On Thu, Jun 13, 2024 at 10:30:40AM +0800, Yafang Shao wrote:
-> > Using __get_task_comm() to read the task comm ensures that the name is
-> > always NUL-terminated, regardless of the source string. This approach a=
-lso
-> > facilitates future extensions to the task comm.
+On Wed, Jun 12, 2024 at 5:43=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+> On May  6, 2024 GUO Zihua <guozihua@huawei.com> wrote:
 > >
-> > Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-> > Cc: Catalin Marinas <catalin.marinas@arm.com>
-> > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > A panic happens in ima_match_policy:
+> >
+> > BUG: unable to handle kernel NULL pointer dereference at 00000000000000=
+10
+> > PGD 42f873067 P4D 0
+> > Oops: 0000 [#1] SMP NOPTI
+> > CPU: 5 PID: 1286325 Comm: kubeletmonit.sh Kdump: loaded Tainted: P
+> > Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06=
+/2015
+> > RIP: 0010:ima_match_policy+0x84/0x450
+> > Code: 49 89 fc 41 89 cf 31 ed 89 44 24 14 eb 1c 44 39 7b 18 74 26 41 83=
+ ff 05 74 20 48 8b 1b 48 3b 1d f2 b9 f4 00 0f 84 9c 01 00 00 <44> 85 73 10 =
+74 ea 44 8b 6b 14 41 f6 c5 01 75 d4 41 f6 c5 02 74 0f
+> > RSP: 0018:ff71570009e07a80 EFLAGS: 00010207
+> > RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000200
+> > RDX: ffffffffad8dc7c0 RSI: 0000000024924925 RDI: ff3e27850dea2000
+> > RBP: 0000000000000000 R08: 0000000000000000 R09: ffffffffabfce739
+> > R10: ff3e27810cc42400 R11: 0000000000000000 R12: ff3e2781825ef970
+> > R13: 00000000ff3e2785 R14: 000000000000000c R15: 0000000000000001
+> > FS:  00007f5195b51740(0000) GS:ff3e278b12d40000(0000) knlGS:00000000000=
+00000
+> > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > CR2: 0000000000000010 CR3: 0000000626d24002 CR4: 0000000000361ee0
+> > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > Call Trace:
+> >  ima_get_action+0x22/0x30
+> >  process_measurement+0xb0/0x830
+> >  ? page_add_file_rmap+0x15/0x170
+> >  ? alloc_set_pte+0x269/0x4c0
+> >  ? prep_new_page+0x81/0x140
+> >  ? simple_xattr_get+0x75/0xa0
+> >  ? selinux_file_open+0x9d/0xf0
+> >  ima_file_check+0x64/0x90
+> >  path_openat+0x571/0x1720
+> >  do_filp_open+0x9b/0x110
+> >  ? page_counter_try_charge+0x57/0xc0
+> >  ? files_cgroup_alloc_fd+0x38/0x60
+> >  ? __alloc_fd+0xd4/0x250
+> >  ? do_sys_open+0x1bd/0x250
+> >  do_sys_open+0x1bd/0x250
+> >  do_syscall_64+0x5d/0x1d0
+> >  entry_SYSCALL_64_after_hwframe+0x65/0xca
+> >
+> > Commit c7423dbdbc9e ("ima: Handle -ESTALE returned by
+> > ima_filter_rule_match()") introduced call to ima_lsm_copy_rule within a
+> > RCU read-side critical section which contains kmalloc with GFP_KERNEL.
+> > This implies a possible sleep and violates limitations of RCU read-side
+> > critical sections on non-PREEMPT systems.
+> >
+> > Sleeping within RCU read-side critical section might cause
+> > synchronize_rcu() returning early and break RCU protection, allowing a
+> > UAF to happen.
+> >
+> > The root cause of this issue could be described as follows:
+> > |     Thread A        |       Thread B        |
+> > |                     |ima_match_policy       |
+> > |                     |  rcu_read_lock        |
+> > |ima_lsm_update_rule  |                       |
+> > |  synchronize_rcu    |                       |
+> > |                     |    kmalloc(GFP_KERNEL)|
+> > |                     |      sleep            |
+> > =3D=3D> synchronize_rcu returns early
+> > |  kfree(entry)               |                       |
+> > |                     |    entry =3D entry->next|
+> > =3D=3D> UAF happens and entry now becomes NULL (or could be anything).
+> > |                     |    entry->action      |
+> > =3D=3D> Accessing entry might cause panic.
+> >
+> > To fix this issue, we are converting all kmalloc that is called within
+> > RCU read-side critical section to use GFP_ATOMIC.
+> >
+> > Fixes: c7423dbdbc9e ("ima: Handle -ESTALE returned by ima_filter_rule_m=
+atch()")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: GUO Zihua <guozihua@huawei.com>
+> > Acked-by: John Johansen <john.johansen@canonical.com>
+> > Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+> > Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
 > > ---
-> >  mm/kmemleak.c | 8 +-------
-> >  1 file changed, 1 insertion(+), 7 deletions(-)
+> > v3:
+> >   ima_lsm_copy_rule takes a GFP flag as input as well.
+> > v2:
+> >   Changed the audit_rule_init security hook to accept a new GFP flag, a=
+s
+> > per Stephen's suggestion.
 > >
-> > diff --git a/mm/kmemleak.c b/mm/kmemleak.c
-> > index d5b6fba44fc9..ef29aaab88a0 100644
-> > --- a/mm/kmemleak.c
-> > +++ b/mm/kmemleak.c
-> > @@ -663,13 +663,7 @@ static struct kmemleak_object *__alloc_object(gfp_=
-t gfp)
-> >               strncpy(object->comm, "softirq", sizeof(object->comm));
-> >       } else {
-> >               object->pid =3D current->pid;
-> > -             /*
-> > -              * There is a small chance of a race with set_task_comm()=
-,
-> > -              * however using get_task_comm() here may cause locking
-> > -              * dependency issues with current->alloc_lock. In the wor=
-st
-> > -              * case, the command line is not correct.
-> > -              */
-> > -             strncpy(object->comm, current->comm, sizeof(object->comm)=
-);
-> > +             __get_task_comm(object->comm, sizeof(object->comm), curre=
-nt);
-> >       }
+> > ---
+> >  include/linux/lsm_hook_defs.h       |  2 +-
+> >  include/linux/security.h            |  5 +++--
+> >  kernel/auditfilter.c                |  5 +++--
+> >  security/apparmor/audit.c           |  6 +++---
+> >  security/apparmor/include/audit.h   |  2 +-
+> >  security/integrity/ima/ima_policy.c | 15 +++++++++------
+> >  security/security.c                 |  6 ++++--
+> >  security/selinux/include/audit.h    |  4 +++-
+> >  security/selinux/ss/services.c      |  5 +++--
+> >  security/smack/smack_lsm.c          |  3 ++-
+> >  10 files changed, 32 insertions(+), 21 deletions(-)
 >
-> You deleted the comment stating why it does not use get_task_comm()
-> without explaining why it would be safe now. I don't recall the details
-> but most likely lockdep warned of some potential deadlocks with this
-> function being called with the task_lock held.
+> With the exception of one small gotcha (see below), this looks okay to
+> me.  At Mimi's request I'm going to merge this into the LSM tree, via
+> lsm/stable-6.10, where I'll give it a few days in linux-next before
+> sending it up to Linus.
+
+I also had to apply the following fix to this patch to resolve the
+!CONFIG_IMA_LSM_RULES ca
+se ... grrrrr.
+
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 3e568126cd48..c51e24d24d1e 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -546,7 +546,7 @@ static inline void ima_free_modsig(struct modsig *modsi=
+g)
+#else
+
+static inline int ima_filter_rule_init(u32 field, u32 op, char *rulestr,
+-                                      void **lsmrule)
++                                      void **lsmrule, gfp_t gfp)
+{
+       return -EINVAL;
+}
+
+> > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> > index 146667937811..a4943628d75a 100644
+> > --- a/security/smack/smack_lsm.c
+> > +++ b/security/smack/smack_lsm.c
+> > @@ -4696,7 +4696,8 @@ static int smack_post_notification(const struct c=
+red *w_cred,
+> >   * Prepare to audit cases where (@field @op @rulestr) is true.
+> >   * The label to be audited is created if necessay.
+> >   */
+> > -static int smack_audit_rule_init(u32 field, u32 op, char *rulestr, voi=
+d **vrule)
+> > +static int smack_audit_rule_init(u32 field, u32 op, char *rulestr, voi=
+d **vrule,
+> > +                              gfp_t gfp)
 >
-> So, you either show why this is safe or just use strscpy() directly here
-> (not sure we'd need strscpy_pad(); I think strscpy() would do, we just
-> need the NUL-termination).
-
-The task_lock was dropped in patch #1 [0]. My apologies for not
-including you in the CC for that change. After this modification, it
-is now safe to use __get_task_comm().
-
-[0] https://lore.kernel.org/all/20240613023044.45873-2-laoar.shao@gmail.com=
-/
+> You forgot to add the new @gfp parameter to the function's header
+> comment block.  I'm going to add the following as the text is used in
+> other Smack functions, if anyone has any objections please let me know.
+>
+>   " * @gfp: type of the memory for the allocation"
+>
+> >  {
+> >       struct smack_known *skp;
+> >       char **rule =3D (char **)vrule;
 
 --=20
-Regards
-Yafang
+paul-moore.com
