@@ -1,152 +1,102 @@
-Received: from mail.hallyn.com (mail.hallyn.com [178.63.66.53])
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D3C94F5FB;
-	Sat, 15 Jun 2024 15:20:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.63.66.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 225071CA85
+	for <selinux@vger.kernel.org>; Sun, 16 Jun 2024 18:44:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718464814; cv=none; b=t/qDyQvBWykUa4Y55oUZok5TibYHV4ya+DPfbm/tfss2drYKrCmPmzv8XQKA6VYB2L1Floj0Ilw1AE3uwlj9LgJtokPfB/LpoesMnLsNUHdxacBi8bBFjcjd6PJo/EQo5I5A9oi1q20psg931hxXzeYEyQunRIn3cjH9P45KFW0=
+	t=1718563472; cv=none; b=cFbcgSVBB5pQ5OGP65a8i+XHFTifP5omtaD91EavaeRX8y5uC6UpsD51NTD9sXWSKrETcStUduMht35llEwHdDOG0NuYXYLWX2MVMPHJx6GUnN+88S0BbO2swsCy4q+FMTlKZJ+D27THJSLchcx1wAdlAvjRybJV7cXJgDWK3ZU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718464814; c=relaxed/simple;
-	bh=IFh8KhffQ3yr0f1VsXFjXTwbEQq/G+GmRuWLfL7ScZg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=R+doN4MywucFqVQdmjAMERqw4cu9tTMxZHkRX8o3/YXzxyLv0e2ioersrlQqdzSnigwT/H9d74yOFtuqN5hBz5zlwSJIpANGeYAaynva9oWH46Qzh+u1a7JzOR/nBBa7pcberwNrQRHxiY6EH8DcyNcgJqpwAoc1PsJlnbY/6Cs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hallyn.com; spf=pass smtp.mailfrom=mail.hallyn.com; arc=none smtp.client-ip=178.63.66.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hallyn.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mail.hallyn.com
-Received: by mail.hallyn.com (Postfix, from userid 1001)
-	id A5A8DC18; Sat, 15 Jun 2024 10:20:10 -0500 (CDT)
-Date: Sat, 15 Jun 2024 10:20:10 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Jonathan Calmels <jcalmels@3xx0.net>
-Cc: John Johansen <john.johansen@canonical.com>,
-	Paul Moore <paul@paul-moore.com>, brauner@kernel.org,
-	ebiederm@xmission.com, Jonathan Corbet <corbet@lwn.net>,
-	James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>, KP Singh <kpsingh@kernel.org>,
-	Matt Bobrowski <mattbobrowski@google.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Martin KaFai Lau <martin.lau@linux.dev>,
-	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
-	Yonghong Song <yonghong.song@linux.dev>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
-	Jiri Olsa <jolsa@kernel.org>, Luis Chamberlain <mcgrof@kernel.org>,
-	Kees Cook <kees@kernel.org>, Joel Granados <j.granados@samsung.com>,
-	David Howells <dhowells@redhat.com>,
-	Jarkko Sakkinen <jarkko@kernel.org>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>,
-	containers@lists.linux.dev, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org, linux-doc@vger.kernel.org,
-	linux-security-module@vger.kernel.org, bpf@vger.kernel.org,
-	apparmor@lists.ubuntu.com, keyrings@vger.kernel.org,
-	selinux@vger.kernel.org, linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH v2 4/4] bpf,lsm: Allow editing capabilities in BPF-LSM
- hooks
-Message-ID: <20240615152010.GB44653@mail.hallyn.com>
-References: <CAHC9VhT5XWbhoY2Nw5jQz4GxpDriUdHw=1YsQ4xLVUtSnFxciA@mail.gmail.com>
- <z2bgjrzeq7crqx24chdbxnaanuhczbjnq6da3xw6al6omjj5xz@mqbzzzfva5sw>
- <887a3658-2d8d-4f9e-98f2-27124bb6f8e6@canonical.com>
- <CAHC9VhQFNPJTOct5rUv3HT6Z2S20mYdW75seiG8no5=fZd7JjA@mail.gmail.com>
- <uuvwcdsy7o4ulmrdzwffr6uywfacmlkjrontmjdj44luantpok@dtatxaa6tzyv>
- <CAHC9VhRnthf8+KgfuzFHXWEAc9RShDO0G_g0kc1OJ-UTih1ywg@mail.gmail.com>
- <rgzhcsblub7wedm734n56cw2qf6czjb4jgck6l5miur6odhovo@n5tgrco74zce>
- <CAHC9VhRGJTND25MFk4gR-FGxoLhMmgUrMpz_YoMFOwL6kr28zQ@mail.gmail.com>
- <ba8d88c8-a251-4c1f-8653-1082b0a101dd@canonical.com>
- <zwh766li4dwx5be6uxnxl2lhtxb4jsiua4atilpqvoeuksgz2h@v3pna3o3ewkp>
+	s=arc-20240116; t=1718563472; c=relaxed/simple;
+	bh=ccHDW3R28j3vpn6vA9jWigiKi77CB/NwAj+ne/crsn8=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=RtujmodkGRV2fsmfheuDfVzCaE/wsfA3jLiSWUPpm0XAa+6yi34u+vj84dBn1NfQM/gLBoy8eVJt5cOH+GgIF8uWqmxFV1vmmMYE3zQ6BeWH+z+a+qoFZApS4t4igYWyRPj3K791hfasaGmsbgCbBViDu1TAeYGizZFn7zEcVxw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=cpSM3jgx; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="cpSM3jgx"
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1718563458;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=v2BfW7P3Ys6Sg/rZU4+K8hHn6B7snEkbropxSviTRCA=;
+	b=cpSM3jgxp/XA7+mrA24tyc/WvACS2IxoYThsjIQSwGshs0ugUSYuMOztLb4NbJHXppEywC
+	8N8U2JZqfTzXOgHp61Ai07ZFfn3/9goTvmME/GMjVj4lsIdOMYuAGYzRRpfIXQ/shclHl/
+	ZFOg0KAm4JfqWnDNvKUjKN+iNFZTkhT0S+qU+E2xXqe9It9io6hGoubCk9yK1X7HbuudqJ
+	KSJpwYxw4I7Uj3aR0yIq1eSb21fw2QDXNnJuE8/luMwIoaLnx7OwMeHp6nCd6umTIdyRGj
+	yvmGSvxnYGBc4rVytjrQcX+x6PQHXm/FKIrDrmhiope/kbsVd0KlqHNzI9/PCg==
+Date: Sun, 16 Jun 2024 20:44:18 +0200
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+To: selinux@vger.kernel.org
+Cc: cgzones@googlemail.com
+Subject: Re: [PATCH] libsepol: check scope permissions refer to valid class
+In-Reply-To: <CAJ2a_Dfbh9JTDQfSHV=0HAcP7QnuNqLquhwuLc2TWhTGN9Dhpw@mail.gmail.com>
+References: <20240615132525.36358-1-cgoettsche@seltendoof.de>
+ <CAJ2a_Dfbh9JTDQfSHV=0HAcP7QnuNqLquhwuLc2TWhTGN9Dhpw@mail.gmail.com>
+Message-ID: <33ac8211c1bb038e8ed535e83937f01d@seltendoof.de>
+X-Sender: cgoettsche@seltendoof.de
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <zwh766li4dwx5be6uxnxl2lhtxb4jsiua4atilpqvoeuksgz2h@v3pna3o3ewkp>
 
-On Thu, Jun 13, 2024 at 01:50:29AM -0700, Jonathan Calmels wrote:
-> On Wed, Jun 12, 2024 at 08:54:28PM GMT, John Johansen wrote:
-> > On 6/12/24 10:29, Paul Moore wrote:
-> > > On Wed, Jun 12, 2024 at 4:15 AM Jonathan Calmels <jcalmels@3xx0.net> wrote:
-> > > > On Tue, Jun 11, 2024 at 06:38:31PM GMT, Paul Moore wrote:
-> > > > > On Tue, Jun 11, 2024 at 6:15 PM Jonathan Calmels <jcalmels@3xx0.net> wrote:
-> > > 
-> > > ...
-> > > 
-> > > > > > Arguably, if we do want fine-grained userns policies, we need LSMs to
-> > > > > > influence the userns capset at some point.
-> > > > > 
-> > > > > One could always use, or develop, a LSM that offers additional
-> > > > > controls around exercising capabilities.  There are currently four
-> > > > > in-tree LSMs, including the capabilities LSM, which supply a
-> > > > > security_capable() hook that is used by the capability-based access
-> > > > > controls in the kernel; all of these hook implementations work
-> > > > > together within the LSM framework and provide an additional level of
-> > > > > control/granularity beyond the existing capabilities.
-> > > > 
-> > > > Right, but the idea was to have a simple and easy way to reuse/trigger
-> > > > as much of the commoncap one as possible from BPF. If we're saying we
-> > > > need to reimplement and/or use a whole new framework, then there is
-> > > > little value.
-> > > 
-> > > I can appreciate how allowing direct manipulation of capability bits
-> > > from a BPF LSM looks attractive, but my hope is that our discussion
-> > > here revealed that as you look deeper into making it work there are a
-> > > number of pitfalls which prevent this from being a safe option for
-> > > generalized systems.
-> > > 
-> > > > TBH, I don't feel strongly about this, which is why it is absent from
-> > > > v1. However, as John pointed out, we should at least be able to modify
-> > > > the blob if we want flexible userns caps policies down the road.
-> > > 
-> > > As discussed in this thread, there are existing ways to provide fine
-> > > grained control over exercising capabilities that can be safely used
-> > > within the LSM framework.  I don't want to speak to what John is
-> > > envisioning, but he should be aware of these mechanisms, and if I
-> > > recall he did voice a level of concern about the same worries I
-> > > mentioned.
-> > > 
-> > 
-> > sorry, I should have been more clear. I envision LSMs being able to
-> > update their own state in the userns hook.
-> > 
-> > Basically the portion of the patch that removes const from the
-> > userns hook.
+> From: Christian Göttsche <cgzones@googlemail.com>
 > 
-> Yes, pretty sure we'll need this regardless.
+> Validate that the permission maps in the scope index refer to a valid
+> class datum.  Otherwise since commit 52e5c306 ("libsepol: move 
+> unchanged
+> data out of loop") this can lead to a NULL dereference in the class
+> existence check during linking.
 > 
-> > An LSM updating the capset is worrysome for all the reasons you
-> > pointed out, and I think a few more. I haven't had a chance to really
-> > look at v2 yet, so I didn't want to speak directly on the bpf part of
-> > the patch without first giving a good once over.
-> > 
-> > > I'm happy to discuss ways in which we can adjust the LSM hooks/layer
-> > > to support different approaches to capability controls, but one LSM
-> > > directly manipulating the state of another is going to be a no vote
-> > > from me.
-> > > 
-> > I might not be as hard no as Paul here, I am always willing to listen
-> > to arguments, but it would have to be a really good argument to
-> > modify the capset, when there are multiple LSMs in play on a system.
+> Reported-by: oss-fuzz (issue 69655)
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> ---
+>  libsepol/src/policydb_validate.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
 > 
-> The way I see it, it's more about enhancing the capability LSM with BPF
-> hooks and have it modify its own state dynamically, not so much
-> crosstalk between two distinct LSM frameworks (say one where the BPF
-> LSM implements a lot of things like capable()).
+> diff --git a/libsepol/src/policydb_validate.c
+> b/libsepol/src/policydb_validate.c
+> index 9746f562..0216410c 100644
+> --- a/libsepol/src/policydb_validate.c
+> +++ b/libsepol/src/policydb_validate.c
+> @@ -1467,6 +1467,8 @@ bad:
 > 
-> In this context and with enough safeguards (say we only allow dropping
-> caps) this could be a net positive. Sure, ordering could come into play
-> in very specific scenarios, but at this point I would expect the
-> admin/LSM author to be conscious about it.
-> 
-> If we think there is no way we can come up with something that's safe
-> enough, and that the risks outweigh the benefits, fine by me, we can
-> drop this patch from the series.
+>  static int validate_scope_index(sepol_handle_t *handle, const
+> scope_index_t *scope_index, validate_t flavors[])
+>  {
+> +       uint32_t i;
+> +
+>         if (!ebitmap_is_empty(&scope_index->scope[SYM_COMMONS]))
+>                 goto bad;
+>         if (validate_ebitmap(&scope_index->p_classes_scope,
+> &flavors[SYM_CLASSES]))
+> @@ -1483,8 +1485,10 @@ static int validate_scope_index(sepol_handle_t
+> *handle, const scope_index_t *sco
+>                 goto bad;
+>         if (validate_ebitmap(&scope_index->p_cat_scope, 
+> &flavors[SYM_CATS]))
+>                 goto bad;
+> -       if (scope_index->class_perms_len > flavors[SYM_CLASSES].nprim)
 
-I think pursuing patches 1-3 now, and punting on 4 until later, would
-be great.
+Since classes should not have gaps, this could be a simple off-by-one, 
+cause class_perms_len is 0-based while nprim is 1-based. So
+
+     scope_index->class_perms_len >= flavors[SYM_CLASSES].nprim
+
+might suffice, but I am unable to test currently though.
+
+> -               goto bad;
+> +
+> +       for (i = 0; i < scope_index->class_perms_len; i++)
+> +               if (validate_value(i + 1, &flavors[SYM_CLASSES]))
+> +                       goto bad;
+> 
+>         return 0;
