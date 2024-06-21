@@ -1,112 +1,168 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18E53EBE;
-	Fri, 21 Jun 2024 04:37:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE02C443D;
+	Fri, 21 Jun 2024 13:51:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718944669; cv=none; b=DiAZlAqCkAaEYAEjamGyEGuqKFCwAdYCza6cq3aMtCj2tJt0x90PMO7Tebispe/xGwJAL+26451oxhOqqVGFeJ1c3o4w44erGVc25Rx3ru2UCDc7ro44bCOpliNHiDSVz++7cCekqEXfi1n0/z2k0RIKfdL/uy44KST8Gr2sMTI=
+	t=1718977908; cv=none; b=M1hcOYW4ffAK9N8oG7Yzp6yJUMoF3qrzfCVwyZLGJKKM65qZ38aBimKSxWKLL+CA6Hm4Dua3w1/GMnb0buV1+5Glv8OwuRJIB9a+4SG+/fn88kogekAvZw6vHVbItwRZhLWDOrry8T2w9YTp124l0L7fqws3Jnp3bDbsT7J5zX8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718944669; c=relaxed/simple;
-	bh=dtuG/8FVyfxt6cdJEnSMBi5db48doHCJHLe3KcIUws4=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=MzAyKaSYGUf0IAof7bHeLrbbhNGJmwW285PHeh7PdJD6MZtdxViy7uMA8le8edjt2iaO9x9xsGG/puKUVeuqJpmPfzHDp2F3KoAEml5ETSmGm2nKWetHiGL/bRNswcLsn+3+sPbRj0M/ZTm09A1pt9j8pOicFkQ0CJwcDgQIKbo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k505hdpz; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1718977908; c=relaxed/simple;
+	bh=8ElvnQPorg4Uy8imgywI1nXgKQs3ZmLKdexYoFKBvac=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NuwdLi7CQKtcyp6caXuL77Ub8LZIBIcx4GiWdQF0eCGLPiJDdC9cxe3x3XdjHX0F1mRK3iCPju42wK8bh4zrGrqjj4OP515lFXEvEbGkredh0oj/6b3mLxG09YYA5io+V3nw7HcQlZIAcpRLhPEr6HPVXXP289aSk8nY5Nw1mbA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UsGyxC89; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k505hdpz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 216A4C2BBFC;
-	Fri, 21 Jun 2024 04:37:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UsGyxC89"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 550E9C2BBFC;
+	Fri, 21 Jun 2024 13:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1718944668;
-	bh=dtuG/8FVyfxt6cdJEnSMBi5db48doHCJHLe3KcIUws4=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=k505hdpzwMMojH9wRfDeKs5BlNmsCDhP4RZMfHss9GZvJxLyRPPFXiUgVFptQKDL5
-	 S5gsaSJiKe4LG3AqF7BLkgArN2fQ6qmD9TPovctggZUcd3SKbL9/4LgiQ6RebmHXx8
-	 Sa6lkZ4xCYaOuzo7Zws7B8aGMz8VF6yVl5HZS3oaFEGqgpml4yS2vYF6N/jfvJPDIj
-	 4wIEtSyU5vQLJwGLXsMqM/tqNHAvajbwv14JxtQRT0slq+fIxjIz53UIWoTOFHUheC
-	 qn8EFjVtrHKjnNWfmNSVO6/Cns8JaNBbD/GTXf78g5DeCI791W20rOIkGVStMEvPqS
-	 TWkLY4TaxbGVQ==
-Date: Fri, 21 Jun 2024 13:37:42 +0900
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+	s=k20201202; t=1718977907;
+	bh=8ElvnQPorg4Uy8imgywI1nXgKQs3ZmLKdexYoFKBvac=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=UsGyxC89mordI9Vx2/gblUM+5Ftjcp3r6aWKgvC7AgxfbKbF3tjOKH0Oc8+4xZ7ka
+	 53imU3u4kl0xmHWBQeUrPXwpUd4HV0CgvxjAnuDWJ+ESadO9DPtFhcHEFsx5/l50Bz
+	 PqCADX8QGP+tUecordMNnCcTvHzzeLNDNuubgkM1ZH0YhaycbAUJQX5AgoxWKcT6ec
+	 LoK6DITeynsMoscskznn7E6zxgUT2BnmrOQrutlHoqdl3OFBWB1zfStM0zrLF8lSLa
+	 q/3x7IxAscJ0MKpSbvImWfCwO2VqiKdnJI4j+sBQLyP7fynER53ZfDDEcEKKBhm0gu
+	 ID9btTmN8DF3w==
+Date: Fri, 21 Jun 2024 14:51:42 +0100
+From: Simon Horman <horms@kernel.org>
 To: Yafang Shao <laoar.shao@gmail.com>
 Cc: torvalds@linux-foundation.org, ebiederm@xmission.com,
- alexei.starovoitov@gmail.com, rostedt@goodmis.org, catalin.marinas@arm.com,
- akpm@linux-foundation.org, penguin-kernel@i-love.sakura.ne.jp,
- linux-mm@kvack.org, linux-fsdevel@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
- bpf@vger.kernel.org, netdev@vger.kernel.org,
- dri-devel@lists.freedesktop.org, Masami Hiramatsu <mhiramat@kernel.org>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Subject: Re: [PATCH v3 09/11] tracing: Replace strncpy() with
- __get_task_comm()
-Message-Id: <20240621133742.6692d3bda4faafab878f197d@kernel.org>
-In-Reply-To: <20240621022959.9124-10-laoar.shao@gmail.com>
+	alexei.starovoitov@gmail.com, rostedt@goodmis.org,
+	catalin.marinas@arm.com, akpm@linux-foundation.org,
+	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org,
+	linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	audit@vger.kernel.org, linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org, bpf@vger.kernel.org,
+	netdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH v3 06/11] mm/util: Deduplicate code in
+ {kstrdup,kstrndup,kmemdup_nul}
+Message-ID: <20240621135142.GF1098275@kernel.org>
 References: <20240621022959.9124-1-laoar.shao@gmail.com>
-	<20240621022959.9124-10-laoar.shao@gmail.com>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+ <20240621022959.9124-7-laoar.shao@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240621022959.9124-7-laoar.shao@gmail.com>
 
-On Fri, 21 Jun 2024 10:29:57 +0800
-Yafang Shao <laoar.shao@gmail.com> wrote:
-
-> Using __get_task_comm() to read the task comm ensures that the name is
-> always NUL-terminated, regardless of the source string. This approach also
-> facilitates future extensions to the task comm.
-
-Good catch! Looks good to me.
-
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-
-Thank you,
-
+On Fri, Jun 21, 2024 at 10:29:54AM +0800, Yafang Shao wrote:
+> These three functions follow the same pattern. To deduplicate the code,
+> let's introduce a common help __kstrndup().
 > 
+> Suggested-by: Andrew Morton <akpm@linux-foundation.org>
 > Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-> Cc: Steven Rostedt <rostedt@goodmis.org>
-> Cc: Masami Hiramatsu <mhiramat@kernel.org>
-> Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+
+Hi Yafang Shao,
+
+Some minor nits from my side.
+
 > ---
->  kernel/trace/trace.c             | 2 +-
->  kernel/trace/trace_events_hist.c | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+>  mm/internal.h | 24 ++++++++++++++++++++++++
+>  mm/util.c     | 27 ++++-----------------------
+>  2 files changed, 28 insertions(+), 23 deletions(-)
 > 
-> diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-> index 578a49ff5c32..ce94a86154a2 100644
-> --- a/kernel/trace/trace.c
-> +++ b/kernel/trace/trace.c
-> @@ -1907,7 +1907,7 @@ __update_max_tr(struct trace_array *tr, struct task_struct *tsk, int cpu)
->  	max_data->critical_start = data->critical_start;
->  	max_data->critical_end = data->critical_end;
+> diff --git a/mm/internal.h b/mm/internal.h
+> index b2c75b12014e..fd87f685739b 100644
+> --- a/mm/internal.h
+> +++ b/mm/internal.h
+> @@ -1521,4 +1521,28 @@ static inline void shrinker_debugfs_remove(struct dentry *debugfs_entry,
+>  void workingset_update_node(struct xa_node *node);
+>  extern struct list_lru shadow_nodes;
 >  
-> -	strncpy(max_data->comm, tsk->comm, TASK_COMM_LEN);
-> +	__get_task_comm(max_data->comm, TASK_COMM_LEN, tsk);
->  	max_data->pid = tsk->pid;
->  	/*
->  	 * If tsk == current, then use current_uid(), as that does not use
-> diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-> index 6ece1308d36a..721d4758a79f 100644
-> --- a/kernel/trace/trace_events_hist.c
-> +++ b/kernel/trace/trace_events_hist.c
-> @@ -1599,7 +1599,7 @@ static inline void save_comm(char *comm, struct task_struct *task)
->  		return;
->  	}
+> +/**
+> + * __kstrndup - Create a NUL-terminated string from @s, which might be unterminated.
+> + * @s: The data to stringify
+> + * @len: The size of the data, including the null terminator
+> + * @gfp: the GFP mask used in the kmalloc() call when allocating memory
+> + *
+> + * Return: newly allocated copy of @s with NUL-termination or %NULL in
+> + * case of error
+> + */
+> +static __always_inline char *__kstrndup(const char *s, size_t len, gfp_t gfp)
+> +{
+> +	char *buf;
+> +
+> +	buf = kmalloc_track_caller(len, gfp);
+> +	if (!buf)
+> +		return NULL;
+> +
+> +	memcpy(buf, s, len);
+> +	/* Ensure the buf is always NUL-terminated, regardless of @s. */
+> +	buf[len - 1] = '\0';
+> +	return buf;
+> +}
+> +
+> +
+
+nit: One blank line is enough.
+
+>  #endif	/* __MM_INTERNAL_H */
+> diff --git a/mm/util.c b/mm/util.c
+> index 41c7875572ed..d9135c5fdf7f 100644
+> --- a/mm/util.c
+> +++ b/mm/util.c
+> @@ -58,17 +58,8 @@ char *kstrdup(const char *s, gfp_t gfp)
+>  	if (!s)
+>  		return NULL;
 >  
-> -	strncpy(comm, task->comm, TASK_COMM_LEN);
-> +	__get_task_comm(comm, TASK_COMM_LEN, task);
+> -	len = strlen(s) + 1;
+> -	buf = kmalloc_track_caller(len, gfp);
+> -	if (buf) {
+> -		memcpy(buf, s, len);
+> -		/* During memcpy(), the string might be updated to a new value,
+> -		 * which could be longer than the string when strlen() is
+> -		 * called. Therefore, we need to add a null termimator.
+> -		 */
+> -		buf[len - 1] = '\0';
+> -	}
+> -	return buf;
+
+nit: The local variable buf is now unused, and should be removed from kstrdup().
+     Likewise for kstrndup() and kmemdup_nul()
+
+     Flagged by W=1 builds with gcc-13 and clang-18, and Smatch.
+
+> +	len = strlen(s);
+> +	return __kstrndup(s, len + 1, gfp);
 >  }
+>  EXPORT_SYMBOL(kstrdup);
 >  
->  static void hist_elt_data_free(struct hist_elt_data *elt_data)
+> @@ -111,12 +102,7 @@ char *kstrndup(const char *s, size_t max, gfp_t gfp)
+>  		return NULL;
+>  
+>  	len = strnlen(s, max);
+> -	buf = kmalloc_track_caller(len+1, gfp);
+> -	if (buf) {
+> -		memcpy(buf, s, len);
+> -		buf[len] = '\0';
+> -	}
+> -	return buf;
+> +	return __kstrndup(s, len + 1, gfp);
+>  }
+>  EXPORT_SYMBOL(kstrndup);
+>  
+> @@ -195,12 +181,7 @@ char *kmemdup_nul(const char *s, size_t len, gfp_t gfp)
+>  	if (!s)
+>  		return NULL;
+>  
+> -	buf = kmalloc_track_caller(len + 1, gfp);
+> -	if (buf) {
+> -		memcpy(buf, s, len);
+> -		buf[len] = '\0';
+> -	}
+> -	return buf;
+> +	return __kstrndup(s, len + 1, gfp);
+>  }
+>  EXPORT_SYMBOL(kmemdup_nul);
+>  
 > -- 
 > 2.39.1
 > 
-
-
--- 
-Masami Hiramatsu (Google) <mhiramat@kernel.org>
+> 
