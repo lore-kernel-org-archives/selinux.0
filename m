@@ -1,124 +1,131 @@
-Received: from mail-oi1-f179.google.com (mail-oi1-f179.google.com [209.85.167.179])
+Received: from mail-vs1-f48.google.com (mail-vs1-f48.google.com [209.85.217.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B70AA2E417
-	for <selinux@vger.kernel.org>; Fri, 21 Jun 2024 18:07:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31331178CEC
+	for <selinux@vger.kernel.org>; Fri, 21 Jun 2024 18:08:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718993273; cv=none; b=sTY/5IL2atlt6UtLpbhsxGLnEFnyiT6XAStAhpQdaS/oqMuQ7aXmVLmAxvqM5UGI2A4wjTvS8Xszc/R8GQUAacM0mmm3MU8Wuf+aS95Oe9iHAo+bEBR/Tx7Hl3XR/UmM9x3h9Ay1x5fRFMVZ9QndRifFBMvNTpyI12WseZPKKmQ=
+	t=1718993299; cv=none; b=SRFUdsVYM0M/B5i0Qyq2sjaEt3c5mVizDmW6gCsg4ZhPRSAMglDcTlTZsisbaFX5Ft5Kl0CvV/Xish5p16NgdYMwWqJC3t4wb7ogjaZbpBo7t6L724N0DcjqSZ0vzZCoEKwqxB77N06naYziW57/+svaDXt2RLkhKGsx4PFbE1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718993273; c=relaxed/simple;
-	bh=RlPKWEi8htN/l6/tfDoQEXpM5mYznCWO6uKrhOgTaGg=;
+	s=arc-20240116; t=1718993299; c=relaxed/simple;
+	bh=RhvtxCco65CBs6j5Mc7g81pWOD1vUDp1uEzP2aI+OOU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=actiYCyq2raBh5Iq8fwrwakKrP0++jb5uvMHbta13AZcC6fLLKAGxXh3C1Qq8lxKypXyKSIek0kWtQj5oXW4Sq0/GDiMMcdAOjonYEnI9PM4SeUePx5JxFkkd06SkA8weUFBxdsbD4X96jTSCFCzYwHZMh8Aaxj+azbNUagVmgk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GP93ucvY; arc=none smtp.client-ip=209.85.167.179
+	 To:Cc:Content-Type; b=LdBCN4wTp0Oxlx79RYw+AMpvGuRmsQpNw3rxRA8HReyDZiA9G+jKOl8xWZSgBrtBcSQESzvCzx+sR/Rvg7X9pT1QrfB1tAB9AL1i7Ay18LPK132iGEk+jOJ+ZCzi6HrzaAsaGZKdomEdoOFQFRwyCOeojiy7JOVw8WR7f3Gh/0w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jlsf9yFc; arc=none smtp.client-ip=209.85.217.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GP93ucvY"
-Received: by mail-oi1-f179.google.com with SMTP id 5614622812f47-3d2472450d6so1237341b6e.3
-        for <selinux@vger.kernel.org>; Fri, 21 Jun 2024 11:07:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jlsf9yFc"
+Received: by mail-vs1-f48.google.com with SMTP id ada2fe7eead31-48c384ed600so1132568137.0
+        for <selinux@vger.kernel.org>; Fri, 21 Jun 2024 11:08:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1718993271; x=1719598071; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1718993297; x=1719598097; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=UZCCop1XpYxdWOLbpuSJGzEkDNmJEA6bUFkfSelb7ok=;
-        b=GP93ucvYfqL7DBYu2iX7uuL+6pDOQXIF4S2mra2Vx1iEqzf4yhhVRn6EkbA1q9BRMG
-         +dDkggIbS5R/aqvsfmzK996IA8QMr4CNSqEJdI9hFP8pUp5gTXZFg98LU4gtXJwRzEbx
-         JVwRGXst7kF5KloxIXlYZ4mTspB4WWST8c66M4qbT+7j3rS5uPJw2dTimJfZzmzbjrGz
-         8C7Bu15YduqUczMAYR74Yt3McevJayJ8thS6LOhEiom/Z8McmXl23OaHENKXDZ5tD0YQ
-         EGMS+tnoSawfJuw+Qnz41lq8rdcWsPtbakmrQKt0AJDBoCyJxvZYhjtbTMwfbFxS2Tvr
-         kKFg==
+        bh=doXE9wf/eHPeP15uHoD8IpNsD1iiqsK8skiB0JP+mLA=;
+        b=jlsf9yFcnl/JX2wLa1HHi4MU1tBw5NvyU+aD+7AE8Z6ngauydaneo38MbpfNAvkobo
+         dKIFmw3aXK8hfwp7MKiApjblEd/TLHpNDw5gQhLm7pCi+a481SNP2FJGBhWIBFKA/oUK
+         xs9WKa2RotdTKEyqqMQXwWLtDRnEF9H9/2e0Vnen8lidGrLj3us1GRt9+pEUJrxBHNP4
+         4mGM8UmTsgInwxCKh1qfYr0q3/5H5QtKRkKmnFafhg9KckAmzSyg+G5HdRvEKcl1XdFK
+         UhiL3TUySO4T58pZp67u571XWBidltekilKWSHf5pUkn4kLWWbOJmR1wXZ0nUaugC7w0
+         giyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718993271; x=1719598071;
+        d=1e100.net; s=20230601; t=1718993297; x=1719598097;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UZCCop1XpYxdWOLbpuSJGzEkDNmJEA6bUFkfSelb7ok=;
-        b=FZE7yC0zydGeFcDHgS9wo0IBETM+4LIpbwqxkz7Z2l8zspILyJfR07Lu++KiKizD1X
-         eNb/xbedGX3t7Qa1m2TneNclJSOqBGjvYK/jfEdQzrixHiziKTmvE3Yq6yf50ZdLgLUj
-         F9P0I/uNb9IMKOPDdTK/0W/pKmqDbxlvi6wJ6JdxoUu+iXLwPAQx7thdgbI4ElHmzxfi
-         7ElgAYTGEsFnHQ+6tLAxF8FOlO4Tp4SVaafr6JhqTmRfH0w3TPc/bmRNMmF/1DT+/UaV
-         EfmsU9Y9RWLflh/BsWJmkDbIdgfVON8kQ4BdgE3gpca7Mt+mZm8+pT6LPYL0ghh84BRx
-         hNvg==
-X-Gm-Message-State: AOJu0YwKnNSzs1++jDLoE4cI4IdakApar6XoU2myqwq7Ypg/hCpH82hU
-	xM6p7wb+BOq6Dl9kvL9+eQQgL+w9gI11aFFSkRwMO2DqXrjidV2PSHy9lu1ilcCv+EBHF8gXaNS
-	/TFp65u7e6kSDtS2NpShIGrdU7ZPFGw==
-X-Google-Smtp-Source: AGHT+IHmgjh1fELNl17g1TMF9bZtfEUWBCocWoOq3AUixlOBSl797kNNUCpiCY2GuczO2BxMifGTF62BrKqsTBvf8kQ=
-X-Received: by 2002:a05:6808:238e:b0:3d2:1bf6:c572 with SMTP id
- 5614622812f47-3d51b97b690mr10651306b6e.4.1718993270645; Fri, 21 Jun 2024
- 11:07:50 -0700 (PDT)
+        bh=doXE9wf/eHPeP15uHoD8IpNsD1iiqsK8skiB0JP+mLA=;
+        b=hmFGYc1t/hOugQFGhJ6ruLVnsz7LMX7hCK65SZNehLyXBdLASFtI7+7N3qs9ki94Em
+         YCjYDXIKLu73wtHW4GYRClp72qwPw3uuyaC6fcGBNH93lMOHNULmEVGQBGJKm+jSXxKl
+         ZAARCJiTVRPF5dv+jtHCpLWpdj6+9LIJOVLx3aWNNsM00pE83QyMMUF14M9I8Ik5Owdf
+         y6m4MhvbCASpYvw1LKyzB4N0OteZ7i05q62m09oIMJ8po3h9YLrqUitYbQavSzyWxYGN
+         Gga8+XA7Q7ZyyrJ7/hdtb8B0gsfc77DSjoo1RGB/BQdc8yC3k3Whz8jQ6FtkMcYRXiAo
+         ta9Q==
+X-Gm-Message-State: AOJu0YzIr0GlP3qwf7qYphkot7rq6a4UwmDqEI3JHvROoOdkjB/x8t7N
+	QvuHFywddK80g5apRSSlo/DKham4pPOvMM3Q3o4JB7RK2IqL8tXbTOXguIu+fCZ3IJIKixjg3r9
+	E2+HEHi42/r+NUGL1XRFx4CCPbDE=
+X-Google-Smtp-Source: AGHT+IF/v3kJXtycwaO+1o0b2lTP5JpdV9/C1JrHSrSWs//tkiR/ZWQqY6oPdWZ6Fi0n94oOhNJL0tpp7sT3FmS+6ko=
+X-Received: by 2002:a67:f809:0:b0:48f:12e5:bd8a with SMTP id
+ ada2fe7eead31-48f43e3eb7dmr797539137.12.1718993296984; Fri, 21 Jun 2024
+ 11:08:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240614194500.631810-1-jwcart2@gmail.com> <CAJ2a_Dderor=tkxK9YDNN9r_xb-rpcSHXJcBiCf0nMuhakBUoQ@mail.gmail.com>
- <87bk409bq5.fsf@redhat.com>
-In-Reply-To: <87bk409bq5.fsf@redhat.com>
+References: <20240615132525.36358-1-cgoettsche@seltendoof.de> <CAP+JOzQcApAE4xmcYSeGcmxUVhuPmF9sn12zARY+J3JCqN+5gQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzQcApAE4xmcYSeGcmxUVhuPmF9sn12zARY+J3JCqN+5gQ@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Fri, 21 Jun 2024 14:07:37 -0400
-Message-ID: <CAP+JOzS+zNB8kV1Va_9YhzN2KpeYKwY5w-Eh5LEd1F1SO0y6Bg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Do not reject all type rules in conditionals
- when validating
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux@vger.kernel.org, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Fri, 21 Jun 2024 14:08:05 -0400
+Message-ID: <CAP+JOzR2z3Dct97EQAi6PKQjjCGA-uRyUnF8oEE5zGKD+ztS1w@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: check scope permissions refer to valid class
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 17, 2024 at 5:10=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.co=
-m> wrote:
+On Mon, Jun 17, 2024 at 1:55=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+ote:
 >
-> Christian G=C3=B6ttsche <cgzones@googlemail.com> writes:
->
-> > On Fri, 14 Jun 2024 at 21:45, James Carter <jwcart2@gmail.com> wrote:
-> >>
-> >> Commit 1c91bc84 ("libsepol: reject self flag in type rules in old
-> >> policies") actually rejects all type rules in conditionals in modular
-> >> policies prior to version 21 (MOD_POLICYDB_VERSION_SELF_TYPETRANS).
-> >>
-> >> The problem is because of fall-through in a switch statement when
-> >> the avrule flags are 0. Instead, break rather than fall-through when
-> >> avrule flags are 0.
+> On Sat, Jun 15, 2024 at 9:25=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
 > >
-> > Thanks for spotting this.
-> > I'am probably going to look to enhance the downgrade unit test for the
-> > next validate updates...
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > >
-> > Reviewed-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > Validate that the permission maps in the scope index refer to a valid
+> > class datum.  Otherwise since commit 52e5c306 ("libsepol: move unchange=
+d
+> > data out of loop") this can lead to a NULL dereference in the class
+> > existence check during linking.
+> >
+> > Reported-by: oss-fuzz (issue 69655)
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Acked-by: Petr Lautrbach <lautrbach@redhat.com>
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-This has been merged.
+Merged.
 Thanks,
 Jim
 
->
->
+> > ---
+> >  libsepol/src/policydb_validate.c | 8 ++++++--
+> >  1 file changed, 6 insertions(+), 2 deletions(-)
 > >
-> >> ---
-> >>  libsepol/src/policydb_validate.c | 1 +
-> >>  1 file changed, 1 insertion(+)
-> >>
-> >> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_=
-validate.c
-> >> index 9746f562..2043e437 100644
-> >> --- a/libsepol/src/policydb_validate.c
-> >> +++ b/libsepol/src/policydb_validate.c
-> >> @@ -1076,6 +1076,7 @@ static int validate_avrules(sepol_handle_t *hand=
-le, const avrule_t *avrule, int
-> >>
-> >>                 switch(avrule->flags) {
-> >>                 case 0:
-> >> +                       break;
-> >>                 case RULE_SELF:
-> >>                         if (p->policyvers !=3D POLICY_KERN &&
-> >>                             p->policyvers < MOD_POLICYDB_VERSION_SELF_=
-TYPETRANS &&
-> >> --
-> >> 2.45.2
-> >>
->
+> > diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_v=
+alidate.c
+> > index 9746f562..0216410c 100644
+> > --- a/libsepol/src/policydb_validate.c
+> > +++ b/libsepol/src/policydb_validate.c
+> > @@ -1467,6 +1467,8 @@ bad:
+> >
+> >  static int validate_scope_index(sepol_handle_t *handle, const scope_in=
+dex_t *scope_index, validate_t flavors[])
+> >  {
+> > +       uint32_t i;
+> > +
+> >         if (!ebitmap_is_empty(&scope_index->scope[SYM_COMMONS]))
+> >                 goto bad;
+> >         if (validate_ebitmap(&scope_index->p_classes_scope, &flavors[SY=
+M_CLASSES]))
+> > @@ -1483,8 +1485,10 @@ static int validate_scope_index(sepol_handle_t *=
+handle, const scope_index_t *sco
+> >                 goto bad;
+> >         if (validate_ebitmap(&scope_index->p_cat_scope, &flavors[SYM_CA=
+TS]))
+> >                 goto bad;
+> > -       if (scope_index->class_perms_len > flavors[SYM_CLASSES].nprim)
+> > -               goto bad;
+> > +
+> > +       for (i =3D 0; i < scope_index->class_perms_len; i++)
+> > +               if (validate_value(i + 1, &flavors[SYM_CLASSES]))
+> > +                       goto bad;
+> >
+> >         return 0;
+> >
+> > --
+> > 2.45.1
+> >
+> >
