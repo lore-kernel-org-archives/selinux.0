@@ -1,108 +1,104 @@
-Received: from sonic309-27.consmr.mail.ne1.yahoo.com (sonic309-27.consmr.mail.ne1.yahoo.com [66.163.184.153])
+Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com [209.85.219.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7F5A25760
-	for <selinux@vger.kernel.org>; Wed,  3 Jul 2024 22:25:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5225A13AD27
+	for <selinux@vger.kernel.org>; Wed,  3 Jul 2024 23:01:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720045552; cv=none; b=I64Z6b0gbafckmnGJ5HTmUCzgCB6up6HHygAk+ingTc3TCL8GvTsBil17ir92YkIGiaZ4SKLwcaLuHlCWywQnyrcpZyjD3coHkkkiD9FGdd3o0Va7efK5binQD4tZVmkbbI0boHcMo2vGXumtwMNNw7Kb/SjyOqfBbGAedREUqk=
+	t=1720047671; cv=none; b=iJPbGR84RzcZCVVrH0frsgEtwXj1OIp7Eq8ksFkuDmm5jqyPPMNrN9jCCFQfW9N7W1RgVWiVOigIvN9TMjBDpdfpRgIH9giL7fm9WB0k9cOEbQXAQaqdax0xkC/zN+tKbQWBv6LlwQe5pAYOm6mbeaFZgnmUaycHYzxu/Wicq14=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720045552; c=relaxed/simple;
-	bh=d/GXZExxP7iHIljKktH2xf2oo8tzAzf7itiZJHSdGLI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:Cc:From:
-	 In-Reply-To:Content-Type; b=kJVD9cBT7Cw08bhZtOpUbxd6MXu00rET8Gzaa3wzlQMOgR24uj6ADyDwaitAwvDXEUtUO+dRu2xm15gakmMX1QbE6enGWt2HCsbfnB0O64dC1kOKajdZ90h2KNR4QSPRrx5c6QXo21PiKAoFKNq1f+OYN8nRupe/pyGTOLP32J4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=fBTwfX+y; arc=none smtp.client-ip=66.163.184.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1720047671; c=relaxed/simple;
+	bh=bUTbTvzj82LJV3RkK+LQb2gR0EFbWiO3r4bl0COLezw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Quh7nEbNjX3He079AAZFrvWP7xcj/BWZYeLqxZb3eJjvv1E7SD2wAMVjYb2rGE5PbY36lfRRCsmCqZHmoc+CO7fS17jXvyMVgxuRKigSO7kdkLr7qhPaxlDzFYqwphGp6GEGjxFOX001kQXDqeMO4HZJoJtIATsQZXtSCjv9jtM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=SFwr8sac; arc=none smtp.client-ip=209.85.219.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="fBTwfX+y"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1720045549; bh=1fMoFRg02t09ZaM5zT0OQRAJMuRGusVcoXWxDXP0NzA=; h=Date:Subject:To:References:Cc:From:In-Reply-To:From:Subject:Reply-To; b=fBTwfX+yz8Xzv2jPMkY4Qq8+hWb5MlaBepHCKUX8RJHO2K9drCPvaS0ZK4lECu/d3ODjgy2O88Q9tJ0GZATXEguGszzcEGodM2RaSemfa2UGWvAjUBPh5nHtuS+5vXCVKf2QvW4lNmZpjlhuqt0D6Zg24eyVISNQMY0SwbAIupz5c8LY3DgcvPRAEXGRBFKKrm+HINu4qSSYjl486FUQ/smgcoMYWlseQl99VcuQ14vjapsqBHRnv3BoFqrx5ETJwPmKBb2cMLcRQ/cdUPnQg6b27yDsuXkj4aIQqZEdTOVTYe5dQzoh/rwSkgD1DvrKOSbpFRRQM3kQvLAJPwzzFQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1720045549; bh=iEgm2ZVCOJuw+IcFhf+ebAE682cbrV2q0RcIYOOdLzu=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=msdaQxUWB8qw50oLobsv0euuyIZVZKkQcPQWdnr7G4FbNpbwfToRnvkuBaqzHfJu3czO1zAjQN2ZFH0LwlBVKI3r8FIDVo8QW4BL48YfGWwbulFlhfkxVBY8Hz1S2fgPLcbx1tTapNsO5hHg2rULiK4IIBykN38ZlgKBRu4CAljfwNA4w8xdDbfnJsjo8aaE+edYcGV2fvVMWH3fx6CHzufzE3//CF6ZEF/wOh5JfO7hjmvwtwti//FPLOITW2k7/NpxgVYZbj3ggfteSAMaHP7Ncenlmypgkq/AZvnkmX0nrPWkGTdKjyAR/1V6/cw/NAcVWqzQKQVgvl6oNaSQRA==
-X-YMail-OSG: vAFVpxYVM1l2rzAZkQgyK0e340gl0Ef8ULIKtrnLCdqgdsoY3AsZ_714H5OYTYz
- XDmhr97PPS5A_miQBI1wfbBEQFxhN3TfS8pfR8KQfJ_WSRtiFnzDVp8HdQSOPkAUSFtNCfw6.HDz
- _TT0bInWVxs8BxHl5.zxmfx95A7Ugj9Fl5Ua0cHEWY.IFvDgFjYRkF4qU.V3645wFf_f3sWOlYj_
- WV18H2cUWyhaTfkezcN0PQSScIqHuxUK4xl2lGRZmk9hjZm.kBSNFMXZDeYftrK.0XKAI215fpBN
- .JZ3lZ34Gj7RWPPmU6LzyYQ1kWy2FH6Jqe3pQVPI8Iv2oPyDSdSrh7Q57AeI5iqiK4.LRd727V23
- xbtwg9ASTMFHDLKDOZ8BD_gWb2SeFceOxpFaP3v9Auba8GwDemL4g1fEHk9UmRlQqETKdVRKiRcf
- EX76bJ7ZywpJd6Zz5s4JX3JcvpS9gK15fx3G94x9N_tSbAS1w3kmbYjmBRh7U7QXX9p.ey6RNucx
- YMouunEhh_YQhCWcUdTg0HrG4iRIBoIWu_tSEXEEppnuLKfY3ONkVGI_GUFP88d4BPmgI9FnXTfu
- wKJkWDmiG51eHLqLdhLsnQxHrN_HgZjXR.0rVkrnOuJT1dERINHaQvetKVKFUr_.EOhgVXxKOsIW
- R7sO13LdX_FA5Gl8WehCwDDWfYIBke6ogVxk_Zr13ZWF62aTa8ZBjTdb7GUFyGKGAiIBggj.r2hh
- k6e_CFX3FuktEMrlzp7zlktSwVOx_26Up8FAd1Zbeo7XN51tzHiVaMAP.qXwJQvXId89C1IjGvQf
- 7L6clSSpz3B9qfoGLhWLN50O.jDktU2sTJNP87kD6WgwClWFmCpu42Z1ruGtJ7dSzWRLldao_S5X
- EjuJqfX1P_Wj9Sjfn6nc_R854wFJNY0K0dBgOFcjLiC47Yj_Q68tZjKu9xmj62dJT0sLSdfKeXGR
- 8wPVuj8I5mKt2Rt4ls57M_IzZhg7npPMVrtGMO1eXWtShHAEYCwSf64euRmU4qVk88j42_lqH23v
- FXksW_bcfXYXCDBX2WNVPq1pTpB3WMHkgel1Eim5QaH4nIuFVJ_YAg.iJt5ivBzihbxxLdVCW8sX
- weWrCX10QKQwMDBYAk5eBve4SGoATUwx7NaRzHwrOtQzEadNZOAi2l1mkROjCPSxzS.6PbeRIJNo
- AQ3FjOkBqeLiv3XiSIDTAsVcoef6zapmNIWcnYVR1UA4dVwi0xDDsumNl_HidpaTQbV2aS2eeOiL
- 6jAj6.KZdkBv1sJDX8xRqgMbNaUpuZBoOEx_Gv6BFhSmRY7M0PVcVelK7SGvN0IblhfAXP5X8e3U
- .tZ9BeLBCxVBc4a5fr6Ta19vjPMnuA0SvUIZTbni35keRTOJ2cSB9QWX3I2KWUqYx3s9fwiO1iCs
- poT886oM9JGmsVZGtSDqK8vuC49flGWgJme7lMUYkoF79hlU2cwxSAkTVTa39jWrSgR7A9PaZyqs
- oWvlIqGKzpzNq8bBBIx3DG1JOd_Wtqe_Yy4AGnb4z9zoBJiR_0VfC8nwssJQ42i3PLwmvsT2Twhm
- 7k8i2xOUC_faExAtEcG2yRK_oza50jy677SOxTZNuh_lGsFQqFnXXWufdGInTkQms3e3KEwb9JeE
- xn3vkeBeiTmUIVDN4wu9Z5jkltSYZY3tYHn5SwPmhRnyWt5w2zggb1BgWrgZfBaE99nXgSKneYBH
- E2aWiuBr2HocFSkE2PYd7QWOMoTFuMAXyA929RjJLFkcKDgtTTsCSR6dqyUHSr1H_UTLiMGmqaxL
- YgqAxCQB3blF2t0dXi_uve4eBEyNkz4wDM9GLdMENrspYPXOgtBh.srO3Xzt4CHnzffV7SRozvZM
- austK1hw7SK8lqXfY5TaVzTIR4cxstypxXnLFs0TViNe8dx_W1bstmBy55htmV8KdNDCL16kPNcB
- 6luC6jdOvycjw3Mkq0ffZFoSX2Xh848d9iBxROjXS.RUUF5qCeXyPKRSEEYhQm3p_M6A0r3vkz.E
- G0U.dfqN_sDQre335ThYvhiJ86JHlJNvu.a6.UVhFBpjlw3l_z4adrpJz1166DtWOAhcp3u2cRbJ
- UvwPPqcGp2lJcHhyxloF9c7yXXBnpp12qXsahbUrXtyAwwBm0uOs92zkJ3s1_Sz6bt6Vc.LBCIno
- RI2IJnZFCyxFKYE5kl8spasuQp_R3o1Wf1qRPy0WcUSU7mT8RlZbocrEVWIEaQgCsAI0foGHKSGG
- zA6fO86aagTfPdB4aqjiTS13RitWjM9EZdw5JGTJPk.y_U5sius.M9bg_fJaFBje3y0hCbjxEzg1
- 7KBmpPg--
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: f052b74b-efac-4265-9759-5a6a8cdfc37d
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Wed, 3 Jul 2024 22:25:49 +0000
-Received: by hermes--production-gq1-5b4c49485c-qj6fx (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID aaa554a1e262de3d08c55cdb86156ef6;
-          Wed, 03 Jul 2024 21:55:27 +0000 (UTC)
-Message-ID: <30fe42db-461c-4716-8874-ff78baf4b14b@schaufler-ca.com>
-Date: Wed, 3 Jul 2024 14:55:25 -0700
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="SFwr8sac"
+Received: by mail-yb1-f170.google.com with SMTP id 3f1490d57ef6-df481bf6680so25586276.3
+        for <selinux@vger.kernel.org>; Wed, 03 Jul 2024 16:01:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1720047668; x=1720652468; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=T6juE3uWpR8vi0HecVzx6BeVrOtW6clnNJqbZGyj11g=;
+        b=SFwr8sac2DGIwD8MAYPXnX/ihb19SoiznR6UYrPlyn6aAZyteWIqknjhI3k7L6xGn9
+         HxmK8K4PDcfm2XZmAVmY1MZ//9JW9nh9Ri05jw3/7KqtZojNcJgDpBfsOCtC+fmWtF2S
+         FbvYLS3tOeWP9Uk7ZrE5enPbhoOXl8ht2XHM5IXw1fZFZUCU1nC9YAJYvbmUNQkJmvPv
+         KrQjFgLnfgSgyFH4I1HIW+9UVUuZiMq1S2yFCMaMXLqZAR4MgWfPf/vQL+Z0amQe5VEO
+         mta+GsgZKj7gDEfXh7utMTM6oHxcUsmq4yoMVc3mi4lEyhwGNN9h812f+gt/YKleZMFo
+         XZ6Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720047668; x=1720652468;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=T6juE3uWpR8vi0HecVzx6BeVrOtW6clnNJqbZGyj11g=;
+        b=LpITV79h9ThgcYIRiiI8K3BQbUS11wwOXJDgJpEGlSeVZdk5TfBCP9fVA2u4McE3uJ
+         tQxwQOCPLLw/EcwBMfLI309UsEa1mK/ikWzLP9JNI3wIiXj/Egyf+SlU9bc0j+FcJgY4
+         z/u6MRd7tzNi80R/KW/Bxnr/uMuR95bRp7wBf6AvxuI2tHPZUwseSzSrJvou29nDWudq
+         vCPFhqONbFWkZJItAnZ8+NL3BjkkbyQj/JGST9DThSbEpiTRUlLcRIoNUyfStV53UP1G
+         24F957H+u4T91966OoX26jo+03iv/LGMuwgMdSM1Nx+0tGOeIGKfD6gczTfYIPL9Z+2I
+         hcZw==
+X-Forwarded-Encrypted: i=1; AJvYcCVyeyUlYgWnKvgKvQGBAcUGrGB6AdSro3+IeTIf1MDfxE0bZCaXocuf1HdnKqazbb/wMZPIXTBA2487v/JJeA7XPBwz8CT97Q==
+X-Gm-Message-State: AOJu0Yx/h/czaueQ5b8rrOyxrqj+jtmXjCY+NMEchAqzA/DFODK7ucdj
+	WzjdZ3DwSZKaoUrHC3+hcKulq8xvYIkiVxA60LgKn6zM0NTp98anWWGvkhWYGDYXn6uIynqMnBm
+	NNRkHS8oNK8BZS0AMIZNqb8T70vTmdn1W87qv
+X-Google-Smtp-Source: AGHT+IHlw5TKJf6IMqAed1Vi2Ai3i8Ur7WHChBmTXeHOEhRKNmzxeBjFEpH88VIG0Rp7pZvbfI94DImgAdCx+5A6J+U=
+X-Received: by 2002:a5b:f0a:0:b0:de5:5693:4e96 with SMTP id
+ 3f1490d57ef6-e036eb67f53mr13564734276.27.1720047668247; Wed, 03 Jul 2024
+ 16:01:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
+References: <20240703211134.349950-2-paul@paul-moore.com> <CAHC9VhTA5tUUH7DAYx9k6X2L4eTzJ1a-ETaJ5+sMZrxKqjKOKA@mail.gmail.com>
+ <30fe42db-461c-4716-8874-ff78baf4b14b@schaufler-ca.com>
+In-Reply-To: <30fe42db-461c-4716-8874-ff78baf4b14b@schaufler-ca.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 3 Jul 2024 19:00:57 -0400
+Message-ID: <CAHC9VhR0Dt9_HO_Ym3oJa9FqBoP3Av73Rwtj_Y-U8YhhkR5pVw@mail.gmail.com>
 Subject: Re: [PATCH] selinux,smack: remove the capability checks in the
  removexattr hooks
-To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
- selinux@vger.kernel.org
-References: <20240703211134.349950-2-paul@paul-moore.com>
- <CAHC9VhTA5tUUH7DAYx9k6X2L4eTzJ1a-ETaJ5+sMZrxKqjKOKA@mail.gmail.com>
-Content-Language: en-US
-Cc: Casey Schaufler <casey@schaufler-ca.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAHC9VhTA5tUUH7DAYx9k6X2L4eTzJ1a-ETaJ5+sMZrxKqjKOKA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.22464 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 7/3/2024 2:14 PM, Paul Moore wrote:
-> On Wed, Jul 3, 2024 at 5:11 PM Paul Moore <paul@paul-moore.com> wrote:
->> Commit 61df7b828204 ("lsm: fixup the inode xattr capability handling")
->> moved the responsibility of doing the inode xattr capability checking
->> out of the individual LSMs and into the LSM framework itself.
->> Unfortunately, while the original commit added the capability checks
->> to both the setxattr and removexattr code in the LSM framework, it
->> only removed the setxattr capability checks from the individual LSMs,
->> leaving duplicated removexattr capability checks in both the SELinux
->> and Smack code.
->>
->> This patch removes the duplicated code from SELinux and Smack.
->>
->> Fixes: 61df7b828204 ("lsm: fixup the inode xattr capability handling")
->> Signed-off-by: Paul Moore <paul@paul-moore.com>
->> ---
->>  security/selinux/hooks.c   | 10 ++--------
->>  security/smack/smack_lsm.c |  3 +--
->>  2 files changed, 3 insertions(+), 10 deletions(-)
-> FYI, this is still untested as my test kernel is compiling now, but I
-> wanted to get this out onto the list before the holiday in the US for
-> folks (/me looks at Casey for the Smack bits)
-
-Let me know how your test goes, and then I'll have a closer look.
-
->  to look at and
-> potentially review.
+On Wed, Jul 3, 2024 at 5:55=E2=80=AFPM Casey Schaufler <casey@schaufler-ca.=
+com> wrote:
+> On 7/3/2024 2:14 PM, Paul Moore wrote:
+> > On Wed, Jul 3, 2024 at 5:11=E2=80=AFPM Paul Moore <paul@paul-moore.com>=
+ wrote:
+> >> Commit 61df7b828204 ("lsm: fixup the inode xattr capability handling")
+> >> moved the responsibility of doing the inode xattr capability checking
+> >> out of the individual LSMs and into the LSM framework itself.
+> >> Unfortunately, while the original commit added the capability checks
+> >> to both the setxattr and removexattr code in the LSM framework, it
+> >> only removed the setxattr capability checks from the individual LSMs,
+> >> leaving duplicated removexattr capability checks in both the SELinux
+> >> and Smack code.
+> >>
+> >> This patch removes the duplicated code from SELinux and Smack.
+> >>
+> >> Fixes: 61df7b828204 ("lsm: fixup the inode xattr capability handling")
+> >> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> >> ---
+> >>  security/selinux/hooks.c   | 10 ++--------
+> >>  security/smack/smack_lsm.c |  3 +--
+> >>  2 files changed, 3 insertions(+), 10 deletions(-)
+> > FYI, this is still untested as my test kernel is compiling now, but I
+> > wanted to get this out onto the list before the holiday in the US for
+> > folks (/me looks at Casey for the Smack bits)
 >
+> Let me know how your test goes, and then I'll have a closer look.
+
+It looks good - my SELinux test system booted up, appears to be
+running normally, and all of the selinux-testsuite tests pass.
+
+--=20
+paul-moore.com
