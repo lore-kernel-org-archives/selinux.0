@@ -1,138 +1,95 @@
-Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com [209.85.219.181])
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 927D4CA40
-	for <selinux@vger.kernel.org>; Sun,  7 Jul 2024 07:00:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 582E61D69E
+	for <selinux@vger.kernel.org>; Mon,  8 Jul 2024 16:50:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720335602; cv=none; b=Jx5DDEArec8bTxpksZfYGVsvnpB5pfaZj2LtwPUn8U0ThJ0aJyoFpBHZi+9OjYHm9I/PCIGTzTVcOo5lAe/OWmkiZd251GgtxPVa7zGQLiGroe/UxKo304mQfuGgSOrH6+qyKbF+GR9GHGvaMMfmPNzL6dSgrzUwvvucKC8YIdo=
+	t=1720457438; cv=none; b=AQCQwKnjuOZ6RNekCDt3hhwsy7dsUrEPL49y5ClZp3kwcmeZKCzEVojriYJKUr7pxYGPMzYKK1+JefivEVmNRjqum5WRflOuNgf2F/in40pFFLG4Bwqc4y+e62pABL1I4UPEqDuw2fQElUg/6XmGqzDd5ozCQxccBnernnFZPkk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720335602; c=relaxed/simple;
-	bh=PXllK+OJigD3jSbmRsTeNWU8M1Hw+9Ayzx3V+EGMaoA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=H2aHNo+rp32phey14s5qCjF+NU01dHOZCBOA1fDueDv4YuorReUgzogzADxgGUd0GR1oNRa6W/xuIGo4BILjUax8gWNpIZRMhbEie2v1mhQjZfFiOhvHQsy/v12+hfeM6XDdGeyeCOtEK6ZmVxnlC52z1Dy/Fst+nHIW50aZ/00=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=mmq+yGrY; arc=none smtp.client-ip=209.85.219.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	s=arc-20240116; t=1720457438; c=relaxed/simple;
+	bh=MKhFGM0qHV6QwKinCXZoVe6STDfOxyiQxkiX/akHIuY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dxGLVAEskBxE3HHc52pQj+2DrnxSu71VOCQzUl2/ubj2Xz/Q69M46YrYQGmzkiQzCPvUpd5z7ofBBEfB7QFq0yyixMdWJ5JUxj27fgHE1VCGiYuuwBsWbr+Hcz0iSNX6aZPFiA6fHH0aTTfyACSPdGn01621t1lwtiMwKVzAJMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QZrqYYEN; arc=none smtp.client-ip=209.85.219.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="mmq+yGrY"
-Received: by mail-yb1-f181.google.com with SMTP id 3f1490d57ef6-e036d1ce4f7so1952396276.0
-        for <selinux@vger.kernel.org>; Sun, 07 Jul 2024 00:00:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QZrqYYEN"
+Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-6b5eb69e04cso25106796d6.1
+        for <selinux@vger.kernel.org>; Mon, 08 Jul 2024 09:50:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1720335599; x=1720940399; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Q0AIL4ZXpVapvXV/fgnvM3k01TReZ6fi3ltnZmlRgHY=;
-        b=mmq+yGrYYUbKepXs7RbpKBO3GNLPodTCMgWMBkk2KoAX/1qCYUWIC16AZE+mJtyv4g
-         F2bk0Jzy56L/NHD3SB4IH+PPthqqS1psYCy28kaOzw5B4lR7Lt+iiLMAnf9fFU+CB9ON
-         jKmOLCdI+3dNgMPty9IXCW2Pr7TDXUl8It5RFqBBcPzMEZ1QmpGXVGsYTip4Mcvr/9B5
-         vkC1JZ/erJHjUzepS1MODOOJjNRcGKCQt0vaURWBuf3M+5TjOXHskNU76IjIkpl7K37o
-         E/OrR0788cdPBxtc3JqHwNCr97nEEHdSzWh8tTJQoni4pWNfmq4mJYWifxWIKW9f1K35
-         /7Ag==
+        d=gmail.com; s=20230601; t=1720457436; x=1721062236; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=5zXbrUIgGN+fBxyVfr43mxyX0IUHm6Nd0Rqzu27CGew=;
+        b=QZrqYYENSKGaTLZIa248rgriXXuJ17d461EqZmH2YUWOEm4q0v5lk2qNmoOf2sEp97
+         jXZZ5303VwDm7ERkhByZIb02cK8sLD0W63qgdl2QEAGH2Cr+gV0O87l4H/Q6Kf3KgZ6X
+         HcmSxArWZDCUiZfmZrax1rFyvFV5hqIODpp0XaD/e6YCIxPvflFHJnvQzwEvJiffsuVZ
+         +WeFqVxC5/LzmQTH/4WZevvlzjt5mt9+pMoswppZdGLdyFinxskLsEZwR/bCm8XrGZYN
+         kb8RGoKJ2EPDYuAsezkATMYdEM6KrjpMXh7nkBZ29vTRa5WcRQHbsE8Id79hN7sY1QLF
+         UA5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720335599; x=1720940399;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Q0AIL4ZXpVapvXV/fgnvM3k01TReZ6fi3ltnZmlRgHY=;
-        b=r04dVKkcLYzbO0Ng7x+iwjadxf+Xr9LW3wu7SKu3rk+D5oTeCIGsAnapxR+93Bbsvn
-         f3b5wfL4ebUa62NCCg9homJUYPjmJeQSdR0Hnr6gp3d7Cr734XqOj/5oznUZSB3pybb3
-         iNx9rDtwY718Z2XjJDdncMpWVbkMvzkgisyd1JHobEfTfA9D2EyH5W1sm7gBK4yi+W1R
-         GbXIQWs7sRAZkMt/ub0OKfs9tpYs+y7+Ez3RKYckYuj5lQ0OePzKVFTqix8XrcCI0H4/
-         9etnk4KZl84PZjSlQsJMzZvm1ugz11jQCnW8RP4R/YvG39kkQJMsN9DW1geWnSE9PgJB
-         39IQ==
-X-Gm-Message-State: AOJu0Yz5GcWjiD8CbdsGxRuw0jxzB7cRlTdSa5OHp2I8fHdDopuG7MMW
-	TdrRugf6flEmkxsSep3fMrfm5PUKP/5lrTIBPwtsynZEG9EMgH7f9eHcQQTOAZnoGVrSSNHxsLT
-	zkIsVwEbdltKsjUa/xgEhBiEVmYZOKQ==
-X-Google-Smtp-Source: AGHT+IE+Ncc1/sHSBdb2nTt1n11hvrb3CLJWVSSumunel2f5Be71aVNChIvQn+SPYRgZ0zhciIDO2Yl6ejkuV5CA0as=
-X-Received: by 2002:a25:ab67:0:b0:e03:5b4b:fdb1 with SMTP id
- 3f1490d57ef6-e03c28cbf11mr6177790276.8.1720335599471; Sat, 06 Jul 2024
- 23:59:59 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1720457436; x=1721062236;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5zXbrUIgGN+fBxyVfr43mxyX0IUHm6Nd0Rqzu27CGew=;
+        b=XRiKHP67GSOM8NSfuTO1HemgjaNEsFhWUTlW9NhavyCUCPe+L3d8fM16Yty2FtKYq7
+         yn8vZltVJK9dfXKCDSePJtfv/qgpcBZhX9VKHDOjbGdZlXLcQGnYXlAIIRW7SCNdwAuF
+         NfwPVGy5t+0SawVggR3rlBGynwtDw80Fr0uP/2zSgREPDr67wFycRLa7EAg7HejNFx/R
+         j8p/2Nk2u9G2X6s9XliEd1N0eRaRMPvDqAxPkLo0qgUywimJtQ104s2s60F5tDgh5+w1
+         yPwrMOudibaYqZXiZq+ESj95rx5Zkq9d0+H1r7gu1XCRr/yTbaQWBVixH3/RObrETeyz
+         5FGQ==
+X-Gm-Message-State: AOJu0YweTGb+QfLE6COF/l4pkimEpgJEE+LYWoylBA0ndUPp6JiXyVut
+	z+A6CBd53q6g74w4HUtjVwT7uhmxfufuoHc1bb7QpcUv6QkdkN+ii32Nag==
+X-Google-Smtp-Source: AGHT+IHbT3k/JgSBFRnMNN+35IevR8za490n7OukZZJAql5ulnXwcmqoJRZJsO37FZBNvR6krPujdg==
+X-Received: by 2002:a05:6214:410e:b0:6b5:46bf:be21 with SMTP id 6a1803df08f44-6b61bca7e0dmr2551516d6.21.1720457435909;
+        Mon, 08 Jul 2024 09:50:35 -0700 (PDT)
+Received: from electric.. (c-69-140-100-37.hsd1.md.comcast.net. [69.140.100.37])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b61b9dc37bsm1046906d6.42.2024.07.08.09.50.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Jul 2024 09:50:35 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: James Carter <jwcart2@gmail.com>
+Subject: [PATCH] checkpolicy: Check the right bits of an ibpkeycon rule subnet prefix
+Date: Mon,  8 Jul 2024 12:50:32 -0400
+Message-ID: <20240708165032.86647-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240701182732.85548-1-jwcart2@gmail.com>
-In-Reply-To: <20240701182732.85548-1-jwcart2@gmail.com>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Sun, 7 Jul 2024 08:59:48 +0200
-Message-ID: <CAJ2a_DevjOD55nbGxqjEPx+Z6q4bpXWZDVu15-4iAV0_mQgpzQ@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: Fix integer comparison issues when compiling
- for 32-bit
-To: selinux@vger.kernel.org
-Cc: James Carter <jwcart2@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, 1 Jul 2024 at 20:27, James Carter <jwcart2@gmail.com> wrote:
->
-> Trying to compile libselinux for 32-bit produces the following error:
->
-> selinux_restorecon.c:1194:31: error: comparison of integer expressions of=
- different signedness: =E2=80=98__fsword_t=E2=80=99 {aka =E2=80=98int=E2=80=
-=99} and =E2=80=98unsigned int=E2=80=99 [-Werror=3Dsign-compare]
->  1194 |         if (state.sfsb.f_type =3D=3D RAMFS_MAGIC || state.sfsb.f_=
-type =3D=3D TMPFS_MAGIC ||
->       |                               ^~
->
-> Since RAMFS_MAGIC =3D 0x858458f6 =3D=3D 2240043254, which > 2^31, but < 2=
-^32,
-> cast both as uint32_t for the comparison.
+The lower 64 bits of the subnet prefix for an ibpkeycon rule should
+all be 0's. Unfortunately the check uses the s6_addr macro which refers
+to the 16 entry array of 8-bit values in the union and does not refer
+to the correct bits.
 
-LGTM.
-Reviewed-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+Use the s6_addr32 macro instead which refers to the 4 entry array of
+32-bit values in the union and refers to the lower 64 bits.
 
-> Reported-by: Daniel Schepler
-> Signed-off-by: James Carter <jwcart2@gmail.com>
-> ---
->  libselinux/src/selinux_restorecon.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux=
-_restorecon.c
-> index acb729c8..bc6ed935 100644
-> --- a/libselinux/src/selinux_restorecon.c
-> +++ b/libselinux/src/selinux_restorecon.c
-> @@ -1191,8 +1191,8 @@ static int selinux_restorecon_common(const char *pa=
-thname_orig,
->         }
->
->         /* Skip digest on in-memory filesystems and /sys */
-> -       if (state.sfsb.f_type =3D=3D RAMFS_MAGIC || state.sfsb.f_type =3D=
-=3D TMPFS_MAGIC ||
-> -           state.sfsb.f_type =3D=3D SYSFS_MAGIC)
-> +       if ((uint32_t)state.sfsb.f_type =3D=3D (uint32_t)RAMFS_MAGIC ||
-> +               state.sfsb.f_type =3D=3D TMPFS_MAGIC || state.sfsb.f_type=
- =3D=3D SYSFS_MAGIC)
->                 state.setrestorecondigest =3D false;
->
->         if (state.flags.set_xdev)
-> @@ -1490,7 +1490,7 @@ int selinux_restorecon_xattr(const char *pathname, =
-unsigned int xattr_flags,
->
->         if (!recurse) {
->                 if (statfs(pathname, &sfsb) =3D=3D 0) {
-> -                       if (sfsb.f_type =3D=3D RAMFS_MAGIC ||
-> +                       if ((uint32_t)sfsb.f_type =3D=3D (uint32_t)RAMFS_=
-MAGIC ||
->                             sfsb.f_type =3D=3D TMPFS_MAGIC)
->                                 return 0;
->                 }
-> @@ -1525,7 +1525,7 @@ int selinux_restorecon_xattr(const char *pathname, =
-unsigned int xattr_flags,
->                         continue;
->                 case FTS_D:
->                         if (statfs(ftsent->fts_path, &sfsb) =3D=3D 0) {
-> -                               if (sfsb.f_type =3D=3D RAMFS_MAGIC ||
-> +                               if ((uint32_t)sfsb.f_type =3D=3D (uint32_=
-t)RAMFS_MAGIC ||
->                                     sfsb.f_type =3D=3D TMPFS_MAGIC)
->                                         continue;
->                         }
-> --
-> 2.45.2
->
->
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ checkpolicy/policy_define.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 4931f23d..bfeda86b 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -5036,7 +5036,7 @@ int define_ibpkey_context(unsigned int low, unsigned int high)
+ 		goto out;
+ 	}
+ 
+-	if (subnet_prefix.s6_addr[2] || subnet_prefix.s6_addr[3]) {
++	if (subnet_prefix.s6_addr32[2] || subnet_prefix.s6_addr32[3]) {
+ 		yyerror("subnet prefix should be 0's in the low order 64 bits.");
+ 		rc = -1;
+ 		goto out;
+-- 
+2.45.2
+
