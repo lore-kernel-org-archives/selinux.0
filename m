@@ -1,95 +1,117 @@
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 582E61D69E
-	for <selinux@vger.kernel.org>; Mon,  8 Jul 2024 16:50:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33C94155C83
+	for <selinux@vger.kernel.org>; Tue,  9 Jul 2024 10:15:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720457438; cv=none; b=AQCQwKnjuOZ6RNekCDt3hhwsy7dsUrEPL49y5ClZp3kwcmeZKCzEVojriYJKUr7pxYGPMzYKK1+JefivEVmNRjqum5WRflOuNgf2F/in40pFFLG4Bwqc4y+e62pABL1I4UPEqDuw2fQElUg/6XmGqzDd5ozCQxccBnernnFZPkk=
+	t=1720520143; cv=none; b=a8n1XJ34KVRKHFcO0Hb5ca+dDU0t25eutf6xdKTNj1frk2UTEcL+GY4gsho8i5j84TtE8v+HgxaKkIA9Oi2ClH7n976ZNcPHtfgY4AncvRkGf1t9lafSkcyFtrTrEuW/TFzTG3Rhe2x+6DZjinu+Ysc2eVTFEj9QNBeBnBehF/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720457438; c=relaxed/simple;
-	bh=MKhFGM0qHV6QwKinCXZoVe6STDfOxyiQxkiX/akHIuY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dxGLVAEskBxE3HHc52pQj+2DrnxSu71VOCQzUl2/ubj2Xz/Q69M46YrYQGmzkiQzCPvUpd5z7ofBBEfB7QFq0yyixMdWJ5JUxj27fgHE1VCGiYuuwBsWbr+Hcz0iSNX6aZPFiA6fHH0aTTfyACSPdGn01621t1lwtiMwKVzAJMY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QZrqYYEN; arc=none smtp.client-ip=209.85.219.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1720520143; c=relaxed/simple;
+	bh=NYEMZsheqyS+Hiri90XW+05gHoYPc9gZ2b2J8kCY2RI=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=UVyUCv19K48QfkEB605ikBZNCjmc81WHKqe2411idMWoRmsLdaSHVSUux0P3P7BaKSLXOBAbRVBkLEClevVreXCcBH5D6TUT7NXSbX+2nRxY7PDA+BkUolFocWAiOyZo8+8o/My2PIEmOICTAZx9uKpbNlRgle/gpDjF4TMrsBI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MmSs18hX; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QZrqYYEN"
-Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-6b5eb69e04cso25106796d6.1
-        for <selinux@vger.kernel.org>; Mon, 08 Jul 2024 09:50:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1720457436; x=1721062236; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=5zXbrUIgGN+fBxyVfr43mxyX0IUHm6Nd0Rqzu27CGew=;
-        b=QZrqYYENSKGaTLZIa248rgriXXuJ17d461EqZmH2YUWOEm4q0v5lk2qNmoOf2sEp97
-         jXZZ5303VwDm7ERkhByZIb02cK8sLD0W63qgdl2QEAGH2Cr+gV0O87l4H/Q6Kf3KgZ6X
-         HcmSxArWZDCUiZfmZrax1rFyvFV5hqIODpp0XaD/e6YCIxPvflFHJnvQzwEvJiffsuVZ
-         +WeFqVxC5/LzmQTH/4WZevvlzjt5mt9+pMoswppZdGLdyFinxskLsEZwR/bCm8XrGZYN
-         kb8RGoKJ2EPDYuAsezkATMYdEM6KrjpMXh7nkBZ29vTRa5WcRQHbsE8Id79hN7sY1QLF
-         UA5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720457436; x=1721062236;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5zXbrUIgGN+fBxyVfr43mxyX0IUHm6Nd0Rqzu27CGew=;
-        b=XRiKHP67GSOM8NSfuTO1HemgjaNEsFhWUTlW9NhavyCUCPe+L3d8fM16Yty2FtKYq7
-         yn8vZltVJK9dfXKCDSePJtfv/qgpcBZhX9VKHDOjbGdZlXLcQGnYXlAIIRW7SCNdwAuF
-         NfwPVGy5t+0SawVggR3rlBGynwtDw80Fr0uP/2zSgREPDr67wFycRLa7EAg7HejNFx/R
-         j8p/2Nk2u9G2X6s9XliEd1N0eRaRMPvDqAxPkLo0qgUywimJtQ104s2s60F5tDgh5+w1
-         yPwrMOudibaYqZXiZq+ESj95rx5Zkq9d0+H1r7gu1XCRr/yTbaQWBVixH3/RObrETeyz
-         5FGQ==
-X-Gm-Message-State: AOJu0YweTGb+QfLE6COF/l4pkimEpgJEE+LYWoylBA0ndUPp6JiXyVut
-	z+A6CBd53q6g74w4HUtjVwT7uhmxfufuoHc1bb7QpcUv6QkdkN+ii32Nag==
-X-Google-Smtp-Source: AGHT+IHbT3k/JgSBFRnMNN+35IevR8za490n7OukZZJAql5ulnXwcmqoJRZJsO37FZBNvR6krPujdg==
-X-Received: by 2002:a05:6214:410e:b0:6b5:46bf:be21 with SMTP id 6a1803df08f44-6b61bca7e0dmr2551516d6.21.1720457435909;
-        Mon, 08 Jul 2024 09:50:35 -0700 (PDT)
-Received: from electric.. (c-69-140-100-37.hsd1.md.comcast.net. [69.140.100.37])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b61b9dc37bsm1046906d6.42.2024.07.08.09.50.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jul 2024 09:50:35 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MmSs18hX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1720520141;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type;
+	bh=k2fQMezNNcMpWttKCJJsz3EwezxV+KFYOrs2IUSB3Ck=;
+	b=MmSs18hXUokSggV6rR7aEHaUGeI9pDszax6SyvWw7canp/gPHELb+MiRwdJGk9+ESJv9ky
+	hbrc377k5OZ3+TmEiDok6Q/GPpeIRkZ6miapkuUjEMAPOUC4mIB4gX6U4+nhb3PS/MOssi
+	ccOQxHHjIryAn95W2nNirrV7NQkKAGY=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-595-ROfiDAhfOC-zoNxtXg4iqA-1; Tue,
+ 09 Jul 2024 06:15:38 -0400
+X-MC-Unique: ROfiDAhfOC-zoNxtXg4iqA-1
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 89BF519560BA
+	for <selinux@vger.kernel.org>; Tue,  9 Jul 2024 10:15:36 +0000 (UTC)
+Received: from localhost (unknown [10.45.225.7])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id C59F819560AA
+	for <selinux@vger.kernel.org>; Tue,  9 Jul 2024 10:15:35 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
 To: selinux@vger.kernel.org
-Cc: James Carter <jwcart2@gmail.com>
-Subject: [PATCH] checkpolicy: Check the right bits of an ibpkeycon rule subnet prefix
-Date: Mon,  8 Jul 2024 12:50:32 -0400
-Message-ID: <20240708165032.86647-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.45.2
+Subject: Regression in 5876aca0484f ("libselinux: free data on selabel open
+ failure")
+Date: Tue, 09 Jul 2024 12:15:28 +0200
+Message-ID: <875xte98hr.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-The lower 64 bits of the subnet prefix for an ibpkeycon rule should
-all be 0's. Unfortunately the check uses the s6_addr macro which refers
-to the 16 entry array of 8-bit values in the union and does not refer
-to the correct bits.
+Hello,
 
-Use the s6_addr32 macro instead which refers to the 4 entry array of
-32-bit values in the union and refers to the lower 64 bits.
+Katerina Koukiou https://bugzilla.redhat.com/show_bug.cgi?id=2295428
+discovered a regression in libselinux [1] which can be demonstrated by
+running `matchpathcon` on a system with SELinux disabled and without any
+SELinux policy installed.
 
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- checkpolicy/policy_define.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Fedora reproducer:
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 4931f23d..bfeda86b 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -5036,7 +5036,7 @@ int define_ibpkey_context(unsigned int low, unsigned int high)
- 		goto out;
- 	}
- 
--	if (subnet_prefix.s6_addr[2] || subnet_prefix.s6_addr[3]) {
-+	if (subnet_prefix.s6_addr32[2] || subnet_prefix.s6_addr32[3]) {
- 		yyerror("subnet prefix should be 0's in the low order 64 bits.");
- 		rc = -1;
- 		goto out;
--- 
-2.45.2
+$ toolbox create
+$ toolbox enter
+toolbox$ matchpatchcon /abc
+
+Before 5876aca0484f:
+
+$ matchpathcon /abc
+  Error while opening file contexts database: No such file or directory
+
+After 5876aca0484f:
+
+$ matchpathcon /abc
+[1]    761709 segmentation fault (core dumped)  matchpathcon /abc
+
+Program received signal SIGSEGV, Segmentation fault.
+0x00007ffff7f9a7b8 in closef (rec=0x405a10) at label_file.c:915
+warning: Source file is more recent than executable.
+915                     free(spec->lr.ctx_trans);
+(gdb) bt full
+#0  0x00007ffff7f9a7b8 in closef (rec=0x405a10) at label_file.c:915
+        data = 0x405a80
+        area = 0x6ffffdf48
+        last_area = 0x7fffffffdc90
+        spec = 0x405
+        stem = 0x2
+        i = 0
+#1  0x00007ffff7f968b7 in selabel_close (rec=0x405a10) at label.c:364
+No locals.
+#2  0x00007ffff7f9648d in selabel_open (backend=0, opts=0x7fffffffdd80, nopts=6) at label.c:228
+        rec = 0x405a10
+#3  0x00000000004015e7 in main (argc=2, argv=0x7fffffffdf48) at matchpathcon.c:131
+        i = 32767
+        force_mode = 0
+        header = 1
+        opt = -1
+        verify = 0
+        notrans = 0
+        error = 0
+        quiet = 0
+        hnd = 0x7fffffffde20
+        options = {{type = 0, value = 0x0}, {type = 0, value = 0x0}, {type = 0, value = 0x0}, {type = 0, 
+            value = 0x0}, {type = 0, value = 0x0}, {type = 0, value = 0x0}}
+
+
+As a workaround, it's necessary to install SElinux policy
+
+toolbox$ sudo dnf install selinux-policy-targeted
+toolbox$ $ matchpathcon /abc                       
+/abc    system_u:object_r:etc_runtime_t:s0
+
+
+[1] https://bugzilla.redhat.com/show_bug.cgi?id=2295428
 
