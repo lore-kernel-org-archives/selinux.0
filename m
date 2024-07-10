@@ -1,44 +1,50 @@
-Received: from smtp-42a9.mail.infomaniak.ch (smtp-42a9.mail.infomaniak.ch [84.16.66.169])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE204824AD
-	for <selinux@vger.kernel.org>; Wed, 10 Jul 2024 12:02:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.16.66.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92D83192B9D
+	for <selinux@vger.kernel.org>; Wed, 10 Jul 2024 13:32:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720612976; cv=none; b=DYKa+HvGQCuB985MdJMEbJj6AWbjzna0/fTVtBclEnzbQ7CXjP9p+Awv4nVZTOev/VjdY/Yiod/1pdbzUN+RAOslJLe3UeVYMMxuL2TFmQBKf66AnovLzkho/COajIsm7lmtiaD+Enm6EhgNz73DeHDzI6osmaawdStKd2Qji6k=
+	t=1720618357; cv=none; b=I6pLQRk1SfYLJniebg47YcCH0JFtWU7RVd5GxQSexjiowSWxyvLXr8wjnlU+29fLeZSyXMfSsg7XKJbDqtCBo/OrJ92v7IbKlgWwVDlPyXY+5cxfnjIpCdl4jLPFSR3M0+LBHenYzTm5aTOMjSuZfPV1ajwTVpwWrRqt2Oq2lR0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720612976; c=relaxed/simple;
-	bh=prPqIFoeHifGmIDAGG5AkrjOv/4NpwrrQhih1i4cx98=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CGU3um+S7izPvgHoRjrKzL0d2C8i3dcPPLUeG5+ws2sQ43U6lmocpwF0ySr9TEgr/4kuPz0wPjBWzyHrLZykL+Kpfn3FGpKDmSC1n9pytVYziv7L4pIuSgPQVgr892795imodAnw+PB7fC07IFeZptN5VZTJYeVbosbgPhq06Qs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net; spf=pass smtp.mailfrom=digikod.net; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=YXLq3Tyd; arc=none smtp.client-ip=84.16.66.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
+	s=arc-20240116; t=1720618357; c=relaxed/simple;
+	bh=wqC97oVOvlJl/ZubxUHrL6ipupG4EEG7UGjQXSPT9eQ=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=on5BqdLHA/Ye2ueakOzm4WrExJl1/Xs98FQlv52wsUdj+n0+RJwVwxqungYjSmWhneqlkB4S3wFyTPSJUvhaOvpF5tOeHwmar7bTPKBWECk1tUoIiGusJiEOFSLKgvlL+tNuNoZ5q4OjzuZmI7e4ZE7CoH0kUoR1PXEN8M3JKFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ACM8bOXK; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="YXLq3Tyd"
-Received: from smtp-4-0000.mail.infomaniak.ch (smtp-4-0000.mail.infomaniak.ch [10.7.10.107])
-	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4WJxLp57d7zYX8;
-	Wed, 10 Jul 2024 14:02:42 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
-	s=20191114; t=1720612962;
-	bh=XlGM+a2UaJA3eWRsE3TByCQA2bW65y0bSQC9fgghkfc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=YXLq3Tyd8QcRd056jhy0PbKzaGVxvtNQoso0cYoYV1riKjHsM6R/QVRzq3OGEqlso
-	 45BVkeTHBrAQc8m0szlKlMNalqPxhs2UOeGHIbP6Y2bk2odkB7jAOlTQmCnvwQ9K0U
-	 AHyHS6rhdjm843Q5DWYVJ9IpdeD+1B21Wq5INaYs=
-Received: from unknown by smtp-4-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4WJxLp1P6NzsHy;
-	Wed, 10 Jul 2024 14:02:42 +0200 (CEST)
-Date: Wed, 10 Jul 2024 14:02:38 +0200
-From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
-To: Paul Moore <paul@paul-moore.com>
-Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
-	=?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>
-Subject: Re: [RFC PATCH] lsm: add the inode_free_security_rcu() LSM
- implementation hook
-Message-ID: <20240710.Thoo5haishei@digikod.net>
-References: <20240710024029.669314-2-paul@paul-moore.com>
- <CAHC9VhRAHg3pjHLh8714Wwb-KYReEijfE_C3i48r72VztUmdJQ@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ACM8bOXK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1720618354;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=wqC97oVOvlJl/ZubxUHrL6ipupG4EEG7UGjQXSPT9eQ=;
+	b=ACM8bOXKwYXwpYZg0stLdhTfeoucRJi3V1oILfJ1xI3PjZbl3IA+3M1Hc9/YbcMHC25Yi5
+	9c7BYwgjQY1lYecbObnrQfrbcjFkC6d2tAX2KQnJjXgaupUCTULDcnivNkKNuqq8g69Fjw
+	ZdiAF0s9OxbKlD82YvejGRt2RhkGd4A=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-288-Y-ZQd5woOVCjHHDGNLV91Q-1; Wed,
+ 10 Jul 2024 09:32:32 -0400
+X-MC-Unique: Y-ZQd5woOVCjHHDGNLV91Q-1
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 29FD119560B5
+	for <selinux@vger.kernel.org>; Wed, 10 Jul 2024 13:32:32 +0000 (UTC)
+Received: from localhost (unknown [10.45.225.200])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 643101955E85
+	for <selinux@vger.kernel.org>; Wed, 10 Jul 2024 13:32:31 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Subject: In permissive setting labels that are not in host policy when
+ running unprivileged fails with EINVAL
+Date: Wed, 10 Jul 2024 15:32:24 +0200
+Message-ID: <87v81d74pj.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -46,61 +52,51 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHC9VhRAHg3pjHLh8714Wwb-KYReEijfE_C3i48r72VztUmdJQ@mail.gmail.com>
-X-Infomaniak-Routing: alpha
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-On Tue, Jul 09, 2024 at 10:47:45PM -0400, Paul Moore wrote:
-> On Tue, Jul 9, 2024 at 10:40 PM Paul Moore <paul@paul-moore.com> wrote:
-> >
-> > The LSM framework has an existing inode_free_security() hook which
-> > is used by LSMs that manage state associated with an inode, but
-> > due to the use of RCU to protect the inode, special care must be
-> > taken to ensure that the LSMs do not fully release the inode state
-> > until it is safe from a RCU perspective.
-> >
-> > This patch implements a new inode_free_security_rcu() implementation
-> > hook which is called when it is safe to free the LSM's internal inode
-> > state.  Unfortunately, this new hook does not have access to the inode
-> > itself as it may already be released, so the existing
-> > inode_free_security() hook is retained for those LSMs which require
-> > access to the inode.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> >  include/linux/lsm_hook_defs.h     |  1 +
-> >  security/integrity/ima/ima.h      |  2 +-
-> >  security/integrity/ima/ima_iint.c | 20 ++++++++------------
-> >  security/integrity/ima/ima_main.c |  2 +-
-> >  security/landlock/fs.c            |  9 ++++++---
-> >  security/security.c               | 26 +++++++++++++-------------
-> >  6 files changed, 30 insertions(+), 30 deletions(-)
-> 
-> FYI, this has only received "light" testing, and even that is fairly
-> generous.  I booted up a system with IMA set to measure the TCB and
-> ran through the audit and SELinux test suites; IMA seemed to be
-> working just fine but I didn't poke at it too hard.  I didn't have an
-> explicit Landlock test handy, but I'm hoping that the Landlock
-> enablement on a modern Rawhide system hit it a little :)
+Hello,
 
-If you want to test Landlock, you can do so like this:
+this is originally reported at
+https://github.com/SELinuxProject/selinux/issues/437
 
-cd tools/testing/selftests/landlock
-make -C ../../../.. headers_install
-make
-for f in *_test; ./$f; done
+There a question why kernel blocks changing SELinux label to some
+unknown label and requires CAP_MAC_ADMIN even in permissive mode?
 
-...or you can build and run everything (on UML) with
-`./check-linux build kselftest' provided here:
-https://github.com/landlock-lsm/landlock-test-tools
+Reproducer:
 
-...or, even simpler, you can run all checks by running
-`./docker-run.sh debian/sid` for instance.
+$ id -u
+1000
 
-I need to update the kernel doc with these commands.
+$ getenforce=20
+Permissive
 
-> 
-> -- 
-> paul-moore.com
-> 
+$ chcon -t bin_t /var/lib/mock/fedora-rawhide-x86_64/root/usr/lib/systemd/s=
+ystem-generators/systemd-ssh-generator
+
+$ chcon -t selinux_unknown_type_t /var/lib/mock/fedora-rawhide-x86_64/root/=
+usr/lib/systemd/system-generators/systemd-ssh-generator
+chcon: failed to change context of '/var/lib/mock/fedora-rawhide-x86_64/roo=
+t/usr/lib/systemd/system-generators/systemd-ssh-generator' to =E2=80=98syst=
+em_u:object_r:selinux_unknown_type_t:s0=E2=80=99: Invalid argument
+
+
+Quotes from the issue:
+
+This is happening on a system with SELinux in permissive mode. Applying
+your suggestion does not change the result. I assume this is gated
+behind CAP_MAC_ADMIN for unprivileged users. Is there any way to make
+this work without needing root privileges?
+
+Hmm so the kernel blocks unknown labels unless the user has
+CAP_MAC_ADMIN in the initial user namespace. I'm assuming this is for a
+good reason and it would be unsafe to allow any user to do this so I
+don't think there's anything that can be done here
+
+One thing that's not clear to me, why is an unprivileged user allowed to
+write labels known by the host but not labels that are not known to the
+host? What specifically is unsafe about unknown labels that's not an
+issue with known labels?
+
+Petr
+
