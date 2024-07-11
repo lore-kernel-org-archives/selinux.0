@@ -1,28 +1,27 @@
 Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4D66158DC8;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40AED15CD6A;
 	Thu, 11 Jul 2024 11:14:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720696443; cv=none; b=P78+g7y6tmygFHMdtmq3LMM8/oMguHKN/hzC5Ui+iFOLDCgEzg4hbRGAu8+iwJSRkqnOWINRCxnrmW3t7v/z9HuiZOpgA5AgKnv9z28tHZSYb6Iz98anPeIuPU1ALHg5ZUpAiPjjN+FCZ6D5hSpuEv/z2uwb6q3TWi+xIiDgf2I=
+	t=1720696443; cv=none; b=I5XRGOMMeLW1u5JFZv4ck5USpbdgG5a1mDSOHVBGXcSaMpweP4/g+/iap7aCESxQ8rb/coFaxpVFRfgCBP9Pa1B1PwVvXHgE2TjqGGzsVurOJ1tuoZecWEhsQYgMLRN/t8VA4YFmQIQ5FUzVhb/caOCbLyIOSSbKt8aOluXL9vw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1720696443; c=relaxed/simple;
-	bh=ShKudblWtSVIcHknjFeCbDdWn8i6PCKbPF6Ecli0nrg=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=TZrqEG8wRWRkR+tS0yv6MybsPPmqIx2UHVLpRkfXltvFZSuTbQAuJXmnXN37BnJmLoxL8AyQ9kwlBTJ0hymoHaRC0zIfhLpApBvggzxwGA7YV+c7QpzPMLjH7yVpJL4qOYAkaE5V4tZ+Z6UhUZtHKIDwU7Yhs1UydxYEJf0Fisk=
+	bh=A8xLk0O3fB7lA9Wxut6B3bY10A+g7jWOyYbNSesqCgQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=VhfSK9sO7n/XudmHPRJQfv7/M6VvT4zjoDg6Y4zuLJFzUjbjNFu77PUpF7ndvQGCTo8iz2irj6Hx05jGTnvnPHLaIXQ/H5hmm4u9NcWM6WGKevlhzKAFJP0ZiQyT1VzuaObHf8A1GprFBGPcMthDkGKmEM7IvlDrSznadRpNNI4=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.163.235])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WKXCs0Fv9z4f3m6t;
-	Thu, 11 Jul 2024 19:13:45 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.163.216])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WKXCw64Vwz4f3k5t;
+	Thu, 11 Jul 2024 19:13:48 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.128])
-	by mail.maildlp.com (Postfix) with ESMTP id E0E9D1A0568;
-	Thu, 11 Jul 2024 19:13:57 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id 7430A1A0199;
+	Thu, 11 Jul 2024 19:13:56 +0800 (CST)
 Received: from k01.huawei.com (unknown [10.67.174.197])
-	by APP4 (Coremail) with SMTP id gCh0CgCHjPVxvo9mulQgBw--.25300S10;
-	Thu, 11 Jul 2024 19:13:57 +0800 (CST)
+	by APP4 (Coremail) with SMTP id gCh0CgCHjPVxvo9mulQgBw--.25300S2;
+	Thu, 11 Jul 2024 19:13:54 +0800 (CST)
 From: Xu Kuohai <xukuohai@huaweicloud.com>
 To: bpf@vger.kernel.org,
 	netdev@vger.kernel.org,
@@ -65,12 +64,10 @@ Cc: Alexei Starovoitov <ast@kernel.org>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH bpf-next v4 08/20] lsm: Refactor return value of LSM hook getprocattr
-Date: Thu, 11 Jul 2024 19:18:56 +0800
-Message-Id: <20240711111908.3817636-9-xukuohai@huaweicloud.com>
+Subject: [PATCH bpf-next v4 00/20] Add return value range check for BPF LSM
+Date: Thu, 11 Jul 2024 19:18:48 +0800
+Message-Id: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
-References: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -78,233 +75,192 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:gCh0CgCHjPVxvo9mulQgBw--.25300S10
-X-Coremail-Antispam: 1UD129KBjvJXoW3GrWUWr4xGFyfGFyfZFy7ZFb_yoWxZw48pF
-	s5K3ZrGrW8WFy7ZF4vyFnxCa1Sv3yrWr13J398Cw1IyFy2qw4xWa45GFyY9rWrCw1DuF1D
-	tanFqr45Cr4DAF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBqb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAV
-	Cq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0
-	rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267
-	AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E
-	14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7
-	xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Y
-	z7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2
-	Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s02
-	6x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26rWY6r4UJwCIc40Y0x0EwIxGrwCI42
-	IY6xIIjxv20xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UMIIF
-	0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87
-	Iv6xkF7I0E14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7IU13l1DUUUUU==
+X-CM-TRANSID:gCh0CgCHjPVxvo9mulQgBw--.25300S2
+X-Coremail-Antispam: 1UD129KBjvJXoW3WFWDJw18Kw4DXFy7KrW8tFb_yoWfJr4DpF
+	4FqFyrGr409FW8JF1xGF47Cw4rAFZ3Ca4UJryxJrnYv3W5GF1DXr18GrWjqrZ8Gr45ur1S
+	yrZFgFsYy34kZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUkIb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
+	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+	6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+	Cjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28I
+	cxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2
+	IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWrXVW8Jr1lIxkGc2Ij64vIr41l
+	IxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIx
+	AIcVCF04k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2
+	z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU1c4S7UUUUU==
 X-CM-SenderInfo: 50xn30hkdlqx5xdzvxpfor3voofrz/
 
 From: Xu Kuohai <xukuohai@huawei.com>
 
-To be consistent with most LSM hooks, convert the return value of
-hook getprocattr to 0 or a negative error code.
+LSM BPF prog returning a positive number attached to the hook
+file_alloc_security makes kernel panic. 
 
-Before:
-- Hook getprocattr returns length of value on success or a negative
-  error code on failure.
+Here is a panic log:
 
-After:
-- Hook getprocattr returns 0 on success or a negative error code on
-  failure. An output parameter @len is introduced to hold the
-  length of value on success.
+[  441.235774] BUG: kernel NULL pointer dereference, address: 00000000000009
+[  441.236748] #PF: supervisor write access in kernel mode
+[  441.237429] #PF: error_code(0x0002) - not-present page
+[  441.238119] PGD 800000000b02f067 P4D 800000000b02f067 PUD b031067 PMD 0
+[  441.238990] Oops: 0002 [#1] PREEMPT SMP PTI
+[  441.239546] CPU: 0 PID: 347 Comm: loader Not tainted 6.8.0-rc6-gafe0cbf23373 #22
+[  441.240496] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b4
+[  441.241933] RIP: 0010:alloc_file+0x4b/0x190
+[  441.242485] Code: 8b 04 25 c0 3c 1f 00 48 8b b0 30 0c 00 00 e8 9c fe ff ff 48 3d 00 f0 ff fb
+[  441.244820] RSP: 0018:ffffc90000c67c40 EFLAGS: 00010203
+[  441.245484] RAX: ffff888006a891a0 RBX: ffffffff8223bd00 RCX: 0000000035b08000
+[  441.246391] RDX: ffff88800b95f7b0 RSI: 00000000001fc110 RDI: f089cd0b8088ffff
+[  441.247294] RBP: ffffc90000c67c58 R08: 0000000000000001 R09: 0000000000000001
+[  441.248209] R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000000001
+[  441.249108] R13: ffffc90000c67c78 R14: ffffffff8223bd00 R15: fffffffffffffff4
+[  441.250007] FS:  00000000005f3300(0000) GS:ffff88803ec00000(0000) knlGS:0000000000000000
+[  441.251053] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  441.251788] CR2: 00000000000001a9 CR3: 000000000bdc4003 CR4: 0000000000170ef0
+[  441.252688] Call Trace:
+[  441.253011]  <TASK>
+[  441.253296]  ? __die+0x24/0x70
+[  441.253702]  ? page_fault_oops+0x15b/0x480
+[  441.254236]  ? fixup_exception+0x26/0x330
+[  441.254750]  ? exc_page_fault+0x6d/0x1c0
+[  441.255257]  ? asm_exc_page_fault+0x26/0x30
+[  441.255792]  ? alloc_file+0x4b/0x190
+[  441.256257]  alloc_file_pseudo+0x9f/0xf0
+[  441.256760]  __anon_inode_getfile+0x87/0x190
+[  441.257311]  ? lock_release+0x14e/0x3f0
+[  441.257808]  bpf_link_prime+0xe8/0x1d0
+[  441.258315]  bpf_tracing_prog_attach+0x311/0x570
+[  441.258916]  ? __pfx_bpf_lsm_file_alloc_security+0x10/0x10
+[  441.259605]  __sys_bpf+0x1bb7/0x2dc0
+[  441.260070]  __x64_sys_bpf+0x20/0x30
+[  441.260533]  do_syscall_64+0x72/0x140
+[  441.261004]  entry_SYSCALL_64_after_hwframe+0x6e/0x76
+[  441.261643] RIP: 0033:0x4b0349
+[  441.262045] Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 88
+[  441.264355] RSP: 002b:00007fff74daee38 EFLAGS: 00000246 ORIG_RAX: 0000000000000141
+[  441.265293] RAX: ffffffffffffffda RBX: 00007fff74daef30 RCX: 00000000004b0349
+[  441.266187] RDX: 0000000000000040 RSI: 00007fff74daee50 RDI: 000000000000001c
+[  441.267114] RBP: 000000000000001b R08: 00000000005ef820 R09: 0000000000000000
+[  441.268018] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000004
+[  441.268907] R13: 0000000000000004 R14: 00000000005ef018 R15: 00000000004004e8
 
-Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
----
- fs/proc/base.c                |  5 ++++-
- include/linux/lsm_hook_defs.h |  2 +-
- include/linux/security.h      |  5 +++--
- security/apparmor/lsm.c       |  7 +++++--
- security/security.c           |  8 +++++---
- security/selinux/hooks.c      | 16 +++++++++-------
- security/smack/smack_lsm.c    | 11 ++++++-----
- 7 files changed, 33 insertions(+), 21 deletions(-)
+This is because the filesystem uses IS_ERR to check if the return value
+is an error code. If it is not, the filesystem takes the return value
+as a file pointer. Since the positive number returned by the BPF prog
+is not a real file pointer, this misinterpretation causes a panic.
 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 9e1cf6cc674d..516a00f6ce36 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -2721,13 +2721,16 @@ static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
- 	char *p = NULL;
- 	ssize_t length;
- 	struct task_struct *task = get_proc_task(inode);
-+	u32 n;
- 
- 	if (!task)
- 		return -ESRCH;
- 
- 	length = security_getprocattr(task, PROC_I(inode)->op.lsmid,
- 				      file->f_path.dentry->d_name.name,
--				      &p);
-+				      &p, &n);
-+	if (!length)
-+		length = n;
- 	put_task_struct(task);
- 	if (length > 0)
- 		length = simple_read_from_buffer(buf, count, ppos, p, length);
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 2628514bb19c..b0e3cf3fc33f 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -286,7 +286,7 @@ LSM_HOOK(int, -EOPNOTSUPP, getselfattr, unsigned int attr,
- LSM_HOOK(int, -EOPNOTSUPP, setselfattr, unsigned int attr,
- 	 struct lsm_ctx *ctx, u32 size, u32 flags)
- LSM_HOOK(int, -EINVAL, getprocattr, struct task_struct *p, const char *name,
--	 char **value)
-+	 char **value, u32 *len)
- LSM_HOOK(int, -EINVAL, setprocattr, const char *name, void *value, size_t size,
- 	 size_t *wbytes)
- LSM_HOOK(int, 0, ismaclabel, const char *name)
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 1f1a9696e65d..616047030a89 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -495,7 +495,7 @@ int security_getselfattr(unsigned int attr, struct lsm_ctx __user *ctx,
- int security_setselfattr(unsigned int attr, struct lsm_ctx __user *ctx,
- 			 u32 size, u32 flags);
- int security_getprocattr(struct task_struct *p, int lsmid, const char *name,
--			 char **value);
-+			 char **value, u32 *len);
- int security_setprocattr(int lsmid, const char *name, void *value, size_t size,
- 			 size_t *wbytes);
- int security_netlink_send(struct sock *sk, struct sk_buff *skb);
-@@ -1435,7 +1435,8 @@ static inline int security_setselfattr(unsigned int attr,
- }
- 
- static inline int security_getprocattr(struct task_struct *p, int lsmid,
--				       const char *name, char **value)
-+				       const char *name, char **value,
-+				       u32 *len)
- {
- 	return -EINVAL;
- }
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 6c8b1f8c5781..0454f3f1af06 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -820,7 +820,7 @@ static int apparmor_getselfattr(unsigned int attr, struct lsm_ctx __user *lx,
- }
- 
- static int apparmor_getprocattr(struct task_struct *task, const char *name,
--				char **value)
-+				char **value, u32 *len)
- {
- 	int error = -ENOENT;
- 	/* released below */
-@@ -843,7 +843,10 @@ static int apparmor_getprocattr(struct task_struct *task, const char *name,
- 	aa_put_label(label);
- 	put_cred(cred);
- 
--	return error;
-+	if (error < 0)
-+		return error;
-+	*len = error;
-+	return 0;
- }
- 
- static int do_setattr(u64 attr, void *value, size_t size)
-diff --git a/security/security.c b/security/security.c
-index 9685096dbf16..9dd2ae6cf763 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -4117,20 +4117,22 @@ int security_setselfattr(unsigned int attr, struct lsm_ctx __user *uctx,
-  * @lsmid: LSM identification
-  * @name: attribute name
-  * @value: attribute value
-+ * @len: length of @value
-  *
-  * Read attribute @name for task @p and store it into @value if allowed.
-  *
-- * Return: Returns the length of @value on success, a negative value otherwise.
-+ * Return: Returns 0 on success or a negative error code on failure.
-+ *         @len is set to the length of @value on success.
-  */
- int security_getprocattr(struct task_struct *p, int lsmid, const char *name,
--			 char **value)
-+			 char **value, u32 *len)
- {
- 	struct security_hook_list *hp;
- 
- 	hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
- 		if (lsmid != 0 && lsmid != hp->lsmid->id)
- 			continue;
--		return hp->hook.getprocattr(p, name, value);
-+		return hp->hook.getprocattr(p, name, value, len);
- 	}
- 	return LSM_RET_DEFAULT(getprocattr);
- }
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 7a73f3710025..16cd336aab3d 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6574,19 +6574,21 @@ static int selinux_setselfattr(unsigned int attr, struct lsm_ctx *ctx,
- 	return rc;
- }
- 
--static int selinux_getprocattr(struct task_struct *p,
--			       const char *name, char **value)
-+static int selinux_getprocattr(struct task_struct *p, const char *name,
-+			       char **value, u32 *len)
- {
- 	unsigned int attr = lsm_name_to_attr(name);
--	int rc;
-+	int rc = -EINVAL;
- 
- 	if (attr) {
- 		rc = selinux_lsm_getattr(attr, p, value);
--		if (rc != -EOPNOTSUPP)
--			return rc;
-+		if (rc == -EOPNOTSUPP)
-+			rc = -EINVAL;
- 	}
--
--	return -EINVAL;
-+	if (rc < 0)
-+		return rc;
-+	*len = rc;
-+	return 0;
- }
- 
- static int selinux_setprocattr(const char *name, void *value, size_t size,
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 4265f2639106..8a352bd05565 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -3681,16 +3681,17 @@ static int smack_getselfattr(unsigned int attr, struct lsm_ctx __user *ctx,
-  * @p: the object task
-  * @name: the name of the attribute in /proc/.../attr
-  * @value: where to put the result
-+ * @len: where to put the length of the result
-  *
-  * Places a copy of the task Smack into value
-  *
-- * Returns the length of the smack label or an error code
-+ * Returns 0 on success or a negative error code on failure.
-  */
--static int smack_getprocattr(struct task_struct *p, const char *name, char **value)
-+static int smack_getprocattr(struct task_struct *p, const char *name,
-+			     char **value, u32 *len)
- {
- 	struct smack_known *skp = smk_of_task_struct_obj(p);
- 	char *cp;
--	int slen;
- 
- 	if (strcmp(name, "current") != 0)
- 		return -EINVAL;
-@@ -3699,9 +3700,9 @@ static int smack_getprocattr(struct task_struct *p, const char *name, char **val
- 	if (cp == NULL)
- 		return -ENOMEM;
- 
--	slen = strlen(cp);
-+	*len = strlen(cp);
- 	*value = cp;
--	return slen;
-+	return 0;
- }
- 
- /**
+Since other LSM modules always return either a negative error code
+or a valid pointer, this specific issue only exists in BPF LSM. The
+proposed solution is to reject LSM BPF progs returning unexpected
+values in the verifier. This patch set adds return value check to
+ensure only BPF progs returning expected values are accepted.
+
+Since each LSM hook has different excepted return values, we need to
+know the expected return values for each individual hook to do the
+check. Earlier versions of the patch set used LSM hook annotations
+to specify the return value range for each hook. Based on Paul's
+suggestion, current version gets rid of such annotations and instead
+converts hook return values to a common pattern: return 0 on success
+and negative error code on failure.
+
+Basically, LSM hooks are divided into two types: hooks that return a
+negative error code and zero or other values, and hooks that do not
+return a negative error code. This patch set converts all hooks of the
+first type and part of the second type to return 0 on success and a
+negative error code on failure (see patches 1-10). For certain hooks,
+like ismaclabel and inode_xattr_skipcap, the hook name already imply
+that returning 0 or 1 is the best choice, so they are not converted.
+There are four unconverted hooks. Except for ismaclabel, which is not
+used by BPF LSM, the other three are specified with a BTF ID list to
+only return 0 or 1.
+
+v4:
+1. remove LSM_HOOK return value annotaion and convert LSM hook return
+   value to a common patern: return 0 on success and negative error code
+   on failure (patch 1-10)
+2. enable BPF LSM progs to read and write output params (patch 12)
+3. add a special case for bitwise AND on range [-1, 0] (patch 16)
+4. add a 32-bit comparing flag for retval_range_within (patch 15)
+5. collect ACKs, style fix, etc
+
+v3: https://lore.kernel.org/bpf/20240411122752.2873562-1-xukuohai@huaweicloud.com/
+1. Fix incorrect lsm hook return value ranges, and add disabled hook
+   list for bpf lsm, and merge two LSM_RET_INT patches. (KP Singh)
+2. Avoid bpf lsm progs attached to different hooks to call each other
+   with tail call
+3. Fix a CI failure caused by false rejection of AND operation
+4. Add tests
+
+v2: https://lore.kernel.org/bpf/20240325095653.1720123-1-xukuohai@huaweicloud.com/
+fix bpf ci failure
+
+v1: https://lore.kernel.org/bpf/20240316122359.1073787-1-xukuohai@huaweicloud.com/
+
+Xu Kuohai (20):
+  lsm: Refactor return value of LSM hook vm_enough_memory
+  lsm: Refactor return value of LSM hook inode_need_killpriv
+  lsm: Refactor return value of LSM hook inode_getsecurity
+  lsm: Refactor return value of LSM hook inode_listsecurity
+  lsm: Refactor return value of LSM hook inode_copy_up_xattr
+  lsm: Refactor return value of LSM hook getselfattr
+  lsm: Refactor return value of LSM hook setprocattr
+  lsm: Refactor return value of LSM hook getprocattr
+  lsm: Refactor return value of LSM hook key_getsecurity
+  lsm: Refactor return value of LSM hook audit_rule_match
+  bpf, lsm: Add disabled BPF LSM hook list
+  bpf, lsm: Enable BPF LSM prog to read/write return value parameters
+  bpf, lsm: Add check for BPF LSM return value
+  bpf: Prevent tail call between progs attached to different hooks
+  bpf: Fix compare error in function retval_range_within
+  bpf: Add a special case for bitwise AND on range [-1, 0]
+  selftests/bpf: Avoid load failure for token_lsm.c
+  selftests/bpf: Add return value checks for failed tests
+  selftests/bpf: Add test for lsm tail call
+  selftests/bpf: Add verifier tests for bpf lsm
+
+ fs/attr.c                                     |   5 +-
+ fs/inode.c                                    |   4 +-
+ fs/nfs/nfs4proc.c                             |   5 +-
+ fs/overlayfs/copy_up.c                        |   6 +-
+ fs/proc/base.c                                |  10 +-
+ fs/xattr.c                                    |  24 +-
+ include/linux/bpf.h                           |   2 +
+ include/linux/bpf_lsm.h                       |  15 +
+ include/linux/lsm_hook_defs.h                 |  22 +-
+ include/linux/security.h                      |  62 ++--
+ include/linux/tnum.h                          |   3 +
+ kernel/bpf/bpf_lsm.c                          |  64 +++-
+ kernel/bpf/btf.c                              |  21 +-
+ kernel/bpf/core.c                             |  21 +-
+ kernel/bpf/tnum.c                             |  25 ++
+ kernel/bpf/verifier.c                         | 173 ++++++++++-
+ net/socket.c                                  |   9 +-
+ security/apparmor/audit.c                     |  22 +-
+ security/apparmor/include/audit.h             |   2 +-
+ security/apparmor/lsm.c                       |  22 +-
+ security/commoncap.c                          |  32 +-
+ security/integrity/evm/evm_main.c             |   2 +-
+ security/keys/keyctl.c                        |  11 +-
+ security/lsm_syscalls.c                       |   6 +-
+ security/security.c                           | 167 ++++++++---
+ security/selinux/hooks.c                      |  94 +++---
+ security/selinux/include/audit.h              |   8 +-
+ security/selinux/ss/services.c                |  54 ++--
+ security/smack/smack_lsm.c                    | 104 ++++---
+ .../selftests/bpf/prog_tests/test_lsm.c       |  46 ++-
+ .../selftests/bpf/prog_tests/verifier.c       |   2 +
+ tools/testing/selftests/bpf/progs/err.h       |  10 +
+ .../selftests/bpf/progs/lsm_tailcall.c        |  34 +++
+ .../selftests/bpf/progs/test_sig_in_xattr.c   |   4 +
+ .../bpf/progs/test_verify_pkcs7_sig.c         |   8 +-
+ tools/testing/selftests/bpf/progs/token_lsm.c |   4 +-
+ .../bpf/progs/verifier_global_subprogs.c      |   7 +-
+ .../selftests/bpf/progs/verifier_lsm.c        | 274 ++++++++++++++++++
+ 38 files changed, 1098 insertions(+), 286 deletions(-)
+ create mode 100644 tools/testing/selftests/bpf/progs/lsm_tailcall.c
+ create mode 100644 tools/testing/selftests/bpf/progs/verifier_lsm.c
+
 -- 
 2.30.2
 
