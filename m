@@ -1,27 +1,27 @@
 Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40AA415CD61;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 635D415CD60;
 	Thu, 11 Jul 2024 11:14:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720696442; cv=none; b=G88jRs4+rb9jeqcGiYBB9mo8hRzeAutvXE0HFDXfp1Wi/VBOTnycuT55eOQs+sAvXxagjRw+g3ajDBLAj8ffrTEZ+RuDfMPSLR5FxrT47plL5aO2ApoYb/p+iBKaUM8Z0dSaUo+A4w2xTrLXiRzcqvwNv718ELBhMDimyEI6/Og=
+	t=1720696442; cv=none; b=CoxrBPdtlHZ1fs1K8TdigvkdVAJ3y/aqjAPdSYP5lLKJlQPWC2QlQCmCTJlW+7pblTqDst+9ksHDBsoX074sQRQeaig8tSai3ri+T2IYaCjjM2cOzhWY3NXUp2esBziyG4j4J38rMIbDCGhM6GxE6y/dkeBKXKDmzGqIbn4w+44=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1720696442; c=relaxed/simple;
-	bh=Hg9ese+3RioISfNTgvRm6HlDHVGrAICdXCleHqiZp3o=;
+	bh=4bixJwGuTWgSqOvL6zwccNF+B7ZssgQCR776AYlaV+M=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=dOJCi2z6Za/FQgW/GlftM/LQjonui5CnOdYy1muaDE7uNY0XkCUrERhDU8DQ+CkVq5LZizjZNHVgksvCGyZktMkD2k/8C34OuBoQnkXlWx//5UriXmyfQty2PtAQyY+J69jfFCqbJbXScJZUXWnM8cok0H6N9a1yJnimpeN9JbI=
+	 MIME-Version; b=Qsi8POpOA004fBnWVw3B93FheoRkkXHq9njUEyjYtTq1fhcCsJT5B5g9t8pAlVAc9jhjUtskP/cYcmifBAGkC7AGtE16hiYycKnqgPuhvwTtYVTP0/L+P/GVxd7iHFTe4CY4VQSZiHPYCF82urM8qkXFbTZfrZTZ4zYyHmWRjIw=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.163.235])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WKXCq6g8rz4f3m6w;
-	Thu, 11 Jul 2024 19:13:43 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.163.216])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WKXCx55ZQz4f3kK5;
+	Thu, 11 Jul 2024 19:13:49 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.128])
-	by mail.maildlp.com (Postfix) with ESMTP id CA1321A0572;
-	Thu, 11 Jul 2024 19:13:56 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id 59B001A0170;
+	Thu, 11 Jul 2024 19:13:57 +0800 (CST)
 Received: from k01.huawei.com (unknown [10.67.174.197])
-	by APP4 (Coremail) with SMTP id gCh0CgCHjPVxvo9mulQgBw--.25300S4;
+	by APP4 (Coremail) with SMTP id gCh0CgCHjPVxvo9mulQgBw--.25300S7;
 	Thu, 11 Jul 2024 19:13:56 +0800 (CST)
 From: Xu Kuohai <xukuohai@huaweicloud.com>
 To: bpf@vger.kernel.org,
@@ -65,9 +65,9 @@ Cc: Alexei Starovoitov <ast@kernel.org>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH bpf-next v4 02/20] lsm: Refactor return value of LSM hook inode_need_killpriv
-Date: Thu, 11 Jul 2024 19:18:50 +0800
-Message-Id: <20240711111908.3817636-3-xukuohai@huaweicloud.com>
+Subject: [PATCH bpf-next v4 05/20] lsm: Refactor return value of LSM hook inode_copy_up_xattr
+Date: Thu, 11 Jul 2024 19:18:53 +0800
+Message-Id: <20240711111908.3817636-6-xukuohai@huaweicloud.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
 References: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
@@ -78,228 +78,144 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:gCh0CgCHjPVxvo9mulQgBw--.25300S4
-X-Coremail-Antispam: 1UD129KBjvJXoW3AFWfGw4xWFW5Ary7Gr4xXrb_yoW3XFy7pF
-	4UKF13Gws5XFy7Wrn7tFsru34SvFWfWrW7JFZ09w12yFnrJr1xKr4ak3yUCryrCr1j9rnI
-	v3ZFkw4rCr15JrUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBIb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUXw
-	A2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	W8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v2
-	6rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMc
-	Ij6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_
-	Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij64
-	vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8G
-	jcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26rWY6r4UJwCIc40Y0x0EwIxGrwCI42IY6x
-	IIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UMIIF0xvE
-	42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6x
-	kF7I0E14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7IU1sa9DUUUUU==
+X-CM-TRANSID:gCh0CgCHjPVxvo9mulQgBw--.25300S7
+X-Coremail-Antispam: 1UD129KBjvJXoWxAw1kXF4DJFWkXFWrJF1fJFb_yoWruw4fpa
+	1Dtan2qr1rJFy7ZFykJF47ua1F93yfGFWUCa9xuw12yFZ3Xrn3Wryayr12gr45Wry8JF4k
+	tanFvrs8C3WYy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBqb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAV
+	Cq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0
+	rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267
+	AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E
+	14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7
+	xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Y
+	z7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2
+	Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s02
+	6x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26rWY6r4UJwCIc40Y0x0EwIxGrwCI42
+	IY6xIIjxv20xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UMIIF
+	0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87
+	Iv6xkF7I0E14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7IU13l1DUUUUU==
 X-CM-SenderInfo: 50xn30hkdlqx5xdzvxpfor3voofrz/
 
 From: Xu Kuohai <xukuohai@huawei.com>
 
 To be consistent with most LSM hooks, convert the return value of
-hook inode_need_killpriv to 0 or a negative error code.
+hook inode_copy_up_xattr to 0 or a negative error code.
 
 Before:
-- Both hook inode_need_killpriv and func security_inode_need_killpriv
-  return > 0 if security_inode_killpriv is required, 0 if not, and < 0
-  to abort the operation.
+- Hook inode_copy_up_xattr returns 0 when accepting xattr, 1 when
+  discarding xattr, -EOPNOTSUPP if it does not know xattr, or any
+  other negative error code otherwise.
 
 After:
-- Both hook inode_need_killpriv and func security_inode_need_killpriv
-  return 0 on success and a negative error code on failure.
-  On success, hook inode_need_killpriv sets output param @need to true
-  if security_inode_killpriv is required, and false if not. When @need
-  is true, func security_inode_need_killpriv sets ATTR_KILL_PRIV flag
-  in @attr; when false, it clears the flag.
-  On failure, @need and @attr remains unchanged.
+- Hook inode_copy_up_xattr returns 0 when accepting xattr, *-ECANCELED*
+  when discarding xattr, -EOPNOTSUPP if it does not know xattr, or
+  any other negative error code otherwise.
 
 Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
 ---
- fs/attr.c                     |  5 ++---
- fs/inode.c                    |  4 +---
- include/linux/lsm_hook_defs.h |  2 +-
- include/linux/security.h      | 20 ++++++++++++++++----
- security/commoncap.c          | 12 ++++++++----
- security/security.c           | 29 ++++++++++++++++++++++++-----
- 6 files changed, 52 insertions(+), 20 deletions(-)
+ fs/overlayfs/copy_up.c            |  6 +++---
+ security/integrity/evm/evm_main.c |  2 +-
+ security/security.c               | 12 ++++++------
+ security/selinux/hooks.c          |  4 ++--
+ security/smack/smack_lsm.c        |  6 +++---
+ 5 files changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/fs/attr.c b/fs/attr.c
-index 960a310581eb..aaadc721c982 100644
---- a/fs/attr.c
-+++ b/fs/attr.c
-@@ -427,11 +427,10 @@ int notify_change(struct mnt_idmap *idmap, struct dentry *dentry,
- 		attr->ia_mtime = timestamp_truncate(attr->ia_mtime, inode);
+diff --git a/fs/overlayfs/copy_up.c b/fs/overlayfs/copy_up.c
+index a5ef2005a2cc..337a5be99ac9 100644
+--- a/fs/overlayfs/copy_up.c
++++ b/fs/overlayfs/copy_up.c
+@@ -115,12 +115,12 @@ int ovl_copy_xattr(struct super_block *sb, const struct path *oldpath, struct de
+ 			continue;
  
- 	if (ia_valid & ATTR_KILL_PRIV) {
--		error = security_inode_need_killpriv(dentry);
-+		error = security_inode_need_killpriv(dentry, &ia_valid);
- 		if (error < 0)
- 			return error;
--		if (error == 0)
--			ia_valid = attr->ia_valid &= ~ATTR_KILL_PRIV;
-+		attr->ia_valid = ia_valid;
+ 		error = security_inode_copy_up_xattr(old, name);
+-		if (error < 0 && error != -EOPNOTSUPP)
+-			break;
+-		if (error == 1) {
++		if (error == -ECANCELED) {
+ 			error = 0;
+ 			continue; /* Discard */
+ 		}
++		if (error < 0 && error != -EOPNOTSUPP)
++			break;
+ 
+ 		if (is_posix_acl_xattr(name)) {
+ 			error = ovl_copy_acl(OVL_FS(sb), oldpath, new, name);
+diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
+index 62fe66dd53ce..6924ed508ebd 100644
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -1000,7 +1000,7 @@ static int evm_inode_copy_up_xattr(struct dentry *src, const char *name)
+ 	case EVM_XATTR_HMAC:
+ 	case EVM_IMA_XATTR_DIGSIG:
+ 	default:
+-		rc = 1; /* discard */
++		rc = -ECANCELED; /* discard */
  	}
  
- 	/*
-diff --git a/fs/inode.c b/fs/inode.c
-index 3a41f83a4ba5..cd335dc3a3bc 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -2012,11 +2012,9 @@ int dentry_needs_remove_privs(struct mnt_idmap *idmap,
- 		return 0;
- 
- 	mask = setattr_should_drop_suidgid(idmap, inode);
--	ret = security_inode_need_killpriv(dentry);
-+	ret = security_inode_need_killpriv(dentry, &mask);
- 	if (ret < 0)
- 		return ret;
--	if (ret)
--		mask |= ATTR_KILL_PRIV;
- 	return mask;
- }
- 
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index e6e6f8473955..964849de424b 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -165,7 +165,7 @@ LSM_HOOK(int, 0, inode_remove_acl, struct mnt_idmap *idmap,
- 	 struct dentry *dentry, const char *acl_name)
- LSM_HOOK(void, LSM_RET_VOID, inode_post_remove_acl, struct mnt_idmap *idmap,
- 	 struct dentry *dentry, const char *acl_name)
--LSM_HOOK(int, 0, inode_need_killpriv, struct dentry *dentry)
-+LSM_HOOK(int, 0, inode_need_killpriv, struct dentry *dentry, bool *need)
- LSM_HOOK(int, 0, inode_killpriv, struct mnt_idmap *idmap,
- 	 struct dentry *dentry)
- LSM_HOOK(int, -EOPNOTSUPP, inode_getsecurity, struct mnt_idmap *idmap,
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 454f96307cb9..1614ef5b2dd2 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -161,7 +161,7 @@ int cap_inode_setxattr(struct dentry *dentry, const char *name,
- 		       const void *value, size_t size, int flags);
- int cap_inode_removexattr(struct mnt_idmap *idmap,
- 			  struct dentry *dentry, const char *name);
--int cap_inode_need_killpriv(struct dentry *dentry);
-+int cap_inode_need_killpriv(struct dentry *dentry, bool *need);
- int cap_inode_killpriv(struct mnt_idmap *idmap, struct dentry *dentry);
- int cap_inode_getsecurity(struct mnt_idmap *idmap,
- 			  struct inode *inode, const char *name, void **buffer,
-@@ -389,7 +389,7 @@ int security_inode_listxattr(struct dentry *dentry);
- int security_inode_removexattr(struct mnt_idmap *idmap,
- 			       struct dentry *dentry, const char *name);
- void security_inode_post_removexattr(struct dentry *dentry, const char *name);
--int security_inode_need_killpriv(struct dentry *dentry);
-+int security_inode_need_killpriv(struct dentry *dentry, int *attr);
- int security_inode_killpriv(struct mnt_idmap *idmap, struct dentry *dentry);
- int security_inode_getsecurity(struct mnt_idmap *idmap,
- 			       struct inode *inode, const char *name,
-@@ -971,9 +971,21 @@ static inline void security_inode_post_removexattr(struct dentry *dentry,
- 						   const char *name)
- { }
- 
--static inline int security_inode_need_killpriv(struct dentry *dentry)
-+static inline int security_inode_need_killpriv(struct dentry *dentry, int *attr)
- {
--	return cap_inode_need_killpriv(dentry);
-+	int rc;
-+	bool need = false;
-+
-+	rc = cap_inode_need_killpriv(dentry, &need);
-+	if (rc < 0)
-+		return rc;
-+
-+	if (need)
-+		*attr |= ATTR_KILL_PRIV;
-+	else
-+		*attr &= ~ATTR_KILL_PRIV;
-+
-+	return 0;
- }
- 
- static inline int security_inode_killpriv(struct mnt_idmap *idmap,
-diff --git a/security/commoncap.c b/security/commoncap.c
-index cefad323a0b1..17d6188d22cf 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -286,21 +286,25 @@ int cap_capset(struct cred *new,
- /**
-  * cap_inode_need_killpriv - Determine if inode change affects privileges
-  * @dentry: The inode/dentry in being changed with change marked ATTR_KILL_PRIV
-+ * @need: If inode_killpriv() is needed
-  *
-  * Determine if an inode having a change applied that's marked ATTR_KILL_PRIV
-  * affects the security markings on that inode, and if it is, should
-  * inode_killpriv() be invoked or the change rejected.
-  *
-- * Return: 1 if security.capability has a value, meaning inode_killpriv()
-- * is required, 0 otherwise, meaning inode_killpriv() is not required.
-+ * Return: Always returns 0. If security.capability has a value, meaning
-+ * inode_killpriv() is required, @need is set to true.
-  */
--int cap_inode_need_killpriv(struct dentry *dentry)
-+int cap_inode_need_killpriv(struct dentry *dentry, bool *need)
- {
- 	struct inode *inode = d_backing_inode(dentry);
- 	int error;
- 
- 	error = __vfs_getxattr(dentry, inode, XATTR_NAME_CAPS, NULL, 0);
--	return error > 0;
-+	if (error > 0)
-+		*need = true;
-+
-+	return 0;
- }
- 
- /**
+ 	kfree(xattr_data);
 diff --git a/security/security.c b/security/security.c
-index 3475f0cab3da..a4abcd86eb36 100644
+index 26eea8f4cd74..12215ca286af 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -2490,17 +2490,36 @@ void security_inode_post_removexattr(struct dentry *dentry, const char *name)
- /**
-  * security_inode_need_killpriv() - Check if security_inode_killpriv() required
-  * @dentry: associated dentry
-+ * @attr: attribute flags
+@@ -2675,18 +2675,18 @@ EXPORT_SYMBOL(security_inode_copy_up);
+  * lower layer to the union/overlay layer.   The caller is responsible for
+  * reading and writing the xattrs, this hook is merely a filter.
   *
-  * Called when an inode has been changed to determine if
-  * security_inode_killpriv() should be called.
-  *
-- * Return: Return <0 on error to abort the inode change operation, return 0 if
-- *         security_inode_killpriv() does not need to be called, return >0 if
-- *         security_inode_killpriv() does need to be called.
-+ * Return: Return 0 on success, negative error code on failure.
-+ *         On success, set ATTR_KILL_PRIV flag in @attr when @need is true,
-+ *         clears it when false.
+- * Return: Returns 0 to accept the xattr, 1 to discard the xattr, -EOPNOTSUPP
+- *         if the security module does not know about attribute, or a negative
+- *         error code to abort the copy up.
++ * Return: Returns 0 to accept the xattr, -ECANCELED to discard the xattr,
++ *         -EOPNOTSUPP if the security module does not know about attribute,
++ *         or a negative error code to abort the copy up.
   */
--int security_inode_need_killpriv(struct dentry *dentry)
-+int security_inode_need_killpriv(struct dentry *dentry, int *attr)
+ int security_inode_copy_up_xattr(struct dentry *src, const char *name)
  {
--	return call_int_hook(inode_need_killpriv, dentry);
-+	int rc;
-+	bool need = false;
-+	struct security_hook_list *hp;
-+
-+	hlist_for_each_entry(hp, &security_hook_heads.inode_need_killpriv,
-+			     list) {
-+		rc = hp->hook.inode_need_killpriv(dentry, &need);
-+		if (rc < 0)
-+			return rc;
-+		if (need)
-+			break;
-+	}
-+
-+	if (need)
-+		*attr |= ATTR_KILL_PRIV;
-+	else
-+		*attr &= ~ATTR_KILL_PRIV;
-+
-+	return 0;
- }
+ 	int rc;
  
- /**
+ 	/*
+-	 * The implementation can return 0 (accept the xattr), 1 (discard the
+-	 * xattr), -EOPNOTSUPP if it does not know anything about the xattr or
+-	 * any other error code in case of an error.
++	 * The implementation can return 0 (accept the xattr), -ECANCELED
++	 * (discard the xattr), -EOPNOTSUPP if it does not know anything
++	 *  about the xattr or any other error code in case of an error.
+ 	 */
+ 	rc = call_int_hook(inode_copy_up_xattr, src, name);
+ 	if (rc != LSM_RET_DEFAULT(inode_copy_up_xattr))
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 5dedd3917d57..f9a6637dfd78 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3528,8 +3528,8 @@ static int selinux_inode_copy_up_xattr(struct dentry *dentry, const char *name)
+ 	 * xattrs up.  Instead, filter out SELinux-related xattrs following
+ 	 * policy load.
+ 	 */
+-	if (selinux_initialized() && strcmp(name, XATTR_NAME_SELINUX) == 0)
+-		return 1; /* Discard */
++	if (selinux_initialized() && !strcmp(name, XATTR_NAME_SELINUX))
++		return -ECANCELED; /* Discard */
+ 	/*
+ 	 * Any other attribute apart from SELINUX is not claimed, supported
+ 	 * by selinux.
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 6f73906bf7ea..ae8f1c2d0ca6 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4893,10 +4893,10 @@ static int smack_inode_copy_up(struct dentry *dentry, struct cred **new)
+ static int smack_inode_copy_up_xattr(struct dentry *src, const char *name)
+ {
+ 	/*
+-	 * Return 1 if this is the smack access Smack attribute.
++	 * Return -ECANCELED if this is the smack access Smack attribute.
+ 	 */
+-	if (strcmp(name, XATTR_NAME_SMACK) == 0)
+-		return 1;
++	if (!strcmp(name, XATTR_NAME_SMACK))
++		return -ECANCELED;
+ 
+ 	return -EOPNOTSUPP;
+ }
 -- 
 2.30.2
 
