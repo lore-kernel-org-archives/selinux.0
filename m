@@ -1,27 +1,28 @@
 Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40AED15CD6A;
-	Thu, 11 Jul 2024 11:14:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B440C15E5BB;
+	Thu, 11 Jul 2024 11:14:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720696443; cv=none; b=I5XRGOMMeLW1u5JFZv4ck5USpbdgG5a1mDSOHVBGXcSaMpweP4/g+/iap7aCESxQ8rb/coFaxpVFRfgCBP9Pa1B1PwVvXHgE2TjqGGzsVurOJ1tuoZecWEhsQYgMLRN/t8VA4YFmQIQ5FUzVhb/caOCbLyIOSSbKt8aOluXL9vw=
+	t=1720696444; cv=none; b=QKvgbBvK/vZ0SWEjqhWdYliW400KzFuEy48cWYjyTbKvYXBLwDHISMK7Y6unNTQGvpq4cm3zZKAgTZ/yOUo8Ik/9HTLcQHqJvzC+mRqxHaYawcbelfXO5fAwwQmiGtQ05Rf9RMT+Q44oJmTw3yhf/27DqfJkCdrRF+Xp4WtWoJU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720696443; c=relaxed/simple;
-	bh=A8xLk0O3fB7lA9Wxut6B3bY10A+g7jWOyYbNSesqCgQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=VhfSK9sO7n/XudmHPRJQfv7/M6VvT4zjoDg6Y4zuLJFzUjbjNFu77PUpF7ndvQGCTo8iz2irj6Hx05jGTnvnPHLaIXQ/H5hmm4u9NcWM6WGKevlhzKAFJP0ZiQyT1VzuaObHf8A1GprFBGPcMthDkGKmEM7IvlDrSznadRpNNI4=
+	s=arc-20240116; t=1720696444; c=relaxed/simple;
+	bh=dVFlmX5uBposykYVrBSK4anwD82QJYhrFIH10L94NdM=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=l6uokOo41d+iLlBm1uS0i2j4PWdV4PTlxU9bsovB7QvWqUZTU09a5Odh95W0PwyUNsMf56QvIWqrv0u9xsMe8gYSodt7d37dvnH3QEp57WAt23+emlHcyMO0bQSDw1o0smDcDFJ/FxwBJ2xk+9tezFREAkBfewhbzqGXmbpDLZc=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
 Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WKXCw64Vwz4f3k5t;
-	Thu, 11 Jul 2024 19:13:48 +0800 (CST)
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WKXCy5ZHkz4f3kJt;
+	Thu, 11 Jul 2024 19:13:50 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.128])
-	by mail.maildlp.com (Postfix) with ESMTP id 7430A1A0199;
-	Thu, 11 Jul 2024 19:13:56 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id 7050D1A0199;
+	Thu, 11 Jul 2024 19:13:58 +0800 (CST)
 Received: from k01.huawei.com (unknown [10.67.174.197])
-	by APP4 (Coremail) with SMTP id gCh0CgCHjPVxvo9mulQgBw--.25300S2;
-	Thu, 11 Jul 2024 19:13:54 +0800 (CST)
+	by APP4 (Coremail) with SMTP id gCh0CgCHjPVxvo9mulQgBw--.25300S13;
+	Thu, 11 Jul 2024 19:13:57 +0800 (CST)
 From: Xu Kuohai <xukuohai@huaweicloud.com>
 To: bpf@vger.kernel.org,
 	netdev@vger.kernel.org,
@@ -64,10 +65,12 @@ Cc: Alexei Starovoitov <ast@kernel.org>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH bpf-next v4 00/20] Add return value range check for BPF LSM
-Date: Thu, 11 Jul 2024 19:18:48 +0800
-Message-Id: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
+Subject: [PATCH bpf-next v4 11/20] bpf, lsm: Add disabled BPF LSM hook list
+Date: Thu, 11 Jul 2024 19:18:59 +0800
+Message-Id: <20240711111908.3817636-12-xukuohai@huaweicloud.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
+References: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -75,192 +78,80 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:gCh0CgCHjPVxvo9mulQgBw--.25300S2
-X-Coremail-Antispam: 1UD129KBjvJXoW3WFWDJw18Kw4DXFy7KrW8tFb_yoWfJr4DpF
-	4FqFyrGr409FW8JF1xGF47Cw4rAFZ3Ca4UJryxJrnYv3W5GF1DXr18GrWjqrZ8Gr45ur1S
-	yrZFgFsYy34kZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUkIb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7Cj
-	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
-	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
-	6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
-	Cjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxAIw28I
-	cxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2
-	IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWrXVW8Jr1lIxkGc2Ij64vIr41l
-	IxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIx
-	AIcVCF04k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2
-	z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU1c4S7UUUUU==
+X-CM-TRANSID:gCh0CgCHjPVxvo9mulQgBw--.25300S13
+X-Coremail-Antispam: 1UD129KBjvJXoW7uFyfWry7KF1fKF1DJF45Awb_yoW8Crykpa
+	1fJryYkryFqw4a93W5tFs5urW5Jr4vqanrK3W7J34Yyr40vr1kXw1jkrna9r9xuryUJrn3
+	KF4jgF1Ygry2va7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBSb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAV
+	Cq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0
+	rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267
+	AKxVWxJr0_GcWl84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxVAF
+	wI0_GcCE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2
+	WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7xkE
+	bVWUJVW8JwACjcxG0xvY0x0EwIxGrwACI402YVCY1x02628vn2kIc2xKxwCF04k20xvY0x
+	0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E
+	7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Wrv_Gr1UMIIYrxkI7VAKI48JMIIF0x
+	vE2Ix0cI8IcVAFwI0_Gr0_Xr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1lIxAI
+	cVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2js
+	IEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIevJa73UjIFyTuYvjxUFgAwUUUUU
 X-CM-SenderInfo: 50xn30hkdlqx5xdzvxpfor3voofrz/
 
 From: Xu Kuohai <xukuohai@huawei.com>
 
-LSM BPF prog returning a positive number attached to the hook
-file_alloc_security makes kernel panic. 
+Add a disabled hooks list for BPF LSM. progs being attached to the
+listed hooks will be rejected by the verifier.
 
-Here is a panic log:
+Suggested-by: KP Singh <kpsingh@kernel.org>
+Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
+---
+ kernel/bpf/bpf_lsm.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-[  441.235774] BUG: kernel NULL pointer dereference, address: 00000000000009
-[  441.236748] #PF: supervisor write access in kernel mode
-[  441.237429] #PF: error_code(0x0002) - not-present page
-[  441.238119] PGD 800000000b02f067 P4D 800000000b02f067 PUD b031067 PMD 0
-[  441.238990] Oops: 0002 [#1] PREEMPT SMP PTI
-[  441.239546] CPU: 0 PID: 347 Comm: loader Not tainted 6.8.0-rc6-gafe0cbf23373 #22
-[  441.240496] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.15.0-0-g2dd4b4
-[  441.241933] RIP: 0010:alloc_file+0x4b/0x190
-[  441.242485] Code: 8b 04 25 c0 3c 1f 00 48 8b b0 30 0c 00 00 e8 9c fe ff ff 48 3d 00 f0 ff fb
-[  441.244820] RSP: 0018:ffffc90000c67c40 EFLAGS: 00010203
-[  441.245484] RAX: ffff888006a891a0 RBX: ffffffff8223bd00 RCX: 0000000035b08000
-[  441.246391] RDX: ffff88800b95f7b0 RSI: 00000000001fc110 RDI: f089cd0b8088ffff
-[  441.247294] RBP: ffffc90000c67c58 R08: 0000000000000001 R09: 0000000000000001
-[  441.248209] R10: 0000000000000001 R11: 0000000000000001 R12: 0000000000000001
-[  441.249108] R13: ffffc90000c67c78 R14: ffffffff8223bd00 R15: fffffffffffffff4
-[  441.250007] FS:  00000000005f3300(0000) GS:ffff88803ec00000(0000) knlGS:0000000000000000
-[  441.251053] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  441.251788] CR2: 00000000000001a9 CR3: 000000000bdc4003 CR4: 0000000000170ef0
-[  441.252688] Call Trace:
-[  441.253011]  <TASK>
-[  441.253296]  ? __die+0x24/0x70
-[  441.253702]  ? page_fault_oops+0x15b/0x480
-[  441.254236]  ? fixup_exception+0x26/0x330
-[  441.254750]  ? exc_page_fault+0x6d/0x1c0
-[  441.255257]  ? asm_exc_page_fault+0x26/0x30
-[  441.255792]  ? alloc_file+0x4b/0x190
-[  441.256257]  alloc_file_pseudo+0x9f/0xf0
-[  441.256760]  __anon_inode_getfile+0x87/0x190
-[  441.257311]  ? lock_release+0x14e/0x3f0
-[  441.257808]  bpf_link_prime+0xe8/0x1d0
-[  441.258315]  bpf_tracing_prog_attach+0x311/0x570
-[  441.258916]  ? __pfx_bpf_lsm_file_alloc_security+0x10/0x10
-[  441.259605]  __sys_bpf+0x1bb7/0x2dc0
-[  441.260070]  __x64_sys_bpf+0x20/0x30
-[  441.260533]  do_syscall_64+0x72/0x140
-[  441.261004]  entry_SYSCALL_64_after_hwframe+0x6e/0x76
-[  441.261643] RIP: 0033:0x4b0349
-[  441.262045] Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 88
-[  441.264355] RSP: 002b:00007fff74daee38 EFLAGS: 00000246 ORIG_RAX: 0000000000000141
-[  441.265293] RAX: ffffffffffffffda RBX: 00007fff74daef30 RCX: 00000000004b0349
-[  441.266187] RDX: 0000000000000040 RSI: 00007fff74daee50 RDI: 000000000000001c
-[  441.267114] RBP: 000000000000001b R08: 00000000005ef820 R09: 0000000000000000
-[  441.268018] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000004
-[  441.268907] R13: 0000000000000004 R14: 00000000005ef018 R15: 00000000004004e8
-
-This is because the filesystem uses IS_ERR to check if the return value
-is an error code. If it is not, the filesystem takes the return value
-as a file pointer. Since the positive number returned by the BPF prog
-is not a real file pointer, this misinterpretation causes a panic.
-
-Since other LSM modules always return either a negative error code
-or a valid pointer, this specific issue only exists in BPF LSM. The
-proposed solution is to reject LSM BPF progs returning unexpected
-values in the verifier. This patch set adds return value check to
-ensure only BPF progs returning expected values are accepted.
-
-Since each LSM hook has different excepted return values, we need to
-know the expected return values for each individual hook to do the
-check. Earlier versions of the patch set used LSM hook annotations
-to specify the return value range for each hook. Based on Paul's
-suggestion, current version gets rid of such annotations and instead
-converts hook return values to a common pattern: return 0 on success
-and negative error code on failure.
-
-Basically, LSM hooks are divided into two types: hooks that return a
-negative error code and zero or other values, and hooks that do not
-return a negative error code. This patch set converts all hooks of the
-first type and part of the second type to return 0 on success and a
-negative error code on failure (see patches 1-10). For certain hooks,
-like ismaclabel and inode_xattr_skipcap, the hook name already imply
-that returning 0 or 1 is the best choice, so they are not converted.
-There are four unconverted hooks. Except for ismaclabel, which is not
-used by BPF LSM, the other three are specified with a BTF ID list to
-only return 0 or 1.
-
-v4:
-1. remove LSM_HOOK return value annotaion and convert LSM hook return
-   value to a common patern: return 0 on success and negative error code
-   on failure (patch 1-10)
-2. enable BPF LSM progs to read and write output params (patch 12)
-3. add a special case for bitwise AND on range [-1, 0] (patch 16)
-4. add a 32-bit comparing flag for retval_range_within (patch 15)
-5. collect ACKs, style fix, etc
-
-v3: https://lore.kernel.org/bpf/20240411122752.2873562-1-xukuohai@huaweicloud.com/
-1. Fix incorrect lsm hook return value ranges, and add disabled hook
-   list for bpf lsm, and merge two LSM_RET_INT patches. (KP Singh)
-2. Avoid bpf lsm progs attached to different hooks to call each other
-   with tail call
-3. Fix a CI failure caused by false rejection of AND operation
-4. Add tests
-
-v2: https://lore.kernel.org/bpf/20240325095653.1720123-1-xukuohai@huaweicloud.com/
-fix bpf ci failure
-
-v1: https://lore.kernel.org/bpf/20240316122359.1073787-1-xukuohai@huaweicloud.com/
-
-Xu Kuohai (20):
-  lsm: Refactor return value of LSM hook vm_enough_memory
-  lsm: Refactor return value of LSM hook inode_need_killpriv
-  lsm: Refactor return value of LSM hook inode_getsecurity
-  lsm: Refactor return value of LSM hook inode_listsecurity
-  lsm: Refactor return value of LSM hook inode_copy_up_xattr
-  lsm: Refactor return value of LSM hook getselfattr
-  lsm: Refactor return value of LSM hook setprocattr
-  lsm: Refactor return value of LSM hook getprocattr
-  lsm: Refactor return value of LSM hook key_getsecurity
-  lsm: Refactor return value of LSM hook audit_rule_match
-  bpf, lsm: Add disabled BPF LSM hook list
-  bpf, lsm: Enable BPF LSM prog to read/write return value parameters
-  bpf, lsm: Add check for BPF LSM return value
-  bpf: Prevent tail call between progs attached to different hooks
-  bpf: Fix compare error in function retval_range_within
-  bpf: Add a special case for bitwise AND on range [-1, 0]
-  selftests/bpf: Avoid load failure for token_lsm.c
-  selftests/bpf: Add return value checks for failed tests
-  selftests/bpf: Add test for lsm tail call
-  selftests/bpf: Add verifier tests for bpf lsm
-
- fs/attr.c                                     |   5 +-
- fs/inode.c                                    |   4 +-
- fs/nfs/nfs4proc.c                             |   5 +-
- fs/overlayfs/copy_up.c                        |   6 +-
- fs/proc/base.c                                |  10 +-
- fs/xattr.c                                    |  24 +-
- include/linux/bpf.h                           |   2 +
- include/linux/bpf_lsm.h                       |  15 +
- include/linux/lsm_hook_defs.h                 |  22 +-
- include/linux/security.h                      |  62 ++--
- include/linux/tnum.h                          |   3 +
- kernel/bpf/bpf_lsm.c                          |  64 +++-
- kernel/bpf/btf.c                              |  21 +-
- kernel/bpf/core.c                             |  21 +-
- kernel/bpf/tnum.c                             |  25 ++
- kernel/bpf/verifier.c                         | 173 ++++++++++-
- net/socket.c                                  |   9 +-
- security/apparmor/audit.c                     |  22 +-
- security/apparmor/include/audit.h             |   2 +-
- security/apparmor/lsm.c                       |  22 +-
- security/commoncap.c                          |  32 +-
- security/integrity/evm/evm_main.c             |   2 +-
- security/keys/keyctl.c                        |  11 +-
- security/lsm_syscalls.c                       |   6 +-
- security/security.c                           | 167 ++++++++---
- security/selinux/hooks.c                      |  94 +++---
- security/selinux/include/audit.h              |   8 +-
- security/selinux/ss/services.c                |  54 ++--
- security/smack/smack_lsm.c                    | 104 ++++---
- .../selftests/bpf/prog_tests/test_lsm.c       |  46 ++-
- .../selftests/bpf/prog_tests/verifier.c       |   2 +
- tools/testing/selftests/bpf/progs/err.h       |  10 +
- .../selftests/bpf/progs/lsm_tailcall.c        |  34 +++
- .../selftests/bpf/progs/test_sig_in_xattr.c   |   4 +
- .../bpf/progs/test_verify_pkcs7_sig.c         |   8 +-
- tools/testing/selftests/bpf/progs/token_lsm.c |   4 +-
- .../bpf/progs/verifier_global_subprogs.c      |   7 +-
- .../selftests/bpf/progs/verifier_lsm.c        | 274 ++++++++++++++++++
- 38 files changed, 1098 insertions(+), 286 deletions(-)
- create mode 100644 tools/testing/selftests/bpf/progs/lsm_tailcall.c
- create mode 100644 tools/testing/selftests/bpf/progs/verifier_lsm.c
-
+diff --git a/kernel/bpf/bpf_lsm.c b/kernel/bpf/bpf_lsm.c
+index 08a338e1f231..e5feb6560fe6 100644
+--- a/kernel/bpf/bpf_lsm.c
++++ b/kernel/bpf/bpf_lsm.c
+@@ -36,6 +36,12 @@ BTF_SET_START(bpf_lsm_hooks)
+ #undef LSM_HOOK
+ BTF_SET_END(bpf_lsm_hooks)
+ 
++BTF_SET_START(bpf_lsm_disabled_hooks)
++BTF_ID(func, bpf_lsm_getprocattr)
++BTF_ID(func, bpf_lsm_setprocattr)
++BTF_ID(func, bpf_lsm_ismaclabel)
++BTF_SET_END(bpf_lsm_disabled_hooks)
++
+ /* List of LSM hooks that should operate on 'current' cgroup regardless
+  * of function signature.
+  */
+@@ -97,15 +103,24 @@ void bpf_lsm_find_cgroup_shim(const struct bpf_prog *prog,
+ int bpf_lsm_verify_prog(struct bpf_verifier_log *vlog,
+ 			const struct bpf_prog *prog)
+ {
++	u32 btf_id = prog->aux->attach_btf_id;
++	const char *func_name = prog->aux->attach_func_name;
++
+ 	if (!prog->gpl_compatible) {
+ 		bpf_log(vlog,
+ 			"LSM programs must have a GPL compatible license\n");
+ 		return -EINVAL;
+ 	}
+ 
+-	if (!btf_id_set_contains(&bpf_lsm_hooks, prog->aux->attach_btf_id)) {
++	if (btf_id_set_contains(&bpf_lsm_disabled_hooks, btf_id)) {
++		bpf_log(vlog, "attach_btf_id %u points to disabled hook %s\n",
++			btf_id, func_name);
++		return -EINVAL;
++	}
++
++	if (!btf_id_set_contains(&bpf_lsm_hooks, btf_id)) {
+ 		bpf_log(vlog, "attach_btf_id %u points to wrong type name %s\n",
+-			prog->aux->attach_btf_id, prog->aux->attach_func_name);
++			btf_id, func_name);
+ 		return -EINVAL;
+ 	}
+ 
 -- 
 2.30.2
 
