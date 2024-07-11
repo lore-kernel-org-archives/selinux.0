@@ -1,28 +1,28 @@
 Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 635D415CD60;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4D66158DC8;
 	Thu, 11 Jul 2024 11:14:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720696442; cv=none; b=CoxrBPdtlHZ1fs1K8TdigvkdVAJ3y/aqjAPdSYP5lLKJlQPWC2QlQCmCTJlW+7pblTqDst+9ksHDBsoX074sQRQeaig8tSai3ri+T2IYaCjjM2cOzhWY3NXUp2esBziyG4j4J38rMIbDCGhM6GxE6y/dkeBKXKDmzGqIbn4w+44=
+	t=1720696443; cv=none; b=P78+g7y6tmygFHMdtmq3LMM8/oMguHKN/hzC5Ui+iFOLDCgEzg4hbRGAu8+iwJSRkqnOWINRCxnrmW3t7v/z9HuiZOpgA5AgKnv9z28tHZSYb6Iz98anPeIuPU1ALHg5ZUpAiPjjN+FCZ6D5hSpuEv/z2uwb6q3TWi+xIiDgf2I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720696442; c=relaxed/simple;
-	bh=4bixJwGuTWgSqOvL6zwccNF+B7ZssgQCR776AYlaV+M=;
+	s=arc-20240116; t=1720696443; c=relaxed/simple;
+	bh=ShKudblWtSVIcHknjFeCbDdWn8i6PCKbPF6Ecli0nrg=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Qsi8POpOA004fBnWVw3B93FheoRkkXHq9njUEyjYtTq1fhcCsJT5B5g9t8pAlVAc9jhjUtskP/cYcmifBAGkC7AGtE16hiYycKnqgPuhvwTtYVTP0/L+P/GVxd7iHFTe4CY4VQSZiHPYCF82urM8qkXFbTZfrZTZ4zYyHmWRjIw=
+	 MIME-Version; b=TZrqEG8wRWRkR+tS0yv6MybsPPmqIx2UHVLpRkfXltvFZSuTbQAuJXmnXN37BnJmLoxL8AyQ9kwlBTJ0hymoHaRC0zIfhLpApBvggzxwGA7YV+c7QpzPMLjH7yVpJL4qOYAkaE5V4tZ+Z6UhUZtHKIDwU7Yhs1UydxYEJf0Fisk=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WKXCx55ZQz4f3kK5;
-	Thu, 11 Jul 2024 19:13:49 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.163.235])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WKXCs0Fv9z4f3m6t;
+	Thu, 11 Jul 2024 19:13:45 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.128])
-	by mail.maildlp.com (Postfix) with ESMTP id 59B001A0170;
+	by mail.maildlp.com (Postfix) with ESMTP id E0E9D1A0568;
 	Thu, 11 Jul 2024 19:13:57 +0800 (CST)
 Received: from k01.huawei.com (unknown [10.67.174.197])
-	by APP4 (Coremail) with SMTP id gCh0CgCHjPVxvo9mulQgBw--.25300S7;
-	Thu, 11 Jul 2024 19:13:56 +0800 (CST)
+	by APP4 (Coremail) with SMTP id gCh0CgCHjPVxvo9mulQgBw--.25300S10;
+	Thu, 11 Jul 2024 19:13:57 +0800 (CST)
 From: Xu Kuohai <xukuohai@huaweicloud.com>
 To: bpf@vger.kernel.org,
 	netdev@vger.kernel.org,
@@ -65,9 +65,9 @@ Cc: Alexei Starovoitov <ast@kernel.org>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH bpf-next v4 05/20] lsm: Refactor return value of LSM hook inode_copy_up_xattr
-Date: Thu, 11 Jul 2024 19:18:53 +0800
-Message-Id: <20240711111908.3817636-6-xukuohai@huaweicloud.com>
+Subject: [PATCH bpf-next v4 08/20] lsm: Refactor return value of LSM hook getprocattr
+Date: Thu, 11 Jul 2024 19:18:56 +0800
+Message-Id: <20240711111908.3817636-9-xukuohai@huaweicloud.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
 References: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
@@ -78,10 +78,10 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:gCh0CgCHjPVxvo9mulQgBw--.25300S7
-X-Coremail-Antispam: 1UD129KBjvJXoWxAw1kXF4DJFWkXFWrJF1fJFb_yoWruw4fpa
-	1Dtan2qr1rJFy7ZFykJF47ua1F93yfGFWUCa9xuw12yFZ3Xrn3Wryayr12gr45Wry8JF4k
-	tanFvrs8C3WYy3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+X-CM-TRANSID:gCh0CgCHjPVxvo9mulQgBw--.25300S10
+X-Coremail-Antispam: 1UD129KBjvJXoW3GrWUWr4xGFyfGFyfZFy7ZFb_yoWxZw48pF
+	s5K3ZrGrW8WFy7ZF4vyFnxCa1Sv3yrWr13J398Cw1IyFy2qw4xWa45GFyY9rWrCw1DuF1D
+	tanFqr45Cr4DAF7anT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
 	9KBjDU0xBIdaVrnRJUUUBqb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
 	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAV
 	Cq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0
@@ -100,122 +100,211 @@ X-CM-SenderInfo: 50xn30hkdlqx5xdzvxpfor3voofrz/
 From: Xu Kuohai <xukuohai@huawei.com>
 
 To be consistent with most LSM hooks, convert the return value of
-hook inode_copy_up_xattr to 0 or a negative error code.
+hook getprocattr to 0 or a negative error code.
 
 Before:
-- Hook inode_copy_up_xattr returns 0 when accepting xattr, 1 when
-  discarding xattr, -EOPNOTSUPP if it does not know xattr, or any
-  other negative error code otherwise.
+- Hook getprocattr returns length of value on success or a negative
+  error code on failure.
 
 After:
-- Hook inode_copy_up_xattr returns 0 when accepting xattr, *-ECANCELED*
-  when discarding xattr, -EOPNOTSUPP if it does not know xattr, or
-  any other negative error code otherwise.
+- Hook getprocattr returns 0 on success or a negative error code on
+  failure. An output parameter @len is introduced to hold the
+  length of value on success.
 
 Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
 ---
- fs/overlayfs/copy_up.c            |  6 +++---
- security/integrity/evm/evm_main.c |  2 +-
- security/security.c               | 12 ++++++------
- security/selinux/hooks.c          |  4 ++--
- security/smack/smack_lsm.c        |  6 +++---
- 5 files changed, 15 insertions(+), 15 deletions(-)
+ fs/proc/base.c                |  5 ++++-
+ include/linux/lsm_hook_defs.h |  2 +-
+ include/linux/security.h      |  5 +++--
+ security/apparmor/lsm.c       |  7 +++++--
+ security/security.c           |  8 +++++---
+ security/selinux/hooks.c      | 16 +++++++++-------
+ security/smack/smack_lsm.c    | 11 ++++++-----
+ 7 files changed, 33 insertions(+), 21 deletions(-)
 
-diff --git a/fs/overlayfs/copy_up.c b/fs/overlayfs/copy_up.c
-index a5ef2005a2cc..337a5be99ac9 100644
---- a/fs/overlayfs/copy_up.c
-+++ b/fs/overlayfs/copy_up.c
-@@ -115,12 +115,12 @@ int ovl_copy_xattr(struct super_block *sb, const struct path *oldpath, struct de
- 			continue;
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 9e1cf6cc674d..516a00f6ce36 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -2721,13 +2721,16 @@ static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
+ 	char *p = NULL;
+ 	ssize_t length;
+ 	struct task_struct *task = get_proc_task(inode);
++	u32 n;
  
- 		error = security_inode_copy_up_xattr(old, name);
--		if (error < 0 && error != -EOPNOTSUPP)
--			break;
--		if (error == 1) {
-+		if (error == -ECANCELED) {
- 			error = 0;
- 			continue; /* Discard */
- 		}
-+		if (error < 0 && error != -EOPNOTSUPP)
-+			break;
+ 	if (!task)
+ 		return -ESRCH;
  
- 		if (is_posix_acl_xattr(name)) {
- 			error = ovl_copy_acl(OVL_FS(sb), oldpath, new, name);
-diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
-index 62fe66dd53ce..6924ed508ebd 100644
---- a/security/integrity/evm/evm_main.c
-+++ b/security/integrity/evm/evm_main.c
-@@ -1000,7 +1000,7 @@ static int evm_inode_copy_up_xattr(struct dentry *src, const char *name)
- 	case EVM_XATTR_HMAC:
- 	case EVM_IMA_XATTR_DIGSIG:
- 	default:
--		rc = 1; /* discard */
-+		rc = -ECANCELED; /* discard */
- 	}
+ 	length = security_getprocattr(task, PROC_I(inode)->op.lsmid,
+ 				      file->f_path.dentry->d_name.name,
+-				      &p);
++				      &p, &n);
++	if (!length)
++		length = n;
+ 	put_task_struct(task);
+ 	if (length > 0)
+ 		length = simple_read_from_buffer(buf, count, ppos, p, length);
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 2628514bb19c..b0e3cf3fc33f 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -286,7 +286,7 @@ LSM_HOOK(int, -EOPNOTSUPP, getselfattr, unsigned int attr,
+ LSM_HOOK(int, -EOPNOTSUPP, setselfattr, unsigned int attr,
+ 	 struct lsm_ctx *ctx, u32 size, u32 flags)
+ LSM_HOOK(int, -EINVAL, getprocattr, struct task_struct *p, const char *name,
+-	 char **value)
++	 char **value, u32 *len)
+ LSM_HOOK(int, -EINVAL, setprocattr, const char *name, void *value, size_t size,
+ 	 size_t *wbytes)
+ LSM_HOOK(int, 0, ismaclabel, const char *name)
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 1f1a9696e65d..616047030a89 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -495,7 +495,7 @@ int security_getselfattr(unsigned int attr, struct lsm_ctx __user *ctx,
+ int security_setselfattr(unsigned int attr, struct lsm_ctx __user *ctx,
+ 			 u32 size, u32 flags);
+ int security_getprocattr(struct task_struct *p, int lsmid, const char *name,
+-			 char **value);
++			 char **value, u32 *len);
+ int security_setprocattr(int lsmid, const char *name, void *value, size_t size,
+ 			 size_t *wbytes);
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+@@ -1435,7 +1435,8 @@ static inline int security_setselfattr(unsigned int attr,
+ }
  
- 	kfree(xattr_data);
+ static inline int security_getprocattr(struct task_struct *p, int lsmid,
+-				       const char *name, char **value)
++				       const char *name, char **value,
++				       u32 *len)
+ {
+ 	return -EINVAL;
+ }
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index 6c8b1f8c5781..0454f3f1af06 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -820,7 +820,7 @@ static int apparmor_getselfattr(unsigned int attr, struct lsm_ctx __user *lx,
+ }
+ 
+ static int apparmor_getprocattr(struct task_struct *task, const char *name,
+-				char **value)
++				char **value, u32 *len)
+ {
+ 	int error = -ENOENT;
+ 	/* released below */
+@@ -843,7 +843,10 @@ static int apparmor_getprocattr(struct task_struct *task, const char *name,
+ 	aa_put_label(label);
+ 	put_cred(cred);
+ 
+-	return error;
++	if (error < 0)
++		return error;
++	*len = error;
++	return 0;
+ }
+ 
+ static int do_setattr(u64 attr, void *value, size_t size)
 diff --git a/security/security.c b/security/security.c
-index 26eea8f4cd74..12215ca286af 100644
+index 9685096dbf16..9dd2ae6cf763 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -2675,18 +2675,18 @@ EXPORT_SYMBOL(security_inode_copy_up);
-  * lower layer to the union/overlay layer.   The caller is responsible for
-  * reading and writing the xattrs, this hook is merely a filter.
+@@ -4117,20 +4117,22 @@ int security_setselfattr(unsigned int attr, struct lsm_ctx __user *uctx,
+  * @lsmid: LSM identification
+  * @name: attribute name
+  * @value: attribute value
++ * @len: length of @value
   *
-- * Return: Returns 0 to accept the xattr, 1 to discard the xattr, -EOPNOTSUPP
-- *         if the security module does not know about attribute, or a negative
-- *         error code to abort the copy up.
-+ * Return: Returns 0 to accept the xattr, -ECANCELED to discard the xattr,
-+ *         -EOPNOTSUPP if the security module does not know about attribute,
-+ *         or a negative error code to abort the copy up.
+  * Read attribute @name for task @p and store it into @value if allowed.
+  *
+- * Return: Returns the length of @value on success, a negative value otherwise.
++ * Return: Returns 0 on success or a negative error code on failure.
++ *         @len is set to the length of @value on success.
   */
- int security_inode_copy_up_xattr(struct dentry *src, const char *name)
+ int security_getprocattr(struct task_struct *p, int lsmid, const char *name,
+-			 char **value)
++			 char **value, u32 *len)
  {
- 	int rc;
+ 	struct security_hook_list *hp;
  
- 	/*
--	 * The implementation can return 0 (accept the xattr), 1 (discard the
--	 * xattr), -EOPNOTSUPP if it does not know anything about the xattr or
--	 * any other error code in case of an error.
-+	 * The implementation can return 0 (accept the xattr), -ECANCELED
-+	 * (discard the xattr), -EOPNOTSUPP if it does not know anything
-+	 *  about the xattr or any other error code in case of an error.
- 	 */
- 	rc = call_int_hook(inode_copy_up_xattr, src, name);
- 	if (rc != LSM_RET_DEFAULT(inode_copy_up_xattr))
+ 	hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
+ 		if (lsmid != 0 && lsmid != hp->lsmid->id)
+ 			continue;
+-		return hp->hook.getprocattr(p, name, value);
++		return hp->hook.getprocattr(p, name, value, len);
+ 	}
+ 	return LSM_RET_DEFAULT(getprocattr);
+ }
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5dedd3917d57..f9a6637dfd78 100644
+index 7a73f3710025..16cd336aab3d 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -3528,8 +3528,8 @@ static int selinux_inode_copy_up_xattr(struct dentry *dentry, const char *name)
- 	 * xattrs up.  Instead, filter out SELinux-related xattrs following
- 	 * policy load.
- 	 */
--	if (selinux_initialized() && strcmp(name, XATTR_NAME_SELINUX) == 0)
--		return 1; /* Discard */
-+	if (selinux_initialized() && !strcmp(name, XATTR_NAME_SELINUX))
-+		return -ECANCELED; /* Discard */
- 	/*
- 	 * Any other attribute apart from SELINUX is not claimed, supported
- 	 * by selinux.
+@@ -6574,19 +6574,21 @@ static int selinux_setselfattr(unsigned int attr, struct lsm_ctx *ctx,
+ 	return rc;
+ }
+ 
+-static int selinux_getprocattr(struct task_struct *p,
+-			       const char *name, char **value)
++static int selinux_getprocattr(struct task_struct *p, const char *name,
++			       char **value, u32 *len)
+ {
+ 	unsigned int attr = lsm_name_to_attr(name);
+-	int rc;
++	int rc = -EINVAL;
+ 
+ 	if (attr) {
+ 		rc = selinux_lsm_getattr(attr, p, value);
+-		if (rc != -EOPNOTSUPP)
+-			return rc;
++		if (rc == -EOPNOTSUPP)
++			rc = -EINVAL;
+ 	}
+-
+-	return -EINVAL;
++	if (rc < 0)
++		return rc;
++	*len = rc;
++	return 0;
+ }
+ 
+ static int selinux_setprocattr(const char *name, void *value, size_t size,
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 6f73906bf7ea..ae8f1c2d0ca6 100644
+index 4265f2639106..8a352bd05565 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -4893,10 +4893,10 @@ static int smack_inode_copy_up(struct dentry *dentry, struct cred **new)
- static int smack_inode_copy_up_xattr(struct dentry *src, const char *name)
+@@ -3681,16 +3681,17 @@ static int smack_getselfattr(unsigned int attr, struct lsm_ctx __user *ctx,
+  * @p: the object task
+  * @name: the name of the attribute in /proc/.../attr
+  * @value: where to put the result
++ * @len: where to put the length of the result
+  *
+  * Places a copy of the task Smack into value
+  *
+- * Returns the length of the smack label or an error code
++ * Returns 0 on success or a negative error code on failure.
+  */
+-static int smack_getprocattr(struct task_struct *p, const char *name, char **value)
++static int smack_getprocattr(struct task_struct *p, const char *name,
++			     char **value, u32 *len)
  {
- 	/*
--	 * Return 1 if this is the smack access Smack attribute.
-+	 * Return -ECANCELED if this is the smack access Smack attribute.
- 	 */
--	if (strcmp(name, XATTR_NAME_SMACK) == 0)
--		return 1;
-+	if (!strcmp(name, XATTR_NAME_SMACK))
-+		return -ECANCELED;
+ 	struct smack_known *skp = smk_of_task_struct_obj(p);
+ 	char *cp;
+-	int slen;
  
- 	return -EOPNOTSUPP;
+ 	if (strcmp(name, "current") != 0)
+ 		return -EINVAL;
+@@ -3699,9 +3700,9 @@ static int smack_getprocattr(struct task_struct *p, const char *name, char **val
+ 	if (cp == NULL)
+ 		return -ENOMEM;
+ 
+-	slen = strlen(cp);
++	*len = strlen(cp);
+ 	*value = cp;
+-	return slen;
++	return 0;
  }
+ 
+ /**
 -- 
 2.30.2
 
