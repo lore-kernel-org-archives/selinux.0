@@ -1,147 +1,106 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2C6812C549
-	for <selinux@vger.kernel.org>; Thu, 11 Jul 2024 14:53:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E8F176034
+	for <selinux@vger.kernel.org>; Thu, 11 Jul 2024 18:22:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720709601; cv=none; b=sUSLMlinznf3XR4+m6gkm1cjjV/4o6TMyjGcr2pR+ELLFnHM0I9OqNVW6yo4dkfALWhTq6jQZ6gQHxT8LIPaHgV+od152Veuu6KzHlxPp7pAkAnENW1sIrOWwK+VyXShlX83CnnnG+XcvsgDaKlC0c1Z/xbbXTHqE4OyPzGmo9s=
+	t=1720722171; cv=none; b=U/WU781gB1bjL92rxjwDBv3V1hENNjJawMiIPvrUXTSwzs8J68xvok+a6uxddr2VWO6GBmCBQkvGAEWME5dxW0dRmpIMF6zbtfCf4BC3TalD6tc++1y/j9wu0EaELA/126kAw/lerN9MjCBf9xNtC+X3OEfFGqYNIQ/jL+UBdHs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720709601; c=relaxed/simple;
-	bh=YsAp92bkPYjED7S9V3Zjfl/WXmJamJ574CGJOEGrdRg=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Yw2tSqf4vK73FSG44WdQGEjXKt941DUwPuIkVmAHttn2EBcHTgTp6WrWTUFYHrPmU2z0SyFyHWKsPTcEpntYxE9g3uR5nRsUvZ8AXai63GOQaRvKAyHeS+tm36buO/eU863elJF7xaPrJDRdvcKqKlHLnt0KGakghKUOE+8o7mw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XjmcjiZD; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1720722171; c=relaxed/simple;
+	bh=bY0NX3ajlp5RLdy7E/QAhtyXZraMX6wqEdwmAK2qh7o=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WFUnj8r1sn5g40CiyrEygw/d+IG+wkmUwuGdf+S43tQicpUxmSRF5WN2+AqgHCLx/NqGJnz89h3CLMIKnRo6E8CYl9jbTlCXXqYcNtp3c8zVqIR4ay36bVIYRtEzydLgdTLAqANRkN7L6rprF5d/ZDMtQnI18u4PFJdylgWjfBE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ngiEPFyH; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XjmcjiZD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720709599;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kq2growGao5DyZ5qkeVvqQEEAODDmXIfPKytuw/zc5I=;
-	b=XjmcjiZDNXtlhZdOTGYGlVLN/CRi+1qXjEvaIra4iZ48AkIi43wuM06c56m++oL7JXCSKy
-	AqkRBB2QKglrVRPD2ohyuX9/Audaz51NlMw6qxsc1HzddnaFo9ZyMpy58zya0z4s6hIYn4
-	9aV8W9+TxvaQsOkoaRcTbLr2rbfG8Lc=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-599-jxtuUIDyO8Sg-GJupkYDIw-1; Thu,
- 11 Jul 2024 10:53:16 -0400
-X-MC-Unique: jxtuUIDyO8Sg-GJupkYDIw-1
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 36C941954B0A
-	for <selinux@vger.kernel.org>; Thu, 11 Jul 2024 14:53:16 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.225.244])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 806FE1955E89
-	for <selinux@vger.kernel.org>; Thu, 11 Jul 2024 14:53:15 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [RFC PATCH] libsemanage: Do not change file context when copying files
-Date: Thu, 11 Jul 2024 16:15:04 +0200
-Message-ID: <20240711145257.392771-2-vmojzis@redhat.com>
-In-Reply-To: <20240711145257.392771-1-vmojzis@redhat.com>
-References: <20240711145257.392771-1-vmojzis@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ngiEPFyH"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-70b0d0fefe3so1009478b3a.2
+        for <selinux@vger.kernel.org>; Thu, 11 Jul 2024 11:22:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1720722170; x=1721326970; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bY0NX3ajlp5RLdy7E/QAhtyXZraMX6wqEdwmAK2qh7o=;
+        b=ngiEPFyHdGj1dzxYgP3/hLMyWVSz9K3PQJrl1xOC/b0avENMDMZjhNr188CySsLarU
+         GpZjSR+7nEpVI8UF8tiZBK3l+FxePedL/r2vze43gp7Kwj7p2eivsb3kSlmxkcykxwkW
+         fsE8CgKpIMwDM2ca0bRA/sAZLEF+rPiGwpy+JHFzdk9nwxIYXXUeinuKXz+eXZr5h6z4
+         x4ymAuPzY/15cN0LnZ7U4/YugPI5qXEcrUVi2vpcorQ7V3A902PhOE6CWqR2a+OrEZxe
+         FBa73YGqmfs3x1iqAD42d3355E010Zsj+f6Pw45hSDroNzktsMCqVsWDtlONtWJmq38y
+         KwUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720722170; x=1721326970;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bY0NX3ajlp5RLdy7E/QAhtyXZraMX6wqEdwmAK2qh7o=;
+        b=CqkFFNzJ+rKrQrKcAcdAgt6Doh7mHVmI+VTLn1YPmN34y1WWKE/L8X/pMpbMB6D2pD
+         fdVV7ap0oJnhkQkpvGaLOHdH2Ef5esrXX3aOxvkyj8tKGnBnw3TpNikV7lRZRX7QCCY2
+         aiEUun8lev6yR07wSA0DkU2Cx+Zi8ODhSUfgeAUcAMk2LXN8iJjMcrzP3y21K3YEALq9
+         08ZmH1TQEbiBjynWh3I//nM8dBlVYp3hxm1G6dooekocVTg3krAhkTJQ4m9WMZa72dYc
+         Sy9h33HOIOV2fNtrzaPf2HYlVCwcgByNbuDsFIuHfUQFSNY8F1d1MM0jfPpdPgbLSAiX
+         W9kA==
+X-Gm-Message-State: AOJu0YzdFTj6JSQJ7YLrD9uhC1gnAA2qit1QPuKRfngrbxuIzmoLV+E7
+	OBP/+zKQ3NxdwMjdUjGzlFrLw3W+dMOC1sC5hqebPyUpWLOAgEsOalv7Kn0oC++ehzccSvYmiV0
+	bsNbrAVPzeLbUBWMt4KwIkhVJSGudgg==
+X-Google-Smtp-Source: AGHT+IHuJGeSlNwBRfqB/nl7GKo4a2hbtJTLFr1w/c2CcXBbtkhHhlpxGTXQevYRp/vrLouSym+6Px/dB/bSic3tJ74=
+X-Received: by 2002:a05:6a20:734c:b0:1c1:a25c:745e with SMTP id
+ adf61e73a8af0-1c2982233d8mr10999969637.17.1720722169747; Thu, 11 Jul 2024
+ 11:22:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+References: <20240711145257.392771-1-vmojzis@redhat.com>
+In-Reply-To: <20240711145257.392771-1-vmojzis@redhat.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 11 Jul 2024 14:22:38 -0400
+Message-ID: <CAEjxPJ57r-sdNA2n8qNBaFvRZ_uzL2v-7NJRbf3ANMRD0seiuQ@mail.gmail.com>
+Subject: Re: SElinux store file context and ownership change
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Issue:
-  # semodule -B
-  # ls -lZ  /etc/selinux/targeted/contexts/files
+On Thu, Jul 11, 2024 at 10:57=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> wr=
+ote:
+>
+> Hello,
+> I'm trying to address a known "issue" where SELinux context of files in
+> SELinux store gets changed on policy rebuild. This triggers some system
+> verification tools and unnecessarily raises concerns in users.
+> I created a patch using getfilecon and setfscreatecon, but am not sure
+> if this is the best approach since it will not fix a context that has
+> already been changed. Also, any files created as a result of execve
+> need to be addressed separately (e.g. file_contexts.bin), maybe using
+> selabel_lookup to get the proper label since that way sefcontext_compile
+> does not need to know the path to the SELinux store (only to sandbox).
+> I considered relabeling the whole sandbox before semanage_commit_sandbox,
+> but that seems wasteful.
 
--rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 421397 Jul 11 09:57 file_contexts
--rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 593470 Jul 11 09:57 file_contexts.bin
--rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  14704 Jul 11 09:57 file_contexts.homedirs
--rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  20289 Jul 11 09:57 file_contexts.homedirs.bin
+Would a name-based type transition work? This would avoid the need for
+any code changes (to libsemanage or sefcontext_compile).
 
-  SELinux user changed from system_u to the user used to execute semodule
+Otherwise, I think doing a selabel_lookup() followed by
+setfscreatecon() makes the most sense if you want to ensure that the
+file has the correct label at creation time, or calling
+selinux_restorecon(3) on the file after it is created prior to copying
+data to it would be even simpler.
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- libsemanage/src/semanage_store.c | 24 +++++++++++++++++++++++-
- libsemanage/src/semanage_store.h |  1 +
- 2 files changed, 24 insertions(+), 1 deletion(-)
+> Then there is a related issue where the rebuild is performed as a
+> non-root user, causing files in the policy store to change ownership.
+> \# capsh --user=3Dtestuser --caps=3D"cap_dac_override+eip cap_setpcap+ep"=
+ --addamb=3Dcap_dac_override -- -c "semodule -B"
+> This can actually cause issues in some scenarios (e.g. remote login faili=
+ng).
+> Addressing this seems to require more drastic measures. My attempts to
+> use "chown" failed, even with the CAP_CHOWN capability and using
+> seteuid/setegid does not seem safe. Any suggestions would be
+> appreciated.
 
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 27c5d349..694c1519 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -731,7 +731,9 @@ int semanage_copy_file(const char *src, const char *dst, mode_t mode,
- 
- 	if (!mode)
- 		mode = S_IRUSR | S_IWUSR;
--	
-+
-+	semanage_setfscreatecon(src);
-+
- 	mask = umask(0);
- 	if ((out = open(tmp, O_WRONLY | O_CREAT | O_TRUNC, mode)) == -1) {
- 		umask(mask);
-@@ -812,6 +814,7 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
- 	}
- 
- 	if (stat(dst, &sb) != 0) {
-+		semanage_setfscreatecon(src);
- 		mask = umask(0077);
- 		if (mkdir(dst, S_IRWXU) != 0) {
- 			umask(mask);
-@@ -831,6 +834,7 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
- 		snprintf(path2, sizeof(path2), "%s/%s", dst, names[i]->d_name);
- 		if (S_ISDIR(sb.st_mode)) {
- 			mask = umask(0077);
-+			semanage_setfscreatecon(path);
- 			if (mkdir(path2, 0700) == -1 ||
- 			    semanage_copy_dir_flags(path, path2, flag) == -1) {
- 				umask(mask);
-@@ -952,6 +956,24 @@ cleanup:
- 	return status;
- }
- 
-+/* Get file context of "path" and use it for the next file to be created.
-+ * To be used for creating a sandbox labeled the same as the original SELinux store */
-+int semanage_setfscreatecon(const char *path)
-+{
-+	int status = 0;
-+	char *fcontext_raw = NULL;
-+
-+	if (getfilecon(path, &fcontext_raw) < 0){
-+		fcontext_raw = NULL;
-+	}
-+
-+	status = setfscreatecon_raw(fcontext_raw);
-+
-+	freecon(fcontext_raw);
-+
-+	return status;
-+}
-+
- /********************* sandbox management routines *********************/
- 
- /* Creates a sandbox for a single client. Returns 0 if a
-diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
-index 1fc77da8..135e6ac6 100644
---- a/libsemanage/src/semanage_store.h
-+++ b/libsemanage/src/semanage_store.h
-@@ -124,6 +124,7 @@ int semanage_get_cil_paths(semanage_handle_t * sh, semanage_module_info_t *modin
- int semanage_get_active_modules(semanage_handle_t *sh,
- 			       semanage_module_info_t **modinfo, int *num_modules);
- 
-+int semanage_setfscreatecon(const char *path);
- 
- /* lock file routines */
- int semanage_get_trans_lock(semanage_handle_t * sh);
--- 
-2.43.0
-
+setfsuid() is a safer option than seteuid() for filesystem operations,
+but what is preventing the chown() from working?
