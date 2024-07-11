@@ -1,94 +1,157 @@
-Received: from mail-yb1-f169.google.com (mail-yb1-f169.google.com [209.85.219.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 791C684A36
-	for <selinux@vger.kernel.org>; Wed, 10 Jul 2024 21:24:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 013428F72
+	for <selinux@vger.kernel.org>; Thu, 11 Jul 2024 02:59:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720646700; cv=none; b=E6CYsOA39tX50RFxLa8g4bWNQaDSFeh9DFxPEKKmNyYvnA+c/bqjzu1Stu4JSUmRWMSG3TaTuILrQYAEO4/ypzkH49N2GXx6gBiQ4xuplA0c75UfkcybNDgC4ybVvfQ1F+UkMl14B2TmVCv3CqrVx4R0MjyUAaTD0kgBccpwaPI=
+	t=1720666746; cv=none; b=eZGCh2YWFRB9TTldy7L/ItVBT30UO3I1O8hyIZ8XIFdvydg4PKHiW6i1ttQAwHM14mXRbtccRN0Iftji74IVUR9Ld89Auy7EWajilMfZzSle7P+6q4njG4A4eAVAKDo4hgkXqn0NnVXKQr+bD9SOYshn/h07row8xYcUi+aVIMg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720646700; c=relaxed/simple;
-	bh=jR58opDciE0Yx2CQeW2+jxy+zmY5exuW682GTnuY/7A=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=peD/hydYoVm5QEqMaQje4Rqmejp1G11c5Q3ccXPiWtbCknuxroyj03oc62NoAHNu2aWvAixr2l4p1brXu9OpcM9Jd9UyYDYE0MIAQQIZh9EML+PkUSlkMfWn1/LsfV1EtcJj30zjm+w6ic5ICQIrk2VfoyBHpiEWYUWqLP3upok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Cc4pVPVk; arc=none smtp.client-ip=209.85.219.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Cc4pVPVk"
-Received: by mail-yb1-f169.google.com with SMTP id 3f1490d57ef6-e02b79c6f21so205245276.2
-        for <selinux@vger.kernel.org>; Wed, 10 Jul 2024 14:24:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1720646698; x=1721251498; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jR58opDciE0Yx2CQeW2+jxy+zmY5exuW682GTnuY/7A=;
-        b=Cc4pVPVkk57puUsGnnskJpV4mT4Ap//8F1W5zdR6T6H3L57Mgm4L/xUZtR5+p/U8Ff
-         ScMbiOYJDMZBlqF2wiXhm4tS8bTnMElzUERkkee0UpA8xFYKFKMz3xtxrkZV0oA9lU70
-         BtEBMLNPuaWgk64jWFyuEVTmyHC6ckSqdQEXCV4kugAXWEtpffenBMQb5HHiYVsoj2yn
-         bPNvbt5ecbUsXhAWj/OE+st7OiPVduhrNPggBmYz1qsRFqeWQmllh3uy61gB5re9SJmy
-         fy3Z+y8/f1inqbP9BGoWoIUn84ihipVLxnsPDcleNOV4wCKxLE5/r7trBKIkrGTzRERE
-         1LzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1720646698; x=1721251498;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jR58opDciE0Yx2CQeW2+jxy+zmY5exuW682GTnuY/7A=;
-        b=S0NMoiN9jovUI1/BCRXXTNLrOXVJgBBQbKIg6l0ZT8M4RnLR+wPeya/bZm32RF615K
-         W/QeV72wdEUL0Tvxd6Z2xapC0IDpXlJfHP+RG/Xt9DrYGZV6pJecDjzfqc+8s1Zg4ws5
-         5mehU5P6w29rdP+Dlh6/k1ywWGTGsZR/PNrinm5t7c/UiJfMQxoUcKCYkOb7LNWm2OiF
-         UvGfKP1Q9zD7Hwpm0sMINoPT/WzCMqe5AuTi2KpHegDlElUYqQuU++BA8sWnoiq/1z+m
-         rSpJphyHw5KSPQNKC7wMyGIfyq6tab+MHW0g9DAYUpzB4CdNcx3zfQQks8+Gzlofa5R0
-         NuXw==
-X-Forwarded-Encrypted: i=1; AJvYcCUheUiVyoXu4JjOxz6a2YGA/y7SJZE/tAANbwXhjHh5RfOmTRpGL8E96g/VImxOngZrseCLD8CdwI1UzXh1w7iUFl2ngEsYFw==
-X-Gm-Message-State: AOJu0Yxtjyt5kclCTdkz0p0+nXV6MzO0UV3HCUGTxe5AAVKiq1PHul8+
-	EaRsWOLPdvRB7bH3/XXdUiU4zo85WsMuSx5WfdvIKQTcZcsh1s6O6SzdtKazDO3QLa/9HQeUhpf
-	QKobalz9IEkg4PX1EoskCNwZdFnn3YQgjnyXp9djJiQGQXlM=
-X-Google-Smtp-Source: AGHT+IE80nkVX4dv9PjTzlg3sdW3MwngDokp0e9s51jgDw4VFDRzd2yoZ83Mp5wQgCjklbig+WTnQnR5fBDiB/56aZA=
-X-Received: by 2002:a25:aa0a:0:b0:e02:b466:e59c with SMTP id
- 3f1490d57ef6-e041af3deedmr8102623276.0.1720646698355; Wed, 10 Jul 2024
- 14:24:58 -0700 (PDT)
+	s=arc-20240116; t=1720666746; c=relaxed/simple;
+	bh=IUVNdPHsQ9fvxuZoSgQHnH77K16/uheGc3Q/3uLsmh4=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=tOcq6bs4DVjlrVVKbDzCpA4Q5UF8yX7X3CQqEAkWN6honO+duua8nilioPTJiMq/r00UqlShu4+vESBKDL24PC6cRKWScXp/Qp7acWV6UF0iBmgMvRGCxHnrQB+8vTLixDyJMUC0ZHMyrfzqP9DfKxsNasf9VtUFZy2HuNjKKL8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.162.112])
+	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4WKKB31shrz1HF9j;
+	Thu, 11 Jul 2024 10:56:27 +0800 (CST)
+Received: from kwepemd200011.china.huawei.com (unknown [7.221.188.251])
+	by mail.maildlp.com (Postfix) with ESMTPS id C2447140157;
+	Thu, 11 Jul 2024 10:58:53 +0800 (CST)
+Received: from cgs.huawei.com (10.244.148.83) by
+ kwepemd200011.china.huawei.com (7.221.188.251) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1258.34; Thu, 11 Jul 2024 10:58:53 +0800
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
+To: <paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
+	<omosnace@redhat.com>, <cuigaosheng1@huawei.com>
+CC: <selinux@vger.kernel.org>
+Subject: [PATCH -next] selinux: refactor code to return the correct errno
+Date: Thu, 11 Jul 2024 10:58:52 +0800
+Message-ID: <20240711025852.916781-1-cuigaosheng1@huawei.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240710024029.669314-2-paul@paul-moore.com> <ebe7be89-1e5d-443b-b066-e5286ca1c986@huaweicloud.com>
-In-Reply-To: <ebe7be89-1e5d-443b-b066-e5286ca1c986@huaweicloud.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 10 Jul 2024 17:24:47 -0400
-Message-ID: <CAHC9VhR00h2yYEGpXvHTJKkWhb6OoAHfWWPGsX-uaBD3phVPjw@mail.gmail.com>
-Subject: Re: [RFC PATCH] lsm: add the inode_free_security_rcu() LSM
- implementation hook
-To: Roberto Sassu <roberto.sassu@huaweicloud.com>
-Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ kwepemd200011.china.huawei.com (7.221.188.251)
 
-On Wed, Jul 10, 2024 at 5:01=E2=80=AFPM Roberto Sassu
-<roberto.sassu@huaweicloud.com> wrote:
->
-> It looks ok for me. The only thing we are not doing is to set the
-> pointer to NULL, but I guess does not matter, since the inode security
-> blob is being freed.
+Refactor the code in sel_netif_sid_slow to get the correct errno
+when an error occurs.
 
-Yes, that shouldn't be an issue, and depending on how things get
-scheduled, it's entirely possible that the associated inode is
-completely gone by the time ima_inode_free_rcu() is called.
+Add some similar modifications to selinux_netlbl_sock_genattr and
+sel_netport_sid_slow.
 
-> I also ran some UML kernel tests in the CI, and everything looks good:
->
-> https://github.com/robertosassu/ima-evm-utils/actions/runs/9880817007/job=
-/27291259487
->
-> Will think a bit, if I'm missing something.
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+---
+ security/selinux/netif.c    | 16 ++++++++++------
+ security/selinux/netlabel.c | 16 ++++++++--------
+ security/selinux/netport.c  | 12 +++++++-----
+ 3 files changed, 25 insertions(+), 19 deletions(-)
 
-Great, thank you.
+diff --git a/security/selinux/netif.c b/security/selinux/netif.c
+index 43a0d3594b72..6d8544d8c63c 100644
+--- a/security/selinux/netif.c
++++ b/security/selinux/netif.c
+@@ -156,14 +156,18 @@ static int sel_netif_sid_slow(struct net *ns, int ifindex, u32 *sid)
+ 	ret = security_netif_sid(dev->name, sid);
+ 	if (ret != 0)
+ 		goto out;
++
+ 	new = kzalloc(sizeof(*new), GFP_ATOMIC);
+-	if (new) {
+-		new->nsec.ns = ns;
+-		new->nsec.ifindex = ifindex;
+-		new->nsec.sid = *sid;
+-		if (sel_netif_insert(new))
+-			kfree(new);
++	if (!new) {
++		ret = -ENOMEM;
++		goto out;
+ 	}
++	new->nsec.ns = ns;
++	new->nsec.ifindex = ifindex;
++	new->nsec.sid = *sid;
++	ret = sel_netif_insert(new);
++	if (ret)
++		kfree(new);
+ 
+ out:
+ 	spin_unlock_bh(&sel_netif_lock);
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index 55885634e880..40b5dcbd97d4 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -76,11 +76,12 @@ static struct netlbl_lsm_secattr *selinux_netlbl_sock_genattr(struct sock *sk)
+ 
+ 	secattr = netlbl_secattr_alloc(GFP_ATOMIC);
+ 	if (secattr == NULL)
+-		return NULL;
++		return ERR_PTR(-ENOMEM);
++
+ 	rc = security_netlbl_sid_to_secattr(sksec->sid, secattr);
+ 	if (rc != 0) {
+ 		netlbl_secattr_free(secattr);
+-		return NULL;
++		return ERR_PTR(rc);
+ 	}
+ 	sksec->nlbl_secattr = secattr;
+ 
+@@ -400,8 +401,8 @@ int selinux_netlbl_socket_post_create(struct sock *sk, u16 family)
+ 		return 0;
+ 
+ 	secattr = selinux_netlbl_sock_genattr(sk);
+-	if (secattr == NULL)
+-		return -ENOMEM;
++	if (IS_ERR(secattr))
++		return PTR_ERR(secattr);
+ 	/* On socket creation, replacement of IP options is safe even if
+ 	 * the caller does not hold the socket lock.
+ 	 */
+@@ -561,10 +562,9 @@ static int selinux_netlbl_socket_connect_helper(struct sock *sk,
+ 		return rc;
+ 	}
+ 	secattr = selinux_netlbl_sock_genattr(sk);
+-	if (secattr == NULL) {
+-		rc = -ENOMEM;
+-		return rc;
+-	}
++	if (IS_ERR(secattr))
++		return PTR_ERR(secattr);
++
+ 	rc = netlbl_conn_setattr(sk, addr, secattr);
+ 	if (rc == 0)
+ 		sksec->nlbl_state = NLBL_CONNLABELED;
+diff --git a/security/selinux/netport.c b/security/selinux/netport.c
+index 2e22ad9c2bd0..a75a479515fb 100644
+--- a/security/selinux/netport.c
++++ b/security/selinux/netport.c
+@@ -152,12 +152,14 @@ static int sel_netport_sid_slow(u8 protocol, u16 pnum, u32 *sid)
+ 	if (ret != 0)
+ 		goto out;
+ 	new = kzalloc(sizeof(*new), GFP_ATOMIC);
+-	if (new) {
+-		new->psec.port = pnum;
+-		new->psec.protocol = protocol;
+-		new->psec.sid = *sid;
+-		sel_netport_insert(new);
++	if (!new) {
++		ret = -ENOMEM;
++		goto out;
+ 	}
++	new->psec.port = pnum;
++	new->psec.protocol = protocol;
++	new->psec.sid = *sid;
++	sel_netport_insert(new);
+ 
+ out:
+ 	spin_unlock_bh(&sel_netport_lock);
+-- 
+2.25.1
 
---=20
-paul-moore.com
