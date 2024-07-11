@@ -1,49 +1,53 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA0082F46
-	for <selinux@vger.kernel.org>; Thu, 11 Jul 2024 14:53:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2C6812C549
+	for <selinux@vger.kernel.org>; Thu, 11 Jul 2024 14:53:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720709596; cv=none; b=CL9zTT6/DmU0mUCho3YPIr8l6bx6YdbEzLbLeyXK8FTG7zO3ViOe0sXzyJs6rPO392xzbmUoE4//HeNxf91orDtJ6sxmbnBuG5ix3Po+gkL8Y8VCzya8ZvXy6ZbgAK+It/YYxC6e1nsf6eF87uNW3WGl4RM6UAGR4LEvl5j3MaE=
+	t=1720709601; cv=none; b=sUSLMlinznf3XR4+m6gkm1cjjV/4o6TMyjGcr2pR+ELLFnHM0I9OqNVW6yo4dkfALWhTq6jQZ6gQHxT8LIPaHgV+od152Veuu6KzHlxPp7pAkAnENW1sIrOWwK+VyXShlX83CnnnG+XcvsgDaKlC0c1Z/xbbXTHqE4OyPzGmo9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720709596; c=relaxed/simple;
-	bh=Gf8AHo97XAjG/UK5uiD2umYgK4U6FzsG6+qcaohXmxk=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=M2yl1KrfKSxlQFZvWI+cPWp6AaEiEhLpCD8G3krk1sOmy9joQJemGmcDCWvAPnNSK0Ts0vIzA5WpDG8SvT18adbL1qaKHlWLFoJ/apUyIEFqM9rE7kQhuYi85NNuheT9ehvpYPr6hZIXrBvKsrusl+n6JlqFpJCHZ88UwZ1gA8A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UxD9Nbvo; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1720709601; c=relaxed/simple;
+	bh=YsAp92bkPYjED7S9V3Zjfl/WXmJamJ574CGJOEGrdRg=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Yw2tSqf4vK73FSG44WdQGEjXKt941DUwPuIkVmAHttn2EBcHTgTp6WrWTUFYHrPmU2z0SyFyHWKsPTcEpntYxE9g3uR5nRsUvZ8AXai63GOQaRvKAyHeS+tm36buO/eU863elJF7xaPrJDRdvcKqKlHLnt0KGakghKUOE+8o7mw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XjmcjiZD; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UxD9Nbvo"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XjmcjiZD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1720709593;
+	s=mimecast20190719; t=1720709599;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=WAN7fxJ1mWoqg2jsx6Ft+g7b0kZ7Pl6tmJz/IbTlTa8=;
-	b=UxD9Nbvo6k2BP5KhmYV9Y+09xIjVyBZdGjz6ACC6vliV07aO9JF1tW2kD3zu73edKj1R6p
-	yw/b4VEJBF3tzgcYPHlFdLqTEsUAVh28SOEiWKs7tl3Q3Ax3+L8je827dgtI2gTHJSi6Uw
-	bnH/NPpK0u7j6CItluVfO/G64db15Ns=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kq2growGao5DyZ5qkeVvqQEEAODDmXIfPKytuw/zc5I=;
+	b=XjmcjiZDNXtlhZdOTGYGlVLN/CRi+1qXjEvaIra4iZ48AkIi43wuM06c56m++oL7JXCSKy
+	AqkRBB2QKglrVRPD2ohyuX9/Audaz51NlMw6qxsc1HzddnaFo9ZyMpy58zya0z4s6hIYn4
+	9aV8W9+TxvaQsOkoaRcTbLr2rbfG8Lc=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-479--EumnzRfMSelKTAskJhiDA-1; Thu,
- 11 Jul 2024 10:53:11 -0400
-X-MC-Unique: -EumnzRfMSelKTAskJhiDA-1
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-599-jxtuUIDyO8Sg-GJupkYDIw-1; Thu,
+ 11 Jul 2024 10:53:16 -0400
+X-MC-Unique: jxtuUIDyO8Sg-GJupkYDIw-1
 Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 477F71955F0B
-	for <selinux@vger.kernel.org>; Thu, 11 Jul 2024 14:53:10 +0000 (UTC)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 36C941954B0A
+	for <selinux@vger.kernel.org>; Thu, 11 Jul 2024 14:53:16 +0000 (UTC)
 Received: from fedora.redhat.com (unknown [10.45.225.244])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 91EA01955E89
-	for <selinux@vger.kernel.org>; Thu, 11 Jul 2024 14:53:09 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 806FE1955E89
+	for <selinux@vger.kernel.org>; Thu, 11 Jul 2024 14:53:15 +0000 (UTC)
 From: Vit Mojzis <vmojzis@redhat.com>
 To: selinux@vger.kernel.org
-Subject: SElinux store file context and ownership change
-Date: Thu, 11 Jul 2024 16:15:03 +0200
-Message-ID: <20240711145257.392771-1-vmojzis@redhat.com>
+Subject: [RFC PATCH] libsemanage: Do not change file context when copying files
+Date: Thu, 11 Jul 2024 16:15:04 +0200
+Message-ID: <20240711145257.392771-2-vmojzis@redhat.com>
+In-Reply-To: <20240711145257.392771-1-vmojzis@redhat.com>
+References: <20240711145257.392771-1-vmojzis@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -53,29 +57,91 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Hello,
-I'm trying to address a known "issue" where SELinux context of files in
-SELinux store gets changed on policy rebuild. This triggers some system
-verification tools and unnecessarily raises concerns in users.
-I created a patch using getfilecon and setfscreatecon, but am not sure
-if this is the best approach since it will not fix a context that has
-already been changed. Also, any files created as a result of execve
-need to be addressed separately (e.g. file_contexts.bin), maybe using
-selabel_lookup to get the proper label since that way sefcontext_compile
-does not need to know the path to the SELinux store (only to sandbox).
-I considered relabeling the whole sandbox before semanage_commit_sandbox,
-but that seems wasteful.
+Issue:
+  # semodule -B
+  # ls -lZ  /etc/selinux/targeted/contexts/files
 
-Then there is a related issue where the rebuild is performed as a
-non-root user, causing files in the policy store to change ownership.
-\# capsh --user=testuser --caps="cap_dac_override+eip cap_setpcap+ep" --addamb=cap_dac_override -- -c "semodule -B"
-This can actually cause issues in some scenarios (e.g. remote login failing).
-Addressing this seems to require more drastic measures. My attempts to
-use "chown" failed, even with the CAP_CHOWN capability and using 
-seteuid/setegid does not seem safe. Any suggestions would be
-appreciated.
+-rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 421397 Jul 11 09:57 file_contexts
+-rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 593470 Jul 11 09:57 file_contexts.bin
+-rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  14704 Jul 11 09:57 file_contexts.homedirs
+-rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  20289 Jul 11 09:57 file_contexts.homedirs.bin
 
-Thank you.
+  SELinux user changed from system_u to the user used to execute semodule
 
-Vit
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ libsemanage/src/semanage_store.c | 24 +++++++++++++++++++++++-
+ libsemanage/src/semanage_store.h |  1 +
+ 2 files changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 27c5d349..694c1519 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -731,7 +731,9 @@ int semanage_copy_file(const char *src, const char *dst, mode_t mode,
+ 
+ 	if (!mode)
+ 		mode = S_IRUSR | S_IWUSR;
+-	
++
++	semanage_setfscreatecon(src);
++
+ 	mask = umask(0);
+ 	if ((out = open(tmp, O_WRONLY | O_CREAT | O_TRUNC, mode)) == -1) {
+ 		umask(mask);
+@@ -812,6 +814,7 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
+ 	}
+ 
+ 	if (stat(dst, &sb) != 0) {
++		semanage_setfscreatecon(src);
+ 		mask = umask(0077);
+ 		if (mkdir(dst, S_IRWXU) != 0) {
+ 			umask(mask);
+@@ -831,6 +834,7 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
+ 		snprintf(path2, sizeof(path2), "%s/%s", dst, names[i]->d_name);
+ 		if (S_ISDIR(sb.st_mode)) {
+ 			mask = umask(0077);
++			semanage_setfscreatecon(path);
+ 			if (mkdir(path2, 0700) == -1 ||
+ 			    semanage_copy_dir_flags(path, path2, flag) == -1) {
+ 				umask(mask);
+@@ -952,6 +956,24 @@ cleanup:
+ 	return status;
+ }
+ 
++/* Get file context of "path" and use it for the next file to be created.
++ * To be used for creating a sandbox labeled the same as the original SELinux store */
++int semanage_setfscreatecon(const char *path)
++{
++	int status = 0;
++	char *fcontext_raw = NULL;
++
++	if (getfilecon(path, &fcontext_raw) < 0){
++		fcontext_raw = NULL;
++	}
++
++	status = setfscreatecon_raw(fcontext_raw);
++
++	freecon(fcontext_raw);
++
++	return status;
++}
++
+ /********************* sandbox management routines *********************/
+ 
+ /* Creates a sandbox for a single client. Returns 0 if a
+diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
+index 1fc77da8..135e6ac6 100644
+--- a/libsemanage/src/semanage_store.h
++++ b/libsemanage/src/semanage_store.h
+@@ -124,6 +124,7 @@ int semanage_get_cil_paths(semanage_handle_t * sh, semanage_module_info_t *modin
+ int semanage_get_active_modules(semanage_handle_t *sh,
+ 			       semanage_module_info_t **modinfo, int *num_modules);
+ 
++int semanage_setfscreatecon(const char *path);
+ 
+ /* lock file routines */
+ int semanage_get_trans_lock(semanage_handle_t * sh);
+-- 
+2.43.0
 
