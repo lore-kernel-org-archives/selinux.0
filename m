@@ -1,28 +1,28 @@
 Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECAC116CD15;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F67F16CD1D;
 	Thu, 11 Jul 2024 11:14:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720696450; cv=none; b=QEvRsAQpY2A8wcvvBRdckmDjGpE69bLx/NJ81Oih4UltDYukU/giO5UcGojiylWKfyiuW1WuHDPXMToLI6fAn9cDfG5Tw1RkPh0FcJcooOSWb5hLupiUm37DL8z9ISwCXinJ3byTS/ATVbM7fFxf6W16IWnij6ggczluO8UGwiY=
+	t=1720696451; cv=none; b=mMOhKwWT3yMGNaSNXFLFUR+Eyl25sNzc871gLr1fjbt9+yBERsJapG7M1uP5np+gRV+sq2d4oomCAGXwv3BCmYRwOfGZmxzTkNPKxeDUnot9sx5evprLxUmwpZVTvFCUDbh2pFqq/eS/GW0zMHGTNNGo74q2mGL6QUwCqqDYkB0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720696450; c=relaxed/simple;
-	bh=N0sDjFXEOLrl+eei12YY3cVHVQCyQtATfXFXgVl4uRU=;
+	s=arc-20240116; t=1720696451; c=relaxed/simple;
+	bh=4aeLwWNHq/s0RMuojnFjDGBoFx4/hqYrejdNWWtuzgI=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=W24wm/Aw7d5j9hhImTBRvy/b+7K/7y8OuyjR41iwtzpuy8IAdxW19uYScDeQYYyGQqv0StkrLJxGI5y5kH99BeSJnharq6OeQvVOmMto9H8UqvofafKGgCXEi6LHxzxJMH6hXRZhUmtnPg2/XkKrlBpw1spK+J/I0tzfd5ad1Zs=
+	 MIME-Version; b=jf6+jDROQRhJYLXe5ape4KUFLmbOioa6RjKiFv2IBbQiT3VG9HrV17+k1b8epAagn+BdY/gb/QZzbLDEVNK4XnXa2wBjSpDovqWvRZxbHp4MY9nhSlUBVVSXxKxeNxaVoctL5Pq2iEkMU7wZ5zT5J6DB30My6qWJF0YDAyOVcYc=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
 Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4WKXCt4Svgz4f3kFQ;
+	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4WKXCt6f8qz4f3jXw;
 	Thu, 11 Jul 2024 19:13:46 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.128])
-	by mail.maildlp.com (Postfix) with ESMTP id 4A1A51A0170;
+	by mail.maildlp.com (Postfix) with ESMTP id 9713C1A0189;
 	Thu, 11 Jul 2024 19:13:58 +0800 (CST)
 Received: from k01.huawei.com (unknown [10.67.174.197])
-	by APP4 (Coremail) with SMTP id gCh0CgCHjPVxvo9mulQgBw--.25300S12;
-	Thu, 11 Jul 2024 19:13:57 +0800 (CST)
+	by APP4 (Coremail) with SMTP id gCh0CgCHjPVxvo9mulQgBw--.25300S14;
+	Thu, 11 Jul 2024 19:13:58 +0800 (CST)
 From: Xu Kuohai <xukuohai@huaweicloud.com>
 To: bpf@vger.kernel.org,
 	netdev@vger.kernel.org,
@@ -65,9 +65,9 @@ Cc: Alexei Starovoitov <ast@kernel.org>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH bpf-next v4 10/20] lsm: Refactor return value of LSM hook audit_rule_match
-Date: Thu, 11 Jul 2024 19:18:58 +0800
-Message-Id: <20240711111908.3817636-11-xukuohai@huaweicloud.com>
+Subject: [PATCH bpf-next v4 12/20] bpf, lsm: Enable BPF LSM prog to read/write return value parameters
+Date: Thu, 11 Jul 2024 19:19:00 +0800
+Message-Id: <20240711111908.3817636-13-xukuohai@huaweicloud.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
 References: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
@@ -78,11 +78,11 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:gCh0CgCHjPVxvo9mulQgBw--.25300S12
-X-Coremail-Antispam: 1UD129KBjvJXoW3Aw4UuF4xKr13Jw1xWw1rZwb_yoWDCw4kpF
-	1qvF4fArWkGF4xXrn7Ca42gr4Yvry3Cw1DCrZ8Cr1jkF9xJr1kGr48ZF4UGF95Wr45Awsa
-	vanrurZayr4DXrJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBSb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+X-CM-TRANSID:gCh0CgCHjPVxvo9mulQgBw--.25300S14
+X-Coremail-Antispam: 1UD129KBjvJXoWxAw47XFWxWF4rtr1UGF4Durg_yoWrKr13pF
+	4fJryFkr4vvrWag3ZrtFs5uFW5Jw40gw42ka9xXry0vF1jvr1rt3WUGryaqrW3KFyDJr1f
+	Kr429FWY9347ZFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUBIb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
 	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUAV
 	Cq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0
 	rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267
@@ -92,346 +92,149 @@ X-Coremail-Antispam: 1UD129KBjvJXoW3Aw4UuF4xKr13Jw1xWw1rZwb_yoWDCw4kpF
 	bVWUJVW8JwACjcxG0xvY0x0EwIxGrwACI402YVCY1x02628vn2kIc2xKxwCF04k20xvY0x
 	0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E
 	7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Wrv_Gr1UMIIYrxkI7VAKI48JMIIF0x
-	vE2Ix0cI8IcVAFwI0_Gr0_Xr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4UJVWxJr1lIxAI
-	cVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2js
-	IEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIevJa73UjIFyTuYvjxUFgAwUUUUU
+	vE2Ix0cI8IcVAFwI0_Gr0_Xr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26F4UJVW0owCI42IY
+	6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aV
+	CY1x0267AKxVWxJr0_GcJvcSsGvfC2KfnxnUUI43ZEXa7IU13l1DUUUUU==
 X-CM-SenderInfo: 50xn30hkdlqx5xdzvxpfor3voofrz/
 
 From: Xu Kuohai <xukuohai@huawei.com>
 
-To be consistent with most LSM hooks, convert the return value of
-hook audit_rule_match to 0 or a negative error code.
+Output parameters are used to refactor the LSM hook return values.
+To make these hooks usable by bpf prog, it is necessary for bpf prog
+to read and write these output return value parameters.
 
-Before:
-- Hook audit_rule_match returns 1 if the rule matches, 0 if it not,
-  and negative error code otherwise.
-
-After:
-- Hook audit_rule_match returns 0 on success or a negative error
-  code on failure. An output parameter @match is introduced to hold
-  the match result on success.
+All return value parameters are added as the last parameter and are
+always pointers to integer types. This patch uses BTF ID list to
+specify which LMS hooks have return value parameters and enables bpf
+prog to read/write the last parameters of these hooks in the verifier.
 
 Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
 ---
- include/linux/lsm_hook_defs.h     |  3 +-
- security/apparmor/audit.c         | 22 ++++++-------
- security/apparmor/include/audit.h |  2 +-
- security/security.c               | 15 ++++++++-
- security/selinux/include/audit.h  |  8 +++--
- security/selinux/ss/services.c    | 54 +++++++++++++++++--------------
- security/smack/smack_lsm.c        | 19 +++++++----
- 7 files changed, 75 insertions(+), 48 deletions(-)
+ include/linux/bpf_lsm.h |  6 ++++++
+ kernel/bpf/bpf_lsm.c    | 15 +++++++++++++++
+ kernel/bpf/btf.c        | 16 +++++++++++++++-
+ kernel/bpf/verifier.c   | 33 ++++++++++++++++++++++++++++++++-
+ 4 files changed, 68 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
-index 54fec360947c..6b521744a23b 100644
---- a/include/linux/lsm_hook_defs.h
-+++ b/include/linux/lsm_hook_defs.h
-@@ -418,7 +418,8 @@ LSM_HOOK(void, LSM_RET_VOID, key_post_create_or_update, struct key *keyring,
- LSM_HOOK(int, 0, audit_rule_init, u32 field, u32 op, char *rulestr,
- 	 void **lsmrule, gfp_t gfp)
- LSM_HOOK(int, 0, audit_rule_known, struct audit_krule *krule)
--LSM_HOOK(int, 0, audit_rule_match, u32 secid, u32 field, u32 op, void *lsmrule)
-+LSM_HOOK(int, 0, audit_rule_match, u32 secid, u32 field, u32 op, void *lsmrule,
-+	 bool *match)
- LSM_HOOK(void, LSM_RET_VOID, audit_rule_free, void *lsmrule)
- #endif /* CONFIG_AUDIT */
+diff --git a/include/linux/bpf_lsm.h b/include/linux/bpf_lsm.h
+index 1de7ece5d36d..73e1f6dbec4a 100644
+--- a/include/linux/bpf_lsm.h
++++ b/include/linux/bpf_lsm.h
+@@ -45,6 +45,8 @@ void bpf_inode_storage_free(struct inode *inode);
  
-diff --git a/security/apparmor/audit.c b/security/apparmor/audit.c
-index 6b5181c668b5..352a183b3325 100644
---- a/security/apparmor/audit.c
-+++ b/security/apparmor/audit.c
-@@ -264,11 +264,11 @@ int aa_audit_rule_known(struct audit_krule *rule)
- 	return 0;
- }
+ void bpf_lsm_find_cgroup_shim(const struct bpf_prog *prog, bpf_func_t *bpf_func);
  
--int aa_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule)
-+int aa_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule, bool *match)
- {
- 	struct aa_audit_rule *rule = vrule;
- 	struct aa_label *label;
--	int found = 0;
-+	bool found = false;
- 
- 	label = aa_secid_to_label(sid);
- 
-@@ -276,16 +276,14 @@ int aa_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule)
- 		return -ENOENT;
- 
- 	if (aa_label_is_subset(label, rule->label))
--		found = 1;
-+		found = true;
++bool bpf_lsm_has_retval_param(const struct bpf_prog *prog);
 +
-+	if (field == AUDIT_SUBJ_ROLE && op == Audit_equal)
-+		*match = found;
-+	else if (field == AUDIT_SUBJ_ROLE && op == Audit_not_equal)
-+		*match = !found;
-+	else
-+		*match = false;
+ #else /* !CONFIG_BPF_LSM */
  
--	switch (field) {
--	case AUDIT_SUBJ_ROLE:
--		switch (op) {
--		case Audit_equal:
--			return found;
--		case Audit_not_equal:
--			return !found;
--		}
--	}
- 	return 0;
- }
-diff --git a/security/apparmor/include/audit.h b/security/apparmor/include/audit.h
-index 0c8cc86b417b..a227741f33c8 100644
---- a/security/apparmor/include/audit.h
-+++ b/security/apparmor/include/audit.h
-@@ -202,6 +202,6 @@ static inline int complain_error(int error)
- void aa_audit_rule_free(void *vrule);
- int aa_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule, gfp_t gfp);
- int aa_audit_rule_known(struct audit_krule *rule);
--int aa_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule);
-+int aa_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule, bool *match);
- 
- #endif /* __AA_AUDIT_H */
-diff --git a/security/security.c b/security/security.c
-index 2c161101074d..5e9de8d0cdde 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -5450,7 +5450,20 @@ void security_audit_rule_free(void *lsmrule)
-  */
- int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule)
+ static inline bool bpf_lsm_is_sleepable_hook(u32 btf_id)
+@@ -78,6 +80,10 @@ static inline void bpf_lsm_find_cgroup_shim(const struct bpf_prog *prog,
  {
--	return call_int_hook(audit_rule_match, secid, field, op, lsmrule);
-+	int rc;
-+	bool match = false;
-+	struct security_hook_list *hp;
-+
-+	hlist_for_each_entry(hp, &security_hook_heads.audit_rule_match, list) {
-+		rc = hp->hook.audit_rule_match(secid, field, op, lsmrule,
-+					       &match);
-+		if (rc < 0)
-+			return rc;
-+		if (match)
-+			break;
-+	}
-+
-+	return match;
- }
- #endif /* CONFIG_AUDIT */
- 
-diff --git a/security/selinux/include/audit.h b/security/selinux/include/audit.h
-index 29c7d4c86f6d..2d0799270426 100644
---- a/security/selinux/include/audit.h
-+++ b/security/selinux/include/audit.h
-@@ -45,11 +45,13 @@ void selinux_audit_rule_free(void *rule);
-  *	@field: the field this rule refers to
-  *	@op: the operator the rule uses
-  *	@rule: pointer to the audit rule to check against
-+ *	@match: if the context id matches the rule
-  *
-- *	Returns 1 if the context id matches the rule, 0 if it does not, and
-- *	-errno on failure.
-+ *	Returns 0 on success and -errno on failure. @match holds the match
-+ *	result.
-  */
--int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *rule);
-+int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *rule,
-+			     bool *match);
- 
- /**
-  *	selinux_audit_rule_known - check to see if rule contains selinux fields.
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index e33e55384b75..2946d28a25b1 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -3633,29 +3633,32 @@ int selinux_audit_rule_known(struct audit_krule *rule)
- 	return 0;
  }
  
--int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule)
-+int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule,
-+			     bool *match)
- {
- 	struct selinux_state *state = &selinux_state;
- 	struct selinux_policy *policy;
- 	struct context *ctxt;
- 	struct mls_level *level;
- 	struct selinux_audit_rule *rule = vrule;
--	int match = 0;
-+	int rc = 0;
++static inline bool bpf_lsm_has_retval_param(const struct bpf_prog *prog)
++{
++	return false;
++}
+ #endif /* CONFIG_BPF_LSM */
  
- 	if (unlikely(!rule)) {
- 		WARN_ONCE(1, "selinux_audit_rule_match: missing rule\n");
- 		return -ENOENT;
- 	}
+ #endif /* _LINUX_BPF_LSM_H */
+diff --git a/kernel/bpf/bpf_lsm.c b/kernel/bpf/bpf_lsm.c
+index e5feb6560fe6..a8f8358c77e3 100644
+--- a/kernel/bpf/bpf_lsm.c
++++ b/kernel/bpf/bpf_lsm.c
+@@ -405,3 +405,18 @@ const struct bpf_verifier_ops lsm_verifier_ops = {
+ 	.get_func_proto = bpf_lsm_func_proto,
+ 	.is_valid_access = btf_ctx_access,
+ };
++
++BTF_SET_START(retval_param_lsm_hooks)
++BTF_ID(func, bpf_lsm_inode_need_killpriv)
++BTF_ID(func, bpf_lsm_inode_getsecurity)
++BTF_ID(func, bpf_lsm_inode_listsecurity)
++BTF_ID(func, bpf_lsm_getselfattr)
++BTF_ID(func, bpf_lsm_key_getsecurity)
++BTF_ID(func, bpf_lsm_audit_rule_match)
++BTF_SET_END(retval_param_lsm_hooks)
++
++bool bpf_lsm_has_retval_param(const struct bpf_prog *prog)
++{
++	return btf_id_set_contains(&retval_param_lsm_hooks,
++				   prog->aux->attach_btf_id);
++}
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index 4ff11779699e..df299d600b10 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -6499,8 +6499,22 @@ bool btf_ctx_access(int off, int size, enum bpf_access_type type,
+ 		 */
+ 		return true;
  
--	if (!selinux_initialized())
-+	if (!selinux_initialized()) {
-+		*match = false;
- 		return 0;
+-	if (is_int_ptr(btf, t))
++
++	if (is_int_ptr(btf, t)) {
++		/* the retval param for LSM hook is always the last param. */
++		if (arg == nr_args - 1 &&
++		    prog->expected_attach_type == BPF_LSM_MAC &&
++		    bpf_lsm_has_retval_param(prog)) {
++			u32 id;
++
++			btf_type_skip_modifiers(btf, t->type, &id);
++			info->btf = btf;
++			/* the retval param should never be NULL */
++			info->reg_type = PTR_TO_BTF_ID | PTR_TRUSTED;
++			info->btf_id = id;
++		}
+ 		return true;
 +	}
  
- 	rcu_read_lock();
- 
- 	policy = rcu_dereference(state->policy);
- 
- 	if (rule->au_seqno < policy->latest_granting) {
--		match = -ESTALE;
-+		rc = -ESTALE;
- 		goto out;
+ 	/* this is a pointer to another type */
+ 	for (i = 0; i < prog->aux->ctx_arg_info_size; i++) {
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index c0263fb5ca4b..a0bbef2d14e4 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -6527,7 +6527,38 @@ static int check_ptr_to_btf_access(struct bpf_verifier_env *env,
+ 		return -EACCES;
  	}
  
-@@ -3663,7 +3666,7 @@ int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule)
- 	if (unlikely(!ctxt)) {
- 		WARN_ONCE(1, "selinux_audit_rule_match: unrecognized SID %d\n",
- 			  sid);
--		match = -ENOENT;
-+		rc = -ENOENT;
- 		goto out;
- 	}
- 
-@@ -3674,10 +3677,10 @@ int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule)
- 	case AUDIT_OBJ_USER:
- 		switch (op) {
- 		case Audit_equal:
--			match = (ctxt->user == rule->au_ctxt.user);
-+			rc = (ctxt->user == rule->au_ctxt.user);
- 			break;
- 		case Audit_not_equal:
--			match = (ctxt->user != rule->au_ctxt.user);
-+			rc = (ctxt->user != rule->au_ctxt.user);
- 			break;
- 		}
- 		break;
-@@ -3685,10 +3688,10 @@ int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule)
- 	case AUDIT_OBJ_ROLE:
- 		switch (op) {
- 		case Audit_equal:
--			match = (ctxt->role == rule->au_ctxt.role);
-+			rc = (ctxt->role == rule->au_ctxt.role);
- 			break;
- 		case Audit_not_equal:
--			match = (ctxt->role != rule->au_ctxt.role);
-+			rc = (ctxt->role != rule->au_ctxt.role);
- 			break;
- 		}
- 		break;
-@@ -3696,10 +3699,10 @@ int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule)
- 	case AUDIT_OBJ_TYPE:
- 		switch (op) {
- 		case Audit_equal:
--			match = (ctxt->type == rule->au_ctxt.type);
-+			rc = (ctxt->type == rule->au_ctxt.type);
- 			break;
- 		case Audit_not_equal:
--			match = (ctxt->type != rule->au_ctxt.type);
-+			rc = (ctxt->type != rule->au_ctxt.type);
- 			break;
- 		}
- 		break;
-@@ -3712,39 +3715,42 @@ int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule)
- 			 &ctxt->range.level[0] : &ctxt->range.level[1]);
- 		switch (op) {
- 		case Audit_equal:
--			match = mls_level_eq(&rule->au_ctxt.range.level[0],
--					     level);
-+			rc = mls_level_eq(&rule->au_ctxt.range.level[0],
-+					  level);
- 			break;
- 		case Audit_not_equal:
--			match = !mls_level_eq(&rule->au_ctxt.range.level[0],
--					      level);
-+			rc = !mls_level_eq(&rule->au_ctxt.range.level[0],
-+					   level);
- 			break;
- 		case Audit_lt:
--			match = (mls_level_dom(&rule->au_ctxt.range.level[0],
--					       level) &&
-+			rc = (mls_level_dom(&rule->au_ctxt.range.level[0],
-+					    level) &&
- 				 !mls_level_eq(&rule->au_ctxt.range.level[0],
- 					       level));
- 			break;
- 		case Audit_le:
--			match = mls_level_dom(&rule->au_ctxt.range.level[0],
--					      level);
-+			rc = mls_level_dom(&rule->au_ctxt.range.level[0],
-+					   level);
- 			break;
- 		case Audit_gt:
--			match = (mls_level_dom(level,
--					      &rule->au_ctxt.range.level[0]) &&
-+			rc = (mls_level_dom(level,
-+					    &rule->au_ctxt.range.level[0]) &&
- 				 !mls_level_eq(level,
- 					       &rule->au_ctxt.range.level[0]));
- 			break;
- 		case Audit_ge:
--			match = mls_level_dom(level,
--					      &rule->au_ctxt.range.level[0]);
-+			rc = mls_level_dom(level,
-+					   &rule->au_ctxt.range.level[0]);
- 			break;
- 		}
- 	}
- 
- out:
- 	rcu_read_unlock();
--	return match;
-+	if (rc < 0)
-+		return rc;
-+	*match = !!rc;
-+	return 0;
- }
- 
- static int aurule_avc_callback(u32 event)
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 9a121ad53b16..ea0f0cf11ff3 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -4764,11 +4764,15 @@ static int smack_audit_rule_known(struct audit_krule *krule)
-  * @field: audit rule flags given from user-space
-  * @op: required testing operator
-  * @vrule: smack internal rule presentation
-+ * @match: the match result
-  *
-  * The core Audit hook. It's used to take the decision of
-  * whether to audit or not to audit a given object.
-+ *
-+ * Returns 0 on success or negative error code on failure.
-  */
--static int smack_audit_rule_match(u32 secid, u32 field, u32 op, void *vrule)
-+static int smack_audit_rule_match(u32 secid, u32 field, u32 op, void *vrule,
-+				  bool *match)
- {
- 	struct smack_known *skp;
- 	char *rule = vrule;
-@@ -4778,8 +4782,10 @@ static int smack_audit_rule_match(u32 secid, u32 field, u32 op, void *vrule)
- 		return -ENOENT;
- 	}
- 
--	if (field != AUDIT_SUBJ_USER && field != AUDIT_OBJ_USER)
-+	if (field != AUDIT_SUBJ_USER && field != AUDIT_OBJ_USER) {
-+		*match = false;
- 		return 0;
-+	}
- 
- 	skp = smack_from_secid(secid);
- 
-@@ -4789,10 +4795,11 @@ static int smack_audit_rule_match(u32 secid, u32 field, u32 op, void *vrule)
- 	 * label.
- 	 */
- 	if (op == Audit_equal)
--		return (rule == skp->smk_known);
--	if (op == Audit_not_equal)
--		return (rule != skp->smk_known);
--
-+		*match = (rule == skp->smk_known);
-+	else if (op == Audit_not_equal)
-+		*match = (rule != skp->smk_known);
-+	else
-+		*match = false;
- 	return 0;
- }
- 
+-	if (env->ops->btf_struct_access && !type_is_alloc(reg->type) && atype == BPF_WRITE) {
++	if (btf_type_is_int(t)) {
++		u32 tsize;
++		const char *tname;
++		const struct btf_type *err;
++		const char *access = atype == BPF_READ ? "read" : "write";
++
++		/* only BPF LSM is allowed */
++		if (WARN_ON_ONCE(env->prog->expected_attach_type != BPF_LSM_MAC)) {
++			verbose(env, "verifier internal error: not BPF LSM\n");
++			return -EACCES;
++		}
++
++		tname = btf_name_by_offset(reg->btf, t->name_off);
++		if (off != 0) {
++			verbose(env, "invalid %s offset: %d (expected 0, type=%s)\n",
++				access, off, tname);
++			return -EACCES;
++		}
++
++		err = btf_resolve_size(reg->btf, t, &tsize);
++		if (IS_ERR(err)) {
++			verbose(env, "unable to resolve the size of type '%s': %ld\n",
++				tname, PTR_ERR(err));
++			return PTR_ERR(err);
++		}
++		if (size != tsize) {
++			verbose(env, "invalid %s size: %d (expected %u, type=%s)\n",
++				access, size, tsize, tname);
++			return -EACCES;
++		}
++		ret = SCALAR_VALUE;
++	} else if (env->ops->btf_struct_access && !type_is_alloc(reg->type) && atype == BPF_WRITE) {
+ 		if (!btf_is_kernel(reg->btf)) {
+ 			verbose(env, "verifier internal error: reg->btf must be kernel btf\n");
+ 			return -EFAULT;
 -- 
 2.30.2
 
