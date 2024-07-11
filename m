@@ -1,26 +1,27 @@
 Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4892F15F318;
-	Thu, 11 Jul 2024 11:33:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FB6715F3E0;
+	Thu, 11 Jul 2024 11:33:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720697597; cv=none; b=fAHarFmmwOnf3xW2gfSUk1ovMPW1WDOVpbeXf0a5pmnSl98wUR4Aa3A5WlaIm2v2Ws/VzWqPAjTTB5ztgzmhmeNkrcSKLSCxp175mKYomTd4POfJhk8yoswhfKkkeHOXW3lI2SQB0GlYyo/Lzo/Vq2T8twJU2QQkQ7UpUsEgS2M=
+	t=1720697597; cv=none; b=snQG0aNXjwWQtySuxtyAHpFBV1UlwADe/cZrKxTJcFkjOcdqA9ZsGo2DRB7ABbbLEyT44JCG/DcCtG0E+1kHDHdL8VDp1P39yGcsY7SLl/DHxowvJ17sknZ18xbzJsVB/3anPpODPsoPuCtlkOE87rvuiFoMVXFPI1bjIn6rXGU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1720697597; c=relaxed/simple;
-	bh=U/aVWd6GcCcklvM0eKm4aTu1GkOwloBt3ViFsr52kvc=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=p+NqO5Ol6APBE7sqfORSd5tWgKySjzfLxEFiRdEIjbG3LJF0RDfjHpEh3ZH8LI8J2y/YMIaZDasLRO3V3tNgRwU6cKQ8GzPBujjffZp7XuoeciWkn62qNrEE6og/1CvVzOSpz8aBC/yWCNMJtweqskdF8o00Mi/3NYAKFPf/KCw=
+	bh=zs+2mWRYQI/XTsMgKhZLe2dAzb2JMQ34yleDE47r7Ck=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=nOA8ImqZe0FKNIYpqiO6T4m/jrle7zmLClS+GVQwnWBI+K1VCAflbdNJrocHcCAP17Jnuq2vWB6TJPSDdYUh01teR7xrD+JGD/YlaYYVrtgfLE3SkNK5oHs8LuD8WmkUVBHXgLtTfPPQXVFPTHcp+S+wJazrS0hYMg7njM5DHgA=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
 Received: from mail.maildlp.com (unknown [172.19.163.235])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WKXf70MWFz4f3kKV;
-	Thu, 11 Jul 2024 19:33:03 +0800 (CST)
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WKXf86yL9z4f3kKY;
+	Thu, 11 Jul 2024 19:33:04 +0800 (CST)
 Received: from mail02.huawei.com (unknown [10.116.40.128])
-	by mail.maildlp.com (Postfix) with ESMTP id AFA8E1A058E;
-	Thu, 11 Jul 2024 19:33:10 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTP id 9FBA41A06D6;
+	Thu, 11 Jul 2024 19:33:12 +0800 (CST)
 Received: from k01.huawei.com (unknown [10.67.174.197])
-	by APP4 (Coremail) with SMTP id gCh0CgDXKvT0wo9mzI8hBw--.25380S2;
+	by APP4 (Coremail) with SMTP id gCh0CgDXKvT0wo9mzI8hBw--.25380S5;
 	Thu, 11 Jul 2024 19:33:10 +0800 (CST)
 From: Xu Kuohai <xukuohai@huaweicloud.com>
 To: bpf@vger.kernel.org,
@@ -64,10 +65,12 @@ Cc: Alexei Starovoitov <ast@kernel.org>,
 	Jakub Kicinski <kuba@kernel.org>,
 	Paolo Abeni <pabeni@redhat.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH bpf-next v4 13/20] bpf, lsm: Add check for BPF LSM return value
-Date: Thu, 11 Jul 2024 19:38:21 +0800
-Message-Id: <20240711113828.3818398-1-xukuohai@huaweicloud.com>
+Subject: [PATCH bpf-next v4 16/20] bpf: Add a special case for bitwise AND on range [-1, 0]
+Date: Thu, 11 Jul 2024 19:38:24 +0800
+Message-Id: <20240711113828.3818398-4-xukuohai@huaweicloud.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20240711113828.3818398-1-xukuohai@huaweicloud.com>
+References: <20240711113828.3818398-1-xukuohai@huaweicloud.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -75,282 +78,284 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:gCh0CgDXKvT0wo9mzI8hBw--.25380S2
-X-Coremail-Antispam: 1UD129KBjvJXoW3Wr1UAr1rGrykuFW8Ar4xJFb_yoWfArWxpF
-	sxGryDAr4vvrW3uFnrtan7ZF1rJry0g3yIkF9rGryFyFWav3s5XF1qgryjvr1fCrWDCw1x
-	Gr4jgrW5u347ZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUkIb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7Cj
-	xVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I
-	0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-	x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-	0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IY
-	c2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s
-	026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26rWY6r4UJwCIc40Y0x0EwIxGrwCI
-	42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42
-	IY6xAIw20EY4v20xvaj40_Wr1j6rW3Jr1lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2
-	z280aVCY1x0267AKxVWxJr0_GcJvcSsGvfC2KfnxnUUI43ZEXa7IU1c4S7UUUUU==
+X-CM-TRANSID:gCh0CgDXKvT0wo9mzI8hBw--.25380S5
+X-Coremail-Antispam: 1UD129KBjvJXoWfGF17ZryrtFyfZF1kWF13CFg_yoWDuFW7pF
+	ZxGrnxWw4kAayUZwnFyan8ArZYvF48Aa18C3srA340vry3WFy5Kr15WFyjyasxAr4kGr4S
+	qFnxX3y2kw4UZFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUB2b4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUWw
+	A2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
+	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
+	W8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMc
+	Ij6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_
+	Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij64
+	vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8G
+	jcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26rWY6r4UJwCIc40Y0x0EwIxGrwCI42IY6x
+	IIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UMIIF0xvE
+	42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6x
+	kF7I0E14v26F4UJVW0obIYCTnIWIevJa73UjIFyTuYvjxUFYFCUUUUU
 X-CM-SenderInfo: 50xn30hkdlqx5xdzvxpfor3voofrz/
 
 From: Xu Kuohai <xukuohai@huawei.com>
 
-A bpf prog returning a positive number attached to file_alloc_security
-hook makes kernel panic.
+With lsm return value check, the no-alu32 version test_libbpf_get_fd_by_id_opts
+is rejected by the verifier, and the log says:
 
-This happens because file system can not filter out the positive number
-returned by the LSM prog using IS_ERR, and misinterprets this positive
-number as a file pointer.
+0: R1=ctx() R10=fp0
+; int BPF_PROG(check_access, struct bpf_map *map, fmode_t fmode) @ test_libbpf_get_fd_by_id_opts.c:27
+0: (b7) r0 = 0                        ; R0_w=0
+1: (79) r2 = *(u64 *)(r1 +0)
+func 'bpf_lsm_bpf_map' arg0 has btf_id 916 type STRUCT 'bpf_map'
+2: R1=ctx() R2_w=trusted_ptr_bpf_map()
+; if (map != (struct bpf_map *)&data_input) @ test_libbpf_get_fd_by_id_opts.c:29
+2: (18) r3 = 0xffff9742c0951a00       ; R3_w=map_ptr(map=data_input,ks=4,vs=4)
+4: (5d) if r2 != r3 goto pc+4         ; R2_w=trusted_ptr_bpf_map() R3_w=map_ptr(map=data_input,ks=4,vs=4)
+; int BPF_PROG(check_access, struct bpf_map *map, fmode_t fmode) @ test_libbpf_get_fd_by_id_opts.c:27
+5: (79) r0 = *(u64 *)(r1 +8)          ; R0_w=scalar() R1=ctx()
+; if (fmode & FMODE_WRITE) @ test_libbpf_get_fd_by_id_opts.c:32
+6: (67) r0 <<= 62                     ; R0_w=scalar(smax=0x4000000000000000,umax=0xc000000000000000,smin32=0,smax32=umax32=0,var_off=(0x0; 0xc000000000000000))
+7: (c7) r0 s>>= 63                    ; R0_w=scalar(smin=smin32=-1,smax=smax32=0)
+;  @ test_libbpf_get_fd_by_id_opts.c:0
+8: (57) r0 &= -13                     ; R0_w=scalar(smax=0x7ffffffffffffff3,umax=0xfffffffffffffff3,smax32=0x7ffffff3,umax32=0xfffffff3,var_off=(0x0; 0xfffffffffffffff3))
+; int BPF_PROG(check_access, struct bpf_map *map, fmode_t fmode) @ test_libbpf_get_fd_by_id_opts.c:27
+9: (95) exit
 
-Given that hook file_alloc_security never returned positive number
-before the introduction of BPF LSM, and other BPF LSM hooks may
-encounter similar issues, this patch adds LSM return value check
-in verifier, to ensure no unexpected value is returned.
+And here is the C code of the prog.
 
-Fixes: 520b7aa00d8c ("bpf: lsm: Initialize the BPF LSM hooks")
-Reported-by: Xin Liu <liuxin350@huawei.com>
+SEC("lsm/bpf_map")
+int BPF_PROG(check_access, struct bpf_map *map, fmode_t fmode)
+{
+    if (map != (struct bpf_map *)&data_input)
+	    return 0;
+
+    if (fmode & FMODE_WRITE)
+	    return -EACCES;
+
+    return 0;
+}
+
+It is clear that the prog can only return either 0 or -EACCESS, and both
+values are legal.
+
+So why is it rejected by the verifier?
+
+The verifier log shows that the second if and return value setting
+statements in the prog is optimized to bitwise operations "r0 s>>= 63"
+and "r0 &= -13". The verifier correctly deduces that the value of
+r0 is in the range [-1, 0] after verifing instruction "r0 s>>= 63".
+But when the verifier proceeds to verify instruction "r0 &= -13", it
+fails to deduce the correct value range of r0.
+
+7: (c7) r0 s>>= 63                    ; R0_w=scalar(smin=smin32=-1,smax=smax32=0)
+8: (57) r0 &= -13                     ; R0_w=scalar(smax=0x7ffffffffffffff3,umax=0xfffffffffffffff3,smax32=0x7ffffff3,umax32=0xfffffff3,var_off=(0x0; 0xfffffffffffffff3))
+
+So why the verifier fails to deduce the result of 'r0 &= -13'?
+
+The verifier uses tnum to track values, and the two ranges "[-1, 0]" and
+"[0, -1ULL]" are encoded to the same tnum. When verifing instruction
+"r0 &= -13", the verifier erroneously deduces the result from
+"[0, -1ULL] AND -13", which is out of the expected return range
+[-4095, 0].
+
+As explained by Eduard in [0], the clang transformation that generates this
+pattern is located in DAGCombiner::SimplifySelectCC() method (see [1]).
+
+The transformation happens as a part of DAG to DAG rewrites
+(LLVM uses several internal representations:
+ - generic optimizer uses LLVM IR, most of the work is done
+   using this representation;
+ - before instruction selection IR is converted to Selection DAG,
+   some optimizations are applied at this stage,
+   all such optimizations are a set of pattern replacements;
+ - Selection DAG is converted to machine code, some optimizations
+   are applied at the machine code level).
+
+Full pattern is described as follows:
+
+  // fold (select_cc seteq (and x, y), 0, 0, A) -> (and (sra (shl x)) A)
+  // where y is has a single bit set.
+  // A plaintext description would be, we can turn the SELECT_CC into an AND
+  // when the condition can be materialized as an all-ones register.  Any
+  // single bit-test can be materialized as an all-ones register with
+  // shift-left and shift-right-arith.
+
+For this particular test case the DAG is converted as follows:
+
+                    .---------------- lhs         The meaning of this select_cc is:
+                    |        .------- rhs         `lhs == rhs ? true value : false value`
+                    |        | .----- true value
+                    |        | |  .-- false value
+                    v        v v  v
+  (select_cc seteq (and X 2) 0 0 -13)
+                          ^
+->                        '---------------.
+  (and (sra (sll X 62) 63)                |
+       -13)                               |
+                                          |
+Before pattern is applied, it checks that second 'and' operand has
+only one bit set, (which is true for '2').
+
+The pattern itself generates logical shift left / arithmetic shift
+right pair, that ensures that result is either all ones (-1) or all
+zeros (0). Hence, applying 'and' to shifts result and false value
+generates a correct result.
+
+As suggested by Eduard and Andrii, this patch makes a special case
+for source or destination register of '&=' operation being in
+range [-1, 0].
+
+Meaning that one of the '&=' operands is either:
+- all ones, in which case the counterpart is the result of the operation;
+- all zeros, in which case zero is the result of the operation.
+
+That is, the result is equivalent to adding 0 to the counterpart. And MIN
+and MAX values could be deduced based on these observations.
+
+[0] https://lore.kernel.org/bpf/e62e2971301ca7f2e9eb74fc500c520285cad8f5.camel@gmail.com/
+[1] https://github.com/llvm/llvm-project/blob/4523a267829c807f3fc8fab8e5e9613985a51565/llvm/lib/CodeGen/SelectionDAG/DAGCombiner.cpp
+
+Suggested-by: Eduard Zingerman <eddyz87@gmail.com>
+Suggested-by: Andrii Nakryiko <andrii@kernel.org>
 Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
-Acked-by: Eduard Zingerman <eddyz87@gmail.com>
 ---
- include/linux/bpf.h     |  1 +
- include/linux/bpf_lsm.h |  9 +++++++
- kernel/bpf/bpf_lsm.c    | 30 ++++++++++++++++++++-
- kernel/bpf/btf.c        |  5 +++-
- kernel/bpf/verifier.c   | 60 ++++++++++++++++++++++++++++++++++-------
- 5 files changed, 94 insertions(+), 11 deletions(-)
+ include/linux/tnum.h  |  3 ++
+ kernel/bpf/tnum.c     | 25 +++++++++++++++++
+ kernel/bpf/verifier.c | 64 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 92 insertions(+)
 
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index 4f1d4a97b9d1..d255201035c4 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -927,6 +927,7 @@ struct bpf_insn_access_aux {
- 		};
- 	};
- 	struct bpf_verifier_log *log; /* for verbose logs */
-+	bool is_retval; /* is accessing function return value ? */
- };
+diff --git a/include/linux/tnum.h b/include/linux/tnum.h
+index 3c13240077b8..5e795d728b9f 100644
+--- a/include/linux/tnum.h
++++ b/include/linux/tnum.h
+@@ -52,6 +52,9 @@ struct tnum tnum_mul(struct tnum a, struct tnum b);
+ /* Return a tnum representing numbers satisfying both @a and @b */
+ struct tnum tnum_intersect(struct tnum a, struct tnum b);
  
- static inline void
-diff --git a/include/linux/bpf_lsm.h b/include/linux/bpf_lsm.h
-index 73e1f6dbec4a..ca5f2176c940 100644
---- a/include/linux/bpf_lsm.h
-+++ b/include/linux/bpf_lsm.h
-@@ -9,6 +9,7 @@
++/* Return a tnum representing numbers satisfying either @a or @b */
++struct tnum tnum_union(struct tnum a, struct tnum b);
++
+ /* Return @a with all but the lowest @size bytes cleared */
+ struct tnum tnum_cast(struct tnum a, u8 size);
  
- #include <linux/sched.h>
- #include <linux/bpf.h>
-+#include <linux/bpf_verifier.h>
- #include <linux/lsm_hooks.h>
+diff --git a/kernel/bpf/tnum.c b/kernel/bpf/tnum.c
+index 9dbc31b25e3d..8028ce06fc1e 100644
+--- a/kernel/bpf/tnum.c
++++ b/kernel/bpf/tnum.c
+@@ -150,6 +150,31 @@ struct tnum tnum_intersect(struct tnum a, struct tnum b)
+ 	return TNUM(v & ~mu, mu);
+ }
  
- #ifdef CONFIG_BPF_LSM
-@@ -47,6 +48,8 @@ void bpf_lsm_find_cgroup_shim(const struct bpf_prog *prog, bpf_func_t *bpf_func)
- 
- bool bpf_lsm_has_retval_param(const struct bpf_prog *prog);
- 
-+int bpf_lsm_get_retval_range(const struct bpf_prog *prog,
-+			     struct bpf_retval_range *range);
- #else /* !CONFIG_BPF_LSM */
- 
- static inline bool bpf_lsm_is_sleepable_hook(u32 btf_id)
-@@ -84,6 +87,12 @@ static inline bool bpf_lsm_has_retval_param(const struct bpf_prog *prog)
++/* Each bit has 3 states: unknown, known 0, known 1. Using x to represent
++ * unknown state, the result of the union of two bits is as follows:
++ *
++ *         | x    0    1
++ *    -----+------------
++ *     x   | x    x    x
++ *     0   | x    0    x
++ *     1   | x    x    1
++ *
++ * For tnum a and b, only the bits that are both known 0 or known 1 in a
++ * and b are known in the result of union a and b.
++ */
++struct tnum tnum_union(struct tnum a, struct tnum b)
++{
++	u64 v0, v1, mu;
++
++	/* unknown bits either in a or b */
++	mu = a.mask | b.mask;
++	/* "known 1" bits in both a and b */
++	v1 = (a.value & b.value) & ~mu;
++	/* "known 0" bits in both a and b */
++	v0 = (~a.value & ~b.value) & ~mu;
++	return TNUM(v1, ~(v0 | v1));
++}
++
+ struct tnum tnum_cast(struct tnum a, u8 size)
  {
- 	return false;
- }
-+
-+static inline int bpf_lsm_get_retval_range(const struct bpf_prog *prog,
-+					   struct bpf_retval_range *range)
-+{
-+	return -EOPNOTSUPP;
-+}
- #endif /* CONFIG_BPF_LSM */
- 
- #endif /* _LINUX_BPF_LSM_H */
-diff --git a/kernel/bpf/bpf_lsm.c b/kernel/bpf/bpf_lsm.c
-index a8f8358c77e3..9dd338099d4a 100644
---- a/kernel/bpf/bpf_lsm.c
-+++ b/kernel/bpf/bpf_lsm.c
-@@ -11,7 +11,6 @@
- #include <linux/lsm_hooks.h>
- #include <linux/bpf_lsm.h>
- #include <linux/kallsyms.h>
--#include <linux/bpf_verifier.h>
- #include <net/bpf_sk_storage.h>
- #include <linux/bpf_local_storage.h>
- #include <linux/btf_ids.h>
-@@ -420,3 +419,32 @@ bool bpf_lsm_has_retval_param(const struct bpf_prog *prog)
- 	return btf_id_set_contains(&retval_param_lsm_hooks,
- 				   prog->aux->attach_btf_id);
- }
-+
-+/* hooks return 0 or 1 */
-+BTF_SET_START(bool_lsm_hooks)
-+BTF_ID(func, bpf_lsm_xfrm_state_pol_flow_match)
-+BTF_ID(func, bpf_lsm_audit_rule_known)
-+BTF_ID(func, bpf_lsm_inode_xattr_skipcap)
-+BTF_SET_END(bool_lsm_hooks)
-+
-+int bpf_lsm_get_retval_range(const struct bpf_prog *prog,
-+			     struct bpf_retval_range *retval_range)
-+{
-+	/* no return value range for void hooks */
-+	if (!prog->aux->attach_func_proto->type)
-+		return -EINVAL;
-+
-+	if (btf_id_set_contains(&bool_lsm_hooks, prog->aux->attach_btf_id)) {
-+		retval_range->minval = 0;
-+		retval_range->maxval = 1;
-+	} else {
-+		/* All other LSM hooks, except task_prctl, return 0 on success
-+		 * and negative error code on failure.
-+		 * To keep things simple, we only allow bpf progs to return 0
-+		 * or negative errno for task_prctl.
-+		 */
-+		retval_range->minval = -MAX_ERRNO;
-+		retval_range->maxval = 0;
-+	}
-+	return 0;
-+}
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index df299d600b10..ce892565367d 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -6416,8 +6416,11 @@ bool btf_ctx_access(int off, int size, enum bpf_access_type type,
- 
- 	if (arg == nr_args) {
- 		switch (prog->expected_attach_type) {
--		case BPF_LSM_CGROUP:
- 		case BPF_LSM_MAC:
-+			/* mark we are accessing the return value */
-+			info->is_retval = true;
-+			fallthrough;
-+		case BPF_LSM_CGROUP:
- 		case BPF_TRACE_FEXIT:
- 			/* When LSM programs are attached to void LSM hooks
- 			 * they use FEXIT trampolines and when attached to
+ 	a.value &= (1ULL << (size * 8)) - 1;
 diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index a0bbef2d14e4..6f5d8ca995d6 100644
+index 19ef3d27dbb7..7f4ee3b95f4e 100644
 --- a/kernel/bpf/verifier.c
 +++ b/kernel/bpf/verifier.c
-@@ -2334,6 +2334,25 @@ static void mark_reg_unknown(struct bpf_verifier_env *env,
- 	__mark_reg_unknown(env, regs + regno);
- }
+@@ -13632,6 +13632,39 @@ static void scalar32_min_max_and(struct bpf_reg_state *dst_reg,
+ 		return;
+ 	}
  
-+static int __mark_reg_s32_range(struct bpf_verifier_env *env,
-+				struct bpf_reg_state *regs,
-+				u32 regno,
-+				s32 s32_min,
-+				s32 s32_max)
-+{
-+	struct bpf_reg_state *reg = regs + regno;
-+
-+	reg->s32_min_value = max_t(s32, reg->s32_min_value, s32_min);
-+	reg->s32_max_value = min_t(s32, reg->s32_max_value, s32_max);
-+
-+	reg->smin_value = max_t(s64, reg->smin_value, s32_min);
-+	reg->smax_value = min_t(s64, reg->smax_value, s32_max);
-+
-+	reg_bounds_sync(reg);
-+
-+	return reg_bounds_sanity_check(env, reg, "s32_range");
-+}
-+
- static void __mark_reg_not_init(const struct bpf_verifier_env *env,
- 				struct bpf_reg_state *reg)
- {
-@@ -5587,11 +5606,12 @@ static int check_packet_access(struct bpf_verifier_env *env, u32 regno, int off,
- /* check access to 'struct bpf_context' fields.  Supports fixed offsets only */
- static int check_ctx_access(struct bpf_verifier_env *env, int insn_idx, int off, int size,
- 			    enum bpf_access_type t, enum bpf_reg_type *reg_type,
--			    struct btf **btf, u32 *btf_id)
-+			    struct btf **btf, u32 *btf_id, bool *is_retval)
- {
- 	struct bpf_insn_access_aux info = {
- 		.reg_type = *reg_type,
- 		.log = &env->log,
-+		.is_retval = false,
- 	};
- 
- 	if (env->ops->is_valid_access &&
-@@ -5604,6 +5624,7 @@ static int check_ctx_access(struct bpf_verifier_env *env, int insn_idx, int off,
- 		 * type of narrower access.
- 		 */
- 		*reg_type = info.reg_type;
-+		*is_retval = info.is_retval;
- 
- 		if (base_type(*reg_type) == PTR_TO_BTF_ID) {
- 			*btf = info.btf;
-@@ -6803,6 +6824,17 @@ static int check_stack_access_within_bounds(
- 	return grow_stack_state(env, state, -min_off /* size */);
- }
- 
-+static bool get_func_retval_range(struct bpf_prog *prog,
-+				  struct bpf_retval_range *range)
-+{
-+	if (prog->type == BPF_PROG_TYPE_LSM &&
-+		prog->expected_attach_type == BPF_LSM_MAC &&
-+		!bpf_lsm_get_retval_range(prog, range)) {
-+		return true;
++	/* special case: dst_reg is in range [-1, 0] */
++	if (dst_reg->s32_min_value == -1 && dst_reg->s32_max_value == 0) {
++		/* the result is equivalent to adding 0 to src_reg */
++		var32_off = tnum_union(src_reg->var_off, tnum_const(0));
++		dst_reg->var_off = tnum_with_subreg(dst_reg->var_off, var32_off);
++		/* update signed min/max to include 0 */
++		dst_reg->s32_min_value = min_t(s32, src_reg->s32_min_value, 0);
++		dst_reg->s32_max_value = max_t(s32, src_reg->s32_max_value, 0);
++		/* since we're adding 0 to src_reg and 0 is the smallest
++		 * unsigned integer, dst_reg->u32_min_value should be 0,
++		 * and dst->u32_max_value should be src_reg->u32_max_value.
++		 */
++		dst_reg->u32_min_value = 0;
++		dst_reg->u32_max_value = src_reg->u32_max_value;
++		return;
 +	}
-+	return false;
-+}
 +
- /* check whether memory at (regno + off) is accessible for t = (read | write)
-  * if t==write, value_regno is a register which value is stored into memory
-  * if t==read, value_regno is a register which will receive the value from memory
-@@ -6907,6 +6939,8 @@ static int check_mem_access(struct bpf_verifier_env *env, int insn_idx, u32 regn
- 		if (!err && value_regno >= 0 && (t == BPF_READ || rdonly_mem))
- 			mark_reg_unknown(env, regs, value_regno);
- 	} else if (reg->type == PTR_TO_CTX) {
-+		bool is_retval = false;
-+		struct bpf_retval_range range;
- 		enum bpf_reg_type reg_type = SCALAR_VALUE;
- 		struct btf *btf = NULL;
- 		u32 btf_id = 0;
-@@ -6922,7 +6956,7 @@ static int check_mem_access(struct bpf_verifier_env *env, int insn_idx, u32 regn
- 			return err;
++	/* special case: src_reg is in range [-1, 0] */
++	if (src_reg->s32_min_value == -1 && src_reg->s32_max_value == 0) {
++		/* the result is equivalent to adding 0 to dst_reg */
++		var32_off = tnum_union(dst_reg->var_off, tnum_const(0));
++		dst_reg->var_off = tnum_with_subreg(dst_reg->var_off, var32_off);
++		/* update signed min/max to include 0 */
++		dst_reg->s32_min_value = min_t(s32, dst_reg->s32_min_value, 0);
++		dst_reg->s32_max_value = max_t(s32, dst_reg->s32_max_value, 0);
++		/* since we're adding 0 to dst_reg and 0 is the smallest
++		 * unsigned integer, dst_reg->u32_min_value should be 0,
++		 * and dst->u32_max_value should remain unchanged.
++		 */
++		dst_reg->u32_min_value = 0;
++		return;
++	}
++
+ 	/* We get our minimum from the var_off, since that's inherently
+ 	 * bitwise.  Our maximum is the minimum of the operands' maxima.
+ 	 */
+@@ -13662,6 +13695,37 @@ static void scalar_min_max_and(struct bpf_reg_state *dst_reg,
+ 		return;
+ 	}
  
- 		err = check_ctx_access(env, insn_idx, off, size, t, &reg_type, &btf,
--				       &btf_id);
-+				       &btf_id, &is_retval);
- 		if (err)
- 			verbose_linfo(env, insn_idx, "; ");
- 		if (!err && t == BPF_READ && value_regno >= 0) {
-@@ -6931,7 +6965,14 @@ static int check_mem_access(struct bpf_verifier_env *env, int insn_idx, u32 regn
- 			 * case, we know the offset is zero.
- 			 */
- 			if (reg_type == SCALAR_VALUE) {
--				mark_reg_unknown(env, regs, value_regno);
-+				if (is_retval && get_func_retval_range(env->prog, &range)) {
-+					err = __mark_reg_s32_range(env, regs, value_regno,
-+								   range.minval, range.maxval);
-+					if (err)
-+						return err;
-+				} else {
-+					mark_reg_unknown(env, regs, value_regno);
-+				}
- 			} else {
- 				mark_reg_known_zero(env, regs,
- 						    value_regno);
-@@ -15782,12 +15823,13 @@ static int check_return_code(struct bpf_verifier_env *env, int regno, const char
- 
- 	case BPF_PROG_TYPE_LSM:
- 		if (env->prog->expected_attach_type != BPF_LSM_CGROUP) {
--			/* Regular BPF_PROG_TYPE_LSM programs can return
--			 * any value.
--			 */
--			return 0;
--		}
--		if (!env->prog->aux->attach_func_proto->type) {
-+			/* no range found, any return value is allowed */
-+			if (!get_func_retval_range(env->prog, &range))
-+				return 0;
-+			/* no restricted range, any return value is allowed */
-+			if (range.minval == S32_MIN && range.maxval == S32_MAX)
-+				return 0;
-+		} else if (!env->prog->aux->attach_func_proto->type) {
- 			/* Make sure programs that attach to void
- 			 * hooks don't try to modify return value.
- 			 */
++	/* special case: dst_reg is in range [-1, 0] */
++	if (dst_reg->smin_value == -1 && dst_reg->smax_value == 0) {
++		/* the result is equivalent to adding 0 to src_reg */
++		dst_reg->var_off = tnum_union(src_reg->var_off, tnum_const(0));
++		/* update signed min/max to include 0 */
++		dst_reg->smin_value = min_t(s64, src_reg->smin_value, 0);
++		dst_reg->smax_value = max_t(s64, src_reg->smax_value, 0);
++		/* since we're adding 0 to src_reg and 0 is the smallest
++		 * unsigned integer, dst_reg->umin_value should be 0,
++		 * and dst->umax_value should be src_reg->umax_value.
++		 */
++		dst_reg->umin_value = 0;
++		dst_reg->umax_value = src_reg->umax_value;
++		return;
++	}
++
++	/* special case: src_reg is in range [-1, 0] */
++	if (src_reg->smin_value == -1 && src_reg->smax_value == 0) {
++		/* the result is equivalent to adding 0 to dst_reg */
++		dst_reg->var_off = tnum_union(dst_reg->var_off, tnum_const(0));
++		/* update signed min/max to include 0 */
++		dst_reg->smin_value = min_t(s64, dst_reg->smin_value, 0);
++		dst_reg->smax_value = max_t(s64, dst_reg->smax_value, 0);
++		/* since we're adding 0 to dst_reg and 0 is the smallest
++		 * unsigned integer, dst_reg->min_value should be 0,
++		 * and dst->umax_value should remain unchanged.
++		 */
++		dst_reg->umin_value = 0;
++		return;
++	}
++
+ 	/* We get our minimum from the var_off, since that's inherently
+ 	 * bitwise.  Our maximum is the minimum of the operands' maxima.
+ 	 */
 -- 
 2.30.2
 
