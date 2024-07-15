@@ -1,110 +1,98 @@
-Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
+Received: from smtpbguseast1.qq.com (smtpbguseast1.qq.com [54.204.34.129])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FE301DFE3;
-	Sat, 13 Jul 2024 08:11:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88443290F;
+	Mon, 15 Jul 2024 01:44:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.204.34.129
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720858274; cv=none; b=KeHgHRKnW3bnIw/H+nk7QcqCKJNVL1DRBsHrzIE1umJIwDslOLNIwY9QjRFWjuRUwW1nxBu+EE32P3mcqFcmom2RfqN3wPxp0mVIy2nWsCbtXKjxiZepfrrtwbpZJpCX8bu7Rh2i5qlNd0meVvYPYWmNttCLZjASCTLAEnjlBJ8=
+	t=1721007881; cv=none; b=C9vgKqndzB12d30EUGVoHiICT3Uiqem8FlVROziOANemY+cN/kBDfdNtOVV237SCu3I2rRyHfFbURZKfCEtUP2LUsnYg13dtYKq0oRLKa10L8sApZ9JX7Nb5F78OxjsTCOP7qvN3PNdLSS4s5GHiowiQJXHp1RbwAwDQQve3gpk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720858274; c=relaxed/simple;
-	bh=v6WEaM18t7QWAOiNkCtdqwMsvabTvhmPFPEIsnakkHw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bjHCar3ogmEoV/JeueFAWSTXPiXXkdH9ijtyLSMksKkS5k/Sj+MY/h1Jvx8wcyF9VcFkUMkqx1tfL4nPAhmx4qsMryFMkHa84NURXsBr930KIM7ZYjV48CbPWiy7llEFSwzxsUPB6fetyrih9yvQf4dKdfll9j53xXiA/c6qEEY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WLh452CFQz4f3jM1;
-	Sat, 13 Jul 2024 16:11:01 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.128])
-	by mail.maildlp.com (Postfix) with ESMTP id 130DE1A0185;
-	Sat, 13 Jul 2024 16:11:09 +0800 (CST)
-Received: from [10.67.111.192] (unknown [10.67.111.192])
-	by APP4 (Coremail) with SMTP id gCh0CgAnLfacNpJmR8bRBw--.46904S2;
-	Sat, 13 Jul 2024 16:11:08 +0800 (CST)
-Message-ID: <92b895d4-8831-404b-98f3-3f42edbc5331@huaweicloud.com>
-Date: Sat, 13 Jul 2024 16:11:08 +0800
+	s=arc-20240116; t=1721007881; c=relaxed/simple;
+	bh=V62w8GmPEyje0BfH2PKxWDXBgc8ScthNi/hzQ10jYOU=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=rKxmGNw95KnZhzPDMNyIGiJfmwKubqChjhqFmWCf1mjcYkl1jvRg5dDcOxIHqxyGtwaeeYcZb6zSGx8fpJ/av3uN0V+yUIL+sU/KVlhZQixrVh15HoO/6ihg7tdGsQNopvCnk41daGAlfYiGLR8CHhvSg2ioh2DU36XUY7iOl8Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; arc=none smtp.client-ip=54.204.34.129
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
+X-QQ-mid: bizesmtp88t1721007824tvqed058
+X-QQ-Originating-IP: Gpw8fkTxvPMza9jqqXkPs1WFicvFvYzz2LygZIJ7LEs=
+Received: from localhost.localdomain ( [61.183.83.60])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Mon, 15 Jul 2024 09:43:40 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 14221635385899329361
+From: Canfeng Guo <guocanfeng@uniontech.com>
+To: paul@paul-moore.com
+Cc: stephen.smalley.work@gmail.com,
+	omosnace@redhat.com,
+	selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Canfeng Guo <guocanfeng@uniontech.com>
+Subject: [RPC] Topic: Issues and Testing Regarding SELinx AVC Cache Modification
+Date: Mon, 15 Jul 2024 09:43:37 +0800
+Message-Id: <20240715014337.11625-1-guocanfeng@uniontech.com>
+X-Mailer: git-send-email 2.20.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH bpf-next v4 11/20] bpf, lsm: Add disabled BPF LSM hook
- list
-Content-Language: en-US
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: bpf@vger.kernel.org, netdev@vger.kernel.org,
- linux-security-module@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-integrity@vger.kernel.org, apparmor@lists.ubuntu.com,
- selinux@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
- Andrii Nakryiko <andrii@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman
- <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
- Yonghong Song <yonghong.song@linux.dev>,
- John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
- Stanislav Fomichev <sdf@google.com>, Hao Luo <haoluo@google.com>,
- Jiri Olsa <jolsa@kernel.org>, Matt Bobrowski <mattbobrowski@google.com>,
- Brendan Jackman <jackmanb@chromium.org>, Paul Moore <paul@paul-moore.com>,
- James Morris <jmorris@namei.org>, "Serge E . Hallyn" <serge@hallyn.com>,
- Khadija Kamran <kamrankhadijadj@gmail.com>,
- Casey Schaufler <casey@schaufler-ca.com>,
- Ondrej Mosnacek <omosnace@redhat.com>, Kees Cook <keescook@chromium.org>,
- John Johansen <john.johansen@canonical.com>,
- Lukas Bulwahn <lukas.bulwahn@gmail.com>,
- Roberto Sassu <roberto.sassu@huawei.com>,
- Shung-Hsi Yu <shung-hsi.yu@suse.com>, Edward Cree <ecree.xilinx@gmail.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>,
- Trond Myklebust <trond.myklebust@hammerspace.com>,
- Anna Schumaker <anna@kernel.org>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>
-References: <20240711111908.3817636-1-xukuohai@huaweicloud.com>
- <20240711111908.3817636-12-xukuohai@huaweicloud.com>
- <qjrf5c6f24b6ef5tpvpz75uxp6ro6mhos34ovssinv4yxjwyz3@nvs75o5sywgx>
-From: Xu Kuohai <xukuohai@huaweicloud.com>
-In-Reply-To: <qjrf5c6f24b6ef5tpvpz75uxp6ro6mhos34ovssinv4yxjwyz3@nvs75o5sywgx>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID:gCh0CgAnLfacNpJmR8bRBw--.46904S2
-X-Coremail-Antispam: 1UD129KBjvdXoWruFyDtrWxuF1rKw4kXFWDJwb_yoW3GFb_ur
-	yjv3srtw1ftwn3AF4F9F42gFWUuw4vgFy5W345Wr98XryfZF95Za1kGrs5AFWUJFWvvFy2
-	9F1fJanFgw42qjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUb28YFVCjjxCrM7AC8VAFwI0_Wr0E3s1l1xkIjI8I6I8E6xAIw20E
-	Y4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwV
-	A0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x02
-	67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I
-	0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-	x7xfMcIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-	0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-	64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-	8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26rWY6r4UJwCIc40Y0x0EwIxGrwCI42IY
-	6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UMIIF0x
-	vE42xK8VAvwI8IcIk0rVW3JVWrJr1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280
-	aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x07UQZ2-UUUUU=
-X-CM-SenderInfo: 50xn30hkdlqx5xdzvxpfor3voofrz/
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:uniontech.com:qybglogicsvrsz:qybglogicsvrsz4a-0
 
-On 7/13/2024 1:56 AM, Alexei Starovoitov wrote:
-> On Thu, Jul 11, 2024 at 07:18:59PM +0800, Xu Kuohai wrote:
->> From: Xu Kuohai <xukuohai@huawei.com>
->>
->> Add a disabled hooks list for BPF LSM. progs being attached to the
->> listed hooks will be rejected by the verifier.
->>
->> Suggested-by: KP Singh <kpsingh@kernel.org>
->> Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
-> 
-> Xu,
-> 
-> The patches 11 and higher are mostly independent from lsm refactoring.
-> Please send them as a separate patchset for bpf-next.
-> While lsm cleanups are being reviewed this lsm_disabled list can be
-> a bit larger temporarily.
-> 
+When calling avc_insert to add nodes to the avc cache, they are inserted into
+the head of the hash chain. Similarly, avc_calim_node removes nodes from
+the head of the same chain. so, SElinux will delete the latest added cache
+infromation.
 
-It's great to separate patches unrelated to bpf by temporarily extending
-the lsm disabled list. I'll post an update. Thanks!
+I question whether the deletion logic proposed in the patch is more appropriate
+than the current implementation, or whether alternative mechanisms such as
+LRU caching are beneficial.
+
+In my testing environment, I applied the above patch when avc_cache.solt and
+cache_threshold were both set to 512 by default. I only have over 280 nodes
+in my cache, and the longest observation length of the AVC cache linked list
+is only 7 entries. Considering this small size, the cost of traversing the
+list is minimal, and such modifications may not incur additional costs.
+
+However, I don't know how to design a test case to verify its cost.
+And I cannot prove that this patch is beneficial.
+
+I attempted to simulate a more demanding scenario by increasing the cache_threshold
+to 2048 in order to establish a longer linked list of AVC caches, but
+I was unable to generate more than 2048 AVC records, possibly due to the need
+for a highly complex environment with numerous different SID interactions.
+
+Therefore, I have two questions:
+The necessity of modification:
+     Considering its potential impact on the cache performance of SELinx AVC,
+     is it worth investing effort into this modification?, i think that in most cases,
+     this modification is not necessart.
+Verification method:
+     If making such modifications is reasonable, how can I effectively
+     measure its impact on system performance?
+
+Signed-off-by: Canfeng Guo <guocanfeng@uniontech.com>
+---
+ security/selinux/avc.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 32eb67fb3e42..9999028660c9 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -477,6 +477,9 @@ static inline int avc_reclaim_node(void)
+ 
+ 		rcu_read_lock();
+ 		hlist_for_each_entry(node, head, list) {
++			while(node->next){
++				node = node->next;
++			}
+ 			avc_node_delete(node);
+ 			avc_cache_stats_incr(reclaims);
+ 			ecx++;
+-- 
+2.20.1
 
