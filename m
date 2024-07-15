@@ -1,66 +1,66 @@
 Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D94D18D4DC;
-	Mon, 15 Jul 2024 13:46:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA8DC1836D4;
+	Mon, 15 Jul 2024 13:49:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721051196; cv=none; b=ti/zbBb51ZrVf7d0EWO48QByQScVCQxKHZWljPiylUsDHl3cBMiX3/aiUQ0aRh3m69Yn9C3BQGpha1iu+OEVUyi6H/vMsRXaA0i3Bo5nIxc31fzJM/RzHAIIN8YpkYbQd9H6E3EJIhd2mFEvb51mtGRYGGj1uo+oL5Ns43JXOAk=
+	t=1721051342; cv=none; b=RKGQXUbOwzlNJJknChYLJ83KDR1xq51EndL2FUCZcMJw6sHiVyouFeBEpjqD/3haJxxtOI/NZe5j3CNjw4z9JxfLeDsVOBLzg08SMj5kXfJz6zIGPGTCrf52XBpHd2hSjtdfUyQiUGWM9z73EwA+dJgGyvaxK13oenazzuSfOkA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721051196; c=relaxed/simple;
-	bh=YvL4YXqVSR1PItB+6Eqr2+mQsw8VIIqpi/djcgEfun8=;
+	s=arc-20240116; t=1721051342; c=relaxed/simple;
+	bh=zzuThzXYlJ/GaRfHe0avY0Bw+EU6dUkMNpcSbCAKOes=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Y7ANNbbySlcA6eWbuY9EiIargO+R34J0WuM5+2BTvq+InOZNtqyQl5iIAe0t426T7Mt8jOWJFmyDEeLXkVGx7/bvWK180tkKWj3EOB6a/n80eUroRkQbc9NYJaxnwyYO+PinLVCjlFf//wugadY0Wec7uO8bHfwUJRlaMEKtmZM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ShEh6Y6w; arc=none smtp.client-ip=209.85.216.43
+	 To:Cc:Content-Type; b=huU7ipcxBeP5hWkrdM1ucGnlNaFZgE/1AdBxK126LKSR4jCziSYkJUmU+WGBpgLY9RJAnLVdGmdezHnrz6IOIbI/iC57YG4g2kAWxfHdsqVVEXf5Jf/uNHMZ2t5rKomwZd24jOANoKYJdvABKWdey+CtYq27BrbHH/vK5k6ihJQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C2YjZkkd; arc=none smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ShEh6Y6w"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-2c98b080012so2754520a91.1;
-        Mon, 15 Jul 2024 06:46:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C2YjZkkd"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-2c7fa0c9a8cso2759753a91.1;
+        Mon, 15 Jul 2024 06:49:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1721051194; x=1721655994; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1721051340; x=1721656140; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vYPHXexHkJ1Ep0UzTGnk/51UGHdb19RaEhRtZ797P/M=;
-        b=ShEh6Y6wuPJJcYoLdNJQ1YjPQoBDiLUfZd/Wdzak2CZFoFld+CYRt7Td3EHMwUk46U
-         sYhe3cCj10w/LAzW0xpD87cZN6cw/81UmcZslcHq/QB6A0TAgTXAmYeCW8aTYesi32zy
-         r1i084FuCmFvnF6J+yQkMM6hhX01WxWf456AkrbFoX6Nvt1yp0aBCG/y2ogc80W1DOVk
-         DyX5c28/qXXJ1Z8XPH3Nbii87UP63D8c19/XGhnnog4lkphKdvh1ytMuYmSy6zvxRzvd
-         JZeLP9mGr4egdvqqm6tfNMrzQkiSG03F04Trcy03iTFbs22ZwhHBkKdP7exRWKHJCNHP
-         o9cw==
+        bh=Qkf5os42Dm8jX0sOdellctfINgtVkON6TdrliUvcwxs=;
+        b=C2YjZkkdz6xe4599m5rlCo7AJ6bQVAcE81AAMwhyQnykmO4xBbiQwMVVz6QtqQ5Gp4
+         elKO/C/98gEdhBLlpnrf1TPoHng4uShj8ZBl9hHytyFrFUMZVNwjemVjF/PfL0UG01lC
+         BYNXMwjTLkjar3nQ2PpiyO+7huADs6bELoTTvd1qCuqbXd1rHesZCCBBAL7aQxx/uQMs
+         rRRlAowrTxZROuKxQnbph6XKuI9HL5NxBSLR7p+AVBBNTWyy0sglsclr2bqzdReWGIOz
+         if0qplBnUOAy8ECbmP5ZjYV0+EXQfhCmX2vHg3U6p4KxUj2eX5sM2HAj1Xi2JAfXTk0z
+         C7xg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721051194; x=1721655994;
+        d=1e100.net; s=20230601; t=1721051340; x=1721656140;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vYPHXexHkJ1Ep0UzTGnk/51UGHdb19RaEhRtZ797P/M=;
-        b=Iqe7tEXH81QoY1NLvBoY7fMdDH37nTbgojD8GQj8nldvoIKVnmokShEJddiG2cNfyc
-         hRpnTXGX7j6T6ttD2E1Wf1zewwOX4RTMF9DvpzZnL9/rUpj8WopFnt65UDr/eFDLCqKr
-         jtThmz/P+Y884phusGJc8hlDS8ujdL4g6yu//FY8XVFdZuoFCzDOrAnUgqRdFAIOBDNN
-         v7SuUBz4IbJfvXTfAW1/iT8f+tOM6l1FveL7dHq0/969RhcYEWE3wsBuXtrsLBgg3pZk
-         PufV1H2MH3uENlcO8xtetMxQ3DtrVd8dugsSgf73+7A5kd0Ed/tWuy8R7RU2Fkm+psae
-         zf1A==
-X-Forwarded-Encrypted: i=1; AJvYcCXc/MGBtd5mm3iecXq9YMySx+jXTMJUaMirsQSLuU9XxEOwpcayXeBiFWTMYbQpKiM34YCCzBYs9eAVNbM9bH6cV3MjDPi2FqNogrPVgEPuMtYGqJRB6uC54T1/zTbACv5VynMPNg==
-X-Gm-Message-State: AOJu0Yz2nmME9M3bayVfKqKKg3baotKqIpEexbuduSOZNG/XJ7bogiTn
-	OVOyhku6qDnEqmftPlIXGgbzKk8D2Nq6rz73uDwjBUnAx6u7l6ZD0lH5YODS6ZSbCaR20o2uyUe
-	dLtdEpgDuiC0Hki4jlvr1kK7Tr3c=
-X-Google-Smtp-Source: AGHT+IEI5AJkkZe6XMXeQ3BLcWtESRb1oTt5ylKqwyUiaCZy2nC0cdJYHEAifCfKSeqW+q4KNofYJgxLitysVaRPC5M=
-X-Received: by 2002:a17:90b:4b02:b0:2c8:e3e6:ec99 with SMTP id
- 98e67ed59e1d1-2ca35d5c69emr12984909a91.43.1721051194152; Mon, 15 Jul 2024
- 06:46:34 -0700 (PDT)
+        bh=Qkf5os42Dm8jX0sOdellctfINgtVkON6TdrliUvcwxs=;
+        b=qT/Y7yjjbDd0GxQamjz1aYOqflzRGszWJHx1sDMTbAmBA7L2CQ1L1kMGuC5arKomaE
+         3Ftrr5zc+PgjP01TRoq6ihPZ5S01RmDwzcFshv2mNLcXEw0A95fO1GuF3RAj9uWdJK1v
+         1Fvu3Vd5yYGsmnu208rCmIJd1hxfynN6ncxWdB799Lstfa89aDg2oSfme/esvOS1Z143
+         fsV522r2E0wy5GRmvw07lYO1mVmnSMxL4gLTHYK0b6vRNCCRZAFiZkNn5mWQFtCUmisw
+         y8cPeW3rJIo9HFVaCRgvIvzBUd9hfzZn1oL1zsvQQCbSdVPqGvNfD+fSkfgY622DAPys
+         /AVQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWTVnX7uObLv01bP91Z4iF49lFXgnR20qHoqWSKnqIs1ebDf9vqnlf0VwFBVZpj16Jl52Ejvk61gTcIyDkIi6M4sPQtBXSP0uSiOQCpkSwHQtNFCF+b5fAD0wZkMJo0XZySxguzqg==
+X-Gm-Message-State: AOJu0Yy21TUEywHnFPqtBOXKwNTkpHcf+lts0iZoHeUBjZvOPoTY/jJz
+	prBxynSV7vIDqx8ZsT1H74oUZ0Up9wXzl+MJKWksEf8NPC+nUj2q2dP/HHm/C2QCdOIx5SR9+dI
+	cxZstjc9YxlMO2ubKlwf6VOHS4+o=
+X-Google-Smtp-Source: AGHT+IHeR541bjAyXv2mzJ6Kqq1p3KEfUX7Ote4V8WvlSlLE3R+aboe3V6yUd6n4Kr5vKPTDvXJSnxMOCPz7tSHCBOc=
+X-Received: by 2002:a17:90b:3d2:b0:2c9:67f5:3fae with SMTP id
+ 98e67ed59e1d1-2ca35c72bbamr12256088a91.28.1721051340039; Mon, 15 Jul 2024
+ 06:49:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240715014337.11625-1-guocanfeng@uniontech.com>
-In-Reply-To: <20240715014337.11625-1-guocanfeng@uniontech.com>
+References: <20240715014337.11625-1-guocanfeng@uniontech.com> <CAEjxPJ7QqEG+wyQfuPeDu0JqvjRCvbtVzZ6qtzwc-YwGz=mLjQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7QqEG+wyQfuPeDu0JqvjRCvbtVzZ6qtzwc-YwGz=mLjQ@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 15 Jul 2024 09:46:22 -0400
-Message-ID: <CAEjxPJ7QqEG+wyQfuPeDu0JqvjRCvbtVzZ6qtzwc-YwGz=mLjQ@mail.gmail.com>
+Date: Mon, 15 Jul 2024 09:48:48 -0400
+Message-ID: <CAEjxPJ5pLoGYWJpn5PijRzFVGkLeUcm=m_1AOSe6AXXWiaJ0ZA@mail.gmail.com>
 Subject: Re: [RPC] Topic: Issues and Testing Regarding SELinx AVC Cache Modification
 To: Canfeng Guo <guocanfeng@uniontech.com>
 Cc: paul@paul-moore.com, omosnace@redhat.com, selinux@vger.kernel.org, 
@@ -68,82 +68,67 @@ Cc: paul@paul-moore.com, omosnace@redhat.com, selinux@vger.kernel.org,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jul 14, 2024 at 9:44=E2=80=AFPM Canfeng Guo <guocanfeng@uniontech.c=
-om> wrote:
+On Mon, Jul 15, 2024 at 9:46=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> When calling avc_insert to add nodes to the avc cache, they are inserted =
-into
-> the head of the hash chain. Similarly, avc_calim_node removes nodes from
-> the head of the same chain. so, SElinux will delete the latest added cach=
-e
-> infromation.
+> On Sun, Jul 14, 2024 at 9:44=E2=80=AFPM Canfeng Guo <guocanfeng@uniontech=
+.com> wrote:
+> >
+> > When calling avc_insert to add nodes to the avc cache, they are inserte=
+d into
+> > the head of the hash chain. Similarly, avc_calim_node removes nodes fro=
+m
+> > the head of the same chain. so, SElinux will delete the latest added ca=
+che
+> > infromation.
+> >
+> > I question whether the deletion logic proposed in the patch is more app=
+ropriate
+> > than the current implementation, or whether alternative mechanisms such=
+ as
+> > LRU caching are beneficial.
+> >
+> > In my testing environment, I applied the above patch when avc_cache.sol=
+t and
+> > cache_threshold were both set to 512 by default. I only have over 280 n=
+odes
+> > in my cache, and the longest observation length of the AVC cache linked=
+ list
+> > is only 7 entries. Considering this small size, the cost of traversing =
+the
+> > list is minimal, and such modifications may not incur additional costs.
+> >
+> > However, I don't know how to design a test case to verify its cost.
+> > And I cannot prove that this patch is beneficial.
+> >
+> > I attempted to simulate a more demanding scenario by increasing the cac=
+he_threshold
+> > to 2048 in order to establish a longer linked list of AVC caches, but
+> > I was unable to generate more than 2048 AVC records, possibly due to th=
+e need
+> > for a highly complex environment with numerous different SID interactio=
+ns.
+> >
+> > Therefore, I have two questions:
+> > The necessity of modification:
+> >      Considering its potential impact on the cache performance of SELin=
+x AVC,
+> >      is it worth investing effort into this modification?, i think that=
+ in most cases,
+> >      this modification is not necessart.
 >
-> I question whether the deletion logic proposed in the patch is more appro=
-priate
-> than the current implementation, or whether alternative mechanisms such a=
-s
-> LRU caching are beneficial.
+> I don't think it is desirable or necessary. The current logic prunes
+> the least recently used bucket and intentionally reclaims multiple
+> nodes at a time.
 >
-> In my testing environment, I applied the above patch when avc_cache.solt =
-and
-> cache_threshold were both set to 512 by default. I only have over 280 nod=
-es
-> in my cache, and the longest observation length of the AVC cache linked l=
-ist
-> is only 7 entries. Considering this small size, the cost of traversing th=
-e
-> list is minimal, and such modifications may not incur additional costs.
+> > Verification method:
+> >      If making such modifications is reasonable, how can I effectively
+> >      measure its impact on system performance?
 >
-> However, I don't know how to design a test case to verify its cost.
-> And I cannot prove that this patch is beneficial.
->
-> I attempted to simulate a more demanding scenario by increasing the cache=
-_threshold
-> to 2048 in order to establish a longer linked list of AVC caches, but
-> I was unable to generate more than 2048 AVC records, possibly due to the =
-need
-> for a highly complex environment with numerous different SID interactions=
-.
->
-> Therefore, I have two questions:
-> The necessity of modification:
->      Considering its potential impact on the cache performance of SELinx =
-AVC,
->      is it worth investing effort into this modification?, i think that i=
-n most cases,
->      this modification is not necessart.
+> The selinux-testsuite exercises many security contexts and thus should
+> enable reaching higher numbers of AVC nodes.
 
-I don't think it is desirable or necessary. The current logic prunes
-the least recently used bucket and intentionally reclaims multiple
-nodes at a time.
-
-> Verification method:
->      If making such modifications is reasonable, how can I effectively
->      measure its impact on system performance?
-
-The selinux-testsuite exercises many security contexts and thus should
-enable reaching higher numbers of AVC nodes.
-
->
-> Signed-off-by: Canfeng Guo <guocanfeng@uniontech.com>
-> ---
->  security/selinux/avc.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index 32eb67fb3e42..9999028660c9 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -477,6 +477,9 @@ static inline int avc_reclaim_node(void)
->
->                 rcu_read_lock();
->                 hlist_for_each_entry(node, head, list) {
-> +                       while(node->next){
-> +                               node =3D node->next;
-> +                       }
->                         avc_node_delete(node);
->                         avc_cache_stats_incr(reclaims);
->                         ecx++;
-> --
-> 2.20.1
->
+Other, more real-world ways of exercising many security contexts would
+be to launch many containers or VMs on a Fedora or RHEL system using
+their integrated support for per-container or per-VM SELinux security
+contexts.
