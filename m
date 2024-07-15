@@ -1,134 +1,97 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA8DC1836D4;
-	Mon, 15 Jul 2024 13:49:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF3796A33A
+	for <selinux@vger.kernel.org>; Mon, 15 Jul 2024 19:17:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721051342; cv=none; b=RKGQXUbOwzlNJJknChYLJ83KDR1xq51EndL2FUCZcMJw6sHiVyouFeBEpjqD/3haJxxtOI/NZe5j3CNjw4z9JxfLeDsVOBLzg08SMj5kXfJz6zIGPGTCrf52XBpHd2hSjtdfUyQiUGWM9z73EwA+dJgGyvaxK13oenazzuSfOkA=
+	t=1721071058; cv=none; b=CsZVp1akk4Le33qhmGc/oO1mj/Pl2eiK19LuoBIw5Q2v7VPp6Wkv4uUUnatHT1YIlUINlT2CMA/Jo65amgmOHhHWazcIRaI5yhBC5Usic2myznZbe5/7O6tM5EynQ6QOM8b4N3nvKXCOUVAYJLuswxGd1D2t7mX5fs0OK2eEcFA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721051342; c=relaxed/simple;
-	bh=zzuThzXYlJ/GaRfHe0avY0Bw+EU6dUkMNpcSbCAKOes=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=huU7ipcxBeP5hWkrdM1ucGnlNaFZgE/1AdBxK126LKSR4jCziSYkJUmU+WGBpgLY9RJAnLVdGmdezHnrz6IOIbI/iC57YG4g2kAWxfHdsqVVEXf5Jf/uNHMZ2t5rKomwZd24jOANoKYJdvABKWdey+CtYq27BrbHH/vK5k6ihJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C2YjZkkd; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1721071058; c=relaxed/simple;
+	bh=Bsmpc0VdJCgXbGMhJy9C704JLK3m+Ax9F8TxdmjI7ZQ=;
+	h=Date:Message-ID:From:To:Cc:Subject; b=pPe4wElvmFy2FL/cgUVzWuNiolfvDpWTwc44e8HnI6kMD8l1ExY8EKBs/PAJoAua7uuKSvDnTep/p/vSr/kHF0bVPo+uYCmIQPIyx0s1UA50rxt8oQ2DPLWXm5hepVvn1IX/VZ8BLG7e47q7UjU2qYiVM9gNuLPPt9fiizMm7AQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=TUoy4Dq8; arc=none smtp.client-ip=209.85.222.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C2YjZkkd"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-2c7fa0c9a8cso2759753a91.1;
-        Mon, 15 Jul 2024 06:49:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="TUoy4Dq8"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-7a05b4fa525so355500785a.1
+        for <selinux@vger.kernel.org>; Mon, 15 Jul 2024 12:17:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1721051340; x=1721656140; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1721071054; x=1721675854; darn=vger.kernel.org;
+        h=subject:cc:to:from:message-id:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Qkf5os42Dm8jX0sOdellctfINgtVkON6TdrliUvcwxs=;
-        b=C2YjZkkdz6xe4599m5rlCo7AJ6bQVAcE81AAMwhyQnykmO4xBbiQwMVVz6QtqQ5Gp4
-         elKO/C/98gEdhBLlpnrf1TPoHng4uShj8ZBl9hHytyFrFUMZVNwjemVjF/PfL0UG01lC
-         BYNXMwjTLkjar3nQ2PpiyO+7huADs6bELoTTvd1qCuqbXd1rHesZCCBBAL7aQxx/uQMs
-         rRRlAowrTxZROuKxQnbph6XKuI9HL5NxBSLR7p+AVBBNTWyy0sglsclr2bqzdReWGIOz
-         if0qplBnUOAy8ECbmP5ZjYV0+EXQfhCmX2vHg3U6p4KxUj2eX5sM2HAj1Xi2JAfXTk0z
-         C7xg==
+        bh=l1SvJ95k6LtIC53lwJQ166LkSovQJo1Z3A0ATzEYqfw=;
+        b=TUoy4Dq8xkX4p4Nhiq7DdKW0YcyOFQj8PrOFN5GGVlEXZAfQEusuB74DvdC5+wpHfZ
+         lKdXNzmEfWOL4vBbrNGuzuV9kBiRNHiToZKwgfS9npwkk5rZIbMGyWELXsDeBo6e3d3Z
+         XfKjC/bJLqF4FFjUwsTKSJJ36alnTRW6M6NXHohBfXz7ROLJcMrW38G4tqAe6dT/mNDd
+         e1msXjJA4N9JHIE/DAtfhzE9yQltwYeHcJwmO6FkXTqA0dK4LFTNhhLyMljTFTRpi5fm
+         4hZ1IXGCO9DCVND+StxBMmYerC7/0/3rkZRRoEVyfT7N8d6dNJo7msyLzaSgRROFbWvN
+         n8Tg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721051340; x=1721656140;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1721071054; x=1721675854;
+        h=subject:cc:to:from:message-id:date:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Qkf5os42Dm8jX0sOdellctfINgtVkON6TdrliUvcwxs=;
-        b=qT/Y7yjjbDd0GxQamjz1aYOqflzRGszWJHx1sDMTbAmBA7L2CQ1L1kMGuC5arKomaE
-         3Ftrr5zc+PgjP01TRoq6ihPZ5S01RmDwzcFshv2mNLcXEw0A95fO1GuF3RAj9uWdJK1v
-         1Fvu3Vd5yYGsmnu208rCmIJd1hxfynN6ncxWdB799Lstfa89aDg2oSfme/esvOS1Z143
-         fsV522r2E0wy5GRmvw07lYO1mVmnSMxL4gLTHYK0b6vRNCCRZAFiZkNn5mWQFtCUmisw
-         y8cPeW3rJIo9HFVaCRgvIvzBUd9hfzZn1oL1zsvQQCbSdVPqGvNfD+fSkfgY622DAPys
-         /AVQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWTVnX7uObLv01bP91Z4iF49lFXgnR20qHoqWSKnqIs1ebDf9vqnlf0VwFBVZpj16Jl52Ejvk61gTcIyDkIi6M4sPQtBXSP0uSiOQCpkSwHQtNFCF+b5fAD0wZkMJo0XZySxguzqg==
-X-Gm-Message-State: AOJu0Yy21TUEywHnFPqtBOXKwNTkpHcf+lts0iZoHeUBjZvOPoTY/jJz
-	prBxynSV7vIDqx8ZsT1H74oUZ0Up9wXzl+MJKWksEf8NPC+nUj2q2dP/HHm/C2QCdOIx5SR9+dI
-	cxZstjc9YxlMO2ubKlwf6VOHS4+o=
-X-Google-Smtp-Source: AGHT+IHeR541bjAyXv2mzJ6Kqq1p3KEfUX7Ote4V8WvlSlLE3R+aboe3V6yUd6n4Kr5vKPTDvXJSnxMOCPz7tSHCBOc=
-X-Received: by 2002:a17:90b:3d2:b0:2c9:67f5:3fae with SMTP id
- 98e67ed59e1d1-2ca35c72bbamr12256088a91.28.1721051340039; Mon, 15 Jul 2024
- 06:49:00 -0700 (PDT)
+        bh=l1SvJ95k6LtIC53lwJQ166LkSovQJo1Z3A0ATzEYqfw=;
+        b=pyL6Di4jwdjrME/+MvItQAb9DClHsMFuMjFBQpv/oR5QhnEAtJi6Plf5giejYAVWmj
+         kNAe1kczzSUfjRrFt/WK2nAUbSQGstaC6lw6gUq4mmSxUHjnpsrxxDTPciT08Iy1LPV3
+         Wtmev53SrLUQYbP+g1A8MZddkipzJbqfkmH+sn1jU9JQX/WiLNXiB1OHE3fqB7L5ZKuh
+         Wgb1WRxtml6KRLNgNp7a3NYyVnbqPgZGHCHYgGA5pQdtJoBThRd8vThn9TlLM5dED0W0
+         Ulm83uuZsXpY7pFl+AgVzXkaHt3gHlqXqMS/Pv8jRoRZ99piZN7R2Mj20+jOyUm/d9so
+         ZIjw==
+X-Gm-Message-State: AOJu0Yxmrj0r//76529X8s1B9g9/lDYNi36kBFeqaV8NO2vwRVVrqX12
+	3qSIIbS/Hj12l1s7iPnRpsHDoJZcJMvXlpSpnoxl/YaH96wVcQ6i/ZuHepijW2la6KvbRedhYL0
+	=
+X-Google-Smtp-Source: AGHT+IGSgcl6qwGZ73pFUTMRJB3d8hsYhody6VszuU8jGekmQlCOH7F40gt0W/lCmiheORwDMsVF2Q==
+X-Received: by 2002:a05:620a:2684:b0:79e:e9ac:80c3 with SMTP id af79cd13be357-7a152fbccbbmr1979957285a.1.1721071054513;
+        Mon, 15 Jul 2024 12:17:34 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7a160c6dc8dsm225327885a.110.2024.07.15.12.17.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Jul 2024 12:17:34 -0700 (PDT)
+Date: Mon, 15 Jul 2024 15:17:33 -0400
+Message-ID: <4b4df5f5e3d91b9342b56ae69b3fd2be@paul-moore.com>
+From: Paul Moore <paul@paul-moore.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] selinux/selinux-pr-20240715
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20240715014337.11625-1-guocanfeng@uniontech.com> <CAEjxPJ7QqEG+wyQfuPeDu0JqvjRCvbtVzZ6qtzwc-YwGz=mLjQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7QqEG+wyQfuPeDu0JqvjRCvbtVzZ6qtzwc-YwGz=mLjQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 15 Jul 2024 09:48:48 -0400
-Message-ID: <CAEjxPJ5pLoGYWJpn5PijRzFVGkLeUcm=m_1AOSe6AXXWiaJ0ZA@mail.gmail.com>
-Subject: Re: [RPC] Topic: Issues and Testing Regarding SELinx AVC Cache Modification
-To: Canfeng Guo <guocanfeng@uniontech.com>
-Cc: paul@paul-moore.com, omosnace@redhat.com, selinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 15, 2024 at 9:46=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Sun, Jul 14, 2024 at 9:44=E2=80=AFPM Canfeng Guo <guocanfeng@uniontech=
-.com> wrote:
-> >
-> > When calling avc_insert to add nodes to the avc cache, they are inserte=
-d into
-> > the head of the hash chain. Similarly, avc_calim_node removes nodes fro=
-m
-> > the head of the same chain. so, SElinux will delete the latest added ca=
-che
-> > infromation.
-> >
-> > I question whether the deletion logic proposed in the patch is more app=
-ropriate
-> > than the current implementation, or whether alternative mechanisms such=
- as
-> > LRU caching are beneficial.
-> >
-> > In my testing environment, I applied the above patch when avc_cache.sol=
-t and
-> > cache_threshold were both set to 512 by default. I only have over 280 n=
-odes
-> > in my cache, and the longest observation length of the AVC cache linked=
- list
-> > is only 7 entries. Considering this small size, the cost of traversing =
-the
-> > list is minimal, and such modifications may not incur additional costs.
-> >
-> > However, I don't know how to design a test case to verify its cost.
-> > And I cannot prove that this patch is beneficial.
-> >
-> > I attempted to simulate a more demanding scenario by increasing the cac=
-he_threshold
-> > to 2048 in order to establish a longer linked list of AVC caches, but
-> > I was unable to generate more than 2048 AVC records, possibly due to th=
-e need
-> > for a highly complex environment with numerous different SID interactio=
-ns.
-> >
-> > Therefore, I have two questions:
-> > The necessity of modification:
-> >      Considering its potential impact on the cache performance of SELin=
-x AVC,
-> >      is it worth investing effort into this modification?, i think that=
- in most cases,
-> >      this modification is not necessart.
->
-> I don't think it is desirable or necessary. The current logic prunes
-> the least recently used bucket and intentionally reclaims multiple
-> nodes at a time.
->
-> > Verification method:
-> >      If making such modifications is reasonable, how can I effectively
-> >      measure its impact on system performance?
->
-> The selinux-testsuite exercises many security contexts and thus should
-> enable reaching higher numbers of AVC nodes.
+Linus,
 
-Other, more real-world ways of exercising many security contexts would
-be to launch many containers or VMs on a Fedora or RHEL system using
-their integrated support for per-container or per-VM SELinux security
-contexts.
+A single SELinux patch for Linux v6.11 to change the type of a
+pre-processor constant to better match its use.  Please merge.
+
+-Paul
+
+--
+The following changes since commit 1613e604df0cd359cf2a7fbd9be7a0bcfacfabd0:
+
+  Linux 6.10-rc1 (2024-05-26 15:20:12 -0700)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+    tags/selinux-pr-20240715
+
+for you to fetch changes up to e123134b39dc40af94e8aec49227ae55b5e087a8:
+
+  selinux: Use 1UL for EBITMAP_BIT to match maps type
+    (2024-07-02 11:41:05 -0400)
+
+----------------------------------------------------------------
+selinux/stable-6.11 PR 20240715
+
+----------------------------------------------------------------
+Canfeng Guo (1):
+      selinux: Use 1UL for EBITMAP_BIT to match maps type
+
+ security/selinux/ss/ebitmap.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--
+paul-moore.com
