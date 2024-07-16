@@ -1,120 +1,63 @@
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A12B01804F
-	for <selinux@vger.kernel.org>; Mon, 15 Jul 2024 21:23:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 329E513B2B1;
+	Tue, 16 Jul 2024 21:59:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721078614; cv=none; b=ON5nFjzxKWn28acwcaiZy9WH7gZWEEZVocndcMtMBKoqoizO6JHgdAR2GxIjKPF3q08BRZ5x1vTC7LblbcrhxjMwj/efD2GfvaU58RqTEbtHDx3Ems0uTD4VGwCBwb89TBgtR5A+XOGoAk0jiULGk1YAUYW6QWW539k3hGeqNDI=
+	t=1721167162; cv=none; b=PWDjE8F1fNCm8zVwwLF3WofURWBYiDe7gxsRuTb+HgqSnlAT27DqxiF7Zy5CZMSH6OiYlfJAI4rAfxx4aWfFgO7R/g5vFGZl+MLsRWVkx5PljHH1SMG/HQKBqfiKuFAcsCAIFLRXrlOFWhECDWm5VANqc3IrcbUVemmwxN9shmw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721078614; c=relaxed/simple;
-	bh=MZ3iBxt+5dqDGRLllZnI1LCFqMjWc4P+6DjlVLb7tec=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Mfo9V23cpghI9iV0P1SAMhI/GZuAFkH/5m7eYdB+66205RblvtkgK8oA3yTyY46KPLceehBYnSH2FBeQBne0ZH08PxM0Xuwer2UA2pB1swUvYMIxI4iruYeWXiwMLnZ0kQk51PmEDHZjNzVAghV3GbAKCXSKqzYe1ifCa5LwYPs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=NXX2KmNJ; arc=none smtp.client-ip=209.85.128.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1721167162; c=relaxed/simple;
+	bh=RLNvHZ7ijUj6F87ttAG5Whxhqk0lI4BCCRd7ZAv11nE=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=q+swYUW96Ii3418tO8KBmNt34ulMqoYs17PedPY/qQIuhAFzkWjtC0ShhRqUN1/L7BvkxIibQImWvKG42khtv8weUjS8mptV98/0hfLoC+4UOGbSsr54ywU3RHFc6BlVT+MV7yEbQP9iTzNIHEqigfcLYuCPKPdn85N2GTKCRI0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I6O87lMo; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="NXX2KmNJ"
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-659f781270dso45193657b3.1
-        for <selinux@vger.kernel.org>; Mon, 15 Jul 2024 14:23:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1721078611; x=1721683411; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tEnN5uN5cY/n5JR2WvewER9KhzgBlk/5MGdM2c3D0Yc=;
-        b=NXX2KmNJ7XU27sXhjJ8PJIsoTnyK3wa5INopVtIOP0mYPdCFJNFHpaVo+9DFlPi32d
-         oXhtBjRw2T8cbzOY6m/jzxLIC3RLGogKIJya0ioPV0o6zWBrZPqpJMRaC01DvwYHAFPr
-         r3PUj6NypGQ7NcGsN6A8c64SqEq4TeCPkFNsXXtZ6gruPb/71jY1Ky9KgrnDWqx/3cY4
-         0VHWtezWuhm5ewCgmKpCmD4d2AVQ0F1VcMolMYZMlRwYrlU1VRe9tJk6xgJpcGjJaqrw
-         1VjiKMD89kcDlKw6tLuxgKjaoHGmF3wMIwteSQ6rJEJNiutW9z1GQgQl6+eVnU9H3TIH
-         Q5qA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721078611; x=1721683411;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tEnN5uN5cY/n5JR2WvewER9KhzgBlk/5MGdM2c3D0Yc=;
-        b=bTTsJ+ZogTN7LPtdcvAGPwdEz5vw2BPqBSdsn+zL2m6o/PGNp1JgcY2hy3c5jgRFKk
-         ronYOVOJjnAn4ARNTrTsz2BHiJqJxxJkfVzjlL9FOCObykOH2MEEGxHTBqh+yRoc7vw4
-         ydmDk0wX85L2QzXAhKvdaYUMLRvYh95XoGhjLFP6sVOMnCfWPq6liC9q1utrd4ZcZm+k
-         dHZMr7eSqrPtL2gMztjMh5ELw+nDzNcDifJlbfPGrYtIDQXM0+AxjtRGhs1dIwFRxzjI
-         XpA5HkN7TQtXCzr4yuypvbA2h6IAeGgXX3ILBtcsDIIFUDRW+zg5Ogs4LyUWjYls/3Au
-         l1bg==
-X-Forwarded-Encrypted: i=1; AJvYcCVlsUxBf6D2o/qoQ+uBFEDv2JrDmZQdGVktXjWqX/IAY3UillRi0LBeJMgxkfjLWzFfFjizj8SykM0SiS9zLU1lk7gPWTWKoA==
-X-Gm-Message-State: AOJu0YzBV78mc1kNjMEcCWyBqny5uFmQf7J+u0VHYolbxZRf/9szLI06
-	jjH6KGTECPU3/sVjEvKbRJ3eDK0YlP3qBBfkJK1zTDUPlMO9c+UeV1RivG5dknOxeS7ewpEgziJ
-	AMbI7fQFqLF0LdSoFEj0Kee6L6PYSdmiu8Q6B
-X-Google-Smtp-Source: AGHT+IH+Qq7dAFzyGYGImGr7Ipjqqk01sz7FXkA4fwUSm/bl+/PzFE0JSsAaoOe8H4FstSfodQ/izKPDYhsurwMH0q8=
-X-Received: by 2002:a81:9e50:0:b0:65f:96e9:42f4 with SMTP id
- 00721157ae682-663890c272cmr1039547b3.15.1721078611496; Mon, 15 Jul 2024
- 14:23:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I6O87lMo"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B08B2C116B1;
+	Tue, 16 Jul 2024 21:59:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1721167161;
+	bh=RLNvHZ7ijUj6F87ttAG5Whxhqk0lI4BCCRd7ZAv11nE=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=I6O87lMouMBamWUHt1gPAMAqXY6/vo0nSP/7rGNlZea7Dp3x87MW0JBdtH3c9AUi9
+	 eQ+uwddo2h9BusMs3UBs0QwBP2zl4UxYpqoAv1N2fyIQkC2gbJuUoT2xRYm40Ip9tf
+	 urZyeiQK7UQaCfR+sUVIrJ7h7Bkc8rDv193ExwV1Lpzto6AFtJUYVlJmljVnoNChBG
+	 Wg0nBJbPvBIXdXciyNojU+OsAR0YNkE4KZuB7GSNjmVpiVBYsaTNv7lLMDpMaOIZRq
+	 zDpJuqP83DLSlF7xr+eDASjSsPxIRap2M01ZWNgSt03qjImFfp5EilS6ndQYO2tp/X
+	 W4peAHSU2Kddg==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A469BC43445;
+	Tue, 16 Jul 2024 21:59:21 +0000 (UTC)
+Subject: Re: [GIT PULL] selinux/selinux-pr-20240715
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <4b4df5f5e3d91b9342b56ae69b3fd2be@paul-moore.com>
+References: <4b4df5f5e3d91b9342b56ae69b3fd2be@paul-moore.com>
+X-PR-Tracked-List-Id: <linux-security-module.vger.kernel.org>
+X-PR-Tracked-Message-Id: <4b4df5f5e3d91b9342b56ae69b3fd2be@paul-moore.com>
+X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20240715
+X-PR-Tracked-Commit-Id: e123134b39dc40af94e8aec49227ae55b5e087a8
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: dad8d1a383a8a2123be2a067098fa25afa2ddad7
+Message-Id: <172116716166.1258.7360995268999604207.pr-tracker-bot@kernel.org>
+Date: Tue, 16 Jul 2024 21:59:21 +0000
+To: Paul Moore <paul@paul-moore.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20240710024029.669314-2-paul@paul-moore.com> <20240710.peiDu2aiD1su@digikod.net>
- <CAHC9VhTxz6eFFUBZYJ3kgneRqKMSqaW63cXuQvVs_tt88GU_OA@mail.gmail.com> <20240715.uax4chahCohw@digikod.net>
-In-Reply-To: <20240715.uax4chahCohw@digikod.net>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 15 Jul 2024 17:23:20 -0400
-Message-ID: <CAHC9VhQtENHOpx+CpeFT6jySqvK-Hc40iFkc0H4RMTwf_g58Vg@mail.gmail.com>
-Subject: Re: [RFC PATCH] lsm: add the inode_free_security_rcu() LSM
- implementation hook
-To: =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
-Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 15, 2024 at 9:35=E2=80=AFAM Micka=C3=ABl Sala=C3=BCn <mic@digik=
-od.net> wrote:
-> On Wed, Jul 10, 2024 at 12:20:18PM -0400, Paul Moore wrote:
-> > On Wed, Jul 10, 2024 at 6:40=E2=80=AFAM Micka=C3=ABl Sala=C3=BCn <mic@d=
-igikod.net> wrote:
-> > > On Tue, Jul 09, 2024 at 10:40:30PM -0400, Paul Moore wrote:
+The pull request you sent on Mon, 15 Jul 2024 15:17:33 -0400:
 
-...
+> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20240715
 
-> > > However, I'm wondering if we could backport this patch down to v5.15 =
-.
-> > > I guess not, so I'll need to remove this hook implementation for
-> > > Landlock, backport it to v5.15, and then you'll need to re-add this
-> > > check with this patch.  At least it has been useful to spot this inod=
-e
-> > > issue, but it could still be useful to spot potential memory leaks wi=
-th
-> > > a negligible performance impact.
-> >
-> > Yes, it's a bit complicated with the IMA/EVM promotion happening
-> > fairly recently.  I'm marking the patch with a stable tag, but
-> > considering we're at -rc7 and this needs at least one more respin,
-> > testing, ACKs, etc. it might not land in Linus' tree until sometime
-> > post v6.11-rc1.  Considering that, I might suggest dropping the
-> > Landlock hook in -stable and re-adding it to Linus' tree once this fix
-> > lands, but that decision is up to you.
->
-> I would prefer to backport the new hook.  I can help with that.  In
-> fact, I tried to backport the removal of the hook for Landlock, and it
-> requires the same amount of work, so it would be better to work
-> together.  That should also ease future backports impacting the same
-> part of the code.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/dad8d1a383a8a2123be2a067098fa25afa2ddad7
 
-Okay, let's get the initial v6.11 LSM PR merged (I just sent it to
-Linus) and then I'll post the updated patchset and a proper patch for
-review.
+Thank you!
 
-> BTW, while trying to backport that to linux-5.15.y I noticed that a fix
-> is missing in this branch: the default return value for the
-> inode_init_security hook, see commit 6bcdfd2cac55 ("security: Allow all
-> LSMs to provide xattrs for inode_init_security hook").
-
-Likely a casualty of a merge conflict; I haven't noticed the stable
-kernel folks doing any manual merging of LSM patches that fail an
-automated merge.  You can always do the merge and send it to them.
-
---=20
-paul-moore.com
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
