@@ -1,59 +1,59 @@
-Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
+Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDAC3B644
-	for <selinux@vger.kernel.org>; Fri, 19 Jul 2024 02:08:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 816F315E8B
+	for <selinux@vger.kernel.org>; Fri, 19 Jul 2024 02:08:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721354887; cv=none; b=tChMrYQx5EXLpL0IoATFTNqVkss2xjj5+4IbVbvrAtR0oYGnr6AHuYejB/EEbl1ilW02TAjOMQjQB/NfBtUcWKeODOQiyKAALq2eLHbDtvrNu04E+isBlhsYnkFurnO0xxTpNy34OJEolhkBSQT4ATm5LkcDxOG1VJj1bYjTPOo=
+	t=1721354888; cv=none; b=QguEqIYcJP7aYXLxMGUqQLxFvunqpSErC1oodTa101wQ2NZ/5c25DfGi+wJUpwScLSzYCrpyfaOnlbUIuWxWr1vGfMOD78JtrpUAYlRfVvNSTgilxFyCqib/NtriiGn7JYmVZ3pIrA/pBGDVJKNih56xG0Yoco8iQZu2a9AgZ74=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721354887; c=relaxed/simple;
-	bh=+jANaNZ1uHYDfjV0wEeG5sQYqdgRrNtGRZ39cOP++f4=;
+	s=arc-20240116; t=1721354888; c=relaxed/simple;
+	bh=tHah9heVhcAhz3UTqXvZmb4fO7IFjY752sIYX/h1Or8=;
 	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
-	 From:To:Cc:Subject:References:In-Reply-To; b=T43Je5izcg+1hD55iiT+1R+bzMlVEsHeT1wyYqJDbEaxlDXv/AJpAd3t1I1fuVz7djzjgIvt8ffLuQM0KUbRq6qwpLB4RA00vguHxaBz7CxpnQ7WCtjzWjntPvID7El7bhs8RvyjvJV20hb2K7db5bDRTW0YFZurW09SSdO/2PQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Z5IJkzsp; arc=none smtp.client-ip=209.85.219.54
+	 From:To:Cc:Subject:References:In-Reply-To; b=eKQtNfAifO9ViBKNomiPTnHYMIKmCL8WghNAEj3OTZ7f94fsR6cTTauzJ3IJbdKKziAc8zEmFeQApPzmFAGltnq5sc0Piv3rKz+SK34LGC07knVef2ObQFdaMcBxo2QncZpBM3aYKo7p9MXyPp7rR4biceZgkpYp3CPu/i2OB9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=OlSs+VuE; arc=none smtp.client-ip=209.85.219.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Z5IJkzsp"
-Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-6b7a36f26f3so8355146d6.1
-        for <selinux@vger.kernel.org>; Thu, 18 Jul 2024 19:08:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="OlSs+VuE"
+Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-6b553b1a159so8591656d6.0
+        for <selinux@vger.kernel.org>; Thu, 18 Jul 2024 19:08:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1721354882; x=1721959682; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1721354884; x=1721959684; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-disposition:mime-version:message-id:date:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=qpUClzeR8WUAL/85YFkQrfnDMzFYM1Y27FAQCvWcN9Q=;
-        b=Z5IJkzspjONUQy+7giNPV4aDWSsOissdYpbaeSMvt0Z/gCiSH7XXZjWpGE6JtjVHDQ
-         UWA6acGP/+mktE1QmyJqL5Y9preDcRLimxsfvVDUkxmjkc/nTDhoE8f5LX3KLJn8HebB
-         HARxX68tUmx5EX8lYQovIn7tJtMfuEyiUgBz4BDCSxCAwXvhURj7i/nl4f+rYh8N1B0E
-         yT59fE6qtA54t9YB3eHlxtNWRTPqJ863KpWtFN1mdy9A+jrPCxnUCfKCN/0+bhKlbxpv
-         ucrPHMb9WWtz9ZxV/OdXnzovCs5FnzUOXGNX7a0dJ+9agEioXNbHaC556heDk/9kBafW
-         tr4A==
+        bh=ZHtJ6Mijr7Q+PTF9Q3B9HJtIQ/9fQHnqWj4Ntxohcz8=;
+        b=OlSs+VuEMjRTKWZLa/6UqxDVnqTsune2S2XG05UD1d74p2asqlO+SVPEEtXnCesLAt
+         xmEpyXQqTMo8ScZy0YY7l4cPg/fbaBj0skzB70kNku95YPGAfNzwv3UHcnhbGPoHsbc6
+         NdO8MeNzIrH0tPONW5XyOfAIqc+ObIsgzEkQr3Hlqxdl/3x8VhaDavHfFxU2mvl4PmJg
+         tZ2RM3R2CV/p/JkUz2o6w3HHZbq5A7by4tOdC+Pzuhxn/mcG3XFWUwb9v7PSUz3Venzk
+         BMUfnomKr0bcIyOnJbOBEOXkuRHHQkzOTc6wvtTFfMcdQW5Zsydl2nbcOitQDWhkz+sF
+         UiRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721354882; x=1721959682;
+        d=1e100.net; s=20230601; t=1721354884; x=1721959684;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-disposition:mime-version:message-id:date:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=qpUClzeR8WUAL/85YFkQrfnDMzFYM1Y27FAQCvWcN9Q=;
-        b=uRj408Je5R0WD7epmYRiYyNvOoD9QwgLGAenEF+JTSNW0gIL1kZcRV/QFDf6cGvZDN
-         E8SRu8Y1WIiNzMGHp2KYIC6PgoTVCG+WceFIuKFG3nmj5CJooxtv/llUq6dcGjJ5LONJ
-         ZVH7GNhe5XpzF2FfnUkf5+OU9ylag+f6rP9o/TuwUB4W8iQue+s414GbJogRao6ZwyHe
-         ZYH1rc8UkdRokjajR4pEBzhWjzxkpk5Q+hSP5ZT9tGq5Z6kxo1JoiA+dHOwJlLWqNXA0
-         cNcQohOiOs30BESTFnqOWJ9rp78m9iM6rZwBfqW4vgow1qXK4YAa9+nStumPT9RACM57
-         td5w==
-X-Forwarded-Encrypted: i=1; AJvYcCVsKvIIi00Uxk22vCGLFKWa6A+Z8WpWQIA7NE+F2uJ5G4kZ6jloYPzoAsVwP+BSzUGxMADo9NGoPxq94KHALVqSSfHpL2OfsA==
-X-Gm-Message-State: AOJu0YyodjkHlXRMpeQgzJZWGkZAm6hlHVoFqjLGraLMcyKrLSZ1hAZn
-	FcImt/TclFXpP3R+QGOmScGPtxp/e8qJFlRIC7HpUr7fN47++f5gye8NObfTSQ==
-X-Google-Smtp-Source: AGHT+IHEUtiYsL4YugJiIyZ94uYFP7Pn9ZMTuclQ82/x8BDKHK0utglqJt/CxhW41ZG/NKpa0e+C4Q==
-X-Received: by 2002:a0c:eb83:0:b0:6b2:a68e:6cf5 with SMTP id 6a1803df08f44-6b79cbe7860mr83634476d6.5.1721354882351;
-        Thu, 18 Jul 2024 19:08:02 -0700 (PDT)
+        bh=ZHtJ6Mijr7Q+PTF9Q3B9HJtIQ/9fQHnqWj4Ntxohcz8=;
+        b=oEfRnjwSL3v1X6sbCd6RJxV/7Enrt0KbyQ/x0MPG7Pb1YiKiFc45fT8td94tRTfGAj
+         S73wWhlxi6Q5iIJpab82kBFjNu7VnFKuaP94E5sRl0wtNmXoRoikC5a1KZxPi0h1YiAM
+         UAb8/B2+nloEDlDRLJxnvemsKuqD2ULPgRDh9BP/750Z7zT8z/ZXmqb3/lg4TNqBzXjt
+         +k2ru/Bn3VRdhO2sECVm3tL58rtaaiFTqH0IRAvmjBgb7R5wte/3kL/xVEa+Qcsh+BDX
+         pXyAj99bGoNyYeMALxjlibDzP16NEQrkXujYAFMgCg13yIDJuRdqsv5NevC+1P7Cw9Gx
+         243w==
+X-Forwarded-Encrypted: i=1; AJvYcCXJDwV1vfIGiTtJRAZ5n3s0Km7OdVaTxE7+iQCKR1s9MMXAVewritIj9D9tgWukEUyZEYFSsDZ+UYBwH7dGHmp5xYYPCcH7ZQ==
+X-Gm-Message-State: AOJu0YxtpUKhQNSjjFLz1THuNXuJzI8Oy4xYtwWlmtnihg40TQ+n2FuC
+	ftFaUwyYsyZfoMVlEwpWkI0R7FbDmC+wVYzANUu4tw6kZkcRwWCvM4P5iNqAKw==
+X-Google-Smtp-Source: AGHT+IGaItPFvcgZZljCxKU0xByJbljxF1V3Ov2p9/nUOtgmOgXw/0Lj7cx8IF4ITmQkyVm1prBhSw==
+X-Received: by 2002:a05:6214:4106:b0:6b0:90d8:b698 with SMTP id 6a1803df08f44-6b7ac9e8866mr6421386d6.45.1721354884374;
+        Thu, 18 Jul 2024 19:08:04 -0700 (PDT)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b7acaf3bc3sm1717036d6.125.2024.07.18.19.08.01
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b7ac7bd5cbsm1786276d6.24.2024.07.18.19.08.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jul 2024 19:08:01 -0700 (PDT)
-Date: Thu, 18 Jul 2024 22:08:01 -0400
-Message-ID: <bae9304f6fd9ac9536f709a990085119@paul-moore.com>
+        Thu, 18 Jul 2024 19:08:03 -0700 (PDT)
+Date: Thu, 18 Jul 2024 22:08:03 -0400
+Message-ID: <3a8d55e0d41a35a1a3c5d3590240d16b@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -81,90 +81,72 @@ Cc: Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>,
 	Trond Myklebust <trond.myklebust@hammerspace.com>, Anna Schumaker <anna@kernel.org>, 
 	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH v4 3/20] lsm: Refactor return value of LSM hook  inode_getsecurity
-References: <20240711111908.3817636-4-xukuohai@huaweicloud.com>
-In-Reply-To: <20240711111908.3817636-4-xukuohai@huaweicloud.com>
+Subject: Re: [PATCH v4 5/20] lsm: Refactor return value of LSM hook  inode_copy_up_xattr
+References: <20240711111908.3817636-6-xukuohai@huaweicloud.com>
+In-Reply-To: <20240711111908.3817636-6-xukuohai@huaweicloud.com>
 
 On Jul 11, 2024 Xu Kuohai <xukuohai@huaweicloud.com> wrote:
 > 
 > To be consistent with most LSM hooks, convert the return value of
-> hook inode_getsecurity to 0 or a negative error code.
+> hook inode_copy_up_xattr to 0 or a negative error code.
 > 
 > Before:
-> - Hook inode_getsecurity returns size of buffer on success or a
->   negative error code on failure.
+> - Hook inode_copy_up_xattr returns 0 when accepting xattr, 1 when
+>   discarding xattr, -EOPNOTSUPP if it does not know xattr, or any
+>   other negative error code otherwise.
 > 
 > After:
-> - Hook inode_getsecurity returns 0 on success or a negative error
->   code on failure. An output parameter @len is introduced to hold
->   the buffer size on success.
+> - Hook inode_copy_up_xattr returns 0 when accepting xattr, *-ECANCELED*
+>   when discarding xattr, -EOPNOTSUPP if it does not know xattr, or
+>   any other negative error code otherwise.
 > 
 > Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
 > ---
->  fs/xattr.c                    | 19 ++++++++++---------
->  include/linux/lsm_hook_defs.h |  3 ++-
->  include/linux/security.h      | 12 ++++++------
->  security/commoncap.c          |  9 ++++++---
->  security/security.c           | 11 ++++++-----
->  security/selinux/hooks.c      | 16 ++++++----------
->  security/smack/smack_lsm.c    | 14 +++++++-------
->  7 files changed, 43 insertions(+), 41 deletions(-)
+>  fs/overlayfs/copy_up.c            |  6 +++---
+>  security/integrity/evm/evm_main.c |  2 +-
+>  security/security.c               | 12 ++++++------
+>  security/selinux/hooks.c          |  4 ++--
+>  security/smack/smack_lsm.c        |  6 +++---
+>  5 files changed, 15 insertions(+), 15 deletions(-)
 
-Aside from Simon's concern over variable types, I saw a few other issues
-when looking at this patch (below).
+...
 
-> diff --git a/security/commoncap.c b/security/commoncap.c
-> index 17d6188d22cf..ff82e2ab6f8f 100644
-> --- a/security/commoncap.c
-> +++ b/security/commoncap.c
-> @@ -485,7 +485,10 @@ int cap_inode_getsecurity(struct mnt_idmap *idmap,
->  	}
->  out_free:
->  	kfree(tmpbuf);
-> -	return size;
-> +	if (size < 0)
-> +		return size;
-> +	*len = size;
-> +	return 0;
->  }
-
-We should do a better job converting cap_inode_getsecurity(), create a
-new local variable, e.g. 'int error', and use it to store and return the
-error code instead of reusing @size.  I understand that what you've done
-is easier, but I'd prefer to see it done properly.
-
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 9cd5a8f1f6a3..70792bba24d9 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3407,7 +3407,7 @@ static int selinux_path_notify(const struct path *path, u64 mask,
+> diff --git a/security/security.c b/security/security.c
+> index 26eea8f4cd74..12215ca286af 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -2675,18 +2675,18 @@ EXPORT_SYMBOL(security_inode_copy_up);
+>   * lower layer to the union/overlay layer.   The caller is responsible for
+>   * reading and writing the xattrs, this hook is merely a filter.
+>   *
+> - * Return: Returns 0 to accept the xattr, 1 to discard the xattr, -EOPNOTSUPP
+> - *         if the security module does not know about attribute, or a negative
+> - *         error code to abort the copy up.
+> + * Return: Returns 0 to accept the xattr, -ECANCELED to discard the xattr,
+> + *         -EOPNOTSUPP if the security module does not know about attribute,
+> + *         or a negative error code to abort the copy up.
 >   */
->  static int selinux_inode_getsecurity(struct mnt_idmap *idmap,
->  				     struct inode *inode, const char *name,
-> -				     void **buffer, bool alloc)
-> +				     bool alloc, void **buffer, u32 *len)
+>  int security_inode_copy_up_xattr(struct dentry *src, const char *name)
 >  {
->  	u32 size;
->  	int error;
-> @@ -3440,14 +3440,14 @@ static int selinux_inode_getsecurity(struct mnt_idmap *idmap,
->  						&context, &size);
->  	if (error)
->  		return error;
-> -	error = size;
-> +	*len = size;
+>  	int rc;
+>  
+>  	/*
+> -	 * The implementation can return 0 (accept the xattr), 1 (discard the
+> -	 * xattr), -EOPNOTSUPP if it does not know anything about the xattr or
+> -	 * any other error code in case of an error.
+> +	 * The implementation can return 0 (accept the xattr), -ECANCELED
+> +	 * (discard the xattr), -EOPNOTSUPP if it does not know anything
+> +	 *  about the xattr or any other error code in case of an error.
+>  	 */
 
-Depending on how you choose to resolve the variable type issue, you may
-be able to pass @len directly to security_sid_to_context().
+Updating the comment here is good, but considering that we also discuss
+the return value in the function header comment, I think it might be
+better to just remove this comment entirely and leave the function header
+comment as the single source.  Duplicated comments/docs tend to fall out
+of sync and create confusion.
 
->  	if (alloc) {
->  		*buffer = context;
->  		goto out_nofree;
->  	}
->  	kfree(context);
->  out_nofree:
-> -	return error;
-> +	return 0;
->  }
+>  	rc = call_int_hook(inode_copy_up_xattr, src, name);
+>  	if (rc != LSM_RET_DEFAULT(inode_copy_up_xattr))
 
 
 --
