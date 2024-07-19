@@ -1,59 +1,60 @@
-Received: from mail-qv1-f52.google.com (mail-qv1-f52.google.com [209.85.219.52])
+Received: from mail-qv1-f47.google.com (mail-qv1-f47.google.com [209.85.219.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 816F315E8B
-	for <selinux@vger.kernel.org>; Fri, 19 Jul 2024 02:08:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0B1522094
+	for <selinux@vger.kernel.org>; Fri, 19 Jul 2024 02:08:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721354888; cv=none; b=QguEqIYcJP7aYXLxMGUqQLxFvunqpSErC1oodTa101wQ2NZ/5c25DfGi+wJUpwScLSzYCrpyfaOnlbUIuWxWr1vGfMOD78JtrpUAYlRfVvNSTgilxFyCqib/NtriiGn7JYmVZ3pIrA/pBGDVJKNih56xG0Yoco8iQZu2a9AgZ74=
+	t=1721354889; cv=none; b=tisrJyAZcnl6Apl7V1uip/UzR3NtGwKk/o1JvLoL3NL7oiBtiTNpMp1uAPTgE6jG/TZl+InP9AqnJKsjTkvgnBso+JDcnGjSPYk6DuXM/PkixozaV/H7Ln6+FGgnpwWvyj/lx2HWT3Wuzz8CkuwW/ICUqdZAF38WI4hQkqvIBBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721354888; c=relaxed/simple;
-	bh=tHah9heVhcAhz3UTqXvZmb4fO7IFjY752sIYX/h1Or8=;
+	s=arc-20240116; t=1721354889; c=relaxed/simple;
+	bh=3kQS2cZBJ39f+nV1qKNmNoKNDB7FDTY1mI5qcsc0L6E=;
 	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
-	 From:To:Cc:Subject:References:In-Reply-To; b=eKQtNfAifO9ViBKNomiPTnHYMIKmCL8WghNAEj3OTZ7f94fsR6cTTauzJ3IJbdKKziAc8zEmFeQApPzmFAGltnq5sc0Piv3rKz+SK34LGC07knVef2ObQFdaMcBxo2QncZpBM3aYKo7p9MXyPp7rR4biceZgkpYp3CPu/i2OB9A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=OlSs+VuE; arc=none smtp.client-ip=209.85.219.52
+	 From:To:Cc:Subject:References:In-Reply-To; b=KN/giISuiqqNRYx+rRm6jYKhjCgll4OYReuFKeT0cwSpYwNTN3wx0o+vGOQ4V3A/mE2tsVPr1elw2wf6vMc/taDtYTvF/hHRtNYAvGn3m+p9PgJ0ucaRJ/d/vdd4ZajhLjNqDcbVAB9xdiZ1M7ypwybuWAoSt0QpKZ5ZgFj40/Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Sglmx1f3; arc=none smtp.client-ip=209.85.219.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="OlSs+VuE"
-Received: by mail-qv1-f52.google.com with SMTP id 6a1803df08f44-6b553b1a159so8591656d6.0
-        for <selinux@vger.kernel.org>; Thu, 18 Jul 2024 19:08:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Sglmx1f3"
+Received: by mail-qv1-f47.google.com with SMTP id 6a1803df08f44-6b5f128b199so7914336d6.0
+        for <selinux@vger.kernel.org>; Thu, 18 Jul 2024 19:08:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1721354884; x=1721959684; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1721354885; x=1721959685; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-disposition:mime-version:message-id:date:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=ZHtJ6Mijr7Q+PTF9Q3B9HJtIQ/9fQHnqWj4Ntxohcz8=;
-        b=OlSs+VuEMjRTKWZLa/6UqxDVnqTsune2S2XG05UD1d74p2asqlO+SVPEEtXnCesLAt
-         xmEpyXQqTMo8ScZy0YY7l4cPg/fbaBj0skzB70kNku95YPGAfNzwv3UHcnhbGPoHsbc6
-         NdO8MeNzIrH0tPONW5XyOfAIqc+ObIsgzEkQr3Hlqxdl/3x8VhaDavHfFxU2mvl4PmJg
-         tZ2RM3R2CV/p/JkUz2o6w3HHZbq5A7by4tOdC+Pzuhxn/mcG3XFWUwb9v7PSUz3Venzk
-         BMUfnomKr0bcIyOnJbOBEOXkuRHHQkzOTc6wvtTFfMcdQW5Zsydl2nbcOitQDWhkz+sF
-         UiRw==
+        bh=RdOweloEpaz6RcCvISa0YGQIo20b47lcaEayePDedxM=;
+        b=Sglmx1f3HxwYDuZhNdqszpf7ee9npoLHouQusVyxJTkA612qitV26LgWBlT7XaBiKp
+         5G8FhtA4Ko05Q6Ly4/q/voIWCCgMcit6EpD5v8roA6MDiD+8THrG4sPgqFb1aJ/oW+uf
+         kOG5YWA4XecbZJeGTyp9/RnudcenATcktfFG5SShxjgGUVAPoK3ESO95raBdZaTmaCHc
+         0NqgoNZjuruSZ+gGuEb7aO83g6Zh0YUfs58/SisBYf5zS4WB3Ffm2HiCVMZtQZs/MLca
+         9u6BNow7pAxIGdsDaT6Dhs9/v2z9TH/HCsghNHsEZ8eueX4UAxDQ/55u/7Z6ODOC7dBa
+         p9KA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721354884; x=1721959684;
+        d=1e100.net; s=20230601; t=1721354885; x=1721959685;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-disposition:mime-version:message-id:date:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=ZHtJ6Mijr7Q+PTF9Q3B9HJtIQ/9fQHnqWj4Ntxohcz8=;
-        b=oEfRnjwSL3v1X6sbCd6RJxV/7Enrt0KbyQ/x0MPG7Pb1YiKiFc45fT8td94tRTfGAj
-         S73wWhlxi6Q5iIJpab82kBFjNu7VnFKuaP94E5sRl0wtNmXoRoikC5a1KZxPi0h1YiAM
-         UAb8/B2+nloEDlDRLJxnvemsKuqD2ULPgRDh9BP/750Z7zT8z/ZXmqb3/lg4TNqBzXjt
-         +k2ru/Bn3VRdhO2sECVm3tL58rtaaiFTqH0IRAvmjBgb7R5wte/3kL/xVEa+Qcsh+BDX
-         pXyAj99bGoNyYeMALxjlibDzP16NEQrkXujYAFMgCg13yIDJuRdqsv5NevC+1P7Cw9Gx
-         243w==
-X-Forwarded-Encrypted: i=1; AJvYcCXJDwV1vfIGiTtJRAZ5n3s0Km7OdVaTxE7+iQCKR1s9MMXAVewritIj9D9tgWukEUyZEYFSsDZ+UYBwH7dGHmp5xYYPCcH7ZQ==
-X-Gm-Message-State: AOJu0YxtpUKhQNSjjFLz1THuNXuJzI8Oy4xYtwWlmtnihg40TQ+n2FuC
-	ftFaUwyYsyZfoMVlEwpWkI0R7FbDmC+wVYzANUu4tw6kZkcRwWCvM4P5iNqAKw==
-X-Google-Smtp-Source: AGHT+IGaItPFvcgZZljCxKU0xByJbljxF1V3Ov2p9/nUOtgmOgXw/0Lj7cx8IF4ITmQkyVm1prBhSw==
-X-Received: by 2002:a05:6214:4106:b0:6b0:90d8:b698 with SMTP id 6a1803df08f44-6b7ac9e8866mr6421386d6.45.1721354884374;
-        Thu, 18 Jul 2024 19:08:04 -0700 (PDT)
+        bh=RdOweloEpaz6RcCvISa0YGQIo20b47lcaEayePDedxM=;
+        b=HH/vijxRdk/1nD4jhl2nkpeZtYRmV2gVcvyEhyC0YL4gH4dHNWsyxnhB+yjvlMfewR
+         kqPn0Zard2aBDn78Uu5a9rtN5AcRWebgZP4CrFSuRXcpwXyPklS3FOtGmKFq/vGWIWTX
+         4P9GYMZGbo4M5PX13CzGeUyoxTzEB6vS7XTGvEmoF5Gz3W3w+At/NTOnGARPYNbppgND
+         ZTMZRLNPq1Mx0WNTMfJRlFyiESc53qeVnB2KXP9wJu99MwyfKAuEPmZaYd3ioGhoOwBX
+         zJpVZW+Ee9HGVGKf+EW3gCdxwlWUU0Pe0HYtsSZguVM2FCaCZ+FhQXOWxJ9D2dqcBfHE
+         fzVg==
+X-Forwarded-Encrypted: i=1; AJvYcCVx+x9uswcJ8F/JL0Cfnfeqa0pjdbh0wyXxJas72tS9gBWTw1Q7cQJbHVs0kYb1pTX2lKzGjb3gvDehUi6yTQR4VDOxzRCVuA==
+X-Gm-Message-State: AOJu0Yxsg5TCf6Deb4QjDuhJX8cCkarBO0g9ONzxaJSXcJ5CA+MhHXTv
+	JI8er3X+y8JXTas4vNafC/GvHc1XKmh0Fcpf46zLUxkhzlJyKFpBYfAUUfqR5WobltT7+HHqj8t
+	pXw==
+X-Google-Smtp-Source: AGHT+IF74+EqudtKUL7i1ZCCvXjz+qd3zopM19m0jWGVbddz7RHlAWv2UgDf87dhf8FKY+88djubgQ==
+X-Received: by 2002:a05:6214:2301:b0:6b5:3c06:a58b with SMTP id 6a1803df08f44-6b78e364c4fmr77396666d6.59.1721354885611;
+        Thu, 18 Jul 2024 19:08:05 -0700 (PDT)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b7ac7bd5cbsm1786276d6.24.2024.07.18.19.08.03
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6b7ac7dfc97sm1785356d6.46.2024.07.18.19.08.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jul 2024 19:08:03 -0700 (PDT)
-Date: Thu, 18 Jul 2024 22:08:03 -0400
-Message-ID: <3a8d55e0d41a35a1a3c5d3590240d16b@paul-moore.com>
+        Thu, 18 Jul 2024 19:08:04 -0700 (PDT)
+Date: Thu, 18 Jul 2024 22:08:04 -0400
+Message-ID: <6e79c031aa6c223df552726ac6537d44@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -81,73 +82,39 @@ Cc: Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>,
 	Trond Myklebust <trond.myklebust@hammerspace.com>, Anna Schumaker <anna@kernel.org>, 
 	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH v4 5/20] lsm: Refactor return value of LSM hook  inode_copy_up_xattr
-References: <20240711111908.3817636-6-xukuohai@huaweicloud.com>
-In-Reply-To: <20240711111908.3817636-6-xukuohai@huaweicloud.com>
+Subject: Re: [PATCH v4 6/20] lsm: Refactor return value of LSM hook getselfattr
+References: <20240711111908.3817636-7-xukuohai@huaweicloud.com>
+In-Reply-To: <20240711111908.3817636-7-xukuohai@huaweicloud.com>
 
 On Jul 11, 2024 Xu Kuohai <xukuohai@huaweicloud.com> wrote:
 > 
 > To be consistent with most LSM hooks, convert the return value of
-> hook inode_copy_up_xattr to 0 or a negative error code.
+> hook getselfattr to 0 or a negative error code.
 > 
 > Before:
-> - Hook inode_copy_up_xattr returns 0 when accepting xattr, 1 when
->   discarding xattr, -EOPNOTSUPP if it does not know xattr, or any
->   other negative error code otherwise.
+> - Hook getselfattr returns number of attributes found on success
+>   or a negative error code on failure.
 > 
 > After:
-> - Hook inode_copy_up_xattr returns 0 when accepting xattr, *-ECANCELED*
->   when discarding xattr, -EOPNOTSUPP if it does not know xattr, or
->   any other negative error code otherwise.
+> - Hook getselfattr returns 0 on success or a negative error code
+>   on failure. An output parameter @nattr is introduced to hold
+>   the number of attributes found on success.
 > 
 > Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
 > ---
->  fs/overlayfs/copy_up.c            |  6 +++---
->  security/integrity/evm/evm_main.c |  2 +-
->  security/security.c               | 12 ++++++------
->  security/selinux/hooks.c          |  4 ++--
->  security/smack/smack_lsm.c        |  6 +++---
->  5 files changed, 15 insertions(+), 15 deletions(-)
+>  include/linux/lsm_hook_defs.h |  2 +-
+>  include/linux/security.h      |  5 +++--
+>  security/apparmor/lsm.c       |  5 +++--
+>  security/lsm_syscalls.c       |  6 +++++-
+>  security/security.c           | 18 +++++++++++-------
+>  security/selinux/hooks.c      | 13 +++++++++----
+>  security/smack/smack_lsm.c    | 13 +++++++++----
+>  7 files changed, 41 insertions(+), 21 deletions(-)
 
-...
-
-> diff --git a/security/security.c b/security/security.c
-> index 26eea8f4cd74..12215ca286af 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -2675,18 +2675,18 @@ EXPORT_SYMBOL(security_inode_copy_up);
->   * lower layer to the union/overlay layer.   The caller is responsible for
->   * reading and writing the xattrs, this hook is merely a filter.
->   *
-> - * Return: Returns 0 to accept the xattr, 1 to discard the xattr, -EOPNOTSUPP
-> - *         if the security module does not know about attribute, or a negative
-> - *         error code to abort the copy up.
-> + * Return: Returns 0 to accept the xattr, -ECANCELED to discard the xattr,
-> + *         -EOPNOTSUPP if the security module does not know about attribute,
-> + *         or a negative error code to abort the copy up.
->   */
->  int security_inode_copy_up_xattr(struct dentry *src, const char *name)
->  {
->  	int rc;
->  
->  	/*
-> -	 * The implementation can return 0 (accept the xattr), 1 (discard the
-> -	 * xattr), -EOPNOTSUPP if it does not know anything about the xattr or
-> -	 * any other error code in case of an error.
-> +	 * The implementation can return 0 (accept the xattr), -ECANCELED
-> +	 * (discard the xattr), -EOPNOTSUPP if it does not know anything
-> +	 *  about the xattr or any other error code in case of an error.
->  	 */
-
-Updating the comment here is good, but considering that we also discuss
-the return value in the function header comment, I think it might be
-better to just remove this comment entirely and leave the function header
-comment as the single source.  Duplicated comments/docs tend to fall out
-of sync and create confusion.
-
->  	rc = call_int_hook(inode_copy_up_xattr, src, name);
->  	if (rc != LSM_RET_DEFAULT(inode_copy_up_xattr))
-
+The getselfattr hook is different from the majority of the other LSM
+hooks as getselfattr is used as part of lsm_get_self_attr(2) syscall and
+not by other subsystems within the kernel.  Let's leave it as-is for now
+as it is sufficiently special case that a deviation is okay.
 
 --
 paul-moore.com
