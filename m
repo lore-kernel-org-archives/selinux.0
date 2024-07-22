@@ -1,297 +1,250 @@
-Received: from smtp-out.cvt.stuba.sk (smtp-out.cvt.stuba.sk [147.175.1.21])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f53.google.com (mail-io1-f53.google.com [209.85.166.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A28A16CD3B;
-	Mon, 22 Jul 2024 12:30:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=147.175.1.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B44F41EB56
+	for <selinux@vger.kernel.org>; Mon, 22 Jul 2024 15:12:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721651413; cv=none; b=ryVY81EvmMTB6ZGE/cwxV9cxx6/CoyiTwEGnxyiyl8r7y9jxGjj+CxhjWOpC4pLXW7hc5ZnK2jZ7ITOE9qQQBrXrbDdBpl7Q4GunWA2ym2fHOINukL+WO1n9HJ8fWuJPMvKLJgJPlEEO4inCavhyDsTcn/ufgAJYGrIawGkQODs=
+	t=1721661133; cv=none; b=VzwUA54H2y/rjarDKEDNdBNGf+9vkNbb3sKBq4pTieTkdRGbhy8+mrdR8LbKX+a0tah05X9vypfmAV5M7D7gTfEIqFBPQ8FAV9O+ScBWnLmrtgM9/nAf/vhVybyQFxFdGFncktLvPOJW0vvtxN2x8nch1wbneWMkH5WiIQVTTp0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721651413; c=relaxed/simple;
-	bh=QYJjUayfOW3Iu2s5KLRYoX87P3zgT4ST0jGaZfWa8yw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZudMdEuQlf83FMFL0E8JahwFpqCBu/9qh2lV0YGHzpyMg8g9/8+o+tlOmIml5AtxmM4p/ox92YtjkNm9CZYzkSYCt8ErDIOsSAkM2kY3aZ4EZnX4wpIiqTVRUHPvjZzUdsFtwhnewBGQXLVDE8DJ01kH+nzGypSjvxdCrOV40X8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=stuba.sk; spf=pass smtp.mailfrom=stuba.sk; dkim=pass (2048-bit key) header.d=stuba.sk header.i=@stuba.sk header.b=XKxAPoVb; arc=none smtp.client-ip=147.175.1.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=stuba.sk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stuba.sk
+	s=arc-20240116; t=1721661133; c=relaxed/simple;
+	bh=DF/M5ISRMNzntVJTncetFq9lV8qaDTU2GjPaHx+zuH8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=uihzaxUFXbGsG3WR+ftg7E1P2N0rRaoYHW6eKByP8CvLlu/rXiJExnvqlP8acs8qaBvRRxxGU79Rxb80OUYDhjqM7E4K8wrF6qNwF6sl5YZVdyTmhW/MWWBvdlbaCUNmuDIHrRW4ImlJ9JEynXJbMxVqqKWoGIc5UwVamFAg/M8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IoDOXsBI; arc=none smtp.client-ip=209.85.166.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=stuba.sk header.i=@stuba.sk header.b="XKxAPoVb"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=stuba.sk;
-	s=20180406; h=Content-Transfer-Encoding:Content-Type:From:To:Subject:
-	MIME-Version:Date:Message-ID; bh=ni3yT5OSY7+kdIVa0o7ghGWYq7yTvaPSFDN9orW/Jl0=
-	; t=1721651409; x=1722083409; b=XKxAPoVbr3yufkHeNjrtDiYXHSh8xywtlsFabL0Ya/wP1
-	Xm29GvjYRVaivzBcUq7qOPfWMwbPIeaCUTpL6j98mUVRxz7/IMtIqJOVeUyIHHaPCjtpOmFmlkxe3
-	DMdRc4aVpbcWOYj0GTIrbsRgBfTfPZlLEzul6FBrZQq6PxQb5G9CLgFGa5G8KDKiaDirm3viIyJLp
-	+u1Oo9hTPvhvHbeq57RQZtgPZb5T2eixoqTlGxvaBtKZduubOAX3TfnInnKEp9dBWdTf9lNz0bkyq
-	ZAQUBG9hoIXfg9U7JAcsnfG7fwIzTUydi1TLdjhtNzTXQwMfVWAeiBmPJrJBbWRyYA==;
-X-STU-Diag: 0788c6148bbb52df (auth)
-Received: from ellyah.uim.fei.stuba.sk ([147.175.106.89])
-	by mx1.stuba.sk (Exim4) with esmtpsa (TLS1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
-	(envelope-from <matus.jokay@stuba.sk>)
-	id 1sVsAx-000000005PY-2X0t;
-	Mon, 22 Jul 2024 14:29:59 +0200
-Message-ID: <ad6c7b2a-219e-4518-ab2d-bd798c720943@stuba.sk>
-Date: Mon, 22 Jul 2024 14:29:59 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IoDOXsBI"
+Received: by mail-io1-f53.google.com with SMTP id ca18e2360f4ac-8036ce660e5so188495039f.1
+        for <selinux@vger.kernel.org>; Mon, 22 Jul 2024 08:12:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1721661131; x=1722265931; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CcQTfrdtRUu6jfLJDYSZYV8vAwoU/GbbPE+c4gZwvVc=;
+        b=IoDOXsBIzPQx30HahrLkC+4KsL6BTnQUEbP3Vls+LowtQmYP0y1uOr7euryhTvg3Ku
+         qb8K7oeh5kvEXFo33MHQCrIHrkdGgWCRX4sGOt6IbCWaexjqMmpTx2AtHctv28p1v3hp
+         5DGYUrCWCWDTDwxvgaLgiRrq9SSH/LIGONAk0LotLst24AsQcWqYbMKhpPM5SYACAxa7
+         XbOpjmfSfe0Dkxk4heP3G34FjSIudsuvMUvKMqC2z1H3wiQKz7+51nu3VtSiknjWAr0J
+         leTMxBlCCsJX/DtcHRjGam4+SmmimxGaL7FYf59Zm+5InU3UdpTPkq5aI9dZT9ko+ZaX
+         OqvA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721661131; x=1722265931;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=CcQTfrdtRUu6jfLJDYSZYV8vAwoU/GbbPE+c4gZwvVc=;
+        b=IjycfeJxRZfpRSCLwGnjbmufqfCutceAbuOLudl2cg0ZLuW+niFhKlSJjde7aSS91M
+         CHjwEe6KXSCDrpmzq/HJmOIk16Jhjvtbz/WvcuUZvcyvw/uigBIbR79ZtGGhjz7DxN6p
+         A1QH00X2ifpfzFktTGA7P6hc06pmiKete9LwX9yUafTmUwLv87jVvovsPV3iJ210d9FW
+         RgB7dUDc7oK4WgnwzemDj6CAObm+uY0sgmRWOXO+xEOGKXJZJYo2/c562U8zhZdFDb3v
+         iT5oJro5ef30OETVXxwZzTExmRQmje5tWJfije5cwLZjOylHDwBjqd6i+l9OXrDkZP/O
+         Oq6Q==
+X-Gm-Message-State: AOJu0YxbyPqGDKi/pYSTYm0r3XS6fGn8Tphuwu6/w9Fv1RGt7an4BpY+
+	IUCclSaxV1And2En50dXj4NeRM68EY9el8/3y3Bg2oCJdpFtVOGV7o3qtqc76a0Fp03XtsIqW7s
+	lpbKjIestuhVvdeyIxHiaV88rTvLLhw==
+X-Google-Smtp-Source: AGHT+IHdMYVzZSkUeBb5QJiZF0BBALctYH9hy5aPHjv3BNnzdiRMX94sYuwzajNA69UZof0qnQFsLlMuGi18eoJp82o=
+X-Received: by 2002:a05:6e02:1a88:b0:374:9916:92 with SMTP id
+ e9e14a558f8ab-399403db700mr82605525ab.22.1721661130616; Mon, 22 Jul 2024
+ 08:12:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH] lsm: add the inode_free_security_rcu() LSM
- implementation hook
-To: =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
- Paul Moore <paul@paul-moore.com>
-Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
- Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>,
- linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>
-References: <20240710024029.669314-2-paul@paul-moore.com>
- <20240710.peiDu2aiD1su@digikod.net>
-Content-Language: en-US
-From: Matus Jokay <matus.jokay@stuba.sk>
-In-Reply-To: <20240710.peiDu2aiD1su@digikod.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <85a7faac-a590-4e3c-9c32-f446a6f5aec2@redhat.com> <20240719132918.931352-1-vmojzis@redhat.com>
+In-Reply-To: <20240719132918.931352-1-vmojzis@redhat.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 22 Jul 2024 11:11:59 -0400
+Message-ID: <CAEjxPJ5AgxzF=h3fCj3JS=aaNUcEWmnJU0q6jQVCmJQty==G7g@mail.gmail.com>
+Subject: Re: [PATCH v2] libsemanage: Preserve file context and ownership in
+ policy store
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 10. 7. 2024 12:40, Mickaël Salaün wrote:
-> On Tue, Jul 09, 2024 at 10:40:30PM -0400, Paul Moore wrote:
->> The LSM framework has an existing inode_free_security() hook which
->> is used by LSMs that manage state associated with an inode, but
->> due to the use of RCU to protect the inode, special care must be
->> taken to ensure that the LSMs do not fully release the inode state
->> until it is safe from a RCU perspective.
->>
->> This patch implements a new inode_free_security_rcu() implementation
->> hook which is called when it is safe to free the LSM's internal inode
->> state.  Unfortunately, this new hook does not have access to the inode
->> itself as it may already be released, so the existing
->> inode_free_security() hook is retained for those LSMs which require
->> access to the inode.
->>
->> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> 
-> I like this new hook.  It is definitely safer than the current approach.
-> 
-> To make it more consistent, I think we should also rename
-> security_inode_free() to security_inode_put() to highlight the fact that
-> LSM implementations should not free potential pointers in this blob
-> because they could still be dereferenced in a path walk.
-> 
->> ---
->>  include/linux/lsm_hook_defs.h     |  1 +
->>  security/integrity/ima/ima.h      |  2 +-
->>  security/integrity/ima/ima_iint.c | 20 ++++++++------------
->>  security/integrity/ima/ima_main.c |  2 +-
->>  security/landlock/fs.c            |  9 ++++++---
->>  security/security.c               | 26 +++++++++++++-------------
->>  6 files changed, 30 insertions(+), 30 deletions(-)
->>
->> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
->> index 8fd87f823d3a..abe6b0ef892a 100644
->> --- a/include/linux/lsm_hook_defs.h
->> +++ b/include/linux/lsm_hook_defs.h
->> @@ -114,6 +114,7 @@ LSM_HOOK(int, 0, path_notify, const struct path *path, u64 mask,
->>  	 unsigned int obj_type)
->>  LSM_HOOK(int, 0, inode_alloc_security, struct inode *inode)
->>  LSM_HOOK(void, LSM_RET_VOID, inode_free_security, struct inode *inode)
->> +LSM_HOOK(void, LSM_RET_VOID, inode_free_security_rcu, void *)
->>  LSM_HOOK(int, -EOPNOTSUPP, inode_init_security, struct inode *inode,
->>  	 struct inode *dir, const struct qstr *qstr, struct xattr *xattrs,
->>  	 int *xattr_count)
->> diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
->> index 3e568126cd48..e2a2e4c7eab6 100644
->> --- a/security/integrity/ima/ima.h
->> +++ b/security/integrity/ima/ima.h
->> @@ -223,7 +223,7 @@ static inline void ima_inode_set_iint(const struct inode *inode,
->>  
->>  struct ima_iint_cache *ima_iint_find(struct inode *inode);
->>  struct ima_iint_cache *ima_inode_get(struct inode *inode);
->> -void ima_inode_free(struct inode *inode);
->> +void ima_inode_free_rcu(void *inode_sec);
->>  void __init ima_iintcache_init(void);
->>  
->>  extern const int read_idmap[];
->> diff --git a/security/integrity/ima/ima_iint.c b/security/integrity/ima/ima_iint.c
->> index e23412a2c56b..54480df90bdc 100644
->> --- a/security/integrity/ima/ima_iint.c
->> +++ b/security/integrity/ima/ima_iint.c
->> @@ -109,22 +109,18 @@ struct ima_iint_cache *ima_inode_get(struct inode *inode)
->>  }
->>  
->>  /**
->> - * ima_inode_free - Called on inode free
->> - * @inode: Pointer to the inode
->> + * ima_inode_free_rcu - Called to free an inode via a RCU callback
->> + * @inode_sec: The inode::i_security pointer
->>   *
->> - * Free the iint associated with an inode.
->> + * Free the IMA data associated with an inode.
->>   */
->> -void ima_inode_free(struct inode *inode)
->> +void ima_inode_free_rcu(void *inode_sec)
->>  {
->> -	struct ima_iint_cache *iint;
->> +	struct ima_iint_cache **iint_p = inode_sec + ima_blob_sizes.lbs_inode;
->>  
->> -	if (!IS_IMA(inode))
->> -		return;
->> -
->> -	iint = ima_iint_find(inode);
->> -	ima_inode_set_iint(inode, NULL);
->> -
->> -	ima_iint_free(iint);
->> +	/* *iint_p should be NULL if !IS_IMA(inode) */
->> +	if (*iint_p)
->> +		ima_iint_free(*iint_p);
->>  }
->>  
->>  static void ima_iint_init_once(void *foo)
->> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
->> index f04f43af651c..5b3394864b21 100644
->> --- a/security/integrity/ima/ima_main.c
->> +++ b/security/integrity/ima/ima_main.c
->> @@ -1193,7 +1193,7 @@ static struct security_hook_list ima_hooks[] __ro_after_init = {
->>  #ifdef CONFIG_INTEGRITY_ASYMMETRIC_KEYS
->>  	LSM_HOOK_INIT(kernel_module_request, ima_kernel_module_request),
->>  #endif
->> -	LSM_HOOK_INIT(inode_free_security, ima_inode_free),
->> +	LSM_HOOK_INIT(inode_free_security_rcu, ima_inode_free_rcu),
->>  };
->>  
->>  static const struct lsm_id ima_lsmid = {
->> diff --git a/security/landlock/fs.c b/security/landlock/fs.c
->> index 22d8b7c28074..f583f8cec345 100644
->> --- a/security/landlock/fs.c
->> +++ b/security/landlock/fs.c
->> @@ -1198,13 +1198,16 @@ static int current_check_refer_path(struct dentry *const old_dentry,
->>  
->>  /* Inode hooks */
->>  
->> -static void hook_inode_free_security(struct inode *const inode)
->> +static void hook_inode_free_security_rcu(void *inode_sec)
->>  {
->> +	struct landlock_inode_security *lisec;
-> 
-> Please rename "lisec" to "inode_sec" for consistency with
-> get_inode_object()'s variables.
-> 
->> +
->>  	/*
->>  	 * All inodes must already have been untied from their object by
->>  	 * release_inode() or hook_sb_delete().
->>  	 */
->> -	WARN_ON_ONCE(landlock_inode(inode)->object);
->> +	lisec = inode_sec + landlock_blob_sizes.lbs_inode;
->> +	WARN_ON_ONCE(lisec->object);
->>  }
-> 
-> This looks good to me.
-> 
-> We can add these footers:
-> Reported-by: syzbot+5446fbf332b0602ede0b@syzkaller.appspotmail.com
-> Closes: https://lore.kernel.org/r/00000000000076ba3b0617f65cc8@google.com
-Sorry for the questions, but for several weeks I can't find answers to two things related to this RFC:
+On Fri, Jul 19, 2024 at 9:29=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> wro=
+te:
+>
+> Make sure that file context (all parts) and ownership of
+> files/directories in policy store does not change no matter which user
+> and under which context executes policy rebuild.
+>
+> Fixes:
+>   # semodule -B
+>   # ls -lZ  /etc/selinux/targeted/contexts/files
+>
+> -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 421397 Ju=
+l 11 09:57 file_contexts
+> -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 593470 Ju=
+l 11 09:57 file_contexts.bin
+> -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  14704 Ju=
+l 11 09:57 file_contexts.homedirs
+> -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  20289 Ju=
+l 11 09:57 file_contexts.homedirs.bin
+>
+>   SELinux user changed from system_u to the user used to execute semodule
+>
+>   # capsh --user=3Dtestuser --caps=3D"cap_dac_override,cap_chown+eip" --a=
+ddamb=3Dcap_dac_override,cap_chown -- -c "semodule -B"
+>   # ls -lZ  /etc/selinux/targeted/contexts/files
+>
+> -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0 4=
+21397 Jul 19 09:10 file_contexts
+> -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0 5=
+93470 Jul 19 09:10 file_contexts.bin
+> -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0  =
+14704 Jul 19 09:10 file_contexts.homedirs
+> -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0  =
+20289 Jul 19 09:10 file_contexts.homedirs.bin
+>
+>   Both file context and ownership changed -- causes remote login
+>   failures and other issues in some scenarios.
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> ---
+>  libsemanage/src/semanage_store.c | 23 ++++++++++++++++++++++-
+>  libsemanage/src/semanage_store.h |  1 +
+>  2 files changed, 23 insertions(+), 1 deletion(-)
+>
+> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_=
+store.c
+> index 27c5d349..12c30ad2 100644
+> --- a/libsemanage/src/semanage_store.c
+> +++ b/libsemanage/src/semanage_store.c
+> @@ -36,6 +36,7 @@ typedef struct dbase_policydb dbase_t;
+>  #include "database_policydb.h"
+>  #include "handle.h"
+>
+> +#include <selinux/restorecon.h>
+>  #include <selinux/selinux.h>
+>  #include <sepol/policydb.h>
+>  #include <sepol/module.h>
+> @@ -731,7 +732,7 @@ int semanage_copy_file(const char *src, const char *d=
+st, mode_t mode,
+>
+>         if (!mode)
+>                 mode =3D S_IRUSR | S_IWUSR;
+> -
+> +
 
-1) How does this patch close [1]?
-   As Mickaël pointed in [2], "It looks like security_inode_free() is called two times on the same inode."
-   Indeed, it does not seem from the backtrace that it is a case of race between destroy_inode and inode_permission,
-   i.e. referencing the inode in a VFS path walk while destroying it...
-   Please, can anyone tell me how this situation could have happened? Maybe folks from VFS... I added them to the copy.
+We generally don't make unrelated whitespace changes in a patch.
 
-2) Is there a guarantee that inode_free_by_rcu and i_callback will be called within the same RCU grace period?
-   If not, can the security context be released earlier than the inode itself? If yes, can be executed
-   inode_permission concurrently, leading to UAF of inode security context in security_inode_permission?
-   Can fsnotify affect this (leading to different RCU grace periods)? (Again probably a question for VFS people.)
-   I know, this RFC doesn't address exactly that question, but I'd like to know the answer.
+>         mask =3D umask(0);
+>         if ((out =3D open(tmp, O_WRONLY | O_CREAT | O_TRUNC, mode)) =3D=
+=3D -1) {
+>                 umask(mask);
+> @@ -767,6 +768,8 @@ int semanage_copy_file(const char *src, const char *d=
+st, mode_t mode,
+>         if (!retval && rename(tmp, dst) =3D=3D -1)
+>                 return -1;
+>
+> +       semanage_setfiles(dst);
+> +
+>  out:
+>         errno =3D errsv;
+>         return retval;
+> @@ -819,6 +822,8 @@ static int semanage_copy_dir_flags(const char *src, c=
+onst char *dst, int flag)
+>                         goto cleanup;
+>                 }
+>                 umask(mask);
+> +
+> +               semanage_setfiles(dst);
+>         }
+>
+>         for (i =3D 0; i < len; i++) {
+> @@ -837,6 +842,7 @@ static int semanage_copy_dir_flags(const char *src, c=
+onst char *dst, int flag)
+>                                 goto cleanup;
+>                         }
+>                         umask(mask);
+> +                       semanage_setfiles(path2);
+>                 } else if (S_ISREG(sb.st_mode) && flag =3D=3D 1) {
+>                         mask =3D umask(0077);
+>                         if (semanage_copy_file(path, path2, sb.st_mode,
+> @@ -938,6 +944,7 @@ int semanage_mkdir(semanage_handle_t *sh, const char =
+*path)
+>
+>                 }
+>                 umask(mask);
+> +               semanage_setfiles(path);
+>         }
+>         else {
+>                 /* check that it really is a directory */
+> @@ -1614,16 +1621,19 @@ static int semanage_validate_and_compile_fcontext=
+s(semanage_handle_t * sh)
+>                     semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC))=
+ !=3D 0) {
+>                 goto cleanup;
+>         }
+> +       semanage_setfiles(semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAG=
+E_FC_BIN));
+>
+>         if (sefcontext_compile(sh,
+>                     semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_L=
+OCAL)) !=3D 0) {
+>                 goto cleanup;
+>         }
+> +       semanage_setfiles(semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAG=
+E_FC_LOCAL_BIN));
+>
+>         if (sefcontext_compile(sh,
+>                     semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_H=
+OMEDIRS)) !=3D 0) {
+>                 goto cleanup;
+>         }
+> +       semanage_setfiles(semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAG=
+E_FC_HOMEDIRS_BIN));
+>
+>         status =3D 0;
+>  cleanup:
+> @@ -3018,3 +3028,14 @@ int semanage_nc_sort(semanage_handle_t * sh, const=
+ char *buf, size_t buf_len,
+>
+>         return 0;
+>  }
+> +
+> +/* Make sure the file context and ownership of files in the policy
+> + * store does not change */
+> +void semanage_setfiles(const char *path){
+> +       /* Fix the user and role portions of the context, ignore errors
+> +        * since this is not a critical operation */
+> +       selinux_restorecon(path, SELINUX_RESTORECON_SET_SPECFILE_CTX | SE=
+LINUX_RESTORECON_IGNORE_NOENTRY);
+> +       /* Make sure "path" is owned by root */
+> +       if(geteuid() !=3D 0 || getegid() !=3D 0)
+> +               chown(path, 0, 0);
+> +}
 
-Many thanks for the helpful answers and your time,
-mY
+Arguably should check stat.st_uid/gid from stat(2) of path although
+perhaps it doesn't matter.
+Need to make sure that these paths only exist in root-owned
+directories and can't be used to trigger a chown of some other
+arbitrary file to root ownership, e.g. some suid binary.
+Maybe refuse to chown() if stat.st_mode & (S_IFREG|S_ISUID) ||
+stat.st_mode & (S_IFREG|S_ISGID)?
 
-[1] https://lore.kernel.org/r/00000000000076ba3b0617f65cc8@google.com
-[2] https://lore.kernel.org/linux-security-module/CAHC9VhQUqJkWxhe5KukPOVQMnOhcOH5E+BJ4_b3Qn6edsL5YJQ@mail.gmail.com/T/#m6e6b01b196eac15a7ad99cf366614bbe60b8d9a2
-
-> 
-> However, I'm wondering if we could backport this patch down to v5.15 .
-> I guess not, so I'll need to remove this hook implementation for
-> Landlock, backport it to v5.15, and then you'll need to re-add this
-> check with this patch.  At least it has been useful to spot this inode
-> issue, but it could still be useful to spot potential memory leaks with
-> a negligible performance impact.
-> 
-> 
->>  
->>  /* Super-block hooks */
->> @@ -1628,7 +1631,7 @@ static int hook_file_ioctl_compat(struct file *file, unsigned int cmd,
->>  }
->>  
->>  static struct security_hook_list landlock_hooks[] __ro_after_init = {
->> -	LSM_HOOK_INIT(inode_free_security, hook_inode_free_security),
->> +	LSM_HOOK_INIT(inode_free_security_rcu, hook_inode_free_security_rcu),
->>  
->>  	LSM_HOOK_INIT(sb_delete, hook_sb_delete),
->>  	LSM_HOOK_INIT(sb_mount, hook_sb_mount),
->> diff --git a/security/security.c b/security/security.c
->> index b52e81ac5526..bc6805f7332e 100644
->> --- a/security/security.c
->> +++ b/security/security.c
->> @@ -1596,9 +1596,8 @@ int security_inode_alloc(struct inode *inode)
->>  
->>  static void inode_free_by_rcu(struct rcu_head *head)
->>  {
->> -	/*
->> -	 * The rcu head is at the start of the inode blob
->> -	 */
->> +	/* The rcu head is at the start of the inode blob */
->> +	call_void_hook(inode_free_security_rcu, head);
-> 
-> For this to work, we need to extend the inode blob size (lbs_inode) with
-> sizeof(struct rcu_head).  The current implementation override the
-> content of the blob with a new rcu_head.
-> 
->>  	kmem_cache_free(lsm_inode_cache, head);
->>  }
->>  
->> @@ -1606,20 +1605,21 @@ static void inode_free_by_rcu(struct rcu_head *head)
->>   * security_inode_free() - Free an inode's LSM blob
->>   * @inode: the inode
->>   *
->> - * Deallocate the inode security structure and set @inode->i_security to NULL.
->> + * Release any LSM resources associated with @inode, although due to the
->> + * inode's RCU protections it is possible that the resources will not be
->> + * fully released until after the current RCU grace period has elapsed.
->> + *
->> + * It is important for LSMs to note that despite being present in a call to
->> + * security_inode_free(), @inode may still be referenced in a VFS path walk
->> + * and calls to security_inode_permission() may be made during, or after,
->> + * a call to security_inode_free().  For this reason the inode->i_security
->> + * field is released via a call_rcu() callback and any LSMs which need to
->> + * retain inode state for use in security_inode_permission() should only
->> + * release that state in the inode_free_security_rcu() LSM hook callback.
->>   */
->>  void security_inode_free(struct inode *inode)
->>  {
->>  	call_void_hook(inode_free_security, inode);
->> -	/*
->> -	 * The inode may still be referenced in a path walk and
->> -	 * a call to security_inode_permission() can be made
->> -	 * after inode_free_security() is called. Ideally, the VFS
->> -	 * wouldn't do this, but fixing that is a much harder
->> -	 * job. For now, simply free the i_security via RCU, and
->> -	 * leave the current inode->i_security pointer intact.
->> -	 * The inode will be freed after the RCU grace period too.
->> -	 */
->>  	if (inode->i_security)
->>  		call_rcu((struct rcu_head *)inode->i_security,
->>  			 inode_free_by_rcu);
-> 
-> We should have something like:
-> call_rcu(inode->i_security.rcu, inode_free_by_rcu);
-> 
->> -- 
->> 2.45.2
->>
->>
-> 
-
+> diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_=
+store.h
+> index 1fc77da8..e21dadeb 100644
+> --- a/libsemanage/src/semanage_store.h
+> +++ b/libsemanage/src/semanage_store.h
+> @@ -124,6 +124,7 @@ int semanage_get_cil_paths(semanage_handle_t * sh, se=
+manage_module_info_t *modin
+>  int semanage_get_active_modules(semanage_handle_t *sh,
+>                                semanage_module_info_t **modinfo, int *num=
+_modules);
+>
+> +void semanage_setfiles(const char *path);
+>
+>  /* lock file routines */
+>  int semanage_get_trans_lock(semanage_handle_t * sh);
+> --
+> 2.43.0
+>
+>
