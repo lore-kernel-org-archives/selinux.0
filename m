@@ -1,241 +1,175 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com [209.85.219.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F5A51C695
-	for <selinux@vger.kernel.org>; Mon, 22 Jul 2024 19:19:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A422116EBFA
+	for <selinux@vger.kernel.org>; Mon, 22 Jul 2024 19:46:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721675955; cv=none; b=ivPHEQOaLJqQdGj/wHKywM8TmWEo3wlLy4oXTxLDtl62c7YrhFypfF/WFXA1rsUZoXYWPPZBZgUPDmQqT8V9jb7hXBVi9KXjzDQZrk3gLjLvur+RctqM3SEhOLaj0CHC1cYZ9lx70zQ0SM5BKivujl38EgCaLHvmkeaIf4M0FVI=
+	t=1721677610; cv=none; b=fjfnBmbvOQovdzEyArpO+PiqPlFMUaJdt74HrfTXrbIGWJRlcLGKchfZ4rDEkbQmGvwBTcBljYbrakucYRQA1u7rSjbxkqrJtpkNX3glqEgg8GFizhLk0ff254Vab+j393UeqTfkGDlWf1q86+HQJBBnJ7NMnSC0n899gcaIw1Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721675955; c=relaxed/simple;
-	bh=5dlJ/3UzjavEmf4d8DJiokqj9VOZUSpegJQ8OTHffg4=;
+	s=arc-20240116; t=1721677610; c=relaxed/simple;
+	bh=rvq+CWJ7KyybcI/TZ7Cso/tA/xiqNuIasYSqFhXRoLQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=EqDyMjjTGfBaHYwP6JPgFlwUaCAmGHHtDHfm/Ua9jUzB5yMYaNv/uEi4ckxdUYlyPUaeIs1DcYpJ11pgqV4HYRhwjv922EVzYSaWSfH8wl1aqmXxRGVt/jPmcLBkLGsW6cPr8kSeQIfVTibVtxMlMcV1B+PRFm8j/zrcz5wKG54=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K6XbQeK2; arc=none smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=Q/HHLDqE9RtRwbksfc7Cy1Wfljq1R6tv+jWHvXkM8GSJa+esTIbwNAk3VqvXRyuB7azrOxqGjf/LxKcBCiBCEKZQKX9ABHjIDphlpjhKMJEnmTLN52UGvKfjJrj+J/76unPr2whcjMCZebn9UhpUgQWPzrAAJ/Ih2R3UI3VIZII=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Z3xKcnac; arc=none smtp.client-ip=209.85.219.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K6XbQeK2"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-2cb5e0b020eso2914840a91.2
-        for <selinux@vger.kernel.org>; Mon, 22 Jul 2024 12:19:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Z3xKcnac"
+Received: by mail-yb1-f181.google.com with SMTP id 3f1490d57ef6-e05ebd3d607so4654340276.3
+        for <selinux@vger.kernel.org>; Mon, 22 Jul 2024 12:46:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1721675953; x=1722280753; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1721677607; x=1722282407; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=U9U+03300A98Vsc2zeB7rf2s/kTbpR51XEtUWz2chHA=;
-        b=K6XbQeK2KkFfi+dknwBFFL3fEiId83oeibj3+A1dhyxKH/fkI7U+ieIs8tiXjSSBia
-         g3xPAe6MLompBr9W12GU0TrRWOSuzrK/Da61yCeF7trtHZhU/e+QkY8jNanmxmpJio0l
-         IbOHD1ZeUIQGby3wM4NzIauQldt+2Qe14HyYeYmG5LKc4LoRLf3WiOxnS2+H1Akh1tYB
-         6Bfme+wtouQTNM4NfFDAcnnB5UGEZF7O4DOn67Vvk2GhC9S3+tadg1qf5odHRbFS/RWd
-         kfQ9jsWxpwsCBv5f2BSLu+dgN7tACiuw0AFtExWB4v2+WwOlTOG7YLemC9ZdI63JSuwF
-         TZKg==
+        bh=IlsyLoJ7kHoM0a0Ziou/1J4ZDEbSzOtiEJ45NJYR1HE=;
+        b=Z3xKcnacnNYEnUivQss7OoF1tXOKKEk3IK8WPgDhOkqUN0ovgfnUes5Le80Czsmu02
+         d51qiqb9WvOannd/N2Zo//Z80GV77GvabkjJp4y0Oo2+csI8wpy4jpTnyNfiDNcZPBET
+         8Jfg0ViUl9Kgi9xMcg7+b7ox9KQGYTkXszLqtakw+/mnC6MgnHPAcvnpSB7PkNVOlZ2w
+         I+ZeWpp98GBFVjbRLI99AqJqmQILyCM4EaFBvNNXn83Oxa+NbM80j12rxaaIu9Vlm1V1
+         pwWABf5pfQNdYjEw502Sg8wsGEnsCUSoi7vp1EWmm/v5VIzgZ21slF8sU4hVBF2DX+Zl
+         cW2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721675953; x=1722280753;
+        d=1e100.net; s=20230601; t=1721677607; x=1722282407;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=U9U+03300A98Vsc2zeB7rf2s/kTbpR51XEtUWz2chHA=;
-        b=jn3czE0Ql68Rkj0OoBitnI0N0cQM2AgRI6CaCVGEQQkLZmxyVUk3LeVZFYVnfdkjia
-         2FaqqcpNcZOgP4I6IOqoHCGU9KF5gSSRj47ugx+5AK7HdP/8Jwa1Acr4nSkZultr4AkN
-         4rBHqpznKDvs6EdbMaZ7uHClXrrRozlhwEgx1K8PNYmLwDHGYY+eAntEB0FOlINElQvH
-         coPfG6jCNFS9gXbWk2jpMrgQalf4/ze+M6wMNUKA00eqm3frmI8wzI6SVTP7GKwf8G4G
-         jCzCNuFRpFA2jMk10p1KipcTum8QTM4DvDAhqJ32pRo0jVcsgFeY5Ej2FlR78DcUsniU
-         Atkg==
-X-Gm-Message-State: AOJu0Yxms5O8Vv8z93iWZoV2uSv14LWQ8UreBXxT8TChGslHOkKGy+oX
-	2f2Pb0lAO/C0ADarjdOVEhr7R4fSGkU8xW22lUOwWox31MdQG2mJi2A2cAQm1CV3n6agMnKZOfH
-	mJamCi3GwzlSWzAW5jNcBPai7OxY=
-X-Google-Smtp-Source: AGHT+IGRGwfij1tHiq4EV3MdVfVZVE0N70H9Zq/L9RDngiIiKlybGLyDIcW5Ar89q3lgPHTF+PMKU4cCQQHzXpq+xdw=
-X-Received: by 2002:a17:90a:c683:b0:2cb:5aaf:c12e with SMTP id
- 98e67ed59e1d1-2cd274e30aemr6323650a91.37.1721675952682; Mon, 22 Jul 2024
- 12:19:12 -0700 (PDT)
+        bh=IlsyLoJ7kHoM0a0Ziou/1J4ZDEbSzOtiEJ45NJYR1HE=;
+        b=Of7y5Jwjp9szeQ3x4sK2miGiuJ5Yk5mVm2TnkKJ+HwRp2nBvwz2QK6ipdy6HCa1iAW
+         C+PAnSRPtrUt9ykRSWhEGvozjYLcF9ndMnmNJlTTmpQACFeeZrZnQgek9I+pAoTocmVL
+         GMV0vtuOTeg+PQb6+IoGBcpV1CJn9xjzwxpRwUVi6E4qvFKH8Z38KyMr/XzdaSxF+tRG
+         SiR0JUmGW7suLY2woVhSWkmKEeb3LxALCH3Ee1/KAdxNJOuAuTSgjhPJfonwgD+sVTjk
+         AAymK5lTh0mwixj0OFF8OiIE2pTZI/nDH02r48a0NI5qdcCRJFyC1U3JX9+QgdMsJoma
+         0gtw==
+X-Forwarded-Encrypted: i=1; AJvYcCUbhoEwHBWY+l3Q7CoqzgEBwMv0mmRdt7PPAACKhqkx9MqQ/H2swYuAKcybcy9fwgTUgSG5ktv3CXBvZ9DL4+Jc+cALeaXfFg==
+X-Gm-Message-State: AOJu0YzQmhWDKzWsXp6+EG9KxYGsS9kRwmTh03LUSDwxZmEJeHk6O4bH
+	i6cwbnJrAx2bWtNF6+dG1dwYDAcqPshNOSdHyPGPUDyKZEy7i75Ku5CtOZrR3D2URnI+fJIjLRM
+	5OBG3ISEzbFjtPxCBEG7sKoSk6oWR8OqN/dIS
+X-Google-Smtp-Source: AGHT+IEOsMZxw0Xw68qGvDBWu3kZ+3yQnbvGHXg/Ez4wSvfzxgZSKczbqq9vqe5RMMTqlPlW8aYSoANyjDSjpwD5OvM=
+X-Received: by 2002:a05:6902:150a:b0:e05:fdbe:bbec with SMTP id
+ 3f1490d57ef6-e086fe55573mr10735481276.9.1721677607589; Mon, 22 Jul 2024
+ 12:46:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <85a7faac-a590-4e3c-9c32-f446a6f5aec2@redhat.com>
- <20240719132918.931352-1-vmojzis@redhat.com> <CAEjxPJ5AgxzF=h3fCj3JS=aaNUcEWmnJU0q6jQVCmJQty==G7g@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5AgxzF=h3fCj3JS=aaNUcEWmnJU0q6jQVCmJQty==G7g@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 22 Jul 2024 15:19:00 -0400
-Message-ID: <CAEjxPJ6p9hqj1Mft+J2tJ10vktNkhfjAbb322VqWyNJO10Gb=w@mail.gmail.com>
-Subject: Re: [PATCH v2] libsemanage: Preserve file context and ownership in
- policy store
-To: Vit Mojzis <vmojzis@redhat.com>
-Cc: selinux@vger.kernel.org
+References: <20240710024029.669314-2-paul@paul-moore.com> <20240710.peiDu2aiD1su@digikod.net>
+ <ad6c7b2a-219e-4518-ab2d-bd798c720943@stuba.sk>
+In-Reply-To: <ad6c7b2a-219e-4518-ab2d-bd798c720943@stuba.sk>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 22 Jul 2024 15:46:36 -0400
+Message-ID: <CAHC9VhRsZBjs2MWXUUotmX_vWTUbboyLT6sR4WbzmqndKEVe8Q@mail.gmail.com>
+Subject: Re: [RFC PATCH] lsm: add the inode_free_security_rcu() LSM
+ implementation hook
+To: Matus Jokay <matus.jokay@stuba.sk>
+Cc: =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
+	linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 22, 2024 at 11:11=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Jul 19, 2024 at 9:29=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> w=
-rote:
+On Mon, Jul 22, 2024 at 8:30=E2=80=AFAM Matus Jokay <matus.jokay@stuba.sk> =
+wrote:
+> On 10. 7. 2024 12:40, Micka=C3=ABl Sala=C3=BCn wrote:
+> > On Tue, Jul 09, 2024 at 10:40:30PM -0400, Paul Moore wrote:
+> >> The LSM framework has an existing inode_free_security() hook which
+> >> is used by LSMs that manage state associated with an inode, but
+> >> due to the use of RCU to protect the inode, special care must be
+> >> taken to ensure that the LSMs do not fully release the inode state
+> >> until it is safe from a RCU perspective.
+> >>
+> >> This patch implements a new inode_free_security_rcu() implementation
+> >> hook which is called when it is safe to free the LSM's internal inode
+> >> state.  Unfortunately, this new hook does not have access to the inode
+> >> itself as it may already be released, so the existing
+> >> inode_free_security() hook is retained for those LSMs which require
+> >> access to the inode.
+> >>
+> >> Signed-off-by: Paul Moore <paul@paul-moore.com>
 > >
-> > Make sure that file context (all parts) and ownership of
-> > files/directories in policy store does not change no matter which user
-> > and under which context executes policy rebuild.
+> > I like this new hook.  It is definitely safer than the current approach=
+.
 > >
-> > Fixes:
-> >   # semodule -B
-> >   # ls -lZ  /etc/selinux/targeted/contexts/files
+> > To make it more consistent, I think we should also rename
+> > security_inode_free() to security_inode_put() to highlight the fact tha=
+t
+> > LSM implementations should not free potential pointers in this blob
+> > because they could still be dereferenced in a path walk.
 > >
-> > -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 421397 =
-Jul 11 09:57 file_contexts
-> > -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 593470 =
-Jul 11 09:57 file_contexts.bin
-> > -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  14704 =
-Jul 11 09:57 file_contexts.homedirs
-> > -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  20289 =
-Jul 11 09:57 file_contexts.homedirs.bin
-> >
-> >   SELinux user changed from system_u to the user used to execute semodu=
-le
-> >
-> >   # capsh --user=3Dtestuser --caps=3D"cap_dac_override,cap_chown+eip" -=
--addamb=3Dcap_dac_override,cap_chown -- -c "semodule -B"
-> >   # ls -lZ  /etc/selinux/targeted/contexts/files
-> >
-> > -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0=
- 421397 Jul 19 09:10 file_contexts
-> > -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0=
- 593470 Jul 19 09:10 file_contexts.bin
-> > -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0=
-  14704 Jul 19 09:10 file_contexts.homedirs
-> > -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0=
-  20289 Jul 19 09:10 file_contexts.homedirs.bin
-> >
-> >   Both file context and ownership changed -- causes remote login
-> >   failures and other issues in some scenarios.
-> >
-> > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
-> > ---
-> >  libsemanage/src/semanage_store.c | 23 ++++++++++++++++++++++-
-> >  libsemanage/src/semanage_store.h |  1 +
-> >  2 files changed, 23 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanag=
-e_store.c
-> > index 27c5d349..12c30ad2 100644
-> > --- a/libsemanage/src/semanage_store.c
-> > +++ b/libsemanage/src/semanage_store.c
-> > @@ -36,6 +36,7 @@ typedef struct dbase_policydb dbase_t;
-> >  #include "database_policydb.h"
-> >  #include "handle.h"
-> >
-> > +#include <selinux/restorecon.h>
-> >  #include <selinux/selinux.h>
-> >  #include <sepol/policydb.h>
-> >  #include <sepol/module.h>
-> > @@ -731,7 +732,7 @@ int semanage_copy_file(const char *src, const char =
-*dst, mode_t mode,
-> >
-> >         if (!mode)
-> >                 mode =3D S_IRUSR | S_IWUSR;
-> > -
-> > +
->
-> We generally don't make unrelated whitespace changes in a patch.
->
-> >         mask =3D umask(0);
-> >         if ((out =3D open(tmp, O_WRONLY | O_CREAT | O_TRUNC, mode)) =3D=
-=3D -1) {
-> >                 umask(mask);
-> > @@ -767,6 +768,8 @@ int semanage_copy_file(const char *src, const char =
-*dst, mode_t mode,
-> >         if (!retval && rename(tmp, dst) =3D=3D -1)
-> >                 return -1;
-> >
-> > +       semanage_setfiles(dst);
-> > +
-> >  out:
-> >         errno =3D errsv;
-> >         return retval;
-> > @@ -819,6 +822,8 @@ static int semanage_copy_dir_flags(const char *src,=
- const char *dst, int flag)
-> >                         goto cleanup;
-> >                 }
-> >                 umask(mask);
-> > +
-> > +               semanage_setfiles(dst);
-> >         }
-> >
-> >         for (i =3D 0; i < len; i++) {
-> > @@ -837,6 +842,7 @@ static int semanage_copy_dir_flags(const char *src,=
- const char *dst, int flag)
-> >                                 goto cleanup;
-> >                         }
-> >                         umask(mask);
-> > +                       semanage_setfiles(path2);
-> >                 } else if (S_ISREG(sb.st_mode) && flag =3D=3D 1) {
-> >                         mask =3D umask(0077);
-> >                         if (semanage_copy_file(path, path2, sb.st_mode,
-> > @@ -938,6 +944,7 @@ int semanage_mkdir(semanage_handle_t *sh, const cha=
-r *path)
-> >
-> >                 }
-> >                 umask(mask);
-> > +               semanage_setfiles(path);
-> >         }
-> >         else {
-> >                 /* check that it really is a directory */
-> > @@ -1614,16 +1621,19 @@ static int semanage_validate_and_compile_fconte=
-xts(semanage_handle_t * sh)
-> >                     semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC=
-)) !=3D 0) {
-> >                 goto cleanup;
-> >         }
-> > +       semanage_setfiles(semanage_final_path(SEMANAGE_FINAL_TMP, SEMAN=
-AGE_FC_BIN));
-> >
-> >         if (sefcontext_compile(sh,
-> >                     semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC=
-_LOCAL)) !=3D 0) {
-> >                 goto cleanup;
-> >         }
-> > +       semanage_setfiles(semanage_final_path(SEMANAGE_FINAL_TMP, SEMAN=
-AGE_FC_LOCAL_BIN));
-> >
-> >         if (sefcontext_compile(sh,
-> >                     semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC=
-_HOMEDIRS)) !=3D 0) {
-> >                 goto cleanup;
-> >         }
-> > +       semanage_setfiles(semanage_final_path(SEMANAGE_FINAL_TMP, SEMAN=
-AGE_FC_HOMEDIRS_BIN));
-> >
-> >         status =3D 0;
-> >  cleanup:
-> > @@ -3018,3 +3028,14 @@ int semanage_nc_sort(semanage_handle_t * sh, con=
-st char *buf, size_t buf_len,
-> >
-> >         return 0;
-> >  }
-> > +
-> > +/* Make sure the file context and ownership of files in the policy
-> > + * store does not change */
-> > +void semanage_setfiles(const char *path){
-> > +       /* Fix the user and role portions of the context, ignore errors
-> > +        * since this is not a critical operation */
-> > +       selinux_restorecon(path, SELINUX_RESTORECON_SET_SPECFILE_CTX | =
-SELINUX_RESTORECON_IGNORE_NOENTRY);
-> > +       /* Make sure "path" is owned by root */
-> > +       if(geteuid() !=3D 0 || getegid() !=3D 0)
-> > +               chown(path, 0, 0);
-> > +}
->
-> Arguably should check stat.st_uid/gid from stat(2) of path although
-> perhaps it doesn't matter.
-> Need to make sure that these paths only exist in root-owned
-> directories and can't be used to trigger a chown of some other
-> arbitrary file to root ownership, e.g. some suid binary.
-> Maybe refuse to chown() if stat.st_mode & (S_IFREG|S_ISUID) ||
-> stat.st_mode & (S_IFREG|S_ISGID)?
+> >> ---
+> >>  include/linux/lsm_hook_defs.h     |  1 +
+> >>  security/integrity/ima/ima.h      |  2 +-
+> >>  security/integrity/ima/ima_iint.c | 20 ++++++++------------
+> >>  security/integrity/ima/ima_main.c |  2 +-
+> >>  security/landlock/fs.c            |  9 ++++++---
+> >>  security/security.c               | 26 +++++++++++++-------------
+> >>  6 files changed, 30 insertions(+), 30 deletions(-)
 
-Sorry, I munged that - should be something like S_ISREG(sb.st_mode) &&
-(sb.st_mode & (S_ISUID|S_ISGID)).
-Obviously still subject to races unless you do something like fd =3D
-open(path, O_PATH); fstat(fd, &sb); <test sb.st_mode>; fchown(fd, 0,
-0);
+...
+
+> Sorry for the questions, but for several weeks I can't find answers to tw=
+o things related to this RFC:
+>
+> 1) How does this patch close [1]?
+>    As Micka=C3=ABl pointed in [2], "It looks like security_inode_free() i=
+s called two times on the same inode."
+>    Indeed, it does not seem from the backtrace that it is a case of race =
+between destroy_inode and inode_permission,
+>    i.e. referencing the inode in a VFS path walk while destroying it...
+>    Please, can anyone tell me how this situation could have happened? May=
+be folks from VFS... I added them to the copy.
+
+The VFS folks can likely provide a better, or perhaps a more correct
+answer, but my understanding is that during the path walk the inode is
+protected by a RCU lock which allows for multiple threads to access
+the inode simultaneously; this could result in some cases where one
+thread is destroying the inode while another is accessing it.
+Changing this would require changes to the VFS code, and I'm not sure
+why you would want to change it anyway, the performance win of using
+RCU here is likely significant.
+
+> 2) Is there a guarantee that inode_free_by_rcu and i_callback will be cal=
+led within the same RCU grace period?
+
+I'm not an RCU expert, but I don't believe there are any guarantees
+that the inode_free_by_rcu() and the inode's own free routines are
+going to be called within the same RCU grace period (not really
+applicable as inode_free_by_rcu() isn't called *during* a grace
+period, but *after* the grace period of the associated
+security_inode_free() call).  However, this patch does not rely on
+synchronization between the inode and inode LSM free routine in
+inode_free_by_rcu(); the inode_free_by_rcu() function and the new
+inode_free_security_rcu() LSM callback does not have a pointer to the
+inode, only the inode's LSM blob.  I agree that it is a bit odd, but
+freeing the inode and inode's LSM blob independently of each other
+should not cause a problem so long as the inode is no longer in use
+(hence the RCU callbacks).
+
+>    If not, can the security context be released earlier than the inode it=
+self?
+
+Possibly, but it should only happen after the inode is no longer in
+use (the call_rcu () callback should ensure that we are past all of
+the currently executing RCU critical sections).
+
+> If yes, can be executed
+>    inode_permission concurrently, leading to UAF of inode security contex=
+t in security_inode_permission?
+
+I do not believe so, see the discussion above, but I welcome any correction=
+s.
+
+>    Can fsnotify affect this (leading to different RCU grace periods)? (Ag=
+ain probably a question for VFS people.)
+
+If fsnotify is affecting this negatively then I suspect that is a
+reason for much larger concern as I believe that would indicate a
+problem with fsnotify and the inode locking scheme.
+
+--=20
+paul-moore.com
