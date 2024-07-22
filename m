@@ -1,154 +1,297 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp-out.cvt.stuba.sk (smtp-out.cvt.stuba.sk [147.175.1.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84CCE23DE
-	for <selinux@vger.kernel.org>; Mon, 22 Jul 2024 10:25:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A28A16CD3B;
+	Mon, 22 Jul 2024 12:30:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=147.175.1.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721643927; cv=none; b=k0uaZk+KcKTfmWv48EM3K85zBcwKU3yvy7nMKXLMrscVy7gmQxD80vMMqyxeaYMICvSzk5LjZ+iieeIyI5X9CmoJ2vb12X9VhWZOCBBjgMJFabed8Kc8fF4scru3btxlL5WFezrgropaqhZo4/GiZLhvt0fn0HLZDoYNApTotwI=
+	t=1721651413; cv=none; b=ryVY81EvmMTB6ZGE/cwxV9cxx6/CoyiTwEGnxyiyl8r7y9jxGjj+CxhjWOpC4pLXW7hc5ZnK2jZ7ITOE9qQQBrXrbDdBpl7Q4GunWA2ym2fHOINukL+WO1n9HJ8fWuJPMvKLJgJPlEEO4inCavhyDsTcn/ufgAJYGrIawGkQODs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721643927; c=relaxed/simple;
-	bh=ZPUglHO44F/41+tCasK8F9/8viISZYNngvZ6WKJfbB0=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=MKfetn32sm/UuT/GOdyLxApWfsevhrU6CcoppTE2iXHerFAMnjXNqf9kgSm99MmvGAEm2C3k3xmsxZllmRecDJBzxHhi5/oSHImKpVEbfbiPYHUZSvNMcPxBAXR5eAUEEJN3xZNnwv5NROHJH7Zoc8N9K0TPpD3LeG35QNDfKb0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JWm7mmY/; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1721651413; c=relaxed/simple;
+	bh=QYJjUayfOW3Iu2s5KLRYoX87P3zgT4ST0jGaZfWa8yw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ZudMdEuQlf83FMFL0E8JahwFpqCBu/9qh2lV0YGHzpyMg8g9/8+o+tlOmIml5AtxmM4p/ox92YtjkNm9CZYzkSYCt8ErDIOsSAkM2kY3aZ4EZnX4wpIiqTVRUHPvjZzUdsFtwhnewBGQXLVDE8DJ01kH+nzGypSjvxdCrOV40X8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=stuba.sk; spf=pass smtp.mailfrom=stuba.sk; dkim=pass (2048-bit key) header.d=stuba.sk header.i=@stuba.sk header.b=XKxAPoVb; arc=none smtp.client-ip=147.175.1.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=stuba.sk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stuba.sk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JWm7mmY/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721643924;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lFFT3qX60z1cc7uLNRarz1Ra+VI/UgoIZO92sIxHYMI=;
-	b=JWm7mmY/1z/uoWY9tjBSi5LXkMocNGl52tl2Tirjs7ZlgK1boFhIRz1OPQzqWXwhNbNhsp
-	hIzcsdCJ+ZX0XIJELbSKjfMJMWh9gKvNxvTmOw/M8bbj8kszbe1AOHsv6Kh5NywL9D4jsT
-	fyIyHp21g36q9QPAPb+G/po7HveVn9I=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-193-XqypTvahPT6UIMsueWjhoA-1; Mon,
- 22 Jul 2024 06:25:22 -0400
-X-MC-Unique: XqypTvahPT6UIMsueWjhoA-1
-Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 124B11955D54;
-	Mon, 22 Jul 2024 10:25:22 +0000 (UTC)
-Received: from localhost (unknown [10.45.225.90])
-	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 637271955D45;
-	Mon, 22 Jul 2024 10:25:21 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: selinux@vger.kernel.org
-Cc: James Carter <jwcart2@gmail.com>
-Subject: Re: [PATCH] libselinux: set free'd data to NULL
-In-Reply-To: <CAP+JOzQCu0srfss921Ew42oHxsaqRYGiTs56_h9j2Yfw0cYGjg@mail.gmail.com>
-References: <20240709192346.913107-1-lautrbach@redhat.com>
- <CAP+JOzQCu0srfss921Ew42oHxsaqRYGiTs56_h9j2Yfw0cYGjg@mail.gmail.com>
-Date: Mon, 22 Jul 2024 12:25:20 +0200
-Message-ID: <87le1tyb8v.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=stuba.sk header.i=@stuba.sk header.b="XKxAPoVb"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=stuba.sk;
+	s=20180406; h=Content-Transfer-Encoding:Content-Type:From:To:Subject:
+	MIME-Version:Date:Message-ID; bh=ni3yT5OSY7+kdIVa0o7ghGWYq7yTvaPSFDN9orW/Jl0=
+	; t=1721651409; x=1722083409; b=XKxAPoVbr3yufkHeNjrtDiYXHSh8xywtlsFabL0Ya/wP1
+	Xm29GvjYRVaivzBcUq7qOPfWMwbPIeaCUTpL6j98mUVRxz7/IMtIqJOVeUyIHHaPCjtpOmFmlkxe3
+	DMdRc4aVpbcWOYj0GTIrbsRgBfTfPZlLEzul6FBrZQq6PxQb5G9CLgFGa5G8KDKiaDirm3viIyJLp
+	+u1Oo9hTPvhvHbeq57RQZtgPZb5T2eixoqTlGxvaBtKZduubOAX3TfnInnKEp9dBWdTf9lNz0bkyq
+	ZAQUBG9hoIXfg9U7JAcsnfG7fwIzTUydi1TLdjhtNzTXQwMfVWAeiBmPJrJBbWRyYA==;
+X-STU-Diag: 0788c6148bbb52df (auth)
+Received: from ellyah.uim.fei.stuba.sk ([147.175.106.89])
+	by mx1.stuba.sk (Exim4) with esmtpsa (TLS1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
+	(envelope-from <matus.jokay@stuba.sk>)
+	id 1sVsAx-000000005PY-2X0t;
+	Mon, 22 Jul 2024 14:29:59 +0200
+Message-ID: <ad6c7b2a-219e-4518-ab2d-bd798c720943@stuba.sk>
+Date: Mon, 22 Jul 2024 14:29:59 +0200
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH] lsm: add the inode_free_security_rcu() LSM
+ implementation hook
+To: =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
+ Paul Moore <paul@paul-moore.com>
+Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+ Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>,
+ linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>
+References: <20240710024029.669314-2-paul@paul-moore.com>
+ <20240710.peiDu2aiD1su@digikod.net>
+Content-Language: en-US
+From: Matus Jokay <matus.jokay@stuba.sk>
+In-Reply-To: <20240710.peiDu2aiD1su@digikod.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-James Carter <jwcart2@gmail.com> writes:
-
-> On Tue, Jul 9, 2024 at 3:24=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.c=
-om> wrote:
+On 10. 7. 2024 12:40, Mickaël Salaün wrote:
+> On Tue, Jul 09, 2024 at 10:40:30PM -0400, Paul Moore wrote:
+>> The LSM framework has an existing inode_free_security() hook which
+>> is used by LSMs that manage state associated with an inode, but
+>> due to the use of RCU to protect the inode, special care must be
+>> taken to ensure that the LSMs do not fully release the inode state
+>> until it is safe from a RCU perspective.
 >>
->> Fixes segfault in selabel_open() on systems with SELinux disabled and wi=
-thout any
->> SELinux policy installed introduced by commit 5876aca0484f ("libselinux:=
- free
->> data on selabel open failure"):
+>> This patch implements a new inode_free_security_rcu() implementation
+>> hook which is called when it is safe to free the LSM's internal inode
+>> state.  Unfortunately, this new hook does not have access to the inode
+>> itself as it may already be released, so the existing
+>> inode_free_security() hook is retained for those LSMs which require
+>> access to the inode.
 >>
->>     $ sestatus
->>     SELinux status:                 disabled
->>
->>     $ cat /etc/selinux/config
->>     cat: /etc/selinux/config: No such file or directory
->>
->>     $ matchpathcon /abc
->>     [1]    907999 segmentation fault (core dumped)  matchpathcon /abc
->>
->
-> I was able to recreate the problem and verify that this fixes it.
-> Acked-by: James Carter <jwcart2@gmail.com>
-
-This is merged now.
-
-
->
->> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+>> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> 
+> I like this new hook.  It is definitely safer than the current approach.
+> 
+> To make it more consistent, I think we should also rename
+> security_inode_free() to security_inode_put() to highlight the fact that
+> LSM implementations should not free potential pointers in this blob
+> because they could still be dereferenced in a path walk.
+> 
 >> ---
->>  libselinux/src/label_backends_android.c | 1 +
->>  libselinux/src/label_file.c             | 1 +
->>  libselinux/src/label_media.c            | 1 +
->>  libselinux/src/label_x.c                | 1 +
->>  4 files changed, 4 insertions(+)
+>>  include/linux/lsm_hook_defs.h     |  1 +
+>>  security/integrity/ima/ima.h      |  2 +-
+>>  security/integrity/ima/ima_iint.c | 20 ++++++++------------
+>>  security/integrity/ima/ima_main.c |  2 +-
+>>  security/landlock/fs.c            |  9 ++++++---
+>>  security/security.c               | 26 +++++++++++++-------------
+>>  6 files changed, 30 insertions(+), 30 deletions(-)
 >>
->> diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/la=
-bel_backends_android.c
->> index 49a87686de4c..5bad24f20d73 100644
->> --- a/libselinux/src/label_backends_android.c
->> +++ b/libselinux/src/label_backends_android.c
->> @@ -260,6 +260,7 @@ static void closef(struct selabel_handle *rec)
->>                 free(data->spec_arr);
->>
->>         free(data);
->> +       rec->data =3D NULL;
+>> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+>> index 8fd87f823d3a..abe6b0ef892a 100644
+>> --- a/include/linux/lsm_hook_defs.h
+>> +++ b/include/linux/lsm_hook_defs.h
+>> @@ -114,6 +114,7 @@ LSM_HOOK(int, 0, path_notify, const struct path *path, u64 mask,
+>>  	 unsigned int obj_type)
+>>  LSM_HOOK(int, 0, inode_alloc_security, struct inode *inode)
+>>  LSM_HOOK(void, LSM_RET_VOID, inode_free_security, struct inode *inode)
+>> +LSM_HOOK(void, LSM_RET_VOID, inode_free_security_rcu, void *)
+>>  LSM_HOOK(int, -EOPNOTSUPP, inode_init_security, struct inode *inode,
+>>  	 struct inode *dir, const struct qstr *qstr, struct xattr *xattrs,
+>>  	 int *xattr_count)
+>> diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+>> index 3e568126cd48..e2a2e4c7eab6 100644
+>> --- a/security/integrity/ima/ima.h
+>> +++ b/security/integrity/ima/ima.h
+>> @@ -223,7 +223,7 @@ static inline void ima_inode_set_iint(const struct inode *inode,
+>>  
+>>  struct ima_iint_cache *ima_iint_find(struct inode *inode);
+>>  struct ima_iint_cache *ima_inode_get(struct inode *inode);
+>> -void ima_inode_free(struct inode *inode);
+>> +void ima_inode_free_rcu(void *inode_sec);
+>>  void __init ima_iintcache_init(void);
+>>  
+>>  extern const int read_idmap[];
+>> diff --git a/security/integrity/ima/ima_iint.c b/security/integrity/ima/ima_iint.c
+>> index e23412a2c56b..54480df90bdc 100644
+>> --- a/security/integrity/ima/ima_iint.c
+>> +++ b/security/integrity/ima/ima_iint.c
+>> @@ -109,22 +109,18 @@ struct ima_iint_cache *ima_inode_get(struct inode *inode)
 >>  }
->>
->>  static struct selabel_lookup_rec *property_lookup(struct selabel_handle=
- *rec,
->> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
->> index 2732972e61cf..59c9f2ef3442 100644
->> --- a/libselinux/src/label_file.c
->> +++ b/libselinux/src/label_file.c
->> @@ -942,6 +942,7 @@ static void closef(struct selabel_handle *rec)
->>                 free(last_area);
->>         }
->>         free(data);
->> +       rec->data =3D NULL;
+>>  
+>>  /**
+>> - * ima_inode_free - Called on inode free
+>> - * @inode: Pointer to the inode
+>> + * ima_inode_free_rcu - Called to free an inode via a RCU callback
+>> + * @inode_sec: The inode::i_security pointer
+>>   *
+>> - * Free the iint associated with an inode.
+>> + * Free the IMA data associated with an inode.
+>>   */
+>> -void ima_inode_free(struct inode *inode)
+>> +void ima_inode_free_rcu(void *inode_sec)
+>>  {
+>> -	struct ima_iint_cache *iint;
+>> +	struct ima_iint_cache **iint_p = inode_sec + ima_blob_sizes.lbs_inode;
+>>  
+>> -	if (!IS_IMA(inode))
+>> -		return;
+>> -
+>> -	iint = ima_iint_find(inode);
+>> -	ima_inode_set_iint(inode, NULL);
+>> -
+>> -	ima_iint_free(iint);
+>> +	/* *iint_p should be NULL if !IS_IMA(inode) */
+>> +	if (*iint_p)
+>> +		ima_iint_free(*iint_p);
 >>  }
->>
->>  // Finds all the matches of |key| in the given context. Returns the res=
-ult in
->> diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
->> index 852aeada8ff4..bae065c12a55 100644
->> --- a/libselinux/src/label_media.c
->> +++ b/libselinux/src/label_media.c
->> @@ -183,6 +183,7 @@ static void close(struct selabel_handle *rec)
->>             free(spec_arr);
->>
->>         free(data);
->> +       rec->data =3D NULL;
+>>  
+>>  static void ima_iint_init_once(void *foo)
+>> diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+>> index f04f43af651c..5b3394864b21 100644
+>> --- a/security/integrity/ima/ima_main.c
+>> +++ b/security/integrity/ima/ima_main.c
+>> @@ -1193,7 +1193,7 @@ static struct security_hook_list ima_hooks[] __ro_after_init = {
+>>  #ifdef CONFIG_INTEGRITY_ASYMMETRIC_KEYS
+>>  	LSM_HOOK_INIT(kernel_module_request, ima_kernel_module_request),
+>>  #endif
+>> -	LSM_HOOK_INIT(inode_free_security, ima_inode_free),
+>> +	LSM_HOOK_INIT(inode_free_security_rcu, ima_inode_free_rcu),
+>>  };
+>>  
+>>  static const struct lsm_id ima_lsmid = {
+>> diff --git a/security/landlock/fs.c b/security/landlock/fs.c
+>> index 22d8b7c28074..f583f8cec345 100644
+>> --- a/security/landlock/fs.c
+>> +++ b/security/landlock/fs.c
+>> @@ -1198,13 +1198,16 @@ static int current_check_refer_path(struct dentry *const old_dentry,
+>>  
+>>  /* Inode hooks */
+>>  
+>> -static void hook_inode_free_security(struct inode *const inode)
+>> +static void hook_inode_free_security_rcu(void *inode_sec)
+>>  {
+>> +	struct landlock_inode_security *lisec;
+> 
+> Please rename "lisec" to "inode_sec" for consistency with
+> get_inode_object()'s variables.
+> 
+>> +
+>>  	/*
+>>  	 * All inodes must already have been untied from their object by
+>>  	 * release_inode() or hook_sb_delete().
+>>  	 */
+>> -	WARN_ON_ONCE(landlock_inode(inode)->object);
+>> +	lisec = inode_sec + landlock_blob_sizes.lbs_inode;
+>> +	WARN_ON_ONCE(lisec->object);
 >>  }
->>
->>  static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
->> diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
->> index a8decc7a0093..ddae4f6c22b6 100644
->> --- a/libselinux/src/label_x.c
->> +++ b/libselinux/src/label_x.c
->> @@ -210,6 +210,7 @@ static void close(struct selabel_handle *rec)
->>             free(spec_arr);
->>
->>         free(data);
->> +       rec->data =3D NULL;
+> 
+> This looks good to me.
+> 
+> We can add these footers:
+> Reported-by: syzbot+5446fbf332b0602ede0b@syzkaller.appspotmail.com
+> Closes: https://lore.kernel.org/r/00000000000076ba3b0617f65cc8@google.com
+Sorry for the questions, but for several weeks I can't find answers to two things related to this RFC:
+
+1) How does this patch close [1]?
+   As Mickaël pointed in [2], "It looks like security_inode_free() is called two times on the same inode."
+   Indeed, it does not seem from the backtrace that it is a case of race between destroy_inode and inode_permission,
+   i.e. referencing the inode in a VFS path walk while destroying it...
+   Please, can anyone tell me how this situation could have happened? Maybe folks from VFS... I added them to the copy.
+
+2) Is there a guarantee that inode_free_by_rcu and i_callback will be called within the same RCU grace period?
+   If not, can the security context be released earlier than the inode itself? If yes, can be executed
+   inode_permission concurrently, leading to UAF of inode security context in security_inode_permission?
+   Can fsnotify affect this (leading to different RCU grace periods)? (Again probably a question for VFS people.)
+   I know, this RFC doesn't address exactly that question, but I'd like to know the answer.
+
+Many thanks for the helpful answers and your time,
+mY
+
+[1] https://lore.kernel.org/r/00000000000076ba3b0617f65cc8@google.com
+[2] https://lore.kernel.org/linux-security-module/CAHC9VhQUqJkWxhe5KukPOVQMnOhcOH5E+BJ4_b3Qn6edsL5YJQ@mail.gmail.com/T/#m6e6b01b196eac15a7ad99cf366614bbe60b8d9a2
+
+> 
+> However, I'm wondering if we could backport this patch down to v5.15 .
+> I guess not, so I'll need to remove this hook implementation for
+> Landlock, backport it to v5.15, and then you'll need to re-add this
+> check with this patch.  At least it has been useful to spot this inode
+> issue, but it could still be useful to spot potential memory leaks with
+> a negligible performance impact.
+> 
+> 
+>>  
+>>  /* Super-block hooks */
+>> @@ -1628,7 +1631,7 @@ static int hook_file_ioctl_compat(struct file *file, unsigned int cmd,
 >>  }
->>
->>  static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
->> --
+>>  
+>>  static struct security_hook_list landlock_hooks[] __ro_after_init = {
+>> -	LSM_HOOK_INIT(inode_free_security, hook_inode_free_security),
+>> +	LSM_HOOK_INIT(inode_free_security_rcu, hook_inode_free_security_rcu),
+>>  
+>>  	LSM_HOOK_INIT(sb_delete, hook_sb_delete),
+>>  	LSM_HOOK_INIT(sb_mount, hook_sb_mount),
+>> diff --git a/security/security.c b/security/security.c
+>> index b52e81ac5526..bc6805f7332e 100644
+>> --- a/security/security.c
+>> +++ b/security/security.c
+>> @@ -1596,9 +1596,8 @@ int security_inode_alloc(struct inode *inode)
+>>  
+>>  static void inode_free_by_rcu(struct rcu_head *head)
+>>  {
+>> -	/*
+>> -	 * The rcu head is at the start of the inode blob
+>> -	 */
+>> +	/* The rcu head is at the start of the inode blob */
+>> +	call_void_hook(inode_free_security_rcu, head);
+> 
+> For this to work, we need to extend the inode blob size (lbs_inode) with
+> sizeof(struct rcu_head).  The current implementation override the
+> content of the blob with a new rcu_head.
+> 
+>>  	kmem_cache_free(lsm_inode_cache, head);
+>>  }
+>>  
+>> @@ -1606,20 +1605,21 @@ static void inode_free_by_rcu(struct rcu_head *head)
+>>   * security_inode_free() - Free an inode's LSM blob
+>>   * @inode: the inode
+>>   *
+>> - * Deallocate the inode security structure and set @inode->i_security to NULL.
+>> + * Release any LSM resources associated with @inode, although due to the
+>> + * inode's RCU protections it is possible that the resources will not be
+>> + * fully released until after the current RCU grace period has elapsed.
+>> + *
+>> + * It is important for LSMs to note that despite being present in a call to
+>> + * security_inode_free(), @inode may still be referenced in a VFS path walk
+>> + * and calls to security_inode_permission() may be made during, or after,
+>> + * a call to security_inode_free().  For this reason the inode->i_security
+>> + * field is released via a call_rcu() callback and any LSMs which need to
+>> + * retain inode state for use in security_inode_permission() should only
+>> + * release that state in the inode_free_security_rcu() LSM hook callback.
+>>   */
+>>  void security_inode_free(struct inode *inode)
+>>  {
+>>  	call_void_hook(inode_free_security, inode);
+>> -	/*
+>> -	 * The inode may still be referenced in a path walk and
+>> -	 * a call to security_inode_permission() can be made
+>> -	 * after inode_free_security() is called. Ideally, the VFS
+>> -	 * wouldn't do this, but fixing that is a much harder
+>> -	 * job. For now, simply free the i_security via RCU, and
+>> -	 * leave the current inode->i_security pointer intact.
+>> -	 * The inode will be freed after the RCU grace period too.
+>> -	 */
+>>  	if (inode->i_security)
+>>  		call_rcu((struct rcu_head *)inode->i_security,
+>>  			 inode_free_by_rcu);
+> 
+> We should have something like:
+> call_rcu(inode->i_security.rcu, inode_free_by_rcu);
+> 
+>> -- 
 >> 2.45.2
 >>
 >>
+> 
 
