@@ -1,131 +1,212 @@
-Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f201.google.com (mail-yb1-f201.google.com [209.85.219.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A7A9C7829C;
-	Sat, 20 Jul 2024 09:31:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCB104C7D
+	for <selinux@vger.kernel.org>; Mon, 22 Jul 2024 06:21:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721467910; cv=none; b=RDQZdLOLwnEpvmLew8lngF935gCRAKEhnC1Zidn/BuvdMAXrX77ajFuJkL6qSaKXKR1mgKr5FhwU7+0lYao/38cSjKvvC8qlzOj8o9TDhxI1I0ol+4ZL3mvYnerNJJQ+Pd/kO8mCcDq34zqW4g/hIc+70whAur990+En+wjzUyc=
+	t=1721629306; cv=none; b=JTwXsfNdVWGcdmliVJtfdMOERCaoGa8WZHZFoYd6F4tACU5Hxht2rx0ubwy2I6TjSI7fYx3lesz4uJFZqupe7u6mwI/Zo9YzxXjBtSwNNfH4Ampvfp6utHFG89J1oGcmu0RLYBb2YUztf1jdrzLzREMTlh0AnzlXbYPrjP1Ii4Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721467910; c=relaxed/simple;
-	bh=2l6tmWT9koYokJ/U+bvELmWCsy+MWH156hsZGwlidAQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eYrWMIQAHeY/wn3bv2FZMLuI4kdEWP5/FKz+ySEAiCndHxtyxIg1zdJHhtL9rhL8XJ64yb9bpiTV3qA7hIoW62/a0krN+gSCZpLLz8hxQFuwqogTTOY/QgSFvY+29FiS/mkqQeHB/XO7KeYbSFwutO/Jlu9BIFO15hSqMoVsdzI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.93.142])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WR1Ws4Xv7z4f3jkM;
-	Sat, 20 Jul 2024 17:31:37 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.128])
-	by mail.maildlp.com (Postfix) with ESMTP id B91DD1A0809;
-	Sat, 20 Jul 2024 17:31:45 +0800 (CST)
-Received: from [10.67.111.192] (unknown [10.67.111.192])
-	by APP4 (Coremail) with SMTP id gCh0CgBHdzW5g5tmfxqfAg--.54511S5;
-	Sat, 20 Jul 2024 17:31:45 +0800 (CST)
-Message-ID: <dc54d44a-465a-472c-8636-5de786ad0264@huaweicloud.com>
-Date: Sat, 20 Jul 2024 17:31:44 +0800
+	s=arc-20240116; t=1721629306; c=relaxed/simple;
+	bh=ad/2j7lB4CubF7adhe7Zb4ERf0b7u2D8BHbp839qJtc=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=bBNFNkjDk9DtCV7xxJUAMEaulMEnjTSg2ehCQLlelauOAWQylaA0TOtMkgWvxxyX2DGtitK1adFtV0tp0bV9DdmKuVTbnygaZYtB/uOFqTsNSg52GQoeQAQMeqoLLxL3GyDMliHBGH1uuMsmduIEDcQNJN6qVPZWcyeT6JJZ+Us=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=dpwKsrA8; arc=none smtp.client-ip=209.85.219.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="dpwKsrA8"
+Received: by mail-yb1-f201.google.com with SMTP id 3f1490d57ef6-dc691f1f83aso3223801276.1
+        for <selinux@vger.kernel.org>; Sun, 21 Jul 2024 23:21:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1721629303; x=1722234103; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=LnEbcX9X1CIinsMg0GG7qx0fPkNngHTDh6GA/r4M+K8=;
+        b=dpwKsrA8WicvThJ5XXLTVf5QUEfmFSmZ65962HvLOtUszrt3M8+AB5IxbIk9alyiDb
+         iyic3YgjMYTU5NC8jupUelPJHVIoAXbtL4ErDBA6fb3c2AnIRf2v2WyiySejETeE5I6T
+         Z/1e9FaBQBPydJGXEZ2YFXJI54olBswFK2RoY7xebCKxtDTnTO0ypniRWg8b0+zio0EI
+         v1l9Y28yJiuncUJz3ZovP5XU+gYR0ZyWjoLbCYu6CSsjG3TqELaFUjKNev/PAa0sdH8B
+         N9/8z66ectfEkp+cmLiyH3QR35B/l7SfHtx0wBC5ilZ384HKYQppoqbuMvyXFCmqyZm+
+         5NdQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721629303; x=1722234103;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=LnEbcX9X1CIinsMg0GG7qx0fPkNngHTDh6GA/r4M+K8=;
+        b=RbFzKA7RYoWQb54AD/fqEQyc+1c+V5attxkh7R/ylqRzW7mdFVzq7mTcQoPypy/7dy
+         zHK9XBQyPyopL8eX7r68Sir2uRrGJElfXmKfkX8w1unW7orrcSLK8s+jYlpJOm5faQWP
+         fyQWeGyowsbiZzAuOOSYwSyxIAMR5alPvomvpy7nr/leCVJoJB8PZgqJ1MSsaLVXGGS0
+         M3D59vVkWMihoF9XFUoIdYGGRCwqNeLFpv50nFjb/6UceUnCVnYGhwa22LbQuajIisFw
+         pdIwPOrCifwgYxAoPxZymWFHJG9m3pNLX5DQHFDgPsTUCoN6IR2t4UQGHDGAToLEcbhq
+         8nPg==
+X-Forwarded-Encrypted: i=1; AJvYcCXwJxnWQpsCQFb7kq56VvIrUQSjFR8HO8eiwG9pYNHh0HzK9ORwvUrY9Mxn7bYGAJcvntNYc4f1Lguyqo4llR/2L/zZ+hvC8Q==
+X-Gm-Message-State: AOJu0YyR8D2zR8nc55ZGjjJjX+0XeWD+u4wL0rmLD2FgsZVIM3lXuKAn
+	inO6yDVUDN4OuAR2Zk11tSBq9xzwl0ztrfMzJFTcfKjrDAI8EHNAfIMG2Q+H0Eyr2WHOIvg5Fg=
+	=
+X-Google-Smtp-Source: AGHT+IH6WB6w5yIZVg0N4QNIhc8C1CVUFMUPD9OMHEY8GJfnWYlg1DbeTGZDUwbEW3mjnTjZLIl7J/gdAQ==
+X-Received: from tweek-syd.c.googlers.com ([fda3:e722:ac3:cc00:b7:3870:c0a8:26])
+ (user=tweek job=sendgmr) by 2002:a05:6902:188e:b0:dfd:da3f:ad1c with SMTP id
+ 3f1490d57ef6-e086fd1c0eamr266704276.4.1721629303483; Sun, 21 Jul 2024
+ 23:21:43 -0700 (PDT)
+Date: Mon, 22 Jul 2024 16:21:39 +1000
+In-Reply-To: <CAHC9VhSFAj5Nr010pURESOX13kfAuj3NYGmG3Xt4bCRPYuJuiA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 7/20] lsm: Refactor return value of LSM hook
- setprocattr
-Content-Language: en-US
-To: Paul Moore <paul@paul-moore.com>, bpf@vger.kernel.org,
- netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-kselftest@vger.kernel.org, linux-integrity@vger.kernel.org,
- selinux@vger.kernel.org
-Cc: Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>,
- Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman
- <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
- Yonghong Song <yonghong.song@linux.dev>,
- John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
- Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
- Matt Bobrowski <mattbobrowski@google.com>,
- Brendan Jackman <jackmanb@chromium.org>, James Morris <jmorris@namei.org>,
- "Serge E . Hallyn" <serge@hallyn.com>,
- Khadija Kamran <kamrankhadijadj@gmail.com>,
- Casey Schaufler <casey@schaufler-ca.com>,
- Ondrej Mosnacek <omosnace@redhat.com>, Kees Cook <keescook@chromium.org>,
- John Johansen <john.johansen@canonical.com>,
- Lukas Bulwahn <lukas.bulwahn@gmail.com>,
- Roberto Sassu <roberto.sassu@huawei.com>,
- Shung-Hsi Yu <shung-hsi.yu@suse.com>, Edward Cree <ecree.xilinx@gmail.com>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>,
- Trond Myklebust <trond.myklebust@hammerspace.com>,
- Anna Schumaker <anna@kernel.org>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>
-References: <20240711111908.3817636-8-xukuohai@huaweicloud.com>
- <9f26368cc7aeccba460c9bce0a13f301@paul-moore.com>
-From: Xu Kuohai <xukuohai@huaweicloud.com>
-In-Reply-To: <9f26368cc7aeccba460c9bce0a13f301@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID:gCh0CgBHdzW5g5tmfxqfAg--.54511S5
-X-Coremail-Antispam: 1UD129KBjvJXoW7trWUJw4kCFWUXr48WryDJrb_yoW8Xry8pF
-	s5KFn09ryktF93urs3ZF13ua15Aw4rGr45JrW3Kw1jyF98Jr1xWry7Gr12krW7G3W8uwn5
-	tF42qrsxuryDArDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUP2b4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUWw
-	A2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW8JVW5JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	W8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v2
-	6rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMc
-	Ij6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_
-	Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AFwI0_Wr
-	v_ZF1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AK
-	xVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26rWY6r4UJwCIc4
-	0Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AK
-	xVW8Jr0_Cr1UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJV
-	W8JwCI42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7IU0uM
-	KtUUUUU==
-X-CM-SenderInfo: 50xn30hkdlqx5xdzvxpfor3voofrz/
+Mime-Version: 1.0
+References: <CAHC9VhSFAj5Nr010pURESOX13kfAuj3NYGmG3Xt4bCRPYuJuiA@mail.gmail.com>
+X-Mailer: git-send-email 2.45.2.1089.g2a221341d9-goog
+Message-ID: <20240722062139.1740728-1-tweek@google.com>
+Subject: Re: [RFC PATCH] selinux: Add netlink xperm support
+From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To: paul@paul-moore.com
+Cc: brambonne@google.com, jeffv@google.com, sds@tycho.nsa.gov, 
+	selinux@vger.kernel.org, stephen.smalley.work@gmail.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 7/19/2024 10:08 AM, Paul Moore wrote:
-> On Jul 11, 2024 Xu Kuohai <xukuohai@huaweicloud.com> wrote:
->>
->> To be consistent with most LSM hooks, convert the return value of
->> hook setprocattr to 0 or a negative error code.
->>
->> Before:
->> - Hook setprocattr returns the number of bytes written on success
->>    or a negative error code on failure.
->>
->> After:
->> - Hook setprocattr returns 0 on success or a negative error code
->>    on failure. An output parameter @wbytes is introduced to hold
->>    the number of bytes written on success.
->>
->> Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
->> ---
->>   fs/proc/base.c                |  5 +++--
->>   include/linux/lsm_hook_defs.h |  3 ++-
->>   include/linux/security.h      |  5 +++--
->>   security/apparmor/lsm.c       | 10 +++++++---
->>   security/security.c           |  8 +++++---
->>   security/selinux/hooks.c      | 11 ++++++++---
->>   security/smack/smack_lsm.c    | 14 ++++++++++----
->>   7 files changed, 38 insertions(+), 18 deletions(-)
+> > > > Reuse the existing extended permissions infrastructure to support
+> > > > sepolicy for different netlink message types.
+
+(Following up on this patch).
+
+> > > >
+> > > > When individual netlink message types are omitted only the existing
+> > > > permissions are checked. As is the case for ioctl xperms, this feature
+> > > > is intended to provide finer granularity for nlmsg_read and nlmsg_write
+> > > > permissions, as they may be too imprecise. For example, a single
+> > > > NETLINK_ROUTE socket may provide access to both an interface's IP
+> > > > address and to its ARP table, which might have different privacy
+> > > > implications. In addition, the set of message types has grown over time,
+> > > > so even if the current list is acceptable, future additions might not be.
+> > > > It was suggested before on the mailing list [1] that extended permissions
+> > > > would be a good fit for this purpose.
+> > > >
+> > > > Existing policy using the nlmsg_read and nlmsg_write permissions will
+> > > > continue to work as-is. Similar to ioctl xperms, netlink xperms allow
+> > > > for a more fine-grained policy where needed.
+> > > >
+> > > > Example policy on Android, preventing regular apps from accessing the
+> > > > device's MAC address and ARP table, but allowing this access to
+> > > > privileged apps, looks as follows:
+> > > >
+> > > > allow netdomain self:netlink_route_socket {
+> > > >         create read getattr write setattr lock append connect getopt
+> > > >         setopt shutdown nlmsg_read
+> > > > };
+> > > > allowxperm netdomain self:netlink_route_socket nlmsg ~{
+> > > >         RTM_GETLINK RTM_GETNEIGH RTM_GETNEIGHTBL
+> > > > };
+> > > > allowxperm priv_app self:netlink_route_socket nlmsg {
+> > > >         RTM_GETLINK RTM_GETNEIGH RTM_GETNEIGHTBL
+> > > > };
+> > > >
+> > > > Android currently uses code similar to [1] as a temporary workaround to
+> > > > limit access to certain netlink message types; our hope is that this patch
+> > > > will allow us to move back to upstream code with an approach that works for
+> > > > everyone.
+> > > >
+> > > > [1] https://lore.kernel.org/selinux/CAHC9VhRSUhozBycHMZcMaJsibJDxNMsTsKVT2zOnW=5H4R4mdg@mail.gmail.com/
+> > > >
+> > > > Signed-off-by: Bram Bonne <brambonne@google.com>
+> > > > ---
+> > > >  security/selinux/hooks.c       | 24 +++++++++++++++++++++++-
+> > > >  security/selinux/ss/avtab.h    |  1 +
+> > > >  security/selinux/ss/services.c | 23 ++++++++++++++++++++++-
+> > > >  3 files changed, 46 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > > > index e7ebd45ca345..a503865fabed 100644
+> > > > --- a/security/selinux/hooks.c
+> > > > +++ b/security/selinux/hooks.c
+> > > > @@ -4662,6 +4662,28 @@ static int sock_has_perm(struct sock *sk, u32 perms)
+> > > >                             &ad);
+> > > >  }
+> > > >
+> > > > +static int nlmsg_sock_has_extended_perms(struct sock *sk, u32 perms, u16 nlmsg_type)
+> > > > +{
+> > > > +       struct sk_security_struct *sksec = sk->sk_security;
+> > > > +       struct common_audit_data ad;
+> > > > +       struct lsm_network_audit net = {0,};
+> > > > +       u8 xperm;
+> > > > +
+> > > > +       if (sksec->sid == SECINITSID_KERNEL)
+> > > > +               return 0;
+> > > > +
+> > > > +       ad.type = LSM_AUDIT_DATA_NET;
+> > > > +       ad.u.net = &net;
+> > > > +       ad.u.net->sk = sk;
+> > > > +
+> > > > +       // nlmsg_types comfortably fit into a single driver, see RTM_MAX in uapi/linux/rtnetlink.h
+> > > > +       xperm = nlmsg_type & 0xff;
+> > >
+> > > This seems like a dangerous assumption; obviously not all netlink
+> > > users are rtnetlink. Even if all existing netlink users follow this,
+> > > nothing prevents userspace from creating a netlink message that
+> > > violates it AFAIK, at which point you will just silently discard the
+> > > higher bits. If we think we can get away with this restriction, then
+> > > we need to enforce it here (i.e. return an error if they do not fit);
+> > > if not,
+> > > then we likely need to support multiple drivers with a simple mapping
+> > > of the upper bits to driver.
+
+Agreed. Mapping the upper bits to the driver field would work. 
+
+In this case, AVTAB_XPERMS_NLMSG proposed here would have the exact same
+implementation as AVTAB_XPERMS_IOCTLFUNCTION. An option could be to rename the
+AVTAB_XPERMS_IOCTLFUNCTION constant (for example, to AVTAB_XPERMS_PERMS, and
+similarly moving AVTAB_XPERMS_IOCTLDRIVER to AVTAB_XPERMS_DRIVER). This is
+describing more how struct avtab_extended_perms is being used rather than
+focusing on its original meaning. (That is, the driver and perms fields are
+historically related to ioctl, but they have their own meanings in the xperm
+implementation).
+
+The alternative is simply to have that new constant (AVTAB_XPERMS_NLMSG, maybe
+renamed to AVTAB_XPERMS_NETLINK_MSGTYPE, to be more explicit?).
+
+> >
+> > Looks like generic netlink puts the family id into the message type
+> > field, with the actual command in the separate generic netlink header
+> > in the payload. generic netlink family ids appear to be dynamically
+> > allocated, with GENL_MAX_ID defined as 1023. genl-ctrl-list on a
+> > sample Linux system reports ids from 0x10 through 0x1f so those would
+> > fit but there isn't anything in the code to prevent higher ids from
+> > being allocated up to the max. And if someday you want to be able to
+> > filter generic netlink messages at the per-command level, you'd
+> > further need to deal with the separate cmd field.
 > 
-> The security_setprocattr() hook is another odd case that we probably
-> just want to leave alone for two reasons:
+> There is also NETLINK_AUDIT which currently has message types defined
+> up to 2000.  The netlink message header format allows for 16 bit
+> message types (look at the nlmsghdr struct) and I think it would be a
+> mistake if the SELinux netlink/xperms code didn't support a full 16
+> bits for the message type.
 > 
-> 1. With the move to LSM syscalls for getting/setting a task's LSM
-> attributes we are "freezing" the procfs API and not adding any new
-> entries to it.
-> 
-> 2. The BPF LSM doesn't currently register any procfs entries.
-> 
-> I'd suggest leaving security_setprocattr() as-is and blocking it in
-> the BPF verifier, I can't see any reason why a BPF LSM would need
-> this hook.
-> 
-OK, I'll drop this patch in the next version.
+> As far as NETLINK_GENERIC is concerned, yes, that's a bit of a
+> nuisance both with the dynamic family IDs and buried message types.
+> On the plus side, there are existing kernel functions that will
+> resolve the generic netlink family IDs to a genl_family struct but
+> those are currently private to the generic netlink code; I imagine if
+> there was a need those functions (or something similar) could be made
+> available outside of the genetlink.c.  Once you've matched on
+> NETLINK_GENERIC and done the family resolution, it should just be a
+> matter of doing the generic netlink command lookup in the context of
+> the family, which really shouldn't be much different than looking up
+> the message type of a conventional netlink message.
+
+I can see how the resolution for cmd can be done, but I am not sure how the
+family should be handled. I don't think it is ok to not correlate the family to
+some data in the policy. Otherwise, it would be possible to reach a different
+generic netlink family (with the same operation number of an operation granted
+for a generic family in the policy). This means we should at least match on the
+family name, but I doubt we can use the current struct avtab_extended_perms for
+that.
+
+For now, an option is to fallback to regular permission checks (avc_has_perm)
+if the class is NETLINK_GENERIC. (This would mean that we don't make a call now
+on how NETLINK_GENERIC should be handled, and keep the options open for a
+decision in the future). In this case, an error would be raised if trying to
+load a policy with extended permissions for that class (as nlmsg_type has no
+static meaning).
 
