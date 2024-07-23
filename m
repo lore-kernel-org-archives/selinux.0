@@ -1,140 +1,175 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F34B155C90
-	for <selinux@vger.kernel.org>; Tue, 23 Jul 2024 14:56:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B164A3D55D;
+	Tue, 23 Jul 2024 15:19:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721746583; cv=none; b=bwB6thy/YUkzXvVSBF01ukSM08O7d08fL96+nNmdhpyjlWVjYj8P8NxKMoctuIN2k9Oy5r2e/SXJH0nBgrYM58hdcKjvSl8BXbTTE8z7EJFCZBOvRuWIJGC8DbqU6Nh6DKn2SOL94GrBl0vz+01uTz4eOez/feM/r3iEHSZbBn4=
+	t=1721747986; cv=none; b=VpDd7x5WhrX3Ae74LSZcC6qdGZuko3jL4B16hTcrFqieB7C/HtZDJz83M8tl4EkgETAZQ9h2DmcCV2Vn4AsQdm2HFN4xvXrQRCo3bHxGObsjag6R0sKEMpkGmipc/97cTuGF06J+F3ePwjcsRohc1Jz7AO90rH6lEgiaM7lhpts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721746583; c=relaxed/simple;
-	bh=PAHR66ENP9eFh2iZoStdeMbeyNLnPVfKRq3QeT8C4Rk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SVXfrTmww3V/66PzX+Q8z4DN/tFZuaV7AUuPyvl4SuCalpXQeNaf5GlGcFOjp65HLBfuF92x4cfqTr9QughYkwMiSazIZ7FnUgyBxmswZfeEfEcQ1YR7Lo1xHs+fvhcsYQogHuQz3zgLRsIrQXPk7Eyheq53xoIjazf/fZatLY4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VrSaQ4JS; arc=none smtp.client-ip=209.85.215.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1721747986; c=relaxed/simple;
+	bh=FwPpgS4qRjlEJADupC/3U3E6AgMhwSAnIXwqKsSfzK4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ii+dcZJnIp7mW9iKOiqhJW2PeTPeUXSONDgm2EoMnNmWuxcOc1KmPhrYCSCTEoTw8Fd0n85Lh5iBfWpX7mZg1kbp/YnGvNiEZtUjIP/wegB2qa5aUn74eIaJ3hg+/PrG6dVz9dkWkprR6rc728D4jEU5Z3M4++626pCtEJAvuQs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MUyJmG7w; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VrSaQ4JS"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-7a2123e9ad5so648838a12.1
-        for <selinux@vger.kernel.org>; Tue, 23 Jul 2024 07:56:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1721746581; x=1722351381; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mA/MxWCRd2yhIRG+cEPmBmdGGLIn5lTTheWq5KcIJmo=;
-        b=VrSaQ4JSzTR9XJc+fXUgISO6KiDRRNENiEPa1dZC0CYYI5FhHgIJN6A8TATtukWK7n
-         1Ar22ZN+yTVxyk1fqTu8dBNC1pjXZZ8/OA+/Yfq5F56FxEYNWjGCWxN+BbZHmF0krAOg
-         e+ZA0/rxH9xpWgWJ0bathARj8Lqg7LumKhDUJy9kEmKY08RAPrC4RDHd5cLisIrBxAAg
-         JIR7kcrqavI295YFAseJQJ1BYrr/4QaQCLT7Agui0rxwuwVej1YJaxrMoRx8oqPL6y0s
-         z2BiQGjcuvPScfRO3Prsj9sThexpIdCIdbUppoQcMCKK2+txH1kpQruv9sjVB1UE+ofO
-         8PYQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721746581; x=1722351381;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=mA/MxWCRd2yhIRG+cEPmBmdGGLIn5lTTheWq5KcIJmo=;
-        b=mr+cWfKGuq4W7pCVoktjmUcgrMXUBYYX+V9zBmqJN+SK8juOfhIuENClAkWL3ZQxJ2
-         fnl6yziEt0g3gU6xcAgNrQGbYvC/WlNbuYWAiCgn5rfQRpgrlxM19BvTVD7P2tNY1hao
-         KFIBADGGNrtOKC/mwRtXxPNw3hkKKDfm1DnUUX4YasP/XCOByLLumIBbXAPI1rjWQ4jm
-         zX5JPP3MmMuFbvbob+NhXmOXyb61nqfkwfRDq7GA9hzXRsQ4nxy6QlfqNT1aBKGziqhp
-         9RYzvC0hj2D7+pxhom9H5polfEwg3TBg2ctlUp/j0efW1NvadsCaEe7ZhfJ7gmawgmL7
-         lCjg==
-X-Gm-Message-State: AOJu0YzYzjiHxxtgas2foBp+o2HGxI1cLRRXjtL9JcXTbhZfx6fyShvv
-	lWC68l3njydJ/Rpv+ezdVEZ1hHwj/bpGTG0xuHJup4iqoPL+ypaFZBYOrAaEdA9wtEPei1ghpkt
-	T6huFJs8vydpGZRn+UOLkqaq5QXg=
-X-Google-Smtp-Source: AGHT+IFgAbkIAECoAwSNRdRcgMI5bzFksJcrWlSLwVHTcOgER4QJ0wzjyCJma2Xk7c/yZq6Y4CBoSQxnKBtW8hpW2M0=
-X-Received: by 2002:a17:90a:b112:b0:2cd:40cf:5ebd with SMTP id
- 98e67ed59e1d1-2cd8cd2036bmr3876363a91.5.1721746581197; Tue, 23 Jul 2024
- 07:56:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MUyJmG7w"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF1C9C4AF09;
+	Tue, 23 Jul 2024 15:19:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1721747986;
+	bh=FwPpgS4qRjlEJADupC/3U3E6AgMhwSAnIXwqKsSfzK4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=MUyJmG7wwbd1xfqy1LCcUUztVhYv1mjmyLFSESrHiudgz/0+RB0kyJbPuWmOHDS6h
+	 H5hnH3CDR9fHV73GYHyn4+UWJ6bzfK2IO0lueVqppT+0XRSEBT03HfRCjNUSjpjNIE
+	 h6rrL/hDl5sQT0zZ6nn7Q5wmNp88YLeI3o4bOvMBDdRtGzMcJ5TnxohfBnZJIfJ7xf
+	 V8j/HXq/TOkhzg2ymsLEfjJLUyiSz+JnhQMYOX4wBfNbEY/uu+TjTC/qm74q+Wp3Ti
+	 hktBrUpZWIZg3Nj9ckj/Z4OL3WCxrZuNFtt+HEy2Ndfv5G7uzn9lOHCdmgA9WBNq7v
+	 RGhC+8KWPco5g==
+Date: Tue, 23 Jul 2024 17:19:40 +0200
+From: Christian Brauner <brauner@kernel.org>
+To: Dave Chinner <david@fromorbit.com>
+Cc: Paul Moore <paul@paul-moore.com>, Matus Jokay <matus.jokay@stuba.sk>, 
+	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
+	linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [RFC PATCH] lsm: add the inode_free_security_rcu() LSM
+ implementation hook
+Message-ID: <20240723-winkelmesser-wegschauen-4a8b00031504@brauner>
+References: <20240710024029.669314-2-paul@paul-moore.com>
+ <20240710.peiDu2aiD1su@digikod.net>
+ <ad6c7b2a-219e-4518-ab2d-bd798c720943@stuba.sk>
+ <CAHC9VhRsZBjs2MWXUUotmX_vWTUbboyLT6sR4WbzmqndKEVe8Q@mail.gmail.com>
+ <Zp8k1H/qeaVZOXF5@dread.disaster.area>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <aa2d6136-20b7-4d05-bde1-499849450d54@redhat.com> <20240723125850.1228121-1-vmojzis@redhat.com>
-In-Reply-To: <20240723125850.1228121-1-vmojzis@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 23 Jul 2024 10:56:09 -0400
-Message-ID: <CAEjxPJ7QLHNE1MJ1xj7Fprq6BPdfEAcC5P5711xJ7Ljp+aeFsQ@mail.gmail.com>
-Subject: Re: [PATCH v3] libsemanage: Preserve file context and ownership in
- policy store
-To: Vit Mojzis <vmojzis@redhat.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Zp8k1H/qeaVZOXF5@dread.disaster.area>
 
-On Tue, Jul 23, 2024 at 9:09=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> wro=
-te:
->
-> Make sure that file context (all parts) and ownership of
-> files/directories in policy store does not change no matter which user
-> and under which context executes policy rebuild.
->
-> Fixes:
->   # semodule -B
->   # ls -lZ  /etc/selinux/targeted/contexts/files
->
-> -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 421397 Ju=
-l 11 09:57 file_contexts
-> -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 593470 Ju=
-l 11 09:57 file_contexts.bin
-> -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  14704 Ju=
-l 11 09:57 file_contexts.homedirs
-> -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  20289 Ju=
-l 11 09:57 file_contexts.homedirs.bin
->
->   SELinux user changed from system_u to the user used to execute semodule
->
->   # capsh --user=3Dtestuser --caps=3D"cap_dac_override,cap_chown+eip" --a=
-ddamb=3Dcap_dac_override,cap_chown -- -c "semodule -B"
->   # ls -lZ  /etc/selinux/targeted/contexts/files
->
-> -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0 4=
-21397 Jul 19 09:10 file_contexts
-> -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0 5=
-93470 Jul 19 09:10 file_contexts.bin
-> -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0  =
-14704 Jul 19 09:10 file_contexts.homedirs
-> -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0  =
-20289 Jul 19 09:10 file_contexts.homedirs.bin
->
->   Both file context and ownership changed -- causes remote login
->   failures and other issues in some scenarios.
->
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
-> ---
+On Tue, Jul 23, 2024 at 01:34:44PM GMT, Dave Chinner wrote:
+> On Mon, Jul 22, 2024 at 03:46:36PM -0400, Paul Moore wrote:
+> > On Mon, Jul 22, 2024 at 8:30 AM Matus Jokay <matus.jokay@stuba.sk> wrote:
+> > > On 10. 7. 2024 12:40, Mickaël Salaün wrote:
+> > > > On Tue, Jul 09, 2024 at 10:40:30PM -0400, Paul Moore wrote:
+> > > >> The LSM framework has an existing inode_free_security() hook which
+> > > >> is used by LSMs that manage state associated with an inode, but
+> > > >> due to the use of RCU to protect the inode, special care must be
+> > > >> taken to ensure that the LSMs do not fully release the inode state
+> > > >> until it is safe from a RCU perspective.
+> > > >>
+> > > >> This patch implements a new inode_free_security_rcu() implementation
+> > > >> hook which is called when it is safe to free the LSM's internal inode
+> > > >> state.  Unfortunately, this new hook does not have access to the inode
+> > > >> itself as it may already be released, so the existing
+> > > >> inode_free_security() hook is retained for those LSMs which require
+> > > >> access to the inode.
+> > > >>
+> > > >> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > > >
+> > > > I like this new hook.  It is definitely safer than the current approach.
+> > > >
+> > > > To make it more consistent, I think we should also rename
+> > > > security_inode_free() to security_inode_put() to highlight the fact that
+> > > > LSM implementations should not free potential pointers in this blob
+> > > > because they could still be dereferenced in a path walk.
+> > > >
+> > > >> ---
+> > > >>  include/linux/lsm_hook_defs.h     |  1 +
+> > > >>  security/integrity/ima/ima.h      |  2 +-
+> > > >>  security/integrity/ima/ima_iint.c | 20 ++++++++------------
+> > > >>  security/integrity/ima/ima_main.c |  2 +-
+> > > >>  security/landlock/fs.c            |  9 ++++++---
+> > > >>  security/security.c               | 26 +++++++++++++-------------
+> > > >>  6 files changed, 30 insertions(+), 30 deletions(-)
+> > 
+> > ...
+> > 
+> > > Sorry for the questions, but for several weeks I can't find answers to two things related to this RFC:
+> > >
+> > > 1) How does this patch close [1]?
+> > >    As Mickaël pointed in [2], "It looks like security_inode_free() is called two times on the same inode."
+> > >    Indeed, it does not seem from the backtrace that it is a case of race between destroy_inode and inode_permission,
+> > >    i.e. referencing the inode in a VFS path walk while destroying it...
+> > >    Please, can anyone tell me how this situation could have happened? Maybe folks from VFS... I added them to the copy.
+> > 
+> > The VFS folks can likely provide a better, or perhaps a more correct
+> > answer, but my understanding is that during the path walk the inode is
+> > protected by a RCU lock which allows for multiple threads to access
+> > the inode simultaneously; this could result in some cases where one
+> > thread is destroying the inode while another is accessing it.
+> 
+> Shouldn't may_lookup() be checking the inode for (I_NEW |
+> I_WILLFREE | I_FREE) so that it doesn't access an inode either not
+> completely initialised or being evicted during the RCU path walk?
 
-> @@ -3018,3 +3028,21 @@ int semanage_nc_sort(semanage_handle_t * sh, const=
- char *buf, size_t buf_len,
->
->         return 0;
->  }
-> +
-> +/* Make sure the file context and ownership of files in the policy
-> + * store does not change */
-> +void semanage_setfiles(const char *path){
-> +       struct stat sb;
-> +
-> +       /* Fix the user and role portions of the context, ignore errors
-> +        * since this is not a critical operation */
-> +       selinux_restorecon(path, SELINUX_RESTORECON_SET_SPECFILE_CTX | SE=
-LINUX_RESTORECON_IGNORE_NOENTRY);
-> +
-> +       /* Make sure "path" is owned by root */
-> +       if (geteuid() !=3D 0 || getegid() !=3D 0)
-> +               /* Skip files with the SUID or SGID bit set -- abuse prot=
-ection */
-> +               if ((stat(path, &sb) =3D=3D -1) ||
-> +                   (S_ISREG(sb.st_mode) && (sb.st_mode & (S_ISUID | S_IS=
-GID))))
-> +                               return;
-> +               chown(path, 0, 0);
-> +}
+Going from memory since I don't have time to go really into the weeds.
 
-Did you consider the fd =3D open(path, O_PATH); fstat(fd, &sb); ...
-fchown(fd, 0, 0); pattern to avoid a race between the check and chown
-(e.g. link changed from one file to another in between)?
+A non-completely initalised inode shouldn't appear in path lookup.
+Before the inode is attached to a dentry I_NEW would have been removed
+otherwise this is a bug. That can either happen via unlock_new_inode()
+and d_splice_alias() or in some cases directly via d_instantiate_new().
+Concurrent inode lookup calls on the same inode (e.g., iget_locked() and
+friends) will sleep until I_NEW is cleared.
+
+> All accesses to the VFS inode that don't have explicit reference
+> counts have to do these checks...
+> 
+> IIUC, at the may_lookup() point, the RCU pathwalk doesn't have a
+> fully validate reference count to the dentry or the inode at this
+> point, so it seems accessing random objects attached to an inode
+> that can be anywhere in the setup or teardown process isn't at all
+> safe...
+
+may_lookup() cannot encounter inodes in random states. It will start
+from a well-known struct path and sample sequence counters for rename,
+mount, and dentry changes. Each component will be subject to checks
+after may_lookup() via these sequence counters to ensure that no change
+occurred that would invalidate the lookup just done. To be precise to
+ensure that no state could be reached via rcu that couldn't have been
+reached via ref walk.
+
+So may_lookup() may be called on something that's about to be freed
+(concurrent unlink on a directory that's empty that we're trying to
+create or lookup something nonexistent under) while we're looking at it
+but all the machinery is in place so that it will be detected and force
+a drop out of rcu and into reference walking mode.
+
+When may_lookup() calls inode_permission() it only calls into the
+filesystem itself if the filesystem has a custom i_op->permission()
+handler. And if it has to call into the filesystem it passes
+MAY_NOT_BLOCK to inform the filesystem about this. And in those cases
+the filesystem must ensure any additional data structures can safely be
+accessed under rcu_read_lock() (documented in path_lookup.rst).
+
+If the filesystem detects that it cannot safely handle this or detects
+that something is invalid it can return -ECHILD causing the VFS to drop
+out of rcu and into ref walking mode to redo the lookup. That may happen
+directly in may_lookup() it unconditionally happens in walk_component()
+when it's verified that the parent had no changes while we were looking
+at it.
+
+The same logic extends to security modules. Both selinux and smack
+handle MAY_NOT_BLOCK calls from security_inode_permission() with e.g.,
+selinux returning -ECHILD in case the inode security context isn't
+properly initialized causing the VFS to drop into ref walking mode and
+allowing selinux to redo the initialization.
+
+Checking inode state flags isn't needed because the VFS already handles
+all of this via other means as e.g., sequence counters in various core
+structs. It also likely wouldn't help because we'd have to take locks to
+access i_state or sample i_state before calling into inode_permission()
+and then it could still change behind our back. It's also the wrong
+layer as we're dealing almost exclusively with dentries as the main data
+structure during lookup.
+
+Fwiw, a bunch of this is documented in path_lookup.rst, vfs.rst, and
+porting.rst.
+
+(I'm running out of time with other stuff so I want to point out that I
+can't really spend a lot more time on this thread tbh.)
