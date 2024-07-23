@@ -1,251 +1,287 @@
-Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
+Received: from mail-yb1-f173.google.com (mail-yb1-f173.google.com [209.85.219.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F0AF13C9D3
-	for <selinux@vger.kernel.org>; Tue, 23 Jul 2024 19:11:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E2DF13C8F9
+	for <selinux@vger.kernel.org>; Tue, 23 Jul 2024 19:48:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721761918; cv=none; b=M32NHhZGwt1uF2HD3b+OyicodKsdGnZlSvHTn9nvPbUxJJqQf2Yk5dGRJ3z1xeMnxZoeLvMrY9Mg3Z10D3jE+A9sIaUEDJT4zr5jBbaf0CvNmGMcFU8pYSnbE+0GEXc7yxmKioy1ImI/bTqeNXElDmMtpmPERaMquSVMBniIHNA=
+	t=1721764134; cv=none; b=NnayBKXz9vIxlvf4LsUrSLnF4+jh8nM3BIAOOAgAsbv8pmnTNa+HvOIqnjuFXkb0MNhRxaiJWKrc4XysjFJqKhJHsGQUlGDdS1xCi8lv89TLjBiXX5R7YSCspdnoZ+FokQucKICsMKxiaN6NzzjbN9BKI6ADbwrrxWho09hRqgs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721761918; c=relaxed/simple;
-	bh=6U0Tq5B7JnerkLFkycx8xn+prDOksp9DSp4/253ggmk=;
+	s=arc-20240116; t=1721764134; c=relaxed/simple;
+	bh=bYLxHOhEU+Zp51G0LpqfUxnSFeXVz781+ABLldwFSko=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QXpvyexv4FO5KVIr9bG5VPXXg60yS+kr5iFBOh5ycdEYRqIPKhYx2rvChvsayxPOJrTsQ7mP9v+YJp1SyBX3V+yXquN0R0fWut/BsFwe8vz1OPAVQ6uCCmiF9pahSZ3mduUdLIRKptVfWyuKPKwGzb+Mj83FxfnaVllSf4wjjV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=N/zUXgHy; arc=none smtp.client-ip=209.85.128.177
+	 To:Cc:Content-Type; b=JALJk9dqbEtLGqUObRxF4w80if6OUQpUdn/Wmv8tdONhuYBh/VchWmvkiYM8Dwyq+th45+tGcmKv7OXU1SJ4SvrgZvVVMSWEaYmBvmXcBwnPaokvmcjpeOvpwf5ccrUMDdLNBLhy9XEByqLIMfAKDq8vqm39wLtwZDn9vt66o7Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=eWMs9ieU; arc=none smtp.client-ip=209.85.219.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="N/zUXgHy"
-Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-66ca536621cso28540247b3.3
-        for <selinux@vger.kernel.org>; Tue, 23 Jul 2024 12:11:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="eWMs9ieU"
+Received: by mail-yb1-f173.google.com with SMTP id 3f1490d57ef6-e05e2b2d88bso5561772276.0
+        for <selinux@vger.kernel.org>; Tue, 23 Jul 2024 12:48:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1721761915; x=1722366715; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1721764130; x=1722368930; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=iOy7RSuxopCa1Vmv50B8DbwRjQIex4syrWJ20Zar430=;
-        b=N/zUXgHyswU71SzgqjJzfKZeJXUuq2X3YPYU2IOsJvRFijDymlDSahCKSFl9C/QNPY
-         ywLtgm0Qniw8/U6MjkwLjKtva8NRHr4h7nqS+U4kSWzHcWbigk1I5gG+ApeuT/KD1cgU
-         Z0mq0ea9f7vIRo2mJT4uqkpnX5zO0WqorvkRnuilDIcskYL08YNxS9dec44f5tmWwKIt
-         ZcRCTvUE5nphGvgWwgPKcVpFY+UROTYAVGt4YS2UjmM8w2LPZGvxxTaCKOcWx0zChb2g
-         EPXESvHMjHFlE+qW/NBiwq748IRQX7mR1f4f67I/eUoT1XASDl2ShSZKDRrdVkzf4tXO
-         pWMg==
+        bh=wnS3xKEFgnfQyUitOQWc1I0Q6R6pqx6TXDex6LBUNdo=;
+        b=eWMs9ieUQWZsr/Z04TeSYuO8OoaRGNbMelLb9wG14jQcfDYqkoMM91DWw44Wf3Ktoc
+         K0ooVWhaJQrIKkj7BrE3ZuQoJdVsJbrD8xi94x/gjqN5ZQFKXFBDg2K7PEsu6r2AB3OK
+         nkKtX4CK+AMAWnXpbW2bbQ+WRQ3TKJ5Hp3M07ClImCmPpkPYbLLnDbB1I5VSD7+i6XDD
+         FigIt5uiz3VgHxVqkM3rRQJGXva7dEFGXSZpW3SFJJExVdFYEk3Dg5VqmMGhpV3Iui7j
+         Qg/4nVZKPPpKfeSFtnxRzDE+dN86kU1ySp66JaFsJXEmrsbjgCGSVJCzcNcfoA36A3Ly
+         jZhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721761915; x=1722366715;
+        d=1e100.net; s=20230601; t=1721764130; x=1722368930;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=iOy7RSuxopCa1Vmv50B8DbwRjQIex4syrWJ20Zar430=;
-        b=cXgrpS9a33ESHjM0x77ofbjafPiUcIT/wxssPNSO2anlRHenwtX5lOk87Vv946GjHL
-         IZKRiVp2D56WZOg7+U3CiA1oMgG0KfVnePFZ1tmYsaCE7Uh9Lc9HXk82L3532VdMFvYX
-         SR6trs0Oaqor2RvnPInnZ9Q23snLGw3wm8DggG4n2ordp1gsFHUsozeE81JN047mDe+8
-         80OZ23SSPYrGJqPllg2ZKH1EfCfLtTcOOwggQPuLPpDmsDXpYBnCAI+g83DCve68+BVO
-         l0+QnnWlI3oRe6PoHovsxJ6eaU+oCfzFEMeKVVfny3UP5wPS+rjgrueDit8Z/fzdxPuV
-         YGLQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUp3VBTApfy77iXOdMFEUQU4LeUTY4j3Yn4/BrPTueqz2Cg9x24pX0QuMsJRoHKQk6IWaPiPfDiYlYrRABSEmowI32+1fiUIg==
-X-Gm-Message-State: AOJu0YwO/JtcR39XcpwrmvM0q9yMdo5jmFHWQ8mbU3KJe3/m3ssRbUJO
-	kWpoCT5lKZBskYsF4dMydF3yo0keU9dIaAt92dtgdImIRSkR6H0ydGXb0hcQ1z+xf4taL7khpmw
-	j8h8I23O1vZU8YrI3NS9xNqa1BT+YGvGciu4t
-X-Google-Smtp-Source: AGHT+IF6b9/gWj1szdiVQq+bluUgGT6wOwD/nPTpmSdNnN866HVGwaV/0vErENpdHLQVEMBw6b8RXly6/Ye2dphn0II=
-X-Received: by 2002:a05:690c:2c84:b0:632:7161:d16c with SMTP id
- 00721157ae682-66e4d7fac07mr38352757b3.28.1721761915239; Tue, 23 Jul 2024
- 12:11:55 -0700 (PDT)
+        bh=wnS3xKEFgnfQyUitOQWc1I0Q6R6pqx6TXDex6LBUNdo=;
+        b=X+hxdt+dnuhIFO+Ebs/KJzRTmC2PY4F035KthbqbsMrEwOlpgXNC5bX/Xr5ATNeKSA
+         8yM4rfzdWmBAKyi0CqN6JqP5AVtRkEHSIPWHL17KMj+HeGpRKxuJSgedGg3ptCMrQAey
+         7Zxs/w5I5fdXSaoCx2eWRsquI3liTv70SZWzdTdEe4O1hGs/dAVW8SRjptPzGv8chC+p
+         1aUjn7iD4qgYPz+CHJDx4mpM0Za9g7SoWFadWwC8WkcZUC6myxgbe/Ff7+73cHYQ0UPn
+         L1jsH1v4OuFkbGyc4O8whfz9VXWKcrs6eOc91B2/xv504OxsKt7vuL3oTnGq42n9MQ5B
+         rXIA==
+X-Forwarded-Encrypted: i=1; AJvYcCVf5x9/1OfVwzMUWX01scJL9wLzpRIeAw09gZZlRrBIRxmFYKCW5O5jL77NRcSqzp7DwbkIWflfrKksgCIZBkGHGeqSbqMrog==
+X-Gm-Message-State: AOJu0YzpuGS5GpFe5LQ0Cill5MicawMsh1/E1jkffMggBtWRT9Trr5TT
+	vREGNjodGtb3YOA8qCCKWGj59TAeSHwcRI15hEQ5i84AlaXgy3K+7EWjLsxbaxkVHDEYRhnROcG
+	vy2dAmGYJNunz7zFiMMvy2E179fYRhL6XZ9bw
+X-Google-Smtp-Source: AGHT+IHUYrj6Sm+2gmwsGjgo1dhS7pDIA8KVhNJX5HCD4Knd5Qs8R+aNGqrPRl9vAIiVaNDRvqCWZDE2bH23Mn9FNE0=
+X-Received: by 2002:a05:6902:c0a:b0:dff:1020:6f31 with SMTP id
+ 3f1490d57ef6-e0b0985c49fmr888654276.45.1721764130208; Tue, 23 Jul 2024
+ 12:48:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAHC9VhSFAj5Nr010pURESOX13kfAuj3NYGmG3Xt4bCRPYuJuiA@mail.gmail.com>
- <20240722062139.1740728-1-tweek@google.com>
-In-Reply-To: <20240722062139.1740728-1-tweek@google.com>
+References: <20240710024029.669314-2-paul@paul-moore.com> <20240710.peiDu2aiD1su@digikod.net>
+ <ad6c7b2a-219e-4518-ab2d-bd798c720943@stuba.sk> <CAHC9VhRsZBjs2MWXUUotmX_vWTUbboyLT6sR4WbzmqndKEVe8Q@mail.gmail.com>
+ <645268cd-bb8f-4661-bab8-faa827267682@stuba.sk>
+In-Reply-To: <645268cd-bb8f-4661-bab8-faa827267682@stuba.sk>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 23 Jul 2024 15:11:44 -0400
-Message-ID: <CAHC9VhSCVLbDD_ZuAX3TNKd765qVVvvhznL4wMhmFsg1BDW1Jw@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: Add netlink xperm support
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: brambonne@google.com, jeffv@google.com, sds@tycho.nsa.gov, 
-	selinux@vger.kernel.org, stephen.smalley.work@gmail.com
+Date: Tue, 23 Jul 2024 15:48:39 -0400
+Message-ID: <CAHC9VhRnv0+4PZ9Qs-gFhMxmQc07_wr-_W41T45FztOkzD=__g@mail.gmail.com>
+Subject: Re: [RFC PATCH] lsm: add the inode_free_security_rcu() LSM
+ implementation hook
+To: Matus Jokay <matus.jokay@stuba.sk>
+Cc: =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
+	linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Christian Brauner <brauner@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 22, 2024 at 2:21=E2=80=AFAM Thi=C3=A9baud Weksteen <tweek@googl=
-e.com> wrote:
->
-> > > > > Reuse the existing extended permissions infrastructure to support
-> > > > > sepolicy for different netlink message types.
->
-> (Following up on this patch).
->
-> > > > >
-> > > > > When individual netlink message types are omitted only the existi=
-ng
-> > > > > permissions are checked. As is the case for ioctl xperms, this fe=
-ature
-> > > > > is intended to provide finer granularity for nlmsg_read and nlmsg=
-_write
-> > > > > permissions, as they may be too imprecise. For example, a single
-> > > > > NETLINK_ROUTE socket may provide access to both an interface's IP
-> > > > > address and to its ARP table, which might have different privacy
-> > > > > implications. In addition, the set of message types has grown ove=
-r time,
-> > > > > so even if the current list is acceptable, future additions might=
- not be.
-> > > > > It was suggested before on the mailing list [1] that extended per=
-missions
-> > > > > would be a good fit for this purpose.
-> > > > >
-> > > > > Existing policy using the nlmsg_read and nlmsg_write permissions =
-will
-> > > > > continue to work as-is. Similar to ioctl xperms, netlink xperms a=
-llow
-> > > > > for a more fine-grained policy where needed.
-> > > > >
-> > > > > Example policy on Android, preventing regular apps from accessing=
- the
-> > > > > device's MAC address and ARP table, but allowing this access to
-> > > > > privileged apps, looks as follows:
-> > > > >
-> > > > > allow netdomain self:netlink_route_socket {
-> > > > >         create read getattr write setattr lock append connect get=
-opt
-> > > > >         setopt shutdown nlmsg_read
-> > > > > };
-> > > > > allowxperm netdomain self:netlink_route_socket nlmsg ~{
-> > > > >         RTM_GETLINK RTM_GETNEIGH RTM_GETNEIGHTBL
-> > > > > };
-> > > > > allowxperm priv_app self:netlink_route_socket nlmsg {
-> > > > >         RTM_GETLINK RTM_GETNEIGH RTM_GETNEIGHTBL
-> > > > > };
-> > > > >
-> > > > > Android currently uses code similar to [1] as a temporary workaro=
-und to
-> > > > > limit access to certain netlink message types; our hope is that t=
-his patch
-> > > > > will allow us to move back to upstream code with an approach that=
- works for
-> > > > > everyone.
-> > > > >
-> > > > > [1] https://lore.kernel.org/selinux/CAHC9VhRSUhozBycHMZcMaJsibJDx=
-NMsTsKVT2zOnW=3D5H4R4mdg@mail.gmail.com/
-> > > > >
-> > > > > Signed-off-by: Bram Bonne <brambonne@google.com>
-> > > > > ---
-> > > > >  security/selinux/hooks.c       | 24 +++++++++++++++++++++++-
-> > > > >  security/selinux/ss/avtab.h    |  1 +
-> > > > >  security/selinux/ss/services.c | 23 ++++++++++++++++++++++-
-> > > > >  3 files changed, 46 insertions(+), 2 deletions(-)
-> > > > >
-> > > > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > > > index e7ebd45ca345..a503865fabed 100644
-> > > > > --- a/security/selinux/hooks.c
-> > > > > +++ b/security/selinux/hooks.c
-> > > > > @@ -4662,6 +4662,28 @@ static int sock_has_perm(struct sock *sk, =
-u32 perms)
-> > > > >                             &ad);
-> > > > >  }
-> > > > >
-> > > > > +static int nlmsg_sock_has_extended_perms(struct sock *sk, u32 pe=
-rms, u16 nlmsg_type)
-> > > > > +{
-> > > > > +       struct sk_security_struct *sksec =3D sk->sk_security;
-> > > > > +       struct common_audit_data ad;
-> > > > > +       struct lsm_network_audit net =3D {0,};
-> > > > > +       u8 xperm;
-> > > > > +
-> > > > > +       if (sksec->sid =3D=3D SECINITSID_KERNEL)
-> > > > > +               return 0;
-> > > > > +
-> > > > > +       ad.type =3D LSM_AUDIT_DATA_NET;
-> > > > > +       ad.u.net =3D &net;
-> > > > > +       ad.u.net->sk =3D sk;
-> > > > > +
-> > > > > +       // nlmsg_types comfortably fit into a single driver, see =
-RTM_MAX in uapi/linux/rtnetlink.h
-> > > > > +       xperm =3D nlmsg_type & 0xff;
-> > > >
-> > > > This seems like a dangerous assumption; obviously not all netlink
-> > > > users are rtnetlink. Even if all existing netlink users follow this=
-,
-> > > > nothing prevents userspace from creating a netlink message that
-> > > > violates it AFAIK, at which point you will just silently discard th=
+On Tue, Jul 23, 2024 at 5:27=E2=80=AFAM Matus Jokay <matus.jokay@stuba.sk> =
+wrote:
+> On 22. 7. 2024 21:46, Paul Moore wrote:
+> > On Mon, Jul 22, 2024 at 8:30=E2=80=AFAM Matus Jokay <matus.jokay@stuba.=
+sk> wrote:
+> >> On 10. 7. 2024 12:40, Micka=C3=ABl Sala=C3=BCn wrote:
+> >>> On Tue, Jul 09, 2024 at 10:40:30PM -0400, Paul Moore wrote:
+> >>>> The LSM framework has an existing inode_free_security() hook which
+> >>>> is used by LSMs that manage state associated with an inode, but
+> >>>> due to the use of RCU to protect the inode, special care must be
+> >>>> taken to ensure that the LSMs do not fully release the inode state
+> >>>> until it is safe from a RCU perspective.
+> >>>>
+> >>>> This patch implements a new inode_free_security_rcu() implementation
+> >>>> hook which is called when it is safe to free the LSM's internal inod=
 e
-> > > > higher bits. If we think we can get away with this restriction, the=
+> >>>> state.  Unfortunately, this new hook does not have access to the ino=
+de
+> >>>> itself as it may already be released, so the existing
+> >>>> inode_free_security() hook is retained for those LSMs which require
+> >>>> access to the inode.
+> >>>>
+> >>>> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> >>>
+> >>> I like this new hook.  It is definitely safer than the current approa=
+ch.
+> >>>
+> >>> To make it more consistent, I think we should also rename
+> >>> security_inode_free() to security_inode_put() to highlight the fact t=
+hat
+> >>> LSM implementations should not free potential pointers in this blob
+> >>> because they could still be dereferenced in a path walk.
+> >>>
+> >>>> ---
+> >>>>  include/linux/lsm_hook_defs.h     |  1 +
+> >>>>  security/integrity/ima/ima.h      |  2 +-
+> >>>>  security/integrity/ima/ima_iint.c | 20 ++++++++------------
+> >>>>  security/integrity/ima/ima_main.c |  2 +-
+> >>>>  security/landlock/fs.c            |  9 ++++++---
+> >>>>  security/security.c               | 26 +++++++++++++-------------
+> >>>>  6 files changed, 30 insertions(+), 30 deletions(-)
+> >
+> > ...
+> >
+> >> Sorry for the questions, but for several weeks I can't find answers to=
+ two things related to this RFC:
+> >>
+> >> 1) How does this patch close [1]?
+> >>    As Micka=C3=ABl pointed in [2], "It looks like security_inode_free(=
+) is called two times on the same inode."
+> >>    Indeed, it does not seem from the backtrace that it is a case of ra=
+ce between destroy_inode and inode_permission,
+> >>    i.e. referencing the inode in a VFS path walk while destroying it..=
+.
+> >>    Please, can anyone tell me how this situation could have happened? =
+Maybe folks from VFS... I added them to the copy.
+> >
+> > The VFS folks can likely provide a better, or perhaps a more correct
+> > answer, but my understanding is that during the path walk the inode is
+> > protected by a RCU lock which allows for multiple threads to access
+> > the inode simultaneously; this could result in some cases where one
+> > thread is destroying the inode while another is accessing it.
+> > Changing this would require changes to the VFS code, and I'm not sure
+> > why you would want to change it anyway, the performance win of using
+> > RCU here is likely significant.
+> >
+> >> 2) Is there a guarantee that inode_free_by_rcu and i_callback will be =
+called within the same RCU grace period?
+> >
+> > I'm not an RCU expert, but I don't believe there are any guarantees
+> > that the inode_free_by_rcu() and the inode's own free routines are
+> > going to be called within the same RCU grace period (not really
+> > applicable as inode_free_by_rcu() isn't called *during* a grace
+> > period, but *after* the grace period of the associated
+> > security_inode_free() call).  However, this patch does not rely on
+> > synchronization between the inode and inode LSM free routine in
+> > inode_free_by_rcu(); the inode_free_by_rcu() function and the new
+> > inode_free_security_rcu() LSM callback does not have a pointer to the
+> > inode, only the inode's LSM blob.  I agree that it is a bit odd, but
+> > freeing the inode and inode's LSM blob independently of each other
+> > should not cause a problem so long as the inode is no longer in use
+> > (hence the RCU callbacks).
+>
+> Paul, many thanks for your answer.
+>
+> I will try to clarify the issue, because fsnotify was a bad example.
+> Here is the related code taken from v10.
+>
+> void security_inode_free(struct inode *inode)
+> {
+>         call_void_hook(inode_free_security, inode);
+>         /*
+>          * The inode may still be referenced in a path walk and
+>          * a call to security_inode_permission() can be made
+>          * after inode_free_security() is called. Ideally, the VFS
+>          * wouldn't do this, but fixing that is a much harder
+>          * job. For now, simply free the i_security via RCU, and
+>          * leave the current inode->i_security pointer intact.
+>          * The inode will be freed after the RCU grace period too.
+>          */
+>         if (inode->i_security)
+>                 call_rcu((struct rcu_head *)inode->i_security,
+>                          inode_free_by_rcu);
+> }
+>
+> void __destroy_inode(struct inode *inode)
+> {
+>         BUG_ON(inode_has_buffers(inode));
+>         inode_detach_wb(inode);
+>         security_inode_free(inode);
+>         fsnotify_inode_delete(inode);
+>         locks_free_lock_context(inode);
+>         if (!inode->i_nlink) {
+>                 WARN_ON(atomic_long_read(&inode->i_sb->s_remove_count) =
+=3D=3D 0);
+>                 atomic_long_dec(&inode->i_sb->s_remove_count);
+>         }
+>
+> #ifdef CONFIG_FS_POSIX_ACL
+>         if (inode->i_acl && !is_uncached_acl(inode->i_acl))
+>                 posix_acl_release(inode->i_acl);
+>         if (inode->i_default_acl && !is_uncached_acl(inode->i_default_acl=
+))
+>                 posix_acl_release(inode->i_default_acl);
+> #endif
+>         this_cpu_dec(nr_inodes);
+> }
+>
+> static void destroy_inode(struct inode *inode)
+> {
+>         const struct super_operations *ops =3D inode->i_sb->s_op;
+>
+>         BUG_ON(!list_empty(&inode->i_lru));
+>         __destroy_inode(inode);
+>         if (ops->destroy_inode) {
+>                 ops->destroy_inode(inode);
+>                 if (!ops->free_inode)
+>                         return;
+>         }
+>         inode->free_inode =3D ops->free_inode;
+>         call_rcu(&inode->i_rcu, i_callback);
+> }
+>
+> Yes, inode_free_by_rcu() is being called after the grace period of the as=
+sociated
+> security_inode_free(). i_callback() is also called after the grace period=
+, but is it
+> always the same grace period as in the case of inode_free_by_rcu()? If no=
+t in general,
+> maybe it could be a problem. Explanation below.
+>
+> If there is a function call leading to the end of the grace period betwee=
 n
-> > > > we need to enforce it here (i.e. return an error if they do not fit=
-);
-> > > > if not,
-> > > > then we likely need to support multiple drivers with a simple mappi=
-ng
-> > > > of the upper bits to driver.
->
-> Agreed. Mapping the upper bits to the driver field would work.
->
-> In this case, AVTAB_XPERMS_NLMSG proposed here would have the exact same
-> implementation as AVTAB_XPERMS_IOCTLFUNCTION. An option could be to renam=
-e the
-> AVTAB_XPERMS_IOCTLFUNCTION constant (for example, to AVTAB_XPERMS_PERMS, =
-and
-> similarly moving AVTAB_XPERMS_IOCTLDRIVER to AVTAB_XPERMS_DRIVER). This i=
-s
-> describing more how struct avtab_extended_perms is being used rather than
-> focusing on its original meaning. (That is, the driver and perms fields a=
-re
-> historically related to ioctl, but they have their own meanings in the xp=
-erm
-> implementation).
->
-> The alternative is simply to have that new constant (AVTAB_XPERMS_NLMSG, =
-maybe
-> renamed to AVTAB_XPERMS_NETLINK_MSGTYPE, to be more explicit?).
+> call_rcu(inode_free_by_rcu) and call_rcu(i_callback) (by reaching a CPU q=
+uiescent state
+> or another mechanism?), there will be a small time window, when the inode=
+ security
+> context is released, but the inode itself not, because call_rcu(i_callbac=
+k) was not called
+> yet. So in that case each access to inode security blob leads to UAF.
 
-Considering that the original patch is almost three years old at this
-point, if you're interested in picking up this work I'd suggest
-starting by picking one of the options above that you like the most
-and preparing a patch(set) that works on the current development
-trees.  At this point all I remember about this patchset is that it
-existed.  If I'm going to spend the time to go back and re-review
-something, I'd rather it be a bit more recent than three years ;)
+While it should be possible for the inode's LSM blob to be free'd
+prior to the inode itself, the RCU callback mechanism provided by
+call_rcu() should ensure that both the LSM's free routine and the
+inode's free routine happen at a point in time after the current RCU
+critical sections have lapsed and the inode is no longer being
+accessed.  The LSM's inode_free_rcu callback can run independent of
+the inode's callback as it doesn't access the inode and if it does
+happen to run before the inode's RCU callback that should also be okay
+as we are past the original RCU critical sections and the inode should
+no longer be in use.  If the inode is still in use by the time the
+LSM's RCU callback is triggered then there is a flaw in the inode
+RCU/locking/synchronization code.
 
-> > > Looks like generic netlink puts the family id into the message type
-> > > field, with the actual command in the separate generic netlink header
-> > > in the payload. generic netlink family ids appear to be dynamically
-> > > allocated, with GENL_MAX_ID defined as 1023. genl-ctrl-list on a
-> > > sample Linux system reports ids from 0x10 through 0x1f so those would
-> > > fit but there isn't anything in the code to prevent higher ids from
-> > > being allocated up to the max. And if someday you want to be able to
-> > > filter generic netlink messages at the per-command level, you'd
-> > > further need to deal with the separate cmd field.
-> >
-> > There is also NETLINK_AUDIT which currently has message types defined
-> > up to 2000.  The netlink message header format allows for 16 bit
-> > message types (look at the nlmsghdr struct) and I think it would be a
-> > mistake if the SELinux netlink/xperms code didn't support a full 16
-> > bits for the message type.
-> >
-> > As far as NETLINK_GENERIC is concerned, yes, that's a bit of a
-> > nuisance both with the dynamic family IDs and buried message types.
-> > On the plus side, there are existing kernel functions that will
-> > resolve the generic netlink family IDs to a genl_family struct but
-> > those are currently private to the generic netlink code; I imagine if
-> > there was a need those functions (or something similar) could be made
-> > available outside of the genetlink.c.  Once you've matched on
-> > NETLINK_GENERIC and done the family resolution, it should just be a
-> > matter of doing the generic netlink command lookup in the context of
-> > the family, which really shouldn't be much different than looking up
-> > the message type of a conventional netlink message.
+It is also worth mentioning that while this patch shuffles around some
+code at the LSM layer, the basic idea of the LSM using a RCU callback
+to free state associated with an inode is far from new.  While that
+doesn't mean there isn't a problem, we have a few years of experience
+across a large number of systems, that would indicate this isn't a
+problem.
+
+> For example, see invoking ops->destroy_inode() after call_rcu(inode_free_=
+by_rcu) but
+> *before* call_rcu(i_callback). If destroy_inode() may sleep, can be reach=
+ed end of the
+> grace period? destroy_inode() is *before* call_rcu(i_callback), therefore=
+ simultaneous
+> access to the inode during path lookup may be performed. Note: I use dest=
+roy_inode() as
+> *an example* of the idea. I'm not expert at all in fsnotify, posix ACL, V=
+FS in general
+> and RCU, too.
 >
-> I can see how the resolution for cmd can be done, but I am not sure how t=
-he
-> family should be handled. I don't think it is ok to not correlate the fam=
-ily to
-> some data in the policy.
+> In the previous message I only mentioned fsnotify, but it was only as an =
+example.
+> I think that destroy_inode() is a better example of the idea I wanted to =
+express.
+>
+> I repeat that I'm aware that this RFC does not aim to solve this issue. B=
+ut it can be
+> unpleasant to get another UAF in a production environment.
 
-Yes, the family needs to be represented in the policy and using
-precedence as a guide I would suggest encoding the netlink family
-types as object classes.  You'll need a generic netlink "default" for
-those generic netlink families that aren't explicitly defined, but
-that shouldn't be too hard to implement.
+I'm open to there being another fix needed, or a change to this fix,
+but I don't believe the problems you are describing are possible.  Of
+course it's very possible that I'm wrong, so if you are aware of an
+issue I would appreciate a concrete example explaining the code path
+and timeline between tasks A and B that would trigger the flaw ... and
+yes, patches are always welcome ;)
 
 --=20
 paul-moore.com
