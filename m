@@ -1,89 +1,140 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4708D155738
-	for <selinux@vger.kernel.org>; Tue, 23 Jul 2024 14:42:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F34B155C90
+	for <selinux@vger.kernel.org>; Tue, 23 Jul 2024 14:56:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721745732; cv=none; b=SgFYSP2PbVWJ9HM7a7nCFTOZE/bprckOY9c56TQPmloXAi+qe2hgFAUwegu0FEMpsgN72BkrXwO4Qi+GqIriU8RZMjo/TRCeS8wbt2HKqFu4RNBz0RrI4t3AZe515B5zxKmhmhUnJ+mrlQ218z0kmfQ30oxNyA5tcxbjyyrSOnI=
+	t=1721746583; cv=none; b=bwB6thy/YUkzXvVSBF01ukSM08O7d08fL96+nNmdhpyjlWVjYj8P8NxKMoctuIN2k9Oy5r2e/SXJH0nBgrYM58hdcKjvSl8BXbTTE8z7EJFCZBOvRuWIJGC8DbqU6Nh6DKn2SOL94GrBl0vz+01uTz4eOez/feM/r3iEHSZbBn4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721745732; c=relaxed/simple;
-	bh=LFPf+1/ORWE4Xu/R6roAiUOeZlh9MW3bg6nZHc3byiM=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=AQqI+U3kFWKxRrTFbitOX4sF9fiF+REiJ+kmm5lv5jJl8XnxeZKGI7n5Sobf5x2q9YXXMLq1X1piqysi3dSBIk96V2VoArlSxC9dU73r6pk1rDDa8LxB3Hj0oqEDocOm9mvxZcv+WlH+RigA0vx/s8Xn3nABAq4KlZlacp4Li/0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YXTCJg3o; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1721746583; c=relaxed/simple;
+	bh=PAHR66ENP9eFh2iZoStdeMbeyNLnPVfKRq3QeT8C4Rk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SVXfrTmww3V/66PzX+Q8z4DN/tFZuaV7AUuPyvl4SuCalpXQeNaf5GlGcFOjp65HLBfuF92x4cfqTr9QughYkwMiSazIZ7FnUgyBxmswZfeEfEcQ1YR7Lo1xHs+fvhcsYQogHuQz3zgLRsIrQXPk7Eyheq53xoIjazf/fZatLY4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VrSaQ4JS; arc=none smtp.client-ip=209.85.215.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YXTCJg3o"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1721745730;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=Rr9xu3RC97JecqDBFUZLRiZjzRLRL3WIK7JJac8zngE=;
-	b=YXTCJg3o3yDzTlI5jBcwxvve4lTMWbDxRJxymoMxg4C82MMZNSJseiUjKS89lLtd3EItQt
-	c7rwwAaTHpqru30Y69ZLMkuaX5YGk9FBrMKMm5LQfW0HpIlKB56arbq+Eckrl+Cy8CbVKl
-	TRt+ev9DBtvCiN3X4E/duiTH1yt19kw=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-284-DxkJqt-2PqKoyaU-0K9x8g-1; Tue,
- 23 Jul 2024 10:42:08 -0400
-X-MC-Unique: DxkJqt-2PqKoyaU-0K9x8g-1
-Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id CC62A1955D4D
-	for <selinux@vger.kernel.org>; Tue, 23 Jul 2024 14:42:07 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.226.48])
-	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A6FEA1955D44
-	for <selinux@vger.kernel.org>; Tue, 23 Jul 2024 14:42:06 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH] libsepol/cil: Check that sym_index is within bounds
-Date: Tue, 23 Jul 2024 16:41:57 +0200
-Message-ID: <20240723144157.1242699-1-vmojzis@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VrSaQ4JS"
+Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-7a2123e9ad5so648838a12.1
+        for <selinux@vger.kernel.org>; Tue, 23 Jul 2024 07:56:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1721746581; x=1722351381; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mA/MxWCRd2yhIRG+cEPmBmdGGLIn5lTTheWq5KcIJmo=;
+        b=VrSaQ4JSzTR9XJc+fXUgISO6KiDRRNENiEPa1dZC0CYYI5FhHgIJN6A8TATtukWK7n
+         1Ar22ZN+yTVxyk1fqTu8dBNC1pjXZZ8/OA+/Yfq5F56FxEYNWjGCWxN+BbZHmF0krAOg
+         e+ZA0/rxH9xpWgWJ0bathARj8Lqg7LumKhDUJy9kEmKY08RAPrC4RDHd5cLisIrBxAAg
+         JIR7kcrqavI295YFAseJQJ1BYrr/4QaQCLT7Agui0rxwuwVej1YJaxrMoRx8oqPL6y0s
+         z2BiQGjcuvPScfRO3Prsj9sThexpIdCIdbUppoQcMCKK2+txH1kpQruv9sjVB1UE+ofO
+         8PYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721746581; x=1722351381;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mA/MxWCRd2yhIRG+cEPmBmdGGLIn5lTTheWq5KcIJmo=;
+        b=mr+cWfKGuq4W7pCVoktjmUcgrMXUBYYX+V9zBmqJN+SK8juOfhIuENClAkWL3ZQxJ2
+         fnl6yziEt0g3gU6xcAgNrQGbYvC/WlNbuYWAiCgn5rfQRpgrlxM19BvTVD7P2tNY1hao
+         KFIBADGGNrtOKC/mwRtXxPNw3hkKKDfm1DnUUX4YasP/XCOByLLumIBbXAPI1rjWQ4jm
+         zX5JPP3MmMuFbvbob+NhXmOXyb61nqfkwfRDq7GA9hzXRsQ4nxy6QlfqNT1aBKGziqhp
+         9RYzvC0hj2D7+pxhom9H5polfEwg3TBg2ctlUp/j0efW1NvadsCaEe7ZhfJ7gmawgmL7
+         lCjg==
+X-Gm-Message-State: AOJu0YzYzjiHxxtgas2foBp+o2HGxI1cLRRXjtL9JcXTbhZfx6fyShvv
+	lWC68l3njydJ/Rpv+ezdVEZ1hHwj/bpGTG0xuHJup4iqoPL+ypaFZBYOrAaEdA9wtEPei1ghpkt
+	T6huFJs8vydpGZRn+UOLkqaq5QXg=
+X-Google-Smtp-Source: AGHT+IFgAbkIAECoAwSNRdRcgMI5bzFksJcrWlSLwVHTcOgER4QJ0wzjyCJma2Xk7c/yZq6Y4CBoSQxnKBtW8hpW2M0=
+X-Received: by 2002:a17:90a:b112:b0:2cd:40cf:5ebd with SMTP id
+ 98e67ed59e1d1-2cd8cd2036bmr3876363a91.5.1721746581197; Tue, 23 Jul 2024
+ 07:56:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
+References: <aa2d6136-20b7-4d05-bde1-499849450d54@redhat.com> <20240723125850.1228121-1-vmojzis@redhat.com>
+In-Reply-To: <20240723125850.1228121-1-vmojzis@redhat.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 23 Jul 2024 10:56:09 -0400
+Message-ID: <CAEjxPJ7QLHNE1MJ1xj7Fprq6BPdfEAcC5P5711xJ7Ljp+aeFsQ@mail.gmail.com>
+Subject: Re: [PATCH v3] libsemanage: Preserve file context and ownership in
+ policy store
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Make sure sym_index is within the bounds of symtab array before using it
-to index the array.
+On Tue, Jul 23, 2024 at 9:09=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> wro=
+te:
+>
+> Make sure that file context (all parts) and ownership of
+> files/directories in policy store does not change no matter which user
+> and under which context executes policy rebuild.
+>
+> Fixes:
+>   # semodule -B
+>   # ls -lZ  /etc/selinux/targeted/contexts/files
+>
+> -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 421397 Ju=
+l 11 09:57 file_contexts
+> -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 593470 Ju=
+l 11 09:57 file_contexts.bin
+> -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  14704 Ju=
+l 11 09:57 file_contexts.homedirs
+> -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  20289 Ju=
+l 11 09:57 file_contexts.homedirs.bin
+>
+>   SELinux user changed from system_u to the user used to execute semodule
+>
+>   # capsh --user=3Dtestuser --caps=3D"cap_dac_override,cap_chown+eip" --a=
+ddamb=3Dcap_dac_override,cap_chown -- -c "semodule -B"
+>   # ls -lZ  /etc/selinux/targeted/contexts/files
+>
+> -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0 4=
+21397 Jul 19 09:10 file_contexts
+> -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0 5=
+93470 Jul 19 09:10 file_contexts.bin
+> -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0  =
+14704 Jul 19 09:10 file_contexts.homedirs
+> -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0  =
+20289 Jul 19 09:10 file_contexts.homedirs.bin
+>
+>   Both file context and ownership changed -- causes remote login
+>   failures and other issues in some scenarios.
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> ---
 
-Fixes:
-  Error: OVERRUN (CWE-119):
-  libsepol-3.6/cil/src/cil_resolve_ast.c:3157: assignment: Assigning: "sym_index" = "CIL_SYM_UNKNOWN".
-  libsepol-3.6/cil/src/cil_resolve_ast.c:3189: overrun-call: Overrunning callee's array of size 19 by passing argument "sym_index" (which evaluates to 20) in call to "cil_resolve_name".
-  \# 3187|                   switch (curr->flavor) {
-  \# 3188|                   case CIL_STRING:
-  \# 3189|->                         rc = cil_resolve_name(parent, curr->data, sym_index, db, &res_datum);
-  \# 3190|                           if (rc != SEPOL_OK) {
-  \# 3191|                                   goto exit;
+> @@ -3018,3 +3028,21 @@ int semanage_nc_sort(semanage_handle_t * sh, const=
+ char *buf, size_t buf_len,
+>
+>         return 0;
+>  }
+> +
+> +/* Make sure the file context and ownership of files in the policy
+> + * store does not change */
+> +void semanage_setfiles(const char *path){
+> +       struct stat sb;
+> +
+> +       /* Fix the user and role portions of the context, ignore errors
+> +        * since this is not a critical operation */
+> +       selinux_restorecon(path, SELINUX_RESTORECON_SET_SPECFILE_CTX | SE=
+LINUX_RESTORECON_IGNORE_NOENTRY);
+> +
+> +       /* Make sure "path" is owned by root */
+> +       if (geteuid() !=3D 0 || getegid() !=3D 0)
+> +               /* Skip files with the SUID or SGID bit set -- abuse prot=
+ection */
+> +               if ((stat(path, &sb) =3D=3D -1) ||
+> +                   (S_ISREG(sb.st_mode) && (sb.st_mode & (S_ISUID | S_IS=
+GID))))
+> +                               return;
+> +               chown(path, 0, 0);
+> +}
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- libsepol/cil/src/cil_resolve_ast.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index 427a320c..da8863c4 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -4291,7 +4291,7 @@ int cil_resolve_name_keep_aliases(struct cil_tree_node *ast_node, char *name, en
- 	int rc = SEPOL_ERR;
- 	struct cil_tree_node *node = NULL;
- 
--	if (name == NULL) {
-+	if (name == NULL || sym_index >= CIL_SYM_NUM) {
- 		cil_log(CIL_ERR, "Invalid call to cil_resolve_name\n");
- 		goto exit;
- 	}
--- 
-2.43.0
-
+Did you consider the fd =3D open(path, O_PATH); fstat(fd, &sb); ...
+fchown(fd, 0, 0); pattern to avoid a race between the check and chown
+(e.g. link changed from one file to another in between)?
