@@ -1,154 +1,190 @@
-Received: from mail-oa1-f45.google.com (mail-oa1-f45.google.com [209.85.160.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3463A2C9D
-	for <selinux@vger.kernel.org>; Tue, 23 Jul 2024 03:34:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2BDE13B5A6;
+	Tue, 23 Jul 2024 07:04:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721705690; cv=none; b=ZQ8hIjDRZJVZKkwfXQa7hmF/EgsjhlD6cG6GafRa1Z8f08BVed1sxvmikjqlGhxZNUtqfUULpdJ1g87S8wGQUzBM+9rv8JEhVXmTKIgZXGk+wdKrWDI8skPHOHEhccEANyI0BOqYmc6kXptn7yCkyaMUv3RTtNLAB7uXWEQ7hNM=
+	t=1721718289; cv=none; b=NZfDBNNmXhi2UJwUGVAexlBZII9wGed5QYkqRhRZP/f0a4jgi/xs5hzLVPyS+aHqueC+30z8KU1zu7p5LnK368tpehzK0mLpWXug+aazlw5G9aDOsdliiKSGwCNyDIkSmQQQ20P6OvkDS3QmQaDCN0f1h10XgqVOD+bwkyCoh34=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721705690; c=relaxed/simple;
-	bh=Wy//HDKOsBE6f76+BhG2quuvrGFpTxUnea6ZwsKdAuU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FtqqgpLs9WATfUWNl0rlctxB742JFsVyb2eFT4TwaXyY4ZWqCQDvJhOd4+DSbtx0oB7m5ZPXeyjXgJMFfc0/VMZSwlQ3XFAdB6BX4EHzrmk7KPC6fQjThjj8gWsTE2/ycgwk/f2udcJNBtu9rIQ1TGmzooePmZtYPfn72yDTwFQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com; spf=pass smtp.mailfrom=fromorbit.com; dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b=G3XEZH8B; arc=none smtp.client-ip=209.85.160.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fromorbit.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fromorbit.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fromorbit-com.20230601.gappssmtp.com header.i=@fromorbit-com.20230601.gappssmtp.com header.b="G3XEZH8B"
-Received: by mail-oa1-f45.google.com with SMTP id 586e51a60fabf-260dde65a68so2732558fac.2
-        for <selinux@vger.kernel.org>; Mon, 22 Jul 2024 20:34:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fromorbit-com.20230601.gappssmtp.com; s=20230601; t=1721705687; x=1722310487; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=odhMre96IuepQxSDaxhNjNarvTL+5+GbuLCBFloWAss=;
-        b=G3XEZH8BlPZ2xJer8MIhfSjFKknlbYrmw8Z8qk2i+WgmeJP76EGGkDarJUvB06cacy
-         PvPi06MSpsSl4jvJzO/ss9f6VZUzgirNdxVWwKHIH4SoGDTqVP+6DJ0lcuenZ6cxnTvj
-         SJ2qqIUvZM6xMzkXdnf6HsCPKer8BDOpTYXp85pK49j/GLwqSEvkpWkCjWV34WxZgIWv
-         57Fxh5TZBSqFxQHqHnlDUXH1tIEb2jo5HNWfiY22Txvi1QHeKzMqm75pvorUB+CEizdR
-         tS9BFs7sbKNGgm5EuoPv4sIOnkN7YTTnHMgSvtxCWOcRy5rGVh4ZkpCoeMH98Gjo7e1e
-         A6wQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721705687; x=1722310487;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=odhMre96IuepQxSDaxhNjNarvTL+5+GbuLCBFloWAss=;
-        b=hXAFqRfWcQuH5r8WMV7QmBcY0sUpr5dKcbRexYthQRcDqhpgBeZmhcwdJ0oee+EEm8
-         7EUk0FjCodkt7oJGyGl3ZcH2te2x+vsUh/l+yJ6oTbU183Ypb59fcqSJ0PfT7XbXAyLC
-         zumzMQ/PrnejHuRjBP2aL0kLsmDPiug4srxba2KiJkQXJqcVdnNA7C331OB8m46OqRTn
-         d0uEd4Nplct+Mz8HR/GSYQcbHZSnFp0nBHg7HXdRhV90t0NtlLc8EZK0tOnBcBlUDKEE
-         W9DnDA2QvvfM7soM5yVNVYmBDRoRVyMVIbCjhW3gSOrlUSxizv8cY/zJUE7KPDpHhnYq
-         ypfA==
-X-Forwarded-Encrypted: i=1; AJvYcCXU0Y44R7Z1/l3Kqu5+tC8MiB147r0CpG7gIP1Vz1/0YSA7ONOg081cOSGNRrfsELVJ4lbIo6f0ne3Bj+KeObxpFkHP9Undmw==
-X-Gm-Message-State: AOJu0YyfDDbXdOlq1+Zlt1x+CLjHQjnpwmv5lHJoxEYyJy5KMtO/0Eyc
-	UXEovYDkT4pIvBKXGgVSjNqniuSrst+VvkToyrpprFwExeW6itP+BAjecxNDK/4=
-X-Google-Smtp-Source: AGHT+IFuizr6yBlxfFzr/VooOJme/aR+1mm8qjWN3Qfscmq972ay9+yrA60/QR8RQS6hkaK1UBulzw==
-X-Received: by 2002:a05:6871:7896:b0:25e:1711:90e3 with SMTP id 586e51a60fabf-2612130d34bmr9655696fac.2.1721705687247;
-        Mon, 22 Jul 2024 20:34:47 -0700 (PDT)
-Received: from dread.disaster.area (pa49-181-47-239.pa.nsw.optusnet.com.au. [49.181.47.239])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-70d270cab28sm2656949b3a.115.2024.07.22.20.34.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jul 2024 20:34:46 -0700 (PDT)
-Received: from dave by dread.disaster.area with local (Exim 4.96)
-	(envelope-from <david@fromorbit.com>)
-	id 1sW6IW-0083su-0e;
-	Tue, 23 Jul 2024 13:34:44 +1000
-Date: Tue, 23 Jul 2024 13:34:44 +1000
-From: Dave Chinner <david@fromorbit.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Matus Jokay <matus.jokay@stuba.sk>,
-	=?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	Roberto Sassu <roberto.sassu@huawei.com>,
-	linux-fsdevel@vger.kernel.org,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>
-Subject: Re: [RFC PATCH] lsm: add the inode_free_security_rcu() LSM
- implementation hook
-Message-ID: <Zp8k1H/qeaVZOXF5@dread.disaster.area>
-References: <20240710024029.669314-2-paul@paul-moore.com>
- <20240710.peiDu2aiD1su@digikod.net>
- <ad6c7b2a-219e-4518-ab2d-bd798c720943@stuba.sk>
- <CAHC9VhRsZBjs2MWXUUotmX_vWTUbboyLT6sR4WbzmqndKEVe8Q@mail.gmail.com>
+	s=arc-20240116; t=1721718289; c=relaxed/simple;
+	bh=OS7/D2fswcHFX0KJp9WVoT9m3o1j5i+tbBQzNvC5FiU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PM26A4M3wpbhyQpyIZYEmXww1iJ6K1AoSDryHLMCfyH5//D3rDaUXndVfh4FyEjY5qrx7j2iWhV0golj10BBRX903ZgCIzkCDc7+MLCLWcxJSxsf1rtsCDT65K8L3/T1vo9xKy0CIkOZ5BxV1FxZizPeLVUpwM175nV5csvcdDg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.93.142])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WSp6h0vm8z4f3l19;
+	Tue, 23 Jul 2024 15:04:28 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.252])
+	by mail.maildlp.com (Postfix) with ESMTP id 97B481A0CA0;
+	Tue, 23 Jul 2024 15:04:41 +0800 (CST)
+Received: from [10.67.111.192] (unknown [10.67.111.192])
+	by APP3 (Coremail) with SMTP id _Ch0CgBndE8HVp9mDXyOAw--.51101S2;
+	Tue, 23 Jul 2024 15:04:41 +0800 (CST)
+Message-ID: <b1ba86f7-f943-4913-8265-2a94f3951a88@huaweicloud.com>
+Date: Tue, 23 Jul 2024 15:04:39 +0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 9/20] lsm: Refactor return value of LSM hook
+ key_getsecurity
+Content-Language: en-US
+To: Paul Moore <paul@paul-moore.com>
+Cc: bpf@vger.kernel.org, netdev@vger.kernel.org,
+ linux-security-module@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+ Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman
+ <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
+ Yonghong Song <yonghong.song@linux.dev>,
+ John Fastabend <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>,
+ Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+ Matt Bobrowski <mattbobrowski@google.com>,
+ Brendan Jackman <jackmanb@chromium.org>, James Morris <jmorris@namei.org>,
+ "Serge E . Hallyn" <serge@hallyn.com>,
+ Khadija Kamran <kamrankhadijadj@gmail.com>,
+ Casey Schaufler <casey@schaufler-ca.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>, Kees Cook <keescook@chromium.org>,
+ John Johansen <john.johansen@canonical.com>,
+ Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+ Roberto Sassu <roberto.sassu@huawei.com>,
+ Shung-Hsi Yu <shung-hsi.yu@suse.com>, Edward Cree <ecree.xilinx@gmail.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>,
+ Trond Myklebust <trond.myklebust@hammerspace.com>,
+ Anna Schumaker <anna@kernel.org>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>
+References: <20240711111908.3817636-10-xukuohai@huaweicloud.com>
+ <94a3b82a1e3e1fec77d676fa382105d4@paul-moore.com>
+ <7711bdba-9fbd-406c-8b81-adf91074d0b7@huaweicloud.com>
+ <CAHC9VhSsCuJzJ3ReUTyTXfWqRd+_TfShJBnRugZtX6OrMYJkOQ@mail.gmail.com>
+From: Xu Kuohai <xukuohai@huaweicloud.com>
+In-Reply-To: <CAHC9VhSsCuJzJ3ReUTyTXfWqRd+_TfShJBnRugZtX6OrMYJkOQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHC9VhRsZBjs2MWXUUotmX_vWTUbboyLT6sR4WbzmqndKEVe8Q@mail.gmail.com>
+X-CM-TRANSID:_Ch0CgBndE8HVp9mDXyOAw--.51101S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxZryfGF1fXrW8KFWUZry8AFb_yoWrWryxpr
+	W5Ka1Yyr4kJFy3ur1Iv3W7uF4Sya93GF1UWrZ3Gw1UZr1qvr17Wr1jkr1j9ryrCr1fJr10
+	vw47ZFZxCr1DAFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUvYb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_tr0E3s1l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x
+	0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
+	6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
+	Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7MxkF7I0En4kS
+	14v26rWY6Fy7MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I
+	8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWrXVW8
+	Jr1lIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7
+	CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v2
+	6r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07
+	j6a0PUUUUU=
+X-CM-SenderInfo: 50xn30hkdlqx5xdzvxpfor3voofrz/
 
-On Mon, Jul 22, 2024 at 03:46:36PM -0400, Paul Moore wrote:
-> On Mon, Jul 22, 2024 at 8:30 AM Matus Jokay <matus.jokay@stuba.sk> wrote:
-> > On 10. 7. 2024 12:40, Mickaël Salaün wrote:
-> > > On Tue, Jul 09, 2024 at 10:40:30PM -0400, Paul Moore wrote:
-> > >> The LSM framework has an existing inode_free_security() hook which
-> > >> is used by LSMs that manage state associated with an inode, but
-> > >> due to the use of RCU to protect the inode, special care must be
-> > >> taken to ensure that the LSMs do not fully release the inode state
-> > >> until it is safe from a RCU perspective.
-> > >>
-> > >> This patch implements a new inode_free_security_rcu() implementation
-> > >> hook which is called when it is safe to free the LSM's internal inode
-> > >> state.  Unfortunately, this new hook does not have access to the inode
-> > >> itself as it may already be released, so the existing
-> > >> inode_free_security() hook is retained for those LSMs which require
-> > >> access to the inode.
-> > >>
-> > >> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > >
-> > > I like this new hook.  It is definitely safer than the current approach.
-> > >
-> > > To make it more consistent, I think we should also rename
-> > > security_inode_free() to security_inode_put() to highlight the fact that
-> > > LSM implementations should not free potential pointers in this blob
-> > > because they could still be dereferenced in a path walk.
-> > >
-> > >> ---
-> > >>  include/linux/lsm_hook_defs.h     |  1 +
-> > >>  security/integrity/ima/ima.h      |  2 +-
-> > >>  security/integrity/ima/ima_iint.c | 20 ++++++++------------
-> > >>  security/integrity/ima/ima_main.c |  2 +-
-> > >>  security/landlock/fs.c            |  9 ++++++---
-> > >>  security/security.c               | 26 +++++++++++++-------------
-> > >>  6 files changed, 30 insertions(+), 30 deletions(-)
+On 7/23/2024 5:35 AM, Paul Moore wrote:
+> On Sat, Jul 20, 2024 at 5:31 AM Xu Kuohai <xukuohai@huaweicloud.com> wrote:
+>> On 7/19/2024 10:08 AM, Paul Moore wrote:
+>>> On Jul 11, 2024 Xu Kuohai <xukuohai@huaweicloud.com> wrote:
+>>>>
+>>>> To be consistent with most LSM hooks, convert the return value of
+>>>> hook key_getsecurity to 0 or a negative error code.
+>>>>
+>>>> Before:
+>>>> - Hook key_getsecurity returns length of value on success or a
+>>>>     negative error code on failure.
+>>>>
+>>>> After:
+>>>> - Hook key_getsecurity returns 0 on success or a negative error
+>>>>     code on failure. An output parameter @len is introduced to hold
+>>>>     the length of value on success.
+>>>>
+>>>> Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
+>>>> ---
+>>>>    include/linux/lsm_hook_defs.h |  3 ++-
+>>>>    include/linux/security.h      |  6 ++++--
+>>>>    security/keys/keyctl.c        | 11 ++++++++---
+>>>>    security/security.c           | 26 +++++++++++++++++++++-----
+>>>>    security/selinux/hooks.c      | 11 +++++------
+>>>>    security/smack/smack_lsm.c    | 21 +++++++++++----------
+>>>>    6 files changed, 51 insertions(+), 27 deletions(-)
 > 
 > ...
 > 
-> > Sorry for the questions, but for several weeks I can't find answers to two things related to this RFC:
-> >
-> > 1) How does this patch close [1]?
-> >    As Mickaël pointed in [2], "It looks like security_inode_free() is called two times on the same inode."
-> >    Indeed, it does not seem from the backtrace that it is a case of race between destroy_inode and inode_permission,
-> >    i.e. referencing the inode in a VFS path walk while destroying it...
-> >    Please, can anyone tell me how this situation could have happened? Maybe folks from VFS... I added them to the copy.
+>>>> diff --git a/security/security.c b/security/security.c
+>>>> index 9dd2ae6cf763..2c161101074d 100644
+>>>> --- a/security/security.c
+>>>> +++ b/security/security.c
+>>>> @@ -5338,19 +5338,35 @@ int security_key_permission(key_ref_t key_ref, const struct cred *cred,
+>>>>     * security_key_getsecurity() - Get the key's security label
+>>>>     * @key: key
+>>>>     * @buffer: security label buffer
+>>>> + * @len: the length of @buffer (including terminating NULL) on success
+>>>>     *
+>>>>     * Get a textual representation of the security context attached to a key for
+>>>>     * the purposes of honouring KEYCTL_GETSECURITY.  This function allocates the
+>>>>     * storage for the NUL-terminated string and the caller should free it.
+>>>>     *
+>>>> - * Return: Returns the length of @buffer (including terminating NUL) or -ve if
+>>>> - *         an error occurs.  May also return 0 (and a NULL buffer pointer) if
+>>>> - *         there is no security label assigned to the key.
+>>>> + * Return: Returns 0 on success or -ve if an error occurs. May also return 0
+>>>> + *         (and a NULL buffer pointer) if there is no security label assigned
+>>>> + *         to the key.
+>>>>     */
+>>>> -int security_key_getsecurity(struct key *key, char **buffer)
+>>>> +int security_key_getsecurity(struct key *key, char **buffer, size_t *len)
+>>>>    {
+>>>> +    int rc;
+>>>> +    size_t n = 0;
+>>>> +    struct security_hook_list *hp;
+>>>> +
+>>>>       *buffer = NULL;
+>>>> -    return call_int_hook(key_getsecurity, key, buffer);
+>>>> +
+>>>> +    hlist_for_each_entry(hp, &security_hook_heads.key_getsecurity, list) {
+>>>> +            rc = hp->hook.key_getsecurity(key, buffer, &n);
+>>>> +            if (rc < 0)
+>>>> +                    return rc;
+>>>> +            if (n)
+>>>> +                    break;
+>>>> +    }
+>>>> +
+>>>> +    *len = n;
+>>>> +
+>>>> +    return 0;
+>>>>    }
+>>>
+>>> Help me understand why we can't continue to use the call_int_hook()
+>>> macro here?
+>>>
+>>
+>> Before this patch, the hook may return +ve, 0, or -ve, and call_int_hook
+>> breaks the loop when the hook return value is not 0.
+>>
+>> After this patch, the +ve is stored in @n, so @n and return value should
+>> both be checked to determine whether to break the loop. This is not
+>> feasible with call_int_hook.
 > 
-> The VFS folks can likely provide a better, or perhaps a more correct
-> answer, but my understanding is that during the path walk the inode is
-> protected by a RCU lock which allows for multiple threads to access
-> the inode simultaneously; this could result in some cases where one
-> thread is destroying the inode while another is accessing it.
+> Yes, gotcha.  I was focused on the error condition and wasn't thinking
+> about the length getting zero'd out by a trailing callback.
+> Unfortunately, we *really* want to stick with the
+> call_{int,void}_hook() macros so I think we either need to find a way
+> to work within that constraint for existing macro callers, or we have
+> to leave this hook as-is for the moment.
+> 
 
-Shouldn't may_lookup() be checking the inode for (I_NEW |
-I_WILLFREE | I_FREE) so that it doesn't access an inode either not
-completely initialised or being evicted during the RCU path walk?
-All accesses to the VFS inode that don't have explicit reference
-counts have to do these checks...
+Let's leave it as is. So we ultimately have four hooks that can be
+converted, two of which require adding additional output parameter to
+hold odd return values. These output parameters require extra work
+on the BPF verifier, and it doesn't seem worthwhile just for two
+hooks. So I prefer to keep only the two patches that handle
+conversion without adding output parameters (patch 1 and 5).
 
-IIUC, at the may_lookup() point, the RCU pathwalk doesn't have a
-fully validate reference count to the dentry or the inode at this
-point, so it seems accessing random objects attached to an inode
-that can be anywhere in the setup or teardown process isn't at all
-safe...
-
--Dave.
--- 
-Dave Chinner
-david@fromorbit.com
