@@ -1,195 +1,314 @@
-Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
+Received: from smtp-out.cvt.stuba.sk (smtp-out.cvt.stuba.sk [147.175.1.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D14A1171C;
-	Wed, 24 Jul 2024 01:57:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B17281C6A3;
+	Wed, 24 Jul 2024 10:20:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=147.175.1.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721786224; cv=none; b=GMrPaToXtqaTbumDupcCAmxMyJkEkU9P7PWmX+fTJ1u2dGBlhVinWinGHyIsTpkmENc8h1uQd6VNDncqTpASMISXl5Q1t/VIaytXCdRzgd+p7mjek9Gh+hjKIAvBbxyT8BdZkLAh6DlUAETvZxeRnK7VtSl16ddevQTFvGrmrh0=
+	t=1721816443; cv=none; b=tvJY5B62ocNNEhShyfN5xql2606MGUD8YTvN4Znzz5zmSOXFVS9vMutRuZLIiGEpOnAuVG6EWS5fo8lG8DvzFQl6ynsTzeIVWxR1PT7VBlEXMqFyYK5gDFCaCVM5BV97j5srVtPbfkN4+j+ummCCwXmwUnnX+XSW+IOMkS1S7lc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721786224; c=relaxed/simple;
-	bh=WJWRcqsesXwYwAt1BcpzmR0xuMOTS3AEdFL6VnirlvM=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=c+yISQdOC4QbwYp1OLAy3Oxbr9kXQY33kDKK/721+miPjtKw5YtZkQxgyPmD1VYEmi3jPcXPBjVlTHde3yfj13vJ59wzdq2Vo9WGdKfY3d1GYyqCU8LRuDp6U9FW6ZNXfIWryDk2dmiNDoNpxRmpJ09l6NdSi1Y8WPI99DG3AdQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4WTHF24TVdz4f3kw5;
-	Wed, 24 Jul 2024 09:56:38 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.112])
-	by mail.maildlp.com (Postfix) with ESMTP id 2EF6D1A190F;
-	Wed, 24 Jul 2024 09:56:52 +0800 (CST)
-Received: from k01.huawei.com (unknown [10.67.174.197])
-	by APP1 (Coremail) with SMTP id cCh0CgDXw3VgX6BmaKTZAw--.12072S4;
-	Wed, 24 Jul 2024 09:56:51 +0800 (CST)
-From: Xu Kuohai <xukuohai@huaweicloud.com>
-To: linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org,
-	linux-unionfs@vger.kernel.org,
-	linux-integrity@vger.kernel.org
-Cc: Paul Moore <paul@paul-moore.com>,
-	Casey Schaufler <casey@schaufler-ca.com>,
-	"Serge E . Hallyn" <serge@hallyn.com>,
-	Miklos Szeredi <miklos@szeredi.hu>,
-	Amir Goldstein <amir73il@gmail.com>,
-	James Morris <jmorris@namei.org>,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	Roberto Sassu <roberto.sassu@huawei.com>,
-	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-	Eric Snowberg <eric.snowberg@oracle.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [PATCH v1 2/2] lsm: Refactor return value of LSM hook inode_copy_up_xattr
-Date: Wed, 24 Jul 2024 10:06:59 +0800
-Message-Id: <20240724020659.120353-3-xukuohai@huaweicloud.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240724020659.120353-1-xukuohai@huaweicloud.com>
-References: <20240724020659.120353-1-xukuohai@huaweicloud.com>
+	s=arc-20240116; t=1721816443; c=relaxed/simple;
+	bh=lkDBFsgC5lwnola/Td4lgDn6VgBBhWZpBnQeuhlfAQA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=HT1MnEFi6Xf3iIEsmtm2w2J9/AKjBPEVIuyvkj5xobK4OpXKRqOc7xwbRujVh/IY2vUQkm8Ow9rvPvmVcLp7ylLibPJVn9xarb6/zp41XuU04uqQh4y3kk4R36OqpmMiUP0adNNOms8gNjWoHaYS3lrPebSd8ferhqZRrXjlGUM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=stuba.sk; spf=pass smtp.mailfrom=stuba.sk; dkim=pass (2048-bit key) header.d=stuba.sk header.i=@stuba.sk header.b=DHpLBeOP; arc=none smtp.client-ip=147.175.1.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=stuba.sk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stuba.sk
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=stuba.sk header.i=@stuba.sk header.b="DHpLBeOP"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=stuba.sk;
+	s=20180406; h=Content-Transfer-Encoding:Content-Type:From:To:Subject:
+	MIME-Version:Date:Message-ID; bh=6VAusIOy61kU0Bw2Dv1hj/C7yoXl/PucLk1GoxmKv1U=
+	; t=1721816438; x=1722248438; b=DHpLBeOPR2O8BsfTRwcJoSBywU2uTqfS5PpBFRHIjn/FI
+	If7Xxo42lOY1E650eYnUMfWytC1+OdE2JlZRjpKAfMHtpoHZRODoqARDeIOfFpj0hDqnkRST2b/8B
+	n+TBJ5BNgObpsw8jSPmQYiGrjpXAnvRiZtRw0dgBJZbV07ms0efT7SCExaprBQrXzXJ6NgrGqUPts
+	tTzkE6P57akhljdRWjNlETsXASkfIZpspWFT3v4rZyctYiYYJgzWOlFV9Ainmy7It6vajiRuBbTQI
+	ZUcOrgiuziTBTk37PMbIqHOkAB08R5+JhI+iQO+L1vEwuTOLQV/wGi4g7CNlFInzZQ==;
+X-STU-Diag: f12344e1a5aa1070 (auth)
+Received: from ellyah.uim.fei.stuba.sk ([147.175.106.89])
+	by mx1.stuba.sk (Exim4) with esmtpsa (TLS1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
+	(envelope-from <matus.jokay@stuba.sk>)
+	id 1sWZ6j-000000004Qd-3IDA;
+	Wed, 24 Jul 2024 12:20:29 +0200
+Message-ID: <0972f6a4-ab78-48ba-8a45-3d18fab7bff6@stuba.sk>
+Date: Wed, 24 Jul 2024 12:20:29 +0200
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH] lsm: add the inode_free_security_rcu() LSM
+ implementation hook
+To: Paul Moore <paul@paul-moore.com>
+Cc: =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
+ linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+ Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>,
+ linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>
+References: <20240710024029.669314-2-paul@paul-moore.com>
+ <20240710.peiDu2aiD1su@digikod.net>
+ <ad6c7b2a-219e-4518-ab2d-bd798c720943@stuba.sk>
+ <CAHC9VhRsZBjs2MWXUUotmX_vWTUbboyLT6sR4WbzmqndKEVe8Q@mail.gmail.com>
+ <645268cd-bb8f-4661-bab8-faa827267682@stuba.sk>
+ <CAHC9VhRnv0+4PZ9Qs-gFhMxmQc07_wr-_W41T45FztOkzD=__g@mail.gmail.com>
+Content-Language: en-US
+From: Matus Jokay <matus.jokay@stuba.sk>
+In-Reply-To: <CAHC9VhRnv0+4PZ9Qs-gFhMxmQc07_wr-_W41T45FztOkzD=__g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:cCh0CgDXw3VgX6BmaKTZAw--.12072S4
-X-Coremail-Antispam: 1UD129KBjvJXoWxAw1kXF4DJFWkXFWrJF1fJFb_yoWrZF1fpa
-	1Dtan2qr1rJFy7XFykJa17ua1F93yrGFWUC39xuw12kFZ3Xrs3Wryayr12kr45Wry8JF4v
-	qanFvrs8C3W5t3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUPFb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUXw
-	A2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-	w2x7M28EF7xvwVC0I7IYx2IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	W8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v2
-	6rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMc
-	Ij6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_
-	Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AFwI
-	0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG
-	67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5MI
-	IYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E
-	14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJV
-	W8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUFSdy
-	UUUUU
-X-CM-SenderInfo: 50xn30hkdlqx5xdzvxpfor3voofrz/
 
-From: Xu Kuohai <xukuohai@huawei.com>
+On 23. 7. 2024 21:48, Paul Moore wrote:
+> On Tue, Jul 23, 2024 at 5:27 AM Matus Jokay <matus.jokay@stuba.sk> wrote:
+>> On 22. 7. 2024 21:46, Paul Moore wrote:
+>>> On Mon, Jul 22, 2024 at 8:30 AM Matus Jokay <matus.jokay@stuba.sk> wrote:
+>>>> On 10. 7. 2024 12:40, Mickaël Salaün wrote:
+>>>>> On Tue, Jul 09, 2024 at 10:40:30PM -0400, Paul Moore wrote:
+>>>>>> The LSM framework has an existing inode_free_security() hook which
+>>>>>> is used by LSMs that manage state associated with an inode, but
+>>>>>> due to the use of RCU to protect the inode, special care must be
+>>>>>> taken to ensure that the LSMs do not fully release the inode state
+>>>>>> until it is safe from a RCU perspective.
+>>>>>>
+>>>>>> This patch implements a new inode_free_security_rcu() implementation
+>>>>>> hook which is called when it is safe to free the LSM's internal inode
+>>>>>> state.  Unfortunately, this new hook does not have access to the inode
+>>>>>> itself as it may already be released, so the existing
+>>>>>> inode_free_security() hook is retained for those LSMs which require
+>>>>>> access to the inode.
+>>>>>>
+>>>>>> Signed-off-by: Paul Moore <paul@paul-moore.com>
+>>>>>
+>>>>> I like this new hook.  It is definitely safer than the current approach.
+>>>>>
+>>>>> To make it more consistent, I think we should also rename
+>>>>> security_inode_free() to security_inode_put() to highlight the fact that
+>>>>> LSM implementations should not free potential pointers in this blob
+>>>>> because they could still be dereferenced in a path walk.
+>>>>>
+>>>>>> ---
+>>>>>>  include/linux/lsm_hook_defs.h     |  1 +
+>>>>>>  security/integrity/ima/ima.h      |  2 +-
+>>>>>>  security/integrity/ima/ima_iint.c | 20 ++++++++------------
+>>>>>>  security/integrity/ima/ima_main.c |  2 +-
+>>>>>>  security/landlock/fs.c            |  9 ++++++---
+>>>>>>  security/security.c               | 26 +++++++++++++-------------
+>>>>>>  6 files changed, 30 insertions(+), 30 deletions(-)
+>>>
+>>> ...
+>>>
+>>>> Sorry for the questions, but for several weeks I can't find answers to two things related to this RFC:
+>>>>
+>>>> 1) How does this patch close [1]?
+>>>>    As Mickaël pointed in [2], "It looks like security_inode_free() is called two times on the same inode."
+>>>>    Indeed, it does not seem from the backtrace that it is a case of race between destroy_inode and inode_permission,
+>>>>    i.e. referencing the inode in a VFS path walk while destroying it...
+>>>>    Please, can anyone tell me how this situation could have happened? Maybe folks from VFS... I added them to the copy.
+>>>
+>>> The VFS folks can likely provide a better, or perhaps a more correct
+>>> answer, but my understanding is that during the path walk the inode is
+>>> protected by a RCU lock which allows for multiple threads to access
+>>> the inode simultaneously; this could result in some cases where one
+>>> thread is destroying the inode while another is accessing it.
+>>> Changing this would require changes to the VFS code, and I'm not sure
+>>> why you would want to change it anyway, the performance win of using
+>>> RCU here is likely significant.
+>>>
+>>>> 2) Is there a guarantee that inode_free_by_rcu and i_callback will be called within the same RCU grace period?
+>>>
+>>> I'm not an RCU expert, but I don't believe there are any guarantees
+>>> that the inode_free_by_rcu() and the inode's own free routines are
+>>> going to be called within the same RCU grace period (not really
+>>> applicable as inode_free_by_rcu() isn't called *during* a grace
+>>> period, but *after* the grace period of the associated
+>>> security_inode_free() call).  However, this patch does not rely on
+>>> synchronization between the inode and inode LSM free routine in
+>>> inode_free_by_rcu(); the inode_free_by_rcu() function and the new
+>>> inode_free_security_rcu() LSM callback does not have a pointer to the
+>>> inode, only the inode's LSM blob.  I agree that it is a bit odd, but
+>>> freeing the inode and inode's LSM blob independently of each other
+>>> should not cause a problem so long as the inode is no longer in use
+>>> (hence the RCU callbacks).
+>>
+>> Paul, many thanks for your answer.
+>>
+>> I will try to clarify the issue, because fsnotify was a bad example.
+>> Here is the related code taken from v10.
+>>
+>> void security_inode_free(struct inode *inode)
+>> {
+>>         call_void_hook(inode_free_security, inode);
+>>         /*
+>>          * The inode may still be referenced in a path walk and
+>>          * a call to security_inode_permission() can be made
+>>          * after inode_free_security() is called. Ideally, the VFS
+>>          * wouldn't do this, but fixing that is a much harder
+>>          * job. For now, simply free the i_security via RCU, and
+>>          * leave the current inode->i_security pointer intact.
+>>          * The inode will be freed after the RCU grace period too.
+>>          */
+>>         if (inode->i_security)
+>>                 call_rcu((struct rcu_head *)inode->i_security,
+>>                          inode_free_by_rcu);
+>> }
+>>
+>> void __destroy_inode(struct inode *inode)
+>> {
+>>         BUG_ON(inode_has_buffers(inode));
+>>         inode_detach_wb(inode);
+>>         security_inode_free(inode);
+>>         fsnotify_inode_delete(inode);
+>>         locks_free_lock_context(inode);
+>>         if (!inode->i_nlink) {
+>>                 WARN_ON(atomic_long_read(&inode->i_sb->s_remove_count) == 0);
+>>                 atomic_long_dec(&inode->i_sb->s_remove_count);
+>>         }
+>>
+>> #ifdef CONFIG_FS_POSIX_ACL
+>>         if (inode->i_acl && !is_uncached_acl(inode->i_acl))
+>>                 posix_acl_release(inode->i_acl);
+>>         if (inode->i_default_acl && !is_uncached_acl(inode->i_default_acl))
+>>                 posix_acl_release(inode->i_default_acl);
+>> #endif
+>>         this_cpu_dec(nr_inodes);
+>> }
+>>
+>> static void destroy_inode(struct inode *inode)
+>> {
+>>         const struct super_operations *ops = inode->i_sb->s_op;
+>>
+>>         BUG_ON(!list_empty(&inode->i_lru));
+>>         __destroy_inode(inode);
+>>         if (ops->destroy_inode) {
+>>                 ops->destroy_inode(inode);
+>>                 if (!ops->free_inode)
+>>                         return;
+>>         }
+>>         inode->free_inode = ops->free_inode;
+>>         call_rcu(&inode->i_rcu, i_callback);
+>> }
+>>
+>> Yes, inode_free_by_rcu() is being called after the grace period of the associated
+>> security_inode_free(). i_callback() is also called after the grace period, but is it
+>> always the same grace period as in the case of inode_free_by_rcu()? If not in general,
+>> maybe it could be a problem. Explanation below.
+>>
+>> If there is a function call leading to the end of the grace period between
+>> call_rcu(inode_free_by_rcu) and call_rcu(i_callback) (by reaching a CPU quiescent state
+>> or another mechanism?), there will be a small time window, when the inode security
+>> context is released, but the inode itself not, because call_rcu(i_callback) was not called
+>> yet. So in that case each access to inode security blob leads to UAF.
+> 
+> While it should be possible for the inode's LSM blob to be free'd
+> prior to the inode itself, the RCU callback mechanism provided by
+> call_rcu() should ensure that both the LSM's free routine and the
+> inode's free routine happen at a point in time after the current RCU
+> critical sections have lapsed and the inode is no longer being
+It is questionable whether the "current RCU CS" refers to both functions
+together, see the diagram below.
 
-To be consistent with most LSM hooks, convert the return value of
-hook inode_copy_up_xattr to 0 or a negative error code.
+> accessed.  The LSM's inode_free_rcu callback can run independent of
+> the inode's callback as it doesn't access the inode and if it does
+Agree, there are two independent calls as you described.
 
-Before:
-- Hook inode_copy_up_xattr returns 0 when accepting xattr, 1 when
-  discarding xattr, -EOPNOTSUPP if it does not know xattr, or any
-  other negative error code otherwise.
+> happen to run before the inode's RCU callback that should also be okay
+> as we are past the original RCU critical sections and the inode should
+> no longer be in use.  If the inode is still in use by the time the
+I think the inode can be still in use in may_lookup() after the security
+RCU callback function, see below.
 
-After:
-- Hook inode_copy_up_xattr returns 0 when accepting xattr, *-ECANCELED*
-  when discarding xattr, -EOPNOTSUPP if it does not know xattr, or
-  any other negative error code otherwise.
+> LSM's RCU callback is triggered then there is a flaw in the inode
+> RCU/locking/synchronization code.
+I don't think it is a flaw. It may be the use of the RCU mechanism with
+incorrect assumption, that both RCU callbacks belong to the common GP.
+> 
+> It is also worth mentioning that while this patch shuffles around some
+> code at the LSM layer, the basic idea of the LSM using a RCU callback
+> to free state associated with an inode is far from new.  While that
+> doesn't mean there isn't a problem, we have a few years of experience
+> across a large number of systems, that would indicate this isn't a
+> problem.
+I agree. But history only shows that it is very difficult to achieve this
+race. And yes, I agree that we may address this issue when it turns out
+to be relevant.
 
-Signed-off-by: Xu Kuohai <xukuohai@huawei.com>
----
- fs/overlayfs/copy_up.c            |  6 +++---
- security/integrity/evm/evm_main.c |  2 +-
- security/security.c               | 11 +++--------
- security/selinux/hooks.c          |  4 ++--
- security/smack/smack_lsm.c        |  6 +++---
- 5 files changed, 12 insertions(+), 17 deletions(-)
+> 
+>> For example, see invoking ops->destroy_inode() after call_rcu(inode_free_by_rcu) but
+>> *before* call_rcu(i_callback). If destroy_inode() may sleep, can be reached end of the
+>> grace period? destroy_inode() is *before* call_rcu(i_callback), therefore simultaneous
+>> access to the inode during path lookup may be performed. Note: I use destroy_inode() as
+>> *an example* of the idea. I'm not expert at all in fsnotify, posix ACL, VFS in general
+>> and RCU, too.
+>>
+>> In the previous message I only mentioned fsnotify, but it was only as an example.
+>> I think that destroy_inode() is a better example of the idea I wanted to express.
+>>
+>> I repeat that I'm aware that this RFC does not aim to solve this issue. But it can be
+>> unpleasant to get another UAF in a production environment.
+> 
+> I'm open to there being another fix needed, or a change to this fix,
+> but I don't believe the problems you are describing are possible.  Of
+> course it's very possible that I'm wrong, so if you are aware of an
+> issue I would appreciate a concrete example explaining the code path
+> and timeline between tasks A and B that would trigger the flaw ... and
+> yes, patches are always welcome ;)
+> 
+Oh patches... Even from the message from Dave it can be seen that the
+cooperation of people from VFS and some very good idea of ​​a solution
+are needed. Of course, provided that the scheme below was correct.
+I would be very happy if someone could explain to me why this cannot be
+so!
 
-diff --git a/fs/overlayfs/copy_up.c b/fs/overlayfs/copy_up.c
-index a5ef2005a2cc..337a5be99ac9 100644
---- a/fs/overlayfs/copy_up.c
-+++ b/fs/overlayfs/copy_up.c
-@@ -115,12 +115,12 @@ int ovl_copy_xattr(struct super_block *sb, const struct path *oldpath, struct de
- 			continue;
- 
- 		error = security_inode_copy_up_xattr(old, name);
--		if (error < 0 && error != -EOPNOTSUPP)
--			break;
--		if (error == 1) {
-+		if (error == -ECANCELED) {
- 			error = 0;
- 			continue; /* Discard */
- 		}
-+		if (error < 0 && error != -EOPNOTSUPP)
-+			break;
- 
- 		if (is_posix_acl_xattr(name)) {
- 			error = ovl_copy_acl(OVL_FS(sb), oldpath, new, name);
-diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
-index 62fe66dd53ce..6924ed508ebd 100644
---- a/security/integrity/evm/evm_main.c
-+++ b/security/integrity/evm/evm_main.c
-@@ -1000,7 +1000,7 @@ static int evm_inode_copy_up_xattr(struct dentry *src, const char *name)
- 	case EVM_XATTR_HMAC:
- 	case EVM_IMA_XATTR_DIGSIG:
- 	default:
--		rc = 1; /* discard */
-+		rc = -ECANCELED; /* discard */
- 	}
- 
- 	kfree(xattr_data);
-diff --git a/security/security.c b/security/security.c
-index ff5cca992ee1..ca93d43ad475 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -2760,19 +2760,14 @@ EXPORT_SYMBOL(security_inode_copy_up);
-  * lower layer to the union/overlay layer.   The caller is responsible for
-  * reading and writing the xattrs, this hook is merely a filter.
-  *
-- * Return: Returns 0 to accept the xattr, 1 to discard the xattr, -EOPNOTSUPP
-- *         if the security module does not know about attribute, or a negative
-- *         error code to abort the copy up.
-+ * Return: Returns 0 to accept the xattr, -ECANCELED to discard the xattr,
-+ *         -EOPNOTSUPP if the security module does not know about attribute,
-+ *         or a negative error code to abort the copy up.
-  */
- int security_inode_copy_up_xattr(struct dentry *src, const char *name)
- {
- 	int rc;
- 
--	/*
--	 * The implementation can return 0 (accept the xattr), 1 (discard the
--	 * xattr), -EOPNOTSUPP if it does not know anything about the xattr or
--	 * any other error code in case of an error.
--	 */
- 	rc = call_int_hook(inode_copy_up_xattr, src, name);
- 	if (rc != LSM_RET_DEFAULT(inode_copy_up_xattr))
- 		return rc;
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index af7467cdd181..81fbfa5b80d4 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3531,8 +3531,8 @@ static int selinux_inode_copy_up_xattr(struct dentry *dentry, const char *name)
- 	 * xattrs up.  Instead, filter out SELinux-related xattrs following
- 	 * policy load.
- 	 */
--	if (selinux_initialized() && strcmp(name, XATTR_NAME_SELINUX) == 0)
--		return 1; /* Discard */
-+	if (selinux_initialized() && !strcmp(name, XATTR_NAME_SELINUX))
-+		return -ECANCELED; /* Discard */
- 	/*
- 	 * Any other attribute apart from SELINUX is not claimed, supported
- 	 * by selinux.
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index b0e0205a5724..09ff7f24c0c6 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -4902,10 +4902,10 @@ static int smack_inode_copy_up(struct dentry *dentry, struct cred **new)
- static int smack_inode_copy_up_xattr(struct dentry *src, const char *name)
- {
- 	/*
--	 * Return 1 if this is the smack access Smack attribute.
-+	 * Return -ECANCELED if this is the smack access Smack attribute.
- 	 */
--	if (strcmp(name, XATTR_NAME_SMACK) == 0)
--		return 1;
-+	if (!strcmp(name, XATTR_NAME_SMACK))
-+		return -ECANCELED;
- 
- 	return -EOPNOTSUPP;
- }
--- 
-2.39.2
+CPU related to
+RCU callbacks            task A                                 task B
+==================       =================================      =======================
+                         ...
+                         __destroy_inode()
+                            ...
+                            security_inode_free()
+                               ...
+                               call_rcu(inode_free_by_rcu)
+                         ...
+                         ops->destroy_inode() // *suppose* may sleep
+// end of GP;
+// inode *can* be used as
+// i_callback does not
+// belong to this GP
+inode_free_by_rcu()
+------------------------------------------------------------------------------------------------------
+// start of another GP                                          ...
+                         ...                                    rcu_read_lock()
+                         call_rcu(i_callback)                   ...
+                         ...                                    security_inode_permission() // <-- UAF
+                                                                ...
+                                                                rcu_read_unlock()
+                                                                ...
+// end of GP;
+// right now inode is not in use anymore
+i_callback()
 
+Why is it difficult to achieve this race? The GP (grace period) between
+two call_rcu() calls must come to an end. Again, I chose as an example
+of this situation destroy_inode() function. But there can be others in
+the code path, I really don't know.
+
+I looked at the destroy_inode() functions (kernel v10) and from a quick
+look I found overlayfs, which directly calls dput(), see [1].
+If it is possible to force printk() to sleep, then it is possible to
+consider afs [2] and, under certain circumstances, ext4 [3].
+After a deeper analysis, maybe even more.
+
+I think it is difficult to divide the GP exactly as this situation
+requires. That's probably why this hasn't appeared yet. Or it is
+impossible to achieve it. All the better. But that would require an audit
+of the code between our two call_rcu()'s, whether at some point it cannot
+come to the end of the GP.
+
+And I agree with the opinion that as long as this type of error has not
+yet occurred, we can just play possum. When it comes to the crunch, we
+can deal with it more deeply.
+
+[1] https://elixir.bootlin.com/linux/v6.10/source/fs/overlayfs/super.c#L181
+[2] https://elixir.bootlin.com/linux/v6.10/source/fs/afs/super.c#L718
+[3] https://elixir.bootlin.com/linux/v6.10/source/fs/ext4/super.c#L1448
