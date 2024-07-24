@@ -1,136 +1,125 @@
-Received: from sonic309-27.consmr.mail.ne1.yahoo.com (sonic309-27.consmr.mail.ne1.yahoo.com [66.163.184.153])
+Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECB2812B143
-	for <selinux@vger.kernel.org>; Wed, 24 Jul 2024 20:46:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 985AF13A252
+	for <selinux@vger.kernel.org>; Wed, 24 Jul 2024 21:55:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721853991; cv=none; b=m1OZLyE4wxRAz9RLUoc8ysLa5HaLRXhlm7OUmagGXPXksyUPHIrDilIfYlTVoA4W6cZa2aSghkuPu436Bq2vgvK7k8ys2NmBmJieJwRX+4DxeP2NEEWCp+Nun/jFXb+QbnZLLq+jACris1FqXjOY93g4axrq4ljY4qd6WAcJDwk=
+	t=1721858129; cv=none; b=VzHMUKgls1w6Gja25AeZ6g8XGgqYgVhI/mLMZ0FmpOMf/WNF15ifntpass3/jm5saEmkcDssyVoGskdsnuz0ob7QO/EJfIFnsPkTyrPaZPrB2i9Sr8mjho48ZIr2k9tk/dlJgUQeFj9Jad5H00TGxHvu8OwdtEJsjR9jiss9jd0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721853991; c=relaxed/simple;
-	bh=pTW0C/srNvLSd1af1jTM4YafIWW01ysF9V0iRUeGJTM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=L5Gc0DJUuhN5gaQ/6cg9X+HfqkOtsMWkReIbcJDgAX51cPVbKvrSurENxHCjCsEkX02hofEtKsPiQgCjLCu9ZyaipXgyR6pqSspA/qYuIYifl22y+8gZXpX75qQa167vj6mwbqbK28FUZQQhf8NLywUOF/LcB0OlZyQQ+fQf7IQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=Mge1pdbk; arc=none smtp.client-ip=66.163.184.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1721858129; c=relaxed/simple;
+	bh=+mMd8KWa1udV1Q0WOLgzdraq2NYFnE9apCBA8B0M7J0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=RurK9RWCu+bZbdLujJx24dBVdzW6zuxe6OoG/rYim+csu5Bc+Z1rsh95kUHpOJ8M3f9Jq7KWBkGkeQTuR97QhTlQ3cHN5JCizmQzLI3kS3INi/ySQdgX546/HiY1CjvTIpu65PxdjxpK71b+abOB2SI5xZuhX8dm5Pl5o1BhT/I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=E6olU3Bz; arc=none smtp.client-ip=209.85.128.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Mge1pdbk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1721853989; bh=uyqNlMER+A4e+8EYoXNA4LcRlMSMioRF3dT/72cqgck=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=Mge1pdbk/FnY7vXPm5fnDM5Wmo1atbCryp9Pk0T+N3HZvtztMDwmsxOmAyOQk7dklDS6F8sS5Hzwkn0wbXA98yb4F0x9zHt4w90lKaQglU5rWiqEO9pm3PiYeWeMKkG0INget3ycO3SHEPEtsVs4jywRVqeUISgZzazW6tGzAVibIFTsXv5jPN0ZNJR0Nx7w/rhbQQQFgnsQ1SYiJqUdflPlZlhS5tKz6U1KWLNmya4M/ol07UjB/Chz3sPHsza8/T/1AThr6ijKNK5bjs/BtHgTFqnmXKqqjsHnqXY8QOuMXaz9N179JZ2gMoN6+avdrQ7dWfITKd3WjyM1njShsg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1721853989; bh=AGHCSVRfhMQrv/AN+EUZl+gdJ/gmJyIXjTBDCgnf4E7=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=F0S8AEOa4lu/LmiLPtM3ppqLar8YDKeAuKTyyAHREupPkWnBPZF+JccWMskQb+G0wn9MS2ZaqZ0WMIpoiu/vcSYSTKXWjMBANyU0Ck0TQ3ZsivqNo+thCKNfRvAi7r1qteziK84hO0VJapnY679Pke7fTUQ1iijKjqDoVoRDlRZbsLovT6U+LawJmflLQvfurIVUlmLTH111ZhHcG+qyOLI1ReoWC436MdHV9/tyMLPu6pcGV2qYdwX36Nlhr8x0hxEagLB7mnm+lov4eeaGqFTFQrmU5bFG/AJCRfgktf4qUhBFFJMlZnTv3aGofCa3eUinsxDuvTVWka+2rj14Kw==
-X-YMail-OSG: 9zDWBc4VM1m_91EP.9GB7I._GbYyaOrnxhXq7Z8y_iBeIa26U4Qy1Osv0MjAJ4m
- UBX2t9GtXtwhEibAJPBgqDOdryPJSmBLytpqrnwf3nYtvHeEYpjw52vfa1BY.10p5LDBrL88aiPt
- caHAvdVIYrY1JMzSRQG5HGncaIs.Al8HhmdxnYRgiJ1UyxfNiAHxXclwwf.4sopQVVr2X6mDmeC6
- waSTmFbaNN7g1T9J9mVPGycj2hpiGkYsG_j6UfARjgWN_64DE.EMcjerMfWupsIkaK7JgF3eCaqy
- aHwgJeNyb7uk2XUHRv.d2tN3BL77ttSdPowGXLESJHi1DbHu09nig7IygHn5oiUsZd4KqT3ChPdU
- jGwyIlaplZhLhWVUb_n17wb_eDjXLQm6PrpRori2mJ_96NIL.e.0rKb_T6IhLJLkv3nDFOrDMDGv
- JnSf.6lGnxKwwRWjKXuDcArHLN11uKLs1nAqz36tk8tuSLH48s8qg.NC9ZBCHJ7SI_IZDndmbvxO
- IE9GfPT2jAX3k8zFGrE1vbBvSsgFPMTzIZWC1VtPvyGwuoGzz_HpDkMwnNod4Ud7mqiIfjcpRWKQ
- eZQ4yHGdedWsUrlP4mVWooD8IPrUPeb56VMy0UUeKw2vGskgN7Mifyjj4N9z.OOP.mON.eDkddCf
- qPH2MLCmaLcRNmXcl.blr0YgPF8HsVSxhkjI3nIdFEAX5BRUsGxOKBBWDTYWpqSIKhs9i4tADZz_
- 5_yEmhlM7cGRGF0zFVj1RmZ4yFt04jcBcuF8UWu9W6CLOMUXITqxNRZMBjwDWJU.vbsynPRNpn.L
- xFRnP2KqjDUW95mKJ1EpcTADRgvtEA.udNH41P_4Hw610.ktTH.nelPWC2ZStMq_Ae.nXPgnn9nK
- RUQNGXBTEqc48rQ5nHl5iO0a2fDfAl2M3_5Ns0k0RqtnO_cMcGaIB0rm2YdsY1IjkuKeoPemuFnS
- d7Z65qZQa.lEW7IXxB3jj.Xb2GmaP1j4qw2.35DgE.3zdKGCwpUoqNikY14.SDP7nhilmRSTpDZ9
- FgkMmVf5JIagzUgG_pNDp9DTw5rSzh_DjAiFxF3MyQF51q2KWB00q9eVIesxOIt6uGKtyrmA0Um5
- 13SLoISyv_Ewmql5csdSk0i1_ONnIPu7.2vV.DmB4sZB2Jj2Fu2_h9GydiQZ.ee0vMxJFEowDmMV
- RJXngI2cSTjolGZ3URXnfci5SqnL2oyhl8OfkHH.op9ALyQ3dgUer7DDaBq18Y2l9zbqvd.qoUBF
- E1cCg9fmdu.ExiCzn7RjYcNWjcXeqmsxVZ90bmTmEMArRds6cR5kbFy5syACLv3Nq8OzDdxS.I.D
- DHF2vn6HFHiDBhdrZAlTJSPSwPwgjf88JJdYZ_nN6w02quW1uEsqykW62yrq4IWBaFRczmg3ij3e
- TnqAVtQ9qkyl5cOZqQ6oXuaPkcXz_A8FX9.NnUcDMC_F2WiseVRD7g1V6dDkd7SrFaRbodWYU0uG
- DHPYpliUgFUs7Cx2jVv5kgS_0KLJ6rHCqwYGpBpeJAjX9DM8xesFzufjEdTyH4_H6W3L3ohislkz
- tOcSlVHquSf34nPYbBRpryBojgVoQeDl5e2u0hWS4XoouVHuFz3bNaPvu4KxNomfoeruZPzp7uuW
- fgmysYlhMInuOeo1BjC5WBorYgfXasU8vmD_HjhO.ZH_OsK2qf38qDOfqnEJNfz945xL.GrM51tL
- XOD3b2buJkMNGX7EJYysN8G.C54eu8_BUZUcCRX5_jHOHXqznpiVTMW0dBpnO3MrpUj5HtZXzxfb
- W9_GEn1.YLMIErFg0ON.k0L1H3gTWu_IuLbXWDjAhj9SSjYamrNPvGcOK9Tus6jkgivg5cWS1EtE
- w97SdqpYxjgN5ffG7XKjtJYl6XgnSdyTKLxvsIk93A2BZQNXtQlO_KTyKafpQypYfO0CI5OYajTi
- MO_xBdf_hCJC69FG1_HHN1nTb8jJFdR14EOgODBIaiHvqLdzAg4jIggCaC9kfaibxL81uGWIeOwO
- ZLRnf2D_gr9mh_Vb2eK4jGzfMS.NSN1Ns7PedPpzdYYsthAJ53P9XfsyPP1VtoOqHJFOim8ZvUQd
- grno60yHpe_lauJXNtXldwXBJ.vD2MXrsCIwSwOC.NbAZ8SCkUb7jEZWYtMi1tcgUvFw.9m_Qz_t
- i85AzeiiTI8VzhJBazN5ImgrdsQS0gxQjouQpElxTgcVuf_Tl0X1N.0qlxSItmZPBUX_GGpunBC7
- jHvGPidZ_fAf8WGy2T8ui0uVw0Kw3YRasS0BgjNz9AxiFPClXSIBoOzhPD2lHGBGv.JLv0ZqVHVN
- xDtDNQkGL
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 21259a2a-9a13-44af-942d-555c071eab18
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Wed, 24 Jul 2024 20:46:29 +0000
-Received: by hermes--production-gq1-799bb7c8cf-l4fvm (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 1e7574de8c63b9acc091ed1cca9f592b;
-          Wed, 24 Jul 2024 20:36:18 +0000 (UTC)
-Message-ID: <26bb0c7b-e241-4239-8933-349115f3afdb@schaufler-ca.com>
-Date: Wed, 24 Jul 2024 13:36:16 -0700
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="E6olU3Bz"
+Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-643f3130ed1so2259597b3.2
+        for <selinux@vger.kernel.org>; Wed, 24 Jul 2024 14:55:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1721858125; x=1722462925; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=sX2S+wkSh9PXj1mrFurJA9PykaHp11nkFTGDDdb5ssA=;
+        b=E6olU3BzexqV/EbGRySbKn/ll3xfNW8Bz4Nyrxod+GrBNwyNiV9Gdi2hFl5YS7zrXf
+         O21SL1u7PFhkYGexslfYNNtHWBg+1fyE1hsgdSvzySBJtDOy0iC1DQE3xhNFRhjWbQFI
+         hYllL6ZL6fX/bzkHQH2ITtIg9A5EP/23MKDjZOe5PiyC+WBPc+9qJYDPY1b7ZXaDuwOj
+         9V4dC0eb9xzCKpDZ1EtafvvIhzvZ+QN77D0rSyeOjCCfzVwZ7J0M6pQudzYhPrqwf7bz
+         lGK3KZoSwKoPAYE5BwlgBrcXHPEDTWkcHeSMTnzpO0jVdu2gtpCZj2s1QT0vbLq+DqzK
+         nreA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1721858125; x=1722462925;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sX2S+wkSh9PXj1mrFurJA9PykaHp11nkFTGDDdb5ssA=;
+        b=i4J92l3DcUHyKF+FjOAkMw+P9WYfkcSsIE+95gd9yfli0Fyz4NAz4W8xSwC73cdG+e
+         Q7LAXlNgtfCLUIpeKOkU+r2Tjx0XPLiNNV4lP7DcFF55M9RH1yEdXd+8ap0yaQmxkb/P
+         3CjZK54AIjkbB+7yd/dOy8Irt4HGVRccYMf+XuKwoYV4NUYrtCPUnzu2m+Yjk19N8bCV
+         WuLhvzcv0Ybst8wsQlco2WQ8ZdMIhNjWSUnQY/OrWqVjdaTrztc4ZU+WE7NxwZaAcmb6
+         8fXvJJdU8wNAVgH7s/bUZ1Op+rUcP42yeghmd9ll8c4RJQ/I1Ise2eR1qN/AmsH7DMe8
+         iLZg==
+X-Forwarded-Encrypted: i=1; AJvYcCXY4Vp4yAyjYdLwDR5BwKoAK2X/6bk8nSuIcoxQRcK2v1wXbhOs6RzXPgFoOXqKD7N/1rRWQjl7CySGJSKoO3oaSLKMbzuuSA==
+X-Gm-Message-State: AOJu0YwN73q1W0HTkv9YekRYXhyNMrLn+LcTrOfoKD9KqdAuIoqB65QW
+	nmHM6II+Y+2+muk+tDVlug0oC8AuTqIbASn7ZFf72hIvcoZ37S4NNmIguo+f7tSyvBox7Wwo7qm
+	AVU1E9OBUtv9mXH00pmfRoGJ99aT5zmT6OiwN
+X-Google-Smtp-Source: AGHT+IEvK2qDe3JpupN8A/TtWU8g9/xrVml3rY6g5rMwfVak/BD44/4JmQdOkWDHisL63uxy63dZ/n2jLT0o+6TyI2Y=
+X-Received: by 2002:a81:c24f:0:b0:665:657d:9847 with SMTP id
+ 00721157ae682-675113b33a1mr8994327b3.13.1721858125677; Wed, 24 Jul 2024
+ 14:55:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
+References: <20240724020659.120353-1-xukuohai@huaweicloud.com> <26bb0c7b-e241-4239-8933-349115f3afdb@schaufler-ca.com>
+In-Reply-To: <26bb0c7b-e241-4239-8933-349115f3afdb@schaufler-ca.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 24 Jul 2024 17:55:14 -0400
+Message-ID: <CAHC9VhTfqhWe9g5Tfzqn2e2S8U3JrCJ2zjjgKKJF0La+ehwAaQ@mail.gmail.com>
 Subject: Re: [PATCH v1 0/2] Refactor return value of two lsm hooks
-To: Xu Kuohai <xukuohai@huaweicloud.com>,
- linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
- linux-unionfs@vger.kernel.org, linux-integrity@vger.kernel.org
-Cc: Paul Moore <paul@paul-moore.com>, "Serge E . Hallyn" <serge@hallyn.com>,
- Miklos Szeredi <miklos@szeredi.hu>, Amir Goldstein <amir73il@gmail.com>,
- James Morris <jmorris@namei.org>, Mimi Zohar <zohar@linux.ibm.com>,
- Roberto Sassu <roberto.sassu@huawei.com>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
- Eric Snowberg <eric.snowberg@oracle.com>,
- Stephen Smalley <stephen.smalley.work@gmail.com>,
- Ondrej Mosnacek <omosnace@redhat.com>,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20240724020659.120353-1-xukuohai@huaweicloud.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20240724020659.120353-1-xukuohai@huaweicloud.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.22501 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Xu Kuohai <xukuohai@huaweicloud.com>, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, linux-unionfs@vger.kernel.org, 
+	linux-integrity@vger.kernel.org, "Serge E . Hallyn" <serge@hallyn.com>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Amir Goldstein <amir73il@gmail.com>, James Morris <jmorris@namei.org>, 
+	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
+	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, Eric Snowberg <eric.snowberg@oracle.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 7/23/2024 7:06 PM, Xu Kuohai wrote:
-> From: Xu Kuohai <xukuohai@huawei.com>
+On Wed, Jul 24, 2024 at 4:36=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
+.com> wrote:
+> On 7/23/2024 7:06 PM, Xu Kuohai wrote:
+> > From: Xu Kuohai <xukuohai@huawei.com>
+> >
+> > The BPF LSM program may cause a kernel panic if it returns an
+> > unexpected value, such as a positive value on the hook
+> > file_alloc_security.
+> >
+> > To fix it, series [1] refactored the LSM hook return values and
+> > added BPF return value checks.
+> >
+> > [1] used two methods to refactor hook return values:
+> >
+> > - converting positive return value to negative error code
+> >
+> > - adding additional output parameter to store odd return values
+> >
+> > Based on discussion in [1], only two hooks refactored with the
+> > second method may be acceptable. Since the second method requires
+> > extra work on BPF side to ensure that the output parameter is
+> > set properly, the extra work does not seem worthwhile for just
+> > two hooks. So this series includes only the two patches refactored
+> > with the first method.
+> >
+> > Changes to [1]:
+> > - Drop unnecessary patches
+> > - Rebase
+> > - Remove redundant comments in the inode_copy_up_xattr patch
+> >
+> > [1] https://lore.kernel.org/bpf/20240711111908.3817636-1-xukuohai@huawe=
+icloud.com
+> >     https://lore.kernel.org/bpf/20240711113828.3818398-1-xukuohai@huawe=
+icloud.com
+> >
+> > Xu Kuohai (2):
+> >   lsm: Refactor return value of LSM hook vm_enough_memory
+> >   lsm: Refactor return value of LSM hook inode_copy_up_xattr
 >
-> The BPF LSM program may cause a kernel panic if it returns an
-> unexpected value, such as a positive value on the hook
-> file_alloc_security.
->
-> To fix it, series [1] refactored the LSM hook return values and
-> added BPF return value checks.
->
-> [1] used two methods to refactor hook return values:
->
-> - converting positive return value to negative error code
->
-> - adding additional output parameter to store odd return values
->
-> Based on discussion in [1], only two hooks refactored with the
-> second method may be acceptable. Since the second method requires
-> extra work on BPF side to ensure that the output parameter is
-> set properly, the extra work does not seem worthwhile for just
-> two hooks. So this series includes only the two patches refactored
-> with the first method.
->
-> Changes to [1]:
-> - Drop unnecessary patches
-> - Rebase
-> - Remove redundant comments in the inode_copy_up_xattr patch
->
-> [1] https://lore.kernel.org/bpf/20240711111908.3817636-1-xukuohai@huaweicloud.com
->     https://lore.kernel.org/bpf/20240711113828.3818398-1-xukuohai@huaweicloud.com
->
-> Xu Kuohai (2):
->   lsm: Refactor return value of LSM hook vm_enough_memory
->   lsm: Refactor return value of LSM hook inode_copy_up_xattr
+> For the series:
+> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
 
-For the series:
-Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+Looks good to me too.  I'm going to merge this into lsm/dev-staging
+for testing with the expectation that I'll move them over to lsm/dev
+once the merge window closes.
 
->
->  fs/overlayfs/copy_up.c            |  6 +++---
->  include/linux/lsm_hook_defs.h     |  2 +-
->  include/linux/security.h          |  2 +-
->  security/commoncap.c              | 11 +++--------
->  security/integrity/evm/evm_main.c |  2 +-
->  security/security.c               | 22 ++++++++--------------
->  security/selinux/hooks.c          | 19 ++++++-------------
->  security/smack/smack_lsm.c        |  6 +++---
->  8 files changed, 26 insertions(+), 44 deletions(-)
->
+Thanks!
+
+--=20
+paul-moore.com
