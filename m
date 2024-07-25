@@ -1,125 +1,84 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 985AF13A252
-	for <selinux@vger.kernel.org>; Wed, 24 Jul 2024 21:55:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB83D196DA2;
+	Thu, 25 Jul 2024 10:52:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721858129; cv=none; b=VzHMUKgls1w6Gja25AeZ6g8XGgqYgVhI/mLMZ0FmpOMf/WNF15ifntpass3/jm5saEmkcDssyVoGskdsnuz0ob7QO/EJfIFnsPkTyrPaZPrB2i9Sr8mjho48ZIr2k9tk/dlJgUQeFj9Jad5H00TGxHvu8OwdtEJsjR9jiss9jd0=
+	t=1721904754; cv=none; b=uZ/RxuKlPTrPcUjZuOi4M+x50FMZJ0e2Tia2c3qN5St+dOG6D/4/KMcJPlxTxjw2dZFlcnSSsMjFSgHJsDLQm9tTKeICwUpbNY6TYvDuAKbj4S5JbdIAuXoendQqxkAsqqNcFwQ3EMbdzQLIkdVesvg/2dKZRM47ETzDoLsPQW8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721858129; c=relaxed/simple;
-	bh=+mMd8KWa1udV1Q0WOLgzdraq2NYFnE9apCBA8B0M7J0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RurK9RWCu+bZbdLujJx24dBVdzW6zuxe6OoG/rYim+csu5Bc+Z1rsh95kUHpOJ8M3f9Jq7KWBkGkeQTuR97QhTlQ3cHN5JCizmQzLI3kS3INi/ySQdgX546/HiY1CjvTIpu65PxdjxpK71b+abOB2SI5xZuhX8dm5Pl5o1BhT/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=E6olU3Bz; arc=none smtp.client-ip=209.85.128.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1721904754; c=relaxed/simple;
+	bh=orI0y/Mhi6lniFE6Cm8wx3n7KGGIG+Ptki0lBsAGo7U=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DZUe+iyZkehClW7X6gurXLYbGIImz8G6LP1skceLkDdsTWzrf6cJo9NDEBZRQ8Ftj2VYfBj/Pz5Ik2zZLlehdB+vhbWTFHgxjVMgvDJGSYvmpAFzmImh5OVcd0E5w/1M9m91l1Pb5Ny7BAsJb1gjIKP2bfjjywsIHxUmw1XiE44=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iDAK1yrG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="E6olU3Bz"
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-643f3130ed1so2259597b3.2
-        for <selinux@vger.kernel.org>; Wed, 24 Jul 2024 14:55:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1721858125; x=1722462925; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=sX2S+wkSh9PXj1mrFurJA9PykaHp11nkFTGDDdb5ssA=;
-        b=E6olU3BzexqV/EbGRySbKn/ll3xfNW8Bz4Nyrxod+GrBNwyNiV9Gdi2hFl5YS7zrXf
-         O21SL1u7PFhkYGexslfYNNtHWBg+1fyE1hsgdSvzySBJtDOy0iC1DQE3xhNFRhjWbQFI
-         hYllL6ZL6fX/bzkHQH2ITtIg9A5EP/23MKDjZOe5PiyC+WBPc+9qJYDPY1b7ZXaDuwOj
-         9V4dC0eb9xzCKpDZ1EtafvvIhzvZ+QN77D0rSyeOjCCfzVwZ7J0M6pQudzYhPrqwf7bz
-         lGK3KZoSwKoPAYE5BwlgBrcXHPEDTWkcHeSMTnzpO0jVdu2gtpCZj2s1QT0vbLq+DqzK
-         nreA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1721858125; x=1722462925;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=sX2S+wkSh9PXj1mrFurJA9PykaHp11nkFTGDDdb5ssA=;
-        b=i4J92l3DcUHyKF+FjOAkMw+P9WYfkcSsIE+95gd9yfli0Fyz4NAz4W8xSwC73cdG+e
-         Q7LAXlNgtfCLUIpeKOkU+r2Tjx0XPLiNNV4lP7DcFF55M9RH1yEdXd+8ap0yaQmxkb/P
-         3CjZK54AIjkbB+7yd/dOy8Irt4HGVRccYMf+XuKwoYV4NUYrtCPUnzu2m+Yjk19N8bCV
-         WuLhvzcv0Ybst8wsQlco2WQ8ZdMIhNjWSUnQY/OrWqVjdaTrztc4ZU+WE7NxwZaAcmb6
-         8fXvJJdU8wNAVgH7s/bUZ1Op+rUcP42yeghmd9ll8c4RJQ/I1Ise2eR1qN/AmsH7DMe8
-         iLZg==
-X-Forwarded-Encrypted: i=1; AJvYcCXY4Vp4yAyjYdLwDR5BwKoAK2X/6bk8nSuIcoxQRcK2v1wXbhOs6RzXPgFoOXqKD7N/1rRWQjl7CySGJSKoO3oaSLKMbzuuSA==
-X-Gm-Message-State: AOJu0YwN73q1W0HTkv9YekRYXhyNMrLn+LcTrOfoKD9KqdAuIoqB65QW
-	nmHM6II+Y+2+muk+tDVlug0oC8AuTqIbASn7ZFf72hIvcoZ37S4NNmIguo+f7tSyvBox7Wwo7qm
-	AVU1E9OBUtv9mXH00pmfRoGJ99aT5zmT6OiwN
-X-Google-Smtp-Source: AGHT+IEvK2qDe3JpupN8A/TtWU8g9/xrVml3rY6g5rMwfVak/BD44/4JmQdOkWDHisL63uxy63dZ/n2jLT0o+6TyI2Y=
-X-Received: by 2002:a81:c24f:0:b0:665:657d:9847 with SMTP id
- 00721157ae682-675113b33a1mr8994327b3.13.1721858125677; Wed, 24 Jul 2024
- 14:55:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iDAK1yrG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2A42C32786;
+	Thu, 25 Jul 2024 10:52:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1721904754;
+	bh=orI0y/Mhi6lniFE6Cm8wx3n7KGGIG+Ptki0lBsAGo7U=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=iDAK1yrGcI7P9621NOblM06XqR+5bPdaBprhpbKXsOTiTasppP37INvd9f44zTz0w
+	 xY3apxLo5rUjb78IsAqsHtqbzN/hhlFtGE3ULNo5TuNTvreG/bGbm1319pvGrLRZCs
+	 8/rfb4slxOZoc+xf9tzVHHM8mHlmMLFjuQN4E8DWCBL95XuQ/8KRX2AOPyIYNDuNnh
+	 VKcWol3GMuqbixYrJQ7FH/OzDT/BbZQ5axVlzRpM975iDyqIq8fByXaP1LzmkxZ/+V
+	 vTaaVfhOaCH+YYwPOhFw24HZFy1YmSqnpBIRzvJrOANGVLvF3loF9feBD2tR8HxpJQ
+	 j5OII3aZo8DBA==
+Date: Thu, 25 Jul 2024 12:52:29 +0200
+From: Christian Brauner <brauner@kernel.org>
+To: Dave Chinner <david@fromorbit.com>
+Cc: Paul Moore <paul@paul-moore.com>, Matus Jokay <matus.jokay@stuba.sk>, 
+	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
+	linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [RFC PATCH] lsm: add the inode_free_security_rcu() LSM
+ implementation hook
+Message-ID: <20240725-normung-benzinkanister-0383a2f69b43@brauner>
+References: <20240710024029.669314-2-paul@paul-moore.com>
+ <20240710.peiDu2aiD1su@digikod.net>
+ <ad6c7b2a-219e-4518-ab2d-bd798c720943@stuba.sk>
+ <CAHC9VhRsZBjs2MWXUUotmX_vWTUbboyLT6sR4WbzmqndKEVe8Q@mail.gmail.com>
+ <Zp8k1H/qeaVZOXF5@dread.disaster.area>
+ <20240723-winkelmesser-wegschauen-4a8b00031504@brauner>
+ <ZqA6CeCSXwIyNDMm@dread.disaster.area>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240724020659.120353-1-xukuohai@huaweicloud.com> <26bb0c7b-e241-4239-8933-349115f3afdb@schaufler-ca.com>
-In-Reply-To: <26bb0c7b-e241-4239-8933-349115f3afdb@schaufler-ca.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 24 Jul 2024 17:55:14 -0400
-Message-ID: <CAHC9VhTfqhWe9g5Tfzqn2e2S8U3JrCJ2zjjgKKJF0La+ehwAaQ@mail.gmail.com>
-Subject: Re: [PATCH v1 0/2] Refactor return value of two lsm hooks
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Xu Kuohai <xukuohai@huaweicloud.com>, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, linux-unionfs@vger.kernel.org, 
-	linux-integrity@vger.kernel.org, "Serge E . Hallyn" <serge@hallyn.com>, 
-	Miklos Szeredi <miklos@szeredi.hu>, Amir Goldstein <amir73il@gmail.com>, James Morris <jmorris@namei.org>, 
-	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
-	Dmitry Kasatkin <dmitry.kasatkin@gmail.com>, Eric Snowberg <eric.snowberg@oracle.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <ZqA6CeCSXwIyNDMm@dread.disaster.area>
 
-On Wed, Jul 24, 2024 at 4:36=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
-.com> wrote:
-> On 7/23/2024 7:06 PM, Xu Kuohai wrote:
-> > From: Xu Kuohai <xukuohai@huawei.com>
-> >
-> > The BPF LSM program may cause a kernel panic if it returns an
-> > unexpected value, such as a positive value on the hook
-> > file_alloc_security.
-> >
-> > To fix it, series [1] refactored the LSM hook return values and
-> > added BPF return value checks.
-> >
-> > [1] used two methods to refactor hook return values:
-> >
-> > - converting positive return value to negative error code
-> >
-> > - adding additional output parameter to store odd return values
-> >
-> > Based on discussion in [1], only two hooks refactored with the
-> > second method may be acceptable. Since the second method requires
-> > extra work on BPF side to ensure that the output parameter is
-> > set properly, the extra work does not seem worthwhile for just
-> > two hooks. So this series includes only the two patches refactored
-> > with the first method.
-> >
-> > Changes to [1]:
-> > - Drop unnecessary patches
-> > - Rebase
-> > - Remove redundant comments in the inode_copy_up_xattr patch
-> >
-> > [1] https://lore.kernel.org/bpf/20240711111908.3817636-1-xukuohai@huawe=
-icloud.com
-> >     https://lore.kernel.org/bpf/20240711113828.3818398-1-xukuohai@huawe=
-icloud.com
-> >
-> > Xu Kuohai (2):
-> >   lsm: Refactor return value of LSM hook vm_enough_memory
-> >   lsm: Refactor return value of LSM hook inode_copy_up_xattr
->
-> For the series:
-> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+> The problem isn't the call into the filesystem - it's may_lookup()
+> passing the inode to security modules where we dereference
+> inode->i_security and assume that it is valid for the life of the
+> object access being made.
+> 
+> That's my point - if we have a lookup race and the inode is being
+> destroyed at this point (i.e. I_FREEING is set) inode->i_security
+> *is not valid* and should not be accessed by *anyone*.
 
-Looks good to me too.  I'm going to merge this into lsm/dev-staging
-for testing with the expectation that I'll move them over to lsm/dev
-once the merge window closes.
+It's valid. The inode_free_security hooks unlist or deregister the
+context as e.g., selinux_inode_free_security() does. It's fine to access
+inode->i_security after the individual hooks have been called; before or
+within the delayed freeing of i_security. And selinux and bpf are the
+only cases where deregistration happens while also implementing or in
+the case of bpf allowing to implement security_inode_permission().
 
-Thanks!
+> If we decide that every pathwalk accessed object attached to the
+> inode needs to be RCU freed, then __destroy_inode() is the wrong
+> place to be freeing them - i_callback() (the call_rcu() inode
 
---=20
-paul-moore.com
+The superblock might already be gone by the time free_inode() is called.
+And stuff like selinux accesses the superblock from inode->i_sb during
+security_inode_free_security(). So moving it in there isn't an option.
+It needs to be called before. If one wanted it in there the obvious way
+to do it would be to split deregistration and freeing into two hooks
+security_inode_deregister() and then move the rcu part of
+security_inode_free() into i_callback so it gets wasted together with
+the inode. But i_callback() isn't called for xfs and so the way it's
+currently done is so far the best.
