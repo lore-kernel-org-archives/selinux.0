@@ -1,54 +1,54 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6EA0918AEA
-	for <selinux@vger.kernel.org>; Fri, 26 Jul 2024 17:54:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7A3A4D9FB
+	for <selinux@vger.kernel.org>; Fri, 26 Jul 2024 18:36:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722016462; cv=none; b=R77zZLml4tvljtLf9cnmBPLj8FRQT2cbe3p+0E68j8u53KDJqxLS5CVKbsAI6a3VL7wg9JNeSnij3qtRDCPG6bnKRY9Ofabdrhq1GiO4ON9Q/E7GPQkE62eRRIpwFSA1H68dZm6phIsRgb+lJqUCJeG8IeYEfb4k75eOENHssKY=
+	t=1722019013; cv=none; b=pD/xhoSgGZoxMuKkgRWzVelSHsEx1CqEY8yve5iv6gvQS5qzaU7pxKyhI5tQGiTcBAH7/BOidvJd6+KUAxVoibp0o/FNaV0qY11i6VpbwUdimISvVw2EVA3BWrlV6NBFTzzV3y4jBB9XqxW/5QWugcSCl5rnMlo+w1iYqHZgiSg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722016462; c=relaxed/simple;
-	bh=SddvNEbDo8qvgZSKH9ERTMQHB8TWcPFbmlC8UnNjOW8=;
+	s=arc-20240116; t=1722019013; c=relaxed/simple;
+	bh=Nl0ASeBa7+jSJ9uIMWxc32ybxsw+g/ETZPjqWGit9jM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mMbvyBJyzUv+++rv5bjd8D03pQPJI57Z0I17oDr8eqWPWOD3gufPq8v2JXiaE5wFk8JhAHH5ABjaK9DXPLy6I8PN2PMBBAy5zTpimKBHHWpYVeCfHCEHyXjEWtxGm6v9RdEFVvbsf6eThXdLe0OGEgd3qDPKuOGoSBYB7WtmehI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CKd5+nJt; arc=none smtp.client-ip=209.85.216.44
+	 To:Cc:Content-Type; b=emxaoUTCTA9UFOnu9PwY4fAmnsabk9M0eRd2AudXmklD1IZZnTd7uAFTU0A3pqZtptdpD+ThyZnb2nLJidt8wpp1vhZBAtu8SsSTP6tJ1MhMG5atgwhmNiOkwxf50h+oWlj/teYqChRwj3x3SNEb55zEAW0Y2I+MHkJY4oPiDFI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Igy5Bwqe; arc=none smtp.client-ip=209.85.215.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CKd5+nJt"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-2cb09dc1dafso887847a91.2
-        for <selinux@vger.kernel.org>; Fri, 26 Jul 2024 10:54:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Igy5Bwqe"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-7a0b2924e52so760262a12.2
+        for <selinux@vger.kernel.org>; Fri, 26 Jul 2024 11:36:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722016461; x=1722621261; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1722019011; x=1722623811; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HTO8ddm9U9MZLzCL9oiPj5X+e4pVQJfDmscjOpnCBZ4=;
-        b=CKd5+nJtO6TBUcIWDnOw+abQZhXCyA3foCSx69wJhehLBu+R64APstDU+uZWNIL5C9
-         5fc4jpfKJW1odrmIRAUufde+bZJIBwmi6yHenieWcwtqq//vDhtlm4KkcPh0TSxRBMpO
-         PlxC4b6/n2aJdomw2P4QmBGIxsA68fJQ85Ir7E2QDZkaELIoqgZMTLH1MviFYML5ImSk
-         a3BShLrpP92foSTOUPyCgPd8X8pU0SnXo82XAOTcM+xH9/v7vJYdzB80Qc17n2xYruzd
-         FZbrM7M4tPGQVZSKOFkDWbCAa+EYJxtmmO8fPAwFlv0/A3l6mZQcI7OtXi+2HLrSQO/j
-         b6aA==
+        bh=f2Rj94L1feDWhWPIZj+g6222qAr4pw18rxm3JaaSXt0=;
+        b=Igy5BwqetAsL92HShzlvA4HCaeSmdXFQHxGykbpBjiwHHNvZDJfrVObFPRPISwCbTY
+         5uiGx/Z5fC5sOtYfzQ90H55joz+jrE8ujOa8WjkO3nluGqKXcDJ4HCE+rvlhqW69XPqn
+         jgsJTIpLJMPEHZE3mrxRkj6+/OVTHLC9JHM+9sreXFqu0CFgHbbVNtNdnI9n6vLdzBxz
+         nxNsOkmoCMIgYBx+oQOK9YVEuHDf5SeExbJli3I8O3rrkK7ibvV3MOYb1aCxaTrQulAE
+         bHesRovq/QPejISHCds28RzaKhdgTQYFGy3FdcgNkZgJajzvYmkNgcekp2iOxqWsGq2L
+         5EEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722016461; x=1722621261;
+        d=1e100.net; s=20230601; t=1722019011; x=1722623811;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=HTO8ddm9U9MZLzCL9oiPj5X+e4pVQJfDmscjOpnCBZ4=;
-        b=IGcHFtrMDtZXg/n2YYkOha0Rx2cAAJhoSGhxKQS8gfhqwzS1caHsWm3sJbsOgwwiaZ
-         dSpn0jJ4NVuhofNnD5risGGPTXXy7ITf6NXBxQ2aA2ZnJQk4l3TO0bfmqJ9DIkTccp7J
-         ztgwj0i5XpoEmCqvBvxB1PytvkQ91Z5yVMAFIYYYkgHM6Y4ECv5ePjbThvCSKMe8CgGK
-         gGd7UUCfUaIrPGuaf6Baw3cXW0KfH1QDvoFcZ7EVxBfoqfwLRVYe+hXVqtrvKjWI8Exa
-         +2I8oJaAiQVJIOABX4Gz5KXpQDgqbSFjCw/onZoVIVgvechjvSukD+woRvs2B5UnNqiY
-         +RWA==
-X-Gm-Message-State: AOJu0Yz0oDztd0hqB3dNr0Zy0DjgsMrXBBg3BHQ1PkrchOaXQT7y6jBS
-	w/FYl3PkMyidDQJzSgXoajuzTemMs0MJBul2qbhg1A9DqupAeadn5ymz4ap/5AT+pKe1uTGdNBg
-	12FjPn4JlpcvekwI/k7GXDIIBg3k=
-X-Google-Smtp-Source: AGHT+IE7SbxuhYLSutjtZKJRpkQxXxb9+P+AViPyRlXHwh91wsD/iAqGft8ISowqaIbl1qt/UpQ5DxLnkOvppb1grdU=
-X-Received: by 2002:a17:90b:1bca:b0:2c9:cf1d:1bcc with SMTP id
- 98e67ed59e1d1-2cf7e726983mr262249a91.36.1722016460604; Fri, 26 Jul 2024
- 10:54:20 -0700 (PDT)
+        bh=f2Rj94L1feDWhWPIZj+g6222qAr4pw18rxm3JaaSXt0=;
+        b=ZyI54liilwaJMWfxXFnf9dE8E+iuZoJ7YQadDi3d66iz33W4ZIVuOcX9Fag8xUkD66
+         /15pqp9N3eHNDDGkgJoH08pHgtj3eqAFGjDVnXay0maegVSMoOPuJF6YjhJdMNJYK6PY
+         nL0+Az9XFg2F1u+Dg9RgEH6qAGsTNK4UpR5YHp7OfIw8QISTKpeakFs3HFSKB+QUirxR
+         +ndw+9VH86ng9nMQDozZzH/ChbZh6ukNV9NEVPwt+tOt4QIiA6ezWVLb8WfZXzLdZD0r
+         ntQhUVohvEhBj4wkSdudUtpBf4FDXXBm/4ENCslEpCfjt26vbHIYuDkVXKc3Rb7EH0ys
+         JgAg==
+X-Gm-Message-State: AOJu0YxBusv1IMtGP7q6qoQSyj9yV/+JNM10hVUFQW+WX6UJQflZxxZk
+	WSoeq7EsO3WE1MfevW1w3NCND6UaBF/Ri6uV/i0Hzu9tjLAx8D0Rr3ZF9Hc234HJVHLSc6EVPz8
+	HITfOw9iPMsXsVBuFhK0q9woZGQh0SYZ3
+X-Google-Smtp-Source: AGHT+IFe8+TvSGJvNpI2QKZumq/+la7g+/G6gHnJxUNJ4UPIck+emd5ILbMGatGLQhFyrqorrr9G1Uv0U79N66M5cdw=
+X-Received: by 2002:a17:90a:6fc2:b0:2c8:e3e6:ec99 with SMTP id
+ 98e67ed59e1d1-2cf7e72a3c2mr371343a91.43.1722019010916; Fri, 26 Jul 2024
+ 11:36:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -57,10 +57,11 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <b4ec6621-dbbb-4f59-9d2e-7fd4edc6b116@redhat.com>
  <20240725161107.1446978-1-vmojzis@redhat.com> <CAEjxPJ72F11Y2qSa4A6xaU=gdOt18u2H9OOqhZwv0RFkR0OEfg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ72F11Y2qSa4A6xaU=gdOt18u2H9OOqhZwv0RFkR0OEfg@mail.gmail.com>
+ <CAEjxPJ6_FN9NuO-jHmnPVFqypt=6Pxyko9J1=G9xQdC+umWEmA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6_FN9NuO-jHmnPVFqypt=6Pxyko9J1=G9xQdC+umWEmA@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 26 Jul 2024 13:54:09 -0400
-Message-ID: <CAEjxPJ6_FN9NuO-jHmnPVFqypt=6Pxyko9J1=G9xQdC+umWEmA@mail.gmail.com>
+Date: Fri, 26 Jul 2024 14:36:39 -0400
+Message-ID: <CAEjxPJ4bQZeZzLGdk0HPFPkm4uob7oHB7sygyXQo2km9BAK5Xg@mail.gmail.com>
 Subject: Re: [PATCH v4] libsemanage: Preserve file context and ownership in
  policy store
 To: Vit Mojzis <vmojzis@redhat.com>
@@ -68,59 +69,76 @@ Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 26, 2024 at 1:50=E2=80=AFPM Stephen Smalley
+On Fri, Jul 26, 2024 at 1:54=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Thu, Jul 25, 2024 at 12:11=E2=80=AFPM Vit Mojzis <vmojzis@redhat.com> =
-wrote:
+> On Fri, Jul 26, 2024 at 1:50=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
 > >
-> > Make sure that file context (all parts) and ownership of
-> > files/directories in policy store does not change no matter which user
-> > and under which context executes policy rebuild.
+> > On Thu, Jul 25, 2024 at 12:11=E2=80=AFPM Vit Mojzis <vmojzis@redhat.com=
+> wrote:
+> > >
+> > > Make sure that file context (all parts) and ownership of
+> > > files/directories in policy store does not change no matter which use=
+r
+> > > and under which context executes policy rebuild.
+> > >
+> > > Fixes:
+> > >   # semodule -B
+> > >   # ls -lZ  /etc/selinux/targeted/contexts/files
+> > >
+> > > -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 42139=
+7 Jul 11 09:57 file_contexts
+> > > -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 59347=
+0 Jul 11 09:57 file_contexts.bin
+> > > -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  1470=
+4 Jul 11 09:57 file_contexts.homedirs
+> > > -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  2028=
+9 Jul 11 09:57 file_contexts.homedirs.bin
+> > >
+> > >   SELinux user changed from system_u to the user used to execute semo=
+dule
+> > >
+> > >   # capsh --user=3Dtestuser --caps=3D"cap_dac_override,cap_chown+eip"=
+ --addamb=3Dcap_dac_override,cap_chown -- -c "semodule -B"
+> > >   # ls -lZ  /etc/selinux/targeted/contexts/files
+> > >
+> > > -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:=
+s0 421397 Jul 19 09:10 file_contexts
+> > > -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:=
+s0 593470 Jul 19 09:10 file_contexts.bin
+> > > -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:=
+s0  14704 Jul 19 09:10 file_contexts.homedirs
+> > > -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:=
+s0  20289 Jul 19 09:10 file_contexts.homedirs.bin
+> > >
+> > >   Both file context and ownership changed -- causes remote login
+> > >   failures and other issues in some scenarios.
+> > >
+> > > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 > >
-> > Fixes:
-> >   # semodule -B
-> >   # ls -lZ  /etc/selinux/targeted/contexts/files
+> > With the selinux/restorecon.h fix applied first,
 > >
-> > -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 421397 =
-Jul 11 09:57 file_contexts
-> > -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0 593470 =
-Jul 11 09:57 file_contexts.bin
-> > -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  14704 =
-Jul 11 09:57 file_contexts.homedirs
-> > -rw-r--r--. 1 root root unconfined_u:object_r:file_context_t:s0  20289 =
-Jul 11 09:57 file_contexts.homedirs.bin
-> >
-> >   SELinux user changed from system_u to the user used to execute semodu=
-le
-> >
-> >   # capsh --user=3Dtestuser --caps=3D"cap_dac_override,cap_chown+eip" -=
--addamb=3Dcap_dac_override,cap_chown -- -c "semodule -B"
-> >   # ls -lZ  /etc/selinux/targeted/contexts/files
-> >
-> > -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0=
- 421397 Jul 19 09:10 file_contexts
-> > -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0=
- 593470 Jul 19 09:10 file_contexts.bin
-> > -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0=
-  14704 Jul 19 09:10 file_contexts.homedirs
-> > -rw-r--r--. 1 testuser testuser unconfined_u:object_r:file_context_t:s0=
-  20289 Jul 19 09:10 file_contexts.homedirs.bin
-> >
-> >   Both file context and ownership changed -- causes remote login
-> >   failures and other issues in some scenarios.
-> >
-> > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 >
-> With the selinux/restorecon.h fix applied first,
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Ah, spoke too soon. The GitHub CI testing failed with this:
+> semanage_store.c: In function =E2=80=98semanage_setfiles=E2=80=99:
+> 520 semanage_store.c:3047:25: error: ignoring return value of =E2=80=98fc=
+hown=E2=80=99
+> declared with attribute =E2=80=98warn_unused_result=E2=80=99 [-Werror=3Du=
+nused-result]
+> 521 3047 | fchown(fd, 0, 0);
+> 522 | ^~~~~~~~~~~~~~~~
 
-Ah, spoke too soon. The GitHub CI testing failed with this:
-semanage_store.c: In function =E2=80=98semanage_setfiles=E2=80=99:
-520 semanage_store.c:3047:25: error: ignoring return value of =E2=80=98fcho=
-wn=E2=80=99
-declared with attribute =E2=80=98warn_unused_result=E2=80=99 [-Werror=3Dunu=
-sed-result]
-521 3047 | fchown(fd, 0, 0);
-522 | ^~~~~~~~~~~~~~~~
+Unfortunately, you can't just mark this as intentional, as per
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=3D25509.
+Casting to void doesn't eliminate the warning. Saving the return value
+but not using it somewhere triggers another warning.
+Calling assert() if rc !=3D 0 breaks make test in libsemanage. We don't
+have a handle here or in the immediate callers so can't just call
+ERR(). Changing it to:
+rc =3D fchown(fd, 0, 0);
+if (rc)
+   fprintf(stderr, "Warning! Could not set ownership of %s to root\n",path)=
+;
+seems to solve the warning problem but is a bit ugly.
