@@ -1,106 +1,127 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D792017E470
-	for <selinux@vger.kernel.org>; Fri, 26 Jul 2024 16:07:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14FD5101F7
+	for <selinux@vger.kernel.org>; Fri, 26 Jul 2024 17:24:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722010055; cv=none; b=IiAWxhf8RAItDbWZq5gEbCal2/fQ6tsB48rllSGJxJnSY8aPvuddFnO9UMMpyxJZGStd4AV2qOeZp6hwgt+9SGRxLTdaZcBdxhCHTU/OnYOrGE1KJXpymc9bwAein1G8JONjw9IQ+u6rrPyXCY6LZP+3GechemhX8eCQ/Kq7LkM=
+	t=1722014694; cv=none; b=AJJCn/mFX4hJ4z/p22oMia1s6sXYZ9H8IEJ43tlbHJmc6mFZHN8aD00Xz2/s5/NuQT8yoEaBM4X2TbBflHZGIrOGynrtR+Q/Db9kCAPlzZPj+Ld/K36Ia5wU9hQkTuGp2jXEmLxK2FLK8YT2Bnv2aRmD757CbJO2F/NJmDD1zO8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722010055; c=relaxed/simple;
-	bh=lwf2hdzBFoW3WShj1TwW/6UR7VnTpdjBUrMJtXZM+XA=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=FVVrZM5D0w76yijwe70ks4MvNn1tsBBKPC7ESVGl9LblbPC+WMyMHeiZjmksCsMny5FNtuDi8xNlUjrdLDdHW7AP7D/kk5F5ToMG34cqFGkfXm1rgh0VUYtMc7oe2T31WAgFjK0iGjKqNVrIjghRGwrOkq4ylGFui5K5LuesAMw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E8xzdPTM; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1722014694; c=relaxed/simple;
+	bh=boE+JkUdvZiF1BNYFyHPbBjT2hwJkbAnDGzC4jUmd4s=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=P0BRi6dNOzWWAaZw8gg12feMUzcIsu9dYmsAQyHaH/5tCrgn+l/BWEqHQ0Ly5un8UrLNvDSpkELcHS962290mpXdL5KFPXQB1NjQpHqv9LvyzQSBdRVWez59PAeWDdOa2StT9KM6bzjBzZCfHO7rymjR/CmWq8tfp3mn6BQD1GU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nmnHIhAo; arc=none smtp.client-ip=209.85.216.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E8xzdPTM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1722010052;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QOJLcjieES+tB4tRofO+chFavHGd/KQUGWhzuHYgx20=;
-	b=E8xzdPTMVov0RcagVsyQ9DTY8cwMplpOlH+Xv2tt3tLjTVP26sdy8XF9phRqrAPyUKgir1
-	CwZ8dm4OjZyi2a9qtd64U9+A56GjZN3JP5vbJuvXa3YJa4J0QCBtRauJ6cmgxtvabjqKYB
-	2vvtYP2CwJc4n9pVS6kEcoTGzfM8v58=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-66-qpoqsPuAPiyzuXNF34IA3Q-1; Fri,
- 26 Jul 2024 12:07:30 -0400
-X-MC-Unique: qpoqsPuAPiyzuXNF34IA3Q-1
-Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 0AEF61955D58
-	for <selinux@vger.kernel.org>; Fri, 26 Jul 2024 16:07:30 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.225.161])
-	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 471971955D45
-	for <selinux@vger.kernel.org>; Fri, 26 Jul 2024 16:07:29 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH] libselinux/restorecon: Include <selinux/label.h>
-Date: Fri, 26 Jul 2024 17:59:15 +0200
-Message-ID: <20240726160725.1598159-1-vmojzis@redhat.com>
-In-Reply-To: <CAEjxPJ4hUc67Ra7vE7z1znGfx=8UqCSFY_OouJ0_mOQW4-qx1Q@mail.gmail.com>
-References: <CAEjxPJ4hUc67Ra7vE7z1znGfx=8UqCSFY_OouJ0_mOQW4-qx1Q@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nmnHIhAo"
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-2cb5789297eso820860a91.3
+        for <selinux@vger.kernel.org>; Fri, 26 Jul 2024 10:24:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1722014692; x=1722619492; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=afWwaKu2idbPlvn7CW6d2jorcrYSJC9sCbb5lTJXzTY=;
+        b=nmnHIhAoQl5HtyFZhVSKHhTNMlj3sM3N8RXQVW5QUVCxn4yVOHLXrPSnsav+3cl1eO
+         KA0HdQrUP6a/9BETxiL/azUuLodZqF65tqXFoJP7TnNT5tfm+cuhyYJZqrF9pG6Esfgj
+         jj3TvDLYtV/4O2+Dkp3Ppv0+vmx/1YHxCnpCwFk9cKau2+dlhnJ8LvvuSq3f1jQyOBJp
+         Ow/Vy59A2WwkK9xqu452yIaoLJQj/3TuCidDSjbsxbms/GMa7DVNYEO5R0ckphmm9VCx
+         U9TQTfBKGsvXC8p24eYDbQ3md8j/iDy2oJngHZOEfULVjZjxEB+oHu/l1dUtlG661Y5l
+         pJhw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722014692; x=1722619492;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=afWwaKu2idbPlvn7CW6d2jorcrYSJC9sCbb5lTJXzTY=;
+        b=roLG0qBVGMmPxkMhV560Jgm3BOiCWuV3myfglvXul6NiKaOJQwLlM5+7ZofGcX9puE
+         QBoGH4C9qVNiCPDy2Taf9VwyFHpGwmW4Cg7+z2WNYlqkV5aC39CYfwBUH5vXvGFctAiK
+         e1+fnJKENs7OabtGdXdBsRLsZ9rXx/Ggv8V5V4ONJFE05f74FyLLEaSGBSzr63iO7Zyj
+         KVEtHJJpU+kaz8ibh+U88zG5Nwr1eNi4hiWBffPbB41DwJYO5O+ZsUF6qc2ZIGK7HLL2
+         EgAtGSXAFyuuIF6/DMz5rXWKRF49twl4Xfn6nEWxWRq/D65jUY+Ja7SRaMVnfTt9/AaC
+         SIpA==
+X-Gm-Message-State: AOJu0YzqQIQM3yDrbYrdPf4bGUrmf/ApSnDNrHfkx0LP3DFL6gtCcTsx
+	q0iFmW/R8QI6Dsr6GUB+9/vcBERZra8twIRNgs6A9YLV0WIIbmdwXVtE00MVvqBM2dAmA1TJO5j
+	bs54MUF9OL3utKIC3RqInPFd36Sqcrw==
+X-Google-Smtp-Source: AGHT+IFtd8RtjwV2uTwTFhyKmla2xt4lfi3k3xFoviy8poRYPYCgNrc89tQAoK3w1Nu8XjGQTsRYFJRWx/6ZTGTBBnk=
+X-Received: by 2002:a17:90a:c713:b0:2cd:4100:ef17 with SMTP id
+ 98e67ed59e1d1-2cf7e5d335cmr190262a91.31.1722014692201; Fri, 26 Jul 2024
+ 10:24:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
+References: <CAEjxPJ4hUc67Ra7vE7z1znGfx=8UqCSFY_OouJ0_mOQW4-qx1Q@mail.gmail.com>
+ <20240726160725.1598159-1-vmojzis@redhat.com>
+In-Reply-To: <20240726160725.1598159-1-vmojzis@redhat.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 26 Jul 2024 13:24:41 -0400
+Message-ID: <CAEjxPJ5BJ7q1xqgcqfUU_50V5N0eXRFCk6cnD=+4tB6GDd45hg@mail.gmail.com>
+Subject: Re: [PATCH] libselinux/restorecon: Include <selinux/label.h>
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-restorecon.h uses types defined in label.h, so it needs to include
-label.h (or code using restorecon.h also needs to include label.h,
-which is not practical).
+On Fri, Jul 26, 2024 at 12:10=E2=80=AFPM Vit Mojzis <vmojzis@redhat.com> wr=
+ote:
+>
+> restorecon.h uses types defined in label.h, so it needs to include
+> label.h (or code using restorecon.h also needs to include label.h,
+> which is not practical).
+>
+> Fixes:
+>   $ make DESTDIR=3D~/obj install > make.out
+> In file included from semanage_store.c:39:
+> /home/sdsmall/obj/usr/include/selinux/restorecon.h:137:52: error:
+> =E2=80=98struct selabel_handle=E2=80=99 declared inside parameter list wi=
+ll not be
+> visible outside of this definition or declaration [-Werror]
+>   137 | extern void selinux_restorecon_set_sehandle(struct
+> selabel_handle *hndl);
+>       |                                                    ^~~~~~~~~~~~~~
+> cc1: all warnings being treated as errors
+> make[2]: *** [Makefile:111: semanage_store.o] Error 1
+> make[1]: *** [Makefile:15: install] Error 2
+> make: *** [Makefile:40: install] Error 1
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
-Fixes:
-  $ make DESTDIR=~/obj install > make.out
-In file included from semanage_store.c:39:
-/home/sdsmall/obj/usr/include/selinux/restorecon.h:137:52: error:
-‘struct selabel_handle’ declared inside parameter list will not be
-visible outside of this definition or declaration [-Werror]
-  137 | extern void selinux_restorecon_set_sehandle(struct
-selabel_handle *hndl);
-      |                                                    ^~~~~~~~~~~~~~
-cc1: all warnings being treated as errors
-make[2]: *** [Makefile:111: semanage_store.o] Error 1
-make[1]: *** [Makefile:15: install] Error 2
-make: *** [Makefile:40: install] Error 1
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
-Sorry, did not notice the error since for some reason fedora-rawhide
-build with the patch was successful:
-https://copr.fedorainfracloud.org/coprs/vmojzis/userspace_test/build/7789598/
-But I managed to reporoduce it on a fresh system with the command you
-provided.
-I assume you meant label.h instead of handle.h.
+> ---
+> Sorry, did not notice the error since for some reason fedora-rawhide
+> build with the patch was successful:
+> https://copr.fedorainfracloud.org/coprs/vmojzis/userspace_test/build/7789=
+598/
+> But I managed to reporoduce it on a fresh system with the command you
+> provided.
+> I assume you meant label.h instead of handle.h.
 
- libselinux/include/selinux/restorecon.h | 2 ++
- 1 file changed, 2 insertions(+)
+Correct, thanks. Probably not a fatal error in the default build.
 
-diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include/selinux/restorecon.h
-index b10fe684..5be6542c 100644
---- a/libselinux/include/selinux/restorecon.h
-+++ b/libselinux/include/selinux/restorecon.h
-@@ -1,6 +1,8 @@
- #ifndef _RESTORECON_H_
- #define _RESTORECON_H_
- 
-+#include <selinux/label.h>
-+
- #include <sys/types.h>
- #include <stddef.h>
- #include <stdarg.h>
--- 
-2.43.0
-
+>  libselinux/include/selinux/restorecon.h | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include=
+/selinux/restorecon.h
+> index b10fe684..5be6542c 100644
+> --- a/libselinux/include/selinux/restorecon.h
+> +++ b/libselinux/include/selinux/restorecon.h
+> @@ -1,6 +1,8 @@
+>  #ifndef _RESTORECON_H_
+>  #define _RESTORECON_H_
+>
+> +#include <selinux/label.h>
+> +
+>  #include <sys/types.h>
+>  #include <stddef.h>
+>  #include <stdarg.h>
+> --
+> 2.43.0
+>
+>
