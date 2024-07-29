@@ -1,83 +1,157 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21670208B0;
-	Sat, 27 Jul 2024 02:54:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BA88335B5;
+	Mon, 29 Jul 2024 02:38:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722048900; cv=none; b=sZJvq8KLKGgVWvff/iiqLJuZOrCtOPvEQAhQje2Br/bYaCJT6p2c/sbW3b0JQKYyKAhqp80rGMC6oaQVn1i4+ukdvRK0zpfoAUutsepHoqB0xLD+pA0HfTI5JavefYOsoEfIKwRNsJosdPPws6e4g6JhpyvPP516ILwCsWWV8DE=
+	t=1722220704; cv=none; b=kTI/HZUEqvNmCs5yH7QZp9uQfeLlGsbIG5Tmf9EsuoTINQvJ/5SD73uQhQv3hJhOM/nDAsgVc4NnnS8LCyTtIDpYU7bvwbd3DSldBcB0hJhq823h+hpbTEJcqbzAKb03SjPotYP9U79aATc7fhN2uajrrZiYoKRhLHeXJTslcDE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722048900; c=relaxed/simple;
-	bh=SC4ewOAvXzgVqB7T0j0VlxyhUMM9hasZjA4JU3RaXaE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=EMO6dx/psbJ9rzBJSvlXqZnPqKlte2jXFxCJGnGmPZfn8t8jxluwimrr8JlVDzfs2bg5LfA49EThQGeVUOcTbGoaf4XQCnpI8iyIzp+1wxkn2OYCXO3Gh8uNf5O6JT+tgUq6Staml5YdA9vbva+NYdq2mNk0i0Fz5oUsmtNd7f4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.162.254])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4WW8Lp4QGszMqnv;
-	Sat, 27 Jul 2024 10:53:06 +0800 (CST)
-Received: from kwepemg100016.china.huawei.com (unknown [7.202.181.57])
-	by mail.maildlp.com (Postfix) with ESMTPS id 0A194180102;
-	Sat, 27 Jul 2024 10:54:55 +0800 (CST)
-Received: from [10.67.110.48] (10.67.110.48) by kwepemg100016.china.huawei.com
- (7.202.181.57) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Sat, 27 Jul
- 2024 10:54:54 +0800
-Message-ID: <55390a1e-5994-465a-a5c5-94f3370259c3@huawei.com>
-Date: Sat, 27 Jul 2024 10:54:30 +0800
+	s=arc-20240116; t=1722220704; c=relaxed/simple;
+	bh=fHi1WKbG4rwo9K7JZ99t5n13jlcTwAYYxY3/86tkJzc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=JZj6/dwg/P9+QUg+9nDn0ej9OIHZkr9p7bRGpiND0/fzNoSNKUwxR70TMFvRZejR7eiFR2MUNPlr0Xf5Q0DR5CzEN5bHCgbTyfu45aY3wHfLO7NLDyi+YqO1Uv2OT96Y6tv0mJgtKk7+eR2BIu1d+weiQDrwKWFnxEFWthAuJSA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VFDa6P7F; arc=none smtp.client-ip=209.85.215.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VFDa6P7F"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-7163489149eso2111136a12.1;
+        Sun, 28 Jul 2024 19:38:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1722220703; x=1722825503; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=BoXVnJDl1DBrc1Y4CS2cvJgm86xrff8Hli3dvn72knc=;
+        b=VFDa6P7F57uEm75p0d8D4fulDN+V/TQzCllmI8dP+UJYkEDvklDFvO+kzlKOduIvLi
+         QklIeiJVjaZvW2K//oOhNQkZ0EBHrrJ0QSI8kjGJmvpUcuOWnPW6ACpxf+h5K2XxOhZ1
+         0NByg1pwfQZwZkj9SHoboaXEIHBYfGLTfdPSLai/L/iGscFLvJ8G9FLOCukmhxtdpiNL
+         CBhrQd3GwVHRKH3cmjHV84sTaVLWapMEzRjDK5eG72SZHF9+IH3Bew9sQL6x9xcCIL7h
+         aWRQsty5yH5nQJTclmMR/o6DJNxQnWn/9RLe7UZ2cWfWJ6SIY1FPpBsC73/7pDa9SVn2
+         7Ggw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722220703; x=1722825503;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=BoXVnJDl1DBrc1Y4CS2cvJgm86xrff8Hli3dvn72knc=;
+        b=NwlZ5ZbYI7LGqq44sP6zW0JVy63oLP2dPpailVPvcNkXbfsy6aWfXeAdAvIZe90v3j
+         6f6faaoA3mADOUW/dArXgObXdNdFiRc919m36poBcmZTuvmzIlp5P3pbW5bvFapKIPGY
+         JGVfNiWVj30wGFBfDSqnAhgluIOjk9f9pb5TJhxFVPuyZoMuXs4BoKBlWVeavPMbCSoJ
+         wWjL4S6PpggTTR8erLxFWZJejbXr6q/NkvJjHZr7TBRMj8FP9GMSt+LJMA6wEDFTqulN
+         5TZpmlOiDm4O6lD/vcH1PkZvvTDqboGZVyasb5boJ9WeGRidVDkUkRAcokdJdHx05Ujz
+         DZ/g==
+X-Forwarded-Encrypted: i=1; AJvYcCVOFBbsz+ncTdQ96HEnlJdf8GQpVMWH0fCly6YT6GAD0AJmDiaPtGxNiPNgnPS0nHKs/23SjvwsqetrZc8mnCKJXg983Qbrp/WJnzc6DfI+FlvqjIFa3p3MVn/dO9rQJJxRrukvaIMdosk15O2snlR100XYynvrF3s+zHlWA4zzQUCb7+zDfHwBbUQ8YfBxhQJYa2KPy+4bQ/ceGv+PC9y10RFxIHPQHPjuvPz12xEnYXlo/FgwQ/XVNWlPRIJjyi+J7qwcp5r6gRudGGjxZbUswGHDlgmaEPjAJjGTIF9tMDlZruLsa0EDby5SXsX8BzV0CTQ44Q==
+X-Gm-Message-State: AOJu0Yxi1jAPRWGCNYR33YxRkaLxW1KWXzySC9C3G+0rYvjGzHm02zpj
+	IIGgT2B8VMqq7jOVUvuUeqZK5wH0fOuECvRsDXYX6+o1OUIP6GX/padO1IQlskUZ3w==
+X-Google-Smtp-Source: AGHT+IHeVJuzyb2EwGW+50qWRtjvsFUnfcwe8AV+hJIj0aUlJNPkNbWdN0SRhTofBR2ODO0UIaMdgg==
+X-Received: by 2002:a17:90b:384d:b0:2c9:7f3d:6aea with SMTP id 98e67ed59e1d1-2cf7e5f4b7cmr7481617a91.32.1722220702568;
+        Sun, 28 Jul 2024 19:38:22 -0700 (PDT)
+Received: from localhost.localdomain ([223.104.210.31])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2cf28c55a38sm7332247a91.10.2024.07.28.19.37.59
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 28 Jul 2024 19:38:22 -0700 (PDT)
+From: Yafang Shao <laoar.shao@gmail.com>
+To: akpm@linux-foundation.org
+Cc: torvalds@linux-foundation.org,
+	ebiederm@xmission.com,
+	alexei.starovoitov@gmail.com,
+	rostedt@goodmis.org,
+	catalin.marinas@arm.com,
+	penguin-kernel@i-love.sakura.ne.jp,
+	linux-mm@kvack.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org,
+	audit@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org,
+	bpf@vger.kernel.org,
+	netdev@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	Yafang Shao <laoar.shao@gmail.com>
+Subject: [PATCH resend v4 00/11] Improve the copy of task comm
+Date: Mon, 29 Jul 2024 10:37:08 +0800
+Message-Id: <20240729023719.1933-1-laoar.shao@gmail.com>
+X-Mailer: git-send-email 2.30.1 (Apple Git-130)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH testsuite] tests/task_setscheduler: add cgroup v2 case for
- moving proc to root cgroup
-To: Ondrej Mosnacek <omosnace@redhat.com>
-CC: Paul Moore <paul@paul-moore.com>, Stephen Smalley
-	<stephen.smalley.work@gmail.com>, <selinux@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, Wang Weiyang <wangweiyang2@huawei.com>
-References: <20240702095401.16278-1-gongruiqi1@huawei.com>
- <9473d6eb-3f56-4c73-8e61-69111837c07b@huawei.com>
- <CAHC9VhR+tk4mwmaQ6u8SEnzg6zMF2krFHKVwxKx91GX1K=4A=g@mail.gmail.com>
- <0729db54-98cf-4006-91d0-0ebda4dbc251@huawei.com>
- <CAFqZXNsN9M__Mo018L8m0txi60vm3Ui5HgHvJYQK__0hhhMULQ@mail.gmail.com>
-Content-Language: en-US
-From: Gong Ruiqi <gongruiqi1@huawei.com>
-In-Reply-To: <CAFqZXNsN9M__Mo018L8m0txi60vm3Ui5HgHvJYQK__0hhhMULQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- kwepemg100016.china.huawei.com (7.202.181.57)
 
+Hello Andrew,
 
-On 2024/07/26 21:43, Ondrej Mosnacek wrote:
-> On Thu, Jul 18, 2024 at 2:34 PM Gong Ruiqi <gongruiqi1@huawei.com> wrote:
->>
->>
->> On 2024/07/18 0:17, Paul Moore wrote:
->>> ...
->>>
->>> Where (what distribution, version, etc.) did you see this problem?
->>
->> The problem occurred when I ran the testsuite on Fedora 40 with v6.6
->> kernel, and it was the only failed testcase.
-> 
-> Sorry for the delay... For some reason the test passes for me even
-> with cgroup v2 only and without the patch (also when run from a
-> regular user account with sudo). Do you happen to know what
-> circumstances are needed for it to fail when the cgroup is not
-> switched?
-> 
+Is it appropriate for you to apply this to the mm tree?
 
-As the comment in the script says, a process need to be in the root
-cgroup in order to switch its scheduler policy to SCHED_{RR,FIFO}. So
-maybe in your case the shell process is already in the root cgroup?
+Using {memcpy,strncpy,strcpy,kstrdup} to copy the task comm relies on the
+length of task comm. Changes in the task comm could result in a destination
+string that is overflow. Therefore, we should explicitly ensure the destination
+string is always NUL-terminated, regardless of the task comm. This approach
+will facilitate future extensions to the task comm.
 
-In my case I need to ssh to a Fedora VM, and that makes my shell process
-to be in a sub cgroup called /user.slice/.../XXX.scope (looks like some
-systemd stuff). And since /sys/fs/cgroup/cpu/tasks doesn't exit in the
-system with cgroup v2 only, the script skips moving the target process
-to the root cgroup, and therefore the subsequent test fails.
+As suggested by Linus [0], we can identify all relevant code with the
+following git grep command:
+
+  git grep 'memcpy.*->comm\>'
+  git grep 'kstrdup.*->comm\>'
+  git grep 'strncpy.*->comm\>'
+  git grep 'strcpy.*->comm\>'
+
+PATCH #2~#4:   memcpy
+PATCH #5~#6:   kstrdup
+PATCH #7~#9:   strncpy
+PATCH #10~#11: strcpy
+
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/all/CAHk-=wjAmmHUg6vho1KjzQi2=psR30+CogFd4aXrThr2gsiS4g@mail.gmail.com/ [0]
+
+Changes:
+v3->v4:
+- Rename __kstrndup() to __kmemdup_nul() and define it inside mm/util.c
+  (Matthew)
+- Remove unused local varaible (Simon)
+
+v2->v3: https://lore.kernel.org/all/20240621022959.9124-1-laoar.shao@gmail.com/
+- Deduplicate code around kstrdup (Andrew)
+- Add commit log for dropping task_lock (Catalin)
+
+v1->v2: https://lore.kernel.org/bpf/20240613023044.45873-1-laoar.shao@gmail.com/
+- Add comment for dropping task_lock() in __get_task_comm() (Alexei)
+- Drop changes in trace event (Steven)
+- Fix comment on task comm (Matus)
+
+v1: https://lore.kernel.org/all/20240602023754.25443-1-laoar.shao@gmail.com/
+
+Yafang Shao (11):
+  fs/exec: Drop task_lock() inside __get_task_comm()
+  auditsc: Replace memcpy() with __get_task_comm()
+  security: Replace memcpy() with __get_task_comm()
+  bpftool: Ensure task comm is always NUL-terminated
+  mm/util: Fix possible race condition in kstrdup()
+  mm/util: Deduplicate code in {kstrdup,kstrndup,kmemdup_nul}
+  mm/kmemleak: Replace strncpy() with __get_task_comm()
+  tsacct: Replace strncpy() with __get_task_comm()
+  tracing: Replace strncpy() with __get_task_comm()
+  net: Replace strcpy() with __get_task_comm()
+  drm: Replace strcpy() with __get_task_comm()
+
+ drivers/gpu/drm/drm_framebuffer.c     |  2 +-
+ drivers/gpu/drm/i915/i915_gpu_error.c |  2 +-
+ fs/exec.c                             | 10 ++++-
+ include/linux/sched.h                 |  4 +-
+ kernel/auditsc.c                      |  6 +--
+ kernel/trace/trace.c                  |  2 +-
+ kernel/trace/trace_events_hist.c      |  2 +-
+ kernel/tsacct.c                       |  2 +-
+ mm/kmemleak.c                         |  8 +---
+ mm/util.c                             | 61 ++++++++++++---------------
+ net/ipv6/ndisc.c                      |  2 +-
+ security/lsm_audit.c                  |  4 +-
+ security/selinux/selinuxfs.c          |  2 +-
+ tools/bpf/bpftool/pids.c              |  2 +
+ 14 files changed, 51 insertions(+), 58 deletions(-)
+
+-- 
+2.43.5
+
