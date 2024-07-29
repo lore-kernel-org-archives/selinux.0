@@ -1,100 +1,87 @@
-Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
+Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com [209.85.219.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2544770F6
-	for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 20:40:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FA46770F6
+	for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 20:42:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722285650; cv=none; b=sWnU7LYPXsjko7AcySYVvbbkgSW3d+s4KqOAS3rNHgvMt6QdP87hkVVafHvOT4W/oH8mrENcV5qUqxqNCcUmEWM4h9kyiTnZ+ablkEDQ/IAP9xkgtUoCg8jnUN+TXjpvXogQg9SmgjXqGacioyeQ7VKCWa5uFia1JgdJxpjLlmg=
+	t=1722285734; cv=none; b=Y/4oetV+3zT+xm+WKdkM6uDeygC4tV2Q1iYaRYNPQStt7ka2sOdPdeeZziUc/R+MJgFkmGt90p9ni1okVXsoin+VSijS8EHxPZAWE1gnS4u4T2doQ0T1O0kDYKlWiJShdH5hbx92HlNgBrOgBG/dH/DEe+BgK3yuP/V+1aKQeZY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722285650; c=relaxed/simple;
-	bh=uvMm/YvV7rKKVvUlkwvjjo5zivb1VpW9LTG5evmKNPI=;
+	s=arc-20240116; t=1722285734; c=relaxed/simple;
+	bh=LjgoQtxv4gyUNQRcuYrHEjhkW3En6/G/CL7ZCsjyPL0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Ox0egLn0GmvI1CQzvalw6Imi5xq+CC3MyUWeaf0E6yewbSHnRfMe8u7v3TgEwFrDpZYYusmO2SeZdHXPwb1HFEMpKXSmCdTZ7Gn1AAzzgmwL3e3h1OiiaEQzcfho5uWpV+z6/bkd56C5oD7VpPVmNqkuwjyhJDG/Pqwz4vMzROg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FdqSj10B; arc=none smtp.client-ip=209.85.219.177
+	 To:Cc:Content-Type; b=erek7+4RVuBysPmmWla38DGyUUngHmnfxCfeZXrteXWkize2GTDKAa1lT1h2iFXyt7Uq/ccHUIzYCs0LNqrwsV05SqjBTfqBV2n4kuVIUbm2ggZbTLOvI47k9AytQoq8Qf32L4+BjFCql2lA3dbkf6VW6nRbve9+7PsIUK3fUy0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=eXUW73ey; arc=none smtp.client-ip=209.85.219.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FdqSj10B"
-Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-e0b7efa1c1bso1540717276.3
-        for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 13:40:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="eXUW73ey"
+Received: by mail-yb1-f172.google.com with SMTP id 3f1490d57ef6-e05e2b2d88bso2419159276.0
+        for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 13:42:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1722285648; x=1722890448; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1722285732; x=1722890532; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/bpR9KnLTvNMzWB0BWL2SQvPz0QXhGOMr/3lSuaeXTQ=;
-        b=FdqSj10B0dDtCoZyDs5DsDrdLj6cD2KpOfQFprbU7u5OGY/cwFAwkz0HUCAZ133eY9
-         S90v9exM//OEC3YBtvMJPK7sn0+J6O+szoqYhVv+CjvRzndqlN0P5z2QlzQfDfYf+xxD
-         7ekg58XTQDieQls0jpnvOIK33j/aG6a40P0BZpvHCwHQKV9nX54bv5G5k/IWsKGep6GZ
-         aYWhBnIktsC7LVQPU98yu90nl+2ktjgznAtzJazyqqcUonH//ATQhSKYea9EEJQFMvb1
-         G2XIgVOkE+JDY/2GidqfkJlmj5qK80PoRxJBC2Y4MwpJDWhjAA6WjQ7bWnK3OTso1Q17
-         2MvA==
+        bh=E/KBuS6gA8+ijVhpa4VFsZhXJ17iIFq5yh3hEXB0yNw=;
+        b=eXUW73eyROJyR9mZIG/58AyUaZYY9AIp9wqVAUPdRrLV/tj65eSN6lJuDu1XLVmZCd
+         of5q13GYBC6X5U6/5Mps3Wp4LGhkIanTpUnCFbZxgqWaXLiBuoVDjecctONb8Zl8JPBa
+         KKaLjESY+2e8cd7CU0rdRdYLrUqIHdh5WYGtQ1krUgCAD2FtYBn2Jlm7CHD/6KfNYLY5
+         qn8dGdtjtqIzEMqLru7JLb3f5TgdwFp3j5KvU6IQRHEVycnR2fqpfghF4HDL4zsLqelk
+         9UTJMUPj6Yn9Tz4vV8KseXFbKPMdywhSn/ACx1bfVlmizJk7riwjRYeeUDsZ/6exdLV7
+         HtRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722285648; x=1722890448;
+        d=1e100.net; s=20230601; t=1722285732; x=1722890532;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/bpR9KnLTvNMzWB0BWL2SQvPz0QXhGOMr/3lSuaeXTQ=;
-        b=sdvEqT0NqHSZwutAeLym2KZ0KJMflhRhvg1R+Oqvsiec/85+3vIrvi7A3BVE9o4jOJ
-         7enFQRnBkVKqa24LO0kYDUJbo02YSu5kyi5SBxo2vu9Az46foFsvppbc8ad4IN0H9Kdn
-         cBQRkgMYkO0p4EEUk2zJF5q2FaEv/WP3HVY6LQH4rb/7/lCiF+aH3obNSaYUZLJk3YJ0
-         SWpOQ07PioMm/PHjDyTPRar8lVl5+aUwJ9f7b6GLqcUcAacwGZu7mnQbG3n8UKtlysYm
-         ix0bLoqrlWy5JI++LsvshR5RdALNSQb1o4aaQKsWy+NVvmJLNIysU7xsodybD2R0VB6g
-         R27A==
-X-Forwarded-Encrypted: i=1; AJvYcCX94ngqmIZdbJRuQBl5f7Okoh1n7ioK8JNz87fzupXIZbiSVTOMX9qfL27se5FOidHx5QcDCOD6+IgkuxMA9QYE6Omhgx9I8w==
-X-Gm-Message-State: AOJu0Yw1guI5HVE9S2B4ukuSU+Nat7JxNJUKwh5L/qZPFze2S+SmuU/B
-	IR4LEPZwUHi7L47kTAM3TmghBykWcswgsPyOUXp0mRGPtSm28P2P+n34OMatT8i3wmhHHtIQ6N4
-	X1WJKR3DzVH2EAnidAeJUfO6jN1dxZPmCkL6h
-X-Google-Smtp-Source: AGHT+IH/RYHLRtsIbNoS5UxA+C29Edpt1BbZP5oMRgdZ4SAsO2Sg3xRUkJVa30nfZFtKQ4Uo4xvBHPTCZyhOOGaUiN4=
-X-Received: by 2002:a05:6902:2193:b0:e08:5c66:7d4d with SMTP id
- 3f1490d57ef6-e0b54468fb4mr9258020276.16.1722285647835; Mon, 29 Jul 2024
- 13:40:47 -0700 (PDT)
+        bh=E/KBuS6gA8+ijVhpa4VFsZhXJ17iIFq5yh3hEXB0yNw=;
+        b=WysFkzC2FVtn7vH15XxYOyr8Cqw0z4LBfNWR4FO8prfLsQ/2Fus99BtqjKMs0i1HBm
+         cxjy7xykm458KrytLeL9c8TBAj9R75mydKVGR6TQpE7/jz/9StMtsNV4Jnb7dQvaNplG
+         slJdEa+9wwoyhCPpOoraKC2i9goNjbxlwlf8qi5F4Wnq99faHH/WXzlCBiQWhZXVlAUV
+         G5OveUNTyBc30NIJCqWBAORxnCzIJKqm2rid4VGGbScJnLpS3T1oyrnGVlF/XCndDt+K
+         a2bYbCZPajA+8SZBU35XYmDyt7O8865ThZuhXgnfAlFYsVUbXBRMSU4XkISXyi5+6J7q
+         Zp8Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXQ16QUViAz037dHa6D2gAOx35Vif4HNPq0NkSBEVc9a+lXeBZFjVfLAUYk4sKgygabgt2/cy/4F7AAvDPAmO61LaOoasu71A==
+X-Gm-Message-State: AOJu0YxK3XBfoZlBIenWKU07Gtuo4UhulGYhmj/T2N0HEez0axBgA+22
+	Pg+kXFkDbdty3rP/K6UtMGz1NZynMcVnNT4r800/Kk7EoIV8CXseicm6jRwQNy82VahCazfE2nn
+	GEA6JQhEMBFaT/uwQt6++CgywpZcaIlJgvWmA
+X-Google-Smtp-Source: AGHT+IHejU8z9VzhzHf11AFbhjZP2MQ/D23CPlqGYdcreB936eHhshh7yOLlkNZ4nfjKNdL6tv4hUXFGzL3xZp6O3lI=
+X-Received: by 2002:a05:6902:1029:b0:e08:7607:bbf3 with SMTP id
+ 3f1490d57ef6-e0b544f4af6mr11423230276.34.1722285732178; Mon, 29 Jul 2024
+ 13:42:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240703025605.63628-1-guocanfeng@uniontech.com> <CAHC9VhQ8y8fYeLz8KHXVNrLmp3cLZtUPHsagf3fym3gJvoTs3A@mail.gmail.com>
-In-Reply-To: <CAHC9VhQ8y8fYeLz8KHXVNrLmp3cLZtUPHsagf3fym3gJvoTs3A@mail.gmail.com>
+References: <20240712014534.1705340-1-cuigaosheng1@huawei.com>
+In-Reply-To: <20240712014534.1705340-1-cuigaosheng1@huawei.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 29 Jul 2024 16:40:36 -0400
-Message-ID: <CAHC9VhRRG2vYsi38Qfe38DYk33GMp32bErNjq7iFfAp4tDw1+w@mail.gmail.com>
-Subject: Re: [PATCH] selinux: Streamline type determination in security_compute_sid
-To: Canfeng Guo <guocanfeng@uniontech.com>
+Date: Mon, 29 Jul 2024 16:42:01 -0400
+Message-ID: <CAHC9VhTVXe_XUjnYPK7zkjkrcmfmH9M4PE9oshwZocD-TDbNGQ@mail.gmail.com>
+Subject: Re: [PATCH -next,v2] selinux: refactor code to return ERR_PTR in selinux_netlbl_sock_genattr
+To: Gaosheng Cui <cuigaosheng1@huawei.com>
 Cc: stephen.smalley.work@gmail.com, omosnace@redhat.com, 
-	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+	selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 11, 2024 at 5:10=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
-> On Tue, Jul 2, 2024 at 10:56=E2=80=AFPM Canfeng Guo <guocanfeng@uniontech=
-.com> wrote:
-> >
-> > Simplifies the logic for determining the security context type in
-> > security_compute_sid, enhancing readability and efficiency.
-> >
-> > Consolidates default type assignment logic next to type transition
-> > checks, removing redundancy and improving code flow.
-> >
-> > Signed-off-by: Canfeng Guo <guocanfeng@uniontech.com>
-> > ---
-> > v2:
-> >    Modify the format to follow the generally accepted style for
-> >    multi-line comments in the Linux kernel.
-> > ---
-> >  security/selinux/ss/services.c | 36 ++++++++++++++++++----------------
-> >  1 file changed, 19 insertions(+), 17 deletions(-)
+On Thu, Jul 11, 2024 at 9:45=E2=80=AFPM Gaosheng Cui <cuigaosheng1@huawei.c=
+om> wrote:
 >
-> Thanks for the revised patch, it looks good to me, but it is too late
-> in the development cycle to merge it into the selinux/dev branch; I'm
-> going to merge it into selinux/dev-staging for testing and I'll move
-> it to the selinux/dev branch after the upcoming merge window closes.
+> Refactor the code in selinux_netlbl_sock_genattr to return ERR_PTR
+> when an error occurs.
+>
+> Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+> ---
+> v2: Reomve modifications to netif and netport, and update the commit mess=
+age.
+>  security/selinux/netlabel.c | 18 +++++++++---------
+>  1 file changed, 9 insertions(+), 9 deletions(-)
 
-A quick note to let you know that this is now in the selinux/dev branch, th=
-anks!
+Looks good to me, I've merged this into selinux/dev.  Thanks!
 
 --=20
 paul-moore.com
