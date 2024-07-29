@@ -1,99 +1,100 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F30F384D34
-	for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 19:20:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2544770F6
+	for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 20:40:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722280857; cv=none; b=PxzBUwkq7uVKRqh4TF9cgiAbYcAsE4MNmJtD1g13XBqwzAJUFIohyRZzRERNiTXo4QoAFct3r0sdSbfPjwHiCc0SRE9WY2OUG3buIumJ0eftFHS3FJMyQambpJEOgrq7X3J4qyJ/LAhqV+5XhToiN9Uieqws/e9nktp8lH5occ8=
+	t=1722285650; cv=none; b=sWnU7LYPXsjko7AcySYVvbbkgSW3d+s4KqOAS3rNHgvMt6QdP87hkVVafHvOT4W/oH8mrENcV5qUqxqNCcUmEWM4h9kyiTnZ+ablkEDQ/IAP9xkgtUoCg8jnUN+TXjpvXogQg9SmgjXqGacioyeQ7VKCWa5uFia1JgdJxpjLlmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722280857; c=relaxed/simple;
-	bh=jAVgo8OiUztzFeqSZNYshoc5u7ntyZ22yuZOy32KAyM=;
+	s=arc-20240116; t=1722285650; c=relaxed/simple;
+	bh=uvMm/YvV7rKKVvUlkwvjjo5zivb1VpW9LTG5evmKNPI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=epl304HvhDbAOuOF9k0d/mzgJaEAoTzT/G8W8/yuwPyC6WcgAuHFpLXxMA1CVNQNnl5Hjh6OYAaDZVSGij0GVsXpheok8DsTTNJxJXFJiD5g53zC0RzpJoVqch0Nmky/u5viVH36HziQQH/snZcS7KroPL9rHL7agDHgN5NwEes=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A+ROzlAY; arc=none smtp.client-ip=209.85.216.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=Ox0egLn0GmvI1CQzvalw6Imi5xq+CC3MyUWeaf0E6yewbSHnRfMe8u7v3TgEwFrDpZYYusmO2SeZdHXPwb1HFEMpKXSmCdTZ7Gn1AAzzgmwL3e3h1OiiaEQzcfho5uWpV+z6/bkd56C5oD7VpPVmNqkuwjyhJDG/Pqwz4vMzROg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FdqSj10B; arc=none smtp.client-ip=209.85.219.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A+ROzlAY"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-2cb64529a36so2276192a91.0
-        for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 12:20:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FdqSj10B"
+Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-e0b7efa1c1bso1540717276.3
+        for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 13:40:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722280855; x=1722885655; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1722285648; x=1722890448; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jAVgo8OiUztzFeqSZNYshoc5u7ntyZ22yuZOy32KAyM=;
-        b=A+ROzlAYQPYKQ/AyRAgV77L+bhAu0JuegfIt5k0+mS5QSWLOyXFoyW2KnQzJBU+UEf
-         GUaK8HbC9aSWdcM/JvOgFMpBF2QvYOzhl9H3uv6ax+JYL7A7uVDM6lp8ZnUs3ueeEvvN
-         XnVJpsYTENdHTVT60A+hezrDlA5vJIN9b5DbnYvgiwIgvtEecjmLiAoNWosj/hf8uWEp
-         fONcrOXSY+wjGMvT6GmAmspTs3aIKQKFYxThoLehlgBTYOAR4UYWrZP+WzHExfZlpVeV
-         BootR2sdsj3MaK7J+3EK4DIzoxTXCgXbivLN1QA1O2RKiTkzP4aj9y9Gn1jPBl22lOCy
-         /NaQ==
+        bh=/bpR9KnLTvNMzWB0BWL2SQvPz0QXhGOMr/3lSuaeXTQ=;
+        b=FdqSj10B0dDtCoZyDs5DsDrdLj6cD2KpOfQFprbU7u5OGY/cwFAwkz0HUCAZ133eY9
+         S90v9exM//OEC3YBtvMJPK7sn0+J6O+szoqYhVv+CjvRzndqlN0P5z2QlzQfDfYf+xxD
+         7ekg58XTQDieQls0jpnvOIK33j/aG6a40P0BZpvHCwHQKV9nX54bv5G5k/IWsKGep6GZ
+         aYWhBnIktsC7LVQPU98yu90nl+2ktjgznAtzJazyqqcUonH//ATQhSKYea9EEJQFMvb1
+         G2XIgVOkE+JDY/2GidqfkJlmj5qK80PoRxJBC2Y4MwpJDWhjAA6WjQ7bWnK3OTso1Q17
+         2MvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722280855; x=1722885655;
+        d=1e100.net; s=20230601; t=1722285648; x=1722890448;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jAVgo8OiUztzFeqSZNYshoc5u7ntyZ22yuZOy32KAyM=;
-        b=nXw5wZmxDY2oNANlF/8Jcbc7jNsXmJkBjvTmqYwWJr6Ug5Pfoyt+17ZwsLolDBsIoD
-         qoCcTIDmj/qLY0L++AVW7bEulWmKdm06cjOFPyCEM11vYJAKrT7GbzWpVW6yNb51RZHW
-         E6pzjGO98ulBXEJ1QRlApirYWll8qvJYABJR880Al/miUwyeYNLMouXqc9S5I1IUMwPW
-         Qr1rrPSTdkEfuP+sqU6CpNJ8+tAgDvxHbx5VBzsztoWA1rsVAkU9RTxydyPedEzLoNg2
-         UnOKUiSVoLn9UzpomVKq7ydstfsHtiGyiHAoj0gmY0FiKrMSHOD+s4WhCaaO5e0/dMez
-         B7gw==
-X-Gm-Message-State: AOJu0YygsI5d5JBWozgAaO9yremMgRLPwX4q58kfWrWdCiwl6QRT4/xF
-	xUXX95R9mkHhLpQYutIYo6Oyxp26rnIOX15XE+O45eh0sp/sB98CSq1NbuTkSYOtDbBZXPZWSas
-	XYfar8Nn8W4f49QclCQl7+EyHplez+A==
-X-Google-Smtp-Source: AGHT+IG2CRzI/CVNCPqMusyofGGM993TJN/YMwdghZ17tgzZEzawz9CTGaMMG3rtroF5VCRPbfmEpYS4CC5Fq1sTaaM=
-X-Received: by 2002:a17:90b:349:b0:2ca:2c4b:476 with SMTP id
- 98e67ed59e1d1-2cf7e1c6046mr7564717a91.10.1722280855120; Mon, 29 Jul 2024
- 12:20:55 -0700 (PDT)
+        bh=/bpR9KnLTvNMzWB0BWL2SQvPz0QXhGOMr/3lSuaeXTQ=;
+        b=sdvEqT0NqHSZwutAeLym2KZ0KJMflhRhvg1R+Oqvsiec/85+3vIrvi7A3BVE9o4jOJ
+         7enFQRnBkVKqa24LO0kYDUJbo02YSu5kyi5SBxo2vu9Az46foFsvppbc8ad4IN0H9Kdn
+         cBQRkgMYkO0p4EEUk2zJF5q2FaEv/WP3HVY6LQH4rb/7/lCiF+aH3obNSaYUZLJk3YJ0
+         SWpOQ07PioMm/PHjDyTPRar8lVl5+aUwJ9f7b6GLqcUcAacwGZu7mnQbG3n8UKtlysYm
+         ix0bLoqrlWy5JI++LsvshR5RdALNSQb1o4aaQKsWy+NVvmJLNIysU7xsodybD2R0VB6g
+         R27A==
+X-Forwarded-Encrypted: i=1; AJvYcCX94ngqmIZdbJRuQBl5f7Okoh1n7ioK8JNz87fzupXIZbiSVTOMX9qfL27se5FOidHx5QcDCOD6+IgkuxMA9QYE6Omhgx9I8w==
+X-Gm-Message-State: AOJu0Yw1guI5HVE9S2B4ukuSU+Nat7JxNJUKwh5L/qZPFze2S+SmuU/B
+	IR4LEPZwUHi7L47kTAM3TmghBykWcswgsPyOUXp0mRGPtSm28P2P+n34OMatT8i3wmhHHtIQ6N4
+	X1WJKR3DzVH2EAnidAeJUfO6jN1dxZPmCkL6h
+X-Google-Smtp-Source: AGHT+IH/RYHLRtsIbNoS5UxA+C29Edpt1BbZP5oMRgdZ4SAsO2Sg3xRUkJVa30nfZFtKQ4Uo4xvBHPTCZyhOOGaUiN4=
+X-Received: by 2002:a05:6902:2193:b0:e08:5c66:7d4d with SMTP id
+ 3f1490d57ef6-e0b54468fb4mr9258020276.16.1722285647835; Mon, 29 Jul 2024
+ 13:40:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240708165032.86647-1-jwcart2@gmail.com> <CAEjxPJ70EufOsd4O4E-Sc+KRGdv1Nhbac4GbkewAejp2GrMWBQ@mail.gmail.com>
- <CAEjxPJ5re4XGfN6hny1eir0oTnw4YhNDg=EiWo5KZbQsZ8H5hw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5re4XGfN6hny1eir0oTnw4YhNDg=EiWo5KZbQsZ8H5hw@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 29 Jul 2024 15:20:43 -0400
-Message-ID: <CAEjxPJ4v2fwZF1ZQX5BYAPyFdc3WhpS+9RrJ5JyoZG4hP9+Hkw@mail.gmail.com>
-Subject: Re: [PATCH] checkpolicy: Check the right bits of an ibpkeycon rule
- subnet prefix
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
+References: <20240703025605.63628-1-guocanfeng@uniontech.com> <CAHC9VhQ8y8fYeLz8KHXVNrLmp3cLZtUPHsagf3fym3gJvoTs3A@mail.gmail.com>
+In-Reply-To: <CAHC9VhQ8y8fYeLz8KHXVNrLmp3cLZtUPHsagf3fym3gJvoTs3A@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 29 Jul 2024 16:40:36 -0400
+Message-ID: <CAHC9VhRRG2vYsi38Qfe38DYk33GMp32bErNjq7iFfAp4tDw1+w@mail.gmail.com>
+Subject: Re: [PATCH] selinux: Streamline type determination in security_compute_sid
+To: Canfeng Guo <guocanfeng@uniontech.com>
+Cc: stephen.smalley.work@gmail.com, omosnace@redhat.com, 
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 29, 2024 at 11:38=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Mon, Jul 29, 2024 at 11:28=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
+On Thu, Jul 11, 2024 at 5:10=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+> On Tue, Jul 2, 2024 at 10:56=E2=80=AFPM Canfeng Guo <guocanfeng@uniontech=
+.com> wrote:
 > >
-> > On Mon, Jul 8, 2024 at 12:50=E2=80=AFPM James Carter <jwcart2@gmail.com=
-> wrote:
-> > >
-> > > The lower 64 bits of the subnet prefix for an ibpkeycon rule should
-> > > all be 0's. Unfortunately the check uses the s6_addr macro which refe=
-rs
-> > > to the 16 entry array of 8-bit values in the union and does not refer
-> > > to the correct bits.
-> > >
-> > > Use the s6_addr32 macro instead which refers to the 4 entry array of
-> > > 32-bit values in the union and refers to the lower 64 bits.
-> > >
-> > > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > Simplifies the logic for determining the security context type in
+> > security_compute_sid, enhancing readability and efficiency.
 > >
-> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > Consolidates default type assignment logic next to type transition
+> > checks, removing redundancy and improving code flow.
+> >
+> > Signed-off-by: Canfeng Guo <guocanfeng@uniontech.com>
+> > ---
+> > v2:
+> >    Modify the format to follow the generally accepted style for
+> >    multi-line comments in the Linux kernel.
+> > ---
+> >  security/selinux/ss/services.c | 36 ++++++++++++++++++----------------
+> >  1 file changed, 19 insertions(+), 17 deletions(-)
 >
-> One caveat here is that I believe this breaks building checkpolicy on
-> macOS because s6_addr32 is non-portable.
-> But it looks like a previous commit re-introduced the usage of
-> s6_addr32 (we had gotten rid of them earlier to avoid
-> needing ifdefs for macOS).
+> Thanks for the revised patch, it looks good to me, but it is too late
+> in the development cycle to merge it into the selinux/dev branch; I'm
+> going to merge it into selinux/dev-staging for testing and I'll move
+> it to the selinux/dev branch after the upcoming merge window closes.
 
-Applied. We may need to revisit though at some point for macOS.
+A quick note to let you know that this is now in the selinux/dev branch, th=
+anks!
+
+--=20
+paul-moore.com
