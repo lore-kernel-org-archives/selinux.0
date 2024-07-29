@@ -1,117 +1,91 @@
 Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D598145354
-	for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 15:38:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C38EC78B50
+	for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 16:54:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722267525; cv=none; b=ABe2vPT1qigoE3VQ8Qtf+A9Xq1ddfgw+u0VJjgHFabA+GhgrHIAUcWiooSObwQy8i9yTSJB5B3vRv42kvtjXiMuFCBTvtdNTfmUTUDabSrxrTEkjhEcvygwEGjsOoMP4n8yQ6SV4VGUrFD3j6e3tjxGgy3vs77YKBVWYDNA0KGI=
+	t=1722272094; cv=none; b=Xy4nnspnHWv9KlKnQatO9kR3+uB7qQhQVrhVkQKGGkRBjW9CLI2/SPTofiCPxgkmKgxt41uIDJ9BgKMeHFtJQe2j1+JJB2U4AnHXb8NJ1J3Hx2M2r8Lo+zt7fVkAHcFT+eKq+LztaNdeArQcJ7CH4PNFq2GCdAK6wfdZpbTL/QY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722267525; c=relaxed/simple;
-	bh=At5ey5L5qxYkNTB5acm61wgc/xnuSsUp4ee37hLNC8A=;
+	s=arc-20240116; t=1722272094; c=relaxed/simple;
+	bh=4iZ5jrdjMvy+u1F+tHcRV93HmUhfTgO39/xqzT0Vx54=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WSQbr/D2rfny8R3f0gY4D5NUbJbJAtNWNtLBzCI2mmYsFl4AaymjoSfmtsv/S5zyP8WGQ1aV4jEBicAOjlsTEzSMN5MR4vSzJRDBxf59InGndigbIjlHfaFw8oQKeuOg/7kxc7VcArl2jsoir7ipIJysVWxUeJ9LHQpGeVj+ZEs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h0i+NZuS; arc=none smtp.client-ip=209.85.216.53
+	 To:Cc:Content-Type; b=d2c2vwnk5yCMte3FD62m/eBmIxW+P7ij2ztp6ZVpvXjTZLO3IPh74+FUoUSDZYRnAYkHN4x47cbMn3X3MsGFDLX1peAvRhJn9DjbALXvm6LZchg1uRcrQpBJPnO32GBS3oqhAWXE80alwGmp0N3FQWU0+9XyyBiVccTFtYinr8Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UoVdwMC5; arc=none smtp.client-ip=209.85.216.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h0i+NZuS"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-2cd34c8c588so1986882a91.0
-        for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 08:38:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UoVdwMC5"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-2cf78366187so1959327a91.3
+        for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 09:54:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722267524; x=1722872324; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1722272092; x=1722876892; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=SskQ1lAhimilivKsSyRwQIC0X40rbo4rtl0DIVdKsVg=;
-        b=h0i+NZuSbQErCzctZCI0xeWKU36HAI/6tiIykVVc6l13S/idpEXktnn3E3pBjCdHug
-         Aw7vByNu6adTlkTVk1QWn7R7oERO6bjISKsOXss+2sg+K1hKrsTPBF39CUyD4WNxG6k+
-         6gnwwixPnkvtdSHbK7eOiw3X/ttkOcLAohnP+SoNAmEOpUreHNox2PKu4UR9EJQ26sLo
-         VXGp58Dhpy2+82Lm0z/eXUl4n4Nj+uJjz/ijc+f37qJHLvM8hixYC7i6xkfr3YMnw90e
-         IPxyKN/v28BxTfnfQfW55IO7C0Fnh37uEkH+qR7C2/3pcf3iNqLDDNKF+jm9Unu0lXI3
-         Zpvw==
+        bh=4iZ5jrdjMvy+u1F+tHcRV93HmUhfTgO39/xqzT0Vx54=;
+        b=UoVdwMC5qGgsiHEYgl279nvwVc8FDxZeoEv+/pOL1+f5ZOEbOWXCNuTEeAz+Vi36Q2
+         jLACvODRxiY2wNcC8JxXbQ74iOFd/i+XvAaO2siLft5qFFyrWFKYR6RotRca+LnjXMN+
+         B1r3L1ZS9+3mQC3tu8EPOpn1ID1Kznf/Tb7tI1usIRgT/EjyuwQrroZ41OhhoOV4xZGl
+         sq8h92CCuBGs8di8idJNOVAOvT9ziTfEYYnd2agC7YGBvk3waJfBla/5mbs7EPWMkJwk
+         0qlbLvQiSOhg41xDPK8sPvVdLYh4mK8XBTcABrW+7AbivxQO9lnIrtctP+I5S7xwrlJ5
+         T4xg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722267524; x=1722872324;
+        d=1e100.net; s=20230601; t=1722272092; x=1722876892;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=SskQ1lAhimilivKsSyRwQIC0X40rbo4rtl0DIVdKsVg=;
-        b=jPuTsEbhQxhFzJKMZ7Q/8gvdwa6VJBwWDnKuVy69Ut/7vu48XGnnwa6FpG0Op7Fd32
-         Iu6j0s9yBymonNLYuITBqRVQm38SdOjfzUcpQRgQ7wuTuZgIiNEpsU1CLNlYxAUOS+r/
-         fdYBRufR/wZAp/+ISR2vzaj6+Fo5xb+/510yuRk5wbsNbFBIAlp5DfVsA+Z0SNFWTJMR
-         X+QqvfrjXjszpPN5ZxzZsgXDpHTQqA+h1KxrzgWDqWv8U7NKBgUmC/nQCNXVKZFu+eOH
-         61efDkZ5FB8T7rz05FS/lLGE4f9AwIu4JCBqRcdc/CFuicavBOy6sUbOsme/Tp5p8MZI
-         88RA==
-X-Gm-Message-State: AOJu0YzD+PjBTCu060wg0SRnIki4xGCM7LyoGSRbDvIb7WFt1v1/Cut9
-	3oLh5u+0SzzaDcNYIq/K/dMlop2OKZD6yI1PmbU0WXriUdANE13PHvDLz/q3nv0EPdeUNG4FXsE
-	dhnl0IV9FcHcEIeXUdYoSanq0W6dX9g==
-X-Google-Smtp-Source: AGHT+IHIPiHs0juQslUytrrMW3t8kJecNLMsZlAuQCQQSgUNGKO6GYaE0oYrxTiyRpi5xMIl4HdWpVx84ibAyN5AQRw=
-X-Received: by 2002:a17:90a:67c3:b0:2c2:c149:ca4 with SMTP id
- 98e67ed59e1d1-2cf7e733b1bmr5362093a91.43.1722267523691; Mon, 29 Jul 2024
- 08:38:43 -0700 (PDT)
+        bh=4iZ5jrdjMvy+u1F+tHcRV93HmUhfTgO39/xqzT0Vx54=;
+        b=XQuY5dNdJ49qVBeaq9kwyq3f1siWAOnHpfydz7pFXxjY+Qdfsv4pnCN/uzqA6VJR6w
+         LgDzkXc7qPrFsGkcFvWRaNcpmxiPikx95dcljbu9pDL/2cpDl7wIl2eCWP9N61FhB1bP
+         HGutmQOs6Qkcd4zhiOzkotTzSlZOuPa56YVMLV4C5DJ717+jzRgLEr3SrluT58UHWpVA
+         e0vRWyPLnC7LdxTnln2xtlwbiiDDo9OoJhzpwKnjmZGvdkdLvfkcCNWpJtRGZE09V6CI
+         iHT+L931alonu2uTF0sPjsQMJe5gl7uDyf2QNI1MW97ETyw49yC5Jz2GqonUze8B1FMq
+         QJCA==
+X-Gm-Message-State: AOJu0YwPzGhjUNQgptaDjm+yDFd7LAbvWRfdBF6+M/l2YPUKMvaZBTOA
+	KL7b1ziUsLgt0Wto0XovScK+ItvYFEnnWNzEHWVDWfEx/aq4tBT1HWaNC/lq7lMkdKWWKT9VoA/
+	8/4VsUROuY3WMPIIu2+Zavmv1eZfPgA==
+X-Google-Smtp-Source: AGHT+IHH/NCiHC7NYlnXHNsomtXaB/7v+htUx4Wl8KLHnYEP2JfNwibRTK/Qwl5fJMA4plC7/sE3UpgzW5yopikllXc=
+X-Received: by 2002:a17:90a:134b:b0:2c8:3f5:37d2 with SMTP id
+ 98e67ed59e1d1-2cf7e2167b1mr9604031a91.20.1722272091993; Mon, 29 Jul 2024
+ 09:54:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240708165032.86647-1-jwcart2@gmail.com> <CAEjxPJ70EufOsd4O4E-Sc+KRGdv1Nhbac4GbkewAejp2GrMWBQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ70EufOsd4O4E-Sc+KRGdv1Nhbac4GbkewAejp2GrMWBQ@mail.gmail.com>
+References: <CAEeCnGzRMiiDZKaDgnX_dqpeK5rM=aO5zBZ6frWJT4WQj5cVEQ@mail.gmail.com>
+ <CAEjxPJ6VQB6XVEa9k0brDZNPVN2RRNqHd7ZQaZN2CM2K8ZrHkg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6VQB6XVEa9k0brDZNPVN2RRNqHd7ZQaZN2CM2K8ZrHkg@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 29 Jul 2024 11:38:32 -0400
-Message-ID: <CAEjxPJ5re4XGfN6hny1eir0oTnw4YhNDg=EiWo5KZbQsZ8H5hw@mail.gmail.com>
-Subject: Re: [PATCH] checkpolicy: Check the right bits of an ibpkeycon rule
- subnet prefix
-To: James Carter <jwcart2@gmail.com>
+Date: Mon, 29 Jul 2024 12:54:39 -0400
+Message-ID: <CAEjxPJ74_JUHtJxPRVkQUGOVR42n0Mn8S9AekV8BLYCS_nr3oA@mail.gmail.com>
+Subject: Re: UnicodeDecodeError: utf-8 on python semanage -i import
+To: Allan Oepping <allan@intellipay.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 29, 2024 at 11:28=E2=80=AFAM Stephen Smalley
+On Mon, Jul 29, 2024 at 10:51=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Mon, Jul 8, 2024 at 12:50=E2=80=AFPM James Carter <jwcart2@gmail.com> =
-wrote:
+> On Mon, Jul 1, 2024 at 1:19=E2=80=AFPM Allan Oepping <allan@intellipay.co=
+m> wrote:
 > >
-> > The lower 64 bits of the subnet prefix for an ibpkeycon rule should
-> > all be 0's. Unfortunately the check uses the s6_addr macro which refers
-> > to the 16 entry array of 8-bit values in the union and does not refer
-> > to the correct bits.
+> > Importing a .pp file with the python semanage -i option generates a "Un=
+icodeDecodeError: utf-8" on an up to date Rocky 9 distribution.
 > >
-> > Use the s6_addr32 macro instead which refers to the 4 entry array of
-> > 32-bit values in the union and refers to the lower 64 bits.
+> > packages:
 > >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > policycoreutils-python-utils-3.6-2.1.el9.noarch
+> > python-unversioned-command-3.9.18-3.el9.noarch
+> >
+> > The open() in SetImportFile needs the binary "b" option to open the fil=
+e in binary mode, as the .pp file is not in utf-8 format:
 >
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Did you mean to use semodule -i? That's how one imports a policy module.
+> Also, patches should be -p1 appliable and include a Signed-off-by: line.
 
-One caveat here is that I believe this breaks building checkpolicy on
-macOS because s6_addr32 is non-portable.
-But it looks like a previous commit re-introduced the usage of
-s6_addr32 (we had gotten rid of them earlier to avoid
-needing ifdefs for macOS).
-
->
-> > ---
-> >  checkpolicy/policy_define.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> > index 4931f23d..bfeda86b 100644
-> > --- a/checkpolicy/policy_define.c
-> > +++ b/checkpolicy/policy_define.c
-> > @@ -5036,7 +5036,7 @@ int define_ibpkey_context(unsigned int low, unsig=
-ned int high)
-> >                 goto out;
-> >         }
-> >
-> > -       if (subnet_prefix.s6_addr[2] || subnet_prefix.s6_addr[3]) {
-> > +       if (subnet_prefix.s6_addr32[2] || subnet_prefix.s6_addr32[3]) {
-> >                 yyerror("subnet prefix should be 0's in the low order 6=
-4 bits.");
-> >                 rc =3D -1;
-> >                 goto out;
-> > --
-> > 2.45.2
-> >
-> >
+As far as I can tell, semanage expects a text file as input with
+commands to execute, not a module file.
