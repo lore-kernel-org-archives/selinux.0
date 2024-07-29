@@ -1,91 +1,99 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C38EC78B50
-	for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 16:54:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F30F384D34
+	for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 19:20:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722272094; cv=none; b=Xy4nnspnHWv9KlKnQatO9kR3+uB7qQhQVrhVkQKGGkRBjW9CLI2/SPTofiCPxgkmKgxt41uIDJ9BgKMeHFtJQe2j1+JJB2U4AnHXb8NJ1J3Hx2M2r8Lo+zt7fVkAHcFT+eKq+LztaNdeArQcJ7CH4PNFq2GCdAK6wfdZpbTL/QY=
+	t=1722280857; cv=none; b=PxzBUwkq7uVKRqh4TF9cgiAbYcAsE4MNmJtD1g13XBqwzAJUFIohyRZzRERNiTXo4QoAFct3r0sdSbfPjwHiCc0SRE9WY2OUG3buIumJ0eftFHS3FJMyQambpJEOgrq7X3J4qyJ/LAhqV+5XhToiN9Uieqws/e9nktp8lH5occ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722272094; c=relaxed/simple;
-	bh=4iZ5jrdjMvy+u1F+tHcRV93HmUhfTgO39/xqzT0Vx54=;
+	s=arc-20240116; t=1722280857; c=relaxed/simple;
+	bh=jAVgo8OiUztzFeqSZNYshoc5u7ntyZ22yuZOy32KAyM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=d2c2vwnk5yCMte3FD62m/eBmIxW+P7ij2ztp6ZVpvXjTZLO3IPh74+FUoUSDZYRnAYkHN4x47cbMn3X3MsGFDLX1peAvRhJn9DjbALXvm6LZchg1uRcrQpBJPnO32GBS3oqhAWXE80alwGmp0N3FQWU0+9XyyBiVccTFtYinr8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UoVdwMC5; arc=none smtp.client-ip=209.85.216.53
+	 To:Cc:Content-Type; b=epl304HvhDbAOuOF9k0d/mzgJaEAoTzT/G8W8/yuwPyC6WcgAuHFpLXxMA1CVNQNnl5Hjh6OYAaDZVSGij0GVsXpheok8DsTTNJxJXFJiD5g53zC0RzpJoVqch0Nmky/u5viVH36HziQQH/snZcS7KroPL9rHL7agDHgN5NwEes=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A+ROzlAY; arc=none smtp.client-ip=209.85.216.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UoVdwMC5"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-2cf78366187so1959327a91.3
-        for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 09:54:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A+ROzlAY"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-2cb64529a36so2276192a91.0
+        for <selinux@vger.kernel.org>; Mon, 29 Jul 2024 12:20:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722272092; x=1722876892; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1722280855; x=1722885655; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4iZ5jrdjMvy+u1F+tHcRV93HmUhfTgO39/xqzT0Vx54=;
-        b=UoVdwMC5qGgsiHEYgl279nvwVc8FDxZeoEv+/pOL1+f5ZOEbOWXCNuTEeAz+Vi36Q2
-         jLACvODRxiY2wNcC8JxXbQ74iOFd/i+XvAaO2siLft5qFFyrWFKYR6RotRca+LnjXMN+
-         B1r3L1ZS9+3mQC3tu8EPOpn1ID1Kznf/Tb7tI1usIRgT/EjyuwQrroZ41OhhoOV4xZGl
-         sq8h92CCuBGs8di8idJNOVAOvT9ziTfEYYnd2agC7YGBvk3waJfBla/5mbs7EPWMkJwk
-         0qlbLvQiSOhg41xDPK8sPvVdLYh4mK8XBTcABrW+7AbivxQO9lnIrtctP+I5S7xwrlJ5
-         T4xg==
+        bh=jAVgo8OiUztzFeqSZNYshoc5u7ntyZ22yuZOy32KAyM=;
+        b=A+ROzlAYQPYKQ/AyRAgV77L+bhAu0JuegfIt5k0+mS5QSWLOyXFoyW2KnQzJBU+UEf
+         GUaK8HbC9aSWdcM/JvOgFMpBF2QvYOzhl9H3uv6ax+JYL7A7uVDM6lp8ZnUs3ueeEvvN
+         XnVJpsYTENdHTVT60A+hezrDlA5vJIN9b5DbnYvgiwIgvtEecjmLiAoNWosj/hf8uWEp
+         fONcrOXSY+wjGMvT6GmAmspTs3aIKQKFYxThoLehlgBTYOAR4UYWrZP+WzHExfZlpVeV
+         BootR2sdsj3MaK7J+3EK4DIzoxTXCgXbivLN1QA1O2RKiTkzP4aj9y9Gn1jPBl22lOCy
+         /NaQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722272092; x=1722876892;
+        d=1e100.net; s=20230601; t=1722280855; x=1722885655;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=4iZ5jrdjMvy+u1F+tHcRV93HmUhfTgO39/xqzT0Vx54=;
-        b=XQuY5dNdJ49qVBeaq9kwyq3f1siWAOnHpfydz7pFXxjY+Qdfsv4pnCN/uzqA6VJR6w
-         LgDzkXc7qPrFsGkcFvWRaNcpmxiPikx95dcljbu9pDL/2cpDl7wIl2eCWP9N61FhB1bP
-         HGutmQOs6Qkcd4zhiOzkotTzSlZOuPa56YVMLV4C5DJ717+jzRgLEr3SrluT58UHWpVA
-         e0vRWyPLnC7LdxTnln2xtlwbiiDDo9OoJhzpwKnjmZGvdkdLvfkcCNWpJtRGZE09V6CI
-         iHT+L931alonu2uTF0sPjsQMJe5gl7uDyf2QNI1MW97ETyw49yC5Jz2GqonUze8B1FMq
-         QJCA==
-X-Gm-Message-State: AOJu0YwPzGhjUNQgptaDjm+yDFd7LAbvWRfdBF6+M/l2YPUKMvaZBTOA
-	KL7b1ziUsLgt0Wto0XovScK+ItvYFEnnWNzEHWVDWfEx/aq4tBT1HWaNC/lq7lMkdKWWKT9VoA/
-	8/4VsUROuY3WMPIIu2+Zavmv1eZfPgA==
-X-Google-Smtp-Source: AGHT+IHH/NCiHC7NYlnXHNsomtXaB/7v+htUx4Wl8KLHnYEP2JfNwibRTK/Qwl5fJMA4plC7/sE3UpgzW5yopikllXc=
-X-Received: by 2002:a17:90a:134b:b0:2c8:3f5:37d2 with SMTP id
- 98e67ed59e1d1-2cf7e2167b1mr9604031a91.20.1722272091993; Mon, 29 Jul 2024
- 09:54:51 -0700 (PDT)
+        bh=jAVgo8OiUztzFeqSZNYshoc5u7ntyZ22yuZOy32KAyM=;
+        b=nXw5wZmxDY2oNANlF/8Jcbc7jNsXmJkBjvTmqYwWJr6Ug5Pfoyt+17ZwsLolDBsIoD
+         qoCcTIDmj/qLY0L++AVW7bEulWmKdm06cjOFPyCEM11vYJAKrT7GbzWpVW6yNb51RZHW
+         E6pzjGO98ulBXEJ1QRlApirYWll8qvJYABJR880Al/miUwyeYNLMouXqc9S5I1IUMwPW
+         Qr1rrPSTdkEfuP+sqU6CpNJ8+tAgDvxHbx5VBzsztoWA1rsVAkU9RTxydyPedEzLoNg2
+         UnOKUiSVoLn9UzpomVKq7ydstfsHtiGyiHAoj0gmY0FiKrMSHOD+s4WhCaaO5e0/dMez
+         B7gw==
+X-Gm-Message-State: AOJu0YygsI5d5JBWozgAaO9yremMgRLPwX4q58kfWrWdCiwl6QRT4/xF
+	xUXX95R9mkHhLpQYutIYo6Oyxp26rnIOX15XE+O45eh0sp/sB98CSq1NbuTkSYOtDbBZXPZWSas
+	XYfar8Nn8W4f49QclCQl7+EyHplez+A==
+X-Google-Smtp-Source: AGHT+IG2CRzI/CVNCPqMusyofGGM993TJN/YMwdghZ17tgzZEzawz9CTGaMMG3rtroF5VCRPbfmEpYS4CC5Fq1sTaaM=
+X-Received: by 2002:a17:90b:349:b0:2ca:2c4b:476 with SMTP id
+ 98e67ed59e1d1-2cf7e1c6046mr7564717a91.10.1722280855120; Mon, 29 Jul 2024
+ 12:20:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEeCnGzRMiiDZKaDgnX_dqpeK5rM=aO5zBZ6frWJT4WQj5cVEQ@mail.gmail.com>
- <CAEjxPJ6VQB6XVEa9k0brDZNPVN2RRNqHd7ZQaZN2CM2K8ZrHkg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6VQB6XVEa9k0brDZNPVN2RRNqHd7ZQaZN2CM2K8ZrHkg@mail.gmail.com>
+References: <20240708165032.86647-1-jwcart2@gmail.com> <CAEjxPJ70EufOsd4O4E-Sc+KRGdv1Nhbac4GbkewAejp2GrMWBQ@mail.gmail.com>
+ <CAEjxPJ5re4XGfN6hny1eir0oTnw4YhNDg=EiWo5KZbQsZ8H5hw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5re4XGfN6hny1eir0oTnw4YhNDg=EiWo5KZbQsZ8H5hw@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 29 Jul 2024 12:54:39 -0400
-Message-ID: <CAEjxPJ74_JUHtJxPRVkQUGOVR42n0Mn8S9AekV8BLYCS_nr3oA@mail.gmail.com>
-Subject: Re: UnicodeDecodeError: utf-8 on python semanage -i import
-To: Allan Oepping <allan@intellipay.com>
+Date: Mon, 29 Jul 2024 15:20:43 -0400
+Message-ID: <CAEjxPJ4v2fwZF1ZQX5BYAPyFdc3WhpS+9RrJ5JyoZG4hP9+Hkw@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy: Check the right bits of an ibpkeycon rule
+ subnet prefix
+To: James Carter <jwcart2@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 29, 2024 at 10:51=E2=80=AFAM Stephen Smalley
+On Mon, Jul 29, 2024 at 11:38=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Mon, Jul 1, 2024 at 1:19=E2=80=AFPM Allan Oepping <allan@intellipay.co=
-m> wrote:
+> On Mon, Jul 29, 2024 at 11:28=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
 > >
-> > Importing a .pp file with the python semanage -i option generates a "Un=
-icodeDecodeError: utf-8" on an up to date Rocky 9 distribution.
+> > On Mon, Jul 8, 2024 at 12:50=E2=80=AFPM James Carter <jwcart2@gmail.com=
+> wrote:
+> > >
+> > > The lower 64 bits of the subnet prefix for an ibpkeycon rule should
+> > > all be 0's. Unfortunately the check uses the s6_addr macro which refe=
+rs
+> > > to the 16 entry array of 8-bit values in the union and does not refer
+> > > to the correct bits.
+> > >
+> > > Use the s6_addr32 macro instead which refers to the 4 entry array of
+> > > 32-bit values in the union and refers to the lower 64 bits.
+> > >
+> > > Signed-off-by: James Carter <jwcart2@gmail.com>
 > >
-> > packages:
-> >
-> > policycoreutils-python-utils-3.6-2.1.el9.noarch
-> > python-unversioned-command-3.9.18-3.el9.noarch
-> >
-> > The open() in SetImportFile needs the binary "b" option to open the fil=
-e in binary mode, as the .pp file is not in utf-8 format:
+> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 >
-> Did you mean to use semodule -i? That's how one imports a policy module.
-> Also, patches should be -p1 appliable and include a Signed-off-by: line.
+> One caveat here is that I believe this breaks building checkpolicy on
+> macOS because s6_addr32 is non-portable.
+> But it looks like a previous commit re-introduced the usage of
+> s6_addr32 (we had gotten rid of them earlier to avoid
+> needing ifdefs for macOS).
 
-As far as I can tell, semanage expects a text file as input with
-commands to execute, not a module file.
+Applied. We may need to revisit though at some point for macOS.
