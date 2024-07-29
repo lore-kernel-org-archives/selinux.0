@@ -1,113 +1,124 @@
-Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54DBD817;
-	Mon, 29 Jul 2024 11:46:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DDAF1D69E;
+	Mon, 29 Jul 2024 11:55:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722253566; cv=none; b=OLDBGHsq1kuOkPMRqC5IiMkxu1l9kSx+LMdMALsoekBZHqt2wVqjJDFN47WStjWvedz8qmZuAME1Iq3Lp0DJmgVCyvl4cmKKDJsyZiF4hulny0TCiKOuPWOFOIMDbrBKMOjFZb4KZ+K3gdkWMDVvdkLKcgZS4Sw0N0R4JsrIH2A=
+	t=1722254146; cv=none; b=HIPqas6qJjpPbSNmEnqoVuAdocXAU2kn62CzqIngMTvvFOQmixPHtjOlmoG1ldaCRdjevVkmm7qrM8TR9a9mIJRrL7H8EuXocLoFQdjEc0x0L+oIa1xaJPShnG0SxEuAXW9Ao3dugYWdbVDCsMmvvoRxKMy3udKvaWIPHMhbU2Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722253566; c=relaxed/simple;
-	bh=nkcVycGOmjZ53vAR9tu+gTOhYnSE5zhPRCcc2FArpjU=;
+	s=arc-20240116; t=1722254146; c=relaxed/simple;
+	bh=lVvDNEFpX03SJnSG5bu3Bem0pmuhRNncFVjJuRFD9Fw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZNRxi/aJRz+n4mOIBqgrbT1R0bGBqpBFJZYXClFbqDtcL1si2O4MqeaLm9Uv0lY43MCM9Orz9eQ0g/rS0TXErZoZhXu6zjpbWfO3ZhrPF5R7DhiVREN1syzkAgDkqd0WX2zSGtDN/gAW2QmzvBYEmM7SGsJnoNcarvDOrd0IxVA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bsWE2au6; arc=none smtp.client-ip=209.85.219.50
+	 To:Cc:Content-Type; b=ZvfXeTmuGopC0TBGnRj0HOJlSXSnNTgm7t/9JF/6ddAbdWutwmZOoOEQQ4rVbjClSZ/hcZ1XHykA03dARLpEdTndNK6UfGhgIqUB//zZd3REGPsV5/A6EoFwhSAI3jpTSsOW1ayrUh3w9DHp8r9cJwNl4O9FtawZ2Vlyy9kBbYM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lmp5EQbG; arc=none smtp.client-ip=209.85.216.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bsWE2au6"
-Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-6b7aed340daso20293126d6.3;
-        Mon, 29 Jul 2024 04:46:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lmp5EQbG"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-2cb4b7fef4aso2439183a91.0;
+        Mon, 29 Jul 2024 04:55:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722253564; x=1722858364; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1722254145; x=1722858945; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=nkcVycGOmjZ53vAR9tu+gTOhYnSE5zhPRCcc2FArpjU=;
-        b=bsWE2au6C6+jukQE7t+bgHvw2VsGrSytNAxLuWy8WSTOc8Oy4gyrYJO0pxiORbGLzs
-         30Oy/JnLOSRIppu84wr9juFlxZca6fRky/BNRXZ4xlhqK299r8QvNohLF2n3ZR7QdCUU
-         QNb2RnfSBlu/ndkNHtXuzNsn+F7q39zg9TmwliHZwHRffLlMvAMoiO2tkHQPsi6dXnVA
-         oumA9sII4nqlzKy68971yjP62kCtileK4ZKRXpFRLSLVbvsbkq+IA7WqfcKRKom3+Yii
-         IHZN6g9BubIzXUWP5Y93NDfk6odrqY+Wz0vWxjaGQr94X0oK0+ciGpad1q5KoMST3v0b
-         hkMQ==
+        bh=lVvDNEFpX03SJnSG5bu3Bem0pmuhRNncFVjJuRFD9Fw=;
+        b=lmp5EQbGtDUnxB8172jWKBXsxKn1IbeXr/CeXg5gDGr4YaIT+VpOqL96QIX8Z2MV5B
+         SzIN8eKXuq8+bWfrLxD4gvEthxdb/4RECQ6mj4RwM1qBLLCEHGq1VaVEldApythCh7vp
+         +YZGyNHJJeNzo3F7RB7auYQTsmKzqtsqFPPpjKWEPefSrjqpUFi6Qw4Sui6oJ9If32XT
+         Q5ra9qNh4ANi5UQGx5rcP7rrR25cGU1R04gnkXXId4RiSbkoVGUfEocRvnFJCyl+Mm1w
+         bqwNES7gvF5yhOd97iAkMPlvmOAC/ltgb+XzVvJsg8yWM6x9bg6e10AM13LRMlWnQZv1
+         4PNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722253564; x=1722858364;
+        d=1e100.net; s=20230601; t=1722254145; x=1722858945;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=nkcVycGOmjZ53vAR9tu+gTOhYnSE5zhPRCcc2FArpjU=;
-        b=d2zMhpIyzJIrLqPihSFHgtbQElaek8VNAnSfqjYl5vILv6yimZua6pqgIAN7oZwX7C
-         y/QShjqUF7HuhZWu4eWRaqNRL3knqM8xLDxvpIM9U6hEN/1dJSHf4rfXkv3/W33yUOA+
-         O4SQhTXXMb7io6V9aKadrLLt3f9J84MlLOWFRLWURtL7pnpwxVCRDnm3eh0WfNXNW+Az
-         b6G9VUAmxRQQE/AzslHxvCarAlhe1CrbnkLF6Gddh22TP1KICfNklTkhV++52CNnTEzO
-         y8vYkkRaPILv9hzDRGuhzmyUd4yDbcWRF4L738WuPJQv+vAo3LoUJamAF43g216IGhvI
-         C3Cg==
-X-Forwarded-Encrypted: i=1; AJvYcCVFqwAF/TWLSSU8OHOQDT4dznTBUFJ1fupxh6EyTLcSfmBjU2FDMuZlTQOh2UM8laiWH02amMA4gdmiU1o3dW7XClLGx4QG8nnc2rV/PAoZTD+aoWRHC+5Hw7k5GnMLVOl+clj5UX9lFaVvEDeK+3y/7HlT59T7xE+GcYpmjxQK7SWcwY2oPi3W6FuATGHqvIyou7CsACdu/VYg7IXqtmvRLy0YJidZAGTJPV8CIpJYjqwwuC3XjiHRer5GMQTUn4XCBUPEt6UDe71H4mmiQflhodvbrRHmtkF0xr442rMT9HsZFfAgNkj9nE6YGX7QQjmyEdrg+Q==
-X-Gm-Message-State: AOJu0YzPsnvrpFXmZAt2AU1/l7hkdAPc+fe1+BOVhPyw27P90oup90UA
-	RcITrDhCj56FmEoPlrJ26RpqAzOZYmUm8NeMvmuJm7cCEXwJwlYqF7AzXK9y3UFDxG4Ze8v3mNL
-	wlOIoxfLp9OydATTIinb7qn8Yfks=
-X-Google-Smtp-Source: AGHT+IF5UmpKUFOnvoAK9lYxcwohmtfgqa1lFzGyA8Akl+YSskrOYOXqexc6VvI8Xmv0jJTGVagDPu5fB/SRGumTpvw=
-X-Received: by 2002:a05:6214:2425:b0:6b7:944f:3cef with SMTP id
- 6a1803df08f44-6bb55aa2fc3mr125032596d6.44.1722253564270; Mon, 29 Jul 2024
- 04:46:04 -0700 (PDT)
+        bh=lVvDNEFpX03SJnSG5bu3Bem0pmuhRNncFVjJuRFD9Fw=;
+        b=Box6O0G0wnDjTQPAvQzZHx946bQB2MpF4RA2UAeVWHqkoKn4B0bWNXrpHb5qa7PzP3
+         J7oj6Kd65jr/MgR7cjZO7d+PAko5S7mIAx6NEpqBt7rf/Kd77lMwqfCVbq5mfc/x+YkF
+         whlU6fYp4+qUV/nNtBd2Bn5SnQnJYdI28Tlk17ewLSE7lo4snfTO1x+fL1epCg5Xjtj/
+         +KviYLuzMW7LatzYnjQCdj3baDhkiOJaK52dXAxTuewtAnKPcTVz49gnkWpZuZYt+gog
+         ZiRu6NxC0SE2suKYQ0Ie7ThxEuvtOGkBA76X4t+PXpd+5NWQAp774HhKz0ITJjjZWhIV
+         ZYKA==
+X-Forwarded-Encrypted: i=1; AJvYcCX9rhy7O1BkQddTmvvxA2Y/5lMqSLngnKoJA8lpFKJEtR/xtZ0K3XU01Bp618ehvltQro2OMWgI1MuNwePqDp65wJSWam2dbNpnlgkT3M1bSn/H4C02HT7lvyKQmGxKeLc9+f0o+g==
+X-Gm-Message-State: AOJu0YwHiXwdA/pLXDG2cIlr/Nlj7Q0WFINKK5lfGBk62O+KlnyfO4pZ
+	mlun9apaw+ZwpPexTy0CpbUrDAUmIuVHC3jFA/yYkqx9ZbylSF6i7yuNtE7gl+gJ47M5xgOuNES
+	UGCIxhYoFSmyjG5E86S+Sb2XDZ0URTg==
+X-Google-Smtp-Source: AGHT+IG/aZbWDtxoNnOzHkj+SliJsGoJineAi6iWzJaWWf/ludzKYrS9udSITPblKA+nrtnaJ5YGjO2nTJoYPWtfbQQ=
+X-Received: by 2002:a17:90a:e7c2:b0:2cd:7d6f:31b0 with SMTP id
+ 98e67ed59e1d1-2cf7e866982mr7892114a91.43.1722254144749; Mon, 29 Jul 2024
+ 04:55:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240729023719.1933-1-laoar.shao@gmail.com> <87bk2gzgu0.fsf@intel.com>
-In-Reply-To: <87bk2gzgu0.fsf@intel.com>
-From: Yafang Shao <laoar.shao@gmail.com>
-Date: Mon, 29 Jul 2024 19:45:27 +0800
-Message-ID: <CALOAHbCAKEwkDQSmyUqRs-EjM9=aF-QcORr1g=_CnFLoVXsSVg@mail.gmail.com>
-Subject: Re: [PATCH resend v4 00/11] Improve the copy of task comm
-To: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: akpm@linux-foundation.org, torvalds@linux-foundation.org, 
-	ebiederm@xmission.com, alexei.starovoitov@gmail.com, rostedt@goodmis.org, 
-	catalin.marinas@arm.com, penguin-kernel@i-love.sakura.ne.jp, 
-	linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	bpf@vger.kernel.org, netdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+References: <20240702095401.16278-1-gongruiqi1@huawei.com> <9473d6eb-3f56-4c73-8e61-69111837c07b@huawei.com>
+ <CAHC9VhR+tk4mwmaQ6u8SEnzg6zMF2krFHKVwxKx91GX1K=4A=g@mail.gmail.com>
+ <0729db54-98cf-4006-91d0-0ebda4dbc251@huawei.com> <CAFqZXNsN9M__Mo018L8m0txi60vm3Ui5HgHvJYQK__0hhhMULQ@mail.gmail.com>
+ <55390a1e-5994-465a-a5c5-94f3370259c3@huawei.com> <CAFqZXNu_cLLH811Z8CxDb07Adf+E_z+1nH=7nkO9H83CY9RETw@mail.gmail.com>
+In-Reply-To: <CAFqZXNu_cLLH811Z8CxDb07Adf+E_z+1nH=7nkO9H83CY9RETw@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 29 Jul 2024 07:55:33 -0400
+Message-ID: <CAEjxPJ4H_MVWd5iaP5eE_q0tbebSFRE=KMS80-dE3EdRpmv84A@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests/task_setscheduler: add cgroup v2 case for
+ moving proc to root cgroup
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Gong Ruiqi <gongruiqi1@huawei.com>, Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Wang Weiyang <wangweiyang2@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jul 29, 2024 at 5:29=E2=80=AFPM Jani Nikula <jani.nikula@linux.inte=
-l.com> wrote:
+On Mon, Jul 29, 2024 at 6:29=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
+m> wrote:
 >
-> On Mon, 29 Jul 2024, Yafang Shao <laoar.shao@gmail.com> wrote:
-> > Hello Andrew,
+> On Sat, Jul 27, 2024 at 4:55=E2=80=AFAM Gong Ruiqi <gongruiqi1@huawei.com=
+> wrote:
 > >
-> > Is it appropriate for you to apply this to the mm tree?
 > >
-> > Using {memcpy,strncpy,strcpy,kstrdup} to copy the task comm relies on t=
-he
-> > length of task comm. Changes in the task comm could result in a destina=
-tion
-> > string that is overflow. Therefore, we should explicitly ensure the des=
-tination
-> > string is always NUL-terminated, regardless of the task comm. This appr=
-oach
-> > will facilitate future extensions to the task comm.
+> > On 2024/07/26 21:43, Ondrej Mosnacek wrote:
+> > > On Thu, Jul 18, 2024 at 2:34=E2=80=AFPM Gong Ruiqi <gongruiqi1@huawei=
+.com> wrote:
+> > >>
+> > >>
+> > >> On 2024/07/18 0:17, Paul Moore wrote:
+> > >>> ...
+> > >>>
+> > >>> Where (what distribution, version, etc.) did you see this problem?
+> > >>
+> > >> The problem occurred when I ran the testsuite on Fedora 40 with v6.6
+> > >> kernel, and it was the only failed testcase.
+> > >
+> > > Sorry for the delay... For some reason the test passes for me even
+> > > with cgroup v2 only and without the patch (also when run from a
+> > > regular user account with sudo). Do you happen to know what
+> > > circumstances are needed for it to fail when the cgroup is not
+> > > switched?
+> > >
+> >
+> > As the comment in the script says, a process need to be in the root
+> > cgroup in order to switch its scheduler policy to SCHED_{RR,FIFO}. So
+> > maybe in your case the shell process is already in the root cgroup?
+> >
+> > In my case I need to ssh to a Fedora VM, and that makes my shell proces=
+s
+> > to be in a sub cgroup called /user.slice/.../XXX.scope (looks like some
+> > systemd stuff). And since /sys/fs/cgroup/cpu/tasks doesn't exit in the
+> > system with cgroup v2 only, the script skips moving the target process
+> > to the root cgroup, and therefore the subsequent test fails.
 >
-> Why are we normalizing calling double-underscore prefixed functions all
-> over the place? i.e. __get_task_comm().
->
-> get_task_comm() is widely used. At a glance, looks like it could be used
-> in many of the patches here too.
+> In my case I ssh as root and end up in
+> /user.slice/user-0.slice/session-1.scope cgroup,
+> /sys/fs/cgroup/cpu/tasks also doesn't exist, and yet the test passes.
+> The same also happens when I ssh as a regular user (with cgroup
+> /user.slice/user-1000.slice/session-3.scope) and run the testsuite
+> with sudo. So there must be something more to it... maybe some kernel
+> config or sysctl setting?
 
-There is a BUILD_BUG_ON() inside get_task_comm(), so when you use
-get_task_comm(), it implies that the BUILD_BUG_ON() is necessary.
-However, we don't want to impose this restriction on code where the
-length can be dynamically changed.
-
-One use case of get_task_comm() is in code that has already exposed
-the length to userspace. In such cases, we specifically add the
-BUILD_BUG_ON() to prevent developers from changing it. For more
-information, see commit 95af469c4f60 ("fs/binfmt_elf: replace
-open-coded string copy with get_task_comm").
-
---=20
-Regards
-Yafang
+As a further data point, I also have been unable to reproduce the
+reported behavior.
+That said, since tasks doesn't exist, isn't the passing test a false
+negative (i.e. it isn't truly testing as intended)?
