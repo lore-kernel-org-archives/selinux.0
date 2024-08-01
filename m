@@ -1,91 +1,95 @@
-Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A89FE23BB;
-	Wed, 31 Jul 2024 02:15:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 204911A00F8
+	for <selinux@vger.kernel.org>; Thu,  1 Aug 2024 12:27:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722392127; cv=none; b=Ecymr8250RzGTDZEk2AYTuugc97OnjksMwdAGCb1jPxyvkTmBLOUt5CyahVZbi2L0H/rEwvErx2QI5cewJNjHL3cuNos+mrIAGZ7em/Y7Wuywb3m2ceSQ8enupY0cXjG3uOOUU2ijm2zvKOlwV4mW681IXVvzeSZLFUedmuRczo=
+	t=1722515278; cv=none; b=tangBpmNL+e5LcJdLo7bb/N8VyeC1n21zjh/9kejvsL8vsWTCPfUInNfBacUlOuTIM8pTPCzYEh3Yne8k7j7nvLipyw5dwXfBHxOvprgYBlV9NBBxuTypdq1isJMXuW1wwZANlGsNYmhc9uDOZrqwmFsb4Xs3+P41iVH4AfenVU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722392127; c=relaxed/simple;
-	bh=0AyB6FRnuqjrcez3EHZaZCqZ0VKwUEuDsGyaSyiRaUY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bztZfQ+EyVovGhOIVSUPMUt4YIZDaFVUBhKBj5eIlD2jKy/IQrSQJntFqvwcg0ng9qyrjYhsJbSBejAc8u3rLjsBje8MhjBjur4focNgp+3IEJojLXN75xpj3NMEJ9K5JGAe98Z4nS47SdLIuOmfxoGVQaGgqNiBrCXVzxRFieU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SoiVWuAD; arc=none smtp.client-ip=209.85.219.51
+	s=arc-20240116; t=1722515278; c=relaxed/simple;
+	bh=akFqatchn0EDyxLmabAm9Mqbyu6IBUARnMCNL0MFudQ=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=jMzMGpE611P7isWbtT3r3NDQRYw4spJrnxrq413K1XUzMsuT0tKqop4mvkt9J7Kluax5QMovPIQN4VaGo2ygCnzrprShadNWhv4Ci2YJDo5LtMN20EGCNhXeUj8fDlE5d3w+r1OdeioYIgendwvXWsxg6zjchx8e2Cq34T+ImJY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RcRD1e8R; arc=none smtp.client-ip=209.85.216.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SoiVWuAD"
-Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-6b95b710e2cso31865036d6.2;
-        Tue, 30 Jul 2024 19:15:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RcRD1e8R"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-2cd34c8c588so4521237a91.0
+        for <selinux@vger.kernel.org>; Thu, 01 Aug 2024 05:27:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722392124; x=1722996924; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bpOoG/RLrOqlfYfTau1ZI4Yg/763W2V/48rNlpEaGLo=;
-        b=SoiVWuAD544XKkNhXBkJOW21oI4ECWqDxXMFgpSMEIfbxBfaRKTR/ZEY94dIrcongj
-         LlAzO1OrMENJtqHfpEd5Hktt4ylACpNNVbN8H5TQNTrv8auydoyNjBGA1XuSK62UfUFS
-         SB26y3Ele23Yt8UrO6VWyjx8hYQv/ASCcUTNPIBz5S4/3eIxVuVnmruEzPl9zHQ9mYAZ
-         8YEqKyJv5GCjIGGybNLUlu9qAoLhGf+KMtWlTTchvNeeWMrU1gvN3HLXBF5VWvhZkuvm
-         Pzg/DKyx6dunt4ChbL8RjBaHO4oBiZSETecnn8asDwVAqIkViBx8dlOptpMWfqBSNm/f
-         rrFg==
+        d=gmail.com; s=20230601; t=1722515276; x=1723120076; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=akFqatchn0EDyxLmabAm9Mqbyu6IBUARnMCNL0MFudQ=;
+        b=RcRD1e8RPEeUQJ9Rvv9bmUGLlZp/L4N0owXyH01iJk0YSABAb98B1+W3qU+aQI2RGj
+         W1/PCYd//kAgenDv6sAbAkGchHrEwekpEZJth6hEDqYRYSZJREmF8I/yTTyosCMCyMTo
+         VbYT+8oKtc5dafrjq7Qff7hLGBXbd+MWCd+PxtvAqjCirnUxlWHUzNYcyev4iWsb2y37
+         mjrhwtUmzgQnbl3tOK29yC3u+b+OstAOiF9wMKu0kWI6YR5NPaKstWoSUZ/Zi9jW1eB7
+         xDUWsjwbtkBVyWTPknyzfespHG9NLdqT8yElI/Dpt5+nEn/YcRUzAvesCgx5ZUfTv2GO
+         OOrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722392124; x=1722996924;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bpOoG/RLrOqlfYfTau1ZI4Yg/763W2V/48rNlpEaGLo=;
-        b=BMItm0bxdOFZNo9uzqJx0xcojAOHohwtkJLNVfEeysQe4l6wy83T8k7tRjTMrvjfR3
-         SpxDwEoWM6NkEbMK10UIW/BTLEZ8BQ/eq1trSm/BVpKql2yrsvEEtwFo4lTWrg91gT4p
-         sH2pfOOOS9ip4TGxgA4XDlMx+z3Z58VU0kIHQLxcwTmN5DrSilWSxl/J3rzDOdUTbZsu
-         2P45ylwTguw3QhmQXEsxvE+vEuWxgb1ztv05jDrQJ/5oxSglwGIle/2WiMWmmDrFzvcz
-         0NWRlMY/at+PxFIbb6CBC3r75AdT4TNp1UFAOEuqDeSM6HY7NcSyci3Jtj5zC/T/vOw9
-         40/Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUuOk8uq2VeuT+M1YpB8RvkmODaZges+tobqGgQwEMBE5JskHcsYq7QNNMbWGQPQ2ESst/TcYtyT1G1nIP18SXVUxSOe+syafEPyQNIJptpejk6nfQBYhElNbwLb8b0i10zrJqwb7dV8xSj0p32gYw4WmCQh+UnRnnGP9fnTE4KWaNdI4h3piI7+BuM+yAdDdkmykRkKgUpVlJxKal/ToMqo2UOSxCrInunjxCpi99GQnWdCawGLO69lUrN1Spa6g3kzJhnXBu8Gfb1VvQwmeHKGeLBG8r+Jx4KLr6vK+cdFj5dIAhxeJ8lbsvijU0w2UNj/Qs5KQ==
-X-Gm-Message-State: AOJu0Yyf+D+hWP0tP3RMtUOO0cMIgJ+B6Bg9xYH59YaEB0Rlf+pTyTr2
-	xAqaY0PLMWxhsM+ha3jEu8GdZOujo3VoP/d6iARYlmKHax0AaiC6Rnob2MKeTr01efBYfyIRqCz
-	teITkzJ3Bu0iOT14UH8bRm6FJFcQ=
-X-Google-Smtp-Source: AGHT+IExK4nk1O4rGXBVJI3hTBgaSm4OMa/Q+JI34XmOHqthammrX2+56ouv+IPsoXJAUAPqosbOqNjTYsvBgTnKXGc=
-X-Received: by 2002:ad4:4eed:0:b0:6b7:b3b8:e882 with SMTP id
- 6a1803df08f44-6bb55a5c953mr178760546d6.25.1722392124637; Tue, 30 Jul 2024
- 19:15:24 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1722515276; x=1723120076;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=akFqatchn0EDyxLmabAm9Mqbyu6IBUARnMCNL0MFudQ=;
+        b=hDsyJzsSYMHlFluzlw3fX9ipCvof6piFsonGS07nCCR2YXVGp9fzKpdZss5tldegT5
+         gVAioG+KTP8R4/lmy6M8aSVeXQpDHw4vyx+IMpu+AQ6apC+Zis5G8UBVDpHXoIsM6CrH
+         ihN0hj/kUcP7o66WwqpVIta76+nFpUhnaxA6INtgi1jloh5hpOnyItrmVPjhvB7zMlGJ
+         4TrbDMWQe5Lvb27ZAW71KwLOlJNV9FvwtefrVo9ENBf7koevtYJe96hEwRuFr+EB2Bsl
+         LWaEk7lO30JQQpbWXvDKU1qkpgV7htZl5z4/zlWqFhw7c33dY1AQ3eTNB6vcqNf+AVJe
+         9wKw==
+X-Forwarded-Encrypted: i=1; AJvYcCXJfBrdlKJt/9khsUraMtvlKJs6bSX2O+hTdr1+SbKpcP0a+/9GNsD5m1ksbNjtfzRoA9ZSqTVutwRfGiN4+32IpKbWFHsXQA==
+X-Gm-Message-State: AOJu0YycQd3h+46TZnJBcqFw4qp1hIJSK9K/zKlL3OFnla7aVeyFThGR
+	T8iiPGEh9PqFI6H4IuZeK0ylT0M8l7Jg6FR4S4R2HZRLWLeyb99k+GldXEPozAmjy8j/u8nbtev
+	DKCvsTcKnIFfwu4lIKUC2DA25y9aQB/mI
+X-Google-Smtp-Source: AGHT+IHRQCwAT1ILlC2N41PiQtWNPNQH54CGTmZ363Xfihp1nzrIElp05XAdM5PsEK5z09t9QAamtoAvYWHkGj4Y4m0=
+X-Received: by 2002:a17:90a:4b81:b0:2c9:7e9d:8424 with SMTP id
+ 98e67ed59e1d1-2cfe7b18d55mr2725927a91.30.1722515276282; Thu, 01 Aug 2024
+ 05:27:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240729023719.1933-1-laoar.shao@gmail.com> <20240730175927.673754c361a70351ad8a3ff9@linux-foundation.org>
-In-Reply-To: <20240730175927.673754c361a70351ad8a3ff9@linux-foundation.org>
-From: Yafang Shao <laoar.shao@gmail.com>
-Date: Wed, 31 Jul 2024 10:14:48 +0800
-Message-ID: <CALOAHbBiYPNaULVSR5DS=XE=C28DVmwZC48ZZ4DhOf2SYqkz4A@mail.gmail.com>
-Subject: Re: [PATCH resend v4 00/11] Improve the copy of task comm
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: torvalds@linux-foundation.org, ebiederm@xmission.com, 
-	alexei.starovoitov@gmail.com, rostedt@goodmis.org, catalin.marinas@arm.com, 
-	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, 
-	linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
-	audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 1 Aug 2024 08:27:45 -0400
+Message-ID: <CAEjxPJ46KJCUXqgq==pmEMW9yYJSRnWkGrSrxBAfMELPRYUdXQ@mail.gmail.com>
+Subject: SELinux namespaces re-base
+To: Paul Moore <paul@paul-moore.com>, SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 31, 2024 at 8:59=E2=80=AFAM Andrew Morton <akpm@linux-foundatio=
-n.org> wrote:
->
-> On Mon, 29 Jul 2024 10:37:08 +0800 Yafang Shao <laoar.shao@gmail.com> wro=
-te:
->
-> > Is it appropriate for you to apply this to the mm tree?
->
-> There are a couple of minor conflicts against current 6.11-rc1 which
-> you'd best check.  So please redo this against current mainline?
+Given the recent discussion of the SELinux namespaces patches, I
+re-based the working-selinuxns branch of my selinux-kernel fork on top
+of the dev branch. This required first reverting commit e67b79850fcc
+("selinux: stop passing selinux_state pointers and their offspring")
+which I had created at Linus' request some time ago to avoid the
+extraneous overhead associated with passing those pointers when there
+could only be one selinux_state structure. Due to the number of
+changes, both substantive and coding style related, since the last
+re-base in 2020, there were numerous conflicts that required manual
+resolution. I also checked the coding style of each patch with Paul's
+scripts and fixed any issues introduced by the patches along the way.
 
-I will rebase it.
+The rebase can be found at:
+https://github.com/stephensmalley/selinux-kernel/tree/working-selinuxns
 
---=20
-Regards
-Yafang
+It boots, passes the selinux-testsuite (including the NFS tests), and
+passes the following
+trivial exercising of the unshare mechanism:
+$ sudo bash
+# echo 1 > /sys/fs/selinux/unshare
+# unshare -m -n
+# umount /sys/fs/selinux
+# mount -t selinuxfs none /sys/fs/selinux
+# id
+uid=0(root) gid=0(root) groups=0(root) context=kernel
+# getenforce
+Permissive
+# load_policy
+# id
+uid=0(root) gid=0(root) groups=0(root) context=system_u:system_r:kernel_t:s0
+
+All the same caveats apply - this is still not safe to use and has
+many unresolved issues as noted in the patch descriptions.
