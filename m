@@ -1,238 +1,208 @@
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
+Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B43CD1ABEC5
-	for <selinux@vger.kernel.org>; Fri,  2 Aug 2024 18:34:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE779136326
+	for <selinux@vger.kernel.org>; Fri,  2 Aug 2024 18:40:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722623679; cv=none; b=Kza/n4gWpardm7fk/fXqfwg4HfxOKmIr1iFZ31aK3psn8A82v47L+/+GiVYCZdF2ACwVkcXhQOXX6v42xb86Snz4sfHvxpyczd1SYPQGpIFkOFKK4ibCFHHY94lAyulHXBPhIsSYHBrxt/oL18JE6zzkxWolqT9l4ITfWPolyHA=
+	t=1722624038; cv=none; b=oYHPn635oZrv+s5pgfwrjmHmZrGOdp+VZgsYpLbyPAz1tKN0crYLo6f8H7hcFp6UT5LslYmCXYzy5G+Kfj2zk4DnBcf0fauw3j0pkaVG/LeQSFf7r498u2ntj7+e92gWNjr8Fz9/SSrGRvqANtGPVKdIokaJabmYnL73gZMisKE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722623679; c=relaxed/simple;
-	bh=izZwWZ5N7Y62yJEjOB01tSsJOQJs3ylKR9qAMQ26g8I=;
+	s=arc-20240116; t=1722624038; c=relaxed/simple;
+	bh=bBk8dbvdFkgHztIsamj9A6yqrnV8rALDYulS6Vq771U=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=fvRdh5UcbodXcg66zS2EiQPYjFJmfvsWfydt8hTYTZXmEcTEdwsw9mfVNsOShxD4rmJ1JlnBeBL/9xJrNfgD56Ktw/vA4XfIhnT0haTkhZZSGqxK879ecfo5uAMf2t5t4iS5H7ujiMyCqTKSnNj/kXGa5L6GArohxK+Q55lQwwI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e2b4q0KI; arc=none smtp.client-ip=209.85.219.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=D8bxMhHxRD65K6vQ4aYmQJaSxc49WNSTC5boadBEqgB+6uknE418bR7YShrn/I9aTjbKojVGAEleQ+fSKhL3JibwfUh+qBq7ghm0NRJ8P1RRNPU/dlF4Ock2PnKbhZ+2ZOkelNxyBnX3w0BodzMmiJe8JSr6HQ7Jzg+SK0tRNRQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=I6OCsT/U; arc=none smtp.client-ip=209.85.208.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e2b4q0KI"
-Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-6b7a3773a95so48157226d6.2
-        for <selinux@vger.kernel.org>; Fri, 02 Aug 2024 11:34:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="I6OCsT/U"
+Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-5a28b61b880so57205a12.1
+        for <selinux@vger.kernel.org>; Fri, 02 Aug 2024 11:40:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722623676; x=1723228476; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
+        d=google.com; s=20230601; t=1722624035; x=1723228835; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vBD+Q7UJOLV/7W6W8+4AzDKwz66TyVkCIT4BpFpdWY8=;
-        b=e2b4q0KIY2GFw4exLJXpDTi4VSwuQgyVChYoJWnah8ltBjd5mEECRnS8yQZ7XijJm1
-         gkFIQsLSM7ZFV0KmW5Ak1INAahyOEtxYzQurZ66/dJCdtehHGhuLayVHQpM7zsnHXKKq
-         Rt+ZLHneGY5OpPftka62COGLrZZYirTEq++pi4MCRnn+0rbKeUo6E92evCwnQJpBCpR1
-         BUidyhApjGB2zk71GbRNli2Gew8zV8TTkgXxf/sKzr7AGiGZfifZvcTrmOaZsrD97NA8
-         5O4u5HNMZxM6SQkMeevPkmLqOdUP2qAhd9/3MjKqw6wxvwYxACzL2lmTJCU6YEFnVosR
-         FKoQ==
+        bh=MvGo9T3eyBjc8RzJ3B/6nw2VwxThF3mQa//XCX7dSjQ=;
+        b=I6OCsT/URFAZ39H4tJIQ9D+FnQIkN0EAEqXhna1AdaqoY74lPfeKAC0DZk2lD9lTSj
+         EZvbiynJSIRNGJwCKfS/sWo2cMkCXLcamrh4MJ1ByL9to5E3vLRgPXQpch1lIZOUZxya
+         vNvsBiEeY+yeARIVbELqX8QWDA9uOYBzaLlhdEa8igAowvG84gh5yjFEnDZftlbCLnxI
+         QrTAIwl9k3SXnEvBYDmETQ8hvlJlAvvOW7he6R83GMBNYXLU6K+DczdlP42bVebJl9Au
+         LEmpvg17Hv8K60htRgWcrJHKbvcS3RRVb61J2PYaniDSuoOZGDJ7TWTto3RNXgKnsM6z
+         yEQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722623676; x=1723228476;
-        h=content-transfer-encoding:to:subject:message-id:date:from
+        d=1e100.net; s=20230601; t=1722624035; x=1723228835;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vBD+Q7UJOLV/7W6W8+4AzDKwz66TyVkCIT4BpFpdWY8=;
-        b=QKjWHHWQ1QcnOjicZDPmAJX+7J6VCWNOx+wWdJPlZoU5tT+lfh9G0XGCPs5+sqRCUW
-         ke5mTmqZemvnL0rAMtWxQCaImwoGWhvg17feOfWvHPBC0KF/DcJFvrdXmL7ITBo9b9+B
-         IE8o+cjCcUayynUCA3T8YEVfXGw8yHwBGNXXuqduUhgrFDWdy2FSmG0chVFPUnSV9mTS
-         azEfMvHJenq/KqrW1N3WNEgEu15EAvvz8OkMbR1k/wH6CK/Pzy1xNrcEet+ONSOWSsqe
-         6hqb1fn6ALjV+xiN9/PPgVm+ND0L3qNQ2XQ8X5XufCh10kRIUOFzgMYzAK0lofbafz+f
-         P6Fw==
-X-Forwarded-Encrypted: i=1; AJvYcCUr51o+ib0cNvTQRA9SVW9plUwTm3Xe57R59Hv3E0Dw/RvAH7lkibNVK0f+36OayAMAbvgBPupldl21jCtZxHzlLF63797qfQ==
-X-Gm-Message-State: AOJu0YzOx9u3USEP6T0Woktz6gX3m/ynPE0ytkyQeDbfO7HOF0+TQbVO
-	+Qur4XwWusZ4N0Mc4TjlIDAh5msQ5Kjlfk3Ay9h/aBXYIp9ceaz4dH4Ai69tvE8bH/fWb9Np6Ek
-	2gEwpewtRWsHYrydQkHqRIkIaehe0Kg==
-X-Google-Smtp-Source: AGHT+IEVKAEhMQQWW9EVyij4qJe6OzH24DND+C5qrFIX7o46q601tTjhBKVmjkufykvNguqkcUgNYDCC35rz8jfdXyw=
-X-Received: by 2002:a05:6214:2e47:b0:6b0:72c7:88d8 with SMTP id
- 6a1803df08f44-6bb983efb52mr51162016d6.35.1722623676304; Fri, 02 Aug 2024
- 11:34:36 -0700 (PDT)
+        bh=MvGo9T3eyBjc8RzJ3B/6nw2VwxThF3mQa//XCX7dSjQ=;
+        b=YHw69zHXOTi6doN/eqEygMnIVBO0kFKjDxLZH748NKtzYy3dx+AL9UscA1gxL3Xk83
+         4RQGtVbj8Vu/c7MBGboSL0lB7Dd6Sun0eSgPFU14noVqLAz1TkE120EA826Kdb8k4S3W
+         Li+denz7Prfmksk3IwJCCBqHQV3kzdw01jopfZyPvVngnGligMc/WLwsPPj2knVawuHZ
+         Fv0Q37MGNSx//3BqyV1hN1Jds3CCX06x0VOwvV+lwfFa4SBiGK7Uuj4+N46bUH++PAUz
+         Qvdx5JNTHSP4zzEBCGtQO1dWlXt11x9iOV7h+mXPs1DQb1l4xEy4slJlPq8rRghRQEWH
+         vB8Q==
+X-Forwarded-Encrypted: i=1; AJvYcCW/ncUdWWjecGy8yvQ9RBQW4Jq4abz8ugux4Ty5AAa0tj8j+A4n+WVpxHo4a/WivUpDVHYOWOfSejpJt98rJjBQ7EEq1El2tw==
+X-Gm-Message-State: AOJu0YyV5Jc1t051VY1QhTVnsGdtnc25DRuW4JpLZmij7qF9atp4xgSp
+	mVVuZ4HEL0WkDWc0XL/SJErJx6Dp3vBnebWEGLwwZJACuRzpqip8fo7yyB5oNzFJXAFSWar7A4q
+	MwkmTfpbnPF4ln9BZJPcdH/vrDQmpcQnlwtaL
+X-Google-Smtp-Source: AGHT+IE6a715lvD7e7H+jRBC/YC4Qmp0ZvYcNq+Z2J6Y52jOrAYsO1CDkNEmQVXxr6y4yqKqUpa8HB00+hEb3yiQVGc=
+X-Received: by 2002:a05:6402:51cb:b0:5b8:ccae:a8b8 with SMTP id
+ 4fb4d7f45d1cf-5b99e0a517emr10054a12.3.1722624034462; Fri, 02 Aug 2024
+ 11:40:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ46KJCUXqgq==pmEMW9yYJSRnWkGrSrxBAfMELPRYUdXQ@mail.gmail.com>
- <CAEjxPJ7WUzN=0Yv4POgPVHPG1wEjNn=-Tb53NiuMpWf+bEuF-w@mail.gmail.com>
- <CAEjxPJ758jx7X5Tauz=xQXsmWcZhx_V7AkU=PtsH6S3S9CUCbw@mail.gmail.com>
- <CAEjxPJ50ADVSOys58eYUktv4sjYYnEDroxA9Wnt6HiY9ySk=gg@mail.gmail.com>
- <CAEjxPJ6QsYR-Kj8k0C=54cix8rdpBsCphDV5_QnjGONDuOm+ew@mail.gmail.com> <CAEjxPJ6p3oD99_aTEeSCx6FMob7BH8-2vxdoT69c8sw11oHuEA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6p3oD99_aTEeSCx6FMob7BH8-2vxdoT69c8sw11oHuEA@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 2 Aug 2024 14:34:23 -0400
-Message-ID: <CAEjxPJ5jup5o9piVPuA97_radSzvshpnRB1CdBde8sV3ZXVc2Q@mail.gmail.com>
-Subject: Re: SELinux namespaces re-base
-To: Paul Moore <paul@paul-moore.com>, SElinux list <selinux@vger.kernel.org>
+References: <20240802-remove-cred-transfer-v1-1-b3fef1ef2ade@google.com> <D35ML45KMWK8.1E29IC0VZO4CL@iki.fi>
+In-Reply-To: <D35ML45KMWK8.1E29IC0VZO4CL@iki.fi>
+From: Jann Horn <jannh@google.com>
+Date: Fri, 2 Aug 2024 20:39:56 +0200
+Message-ID: <CAG48ez1GFY5H1ujaDfcj-Ay5_Pm8MsBVL=vU4tEynXgzg5yduQ@mail.gmail.com>
+Subject: Re: [PATCH RFC] security/KEYS: get rid of cred_alloc_blank and cred_transfer
+To: Jarkko Sakkinen <jarkko.sakkinen@iki.fi>
+Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, John Johansen <john.johansen@canonical.com>, 
+	David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko@kernel.org>, 
+	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Casey Schaufler <casey@schaufler-ca.com>, linux-kernel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, apparmor@lists.ubuntu.com, 
+	keyrings@vger.kernel.org, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 2, 2024 at 1:18=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Thu, Aug 1, 2024 at 3:28=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
+On Fri, Aug 2, 2024 at 8:09=E2=80=AFPM Jarkko Sakkinen <jarkko.sakkinen@iki=
+.fi> wrote:
+> On Fri Aug 2, 2024 at 4:10 PM EEST, Jann Horn wrote:
+> > cred_alloc_blank and cred_transfer were only necessary so that keyctl c=
+an
+> > allocate creds in the child and then asynchronously have the parent fil=
+l
+> > them in and apply them.
 > >
-> > On Thu, Aug 1, 2024 at 2:48=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Thu, Aug 1, 2024 at 10:03=E2=80=AFAM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > >
-> > > > On Thu, Aug 1, 2024 at 9:01=E2=80=AFAM Stephen Smalley
-> > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > >
-> > > > > On Thu, Aug 1, 2024 at 8:27=E2=80=AFAM Stephen Smalley
-> > > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > > >
-> > > > > > Given the recent discussion of the SELinux namespaces patches, =
-I
-> > > > > > re-based the working-selinuxns branch of my selinux-kernel fork=
- on top
-> > > > > > of the dev branch. This required first reverting commit e67b798=
-50fcc
-> > > > > > ("selinux: stop passing selinux_state pointers and their offspr=
-ing")
-> > > > > > which I had created at Linus' request some time ago to avoid th=
-e
-> > > > > > extraneous overhead associated with passing those pointers when=
- there
-> > > > > > could only be one selinux_state structure. Due to the number of
-> > > > > > changes, both substantive and coding style related, since the l=
-ast
-> > > > > > re-base in 2020, there were numerous conflicts that required ma=
-nual
-> > > > > > resolution. I also checked the coding style of each patch with =
-Paul's
-> > > > > > scripts and fixed any issues introduced by the patches along th=
-e way.
-> > > > > >
-> > > > > > The rebase can be found at:
-> > > > > > https://github.com/stephensmalley/selinux-kernel/tree/working-s=
-elinuxns
-> > > > > >
-> > > > > > It boots, passes the selinux-testsuite (including the NFS tests=
-), and
-> > > > > > passes the following
-> > > > > > trivial exercising of the unshare mechanism:
-> > > > > > $ sudo bash
-> > > > > > # echo 1 > /sys/fs/selinux/unshare
-> > > > > > # unshare -m -n
-> > > > > > # umount /sys/fs/selinux
-> > > > > > # mount -t selinuxfs none /sys/fs/selinux
-> > > > > > # id
-> > > > > > uid=3D0(root) gid=3D0(root) groups=3D0(root) context=3Dkernel
-> > > > > > # getenforce
-> > > > > > Permissive
-> > > > > > # load_policy
-> > > > > > # id
-> > > > > > uid=3D0(root) gid=3D0(root) groups=3D0(root) context=3Dsystem_u=
-:system_r:kernel_t:s0
-> > > > > >
-> > > > > > All the same caveats apply - this is still not safe to use and =
-has
-> > > > > > many unresolved issues as noted in the patch descriptions.
-> > > > >
-> > > > > Also, note that as before, this branch does NOT include the origi=
-nal
-> > > > > patches to support per-namespace superblock and inode security
-> > > > > structures. Given the known problems with those patches and recen=
-t
-> > > > > discussions, we likely don't want them anyway, but for reference =
-they
-> > > > > can still be found here:
-> > > > > https://github.com/stephensmalley/selinux-kernel/commit/3378718ef=
-7d4a837f32c63bdfcc0b70342cdd55d
-> > > > > https://github.com/stephensmalley/selinux-kernel/commit/efb2ddadf=
-dd0e10e75b6aa5da2ed9841df6ef2f6
-> > > > >
-> > > > > Without those patches, ls -Z will show as unlabeled any files who=
-se
-> > > > > inodes were already in-core at the time of the creation of the ne=
-w
-> > > > > SELinux namespace because their inode security structures will ha=
-ve
-> > > > > SIDs that do not exist in the new namespace's SID table.
-> > > > >
-> > > > > An alternative approach proposed by Huawei to my original patches=
- can
-> > > > > be found here:
-> > > > > https://lore.kernel.org/selinux/20220216125206.20975-1-igor.baran=
-ov@huawei.com/#r
-> > > > >
-> > > > > However, those patches also seem to have quite a few unresolved i=
-ssues.
-> > > >
-> > > > Actually, re-reading that thread inspired me to take one of the ide=
-as
-> > > > suggested by Huawei, so I just pushed up one change on top of my
-> > > > working-selinuxns branch to support saving the SELinux namespace in
-> > > > the inode security blob and re-initializing it when an inode is
-> > > > accessed by a process in a different SELinux namespace. This at lea=
-st
-> > > > allows ls -Z to correctly show the security contexts of files even
-> > > > when they are already in-core.
-> > > > There still remain many issues though to resolve...
-> > >
-> > > As just one example, if you setenforce 1 in the new SELinux namespace=
-,
-> > > you'll instantly lose access to your open files since the file
-> > > security blobs (not the inode security blobs) still have SIDs that
-> > > were created in the parent namespace and aren't defined in yours. And
-> > > naively changing those to match your namespace will break access by
-> > > the parent process. Probably need to create a helper program akin to
-> > > newrole that handles closing and re-opening the fds in the new
-> > > namespace.
-> > >
-> > > Then you still have the problem of the inode security blobs not being
-> > > refreshed on certain code paths because you can't sleep on those code
-> > > paths and fetching the xattr may sleep. Might require saving a copy o=
-f
-> > > the security context string in the inode security blob so that you
-> > > don't have to perform any blocking operations to refresh the SID to
-> > > match the current namespace, but that will come at an obvious cost in
-> > > memory.
+> > Get rid of them by letting the child synchronously wait for the task wo=
+rk
+> > executing in the parent's context. This way, any errors that happen in =
+the
+> > task work can be plumbed back into the syscall return value in the chil=
+d.
 > >
-> > The last paragraph above actually rears its head even without fixing
-> > the fd problem;
-> > unfortunately that last patch I pushed on top of working-selinuxns
-> > will render you unable to ssh into the system if/when you end up
-> > creating a new SELinux namespace and accessing files needed by sshd.
-> > It seems that the patch is updating the inode SID and namespace to the
-> > new namespace and then sshd is trying to access those files through a
-> > code path that cannot call  inode_security_revalidate() with
-> > may_sleep=3D=3Dtrue and hence ends up using the wrong SID and being den=
-ied
-> > access.
+> > Note that this requires using TWA_SIGNAL instead of TWA_RESUME, so the
+> > parent might observe some spurious -EGAIN syscall returns or such; but =
+the
+> > parent likely anyway has to be ready to deal with the side effects of
+> > receiving signals (since it'll probably get SIGCHLD when the child dies=
+),
+> > so that probably isn't an issue.
+> >
+> > Signed-off-by: Jann Horn <jannh@google.com>
+> > ---
+> > This is a quickly hacked up demo of the approach I proposed at
+> > <https://lore.kernel.org/all/CAG48ez2bnvuX8i-D=3D5DxmfzEOKTWAf-DkgQq6aN=
+C4WzSGoEGHg@mail.gmail.com/>
+> > to get rid of the cred_transfer stuff. Diffstat looks like this:
+> >
+> >  include/linux/cred.h          |   1 -
+> >  include/linux/lsm_hook_defs.h |   3 ---
+> >  include/linux/security.h      |  12 ------------
+> >  kernel/cred.c                 |  23 -----------------------
+> >  security/apparmor/lsm.c       |  19 -------------------
+> >  security/keys/internal.h      |   8 ++++++++
+> >  security/keys/keyctl.c        | 100 ++++++++++++++++++++++++++--------=
+------------------------------------------------------------------
+> >  security/keys/process_keys.c  |  86 ++++++++++++++++++++++++++++++++++=
+++++++++++++----------------------------------------
+> >  security/landlock/cred.c      |  11 ++---------
+> >  security/security.c           |  35 ----------------------------------=
+-
+> >  security/selinux/hooks.c      |  12 ------------
+> >  security/smack/smack_lsm.c    |  32 --------------------------------
+> >  12 files changed, 82 insertions(+), 260 deletions(-)
+> >
+> > What do you think? Synchronously waiting for task work is a bit ugly,
+> > but at least this condenses the uglyness in the keys subsystem instead
+> > of making the rest of the security subsystem deal with this stuff.
 >
-> I just pushed up another change on top of my working-selinuxns branch
-> that fixes this issue albeit inefficiently memory-wise.
-> For the moment, it saves the security context in the inode security
-> blob when inode_doinit_with_dentry() first obtains it via getxattr(),
-> and later re-uses that context in the !may_sleep case. Ultimately we
-> will want to re-do this using an approach similar to Smack so that we
-> don't keep multiple copies of the same security context in memory.
-> This change combined with adding further calls to
-> __inode_security_revalidate() to the file*has_perm() prior to
-> accessing the inode security blob (now that we can safely do so)
-> eliminates the problem I was seeing with sshd, although I am sure
-> there remain other cases.
-> Next issue to address is the open fds when you unshare the namespace.
+> Why does synchronously waiting is ugly? Not sarcasm, I genuineily
+> interested of breaking that down in smaller pieces.
+>
+> E.g. what disadvantages would be there from your point of view?
+>
+> Only trying to form a common picture, that's all.
 
-Ok, I pushed up two more changes - one to fix a memory leak in the
-previous change (thanks kmemleak!) and one to update the security
-blobs of the open files of the current process when it unshares its
-SELinux namespace. This gets us a bit farther; now when I setenforce 1
-in the new SELinux namespace, it retains access to its
-stdin/stdout/stderr but it segfaults because it loses access to its
-memory mappings. I see the Huawei patch set had something to try to
-migrate the VMAs of the current process; that looks ugly and doesn't
-have a convenient helper in the mm subsystem unlike the open files
-situation (iterate_fd helper that was already being used by
-flush_unauthorized_files). So that's the next challenge. Might be
-better though to just defer the unsharing of the SELinux namespace to
-the next execve, similar to setexeccon(), so that we don't have to
-deal with it.
+Two things:
+
+1. It means we have to send a pseudo-signal to the parent, to get the
+parent to bail out into signal handling context, which can lead to
+extra spurious -EGAIN in the parent. I think this is probably fine
+since _most_ parent processes will already expect to handle SIGCHLD
+signals...
+
+2. If the parent is blocked on some other killable wait, we won't be
+able to make progress - so in particular, if the parent was using a
+killable wait to wait for the child to leave its syscall, userspace
+=E1=BA=81ould deadlock (in a way that could be resolved by SIGKILLing one o=
+f
+the processes). Actually, I think that might happen if the parent uses
+ptrace() with sufficiently bad timing? We could avoid the issue by
+doing an interruptible wait instead of a killable one, but then that
+might confuse userspace callers of the keyctl() if they get an
+-EINTR...
+I guess the way to do this cleanly is to use an interruptible wait and
+return -ERESTARTNOINTR if it gets interrupted?
+
+> > Another approach to simplify things further would be to try to move
+> > the session keyring out of the creds entirely and just let the child
+> > update it directly with appropriate locking, but I don't know enough
+> > about the keys subsystem to know if that would maybe break stuff
+> > that relies on override_creds() also overriding the keyrings, or
+> > something like that.
+> > ---
+> >  include/linux/cred.h          |   1 -
+> >  include/linux/lsm_hook_defs.h |   3 --
+> >  include/linux/security.h      |  12 -----
+> >  kernel/cred.c                 |  23 ----------
+> >  security/apparmor/lsm.c       |  19 --------
+> >  security/keys/internal.h      |   8 ++++
+> >  security/keys/keyctl.c        | 100 +++++++++++-----------------------=
+--------
+> >  security/keys/process_keys.c  |  86 +++++++++++++++++++---------------=
+--
+> >  security/landlock/cred.c      |  11 +----
+> >  security/security.c           |  35 ---------------
+> >  security/selinux/hooks.c      |  12 -----
+> >  security/smack/smack_lsm.c    |  32 --------------
+> >  12 files changed, 82 insertions(+), 260 deletions(-)
+>
+> Given the large patch size:
+>
+> 1. If it is impossible to split some meaningful patches, i.e. patches
+>    that transform kernel tree from working state to another, I can
+>    cope with this.
+> 2. Even for small chunks that can be split into their own logical
+>    pieces: please do that. Helps to review the main gist later on.
+
+There are basically two parts to this, it could be split up nicely into the=
+se:
+
+1. refactor code in security/keys/
+2. rip out all the code that is now unused (as you can see in the
+diffstat, basically everything outside security/keys/ is purely
+removals)
+
+[...]
+> Not going through everything but can we e.g. make a separe SMACK patch
+> prepending?
+
+I wouldn't want to split it up further: As long as the cred_transfer
+mechanism and LSM hook still exist, all the LSMs that currently have
+implementations of it should also still implement it.
+
+But I think if patch 2/2 is just ripping out unused infrastructure
+across the tree, that should be sufficiently reviewable? (Or we could
+split it up into ripping out one individual helper per patch, but IDK,
+that doesn't seem to me like it adds much reviewability.)
