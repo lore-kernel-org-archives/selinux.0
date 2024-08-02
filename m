@@ -1,111 +1,124 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
+Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E9484778E
-	for <selinux@vger.kernel.org>; Fri,  2 Aug 2024 11:45:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E9261DAC5F
+	for <selinux@vger.kernel.org>; Fri,  2 Aug 2024 13:05:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722599150; cv=none; b=dQ/LhN50cImayRVXqEjjd1s4DyYzhWg+gcn63eaSGaNCJRtECdgxc/u66ljQPGtqRw1H6IjyqRhGIVOkBfqW6oy1wZgOp1ZAv3h7JSZdd7wolTvsTuAm0N9oRC00tmoP0+B2Ysg37+DuboUjs2Qfe7TG8PUf5Ubv+cuK8MeAbek=
+	t=1722603949; cv=none; b=aEDdDX944JRtC5uh+KLbUxdVOLOBh40rsDKH5HHf+bwcJkvfdWW1tWajt9BiZsdQ0UkckwFc1h9BjvfONbCTIljkKS/HCQUpSgxKTveAV7A02LfeACMGLZJOiHziTvqZFLxVJ4+ZtxvsAa3FmJlg/kgYKQidVWwJsSMN6Qb+J80=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722599150; c=relaxed/simple;
-	bh=FN8jttvuHakMSW/7rnWy6v2WGtyFe73LqW9gV4UHCMc=;
+	s=arc-20240116; t=1722603949; c=relaxed/simple;
+	bh=CJfbm38ZhHI8HOGmzii1vcuXCg8hzjKRld0EpplQEfk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KurPZV1zsW3/Tes9P/riMUJdaNlDn60TsyYbfHlD+4BtXiX1LULhxb2XJsLK7j9R9Htm9RDcYgdjec1VUApjZnSzENyn9tphuJu61lgZxjVuDj5PK4+7jnYw0/2A+aGm+Y+9qq/gvD8FKzsvELX+MjsFNtkvCTTU8gWYnxaV4NU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VvjnR0aG; arc=none smtp.client-ip=209.85.215.169
+	 To:Cc:Content-Type; b=GrTMzn0YRkPYZqaA6WAiMFWsPmRvA0AfNCe/djgsScOhJzq0wKHPASLcDddZ3MfyTyJf1wTkOY8grE8Shdle+ye1cjG/Rbg5R2QcKdx0nHPqdztrUKfIP6BO7uazvONgJ7wBjhKTLm1dCIeNsKNYFNhaCPvfX4FmcOB+NMOaaFU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bJMoORCR; arc=none smtp.client-ip=209.85.215.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VvjnR0aG"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-7ae3d7222d4so4567176a12.3
-        for <selinux@vger.kernel.org>; Fri, 02 Aug 2024 04:45:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bJMoORCR"
+Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-7a264a24ea7so5364531a12.3
+        for <selinux@vger.kernel.org>; Fri, 02 Aug 2024 06:05:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722599149; x=1723203949; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1722603947; x=1723208747; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FN8jttvuHakMSW/7rnWy6v2WGtyFe73LqW9gV4UHCMc=;
-        b=VvjnR0aGDKTgzN1r2nt/SkiF3Uu5uH3rXBeL1vcDjL5eJMNAs+rlYpKUPBvDcHK9zA
-         +J6tJPJ8zgqTQzd+SVrphovKjUGnRzubx+O6T+x10yzTbgeRPoNPmPChFhBk4vlB/cmt
-         tD6BxaP0emw+ljlmf5msmDxvaKJNOIcXW4//DzpU1vNyH3cWNZcS7aZOALEO6TAN5U+y
-         2G6uEdwaTmHyonx5eTlwQB1q6dIVpDW3EjacX9lWV68y/0W75BoHO4od2YoHhqO5/t+4
-         zFKf8VtUk98NtniyhPw0F06QxKYWjufij/kqlbH4Tibn1miY2CbmIgBcFQy9Oc5c5LsS
-         EZTA==
+        bh=CJfbm38ZhHI8HOGmzii1vcuXCg8hzjKRld0EpplQEfk=;
+        b=bJMoORCRHvjM5UISNiFb9J4YFocuQkFw+Utt0LMHVZin8xMPGHkt8CNI/8W5bf32NU
+         PQcuSiOOZ/T40KWNk+3FtdiqImjqVNaTu2arGsfJ2L79wz4GdGQFf0V8GwZA40n7ylVl
+         qtyJ4usfheiacrYVUctky1SN9+8q2ygZNGTDp9b3w1PU9X4Q3H1KWw5P8E/kVggf8WvV
+         pOHBA1XptwX4GS9FlpJC4jt3Leu+csWiXz1w+5GSH60uG8MFg6f1DITCUUtHU+sGocts
+         aIJF+NkKSquvHZOjgaCiNmucXz8I3esSfwlsBF2j0TfKVw80lKfsxFuBZHkhJ3xLV9+K
+         BQWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722599149; x=1723203949;
+        d=1e100.net; s=20230601; t=1722603947; x=1723208747;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FN8jttvuHakMSW/7rnWy6v2WGtyFe73LqW9gV4UHCMc=;
-        b=QMTQXngct1CMO6gnFMaxcD33rflxDA+XDKMYEKnu3YIxHFEaNCEReGDI26E/SyrV2a
-         VuKgyjku5PtZUmK0oujGhjk0U2UkC8NjYQ0PgVjR2+6BDefHS/7EcCOdbGfer32o2LvN
-         JNS1bw2A4sjDZ1MtF72wiKX/G6CzJ3n3LfifgvroNOdnlBb38XUxUiSbSElpnTZGOtqm
-         x2+cIuQ9XfQqYyRoMCkRql+7kPANLU8LoD+Fg6uOPS0mSkF9pdY6ExUyteKE74ZIqQs4
-         A+xDdzxOUFrKtjSqP3fuLjy0Zbw6JHQhyhRfuQhX4nsEsihF6DLpBzQIvqYvV2Mo3PFb
-         +AWg==
-X-Gm-Message-State: AOJu0YxMvX2MldeoetWt+VvcuvvdyUji0JgwSLNiypImBOYQfmC/V9ZL
-	J+AWJ7yxVQ8Q/yiSpmIjr52x9ArV7/X2PpuLpezIX77THmOvgoxdg79sxNNVmvBScGN7CDVNOn9
-	RGfVwmOmDXOQZCEM+hss1o7u5SRq3nw==
-X-Google-Smtp-Source: AGHT+IGZsHX8Ku2F3Ufzh55Gc332R8x4iEgaSe/b5rlzmUQ83x0sQ9cduFl2Y/DwHJGEMxvtf5KJwJSYZhLSgRNyrIg=
-X-Received: by 2002:a17:90b:3711:b0:2c9:80cd:86b4 with SMTP id
- 98e67ed59e1d1-2cff9421160mr3660300a91.11.1722599148568; Fri, 02 Aug 2024
- 04:45:48 -0700 (PDT)
+        bh=CJfbm38ZhHI8HOGmzii1vcuXCg8hzjKRld0EpplQEfk=;
+        b=mic2ka48AhGV714AFU0vQ0QH2XwDJJaSHI7i3DQIMt7pLjXBUN52uuHCBUbFoSKUzY
+         dQb9Bq6ow7fy83wha5PhtGaldnBgqqt2eNXCzcMVAyqKfZC2tDPMtB0jeV6uIkwbI0nr
+         a7HBeKbOWusHCNI5FuMGTdneF3UT9Pq78pFOj5i8l/amY9CUh6S8Y9m174pIvFkHgnNQ
+         OK8JOMqUJW/ftV3pgnudDpVwnc8kt+fPIXDxCkjorHOUM0QJ44GErdVtmQrEPV/U7OIF
+         2PjjDWY1c0Jktvfh9baREJ7TGDYrvTFu89lOM/Iu+dT0EaWrB7E40UbnJGZizk1JE2b8
+         4TZg==
+X-Gm-Message-State: AOJu0Yw08n18axU07lDbjF8FFX/eLSS+XUarORlKUng0v5xkG2zANMCG
+	/2lD+3QRt+oksrs2lmwmDaWCMb2nfkvZOyc3OfysL5dkRm6NBi1Qab9sc2/dMbLBNFxCKzD6LqR
+	UCmWMiuVVGaZy59Gg3Sjbl9ojphk=
+X-Google-Smtp-Source: AGHT+IF6/9YbJ76A2v01CKr7gGU1JoU63IlZnW3XAON7NVKbjRvF8CGxlK3ZvR0DYHMQnJRwtD7ZSw+yZwCSvIohKlc=
+X-Received: by 2002:a17:90a:8c86:b0:2c9:cbdd:acd with SMTP id
+ 98e67ed59e1d1-2cff9559843mr4478273a91.35.1722603946692; Fri, 02 Aug 2024
+ 06:05:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <87y15fe3iy.fsf@defensec.nl>
-In-Reply-To: <87y15fe3iy.fsf@defensec.nl>
+References: <87y15fe3iy.fsf@defensec.nl> <CAEjxPJ63KtgNc-FVBwkRJup5Qh022An21n=TsCsLP9L1bYyfoQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ63KtgNc-FVBwkRJup5Qh022An21n=TsCsLP9L1bYyfoQ@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 2 Aug 2024 07:45:37 -0400
-Message-ID: <CAEjxPJ63KtgNc-FVBwkRJup5Qh022An21n=TsCsLP9L1bYyfoQ@mail.gmail.com>
+Date: Fri, 2 Aug 2024 09:05:35 -0400
+Message-ID: <CAEjxPJ4HRoGVc62mA9yP4gPEi6vnhUEz6Ge2K8L+E_G5W9r68w@mail.gmail.com>
 Subject: Re: monolithic policy on a volatile root
 To: Dominick Grift <dominick.grift@defensec.nl>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 2, 2024 at 4:27=E2=80=AFAM Dominick Grift
-<dominick.grift@defensec.nl> wrote:
+On Fri, Aug 2, 2024 at 7:45=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
+> On Fri, Aug 2, 2024 at 4:27=E2=80=AFAM Dominick Grift
+> <dominick.grift@defensec.nl> wrote:
+> >
+> >
+> > I think this question was already asked but I could not find the
+> > discussion.
+> >
+> > What would be the challenges to support a monolitic policy on a volatil=
+e
+> > root?
+> >
+> > In a volatile root scenario there is only a non-volatile readonly
+> > /usr. Would it be possible to teach libselinux that if there is a
+> > /usr/selinux and not a /etc/selinux and/or /var/lib/selinux that it wou=
+ld
+> > use that instead?
+> >
+> > The challenge I am currently facing with systemd.volatile=3Dyes is that
+> > when the policy is loaded from initramfs that systemd-tmpfiles (and
+> > systemd-sysusers) cannot properly populate root from /usr/share/factory
+> > (or created) because they rely on libselinux,get/setfilecon and thus on
+> > /etc/selinux/contexts/files. There is a slight chicken and egg situatio=
+n there.
+> >
+> > Often times its not a probable because one can do with automatic type
+> > transitions but some of these files get created atomically (/etc/passwd
+> > and /etc/shadow for example) and not to mention that these libselinux
+> > linked components might get confused and noisy if selinux is enabled an=
+d
+> > enforcing but there is no /etc/selinux.
+> >
+> > Duplicating policy in initramfs and /etc, /var/lib would invite
+> > inconsistencies and is not feasible but if the policy is readonly and
+> > thus monolitic then this might be feasible if it is not too
+> > ugly. Actually in such a scenario we would probably not need a policy i=
+n
+> > initramfs at all since systemd would just load it from /usr instead of =
+/etc.
 >
-> I think this question was already asked but I could not find the
-> discussion.
->
-> What would be the challenges to support a monolitic policy on a volatile
-> root?
->
-> In a volatile root scenario there is only a non-volatile readonly
-> /usr. Would it be possible to teach libselinux that if there is a
-> /usr/selinux and not a /etc/selinux and/or /var/lib/selinux that it would
-> use that instead?
->
-> The challenge I am currently facing with systemd.volatile=3Dyes is that
-> when the policy is loaded from initramfs that systemd-tmpfiles (and
-> systemd-sysusers) cannot properly populate root from /usr/share/factory
-> (or created) because they rely on libselinux,get/setfilecon and thus on
-> /etc/selinux/contexts/files. There is a slight chicken and egg situation =
-there.
->
-> Often times its not a probable because one can do with automatic type
-> transitions but some of these files get created atomically (/etc/passwd
-> and /etc/shadow for example) and not to mention that these libselinux
-> linked components might get confused and noisy if selinux is enabled and
-> enforcing but there is no /etc/selinux.
->
-> Duplicating policy in initramfs and /etc, /var/lib would invite
-> inconsistencies and is not feasible but if the policy is readonly and
-> thus monolitic then this might be feasible if it is not too
-> ugly. Actually in such a scenario we would probably not need a policy in
-> initramfs at all since systemd would just load it from /usr instead of /e=
-tc.
+> I've seen a similar concern raised previously even for modular/managed po=
+licy.
+> It's all just software so I don't think it would be hard to modify
+> libselinux to fall back to /usr/selinux if there is no file in
+> /etc/selinux; it just requires someone to write a patch for it. May
+> have policy implications (i.e. anything that currently accesses
+> /etc/selinux now also may need search access to usr_t) but that's
+> pretty common anyway.
 
-I've seen a similar concern raised previously even for modular/managed poli=
-cy.
-It's all just software so I don't think it would be hard to modify
-libselinux to fall back to /usr/selinux if there is no file in
-/etc/selinux; it just requires someone to write a patch for it. May
-have policy implications (i.e. anything that currently accesses
-/etc/selinux now also may need search access to usr_t) but that's
-pretty common anyway.
+To clarify, for monolithic policy, you just need to update libselinux
+to fall back to searching /usr if /etc lacks the file.
+For modular/managed policy we would also need to update libsemanage to
+write the final policy files somewhere, although /var seems more
+appropriate than /usr for that?
