@@ -1,208 +1,122 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from markus.defensec.nl (markus.defensec.nl [45.80.168.93])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE779136326
-	for <selinux@vger.kernel.org>; Fri,  2 Aug 2024 18:40:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FB0974BE1
+	for <selinux@vger.kernel.org>; Sat,  3 Aug 2024 11:04:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.80.168.93
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722624038; cv=none; b=oYHPn635oZrv+s5pgfwrjmHmZrGOdp+VZgsYpLbyPAz1tKN0crYLo6f8H7hcFp6UT5LslYmCXYzy5G+Kfj2zk4DnBcf0fauw3j0pkaVG/LeQSFf7r498u2ntj7+e92gWNjr8Fz9/SSrGRvqANtGPVKdIokaJabmYnL73gZMisKE=
+	t=1722683060; cv=none; b=jUvqlenVCjh+mEEBiMqsXk2X1e6RYHtUhDJtBDo9aZUxUu6wGqPrEpM/4OqtfhFUbRZYWIdH2QCavT/SviN3FcZpMkNEi4fEePhJ+DGvZyfPP6f/UF++z0zXUbuvuM4wMq4SY0vKYuS02C4iFRg4bwKsvYH9VOCDCpMAo67Qf7Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722624038; c=relaxed/simple;
-	bh=bBk8dbvdFkgHztIsamj9A6yqrnV8rALDYulS6Vq771U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=D8bxMhHxRD65K6vQ4aYmQJaSxc49WNSTC5boadBEqgB+6uknE418bR7YShrn/I9aTjbKojVGAEleQ+fSKhL3JibwfUh+qBq7ghm0NRJ8P1RRNPU/dlF4Ock2PnKbhZ+2ZOkelNxyBnX3w0BodzMmiJe8JSr6HQ7Jzg+SK0tRNRQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=I6OCsT/U; arc=none smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1722683060; c=relaxed/simple;
+	bh=sDqmHpVlRVWwLShEysx1EowKmNYcIz3EOY/NU2afFz4=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=u/y3v1eQebz32PtXOxhg3NtkprFjxstxlh3fsQmJ+BTNO6NMsDqGlWM92CmH/a43elCq/yelD/pjSOmPZdve0YP/vc8aqRu/fanASSaxBlJJkkPBQnukyDzyNu/moO/MX3kMfDFDI4HIDgqOEou9rzfVOSSdpSF4YgvbGnpc9BE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl; spf=pass smtp.mailfrom=defensec.nl; dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b=QZfXTTDP; arc=none smtp.client-ip=45.80.168.93
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=defensec.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="I6OCsT/U"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-5a28b61b880so57205a12.1
-        for <selinux@vger.kernel.org>; Fri, 02 Aug 2024 11:40:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1722624035; x=1723228835; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MvGo9T3eyBjc8RzJ3B/6nw2VwxThF3mQa//XCX7dSjQ=;
-        b=I6OCsT/URFAZ39H4tJIQ9D+FnQIkN0EAEqXhna1AdaqoY74lPfeKAC0DZk2lD9lTSj
-         EZvbiynJSIRNGJwCKfS/sWo2cMkCXLcamrh4MJ1ByL9to5E3vLRgPXQpch1lIZOUZxya
-         vNvsBiEeY+yeARIVbELqX8QWDA9uOYBzaLlhdEa8igAowvG84gh5yjFEnDZftlbCLnxI
-         QrTAIwl9k3SXnEvBYDmETQ8hvlJlAvvOW7he6R83GMBNYXLU6K+DczdlP42bVebJl9Au
-         LEmpvg17Hv8K60htRgWcrJHKbvcS3RRVb61J2PYaniDSuoOZGDJ7TWTto3RNXgKnsM6z
-         yEQw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722624035; x=1723228835;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MvGo9T3eyBjc8RzJ3B/6nw2VwxThF3mQa//XCX7dSjQ=;
-        b=YHw69zHXOTi6doN/eqEygMnIVBO0kFKjDxLZH748NKtzYy3dx+AL9UscA1gxL3Xk83
-         4RQGtVbj8Vu/c7MBGboSL0lB7Dd6Sun0eSgPFU14noVqLAz1TkE120EA826Kdb8k4S3W
-         Li+denz7Prfmksk3IwJCCBqHQV3kzdw01jopfZyPvVngnGligMc/WLwsPPj2knVawuHZ
-         Fv0Q37MGNSx//3BqyV1hN1Jds3CCX06x0VOwvV+lwfFa4SBiGK7Uuj4+N46bUH++PAUz
-         Qvdx5JNTHSP4zzEBCGtQO1dWlXt11x9iOV7h+mXPs1DQb1l4xEy4slJlPq8rRghRQEWH
-         vB8Q==
-X-Forwarded-Encrypted: i=1; AJvYcCW/ncUdWWjecGy8yvQ9RBQW4Jq4abz8ugux4Ty5AAa0tj8j+A4n+WVpxHo4a/WivUpDVHYOWOfSejpJt98rJjBQ7EEq1El2tw==
-X-Gm-Message-State: AOJu0YyV5Jc1t051VY1QhTVnsGdtnc25DRuW4JpLZmij7qF9atp4xgSp
-	mVVuZ4HEL0WkDWc0XL/SJErJx6Dp3vBnebWEGLwwZJACuRzpqip8fo7yyB5oNzFJXAFSWar7A4q
-	MwkmTfpbnPF4ln9BZJPcdH/vrDQmpcQnlwtaL
-X-Google-Smtp-Source: AGHT+IE6a715lvD7e7H+jRBC/YC4Qmp0ZvYcNq+Z2J6Y52jOrAYsO1CDkNEmQVXxr6y4yqKqUpa8HB00+hEb3yiQVGc=
-X-Received: by 2002:a05:6402:51cb:b0:5b8:ccae:a8b8 with SMTP id
- 4fb4d7f45d1cf-5b99e0a517emr10054a12.3.1722624034462; Fri, 02 Aug 2024
- 11:40:34 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="QZfXTTDP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
+	s=default; t=1722683049;
+	bh=sDqmHpVlRVWwLShEysx1EowKmNYcIz3EOY/NU2afFz4=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=QZfXTTDP/iVo5Oxmvdlbx1IaM23kgHvpc55AjKf7dMdymJ38QssQdGOlPph3gsO+2
+	 ur3yO7v4lrMzhfnET1dh68oCOCTsGqLDZIlmXntjYt7GbSo6JohQ3GlvvlfKBCcMMV
+	 Sn9L5B+xpKmZbHUb9H4oOg/IfxCwF/X26Gdm4jFQ=
+Received: from nimbus (nimbus.lan [IPv6:2a10:3781:2099::514])
+	by markus.defensec.nl (Postfix) with ESMTPSA id D6D2C8489D;
+	Sat, 03 Aug 2024 13:04:09 +0200 (CEST)
+From: Dominick Grift <dominick.grift@defensec.nl>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
+Subject: Re: monolithic policy on a volatile root
+In-Reply-To: <CAEjxPJ4HRoGVc62mA9yP4gPEi6vnhUEz6Ge2K8L+E_G5W9r68w@mail.gmail.com>
+	(Stephen Smalley's message of "Fri, 2 Aug 2024 09:05:35 -0400")
+References: <87y15fe3iy.fsf@defensec.nl>
+	<CAEjxPJ63KtgNc-FVBwkRJup5Qh022An21n=TsCsLP9L1bYyfoQ@mail.gmail.com>
+	<CAEjxPJ4HRoGVc62mA9yP4gPEi6vnhUEz6Ge2K8L+E_G5W9r68w@mail.gmail.com>
+Date: Sat, 03 Aug 2024 13:04:09 +0200
+Message-ID: <87plqpeul2.fsf@defensec.nl>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240802-remove-cred-transfer-v1-1-b3fef1ef2ade@google.com> <D35ML45KMWK8.1E29IC0VZO4CL@iki.fi>
-In-Reply-To: <D35ML45KMWK8.1E29IC0VZO4CL@iki.fi>
-From: Jann Horn <jannh@google.com>
-Date: Fri, 2 Aug 2024 20:39:56 +0200
-Message-ID: <CAG48ez1GFY5H1ujaDfcj-Ay5_Pm8MsBVL=vU4tEynXgzg5yduQ@mail.gmail.com>
-Subject: Re: [PATCH RFC] security/KEYS: get rid of cred_alloc_blank and cred_transfer
-To: Jarkko Sakkinen <jarkko.sakkinen@iki.fi>
-Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, John Johansen <john.johansen@canonical.com>, 
-	David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko@kernel.org>, 
-	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, apparmor@lists.ubuntu.com, 
-	keyrings@vger.kernel.org, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 2, 2024 at 8:09=E2=80=AFPM Jarkko Sakkinen <jarkko.sakkinen@iki=
-.fi> wrote:
-> On Fri Aug 2, 2024 at 4:10 PM EEST, Jann Horn wrote:
-> > cred_alloc_blank and cred_transfer were only necessary so that keyctl c=
-an
-> > allocate creds in the child and then asynchronously have the parent fil=
-l
-> > them in and apply them.
-> >
-> > Get rid of them by letting the child synchronously wait for the task wo=
-rk
-> > executing in the parent's context. This way, any errors that happen in =
-the
-> > task work can be plumbed back into the syscall return value in the chil=
-d.
-> >
-> > Note that this requires using TWA_SIGNAL instead of TWA_RESUME, so the
-> > parent might observe some spurious -EGAIN syscall returns or such; but =
-the
-> > parent likely anyway has to be ready to deal with the side effects of
-> > receiving signals (since it'll probably get SIGCHLD when the child dies=
-),
-> > so that probably isn't an issue.
-> >
-> > Signed-off-by: Jann Horn <jannh@google.com>
-> > ---
-> > This is a quickly hacked up demo of the approach I proposed at
-> > <https://lore.kernel.org/all/CAG48ez2bnvuX8i-D=3D5DxmfzEOKTWAf-DkgQq6aN=
-C4WzSGoEGHg@mail.gmail.com/>
-> > to get rid of the cred_transfer stuff. Diffstat looks like this:
-> >
-> >  include/linux/cred.h          |   1 -
-> >  include/linux/lsm_hook_defs.h |   3 ---
-> >  include/linux/security.h      |  12 ------------
-> >  kernel/cred.c                 |  23 -----------------------
-> >  security/apparmor/lsm.c       |  19 -------------------
-> >  security/keys/internal.h      |   8 ++++++++
-> >  security/keys/keyctl.c        | 100 ++++++++++++++++++++++++++--------=
-------------------------------------------------------------------
-> >  security/keys/process_keys.c  |  86 ++++++++++++++++++++++++++++++++++=
-++++++++++++----------------------------------------
-> >  security/landlock/cred.c      |  11 ++---------
-> >  security/security.c           |  35 ----------------------------------=
--
-> >  security/selinux/hooks.c      |  12 ------------
-> >  security/smack/smack_lsm.c    |  32 --------------------------------
-> >  12 files changed, 82 insertions(+), 260 deletions(-)
-> >
-> > What do you think? Synchronously waiting for task work is a bit ugly,
-> > but at least this condenses the uglyness in the keys subsystem instead
-> > of making the rest of the security subsystem deal with this stuff.
+Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+
+> On Fri, Aug 2, 2024 at 7:45=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+>>
+>> On Fri, Aug 2, 2024 at 4:27=E2=80=AFAM Dominick Grift
+>> <dominick.grift@defensec.nl> wrote:
+>> >
+>> >
+>> > I think this question was already asked but I could not find the
+>> > discussion.
+>> >
+>> > What would be the challenges to support a monolitic policy on a volati=
+le
+>> > root?
+>> >
+>> > In a volatile root scenario there is only a non-volatile readonly
+>> > /usr. Would it be possible to teach libselinux that if there is a
+>> > /usr/selinux and not a /etc/selinux and/or /var/lib/selinux that it wo=
+uld
+>> > use that instead?
+>> >
+>> > The challenge I am currently facing with systemd.volatile=3Dyes is that
+>> > when the policy is loaded from initramfs that systemd-tmpfiles (and
+>> > systemd-sysusers) cannot properly populate root from /usr/share/factory
+>> > (or created) because they rely on libselinux,get/setfilecon and thus on
+>> > /etc/selinux/contexts/files. There is a slight chicken and egg situati=
+on there.
+>> >
+>> > Often times its not a probable because one can do with automatic type
+>> > transitions but some of these files get created atomically (/etc/passwd
+>> > and /etc/shadow for example) and not to mention that these libselinux
+>> > linked components might get confused and noisy if selinux is enabled a=
+nd
+>> > enforcing but there is no /etc/selinux.
+>> >
+>> > Duplicating policy in initramfs and /etc, /var/lib would invite
+>> > inconsistencies and is not feasible but if the policy is readonly and
+>> > thus monolitic then this might be feasible if it is not too
+>> > ugly. Actually in such a scenario we would probably not need a policy =
+in
+>> > initramfs at all since systemd would just load it from /usr instead of=
+ /etc.
+>>
+>> I've seen a similar concern raised previously even for modular/managed p=
+olicy.
+>> It's all just software so I don't think it would be hard to modify
+>> libselinux to fall back to /usr/selinux if there is no file in
+>> /etc/selinux; it just requires someone to write a patch for it. May
+>> have policy implications (i.e. anything that currently accesses
+>> /etc/selinux now also may need search access to usr_t) but that's
+>> pretty common anyway.
 >
-> Why does synchronously waiting is ugly? Not sarcasm, I genuineily
-> interested of breaking that down in smaller pieces.
->
-> E.g. what disadvantages would be there from your point of view?
->
-> Only trying to form a common picture, that's all.
+> To clarify, for monolithic policy, you just need to update libselinux
+> to fall back to searching /usr if /etc lacks the file.
+> For modular/managed policy we would also need to update libsemanage to
+> write the final policy files somewhere, although /var seems more
+> appropriate than /usr for that?
 
-Two things:
+I misread. I also think the I might be overlooking use-case but the main
+point I would like to make is that with a volatile root / is empty
+except that there is a readonly /usr mounted. With that said I don't see
+how using /var would be an solution.
 
-1. It means we have to send a pseudo-signal to the parent, to get the
-parent to bail out into signal handling context, which can lead to
-extra spurious -EGAIN in the parent. I think this is probably fine
-since _most_ parent processes will already expect to handle SIGCHLD
-signals...
+systemd-tmpfiles and systemd-sysusers run very early to populate the
+filesystem from /usr/share/factory and to create users. Both of them
+rely on a working libselinux. Hence the chicken and egg.
 
-2. If the parent is blocked on some other killable wait, we won't be
-able to make progress - so in particular, if the parent was using a
-killable wait to wait for the child to leave its syscall, userspace
-=E1=BA=81ould deadlock (in a way that could be resolved by SIGKILLing one o=
-f
-the processes). Actually, I think that might happen if the parent uses
-ptrace() with sufficiently bad timing? We could avoid the issue by
-doing an interruptible wait instead of a killable one, but then that
-might confuse userspace callers of the keyctl() if they get an
--EINTR...
-I guess the way to do this cleanly is to use an interruptible wait and
-return -ERESTARTNOINTR if it gets interrupted?
-
-> > Another approach to simplify things further would be to try to move
-> > the session keyring out of the creds entirely and just let the child
-> > update it directly with appropriate locking, but I don't know enough
-> > about the keys subsystem to know if that would maybe break stuff
-> > that relies on override_creds() also overriding the keyrings, or
-> > something like that.
-> > ---
-> >  include/linux/cred.h          |   1 -
-> >  include/linux/lsm_hook_defs.h |   3 --
-> >  include/linux/security.h      |  12 -----
-> >  kernel/cred.c                 |  23 ----------
-> >  security/apparmor/lsm.c       |  19 --------
-> >  security/keys/internal.h      |   8 ++++
-> >  security/keys/keyctl.c        | 100 +++++++++++-----------------------=
---------
-> >  security/keys/process_keys.c  |  86 +++++++++++++++++++---------------=
---
-> >  security/landlock/cred.c      |  11 +----
-> >  security/security.c           |  35 ---------------
-> >  security/selinux/hooks.c      |  12 -----
-> >  security/smack/smack_lsm.c    |  32 --------------
-> >  12 files changed, 82 insertions(+), 260 deletions(-)
->
-> Given the large patch size:
->
-> 1. If it is impossible to split some meaningful patches, i.e. patches
->    that transform kernel tree from working state to another, I can
->    cope with this.
-> 2. Even for small chunks that can be split into their own logical
->    pieces: please do that. Helps to review the main gist later on.
-
-There are basically two parts to this, it could be split up nicely into the=
-se:
-
-1. refactor code in security/keys/
-2. rip out all the code that is now unused (as you can see in the
-diffstat, basically everything outside security/keys/ is purely
-removals)
-
-[...]
-> Not going through everything but can we e.g. make a separe SMACK patch
-> prepending?
-
-I wouldn't want to split it up further: As long as the cred_transfer
-mechanism and LSM hook still exist, all the LSMs that currently have
-implementations of it should also still implement it.
-
-But I think if patch 2/2 is just ripping out unused infrastructure
-across the tree, that should be sufficiently reviewable? (Or we could
-split it up into ripping out one individual helper per patch, but IDK,
-that doesn't seem to me like it adds much reviewability.)
+--=20
+gpg --locate-keys dominick.grift@defensec.nl (wkd)
+Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+Dominick Grift
+Mastodon: @kcinimod@defensec.nl
