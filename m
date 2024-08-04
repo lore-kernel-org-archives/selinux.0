@@ -1,156 +1,165 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C7F613FF9;
-	Sat,  3 Aug 2024 17:20:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9169A7494;
+	Sun,  4 Aug 2024 07:56:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722705639; cv=none; b=Z1uKvL0ZBluLEmtOQhtI7Z1fBT78CNN+HqsgiOJw1STFDzBHng3WgLe9BlZy9v1bC1vQMhoylv1+k1W+jqDCIpN/llpVzWQRgzIT69JKCH63FzMo5xVDQB2uCj+tJaSXby89GSFqB83QXZ5P21Ow7Qz44EJEKjRCUERIHFaYG7U=
+	t=1722758209; cv=none; b=Vbzqr869v0hhWbPqJ+v6DAgEuN7HFdqwL/zJgiYpwqFUTWq/q0z40lFkDBpY/ZgKdQV4CqD2TT++R/wmenm+irQUuCk5iGsObn7ckdTrXv9tlaERxowBgkdWKNiEnuyKIpqdzhMnOKLY5X6xonWutpXtcb+3DPsCYmuBW7haHA4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722705639; c=relaxed/simple;
-	bh=oopEEmNt7me2D3Oh0stU4KwiD5hCwyE/D6bQNo1nin8=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
-	 References:In-Reply-To; b=OQaMohWxrk/iTwg5olM3Z6YBQDhd5eVwYNJ4dsbBNhSYCQmYjF9AzLUNWmuHZ2kzy8U70tj5Tkjcu08EGtW10otjubqEN0xacxI26h3A4x0bgu28ffUXq+FNZPeHWp9ZDD7zGx+zgaR5blqiCKuA7+AoXtwZLpVZtj2kHDjCYak=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sr85dsLh; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1722758209; c=relaxed/simple;
+	bh=zfRBye9XjAyf1w+J+rLHJaLjVkIJJvi7H+/9DoIfN74=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=H7Qfjq5dR8inYuZGd0hUxvjIjZSBazf0MHlS2PrNDyRoGBJJ3mD1GNUfgPEjGuLp5Dta6TxFGgeLrpsT8qqKMmbD1diDoDcb3olG+fCKFM32KBXxcVEwO98YSbe1etqesfrBoBLbSCn0y4WmLdwpHPlbDaRQPwViU/Z5kK8G8Yg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BYbhDKuo; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sr85dsLh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9E2EC116B1;
-	Sat,  3 Aug 2024 17:20:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1722705639;
-	bh=oopEEmNt7me2D3Oh0stU4KwiD5hCwyE/D6bQNo1nin8=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-	b=sr85dsLhagZP5boe6BgFHYmvqBlZGpivyNEIa0QQ9DeKARirv0EkarkzgRFylYGeo
-	 w5yoe2KqvuSV2Op9Cv68bnmQ/OU8sUHx19LuKmA+qwyXZl2PLCRkYHPqAjUPv3kOEj
-	 WU+moUAhnR7+Ovr8U6AzCUkTX4wVyDPatVpu7uBCZXn42Cw/NRgoTyGgWZfRZxhNqX
-	 9rnQOnR6cf7XkGNWLQsTNK2BdV9Wbh96K46fcThgmH8IYS5pcht4KhTFcJ/80hPdz9
-	 ms2Jm38RJx1wV60bgxLAjFadol8dmUMNUrwREJtm1rTRv+EFT/v3z2p9i4bQsmi+WJ
-	 8YIZ0K2dHPepg==
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BYbhDKuo"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-70d25b5b6b0so7060495b3a.2;
+        Sun, 04 Aug 2024 00:56:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1722758207; x=1723363007; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=jAUiIbA9M914l7SbVcGMcRn0qL18BQ5kTGC/RMGMPl4=;
+        b=BYbhDKuoSy5kiP/T/t8AYguX4K08c0CO5oMiU4u7FR4j2serqcH7dhWrta+zc/gvdf
+         PPRFkQgb9bOZZeox0WWrDlMmmo1U6n5nHgNG07zAaVg8gxMBPFvmXzdxMyOSRLq5+dfa
+         IE/KB0iGEbFX8cF0O+NXXos6Lqt9/orLctXpmUzjZXRk+Qn/d4B9VvKIecXTVQVXgNgg
+         RnRqDYjpfGHLnssnIOKx11agZsj/yVhg8/hr4MExjivL3Y4ZvYRbZk4HP4d99ft/imL2
+         czeTMqlqGNR+mkio4pi6FqZgbUgHTWy3gjqAB8TIdKOsDKc1H3d7jVXL0e9PL2XuhDhg
+         Kwxg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722758207; x=1723363007;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=jAUiIbA9M914l7SbVcGMcRn0qL18BQ5kTGC/RMGMPl4=;
+        b=amj4DBgEmB3OBlDs7Uz2Uof9sLAgcNUVZVH0qaSsHNKhczzoAPhvBOjtq5sVAPNRiG
+         n/Zs80wvdJJB4m1PMY81luR/2jLv6hBCyF5H4+2Q0JgAB++ulkRSUg7gOI/wOVt+0KIb
+         q+FPguNYfJnaFEkOtq8xuAt9UfYuoRq/GPDV/VuSI2ETEH+V91TWNj2wKf/ovUZXcIrs
+         iqGZPjK3AICX6yulmYegislt3KnpprQNL76+lbGLAFXZmna/B7fGyGVJDrEFl41QnyW/
+         YGCS8sA7GF/51pnlNcGrPe59FuYlqjeYOvRNS76ir9zuthEVBD4tJ8jJo+knD0+YRb2G
+         RZ6A==
+X-Forwarded-Encrypted: i=1; AJvYcCV9zWLqFm1r6T82ZQyjEdpuzqOTV7mJSGYB2e7icd+zJix4VavxkAvE6F74avuo46yijBHz9QaLsxxnHmsHTpDBAFVR2MjDVz1uR+jscSnFbvEaLLJWOZOzhohYeAtOpyOwutQNtp2WdO/tshcXSGS8lu0OSPhqVjv5N9erJxjUuoN/CBt45csMf5AKd/IuLWHQNK3aaQ/fnXGwdRb4wcGRpsSRtQKb0jh8sB+hq8EuYDxYpj7Mjsc4IM5GbgJFYttCdKovWK0SZ/9Gu5qf5qO/k/ffWGavNtu3JnR9yh3WYBGvPJolzwMelg9IT6SxPQelj5fjRw==
+X-Gm-Message-State: AOJu0YyyxaJ8rHcNZOXjPeuXE0bT1USDebXZE6P4HHNmclr609MHF+E3
+	vGhVHXnV8uYSpOJ19ejVt1RFqlr4CXVtqqqnkmEmLNkqfc5489rXDy2foJCcIy0=
+X-Google-Smtp-Source: AGHT+IGr87hL+CR9BQ4tkSVsGq67qKnz8TEMjj1/AcYNViYHS42eo8GA1J34i40o5jKuxGL8nismgw==
+X-Received: by 2002:a17:902:d08a:b0:1fd:9e6e:7c10 with SMTP id d9443c01a7336-1ff5748d30cmr59016425ad.41.1722758206776;
+        Sun, 04 Aug 2024 00:56:46 -0700 (PDT)
+Received: from localhost.localdomain ([39.144.105.172])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1ff59178248sm46387605ad.202.2024.08.04.00.56.31
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 04 Aug 2024 00:56:45 -0700 (PDT)
+From: Yafang Shao <laoar.shao@gmail.com>
+To: akpm@linux-foundation.org
+Cc: torvalds@linux-foundation.org,
+	ebiederm@xmission.com,
+	alexei.starovoitov@gmail.com,
+	rostedt@goodmis.org,
+	catalin.marinas@arm.com,
+	penguin-kernel@i-love.sakura.ne.jp,
+	linux-mm@kvack.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org,
+	audit@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org,
+	bpf@vger.kernel.org,
+	netdev@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	Yafang Shao <laoar.shao@gmail.com>
+Subject: [PATCH v5 0/9] Improve the copy of task comm
+Date: Sun,  4 Aug 2024 15:56:10 +0800
+Message-Id: <20240804075619.20804-1-laoar.shao@gmail.com>
+X-Mailer: git-send-email 2.30.1 (Apple Git-130)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Sat, 03 Aug 2024 20:20:35 +0300
-Message-Id: <D36G6JFV79FK.2LCFXJYDTRRPK@kernel.org>
-Subject: Re: [PATCH RFC] security/KEYS: get rid of cred_alloc_blank and
- cred_transfer
-From: "Jarkko Sakkinen" <jarkko@kernel.org>
-To: "Jann Horn" <jannh@google.com>, "Jarkko Sakkinen"
- <jarkko.sakkinen@iki.fi>
-Cc: "Paul Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>, "John Johansen"
- <john.johansen@canonical.com>, "David Howells" <dhowells@redhat.com>,
- =?utf-8?q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
- =?utf-8?q?G=C3=BCnther_Noack?= <gnoack@google.com>, "Stephen Smalley"
- <stephen.smalley.work@gmail.com>, "Ondrej Mosnacek" <omosnace@redhat.com>,
- "Casey Schaufler" <casey@schaufler-ca.com>, <linux-kernel@vger.kernel.org>,
- <linux-security-module@vger.kernel.org>, <apparmor@lists.ubuntu.com>,
- <keyrings@vger.kernel.org>, <selinux@vger.kernel.org>
-X-Mailer: aerc 0.18.0
-References: <20240802-remove-cred-transfer-v1-1-b3fef1ef2ade@google.com>
- <D35ML45KMWK8.1E29IC0VZO4CL@iki.fi>
- <CAG48ez1GFY5H1ujaDfcj-Ay5_Pm8MsBVL=vU4tEynXgzg5yduQ@mail.gmail.com>
-In-Reply-To: <CAG48ez1GFY5H1ujaDfcj-Ay5_Pm8MsBVL=vU4tEynXgzg5yduQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Fri Aug 2, 2024 at 9:39 PM EEST, Jann Horn wrote:
-> > > What do you think? Synchronously waiting for task work is a bit ugly,
-> > > but at least this condenses the uglyness in the keys subsystem instea=
-d
-> > > of making the rest of the security subsystem deal with this stuff.
-> >
-> > Why does synchronously waiting is ugly? Not sarcasm, I genuineily
-> > interested of breaking that down in smaller pieces.
-> >
-> > E.g. what disadvantages would be there from your point of view?
-> >
-> > Only trying to form a common picture, that's all.
->
-> Two things:
->
-> 1. It means we have to send a pseudo-signal to the parent, to get the
-> parent to bail out into signal handling context, which can lead to
-> extra spurious -EGAIN in the parent. I think this is probably fine
-> since _most_ parent processes will already expect to handle SIGCHLD
-> signals...
->
-> 2. If the parent is blocked on some other killable wait, we won't be
-> able to make progress - so in particular, if the parent was using a
-> killable wait to wait for the child to leave its syscall, userspace
-> =E1=BA=81ould deadlock (in a way that could be resolved by SIGKILLing one=
- of
-> the processes). Actually, I think that might happen if the parent uses
-> ptrace() with sufficiently bad timing? We could avoid the issue by
-> doing an interruptible wait instead of a killable one, but then that
-> might confuse userspace callers of the keyctl() if they get an
-> -EINTR...
-> I guess the way to do this cleanly is to use an interruptible wait and
-> return -ERESTARTNOINTR if it gets interrupted?
+Using {memcpy,strncpy,strcpy,kstrdup} to copy the task comm relies on the
+length of task comm. Changes in the task comm could result in a destination
+string that is overflow. Therefore, we should explicitly ensure the destination
+string is always NUL-terminated, regardless of the task comm. This approach
+will facilitate future extensions to the task comm.
 
-Or ERESTARTSYS if you want to select the behavior from caller using
-SA_RESTART, whether to restart or -EINTR.
+As suggested by Linus [0], we can identify all relevant code with the
+following git grep command:
 
+  git grep 'memcpy.*->comm\>'
+  git grep 'kstrdup.*->comm\>'
+  git grep 'strncpy.*->comm\>'
+  git grep 'strcpy.*->comm\>'
 
-> > > Another approach to simplify things further would be to try to move
-> > > the session keyring out of the creds entirely and just let the child
-> > > update it directly with appropriate locking, but I don't know enough
-> > > about the keys subsystem to know if that would maybe break stuff
-> > > that relies on override_creds() also overriding the keyrings, or
-> > > something like that.
-> > > ---
-> > >  include/linux/cred.h          |   1 -
-> > >  include/linux/lsm_hook_defs.h |   3 --
-> > >  include/linux/security.h      |  12 -----
-> > >  kernel/cred.c                 |  23 ----------
-> > >  security/apparmor/lsm.c       |  19 --------
-> > >  security/keys/internal.h      |   8 ++++
-> > >  security/keys/keyctl.c        | 100 +++++++++++---------------------=
-----------
-> > >  security/keys/process_keys.c  |  86 +++++++++++++++++++-------------=
-----
-> > >  security/landlock/cred.c      |  11 +----
-> > >  security/security.c           |  35 ---------------
-> > >  security/selinux/hooks.c      |  12 -----
-> > >  security/smack/smack_lsm.c    |  32 --------------
-> > >  12 files changed, 82 insertions(+), 260 deletions(-)
-> >
-> > Given the large patch size:
-> >
-> > 1. If it is impossible to split some meaningful patches, i.e. patches
-> >    that transform kernel tree from working state to another, I can
-> >    cope with this.
-> > 2. Even for small chunks that can be split into their own logical
-> >    pieces: please do that. Helps to review the main gist later on.
->
-> There are basically two parts to this, it could be split up nicely into t=
-hese:
->
-> 1. refactor code in security/keys/
-> 2. rip out all the code that is now unused (as you can see in the
-> diffstat, basically everything outside security/keys/ is purely
-> removals)
+PATCH #2~#4:   memcpy
+PATCH #5~#6:   kstrdup
+PATCH #7:      strncpy
+PATCH #8~#9:   strcpy
 
-Yeah, I'd go for this simply because it allows better reviewer
-visibility. You can look at the soluton and cleanups separately.
+There is a BUILD_BUG_ON() inside get_task_comm(), so when you use
+get_task_comm(), it implies that the BUILD_BUG_ON() is necessary. However,
+we don't want to impose this restriction on code where the length can be
+changed, so we use __get_task_comm(), rather than the get_task_comm().
 
->
-> [...]
-> > Not going through everything but can we e.g. make a separe SMACK patch
-> > prepending?
->
-> I wouldn't want to split it up further: As long as the cred_transfer
-> mechanism and LSM hook still exist, all the LSMs that currently have
-> implementations of it should also still implement it.
->
-> But I think if patch 2/2 is just ripping out unused infrastructure
-> across the tree, that should be sufficiently reviewable? (Or we could
-> split it up into ripping out one individual helper per patch, but IDK,
-> that doesn't seem to me like it adds much reviewability.)
+One use case of get_task_comm() is in code that has already exposed the
+length to userspace. In such cases, we specifically add the BUILD_BUG_ON()
+to prevent developers from changing it. For more information, see
+commit 95af469c4f60 ("fs/binfmt_elf: replace open-coded string copy with
+get_task_comm").
 
-I don't want to dictate this because might give wrong advice (given
-bandwidth to think it through). Pick a solution and we'll look at it :-)
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/all/CAHk-=wjAmmHUg6vho1KjzQi2=psR30+CogFd4aXrThr2gsiS4g@mail.gmail.com/ [0]
 
-BR, Jarkko
+Changes:
+v4->v5:
+- Drop changes in the mm/kmemleak.c as it was fixed by
+  commit 0b84780134fb ("mm/kmemleak: replace strncpy() with strscpy()")
+- Drop changes in kernel/tsacct.c as it was fixed by
+  commmit 0fe2356434e ("tsacct: replace strncpy() with strscpy()")
+
+v3->v4: https://lore.kernel.org/linux-mm/20240729023719.1933-1-laoar.shao@gmail.com/
+- Rename __kstrndup() to __kmemdup_nul() and define it inside mm/util.c
+  (Matthew)
+- Remove unused local varaible (Simon)
+
+v2->v3: https://lore.kernel.org/all/20240621022959.9124-1-laoar.shao@gmail.com/
+- Deduplicate code around kstrdup (Andrew)
+- Add commit log for dropping task_lock (Catalin)
+
+v1->v2: https://lore.kernel.org/bpf/20240613023044.45873-1-laoar.shao@gmail.com/
+- Add comment for dropping task_lock() in __get_task_comm() (Alexei)
+- Drop changes in trace event (Steven)
+- Fix comment on task comm (Matus)
+
+v1: https://lore.kernel.org/all/20240602023754.25443-1-laoar.shao@gmail.com/
+
+Yafang Shao (9):
+  fs/exec: Drop task_lock() inside __get_task_comm()
+  auditsc: Replace memcpy() with __get_task_comm()
+  security: Replace memcpy() with __get_task_comm()
+  bpftool: Ensure task comm is always NUL-terminated
+  mm/util: Fix possible race condition in kstrdup()
+  mm/util: Deduplicate code in {kstrdup,kstrndup,kmemdup_nul}
+  tracing: Replace strncpy() with __get_task_comm()
+  net: Replace strcpy() with __get_task_comm()
+  drm: Replace strcpy() with __get_task_comm()
+
+ drivers/gpu/drm/drm_framebuffer.c     |  2 +-
+ drivers/gpu/drm/i915/i915_gpu_error.c |  2 +-
+ fs/exec.c                             | 10 ++++-
+ include/linux/sched.h                 |  4 +-
+ kernel/auditsc.c                      |  6 +--
+ kernel/trace/trace.c                  |  2 +-
+ kernel/trace/trace_events_hist.c      |  2 +-
+ mm/util.c                             | 61 ++++++++++++---------------
+ net/ipv6/ndisc.c                      |  2 +-
+ security/lsm_audit.c                  |  4 +-
+ security/selinux/selinuxfs.c          |  2 +-
+ tools/bpf/bpftool/pids.c              |  2 +
+ 12 files changed, 49 insertions(+), 50 deletions(-)
+
+-- 
+2.34.1
