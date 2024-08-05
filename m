@@ -1,405 +1,256 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A19C3155C91
-	for <selinux@vger.kernel.org>; Mon,  5 Aug 2024 11:54:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51F4413B29F
+	for <selinux@vger.kernel.org>; Mon,  5 Aug 2024 14:13:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722858885; cv=none; b=taMJqWj06l++O2EpQGX3RuDivNk8t8KWZNNgtJc34mS3RoPyLHVEo+BUGJR3vqPRmK8Jdw3SoH6vcmrW3aAwE4k2pszkEeZY0MuuVmQQvItEgI+o1PmhGftIsA4aMW3DYQAcAhHuzD+qaUW6u+NrMtAFfP3NbESEXOfvfN2x+xk=
+	t=1722867187; cv=none; b=H85Ms6NRITqt0FySLACnWn6zrcFG6V5SMEB/qYEcgwysa83UWrcfvXCakeH3GXeG5zIIt6345CfSLqisWLCTxzCQ1s6evD08yrWsRMgRD7y9lDp7+DoiXqR8Qsj1DDNpDa9BbWMYtNPPOKk+poX7ky4DRLaX4K6rvksCfBQzMWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722858885; c=relaxed/simple;
-	bh=Re7tlwQwkReWAxTPm//VWabZ0bUWqQj6ogEK+qQNCnA=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=bf5H8kNud52yFaN0UC5RPYgEwRqQBoyvYmifEKThZ4Z6+fwCiFkFM/+o/xJabgd0RWdsiabxu/f2uTd68kzaypJa6OLOm1BHojcshQ0OnOb6sLk5CvMrP/nqWTiE1QxM8iyWHJh1ubpxO3N4ApSoe3Db/rXCfOddLvZbo1T1I7s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=F+kOkJoA; arc=none smtp.client-ip=209.85.128.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1722867187; c=relaxed/simple;
+	bh=bIjFZzEq3Q2whmSBoejkzoRzPigfF3cG4R0nsVay+dc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=LTsIzRoIlqO5MRTis2sGzDY8od6NyZxRPIHCIxIKvrCff5L/Cf3azoVDohPzyA73AiVkr9qSENGon5RRrv0Hmcm8ZnOj5QCH3LoLR3MTBi7gxoypgez0TuB0nyp3CfMUBEYWlKp5QSrJRCVUkkcQ6BUJfCniIMqy0ZfvUjFdY1E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=m1BUMysg; arc=none smtp.client-ip=209.85.215.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="F+kOkJoA"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-42807cb6afdso63075e9.1
-        for <selinux@vger.kernel.org>; Mon, 05 Aug 2024 04:54:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m1BUMysg"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-71871d5e087so8024617a12.1
+        for <selinux@vger.kernel.org>; Mon, 05 Aug 2024 07:13:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1722858880; x=1723463680; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=O4C4qGfYc/H4rRnmI2/dH087dXNS+hc43XiseqKD6D0=;
-        b=F+kOkJoAyojXfe8CUNJpW/P5IqYbx8/4lckF24hZBTfdkQhhrYj1+jifKvgHfeMKNe
-         q00R7PCVoAtfi2/yKGxlHGCKm0TKAQwdcl4acnLahFRIdVlP0Ynq82Rm8sMK4+SBMT8h
-         RwnlHWUNZYnrPvLvbqVaI7zZpS7pGRfYYxQw0wdQXSr4SIBtqeRg5z5+WIhAe5jEkqs+
-         DjhRZVDD7GESGRDEjwvhWCMLOU82xq7EiVaFP/WLGhLbFdecoAfg9QoS2TKnVe1mPWIL
-         rXCMUWH1vxDPfj1PWl2w2Q7HIPm2rEqM5d9LWsZqsJNLsl5X004i3x/qXfodTGKhIOUU
-         y+QQ==
+        d=gmail.com; s=20230601; t=1722867185; x=1723471985; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=MbYLctpNtjtcJSeKhUcRXcWJ6w/wpHMYLO/Zegvassg=;
+        b=m1BUMysgeWraaZ1aEuvFxwC7MPu4OQbtutDYavb/BWKyucKNocWlRWOvpFvar1wsGp
+         AUTly68f1EVo9/4BT/HYC5Kt0aO0RScissEFL9xIAOjkYqpZwiw4MdpQz3O3FK4z93Dg
+         SF05NhJPHhECMtmITGsUE9BQvIh/8K5bo+rCeC85TVko+seW3rDWlJS6eW7X7f5stz/w
+         fm3st23JQkd0IQTEHoRLrfztMpwVoUhiuVwS0oYX4br4Mjio4P1Wf4gGryYopbbzYT6a
+         lVYAKgvA0faDrEfV21nev6UEypAaEbV85xxUl3TPc0mtFTHo2K61d1EL7oLFQT8mJ/1/
+         NKWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722858880; x=1723463680;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1722867185; x=1723471985;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=O4C4qGfYc/H4rRnmI2/dH087dXNS+hc43XiseqKD6D0=;
-        b=ukymbZ/5Nf83//gLB7VsmheGa7nCk1s9e+jBLgwN19FzdhkbXuQnUS3JSdv23KWdq0
-         I4pDB37m9bb9D/4GXKP/6Hs3oTm/hk4LdRgd5+jgNfN271qTGm2R4J12qvzMFwKDT5cp
-         Tuv24XKQXk5Yr4/k+eBTy7lwfcEdtnD+H2O8NeNVI9Plkv/ieqnlwvFCQeDZKOU708Kh
-         TsRE2R027HGv/vKo80fTMlBP7ngX5+hOkuNWvqfag/xd0tB9DEkfrCOUS0R+2S8anvqh
-         OD/gL34cC2MmBTca8X7RwNitvTBS7nFTGYONFN73vvx+izcBmnQUEi3vvRBDjaEex2/V
-         F2+Q==
-X-Forwarded-Encrypted: i=1; AJvYcCW5+9k7eOEeTBNOmhLnm2mVHfB4Xv7F2Z9c8T5ssXR7WKRdqTHV8v3CgykAyv4Nw2/+Xqkgjk/+xZmELCX5s2B8GWeBDiB9xQ==
-X-Gm-Message-State: AOJu0YznAQhN1eYy6Bcb339WzLy+W9bJeoubq6dlTWDm6AU0hULz3o/6
-	PuszkiKfHghq9gNJg4M/f11itzobP/8fvybXiuxqkxkbxZ3BNhLQ/B/vJ5OwSA==
-X-Google-Smtp-Source: AGHT+IE1/OZGyVcZgXAgUHQazzFTNZJNCMvdxs7WfSOWX/jWwoi5cjyKhNoe5QUmALmlbH6g2NVRCA==
-X-Received: by 2002:a05:600c:1d98:b0:426:66fd:5fac with SMTP id 5b1f17b1804b1-428ef4b075fmr2788055e9.2.1722858879274;
-        Mon, 05 Aug 2024 04:54:39 -0700 (PDT)
-Received: from localhost ([2a00:79e0:9d:4:ca74:8a49:a6f6:b872])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4282b89acacsm198653965e9.9.2024.08.05.04.54.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 05 Aug 2024 04:54:38 -0700 (PDT)
-From: Jann Horn <jannh@google.com>
-Date: Mon, 05 Aug 2024 13:54:23 +0200
-Subject: [PATCH v2 1/2] KEYS: use synchronous task work for changing parent
- credentials
+        bh=MbYLctpNtjtcJSeKhUcRXcWJ6w/wpHMYLO/Zegvassg=;
+        b=KzjTnmbcPXq7bFy6yRZ6/NaRWDTOKnL+FAoluVMzEUBm9B0sr6suwqXu+zUo6IUUCr
+         3cbo6JKlxTSJoxMqjy0hCAvDew5rKMuLo4XSyB88eociIcjB4JyczKQiYBwVcyggGgxN
+         LA0BuZmQbO93emVemmwUY+DMrefFv0A7LT4tRLPjkR1GQCNFlu2Uk7btPnTiV9wy8JIR
+         zj3Sd2XbYXlWr0yj9DOkyu4tL0qJl/smInPcBQvg3Z/qjORKULqYzed4aF7vBLOwtejI
+         RwPQRWCmCqEs0OYeJFxx3dN+qbzi81lCPeDRM5jEu2ZRaNOduX8K70GflaR7Aalv081m
+         BpAA==
+X-Forwarded-Encrypted: i=1; AJvYcCVouH0BOvjwXRIEMGrY9rX3gE6DbHQDJl8kUgXAHhaLrYlo25jgNRhMcZjUXS/MuJx6ah9qxi3a9YsyyAsPEPh28VxnkuvhtA==
+X-Gm-Message-State: AOJu0Yxes1FFp4pq0gS7oQV4SMM+0c+r4cfeWPqpv2B4hrvfzk2z0SY0
+	s/HsfdKBwJ1apsUUVwlF/N0ZVC/duHaNtUQqdjonJegWXWRnnF2hhtNjWkCrQGTizpba9/4vJKg
+	niPGs7y79gJUL58ZTlFm4b8KvokCGVQ==
+X-Google-Smtp-Source: AGHT+IEeEx37Ht9vJ72neOCW1amomabo+PQ10GId2SH1ypSsHOCODKfaUfvu1x313weWnwquHWgF9cwF6LMWCdM0N0c=
+X-Received: by 2002:a17:90a:f486:b0:2bd:d42a:e071 with SMTP id
+ 98e67ed59e1d1-2cff952441dmr13640700a91.30.1722867185322; Mon, 05 Aug 2024
+ 07:13:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240805-remove-cred-transfer-v2-1-a2aa1d45e6b8@google.com>
-References: <20240805-remove-cred-transfer-v2-0-a2aa1d45e6b8@google.com>
-In-Reply-To: <20240805-remove-cred-transfer-v2-0-a2aa1d45e6b8@google.com>
-To: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
- "Serge E. Hallyn" <serge@hallyn.com>, 
- John Johansen <john.johansen@canonical.com>, 
- David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko@kernel.org>, 
- =?utf-8?q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, 
- =?utf-8?q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
- Stephen Smalley <stephen.smalley.work@gmail.com>, 
- Ondrej Mosnacek <omosnace@redhat.com>, 
- Casey Schaufler <casey@schaufler-ca.com>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, 
- apparmor@lists.ubuntu.com, keyrings@vger.kernel.org, 
- selinux@vger.kernel.org, Jann Horn <jannh@google.com>
-X-Mailer: b4 0.15-dev
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1722858874; l=10749;
- i=jannh@google.com; s=20240730; h=from:subject:message-id;
- bh=Re7tlwQwkReWAxTPm//VWabZ0bUWqQj6ogEK+qQNCnA=;
- b=dh3V3tyfNzFbCFftjs+fDtLLfOxy69vgTOAR6QAyWmTf4hIsZ7OUTcaxl2ebeCrK2jXHyeFPL
- V+z9D3vebI9AtEpTHfNrluIoKDOlXLzW6i0oRzYKNXzDHb3teuENXd+
-X-Developer-Key: i=jannh@google.com; a=ed25519;
- pk=AljNtGOzXeF6khBXDJVVvwSEkVDGnnZZYqfWhP1V+C8=
+References: <CAEjxPJ46KJCUXqgq==pmEMW9yYJSRnWkGrSrxBAfMELPRYUdXQ@mail.gmail.com>
+ <CAEjxPJ7WUzN=0Yv4POgPVHPG1wEjNn=-Tb53NiuMpWf+bEuF-w@mail.gmail.com>
+ <CAEjxPJ758jx7X5Tauz=xQXsmWcZhx_V7AkU=PtsH6S3S9CUCbw@mail.gmail.com>
+ <CAEjxPJ50ADVSOys58eYUktv4sjYYnEDroxA9Wnt6HiY9ySk=gg@mail.gmail.com>
+ <CAEjxPJ6QsYR-Kj8k0C=54cix8rdpBsCphDV5_QnjGONDuOm+ew@mail.gmail.com>
+ <CAEjxPJ6p3oD99_aTEeSCx6FMob7BH8-2vxdoT69c8sw11oHuEA@mail.gmail.com> <CAEjxPJ5jup5o9piVPuA97_radSzvshpnRB1CdBde8sV3ZXVc2Q@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5jup5o9piVPuA97_radSzvshpnRB1CdBde8sV3ZXVc2Q@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 5 Aug 2024 10:12:53 -0400
+Message-ID: <CAEjxPJ7UtCjQw=v1--6ZWXo-bbkndGbwfXhcT8RkX_cddjCqkQ@mail.gmail.com>
+Subject: Re: SELinux namespaces re-base
+To: Paul Moore <paul@paul-moore.com>, SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-keyctl_session_to_parent() involves posting task work to the parent task,
-with work function key_change_session_keyring.
-Because the task work in the parent runs asynchronously, no errors can be
-returned back to the caller of keyctl_session_to_parent(), and therefore
-the work function key_change_session_keyring() can't be allowed to fail due
-to things like memory allocation failure or permission checks - all
-allocations and checks have to happen in the child.
+On Fri, Aug 2, 2024 at 2:34=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Fri, Aug 2, 2024 at 1:18=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Thu, Aug 1, 2024 at 3:28=E2=80=AFPM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > >
+> > > On Thu, Aug 1, 2024 at 2:48=E2=80=AFPM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > >
+> > > > On Thu, Aug 1, 2024 at 10:03=E2=80=AFAM Stephen Smalley
+> > > > <stephen.smalley.work@gmail.com> wrote:
+> > > > >
+> > > > > On Thu, Aug 1, 2024 at 9:01=E2=80=AFAM Stephen Smalley
+> > > > > <stephen.smalley.work@gmail.com> wrote:
+> > > > > >
+> > > > > > On Thu, Aug 1, 2024 at 8:27=E2=80=AFAM Stephen Smalley
+> > > > > > <stephen.smalley.work@gmail.com> wrote:
+> > > > > > >
+> > > > > > > Given the recent discussion of the SELinux namespaces patches=
+, I
+> > > > > > > re-based the working-selinuxns branch of my selinux-kernel fo=
+rk on top
+> > > > > > > of the dev branch. This required first reverting commit e67b7=
+9850fcc
+> > > > > > > ("selinux: stop passing selinux_state pointers and their offs=
+pring")
+> > > > > > > which I had created at Linus' request some time ago to avoid =
+the
+> > > > > > > extraneous overhead associated with passing those pointers wh=
+en there
+> > > > > > > could only be one selinux_state structure. Due to the number =
+of
+> > > > > > > changes, both substantive and coding style related, since the=
+ last
+> > > > > > > re-base in 2020, there were numerous conflicts that required =
+manual
+> > > > > > > resolution. I also checked the coding style of each patch wit=
+h Paul's
+> > > > > > > scripts and fixed any issues introduced by the patches along =
+the way.
+> > > > > > >
+> > > > > > > The rebase can be found at:
+> > > > > > > https://github.com/stephensmalley/selinux-kernel/tree/working=
+-selinuxns
+> > > > > > >
+> > > > > > > It boots, passes the selinux-testsuite (including the NFS tes=
+ts), and
+> > > > > > > passes the following
+> > > > > > > trivial exercising of the unshare mechanism:
+> > > > > > > $ sudo bash
+> > > > > > > # echo 1 > /sys/fs/selinux/unshare
+> > > > > > > # unshare -m -n
+> > > > > > > # umount /sys/fs/selinux
+> > > > > > > # mount -t selinuxfs none /sys/fs/selinux
+> > > > > > > # id
+> > > > > > > uid=3D0(root) gid=3D0(root) groups=3D0(root) context=3Dkernel
+> > > > > > > # getenforce
+> > > > > > > Permissive
+> > > > > > > # load_policy
+> > > > > > > # id
+> > > > > > > uid=3D0(root) gid=3D0(root) groups=3D0(root) context=3Dsystem=
+_u:system_r:kernel_t:s0
+> > > > > > >
+> > > > > > > All the same caveats apply - this is still not safe to use an=
+d has
+> > > > > > > many unresolved issues as noted in the patch descriptions.
+> > > > > >
+> > > > > > Also, note that as before, this branch does NOT include the ori=
+ginal
+> > > > > > patches to support per-namespace superblock and inode security
+> > > > > > structures. Given the known problems with those patches and rec=
+ent
+> > > > > > discussions, we likely don't want them anyway, but for referenc=
+e they
+> > > > > > can still be found here:
+> > > > > > https://github.com/stephensmalley/selinux-kernel/commit/3378718=
+ef7d4a837f32c63bdfcc0b70342cdd55d
+> > > > > > https://github.com/stephensmalley/selinux-kernel/commit/efb2dda=
+dfdd0e10e75b6aa5da2ed9841df6ef2f6
+> > > > > >
+> > > > > > Without those patches, ls -Z will show as unlabeled any files w=
+hose
+> > > > > > inodes were already in-core at the time of the creation of the =
+new
+> > > > > > SELinux namespace because their inode security structures will =
+have
+> > > > > > SIDs that do not exist in the new namespace's SID table.
+> > > > > >
+> > > > > > An alternative approach proposed by Huawei to my original patch=
+es can
+> > > > > > be found here:
+> > > > > > https://lore.kernel.org/selinux/20220216125206.20975-1-igor.bar=
+anov@huawei.com/#r
+> > > > > >
+> > > > > > However, those patches also seem to have quite a few unresolved=
+ issues.
+> > > > >
+> > > > > Actually, re-reading that thread inspired me to take one of the i=
+deas
+> > > > > suggested by Huawei, so I just pushed up one change on top of my
+> > > > > working-selinuxns branch to support saving the SELinux namespace =
+in
+> > > > > the inode security blob and re-initializing it when an inode is
+> > > > > accessed by a process in a different SELinux namespace. This at l=
+east
+> > > > > allows ls -Z to correctly show the security contexts of files eve=
+n
+> > > > > when they are already in-core.
+> > > > > There still remain many issues though to resolve...
+> > > >
+> > > > As just one example, if you setenforce 1 in the new SELinux namespa=
+ce,
+> > > > you'll instantly lose access to your open files since the file
+> > > > security blobs (not the inode security blobs) still have SIDs that
+> > > > were created in the parent namespace and aren't defined in yours. A=
+nd
+> > > > naively changing those to match your namespace will break access by
+> > > > the parent process. Probably need to create a helper program akin t=
+o
+> > > > newrole that handles closing and re-opening the fds in the new
+> > > > namespace.
+> > > >
+> > > > Then you still have the problem of the inode security blobs not bei=
+ng
+> > > > refreshed on certain code paths because you can't sleep on those co=
+de
+> > > > paths and fetching the xattr may sleep. Might require saving a copy=
+ of
+> > > > the security context string in the inode security blob so that you
+> > > > don't have to perform any blocking operations to refresh the SID to
+> > > > match the current namespace, but that will come at an obvious cost =
+in
+> > > > memory.
+> > >
+> > > The last paragraph above actually rears its head even without fixing
+> > > the fd problem;
+> > > unfortunately that last patch I pushed on top of working-selinuxns
+> > > will render you unable to ssh into the system if/when you end up
+> > > creating a new SELinux namespace and accessing files needed by sshd.
+> > > It seems that the patch is updating the inode SID and namespace to th=
+e
+> > > new namespace and then sshd is trying to access those files through a
+> > > code path that cannot call  inode_security_revalidate() with
+> > > may_sleep=3D=3Dtrue and hence ends up using the wrong SID and being d=
+enied
+> > > access.
+> >
+> > I just pushed up another change on top of my working-selinuxns branch
+> > that fixes this issue albeit inefficiently memory-wise.
+> > For the moment, it saves the security context in the inode security
+> > blob when inode_doinit_with_dentry() first obtains it via getxattr(),
+> > and later re-uses that context in the !may_sleep case. Ultimately we
+> > will want to re-do this using an approach similar to Smack so that we
+> > don't keep multiple copies of the same security context in memory.
+> > This change combined with adding further calls to
+> > __inode_security_revalidate() to the file*has_perm() prior to
+> > accessing the inode security blob (now that we can safely do so)
+> > eliminates the problem I was seeing with sshd, although I am sure
+> > there remain other cases.
+> > Next issue to address is the open fds when you unshare the namespace.
+>
+> Ok, I pushed up two more changes - one to fix a memory leak in the
+> previous change (thanks kmemleak!) and one to update the security
+> blobs of the open files of the current process when it unshares its
+> SELinux namespace. This gets us a bit farther; now when I setenforce 1
+> in the new SELinux namespace, it retains access to its
+> stdin/stdout/stderr but it segfaults because it loses access to its
+> memory mappings. I see the Huawei patch set had something to try to
+> migrate the VMAs of the current process; that looks ugly and doesn't
+> have a convenient helper in the mm subsystem unlike the open files
+> situation (iterate_fd helper that was already being used by
+> flush_unauthorized_files). So that's the next challenge. Might be
+> better though to just defer the unsharing of the SELinux namespace to
+> the next execve, similar to setexeccon(), so that we don't have to
+> deal with it.
 
-This is annoying for two reasons:
-
- - It is the only reason why cred_alloc_blank() and
-   security_transfer_creds() are necessary.
- - It means we can't do synchronous permission checks.
-
-Rewrite keyctl_session_to_parent() to run task work on the parent
-synchronously, so that any errors that happen in the task work can be
-plumbed back into the syscall return value in the child.
-This allows us to get rid of cred_alloc_blank() and
-security_transfer_creds() in a later commit, and it will make it possible
-to write more reliable security checks for this operation.
-
-Note that this requires using TWA_SIGNAL instead of TWA_RESUME, so the
-parent might observe some spurious -EAGAIN syscall returns or such; but the
-parent likely anyway has to be ready to deal with the side effects of
-receiving signals (since it'll probably get SIGCHLD when the child dies),
-so that probably isn't an issue.
-
-Signed-off-by: Jann Horn <jannh@google.com>
----
- security/keys/internal.h     |   8 ++++
- security/keys/keyctl.c       | 107 +++++++++++++------------------------------
- security/keys/process_keys.c |  86 ++++++++++++++++++----------------
- 3 files changed, 87 insertions(+), 114 deletions(-)
-
-diff --git a/security/keys/internal.h b/security/keys/internal.h
-index 2cffa6dc8255..2c5eadc04cf2 100644
---- a/security/keys/internal.h
-+++ b/security/keys/internal.h
-@@ -157,12 +157,20 @@ extern struct key *request_key_and_link(struct key_type *type,
- 					unsigned long flags);
- 
- extern bool lookup_user_key_possessed(const struct key *key,
- 				      const struct key_match_data *match_data);
- 
- extern long join_session_keyring(const char *name);
-+
-+struct keyctl_session_to_parent_context {
-+	struct callback_head work;
-+	struct completion done;
-+	struct key *new_session_keyring;
-+	const struct cred *child_cred;
-+	int result;
-+};
- extern void key_change_session_keyring(struct callback_head *twork);
- 
- extern struct work_struct key_gc_work;
- extern unsigned key_gc_delay;
- extern void keyring_gc(struct key *keyring, time64_t limit);
- extern void keyring_restriction_gc(struct key *keyring,
-diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
-index ab927a142f51..e4cfe5c4594a 100644
---- a/security/keys/keyctl.c
-+++ b/security/keys/keyctl.c
-@@ -1616,104 +1616,63 @@ long keyctl_get_security(key_serial_t keyid,
-  * parent process.
-  *
-  * The keyring must exist and must grant the caller LINK permission, and the
-  * parent process must be single-threaded and must have the same effective
-  * ownership as this process and mustn't be SUID/SGID.
-  *
-- * The keyring will be emplaced on the parent when it next resumes userspace.
-+ * The keyring will be emplaced on the parent via a pseudo-signal.
-  *
-  * If successful, 0 will be returned.
-  */
- long keyctl_session_to_parent(void)
- {
--	struct task_struct *me, *parent;
--	const struct cred *mycred, *pcred;
--	struct callback_head *newwork, *oldwork;
-+	struct keyctl_session_to_parent_context ctx;
-+	struct task_struct *parent;
- 	key_ref_t keyring_r;
--	struct cred *cred;
- 	int ret;
- 
- 	keyring_r = lookup_user_key(KEY_SPEC_SESSION_KEYRING, 0, KEY_NEED_LINK);
- 	if (IS_ERR(keyring_r))
- 		return PTR_ERR(keyring_r);
- 
--	ret = -ENOMEM;
--
--	/* our parent is going to need a new cred struct, a new tgcred struct
--	 * and new security data, so we allocate them here to prevent ENOMEM in
--	 * our parent */
--	cred = cred_alloc_blank();
--	if (!cred)
--		goto error_keyring;
--	newwork = &cred->rcu;
-+	write_lock_irq(&tasklist_lock);
-+	parent = get_task_struct(rcu_dereference_protected(current->real_parent,
-+					lockdep_is_held(&tasklist_lock)));
-+	write_unlock_irq(&tasklist_lock);
- 
--	cred->session_keyring = key_ref_to_ptr(keyring_r);
--	keyring_r = NULL;
--	init_task_work(newwork, key_change_session_keyring);
-+	/* the parent mustn't be init and mustn't be a kernel thread */
-+	if (is_global_init(parent) || (READ_ONCE(parent->flags) & PF_KTHREAD) != 0)
-+		goto put_task;
- 
--	me = current;
--	rcu_read_lock();
--	write_lock_irq(&tasklist_lock);
-+	ctx.new_session_keyring = key_ref_to_ptr(keyring_r);
-+	ctx.child_cred = current_cred();
-+	init_completion(&ctx.done);
-+	init_task_work(&ctx.work, key_change_session_keyring);
-+	ret = task_work_add(parent, &ctx.work, TWA_SIGNAL);
-+	if (ret)
-+		goto put_task;
- 
--	ret = -EPERM;
--	oldwork = NULL;
--	parent = rcu_dereference_protected(me->real_parent,
--					   lockdep_is_held(&tasklist_lock));
-+	ret = wait_for_completion_interruptible(&ctx.done);
- 
--	/* the parent mustn't be init and mustn't be a kernel thread */
--	if (parent->pid <= 1 || !parent->mm)
--		goto unlock;
--
--	/* the parent must be single threaded */
--	if (!thread_group_empty(parent))
--		goto unlock;
--
--	/* the parent and the child must have different session keyrings or
--	 * there's no point */
--	mycred = current_cred();
--	pcred = __task_cred(parent);
--	if (mycred == pcred ||
--	    mycred->session_keyring == pcred->session_keyring) {
--		ret = 0;
--		goto unlock;
-+	if (task_work_cancel(parent, &ctx.work)) {
-+		/*
-+		 * We got interrupted and the task work was canceled before it
-+		 * could execute.
-+		 * Use -ERESTARTNOINTR instead of -ERESTARTSYS for
-+		 * compatibility - the manpage does not list -EINTR as a
-+		 * possible error for keyctl().
-+		 */
-+		ret = -ERESTARTNOINTR;
-+	} else {
-+		/* task work is running or has been executed */
-+		wait_for_completion(&ctx.done);
-+		ret = ctx.result;
- 	}
- 
--	/* the parent must have the same effective ownership and mustn't be
--	 * SUID/SGID */
--	if (!uid_eq(pcred->uid,	 mycred->euid) ||
--	    !uid_eq(pcred->euid, mycred->euid) ||
--	    !uid_eq(pcred->suid, mycred->euid) ||
--	    !gid_eq(pcred->gid,	 mycred->egid) ||
--	    !gid_eq(pcred->egid, mycred->egid) ||
--	    !gid_eq(pcred->sgid, mycred->egid))
--		goto unlock;
--
--	/* the keyrings must have the same UID */
--	if ((pcred->session_keyring &&
--	     !uid_eq(pcred->session_keyring->uid, mycred->euid)) ||
--	    !uid_eq(mycred->session_keyring->uid, mycred->euid))
--		goto unlock;
--
--	/* cancel an already pending keyring replacement */
--	oldwork = task_work_cancel_func(parent, key_change_session_keyring);
--
--	/* the replacement session keyring is applied just prior to userspace
--	 * restarting */
--	ret = task_work_add(parent, newwork, TWA_RESUME);
--	if (!ret)
--		newwork = NULL;
--unlock:
--	write_unlock_irq(&tasklist_lock);
--	rcu_read_unlock();
--	if (oldwork)
--		put_cred(container_of(oldwork, struct cred, rcu));
--	if (newwork)
--		put_cred(cred);
--	return ret;
--
--error_keyring:
-+put_task:
-+	put_task_struct(parent);
- 	key_ref_put(keyring_r);
- 	return ret;
- }
- 
- /*
-  * Apply a restriction to a given keyring.
-diff --git a/security/keys/process_keys.c b/security/keys/process_keys.c
-index b5d5333ab330..199c5dd34792 100644
---- a/security/keys/process_keys.c
-+++ b/security/keys/process_keys.c
-@@ -902,59 +902,65 @@ long join_session_keyring(const char *name)
- error:
- 	abort_creds(new);
- 	return ret;
- }
- 
- /*
-- * Replace a process's session keyring on behalf of one of its children when
-- * the target  process is about to resume userspace execution.
-+ * Replace a process's session keyring on behalf of one of its children.
-+ * This function runs in task context, while the child is blocked in
-+ * keyctl_session_to_parent().
-  */
--void key_change_session_keyring(struct callback_head *twork)
-+void key_change_session_keyring(struct callback_head *work)
- {
--	const struct cred *old = current_cred();
--	struct cred *new = container_of(twork, struct cred, rcu);
-+	struct keyctl_session_to_parent_context *ctx =
-+		container_of(work, struct keyctl_session_to_parent_context, work);
-+	const struct cred *pcred = current_cred();
-+	const struct cred *ccred = ctx->child_cred;
-+	struct cred *new;
- 
--	if (unlikely(current->flags & PF_EXITING)) {
--		put_cred(new);
--		return;
--	}
-+	/* do checks */
-+	ctx->result = -EPERM;
-+	if (unlikely(current->flags & PF_EXITING))
-+		goto out;
- 
--	/* If get_ucounts fails more bits are needed in the refcount */
--	if (unlikely(!get_ucounts(old->ucounts))) {
--		WARN_ONCE(1, "In %s get_ucounts failed\n", __func__);
--		put_cred(new);
--		return;
--	}
-+	/* we must be single threaded */
-+	if (!thread_group_empty(current))
-+		goto out;
-+
-+	/*
-+	 * the parent must have the same effective ownership and mustn't be
-+	 * SUID/SGID
-+	 */
-+	if (!uid_eq(pcred->uid,	 ccred->euid) ||
-+	    !uid_eq(pcred->euid, ccred->euid) ||
-+	    !uid_eq(pcred->suid, ccred->euid) ||
-+	    !gid_eq(pcred->gid,	 ccred->egid) ||
-+	    !gid_eq(pcred->egid, ccred->egid) ||
-+	    !gid_eq(pcred->sgid, ccred->egid))
-+		goto out;
-+
-+	/* the keyrings must have the same UID */
-+	if ((pcred->session_keyring &&
-+	     !uid_eq(pcred->session_keyring->uid, ccred->euid)) ||
-+	    !uid_eq(ctx->new_session_keyring->uid, ccred->euid))
-+		goto out;
-+
-+
-+	/* okay, try to update creds */
-+	ctx->result = -ENOMEM;
-+	new = prepare_creds();
-+	if (!new)
-+		goto out;
- 
--	new->  uid	= old->  uid;
--	new-> euid	= old-> euid;
--	new-> suid	= old-> suid;
--	new->fsuid	= old->fsuid;
--	new->  gid	= old->  gid;
--	new-> egid	= old-> egid;
--	new-> sgid	= old-> sgid;
--	new->fsgid	= old->fsgid;
--	new->user	= get_uid(old->user);
--	new->ucounts	= old->ucounts;
--	new->user_ns	= get_user_ns(old->user_ns);
--	new->group_info	= get_group_info(old->group_info);
--
--	new->securebits	= old->securebits;
--	new->cap_inheritable	= old->cap_inheritable;
--	new->cap_permitted	= old->cap_permitted;
--	new->cap_effective	= old->cap_effective;
--	new->cap_ambient	= old->cap_ambient;
--	new->cap_bset		= old->cap_bset;
--
--	new->jit_keyring	= old->jit_keyring;
--	new->thread_keyring	= key_get(old->thread_keyring);
--	new->process_keyring	= key_get(old->process_keyring);
--
--	security_transfer_creds(new, old);
-+	key_put(new->session_keyring);
-+	new->session_keyring = key_get(ctx->new_session_keyring);
- 
- 	commit_creds(new);
-+	ctx->result = 0;
-+out:
-+	complete_all(&ctx->done);
- }
- 
- /*
-  * Make sure that root's user and user-session keyrings exist.
-  */
- static int __init init_root_keyring(void)
-
--- 
-2.46.0.rc2.264.g509ed76dc8-goog
-
+FYI, discovered and fixed several reference counting bugs and memory
+leaks, squashed the fixes back into the original patches that
+introduced the bugs, and force-pushed the updated working-selinuxns
+branch.
