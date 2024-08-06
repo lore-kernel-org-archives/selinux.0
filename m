@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89868175D52;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFC6A17997D;
 	Tue,  6 Aug 2024 23:10:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722985803; cv=none; b=druvuviCacBrAYU3o3kAv1qbBKyzkJnSe8l2Uo7nMHloH9XlmumstyWTKvfpC+7Sbvjr8wTzGalteaDPn0puoSzo+ntKDhb2unTMKk3CSKAv3aDuN1kmDpPc1yY9IMt0JhEJORH8d9wb79CitmenFTCv9flgvgkd82T2b+NZGQk=
+	t=1722985803; cv=none; b=oGESd9B4GfRNEkRtkvlZQ24i/JHkhhP4ZqJ0gb9oZeVEJjorVbXe8sdUy+c4II0mzFeUHDxR2Ep7O4D+AFoAqELXeCJUzWYboGqm3JZbySMrw9ad6F8f+hpXQIs5Z3renOYSyzW/97WWIHdJAz31xSyCR+nKCfWjhbAWp4D6Z1k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1722985803; c=relaxed/simple;
-	bh=Y/65RkebTnQaJk1vPg1V/dSUpJJYPtRYtTmiu8GArpE=;
+	bh=v+3D4lb213MioskawpwIVm0n1gy9X7rS+9rTnnk/THc=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=rLsE1HDLcXgI07VlKO9dH/WLEuBbeOPKXwayj9JWP6xOt6TliqWgRH+/Tr/mUDL0Vte36vIG+RmGxmF4M35uy2ITEbPDGYKf/4pSuFA02CzR8Crp34IvkFnbx+XljPt+OOGCjoDbzvfovsKyiyrFOTyd+rXEmpNLzQMqBuuqzY4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KRo1Yh+M; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=gF4CxP6uTVJ8FJjcxGVcv7XYihEzMnoeApdpa7Rq10rH1fi9a8fj6YV85sLtpA4TciHj9w0Uh+y7PwWxgGQg5/5Sv1k1MXBdKYIxpwWkz9f17ttUQZ6Gt11OrS4L+n7qU8n2a1Z+z0fb0JM0oWYmaXsx7JgQzEpmlVJddZKYnOM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UcbTcNUC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KRo1Yh+M"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 0EC67C4AF1B;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UcbTcNUC"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 4E0C3C4DDE3;
 	Tue,  6 Aug 2024 23:10:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1722985803;
-	bh=Y/65RkebTnQaJk1vPg1V/dSUpJJYPtRYtTmiu8GArpE=;
+	bh=v+3D4lb213MioskawpwIVm0n1gy9X7rS+9rTnnk/THc=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=KRo1Yh+MKuM2zphOGYW5HGzc/KIhWNRSVf/+7VfO25MuNFsQrDNXAQbKHrwJEzSQO
-	 /Gs9jHmiG4IRAnMzVfysvp0g9us4R2yhjf3yYFLCJjkk1UAA0L7HAfV8VEMM/g1OLL
-	 8ACRLTePfpM8OdtW3IMjLhwhRp627HZgsPj+Wjz9p78awSL5385MA69s+6GEOSZbAL
-	 Lb7bgONSqmS/hFdPOqMnwz3XPsIYOj2GC0DOi7wCsBWEL4rEzcJSjInjCTSfejA2LL
-	 4RQ5q8bwV0tectV4NJcm5D8rk0JEUBWM77oa3hoy+GetJFKPazFdt2pvF/6Vy/I6GB
-	 +TcXuL0G6+qiw==
+	b=UcbTcNUCEVVl6oxvmOWw2BiT+ElArILeG1oAnslTRxcJ2Gi/SKYGJ3ADXB4KM/kSD
+	 7zI3tsZhf2PmkVPU5R+uYhWu/TEhYxpocso0dOHhwOgkKklRBv6LdbJ77P9RHQXtaF
+	 ApdZKxzrcB/pDn5/1+TiL5lJPZhercu5kvwmQ0W8EooGSrDr+D92E/CzUSfxMOUrFX
+	 UnqvanuR+aWSDbCHLTEQEpKrHqWGS7wwJWna8YEFXu+DaJ5DlqM+KpV8TH56nbPlBR
+	 YxA2dAU+3VQstKQl5GgOjBjoX8itT3D0ZB6tVaFxDyGYk1zRBxPiivAZr6tuDRFo0o
+	 XwlIForxD80Qw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3CAFC52D7C;
-	Tue,  6 Aug 2024 23:10:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40075C52D6F;
+	Tue,  6 Aug 2024 23:10:03 +0000 (UTC)
 From: Daniel Gomez via B4 Relay <devnull+da.gomez.samsung.com@kernel.org>
-Date: Wed, 07 Aug 2024 01:09:18 +0200
-Subject: [PATCH 04/12] drm/xe: xe_gen_wa_oob: fix
- program_invocation_short_name for macos
+Date: Wed, 07 Aug 2024 01:09:21 +0200
+Subject: [PATCH 07/12] selinux/mdp: include bitsperlong and posix_types
+ headers
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20240807-macos-build-support-v1-4-4cd1ded85694@samsung.com>
+Message-Id: <20240807-macos-build-support-v1-7-4cd1ded85694@samsung.com>
 References: <20240807-macos-build-support-v1-0-4cd1ded85694@samsung.com>
 In-Reply-To: <20240807-macos-build-support-v1-0-4cd1ded85694@samsung.com>
 To: Masahiro Yamada <masahiroy@kernel.org>, 
@@ -76,11 +76,11 @@ Cc: linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org,
  "Daniel Gomez (Samsung)" <d+samsung@kruces.com>, gost.dev@samsung.com, 
  Daniel Gomez <da.gomez@samsung.com>
 X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1722985800; l=1537;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1722985800; l=995;
  i=da.gomez@samsung.com; s=20240621; h=from:subject:message-id;
- bh=xYJE9WRRAIRv4i+z5sDXuKkMiFQ3KMmcYsQNverwAeg=;
- b=b7BMXAQke1LOkRHzmeWm0G5v1jBPAvdTULfW44FJ1gmeQ2FlQKfG/qqW9uaRzI43lVO8Cvgjq
- vO6Mvk57URgBL7EXOhPLs+fmTIcw6Z85RQzfx1AxgOGdYc6oq2bS1zD
+ bh=amef7shqe+/pJSAuEYnttZteE9emVf2D8FOtG6wVLQs=;
+ b=eEEO2XdHsOnjD70zsmSUCRd3hvX9udH5ozkEUFwVyjIqPSuD7NI4opv6Ndry8dslEYtsT1ENp
+ 5rF5WjiBGzLAJoGrJzqo1wNi95MqafOkOKXvTlY0lrf9E5wgwW5kr+C
 X-Developer-Key: i=da.gomez@samsung.com; a=ed25519;
  pk=BqYk31UHkmv0WZShES6pIZcdmPPGay5LbzifAdZ2Ia4=
 X-Endpoint-Received: by B4 Relay for da.gomez@samsung.com/20240621 with
@@ -90,55 +90,30 @@ Reply-To: da.gomez@samsung.com
 
 From: Daniel Gomez <da.gomez@samsung.com>
 
-Use getprogname() [1] instead of program_invocation_short_name() [2]
-for macOS hosts.
-
-[1]:
-https://www.gnu.org/software/gnulib/manual/html_node/
-program_005finvocation_005fshort_005fname.html
-
-[2]:
-https://developer.apple.com/library/archive/documentation/System/
-Conceptual/ManPages_iPhoneOS/man3/getprogname.3.html
-
-Fixes build error for macOS hosts:
-
-drivers/gpu/drm/xe/xe_gen_wa_oob.c:34:3: error: use of
-undeclared identifier 'program_invocation_short_name'    34 |
-program_invocation_short_name);       |                 ^ 1 error
-generated.
+The mdp object requires the bitsperlong.h and posix_types.h headers.
+To ensure these headers are found during compilation on macOS hosts,
+add usr/include to HOST_EXTRACFLAGS in the genheaders Makefile. This
+adjustment allows the compiler to locate all necessary headers when they
+are not available by default on macOS.
 
 Signed-off-by: Daniel Gomez <da.gomez@samsung.com>
 ---
- drivers/gpu/drm/xe/xe_gen_wa_oob.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ scripts/selinux/mdp/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/xe/xe_gen_wa_oob.c b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-index 904cf47925aa..079b8870c461 100644
---- a/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-+++ b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-@@ -9,6 +9,12 @@
- #include <stdbool.h>
- #include <stdio.h>
- #include <string.h>
-+#define PROG_INV_NAME program_invocation_short_name
-+
-+#ifdef __APPLE__
-+#include <stdlib.h>
-+#define PROG_INV_NAME getprogname()
-+#endif
+diff --git a/scripts/selinux/mdp/Makefile b/scripts/selinux/mdp/Makefile
+index d61058ddd15c..19ab8682ae3d 100644
+--- a/scripts/selinux/mdp/Makefile
++++ b/scripts/selinux/mdp/Makefile
+@@ -2,6 +2,7 @@
+ hostprogs-always-y += mdp
+ HOST_EXTRACFLAGS += \
+ 	-I$(srctree)/include/uapi -I$(srctree)/include \
+-	-I$(srctree)/security/selinux/include -I$(objtree)/include
++	-I$(srctree)/security/selinux/include -I$(objtree)/include \
++	-I$(srctree)/usr/include
  
- #define HEADER \
- 	"// SPDX-License-Identifier: MIT\n" \
-@@ -31,7 +37,7 @@
- static void print_usage(FILE *f)
- {
- 	fprintf(f, "usage: %s <input-rule-file> <generated-c-source-file> <generated-c-header-file>\n",
--		program_invocation_short_name);
-+		PROG_INV_NAME);
- }
- 
- static void print_parse_error(const char *err_msg, const char *line,
+ clean-files	:= policy.* file_contexts
 
 -- 
 Git-146)
