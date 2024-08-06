@@ -1,101 +1,234 @@
-Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com [209.85.219.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90FF016EBF6
-	for <selinux@vger.kernel.org>; Tue,  6 Aug 2024 21:56:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C414175D36;
+	Tue,  6 Aug 2024 23:10:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722981366; cv=none; b=BB71fj+iJaVBLadSvIHLOqYxucOXp7Shkng2nXBlw7IX+tXMMgeYlb3BMd0ejBCpPY/4bXrXJ1xxhiFZG36rYvCrAWIBWAon/eiJqt++KpFVngSR517KaWaUMa/RwmIRMd8s/mbBaCIlOzXciWGgxg6/zwBs5GA9cSrH6UFwhFA=
+	t=1722985803; cv=none; b=C9Co98XRZCnGA7XDLLJs+3PgZitmSxvlZ+PwO3xWFjojlTbLYMipEaveWo3oGck79bIz0aLmDipxGQEcjy1EfJdgku21R7ak8KanTIVClW4oR+zHCr6rfrPYAXkJljEGOVpIhmcOWxi72W6I6yOvjeL1N+ZQYFIqFhLvGtY+uzw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722981366; c=relaxed/simple;
-	bh=Jvd6d/g8j8GNeIP/2vY+rysLx4jcS6wFfVxuDrV0hx0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=J7qC/P+jGqPLVQtb89mqoVND6a2CcFKN2A9n9OjgLlDIIKo0BP4/3gf/v+mfLsjADuFss6ccEmNOaKmcQLo/zMJ/QUACaNwihgxGmPX662jomdipgfg0N8Y4TgIcRL2oE4z32vhUd9gOBEJcA1ZT+uUk8H2+xQXrfpklze9gVGs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=OFKm6ezG; arc=none smtp.client-ip=209.85.219.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1722985803; c=relaxed/simple;
+	bh=srDtPMkx+3Ib/2vxXDsh66x8GKusBSCFnXcAPZ0/fJs=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=NrX/0vj3hSccTxNv+2yDRxsRnitgFZAmoDvOv39JapwOuQdSGag4A2uW+OnOHFI52IX7n3/g9b7XrV4cZ6GigjXXVYfDZwt5H2ZA0jKfLhXZNX13U5fzpkIFEJyWpTFzQCIB0gSeC8Z6EU3aMfvIkba/AwHhbCfvpkjkknlkC78=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XyM4t6ui; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="OFKm6ezG"
-Received: by mail-yb1-f180.google.com with SMTP id 3f1490d57ef6-e03caab48a2so278722276.1
-        for <selinux@vger.kernel.org>; Tue, 06 Aug 2024 14:56:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1722981363; x=1723586163; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kDAjrM4/RIRi3K/tRUnjq4ndMEWl1uNkteCqHbi87aU=;
-        b=OFKm6ezGMCrq2e2n98ivl3PGtPJTt5SvKEFdxjf/Ti7ExV4gBvYc8fdu7bHO4S/09W
-         j8XqNmghcx3dQ2IEYPxboyU7l8u2XhHeQw44dX6rOKPT89Hkm2fheeSL/Za6h/HF568j
-         fwbgpP6AuRLVaN0WaiCHuw0qBr4BA7oDgaL3/uLed8aKE6wBafj0vbHj8danIV59rWck
-         IZDD5jQP2dTfdxOp0/zYee6qq6tki0dfNKZtDA20BAnzDN2++6fgfuRs1iBnPiNoK4JM
-         GGgpWwiKai/5/J1gZGMYi+iUEOi7MokMPcgtbBKB1Lr1vDjGokESAEKIrwx/J93m+8fo
-         wUfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722981363; x=1723586163;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kDAjrM4/RIRi3K/tRUnjq4ndMEWl1uNkteCqHbi87aU=;
-        b=SQ4jsLj0BXkdnudeO9xMIVl19rq9LmZf89Kl+IhNJFwlhXnCXhHzKi2W/uzySPUzUM
-         SzVpi61/dIhzqoFbUXg6EkcfS7/yFgpnw4a42tIkyK3F71yuswZA3Nl41ZwcIuHRQWpU
-         fISDAkBBoGIoF5QxFi9rWbyUkAdyJ1hIBdfRSAyNyHM2NDbLE1m3rjmxBJq7RwByXIJZ
-         1RUXCCRJskIqmK6lugL6lIq4o2DSZCt5abbVqY/UoWXcQZUXmVbJHjXErx4FRnN7FkCR
-         +tbQv2wDdJfTb50TqcjkGFzD3P24w6qf/i4C1hCKENGNmVfdT/cUCSUra6Q7k9mCO33Q
-         UR8g==
-X-Forwarded-Encrypted: i=1; AJvYcCWjSA4z9f+ySWuMiZZXUU84x4pXJTW1w0VIFSxy+k9LOHu9YydyldmCPjTfg8LJ+cJJfi1/BD5hyAS5hLLunOMlNEvrBxzH0g==
-X-Gm-Message-State: AOJu0YwhYZGKydGx02UwRPhIQZN5odfHLJVIWK9ah1aomXrZX+WaxAEu
-	M3k1d3Q9YsmvENEOKg8OuSyjNiWv9apBQtSpJluETJymGbvGOtJq2q2cIF4/inSYWpzHMWd0kqA
-	GKiky0xl0I7MifZUcypQHMUknT6Nw3GFlZLQm
-X-Google-Smtp-Source: AGHT+IH3dkrRfOJW0prmnIwdEA2mFjIA4RWSsRtLuzMPO64WTfKIRWGNz9sO84SFriTXfQ/Css9cuJZbEfdI7+2HQNI=
-X-Received: by 2002:a05:6902:2782:b0:e08:6373:dfc8 with SMTP id
- 3f1490d57ef6-e0e877f5902mr158689276.23.1722981363600; Tue, 06 Aug 2024
- 14:56:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XyM4t6ui"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B3CB0C32786;
+	Tue,  6 Aug 2024 23:10:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722985802;
+	bh=srDtPMkx+3Ib/2vxXDsh66x8GKusBSCFnXcAPZ0/fJs=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=XyM4t6uixRdVtkkTDbe0NOXLXZ37CozxQGFZMrfsO/1RoZeoVND7Z91irbEFkZG1o
+	 QK9utNoPH7ktjzxgS9PHoD3qn/DNgqvVdZsgReOQMjUrT2TlQWFkqaNximTlbkANJw
+	 fwIaCs8OsL+5RpaxQ7RQgnnJNhR2sK1DHuPhkA26DmsSHTA9hDidEKUXDf1733zm99
+	 S42u2FVCM/ikVhxmWNb19aaYerJ5H8KgfmYrOTZTuTaNNyjHX7w/yoQnm1GFvnWvt/
+	 BEBQiXjUFnQg6HPQgb/LURhqtACOPKxOuV9p3+Gjq6Aluocc6VajyOLbdkqKccoIPM
+	 bvFunUNgxUrOA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96120C49EA1;
+	Tue,  6 Aug 2024 23:10:02 +0000 (UTC)
+From: Daniel Gomez via B4 Relay <devnull+da.gomez.samsung.com@kernel.org>
+Subject: [PATCH 00/12] Enable build system on macOS hosts
+Date: Wed, 07 Aug 2024 01:09:14 +0200
+Message-Id: <20240807-macos-build-support-v1-0-4cd1ded85694@samsung.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240806065113.1317-1-thunder.leizhen@huaweicloud.com> <CAEjxPJ59=rHFovk3scmkhLuiAdu2uinGiua60y0naJ0e95GLmg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ59=rHFovk3scmkhLuiAdu2uinGiua60y0naJ0e95GLmg@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 6 Aug 2024 17:55:52 -0400
-Message-ID: <CAHC9VhTWye8Pm3EUr-Fy-mxq+6H1ThtAekqZd0nXX70f8xP5rw@mail.gmail.com>
-Subject: Re: [PATCH 1/1] selinux: Fix potential counting error in avc_add_xperms_decision()
-To: Zhen Lei <thunder.leizhen@huawei.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: thunder.leizhen@huaweicloud.com, Ondrej Mosnacek <omosnace@redhat.com>, 
-	selinux@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Nick Kralevich <nnk@google.com>, Jeff Vander Stoep <jeffv@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIABqtsmYC/x3MQQqAIBBA0avErBuwCKyuEi1MpxqoFCcjiO6et
+ HyL/x8QikwCffFApIuF/ZFRlQXY1RwLIbtsqFXdqFZp3I31glPizaGkEHw8sbNGOa2NmyoNuQy
+ RZr7/6zC+7wcg7OjoZQAAAA==
+To: Masahiro Yamada <masahiroy@kernel.org>, 
+ Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nicolas@fjasle.eu>, 
+ Lucas De Marchi <lucas.demarchi@intel.com>, 
+ =?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, 
+ William Hubbs <w.d.hubbs@gmail.com>, Chris Brannon <chris@the-brannons.com>, 
+ Kirk Reiser <kirk@reisers.ca>, 
+ Samuel Thibault <samuel.thibault@ens-lyon.org>, 
+ Paul Moore <paul@paul-moore.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Ondrej Mosnacek <omosnace@redhat.com>, 
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+ Marc Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>, 
+ James Morse <james.morse@arm.com>, 
+ Suzuki K Poulose <suzuki.poulose@arm.com>, 
+ Zenghui Yu <yuzenghui@huawei.com>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Jiri Slaby <jirislaby@kernel.org>, 
+ Nick Desaulniers <ndesaulniers@google.com>, 
+ Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>
+Cc: linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org, 
+ intel-xe@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
+ speakup@linux-speakup.org, selinux@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev, 
+ linux-serial@vger.kernel.org, llvm@lists.linux.dev, 
+ Finn Behrens <me@kloenk.dev>, 
+ "Daniel Gomez (Samsung)" <d+samsung@kruces.com>, gost.dev@samsung.com, 
+ Daniel Gomez <da.gomez@samsung.com>, 
+ Nick Desaulniers <nick.desaulniers@gmail.com>
+X-Mailer: b4 0.14.1
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1722985800; l=5760;
+ i=da.gomez@samsung.com; s=20240621; h=from:subject:message-id;
+ bh=srDtPMkx+3Ib/2vxXDsh66x8GKusBSCFnXcAPZ0/fJs=;
+ b=LiLIkclk6gyjYUEvcQG/jWd8xczYA+IguM7XsmOaFyvBmuk7FzB0cX6xsiSYYX3g4q3i4pKTn
+ rvltGN/7ZboBznQAO+ngrBCel8MYDLLj7yJ1vi5dIVQBZPHBahIv5wm
+X-Developer-Key: i=da.gomez@samsung.com; a=ed25519;
+ pk=BqYk31UHkmv0WZShES6pIZcdmPPGay5LbzifAdZ2Ia4=
+X-Endpoint-Received: by B4 Relay for da.gomez@samsung.com/20240621 with
+ auth_id=175
+X-Original-From: Daniel Gomez <da.gomez@samsung.com>
+Reply-To: da.gomez@samsung.com
 
-On Tue, Aug 6, 2024 at 9:26=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Tue, Aug 6, 2024 at 2:51=E2=80=AFAM <thunder.leizhen@huaweicloud.com> =
-wrote:
-> > From: Zhen Lei <thunder.leizhen@huawei.com>
-> >
-> > The count increases only when a node is successfully added to
-> > the linked list.
-> >
-> > Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
-> > Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
->
-> This looks correct to me ...
+This patch set allows for building the Linux kernel for arm64 in macOS with
+LLVM.
 
-It looks good to me too, unless I hear any objections I'm going to
-merge this into selinux/stable-6.11 and send it up to Linux during the
-v6.11-rcX cycle.
+Patches are based on previous Nick's work and suggestions [1][2][3] to
+enable build system in macOS hosts.
 
-> ... but I also notice that the caller is not
-> checking or handling the return code for the -ENOMEM situation.
+Since macOS does not provide some of the headers available in the GNU
+C Library (glibc), the patches include a copy of these headers from
+glibc-2.40, with minor modifications detailed in the commit message.
 
-Good catch.  We should also fix this, ideally in the same PR where we
-send the count/len fix.
+To set up the environment:
 
-Zhen Lei, would you mind working on a separate fix for checking the
-error code in the caller?
+* Provide build dependencies (installed via Homebrew):
 
---=20
-paul-moore.com
+	coreutils, findutils, gnu-sed, gnu-tar, grep, llvm, make and pkg-config.
+
+* A case sensitive volume for building:
+
+	diskutil apfs addVolume /dev/disk<N> "Case-sensitive APFS" linux
+
+* And include in your PATH all GNU tools required by the Linux kernel as
+well as LLVM:
+
+	PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+	PATH="/opt/homebrew/opt/findutils/libexec/gnubin:$PATH"
+	PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin:$PATH"
+	PATH="/opt/homebrew/opt/gnu-tar/libexec/gnubin:$PATH"
+	PATH="/opt/homebrew/opt/grep/libexec/gnubin:$PATH"
+	PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
+	PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+
+* Start the build using LLVM:
+
+	make LLVM=1 allyesconfig
+	make LLVM=1 -j$(nproc)
+
+I believe other architectures could also be supported if we can move
+forward this initiative. Additionally, we could incorporate Rust
+support. I understand that Finn Behrens has some patches [4][5] based on
+Nick's previous work.
+
+[1]: WIP: build Linux on MacOS
+https://github.com/ClangBuiltLinux/linux/commit/f06333e29addbc3d714adb340355f471c1dfe95a
+
+[2] Subject: [PATCH] scripts: subarch.include: fix SUBARCH on MacOS hosts
+https://lore.kernel.org/all/20221113233812.36784-1-nick.desaulniers@gmail.com/
+
+[3] Subject: Any interest in building the Linux kernel from a MacOS host?
+https://lore.kernel.org/all/CAH7mPvj64Scp6_Nbaj8KOfkoV5f7_N5L=Tv5Z9zGyn5SS+gsUw@mail.gmail.com/
+
+[4] https://github.com/kloenk/linux/commits/rust-project_macos-dylib/
+
+[5] https://kloenk.eu/posts/build-linux-on-m1-macos/
+
+To: Masahiro Yamada <masahiroy@kernel.org>
+To: Nathan Chancellor <nathan@kernel.org>
+To: Nicolas Schier <nicolas@fjasle.eu>
+To: Lucas De Marchi <lucas.demarchi@intel.com>
+To: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+To: Rodrigo Vivi <rodrigo.vivi@intel.com>
+To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+To: Maxime Ripard <mripard@kernel.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+To: David Airlie <airlied@gmail.com>
+To: Daniel Vetter <daniel@ffwll.ch>
+To: William Hubbs <w.d.hubbs@gmail.com>
+To: Chris Brannon <chris@the-brannons.com>
+To: Kirk Reiser <kirk@reisers.ca>
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: Ondrej Mosnacek <omosnace@redhat.com>
+To: Catalin Marinas <catalin.marinas@arm.com>
+To: Will Deacon <will@kernel.org>
+To: Marc Zyngier <maz@kernel.org>
+To: Oliver Upton <oliver.upton@linux.dev>
+To: James Morse <james.morse@arm.com>
+To: Suzuki K Poulose <suzuki.poulose@arm.com>
+To: Zenghui Yu <yuzenghui@huawei.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Jiri Slaby <jirislaby@kernel.org>
+To: Nick Desaulniers <ndesaulniers@google.com>
+To: Bill Wendling <morbo@google.com>
+To: Justin Stitt <justinstitt@google.com>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-kbuild@vger.kernel.org
+Cc: intel-xe@lists.freedesktop.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: speakup@linux-speakup.org
+Cc: selinux@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: kvmarm@lists.linux.dev
+Cc: linux-serial@vger.kernel.org
+Cc: llvm@lists.linux.dev
+Cc: Finn Behrens <me@kloenk.dev>
+Cc: Daniel Gomez (Samsung) <d+samsung@kruces.com>
+Cc: gost.dev@samsung.com
+
+Signed-off-by: Daniel Gomez <da.gomez@samsung.com>
+---
+Daniel Gomez (11):
+      kbuild: add header_install dependency to scripts
+      file2alias: fix uuid_t definitions for macos
+      drm/xe: xe_gen_wa_oob: fix program_invocation_short_name for macos
+      accessiblity/speakup: genmap and makemapdata require linux/version.h
+      selinux/genheaders: include bitsperlong and posix_types headers
+      selinux/mdp: include bitsperlong and posix_types headers
+      include: add elf.h support
+      include: add endian.h support
+      scripts/mod: add byteswap support
+      tty/vt: conmakehash requires linux/limits.h
+      scripts/kallsyms: add compatibility support for macos
+
+Nick Desaulniers (1):
+      scripts: subarch.include: fix SUBARCH on MacOS hosts
+
+ Makefile                               |    2 +-
+ arch/arm64/kernel/pi/Makefile          |    1 +
+ arch/arm64/kernel/vdso32/Makefile      |    1 +
+ arch/arm64/kvm/hyp/nvhe/Makefile       |    2 +-
+ drivers/accessibility/speakup/Makefile |    2 +
+ drivers/gpu/drm/xe/xe_gen_wa_oob.c     |    8 +-
+ drivers/tty/vt/Makefile                |    1 +
+ include/byteswap/byteswap.h            |   35 +
+ include/elf/elf.h                      | 4491 ++++++++++++++++++++++++++++++++
+ include/endian/bits/uintn-identity.h   |   48 +
+ include/endian/endian.h                |   63 +
+ scripts/Makefile                       |    3 +-
+ scripts/kallsyms.c                     |    4 +
+ scripts/mod/Makefile                   |    6 +
+ scripts/mod/file2alias.c               |    3 +
+ scripts/selinux/genheaders/Makefile    |    3 +-
+ scripts/selinux/mdp/Makefile           |    3 +-
+ scripts/subarch.include                |    3 +-
+ 18 files changed, 4672 insertions(+), 7 deletions(-)
+---
+base-commit: 1e391b34f6aa043c7afa40a2103163a0ef06d179
+change-id: 20240807-macos-build-support-9ca0d77adb17
+
+Best regards,
+-- 
+Daniel Gomez <da.gomez@samsung.com>
+
+
