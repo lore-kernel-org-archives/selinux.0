@@ -1,51 +1,32 @@
-Received: from mout.web.de (mout.web.de [212.227.15.14])
+Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A49941C6880;
-	Wed,  7 Aug 2024 12:20:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4359813A3F0;
+	Wed,  7 Aug 2024 13:20:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723033214; cv=none; b=sczZRlDYMY4/01n9iu8J6k0Rrads6gY1+hG4oZCwV5ZDQZhzA7O6ljEfZqlMAkZ+6vnTY0QX7dUD2Yxo5P6k/NXEX7Fcgx7OpJ7Du1Bf//ceG40mwshbhaZmny1QV0WteI6f3+ia6TfjOfwTlf9Vxn703XID5kOh5iScVm3Il54=
+	t=1723036854; cv=none; b=e4yka9Ane5wkvSxnbLFOSBlYz6ueIkivVlo5Eh4jTZy9tZoJ2KknTTCoiTjRHodiSYpRXi6p2XaHK+8CT4xCMPUcvMziFCPZEAub+/vgaZ0arNXQcpXzR2AzGEZqofslb7UcGTDnH3xj0WOWSxC7oV/18nO+sIBr73PjMGhMh3w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723033214; c=relaxed/simple;
-	bh=vX0uCyyadAH/BLtjmxNtpG1In3Eo/drET2siUnj+cKI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eNmWhTcq1BkkVLAR1YNEJRw1nxJVwWBTVpgM4ebLeEad4zP1J/XKSys+hDsxnXJQzo6gGzV4UnzGOLE8GKCDD9IOA7DEP3mjqeKTRDpwbnStQLmDAl+/YecyfCX4JgJpwiplFolKKSy/iIf56eHbiX5b2lGSeNmAlMTntD5tKXU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=iNPywI/o; arc=none smtp.client-ip=212.227.15.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="iNPywI/o"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1723033204; x=1723638004; i=markus.elfring@web.de;
-	bh=zRBpY0dycMJAvahUfF2nU52iexROLC6eajPiL9g18KQ=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
-	 References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:cc:content-transfer-encoding:
-	 content-type:date:from:message-id:mime-version:reply-to:subject:
-	 to;
-	b=iNPywI/ojAJVxlalRepBVPzrkS99Q4QMtk5k0tWSF/KI7mEVmk0mnLzx36ON5DAw
-	 q3EG7yMs01JmVcKpGd2O6w5sQ5k4Li8Sy/FVdDCYx524EZwxzHt+hcPf1ccdlRJuD
-	 RJIHyNRf4e7peWfbWfFg+9i4a5OwjtGOuk75RtLW8qQ8abme/jGOjoyuMDEbQag1Z
-	 gBAGtIA6z2LPYOwUAUIad8N9QgdIptytFKlzwTJg2PYgWYBeWh+2apD4yObBMM5Qd
-	 2rHuFYs6bkPeVtiDm2IemaOktPS9POG5cvqaPmnKtQODu0zaHl+6RuceAPwsakvnm
-	 5XwqfIm5Vy9vbmHsiw==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.90.95]) by smtp.web.de (mrweb005
- [213.165.67.108]) with ESMTPSA (Nemesis) id 1MREzA-1spv2A34xI-00Lpy2; Wed, 07
- Aug 2024 14:06:30 +0200
-Message-ID: <ed7f98e2-596b-4e4a-bc8a-d88543eeaa6d@web.de>
-Date: Wed, 7 Aug 2024 14:06:29 +0200
-Precedence: bulk
-X-Mailing-List: selinux@vger.kernel.org
-List-Id: <selinux.vger.kernel.org>
-List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
-List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
+	s=arc-20240116; t=1723036854; c=relaxed/simple;
+	bh=ZSgSy8dFYIshQOupesyvcm8CHOFuw1V9C05ltd3/cQI=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=EOWhKCs6pbd++azaId6WVwGhSR5G3lkdvjVU+OA2q32GiEcxjhnxCDTmZtT+PrtkJrbOGFIR38bGgMLjSksePkBgfLuXrLhuIBEuNtv6BIY6ltuZpPTbLee4GsE3zbIf1PyXz2F3bxbwRW7sS3QjzQLR7QaB+fZIq/U5rE6n6bE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.163.235])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Wf9lp0y6Nz4f3k6C;
+	Wed,  7 Aug 2024 21:20:38 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.128])
+	by mail.maildlp.com (Postfix) with ESMTP id 24A261A06D7;
+	Wed,  7 Aug 2024 21:20:47 +0800 (CST)
+Received: from [10.174.178.55] (unknown [10.174.178.55])
+	by APP4 (Coremail) with SMTP id gCh0CgCXv4WpdLNmjCMdBA--.28525S3;
+	Wed, 07 Aug 2024 21:20:43 +0800 (CST)
 Subject: Re: [PATCH] selinux: Fix potential counting error in
  avc_add_xperms_decision()
-To: Zhen Lei <thunder.leizhen@huawei.com>, selinux@vger.kernel.org,
+To: Markus Elfring <Markus.Elfring@web.de>,
+ Zhen Lei <thunder.leizhen@huawei.com>, selinux@vger.kernel.org,
  Ondrej Mosnacek <omosnace@redhat.com>, Paul Moore <paul@paul-moore.com>,
  Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: LKML <linux-kernel@vger.kernel.org>, Jeff Vander Stoep
@@ -54,53 +35,77 @@ References: <20240806065113.1317-1-thunder.leizhen@huaweicloud.com>
  <600318b9-928c-4466-a8d1-334fab8c512f@web.de>
  <8e9f8931-0fd8-5808-8898-761e31e55208@huaweicloud.com>
  <d3f95ed9-a8f2-aedb-9097-0ac420d5bfa1@huaweicloud.com>
-Content-Language: en-GB
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <d3f95ed9-a8f2-aedb-9097-0ac420d5bfa1@huaweicloud.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:W3wUKOCY/k/qhfAOrjV6cLkQQoCo7hxgzVSfumipBVd0WxaGT8h
- sZ+QZcx+wOaR0a3LUIi9xEZw6ASKjO8QUrTCTWKnkG7LUMYZEMxvGIzZUSpgH8oSnm9S8x8
- CgysqDWTZF9YVsogcJK1jbrhSBx+3gc23G2DqCJ6c7aDhpm8jDaUgBohrKfR9PZ281mJOeH
- vt1xR6IHDXx9IxFOogDbw==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:8j+xC7+59zA=;sW26kC6373DcQmXXE9I9WNWXCYn
- SVL9kxTD0wm4tOgWUR9cIcqZC6BiVXv8+uZuxOdrBAitw8PYn4Tdy7HE/tM5pEzQFd8bu4nsc
- oVmCtTlmrP4YuFNr0YImC1aocae0ZCruaHhNFoXhHyZw0+kAgp9Vt32BJ53txTl/hzbP9OVMF
- 6wMwEt9l6Mv7lVUcrhr0seqvo2sClfkPiCTCY34ugmL+cYdiqBtUJ7IqYPv3SdnqyjVRMMoG2
- 76wP7C8/AME4AU57jCYuFvLKUYEIIT1uRMU3EipjF3UPU8JjS9a0s02gWi+rNHnl++XMhmD66
- p022w8EMLqNhwuOv//JnJxLhFKm9Xv12/aH4+NkVdeKWDVSFp51/Mx4cH0qMC+mNRIIBnbv/J
- K/i96IMBLB0xSsrDUcWMs8/nV9h0Uvbnu68uJBPKgael/fMOzeYkIvG9wM3OKAIQS7NKhTeOL
- Tp6W//N++cOTReZ8/welAeQW1fNFgC0slmO1PJuo2j3HJnnMXuizi68W7I65xJQiXzvaBXsbE
- Ybgk8xqOU1yuOvrzUccJMlXuhBKHYrhxcN4djiWRqTuuM5nA/7QWq18NfNn3OhpnZDqPxuzZh
- 2j8y+dvIW3gBH1ngw7x7H6qNFFoVfeb7SPQ8kCWSvcxKO5VkIKCzlzY8hM/ALmHuwKRyCBMAO
- nDecf+YtiK1Ezbds2tnmOW7a5fOdIxeq4ICC6JHmvyQXr9MAAtFZiFIw6jJBKulFLRJ8FbKUn
- 9spvl4ClTFoBMqN1d7rncKPkAHyKnXafRjuo9bjxs8qKB1TcwDoALDYdCExmPO4RVW63UJdBD
- veGFfTpvbo2TgKxRcFoT/raA==
-
->>>> The count increases only when a node is successfully added to
->>>> the linked list.
->>>
->>> 1. Please improve such a change description with an imperative wording=
-.
->>>    https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/=
-tree/Documentation/process/submitting-patches.rst?h=3Dv6.11-rc2#n94
->> Ok, I'll try to improve it.
-> I see this patch has been merged into selinux/stable-6.11.
-
-Interesting =E2=80=A6
-
-
-> So I decided not to change it, and I re-examined it,
-
-Further collateral evolution can become more helpful,
-can't it?
+ <ed7f98e2-596b-4e4a-bc8a-d88543eeaa6d@web.de>
+From: "Leizhen (ThunderTown)" <thunder.leizhen@huaweicloud.com>
+Message-ID: <069f3a84-eb29-5f6c-7343-f837d9e96fff@huaweicloud.com>
+Date: Wed, 7 Aug 2024 21:20:41 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
+Precedence: bulk
+X-Mailing-List: selinux@vger.kernel.org
+List-Id: <selinux.vger.kernel.org>
+List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+In-Reply-To: <ed7f98e2-596b-4e4a-bc8a-d88543eeaa6d@web.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:gCh0CgCXv4WpdLNmjCMdBA--.28525S3
+X-Coremail-Antispam: 1UD129KBjvdXoW7JFy3Zry7Wr4rKFykZFWkWFg_yoWkurg_ur
+	10kw4kuw4kJa1DtFn5AanxJr9ruwnxWa4rZ3yrJFW7G34UAayDZanxGr93Zw1fJrn2krnx
+	uFyFqr1rXw12vjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUb4AYFVCjjxCrM7AC8VAFwI0_Gr0_Xr1l1xkIjI8I6I8E6xAIw20E
+	Y4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwV
+	A0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x02
+	67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv67AKxVW0oVCq3wA2z4x0Y4vEx4A2jsIEc7CjxV
+	AFwI0_GcCE3s1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2
+	j2WlYx0E2Ix0cI8IcVAFwI0_Jr0_Jr4lYx0Ex4A2jsIE14v26r1j6r4UMcvjeVCFs4IE7x
+	kEbVWUJVW8JwACjcxG0xvEwIxGrwCYjI0SjxkI62AI1cAE67vIY487MxkF7I0En4kS14v2
+	6r1q6r43MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrV
+	AFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCI
+	c40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267
+	AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_
+	Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU17KsU
+	UUUUU==
+X-CM-SenderInfo: hwkx0vthuozvpl2kv046kxt4xhlfz01xgou0bp/
 
 
-> and it seems that there is no problem you mentioned.
 
-There are obviously different preferences involved for patch review proces=
-ses.
+On 2024/8/7 20:06, Markus Elfring wrote:
+>>>>> The count increases only when a node is successfully added to
+>>>>> the linked list.
+>>>>
+>>>> 1. Please improve such a change description with an imperative wording.
+>>>>    https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/submitting-patches.rst?h=v6.11-rc2#n94
+>>> Ok, I'll try to improve it.
+>> I see this patch has been merged into selinux/stable-6.11.
+> 
+> Interesting …
+It's not surprising. Because maintainers deal with programmers in many countries,
+they will find over time that some programmers write descriptions that are not
+pleasing to the eye, not his intention, but poor English. So step back, as long
+as the patch is correct and clearly describes why it's done, it's enough. It's
+not a bad thing to be more inclusive of others.
 
+> 
+> 
+>> So I decided not to change it, and I re-examined it,
+> 
+> Further collateral evolution can become more helpful,
+> can't it?
+> 
+> 
+>> and it seems that there is no problem you mentioned.
+> 
+> There are obviously different preferences involved for patch review processes.
+> 
+> Regards,
+> Markus
+> .
+> 
+
+-- 
 Regards,
-Markus
+  Zhen Lei
+
