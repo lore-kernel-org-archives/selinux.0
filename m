@@ -1,165 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from dggsgout11.his.huawei.com (dggsgout11.his.huawei.com [45.249.212.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E31F1C9DC9;
-	Wed,  7 Aug 2024 11:04:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A768E1BD01D;
+	Wed,  7 Aug 2024 11:21:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723028672; cv=none; b=aOIdiWstDOHnmUTo66hUtpqSbiKxFvx4VWxJqKXrOWTCOBHUdmj2CkQEYTTLbaVNAEuq5gLOwQm3OpV/pwT6IWRfNDHut5zg3owOKe7K+ADHcLr6Vs9nCWHd7oX8zEZAeSzB88CclD4m47LDM8DRO9x5dqFkng+lwIhiFjyAgQs=
+	t=1723029695; cv=none; b=MYH9/raxJLA1C06dPIbkn1oAn2BLg3xrRXpREiQcRBwNb05zbYxdf7NVPItJsKc8V1iMffb+Q2DSNpRxChNFBv76e59BGbLyJRAzt3YRqb3uFD5tm702/Mc97TAYLwzNzCGuVPTZBL5KmoNIP8bnLr/td4S6X1qroYgdwiD0YKA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723028672; c=relaxed/simple;
-	bh=WryCtfDTwpLJfLb+h3LF6Ld+vO8Q+1flRpuRIuiXoQ8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=a8VhpG6fMzjmWKth3+Ug8/ujzrMPYFzpiWV69F5HA4ElV7/bkoGbMT78bnFxx3q4szw4rcpcbv8nOiubX227lq/Dmey8Y0AZyfHmchVVKlVnsoJfG2uM0F6L7RP9mA5lc96Oauf8MLg7phgNPsRYqdk856FPhc0hUPUkyAzRN4E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=mD4IY8MA; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="mD4IY8MA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CF93C32782;
-	Wed,  7 Aug 2024 11:04:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1723028671;
-	bh=WryCtfDTwpLJfLb+h3LF6Ld+vO8Q+1flRpuRIuiXoQ8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=mD4IY8MA6rHtHW+8SFkOiPXEVM1OG+kbWiATP4mCHzpSliZVHWFUHkwf2C4FP1e/c
-	 JWNqR5yBj28gofIcY9qiRpWGc2Ju4g5fxjCu+M1agwK/FvJw8aa/A6IAlmA1x9ZGik
-	 0vHZFUuhtW7pClhzlx+gUGhjxnEtqrg8XDUQPyjA=
-Date: Wed, 7 Aug 2024 13:04:29 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: da.gomez@samsung.com
-Cc: Masahiro Yamada <masahiroy@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nicolas@fjasle.eu>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
-	William Hubbs <w.d.hubbs@gmail.com>,
-	Chris Brannon <chris@the-brannons.com>,
-	Kirk Reiser <kirk@reisers.ca>,
-	Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Oliver Upton <oliver.upton@linux.dev>,
-	James Morse <james.morse@arm.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Zenghui Yu <yuzenghui@huawei.com>,
-	Jiri Slaby <jirislaby@kernel.org>,
-	Nick Desaulniers <ndesaulniers@google.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>, linux-kernel@vger.kernel.org,
-	linux-kbuild@vger.kernel.org, intel-xe@lists.freedesktop.org,
-	dri-devel@lists.freedesktop.org, speakup@linux-speakup.org,
-	selinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	kvmarm@lists.linux.dev, linux-serial@vger.kernel.org,
-	llvm@lists.linux.dev, Finn Behrens <me@kloenk.dev>,
-	"Daniel Gomez (Samsung)" <d+samsung@kruces.com>,
-	gost.dev@samsung.com
-Subject: Re: [PATCH 08/12] include: add elf.h support
-Message-ID: <2024080717-cross-retiree-862e@gregkh>
-References: <20240807-macos-build-support-v1-0-4cd1ded85694@samsung.com>
- <20240807-macos-build-support-v1-8-4cd1ded85694@samsung.com>
+	s=arc-20240116; t=1723029695; c=relaxed/simple;
+	bh=7kUihphe2zNIaO+acMvQ8uuv0hZ4WpqvWcV0Y4YQrG4=;
+	h=Subject:From:To:Cc:References:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=oQi2bLFWkHKoKGzQ8WIOLeBOks7xoLoJsGgWH6L2G0VOUMnMqX/ZLaxwCs2P8sN0oZHmlWOeBhjw5JkbIccTSrbeUQvTeeJHF5yHee5dNsIOXx9Ay9ZYlYKRn0lrfITbog13pvCX7865VfQf06QwfiIrpt2nnuRxYJ1FFaSeZ3M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.19.163.235])
+	by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4Wf7676FTqz4f3jqw;
+	Wed,  7 Aug 2024 19:21:19 +0800 (CST)
+Received: from mail02.huawei.com (unknown [10.116.40.128])
+	by mail.maildlp.com (Postfix) with ESMTP id D97D71A0568;
+	Wed,  7 Aug 2024 19:21:28 +0800 (CST)
+Received: from [10.174.178.55] (unknown [10.174.178.55])
+	by APP4 (Coremail) with SMTP id gCh0CgBXzIK1WLNmWlgVBA--.57192S3;
+	Wed, 07 Aug 2024 19:21:27 +0800 (CST)
+Subject: Re: [PATCH] selinux: Fix potential counting error in
+ avc_add_xperms_decision()
+From: "Leizhen (ThunderTown)" <thunder.leizhen@huaweicloud.com>
+To: Markus Elfring <Markus.Elfring@web.de>,
+ Zhen Lei <thunder.leizhen@huawei.com>, selinux@vger.kernel.org,
+ Ondrej Mosnacek <omosnace@redhat.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Jeff Vander Stoep
+ <jeffv@google.com>, Nick Kralevich <nnk@google.com>
+References: <20240806065113.1317-1-thunder.leizhen@huaweicloud.com>
+ <600318b9-928c-4466-a8d1-334fab8c512f@web.de>
+ <8e9f8931-0fd8-5808-8898-761e31e55208@huaweicloud.com>
+Message-ID: <d3f95ed9-a8f2-aedb-9097-0ac420d5bfa1@huaweicloud.com>
+Date: Wed, 7 Aug 2024 19:21:25 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240807-macos-build-support-v1-8-4cd1ded85694@samsung.com>
+In-Reply-To: <8e9f8931-0fd8-5808-8898-761e31e55208@huaweicloud.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:gCh0CgBXzIK1WLNmWlgVBA--.57192S3
+X-Coremail-Antispam: 1UD129KBjvdXoWrKrWkKF4rXF4kJrW3Zr4rGrg_yoWfXFb_CF
+	1SkF4DW395GFWDAFs5Kw47ArnxurnxJas5A3W8XrZrCwnxJanxAF13GF9ay3WrZrWfCFnr
+	uFyavayUZw12vjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUb4kYFVCjjxCrM7AC8VAFwI0_Gr0_Xr1l1xkIjI8I6I8E6xAIw20E
+	Y4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwV
+	A0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x02
+	67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267
+	AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80
+	ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4
+	AY6r1j6r4UM4x0Y48IcVAKI48JMxk0xIA0c2IEe2xFo4CEbIxvr21lc7CjxVAaw2AFwI0_
+	Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67
+	AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIY
+	rxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14
+	v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8
+	JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUF1v3UU
+	UUU
+X-CM-SenderInfo: hwkx0vthuozvpl2kv046kxt4xhlfz01xgou0bp/
 
-On Wed, Aug 07, 2024 at 01:09:22AM +0200, Daniel Gomez via B4 Relay wrote:
-> From: Daniel Gomez <da.gomez@samsung.com>
+
+
+On 2024/8/7 17:16, Leizhen (ThunderTown) wrote:
 > 
-> Add a copy of elf/elf.h header from the GNU C Library (glibc), version
-> glibc-2.40 into include/elf. Update Makefiles where elf.h header is used
-> to ensure the compiler can find all necessary headers, for macOS host
-> where these headers are not provided by the system.
 > 
-> Signed-off-by: Daniel Gomez <da.gomez@samsung.com>
-> ---
->  arch/arm64/kernel/pi/Makefile     |    1 +
->  arch/arm64/kernel/vdso32/Makefile |    1 +
->  arch/arm64/kvm/hyp/nvhe/Makefile  |    2 +-
->  include/elf/elf.h                 | 4491 +++++++++++++++++++++++++++++++++++++
->  scripts/Makefile                  |    3 +-
->  scripts/mod/Makefile              |    6 +
->  6 files changed, 4502 insertions(+), 2 deletions(-)
+> On 2024/8/7 0:30, Markus Elfring wrote:
+>>> The count increases only when a node is successfully added to
+>>> the linked list.
+>>
+>> 1. Please improve such a change description with an imperative wording.
+>>    https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/submitting-patches.rst?h=v6.11-rc2#n94
+> Ok, I'll try to improve it.
+I see this patch has been merged into selinux/stable-6.11. So I decided not to
+change it, and I re-examined it, and it seems that there is no problem you
+mentioned.
+
 > 
-> diff --git a/arch/arm64/kernel/pi/Makefile b/arch/arm64/kernel/pi/Makefile
-> index 4d11a8c29181..eb782aaa6585 100644
-> --- a/arch/arm64/kernel/pi/Makefile
-> +++ b/arch/arm64/kernel/pi/Makefile
-> @@ -20,6 +20,7 @@ KBUILD_CFLAGS	:= $(filter-out $(CC_FLAGS_SCS), $(KBUILD_CFLAGS))
->  KBUILD_CFLAGS	:= $(filter-out $(CC_FLAGS_LTO), $(KBUILD_CFLAGS))
->  
->  hostprogs	:= relacheck
-> +HOSTCFLAGS_relacheck.o = -I$(srctree)/include/elf
->  
->  quiet_cmd_piobjcopy = $(quiet_cmd_objcopy)
->        cmd_piobjcopy = $(cmd_objcopy) && $(obj)/relacheck $(@) $(<)
-> diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
-> index 25a2cb6317f3..e1ac384e6332 100644
-> --- a/arch/arm64/kernel/vdso32/Makefile
-> +++ b/arch/arm64/kernel/vdso32/Makefile
-> @@ -107,6 +107,7 @@ VDSO_LDFLAGS += --orphan-handling=$(CONFIG_LD_ORPHAN_WARN_LEVEL)
->  # $(hostprogs) with $(obj)
->  munge := ../../../arm/vdso/vdsomunge
->  hostprogs := $(munge)
-> +HOSTCFLAGS_$(munge).o = -I$(objtree)/include/elf
->  
->  c-obj-vdso := note.o
->  c-obj-vdso-gettimeofday := vgettimeofday.o
-> diff --git a/arch/arm64/kvm/hyp/nvhe/Makefile b/arch/arm64/kvm/hyp/nvhe/Makefile
-> index 782b34b004be..40541c0812bf 100644
-> --- a/arch/arm64/kvm/hyp/nvhe/Makefile
-> +++ b/arch/arm64/kvm/hyp/nvhe/Makefile
-> @@ -15,7 +15,7 @@ ccflags-y += -fno-stack-protector	\
->  	     $(DISABLE_STACKLEAK_PLUGIN)
->  
->  hostprogs := gen-hyprel
-> -HOST_EXTRACFLAGS += -I$(objtree)/include
-> +HOST_EXTRACFLAGS += -I$(objtree)/include -I$(srctree)/include/elf
->  
->  lib-objs := clear_page.o copy_page.o memcpy.o memset.o
->  lib-objs := $(addprefix ../../../lib/, $(lib-objs))
-> diff --git a/include/elf/elf.h b/include/elf/elf.h
-> new file mode 100644
-> index 000000000000..33aea7f743b8
-> --- /dev/null
-> +++ b/include/elf/elf.h
-> @@ -0,0 +1,4491 @@
-> +/* This file defines standard ELF types, structures, and macros.
-> +   Copyright (C) 1995-2024 Free Software Foundation, Inc.
-> +   This file is part of the GNU C Library.
-> +
-> +   The GNU C Library is free software; you can redistribute it and/or
-> +   modify it under the terms of the GNU Lesser General Public
-> +   License as published by the Free Software Foundation; either
-> +   version 2.1 of the License, or (at your option) any later version.
-> +
-> +   The GNU C Library is distributed in the hope that it will be useful,
-> +   but WITHOUT ANY WARRANTY; without even the implied warranty of
-> +   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-> +   Lesser General Public License for more details.
-> +
-> +   You should have received a copy of the GNU Lesser General Public
-> +   License along with the GNU C Library; if not, see
-> +   <https://www.gnu.org/licenses/>.  */
+>>
+>> 2. How do you think about to omit the word “potential” from the summary phrase?
+> I added "potential" because it's unlikely that the memory request will fail. Maybe "possible" would
+> be better.
+> 
+> 
+>>
+>>
+>> Regards,
+>> Markus
+>> .
+>>
+> 
 
-I understand your want/need for this, but new files need a SPDX license
-header instead of this type of license boilerplate.  Didn't glibc
-already convert to SPDX?
+-- 
+Regards,
+  Zhen Lei
 
-Also, as this is not internal for the kernel, but rather for userspace
-builds, shouldn't the include/ path be different?
-
-thanks,
-
-greg k-h
