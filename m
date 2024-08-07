@@ -1,105 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 323AC2E419;
-	Wed,  7 Aug 2024 14:19:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FE5782D83;
+	Wed,  7 Aug 2024 14:37:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723040386; cv=none; b=EsnkOOnTXfi7LuBS6odCPt1b/TFOMnH7fHu4piCQbeZG081kH0KNJdo5w7rqJ/IIEO5s4AZUnNG5fzvX9l1cQRk3j15sLqKdxdPpNOhTB1ZGxB4Pk42lI4lsQevieTAnA/NwKCRgswKngOkZqrkLo5OcnsvozcqEquL/mpg9WYY=
+	t=1723041429; cv=none; b=OXVUIxtEmN5eT8tCVXvYair0WTK2hdnWuabSp7PTmhUUIJGlM8TC3MaxW6IH/5kOc3ty6kxCSHp/VXaiZnz9kgCGCRKhRRyEUdeLisLiMoUC0Fajk92Zvr10V5tRua4koEnBwFj8vhU6LwiHDGSgzEqHZA+tNWS2DY2JV4+FjYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723040386; c=relaxed/simple;
-	bh=wkgLS15kdTLvliT36oyzsisWKqBnPHwCzUiy0yCqFCQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=j4gAvATApv8w445duLTWWsiYyH6raQWnDO3owcZ/+yuHr5JFLlnEhNBxlijlajgKg74ZekGfAg6kFo+lQTM9cI8m53Kva4lXyTY96ayo+E0Tb5aHHG01lEbLjbNIMEsVR/oLOwSFtLYPDLWY6rGsYJOl75uWJbITxFx8W/u8yzw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=YAczGrJM; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1723041429; c=relaxed/simple;
+	bh=OvsePmij4+qC4W0XpuSnvTsV4TtAWofQcxSiTpAA81U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Iazg0Qo9WcXwW5gyhQaMWW9lxc4Q8kScsIgae9wyKBzvZzd+uqfLjZKWwICvIM0S00YjQTYMi7j5nWzaE4RjoT7AcyqTH0xw4/lKdDGdhl/Fg1aJ7m51xT7uwNV3qsK1kos9/KZ94lCwzMKH24na2h6ZZlZtOmh25j/RTOXnijo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YLfFGb3k; arc=none smtp.client-ip=209.85.216.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="YAczGrJM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E804C4AF0E;
-	Wed,  7 Aug 2024 14:19:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1723040385;
-	bh=wkgLS15kdTLvliT36oyzsisWKqBnPHwCzUiy0yCqFCQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=YAczGrJMpAyxr/f9jMPRPSOGy5+QP2UgLWDtprDt4SHUXFWtjm6k8ab/4XyffRL93
-	 TJzwQEOdv0lfhHsHhkcsxfTj8RJ9vQwhIHPQ1sRIBFbnZ05b0+alKHuwjos4btuiel
-	 zsvVDu9TZrQn9IB5ZxXT8uzfgAEIcnHyoGBXl5Hw=
-Date: Wed, 7 Aug 2024 16:19:42 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Daniel Gomez <da.gomez@samsung.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nicolas@fjasle.eu>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
-	William Hubbs <w.d.hubbs@gmail.com>,
-	Chris Brannon <chris@the-brannons.com>,
-	Kirk Reiser <kirk@reisers.ca>,
-	Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Oliver Upton <oliver.upton@linux.dev>,
-	James Morse <james.morse@arm.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Zenghui Yu <yuzenghui@huawei.com>,
-	Jiri Slaby <jirislaby@kernel.org>,
-	Nick Desaulniers <ndesaulniers@google.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>,
-	"intel-xe@lists.freedesktop.org" <intel-xe@lists.freedesktop.org>,
-	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-	"speakup@linux-speakup.org" <speakup@linux-speakup.org>,
-	"selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
-	"llvm@lists.linux.dev" <llvm@lists.linux.dev>,
-	Finn Behrens <me@kloenk.dev>,
-	"Daniel Gomez (Samsung)" <d+samsung@kruces.com>,
-	"gost.dev@samsung.com" <gost.dev@samsung.com>,
-	Nick Desaulniers <nick.desaulniers@gmail.com>
-Subject: Re: [PATCH 00/12] Enable build system on macOS hosts
-Message-ID: <2024080758-dedicator-smoky-44be@gregkh>
-References: <20240807-macos-build-support-v1-0-4cd1ded85694@samsung.com>
- <CGME20240807110114eucas1p2e1ca4cbd352c6cd9d60688b1570df8d4@eucas1p2.samsung.com>
- <2024080753-debug-roulette-8cb1@gregkh>
- <3jnp6tnkjpvnisefomxagazu2u3uzzt7rcon3r5jssraxzwegb@gsxc7c5sfh7v>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YLfFGb3k"
+Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-2cb63ceff6dso1473002a91.1;
+        Wed, 07 Aug 2024 07:37:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1723041427; x=1723646227; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tuLdRBZiE9n4+MHp5PGhajsyIvVYgnsZblL4IXj+RGc=;
+        b=YLfFGb3kWldgzaEtH9CIodOR9pCFGlBBYSQg+y/UsHsCt+Ozjwtlrevl7Ae0xAoxxF
+         llC8cbWb6IafSI7wInNbjbEubmbQVizN8IKKSuxoRgCD6x3gWrE0nfF+h8iAxNi61ShV
+         TQbeSHnvRsApgbsPWIiaM0YcET1W7eJE+Z1KrKjqxh5hpeyXsBaE3QjqfJW5l2i7aOML
+         OvqA85Oo3fjP4vsStFICtf1WpU2gvFoECg0LmM22uaTd46kQWCrE3TwRqR6nDN6T+iJM
+         8vEW3xV/m2BpgK/zfXjvqc6bXD/2hFbyqtxPMw3t9j2vhQ+/z0+yaoe83haCeJggNCr8
+         HpoA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723041427; x=1723646227;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=tuLdRBZiE9n4+MHp5PGhajsyIvVYgnsZblL4IXj+RGc=;
+        b=vi7LHHWe2YM6SAwHMzCFFwSt1a3BQU1rT4y9muuzAQcXNYh+oasuAqS9U6BcKwdTgX
+         rZyoRLHHj98llg1X8aHqsGUKPUHkdAPv3mJ4EDREp44bYgu7KNMFVCZkiEChXATR+ZME
+         Xe6PR/1t002i1Hxwiyj7/KPKXixt+zoUijDlaSZYbYLvqFaIB0081PHA6B770iag3tCe
+         6JQrV094l4wE6Usz1v1+XfWBjYUrifvuOKFJIoYdsz791DXMuFcony71EHceb9slMIKK
+         nkbRbhtM7f+EsrhWDlev8nYN2ZhBjYy0I915vBn+Tcvah26j1o0OZpPOZRLvfKIQmmhW
+         8BWw==
+X-Forwarded-Encrypted: i=1; AJvYcCVb+Mvzc4hDFd7P7I1kLGtbw3kgNlJvrOnENMTVlBDwQdfyYUbUyH2pHhIteUAj6mNABCFVNw/iCTFEPYzXoym2xdcj06YDBpfWvu6ytmEBl8dfn91UOfdyEUPVkoRhAQvH1vaqvA==
+X-Gm-Message-State: AOJu0YwhJPso5mlxiLXuZ/9eek4AixO2QsqMwlf2ymiqHsAZXzSgaqvY
+	BhuHI52HsEl0IoZ3y9jn7r9iBz1LOWfl67X/XhUqRF9cC86DqHj7Fn3f1VxD4oHZyI3Vv5szBZi
+	Z85YSMDzJ34e1DRku+RinYJ07I8A=
+X-Google-Smtp-Source: AGHT+IFlLvDiv/HFD9TrRoW6wsN4VyG2V9kNVMnuTY2clV+LzI2BSWPAt4ZzooRHLhiaelzqc9i1X9y7/GL61gSRECE=
+X-Received: by 2002:a17:90a:5586:b0:2d0:d82:60ae with SMTP id
+ 98e67ed59e1d1-2d00d827ab8mr12757085a91.37.1723041427326; Wed, 07 Aug 2024
+ 07:37:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3jnp6tnkjpvnisefomxagazu2u3uzzt7rcon3r5jssraxzwegb@gsxc7c5sfh7v>
+References: <20240807090057.1334-1-thunder.leizhen@huaweicloud.com>
+In-Reply-To: <20240807090057.1334-1-thunder.leizhen@huaweicloud.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 7 Aug 2024 10:36:56 -0400
+Message-ID: <CAEjxPJ5jKHVqCD7dZUK-UYq=op6D_rC6FmnRvQ=sk9uwuQ6sUw@mail.gmail.com>
+Subject: Re: [PATCH 1/1] selinux: add the processing of the failure of avc_add_xperms_decision()
+To: thunder.leizhen@huaweicloud.com
+Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>, 
+	Nick Kralevich <nnk@google.com>, Jeff Vander Stoep <jeffv@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 07, 2024 at 01:56:38PM +0000, Daniel Gomez wrote:
-> On Wed, Aug 07, 2024 at 01:01:08PM GMT, Greg Kroah-Hartman wrote:
-> > On Wed, Aug 07, 2024 at 01:09:14AM +0200, Daniel Gomez via B4 Relay wrote:
-> > > This patch set allows for building the Linux kernel for arm64 in macOS with
-> > > LLVM.
-> > 
-> > Is this a requirement somewhere that this must work?  It seems like an
-> > odd request, what workflows require cross-operating-system builds like
-> > this?
-> 
-> This isn't a requirement, but it would, for example, support workflows for QEMU
-> users and developers on macOS. They could build/compile the kernel natively and
-> use it to launch QEMU instances, simplifying their process.
+On Wed, Aug 7, 2024 at 5:02=E2=80=AFAM <thunder.leizhen@huaweicloud.com> wr=
+ote:
+>
+> From: Zhen Lei <thunder.leizhen@huawei.com>
+>
+> When avc_add_xperms_decision() fails, the information recorded by the new
+> avc node is incomplete. In this case, the new avc node should be released
+> instead of replacing the old avc node.
+>
+> Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
+> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
 
-But that's not a real workload of anyone?  How often does this ever come
-up?  Who is going to maintain this cross-build functionality over time?
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-thanks,
-
-greg k-h
+> ---
+>  security/selinux/avc.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 7087cd2b802d8d8..b49c44869dc4627 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -907,7 +907,11 @@ static int avc_update_node(u32 event, u32 perms, u8 =
+driver, u8 xperm, u32 ssid,
+>                 node->ae.avd.auditdeny &=3D ~perms;
+>                 break;
+>         case AVC_CALLBACK_ADD_XPERMS:
+> -               avc_add_xperms_decision(node, xpd);
+> +               rc =3D avc_add_xperms_decision(node, xpd);
+> +               if (rc) {
+> +                       avc_node_kill(node);
+> +                       goto out_unlock;
+> +               }
+>                 break;
+>         }
+>         avc_node_replace(node, orig);
+> --
+> 2.34.1
+>
