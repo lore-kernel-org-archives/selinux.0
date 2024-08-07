@@ -1,111 +1,132 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.domeneshop.no (smtp.domeneshop.no [194.63.252.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FE5782D83;
-	Wed,  7 Aug 2024 14:37:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6365178281;
+	Wed,  7 Aug 2024 15:08:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.63.252.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723041429; cv=none; b=OXVUIxtEmN5eT8tCVXvYair0WTK2hdnWuabSp7PTmhUUIJGlM8TC3MaxW6IH/5kOc3ty6kxCSHp/VXaiZnz9kgCGCRKhRRyEUdeLisLiMoUC0Fajk92Zvr10V5tRua4koEnBwFj8vhU6LwiHDGSgzEqHZA+tNWS2DY2JV4+FjYA=
+	t=1723043294; cv=none; b=ZbmXKiksZPV+jeDAlcujbfIwTDiL4rPvJI+KVjmSabgwMRqxMd6O10BchBjibHlI/S1j8wXE3FK+kPSvnvWuohCvAYBkFEC2FEZ1fkNfF+oAa2uMEvrla9C5CytnwccBHqSv/YS7j5QrIlGYmLJZFiCE9HqjQbHwWLBDZOtfxkw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723041429; c=relaxed/simple;
-	bh=OvsePmij4+qC4W0XpuSnvTsV4TtAWofQcxSiTpAA81U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Iazg0Qo9WcXwW5gyhQaMWW9lxc4Q8kScsIgae9wyKBzvZzd+uqfLjZKWwICvIM0S00YjQTYMi7j5nWzaE4RjoT7AcyqTH0xw4/lKdDGdhl/Fg1aJ7m51xT7uwNV3qsK1kos9/KZ94lCwzMKH24na2h6ZZlZtOmh25j/RTOXnijo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YLfFGb3k; arc=none smtp.client-ip=209.85.216.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1723043294; c=relaxed/simple;
+	bh=eDjrxwc1jIzb3TzsD558aWRSwdwPydXq8SApdoF0DkQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=J2KAzNkvF9WlBc4zOAgNvHJTEIYn4A6m1Wdm6EnJmw8kQnWuT28z4gV58/9VpDRo7ThcgoZSAmJoDW/g3C8fsVMd+eoam9O7yWwk7ktSxNNqAlGhkfvn6NnZ5yZzZNGqsfbRbLw2vNl0HYpRrkMfxSM8MkR/2KXB3/pDgglZoCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fjasle.eu; spf=pass smtp.mailfrom=fjasle.eu; dkim=pass (2048-bit key) header.d=fjasle.eu header.i=@fjasle.eu header.b=VoD7yIAF; arc=none smtp.client-ip=194.63.252.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fjasle.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fjasle.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YLfFGb3k"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-2cb63ceff6dso1473002a91.1;
-        Wed, 07 Aug 2024 07:37:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1723041427; x=1723646227; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tuLdRBZiE9n4+MHp5PGhajsyIvVYgnsZblL4IXj+RGc=;
-        b=YLfFGb3kWldgzaEtH9CIodOR9pCFGlBBYSQg+y/UsHsCt+Ozjwtlrevl7Ae0xAoxxF
-         llC8cbWb6IafSI7wInNbjbEubmbQVizN8IKKSuxoRgCD6x3gWrE0nfF+h8iAxNi61ShV
-         TQbeSHnvRsApgbsPWIiaM0YcET1W7eJE+Z1KrKjqxh5hpeyXsBaE3QjqfJW5l2i7aOML
-         OvqA85Oo3fjP4vsStFICtf1WpU2gvFoECg0LmM22uaTd46kQWCrE3TwRqR6nDN6T+iJM
-         8vEW3xV/m2BpgK/zfXjvqc6bXD/2hFbyqtxPMw3t9j2vhQ+/z0+yaoe83haCeJggNCr8
-         HpoA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723041427; x=1723646227;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tuLdRBZiE9n4+MHp5PGhajsyIvVYgnsZblL4IXj+RGc=;
-        b=vi7LHHWe2YM6SAwHMzCFFwSt1a3BQU1rT4y9muuzAQcXNYh+oasuAqS9U6BcKwdTgX
-         rZyoRLHHj98llg1X8aHqsGUKPUHkdAPv3mJ4EDREp44bYgu7KNMFVCZkiEChXATR+ZME
-         Xe6PR/1t002i1Hxwiyj7/KPKXixt+zoUijDlaSZYbYLvqFaIB0081PHA6B770iag3tCe
-         6JQrV094l4wE6Usz1v1+XfWBjYUrifvuOKFJIoYdsz791DXMuFcony71EHceb9slMIKK
-         nkbRbhtM7f+EsrhWDlev8nYN2ZhBjYy0I915vBn+Tcvah26j1o0OZpPOZRLvfKIQmmhW
-         8BWw==
-X-Forwarded-Encrypted: i=1; AJvYcCVb+Mvzc4hDFd7P7I1kLGtbw3kgNlJvrOnENMTVlBDwQdfyYUbUyH2pHhIteUAj6mNABCFVNw/iCTFEPYzXoym2xdcj06YDBpfWvu6ytmEBl8dfn91UOfdyEUPVkoRhAQvH1vaqvA==
-X-Gm-Message-State: AOJu0YwhJPso5mlxiLXuZ/9eek4AixO2QsqMwlf2ymiqHsAZXzSgaqvY
-	BhuHI52HsEl0IoZ3y9jn7r9iBz1LOWfl67X/XhUqRF9cC86DqHj7Fn3f1VxD4oHZyI3Vv5szBZi
-	Z85YSMDzJ34e1DRku+RinYJ07I8A=
-X-Google-Smtp-Source: AGHT+IFlLvDiv/HFD9TrRoW6wsN4VyG2V9kNVMnuTY2clV+LzI2BSWPAt4ZzooRHLhiaelzqc9i1X9y7/GL61gSRECE=
-X-Received: by 2002:a17:90a:5586:b0:2d0:d82:60ae with SMTP id
- 98e67ed59e1d1-2d00d827ab8mr12757085a91.37.1723041427326; Wed, 07 Aug 2024
- 07:37:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=fjasle.eu header.i=@fjasle.eu header.b="VoD7yIAF"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=fjasle.eu;
+	s=ds202307; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
+	Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:Date:Message-ID:To:Cc:
+	MIME-Version:Content-Type:Content-Transfer-Encoding:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=gTBEyTDuyGP0OwM2Ld19qm72seDeAonZbOXn4FPGBmg=; b=VoD7yIAF6OddXxsFn+ETucVMrt
+	yoQoZo3iAK4Ih3BVYRNmEkN/d0yY1Yf+7yuBwFJh8sCS/byabUEpstH6LD4XxaJe6XRM+7Heizz27
+	BgrVIrYLfcsPVV58Lv9H/Zej2YP7ff6lP/MmM/VMOw1QfWJ0LUTxbXdb7m7a8gCzfU6rNuRV7rDrb
+	rqFoljkaPwUr8ZC9zHRYgHXTbfnld33EoA0p9Mehk9hbdRizvTYv7POkmihfqHUvni12N2Wr20yIm
+	bes95SD99UmlPITXumWSnNpCiiDx3MCTWqY9+EdJY5UFfG8smsRx82sZpwcdH8z51MGHUdd/MuMdj
+	c5ye7pYw==;
+Received: from [2001:9e8:9f8:5201:3235:adff:fed0:37e6] (port=35732 helo=lindesnes.fjasle.eu)
+	by smtp.domeneshop.no with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.95)
+	(envelope-from <nicolas@fjasle.eu>)
+	id 1sbiGJ-009XOB-UK;
+	Wed, 07 Aug 2024 17:07:40 +0200
+Date: Wed, 7 Aug 2024 17:07:16 +0200
+From: Nicolas Schier <nicolas@fjasle.eu>
+To: da.gomez@samsung.com
+Cc: Masahiro Yamada <masahiroy@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Lucas De Marchi <lucas.demarchi@intel.com>,
+	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+	William Hubbs <w.d.hubbs@gmail.com>,
+	Chris Brannon <chris@the-brannons.com>,
+	Kirk Reiser <kirk@reisers.ca>,
+	Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	Catalin Marinas <catalin.marinas@arm.com>,
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+	Oliver Upton <oliver.upton@linux.dev>,
+	James Morse <james.morse@arm.com>,
+	Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Zenghui Yu <yuzenghui@huawei.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Nick Desaulniers <ndesaulniers@google.com>,
+	Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>, linux-kernel@vger.kernel.org,
+	linux-kbuild@vger.kernel.org, intel-xe@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org, speakup@linux-speakup.org,
+	selinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	kvmarm@lists.linux.dev, linux-serial@vger.kernel.org,
+	llvm@lists.linux.dev, Finn Behrens <me@kloenk.dev>,
+	"Daniel Gomez (Samsung)" <d+samsung@kruces.com>,
+	gost.dev@samsung.com, Nick Desaulniers <nick.desaulniers@gmail.com>
+Subject: Re: [PATCH 01/12] scripts: subarch.include: fix SUBARCH on MacOS
+ hosts
+Message-ID: <20240807-mighty-crazy-dove-3dc8a5@lindesnes>
+References: <20240807-macos-build-support-v1-0-4cd1ded85694@samsung.com>
+ <20240807-macos-build-support-v1-1-4cd1ded85694@samsung.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240807090057.1334-1-thunder.leizhen@huaweicloud.com>
-In-Reply-To: <20240807090057.1334-1-thunder.leizhen@huaweicloud.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 7 Aug 2024 10:36:56 -0400
-Message-ID: <CAEjxPJ5jKHVqCD7dZUK-UYq=op6D_rC6FmnRvQ=sk9uwuQ6sUw@mail.gmail.com>
-Subject: Re: [PATCH 1/1] selinux: add the processing of the failure of avc_add_xperms_decision()
-To: thunder.leizhen@huaweicloud.com
-Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>, 
-	Nick Kralevich <nnk@google.com>, Jeff Vander Stoep <jeffv@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240807-macos-build-support-v1-1-4cd1ded85694@samsung.com>
 
-On Wed, Aug 7, 2024 at 5:02=E2=80=AFAM <thunder.leizhen@huaweicloud.com> wr=
-ote:
->
-> From: Zhen Lei <thunder.leizhen@huawei.com>
->
-> When avc_add_xperms_decision() fails, the information recorded by the new
-> avc node is incomplete. In this case, the new avc node should be released
-> instead of replacing the old avc node.
->
-> Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
-> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
+On Wed, Aug 07, 2024 at 01:09:15AM +0200, Daniel Gomez via B4 Relay wrote:
+> From: Nick Desaulniers <nick.desaulniers@gmail.com>
+> 
+> When building the Linux kernel on an aarch64 MacOS based host, if we don't
+> specify a value for ARCH when invoking make, we default to arm and thus
+> multi_v7_defconfig rather than the expected arm64 and arm64's defconfig.
+> 
+> This is because subarch.include invokes `uname -m` which on MacOS hosts
+> evaluates to `arm64` but on Linux hosts evaluates to `aarch64`,
+> 
+> This allows us to build ARCH=arm64 natively on MacOS (as in ARCH need
+> not be specified on an aarch64-based system).
+> 
+> Utilize a negative lookahead regular expression to avoid matching arm64.
+> 
+> Add a separate expression to support for armv.* as per error reported by
+> Nicolas Schier [1].
+> 
+> [1] https://lore.kernel.org/all/Y3MRvtwdjIwMHvRo@bergen.fjasle.eu/#t
+> 
+> Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
+> Signed-off-by: Daniel Gomez <da.gomez@samsung.com>
 > ---
->  security/selinux/avc.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index 7087cd2b802d8d8..b49c44869dc4627 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -907,7 +907,11 @@ static int avc_update_node(u32 event, u32 perms, u8 =
-driver, u8 xperm, u32 ssid,
->                 node->ae.avd.auditdeny &=3D ~perms;
->                 break;
->         case AVC_CALLBACK_ADD_XPERMS:
-> -               avc_add_xperms_decision(node, xpd);
-> +               rc =3D avc_add_xperms_decision(node, xpd);
-> +               if (rc) {
-> +                       avc_node_kill(node);
-> +                       goto out_unlock;
-> +               }
->                 break;
->         }
->         avc_node_replace(node, orig);
-> --
-> 2.34.1
->
+>  scripts/subarch.include | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/scripts/subarch.include b/scripts/subarch.include
+> index 4bd327d0ae42..5d84ad8c0dee 100644
+> --- a/scripts/subarch.include
+> +++ b/scripts/subarch.include
+> @@ -6,7 +6,8 @@
+>  
+>  SUBARCH := $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
+>  				  -e s/sun4u/sparc64/ \
+> -				  -e s/arm.*/arm/ -e s/sa110/arm/ \
+> +				  -e s/armv.*/arm/ \
+> +				  -e s/arm\(?:\(?!64\).*\)/arm/ -e s/sa110/arm/ \
+>  				  -e s/s390x/s390/ \
+>  				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
+>  				  -e s/sh[234].*/sh/ -e s/aarch64.*/arm64/ \
+> 
+
+Reviewed-by: Nicolas Schier <nicolas@fjasle.eu>
