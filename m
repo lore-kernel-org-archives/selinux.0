@@ -1,118 +1,140 @@
-Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
+Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com [209.85.219.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5D7618EFC8
-	for <selinux@vger.kernel.org>; Thu,  8 Aug 2024 15:03:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB8EB18FC93
+	for <selinux@vger.kernel.org>; Thu,  8 Aug 2024 15:48:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723129428; cv=none; b=n+7OunQxXrZkhDuGJc8J/gHCw0J6ALqrGS+onvxfNihLZ2zdihT6Kr4cKwsCugeh4Re2a8javiGOntO8hH42tBCd5m30hYvF2r0rnlD3nKflw82xabkdvge63qzSx2bd9+2ktfdX3irl2VTU6ShQ3H9UpxE2y64RUrGbwI6z6nc=
+	t=1723132104; cv=none; b=Rs7mHzNUhunqYrQTagKEltldRTSSk/DtdxfARjnD0+xcXKl8xf8fh145BoK2+YvGcHaFC3xFvwYsPrZ91q6SX45B+0S8ZDepqIES/wa0fd2+zkeUD6J+v+BhJ8F63f4HaUYmxLpov7Y9XEE/ohjfPxfaNuWWZU8E+4s5h5wl5EA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723129428; c=relaxed/simple;
-	bh=Hqw7mpxPm0M+B/1PU2lIhoI252y/4h+6m5nIfUJir/0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=H7scsST1bIhWPbuVxKBE8KQLGwoG18j5dMaO0pJoU7fGvUqA9Krtq3lipssFmIOiCHcUuqTttfex1K4MlFez88Xq6jRhV/b/ySVvaN0kga0sptQnljChw/zAVlQ+HJzflae/3MuVp6ci19KQ+jEqYnODQ/sW5q3Y3u7V1GZXh2k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=moU6ZAO2; arc=none smtp.client-ip=209.85.160.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1723132104; c=relaxed/simple;
+	bh=QXY2B5zOmDT8KUATAmWeO02jmP9KHWTVSxRWFArHvyA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jMh4OMsxNdB5yKzi02JEXrBZvHiYy8V2P9lDdQ7uU4uhaXvZ3Lo+KM2Y+UBOTVLp1aoatrLR6Pn3APZtV4PlEko50GNcBg1LdB+rSvHnqvwAq9E2PcKO8X78FGg2oSf4ewQb8I4Ulvli9Xd0SvA9Uj+XoGpoZzDXxbYV6UNp14g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Xvqx+Tk7; arc=none smtp.client-ip=209.85.219.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="moU6ZAO2"
-Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-44ff9281e93so5475341cf.2
-        for <selinux@vger.kernel.org>; Thu, 08 Aug 2024 08:03:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Xvqx+Tk7"
+Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-e0bfa0b70ceso1046364276.2
+        for <selinux@vger.kernel.org>; Thu, 08 Aug 2024 08:48:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1723129426; x=1723734226; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=aM/Jr6STikMKNmShKMS5c1tcJe7z6KN+78rOE4nS7Go=;
-        b=moU6ZAO2YKpN+7yqwnxXPqHuuH7wqE+2vgDlz4MJVnwcSpiAGVNBYWCpaZN7JXusun
-         ogS9x2WDA1/L7qUy5T5ZoaFz5gKGvxn+8nrdvZoavM3HEyuE3tjVJAu/mb/b0K2xmp6b
-         b5EU91a9klbOQP8wwRpZHOZ8GnXAqumi9SETPfqIt4IfZZebXeg8egBLt1th4T6WRssC
-         6K9s/xaRewB1F0q4xz/Mq1+yA1EX0UrPX6R+4tw2fYmUs+mH80d7RamgWEfplils84Xo
-         eIHf/rAq+6sd2lDF5hkwGIio0UMFgfGGFsTohQCHq3mL/eDW0AzSLvh9fdpDGKIB6AaM
-         Q/Bw==
+        d=paul-moore.com; s=google; t=1723132102; x=1723736902; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=22xwefQTm5yCA00hBHdSOjXx4hMeWSAiLR6KMP/J2n0=;
+        b=Xvqx+Tk7QmqLmIgGfPqflXxcUdWkdxJuGdbDJv+Qa11kxOn6SUwYhojnKuZKwiRE7q
+         146wHj9bowvoaA8gU2RiXo5WRDVKBSCa0IrQatXqPIaxc1MAon0+UuTMSYfg3eugoBcW
+         /N9YUnKNQiUBgUoFueVC8IxwgZx24jFskbBbAdh5nTLzPaDQ6yfRJY7hNN1CFqbsvBGf
+         9CreRqfRq/8SvyGvhZlLYkJo/D7G2Lnp9UcaTVjFNavuakUVcC+u2ZNG4IcBOB7BKPBf
+         dsM3azKfyixo4Rq71PmrD8tm0lBQBoGLoN7ryEnRKLGhvfuGL83o2NUEdrJw/Ojv+xEH
+         NnRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723129426; x=1723734226;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=aM/Jr6STikMKNmShKMS5c1tcJe7z6KN+78rOE4nS7Go=;
-        b=EBchOSZiGOUPO6e9cp3LqV4PgcWBO1a5mT10tOZZUcpLlrDpX5ZZQerONwzHPF95tr
-         HeEI/w+H6KBy+5YcLigPGf46jLt3sxdr66Pc6p9wAz395gOd0hHJsQSRt7NyUxgOs0Y/
-         wg7sHd2BC0HQ4CAAbMxPW4tLUIV90zsZji35R6+onuHPK3YDaqpnqGMzKrnFFwAcLsmi
-         fjBbPL7a6FMLMGZg8pJuCYakyByIkYxFga0mvYGnijgq3N0EDMGFety5aPQsi0S4h5b7
-         VlrBI1o1LjybkplJG+sdOY9Yyz+LsbSDPwS8Vl7uvDDHyieIlzWiWx3SHjtyhOlgdFgM
-         HrRA==
-X-Forwarded-Encrypted: i=1; AJvYcCXwk95BGpOtE2u4uMQ4/QkWRwe/O/YqzBSssMWCwlb37VSyHVn7sKdmbxUiqGT3dfLHASvltanpM5n4E8Qnc/+xxs4R59BcGA==
-X-Gm-Message-State: AOJu0Yw2EL8LLhn+Lj8G1Si2U+DuPsacPhWOsLHiOfQn8sisdRIl6q1e
-	mMfWUiCDBDAg2ly5WEasJ8ZT3pPS3BuKAuRwAggUNjVsj6JRihzt
-X-Google-Smtp-Source: AGHT+IGtU19iZ4iiknKm7NQQJfINUSRfrDegzrL0Cg75vjHIYUC9icGMQtcWILBYEA0E9UsoiQ9qiw==
-X-Received: by 2002:ac8:6f0a:0:b0:440:6345:257f with SMTP id d75a77b69052e-451d42ff7c2mr30240701cf.60.1723129425599;
-        Thu, 08 Aug 2024 08:03:45 -0700 (PDT)
-Received: from marcreisner.com (marcreisner.com. [104.248.50.13])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-451c87da933sm13769911cf.66.2024.08.08.08.03.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Aug 2024 08:03:44 -0700 (PDT)
-Date: Thu, 8 Aug 2024 15:03:43 +0000
-From: Marc Reisner <reisner.marc@gmail.com>
-To: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Paul Moore <paul@paul-moore.com>, Marc Reisner <reisner.marc@gmail.com>,
-	akpm@linux-foundation.org, david@redhat.com, linux-mm@kvack.org,
-	omosnace@redhat.com, peterz@infradead.org, selinux@vger.kernel.org,
-	Vlastimil Babka <vbabka@suse.cz>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-Subject: Re: [PATCH v3 3/4] selinux: use vma_is_initial_stack() and
- vma_is_initial_heap()
-Message-ID: <ZrTeT8_pzD8fH-_P@marcreisner.com>
-References: <ba8477ed-b7a1-4833-a01a-b7d43ddb47b8@huawei.com>
- <ZrPmoLKJEf1wiFmM@marcreisner.com>
- <CAHC9VhSWVdiuK+VtbjV6yJiCp=2+6Bji_86mSkj1eeRL4g_Jfg@mail.gmail.com>
- <7fb19e0a-118d-46a1-8d1b-ab71c545d7ed@huawei.com>
- <0806d149-905c-49b2-930f-5d6d0f8890c9@huawei.com>
- <CAEjxPJ5S9sz4PaRMVLyP6PWdLCG_bBxj7nw53EhU5+L1TM7kFg@mail.gmail.com>
- <4d2e1d4f-659a-428f-a167-faaaa4eca18a@huawei.com>
+        d=1e100.net; s=20230601; t=1723132102; x=1723736902;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=22xwefQTm5yCA00hBHdSOjXx4hMeWSAiLR6KMP/J2n0=;
+        b=mas8OScQJAJF0+cnZD+q2OtelzJwHuHuH4M/kmihT3IH0MKvk7xdul2Dm85KUUOBDW
+         BYYdJhkMheUCkbHIIZvQI7RuwPuQsIPzDS7GLbmQbLRLdihY260ZdB8y+9Gr67ISlKv/
+         FVOxRYkjQ6wgrxtyb92k4cR0hFlLDDPoxEp+od8cGXEQp0RSG2yuh2iVvA8pYbHdu/3P
+         c3IivCJgMy563UrsGl72vbGN7rS/ib3UbbXTOrzGVnnG09UpxGI/qhEL3dJqc3FmxPrW
+         myOd695Fd9o7KqJuHErM8bkzbw5GYdEPt9TgpVyl+AO27TWFpRC00nWwRhuqIoRYRUcN
+         A4LA==
+X-Forwarded-Encrypted: i=1; AJvYcCWKHnQVtzCi7wR5kePB2rMoer3hBkpmP2JyduDxtJBroGqdZ5yW1etw7jJ36Z5014247CvszFKX@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzj21Txh9958RXdx4f2JuiTiMDvUEFsJsIQfv/fa6czRqYXKZjq
+	Tn3XkPyvMbSxCRT75diEwiPYcz5oBZxkQgajB9QCqQJAoyHxvOvKmSlAizxgtNHynEBmNo4N9MO
+	d9DW2NtXr/i/sdfOqJhX2M0WjNVb7Vdf9yuWY
+X-Google-Smtp-Source: AGHT+IFsntQfurwiu3E1dnmz1AS910G1RH89ZcxrIjyTqHbKfs86gPKiV+MEE8/m33GxcSnhu/X33dNFjoVsD6krZTg=
+X-Received: by 2002:a05:6902:250e:b0:e0b:e279:9940 with SMTP id
+ 3f1490d57ef6-e0e9daaa03cmr2421446276.15.1723132101728; Thu, 08 Aug 2024
+ 08:48:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <4d2e1d4f-659a-428f-a167-faaaa4eca18a@huawei.com>
+References: <20240808130909.1027860-1-wangkefeng.wang@huawei.com> <CAEjxPJ4b2Xcptmi2cJNyh=N=1ky=yfg_wVB1yDLwr8uuhujxew@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4b2Xcptmi2cJNyh=N=1ky=yfg_wVB1yDLwr8uuhujxew@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 8 Aug 2024 11:48:10 -0400
+Message-ID: <CAHC9VhRz=drY-=W64VezugemWsBgaQZS_NQ2TZzrS0-fhZgg6A@mail.gmail.com>
+Subject: Re: [PATCH] Revert "selinux: use vma_is_initial_stack() and vma_is_initial_heap()"
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	selinux@vger.kernel.org, Marc Reisner <reisner.marc@gmail.com>, david@redhat.com, 
+	Vlastimil Babka <vbabka@suse.cz>, "Liam R . Howlett" <Liam.Howlett@oracle.com>, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 08, 2024 at 09:12:59PM +0800, Kefeng Wang wrote:
+On Thu, Aug 8, 2024 at 9:40=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> OK，revert patch is sent, but I am also curious about it.
+> On Thu, Aug 8, 2024 at 9:09=E2=80=AFAM Kefeng Wang <wangkefeng.wang@huawe=
+i.com> wrote:
+> >
+> > This reverts commit 68df1baf158fddc07b6f0333e4c81fe1ccecd6ff.
+> >
+> > The selinux only want to check whether the VMA range is within the heap
+> > range or not, but vma_is_initial_heap() helper will check the intersect=
+ion
+> > between the two ranges, which leads to some issue, let's turn back to t=
+he
+> > original validation.
+> >
+> > Reported-by: Marc Reisner <reisner.marc@gmail.com>
+> > Closes: https://lore.kernel.org/all/ZrPmoLKJEf1wiFmM@marcreisner.com/
+> > Fixes: 68df1baf158f ("selinux: use vma_is_initial_stack() and vma_is_in=
+itial_heap()")
+> > Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 >
-> https://lore.kernel.org/all/20240808130909.1027860-1-wangkefeng.wang@huawei.com/
+> I was only going to recommend reverting the change to the heap check
+> but in case Paul is fine with a straight revert,
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-I am also curious. It seems like the "real" fix would be in mmap - my
-understanding is that it should not intersect with heap, even when heap
-is empty (start_brk == brk).
+I was hoping that the mm folks would put together a quick patch to fix
+what looks like a problem with the helper, but I'm not sure when that
+is going to happen and with other callers I don't want to change the
+helper and break a different part of the kernel.  Unfortunately that
+leaves us with needing a revert, but like Stephen said, I think
+reverting just the heap helper is the right thing to do right now; I
+also want to put a comment in there for the next time someone tries to
+re-add the vma_is_initial_heap().  Give me some time, I'll have a
+patch out for this later today.
 
-It looks like start_brk is fixed in place when the ELF is
-loaded in fs/binfmt_elf.c:load_elf_binary (line 1288).
+> > ---
+> >  security/selinux/hooks.c | 7 +++++--
+> >  1 file changed, 5 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 81fbfa5b80d4..f5805d4b0aec 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -3845,10 +3845,13 @@ static int selinux_file_mprotect(struct vm_area=
+_struct *vma,
+> >         if (default_noexec &&
+> >             (prot & PROT_EXEC) && !(vma->vm_flags & VM_EXEC)) {
+> >                 int rc =3D 0;
+> > -               if (vma_is_initial_heap(vma)) {
+> > +               if (vma->vm_start >=3D vma->vm_mm->start_brk &&
+> > +                   vma->vm_end <=3D vma->vm_mm->brk) {
+> >                         rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
+> >                                           PROCESS__EXECHEAP, NULL);
+> > -               } else if (!vma->vm_file && (vma_is_initial_stack(vma) =
+||
+> > +               } else if (!vma->vm_file &&
+> > +                          ((vma->vm_start <=3D vma->vm_mm->start_stack=
+ &&
+> > +                            vma->vm_end >=3D vma->vm_mm->start_stack) =
+||
+> >                             vma_is_stack_for_current(vma))) {
+> >                         rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
+> >                                           PROCESS__EXECSTACK, NULL);
+> > --
+> > 2.41.0
 
-        if ((current->flags & PF_RANDOMIZE) && (snapshot_randomize_va_space > 1)) {
-                /*
-                 * For architectures with ELF randomization, when executing
-                 * a loader directly (i.e. no interpreter listed in ELF
-                 * headers), move the brk area out of the mmap region
-                 * (since it grows up, and may collide early with the stack
-                 * growing down), and into the unused ELF_ET_DYN_BASE region.
-                 */
-                if (IS_ENABLED(CONFIG_ARCH_HAS_ELF_RANDOMIZE) &&
-                    elf_ex->e_type == ET_DYN && !interpreter) {
-                        mm->brk = mm->start_brk = ELF_ET_DYN_BASE;
-                } else {
-                        /* Otherwise leave a gap between .bss and brk. */
-                        mm->brk = mm->start_brk = mm->brk + PAGE_SIZE;
-                }
-
-                mm->brk = mm->start_brk = arch_randomize_brk(mm);
-#ifdef compat_brk_randomized
-                current->brk_randomized = 1;
-#endif
-        }
+--
+paul-moore.com
