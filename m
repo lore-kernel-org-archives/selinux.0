@@ -1,144 +1,158 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from szxga07-in.huawei.com (szxga07-in.huawei.com [45.249.212.35])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 846C81CD25;
-	Thu,  8 Aug 2024 07:58:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9D6018B467
+	for <selinux@vger.kernel.org>; Thu,  8 Aug 2024 11:09:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.35
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723103935; cv=none; b=RDdGNxjxnTX+WgGUoI/mV/6H5JMyRP/iY/PiGo54NjwHwmS/UOBgyiXev4F/fSQJsQPbRjhUA8j+ToEuY3KG6rLLYHmODfXio00fa4JblPiQORzictFtLtXSYUShJ478sGydH9Xq5ur99dGG8lBf5QWBTC4Odb0MNoYQ8idYATQ=
+	t=1723115400; cv=none; b=KXPWwSQWAL87Terf55KqFIX8VCNLSpQQ3e72LXAramN9vrLbp6vV9EHRNARdRyPiPyRse4CxJ7Ad3wcVwcyeQmr6A8o0bZ4lqpx2oJOCuRS13/+NFjH6hI2ADuF4IcMeMvAvOzDG5rYFsv2K8W5CORH2+GhcKcadZJCGYTmM5S0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723103935; c=relaxed/simple;
-	bh=lBgKsSZMNn5ItIypje4300VtOpFDmA6vuT10xWV/5tg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=R9T7osUHUKt4V5emWdGMUtglxHW4Y0BJ0HKkOQWUaoe+2gTH4uqfJM53KJ6bcGyxZj2PpJxq3nM43xrRgYRl/0LVVPnZtjNtw52G/cyZyTH8c0SEga0/ZYw3MxwK5udfmL27uJz+/emvs/3yvobPwRQDauC8f3VkeJjGJJIqY9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xr2QwR/4; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xr2QwR/4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10E30C32782;
-	Thu,  8 Aug 2024 07:58:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1723103935;
-	bh=lBgKsSZMNn5ItIypje4300VtOpFDmA6vuT10xWV/5tg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Xr2QwR/4R0+Yb+9pUu6BgnmvD4j3cPKIXj9murfquFun6YQ/CtU3vzU8MbgPfxoVB
-	 xkYuiK/L381eurFZAGr+8yLDvjaR3DzrA+JEA1NP4Vt+8DfpQV63+glF1dNVLIQsq9
-	 6RBkYf4cl5QgGfcCJ1oif1ZReVXjPbf9VLx/sL5k79gAC60zyJMW6wlzXP12dzF2Rc
-	 p4bKCzhJtNliCTOKjwmeTyFJU0Gexb1/mRb2uw8ieff4BFHRFqqAiCcznbtnOjYbgL
-	 JV6WcSTcuur9WiLhmc6LF8JIVUwLAzh7TtU9G4P0oFwufwGX278D7l8mKJw9TUCRKf
-	 UXtdzQYOEKN6g==
-Date: Thu, 8 Aug 2024 09:58:49 +0200
-From: Alejandro Colomar <alx@kernel.org>
-To: Yafang Shao <laoar.shao@gmail.com>
-Cc: torvalds@linux-foundation.org, akpm@linux-foundation.org, 
-	alexei.starovoitov@gmail.com, audit@vger.kernel.org, bpf@vger.kernel.org, 
-	catalin.marinas@arm.com, dri-devel@lists.freedesktop.org, ebiederm@xmission.com, 
-	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, linux-security-module@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, netdev@vger.kernel.org, penguin-kernel@i-love.sakura.ne.jp, 
-	rostedt@goodmis.org, selinux@vger.kernel.org, serge@hallyn.com
-Subject: Re: [PATCH v5 0/9] Improve the copy of task comm
-Message-ID: <mywl5fk4ob4c4xekplom3ysiyo57h2iqirbiza6wdka3kdoa7q@exrkx5uwn2yc>
-References: <2jxak5v6dfxlpbxhpm3ey7oup4g2lnr3ueurfbosf5wdo65dk4@srb3hsk72zwq>
- <CALOAHbBKzrvibUbj-1W7Z79AZsvOpMeG--EZ0pf2k0iyuPa1_w@mail.gmail.com>
+	s=arc-20240116; t=1723115400; c=relaxed/simple;
+	bh=98nk9Rmha/KbwudGUGbgKuovkVjHp3h4XHiqtrdMWvo=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:CC:References:
+	 In-Reply-To:Content-Type; b=r13lDla6yoBntzihiv1BfUudOVCaWxDa+y6Jlkme0RCtfDFPiMQNQ14//acdpLnCndxarQAG3/mAswgn4D9Wp2pdTqcX9GUsZ/qj4rOTUxLj1Nv/xsNoWEVzJAAf8B+lK9nWYqhKS6lsJ8xj25ig5GNSbPr110qeXXKjcRC541o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.35
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.162.112])
+	by szxga07-in.huawei.com (SkyGuard) with ESMTP id 4Wfkj06lbXz1S7L4;
+	Thu,  8 Aug 2024 19:05:08 +0800 (CST)
+Received: from dggpemf100008.china.huawei.com (unknown [7.185.36.138])
+	by mail.maildlp.com (Postfix) with ESMTPS id 8DF9D1400D6;
+	Thu,  8 Aug 2024 19:09:53 +0800 (CST)
+Received: from [10.174.177.243] (10.174.177.243) by
+ dggpemf100008.china.huawei.com (7.185.36.138) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Thu, 8 Aug 2024 19:09:52 +0800
+Message-ID: <0806d149-905c-49b2-930f-5d6d0f8890c9@huawei.com>
+Date: Thu, 8 Aug 2024 19:09:52 +0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="qwav3xltx7orscp7"
-Content-Disposition: inline
-In-Reply-To: <CALOAHbBKzrvibUbj-1W7Z79AZsvOpMeG--EZ0pf2k0iyuPa1_w@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 3/4] selinux: use vma_is_initial_stack() and
+ vma_is_initial_heap()
+Content-Language: en-US
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
+To: Paul Moore <paul@paul-moore.com>, Marc Reisner <reisner.marc@gmail.com>
+CC: <akpm@linux-foundation.org>, <david@redhat.com>, <linux-mm@kvack.org>,
+	<omosnace@redhat.com>, <peterz@infradead.org>, <selinux@vger.kernel.org>,
+	<stephen.smalley.work@gmail.com>, Vlastimil Babka <vbabka@suse.cz>, "Liam R.
+ Howlett" <Liam.Howlett@oracle.com>, Lorenzo Stoakes
+	<lorenzo.stoakes@oracle.com>
+References: <ba8477ed-b7a1-4833-a01a-b7d43ddb47b8@huawei.com>
+ <ZrPmoLKJEf1wiFmM@marcreisner.com>
+ <CAHC9VhSWVdiuK+VtbjV6yJiCp=2+6Bji_86mSkj1eeRL4g_Jfg@mail.gmail.com>
+ <7fb19e0a-118d-46a1-8d1b-ab71c545d7ed@huawei.com>
+In-Reply-To: <7fb19e0a-118d-46a1-8d1b-ab71c545d7ed@huawei.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggpemf100008.china.huawei.com (7.185.36.138)
 
 
---qwav3xltx7orscp7
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-From: Alejandro Colomar <alx@kernel.org>
-To: Yafang Shao <laoar.shao@gmail.com>
-Cc: torvalds@linux-foundation.org, akpm@linux-foundation.org, 
-	alexei.starovoitov@gmail.com, audit@vger.kernel.org, bpf@vger.kernel.org, 
-	catalin.marinas@arm.com, dri-devel@lists.freedesktop.org, ebiederm@xmission.com, 
-	linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, linux-security-module@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, netdev@vger.kernel.org, penguin-kernel@i-love.sakura.ne.jp, 
-	rostedt@goodmis.org, selinux@vger.kernel.org, serge@hallyn.com
-Subject: Re: [PATCH v5 0/9] Improve the copy of task comm
-References: <2jxak5v6dfxlpbxhpm3ey7oup4g2lnr3ueurfbosf5wdo65dk4@srb3hsk72zwq>
- <CALOAHbBKzrvibUbj-1W7Z79AZsvOpMeG--EZ0pf2k0iyuPa1_w@mail.gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <CALOAHbBKzrvibUbj-1W7Z79AZsvOpMeG--EZ0pf2k0iyuPa1_w@mail.gmail.com>
 
-Hi Yafang,
+On 2024/8/8 14:43, Kefeng Wang wrote:
+> 
+> On 2024/8/8 9:10, Paul Moore wrote:
+>> On Wed, Aug 7, 2024 at 5:26 PM Marc Reisner <reisner.marc@gmail.com> 
+>> wrote:
+>>>
+>>> It looks like this issue is still not fixed. There has been some
+>>> investigation on going in this Bugzilla for Fedora:
+>>>
+>>> https://bugzilla.redhat.com/show_bug.cgi?id=2254434
+>>
+>> FWIW, I recently learned there was also a report in the kernel
+>> bugzilla about the same issue:
+>>
+>> https://bugzilla.kernel.org/show_bug.cgi?id=218258
+>>
+>>> The behavior we are seeing is that when a process has no heap and
+>>> mmap(2) is called with MAP_PRIVATE | MAP_ANONYMOUS, it allocates memory
+>>> on the heap.
+>>>
+>>> If the address space returned by mmap(2) is later on made executable
+>>> with mprotect(2), that triggers an execheap avc.
+>>
+>> ...
+>>
+>>> This has been reproduced on kernels >= 6.6.
+> 
+> I try the reproducer, but fails to reproduce on my 6.6
 
-On Thu, Aug 08, 2024 at 10:49:17AM GMT, Yafang Shao wrote:
-> > > Now, it might be a good idea to also verify that 'buf' is an actual
-> > > array, and that this code doesn't do some silly "sizeof(ptr)" thing.
-> >
-> > I decided to use NITEMS() instead of sizeof() for that reason.
-> > (NITEMS() is just our name for ARRAY_SIZE().)
-> >
-> >         $ grepc -h NITEMS .
-> >         #define NITEMS(a)            (SIZEOF_ARRAY((a)) / sizeof((a)[0]=
-))
-> >
-> > > We do have a helper for that, so we could do something like
-> > >
-> > >    #define get_task_comm(buf, tsk) \
-> > >         strscpy_pad(buf, __must_be_array(buf)+sizeof(buf), (tsk)->com=
-m)
-> >
-> > We have SIZEOF_ARRAY() for when you want the size of an array:
-> >
-> >         $ grepc -h SIZEOF_ARRAY .
-> >         #define SIZEOF_ARRAY(a)      (sizeof(a) + must_be_array(a))
->=20
-> There is already a similar macro in Linux:
->=20
->   /**
->    * ARRAY_SIZE - get the number of elements in array @arr
->    * @arr: array to be sized
->    */
->   #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]) +
-> __must_be_array(arr))
+After enable selinux then trigger the issue.
 
-This is actually the same as our NITEMS(), not SIZEOF_ARRAY().
+>>>
+>>> In reviewing the code, my best guess is that this is caused by the
+>>> scenario where brk == start_brk not being handled, though I am not
+> 
+> Is there vma_start,end and start_brk,brk infos, adding some debug print.
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 81fbfa5b80d4..b66c381c558e 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3848,6 +3848,9 @@ static int selinux_file_mprotect(struct 
+> vm_area_struct *vma,
+>                  if (vma_is_initial_heap(vma)) {
+>                          rc = avc_has_perm(sid, sid, SECCLASS_PROCESS,
+>                                            PROCESS__EXECHEAP, NULL);
+> +                       if (rc)
+> +                               pr_err("DEBUG: vma_start,end=%lx,%lx, 
+> start_brk,brk=%lx,%lx\n",
+> +                                       vma->vm_start, vma->vm_end, 
+> vma->vm_mm->start_brk, vma->vm_mm->brk);
+>                  } else if (!vma->vm_file && (vma_is_initial_stack(vma) ||
+>                              vma_is_stack_for_current(vma))) {
+>                          rc = avc_has_perm(sid, sid, SECCLASS_PROCESS,
 
-> will use it instead of the sizeof().
 
-But yeah, indeed I think you should use ARRAY_SIZE() in
-get_task_comm().  :)
+[ 3520.913952] DEBUG: pid=769674,comm=test-vma, 
+vma:start,end=1e9c000,21e9c000, start_brk,brk=2310000,2310000
 
->=20
-> Good point.
-> I will avoid using the _pad().
 
-Nice.  :)
+vma_start <  start_brk = brk  < vma_end
 
-Have a lovely day!
-Alex
+> 
+>>> expert enough in kernel code to know. If the start address allocated
+>>> by mmap is before the starting program break, and the end address is
+>>> after the starting program break, then the avc will trigger. However,
+>>> I don't know how mmap deals with determining an address and if it takes
+>>> into account the program break, or if calling brk(2) later on will just
+>>> pick a new location.
+>>
+>> I'm not a mm expert, but thankfully we have some on the To/CC line so
+>> I'm hopeful they will be able to take a look and provide some insight.
+> 
+> +Cc mmap maintainers too.
+> 
+>>
+>> To bring the relevant code into this email, prior to using the
+>> vma_is_initial_heap() helper the SELinux execheap logic looked like
+>> this:
+>>
+>>    /* WORKING */
+>>    if (vma->vm_start >= vma->vm_mm->start_brk &&
+>>        vma->vm_end <= vma->vm_mm->brk)
+>>      /* execheap denial */
+>>
 
---=20
-<https://www.alejandro-colomar.es/>
+vma range must be within heap.
 
---qwav3xltx7orscp7
-Content-Type: application/pgp-signature; name="signature.asc"
+>> ... while the current vma_is_initial_heap() helper has logic that
+>> looks like this:
+>>
+>>    /* BUGGY */
+>>    if (vma->vm_start < vma->vm_mm->brk &&
+>>        vma->vm_end > vma->vm_mm->start_brk)
+>>      /* execheap denial */
 
------BEGIN PGP SIGNATURE-----
+vma range intersection with brk range will be rejected, and
+there's a cross in above case, so execheap denial, I not sure it
+should be allowed or not, hope maintainers give some comments here.
 
-iQIzBAABCgAdFiEE6jqH8KTroDDkXfJAnowa+77/2zIFAma0erkACgkQnowa+77/
-2zI/JRAAoVxukBH7uw9FKXnQL5urmTajhZ9amPoHARet43Vg/lzzBNf6fKGg+8Sw
-Ia/9Wj4w2X8FhIeCkj6N9ZS8SaIRgXExdZQxfOdfNWRXk8i+UVm0HzH3maGvLLi7
-uSkYvr0HKnB/bk8tjJWDfvEEwNFS0f6rTlz3gcK2AggiDr9N1ZZBKS1/6qXDTgps
-Z+83Dzqy6UmjYa43Rg9MLoS5hux8uJyepFVgJQ3YzNoLlT4RCnXz99pTQffEGf/u
-Z1pH8dsthc5ObspRQoWHzKVRv2LmatVaitOfoxEnqw7nqcKkwV6hfKYwArb1PR5x
-46De/I8Q2SFzcCT+MjcCHQrlYo4ae7YVGpk2dpIYxkFnH7WCR3UeMamLrsPAkydf
-bAisGt0aUSSnXv6Nx+AyJzqJVYwfXY87aUMBxU6M6tiD1WaBCxMkgEyCqGRI4T4M
-SxLDjWDUNMP3dzrilzfy+7Q5mBSoDP0fyVZD9PvQyj2I3OQuaSco8SiKocb6YPyv
-NlIPR7vs2K7n+Cmbv1FtrW2XTDnYsHpUYs1iI81FGoqQmK0I3JM+M1PSFs1m/VLB
-UMkeE70pWxJlewI3USP3BVhAVMn9LGP3k0r6eRLlea0y8Y8VRx77S8+D7Im1RNqs
-ybegRL10BeXA+FLXX9xvCPi4ClFH2e/r0dFUpNTzg9bDXJG5sr8=
-=hUNj
------END PGP SIGNATURE-----
-
---qwav3xltx7orscp7--
+Thanks.
