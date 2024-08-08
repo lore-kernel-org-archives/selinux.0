@@ -1,173 +1,121 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9012B63D
-	for <selinux@vger.kernel.org>; Thu,  8 Aug 2024 13:13:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 534F4143726
+	for <selinux@vger.kernel.org>; Thu,  8 Aug 2024 13:40:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723122785; cv=none; b=sHlUpzS2Ws4Dujqp4J19WIqugWdqKsU1gnRElCabgDOqYuZXXDxvF6OwnjZx+zQRLmvrTSjur7X+Kv5NaxN/oZpH3DMf67TiKjZ66LVR5H7gt6m3OZbThPp1eVkY6diaB+dJDFpUyya9XlZ9aguS92KSVWtLOPasTttPevRt3QQ=
+	t=1723124403; cv=none; b=syKI3/nfZzehg6CsqH2dL2Rc7fxiKdUMpeoo8HLT1Sq8XWkkcdRwRYRLDqm6KXZgyzq8fCo0LrOEk27V3m1XdaiNtOslgPRqZplQ3VfAzwB+KFCSs6KIfg4gTpXEyVjUQJdGPejtpquXn3lUEeHF6sCuKAKfz8nka+zmO9i83XA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723122785; c=relaxed/simple;
-	bh=IEeyv+g3Mx70n4k/2GiLsn/egJTqudiNtnuAYsDA+7Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=omoHxd+F/Ze5oHOAgzOpFOGeU36elNqHTCOoBKOzqzSJDslEj9H/U0mzW7z7K4e1KkMTPNVnhA9E0F45CMl2WgdCpGoDR+iXliWFSq3h+pvd5sXsE++BlFIDPmHu16GOjMoBpUEZuwwvNrGWcpE7G2uAZ5oAALBGOQOV+o3X8W0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.48])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4WfnVL09p7zDqbb;
-	Thu,  8 Aug 2024 21:11:06 +0800 (CST)
-Received: from dggpemf100008.china.huawei.com (unknown [7.185.36.138])
-	by mail.maildlp.com (Postfix) with ESMTPS id 6718F18005F;
-	Thu,  8 Aug 2024 21:13:00 +0800 (CST)
-Received: from [10.174.177.243] (10.174.177.243) by
- dggpemf100008.china.huawei.com (7.185.36.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Thu, 8 Aug 2024 21:12:59 +0800
-Message-ID: <4d2e1d4f-659a-428f-a167-faaaa4eca18a@huawei.com>
-Date: Thu, 8 Aug 2024 21:12:59 +0800
+	s=arc-20240116; t=1723124403; c=relaxed/simple;
+	bh=azqn8TdZtcaZjzXhQEk1VT+GK+2cz7Oi/HnehE88OmE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=RfXKjfb3KNbJQKv5iqqvS9sBN0HMvfZ3a+qUNZyfojR6EpjZukQYqEoB0Zh5EEGI+POvthNraKt8YwdpdOgjYfjuN4tJC0j1Y0ZXseZwJaCo+sVpDhLKpW8dVfXInpR+O0jyQc3PktiqiOi7ZH3ID/RB9kxqoTbVxEBWyNZ0v5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U1Zd/9py; arc=none smtp.client-ip=209.85.216.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U1Zd/9py"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-2cdadce1a57so805189a91.2
+        for <selinux@vger.kernel.org>; Thu, 08 Aug 2024 06:40:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1723124402; x=1723729202; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CO9wyaEt1ObwurYcO8qjDCHpJnCttrBVOOoEKj5N3wY=;
+        b=U1Zd/9pyjxh9sJEoc4LimejwULYWim0U1qwigYGdIQphaSe8RABU6115+HFhSnxt8X
+         Foh2/arx9saPtfN/RjY1adRirJ9VvEY0wtq33OwE9iX3gmMyqMDiqbpUOPUrbSeSqUzB
+         VAYAvIzs2uZlkuFjQNN1p7lrsMSpzN0vOULWisbEqoHRElKGvVNoGxYoaXnjw9PAZK//
+         BFkJN3KXmq2qKldwsM+TshGsXz00o0Fvj8LCu/TOf6l9oCYBvIhQGPFsSjU28KJxIHk7
+         R3uNDcutaLhuJwow57mWeoCIWx5KpjEaKCeBVf9M0VatFb9Xj/Hi7mTjYUzSkME6KiGj
+         Cdiw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723124402; x=1723729202;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=CO9wyaEt1ObwurYcO8qjDCHpJnCttrBVOOoEKj5N3wY=;
+        b=T015jRAW8xb+avEbp/ueeMy22tuE8qrP/Sk3t1KmwwmqShmyKV4nbeT0hhICiGL9i8
+         u9KVZFRdwBFkmvx3318bmeiIpxuvq88JMids//EU6OJNXyXASOiI2+fng9R+gT+hSk4r
+         RMQKSVl/Y+I91bzAjFFpNOGQkuhStrz5OMU4KcI4yGg14K2KHLsne7DRhXtqZoJtLk9G
+         WMhJ0V/z2BpBA3uS236MNrYXFUztZB2He+BuWMoFg4jaNPVxjY4GxKBB6l2cFrVaY8g0
+         UCdE8MIjK+3KOoFqDB6NAxP606PLHpOjj3PuI0U+RRzO4S8mkfN6/z1gsekN3Qi1vBRk
+         rB+A==
+X-Forwarded-Encrypted: i=1; AJvYcCW/HWbjpwuQwPN59sTpNSfyaptGZa93GHU6um0SD3YAS6GYVWRKTcluou/M4GHhFQf3y2Lk4Twua+z82yJVpVHzTpVlgjRo0g==
+X-Gm-Message-State: AOJu0YzK5lLjeYbsQFVQBRyqVNvBtIdJpNzVkV9uJTjVPTkqZTJXVoMK
+	/E4/iTky0d+c/aMGEOfChEdijY4dlRRRbmPbytwK39hzODpYxZuh5jZ1CU8RqGz4ZgKb/8rzHMC
+	M0ObkGaiMFWjcgcU9E929Zm/lN1Z0Vg==
+X-Google-Smtp-Source: AGHT+IFQ4yohki3yL5TEm1Ey1QNioj2p4aFD7Dvhp1sG29vXFdfHztH+C2uv+JVfmhhgLbSFSnThEmRLaMK34nHAttA=
+X-Received: by 2002:a17:90a:9ca:b0:2c9:6f91:fc43 with SMTP id
+ 98e67ed59e1d1-2d1c336ef84mr2164056a91.3.1723124401421; Thu, 08 Aug 2024
+ 06:40:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 3/4] selinux: use vma_is_initial_stack() and
- vma_is_initial_heap()
-Content-Language: en-US
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-CC: Paul Moore <paul@paul-moore.com>, Marc Reisner <reisner.marc@gmail.com>,
-	<akpm@linux-foundation.org>, <david@redhat.com>, <linux-mm@kvack.org>,
-	<omosnace@redhat.com>, <peterz@infradead.org>, <selinux@vger.kernel.org>,
-	Vlastimil Babka <vbabka@suse.cz>, "Liam R. Howlett"
-	<Liam.Howlett@oracle.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
-References: <ba8477ed-b7a1-4833-a01a-b7d43ddb47b8@huawei.com>
- <ZrPmoLKJEf1wiFmM@marcreisner.com>
- <CAHC9VhSWVdiuK+VtbjV6yJiCp=2+6Bji_86mSkj1eeRL4g_Jfg@mail.gmail.com>
- <7fb19e0a-118d-46a1-8d1b-ab71c545d7ed@huawei.com>
- <0806d149-905c-49b2-930f-5d6d0f8890c9@huawei.com>
- <CAEjxPJ5S9sz4PaRMVLyP6PWdLCG_bBxj7nw53EhU5+L1TM7kFg@mail.gmail.com>
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-In-Reply-To: <CAEjxPJ5S9sz4PaRMVLyP6PWdLCG_bBxj7nw53EhU5+L1TM7kFg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpemf100008.china.huawei.com (7.185.36.138)
+References: <20240808130909.1027860-1-wangkefeng.wang@huawei.com>
+In-Reply-To: <20240808130909.1027860-1-wangkefeng.wang@huawei.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 8 Aug 2024 09:39:50 -0400
+Message-ID: <CAEjxPJ4b2Xcptmi2cJNyh=N=1ky=yfg_wVB1yDLwr8uuhujxew@mail.gmail.com>
+Subject: Re: [PATCH] Revert "selinux: use vma_is_initial_stack() and vma_is_initial_heap()"
+To: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
+	Marc Reisner <reisner.marc@gmail.com>, david@redhat.com, Vlastimil Babka <vbabka@suse.cz>, 
+	"Liam R . Howlett" <Liam.Howlett@oracle.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>, linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, Aug 8, 2024 at 9:09=E2=80=AFAM Kefeng Wang <wangkefeng.wang@huawei.=
+com> wrote:
+>
+> This reverts commit 68df1baf158fddc07b6f0333e4c81fe1ccecd6ff.
+>
+> The selinux only want to check whether the VMA range is within the heap
+> range or not, but vma_is_initial_heap() helper will check the intersectio=
+n
+> between the two ranges, which leads to some issue, let's turn back to the
+> original validation.
+>
+> Reported-by: Marc Reisner <reisner.marc@gmail.com>
+> Closes: https://lore.kernel.org/all/ZrPmoLKJEf1wiFmM@marcreisner.com/
+> Fixes: 68df1baf158f ("selinux: use vma_is_initial_stack() and vma_is_init=
+ial_heap()")
+> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 
+I was only going to recommend reverting the change to the heap check
+but in case Paul is fine with a straight revert,
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-On 2024/8/8 19:41, Stephen Smalley wrote:
-> On Thu, Aug 8, 2024 at 7:09 AM Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
->>
->>
->>
->> On 2024/8/8 14:43, Kefeng Wang wrote:
->>>
->>> On 2024/8/8 9:10, Paul Moore wrote:
->>>> On Wed, Aug 7, 2024 at 5:26 PM Marc Reisner <reisner.marc@gmail.com>
->>>> wrote:
->>>>>
->>>>> It looks like this issue is still not fixed. There has been some
->>>>> investigation on going in this Bugzilla for Fedora:
->>>>>
->>>>> https://bugzilla.redhat.com/show_bug.cgi?id=2254434
->>>>
->>>> FWIW, I recently learned there was also a report in the kernel
->>>> bugzilla about the same issue:
->>>>
->>>> https://bugzilla.kernel.org/show_bug.cgi?id=218258
->>>>
->>>>> The behavior we are seeing is that when a process has no heap and
->>>>> mmap(2) is called with MAP_PRIVATE | MAP_ANONYMOUS, it allocates memory
->>>>> on the heap.
->>>>>
->>>>> If the address space returned by mmap(2) is later on made executable
->>>>> with mprotect(2), that triggers an execheap avc.
->>>>
->>>> ...
->>>>
->>>>> This has been reproduced on kernels >= 6.6.
->>>
->>> I try the reproducer, but fails to reproduce on my 6.6
->>
->> After enable selinux then trigger the issue.
->>
->>>>>
->>>>> In reviewing the code, my best guess is that this is caused by the
->>>>> scenario where brk == start_brk not being handled, though I am not
->>>
->>> Is there vma_start,end and start_brk,brk infos, adding some debug print.
->>>
->>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->>> index 81fbfa5b80d4..b66c381c558e 100644
->>> --- a/security/selinux/hooks.c
->>> +++ b/security/selinux/hooks.c
->>> @@ -3848,6 +3848,9 @@ static int selinux_file_mprotect(struct
->>> vm_area_struct *vma,
->>>                   if (vma_is_initial_heap(vma)) {
->>>                           rc = avc_has_perm(sid, sid, SECCLASS_PROCESS,
->>>                                             PROCESS__EXECHEAP, NULL);
->>> +                       if (rc)
->>> +                               pr_err("DEBUG: vma_start,end=%lx,%lx,
->>> start_brk,brk=%lx,%lx\n",
->>> +                                       vma->vm_start, vma->vm_end,
->>> vma->vm_mm->start_brk, vma->vm_mm->brk);
->>>                   } else if (!vma->vm_file && (vma_is_initial_stack(vma) ||
->>>                               vma_is_stack_for_current(vma))) {
->>>                           rc = avc_has_perm(sid, sid, SECCLASS_PROCESS,
->>
->>
->> [ 3520.913952] DEBUG: pid=769674,comm=test-vma,
->> vma:start,end=1e9c000,21e9c000, start_brk,brk=2310000,2310000
->>
->>
->> vma_start <  start_brk = brk  < vma_end
->>
->>>
->>>>> expert enough in kernel code to know. If the start address allocated
->>>>> by mmap is before the starting program break, and the end address is
->>>>> after the starting program break, then the avc will trigger. However,
->>>>> I don't know how mmap deals with determining an address and if it takes
->>>>> into account the program break, or if calling brk(2) later on will just
->>>>> pick a new location.
->>>>
->>>> I'm not a mm expert, but thankfully we have some on the To/CC line so
->>>> I'm hopeful they will be able to take a look and provide some insight.
->>>
->>> +Cc mmap maintainers too.
->>>
->>>>
->>>> To bring the relevant code into this email, prior to using the
->>>> vma_is_initial_heap() helper the SELinux execheap logic looked like
->>>> this:
->>>>
->>>>     /* WORKING */
->>>>     if (vma->vm_start >= vma->vm_mm->start_brk &&
->>>>         vma->vm_end <= vma->vm_mm->brk)
->>>>       /* execheap denial */
->>>>
->>
->> vma range must be within heap.
->>
->>>> ... while the current vma_is_initial_heap() helper has logic that
->>>> looks like this:
->>>>
->>>>     /* BUGGY */
->>>>     if (vma->vm_start < vma->vm_mm->brk &&
->>>>         vma->vm_end > vma->vm_mm->start_brk)
->>>>       /* execheap denial */
->>
->> vma range intersection with brk range will be rejected, and
->> there's a cross in above case, so execheap denial, I not sure it
->> should be allowed or not, hope maintainers give some comments here.
-> 
-> It's a kernel regression so we need to revert the change to SELinux at
-> least - can't start denying permission without a new/updated policy
-> (e.g. making the change in the check conditional on a new policy
-> capability).
-> 
-
-OK，revert patch is sent, but I am also curious about it.
-
-https://lore.kernel.org/all/20240808130909.1027860-1-wangkefeng.wang@huawei.com/
+> ---
+>  security/selinux/hooks.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 81fbfa5b80d4..f5805d4b0aec 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3845,10 +3845,13 @@ static int selinux_file_mprotect(struct vm_area_s=
+truct *vma,
+>         if (default_noexec &&
+>             (prot & PROT_EXEC) && !(vma->vm_flags & VM_EXEC)) {
+>                 int rc =3D 0;
+> -               if (vma_is_initial_heap(vma)) {
+> +               if (vma->vm_start >=3D vma->vm_mm->start_brk &&
+> +                   vma->vm_end <=3D vma->vm_mm->brk) {
+>                         rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
+>                                           PROCESS__EXECHEAP, NULL);
+> -               } else if (!vma->vm_file && (vma_is_initial_stack(vma) ||
+> +               } else if (!vma->vm_file &&
+> +                          ((vma->vm_start <=3D vma->vm_mm->start_stack &=
+&
+> +                            vma->vm_end >=3D vma->vm_mm->start_stack) ||
+>                             vma_is_stack_for_current(vma))) {
+>                         rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS,
+>                                           PROCESS__EXECSTACK, NULL);
+> --
+> 2.41.0
+>
