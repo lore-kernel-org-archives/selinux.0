@@ -1,280 +1,193 @@
-Received: from e3i64.smtp2go.com (e3i64.smtp2go.com [158.120.84.64])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36AC318B468
-	for <selinux@vger.kernel.org>; Thu,  8 Aug 2024 11:13:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=158.120.84.64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0308149C54
+	for <selinux@vger.kernel.org>; Thu,  8 Aug 2024 11:41:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723115622; cv=none; b=MM+ZDXk+oiUYSPbbO1Cpfd9rDxW1AQ8wEzTHlI10M2GM0vEEVxyMPETLmsYZiPhmafeDMtYK7l2Hywws0DKcYExEedlkTLtGMljTOqBm5yRCVKPB9T5OhNfYKT8UPyk6z3cG9aAcHRBhOMPkiQOUFOt2yWL9JP0SsSx4QbcpWOI=
+	t=1723117299; cv=none; b=JUnBsLvoJ+xY7UkhhK7BFTGgC5RDXkz2IzetPZKjd6XPg+n1dOyhFzFgukRdUh9NlakJnzUSqASagLN6hdP7EdkFnvebHDj9LbuWZETtxNDvzbAwASZvBiro5ixJjEiGjonF7FQUTDqeKBhlDzbbXp/WZbKICObrFdGbIK6IJsY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723115622; c=relaxed/simple;
-	bh=o7bhdwNQ62EoS95sx84tEhwI9oeEmv+6fwfOAXB/f5s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qlWonRpOgE1Y1p1j2R8CNwb3lUDTbuPsru1Jx4JcNVFcVfFNQz+MPWg0ZpzGXvsSALvUuQ8eUW6S9wtzBLcU+5Oq1zCjYwbDuVp2t0Fbkw+2Ic+KNvlVWzs7I8KX2RtqkoghDNCQEF3ucsinX0L++771FMkY4rFFp+PsKTZcccw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fjasle.eu; spf=pass smtp.mailfrom=em1174286.fjasle.eu; dkim=pass (2048-bit key) header.d=smtpservice.net header.i=@smtpservice.net header.b=QtR+r3Ks; dkim=pass (2048-bit key) header.d=fjasle.eu header.i=@fjasle.eu header.b=UV5i699G; dkim=pass (1024-bit key) header.d=fjasle.eu header.i=@fjasle.eu header.b=BG0muSlj; arc=none smtp.client-ip=158.120.84.64
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fjasle.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=em1174286.fjasle.eu
+	s=arc-20240116; t=1723117299; c=relaxed/simple;
+	bh=nDWtDLt3jtcmC3aSu6ZKYousHx4WfM/vc7ue5FHkUNE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=egNPyT5FIdQRAeazkl9+87tNUEN+JMSvf5u7APkEf2gQDw0et14NBaTe82xz2ECGZTEcZqFn+YjVsIELiz+kgwsQXsv0j+1t8KHIw23eIKs4D5mo5LtoVaET180+20ydqwtddIomlloR4Gtr7lpr9ncF9wmjw+e7Vhe/EameS1E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ef2Uu/ij; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=smtpservice.net header.i=@smtpservice.net header.b="QtR+r3Ks";
-	dkim=pass (2048-bit key) header.d=fjasle.eu header.i=@fjasle.eu header.b="UV5i699G";
-	dkim=pass (1024-bit key) header.d=fjasle.eu header.i=@fjasle.eu header.b="BG0muSlj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=smtpservice.net;
- i=@smtpservice.net; q=dns/txt; s=a1-4; t=1723115608; h=feedback-id :
- x-smtpcorp-track : date : message-id : to : subject : from : reply-to
- : sender : list-unsubscribe : list-unsubscribe-post;
- bh=DWvwT7MwWty/w8bZJf5PhzT0d4KUoUgQ/VKY8SN+v/4=;
- b=QtR+r3KsyFFXMI5Ruh+GiH9fH8rQKIPfelF1xXTvCLKcbQZmR6QdPOvCi1OZGm0qNIIJz
- 9jyTt/nSRRjoLxZ+uxmd2FiqLKYWkzZxC/v+8PIf1q75EZH6IvXKlcT3EjNrhA0bU3oPwoq
- RviHNvLdyzet30hk3wxA+6gT6NCK4Y4oCcJKzVU7IZjgyl5lex9hLZKA/foo4LWuTuQ3IUH
- /dd0bZCFWzLtTlpFirGWgVrNiVoRrrHiETR3lJY0VX7dqLgRNbT96DJYYjIkLlbrywUDwrY
- 4c95hCwGDR1Koe3UEluIFrPPmlTP0jouwd376jWMJqh1J/8y57TYkrgXqJ1Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fjasle.eu;
- i=@fjasle.eu; q=dns/txt; s=s1174286; t=1723115608; h=from : subject :
- to : message-id : date;
- bh=DWvwT7MwWty/w8bZJf5PhzT0d4KUoUgQ/VKY8SN+v/4=;
- b=UV5i699GAAau73Da5WWrFLYHT3ICRQNH67FFVwP0JuZrqaBoWkJw+JqA6saUmLEi4t6aR
- VoCKmagV6ZPcdxtpFVgnuaHQdQ86OzTjiz4PfSARekQgvicZa2PiT9CJEB0b0vUOskH5WIc
- PEhbgOgImbuWfUMMWUdWZk9FkwkDb0y41fWILrPMJY6hsrsJO6I5ANpPsHhGOk+3mUAA75a
- IsOa1pmcumUqcvJR/fcpi8NY53EJECASLQ7lqtdIMED9T6wKA4BbhkvGiUAGBCQ/sOEfvX9
- prETut5clyb0T3p1Sr3aYRrBJ+FiEb2ImOtDUKv9DBbFO1/QTr7ILNpYm7OQ==
-Received: from [10.85.249.164] (helo=leknes.fjasle.eu)
-	by smtpcorp.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.97.1-S2G)
-	(envelope-from <nicolas@fjasle.eu>)
-	id 1sc14u-FnQW0hPl8lT-kBTA;
-	Thu, 08 Aug 2024 11:13:08 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=fjasle.eu; s=mail;
-	t=1723115576; bh=o7bhdwNQ62EoS95sx84tEhwI9oeEmv+6fwfOAXB/f5s=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=BG0muSlj6GOKpUkPtJ0qd52efWk+CoW4jZdWTKnne+jdIvvJKqC3ltvtnGmjhM6mI
-	 ntIjsexl1m6K1i0KpZ0pMoOd7MLa/iz7heBW4/RbRrqhv+BTvbijSHbfD0DPQ3Cb8B
-	 WgqVLiFWs+fL3QDohjEbAtCBnj/mEdqJorCqp/58=
-Received: by leknes.fjasle.eu (Postfix, from userid 1000)
-	id 82E5742DD9; Thu,  8 Aug 2024 13:12:56 +0200 (CEST)
-Date: Thu, 8 Aug 2024 13:12:56 +0200
-From: Nicolas Schier <nicolas@fjasle.eu>
-To: Daniel Gomez <da.gomez@samsung.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
-	William Hubbs <w.d.hubbs@gmail.com>,
-	Chris Brannon <chris@the-brannons.com>,
-	Kirk Reiser <kirk@reisers.ca>,
-	Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Oliver Upton <oliver.upton@linux.dev>,
-	James Morse <james.morse@arm.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Zenghui Yu <yuzenghui@huawei.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jirislaby@kernel.org>,
-	Nick Desaulniers <ndesaulniers@google.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>,
-	"intel-xe@lists.freedesktop.org" <intel-xe@lists.freedesktop.org>,
-	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-	"speakup@linux-speakup.org" <speakup@linux-speakup.org>,
-	"selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>,
-	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
-	"llvm@lists.linux.dev" <llvm@lists.linux.dev>,
-	Finn Behrens <me@kloenk.dev>,
-	"Daniel Gomez (Samsung)" <d+samsung@kruces.com>,
-	"gost.dev@samsung.com" <gost.dev@samsung.com>
-Subject: Re: [PATCH 06/12] selinux/genheaders: include bitsperlong and
- posix_types headers
-Message-ID: <ZrSoOM9z4VnqhOf2@fjasle.eu>
-References: <20240807-macos-build-support-v1-0-4cd1ded85694@samsung.com>
- <20240807-macos-build-support-v1-6-4cd1ded85694@samsung.com>
- <CGME20240807153904eucas1p2264f7363ae2474c20c6dc1b84a232815@eucas1p2.samsung.com>
- <20240807-outgoing-charcoal-collie-0ee37e@lindesnes>
- <sbj3c3tlafewy2n4pylbnpb4gwylpnyxovdykfy3dhk2wqmpry@ekhhe3mgqnd6>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ef2Uu/ij"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-70d316f0060so1333897b3a.1
+        for <selinux@vger.kernel.org>; Thu, 08 Aug 2024 04:41:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1723117297; x=1723722097; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UQC5ANAEtAsbeERwnrtqReUBB7a86W2tR5dBZXz1o/c=;
+        b=Ef2Uu/ijCNwfxUXrN6R7UwxyrFg6h2AR7Rw46yc/Uy1/5TTXJDe+rysl67q0/P1qFn
+         MyliHWfXSknEOR55/JTAa/ddzp7pkflCpcbVGNOMzKkjL5PkIPdhkAS6GCbWmJc1jr4I
+         9yNPixfiDF8l8OiCnobKk+cvpzPxekUaHpU6tLaad5dcmbtXc/0jxda0v+wuirz3KDKd
+         uE6nW8Ub2JXUi/RoEkC5U6tm0Oia6yoFVi++cQFoOL9/mUck2cRgkOV/180nKknnWWfq
+         GvY3IO5t1rB4ROZRPOU9CBenk9AILOKZ/Y+u4lhas0BICpHbjXYSzZSs0uA0gyFQWt8J
+         69Wg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723117297; x=1723722097;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UQC5ANAEtAsbeERwnrtqReUBB7a86W2tR5dBZXz1o/c=;
+        b=qCaOnVULRi+Ds8mqfEBd35NILUhHSJiha7TYrBK9xa6lnu555GvaIG1P7D12IwIkPw
+         mY1YgEE7TNpzKl6449OxSCQ4suQOKTcUq9YPRwUDu3UcWgMpuT1nny9Lc9DWJ3Hmy4sl
+         thV95o4Vw2tkTzm/a2k4E9MkhT++3T00rTUjU3hg8WN5PRFwNU6p5bwu4YULPEHf43jL
+         jQ0gAe6ZsgePCIP+4Pi2Br0G2QI8ly4t7YF3C7FUwDsNwe9+JCm5oWPK5Hq2Dq2iUJmL
+         2SggHkf8llLoGcNH90lmcI5JkTDGHtUMCEvM/Q2UpDEsk/JMohxLKZfbdL3Rxi5oMbxJ
+         eWMg==
+X-Forwarded-Encrypted: i=1; AJvYcCXYQTq6Vu74zHJYpHXu1MbsUlG2BB5apRAfJqxm+KE6sNb50P/pK6dn/wobkDf/caTtHLQNkOiiUfipuEe8a/Jn/73Hg1El0g==
+X-Gm-Message-State: AOJu0Yz5UBGdGAnKJT2xUNUd7eWrKwIfqLS6sk8Q38Gs317UFKvQRp5c
+	KEQG6M70Cz+k7tjfq07QxOjFi5wzJ+/v3Q5yGUvrWw1KqsPT9Jts0WkhvVK8vdZTTOphe87SflH
+	DLpJUk1HJFhl67DBOq4suE1tLQbZJOg==
+X-Google-Smtp-Source: AGHT+IEWS6VXtoOwEcI/7FBM9JGbq0+oxUrLumvL2djiY5s09SnbF50lsssVFrwrF+SgOppdmGcLqKulbhCgOu6e/no=
+X-Received: by 2002:a05:6a20:6a22:b0:1c4:a4f2:6f77 with SMTP id
+ adf61e73a8af0-1c6fd57279amr2724003637.15.1723117296785; Thu, 08 Aug 2024
+ 04:41:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="VxNEXc5Vg6IlyTm+"
-Content-Disposition: inline
-In-Reply-To: <sbj3c3tlafewy2n4pylbnpb4gwylpnyxovdykfy3dhk2wqmpry@ekhhe3mgqnd6>
-X-Report-Abuse: Please forward a copy of this message, including all headers, to <abuse-report@smtp2go.com>
-Feedback-ID: 1174286m:1174286a9YXZ7r:1174286stAICZmwpS
-X-smtpcorp-track: kK7tqwD5SwTA.Dje_omBu1cCM.RrjQpAqlSzR
-
-
---VxNEXc5Vg6IlyTm+
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+References: <ba8477ed-b7a1-4833-a01a-b7d43ddb47b8@huawei.com>
+ <ZrPmoLKJEf1wiFmM@marcreisner.com> <CAHC9VhSWVdiuK+VtbjV6yJiCp=2+6Bji_86mSkj1eeRL4g_Jfg@mail.gmail.com>
+ <7fb19e0a-118d-46a1-8d1b-ab71c545d7ed@huawei.com> <0806d149-905c-49b2-930f-5d6d0f8890c9@huawei.com>
+In-Reply-To: <0806d149-905c-49b2-930f-5d6d0f8890c9@huawei.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 8 Aug 2024 07:41:25 -0400
+Message-ID: <CAEjxPJ5S9sz4PaRMVLyP6PWdLCG_bBxj7nw53EhU5+L1TM7kFg@mail.gmail.com>
+Subject: Re: [PATCH v3 3/4] selinux: use vma_is_initial_stack() and vma_is_initial_heap()
+To: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Paul Moore <paul@paul-moore.com>, Marc Reisner <reisner.marc@gmail.com>, 
+	akpm@linux-foundation.org, david@redhat.com, linux-mm@kvack.org, 
+	omosnace@redhat.com, peterz@infradead.org, selinux@vger.kernel.org, 
+	Vlastimil Babka <vbabka@suse.cz>, "Liam R. Howlett" <Liam.Howlett@oracle.com>, 
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Am Wed, Aug 07, 2024 at 09:41:00PM +0000 schrieb Daniel Gomez:
-> Date: Wed, 7 Aug 2024 21:41:00 +0000
-> From: Daniel Gomez <da.gomez@samsung.com>
-> To: Nicolas Schier <nicolas@fjasle.eu>
-> CC: Masahiro Yamada <masahiroy@kernel.org>, Nathan Chancellor
->  <nathan@kernel.org>, Lucas De Marchi <lucas.demarchi@intel.com>, Thomas
->  Hellstr=C3=B6m <thomas.hellstrom@linux.intel.com>, Rodrigo Vivi
->  <rodrigo.vivi@intel.com>, Maarten Lankhorst
->  <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
->  Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com=
->,
->  Daniel Vetter <daniel@ffwll.ch>, William Hubbs <w.d.hubbs@gmail.com>,
->  Chris Brannon <chris@the-brannons.com>, Kirk Reiser <kirk@reisers.ca>,
->  Samuel Thibault <samuel.thibault@ens-lyon.org>, Paul Moore
->  <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>,
->  Ondrej Mosnacek <omosnace@redhat.com>, Catalin Marinas
->  <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Marc Zyngier
->  <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>, James Morse
->  <james.morse@arm.com>, Suzuki K Poulose <suzuki.poulose@arm.com>, Zenghui
->  Yu <yuzenghui@huawei.com>, Greg Kroah-Hartman
->  <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, Nick
->  Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>,
->  Justin Stitt <justinstitt@google.com>, "linux-kernel@vger.kernel.org"
->  <linux-kernel@vger.kernel.org>, "linux-kbuild@vger.kernel.org"
->  <linux-kbuild@vger.kernel.org>, "intel-xe@lists.freedesktop.org"
->  <intel-xe@lists.freedesktop.org>, "dri-devel@lists.freedesktop.org"
->  <dri-devel@lists.freedesktop.org>, "speakup@linux-speakup.org"
->  <speakup@linux-speakup.org>, "selinux@vger.kernel.org"
->  <selinux@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
->  <linux-arm-kernel@lists.infradead.org>, "kvmarm@lists.linux.dev"
->  <kvmarm@lists.linux.dev>, "linux-serial@vger.kernel.org"
->  <linux-serial@vger.kernel.org>, "llvm@lists.linux.dev"
->  <llvm@lists.linux.dev>, Finn Behrens <me@kloenk.dev>, "Daniel Gomez
->  (Samsung)" <d+samsung@kruces.com>, "gost.dev@samsung.com"
->  <gost.dev@samsung.com>
-> Subject: Re: [PATCH 06/12] selinux/genheaders: include bitsperlong and
->  posix_types headers
-> Message-ID: <sbj3c3tlafewy2n4pylbnpb4gwylpnyxovdykfy3dhk2wqmpry@ekhhe3mgq=
-nd6>
->=20
-> On Wed, Aug 07, 2024 at 05:38:28PM GMT, Nicolas Schier wrote:
-> > On Wed, Aug 07, 2024 at 01:09:20AM +0200, Daniel Gomez via B4 Relay wro=
-te:
-> > > From: Daniel Gomez <da.gomez@samsung.com>
-> > >=20
-> > > The genheaders requires the bitsperlong.h and posix_types.h headers.
-> > > To ensure these headers are found during compilation on macOS hosts,
-> > > add usr/include to HOST_EXTRACFLAGS in the genheaders Makefile. This
-> > > adjustment allows the compiler to locate all necessary headers when t=
-hey
-> > > are not available by default on macOS.
-> > >=20
-> > > Signed-off-by: Daniel Gomez <da.gomez@samsung.com>
-> > > ---
-> > >  scripts/selinux/genheaders/Makefile | 3 ++-
-> > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > >=20
-> > > diff --git a/scripts/selinux/genheaders/Makefile b/scripts/selinux/ge=
-nheaders/Makefile
-> > > index 1faf7f07e8db..017149c90f8e 100644
-> > > --- a/scripts/selinux/genheaders/Makefile
-> > > +++ b/scripts/selinux/genheaders/Makefile
-> > > @@ -2,4 +2,5 @@
-> > >  hostprogs-always-y +=3D genheaders
-> > >  HOST_EXTRACFLAGS +=3D \
-> > >  	-I$(srctree)/include/uapi -I$(srctree)/include \
-> > > -	-I$(srctree)/security/selinux/include
-> > > +	-I$(srctree)/security/selinux/include \
-> > > +	-I$(srctree)/usr/include
-> >=20
-> > 'make headers' composes the UAPI header tree in $(objtree)/usr/include.
-> > So, if you build out-of-source, -I$(srctree)/usr/include will not match.
-> > Just remove the '$(srctree)/' prefix as '$(objtree)/' is always '.'.
->=20
-> The 'headers' target also deploys installs the headers in arch/$(SRCARCH)/
-> include/uapi, so I've updated selinux/genheaders/Makefile to the followin=
-g:
->=20
-> diff --git a/scripts/selinux/genheaders/Makefile b/scripts/selinux/genhea=
-ders/Makefile
-> index 1faf7f07e8db..ae1f195b6f67 100644
-> --- a/scripts/selinux/genheaders/Makefile
-> +++ b/scripts/selinux/genheaders/Makefile
-> @@ -2,4 +2,6 @@
->  hostprogs-always-y +=3D genheaders
->  HOST_EXTRACFLAGS +=3D \
->         -I$(srctree)/include/uapi -I$(srctree)/include \
-> -       -I$(srctree)/security/selinux/include
-> +       -I$(srctree)/security/selinux/include \
-> +       -I$(objtree)/arch/$(SRCARCH)/include/generated/uapi \
-> +       -I$(objtree)/arch/$(SRCARCH)/include/uapi
+On Thu, Aug 8, 2024 at 7:09=E2=80=AFAM Kefeng Wang <wangkefeng.wang@huawei.=
+com> wrote:
+>
+>
+>
+> On 2024/8/8 14:43, Kefeng Wang wrote:
+> >
+> > On 2024/8/8 9:10, Paul Moore wrote:
+> >> On Wed, Aug 7, 2024 at 5:26=E2=80=AFPM Marc Reisner <reisner.marc@gmai=
+l.com>
+> >> wrote:
+> >>>
+> >>> It looks like this issue is still not fixed. There has been some
+> >>> investigation on going in this Bugzilla for Fedora:
+> >>>
+> >>> https://bugzilla.redhat.com/show_bug.cgi?id=3D2254434
+> >>
+> >> FWIW, I recently learned there was also a report in the kernel
+> >> bugzilla about the same issue:
+> >>
+> >> https://bugzilla.kernel.org/show_bug.cgi?id=3D218258
+> >>
+> >>> The behavior we are seeing is that when a process has no heap and
+> >>> mmap(2) is called with MAP_PRIVATE | MAP_ANONYMOUS, it allocates memo=
+ry
+> >>> on the heap.
+> >>>
+> >>> If the address space returned by mmap(2) is later on made executable
+> >>> with mprotect(2), that triggers an execheap avc.
+> >>
+> >> ...
+> >>
+> >>> This has been reproduced on kernels >=3D 6.6.
+> >
+> > I try the reproducer, but fails to reproduce on my 6.6
+>
+> After enable selinux then trigger the issue.
+>
+> >>>
+> >>> In reviewing the code, my best guess is that this is caused by the
+> >>> scenario where brk =3D=3D start_brk not being handled, though I am no=
+t
+> >
+> > Is there vma_start,end and start_brk,brk infos, adding some debug print=
+.
+> >
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 81fbfa5b80d4..b66c381c558e 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -3848,6 +3848,9 @@ static int selinux_file_mprotect(struct
+> > vm_area_struct *vma,
+> >                  if (vma_is_initial_heap(vma)) {
+> >                          rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS=
+,
+> >                                            PROCESS__EXECHEAP, NULL);
+> > +                       if (rc)
+> > +                               pr_err("DEBUG: vma_start,end=3D%lx,%lx,
+> > start_brk,brk=3D%lx,%lx\n",
+> > +                                       vma->vm_start, vma->vm_end,
+> > vma->vm_mm->start_brk, vma->vm_mm->brk);
+> >                  } else if (!vma->vm_file && (vma_is_initial_stack(vma)=
+ ||
+> >                              vma_is_stack_for_current(vma))) {
+> >                          rc =3D avc_has_perm(sid, sid, SECCLASS_PROCESS=
+,
+>
+>
+> [ 3520.913952] DEBUG: pid=3D769674,comm=3Dtest-vma,
+> vma:start,end=3D1e9c000,21e9c000, start_brk,brk=3D2310000,2310000
+>
+>
+> vma_start <  start_brk =3D brk  < vma_end
+>
+> >
+> >>> expert enough in kernel code to know. If the start address allocated
+> >>> by mmap is before the starting program break, and the end address is
+> >>> after the starting program break, then the avc will trigger. However,
+> >>> I don't know how mmap deals with determining an address and if it tak=
+es
+> >>> into account the program break, or if calling brk(2) later on will ju=
+st
+> >>> pick a new location.
+> >>
+> >> I'm not a mm expert, but thankfully we have some on the To/CC line so
+> >> I'm hopeful they will be able to take a look and provide some insight.
+> >
+> > +Cc mmap maintainers too.
+> >
+> >>
+> >> To bring the relevant code into this email, prior to using the
+> >> vma_is_initial_heap() helper the SELinux execheap logic looked like
+> >> this:
+> >>
+> >>    /* WORKING */
+> >>    if (vma->vm_start >=3D vma->vm_mm->start_brk &&
+> >>        vma->vm_end <=3D vma->vm_mm->brk)
+> >>      /* execheap denial */
+> >>
+>
+> vma range must be within heap.
+>
+> >> ... while the current vma_is_initial_heap() helper has logic that
+> >> looks like this:
+> >>
+> >>    /* BUGGY */
+> >>    if (vma->vm_start < vma->vm_mm->brk &&
+> >>        vma->vm_end > vma->vm_mm->start_brk)
+> >>      /* execheap denial */
+>
+> vma range intersection with brk range will be rejected, and
+> there's a cross in above case, so execheap denial, I not sure it
+> should be allowed or not, hope maintainers give some comments here.
 
-SRCARCH is not derived from the host but from $(ARCH) (cp. top-level
-Makefile), thus you must not use arch/$(SRCARCH)/include/* for building
-host progs as this breaks cross-building (e.g. consider build Linux for
-32bit m68k on a arm64 host).
-
->=20
-> The include path -I$(objtree)/arch/$(SRCARCH)/include/generated/uapi
-> enables locating the asm/types.h.
->=20
-> The include path -I$(objtree)/arch/$(SRCARCH)/include/uapi enables
-> locating the asm/bitsperlong.h and asm/posix_types.h.
->=20
-> >=20
-> > But I am suspecting that this break cross-building.
->=20
-> I=E2=80=99ve tested this change on macOS with ARCH=3Darm64, as well as on=
- Debian with
-> ARCH=3Darm64 and ARCH=3Dx86_64. Is it enough to just confirm that cross-b=
-uilding
-> still works after this change?
-
-No, it isn't.  asm/bitsperlong.h is probably similar (enough) for current
-64-bit systems, but 32-bit platforms will have different versions.
-Anyway, we must not use target arch/platform-specific header files for
-host progs.  If we do, it will break.
-
-You want to use arm64 specific header files for building your arm64 host
-progs, as MacOS does not provide these (thus, it's a missing build
-dependency).  As this is not common (yet), such a build hack should be limi=
-ted
-to MacOS/Darwin only to not accidentally break other platforms.  (Do you al=
-so
-have MacOS/amd64 in mind?)
-
-As written elsewhere, another approach could be to create and maintain a Li=
-nux
-kernel dev kit for MacOS, that delivers (fetches, downloads, generates) all
-missing header files.
-
-Kind regards,
-Nicolas
-
-
---VxNEXc5Vg6IlyTm+
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEh0E3p4c3JKeBvsLGB1IKcBYmEmkFAma0qC4ACgkQB1IKcBYm
-EmlXFA//QK4VblCu85gKzeuSZduI65fyEghlP3E7HDD3wm89ScPK97QA6E3/18Eq
-KBbtW4cg56lb2YdCbv9kuIbh4xGhW9+w8lOMrTBK2CKHtVT83hO+Oyd2ZYN1F6W/
-9dBu+x09VAhWc01GPCM+1518klpvgEM9E6nmTh1xRSLaIjtlGPsiNXGaUcpMO4w2
-TEAs9SSczQa/vazzKdd71q3e2eTpLEYOuIi6+07Iny4nWjWFPwK60OxmeDfXe0un
-zZyapckz2FVMcAujnUVd8yxoaIrhlZ5K2e9GSk9BpH3LKpoTTqIhQUYFoI9Y7tHL
-RSZA5igzUTBAcSIIegyBGa5D2NzkfiNSI+MxN5hqRbZclmll5fEyvu0ej+ZJTmLC
-jDATEufQxckE3a1Q1qxxuoM3keRi7LUWPu/RZnU09BNIQFZGlOquPOmIGHyR6Vux
-wfCr4WHohktugmKMwhLf4g6nxrdOy5H4Rd3RskWyBz2xkYSFKnm2zoaJZCBq8D2/
-v/fWGHeswRzLjWqxbPsMdFfd8QuuaYYXf4wBrG9k02eAXH1Q+dOu/MZJ4Do4mCp+
-O/+FGuyln0lUjxwG80YQslhSRNjov6VlrHSXTGNHNhcUffJYXAcBABbSYg2+NCYW
-4AVxeP5dRxvjQYDCraWpTSnPOvQGnKo3Jy7++TppRl4ra4DxfC0=
-=UoyI
------END PGP SIGNATURE-----
-
---VxNEXc5Vg6IlyTm+--
+It's a kernel regression so we need to revert the change to SELinux at
+least - can't start denying permission without a new/updated policy
+(e.g. making the change in the check conditional on a new policy
+capability).
