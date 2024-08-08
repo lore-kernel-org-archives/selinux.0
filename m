@@ -1,121 +1,115 @@
-Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
+Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com [209.85.219.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACF0C52F88
-	for <selinux@vger.kernel.org>; Thu,  8 Aug 2024 20:34:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 284831494B5
+	for <selinux@vger.kernel.org>; Thu,  8 Aug 2024 20:41:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723149247; cv=none; b=fBjYIn7ZmOaZIU3mGhlRJaStCIuI4jcfiuAHHFbFvBO7xwNzIPdTikz6ULsBp8I+6CpBh01XHXzTfr9LyjRArn5Jl7y5iP8E69baVfOIvMLl9BR2ARI2E3AHPCJ3rPGARSTzkBbST7vDw+KYmVUBFwz19TpsyU3PAvvtAyJyTqM=
+	t=1723149669; cv=none; b=iroeaQTFRpeuwCt9//vRiOG3QxcbokcPyvZa4T++kASQaUGNPs/S6VFMzzSkxR+ebdjXSaCVIWHfOkVX3mN1HG9ZFsLXfBMbGORwZHk9H2cwxOkRBuWZ5XqZMrFBXO3PjfzufcCVkNvXT5Aigck/vsMExPjdpbHO5vD9W/FvS5g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723149247; c=relaxed/simple;
-	bh=stOOJSh17dOKBQnnWfpfsdsRGrbVe/4QZuW0m8rM+nk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Q8+Va9p0fIy989uRzrUGdsHWGaFSzLs3XnxYVy2m4ZHJl7shmwJKbbq3fATtLLeEzDMnwyfleoFv0sbrsFvQDs20mq/8FUSlYJOnIzJonNtzjRmMNvhaaUP/SCUjSPyOb8pQNSegcWaQUXtTxLaGtSmO07jjcEZMp6D+c91RRh8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=U3rAZKpv; arc=none smtp.client-ip=209.85.219.53
+	s=arc-20240116; t=1723149669; c=relaxed/simple;
+	bh=8c4fRjKtLaDxadYVf4tH7YI83pcDs483FX3Mk+HmEvA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=PYEIYXWQHoYZMaVoeUv5i9Cv4Grr7Rg5xA4VPomrXg1jnm9B6RA+SvoN5G1TW22fHMCdMB54m2XqCCPJTPBj88Z6UCvCqnm6cP/Jd53qsSSNt6DEHM8ZnY+dI/59vkFllIJSuYqeTHXm1JSznPblDIh+8YP4G733zjRsIBtOHwE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=QyBS7uUZ; arc=none smtp.client-ip=209.85.219.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="U3rAZKpv"
-Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-6b97097f7fdso9053586d6.0
-        for <selinux@vger.kernel.org>; Thu, 08 Aug 2024 13:34:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="QyBS7uUZ"
+Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-e0ea24477f0so884418276.2
+        for <selinux@vger.kernel.org>; Thu, 08 Aug 2024 13:41:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1723149244; x=1723754044; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=7POHmmVt8LjyWSO5cXuvCZzJXbMvpS3JwJIE8AcRQD8=;
-        b=U3rAZKpv1Q9v1nrePQ8b2PMjWt/2kxoB+hkX8GXRGIJyQztz/FFZi8tdzkIE6tXW+7
-         o7LStIiRWs97+EAKI5ySGusMYDDGuPWjayVk+XotOzrNlOV0OfEeuwJfKaSx8MkM9uQf
-         h/oUotYNyIoqovID/+HV5uETrsba7EIIf8F3TNXVJ837I/X4fePdz4Co8fklXk/UVxaU
-         niNbXKNuh7AFSFR/iXulGBTEiALkZYW1b+rc+fK5F0sADIHG5s21nloy3RB6syo2+ZPm
-         irIaktLOQNx0RD51Fm4a6RiDy80IX7frAZnSAnd2rlcum+XMiCHEpiNHt8dDUL7THz0m
-         +D6g==
+        d=paul-moore.com; s=google; t=1723149667; x=1723754467; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=47GICyzC2wsg72IYW9hbDwZbOSRLvptGet3pY/U01PA=;
+        b=QyBS7uUZIfV8fh51RxZcPHJg78toMntdKD+Czo1gkx1XJloDuLGqzVmvPq9Sg4tTEK
+         RaB0Lh767Xyhro1YEMDzSRaCb1DB2YQrmspJThlOZTKMxFLwR61PsGLkXr91evMBvkpr
+         VfDg8FbHmGVlnEIgGMfnNzPyrtP0KDLvFf46xfNPkP5lumMtooTs/IzBcfdlk8UU7w2N
+         QOlJ5mATBVxvrK6L8EXLIzyJDx11OT6vdP5CvsnC4y2P/A6Sw4tqGSzCn3CyN42z5qJ1
+         CcgdvOf06Aseeouz1nHgcUtqwWQ95BeAjGBbsczKkybDdSJVz3iu5Zw1mfZqkHHLmbJi
+         TyRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723149244; x=1723754044;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=7POHmmVt8LjyWSO5cXuvCZzJXbMvpS3JwJIE8AcRQD8=;
-        b=nogSTveO0IfO9xKE5bWpyFDlLtcSESq16L6L4NcMdgCsoxohQaVvHRjcpv+Ww2RfHg
-         iRUBNHERoW7fjtUTlHSWrwuChNW1Tb5MGQ5H+oNxTi2VqcqgQfqoN/7aq9Rx5QL9hVtI
-         7cxiJR6ddOvOm5YUfgLnzmqKjlCo5lm5EjKrut8f3v6pfHq6iB16z5hK5/3OWfNHLUID
-         QSQIvx1rsg+1pXC4IqdfTJmVT2JO0YPm/cZ/HxLlK2cIcQtqPN1yd+Vmi8zgyWyLyew3
-         Tdp4Uv2HwpVgvXeYdQ4Fik5XmKBsTv/XWvXo+wNV6AkSq+Cyfcqmtp6bvJOZp9+MrA3r
-         /cRg==
-X-Gm-Message-State: AOJu0YyyWLGCxDIt+YYrPsjDzkSsIhxSDCGsArQVLlbgMFk5VewxSJNY
-	aEzddCPh48u2eqOB/fa+4vAkl/Y3NihRqVJWKfJLjPf3oPfQf8f3b3bVyXagZ8ur1V75dZzLl9s
-	=
-X-Google-Smtp-Source: AGHT+IF2+kdtphjsLEZ9pCkL/G9YsKQH70eq6zNUMUMNM/9QInUfbfZMyZw9WKaVsT75zw5YhGO5wg==
-X-Received: by 2002:a05:6214:5911:b0:6bb:bcfd:1905 with SMTP id 6a1803df08f44-6bd6bd783bfmr54683256d6.39.1723149244243;
-        Thu, 08 Aug 2024 13:34:04 -0700 (PDT)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6bb9c86772bsm70157586d6.124.2024.08.08.13.34.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 08 Aug 2024 13:34:03 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: selinux@vger.kernel.org
-Cc: Marc Reisner <reisner.marc@gmail.com>,
-	Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH] selinux: revert our use of vma_is_initial_heap()
-Date: Thu,  8 Aug 2024 16:33:54 -0400
-Message-ID: <20240808203353.202352-2-paul@paul-moore.com>
-X-Mailer: git-send-email 2.46.0
+        d=1e100.net; s=20230601; t=1723149667; x=1723754467;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=47GICyzC2wsg72IYW9hbDwZbOSRLvptGet3pY/U01PA=;
+        b=q3tFt7lxcpHi6ZtCXhkLtrg/vjw4R+jZGDjRoediPwEcMddbo4r9tfNiLODQisP9ck
+         gikjinQvYcAagdWz4Y3VciV2OlvxLwU8peZneluA5zPdBxjLi4DPEo1SCygfv1BfOzvG
+         v8KtzcraQNzz0OFhl6WA//dGEmHLIGVZ71oaZwUQ9K+VBWMRq4i4gPZe9DJOy6dwhr5z
+         udN/+4HYOVGhTmz2R+5TrunynbjE7MWriF3kdY4XBL36wtjM8xT870wsmlflPZSuT0By
+         N7MlSfaQyANe3YXkJAB3xKlf7eiOfFzMRbHkWzjtI/2nklFICVWVKXC/fJ1cxlxk7893
+         ryJw==
+X-Forwarded-Encrypted: i=1; AJvYcCX+eyh3eBy8uV5xSFRIB9rU1RWUAgRoy8swVdQ+cd9me7OjEzUXbAcVsHESsk3PhZ5Vtk4ezsFuGO0GmXat1FozBPzT/7n8qw==
+X-Gm-Message-State: AOJu0YyDryPx66Z7v56Zm3++TimXZqW2AoxC3zqJ6xzGWK344MuU+8Ww
+	vvkl/tTvXBY2N2Se+0c1BGNR7c6yc7uZ8ZwnunQr1bZRa0Fr/yx6n8ZsPfqc53KOlK3pDqxlEkl
+	n4hOXeLquMgWSTsdkSA78t9IJgjV5558h9eX5
+X-Google-Smtp-Source: AGHT+IHoVkNERNU07XQScwT0BUcd8pt6tw/nehsU6Jtn5wJK8NwgmGYtb18Q9QxjOFECkVSI6YxnqRBaByC2KT58+y8=
+X-Received: by 2002:a05:6902:2e0f:b0:e0b:f69b:da19 with SMTP id
+ 3f1490d57ef6-e0e9dbb268bmr3874613276.40.1723149667133; Thu, 08 Aug 2024
+ 13:41:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2423; i=paul@paul-moore.com; h=from:subject; bh=stOOJSh17dOKBQnnWfpfsdsRGrbVe/4QZuW0m8rM+nk=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBmtSuxY/TX5S6EbgcrBWFN3gTDI3hgBL7dztBu+ uC8DjfHIt6JAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZrUrsQAKCRDqIPLalzeJ c+zuEACpc9P5sVfKo6uA5cgmeGxiBHz+hEe4Ycs/uIXynVGzTRywb6MIG9mlYEAFQeeyPLMMT1U uV9uOy9j7nc1KAFg7irkQfjkIWryo7vjJLXzevdf6T2HSwWrNC0LB5Aqk8ekX4kJFRw0DENLszo LO6hbeFN0TAKA6ilvGN4gfCtZ6MK4EgLnfivAaFmd6r2NugGkExm3BjzKL35hYUbxvWWBMP0lw2 3Y0cphDONOCjOLSX58oGMBjp1HTt6COThBxUqOSihmqNWlcyPnuL0ww47EkRheQ7wVP45SzqCvR XiByiTRikeemPgSk5YPq+3bcGJ2YZJcxQkUNcJfy1VSWFGPmoj6F2Gs7AiiJDZfnW1mhXYxv4x2 BuX+p8w15uhTI09qL4bMyn+Nf6fR084S1wKalhzYpZB0bbL4wVifowuqj5+ovhmkTjCwH7BX6bv fa/MaLwi1yThXoohvqKPUvDPy5nR8EuWAnhP3F4rwEz/d7Szg9H1OWPIfyINHmumQLZlFYzvW2g yA2KHtCg30hjIxdvZZvNgN0osCpt3uNzIFf+EXW8D1T7Tf5AWm+4ySCOLC9zg0jsE1GQiIql6MF Dq0jIfZhXdye9E+Y6Y43e5Y+Rt8KJxJIYcELCAgnhHsJ8Dy08m2IDOJvihrD9xfdlwoWMca22S2 8TMBI7aB+hjSK3Q==
-X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
-Content-Transfer-Encoding: 8bit
+References: <ba8477ed-b7a1-4833-a01a-b7d43ddb47b8@huawei.com>
+ <ZrPmoLKJEf1wiFmM@marcreisner.com> <CAHC9VhSWVdiuK+VtbjV6yJiCp=2+6Bji_86mSkj1eeRL4g_Jfg@mail.gmail.com>
+ <7fb19e0a-118d-46a1-8d1b-ab71c545d7ed@huawei.com> <0806d149-905c-49b2-930f-5d6d0f8890c9@huawei.com>
+ <CAEjxPJ5S9sz4PaRMVLyP6PWdLCG_bBxj7nw53EhU5+L1TM7kFg@mail.gmail.com>
+ <4d2e1d4f-659a-428f-a167-faaaa4eca18a@huawei.com> <ZrTeT8_pzD8fH-_P@marcreisner.com>
+ <zk5ffj6otbixbnppw4shxgz4tjulagm7du457gzi4qg7zrtdkk@e7mbwyzhdtrx> <ZrUd-ZUe12FahKIc@marcreisner.com>
+In-Reply-To: <ZrUd-ZUe12FahKIc@marcreisner.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 8 Aug 2024 16:40:55 -0400
+Message-ID: <CAHC9VhS2T+Ld0hpP9aioJKEMkjUH-iQbHbiRkAPHgCWJgDBaQw@mail.gmail.com>
+Subject: Re: [PATCH v3 3/4] selinux: use vma_is_initial_stack() and vma_is_initial_heap()
+To: Marc Reisner <reisner.marc@gmail.com>
+Cc: "Liam R. Howlett" <Liam.Howlett@oracle.com>, Kefeng Wang <wangkefeng.wang@huawei.com>, 
+	akpm@linux-foundation.org, david@redhat.com, linux-mm@kvack.org, 
+	omosnace@redhat.com, peterz@infradead.org, selinux@vger.kernel.org, 
+	Vlastimil Babka <vbabka@suse.cz>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Unfortunately it appears that vma_is_initial_heap() is currently broken
-for applications that do not currently have any heap allocated, e.g.
-brk == start_brk.  The breakage is such that it will cause SELinux to
-check for the process/execheap permission on memory regions that cross
-brk/start_brk even when there is no heap.
+On Thu, Aug 8, 2024 at 3:35=E2=80=AFPM Marc Reisner <reisner.marc@gmail.com=
+> wrote:
+> On Thu, Aug 08, 2024 at 02:00:09PM -0400, Liam R. Howlett wrote:
+> > Have a look at the mmapstress 3 test in ltp [1].  The tests pokes holes
+> > and mmaps into those holes throughout the brk range.
+> >
+> > [1]. https://github.com/linux-test-project/ltp/blob/master/testcases/ke=
+rnel/mem/mmapstress/mmapstress03.c
+>
+> In investigating this further, with additional reproducers, I believe
+> that the whole bug is in vma_is_initial_heap().
 
-The proper fix would be to correct vma_is_initial_heap(), but as there
-are multiple callers I am hesitant to unilaterally modify the helper
-out of concern that I would end up breaking some other subsystem.  The
-mm developers have been made aware of the situation and hopefully they
-will have a fix at some point in the future, but we need a fix soon so
-we are simply going to revert our use of vma_is_initial_heap() in favor
-of our old logic/code which works as expected, even in the face of a
-zero size heap.  We can return to using vma_is_initial_heap() at some
-point in the future when it is fixed.
+That's my feeling at this point too.  Unfortunately, there are a few
+callers other than SELinux so I don't want to change the helper
+function without an explicit ACK from the mm folks and I think now
+that we understand the problem we want to get this fixed ASAP in
+Linus' tree (and get it marked for -stable).
 
-Cc: stable@vger.kernel.org
-Reported-by: Marc Reisner <reisner.marc@gmail.com>
-Closes: https://lore.kernel.org/all/ZrPmoLKJEf1wiFmM@marcreisner.com
-Fixes: 68df1baf158f ("selinux: use vma_is_initial_stack() and vma_is_initial_heap()")
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- security/selinux/hooks.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+I just posted a patch that reverts just our use of
+vma_is_initial_heap() in favor of our old logic and adds a few lines
+of comments about the problem with vma_is_initial_heap().  I'm okay
+with moving back to vma_is_initial_heap() when it's fixed, but I'd
+prefer it to be fixed for a while before we transition back to it.
+We've gotten burned twice now with vma_is_initial_heap() so I'm going
+to be a little extra cautious here.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 55c78c318ccd..bfa61e005aac 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3852,7 +3852,17 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
- 	if (default_noexec &&
- 	    (prot & PROT_EXEC) && !(vma->vm_flags & VM_EXEC)) {
- 		int rc = 0;
--		if (vma_is_initial_heap(vma)) {
-+		/*
-+		 * We don't use the vma_is_initial_heap() helper as it has
-+		 * a history of problems and is currently broken on systems
-+		 * where there is no heap, e.g. brk == start_brk.  Before
-+		 * replacing the conditional below with vma_is_initial_heap(),
-+		 * or something similar, please ensure that the logic is the
-+		 * same as what we have below or you have tested every possible
-+		 * corner case you can think to test.
-+		 */
-+		if (vma->vm_start >= vma->vm_mm->start_brk &&
-+		    vma->vm_end <= vma->vm_mm->brk) {
- 			rc = avc_has_perm(sid, sid, SECCLASS_PROCESS,
- 					  PROCESS__EXECHEAP, NULL);
- 		} else if (!vma->vm_file && (vma_is_initial_stack(vma) ||
--- 
-2.46.0
+https://lore.kernel.org/selinux/20240808203353.202352-2-paul@paul-moore.com
 
+> What do you all think about this patch? If it doesn't have any obvious
+> flaws I can submit it (along with a revert for the revert).
+
+I'll leave the mm folks to weigh in on the fix to
+vma_is_initial_heap(), but as I said above, please don't submit a
+patch to SELinux right now, I want the fixed version of
+vma_is_initial_heap() to "soak" for a bit before we go back to it.
+
+--=20
+paul-moore.com
