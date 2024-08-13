@@ -1,116 +1,98 @@
-Received: from mail-vs1-f45.google.com (mail-vs1-f45.google.com [209.85.217.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77422183CAD
-	for <selinux@vger.kernel.org>; Tue, 13 Aug 2024 22:31:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CD624315F
+	for <selinux@vger.kernel.org>; Tue, 13 Aug 2024 23:01:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.177.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723588301; cv=none; b=n+I5+BYhwk0Sqpi3++I/JADFiGtOABBo8zI6lJsP3H/ON2y36Oe19xdeeesuaPDXOZJ4EVDTXP1LwAV4VOtook5H5KNrCFkcBGzFryOH675D9Igmwbczhn/W1UPBnEWW0eTZhS4rSWeKJR4uj6Mrq1QojUnPHZdfCRktmxuFu3k=
+	t=1723590108; cv=none; b=Gaj7vnFEKS+8zdzV0rKNnL4+KoaQIHcmAJ0189cicSXAkVjupa+Iw0teVU3265sso1NI2IhQ6ap+MDL/UFQavAGQMUAbydxm/bT4l5oJ47nt1XjygW1ZfkC3zn/IwXgMxaHUZH2zeL4JdX5l2ErPTAAZibs6/IJw1dEOOFlJwMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723588301; c=relaxed/simple;
-	bh=PjDal07NYOKBjkEkz7/rPrI2L3lDW5tzH1NRX7vsX+E=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PLNwgaR6zyAHOYr2gkieInoOn7RHpiNXM+bbHk6tWzVoLc2HusXyt/KfE1GW/eOFsxp6Ncy1VeNI2jcEZ5cc4bdwJW9vNDP4sGRUcymUjSObqCVeDZbbhczY9ObmRYEU5B7V4kaTx0mGIkk8lbltpy1Lo/Ht2MdtiFz/CU1Bo+w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=D+j9ex3p; arc=none smtp.client-ip=209.85.217.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1723590108; c=relaxed/simple;
+	bh=9Wm4VcnEwMFppndjBZNQxJlhhqAeyYrn7oCzP2XBfsI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kRDcnFbFaxqqBf2M2CKQLOA2b9NMXtAquv9JGbHsqXtPlwQKyROo58ca0gUvBLtLS02IJ9r46KVqh9D9dCgc7o/FvGFueh52w1mCLvKvqgrF2feorE1Eejm+5TsXI1YSmdWxSixz/ZtrWUoHdYQu+yY41qVzKv9HeoscJMVQsTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=dd0TM436; arc=none smtp.client-ip=205.220.177.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="D+j9ex3p"
-Received: by mail-vs1-f45.google.com with SMTP id ada2fe7eead31-493e8ef36b4so2231765137.2
-        for <selinux@vger.kernel.org>; Tue, 13 Aug 2024 15:31:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1723588298; x=1724193098; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PjDal07NYOKBjkEkz7/rPrI2L3lDW5tzH1NRX7vsX+E=;
-        b=D+j9ex3pJWeRWjq0NBYRAHJ12rIjeopGts0r0GTgjexMWWliauckLTij+u2/DtqaWn
-         IPQXwFUz1MUSigu0oPStUaFqzldIUc6ZItrjzNZ/XMk8CJsMoIBgaw6AdgZAnuJ74Mif
-         HxjrmmUY7YEzRN4Age1V1a/oYDZTMq+Ml6HWBArv3qWfb6CB9PbAegBWfG+qzwhxG1RQ
-         8SxkWeeBd79wsXNDRQvBmgxkybLm6z0e9rqqFzohuML5RHyHVhs4s4sDyHpNo2DNY+wi
-         +Uz/c6UKDHSB47b66QDOI2Pe1KXWo0XtrMjFe0TmfKB0ldc351LTEsWBPcRG8r1WJ/Bt
-         079Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723588298; x=1724193098;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=PjDal07NYOKBjkEkz7/rPrI2L3lDW5tzH1NRX7vsX+E=;
-        b=J69PB8CoT4g2qTnYkGByYAvcxrfSG87sa/hmH0GRuMvMyt3wUJmbJNVR+UULIpJlGi
-         K+9krT6toJMy2IVbJ5Rky5oKV00YIO72l898qeiItsQnYldOd2spYEjaMPn/jQQQ3XiO
-         nDrTfvsdmeFca1UiUsg77OgckkbflViTNjEZXkrS00Qb5FRu8oJtXtfH3pcloY8Ngzq0
-         bvnmITevowT0NLurHmNwFmCBNgoBWgyEhqug3qDXEd6elRmG8q6v8WTXKnaDpXTo1/28
-         fq8vfr+gsXXFYQ+MpOC0VDDYHpVRruZhm1Hbn1b3uLynMsA7XZ6TfMmH+H5Jbb8BBVpJ
-         Rmpw==
-X-Forwarded-Encrypted: i=1; AJvYcCXDjKwcCyhAJH8mE6n2ndGK2yaO8XpCll6ntsLjkZ4t9kS7j4bJfhfJNi6H4JQ6N0enrmgrrddPcmajQyLMGDItfCbLQTabzw==
-X-Gm-Message-State: AOJu0YyIS2wvCOs7ct78tVEAkhmCKzE+pt1cFZchPt117oLOJEHHW9S3
-	JKFuk1ISe5vKU73w45+NBJlkdFMMtapgPppXveww6CzsP6FuRhoTCOmc/8/HWcSgsjCSLGqfo+c
-	CsalqUmdwc6dEVqE0QvVKfMiO4PGghb7cnCjq
-X-Google-Smtp-Source: AGHT+IH/QraxU2fjWjOPkx0WDZKuaY29L3Zen/pzf+3bC1KTX13QSkaN1GEjq4vqJeNmusG+MLJVL3jxUBZoAMXwy+8=
-X-Received: by 2002:a05:6102:c04:b0:493:b4b5:4850 with SMTP id
- ada2fe7eead31-497599e9a02mr915097137.31.1723588298200; Tue, 13 Aug 2024
- 15:31:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="dd0TM436"
+Received: from pps.filterd (m0333520.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47DLfndg031169;
+	Tue, 13 Aug 2024 23:01:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=
+	from:to:cc:subject:date:message-id:mime-version
+	:content-transfer-encoding; s=corp-2023-11-20; bh=cOBPT+sB0AqVG9
+	AG4OYvSdgTxKT6DDvxZg1GgfwofRE=; b=dd0TM4361B0lwEWAYiI91FGW6aUN1E
+	Hwg8fTpdVH9gvseqS8Cr4+AUmHzVCdyFZsEXmsvkbRqNJP2gw3FXkjbIzphTnxyp
+	1ILQJ7F1CWCdIS9IQelsoNV/qvJXwFrLQJjqAw6fatGVEWjGACwxeRgGYocL88Cp
+	brvHUuSSNBLVRzCqkmyshYb5ykAruoqMjOS+CvaymObc2CpssnZr85TL2I0c3IYd
+	+EBNnbOLQkj7gzviXNfjDaVfI8weeGkZY0jq1K0194EY01gvVUbUQzUNkXtfbqs8
+	4IldFNt9/XHA0YI4u0KjIGWK+596tP6eEsPDl9lKDfqDpZbelR3jbiUA==
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4104gahrhb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 13 Aug 2024 23:01:43 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.19/8.17.1.19) with ESMTP id 47DLn5Et010659;
+	Tue, 13 Aug 2024 23:01:42 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 40wxn95t7c-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 13 Aug 2024 23:01:42 +0000
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 47DN1gn6010756;
+	Tue, 13 Aug 2024 23:01:42 GMT
+Received: from ca-dev112.us.oracle.com (ca-dev112.us.oracle.com [10.129.136.47])
+	by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 40wxn95t69-1;
+	Tue, 13 Aug 2024 23:01:42 +0000
+From: Samasth Norway Ananda <samasth.norway.ananda@oracle.com>
+To: paul@paul-moore.com, stephen.smalley.work@gmail.com, omosnace@redhat.com
+Cc: selinux@vger.kernel.org, samasth.norway.ananda@oracle.com
+Subject: [PATCH] selinux: fix Null pointer deference at sidtab_convert_hashtable()
+Date: Tue, 13 Aug 2024 16:01:40 -0700
+Message-ID: <20240813230140.3575291-1-samasth.norway.ananda@oracle.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240812022933.69850-1-laoar.shao@gmail.com> <20240812022933.69850-8-laoar.shao@gmail.com>
- <hbjxkyhugi27mbrj5zo2thfdg2gotz6syz6qoeows6l6qwbzkt@c3yb26z4pn62>
-In-Reply-To: <hbjxkyhugi27mbrj5zo2thfdg2gotz6syz6qoeows6l6qwbzkt@c3yb26z4pn62>
-From: Justin Stitt <justinstitt@google.com>
-Date: Tue, 13 Aug 2024 15:31:26 -0700
-Message-ID: <CAFhGd8oBmBVooQha7EB+_wenO8TfOjqJsZAzgHLuDUSYmwxy=w@mail.gmail.com>
-Subject: Re: [PATCH v6 7/9] tracing: Replace strncpy() with strscpy()
-To: Yafang Shao <laoar.shao@gmail.com>
-Cc: akpm@linux-foundation.org, torvalds@linux-foundation.org, 
-	ebiederm@xmission.com, alexei.starovoitov@gmail.com, rostedt@goodmis.org, 
-	catalin.marinas@arm.com, penguin-kernel@i-love.sakura.ne.jp, 
-	linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	bpf@vger.kernel.org, netdev@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-08-13_12,2024-08-13_02,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 malwarescore=0 bulkscore=0
+ adultscore=0 suspectscore=0 mlxlogscore=999 phishscore=0 mlxscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2407110000
+ definitions=main-2408130165
+X-Proofpoint-GUID: zExI-_YuwqNZ17OwjwtJXS_Nf-V8vcFt
+X-Proofpoint-ORIG-GUID: zExI-_YuwqNZ17OwjwtJXS_Nf-V8vcFt
 
-On Tue, Aug 13, 2024 at 3:19=E2=80=AFPM Justin Stitt <justinstitt@google.co=
-m> wrote:
->
-> Hi,
->
-> On Mon, Aug 12, 2024 at 10:29:31AM GMT, Yafang Shao wrote:
-> > Using strscpy() to read the task comm ensures that the name is
-> > always NUL-terminated, regardless of the source string. This approach a=
-lso
-> > facilitates future extensions to the task comm.
->
-> Thanks for sending patches replacing str{n}cpy's!
->
-> I believe there's at least two more instances of strncpy in trace.c as
-> well as in trace_events_hist.c (for a grand total of 6 instances in the
-> files you've touched in this specific patch).
->
-> It'd be great if you could replace those instances in this patch as well =
-:>)
->
-> This would help greatly with [1].
->
+Handle the case where SID (Security Identifier) being looked up was
+not found in the SID-to-Domain mapping table.
 
-I just saw that Jinjie Ruan sent replacements for these strncpy's too
-and tracked down and replaced an instance of strscpy() that was
-present in trace.c but was moved to trace_sched_switch.c during a
-refactor.
+Fixes: 66f8e2f03c02 ("selinux: sidtab reverse lookup hash table")
+Signed-off-by: Samasth Norway Ananda <samasth.norway.ananda@oracle.com>
+---
+This error was found through static analysis tool and has only been
+compile tested.
+---
+ security/selinux/ss/sidtab.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-They even used the new 2-argument strscpy which is pretty neat.
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index c8848cbba81f..b1fbdeaa8817 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -367,6 +367,8 @@ static void sidtab_convert_hashtable(struct sidtab *s, u32 count)
+ 
+ 	for (i = 0; i < count; i++) {
+ 		entry = sidtab_do_lookup(s, i, 0);
++		if (!entry)
++			continue;
+ 		entry->sid = index_to_sid(i);
+ 		entry->hash = context_compute_hash(&entry->context);
+ 
+-- 
+2.45.2
 
-See their patch here:
-https://lore.kernel.org/all/20240731075058.617588-1-ruanjinjie@huawei.com/
-
-> Link: https://github.com/KSPP/linux/issues/90 [1]
-> Link: https://lore.kernel.org/all/CAHk-=3DwhWtUC-AjmGJveAETKOMeMFSTwKwu99=
-v7+b6AyHMmaDFA@mail.gmail.com/ [2]
->
-> Thanks
-> Justin
