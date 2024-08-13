@@ -1,269 +1,156 @@
-Received: from smtp-190d.mail.infomaniak.ch (smtp-190d.mail.infomaniak.ch [185.125.25.13])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-io1-f47.google.com (mail-io1-f47.google.com [209.85.166.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 656EB1A3BC8
-	for <selinux@vger.kernel.org>; Tue, 13 Aug 2024 18:28:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.25.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1C201AAE2B
+	for <selinux@vger.kernel.org>; Tue, 13 Aug 2024 22:19:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723573737; cv=none; b=Jy7JXxLIsgtAKHOuqKA+ojg+n5hU8t3h+aUn/a4ZiKZIjxG9e8tc7MqJe0xef+uOBzzOyfGZoCcuGDTQnXLdy4i89f3KqBHiNulpq4QkmggSlky3UASWHYERFVgz3M3wmQDx8HQtPxeXKNgLmbqRh70PWkdIjFylNc28UfSIFic=
+	t=1723587571; cv=none; b=UcIjzqt8XVrYZM0aQQV6r4h36COTAMvnSkWifqsl13q4tCArg9rGEVavwic9n7imIGoz00lQbWlw/ilTYhKh0/QJJRpjgCDR4Zt6SrSzZFeYOJQJMwOBhW61wL/jBiqAzup8ASqNPsBlSE5aC1NSfePOoYwN5IsGrDc/ERX04N4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723573737; c=relaxed/simple;
-	bh=xm1cqf5R06MuIpZRd1RteoO4ZigWyBv9Fo0mR/YSiuQ=;
+	s=arc-20240116; t=1723587571; c=relaxed/simple;
+	bh=nUuj1yFQwQctPZyeaZf8ffYlrw7QeFKprNsInQ+jTuQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hRhlEXob/sNXEHcOWDisjkQJPA1g0SApDQk/rfr9+2t58f+1RrmiPvK0BJdUSP4xknoHceTnG8s9dd0KZtohyJq2TzgsrZ0xJf7KDa42zmfIwz8tKifqLhhv+yakbytn22aJT7wFg8LotNwt+nLF1TmVzkurlEb+pK7o+kAgd9E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net; spf=pass smtp.mailfrom=digikod.net; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=rj1JXUnz; arc=none smtp.client-ip=185.125.25.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
+	 Content-Type:Content-Disposition:In-Reply-To; b=BgpcPglcpJsMszeBI28HyYW/K8z89K1CY/nmDJ5KpEOm0DoVIT6LChsoRJZrhYKT9aVlA3Kz08zifnNkUUJ7BSX88EN6AysPt8dVR0XLq88eXzLJYr8e9c2qZU7HZGeG/M5eVyLnzw5fLcpLndxTGCr3j3ThbOwkef9GoDUk/xg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=XmuOb7JL; arc=none smtp.client-ip=209.85.166.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="rj1JXUnz"
-Received: from smtp-3-0001.mail.infomaniak.ch (smtp-3-0001.mail.infomaniak.ch [10.4.36.108])
-	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4Wk0JW2CPpztSY;
-	Tue, 13 Aug 2024 20:28:43 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
-	s=20191114; t=1723573723;
-	bh=tVwpdZ57Rto++tHKPeBvT32p89UG/hGxOfM4Wm5DE3A=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=rj1JXUnz+jjMX2r8ev+IcI5ky7kfWpG+DKFVJC7ScCSRwpKZV/J6tiqWbN2JUplfm
-	 lc02JSTwEvLM5VnXjK7IfMKTEn1hbhe1Ojqv3geAfEc7hzBs/WBag7ajAvrsg25WZt
-	 P4q7YexjEbvJdZGZkqDdPYhvgmSSj5eGJ9h5CRmc=
-Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4Wk0JT6xQYzPqX;
-	Tue, 13 Aug 2024 20:28:41 +0200 (CEST)
-Date: Tue, 13 Aug 2024 20:28:34 +0200
-From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	Jan Kara <jack@suse.cz>, Tahera Fahimi <fahimitahera@gmail.com>, 
-	Al Viro <viro@zeniv.linux.org.uk>, Casey Schaufler <casey@schaufler-ca.com>, 
-	James Morris <jmorris@namei.org>, Jann Horn <jannh@google.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, "Serge E . Hallyn" <serge@hallyn.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Mateusz Guzik <mjguzik@gmail.com>
-Subject: Re: [PATCH v2] fs,security: Fix file_set_fowner LSM hook
- inconsistencies
-Message-ID: <20240813.ideiNgoo1oob@digikod.net>
-References: <20240812174421.1636724-1-mic@digikod.net>
- <CAHC9VhRp5hMsmZ9jUok+5c20U37XLiXmoEAguorTqRF5MQq2Gg@mail.gmail.com>
- <20240813.la2Aiyico3lo@digikod.net>
- <CAHC9VhRrcTo4gXrexb=fqEGbNcynKUUoMWR=EseJ+oa0ZM-8qA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="XmuOb7JL"
+Received: by mail-io1-f47.google.com with SMTP id ca18e2360f4ac-81f94ce22f2so226518039f.1
+        for <selinux@vger.kernel.org>; Tue, 13 Aug 2024 15:19:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1723587569; x=1724192369; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=+QN8X+bBf4e4pg8ECVJmLV7aoGPPE4M9h9y5SfDnco4=;
+        b=XmuOb7JLvyzRoKVkigT8zV8uE0biCueUrdLC+6pXN5AjqeaxqAFGWT1hU9rPNRvsDZ
+         3fU5eBj4VHgEnvMbyOxDo4SlyF1dqm7T4zhNy+oWaV1J6qezOEKZ865/5a5QD6yf2zSE
+         zsQq6zZ31fcYemRtrJa5mxHUIsD3W7QlY7Iahg5D168bjobssTF11yaUpsmZBmKP3QY6
+         5ld4bJnVvmBPuUbevyZk00bRd5Lb1Yj1wt/HAHV8cdrDd/44dWqWllW0xGH36kY1+DHb
+         i0Jm6spuAdClmzuVQhUe8wMeuVMAO2Cv8iEw7Ie6jVlsxGLfspWZBbVehKyGXuViZ+tw
+         x0Tw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723587569; x=1724192369;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+QN8X+bBf4e4pg8ECVJmLV7aoGPPE4M9h9y5SfDnco4=;
+        b=hjdTpBIBgiDQH+qH39mZcLv3FP0zW+UHKbN0qNx9LyB5pkAJ52MY1DJ2gxr2Jnc5V5
+         8ZAX971zmAUzXVXxR4UAlOJgBX9gaAqed8vPx45bYbaq76AwhhqPZTxqsCM9yISDwT8l
+         nDUnpXUSerIhBtNRB1V9iqixnslwa1B89gEbhmMnxhctQ+J49rWerdQMvoOet/D4fizG
+         3P3OUqndyWuZ3TOSOClF/KLDPN9JcQcgi7gCVAC0M9LyYYe0F8Km1o5qWM7TwcGYS0ki
+         +TRG9LPPozpqoaklrQ3Q3qpDmJmdqRvdP44FKLXAzyNC2qodIx8Bg206+H2UfFQ83GEC
+         L4cw==
+X-Forwarded-Encrypted: i=1; AJvYcCWpL3P84NmOJ9vEsXcBnqY0ljjyG+K5WNesPdRhd+vonncD46ryEO06oF6fcYPcBA33wQlhO6It@vger.kernel.org
+X-Gm-Message-State: AOJu0YwSr7EakWAVvKfHjuF1yfg17jYjCOfb2JCKjiaGY8tY+MVOqbnd
+	VAKPGuDauis7xO+FSWY1/WZjo2Rak21cZSKjv+kFzTtBNXty9Fe6kx05qHwQ0w==
+X-Google-Smtp-Source: AGHT+IH+Vc3rvDiFEg5ElrB7bMI7N4hpSdsoFZYx8k23AbxObZpcHIjRmC/uICTdWR81lxtCEKl/zQ==
+X-Received: by 2002:a05:6602:27c1:b0:824:d58c:ec9 with SMTP id ca18e2360f4ac-824dad3f48bmr165323439f.10.1723587568538;
+        Tue, 13 Aug 2024 15:19:28 -0700 (PDT)
+Received: from google.com (194.225.68.34.bc.googleusercontent.com. [34.68.225.194])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-4ca769f9d7dsm2773101173.118.2024.08.13.15.19.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 13 Aug 2024 15:19:28 -0700 (PDT)
+Date: Tue, 13 Aug 2024 15:19:25 -0700
+From: Justin Stitt <justinstitt@google.com>
+To: Yafang Shao <laoar.shao@gmail.com>
+Cc: akpm@linux-foundation.org, torvalds@linux-foundation.org, 
+	ebiederm@xmission.com, alexei.starovoitov@gmail.com, rostedt@goodmis.org, 
+	catalin.marinas@arm.com, penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, 
+	linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, bpf@vger.kernel.org, 
+	netdev@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Subject: Re: [PATCH v6 7/9] tracing: Replace strncpy() with strscpy()
+Message-ID: <hbjxkyhugi27mbrj5zo2thfdg2gotz6syz6qoeows6l6qwbzkt@c3yb26z4pn62>
+References: <20240812022933.69850-1-laoar.shao@gmail.com>
+ <20240812022933.69850-8-laoar.shao@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHC9VhRrcTo4gXrexb=fqEGbNcynKUUoMWR=EseJ+oa0ZM-8qA@mail.gmail.com>
-X-Infomaniak-Routing: alpha
+In-Reply-To: <20240812022933.69850-8-laoar.shao@gmail.com>
 
-On Tue, Aug 13, 2024 at 11:04:13AM -0400, Paul Moore wrote:
-> On Tue, Aug 13, 2024 at 6:05 AM Mickaël Salaün <mic@digikod.net> wrote:
-> > On Mon, Aug 12, 2024 at 06:26:58PM -0400, Paul Moore wrote:
-> > > On Mon, Aug 12, 2024 at 1:44 PM Mickaël Salaün <mic@digikod.net> wrote:
-> > > >
-> > > > The fcntl's F_SETOWN command sets the process that handle SIGIO/SIGURG
-> > > > for the related file descriptor.  Before this change, the
-> > > > file_set_fowner LSM hook was used to store this information.  However,
-> > > > there are three issues with this approach:
-> > > >
-> > > > - Because security_file_set_fowner() only get one argument, all hook
-> > > >   implementations ignore the VFS logic which may not actually change the
-> > > >   process that handles SIGIO (e.g. TUN, TTY, dnotify).
-> > > >
-> > > > - Because security_file_set_fowner() is called before f_modown() without
-> > > >   lock (e.g. f_owner.lock), concurrent F_SETOWN commands could result to
-> > > >   a race condition and inconsistent LSM states (e.g. SELinux's fown_sid)
-> > > >   compared to struct fown_struct's UID/EUID.
-> > > >
-> > > > - Because the current hook implementations does not use explicit atomic
-> > > >   operations, they may create inconsistencies.  It would help to
-> > > >   completely remove this constraint, as well as the requirements of the
-> > > >   RCU read-side critical section for the hook.
-> > > >
-> > > > Fix these issues by replacing f_owner.uid and f_owner.euid with a new
-> > > > f_owner.cred [1].  This also saves memory by removing dedicated LSM
-> > > > blobs, and simplifies code by removing file_set_fowner hook
-> > > > implementations for SELinux and Smack.
-> > > >
-> > > > This changes enables to remove the smack_file_alloc_security
-> > > > implementation, Smack's file blob, and SELinux's
-> > > > file_security_struct->fown_sid field.
-> > > >
-> > > > As for the UID/EUID, f_owner.cred is not always updated.  Move the
-> > > > file_set_fowner hook to align with the VFS semantic.  This hook does not
-> > > > have user anymore [2].
-> > > >
-> > > > Before this change, f_owner's UID/EUID were initialized to zero
-> > > > (i.e. GLOBAL_ROOT_UID), but to simplify code, f_owner's cred is now
-> > > > initialized with the file descriptor creator's credentials (i.e.
-> > > > file->f_cred), which is more consistent and simplifies LSMs logic.  The
-> > > > sigio_perm()'s semantic does not need any change because SIGIO/SIGURG
-> > > > are only sent when a process is explicitly set with __f_setown().
-> > > >
-> > > > Rename f_modown() to __f_setown() to simplify code.
-> > > >
-> > > > Cc: Al Viro <viro@zeniv.linux.org.uk>
-> > > > Cc: Casey Schaufler <casey@schaufler-ca.com>
-> > > > Cc: Christian Brauner <brauner@kernel.org>
-> > > > Cc: James Morris <jmorris@namei.org>
-> > > > Cc: Jann Horn <jannh@google.com>
-> > > > Cc: Ondrej Mosnacek <omosnace@redhat.com>
-> > > > Cc: Paul Moore <paul@paul-moore.com>
-> > > > Cc: Serge E. Hallyn <serge@hallyn.com>
-> > > > Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > > Link: https://lore.kernel.org/r/20240809-explosionsartig-ablesen-b039dbc6ce82@brauner [1]
-> > > > Link: https://lore.kernel.org/r/CAHC9VhQY+H7n2zCn8ST0Vu672UA=_eiUikRDW2sUDSN3c=gVQw@mail.gmail.com [2]
-> > > > Signed-off-by: Mickaël Salaün <mic@digikod.net>
-> > > > ---
-> > > >
-> > > > Changes since v1:
-> > > > https://lore.kernel.org/r/20240812144936.1616628-1-mic@digikod.net
-> > > > - Add back the file_set_fowner hook (but without user) as
-> > > >   requested by Paul, but move it for consistency.
-> > > > ---
-> > > >  fs/fcntl.c                        | 42 +++++++++++++++----------------
-> > > >  fs/file_table.c                   |  3 +++
-> > > >  include/linux/fs.h                |  2 +-
-> > > >  security/security.c               |  5 +++-
-> > > >  security/selinux/hooks.c          | 22 +++-------------
-> > > >  security/selinux/include/objsec.h |  1 -
-> > > >  security/smack/smack.h            |  6 -----
-> > > >  security/smack/smack_lsm.c        | 39 +---------------------------
-> > > >  8 files changed, 33 insertions(+), 87 deletions(-)
-> > > >
-> > > > diff --git a/fs/fcntl.c b/fs/fcntl.c
-> > > > index 300e5d9ad913..4217b66a4e99 100644
-> > > > --- a/fs/fcntl.c
-> > > > +++ b/fs/fcntl.c
-> > > > @@ -87,8 +87,8 @@ static int setfl(int fd, struct file * filp, unsigned int arg)
-> > > >         return error;
-> > > >  }
-> > > >
-> > > > -static void f_modown(struct file *filp, struct pid *pid, enum pid_type type,
-> > > > -                     int force)
-> > > > +void __f_setown(struct file *filp, struct pid *pid, enum pid_type type,
-> > > > +               int force)
-> > > >  {
-> > > >         write_lock_irq(&filp->f_owner.lock);
-> > > >         if (force || !filp->f_owner.pid) {
-> > > > @@ -97,20 +97,15 @@ static void f_modown(struct file *filp, struct pid *pid, enum pid_type type,
-> > > >                 filp->f_owner.pid_type = type;
-> > > >
-> > > >                 if (pid) {
-> > > > -                       const struct cred *cred = current_cred();
-> > > > -                       filp->f_owner.uid = cred->uid;
-> > > > -                       filp->f_owner.euid = cred->euid;
-> > > > +                       security_file_set_fowner(filp);
-> > > > +                       put_cred(rcu_replace_pointer(
-> > > > +                               filp->f_owner.cred,
-> > > > +                               get_cred_rcu(current_cred()),
-> > > > +                               lockdep_is_held(&filp->f_owner.lock)));
-> > > >                 }
-> > > >         }
-> > > >         write_unlock_irq(&filp->f_owner.lock);
-> > > >  }
-> > >
-> > > Looking at this quickly, why can't we accomplish pretty much the same
-> > > thing by moving the security_file_set_fowner() into f_modown (as
-> > > you've done above) and leveraging the existing file->f_security field
-> > > as Smack and SELinux do today?  I'm seeing a lot of churn to get a
-> > > cred pointer into fown_struct which doesn't seem to offer that much
-> > > additional value.
-> >
-> > As explained in the commit message, this patch removes related LSM
-> > (sub)blobs because they are duplicates of what's referenced by the new
-> > f_owner.cred, which is a more generic approach and saves memory.
-> 
-> That's not entirely correct.  While yes you do remove the need for a
-> Smack entry in file->f_security, there is still a need for the SELinux
-> entry in file->f_security no matter what you do, and since the LSM
-> framework handles the LSM security blob allocations, on systems where
-> SELinux is enabled you are going to do a file->f_security allocation
-> regardless.
+Hi,
 
-That's why I used "(sub)" blob, for the case of SELinux that "only" drop
-a field.
+On Mon, Aug 12, 2024 at 10:29:31AM GMT, Yafang Shao wrote:
+> Using strscpy() to read the task comm ensures that the name is
+> always NUL-terminated, regardless of the source string. This approach also
+> facilitates future extensions to the task comm.
+
+Thanks for sending patches replacing str{n}cpy's!
+
+I believe there's at least two more instances of strncpy in trace.c as
+well as in trace_events_hist.c (for a grand total of 6 instances in the
+files you've touched in this specific patch).
+
+It'd be great if you could replace those instances in this patch as well :>)
+
+This would help greatly with [1].
 
 > 
-> While a cred based approach may be more generic from a traditional
-> UID/GID/etc. perspective, file->f_security is always going to be more
-> generic from a LSM perspective as the LSM has more flexibility about
-> what is placed into that blob.  Yes, the LSM can also place data into
-> the cred struct, but that is used across a wide variety of kernel
-> objects and placing file specific data in there could needlessly
-> increase the size of the cred struct.
-
-Yes, it could, but that is not the case with the current implementations
-(SELinux and Smack). I understand that it could be useful though.
-
+> Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+> Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+> Cc: Steven Rostedt <rostedt@goodmis.org>
+> Cc: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+> ---
+>  kernel/trace/trace.c             | 2 +-
+>  kernel/trace/trace_events_hist.c | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 > 
-> > > From what I can see this seems really focused on adding a cred
-> > > reference when it isn't clear an additional one is needed.  If a new
-> > > cred reference *is* needed, please provide an explanation as to why;
-> > > reading the commit description this isn't clear.  Of course, if I'm
-> > > mistaken, feel free to correct me, although I'm sure all the people on
-> > > the Internet don't need to be told that ;)
-> >
-> > This is a more generic approach that saves memory, sticks to the VFS
-> > semantic, and removes code.  So I'd say it's a performance improvement
-> 
-> Considering that additional cred gets/puts are needed I question if
-> there are actually any performance improvements; in some cases I
-> suspect the performance will actually be worse.  On SELinux enabled
-> systems you are still going to do the file->f_security allocation and
-> now you are going to add the cred management operations on top of
-> that.
+> diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+> index 578a49ff5c32..1b2577f9d734 100644
+> --- a/kernel/trace/trace.c
+> +++ b/kernel/trace/trace.c
+> @@ -1907,7 +1907,7 @@ __update_max_tr(struct trace_array *tr, struct task_struct *tsk, int cpu)
+>  	max_data->critical_start = data->critical_start;
+>  	max_data->critical_end = data->critical_end;
+>  
+> -	strncpy(max_data->comm, tsk->comm, TASK_COMM_LEN);
+> +	strscpy(max_data->comm, tsk->comm, TASK_COMM_LEN);
 
-I was talking about the extra hook calls which are not needed.  The move
-of fown_struct ou of the file struct should limit any credential
-reference performance impact, and Mateusz said he is working on
-improving this part too.
+If max_data->comm wants to be NUL-terminated then this is the right
+replacement. Without knowing how the trace stack works at all, it's hard
+for me to tell if that is the case.
 
-> 
-> > it saves memory
-> 
-> With the move in linux-next to pull fown_struct out of the file
-> struct, I suspect this is not as important as it once may have been.
+There's a length-supplied format specifier for which this comm field is
+used with; Either this is just another safeguard against spilling over
+the buffer or this field really doesn't care about NUL-termination.
+| seq_printf(m, "#    | task: %.16s-%d "
+|       "(uid:%d nice:%ld policy:%ld rt_prio:%ld)\n",
+|       data->comm, data->pid,
 
-I was talking about the LSM blobs shrinking, which impacts all opened
-files, independently of moving fown_struct out of the file struct.  I
-think this is not negligible: 32 bits for SELinux + 64 bits for Smack +
-64 bits for ongoing Landlock support = potentially 128 bits for each
-opened files.
+In the event this field doesn't need to be NUL-terminated then we are
+introducing an off-by-one error where we are copying one less useful
+byte with strscpy -- Linus pointed out earlier [2] that these things all
+just want to be c-strings so this is probably the right change :>)
 
-> 
-> > it fixes the LSM/VFS inconsistency
-> 
-> Simply moving the security_file_set_fowner() inside the lock protected
-> region should accomplish that too.  Unless you're talking about
-> something else?
-
-Yes, the moving the hook fixes that.
-
-> 
-> > it guarantees
-> > that the VFS semantic is always visible to each LSMs thanks to the use
-> > of the same f_owner.cred
-> 
-> The existing hooks are designed to make sure that the F_SETOWN
-> operation is visible to the LSM.
-
-This should not change the F_SETOWN case.  Am I missing something?
-
-> 
-> > and it avoids LSM mistakes (except if an LSM implements the now-useless hook).
-> 
-> The only mistake I'm seeing is that the call into
-> security_file_set_fowner() is not in the lock protected region, and
-> that is easily corrected.  Forcing the LSM framework to reuse a cred
-> struct has the potential to restrict LSM security models which is
-> something we try very hard not to do.
-
-OK, but is the current approach (i.e. keep the LSM hook and reducing LSM
-blobs size) good for you?  What do you want me to remove from this
-patch?
-
-> 
+>  	max_data->pid = tsk->pid;
+>  	/*
+>  	 * If tsk == current, then use current_uid(), as that does not use
+> diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+> index 6ece1308d36a..4cd24c25ce05 100644
+> --- a/kernel/trace/trace_events_hist.c
+> +++ b/kernel/trace/trace_events_hist.c
+> @@ -1599,7 +1599,7 @@ static inline void save_comm(char *comm, struct task_struct *task)
+>  		return;
+>  	}
+>  
+> -	strncpy(comm, task->comm, TASK_COMM_LEN);
+> +	strscpy(comm, task->comm, TASK_COMM_LEN);
+>  }
+>  
+>  static void hist_elt_data_free(struct hist_elt_data *elt_data)
 > -- 
-> paul-moore.com
+> 2.43.5
+> 
+
+Link: https://github.com/KSPP/linux/issues/90 [1]
+Link: https://lore.kernel.org/all/CAHk-=whWtUC-AjmGJveAETKOMeMFSTwKwu99v7+b6AyHMmaDFA@mail.gmail.com/ [2]
+
+Thanks
+Justin
