@@ -1,63 +1,188 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com [209.85.222.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80F311B8EB5;
-	Wed, 14 Aug 2024 16:28:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F3051BC06F
+	for <selinux@vger.kernel.org>; Wed, 14 Aug 2024 17:35:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723652891; cv=none; b=tx5X5BuVEMEBr7M0gJhh/FT8Hme+fZttrI8zhGLqwoN6Jc+/IsEB5N19mdBPxYe5ChGQa3bTTEUK9LSyVXBL4ZHXvADgR4EjhVOsixLgxwyQIi6oKIMAyPNGUtZv8nRykKRubTob5JxzmJT1yRh9+UgYQ2nk0OXrpTXX7NhyrpQ=
+	t=1723656945; cv=none; b=D+Z2vnbKc5kVpov4FK1qunYPw5JICKVP6UZ8Y+P4214eRmElsDeTF1E2HxmK1afOPotIrLtDBbILjWHUtc9lnsIlgAuieVEeBUb8H6e3j183UzdIGcmDWrOfpmwRHRDzleHT9DI9BQUWJ2AC1XO8/rrUF+oyZr+jT6Ha2or9Kf8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723652891; c=relaxed/simple;
-	bh=qMyqAYiD1xBjteoCtdLOra6ThFdlapF9VTpqVUN2Ri4=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=UQER9V5QveEC+A++QvnVMxjVNDWAGIAi8ktE/ZWIuUm0wBYoAcEQhIH6c3u4Vp4jbOuIBRJ9Vm2Y39GeXdw+lz8aRq5JVykTL0QxYfjuzjjBbRiVCbeoMxwu9oP70GERet4kA5zTwecSOhxy6ko+7xxpJOdd0ol1u6ge30lhho0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YF7yF6je; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1723656945; c=relaxed/simple;
+	bh=PgxPYOIaUlwBjp4Gf8K/egQ9xmEVo9VzC1wnDc0FGtk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=oDR+9KzGwwgrTTpglMkfrhenYXhG+HPh/P3V8KHK7iuo3BjIoVnp1FrUxRUD0CdIylMpEBbsiVkgiCtHvLv1egAyBP57qySJz5/QyKd6pT5MEwEhgCOxH09GRAfpvNGiiIk2ixGQkSM4NxkPNCHbQ8F1ejNTnaZli7mhsrK+cRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ecXF6c4M; arc=none smtp.client-ip=209.85.222.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YF7yF6je"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 072F0C4AF0A;
-	Wed, 14 Aug 2024 16:28:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1723652891;
-	bh=qMyqAYiD1xBjteoCtdLOra6ThFdlapF9VTpqVUN2Ri4=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=YF7yF6je7UBZ18bsmzEsL2M+z1fk+ZSX/HnWfN2A1p6D0wT/hrEFa+e20OZya96Ts
-	 BTDSXTtge0G7OHFUuYMOYYKEy2y4jGn7b0uDiHjZa2Ea73iAYyeVbUqmFmwzQxtsE7
-	 JOI5LyON99QkszUsTMrREcWsQiVv/g45uZKBvEfpeShTfZsHQbHOcPk7M71DVBR7xe
-	 ztsbxEOR4YcJC+rqHRDP+lnartm5ajnrmyugyAFUU3+337IBDzS1Xl2oHynx9KYrgw
-	 TEQQXUrjDfwP6pw6krg+HBay6YGT2cIAvXA4j4+QoZ0fPKBqKiPW9LDITAFyTaOXv1
-	 IxgrMXh+UqCzw==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 712C638232A8;
-	Wed, 14 Aug 2024 16:28:11 +0000 (UTC)
-Subject: Re: [GIT PULL] selinux/selinux-pr-20240814
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <30fc5b38165e4eda57d640eca76b7df1@paul-moore.com>
-References: <30fc5b38165e4eda57d640eca76b7df1@paul-moore.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <30fc5b38165e4eda57d640eca76b7df1@paul-moore.com>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20240814
-X-PR-Tracked-Commit-Id: 05a3d6e9307250a5911d75308e4363466794ab21
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 9d5906799f7d89c9e12f6d2e0fccb00713c945ab
-Message-Id: <172365289010.2319409.1724128984605755694.pr-tracker-bot@kernel.org>
-Date: Wed, 14 Aug 2024 16:28:10 +0000
-To: Paul Moore <paul@paul-moore.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ecXF6c4M"
+Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-83172682ab3so15806241.2
+        for <selinux@vger.kernel.org>; Wed, 14 Aug 2024 10:35:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1723656943; x=1724261743; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=oVQ/V5QsGPsLOS8TqhLRPnGiNfW0W+gLqeAwy/7LLWE=;
+        b=ecXF6c4MCNrapy1sqgsCqAmcEaNrQGFlge2VJJ9J5BMpPHQiT9WqrVggHsRMnETjio
+         O98hUaQ4EWj9GnuRnvUmU8yOK6vrIHIEW110bwKkxbWcGyXSDzj+YHChJtGhibPFRIxt
+         d3B+KLyiCXjkZenbcNvb2MozVYuIcgAjkjyv/9LbEtZvZXB1hIZwa5blJrsOMIzQ1fBY
+         UMNMSaICT+Jd/gCQLlfhw0SrZ4rNFTu6IkgSp4yioGwM9+HOkHuzYui2AfLcXRf+nVE8
+         AcNtspgxeqmitFQ1PoWJvckYzPLVatLin7iDOtHXo1faeCXGR7BnRgKxOFurqQ6PNK9L
+         2a4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723656943; x=1724261743;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=oVQ/V5QsGPsLOS8TqhLRPnGiNfW0W+gLqeAwy/7LLWE=;
+        b=WrzO2fB3UiCBT9Fwf8mP1ehm/97CcTdfzksiyjh5cqX/XXp2omWn9GDmjo0MyZifD4
+         xBy3yNX/N7r2s/e233ToW8K8TZPuvEoWimSmO1UPMu7IkJ46JGyWs4IfSFN6jgH8nu7Q
+         nsve+Jw/7Nqzf7j8vt02Qywxs8/ZOYDIOmzL0+totmK4wU0W7+uS75gmW9KlruPAkRka
+         GhSKfO3cCJx835RPDS81cqQ9LtTH2M875AcplwSV4U6s8GXyWWgFO7aSa1q1cpeSs/a8
+         3UYOADyqXYla05FL9vzJDxHNT8GUoGJ+1ceeVUUIqIRQvVEEcmb4frnq8OUAxPFCiR2c
+         ODkw==
+X-Gm-Message-State: AOJu0Yw5wHrzdY5q9kNxDxXWl5tWhtWhdp0T+PhAm1H2HSbcNgVUkmyL
+	Te7lIQTu7z2EPkgpUw2daqbPg70qq8CtM1/48hzOUgWLneoVvDRdNtpr68yY4FrLO+MzFqxnMF1
+	Fgc0Co94wvMVe3Oiid7SA555XZoE=
+X-Google-Smtp-Source: AGHT+IExRvyyFZc617VmgsmLCWLU1e+KD53aA1KM/lwG0VvRBpE1r1I2C9TmS5Mt3KpWUBLlRJOh9lSn1E3GJIBnaaQ=
+X-Received: by 2002:a05:6102:e14:b0:48f:4778:9299 with SMTP id
+ ada2fe7eead31-497599d6605mr3878869137.28.1723656942741; Wed, 14 Aug 2024
+ 10:35:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+References: <20240623122604.34890-1-cgoettsche@seltendoof.de> <CAP+JOzQs=vt+LxDtAqe1qWk-PEOC97U6qiq+jo3BsbwmS+joXg@mail.gmail.com>
+In-Reply-To: <CAP+JOzQs=vt+LxDtAqe1qWk-PEOC97U6qiq+jo3BsbwmS+joXg@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 14 Aug 2024 13:35:31 -0400
+Message-ID: <CAP+JOzQEsT-ETfpxopm=6TDVk=YAAGKvnBZheL_FSdpprXd36g@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: deprecate security_disable(3)
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The pull request you sent on Wed, 14 Aug 2024 11:32:08 -0400:
+On Mon, Jun 24, 2024 at 9:17=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
+ote:
+>
+> On Sun, Jun 23, 2024 at 8:26=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
+> >
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > The runtime disable functionality has been removed in Linux 6.4.  Thus
+> > security_disable(3) will no longer work on these kernels.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20240814
+Merged.
+Thanks,
+Jim
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/9d5906799f7d89c9e12f6d2e0fccb00713c945ab
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+> > ---
+> > v2:
+> >    Ignore deprecation warning by the internal usage of
+> >    security_disable(3) in load_policy(8).
+> > ---
+> >  libselinux/include/selinux/selinux.h   |  6 +++++-
+> >  libselinux/man/man3/security_disable.3 |  3 ++-
+> >  libselinux/src/load_policy.c           |  2 ++
+> >  libselinux/src/selinux_internal.h      | 18 ++++++++++++++++++
+> >  4 files changed, 27 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/=
+selinux/selinux.h
+> > index 61c1422b..1318a66a 100644
+> > --- a/libselinux/include/selinux/selinux.h
+> > +++ b/libselinux/include/selinux/selinux.h
+> > @@ -367,7 +367,11 @@ extern int security_deny_unknown(void);
+> >  /* Get the checkreqprot value */
+> >  extern int security_get_checkreqprot(void);
+> >
+> > -/* Disable SELinux at runtime (must be done prior to initial policy lo=
+ad). */
+> > +/* Disable SELinux at runtime (must be done prior to initial policy lo=
+ad).
+> > +   Unsupported since Linux 6.4. */
+> > +#ifdef __GNUC__
+> > +__attribute__ ((deprecated))
+> > +#endif
+> >  extern int security_disable(void);
+> >
+> >  /* Get the policy version number. */
+> > diff --git a/libselinux/man/man3/security_disable.3 b/libselinux/man/ma=
+n3/security_disable.3
+> > index 072923ce..5ad8b778 100644
+> > --- a/libselinux/man/man3/security_disable.3
+> > +++ b/libselinux/man/man3/security_disable.3
+> > @@ -14,7 +14,8 @@ disables the SELinux kernel code, unregisters selinux=
+fs from
+> >  and then unmounts
+> >  .IR /sys/fs/selinux .
+> >  .sp
+> > -This function can only be called at runtime and prior to the initial p=
+olicy
+> > +This function is only supported on Linux 6.3 and earlier, and can only=
+ be
+> > +called at runtime and prior to the initial policy
+> >  load. After the initial policy load, the SELinux kernel code cannot be=
+ disabled,
+> >  but only placed in "permissive" mode by using
+> >  .BR security_setenforce(3).
+> > diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.=
+c
+> > index 57d7aaef..dc1e4b6e 100644
+> > --- a/libselinux/src/load_policy.c
+> > +++ b/libselinux/src/load_policy.c
+> > @@ -326,7 +326,9 @@ int selinux_init_load_policy(int *enforce)
+> >
+> >         if (seconfig =3D=3D -1) {
+> >                 /* Runtime disable of SELinux. */
+> > +               IGNORE_DEPRECATED_DECLARATION_BEGIN
+> >                 rc =3D security_disable();
+> > +               IGNORE_DEPRECATED_DECLARATION_END
+> >                 if (rc =3D=3D 0) {
+> >                         /* Successfully disabled, so umount selinuxfs t=
+oo. */
+> >                         umount(selinux_mnt);
+> > diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux=
+_internal.h
+> > index b134808e..450a42c2 100644
+> > --- a/libselinux/src/selinux_internal.h
+> > +++ b/libselinux/src/selinux_internal.h
+> > @@ -113,4 +113,22 @@ void *reallocarray(void *ptr, size_t nmemb, size_t=
+ size);
+> >  #define ignore_unsigned_overflow_
+> >  #endif
+> >
+> > +/* Ignore usage of deprecated declaration */
+> > +#ifdef __clang__
+> > +#define IGNORE_DEPRECATED_DECLARATION_BEGIN \
+> > +       _Pragma("clang diagnostic push") \
+> > +       _Pragma("clang diagnostic ignored \"-Wdeprecated-declarations\"=
+")
+> > +#define IGNORE_DEPRECATED_DECLARATION_END \
+> > +       _Pragma("clang diagnostic pop")
+> > +#elif defined __GNUC__
+> > +#define IGNORE_DEPRECATED_DECLARATION_BEGIN \
+> > +       _Pragma("GCC diagnostic push") \
+> > +       _Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+> > +#define IGNORE_DEPRECATED_DECLARATION_END \
+> > +       _Pragma("GCC diagnostic pop")
+> > +#else
+> > +#define IGNORE_DEPRECATED_DECLARATION_BEGIN
+> > +#define IGNORE_DEPRECATED_DECLARATION_END
+> > +#endif
+> > +
+> >  #endif /* SELINUX_INTERNAL_H_ */
+> > --
+> > 2.45.2
+> >
+> >
