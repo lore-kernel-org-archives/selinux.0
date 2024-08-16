@@ -1,113 +1,130 @@
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
+Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF0382209B
-	for <selinux@vger.kernel.org>; Fri, 16 Aug 2024 01:46:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0060A5F873;
+	Fri, 16 Aug 2024 03:57:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723772817; cv=none; b=Uerz1TNHOolz9nkQIQfl9bRRAg9TquvMbcyHWTQN5o3HYbHsH2di9krjni/7UM8KuEXhBDNxvoW0jrd0AiAiGWQzaKz1Ax0kPwI+y4Drr1o2G+hzJHLwlxx/8JnNRhkElqqB9sV926wa/yjyyez87BkOsXfMFI9h5BKC+GKDv3s=
+	t=1723780678; cv=none; b=pXHNlVY0XX8XNQ1Ef5GuquW69VNi20fFWwN62GIT5sES76rStpqUVsrHo4HdKiBwgcO6bg9Oi9eJID6LnweyQE7yfC3JT/+DwTkq45sJK5cR0pMa7nVb80U9FqIFO2GFaQhG2Vmy8N+GqLu2MP/HXQKFFk9YOD9Lpj2aZwfgYgY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723772817; c=relaxed/simple;
-	bh=NIBOoJMVb1dDnKkwOEKZDat5dY+ftvJcIF5qfVLXbzU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Hcp8zSV/tX0zOHAgn4P6NgkNXhFVmwhBk764KQurknHCwyp6XiF5bAGM4emmf5I502oBKFgVG17+ZZ44AVHNX3Qr6K5xdfpMaEiiFYA7TBw9wWt9dAb23EvBBtutSa7rMTvLQ0Y/4Wy39OEXOCn2tIW0Dk1XQ5P8XTByjnD87jU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=XWkYg7Ak; arc=none smtp.client-ip=209.85.128.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1723780678; c=relaxed/simple;
+	bh=YakldiVOnu6xnTAnFekuzC5NS6HjKH7e6eWh7KI0/uQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=QaHvMnXpcdLuF78oJd0Np1ZTAyO47KrfSFOVQHTp1GudqGGIF+UG2u7Fv0dlwUcnvPuc5Yw9TRY/NJhTrsRoNIIkanWfnVqZr7mD4O0oYqiXqitPJidnvANmdnbXg6m9kpQ/YuokS9KhNysrXq5ubR9jIlMyMQ6qi30N+uUFP4o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IK86jJiG; arc=none smtp.client-ip=209.85.210.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="XWkYg7Ak"
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-699ac6dbf24so14934837b3.3
-        for <selinux@vger.kernel.org>; Thu, 15 Aug 2024 18:46:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IK86jJiG"
+Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-710e39961f4so1198169b3a.3;
+        Thu, 15 Aug 2024 20:57:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1723772814; x=1724377614; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1723780676; x=1724385476; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=EXHD3XO0PVbm7MDlXwMyq4trppUptHzxvJNrfQsqgyE=;
-        b=XWkYg7AkTKZ3Wy6l9jeNcP+eL7dcaV/j/nz/5DXZEGzxJTDj+CeUHpWrb8/2wPYUBR
-         kcDvKE/r2sjdOHW2r0ASljGOqE+SaLjqZz7JEIpVBcNc6nBNALZlKdTxVpCzZxNChRD7
-         zkVi70EgT82jcRsjV1DFhCWMdQrxFFNrL+mXfP+JmMANtbD/ldGCNxinR2M1e2xSHjdj
-         H417tTuY9bNdx7NQtREmioNqADTxzBdxZjIvd6dOKb7tbKu4OfFwJ+vKyzRXu6L+gCVd
-         VOU7uPBZp7MWxiEfXLGc623TDS7SveW8bUQ9Z/RU6N4SCBl92eoVowHYRG20Xf2NY3Pu
-         BrPA==
+        bh=RtpoYBv6vUMp+t2dHSsWXB2QO2RkHYzYdABqbr1nJLk=;
+        b=IK86jJiGcXaSQNqwuMK/3jIYXkgRKEHWdKIs916b5QXNEHMVe3tw/c/x9lfd1U6gk4
+         dzKo5nYsyIpE9VN0cFszAWlLLEd27k7F9UcnNg9W9NRZg038lowCVY4pM9j5Q94ax9PX
+         uiZxWtUks1U7/MXdC2Emz6oChCbHGd5WErwAd5o2u+eMrB43sKo8isgBg7rccxRBCnpw
+         oRy9y03qDtYSkmLXmNKbp5c2jomrDcHfZNvZyMyS82jxEnRmEB8N+hHEE6jbgqSzmr5a
+         vmWb+aGDqSadjXy47QjnPIOQ33Ky0069sCO5QpsbPTe3CF6iaQDyLN8zowITOkDCg0wU
+         AOnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723772814; x=1724377614;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1723780676; x=1724385476;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=EXHD3XO0PVbm7MDlXwMyq4trppUptHzxvJNrfQsqgyE=;
-        b=LoG6LYBb2CBc5gcKt/pD8GDzHoqB4usmdpSzClSE2ez8UPnQ805smw4jv0XgHso3db
-         VwrmFinHpAEgHkYGXn/YTU4xro8OcmNzINagFqVr7IcfkHcWNIAUp8upVsTnb4Bf5KNs
-         ALOISewFvut8PQL5l6HZWDG+wJ8hpxM2hzMB867MAl1EyoUW5BXBh3lKSt2qHGmhOtYg
-         bbN/TxgbQg/8iFePMVJiERyoFG62c1dnhQLsU8ktg4EMqOGfM/dU/BdECTC++wdgxogT
-         ytOxA4HMp1O6z97us+3J1OG4ThrMhVdFdg6bMDV30XVIC6ysMqDO3ZYwZ6j2Jvx6bAEp
-         aEPw==
-X-Forwarded-Encrypted: i=1; AJvYcCVclmQx2cE80LqKBS5QOrT1meEtOFTIlKIU7vXLOoykg6+bC4fE3jnqyCJ+9H1GJfmToR7Zi1J++K22U94wWDjJZiNYK9p5BA==
-X-Gm-Message-State: AOJu0Yx+8ZA5aLyfWhfkwDtZ4htjTyUh4BTwpvxU2twbGRblqVXNcjaF
-	egpxy9CE0URoaR0p4rgR5Oyd0HRIPzeGZeJ5KtzyIU99I9JwCbdtlMnfN7rOx8iI928VyXpXkL0
-	wIvdIOC8ilX+RdCTEP9Pfz1DsUd++PPJEoEOV
-X-Google-Smtp-Source: AGHT+IEgrfjyTo+Vmdl9sEQ0LsmBBkJ4rasMnzHUl4tlI9dxrpz4WNlKI6P75hWT2tcxYRdGCsEh/8CmRjwaTivtMi8=
-X-Received: by 2002:a05:690c:60c7:b0:69e:a7da:f9e5 with SMTP id
- 00721157ae682-6b1b871ccddmr18784047b3.19.1723772814670; Thu, 15 Aug 2024
- 18:46:54 -0700 (PDT)
+        bh=RtpoYBv6vUMp+t2dHSsWXB2QO2RkHYzYdABqbr1nJLk=;
+        b=IHGApGRWmKVs8+XnYCTpaypKccYsG/HabkDZPtdTpoxCXECwkTgFdn3FijhxokdLqZ
+         IS24w0sBeLG2OATcCtQ9jZT1tW/p9Y5e2hJPVdobIfOjsel8lQ64Lq3DVcMGybWnFL4t
+         yVHL4UdNvU6pERgv9jUekkxAMgtT5e+OOPoPSb1jCNZEi8wnRxVmgJ8F05eKI1V9bBr6
+         DaoLX+wP+CIfh9kZ0o42KbpjwZGHTWKKVmn8Xw/f6t4VLK6Tz+APbz/+d9dczD3f0iNi
+         omCKKIdM2U7ADLAdqntVGdVzW6Bsba+VQwgynFHmeciYdNsQ/UoeFtwTjkCWBHBu/u58
+         eTYA==
+X-Forwarded-Encrypted: i=1; AJvYcCUtgaFMK9JTqKXUkj6N2zDlpamRgrJ77DTmEN+ZMKzbV+Cw3CRuBBRbZWX3vbY6AhcxjodGG6PqJ1Y9CSimXedagUrg0kP9rrWD4OZ6nfnDdUCt0G2XGjIOtqF2fhA7ioTGx4LUEg==
+X-Gm-Message-State: AOJu0YxGHY7/ewGq0RImTwwHjDn5zLUPBPbhWg66vcdE7vydtJUkDU+S
+	3wA9f0mMjkILmP4BBpROGMjR467zODE4PBAQh4KgNF+elvD5fhdn
+X-Google-Smtp-Source: AGHT+IG0AXORZ9AtrC3wtFs0x7MqUifhK1TPZlUUYJekfn7hWzUdtpHr6NQqJ3g6Pya7dO8KydvJmw==
+X-Received: by 2002:a05:6a21:3a44:b0:1c2:912f:ca70 with SMTP id adf61e73a8af0-1c9050261bbmr1989262637.42.1723780676121;
+        Thu, 15 Aug 2024 20:57:56 -0700 (PDT)
+Received: from kernelexploit-virtual-machine.localdomain ([121.185.186.233])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7127af3d155sm1749225b3a.215.2024.08.15.20.57.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Aug 2024 20:57:55 -0700 (PDT)
+From: Jeongjun Park <aha310510@gmail.com>
+To: paul@paul-moore.com
+Cc: aha310510@gmail.com,
+	linux-kernel@vger.kernel.org,
+	omosnace@redhat.com,
+	selinux@vger.kernel.org,
+	stephen.smalley.work@gmail.com
+Subject: Re: selinux: support IPPROTO_SMC in socket_type_to_security_class()
+Date: Fri, 16 Aug 2024 12:57:51 +0900
+Message-Id: <20240816035751.62058-1-aha310510@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <CAHC9VhSrPS27KSG1_On8_WqUfR7tokbrmVwfW3+L_-XJiA=WZw@mail.gmail.com>
+References: <CAHC9VhSrPS27KSG1_On8_WqUfR7tokbrmVwfW3+L_-XJiA=WZw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240815083229.42778-1-aha310510@gmail.com>
-In-Reply-To: <20240815083229.42778-1-aha310510@gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 15 Aug 2024 21:46:43 -0400
-Message-ID: <CAHC9VhSrPS27KSG1_On8_WqUfR7tokbrmVwfW3+L_-XJiA=WZw@mail.gmail.com>
-Subject: Re: selinux: support IPPROTO_SMC in socket_type_to_security_class()
-To: Jeongjun Park <aha310510@gmail.com>
-Cc: stephen.smalley.work@gmail.com, omosnace@redhat.com, 
-	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=y
+Content-Transfer-Encoding: 8bit
 
-On Thu, Aug 15, 2024 at 4:32=E2=80=AFAM Jeongjun Park <aha310510@gmail.com>=
- wrote:
+Paul Moore wrote:
 >
-> IPPROTO_SMC feature has been added to net/smc. It is now possible to
-> create smc sockets in the following way:
+> On Thu, Aug 15, 2024 at 4:32 AM Jeongjun Park <aha310510@gmail.com> wrote:
+> >
+> > IPPROTO_SMC feature has been added to net/smc. It is now possible to
+> > create smc sockets in the following way:
+> >
+> >   /* create v4 smc sock */
+> >   v4 = socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
+> >
+> >   /* create v6 smc sock */
+> >   v6 = socket(AF_INET6, SOCK_STREAM, IPPROTO_SMC);
+> >
+> > Therefore, we need to add code to support IPPROTO_SMC in
+> > socket_type_to_security_class().
+> >
+> > Signed-off-by: Jeongjun Park <aha310510@gmail.com>
+> > ---
+> >  security/selinux/hooks.c | 2 ++
+> >  1 file changed, 2 insertions(+)
 >
->   /* create v4 smc sock */
->   v4 =3D socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
->
->   /* create v6 smc sock */
->   v6 =3D socket(AF_INET6, SOCK_STREAM, IPPROTO_SMC);
->
-> Therefore, we need to add code to support IPPROTO_SMC in
-> socket_type_to_security_class().
->
-> Signed-off-by: Jeongjun Park <aha310510@gmail.com>
-> ---
->  security/selinux/hooks.c | 2 ++
->  1 file changed, 2 insertions(+)
+> I'm a little concerned that the small patch below might not be all
+> that is needed to properly support SMC in SELinux.  Can you explain
+> what testing you've done with SMC on a SELinux system?
 
-I'm a little concerned that the small patch below might not be all
-that is needed to properly support SMC in SELinux.  Can you explain
-what testing you've done with SMC on a SELinux system?
+I don't have much knowledge about smc, so I can't tested everything, but 
+I created a socket, performed setsockopt, and tested two sockets 
+communicating with each other. When I tested it, performing smc-related 
+functions worked well without any major problems.
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index bfa61e005aac..36f951f0c574 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1176,6 +1176,8 @@ static inline u16 socket_type_to_security_class(int=
- family, int type, int protoc
->                                 return SECCLASS_TCP_SOCKET;
->                         else if (extsockclass && protocol =3D=3D IPPROTO_=
-SCTP)
->                                 return SECCLASS_SCTP_SOCKET;
-> +                       else if (extsockclass && protocol =3D=3D IPPROTO_=
-SMC)
-> +                               return SECCLASS_SMC_SOCKET;
->                         else
->                                 return SECCLASS_RAWIP_SOCKET;
->                 case SOCK_DGRAM:
+And after analyzing it myself, I didn't see any additional patches needed 
+to support IPPROTO_SMC in selinux other than this patch. So you don't 
+have to worry.
 
---=20
-paul-moore.com
+Regards,
+Jeongjun Park
+
+>
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index bfa61e005aac..36f951f0c574 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -1176,6 +1176,8 @@ static inline u16 socket_type_to_security_class(int family, int type, int protoc
+> >                                 return SECCLASS_TCP_SOCKET;
+> >                         else if (extsockclass && protocol == IPPROTO_SCTP)
+> >                                 return SECCLASS_SCTP_SOCKET;
+> > +                       else if (extsockclass && protocol == IPPROTO_SMC)
+> > +                               return SECCLASS_SMC_SOCKET;
+> >                         else
+> >                                 return SECCLASS_RAWIP_SOCKET;
+> >                 case SOCK_DGRAM:
+>
+> --
+> paul-moore.com
