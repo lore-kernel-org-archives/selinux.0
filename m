@@ -1,138 +1,113 @@
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
+Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76ECB4F8A0
-	for <selinux@vger.kernel.org>; Thu, 15 Aug 2024 20:00:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF0382209B
+	for <selinux@vger.kernel.org>; Fri, 16 Aug 2024 01:46:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723752037; cv=none; b=JHC+iYhzZb46gk1FyD40HPaaradSV9ixNtIGOkPclKJk3Nw3kPV94oHSFy+2rqteWlXx6b4u/i3b4ySQ7gHjvTRoEeTUG2HxnBJsywqTtnAhT2yXDbzM7E6jKAv7YzvhJZIcdKz+MW0IiLT7x85tEjwcisBWpNdOdKQkVGGzCxE=
+	t=1723772817; cv=none; b=Uerz1TNHOolz9nkQIQfl9bRRAg9TquvMbcyHWTQN5o3HYbHsH2di9krjni/7UM8KuEXhBDNxvoW0jrd0AiAiGWQzaKz1Ax0kPwI+y4Drr1o2G+hzJHLwlxx/8JnNRhkElqqB9sV926wa/yjyyez87BkOsXfMFI9h5BKC+GKDv3s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723752037; c=relaxed/simple;
-	bh=xGYBVjCJruWxpObTcbXRaohepR1nP2OwaL5Zu9E+LTY=;
+	s=arc-20240116; t=1723772817; c=relaxed/simple;
+	bh=NIBOoJMVb1dDnKkwOEKZDat5dY+ftvJcIF5qfVLXbzU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DvP26zGu5uKIrZJnRvv/y4J089YUe5hmhcpZ0tu+f3tEARAYfYyQ3LQzFzwITbOwoIzU3duvYe9bPKDnj+Se9YmGzJkMcraZF+5Z3BHCQhs9vztcCZwj7yWaafXjcRFEd9TwqfK/Qv2yiO5QbOROAzl4ddSaYXxr0cfX4AQIZz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=XEoCxbyL; arc=none smtp.client-ip=209.85.208.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	 To:Cc:Content-Type; b=Hcp8zSV/tX0zOHAgn4P6NgkNXhFVmwhBk764KQurknHCwyp6XiF5bAGM4emmf5I502oBKFgVG17+ZZ44AVHNX3Qr6K5xdfpMaEiiFYA7TBw9wWt9dAb23EvBBtutSa7rMTvLQ0Y/4Wy39OEXOCn2tIW0Dk1XQ5P8XTByjnD87jU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=XWkYg7Ak; arc=none smtp.client-ip=209.85.128.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="XEoCxbyL"
-Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-5bec7c5af2aso157a12.1
-        for <selinux@vger.kernel.org>; Thu, 15 Aug 2024 13:00:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="XWkYg7Ak"
+Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-699ac6dbf24so14934837b3.3
+        for <selinux@vger.kernel.org>; Thu, 15 Aug 2024 18:46:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1723752034; x=1724356834; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1723772814; x=1724377614; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=d3ArqisW88zeUJ5548euro8ampk/ZNm/xfRfsdbWrSo=;
-        b=XEoCxbyLwL4HcM51EsZbF3tltEsLeG0fMLChLyci6j8xwhfdhsrk6PiWQztaCnghnC
-         eaT2mcJ4GFV3M/3yL2RhFQQJf3dUVdRow4s3vrr2/+04q2tTYkdxTpp3dAklavj7Nqat
-         qt3xj+w69yg9KR3KfFxFysAFY0NCnGqPh/+jZDSKE8vgmyM40WTWy39GMYmEuULcPvna
-         aWkDjRKI0g9hrEGuYsZQoJniEdjA0Z1H51ZpwRfckEvQM/453k1oPkSM1Tb389rtf0BX
-         OKs8QmWwYCgZDH20vSOLhDjMJhyNsMS6uelDMF9OtT2GHwOMx8BqyfLU4FfjClsjs7nI
-         QfJg==
+        bh=EXHD3XO0PVbm7MDlXwMyq4trppUptHzxvJNrfQsqgyE=;
+        b=XWkYg7AkTKZ3Wy6l9jeNcP+eL7dcaV/j/nz/5DXZEGzxJTDj+CeUHpWrb8/2wPYUBR
+         kcDvKE/r2sjdOHW2r0ASljGOqE+SaLjqZz7JEIpVBcNc6nBNALZlKdTxVpCzZxNChRD7
+         zkVi70EgT82jcRsjV1DFhCWMdQrxFFNrL+mXfP+JmMANtbD/ldGCNxinR2M1e2xSHjdj
+         H417tTuY9bNdx7NQtREmioNqADTxzBdxZjIvd6dOKb7tbKu4OfFwJ+vKyzRXu6L+gCVd
+         VOU7uPBZp7MWxiEfXLGc623TDS7SveW8bUQ9Z/RU6N4SCBl92eoVowHYRG20Xf2NY3Pu
+         BrPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723752034; x=1724356834;
+        d=1e100.net; s=20230601; t=1723772814; x=1724377614;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=d3ArqisW88zeUJ5548euro8ampk/ZNm/xfRfsdbWrSo=;
-        b=tSaKG2NvIGAyvLVO2kCCS8/10RqtQ25lm+Z7NRTtvNIxRS44uT/XJOcoU7w7zGpP86
-         YnfzO6Nrb668NXtFLoV54uHdpUSk4NGojTqp46GrTMD87JexqrxpFx97BQEehLs2zPQ/
-         S4L5T1U26E65G7nc3ffzALcyYZGXq/t2pciMdZSh1JNTv8t9t3Hs/rzgAyX1iSfK/Fjz
-         Y5QmyWQJZd7xFWLIPYv4pMCDlg9r7V7Yh82NXSypfgXiuRDAXZJv9uc5RIuuruaGU4Dm
-         SGwBNcwDu3CFAKg7Q5SS7iKEIceZi7WG8aihTSbwWvczBHhm/ceFaGdsl180cftjc/B6
-         jL3g==
-X-Forwarded-Encrypted: i=1; AJvYcCVZSBczdBRSHDzvXlNPKVGcM1G4W1XihcvfXT6YBy7bliFlw4K0PJuGGox0BKPxXykkRbYBpCe6VeI+C4Rx/3KXmYMZ0174tw==
-X-Gm-Message-State: AOJu0Yw5naySfKcshcHdtAYVyQWFlK3UqQ5BAq4JdXtYR36idgQ6zDTh
-	aqdCp/8NOIYDlgIjYPvDXkan0sWxse/1lUGv8RBkfS0jiiJdJLrFPXH9tZnewcPf+cheJ6hqEgv
-	q4JFDFyVPAHpyr6FBxxiR3bIVExs5TvTjlEzD
-X-Google-Smtp-Source: AGHT+IFwS4EKwUlrFlYXcuSN5oh43sNNRYX1HBigJRCxXbMVgn7z8rfDqxIsTOr1QPI6vYSZFktXxOduALeTABTxFEw=
-X-Received: by 2002:a05:6402:27ca:b0:57c:b712:47b5 with SMTP id
- 4fb4d7f45d1cf-5becb50aa8cmr15762a12.4.1723752032713; Thu, 15 Aug 2024
- 13:00:32 -0700 (PDT)
+        bh=EXHD3XO0PVbm7MDlXwMyq4trppUptHzxvJNrfQsqgyE=;
+        b=LoG6LYBb2CBc5gcKt/pD8GDzHoqB4usmdpSzClSE2ez8UPnQ805smw4jv0XgHso3db
+         VwrmFinHpAEgHkYGXn/YTU4xro8OcmNzINagFqVr7IcfkHcWNIAUp8upVsTnb4Bf5KNs
+         ALOISewFvut8PQL5l6HZWDG+wJ8hpxM2hzMB867MAl1EyoUW5BXBh3lKSt2qHGmhOtYg
+         bbN/TxgbQg/8iFePMVJiERyoFG62c1dnhQLsU8ktg4EMqOGfM/dU/BdECTC++wdgxogT
+         ytOxA4HMp1O6z97us+3J1OG4ThrMhVdFdg6bMDV30XVIC6ysMqDO3ZYwZ6j2Jvx6bAEp
+         aEPw==
+X-Forwarded-Encrypted: i=1; AJvYcCVclmQx2cE80LqKBS5QOrT1meEtOFTIlKIU7vXLOoykg6+bC4fE3jnqyCJ+9H1GJfmToR7Zi1J++K22U94wWDjJZiNYK9p5BA==
+X-Gm-Message-State: AOJu0Yx+8ZA5aLyfWhfkwDtZ4htjTyUh4BTwpvxU2twbGRblqVXNcjaF
+	egpxy9CE0URoaR0p4rgR5Oyd0HRIPzeGZeJ5KtzyIU99I9JwCbdtlMnfN7rOx8iI928VyXpXkL0
+	wIvdIOC8ilX+RdCTEP9Pfz1DsUd++PPJEoEOV
+X-Google-Smtp-Source: AGHT+IEgrfjyTo+Vmdl9sEQ0LsmBBkJ4rasMnzHUl4tlI9dxrpz4WNlKI6P75hWT2tcxYRdGCsEh/8CmRjwaTivtMi8=
+X-Received: by 2002:a05:690c:60c7:b0:69e:a7da:f9e5 with SMTP id
+ 00721157ae682-6b1b871ccddmr18784047b3.19.1723772814670; Thu, 15 Aug 2024
+ 18:46:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240805-remove-cred-transfer-v2-0-a2aa1d45e6b8@google.com>
- <20240805-remove-cred-transfer-v2-1-a2aa1d45e6b8@google.com> <2494949.1723751188@warthog.procyon.org.uk>
-In-Reply-To: <2494949.1723751188@warthog.procyon.org.uk>
-From: Jann Horn <jannh@google.com>
-Date: Thu, 15 Aug 2024 21:59:54 +0200
-Message-ID: <CAG48ez2LBmS91fQVLYRYEaBHssj22NyUjB0HVtkDHUXDvDZ6EA@mail.gmail.com>
-Subject: Re: Can KEYCTL_SESSION_TO_PARENT be dropped entirely? -- was Re:
- [PATCH v2 1/2] KEYS: use synchronous task work for changing parent credentials
-To: David Howells <dhowells@redhat.com>
-Cc: Jeffrey Altman <jaltman@auristor.com>, openafs-devel@openafs.org, 
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, John Johansen <john.johansen@canonical.com>, 
-	Jarkko Sakkinen <jarkko@kernel.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, linux-afs@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	apparmor@lists.ubuntu.com, keyrings@vger.kernel.org, selinux@vger.kernel.org
+References: <20240815083229.42778-1-aha310510@gmail.com>
+In-Reply-To: <20240815083229.42778-1-aha310510@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 15 Aug 2024 21:46:43 -0400
+Message-ID: <CAHC9VhSrPS27KSG1_On8_WqUfR7tokbrmVwfW3+L_-XJiA=WZw@mail.gmail.com>
+Subject: Re: selinux: support IPPROTO_SMC in socket_type_to_security_class()
+To: Jeongjun Park <aha310510@gmail.com>
+Cc: stephen.smalley.work@gmail.com, omosnace@redhat.com, 
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 15, 2024 at 9:46=E2=80=AFPM David Howells <dhowells@redhat.com>=
+On Thu, Aug 15, 2024 at 4:32=E2=80=AFAM Jeongjun Park <aha310510@gmail.com>=
  wrote:
-> Jann Horn <jannh@google.com> wrote:
 >
-> > Rewrite keyctl_session_to_parent() to run task work on the parent
-> > synchronously, so that any errors that happen in the task work can be
-> > plumbed back into the syscall return value in the child.
+> IPPROTO_SMC feature has been added to net/smc. It is now possible to
+> create smc sockets in the following way:
 >
-> The main thing I worry about is if there's a way to deadlock the child an=
-d the
-> parent against each other.  vfork() for example.
-
-Yes - I think it would work fine for scenarios like using
-KEYCTL_SESSION_TO_PARENT from a helper binary against the shell that
-launched the helper (which I think is the intended usecase?), but
-there could theoretically be constellations where it would cause an
-(interruptible) hang if the parent is stuck in
-uninterruptible/killable sleep.
-
-I think vfork() is rather special in that it does a killable wait for
-the child to exit or execute; and based on my understanding of the
-intended usecase of KEYCTL_SESSION_TO_PARENT, I think normally
-KEYCTL_SESSION_TO_PARENT would only be used by a child that has gone
-through execve?
-
-
-> > +     if (task_work_cancel(parent, &ctx.work)) {
-> > +             /*
-> > +              * We got interrupted and the task work was canceled befo=
-re it
-> > +              * could execute.
-> > +              * Use -ERESTARTNOINTR instead of -ERESTARTSYS for
-> > +              * compatibility - the manpage does not list -EINTR as a
-> > +              * possible error for keyctl().
-> > +              */
+>   /* create v4 smc sock */
+>   v4 =3D socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
 >
-> I think returning EINTR is fine, provided that if we return EINTR, the ch=
-ange
-> didn't happen.  KEYCTL_SESSION_TO_PARENT is only used by the aklog, dlog =
-and
-> klog* OpenAFS programs AFAIK, and only if "-setpag" is set as a command l=
-ine
-> option.  It also won't be effective if you strace the program.
+>   /* create v6 smc sock */
+>   v6 =3D socket(AF_INET6, SOCK_STREAM, IPPROTO_SMC);
+>
+> Therefore, we need to add code to support IPPROTO_SMC in
+> socket_type_to_security_class().
+>
+> Signed-off-by: Jeongjun Park <aha310510@gmail.com>
+> ---
+>  security/selinux/hooks.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-Ah, I didn't even know about those.
+I'm a little concerned that the small patch below might not be all
+that is needed to properly support SMC in SELinux.  Can you explain
+what testing you've done with SMC on a SELinux system?
 
-The users I knew of are the command-line tools "keyctl new_session"
-and "e4crypt new_session" (see
-https://codesearch.debian.net/search?q=3DKEYCTL_SESSION_TO_PARENT&literal=
-=3D1,
-which indexes code that's part of Debian).
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index bfa61e005aac..36f951f0c574 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1176,6 +1176,8 @@ static inline u16 socket_type_to_security_class(int=
+ family, int type, int protoc
+>                                 return SECCLASS_TCP_SOCKET;
+>                         else if (extsockclass && protocol =3D=3D IPPROTO_=
+SCTP)
+>                                 return SECCLASS_SCTP_SOCKET;
+> +                       else if (extsockclass && protocol =3D=3D IPPROTO_=
+SMC)
+> +                               return SECCLASS_SMC_SOCKET;
+>                         else
+>                                 return SECCLASS_RAWIP_SOCKET;
+>                 case SOCK_DGRAM:
 
-> Maybe the AFS people can say whether it's even worth keeping the function=
-ality
-> rather than just dropping KEYCTL_SESSION_TO_PARENT?
-
-I think this would break the tools "keyctl new_session" and "e4crypt
-new_session" - though I don't know if anyone actually uses those
-invocations.
+--=20
+paul-moore.com
