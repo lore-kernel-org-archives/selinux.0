@@ -1,137 +1,147 @@
-Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A11C1119A;
-	Sat, 17 Aug 2024 02:58:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38D1883A06;
+	Sat, 17 Aug 2024 08:39:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723863483; cv=none; b=ZYdBXLA7CYVxAuof8YR1U+hYovn5F/q71B+KnYAvPJe4hK4qsaa4ghaSjeb0AFzKa9PlJ4iW9l+JrcLRcnWqbS0U4k2imV69eAyVCabQ+eHpIZKkaD2eGchE0ZQbtN8yKqfbHyl2k7wFpuvjdHINuHIwbk6Uhevoa5PKqQT4HZg=
+	t=1723883944; cv=none; b=Tb5ZN1o4hVdGBeyU2c9N0EpHk7K7x7iLQyUqAUAXqX/cx3IZ9iVDUinkqPzqvT5AMBhvS0VlgJXlNjRcW9Ne+VKO9TQfBZfUIiCbpUaRJ87X4OaU7fFaLFQ74aZZtrhDYDWw2otl0/IyIx10OsNnKx+2ibLvSjVAXoTB4n+c0ec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723863483; c=relaxed/simple;
-	bh=nYbscEvIPy0tfqXRvpq3fWIe2dCm3O45KAx2hY5jY7E=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=C73bRweAdID/dGT1JgJFKUArk5XFM8qQIdTW/ZyHZa/lZ/jzBeuD5W+CmV7VaAGv2QJqIno6uoQOwQepz4kgkS1VLoHaisrsABbWpmcAXlF8b4xuMw3GATJeHKFCxDE1vSUr4TpmDWqfQlTv4V6ojhlWXnyQpH5Cl+6Qtudr/VE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H2sXuh7Q; arc=none smtp.client-ip=209.85.128.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1723883944; c=relaxed/simple;
+	bh=drcR0Ggvob9Xsaq04tuibw0a3w723D1cXfmcavnp7v8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=b7BwKmLHyHTYMfLYBG633ylyJqnndLX6ON95yyfoQNUdtZvcAbYVUDP9dXtEgxYhwmOXVx5mONVcbxdKZPpVWaQou0Go+aQryP0nuw2Ou5eeQo12tmf4eDrg+8263elIfIcxNF1Pk+pdz1c5+WQmMjCXtmNBT3EAmDEagSVivYU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X4qRGs68; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H2sXuh7Q"
-Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-691c85525ebso24260017b3.0;
-        Fri, 16 Aug 2024 19:58:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1723863481; x=1724468281; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PIeMfVPvNi2mFgQGi33u0WiVQIXgvCVnP/JNmg1PAVg=;
-        b=H2sXuh7QC6pRONah8ItkAbnRM7IYiyQA0XAowOdn8Tx6zPFY+Iz7X+SD1nVB1i/IE/
-         H2Qnp73U4aCrhO8j0a4h0ZNeV9UD2faSrpoGtqqEdcIExVi0iONQkFIkUJx8+A00hedd
-         dtun6Reb4qoSA4xDykOyy1N8PMTq/KE6gw5I3Ad97ciC5bhezO8DvIS9fq3N508xATA1
-         FJyMK57SAgr72feqNiKV9Sipw14bHfC/ReJi6rmD6U1PhONG/8BtgGUncDn/YrQZeJ5W
-         VKHmxj/WW301ulTH1EGxjBbJ09yYuYhfSxRCNouqke3NgVHivsCnt4no+s4KvyaG0hfJ
-         revw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723863481; x=1724468281;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=PIeMfVPvNi2mFgQGi33u0WiVQIXgvCVnP/JNmg1PAVg=;
-        b=fogkPgNTB5vhpv8R1DbutJ8rlLOoIoGMAZJXBcfRJOfOe1Fl4QjIULCh72dTGwfhje
-         yshDQRaLAGjeLFwGbbgZ93eYyukgOXTj9gmOuWn20EgT3yxlU8OBX4L9Q7z2eumdXpQP
-         5rl+vgFE6P7IKUeN7k3wOSTlQCm0oD0M617rCHasHnBe8VrwuMNdtijVf4ilLTMAM0oZ
-         yr+WRzjf+zEBb6m8h9hmPjJ+rbgnzIwVJbirCDLluHGg9CEE2U1eSjIGCj4MMNC6Ph0r
-         834T5xflpIxYYf44sW1tbLovAsJMULNYGuGW17xYbDkTLJpTN6yWn8rMUdgCygA4fTRP
-         zR+w==
-X-Forwarded-Encrypted: i=1; AJvYcCVw9Nny1iuphVbx/5QWU4qK/dP++q+j219+gBvG21TovRaDQW/zIJZKWpoCwGf48LYJRCwkB6cSpW3NgqsNrE9ofR3VSKamKTML2uXrCigC2cDYiMVYRBh8Q2pQdCfm8HL80mChRsSd5srxW0zAAWf6mqSq18DYPLpn85X2YNoiEaLs9v8KLkMnmQAeRmYRId0/RC8lHagvff0cI4ClbTtHUbhKHhXeiKWgApmR17xfBVnTIBb15Om51qc9BhRSHH72tbZL0v8A4uW6NwmV4k9IL4o3gC3dY1yW6vO2vgF194BJyu2ux+voTYHk0GjYlnwkHDQ3bw==
-X-Gm-Message-State: AOJu0YywP5zavDycJ6nbfg6zZrAQZiF/Tlb0luC0S9CXnqVJwbARDcTw
-	CTtbmxWgHXuy4G/bYsA05APEJvMaMjF4il5jwaNeMORG6mDY89U0
-X-Google-Smtp-Source: AGHT+IHIEqe/Cmg7s9PimPuB+lj47WHhB9AJi/MthWBlVJ6PrU4Dd47Rx7cTZURpMhIAboN0X1uK+w==
-X-Received: by 2002:a05:690c:f01:b0:62f:f535:f38 with SMTP id 00721157ae682-6b1b9a64059mr67878767b3.8.1723863481074;
-        Fri, 16 Aug 2024 19:58:01 -0700 (PDT)
-Received: from localhost.localdomain ([183.193.177.10])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-201f031c5e1sm31801785ad.94.2024.08.16.19.57.51
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 16 Aug 2024 19:58:00 -0700 (PDT)
-From: Yafang Shao <laoar.shao@gmail.com>
-To: akpm@linux-foundation.org
-Cc: torvalds@linux-foundation.org,
-	alx@kernel.org,
-	justinstitt@google.com,
-	ebiederm@xmission.com,
-	alexei.starovoitov@gmail.com,
-	rostedt@goodmis.org,
-	catalin.marinas@arm.com,
-	penguin-kernel@i-love.sakura.ne.jp,
-	linux-mm@kvack.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org,
-	audit@vger.kernel.org,
-	linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org,
-	bpf@vger.kernel.org,
-	netdev@vger.kernel.org,
-	dri-devel@lists.freedesktop.org,
-	Yafang Shao <laoar.shao@gmail.com>,
-	Daniel Vetter <daniel.vetter@ffwll.ch>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>
-Subject: [PATCH v7 8/8] drm: Replace strcpy() with strscpy()
-Date: Sat, 17 Aug 2024 10:56:24 +0800
-Message-Id: <20240817025624.13157-9-laoar.shao@gmail.com>
-X-Mailer: git-send-email 2.30.1 (Apple Git-130)
-In-Reply-To: <20240817025624.13157-1-laoar.shao@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X4qRGs68"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30869C116B1;
+	Sat, 17 Aug 2024 08:39:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1723883943;
+	bh=drcR0Ggvob9Xsaq04tuibw0a3w723D1cXfmcavnp7v8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=X4qRGs68mHWdMwsIm8IcqoC0AjlA9unRAZyZItSaeap7PHizirk/hNNBeXaBbSGyi
+	 8TXQAjPdxFfBxyi7yYHq6mqApaR7yxkD08nUzjQj/awldhvM9VJr1i07GxDJn/8scG
+	 h28lmq1aJ4tliJZ6C4qTmJbhnufQdVSICkHH28rbualNjCN+dMGOAKFWA7bYRML9Dp
+	 zwk6+UUbpp+JiZxIrb3mn6+4/C5QLDZrwDqVugy8N3Q+dWQyhmirfyEUCVdCO3dsJH
+	 B0bz++Fwz+qpQzZ2Ia9SU0OIHOlNdgLk+3ah1rTJqAY9M7W4pASoQ/+TjDqoROGXH3
+	 JeShGAxlHtFsQ==
+Date: Sat, 17 Aug 2024 10:38:58 +0200
+From: Alejandro Colomar <alx@kernel.org>
+To: Yafang Shao <laoar.shao@gmail.com>
+Cc: akpm@linux-foundation.org, torvalds@linux-foundation.org, 
+	justinstitt@google.com, ebiederm@xmission.com, alexei.starovoitov@gmail.com, 
+	rostedt@goodmis.org, catalin.marinas@arm.com, penguin-kernel@i-love.sakura.ne.jp, 
+	linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, Quentin Monnet <qmo@kernel.org>
+Subject: Re: [PATCH v7 4/8] bpftool: Ensure task comm is always NUL-terminated
+Message-ID: <teajtay63uw2ukcwhna7yfblnjeyrppw4zcx2dfwtdz3tapspn@rntw3luvstci>
 References: <20240817025624.13157-1-laoar.shao@gmail.com>
+ <20240817025624.13157-5-laoar.shao@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="psoj2t3rvkbpqmnp"
+Content-Disposition: inline
+In-Reply-To: <20240817025624.13157-5-laoar.shao@gmail.com>
 
-To prevent erros from occurring when the src string is longer than the
-dst string in strcpy(), we should use strscpy() instead. This
-approach also facilitates future extensions to the task comm.
 
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@gmail.com>
----
- drivers/gpu/drm/drm_framebuffer.c     | 2 +-
- drivers/gpu/drm/i915/i915_gpu_error.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+--psoj2t3rvkbpqmnp
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+From: Alejandro Colomar <alx@kernel.org>
+To: Yafang Shao <laoar.shao@gmail.com>
+Cc: akpm@linux-foundation.org, torvalds@linux-foundation.org, 
+	justinstitt@google.com, ebiederm@xmission.com, alexei.starovoitov@gmail.com, 
+	rostedt@goodmis.org, catalin.marinas@arm.com, penguin-kernel@i-love.sakura.ne.jp, 
+	linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
+	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, Quentin Monnet <qmo@kernel.org>
+Subject: Re: [PATCH v7 4/8] bpftool: Ensure task comm is always NUL-terminated
+References: <20240817025624.13157-1-laoar.shao@gmail.com>
+ <20240817025624.13157-5-laoar.shao@gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <20240817025624.13157-5-laoar.shao@gmail.com>
 
-diff --git a/drivers/gpu/drm/drm_framebuffer.c b/drivers/gpu/drm/drm_framebuffer.c
-index 888aadb6a4ac..2d6993539474 100644
---- a/drivers/gpu/drm/drm_framebuffer.c
-+++ b/drivers/gpu/drm/drm_framebuffer.c
-@@ -868,7 +868,7 @@ int drm_framebuffer_init(struct drm_device *dev, struct drm_framebuffer *fb,
- 	INIT_LIST_HEAD(&fb->filp_head);
- 
- 	fb->funcs = funcs;
--	strcpy(fb->comm, current->comm);
-+	strscpy(fb->comm, current->comm);
- 
- 	ret = __drm_mode_object_add(dev, &fb->base, DRM_MODE_OBJECT_FB,
- 				    false, drm_framebuffer_free);
-diff --git a/drivers/gpu/drm/i915/i915_gpu_error.c b/drivers/gpu/drm/i915/i915_gpu_error.c
-index 625b3c024540..374378ac7c85 100644
---- a/drivers/gpu/drm/i915/i915_gpu_error.c
-+++ b/drivers/gpu/drm/i915/i915_gpu_error.c
-@@ -1411,7 +1411,7 @@ static bool record_context(struct i915_gem_context_coredump *e,
- 	rcu_read_lock();
- 	task = pid_task(ctx->pid, PIDTYPE_PID);
- 	if (task) {
--		strcpy(e->comm, task->comm);
-+		strscpy(e->comm, task->comm);
- 		e->pid = task->pid;
- 	}
- 	rcu_read_unlock();
--- 
-2.43.5
+Hi Yafang,
 
+On Sat, Aug 17, 2024 at 10:56:20AM GMT, Yafang Shao wrote:
+> Let's explicitly ensure the destination string is NUL-terminated. This wa=
+y,
+> it won't be affected by changes to the source string.
+>=20
+> Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+> Reviewed-by: Quentin Monnet <qmo@kernel.org>
+> ---
+>  tools/bpf/bpftool/pids.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>=20
+> diff --git a/tools/bpf/bpftool/pids.c b/tools/bpf/bpftool/pids.c
+> index 9b898571b49e..23f488cf1740 100644
+> --- a/tools/bpf/bpftool/pids.c
+> +++ b/tools/bpf/bpftool/pids.c
+> @@ -54,6 +54,7 @@ static void add_ref(struct hashmap *map, struct pid_ite=
+r_entry *e)
+>  		ref =3D &refs->refs[refs->ref_cnt];
+>  		ref->pid =3D e->pid;
+>  		memcpy(ref->comm, e->comm, sizeof(ref->comm));
+> +		ref->comm[sizeof(ref->comm) - 1] =3D '\0';
+
+Why doesn't this use strscpy()?  Isn't the source terminated?
+
+Both the source and the destination measure 16 characters.  If it is
+true that the source is not terminated, then this copy might truncate
+the (non-)string by overwriting the last byte with a NUL.  Is that
+truncation a good thing?
+
+>  		refs->ref_cnt++;
+> =20
+>  		return;
+> @@ -77,6 +78,7 @@ static void add_ref(struct hashmap *map, struct pid_ite=
+r_entry *e)
+>  	ref =3D &refs->refs[0];
+>  	ref->pid =3D e->pid;
+>  	memcpy(ref->comm, e->comm, sizeof(ref->comm));
+> +	ref->comm[sizeof(ref->comm) - 1] =3D '\0';
+
+Same question here.
+
+>  	refs->ref_cnt =3D 1;
+>  	refs->has_bpf_cookie =3D e->has_bpf_cookie;
+>  	refs->bpf_cookie =3D e->bpf_cookie;
+> --=20
+> 2.43.5
+>=20
+
+--=20
+<https://www.alejandro-colomar.es/>
+
+--psoj2t3rvkbpqmnp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE6jqH8KTroDDkXfJAnowa+77/2zIFAmbAYZwACgkQnowa+77/
+2zKmIA/9Gqjb53CpMspqZM8sUUCdmGhqPv1cYcL2EDkg7W9lkRgn0GLudREK/roq
+y4QBmGljgAhm3UbecLPiKvAPtiYmGoOmndrjJ4mq8E6lSqkMjHoaiMZ2EEPI7u+p
+xPTHJklCQHIAndCjVjC7A4cIx2RZuBtx6Xg/JMgO7i/s0jtb2SqiQtXEEIHjuUd5
+q0YybNl407qq/IRSt72qEL+rKEBVdcZppyDfoxPVKEZYOgbmhYpyyViq6Rli9HhU
+loprXpAdwiumkNZQHJ7It8nXlC5/J3VDuazDN193PNRprMfzC5TjBpWezf+KY7Wn
+Vx5tAC4H6ZTNdhD5a+NwfaApt9xqOcRVaYe2E1m1dMfIgojmUvJYd4zcRZBYRE5M
+uhQxkrRLueuJoKeqVcIlbPRTafIUd6lev0ccKam+Ao9J5Nt4TmqAUMyYIOymQ90B
+ldUgSSiofzyioNhrKNS1mLBCOVjTKClEBH+rbjKfO7KLf6Qo2dtvLoOCC5f7YZvy
+k9GsCv9jGEF64bGdcK82pM+LjftAWuTbO3Uwlw7qUNDKJb7OWjQS5BtejgQpiOh6
+RB4z4wZkDZ/Skwke7F16AsEeMugdcRyD1Wyl4paqcw8sXhc1AquvuymC6OPV5u8z
+GZt0uJeVRKbg7CVQEny1jGFO8BiPLK6JzTHLRV3KRlTKCGc5vEY=
+=fb44
+-----END PGP SIGNATURE-----
+
+--psoj2t3rvkbpqmnp--
