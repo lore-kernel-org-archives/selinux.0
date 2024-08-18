@@ -1,196 +1,185 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0658C8D7
-	for <selinux@vger.kernel.org>; Sun, 18 Aug 2024 10:32:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1B361386C6;
+	Sun, 18 Aug 2024 16:56:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723977147; cv=none; b=Y7fF4qVg4BXshOYgiUqfPF/qnOAL1KdutsDtDxDZd2hSthBanMPxZrrKZeAFAq3OGUFeqhPh++QoySW66ikdD3BfH5xR7w2hf/iFupU0Fc30L0bceA+fnYLjdauMgCE/62VyEXcXR/UiEk1yuiTwsxxPehCBfOXWH+z2rtIbCQs=
+	t=1724000164; cv=none; b=D97Zq4nt5iQYcgTL/VlAM6qsdLVixHUkFcOuZyHpdGp28UDloDZPiwnnbjNXgmX/NNHa+lpI6Ux7mKse/RAJ8f42Aju46T1KVf8asZ31WHIyicnU917b0H/yytrpfnLRTPCyrEKneMY0fR8gJkNAYiQMgtzt/VF9tXhNuNGUaGQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723977147; c=relaxed/simple;
-	bh=DHVo9XGmfh04cK3tMUx4lYmKKKFqKy0Mvb0DLUNQIUM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sCP2tSybfaygcrfEBLLQiSFEAX+liFaZacMgiMqKXuWl5wJBT1liywmqgsSI8i5f8teiOkl/AS0Ds6YgBq9ovp28OMI1XA4Z2JL5pwvsSlY0H5ALvwJ28ir5eWutZM6HD66gE48M/rSMOjCMr4/gqZ6WwNIjo00oQBGg+GM9cmY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XSdg30X9; arc=none smtp.client-ip=209.85.215.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1724000164; c=relaxed/simple;
+	bh=Qi2VmkOBr/YtTsz+qW/OhZpunw0QduUME+9/qJCGtAY=;
+	h=Date:From:To:CC:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To:References; b=L1radybwBWPzysAKM87OllY9ofhyoGyDdj97gQTMjFzLZ13GUMuu7R02DSMAkhdLhvDlDUsspXiMH+XFzWsmwLKL9BZZ4qGJr7rosP1s5CvDfBo/m1g8NJza7vHobO1KS+X0cKOmCRcMnWCWyfwGiV/etrgdHKh6seLgxD+JFMI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=PkHxwJ44; arc=none smtp.client-ip=210.118.77.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XSdg30X9"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-7c6b4222fe3so1967550a12.3
-        for <selinux@vger.kernel.org>; Sun, 18 Aug 2024 03:32:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1723977145; x=1724581945; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=FpsMXOr++yXuTMVO1gM8eSHp4YBKP4/Uh35Nk3y6QBk=;
-        b=XSdg30X9c9PADIXu86e22OA8cB0hXRIXcy28kIIQHNloz11CeQ0YrC6o/4VFCtxi/b
-         Q40iwmvsiQsIJj6UVu6bBnqtUASzmCLMpDqpMh4GmkzEV/A63hFtIj/TZio4Wi6btrEg
-         cRY1sjyagbrYs2XcTeQHAzaH9acGK4Yf2MbG3WxKMETq9akPAyftHe0Smt+8xaT4vogh
-         tkFfJuEmdYpoi2mznxyM8TYSqBxaP3/C0Da2csgZcpS5+YQXGFM1Qp9tnYL6NhLN38rF
-         WuV02YWvrvF/UMrZgIpohawzHXL7p+aaYGOlSjK67Rd1Q6jLlYGod0YIiflipQvEKqzr
-         3E2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1723977145; x=1724581945;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=FpsMXOr++yXuTMVO1gM8eSHp4YBKP4/Uh35Nk3y6QBk=;
-        b=okptc5su56ZMh6M+1iwBpY1KaqcUI3HdRF6TX3+Hgjgd0gEonLASEbZcshkpLXr6da
-         U42o6ej1bwHN6oMYq06qulUmWXDbq/TsLQ6JY7oHAcsDHA9+d1xMjaMQYj6I+Tz2uHNF
-         qAPmoyYLprNVUcUu6PKMVWeYpLwgTfT+lCcmyzC0MtyChdOvyoG2invorWGu3Ms+s4Gf
-         yjTC+BN0n2MB/2zTjCm6qDRJDqfwHuImcr11ql5GupmaT4po2h1YZ7vV6WDWw0w+N/xw
-         78hdP++ks7EeKQMvVR0kVy8gSsUKTNfZxerygCXcLFEuLrhJqqcsTf/IRQlEpW7je8ok
-         ezSg==
-X-Gm-Message-State: AOJu0YzdQb/nJ1ZZSlQbYdwDs6AR8P5G0OHHdOWB8PCIrE7Zo8t+pjmh
-	+nKuJGgAmuyefZQgnQCy/tTOSxv+ZAlr85AM1z6YuzB6fRrHBoXuZN5BzAyzFH4+dT/15DJUiGr
-	OkxC5/Dw8F1jkzfFHs1yhMsv7a7I=
-X-Google-Smtp-Source: AGHT+IGHEiiX3ceNMDsU75vOFCt3SKaKFqoKxWcPRqJBVAXpC21YxEoO0/kBrJvblUpaa7kib09yXUekgNhuJePck+Y=
-X-Received: by 2002:a17:90a:d904:b0:2d3:c5f1:d0d9 with SMTP id
- 98e67ed59e1d1-2d3dfd8c5b3mr7193910a91.25.1723977145056; Sun, 18 Aug 2024
- 03:32:25 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="PkHxwJ44"
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20240818165551euoutp0258140a37ef73bcc4656173befe53d6b1~s4QD8OiMy2193121931euoutp02x;
+	Sun, 18 Aug 2024 16:55:51 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20240818165551euoutp0258140a37ef73bcc4656173befe53d6b1~s4QD8OiMy2193121931euoutp02x
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1724000151;
+	bh=pgk63OzM4MV5B1YZ1Q6RhX/k/tQPgbLegYhXhPxJ50g=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=PkHxwJ44aZhmcYMdzJKAGZXelphodr77bbg9/BPcudcGnFtavaJMJ9p2nd51Tj6yl
+	 EaF87ID3nxhu/IEgZzyY2TPZYcEWqlo0jRREP2U3hZ6UDipar0KJoHoGGOhd9+mR8o
+	 njp4oTr7P/w9+o/j0eFte/CLOGU+aG0zzrs/aqcg=
+Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTP id
+	20240818165551eucas1p2cfad7c58437449945b2cf154473a035d~s4QDrLzpK2264222642eucas1p2-;
+	Sun, 18 Aug 2024 16:55:51 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+	eusmges3new.samsung.com (EUCPMTA) with SMTP id 50.EF.09620.79722C66; Sun, 18
+	Aug 2024 17:55:51 +0100 (BST)
+Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+	20240818165550eucas1p29e0c2db56a8031d550147a0305929f47~s4QC3qo8m2264222642eucas1p2_;
+	Sun, 18 Aug 2024 16:55:50 +0000 (GMT)
+Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
+	eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
+	20240818165550eusmtrp1f22f7444782d04f43e5ceb6ffa5e8082~s4QC2rdl71394913949eusmtrp1b;
+	Sun, 18 Aug 2024 16:55:50 +0000 (GMT)
+X-AuditID: cbfec7f5-d31ff70000002594-c8-66c227976f5c
+Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
+	eusmgms2.samsung.com (EUCPMTA) with SMTP id 98.94.09010.69722C66; Sun, 18
+	Aug 2024 17:55:50 +0100 (BST)
+Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
+	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20240818165550eusmtip2d54ec6aadacf9035b826ccd01848f656~s4QChYpRJ2514925149eusmtip2C;
+	Sun, 18 Aug 2024 16:55:50 +0000 (GMT)
+Received: from localhost (106.210.248.197) by CAMSVWEXC02.scsc.local
+	(2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
+	Sun, 18 Aug 2024 17:55:45 +0100
+Date: Sun, 18 Aug 2024 18:55:45 +0200
+From: Klaus Jensen <k.jensen@samsung.com>
+To: Barry Song <21cnbao@gmail.com>
+CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Daniel Gomez
+	<da.gomez@samsung.com>, Masahiro Yamada <masahiroy@kernel.org>, "Nathan
+ Chancellor" <nathan@kernel.org>, Nicolas Schier <nicolas@fjasle.eu>, "Lucas
+ De Marchi" <lucas.demarchi@intel.com>, Thomas =?utf-8?Q?Hellstr=C3=B6m?=
+	<thomas.hellstrom@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
+	<mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Airlie
+	<airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, William Hubbs
+	<w.d.hubbs@gmail.com>, Chris Brannon <chris@the-brannons.com>, Kirk Reiser
+	<kirk@reisers.ca>, Samuel Thibault <samuel.thibault@ens-lyon.org>, Paul
+	Moore <paul@paul-moore.com>, Stephen Smalley
+	<stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>,
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+	Marc Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>, James
+	Morse <james.morse@arm.com>, Suzuki K Poulose <suzuki.poulose@arm.com>,
+	Zenghui Yu <yuzenghui@huawei.com>, Jiri Slaby <jirislaby@kernel.org>, Nick
+	Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "linux-kbuild@vger.kernel.org"
+	<linux-kbuild@vger.kernel.org>, "intel-xe@lists.freedesktop.org"
+	<intel-xe@lists.freedesktop.org>, "dri-devel@lists.freedesktop.org"
+	<dri-devel@lists.freedesktop.org>, "speakup@linux-speakup.org"
+	<speakup@linux-speakup.org>, "selinux@vger.kernel.org"
+	<selinux@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "kvmarm@lists.linux.dev"
+	<kvmarm@lists.linux.dev>, "linux-serial@vger.kernel.org"
+	<linux-serial@vger.kernel.org>, "llvm@lists.linux.dev"
+	<llvm@lists.linux.dev>, Finn Behrens <me@kloenk.dev>, "Daniel Gomez
+ (Samsung)" <d+samsung@kruces.com>, "gost.dev@samsung.com"
+	<gost.dev@samsung.com>, Nick Desaulniers <nick.desaulniers@gmail.com>
+Subject: Re: [PATCH 00/12] Enable build system on macOS hosts
+Message-ID: <ZsInkfDqwzd2ojHz@AALNPWKJENSEN.aal.scsc.local>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240816144519.25600-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20240816144519.25600-1-stephen.smalley.work@gmail.com>
-From: Jeongjun Park <aha310510@gmail.com>
-Date: Sun, 18 Aug 2024 19:32:12 +0900
-Message-ID: <CAO9qdTFOYFSO_eev6YVp6gYiLc5KXBo5AW=KKH-W_miOWijvhA@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/extended_socket_class: test SMC sockets
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAGsJ_4zA6=ajoOgAm9kweeiBFKz4TJxxjYFGHHd3HQY8dxHpWA@mail.gmail.com>
+X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
+	CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
+X-Brightmail-Tracker: H4sIAAAAAAAAA02Te1BUZRiH5zvn7Dm7y6weFxo+wYlplaE1wryg30gaZOEpGmutqHHGcpXD
+	JW62CyqVI+aKgGIgIcMGC7LTchEC14VwBQnU5bIyGwOzaLiIAYEIKIEERbuxHEz/e+Z7f887
+	7++Pj4+LT1Ee/Ki4BFYRJ4+RkEKi1jRneTXXpzn8NdPgcjRlE6PWnmIMPdKdAchUPoKjqw4b
+	jhy1WTjqfvKIRCe0VSSavTyCoXvXSjA0UbAKnb+oJZGms41Ao4brBNIPWHlo3liHoS5jPolu
+	aTMoNPh9I4mGBnQkujBZQ6D7/bd56Ep+Gw81VHWRSN81xUMpaToeOlU2RKLHmQ4MGRvnCPRH
+	QysP5cyNkWg88yaFes/lEqhRbaVQ6WwuQJYWE4Vq6zoAGrZkA5TX2wvQw7qFzYaxLB4qTtmC
+	VHf90Z0fq6lAX6ZCUwGYelMHyTTMFBGMsfkyyVxR2yimSJ/IqG6M8xht/QOM0ZenkYwmTYMx
+	jox+HnPDUUwxF5JzcEbTJmMaCyoo5t7pFuwDuEf4ehgbE3WIVazbvk8Y+e/JSnDQ5nLEmnwJ
+	TwZ5gnQg4EN6E0y3GnAni+lSAOdngzmeBrC9iU4HwgWeAvB66d/gqZA610hygxIAL2rU2P+p
+	saHCpUkNgFOTasKpELQ3bMtQk04maSn8ed6x+O5GS2B2zgzhFHC6nIYlQzk858CV3gZHSuoX
+	BREdADuGb2Ecr4BteYMLAn9BkMIq4zoOPWGJne9M4LQXPFHzw2IdAS2DOrMe465eDS/1WAiO
+	j8J2w2+LR0P6qgssmzmLOfdA+i3YmhrIZVzhaIuB4ngVNGefIbj8NQCnC3uoJRnAm7/ocC4V
+	AFXdg0tGEBwr1lPc0mXw9vgK7rhl8FxtLs49i2BqijgTrFE/V0z9rJj6WTH1c8WKAFEO3NlE
+	ZWwEq9wYxx72U8pjlYlxEX4H4mP1YOGvmO0tT+pA6eikXzPA+KAZQD4ucROdftAULhaFyZO+
+	YhXxnysSY1hlM/DkExJ3kXeYFyumI+QJbDTLHmQVT6cYX+CRjL0ZYvLj/SW7v1Vmtg2FiAdC
+	g9ZumPDK9JxcLUkCazK0BhdbpVTkio0GhmyulAaogo/oNrxj/FZ4nGzYvtmu2nf07V3xc2mf
+	YJbsTdKv31/5cHdEzP5dd8XS/r1/Tpz9Yrr9fExZeOl8mS099pW6mm1s6GhCL7XTN9Kc5R+d
+	K6yIdmO6h5f3bWQKP6tw73r5pTCw8hgxINjZae/67vcX9xzzlX8c7GFNMh6qjq//8Mt3/wn9
+	SeCdaffx3Jtd9M3ERNMOmV/fbOtxcpkqSGXU+t/pjN0Rr0uv9nkhQ/T4gD0n6o3Ivizb/qBe
+	8+H3in8NsKyPtH4q21qQgBEfddQMSLeczN8dKCGUkfL1a3GFUv4fl9bBPJoEAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA02Sa0xTdxjGdy49bYEuZxXZGZpp6uaFSKHl9pYiYYtLzr64kRlxuoV19ABG
+	oKyXKVvmiFwUHQYGSKil4xKugwDlYulg5eKABpGMCtIgogMEuQwJDiUButZu0W+//N/n+eWf
+	Ny8H4zcQ3pwzSWpGmSRLEBBu+OB2/wPf6wd6Yv0HR71gbZIPA/fKUFip/AmBvtp5DH6zT2Jg
+	b8vF4O4/KwSklTcQ8KJ5HoWp36tQ+Lt4N1z/tZwA/Z8WHBZaenEwTI+xYNNkRMFq0hFwuzyb
+	DTP5ZgJmpysJKF1txeHRw3EWtOssLOhssBJgsK6xIDOrkgWXamYJeJpjR8Fk3sDhcecACwo2
+	lghYzvmDDRM/F+Jg1o6xofpFIQLD/X1saDMOITA3nIdA0cQEAotGh7llKZcFZZkhkH4/CGwV
+	jeyIw3Sdvg6hO/qGCLpzvQSnTT3NBN2unWTTJQYNnX5rmUWXdzxBaUNtFkHrs/Qobc9+yKJv
+	2cvYdGlqAUbrLZG0ubiOTU9d7Uc/pU4Jw5QKjZrZG69QqY8ITotALBRJQCgOlAhFASFfhoqD
+	BH7hYXIm4cy3jNIv/Cth/FZGPZI86X5+LLUJS0WKuFcQLociA6nLG2bCyXyyAqG6GuSu991U
+	07NRlot3UJtjV/7LrCJUmy3Sxa0IVTnKOBkn36cs2dqXGYI8RN3ctONO9iQFVF7BuoPdOBhZ
+	S1JL1VWoc7CDPELNV3W8LPBIKTU0dxt1hvjkJkrNL5eyXIO3KEvRjKPNcbQPUQ0mPxfuoqq2
+	Oc4ERu6h0lpvYE7mkpFU5aABdf15H9V0bxh38Q/U2tZjJAfx1L4m1b6Sal9Jta9JSxC8FvFk
+	NKrEuESVWKiSJao0SXHCGEWiAXFcblvfRosRqVlYFfYgKAfpQSgOJvDkXX3SHcvnyWUp3zFK
+	RbRSk8CoepAgx4ZyMe+dMQrH6Sepo0XB/kGiwGCJf5AkOEDwNu/j5MsyPhknUzNnGSaZUf7f
+	Qzlc71TUQyeJOmk0HfilscueyI8w88TpsdrjvaUlx2Y/y+IWP7rTEf7jex5sbY0043D0CU7E
+	1ORzjy9O8o6GVbhZqq9B2xtevrlHM3W9kgsf+WY8bb8/5R5l0JQGGnVWQq7+hPzeR34tlCsx
+	7bVlfpjXOLsn5lzKxW2fVL5nre3zNOsHophTN985t7gkjyx6tn8t/2DgyGKe7k699EHoN50J
+	zTWCr+sDukXP94csuh8MPd3Ypbq7s+Li9Oq7dZsl56t3hU/TwXkXcuKkM8k+xVLbgu14ing9
+	aqYmaUN69s2Rlb8WV/ZFWW/EbG2ZDc0DhSvj9dsnGK9Ls+P6sO1j+R6t3SMKRcGcAFfFy0Q+
+	mFIl+xfttvvaQgQAAA==
+X-CMS-MailID: 20240818165550eucas1p29e0c2db56a8031d550147a0305929f47
+X-Msg-Generator: CA
+X-RootMTR: 20240807110114eucas1p2e1ca4cbd352c6cd9d60688b1570df8d4
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20240807110114eucas1p2e1ca4cbd352c6cd9d60688b1570df8d4
+References: <20240807-macos-build-support-v1-0-4cd1ded85694@samsung.com>
+	<CGME20240807110114eucas1p2e1ca4cbd352c6cd9d60688b1570df8d4@eucas1p2.samsung.com>
+	<2024080753-debug-roulette-8cb1@gregkh>
+	<3jnp6tnkjpvnisefomxagazu2u3uzzt7rcon3r5jssraxzwegb@gsxc7c5sfh7v>
+	<2024080758-dedicator-smoky-44be@gregkh>
+	<CAGsJ_4zA6=ajoOgAm9kweeiBFKz4TJxxjYFGHHd3HQY8dxHpWA@mail.gmail.com>
 
-Stephen Smalley wrote:
->
-> Enable SMC sockets and their dependencies in the defconfig and
-> exercise them as part of the extended socket class tests.
-> This only verifies that socket create permission is checked
-> against the correct class. The tests cover both usage of AF_SMC
-> and AF_INET using the recently introduced IPPROTO_SMC.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+On Aug 17 13:11, Barry Song wrote:
+> On Thu, Aug 8, 2024 at 2:20 AM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Wed, Aug 07, 2024 at 01:56:38PM +0000, Daniel Gomez wrote:
+> > > On Wed, Aug 07, 2024 at 01:01:08PM GMT, Greg Kroah-Hartman wrote:
+> > > > On Wed, Aug 07, 2024 at 01:09:14AM +0200, Daniel Gomez via B4 Relay wrote:
+> > > > > This patch set allows for building the Linux kernel for arm64 in macOS with
+> > > > > LLVM.
+> > > >
+> > > > Is this a requirement somewhere that this must work?  It seems like an
+> > > > odd request, what workflows require cross-operating-system builds like
+> > > > this?
+> > >
+> > > This isn't a requirement, but it would, for example, support workflows for QEMU
+> > > users and developers on macOS. They could build/compile the kernel natively and
+> > > use it to launch QEMU instances, simplifying their process.
+> >
+> > But that's not a real workload of anyone?  How often does this ever come
+> > up?  Who is going to maintain this cross-build functionality over time?
+> 
+> it is a real workload of me,  i was running qemu-system-aarch64 on x86
+> and it was
+> pretty slow. so got a M3 pro to accelerate my development. frequently changing
+> kernel's source code, i am using qemu-system-aarch64 to do quick verification.
+> 
 
-Looks good to me.
-
-Reviewed-by: Jeongjun Park <aha310510@gmail.com>
-
-> ---
->  defconfig                                |  5 ++++
->  policy/test_extended_socket_class.te     |  3 +++
->  tests/extended_socket_class/sockcreate.c |  5 ++++
->  tests/extended_socket_class/test         | 34 ++++++++++++++++++++++++
->  4 files changed, 47 insertions(+)
->
-> diff --git a/defconfig b/defconfig
-> index 47938c1..b2d4a90 100644
-> --- a/defconfig
-> +++ b/defconfig
-> @@ -131,3 +131,8 @@ CONFIG_KEY_NOTIFICATIONS=y
->  # This is not required for SELinux operation itself.
->  CONFIG_TRACING=y
->  CONFIG_DEBUG_FS=y
-> +
-> +# Test SMC sockets
-> +CONFIG_INFINIBAND=m
-> +CONFIG_SMC=m
-> +CONFIG_SMC_LO=y
-> diff --git a/policy/test_extended_socket_class.te b/policy/test_extended_socket_class.te
-> index c8840b4..6f0ebaa 100644
-> --- a/policy/test_extended_socket_class.te
-> +++ b/policy/test_extended_socket_class.te
-> @@ -48,6 +48,9 @@ extended_socket_class_test(bluetooth_socket, socket)
->  # Test use of alg_socket for Alg (Crypto API) sockets instead of socket.
->  extended_socket_class_test(alg_socket, socket)
->
-> +# Test use of smc_socket for SMC sockets instead of socket.
-> +extended_socket_class_test(smc_socket, socket)
-> +
->  #
->  # Common rules for all extended_socket_class test domains.
->  #
-> diff --git a/tests/extended_socket_class/sockcreate.c b/tests/extended_socket_class/sockcreate.c
-> index ee1d8f3..f72f2c9 100644
-> --- a/tests/extended_socket_class/sockcreate.c
-> +++ b/tests/extended_socket_class/sockcreate.c
-> @@ -47,6 +47,7 @@ static struct nameval domains[] = {
->  #define AF_QIPCRTR 42
->  #endif
->         { "qipcrtr", AF_QIPCRTR },
-> +       { "smc", AF_SMC },
->         { NULL, 0 }
->  };
->
-> @@ -62,6 +63,10 @@ static struct nameval protocols[] = {
->         { "icmp", IPPROTO_ICMP },
->         { "icmpv6", IPPROTO_ICMPV6 },
->         { "sctp", IPPROTO_SCTP },
-> +#ifndef IPPROTO_SMC
-> +#define IPPROTO_SMC 256
-> +#endif
-> +       { "smc", IPPROTO_SMC },
->  #ifndef CAN_RAW
->  #define CAN_RAW 1
->  #endif
-> diff --git a/tests/extended_socket_class/test b/tests/extended_socket_class/test
-> index 86c706b..ce02f00 100755
-> --- a/tests/extended_socket_class/test
-> +++ b/tests/extended_socket_class/test
-> @@ -6,6 +6,7 @@ BEGIN {
->      $test_count     = 6;
->      $test_bluetooth = 0;
->      $test_sctp      = 0;
-> +    $test_smc       = 0;
->
->      # check if SCTP is enabled
->      if ( system("modprobe sctp 2>/dev/null && checksctp 2>/dev/null") eq 0 ) {
-> @@ -19,6 +20,12 @@ BEGIN {
->          $test_bluetooth = 1;
->      }
->
-> +    # check if SMC is supported
-> +    if ( system("modprobe smc 2>/dev/null") eq 0 ) {
-> +        $test_count += 4;
-> +        $test_smc = 1;
-> +    }
-> +
->      plan tests => $test_count;
->  }
->
-> @@ -131,3 +138,30 @@ $result = system(
->  "runcon -t test_no_alg_socket_t -- $basedir/sockcreate alg seqpacket default 2>&1"
->  );
->  ok($result);
-> +
-> +if ($test_smc) {
-> +
-> +    # Verify that test_smc_socket_t can create a SMC socket (AF_SMC).
-> +    $result = system(
-> +"runcon -t test_smc_socket_t -- $basedir/sockcreate smc stream default 2>&1"
-> +    );
-> +    ok( $result, 0 );
-> +
-> +    # Verify that test_smc_socket_t can create a SMC socket (IPPROTO_SMC).
-> +    $result = system(
-> +"runcon -t test_smc_socket_t -- $basedir/sockcreate inet stream smc 2>&1"
-> +    );
-> +    ok( $result, 0 );
-> +
-> +    # Verify that test_no_smc_socket_t cannot create a SMC socket (AF_SMC).
-> +    $result = system(
-> +"runcon -t test_no_smc_socket_t -- $basedir/sockcreate smc stream default 2>&1"
-> +    );
-> +    ok($result);
-> +
-> +    # Verify that test_no_smc_socket_t cannot create a SMC socket (IPPROTO_SMC).
-> +    $result = system(
-> +"runcon -t test_no_smc_socket_t -- $basedir/sockcreate inet stream smc 2>&1"
-> +    );
-> +    ok($result);
-> +}
-> --
-> 2.40.1
->
+Allow me to chime in as well. Working with qemu-system-aarch64 on an Mx
+are a daily thing for me as well. Working with custom built kernels have
+been a pain, and this really helps.
