@@ -1,148 +1,196 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD964134B2;
-	Sun, 18 Aug 2024 08:25:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0658C8D7
+	for <selinux@vger.kernel.org>; Sun, 18 Aug 2024 10:32:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723969537; cv=none; b=dB7Ouxn84zDLYwo7sCHwGLv2g3MaQCnknqf47H4XFAd1tvSgg6jctY71rXr1YxQscgnwz4d3VNspW197zPgkhkK847KeaD9Vg07RtB7P2POPvlYenX/tFQXb1vszhjAjtNQaKYqtH8/XdQMToQ1nM+ww4qECY6o3Iyx4Sj0Vacw=
+	t=1723977147; cv=none; b=Y7fF4qVg4BXshOYgiUqfPF/qnOAL1KdutsDtDxDZd2hSthBanMPxZrrKZeAFAq3OGUFeqhPh++QoySW66ikdD3BfH5xR7w2hf/iFupU0Fc30L0bceA+fnYLjdauMgCE/62VyEXcXR/UiEk1yuiTwsxxPehCBfOXWH+z2rtIbCQs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723969537; c=relaxed/simple;
-	bh=HNPlU0M/3vqiQI+da9DTWN8QwJm2bLjTnAaFdwzaWig=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KPttER1GaWchJ4kvblETLq+25BF4I2PXCI0HeMjCyrUXpZ+FYvTy+zSoXufvpk6/JY6E44icWs+FS1+V4BJqqTGXlSNEhqK/LstB4YFBj+IjOQpMPHl4zlWtIjZVoYGR5pGrDhNg2hZOwbeTs2ZtYi9D8tknvQTLK9XHOoeZylk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vHZkHNV5; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1723977147; c=relaxed/simple;
+	bh=DHVo9XGmfh04cK3tMUx4lYmKKKFqKy0Mvb0DLUNQIUM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sCP2tSybfaygcrfEBLLQiSFEAX+liFaZacMgiMqKXuWl5wJBT1liywmqgsSI8i5f8teiOkl/AS0Ds6YgBq9ovp28OMI1XA4Z2JL5pwvsSlY0H5ALvwJ28ir5eWutZM6HD66gE48M/rSMOjCMr4/gqZ6WwNIjo00oQBGg+GM9cmY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XSdg30X9; arc=none smtp.client-ip=209.85.215.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vHZkHNV5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D79F9C32786;
-	Sun, 18 Aug 2024 08:25:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1723969536;
-	bh=HNPlU0M/3vqiQI+da9DTWN8QwJm2bLjTnAaFdwzaWig=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=vHZkHNV5oUFehXU9H208C3BbvikBh69Map7MNwYhsAz/H+RCy1qVmhkneBJXg6XjJ
-	 A4yHeH0HSJKwxa7FLYPOTmemN1bnz5cRIh6lcVsrPvla+TthtasHx5rjtn8C4jsDQk
-	 yFp0s7cOZozpGsEjAghDarTvbyerVUBwdhHxnSfOD9KlTBerTrANtAUJssjdzPrjNl
-	 EhSD2ZYUuJmNQNe1xBJ/twr+KdnK0XkPc9svL3TfLFPiHpoxVJoRf5gEij63/YgQR2
-	 vdZEieAN5ajY1WQBCTOuo56n3Dt/ZdoRgYqRpXRd3S9XddtW7UgbZC41BpdvWHqRIm
-	 XHhHkzQ8KNsPg==
-Date: Sun, 18 Aug 2024 10:25:30 +0200
-From: Alejandro Colomar <alx@kernel.org>
-To: Yafang Shao <laoar.shao@gmail.com>
-Cc: akpm@linux-foundation.org, torvalds@linux-foundation.org, 
-	justinstitt@google.com, ebiederm@xmission.com, alexei.starovoitov@gmail.com, 
-	rostedt@goodmis.org, catalin.marinas@arm.com, penguin-kernel@i-love.sakura.ne.jp, 
-	linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, Quentin Monnet <qmo@kernel.org>
-Subject: Re: [PATCH v7 4/8] bpftool: Ensure task comm is always NUL-terminated
-Message-ID: <gmhyl3zdnxy6q2tn5wtasqbuhxpfbejmh7qxeuk7lnbhcdlfsc@b3b56vgdrzgm>
-References: <20240817025624.13157-1-laoar.shao@gmail.com>
- <20240817025624.13157-5-laoar.shao@gmail.com>
- <teajtay63uw2ukcwhna7yfblnjeyrppw4zcx2dfwtdz3tapspn@rntw3luvstci>
- <CALOAHbAzSAQMtts5x+OMDDy1ZY5icUJv2wAM5w74ffhtEbN1mQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XSdg30X9"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-7c6b4222fe3so1967550a12.3
+        for <selinux@vger.kernel.org>; Sun, 18 Aug 2024 03:32:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1723977145; x=1724581945; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=FpsMXOr++yXuTMVO1gM8eSHp4YBKP4/Uh35Nk3y6QBk=;
+        b=XSdg30X9c9PADIXu86e22OA8cB0hXRIXcy28kIIQHNloz11CeQ0YrC6o/4VFCtxi/b
+         Q40iwmvsiQsIJj6UVu6bBnqtUASzmCLMpDqpMh4GmkzEV/A63hFtIj/TZio4Wi6btrEg
+         cRY1sjyagbrYs2XcTeQHAzaH9acGK4Yf2MbG3WxKMETq9akPAyftHe0Smt+8xaT4vogh
+         tkFfJuEmdYpoi2mznxyM8TYSqBxaP3/C0Da2csgZcpS5+YQXGFM1Qp9tnYL6NhLN38rF
+         WuV02YWvrvF/UMrZgIpohawzHXL7p+aaYGOlSjK67Rd1Q6jLlYGod0YIiflipQvEKqzr
+         3E2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1723977145; x=1724581945;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=FpsMXOr++yXuTMVO1gM8eSHp4YBKP4/Uh35Nk3y6QBk=;
+        b=okptc5su56ZMh6M+1iwBpY1KaqcUI3HdRF6TX3+Hgjgd0gEonLASEbZcshkpLXr6da
+         U42o6ej1bwHN6oMYq06qulUmWXDbq/TsLQ6JY7oHAcsDHA9+d1xMjaMQYj6I+Tz2uHNF
+         qAPmoyYLprNVUcUu6PKMVWeYpLwgTfT+lCcmyzC0MtyChdOvyoG2invorWGu3Ms+s4Gf
+         yjTC+BN0n2MB/2zTjCm6qDRJDqfwHuImcr11ql5GupmaT4po2h1YZ7vV6WDWw0w+N/xw
+         78hdP++ks7EeKQMvVR0kVy8gSsUKTNfZxerygCXcLFEuLrhJqqcsTf/IRQlEpW7je8ok
+         ezSg==
+X-Gm-Message-State: AOJu0YzdQb/nJ1ZZSlQbYdwDs6AR8P5G0OHHdOWB8PCIrE7Zo8t+pjmh
+	+nKuJGgAmuyefZQgnQCy/tTOSxv+ZAlr85AM1z6YuzB6fRrHBoXuZN5BzAyzFH4+dT/15DJUiGr
+	OkxC5/Dw8F1jkzfFHs1yhMsv7a7I=
+X-Google-Smtp-Source: AGHT+IGHEiiX3ceNMDsU75vOFCt3SKaKFqoKxWcPRqJBVAXpC21YxEoO0/kBrJvblUpaa7kib09yXUekgNhuJePck+Y=
+X-Received: by 2002:a17:90a:d904:b0:2d3:c5f1:d0d9 with SMTP id
+ 98e67ed59e1d1-2d3dfd8c5b3mr7193910a91.25.1723977145056; Sun, 18 Aug 2024
+ 03:32:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="bqpbjdxuldrazcxq"
-Content-Disposition: inline
-In-Reply-To: <CALOAHbAzSAQMtts5x+OMDDy1ZY5icUJv2wAM5w74ffhtEbN1mQ@mail.gmail.com>
+References: <20240816144519.25600-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20240816144519.25600-1-stephen.smalley.work@gmail.com>
+From: Jeongjun Park <aha310510@gmail.com>
+Date: Sun, 18 Aug 2024 19:32:12 +0900
+Message-ID: <CAO9qdTFOYFSO_eev6YVp6gYiLc5KXBo5AW=KKH-W_miOWijvhA@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests/extended_socket_class: test SMC sockets
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com
+Content-Type: text/plain; charset="UTF-8"
 
+Stephen Smalley wrote:
+>
+> Enable SMC sockets and their dependencies in the defconfig and
+> exercise them as part of the extended socket class tests.
+> This only verifies that socket create permission is checked
+> against the correct class. The tests cover both usage of AF_SMC
+> and AF_INET using the recently introduced IPPROTO_SMC.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
---bqpbjdxuldrazcxq
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-From: Alejandro Colomar <alx@kernel.org>
-To: Yafang Shao <laoar.shao@gmail.com>
-Cc: akpm@linux-foundation.org, torvalds@linux-foundation.org, 
-	justinstitt@google.com, ebiederm@xmission.com, alexei.starovoitov@gmail.com, 
-	rostedt@goodmis.org, catalin.marinas@arm.com, penguin-kernel@i-love.sakura.ne.jp, 
-	linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, Quentin Monnet <qmo@kernel.org>
-Subject: Re: [PATCH v7 4/8] bpftool: Ensure task comm is always NUL-terminated
-References: <20240817025624.13157-1-laoar.shao@gmail.com>
- <20240817025624.13157-5-laoar.shao@gmail.com>
- <teajtay63uw2ukcwhna7yfblnjeyrppw4zcx2dfwtdz3tapspn@rntw3luvstci>
- <CALOAHbAzSAQMtts5x+OMDDy1ZY5icUJv2wAM5w74ffhtEbN1mQ@mail.gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <CALOAHbAzSAQMtts5x+OMDDy1ZY5icUJv2wAM5w74ffhtEbN1mQ@mail.gmail.com>
+Looks good to me.
 
-Hi Yafang,
+Reviewed-by: Jeongjun Park <aha310510@gmail.com>
 
-On Sun, Aug 18, 2024 at 10:27:01AM GMT, Yafang Shao wrote:
-> On Sat, Aug 17, 2024 at 4:39=E2=80=AFPM Alejandro Colomar <alx@kernel.org=
-> wrote:
-> >
-> > Hi Yafang,
-> >
-> > On Sat, Aug 17, 2024 at 10:56:20AM GMT, Yafang Shao wrote:
-> > > Let's explicitly ensure the destination string is NUL-terminated. Thi=
-s way,
-> > > it won't be affected by changes to the source string.
-> > >
-> > > Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-> > > Reviewed-by: Quentin Monnet <qmo@kernel.org>
-> > > ---
-> > >  tools/bpf/bpftool/pids.c | 2 ++
-> > >  1 file changed, 2 insertions(+)
-> > >
-> > > diff --git a/tools/bpf/bpftool/pids.c b/tools/bpf/bpftool/pids.c
-> > > index 9b898571b49e..23f488cf1740 100644
-> > > --- a/tools/bpf/bpftool/pids.c
-> > > +++ b/tools/bpf/bpftool/pids.c
-> > > @@ -54,6 +54,7 @@ static void add_ref(struct hashmap *map, struct pid=
-_iter_entry *e)
-> > >               ref =3D &refs->refs[refs->ref_cnt];
-> > >               ref->pid =3D e->pid;
-> > >               memcpy(ref->comm, e->comm, sizeof(ref->comm));
-> > > +             ref->comm[sizeof(ref->comm) - 1] =3D '\0';
-> >
-> > Why doesn't this use strscpy()?
->=20
-> bpftool is a userspace tool, so strscpy() is only applicable in kernel
-> code, correct?
-
-Ahh, makes sense.  LGTM, then.  Maybe the closest user-space function to
-strscpy(9) would be strlcpy(3), but I don't know how old of a glibc you
-support.  strlcpy(3) is currently in POSIX, and supported by both glibc
-and musl, but that's too recent.
-
-Have a lovely day!
-Alex
-
+> ---
+>  defconfig                                |  5 ++++
+>  policy/test_extended_socket_class.te     |  3 +++
+>  tests/extended_socket_class/sockcreate.c |  5 ++++
+>  tests/extended_socket_class/test         | 34 ++++++++++++++++++++++++
+>  4 files changed, 47 insertions(+)
+>
+> diff --git a/defconfig b/defconfig
+> index 47938c1..b2d4a90 100644
+> --- a/defconfig
+> +++ b/defconfig
+> @@ -131,3 +131,8 @@ CONFIG_KEY_NOTIFICATIONS=y
+>  # This is not required for SELinux operation itself.
+>  CONFIG_TRACING=y
+>  CONFIG_DEBUG_FS=y
+> +
+> +# Test SMC sockets
+> +CONFIG_INFINIBAND=m
+> +CONFIG_SMC=m
+> +CONFIG_SMC_LO=y
+> diff --git a/policy/test_extended_socket_class.te b/policy/test_extended_socket_class.te
+> index c8840b4..6f0ebaa 100644
+> --- a/policy/test_extended_socket_class.te
+> +++ b/policy/test_extended_socket_class.te
+> @@ -48,6 +48,9 @@ extended_socket_class_test(bluetooth_socket, socket)
+>  # Test use of alg_socket for Alg (Crypto API) sockets instead of socket.
+>  extended_socket_class_test(alg_socket, socket)
+>
+> +# Test use of smc_socket for SMC sockets instead of socket.
+> +extended_socket_class_test(smc_socket, socket)
+> +
+>  #
+>  # Common rules for all extended_socket_class test domains.
+>  #
+> diff --git a/tests/extended_socket_class/sockcreate.c b/tests/extended_socket_class/sockcreate.c
+> index ee1d8f3..f72f2c9 100644
+> --- a/tests/extended_socket_class/sockcreate.c
+> +++ b/tests/extended_socket_class/sockcreate.c
+> @@ -47,6 +47,7 @@ static struct nameval domains[] = {
+>  #define AF_QIPCRTR 42
+>  #endif
+>         { "qipcrtr", AF_QIPCRTR },
+> +       { "smc", AF_SMC },
+>         { NULL, 0 }
+>  };
+>
+> @@ -62,6 +63,10 @@ static struct nameval protocols[] = {
+>         { "icmp", IPPROTO_ICMP },
+>         { "icmpv6", IPPROTO_ICMPV6 },
+>         { "sctp", IPPROTO_SCTP },
+> +#ifndef IPPROTO_SMC
+> +#define IPPROTO_SMC 256
+> +#endif
+> +       { "smc", IPPROTO_SMC },
+>  #ifndef CAN_RAW
+>  #define CAN_RAW 1
+>  #endif
+> diff --git a/tests/extended_socket_class/test b/tests/extended_socket_class/test
+> index 86c706b..ce02f00 100755
+> --- a/tests/extended_socket_class/test
+> +++ b/tests/extended_socket_class/test
+> @@ -6,6 +6,7 @@ BEGIN {
+>      $test_count     = 6;
+>      $test_bluetooth = 0;
+>      $test_sctp      = 0;
+> +    $test_smc       = 0;
+>
+>      # check if SCTP is enabled
+>      if ( system("modprobe sctp 2>/dev/null && checksctp 2>/dev/null") eq 0 ) {
+> @@ -19,6 +20,12 @@ BEGIN {
+>          $test_bluetooth = 1;
+>      }
+>
+> +    # check if SMC is supported
+> +    if ( system("modprobe smc 2>/dev/null") eq 0 ) {
+> +        $test_count += 4;
+> +        $test_smc = 1;
+> +    }
+> +
+>      plan tests => $test_count;
+>  }
+>
+> @@ -131,3 +138,30 @@ $result = system(
+>  "runcon -t test_no_alg_socket_t -- $basedir/sockcreate alg seqpacket default 2>&1"
+>  );
+>  ok($result);
+> +
+> +if ($test_smc) {
+> +
+> +    # Verify that test_smc_socket_t can create a SMC socket (AF_SMC).
+> +    $result = system(
+> +"runcon -t test_smc_socket_t -- $basedir/sockcreate smc stream default 2>&1"
+> +    );
+> +    ok( $result, 0 );
+> +
+> +    # Verify that test_smc_socket_t can create a SMC socket (IPPROTO_SMC).
+> +    $result = system(
+> +"runcon -t test_smc_socket_t -- $basedir/sockcreate inet stream smc 2>&1"
+> +    );
+> +    ok( $result, 0 );
+> +
+> +    # Verify that test_no_smc_socket_t cannot create a SMC socket (AF_SMC).
+> +    $result = system(
+> +"runcon -t test_no_smc_socket_t -- $basedir/sockcreate smc stream default 2>&1"
+> +    );
+> +    ok($result);
+> +
+> +    # Verify that test_no_smc_socket_t cannot create a SMC socket (IPPROTO_SMC).
+> +    $result = system(
+> +"runcon -t test_no_smc_socket_t -- $basedir/sockcreate inet stream smc 2>&1"
+> +    );
+> +    ok($result);
+> +}
 > --
-> Regards
-> Yafang
-
---=20
-<https://www.alejandro-colomar.es/>
-
---bqpbjdxuldrazcxq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE6jqH8KTroDDkXfJAnowa+77/2zIFAmbBr/oACgkQnowa+77/
-2zKlWg//bIam9Z2S2oGYdx1Es2yhqgRhsYrxX1OVGAonZ9d+7XaXBTpsSjfcy8AT
-EqipznL0pk8B0uQ+sagT8w6h0H2StHg59E+gR4M8YKp5s/X6Rhq+aim+k19Qh53S
-afYHd+jfvzFBe1dXQXm5Pe80X1ncmIcISMqXh/O3ykzqpuPWanKo4torJlbqtXMM
-yGxL8yJu15D00/cwjEwT9mh7KB9zsmVNyHPiY3aTvtjd0F/tNlP9qvnxgi+81duU
-ciTElwVWSG14g9TcDFWHkNBarUuBiHe240JQE7ARDPJmPkZrzHo6GcpC4AdydU6Q
-yvA/1Hp4dCFLoiXspmTWmAyR3Q+Nnn1wetdU555oIpEhYk+dpgAdO1MAYOJ+izdh
-f71cefEGfG60FG0tkzgwkbpa4xPUaCEi5L/5Voms4yRIoj5eYvmQs0+/N8IM2Fbk
-HSLIjf+5YiMw0SycNUP0XKFZGJ2MbXU8c+MBM4pTwfl4MFhgVPvI53j0J+5D43x8
-AgvgLJ3kp44JOC+FoeCDgraJ7ZD5nasDl1YBaNUS7lCxAAJ80V4CMWzi9kX0YOrG
-HRB6XOquSAF0pGarE6FLeKCmwKRTcsrDTrVPRgkrHgxt/lYqJJFnaWY1lLKDQViF
-zUzZFqndM8ocPo0p3o645SxxtVDEvxgJolM+5sdOdjqMKUmKg+U=
-=rl7R
------END PGP SIGNATURE-----
-
---bqpbjdxuldrazcxq--
+> 2.40.1
+>
