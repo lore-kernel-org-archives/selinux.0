@@ -1,185 +1,262 @@
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1B361386C6;
-	Sun, 18 Aug 2024 16:56:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37A03BE65
+	for <selinux@vger.kernel.org>; Mon, 19 Aug 2024 09:46:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724000164; cv=none; b=D97Zq4nt5iQYcgTL/VlAM6qsdLVixHUkFcOuZyHpdGp28UDloDZPiwnnbjNXgmX/NNHa+lpI6Ux7mKse/RAJ8f42Aju46T1KVf8asZ31WHIyicnU917b0H/yytrpfnLRTPCyrEKneMY0fR8gJkNAYiQMgtzt/VF9tXhNuNGUaGQ=
+	t=1724060790; cv=none; b=Yy0PCSxNJSW1HXkuoY/h3M3IL6cb33z7RKM9Wg8Kr0Kzmm6KSk/aMP7+W552tbdZO9CkTb5CxTEKP6Pktn7qQFOa/BGyopg6oMAs0/YfylwJHjkT8EliejD8rImoyxHQDPKsc67/GPT06X5dDTtX3lydqqZTx6o2MHCiDMkzz30=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724000164; c=relaxed/simple;
-	bh=Qi2VmkOBr/YtTsz+qW/OhZpunw0QduUME+9/qJCGtAY=;
-	h=Date:From:To:CC:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To:References; b=L1radybwBWPzysAKM87OllY9ofhyoGyDdj97gQTMjFzLZ13GUMuu7R02DSMAkhdLhvDlDUsspXiMH+XFzWsmwLKL9BZZ4qGJr7rosP1s5CvDfBo/m1g8NJza7vHobO1KS+X0cKOmCRcMnWCWyfwGiV/etrgdHKh6seLgxD+JFMI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=PkHxwJ44; arc=none smtp.client-ip=210.118.77.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1724060790; c=relaxed/simple;
+	bh=7kq4bLV7tAak3fBqNl9JDyXQRKEGfZsGufzo7fyiFUI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=h4E86OuHk2ODX94uUrlzzgqs0qe0GZPKK2GolofoPKxueJyGMNFQbwUae9wmTzno946W+fJonO3eroGo8cg2EKfZ+/C0VTF6D8UWPDNa8lvfzQakFTX5AKEnHgcyGBc+URVyNx/LEpmjYs1Fs0P/MK+hVWy7VGoWobU5/THif2Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=h0bYYQJZ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="PkHxwJ44"
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20240818165551euoutp0258140a37ef73bcc4656173befe53d6b1~s4QD8OiMy2193121931euoutp02x;
-	Sun, 18 Aug 2024 16:55:51 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20240818165551euoutp0258140a37ef73bcc4656173befe53d6b1~s4QD8OiMy2193121931euoutp02x
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1724000151;
-	bh=pgk63OzM4MV5B1YZ1Q6RhX/k/tQPgbLegYhXhPxJ50g=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=PkHxwJ44aZhmcYMdzJKAGZXelphodr77bbg9/BPcudcGnFtavaJMJ9p2nd51Tj6yl
-	 EaF87ID3nxhu/IEgZzyY2TPZYcEWqlo0jRREP2U3hZ6UDipar0KJoHoGGOhd9+mR8o
-	 njp4oTr7P/w9+o/j0eFte/CLOGU+aG0zzrs/aqcg=
-Received: from eusmges3new.samsung.com (unknown [203.254.199.245]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTP id
-	20240818165551eucas1p2cfad7c58437449945b2cf154473a035d~s4QDrLzpK2264222642eucas1p2-;
-	Sun, 18 Aug 2024 16:55:51 +0000 (GMT)
-Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
-	eusmges3new.samsung.com (EUCPMTA) with SMTP id 50.EF.09620.79722C66; Sun, 18
-	Aug 2024 17:55:51 +0100 (BST)
-Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20240818165550eucas1p29e0c2db56a8031d550147a0305929f47~s4QC3qo8m2264222642eucas1p2_;
-	Sun, 18 Aug 2024 16:55:50 +0000 (GMT)
-Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
-	eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
-	20240818165550eusmtrp1f22f7444782d04f43e5ceb6ffa5e8082~s4QC2rdl71394913949eusmtrp1b;
-	Sun, 18 Aug 2024 16:55:50 +0000 (GMT)
-X-AuditID: cbfec7f5-d31ff70000002594-c8-66c227976f5c
-Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
-	eusmgms2.samsung.com (EUCPMTA) with SMTP id 98.94.09010.69722C66; Sun, 18
-	Aug 2024 17:55:50 +0100 (BST)
-Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20240818165550eusmtip2d54ec6aadacf9035b826ccd01848f656~s4QChYpRJ2514925149eusmtip2C;
-	Sun, 18 Aug 2024 16:55:50 +0000 (GMT)
-Received: from localhost (106.210.248.197) by CAMSVWEXC02.scsc.local
-	(2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
-	Sun, 18 Aug 2024 17:55:45 +0100
-Date: Sun, 18 Aug 2024 18:55:45 +0200
-From: Klaus Jensen <k.jensen@samsung.com>
-To: Barry Song <21cnbao@gmail.com>
-CC: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Daniel Gomez
-	<da.gomez@samsung.com>, Masahiro Yamada <masahiroy@kernel.org>, "Nathan
- Chancellor" <nathan@kernel.org>, Nicolas Schier <nicolas@fjasle.eu>, "Lucas
- De Marchi" <lucas.demarchi@intel.com>, Thomas =?utf-8?Q?Hellstr=C3=B6m?=
-	<thomas.hellstrom@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
-	<mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Airlie
-	<airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, William Hubbs
-	<w.d.hubbs@gmail.com>, Chris Brannon <chris@the-brannons.com>, Kirk Reiser
-	<kirk@reisers.ca>, Samuel Thibault <samuel.thibault@ens-lyon.org>, Paul
-	Moore <paul@paul-moore.com>, Stephen Smalley
-	<stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>,
-	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
-	Marc Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>, James
-	Morse <james.morse@arm.com>, Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Zenghui Yu <yuzenghui@huawei.com>, Jiri Slaby <jirislaby@kernel.org>, Nick
-	Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "linux-kbuild@vger.kernel.org"
-	<linux-kbuild@vger.kernel.org>, "intel-xe@lists.freedesktop.org"
-	<intel-xe@lists.freedesktop.org>, "dri-devel@lists.freedesktop.org"
-	<dri-devel@lists.freedesktop.org>, "speakup@linux-speakup.org"
-	<speakup@linux-speakup.org>, "selinux@vger.kernel.org"
-	<selinux@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "kvmarm@lists.linux.dev"
-	<kvmarm@lists.linux.dev>, "linux-serial@vger.kernel.org"
-	<linux-serial@vger.kernel.org>, "llvm@lists.linux.dev"
-	<llvm@lists.linux.dev>, Finn Behrens <me@kloenk.dev>, "Daniel Gomez
- (Samsung)" <d+samsung@kruces.com>, "gost.dev@samsung.com"
-	<gost.dev@samsung.com>, Nick Desaulniers <nick.desaulniers@gmail.com>
-Subject: Re: [PATCH 00/12] Enable build system on macOS hosts
-Message-ID: <ZsInkfDqwzd2ojHz@AALNPWKJENSEN.aal.scsc.local>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="h0bYYQJZ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724060787;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3yJlfW+826MEVX+XTsSkJ6Zur1F9YvRJB4i/zBOkwSY=;
+	b=h0bYYQJZNXJNi2MowMpEutiKy7WVvhehBZ5rcJ/Z/w2nB/sJtgqTDVDKx4aKRVTx5VveOC
+	E0/o+1H+rKu0p/voiZz4YUrIMyPLUVb6+3v/ijGvGOL4Oq5SeWId35sD5f/s6VsVW31Dqs
+	4q9qnLwyniANd/o6Dzvg9gr4IgQArjs=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-651-C6nhIFyaNJKj1bjoekbb8Q-1; Mon, 19 Aug 2024 05:46:24 -0400
+X-MC-Unique: C6nhIFyaNJKj1bjoekbb8Q-1
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-2d3ba4390f4so3947285a91.0
+        for <selinux@vger.kernel.org>; Mon, 19 Aug 2024 02:46:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724060783; x=1724665583;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=3yJlfW+826MEVX+XTsSkJ6Zur1F9YvRJB4i/zBOkwSY=;
+        b=ieyOoRrlzj2hYfUe0xozbj0X0QlJN5A/W/1eLhUCltCKskgtnkWp1CoS6zwSXdH4tI
+         /RNXXLjR9yV6BLGv1QhD527r5esQfy2KBEFf3fEZMmnrYx6oibfodExtCbv3HaTiUXM2
+         KA7lo1b8I976BN49k43Hp885qelLf13WraZYGgxJQbHlZHnvwN1/6jn9TX4e0MSSfb3F
+         L5aTnrxkNR1feh/lEv6W6vmlO6AhWknc/UY9OLJ9W7p1ZaK/umCewhABbeRDGFWKBr0u
+         vIMMQ8bgtqbx5yj7p4t1OSNiKZkpfu94jlkM/U1aJUTrj8V/WNu97P8ccBWO1l4/PTVZ
+         yqzQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU7dCqJ0E5/oTbJLjCJByK2DwxPs0TZj8TSzp5dbpxZfcqDT2fAysoePj1UvUFU/QOZ422C3wBj@vger.kernel.org
+X-Gm-Message-State: AOJu0YyCNKrrzlOnONxlP9qKiMDT7tKYTngfje0H+CBjcNO7Ae2aWmkv
+	ki67pxRxE1wyx/lyCkycjYGjlwSQR7LTQ8PFeA4WHDwGwESzQ9/xhZTeg+qVgmdSi/8ztAy1jOv
+	8YGbO0ddOovv6M0ZlFMIXjvQ44s6wOv4kovYYjqPh9GoQxs1YwVYQepIxIVXtXnDR4nyi0i0HI+
+	a/SooFG3EBbmAvWiJpSMbtU277aAcpjw==
+X-Received: by 2002:a17:90b:4d8f:b0:2c9:a3d4:f044 with SMTP id 98e67ed59e1d1-2d3dffc0f59mr8409782a91.11.1724060783405;
+        Mon, 19 Aug 2024 02:46:23 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGdsonGjoEw88ntGBhKWheJOEzKZg+GmVxxiP7CXrtAjUC7woF725y+VXQ7JON4uIe9wxWrA/vqIwfmq/mM9Ow=
+X-Received: by 2002:a17:90b:4d8f:b0:2c9:a3d4:f044 with SMTP id
+ 98e67ed59e1d1-2d3dffc0f59mr8409767a91.11.1724060782998; Mon, 19 Aug 2024
+ 02:46:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAGsJ_4zA6=ajoOgAm9kweeiBFKz4TJxxjYFGHHd3HQY8dxHpWA@mail.gmail.com>
-X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
-	CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
-X-Brightmail-Tracker: H4sIAAAAAAAAA02Te1BUZRiH5zvn7Dm7y6weFxo+wYlplaE1wryg30gaZOEpGmutqHHGcpXD
-	JW62CyqVI+aKgGIgIcMGC7LTchEC14VwBQnU5bIyGwOzaLiIAYEIKIEERbuxHEz/e+Z7f887
-	7++Pj4+LT1Ee/Ki4BFYRJ4+RkEKi1jRneTXXpzn8NdPgcjRlE6PWnmIMPdKdAchUPoKjqw4b
-	jhy1WTjqfvKIRCe0VSSavTyCoXvXSjA0UbAKnb+oJZGms41Ao4brBNIPWHlo3liHoS5jPolu
-	aTMoNPh9I4mGBnQkujBZQ6D7/bd56Ep+Gw81VHWRSN81xUMpaToeOlU2RKLHmQ4MGRvnCPRH
-	QysP5cyNkWg88yaFes/lEqhRbaVQ6WwuQJYWE4Vq6zoAGrZkA5TX2wvQw7qFzYaxLB4qTtmC
-	VHf90Z0fq6lAX6ZCUwGYelMHyTTMFBGMsfkyyVxR2yimSJ/IqG6M8xht/QOM0ZenkYwmTYMx
-	jox+HnPDUUwxF5JzcEbTJmMaCyoo5t7pFuwDuEf4ehgbE3WIVazbvk8Y+e/JSnDQ5nLEmnwJ
-	TwZ5gnQg4EN6E0y3GnAni+lSAOdngzmeBrC9iU4HwgWeAvB66d/gqZA610hygxIAL2rU2P+p
-	saHCpUkNgFOTasKpELQ3bMtQk04maSn8ed6x+O5GS2B2zgzhFHC6nIYlQzk858CV3gZHSuoX
-	BREdADuGb2Ecr4BteYMLAn9BkMIq4zoOPWGJne9M4LQXPFHzw2IdAS2DOrMe465eDS/1WAiO
-	j8J2w2+LR0P6qgssmzmLOfdA+i3YmhrIZVzhaIuB4ngVNGefIbj8NQCnC3uoJRnAm7/ocC4V
-	AFXdg0tGEBwr1lPc0mXw9vgK7rhl8FxtLs49i2BqijgTrFE/V0z9rJj6WTH1c8WKAFEO3NlE
-	ZWwEq9wYxx72U8pjlYlxEX4H4mP1YOGvmO0tT+pA6eikXzPA+KAZQD4ucROdftAULhaFyZO+
-	YhXxnysSY1hlM/DkExJ3kXeYFyumI+QJbDTLHmQVT6cYX+CRjL0ZYvLj/SW7v1Vmtg2FiAdC
-	g9ZumPDK9JxcLUkCazK0BhdbpVTkio0GhmyulAaogo/oNrxj/FZ4nGzYvtmu2nf07V3xc2mf
-	YJbsTdKv31/5cHdEzP5dd8XS/r1/Tpz9Yrr9fExZeOl8mS099pW6mm1s6GhCL7XTN9Kc5R+d
-	K6yIdmO6h5f3bWQKP6tw73r5pTCw8hgxINjZae/67vcX9xzzlX8c7GFNMh6qjq//8Mt3/wn9
-	SeCdaffx3Jtd9M3ERNMOmV/fbOtxcpkqSGXU+t/pjN0Rr0uv9nkhQ/T4gD0n6o3Ivizb/qBe
-	8+H3in8NsKyPtH4q21qQgBEfddQMSLeczN8dKCGUkfL1a3GFUv4fl9bBPJoEAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA02Sa0xTdxjGdy49bYEuZxXZGZpp6uaFSKHl9pYiYYtLzr64kRlxuoV19ABG
-	oKyXKVvmiFwUHQYGSKil4xKugwDlYulg5eKABpGMCtIgogMEuQwJDiUButZu0W+//N/n+eWf
-	Ny8H4zcQ3pwzSWpGmSRLEBBu+OB2/wPf6wd6Yv0HR71gbZIPA/fKUFip/AmBvtp5DH6zT2Jg
-	b8vF4O4/KwSklTcQ8KJ5HoWp36tQ+Lt4N1z/tZwA/Z8WHBZaenEwTI+xYNNkRMFq0hFwuzyb
-	DTP5ZgJmpysJKF1txeHRw3EWtOssLOhssBJgsK6xIDOrkgWXamYJeJpjR8Fk3sDhcecACwo2
-	lghYzvmDDRM/F+Jg1o6xofpFIQLD/X1saDMOITA3nIdA0cQEAotGh7llKZcFZZkhkH4/CGwV
-	jeyIw3Sdvg6hO/qGCLpzvQSnTT3NBN2unWTTJQYNnX5rmUWXdzxBaUNtFkHrs/Qobc9+yKJv
-	2cvYdGlqAUbrLZG0ubiOTU9d7Uc/pU4Jw5QKjZrZG69QqY8ITotALBRJQCgOlAhFASFfhoqD
-	BH7hYXIm4cy3jNIv/Cth/FZGPZI86X5+LLUJS0WKuFcQLociA6nLG2bCyXyyAqG6GuSu991U
-	07NRlot3UJtjV/7LrCJUmy3Sxa0IVTnKOBkn36cs2dqXGYI8RN3ctONO9iQFVF7BuoPdOBhZ
-	S1JL1VWoc7CDPELNV3W8LPBIKTU0dxt1hvjkJkrNL5eyXIO3KEvRjKPNcbQPUQ0mPxfuoqq2
-	Oc4ERu6h0lpvYE7mkpFU5aABdf15H9V0bxh38Q/U2tZjJAfx1L4m1b6Sal9Jta9JSxC8FvFk
-	NKrEuESVWKiSJao0SXHCGEWiAXFcblvfRosRqVlYFfYgKAfpQSgOJvDkXX3SHcvnyWUp3zFK
-	RbRSk8CoepAgx4ZyMe+dMQrH6Sepo0XB/kGiwGCJf5AkOEDwNu/j5MsyPhknUzNnGSaZUf7f
-	Qzlc71TUQyeJOmk0HfilscueyI8w88TpsdrjvaUlx2Y/y+IWP7rTEf7jex5sbY0043D0CU7E
-	1ORzjy9O8o6GVbhZqq9B2xtevrlHM3W9kgsf+WY8bb8/5R5l0JQGGnVWQq7+hPzeR34tlCsx
-	7bVlfpjXOLsn5lzKxW2fVL5nre3zNOsHophTN985t7gkjyx6tn8t/2DgyGKe7k699EHoN50J
-	zTWCr+sDukXP94csuh8MPd3Ypbq7s+Li9Oq7dZsl56t3hU/TwXkXcuKkM8k+xVLbgu14ing9
-	aqYmaUN69s2Rlb8WV/ZFWW/EbG2ZDc0DhSvj9dsnGK9Ls+P6sO1j+R6t3SMKRcGcAFfFy0Q+
-	mFIl+xfttvvaQgQAAA==
-X-CMS-MailID: 20240818165550eucas1p29e0c2db56a8031d550147a0305929f47
-X-Msg-Generator: CA
-X-RootMTR: 20240807110114eucas1p2e1ca4cbd352c6cd9d60688b1570df8d4
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20240807110114eucas1p2e1ca4cbd352c6cd9d60688b1570df8d4
-References: <20240807-macos-build-support-v1-0-4cd1ded85694@samsung.com>
-	<CGME20240807110114eucas1p2e1ca4cbd352c6cd9d60688b1570df8d4@eucas1p2.samsung.com>
-	<2024080753-debug-roulette-8cb1@gregkh>
-	<3jnp6tnkjpvnisefomxagazu2u3uzzt7rcon3r5jssraxzwegb@gsxc7c5sfh7v>
-	<2024080758-dedicator-smoky-44be@gregkh>
-	<CAGsJ_4zA6=ajoOgAm9kweeiBFKz4TJxxjYFGHHd3HQY8dxHpWA@mail.gmail.com>
+References: <20240815083229.42778-1-aha310510@gmail.com>
+In-Reply-To: <20240815083229.42778-1-aha310510@gmail.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Mon, 19 Aug 2024 11:46:11 +0200
+Message-ID: <CAFqZXNvXJY4Bh5k6DZ3yoLFuHo2bQRk3Q5Lv25ms6oOGyN5ZAA@mail.gmail.com>
+Subject: Re: selinux: support IPPROTO_SMC in socket_type_to_security_class()
+To: Jeongjun Park <aha310510@gmail.com>
+Cc: paul@paul-moore.com, stephen.smalley.work@gmail.com, 
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="0000000000008aec5c0620062eb0"
 
-On Aug 17 13:11, Barry Song wrote:
-> On Thu, Aug 8, 2024 at 2:20 AM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Wed, Aug 07, 2024 at 01:56:38PM +0000, Daniel Gomez wrote:
-> > > On Wed, Aug 07, 2024 at 01:01:08PM GMT, Greg Kroah-Hartman wrote:
-> > > > On Wed, Aug 07, 2024 at 01:09:14AM +0200, Daniel Gomez via B4 Relay wrote:
-> > > > > This patch set allows for building the Linux kernel for arm64 in macOS with
-> > > > > LLVM.
-> > > >
-> > > > Is this a requirement somewhere that this must work?  It seems like an
-> > > > odd request, what workflows require cross-operating-system builds like
-> > > > this?
-> > >
-> > > This isn't a requirement, but it would, for example, support workflows for QEMU
-> > > users and developers on macOS. They could build/compile the kernel natively and
-> > > use it to launch QEMU instances, simplifying their process.
-> >
-> > But that's not a real workload of anyone?  How often does this ever come
-> > up?  Who is going to maintain this cross-build functionality over time?
-> 
-> it is a real workload of me,  i was running qemu-system-aarch64 on x86
-> and it was
-> pretty slow. so got a M3 pro to accelerate my development. frequently changing
-> kernel's source code, i am using qemu-system-aarch64 to do quick verification.
-> 
+--0000000000008aec5c0620062eb0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Allow me to chime in as well. Working with qemu-system-aarch64 on an Mx
-are a daily thing for me as well. Working with custom built kernels have
-been a pain, and this really helps.
+On Thu, Aug 15, 2024 at 10:32=E2=80=AFAM Jeongjun Park <aha310510@gmail.com=
+> wrote:
+>
+> IPPROTO_SMC feature has been added to net/smc. It is now possible to
+> create smc sockets in the following way:
+>
+>   /* create v4 smc sock */
+>   v4 =3D socket(AF_INET, SOCK_STREAM, IPPROTO_SMC);
+>
+>   /* create v6 smc sock */
+>   v6 =3D socket(AF_INET6, SOCK_STREAM, IPPROTO_SMC);
+>
+> Therefore, we need to add code to support IPPROTO_SMC in
+> socket_type_to_security_class().
+>
+> Signed-off-by: Jeongjun Park <aha310510@gmail.com>
+> ---
+>  security/selinux/hooks.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index bfa61e005aac..36f951f0c574 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1176,6 +1176,8 @@ static inline u16 socket_type_to_security_class(int=
+ family, int type, int protoc
+>                                 return SECCLASS_TCP_SOCKET;
+>                         else if (extsockclass && protocol =3D=3D IPPROTO_=
+SCTP)
+>                                 return SECCLASS_SCTP_SOCKET;
+> +                       else if (extsockclass && protocol =3D=3D IPPROTO_=
+SMC)
+> +                               return SECCLASS_SMC_SOCKET;
+>                         else
+>                                 return SECCLASS_RAWIP_SOCKET;
+>                 case SOCK_DGRAM:
+> --
+>
+
+I'm not sure if this is the solution we want to go with... Consider
+the following from af_smc(7):
+
+>   Usage modes
+>      Two usage modes are possible:
+>
+>      AF_SMC native usage
+>             uses the socket domain AF_SMC instead of AF_INET and AF_INET6=
+.  Specify SMCPROTO_SMC for AF_INET compatible socket semantics, and SMC_PR=
+OTO_SMC6 for AF_INET6 respectively.
+>
+>      Usage of AF_INET socket applications with SMC preload library
+>             converts AF_INET and AF_INET6 sockets to AF_SMC sockets.  The=
+ SMC preload library is part of the SMC tools package.
+>
+>      SMC socket capabilities are negotiated at connection setup. If one p=
+eer is not SMC capable, further socket processing falls back to TCP usage a=
+utomatically.
+
+This means that the SMC sockets are intended to be used (also) as a
+drop-in compatible replacement for normal TCP sockets in applications
+and they even fall back to TCP when the endpoints fail to negotiate
+communication via SMC. That's a situation similar to MPTCP, where we
+just mapped MPTCP sockets to the tcp_socket SELinux class, so that
+MPTCP can be swapped in place of TCP transparently without having to
+do extensive policy changes. We may want to consider the same/similar
+approach here.
+
+I briefly played with this idea a couple of months ago, when I was
+asked by someone at Red Hat about SMC sockets and their integration
+with SELinux. IIRC, when I tried to implement the MPTCP approach and
+adjusted the selinux-testsuite to test SMC similarly as TCP and MPTCP,
+I saw that the netlabel-related tests (may have been more, I don't
+remember) weren't passing out of the box like with MPTCP. However, the
+person then didn't follow up on my questions, so I didn't look into it
+further...
+
+I'm attaching the WIP patches I worked with, in case someone would
+like to continue the experiments.
+
+--
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
+--0000000000008aec5c0620062eb0
+Content-Type: text/x-patch; charset="US-ASCII"; name="kernel-smc-as-tcp.patch"
+Content-Disposition: attachment; filename="kernel-smc-as-tcp.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <f_m00sselb0>
+X-Attachment-Id: f_m00sselb0
+
+Y29tbWl0IGU2ZGNhMWZkM2M3MTNlYWY2OWZmMTZmYjIzYzZkYzY4MzA4MmEyZjgKQXV0aG9yOiBP
+bmRyZWogTW9zbmFjZWsgPG9tb3NuYWNlQHJlZGhhdC5jb20+CkRhdGU6ICAgVHVlIEZlYiA2IDE1
+OjM5OjIxIDIwMjQgKzAxMDAKCiAgICBURVNUCgpkaWZmIC0tZ2l0IGEvc2VjdXJpdHkvc2VsaW51
+eC9ob29rcy5jIGIvc2VjdXJpdHkvc2VsaW51eC9ob29rcy5jCmluZGV4IDU1Yzc4YzMxOGNjZC4u
+YTVkYjYyMTMwZDQxIDEwMDY0NAotLS0gYS9zZWN1cml0eS9zZWxpbnV4L2hvb2tzLmMKKysrIGIv
+c2VjdXJpdHkvc2VsaW51eC9ob29rcy5jCkBAIC0xMjkyLDcgKzEyOTIsNyBAQCBzdGF0aWMgaW5s
+aW5lIHUxNiBzb2NrZXRfdHlwZV90b19zZWN1cml0eV9jbGFzcyhpbnQgZmFtaWx5LCBpbnQgdHlw
+ZSwgaW50IHByb3RvYwogCQljYXNlIFBGX1FJUENSVFI6CiAJCQlyZXR1cm4gU0VDQ0xBU1NfUUlQ
+Q1JUUl9TT0NLRVQ7CiAJCWNhc2UgUEZfU01DOgotCQkJcmV0dXJuIFNFQ0NMQVNTX1NNQ19TT0NL
+RVQ7CisJCQlyZXR1cm4gU0VDQ0xBU1NfVENQX1NPQ0tFVDsKIAkJY2FzZSBQRl9YRFA6CiAJCQly
+ZXR1cm4gU0VDQ0xBU1NfWERQX1NPQ0tFVDsKIAkJY2FzZSBQRl9NQ1RQOgpAQCAtNDc3Miw2ICs0
+NzcyLDcgQEAgc3RhdGljIGludCBzZWxpbnV4X3NvY2tldF9iaW5kKHN0cnVjdCBzb2NrZXQgKnNv
+Y2ssIHN0cnVjdCBzb2NrYWRkciAqYWRkcmVzcywgaW4KIAkJCX0KIAkJfQogCisJCS8vIEZJWE1F
+OiBkbyB0aGUgc2FtZSBoZXJlCiAJCXN3aXRjaCAoc2tzZWMtPnNjbGFzcykgewogCQljYXNlIFNF
+Q0NMQVNTX1RDUF9TT0NLRVQ6CiAJCQlub2RlX3Blcm0gPSBUQ1BfU09DS0VUX19OT0RFX0JJTkQ7
+CkBAIC00ODUyLDYgKzQ4NTMsNyBAQCBzdGF0aWMgaW50IHNlbGludXhfc29ja2V0X2Nvbm5lY3Rf
+aGVscGVyKHN0cnVjdCBzb2NrZXQgKnNvY2ssCiAJCXN0cnVjdCBzb2NrYWRkcl9pbjYgKmFkZHI2
+ID0gTlVMTDsKIAkJdW5zaWduZWQgc2hvcnQgc251bTsKIAkJdTMyIHNpZCwgcGVybTsKKwkJdTgg
+cHJvdG9jb2w7CiAKIAkJLyogc2N0cF9jb25uZWN0eCgzKSBjYWxscyB2aWEgc2VsaW51eF9zY3Rw
+X2JpbmRfY29ubmVjdCgpCiAJCSAqIHRoYXQgdmFsaWRhdGVzIG11bHRpcGxlIGNvbm5lY3QgYWRk
+cmVzc2VzLiBCZWNhdXNlIG9mIHRoaXMKQEAgLTQ4ODEsMjIgKzQ4ODMsMjUgQEAgc3RhdGljIGlu
+dCBzZWxpbnV4X3NvY2tldF9jb25uZWN0X2hlbHBlcihzdHJ1Y3Qgc29ja2V0ICpzb2NrLAogCQkJ
+CXJldHVybiAtRUFGTk9TVVBQT1JUOwogCQl9CiAKLQkJZXJyID0gc2VsX25ldHBvcnRfc2lkKHNr
+LT5za19wcm90b2NvbCwgc251bSwgJnNpZCk7Ci0JCWlmIChlcnIpCi0JCQlyZXR1cm4gZXJyOwot
+CiAJCXN3aXRjaCAoc2tzZWMtPnNjbGFzcykgewogCQljYXNlIFNFQ0NMQVNTX1RDUF9TT0NLRVQ6
+CisJCQlwcm90b2NvbCA9IElQUFJPVE9fVENQOwogCQkJcGVybSA9IFRDUF9TT0NLRVRfX05BTUVf
+Q09OTkVDVDsKIAkJCWJyZWFrOwogCQljYXNlIFNFQ0NMQVNTX0RDQ1BfU09DS0VUOgorCQkJcHJv
+dG9jb2wgPSBJUFBST1RPX0RDQ1A7CiAJCQlwZXJtID0gRENDUF9TT0NLRVRfX05BTUVfQ09OTkVD
+VDsKIAkJCWJyZWFrOwogCQljYXNlIFNFQ0NMQVNTX1NDVFBfU09DS0VUOgorCQkJcHJvdG9jb2wg
+PSBJUFBST1RPX1NDVFA7CiAJCQlwZXJtID0gU0NUUF9TT0NLRVRfX05BTUVfQ09OTkVDVDsKIAkJ
+CWJyZWFrOwogCQl9CiAKKwkJZXJyID0gc2VsX25ldHBvcnRfc2lkKHByb3RvY29sLCBzbnVtLCAm
+c2lkKTsKKwkJaWYgKGVycikKKwkJCXJldHVybiBlcnI7CisKIAkJYWQudHlwZSA9IExTTV9BVURJ
+VF9EQVRBX05FVDsKIAkJYWQudS5uZXQgPSAmbmV0OwogCQlhZC51Lm5ldC0+ZHBvcnQgPSBodG9u
+cyhzbnVtKTsK
+--0000000000008aec5c0620062eb0
+Content-Type: text/x-patch; charset="US-ASCII"; name="testsuite-smc-as-tcp.patch"
+Content-Disposition: attachment; filename="testsuite-smc-as-tcp.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <f_m00sskwd1>
+X-Attachment-Id: f_m00sskwd1
+
+Y29tbWl0IDIzZmQ5MWZmZjZiNDAwNGEzZTBlNWU3YTBiNmNhNWE5N2JlM2QyMGIKQXV0aG9yOiBP
+bmRyZWogTW9zbmFjZWsgPG9tb3NuYWNlQHJlZGhhdC5jb20+CkRhdGU6ICAgVHVlIEZlYiA2IDE1
+OjEyOjM5IDIwMjQgKzAxMDAKCiAgICBXSVAKCmRpZmYgLS1naXQgYS90ZXN0cy9pbmV0X3NvY2tl
+dC9jbGllbnQuYyBiL3Rlc3RzL2luZXRfc29ja2V0L2NsaWVudC5jCmluZGV4IGQzZmVkZjQuLjE4
+OGQ4Y2UgMTAwNjQ0Ci0tLSBhL3Rlc3RzL2luZXRfc29ja2V0L2NsaWVudC5jCisrKyBiL3Rlc3Rz
+L2luZXRfc29ja2V0L2NsaWVudC5jCkBAIC02NCw2ICs2NCw5IEBAIGludCBtYWluKGludCBhcmdj
+LCBjaGFyICoqYXJndikKIAkJaGludHMuYWlfc29ja3R5cGUgPSBTT0NLX1NUUkVBTTsKIAkJaGlu
+dHMuYWlfcHJvdG9jb2wgPSBJUFBST1RPX1RDUDsKIAkJc29ja3Byb3RvY29sICAgICAgPSBJUFBS
+T1RPX01QVENQOworCX0gZWxzZSBpZiAoIXN0cmNtcChhcmd2W29wdGluZF0sICJzbWMiKSkgewor
+CQloaW50cy5haV9zb2NrdHlwZSA9IFNPQ0tfU1RSRUFNOworCQloaW50cy5haV9wcm90b2NvbCA9
+IElQUFJPVE9fVENQOwogCX0gZWxzZSBpZiAoIXN0cmNtcChhcmd2W29wdGluZF0sICJ1ZHAiKSkg
+ewogCQloaW50cy5haV9zb2NrdHlwZSA9IFNPQ0tfREdSQU07CiAJCWhpbnRzLmFpX3Byb3RvY29s
+ID0gSVBQUk9UT19VRFA7CkBAIC03OSw2ICs4MiwyMCBAQCBpbnQgbWFpbihpbnQgYXJnYywgY2hh
+ciAqKmFyZ3YpCiAJCWV4aXQoMik7CiAJfQogCisJaWYgKCFzdHJjbXAoYXJndltvcHRpbmRdLCAi
+c21jIikpIHsKKwkJc3dpdGNoIChzZXJ2ZXJpbmZvLT5haV9mYW1pbHkpIHsKKwkJY2FzZSBBRl9J
+TkVUOgorCQkJc29ja3Byb3RvY29sID0gMDsgLyogU01DX1BST1RPX1NNQyAqLworCQkJYnJlYWs7
+CisJCWNhc2UgQUZfSU5FVDY6CisJCQlzb2NrcHJvdG9jb2wgPSAxOyAvKiBTTUNfUFJPVE9fU01D
+NiAqLworCQkJYnJlYWs7CisJCWRlZmF1bHQ6CisJCQl1c2FnZShhcmd2WzBdKTsKKwkJfQorCQlz
+ZXJ2ZXJpbmZvLT5haV9mYW1pbHkgPSBBRl9TTUM7CisJfQorCiAJc29jayA9IHNvY2tldChzZXJ2
+ZXJpbmZvLT5haV9mYW1pbHksIHNlcnZlcmluZm8tPmFpX3NvY2t0eXBlLAogCQkgICAgICBzb2Nr
+cHJvdG9jb2wpOwogCWlmIChzb2NrIDwgMCkgewpkaWZmIC0tZ2l0IGEvdGVzdHMvaW5ldF9zb2Nr
+ZXQvc2VydmVyLmMgYi90ZXN0cy9pbmV0X3NvY2tldC9zZXJ2ZXIuYwppbmRleCA2M2I2ODQ5Li5i
+YWEzYzkzIDEwMDY0NAotLS0gYS90ZXN0cy9pbmV0X3NvY2tldC9zZXJ2ZXIuYworKysgYi90ZXN0
+cy9pbmV0X3NvY2tldC9zZXJ2ZXIuYwpAQCAtNzQsNiArNzQsMTAgQEAgaW50IG1haW4oaW50IGFy
+Z2MsIGNoYXIgKiphcmd2KQogCQloaW50cy5haV9zb2NrdHlwZSA9IFNPQ0tfU1RSRUFNOwogCQlo
+aW50cy5haV9wcm90b2NvbCA9IElQUFJPVE9fVENQOwogCQlzb2NrcHJvdG9jb2wgICAgICA9IElQ
+UFJPVE9fTVBUQ1A7CisJfSBlbHNlIGlmICghc3RyY21wKGFyZ3Zbb3B0aW5kXSwgInNtYyIpKSB7
+CisJCWhpbnRzLmFpX3NvY2t0eXBlID0gU09DS19TVFJFQU07CisJCWhpbnRzLmFpX3Byb3RvY29s
+ID0gSVBQUk9UT19UQ1A7CisJCXNvY2twcm90b2NvbCAgICAgID0gMTsgLyogU01DX1BST1RPX1NN
+QzYgKi8KIAl9IGVsc2UgaWYgKCFzdHJjbXAoYXJndltvcHRpbmRdLCAidWRwIikpIHsKIAkJaGlu
+dHMuYWlfc29ja3R5cGUgPSBTT0NLX0RHUkFNOwogCQloaW50cy5haV9wcm90b2NvbCA9IElQUFJP
+VE9fVURQOwpAQCAtODgsNiArOTIsOSBAQCBpbnQgbWFpbihpbnQgYXJnYywgY2hhciAqKmFyZ3Yp
+CiAJCWV4aXQoMSk7CiAJfQogCisJaWYgKCFzdHJjbXAoYXJndltvcHRpbmRdLCAic21jIikpCisJ
+CXJlcy0+YWlfZmFtaWx5ID0gQUZfU01DOworCiAJc29jayA9IHNvY2tldChyZXMtPmFpX2ZhbWls
+eSwgcmVzLT5haV9zb2NrdHlwZSwgc29ja3Byb3RvY29sKTsKIAlpZiAoc29jayA8IDApIHsKIAkJ
+cGVycm9yKCJzb2NrZXQiKTsKZGlmZiAtLWdpdCBhL3Rlc3RzL2luZXRfc29ja2V0L3NtYyBiL3Rl
+c3RzL2luZXRfc29ja2V0L3NtYwpuZXcgZmlsZSBtb2RlIDEyMDAwMAppbmRleCAwMDAwMDAwLi45
+NDVjOWI0Ci0tLSAvZGV2L251bGwKKysrIGIvdGVzdHMvaW5ldF9zb2NrZXQvc21jCkBAIC0wLDAg
+KzEgQEAKKy4KXCBObyBuZXdsaW5lIGF0IGVuZCBvZiBmaWxlCmRpZmYgLS1naXQgYS90ZXN0cy9p
+bmV0X3NvY2tldC90ZXN0IGIvdGVzdHMvaW5ldF9zb2NrZXQvdGVzdAppbmRleCAwOGM3YjFkLi41
+NDU5ODhhIDEwMDc1NQotLS0gYS90ZXN0cy9pbmV0X3NvY2tldC90ZXN0CisrKyBiL3Rlc3RzL2lu
+ZXRfc29ja2V0L3Rlc3QKQEAgLTgsNyArOCwxMiBAQCBCRUdJTiB7CiAgICAgY2hvbXAoJGJhc2Vk
+aXIpOwogICAgICRwcm90byA9IGJhc2VuYW1lKCRiYXNlZGlyKTsKIAotICAgIGlmICggJHByb3Rv
+IGVxICJ0Y3AiIG9yICRwcm90byBlcSAibXB0Y3AiICkgeworICAgICMgY2hlY2sgaWYgU01DIGlz
+IGVuYWJsZWQKKyAgICBpZiAoICRwcm90byBlcSAic21jIiBhbmQgc3lzdGVtKCJtb2Rwcm9iZSBz
+bWMgMj4vZGV2L251bGwiKSAhPSAwICkgeworICAgICAgICBwbGFuIHNraXBfYWxsID0+ICJTTUMg
+cHJvdG9jb2wgbm90IHN1cHBvcnRlZCI7CisgICAgfQorCisgICAgaWYgKCAkcHJvdG8gZXEgInRj
+cCIgb3IgJHByb3RvIGVxICJtcHRjcCIgb3IgJHByb3RvIGVxICJzbWMiICkgewogICAgICAgICAk
+aXNfc3RyZWFtICAgPSAxOwogICAgICAgICAkZmFpbF92YWx1ZTEgPSA1OwogICAgICAgICAkZmFp
+bF92YWx1ZTIgPSA1Owo=
+--0000000000008aec5c0620062eb0--
+
