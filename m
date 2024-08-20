@@ -1,493 +1,155 @@
-Received: from mail-yb1-f201.google.com (mail-yb1-f201.google.com [209.85.219.201])
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A856779E5
-	for <selinux@vger.kernel.org>; Tue, 20 Aug 2024 00:27:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACD9910A24
+	for <selinux@vger.kernel.org>; Tue, 20 Aug 2024 18:02:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724113678; cv=none; b=jHS79cxVpX07futX7nXc/i9ogM8opThTpODVpKfqxw00fgLgT8t5Ru/SMA8AfJ1sqWIZyWnfvqDLm55ynizaW1PYP22H9fdBrUOphnBOdTaQ4hvTGqBA5uLswW4p8gNEofDPTwil+/zS60Ry3uLaZlLZ8jPI2RYE4xlPSCgsvEo=
+	t=1724176931; cv=none; b=FYZdf+eMvZt8LLih7rTvx8/9sXETayBo3y2/VN/dZEdIRV/tzIsMOLvpFNu0zvuvAETSPqt7tiHc+caVerI0x9Jl38Yt+qeigA2xG9xRsgaRoeZoaX1LiYeP2C6KfA55Gcls9RM77Y2ubTDPvOfNVB9gzr1cnljuc5wjh568Uuo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724113678; c=relaxed/simple;
-	bh=ZSPDhMtLNQ+YINhmzwIzEFcfNRYBCTy9A6+gdM40l84=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=sOLjDOJEG9d/5siGBtDTQNrZ/TIyuE8hgE42slMWIPcPCGGBik1fjJ/rO9z04LC0K0pbUWNb/CkWznS42U4vKh1SJNcBOZOb75S89PQlFxkqyybRlHgv2eoXqIsaWOwMOuCLKBhuRIcLs6KQ2Mtn6dfqBssCzM03fbqZiF+kITI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=oOb4j4Ao; arc=none smtp.client-ip=209.85.219.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
+	s=arc-20240116; t=1724176931; c=relaxed/simple;
+	bh=gDtqB931ZT+Ig4a7uxef+ifai5z1e+1eaPyibZ7VHns=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SV3ba5e5JL1eXW1XtMy3YRjbAApolELj+Pn61VcXzs8/9bRLSrvW8yyGjU8vfl/TL4lFFBpHOwtHfXuB1K4+Bfh1xiLOAmp7Fs8kK+ig3+EXoD60ZgFV6Is/mCjRRXL+qGBXvHtwRyG2oQ64H56fh40ETPoosjqHoCzz+zvAouI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aHJiwjhg; arc=none smtp.client-ip=209.85.215.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="oOb4j4Ao"
-Received: by mail-yb1-f201.google.com with SMTP id 3f1490d57ef6-e13e682bee1so3710500276.2
-        for <selinux@vger.kernel.org>; Mon, 19 Aug 2024 17:27:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aHJiwjhg"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-7c6aee8e8daso4025860a12.0
+        for <selinux@vger.kernel.org>; Tue, 20 Aug 2024 11:02:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1724113675; x=1724718475; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=tb1hv4YLWjesF2m5QIUrbNnE3fCbPUTyrEuX6qVE7rM=;
-        b=oOb4j4AoK0WFYPX8oge4tMzEC4wThBE5g5hABzMgyG0Pe0d8RZTKMXs7HnxFjtKW1J
-         gdaNNm72Vv5JD13o//1vYsHXdtKSbYbtNlxV6xfMPg142T57K1f1IHaOObmujHubhAq9
-         SaFKGyEZSQhe2bsFaE0SwB2WAXPNipPMw6yYrEJGeMdi3inYVEallPrWb2fpXopawl/o
-         xn9XG9zz1e36ZCt7EoQznzCSQcllf/AGwBgWahvunhG2p8RwOFFvAsEmy/6FbjG3c0h2
-         xrlWt8LqfcVRtknzTWZIfRL+QhNLnI+9WgCsG5Yr9Nd8GJ/Sm4irm3FEkT66kwqvIkeg
-         7efQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724113675; x=1724718475;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1724176929; x=1724781729; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tb1hv4YLWjesF2m5QIUrbNnE3fCbPUTyrEuX6qVE7rM=;
-        b=KhEl5rwXV/gJRHiVSdzy4RfiJrj8T+TSHvfKZiT0fjSs+TCar1YU2S+4O/PluKWwiH
-         jaAQnP+oNtSHKz0PWL6gmmsEtn7+L5Po5518VUoq+evt40ZYEExvfInefoh4QmiDCknM
-         K4jmfZelF/IbUuRF+HkbHCmwMupi25kruCe6y8kWGtWkyZrHAPbYfpObNuLCGtNOQED9
-         TrJIXjOV/aHS+TNKtKAGDjINv1Somd+a2UbBvQIdjQynlxb09uMhwX0ttQLqg0HEL8WB
-         G4IPkKsnepAUls+VZITD0otZypjRZOUCA+MNV69aUY9Sy5B/WcW15OGGR8RQG1W/DzTk
-         6NYQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVJI7jtrd0RG8q8JddIMUP06vUs/9twZol3XICaNmX9ExK5MoDl6KpzHtXf5btD+zJFtambxGVbrm57nKBM0LFkCUMBoOBiXg==
-X-Gm-Message-State: AOJu0YyEfmgCjLhtHtZbSpLlE56WZeVYQISZ/2ouS3CW7JxUABv/5ki+
-	SHyDAw6T4PW/qwWv4FZJyGTpOKtGpUhla+h5f0hvGMVgGBqWjgPiJ9gILMMOzTEdtN+cxCU0ew=
-	=
-X-Google-Smtp-Source: AGHT+IEA+RNjQCPF20cDXRe/K7AtCACqOP6IA5ispMOjyEMRK876lr3f79B25CklVDuLxc2JPXIWuzwrxw==
-X-Received: from tweek-syd.c.googlers.com ([fda3:e722:ac3:cc00:b7:3870:c0a8:26])
- (user=tweek job=sendgmr) by 2002:a25:ef10:0:b0:dfa:8ed1:8f1b with SMTP id
- 3f1490d57ef6-e1180e64020mr417662276.1.1724113675409; Mon, 19 Aug 2024
- 17:27:55 -0700 (PDT)
-Date: Tue, 20 Aug 2024 10:27:23 +1000
+        bh=K42rARqpI6NOVCLQGBPnTFm7caaAVFAZd7OKmyJJykE=;
+        b=aHJiwjhg8DI/VPM6DiZuli2Ckx5XRtkGuP0pwR/rLxwD4zBA4nnVGciJ3A8tuSsRkg
+         uuhNB1tCNAxVVQ6nJ2oezPAEcCVEF9v31aS2n4wz8fZlZb1ys56Mr/kSWjaC73ahmyB8
+         aM6MzWTLJP9ih+VGf+qOoFKBK41n7HbxSp9THzuUStrPZOBI2hIYP2XjfilU4vZR5jmO
+         vy3MNHVn2S7G/hZfM4f1XyjCZfEaWG00UbmfC/1TWOcH+9527Y8oLuIuRktQhdwCMGJC
+         UNyP9BA6mfN3rS2fqnjlJ3TFqVmZVLDrlcx9Oc98DBZNER8lNQxRsNYQ82x70kLvHiEb
+         s0tg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724176929; x=1724781729;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=K42rARqpI6NOVCLQGBPnTFm7caaAVFAZd7OKmyJJykE=;
+        b=Eq8GO5RoxaoqoprcUnskvJJOsb0rMEoUnV4L3lpj7Q/s+lqJoVQtDCGDE1xyVc+xWa
+         RHuI5YkxZZyicbnNYOigcgOcnwgWbc7sVQ3sIm80cIo3oLemcZKjFKbEGfDKBjF09dWL
+         SVN7YvuU3XEeA6LySBnESrp8XEOKpnH1dYGQoWbkbeUBwewq0IKI3/IX+hDOOdCY5Nas
+         PLfEMbW+wwfnMlIGJEBn1TGfNPXWe06itD5/aewDLl048TQKI6ehtHHOEZxM+guh/T4S
+         3U4mR4L2c2CL1OFht/gMLoOazvmUp249ol69cxbeok4ypZrko9QRz6n0UxB/dMa8/6B9
+         aAxg==
+X-Forwarded-Encrypted: i=1; AJvYcCVriymSRMoFceGm+0kmrvnyXS0nqHebbd4gO3x+D2eE0wo/fMsXOv7712aky9st17HGeeiHztvL@vger.kernel.org
+X-Gm-Message-State: AOJu0YznyAvzdsxhWqlIQElMp/3aV0hrhJQi0i1qpq7K2c+VDFLFo/IB
+	NT3errCTwgBASOuWGHHnzC2KksLoqnXqhEESkSQBsEgSh6x/2LBZwyydeE1fGv4ekiXWBV6SqdM
+	Nkm0JAnIGvkxRqjZRJyBeWlgJXgcCTQ==
+X-Google-Smtp-Source: AGHT+IEL3G5Owoda9ii+XiWDpb2Phd1aw8ybB/T5mNM404wy2nQHaAMT8z54eeiu75WQ7Ei7I/Z3GfJWXUR44w8EO7Q=
+X-Received: by 2002:a17:90a:c20b:b0:2d3:c2a0:a0f5 with SMTP id
+ 98e67ed59e1d1-2d3dfc63378mr15519967a91.11.1724176928640; Tue, 20 Aug 2024
+ 11:02:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.46.0.184.g6999bdac58-goog
-Message-ID: <20240820002723.1345639-1-tweek@google.com>
-Subject: [PATCH] selinux: Add netlink xperm support
-From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-To: paul@paul-moore.com
-Cc: brambonne@google.com, jeffv@google.com, selinux@vger.kernel.org, 
-	stephen.smalley.work@gmail.com, 
-	"=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+MIME-Version: 1.0
+References: <20240820002723.1345639-1-tweek@google.com>
+In-Reply-To: <20240820002723.1345639-1-tweek@google.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 20 Aug 2024 14:01:57 -0400
+Message-ID: <CAEjxPJ7Jg6vYOQXVr_tT9F4SZcDHN==7LfORxxOACqtn_SRKTw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: Add netlink xperm support
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: paul@paul-moore.com, brambonne@google.com, jeffv@google.com, 
+	selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Reuse the existing extended permissions infrastructure to support
-policies based on the netlink message types.
+On Mon, Aug 19, 2024 at 8:27=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@googl=
+e.com> wrote:
+>
+> Reuse the existing extended permissions infrastructure to support
+> policies based on the netlink message types.
+>
+> A new policy capability "netlink_xperm" is introduced. When disabled,
+> the previous behaviour is preserved. That is, netlink_send will rely on
+> the permission mappings defined in nlmsgtab.c (e.g, nlmsg_read for
+> RTM_GETADDR on NETLINK_ROUTE). When enabled, the mappings are ignored
+> and the generic "nlmsg" permission is used instead.
+>
+> The new "nlmsg" permission is an extended permission. The 16 bits of the
+> extended permission are mapped to the nlmsg_type field.
+>
+> Example policy on Android, preventing regular apps from accessing the
+> device's MAC address and ARP table, but allowing this access to
+> privileged apps, looks as follows:
+>
+> allow netdomain self:netlink_route_socket {
+>         create read getattr write setattr lock append connect getopt
+>         setopt shutdown nlmsg
+> };
+> allowxperm netdomain self:netlink_route_socket nlmsg ~{
+>         RTM_GETLINK RTM_GETNEIGH RTM_GETNEIGHTBL
+> };
+> allowxperm priv_app self:netlink_route_socket nlmsg {
+>         RTM_GETLINK RTM_GETNEIGH RTM_GETNEIGHTBL
+> };
+>
+> The constants in the example above (e.g., RTM_GETLINK) are explicitly
+> defined in the policy.
+>
+> It is possible to generate policies to support kernels that may or
+> may not have the capability enabled by generating a rule for each
+> scenario. For instance:
+>
+> allow domain self:netlink_audit_socket nlmsg_read;
+> allow domain self:netlink_audit_socket nlmsg;
+> allowxperm domain self:netlink_audit_socket nlmsg { AUDIT_GET };
+>
+> The approach of defining a new permission ("nlmsg") instead of relying
+> on the existing permissions (e.g., "nlmsg_read", "nlmsg_readpriv" or
+> "nlmsg_tty_audit") has been preferred because:
+>   1. This is similar to the other extended permission ("ioctl");
+>   2. With the new extended permission, the coarse-grained mapping is not
+>      necessary anymore. It could eventually be removed, which would be
+>      impossible if the extended permission was defined below these.
+>   3. Having a single extra extended permission considerably simplifies
+>      the implementation here and in libselinux.
+>
+> The class NETLINK_GENERIC is excluded from using this extended
+> permission because the nlmsg_type field is referencing the family id
+> which is dynamically associated.
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> Signed-off-by: Bram Bonn=C3=A9 <brambonne@google.com>
 
-A new policy capability "netlink_xperm" is introduced. When disabled,
-the previous behaviour is preserved. That is, netlink_send will rely on
-the permission mappings defined in nlmsgtab.c (e.g, nlmsg_read for
-RTM_GETADDR on NETLINK_ROUTE). When enabled, the mappings are ignored
-and the generic "nlmsg" permission is used instead.
+Thank you for reviving this patch.
+Do you have a corresponding userspace patch? And for extra credit, a
+selinux-testsuite patch?
+A minor comment below.
 
-The new "nlmsg" permission is an extended permission. The 16 bits of the
-extended permission are mapped to the nlmsg_type field.
+> ---
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/inclu=
+de/classmap.h
+> index 7229c9bf6c27..c95bf89c9ce5 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -96,17 +96,17 @@ const struct security_class_mapping secclass_map[] =
+=3D {
+>         { "shm", { COMMON_IPC_PERMS, "lock", NULL } },
+>         { "ipc", { COMMON_IPC_PERMS, NULL } },
+>         { "netlink_route_socket",
+> -         { COMMON_SOCK_PERMS, "nlmsg_read", "nlmsg_write", NULL } },
+> +         { COMMON_SOCK_PERMS, "nlmsg", "nlmsg_read", "nlmsg_write", NULL=
+ } },
 
-Example policy on Android, preventing regular apps from accessing the
-device's MAC address and ARP table, but allowing this access to
-privileged apps, looks as follows:
-
-allow netdomain self:netlink_route_socket {
-	create read getattr write setattr lock append connect getopt
-	setopt shutdown nlmsg
-};
-allowxperm netdomain self:netlink_route_socket nlmsg ~{
-	RTM_GETLINK RTM_GETNEIGH RTM_GETNEIGHTBL
-};
-allowxperm priv_app self:netlink_route_socket nlmsg {
-	RTM_GETLINK RTM_GETNEIGH RTM_GETNEIGHTBL
-};
-
-The constants in the example above (e.g., RTM_GETLINK) are explicitly
-defined in the policy.
-
-It is possible to generate policies to support kernels that may or
-may not have the capability enabled by generating a rule for each
-scenario. For instance:
-
-allow domain self:netlink_audit_socket nlmsg_read;
-allow domain self:netlink_audit_socket nlmsg;
-allowxperm domain self:netlink_audit_socket nlmsg { AUDIT_GET };
-
-The approach of defining a new permission ("nlmsg") instead of relying
-on the existing permissions (e.g., "nlmsg_read", "nlmsg_readpriv" or
-"nlmsg_tty_audit") has been preferred because:
-  1. This is similar to the other extended permission ("ioctl");
-  2. With the new extended permission, the coarse-grained mapping is not
-     necessary anymore. It could eventually be removed, which would be
-     impossible if the extended permission was defined below these.
-  3. Having a single extra extended permission considerably simplifies
-     the implementation here and in libselinux.
-
-The class NETLINK_GENERIC is excluded from using this extended
-permission because the nlmsg_type field is referencing the family id
-which is dynamically associated.
-
-Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-Signed-off-by: Bram Bonn=C3=A9 <brambonne@google.com>
----
-I previously suggested to rename the constants AVTAB_XPERMS_IOCTLDRIVER
-and AVTAB_XPERMS_IOCTLFUNCTION as they have a similar purpose to the new
-AVTAB_XPERMS_NLMSG. However, there is no other information in the
-avtab_datum structure to link the extended permission to the original
-permission. So it is still necessary to capture which permission is
-specified in struct avtab_extended_perms.
-
- security/selinux/hooks.c                   | 56 +++++++++++++---
- security/selinux/include/classmap.h        | 10 +--
- security/selinux/include/policycap.h       |  1 +
- security/selinux/include/policycap_names.h |  1 +
- security/selinux/include/security.h        |  6 ++
- security/selinux/nlmsgtab.c                | 21 ++++++
- security/selinux/ss/avtab.h                |  5 +-
- security/selinux/ss/services.c             | 78 ++++++++++++----------
- 8 files changed, 126 insertions(+), 52 deletions(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 55c78c318ccd..c30fad37c013 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4582,14 +4582,10 @@ static int socket_sockcreate_sid(const struct task_=
-security_struct *tsec,
- 				       secclass, NULL, socksid);
- }
-=20
--static int sock_has_perm(struct sock *sk, u32 perms)
-+static bool sock_skip_has_perm(u32 sid)
- {
--	struct sk_security_struct *sksec =3D sk->sk_security;
--	struct common_audit_data ad;
--	struct lsm_network_audit net;
--
--	if (sksec->sid =3D=3D SECINITSID_KERNEL)
--		return 0;
-+	if (sid =3D=3D SECINITSID_KERNEL)
-+		return true;
-=20
- 	/*
- 	 * Before POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT, sockets that
-@@ -4603,7 +4599,19 @@ static int sock_has_perm(struct sock *sk, u32 perms)
- 	 * setting.
- 	 */
- 	if (!selinux_policycap_userspace_initial_context() &&
--	    sksec->sid =3D=3D SECINITSID_INIT)
-+	    sid =3D=3D SECINITSID_INIT)
-+		return true;
-+	return false;
-+}
-+
-+
-+static int sock_has_perm(struct sock *sk, u32 perms)
-+{
-+	struct sk_security_struct *sksec =3D sk->sk_security;
-+	struct common_audit_data ad;
-+	struct lsm_network_audit net;
-+
-+	if (sock_skip_has_perm(sksec->sid))
- 		return 0;
-=20
- 	ad_net_init_from_sk(&ad, &net, sk);
-@@ -5929,6 +5937,26 @@ static unsigned int selinux_ip_postroute(void *priv,
- }
- #endif	/* CONFIG_NETFILTER */
-=20
-+static int nlmsg_sock_has_extended_perms(struct sock *sk, u32 perms, u16 n=
-lmsg_type)
-+{
-+	struct sk_security_struct *sksec =3D sk->sk_security;
-+	struct common_audit_data ad;
-+	struct lsm_network_audit net;
-+	u8 driver;
-+	u8 xperm;
-+
-+	if (sock_skip_has_perm(sksec->sid))
-+		return 0;
-+
-+	ad_net_init_from_sk(&ad, &net, sk);
-+
-+	driver =3D nlmsg_type >> 8;
-+	xperm =3D nlmsg_type & 0xff;
-+
-+	return avc_has_extended_perms(current_sid(), sksec->sid, sksec->sclass,
-+			perms, driver, xperm, &ad);
-+}
-+
- static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
- {
- 	int rc =3D 0;
-@@ -5954,7 +5982,17 @@ static int selinux_netlink_send(struct sock *sk, str=
-uct sk_buff *skb)
-=20
- 		rc =3D selinux_nlmsg_lookup(sclass, nlh->nlmsg_type, &perm);
- 		if (rc =3D=3D 0) {
--			rc =3D sock_has_perm(sk, perm);
-+			/* For Generic Netlink, nlmsg_type is mapped to the
-+			 * family id which is dynamically assigned.
-+			 * Ignore extended permissions for this type.
-+			 */
-+			if (selinux_policycap_netlink_xperm() &&
-+				(sclass !=3D SECCLASS_NETLINK_GENERIC_SOCKET)) {
-+				rc =3D nlmsg_sock_has_extended_perms(
-+					sk, perm, nlh->nlmsg_type);
-+			} else {
-+				rc =3D sock_has_perm(sk, perm);
-+			}
- 			if (rc)
- 				return rc;
- 		} else if (rc =3D=3D -EINVAL) {
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include=
-/classmap.h
-index 7229c9bf6c27..c95bf89c9ce5 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -96,17 +96,17 @@ const struct security_class_mapping secclass_map[] =3D =
-{
- 	{ "shm", { COMMON_IPC_PERMS, "lock", NULL } },
- 	{ "ipc", { COMMON_IPC_PERMS, NULL } },
- 	{ "netlink_route_socket",
--	  { COMMON_SOCK_PERMS, "nlmsg_read", "nlmsg_write", NULL } },
-+	  { COMMON_SOCK_PERMS, "nlmsg", "nlmsg_read", "nlmsg_write", NULL } },
- 	{ "netlink_tcpdiag_socket",
--	  { COMMON_SOCK_PERMS, "nlmsg_read", "nlmsg_write", NULL } },
-+	  { COMMON_SOCK_PERMS, "nlmsg", "nlmsg_read", "nlmsg_write", NULL } },
- 	{ "netlink_nflog_socket", { COMMON_SOCK_PERMS, NULL } },
- 	{ "netlink_xfrm_socket",
--	  { COMMON_SOCK_PERMS, "nlmsg_read", "nlmsg_write", NULL } },
-+	  { COMMON_SOCK_PERMS, "nlmsg", "nlmsg_read", "nlmsg_write", NULL } },
- 	{ "netlink_selinux_socket", { COMMON_SOCK_PERMS, NULL } },
- 	{ "netlink_iscsi_socket", { COMMON_SOCK_PERMS, NULL } },
- 	{ "netlink_audit_socket",
--	  { COMMON_SOCK_PERMS, "nlmsg_read", "nlmsg_write", "nlmsg_relay",
--	    "nlmsg_readpriv", "nlmsg_tty_audit", NULL } },
-+	  { COMMON_SOCK_PERMS, "nlmsg", "nlmsg_read", "nlmsg_write",
-+	    "nlmsg_relay", "nlmsg_readpriv", "nlmsg_tty_audit", NULL } },
- 	{ "netlink_fib_lookup_socket", { COMMON_SOCK_PERMS, NULL } },
- 	{ "netlink_connector_socket", { COMMON_SOCK_PERMS, NULL } },
- 	{ "netlink_netfilter_socket", { COMMON_SOCK_PERMS, NULL } },
-diff --git a/security/selinux/include/policycap.h b/security/selinux/includ=
-e/policycap.h
-index dc3674eb29c1..079679fe7254 100644
---- a/security/selinux/include/policycap.h
-+++ b/security/selinux/include/policycap.h
-@@ -14,6 +14,7 @@ enum {
- 	POLICYDB_CAP_GENFS_SECLABEL_SYMLINKS,
- 	POLICYDB_CAP_IOCTL_SKIP_CLOEXEC,
- 	POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT,
-+	POLICYDB_CAP_NETLINK_XPERM,
- 	__POLICYDB_CAP_MAX
- };
- #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
-diff --git a/security/selinux/include/policycap_names.h b/security/selinux/=
-include/policycap_names.h
-index 2cffcc1ce851..e080827408c4 100644
---- a/security/selinux/include/policycap_names.h
-+++ b/security/selinux/include/policycap_names.h
-@@ -17,6 +17,7 @@ const char *const selinux_policycap_names[__POLICYDB_CAP_=
-MAX] =3D {
- 	"genfs_seclabel_symlinks",
- 	"ioctl_skip_cloexec",
- 	"userspace_initial_context",
-+	"netlink_xperm",
- };
- /* clang-format on */
-=20
-diff --git a/security/selinux/include/security.h b/security/selinux/include=
-/security.h
-index 289bf9233f71..c7f2731abd03 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -195,6 +195,12 @@ static inline bool selinux_policycap_userspace_initial=
-_context(void)
- 		selinux_state.policycap[POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT]);
- }
-=20
-+static inline bool selinux_policycap_netlink_xperm(void)
-+{
-+	return READ_ONCE(
-+		selinux_state.policycap[POLICYDB_CAP_NETLINK_XPERM]);
-+}
-+
- struct selinux_policy_convert_data;
-=20
- struct selinux_load_state {
-diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
-index 8ff670cf1ee5..0dac942156d6 100644
---- a/security/selinux/nlmsgtab.c
-+++ b/security/selinux/nlmsgtab.c
-@@ -170,6 +170,27 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u=
-32 *perm)
- {
- 	int err =3D 0;
-=20
-+	if (selinux_policycap_netlink_xperm()) {
-+		switch (sclass) {
-+		case SECCLASS_NETLINK_ROUTE_SOCKET:
-+			*perm =3D NETLINK_ROUTE_SOCKET__NLMSG;
-+			break;
-+		case SECCLASS_NETLINK_TCPDIAG_SOCKET:
-+			*perm =3D NETLINK_TCPDIAG_SOCKET__NLMSG;
-+			break;
-+		case SECCLASS_NETLINK_XFRM_SOCKET:
-+			*perm =3D NETLINK_XFRM_SOCKET__NLMSG;
-+			break;
-+		case SECCLASS_NETLINK_AUDIT_SOCKET:
-+			*perm =3D NETLINK_AUDIT_SOCKET__NLMSG;
-+			break;
-+		default:
-+			err =3D -ENOENT;
-+			break;
-+		}
-+		return err;
-+	}
-+
- 	switch (sclass) {
- 	case SECCLASS_NETLINK_ROUTE_SOCKET:
- 		/* RTM_MAX always points to RTM_SETxxxx, ie RTM_NEWxxx + 3.
-diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
-index 8e8820484c55..f4407185401c 100644
---- a/security/selinux/ss/avtab.h
-+++ b/security/selinux/ss/avtab.h
-@@ -53,8 +53,9 @@ struct avtab_key {
-  */
- struct avtab_extended_perms {
- /* These are not flags. All 256 values may be used */
--#define AVTAB_XPERMS_IOCTLFUNCTION 0x01
--#define AVTAB_XPERMS_IOCTLDRIVER   0x02
-+#define AVTAB_XPERMS_IOCTLFUNCTION	0x01
-+#define AVTAB_XPERMS_IOCTLDRIVER	0x02
-+#define AVTAB_XPERMS_NLMSG		0x03
- 	/* extension of the avtab_key specified */
- 	u8 specified; /* ioctl, netfilter, ... */
- 	/*
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.=
-c
-index e33e55384b75..48d5748f03da 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -582,8 +582,7 @@ static void type_attribute_bounds_av(struct policydb *p=
-olicydb,
- }
-=20
- /*
-- * flag which drivers have permissions
-- * only looking for ioctl based extended permissions
-+ * Flag which drivers have permissions.
-  */
- void services_compute_xperms_drivers(
- 		struct extended_perms *xperms,
-@@ -591,14 +590,18 @@ void services_compute_xperms_drivers(
- {
- 	unsigned int i;
-=20
--	if (node->datum.u.xperms->specified =3D=3D AVTAB_XPERMS_IOCTLDRIVER) {
-+	switch (node->datum.u.xperms->specified) {
-+	case AVTAB_XPERMS_IOCTLDRIVER:
- 		/* if one or more driver has all permissions allowed */
- 		for (i =3D 0; i < ARRAY_SIZE(xperms->drivers.p); i++)
- 			xperms->drivers.p[i] |=3D node->datum.u.xperms->perms.p[i];
--	} else if (node->datum.u.xperms->specified =3D=3D AVTAB_XPERMS_IOCTLFUNCT=
-ION) {
-+		break;
-+	case AVTAB_XPERMS_IOCTLFUNCTION:
-+	case AVTAB_XPERMS_NLMSG:
- 		/* if allowing permissions within a driver */
- 		security_xperm_set(xperms->drivers.p,
- 					node->datum.u.xperms->driver);
-+		break;
- 	}
-=20
- 	xperms->len =3D 1;
-@@ -942,55 +945,58 @@ static void avd_init(struct selinux_policy *policy, s=
-truct av_decision *avd)
- 	avd->flags =3D 0;
- }
-=20
--void services_compute_xperms_decision(struct extended_perms_decision *xper=
-md,
--					struct avtab_node *node)
-+static void update_xperms_extended_data(u8 specified,
-+					struct extended_perms_data *from,
-+					struct extended_perms_data *xp_data)
- {
- 	unsigned int i;
-=20
--	if (node->datum.u.xperms->specified =3D=3D AVTAB_XPERMS_IOCTLFUNCTION) {
-+	switch (specified) {
-+	case AVTAB_XPERMS_IOCTLDRIVER:
-+		memset(xp_data->p, 0xff, sizeof(xp_data->p));
-+		break;
-+	case AVTAB_XPERMS_IOCTLFUNCTION:
-+	case AVTAB_XPERMS_NLMSG:
-+		for (i =3D 0; i < ARRAY_SIZE(xp_data->p); i++)
-+			xp_data->p[i] |=3D from->p[i];
-+		break;
-+	}
-+
-+}
-+
-+void services_compute_xperms_decision(struct extended_perms_decision *xper=
-md,
-+					struct avtab_node *node)
-+{
-+	switch (node->datum.u.xperms->specified) {
-+	case AVTAB_XPERMS_IOCTLFUNCTION:
-+	case AVTAB_XPERMS_NLMSG:
- 		if (xpermd->driver !=3D node->datum.u.xperms->driver)
- 			return;
--	} else if (node->datum.u.xperms->specified =3D=3D AVTAB_XPERMS_IOCTLDRIVE=
-R) {
-+		break;
-+	case AVTAB_XPERMS_IOCTLDRIVER:
- 		if (!security_xperm_test(node->datum.u.xperms->perms.p,
- 					xpermd->driver))
- 			return;
--	} else {
-+		break;
-+	default:
- 		BUG();
- 	}
-=20
- 	if (node->key.specified =3D=3D AVTAB_XPERMS_ALLOWED) {
- 		xpermd->used |=3D XPERMS_ALLOWED;
--		if (node->datum.u.xperms->specified =3D=3D AVTAB_XPERMS_IOCTLDRIVER) {
--			memset(xpermd->allowed->p, 0xff,
--					sizeof(xpermd->allowed->p));
--		}
--		if (node->datum.u.xperms->specified =3D=3D AVTAB_XPERMS_IOCTLFUNCTION) {
--			for (i =3D 0; i < ARRAY_SIZE(xpermd->allowed->p); i++)
--				xpermd->allowed->p[i] |=3D
--					node->datum.u.xperms->perms.p[i];
--		}
-+		update_xperms_extended_data(node->datum.u.xperms->specified,
-+					    &node->datum.u.xperms->perms,
-+					    xpermd->allowed);
- 	} else if (node->key.specified =3D=3D AVTAB_XPERMS_AUDITALLOW) {
- 		xpermd->used |=3D XPERMS_AUDITALLOW;
--		if (node->datum.u.xperms->specified =3D=3D AVTAB_XPERMS_IOCTLDRIVER) {
--			memset(xpermd->auditallow->p, 0xff,
--					sizeof(xpermd->auditallow->p));
--		}
--		if (node->datum.u.xperms->specified =3D=3D AVTAB_XPERMS_IOCTLFUNCTION) {
--			for (i =3D 0; i < ARRAY_SIZE(xpermd->auditallow->p); i++)
--				xpermd->auditallow->p[i] |=3D
--					node->datum.u.xperms->perms.p[i];
--		}
-+		update_xperms_extended_data(node->datum.u.xperms->specified,
-+					    &node->datum.u.xperms->perms,
-+					    xpermd->auditallow);
- 	} else if (node->key.specified =3D=3D AVTAB_XPERMS_DONTAUDIT) {
- 		xpermd->used |=3D XPERMS_DONTAUDIT;
--		if (node->datum.u.xperms->specified =3D=3D AVTAB_XPERMS_IOCTLDRIVER) {
--			memset(xpermd->dontaudit->p, 0xff,
--					sizeof(xpermd->dontaudit->p));
--		}
--		if (node->datum.u.xperms->specified =3D=3D AVTAB_XPERMS_IOCTLFUNCTION) {
--			for (i =3D 0; i < ARRAY_SIZE(xpermd->dontaudit->p); i++)
--				xpermd->dontaudit->p[i] |=3D
--					node->datum.u.xperms->perms.p[i];
--		}
-+		update_xperms_extended_data(node->datum.u.xperms->specified,
-+					    &node->datum.u.xperms->perms,
-+					    xpermd->dontaudit);
- 	} else {
- 		BUG();
- 	}
---=20
-2.46.0.184.g6999bdac58-goog
-
+I would just add the "nlmsg" permission to the end of the list before
+the NULL for each class.
+Doesn't matter as much anymore since the dynamic class/perm mapping
+support was added but generally we avoid perturbing the
+class/permission bit assignments unless there is a good reason to do
+so. Feel free to wait to see if Paul agrees since your code will work
+as is.
