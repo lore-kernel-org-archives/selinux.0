@@ -1,104 +1,178 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F279F1B1D4E;
-	Wed, 21 Aug 2024 14:57:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA48214E2DE
+	for <selinux@vger.kernel.org>; Wed, 21 Aug 2024 16:32:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724252256; cv=none; b=qpgdMUr5IIU96TqwEFB0389NZh68Xt921G/vlcVP8rH6ilVtIss146Dj9uZ88fEip5ZeC/nMKxlAUpgbuqh/sVn3BOfScgTJyDMQQJT7v7vQlFq1u1ZBn21Gv+B9i271DrPBcwwK1mGTeWYH3YbqsRFg3lgRi2AGfQrTWvE+gBs=
+	t=1724257947; cv=none; b=gZPOGbOQ7r3e39sTYCPB3CehX+oZEqXw43m9Zl5Rn2FjpGt2JB6lSw/KgDTncLDo8l8nxhZG/bKVof0U0Q25Aw3LQWdV53Vy/7vzTRbigHg5vBXNRHYRNFE4KdhoxzDDMOcxoS/+PZLOr+6UCECbT7Pg+ID107yoZKR8O6ck0as=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724252256; c=relaxed/simple;
-	bh=g3ei/xSv/c2CowALX58K1wHRGvHqz2KHG/3SeY2ty5M=;
+	s=arc-20240116; t=1724257947; c=relaxed/simple;
+	bh=y0LywhCmh47VypaLFq+kEyR/qD8qT8iwJl5GVT+ZjgI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=A0BPfg0BmPiaeiHglNKo4xx5lui6BQu990T5pC1KhEfsVyMxx5dxKBcx8glTyErPfMLwOiDavNGK32fNSY2xjrzJjkmfdGkyfbIXgrY6I7T5+4oQtaG4GKNOgh9lGVFFPJduIVDo6hbNbt91xI0mAjrthH66NlKnMoE177XjLWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CoM0PeR/; arc=none smtp.client-ip=209.85.215.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=TCgh0505dzw2pCNuq7em1R0bM0xzzoPhskI1IYAu7SMdaJdXL9WPMkS0/M1Fny2JUOnl1h8Psw0EafZ2lXqNT9RGTToFCdNZqJf3pJG5OaMO3xuICBJS4iQKPgVM1q6JYR4GV2c07RiFiaAmscKBwwHgXR18f+qksg5iyxD6tNk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=fBcubZHl; arc=none smtp.client-ip=209.85.128.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CoM0PeR/"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-7c3d9a5e050so4370274a12.2;
-        Wed, 21 Aug 2024 07:57:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="fBcubZHl"
+Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-6aab656687cso8527587b3.1
+        for <selinux@vger.kernel.org>; Wed, 21 Aug 2024 09:32:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724252254; x=1724857054; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1724257945; x=1724862745; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KMiwYatD/47tzYeAjhrq/9tCSM6j/K7/bPprC637qdA=;
-        b=CoM0PeR/V6TTRiGYXgI3pRsGbci3IUa4FsnkVARdMv4dv/XY2ED/k86BFfH2zfc9FL
-         rL8rxDQVY0NRkUG08srx/h68ynCXxEiaUZ1tLlLMgatYhR7Ne/uIL3mpyK2tfzwXoZRB
-         JjISZgV8jWR8HhUOYMjBO7egsGQ2yTMQreBJYE3r401xIxtb3JRNX2W81qlrS0rkF8Xf
-         rIWx+Q69d5LzvG9w9/b6hZ0KDIQX+Gx/nb1R50VUlkevX45HnK+yqGPUGvUXjFmwMvvC
-         rkxF1GDUpMjbVbXk6s+4R/e0SeK14I32FVyIOsM6Tqsd75NriTIFl2k02WGfKXB638dg
-         PGKw==
+        bh=FKjQ6emtyPrVDj7dWj9Yt0Rk11OdLkP0YY5ZqjmKqLI=;
+        b=fBcubZHlN2QMKZFq5CpzyjFAB2tiH9uV96sIzPZKB98i4e/2bsr5SN9faq9iEbK5pN
+         4qMwjofgBWfDXHK5pbQm0fuhyFnjfhXvy0d+gs4gPcgkToAFtju/sKhZcQnaOyP5wCNN
+         SpiFKG6nZbcyoHFXl04TT9MuKXb8F5gueWYid0M4SrfBV2rmCz0PaVBgn/JTZ2mnlC91
+         N5rMEkRLdDSAJ1zSwczEV/KoL5YawJj8Wm+sT80loWm4w6DeueosadS582iMaVci5CCV
+         IGKB7458UsdDqrbD2A1+YdOXMAhx0lmOKb09Kfcan9KofMy3afq5zRu5dTnr7eQEYMhE
+         stKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724252254; x=1724857054;
+        d=1e100.net; s=20230601; t=1724257945; x=1724862745;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=KMiwYatD/47tzYeAjhrq/9tCSM6j/K7/bPprC637qdA=;
-        b=W+PNB6nJIpXRHssuJJ+RIqKqIKOADKLMJ5+jzSSS6MtpzJ1rYy8xkR/PBcj8Rp/lwf
-         LfkARG6C2rr9KaV68DweYSRuJqUVNbt+2afMSHldDu6wtO/7PGacT1loml10m7s7le7I
-         BtbX1/S5p5Q1c3t4l4p95JgpDAm7Lv+oJN2E1xU6fdmYGoDM8HL0LoDyauWI1hXPayxz
-         2APDrhjiPpw2uFSr7/YoAunr4McbC4FKiEl5CvA6Cmk0OzmkzM4yFzB2OngEqRjQQmae
-         oZzUYP318hajVy3V4+J+xMUHReROHAmACArWJ9SWEB1x1uPTU2sTYjbf3E4dVYiEpwr0
-         9l3A==
-X-Forwarded-Encrypted: i=1; AJvYcCXDrF3pcPRYROgSb/AIMfrlOK5/qOdIPrysG2R5satEGGqSU/TOkFohHSfEfrYI/sKgG1ishIP7qPywFns=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyDMc8Jfct2HgExLG0lLbYzqJsS/7PyJhg+bsQ8etySeIw/577b
-	VKzPh8loXQyFoQvOwK0cntwBUvFfxTz5dOT1cFby22gyBLgRIfd6xvSihxAQ1mRwoX1faloD+R8
-	gziIMQF0gmn/owBdSTm6dIvsWiAA=
-X-Google-Smtp-Source: AGHT+IGJ/4WrIEpPTIiFl2XKjb/TC4GZfqjrHUeVgUNSS1CjM1VQ1xcz/c791z0LvWYH3MGSLiIZL2/A2rerMmtK0AM=
-X-Received: by 2002:a05:6300:41:b0:1c6:fc79:f9b7 with SMTP id
- adf61e73a8af0-1cada1a88a2mr2439936637.48.1724252253905; Wed, 21 Aug 2024
- 07:57:33 -0700 (PDT)
+        bh=FKjQ6emtyPrVDj7dWj9Yt0Rk11OdLkP0YY5ZqjmKqLI=;
+        b=euYboGqDrDiaZEZATU0wrNtZvKXBMzcxLNB/aa372QWK78y7PD3zwBMAOaDeZ0nSzl
+         wGoOtWodLd+yjAX4BITz+LeNWx65NYddVoxBCKhnl9g2x4fWmBYNCq48Rz2oH7OR+56o
+         ijqlxdyochSJ9uS2mdequaF3V19RX9JLAr4zKrtEuE5rtqXperzfV9HXZIZoy/lYeI23
+         iZi0LoKCZqX9X+OfHRJuLkzuekpJ0rn4l0PN3K4cVck9eClvy8cFszRVozzrEnQPV2Ic
+         YryHVGrKd+7PYh8QqkN6pIfgybTuhhsO/4/loKXh4wadDbwS3o24ETJfSvGRvu+sPFXB
+         rBcQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVWzGRbmirgFccTSAPtrgneabtbzuh2O8mYIH2qBAGRmC4CHXKuh9CHH4YgNlTMIhl7sNcsSLcg@vger.kernel.org
+X-Gm-Message-State: AOJu0YzylFe3L06e5IUIaL/YQES5UqceaRZMG+dpDgzl5MEFrdw77LrN
+	j8XZnYc8YK+0ToC9Y9QVx89t4sIZLnMdadPh67XBlZc0NFxWCOYbWokzZ4zE4ZxNZ9Y57FOYxMO
+	gqnrjmo/zwzEvzu801bb49LQjPhrhoBPaHTcu
+X-Google-Smtp-Source: AGHT+IHqtEaRs3bfyjoduUwqbGszfFJZ/MXDKylcokqkjlSrKLoHtDO/7RqpwJwZHHVzLv9J+rL+3ZDsUcQ+ap2YLkU=
+X-Received: by 2002:a05:690c:908:b0:627:7f2a:3b0d with SMTP id
+ 00721157ae682-6c304879b22mr2005647b3.14.1724257944842; Wed, 21 Aug 2024
+ 09:32:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240405161042.260113-1-cgoettsche@seltendoof.de> <20240821130755.25031-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20240821130755.25031-1-cgoettsche@seltendoof.de>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 21 Aug 2024 10:57:22 -0400
-Message-ID: <CAEjxPJ5C+e3WKeQumo0KO8+Ge4iFR8gKUyfnJPxX84_EKGjh9w@mail.gmail.com>
-Subject: Re: [PATCH 2/2] selinux: add support for xperms in conditional policies
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-Cc: selinux@vger.kernel.org, cgzones@googlemail.com, 
-	jsatterfield.linux@gmail.com, linux-kernel@vger.kernel.org, 
-	omosnace@redhat.com, paul@paul-moore.com, xiujianfeng@huaweicloud.com, 
-	tweek@google.com, brambonne@google.com
+References: <20240821095609.365176-1-mic@digikod.net>
+In-Reply-To: <20240821095609.365176-1-mic@digikod.net>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 21 Aug 2024 12:32:17 -0400
+Message-ID: <CAHC9VhQ7e50Ya4BNoF-xM2y+MDMW3i_SRPVcZkDZ2vdEMNtk7Q@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] fs: Fix file_set_fowner LSM hook inconsistencies
+To: =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
+Cc: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, Jan Kara <jack@suse.cz>, 
+	Tahera Fahimi <fahimitahera@gmail.com>, Mateusz Guzik <mjguzik@gmail.com>, 
+	Al Viro <viro@zeniv.linux.org.uk>, Casey Schaufler <casey@schaufler-ca.com>, 
+	James Morris <jmorris@namei.org>, Jann Horn <jannh@google.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 21, 2024 at 9:08=E2=80=AFAM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
+On Wed, Aug 21, 2024 at 5:56=E2=80=AFAM Micka=C3=ABl Sala=C3=BCn <mic@digik=
+od.net> wrote:
 >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > Add support for extended permission rules in conditional policies.
-> > Currently the kernel accepts such rules already, but evaluating a
-> > security decision will hit a BUG() in
-> > services_compute_xperms_decision().  Thus reject extended permission
-> > rules in conditional policies for current policy versions.
-> >
-> > Add a new policy version for this feature.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> > Userspace patches are available at:
-> > https://github.com/SELinuxProject/selinux/pull/432
-> >
-> > Maybe the policy version 34 can be reused for the prefix/suffix filetra=
-ns
-> > feature to avoid two new versions?
+> The fcntl's F_SETOWN command sets the process that handle SIGIO/SIGURG
+> for the related file descriptor.  Before this change, the
+> file_set_fowner LSM hook was always called, ignoring the VFS logic which
+> may not actually change the process that handles SIGIO (e.g. TUN, TTY,
+> dnotify), nor update the related UID/EUID.
 >
-> Kindly ping.
+> Moreover, because security_file_set_fowner() was called without lock
+> (e.g. f_owner.lock), concurrent F_SETOWN commands could result to a race
+> condition and inconsistent LSM states (e.g. SELinux's fown_sid) compared
+> to struct fown_struct's UID/EUID.
 >
-> Any comments?
+> This change makes sure the LSM states are always in sync with the VFS
+> state by moving the security_file_set_fowner() call close to the
+> UID/EUID updates and using the same f_owner.lock .
 >
-> This affects (improves?) also the netlink xperm proposal.
+> Rename f_modown() to __f_setown() to simplify code.
+>
+> Cc: Al Viro <viro@zeniv.linux.org.uk>
+> Cc: Casey Schaufler <casey@schaufler-ca.com>
+> Cc: Christian Brauner <brauner@kernel.org>
+> Cc: James Morris <jmorris@namei.org>
+> Cc: Jann Horn <jannh@google.com>
+> Cc: Ondrej Mosnacek <omosnace@redhat.com>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Serge E. Hallyn <serge@hallyn.com>
+> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Signed-off-by: Micka=C3=ABl Sala=C3=BCn <mic@digikod.net>
+> ---
+>
+> Changes since v2:
+> https://lore.kernel.org/r/20240812174421.1636724-1-mic@digikod.net
+> - Only keep the LSM hook move.
+>
+> Changes since v1:
+> https://lore.kernel.org/r/20240812144936.1616628-1-mic@digikod.net
+> - Add back the file_set_fowner hook (but without user) as
+>   requested by Paul, but move it for consistency.
+> ---
+>  fs/fcntl.c | 14 ++++----------
+>  1 file changed, 4 insertions(+), 10 deletions(-)
 
-Do you know of anyone who plans to use this feature? Android does not
-use conditional policies and it is the primary user of the current
-extended permissions feature. I haven't seen any usage in refpolicy to
-date.
+This looks reasonable to me, and fixes a potential problem with
+existing LSMs.  Unless I hear any strong objections I'll plan to merge
+this, and patch 2/2, into the LSM tree tomorrow.
+
+> diff --git a/fs/fcntl.c b/fs/fcntl.c
+> index 300e5d9ad913..c28dc6c005f1 100644
+> --- a/fs/fcntl.c
+> +++ b/fs/fcntl.c
+> @@ -87,8 +87,8 @@ static int setfl(int fd, struct file * filp, unsigned i=
+nt arg)
+>         return error;
+>  }
+>
+> -static void f_modown(struct file *filp, struct pid *pid, enum pid_type t=
+ype,
+> -                     int force)
+> +void __f_setown(struct file *filp, struct pid *pid, enum pid_type type,
+> +               int force)
+>  {
+>         write_lock_irq(&filp->f_owner.lock);
+>         if (force || !filp->f_owner.pid) {
+> @@ -98,19 +98,13 @@ static void f_modown(struct file *filp, struct pid *p=
+id, enum pid_type type,
+>
+>                 if (pid) {
+>                         const struct cred *cred =3D current_cred();
+> +                       security_file_set_fowner(filp);
+>                         filp->f_owner.uid =3D cred->uid;
+>                         filp->f_owner.euid =3D cred->euid;
+>                 }
+>         }
+>         write_unlock_irq(&filp->f_owner.lock);
+>  }
+> -
+> -void __f_setown(struct file *filp, struct pid *pid, enum pid_type type,
+> -               int force)
+> -{
+> -       security_file_set_fowner(filp);
+> -       f_modown(filp, pid, type, force);
+> -}
+>  EXPORT_SYMBOL(__f_setown);
+>
+>  int f_setown(struct file *filp, int who, int force)
+> @@ -146,7 +140,7 @@ EXPORT_SYMBOL(f_setown);
+>
+>  void f_delown(struct file *filp)
+>  {
+> -       f_modown(filp, NULL, PIDTYPE_TGID, 1);
+> +       __f_setown(filp, NULL, PIDTYPE_TGID, 1);
+>  }
+>
+>  pid_t f_getown(struct file *filp)
+> --
+> 2.46.0
+
+--=20
+paul-moore.com
