@@ -1,178 +1,137 @@
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
+Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA48214E2DE
-	for <selinux@vger.kernel.org>; Wed, 21 Aug 2024 16:32:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 656AF1D12F4
+	for <selinux@vger.kernel.org>; Wed, 21 Aug 2024 20:02:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724257947; cv=none; b=gZPOGbOQ7r3e39sTYCPB3CehX+oZEqXw43m9Zl5Rn2FjpGt2JB6lSw/KgDTncLDo8l8nxhZG/bKVof0U0Q25Aw3LQWdV53Vy/7vzTRbigHg5vBXNRHYRNFE4KdhoxzDDMOcxoS/+PZLOr+6UCECbT7Pg+ID107yoZKR8O6ck0as=
+	t=1724270531; cv=none; b=Ocmwam9pwIM+4Yfhok87506SZNmeFt4DiuJfp8nwxCq+XNLHAhl38AalMxEyFXf3DYpT9ehW9DuCdtjMt6mHIBGu0VDn0dQ3t/IlDE3RrCbexZHzcYSxBEDxTypMRs4SH42anUu1u3hByVOovDdS3y8SxbxGNFfAp3O0SudO21M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724257947; c=relaxed/simple;
-	bh=y0LywhCmh47VypaLFq+kEyR/qD8qT8iwJl5GVT+ZjgI=;
+	s=arc-20240116; t=1724270531; c=relaxed/simple;
+	bh=OnXcytC53/4o5Pt1aPpx2AkSZNydd/aCmCVXtxs6jEI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TCgh0505dzw2pCNuq7em1R0bM0xzzoPhskI1IYAu7SMdaJdXL9WPMkS0/M1Fny2JUOnl1h8Psw0EafZ2lXqNT9RGTToFCdNZqJf3pJG5OaMO3xuICBJS4iQKPgVM1q6JYR4GV2c07RiFiaAmscKBwwHgXR18f+qksg5iyxD6tNk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=fBcubZHl; arc=none smtp.client-ip=209.85.128.169
+	 To:Cc:Content-Type; b=azR8eVUtoklzdtQpbNz4m/JSyelEOBHMeXiaXLWLnZGT78ecHVcmkd2PEC0/dfeH/c61v2RY3OYrxr9ydrM1gm+H8Sl4nCzNdaKroDjLHzdksY1t3dRGovSqRs/Nu35MPuygEj65o49SrUWahykQcm4CdqWbDuKmpIx81VvzqUw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Ussy6yFY; arc=none smtp.client-ip=209.85.128.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="fBcubZHl"
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-6aab656687cso8527587b3.1
-        for <selinux@vger.kernel.org>; Wed, 21 Aug 2024 09:32:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Ussy6yFY"
+Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-6b8f13f28fbso1080307b3.1
+        for <selinux@vger.kernel.org>; Wed, 21 Aug 2024 13:02:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1724257945; x=1724862745; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1724270528; x=1724875328; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FKjQ6emtyPrVDj7dWj9Yt0Rk11OdLkP0YY5ZqjmKqLI=;
-        b=fBcubZHlN2QMKZFq5CpzyjFAB2tiH9uV96sIzPZKB98i4e/2bsr5SN9faq9iEbK5pN
-         4qMwjofgBWfDXHK5pbQm0fuhyFnjfhXvy0d+gs4gPcgkToAFtju/sKhZcQnaOyP5wCNN
-         SpiFKG6nZbcyoHFXl04TT9MuKXb8F5gueWYid0M4SrfBV2rmCz0PaVBgn/JTZ2mnlC91
-         N5rMEkRLdDSAJ1zSwczEV/KoL5YawJj8Wm+sT80loWm4w6DeueosadS582iMaVci5CCV
-         IGKB7458UsdDqrbD2A1+YdOXMAhx0lmOKb09Kfcan9KofMy3afq5zRu5dTnr7eQEYMhE
-         stKA==
+        bh=sd4fCf38q7zmEAJ7MeRruj4icO1IpN4DXf4IAgnQqlM=;
+        b=Ussy6yFYAgh23Zp3b7QJ6nyXt0mFkIsLOVV7i48OuJ8Vm/T6Wy/tu8i3OKEvZyeyNP
+         ggHrcnkdZuUr0ZmrQ31L4YoYw6YvKS0J7QvfxYjqWEHSIaED45jDOx0LebxHab+B/EXY
+         tA4Icy3S6f9sORNOxLSnOHBrcMRj0CFOOHo+A4HgXS40kXqFKT2hjT8wFPHib4dg4ik8
+         3OzOx0ytsZcE24FM+n9OaU9LhuQbkwhrh8IEz3y+yOEF5dD7mijXbzn0wp8ptAdIjtWU
+         JwKYhRBvHRPAo4bqt7/sM9LvZSo74abJSwjqYVm8hU2H3n4MoCKHBz0FvF2byA1e94Kg
+         VD+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724257945; x=1724862745;
+        d=1e100.net; s=20230601; t=1724270528; x=1724875328;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FKjQ6emtyPrVDj7dWj9Yt0Rk11OdLkP0YY5ZqjmKqLI=;
-        b=euYboGqDrDiaZEZATU0wrNtZvKXBMzcxLNB/aa372QWK78y7PD3zwBMAOaDeZ0nSzl
-         wGoOtWodLd+yjAX4BITz+LeNWx65NYddVoxBCKhnl9g2x4fWmBYNCq48Rz2oH7OR+56o
-         ijqlxdyochSJ9uS2mdequaF3V19RX9JLAr4zKrtEuE5rtqXperzfV9HXZIZoy/lYeI23
-         iZi0LoKCZqX9X+OfHRJuLkzuekpJ0rn4l0PN3K4cVck9eClvy8cFszRVozzrEnQPV2Ic
-         YryHVGrKd+7PYh8QqkN6pIfgybTuhhsO/4/loKXh4wadDbwS3o24ETJfSvGRvu+sPFXB
-         rBcQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVWzGRbmirgFccTSAPtrgneabtbzuh2O8mYIH2qBAGRmC4CHXKuh9CHH4YgNlTMIhl7sNcsSLcg@vger.kernel.org
-X-Gm-Message-State: AOJu0YzylFe3L06e5IUIaL/YQES5UqceaRZMG+dpDgzl5MEFrdw77LrN
-	j8XZnYc8YK+0ToC9Y9QVx89t4sIZLnMdadPh67XBlZc0NFxWCOYbWokzZ4zE4ZxNZ9Y57FOYxMO
-	gqnrjmo/zwzEvzu801bb49LQjPhrhoBPaHTcu
-X-Google-Smtp-Source: AGHT+IHqtEaRs3bfyjoduUwqbGszfFJZ/MXDKylcokqkjlSrKLoHtDO/7RqpwJwZHHVzLv9J+rL+3ZDsUcQ+ap2YLkU=
-X-Received: by 2002:a05:690c:908:b0:627:7f2a:3b0d with SMTP id
- 00721157ae682-6c304879b22mr2005647b3.14.1724257944842; Wed, 21 Aug 2024
- 09:32:24 -0700 (PDT)
+        bh=sd4fCf38q7zmEAJ7MeRruj4icO1IpN4DXf4IAgnQqlM=;
+        b=tM5/LRV8CUaXd0tbShpp5L90FSqp6TYah9Va0sxrTk6gs+E3ZjsvvG6A3RRv/8H08O
+         k9I37cJuJRD985BkIO5vEjdu8621/0otAu5mNaUgJL3GmZYzP/rhqrjhojUnb14W5pnQ
+         81qlfOt1g/bvd6eSqHoGoZSrJ+3P6OretPwRSORV6JH/eIb7VFOwGsJsLnpn/I1LmalE
+         D/eROoTl/pPMbqOWBlkr32jooJXTlOYjBt/xVJqLCBl/ZduygjfGQiY3hfFLjcdnKRSW
+         qSgPYDAgolDN7TS7Gb2zKXjoPnBkgSb1CTGdofo5y3UmPzZFV3zQTzmptVwKCW9+laBB
+         L/Rw==
+X-Forwarded-Encrypted: i=1; AJvYcCVxLm6Pup0AWZQfIeAmN0VDGHU8k0IdBRd32QLbozHLJZyt+lB9oOntphSSY8oQVfKqWLUUIaq3@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw8XGAUuEko8MltuGQLEmJx4hT6z9vrbRtypSYyLqesHDwSZpIn
+	iQBZlfJEadm/QfuJB9fuZlM+ToDpG8qrcQapyJC1NJTC+wMMosfOu8XdtKb9aY7A2GbdjTkg6HI
+	is64lqU0gs0n0Wn1puDUYRzRb+D3WuzpmYc2Q
+X-Google-Smtp-Source: AGHT+IE2QO57xS8SgeCLUqJT3hCavShJNH5jHqpIvVtKtPyOZLLtL5WZ7rGTH2dX5GBAahZ77OWb2kXbFsOhpzxCaQQ=
+X-Received: by 2002:a05:690c:6c07:b0:61b:342e:91ae with SMTP id
+ 00721157ae682-6c0a0141ae8mr44149257b3.36.1724270528366; Wed, 21 Aug 2024
+ 13:02:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240821095609.365176-1-mic@digikod.net>
-In-Reply-To: <20240821095609.365176-1-mic@digikod.net>
+References: <20240815083229.42778-1-aha310510@gmail.com> <CAFqZXNvXJY4Bh5k6DZ3yoLFuHo2bQRk3Q5Lv25ms6oOGyN5ZAA@mail.gmail.com>
+ <CAEjxPJ4TMk3AoAd++nHQUyTHd_7vbOHC1Veq1ZSSyjH3v0kJ7A@mail.gmail.com>
+ <CAHC9VhRV4j9i7YuKFJkNe9RYnKvCMLHHOi0LrRvwaFWbGJTbHA@mail.gmail.com> <CAEjxPJ4ObSaEG98jHhDtOssD1mF1fEAioJODa4bHKhZO=7KDGw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4ObSaEG98jHhDtOssD1mF1fEAioJODa4bHKhZO=7KDGw@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 21 Aug 2024 12:32:17 -0400
-Message-ID: <CAHC9VhQ7e50Ya4BNoF-xM2y+MDMW3i_SRPVcZkDZ2vdEMNtk7Q@mail.gmail.com>
-Subject: Re: [PATCH v3 1/2] fs: Fix file_set_fowner LSM hook inconsistencies
-To: =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
-Cc: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, Jan Kara <jack@suse.cz>, 
-	Tahera Fahimi <fahimitahera@gmail.com>, Mateusz Guzik <mjguzik@gmail.com>, 
-	Al Viro <viro@zeniv.linux.org.uk>, Casey Schaufler <casey@schaufler-ca.com>, 
-	James Morris <jmorris@namei.org>, Jann Horn <jannh@google.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 21 Aug 2024 16:01:57 -0400
+Message-ID: <CAHC9VhSkQtDQktM_RRUgusq6dvCKCOPcCwUytFPL+z=grYR3FA@mail.gmail.com>
+Subject: Re: selinux: support IPPROTO_SMC in socket_type_to_security_class()
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Ondrej Mosnacek <omosnace@redhat.com>, Jeongjun Park <aha310510@gmail.com>, selinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 21, 2024 at 5:56=E2=80=AFAM Micka=C3=ABl Sala=C3=BCn <mic@digik=
-od.net> wrote:
->
-> The fcntl's F_SETOWN command sets the process that handle SIGIO/SIGURG
-> for the related file descriptor.  Before this change, the
-> file_set_fowner LSM hook was always called, ignoring the VFS logic which
-> may not actually change the process that handles SIGIO (e.g. TUN, TTY,
-> dnotify), nor update the related UID/EUID.
->
-> Moreover, because security_file_set_fowner() was called without lock
-> (e.g. f_owner.lock), concurrent F_SETOWN commands could result to a race
-> condition and inconsistent LSM states (e.g. SELinux's fown_sid) compared
-> to struct fown_struct's UID/EUID.
->
-> This change makes sure the LSM states are always in sync with the VFS
-> state by moving the security_file_set_fowner() call close to the
-> UID/EUID updates and using the same f_owner.lock .
->
-> Rename f_modown() to __f_setown() to simplify code.
->
-> Cc: Al Viro <viro@zeniv.linux.org.uk>
-> Cc: Casey Schaufler <casey@schaufler-ca.com>
-> Cc: Christian Brauner <brauner@kernel.org>
-> Cc: James Morris <jmorris@namei.org>
-> Cc: Jann Horn <jannh@google.com>
-> Cc: Ondrej Mosnacek <omosnace@redhat.com>
-> Cc: Paul Moore <paul@paul-moore.com>
-> Cc: Serge E. Hallyn <serge@hallyn.com>
-> Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> Signed-off-by: Micka=C3=ABl Sala=C3=BCn <mic@digikod.net>
-> ---
->
-> Changes since v2:
-> https://lore.kernel.org/r/20240812174421.1636724-1-mic@digikod.net
-> - Only keep the LSM hook move.
->
-> Changes since v1:
-> https://lore.kernel.org/r/20240812144936.1616628-1-mic@digikod.net
-> - Add back the file_set_fowner hook (but without user) as
->   requested by Paul, but move it for consistency.
-> ---
->  fs/fcntl.c | 14 ++++----------
->  1 file changed, 4 insertions(+), 10 deletions(-)
+On Wed, Aug 21, 2024 at 9:38=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Tue, Aug 20, 2024 at 3:51=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
 
-This looks reasonable to me, and fixes a potential problem with
-existing LSMs.  Unless I hear any strong objections I'll plan to merge
-this, and patch 2/2, into the LSM tree tomorrow.
+...
 
-> diff --git a/fs/fcntl.c b/fs/fcntl.c
-> index 300e5d9ad913..c28dc6c005f1 100644
-> --- a/fs/fcntl.c
-> +++ b/fs/fcntl.c
-> @@ -87,8 +87,8 @@ static int setfl(int fd, struct file * filp, unsigned i=
-nt arg)
->         return error;
->  }
+> > Without passing any judgement on the patches Ondrej submitted (I tend
+> > to ignore patches as attachments for various reasons), I do share
+> > Ondrej's concerns that this may not be as simple as suggested in the
+> > original patch in this thread.  I saw the same thing as Ondrej
+> > regarding the TCP fallback and that immediately raised a number of
+> > questions that I don't believe have been properly addressed yet.
+> >
+> > Someone needs to dig into how the standard SMC protocol works first to
+> > ensure we have the necessary access controls for the current code; my
+> > guess is that we are probably okay since the socket-level controls are
+> > fairly generic, but I'm not sure we've actually seen proper
+> > confirmation that everything is good from a conceptual standpoint.
+> > Once that is done, we need to examine how the TCP fallback works,
+> > specifically how are connections managed and are the existing TCP
+> > hooks sufficient for SMC (the early connection state stuff can be
+> > tricky) and how to distinguish between normal-TCP and SMC-TCP.
+> >
+> > Basically I'm looking for some basic design concepts and not simply a
+> > passing test without any understanding of why/how it passed.
 >
-> -static void f_modown(struct file *filp, struct pid *pid, enum pid_type t=
-ype,
-> -                     int force)
-> +void __f_setown(struct file *filp, struct pid *pid, enum pid_type type,
-> +               int force)
->  {
->         write_lock_irq(&filp->f_owner.lock);
->         if (force || !filp->f_owner.pid) {
-> @@ -98,19 +98,13 @@ static void f_modown(struct file *filp, struct pid *p=
-id, enum pid_type type,
+> At present, we are already applying the general socket layer access
+> controls to AF_SMC sockets; hence, existing policies can prevent or
+> allow use of AF_SMC sockets through that mechanism. This is useful for
+> reducing kernel attack surface, e.g. prevent all use of AF_SMC by
+> untrusted code, or to limit use of AF_SMC to specific
+> processes/programs.
+
+That's true.  I'm not suggesting we revert what we currently have, I'm
+only expressing some caution about moving forward with
+AF_INET/IPPROTO_SMC without a better understanding.  Ideally we would
+have done so before adding AF_SMC support, but we didn't, or at least
+I don't recall much discussion at the time.
+
+> Since kernel commit d25a92ccae6bed02327b63d138e12e7806830f78
+> ("net/smc: Introduce IPPROTO_SMC"), there is a way to bypass such
+> controls by creating such sockets via (AF_INET, SOCK_STREAM,
+> IPPROTO_SMC) instead of AF_SMC. In that situation, any process that is
+> allowed the socket layer permissions to the generic socket class would
+> be allowed to create/use SMC sockets.
 >
->                 if (pid) {
->                         const struct cred *cred =3D current_cred();
-> +                       security_file_set_fowner(filp);
->                         filp->f_owner.uid =3D cred->uid;
->                         filp->f_owner.euid =3D cred->euid;
->                 }
->         }
->         write_unlock_irq(&filp->f_owner.lock);
->  }
-> -
-> -void __f_setown(struct file *filp, struct pid *pid, enum pid_type type,
-> -               int force)
-> -{
-> -       security_file_set_fowner(filp);
-> -       f_modown(filp, pid, type, force);
-> -}
->  EXPORT_SYMBOL(__f_setown);
->
->  int f_setown(struct file *filp, int who, int force)
-> @@ -146,7 +140,7 @@ EXPORT_SYMBOL(f_setown);
->
->  void f_delown(struct file *filp)
->  {
-> -       f_modown(filp, NULL, PIDTYPE_TGID, 1);
-> +       __f_setown(filp, NULL, PIDTYPE_TGID, 1);
->  }
->
->  pid_t f_getown(struct file *filp)
-> --
-> 2.46.0
+> Jeongjun's patch closes this bypass and ensures consistent application
+> of the general socket layer access controls for SMC sockets. Given
+> that, I don't see why we would defer merging it until someone figures
+> out a more complete solution for SMC sockets. It's more of a bug fix
+> than an enhancement.
+
+SCTP, that's why.  Granted, SCTP is likely a far more complicated
+protocol than SMC, but the TCP fallback raises all sorts of complexity
+red flags in my mind.  Before we go further with SMC I want to see
+some evidence that someone has looked through the SMC protocol and can
+write a few coherent paragraphs about how the SELinux access controls
+for the SMC protocol should work.
+
+... and yes, labeled SCTP is still broken.  Perhaps someday soon I'll
+have the time to finish the patchset to fix it.
 
 --=20
 paul-moore.com
