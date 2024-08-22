@@ -1,88 +1,103 @@
-Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F01E914A08F;
-	Thu, 22 Aug 2024 14:10:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 191AC16D4EF
+	for <selinux@vger.kernel.org>; Thu, 22 Aug 2024 14:38:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724335805; cv=none; b=YhM3/2ZwY0PgJwECoPB924iIf680dojvro343AXhfh6Exc/4OHEQJhZzOto2YyECpGN358fnSXUgL07JwjVBx6ukzQXO0yxfp65Qh85H8BiuihEOWrDnLp1izX6YrUvFgDG7yUkhsJG9No4Y9iAlzwY3H/XwXa5ym8Y8nlsEcOg=
+	t=1724337489; cv=none; b=uozdExW7rGm+65u6NOgwHUpgYnL/231dR1lsbm+jDuLuJ7gPZN75QHMbN2nJkqyc2R/T0HdkFXIGgw9XuD0OxzpUQq8CJcaTdO/N3aSHS2+1BXFtXt3POjCEUTsPbvRfhwldS5KmaPbVEvsO/CUMIO6IKnyVJqa8JkNdLEPnC8I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724335805; c=relaxed/simple;
-	bh=3XzqPt5Wor/47stQV0ZO4HNZEv39caFPd1KPaBt65M0=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=t5bk0U3eEFHuOwcllJSxT7/cek++Dje3kgSD95ZncmgvrjOrbkMMfQ/L+n749gJZuPf5mSAnyTyFRlWYHTO1QmyyiF6pnRMZt+04WXZHmg74Ddhh8o9r42RGEIsN8YMwkC3G5nkZfJC24o4iQxa49YAMojMrkdtMtr9rAYCmTsE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.44])
-	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4WqQ2M6VHzz20m3V;
-	Thu, 22 Aug 2024 22:05:15 +0800 (CST)
-Received: from dggpemf100006.china.huawei.com (unknown [7.185.36.228])
-	by mail.maildlp.com (Postfix) with ESMTPS id CD90514013B;
-	Thu, 22 Aug 2024 22:09:58 +0800 (CST)
-Received: from thunder-town.china.huawei.com (10.174.178.55) by
- dggpemf100006.china.huawei.com (7.185.36.228) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Thu, 22 Aug 2024 22:09:58 +0800
-From: Zhen Lei <thunder.leizhen@huawei.com>
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley
-	<stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>,
-	<selinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC: Zhen Lei <thunder.leizhen@huawei.com>
-Subject: [PATCH 1/1] selinux: simplify avc_xperms_audit_required()
-Date: Thu, 22 Aug 2024 22:08:58 +0800
-Message-ID: <20240822140858.1998-1-thunder.leizhen@huawei.com>
-X-Mailer: git-send-email 2.37.3.windows.1
+	s=arc-20240116; t=1724337489; c=relaxed/simple;
+	bh=WKguHcEUcIriy0Iu6wPNIoFb4RzaOvO7QnMqZ35A3D8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nWXlrgiEWQf9IokUqFNUQk8Teh6T1TCGcFa/nh1/gKcHmuFxqDAsXPfqOEKjc78B57zSTUGrBL8vvKgOxcuQ46qt2scCML4Uc35bxr8JxT5vpcxjqlCgXboe/iZQJIhQ+w9hwIwIEIAXdZz2UNJf0tGfIRm6VB7zIw+Bk/jJOto=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OIGJJthq; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OIGJJthq"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-2d3d662631aso669492a91.1
+        for <selinux@vger.kernel.org>; Thu, 22 Aug 2024 07:38:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724337487; x=1724942287; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WKguHcEUcIriy0Iu6wPNIoFb4RzaOvO7QnMqZ35A3D8=;
+        b=OIGJJthqSIySHcmtY3QmfF8ms/IKP41Zt5FSWNbP+56Uav3KabVqFN4VvArYkUM0FP
+         adabtxwk4nxr2WBCCfvNO/7m8lzi95RHeKqCChfE3ibNXPIhptZ8xjuX+fpK9vN48fpP
+         KhIpECzGfgwVoPrr4qK9V6wc0QQO0ITNjBcei8Lsjd2k2VyO32lFdZfLEaroMIBAtats
+         pRPgdA4NC5fPQRinCjtPdTVUVMecaI6tgH9j8G5XVlH2PpL8b126VlxS/6q0qDwE1ZCU
+         k49TYUubZazBqosSZ2HEInG6h4fjiR2QMFjqHlGVHo0uc+qgongfJzeytSCWv7cYPA9w
+         6Gmw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724337487; x=1724942287;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WKguHcEUcIriy0Iu6wPNIoFb4RzaOvO7QnMqZ35A3D8=;
+        b=QlGbm0zthsMjKR7biU88k4LtAhu/PNEkGFCUPkaieBw/BR7o32uhBk9/oCsElHX6B9
+         dOAU2HjcgLTotNaYg0UppeUPXpjUX40zOWJtGiaOAwmiWO4BDAA19pmh7VGr9mC+EGd6
+         SH4hfX5DVjaKJCQq2OvgXBG7N9hbaYpoECQ+OM9YiCpDHP7tWc2PLyYPBrV96t55EADt
+         CEOqHEu4HZ/wyUh2FscEuglTIIxjrtntVK83hWTP7fn1FlD+6ICEuehKob0LpGZXNgRL
+         Ug9qaFXM7OeaxhF2fc8Kme+qevGogGMgeZ9lj2QhTIRGmrKnVGfafDB97owihEKWrvDK
+         +Wiw==
+X-Forwarded-Encrypted: i=1; AJvYcCUPxj84PrK6akTDzhU++VHrJ+ewtQzBM4XqOOKIisrtyJOtNu+hGK7n4u2ZA+qKbdBFcQfBcQXO@vger.kernel.org
+X-Gm-Message-State: AOJu0YyGzns8I9fHlbj30215CfExQeZx2y94Xcuo5Jau/PcuH4mp0TZk
+	t5OgSKJ3dOBu/WPWCPd6P5D0bht+b2wSGKDMg8HBNftaw9P4ZqoxrDP+qORTSTZQvk511gKA8xH
+	PJwPYfw+Hqcm81XzsFXnNRg8dKVnl9w==
+X-Google-Smtp-Source: AGHT+IFi92oEvH3STRFaNVqbxZVm93lJgNUO+r1UNtz/3XtYAQRm4YQjVTfm1Uw5Hx5zgONDPwsxK1Q9+4P2A21vP44=
+X-Received: by 2002:a17:90b:3e84:b0:2d3:cb16:c8e with SMTP id
+ 98e67ed59e1d1-2d5eacbc625mr5437427a91.43.1724337487145; Thu, 22 Aug 2024
+ 07:38:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggpemf100006.china.huawei.com (7.185.36.228)
+References: <20240820002723.1345639-1-tweek@google.com> <CAEjxPJ7Jg6vYOQXVr_tT9F4SZcDHN==7LfORxxOACqtn_SRKTw@mail.gmail.com>
+ <CAHC9VhQU1oEaS=bB-Kc6Bfukb_MMFv+CrhpJ4F7L=tK8j_c8Ug@mail.gmail.com> <CA+zpnLeoz3yuVd5EUtct-CDi2zT9u7Y61edB3s4HbiEfxLOZNQ@mail.gmail.com>
+In-Reply-To: <CA+zpnLeoz3yuVd5EUtct-CDi2zT9u7Y61edB3s4HbiEfxLOZNQ@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 22 Aug 2024 10:37:54 -0400
+Message-ID: <CAEjxPJ5g_9CDRi8zm_=0tPyQf4D8Tpo0q3ai13_txNW1_Wd6kw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: Add netlink xperm support
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, brambonne@google.com, jeffv@google.com, 
+	selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-By associative and commutative laws, the result of the two 'audited' is
-zero. Take the second 'audited' as an example:
-  1) audited = requested & avd->auditallow;
-  2) audited &= ~requested;
-  ==> audited = ~requested & (requested & avd->auditallow);
-  ==> audited = (~requested & requested) & avd->auditallow;
-  ==> audited = 0 & avd->auditallow;
-  ==> audited = 0;
+On Wed, Aug 21, 2024 at 8:56=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@googl=
+e.com> wrote:
+>
+> On Wed, Aug 21, 2024 at 5:54=E2=80=AFAM Paul Moore <paul@paul-moore.com> =
+wrote:
+> >
+> > On Tue, Aug 20, 2024 at 2:02=E2=80=AFPM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> >
+> > Thank you for reviving this patch.
+> > Do you have a corresponding userspace patch? And for extra credit, a
+> > selinux-testsuite patch?
+> >
+>
+> Thank you for the quick response and initial feedback. I've just sent
+> the libsepol patches for userland on this mailing list.
+> For selinux-testsuite, an issue I came across while testing is that
+> the policy capabilities cannot be updated (that is, only the
+> capabilities from the original host policy are active). I am not sure
+> if I got that right or if there is any obvious solution (except
+> toggling on the new capability in Fedora).
+> I'm still hoping to get the extra credits by: updating the selinux
+> notebook documentation as well as updating setools (for sesearch
+> support). :) I will send pull requests if these patches get accepted.
 
-In fact, it is more readable to directly write zero. The value of the
-first 'audited' is 0 because AUDIT is not allowed. The second 'audited'
-is zero because there is no AUDITALLOW permission.
+With your userspace patches, can't you just do this:
+$ cat netlink_xperm.cil
+(policycap netlink_xperm)
+$ sudo semodule -i netlink_xperm.cil
 
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
----
- security/selinux/avc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index b49c44869dc4627..21f5bbba50caaeb 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -396,7 +396,7 @@ static inline u32 avc_xperms_audit_required(u32 requested,
- 		audited = denied & avd->auditdeny;
- 		if (audited && xpd) {
- 			if (avc_xperms_has_perm(xpd, perm, XPERMS_DONTAUDIT))
--				audited &= ~requested;
-+				audited = 0;
- 		}
- 	} else if (result) {
- 		audited = denied = requested;
-@@ -404,7 +404,7 @@ static inline u32 avc_xperms_audit_required(u32 requested,
- 		audited = requested & avd->auditallow;
- 		if (audited && xpd) {
- 			if (!avc_xperms_has_perm(xpd, perm, XPERMS_AUDITALLOW))
--				audited &= ~requested;
-+				audited = 0;
- 		}
- 	}
- 
--- 
-2.34.1
-
+If so, then you can add that along with corresponding allowxperm rules
+to the test policy to exercise this.
