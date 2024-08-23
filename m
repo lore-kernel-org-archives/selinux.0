@@ -1,122 +1,147 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+Received: from mail-io1-f69.google.com (mail-io1-f69.google.com [209.85.166.69])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DD8117C7C9
-	for <selinux@vger.kernel.org>; Thu, 22 Aug 2024 15:44:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A38941428E4
+	for <selinux@vger.kernel.org>; Fri, 23 Aug 2024 08:15:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.69
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724341485; cv=none; b=Hh77ig6nuMnDT029x5mtO4wLjq8vcvs0TWHPbxsX5vN6SAqPvvMC9OUp1XWCCtxG5gpC/nbuDz8DzRR4xsPwEXk9KDpwjph/BSRQ0JWnsoSVIAx+TUmYFfKwL2m4Hrq3OHhjIAvcKm7Y+PJCvwxxNDvB/dSvm73sooFlNQSG1FM=
+	t=1724400927; cv=none; b=iRhA9lgPJfbF/XqNIf0hg/RIop7b9RMTxwzfZSLxnrZBI3OtGJkb3VL0UdBBkPN7z9jk3bc3H1gqr9AkCvvcD7I9PUtALLmGM2sKj7heWS4JpyCrVPwzbRybocAUmZuXhA+x+A8/IQPfO8ZNfdfTEyc6gQfw/U19jAf4kplLF9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724341485; c=relaxed/simple;
-	bh=HrxJ6TsJoOTnd88vPgp66skdeDpKpE2SKfE3GWqgh7s=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aSbrC1xmY8drazwLl9Hf7hkJL3YphRN/uxfOx/V3h/CYOj57lsenGBJLzWAFbwOqXEnXMKcG8J9Eu9KRMKMxjQNFrcCA+/t5U3bExcXzAcD6IeKxsH0zbur4hH6zMaF723bJOz2MPDbMbNO6T+YvK5pyGSwMwAgGO35sd8Kbz4w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VXhNWuyH; arc=none smtp.client-ip=209.85.216.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VXhNWuyH"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-2d60f48a2ccso775060a91.3
-        for <selinux@vger.kernel.org>; Thu, 22 Aug 2024 08:44:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724341483; x=1724946283; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HrxJ6TsJoOTnd88vPgp66skdeDpKpE2SKfE3GWqgh7s=;
-        b=VXhNWuyHhwC29qoazD7wk1f6la7shdtKddzqfjTv+ifJaiU8O2Ja3dI578/06ystpn
-         K7MJp3EmFnyuhRdrTHviJA3xNviY8XJgwNMTMMtVdSWm95YBDTZYniiztaoBLehJOw9t
-         JobDMFFjzDGipRf+cXITTV6F2+F5tBxQn3JdDE7y542oEpWa8GCn5rvrkSS3ZneDw3oA
-         ejEqyGFVT90uCW2Wyt2csPF5rHUOEcJ7VKFQxGMsVlb+9gHexj4QyxpO/F1U8nfn9cdg
-         gkMWsJQZK6E9Kav//vzfM7wshKgHJUeYn9C0Y6A2qGxnZKevLww87yT6bzZWSnUBob0r
-         Y8Hg==
+	s=arc-20240116; t=1724400927; c=relaxed/simple;
+	bh=fza9SUlY/fYm2LJp1NJE3IlBYIobs6R61347dV6ePwU=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=LOmqRpS+5mdx0TKr26Q9i7SU87kud+Y+7OBTvVAq0f5KGW7Xzk7KjybvlfWJg2YVx7uJU/t5lfnYJzew7TunPzk5og+aMFWyucHPFyq8/sYIqB1GY7V7pIElXUY8xRufJzaHcg0oaKIhEY1HFKRadbGHdMcqByxmVKq6YZCJc7s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.69
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f69.google.com with SMTP id ca18e2360f4ac-81f897b8b56so134668239f.1
+        for <selinux@vger.kernel.org>; Fri, 23 Aug 2024 01:15:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724341483; x=1724946283;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HrxJ6TsJoOTnd88vPgp66skdeDpKpE2SKfE3GWqgh7s=;
-        b=we4qkP36eAuYXjRuOrKKUd5w198Css87CBY5pSJaSNJdkAecPcPfW2PDzNp3ZN8aJQ
-         Yqs9vYNbIdF5xJGwRHY6POBMOIzAT543L1w0S9epiyMXenKtrW1d8+MB+z/mBZCU0pLs
-         lx74/qh2eW8FG2CF22N1n2x/pFxwwscfQQ3jwSvDsvu8l18BMNNPGDRzTHtmhYhBv0PY
-         WULYBJc7UvjmhPamULEnghXirEENMimUs5vca9plAyBPaQVBIlFDxLSlJq6tFyBWncbf
-         myUA3vmPK2K6FWFq9FwGOp/Wv5yXsRavcX1nRdhed3NXaZOuivvVzLrLSz/9XLWiFf0g
-         7gkg==
-X-Forwarded-Encrypted: i=1; AJvYcCXTjqSezQNd1AJ/OGFsV5KyFs4PnIvo+Cxy8h6XwSZjhDetddqfkKARHbBxi7PGOIrPANqTOJRc@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy2M1svrgv14/MjxlAXXhVxdjfhBhaAUKqzGKjK50JUq629gqk7
-	z6YdcbTDET45ex8yWqNhKKfeYv9m+eQquV1mKRelqjYmR2Ak1Kz40bOYnNEzZ2rwRC7ZMP2Ir/i
-	3TVrQ/XN1WOMFHNcqD/tiPL0Wvns=
-X-Google-Smtp-Source: AGHT+IGxZj+/aDvH/E4H6eawNuUWtxx3oZbE8ZLNhiwjTcmE0mXaVU3cYpELeU7eu5lxpgU5ubrxCWgpBt/dpnria6k=
-X-Received: by 2002:a17:90b:1881:b0:2c7:700e:e2b7 with SMTP id
- 98e67ed59e1d1-2d617290591mr2635625a91.39.1724341482656; Thu, 22 Aug 2024
- 08:44:42 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1724400925; x=1725005725;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=opqIjgLOpo4TFy8UCPig7PrgbF9WMRL24VPubk6tA0U=;
+        b=S3tccJxKVhAUQ29XRdJkbEKtIpP8U/vy0TqbVhP8j6MNs/9Mnwxx/ZtmG4rQeqGgHa
+         T2Per0GtwcY45ty5h2F/RzVvT81rPmmJr0rf2/ZGRgqnG+pLl6HvHLH436vkcUBaYI3V
+         EkHV7rGnO8Zq97XJ15pJKhU3D0RYd23Yy+fA6+vwg/mijambTgatxyNUjMdyBxXBxihf
+         uDaW7GLC80PUNAYRQFV9wzvxdNGrZkFlqNVgmpbOwYqZ5PKmuPme7bK2NHhE0hhQ+cuA
+         PVSPljE1WQ3SmBoLFTTN4SdHdNBsAtRWXaRaK1ZqPq85nCVPWjBLYHfuPlw9Juc/Iv5z
+         J3XA==
+X-Forwarded-Encrypted: i=1; AJvYcCXxVNAMX/JTcoLPCCWY7qy0dvlb4VzBs26yV28aaLUJZ2yncRl/eGrPiJpl9hSk3Ueyh6B9hcvk@vger.kernel.org
+X-Gm-Message-State: AOJu0YzTh0eJ4OBin6Wb0ymunVubB9OnDC6aFqUUiPVGyrfmTHK/usLj
+	xc+Yj6esMo+wYvAi+jLkp/qRW2opDTyt9IhOE47Qv5Q1dV7hx4Hc5337/WAoPHmtJKCddzUi0br
+	/hJvw9cBTPCf6V/t4BHsn3m7wY7jMYDRPxH+ZKSs5VFKRSw1PPILzusA=
+X-Google-Smtp-Source: AGHT+IFUpqfgGaMC5MaoyTlDoqQhnWSJHGNFUdqeTRR1YDKJIx3iJcZo+B1oV4RLZv0fSKIyyN6jP5Poyc2trTpQKI6CuOFOJN/w
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240820002723.1345639-1-tweek@google.com> <CAEjxPJ7Jg6vYOQXVr_tT9F4SZcDHN==7LfORxxOACqtn_SRKTw@mail.gmail.com>
- <CAHC9VhQU1oEaS=bB-Kc6Bfukb_MMFv+CrhpJ4F7L=tK8j_c8Ug@mail.gmail.com>
- <CA+zpnLeoz3yuVd5EUtct-CDi2zT9u7Y61edB3s4HbiEfxLOZNQ@mail.gmail.com>
- <CAEjxPJ5g_9CDRi8zm_=0tPyQf4D8Tpo0q3ai13_txNW1_Wd6kw@mail.gmail.com> <CAEjxPJ6rCPwwJoVWHXvC8qK2vLfc2wON4ik4Wugys=uC=WypqQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6rCPwwJoVWHXvC8qK2vLfc2wON4ik4Wugys=uC=WypqQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 22 Aug 2024 11:44:30 -0400
-Message-ID: <CAEjxPJ77N8OLNiOcwZLcdJDy9AYzxo+17s1nYPRX5VBo71nQ0A@mail.gmail.com>
-Subject: Re: [PATCH] selinux: Add netlink xperm support
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: Paul Moore <paul@paul-moore.com>, brambonne@google.com, jeffv@google.com, 
-	selinux@vger.kernel.org
+X-Received: by 2002:a05:6638:8904:b0:4cc:d5e0:a114 with SMTP id
+ 8926c6da1cb9f-4ce81c3e3a7mr95351173.2.1724400924791; Fri, 23 Aug 2024
+ 01:15:24 -0700 (PDT)
+Date: Fri, 23 Aug 2024 01:15:24 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <00000000000092a8070620556089@google.com>
+Subject: [syzbot] [selinux?] KCSAN: data-race in inode_doinit_with_dentry / selinux_file_open
+From: syzbot <syzbot+319ed1769c0078257262@syzkaller.appspotmail.com>
+To: linux-kernel@vger.kernel.org, omosnace@redhat.com, paul@paul-moore.com, 
+	selinux@vger.kernel.org, stephen.smalley.work@gmail.com, 
+	syzkaller-bugs@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 22, 2024 at 11:37=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Thu, Aug 22, 2024 at 10:37=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Wed, Aug 21, 2024 at 8:56=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@g=
-oogle.com> wrote:
-> > >
-> > > On Wed, Aug 21, 2024 at 5:54=E2=80=AFAM Paul Moore <paul@paul-moore.c=
-om> wrote:
-> > > >
-> > > > On Tue, Aug 20, 2024 at 2:02=E2=80=AFPM Stephen Smalley
-> > > > <stephen.smalley.work@gmail.com> wrote:
-> > > >
-> > > > Thank you for reviving this patch.
-> > > > Do you have a corresponding userspace patch? And for extra credit, =
-a
-> > > > selinux-testsuite patch?
-> > > >
-> > >
-> > > Thank you for the quick response and initial feedback. I've just sent
-> > > the libsepol patches for userland on this mailing list.
-> > > For selinux-testsuite, an issue I came across while testing is that
-> > > the policy capabilities cannot be updated (that is, only the
-> > > capabilities from the original host policy are active). I am not sure
-> > > if I got that right or if there is any obvious solution (except
-> > > toggling on the new capability in Fedora).
-> > > I'm still hoping to get the extra credits by: updating the selinux
-> > > notebook documentation as well as updating setools (for sesearch
-> > > support). :) I will send pull requests if these patches get accepted.
-> >
-> > With your userspace patches, can't you just do this:
-> > $ cat netlink_xperm.cil
-> > (policycap netlink_xperm)
-> > $ sudo semodule -i netlink_xperm.cil
-> >
-> > If so, then you can add that along with corresponding allowxperm rules
-> > to the test policy to exercise this.
->
-> NB you may need to also allow { domain -testsuite_domain } the new
-> nlmsg permission for all the netlink socket classes to avoid breaking
-> the other processes running on the test system.
+Hello,
 
-Sorry, never mind - you would still need to define the nlmsg
-permission for each of the netlink socket classes and that doesn't
-appear to be something one can do in anything other than the original
-definition in the base module.
-Oh well.
+syzbot found the following issue on:
+
+HEAD commit:    aa0743a22936 Merge tag 'net-6.11-rc5' of git://git.kernel...
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=12609bd5980000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=3aa0f597417bf8c7
+dashboard link: https://syzkaller.appspot.com/bug?extid=319ed1769c0078257262
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+
+Unfortunately, I don't have any reproducer for this issue yet.
+
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/5e2399df8c24/disk-aa0743a2.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/32d04570bb63/vmlinux-aa0743a2.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/153aaf559bf9/bzImage-aa0743a2.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+319ed1769c0078257262@syzkaller.appspotmail.com
+
+==================================================================
+BUG: KCSAN: data-race in inode_doinit_with_dentry / selinux_file_open
+
+write to 0xffff888114a3392a of 1 bytes by task 5741 on cpu 0:
+ inode_doinit_with_dentry+0x29c/0x840 security/selinux/hooks.c:1443
+ __inode_security_revalidate security/selinux/hooks.c:295 [inline]
+ inode_security security/selinux/hooks.c:320 [inline]
+ selinux_file_open+0x101/0x3b0 security/selinux/hooks.c:3979
+ security_file_open+0x3a/0x70 security/security.c:2988
+ do_dentry_open+0x22e/0xa50 fs/open.c:946
+ vfs_open+0x3b/0x1f0 fs/open.c:1089
+ dentry_open+0x4a/0x90 fs/open.c:1112
+ pidfs_alloc_file+0xe6/0x150 fs/pidfs.c:404
+ __pidfd_prepare kernel/fork.c:2013 [inline]
+ pidfd_prepare+0xa0/0x120 kernel/fork.c:2074
+ pidfd_create kernel/pid.c:608 [inline]
+ __do_sys_pidfd_open kernel/pid.c:644 [inline]
+ __se_sys_pidfd_open+0x123/0x240 kernel/pid.c:629
+ __x64_sys_pidfd_open+0x31/0x40 kernel/pid.c:629
+ x64_sys_call+0x2873/0x2d60 arch/x86/include/generated/asm/syscalls_64.h:435
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xc9/0x1c0 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+read to 0xffff888114a3392a of 1 bytes by task 5740 on cpu 1:
+ __inode_security_revalidate security/selinux/hooks.c:286 [inline]
+ inode_security security/selinux/hooks.c:320 [inline]
+ selinux_file_open+0xce/0x3b0 security/selinux/hooks.c:3979
+ security_file_open+0x3a/0x70 security/security.c:2988
+ do_dentry_open+0x22e/0xa50 fs/open.c:946
+ vfs_open+0x3b/0x1f0 fs/open.c:1089
+ dentry_open+0x4a/0x90 fs/open.c:1112
+ pidfs_alloc_file+0xe6/0x150 fs/pidfs.c:404
+ __pidfd_prepare kernel/fork.c:2013 [inline]
+ pidfd_prepare+0xa0/0x120 kernel/fork.c:2074
+ pidfd_create kernel/pid.c:608 [inline]
+ __do_sys_pidfd_open kernel/pid.c:644 [inline]
+ __se_sys_pidfd_open+0x123/0x240 kernel/pid.c:629
+ __x64_sys_pidfd_open+0x31/0x40 kernel/pid.c:629
+ x64_sys_call+0x2873/0x2d60 arch/x86/include/generated/asm/syscalls_64.h:435
+ do_syscall_x64 arch/x86/entry/common.c:52 [inline]
+ do_syscall_64+0xc9/0x1c0 arch/x86/entry/common.c:83
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+value changed: 0x00 -> 0x01
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 UID: 0 PID: 5740 Comm: syz.0.725 Not tainted 6.11.0-rc4-syzkaller-00135-gaa0743a22936 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/06/2024
+==================================================================
+netlink: 16 bytes leftover after parsing attributes in process `syz.0.725'.
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
