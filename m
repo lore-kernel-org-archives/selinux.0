@@ -1,57 +1,71 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6227C194C6E;
-	Fri, 23 Aug 2024 16:13:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21EDF1C86F2
+	for <selinux@vger.kernel.org>; Fri, 23 Aug 2024 22:14:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724429586; cv=none; b=Ejc70EMbfX9OM291CzZ4MfusIMPnAKuVHIewWX/Ks+kH2EFvYCqubenuikew5i37XJcbhaBVf5sWHo4Z3kagaIoyv4/AvMJ7VdA81TgAr9xpG9oUtbikzBkkExZivKjg8xV6rvzb7yQo0Xh8eBBbih7elaOc+OnZ7NfVjEi6Q7U=
+	t=1724451282; cv=none; b=ch9oN/qsy8k9FS9ifJ8ZR6g9lu3ZSXSpJNYKg9BXRbz1ANFCQZqO0jlqPHG6BCwH9Cb2do1F44Ck0YVDaMjDHoboo9V+Qt1oa7B6iF1o/B4494dbXsnQ5gd0aC0vjn4f7xH0E+HFeAd7qXkiDGvCn3LJqGhAyv7qkC3dZvRqGhc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724429586; c=relaxed/simple;
-	bh=302mPfppIzV0eIiBLegANXAiB+NF/JryI6zwyAqPKeI=;
+	s=arc-20240116; t=1724451282; c=relaxed/simple;
+	bh=ef9BdM7Ru4+vKo57Z5rftWEmSePRQLxRRzy/17lBdrQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oOocNxTBYVq7Th/YAtRJdhTz5eRCGFBMJzNj+HqdfbCHQNi7g9oX7FhjYV4HwQgfXPJnjAAdd0TeM9sxnX/yLYfQ81g+dE+nWJvjoOAQx18yg3yfzSX36DMXhFF0B9Zo8AOqmXdX1d5H8fy6RNKdPCuEsBXLxLAKT4Q4H88plRU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gf+WMIRu; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=ESMp78L/6oDOH+kBv/QoqySucwObTfT7TGPHdeyaIB5S5qMOJOU4SzL/4WIt9B251X2kYHnkPw0dogsEC8Fi6pspggBeGE2kMzI2LLHlseR6VgaND+XgTzgXPmSgSwC6tg/RW1pHWcezL4VxBOXuoR7mG9bFNHZIFbezhy9sCyM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kruces.com; spf=pass smtp.mailfrom=kruces.com; dkim=pass (2048-bit key) header.d=kruces-com.20230601.gappssmtp.com header.i=@kruces-com.20230601.gappssmtp.com header.b=YQxriK00; arc=none smtp.client-ip=209.85.167.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kruces.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kruces.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gf+WMIRu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECAE1C4AF4D;
-	Fri, 23 Aug 2024 16:13:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1724429586;
-	bh=302mPfppIzV0eIiBLegANXAiB+NF/JryI6zwyAqPKeI=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=gf+WMIRurTbcCUp5XG/SJqSuNJlC/5jTbjfrtjz9Bke6unn38fmcRN+YM+/H/43FY
-	 lbsc3h6ZC8f35iYEa6UeUssIiTd08RvXwBi0MjdL4zAyp5kjx1JxZ/jC1iaIgqVRiC
-	 ur7OZG2hFz/jXs+MMeV/l8lH7W26g2wD/QYWC2kZo7w7gmoo9/4AMNkWWYGV3JSqVU
-	 VYLEbcUT4YrL0R0e4pLlZFcUYiVRRx3QTP0KTf1NhMoH/d4g/aTw9/BbDf/isvQzr/
-	 EiLGa0gp/ERZgq1t2tqvHzgTKwOtnypPYBaPN7Is/mZCf7pHacg835+FQlJc3L0cNq
-	 yW2ydpGu7UQUg==
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-2f4f2868710so14781871fa.1;
-        Fri, 23 Aug 2024 09:13:05 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCU4dtKyYllwF4ECh/AEz/nv6RBn3AfXe5jdt7DnwHsEn3hZ7TU7zlRRcpANGS4oMEWM8k57w8l+L+s7cgrg@vger.kernel.org, AJvYcCUB3KLjEX7KA+dYVScl6b9AepdhGtS9gTERvm7GlwcE5mUovMIz6uz51CLguTk3r1chX1OjbeqFGB46PxM5@vger.kernel.org, AJvYcCUf5ApO14XWXf/zYprqgsSiv7+/6XpNea+Qm8e1BQf8AlMJmRu7Egu/Q2BAPNcYGDRHITolJaOKtKJqNeo=@vger.kernel.org, AJvYcCXG5fgHC3NepXiHhjK4wxKPDne+jMK8XXViuXobwQ5RBvYAsU7NZLjpitPl8h1Oj8FrBEkUXcIFIA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzLMmPFwTvL7kwvsydF6wh5gWVCJ+NQXuntP22DbnOxFp4vfLNT
-	TZHqHR+hDKfj9bY0mHCPjNvU1KPwVB60MZwSk5uF76qlH+hNt55xLc5JapAj1jXPmtET0UZR8HI
-	NhGUSxOfjzeU8Hd87f+4lnvpI/vk=
-X-Google-Smtp-Source: AGHT+IGLQePVn5RhKmrGdV43WiO6IyDdZ4P8M+JxvZmPPDeIiajBOGYYWmzAWjRdCByIm/YmPmOehjlJ0SdmJRob6wc=
-X-Received: by 2002:a05:651c:1505:b0:2ef:2dfd:15dc with SMTP id
- 38308e7fff4ca-2f4f48ef636mr23768021fa.9.1724429584330; Fri, 23 Aug 2024
- 09:13:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kruces-com.20230601.gappssmtp.com header.i=@kruces-com.20230601.gappssmtp.com header.b="YQxriK00"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-53349d3071eso3071405e87.2
+        for <selinux@vger.kernel.org>; Fri, 23 Aug 2024 15:14:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kruces-com.20230601.gappssmtp.com; s=20230601; t=1724451278; x=1725056078; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mVn7bhcqAuWH/Gc+rMZ1Xor11/SH0tAXV77Rde16lJc=;
+        b=YQxriK00oFhBPi+odLWARkTI3F8J+tsuz4Xq8yfpkBuet2dOyB5zupZfUzSTOtUpbc
+         0y+Tgk86diTl0Dj86S1a0Lg+oKexzTz8WKLldwpnO0Ufli7AJgKxaq1FKoEx7AJskc9/
+         JsUvXTHpANfu5fXTb37iN7G2KcttoU/MtONuTlmMElx+eiDzAtFWKkxF3CGDTgev6JsS
+         r/RkrIA4yuRHgo0U/l7UStFMiyTrDM8REseH89Z5vpoqbOkqa1bxS906VW7rycgXpUkJ
+         2gszazmO3JXeuAI7COHQlfIFgRQJM3wXbJ7zio16niIVyoJjIWVzfYPMXaypFYizTYjJ
+         nwnA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724451278; x=1725056078;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=mVn7bhcqAuWH/Gc+rMZ1Xor11/SH0tAXV77Rde16lJc=;
+        b=ezrDLOOXCVa4kJevDLkG/i3hykvf8I4r4eSJUK9eV7B3cc/hUsQRFm4N2EYOpGpVaP
+         amVrBwKpqXXpKM2AhTnFr0Hh3PYgL8e8x4pPRWDs1PefCZYvSqU2vvbE5WmzfbpbYKSL
+         tJt+eCfXeKYhGKf4n4kiRLt9y8oP0K7rTIfy361UgobTRZFtDWR8fOqrxnzNl6lQXQIC
+         P+8HTZwI891UtNrhx+yF8E6W+qpuz8eKOMRtIcqkntRKxf2RHOXnJV4X15ZhKvHfqwnD
+         tXFOLtTC5ucTHYRlpgHqIh04BwMM0zNJPJ4PXUITtMlZCduX6u/BXUqerrjzFE9iQypQ
+         AJ9Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXl5hWV9EKC8MRRqM847jrV7pnhmI2Nc3gDhUz6tNcHs+uz3MEeybk/RamGCH03CeRfHr3PKZ06@vger.kernel.org
+X-Gm-Message-State: AOJu0YyI0uwJl02ml4zblP95UnLlvr8kXQhQnK2CtmKteWO9xk8WN5wL
+	HO1/3FbZDBvZK9m9f4OCJASWWgxCr9Oih3sdRcZLd/qMmjPSdbe5mHwuW5zdxcJaekNqwtgGVzD
+	5hfCwASlYYZtlFxbNksj3DDMxjbnlrs3rMHa9Rg==
+X-Google-Smtp-Source: AGHT+IGDhJMFPFDslCxnxri8S951sJjg3aSvVif7lXNqXGz7kFGS4rZgZs1ZBpw6GOJM88hNjR9zGKziEIDdKGLwVUE=
+X-Received: by 2002:a05:6512:2244:b0:533:4327:b4cc with SMTP id
+ 2adb3069b0e04-534387c175cmr2666989e87.52.1724451277886; Fri, 23 Aug 2024
+ 15:14:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240807-macos-build-support-v1-0-4cd1ded85694@samsung.com> <20240807-macos-build-support-v1-1-4cd1ded85694@samsung.com>
-In-Reply-To: <20240807-macos-build-support-v1-1-4cd1ded85694@samsung.com>
-From: Masahiro Yamada <masahiroy@kernel.org>
-Date: Sat, 24 Aug 2024 01:12:26 +0900
-X-Gmail-Original-Message-ID: <CAK7LNARmy=N+6O87BJGZbodssDw21sHgMf36TXdcxD4=5A_OBA@mail.gmail.com>
-Message-ID: <CAK7LNARmy=N+6O87BJGZbodssDw21sHgMf36TXdcxD4=5A_OBA@mail.gmail.com>
+References: <20240807-macos-build-support-v1-0-4cd1ded85694@samsung.com>
+ <20240807-macos-build-support-v1-1-4cd1ded85694@samsung.com> <CAK7LNARmy=N+6O87BJGZbodssDw21sHgMf36TXdcxD4=5A_OBA@mail.gmail.com>
+In-Reply-To: <CAK7LNARmy=N+6O87BJGZbodssDw21sHgMf36TXdcxD4=5A_OBA@mail.gmail.com>
+From: "Daniel Gomez (Samsung)" <d+samsung@kruces.com>
+Date: Sat, 24 Aug 2024 00:14:11 +0200
+Message-ID: <CABj0suC1atc=iPX4uOL5FYkzYBRtZC1J3Lhruo7hejd-fe9Yuw@mail.gmail.com>
 Subject: Re: [PATCH 01/12] scripts: subarch.include: fix SUBARCH on MacOS hosts
-To: da.gomez@samsung.com
-Cc: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nicolas@fjasle.eu>, 
-	Lucas De Marchi <lucas.demarchi@intel.com>, 
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: da.gomez@samsung.com, Nathan Chancellor <nathan@kernel.org>, 
+	Nicolas Schier <nicolas@fjasle.eu>, Lucas De Marchi <lucas.demarchi@intel.com>, 
 	=?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
 	Rodrigo Vivi <rodrigo.vivi@intel.com>, 
 	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
@@ -69,90 +83,228 @@ Cc: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nicolas@fjasle.eu>,
 	dri-devel@lists.freedesktop.org, speakup@linux-speakup.org, 
 	selinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
 	kvmarm@lists.linux.dev, linux-serial@vger.kernel.org, llvm@lists.linux.dev, 
-	Finn Behrens <me@kloenk.dev>, "Daniel Gomez (Samsung)" <d+samsung@kruces.com>, gost.dev@samsung.com, 
+	Finn Behrens <me@kloenk.dev>, gost.dev@samsung.com, 
 	Nick Desaulniers <nick.desaulniers@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 7, 2024 at 8:10=E2=80=AFAM Daniel Gomez via B4 Relay
-<devnull+da.gomez.samsung.com@kernel.org> wrote:
+On Fri, Aug 23, 2024 at 6:13=E2=80=AFPM Masahiro Yamada <masahiroy@kernel.o=
+rg> wrote:
 >
-> From: Nick Desaulniers <nick.desaulniers@gmail.com>
+> On Wed, Aug 7, 2024 at 8:10=E2=80=AFAM Daniel Gomez via B4 Relay
+> <devnull+da.gomez.samsung.com@kernel.org> wrote:
+> >
+> > From: Nick Desaulniers <nick.desaulniers@gmail.com>
+> >
+> > When building the Linux kernel on an aarch64 MacOS based host, if we do=
+n't
+> > specify a value for ARCH when invoking make, we default to arm and thus
+> > multi_v7_defconfig rather than the expected arm64 and arm64's defconfig=
+.
+> >
+> > This is because subarch.include invokes `uname -m` which on MacOS hosts
+> > evaluates to `arm64` but on Linux hosts evaluates to `aarch64`,
+> >
+> > This allows us to build ARCH=3Darm64 natively on MacOS (as in ARCH need
+> > not be specified on an aarch64-based system).
+> >
+> > Utilize a negative lookahead regular expression to avoid matching arm64=
+.
 >
-> When building the Linux kernel on an aarch64 MacOS based host, if we don'=
-t
-> specify a value for ARCH when invoking make, we default to arm and thus
-> multi_v7_defconfig rather than the expected arm64 and arm64's defconfig.
 >
-> This is because subarch.include invokes `uname -m` which on MacOS hosts
-> evaluates to `arm64` but on Linux hosts evaluates to `aarch64`,
+> Does sed support "negative lookahead regular expression"?
+
+I think they removed support for PCRE. I've found this:
+
+commit 261c7f145d015d9acb79dc650d27e4a23b839c23
+Author: Assaf Gordon <assafgordon@gmail.com>
+Date:   Tue Aug 21 14:25:57 2018 -0600
+
+    maint: remove REG_PERL code
+
+    Perl-regexp syntax (PCRE) in GNU Sed is shelved indefinitely.
+    See https://bugs.gnu.org/22801 , https://bugs.gnu.org/22647 .
+    Remove all (unused) REG_PERL related code.
+
+    * sed/sed.c, sed/sed.h, sed/regexp.c, sed/compile.c: Remove REG_PERL co=
+de.
+
+git tag --contains 261c7f145d015d9acb79dc650d27e4a23b839c23
+v4.6
+v4.7
+v4.8
+v4.9
+
+And my sed version is (Debian):
+
+sed --version
+sed (GNU sed) 4.9
+Packaged by Debian
+Copyright (C) 2022 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.ht=
+ml>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Jay Fenlason, Tom Lord, Ken Pizzini,
+Paolo Bonzini, Jim Meyering, and Assaf Gordon.
+
+This sed program was built with SELinux support.
+SELinux is disabled on this system.
+
+GNU sed home page: <https://www.gnu.org/software/sed/>.
+General help using GNU software: <https://www.gnu.org/gethelp/>.
+E-mail bug reports to: <bug-sed@gnu.org>.
+
+sed version (Homebrew):
+sed --version
+sed (GNU sed) 4.9
+Copyright (C) 2022 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.ht=
+ml>.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Written by Jay Fenlason, Tom Lord, Ken Pizzini,
+Paolo Bonzini, Jim Meyering, and Assaf Gordon.
+
+This sed program was built without SELinux support.
+
+GNU sed home page: <https://www.gnu.org/software/sed/>.
+General help using GNU software: <https://www.gnu.org/gethelp/>.
+E-mail bug reports to: <bug-sed@gnu.org>.
+
 >
-> This allows us to build ARCH=3Darm64 natively on MacOS (as in ARCH need
-> not be specified on an aarch64-based system).
+> >
+> > Add a separate expression to support for armv.* as per error reported b=
+y
+> > Nicolas Schier [1].
+> >
+> > [1] https://lore.kernel.org/all/Y3MRvtwdjIwMHvRo@bergen.fjasle.eu/#t
+> >
+> > Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
+> > Signed-off-by: Daniel Gomez <da.gomez@samsung.com>
+> > ---
+> >  scripts/subarch.include | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/scripts/subarch.include b/scripts/subarch.include
+> > index 4bd327d0ae42..5d84ad8c0dee 100644
+> > --- a/scripts/subarch.include
+> > +++ b/scripts/subarch.include
+> > @@ -6,7 +6,8 @@
+> >
+> >  SUBARCH :=3D $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
+> >                                   -e s/sun4u/sparc64/ \
+> > -                                 -e s/arm.*/arm/ -e s/sa110/arm/ \
+> > +                                 -e s/armv.*/arm/ \
+> > +                                 -e s/arm\(?:\(?!64\).*\)/arm/ -e s/sa=
+110/arm/ \
 >
-> Utilize a negative lookahead regular expression to avoid matching arm64.
+>
+> s/arm\(?:\(?!64\).*\)/arm/
+>
+> In sed, this expression does not seem to match anything.
 
+You are correct. I've removed the expression and saw no difference.
+See below with my test case:
+>
+> (or please give me some matching examples if I miss something)
 
-Does sed support "negative lookahead regular expression"?
+cat Makefile
+MACHINE ?=3D "aarch64"
+SUBARCH0 :=3D $(shell echo $(MACHINE) | sed \
+                                  -e s/arm.*/arm/ \
+                                  -e s/aarch64.*/arm64/)
+
+SUBARCH1 :=3D $(shell echo $(MACHINE) | sed \
+                                  -e s/armv.*/arm/ \
+                                  -e s/aarch64.*/arm64/)
+
+SUBARCH2 :=3D $(shell echo $(MACHINE) | sed \
+                                  -e /^arm64$/!s/arm.*/arm/ \
+                                  -e s/aarch64.*/arm64/)
+
+test:
+        @echo "MACHINE=3D$(MACHINE)"
+        @echo "SUBARCH0=3D$(SUBARCH0)"
+        @echo "SUBARCH1=3D$(SUBARCH1)"
+        @echo "SUBARCH2=3D$(SUBARCH2)"
+        @echo "---"
+
+SUBARCH0 represents the current upstream expressions for arm/arm64.
+SUBARCH1 is my proposal in case we need to cover only armv* for 32-bit
+arm (I think that is incomplete?) and SUBARCH2 is Nicolas' proposal
+(which I can't make it work in the test Makefile).
+
+Running the above Makefile, I get:
+
+make test MACHINE=3Darmv4 && make test MACHINE=3Darm7 && make test
+MACHINE=3Darmhf && make test MACHINE=3Daarch64 && make test MACHINE=3Darm64
+MACHINE=3Darmv4
+SUBARCH0=3Darm
+SUBARCH1=3Darm
+SUBARCH2=3Darmv4
+---
+MACHINE=3Darm7
+SUBARCH0=3Darm
+SUBARCH1=3Darm7
+SUBARCH2=3Darm7
+---
+MACHINE=3Darmhf
+SUBARCH0=3Darm
+SUBARCH1=3Darmhf
+SUBARCH2=3Darmhf
+---
+MACHINE=3Daarch64
+SUBARCH0=3Darm64
+SUBARCH1=3Darm64
+SUBARCH2=3Darm64
+---
+MACHINE=3Darm64
+SUBARCH0=3Darm
+SUBARCH1=3Darm64
+SUBARCH2=3Darm64
+---
+>
+>
+>
+>
+>
+> Nocolas already provided correct code:
+>
+> > [1] https://lore.kernel.org/all/Y3MRvtwdjIwMHvRo@bergen.fjasle.eu/#t
+
+I think it is even more simple if we just make this change:
+
+-                                 -e s/arm.*/arm/ -e s/sa110/arm/ \
++                                 -e s/armv.*/arm/ \
+
+Does armv.* cover all arm32 machines? I see armhf, arm7, arm8 and
+armv*, is it correct?
+
+And thanks for checking!
 
 >
-> Add a separate expression to support for armv.* as per error reported by
-> Nicolas Schier [1].
 >
-> [1] https://lore.kernel.org/all/Y3MRvtwdjIwMHvRo@bergen.fjasle.eu/#t
 >
-> Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
-> Signed-off-by: Daniel Gomez <da.gomez@samsung.com>
-> ---
->  scripts/subarch.include | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
 >
-> diff --git a/scripts/subarch.include b/scripts/subarch.include
-> index 4bd327d0ae42..5d84ad8c0dee 100644
-> --- a/scripts/subarch.include
-> +++ b/scripts/subarch.include
-> @@ -6,7 +6,8 @@
 >
->  SUBARCH :=3D $(shell uname -m | sed -e s/i.86/x86/ -e s/x86_64/x86/ \
->                                   -e s/sun4u/sparc64/ \
-> -                                 -e s/arm.*/arm/ -e s/sa110/arm/ \
-> +                                 -e s/armv.*/arm/ \
-> +                                 -e s/arm\(?:\(?!64\).*\)/arm/ -e s/sa11=
-0/arm/ \
-
-
-s/arm\(?:\(?!64\).*\)/arm/
-
-In sed, this expression does not seem to match anything.
-
-(or please give me some matching examples if I miss something)
-
-
-
-
-
-Nocolas already provided correct code:
-
-> [1] https://lore.kernel.org/all/Y3MRvtwdjIwMHvRo@bergen.fjasle.eu/#t
-
-
-
-
-
-
->                                   -e s/s390x/s390/ \
->                                   -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
->                                   -e s/sh[234].*/sh/ -e s/aarch64.*/arm64=
-/ \
+>
+> >                                   -e s/s390x/s390/ \
+> >                                   -e s/ppc.*/powerpc/ -e s/mips.*/mips/=
+ \
+> >                                   -e s/sh[234].*/sh/ -e s/aarch64.*/arm=
+64/ \
+> >
+> > --
+> > Git-146)
+> >
+> >
+>
 >
 > --
-> Git-146)
+> Best Regards
 >
 >
-
-
---
-Best Regards
-
-
-Masahiro Yamada
+> Masahiro Yamada
