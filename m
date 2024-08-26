@@ -1,74 +1,103 @@
-Received: from smtpdh16-1.aruba.it (smtpdh16-1.aruba.it [62.149.155.100])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 02B0D14D6ED
-	for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 10:37:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.149.155.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D94A1741C0
+	for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 12:47:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724668626; cv=none; b=rHgJ+vOKNMNAUPPtvEJAjpEy+GBeOVihTA7BKvqFnDhRUkQjHSiaKFN4p+rZEdJmytGVpYueWzcIprnKDxI8EU+xAvaO8het1Hml7MTPnn1nkLZjnU7W8qkIpZ5kNi3x7gzmquZ8Si2rLPiGOV/daq3ykl7Lxd+T5QsEdAycCyg=
+	t=1724676453; cv=none; b=E7KzgeigDeetoTbaUXEDrk5STUKczrRe3j/Iw2wb7xPemuZXSTguxLldf6TsJWLzfoK19WHopvHH+IgEreviqZtZ5bCAbr5pxB8WTI5gAX1K3q/SKXfluz3nzxt3noAvQHG/N1bpqlBmk+/AFI1M8HMyjKNdQKr26EkZnpgbPlo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724668626; c=relaxed/simple;
-	bh=BODLZC1TZq7rGNbo9I6qMDt0bfmamzibH29muv2IlQQ=;
-	h=Message-ID:Subject:From:To:Cc:Date:Content-Type:Mime-Version; b=FMu6kCQgAV0NyunIuMZ9xrAb9YNKXfbR+/0oJMc7ytCLfO5EILurkASiyha2Pw5EDpibD93uagacyuCQxRdPeMb9D97MsFsfeWbc2UOxCXeaokvpzjT5is/yaJ1RdP+zmmnUMfWKKmYWKzdMM3wxlc3KT0/Ycu7DJQ/vuujzTa8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com; spf=pass smtp.mailfrom=trentalancia.com; dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b=lquf4EU+; arc=none smtp.client-ip=62.149.155.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=trentalancia.com
+	s=arc-20240116; t=1724676453; c=relaxed/simple;
+	bh=S91zEmNZHymd5AGqOnNTj9zZHYoOBjbZP5pxAsraP6s=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ZuKRJGBIeVYBPiF8KBeaxrLZuzvODDV1DtKER/jGTA+EsNBZdkxqHKAZnViCSza/X95tzRTsHljQAtMuO9dC9QpYKiH9Y0Jtf3eRs6xZgTt9z0l50ALTwIUE8IKsMd1Q15hXGSSTUKIOd/AcBgBWi5eM8I/rDqjHrdGsYM8ZJGE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NOWAW8kE; arc=none smtp.client-ip=209.85.222.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b="lquf4EU+"
-Received: from [192.168.43.2] ([109.54.128.216])
-	by Aruba Outgoing Smtp  with ESMTPSA
-	id iX2msosEGbsngiX2ms4Hi5; Mon, 26 Aug 2024 12:33:53 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
-	t=1724668433; bh=BODLZC1TZq7rGNbo9I6qMDt0bfmamzibH29muv2IlQQ=;
-	h=Subject:From:To:Date:Content-Type:Mime-Version;
-	b=lquf4EU+7mLq2zFc4nNuBkpl/k5ot13nsA+XwEdc00W0WiRptZUvMG0E6XOQxF+B2
-	 X2Qz7748yOa/iR9MvEjvQ9aAKqga9YhVJEPBqlnV8HphBD4V01Ro2/BiqJJDSVJj1A
-	 vYcIrICC6fXt40shb2ocaxPiiChvnIMrtvi1KMpaJlYYjpAUlxVQv3rU5Y319zQ+wP
-	 XEu98W8GLwyxHvq+/xQiHJnXUSAZuAn6SaSmu3n6REvFkyI7KkNHL8WjYc9b3qsexa
-	 +Hyw7MyslZDDqopM+fyPG5LymqWnNM+yDWZrayB3zaXGmAzZ7UnUxSSosu70mLosVU
-	 og8wSdV9DUuNQ==
-Message-ID: <1724668431.19755.1.camel@trentalancia.com>
-Subject: [PATCH] selinux: mark all newly created Internet domain sockets as
- labeled sockets
-From: Guido Trentalancia <guido@trentalancia.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NOWAW8kE"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-7a1d6f4714bso423976185a.1
+        for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 05:47:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724676451; x=1725281251; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=YkEcfw6GC3JrVEhyYL/AUt1kdaNV3/VUbVLc4lEVYs4=;
+        b=NOWAW8kEE+YPm8Rv+D0ntthvFM7kcZPE6Lazhd1VART28N5AQ+Q7s6CJev5l/qIui8
+         kbhwICU1Zl81W+8A4p/7aJgCI5eg0p613kOSPyVySaO6pN3pFKvdinKzii3oHE1ifid5
+         iAY0SKG1Vu6fkk3l8iXLqGHEo9w/37iRgWOUgFDK2oVkErWmS4J2lZ6njzKwWrUnJN4S
+         0LLHl0WSPJUEvNG12/0UV52DyxkTyfskP+XFa/GjtyHNhv+SSrZkfQmwMe5R3ZvE9QnA
+         +75XmpyEeQGNr28wWTCh5qdLFoheQKFAZ1vaAuCs77LuH9Qw9Mwf7MffmSi6SSXw8fJp
+         ukGA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724676451; x=1725281251;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=YkEcfw6GC3JrVEhyYL/AUt1kdaNV3/VUbVLc4lEVYs4=;
+        b=PCrUKs/ILq4uKxs4ndruvaX3ln9n6tluHeKHSOh3dF9nJe/r/ofdkcOHDo12U3fItV
+         Ppnd4Pw+t0Y3/mqA1pk6txTeziC2CmI9Fuh6oVZnpbNEoDoHwmDwu87xiQX8cRZ+RYLc
+         8Cv1mGi+zDCxxe63j1+gfjBb/FF+9APr6rO2dkviiXnBXIp+4bcpAWemzRKAQP0vDk8k
+         HCs4FXIjaanshPLXjHMZsXv3tsP5rbdtAf4n7Pmpk04fm2rsctD6YJ3qHVzgpPlH+5CS
+         wD07CxMoT3pGlp9DwwFZ7DAw6Q78pUXXWAZjpKckaUjHpWFPjdgE4MihoA9r5wG63bwX
+         1jlQ==
+X-Gm-Message-State: AOJu0YzLeE9otT1ntt3OamySjzBeeo/pepFBeHvElcZUaYYbIDxLZEAn
+	RmxwJWcXdrlfBpnarD5iOkr4IsyndD0zQHiBUgJP05M5jUITMPsxjM/orQ==
+X-Google-Smtp-Source: AGHT+IEnKc7VN3VA9J7+bM1Tlx3LfIpmBd6Yk7xPjXusmcoyu9u+6cwsy34djN29XlxkU8zQOA0/ZA==
+X-Received: by 2002:a05:620a:248b:b0:79f:bd7:d24b with SMTP id af79cd13be357-7a67d3e2bbcmr2349785685a.7.1724676450552;
+        Mon, 26 Aug 2024 05:47:30 -0700 (PDT)
+Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6c162d6db58sm45547406d6.65.2024.08.26.05.47.29
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 26 Aug 2024 05:47:30 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com
-Date: Mon, 26 Aug 2024 12:33:51 +0200
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.26.6 
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	syzbot+319ed1769c0078257262@syzkaller.appspotmail.com
+Subject: [PATCH] selinux: annotate false positive data race to avoid KCSAN warnings
+Date: Mon, 26 Aug 2024 08:47:09 -0400
+Message-Id: <20240826124709.23530-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-CMAE-Envelope: MS4xfOX8mnwYYHV+ECm5OlP6cJjLt1XHE5Ir/DbLnPO/8OjCNKLR+yw655PSf2UzpzUOXyv/88uHhP68sT52QCjmBsJU475i6PJ67zJfOlbQBL/M3PSKlqCa
- gNLVfeyQVLKkzmluAyECAyokWXlqoQtFVXr0DGGxaMqjTE1chI/KWXsjVnGCPtyF0d9qy66vDebaNIUkIAmUkCWYfOda1OXGmyV+z8bsyU9gX0pNfrk8ZI3v
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-In function selinux_netlbl_inet_csk_clone() mark
-as labeled not only IPv4, but also IPv6 sockets.
+KCSAN flags the check of isec->initialized by
+__inode_security_revalidate() as a data race. This is indeed a racy
+check, but inode_doinit_with_dentry() will recheck with isec->lock held.
+Annotate the check with the data_race() macro to silence the KCSAN false
+positive.
 
-The current partial labeling was introduced in
-commit 389fb800ac8be2832efedd19978a2b8ced37eb61
-due to the fact that IPv6 labeling was not
-supported yet at the time.
-
-Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
+Reported-by: syzbot+319ed1769c0078257262@syzkaller.appspotmail.com
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/netlabel.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/hooks.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/security/selinux/netlabel.c	2024-08-25 22:19:37.556414928
-+0200
-+++ b/security/selinux/netlabel.c	2024-08-25 22:20:02.860415642
-+0200
-@@ -358,7 +358,7 @@ void selinux_netlbl_inet_csk_clone(struc
- {
- 	struct sk_security_struct *sksec = sk->sk_security;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 55c78c318ccd..70c335846336 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -282,8 +282,13 @@ static int __inode_security_revalidate(struct inode *inode,
  
--	if (family == PF_INET)
-+	if (family == PF_INET || family == PF_INET6)
- 		sksec->nlbl_state = NLBL_LABELED;
- 	else
- 		sksec->nlbl_state = NLBL_UNSET;
+ 	might_sleep_if(may_sleep);
+ 
++	/*
++	 * The check of isec->initialized below is racy but
++	 * inode_doinit_with_dentry() will recheck with
++	 * isec->lock held.
++	 */
+ 	if (selinux_initialized() &&
+-	    isec->initialized != LABEL_INITIALIZED) {
++	    data_race(isec->initialized != LABEL_INITIALIZED)) {
+ 		if (!may_sleep)
+ 			return -ECHILD;
+ 
+-- 
+2.40.1
+
