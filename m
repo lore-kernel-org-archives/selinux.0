@@ -1,180 +1,286 @@
-Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
+Received: from mail-yw1-f201.google.com (mail-yw1-f201.google.com [209.85.128.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBB6418E1A;
-	Mon, 26 Aug 2024 02:31:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED44363C
+	for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 04:11:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724639493; cv=none; b=ASXRj0F4TSHTpH1pE7pSrMBprV8wohUbQGbB0PvadvoHfgylawM+x4GfIldnNfmwURmifvG7tmyWNnJMd6FC2hc75vyd1ofjNzMzU6E6qAiOSK1qiUIrMOdFwXG7QN4uyyM8+5Vleuuq3MZzy+rslJvV8Zoha1GTxOE0Hn5XVMk=
+	t=1724645481; cv=none; b=U5R7/AaMjjDeQ3WklyjLnhK0uuMS0M+df0dXBAfBs98pDuFV0a6Kf8oNK2gAkg08YO84+NjGZbsNPOjsp7oG16JXrxu+CiWLIbj5qcxWjrvKmQ7hQ3OCyKi/SfHaIOzknQxy5rXfOpLu4uPBd2PwCTeFMEUooW3gyV1OrSBUEOg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724639493; c=relaxed/simple;
-	bh=auvGWweHPionxG3Y2RIot08h1IaHqLUTT7XYr7Bux+w=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HkeGYKGCx+dCczcVMOOGo9ZWrNrzAf4lejUBYG1qD9BDQ1HtR6ESdgX4cp+LEGrJCGg3Rg45EGWz1AD3gMyXRr9s9t5c43HNJ3sIMZEyCGvvW7H/bYgsD4vnyXimllRwta5FHlXUOAlt5wf+5Bl3p6pDXMHJgHbjQxEjjPLu978=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J33EkjvU; arc=none smtp.client-ip=209.85.219.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1724645481; c=relaxed/simple;
+	bh=zGbWv7Kt9WIKf9r9xdJAESjVnz3VWU3vZE70L7Kg74E=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=tazeni4czseeVomnvzenhUXV9fVS9FdH1hJCBfAANhWMRsoSXML4nzxtSyDydkvB/TwC0bgZscpRlUMiiEIzocRN4cKYaWtqmUAJyThwIJrfIYmg6CRZmjQJakMZPuzKo0sz4eEvRDznhmVyJMWynD7th2R3wBYJnCw/cJ6/IlA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=rkYhTexh; arc=none smtp.client-ip=209.85.128.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J33EkjvU"
-Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-6bf784346b9so18220586d6.2;
-        Sun, 25 Aug 2024 19:31:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="rkYhTexh"
+Received: by mail-yw1-f201.google.com with SMTP id 00721157ae682-6b43e6b9c82so92419327b3.0
+        for <selinux@vger.kernel.org>; Sun, 25 Aug 2024 21:11:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724639490; x=1725244290; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0XScue1slDHBjUXVjmPax26pz/WL1rKHeatxMpCgrfI=;
-        b=J33EkjvUneEAQ7IrY04ueDnx8p5tDlmKPlIa+IxlvcpTc214iqMgSCbNDrmrZgBNSG
-         kKBTk7P6USq53BZHqkiu+KskQV4Jqv4MaUp17DkydRStK2+/rF7Mq7EihpRJc3768RUr
-         cBCioSfjcZdqGiyb2rakf1LvaHUR2yIeWeAMpvZ/elEwBTtboSDip6PPWHyoj6QtEyBI
-         LY4VoNXkoRrHwT/Da1/ojp7nFS6GfX3jrhKUKOnMIE6tdw96/679XDwHId07EBD0SbvO
-         P9OyjS+dBdw9sYk6XP3NisNBeRL8JgNkJAGPFuNPq7Vma8caACa6VlBJFGhvH0tm/JVA
-         FSdQ==
+        d=google.com; s=20230601; t=1724645479; x=1725250279; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=mvQ8hKKXc0V7XmFasBTEZ+kw0DaF7eIBRfB0aAkMxUk=;
+        b=rkYhTexhw+vSVyg/VEAuBQhMOb/J5TlMjn/hAr1Eb0RwOG2UilNMWB44a3qnK/WzMm
+         VMU8FUs+FmqfCafCZvmYW8vxYvxeyu2ZYzE1xZcuI41jZUUIDayAkGXEsvazjzfVNY1x
+         u4WMRpWOk2hrnCienChGtyK+1vTTTMRaFAj5TcgrEZDDaa06eZ11IpGnnNrwAgVtOaOJ
+         6ojgBFbs0fUUqYuRQHlF950NYrH7kgbe7YUsBT0JRn3hMHW4C6kTLzkOcJq4rpCaJzb1
+         hh5IIMQyiRiS7/CNAlqbruAhGamS+mXYz0C55b2YaZgz+MMTDda3hpRzO9GVLTi+d8MC
+         J7eA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724639490; x=1725244290;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0XScue1slDHBjUXVjmPax26pz/WL1rKHeatxMpCgrfI=;
-        b=RBOQNrVHQubUIRt/FxaVdir15QuETP9+0S5K7df+kpK+VUbXaBtG+nDzcqoeRwadif
-         NMkn55Fe2zZOa6mXlCxQtaBn5ZM3n1YFyOC8D7xtu6fEfOJB9R1xrRuhRWZILxQCV+uy
-         XZ/vBS5Uiwfk0bR4S6tAGSKEWIHOC2mKpJlQYjy+spuv9mTLzqMFbrW6w+L4gRDP2KwQ
-         Ef6T/x/8++1hzpgAVv71zW9gL5zTYZcFuG2VH+EG7ToWLOfR4g/q/fDzI6oQo0ZfKyNo
-         KIaDEcx5JHwg47TP0AJK+BQgUfBbjcZ1Pir3QgQGIxpRTQalnDhs2st7lAcGLQgxgzQh
-         RmPg==
-X-Forwarded-Encrypted: i=1; AJvYcCU+LLwmWF7SwxB4dhtHT73RfdD8s0GmnOkZ93FZNn7CYTInwiCupLKtiFwut6NsrmmX9kt+fSHT/A==@vger.kernel.org, AJvYcCU+Q2/qpK+CC3onhcQ7BwDX8R7kJCWIvu+enJ5zaRKoNJMWXX8lssgglf4CdzynpVesq+3okUkf0sbYibIO5r7fH9jo@vger.kernel.org, AJvYcCUfTuanryljPhtyo7jpioBGWFTefyUWB13kAqnHyFmFkHLpFPMmdabVjly+879hzf2+uSS9BvltB7w9EUd59A==@vger.kernel.org, AJvYcCVGs+GZ97iiVWrJbXD0ixBPqz30a5cBEefL8rgWKg/nlWF6+rRLy8Pd4ZoF7J7/wGSKNnBrcD8+s7SFlTPP1zHVbV8fxHdu@vger.kernel.org, AJvYcCVVgQWRNuPmfbgquVfn7PfcPR/1YFtC3SoPpM+4LTxn+fAvQR7b4Zu/LlsWj+HoWsHo48DheA==@vger.kernel.org, AJvYcCVwKBQ8X/SKwIzbn4/0wrGIsDmu20yZjWMKsKb09eyMQQt9IL5+o82XYenMVg1LFub5T3iw@vger.kernel.org, AJvYcCX72G27jpTwaedK8xNmFKpTSImxtiOn82cpZOjNhqzLfYYFSdqncKzFjl3vowXhoGJTdaRK529N@vger.kernel.org
-X-Gm-Message-State: AOJu0YzNkPg/QJ2Usa76CXkYTozsNnc2VoxrIDmBk1Qj0N6H+C2u674W
-	TYyfzLSd0rJ+xxQdJ9iSt5jA/wrt/cFTnqMj7OwXUnVQk14etHnJgd4W8HPOE1yC5XFuUTPDSfo
-	bxqSC79ZxycwGNhaisyufaQMgYNU=
-X-Google-Smtp-Source: AGHT+IGarR35eqB+ZCiektfid3NknQ5udphouR14HCsBw/jqFbYUFfZCBajx/1hzRrP8EuX3DNE+IOmZVcAYGIL4Z2k=
-X-Received: by 2002:a05:6214:318d:b0:6bb:84d9:8f91 with SMTP id
- 6a1803df08f44-6c16dc2615cmr95291406d6.6.1724639490512; Sun, 25 Aug 2024
- 19:31:30 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1724645479; x=1725250279;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=mvQ8hKKXc0V7XmFasBTEZ+kw0DaF7eIBRfB0aAkMxUk=;
+        b=ko5tCRa8dlKfQohXGVGeg/0CXVH51OMBlhS++0p5Y+k89eaIxWJqrmQ4IAbjj9Qt7K
+         0BOcY52Ov0mRMaQeFyZNIJc1yIB9nYncZ7o4huJLe/3w/HSTKI8UotpXpFllfQbbuac9
+         lOvpq9zsHrQD/3yFBas3wpJtvn1iPmG7xiwQEpFklKCXUGm01YXXz9q1fy/sDUizw+qS
+         gyWeDDm0WxHIRvvbB7wHZML8TaXsN5KyUc2XuHmYGKa3bGcfmm1RIhOvQCFRvgqjYEHL
+         VjkvYvC21xeN4CAim82lbils+HOx5eTfCu1BRQU4Se7M2m++Qc0ENNxZHj66w8AqdHPF
+         ufZg==
+X-Forwarded-Encrypted: i=1; AJvYcCWTKpquhOZcGrrLWgcCvaoI8NPzMjzJD4yuC8n3J8mtaXuB8+uhlpHbtwfKsk1CD3m6HY7tvKW8@vger.kernel.org
+X-Gm-Message-State: AOJu0YyUTVFlZ1yWDWoTlj2H2aTi8cG3fcKl/4EnLtl+UG7nSbHKCbnT
+	H25os8mGdxu1HDwW/jddGtnAMpdNbYjRguD9r1j9K5x54NavOxtan5IMivmdp9lZOYX8lXW+UA=
+	=
+X-Google-Smtp-Source: AGHT+IFXgNZKFCrMqHrLbCJCu04o5e8jFfwDIpwy9A2PaTX/HqRVNRaevRL74zyzVLrdRpbhqfjR5U6J/g==
+X-Received: from tweek-syd.c.googlers.com ([fda3:e722:ac3:cc00:b7:3870:c0a8:26])
+ (user=tweek job=sendgmr) by 2002:a05:690c:ed3:b0:68d:52a1:bf4 with SMTP id
+ 00721157ae682-6c62450e4bamr1581707b3.2.1724645478820; Sun, 25 Aug 2024
+ 21:11:18 -0700 (PDT)
+Date: Mon, 26 Aug 2024 14:10:44 +1000
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20240817025624.13157-1-laoar.shao@gmail.com>
-In-Reply-To: <20240817025624.13157-1-laoar.shao@gmail.com>
-From: Yafang Shao <laoar.shao@gmail.com>
-Date: Mon, 26 Aug 2024 10:30:54 +0800
-Message-ID: <CALOAHbA7VW3_gYzqzb+Pp2T3BqWb5x2sWPmUj2N+SzbYchEBBA@mail.gmail.com>
-Subject: Re: [PATCH v7 0/8] Improve the copy of task comm
-To: akpm@linux-foundation.org
-Cc: torvalds@linux-foundation.org, alx@kernel.org, justinstitt@google.com, 
-	ebiederm@xmission.com, alexei.starovoitov@gmail.com, rostedt@goodmis.org, 
-	catalin.marinas@arm.com, penguin-kernel@i-love.sakura.ne.jp, 
-	linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	bpf@vger.kernel.org, netdev@vger.kernel.org, dri-devel@lists.freedesktop.org
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.46.0.295.g3b9ea8a38a-goog
+Message-ID: <20240826041044.1753994-1-tweek@google.com>
+Subject: [PATCH] libselinux: rename hashtab functions
+From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To: paul@paul-moore.com
+Cc: jeffv@google.com, selinux@vger.kernel.org, wanghuizhao1@huawei.com, 
+	jwcart2@gmail.com, "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Aug 17, 2024 at 10:56=E2=80=AFAM Yafang Shao <laoar.shao@gmail.com>=
- wrote:
->
-> Using {memcpy,strncpy,strcpy,kstrdup} to copy the task comm relies on the
-> length of task comm. Changes in the task comm could result in a destinati=
-on
-> string that is overflow. Therefore, we should explicitly ensure the
-> destination string is always NUL-terminated, regardless of the task comm.
-> This approach will facilitate future extensions to the task comm.
->
-> As suggested by Linus [0], we can identify all relevant code with the
-> following git grep command:
->
->   git grep 'memcpy.*->comm\>'
->   git grep 'kstrdup.*->comm\>'
->   git grep 'strncpy.*->comm\>'
->   git grep 'strcpy.*->comm\>'
->
-> PATCH #2~#4:   memcpy
-> PATCH #5~#6:   kstrdup
-> PATCH #7~#8:   strcpy
->
-> Please note that strncpy() is not included in this series as it is being
-> tracked by another effort. [1]
->
-> In this series, we have removed __get_task_comm() because the task_lock()
-> and BUILD_BUG_ON() within it are unnecessary.
->
-> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Link: https://lore.kernel.org/all/CAHk-=3DwjAmmHUg6vho1KjzQi2=3DpsR30+Cog=
-Fd4aXrThr2gsiS4g@mail.gmail.com/ [0]
->
-> Changes:
-> v6->v7:
-> - Improve the comment (Alejandro)
-> - Drop strncpy as it is being tracked by another effort (Justin)
->   https://github.com/KSPP/linux/issues/90 [1]
->
-> v5->v6: https://lore.kernel.org/linux-mm/20240812022933.69850-1-laoar.sha=
-o@gmail.com/
-> - Get rid of __get_task_comm() (Linus)
-> - Use ARRAY_SIZE() in get_task_comm() (Alejandro)
->
-> v4->v5: https://lore.kernel.org/all/20240804075619.20804-1-laoar.shao@gma=
-il.com/
-> - Drop changes in the mm/kmemleak.c as it was fixed by
->   commit 0b84780134fb ("mm/kmemleak: replace strncpy() with strscpy()")
-> - Drop changes in kernel/tsacct.c as it was fixed by
->   commmit 0fe2356434e ("tsacct: replace strncpy() with strscpy()")
->
-> v3->v4: https://lore.kernel.org/linux-mm/20240729023719.1933-1-laoar.shao=
-@gmail.com/
-> - Rename __kstrndup() to __kmemdup_nul() and define it inside mm/util.c
->   (Matthew)
-> - Remove unused local varaible (Simon)
->
-> v2->v3: https://lore.kernel.org/all/20240621022959.9124-1-laoar.shao@gmai=
-l.com/
-> - Deduplicate code around kstrdup (Andrew)
-> - Add commit log for dropping task_lock (Catalin)
->
-> v1->v2: https://lore.kernel.org/bpf/20240613023044.45873-1-laoar.shao@gma=
-il.com/
-> - Add comment for dropping task_lock() in __get_task_comm() (Alexei)
-> - Drop changes in trace event (Steven)
-> - Fix comment on task comm (Matus)
->
-> v1: https://lore.kernel.org/all/20240602023754.25443-1-laoar.shao@gmail.c=
-om/
->
-> Yafang Shao (8):
->   Get rid of __get_task_comm()
->   auditsc: Replace memcpy() with strscpy()
->   security: Replace memcpy() with get_task_comm()
->   bpftool: Ensure task comm is always NUL-terminated
->   mm/util: Fix possible race condition in kstrdup()
->   mm/util: Deduplicate code in {kstrdup,kstrndup,kmemdup_nul}
->   net: Replace strcpy() with strscpy()
->   drm: Replace strcpy() with strscpy()
->
->  drivers/gpu/drm/drm_framebuffer.c     |  2 +-
->  drivers/gpu/drm/i915/i915_gpu_error.c |  2 +-
->  fs/exec.c                             | 10 -----
->  fs/proc/array.c                       |  2 +-
->  include/linux/sched.h                 | 32 +++++++++++---
->  kernel/auditsc.c                      |  6 +--
->  kernel/kthread.c                      |  2 +-
->  mm/util.c                             | 61 ++++++++++++---------------
->  net/ipv6/ndisc.c                      |  2 +-
->  security/lsm_audit.c                  |  4 +-
->  security/selinux/selinuxfs.c          |  2 +-
->  tools/bpf/bpftool/pids.c              |  2 +
->  12 files changed, 65 insertions(+), 62 deletions(-)
->
-> --
-> 2.43.5
->
+In commit d95bc8b75539 ("libselinux: migrating hashtab from
+policycoreutils") and commit 4a420508a98c ("libselinux: adapting hashtab
+to libselinux"), the hashtab implementation was copied to libselinux.
+Since the same functions exist in libsepol (e.g., hashtab_create,
+hashtab_destroy, etc), a compilation error is raised when both libraries
+are included statically.
 
-Hello Andrew,
+Prefix the libselinux internal implementation with "selinux_".
 
-Could you please apply this series to the mm tree ?
+Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+---
+ libselinux/src/hashtab.c    | 16 ++++++++--------
+ libselinux/src/hashtab.h    | 16 ++++++++--------
+ libselinux/src/label_file.c | 10 +++++-----
+ 3 files changed, 21 insertions(+), 21 deletions(-)
 
+diff --git a/libselinux/src/hashtab.c b/libselinux/src/hashtab.c
+index 7452613b..0c6641ed 100644
+--- a/libselinux/src/hashtab.c
++++ b/libselinux/src/hashtab.c
+@@ -11,7 +11,7 @@
+ #include <string.h>
+ #include "hashtab.h"
+=20
+-hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
++hashtab_t selinux_hashtab_create(unsigned int (*hash_value) (hashtab_t h,
+ 						     const_hashtab_key_t key),
+ 			 int (*keycmp) (hashtab_t h,
+ 					const_hashtab_key_t key1,
+@@ -42,7 +42,7 @@ hashtab_t hashtab_create(unsigned int (*hash_value) (hash=
+tab_t h,
+ 	return p;
+ }
+=20
+-int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
++int selinux_hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t=
+ datum)
+ {
+ 	unsigned int hvalue;
+ 	hashtab_ptr_t prev, cur, newnode;
+@@ -79,7 +79,7 @@ int hashtab_insert(hashtab_t h, hashtab_key_t key, hashta=
+b_datum_t datum)
+ 	return HASHTAB_SUCCESS;
+ }
+=20
+-int hashtab_remove(hashtab_t h, hashtab_key_t key,
++int selinux_hashtab_remove(hashtab_t h, hashtab_key_t key,
+ 		   void (*destroy) (hashtab_key_t k,
+ 				    hashtab_datum_t d, void *args), void *args)
+ {
+@@ -112,7 +112,7 @@ int hashtab_remove(hashtab_t h, hashtab_key_t key,
+ 	return HASHTAB_SUCCESS;
+ }
+=20
+-hashtab_datum_t hashtab_search(hashtab_t h, const_hashtab_key_t key)
++hashtab_datum_t selinux_hashtab_search(hashtab_t h, const_hashtab_key_t ke=
+y)
+ {
+=20
+ 	unsigned int hvalue;
+@@ -132,7 +132,7 @@ hashtab_datum_t hashtab_search(hashtab_t h, const_hasht=
+ab_key_t key)
+ 	return cur->datum;
+ }
+=20
+-void hashtab_destroy(hashtab_t h)
++void selinux_hashtab_destroy(hashtab_t h)
+ {
+ 	unsigned int i;
+ 	hashtab_ptr_t cur, temp;
+@@ -156,7 +156,7 @@ void hashtab_destroy(hashtab_t h)
+ 	free(h);
+ }
+=20
+-void hashtab_destroy_key(hashtab_t h,
++void selinux_hashtab_destroy_key(hashtab_t h,
+ 		int (*destroy_key) (hashtab_key_t k))
+ {
+ 	unsigned int i;
+@@ -182,7 +182,7 @@ void hashtab_destroy_key(hashtab_t h,
+ 	free(h);
+ }
+=20
+-int hashtab_map(hashtab_t h,
++int selinux_hashtab_map(hashtab_t h,
+ 		int (*apply) (hashtab_key_t k,
+ 			      hashtab_datum_t d, void *args), void *args)
+ {
+@@ -205,7 +205,7 @@ int hashtab_map(hashtab_t h,
+ 	return HASHTAB_SUCCESS;
+ }
+=20
+-void hashtab_hash_eval(hashtab_t h, char *tag)
++void selinux_hashtab_hash_eval(hashtab_t h, char *tag)
+ {
+ 	unsigned int i;
+ 	int chain_len, slots_used, max_chain_len;
+diff --git a/libselinux/src/hashtab.h b/libselinux/src/hashtab.h
+index f10fc0af..6fbf5fb4 100644
+--- a/libselinux/src/hashtab.h
++++ b/libselinux/src/hashtab.h
+@@ -52,7 +52,7 @@ typedef hashtab_val_t *hashtab_t;
+    Returns NULL if insufficient space is available or
+    the new hash table otherwise.
+  */
+-extern hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
++extern hashtab_t selinux_hashtab_create(unsigned int (*hash_value) (hashta=
+b_t h,
+ 							    const_hashtab_key_t
+ 							    key),
+ 				int (*keycmp) (hashtab_t h,
+@@ -66,7 +66,7 @@ extern hashtab_t hashtab_create(unsigned int (*hash_value=
+) (hashtab_t h,
+    HASHTAB_PRESENT  if there is already an entry with the same key or
+    HASHTAB_SUCCESS otherwise.
+  */
+-extern int hashtab_insert(hashtab_t h, hashtab_key_t k, hashtab_datum_t d)=
+;
++extern int selinux_hashtab_insert(hashtab_t h, hashtab_key_t k, hashtab_da=
+tum_t d);
+=20
+ /*
+    Removes the entry with the specified key from the hash table.
+@@ -76,7 +76,7 @@ extern int hashtab_insert(hashtab_t h, hashtab_key_t k, h=
+ashtab_datum_t d);
+    Returns HASHTAB_MISSING if no entry has the specified key or
+    HASHTAB_SUCCESS otherwise.
+  */
+-extern int hashtab_remove(hashtab_t h, hashtab_key_t k,
++extern int selinux_hashtab_remove(hashtab_t h, hashtab_key_t k,
+ 			  void (*destroy) (hashtab_key_t k,
+ 					   hashtab_datum_t d,
+ 					   void *args), void *args);
+@@ -87,13 +87,13 @@ extern int hashtab_remove(hashtab_t h, hashtab_key_t k,
+    Returns NULL if no entry has the specified key or
+    the datum of the entry otherwise.
+  */
+-extern hashtab_datum_t hashtab_search(hashtab_t h, const_hashtab_key_t k);
++extern hashtab_datum_t selinux_hashtab_search(hashtab_t h, const_hashtab_k=
+ey_t k);
+=20
+ /*
+    Destroys the specified hash table.
+  */
+-extern void hashtab_destroy(hashtab_t h);
+-extern void hashtab_destroy_key(hashtab_t h,
++extern void selinux_hashtab_destroy(hashtab_t h);
++extern void selinux_hashtab_destroy_key(hashtab_t h,
+ 			int (*destroy_key) (hashtab_key_t k));
+=20
+ /*
+@@ -107,11 +107,11 @@ extern void hashtab_destroy_key(hashtab_t h,
+    iterating through the hash table and will propagate the error
+    return to its caller.
+  */
+-extern int hashtab_map(hashtab_t h,
++extern int selinux_hashtab_map(hashtab_t h,
+ 		       int (*apply) (hashtab_key_t k,
+ 				     hashtab_datum_t d,
+ 				     void *args), void *args);
+=20
+-extern void hashtab_hash_eval(hashtab_t h, char *tag);
++extern void selinux_hashtab_hash_eval(hashtab_t h, char *tag);
+=20
+ #endif
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 59c9f2ef..2fad0c93 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -111,7 +111,7 @@ static int nodups_specs(struct saved_data *data, const =
+char *path)
+ 	struct chkdups_key *new =3D NULL;
+ 	unsigned int hashtab_len =3D (data->nspec / SHRINK_MULTIS) ? data->nspec =
+/ SHRINK_MULTIS : 1;
+=20
+-	hashtab_t hash_table =3D hashtab_create(symhash, symcmp, hashtab_len);
++	hashtab_t hash_table =3D selinux_hashtab_create(symhash, symcmp, hashtab_=
+len);
+ 	if (!hash_table) {
+ 		rc =3D -1;
+ 		COMPAT_LOG(SELINUX_ERROR, "%s: hashtab create failed.\n", path);
+@@ -121,18 +121,18 @@ static int nodups_specs(struct saved_data *data, cons=
+t char *path)
+ 		new =3D (struct chkdups_key *)malloc(sizeof(struct chkdups_key));
+ 		if (!new) {
+ 			rc =3D -1;
+-			hashtab_destroy_key(hash_table, destroy_chkdups_key);
++			selinux_hashtab_destroy_key(hash_table, destroy_chkdups_key);
+ 			COMPAT_LOG(SELINUX_ERROR, "%s: hashtab key create failed.\n", path);
+ 			return rc;
+ 		}
+ 		new->regex =3D spec_arr[ii].regex_str;
+ 		new->mode =3D spec_arr[ii].mode;
+-		ret =3D hashtab_insert(hash_table, (hashtab_key_t)new, &spec_arr[ii]);
++		ret =3D selinux_hashtab_insert(hash_table, (hashtab_key_t)new, &spec_arr=
+[ii]);
+ 		if (ret =3D=3D HASHTAB_SUCCESS)
+ 			continue;
+ 		if (ret =3D=3D HASHTAB_PRESENT) {
+ 			curr_spec =3D
+-				(struct spec *)hashtab_search(hash_table, (hashtab_key_t)new);
++				(struct spec *)selinux_hashtab_search(hash_table, (hashtab_key_t)new);
+ 			rc =3D -1;
+ 			errno =3D EINVAL;
+ 			free(new);
+@@ -161,7 +161,7 @@ static int nodups_specs(struct saved_data *data, const =
+char *path)
+ 		}
+ 	}
+=20
+-	hashtab_destroy_key(hash_table, destroy_chkdups_key);
++	selinux_hashtab_destroy_key(hash_table, destroy_chkdups_key);
+=20
+ 	return rc;
+ }
 --=20
-Regards
-Yafang
+2.46.0.295.g3b9ea8a38a-goog
+
