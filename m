@@ -1,103 +1,118 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+Received: from mail-io1-f44.google.com (mail-io1-f44.google.com [209.85.166.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B521191F74
-	for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 15:09:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CF6017B51C;
+	Mon, 26 Aug 2024 15:29:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724684985; cv=none; b=ufK0xmsecYU5nNyLTXYzmRaT/nQPdYGBpM8VJ+tC7RtArNR1OEstC3al9am71Lub9n6vJmjg8Nrg4Sy0LE+HE+C8lUMtnBVv0eOpYfzF1yifO9CRcuSBbZs/5jMYa91gjzMidU10NtoCMe6zAKT1ykuyYEJmL979BW8CeF7mc3w=
+	t=1724686142; cv=none; b=FAgic3eSUKD73RLtkfuG9Vh63ePRGpBtFx75yIRkXWzuWHmZe6UXawS3REGZ+x0fuCd7NwE5imXTS8qmdhwN0YwY7safvxldaiGOK0xMTt7PBYPpMNvU+UW2BTr7dmfhuTN2ti5zpzef4zdRZR95bG12V35h6/zZH7DuyxPaDFE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724684985; c=relaxed/simple;
-	bh=JrZ8FvK83ZoPDpoc9Z0d2jCCQx1EFHrJLn3qJbB2uAA=;
+	s=arc-20240116; t=1724686142; c=relaxed/simple;
+	bh=Db9M8pHcif2iZSyJS5LWO4EnKkBJ13mQE6dsAebprkA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HQu1kv9nGfzUKqRlX0FRRJk4dNchVc2fEEubwIu/vQ4Uk8RjV4H05AtmIZDYFd4ZcQvNOKXfAAsAisDN0EXEZ2vYTkKYKirnuCVhYR7WQpC9wmkByc0LcqSJTi6rM4u53hqWcpyaSp8sMx2uODX8KKbpRsmXdoyq0GJKVPjznQI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e8nyQEFV; arc=none smtp.client-ip=209.85.215.182
+	 To:Cc:Content-Type; b=PB//IpoP4PWnLHhl0sFb51HnEixv5w8oRUVhpPiNC1548rwx/SbTVo+vMlOq3mDwgizlnGtWzCadwxxo098vv1iLDODoYPRGqcw5y+puhfRlC2hVtHnifv+8xJv9bzqWZNYWUpY4chR/e/LrG7inLNUBiJ9NWFDCd3+CBFbEy0Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gS51vG/W; arc=none smtp.client-ip=209.85.166.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e8nyQEFV"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-6e7b121be30so2793895a12.1
-        for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 08:09:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gS51vG/W"
+Received: by mail-io1-f44.google.com with SMTP id ca18e2360f4ac-824ee14f7bfso170050539f.1;
+        Mon, 26 Aug 2024 08:29:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724684983; x=1725289783; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1724686139; x=1725290939; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JrZ8FvK83ZoPDpoc9Z0d2jCCQx1EFHrJLn3qJbB2uAA=;
-        b=e8nyQEFVzDokgQ3MKlFdjT4F3ORaKoJdmEinK9pzEw/HaJEqFOBbGdhJQH2TFGQup4
-         d60yvJksFscIhWKQUpQwToSIDhQ1D4h8aY7OOuXfWNfUXN2Q8xFuq6l1Yqy2FFKfadd6
-         BaiduoULMZoa3xPt9LcXHYNCnmWU9kfEf8NwPCnLV7jTIO1wNmTBstsZ2Xd9QmG0N1vK
-         +mFWH8zZHLnHK23MLp3Fa3P0mf44JEt98BERmkO0x4afxrdmctuBTM5ezZigjrB8jXLr
-         j+9Jlcf3yZHt1+TZyKyObXcmGAE4JLLthx8hf96JMLebXgpOWbKXmAy1I+MlcxeOI6Ro
-         mX3A==
+        bh=oHip6bX20yVmNEISfUGqBe8fWDCd+Plq/nxFo7CBhWA=;
+        b=gS51vG/W/qchSJy4VJ2jW3KaeZyJyn4tPhXHLKMR3MNooY+mfzuEwAMME8XVpHqdHr
+         kJXkL8c4TGHPrR1V0fc0a6GxbSLP9F6wLrhT32qtgXbjem9cW4tjKtRkZRyz/cAw7eVi
+         Rr4/GGjsp8YKgWajtuaEq3A+k8vqU7e99qGJdqzUyY1NMXCYksy64nuHti6XdG/nJSAV
+         ZAM+wTY8LylVEJKyKbNs/LftpHB7lCn4quLYWHM5SZ4yWdsud8Eo93GHWdzMTKO0Hbab
+         FpOuNIYZNnZEzIT38/nnsQUSz1vqNW7S2NoEUYC7MdsUjHTCmE75ZXeZQI5Ql9nxcQNJ
+         lxIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724684983; x=1725289783;
+        d=1e100.net; s=20230601; t=1724686139; x=1725290939;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=JrZ8FvK83ZoPDpoc9Z0d2jCCQx1EFHrJLn3qJbB2uAA=;
-        b=Cae2d4Qd67PMHqJs/NQF5FqJJx0N4dOx1FV/uGsIJNtmtbwxrxx+u2k5LuYy66QlVb
-         20haC9RmGb3It6t6goalSm/D3MevW7vfM8P/EYygkZjI4ozXVTORUnFI8RXTTbuxDbuf
-         BxHa4orA/nSupCkabgaBhphktiRR888jQ8nPGXiw/gSt7nTZ5mo71AM2isUUpJ+bgR05
-         Gq+DAoflSfqldbBBkqPZ59gZxPFLiTaYUvmTGjxr4FMSZWiQUooDfjEdtP+7y0HHSKpO
-         ksos7NQ1FZAqpCy1p78t3mef3tZJkiM2wlDnNjFxako27TrxmPMMx5Fw+Sg4Cc5kLsCt
-         30Cw==
-X-Gm-Message-State: AOJu0Yxavn2nYLfFwLbBnNA6bAbPOM0lp8KLKnFfxFk9BuCQx8vobG+c
-	F96QFlUPH94jB2CtW1AoHkQi1lq6JK86+7Yb7Wn5MlrRFb9/rc/bpsCZLMov9B8f82bcq2THusg
-	psnl1obGcr4QQx+DnOer11cuE8lXqV5Kb
-X-Google-Smtp-Source: AGHT+IH3/btB5pxTdGQI3a/w2UiZvT7/xLkzenysZJzgYFdj7FQQfW7XCyySgx+5I/TjZO154o99x6xZi7Tyz+Oyi4o=
-X-Received: by 2002:a17:90a:12c2:b0:2c9:69cc:3a6f with SMTP id
- 98e67ed59e1d1-2d646d0c2f3mr9482073a91.31.1724684983030; Mon, 26 Aug 2024
- 08:09:43 -0700 (PDT)
+        bh=oHip6bX20yVmNEISfUGqBe8fWDCd+Plq/nxFo7CBhWA=;
+        b=MGTzGgpsctgF25TLwqBJI36lIgsBIAyTZQG2Ww1MNoNuQpOInvJHZr9WwmyFadcWE/
+         9nVaZVx/eakVRRqDpLrgmLJlGa0HTayu/PfW/sX2BjruefnEi1lWJvPH0ZJsgCZNoeXv
+         WQr5AuYgoA7fmAlmik6UCmwtbamMYFOm3G/6UBhtIkjyv4tbL4iSjwccLYj3UohvbSFE
+         jFkBqBQaCyJvrMTzAAeWJSdt4ECoIzsaYzvNXK/vO4VAIazDneerciLNfJzH/aVGxQY9
+         OQL8vFDNJYDVgW8SxREC4uUkfFGr418Qk03B6uOAJfHWZKmi/xlNiuNmG0bUhKZc0h1D
+         Skug==
+X-Forwarded-Encrypted: i=1; AJvYcCUiou9Zs8SOag285RQChkjg6e/X3/JBMavWXMdkluF2qvdf9Le6KkTBJ3NF5ojoU46AP5pNpYMiSaw70Q==@vger.kernel.org, AJvYcCUmRXdSHk5glKwcqGWzYxql/Uir3eNSIqSBic+VuPNxWjCgglKc3TZvkpBBcv5+SGaJ35z1n5p6uA==@vger.kernel.org, AJvYcCVKTNB8XuFt96BvzMT6Z3ntrwpqb7C1aMn86t4bwxhK2MwuC+9pVDwz01qHGEUPehI23G2HeMZ4xr6POER8kF4majX6NDpa@vger.kernel.org, AJvYcCVLUN9oNNnr5785T0NqQhvSIXsBqDfQ78dbzsRL4kRKjXktPxvdsspGmEn3W+LzTK+WhuLqEUNrfaoUpiY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwZmpjEXwUf26R8mIld+1cv6AapstnWZjBJ5xUhkjExDTBZ1/XU
+	3msUnDW62FjYKNPdeJY/WBINT1M8mbOaEAQyEg/gJBx+9nCtVvEpIYNR5RgCXNCjNAG8WA+02vs
+	21uuZU8pg9cOnI1y6BIo7eDKEQ6U=
+X-Google-Smtp-Source: AGHT+IGwKg+o6Rqr71Zd/HjBAsN+oF21sPFhuAJJlbur0FwudipAWhG6CUWz9M6Jo9DnXhoVvqlu7T8AVHRhkwwNpfQ=
+X-Received: by 2002:a05:6e02:1fc6:b0:375:ab6a:f701 with SMTP id
+ e9e14a558f8ab-39e3c9757eamr126619065ab.5.1724686139465; Mon, 26 Aug 2024
+ 08:28:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240826124709.23530-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20240826124709.23530-1-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 26 Aug 2024 11:09:31 -0400
-Message-ID: <CAEjxPJ6gEP5LsA5qydC=Tiq0qXobR7k4GqijMeHtpieMerq+tg@mail.gmail.com>
-Subject: Re: [PATCH] selinux: annotate false positive data race to avoid KCSAN warnings
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com, omosnace@redhat.com, 
-	syzbot+319ed1769c0078257262@syzkaller.appspotmail.com
+References: <20240826130711.141271-1-omosnace@redhat.com>
+In-Reply-To: <20240826130711.141271-1-omosnace@redhat.com>
+From: Xin Long <lucien.xin@gmail.com>
+Date: Mon, 26 Aug 2024 11:28:48 -0400
+Message-ID: <CADvbK_enZcjb8KWZQZYScGLsnYHs6a-9ez2YAb2guta3Tnuk=w@mail.gmail.com>
+Subject: Re: [PATCH net] sctp: fix association labeling in the duplicate
+ COOKIE-ECHO case
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org, 
+	Vlad Yasevich <vyasevich@gmail.com>, Neil Horman <nhorman@tuxdriver.com>, 
+	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, Paul Moore <paul@paul-moore.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, linux-sctp@vger.kernel.org, 
+	selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 26, 2024 at 8:47=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Mon, Aug 26, 2024 at 9:07=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
+m> wrote:
 >
-> KCSAN flags the check of isec->initialized by
-> __inode_security_revalidate() as a data race. This is indeed a racy
-> check, but inode_doinit_with_dentry() will recheck with isec->lock held.
-> Annotate the check with the data_race() macro to silence the KCSAN false
-> positive.
+> sctp_sf_do_5_2_4_dupcook() currently calls security_sctp_assoc_request()
+> on new_asoc, but as it turns out, this association is always discarded
+> and the LSM labels never get into the final association (asoc).
 >
-> Reported-by: syzbot+319ed1769c0078257262@syzkaller.appspotmail.com
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> This can be reproduced by having two SCTP endpoints try to initiate an
+> association with each other at approximately the same time and then peel
+> off the association into a new socket, which exposes the unitialized
+> labels and triggers SELinux denials.
+>
+> Fix it by calling security_sctp_assoc_request() on asoc instead of
+> new_asoc. Xin Long also suggested limit calling the hook only to cases
+> A, B, and D, since in cases C and E the COOKIE ECHO chunk is discarded
+> and the association doesn't enter the ESTABLISHED state, so rectify that
+> as well.
+>
+> One related caveat with SELinux and peer labeling: When an SCTP
+> connection is set up simultaneously in this way, we will end up with an
+> association that is initialized with security_sctp_assoc_request() on
+> both sides, so the MLS component of the security context of the
+> association will get swapped between the peers, instead of just one side
+> setting it to the other's MLS component. However, at that point
+> security_sctp_assoc_request() had already been called on both sides in
+> sctp_sf_do_unexpected_init() (on a temporary association) and thus if
+> the exchange didn't fail before due to MLS, it won't fail now either
+> (most likely both endpoints have the same MLS range).
+>
+> Tested by:
+>  - reproducer from https://src.fedoraproject.org/tests/selinux/pull-reque=
+st/530
+>  - selinux-testsuite (https://github.com/SELinuxProject/selinux-testsuite=
+/)
+>  - sctp-tests (https://github.com/sctp/sctp-tests) - no tests failed
+>    that wouldn't fail also without the patch applied
+>
+> Fixes: c081d53f97a1 ("security: pass asoc to sctp_assoc_request and sctp_=
+sk_clone")
+> Suggested-by: Xin Long <lucien.xin@gmail.com>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-With this patch applied and the following KCSAN-related configuration,
-I don't see any data-race warnings in SELinux functions during the
-selinux-testsuite (lots of them elsewhere though).
-
-CONFIG_KCSAN=3Dy
-# CONFIG_KCSAN_VERBOSE is not set
-CONFIG_KCSAN_SELFTEST=3Dy
-CONFIG_KCSAN_EARLY_ENABLE=3Dy
-CONFIG_KCSAN_NUM_WATCHPOINTS=3D64
-CONFIG_KCSAN_UDELAY_TASK=3D80
-CONFIG_KCSAN_UDELAY_INTERRUPT=3D20
-CONFIG_KCSAN_DELAY_RANDOMIZE=3Dy
-CONFIG_KCSAN_SKIP_WATCH=3D4000
-CONFIG_KCSAN_SKIP_WATCH_RANDOMIZE=3Dy
-# CONFIG_KCSAN_INTERRUPT_WATCHER is not set
-CONFIG_KCSAN_REPORT_ONCE_IN_MS=3D3000
-CONFIG_KCSAN_REPORT_RACE_UNKNOWN_ORIGIN=3Dy
-# CONFIG_KCSAN_STRICT is not set
-CONFIG_KCSAN_REPORT_VALUE_CHANGE_ONLY=3Dy
-CONFIG_KCSAN_ASSUME_PLAIN_WRITES_ATOMIC=3Dy
-# CONFIG_KCSAN_IGNORE_ATOMICS is not set
-# CONFIG_KCSAN_PERMISSIVE is not set
+Acked-by: Xin Long <lucien.xin@gmail.com>
