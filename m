@@ -1,240 +1,103 @@
-Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EBA7183CDA;
-	Mon, 26 Aug 2024 13:13:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B521191F74
+	for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 15:09:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724678035; cv=none; b=MaE+grUPrJEEJMVMHdk3eOZ9e3pg0cx2Qd8eRUwajSOH+a5KCm0ADGSzJc/I6xLHFXXuQi92163T1AtDskj16pHx7pVNut4ij08+TX+KpL86m4ToCVo90r1sRPIJ8RCX0cgOX8m2AK8XarWPK3WjccDoMeVn9GN6fhd6I0Fa4uE=
+	t=1724684985; cv=none; b=ufK0xmsecYU5nNyLTXYzmRaT/nQPdYGBpM8VJ+tC7RtArNR1OEstC3al9am71Lub9n6vJmjg8Nrg4Sy0LE+HE+C8lUMtnBVv0eOpYfzF1yifO9CRcuSBbZs/5jMYa91gjzMidU10NtoCMe6zAKT1ykuyYEJmL979BW8CeF7mc3w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724678035; c=relaxed/simple;
-	bh=uXndQDCUvnx0Z+cralt3H9P3W4x5FKSzMQBt52DRN90=;
+	s=arc-20240116; t=1724684985; c=relaxed/simple;
+	bh=JrZ8FvK83ZoPDpoc9Z0d2jCCQx1EFHrJLn3qJbB2uAA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AbdsifLh+Bssk78WABghf0ZWcZlft1NCMo5ruWx+BdIOSp0jjY8SSJa1dGiGVwfjQNe6ylAQodlwTXOtw5aYRqwy/tRgDKjEcuMOxv6dXQUrO75ZzfF0qve0NAmOU1nJr4DtmAMBmjRMUlBg5jedcBn9S1RQjVD3DVyZMvpkYoM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G2aFi+kO; arc=none smtp.client-ip=209.85.219.45
+	 To:Cc:Content-Type; b=HQu1kv9nGfzUKqRlX0FRRJk4dNchVc2fEEubwIu/vQ4Uk8RjV4H05AtmIZDYFd4ZcQvNOKXfAAsAisDN0EXEZ2vYTkKYKirnuCVhYR7WQpC9wmkByc0LcqSJTi6rM4u53hqWcpyaSp8sMx2uODX8KKbpRsmXdoyq0GJKVPjznQI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e8nyQEFV; arc=none smtp.client-ip=209.85.215.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G2aFi+kO"
-Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-6bf7f4a133aso23042536d6.2;
-        Mon, 26 Aug 2024 06:13:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e8nyQEFV"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-6e7b121be30so2793895a12.1
+        for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 08:09:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724678033; x=1725282833; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1724684983; x=1725289783; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vSwJhEnVRbE/lc1fBQhKHoYSdjJMMB9ydQkFXZg7Wl0=;
-        b=G2aFi+kOco8F7A7ev4siqM77VYWHD1SS+N9xARzk9mXa5Z7M7vt+omxkuFb8DdcgF9
-         zXPRGYJqqrzBLfS1Cas03+0K4qYSKwBBSFD6Bq8nRK5EbZZGNqT1lbQ/l6U/SvIXMV9j
-         zAUTSlgkhhszD4hIHfQENG1EIfyG8eEdi7xPlkqHtO8XHwk4RVSJ1YKHnKCVfbqr2oh0
-         94NBVtwYwm2YjN16k5guBkdrWHDmxpSOXoczIq3F3cCVhfkpkcuLHzyd3pFmkT7n5/8d
-         nKZJUf38vCZMggus3JMlzpoKge0iV5vKealnTfCY5EFgt2EQ4Cr7H76zd3KoY9/DLw/N
-         +WAw==
+        bh=JrZ8FvK83ZoPDpoc9Z0d2jCCQx1EFHrJLn3qJbB2uAA=;
+        b=e8nyQEFVzDokgQ3MKlFdjT4F3ORaKoJdmEinK9pzEw/HaJEqFOBbGdhJQH2TFGQup4
+         d60yvJksFscIhWKQUpQwToSIDhQ1D4h8aY7OOuXfWNfUXN2Q8xFuq6l1Yqy2FFKfadd6
+         BaiduoULMZoa3xPt9LcXHYNCnmWU9kfEf8NwPCnLV7jTIO1wNmTBstsZ2Xd9QmG0N1vK
+         +mFWH8zZHLnHK23MLp3Fa3P0mf44JEt98BERmkO0x4afxrdmctuBTM5ezZigjrB8jXLr
+         j+9Jlcf3yZHt1+TZyKyObXcmGAE4JLLthx8hf96JMLebXgpOWbKXmAy1I+MlcxeOI6Ro
+         mX3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724678033; x=1725282833;
+        d=1e100.net; s=20230601; t=1724684983; x=1725289783;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vSwJhEnVRbE/lc1fBQhKHoYSdjJMMB9ydQkFXZg7Wl0=;
-        b=gs+3hEUa9f7CI0POgR9qS3NcEjGNtCssdrN7CQtTayV1nVcalh9QryoctEctsPGZ7k
-         TMnab61DgsArompmA7uydEewDQEVdPkhyEpACrVSA3cvM0VnmPbYy40RFSvY2dOjZix0
-         EdNPod7kn1rKtxhD7lQbxdKtF58khDCTdW+g/43qcvg6OXDvoML/AyiuNFITehpqZSAT
-         UN4ly2vaWvFM67ugLDggFVAFAsnj3XuMXyJpYUCBxSOfZkGZFpj7OSGmWjPFV4kOKFQb
-         iYzV9BxXE4c2hXNxHU2OUvNHu/YZu/dTQUcGegzQQkp8GiisvUSsI0NTVD5txLNpIkV0
-         6e7w==
-X-Forwarded-Encrypted: i=1; AJvYcCU/ClygvLS3mjyt7se83bpFk5tbJjFXdDmm1opJ3v9PS74Ejhon0MuuTu2wAiMKGu+FIFeOQdbbiNK6yco6/saFzwWf@vger.kernel.org, AJvYcCU3p4xPq/zisqMnlMG5IMvdjAz49G7QtULEcD3tBDNl2cYIdDvsqvVN5mRDS4Q/D+T9BQ0+nTIX4e4JT/x7i8eS//EycQeV@vger.kernel.org, AJvYcCULhyl27VLZnSINwLuse687eE1Z/m7G6b14F1vuZoX3UfjlRC1VGsj4tKnVU5lwAM8UpJgpvX4GpMBrHPS8EA==@vger.kernel.org, AJvYcCUsKzmbvn/BTyybb5sUYnPxC7bFDTMi9woll1o+j9UMd+lscRYrkUkRc/R9eogDBA2XpB7rlnFj@vger.kernel.org, AJvYcCVzfSzxNbPxr0OBavXpBvqeNWuUQ2ESoDPgqDH6V7OwMSYs6YPgo18hAXk6YbSQSJwKoNgd@vger.kernel.org, AJvYcCWLflpr/Iba5wwF+1l+jBHBfSCEaqjX5whECpSSKCxyMJdlHDkCoECIltQBoJuSixUsIFAzSQ==@vger.kernel.org, AJvYcCWQK4kkZj9NqeYD7EQUF7bmfLR2E5exJYll96FnCkTFB/FdyajKDqYcLCN5vpsT52zSDxm46O1O3g==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw65lRZS6hAqREgZ7Haf0AsuxNGiOYB3+S7CQT4ie0ifahAt/LB
-	mF9Mwmduu48rJe9NQh4rLK+cxc9GOcB8FXMX+nO8xnSYy3QJgk8XAd07fYBNa407ZxvtyZoojN5
-	tzehKJK7BU1WH6jxTTMmeYk0CUw4=
-X-Google-Smtp-Source: AGHT+IEMzX23pNCTwUB3oEFnjtXMwQslYwQseElwS5dsww3heTV7mBPQDdBjGem5UqseBxKdUwlhHXFriIKrdvm/EEk=
-X-Received: by 2002:a05:6214:2b82:b0:6bf:78e1:74e7 with SMTP id
- 6a1803df08f44-6c16deb3b70mr122308516d6.50.1724678032741; Mon, 26 Aug 2024
- 06:13:52 -0700 (PDT)
+        bh=JrZ8FvK83ZoPDpoc9Z0d2jCCQx1EFHrJLn3qJbB2uAA=;
+        b=Cae2d4Qd67PMHqJs/NQF5FqJJx0N4dOx1FV/uGsIJNtmtbwxrxx+u2k5LuYy66QlVb
+         20haC9RmGb3It6t6goalSm/D3MevW7vfM8P/EYygkZjI4ozXVTORUnFI8RXTTbuxDbuf
+         BxHa4orA/nSupCkabgaBhphktiRR888jQ8nPGXiw/gSt7nTZ5mo71AM2isUUpJ+bgR05
+         Gq+DAoflSfqldbBBkqPZ59gZxPFLiTaYUvmTGjxr4FMSZWiQUooDfjEdtP+7y0HHSKpO
+         ksos7NQ1FZAqpCy1p78t3mef3tZJkiM2wlDnNjFxako27TrxmPMMx5Fw+Sg4Cc5kLsCt
+         30Cw==
+X-Gm-Message-State: AOJu0Yxavn2nYLfFwLbBnNA6bAbPOM0lp8KLKnFfxFk9BuCQx8vobG+c
+	F96QFlUPH94jB2CtW1AoHkQi1lq6JK86+7Yb7Wn5MlrRFb9/rc/bpsCZLMov9B8f82bcq2THusg
+	psnl1obGcr4QQx+DnOer11cuE8lXqV5Kb
+X-Google-Smtp-Source: AGHT+IH3/btB5pxTdGQI3a/w2UiZvT7/xLkzenysZJzgYFdj7FQQfW7XCyySgx+5I/TjZO154o99x6xZi7Tyz+Oyi4o=
+X-Received: by 2002:a17:90a:12c2:b0:2c9:69cc:3a6f with SMTP id
+ 98e67ed59e1d1-2d646d0c2f3mr9482073a91.31.1724684983030; Mon, 26 Aug 2024
+ 08:09:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240817025624.13157-1-laoar.shao@gmail.com> <20240817025624.13157-7-laoar.shao@gmail.com>
- <nmhexn3mkwhgu5e6o3i7gvipboisbuwdoloshf64ulgzdxr5nv@3gwujx2y5jre> <ep44ahlsa2krmpjcqrsvoi5vfoesvnvly44icavup7dsfolewm@flnm5rl23diz>
-In-Reply-To: <ep44ahlsa2krmpjcqrsvoi5vfoesvnvly44icavup7dsfolewm@flnm5rl23diz>
-From: Yafang Shao <laoar.shao@gmail.com>
-Date: Mon, 26 Aug 2024 21:13:16 +0800
-Message-ID: <CALOAHbA5VDjRYcoMOMKcLMVR0=ZwTz5FBTvQZExi6w8We9JPHg@mail.gmail.com>
-Subject: Re: [PATCH v7 6/8] mm/util: Deduplicate code in {kstrdup,kstrndup,kmemdup_nul}
-To: Alejandro Colomar <alx@kernel.org>
-Cc: akpm@linux-foundation.org, torvalds@linux-foundation.org, 
-	justinstitt@google.com, ebiederm@xmission.com, alexei.starovoitov@gmail.com, 
-	rostedt@goodmis.org, catalin.marinas@arm.com, 
-	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, 
-	linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
-	audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, Simon Horman <horms@kernel.org>, 
-	Matthew Wilcox <willy@infradead.org>
+References: <20240826124709.23530-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20240826124709.23530-1-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 26 Aug 2024 11:09:31 -0400
+Message-ID: <CAEjxPJ6gEP5LsA5qydC=Tiq0qXobR7k4GqijMeHtpieMerq+tg@mail.gmail.com>
+Subject: Re: [PATCH] selinux: annotate false positive data race to avoid KCSAN warnings
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com, omosnace@redhat.com, 
+	syzbot+319ed1769c0078257262@syzkaller.appspotmail.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 26, 2024 at 5:25=E2=80=AFPM Alejandro Colomar <alx@kernel.org> =
-wrote:
+On Mon, Aug 26, 2024 at 8:47=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Hi Yafang,
+> KCSAN flags the check of isec->initialized by
+> __inode_security_revalidate() as a data race. This is indeed a racy
+> check, but inode_doinit_with_dentry() will recheck with isec->lock held.
+> Annotate the check with the data_race() macro to silence the KCSAN false
+> positive.
 >
-> On Sat, Aug 17, 2024 at 10:58:02AM GMT, Alejandro Colomar wrote:
-> > Hi Yafang,
-> >
-> > On Sat, Aug 17, 2024 at 10:56:22AM GMT, Yafang Shao wrote:
-> > > These three functions follow the same pattern. To deduplicate the cod=
-e,
-> > > let's introduce a common helper __kmemdup_nul().
-> > >
-> > > Suggested-by: Andrew Morton <akpm@linux-foundation.org>
-> > > Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-> > > Cc: Simon Horman <horms@kernel.org>
-> > > Cc: Matthew Wilcox <willy@infradead.org>
-> > > ---
-> > >  mm/util.c | 67 +++++++++++++++++++++--------------------------------=
---
-> > >  1 file changed, 26 insertions(+), 41 deletions(-)
-> > >
-> > > diff --git a/mm/util.c b/mm/util.c
-> > > index 4542d8a800d9..310c7735c617 100644
-> > > --- a/mm/util.c
-> > > +++ b/mm/util.c
-> > > @@ -45,33 +45,40 @@ void kfree_const(const void *x)
-> > >  EXPORT_SYMBOL(kfree_const);
-> > >
-> > >  /**
-> > > - * kstrdup - allocate space for and copy an existing string
-> > > - * @s: the string to duplicate
-> > > + * __kmemdup_nul - Create a NUL-terminated string from @s, which mig=
-ht be unterminated.
-> > > + * @s: The data to copy
-> > > + * @len: The size of the data, including the null terminator
-> > >   * @gfp: the GFP mask used in the kmalloc() call when allocating mem=
-ory
-> > >   *
-> > > - * Return: newly allocated copy of @s or %NULL in case of error
-> > > + * Return: newly allocated copy of @s with NUL-termination or %NULL =
-in
-> > > + * case of error
-> > >   */
-> > > -noinline
-> > > -char *kstrdup(const char *s, gfp_t gfp)
-> > > +static __always_inline char *__kmemdup_nul(const char *s, size_t len=
-, gfp_t gfp)
-> > >  {
-> > > -   size_t len;
-> > >     char *buf;
-> > >
-> > > -   if (!s)
-> > > +   buf =3D kmalloc_track_caller(len, gfp);
-> > > +   if (!buf)
-> > >             return NULL;
-> > >
-> > > -   len =3D strlen(s) + 1;
-> > > -   buf =3D kmalloc_track_caller(len, gfp);
-> > > -   if (buf) {
-> > > -           memcpy(buf, s, len);
-> > > -           /* During memcpy(), the string might be updated to a new =
-value,
-> > > -            * which could be longer than the string when strlen() is
-> > > -            * called. Therefore, we need to add a null termimator.
-> > > -            */
-> > > -           buf[len - 1] =3D '\0';
-> > > -   }
-> > > +   memcpy(buf, s, len);
-> > > +   /* Ensure the buf is always NUL-terminated, regardless of @s. */
-> > > +   buf[len - 1] =3D '\0';
-> > >     return buf;
-> > >  }
-> > > +
-> > > +/**
-> > > + * kstrdup - allocate space for and copy an existing string
-> > > + * @s: the string to duplicate
-> > > + * @gfp: the GFP mask used in the kmalloc() call when allocating mem=
-ory
-> > > + *
-> > > + * Return: newly allocated copy of @s or %NULL in case of error
-> > > + */
-> > > +noinline
-> > > +char *kstrdup(const char *s, gfp_t gfp)
-> > > +{
-> > > +   return s ? __kmemdup_nul(s, strlen(s) + 1, gfp) : NULL;
-> > > +}
-> > >  EXPORT_SYMBOL(kstrdup);
-> > >
-> > >  /**
-> > > @@ -106,19 +113,7 @@ EXPORT_SYMBOL(kstrdup_const);
-> > >   */
-> > >  char *kstrndup(const char *s, size_t max, gfp_t gfp)
-> > >  {
-> > > -   size_t len;
-> > > -   char *buf;
-> > > -
-> > > -   if (!s)
-> > > -           return NULL;
-> > > -
-> > > -   len =3D strnlen(s, max);
-> > > -   buf =3D kmalloc_track_caller(len+1, gfp);
-> > > -   if (buf) {
-> > > -           memcpy(buf, s, len);
-> > > -           buf[len] =3D '\0';
-> > > -   }
-> > > -   return buf;
-> > > +   return s ? __kmemdup_nul(s, strnlen(s, max) + 1, gfp) : NULL;
-> > >  }
-> > >  EXPORT_SYMBOL(kstrndup);
-> > >
-> > > @@ -192,17 +187,7 @@ EXPORT_SYMBOL(kvmemdup);
-> > >   */
-> > >  char *kmemdup_nul(const char *s, size_t len, gfp_t gfp)
-> > >  {
-> > > -   char *buf;
-> > > -
-> > > -   if (!s)
-> > > -           return NULL;
-> > > -
-> > > -   buf =3D kmalloc_track_caller(len + 1, gfp);
-> > > -   if (buf) {
-> > > -           memcpy(buf, s, len);
-> > > -           buf[len] =3D '\0';
-> > > -   }
-> > > -   return buf;
-> > > +   return s ? __kmemdup_nul(s, len + 1, gfp) : NULL;
-> > >  }
-> > >  EXPORT_SYMBOL(kmemdup_nul);
-> >
-> > I like the idea of the patch, but it's plagued with all those +1 and -1=
-.
-> > I think that's due to a bad choice of value being passed by.  If you
-> > pass the actual length of the string (as suggested in my reply to the
-> > previous patch) you should end up with a cleaner set of APIs.
-> >
-> > The only remaining +1 is for kmalloc_track_caller(), which I ignore wha=
-t
-> > it does.
-> >
-> >       char *
-> >       __kmemdup_nul(const char *s, size_t len, gfp_t gfp)
-> >       {
-> >               char *buf;
-> >
-> >               buf =3D kmalloc_track_caller(len + 1, gfp);
-> >               if (!buf)
-> >                       return NULL;
-> >
-> >               strcpy(mempcpy(buf, s, len), "");
->
-> Changing these strcpy(, "") to the usual; =3D'\0' or =3D0, but I'd still
-> recommend the rest of the changes, that is, changing the value passed in
-> len, to remove several +1 and -1s.
->
-> What do you think?
+> Reported-by: syzbot+319ed1769c0078257262@syzkaller.appspotmail.com
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-I will update it. Thanks for your suggestion.
+With this patch applied and the following KCSAN-related configuration,
+I don't see any data-race warnings in SELinux functions during the
+selinux-testsuite (lots of them elsewhere though).
 
---=20
-Regards
-Yafang
+CONFIG_KCSAN=3Dy
+# CONFIG_KCSAN_VERBOSE is not set
+CONFIG_KCSAN_SELFTEST=3Dy
+CONFIG_KCSAN_EARLY_ENABLE=3Dy
+CONFIG_KCSAN_NUM_WATCHPOINTS=3D64
+CONFIG_KCSAN_UDELAY_TASK=3D80
+CONFIG_KCSAN_UDELAY_INTERRUPT=3D20
+CONFIG_KCSAN_DELAY_RANDOMIZE=3Dy
+CONFIG_KCSAN_SKIP_WATCH=3D4000
+CONFIG_KCSAN_SKIP_WATCH_RANDOMIZE=3Dy
+# CONFIG_KCSAN_INTERRUPT_WATCHER is not set
+CONFIG_KCSAN_REPORT_ONCE_IN_MS=3D3000
+CONFIG_KCSAN_REPORT_RACE_UNKNOWN_ORIGIN=3Dy
+# CONFIG_KCSAN_STRICT is not set
+CONFIG_KCSAN_REPORT_VALUE_CHANGE_ONLY=3Dy
+CONFIG_KCSAN_ASSUME_PLAIN_WRITES_ATOMIC=3Dy
+# CONFIG_KCSAN_IGNORE_ATOMICS is not set
+# CONFIG_KCSAN_PERMISSIVE is not set
