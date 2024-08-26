@@ -1,64 +1,79 @@
-Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D94A1741C0
-	for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 12:47:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5D5017ADF0
+	for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 13:07:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724676453; cv=none; b=E7KzgeigDeetoTbaUXEDrk5STUKczrRe3j/Iw2wb7xPemuZXSTguxLldf6TsJWLzfoK19WHopvHH+IgEreviqZtZ5bCAbr5pxB8WTI5gAX1K3q/SKXfluz3nzxt3noAvQHG/N1bpqlBmk+/AFI1M8HMyjKNdQKr26EkZnpgbPlo=
+	t=1724677640; cv=none; b=D5FC2HeQmeaSuoboAIB+CLLvW72epweYj2Hz+5EokOi6HF0wx+JtrMnM1UzEaIB4OY+LjkNFZ637ZdhPe1E8HQkU5LBudticg1XOq3hh4sZXJsdjTqcjDkXjaaSK2/1uXQ2vwwgR3il0M3lGGCiNqRlVkjXw/yHXybFUJVzZYGw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724676453; c=relaxed/simple;
-	bh=S91zEmNZHymd5AGqOnNTj9zZHYoOBjbZP5pxAsraP6s=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ZuKRJGBIeVYBPiF8KBeaxrLZuzvODDV1DtKER/jGTA+EsNBZdkxqHKAZnViCSza/X95tzRTsHljQAtMuO9dC9QpYKiH9Y0Jtf3eRs6xZgTt9z0l50ALTwIUE8IKsMd1Q15hXGSSTUKIOd/AcBgBWi5eM8I/rDqjHrdGsYM8ZJGE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NOWAW8kE; arc=none smtp.client-ip=209.85.222.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1724677640; c=relaxed/simple;
+	bh=N758xsscg1j5iUzxcnYV2NuN/BVwUzZ7pjj4u4n0WCU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=B8ugSWGG0XPAAlVnfv6Lt6gL61Zo7kB+jKKnX7/Gbk1Q01AxiYn0mJ5+Mwx6IW1f3/2hAz0e2gXZYxe0B1wB11ClHrWrPjulED0dR5SvOzZrnizBw18LHRzFhaZF9O+nAwXAosYt4kaPB1nSw8ZvfWdDbIzTnPJvfdipW0alKYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UdY29pmE; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NOWAW8kE"
-Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-7a1d6f4714bso423976185a.1
-        for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 05:47:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724676451; x=1725281251; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=YkEcfw6GC3JrVEhyYL/AUt1kdaNV3/VUbVLc4lEVYs4=;
-        b=NOWAW8kEE+YPm8Rv+D0ntthvFM7kcZPE6Lazhd1VART28N5AQ+Q7s6CJev5l/qIui8
-         kbhwICU1Zl81W+8A4p/7aJgCI5eg0p613kOSPyVySaO6pN3pFKvdinKzii3oHE1ifid5
-         iAY0SKG1Vu6fkk3l8iXLqGHEo9w/37iRgWOUgFDK2oVkErWmS4J2lZ6njzKwWrUnJN4S
-         0LLHl0WSPJUEvNG12/0UV52DyxkTyfskP+XFa/GjtyHNhv+SSrZkfQmwMe5R3ZvE9QnA
-         +75XmpyEeQGNr28wWTCh5qdLFoheQKFAZ1vaAuCs77LuH9Qw9Mwf7MffmSi6SSXw8fJp
-         ukGA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UdY29pmE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724677637;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=QT8lf5mm9iWDhlz8PS5X1/LO79S+PPvsCnWmobjlCPU=;
+	b=UdY29pmEpuLmLZEZTjr8edIhRrHQbRwp+FljPp9BqoLtZkxjZLbMNHNGl7d3oclWbUnfQf
+	57lTeSY+djTWo4pNrTZFoTiZnTOrHgeUB1FTlehoTGQXVwhSNxprN/1HIjYJLpOqGUNshs
+	oGpOwr0mTnL1PGiPBxB0oB1FhJ1vl9Y=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-27-Mz4FLOgfNzOpE4dgRn6S-w-1; Mon, 26 Aug 2024 09:07:15 -0400
+X-MC-Unique: Mz4FLOgfNzOpE4dgRn6S-w-1
+Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a867bc4f3c4so718583766b.0
+        for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 06:07:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724676451; x=1725281251;
+        d=1e100.net; s=20230601; t=1724677634; x=1725282434;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=YkEcfw6GC3JrVEhyYL/AUt1kdaNV3/VUbVLc4lEVYs4=;
-        b=PCrUKs/ILq4uKxs4ndruvaX3ln9n6tluHeKHSOh3dF9nJe/r/ofdkcOHDo12U3fItV
-         Ppnd4Pw+t0Y3/mqA1pk6txTeziC2CmI9Fuh6oVZnpbNEoDoHwmDwu87xiQX8cRZ+RYLc
-         8Cv1mGi+zDCxxe63j1+gfjBb/FF+9APr6rO2dkviiXnBXIp+4bcpAWemzRKAQP0vDk8k
-         HCs4FXIjaanshPLXjHMZsXv3tsP5rbdtAf4n7Pmpk04fm2rsctD6YJ3qHVzgpPlH+5CS
-         wD07CxMoT3pGlp9DwwFZ7DAw6Q78pUXXWAZjpKckaUjHpWFPjdgE4MihoA9r5wG63bwX
-         1jlQ==
-X-Gm-Message-State: AOJu0YzLeE9otT1ntt3OamySjzBeeo/pepFBeHvElcZUaYYbIDxLZEAn
-	RmxwJWcXdrlfBpnarD5iOkr4IsyndD0zQHiBUgJP05M5jUITMPsxjM/orQ==
-X-Google-Smtp-Source: AGHT+IEnKc7VN3VA9J7+bM1Tlx3LfIpmBd6Yk7xPjXusmcoyu9u+6cwsy34djN29XlxkU8zQOA0/ZA==
-X-Received: by 2002:a05:620a:248b:b0:79f:bd7:d24b with SMTP id af79cd13be357-7a67d3e2bbcmr2349785685a.7.1724676450552;
-        Mon, 26 Aug 2024 05:47:30 -0700 (PDT)
-Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6c162d6db58sm45547406d6.65.2024.08.26.05.47.29
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 26 Aug 2024 05:47:30 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
+        bh=QT8lf5mm9iWDhlz8PS5X1/LO79S+PPvsCnWmobjlCPU=;
+        b=U3w3XXkoa3gg2lMa3N2mQNG4mwvYr6AJ2he+ueL9Ctdxt5fZ6oV4xbZv83v/InFs52
+         8zce4NUm/PGwahg3lePpHi69fRpbb0QWV1FHGFwSLs9tYPBlVmr/yhrq8Xoi/yPHTpCG
+         M/JRClqyxbbZ9OWSb+RXZ+ssv9b+7XSxp/KopUe/2R3k467ChmQ+SipV9VV7+e4B12S+
+         gHX3xIiD8GfUBUG3m4QhO5LX7sJdNqN24cLUPpXyj/9zn+2gbu6CK1CALjxh4wUf00Qe
+         yZeU5C+vk/TQRLVcuIn9St8cnNZDapYIxUQ64xDk1tQUuYdiHnyy5NKDtL43VM/iP+nu
+         Dm0g==
+X-Forwarded-Encrypted: i=1; AJvYcCUGoF9tFwyIfFOa9b+LftPXX/LK8QjKsqVL7bqqxdRtTF1VJbNx8S/7/nT+WVQr7vpe6x8uJWQA@vger.kernel.org
+X-Gm-Message-State: AOJu0YwurZnVS4X/B2GBzPII3Dt//B4oYhkEuCgIDyI2QXfPyN9nMXVm
+	vVN6Wejc6yyUX3CSKahYkiRkEm4dz4OmTrxrmMVZpVn58X5l8atWz5GOJwkYRfFy0yo2Wu8ueg3
+	GKX6krpMoWPY2DpBo+7iy9Kd+54CVtpb3bvE8KPldLvfnzRDOM814B10=
+X-Received: by 2002:a17:907:72c9:b0:a7a:c7f3:580d with SMTP id a640c23a62f3a-a86a309adf6mr1221354566b.25.1724677634294;
+        Mon, 26 Aug 2024 06:07:14 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHfMUDlt8DybpTH0kwcX/XKT6qaULsyhgHI3OUZQq9tkVmm8pYBDmjG4y5t+KIz9vx7HsCF9Q==
+X-Received: by 2002:a17:907:72c9:b0:a7a:c7f3:580d with SMTP id a640c23a62f3a-a86a309adf6mr1221350166b.25.1724677633744;
+        Mon, 26 Aug 2024 06:07:13 -0700 (PDT)
+Received: from localhost.localdomain ([2a02:8308:b104:2c00:7718:da55:8b6:8dcc])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a868f220d16sm664298866b.22.2024.08.26.06.07.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 26 Aug 2024 06:07:13 -0700 (PDT)
+From: Ondrej Mosnacek <omosnace@redhat.com>
+To: netdev@vger.kernel.org,
+	davem@davemloft.net,
+	kuba@kernel.org
+Cc: Xin Long <lucien.xin@gmail.com>,
+	Vlad Yasevich <vyasevich@gmail.com>,
+	Neil Horman <nhorman@tuxdriver.com>,
+	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+	Paul Moore <paul@paul-moore.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	syzbot+319ed1769c0078257262@syzkaller.appspotmail.com
-Subject: [PATCH] selinux: annotate false positive data race to avoid KCSAN warnings
-Date: Mon, 26 Aug 2024 08:47:09 -0400
-Message-Id: <20240826124709.23530-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.40.1
+	linux-sctp@vger.kernel.org,
+	selinux@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH net] sctp: fix association labeling in the duplicate COOKIE-ECHO case
+Date: Mon, 26 Aug 2024 15:07:11 +0200
+Message-ID: <20240826130711.141271-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.46.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -67,37 +82,85 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-KCSAN flags the check of isec->initialized by
-__inode_security_revalidate() as a data race. This is indeed a racy
-check, but inode_doinit_with_dentry() will recheck with isec->lock held.
-Annotate the check with the data_race() macro to silence the KCSAN false
-positive.
+sctp_sf_do_5_2_4_dupcook() currently calls security_sctp_assoc_request()
+on new_asoc, but as it turns out, this association is always discarded
+and the LSM labels never get into the final association (asoc).
 
-Reported-by: syzbot+319ed1769c0078257262@syzkaller.appspotmail.com
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+This can be reproduced by having two SCTP endpoints try to initiate an
+association with each other at approximately the same time and then peel
+off the association into a new socket, which exposes the unitialized
+labels and triggers SELinux denials.
+
+Fix it by calling security_sctp_assoc_request() on asoc instead of
+new_asoc. Xin Long also suggested limit calling the hook only to cases
+A, B, and D, since in cases C and E the COOKIE ECHO chunk is discarded
+and the association doesn't enter the ESTABLISHED state, so rectify that
+as well.
+
+One related caveat with SELinux and peer labeling: When an SCTP
+connection is set up simultaneously in this way, we will end up with an
+association that is initialized with security_sctp_assoc_request() on
+both sides, so the MLS component of the security context of the
+association will get swapped between the peers, instead of just one side
+setting it to the other's MLS component. However, at that point
+security_sctp_assoc_request() had already been called on both sides in
+sctp_sf_do_unexpected_init() (on a temporary association) and thus if
+the exchange didn't fail before due to MLS, it won't fail now either
+(most likely both endpoints have the same MLS range).
+
+Tested by:
+ - reproducer from https://src.fedoraproject.org/tests/selinux/pull-request/530
+ - selinux-testsuite (https://github.com/SELinuxProject/selinux-testsuite/)
+ - sctp-tests (https://github.com/sctp/sctp-tests) - no tests failed
+   that wouldn't fail also without the patch applied
+
+Fixes: c081d53f97a1 ("security: pass asoc to sctp_assoc_request and sctp_sk_clone")
+Suggested-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- security/selinux/hooks.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/sctp/sm_statefuns.c | 22 ++++++++++++++++------
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 55c78c318ccd..70c335846336 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -282,8 +282,13 @@ static int __inode_security_revalidate(struct inode *inode,
+diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
+index 5adf0c0a6c1a..7d315a18612b 100644
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -2260,12 +2260,6 @@ enum sctp_disposition sctp_sf_do_5_2_4_dupcook(
+ 		}
+ 	}
  
- 	might_sleep_if(may_sleep);
+-	/* Update socket peer label if first association. */
+-	if (security_sctp_assoc_request(new_asoc, chunk->head_skb ?: chunk->skb)) {
+-		sctp_association_free(new_asoc);
+-		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
+-	}
+-
+ 	/* Set temp so that it won't be added into hashtable */
+ 	new_asoc->temp = 1;
  
-+	/*
-+	 * The check of isec->initialized below is racy but
-+	 * inode_doinit_with_dentry() will recheck with
-+	 * isec->lock held.
+@@ -2274,6 +2268,22 @@ enum sctp_disposition sctp_sf_do_5_2_4_dupcook(
+ 	 */
+ 	action = sctp_tietags_compare(new_asoc, asoc);
+ 
++	/* In cases C and E the association doesn't enter the ESTABLISHED
++	 * state, so there is no need to call security_sctp_assoc_request().
 +	 */
- 	if (selinux_initialized() &&
--	    isec->initialized != LABEL_INITIALIZED) {
-+	    data_race(isec->initialized != LABEL_INITIALIZED)) {
- 		if (!may_sleep)
- 			return -ECHILD;
- 
++	switch (action) {
++	case 'A': /* Association restart. */
++	case 'B': /* Collision case B. */
++	case 'D': /* Collision case D. */
++		/* Update socket peer label if first association. */
++		if (security_sctp_assoc_request((struct sctp_association *)asoc,
++						chunk->head_skb ?: chunk->skb)) {
++			sctp_association_free(new_asoc);
++			return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
++		}
++		break;
++	}
++
+ 	switch (action) {
+ 	case 'A': /* Association restart. */
+ 		retval = sctp_sf_do_dupcook_a(net, ep, asoc, chunk, commands,
 -- 
-2.40.1
+2.46.0
 
