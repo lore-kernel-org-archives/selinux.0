@@ -1,66 +1,36 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD67E1C5783
-	for <selinux@vger.kernel.org>; Tue, 27 Aug 2024 14:55:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 865BD1D0DC6
+	for <selinux@vger.kernel.org>; Tue, 27 Aug 2024 17:40:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724770526; cv=none; b=UDAPCryDdWu5qYYG0fGxrKJ1bFYvI6xhArp1poELeVxmAXeZjncdo9VXJz0Fqpb7zqY4S5Kw8qPyD/wEV3K7yrUC2Zuy7A9Q8olYO8yasmyJNzMkufwg26Yt/reLRcByHABuk6ejW7nRYnpmr8bqgNG1BzsGFPWhZFnlVFw4BsQ=
+	t=1724780413; cv=none; b=gvfIPHs7YyV2gkuvfwIa0rPyc2ulJYPH8RUzIMHEg0NQGjHiwCOVLDirCmU3J0iCURbRruFKz7L8AHN/aJ60bkQUpfkJ2UsZTC5XBZDKcZ1ZNc7QEkx36pBheD3YvEMZS1rE7Uub5x80cVRG0NWL4kn4sZp/GyzHNEjiuGBphBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724770526; c=relaxed/simple;
-	bh=0PEd9zy526Ch+XXGz3w7kVqTGG3nk5tAMoMXAhxU9yI=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=Mwp+qDAo97D+SE7EtT06DOzdkGkcjuJO+wcPOBharrGTMlxbkB0utGd1PpL4ehQsonJNlW1UpWVAKk+z8Msa2PP3LkpVKf/YT1VZ+QgtZle8EHx71/PnAc+99kncie6CYbK/Y8xX5EFgippxZeiplkwyyOoIhIwXVHrWJfJIR7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ata//i6O; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1724780413; c=relaxed/simple;
+	bh=ykE49z4MK1mQhxatx+8GOqMEcjjnnrKpHSCFeaRSAv4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GDrAwhIr38C7gJoUifwKTiYWvpSfig7EkrNWKFbUS2EIpNiEkRm9XoFRVOUx+hhI+jAxozB9aRHxcKq4YVx1K66bKmIhVNThd65JcM4D6h3vs4Rfg2GlwrWu9hUznaVp7p72Tdh6+akVl48Nj30VXQZAp0hQeu8Wr2FMJsdOAnw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=OevPvvLQ; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ata//i6O"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724770523;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=FX4q0kwPiqhQCriJHFBZ0Jtu9afOrLaKykP9jGDkv+8=;
-	b=Ata//i6OHs6yaQ78HVgks/GBEl2RlppIQPGbW80qWkCr3uRopUz/Xhs/37U/IK5MCo26dr
-	rRCCWuzUm0TXlZHUIdZeuZW1lU/C5kMaAwWeC86CVZco5y1sKAh/djRnKC4TtAOHynONRP
-	iSUOAmuOs/3yh5rUrRQnRvai1fT/KnY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-459-x_LIi52BOuOKAU3Lmoj0jQ-1; Tue, 27 Aug 2024 10:55:22 -0400
-X-MC-Unique: x_LIi52BOuOKAU3Lmoj0jQ-1
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-429e937ed39so52653985e9.1
-        for <selinux@vger.kernel.org>; Tue, 27 Aug 2024 07:55:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724770520; x=1725375320;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FX4q0kwPiqhQCriJHFBZ0Jtu9afOrLaKykP9jGDkv+8=;
-        b=oUaZonsB3GEML8vSfSx9Tu9sHNNO2fRAdX/cjhqH3RnBFqDGoYq6Bj9mLLnRGeYLla
-         bF2FATLEE+1sS2kME6bxZkWqaI7zdoT3cZpTgWswCbO8RrIUJGt1FCbghqqaazwQJXX4
-         SHDYGxynXrhFwIwKdiwvJqdVWndSdGHklda8h9fy59gT6Li1a9nWRuQXlT7Q/Ub2wFz3
-         k9Ppf7XGOAAYx8Z3wm0zxZyTnji/TdnCxM6sQq2sTRosifBG3PkKQcYi6OsjDdx220/v
-         X6PnUx9dz3Uy7w+xRGxVTVtUvkl98ZhPFt3ZJTsxdXAz1YJEduDYpFrzkM3y2Al5Ou89
-         26EA==
-X-Gm-Message-State: AOJu0YyitIzppk6vWvJ38zfN++X7LiHvglzs47JteE5KgUIblved26zH
-	ACNO13EwxQ/kCF705WegJQlrfm3KckbAHoswnUnfVj16B7qpUW3vHRH//oFu5530VwyvXw4O5sE
-	GhpfTdwTW2CD7A8taDU0eu1ssCKVknxt904CZrl/VJPsJ80b6O+qx6IYZB0jDmUdnsG5I9yNFIA
-	5IDMzBwvtvmXqZj+vFOiXMokovJLtWckbEC8cZTq4=
-X-Received: by 2002:a05:600c:3ac5:b0:429:dc88:7e65 with SMTP id 5b1f17b1804b1-42b9add47aamr22604155e9.12.1724770520424;
-        Tue, 27 Aug 2024 07:55:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHbnpK1FzuEFXulLuWMkY8XFgKHcpx5Ky30L5/F7vbcoUBJwqSW/F8tKG7YZ92hqlMgNxeYbA==
-X-Received: by 2002:a05:600c:3ac5:b0:429:dc88:7e65 with SMTP id 5b1f17b1804b1-42b9add47aamr22604025e9.12.1724770519866;
-        Tue, 27 Aug 2024 07:55:19 -0700 (PDT)
-Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-373081ff594sm13296367f8f.66.2024.08.27.07.55.19
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 27 Aug 2024 07:55:19 -0700 (PDT)
-From: Ondrej Mosnacek <omosnace@redhat.com>
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="OevPvvLQ"
+Received: from fedora.mshome.net (unknown [131.107.147.68])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 1159B20B7165;
+	Tue, 27 Aug 2024 10:40:12 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 1159B20B7165
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1724780412;
+	bh=0PUQG5DOeH8yFcsIXxKFSkw9n3sJ858Tq//fn0pF/GI=;
+	h=From:To:Cc:Subject:Date:From;
+	b=OevPvvLQqt0Y57rSrLpC5EmTSxvJAtjLorH8T6lcW0o0UxWB6PFe4xUOoB3p5bs4o
+	 B075C1PyvVoyfcWlOjuP2oEMDo6/pJjfMlaOwCwg7rCzA16CHN6Y7OJ1HWbML+SY69
+	 cxl9TfUbLK48eF9k5Y5xx6Q+hWUzbjYWaJwRrvHU=
+From: ericsu@linux.microsoft.com
 To: selinux@vger.kernel.org
-Subject: [PATCH testsuite] tests/key_socket: skip the test if CONFIG_NET_KEY is not enabled
-Date: Tue, 27 Aug 2024 16:55:18 +0200
-Message-ID: <20240827145518.469490-1-omosnace@redhat.com>
+Cc: paul@paul-moore.com,
+	Eric Suen <ericsu@linux.microsoft.com>
+Subject: [PATCH] selinux: replace kmem_cache_create() with KMEM_CACHE()
+Date: Tue, 27 Aug 2024 10:40:03 -0700
+Message-ID: <20240827174003.52690-1-ericsu@linux.microsoft.com>
 X-Mailer: git-send-email 2.46.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -70,37 +40,89 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-RHEL/CentOS Stream 10+ and Fedora ELN will have CONFIG_NET_KEY disabled
-[1]. Make the test skip itself when it detects that PF_KEY is not
-supported so that the testsuite can still pass out-of-the-box on these
-platforms.
+From: Eric Suen <ericsu@linux.microsoft.com>
 
-[1] https://gitlab.com/cki-project/kernel-ark/-/commit/99d6d1c86fe1bb1df5c0b80f4717826c2330e291
+Based on guidance in include/linux/slab.h, replace kmem_cache_create()
+with KMEM_CACHE() for sources under security/selinux, to simply creation
+of SLAB caches.
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
 ---
- tests/key_socket/test | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ security/selinux/avc.c        | 16 ++++------------
+ security/selinux/ss/avtab.c   |  7 ++-----
+ security/selinux/ss/ebitmap.c |  4 +---
+ security/selinux/ss/hashtab.c |  4 +---
+ 4 files changed, 8 insertions(+), 23 deletions(-)
 
-diff --git a/tests/key_socket/test b/tests/key_socket/test
-index a13327f..3f371fe 100755
---- a/tests/key_socket/test
-+++ b/tests/key_socket/test
-@@ -16,7 +16,13 @@ BEGIN {
-         $v = " ";
-     }
- 
--    plan tests => 5;
-+    $result = system "$basedir/key_sock $v 2>&1";
-+    if ( $result >> 8 eq 97 ) {    # EAFNOSUPPORT
-+        plan skip_all => "PF_KEY not supported by kernel";
-+    }
-+    else {
-+        plan tests => 5;
-+    }
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 32eb67fb3e42..1ec377ce6d22 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -134,18 +134,10 @@ static inline u32 avc_hash(u32 ssid, u32 tsid, u16 tclass)
+  */
+ void __init avc_init(void)
+ {
+-	avc_node_cachep = kmem_cache_create("avc_node", sizeof(struct avc_node),
+-					0, SLAB_PANIC, NULL);
+-	avc_xperms_cachep = kmem_cache_create("avc_xperms_node",
+-					sizeof(struct avc_xperms_node),
+-					0, SLAB_PANIC, NULL);
+-	avc_xperms_decision_cachep = kmem_cache_create(
+-					"avc_xperms_decision_node",
+-					sizeof(struct avc_xperms_decision_node),
+-					0, SLAB_PANIC, NULL);
+-	avc_xperms_data_cachep = kmem_cache_create("avc_xperms_data",
+-					sizeof(struct extended_perms_data),
+-					0, SLAB_PANIC, NULL);
++	avc_node_cachep = KMEM_CACHE(avc_node, SLAB_PANIC);
++	avc_xperms_cachep = KMEM_CACHE(avc_xperms_node, SLAB_PANIC);
++	avc_xperms_decision_cachep = KMEM_CACHE(avc_xperms_decision_node, SLAB_PANIC);
++	avc_xperms_data_cachep = KMEM_CACHE(extended_perms_data, SLAB_PANIC);
  }
  
- ############ Test key_socket #############
+ int avc_get_hash_stats(char *page)
+diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+index 2ad98732d052..8e400dd736b7 100644
+--- a/security/selinux/ss/avtab.c
++++ b/security/selinux/ss/avtab.c
+@@ -604,9 +604,6 @@ int avtab_write(struct policydb *p, struct avtab *a, void *fp)
+ 
+ void __init avtab_cache_init(void)
+ {
+-	avtab_node_cachep = kmem_cache_create(
+-		"avtab_node", sizeof(struct avtab_node), 0, SLAB_PANIC, NULL);
+-	avtab_xperms_cachep = kmem_cache_create(
+-		"avtab_extended_perms", sizeof(struct avtab_extended_perms), 0,
+-		SLAB_PANIC, NULL);
++	avtab_node_cachep = KMEM_CACHE(avtab_node, SLAB_PANIC);
++	avtab_xperms_cachep = KMEM_CACHE(avtab_extended_perms, SLAB_PANIC);
+ }
+diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+index 04d7f4907a06..99c01be15115 100644
+--- a/security/selinux/ss/ebitmap.c
++++ b/security/selinux/ss/ebitmap.c
+@@ -572,7 +572,5 @@ u32 ebitmap_hash(const struct ebitmap *e, u32 hash)
+ 
+ void __init ebitmap_cache_init(void)
+ {
+-	ebitmap_node_cachep = kmem_cache_create("ebitmap_node",
+-						sizeof(struct ebitmap_node), 0,
+-						SLAB_PANIC, NULL);
++	ebitmap_node_cachep = KMEM_CACHE(ebitmap_node, SLAB_PANIC);
+ }
+diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.c
+index 32c4cb37f3d2..383fd2d70878 100644
+--- a/security/selinux/ss/hashtab.c
++++ b/security/selinux/ss/hashtab.c
+@@ -194,7 +194,5 @@ int hashtab_duplicate(struct hashtab *new, const struct hashtab *orig,
+ 
+ void __init hashtab_cache_init(void)
+ {
+-	hashtab_node_cachep = kmem_cache_create("hashtab_node",
+-						sizeof(struct hashtab_node), 0,
+-						SLAB_PANIC, NULL);
++	hashtab_node_cachep = KMEM_CACHE(hashtab_node, SLAB_PANIC);
+ }
 -- 
 2.46.0
 
