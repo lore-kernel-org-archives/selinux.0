@@ -1,119 +1,106 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA8E114D29C
-	for <selinux@vger.kernel.org>; Tue, 27 Aug 2024 11:32:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD67E1C5783
+	for <selinux@vger.kernel.org>; Tue, 27 Aug 2024 14:55:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724758327; cv=none; b=eNs+NYZ27UBx83Jpq9TSeis4fvB1211EeLoXVQ8EfMT+RcIM6YmvqM4Wl20ZJTX5V6X9z/w8C911vg5lT0a6gBvgiQ5pg8WLnpAPFHhmdEkykqv1EOYzhHE8hBxkd80pM00sVSzmE+AMy66sCUB4ScCk/XYl11OuwDtnlFe5plo=
+	t=1724770526; cv=none; b=UDAPCryDdWu5qYYG0fGxrKJ1bFYvI6xhArp1poELeVxmAXeZjncdo9VXJz0Fqpb7zqY4S5Kw8qPyD/wEV3K7yrUC2Zuy7A9Q8olYO8yasmyJNzMkufwg26Yt/reLRcByHABuk6ejW7nRYnpmr8bqgNG1BzsGFPWhZFnlVFw4BsQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724758327; c=relaxed/simple;
-	bh=PySkRU+qGn60iMOeSytHBcmkATD4savJGG2ZVBDQGUI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-type; b=fvkj/8OT28P7Se/aQKM8Hw+BCvgX/NB7p+ght9ROPm4pAQOJp7sIKyRzRsIIQgaZBFoaZUjS5ZzZpEvka5sf113P7nZBVV+5SiFjiQZvOAH18wV3x169T2hbigD+/0f7uHoAgujCibLIDd0A+pFfNEj8qgaTWnd+lWPpzUH/N/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ccylq+3d; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1724770526; c=relaxed/simple;
+	bh=0PEd9zy526Ch+XXGz3w7kVqTGG3nk5tAMoMXAhxU9yI=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=Mwp+qDAo97D+SE7EtT06DOzdkGkcjuJO+wcPOBharrGTMlxbkB0utGd1PpL4ehQsonJNlW1UpWVAKk+z8Msa2PP3LkpVKf/YT1VZ+QgtZle8EHx71/PnAc+99kncie6CYbK/Y8xX5EFgippxZeiplkwyyOoIhIwXVHrWJfJIR7Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ata//i6O; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ccylq+3d"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ata//i6O"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1724758324;
+	s=mimecast20190719; t=1724770523;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=EwcrgQwOHy9SUzsmtoz1OK2OrohTdyPda+yrjXkulSc=;
-	b=Ccylq+3dmwUQMTe++L+fwtoUbtmjm80KqO4jsNMasUXsEdH/2mWPt9mHTwxE9w2HpD4/vg
-	LyE56crKVCrBDGOW4R0P55dLXtfdogzZpkkZXruh1NMRCCBLq5mH9gT+gJI6oJU4hFbK6q
-	Y5TO3reKm09DndJ14X2kd39THFX66+c=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-455-4-xuBxcOMZOEoFltMzG9-Q-1; Tue,
- 27 Aug 2024 07:32:03 -0400
-X-MC-Unique: 4-xuBxcOMZOEoFltMzG9-Q-1
-Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 25ADA1955BF6
-	for <selinux@vger.kernel.org>; Tue, 27 Aug 2024 11:32:02 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.225.50])
-	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 7A5B31954AFF;
-	Tue, 27 Aug 2024 11:32:00 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=FX4q0kwPiqhQCriJHFBZ0Jtu9afOrLaKykP9jGDkv+8=;
+	b=Ata//i6OHs6yaQ78HVgks/GBEl2RlppIQPGbW80qWkCr3uRopUz/Xhs/37U/IK5MCo26dr
+	rRCCWuzUm0TXlZHUIdZeuZW1lU/C5kMaAwWeC86CVZco5y1sKAh/djRnKC4TtAOHynONRP
+	iSUOAmuOs/3yh5rUrRQnRvai1fT/KnY=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-459-x_LIi52BOuOKAU3Lmoj0jQ-1; Tue, 27 Aug 2024 10:55:22 -0400
+X-MC-Unique: x_LIi52BOuOKAU3Lmoj0jQ-1
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-429e937ed39so52653985e9.1
+        for <selinux@vger.kernel.org>; Tue, 27 Aug 2024 07:55:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724770520; x=1725375320;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=FX4q0kwPiqhQCriJHFBZ0Jtu9afOrLaKykP9jGDkv+8=;
+        b=oUaZonsB3GEML8vSfSx9Tu9sHNNO2fRAdX/cjhqH3RnBFqDGoYq6Bj9mLLnRGeYLla
+         bF2FATLEE+1sS2kME6bxZkWqaI7zdoT3cZpTgWswCbO8RrIUJGt1FCbghqqaazwQJXX4
+         SHDYGxynXrhFwIwKdiwvJqdVWndSdGHklda8h9fy59gT6Li1a9nWRuQXlT7Q/Ub2wFz3
+         k9Ppf7XGOAAYx8Z3wm0zxZyTnji/TdnCxM6sQq2sTRosifBG3PkKQcYi6OsjDdx220/v
+         X6PnUx9dz3Uy7w+xRGxVTVtUvkl98ZhPFt3ZJTsxdXAz1YJEduDYpFrzkM3y2Al5Ou89
+         26EA==
+X-Gm-Message-State: AOJu0YyitIzppk6vWvJ38zfN++X7LiHvglzs47JteE5KgUIblved26zH
+	ACNO13EwxQ/kCF705WegJQlrfm3KckbAHoswnUnfVj16B7qpUW3vHRH//oFu5530VwyvXw4O5sE
+	GhpfTdwTW2CD7A8taDU0eu1ssCKVknxt904CZrl/VJPsJ80b6O+qx6IYZB0jDmUdnsG5I9yNFIA
+	5IDMzBwvtvmXqZj+vFOiXMokovJLtWckbEC8cZTq4=
+X-Received: by 2002:a05:600c:3ac5:b0:429:dc88:7e65 with SMTP id 5b1f17b1804b1-42b9add47aamr22604155e9.12.1724770520424;
+        Tue, 27 Aug 2024 07:55:20 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHbnpK1FzuEFXulLuWMkY8XFgKHcpx5Ky30L5/F7vbcoUBJwqSW/F8tKG7YZ92hqlMgNxeYbA==
+X-Received: by 2002:a05:600c:3ac5:b0:429:dc88:7e65 with SMTP id 5b1f17b1804b1-42b9add47aamr22604025e9.12.1724770519866;
+        Tue, 27 Aug 2024 07:55:19 -0700 (PDT)
+Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-373081ff594sm13296367f8f.66.2024.08.27.07.55.19
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 27 Aug 2024 07:55:19 -0700 (PDT)
+From: Ondrej Mosnacek <omosnace@redhat.com>
 To: selinux@vger.kernel.org
-Cc: Petr Lautrbach <lautrbach@redhat.com>
-Subject: [PATCH v2] sepolgen-ifgen: allow M4 escaped filenames
-Date: Tue, 27 Aug 2024 13:28:13 +0200
-Message-ID: <20240827113150.1843304-1-lautrbach@redhat.com>
-In-Reply-To: <20240819182123.1037607-2-lautrbach@redhat.com>
-References: <20240819182123.1037607-2-lautrbach@redhat.com>
+Subject: [PATCH testsuite] tests/key_socket: skip the test if CONFIG_NET_KEY is not enabled
+Date: Tue, 27 Aug 2024 16:55:18 +0200
+Message-ID: <20240827145518.469490-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.46.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-type: text/plain
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-When a file name in type transition rule used in an interface is same as
-a keyword, it needs to be M4 escaped so that the keyword is not expanded
-by M4, e.g.
+RHEL/CentOS Stream 10+ and Fedora ELN will have CONFIG_NET_KEY disabled
+[1]. Make the test skip itself when it detects that PF_KEY is not
+supported so that the testsuite can still pass out-of-the-box on these
+platforms.
 
--	filetrans_pattern($1, virt_var_run_t, virtinterfaced_var_run_t, dir, "interface")
-+	filetrans_pattern($1, virt_var_run_t, virtinterfaced_var_run_t, dir, ``"interface"'')
+[1] https://gitlab.com/cki-project/kernel-ark/-/commit/99d6d1c86fe1bb1df5c0b80f4717826c2330e291
 
-But sepolgen-ifgen could not parse such string:
-
-    # sepolgen-ifgen
-    Illegal character '`'
-
-This change allows M4 escaping inside quoted strings and fixed described
-problem.
-
-https://bugzilla.redhat.com/show_bug.cgi?id=2254206
-
-Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
+ tests/key_socket/test | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-change to v1:
-
-- use ``"..."'' instead of "``..''" - sugested in https://github.com/SELinuxProject/selint/pull/291 by
-  @cgzones
-
-- controls right number of openning and closing quotes
-
- python/sepolgen/src/sepolgen/refparser.py | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/src/sepolgen/refparser.py
-index e261d3f78f87..c8a3eb54d679 100644
---- a/python/sepolgen/src/sepolgen/refparser.py
-+++ b/python/sepolgen/src/sepolgen/refparser.py
-@@ -486,7 +486,7 @@ def p_interface_call_param(p):
-                             | nested_id_set
-                             | TRUE
-                             | FALSE
--                            | FILENAME
-+                            | quoted_filename
-     '''
-     # Intentionally let single identifiers pass through
-     # List means set, non-list identifier
-@@ -1027,6 +1027,11 @@ def p_optional_semi(p):
-                    | empty'''
-     pass
+diff --git a/tests/key_socket/test b/tests/key_socket/test
+index a13327f..3f371fe 100755
+--- a/tests/key_socket/test
++++ b/tests/key_socket/test
+@@ -16,7 +16,13 @@ BEGIN {
+         $v = " ";
+     }
  
-+def p_quoted_filename(p):
-+    '''quoted_filename : TICK quoted_filename SQUOTE
-+                       | FILENAME
-+    '''
-+    p[0] = p[1]
+-    plan tests => 5;
++    $result = system "$basedir/key_sock $v 2>&1";
++    if ( $result >> 8 eq 97 ) {    # EAFNOSUPPORT
++        plan skip_all => "PF_KEY not supported by kernel";
++    }
++    else {
++        plan tests => 5;
++    }
+ }
  
- #
- # Interface to the parser
+ ############ Test key_socket #############
 -- 
 2.46.0
 
