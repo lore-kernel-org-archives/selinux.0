@@ -1,91 +1,119 @@
-Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F289B19B5B5
-	for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 22:39:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA8E114D29C
+	for <selinux@vger.kernel.org>; Tue, 27 Aug 2024 11:32:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724711958; cv=none; b=nK7qc9CCwUIHnGN1NNfo9OQhYT46CxTj7tH4Hk8ekIULF+1cHMBefYKyieEz8Y+h+dCcWDvCZVR4hvyh3+/MX7ponTqbhz72b3YTNkm5ciajwHGDuSfEmqTgw37oBhiTS9ZOSVtZTyWJieLzB30FpSGsjxMezDXbS7H2/Raot18=
+	t=1724758327; cv=none; b=eNs+NYZ27UBx83Jpq9TSeis4fvB1211EeLoXVQ8EfMT+RcIM6YmvqM4Wl20ZJTX5V6X9z/w8C911vg5lT0a6gBvgiQ5pg8WLnpAPFHhmdEkykqv1EOYzhHE8hBxkd80pM00sVSzmE+AMy66sCUB4ScCk/XYl11OuwDtnlFe5plo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724711958; c=relaxed/simple;
-	bh=ACMBgJ5jazQoNXByUixv8HW7VgyePfVhsUb3MT24jkY=;
-	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
-	 From:To:Cc:Subject:References:In-Reply-To; b=e2p2XSFKYpoQVj3IbhgdXuJBSDzOcXvSXU8fdLHyPnFJ1J5iZYba0oifz5mnxSEoC/CiMRimC0OQkGOEU1uJPseMsoIQbxO7dfgFHMK08VtBA8bTNb68fjAomZSPRYwen2ZW19Q+u+p0U7LLB8ayIdhVZ/3IuFPIo6vPJOEGjf0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FL7J/Dx+; arc=none smtp.client-ip=209.85.160.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1724758327; c=relaxed/simple;
+	bh=PySkRU+qGn60iMOeSytHBcmkATD4savJGG2ZVBDQGUI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-type; b=fvkj/8OT28P7Se/aQKM8Hw+BCvgX/NB7p+ght9ROPm4pAQOJp7sIKyRzRsIIQgaZBFoaZUjS5ZzZpEvka5sf113P7nZBVV+5SiFjiQZvOAH18wV3x169T2hbigD+/0f7uHoAgujCibLIDd0A+pFfNEj8qgaTWnd+lWPpzUH/N/g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ccylq+3d; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FL7J/Dx+"
-Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-450059a25b9so40937361cf.0
-        for <selinux@vger.kernel.org>; Mon, 26 Aug 2024 15:39:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1724711956; x=1725316756; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-disposition:mime-version:message-id:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=cSamOqYMtgPTjo+IhpHZOBkz1CzFELFeAqTlSsCGHts=;
-        b=FL7J/Dx+tW5JYwgCw7qzIEoSoNC0ibrYPHOMaTpLT8T2rhibaizaK8+68SFgPoqzBC
-         oI8Rn2swq56tLSv2NVPwxO8BaaueTK2JWTcFJh7N1Iwi1nypYNl0ae/MJEe4YGOiWGcS
-         pEYL5NxfzChRzTuVQbcxuSecvTsAVCPUpmOmPhaqn7e5nQqkZ97rJeDS1MD3abi9RMaf
-         oUhSjTEQkh8zn9q/7sGcxIvKfh/R1JtIvx4VofyNu7MQMH8FfRxtB0jqBzDEISlkOVui
-         bMC/bYvyK1ehImM8XZE/Zrdk2qTiQ8Nszzaceyflu8eoU8ohMh47QmLrAcRGTdVsZFAM
-         CpwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724711956; x=1725316756;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-disposition:mime-version:message-id:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=cSamOqYMtgPTjo+IhpHZOBkz1CzFELFeAqTlSsCGHts=;
-        b=KXYAfwY6uyLdKZE93GgKmsE/fOGnSmktb2Ol25rUQU68m3N0uvmphcN1sahZ3xgzZo
-         tFvdhexnh7WEBAsVgeDIKEa6ltpWm1C4uphm8NOyjlWAQQ09QsncPkc6na65s5hBxjFF
-         NCWw17Jhs9xLS1rpQSBbleIG33f1ud++tZqSp20V7KZUQML2tPZPFWnwiddOP/1LlBNH
-         E33ugPK3yqUMuluiwp3N2O9G1GzyrHjfBcIrcGZ5owg1MBTvBJRVuwFzEJd6lsAZPNW2
-         0kAcGTSeGs9eB2ykH8s6ED1666aiV1zXIY/6M+KW8pz29Nc8fwd2vccUFR502zwl398F
-         aBuw==
-X-Forwarded-Encrypted: i=1; AJvYcCXQPK7D574fD4ZjffEMgRmu6VmxP/lDuAaKU2vfSURXjet0UIcMplQShpvKPJxucmRiiKswoBeK@vger.kernel.org
-X-Gm-Message-State: AOJu0YyMp+cEcdZ3BBV8F7k4wterqs3Fctd0hw1mS4zxjfJwe24tQMr7
-	jgujZpVVbfYGecv3nO7B4z+MbVLU/JBD6UpxiuthLQwaAhNzzVxeRU22K55jC7jwfIPvL1/iVV4
-	=
-X-Google-Smtp-Source: AGHT+IHPqEwf+SUU0ZJ41YgDV/Eae64hBwQMEG0wA9v4GNtvssYbH0FVmV3iGcwEmVUsMIOrHbX+aQ==
-X-Received: by 2002:ac8:6203:0:b0:454:f2ba:1237 with SMTP id d75a77b69052e-4565ff7893amr16983811cf.4.1724711955839;
-        Mon, 26 Aug 2024 15:39:15 -0700 (PDT)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-454fe196845sm47785831cf.72.2024.08.26.15.39.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Aug 2024 15:39:15 -0700 (PDT)
-Date: Mon, 26 Aug 2024 18:39:15 -0400
-Message-ID: <723e199a660a3d9558289abba84b1408@paul-moore.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ccylq+3d"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724758324;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=EwcrgQwOHy9SUzsmtoz1OK2OrohTdyPda+yrjXkulSc=;
+	b=Ccylq+3dmwUQMTe++L+fwtoUbtmjm80KqO4jsNMasUXsEdH/2mWPt9mHTwxE9w2HpD4/vg
+	LyE56crKVCrBDGOW4R0P55dLXtfdogzZpkkZXruh1NMRCCBLq5mH9gT+gJI6oJU4hFbK6q
+	Y5TO3reKm09DndJ14X2kd39THFX66+c=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-455-4-xuBxcOMZOEoFltMzG9-Q-1; Tue,
+ 27 Aug 2024 07:32:03 -0400
+X-MC-Unique: 4-xuBxcOMZOEoFltMzG9-Q-1
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 25ADA1955BF6
+	for <selinux@vger.kernel.org>; Tue, 27 Aug 2024 11:32:02 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.225.50])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 7A5B31954AFF;
+	Tue, 27 Aug 2024 11:32:00 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Cc: Petr Lautrbach <lautrbach@redhat.com>
+Subject: [PATCH v2] sepolgen-ifgen: allow M4 escaped filenames
+Date: Tue, 27 Aug 2024 13:28:13 +0200
+Message-ID: <20240827113150.1843304-1-lautrbach@redhat.com>
+In-Reply-To: <20240819182123.1037607-2-lautrbach@redhat.com>
+References: <20240819182123.1037607-2-lautrbach@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=utf-8 
-Content-Disposition: inline 
+MIME-Version: 1.0
+Content-type: text/plain
 Content-Transfer-Encoding: 8bit
-From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
-Cc: omosnace@redhat.com, Stephen Smalley <stephen.smalley.work@gmail.com>, syzbot+319ed1769c0078257262@syzkaller.appspotmail.com
-Subject: Re: [PATCH] selinux: annotate false positive data race to avoid KCSAN  warnings
-References: <20240826124709.23530-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20240826124709.23530-1-stephen.smalley.work@gmail.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-On Aug 26, 2024 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
-> 
-> KCSAN flags the check of isec->initialized by
-> __inode_security_revalidate() as a data race. This is indeed a racy
-> check, but inode_doinit_with_dentry() will recheck with isec->lock held.
-> Annotate the check with the data_race() macro to silence the KCSAN false
-> positive.
-> 
-> Reported-by: syzbot+319ed1769c0078257262@syzkaller.appspotmail.com
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  security/selinux/hooks.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
+When a file name in type transition rule used in an interface is same as
+a keyword, it needs to be M4 escaped so that the keyword is not expanded
+by M4, e.g.
 
-Merged into selinux/dev, thanks Stephen.
+-	filetrans_pattern($1, virt_var_run_t, virtinterfaced_var_run_t, dir, "interface")
++	filetrans_pattern($1, virt_var_run_t, virtinterfaced_var_run_t, dir, ``"interface"'')
 
---
-paul-moore.com
+But sepolgen-ifgen could not parse such string:
+
+    # sepolgen-ifgen
+    Illegal character '`'
+
+This change allows M4 escaping inside quoted strings and fixed described
+problem.
+
+https://bugzilla.redhat.com/show_bug.cgi?id=2254206
+
+Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+---
+
+change to v1:
+
+- use ``"..."'' instead of "``..''" - sugested in https://github.com/SELinuxProject/selint/pull/291 by
+  @cgzones
+
+- controls right number of openning and closing quotes
+
+ python/sepolgen/src/sepolgen/refparser.py | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/src/sepolgen/refparser.py
+index e261d3f78f87..c8a3eb54d679 100644
+--- a/python/sepolgen/src/sepolgen/refparser.py
++++ b/python/sepolgen/src/sepolgen/refparser.py
+@@ -486,7 +486,7 @@ def p_interface_call_param(p):
+                             | nested_id_set
+                             | TRUE
+                             | FALSE
+-                            | FILENAME
++                            | quoted_filename
+     '''
+     # Intentionally let single identifiers pass through
+     # List means set, non-list identifier
+@@ -1027,6 +1027,11 @@ def p_optional_semi(p):
+                    | empty'''
+     pass
+ 
++def p_quoted_filename(p):
++    '''quoted_filename : TICK quoted_filename SQUOTE
++                       | FILENAME
++    '''
++    p[0] = p[1]
+ 
+ #
+ # Interface to the parser
+-- 
+2.46.0
+
