@@ -1,171 +1,241 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 993741891AC;
-	Wed, 28 Aug 2024 15:09:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FFE01A0B05
+	for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 15:16:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724857755; cv=none; b=ecjiVYLEV6kDp841C4eq/OSj5O50VqD+XWXqdpcCl6i5yiZjDRkq0myLNS6jILxlao7dGCpdrL2sDm3RY1EAt75MA6JkbkmjTcr/dn70JxY9IPNZpzz5bQ0fG7J2hBpeOnhLEJLRUAZaeFS2J/MTTJ5QRydrods96FYfKf4grGw=
+	t=1724858163; cv=none; b=pjxcwcgwbkz/tbZQMZnC+uPreEp36ncG6T/7xzxtJpQI5kKJeKydTXrPYgAr7moPRQjotCGgTmL4Tk4dCi6T3VdvpLpkSGTFic7oIiRWPJCPFYLiEDXFgKz88gw3m/j6Zt2yY9s+ydIY2X0hbfoCjtZIcQF4qNtlTZMyev6kJf4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724857755; c=relaxed/simple;
-	bh=2dSGJx9DwCGU9inaMNC9w/ZuZvcpZXpFhNbyIbDXFXg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HM9vWhQm8Db/vZumyL9kYmuyu7y9Lmz7/y2dETXiVKeGhMr1fdAFE+O8SNWXAiozocsdm8OeOyum3MSCitz7S4Ob/s7q4hiw6rc0k3SSE91XPALYkyYLYPZIRWscz1ytP+nMUvuCkj8b6L3AeMo5Og/21qQJEy7Zvj6gh98HuDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MzX2mLfI; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1724858163; c=relaxed/simple;
+	bh=wNFn+B6hiTZlTEcI5PFswhi9Je1QIIdLrLgkcQrzWv0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mShT4OUfANPG5dde1Bp4EZ9/0uyVC8myUJHpn8G4PtzzwrG16K4S5QoRSPPndUxNLyfXJmq6hEFO2tgPbJQldbexrmFkI9FqwF/p9+swxeQN95rcJStrHNzTGhVh+j3rQJAbu5Y4HI8rqvop0xsOTm88KdWfPZ6tqg3NE2uQQWY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iJIJHu/P; arc=none smtp.client-ip=209.85.160.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MzX2mLfI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B325CC4CEC1;
-	Wed, 28 Aug 2024 15:09:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1724857755;
-	bh=2dSGJx9DwCGU9inaMNC9w/ZuZvcpZXpFhNbyIbDXFXg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=MzX2mLfIg6MsGjolLr+V4iGnkKTQUdjm/EaJhLDbZvuJ66i2qkoGxZkO0ahAeXSdZ
-	 w0oCrFV6JtXAsleAblrSSNSVD9dFHJ0vrg3QkfqAS1/8U20Rzb14APD9K3tmZDJ6GK
-	 CR4Dl1yuEAannx47U0uCzgYJILYF9LdXJXWNUfl7nNIE49/dESf9Abd7xAUmTxni17
-	 nc95Xa/TzQiWQ+tq/H0ZbZrk7Htb3mVLOLBSQS2h3kJfVSREuRRDhSrxAxG8RtEwvG
-	 8Yo853oQ5RDwkuAxKSPdqth8jdfeROhvvFlts3CkhJ2C/SW9eezgX8my3EQlKOcR+8
-	 iHTOc/MxGSYRg==
-Date: Wed, 28 Aug 2024 17:09:08 +0200
-From: Alejandro Colomar <alx@kernel.org>
-To: Kees Cook <kees@kernel.org>
-Cc: Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org, 
-	torvalds@linux-foundation.org, justinstitt@google.com, ebiederm@xmission.com, 
-	alexei.starovoitov@gmail.com, rostedt@goodmis.org, catalin.marinas@arm.com, 
-	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Kees Cook <keescook@chromium.org>, 
-	Matus Jokay <matus.jokay@stuba.sk>, "Serge E. Hallyn" <serge@hallyn.com>
-Subject: Re: [PATCH v8 1/8] Get rid of __get_task_comm()
-Message-ID: <ynrircglkinhherehtjz7woq55te55y4ol4rtxhfh75pvle3d5@uxp5esxt4slq>
-References: <20240828030321.20688-1-laoar.shao@gmail.com>
- <20240828030321.20688-2-laoar.shao@gmail.com>
- <lql4y2nvs3ewadszhmv4m6fnqja4ff4ymuurpidlwvgf4twvru@esnh37a2jxbd>
- <n2fxqs3tekvljezaqpfnwhsmjymch4vb47y744zwmy7urf3flv@zvjtepkem4l7>
- <CALOAHbBAYHjDnKBVw63B8JBFc6U-2RNUX9L=ryA2Gbz7nnJfsQ@mail.gmail.com>
- <7839453E-CA06-430A-A198-92EB906F94D9@kernel.org>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iJIJHu/P"
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-456757d8871so3197611cf.0
+        for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 08:16:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1724858161; x=1725462961; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=awZdDvnzwJcg8LBY1gRC0RHF1ply1ZkE68HIpbEd6UU=;
+        b=iJIJHu/PpEJTP5yufX9Vn42oDnisu7R4RXD7BG3xcZ6OawYdgr68yWcSL2wg2wbF/1
+         vwSfvgkc0wt4BVc1gH4IE03y3iELf5NAhZ25uJ8g+xC4PmE4N/wmNLuoP73PX1Yd+O+a
+         jdRPMcavjWmtvZJJGmkot4IIuEXMfwqv1ymTBykP5QTt1CLkZQtXc29C4vcyCypogojV
+         BSHUF2ay4RoFq/BAOaHgULYdbkI5sa/roFp4u04vGV5UBo373UK1EoZtPM1ApvuMsA27
+         0lZtLq27IIHFmDQnlR22qVv8Ms9pIB8n3iat/DOmqnd/pOQDxVdkHU/Eq2/xDoWhQf9z
+         02kg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724858161; x=1725462961;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=awZdDvnzwJcg8LBY1gRC0RHF1ply1ZkE68HIpbEd6UU=;
+        b=MsKz1CzWA1aaArn3JIrSKrsYQM0Cm3vWb1qt6zLMW9IHDghbG3p5XOCwh7Dn9fl+ON
+         XDhzj1g36Tc+GVKi7xRZ5UPVEJ13GzMMz5pHvJu4dl9aorIIquSMoGaDYDCFAF4XkogO
+         sZCwyJWtvvd/DzsIEbkR4826VDXJzgrO32EwK5z/rMEJjPepb5HgZhb843dJAZXrbUt1
+         KfL7RneSauo99Fb8mQWyKjt/eqrVNTZmNYdupPSgnaX3QefOQZ27AANbwR18KQwGzMNX
+         AqxR/ijI6hJRC2+CXyVF2qx4M9IHLIbUQ55KuO1U/RjRP4jfYHapj4a+Pow9//+A5lJp
+         7BlQ==
+X-Gm-Message-State: AOJu0YwN22TQ4HnWauN8ayAaA5qq4QXz6CUJ4woSmOaQ/UcyghofcPM8
+	QAW3eCrSmlmG1aMCzFvxQCI6k7qd5zTlmvdSwCnrN1sVidBPxlXcccEx9g==
+X-Google-Smtp-Source: AGHT+IEAo9pzv5HabD+pHZDjeEja81Z8wtyTMOwGjbgx+5/oyzwuJEypMV6yGrynfpRKYm2OyS8hmg==
+X-Received: by 2002:a05:622a:1b12:b0:447:f79d:cf0b with SMTP id d75a77b69052e-4566e6a81damr27532731cf.41.1724858160462;
+        Wed, 28 Aug 2024 08:16:00 -0700 (PDT)
+Received: from electric.. (c-69-140-100-37.hsd1.md.comcast.net. [69.140.100.37])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-454fe1b8c3csm62273241cf.81.2024.08.28.08.15.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Aug 2024 08:16:00 -0700 (PDT)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: cgzones@googlemail.com,
+	James Carter <jwcart2@gmail.com>
+Subject: [PATCH v3] checkpolicy: Fix MLS users in optional blocks
+Date: Wed, 28 Aug 2024 11:15:57 -0400
+Message-ID: <20240828151557.204343-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.46.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="utmrbzzw4vz6dwo3"
-Content-Disposition: inline
-In-Reply-To: <7839453E-CA06-430A-A198-92EB906F94D9@kernel.org>
+Content-Transfer-Encoding: 8bit
 
+When a user is created in an optional block, a user datum is added
+to both the avrule_decl's symtab and the policydb's symtab, but
+the semantic MLS information is only added to the avrule_decl's
+user datum. This causes an error to occur during policy expansion
+when user_copy_callback() is called. If this error did not occur
+then the policydb's user datum would be written without any MLS
+info and the policy would fail validation when read later.
 
---utmrbzzw4vz6dwo3
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-From: Alejandro Colomar <alx@kernel.org>
-To: Kees Cook <kees@kernel.org>
-Cc: Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org, 
-	torvalds@linux-foundation.org, justinstitt@google.com, ebiederm@xmission.com, 
-	alexei.starovoitov@gmail.com, rostedt@goodmis.org, catalin.marinas@arm.com, 
-	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, Kees Cook <keescook@chromium.org>, 
-	Matus Jokay <matus.jokay@stuba.sk>, "Serge E. Hallyn" <serge@hallyn.com>
-Subject: Re: [PATCH v8 1/8] Get rid of __get_task_comm()
-References: <20240828030321.20688-1-laoar.shao@gmail.com>
- <20240828030321.20688-2-laoar.shao@gmail.com>
- <lql4y2nvs3ewadszhmv4m6fnqja4ff4ymuurpidlwvgf4twvru@esnh37a2jxbd>
- <n2fxqs3tekvljezaqpfnwhsmjymch4vb47y744zwmy7urf3flv@zvjtepkem4l7>
- <CALOAHbBAYHjDnKBVw63B8JBFc6U-2RNUX9L=ryA2Gbz7nnJfsQ@mail.gmail.com>
- <7839453E-CA06-430A-A198-92EB906F94D9@kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <7839453E-CA06-430A-A198-92EB906F94D9@kernel.org>
+When creating a user datum, search for a user datum with the same
+key in the policydb's symtab. If that datum has no MLS information,
+then copy the MLS information from the avrule_decl's datum. If it
+does, then compare the default level, low level, and high level
+sensitivities and give an error if they do not match. There is not
+enough information to expand the categories for the high and low
+levels, so merge the semantic categories. If the two category sets
+are not equal an error will occur during the expansion phase.
 
-Hi Kees,
+A minimum policy to demonstrate the bug:
+class CLASS1
+sid kernel
+class CLASS1 { PERM1 }
+sensitivity SENS1;
+dominance { SENS1 }
+level SENS1;
+mlsconstrain CLASS1 { PERM1 } ((h1 dom h2) and (l1 domby h1));
+type TYPE1;
+allow TYPE1 self : CLASS1 PERM1;
+role ROLE1;
+role ROLE1 types TYPE1;
+optional {
+  require {
+    role ROLE1;
+  }
+  user USER2 roles ROLE1 level SENS1 range SENS1;
+}
+user USER1 roles ROLE1 level SENS1 range SENS1;
+sid kernel USER1:ROLE1:TYPE1:SENS1
 
-On Wed, Aug 28, 2024 at 06:48:39AM GMT, Kees Cook wrote:
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+v2:
+  - Fixed mls_semantic_cats_merge() so that it keeps existing cats in dst
+  - Made src const in mls_add_or_check_level()
+v3:
+  - Free id in the error path
 
-[...]
+ checkpolicy/policy_define.c | 72 ++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 71 insertions(+), 1 deletion(-)
 
-> >Thank you for your suggestion. How does the following commit log look
-> >to you? Does it meet your expectations?
-> >
-> >    string: Use ARRAY_SIZE() in strscpy()
-> >
-> >    We can use ARRAY_SIZE() instead to clarify that they are regular cha=
-racters.
-> >
-> >    Co-developed-by: Alejandro Colomar <alx@kernel.org>
-> >    Signed-off-by: Alejandro Colomar <alx@kernel.org>
-> >    Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-> >
-> >diff --git a/arch/um/include/shared/user.h b/arch/um/include/shared/user=
-=2Eh
-> >index bbab79c0c074..07216996e3a9 100644
-> >--- a/arch/um/include/shared/user.h
-> >+++ b/arch/um/include/shared/user.h
-> >@@ -14,7 +14,7 @@
-> >  * copying too much infrastructure for my taste, so userspace files
-> >  * get less checking than kernel files.
-> >  */
-> >-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-> >+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]) + __must_be_array(x))
-> >
-> > /* This is to get size_t and NULL */
-> > #ifndef __UM_HOST__
-> >@@ -60,7 +60,7 @@ static inline void print_hex_dump(const char *level,
-> >const char *prefix_str,
-> > extern int in_aton(char *str);
-> > extern size_t strlcat(char *, const char *, size_t);
-> > extern size_t sized_strscpy(char *, const char *, size_t);
-> >-#define strscpy(dst, src)      sized_strscpy(dst, src, sizeof(dst))
-> >+#define strscpy(dst, src)      sized_strscpy(dst, src, ARRAY_SIZE(dst))
->=20
-> Uh, but why? strscpy() copies bytes, not array elements. Using sizeof() i=
-s already correct and using ARRAY_SIZE() could lead to unexpectedly small c=
-ounts (in admittedly odd situations).
->=20
-> What is the problem you're trying to solve here?
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index bfeda86b..af8d007c 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -4175,6 +4175,50 @@ static int parse_categories(char *id, level_datum_t * levdatum, ebitmap_t * cats
+ 	return 0;
+ }
+ 
++static int mls_semantic_cats_merge(mls_semantic_cat_t ** dst,
++								   const mls_semantic_cat_t * src)
++{
++	mls_semantic_cat_t *new;
++
++	while (src) {
++		new = (mls_semantic_cat_t *) malloc(sizeof(mls_semantic_cat_t));
++		if (!new)
++			return -1;
++
++		mls_semantic_cat_init(new);
++		new->low = src->low;
++		new->high = src->high;
++		new->next = *dst;
++		*dst = new;
++
++		src = src->next;
++	}
++
++	return 0;
++}
++
++static int mls_add_or_check_level(mls_semantic_level_t *dst, const mls_semantic_level_t *src)
++{
++	if (!dst->sens) {
++		if (mls_semantic_level_cpy(dst, src) < 0) {
++			yyerror("out of memory");
++			return -1;
++		}
++	} else {
++		if (dst->sens != src->sens) {
++			return -1;
++		}
++		/* Duplicate cats won't cause problems, but different cats will
++		 * result in an error during expansion */
++		if (mls_semantic_cats_merge(&dst->cat, src->cat) < 0) {
++			yyerror("out of memory");
++			return -1;
++		}
++	}
++
++	return 0;
++}
++
+ static int parse_semantic_categories(char *id, level_datum_t * levdatum __attribute__ ((unused)),
+ 				     mls_semantic_cat_t ** cats)
+ {
+@@ -4233,7 +4277,7 @@ static int parse_semantic_categories(char *id, level_datum_t * levdatum __attrib
+ int define_user(void)
+ {
+ 	char *id;
+-	user_datum_t *usrdatum;
++	user_datum_t *usrdatum, *usr_global;
+ 	level_datum_t *levdatum;
+ 	int l;
+ 
+@@ -4258,10 +4302,16 @@ int define_user(void)
+ 		return 0;
+ 	}
+ 
++	id = strdup(queue_head(id_queue));
++
+ 	if ((usrdatum = declare_user()) == NULL) {
++		free(id);
+ 		return -1;
+ 	}
+ 
++	usr_global = hashtab_search(policydbp->p_users.table, (hashtab_key_t) id);
++	free(id);
++
+ 	while ((id = queue_remove(id_queue))) {
+ 		if (set_user_roles(&usrdatum->roles, id))
+ 			return -1;
+@@ -4288,6 +4338,7 @@ int define_user(void)
+ 		usrdatum->dfltlevel.sens = levdatum->level->sens;
+ 
+ 		while ((id = queue_remove(id_queue))) {
++			/* This will add to any already existing categories */
+ 			if (parse_semantic_categories(id, levdatum,
+ 			                            &usrdatum->dfltlevel.cat)) {
+ 				free(id);
+@@ -4313,6 +4364,7 @@ int define_user(void)
+ 			usrdatum->range.level[l].sens = levdatum->level->sens;
+ 
+ 			while ((id = queue_remove(id_queue))) {
++				/* This will add to any already existing categories */
+ 				if (parse_semantic_categories(id, levdatum,
+ 				               &usrdatum->range.level[l].cat)) {
+ 					free(id);
+@@ -4333,6 +4385,24 @@ int define_user(void)
+ 				return -1;
+ 			}
+ 		}
++
++		if (usr_global && usr_global != usrdatum) {
++			if (mls_add_or_check_level(&usr_global->dfltlevel,
++									   &usrdatum->dfltlevel)) {
++				yyerror("Problem with user default level");
++				return -1;
++			}
++			if (mls_add_or_check_level(&usr_global->range.level[0],
++									   &usrdatum->range.level[0])) {
++				yyerror("Problem with user low level");
++				return -1;
++			}
++			if (mls_add_or_check_level(&usr_global->range.level[1],
++									   &usrdatum->range.level[1])) {
++				yyerror("Problem with user high level");
++				return -1;
++			}
++		}
+ 	}
+ 	return 0;
+ }
+-- 
+2.46.0
 
-I suggested that here:
-<https://lore.kernel.org/all/2jxak5v6dfxlpbxhpm3ey7oup4g2lnr3ueurfbosf5wdo6=
-5dk4@srb3hsk72zwq/>
-
-There, you'll find the rationale (and also for avoiding the _pad calls
-where not necessary --I ignore if it's necessary here--).
-
-Have a lovely day!
-Alex
-
->=20
-> -Kees
->=20
-> --=20
-> Kees Cook
-
---=20
-<https://www.alejandro-colomar.es/>
-
---utmrbzzw4vz6dwo3
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE6jqH8KTroDDkXfJAnowa+77/2zIFAmbPPZQACgkQnowa+77/
-2zLbhBAAlmo97hSALOMFZhNvjtiifi8OS3Fmi4WyEj8YDnX4pfh+3drVAhe2b44u
-nrvjsBMEM1AHDiXa+gp3sUheR3N1kFuX1oyxlPsb9crUH3IfubT4kG0tQ6qLqE8M
-Tv0OfPWGdqeGMgvvTEiQVb4xcs/OMT5T4hVdwAtws8Lw0f1ofW5uE5Vlhu5GUXUB
-Mbz0DBwkRwBtEmnOCDeZE8zBL8ifIc7k5lQ7Kp1hr4gg/89oLXSABSSxtkyx2U20
-8Q1u2OXUiGq4J1BPkNs/5REFb+DJ5bpor7fMecfxoIKms1HXU4w3BjLO6x0ijCTc
-cKtZD6eMdpBVNhzXDsJpwMEePaKmJ8k9M4XEVFzBGvdKZ7nAx2meA0rmRssG8tVN
-PkNk/kswZIw0qi+m7Lo5uoWOoyKt/s3/UxyUehrIs2k836Zxc9gNdXzX3V9l/R7l
-KStxOPruRK2CjPtIE+OBeCpkVxVpFnNhyOVRADi9sWf4ztjwoo8acuXuDNjBDRoP
-ggNzOacqXIv8N0Ly6pn+01O6jUg5VNLndq9hOMveyamHwRAZVTDiJMh2xmJqBW41
-jIckyXwpnHly1Ag/DEWDiLlgjL0KTcqLGn3Y3oG4jd6PKxqUpxZHGw5UvLPq4QOk
-Oy6ZjqF9XGRi8kCgo0hGVLIKxJX7RfAZydaWmAjQVouEODj3TvU=
-=wcL8
------END PGP SIGNATURE-----
-
---utmrbzzw4vz6dwo3--
