@@ -1,241 +1,89 @@
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FFE01A0B05
-	for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 15:16:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3851615B12F
+	for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 15:48:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724858163; cv=none; b=pjxcwcgwbkz/tbZQMZnC+uPreEp36ncG6T/7xzxtJpQI5kKJeKydTXrPYgAr7moPRQjotCGgTmL4Tk4dCi6T3VdvpLpkSGTFic7oIiRWPJCPFYLiEDXFgKz88gw3m/j6Zt2yY9s+ydIY2X0hbfoCjtZIcQF4qNtlTZMyev6kJf4=
+	t=1724860090; cv=none; b=m7nL2Zg5n7sw/evavv4amKXnUEdTBwj1HHYW5PQN25wc+iiMqe6q/B9AXVh+VSStnTrLfkY2i3PqyIa+ntBq9gigX4kS+acQubX9hh0OSNDAmJNDjDdmNoqTXQvufBvwYmn24H+DiBlcV8N4h58vjSbzmcBhuixJstqTsSqAmw0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724858163; c=relaxed/simple;
-	bh=wNFn+B6hiTZlTEcI5PFswhi9Je1QIIdLrLgkcQrzWv0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mShT4OUfANPG5dde1Bp4EZ9/0uyVC8myUJHpn8G4PtzzwrG16K4S5QoRSPPndUxNLyfXJmq6hEFO2tgPbJQldbexrmFkI9FqwF/p9+swxeQN95rcJStrHNzTGhVh+j3rQJAbu5Y4HI8rqvop0xsOTm88KdWfPZ6tqg3NE2uQQWY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iJIJHu/P; arc=none smtp.client-ip=209.85.160.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1724860090; c=relaxed/simple;
+	bh=5aKtcj5aL7wIUwVBenqfQbWteV7OaUZ3Jq64JTFjNuA=;
+	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
+	 From:To:Cc:Subject:References:In-Reply-To; b=B4xGQhAEO8Y3CgL+evKbjdD1hDCE70oLGUheGHhjQ+sq/QsV82U2PZ1ssXnVwwTgvKwW8m7FFcjGXdYH8mDavpugws2Lo/cql7pjLueW5t0Zjju/kzgmucUrogXt57sjCadkrAU6GnLW8VjSn+YtbezeuNfE7G089tp44bHBpz4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Qc9jHF1v; arc=none smtp.client-ip=209.85.210.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iJIJHu/P"
-Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-456757d8871so3197611cf.0
-        for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 08:16:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Qc9jHF1v"
+Received: by mail-ot1-f42.google.com with SMTP id 46e09a7af769-70b3b62025dso5603187a34.0
+        for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 08:48:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724858161; x=1725462961; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=awZdDvnzwJcg8LBY1gRC0RHF1ply1ZkE68HIpbEd6UU=;
-        b=iJIJHu/PpEJTP5yufX9Vn42oDnisu7R4RXD7BG3xcZ6OawYdgr68yWcSL2wg2wbF/1
-         vwSfvgkc0wt4BVc1gH4IE03y3iELf5NAhZ25uJ8g+xC4PmE4N/wmNLuoP73PX1Yd+O+a
-         jdRPMcavjWmtvZJJGmkot4IIuEXMfwqv1ymTBykP5QTt1CLkZQtXc29C4vcyCypogojV
-         BSHUF2ay4RoFq/BAOaHgULYdbkI5sa/roFp4u04vGV5UBo373UK1EoZtPM1ApvuMsA27
-         0lZtLq27IIHFmDQnlR22qVv8Ms9pIB8n3iat/DOmqnd/pOQDxVdkHU/Eq2/xDoWhQf9z
-         02kg==
+        d=paul-moore.com; s=google; t=1724860087; x=1725464887; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-disposition:mime-version:message-id:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=tIhnPtZtDgzVsjXXL3AlKEEvNlZGLgelF/rd9ZuavBM=;
+        b=Qc9jHF1vkC++t37NSzNWX/NJWrpcCcdDJvq0W+FCgyrb0loutXTK8zeq3XA7j3ayi7
+         ntbdxMqQ4tHQ+71O0O7ALad5nO/k4BEDQELUFpHssO1K0kAKOvIlkVUBZvBHiygX+YH0
+         d48yAeTAb8GiUhTkEJwSpMqF3yufI58FCAEgDIz3kdHAuUrQWccRgrV1j9uJPPRgpUGb
+         oTINm0NjYPWRe1nSbkTS9BlPdOHaFTQrqfEs2azVd/XghFF5c0tbjQQtyUxIxqp3UAUa
+         72AePoNzG2Q0MsncoW64Kk0uOv7GgfEh1zSb0k4ake2R2WPNTCSvAjLHTOAu2GN20viZ
+         QFJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724858161; x=1725462961;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=awZdDvnzwJcg8LBY1gRC0RHF1ply1ZkE68HIpbEd6UU=;
-        b=MsKz1CzWA1aaArn3JIrSKrsYQM0Cm3vWb1qt6zLMW9IHDghbG3p5XOCwh7Dn9fl+ON
-         XDhzj1g36Tc+GVKi7xRZ5UPVEJ13GzMMz5pHvJu4dl9aorIIquSMoGaDYDCFAF4XkogO
-         sZCwyJWtvvd/DzsIEbkR4826VDXJzgrO32EwK5z/rMEJjPepb5HgZhb843dJAZXrbUt1
-         KfL7RneSauo99Fb8mQWyKjt/eqrVNTZmNYdupPSgnaX3QefOQZ27AANbwR18KQwGzMNX
-         AqxR/ijI6hJRC2+CXyVF2qx4M9IHLIbUQ55KuO1U/RjRP4jfYHapj4a+Pow9//+A5lJp
-         7BlQ==
-X-Gm-Message-State: AOJu0YwN22TQ4HnWauN8ayAaA5qq4QXz6CUJ4woSmOaQ/UcyghofcPM8
-	QAW3eCrSmlmG1aMCzFvxQCI6k7qd5zTlmvdSwCnrN1sVidBPxlXcccEx9g==
-X-Google-Smtp-Source: AGHT+IEAo9pzv5HabD+pHZDjeEja81Z8wtyTMOwGjbgx+5/oyzwuJEypMV6yGrynfpRKYm2OyS8hmg==
-X-Received: by 2002:a05:622a:1b12:b0:447:f79d:cf0b with SMTP id d75a77b69052e-4566e6a81damr27532731cf.41.1724858160462;
-        Wed, 28 Aug 2024 08:16:00 -0700 (PDT)
-Received: from electric.. (c-69-140-100-37.hsd1.md.comcast.net. [69.140.100.37])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-454fe1b8c3csm62273241cf.81.2024.08.28.08.15.59
+        d=1e100.net; s=20230601; t=1724860087; x=1725464887;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-disposition:mime-version:message-id:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=tIhnPtZtDgzVsjXXL3AlKEEvNlZGLgelF/rd9ZuavBM=;
+        b=FOtYV4K3r1my2QdfHoyOIGiYEpUHp0t75R41/kB6t/BBVQPz+awqMZVT7FnqLO1LCp
+         DkRg1EYDmLVgZ8GnTmMwHWYxsOv7XufhwT+Fk/saVCjtFV2Jl1r/nzqk1lM8gBZEnemL
+         buXA5xmeaUf3JsoWy06ub/M3/IuDTEotRjv3C/gHof0os0DY08emkQQ1QFhLXuK1rDYr
+         2iTqamb3XJygnF+uJkhj+8HqWvDPCKVgGyqxaJsO4Rl4eydyhrIYsj3c+Uz3xUpWKSLs
+         J3KUUypg/k1NU8fvdV15xB7oXoKlmplx/dF00GNLnJMbDUnLZ7reLTl55+s2l4ZoFB3D
+         tMNg==
+X-Forwarded-Encrypted: i=1; AJvYcCXhw/YE9cDGjm9kt8nE9RaYTJs8rPQ1f0qnqvh1LcI8aVfYEX9uEVQEFQhVF5IkcyNPEgtqJkOr@vger.kernel.org
+X-Gm-Message-State: AOJu0YxiD23R4kLfkCx1PTNsBtv+eiuKwZZNs3jnmyARYBi5O+yCz6WS
+	fNaUONCfvkAe73VllUHhx0Ye/qPEiNB5UbtmblFagBVkAIPy40GYvcrr0x5KdPS2LmOPzlyZQTs
+	=
+X-Google-Smtp-Source: AGHT+IFgsiB49Hz6L/04GdqJi2W5uMiR+B3r/9BchMQtMgraMWY7DjMRz8TeFkhT+8dgUNwQTlbMuQ==
+X-Received: by 2002:a05:6830:2112:b0:703:77a2:2854 with SMTP id 46e09a7af769-70f53ae980dmr2643796a34.28.1724860087113;
+        Wed, 28 Aug 2024 08:48:07 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-454fe19a4fesm62669251cf.67.2024.08.28.08.48.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Aug 2024 08:16:00 -0700 (PDT)
-From: James Carter <jwcart2@gmail.com>
-To: selinux@vger.kernel.org
-Cc: cgzones@googlemail.com,
-	James Carter <jwcart2@gmail.com>
-Subject: [PATCH v3] checkpolicy: Fix MLS users in optional blocks
-Date: Wed, 28 Aug 2024 11:15:57 -0400
-Message-ID: <20240828151557.204343-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.46.0
+        Wed, 28 Aug 2024 08:48:06 -0700 (PDT)
+Date: Wed, 28 Aug 2024 11:48:06 -0400
+Message-ID: <40b197ad7fa3c667cd533c86d87b1e7a@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=utf-8 
+Content-Disposition: inline 
 Content-Transfer-Encoding: 8bit
+From: Paul Moore <paul@paul-moore.com>
+To: Guido Trentalancia <guido@trentalancia.com>, selinux@vger.kernel.org
+Cc: Guido Trentalancia <guido@trentalancia.com>
+Subject: Re: [PATCH] selinux: mark all newly created Internet domain sockets as  labeled sockets
+References: <20240828093518.27340-1-guido@trentalancia.com>
+In-Reply-To: <20240828093518.27340-1-guido@trentalancia.com>
 
-When a user is created in an optional block, a user datum is added
-to both the avrule_decl's symtab and the policydb's symtab, but
-the semantic MLS information is only added to the avrule_decl's
-user datum. This causes an error to occur during policy expansion
-when user_copy_callback() is called. If this error did not occur
-then the policydb's user datum would be written without any MLS
-info and the policy would fail validation when read later.
+On Aug 28, 2024 Guido Trentalancia <guido@trentalancia.com> wrote:
+> 
+> The current partial labeling was introduced in
+> commit 389fb800ac8be2832efedd19978a2b8ced37eb61
+> due to the fact that IPv6 labeling was not
+> supported yet at the time.
+> 
+> Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
+> ---
+>  security/selinux/netlabel.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-When creating a user datum, search for a user datum with the same
-key in the policydb's symtab. If that datum has no MLS information,
-then copy the MLS information from the avrule_decl's datum. If it
-does, then compare the default level, low level, and high level
-sensitivities and give an error if they do not match. There is not
-enough information to expand the categories for the high and low
-levels, so merge the semantic categories. If the two category sets
-are not equal an error will occur during the expansion phase.
+Much better, merged into selinux/dev, thanks Guido.
 
-A minimum policy to demonstrate the bug:
-class CLASS1
-sid kernel
-class CLASS1 { PERM1 }
-sensitivity SENS1;
-dominance { SENS1 }
-level SENS1;
-mlsconstrain CLASS1 { PERM1 } ((h1 dom h2) and (l1 domby h1));
-type TYPE1;
-allow TYPE1 self : CLASS1 PERM1;
-role ROLE1;
-role ROLE1 types TYPE1;
-optional {
-  require {
-    role ROLE1;
-  }
-  user USER2 roles ROLE1 level SENS1 range SENS1;
-}
-user USER1 roles ROLE1 level SENS1 range SENS1;
-sid kernel USER1:ROLE1:TYPE1:SENS1
-
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
-v2:
-  - Fixed mls_semantic_cats_merge() so that it keeps existing cats in dst
-  - Made src const in mls_add_or_check_level()
-v3:
-  - Free id in the error path
-
- checkpolicy/policy_define.c | 72 ++++++++++++++++++++++++++++++++++++-
- 1 file changed, 71 insertions(+), 1 deletion(-)
-
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index bfeda86b..af8d007c 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -4175,6 +4175,50 @@ static int parse_categories(char *id, level_datum_t * levdatum, ebitmap_t * cats
- 	return 0;
- }
- 
-+static int mls_semantic_cats_merge(mls_semantic_cat_t ** dst,
-+								   const mls_semantic_cat_t * src)
-+{
-+	mls_semantic_cat_t *new;
-+
-+	while (src) {
-+		new = (mls_semantic_cat_t *) malloc(sizeof(mls_semantic_cat_t));
-+		if (!new)
-+			return -1;
-+
-+		mls_semantic_cat_init(new);
-+		new->low = src->low;
-+		new->high = src->high;
-+		new->next = *dst;
-+		*dst = new;
-+
-+		src = src->next;
-+	}
-+
-+	return 0;
-+}
-+
-+static int mls_add_or_check_level(mls_semantic_level_t *dst, const mls_semantic_level_t *src)
-+{
-+	if (!dst->sens) {
-+		if (mls_semantic_level_cpy(dst, src) < 0) {
-+			yyerror("out of memory");
-+			return -1;
-+		}
-+	} else {
-+		if (dst->sens != src->sens) {
-+			return -1;
-+		}
-+		/* Duplicate cats won't cause problems, but different cats will
-+		 * result in an error during expansion */
-+		if (mls_semantic_cats_merge(&dst->cat, src->cat) < 0) {
-+			yyerror("out of memory");
-+			return -1;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static int parse_semantic_categories(char *id, level_datum_t * levdatum __attribute__ ((unused)),
- 				     mls_semantic_cat_t ** cats)
- {
-@@ -4233,7 +4277,7 @@ static int parse_semantic_categories(char *id, level_datum_t * levdatum __attrib
- int define_user(void)
- {
- 	char *id;
--	user_datum_t *usrdatum;
-+	user_datum_t *usrdatum, *usr_global;
- 	level_datum_t *levdatum;
- 	int l;
- 
-@@ -4258,10 +4302,16 @@ int define_user(void)
- 		return 0;
- 	}
- 
-+	id = strdup(queue_head(id_queue));
-+
- 	if ((usrdatum = declare_user()) == NULL) {
-+		free(id);
- 		return -1;
- 	}
- 
-+	usr_global = hashtab_search(policydbp->p_users.table, (hashtab_key_t) id);
-+	free(id);
-+
- 	while ((id = queue_remove(id_queue))) {
- 		if (set_user_roles(&usrdatum->roles, id))
- 			return -1;
-@@ -4288,6 +4338,7 @@ int define_user(void)
- 		usrdatum->dfltlevel.sens = levdatum->level->sens;
- 
- 		while ((id = queue_remove(id_queue))) {
-+			/* This will add to any already existing categories */
- 			if (parse_semantic_categories(id, levdatum,
- 			                            &usrdatum->dfltlevel.cat)) {
- 				free(id);
-@@ -4313,6 +4364,7 @@ int define_user(void)
- 			usrdatum->range.level[l].sens = levdatum->level->sens;
- 
- 			while ((id = queue_remove(id_queue))) {
-+				/* This will add to any already existing categories */
- 				if (parse_semantic_categories(id, levdatum,
- 				               &usrdatum->range.level[l].cat)) {
- 					free(id);
-@@ -4333,6 +4385,24 @@ int define_user(void)
- 				return -1;
- 			}
- 		}
-+
-+		if (usr_global && usr_global != usrdatum) {
-+			if (mls_add_or_check_level(&usr_global->dfltlevel,
-+									   &usrdatum->dfltlevel)) {
-+				yyerror("Problem with user default level");
-+				return -1;
-+			}
-+			if (mls_add_or_check_level(&usr_global->range.level[0],
-+									   &usrdatum->range.level[0])) {
-+				yyerror("Problem with user low level");
-+				return -1;
-+			}
-+			if (mls_add_or_check_level(&usr_global->range.level[1],
-+									   &usrdatum->range.level[1])) {
-+				yyerror("Problem with user high level");
-+				return -1;
-+			}
-+		}
- 	}
- 	return 0;
- }
--- 
-2.46.0
-
+--
+paul-moore.com
