@@ -1,96 +1,134 @@
-Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CCAA42A8F
-	for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 17:42:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E10F1AAE38
+	for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 19:51:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724866933; cv=none; b=mSKU+DEk/UjhiZGxYf07xG/BtEJwsWvzzXWPlBXuBBOFnqXpfZL4OHZJ/x3ivTLCTgMf7vI1qnHQHY7GQIWt6PqRSojjpP+3+BX1GI0xbFPrMGbJ9XqqqxIUnt/ptCf1QOYtYSEzjjzPL5JVt//N1OS6YyQkEjin1+yeHvgCkuQ=
+	t=1724874701; cv=none; b=oua2E6Uws4P0gZBZEyB3qP0WooaJeeGyVCffqubiko528bzes69efI4MszdxgFfgCKpZUr9Tv7ZWE17g+BQI99ga9RgHYgcx2sIdP4oc8tsBirB+j0iqIxoThkwsahEuyHmufBTNs+RE+NCOP6AmK4K0GEpn7NnvV4MISP//fPk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724866933; c=relaxed/simple;
-	bh=6sJuclRag21uFtJ/65qjts/K8N+xM6U/kSObYcqdsBk=;
-	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
-	 From:To:Cc:Subject:References:In-Reply-To; b=piXXxoN6qmVlHs1w3Hj/+lUApR5Bixy7BmaJcSeaz3BEXNVkS9nxQCPByp2hJnei2GCxre+pJNXqvg8bg/CIgv0pFs3JVnHegqrTrE9yNpO+PjB+6pB+S1BHk3CI5/q9CPbGL5gfa1QVP1u1/ryRMM0WTk/lO08YsesWDdaB0bw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Dan7nYmd; arc=none smtp.client-ip=209.85.160.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1724874701; c=relaxed/simple;
+	bh=fVISxZv2SeBGuVrnBIvZJ1tXtBQtdpAeMoaYfNH5R0k=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JFc8ZX5NOfaj0Z6iDFTMCfq+9VmjT9pN+itkLnwYvmtWrF8LIn4DRzeZ56FmWArS8fumDoR4Kxn8aWlfMCi8f+iQXqzhJ4m8GHrasDST2DAoDIYggXVC3fQErX0u7Vit/Um9DJn7Z/lomXl08z++/7svM3hAPrrsY8whuiXXJ5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MG10//j5; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Dan7nYmd"
-Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-27046394c9bso4080863fac.2
-        for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 10:42:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1724866931; x=1725471731; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-disposition:mime-version:message-id:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=l0LS34y9FNgp7CeUUEOHvHKYwbGPvsi/kP5Wc73C6eY=;
-        b=Dan7nYmdCipb8VcfVQqrsQzN9lCdPANwVdDlEzEgtO4bRrFeCLP6M8GK/NxwvT779W
-         UixZQtEvc/WA424UHTEkttWWdHWMD2SJGZSig6PrELZMg8TRXWOcLRidnmMkUDLBqdAh
-         6Fdyv6KRc3pH6E/9sCbfx7AaZ2GBVy7UhvOITUcVn+D6QJiC8a1z7mKBn0N0tqxTXzNS
-         4nuGT6tlyrNDQb305Is7eK5+MpVICJ8ySdv6Kv694UQZl3bF9jp/tkioy6BbMntCq9Vc
-         e5/7l/q9E7NjT1ptsa+UvUswY5v+3505JCm3vbzxsuAtsKKXlswvCxDpuSTXRvKJnkJ4
-         qk5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724866931; x=1725471731;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :content-disposition:mime-version:message-id:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=l0LS34y9FNgp7CeUUEOHvHKYwbGPvsi/kP5Wc73C6eY=;
-        b=Q7q+kNox8vQsdFVP2tN+QSzjkmdjAYqwgZv6BcxTFOQHovVAhirVptPWHxgcQxlumo
-         BAg/YOZrYjYUXl2VK26yIX2NWy1oc5MNzkYwOTw627bioTv5RCKPjDaHHKjNTzyjE4Kn
-         aPRyfgaTy1rEgXd8a/1TIAEo8QT5TCUE1vad5Mo6QxGXUkU+C8hBmQBAMG6fwbI7ECyW
-         O44Ion3WJOdGaSLaoMTGqnP43bMoNiEiB4INUMr2d4HVDJXwYeqtbUeNPVMFd2eiCgeE
-         O2UbXC2MyZthF1T79EtLkMzckrRHdnRUZCRvQe+oMWf2cCasZZcbbvVD0bkd7P+cENEI
-         k5Tg==
-X-Forwarded-Encrypted: i=1; AJvYcCXVvouNtcR5AxUJAPl2339jNRkG64aorBwTwXjXbNiJ6j8TBLjOwi0In0IkslJ9/dIl1ZikBXO7@vger.kernel.org
-X-Gm-Message-State: AOJu0YxRH9Tns9D5evefDrJCWSvdyBtCxQBth7tLNeUZitIN+5ut8v3u
-	VE+5adGRSttlwLSgfvv0BCIQvs4vQaMYcXZ2HLHItdUjboBXnrsR0rqgiCf99Q==
-X-Google-Smtp-Source: AGHT+IF60W2ezbSV3pqqIsEGk6YQW3oqG7+k3EIiwJzJkjnGNJsVIJxaYuxkMOkfo6a40udSN+41lQ==
-X-Received: by 2002:a05:6870:4708:b0:260:e453:5368 with SMTP id 586e51a60fabf-27790321839mr364416fac.46.1724866931173;
-        Wed, 28 Aug 2024 10:42:11 -0700 (PDT)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7a67f34233csm656813385a.35.2024.08.28.10.42.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Aug 2024 10:42:10 -0700 (PDT)
-Date: Wed, 28 Aug 2024 13:42:09 -0400
-Message-ID: <f3e7f421323bb99c12507299a658d572@paul-moore.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MG10//j5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1724874699;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=aQ9LTm9VbgupYTnWRM8uzbNpl19bMmaQOYwLWwUdRQk=;
+	b=MG10//j5AuzyTDG+p3EyjVqlhcYFWzVKTlbvTSzI13zjdcct+kN4SpEwmeBy/X4Qv2/qgA
+	e85KnAFCXSjdshUMh06CvQJbmPMfQo2eCjLfNKa0Jt16vpDq77nxLbCwDk5DS1HYVZCVHR
+	A4g9W5JjDSitY+cVGbR1tfDYhXsg4dE=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-187-lJH4D0t4PturfPDp0wlmTg-1; Wed,
+ 28 Aug 2024 15:51:34 -0400
+X-MC-Unique: lJH4D0t4PturfPDp0wlmTg-1
+Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8F17C1955BEF;
+	Wed, 28 Aug 2024 19:51:32 +0000 (UTC)
+Received: from aion.redhat.com (unknown [10.22.9.161])
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id DE3AA19560AA;
+	Wed, 28 Aug 2024 19:51:31 +0000 (UTC)
+Received: from aion.redhat.com (localhost [IPv6:::1])
+	by aion.redhat.com (Postfix) with ESMTP id D2F1C1F0955;
+	Wed, 28 Aug 2024 15:51:29 -0400 (EDT)
+From: Scott Mayhew <smayhew@redhat.com>
+To: paul@paul-moore.com,
+	stephen.smalley.work@gmail.com,
+	casey@schaufler-ca.com
+Cc: chuck.lever@oracle.com,
+	marek.gresko@protonmail.com,
+	selinux@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	linux-nfs@vger.kernel.org
+Subject: [PATCH 0/1] selinux,smack: don't bypass permissions check in inode_setsecctx hook
+Date: Wed, 28 Aug 2024 15:51:28 -0400
+Message-ID: <20240828195129.223395-1-smayhew@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=utf-8 
-Content-Disposition: inline 
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-From: Paul Moore <paul@paul-moore.com>
-To: Zhen Lei <thunder.leizhen@huawei.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, <selinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Cc: Zhen Lei <thunder.leizhen@huawei.com>
-Subject: Re: [PATCH 1/1] selinux: simplify avc_xperms_audit_required()
-References: <20240822140858.1998-1-thunder.leizhen@huawei.com>
-In-Reply-To: <20240822140858.1998-1-thunder.leizhen@huawei.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
-On Aug 22, 2024 Zhen Lei <thunder.leizhen@huawei.com> wrote:
-> 
-> By associative and commutative laws, the result of the two 'audited' is
-> zero. Take the second 'audited' as an example:
->   1) audited = requested & avd->auditallow;
->   2) audited &= ~requested;
->   ==> audited = ~requested & (requested & avd->auditallow);
->   ==> audited = (~requested & requested) & avd->auditallow;
->   ==> audited = 0 & avd->auditallow;
->   ==> audited = 0;
-> 
-> In fact, it is more readable to directly write zero. The value of the
-> first 'audited' is 0 because AUDIT is not allowed. The second 'audited'
-> is zero because there is no AUDITALLOW permission.
-> 
-> Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-> ---
->  security/selinux/avc.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+Marek Gresko reports that the root user on an NFS client is able to
+change the security labels on files on an NFS filesystem that is
+exported with root squashing enabled.
 
-Looks good to me, merged into selinux/dev, thanks!
+I wasn't able to do a bisect on this issue... partially because when I
+go back far enough I have trouble building a kernel that actually boots
+in a KVM guest, but also because not all of the related code landed in
+mainline at the same time (more on that in a bit).
 
---
-paul-moore.com
+Although I wasn't able to do a bisect, I do believe this behavior goes
+all the way back to the introduction of labeled NFS.  I was able to
+reproduce this behavior on all versions of RHEL, going all the way back
+to RHEL 7.0, which was based on a 3.10 kernel with post-3.10 code
+(including the labeled NFS code) backported on top.
+
+The v1 posting of the labeled NFS patchset actually mentions a similar
+issue related to root squashing:
+https://lore.kernel.org/lkml/7e0fb38c0802280622o75a474deg38157ff6aace16b@mail.gmail.com/t/
+
+There is no mention of root squashing issues (fixed or otherwise) in
+subsequent postings.
+
+The inode_setsecctx hooks first appear in v2:
+https://lore.kernel.org/all/1221511278-28051-1-git-send-email-dpquigl@tycho.nsa.gov/
+The posting mentions other mailing list discussions related to the
+hooks, but I'm not really able to find anything specific on why the
+caller of the setsecctx hook would be expected to perform the
+permissions checking rather than doing it in the hook itself.
+
+The inode_setsecctx hook was merged in September 2009 (merge commit
+f6f79190866d).  It looks like this was for labeling support on sysfs,
+which used the inode_getsecctx and inode_notifysecctx hooks, but not the
+inode_setsecctx hook.  It doesn't look like there was any user of the
+inode_setsecctx hook until the labeled NFS code was merged in July 2013
+(merge commit 0ff08ba5d066).
+
+The end of the kerneldoc comment for __vfs_setxattr_noperm() states:
+
+ *  This function requires the caller to lock the inode's i_mutex before it
+ *  is executed. It also assumes that the caller will make the appropriate
+ *  permission checks.
+
+nfsd_setattr() does do permissions checking via fh_verify() and
+nfsd_permission(), but those don't do all the same permissions checks
+that are done by security_inode_setxattr() and its related LSM hooks do.
+
+Since nfsd_setattr() is the only consumer of security_inode_setsecctx(),
+simplest solution appears to be to replace the call to
+__vfs_setxattr_noperm() with a call to __vfs_setxattr_locked().  This
+fixes the above issue and has the added benefit of causing nfsd to
+recall conflicting delegations on a file when a client tries to change
+its security label.
+
+I guess it's also worth mentioning that when nfsd rejects root's attempt
+to set a label on a file on a root squashed export, the error on the
+wire is NFS4ERR_PERM rather than NFS4ERR_ACCESS.
+
+-Scott
+
+Scott Mayhew (1):
+  selinux,smack: don't bypass permissions check in inode_setsecctx hook
+
+ security/selinux/hooks.c   | 4 ++--
+ security/smack/smack_lsm.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+-- 
+2.46.0
+
