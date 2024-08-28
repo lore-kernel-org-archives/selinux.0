@@ -1,297 +1,197 @@
-Received: from mail-vk1-f178.google.com (mail-vk1-f178.google.com [209.85.221.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69C143AC2B
-	for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 20:00:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6792E139578;
+	Wed, 28 Aug 2024 20:03:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724875216; cv=none; b=LXeMkx46Fp8Ua+7ZXFzcXVn/jDKTWlscGkSwDsVZ1K/GcIGs9AUmlwRVB6I1HStmLBxhK2dRKAavVjMmagt+vm4zGq4LnIv/4XxBj5nKWIqmbI/L4BfeYZv4mC0uoyMqmLaiWAnGgRIUSeNcDMD/myo6n5rgmzb+WUpTkUjE8xA=
+	t=1724875420; cv=none; b=H9kGQhRUgPz7TpDPd5/zTbZ5tU9csbBNXI4YJWDwhEi8eFb7nw3qMOntY7MpP04mU1m0sn+LKn0Q6e3oVwnO5OpFEGrz3TLAGeF2hiPQQ5EdRFvo/wrD2f1roB4Ua+5QVlDPtbb1geEGZdxlCQrLGtNCJDPKcdJp8xz0ItZNosY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724875216; c=relaxed/simple;
-	bh=TYaBL/xl+QQCgWtQ0PW4LmVaUYDEuj9quXhFWUMDx2E=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=X/dPiZ5nVUfdR8CXz2ri3iJQapDB/48UOtvYYJwmRfaFd2Q18UuD2nXNhDUZJ1ryJRxlKtnZg7y/+jLb9JGOfmvGmIzbC3TUX0g85jtFzielMRdlCtsrbdWr2DS5E0HGM6k179J8xpUv/qLC7quf/Sbhr9BfZNwN4BkAqc2vERg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XRH1Odhc; arc=none smtp.client-ip=209.85.221.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1724875420; c=relaxed/simple;
+	bh=kgW5sM52r51D6iiGMqi14biX6Esch/ZRCEEv4rmvmDs=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=iTvpoptxfK4imKIIWrFklAq5zkMw83ih1msJ2BQ0Phcr3xRYr8b/3Pad/pfIJa8CzHnHcxAEldXczqJ7UcrL53/7XeMhVouQpqJZ5GcNcmm5EKDYX/iKgXRko/kQ1N3LUBlBiehBnShivdMtfgEnyWohCFzVYXymd3fuX0ebEZQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=okt8Q+zB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XRH1Odhc"
-Received: by mail-vk1-f178.google.com with SMTP id 71dfb90a1353d-4fd01340753so1994670e0c.1
-        for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 13:00:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724875213; x=1725480013; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Sa7T+gI0DTk4lod+AHEf59gLHNfu8Xp0eHGwtIxhUXM=;
-        b=XRH1Odhcm6swTLaRcZa8fRcg+wDmeIGfwjyagzG82FtYddY6Epxf0zucLiqqoRjufo
-         yuqOiQMQ2WRiPKazeMn9nnjImjSm5DjsztYpwZc5Sw5+X2PhhQika/ci5tnXDR1Ofien
-         NMObru6Kj2vQXBi3THuMhYvSp0qL2ZKH2qnDOtYorHn3nSq9LYSrmRW1hXT+Mc+l6dSi
-         3SaW0LewVfcNu2uphkXmlZ7etPrH8S2n2Ugy8e+1F2ohugtoAA7R4se/YPCOORl3p9WA
-         CVCZytcohlryA6UEgqTiOvGPkKpSdzNI8YGzgDoWBA3i9i8v7G3wUEW4sFymaWb2dTKT
-         itvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724875213; x=1725480013;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Sa7T+gI0DTk4lod+AHEf59gLHNfu8Xp0eHGwtIxhUXM=;
-        b=tllF0OBYsT6kSotqheXstBDN5dXJIPbPckZSKJFCIzOYBSjHAAEWuWPpZSFFGPCJW1
-         B9UjtZe4FfFG3BjEjFjJxcyW8aeHi+V1D/aQwmJVK7GB4RflcE3Qv5kgdwYIZ+OX1Sff
-         /7gIZNSqaJ8RVkxgLcYaDoT0l/xYN/iz0pgfgzN2cmv2IWtqxFtFUzujNpQRFKtIYoRc
-         FHEehjTM05gfTTD6T1P/dMdZgbMXRm6dfH1C4ftU/YWZIeG6JY6ufWVGYKbAnmUlAlFI
-         AzVU1R6y5zcCxWtlqMrqD1EwKS9B82538XBaqZqz4amxoxjXVxmS2TLC4Jud+3PLewIa
-         sSGQ==
-X-Gm-Message-State: AOJu0YwE3ylhXgnz3HgWY6wPY/AHG4fTIXqxRs0bt25TZKdeCgZbZfoV
-	xgJ/bggBMUZMlC8ssI6MI79A//jyc5KTW3RUx5P+uX5+93S4+5Rpq3hkRQ==
-X-Google-Smtp-Source: AGHT+IGfRpI15wwK9hdpcWC6P5rkz4RQeMVZ93bnnwL29dufS/uJgqv3IiwQtLvKyjMYjy5AB9+lRA==
-X-Received: by 2002:a05:6122:8d2:b0:4f2:ea44:fd2b with SMTP id 71dfb90a1353d-4ffdc01ceedmr651455e0c.0.1724875212651;
-        Wed, 28 Aug 2024 13:00:12 -0700 (PDT)
-Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4567d5c4b8fsm3377441cf.27.2024.08.28.13.00.11
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 28 Aug 2024 13:00:12 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	tweek@google.com,
-	brambonne@google.com,
-	jeffv@google.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH testsuite] policy,tests: add tests for netlink xperms
-Date: Wed, 28 Aug 2024 15:57:56 -0400
-Message-Id: <20240828195755.19385-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.40.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="okt8Q+zB"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B446C4CEC0;
+	Wed, 28 Aug 2024 20:03:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1724875419;
+	bh=kgW5sM52r51D6iiGMqi14biX6Esch/ZRCEEv4rmvmDs=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+	b=okt8Q+zBoV4c7e5147fpXk6Jyesm72idWaklgPaKlM+BxvfNyZBaO6HJOMAgWIjuK
+	 9febrsb8o9GNfS62ayUlgfE7tWoX4bAixhNphYGqhEk22UtyMPU2CNkO77euS9h6A3
+	 OsoA7dgBgE4RH3z87ziaPysG7KMVo4jRuuFzgrJaXVyCj3DPl+1F9kbEFt0lrlfjo5
+	 +i2Jj3t34XKVu4K1nj16q38YXNk6p1HeP2MC7QDglLwMxe5ComSo5dUmqSfehH0ed8
+	 NWA+LRoKu/Mc+AH/jXnIGyDBzDWT3m2qDARnwpvoEtkoEZyz9yd1Plmq6KsrCSNoFZ
+	 6ipN9v5DvBcTw==
+Message-ID: <8c2480c907d9312f9a238b4e182722dbbd237b31.camel@kernel.org>
+Subject: Re: [PATCH 1/1] selinux,smack: don't bypass permissions check in
+ inode_setsecctx hook
+From: Jeff Layton <jlayton@kernel.org>
+To: Scott Mayhew <smayhew@redhat.com>, paul@paul-moore.com, 
+	stephen.smalley.work@gmail.com, casey@schaufler-ca.com
+Cc: chuck.lever@oracle.com, marek.gresko@protonmail.com, 
+	selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	linux-nfs@vger.kernel.org
+Date: Wed, 28 Aug 2024 16:03:38 -0400
+In-Reply-To: <20240828195129.223395-2-smayhew@redhat.com>
+References: <20240828195129.223395-1-smayhew@redhat.com>
+	 <20240828195129.223395-2-smayhew@redhat.com>
+Autocrypt: addr=jlayton@kernel.org; prefer-encrypt=mutual;
+ keydata=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
+ QZIQXVeAA+smfTT0tDrisj1U5x6ZB9b3nBg65kc=
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.4 (3.52.4-1.fc40app2) 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Add tests for netlink xperms. Test program is based on an earlier test
-program for netlink_send checking by Paul Moore. Exercising these
-tests depends on the corresponding kernel patch, userspace patches,
-and updating the base policy to define the new nlmsg permissions
-and to enable the new netlink_xperm policy capability.
+On Wed, 2024-08-28 at 15:51 -0400, Scott Mayhew wrote:
+> Marek Gresko reports that the root user on an NFS client is able to
+> change the security labels on files on an NFS filesystem that is
+> exported with root squashing enabled.
+>=20
+> The end of the kerneldoc comment for __vfs_setxattr_noperm() states:
+>=20
+>  *  This function requires the caller to lock the inode's i_mutex before =
+it
+>  *  is executed. It also assumes that the caller will make the appropriat=
+e
+>  *  permission checks.
+>=20
+> nfsd_setattr() does do permissions checking via fh_verify() and
+> nfsd_permission(), but those don't do all the same permissions checks
+> that are done by security_inode_setxattr() and its related LSM hooks do.
+>=20
+> Since nfsd_setattr() is the only consumer of security_inode_setsecctx(),
+> simplest solution appears to be to replace the call to
+> __vfs_setxattr_noperm() with a call to __vfs_setxattr_locked().  This
+> fixes the above issue and has the added benefit of causing nfsd to
+> recall conflicting delegations on a file when a client tries to change
+> its security label.
+>=20
+> Reported-by: Marek Gresko <marek.gresko@protonmail.com>
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D218809
+> Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+> ---
+>  security/selinux/hooks.c   | 4 ++--
+>  security/smack/smack_lsm.c | 4 ++--
+>  2 files changed, 4 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index bfa61e005aac..400eca4ad0fb 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -6660,8 +6660,8 @@ static int selinux_inode_notifysecctx(struct inode =
+*inode, void *ctx, u32 ctxlen
+>   */
+>  static int selinux_inode_setsecctx(struct dentry *dentry, void *ctx, u32=
+ ctxlen)
+>  {
+> -	return __vfs_setxattr_noperm(&nop_mnt_idmap, dentry, XATTR_NAME_SELINUX=
+,
+> -				     ctx, ctxlen, 0);
+> +	return __vfs_setxattr_locked(&nop_mnt_idmap, dentry, XATTR_NAME_SELINUX=
+,
+> +				     ctx, ctxlen, 0, NULL);
+>  }
+> =20
+>  static int selinux_inode_getsecctx(struct inode *inode, void **ctx, u32 =
+*ctxlen)
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 4164699cd4f6..002a1b9ed83a 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -4880,8 +4880,8 @@ static int smack_inode_notifysecctx(struct inode *i=
+node, void *ctx, u32 ctxlen)
+> =20
+>  static int smack_inode_setsecctx(struct dentry *dentry, void *ctx, u32 c=
+txlen)
+>  {
+> -	return __vfs_setxattr_noperm(&nop_mnt_idmap, dentry, XATTR_NAME_SMACK,
+> -				     ctx, ctxlen, 0);
+> +	return __vfs_setxattr_locked(&nop_mnt_idmap, dentry, XATTR_NAME_SMACK,
+> +				     ctx, ctxlen, 0, NULL);
+>  }
+> =20
+>  static int smack_inode_getsecctx(struct inode *inode, void **ctx, u32 *c=
+txlen)
 
-For testing purposes, you can update the base policy by manually
-modifying your base module and tweaking /usr/share/selinux/devel
-(latter only required due to writing the test policy as a .te file
-rather than as .cil in order to use the test macros) as follows:
-    sudo semodule -c -E base
-    sudo sed -i.orig "s/nlmsg_read/nlmsg nlmsg_read/" base.cil
-    sudo semodule -i base.cil
-    echo "(policycap netlink_xperm)" > netlink_xperm.cil
-    sudo semodule -i netlink_xperm.cil
-    sudo sed -i.orig "s/nlmsg_read/nlmsg nlmsg_read/" \
-        /usr/share/selinux/devel/include/support/all_perms.spt
-
-When finished testing, you can semodule -r base netlink_xperm to
-undo the two module changes and restore your all_perms.spt file
-from the saved .orig file.
-
-NB The above may lead to unexpected denials of the new nlmsg permission
-for existing domains on your system and prevent new ssh sessions from
-being created. Recommend only inserting the netlink_xperm.cil module
-just prior to running the testsuite and removing immediately thereafter.
-
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- policy/Makefile        |  5 +++++
- policy/test_nlmsg.te   | 34 ++++++++++++++++++++++++++++
- tests/Makefile         |  5 +++++
- tests/nlmsg/.gitignore |  1 +
- tests/nlmsg/Makefile   |  5 +++++
- tests/nlmsg/nlmsg.c    | 50 ++++++++++++++++++++++++++++++++++++++++++
- tests/nlmsg/test       | 28 +++++++++++++++++++++++
- 7 files changed, 128 insertions(+)
- create mode 100644 policy/test_nlmsg.te
- create mode 100644 tests/nlmsg/.gitignore
- create mode 100644 tests/nlmsg/Makefile
- create mode 100644 tests/nlmsg/nlmsg.c
- create mode 100755 tests/nlmsg/test
-
-diff --git a/policy/Makefile b/policy/Makefile
-index f18e15d..32d7ede 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -158,6 +158,11 @@ TARGETS += test_userfaultfd.te
- endif
- endif
- 
-+# nlmsg test dependencies: policy >= 30, nlmsg permission, netlink_xperm capability
-+ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL_POLICY) -ge 30 ] && [ -f /sys/fs/selinux/class/netlink_route_socket/perms/nlmsg ] && grep -q 1 $(SELINUXFS)/policy_capabilities/netlink_xperm && echo true),true)
-+TARGETS += test_nlmsg.te
-+endif
-+
- ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
- TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te test_ibpkey.te, $(TARGETS))
- endif
-diff --git a/policy/test_nlmsg.te b/policy/test_nlmsg.te
-new file mode 100644
-index 0000000..9e1e2a4
---- /dev/null
-+++ b/policy/test_nlmsg.te
-@@ -0,0 +1,34 @@
-+########################################
-+#
-+# Policy for testing the nlmsg extended permissions.
-+
-+define(`RTM_GETLINK', `18')
-+define(`RTM_SETLINK', `19')
-+define(`RTM_GETADDR', `22')
-+
-+attribute nlmsgtestdomain;
-+
-+# Domain that is allowed the nlmsg extended permissions.
-+type test_nlmsg_xperm_t;
-+typeattribute test_nlmsg_xperm_t nlmsgtestdomain;
-+testsuite_domain_type(test_nlmsg_xperm_t)
-+allow test_nlmsg_xperm_t self:netlink_route_socket create_socket_perms;
-+# Also allow the legacy nlmsg_read/write permissions to ensure no false positives.
-+allow test_nlmsg_xperm_t self:netlink_route_socket { nlmsg nlmsg_read nlmsg_write };
-+allowxperm test_nlmsg_xperm_t self:netlink_route_socket nlmsg { RTM_GETLINK RTM_SETLINK RTM_GETADDR };
-+
-+# Domain that is not allowed the nlmsg extended permissions.
-+type test_nlmsg_noxperm_t;
-+typeattribute test_nlmsg_noxperm_t nlmsgtestdomain;
-+testsuite_domain_type(test_nlmsg_noxperm_t)
-+allow test_nlmsg_noxperm_t self:netlink_route_socket create_socket_perms;
-+# Also allow the legacy nlmsg_read/write permissions to ensure no false positives.
-+allow test_nlmsg_noxperm_t self:netlink_route_socket { nlmsg nlmsg_read nlmsg_write };
-+allowxperm test_nlmsg_noxperm_t self:netlink_route_socket nlmsg ~{ RTM_GETLINK RTM_SETLINK RTM_GETADDR };
-+
-+#
-+# Common rules for all nlmsg test domains.
-+#
-+
-+# Trigger kernel module auto-loading of the protocol implementations.
-+kernel_request_load_module(nlmsgtestdomain)
-diff --git a/tests/Makefile b/tests/Makefile
-index db4cb38..35bb358 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -153,6 +153,11 @@ ifneq ($(shell ./kvercmp $$(uname -r) 6.5),-1)
- SUBDIRS += inet_socket/mptcp
- endif
- 
-+# nlmsg test dependencies: policy >= 30, nlmsg permission, netlink_xperm capability
-+ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL_POLICY) -ge 30 ] && [ -f /sys/fs/selinux/class/netlink_route_socket/perms/nlmsg ] && grep -q 1 $(SELINUXFS)/policy_capabilities/netlink_xperm && echo true),true)
-+SUBDIRS += nlmsg
-+endif
-+
- ifeq ($(DISTRO),RHEL4)
-     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
- endif
-diff --git a/tests/nlmsg/.gitignore b/tests/nlmsg/.gitignore
-new file mode 100644
-index 0000000..d4bea66
---- /dev/null
-+++ b/tests/nlmsg/.gitignore
-@@ -0,0 +1 @@
-+nlmsg
-diff --git a/tests/nlmsg/Makefile b/tests/nlmsg/Makefile
-new file mode 100644
-index 0000000..1edab98
---- /dev/null
-+++ b/tests/nlmsg/Makefile
-@@ -0,0 +1,5 @@
-+TARGETS=nlmsg
-+
-+all: $(TARGETS)
-+clean:
-+	rm -f $(TARGETS)
-diff --git a/tests/nlmsg/nlmsg.c b/tests/nlmsg/nlmsg.c
-new file mode 100644
-index 0000000..a976b95
---- /dev/null
-+++ b/tests/nlmsg/nlmsg.c
-@@ -0,0 +1,50 @@
-+#include <stdlib.h>
-+#include <stdio.h>
-+#include <string.h>
-+#include <errno.h>
-+#include <asm/types.h>
-+#include <sys/socket.h>
-+#include <linux/netlink.h>
-+#include <linux/rtnetlink.h>
-+
-+int main(int argc, char *argv[])
-+{
-+	int i, rc;
-+	int fd;
-+	unsigned char data[512];
-+	struct nlmsghdr *nh[3];
-+	struct sockaddr_nl sa;
-+	struct iovec iov;
-+	struct msghdr msg;
-+
-+	memset(&sa, 0, sizeof(sa));
-+	sa.nl_family = AF_NETLINK;
-+
-+	memset(data, 0, sizeof(data));
-+	iov.iov_base = data;
-+	iov.iov_len = 3 * NLMSG_SPACE(0);
-+
-+	for (i = 0; i < 3; i++) {
-+		nh[i] = (struct nlmsghdr *)(data + (i * NLMSG_SPACE(0)));
-+		nh[i]->nlmsg_len = NLMSG_HDRLEN;
-+	}
-+	nh[0]->nlmsg_type = RTM_GETLINK; // nlmsg_read
-+	nh[1]->nlmsg_type = RTM_SETLINK; // nlmsg_write
-+	nh[2]->nlmsg_type = RTM_GETADDR; // nlmsg_read
-+
-+	memset(&msg, 0, sizeof(msg));
-+	msg.msg_name = &sa;
-+	msg.msg_namelen = sizeof(sa);
-+	msg.msg_iov = &iov;
-+	msg.msg_iovlen = 1;
-+
-+	fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
-+	rc = sendmsg(fd, &msg, 0);
-+
-+	if (rc < 0) {
-+		perror("sendmsg");
-+		exit(-1);
-+	}
-+	exit(0);
-+}
-+
-diff --git a/tests/nlmsg/test b/tests/nlmsg/test
-new file mode 100755
-index 0000000..18bb794
---- /dev/null
-+++ b/tests/nlmsg/test
-@@ -0,0 +1,28 @@
-+#!/usr/bin/perl
-+#
-+# This test exercises the netlink extended perms support
-+#
-+
-+use Test;
-+
-+BEGIN {
-+    $test_count = 2;
-+    plan tests => $test_count;
-+}
-+
-+$basedir = $0;
-+$basedir =~ s|(.*)/[^/]*|$1|;
-+
-+#
-+# Attempt to send the netlink messages from the allowed domain.
-+#
-+$result = system "runcon -t test_nlmsg_xperm_t -- $basedir/nlmsg 2>&1";
-+ok( $result, 0 );
-+
-+#
-+# Attempt to send the netlink messages from the not-allowed domain.
-+#
-+$result = system "runcon -t test_nlmsg_noxperm_t -- $basedir/nlmsg 2>&1";
-+ok($result);
-+
-+exit;
--- 
-2.40.1
-
+Acked-by: Jeff Layton <jlayton@kernel.org>
