@@ -1,124 +1,127 @@
-Received: from mail-yb1-f182.google.com (mail-yb1-f182.google.com [209.85.219.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ED33166F18
-	for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 23:20:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2897212B73;
+	Thu, 29 Aug 2024 00:17:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724887206; cv=none; b=dpKR6YeAe4B87+w2MUApP9Nt6wsoOvqeV5XTJ7zIO+Ba9I7GR1wagvuUiDfHgpgIrKq6bnXRQXuQtmV98byyeCTgrBktjlVgd4stk4lTV54f8UUCUnutJoSP1y+apbyR+bJmeKI5M4Zx1Lvn/K7InzepL63t6qMOQm21KIKCa24=
+	t=1724890676; cv=none; b=sd/h1hYIBobj7RWJvgqx+T94TgNNzBAL4rtOE8iGCc3bYQVPnIMU6JjePjbmyj4I3v8Vc5wufbut5eLOgDFYSXqEdW+BsvsRtezXenweAXp42r+xbP1C9tdhtvwUyKOS9E5UZTrVdw17P0Lq9iV+urZ6JBG/vaiFi1fcXlJVFrM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724887206; c=relaxed/simple;
-	bh=kn0vkO6V0PAPRFVsWe6I8iEFogeh2x764hmLrJ6swXw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lvQIsY9kgqpFZfK0YYX/aVuuQK6q6Fmhj+IDywmelg3HqA9CGsd1bX060epLwUwvMcRmSId4WJewJALUKz1PVzb6ZqrK4wJnoqmWUttY6OJgKMf66/otgNsYcoLpOAzWQE8JMVgX7ZYaEC31R/gXNziFYNbhdnz4S6uAEaY0qe0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Wkg3O8/j; arc=none smtp.client-ip=209.85.219.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1724890676; c=relaxed/simple;
+	bh=wqwfbglmiOW3zEjrozGHbRY21H9OrGw1J7tCUk4qVjg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qP/9xmiK9tj0vtuh8LUMZI5X/zTJpN7h/b2cKzLMUr0Jt5oFv97Xs3VKCGD3dmGe/5ravgj2isvyy7X4KaVKea1LQEZb3tGBnpySRo7UKki0d4tpywUEkTEljcNupr+weZ99YHUStMLGs2tuPt7t1RC4CC1O82PA2rTTFOd+r9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q7q2uKup; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Wkg3O8/j"
-Received: by mail-yb1-f182.google.com with SMTP id 3f1490d57ef6-e117059666eso76864276.3
-        for <selinux@vger.kernel.org>; Wed, 28 Aug 2024 16:20:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1724887203; x=1725492003; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4FQJFjR5hrgZrSv5sKul5TVDs0oQUVlu7JZ5n/2LwSc=;
-        b=Wkg3O8/j8AxsWaKecwx23DCVzLYelvCEErdKR4gyiUE0R1DrQsAwAYHAfl0us2sBVz
-         pGcQoJi7ePZUxFHRjLLCHXP6QEFNrCE5dnjCNar17mm5Uq5F/HcCyVpvviFTEh180/FU
-         mjso8uGjH4aOP0rwG+b6f0jZohI9TA/OkBlA/YZ1vLp5X1MVdCUkFhPJ6tUd5HzecsIM
-         8qulXL2oSOvW+afWmThXHsTEh0PM0S7K9ehx1QpNBr9pTx8f8bkUjBHcA8s6OnGRwvvU
-         UvyCiZ+5+f+2Dhzmj2+5Zwb4jRhg3p4ubWcyWy23LQoW1BASw7YzE9F0Dea0w3yR3iXb
-         1u3g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724887203; x=1725492003;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4FQJFjR5hrgZrSv5sKul5TVDs0oQUVlu7JZ5n/2LwSc=;
-        b=PVhRNUzXiAnEpTpI4b6W5l4gzDhe8sOafO/c71SozIGqFuRYyU7PbxCobTsiFJsbeH
-         zGgG6Q1csOBjb/UoQc/Y3PzCVMxlnZB7S0vBXMHoZIpHuvXU5K4Udbb/Di+yFKZjM5rX
-         Rafg0pSYSgS7IZy87cgtxKBZL9ipBLS8Z4HB0B2ZQcKDj0SSJTpNvJCdV49O5GzXr30d
-         +yn77h9H3G9/i7zONmyqn2eYMmBZb/qvx3ACRYBJ9mP4fhwYhKWHnCT+emCEo/rJRLiB
-         Y7bYXhc9M+DuqjRVsUscac8pEuNoHaUmtAUITox5na1OAN30YoaLyVUPQfSlcBvM+Jfp
-         84dg==
-X-Forwarded-Encrypted: i=1; AJvYcCW9l675rhdAmsk2DC6iFFnGBE64y2Qpgx9xOl1h27DZkbqf5CCA7wD25qb8EuGfQTdeO3Vb2VRO@vger.kernel.org
-X-Gm-Message-State: AOJu0YyXTLNG4mXWgeZyWCy3jvelKYMXnPt5s53HK/iypPLSJHZtyRCG
-	HQ5QmwcEpoLe5LmQKL+AKmP0b5u6vBnntDUHCYXhTXbL+vQgexnhUVyH35A6EOSitTMGPkTXXC7
-	9tGIgCLGaA08KHSIFPA5+HGdO0TyPD+LWk9+X
-X-Google-Smtp-Source: AGHT+IFTYOW5VOGD9GZcL5lo+hU1JqOamlTTFi1bkFvo5uclhKL5TqbrY6TwGw8Lq/BKnuNDGUftuQSoC+tKeGjga1g=
-X-Received: by 2002:a05:6902:10cb:b0:e13:cef0:2b7e with SMTP id
- 3f1490d57ef6-e1a5af18173mr1127421276.54.1724887203338; Wed, 28 Aug 2024
- 16:20:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q7q2uKup"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA5D1C4CEC0;
+	Thu, 29 Aug 2024 00:17:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1724890675;
+	bh=wqwfbglmiOW3zEjrozGHbRY21H9OrGw1J7tCUk4qVjg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Q7q2uKupXiWrXEb5VBisQRcVpWz1lLcSeE7zINvaSJm8aB8JKzaa1Qlj4qvHMl9T/
+	 mB0q0BY6SVtNcYAr1aQd4hYDHFHib8zZ9wUNt5pkZkagn7QUYxvdthCYydJEcS6isS
+	 EIaBZgHBZegmK+8STHem6es+CstqnY94jKsuJoGG9Eu4OXFZpHJMWmXP/XUZReh9Ty
+	 SwdIv0b0X/rYgMw8zApCJK8AIPIiB13V8lLrSIAOdunytxsuwfeR+sQxj1xQwuY7Db
+	 UT7C88ojT+76hQqBGXasE9vK2f5kOA2shjJvfoKnyQ6Bq2qrQ6C6FSIanWfsDiAHqV
+	 G4c5NZzYW7RGA==
+Date: Wed, 28 Aug 2024 17:17:55 -0700
+From: Kees Cook <kees@kernel.org>
+To: Alejandro Colomar <alx@kernel.org>
+Cc: Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org,
+	torvalds@linux-foundation.org, justinstitt@google.com,
+	ebiederm@xmission.com, alexei.starovoitov@gmail.com,
+	rostedt@goodmis.org, catalin.marinas@arm.com,
+	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org,
+	linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	audit@vger.kernel.org, linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org, bpf@vger.kernel.org,
+	netdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+	Matus Jokay <matus.jokay@stuba.sk>,
+	"Serge E. Hallyn" <serge@hallyn.com>
+Subject: Re: [PATCH v8 1/8] Get rid of __get_task_comm()
+Message-ID: <202408281712.F78440FF@keescook>
+References: <20240828030321.20688-1-laoar.shao@gmail.com>
+ <20240828030321.20688-2-laoar.shao@gmail.com>
+ <lql4y2nvs3ewadszhmv4m6fnqja4ff4ymuurpidlwvgf4twvru@esnh37a2jxbd>
+ <n2fxqs3tekvljezaqpfnwhsmjymch4vb47y744zwmy7urf3flv@zvjtepkem4l7>
+ <CALOAHbBAYHjDnKBVw63B8JBFc6U-2RNUX9L=ryA2Gbz7nnJfsQ@mail.gmail.com>
+ <7839453E-CA06-430A-A198-92EB906F94D9@kernel.org>
+ <ynrircglkinhherehtjz7woq55te55y4ol4rtxhfh75pvle3d5@uxp5esxt4slq>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240828195129.223395-1-smayhew@redhat.com> <20240828195129.223395-2-smayhew@redhat.com>
- <CAHC9VhTCpm0=QrvBq_rHaRXNqu7iRcW7kqxjL8Jq9g=ZypfzsQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhTCpm0=QrvBq_rHaRXNqu7iRcW7kqxjL8Jq9g=ZypfzsQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 28 Aug 2024 19:19:52 -0400
-Message-ID: <CAHC9VhS3yhOxZYD1gZ-HF5XkGq0Qr8h4n+XrttUBsHL4cg0Xww@mail.gmail.com>
-Subject: Re: [PATCH 1/1] selinux,smack: don't bypass permissions check in
- inode_setsecctx hook
-To: Scott Mayhew <smayhew@redhat.com>
-Cc: stephen.smalley.work@gmail.com, casey@schaufler-ca.com, 
-	chuck.lever@oracle.com, marek.gresko@protonmail.com, selinux@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-nfs@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ynrircglkinhherehtjz7woq55te55y4ol4rtxhfh75pvle3d5@uxp5esxt4slq>
 
-On Wed, Aug 28, 2024 at 5:05=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
-> On Wed, Aug 28, 2024 at 3:51=E2=80=AFPM Scott Mayhew <smayhew@redhat.com>=
- wrote:
-> >
-> > Marek Gresko reports that the root user on an NFS client is able to
-> > change the security labels on files on an NFS filesystem that is
-> > exported with root squashing enabled.
-> >
-> > The end of the kerneldoc comment for __vfs_setxattr_noperm() states:
-> >
-> >  *  This function requires the caller to lock the inode's i_mutex befor=
-e it
-> >  *  is executed. It also assumes that the caller will make the appropri=
-ate
-> >  *  permission checks.
-> >
-> > nfsd_setattr() does do permissions checking via fh_verify() and
-> > nfsd_permission(), but those don't do all the same permissions checks
-> > that are done by security_inode_setxattr() and its related LSM hooks do=
-.
-> >
-> > Since nfsd_setattr() is the only consumer of security_inode_setsecctx()=
-,
-> > simplest solution appears to be to replace the call to
-> > __vfs_setxattr_noperm() with a call to __vfs_setxattr_locked().  This
-> > fixes the above issue and has the added benefit of causing nfsd to
-> > recall conflicting delegations on a file when a client tries to change
-> > its security label.
-> >
-> > Reported-by: Marek Gresko <marek.gresko@protonmail.com>
-> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D218809
-> > Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-> > ---
-> >  security/selinux/hooks.c   | 4 ++--
-> >  security/smack/smack_lsm.c | 4 ++--
-> >  2 files changed, 4 insertions(+), 4 deletions(-)
->
-> Thanks Scott, this looks good to me, but since it touches Smack too
-> I'd also like to get Casey's ACK on this patch; if for some reason we
-> don't hear from Casey after a bit I'll go ahead and merge it.
-> Speaking of merging, since this touches both SELinux and Smack I'll
-> likely pull this in via the LSM tree, with a marking for the stable
-> kernels, if anyone has any objections to that please let me know.
+On Wed, Aug 28, 2024 at 05:09:08PM +0200, Alejandro Colomar wrote:
+> Hi Kees,
+> 
+> On Wed, Aug 28, 2024 at 06:48:39AM GMT, Kees Cook wrote:
+> 
+> [...]
+> 
+> > >Thank you for your suggestion. How does the following commit log look
+> > >to you? Does it meet your expectations?
+> > >
+> > >    string: Use ARRAY_SIZE() in strscpy()
+> > >
+> > >    We can use ARRAY_SIZE() instead to clarify that they are regular characters.
+> > >
+> > >    Co-developed-by: Alejandro Colomar <alx@kernel.org>
+> > >    Signed-off-by: Alejandro Colomar <alx@kernel.org>
+> > >    Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+> > >
+> > >diff --git a/arch/um/include/shared/user.h b/arch/um/include/shared/user.h
+> > >index bbab79c0c074..07216996e3a9 100644
+> > >--- a/arch/um/include/shared/user.h
+> > >+++ b/arch/um/include/shared/user.h
+> > >@@ -14,7 +14,7 @@
+> > >  * copying too much infrastructure for my taste, so userspace files
+> > >  * get less checking than kernel files.
+> > >  */
+> > >-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+> > >+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]) + __must_be_array(x))
+> > >
+> > > /* This is to get size_t and NULL */
+> > > #ifndef __UM_HOST__
+> > >@@ -60,7 +60,7 @@ static inline void print_hex_dump(const char *level,
+> > >const char *prefix_str,
+> > > extern int in_aton(char *str);
+> > > extern size_t strlcat(char *, const char *, size_t);
+> > > extern size_t sized_strscpy(char *, const char *, size_t);
+> > >-#define strscpy(dst, src)      sized_strscpy(dst, src, sizeof(dst))
+> > >+#define strscpy(dst, src)      sized_strscpy(dst, src, ARRAY_SIZE(dst))
+> > 
+> > Uh, but why? strscpy() copies bytes, not array elements. Using sizeof() is already correct and using ARRAY_SIZE() could lead to unexpectedly small counts (in admittedly odd situations).
+> > 
+> > What is the problem you're trying to solve here?
+> 
+> I suggested that here:
+> <https://lore.kernel.org/all/2jxak5v6dfxlpbxhpm3ey7oup4g2lnr3ueurfbosf5wdo65dk4@srb3hsk72zwq/>
+> 
+> There, you'll find the rationale (and also for avoiding the _pad calls
+> where not necessary --I ignore if it's necessary here--).
 
-Merged into lsm/stable-6.11 so we can get this into linux-next and the
-automated SELinux testing, assuming all goes we'll I'll send this up
-to Linus later this week.  Thanks all!
+Right, so we only use byte strings for strscpy(), so sizeof() is
+sufficient. There's no technical need to switch to ARRAY_SIZE(), and I'd
+like to minimize any changes to such core APIs without a good reason.
 
---=20
-paul-moore.com
+And for the _pad change, we are also doing strncpy() replacement via
+case-by-case analysis, but with a common function like get_task_comm(),
+I don't want to change the behavior without a complete audit of the
+padding needs of every caller. Since that's rather a lot for this series,
+I'd rather we just leave the existing behavior as-is, and if padding
+removal is wanted after that, we can do it on a case-by-case basis then.
+
+-Kees
+
+-- 
+Kees Cook
