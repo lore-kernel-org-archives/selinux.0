@@ -1,117 +1,171 @@
-Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1138A1AB525;
-	Thu, 29 Aug 2024 13:12:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0AC01B5826
+	for <selinux@vger.kernel.org>; Thu, 29 Aug 2024 13:27:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724937181; cv=none; b=MrARni1DepMroT+iCLK58HuChIHFHkVVMvEzsOQdA1zy4irx/wSggRs123QqsWwpbJNgrmUkc7s3hd9jaVrKNPDjweJWW/BPlfZyq5gxTLndaPyGnYXKSKrk37Ej2GddGl11u9v1g6Auw8zK0MvEet1hH5Crq52lQ4Vo2frixcU=
+	t=1724938037; cv=none; b=izsHlgbW0zmk1JWUf0FvvymoAHAmJQpRc2EFw9e6MWzPCUIXnMAx2cqpRwL3gzrow7S6nAPHW6tSNO+is8AY4dwrxaD3jJ4rdSXaioUKu84l5rokiBWg8g7B/MmJlFVMPISyxfxpsGKzXev4vsirQhkT2CA8D6ws4rxeybr8mbo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724937181; c=relaxed/simple;
-	bh=jPAkoGRjZcHo/1fgEKoJcccMGLG/ZQgB0RESggia6JU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=R/YTvBNTWJqNbPpq5B/EYhdE0Un10PexY1ryQxhsmqovEvgfWg2Y22z/WQqpkk5KAQsAVYVz46/iFAs4ODGQl+peak5ipCJW93YhNMAQjAwh/aC6VUVOIAkZAzwrF4cbGQkPmWw0//5L9WdE3CFq2jhlbaO/30jCHYJ5HN7lrWo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lcXpPVZN; arc=none smtp.client-ip=209.85.215.176
+	s=arc-20240116; t=1724938037; c=relaxed/simple;
+	bh=TSkOnGAE4nColb6MjNNvBdzHLhutfCdgSDs/AmlBYVY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=pPTD1wU51VTdruhc/yD+8c5dMFUrViVHzWh1V/tSWo6Jy6wQ9wFHBKkUV130OlS06VGG/21E449iD7rRoeBOoqiMsMtedv0OayInOs6J9XzFAzicbPCNmFwS7XkTdLM8FvS4lqOGJ9Igld4c9SR+iXuoRNIk62XILUDPO/zigPI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BydkvC0y; arc=none smtp.client-ip=209.85.222.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lcXpPVZN"
-Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-7c691c8f8dcso386645a12.1;
-        Thu, 29 Aug 2024 06:12:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BydkvC0y"
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-7a66b813745so34639085a.3
+        for <selinux@vger.kernel.org>; Thu, 29 Aug 2024 06:27:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724937179; x=1725541979; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nw/PlB3iBUUCd08RIiUBBIwFxd5QJyFx8v9oHUtn4cw=;
-        b=lcXpPVZNNJ1pV+AtEHYJ5OJCKejzgZufnQDdZ3gPsC1eSpmGvj/UgxC6b5sLncCdnI
-         37K+dqyol5VAaL8WTE3vL7Rw4dUK57kMgGsNqBV2ESKklNPpO0E6gDUx60EPwbDhaAhz
-         8MslUPL5lqPxVVi1gKEV6Hk5yS5VzwWaBzISlUXFdCl4CKQJBrrbUybM9aRCHT34mIkv
-         pt/Z0jYUp8V6hnrX8N9trUCU+a3epezu/wf9T/L09CzaRFZc2IDtb/Pn9AA1t2k+M7wA
-         PNntmlkJ9evxVuBKDWJ5RXcu8D24Kx/gp62bZTkv2RBObPvT4SCFsMRrlNGFbnf41xc4
-         1BQw==
+        d=gmail.com; s=20230601; t=1724938034; x=1725542834; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=C/W+BzuytA48OZpyefqQ7s971grdKaOzVAVEd4sTRNI=;
+        b=BydkvC0yISJLtCrOlSnLikxF5eqLfxqfpXc2PlJICvCXFpUbt24DBRHMZPbKb/QuFU
+         sTtAyGqvloa1ZfkW41dfc4RR5Fy1xXi7y5ZdcX0THomcuB3iggQflEm/5aKRG5/HI/P/
+         oi7Y5Sw68e1EoHRc1fGJ7hEzt58VvVB+u//pxaoLnORaUZZlFm3CFD+pp1XTFPfhydJq
+         61sDUOXqPBgcg623RHa8pKVedJD4XtONhEw/KWRIgDDkZN7hDQ9zT5rcnakNyn9FZi5t
+         zpZGYpsrrCBPDbjKaRsSUk3lYH/kv+3vnL03BbNoNGg+XYjrbYCYaKAsyJMBFgxzREDH
+         uNNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724937179; x=1725541979;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=nw/PlB3iBUUCd08RIiUBBIwFxd5QJyFx8v9oHUtn4cw=;
-        b=TMDXyP7SIQzBArxvL4Fizh036pZyXD8MzcAaWMdqJ9SgHdjpV7i4eJVRKhhR+6VXjj
-         gR6Q6gpSb3/vdIKI1Povnkyd7qROa/B3PR63c99HkihCx6fI1PRxcW6UwESn+PuDDAeQ
-         Z/nUGafuDfKih5eJwxM0Ek18t8Rjk0EXzY8mIUFq1somT5mEbLbIAW8lZsQ7BP0/dOWM
-         SbvmV4Gk6uLa7OG8MLZTQVpCoEJura/kNUDrKwCFGO0ZOcjVJ2TH8y2cIlyfTNRbwjLx
-         mP/kYM3CwLmFih6UmZ1d2j0Z1t9lCNMN5ZVtS2yZaupqOYFKKGdQG4YJ5HI3omhphSIw
-         P8Fg==
-X-Forwarded-Encrypted: i=1; AJvYcCUIkkuvYINxqnFP7sUSc/5N4Pbj98BJo2O/W9k1aKs5g+QMJxKpIt6f+uAZlRISs/ch1A5eBURWV4ZwVBM=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz7tQGnBmdKqGSCHOjjBcg2FVWpxMbZUxmM35tSPb9FnIjCTKaN
-	eI+PeADAqzVZfTBNsKI0jHUesBHNR+PBTcS/50V69zmZo10OFrdrLevI2gc7qdK09oNIy+p65RT
-	kMxo+e4CV98cIK0JYzyEVUFRJgX0=
-X-Google-Smtp-Source: AGHT+IHTwk1Q6RFjtjxlxC1Sr9ZCVcOaKk7/xV9wDO/2hI+fyRyAlRI0tMIvaGm2cazBIf5PnUSXM60o1dAmm7jSXGw=
-X-Received: by 2002:a05:6a20:e617:b0:1cc:d2d9:b407 with SMTP id
- adf61e73a8af0-1cce0fece54mr3095163637.4.1724937179113; Thu, 29 Aug 2024
- 06:12:59 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1724938034; x=1725542834;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=C/W+BzuytA48OZpyefqQ7s971grdKaOzVAVEd4sTRNI=;
+        b=oP86hOnkfzzaq2rBnlCyqR5hopJt7NSPKo22UixKy2XZhsoJllG8HREfF9VQsDagxp
+         ZmFXvY5L+0cEoAU2wRB+24I4j8mAye2pvBgzbVtxO6D2Q6xIpROqVQkwX1Vgbh+CxOYl
+         c4F+L5QDXMcV0/ijCkQ4aaFah0a5cMttAyza7iw9UYW+E/zsH+oaMb3cgzNAroKS4G88
+         QWQ6CGVkvdVKnIQQqNMDAScEQyztu7DV6vQb+iFOoamVxPMVVykwV7DKrzE+wbwTyBfV
+         4SvY9KLrEW/pIy3LInozWJs7U693s7Q8fdI0tPGIrgE6NG/EsNq26V2OZ2V3wARNaVzA
+         FyEQ==
+X-Gm-Message-State: AOJu0Yz5N6wYlupVsu/RBbq2X/1zZA4DKqMctYPO0HrTQchhjbsk3Ucg
+	kXb/7u6XXIh/IiHjzNNijpv2XiLBoI1/g5cZoE5KmuWq7yPTUChuIJOjWw==
+X-Google-Smtp-Source: AGHT+IGKPHXGHiwA2FROmJg2TxjB68EPdbYx+QRGjpo18lqF5eJTv66RggWIPUNfEgZJP2o09hFi4g==
+X-Received: by 2002:a05:620a:3196:b0:79d:9102:554a with SMTP id af79cd13be357-7a804187593mr287405585a.14.1724938034303;
+        Thu, 29 Aug 2024 06:27:14 -0700 (PDT)
+Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7a806c4cd89sm50061285a.57.2024.08.29.06.27.13
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 29 Aug 2024 06:27:13 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH testsuite v2] tests/extended_socket_class: test SMC sockets
+Date: Thu, 29 Aug 2024 09:26:18 -0400
+Message-Id: <20240829132617.1610-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240405161042.260113-1-cgoettsche@seltendoof.de>
- <20240821130755.25031-1-cgoettsche@seltendoof.de> <CAEjxPJ5C+e3WKeQumo0KO8+Ge4iFR8gKUyfnJPxX84_EKGjh9w@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5C+e3WKeQumo0KO8+Ge4iFR8gKUyfnJPxX84_EKGjh9w@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 29 Aug 2024 09:12:48 -0400
-Message-ID: <CAEjxPJ7aCaUnORtePpZdFLq7swg4W5+y1hr3mQHcU1_BB4CQ4w@mail.gmail.com>
-Subject: Re: [PATCH 2/2] selinux: add support for xperms in conditional policies
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-Cc: selinux@vger.kernel.org, cgzones@googlemail.com, 
-	jsatterfield.linux@gmail.com, linux-kernel@vger.kernel.org, 
-	omosnace@redhat.com, paul@paul-moore.com, xiujianfeng@huaweicloud.com, 
-	tweek@google.com, brambonne@google.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Aug 21, 2024 at 10:57=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Aug 21, 2024 at 9:08=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
-> >
-> > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > >
-> > > Add support for extended permission rules in conditional policies.
-> > > Currently the kernel accepts such rules already, but evaluating a
-> > > security decision will hit a BUG() in
-> > > services_compute_xperms_decision().  Thus reject extended permission
-> > > rules in conditional policies for current policy versions.
-> > >
-> > > Add a new policy version for this feature.
-> > >
-> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > > ---
-> > > Userspace patches are available at:
-> > > https://github.com/SELinuxProject/selinux/pull/432
-> > >
-> > > Maybe the policy version 34 can be reused for the prefix/suffix filet=
-rans
-> > > feature to avoid two new versions?
-> >
-> > Kindly ping.
-> >
-> > Any comments?
-> >
-> > This affects (improves?) also the netlink xperm proposal.
->
-> Do you know of anyone who plans to use this feature? Android does not
-> use conditional policies and it is the primary user of the current
-> extended permissions feature. I haven't seen any usage in refpolicy to
-> date.
+Enable SMC sockets and their dependencies in the defconfig and
+exercise them as part of the extended socket class tests.
+This only verifies that socket create permission is checked
+against the correct class. The tests only cover AF_SMC,
+not IPPROTO_SMC.
 
-Not opposed to adding this support but absent an immediate user and
-with the requirement to introduce a new policy version for it, I would
-defer merging this until after the netlink_xperm proposal. I would
-encourage you to re-base on that once it lands and also to post the
-selinux userspace patches to the list if possible (breaking them up if
-necessary). Agree it would be nice if we could combine with the
-prefix/suffix support to avoid two policy version bumps but unclear
-that one is going to move forward any time soon.
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+v2 drops the tests for IPPROTO_SMC since apparently that patch isn't
+going anywhere.
+
+ defconfig                                |  5 +++++
+ policy/test_extended_socket_class.te     |  3 +++
+ tests/extended_socket_class/sockcreate.c |  1 +
+ tests/extended_socket_class/test         | 22 ++++++++++++++++++++++
+ 4 files changed, 31 insertions(+)
+
+diff --git a/defconfig b/defconfig
+index 47938c1..b2d4a90 100644
+--- a/defconfig
++++ b/defconfig
+@@ -131,3 +131,8 @@ CONFIG_KEY_NOTIFICATIONS=y
+ # This is not required for SELinux operation itself.
+ CONFIG_TRACING=y
+ CONFIG_DEBUG_FS=y
++
++# Test SMC sockets
++CONFIG_INFINIBAND=m
++CONFIG_SMC=m
++CONFIG_SMC_LO=y
+diff --git a/policy/test_extended_socket_class.te b/policy/test_extended_socket_class.te
+index c8840b4..6f0ebaa 100644
+--- a/policy/test_extended_socket_class.te
++++ b/policy/test_extended_socket_class.te
+@@ -48,6 +48,9 @@ extended_socket_class_test(bluetooth_socket, socket)
+ # Test use of alg_socket for Alg (Crypto API) sockets instead of socket.
+ extended_socket_class_test(alg_socket, socket)
+ 
++# Test use of smc_socket for SMC sockets instead of socket.
++extended_socket_class_test(smc_socket, socket)
++
+ #
+ # Common rules for all extended_socket_class test domains.
+ #
+diff --git a/tests/extended_socket_class/sockcreate.c b/tests/extended_socket_class/sockcreate.c
+index ee1d8f3..e3bbf0b 100644
+--- a/tests/extended_socket_class/sockcreate.c
++++ b/tests/extended_socket_class/sockcreate.c
+@@ -47,6 +47,7 @@ static struct nameval domains[] = {
+ #define AF_QIPCRTR 42
+ #endif
+ 	{ "qipcrtr", AF_QIPCRTR },
++	{ "smc", AF_SMC },
+ 	{ NULL, 0 }
+ };
+ 
+diff --git a/tests/extended_socket_class/test b/tests/extended_socket_class/test
+index 86c706b..1e6299f 100755
+--- a/tests/extended_socket_class/test
++++ b/tests/extended_socket_class/test
+@@ -6,6 +6,7 @@ BEGIN {
+     $test_count     = 6;
+     $test_bluetooth = 0;
+     $test_sctp      = 0;
++    $test_smc       = 0;
+ 
+     # check if SCTP is enabled
+     if ( system("modprobe sctp 2>/dev/null && checksctp 2>/dev/null") eq 0 ) {
+@@ -19,6 +20,12 @@ BEGIN {
+         $test_bluetooth = 1;
+     }
+ 
++    # check if SMC is supported
++    if ( system("modprobe smc 2>/dev/null") eq 0 ) {
++        $test_count += 2;
++        $test_smc = 1;
++    }
++
+     plan tests => $test_count;
+ }
+ 
+@@ -131,3 +138,18 @@ $result = system(
+ "runcon -t test_no_alg_socket_t -- $basedir/sockcreate alg seqpacket default 2>&1"
+ );
+ ok($result);
++
++if ($test_smc) {
++
++    # Verify that test_smc_socket_t can create a SMC socket (AF_SMC).
++    $result = system(
++"runcon -t test_smc_socket_t -- $basedir/sockcreate smc stream default 2>&1"
++    );
++    ok( $result, 0 );
++
++    # Verify that test_no_smc_socket_t cannot create a SMC socket (AF_SMC).
++    $result = system(
++"runcon -t test_no_smc_socket_t -- $basedir/sockcreate smc stream default 2>&1"
++    );
++    ok($result);
++}
+-- 
+2.40.1
+
