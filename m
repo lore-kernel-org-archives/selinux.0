@@ -1,159 +1,117 @@
-Received: from mail-oo1-f43.google.com (mail-oo1-f43.google.com [209.85.161.43])
+Received: from mail-pg1-f176.google.com (mail-pg1-f176.google.com [209.85.215.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38B8D22339;
-	Thu, 29 Aug 2024 13:03:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1138A1AB525;
+	Thu, 29 Aug 2024 13:12:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724936621; cv=none; b=Q/TD3pAc0JMXnMCLF8kN3CtFLdOKkyFZ153imr2am4KP/+a+dfJzoGJ0jp8MAUT879Scszq0QlaVIWwSp2fnnTbNrZTtAcUmjItqD33ZCV9iaoT3zQeII0ZcY2Z+R7xkTYK1WLp2kRcBBRDIzwSKEh0M97lBS8KPEh95v49U1ek=
+	t=1724937181; cv=none; b=MrARni1DepMroT+iCLK58HuChIHFHkVVMvEzsOQdA1zy4irx/wSggRs123QqsWwpbJNgrmUkc7s3hd9jaVrKNPDjweJWW/BPlfZyq5gxTLndaPyGnYXKSKrk37Ej2GddGl11u9v1g6Auw8zK0MvEet1hH5Crq52lQ4Vo2frixcU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724936621; c=relaxed/simple;
-	bh=ywBHh/JxTt6YtGlc4uMSl9mEGuK+/Sv7BhGHLqH9AWM=;
+	s=arc-20240116; t=1724937181; c=relaxed/simple;
+	bh=jPAkoGRjZcHo/1fgEKoJcccMGLG/ZQgB0RESggia6JU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=g7w89MzcB/6Y+Ei2xsDbym6yr8egUyi0aCS+PXiUtCBKb8SqdUHmri9cON/OoZpgs56rM29fShIuLM5k9NlearTYvc24e/PXjuNFF0iX0uc9L1dom9cno/Y+AGW2HmofOu3wRDnCOu9I9XvnZC4Pxxvrdm/HAIbPMM1RruuDoTk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JAep5L+M; arc=none smtp.client-ip=209.85.161.43
+	 To:Cc:Content-Type; b=R/YTvBNTWJqNbPpq5B/EYhdE0Un10PexY1ryQxhsmqovEvgfWg2Y22z/WQqpkk5KAQsAVYVz46/iFAs4ODGQl+peak5ipCJW93YhNMAQjAwh/aC6VUVOIAkZAzwrF4cbGQkPmWw0//5L9WdE3CFq2jhlbaO/30jCHYJ5HN7lrWo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lcXpPVZN; arc=none smtp.client-ip=209.85.215.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JAep5L+M"
-Received: by mail-oo1-f43.google.com with SMTP id 006d021491bc7-5dfa315ffbdso221593eaf.3;
-        Thu, 29 Aug 2024 06:03:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lcXpPVZN"
+Received: by mail-pg1-f176.google.com with SMTP id 41be03b00d2f7-7c691c8f8dcso386645a12.1;
+        Thu, 29 Aug 2024 06:12:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724936619; x=1725541419; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1724937179; x=1725541979; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=XgPkNNrjHTsfiVhNKwoTvKC+dngWh8S1qXD5HQVi94w=;
-        b=JAep5L+Mks8rZEsURm2GZColXYle//QVttVl8ZJ6fp9MTfVfxa4D24tUKNYs7EpDEk
-         Jnw5L9JOjwOCVeGov26e1bAwXOwnEksCJ7XH1aTCwOwRhJSGpFbjjRUo3Mk/2GHENk38
-         xk2oSnLnig5WbzBfBupFikwTexJftl+yj6pCsJVSy+qhxYW1NyDVtZJPugYXThpKo4jI
-         rYsY7toZb65QJx8Bw7XLgrgeMxMnnVu2hny06SlDFGJ3VCWpxeeYI5D4NufyRMjS4GgF
-         uus0RAs2MYlyjUqNDnUqSQZYvzmeWfh7fpIafTcWf3ag7kSnN0rXZnQNN3TjUC9m8eaT
-         n4nw==
+        bh=nw/PlB3iBUUCd08RIiUBBIwFxd5QJyFx8v9oHUtn4cw=;
+        b=lcXpPVZNNJ1pV+AtEHYJ5OJCKejzgZufnQDdZ3gPsC1eSpmGvj/UgxC6b5sLncCdnI
+         37K+dqyol5VAaL8WTE3vL7Rw4dUK57kMgGsNqBV2ESKklNPpO0E6gDUx60EPwbDhaAhz
+         8MslUPL5lqPxVVi1gKEV6Hk5yS5VzwWaBzISlUXFdCl4CKQJBrrbUybM9aRCHT34mIkv
+         pt/Z0jYUp8V6hnrX8N9trUCU+a3epezu/wf9T/L09CzaRFZc2IDtb/Pn9AA1t2k+M7wA
+         PNntmlkJ9evxVuBKDWJ5RXcu8D24Kx/gp62bZTkv2RBObPvT4SCFsMRrlNGFbnf41xc4
+         1BQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724936619; x=1725541419;
+        d=1e100.net; s=20230601; t=1724937179; x=1725541979;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=XgPkNNrjHTsfiVhNKwoTvKC+dngWh8S1qXD5HQVi94w=;
-        b=YFEGugqxmtkPqT1erEuWtPsijjl0OHQa49ReJo9cE/ihGmkIm7ycu/OQewR8GEQRH0
-         z1nYJGBTlkl/gEzmSN4jxO81tkbOdPyZRTUaxISxEckm8QXQmKcID90In+5hPJmyG4rR
-         LGvhiyuB24nKBt6A6amh/Rt5VWlfX85HXvdIitjlKamNouEqRnC7YjcgWYveq18m6Yjp
-         LA85SAbR3Xmb4FgNLtaqZJZSn0XYnYkShsUruNm/FLc7oEWSzLeeMEa7TUDRI8EQcbJw
-         o2o6aJ0W7MdAQleOYMS4/OZ0E1RAmBe+v+JTQI9gxDM4NYxxwDrRo/Xw/m7A33JyXMD3
-         FnKQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUsDlcENBvxmvK0G8G56xPMxRH5paKeCpe3H6LQqlYGp4/+H6ypxhdj4AHDBk+wy7PiohWlfHvhmtGI3bxUx7VGzAw2mj/0@vger.kernel.org, AJvYcCVjFK5X4aDPPbXXFBazUKZEA/O3jabG9WgEFabqzmHN9iTcye2J1k1xV2hNsnDru7PAkelDc6ufJg==@vger.kernel.org, AJvYcCXDwPJBfYfo8OcFDE5W6QA6DUS7tH9oGrWAyyI9s49ybThfGJmkB4pFkbkvu1telLkwBQZu6ikgsk0=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwKGUH76oMYdSZFYiEW4T683uqlSMFYYCCqa/681wOP0DlFBONC
-	eKI4BRwklC0Jz1+QpQ65T4LSR+MClC9gzNZMeG6VZVK3pg25oIHJhhc6IDRN/eG6SKwKmC8fJUC
-	biCCFStJTzjZH29pKphk63sIRlAs=
-X-Google-Smtp-Source: AGHT+IGS245lP9KZgpIxgJhwvHOxjn1YcH7WR7eVns7BHxRAJv4FhnyTZpanlEUZI1VaqEQ1vrmMfq53yo3lxpxdhp8=
-X-Received: by 2002:a05:6358:7253:b0:1b1:a803:d9f7 with SMTP id
- e5c5f4694b2df-1b603c2024fmr359532355d.7.1724936618733; Thu, 29 Aug 2024
- 06:03:38 -0700 (PDT)
+        bh=nw/PlB3iBUUCd08RIiUBBIwFxd5QJyFx8v9oHUtn4cw=;
+        b=TMDXyP7SIQzBArxvL4Fizh036pZyXD8MzcAaWMdqJ9SgHdjpV7i4eJVRKhhR+6VXjj
+         gR6Q6gpSb3/vdIKI1Povnkyd7qROa/B3PR63c99HkihCx6fI1PRxcW6UwESn+PuDDAeQ
+         Z/nUGafuDfKih5eJwxM0Ek18t8Rjk0EXzY8mIUFq1somT5mEbLbIAW8lZsQ7BP0/dOWM
+         SbvmV4Gk6uLa7OG8MLZTQVpCoEJura/kNUDrKwCFGO0ZOcjVJ2TH8y2cIlyfTNRbwjLx
+         mP/kYM3CwLmFih6UmZ1d2j0Z1t9lCNMN5ZVtS2yZaupqOYFKKGdQG4YJ5HI3omhphSIw
+         P8Fg==
+X-Forwarded-Encrypted: i=1; AJvYcCUIkkuvYINxqnFP7sUSc/5N4Pbj98BJo2O/W9k1aKs5g+QMJxKpIt6f+uAZlRISs/ch1A5eBURWV4ZwVBM=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz7tQGnBmdKqGSCHOjjBcg2FVWpxMbZUxmM35tSPb9FnIjCTKaN
+	eI+PeADAqzVZfTBNsKI0jHUesBHNR+PBTcS/50V69zmZo10OFrdrLevI2gc7qdK09oNIy+p65RT
+	kMxo+e4CV98cIK0JYzyEVUFRJgX0=
+X-Google-Smtp-Source: AGHT+IHTwk1Q6RFjtjxlxC1Sr9ZCVcOaKk7/xV9wDO/2hI+fyRyAlRI0tMIvaGm2cazBIf5PnUSXM60o1dAmm7jSXGw=
+X-Received: by 2002:a05:6a20:e617:b0:1cc:d2d9:b407 with SMTP id
+ adf61e73a8af0-1cce0fece54mr3095163637.4.1724937179113; Thu, 29 Aug 2024
+ 06:12:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240828195129.223395-1-smayhew@redhat.com> <20240828195129.223395-2-smayhew@redhat.com>
- <3647023f1f4c1326ba3d67ff04c5b84b4896c1bc.camel@kernel.org>
-In-Reply-To: <3647023f1f4c1326ba3d67ff04c5b84b4896c1bc.camel@kernel.org>
+References: <20240405161042.260113-1-cgoettsche@seltendoof.de>
+ <20240821130755.25031-1-cgoettsche@seltendoof.de> <CAEjxPJ5C+e3WKeQumo0KO8+Ge4iFR8gKUyfnJPxX84_EKGjh9w@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5C+e3WKeQumo0KO8+Ge4iFR8gKUyfnJPxX84_EKGjh9w@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 29 Aug 2024 09:03:25 -0400
-Message-ID: <CAEjxPJ49pt9QMXt=Ssf83kcJ5r3tF6_Hp4sVn_5OT=uNVkCy3g@mail.gmail.com>
-Subject: Re: [PATCH 1/1] selinux,smack: don't bypass permissions check in
- inode_setsecctx hook
-To: Jeff Layton <jlayton@kernel.org>
-Cc: Scott Mayhew <smayhew@redhat.com>, paul@paul-moore.com, casey@schaufler-ca.com, 
-	chuck.lever@oracle.com, marek.gresko@protonmail.com, selinux@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-nfs@vger.kernel.org
+Date: Thu, 29 Aug 2024 09:12:48 -0400
+Message-ID: <CAEjxPJ7aCaUnORtePpZdFLq7swg4W5+y1hr3mQHcU1_BB4CQ4w@mail.gmail.com>
+Subject: Re: [PATCH 2/2] selinux: add support for xperms in conditional policies
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+Cc: selinux@vger.kernel.org, cgzones@googlemail.com, 
+	jsatterfield.linux@gmail.com, linux-kernel@vger.kernel.org, 
+	omosnace@redhat.com, paul@paul-moore.com, xiujianfeng@huaweicloud.com, 
+	tweek@google.com, brambonne@google.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 29, 2024 at 7:15=E2=80=AFAM Jeff Layton <jlayton@kernel.org> wr=
-ote:
+On Wed, Aug 21, 2024 at 10:57=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Wed, 2024-08-28 at 15:51 -0400, Scott Mayhew wrote:
-> > Marek Gresko reports that the root user on an NFS client is able to
-> > change the security labels on files on an NFS filesystem that is
-> > exported with root squashing enabled.
+> On Wed, Aug 21, 2024 at 9:08=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
 > >
-> > The end of the kerneldoc comment for __vfs_setxattr_noperm() states:
+> > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > >
+> > > Add support for extended permission rules in conditional policies.
+> > > Currently the kernel accepts such rules already, but evaluating a
+> > > security decision will hit a BUG() in
+> > > services_compute_xperms_decision().  Thus reject extended permission
+> > > rules in conditional policies for current policy versions.
+> > >
+> > > Add a new policy version for this feature.
+> > >
+> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > > ---
+> > > Userspace patches are available at:
+> > > https://github.com/SELinuxProject/selinux/pull/432
+> > >
+> > > Maybe the policy version 34 can be reused for the prefix/suffix filet=
+rans
+> > > feature to avoid two new versions?
 > >
-> >  *  This function requires the caller to lock the inode's i_mutex befor=
-e it
-> >  *  is executed. It also assumes that the caller will make the appropri=
-ate
-> >  *  permission checks.
+> > Kindly ping.
 > >
-> > nfsd_setattr() does do permissions checking via fh_verify() and
-> > nfsd_permission(), but those don't do all the same permissions checks
-> > that are done by security_inode_setxattr() and its related LSM hooks do=
-.
+> > Any comments?
 > >
-> > Since nfsd_setattr() is the only consumer of security_inode_setsecctx()=
-,
-> > simplest solution appears to be to replace the call to
-> > __vfs_setxattr_noperm() with a call to __vfs_setxattr_locked().  This
-> > fixes the above issue and has the added benefit of causing nfsd to
-> > recall conflicting delegations on a file when a client tries to change
-> > its security label.
-> >
-> > Reported-by: Marek Gresko <marek.gresko@protonmail.com>
-> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D218809
-> > Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-> > ---
-> >  security/selinux/hooks.c   | 4 ++--
-> >  security/smack/smack_lsm.c | 4 ++--
-> >  2 files changed, 4 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index bfa61e005aac..400eca4ad0fb 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -6660,8 +6660,8 @@ static int selinux_inode_notifysecctx(struct inod=
-e *inode, void *ctx, u32 ctxlen
-> >   */
-> >  static int selinux_inode_setsecctx(struct dentry *dentry, void *ctx, u=
-32 ctxlen)
-> >  {
-> > -     return __vfs_setxattr_noperm(&nop_mnt_idmap, dentry, XATTR_NAME_S=
-ELINUX,
-> > -                                  ctx, ctxlen, 0);
-> > +     return __vfs_setxattr_locked(&nop_mnt_idmap, dentry, XATTR_NAME_S=
-ELINUX,
-> > +                                  ctx, ctxlen, 0, NULL);
-> >  }
-> >
-> >  static int selinux_inode_getsecctx(struct inode *inode, void **ctx, u3=
-2 *ctxlen)
-> > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> > index 4164699cd4f6..002a1b9ed83a 100644
-> > --- a/security/smack/smack_lsm.c
-> > +++ b/security/smack/smack_lsm.c
-> > @@ -4880,8 +4880,8 @@ static int smack_inode_notifysecctx(struct inode =
-*inode, void *ctx, u32 ctxlen)
-> >
-> >  static int smack_inode_setsecctx(struct dentry *dentry, void *ctx, u32=
- ctxlen)
-> >  {
-> > -     return __vfs_setxattr_noperm(&nop_mnt_idmap, dentry, XATTR_NAME_S=
-MACK,
-> > -                                  ctx, ctxlen, 0);
-> > +     return __vfs_setxattr_locked(&nop_mnt_idmap, dentry, XATTR_NAME_S=
-MACK,
-> > +                                  ctx, ctxlen, 0, NULL);
-> >  }
-> >
-> >  static int smack_inode_getsecctx(struct inode *inode, void **ctx, u32 =
-*ctxlen)
+> > This affects (improves?) also the netlink xperm proposal.
 >
-> Reviewed-by: Jeff Layton <jlayton@kernel.org>
+> Do you know of anyone who plans to use this feature? Android does not
+> use conditional policies and it is the primary user of the current
+> extended permissions feature. I haven't seen any usage in refpolicy to
+> date.
 
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
-Passes all the NFS tests in the selinux-testsuite, and also correctly
-denies root the ability to relabel a file on a root_squash mount but
-allows a normal user to do so (as expected).
+Not opposed to adding this support but absent an immediate user and
+with the requirement to introduce a new policy version for it, I would
+defer merging this until after the netlink_xperm proposal. I would
+encourage you to re-base on that once it lands and also to post the
+selinux userspace patches to the list if possible (breaking them up if
+necessary). Agree it would be nice if we could combine with the
+prefix/suffix support to avoid two policy version bumps but unclear
+that one is going to move forward any time soon.
