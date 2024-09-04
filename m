@@ -1,126 +1,152 @@
-Received: from mail-vs1-f49.google.com (mail-vs1-f49.google.com [209.85.217.49])
+Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4458984A27
-	for <selinux@vger.kernel.org>; Wed,  4 Sep 2024 19:37:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30FA184A35
+	for <selinux@vger.kernel.org>; Wed,  4 Sep 2024 20:01:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725478638; cv=none; b=T9P+Zi03yfC889jT0KOwJVQCRNVrYVI/3CW8wt3ZE3ROOjVqDc6VMxEb2thufGzM0SUVfIDXtCbDI4Vw6VYVVV1pStwNNY+rUGZ9kS7DDj01SpH6OfAs72V6YHVK2A+MgWkz/ld/qks50KW3mW3Hw8qc+sWO1ZyrydoA2GW4nHM=
+	t=1725480070; cv=none; b=qF+UBmWqsujZSbUJnyMIAi34CZtlm3e7AlVhdrhful2mEMt1VBUzoDFCbrIe+MaIQ4I7x1zp5DQgnb0X8O2EtXSljQT2L+ja3yLC0lC6gI/mKrmusYvzAh33eziHZQe3u9MSCy7kH+RNaaYAOL7+y63FfTW6SWU4snUPhkpLqgM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725478638; c=relaxed/simple;
-	bh=fO3I2DYOkPnyck9ihvR26LkE9jU7two/b/+YwgF7uEk=;
+	s=arc-20240116; t=1725480070; c=relaxed/simple;
+	bh=4ZW9uYBRy1l5v3eg2vwYnWmQtnxuduXzhYgb0NI7pac=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=jVt6ID+KE/cnbduCDc27YW7T5lNF6Pr1TXx3FtZ7KmWwEfTm2N8iHkjj+Zkim+T9+TvH8q6mfrxNk0QMBteKgcn6HLn4Vn93qUE2lCFiRMYKJROQXiCvZ8tSxWVZVFIuX6+2asK+VZbVrFFrXsJny4RGkVFNhxYYEZp5qzWIoEQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MJh0isL2; arc=none smtp.client-ip=209.85.217.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=fYavvGsDzaK9gOqpXWj1noO4hoCSMBVSprx99Ufba+7PbxuQUQwwwHWshh0Whn7Dg4qnp41m9gyGNXe5TKpz7RnqMQGdY4qjjZuxKx09z3+EBokXGae+WyzPXboOY+inGMaSCDQCIlgEhFTv6xzVjJIogXH98LxU9jMOpJLBM8U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=DSUaYCWr; arc=none smtp.client-ip=209.85.128.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MJh0isL2"
-Received: by mail-vs1-f49.google.com with SMTP id ada2fe7eead31-498e40756baso2267397137.1
-        for <selinux@vger.kernel.org>; Wed, 04 Sep 2024 12:37:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="DSUaYCWr"
+Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-6da395fb97aso32027027b3.0
+        for <selinux@vger.kernel.org>; Wed, 04 Sep 2024 13:01:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1725478635; x=1726083435; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
+        d=paul-moore.com; s=google; t=1725480068; x=1726084868; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yfcQhfI+jvfhsFbqZQMspT2HeadCFX22l0U12eLlHpI=;
-        b=MJh0isL22/nnaKP/4gkyg9GWXC4Uo2rg2ARcWvWdM/wIy0tfd2U+xJLF7IKTPNABz+
-         /n8NNH2iH/9sfkO7B5qRH8ZFoXabedTYFqQtKWhK5d5Rdydq/1WgMEH9zUJA6Y6TX+Ix
-         HC1BTwTIt/o3IBAPa8uUj1c43RnKDksAeoTnKuynNUbhmnOkbqtUgsI2kcdU6Rq9B4Mm
-         QAMuHxKx9+qTlgp13DSVQOhrt5U5Z5S1XjB32wVIeZb3DsV6QEWk7/ywtKFs4xZtNHWX
-         QkB1hzCH2/hPfXpLmgmIlESmEQLyGO/KfTeIcjc2EAwGXx17L+BBJSxFAgBJ/agBerCF
-         4sUg==
+        bh=bj31Cc7yUKdv/FGIF8ZxPGEVE5FVuiVNrp+0ISWDt4c=;
+        b=DSUaYCWr/prACtzyg/rPSUvm30yKQ0V+ubT7ZcPSXOQZrWHKdL2v6lCjM/hTEPDtE0
+         sqVlA/wLifJgfoU7GeeLALd/fPen2C7kHUFzlntnDXlarJSTTI/UX0v1hEXUIrrcSIfV
+         4c2upEGc4WamL5D1Vt300uOrSwbx8ytzKILJLwR0yIjXCON37wB110LKDv1j2j/JehXn
+         bzAe/gcx6lzajTXH0V24JE5VH6x92U4rberLWfedRvfS9ghSQv0j6VPPrx3LqtEnQooD
+         uFLi2BHXKgpBFmJ8uMgI54nUdksi1sl+l/ZJ6NMD2mHs59cLJo3dzmJW8CRwpeeC1nZb
+         rUXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725478635; x=1726083435;
-        h=content-transfer-encoding:to:subject:message-id:date:from
+        d=1e100.net; s=20230601; t=1725480068; x=1726084868;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=yfcQhfI+jvfhsFbqZQMspT2HeadCFX22l0U12eLlHpI=;
-        b=l57HVTnbtZD2l5UwUZVutRsqLYJhvrR2TAWkK1voaIJXbmRZDZ6hsheWTsAuevZOEh
-         DmmSieJkAH+nvllJomhOj5zToPOXS7E2MBgLwf1sFLhkYkxzZDcqJr1K7n2AqVspcI2W
-         OU7fNaNu8SzK5Gg8BVeByfD+tvxkooG4GDcl0Pzm3pPYuxKTsi6X/9C/IfpSooW9LOK5
-         s1akkwThdTNlj8/Dn1iZfcvTofHjMS6P1e5JGmgbjfk6mJMggdjEuKJJ0Vla6CFDrKDl
-         J2SIOdKIA7wDnf1ImKFbU8tNIfIgLY+wcqspkNKLujr9XxQDW8gR+75nB3quVdWOJwx4
-         11Hg==
-X-Gm-Message-State: AOJu0YwR5jfywDVmfG+7YznlDulAcqu7eTL6kQNBxs2o8Dj/p57zoFrh
-	CgD5/+QX+MMgLzcISI1mTjHxNLdfE0mMjY6Y/7SOCQWhFirWc71Zup3C/TD/J/iN2JlhHg0CBfd
-	FrXPgsVPERl9S8MWs7lAnMpbeTE7vew==
-X-Google-Smtp-Source: AGHT+IHfN16BK5CAnz8Tb2ehwVqHw5cnq5FcdZnrmILvL+a/EzsyKHxy+wzevG06CSAxUip+cdyKcAju6FgZZUeXEKc=
-X-Received: by 2002:a67:ef1a:0:b0:49b:c95a:5bb8 with SMTP id
- ada2fe7eead31-49bc95a6110mr1021691137.18.1725478634680; Wed, 04 Sep 2024
- 12:37:14 -0700 (PDT)
+        bh=bj31Cc7yUKdv/FGIF8ZxPGEVE5FVuiVNrp+0ISWDt4c=;
+        b=ELqwj61DDNM287qdT58kiEsOYydMruFIFAjrPrcQchV7AhtnzBe4EdlL9hi6S9VR6L
+         uJVEeKkDDC6jrnBLiayG3bc20ep/wDERwFUJ9ivzoq+76bsLHvqZpiz8AlIGXL+LM6dh
+         8k78ctNnsgwYyOjkFSwVneAEeA4hTubKqfN0FCfAak8Kt/cm6a80Yp7e70WtNYllDkFD
+         o0XEYNQbfRYVkiRK4z2hGnHU1Iwhqo2dH/ZlikY+bgsSjZGsMhlXWe8Z04or/SMs2SkX
+         TuYxKdSM0JgBJ4/8aTikR3l16/tGWnYro/73g0hohdyDvdAamy6mp++79tlFYI5ujAQD
+         mqqw==
+X-Forwarded-Encrypted: i=1; AJvYcCVjqzsAyHZZykuWslgbKbDm/blaATNytplberV4bfk5UgU3xDnlCqn7C7z4UMpGOPkPfbQIcX52@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw4tiGd+jJd26OPgZwX8KkFcIuXftykyCEL82fEZMzC0ZIxknZm
+	twwVzfl0AU/bS6tgVqupjvqIpa7KiaEZbCsJJO55VC9//cI42DIHESJAfC1yxjQMuwQ2FPawOHi
+	oVKBkv7UCi05swaJGll9U0zDtIDM/mb6r7kLe
+X-Google-Smtp-Source: AGHT+IHwvQ13BznmsQbX7s8QKh0hPJ3ZlsV9dmecF5yPb9RpjrIRg7UHuPNLul3M/O4Vy1wrYN7rj/2T9vkcOmYq8W8=
+X-Received: by 2002:a05:690c:3693:b0:6b1:135:4d84 with SMTP id
+ 00721157ae682-6d40df8a252mr200806537b3.16.1725480068164; Wed, 04 Sep 2024
+ 13:01:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240812165633.49121-1-jwcart2@gmail.com>
-In-Reply-To: <20240812165633.49121-1-jwcart2@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 4 Sep 2024 15:37:03 -0400
-Message-ID: <CAP+JOzQmwxD5oO9VESSAbwYFSofMd0HiOoUBdv+E1=Ks9Xi_aA@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Allow dotted names in aliasactual rules
-To: selinux@vger.kernel.org
+References: <20240830003411.16818-2-casey@schaufler-ca.com>
+ <0a6ba6a6dbd423b56801b84b01fa8c41@paul-moore.com> <b444ffb9-3ea3-4ef4-b53c-954ea66f7037@schaufler-ca.com>
+In-Reply-To: <b444ffb9-3ea3-4ef4-b53c-954ea66f7037@schaufler-ca.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 4 Sep 2024 16:00:57 -0400
+Message-ID: <CAHC9VhQ8QDAGc9BsxvPMi6=okwj+euLC+QXL1sgMsr8eHOcx2w@mail.gmail.com>
+Subject: Re: [PATCH v2 1/13] LSM: Add the lsmblob data structure.
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: linux-security-module@vger.kernel.org, jmorris@namei.org, serge@hallyn.com, 
+	keescook@chromium.org, john.johansen@canonical.com, 
+	penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, 
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net, 
+	apparmor@lists.ubuntu.com, bpf@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 12, 2024 at 12:56=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
-rote:
->
-> The function cil_gen_alias() is used to declare type, sensitivity,
-> and category aliases and the function cil_gen_aliasactual() is used
-> to assign an alias to the actual declared name.
->
-> Commit e55621c03 ("libsepol/cil: Add notself and other support to CIL")
-> added "notself" and "other" as reserved words. Previously, a check
-> was made in cil_gen_aliasactual() to ensure that the "self" reserved
-> word was not used. With the notself patch this function was upgraded
-> to call cil_verify_name() to verify that the other reserved words
-> were not used as well. This change prevents the use of dotted names
-> to refer to alias or actual names that are declared in blocks.
->
-> The check for a reserved word being used is not needed because that
-> check will be done for both the alias and the actual name when they
-> are declared.
->
-> Remove the call to cil_verify_name() and allow dotted names in
-> aliasactual rules.
->
-> Reported-by: Dominick Grift <dominick.grift@defensec.nl>
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+On Tue, Sep 3, 2024 at 8:53=E2=80=AFPM Casey Schaufler <casey@schaufler-ca.=
+com> wrote:
+> On 9/3/2024 5:18 PM, Paul Moore wrote:
+> > On Aug 29, 2024 Casey Schaufler <casey@schaufler-ca.com> wrote:
 
-I plan on merging this soon.
-Jim
+...
 
-> ---
->  libsepol/cil/src/cil_build_ast.c | 10 ----------
->  1 file changed, 10 deletions(-)
+> >> +/*
+> >> + * Data exported by the security modules
+> >> + */
+> >> +struct lsmblob {
+> >> +    struct lsmblob_selinux selinux;
+> >> +    struct lsmblob_smack smack;
+> >> +    struct lsmblob_apparmor apparmor;
+> >> +    struct lsmblob_bpf bpf;
+> >> +    struct lsmblob_scaffold scaffold;
+> >> +};
+> >
+> > Warning, top shelf bikeshedding follows ...
 >
-> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_buil=
-d_ast.c
-> index 56dac891..6884f12c 100644
-> --- a/libsepol/cil/src/cil_build_ast.c
-> +++ b/libsepol/cil/src/cil_build_ast.c
-> @@ -3174,16 +3174,6 @@ int cil_gen_aliasactual(struct cil_db *db, struct =
-cil_tree_node *parse_current,
->                 goto exit;
->         }
+> Not unexpected. :)
 >
-> -       rc =3D cil_verify_name(db, parse_current->next->data, flavor);
-> -       if (rc !=3D SEPOL_OK) {
-> -               goto exit;
-> -       }
-> -
-> -       rc =3D cil_verify_name(db, parse_current->next->next->data, flavo=
-r);
-> -       if (rc !=3D SEPOL_OK) {
-> -               goto exit;
-> -       }
-> -
->         cil_aliasactual_init(&aliasactual);
+> > I believe that historically when we've talked about the "LSM blob" we'v=
+e
+> > usually been referring to the opaque buffers used to store LSM state th=
+at
+> > we attach to a number of kernel structs using the `void *security` fiel=
+d.
+> >
+> > At least that is what I think of when I read "struct lsmblob", and I'd
+> > like to get ahead of the potential confusion while we still can.
+> >
+> > Casey, I'm sure you're priority is simply getting this merged and you
+> > likely care very little about the name (as long as it isn't too horribl=
+e),
 >
->         aliasactual->alias_str =3D parse_current->next->data;
-> --
-> 2.46.0
+> I would reject lsmlatefordinner out of hand.
+
+Fair enough :)
+
+> > but what about "lsm_ref"?  Other ideas are most definitely welcome.
 >
+> I'm not a fan of the underscore, and ref seems to imply memory management=
+.
+> How about "struct lsmsecid", which is a nod to the past "u32 secid"?
+> Or, "struct lsmdata", "struct lsmid", "struct lsmattr".
+> I could live with "struct lsmref", I suppose, although it pulls me toward
+> "struct lsmreference", which is a bit long.
+
+For what it's worth, I do agree that "ref" is annoyingly similar to a
+reference counter, I don't love it here, but I'm having a hard time
+coming up with something appropriate.
+
+I also tend to like the underscore, at least in the struct name, as it
+matches well with the "lsm_ctx" struct we have as part of the UAPI.
+When we use the struct name in function names, feel free to drop the
+underscore, for example: "lsm_foo" -> "security_get_lsmfoo()".
+
+My first thought was for something like "lsmid" (ignoring the
+underscore debate), but we already have the LSM_ID_XXX defines which
+are something entirely different and I felt like we would be trading
+one source of confusion for another.  There is a similar problem with
+the LSM_ATTR_XXX defines.
+
+We also already have a "lsm_ctx" struct which sort of rules out
+"lsmctx" for what are hopefully obvious reasons.
+
+I'd also like to avoid anything involving "secid" or "secctx" simply
+because the whole point of this struct is to move past the idea of a
+single integer or string representing all of the LSM properties for an
+entity.
+
+I can understand "lsm_data", but that is more ambiguous than I would like.
+
+What about "lsm_prop" or "lsm_cred"?
+
+--=20
+paul-moore.com
