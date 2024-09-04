@@ -1,93 +1,126 @@
-Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
+Received: from mail-vs1-f49.google.com (mail-vs1-f49.google.com [209.85.217.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62D676E619
-	for <selinux@vger.kernel.org>; Wed,  4 Sep 2024 17:38:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4458984A27
+	for <selinux@vger.kernel.org>; Wed,  4 Sep 2024 19:37:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725471529; cv=none; b=b9rmvFk8bDcwxlhJbypBcng/2cg4VB+4ycg4EJpSc6faM53sEdQW89K0NAoSA7KbqzXwZeAI4MWlh9QIlJyZkKayo4JFkA/qrRGVyDxqN7cGkvFTkerx2VyPQxzWPVu8Q2GyDWMcux6ORBqgj1jRi9XgwUnFWkjgwWz4L+engMA=
+	t=1725478638; cv=none; b=T9P+Zi03yfC889jT0KOwJVQCRNVrYVI/3CW8wt3ZE3ROOjVqDc6VMxEb2thufGzM0SUVfIDXtCbDI4Vw6VYVVV1pStwNNY+rUGZ9kS7DDj01SpH6OfAs72V6YHVK2A+MgWkz/ld/qks50KW3mW3Hw8qc+sWO1ZyrydoA2GW4nHM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725471529; c=relaxed/simple;
-	bh=wUKMDspWUUN/tHkSOCIdo+eMogIw0bmlGOAB4GULvPU=;
+	s=arc-20240116; t=1725478638; c=relaxed/simple;
+	bh=fO3I2DYOkPnyck9ihvR26LkE9jU7two/b/+YwgF7uEk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KsGCxdvJMm6ZUHzAZXbq8qvTLw3D3WjnIBinnrU3LmaPg9L2N2/UmlVWpcxNH/jqwqxFZecWEGVd3lBab+7elxqTVKw7AqP7aQtNJzI1fqBVNQTss/L3h1pnBsKD1G5A8XfLF7ss1PAWwM2PsJaL+riZ7Cw697tpsMrEoAb4Mxs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=N0dj6uBV; arc=none smtp.client-ip=209.85.128.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Content-Type; b=jVt6ID+KE/cnbduCDc27YW7T5lNF6Pr1TXx3FtZ7KmWwEfTm2N8iHkjj+Zkim+T9+TvH8q6mfrxNk0QMBteKgcn6HLn4Vn93qUE2lCFiRMYKJROQXiCvZ8tSxWVZVFIuX6+2asK+VZbVrFFrXsJny4RGkVFNhxYYEZp5qzWIoEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MJh0isL2; arc=none smtp.client-ip=209.85.217.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="N0dj6uBV"
-Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-6d4f1d9951fso40650377b3.1
-        for <selinux@vger.kernel.org>; Wed, 04 Sep 2024 10:38:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MJh0isL2"
+Received: by mail-vs1-f49.google.com with SMTP id ada2fe7eead31-498e40756baso2267397137.1
+        for <selinux@vger.kernel.org>; Wed, 04 Sep 2024 12:37:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1725471525; x=1726076325; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=gmail.com; s=20230601; t=1725478635; x=1726083435; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wUKMDspWUUN/tHkSOCIdo+eMogIw0bmlGOAB4GULvPU=;
-        b=N0dj6uBVlItktoAMVkGP4f+G87dpeMTUH3kGjpbDzNYDx4iwwMVzj5jHDkejnF694E
-         GAIC7qbXzGJX5fXEQRd7hDsTrdekVDsmw/+p4jyK/JQAXYWaRPaIXoULQS551S0F3PfN
-         K5m6Uu7OFQSsYmyiKw8+RHZnddw8VR/k0anD9t09yHis64RlD65678OQhKTshoZJKRO7
-         gUydAU7Rt1thDQRkMTT+ciX9hrVbfO+3OcjzAxOSW+ywE+FpAJySmktU84W9s9Zz3Msn
-         V3BuTmvXQC8dcS5PnXH/kiU7T0v67PYH7sTuM9Vm3zzCL7PE3pVucxhe86Wzb3QthTZv
-         RmYw==
+        bh=yfcQhfI+jvfhsFbqZQMspT2HeadCFX22l0U12eLlHpI=;
+        b=MJh0isL22/nnaKP/4gkyg9GWXC4Uo2rg2ARcWvWdM/wIy0tfd2U+xJLF7IKTPNABz+
+         /n8NNH2iH/9sfkO7B5qRH8ZFoXabedTYFqQtKWhK5d5Rdydq/1WgMEH9zUJA6Y6TX+Ix
+         HC1BTwTIt/o3IBAPa8uUj1c43RnKDksAeoTnKuynNUbhmnOkbqtUgsI2kcdU6Rq9B4Mm
+         QAMuHxKx9+qTlgp13DSVQOhrt5U5Z5S1XjB32wVIeZb3DsV6QEWk7/ywtKFs4xZtNHWX
+         QkB1hzCH2/hPfXpLmgmIlESmEQLyGO/KfTeIcjc2EAwGXx17L+BBJSxFAgBJ/agBerCF
+         4sUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725471525; x=1726076325;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+        d=1e100.net; s=20230601; t=1725478635; x=1726083435;
+        h=content-transfer-encoding:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wUKMDspWUUN/tHkSOCIdo+eMogIw0bmlGOAB4GULvPU=;
-        b=NKzJkpkvjwxx3OjAJ1U5r3lzyiPAjcZYX2oyLO1vWVlxrxuEgg7jO9VaEDpb1wHoSB
-         Qdpl6YoU+8J8jSM/zkXgMSh1gltNMqXk+13X+0PA7cA9nbmVYbHR0fofQcFeGzC3qsT1
-         NAqrSoWiljXnWDcSCUwruPxGUTcQMM4CFeSCEa99Kj7jKFetAWXtsgtN/WlSCLUR0dv9
-         iYw+f1J03ShHp7otNQDqy6UEWPdUof7Rs6WLV8jx77+TVJwnElfu2CZe/T0re2xLQ0z3
-         eL1MnnZa7de94jgs+VCVhBrqsUJfDlmdpj84nlYHkuqsC+5cy/u+J2j0ip9oW7ADJKWe
-         TOfA==
-X-Gm-Message-State: AOJu0YxDHfs7kUlzl1yOzRZlcBF+g+3ZyFrQBsUPesGtGhq1/ctCHPy8
-	YomSv/seyTYE6mwdnDAnV38Cny+q2jnZEChil0Hmz9OegnKbClDldKFik9eHb8E7W6rV/c45ewQ
-	DJ7FKnCQlmotW6buBJztNlxyXijfa23sTwsCq
-X-Google-Smtp-Source: AGHT+IELCp0iYqOx9a1ztej5ovk3ESr4ecpxj6VY5mcPPygGDKwq5F8C7wAaKVjXbAChz4kp7TjfnsngmQpHG9u+IBU=
-X-Received: by 2002:a05:690c:dc6:b0:6c8:e45d:ebd8 with SMTP id
- 00721157ae682-6d40ea72287mr206162717b3.9.1725471525200; Wed, 04 Sep 2024
- 10:38:45 -0700 (PDT)
+        bh=yfcQhfI+jvfhsFbqZQMspT2HeadCFX22l0U12eLlHpI=;
+        b=l57HVTnbtZD2l5UwUZVutRsqLYJhvrR2TAWkK1voaIJXbmRZDZ6hsheWTsAuevZOEh
+         DmmSieJkAH+nvllJomhOj5zToPOXS7E2MBgLwf1sFLhkYkxzZDcqJr1K7n2AqVspcI2W
+         OU7fNaNu8SzK5Gg8BVeByfD+tvxkooG4GDcl0Pzm3pPYuxKTsi6X/9C/IfpSooW9LOK5
+         s1akkwThdTNlj8/Dn1iZfcvTofHjMS6P1e5JGmgbjfk6mJMggdjEuKJJ0Vla6CFDrKDl
+         J2SIOdKIA7wDnf1ImKFbU8tNIfIgLY+wcqspkNKLujr9XxQDW8gR+75nB3quVdWOJwx4
+         11Hg==
+X-Gm-Message-State: AOJu0YwR5jfywDVmfG+7YznlDulAcqu7eTL6kQNBxs2o8Dj/p57zoFrh
+	CgD5/+QX+MMgLzcISI1mTjHxNLdfE0mMjY6Y/7SOCQWhFirWc71Zup3C/TD/J/iN2JlhHg0CBfd
+	FrXPgsVPERl9S8MWs7lAnMpbeTE7vew==
+X-Google-Smtp-Source: AGHT+IHfN16BK5CAnz8Tb2ehwVqHw5cnq5FcdZnrmILvL+a/EzsyKHxy+wzevG06CSAxUip+cdyKcAju6FgZZUeXEKc=
+X-Received: by 2002:a67:ef1a:0:b0:49b:c95a:5bb8 with SMTP id
+ ada2fe7eead31-49bc95a6110mr1021691137.18.1725478634680; Wed, 04 Sep 2024
+ 12:37:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAFqZXNv7T8Tv_9AYX2xC_tJ9x10qPoPFQsQPBUDOuphUfUFPiQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNv7T8Tv_9AYX2xC_tJ9x10qPoPFQsQPBUDOuphUfUFPiQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 4 Sep 2024 13:38:34 -0400
-Message-ID: <CAHC9VhSGJjoJBC1t=wmik6G8yyLEHK=YF4rjX=7HH5BG9ogYkg@mail.gmail.com>
-Subject: Re: selinux-testsuite / NFS symlink issue
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: SElinux list <selinux@vger.kernel.org>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>
+References: <20240812165633.49121-1-jwcart2@gmail.com>
+In-Reply-To: <20240812165633.49121-1-jwcart2@gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 4 Sep 2024 15:37:03 -0400
+Message-ID: <CAP+JOzQmwxD5oO9VESSAbwYFSofMd0HiOoUBdv+E1=Ks9Xi_aA@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Allow dotted names in aliasactual rules
+To: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 4, 2024 at 11:15=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
-m> wrote:
+On Mon, Aug 12, 2024 at 12:56=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
+rote:
 >
-> Hello,
+> The function cil_gen_alias() is used to declare type, sensitivity,
+> and category aliases and the function cil_gen_aliasactual() is used
+> to assign an alias to the actual declared name.
 >
-> While playing with migrating selinux-testsuite CI to Testing Farm
-> (more on that later)
+> Commit e55621c03 ("libsepol/cil: Add notself and other support to CIL")
+> added "notself" and "other" as reserved words. Previously, a check
+> was made in cil_gen_aliasactual() to ensure that the "self" reserved
+> word was not used. With the notself patch this function was upgraded
+> to call cil_verify_name() to verify that the other reserved words
+> were not used as well. This change prevents the use of dotted names
+> to refer to alias or actual names that are declared in blocks.
+>
+> The check for a reserved word being used is not needed because that
+> check will be done for both the alias and the actual name when they
+> are declared.
+>
+> Remove the call to cil_verify_name() and allow dotted names in
+> aliasactual rules.
+>
+> Reported-by: Dominick Grift <dominick.grift@defensec.nl>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
 
-Thanks for working on restoring that automated testing.
+I plan on merging this soon.
+Jim
 
-> I encountered a problem when running the NFS
-> tests: When you create a symlink to the testsuite directory, cd inside
-> that symlink, and run ./tools/nfs.sh, the nfs_filesystem/test fails.
-
-I'm not sure how helpful this is, but as a WORKSFORME data point:
-using the instructions in the README, my NFS testing is done simply by
-executing './tools/nfs.sh' while in the selinux-testsuite directory.
-As of yesterday's test runs everything was working fine running out of
-a current Rawhide VM.
-
-https://groups.google.com/g/kernel-secnext/c/siTFxsFoIhU
-
---=20
-paul-moore.com
+> ---
+>  libsepol/cil/src/cil_build_ast.c | 10 ----------
+>  1 file changed, 10 deletions(-)
+>
+> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_buil=
+d_ast.c
+> index 56dac891..6884f12c 100644
+> --- a/libsepol/cil/src/cil_build_ast.c
+> +++ b/libsepol/cil/src/cil_build_ast.c
+> @@ -3174,16 +3174,6 @@ int cil_gen_aliasactual(struct cil_db *db, struct =
+cil_tree_node *parse_current,
+>                 goto exit;
+>         }
+>
+> -       rc =3D cil_verify_name(db, parse_current->next->data, flavor);
+> -       if (rc !=3D SEPOL_OK) {
+> -               goto exit;
+> -       }
+> -
+> -       rc =3D cil_verify_name(db, parse_current->next->next->data, flavo=
+r);
+> -       if (rc !=3D SEPOL_OK) {
+> -               goto exit;
+> -       }
+> -
+>         cil_aliasactual_init(&aliasactual);
+>
+>         aliasactual->alias_str =3D parse_current->next->data;
+> --
+> 2.46.0
+>
