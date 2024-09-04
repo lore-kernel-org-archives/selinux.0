@@ -1,59 +1,59 @@
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+Received: from mail-vs1-f53.google.com (mail-vs1-f53.google.com [209.85.217.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B56487E1
-	for <selinux@vger.kernel.org>; Wed,  4 Sep 2024 00:18:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF1EA7F9
+	for <selinux@vger.kernel.org>; Wed,  4 Sep 2024 00:18:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725409113; cv=none; b=hH3mr+I2MyIHEwExUX1TZRxs7EwukMgL2XtfhtGEUal8UdPpCz4ow5B7dpGm3LQpLCKdtrVy9Y4KoBcWeNcw4Us4NjBrdl3LRve/asmE95w/jjBPyFC13p3hMrJ0r9TBxDonxOM4P0AbmlDvEHN9vvKAzoetXM2VA2ZJl1d1FkQ=
+	t=1725409114; cv=none; b=D7/Yi/+uUICeIMLWKUoUBUUzecVI9EETmcQQKrbcka8pLIoB6s7RQRAroIs8Pe6/k8MnGg/LkAAQzoKU+aVsyQGlyJEkv26ee6VbsfnhsGOotyidcMKJdq4jzB3bxcjzoe6Lk8NAXKj2KYwPblPa699JAghabT+62MZ/DRINjIs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725409113; c=relaxed/simple;
-	bh=I15BAxDBUTieWy0IZOhhAk7ed0bPxi+spKKsUPhhz08=;
+	s=arc-20240116; t=1725409114; c=relaxed/simple;
+	bh=HBQoF3HtfYQxuAqCQ+Y/8lhz9qkLFKMuynT9oA2WX7Y=;
 	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
-	 From:To:Cc:Subject:References:In-Reply-To; b=F+sJ/DvARsZ5DbGitXy01QpVUa1d0DspuZAl+5W0GnWzCCqTXVBcIcH1TuJfL2RFVS/I6Y6fXrN1hsC2TDqLSXbP7ZMyXhdpmuLr7lmki0PI6YdtbvA8kl+18UseM4NyWiKLjb2hOKhNN6hfBIeEyZZyzDMYVIpC9RzVQCXGA2M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=CbVC1616; arc=none smtp.client-ip=209.85.219.41
+	 From:To:Cc:Subject:References:In-Reply-To; b=C9KbIflGoJ8MQkOSUY5iD5f1KAwEDj4NBDpWhFXtZWHPyvSNfvQQk06h/XfK4gZaDq1kjTKIZgzT8BG//KcdD+k9R/On8+R9x7Fr4XOWTULGLm/8SRK6IIKuOY3+RgaRPhP4JlDAER5PmhdVqzKD1DNG2bsakPP+ZNEmbc3pPKI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=HttlPFEJ; arc=none smtp.client-ip=209.85.217.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="CbVC1616"
-Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-6bf7ad1ec3aso30823326d6.0
-        for <selinux@vger.kernel.org>; Tue, 03 Sep 2024 17:18:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="HttlPFEJ"
+Received: by mail-vs1-f53.google.com with SMTP id ada2fe7eead31-498d7c37921so2454216137.2
+        for <selinux@vger.kernel.org>; Tue, 03 Sep 2024 17:18:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1725409109; x=1726013909; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1725409110; x=1726013910; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-disposition:mime-version:message-id:date:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=ctskL29EfLAIjmAHt2I735/optYRiZRhKdp9ltI34F8=;
-        b=CbVC1616GTFrLT1zAw2firYrSNh0M0SPwXVNQZ11//LhwuQH9hc9DuBpjDyOVo8CtK
-         hZKHdTRBZhQVrgBRcx5sv/LasrK7PYesidlY1/mLh89QM2PMRO1iUGSIAodiSXYpcJNZ
-         O86Di1daXES5wlfdY3UGDgy3NcslX/61UamGNH7BLuBX0j9mOLk4ZlQa4uY/Aj/4EMEH
-         apZSC78VwGaCQFAt8xpDcoIQXdekTKczxdw1zFNFmKyVAsAdiBcrZJjy+f6FT8Zq3Zpb
-         LVPCPL+dzYjjgHTS0LMt6eez4lDvzLw+wky0g0jD9n0fkakB3iaEFLnetHJdMIuxqu0p
-         uARw==
+        bh=hbjivha3tnV2wlr9FBxXT0NKlpwCxsDgqm1qjAVzk0E=;
+        b=HttlPFEJfAtpttyUw1X1TwhK1Ea6GGb7ihwBrS6no2CWAbyE96WHrUjBO4A7fGsPsF
+         n8NK1F9OK7AODT0ty+h3wFZvaZUEyjROOs2vP0VPJ7tD2hRPSuqWuKDAooYnbBrhQ06M
+         gNO9kzui0C9G5mPill0tI9tsNzIL7kOsxTL+v4PT00juUj0nh0eESdeVLU3c+8a0fDPj
+         B9/ls+kUExvXMnmg8GHzIGTsFmL1dNM9Pca/gcv+yedCJSumDLuwKKSbLKdKaPhi5s9+
+         f07FukqPnZTGDambBYag2apLzt3LvxusEgj+PbzG+aPhhdvkXQiSB96KCy58vm3wtuOD
+         9rvw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725409109; x=1726013909;
+        d=1e100.net; s=20230601; t=1725409110; x=1726013910;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-disposition:mime-version:message-id:date:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=ctskL29EfLAIjmAHt2I735/optYRiZRhKdp9ltI34F8=;
-        b=C59T2WSOAsZci6ufQZ7dy+GhaseAV6X13YbF7XwSmO0UJ7NNmrDb2KaHyBLIow/cjt
-         OP2nzaNPDtxoroX28fFVBqPv/AaTuBQQ+dVwtgOowJ5wlNDwx+sGgZvimy2TMXoq5We2
-         jjqHHbmkOzcupcLfPjcbbSorVe3QkqRTcmRbwh+mMHrDLTY1LkSZSkMzIhk2N0P96i6L
-         Wco/vMRzYAbSLCtWGJ9a2i2k9dOJ1ECuICY6lEAi93Q4G/Yp7YR9S5e1PK/liz+Ytf5S
-         L4nyn2uojilzFPoC09SAZc5XcR/yleNbWz2tcTRWi21CKFj+NhCBI9V3Ouv2ydaz64uP
-         DQcg==
-X-Forwarded-Encrypted: i=1; AJvYcCVMd0EPOZFBXCOLGreCqBVCJjqn/vio1uGY2LnB5zClQxf7QMzP3DhtNnwkg7+jAwz6STUElfRM@vger.kernel.org
-X-Gm-Message-State: AOJu0YzWJQARe62VFjrDK3YDIacwIYt2mU78eG5lnkToI+1aCxzFV8to
-	NcgKlREz9Ugw1HdtiNy+9ScN5smds9FicG5+YWOwm40OX7IEdRdhK3nHDXqGGw==
-X-Google-Smtp-Source: AGHT+IFYJX0OQDlnuyOuBDrX8gGL7waDJfZYhEV62tEOWfBsBjGK1AKaf/72ZP06vAhwNwcLxyT9Jg==
-X-Received: by 2002:a05:6214:4a06:b0:6c5:dc7:577c with SMTP id 6a1803df08f44-6c50dc75934mr51075426d6.2.1725409109526;
-        Tue, 03 Sep 2024 17:18:29 -0700 (PDT)
+        bh=hbjivha3tnV2wlr9FBxXT0NKlpwCxsDgqm1qjAVzk0E=;
+        b=MeOAYWMKdRLgie5eZEAPgm0QOwKi7kmm9lzk6Y/MhGuM3QVDvXkQ05Cr7G+1MismQu
+         fjX5HvZ2837m1/1Alc+8gJvU/8Io3Wfp9qXDQJ7w6XToIe7MhFi8KsQd0TVTrqMoJ+WB
+         TFt4y/ihQgGqeZOwuz80Tp7iiaWJNLqWMYDWBG0RrTTrlbKwg7E7Z6ne3p84vwFI7xY+
+         j6PiU4IXcR56FF8g7rI/YBUgfYWJDMnqLfGDZrwfBkNEY9oMXA9FEGiObULYaE2O5Ssm
+         qZXJVccVqIYnetyNwB92WUHJKXXRML29+YTe5P35h+/DhFp5OQ1KnRY4OzyD/SKc9rsY
+         OuZA==
+X-Forwarded-Encrypted: i=1; AJvYcCV9dVDuSQEhw56qiUrqysObl+JM3QZ9q391xmoCCKjRLGap9lG+OzZzi2hvSZmYfSfdr8iu17Al@vger.kernel.org
+X-Gm-Message-State: AOJu0YytnjY1bNMY7BXKgtIrfRg8MmLBy2LaytA3Xg0FLsxG3tX5N8x0
+	6tTRvo6yBp4eSA7r2H1a5xg7pbz1PStjju1IioTolIxf1BCH2cRsOh4RWoecXw==
+X-Google-Smtp-Source: AGHT+IEZllgwDYStRg/PLHCyY4hU/cGh61WMVkefjIHeFYT8KRvoVn/pM5Vssec22+MShvG64mo3sw==
+X-Received: by 2002:a05:6102:3590:b0:493:ddd1:d7fc with SMTP id ada2fe7eead31-49bad26f92amr5059457137.11.1725409110579;
+        Tue, 03 Sep 2024 17:18:30 -0700 (PDT)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6c5122edbfdsm10390956d6.108.2024.09.03.17.18.29
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7a806c291cdsm568449585a.52.2024.09.03.17.18.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 Sep 2024 17:18:29 -0700 (PDT)
-Date: Tue, 03 Sep 2024 20:18:28 -0400
-Message-ID: <0a6ba6a6dbd423b56801b84b01fa8c41@paul-moore.com>
+        Tue, 03 Sep 2024 17:18:30 -0700 (PDT)
+Date: Tue, 03 Sep 2024 20:18:29 -0400
+Message-ID: <faf28485e8d2846e78f89c39d2f737ac@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -65,97 +65,115 @@ Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 From: Paul Moore <paul@paul-moore.com>
 To: Casey Schaufler <casey@schaufler-ca.com>, casey@schaufler-ca.com, linux-security-module@vger.kernel.org
-Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net, apparmor@lists.ubuntu.com, bpf@vger.kernel.org
-Subject: Re: [PATCH v2 1/13] LSM: Add the lsmblob data structure.
-References: <20240830003411.16818-2-casey@schaufler-ca.com>
-In-Reply-To: <20240830003411.16818-2-casey@schaufler-ca.com>
+Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net
+Subject: Re: [PATCH v2 3/13] LSM: Add lsmblob_to_secctx hook
+References: <20240830003411.16818-4-casey@schaufler-ca.com>
+In-Reply-To: <20240830003411.16818-4-casey@schaufler-ca.com>
 
 On Aug 29, 2024 Casey Schaufler <casey@schaufler-ca.com> wrote:
 > 
-> When more than one security module is exporting data to audit and
-> networking sub-systems a single 32 bit integer is no longer
-> sufficient to represent the data. Add a structure to be used instead.
+> Add a new hook security_lsmblob_to_secctx() and its LSM specific
+> implementations. The LSM specific code will use the lsmblob element
+> allocated for that module. This allows for the possibility that more
+> than one module may be called upon to translate a secid to a string,
+> as can occur in the audit code.
 > 
-> The lsmblob structure definition is intended to keep the LSM
-> specific information private to the individual security modules.
-> The module specific information is included in a new set of
-> header files under include/lsm. Each security module is allowed
-> to define the information included for its use in the lsmblob.
-> SELinux includes a u32 secid. Smack includes a pointer into its
-> global label list. The conditional compilation based on feature
-> inclusion is contained in the include/lsm files.
-> 
-> Suggested-by: Paul Moore <paul@paul-moore.com>
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> Cc: apparmor@lists.ubuntu.com
-> Cc: bpf@vger.kernel.org
-> Cc: selinux@vger.kernel.org
-> Cc: linux-security-module@vger.kernel.org
 > ---
->  include/linux/lsm/apparmor.h | 17 +++++++++++++++++
->  include/linux/lsm/bpf.h      | 16 ++++++++++++++++
->  include/linux/lsm/selinux.h  | 16 ++++++++++++++++
->  include/linux/lsm/smack.h    | 17 +++++++++++++++++
->  include/linux/security.h     | 20 ++++++++++++++++++++
->  5 files changed, 86 insertions(+)
->  create mode 100644 include/linux/lsm/apparmor.h
->  create mode 100644 include/linux/lsm/bpf.h
->  create mode 100644 include/linux/lsm/selinux.h
->  create mode 100644 include/linux/lsm/smack.h
+>  include/linux/lsm_hook_defs.h     |  2 ++
+>  include/linux/security.h          | 11 ++++++++++-
+>  security/apparmor/include/secid.h |  2 ++
+>  security/apparmor/lsm.c           |  1 +
+>  security/apparmor/secid.c         | 25 +++++++++++++++++++++++--
+>  security/security.c               | 30 ++++++++++++++++++++++++++++++
+>  security/selinux/hooks.c          | 16 ++++++++++++++--
+>  security/smack/smack_lsm.c        | 31 ++++++++++++++++++++++++++-----
+>  8 files changed, 108 insertions(+), 10 deletions(-)
 
 ...
 
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 1390f1efb4f0..0057a22137e8 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -34,6 +34,10 @@
->  #include <linux/sockptr.h>
->  #include <linux/bpf.h>
->  #include <uapi/linux/lsm.h>
-> +#include <linux/lsm/selinux.h>
-> +#include <linux/lsm/smack.h>
-> +#include <linux/lsm/apparmor.h>
-> +#include <linux/lsm/bpf.h>
+> diff --git a/security/security.c b/security/security.c
+> index 64a6d6bbd1f4..bb541a3be410 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -4192,6 +4192,36 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  }
+>  EXPORT_SYMBOL(security_secid_to_secctx);
 >  
->  struct linux_binprm;
->  struct cred;
-> @@ -140,6 +144,22 @@ enum lockdown_reason {
->  	LOCKDOWN_CONFIDENTIALITY_MAX,
->  };
->  
-> +/* scaffolding */
-> +struct lsmblob_scaffold {
-> +	u32 secid;
-> +};
-> +
-> +/*
-> + * Data exported by the security modules
+> +/**
+> + * security_lsmblob_to_secctx() - Convert a lsmblob to a secctx
+> + * @blob: lsm specific information
+> + * @secdata: secctx
+> + * @seclen: secctx length
+> + *
+> + * Convert a @blob entry to security context.  If @secdata is NULL the
+> + * length of the result will be returned in @seclen, but no @secdata
+> + * will be returned.  This does mean that the length could change between
+> + * calls to check the length and the next call which actually allocates
+> + * and returns the @secdata.
+> + *
+> + * Return: Return 0 on success, error on failure.
 > + */
-> +struct lsmblob {
-> +	struct lsmblob_selinux selinux;
-> +	struct lsmblob_smack smack;
-> +	struct lsmblob_apparmor apparmor;
-> +	struct lsmblob_bpf bpf;
-> +	struct lsmblob_scaffold scaffold;
-> +};
+> +int security_lsmblob_to_secctx(struct lsmblob *blob, char **secdata,
+> +			       u32 *seclen)
+> +{
+> +	struct security_hook_list *hp;
+> +	int rc;
+> +
+> +	hlist_for_each_entry(hp, &security_hook_heads.secid_to_secctx, list) {
+> +		rc = hp->hook.lsmblob_to_secctx(blob, secdata, seclen);
+> +		if (rc != LSM_RET_DEFAULT(secid_to_secctx))
 
-Warning, top shelf bikeshedding follows ...
+Wrong default value/hook, but see below ...
 
-I believe that historically when we've talked about the "LSM blob" we've
-usually been referring to the opaque buffers used to store LSM state that
-we attach to a number of kernel structs using the `void *security` field.
+> +			return rc;
+> +	}
+> +
+> +	return LSM_RET_DEFAULT(secid_to_secctx);
 
-At least that is what I think of when I read "struct lsmblob", and I'd
-like to get ahead of the potential confusion while we still can.
+Same problem, I'm guessing a cut-n-paste-o.
 
-Casey, I'm sure you're priority is simply getting this merged and you
-likely care very little about the name (as long as it isn't too horrible),
-but what about "lsm_ref"?  Other ideas are most definitely welcome.
+> +}
+> +EXPORT_SYMBOL(security_lsmblob_to_secctx);
 
-I'm not going to comment on all the other related occurrences in the
-patchset, but all the "XXX_lsmblob_XXX" functions should be adjusted based
-on what we name the struct, e.g. "XXX_lsmref_XXX".
+We should be using the call_int_hook() macro instead of open coding using
+hlist_for_each_entry() and I believe the code above could be converted
+without any difficulty.
+
+It should also solve the compile problem seen when using lsm/dev or
+lsm/next as the base.
+
+>  /**
+>   * security_secctx_to_secid() - Convert a secctx to a secid
+>   * @secdata: secctx
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 55c78c318ccd..102489e6d579 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -6610,8 +6610,19 @@ static int selinux_ismaclabel(const char *name)
+>  
+>  static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+>  {
+> -	return security_sid_to_context(secid,
+> -				       secdata, seclen);
+> +	return security_sid_to_context(secid, secdata, seclen);
+> +}
+> +
+> +static int selinux_lsmblob_to_secctx(struct lsmblob *blob, char **secdata,
+> +				     u32 *seclen)
+> +{
+> +	u32 secid = blob->selinux.secid;
+> +
+> +	/* scaffolding */
+> +	if (!secid)
+> +		secid = blob->scaffold.secid;
+> +
+> +	return security_sid_to_context(secid, secdata, seclen);
+
+We should probably just call selinux_secid_to_secctx() here so we limit
+the code dup/sync issues.
+
+>  }
 
 --
 paul-moore.com
