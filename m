@@ -1,54 +1,54 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D072C1EC017
-	for <selinux@vger.kernel.org>; Wed,  4 Sep 2024 15:29:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62D676E619
+	for <selinux@vger.kernel.org>; Wed,  4 Sep 2024 17:38:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725463761; cv=none; b=k82CMprw9CTuhka2cymlHVAjKTJEK5jaQj8clZj/MK9QJv0wITRLBHgPA2SRVeNU2rIwsgZ+ZkL+iwsZJG3nl05DwJatf+RtOsj7FsWRsMTXEBrwhcSDZFfrCe/XTlkdSZqAEXDW/tek6bEfHetxGWKodbJs1NGoMTmeKTsoFMI=
+	t=1725471529; cv=none; b=b9rmvFk8bDcwxlhJbypBcng/2cg4VB+4ycg4EJpSc6faM53sEdQW89K0NAoSA7KbqzXwZeAI4MWlh9QIlJyZkKayo4JFkA/qrRGVyDxqN7cGkvFTkerx2VyPQxzWPVu8Q2GyDWMcux6ORBqgj1jRi9XgwUnFWkjgwWz4L+engMA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725463761; c=relaxed/simple;
-	bh=ZZlFKwXBzjMs890VmeBsER+emrnlGI8ENbFc9GjoS4o=;
+	s=arc-20240116; t=1725471529; c=relaxed/simple;
+	bh=wUKMDspWUUN/tHkSOCIdo+eMogIw0bmlGOAB4GULvPU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PsHDHuW4uJwSDKChf6FvYf3IOs6n5L2doinTTQp9jhLni8m5mqFqEt4fJtlKrV4F5mE1ugNCd4lVgTBjk+qjiwnrar+U87NBPrBr/vATFE5+WCrrTCTfcxyIk5TOofZg+rCoR2MyQBe+2QKUtFNCyKJZ8AA35ypDPdelRkRNV7s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A8nDITxP; arc=none smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=KsGCxdvJMm6ZUHzAZXbq8qvTLw3D3WjnIBinnrU3LmaPg9L2N2/UmlVWpcxNH/jqwqxFZecWEGVd3lBab+7elxqTVKw7AqP7aQtNJzI1fqBVNQTss/L3h1pnBsKD1G5A8XfLF7ss1PAWwM2PsJaL+riZ7Cw697tpsMrEoAb4Mxs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=N0dj6uBV; arc=none smtp.client-ip=209.85.128.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A8nDITxP"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2055136b612so40814125ad.0
-        for <selinux@vger.kernel.org>; Wed, 04 Sep 2024 08:29:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="N0dj6uBV"
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-6d4f1d9951fso40650377b3.1
+        for <selinux@vger.kernel.org>; Wed, 04 Sep 2024 10:38:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1725463759; x=1726068559; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1725471525; x=1726076325; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ZZlFKwXBzjMs890VmeBsER+emrnlGI8ENbFc9GjoS4o=;
-        b=A8nDITxPiIp6edGoS1qd1Zam3+GCPk3KP3AEpivWKTrS8PPJEHx/ghHkCOZ9bAakzP
-         ilMc3H9ZJOZuS2TMxROZKRM7FDgwxUNXCOOcapmwxwO74zlAW7+9tKdll+Kv809E0xjz
-         4Zf+dmILSrvgUFDubj0X11pRFoYykwgSwq6+QyFsth0KSD1zUAvtboL5YsIZYqJTss1a
-         XeoT/MOTonFitIHxRBF9dVjmUKFbDOE68e4UN1HuxSox2LQORR4RjQcVthHrSuKle2tx
-         GH5Q88owZ9y+FM31Ab8RHyGca0r9+RwavJ/CJFAANvH+V1nTJ3VsBLPcWW+1eUpbG3uP
-         IGpg==
+        bh=wUKMDspWUUN/tHkSOCIdo+eMogIw0bmlGOAB4GULvPU=;
+        b=N0dj6uBVlItktoAMVkGP4f+G87dpeMTUH3kGjpbDzNYDx4iwwMVzj5jHDkejnF694E
+         GAIC7qbXzGJX5fXEQRd7hDsTrdekVDsmw/+p4jyK/JQAXYWaRPaIXoULQS551S0F3PfN
+         K5m6Uu7OFQSsYmyiKw8+RHZnddw8VR/k0anD9t09yHis64RlD65678OQhKTshoZJKRO7
+         gUydAU7Rt1thDQRkMTT+ciX9hrVbfO+3OcjzAxOSW+ywE+FpAJySmktU84W9s9Zz3Msn
+         V3BuTmvXQC8dcS5PnXH/kiU7T0v67PYH7sTuM9Vm3zzCL7PE3pVucxhe86Wzb3QthTZv
+         RmYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725463759; x=1726068559;
+        d=1e100.net; s=20230601; t=1725471525; x=1726076325;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ZZlFKwXBzjMs890VmeBsER+emrnlGI8ENbFc9GjoS4o=;
-        b=dDMDYsW38urzSqyIadEe9tkoWJeNfBJkIHI5B2jAim/7Cu7uMERA7ShU0A1/A2ocMb
-         uyBZl4e4u6HR9E5zv+ufmqAcF7bsYTL+yKx3wJB5J3ioqVKhJoVddxA7eCnIt7/AmbKi
-         FddaiXmIYWx21WjdMcoHTBdm5r2Gid6fWEiNzoDXeopdZNE4VwyzUaXRK4PLrYmfl8HC
-         RztnCKksKUVKO16iJ3dp86MG6suvkaB+E5J2X5ZXILVRB4L7gAxk3WjdE8GsSRrSa3rm
-         a66zS1ZEtOYoV3lHikkfFFCPIzQhah3tBkr5yC+bz+D9vngq+s9tb4wfWe8VxQN/OwUf
-         8AmA==
-X-Gm-Message-State: AOJu0YxrXI9rdqnsNfj45qU/PNlTvgGsH/KjmmeQYsq4mZHB2yvV7kih
-	/RWBkKIF0N4hrRFz+9ftRW6wn4jJBGXqhZlqFuZwwvg72ZXOQlwlzP2N2eEUsk1nRdJv6Kv1Tdk
-	YIQ2uoZXjD3efnKSJfkBA1Riv+NV8TA==
-X-Google-Smtp-Source: AGHT+IHgW98BhOCwg18872iUGJcj65eQi/iL9W2VNS4IAdAu7khlUUdNQ+AzpmQSPpC3yvF5CT5pYp0Ce49Fmyr6brc=
-X-Received: by 2002:a17:902:da82:b0:206:9ab3:2ebc with SMTP id
- d9443c01a7336-2069ab33684mr71216855ad.47.1725463758905; Wed, 04 Sep 2024
- 08:29:18 -0700 (PDT)
+        bh=wUKMDspWUUN/tHkSOCIdo+eMogIw0bmlGOAB4GULvPU=;
+        b=NKzJkpkvjwxx3OjAJ1U5r3lzyiPAjcZYX2oyLO1vWVlxrxuEgg7jO9VaEDpb1wHoSB
+         Qdpl6YoU+8J8jSM/zkXgMSh1gltNMqXk+13X+0PA7cA9nbmVYbHR0fofQcFeGzC3qsT1
+         NAqrSoWiljXnWDcSCUwruPxGUTcQMM4CFeSCEa99Kj7jKFetAWXtsgtN/WlSCLUR0dv9
+         iYw+f1J03ShHp7otNQDqy6UEWPdUof7Rs6WLV8jx77+TVJwnElfu2CZe/T0re2xLQ0z3
+         eL1MnnZa7de94jgs+VCVhBrqsUJfDlmdpj84nlYHkuqsC+5cy/u+J2j0ip9oW7ADJKWe
+         TOfA==
+X-Gm-Message-State: AOJu0YxDHfs7kUlzl1yOzRZlcBF+g+3ZyFrQBsUPesGtGhq1/ctCHPy8
+	YomSv/seyTYE6mwdnDAnV38Cny+q2jnZEChil0Hmz9OegnKbClDldKFik9eHb8E7W6rV/c45ewQ
+	DJ7FKnCQlmotW6buBJztNlxyXijfa23sTwsCq
+X-Google-Smtp-Source: AGHT+IELCp0iYqOx9a1ztej5ovk3ESr4ecpxj6VY5mcPPygGDKwq5F8C7wAaKVjXbAChz4kp7TjfnsngmQpHG9u+IBU=
+X-Received: by 2002:a05:690c:dc6:b0:6c8:e45d:ebd8 with SMTP id
+ 00721157ae682-6d40ea72287mr206162717b3.9.1725471525200; Wed, 04 Sep 2024
+ 10:38:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -57,41 +57,37 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <CAFqZXNv7T8Tv_9AYX2xC_tJ9x10qPoPFQsQPBUDOuphUfUFPiQ@mail.gmail.com>
 In-Reply-To: <CAFqZXNv7T8Tv_9AYX2xC_tJ9x10qPoPFQsQPBUDOuphUfUFPiQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 4 Sep 2024 11:29:07 -0400
-Message-ID: <CAEjxPJ4o1cnQ3J8d2xE8Si_9QPM7JNuGin2Kz6NL+mu+Oj5u-Q@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 4 Sep 2024 13:38:34 -0400
+Message-ID: <CAHC9VhSGJjoJBC1t=wmik6G8yyLEHK=YF4rjX=7HH5BG9ogYkg@mail.gmail.com>
 Subject: Re: selinux-testsuite / NFS symlink issue
 To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: SElinux list <selinux@vger.kernel.org>
+Cc: SElinux list <selinux@vger.kernel.org>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 4, 2024 at 11:13=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
+On Wed, Sep 4, 2024 at 11:15=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
 m> wrote:
 >
 > Hello,
 >
 > While playing with migrating selinux-testsuite CI to Testing Farm
-> (more on that later) I encountered a problem when running the NFS
+> (more on that later)
+
+Thanks for working on restoring that automated testing.
+
+> I encountered a problem when running the NFS
 > tests: When you create a symlink to the testsuite directory, cd inside
 > that symlink, and run ./tools/nfs.sh, the nfs_filesystem/test fails.
-> In fact, I also get some strange failures in unix_socket/test in the
-> general testsuite run over NFS, but only when I run this scenario
-> manually, not when running through the TMT tool (which also runs the
-> tests inside a symlink to the testsuite directory, but only fails on
-> the nfs_filesystem/test).
->
-> Feel free to investigate if interested, for now I will leave the NFS
-> tests out of the CI, as it's not clear if the issues are in the
-> testsuite or the kernel (or both) and I don't want to add workarounds
-> blindly.
 
-I'd tentatively guess that the symlink problem is merely that the test
-policy isn't allowing the test domains to read
-<whatever-type-is-on-that-symlink>:lnk_file. I'd try that and if so,
-possibly add it to the test policy or relabel that symlink to an
-allowed type.
+I'm not sure how helpful this is, but as a WORKSFORME data point:
+using the instructions in the README, my NFS testing is done simply by
+executing './tools/nfs.sh' while in the selinux-testsuite directory.
+As of yesterday's test runs everything was working fine running out of
+a current Rawhide VM.
 
-Unix socket test failures sound familiar - I seem to recall an earlier
-email exchange about encountering that myself that turned out to
-actually be the bug in NFS that I fixed earlier this year.
+https://groups.google.com/g/kernel-secnext/c/siTFxsFoIhU
+
+--=20
+paul-moore.com
