@@ -1,133 +1,224 @@
-Received: from mail-ot1-f50.google.com (mail-ot1-f50.google.com [209.85.210.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91992156F53
-	for <selinux@vger.kernel.org>; Thu,  5 Sep 2024 19:05:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E59718EFF8;
+	Thu,  5 Sep 2024 23:58:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725563121; cv=none; b=d74WQ2h6Onr9mV4Y7HzqPRpKuDkdVLk9KLSNvl85NisKQ2O+cPWBfczUpEZOckTRxMlciSgO93tkrM5aNNVfPXkZRQJkC91XxHhpbWvJwvUWj1OWwoozdZxQ+lD01AdY85uVzFOTvyQBgEKrQtUSbRDjQe+eLu2+TYRJEtINn2k=
+	t=1725580735; cv=none; b=IyK2/qNYc6Gx4f/X34l1asbOZUndT5irZqeYKuJ+wtxh3jSv33EaXngfBBSpa66pVKu5U6rlT8T9PQhtx2wfUabFHFwUBQJC+kQ6sPhA6fD/1oJ4i5Hsu1mHg9XN8OZ8EHx1jLPhiCO1R5l/x7ODc3XjnYXwiX7vHKYJhpD9zvQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725563121; c=relaxed/simple;
-	bh=QWy/ZuKawWJKTdG8YpoWXAsMEo/nc8tXvC8YGqwGpPc=;
+	s=arc-20240116; t=1725580735; c=relaxed/simple;
+	bh=8ZHNDVjmXPanHn2/Wa0JiV+2BK75PQlWnht1eUfa8vI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=q+xSNssY54UViQzNunrDSB89FKY6fJL8Q3VPS/Knf3Oidv5sslNGmwd7BwBtXs4ireIeTO0emJBGRVOVbG1HZyUFtOvoQOc3xZoMXH11dSePNZp/xmXaikJiTEzjP5fu6ElCrNoKJaKcvXSs7yjz0iPy5V0QuQgjRd79sGDevys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jiUnWP36; arc=none smtp.client-ip=209.85.210.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=fAgRjSBFdHqkDnJYQZC7UstX+nUCyOBLtyiS5c0maXLf0ag2uXbSc5B+hd9rrEqYwcgK6TzFjBaXTtzW5aNUdqa3vkSa5UJwj+fDaUaVDLLOjo8umNA7OYwXvQzxhM1vv/B7IRS1Ie7Vef1YDw+ENsV9M+Js0vLAfRUrQjMdCSI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ui0ueq34; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jiUnWP36"
-Received: by mail-ot1-f50.google.com with SMTP id 46e09a7af769-70f645a30dcso897840a34.3
-        for <selinux@vger.kernel.org>; Thu, 05 Sep 2024 12:05:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1725563118; x=1726167918; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tU4h8biovQsr2yDpssqAjCKwzFmMJUlRh5pRTze+N4c=;
-        b=jiUnWP36P+fUhUeJwFUlsMSczqXlePGMsVKrYzgZf3IeqyBO/dPOo5nDigla2zvC+G
-         7VQBXKLGZXQzs0+P9dEKyGUJTb711TPtsLZ2vW1L/kPGyfSi1elBBoZK3B5aQmeDYEui
-         3JBMQfdByio9sOIfkiXvNQU9BHT87G3KFoH/n4cHyD5iIiH+17+9j7jtTTx5jr+R4Dpu
-         0PFrwsGolN412Ym8245k0MRFPfUfwm2ytkDW0XOLPR38pWMI3Ek6EBUyeXm1P/HCBtF5
-         I9zMUuWAmGD2B+BI7QhveApG27eIm6q/Qz6gbSJzh/2cd20lY3w1ct2JVpWKOErcmPA6
-         H87w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725563118; x=1726167918;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tU4h8biovQsr2yDpssqAjCKwzFmMJUlRh5pRTze+N4c=;
-        b=wK/stDH5MZ9DYUR2Xp9aOHd0Ys/57/GQ1ZIewFb3ydhso4rdKOdHz6uy6bI9XzX+Dx
-         yhhexhDBaOzdhIc73QfZkCmY0KkVc6vFVvHApw16Z1MEiHSn8Pov6h1GnnIBi1cCevg5
-         kzo9mkVFe8A/L3wR8fRzTngzzi/wS2HbDHlkIxEQ0MiBoLAKPgbzAfPImg30lpDbKtEk
-         N+lsn558PmtHA4bHN0sHGA9X87IZ3gfOQfiur1Y4fI4VDBDusCmf/OShRUblY9lp1as1
-         cyRvmHV2UHCsgCjmdRb2w4tk+aI5ZtIuxf9DCEEP//wBcFdPqqkR1j49Tahu3JwV7g9Y
-         M9Ug==
-X-Gm-Message-State: AOJu0YyaSJjqV+XqO5Wu/QaTwedfDvTtHM5kGoqTI1n9IsY5fjEk4aPI
-	t4KIaUWUG66LokeogqkTXeRdOlwobW6K0sDx5lZj60g9SkaBpOMpR5yYE95B688+rejNQTQdB1d
-	modV3mZc7o0avaO97078YWm+igvH0MQ==
-X-Google-Smtp-Source: AGHT+IFtI/ptjIBdVj9zrFUBglC28AdRD4Fr3A0FBT2fzWmnF7GEYQsUQ9BoIpQcwx6efQ4jJtAvuDo6UmBkX12gjWU=
-X-Received: by 2002:a05:6808:3385:b0:3d9:3538:8cff with SMTP id
- 5614622812f47-3e029cfdfaamr335310b6e.8.1725563118378; Thu, 05 Sep 2024
- 12:05:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ui0ueq34"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31F67C4CEE1;
+	Thu,  5 Sep 2024 23:58:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1725580735;
+	bh=8ZHNDVjmXPanHn2/Wa0JiV+2BK75PQlWnht1eUfa8vI=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=Ui0ueq34yMDYskmFB0ACE4bR+zvsvNdtaGNBf/j7dl9hsTtzJ34jfYM3jzk6MQ70L
+	 YI/l6ibXmPgPhGioTZ0cgSEITNApDLXimv7ziUZjQby63fzpF5yFbKpR3G1IcoW2df
+	 JGZ1ydx0RUIaMBo1HSxGmPIovDA+hi/oeVJcZmJqmv2bCMcpY45M6ORIvu/PtxI/NA
+	 29aLJUMh8WdL4HiedL5bo0VwIhzjn4xo85uCy8heqiNx3eLH90sUXbtLUEml+/iG0F
+	 kFdUHu3OW/prwNqbEhvDQNuagEpf8tBGlAyZbOvJMQDHT7E3Iop1t9FxU+8E62ayjW
+	 Y/7+7gEwNGxkw==
+Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-2f50966c448so16705161fa.2;
+        Thu, 05 Sep 2024 16:58:55 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCV+lNx9BemxZx9FtuovQu6NhZRcXyYBYwf6vDzHU3NHZ7Zh5n6suRiwtC+vneLwe9/m5W+HTLsoq3SL2pQp@vger.kernel.org, AJvYcCVBIcOFWpgyvG4KpWePL0hxwQ03jvy2y3opfYGoqYyB+jGTNKAb7IKIjW7bIsIqpaXbLZtkC0NUdw==@vger.kernel.org, AJvYcCWTWDT0FxtaeO9q5CRdmoJlCx03QCx3Ba3W0rcbmX+y4VSTr0xTnBs3njXO4gqdm1UU2XInr/YCEuquMlcg@vger.kernel.org, AJvYcCXHa37W+d0tT3lCjwmIxZvl1vwG3cCW1WCpC4bfq9jDHZ7xJMu2ybkSyLKBq8LSNWOUo2jRck+AG23PbKY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzmQnhnLifKCukRbX2qNiEKeRpV11kMTW1EnyJ73eQFFcqelNjE
+	YvR9rGBeVeIs9lkv11Zr0b7GVcedWnRjlW7qkJqe12MOsQCBdOOhdO9QvFj7tfaWo90Fi3S0/iw
+	U97Rbyw40HBETVZaaR4qLcGURVSk=
+X-Google-Smtp-Source: AGHT+IHwpQbkJrhmqboJoKb4jCLkJYJBTykwt13Bk4HzG9cGEgSCAjDEko9J5cj0FalKeiGaalBZ5m+OpradSeMR65w=
+X-Received: by 2002:a05:651c:542:b0:2f0:1a8f:4cd2 with SMTP id
+ 38308e7fff4ca-2f75249602fmr3868171fa.33.1725580733429; Thu, 05 Sep 2024
+ 16:58:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240812165633.49121-1-jwcart2@gmail.com> <CAP+JOzQmwxD5oO9VESSAbwYFSofMd0HiOoUBdv+E1=Ks9Xi_aA@mail.gmail.com>
-In-Reply-To: <CAP+JOzQmwxD5oO9VESSAbwYFSofMd0HiOoUBdv+E1=Ks9Xi_aA@mail.gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Thu, 5 Sep 2024 15:05:07 -0400
-Message-ID: <CAP+JOzQpFAzqABg-XNyND_8SR2OmsCa9Xq2TDizyK4Awvi-FRQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Allow dotted names in aliasactual rules
-To: selinux@vger.kernel.org
+References: <20240807-macos-build-support-v1-0-4cd1ded85694@samsung.com>
+ <20240807-macos-build-support-v1-8-4cd1ded85694@samsung.com>
+ <CGME20240807110435eucas1p2eca071b0a0122b8686d43c57bd94dc8c@eucas1p2.samsung.com>
+ <2024080717-cross-retiree-862e@gregkh> <dxkmmrlhlhsrjulnyabfgcr37ojway2dxaypelf3uchkmhw4jn@z54e33jdpxmr>
+ <2024080720-skyline-recapture-d80d@gregkh> <20240807-mottled-stoic-degu-d1e4cb@lindesnes>
+ <20240823225450.spuvjs5b5ruujim4@AALNPWDAGOMEZ1.aal.scsc.local>
+ <ZtIjNBhqdxmMBxfM@fjasle.eu> <CAK7LNAQhHBi7nSG5SAbqD3HFO3uMR6GHckZHcQXgWao7G8i9gw@mail.gmail.com>
+ <20240905085626.ehhc5p7qwi57dagm@AALNPWDAGOMEZ1.aal.scsc.local>
+In-Reply-To: <20240905085626.ehhc5p7qwi57dagm@AALNPWDAGOMEZ1.aal.scsc.local>
+From: Masahiro Yamada <masahiroy@kernel.org>
+Date: Fri, 6 Sep 2024 08:58:15 +0900
+X-Gmail-Original-Message-ID: <CAK7LNASt2eP6q46YP0hCN=f5frt5r5qmwj25tiYrxjwOmGOwEg@mail.gmail.com>
+Message-ID: <CAK7LNASt2eP6q46YP0hCN=f5frt5r5qmwj25tiYrxjwOmGOwEg@mail.gmail.com>
+Subject: Re: [PATCH 08/12] include: add elf.h support
+To: Daniel Gomez <da.gomez@samsung.com>
+Cc: Nicolas Schier <nicolas@fjasle.eu>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Nathan Chancellor <nathan@kernel.org>, Lucas De Marchi <lucas.demarchi@intel.com>, 
+	=?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
+	Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, Daniel Vetter <daniel@ffwll.ch>, 
+	William Hubbs <w.d.hubbs@gmail.com>, Chris Brannon <chris@the-brannons.com>, 
+	Kirk Reiser <kirk@reisers.ca>, Samuel Thibault <samuel.thibault@ens-lyon.org>, 
+	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Catalin Marinas <catalin.marinas@arm.com>, 
+	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>, 
+	James Morse <james.morse@arm.com>, Suzuki K Poulose <suzuki.poulose@arm.com>, 
+	Zenghui Yu <yuzenghui@huawei.com>, Jiri Slaby <jirislaby@kernel.org>, 
+	Nick Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, 
+	Justin Stitt <justinstitt@google.com>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+	"linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>, 
+	"intel-xe@lists.freedesktop.org" <intel-xe@lists.freedesktop.org>, 
+	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, 
+	"speakup@linux-speakup.org" <speakup@linux-speakup.org>, 
+	"selinux@vger.kernel.org" <selinux@vger.kernel.org>, 
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, 
+	"kvmarm@lists.linux.dev" <kvmarm@lists.linux.dev>, 
+	"linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, 
+	"llvm@lists.linux.dev" <llvm@lists.linux.dev>, Finn Behrens <me@kloenk.dev>, 
+	"Daniel Gomez (Samsung)" <d+samsung@kruces.com>, "gost.dev@samsung.com" <gost.dev@samsung.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 4, 2024 at 3:37=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
-te:
+On Thu, Sep 5, 2024 at 5:56=E2=80=AFPM Daniel Gomez <da.gomez@samsung.com> =
+wrote:
 >
-> On Mon, Aug 12, 2024 at 12:56=E2=80=AFPM James Carter <jwcart2@gmail.com>=
- wrote:
+> On Mon, Sep 02, 2024 at 01:15:01AM +0900, Masahiro Yamada wrote:
+> > On Sat, Aug 31, 2024 at 4:54=E2=80=AFAM Nicolas Schier <nicolas@fjasle.=
+eu> wrote:
+> > >
+> > > On Sat, Aug 24, 2024 at 12:54:50AM +0200 Daniel Gomez wrote:
+> > > > On Wed, Aug 07, 2024 at 05:46:03PM +0200, Nicolas Schier wrote:
+> > > > > On Wed, Aug 07, 2024 at 04:18:54PM +0200, Greg Kroah-Hartman wrot=
+e:
+> > > > > > On Wed, Aug 07, 2024 at 02:13:57PM +0000, Daniel Gomez wrote:
+> > > > > > > > Also, as this is not internal for the kernel, but rather fo=
+r userspace
+> > > > > > > > builds, shouldn't the include/ path be different?
+> > > > > > >
+> > > > > > > Can you suggest an alternative path or provide documentation =
+that could help
+> > > > > > > identify the correct location? Perhaps usr/include?
+> > > > > >
+> > > > > > That is better than the generic include path as you are attempt=
+ing to
+> > > > > > mix userspace and kernel headers in the same directory :(
+> > > > >
+> > > > > Please keep in mind, that usr/include/ currently does not hold a =
+single
+> > > > > header file but is used for dynamically composing the UAPI header=
+ tree.
+> > > > >
+> > > > > In general, I do not like the idea of keeping a elf.h file here t=
+hat
+> > > > > possibly is out-of-sync with the actual system's version (even th=
+ough
+> > > > > elf.h should not see that much changes).  Might it be more helpfu=
+l to
+> > > > > provide a "development kit" for Linux devs that need to build on =
+MacOS
+> > > > > that provides necessary missing system header files, instead of m=
+erging
+> > > > > those into upstream?
+> > > >
+> > > > I took this suggestion and tried pushing a Homebrew formula/package=
+ here [1].
+> > > > I think I chose a wrong name and maybe something like "development =
+kit" would
+> > > > have been better. However, would it be possible instead to include =
+the *.rb file
+> > > > in the scripts/ directory? So users of this can generate the develo=
+pment kit in
+> > > > their environments. I would maintain the script to keep it in sync =
+with the
+> > > > required glibc version for the latest kernel version.
+> > > >
+> > > > [1] https://protect2.fireeye.com/v1/url?k=3D96027706-f7896236-9603f=
+c49-000babffaa23-452f645d7a72e234&q=3D1&e=3D343dd31c-5e5b-4b09-8ee5-6c59a1f=
+f826e&u=3Dhttps%3A%2F%2Fgithub.com%2FHomebrew%2Fhomebrew-core%2Fpull%2F1818=
+85
+> > >
+> > > I think it sounds sensible to hold that formula file in the upstream =
+tree.  But
+> > > I am not sure if scripts/ is the best location.
+> > >
+> > > Masahiro, what do you think?
 > >
-> > The function cil_gen_alias() is used to declare type, sensitivity,
-> > and category aliases and the function cil_gen_aliasactual() is used
-> > to assign an alias to the actual declared name.
 > >
-> > Commit e55621c03 ("libsepol/cil: Add notself and other support to CIL")
-> > added "notself" and "other" as reserved words. Previously, a check
-> > was made in cil_gen_aliasactual() to ensure that the "self" reserved
-> > word was not used. With the notself patch this function was upgraded
-> > to call cil_verify_name() to verify that the other reserved words
-> > were not used as well. This change prevents the use of dotted names
-> > to refer to alias or actual names that are declared in blocks.
-> >
-> > The check for a reserved word being used is not needed because that
-> > check will be done for both the alias and the actual name when they
-> > are declared.
-> >
-> > Remove the call to cil_verify_name() and allow dotted names in
-> > aliasactual rules.
-> >
-> > Reported-by: Dominick Grift <dominick.grift@defensec.nl>
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > I do not know much about the homebrew, but why does the upstream
+> > kernel need to merge such masOS stuff?
 >
-> I plan on merging this soon.
-> Jim
+> The missing headers (in macOS) need to be provided somehow. One way can b=
+e
+> having the formula (*.rb file) in-tree, so users of this can install them=
+ in
+> their systems. This would also require to have a tarball with the missing
+> headers either in-tree or somewhere accessible so it can be fetched.
 >
+> To avoid having the formula and a tarball in-tree, I've created a Homebre=
+w Tap
+> (3rd-Party Repository) called 'Bee Headers Project' [1][2][3] that can pr=
+ovision
+> the missing headers. The project provides a bee-headers package and formu=
+la
+> that will install byteswap.h, elf.h and endian.h in the user's system Hom=
+brew
+> directory. It also provides a *.pc file so pkg-config can be used to find=
+ the
+> location of these headers. I have a v2 with this solution ready, perhaps =
+is
+> easier to discuss this with the code.
 
-This patch has been merged.
-Jim
 
-> > ---
-> >  libsepol/cil/src/cil_build_ast.c | 10 ----------
-> >  1 file changed, 10 deletions(-)
+It is up to you what project you start in Github.
+
+Then, what do you need to submit v2 for this?
+
+
+
+
+
+>
+> I think we can extend the same package and include extra headers if we ne=
+ed
+> more in the future. I see for x86_64 asm/types.h and others might be requ=
+ired.
+> The bee-headers package can then be the repository to place and distribut=
+e them.
+>
+> Please, let me know if you think of an alternative solution, I can give a=
+ try
+> and explore.
+>
+> [1] Project:
+> https://github.com/bee-headers
+> [2] Headers repository:
+> https://github.com/bee-headers/headers.git
+> [3] Homebrew Tap formula:
+> https://github.com/bee-headers/homebrew-bee-headers.git
+>
+>
 > >
-> > diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_bu=
-ild_ast.c
-> > index 56dac891..6884f12c 100644
-> > --- a/libsepol/cil/src/cil_build_ast.c
-> > +++ b/libsepol/cil/src/cil_build_ast.c
-> > @@ -3174,16 +3174,6 @@ int cil_gen_aliasactual(struct cil_db *db, struc=
-t cil_tree_node *parse_current,
-> >                 goto exit;
-> >         }
 > >
-> > -       rc =3D cil_verify_name(db, parse_current->next->data, flavor);
-> > -       if (rc !=3D SEPOL_OK) {
-> > -               goto exit;
-> > -       }
-> > -
-> > -       rc =3D cil_verify_name(db, parse_current->next->next->data, fla=
-vor);
-> > -       if (rc !=3D SEPOL_OK) {
-> > -               goto exit;
-> > -       }
-> > -
-> >         cil_aliasactual_init(&aliasactual);
 > >
-> >         aliasactual->alias_str =3D parse_current->next->data;
+> > >
+> > > Kind regards,
+> > > Nicolas
+> >
+> >
+> >
 > > --
-> > 2.46.0
-> >
+> > Best Regards
+> > Masahiro Yamada
+
+
+
+--=20
+Best Regards
+Masahiro Yamada
