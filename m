@@ -1,217 +1,77 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F232156880;
-	Fri,  6 Sep 2024 14:39:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4F601D1757
+	for <selinux@vger.kernel.org>; Fri,  6 Sep 2024 14:42:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725633599; cv=none; b=XgQOpy5dqZ5S/+ppwt0ynN0dy5hWMKCnnrYzmFoV5x+CemuRPJoyTEb6QnX+YtX9MberwZMPTYC6Bbxe2g1siHwbe1D6uEFTfLvE4Gs5V28p4udXIxRhASyNgSPJc9Rty5kvZEbhW2a9H6QswnhJZwIQhOl7bQBJ9wM9S0KO5Cc=
+	t=1725633772; cv=none; b=AAQMuKLrF+njdLER1fyqLm5fvy7yJS7vfZFnf3FVKMkkXW1gdf8P8WqQQA2BbudRAiDv4tLnAb+hWJ3HEScM19PfW2lhqSKH4IDaZVvYphE2/6kGowEA6lWI75/N1mEDLtE/+q1ZbxlaUiEPl928hTrxFciKfd2E3nNYO0ySJy8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725633599; c=relaxed/simple;
-	bh=rkekp7kqM0gCAalrU8ea199BED7ngZhFWZ9ZDGtHx3k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tqkrb2oRhk299QLIcN0C+sk+6TBbU6Qlx2DBGOUJr7URtHT0eQFAxstVbdkSuKRM2EiLQYAExM2rJj0EeGdWyiwPiwfkqWGU1d+9hp/r+yjUgcq1YnGjKn4/wZkAZrUeacCqtoSCnz6V2I+UraY6arBQk9m7izfcsy2A3cQi4l8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I7cl6zvY; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1725633772; c=relaxed/simple;
+	bh=LJU9AgRZafbRGKRwX9Z9gh0a4h6DSxuz5293f/4NqIc=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=t2xl7UQ4Yv2NKWDIYyZD56Y7O5e0NHd25DzTevtGEwKRS7rAhnbXRa94S0xNalBRhgPEEwuSa50HKGpnJppwm/B0XXmmzdNU1m1g0uxN2Cymr2VJS996KtuzVFpwWi8+gzm8LBvzgkIYytdY4Q/ii5sj7m/zDSiwyH2Otdmc8Fo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=P3r7zYAr; arc=none smtp.client-ip=209.85.128.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I7cl6zvY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6D26C4CEDA;
-	Fri,  6 Sep 2024 14:39:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1725633596;
-	bh=rkekp7kqM0gCAalrU8ea199BED7ngZhFWZ9ZDGtHx3k=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=I7cl6zvYFJlUme26uJsip2QA6i0I+jgUU8x1ZBpuFST7iADtX6k0Y5N3HgonMY7N7
-	 6X7bCN3MU33QFTXdj5bjsEiDxoUIb1rbIz9WGvfiqjxFpe9Kl39vZFECdx/Uz2vD2B
-	 u5VTZWBu32j/gMhZvIDzDGNYQYzX5vI6vkta+HWWaTMF+98VNhaYIwqp06PqNEQOo1
-	 jv3EiVBU1vU3WZyl6atkTXR+tq9C8vpyhGXkPnjnqWVXySMfkJI1bSfwskMZYmUzGC
-	 Jzoj4DaWHtefTTcpdDUIeJr1JKVqkj77cgAxHoygdqw8uF1ihuAeHovIp0BQNS9xHO
-	 62WX0rTj2ctDQ==
-Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-2f7528f4658so8436701fa.3;
-        Fri, 06 Sep 2024 07:39:56 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUlrXCeAauAasHPvwpVZJ/oe/pLOpBWJWQCjUGYuLNS5KBpJAkJhTIQmVN080HKwdOo/aap/nObCIC1WsfV@vger.kernel.org, AJvYcCVA/2N8EB9t6BZdaM9tLLJsWV2NNVq4fHSUmXYM+0DMtS7KYHOF+xS6KARZ28BBOcPwkEhZk2ZISQ==@vger.kernel.org, AJvYcCW5cfYUm5Lz+hsMmvLLtgK2GP/3aNSqzrlvh+iIAsolEGuDLYBexTynell3lageGYx4zw6bsbcEDw29WgWV@vger.kernel.org, AJvYcCWn07Dco3J4uTkJYnpi1wEvMWyLBmjc0ogMierwmSTyn+6j5XvxDaEt9CzaD8zdBtxf3WIF7D0A55NY9Lo=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwIcgFixUqEjROnbRKTZZ+L2x3PcVprL0xNSsD8y+wreP1l41DY
-	hRAeF4i1GJw9D9rX2QM+2/QSz8J6J0ohW2ygFKxQ4N67ijDJAc6DhrRtq1b26+ytDbz1/RgLem5
-	3BrGtSpvZwiFhEXKUMRJSSKelctU=
-X-Google-Smtp-Source: AGHT+IGL4aTm6msajUBLkGuh4MV69E6msRZnTsKTajf+VgcUyXlt6LjNklxij0DqQwf4v9zWQkEvfMasw6vxEqRUj9Q=
-X-Received: by 2002:a05:6512:39ce:b0:536:54df:bff2 with SMTP id
- 2adb3069b0e04-53658812f84mr1931952e87.54.1725633595218; Fri, 06 Sep 2024
- 07:39:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="P3r7zYAr"
+Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-6db2a9da800so18822407b3.0
+        for <selinux@vger.kernel.org>; Fri, 06 Sep 2024 07:42:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1725633770; x=1726238570; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=OdvfsRmG8gWy8ITHHRQX+/j857fwZkk9D0jFjQ3zW8g=;
+        b=P3r7zYAr96F//KkxOCOuOGPLnkLuxkKz1uN7Ct3IxWZaka2u+QdBwSYnW9jqv/7nFF
+         N8eYfaQglYSFN7vnmemHCxqJcs29BgRlHDA+iNodNn6qL6q07FddVQpo5YFYGWnxDjO0
+         fYvTuLtKyRg+dn+g/LQi7iqCeP5tZ4t6se32+vNJC7FpGcGjZt4399AcxxEUgYDiNm9R
+         0Jxw2Ozh3BsDB1jRs8oTLBPXYMcY5rC0+IV75R0/cr28n+/hSmnnhWtc008O6J4xxw7w
+         0iTUF+ZKo3rCWqYV6Z8f1KsXECn1JhXTjdhx9vY6GJLpbRRcpsHwgUlZVKrYjHEARfZi
+         R95w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1725633770; x=1726238570;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=OdvfsRmG8gWy8ITHHRQX+/j857fwZkk9D0jFjQ3zW8g=;
+        b=RW+MOs+JKKwKp984Izhfvh9xkPQFxxH/i9qaP1VaVoTJfTZjMRzPBftzpoHztHYUk4
+         XqFRWH+5KqDTZLxf4Wcnkv390P8B3vhLO8AQnQmZEy24OSEi/l7Pc0xytczuLa0+0z4i
+         WxY2SkD+NF+wNfOTdnz9GC12NUlkNqB9+zWlw5WwD3llKEBV1y4WVKlrWvi5U/TJLkRp
+         uAvo3UqDAG6uZCnRHS2O2dPs0NQSv1AuHmLUiYjpz1K+vLakjN7M1IpIq8hxI1e7XHgV
+         uBBfoh8ibikXerhP9FyZGZRecDnrrPe4levZGqoYZFraE7NG4OioIvQqBKUHotRo0lto
+         W0gA==
+X-Forwarded-Encrypted: i=1; AJvYcCUKs0QW5n3rN4YYPyBE69qx4VSdNZTb+B7TuLatbn0mPRLP4otxbPnY7Y2C45u6MfEA/AP6M93A@vger.kernel.org
+X-Gm-Message-State: AOJu0YyyYPgi50bwLm+udlZFpadaeRqnx01RrSuGony/5hntVU6iHYkn
+	CAiLiGeTU3wCJP7CHNQ9o0F6CbAOjU+usFQI7RRWVfKrbpUmaw2ynM6JZnp6n5CTXbBfGWHGCYf
+	78EDBGcQU+OL0MjiVfZT1Hxcl3fuVZTYM1bvx
+X-Google-Smtp-Source: AGHT+IFyloP//56s7Tf2Mkhp9TXcL4TAe7nGoLAX93C+OtFA1ZbwJ+YSP4o3ZpN6+R8XILp2R72j+bk+ZnyMbtqi/sA=
+X-Received: by 2002:a05:690c:4d82:b0:6d9:d865:46d0 with SMTP id
+ 00721157ae682-6db25f4767emr87625127b3.4.1725633769789; Fri, 06 Sep 2024
+ 07:42:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240906-macos-build-support-v2-0-06beff418848@samsung.com> <20240906-macos-build-support-v2-3-06beff418848@samsung.com>
-In-Reply-To: <20240906-macos-build-support-v2-3-06beff418848@samsung.com>
-From: Masahiro Yamada <masahiroy@kernel.org>
-Date: Fri, 6 Sep 2024 23:39:18 +0900
-X-Gmail-Original-Message-ID: <CAK7LNAQDxVGOa5g3f_dqZ5nD_u8_a++T+ussL+AWuOXs-XOsow@mail.gmail.com>
-Message-ID: <CAK7LNAQDxVGOa5g3f_dqZ5nD_u8_a++T+ussL+AWuOXs-XOsow@mail.gmail.com>
-Subject: Re: [PATCH v2 3/8] drm/xe: xe_gen_wa_oob: fix program_invocation_short_name
- for macos
-To: da.gomez@samsung.com
-Cc: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nicolas@fjasle.eu>, 
-	Lucas De Marchi <lucas.demarchi@intel.com>, 
-	=?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
-	Rodrigo Vivi <rodrigo.vivi@intel.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
-	William Hubbs <w.d.hubbs@gmail.com>, Chris Brannon <chris@the-brannons.com>, 
-	Kirk Reiser <kirk@reisers.ca>, Samuel Thibault <samuel.thibault@ens-lyon.org>, 
-	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>, 
-	James Morse <james.morse@arm.com>, Suzuki K Poulose <suzuki.poulose@arm.com>, 
-	Zenghui Yu <yuzenghui@huawei.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Jiri Slaby <jirislaby@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, 
-	Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, 
-	Simona Vetter <simona.vetter@ffwll.ch>, linux-kernel@vger.kernel.org, 
-	linux-kbuild@vger.kernel.org, intel-xe@lists.freedesktop.org, 
-	dri-devel@lists.freedesktop.org, speakup@linux-speakup.org, 
-	selinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	kvmarm@lists.linux.dev, linux-serial@vger.kernel.org, llvm@lists.linux.dev, 
-	Finn Behrens <me@kloenk.dev>, "Daniel Gomez (Samsung)" <d+samsung@kruces.com>, gost.dev@samsung.com
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 6 Sep 2024 10:42:39 -0400
+Message-ID: <CAHC9VhQvbKsSSfGzUGo3e8ov6p-re_Xn_cEbPK0YJ9VhZXP_Bg@mail.gmail.com>
+Subject: linux-next commit 0855feef5235 ("fsnotify: introduce pre-content
+ permission event")
+To: Josef Bacik <josef@toxicpanda.com>, Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>
+Cc: linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-security-module@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 6, 2024 at 8:01=E2=80=AFPM Daniel Gomez via B4 Relay
-<devnull+da.gomez.samsung.com@kernel.org> wrote:
->
-> From: Daniel Gomez <da.gomez@samsung.com>
->
-> Use getprogname() [1] instead of program_invocation_short_name() [2]
-> for macOS hosts.
->
-> [1]:
-> https://www.gnu.org/software/gnulib/manual/html_node/
-> program_005finvocation_005fshort_005fname.html
->
-> [2]:
-> https://developer.apple.com/library/archive/documentation/System/
-> Conceptual/ManPages_iPhoneOS/man3/getprogname.3.html
->
-> Fixes build error for macOS hosts:
->
-> drivers/gpu/drm/xe/xe_gen_wa_oob.c:34:3: error: use of
-> undeclared identifier 'program_invocation_short_name'    34 |
-> program_invocation_short_name);       |                 ^ 1 error
-> generated.
->
-> Signed-off-by: Daniel Gomez <da.gomez@samsung.com>
-> Reviewed-by: Lucas De Marchi <lucas.demarchi@intel.com>
-> ---
->  drivers/gpu/drm/xe/xe_gen_wa_oob.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/gpu/drm/xe/xe_gen_wa_oob.c b/drivers/gpu/drm/xe/xe_g=
-en_wa_oob.c
-> index 904cf47925aa..0d933644d8a0 100644
-> --- a/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-> +++ b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-> @@ -8,6 +8,7 @@
->  #include <errno.h>
->  #include <stdbool.h>
->  #include <stdio.h>
-> +#include <stdlib.h>
->  #include <string.h>
->
->  #define HEADER \
-> @@ -30,6 +31,9 @@
->
->  static void print_usage(FILE *f)
->  {
-> +#ifdef __APPLE__
-> +       const char *program_invocation_short_name =3D getprogname();
-> +#endif
->         fprintf(f, "usage: %s <input-rule-file> <generated-c-source-file>=
- <generated-c-header-file>\n",
->                 program_invocation_short_name);
->  }
->
-> --
-> 2.46.0
->
->
+Hi VFS folks,
 
+When you are making changes that impact a LSM, or the LSM framework
+itself, especially if they change the permissions/access-controls in
+any way, please make sure you CC the relevant mailing lists.  If you
+are unsure which lists you should CC, please consult MAINTAINERS or
+use the ./scripts/get_maintainer.pl tool.
 
+Thanks.
 
-Before adding such #ifdef, you should check how other programs do.
-
-
-
-
-
-
-
-
-
-Solution 1 : hard-code the program name
-
-
-diff --git a/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-index 106ee2b027f0..9e9a29e2cecf 100644
---- a/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-+++ b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-@@ -30,8 +30,7 @@
-
- static void print_usage(FILE *f)
- {
--       fprintf(f, "usage: %s <input-rule-file>
-<generated-c-source-file> <generated-c-header-file>\n",
--               program_invocation_short_name);
-+       fprintf(f, "usage: xe_gen_wa_oob <input-rule-file>
-<generated-c-source-file> <generated-c-header-file>\n");
- }
-
- static void print_parse_error(const char *err_msg, const char *line,
-
-
-
-
-
-
-
-
-Solution 2: use argv[0]
-
-
-diff --git a/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-index 106ee2b027f0..600c63e88e46 100644
---- a/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-+++ b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
-@@ -28,10 +28,10 @@
-        "\n" \
-        "#endif\n"
-
--static void print_usage(FILE *f)
-+static void print_usage(FILE *f, const char *progname)
- {
-        fprintf(f, "usage: %s <input-rule-file>
-<generated-c-source-file> <generated-c-header-file>\n",
--               program_invocation_short_name);
-+               progname);
- }
-
- static void print_parse_error(const char *err_msg, const char *line,
-@@ -136,7 +136,7 @@ int main(int argc, const char *argv[])
-
-        if (argc < 3) {
-                fprintf(stderr, "ERROR: wrong arguments\n");
--               print_usage(stderr);
-+               print_usage(stderr, argv[0]);
-                return 1;
-        }
-
-
-
-
-
-
-
-
---=20
-Best Regards
-Masahiro Yamada
+-- 
+paul-moore.com
