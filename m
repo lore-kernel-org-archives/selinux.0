@@ -1,336 +1,161 @@
-Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-bc0f.mail.infomaniak.ch (smtp-bc0f.mail.infomaniak.ch [45.157.188.15])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2E30176AAE
-	for <selinux@vger.kernel.org>; Sun,  8 Sep 2024 17:41:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E94B1741E8
+	for <selinux@vger.kernel.org>; Sun,  8 Sep 2024 18:20:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.157.188.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725817266; cv=none; b=YsSHEiQrlDKyea+6XZPodFwmJvZlBO37whsU7pSgsw7n5w5RvKyRsi/HHAEisan3Dbh0ilmZm3C3rBVIbyM7EvoynQejMl4PIgtpouorgZLl43B5KZ3E4O9GnCvBln6koSKBFP/5T0r6HLPYhMVOhLD0K1R8HtiXk3j/HH3EMYA=
+	t=1725819617; cv=none; b=aMRnewiTBj4Lb+lnLLYRw21sBddqU3iZzQ6wuRSfTiaZAogA6OF+fISuUL7XyQuWfbq05eOsU5ot8k7umBI4nPKdYz+m7reQnjfQamTzCxWKgpi16i65QYIHrHW3Wfb/f+Yy9CTOixEn0jWgdJ5FVjkRNOl6MX+1JGqyGuBBWuM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725817266; c=relaxed/simple;
-	bh=4x2mtOQlRb0PLQYsIdFIS4OpJJNhyfJXhcP1AXkKZFk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=m81SQ5ukfeeVL5u5T0u/n3p7bbsc4Cehfu4xPQWBa0fUYbTNEevHk78sTz8bS+TGvNTlcKD0pqmgOVZrvfPUeabqgQtvNGsQiZo9fGw+AbS7dE7z2/FM+NM10dPV227jOWb8kc4Sxz3WCxf8cIOxhXSy3GUtm3r/H7mWgyZrPtA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kruces.com; spf=pass smtp.mailfrom=kruces.com; dkim=pass (2048-bit key) header.d=kruces-com.20230601.gappssmtp.com header.i=@kruces-com.20230601.gappssmtp.com header.b=LN0NljIh; arc=none smtp.client-ip=209.85.218.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kruces.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kruces.com
+	s=arc-20240116; t=1725819617; c=relaxed/simple;
+	bh=gNKnIuGvVMJr191hD6VCownoEv1f54m/1RShTokZqUM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ugnmcqpa7dm0JP/5bBjwI4tiLsvpRAey+YpK9Rbuw0NivYtpGDeQbh50ZTP3hwNB5dw3IsqrSZbNAYaZm428+lkZUaJE8buD66Ot+V1oNUZnpiyc/LWx2HM0/bttbu8EzLGorkXOis1clOcWB9plaM4i4nMyzg6S6yC5BuIN45Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net; spf=pass smtp.mailfrom=digikod.net; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=F2aybbR9; arc=none smtp.client-ip=45.157.188.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kruces-com.20230601.gappssmtp.com header.i=@kruces-com.20230601.gappssmtp.com header.b="LN0NljIh"
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-a8d56155f51so18585066b.2
-        for <selinux@vger.kernel.org>; Sun, 08 Sep 2024 10:41:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kruces-com.20230601.gappssmtp.com; s=20230601; t=1725817262; x=1726422062; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fviFcg3HLptplXdgVPwFETuKylRy16bbpArI+x9x9sA=;
-        b=LN0NljIhDtci46y5821Icol6w7HqTFR87kHW5PnGIrra0IolyMp2AM7qq7en1ZIFOH
-         DkkzCLPasGSsdnmtbOKL4XT5KhotFdI3U3XGH0LRLrbqF2Yrvfzh6OXsbSzGFYTEtim9
-         6a70deZRb01aJAx5xut41oe2hSXkfVsVX6/nnLa1SBJjfSLP6vr6Y4KHy1AcZWcFBB8L
-         /6tKlM6BA63YrPD/W7lDI4J4ZD7K5j+g9lZerHVCVzg3FwMDXV9ixfWECl5CFsThsh9M
-         fd/cZRwfj8nPiaGYyWSh+XBND95HHMf+RJPfC5+v1ziAPqe7lK8WY1AFy4sdqRtexz8B
-         FlWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725817262; x=1726422062;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fviFcg3HLptplXdgVPwFETuKylRy16bbpArI+x9x9sA=;
-        b=SY3m0sZh808PWHn/cEgawVd0yTh0X6ptGHSKxfcNLvtyS9zu5RnBteGhyFS1ncchTE
-         Pi/7kmCAx8Q5MqT5xCe+D96AEtJ38xGlNb2o9dcesHYFsXTekf8BPkryUh7pof2fc4Zc
-         d6OfrrJkvxpxT19YCp6LW7ADM3PFpegTBufNRxFWkxmQAwU9fdSBc97oIRiDnG4qQcZX
-         oGW9vcnM1MRuOq5725sTwOW/XRUPgLxt/GRQjnXJYPhOV6ULSN/Ja+dxgY4yDkbSdzEp
-         mvl6YOWYengWD3OQh3Jlu0Q11lQ/rN2MryzgIWQpihHtBq116l4XmlUsxwnlMJoeIY8z
-         2LRA==
-X-Forwarded-Encrypted: i=1; AJvYcCWhlVb1ljsCl50nMIuvrSnYReVYKxn8gafLhFJ9NUin7ufKfF2routtJdd7VvhIo8Py672+FT/o@vger.kernel.org
-X-Gm-Message-State: AOJu0YxLeI/LnAol6gMDO1l2Jvrlyp0+mbrxyHBwF+1uXJ0B59p41p9c
-	EFUW+HrG7AcKzM8UbNe03yhlg4BtBHBy9iX71m7le+f01U2KdyJk4eQAWFHJhQ+6BoO2xXyk/mo
-	0qSFkHtflNQE2w/gYIXZPj/P9f3x+wtNC+g+log==
-X-Google-Smtp-Source: AGHT+IG0taDaRweGpDhiFssf20qgh8akE04jwmSCvgTsBJig1BN0pA1T1q/8W0tMp8E8Ed3WvXCdk5VBeHS2T6PZWVU=
-X-Received: by 2002:a17:907:9690:b0:a8d:2faf:d343 with SMTP id
- a640c23a62f3a-a8d2fafee8fmr226989166b.27.1725817261797; Sun, 08 Sep 2024
- 10:41:01 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="F2aybbR9"
+Received: from smtp-3-0000.mail.infomaniak.ch (smtp-3-0000.mail.infomaniak.ch [10.4.36.107])
+	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4X1yhM005Xzn4P;
+	Sun,  8 Sep 2024 20:11:14 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
+	s=20191114; t=1725819074;
+	bh=nXI9xic4x3kUhmU/n/oTnixYiW2o/Ba+mWZgJ65FcYU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=F2aybbR9SGRO8ntewsvTYFuHGvAUHrhTiLBB/jRK1/tkv4vPCc+/z+dcy1Fzwh98K
+	 h8Ldft3UX4SPDXPe0qt22j+0PNrLPVgH4fvDqcSjzyuzHoDQmAVbGsLM9CpwGZ7gy7
+	 loxmwtN9/Hw7IBhxZB2PN6qlA9udH6kKLaD+ydOU=
+Received: from unknown by smtp-3-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4X1yhK3qYJzggS;
+	Sun,  8 Sep 2024 20:11:13 +0200 (CEST)
+Date: Sun, 8 Sep 2024 20:11:07 +0200
+From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	Jan Kara <jack@suse.cz>, Tahera Fahimi <fahimitahera@gmail.com>, 
+	Mateusz Guzik <mjguzik@gmail.com>, Al Viro <viro@zeniv.linux.org.uk>, 
+	Casey Schaufler <casey@schaufler-ca.com>, James Morris <jmorris@namei.org>, Jann Horn <jannh@google.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: Re: [PATCH v3 1/2] fs: Fix file_set_fowner LSM hook inconsistencies
+Message-ID: <20240908.jeim4Aif3Fee@digikod.net>
+References: <20240821095609.365176-1-mic@digikod.net>
+ <CAHC9VhQ7e50Ya4BNoF-xM2y+MDMW3i_SRPVcZkDZ2vdEMNtk7Q@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240906-macos-build-support-v2-0-06beff418848@samsung.com>
- <20240906-macos-build-support-v2-2-06beff418848@samsung.com> <CAK7LNARw-7uwJB7ibmSYE5nYUtPXcr4J9cHBQqm9BnNS=SRUhQ@mail.gmail.com>
-In-Reply-To: <CAK7LNARw-7uwJB7ibmSYE5nYUtPXcr4J9cHBQqm9BnNS=SRUhQ@mail.gmail.com>
-From: "Daniel Gomez (Samsung)" <d+samsung@kruces.com>
-Date: Sun, 8 Sep 2024 19:40:34 +0200
-Message-ID: <CABj0suCHeWGDXX-S6U9X5iCzwMqn9pq=i84PSKwKtUXhGxaBjQ@mail.gmail.com>
-Subject: Re: [PATCH v2 2/8] file2alias: fix uuid_t definitions for macos
-To: Masahiro Yamada <masahiroy@kernel.org>
-Cc: da.gomez@samsung.com, Nathan Chancellor <nathan@kernel.org>, 
-	Nicolas Schier <nicolas@fjasle.eu>, Lucas De Marchi <lucas.demarchi@intel.com>, 
-	=?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
-	Rodrigo Vivi <rodrigo.vivi@intel.com>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
-	William Hubbs <w.d.hubbs@gmail.com>, Chris Brannon <chris@the-brannons.com>, 
-	Kirk Reiser <kirk@reisers.ca>, Samuel Thibault <samuel.thibault@ens-lyon.org>, 
-	Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>, 
-	James Morse <james.morse@arm.com>, Suzuki K Poulose <suzuki.poulose@arm.com>, 
-	Zenghui Yu <yuzenghui@huawei.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Jiri Slaby <jirislaby@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, 
-	Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, 
-	Simona Vetter <simona.vetter@ffwll.ch>, linux-kernel@vger.kernel.org, 
-	linux-kbuild@vger.kernel.org, intel-xe@lists.freedesktop.org, 
-	dri-devel@lists.freedesktop.org, speakup@linux-speakup.org, 
-	selinux@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	kvmarm@lists.linux.dev, linux-serial@vger.kernel.org, llvm@lists.linux.dev, 
-	Finn Behrens <me@kloenk.dev>, gost.dev@samsung.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHC9VhQ7e50Ya4BNoF-xM2y+MDMW3i_SRPVcZkDZ2vdEMNtk7Q@mail.gmail.com>
+X-Infomaniak-Routing: alpha
 
-On Sun, Sep 8, 2024 at 1:56=E2=80=AFAM Masahiro Yamada <masahiroy@kernel.or=
-g> wrote:
->
-> On Fri, Sep 6, 2024 at 8:01=E2=80=AFPM Daniel Gomez via B4 Relay
-> <devnull+da.gomez.samsung.com@kernel.org> wrote:
+On Wed, Aug 21, 2024 at 12:32:17PM -0400, Paul Moore wrote:
+> On Wed, Aug 21, 2024 at 5:56 AM Mickaël Salaün <mic@digikod.net> wrote:
 > >
-> > From: Daniel Gomez <da.gomez@samsung.com>
+> > The fcntl's F_SETOWN command sets the process that handle SIGIO/SIGURG
+> > for the related file descriptor.  Before this change, the
+> > file_set_fowner LSM hook was always called, ignoring the VFS logic which
+> > may not actually change the process that handles SIGIO (e.g. TUN, TTY,
+> > dnotify), nor update the related UID/EUID.
 > >
-> > The uuid_t struct defined in sys/types.h on macOS hosts conflicts with
-> > the one defined in file2alias, resulting in the typedef redefinition
-> > error below. To resolve this conflict, define the _UUID_T and
-> > __GETHOSTUUID_ in file2alias HOSTCFLAGS.
+> > Moreover, because security_file_set_fowner() was called without lock
+> > (e.g. f_owner.lock), concurrent F_SETOWN commands could result to a race
+> > condition and inconsistent LSM states (e.g. SELinux's fown_sid) compared
+> > to struct fown_struct's UID/EUID.
 > >
-> > Error:
-> >   HOSTCC  scripts/mod/file2alias.o scripts/mod/file2alias.c:45:3:
-> > error: typedef redefinition with different types ('struct uuid_t' vs
-> > '__darwin_uuid_t' (aka 'unsigned char[16]'))    45 | } uuid_t;       |
-> > ^
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    sys/_types/_uuid_t.h:31:25: note: previous definition is here 31 |
-> >    typedef __darwin_uuid_t uuid_t;    |                         ^
-> > scripts/mod/file2alias.c:1354:7: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1354 |
-> >  uuid->b[0], uuid->b[1], uuid->b[2], uuid->b[3], uuid->b[4],      |
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1354:19: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1354 |
-> >  uuid->b[0], uuid->b[1], uuid->b[2], uuid->b[3], uuid->b[4],      |
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1354:31: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1354 |
-> >  uuid->b[0], uuid->b[1], uuid->b[2], uuid->b[3], uuid->b[4],      |
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1354:43: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1354 |
-> >  uuid->b[0], uuid->b[1], uuid->b[2], uuid->b[3], uuid->b[4],      |
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1354:55: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1354 |
-> >  uuid->b[0], uuid->b[1], uuid->b[2], uuid->b[3], uuid->b[4],      |
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1355:7: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1355 |
-> >  uuid->b[5], uuid->b[6], uuid->b[7], uuid->b[8], uuid->b[9],      |
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1355:19: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1355 |
-> >  uuid->b[5], uuid->b[6], uuid->b[7], uuid->b[8], uuid->b[9],      |
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1355:31: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1355 |
-> >  uuid->b[5], uuid->b[6], uuid->b[7], uuid->b[8], uuid->b[9],      |
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1355:43: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1355 |
-> >  uuid->b[5], uuid->b[6], uuid->b[7], uuid->b[8], uuid->b[9],      |
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1355:55: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1355 |
-> >  uuid->b[5], uuid->b[6], uuid->b[7], uuid->b[8], uuid->b[9],      |
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1356:7: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1356 |
-> >  uuid->b[10], uuid->b[11], uuid->b[12], uuid->b[13], uuid->b[14],      =
-|
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1356:20: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1356 |
-> >  uuid->b[10], uuid->b[11], uuid->b[12], uuid->b[13], uuid->b[14],      =
-|
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1356:33: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1356 |
-> >  uuid->b[10], uuid->b[11], uuid->b[12], uuid->b[13], uuid->b[14],      =
-|
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1356:46: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1356 |
-> >  uuid->b[10], uuid->b[11], uuid->b[12], uuid->b[13], uuid->b[14],      =
-|
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1356:59: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1356 |
-> >  uuid->b[10], uuid->b[11], uuid->b[12], uuid->b[13], uuid->b[14],      =
-|
-> >  ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > scripts/mod/file2alias.c:1357:7: error: member reference base
-> >  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
-> >  'unsigned char[16]') is not a structure or union 1357 |
-> >  uuid->b[15]);      |                 ~~~~^ ~
-> > /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
-> >    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
-> >    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
-> >    |                                                        ^~~~~~~~~~~
-> > 17 errors generated.
+> > This change makes sure the LSM states are always in sync with the VFS
+> > state by moving the security_file_set_fowner() call close to the
+> > UID/EUID updates and using the same f_owner.lock .
 > >
-> > Suggested-by: Nicolas Schier <nicolas@fjasle.eu>
-> > Signed-off-by: Daniel Gomez <da.gomez@samsung.com>
+> > Rename f_modown() to __f_setown() to simplify code.
+> >
+> > Cc: Al Viro <viro@zeniv.linux.org.uk>
+> > Cc: Casey Schaufler <casey@schaufler-ca.com>
+> > Cc: Christian Brauner <brauner@kernel.org>
+> > Cc: James Morris <jmorris@namei.org>
+> > Cc: Jann Horn <jannh@google.com>
+> > Cc: Ondrej Mosnacek <omosnace@redhat.com>
+> > Cc: Paul Moore <paul@paul-moore.com>
+> > Cc: Serge E. Hallyn <serge@hallyn.com>
+> > Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> > Signed-off-by: Mickaël Salaün <mic@digikod.net>
 > > ---
-> >  scripts/mod/Makefile     | 2 ++
-> >  scripts/mod/file2alias.c | 3 +++
-> >  2 files changed, 5 insertions(+)
 > >
-> > diff --git a/scripts/mod/Makefile b/scripts/mod/Makefile
-> > index c729bc936bae..75c12c045f21 100644
-> > --- a/scripts/mod/Makefile
-> > +++ b/scripts/mod/Makefile
-> > @@ -8,6 +8,8 @@ modpost-objs    :=3D modpost.o file2alias.o sumversion.=
-o symsearch.o
+> > Changes since v2:
+> > https://lore.kernel.org/r/20240812174421.1636724-1-mic@digikod.net
+> > - Only keep the LSM hook move.
 > >
-> >  devicetable-offsets-file :=3D devicetable-offsets.h
-> >
-> > +HOSTCFLAGS_file2alias.o +=3D -D_UUID_T -D__GETHOSTUUID_H
-> > +
-> >  $(obj)/$(devicetable-offsets-file): $(obj)/devicetable-offsets.s FORCE
-> >         $(call filechk,offsets,__DEVICETABLE_OFFSETS_H__)
-> >
-> > diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-> > index 99dce93a4188..ab743f6d60ef 100644
-> > --- a/scripts/mod/file2alias.c
-> > +++ b/scripts/mod/file2alias.c
-> > @@ -11,6 +11,9 @@
-> >   */
-> >
-> >  #include "modpost.h"
-> > +#ifdef __APPLE__
-> > +#define uuid_t sys_uuid_t
-> > +#endif
-> >  #include "devicetable-offsets.h"
->
->
->
->
-> Is this what Nicolas suggested?
-> https://lore.kernel.org/lkml/20240807-sexy-roadrunner-of-acceptance-a84bb=
-f@lindesnes/
->
->
-> I thought he suggested replacing #ifdef __APPLE__
-> with -D_UUID_T -D__GETHOSTUUID_H.
->
->
-> You added -D_UUID_T -D__GETHOSTUUID_H,
-> keeping #ifdef __APPLE__.
+> > Changes since v1:
+> > https://lore.kernel.org/r/20240812144936.1616628-1-mic@digikod.net
+> > - Add back the file_set_fowner hook (but without user) as
+> >   requested by Paul, but move it for consistency.
+> > ---
+> >  fs/fcntl.c | 14 ++++----------
+> >  1 file changed, 4 insertions(+), 10 deletions(-)
+> 
+> This looks reasonable to me, and fixes a potential problem with
+> existing LSMs.  Unless I hear any strong objections I'll plan to merge
+> this, and patch 2/2, into the LSM tree tomorrow.
 
-I forgot to remove this.
+I didn't see these patches in -next, did I miss something?
+Landlock will use this hook really soon and it would make it much easier
+if these patches where upstream before.
 
-Based on your suggestion in the other thread to use/overwrite
-HOSTCFLAGS via the command line, it seems I should drop this patch.
-Can you confirm?
-
->
->
->
->
->
->
->
->
->
-> >  /* We use the ELF typedefs for kernel_ulong_t but bite the bullet and
+> 
+> > diff --git a/fs/fcntl.c b/fs/fcntl.c
+> > index 300e5d9ad913..c28dc6c005f1 100644
+> > --- a/fs/fcntl.c
+> > +++ b/fs/fcntl.c
+> > @@ -87,8 +87,8 @@ static int setfl(int fd, struct file * filp, unsigned int arg)
+> >         return error;
+> >  }
 > >
+> > -static void f_modown(struct file *filp, struct pid *pid, enum pid_type type,
+> > -                     int force)
+> > +void __f_setown(struct file *filp, struct pid *pid, enum pid_type type,
+> > +               int force)
+> >  {
+> >         write_lock_irq(&filp->f_owner.lock);
+> >         if (force || !filp->f_owner.pid) {
+> > @@ -98,19 +98,13 @@ static void f_modown(struct file *filp, struct pid *pid, enum pid_type type,
+> >
+> >                 if (pid) {
+> >                         const struct cred *cred = current_cred();
+> > +                       security_file_set_fowner(filp);
+> >                         filp->f_owner.uid = cred->uid;
+> >                         filp->f_owner.euid = cred->euid;
+> >                 }
+> >         }
+> >         write_unlock_irq(&filp->f_owner.lock);
+> >  }
+> > -
+> > -void __f_setown(struct file *filp, struct pid *pid, enum pid_type type,
+> > -               int force)
+> > -{
+> > -       security_file_set_fowner(filp);
+> > -       f_modown(filp, pid, type, force);
+> > -}
+> >  EXPORT_SYMBOL(__f_setown);
+> >
+> >  int f_setown(struct file *filp, int who, int force)
+> > @@ -146,7 +140,7 @@ EXPORT_SYMBOL(f_setown);
+> >
+> >  void f_delown(struct file *filp)
+> >  {
+> > -       f_modown(filp, NULL, PIDTYPE_TGID, 1);
+> > +       __f_setown(filp, NULL, PIDTYPE_TGID, 1);
+> >  }
+> >
+> >  pid_t f_getown(struct file *filp)
 > > --
 > > 2.46.0
-> >
-> >
->
->
-> --
-> Best Regards
-> Masahiro Yamada
+> 
+> -- 
+> paul-moore.com
+> 
