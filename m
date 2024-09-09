@@ -1,115 +1,145 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6A15157A61
-	for <selinux@vger.kernel.org>; Mon,  9 Sep 2024 14:57:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2E37139D1B
+	for <selinux@vger.kernel.org>; Mon,  9 Sep 2024 16:03:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725893858; cv=none; b=IxwzImhIplqeYp/YBr0fRMCcwogFHHGmF2BPq4boXQ92Wdl14D3Pnoj9EL8x7O/qesrut+a51Uiy3Zih3lvI5hAGzx6zaVd2lWL5l3BHqUr3apzT4Ces+h+oIc1jlmUUdKLwQRQ7V4SuvDqojDGUnq47h5tA9oe6C5Lx/KzB02A=
+	t=1725897807; cv=none; b=GM5az9qcQfN2aVVEz0Oguqw7BxJTK8KpZnlrWn7K6Oklb+W5HanLYdNYaOkDgjFGcVJIL6t+dCXNM/dXFB95qgtbRiPAuy7NvvmT/lehyHmj7xURx1ORHqwNWCQkHsivK1ObfyWVi53utDg9son2Tp1r6IbsoU0E8RTy6+zFqwU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725893858; c=relaxed/simple;
-	bh=C3eFWjEINqYvmJ+hHlWXOonq+P5fCgcDyD4jfpHk7ZQ=;
+	s=arc-20240116; t=1725897807; c=relaxed/simple;
+	bh=UD2ljjMyeCTiG/VAuf2toxKpwa7RSFcC6BIY4yWZNYs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mhdfharIjH0r39MekhYD4UW0txD5HTJY4uXoeg10mI5fp0tDlK/L2zQ8w8BkJti309QsOq3agLXb25/kf1HXVOiLRxM45UHyea/TqYRHjG5RZzqSv+EZTD7JjOKXwLo//Z88nEGIAYCvxm2LCu2gJ3O0ZLAs4isfve9CZpBYp4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LLpvpswG; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=dcFdmlNNGzCIFyTO6N90+eIhu2eUsmGol2dX7qX5ZRCi49D5XHbuqEW5T1Zy2X7vuQSck0oZ7C8ONWsArkOghoj3b7Qy/EZKn6gNnQTsNylLM91Brvds0d/eNX+dhNbDVLS+elkQv4elCvjcQ+qDASRQAWkP2h4LwUxOJknBUuY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=dLprfjyR; arc=none smtp.client-ip=209.85.128.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LLpvpswG"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-2da4ea59658so3160805a91.0
-        for <selinux@vger.kernel.org>; Mon, 09 Sep 2024 07:57:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="dLprfjyR"
+Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-6db5abe2cafso17162227b3.1
+        for <selinux@vger.kernel.org>; Mon, 09 Sep 2024 09:03:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1725893856; x=1726498656; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1725897804; x=1726502604; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9St8A9rEgKQl69j9hxStNJuuvE3DFy9k3jn1cjLFI3w=;
-        b=LLpvpswGPmt9hy97wjqOAhBPIo9RIezhGYMHhzUXbLJn7CnywOUotxCTvMuYRDHyK2
-         XWJKYrYgrUXW/3dhTNi99NVhf6uT7gL7bofizyRu+Dlj42N5j2O3VS4Ycx+XF3ph04MH
-         Q0LahopjopA2yJYomXRsStUrebNQ+n0mz/xA1v981Blvu2NI41nQLMW66pPBoe3yCViZ
-         x/aOydF7ZiQ2bIyBqJJ9FHn2Mg8L7mwNTlG05FLIqIjHj1USIUEzMUsVpB9yv9ftYRQB
-         tWJpZad4JekXsJNoXjirjTCwmZSu3xNweDLaeXuPM/ALryV6TLdDENoIUYrChhU+M9DL
-         vH3w==
+        bh=RmLD+KoyfTyy43xEOB1Jl+N/7L+1hOh+6Y9O1otzjvc=;
+        b=dLprfjyRK5uq/nYa80qxz7L67vNzBIztE3iaw1kXiHeXiEE5qUJdJs75Pazd4Ox3sM
+         dnMBirVg9XDN4x6GhnjpCPlX7KNMnbrWkNTGUZpF7yg08v8vO2CgBMNXyQnr1b/mlTJk
+         Bowjjv2X/4cBI4Dpzh+z8WKsw1c0HLlQtrHGjQ/J/Qzs8KwmyG0TF0dQAGIcW9ykro43
+         lzVg3iGS4VKQ7iNL4lgDPnjQccev9SA7jijY3NH6rUhIH6W9xJ8zTYdUXe8vbhPSS1f7
+         z/Xzfd5cEDmsNpjEXFHdbn6JILcL8ngh92frrPQsDWeZGfb1lEjPeMiGpSxJqV9LR7xz
+         qRsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725893856; x=1726498656;
+        d=1e100.net; s=20230601; t=1725897804; x=1726502604;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=9St8A9rEgKQl69j9hxStNJuuvE3DFy9k3jn1cjLFI3w=;
-        b=nno3otj9XPDArS3USG8dH7o5vwBCkLaldL+/lM0a2YW2gCvOoaCfbzNRTV/Jdk522Z
-         yN/K6oc1jrUUzTIuo5BpJZxl1Mbl+teNCmhePq3pxbRNiy+A5ZBjbRzv3WHWo1rTmNxd
-         9vO4wQVbJD8dEp485IwIxZD2tdLNleiL3t6gAE/+kRMU6UgORiNTnyiCnabkrU6XjALv
-         8GDZsMPtTXQH9qUa4508LebVP0nGAd4ntduLq7nj6mz/msYyWp5N12RmBE6o8oPClw5S
-         wHVxhsKHznLXuQrv50m/NVEviX3BzGYYRk+tOAM8VUy1Wa+26uUB/0KauJnp7rMNbPgT
-         DDMg==
-X-Gm-Message-State: AOJu0Yx93t5pUzJF6AHfOfup9KfvZT6yMGvizDJdtbv+EaWIcUdd9U7D
-	0JIjZcy5u22PMNTPV8hWbISIrbcMwV97Ty2H5YbIZTgWH+dThOB23RgGaGQtVDrBmg53dN4ZfUS
-	05+1DJTObOMe8HvegdELV4KG/18H9KQ==
-X-Google-Smtp-Source: AGHT+IGthFZVmYgeKIB/i0umYcRUtvvQhqMGd5KwSPDgLGjdC3bVEtIHSkDt5aSqHKOnydFKfkyvQWR4tiIXC85aWto=
-X-Received: by 2002:a17:90a:b008:b0:2c7:700e:e2b7 with SMTP id
- 98e67ed59e1d1-2dad511264bmr11061673a91.39.1725893855962; Mon, 09 Sep 2024
- 07:57:35 -0700 (PDT)
+        bh=RmLD+KoyfTyy43xEOB1Jl+N/7L+1hOh+6Y9O1otzjvc=;
+        b=xUEW8bcPDnhoxuKmyyUOhAJgKfe+wfQLkcb0KLOPASuIf/qiivxwnaCrCo4dP6KDQt
+         TkY8PhAKA+gS3BQKalh3t3isv8Rb/Ki+TJK1oRIOjSBJtssGHPFeHVqs5Ind/C1Fx5k5
+         GIH+o5lHKsSfDUkWJ7XYJDYHWG3XXqPIp5b8je+kVysRMiugb9DPyLyx1JSDcJOe1RzS
+         QZP8CffPW+gE7+jFlgXlmHg2opzp+LTyO9QnH3QM5N8Rx8I9LnOyRzW0sCwkcbYawanL
+         iZZ8KAZ4wlUT5rCUGVKwyjt3pbFySBN2NBZnC7zTc1k8sGfv+pxzWs/xq4sr6DPae+t9
+         NeiQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWLLhgh5kVbamjqZGQ19okyV7Rn04aiL7RWHWox6hHEtGK3zXkPzlG6YGZ7poXSAiDXfa8qs/ZB@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzh7EyCGVwcKsXPWWqXsvXI0fSTiSAkXbqGVA94/BmHijSgZhrf
+	+Nx+mB0wdRMk8klHDVVzSH5stYxb4tK0N1jE/sQ2BMqleiA+C+WUJkWALgmxkxhLVLwaMi/0tZu
+	WoWGRHPxvzr9oc9Q0Hl/Jhtg8vJxvsdMGEsb/
+X-Google-Smtp-Source: AGHT+IFXJbCdQgIsUYiuclOIDXjii4BA+zlkZU46pBKrIPA+T27zslxg+uUckYtLiLzOREZpnuOR1x8LngOyzQPy6Do=
+X-Received: by 2002:a05:690c:350a:b0:6b2:7ff8:ca1 with SMTP id
+ 00721157ae682-6db4515443dmr111890657b3.22.1725897803463; Mon, 09 Sep 2024
+ 09:03:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240909090236.194250-1-omosnace@redhat.com>
-In-Reply-To: <20240909090236.194250-1-omosnace@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 9 Sep 2024 10:57:25 -0400
-Message-ID: <CAEjxPJ7nto7+VxWm-BUwD1UNBZ03P0oB6U1rj1O=k-HAh1R7Fw@mail.gmail.com>
-Subject: Re: [PATCH testsuite] policy/test_filesystem.te: fix policy for NFS
- over a symlinked directory
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: selinux@vger.kernel.org
+References: <20240821095609.365176-1-mic@digikod.net> <CAHC9VhQ7e50Ya4BNoF-xM2y+MDMW3i_SRPVcZkDZ2vdEMNtk7Q@mail.gmail.com>
+ <20240908.jeim4Aif3Fee@digikod.net>
+In-Reply-To: <20240908.jeim4Aif3Fee@digikod.net>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 9 Sep 2024 12:03:12 -0400
+Message-ID: <CAHC9VhSGTOv9eiYCvbY67PJwtuBKWtv6nBgy_T=SMr-JPBO+SA@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] fs: Fix file_set_fowner LSM hook inconsistencies
+To: =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
+Cc: Christian Brauner <brauner@kernel.org>, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, Jan Kara <jack@suse.cz>, 
+	Tahera Fahimi <fahimitahera@gmail.com>, Mateusz Guzik <mjguzik@gmail.com>, 
+	Al Viro <viro@zeniv.linux.org.uk>, Casey Schaufler <casey@schaufler-ca.com>, 
+	James Morris <jmorris@namei.org>, Jann Horn <jannh@google.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 9, 2024 at 5:02=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.com=
-> wrote:
+On Sun, Sep 8, 2024 at 2:11=E2=80=AFPM Micka=C3=ABl Sala=C3=BCn <mic@digiko=
+d.net> wrote:
 >
-> When the curret directory is a symlink to the actual selinux-testsuite
+> On Wed, Aug 21, 2024 at 12:32:17PM -0400, Paul Moore wrote:
+> > On Wed, Aug 21, 2024 at 5:56=E2=80=AFAM Micka=C3=ABl Sala=C3=BCn <mic@d=
+igikod.net> wrote:
+> > >
+> > > The fcntl's F_SETOWN command sets the process that handle SIGIO/SIGUR=
+G
+> > > for the related file descriptor.  Before this change, the
+> > > file_set_fowner LSM hook was always called, ignoring the VFS logic wh=
+ich
+> > > may not actually change the process that handles SIGIO (e.g. TUN, TTY=
+,
+> > > dnotify), nor update the related UID/EUID.
+> > >
+> > > Moreover, because security_file_set_fowner() was called without lock
+> > > (e.g. f_owner.lock), concurrent F_SETOWN commands could result to a r=
+ace
+> > > condition and inconsistent LSM states (e.g. SELinux's fown_sid) compa=
+red
+> > > to struct fown_struct's UID/EUID.
+> > >
+> > > This change makes sure the LSM states are always in sync with the VFS
+> > > state by moving the security_file_set_fowner() call close to the
+> > > UID/EUID updates and using the same f_owner.lock .
+> > >
+> > > Rename f_modown() to __f_setown() to simplify code.
+> > >
+> > > Cc: Al Viro <viro@zeniv.linux.org.uk>
+> > > Cc: Casey Schaufler <casey@schaufler-ca.com>
+> > > Cc: Christian Brauner <brauner@kernel.org>
+> > > Cc: James Morris <jmorris@namei.org>
+> > > Cc: Jann Horn <jannh@google.com>
+> > > Cc: Ondrej Mosnacek <omosnace@redhat.com>
+> > > Cc: Paul Moore <paul@paul-moore.com>
+> > > Cc: Serge E. Hallyn <serge@hallyn.com>
+> > > Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> > > Signed-off-by: Micka=C3=ABl Sala=C3=BCn <mic@digikod.net>
+> > > ---
+> > >
+> > > Changes since v2:
+> > > https://lore.kernel.org/r/20240812174421.1636724-1-mic@digikod.net
+> > > - Only keep the LSM hook move.
+> > >
+> > > Changes since v1:
+> > > https://lore.kernel.org/r/20240812144936.1616628-1-mic@digikod.net
+> > > - Add back the file_set_fowner hook (but without user) as
+> > >   requested by Paul, but move it for consistency.
+> > > ---
+> > >  fs/fcntl.c | 14 ++++----------
+> > >  1 file changed, 4 insertions(+), 10 deletions(-)
+> >
+> > This looks reasonable to me, and fixes a potential problem with
+> > existing LSMs.  Unless I hear any strong objections I'll plan to merge
+> > this, and patch 2/2, into the LSM tree tomorrow.
+>
+> I didn't see these patches in -next, did I miss something?
+> Landlock will use this hook really soon and it would make it much easier
+> if these patches where upstream before.
 
-s/curret/current/
+Ah!  My apologies, I'll do that right now and send another update once
+it's done.  FWIW, I'm going to tag 1/2 for stable, but since we are at
+-rc7 presently I'll just plan to send it during the next merge window.
 
-> directory, running ./tools/nfs.sh would fail at nfs_filesystem/test due
-> to missing policy rules. Add the necessary rules so that it can pass
-> also in this scenario.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-
-Otherwise,
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
-> ---
->  policy/test_filesystem.te | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/policy/test_filesystem.te b/policy/test_filesystem.te
-> index efe1f4d..f60b0c8 100644
-> --- a/policy/test_filesystem.te
-> +++ b/policy/test_filesystem.te
-> @@ -31,6 +31,7 @@ allow test_filesystem_t test_file_t:dir { add_name moun=
-ton read write remove_nam
->  # Create test file
->  allow test_filesystem_t test_filesystem_file_t:dir { read add_name write=
- search mounton };
->  allow test_filesystem_t test_filesystem_file_t:file { open getattr creat=
-e read write relabelfrom relabelto };
-> +allow test_filesystem_t test_filesystem_file_t:lnk_file { read };
->
->  fs_mount_all_fs(test_filesystem_t)
->  fs_remount_all_fs(test_filesystem_t)
-> @@ -44,6 +45,7 @@ fs_getattr_xattr_fs(test_filesystem_t)
->
->  # Required when running the tests on a labeled NFS mount.
->  fs_getattr_nfs(test_filesystem_t)
-> +fs_read_nfs_symlinks(test_filesystem_t)
->
->  # Update quotas
->  fs_set_all_quotas(test_filesystem_t)
-> --
-> 2.46.0
->
+--=20
+paul-moore.com
