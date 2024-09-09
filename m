@@ -1,143 +1,115 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8FD81B3B06;
-	Mon,  9 Sep 2024 11:35:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6A15157A61
+	for <selinux@vger.kernel.org>; Mon,  9 Sep 2024 14:57:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725881744; cv=none; b=VfQ7qS2pB00j1kKPADdKxlfR+8a1d4Bkjk+nFMoqMAvS1mqDk37iSzxd7jC7sj1sLlGv3WCgF0n1c24eAajLDNo0SAmWvqdDtPi6MsguoXDPK3WgJgJh7ytFvW3kF4Hz+EHmMwfcYjQH2ke235n7a6w87s1rH2sKaoPj1pGn0Qk=
+	t=1725893858; cv=none; b=IxwzImhIplqeYp/YBr0fRMCcwogFHHGmF2BPq4boXQ92Wdl14D3Pnoj9EL8x7O/qesrut+a51Uiy3Zih3lvI5hAGzx6zaVd2lWL5l3BHqUr3apzT4Ces+h+oIc1jlmUUdKLwQRQ7V4SuvDqojDGUnq47h5tA9oe6C5Lx/KzB02A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725881744; c=relaxed/simple;
-	bh=GVISnP9UsFGbHZp50x0yE7hLzn+QhRqglpi7z7+GiGU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=n3+1wo4DLbvt1zBa4BPZcZVRjin1hy6IeXutMLpGis8bYsPyrxd/uwa1SE3cP9vFWD+UMrTQvjdVGiXbRTQFtUjINwHVUlEmzzAXxDb06N8d893Mb9j/yv4sn12RlSNCXBXbvHRBwSQubJM9NbsfTS1p+YmzQOnBeh8soMyLRXM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=ngcmSO97; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=a8a+uzad; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=ngcmSO97; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=a8a+uzad; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1725893858; c=relaxed/simple;
+	bh=C3eFWjEINqYvmJ+hHlWXOonq+P5fCgcDyD4jfpHk7ZQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mhdfharIjH0r39MekhYD4UW0txD5HTJY4uXoeg10mI5fp0tDlK/L2zQ8w8BkJti309QsOq3agLXb25/kf1HXVOiLRxM45UHyea/TqYRHjG5RZzqSv+EZTD7JjOKXwLo//Z88nEGIAYCvxm2LCu2gJ3O0ZLAs4isfve9CZpBYp4g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LLpvpswG; arc=none smtp.client-ip=209.85.216.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="ngcmSO97";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="a8a+uzad";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="ngcmSO97";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="a8a+uzad"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id B7ABC219A4;
-	Mon,  9 Sep 2024 11:35:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1725881739; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ButvdY7F6OPDCmhDFHthu8UyYiCQIjhdHWQ6fSxT09o=;
-	b=ngcmSO97UnLy/4Z5EokpKnCNF6cNyvDYZ/JY78r+cRNrQ6/7abY1sRjF/C3/zqYvwdHrcp
-	Yi/KOwoZoCQ3wgVHjdoUkatOvdcgNIbH/KgmaiUq5s+zBWuFoSEYHVBBUgHk/smX1YbzVN
-	8C9w5sciF4wfphyf4GtdK4FbU5T14Bg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1725881739;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ButvdY7F6OPDCmhDFHthu8UyYiCQIjhdHWQ6fSxT09o=;
-	b=a8a+uzadRsQzgg7k4+X1mzHv6UXsgPLlNeO+t9GYimVEQU7r1fV44UuBD08HylWdh6hhqh
-	AAJLnNqzyVGJpYDw==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=ngcmSO97;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=a8a+uzad
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1725881739; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ButvdY7F6OPDCmhDFHthu8UyYiCQIjhdHWQ6fSxT09o=;
-	b=ngcmSO97UnLy/4Z5EokpKnCNF6cNyvDYZ/JY78r+cRNrQ6/7abY1sRjF/C3/zqYvwdHrcp
-	Yi/KOwoZoCQ3wgVHjdoUkatOvdcgNIbH/KgmaiUq5s+zBWuFoSEYHVBBUgHk/smX1YbzVN
-	8C9w5sciF4wfphyf4GtdK4FbU5T14Bg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1725881739;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ButvdY7F6OPDCmhDFHthu8UyYiCQIjhdHWQ6fSxT09o=;
-	b=a8a+uzadRsQzgg7k4+X1mzHv6UXsgPLlNeO+t9GYimVEQU7r1fV44UuBD08HylWdh6hhqh
-	AAJLnNqzyVGJpYDw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id AC69813312;
-	Mon,  9 Sep 2024 11:35:39 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id ekISKovd3mZJNAAAD6G6ig
-	(envelope-from <jack@suse.cz>); Mon, 09 Sep 2024 11:35:39 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id 5BB49A095F; Mon,  9 Sep 2024 13:35:35 +0200 (CEST)
-Date: Mon, 9 Sep 2024 13:35:35 +0200
-From: Jan Kara <jack@suse.cz>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Josef Bacik <josef@toxicpanda.com>, Amir Goldstein <amir73il@gmail.com>,
-	Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org,
-	selinux@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: linux-next commit 0855feef5235 ("fsnotify: introduce pre-content
- permission event")
-Message-ID: <20240909113535.vomill5z4v5q47rm@quack3>
-References: <CAHC9VhQvbKsSSfGzUGo3e8ov6p-re_Xn_cEbPK0YJ9VhZXP_Bg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LLpvpswG"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-2da4ea59658so3160805a91.0
+        for <selinux@vger.kernel.org>; Mon, 09 Sep 2024 07:57:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1725893856; x=1726498656; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9St8A9rEgKQl69j9hxStNJuuvE3DFy9k3jn1cjLFI3w=;
+        b=LLpvpswGPmt9hy97wjqOAhBPIo9RIezhGYMHhzUXbLJn7CnywOUotxCTvMuYRDHyK2
+         XWJKYrYgrUXW/3dhTNi99NVhf6uT7gL7bofizyRu+Dlj42N5j2O3VS4Ycx+XF3ph04MH
+         Q0LahopjopA2yJYomXRsStUrebNQ+n0mz/xA1v981Blvu2NI41nQLMW66pPBoe3yCViZ
+         x/aOydF7ZiQ2bIyBqJJ9FHn2Mg8L7mwNTlG05FLIqIjHj1USIUEzMUsVpB9yv9ftYRQB
+         tWJpZad4JekXsJNoXjirjTCwmZSu3xNweDLaeXuPM/ALryV6TLdDENoIUYrChhU+M9DL
+         vH3w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1725893856; x=1726498656;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9St8A9rEgKQl69j9hxStNJuuvE3DFy9k3jn1cjLFI3w=;
+        b=nno3otj9XPDArS3USG8dH7o5vwBCkLaldL+/lM0a2YW2gCvOoaCfbzNRTV/Jdk522Z
+         yN/K6oc1jrUUzTIuo5BpJZxl1Mbl+teNCmhePq3pxbRNiy+A5ZBjbRzv3WHWo1rTmNxd
+         9vO4wQVbJD8dEp485IwIxZD2tdLNleiL3t6gAE/+kRMU6UgORiNTnyiCnabkrU6XjALv
+         8GDZsMPtTXQH9qUa4508LebVP0nGAd4ntduLq7nj6mz/msYyWp5N12RmBE6o8oPClw5S
+         wHVxhsKHznLXuQrv50m/NVEviX3BzGYYRk+tOAM8VUy1Wa+26uUB/0KauJnp7rMNbPgT
+         DDMg==
+X-Gm-Message-State: AOJu0Yx93t5pUzJF6AHfOfup9KfvZT6yMGvizDJdtbv+EaWIcUdd9U7D
+	0JIjZcy5u22PMNTPV8hWbISIrbcMwV97Ty2H5YbIZTgWH+dThOB23RgGaGQtVDrBmg53dN4ZfUS
+	05+1DJTObOMe8HvegdELV4KG/18H9KQ==
+X-Google-Smtp-Source: AGHT+IGthFZVmYgeKIB/i0umYcRUtvvQhqMGd5KwSPDgLGjdC3bVEtIHSkDt5aSqHKOnydFKfkyvQWR4tiIXC85aWto=
+X-Received: by 2002:a17:90a:b008:b0:2c7:700e:e2b7 with SMTP id
+ 98e67ed59e1d1-2dad511264bmr11061673a91.39.1725893855962; Mon, 09 Sep 2024
+ 07:57:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhQvbKsSSfGzUGo3e8ov6p-re_Xn_cEbPK0YJ9VhZXP_Bg@mail.gmail.com>
-X-Rspamd-Queue-Id: B7ABC219A4
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.01 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RCVD_COUNT_THREE(0.00)[3];
-	MIME_TRACE(0.00)[0:+];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	ARC_NA(0.00)[];
-	RCVD_TLS_LAST(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	TO_DN_SOME(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[7];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DKIM_TRACE(0.00)[suse.cz:+];
-	MISSING_XM_UA(0.00)[];
-	FREEMAIL_CC(0.00)[toxicpanda.com,gmail.com,suse.cz,vger.kernel.org];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,suse.cz:dkim]
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Score: -4.01
-X-Spam-Flag: NO
+References: <20240909090236.194250-1-omosnace@redhat.com>
+In-Reply-To: <20240909090236.194250-1-omosnace@redhat.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 9 Sep 2024 10:57:25 -0400
+Message-ID: <CAEjxPJ7nto7+VxWm-BUwD1UNBZ03P0oB6U1rj1O=k-HAh1R7Fw@mail.gmail.com>
+Subject: Re: [PATCH testsuite] policy/test_filesystem.te: fix policy for NFS
+ over a symlinked directory
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Paul!
+On Mon, Sep 9, 2024 at 5:02=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.com=
+> wrote:
+>
+> When the curret directory is a symlink to the actual selinux-testsuite
 
-On Fri 06-09-24 10:42:39, Paul Moore wrote:
-> When you are making changes that impact a LSM, or the LSM framework
-> itself, especially if they change the permissions/access-controls in
-> any way, please make sure you CC the relevant mailing lists.  If you
-> are unsure which lists you should CC, please consult MAINTAINERS or
-> use the ./scripts/get_maintainer.pl tool.
+s/curret/current/
 
-Well, it didn't occur to me you'd be interested in these changes but you're
-right that we've added the new event to a bitmask in
-security/selinux/hooks.c so strictly speaking I should have notified you.
-I'm sorry for the omission.
+> directory, running ./tools/nfs.sh would fail at nfs_filesystem/test due
+> to missing policy rules. Add the necessary rules so that it can pass
+> also in this scenario.
+>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+Otherwise,
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+> ---
+>  policy/test_filesystem.te | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/policy/test_filesystem.te b/policy/test_filesystem.te
+> index efe1f4d..f60b0c8 100644
+> --- a/policy/test_filesystem.te
+> +++ b/policy/test_filesystem.te
+> @@ -31,6 +31,7 @@ allow test_filesystem_t test_file_t:dir { add_name moun=
+ton read write remove_nam
+>  # Create test file
+>  allow test_filesystem_t test_filesystem_file_t:dir { read add_name write=
+ search mounton };
+>  allow test_filesystem_t test_filesystem_file_t:file { open getattr creat=
+e read write relabelfrom relabelto };
+> +allow test_filesystem_t test_filesystem_file_t:lnk_file { read };
+>
+>  fs_mount_all_fs(test_filesystem_t)
+>  fs_remount_all_fs(test_filesystem_t)
+> @@ -44,6 +45,7 @@ fs_getattr_xattr_fs(test_filesystem_t)
+>
+>  # Required when running the tests on a labeled NFS mount.
+>  fs_getattr_nfs(test_filesystem_t)
+> +fs_read_nfs_symlinks(test_filesystem_t)
+>
+>  # Update quotas
+>  fs_set_all_quotas(test_filesystem_t)
+> --
+> 2.46.0
+>
