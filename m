@@ -1,167 +1,112 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FE35208A5
-	for <selinux@vger.kernel.org>; Tue, 10 Sep 2024 19:14:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71C381A4E93
+	for <selinux@vger.kernel.org>; Tue, 10 Sep 2024 20:49:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725995642; cv=none; b=IWdXEfgEJwSc43E+5ZBZDjF3J4sSytMUy8IDkNpJcU5CykAze00yMzqxLrUbIDR6pZNmhqlg1GBi03xQkHYgeAUocptpNKHXIKjb7leG1chUpo2uSFLVvNRjxqx4KCfvd8HY6d4tqEmqxqeZW5z3qT9xzZAODI3JZFnPedaCWeM=
+	t=1726001357; cv=none; b=oGPkCUSccoySdxGQg2BzYi3YHWuAqwYWbC6TQZpMnhwaM7PPA4NFwYDiEfW0ovYdTMn0Xg6g5al5mdT9QE3s08QMImV/SpQhI0q3VfCStO+OY24CDQ7vShhHynbPodMfhN+Rnceu8wx08QylU4dAruT2u/K0hUdr42lupNb3f/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725995642; c=relaxed/simple;
-	bh=ZMy9pqkS7FYKucfnDhT7McFdxeVnDTwU2nyP3yUc0bU=;
+	s=arc-20240116; t=1726001357; c=relaxed/simple;
+	bh=/sSLbtfrwVeABiJUeQBSaBwJb8hKBmomjLIUb1dAvvM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DhJW17ge5YugL4G3yL1dYuAPddRw4/KioFFDYjt3GMIE0AH2Y9gG/yguKzLGeUixlGvWfV0GFqk7NqsotBtvyhILWHRy+L5vEE8X/jtuzyGfgXJX8ZLwV+08zhSvDaLL/Cx5WVfrSZQesFZpZTTY5Ek+WmmL9kcZKebu60tXBoQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eTpsoHR5; arc=none smtp.client-ip=209.85.214.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=bj/2EpUduDLJU7y2Cb64n6s4BBWBrffOq7fVp8e/CyNeYJ8NkQ+XOnT29apf6QEi2rwUBMPIKxhC1Q07r2t1lCfE6ldRv3lu4xivCL1vnpUzJz9vbttC8U41E1zhO9BO9EwILrXgm5HjLUlCY+vTciMQGy+ukg/+q0YLB9o51PE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=CqAmCP5O; arc=none smtp.client-ip=209.85.128.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eTpsoHR5"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2053f6b8201so56837005ad.2
-        for <selinux@vger.kernel.org>; Tue, 10 Sep 2024 12:14:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="CqAmCP5O"
+Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-6d9f0cf5ae3so13205737b3.0
+        for <selinux@vger.kernel.org>; Tue, 10 Sep 2024 13:49:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1725995640; x=1726600440; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1726001354; x=1726606154; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ZMy9pqkS7FYKucfnDhT7McFdxeVnDTwU2nyP3yUc0bU=;
-        b=eTpsoHR5CoLJ/uBjnUdYOyUYW1JrhqMO4wa5m6gKx9Kl7fwf+kJMRe4v2ys4twGaOH
-         VEI6L+2ihgUN3Keo7VXYNBv4cy93B843GsftEBhtVacbiLFQAAzemspytUt/z778VZxr
-         ml6FIkKAFUYfg+M2cereOFTnU/8M5jzaxgNCvsCMKOEM1UcIs2+zUIc1YbTeVi+9tQSN
-         EPE+7bS+ae5edhkQGdBbeRzholeFU54tUhToY4a1tK09u3kYH2+KGj7nL/Uc+taXgBis
-         lSValJaLijukaNQXqHrLeXEnmIiTqKZF//OH+4j+Y/GaXbEluCHLRaVY7nPa33sW8qe9
-         CtkQ==
+        bh=WYjARXF5iHHpTlh5hyqO8bTT4ZmLx2A0R6UF7JUY+9c=;
+        b=CqAmCP5OsuNHVeCyEiNDPnaM3R1UIekUKFiV0fw2r0x+b8m+NI86LznKcvmxzV8r+J
+         t0mMfjtHbcha1skBFiKcguBvUdZ9nK4dp3TKW2i/70zcGq0nGtexGiPjOefjpkRkjR3E
+         MgJp1PwWjZulVI32knqh73bgE4dOFjkaG5eVNhcQJNdNMWLHN89BWv5evIvK0MFWSmgL
+         us0Z4beuHS5f9IC3VhveN0M1O2qhTGAZArXErutGwzun8D+or8uWLGOzGivsWo4XGqAM
+         QecjxeqYCyqk3NXJAnrbtNRQbLDk2X+fd1GAmLwamKyAZVpH9O7UiSsw2BUGHx8/ygvW
+         2ExQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725995640; x=1726600440;
+        d=1e100.net; s=20230601; t=1726001354; x=1726606154;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ZMy9pqkS7FYKucfnDhT7McFdxeVnDTwU2nyP3yUc0bU=;
-        b=v5BknvehjvzERS5meVYoD0siZwyOXtiZYgzeJJYd6OhelXzAyVBgBy3z4323HrV10J
-         9Z6hG31fRi10rka/Ttt3ebk07aY313TeUq/toKP8DH+oO1+hVtc1olH9KH3m4nIDfzY1
-         T/NXyyDMQd1RzoHtRVec5NCozXMcLLrjKqCZhYhD1ApFne9Pr47jnIIfyYECzhmP1Cm8
-         fqxFnnteQwVIii5WnlEMgusuVRe4JOe0OscV6H5neLPUnsqQYu8S41s7dX2UNi+Hpbz0
-         wY4QPpWlGWT91vPPqvZPl4nNhYRq9AyIj1ZD3K0IK/icqv4H5YMIF576sBTiadWhAF+b
-         QYlw==
-X-Gm-Message-State: AOJu0YxckwJ59xm6JUdNeK8nvfJc9XDDlRoHGQHAGdl2S91w3E65ZBu1
-	dm9PGc1RKis2i3cmCL5VU8iEqCxNedlDOestCueDabrF1qSxW0gduJhx21jq1zhgj5xatKxtfHO
-	zFasXmP6+n7qQwen1S1+zh7zQKd7BY0Ul
-X-Google-Smtp-Source: AGHT+IFWcO28x65KHC9qhkveEs4ymAyqMhZ9nJIccX59tJYG7hCWRzBiuSFMJwowttRaRYWqXUlKFlSY/9hKXrEapVE=
-X-Received: by 2002:a17:903:24f:b0:203:a046:c666 with SMTP id
- d9443c01a7336-2074c4b35f5mr29109395ad.3.1725995639948; Tue, 10 Sep 2024
- 12:13:59 -0700 (PDT)
+        bh=WYjARXF5iHHpTlh5hyqO8bTT4ZmLx2A0R6UF7JUY+9c=;
+        b=EZs4sIE3Nm/Ga6MHapeqdQyCztJjbsNrKzxK7qPdjvk16GsGyMYrQzWv7FO80v7e5+
+         aQ3K4bpK+QRInNixaz9vBjhsr7LHWdDIyHYVWPYnC1qGEerKUu1G/TSZIeS9OrK7vpK1
+         fzEQM3M0MpyiuNPL88W2t5bG+WHkhFjSjXox90AWOT/Q+IuwJ2KAm4bg2+wz81Hg9Pne
+         GDAA1AhMWAhvf9Wb8r7Fl0qxDK+TrPKAQDwjuuWNwee2BzF/e/Hz76WXZHy8rcFGx087
+         um7B/EajZb2U9fLVmk+4tAG5Dt7DfE/WWfNus9XpLt4s29jmpzR8n1C7fTzraiHFmJ/b
+         dNaA==
+X-Forwarded-Encrypted: i=1; AJvYcCWRHFS01lL2kIttUERslYoND3RZrqrxp8c2U2dX2A2kceblP8LT28prx5426a7TeLGcb2ls0gXJ@vger.kernel.org
+X-Gm-Message-State: AOJu0YyxdLYYR+qyrSv8o0cFfargFwsENVWIUaTlaNZfrBV0GfIQTQ6K
+	bmVWwbjvWi4p+0MyzY3CuZc1nFqGPthoPy48PssNe+56CZZNnNuNPBHSUd+1ujMxKkeB+bX25xM
+	8tZqWcv/3rUOhPA+HoQ5AhvCsizQ7dybrQfRn
+X-Google-Smtp-Source: AGHT+IFgMK6PeTDRSiV3IUUm82K2jugYC/SvYQbL/2kIQWJ6vCR0av/sG1KukB6SNfhmqpD5QEYFAa0dGswS6AalsdQ=
+X-Received: by 2002:a05:690c:6812:b0:6c9:9341:1c45 with SMTP id
+ 00721157ae682-6dba6d98f5fmr12360207b3.14.1726001354371; Tue, 10 Sep 2024
+ 13:49:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ46KJCUXqgq==pmEMW9yYJSRnWkGrSrxBAfMELPRYUdXQ@mail.gmail.com>
- <CAEjxPJ7WUzN=0Yv4POgPVHPG1wEjNn=-Tb53NiuMpWf+bEuF-w@mail.gmail.com>
- <CAEjxPJ758jx7X5Tauz=xQXsmWcZhx_V7AkU=PtsH6S3S9CUCbw@mail.gmail.com>
- <CAEjxPJ50ADVSOys58eYUktv4sjYYnEDroxA9Wnt6HiY9ySk=gg@mail.gmail.com>
- <CAEjxPJ6QsYR-Kj8k0C=54cix8rdpBsCphDV5_QnjGONDuOm+ew@mail.gmail.com>
- <CAEjxPJ6p3oD99_aTEeSCx6FMob7BH8-2vxdoT69c8sw11oHuEA@mail.gmail.com>
- <CAEjxPJ5jup5o9piVPuA97_radSzvshpnRB1CdBde8sV3ZXVc2Q@mail.gmail.com>
- <CAEjxPJ7UtCjQw=v1--6ZWXo-bbkndGbwfXhcT8RkX_cddjCqkQ@mail.gmail.com>
- <CAEjxPJ5a1KzSjB31gcqWqJW_zdy8OCmwKKGYwCivvFG4Jvncyg@mail.gmail.com>
- <CAEjxPJ6WupdxzSkh54NLJkZoH=Umayj8+HrX5TmbAXvVYzgPfw@mail.gmail.com>
- <CAEjxPJ7iL11xSVs4gxhMPSCtVmYEqfgQQmBpVNAVXV7UG=P3nw@mail.gmail.com>
- <CAEjxPJ7C41QdEgAFYVdTyZE=TjGq+pyzCmy7BbHMss7=njvJmg@mail.gmail.com>
- <CAHC9VhRDF0DBAWM-=ynks1=Zm5LcQYq0_4xfQy4pKvHfW6FoBg@mail.gmail.com>
- <9aa53afd-efd8-4552-8239-14f99ff7a1b1@schaufler-ca.com> <CAEjxPJ6vyDjmwxEpwnb+JYKiWXYFo5g_suZiUZb6L+aepHxZiA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6vyDjmwxEpwnb+JYKiWXYFo5g_suZiUZb6L+aepHxZiA@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 10 Sep 2024 15:13:48 -0400
-Message-ID: <CAEjxPJ4nbCuntgTvrGk4LHs+ZYjm95ZwwSwwAycWWzS9dt9Tyw@mail.gmail.com>
-Subject: Re: SELinux namespaces re-base
-To: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>
-Cc: SElinux list <selinux@vger.kernel.org>, Casey Schaufler <casey@schaufler-ca.com>
+References: <20240805-remove-cred-transfer-v2-0-a2aa1d45e6b8@google.com>
+ <20240805-remove-cred-transfer-v2-1-a2aa1d45e6b8@google.com>
+ <2494949.1723751188@warthog.procyon.org.uk> <CAG48ez2LBmS91fQVLYRYEaBHssj22NyUjB0HVtkDHUXDvDZ6EA@mail.gmail.com>
+In-Reply-To: <CAG48ez2LBmS91fQVLYRYEaBHssj22NyUjB0HVtkDHUXDvDZ6EA@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 10 Sep 2024 16:49:03 -0400
+Message-ID: <CAHC9VhSPcy-xZ=X_CF8PRsAFMSeP8-VppxKr3Sz3EqMWTEs-Cw@mail.gmail.com>
+Subject: Re: Can KEYCTL_SESSION_TO_PARENT be dropped entirely? -- was Re:
+ [PATCH v2 1/2] KEYS: use synchronous task work for changing parent credentials
+To: Jann Horn <jannh@google.com>, David Howells <dhowells@redhat.com>
+Cc: Jeffrey Altman <jaltman@auristor.com>, openafs-devel@openafs.org, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	John Johansen <john.johansen@canonical.com>, Jarkko Sakkinen <jarkko@kernel.org>, 
+	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Casey Schaufler <casey@schaufler-ca.com>, linux-afs@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	apparmor@lists.ubuntu.com, keyrings@vger.kernel.org, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 3, 2024 at 10:58=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> For those following along, I have pushed a commit that introduces a
-> global SID table [1].
-> It does not yet change any code to start using this global SID table,
-> so that's next.
-> Rather than introduce yet another data structure, I reused the
-> existing SID table structures and code.
-> For the global SID table, we only use the SID and the context str, len
-> fields for all entries.
-> If we later decide to optimize the global SID table more specifically,
-> that can be done easily enough.
+On Thu, Aug 15, 2024 at 4:00=E2=80=AFPM Jann Horn <jannh@google.com> wrote:
+> On Thu, Aug 15, 2024 at 9:46=E2=80=AFPM David Howells <dhowells@redhat.co=
+m> wrote:
+> > Jann Horn <jannh@google.com> wrote:
+> >
+> > > Rewrite keyctl_session_to_parent() to run task work on the parent
+> > > synchronously, so that any errors that happen in the task work can be
+> > > plumbed back into the syscall return value in the child.
+> >
+> > The main thing I worry about is if there's a way to deadlock the child =
+and the
+> > parent against each other.  vfork() for example.
+>
+> Yes - I think it would work fine for scenarios like using
+> KEYCTL_SESSION_TO_PARENT from a helper binary against the shell that
+> launched the helper (which I think is the intended usecase?), but
+> there could theoretically be constellations where it would cause an
+> (interruptible) hang if the parent is stuck in
+> uninterruptible/killable sleep.
+>
+> I think vfork() is rather special in that it does a killable wait for
+> the child to exit or execute; and based on my understanding of the
+> intended usecase of KEYCTL_SESSION_TO_PARENT, I think normally
+> KEYCTL_SESSION_TO_PARENT would only be used by a child that has gone
+> through execve?
 
-I finally got everything that requires global SIDs to use the new
-global SID table, now available in my branch,
-https://github.com/stephensmalley/selinux-kernel/tree/working-selinuxns
+Where did we land on all of this?  Unless I missed a thread somewhere,
+it looks like the discussion trailed off without any resolution on if
+we are okay with a potentially (interruptible) deadlock?
 
-This proved to be more involved than I had anticipated; there are a
-number of subtleties in our handling of contexts and NetLabel was
-caching SIDs in two locations, one of which is read outside the
-security server (hence, required a global SID) and the other one is
-only directly read/written inside the security server (hence, can be
-mapped to/from global SIDs at the security server interface).
-
-With these changes, I could drop the changes for revalidating and
-updating inode, superblock, and open file SIDs per-namespace, so those
-have been dropped from the branch although still available in a
-working-selinuxns-beforeglobalsids branch for reference.
-
-The SELinux testsuite passes, including NFS tests, in the initial
-SELinux namespace, and everything except for the
-socket/networking-related and mac_admin tests pass in a child SELinux
-namespace. The socket/networking-related test failures are
-unsurprising, partly due to needing to also unshare the network
-namespace to avoid the SELinux netlink notifications from confusing
-the initial namespace's AVC (wrong/out-of-order policy seqno) and
-partly due to the fact that we do not yet have a way to associate the
-SELinux namespace for use in hooks that occur outside of process
-context. The mac_admin test failures are likewise unsurprising
-(getting/setting unmapped context values); I had similar issues with
-those tests even in the initial namespace before making some further
-specialized changes; I will see if I can get that to work properly in
-the child namespace too.
-
-Going back to the list of known issues to resolve and omitting the
-ones resolved by having global SIDs, we are left with the following:
-
-1. Updating hook functions called outside of process context, e.g.
-task_kill, send_sigiotask, network input/forward, to use the correct
-SELinux namespace instead of using the current one; this requires
-storing a pointer to the SELinux namespace in some relevant data
-structure from which we can fetch it in those hook functions, e.g. the
-file or socket security blobs.
-
-2. Updating the SELinux hook functions to check permissions against
-all ancestor namespaces rather than just the current one, and consider
-introducing a top-level global AVC to avoid the need to check against
-each per-namespace AVC on every check.
-
-3. Providing a way to restrict or bound nesting of SELinux namespaces,
-particularly given the resource usage associated with loading a policy
-per-namespace and having a per-namespace AVC, sidtab, etc.
-
-4. Hardening the policy loading code and other selinuxfs interfaces to
-support potentially unprivileged usage by child namespaces.
-
-5. Optimizing the namespace support, global SID table, etc to avoid
-imposing significant overheads especially for the case where there is
-only a single namespace since that will likely remain the common case.
-
-Reminder on usage for anyone who wants to play with it:
-# Unshare the SELinux namespace
-echo 1 > /sys/fs/selinux/unshare
-# Unshare the mount and network namespaces
-# Required so that we can have our own private selinuxfs mount and
-# so that we can have our own private NETLINK_SELINUX socket.
-unshare -m -n
-# Unmount the parent namespace's selinuxfs and mount our new one.
-umount /sys/fs/selinux
-mount -t selinuxfs none /sys/fs/selinux
-# Load a policy into our namespace
-load_policy
-# Switch to a safe context
-runcon unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 /bin/bash
-# Go enforcing
-setenforce 1
+--=20
+paul-moore.com
