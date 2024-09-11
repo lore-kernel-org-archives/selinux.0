@@ -1,91 +1,186 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28A031A4F3A
-	for <selinux@vger.kernel.org>; Tue, 10 Sep 2024 23:05:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55D1E1AC448
+	for <selinux@vger.kernel.org>; Wed, 11 Sep 2024 19:25:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726009544; cv=none; b=iCFNnbjTG5+I+wCG/fSRVOEo3mu+TgwyK1VUysKKyDR7FWZdKKuHm0Rd1gm/TFjaYKPg9Uvu4RoY2qQvqrGd7jcsGWlT560BUpjPhAGcE1mOOFHJs2OLyxDMw3Oyqy0UcLtNlNZlzW1Ymr35KnBZ9sldCKDbPy+A8mpk130+eR8=
+	t=1726082727; cv=none; b=cQ4KybdPEowawz2Q+oEm9uzXyVN+bNyHGopaVWVYnq9sQUuH7/B/yKhLJRmjpz0f6Xwbsy6YpUWIE2e1vdnB9gkoge/zYEQuA1h9A6X4nhNON49ZOKZD2X/bav8cTMQFvv5L5aaPSs7oKp0VkXX+bVWUMrsNRHQZUat4Jebz1F4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726009544; c=relaxed/simple;
-	bh=xl9eYIT9ivuySXl2SQPVFb2BTIVvRUAmegAxUX7d4hM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=q4fsxZl7VFY4EK/QA9Op2gNfaRbb8pY/+rDTtCeODoDpcJBEvmkb3+ylb25t+zZWGnrz8vm/E+GzlJR5+29uXWisRHeOQG6WCwY/COJncJTx759wjbxyKst2tMWzgmyNgkH5FTnTPC4plAQNr3WZE5nHayPlxhArCZ4d2zjH0Xs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=IRGuoY6V; arc=none smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1726082727; c=relaxed/simple;
+	bh=HrZLd3RN0GwN/78EJgAmhruA3Xu/RgTFqnGqUDR1rPE=;
+	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
+	 From:To:Cc:Subject:References:In-Reply-To; b=dwTuF4Kj6I03Sxj5CBX/TVyrsiAKi55S+N544xWwZN90m7sPa6kqUAoxLBcmCcpsNjM0lM5RM8ysMTatFct1myzrEm/9KOfj9obKccLjWCPWufs5MQFXyky1nMsXKtIOFWp0h2ToU2D1MBk/qnLS7GCTHY1eOK4aaL3USFnhpIc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=edFmD4ZI; arc=none smtp.client-ip=209.85.128.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="IRGuoY6V"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-5c2460e885dso36776a12.0
-        for <selinux@vger.kernel.org>; Tue, 10 Sep 2024 16:05:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="edFmD4ZI"
+Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-6daf1c4aa86so1506587b3.3
+        for <selinux@vger.kernel.org>; Wed, 11 Sep 2024 12:25:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1726009541; x=1726614341; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CGDNjxA8a/+7X5OLMsKVJ1MSV2s9K8DgSyu27kL3bTc=;
-        b=IRGuoY6VHOHQSfwAFWu7X66vhJhmetPFYWTVp3tNwxV3nq4Ktru1Hq4n14FVsPqVUC
-         SM85jexXfUSDcskTLqmHwT5Cln0z1n8+8tbKROWQWOWHooxQZh5Sg3hsL/chESkUHuZ5
-         nYmnK960p8LJvn79evwids0L/quplkRE+DaaQPk2ueysOQCxQ81SdD4kvMohBMK8o7sV
-         OV0okc/ljxDYyi+NRbB8gZBuwqBTt8fJkWnJhnNYuZpC03W7EhFKZBWO3cd/gpGnWyJ1
-         hXMxcCcjXhMOk/moJT0NLIMvOoEJ5Z9sVeVZVeatT8229N4w10n5H7VXNc9kSy2X9o47
-         pt5Q==
+        d=paul-moore.com; s=google; t=1726082724; x=1726687524; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-disposition:mime-version:message-id:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=+Z6UsGUgmAOGOWhylt9cmoaDPhfVrxzzh+/nc/iNDCs=;
+        b=edFmD4ZIi2QzZ9xKXPttxnZ7pkiUrOQb98Ll23vGx0cG0VQbnf4Gn1h9a1UCQIx8WW
+         5x9ZWxo17hdRG4CQbI2QXdyzCY69n6RpBPZCcC6OK2q50A9sSGsZ93LQ1szzHS64TrSw
+         txaSfkyhYEJD9jWGDcxPXCYlvm33TsInJjqcaF7j558KgJAeH803Jkv5JeB3EXm9WX2m
+         DqATYjgUOPVLkhVlPYt7sT46AIiLZ4BCIDFVJ/g5BUMxaKvpBafKe2y+xf99un6Y4FML
+         xmJ73TXP9jC/6oH+bPDumV4SDEllFbbAOt+RmIVpVPe380pJGCMOHKtZ4PhMoUjsTiVf
+         86IA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726009541; x=1726614341;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=CGDNjxA8a/+7X5OLMsKVJ1MSV2s9K8DgSyu27kL3bTc=;
-        b=PMdI961ijvrsf4joLBDjBSdE7MSEMEQ2fzvFtKo9o8CGeS0mmzbQwSN65Fj3JqzMBr
-         MO8oXRt/qQJnCtBgAIjpflrbwOKwnkN3+4/hS2V7QtvGl+rlq9l4VqbBfYqegArN/d7D
-         otgd2bbwbEwhUJh8x9zk0AcG1QOobsBaoyiU1wD9ZZb8XBusqIXwd8g2LM61V8T9WxiT
-         pagwHbOj1xFmR8TMf/PUx0+BH1X/pYe9wdvXThES1sQ6DtqA01+5Zk+HoOsSfZxiNmEU
-         YUoA831PjVjFMPHPbTS5S2YBc9mR8DKRWP2ae6F78ZJWC+nwI5geKUBj7jRpOgYh2kuY
-         P2WA==
-X-Forwarded-Encrypted: i=1; AJvYcCW7b8RYp7qp4g2XgVmla2zEjUWSQShmfulJpIK+LCAXD/dXDI8EbK1js1nUZxsdI54tH5I5H3fk@vger.kernel.org
-X-Gm-Message-State: AOJu0YxthnnlXuS2SbmmWhJ7rQASdjPsBA5HH3PF4ofakLZRDCvD1xLu
-	CJmmWmK7NsjvbJEfmwjJ60zuUU/nwF4KMe5RYuCLUxEPz6ragI8G/turBG+QyWsBWLPywjWoIB5
-	NPuww1/xlcecbK3FeM96G6pRDy02cvDP+o4Iu
-X-Google-Smtp-Source: AGHT+IHi+pt6zImju/NyZ5JtEjJPlJdjWNiRZnmzpVbUhgzUBz1ExYC4BgzyceVyNtRPkeaqMAMV1q5yq7wvDn/CO+U=
-X-Received: by 2002:a05:6402:278d:b0:58b:15e4:d786 with SMTP id
- 4fb4d7f45d1cf-5c40dacefbamr74233a12.5.1726009540433; Tue, 10 Sep 2024
- 16:05:40 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1726082724; x=1726687524;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :content-disposition:mime-version:message-id:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=+Z6UsGUgmAOGOWhylt9cmoaDPhfVrxzzh+/nc/iNDCs=;
+        b=QddgXwYLwRzlOThayg8+UG2fmRvJrUL9+7QJMbNIBNAV0YdVFfMkPl6mYDuqul8ghm
+         sJGXsKB06UDbnRFl2lcd8IhxJuRL4Hm+/Iq+zgDnY05waR/lwmR9YmgkUnQG2OaeRu/V
+         3rUPa4UBjNkjFyafJCJIjPOn0MMtC9j2AeSzVZas+jXWK/WzKqfTkeqJzoPQiC40MmWg
+         IIB6i/j1Eom2fyAzECT+lRguDLRWfkilu+td7U77OTSnTqHbKFZsXkmN9ThR+i7u4hwN
+         S5/BY3vlra9oYdBkrMjgoaeCskWJvs/l3OVd/Egy9LizmBYGo7XGrqQ5bFvGhI2y79/H
+         ssZA==
+X-Forwarded-Encrypted: i=1; AJvYcCXi/lLGPVPYPdlW/cAsZRXJusyAWllPCj3Oo5jmk7/wJ0E0ys1xdxRFolOkZtY7zjomp4rDreaj@vger.kernel.org
+X-Gm-Message-State: AOJu0YyC3Q4TOdF9Ug9Sywg9u7JZsRFGJf+/awUaw4YjzkTBbSBNG/Ag
+	FuQue1uKA2XDSDvT096GFp7tUT4oJHpL6SYmpehy/DCF+LfE7IFMQq0dBn/VVw==
+X-Google-Smtp-Source: AGHT+IFkpbPJq05z0xbEnFKw/+pa+VTPJtHFKWJRJ+/l+ZOUBsHmgm9u2WgYRTG9kj+EXNiUvcOAUA==
+X-Received: by 2002:a05:690c:dcb:b0:62c:e939:2ffe with SMTP id 00721157ae682-6dbb6aef38fmr7336257b3.7.1726082724071;
+        Wed, 11 Sep 2024 12:25:24 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7a9a7a0368esm457164085a.93.2024.09.11.12.25.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Sep 2024 12:25:23 -0700 (PDT)
+Date: Wed, 11 Sep 2024 15:25:23 -0400
+Message-ID: <abd932461647a78bd20694855fe2e60d@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20240805-remove-cred-transfer-v2-1-a2aa1d45e6b8@google.com> <47697d5f8d557113244b7c044251fe09@paul-moore.com>
-In-Reply-To: <47697d5f8d557113244b7c044251fe09@paul-moore.com>
-From: Jann Horn <jannh@google.com>
-Date: Wed, 11 Sep 2024 01:05:04 +0200
-Message-ID: <CAG48ez1GiPYROLukVwBQhDeFWzp8Xo9uUs-1B5X1YgqNw78dAA@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] KEYS: use synchronous task work for changing
- parent credentials
-To: Paul Moore <paul@paul-moore.com>
-Cc: James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	John Johansen <john.johansen@canonical.com>, David Howells <dhowells@redhat.com>, 
-	Jarkko Sakkinen <jarkko@kernel.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, apparmor@lists.ubuntu.com, 
-	keyrings@vger.kernel.org, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=utf-8 
+Content-Disposition: inline 
+Content-Transfer-Encoding: 8bit
+From: Paul Moore <paul@paul-moore.com>
+To: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+Cc: brambonne@google.com, jeffv@google.com, selinux@vger.kernel.org, stephen.smalley.work@gmail.com, "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+Subject: Re: [PATCH v2] selinux: Add netlink xperm support
+References: <20240910013535.3680953-1-tweek@google.com>
+In-Reply-To: <20240910013535.3680953-1-tweek@google.com>
 
-On Tue, Sep 10, 2024 at 11:07=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
-rote:
-> On Aug  5, 2024 Jann Horn <jannh@google.com> wrote:
-> > -     cred->session_keyring =3D key_ref_to_ptr(keyring_r);
-> > -     keyring_r =3D NULL;
-> > -     init_task_work(newwork, key_change_session_keyring);
-> > +     /* the parent mustn't be init and mustn't be a kernel thread */
-> > +     if (is_global_init(parent) || (READ_ONCE(parent->flags) & PF_KTHR=
-EAD) !=3D 0)
-> > +             goto put_task;
->
-> I think we need to explicitly set @ret if we are failing here, yes?
+On Sep  9, 2024 "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com> wrote:
+> 
+> Reuse the existing extended permissions infrastructure to support
+> policies based on the netlink message types.
+> 
+> A new policy capability "netlink_xperm" is introduced. When disabled,
+> the previous behaviour is preserved. That is, netlink_send will rely on
+> the permission mappings defined in nlmsgtab.c (e.g, nlmsg_read for
+> RTM_GETADDR on NETLINK_ROUTE). When enabled, the mappings are ignored
+> and the generic "nlmsg" permission is used instead.
+> 
+> The new "nlmsg" permission is an extended permission. The 16 bits of the
+> extended permission are mapped to the nlmsg_type field.
+> 
+> Example policy on Android, preventing regular apps from accessing the
+> device's MAC address and ARP table, but allowing this access to
+> privileged apps, looks as follows:
+> 
+> allow netdomain self:netlink_route_socket {
+> 	create read getattr write setattr lock append connect getopt
+> 	setopt shutdown nlmsg
+> };
+> allowxperm netdomain self:netlink_route_socket nlmsg ~{
+> 	RTM_GETLINK RTM_GETNEIGH RTM_GETNEIGHTBL
+> };
+> allowxperm priv_app self:netlink_route_socket nlmsg {
+> 	RTM_GETLINK RTM_GETNEIGH RTM_GETNEIGHTBL
+> };
+> 
+> The constants in the example above (e.g., RTM_GETLINK) are explicitly
+> defined in the policy.
+> 
+> It is possible to generate policies to support kernels that may or
+> may not have the capability enabled by generating a rule for each
+> scenario. For instance:
+> 
+> allow domain self:netlink_audit_socket nlmsg_read;
+> allow domain self:netlink_audit_socket nlmsg;
+> allowxperm domain self:netlink_audit_socket nlmsg { AUDIT_GET };
+> 
+> The approach of defining a new permission ("nlmsg") instead of relying
+> on the existing permissions (e.g., "nlmsg_read", "nlmsg_readpriv" or
+> "nlmsg_tty_audit") has been preferred because:
+>   1. This is similar to the other extended permission ("ioctl");
+>   2. With the new extended permission, the coarse-grained mapping is not
+>      necessary anymore. It could eventually be removed, which would be
+>      impossible if the extended permission was defined below these.
+>   3. Having a single extra extended permission considerably simplifies
+>      the implementation here and in libselinux.
+> 
+> The class NETLINK_GENERIC is excluded from using this extended
+> permission because the nlmsg_type field is referencing the family id
+> which is dynamically associated.
+> 
+> Signed-off-by: Thiébaud Weksteen <tweek@google.com>
+> Signed-off-by: Bram Bonné <brambonne@google.com>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+> v2: Reorder classmap.h to keep the new permission "nlmsg" at the end.
+> 
+>  security/selinux/hooks.c                   | 56 +++++++++++++---
+>  security/selinux/include/classmap.h        |  8 +--
+>  security/selinux/include/policycap.h       |  1 +
+>  security/selinux/include/policycap_names.h |  1 +
+>  security/selinux/include/security.h        |  6 ++
+>  security/selinux/nlmsgtab.c                | 21 ++++++
+>  security/selinux/ss/avtab.h                |  5 +-
+>  security/selinux/ss/services.c             | 78 ++++++++++++----------
+>  8 files changed, 125 insertions(+), 51 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 400eca4ad0fb..d1ef898a8481 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -5964,7 +5992,17 @@ static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
+>  
+>  		rc = selinux_nlmsg_lookup(sclass, nlh->nlmsg_type, &perm);
+>  		if (rc == 0) {
+> -			rc = sock_has_perm(sk, perm);
+> +			/* For Generic Netlink, nlmsg_type is mapped to the
+> +			 * family id which is dynamically assigned.
+> +			 * Ignore extended permissions for this type.
+> +			 */
+> +			if (selinux_policycap_netlink_xperm() &&
+> +				(sclass != SECCLASS_NETLINK_GENERIC_SOCKET)) {
+> +				rc = nlmsg_sock_has_extended_perms(
+> +					sk, perm, nlh->nlmsg_type);
+> +			} else {
+> +				rc = sock_has_perm(sk, perm);
+> +			}
 
-Ah, yes. Thanks.
+I agree with your approach of ignoring xperms on generic netlink sockets,
+it seems like the only sane thing we can do, but aren't we always going
+to fail a SECCLASS_NETLINK_GENERIC_SOCKET check here?  It looks like
+selinux_nlmsg_lookup() is going to return -ENOENT in the case of
+SECCLASS_NETLINK_GENERIC_SOCKET which means we never hit this chunk of
+code if we are checking a genetlink socket.  If selinux_nlmsg_lookup()
+returns zero, I believe we only need to check if the policy capability
+is enabled before doing the xperm processing.
+
+... or am I missing something?
+
+Of course if selinux_nlmsg_lookup() were to gain generic netlink support
+then the check would be necessary, but I don't see how we could ever
+properly support generic netlink using our current mechanisms so I doubt
+this is something we really need to worry about.
+
+>  			if (rc)
+>  				return rc;
+>  		} else if (rc == -EINVAL) {
+
+--
+paul-moore.com
