@@ -1,61 +1,60 @@
-Received: from sonic309-27.consmr.mail.ne1.yahoo.com (sonic309-27.consmr.mail.ne1.yahoo.com [66.163.184.153])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C473F178378
-	for <selinux@vger.kernel.org>; Thu, 19 Sep 2024 16:34:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F17D2208D0;
+	Thu, 19 Sep 2024 19:12:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726763692; cv=none; b=N5lnvxfhcznZLQvt2lRFrZ7n/Hi6HiuDsNxSRnmidLCK/sYs9Hgm/cBuQ3C/TFuLBc8fUVW0mAZhSN/MvZ0yBh1EEi+8UzIC8vE0iPXXperEi1eYJV9iUhbpL9pTEjJ6FZf8dD+X+jppCRFfStWVGAOLBOSF2E8bApFdckCHyKE=
+	t=1726773148; cv=none; b=L/dcH7/BJdZ23yKS2CHhhAcuGGNlQnPBIBqH9SUxt5cdNoyjdmojmXknBPEP+onrVn04RfGWmEKHkQxYClCwOVQYWIXdpGKMIj88DSF1uRDlKfWHB3vjKsnc2WXd79GeToz0OpE4ELCPe+u4xUcgt+KYyjN5Jcg4i0DGpNS1Nb4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726763692; c=relaxed/simple;
-	bh=zFqv4WgHRUdEjs8Q5QnfEYHLURJwP1mpKMoQwPZlBms=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=XYZGGfddwflpb47CAa7OttwbgPTt5rx0Uszlyd5tle7TrWqLckkNxvq81aUSGDSF7AZjtZRRCkna5G4ggtzsq1r4LTVrWWGDudQlM+jhv0Zlh/sbI6pfAqMJyk4DzQBJxHwBL9ox+z2hMblK2ZQhWuc33T/nQb/5GPsyOT6xDxM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=CnHdoxki; arc=none smtp.client-ip=66.163.184.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1726773148; c=relaxed/simple;
+	bh=zGHRtNH0HtiNux6L2M1nTJQ42ddSQcZjRws0nmEhOqk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:From:In-Reply-To:
+	 Content-Type:References; b=UhmPOrLv0G3ZzYzNbbEDA93qeZURnfIZUpy2KYxDNGevMiRyzao6KNPijLmf0E1a7OdFXb+3uFzoHiu0KqAJRIYRbxu+p4yCmwr91cJ13EVR/sJ3QPYPD9pQT1tsN1xwwXeIguEHog8Fu8Rzk2YCjP6N7mz2bZ0hCy+QCBW/dD0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=fzvLBANY; arc=none smtp.client-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="CnHdoxki"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1726763683; bh=aWJ3Rx86nNVzpTXxQhY7S6MpCMjl3ixKOcRPVKn/ZEo=; h=Date:Subject:To:References:From:In-Reply-To:From:Subject:Reply-To; b=CnHdoxkiWmfEUj/pgHRLpQYf5bA5IowHA/zVHCeBo97vgDflfNss9BI7WAITJ9ojWyQf4L9CSoc/7HfR/404hSnBjDgvXQm+FsEvhzzRlARtIbFlrSb33cZSwwqzgtCA0EnGLmYc2ZOcL3rmjakYhqg1g6MOISzmlorFjmQ0osCJvunVyTNLxID/aIruSRdl3p8bruedZ6cHMAowOGQrW9W9gK1JuzQUGgfd7el6SNqkAyT/2L3W2AtSucT7Ustjs9tOzBs1sgFAKm9z8gIcHC8/gT2ETLrMwIv+IQ11f6LkM+/NEij2DkYA3vxjpPWpvSbD465LXjdzjFygPdbMDw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1726763683; bh=MwNYhBEh55nNyv9mSYCPTK0fRyZSqHqz/Q0J9T5rJaO=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=d7ILgMfIY130o3sk3pMyRYdOIFStVaNjMBxu6c29CL8oRRKHAuAunDl6BC2yQuaO/JK3Tq3y/dvEtOtt6ZqYuvRgXK1k8SSsEtwIxCK7S6i/tPsrIkB3TWShIvXPH+CyDIgKNK84HHacx1w+rCqWqBng6laorl9P9WQrk/SNLUbsyuHCpM/WYP+vpc0/kWZ/Za+iMYsfvLowIcGwh8VPEbDImyVxCfdeX1/n2URNjeIikVA5fs5PPxfoMCQnP+/9FiPR6ba2//oxmEdqcsLkGLLx1QkVsVRNCHNoxIlS1Pj44VCnQ1Gp4p5AaoZnKqq3z6dYdfiK1/rBCx14hAMiGQ==
-X-YMail-OSG: Qtw02OAVM1l4y_Pp01yFPxKMRJnS1ZJb0ytYes4qJi3dG4_in8KNDp5YunqUkI8
- c0qz1A5uQTu9MPEIzZezK9hdDBVZ.kv5G6XOHxcuMfXhFtn.bWqfj5v3NZ.CzEof7XDg9oWTgVwj
- pwQmN.ReQHs7vjmd5rbwv831q0yR_NVrYA2OR.MG35.vJE_BiIlWJgV4bvpucMyuQh88e6IvhArV
- ELqJZp9RO9XCT_1klSIkgoajE9IdzvhIwHI.tB9qlQ51hxf_.YwKqnrI8Hrvf0hliAWdlOSCPbcw
- dmqbDazenMxE0tgKTxZU8sWDi_iOyGITmhM0TMlDUC79Bh1ahLtCoEh5gC4.0aNAvjSF8sOBLCES
- FaaR86wEQ48phXO2lOOC9wNI5QeGCOyCwqANSFZTUnMW5QmjSBECr6Jn7vH0SUdALSPvTNmZSW2u
- FyekiA17dyjAKHCZgN0s_RaEXr3VZQujintoBXrtfprPA85d2QvUMBeP3STE4JY5VIugn30n1xK9
- kPNiryu1lAIiWPCxkrRDHyJAjNTuA83IhLGRpPRiLZUvC9nT82dCQADet2NzjfrUulbbO3eniCED
- 69BeA_Gph95KkulwC9lNC8ttU6eBKrh79D3vwCt2qnGi5OX6lUokrbU9eYzg_6IJ6i6McJuDcn7o
- Nb8vIKWydMNpr8I03cGaZmHtIjg5vl0ZyztBnuWwznKUdxvTY4o.7gZJUWnTyDFMxVtSWXr0vrky
- MSZbCQWdpUCuZ3fVEVQTbo_ER5oTSdnSf9uM4ztBh7DBLJsmzKWqnP_TchncS7QPGB3Nor8E7ms6
- d97Nky_ermFncCoWH1KzvgF1rpud6XKWXPK60jHknZCJJDlhpL.rSZ.yHTfSh9fueF.vQF9e23EK
- IcVL3ZcjmyHs_7azE.CpB0cMBFyWHdSbAVmdEx_PKZsjeVRlPs3JUBrQg.gU7_by0qqvQAbdiWzC
- 1ie79NfAjF4DTiJoofFq95nJUbZrQvzDPrUPAOX3FrKu88XnG3pF7dqlGbJ61PBmEYIaUEJNhsXV
- ng6oe06OD3gDRyyRwikUJv5oRLz1Coc87ofMWAxwLxiehcGCu1nFTygJ5ljBpddljg8BBrQ0gP2l
- Axufo.aPM1QJrfDNzvePbOjd7UIfSodX0pGIwsLCQ6TYWbVOu97vzxcD0oOE7nQg0NlX9DwuLeQR
- tcNdTGugor3omRcF_R8nYIdDVIDaLbiw7vp279uf6GQaModB6UIPFnIYxeaB2ZQKbO8gvmKeF0_7
- q.mjYPWb2P0lEyqmbEqZ.0ZMR_h0rxXQVrmSpC7JD4ZLGfr9j_PAdz4myLCpRZoTDy8fedZbD55e
- bb4vJzG9zKGI2HimpHJfXDHMMCWNF8e30I8LSgXvsk4g_XwEL8H6a_KzKBWZtluuCNp27qOkTS4H
- KQWHKP9dodOSWQ5OyQ8m11VjhmaisQrw4VgnT3yr5xFTzYLbuYNlMWQcaxrCZ.aPwGJWuAvIvpwo
- OY_SX2sju1tVd71sXw_Dos3g_PRXi5ZOm2sw0z5CysYkPPH2BJcHZakeAepc9cXSH4y.CA.ZVw7j
- 2CplNT7fJKa1CeVumAGDWhktaInWWayHokBshHfXSytSK9ZUPMhbcbpM5ZFTwaKD_BEPMdJJbILP
- t8GsgYyk02hYKXwONvvBJei7cLG6e6F5knSicV08ODj3tMNZSOEdEBUmrtn24VvjW4woesM1zBMm
- oW4WfBDKw63k6rfveLiA7xXyQY8ED0RovAPfRwPyDFUSVjU1PsXhDjXoQ4K7Lirk4jndL1zkBtat
- 7joOGVR0jpFMhVezLAOfe0ENkJrRPLKWrlZJ6BMP0JodSl97MVexOSyTrkW_JahT7eztH2182VDA
- 1AUtrc6MeC_thnMuV2lROLZFwaU.ISPPMzCtzgibzNusKjzG3mbnX2zXlZIjLnw9JkFJwjmc4FnY
- c0ffoI4er37Y2lhCQBIS2fBRK_xK.3vVq4jAu1GNHmzpjg.7r4nH8Cd9obam.nVRxOyAhBgdVCxS
- grwWjA41vQ9c.1PShe_8FdVFntabyBLTwACLj4P0jngzzdlmgyqBhLE1xJjLZ4VeLd_DzvnF0yM4
- _G1fNQWW3KwZxNLYdUP8Yoe4NzVPjSA.Law91Xep12b7RTFR.EVDLz3IdOERZmscPtrnJNyUbyjR
- nguo1M8K8nZ4hQ2BLkRvs01v.gygTIUKqg_FyiJrH6sXO1Fkef44TpWIW72fqZd7cgOZS1.8T1LK
- mJsflUcAdqqmLCbtmkNerlat.JCC.pFK3azqDVxQ-
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 48e6cc76-187b-4598-9e37-a27bc7befb08
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Thu, 19 Sep 2024 16:34:43 +0000
-Received: by hermes--production-gq1-5d95dc458-m8nfd (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID ef3b6a98c6bcfef906696630f893e828;
-          Thu, 19 Sep 2024 16:34:41 +0000 (UTC)
-Message-ID: <45b4a802-6f4a-42fb-85f3-ee2b97c64c07@schaufler-ca.com>
-Date: Thu, 19 Sep 2024 09:34:39 -0700
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="fzvLBANY"
+Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20240919191221euoutp010ddd44cc9e7483f2de1362b72161a6e4~2uwYTi6ct2616526165euoutp01c;
+	Thu, 19 Sep 2024 19:12:21 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20240919191221euoutp010ddd44cc9e7483f2de1362b72161a6e4~2uwYTi6ct2616526165euoutp01c
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1726773141;
+	bh=5wMWZ+g85x3/VQ4fe0nCOsxCOPo6Ph9ygPWjlPbrfW0=;
+	h=Date:Subject:To:CC:From:In-Reply-To:References:From;
+	b=fzvLBANYeCN29tswLwUd47pXXc6AIHl4SdOotmBcpN7h4RgkQuES0RWvwTyB+1PqY
+	 l6fR+qZymcrJAUga1SRkwi8ZqVPiz8MlXoCeBIAsBlKEdUKM91n2A8+xvmdQxxaeiC
+	 HXq/LEs57wGuy/k0nXaH8BWMs//KbjyFOD+WNJ8w=
+Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTP id
+	20240919191221eucas1p17631c52c12e9eac528029fc313e0de7c~2uwX8PxpR2404624046eucas1p1A;
+	Thu, 19 Sep 2024 19:12:21 +0000 (GMT)
+Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
+	eusmges1new.samsung.com (EUCPMTA) with SMTP id 7C.44.09624.5977CE66; Thu, 19
+	Sep 2024 20:12:21 +0100 (BST)
+Received: from eusmtrp2.samsung.com (unknown [182.198.249.139]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+	20240919191220eucas1p23f207681d0268c632f46323fd5ac9107~2uwXFO6tm3227632276eucas1p2i;
+	Thu, 19 Sep 2024 19:12:20 +0000 (GMT)
+Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
+	eusmtrp2.samsung.com (KnoxPortal) with ESMTP id
+	20240919191220eusmtrp2b6213760a633a6ab532f5875087dc3ab~2uwXCvxYJ2424224242eusmtrp2m;
+	Thu, 19 Sep 2024 19:12:20 +0000 (GMT)
+X-AuditID: cbfec7f2-c11ff70000002598-0c-66ec7795e51c
+Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
+	eusmgms1.samsung.com (EUCPMTA) with SMTP id 13.E4.14621.4977CE66; Thu, 19
+	Sep 2024 20:12:20 +0100 (BST)
+Received: from CAMSVWEXC02.scsc.local (unknown [106.1.227.72]) by
+	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20240919191220eusmtip26823cf362cdfc852c6290fd3d6148856~2uwWtZnoN2388723887eusmtip2S;
+	Thu, 19 Sep 2024 19:12:20 +0000 (GMT)
+Received: from [106.110.32.87] (106.110.32.87) by CAMSVWEXC02.scsc.local
+	(2002:6a01:e348::6a01:e348) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
+	Thu, 19 Sep 2024 20:12:17 +0100
+Message-ID: <d2726a61-37fa-4c39-aad6-08bf99d8d14b@samsung.com>
+Date: Thu, 19 Sep 2024 21:12:15 +0200
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -63,81 +62,233 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] selinux,smack: properly reference the LSM blob in
- security_watch_key()
-To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
- selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
-References: <20240919155740.29539-2-paul@paul-moore.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20240919155740.29539-2-paul@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.22645 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Subject: Re: [PATCH v2 3/8] drm/xe: xe_gen_wa_oob: fix
+ program_invocation_short_name for macos
+Content-Language: en-GB
+To: Masahiro Yamada <masahiroy@kernel.org>
+CC: Nathan Chancellor <nathan@kernel.org>, Nicolas Schier
+	<nicolas@fjasle.eu>, Lucas De Marchi <lucas.demarchi@intel.com>,
+	=?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>, Maarten Lankhorst
+	<maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>,
+	William Hubbs <w.d.hubbs@gmail.com>, Chris Brannon <chris@the-brannons.com>,
+	Kirk Reiser <kirk@reisers.ca>, Samuel Thibault
+	<samuel.thibault@ens-lyon.org>, Paul Moore <paul@paul-moore.com>, "Stephen
+ Smalley" <stephen.smalley.work@gmail.com>, Ondrej Mosnacek
+	<omosnace@redhat.com>, Catalin Marinas <catalin.marinas@arm.com>, Will
+	Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>, Oliver Upton
+	<oliver.upton@linux.dev>, James Morse <james.morse@arm.com>, Suzuki K
+	Poulose <suzuki.poulose@arm.com>, Zenghui Yu <yuzenghui@huawei.com>, "Greg
+ Kroah-Hartman" <gregkh@linuxfoundation.org>, Jiri Slaby
+	<jirislaby@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, "Bill
+ Wendling" <morbo@google.com>, Justin Stitt <justinstitt@google.com>, "Simona
+ Vetter" <simona.vetter@ffwll.ch>, <linux-kernel@vger.kernel.org>,
+	<linux-kbuild@vger.kernel.org>, <intel-xe@lists.freedesktop.org>,
+	<dri-devel@lists.freedesktop.org>, <speakup@linux-speakup.org>,
+	<selinux@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<kvmarm@lists.linux.dev>, <linux-serial@vger.kernel.org>,
+	<llvm@lists.linux.dev>, Finn Behrens <me@kloenk.dev>, "Daniel Gomez
+ (Samsung)" <d+samsung@kruces.com>, <gost.dev@samsung.com>
+From: Daniel Gomez <da.gomez@samsung.com>
+In-Reply-To: <CAK7LNAQDxVGOa5g3f_dqZ5nD_u8_a++T+ussL+AWuOXs-XOsow@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: CAMSVWEXC01.scsc.local (2002:6a01:e347::6a01:e347) To
+	CAMSVWEXC02.scsc.local (2002:6a01:e348::6a01:e348)
+X-Brightmail-Tracker: H4sIAAAAAAAAA02Ta0yTVxjHPe+1INWXStejEIldumUQmCboziZBt/DhXYKJlw8ys0y68YJM
+	bmkpbm5GRO7gxkUodNAhlFtlQysgV3HAWjpAQBCRy2CRu1ynjovMjlLM+PZ/nvP7P8/5n+Tw
+	cMFrag8vIDiMkwVLA8WUNVGpX+lwSb8w47d/6qUQtTzOw9B8YRJAeu0kjmpNQzjqeTlPoav5
+	ZRRavjOJoeF7RRiay3FAGTfzKaTuMhJouryJQLqnvSRaq6nCUHdNNoXa8q/RaPR6A4XGnhZS
+	6MZiBYH+GukjUXW2kUT1Zd0U0nU/J1FMfCGJYkvGKLSQbMLQeH0LidJXZig0m/w7jQZSlQRq
+	UPXSqHhZCVCHQU8jU8NeVFnVDtBERxpAWQMDAD2rWh9cPpNCoryYD1DU4EH0pOAWfdSJLVWX
+	ArZO306x9f/kEmxN4x2KrVYN0WyuTsFGNc+SbH7dFMbqtPEUq45XY6zp2gjJNpvyaPZGRDrO
+	qo0n2IacUpodTjRgx+EZa3dfLjAgnJO97+FjfS6mNpMOnd77TcTN7RFgUpQArHiQcYPKSTVI
+	ANY8AVMMYFNsBW0pXgAYvZyHmykB8xzAfzMlbxxZtRGUBSoCcHC2ebNYh14tpW0W1QDqO1oI
+	s4XPeEDdgyVg1gQjgbdq50hL3xYas0Y3GCHjCIf7M2mz3sX4wIIE5QaPMyIY+aJkg7djnOBg
+	QRxpXoAzUzZwIrVzw0wx78F7Rt2G2Yo5AdVRf65r3jr0EVS2fGqZ4wivVvyEWyLsg5kpJYRF
+	X4J/lPdj5pmQqd0OC283kpYDTzg3ZtyEdsFpQzlt0Q7QVP0zZtH+UPOrapMJhXUDKtK8FzKH
+	4Q9tgZb2x7BszYBZ2jtg36yt5To7YGqlEk8GEtWWl1BtSaz6P4BqS4BcQGiBiFPIg/w5+YFg
+	7oKrXBokVwT7u34VEqQD61+k9bXh7yqQM73o2ggwHmgEkIeL7fiihSk/Ad9X+u1FThZyVqYI
+	5OSNwJ5HiEV8ia8jJ2D8pWHceY4L5WRvTjGe1Z4IjBdx+rvVw5rVDLfOZ6aetyQtXp2/ZPu8
+	i+mzT43f9r4c03vSTubYcX/V9vShhVFh/nzSqZNj9p454R9OdOFKr6b6ZEnrl5ELS2ekI3e1
+	ogRx0aL7F9ijT74XeOAZLp2XNCkhjo8Mv7Xv65OIAxTuV8Z3DmmOK1wOKdWSh86Ul+agzcP4
+	aFrS/06c/2fO2kjC/ZV18f36Rd+gNJFwjZdUW9fNVwjHghyWcx7HSJOqekabvS+mGBShsZrG
+	bd47n5iOxF05u63ncrhNtN+K9q7n1yFt9keDAj8vSuZnHdv99phDz/Wu+dYmbX54lPD8j4nO
+	6snoBjc2/kHskd1FiWGD5ftnmsSE/Jz0gBMuk0v/A5xW+OaRBAAA
+X-Brightmail-Tracker: H4sIAAAAAAAAA02Te0yTVxjGPV+/S0GYHxXCgRHFJixCYqFA8WCAbQmZ3xYzZWK2wQAb+bhf
+	TEsFXYzNIHUUMSAqUKFiG1Aum65cLJTLYKzIGJLRwZgIuClyEUEGKjiwA8oS/vud8z7v87zn
+	5Bwuh3eXdObGp6SxkhRxEp+0xnvedo3uu5w+E+NlGnBA9/7QYGiu4gJAxqpJDjKYRzjo95dz
+	JMrU3ibRUu0khsZab2JottQFXa3Wkkj9WzeOput+wpHu8SCBVpr0GDI1lZDoV20uhZ5cbiPR
+	+OMKEt2Yr8fRX4+GCNRY0k2gltsmEulMCwRSZFcQ6HzlOIle5Jkx9LTlHoGuLM+Q6HnezxQa
+	vlSIozbVIIVuLRUC1NdlpJC5bRdq0PcCNNFXAFDx8DBAz/RrxnUz+QTSKPajrIci9Gf5HeoD
+	D6ZGXQOYZmMvybS8KsOZpo5akmlUjVBMmU7GZHU+Jxht8xTG6KqySUadrcYYc+4jguk0ayjm
+	hvwKh1F3hzBtpTUUM5bThR2BYYIASaosjXWNS5WmBfLDhchbIPRHAm9ff4HQZ3/EAW8R3zMo
+	IJpNij/FSjyDjgviFIYi6uT0rgx59XY5mHRUAisupH1hsUFOKoE1l0eXA9hfqsEsBRf4w+IA
+	YeGdcGVQuSmaB7BCn7O5aASwaDxzo8OWDoK6+6/BOuO0G7xjmCUs+3awu/gJvs4O9G449qCI
+	Wued9HFYrizc0HNoR/jNYuWG3p72gA/LvyXWAzj0hA08f0uHWdI0GOzXjm6kkbQ7bO3WbThZ
+	0SFQnTVKWZwQ1M60b/JumFl/jWM5wx5YlF+JW/gsXFh9CvKAg2rLgKotg6i2WKm2WJUBvArY
+	szJpcmyyVCiQipOlspRYwYnUZB1Ye8ENxuVaPVBPzws6AMYFHQByOXx7W8cXUzE822jx6TOs
+	JDVKIktipR1AtHZL+RxnhxOpa18gJS1K6OclEvr6+XuJ/P18+I62H5n6Ynh0rDiNTWTZk6zk
+	/z6Ma+Usx04lMZ9mlX14eDl0OXdHztRLyvcXm72dE831nzXyE2Nmffr1wW6ai1czMkcC4NeG
+	g4PtxRE20ZENipCDRVYXI123lZTWykP6icaZQNPNdCv3c70GP55LwqF/ek43/AgJuGB0c7Ie
+	0r/zSWhynsLp+6++e/8s7RmGuEcH4qvD/9W/MkGdKGT2820KLLp9X/r2yXEZqZrLiFsNi+ap
+	90TefYZlX3fvNKY05a944b0fc5WH/r7+4FigwT3qrS48tL4kaNU1ZuTI/OuFa+L77znWti6t
+	RPRgb84l2CgTqYL6gpwCWH3mSx/jgPldwZtFeztZwiWe3URZ3Y4+py8OD104EBx8lI9L48RC
+	D45EKv4P8XlwBEoEAAA=
+X-CMS-MailID: 20240919191220eucas1p23f207681d0268c632f46323fd5ac9107
+X-Msg-Generator: CA
+X-RootMTR: 20240906144003eucas1p1b8c2be4807e04ced52c4902bfbfb9783
+X-EPHeader: CA
+CMS-TYPE: 201P
+X-CMS-RootMailID: 20240906144003eucas1p1b8c2be4807e04ced52c4902bfbfb9783
+References: <20240906-macos-build-support-v2-0-06beff418848@samsung.com>
+	<20240906-macos-build-support-v2-3-06beff418848@samsung.com>
+	<CGME20240906144003eucas1p1b8c2be4807e04ced52c4902bfbfb9783@eucas1p1.samsung.com>
+	<CAK7LNAQDxVGOa5g3f_dqZ5nD_u8_a++T+ussL+AWuOXs-XOsow@mail.gmail.com>
 
-On 9/19/2024 8:57 AM, Paul Moore wrote:
-> Unfortunately when we migrated the lifecycle management of the key LSM
-> blob to the LSM framework we forgot to convert the security_watch_key()
-> callbacks for SELinux and Smack.  This patch corrects this by making use
-> of the selinux_key() and smack_key() helper functions respectively.
->
-> This patch also removes some input checking in the Smack callback as it
-> is no longer needed.
->
-> Reported-by: syzbot+044fdf24e96093584232@syzkaller.appspotmail.com
-> Fixes: 5f8d28f6d7d5 ("lsm: infrastructure management of the key security blob")
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+On 9/6/2024 4:39 PM, Masahiro Yamada wrote:
+> On Fri, Sep 6, 2024 at 8:01 PM Daniel Gomez via B4 Relay
+> <devnull+da.gomez.samsung.com@kernel.org> wrote:
+>>
+>> From: Daniel Gomez <da.gomez@samsung.com>
+>>
+>> Use getprogname() [1] instead of program_invocation_short_name() [2]
+>> for macOS hosts.
+>>
+>> [1]:
+>> https://www.gnu.org/software/gnulib/manual/html_node/
+>> program_005finvocation_005fshort_005fname.html
+>>
+>> [2]:
+>> https://developer.apple.com/library/archive/documentation/System/
+>> Conceptual/ManPages_iPhoneOS/man3/getprogname.3.html
+>>
+>> Fixes build error for macOS hosts:
+>>
+>> drivers/gpu/drm/xe/xe_gen_wa_oob.c:34:3: error: use of
+>> undeclared identifier 'program_invocation_short_name'    34 |
+>> program_invocation_short_name);       |                 ^ 1 error
+>> generated.
+>>
+>> Signed-off-by: Daniel Gomez <da.gomez@samsung.com>
+>> Reviewed-by: Lucas De Marchi <lucas.demarchi@intel.com>
+>> ---
+>>   drivers/gpu/drm/xe/xe_gen_wa_oob.c | 4 ++++
+>>   1 file changed, 4 insertions(+)
+>>
+>> diff --git a/drivers/gpu/drm/xe/xe_gen_wa_oob.c b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
+>> index 904cf47925aa..0d933644d8a0 100644
+>> --- a/drivers/gpu/drm/xe/xe_gen_wa_oob.c
+>> +++ b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
+>> @@ -8,6 +8,7 @@
+>>   #include <errno.h>
+>>   #include <stdbool.h>
+>>   #include <stdio.h>
+>> +#include <stdlib.h>
+>>   #include <string.h>
+>>
+>>   #define HEADER \
+>> @@ -30,6 +31,9 @@
+>>
+>>   static void print_usage(FILE *f)
+>>   {
+>> +#ifdef __APPLE__
+>> +       const char *program_invocation_short_name = getprogname();
+>> +#endif
+>>          fprintf(f, "usage: %s <input-rule-file> <generated-c-source-file> <generated-c-header-file>\n",
+>>                  program_invocation_short_name);
+>>   }
+>>
+>> --
+>> 2.46.0
+>>
+>>
+> 
+> 
+> 
+> Before adding such #ifdef, you should check how other programs do.
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> Solution 1 : hard-code the program name
+> 
+> 
+> diff --git a/drivers/gpu/drm/xe/xe_gen_wa_oob.c
+> b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
+> index 106ee2b027f0..9e9a29e2cecf 100644
+> --- a/drivers/gpu/drm/xe/xe_gen_wa_oob.c
+> +++ b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
+> @@ -30,8 +30,7 @@
+> 
+>   static void print_usage(FILE *f)
+>   {
+> -       fprintf(f, "usage: %s <input-rule-file>
+> <generated-c-source-file> <generated-c-header-file>\n",
+> -               program_invocation_short_name);
+> +       fprintf(f, "usage: xe_gen_wa_oob <input-rule-file>
+> <generated-c-source-file> <generated-c-header-file>\n");
+>   }
+> 
+>   static void print_parse_error(const char *err_msg, const char *line,
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> Solution 2: use argv[0]
+> 
+> 
+> diff --git a/drivers/gpu/drm/xe/xe_gen_wa_oob.c
+> b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
+> index 106ee2b027f0..600c63e88e46 100644
+> --- a/drivers/gpu/drm/xe/xe_gen_wa_oob.c
+> +++ b/drivers/gpu/drm/xe/xe_gen_wa_oob.c
+> @@ -28,10 +28,10 @@
+>          "\n" \
+>          "#endif\n"
+> 
+> -static void print_usage(FILE *f)
+> +static void print_usage(FILE *f, const char *progname)
+>   {
+>          fprintf(f, "usage: %s <input-rule-file>
+> <generated-c-source-file> <generated-c-header-file>\n",
+> -               program_invocation_short_name);
+> +               progname);
+>   }
+> 
+>   static void print_parse_error(const char *err_msg, const char *line,
+> @@ -136,7 +136,7 @@ int main(int argc, const char *argv[])
+> 
+>          if (argc < 3) {
+>                  fprintf(stderr, "ERROR: wrong arguments\n");
+> -               print_usage(stderr);
+> +               print_usage(stderr, argv[0]);
+>                  return 1;
+>          }
 
-Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
 
-> ---
->  security/selinux/hooks.c   |  2 +-
->  security/smack/smack_lsm.c | 13 +++----------
->  2 files changed, 4 insertions(+), 11 deletions(-)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 81fbfa5b80d4..67baa487cf7a 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -6720,7 +6720,7 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
->  #ifdef CONFIG_KEY_NOTIFICATIONS
->  static int selinux_watch_key(struct key *key)
->  {
-> -	struct key_security_struct *ksec = key->security;
-> +	struct key_security_struct *ksec = selinux_key(key);
->  	u32 sid = current_sid();
->  
->  	return avc_has_perm(sid, ksec->sid, SECCLASS_KEY, KEY__VIEW, NULL);
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index da0c2bffbd08..563fb404f659 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -4629,16 +4629,9 @@ static int smack_watch_key(struct key *key)
->  {
->  	struct smk_audit_info ad;
->  	struct smack_known *tkp = smk_of_current();
-> +	struct smack_known **blob = smack_key(key);
->  	int rc;
->  
-> -	if (key == NULL)
-> -		return -EINVAL;
-> -	/*
-> -	 * If the key hasn't been initialized give it access so that
-> -	 * it may do so.
-> -	 */
-> -	if (key->security == NULL)
-> -		return 0;
->  	/*
->  	 * This should not occur
->  	 */
-> @@ -4653,8 +4646,8 @@ static int smack_watch_key(struct key *key)
->  	ad.a.u.key_struct.key = key->serial;
->  	ad.a.u.key_struct.key_desc = key->description;
->  #endif
-> -	rc = smk_access(tkp, key->security, MAY_READ, &ad);
-> -	rc = smk_bu_note("key watch", tkp, key->security, MAY_READ, rc);
-> +	rc = smk_access(tkp, *blob, MAY_READ, &ad);
-> +	rc = smk_bu_note("key watch", tkp, *blob, MAY_READ, rc);
->  	return rc;
->  }
->  #endif /* CONFIG_KEY_NOTIFICATIONS */
+This approach looks good to me. I will drop Lucas' tag in favor to this. 
+Please, Lucas let me know if you disagree any of the proposals here or 
+if you have any preference. Otherwise, I'll resend this with solution 2.
+
+
+
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+
