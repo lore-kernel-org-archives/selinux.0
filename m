@@ -1,200 +1,348 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD4295C603
-	for <selinux@vger.kernel.org>; Wed, 25 Sep 2024 20:11:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 090E5146A79
+	for <selinux@vger.kernel.org>; Wed, 25 Sep 2024 20:11:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727295087; cv=none; b=k6bX3z2mrPoRwcXvrDVo/IRQVRzrgilXxd2VgY3jhwAgOnFlpSoxkpJ6zeUSpZvC7kHgn4gvV9a+FwK0S9SxcKtByu3f47K7FNdyHtkyDzpr4rzRyEg3zSPAEYLLLqBJ6BpwnWim8rVzcpwILmgDSZaFtnMRUylPhhz0n6TWxdI=
+	t=1727295089; cv=none; b=M73pEBenrpBqZ+coOUYpeSkLLnwARa6Qa0nKWhBiL1uyn1ABuQtAitMRwKRh98zI4LqiggYle+ysnc+Oi9cXRUhOs58CTnxE/FDshqWxyZFoXrKmFpH/6a0NnSaCc/jb/kkwjiil12AQIKI2PG9oi4U3d/6I58rgHehUefBIjbs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727295087; c=relaxed/simple;
-	bh=bRCaExXn9SJy78GX6WWTPKudwEh0moYHW8c3sqQDsV0=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=n0+uX1eAGKZEje8sKCYHkNugXr6NVAoc3SA8VphDe2sLZgo9l5SnEQZRDxKKxLbNp5huXSrl/LskeL3OIaw4BgU3ok0wZG2hx13qCzTUkM3ixaIB7PMcfwEbj3zcMWIPO0lP0aFBK1Nnv+hIoQm5H8jNw7Ygvfx2VzEs38QBZG8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=buVgg/ab; arc=none smtp.client-ip=209.85.219.44
+	s=arc-20240116; t=1727295089; c=relaxed/simple;
+	bh=VLx6uUCjYaISG97Wa4TOTiMEM7nvsnd5jlDemBnYp5o=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=bbbf2Bves2nhfgJWdx1RFXNLdt18PimhLbgR5g276xzhQJM5/GjII6Ir4yI+0Kpk9w1rWfIVrKCBWKHYoZVdH96U8fNlVnkHDc45vG/XeKnaG9mEL76VQax+E8BlUNWh422lvf3Dg2r+HfVlhv61Q8rQizQDJhlRtu4DkCxEyEY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FM3DwHdy; arc=none smtp.client-ip=209.85.222.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="buVgg/ab"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-6c54a5fbceeso1673146d6.2
-        for <selinux@vger.kernel.org>; Wed, 25 Sep 2024 13:11:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FM3DwHdy"
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-7a9a30a0490so20149285a.3
+        for <selinux@vger.kernel.org>; Wed, 25 Sep 2024 13:11:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1727295084; x=1727899884; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=v8OUFDaNsvebsCZrN+7fE1u7ofHj89SjASR+7VwOrCg=;
-        b=buVgg/ab3jfC5lIB6lWmyUZkmFS9vf6mGBy2xR/8q1l2C8ugwE4YAQYN7zwYRz9+aF
-         LwmnM1bD0xv34sdqlEAsSDVov6EJlaHAFdz58w62txe+aD7jH2GdTfnpeqMFAvewfqXl
-         vrqzFOva7lMHBmKwozTijAOVTrRykEyyyBhOtY+T6iYI6mNif0VGSHxzyIkgkxZWxwlB
-         CB87qt/NFBSY4dtGobj7OFXPZJJ2g0Pl7PR/TmzgfVT7CCyLGpWrIy4bxsdLPfOUH+RE
-         ZIJ/bFvpk79UsI0DZ4HDyu2fj1g0Jwi9rca18+yyaiUMvy4Zul13BPLg2Uk54GCWm3mK
-         fpnw==
+        d=paul-moore.com; s=google; t=1727295085; x=1727899885; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5Uyf/GUiwSQZXJjnlZ1nQhvOU4Gfs+64eQH8EvYYLKw=;
+        b=FM3DwHdyMjVfkzAzT8CkmG+J3jTqKC4DyHx2enHW7u2xGSISTxkO2JjtlSPKefp0Qz
+         sHroi18Eu+cZKNzGNTOVtDcrS07gPQQJRMn2HVufpp93G5nqKpFu9yTgxn7ETxeUkKBG
+         Q8u3oR9En/G3iCd5SjOC8KD3DdQ70EL/Y3GgPYhtn2ut7RkrrgPBS2HeeD4vF7VXxvlY
+         lrYI3mBm21mOrvSomBvCVIerD7tPlQEZIuYIp5lQi7QEYeZf9U5W9wHokGkrC7MKi5+R
+         15bo33H3GG3rtvxAes6WLmI+6hLE1HG0KrByk47C4rLwAl6ybIGu0N7UkuF1jy2PxaSV
+         id6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727295084; x=1727899884;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=v8OUFDaNsvebsCZrN+7fE1u7ofHj89SjASR+7VwOrCg=;
-        b=fvXBUgeU6N62vJommWotUvkuBg7nSjO8SObouIOO8CH0iWiQtzbLqoQJmYpYESxilY
-         jNWdZgFpIsa+m93LHWNY7D2+D/LqvcDbozZNRUQeaj6HFvqgjHbJ7uztleLgQv6RyEQt
-         M3wHIqy1IbkNIky6EyPj6dQG6LaCs1efuCKiut4RSUPnYC6x2MEEDBW2OFCTmnlRsPJF
-         X8k+gtKHy0DQCrAeSyvFrw2RTRlo+CugL3inrUpB6B8jrJv1QEbyVS9vs2uqoH9hdojg
-         MuC5qTXYoQ6aSAKbOLavYoRVCoBwqCou9OK2r9oWb+GqU67YlxgQTAdhssWpDvMyhJrJ
-         FTrg==
-X-Gm-Message-State: AOJu0Yw6Del6qgDZAELaaCVpQHPFicQdWSEoSHRsqreEz9g+Jdf2nxCk
-	+WnyOJ4eWCnYoD4jjAEllZr03HFmojDzMIioIePdCIpLphkHFSDea8RsiccnuXWN+aHImzC0KJQ
+        d=1e100.net; s=20230601; t=1727295085; x=1727899885;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5Uyf/GUiwSQZXJjnlZ1nQhvOU4Gfs+64eQH8EvYYLKw=;
+        b=XVWKHdOm90BYQPaB623mqIxmovdP+dJr3xrMLkCV3AGJanTg82VzfhSybDXRLj1RcX
+         4310JnujnEetLIwh5CEkAoRzA2yYVBAruSRbutsnGMZGOFbcXsoHPwuiDpoozH9tZVuO
+         Lkn8KzqAUa2GXtGdyeb95J1vKf2xDnad1tbJ4VyRz2zvcOgYvGMPJ9FhaK6Pd3LbXhuK
+         fF9dyA2MptoRgXSu3leeSbYS4cC48KgAFLCxnMc0vG8w/PJSwTMfKiTUZX7vN2JgM2ia
+         tuF8ivgkWa47Jt6xcRYOo0+NU17pt3cQtWNr48nGa3wiW6A+im+GEflsCFuRfUOIEceM
+         0IgQ==
+X-Gm-Message-State: AOJu0Yz15VlAp9iMrpJE732FpQNYA1/6hKfeXKe4VgvAa4DZ4bF6re4r
+	6ccwu9bvjBAxrk4SIhDcyFxH3UhLsYtee1/CSqrs9PnOtdSFC0onr+QzXfZpBu5rzZJXtyIrp+s
 	=
-X-Google-Smtp-Source: AGHT+IHYC02Rtr9sXnIbiv0xGGHSg6NBXpv+1JjOaGTWSfp1J5AomNto6I5HiX/RK88QvF4075lRKg==
-X-Received: by 2002:a05:6214:3287:b0:6cb:2ad6:78ef with SMTP id 6a1803df08f44-6cb2ad67dd6mr25635526d6.4.1727295084370;
-        Wed, 25 Sep 2024 13:11:24 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEsVHp8iERC8+BWYK2N6g3JqB1+gKugO9BzSe1Q6uou44GLc0ZB9OSTW+9i4oEM5j2ccsa9/w==
+X-Received: by 2002:a05:620a:4555:b0:7a9:be54:4b00 with SMTP id af79cd13be357-7ace7412827mr564186785a.35.1727295085500;
+        Wed, 25 Sep 2024 13:11:25 -0700 (PDT)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cb0f4c2f51sm19135376d6.31.2024.09.25.13.11.23
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7acde542f6dsm203437685a.49.2024.09.25.13.11.24
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Sep 2024 13:11:23 -0700 (PDT)
+        Wed, 25 Sep 2024 13:11:25 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 1/2] selinux: streamline selinux_nlmsg_lookup()
-Date: Wed, 25 Sep 2024 16:11:07 -0400
-Message-ID: <20240925201106.16134-3-paul@paul-moore.com>
+Subject: [PATCH 2/2] selinux: apply clang format to security/selinux/nlmsgtab.c
+Date: Wed, 25 Sep 2024 16:11:08 -0400
+Message-ID: <20240925201106.16134-4-paul@paul-moore.com>
 X-Mailer: git-send-email 2.46.1
+In-Reply-To: <20240925201106.16134-3-paul@paul-moore.com>
+References: <20240925201106.16134-3-paul@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4491; i=paul@paul-moore.com; h=from:subject; bh=bRCaExXn9SJy78GX6WWTPKudwEh0moYHW8c3sqQDsV0=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBm9G5a3e6LIVkkyYpFKpY+rLQdpHZl2t8K9gIuH aVcovpHkJiJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZvRuWgAKCRDqIPLalzeJ cxPzD/0f5mVGBWvo+cTx+V8HrZxjF/P98q6IR88PFyZLvZPmRf//unFXupfh/0PbeOIZKXHX8YR HsznyD3mJkGIS4Dk4LvarzVhOPXtUbJyqrfGCIDwa1nrNChuQ/9mPHtoRe4EkzgSuaUiE5htk7k /Ar97IYTNM9kH3bOhTFpqh/G/zXsoseLWqkkyRHOz9Mo40iqWDfhBa0XWWWlO1+U64t/NIUTxlR 5JjHj9om7KSI0DW+4KIzl8+T1MHNwf18KOpip4VZD/YUHZY/MZ5aSElGkzv8VBt5jVGxMREnL9e K3xjk+5xgA0mw7AbKCNoEShVxr0/pVsAjgyoV9PIPrbf1D7KykoBGiCstEiZkOi/75k58LozGp5 qBXFvgoSGI7eenDMN23gzzoVZPvzClSVzM8nftWNtt0ovuTNr3EDaTKh70FXiWkvL8kMQeL0OeI pwoJ3Q8XP9NFQiGg7970vaBCO3siMc34x9Xqcwbe4FxUNtq9pxUOLn+MeoDGp6wQ7Ma0OeQ8RfI GfJUzI9+dWE79amOFCGm5O3qJSSfqIBD0brMRilbEr9RgpWSIEkJI6xyxgQbBNQm+OMdvOXhdpR gzDiC1VNlUtnH3zuW4TSSFm12WQKPSwOf2o0caBJbkD0+BMOQmZNMPSUIOt6C0NSPRvLDUc2E97 OOiBAhIimKEcAtA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=14410; i=paul@paul-moore.com; h=from:subject; bh=VLx6uUCjYaISG97Wa4TOTiMEM7nvsnd5jlDemBnYp5o=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBm9G5iYSwV+B/lebqivBq1MIs6mTPRo+q27tHla 9MJlFltClWJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZvRuYgAKCRDqIPLalzeJ cwyLEACndAFQtECGGfC3CUv2jDYadbPeEnVd4C8alXyw6+yP9tzdZ9+YX0LksdJGjQHLegm2fqM bu5gI507KHVrJjLyMXG52mTD8FppO2Dq3TWtPIweFsgPoro5R6VJXJOxpplgI82zkilL+GS3yH3 lsVTNEj9ES33dyIhgrPNt3XgP1buMmsEWkEw6tZcJQGDbuHb60qClkx3Or5eCE+jDIMhxYbZoos b8ar0TV7F5Y2qPDMzE93pnj191WkwDclysHKly2EZDteRpQxpZue7pszoKuu77IikhNz2/CG5cu fu2es/Q15qfvcgIlnXVw6rLINPibyB2AO9EPUiyFivPEB6ayRDzOie2Nss5mp+e798w7xCKkd05 NOBNPupArR7nwlb5/U4cwvb9FXmJmMM/lF3ufXOPE4lKOuQEOtpy7lH6Po6/SO4rvuYyiVsLYZt mftlz4HuB6BSeu0/AYGMliuYpz81BQRp9mSkqhd8Y9OWAkDYgYdvz5QXFunFAlO+s3fywaTB5dQ ky/Iznl1CrQdRQNwy6aV+VyDXr2lJgl9Gg3EBCk63CCk8c/iLH4pncrdkp80+VZXUh2lfhIyRpM XaN8wlW09fWXGmeOgTrs9SmB3PbsHqU8W+iRBAv2FMJcFhAnKV8qDkVOh1AyWW+2x3LSEZD1DaW XhYGuZWSGUEOZHg==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
-Streamline the code in selinux_nlmsg_lookup() to improve the code flow,
-readability, and remove the unnecessary local variables.
+Update nlmsgtab.c to better adhere to the kernel coding style guidelines.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/selinux/nlmsgtab.c | 90 ++++++++++++++++---------------------
- 1 file changed, 39 insertions(+), 51 deletions(-)
+ security/selinux/nlmsgtab.c | 236 ++++++++++++++++++------------------
+ 1 file changed, 118 insertions(+), 118 deletions(-)
 
 diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
-index acc7d74b99d5..f68b4f493de6 100644
+index f68b4f493de6..47117b4f991f 100644
 --- a/security/selinux/nlmsgtab.c
 +++ b/security/selinux/nlmsgtab.c
-@@ -168,34 +168,12 @@ static int nlmsg_perm(u16 nlmsg_type, u32 *perm, const struct nlmsg_perm *tab, s
+@@ -21,142 +21,142 @@
+ #include "security.h"
  
- int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
+ struct nlmsg_perm {
+-	u16	nlmsg_type;
+-	u32	perm;
++	u16 nlmsg_type;
++	u32 perm;
+ };
+ 
+ static const struct nlmsg_perm nlmsg_route_perms[] = {
+-	{ RTM_NEWLINK,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELLINK,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETLINK,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_SETLINK,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_NEWADDR,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELADDR,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETADDR,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWROUTE,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELROUTE,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETROUTE,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWNEIGH,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELNEIGH,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETNEIGH,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWRULE,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELRULE,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETRULE,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWQDISC,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELQDISC,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETQDISC,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWTCLASS,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELTCLASS,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETTCLASS,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWTFILTER,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELTFILTER,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETTFILTER,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWACTION,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELACTION,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETACTION,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWPREFIX,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETMULTICAST,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_GETANYCAST,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_GETNEIGHTBL,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_SETNEIGHTBL,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_NEWADDRLABEL,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELADDRLABEL,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETADDRLABEL,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_GETDCB,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_SETDCB,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_NEWNETCONF,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELNETCONF,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETNETCONF,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWMDB,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELMDB,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE  },
+-	{ RTM_GETMDB,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWNSID,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELNSID,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_GETNSID,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWSTATS,		NETLINK_ROUTE_SOCKET__NLMSG_READ },
+-	{ RTM_GETSTATS,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_SETSTATS,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_NEWCACHEREPORT,	NETLINK_ROUTE_SOCKET__NLMSG_READ },
+-	{ RTM_NEWCHAIN,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELCHAIN,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETCHAIN,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWNEXTHOP,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELNEXTHOP,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETNEXTHOP,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWLINKPROP,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELLINKPROP,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_NEWVLAN,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELVLAN,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETVLAN,		NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWNEXTHOPBUCKET,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELNEXTHOPBUCKET,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETNEXTHOPBUCKET,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+-	{ RTM_NEWTUNNEL,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_DELTUNNEL,	NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+-	{ RTM_GETTUNNEL,	NETLINK_ROUTE_SOCKET__NLMSG_READ  },
++	{ RTM_NEWLINK, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELLINK, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETLINK, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_SETLINK, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_NEWADDR, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELADDR, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETADDR, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWROUTE, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELROUTE, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETROUTE, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWNEIGH, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELNEIGH, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETNEIGH, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWRULE, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELRULE, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETRULE, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWQDISC, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELQDISC, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETQDISC, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWTCLASS, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELTCLASS, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETTCLASS, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWTFILTER, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELTFILTER, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETTFILTER, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWACTION, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELACTION, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETACTION, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWPREFIX, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETMULTICAST, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_GETANYCAST, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_GETNEIGHTBL, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_SETNEIGHTBL, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_NEWADDRLABEL, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELADDRLABEL, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETADDRLABEL, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_GETDCB, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_SETDCB, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_NEWNETCONF, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELNETCONF, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETNETCONF, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWMDB, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELMDB, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETMDB, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWNSID, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELNSID, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_GETNSID, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWSTATS, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_GETSTATS, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_SETSTATS, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_NEWCACHEREPORT, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWCHAIN, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELCHAIN, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETCHAIN, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWNEXTHOP, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELNEXTHOP, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETNEXTHOP, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWLINKPROP, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELLINKPROP, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_NEWVLAN, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELVLAN, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETVLAN, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWNEXTHOPBUCKET, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELNEXTHOPBUCKET, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETNEXTHOPBUCKET, NETLINK_ROUTE_SOCKET__NLMSG_READ },
++	{ RTM_NEWTUNNEL, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_DELTUNNEL, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
++	{ RTM_GETTUNNEL, NETLINK_ROUTE_SOCKET__NLMSG_READ },
+ };
+ 
+ static const struct nlmsg_perm nlmsg_tcpdiag_perms[] = {
+-	{ TCPDIAG_GETSOCK,	NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
+-	{ DCCPDIAG_GETSOCK,	NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
+-	{ SOCK_DIAG_BY_FAMILY,	NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
+-	{ SOCK_DESTROY,		NETLINK_TCPDIAG_SOCKET__NLMSG_WRITE },
++	{ TCPDIAG_GETSOCK, NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
++	{ DCCPDIAG_GETSOCK, NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
++	{ SOCK_DIAG_BY_FAMILY, NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
++	{ SOCK_DESTROY, NETLINK_TCPDIAG_SOCKET__NLMSG_WRITE },
+ };
+ 
+ static const struct nlmsg_perm nlmsg_xfrm_perms[] = {
+-	{ XFRM_MSG_NEWSA,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_DELSA,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_GETSA,	NETLINK_XFRM_SOCKET__NLMSG_READ  },
+-	{ XFRM_MSG_NEWPOLICY,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_DELPOLICY,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_GETPOLICY,	NETLINK_XFRM_SOCKET__NLMSG_READ  },
+-	{ XFRM_MSG_ALLOCSPI,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_ACQUIRE,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_EXPIRE,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_UPDPOLICY,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_UPDSA,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_POLEXPIRE,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_FLUSHSA,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_FLUSHPOLICY,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_NEWAE,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_GETAE,	NETLINK_XFRM_SOCKET__NLMSG_READ  },
+-	{ XFRM_MSG_REPORT,	NETLINK_XFRM_SOCKET__NLMSG_READ  },
+-	{ XFRM_MSG_MIGRATE,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_NEWSADINFO,	NETLINK_XFRM_SOCKET__NLMSG_READ  },
+-	{ XFRM_MSG_GETSADINFO,	NETLINK_XFRM_SOCKET__NLMSG_READ  },
+-	{ XFRM_MSG_NEWSPDINFO,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_GETSPDINFO,	NETLINK_XFRM_SOCKET__NLMSG_READ  },
+-	{ XFRM_MSG_MAPPING,	NETLINK_XFRM_SOCKET__NLMSG_READ  },
+-	{ XFRM_MSG_SETDEFAULT,	NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+-	{ XFRM_MSG_GETDEFAULT,	NETLINK_XFRM_SOCKET__NLMSG_READ  },
++	{ XFRM_MSG_NEWSA, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_DELSA, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_GETSA, NETLINK_XFRM_SOCKET__NLMSG_READ },
++	{ XFRM_MSG_NEWPOLICY, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_DELPOLICY, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_GETPOLICY, NETLINK_XFRM_SOCKET__NLMSG_READ },
++	{ XFRM_MSG_ALLOCSPI, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_ACQUIRE, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_EXPIRE, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_UPDPOLICY, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_UPDSA, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_POLEXPIRE, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_FLUSHSA, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_FLUSHPOLICY, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_NEWAE, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_GETAE, NETLINK_XFRM_SOCKET__NLMSG_READ },
++	{ XFRM_MSG_REPORT, NETLINK_XFRM_SOCKET__NLMSG_READ },
++	{ XFRM_MSG_MIGRATE, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_NEWSADINFO, NETLINK_XFRM_SOCKET__NLMSG_READ },
++	{ XFRM_MSG_GETSADINFO, NETLINK_XFRM_SOCKET__NLMSG_READ },
++	{ XFRM_MSG_NEWSPDINFO, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_GETSPDINFO, NETLINK_XFRM_SOCKET__NLMSG_READ },
++	{ XFRM_MSG_MAPPING, NETLINK_XFRM_SOCKET__NLMSG_READ },
++	{ XFRM_MSG_SETDEFAULT, NETLINK_XFRM_SOCKET__NLMSG_WRITE },
++	{ XFRM_MSG_GETDEFAULT, NETLINK_XFRM_SOCKET__NLMSG_READ },
+ };
+ 
+ static const struct nlmsg_perm nlmsg_audit_perms[] = {
+-	{ AUDIT_GET,		NETLINK_AUDIT_SOCKET__NLMSG_READ     },
+-	{ AUDIT_SET,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
+-	{ AUDIT_LIST,		NETLINK_AUDIT_SOCKET__NLMSG_READPRIV },
+-	{ AUDIT_ADD,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
+-	{ AUDIT_DEL,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
+-	{ AUDIT_LIST_RULES,	NETLINK_AUDIT_SOCKET__NLMSG_READPRIV },
+-	{ AUDIT_ADD_RULE,	NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
+-	{ AUDIT_DEL_RULE,	NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
+-	{ AUDIT_USER,		NETLINK_AUDIT_SOCKET__NLMSG_RELAY    },
+-	{ AUDIT_SIGNAL_INFO,	NETLINK_AUDIT_SOCKET__NLMSG_READ     },
+-	{ AUDIT_TRIM,		NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
+-	{ AUDIT_MAKE_EQUIV,	NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
+-	{ AUDIT_TTY_GET,	NETLINK_AUDIT_SOCKET__NLMSG_READ     },
+-	{ AUDIT_TTY_SET,	NETLINK_AUDIT_SOCKET__NLMSG_TTY_AUDIT	},
+-	{ AUDIT_GET_FEATURE,	NETLINK_AUDIT_SOCKET__NLMSG_READ     },
+-	{ AUDIT_SET_FEATURE,	NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
++	{ AUDIT_GET, NETLINK_AUDIT_SOCKET__NLMSG_READ },
++	{ AUDIT_SET, NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
++	{ AUDIT_LIST, NETLINK_AUDIT_SOCKET__NLMSG_READPRIV },
++	{ AUDIT_ADD, NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
++	{ AUDIT_DEL, NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
++	{ AUDIT_LIST_RULES, NETLINK_AUDIT_SOCKET__NLMSG_READPRIV },
++	{ AUDIT_ADD_RULE, NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
++	{ AUDIT_DEL_RULE, NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
++	{ AUDIT_USER, NETLINK_AUDIT_SOCKET__NLMSG_RELAY },
++	{ AUDIT_SIGNAL_INFO, NETLINK_AUDIT_SOCKET__NLMSG_READ },
++	{ AUDIT_TRIM, NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
++	{ AUDIT_MAKE_EQUIV, NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
++	{ AUDIT_TTY_GET, NETLINK_AUDIT_SOCKET__NLMSG_READ },
++	{ AUDIT_TTY_SET, NETLINK_AUDIT_SOCKET__NLMSG_TTY_AUDIT },
++	{ AUDIT_GET_FEATURE, NETLINK_AUDIT_SOCKET__NLMSG_READ },
++	{ AUDIT_SET_FEATURE, NETLINK_AUDIT_SOCKET__NLMSG_WRITE },
+ };
+ 
+-
+-static int nlmsg_perm(u16 nlmsg_type, u32 *perm, const struct nlmsg_perm *tab, size_t tabsize)
++static int nlmsg_perm(u16 nlmsg_type, u32 *perm, const struct nlmsg_perm *tab,
++		      size_t tabsize)
  {
--	int err = 0;
--
--	if (selinux_policycap_netlink_xperm()) {
--		switch (sclass) {
--		case SECCLASS_NETLINK_ROUTE_SOCKET:
--			*perm = NETLINK_ROUTE_SOCKET__NLMSG;
--			break;
--		case SECCLASS_NETLINK_TCPDIAG_SOCKET:
--			*perm = NETLINK_TCPDIAG_SOCKET__NLMSG;
--			break;
--		case SECCLASS_NETLINK_XFRM_SOCKET:
--			*perm = NETLINK_XFRM_SOCKET__NLMSG;
--			break;
--		case SECCLASS_NETLINK_AUDIT_SOCKET:
--			*perm = NETLINK_AUDIT_SOCKET__NLMSG;
--			break;
--		/* While it is possible to add a similar permission to other
--		 * netlink classes, note that the extended permission value is
--		 * matched against the nlmsg_type field. Notably,
--		 * SECCLASS_NETLINK_GENERIC_SOCKET uses dynamic values for this
--		 * field, which means that it cannot be added as-is.
--		 */
--		default:
--			err = -ENOENT;
--			break;
--		}
--		return err;
--	}
-+	/* While it is possible to add a similar permission to other netlink
-+	 * classes, note that the extended permission value is matched against
-+	 * the nlmsg_type field. Notably, SECCLASS_NETLINK_GENERIC_SOCKET uses
-+	 * dynamic values for this field, which means that it cannot be added
-+	 * as-is.
-+	 */
+ 	unsigned int i;
+ 	int err = -EINVAL;
  
- 	switch (sclass) {
- 	case SECCLASS_NETLINK_ROUTE_SOCKET:
-@@ -205,42 +183,52 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
- 		 * before updating the BUILD_BUG_ON() macro!
- 		 */
- 		BUILD_BUG_ON(RTM_MAX != (RTM_NEWTUNNEL + 3));
--		err = nlmsg_perm(nlmsg_type, perm, nlmsg_route_perms,
--				 sizeof(nlmsg_route_perms));
--		break;
- 
-+		if (selinux_policycap_netlink_xperm()) {
-+			*perm = NETLINK_ROUTE_SOCKET__NLMSG;
-+			return 0;
-+		}
-+		return nlmsg_perm(nlmsg_type, perm, nlmsg_route_perms,
-+				  sizeof(nlmsg_route_perms));
-+		break;
- 	case SECCLASS_NETLINK_TCPDIAG_SOCKET:
--		err = nlmsg_perm(nlmsg_type, perm, nlmsg_tcpdiag_perms,
--				 sizeof(nlmsg_tcpdiag_perms));
-+		if (selinux_policycap_netlink_xperm()) {
-+			*perm = NETLINK_TCPDIAG_SOCKET__NLMSG;
-+			return 0;
-+		}
-+		return nlmsg_perm(nlmsg_type, perm, nlmsg_tcpdiag_perms,
-+				  sizeof(nlmsg_tcpdiag_perms));
- 		break;
--
- 	case SECCLASS_NETLINK_XFRM_SOCKET:
- 		/* If the BUILD_BUG_ON() below fails you must update the
- 		 * structures at the top of this file with the new mappings
- 		 * before updating the BUILD_BUG_ON() macro!
- 		 */
- 		BUILD_BUG_ON(XFRM_MSG_MAX != XFRM_MSG_GETDEFAULT);
--		err = nlmsg_perm(nlmsg_type, perm, nlmsg_xfrm_perms,
--				 sizeof(nlmsg_xfrm_perms));
--		break;
- 
--	case SECCLASS_NETLINK_AUDIT_SOCKET:
--		if ((nlmsg_type >= AUDIT_FIRST_USER_MSG &&
--		     nlmsg_type <= AUDIT_LAST_USER_MSG) ||
--		    (nlmsg_type >= AUDIT_FIRST_USER_MSG2 &&
--		     nlmsg_type <= AUDIT_LAST_USER_MSG2)) {
--			*perm = NETLINK_AUDIT_SOCKET__NLMSG_RELAY;
--		} else {
--			err = nlmsg_perm(nlmsg_type, perm, nlmsg_audit_perms,
--					 sizeof(nlmsg_audit_perms));
-+		if (selinux_policycap_netlink_xperm()) {
-+			*perm = NETLINK_XFRM_SOCKET__NLMSG;
-+			return 0;
- 		}
-+		return nlmsg_perm(nlmsg_type, perm, nlmsg_xfrm_perms,
-+				  sizeof(nlmsg_xfrm_perms));
- 		break;
--
--	/* No messaging from userspace, or class unknown/unhandled */
--	default:
--		err = -ENOENT;
-+	case SECCLASS_NETLINK_AUDIT_SOCKET:
-+		if (selinux_policycap_netlink_xperm()) {
-+			*perm = NETLINK_XFRM_SOCKET__NLMSG;
-+			return 0;
-+		} else if ((nlmsg_type >= AUDIT_FIRST_USER_MSG &&
-+			    nlmsg_type <= AUDIT_LAST_USER_MSG) ||
-+			   (nlmsg_type >= AUDIT_FIRST_USER_MSG2 &&
-+			    nlmsg_type <= AUDIT_LAST_USER_MSG2)) {
-+			*perm = NETLINK_AUDIT_SOCKET__NLMSG_RELAY;
-+			return 0;
-+		}
-+		return nlmsg_perm(nlmsg_type, perm, nlmsg_audit_perms,
-+				  sizeof(nlmsg_audit_perms));
- 		break;
- 	}
- 
--	return err;
-+	/* No messaging from userspace, or class unknown/unhandled */
-+	return -ENOENT;
- }
+-	for (i = 0; i < tabsize/sizeof(struct nlmsg_perm); i++)
++	for (i = 0; i < tabsize / sizeof(struct nlmsg_perm); i++)
+ 		if (nlmsg_type == tab[i].nlmsg_type) {
+ 			*perm = tab[i].perm;
+ 			err = 0;
 -- 
 2.46.1
 
