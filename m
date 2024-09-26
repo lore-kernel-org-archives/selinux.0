@@ -1,54 +1,54 @@
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 825D022EF4
-	for <selinux@vger.kernel.org>; Thu, 26 Sep 2024 13:15:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8935C3FF1
+	for <selinux@vger.kernel.org>; Thu, 26 Sep 2024 17:16:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727356512; cv=none; b=JTwr2g3z2Bg4uE4jutX9Pj0eNnjAUAuVbfZ+mdCRSlv/zUsVSqXjrvn6B3i6WrNTJJTQuQ7FaPUIqlWF2uLljOfZZTU5nOrH9GULuyoKjAGrgm9rbZsEiwwnikQUmK4Hk/5wzNcxnKJO36n6na0axqzNj+BeQaDAMwJbj7v9cmk=
+	t=1727371002; cv=none; b=G31WPapNcpeKrc1uESJC/zr20/TAjKHG47H89rdtwr33VIQ6wHDOScr3JvN4cbwycPlMM5uLDRFMQOB+i9THbaLxgj9kUA7d4XG+SntuyZko29h91jrGyfbAWnLAOIP0UMDCiJOYWcSJ2UhEozV9++LmQjgatqSEUk2zA2lVUcA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727356512; c=relaxed/simple;
-	bh=Fz4AveoCgNGSqICopIEuHfzFC4VWJoBgpJvqtwbVfMo=;
+	s=arc-20240116; t=1727371002; c=relaxed/simple;
+	bh=/xuQgToQMCg5yztKOYteZNiQ3BqX525tCJJsnBjdnok=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=U09gKeM6a+gCpY/rqVpLVYp7fh5MWg5yQL2vqCtvB98LqEmHcU8EnqxcppQM9180Nnspm6gUtB3TWaOgTPLLgzzcUmyl/HCxN8nIoLgZXqrR9pjBLThfI222MX2yjYvOkGjEBcfKJnve4bM2c4Okik7nqvdMv2aiXT1HHUSbVOk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EpCnT4s0; arc=none smtp.client-ip=209.85.215.171
+	 To:Cc:Content-Type; b=ESoJX+OqwQj/Gd2yabK/vU+CK9Y/rJUr53LwUUWVjzGRDOYhFr8Xs1TpGehWijanluVpumh5KAj6gH1eNiAlQMTiyavb6FuWp5K0SgF8//KQh4aQJ7uUt9vbBfORt85NKjBFqpTpchNn4BStH0VPR5qiw8fPnmnEK757/HQIH6U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=efyVDJNM; arc=none smtp.client-ip=209.85.214.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EpCnT4s0"
-Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-7db54269325so722035a12.2
-        for <selinux@vger.kernel.org>; Thu, 26 Sep 2024 06:15:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="efyVDJNM"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2068a7c9286so12501965ad.1
+        for <selinux@vger.kernel.org>; Thu, 26 Sep 2024 10:16:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1727356509; x=1727961309; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1727371001; x=1727975801; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=AYClKDP6VNFRp2YwKC/pbeN0hJPXkIpwnxoOga76ujo=;
-        b=EpCnT4s0Idl+6LmXrrBZOLq++g5hQk/NL9893CDhXNf9G5q95HNPUdL5aho1eytQy7
-         O1eJKmQLWcjsrr0oDzA4M6s4fuDMXBgCkduJXnRyB/MgkVik+hyZAnB9IYx8K8g+w03e
-         UKEGFuIc+Eta1ZaNUJSC9BOGCVUzM0nPAKrMqoeKjh99SdKbIvrSLEXnj6ggy2VD/Woc
-         o5by1GX/j5r85l5kD8pj0gk18Wqd+4KLno7EI/0o5SYJTDKz7ZwZiXyOUFexLPbA1EZ8
-         4eUgc3UmQxPlSn7+n5vIb5DZjs4kJIip2+JPiC4tRIa2NnMbzEmKhC6ypZWQi7up/9m7
-         xKCg==
+        bh=/xuQgToQMCg5yztKOYteZNiQ3BqX525tCJJsnBjdnok=;
+        b=efyVDJNMuSqfp+IHMFu7T6nVMB2hHyb6QYyDeqQkynYraGcb9aIbt/I6pD96n3jtSe
+         Bgw0l6kI/P3a45zdByP43n2+gElDGXiymtf4686JeYluui8Vny0Ic9qva2soCFj/gHh0
+         KzxID+UXcJbct9WpeBeAPTi9STt4AoTLRFfSJBKWOQz4rEgIEeHpO3oox0PXT3naFk2z
+         2SwhlpQA87sKznStNDP304+yIZTxDt17lLcDBuZZs15+SlcMH5hGes4mhrNPZzQL2naF
+         gTLFKr6oDPW/hW4L9Semz3roMXZRoUQFl7WgTwcmrwOVxETYx/Qdyx/Fi26ioZqpZPGa
+         5ung==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727356509; x=1727961309;
+        d=1e100.net; s=20230601; t=1727371001; x=1727975801;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=AYClKDP6VNFRp2YwKC/pbeN0hJPXkIpwnxoOga76ujo=;
-        b=f8sSbZ9gBuXeKDyoyvWvE3q+sIPuzzP54qO3NgLkA4y+ESN4IQqwXmvRFtszTDquWk
-         ikCVCW56VFLRtMsM3saqYXAH71OpEDGHyCT1yoWLRJzXH5mD+4F3+Rt5XaC4FbuXUqzW
-         KiynhNIFO77L+mQsmzXhA9xN1yfw3aZu4qq38Xx+ecq2VN9j5JW8sNZcDgIYpzyJDhF5
-         fD8EF6hXrF1EpmBCmZ+ek9IkC14VB/dKVdey6CparCpkBAxOwuStIhtVWZR+cDWeMBGn
-         /E5mOkdefdEYqum5GUcrw6F6PAD472bqMbarEqOPsPirFNUlHxpphvRiuA4vO6T+nklh
-         0ZBg==
-X-Gm-Message-State: AOJu0YxsnoS+aGfWodp9hVJrcjIWnrNWsGGuoXsqBXTMwrQeZcsZG6lN
-	c3M1dXGlkkWRCfFLr4BZ1XwbR64uNvQlOj2ACF6UThbFPNn5JU8p2DB3KH59efx/j9AIn6CGIDL
-	mVMa33Lf0t+8SI3XX+hC0Dxu20WzJkw==
-X-Google-Smtp-Source: AGHT+IFfXIl1SxerzC96DoAC88utWjajYcL2fVmRquMp++C4RTUVYBJ6Jk/g98zqEimRzABVHOXjMJZ7V4ojHI21Mto=
-X-Received: by 2002:a17:90a:c241:b0:2e0:80e8:a319 with SMTP id
- 98e67ed59e1d1-2e080e8a4a1mr5107255a91.34.1727356508481; Thu, 26 Sep 2024
- 06:15:08 -0700 (PDT)
+        bh=/xuQgToQMCg5yztKOYteZNiQ3BqX525tCJJsnBjdnok=;
+        b=dgL9x06/VhWPyzXeJPy0/HxW/TITswXMwpipNwKDv3wy4qqJfpl15OaHJt1S1IImlU
+         hvUPJBVdU+vKxpwA8OeJZbUf7WkwgvKIyJ1NSiCcCF1SRJkYS2lB9/+XgwNi74GzVCY7
+         aYTemMdOFhOrgsgb/3EQ9I9OeZU19jIuPoqbHlbwme43M59k3YuiPl7RfHO7ENhLafeJ
+         wIJrH6pKBEU/hkjSEQGwwkxeUqhcX9KLAcpcHjZvFC71HF5IP2qlCYeK6bnWdOzNY7EK
+         SAvE1xSDIZ5xtKjWv+EpcNby5jeYWbgYh2YLEyfB5e47fE4aqBfdEVMpzzR/+U2IYsSS
+         A4Fg==
+X-Gm-Message-State: AOJu0YynW8jPGm2GacS4W3kskKDxOImUJQG09evWW/T0PMWIsT3Ta+8d
+	lmGk+8QsBS4RGQn+m7edkyN2fIAN0BlFMno5qyKtNXjD7UYA5R8hQ3Ht/5wZtjDn9C3/EeH66AS
+	FSiwuwHTK29G+OffNQMs2QNwX2O97hw==
+X-Google-Smtp-Source: AGHT+IH/Uxbr/GgO5ZP5Wm0qWegx80Edxz4r4+Io82zeweVZ2NLSdrzUO2MkUEElKoVGjeJ7sE0WPKr3ujc+rYQEqlk=
+X-Received: by 2002:a17:903:1252:b0:201:fd52:d4f0 with SMTP id
+ d9443c01a7336-20b37bded26mr6383415ad.47.1727371000795; Thu, 26 Sep 2024
+ 10:16:40 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -70,109 +70,85 @@ References: <CAEjxPJ46KJCUXqgq==pmEMW9yYJSRnWkGrSrxBAfMELPRYUdXQ@mail.gmail.com>
  <CAHC9VhRDF0DBAWM-=ynks1=Zm5LcQYq0_4xfQy4pKvHfW6FoBg@mail.gmail.com>
  <9aa53afd-efd8-4552-8239-14f99ff7a1b1@schaufler-ca.com> <CAEjxPJ6vyDjmwxEpwnb+JYKiWXYFo5g_suZiUZb6L+aepHxZiA@mail.gmail.com>
  <CAEjxPJ4nbCuntgTvrGk4LHs+ZYjm95ZwwSwwAycWWzS9dt9Tyw@mail.gmail.com>
- <CAEjxPJ76MdNwgXtGTgVYGKE87=7GmZywQ1GJn5Vz8jjCdVATWA@mail.gmail.com> <CAEjxPJ7Qp9Q4RUYH8vb-xQOe0=YsN=nbyM-4FV6hvYzZwKX5Og@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7Qp9Q4RUYH8vb-xQOe0=YsN=nbyM-4FV6hvYzZwKX5Og@mail.gmail.com>
+ <CAEjxPJ76MdNwgXtGTgVYGKE87=7GmZywQ1GJn5Vz8jjCdVATWA@mail.gmail.com>
+ <CAEjxPJ7Qp9Q4RUYH8vb-xQOe0=YsN=nbyM-4FV6hvYzZwKX5Og@mail.gmail.com> <CAEjxPJ4Opxv+HU6cbAfKNT=ZXnUZ=0Ac8ZM5fQj=wnO_JPy-zw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4Opxv+HU6cbAfKNT=ZXnUZ=0Ac8ZM5fQj=wnO_JPy-zw@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 26 Sep 2024 09:14:57 -0400
-Message-ID: <CAEjxPJ4Opxv+HU6cbAfKNT=ZXnUZ=0Ac8ZM5fQj=wnO_JPy-zw@mail.gmail.com>
+Date: Thu, 26 Sep 2024 13:16:29 -0400
+Message-ID: <CAEjxPJ7Zpw9i6OXZ-Kz=WXVuCaas5TOtxCAmK-rxGDhm1-zwDg@mail.gmail.com>
 Subject: Re: SELinux namespaces re-base
 To: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>
 Cc: SElinux list <selinux@vger.kernel.org>, Casey Schaufler <casey@schaufler-ca.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 13, 2024 at 11:19=E2=80=AFAM Stephen Smalley
+On Thu, Sep 26, 2024 at 9:14=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
+> As I've been converting the permission checks to use namespace-aware
+> helpers, I've noted policy capabilities (as in network_peer_controls,
+> open_perms, extended_socket_class, always_check_network, etc) as a
+> case that isn't cleanly handled by my current approach. At present,
+> the hook functions are just checking the value of the policy
+> capability in the current SELinux namespace to decide which branch of
+> the hook function to follow, and then within whichever branch is
+> selected, each permission check that is converted to using
+> namespace-aware helpers is checking permissions against the current
+> and all ancestor namespaces.
 >
-> On Wed, Sep 11, 2024 at 4:13=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Tue, Sep 10, 2024 at 3:13=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > Next up is tackling #2 below.
-> >
-> > > 2. Updating the SELinux hook functions to check permissions against
-> > > all ancestor namespaces rather than just the current one, and conside=
-r
-> > > introducing a top-level global AVC to avoid the need to check against
-> > > each per-namespace AVC on every check.
+> So for example, if the current namespace enables open permission, then
+> it will check open permission against the current namespace and all
+> ancestors, irrespective of whether the ancestor enabled that
+> capability or not. Similarly, if the current namespace disables open
+> permission, then it will NOT check open permission against any
+> namespaces, even if the ancestors enabled it.
 >
-> I've now pushed another commit that introduces new permission checking
-> functions that are namespace-aware and started converting some of the
-> hook functions to use them, beginning with checks between a cred and a
-> target task, e.g. selinux_task_kill().  With this change, I verified
-> that a process in a child namespace could NOT violate the policy of
-> the parent when sending signals. There remains a lot of work to
-> convert the rest of the permission checks to do the same. Reproducing
-> this particular case can be done as follows:
+> Lifting the logic to iterate through all of the namespaces up into
+> each hook function is possible but rather painful. That said, it may
+> be unavoidable if we want to support different policy capability
+> settings between child namespaces and their ancestors, or prevent
+> child namespaces from effectively disabling certain checks by
+> disabling those capabilities.
 >
-> # Temporarily switch to permissive to allow the following runcon to work
-> sudo setenforce 0
-> # Switch to a confined user
-> runcon staff_u:staff_r:staff_t:s0-s0:c0.c1023 /bin/bash
-> # Switch back to enforcing mode
-> sudo setenforce 1
-> # Become root, still as a staff user/role/domain
-> sudo bash
-> # Unshare SELinux namespace
-> echo 1 > /sys/fs/selinux/unshare
-> # Unshare mount and network namespaces for selinuxfs and
-> NETLINK_SELINUX isolation
-> unshare -m -n
-> # Unmount the parent's selinuxfs and mount our own private instance
-> umount /sys/fs/selinux
-> mount -t selinuxfs none /sys/fs/selinux
-> # Load a policy into our namespace, prior to this we don't have one
-> load_policy
-> # Switch to unconfined in our namespace
-> runcon unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 /bin/bash
-> # Check enforcing mode in our namespace, should be permissive still
-> getenforce
-> # Try to kill a process running unconfined in the parent namespace
-> # Get a PID from a ps -eZ from a shell in the parent namespace not here.
-> kill <pid-of-unconfined-process-in-parent>
-> # Should get Permission denied due to parent denying access.
+> If I were to go down that route, then I would also need to resolve how
+> to handle the non-permission checking logic in each hook across
+> multiple namespaces, e.g. labeling logic. Currently it is just
+> assigning SIDs/contexts to objects based on the current namespace,
+> then checking permissions against all namespaces with that
+> SID/context. But if each hook function has its body wrapped with the
+> same loop that currently exists inside the namespace-aware permission
+> checking functions to iterate through the namespaces, then we would
+> actually end up with multiple SIDs/contexts computed and need to
+> decide which one to use (or special case that part of the body to skip
+> doing so for anything but the first/current namespace).
 >
-> Next step is to introduce additional namespace-aware permission
-> checking functions that take things other than just cred-to-task and
-> convert additional permission checks in the hook functions to use
-> them.
+> Thoughts?
 
-As I've been converting the permission checks to use namespace-aware
-helpers, I've noted policy capabilities (as in network_peer_controls,
-open_perms, extended_socket_class, always_check_network, etc) as a
-case that isn't cleanly handled by my current approach. At present,
-the hook functions are just checking the value of the policy
-capability in the current SELinux namespace to decide which branch of
-the hook function to follow, and then within whichever branch is
-selected, each permission check that is converted to using
-namespace-aware helpers is checking permissions against the current
-and all ancestor namespaces.
+On 2nd thought, for hooks that don't depend on policy capabilities, I
+think the current approach is fine, and works for the majority of the
+hooks.
 
-So for example, if the current namespace enables open permission, then
-it will check open permission against the current namespace and all
-ancestors, irrespective of whether the ancestor enabled that
-capability or not. Similarly, if the current namespace disables open
-permission, then it will NOT check open permission against any
-namespaces, even if the ancestors enabled it.
+For the subset of hooks that depend on policy capabilities, I will
+lift the logic where needed to ensure that we apply the right checks
+in each namespace based on that namespace's enabled policy
+capabilities.
 
-Lifting the logic to iterate through all of the namespaces up into
-each hook function is possible but rather painful. That said, it may
-be unavoidable if we want to support different policy capability
-settings between child namespaces and their ancestors, or prevent
-child namespaces from effectively disabling certain checks by
-disabling those capabilities.
+Labeling logic will still be based on the current SELinux namespace at
+the point where the kernel object is first created/instantiated, but
+permissions to that label will be checked in the current and ancestor
+namespaces. There are some potential gotchas there, e.g. a child
+namespace could load a policy that labels all objects it
+creates/instantiates with a context to which it has access, even
+overriding file xattrs by specifying something other than fs_use_xattr
+in its policy for the filesystem type.
 
-If I were to go down that route, then I would also need to resolve how
-to handle the non-permission checking logic in each hook across
-multiple namespaces, e.g. labeling logic. Currently it is just
-assigning SIDs/contexts to objects based on the current namespace,
-then checking permissions against all namespaces with that
-SID/context. But if each hook function has its body wrapped with the
-same loop that currently exists inside the namespace-aware permission
-checking functions to iterate through the namespaces, then we would
-actually end up with multiple SIDs/contexts computed and need to
-decide which one to use (or special case that part of the body to skip
-doing so for anything but the first/current namespace).
-
-Thoughts?
+Some of the policy capabilities have effects other than changing which
+permissions are checked, e.g. extended_socket_class alters what
+security class is set in the security blob and later used in
+permission checks, so if a socket is created with that disabled in one
+namespace and accessed in another namespace, the permission checks
+might not be on the "correct" security class for the other namespace.
+Other policy capabilities affect labeling, e.g. cgroup_seclabel,
+genfs_seclabel_symlinks, userspace_initial_context, which likewise
+could lead to an object created and labeled in one namespace
+triggering permission checks against the "wrong" label if accessed in
+another namespace.
