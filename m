@@ -1,154 +1,132 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8935C3FF1
-	for <selinux@vger.kernel.org>; Thu, 26 Sep 2024 17:16:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B76844C79;
+	Thu, 26 Sep 2024 17:35:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727371002; cv=none; b=G31WPapNcpeKrc1uESJC/zr20/TAjKHG47H89rdtwr33VIQ6wHDOScr3JvN4cbwycPlMM5uLDRFMQOB+i9THbaLxgj9kUA7d4XG+SntuyZko29h91jrGyfbAWnLAOIP0UMDCiJOYWcSJ2UhEozV9++LmQjgatqSEUk2zA2lVUcA=
+	t=1727372147; cv=none; b=Sll4TQMiAh0z4Ogss6WrulZivrRvvXNYz2Qv3K+bzGywJM3VZySp92GAH//kOjzJYYUBHGK3bXdUaIpWM8FK/yX1AFEMYH75tkF6LVTwU4vccp76aSrCe0OtAt5C1dUbNVyEjpLbFVAN1gEAcTGr0iNQplEuGpj5aJhyZeBN22k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727371002; c=relaxed/simple;
-	bh=/xuQgToQMCg5yztKOYteZNiQ3BqX525tCJJsnBjdnok=;
+	s=arc-20240116; t=1727372147; c=relaxed/simple;
+	bh=U7kLN438v59+Z6AGiLMsMxCLMWGxpOJ5pYyQL7QdSjk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ESoJX+OqwQj/Gd2yabK/vU+CK9Y/rJUr53LwUUWVjzGRDOYhFr8Xs1TpGehWijanluVpumh5KAj6gH1eNiAlQMTiyavb6FuWp5K0SgF8//KQh4aQJ7uUt9vbBfORt85NKjBFqpTpchNn4BStH0VPR5qiw8fPnmnEK757/HQIH6U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=efyVDJNM; arc=none smtp.client-ip=209.85.214.169
+	 To:Cc:Content-Type; b=Tu1q+HdLYa8LYz4ETt9JZTPaaQAn7x+LjoF2e4fvuAq2hL4wRoM9rqysecdwMkzhJFDeJOyOrpibwZAZOflL9xLNNAj19uW3R2ALwwaPmn6+oBXKKGZjDCr7ihBEKvu0lweh5wKVoYZZhR27uTjpuWHH8pum2jRKUnizf52oph0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DX1OnYmF; arc=none smtp.client-ip=209.85.167.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="efyVDJNM"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2068a7c9286so12501965ad.1
-        for <selinux@vger.kernel.org>; Thu, 26 Sep 2024 10:16:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DX1OnYmF"
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5367ae52a01so1601127e87.3;
+        Thu, 26 Sep 2024 10:35:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1727371001; x=1727975801; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1727372144; x=1727976944; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/xuQgToQMCg5yztKOYteZNiQ3BqX525tCJJsnBjdnok=;
-        b=efyVDJNMuSqfp+IHMFu7T6nVMB2hHyb6QYyDeqQkynYraGcb9aIbt/I6pD96n3jtSe
-         Bgw0l6kI/P3a45zdByP43n2+gElDGXiymtf4686JeYluui8Vny0Ic9qva2soCFj/gHh0
-         KzxID+UXcJbct9WpeBeAPTi9STt4AoTLRFfSJBKWOQz4rEgIEeHpO3oox0PXT3naFk2z
-         2SwhlpQA87sKznStNDP304+yIZTxDt17lLcDBuZZs15+SlcMH5hGes4mhrNPZzQL2naF
-         gTLFKr6oDPW/hW4L9Semz3roMXZRoUQFl7WgTwcmrwOVxETYx/Qdyx/Fi26ioZqpZPGa
-         5ung==
+        bh=xtR89bH5Z//239xnT5kCrki/umqFGhowZSxev9N5vn4=;
+        b=DX1OnYmFwLAAXrch0nD8zY1dtr22TL5cJWbSyZdXxPRBkmPyVhdBugbdbbLqWEcyK6
+         aKlhuThAhl896s6DFtIObCKMpp6OiCvgckK86H4bqPnkrIOGha7TET0NBNrBp5qkBfdJ
+         R+73lIa8qL4in+GX3vdT3MWO5F++s1wWQtEbKooH0mQ9A8mlW/+JQBwi72vITrvyNvbv
+         tqUpDz2M4Rl1Jr7PSQTu9v3NIVGFhSg9fYcKQB62QZWWwXNzqg4Io6mBUsV8H4uYUXcN
+         /eqr1gpznWIRI2eLiUkYZAky80Gp4rCJMcLuM4FtHymLpXCb+kdhJj45JHPJY6HcATSy
+         vWWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727371001; x=1727975801;
+        d=1e100.net; s=20230601; t=1727372144; x=1727976944;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/xuQgToQMCg5yztKOYteZNiQ3BqX525tCJJsnBjdnok=;
-        b=dgL9x06/VhWPyzXeJPy0/HxW/TITswXMwpipNwKDv3wy4qqJfpl15OaHJt1S1IImlU
-         hvUPJBVdU+vKxpwA8OeJZbUf7WkwgvKIyJ1NSiCcCF1SRJkYS2lB9/+XgwNi74GzVCY7
-         aYTemMdOFhOrgsgb/3EQ9I9OeZU19jIuPoqbHlbwme43M59k3YuiPl7RfHO7ENhLafeJ
-         wIJrH6pKBEU/hkjSEQGwwkxeUqhcX9KLAcpcHjZvFC71HF5IP2qlCYeK6bnWdOzNY7EK
-         SAvE1xSDIZ5xtKjWv+EpcNby5jeYWbgYh2YLEyfB5e47fE4aqBfdEVMpzzR/+U2IYsSS
-         A4Fg==
-X-Gm-Message-State: AOJu0YynW8jPGm2GacS4W3kskKDxOImUJQG09evWW/T0PMWIsT3Ta+8d
-	lmGk+8QsBS4RGQn+m7edkyN2fIAN0BlFMno5qyKtNXjD7UYA5R8hQ3Ht/5wZtjDn9C3/EeH66AS
-	FSiwuwHTK29G+OffNQMs2QNwX2O97hw==
-X-Google-Smtp-Source: AGHT+IH/Uxbr/GgO5ZP5Wm0qWegx80Edxz4r4+Io82zeweVZ2NLSdrzUO2MkUEElKoVGjeJ7sE0WPKr3ujc+rYQEqlk=
-X-Received: by 2002:a17:903:1252:b0:201:fd52:d4f0 with SMTP id
- d9443c01a7336-20b37bded26mr6383415ad.47.1727371000795; Thu, 26 Sep 2024
- 10:16:40 -0700 (PDT)
+        bh=xtR89bH5Z//239xnT5kCrki/umqFGhowZSxev9N5vn4=;
+        b=PsQpW7GyofaGsG7Mz3FpD64YZuKGcjeH+Kv4Kv9QKf0AM4MPBhqwqIkLNRGvJ/jm+F
+         4dn+1DMkr9dGD4PXrqjyKcDRSYWTusTZcc0AfIpBrDsnw0cj6wO+UTwhvkjmUhI0ZIGh
+         GIWPLmDAXXd7eH38FUBjBqZE+nw/Hga9dbEJPP9c74ChqrJwqcj5Ci0cNvQb51aNtYOn
+         2LUmgdzjMiLrIqC2NCIeOCAJS47z7SuyBcqPcDCHmP6YEe3jrSKhY8xsDIONWxFRbJz9
+         4nWBYPg46+bqHkbWUYzU5d3r1FE5LuIg/zzPBFyYxblWo7h7S05udGhR585BiCvRdZ2c
+         7MjQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU3fpgDS787ZLbsfEaoRtJH+BJJlM4FMluV1HGdIK2ma+z301pmMwivwqYGnwiuRInqv3IVwQ==@vger.kernel.org, AJvYcCUrZi7Oeiv1vZiXMokJYaT7QAHMydX7bB6pspRwXSK0pR8Vq/i77omSPq0N/dewqac9ELIjTebIU5R+aiiLtxqdKufs@vger.kernel.org, AJvYcCV7FTW4WLS8HGiKpa5mQRfQlAqYOenoiUcFlSjYJlSnBTKdXBu6QETICM8VnsoWA+kqipfZhuq4@vger.kernel.org, AJvYcCVDAj4AtlAHFM7sd4jAtuuos4B+TEubXf32H0pgQ/MziYzTYywIVZt0q9xdsan3LMsItWxPFQTS4A==@vger.kernel.org, AJvYcCVManuayS0CKeBQf7+DEuiNXlnFOHGQd3uiPXG6/yKWhcvwKbW9ejM22pHRgtNBNSEbOonpdUnIEcSXZbOigvRZ6KEwtgSo@vger.kernel.org, AJvYcCVbt5jf6ZQEAPt0CHCKQwa7KNcIsKtsDRxHxTh4W3pNIXly1Ygv2AeHLTCqDKpBHMR4oLk77/ghpulJJSR4BQ==@vger.kernel.org, AJvYcCWDPWcSzMk8u+hCo0VG8JFsgwdHuiRBg2oHK/S/Vc8fcgjDkJXgVls/TzMYl8WQigkoCFOh@vger.kernel.org
+X-Gm-Message-State: AOJu0YxOYMyNRnubNHDPe6ODjKeYsOZy1CqYp46ND91Gh6TYpK/013rT
+	ZZZwXzFSTNzLy2GT6KAwaJAox8fpJk7bUi/2YY67toy33fE8hlCyTdbnq91OBtErgYzR136TdRL
+	6SZSKF53aoUR8TsYNofduktW10kA=
+X-Google-Smtp-Source: AGHT+IHf75DxkntTvBkZGDev4x95K+giFUe8FZhnZLvsyGMJj8v524+ofSRAoRSBODfKCXI8yelsxdzzM7LxitSB/UQ=
+X-Received: by 2002:a05:6512:2310:b0:536:536a:3854 with SMTP id
+ 2adb3069b0e04-5389fc70f56mr217205e87.60.1727372143545; Thu, 26 Sep 2024
+ 10:35:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ46KJCUXqgq==pmEMW9yYJSRnWkGrSrxBAfMELPRYUdXQ@mail.gmail.com>
- <CAEjxPJ7WUzN=0Yv4POgPVHPG1wEjNn=-Tb53NiuMpWf+bEuF-w@mail.gmail.com>
- <CAEjxPJ758jx7X5Tauz=xQXsmWcZhx_V7AkU=PtsH6S3S9CUCbw@mail.gmail.com>
- <CAEjxPJ50ADVSOys58eYUktv4sjYYnEDroxA9Wnt6HiY9ySk=gg@mail.gmail.com>
- <CAEjxPJ6QsYR-Kj8k0C=54cix8rdpBsCphDV5_QnjGONDuOm+ew@mail.gmail.com>
- <CAEjxPJ6p3oD99_aTEeSCx6FMob7BH8-2vxdoT69c8sw11oHuEA@mail.gmail.com>
- <CAEjxPJ5jup5o9piVPuA97_radSzvshpnRB1CdBde8sV3ZXVc2Q@mail.gmail.com>
- <CAEjxPJ7UtCjQw=v1--6ZWXo-bbkndGbwfXhcT8RkX_cddjCqkQ@mail.gmail.com>
- <CAEjxPJ5a1KzSjB31gcqWqJW_zdy8OCmwKKGYwCivvFG4Jvncyg@mail.gmail.com>
- <CAEjxPJ6WupdxzSkh54NLJkZoH=Umayj8+HrX5TmbAXvVYzgPfw@mail.gmail.com>
- <CAEjxPJ7iL11xSVs4gxhMPSCtVmYEqfgQQmBpVNAVXV7UG=P3nw@mail.gmail.com>
- <CAEjxPJ7C41QdEgAFYVdTyZE=TjGq+pyzCmy7BbHMss7=njvJmg@mail.gmail.com>
- <CAHC9VhRDF0DBAWM-=ynks1=Zm5LcQYq0_4xfQy4pKvHfW6FoBg@mail.gmail.com>
- <9aa53afd-efd8-4552-8239-14f99ff7a1b1@schaufler-ca.com> <CAEjxPJ6vyDjmwxEpwnb+JYKiWXYFo5g_suZiUZb6L+aepHxZiA@mail.gmail.com>
- <CAEjxPJ4nbCuntgTvrGk4LHs+ZYjm95ZwwSwwAycWWzS9dt9Tyw@mail.gmail.com>
- <CAEjxPJ76MdNwgXtGTgVYGKE87=7GmZywQ1GJn5Vz8jjCdVATWA@mail.gmail.com>
- <CAEjxPJ7Qp9Q4RUYH8vb-xQOe0=YsN=nbyM-4FV6hvYzZwKX5Og@mail.gmail.com> <CAEjxPJ4Opxv+HU6cbAfKNT=ZXnUZ=0Ac8ZM5fQj=wnO_JPy-zw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4Opxv+HU6cbAfKNT=ZXnUZ=0Ac8ZM5fQj=wnO_JPy-zw@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 26 Sep 2024 13:16:29 -0400
-Message-ID: <CAEjxPJ7Zpw9i6OXZ-Kz=WXVuCaas5TOtxCAmK-rxGDhm1-zwDg@mail.gmail.com>
-Subject: Re: SELinux namespaces re-base
-To: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>
-Cc: SElinux list <selinux@vger.kernel.org>, Casey Schaufler <casey@schaufler-ca.com>
+References: <20240817025624.13157-1-laoar.shao@gmail.com> <20240817025624.13157-6-laoar.shao@gmail.com>
+In-Reply-To: <20240817025624.13157-6-laoar.shao@gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Thu, 26 Sep 2024 20:35:06 +0300
+Message-ID: <CAHp75VdpG=yQVaJLR3J5puwj4FYWtXzaHkC1TdmiqfJu1s9PpA@mail.gmail.com>
+Subject: Re: [PATCH v7 5/8] mm/util: Fix possible race condition in kstrdup()
+To: Yafang Shao <laoar.shao@gmail.com>
+Cc: akpm@linux-foundation.org, torvalds@linux-foundation.org, alx@kernel.org, 
+	justinstitt@google.com, ebiederm@xmission.com, alexei.starovoitov@gmail.com, 
+	rostedt@goodmis.org, catalin.marinas@arm.com, 
+	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, 
+	linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+	audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 26, 2024 at 9:14=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> As I've been converting the permission checks to use namespace-aware
-> helpers, I've noted policy capabilities (as in network_peer_controls,
-> open_perms, extended_socket_class, always_check_network, etc) as a
-> case that isn't cleanly handled by my current approach. At present,
-> the hook functions are just checking the value of the policy
-> capability in the current SELinux namespace to decide which branch of
-> the hook function to follow, and then within whichever branch is
-> selected, each permission check that is converted to using
-> namespace-aware helpers is checking permissions against the current
-> and all ancestor namespaces.
+On Thu, Sep 26, 2024 at 7:44=E2=80=AFPM Yafang Shao <laoar.shao@gmail.com> =
+wrote:
 >
-> So for example, if the current namespace enables open permission, then
-> it will check open permission against the current namespace and all
-> ancestors, irrespective of whether the ancestor enabled that
-> capability or not. Similarly, if the current namespace disables open
-> permission, then it will NOT check open permission against any
-> namespaces, even if the ancestors enabled it.
+> In kstrdup(), it is critical to ensure that the dest string is always
+> NUL-terminated. However, potential race condidtion can occur between a
+
+condition
+
+> writer and a reader.
 >
-> Lifting the logic to iterate through all of the namespaces up into
-> each hook function is possible but rather painful. That said, it may
-> be unavoidable if we want to support different policy capability
-> settings between child namespaces and their ancestors, or prevent
-> child namespaces from effectively disabling certain checks by
-> disabling those capabilities.
+> Consider the following scenario involving task->comm:
 >
-> If I were to go down that route, then I would also need to resolve how
-> to handle the non-permission checking logic in each hook across
-> multiple namespaces, e.g. labeling logic. Currently it is just
-> assigning SIDs/contexts to objects based on the current namespace,
-> then checking permissions against all namespaces with that
-> SID/context. But if each hook function has its body wrapped with the
-> same loop that currently exists inside the namespace-aware permission
-> checking functions to iterate through the namespaces, then we would
-> actually end up with multiple SIDs/contexts computed and need to
-> decide which one to use (or special case that part of the body to skip
-> doing so for anything but the first/current namespace).
+>     reader                    writer
 >
-> Thoughts?
+>   len =3D strlen(s) + 1;
+>                              strlcpy(tsk->comm, buf, sizeof(tsk->comm));
+>   memcpy(buf, s, len);
+>
+> In this case, there is a race condition between the reader and the
+> writer. The reader calculate the length of the string `s` based on the
 
-On 2nd thought, for hooks that don't depend on policy capabilities, I
-think the current approach is fine, and works for the majority of the
-hooks.
+calculates
 
-For the subset of hooks that depend on policy capabilities, I will
-lift the logic where needed to ensure that we apply the right checks
-in each namespace based on that namespace's enabled policy
-capabilities.
+> old value of task->comm. However, during the memcpy(), the string `s`
+> might be updated by the writer to a new value of task->comm.
+>
+> If the new task->comm is larger than the old one, the `buf` might not be
+> NUL-terminated. This can lead to undefined behavior and potential
+> security vulnerabilities.
+>
+> Let's fix it by explicitly adding a NUL-terminator.
 
-Labeling logic will still be based on the current SELinux namespace at
-the point where the kernel object is first created/instantiated, but
-permissions to that label will be checked in the current and ancestor
-namespaces. There are some potential gotchas there, e.g. a child
-namespace could load a policy that labels all objects it
-creates/instantiates with a context to which it has access, even
-overriding file xattrs by specifying something other than fs_use_xattr
-in its policy for the filesystem type.
+memcpy() is not atomic AFAIK, meaning that the new string can be also
+shorter and when memcpy() already copied past the new NUL. I would
+amend the explanation to include this as well.
 
-Some of the policy capabilities have effects other than changing which
-permissions are checked, e.g. extended_socket_class alters what
-security class is set in the security blob and later used in
-permission checks, so if a socket is created with that disabled in one
-namespace and accessed in another namespace, the permission checks
-might not be on the "correct" security class for the other namespace.
-Other policy capabilities affect labeling, e.g. cgroup_seclabel,
-genfs_seclabel_symlinks, userspace_initial_context, which likewise
-could lead to an object created and labeled in one namespace
-triggering permission checks against the "wrong" label if accessed in
-another namespace.
+...
+
+> +               /* During memcpy(), the string might be updated to a new =
+value,
+> +                * which could be longer than the string when strlen() is
+> +                * called. Therefore, we need to add a null termimator.
+
+/*
+ * The wrong comment style. Besides that a typo
+ * in the word 'terminator'. Please, run codespell on your changes.
+ * Also use the same form: NUL-terminator when you are talking
+ * about '\0' and not NULL.
+ */
+
+> +                */
+
+
+--=20
+With Best Regards,
+Andy Shevchenko
