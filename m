@@ -1,100 +1,140 @@
-Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
+Received: from mail-vs1-f53.google.com (mail-vs1-f53.google.com [209.85.217.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04D8D2628D
-	for <selinux@vger.kernel.org>; Fri, 27 Sep 2024 01:45:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D19EC18C1F;
+	Fri, 27 Sep 2024 08:58:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727401557; cv=none; b=eFtiepJbgEeSbaAkAjFOSgYF7Lp8fNA/otgF6fjU7LghtU/teK4GXr9KJAWc2hQZyoh1jfbKdBKTsAftTaoUTlFsoaFKpdonDbU22kKpgTrE2lA2kz7E109gjqBXtmAg1K6xvSXbl2nsLLA5HNIKSKa+pntej2Kgwz++BAOsZ4I=
+	t=1727427485; cv=none; b=RSaQfqPiL6gEx7MR+stae+M7VlfB1BaZaZnRHeGMAd20771EAkWBwyaJK0kCRZKswDKPPhhFLYN6G/Cv87DckLqkbHY6P2JKwtEpqnzcPQtxKNQYN0U56emsdwCC4kzKsb1Ud6TX5jD3zLHFTzlr3oQ2ODesnvlFTI0Xl+NWcUE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727401557; c=relaxed/simple;
-	bh=YuJ+sXF9f/pnc9KPRT4Py5Rel5OXlxI1dCz5w7BAeCs=;
+	s=arc-20240116; t=1727427485; c=relaxed/simple;
+	bh=pEp5gXfIjEbg1ta4gdp8fy84aFsgcENp6aqfPlh6iqM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Zozlr6DxEsWcWbWbyOGjLE1Pr+3+3f0kr+BxldHT9TU81r9njUN75CRNwLxgSCxtO0e8YFHPbsSqrqb8qCqeqZALWtuUJWMJwUXKEuumD33ZCgtlj7QbiuKGCzAlThnmLb6DQiEKeiDQbODUQ61Zi58ls5uxASjUfw/kl46s3xY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vNzwlvSu; arc=none smtp.client-ip=209.85.167.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	 To:Cc:Content-Type; b=hJZWOmteWdSYbFZE6Uohme4xxBsSm/nNpu/lBbKBfNsdem1U4CeHDRWdQDqMAMd+I0Ea/HjOMtu5mtrI84atwtvSmJZq0qDz6/T++9q7RAm4n/mFpwRLK43TEYfFlOXh6gZLsWM6s9y/g09caFpc3VBIreyCFYurWfFQyLbNCXo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gqAazClv; arc=none smtp.client-ip=209.85.217.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vNzwlvSu"
-Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-536552fcc07so7473e87.1
-        for <selinux@vger.kernel.org>; Thu, 26 Sep 2024 18:45:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gqAazClv"
+Received: by mail-vs1-f53.google.com with SMTP id ada2fe7eead31-4a3075662b6so344760137.1;
+        Fri, 27 Sep 2024 01:58:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1727401554; x=1728006354; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1727427483; x=1728032283; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=2vZ6lvHGrrTQCwoQAECNwIg9MJ8VboySHc0XOezfhC4=;
-        b=vNzwlvSu7fSiUgBc00TzfVNqTTbga/qke0qo0imrC8zKWa3+99zWgmme/0POl2rHcp
-         yU9X/9Eej//zmd/xseAkwUKm43BVbOW/tbHBhuMeZmqVLP9WHjQUxWoi3ChoCt+2GZ/I
-         V4J82aCjHNGy5mo83BcfGuQmEyW7CgtjxBXtc1fsjMATMOh1ecZ/bip0s+6nxHD6BRSR
-         sMXMAHR3UeFOPcO3OyJ2Izk235DfET26IsGmOaMufp8EE3Ci8kPDdjGmrMDrzpU57zPX
-         WdzKY5yjIPksUkp9e522aEZUEeCCJzTqCppFrrMq/Hk2l6m/wKlfWQHMNj9jZTVzVAK5
-         1Azg==
+        bh=Eg8VUnCWU6xpmCG+ce1Tu7r95og6PEk5nWNUF8PLnD0=;
+        b=gqAazClv8s0ANTY895QSRiOBzehxWHAxTajzp8+L4oMVqITx1Rc1ZRR9N9zO3Vk1iS
+         0E0oCx/nlNg97ah1qOH5riadZAAUmcSvNTYO5+8cO82PLUIPlS/cfntRZC9yPsZp5BNq
+         HZigxvF8s1kAqeM4oah+T9Tu7K/saEbRk9nxIw4DIvRuG/wE2jmZ+lLUJ0nSO9Dx2xMF
+         0I10U74DdkKzjVpgTDGlNKXooe+uatFavOqUsEAAcqBFLrRAjiPMFMCrJtoLD3RBJ5An
+         kmon8czuYyTN9mFTIFXEn+V4NwEhigt5kZsoBpPbFRmrglYrNA4EqqQsJbKRRvYNpG4I
+         noGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727401554; x=1728006354;
+        d=1e100.net; s=20230601; t=1727427483; x=1728032283;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=2vZ6lvHGrrTQCwoQAECNwIg9MJ8VboySHc0XOezfhC4=;
-        b=ImIdsYJU3R57nNIARqjP8dZ2TG008bzuD+FPUCHaQlVF9DzwBbyyALUvBEQWllSE/9
-         9n93+/vuykwv6daU6t0Si1r4d9/rAGs6v6/DB/zEyn8r0SB65N3FdDOTTrUErHdK309m
-         /j453zLL/MVl5pNc+xY4QoXf6Od7j2a8MA296ENU12FZbzjiCtIASZMVxBEw1tf/ve9m
-         aXlg+Djzm2IV66zTiITKlaChsJXns4TpH1wErfLjvO4PyEqga8dFM5I22++bHsLs0J2h
-         lW0d3rxQVCDKZAiuXOpFPxrVzzGhYm0zrQ9gMK9Z3gdk6jElxn9e8Uazq5cta95e4InN
-         lj1A==
-X-Gm-Message-State: AOJu0YyLlxJaVPdtjEue9PqZX0w/rwIeyEhuppNzSbMkX+kAJkwoLFUC
-	n6VEVY68WFo3hwPVTJ/R7PIc/Ms7xnbhXB+fO84r8ymRqYm/K/8J7EBERz1/M9qVd9IGig/Xelr
-	7qJ7V/2T63Vpx09K4Oy34s8UOvHW53b3X9m7Gx/FARdJK03tkobYb
-X-Google-Smtp-Source: AGHT+IF67S2ESH2aM2GXWcryhC3b8uliki9QVFajCxWirQcAboQAKEzakQ6CnBTAX+UcZq/vLd5LrmS66XGeeSUyQmc=
-X-Received: by 2002:a05:6512:ea9:b0:52c:dd94:73f3 with SMTP id
- 2adb3069b0e04-5394ba864a1mr113728e87.3.1727401553969; Thu, 26 Sep 2024
- 18:45:53 -0700 (PDT)
+        bh=Eg8VUnCWU6xpmCG+ce1Tu7r95og6PEk5nWNUF8PLnD0=;
+        b=gv9fLOBopnpIo0Vc3onAwq98+o1AmwfsGOzUyG8gbGravcS6kGattnVwcEWUJUJe40
+         +0OOaYz2ANAIKW0RBypiVzAdT1I3PPoxhOlVSraoYfh2Bvxgo0knFVqOXuiZGWQJ/0uI
+         wNEBBqoz2gsSku0wksBpFcUDb4BUZnjJQ5uzKu3fioSEbsV0pTWGrFkuQ01jqemwx+0B
+         Lti5Sm19C0rU2s/Z1M0gTtzA1hyMkguLjTvVPMb3XU/fyRpveYS6rj1uJ0AiB2JqyjVk
+         qom0D4uTvulcKDDjVr8ygshXwLmd/7QDhYBW9C/c/49306qMxXO6s7s0LoNKBHccM8yq
+         ZzlA==
+X-Forwarded-Encrypted: i=1; AJvYcCU2kNwiVal/pbxQT4WCA9SZmuyu4dEISqslPuFr2sq3fPC9fh4lTuNtOeMwBn7eFImzsyFFI6xRhuhFf81Yz1wZL1wQ@vger.kernel.org, AJvYcCV2d0D0BsiKzXbQwL2TqwG+DY84lebb4Cux4G3ododFoAY6h2IDdKJbj2Rirj5VI/GV5D4wQlxe+CgYaZXOIQ==@vger.kernel.org, AJvYcCVBl/qvinXfWiUkGDVSQEEFr34DlHiFhgvil23df4xrDTJaQwe8+RbTWWC7NSxrKM2HLeN0@vger.kernel.org, AJvYcCWv54scAvVjhxJ7pezM8EjvxB7WchzIL10MLmaFUD5N0HnHJDuhrh3OttX2qEFrQFjslKvAbekh@vger.kernel.org, AJvYcCX9euyxmhyykrVUsgOdHzuNKV/u6O+k37wODRkiEsSzy6g1Zc4McDVPNUsKwU5fVqUshNJjLg==@vger.kernel.org, AJvYcCXd2/Cf5XF8BV7pfNUiXvazo1DtVaAEBfxUYPzvDHrcZrXX9wPyDY7dwNKWJ6jM7wdBSmSTZMDWtvu24YZf0jTXd+AvdPDG@vger.kernel.org, AJvYcCXuBnXWcCYL00ekJ2MlOU2kOwc6+ENoSoMdNGRjknOmTeVb81bBrChPPP9VJ0o7LFuwo9fkrerckw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxlZYuYIBAqeuADDiwDH4QGdEkax+KYdlNITZDIn6qmDW0w1eWE
+	ziTAFLcqCrTmyw7kYJrLRlLAjg2pJLbz0YY1FjnOza6HmFweOxsxMhgfO6ZnU2yzL/YdMhgEvO0
+	CMEi91DmBjgQJjf1VLr4BwrAZDmk=
+X-Google-Smtp-Source: AGHT+IHlhccJP6o8YVDcpGsoOKh73nleQWjN6gMlntdM8azrnOLgCbN569DWouWNGBJF/Vf+8gknJS6h6du5PlKNbYc=
+X-Received: by 2002:a05:6102:2ac4:b0:49b:e9fc:14d2 with SMTP id
+ ada2fe7eead31-4a2d7ff9815mr2856108137.23.1727427482685; Fri, 27 Sep 2024
+ 01:58:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240925201106.16134-3-paul@paul-moore.com> <CA+zpnLceV4b0ittytzn3OHw+b4h2Wpa76LSyjsjZkz-xtoHhcg@mail.gmail.com>
- <CAHC9VhTSnK=E_HCFJbsWip35TpqDAMSbp6MhsFE1jNy=CfCA6w@mail.gmail.com>
-In-Reply-To: <CAHC9VhTSnK=E_HCFJbsWip35TpqDAMSbp6MhsFE1jNy=CfCA6w@mail.gmail.com>
-From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Date: Fri, 27 Sep 2024 11:45:34 +1000
-Message-ID: <CA+zpnLcLGxUUdvOPzXeP5ZPWiXB+pUYq2pu+yBqsmu89zMtSww@mail.gmail.com>
-Subject: Re: [PATCH 1/2] selinux: streamline selinux_nlmsg_lookup()
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org
+References: <20240817025624.13157-1-laoar.shao@gmail.com> <20240817025624.13157-6-laoar.shao@gmail.com>
+ <CAHp75VdpG=yQVaJLR3J5puwj4FYWtXzaHkC1TdmiqfJu1s9PpA@mail.gmail.com>
+In-Reply-To: <CAHp75VdpG=yQVaJLR3J5puwj4FYWtXzaHkC1TdmiqfJu1s9PpA@mail.gmail.com>
+From: Yafang Shao <laoar.shao@gmail.com>
+Date: Fri, 27 Sep 2024 16:57:26 +0800
+Message-ID: <CALOAHbBHV_xB88AD8azVXZQzdowLtU6EHewFGUtPHQE9K6GQ_Q@mail.gmail.com>
+Subject: Re: [PATCH v7 5/8] mm/util: Fix possible race condition in kstrdup()
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: akpm@linux-foundation.org, torvalds@linux-foundation.org, alx@kernel.org, 
+	justinstitt@google.com, ebiederm@xmission.com, alexei.starovoitov@gmail.com, 
+	rostedt@goodmis.org, catalin.marinas@arm.com, 
+	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, 
+	linux-fsdevel@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+	audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 26, 2024 at 11:45=E2=80=AFAM Paul Moore <paul@paul-moore.com> w=
-rote:
+On Fri, Sep 27, 2024 at 1:35=E2=80=AFAM Andy Shevchenko
+<andy.shevchenko@gmail.com> wrote:
 >
-> On Wed, Sep 25, 2024 at 8:48=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@goo=
-gle.com> wrote:
-> > On Thu, Sep 26, 2024 at 6:11=E2=80=AFAM Paul Moore <paul@paul-moore.com=
+> On Thu, Sep 26, 2024 at 7:44=E2=80=AFPM Yafang Shao <laoar.shao@gmail.com=
 > wrote:
-> > >
-> > > Streamline the code in selinux_nlmsg_lookup() to improve the code flo=
-w,
-> > > readability, and remove the unnecessary local variables.
-> > >
-> > > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > > ---
-> > >  security/selinux/nlmsgtab.c | 90 ++++++++++++++++-------------------=
---
-> > >  1 file changed, 39 insertions(+), 51 deletions(-)
-> > >
-> > > diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.=
-c
+> >
+> > In kstrdup(), it is critical to ensure that the dest string is always
+> > NUL-terminated. However, potential race condidtion can occur between a
+>
+> condition
+>
+> > writer and a reader.
+> >
+> > Consider the following scenario involving task->comm:
+> >
+> >     reader                    writer
+> >
+> >   len =3D strlen(s) + 1;
+> >                              strlcpy(tsk->comm, buf, sizeof(tsk->comm))=
+;
+> >   memcpy(buf, s, len);
+> >
+> > In this case, there is a race condition between the reader and the
+> > writer. The reader calculate the length of the string `s` based on the
+>
+> calculates
+>
+> > old value of task->comm. However, during the memcpy(), the string `s`
+> > might be updated by the writer to a new value of task->comm.
+> >
+> > If the new task->comm is larger than the old one, the `buf` might not b=
+e
+> > NUL-terminated. This can lead to undefined behavior and potential
+> > security vulnerabilities.
+> >
+> > Let's fix it by explicitly adding a NUL-terminator.
+>
+> memcpy() is not atomic AFAIK, meaning that the new string can be also
+> shorter and when memcpy() already copied past the new NUL. I would
+> amend the explanation to include this as well.
 >
 > ...
-> >
-> > Should it be NETLINK_AUDIT_SOCKET__NLMSG here?
 >
-> Yes it should, thanks!
+> > +               /* During memcpy(), the string might be updated to a ne=
+w value,
+> > +                * which could be longer than the string when strlen() =
+is
+> > +                * called. Therefore, we need to add a null termimator.
 >
+> /*
+>  * The wrong comment style. Besides that a typo
+>  * in the word 'terminator'. Please, run codespell on your changes.
+>  * Also use the same form: NUL-terminator when you are talking
+>  * about '\0' and not NULL.
+>  */
 
-With the right constant:
+Thank you for pointing out these errors and for recommending the use
+of codespell.
+Will fix them in the next version.
 
-Tested-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+--=20
+Regards
+Yafang
