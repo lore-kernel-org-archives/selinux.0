@@ -1,177 +1,156 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EBDB158521
-	for <selinux@vger.kernel.org>; Fri, 27 Sep 2024 14:49:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6B6854918
+	for <selinux@vger.kernel.org>; Sat, 28 Sep 2024 02:34:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727448551; cv=none; b=PUP1sTIHDBZOMvdcE5f+NrVNxSmlGPqO5KAa+Dvf1XIQagVTwXG9Yt8U6JCCqE+aOrNyLXL/kbRgITrW5CrS6EArzrxyhM+JQdET40uUjCUFdqpIP0pmhPBwKnbbbn4CdTzBrRwiA53lJMWW40NbXFQGML53EoVAY9VJH0H3ZY0=
+	t=1727490849; cv=none; b=hkp5RLIAHw399X/DBQhwUTWDZW9MQF88IMAq2KsMHQWVx0ZZAYqqPcQgb4PvjoP33Z7YMUve+ncoCSbu2xqSzhQevsJblX0A7YmYJxWmNEk05DvKJigygsUHPUbWJfkYNz9LoOYIcP0iRH19p0VYd98sIBhEcoqxCaRKDQpLTUo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727448551; c=relaxed/simple;
-	bh=OkmVzniWDUn08cODxywkXu0cV2U1zljQtlcS0yjW3sU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=eNKTT2B8IgThPWe1rfYKfV8Mt1DaxbJZ9xHFBYcplPQhuThX9wUxKw0rJAyy1nRrvMPPxiO+9E5+xTyCg/L4Rx2GVj/g2NxfaCQLR7Kxv/OcfQKU2PWJyjzEHd7MWaT1xk1gXKS6KuXs+F6V20YGTD0DaaffHs4fi01UdydTZXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GRUiRK5Q; arc=none smtp.client-ip=209.85.216.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1727490849; c=relaxed/simple;
+	bh=7JETgzVlPniE2th61i/1NTROAETK/T9gFI7yNKCepTI=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=t9qeL/OM4ONleQBnWePnhpxZTl+aWSBIK1+uXbTe16IX8yCcrOAODSxXLjb57Dd21mbquvZ6d7IZEzvh+Cale/KSA0IfEqekYsnsaetKvmticfxM7+K8RMbw0099G3tNtshgTCIDf86trTp7QZrQitH0tuMBVR27155y4SKVD24=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=aMFx2ycW; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GRUiRK5Q"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-2e0b0142bbfso1099435a91.1
-        for <selinux@vger.kernel.org>; Fri, 27 Sep 2024 07:49:10 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="aMFx2ycW"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-719ba0654f9so2369781b3a.3
+        for <selinux@vger.kernel.org>; Fri, 27 Sep 2024 19:34:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1727448550; x=1728053350; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OkmVzniWDUn08cODxywkXu0cV2U1zljQtlcS0yjW3sU=;
-        b=GRUiRK5QTEGhuNbupqgt+JDY3IFC9w56o/FmAiRMHbVxHnGSK+KT23KBMNuQ6jO0U3
-         Zu4GkQ4HZP5Mm8ReGIprPRJd90LeqqbSKjA4ftIACAjB17dKvQh94tOmxmM9M3mkwGnF
-         RwNIKVOiIlNvMeZa/XLsq0UjYX7kUgrby7gceaHoO6u4iDekLKze3ph99jyJ2iY5Hcpe
-         qafApHykdcIFc2dgoZaB6v6gIc/3rw8VvPR6XGnDqK+GY0xnctmu8ER8nRSleHCq90SA
-         Wvac2ABFthcu44uDUnDr6doqO1FlR2E6MqqT0F407Blcg1V0Xm5pIIPDHrX3y+he4Za/
-         g7Pw==
+        d=broadcom.com; s=google; t=1727490847; x=1728095647; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=MI/YrD/lCyZQfuqc6LhwT8YNbgbBZkfv6QDOo41ZKyI=;
+        b=aMFx2ycWAK8bsubMRJIBZ/EjAwqN8pWRyjzUTnJxWPL49P/SyS0iwhHlpFKGYK5R7f
+         ZQjEOyHznmAeoWZVm2DFrbo45q84o6QqSFNJ2js/hkFx5kKYVPfYy9/tvxvd3z7+KVGf
+         xYsvbI2HKiBWNJjObn8HQV3Cvlug3VLhFUF80=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727448550; x=1728053350;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=OkmVzniWDUn08cODxywkXu0cV2U1zljQtlcS0yjW3sU=;
-        b=Z8n7wXIBn01VWEIFHVAFEq24BGKvj6vh7PWs57e6A9djC3KBn5OvwZmOXcba8DkCTv
-         BP27sHMrEhJXrkAh1ROuntx3pyveQeJLgIgPaZXOlB3tuhNGvnS5Omd1xQGuVOXf/aMx
-         sIDhVMxWgCWbygM8DlBbNcc+MmHn6+he4O5dB5imjrxmjWyyfD0LNmyZpClF0/PM863J
-         byUm88AJtFyCkGka3Lw5f96SjsVR14JUXNv2zh4gsuoe6qN/GUOPRDdmAfzHpfQlllTN
-         y7nrD78jHQLTAw/IGjrP47Ow4m5v7Oqjpuv/MINQfvUlAgtgntXr3eKhw2WZa1MJaR9h
-         1dKw==
-X-Gm-Message-State: AOJu0YyOAx51SeW8va2jH45ypCq7SBS5ffo0MPwpjVrkntjhoWhf23FN
-	sdR0fwlhu+zezngEbsObxdisPUDZOhZ69yQH11yjV4OfNpGM4nMl8GwxOYBt357LpbBqkjJgGAJ
-	CMpLVLhmirVX1t2haDdGXyTQftom+gh8X
-X-Google-Smtp-Source: AGHT+IFsSr/sZdzMGfqhtJNa0ulsvLXng3NR8IQ3BZKhfsMIILgATTEjqjkQykQqZlUQ5KZiJKjgxVhKQZcJlLoUQmM=
-X-Received: by 2002:a17:90b:2348:b0:2d8:9fbe:6727 with SMTP id
- 98e67ed59e1d1-2e0b7125df7mr5665825a91.4.1727448549478; Fri, 27 Sep 2024
- 07:49:09 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1727490847; x=1728095647;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=MI/YrD/lCyZQfuqc6LhwT8YNbgbBZkfv6QDOo41ZKyI=;
+        b=jZMpNe+e0/njavR8RlEYeEIV3s04KQeJHmyZo1ZDBo1RDpCZapnF0WoD7CluQLkNeR
+         VWTpVsutotHCLjFkUk0fP+OPFQSGr7Vw9buKr1elIOPuSECD+V+u56PSTnX6rpsZvb65
+         o5F4i79T6oLC2VBPwXvf4o8BfkBQ1qXIrJjLH1aTzXmRH2QbueD4Mn59350nQ7SyIEJq
+         Olo3PwpGkp0Sc1+22l6FbEBlQwJtCaraxtbgNjvJe9QofIRWQA2oiejxrFaor5Jvedu1
+         LBoLzy2B4uF46y47LXqTyBK6dn7R9rhkvyAJFUFNTGOqvWwvYAkhsxG2zFnkxBir+Tdz
+         1grA==
+X-Forwarded-Encrypted: i=1; AJvYcCXO1B8MarOfOOLO9BrTZWIKywD/Gi99Jc+2nGhrlpgIdIRePl3YoT0uf/XfeKxU9GsqhpEDhjOQ@vger.kernel.org
+X-Gm-Message-State: AOJu0Yye5Zbwy+YjmVnXIseduPrpv19KQyzHE0aMReyIl+X8j+YJCHfI
+	nmSz7AQzryN475wzxlvnaBj4CvtKr8h+wxFp3s1C9BIBAu1xbNCNqT67JeWNwQ==
+X-Google-Smtp-Source: AGHT+IGTfEyKEUJ1bOxW3m6LmtiOzTr6iqhwVfVJE+TgVQjvrt/Sp9jAPDeJvlAOlFnzYfv9q/kc+A==
+X-Received: by 2002:a05:6a00:3cce:b0:718:cabe:aa8 with SMTP id d2e1a72fcca58-71b26059666mr8670611b3a.18.1727490846779;
+        Fri, 27 Sep 2024 19:34:06 -0700 (PDT)
+Received: from shivania.eng.vmware.com ([66.170.99.1])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-71b26516223sm2254154b3a.112.2024.09.27.19.33.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 Sep 2024 19:34:06 -0700 (PDT)
+From: Shivani Agarwal <shivani.agarwal@broadcom.com>
+To: stable@vger.kernel.org,
+	gregkh@linuxfoundation.org
+Cc: paul@paul-moore.com,
+	stephen.smalley.work@gmail.com,
+	omosnace@redhat.com,
+	casey@schaufler-ca.com,
+	jmorris@namei.org,
+	serge@hallyn.com,
+	selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	ajay.kaher@broadcom.com,
+	alexey.makhalov@broadcom.com,
+	vasavi.sirnapalli@broadcom.com,
+	Scott Mayhew <smayhew@redhat.com>,
+	stable@kernel.org,
+	Marek Gresko <marek.gresko@protonmail.com>,
+	Chuck Lever <chuck.lever@oracle.com>,
+	Jeff Layton <jlayton@kernel.org>,
+	Shivani Agarwal <shivani.agarwal@broadcom.com>
+Subject: [PATCH v5.10] selinux,smack: don't bypass permissions check in  inode_setsecctx hook
+Date: Fri, 27 Sep 2024 19:33:49 -0700
+Message-Id: <20240928023349.154389-1-shivani.agarwal@broadcom.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ46KJCUXqgq==pmEMW9yYJSRnWkGrSrxBAfMELPRYUdXQ@mail.gmail.com>
- <CAEjxPJ7WUzN=0Yv4POgPVHPG1wEjNn=-Tb53NiuMpWf+bEuF-w@mail.gmail.com>
- <CAEjxPJ758jx7X5Tauz=xQXsmWcZhx_V7AkU=PtsH6S3S9CUCbw@mail.gmail.com>
- <CAEjxPJ50ADVSOys58eYUktv4sjYYnEDroxA9Wnt6HiY9ySk=gg@mail.gmail.com>
- <CAEjxPJ6QsYR-Kj8k0C=54cix8rdpBsCphDV5_QnjGONDuOm+ew@mail.gmail.com>
- <CAEjxPJ6p3oD99_aTEeSCx6FMob7BH8-2vxdoT69c8sw11oHuEA@mail.gmail.com>
- <CAEjxPJ5jup5o9piVPuA97_radSzvshpnRB1CdBde8sV3ZXVc2Q@mail.gmail.com>
- <CAEjxPJ7UtCjQw=v1--6ZWXo-bbkndGbwfXhcT8RkX_cddjCqkQ@mail.gmail.com>
- <CAEjxPJ5a1KzSjB31gcqWqJW_zdy8OCmwKKGYwCivvFG4Jvncyg@mail.gmail.com>
- <CAEjxPJ6WupdxzSkh54NLJkZoH=Umayj8+HrX5TmbAXvVYzgPfw@mail.gmail.com>
- <CAEjxPJ7iL11xSVs4gxhMPSCtVmYEqfgQQmBpVNAVXV7UG=P3nw@mail.gmail.com>
- <CAEjxPJ7C41QdEgAFYVdTyZE=TjGq+pyzCmy7BbHMss7=njvJmg@mail.gmail.com>
- <CAHC9VhRDF0DBAWM-=ynks1=Zm5LcQYq0_4xfQy4pKvHfW6FoBg@mail.gmail.com>
- <9aa53afd-efd8-4552-8239-14f99ff7a1b1@schaufler-ca.com> <CAEjxPJ6vyDjmwxEpwnb+JYKiWXYFo5g_suZiUZb6L+aepHxZiA@mail.gmail.com>
- <CAEjxPJ4nbCuntgTvrGk4LHs+ZYjm95ZwwSwwAycWWzS9dt9Tyw@mail.gmail.com>
- <CAEjxPJ76MdNwgXtGTgVYGKE87=7GmZywQ1GJn5Vz8jjCdVATWA@mail.gmail.com>
- <CAEjxPJ7Qp9Q4RUYH8vb-xQOe0=YsN=nbyM-4FV6hvYzZwKX5Og@mail.gmail.com>
- <CAEjxPJ4Opxv+HU6cbAfKNT=ZXnUZ=0Ac8ZM5fQj=wnO_JPy-zw@mail.gmail.com> <CAEjxPJ7Zpw9i6OXZ-Kz=WXVuCaas5TOtxCAmK-rxGDhm1-zwDg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7Zpw9i6OXZ-Kz=WXVuCaas5TOtxCAmK-rxGDhm1-zwDg@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 27 Sep 2024 10:48:58 -0400
-Message-ID: <CAEjxPJ4UsFbFvuigZ+WZD0zuPQ-mY9MRQ-3+SYp_bDwBE_1z0Q@mail.gmail.com>
-Subject: Re: SELinux namespaces re-base
-To: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>
-Cc: SElinux list <selinux@vger.kernel.org>, Casey Schaufler <casey@schaufler-ca.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Sep 26, 2024 at 1:16=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Thu, Sep 26, 2024 at 9:14=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > As I've been converting the permission checks to use namespace-aware
-> > helpers, I've noted policy capabilities (as in network_peer_controls,
-> > open_perms, extended_socket_class, always_check_network, etc) as a
-> > case that isn't cleanly handled by my current approach. At present,
-> > the hook functions are just checking the value of the policy
-> > capability in the current SELinux namespace to decide which branch of
-> > the hook function to follow, and then within whichever branch is
-> > selected, each permission check that is converted to using
-> > namespace-aware helpers is checking permissions against the current
-> > and all ancestor namespaces.
-> >
-> > So for example, if the current namespace enables open permission, then
-> > it will check open permission against the current namespace and all
-> > ancestors, irrespective of whether the ancestor enabled that
-> > capability or not. Similarly, if the current namespace disables open
-> > permission, then it will NOT check open permission against any
-> > namespaces, even if the ancestors enabled it.
-> >
-> > Lifting the logic to iterate through all of the namespaces up into
-> > each hook function is possible but rather painful. That said, it may
-> > be unavoidable if we want to support different policy capability
-> > settings between child namespaces and their ancestors, or prevent
-> > child namespaces from effectively disabling certain checks by
-> > disabling those capabilities.
-> >
-> > If I were to go down that route, then I would also need to resolve how
-> > to handle the non-permission checking logic in each hook across
-> > multiple namespaces, e.g. labeling logic. Currently it is just
-> > assigning SIDs/contexts to objects based on the current namespace,
-> > then checking permissions against all namespaces with that
-> > SID/context. But if each hook function has its body wrapped with the
-> > same loop that currently exists inside the namespace-aware permission
-> > checking functions to iterate through the namespaces, then we would
-> > actually end up with multiple SIDs/contexts computed and need to
-> > decide which one to use (or special case that part of the body to skip
-> > doing so for anything but the first/current namespace).
-> >
-> > Thoughts?
->
-> On 2nd thought, for hooks that don't depend on policy capabilities, I
-> think the current approach is fine, and works for the majority of the
-> hooks.
->
-> For the subset of hooks that depend on policy capabilities, I will
-> lift the logic where needed to ensure that we apply the right checks
-> in each namespace based on that namespace's enabled policy
-> capabilities.
->
-> Labeling logic will still be based on the current SELinux namespace at
-> the point where the kernel object is first created/instantiated, but
-> permissions to that label will be checked in the current and ancestor
-> namespaces. There are some potential gotchas there, e.g. a child
-> namespace could load a policy that labels all objects it
-> creates/instantiates with a context to which it has access, even
-> overriding file xattrs by specifying something other than fs_use_xattr
-> in its policy for the filesystem type.
->
-> Some of the policy capabilities have effects other than changing which
-> permissions are checked, e.g. extended_socket_class alters what
-> security class is set in the security blob and later used in
-> permission checks, so if a socket is created with that disabled in one
-> namespace and accessed in another namespace, the permission checks
-> might not be on the "correct" security class for the other namespace.
-> Other policy capabilities affect labeling, e.g. cgroup_seclabel,
-> genfs_seclabel_symlinks, userspace_initial_context, which likewise
-> could lead to an object created and labeled in one namespace
-> triggering permission checks against the "wrong" label if accessed in
-> another namespace.
+From: Scott Mayhew <smayhew@redhat.com>
 
-Since an increasing number of the testsuite tests are failing in a
-child SELinux namespace due to even unconfined_t in the parent
-namespace not being allowed the requisite permissions in the parent
-namespace, I've created a modified version of the testsuite policy to
-allow those permissions to unconfined_t and also disabled the tests
-that cannot work currently due to the separate network namespace.
-Those changes are on a branch of my fork of the selinux-testsuite at:
-https://github.com/stephensmalley/selinux-testsuite/tree/selinuxns
+commit 76a0e79bc84f466999fa501fce5bf7a07641b8a7 upstream.
 
-With those changes, if I load the test policy into the parent
-namespace (so that the test domains/types are defined and access is
-allowed to unconfined_t) and then create a child namespace from an
-unconfined_t shell and run the testsuite from it, all of the
-(still-enabled) tests pass. I'll keep amending the test policy on that
-branch with further changes as I convert additional permission checks
-to be namespace-aware. Eventually we can figure out if it makes sense
-to merge these into the main testsuite but that can wait until we're
-ready to merge the kernel namespace support itself.
+Marek Gresko reports that the root user on an NFS client is able to
+change the security labels on files on an NFS filesystem that is
+exported with root squashing enabled.
+
+The end of the kerneldoc comment for __vfs_setxattr_noperm() states:
+
+ *  This function requires the caller to lock the inode's i_mutex before it
+ *  is executed. It also assumes that the caller will make the appropriate
+ *  permission checks.
+
+nfsd_setattr() does do permissions checking via fh_verify() and
+nfsd_permission(), but those don't do all the same permissions checks
+that are done by security_inode_setxattr() and its related LSM hooks do.
+
+Since nfsd_setattr() is the only consumer of security_inode_setsecctx(),
+simplest solution appears to be to replace the call to
+__vfs_setxattr_noperm() with a call to __vfs_setxattr_locked().  This
+fixes the above issue and has the added benefit of causing nfsd to
+recall conflicting delegations on a file when a client tries to change
+its security label.
+
+Cc: stable@kernel.org
+Reported-by: Marek Gresko <marek.gresko@protonmail.com>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=218809
+Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Reviewed-by: Chuck Lever <chuck.lever@oracle.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[Shivani: Modified to apply on v5.10.y]
+Signed-off-by: Shivani Agarwal <shivani.agarwal@broadcom.com>
+---
+ security/selinux/hooks.c   | 3 ++-
+ security/smack/smack_lsm.c | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 46c00a68bb4b..90935ed3d8d8 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6570,7 +6570,8 @@ static int selinux_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen
+  */
+ static int selinux_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
+ {
+-	return __vfs_setxattr_noperm(dentry, XATTR_NAME_SELINUX, ctx, ctxlen, 0);
++	return __vfs_setxattr_locked(dentry, XATTR_NAME_SELINUX, ctx, ctxlen, 0,
++				     NULL);
+ }
+ 
+ static int selinux_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 92bc6c9d793d..cb4801fcf9a8 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4651,7 +4651,8 @@ static int smack_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
+ 
+ static int smack_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
+ {
+-	return __vfs_setxattr_noperm(dentry, XATTR_NAME_SMACK, ctx, ctxlen, 0);
++	return __vfs_setxattr_locked(dentry, XATTR_NAME_SMACK, ctx, ctxlen, 0,
++				     NULL);
+ }
+ 
+ static int smack_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
+-- 
+2.39.4
+
