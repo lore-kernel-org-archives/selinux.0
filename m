@@ -1,202 +1,112 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C6DF184D;
-	Sun, 29 Sep 2024 09:48:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EF62199254
+	for <selinux@vger.kernel.org>; Mon, 30 Sep 2024 18:12:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727603291; cv=none; b=LaWSxInb2p7p8EIMX88qZWNk66fl1nH2i7an+VHAXtDhwYXnwAkT+wi0VNuhW7xvdzFwVbjnTO8v+t0ZyVILAW9hIVnGqcfYA4uaFPHiplYhRNYL+9qU64yyTsgHgLwIeafcQFcBh+kJWVF/wkt8gD6v0kIWnMAPK+a/FUWbxmM=
+	t=1727719941; cv=none; b=HStht5LAZn+HqNcfr+BXBaWh8U/keCaSP1wv2mBhQzg73wlFbFHR9XSAPckMwI6lvsLGXTIFaD1LdillQWHKxD+uWDuiXP0DWnunvXmOD9+8nWoqXFJh9bXKpxrHcczyMo/Eh5yjAlA0ue6bG/UDVRIR1g+++OuAi5/wZp8V9gA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727603291; c=relaxed/simple;
-	bh=Q85EQZ1C0LWdCS5RaobjsfqzLm5bDoBuzWbpeweMj9I=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fb7IWRlldnLut5tRaV5lBOxq+XtVKdpmgdr1MSpX1OBZDk8Ocm/R3h4fcoJZaprTCUnp9O3wMjsPBj5J2SBGU0A8BpOZ5mL4dltl58ZMtM8OFxNwVNoL1bZL55+Z7kqyPMewCE02rkhLIrRSDLuVDjsIZ9y2Wi5b/rz+Ma2xRBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZZYqjUkd; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1727719941; c=relaxed/simple;
+	bh=WDG50jRwV6IxMjd3T/8e2m3B4DdhmKkMvP4gjTQvjNQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GMheKSo6fdWoBR6cNPLtzt9WrO1CWrq43FHMPqMVNC79LLN0zw3pWrmj/fpo4ecKipzaOLGUSbXTfq7SN4RweTiPc92603BFBKF8MXXl/thMIcG5n+9CHV/bq3QhDKzJCwg2Z0ZNiqZznpUAzZR5ObkmYtoT2iaOJgPBXLP4JYs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lf/VRF2Y; arc=none smtp.client-ip=209.85.167.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZZYqjUkd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AAA7C4CEC5;
-	Sun, 29 Sep 2024 09:48:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1727603291;
-	bh=Q85EQZ1C0LWdCS5RaobjsfqzLm5bDoBuzWbpeweMj9I=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ZZYqjUkdiv7S8FgTbaYbV0XUknhL1P1VVmTo9P1W2GctlLPXcJ8oJQHBKlPZgjXo2
-	 Es2xS3ESgdg86l3wNftoKH9yH1/mTm6moYrm8dO7zU9boWmnMHAw8RgfZX0mjjOtZF
-	 3Topn8mc6AxsEl9nm1AzniZzWYp8ZvUI1lQvJdgHq4cipjPYGwJMkUqiJAjl1fNVVH
-	 4V2xLeDXnFXCRYKaPkvjwJu2MSGKPGUGkuP+NA3eC/XdQPRwLsGdFWj7FNnY4DOSXy
-	 CKQblIkIkEUIRFJqSL4eUbxg5R1gDF2r/Fs5YYJQanEMuWLUSlYPW9HSAKjbigtLm5
-	 iX9v7pf55JwHQ==
-Date: Sun, 29 Sep 2024 11:48:05 +0200
-From: Alejandro Colomar <alx@kernel.org>
-To: Kees Cook <kees@kernel.org>
-Cc: Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org, 
-	torvalds@linux-foundation.org, justinstitt@google.com, ebiederm@xmission.com, 
-	alexei.starovoitov@gmail.com, rostedt@goodmis.org, catalin.marinas@arm.com, 
-	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, Andy Shevchenko <andy.shevchenko@gmail.com>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>
-Subject: Re: [PATCH v7 5/8] mm/util: Fix possible race condition in kstrdup()
-Message-ID: <squaseoxrkkxw7my6cdxksmiuhfj2qzd3luwzkyhnd7of2envx@w6s7ncgh4ea3>
-References: <20240817025624.13157-1-laoar.shao@gmail.com>
- <20240817025624.13157-6-laoar.shao@gmail.com>
- <w6fx3gozq73slfpge4xucpezffrdioauzvoscdw2is5xf7viea@a4doumg264s4>
- <202409281414.487BFDAB@keescook>
- <xzhijtnrz57jxrqoumamxfs3vl7nrsu5qamcjcm4mgtdhruy5r@4az7dbngmfdn>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lf/VRF2Y"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5398a26b64fso2993478e87.3
+        for <selinux@vger.kernel.org>; Mon, 30 Sep 2024 11:12:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1727719938; x=1728324738; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=g8pOy0om62HvuyaGV9tTsQv35sz2SwXHWRsOTdJKnk8=;
+        b=lf/VRF2YhOgxwFCeXV/i5tgD6VwnU/teiib2CDNQhKTdp0uLGxUnPqG59DSv2v4Q1L
+         3URyKmA8Vx7MWmGI+UZvKy6+vJZZC0xqLbZJX/WobBJfTmZnJRnv+2VfddHxRRV+fEZ7
+         eGNmYiv2yT3B2Reax/yh5Z86b9s1pE006M4qdHZT2u/yeJn7mTnFegCs37Fj7cqP9OD/
+         QgxAUA6sWjLlEhYPpbl/LccNjOnEuj7BYKvmlAWXpIH5EXlZdHAIZh/Ss7C4G9GuViW+
+         PeMKqgEy2con4ModCIhtzgS1+zDzlmkMYtD0rkr+IBKPOL7usNOs5fUCg6tUWdCNUCPx
+         61QQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727719938; x=1728324738;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=g8pOy0om62HvuyaGV9tTsQv35sz2SwXHWRsOTdJKnk8=;
+        b=qSieiYQNQP3S794GzCVHljr2KCyxMVedzeS2pulPL1B1Jv+Uq9ZMcbiwG0S9MKhD2L
+         mKJU9KR1/bqCYqn4fPOuxY9wbA0811cDyklxv7imO8H9UTh2GbxltJ1fZaeoJmYYaZXu
+         XKdEe19j2KsFHCZwwGk5IDPZ3ZkeEcjBUJaRci792IPhByV+XogtesTOkwwA+slqhL9A
+         8lZIV6ZCdeemnPzm7pZIccKkK+76au5+kIWYu1XxHydJWQQNS1Qu7pPc2CFriBkLx++l
+         RAhhC6VgKPrZAzsVI3ZUauMGljB8f3PaUcJfGwOTs7cVTIG9pSFze7uStB3POhwPVL7A
+         xh2A==
+X-Gm-Message-State: AOJu0YzcQzk036J5m7fQItkHwO5dFTi184d8VeqjA/KgH//Lg3+xpDw4
+	k6WxACRVkY2uVuuRBcLt3ut6kWCdFl+M2KeGeqk/tIKGPkiIVJRD5+tmZg==
+X-Google-Smtp-Source: AGHT+IEhHWPP0cJpaFBl2d10UH+f8SL0rP3lfbCn7diDHyGJ8EZ9FTNBom7ldbKEL3UuuXu3B8SnMQ==
+X-Received: by 2002:ac2:4e14:0:b0:535:d4e9:28bf with SMTP id 2adb3069b0e04-5389fc774ccmr6137017e87.46.1727719937310;
+        Mon, 30 Sep 2024 11:12:17 -0700 (PDT)
+Received: from [192.168.1.65] (85-156-69-24.elisa-laajakaista.fi. [85.156.69.24])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-538a0444274sm1308944e87.285.2024.09.30.11.12.15
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 30 Sep 2024 11:12:16 -0700 (PDT)
+Message-ID: <8992e65f-b1f6-4376-918d-c7c81a649c53@gmail.com>
+Date: Mon, 30 Sep 2024 21:12:14 +0300
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="vmgihngka57rzukx"
-Content-Disposition: inline
-In-Reply-To: <xzhijtnrz57jxrqoumamxfs3vl7nrsu5qamcjcm4mgtdhruy5r@4az7dbngmfdn>
+User-Agent: Mozilla Thunderbird
+Subject: Re: SELinux namespaces re-base
+To: Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>,
+ =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: SElinux list <selinux@vger.kernel.org>,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <CAEjxPJ46KJCUXqgq==pmEMW9yYJSRnWkGrSrxBAfMELPRYUdXQ@mail.gmail.com>
+ <CAEjxPJ5a1KzSjB31gcqWqJW_zdy8OCmwKKGYwCivvFG4Jvncyg@mail.gmail.com>
+ <CAEjxPJ6WupdxzSkh54NLJkZoH=Umayj8+HrX5TmbAXvVYzgPfw@mail.gmail.com>
+ <CAEjxPJ7iL11xSVs4gxhMPSCtVmYEqfgQQmBpVNAVXV7UG=P3nw@mail.gmail.com>
+ <CAEjxPJ7C41QdEgAFYVdTyZE=TjGq+pyzCmy7BbHMss7=njvJmg@mail.gmail.com>
+ <CAHC9VhRDF0DBAWM-=ynks1=Zm5LcQYq0_4xfQy4pKvHfW6FoBg@mail.gmail.com>
+ <9aa53afd-efd8-4552-8239-14f99ff7a1b1@schaufler-ca.com>
+ <CAEjxPJ6vyDjmwxEpwnb+JYKiWXYFo5g_suZiUZb6L+aepHxZiA@mail.gmail.com>
+ <CAEjxPJ4nbCuntgTvrGk4LHs+ZYjm95ZwwSwwAycWWzS9dt9Tyw@mail.gmail.com>
+ <CAEjxPJ76MdNwgXtGTgVYGKE87=7GmZywQ1GJn5Vz8jjCdVATWA@mail.gmail.com>
+ <CAEjxPJ7Qp9Q4RUYH8vb-xQOe0=YsN=nbyM-4FV6hvYzZwKX5Og@mail.gmail.com>
+ <CAEjxPJ4Opxv+HU6cbAfKNT=ZXnUZ=0Ac8ZM5fQj=wnO_JPy-zw@mail.gmail.com>
+ <CAEjxPJ7Zpw9i6OXZ-Kz=WXVuCaas5TOtxCAmK-rxGDhm1-zwDg@mail.gmail.com>
+ <CAEjxPJ4UsFbFvuigZ+WZD0zuPQ-mY9MRQ-3+SYp_bDwBE_1z0Q@mail.gmail.com>
+Content-Language: en-US
+From: Topi Miettinen <toiwoton@gmail.com>
+In-Reply-To: <CAEjxPJ4UsFbFvuigZ+WZD0zuPQ-mY9MRQ-3+SYp_bDwBE_1z0Q@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
+Hi,
 
---vmgihngka57rzukx
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-From: Alejandro Colomar <alx@kernel.org>
-To: Kees Cook <kees@kernel.org>
-Cc: Yafang Shao <laoar.shao@gmail.com>, akpm@linux-foundation.org, 
-	torvalds@linux-foundation.org, justinstitt@google.com, ebiederm@xmission.com, 
-	alexei.starovoitov@gmail.com, rostedt@goodmis.org, catalin.marinas@arm.com, 
-	penguin-kernel@i-love.sakura.ne.jp, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, audit@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	selinux@vger.kernel.org, bpf@vger.kernel.org, netdev@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, Andy Shevchenko <andy.shevchenko@gmail.com>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>
-Subject: Re: [PATCH v7 5/8] mm/util: Fix possible race condition in kstrdup()
-References: <20240817025624.13157-1-laoar.shao@gmail.com>
- <20240817025624.13157-6-laoar.shao@gmail.com>
- <w6fx3gozq73slfpge4xucpezffrdioauzvoscdw2is5xf7viea@a4doumg264s4>
- <202409281414.487BFDAB@keescook>
- <xzhijtnrz57jxrqoumamxfs3vl7nrsu5qamcjcm4mgtdhruy5r@4az7dbngmfdn>
-MIME-Version: 1.0
-In-Reply-To: <xzhijtnrz57jxrqoumamxfs3vl7nrsu5qamcjcm4mgtdhruy5r@4az7dbngmfdn>
+I wonder if SELinux namespaces could be used for sandboxing, 
+specifically with systemd. When enabled for a service with a directive 
+(something like NamespacedSELinuxPolicy=path), PID1 could load a service 
+specific namespaced policy and apply it to the service as it starts. 
+These kind of policies could be extremely minimal and hardened when 
+optimized.
 
-On Sun, Sep 29, 2024 at 09:58:30AM GMT, Alejandro Colomar wrote:
-> [CC +=3D Andy, Gustavo]
->=20
-> On Sat, Sep 28, 2024 at 02:17:30PM GMT, Kees Cook wrote:
-> > > > diff --git a/mm/util.c b/mm/util.c
-> > > > index 983baf2bd675..4542d8a800d9 100644
-> > > > --- a/mm/util.c
-> > > > +++ b/mm/util.c
-> > > > @@ -62,8 +62,14 @@ char *kstrdup(const char *s, gfp_t gfp)
-> > > > =20
-> > > >  	len =3D strlen(s) + 1;
-> > > >  	buf =3D kmalloc_track_caller(len, gfp);
-> > > > -	if (buf)
-> > > > +	if (buf) {
-> > > >  		memcpy(buf, s, len);
-> > > > +		/* During memcpy(), the string might be updated to a new value,
-> > > > +		 * which could be longer than the string when strlen() is
-> > > > +		 * called. Therefore, we need to add a null termimator.
-> > > > +		 */
-> > > > +		buf[len - 1] =3D '\0';
-> > > > +	}
-> > >=20
-> > > I would compact the above to:
-> > >=20
-> > > 	len =3D strlen(s);
-> > > 	buf =3D kmalloc_track_caller(len + 1, gfp);
-> > > 	if (buf)
-> > > 		strcpy(mempcpy(buf, s, len), "");
-> > >=20
-> > > It allows _FORTIFY_SOURCE to track the copy of the NUL, and also uses
-> > > less screen.  It also has less moving parts.  (You'd need to write a
-> > > mempcpy() for the kernel, but that's as easy as the following:)
-> > >=20
-> > > 	#define mempcpy(d, s, n)  (memcpy(d, s, n) + n)
-> > >=20
-> > > In shadow utils, I did a global replacement of all buf[...] =3D '\0';=
- by
-> > > strcpy(..., "");.  It ends up being optimized by the compiler to the
-> > > same code (at least in the experiments I did).
-> >=20
-> > Just to repeat what's already been said: no, please, don't complicate
-> > this with yet more wrappers. And I really don't want to add more str/mem
-> > variants -- we're working really hard to _remove_ them. :P
->=20
-> Hi Kees,
->=20
-> I assume by "[no] more str/mem variants" you're referring to mempcpy(3).
->=20
-> mempcpy(3) is a libc function available in several systems (at least
-> glibc, musl, FreeBSD, and NetBSD).  It's not in POSIX nor in OpenBSD,
-> but it's relatively widely available.  Availability is probably
-> pointless to the kernel, but I mention it because it's not something
-> random I came up with, but rather something that several projects have
-> found useful.  I find it quite useful to copy the non-zero part of a
-> string.  See string_copying(7).
-> <https://www.man7.org/linux/man-pages/man7/string_copying.7.html>
->=20
-> Regarding "we're working really hard to remove them [mem/str wrappers]",
-> I think it's more like removing those that are prone to misuse, not just
-> blinly reducing the amount of wrappers.  Some of them are really useful.
->=20
-> I've done a randomized search of kernel code, and found several places
-> where mempcpy(3) would be useful for simplifying code:
->=20
-> ./drivers/staging/rtl8723bs/core/rtw_ap.c:		memcpy(pwps_ie, pwps_ie_src, =
-wps_ielen + 2);
-> ./drivers/staging/rtl8723bs/core/rtw_ap.c-		pwps_ie +=3D (wps_ielen+2);
->=20
-> equivalent to:
->=20
-> 	pwps_ie =3D mempcpy(pwps_ie, pwps_ie_src, wps_ielen + 2);
->=20
-> ./drivers/staging/rtl8723bs/core/rtw_ap.c:		memcpy(supportRate + supportR=
-ateNum, p + 2, ie_len);
-> ./drivers/staging/rtl8723bs/core/rtw_ap.c-		supportRateNum +=3D ie_len;
->=20
-> equivalent to:
->=20
-> 	supportRateNum =3D mempcpy(supportRate + supportRateNum, p + 2, ie_len);
+The implementation should avoid interfering with other sandboxing 
+activities and also avoid AVC pollution from them, so preferably there 
+should be a way to set up the namespacing and load the policy in a way 
+that these will only take effect at next execve() call, much like 
+setexeccon(). However, errors should be returned as early as possible 
+though so that the error can be associated with the loading. Also it 
+should be possible to enable SELinux namespacing independently to other 
+namespacing options as they are controlled by other directives.
 
-Oops, I misread the original in the above.  I didn't notice that the +=3D
-is being done on the count, not the pointer.  The other equivalences are
-good, though.
+Would this be an interesting use case? Would it need major design 
+changes? Systemd already loads a SELinux policy at boot so there's some 
+infrastructure in place.
 
->=20
-> ./drivers/staging/rtl8723bs/core/rtw_ap.c:		memcpy(dst_ie, &tim_bitmap_le=
-, 2);
-> ./drivers/staging/rtl8723bs/core/rtw_ap.c-		dst_ie +=3D 2;
->=20
-> equivalent to:
->=20
-> 	dst_ie =3D mempcpy(dst_ie, &tim_bitmap_le, 2);
->=20
->=20
-> And there are many cases like this.  Using mempcpy(3) would make this
-> pattern less repetitive.
+-Topi
 
---=20
-<https://www.alejandro-colomar.es/>
-
---vmgihngka57rzukx
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE6jqH8KTroDDkXfJAnowa+77/2zIFAmb5Ik4ACgkQnowa+77/
-2zKNqBAAqNB/fweA49pRRWO/XgFk0EvMiezUqWV2wXsV2l/VUrjeGx/Tecpvhh5b
-cze6CNkVl/fKu2M8a5/ysj/r99gtHpNA85bmby3/b4BFwXNfPd7V+Qz1hUI7iXom
-3hnuyFNPMH7iIyUxvwwHM3k3qSh1G/rxcVJm2NkRDC0WJo7dEIHl8UxaaXTEcqTO
-bbb+umzXIosV+Fhsk1tjwgORKj5GaOVMbbF+hqFeuLt7z1eFWb3MYQAavRKN7SNm
-QVgnMlJZir6XIzQv8HaAQvulm4x+N9xvMSlQ9ihADbMHc0YZPxp/ZZqYmnvyopWn
-5FlXrWZhfi+tbHSciR4f/n8OVg6go0483iVrLZNs8+rne7Et8iExHCqHlqAIlA9S
-d1hJfdjZGGdgO5DbA6Y3H0hf/XS9e/IZ+a+T0MEdvjDv7pv+zhYSuapXnbJ+xbDB
-XmpEadusEMQGWkf+8GEeXiI8IujrMCAlncDoisghL3BF/ALac9zkWnFQjjW5l+xJ
-op+juVgs6urGNtdRzW8Itu+AlkSJyuYb0rbRfoE6NN+yRG04Yxf9rMC98bI3q8zl
-ZZr85yLJayTBLOD+QQVsbeUQJFs4sJan+Bj8EN42+BCZ+Se1XCxSeh2nDSXlpAAX
-wv+032Rpbz/aJVCJLO2r02aT/nYCQBDo/gNYqy/cMqdm8R35R80=
-=kmHt
------END PGP SIGNATURE-----
-
---vmgihngka57rzukx--
