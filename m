@@ -1,115 +1,117 @@
-Received: from fgw20-7.mail.saunalahti.fi (fgw20-7.mail.saunalahti.fi [62.142.5.81])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 379BF1C2459
-	for <selinux@vger.kernel.org>; Thu,  3 Oct 2024 22:34:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1491D1CACEB
+	for <selinux@vger.kernel.org>; Fri,  4 Oct 2024 15:53:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727994859; cv=none; b=udsChDkVnDko7hZTU/aTk4UCZYEQ0xEJ6u3vaAqiyHMZQ3VmZwrlYQN7QiRXtGA3t5toTUCZWTe9nmeiTWsZOtD819gEcsQMoHJzE4fNrWTeGnD7WDq3zYJ6OU1aV1piBcekPR18O55nHEnevc20ABPRM76bjCZN8Myh9sxDFGU=
+	t=1728057232; cv=none; b=fkVFBujHqHu+2lYXnxjUlN12KQqQVjrVxBeaxniRnjP5OTz/6ZC3989H3iAE/JSDTjogA4vgIl3cci0BT1yj2d3aN+0H9LyzEctW9hezsh/s0kj8AIADgBc6vTqWqy1PeuacEtxhDm3kLXPuPU2293L1qskaKk6puR/0m7sgero=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727994859; c=relaxed/simple;
-	bh=9pOyjIY2Fu8sZWJ+h9Hhks0ngUMcydTiz+NvzoER/+Y=;
-	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=vC7ijOJ7ZcazXcvZRIF0dQdIkQKKe6IDOVs647S5Rv1zdIai3snl9Q4P/ToRgWOhAoqlwi5aiS49kXmZlRIR5Y8GyQDdnU97D2JFH6Ys4Z1Xq/g1xCbx41oGO4XWsotc2CP1/MDGbUEZFXwlb51YOzRwiQkTJx4/s5MNyeEFJPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=gmail.com
-Received: from localhost (88-113-25-87.elisa-laajakaista.fi [88.113.25.87])
-	by fgw20.mail.saunalahti.fi (Halon) with ESMTP
-	id 6ccef329-81d7-11ef-995b-005056bd6ce9;
-	Fri, 04 Oct 2024 01:32:55 +0300 (EEST)
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Fri, 4 Oct 2024 01:32:50 +0300
-To: Daniel Gomez <da.gomez@samsung.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nicolas Schier <nicolas@fjasle.eu>,
-	Lucas De Marchi <lucas.demarchi@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>,
-	William Hubbs <w.d.hubbs@gmail.com>,
-	Chris Brannon <chris@the-brannons.com>,
-	Kirk Reiser <kirk@reisers.ca>,
-	Samuel Thibault <samuel.thibault@ens-lyon.org>,
-	Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
-	Oliver Upton <oliver.upton@linux.dev>,
-	James Morse <james.morse@arm.com>,
-	Suzuki K Poulose <suzuki.poulose@arm.com>,
-	Zenghui Yu <yuzenghui@huawei.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Jiri Slaby <jirislaby@kernel.org>,
-	Nick Desaulniers <ndesaulniers@google.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	Simona Vetter <simona.vetter@ffwll.ch>,
-	linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org,
-	intel-xe@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-	speakup@linux-speakup.org, selinux@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, kvmarm@lists.linux.dev,
-	linux-serial@vger.kernel.org, llvm@lists.linux.dev,
-	Finn Behrens <me@kloenk.dev>,
-	"Daniel Gomez (Samsung)" <d+samsung@kruces.com>,
-	gost.dev@samsung.com
-Subject: Re: [PATCH v2 2/8] file2alias: fix uuid_t definitions for macos
-Message-ID: <Zv8bkoJA5oDIe6If@surfacebook.localdomain>
-References: <20240906-macos-build-support-v2-0-06beff418848@samsung.com>
- <20240906-macos-build-support-v2-2-06beff418848@samsung.com>
+	s=arc-20240116; t=1728057232; c=relaxed/simple;
+	bh=BavdwrW+JL+kkcBpN7fE7IIDCFYzuKRQ2XuIx7Cy3rk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=fGlLRBoQI1ONsWIRCR2hGQAB5763GIQgBFYX0hplxcXR77RsgcCgMrNzNC1EMGHOgZIReYlXkBHL6DWbJpRKGssC56NzvSEyvmp+NLtvBAtq87pGtIfxQvcJ83HxPWXbluKrqInxRa4G6VQNx2Jejh9+y8PGz/GwM72yjFnSS/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L/y6cQn1; arc=none smtp.client-ip=209.85.160.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L/y6cQn1"
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-458311b338eso17429921cf.2
+        for <selinux@vger.kernel.org>; Fri, 04 Oct 2024 08:53:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1728057230; x=1728662030; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=GBfeQbRP8k8o8y1gznMrxMtoV8TgS58P8shgl/FCYRI=;
+        b=L/y6cQn1jiJDQPmZ2gM/320+rMtJfT0xLFA2OrhfJUQFN9t2Zs66uLsu7OtVIPubzk
+         B4i1x57rrDUh/BQ6HdiGoec/+gd/Bpay5m7CK8ntVxqYH6O/fapndEw3I+VQdHBXnJIA
+         9HpDFoOMwKRo2OpYZosdgzaVhbJ3eaO1ShDt4d8ggDHueRXOCSwruHluxveJILeZ+5K5
+         OJSqN3GrbyR413AYATjQhh//WTFIOPSccyz/Wf4BGXGhR+QZwMN3r9XAhVx1dYcu2wLv
+         oQwyo6+Ti6EFTkIypbVuRyZk78DjTIvXP4OAqTcymxZ2zzQYp3ZJd//DC/IsNNSBG+QL
+         Qj7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1728057230; x=1728662030;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=GBfeQbRP8k8o8y1gznMrxMtoV8TgS58P8shgl/FCYRI=;
+        b=CcsYiMbB33wpR9EQSnPyimixyADH/F8UwDqb1ceneDCbVUV1wmuVwLgVJ4cgj+pBhK
+         uwZl5kJs7pkhFBTDaJW6GUk6gx3hTme5DTOhhXecKsDPbmmepoAqL8KxcjOgN37iPs+E
+         7Iz0DWhrTL2li4ST2+0krz09b+hI/cbojvY0f1LGY7kR8LNMg/0uGBSn6OozPt9eMhWS
+         DVW6LDdXvy+F7V7p1QyCNZycXaaRTYmghsqt3XkgqXrCch9C42KAAZE+dapMJgmTaafe
+         oG0Lyxh2/Os+nujjVCsnGd7ZalfiQMQ1uvGGYgUDnhiOwe6rYPvBittEHilmT9Ex+3UP
+         5Z7g==
+X-Gm-Message-State: AOJu0YwrCf0WatirqQP5Qga1JwVViE9II4y4xGe5eq1OLLOVBHMKKclM
+	u0lgddNvpsYgcfOrS3FQv2QyY/BOYher6tHODBok+FR0ZCOS6vorYav7lA==
+X-Google-Smtp-Source: AGHT+IGTU7YhYF9F7C0xDA1DS3BPGWjBwzAOavnNsJyATINwMYaMDeF0Y0iteHrqVYtrLXII0ejimw==
+X-Received: by 2002:a05:622a:1a28:b0:457:e895:428a with SMTP id d75a77b69052e-45d9bae4418mr44032951cf.57.1728057229652;
+        Fri, 04 Oct 2024 08:53:49 -0700 (PDT)
+Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-45da763fdbdsm199751cf.82.2024.10.04.08.53.48
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 04 Oct 2024 08:53:48 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] selinux: Deprecate /sys/fs/selinux/user
+Date: Fri,  4 Oct 2024 11:53:20 -0400
+Message-Id: <20241004155320.16629-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240906-macos-build-support-v2-2-06beff418848@samsung.com>
+Content-Transfer-Encoding: 8bit
 
-Fri, Sep 06, 2024 at 01:01:29PM +0200, Daniel Gomez kirjoitti:
-> The uuid_t struct defined in sys/types.h on macOS hosts conflicts with
-> the one defined in file2alias, resulting in the typedef redefinition
-> error below. To resolve this conflict, define the _UUID_T and
-> __GETHOSTUUID_ in file2alias HOSTCFLAGS.
-> 
-> Error:
->   HOSTCC  scripts/mod/file2alias.o scripts/mod/file2alias.c:45:3:
-> error: typedef redefinition with different types ('struct uuid_t' vs
-> '__darwin_uuid_t' (aka 'unsigned char[16]'))    45 | } uuid_t;       |
-> ^
-> /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
->    sys/_types/_uuid_t.h:31:25: note: previous definition is here 31 |
->    typedef __darwin_uuid_t uuid_t;    |                         ^
-> scripts/mod/file2alias.c:1354:7: error: member reference base
->  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
->  'unsigned char[16]') is not a structure or union 1354 |
->  uuid->b[0], uuid->b[1], uuid->b[2], uuid->b[3], uuid->b[4],      |
->  ~~~~^ ~
-> /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
->    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
->    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
->    |                                                        ^~~~~~~~~~~
-> scripts/mod/file2alias.c:1354:19: error: member reference base
->  type 'typeof (((struct tee_client_device_id *)0)->uuid)' (aka
->  'unsigned char[16]') is not a structure or union 1354 |
->  uuid->b[0], uuid->b[1], uuid->b[2], uuid->b[3], uuid->b[4],      |
->  ~~~~^ ~
-> /Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include/
->    secure/_stdio.h:47:56: note: expanded from macro 'sprintf' 47 |
->    __builtin___sprintf_chk (str, 0, __darwin_obsz(str), __VA_ARGS__)
->    |                                                        ^~~~~~~~~~~
+The only known user of this interface was libselinux and its
+internal usage of this interface for get_ordered_context_list(3)
+was removed in Feb 2020, with a deprecation warning added to
+security_compute_user(3) at the same time. Add a deprecation
+warning to the kernel and schedule it for final removal in 2025.
 
-Please, shrink this to the valuable ~3-5 lines. No need to repeat the same for
-each case!
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ Documentation/ABI/obsolete/sysfs-selinux-user | 12 ++++++++++++
+ security/selinux/selinuxfs.c                  |  4 ++++
+ 2 files changed, 16 insertions(+)
+ create mode 100644 Documentation/ABI/obsolete/sysfs-selinux-user
 
+diff --git a/Documentation/ABI/obsolete/sysfs-selinux-user b/Documentation/ABI/obsolete/sysfs-selinux-user
+new file mode 100644
+index 000000000000..8ab7557f283f
+--- /dev/null
++++ b/Documentation/ABI/obsolete/sysfs-selinux-user
+@@ -0,0 +1,12 @@
++What:		/sys/fs/selinux/user
++Date:		April 2005 (predates git)
++KernelVersion:	2.6.12-rc2 (predates git)
++Contact:	selinux@vger.kernel.org
++Description:
++
++	The selinuxfs "user" node allows userspace to request a list
++	of security contexts that can be reached for a given SELinux
++	user from a given starting context. This was used by libselinux
++	when various login-style programs requested contexts for
++	users, but libselinux stopped using it in 2020.
++	Kernel support will be removed no sooner than Dec 2025.
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index e172f182b65c..8117d8f6ac2d 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1069,6 +1069,10 @@ static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
+ 	int rc;
+ 	u32 i, len, nsids;
+ 
++	pr_warn_once("SELinux: %s (%d) wrote to /sys/fs/selinux/user! This "
++		"will not be supported in the future; please update your "
++		"userspace.\n",	current->comm, current->pid);
++
+ 	length = avc_has_perm(current_sid(), SECINITSID_SECURITY,
+ 			      SECCLASS_SECURITY, SECURITY__COMPUTE_USER,
+ 			      NULL);
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.40.1
 
