@@ -1,63 +1,80 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC3871798C
-	for <selinux@vger.kernel.org>; Fri,  4 Oct 2024 17:28:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 433B01DA26;
+	Mon,  7 Oct 2024 14:49:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728062883; cv=none; b=daslp9JN3gHjRQl13LaYICmNNSMmuCPqBf7TqWwKERUhMy25cTiUwS6T2EZHkOlU3RMPazQqi6de5+6LsNjQWmH0S7A7Con+u2+aJFzqDNyf1jDMugO/BYG44ZucVvLwaLuIRpduJSpUFVK5/mjULAzSWIlpwVBtRrztO63XbSs=
+	t=1728312573; cv=none; b=qx1Qqr8MYwhlTniriXbYQkQAlrLNxiQJJYZRFPbc+rlfigKsKaWOzs2ZvbpdtwWo0MydYSIyoA1uoLykiEqlZ27cIDQv7s6D0iH+SIrFU5yeUpaOyEtq/GvlaURIt4qOsNHqUxei4m5vg1A7JZZQaH20Ks7IxefpQjkqi9A8vo4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728062883; c=relaxed/simple;
-	bh=YYY8nFyVtma3dflUcLsWEo8gFutvNiwdEUugbJL9ccY=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=tknm44XZDnpuaNLbfnUe3KN3DD2giQGCqpYEVSck08CgQH5RSQ1nrnXRdtna8TS3R6lLM9aKOB1mpVXo4aNjwgdeOxEWqB55txHwLfLjEfR/CTI0eamNjIdD0V/ji2HIt1hGdQjhx5/j1tZjegIyuhcOgCMvAT43oDS+u4ke2wo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nQWDi0F7; arc=none smtp.client-ip=209.85.160.179
+	s=arc-20240116; t=1728312573; c=relaxed/simple;
+	bh=mBfpUlF63Wnj76KpAEO6z16Q+0wdO32RqRG6F0yDckM=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=n9qhq//iauIX5E1knXWro4c/hMe3BUiWOtaA9AUHa+/HqlEHcArEPo8wTaLdF7RQJ3a3A2hSnTzdu42DrcP6vZPsyZnNLdyyNcQ1lBYEYPQyFKDo4HW3UizM27oiFRe4f0VePpG4jWfkbJe7NaG0u44dEREBIhm57LB1ZEWzsYo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BRZT3w1r; arc=none smtp.client-ip=209.85.210.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nQWDi0F7"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-4582fb3822eso14051431cf.1
-        for <selinux@vger.kernel.org>; Fri, 04 Oct 2024 10:28:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BRZT3w1r"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-71e023635acso769131b3a.2;
+        Mon, 07 Oct 2024 07:49:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1728062880; x=1728667680; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1728312571; x=1728917371; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=bjnjAAXuNKyfu+eW29mn1QDpW4u6YS7dPuusS2cgBKQ=;
-        b=nQWDi0F7Co8l9ohBfSlwej8GWYMdU/cT8GQpotfCSQ6o+QcOXuCq2B09ZgnMDZcc5k
-         fDlreFPQQqhnQa/k8DjuL6NwbKN6o6R3nc6IMihfODt0hTpVqUnlXcdqPXFwGJQ8BB9P
-         U4eK+Padg52DORPDyYDwnFriLucaOJItvabqFpW20/RZOR5+lJePIEBYXxN88CdX5OQX
-         zQczljCU6kMmJ5nM94SYebkL0Di6Wdlo1ArnzsjAaRkRToNH7t7xIoAFS2Gn6dA8drFd
-         TyZhsN3yvSKR3O8rwr9oJUeMMnovv+H/2quw2+pPd/BD3ucPDdvLB6iGx9qAwQsU3hpq
-         a7dg==
+        bh=LUiVT68fLR3vW4CyEtRR57v0fZ51pf3YQeR56Ep4krg=;
+        b=BRZT3w1rCWk7+DhclWXdLDrFeroFgUyLwkNmkHrW/FaID/OeO7uRLy4sh7BjPeCKsW
+         RqtnUtzAIP/LMNM1//NoWWgwOdOAvHk5tOijqQTwi3XR+cQFjdEo1mReMfhwGekgxgmN
+         fNOORHv4Ai+qm6OOU3hsARyZwifxsukEg70kNsO1DP34y+cLlDSK3wgxGKykKViKTA89
+         Chw6UMLs8U8IgvTRzAb8ZR8ikquybiyQi1RI8k12wRCdfwpIzB2VJdLiOZhQC+ZI7jhy
+         TMR0zALtXkSNt2lAlvNLM66OtCS6QCQX5QxnHdenWdagJcNIQ/ZFpFcVMBs+NZ27fEOy
+         7BDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728062880; x=1728667680;
+        d=1e100.net; s=20230601; t=1728312571; x=1728917371;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=bjnjAAXuNKyfu+eW29mn1QDpW4u6YS7dPuusS2cgBKQ=;
-        b=vryPi++7IjFK++E+9B/rAY2JU4Brhd3MRNuIol9HHiACA1XLA1mAj9fzJtiWp/cpPd
-         Km9fWxuqJiGue9qOCVBZKNeXjl/ZFHnhjK6t3ReigpLfLcxV8oyMc7dWRMh8388Wbuka
-         LqYCkN7dlZw1sG+xIl8LM+bOEHI2oWlEXzgRymr2UJachnANPRdW5g/NtMMdheIPuz/u
-         OgnwfqKtZPIPhF15GBnrBbnvisqwkZdjCj1TrRAcr28hWkiHgV+/ISOrbGhCRSSSLpqN
-         N2qEXp7b4gSO2dsxzj5g7v/P052sHcj22dRiVIHo+r9p3myHix43CVopSaLOWWlD5hGG
-         JkUg==
-X-Gm-Message-State: AOJu0YxSlO3/GI/u5UCTTlgPFMl9VK3hsxJaeCrihs5+C2IDZU6XmxQl
-	h5o/IQeiAoSmTgo4Dsyn7RESGlIWbfyC45c5Q2hQgNRNXpXRnnsAF7VyjA==
-X-Google-Smtp-Source: AGHT+IE4JM0Czoh7cVav0acr5Y1QnJD4tkOHtIbzcEQx5tFgQUqR3lRBwlBBaIjXjUCw5GFHSLorVA==
-X-Received: by 2002:a05:622a:138f:b0:456:7fc9:63f8 with SMTP id d75a77b69052e-45d9ba20878mr48741791cf.1.1728062880310;
-        Fri, 04 Oct 2024 10:28:00 -0700 (PDT)
-Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-45da7559ea0sm977741cf.55.2024.10.04.10.27.59
+        bh=LUiVT68fLR3vW4CyEtRR57v0fZ51pf3YQeR56Ep4krg=;
+        b=RvP/xo7oFaLFjGyv8wWecAuDHoN4rxX1jX9sZDvCGU+AZ3ydmoOYjXYltTrcHxUANc
+         dHV8+bzdteFffo5Juw6lyCzcj73/ZjdVZllMOuBWcZKGQMDoVHrNUYigcDnh4PPReWmc
+         u8GVkq5bhM940mFoqPQbxPmxR28o97abNmi5r3IeS3lMWT6HNBsmMqgWBaKFH5BnD9HS
+         q5ELrtq56/EioVw/lYubUVVhfWRmF5Ex9uGvvFD1SZKbgo1PTMU6MvWEsBYR49eFVR9S
+         TXeSnedtrZ68p8/O9rfTW28OU80XLTGwp03/Kqm5qGxaAQeLviofMsb6OMVb5Ivzqs5s
+         Ez9w==
+X-Forwarded-Encrypted: i=1; AJvYcCVe8dpWXUduZsEJc9/6L8LD0+eUtMddwDBxv7jrwQiRQOX+ZyJaRc1CHUkcFiObmdVp3aIB3MQP@vger.kernel.org, AJvYcCVl1by6i/y0iHOHJ6PJUoutymQtrygweP1YUy4L6epAaMw01FXGcD+e86nxgevD5BlL2OhIHDDT1pP5OTpYPlWgDDb3@vger.kernel.org, AJvYcCVpY+/nCvegjSj0G00ReAoNd27kqH6euPvRFR3RQHTk+iYXFRwVKm/0jeTeD8xgRVbBJ6AY@vger.kernel.org, AJvYcCWY1EqhdcYcUePqgLMt0gA/iR8DLpBcf7ZQJQNheoEAaQz5yo9uuPnkozWwYS0e4qBEZ0eD1Q==@vger.kernel.org, AJvYcCWthSxKlH19TMcEhMgL/tjDooIAleC/va1rulCufqtdBvhqsE5o3ZYDanNCZhlMuK9x+W27206OKg==@vger.kernel.org, AJvYcCXY2W8PIkUoNjz8OPQpBpSxv3QMTAO4gkWF6U/MtDNKC1Ih+lXXg55Fi/e57GPtUxoemSBgxkWQlo5fGcY6/Q==@vger.kernel.org, AJvYcCXq5Qcsg2Iq/4kO7FCnWONtJFxbb8wJBFleq3VmJv8v2j/saYsZpGPoWNm1lo4bqgR2a4TqCpQ+K0hI2GkCVUkjb4+Di1nC@vger.kernel.org
+X-Gm-Message-State: AOJu0YwYmiQWWJ7EUXEfhQ+7t1OJe6FtVWolGupArECaLMM3hFxjyCIr
+	KDiVBuHxQ1rmPz52s5dC4AGtkJmdXTt44GSviE3ozFslEjk8/Cm5
+X-Google-Smtp-Source: AGHT+IFd5G5JZb9zGuck27vY3G5rfm6RRd7wrvlQcG7A8r1xXm54v9yJmOzv7wLCL4FHuPfrgLQA4A==
+X-Received: by 2002:a05:6a00:3a14:b0:717:9768:a4f0 with SMTP id d2e1a72fcca58-71de22eb62bmr20503670b3a.0.1728312571513;
+        Mon, 07 Oct 2024 07:49:31 -0700 (PDT)
+Received: from localhost.localdomain ([223.104.210.43])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-71df0d7cf82sm4466432b3a.200.2024.10.07.07.49.22
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 04 Oct 2024 10:27:59 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2] selinux: Deprecate /sys/fs/selinux/user
-Date: Fri,  4 Oct 2024 13:27:10 -0400
-Message-Id: <20241004172709.25165-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.40.1
+        Mon, 07 Oct 2024 07:49:30 -0700 (PDT)
+From: Yafang Shao <laoar.shao@gmail.com>
+To: akpm@linux-foundation.org
+Cc: torvalds@linux-foundation.org,
+	keescook@chromium.org,
+	alx@kernel.org,
+	justinstitt@google.com,
+	ebiederm@xmission.com,
+	alexei.starovoitov@gmail.com,
+	rostedt@goodmis.org,
+	catalin.marinas@arm.com,
+	penguin-kernel@i-love.sakura.ne.jp,
+	linux-mm@kvack.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org,
+	audit@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org,
+	bpf@vger.kernel.org,
+	netdev@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	Yafang Shao <laoar.shao@gmail.com>
+Subject: [PATCH v9 0/7] Improve the copy of task comm
+Date: Mon,  7 Oct 2024 22:49:04 +0800
+Message-Id: <20241007144911.27693-1-laoar.shao@gmail.com>
+X-Mailer: git-send-email 2.30.1 (Apple Git-130)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -66,54 +83,98 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The only known user of this interface was libselinux and its
-internal usage of this interface for get_ordered_context_list(3)
-was removed in Feb 2020, with a deprecation warning added to
-security_compute_user(3) at the same time. Add a deprecation
-warning to the kernel and schedule it for final removal in 2025.
+Using {memcpy,strncpy,strcpy,kstrdup} to copy the task comm relies on the
+length of task comm. Changes in the task comm could result in a destination
+string that is overflow. Therefore, we should explicitly ensure the
+destination string is always NUL-terminated, regardless of the task comm.
+This approach will facilitate future extensions to the task comm.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-v2 switches to pr_warn_ratelimited().
+As suggested by Linus [0], we can identify all relevant code with the
+following git grep command:
 
- Documentation/ABI/obsolete/sysfs-selinux-user | 12 ++++++++++++
- security/selinux/selinuxfs.c                  |  4 ++++
- 2 files changed, 16 insertions(+)
- create mode 100644 Documentation/ABI/obsolete/sysfs-selinux-user
+  git grep 'memcpy.*->comm\>'
+  git grep 'kstrdup.*->comm\>'
+  git grep 'strncpy.*->comm\>'
+  git grep 'strcpy.*->comm\>'
 
-diff --git a/Documentation/ABI/obsolete/sysfs-selinux-user b/Documentation/ABI/obsolete/sysfs-selinux-user
-new file mode 100644
-index 000000000000..8ab7557f283f
---- /dev/null
-+++ b/Documentation/ABI/obsolete/sysfs-selinux-user
-@@ -0,0 +1,12 @@
-+What:		/sys/fs/selinux/user
-+Date:		April 2005 (predates git)
-+KernelVersion:	2.6.12-rc2 (predates git)
-+Contact:	selinux@vger.kernel.org
-+Description:
-+
-+	The selinuxfs "user" node allows userspace to request a list
-+	of security contexts that can be reached for a given SELinux
-+	user from a given starting context. This was used by libselinux
-+	when various login-style programs requested contexts for
-+	users, but libselinux stopped using it in 2020.
-+	Kernel support will be removed no sooner than Dec 2025.
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index e172f182b65c..234f4789b787 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1069,6 +1069,10 @@ static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
- 	int rc;
- 	u32 i, len, nsids;
- 
-+	pr_warn_ratelimited("SELinux: %s (%d) wrote to /sys/fs/selinux/user!"
-+		" This will not be supported in the future; please update your"
-+		" userspace.\n", current->comm, current->pid);
-+
- 	length = avc_has_perm(current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__COMPUTE_USER,
- 			      NULL);
+PATCH #2~#4:   memcpy
+PATCH #5~#6:   kstrdup
+PATCH #7:      strcpy
+
+Please note that strncpy() is not included in this series as it is being
+tracked by another effort. [1]
+
+task_lock() is removed from get_task_comm() as it is unnecessary.
+
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/all/CAHk-=wjAmmHUg6vho1KjzQi2=psR30+CogFd4aXrThr2gsiS4g@mail.gmail.com/ [0]
+
+Changes:
+v8->v9:
+- Keep the BUILD_BUG_ON() in get_task_comm() (Kees)
+- Keep strscpy_pad() in get_task_comm() (Kees)
+- Replace more strcpy() with strscpy() in
+  drivers/gpu/drm/i915/i915_gpu_error.c (Justin)
+- Fix typos and commit improvement in patch #5 (Andy)
+- Drop the change in net as it was fixed by
+  b19f69a95830 ("net/ipv6: replace deprecated strcpy with strscpy")
+
+v7->v8: https://lore.kernel.org/all/20240828030321.20688-1-laoar.shao@gmail.com/
+- Avoid '+1' and '-1' in string copy. (Alejandro)
+
+v6->v7: https://lore.kernel.org/all/20240817025624.13157-1-laoar.shao@gmail.com/
+- Improve the comment (Alejandro)
+- Drop strncpy as it is being tracked by another effort (Justin)
+  https://github.com/KSPP/linux/issues/90 [1]
+
+v5->v6: https://lore.kernel.org/linux-mm/20240812022933.69850-1-laoar.shao@gmail.com/
+- Get rid of __get_task_comm() (Linus)
+- Use ARRAY_SIZE() in get_task_comm() (Alejandro)
+
+v4->v5: https://lore.kernel.org/all/20240804075619.20804-1-laoar.shao@gmail.com/
+- Drop changes in the mm/kmemleak.c as it was fixed by
+  commit 0b84780134fb ("mm/kmemleak: replace strncpy() with strscpy()")
+- Drop changes in kernel/tsacct.c as it was fixed by
+  commit 0fe2356434e ("tsacct: replace strncpy() with strscpy()")
+
+v3->v4: https://lore.kernel.org/linux-mm/20240729023719.1933-1-laoar.shao@gmail.com/
+- Rename __kstrndup() to __kmemdup_nul() and define it inside mm/util.c
+  (Matthew)
+- Remove unused local variable (Simon)
+
+v2->v3: https://lore.kernel.org/all/20240621022959.9124-1-laoar.shao@gmail.com/
+- Deduplicate code around kstrdup (Andrew)
+- Add commit log for dropping task_lock (Catalin)
+
+v1->v2: https://lore.kernel.org/bpf/20240613023044.45873-1-laoar.shao@gmail.com/
+- Add comment for dropping task_lock() in __get_task_comm() (Alexei)
+- Drop changes in trace event (Steven)
+- Fix comment on task comm (Matus)
+
+v1: https://lore.kernel.org/all/20240602023754.25443-1-laoar.shao@gmail.com/
+
+Yafang Shao (7):
+  Get rid of __get_task_comm()
+  auditsc: Replace memcpy() with strscpy()
+  security: Replace memcpy() with get_task_comm()
+  bpftool: Ensure task comm is always NUL-terminated
+  mm/util: Fix possible race condition in kstrdup()
+  mm/util: Deduplicate code in {kstrdup,kstrndup,kmemdup_nul}
+  drm: Replace strcpy() with strscpy()
+
+ drivers/gpu/drm/drm_framebuffer.c     |  2 +-
+ drivers/gpu/drm/i915/i915_gpu_error.c |  6 +--
+ fs/exec.c                             | 10 -----
+ fs/proc/array.c                       |  2 +-
+ include/linux/sched.h                 | 28 +++++++++---
+ kernel/auditsc.c                      |  6 +--
+ kernel/kthread.c                      |  2 +-
+ mm/util.c                             | 62 ++++++++++++---------------
+ security/lsm_audit.c                  |  4 +-
+ security/selinux/selinuxfs.c          |  2 +-
+ tools/bpf/bpftool/pids.c              |  2 +
+ 11 files changed, 63 insertions(+), 63 deletions(-)
+
 -- 
-2.40.1
+2.43.5
 
