@@ -1,60 +1,60 @@
-Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAAF2320F
-	for <selinux@vger.kernel.org>; Mon,  7 Oct 2024 20:35:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD6861D31A0
+	for <selinux@vger.kernel.org>; Mon,  7 Oct 2024 20:39:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728333334; cv=none; b=AqoA1wJDnojuZpHlG17L3sff5ey8YCqsYPKBz9Gr9vekpVe+VR6bjhJnZc+Ks/Ec5MenUXU/KGrKZUvqzRZt34b1D0ZnQ+FW+HpPCnSkndCbw3Hz302Cl1RKqGHt5nvIPH+X+CfiUU84x7ZoT0dkEBuu56+B/fSc3e8s02/EXnA=
+	t=1728333591; cv=none; b=mazZIrOFSwnDIKLDgz06PH9CpdNV3f9681R6zyLQ1ipqtmWFl7J6X1ITjAGZMmaxLo3UrBkF7wmu2AdOJgBkQccOA/vzdLtwcaaV1wTwRFuhqarJdVObR0RCdCP6e6pb1no92UBjAiTsw7bjHlojRcHHuulPooULe8a7uGXMon8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728333334; c=relaxed/simple;
-	bh=byZc3hnvdVTVnadHbI3ST4OhFllo5wQxEw4wiFe1lwo=;
+	s=arc-20240116; t=1728333591; c=relaxed/simple;
+	bh=8j5DRmf3x0m7/p9oBAZK35vWfc1EJR29Hnlm6j9P2f0=;
 	h=Date:Message-ID:MIME-Version:Content-Type:Content-Disposition:
-	 From:To:Subject:References:In-Reply-To; b=XC2hzqS22s0B+CMJcErEYsAUshaD1eUQvPB3mCEord2hXJvGg6xa49oAQWQOkQW3t2WqihzKJGlNADmCBh4t8e/P8qEb5Ydv24lWt1oZtdrRWV9oq0rmeBoOYvqkbRJtTQzMaB+32gcjSPNpcwTXxUkq7twJQdb3ECF1CdOOYpI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=XQsmnuOb; arc=none smtp.client-ip=209.85.219.48
+	 From:To:Cc:Subject:References:In-Reply-To; b=BVU1psMdVf8sNoNXpJ01bdjWmlzhrEYLXC39aod5CP6OmTS/qSd9vZcrfo8wfZrZ1mYxHAJx/hqOfCiZyxe/MUYp97VickQ74auGgf58v5JkuEJINGdtLNulhFWl2H8Tcjb+4PuNFaagDQLKRJPxiY6Sy5rYhc7JXpKl9ij4VL4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=YvsagtwD; arc=none smtp.client-ip=209.85.160.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="XQsmnuOb"
-Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-6cb4f1137a8so33703696d6.2
-        for <selinux@vger.kernel.org>; Mon, 07 Oct 2024 13:35:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="YvsagtwD"
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-4581ec0e00eso36442491cf.3
+        for <selinux@vger.kernel.org>; Mon, 07 Oct 2024 13:39:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1728333329; x=1728938129; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:to:from:content-transfer-encoding
+        d=paul-moore.com; s=google; t=1728333588; x=1728938388; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-disposition:mime-version:message-id:date:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=z8rNQLlIdDiWwxROUW6wqKsIblGKvqyc1fdRu7Ep/4c=;
-        b=XQsmnuObnMof7vAdNExxbIdt4QXRWap2N/K+ncVnzZ2gJcEfDtwI6i6yjOTA1DaEnz
-         okn9eR5RC0joIMa/4cLvyu9lXyF7HzyXdmmiP64sf9+ThAvWsDxbF1R1yxZD2nz7V5Ey
-         cYpw6b6aOIjgdg9cnI+1uTuTLjugs5rhH4pf4/2lyXULAF53NOXrRg2G6uZ62ycXSdq3
-         fywsu6xqZkWK7iQHB2itcA+YSCxHn1qeRtZfeXk/ubxYahAA4cQAVuLZtboYGP+SNnnV
-         woVJ1P2bbrQuAd0ZRSKfNwemuUoDgVDj28oBYEfN5NSVU0dmY/YkK7Hzs53aF/WqhvMz
-         ylkA==
+        bh=zYCaTiO/50aIS7OuFdT9odRtyvbapJLnXozqsV1uEQc=;
+        b=YvsagtwDaSqE2HNmtnz+nCGkPZjy5Em5r7HgYAz/J0rcHj5p1Aq9mX5N3Wg/xTWZ2r
+         +JLzyboTdCitcQhNr+vZuelX6KHLK5Fpuvjy3dw7ivmQXF4WRTWNNNUNvXy/ZDjGMzK7
+         o4uQh5gtHpZEoqoHj2t4ndylbx7drT0RgK6C1x0WtJgm0/2yMbz62ETojaUVP6bzobPU
+         i+luV8yqNsz2LCoi1REZI6SYYj6Y9u4T0ViQdW5+68dyANBVtaS823og6x8RVQNutj9T
+         8RCnpLhlzfGN9rKWBuiLua6v/yvit8cCDPlB3+jH5BBxrEHxCq58j0VuyCrklfqDB3/q
+         Ixtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728333329; x=1728938129;
-        h=in-reply-to:references:subject:to:from:content-transfer-encoding
+        d=1e100.net; s=20230601; t=1728333588; x=1728938388;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :content-disposition:mime-version:message-id:date:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=z8rNQLlIdDiWwxROUW6wqKsIblGKvqyc1fdRu7Ep/4c=;
-        b=iLwPawO9a4xrFxyMLm6M9srUkUjJ7IGuOlzjE5sZt32VffPxoduf8GN75yorf2SDOm
-         Db+sXiusi2AI1cvx+UZ1XXwJ22cN09m4oYbtUX7tYOj2EZxCogN3IhonDLhZoZhmIgHw
-         +riDEz3bOsRbCWVUQaFSA1mAVY/i5H+vtLIW5t+4yYVktNhCrfUpYLZFQJ0gLpYl30IH
-         vHc3UFRacmoiOK/Hbmu+4XFvEdqo/IoE6RGJGz0ZTPuLmVyzNeTQoEAaOIV+Y5NeE9F0
-         /iXfMVeOVNPWQE9Sr8JhBJI2yYc53PyA/11K8lO41QlJ9edaDFNx+xrDYHtrh86y/7ip
-         GxQw==
-X-Gm-Message-State: AOJu0Yxaon93/r3nZXtzTZsuvxHha5sfvDcFsLsIzNXZQ3K5DNRaUXZI
-	lu2ju/ZrnTawBak9NFA1UszQ/iqo2O4HsekPgaunmJ7KWp+ghqFXwzsD2ScImczu3wGOAc5xWMs
+        bh=zYCaTiO/50aIS7OuFdT9odRtyvbapJLnXozqsV1uEQc=;
+        b=g9a1L23x9N648O7hZFefjifXndHKtFAGU8lIkBLm1lH8A9R2wP5TnjxWq+bmApzt2j
+         EBTYiOMzPWO1Yqq7XNC8kaR137EttNLnxSD1ZtlFs/sgHIY71/fc/Kj1GW49On2L8QZS
+         KG0zV0n8Y7DGrtbCStUsRxqBciI54oJ4STw49dnt/yxKtSS5Gnf115CERZYQVnR1esHc
+         CBf5nn4TK007ZLFdLZsOQXtk4GdW85nT2jgHkDvyVd41Wr0Dao5x0Tvqx1mt00m7qs23
+         kKpRe/F10cMG9SzDHHExkQI6B2/Dt6WqEB/Z8KtWFAW6344vkhd7X1QrW4PdazoUd5bB
+         7qQA==
+X-Forwarded-Encrypted: i=1; AJvYcCVIHRMdB3p+tD90P+s30cQ6nhG7jymzHlWdRdGjSV9ZadoHWTxvtTDXg1iCrVHGgLUICcWD7qA6@vger.kernel.org
+X-Gm-Message-State: AOJu0YyCXMbZLX4Qw2jLz1LovLQG3v8aGauiuMxGeYNoylKDMGc3nU9C
+	90nfi1kfySp/fRnATuiWaD8lw0ul+wurDIWCVnh1xRz/CPLQQRMlVE42NSqaeYRREXH43RRcf9c
 	=
-X-Google-Smtp-Source: AGHT+IGKwyGst5rCUEvYx+y5XN8ZIcnkOhV18gclXzaX8sXoqae6x26NnqdmjpRDY0kRMqnMCXj3OQ==
-X-Received: by 2002:a05:6214:54c7:b0:6cb:7e60:2ba0 with SMTP id 6a1803df08f44-6cb9a45fcd6mr211988246d6.38.1728333329447;
-        Mon, 07 Oct 2024 13:35:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGcnLDkQbNkG30AqmDhWh5cwyBnDEzhb86LjlLvh8EchZRaN+PJG7BZuuAkelmUYQGdE/9vlw==
+X-Received: by 2002:ac8:7f8a:0:b0:458:4fe5:b307 with SMTP id d75a77b69052e-45d9ba27ef0mr176017141cf.10.1728333588607;
+        Mon, 07 Oct 2024 13:39:48 -0700 (PDT)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cba46dfc13sm28871016d6.49.2024.10.07.13.35.29
-        for <selinux@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7ae75761ee1sm289951685a.99.2024.10.07.13.39.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Oct 2024 13:35:29 -0700 (PDT)
-Date: Mon, 07 Oct 2024 16:35:28 -0400
-Message-ID: <fbfa3eefa45b5cb5129edc531a2ad82d@paul-moore.com>
+        Mon, 07 Oct 2024 13:39:48 -0700 (PDT)
+Date: Mon, 07 Oct 2024 16:39:47 -0400
+Message-ID: <e0e248fb03ce2e03b332c06d6f377715@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -65,21 +65,30 @@ Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline 
 Content-Transfer-Encoding: 8bit
 From: Paul Moore <paul@paul-moore.com>
-To: selinux@vger.kernel.org
-Subject: Re: [PATCH 2/2] selinux: apply clang format to  security/selinux/nlmsgtab.c
-References: <20240925201106.16134-4-paul@paul-moore.com>
-In-Reply-To: <20240925201106.16134-4-paul@paul-moore.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
+Cc: omosnace@redhat.com, Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: Re: [PATCH v2] selinux: Deprecate /sys/fs/selinux/user
+References: <20241004172709.25165-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20241004172709.25165-1-stephen.smalley.work@gmail.com>
 
-On Sep 25, 2024 Paul Moore <paul@paul-moore.com> wrote:
+On Oct  4, 2024 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
 > 
-> Update nlmsgtab.c to better adhere to the kernel coding style guidelines.
+> The only known user of this interface was libselinux and its
+> internal usage of this interface for get_ordered_context_list(3)
+> was removed in Feb 2020, with a deprecation warning added to
+> security_compute_user(3) at the same time. Add a deprecation
+> warning to the kernel and schedule it for final removal in 2025.
 > 
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 > ---
->  security/selinux/nlmsgtab.c | 236 ++++++++++++++++++------------------
->  1 file changed, 118 insertions(+), 118 deletions(-)
+> v2 switches to pr_warn_ratelimited().
+> 
+>  Documentation/ABI/obsolete/sysfs-selinux-user | 12 ++++++++++++
+>  security/selinux/selinuxfs.c                  |  4 ++++
+>  2 files changed, 16 insertions(+)
+>  create mode 100644 Documentation/ABI/obsolete/sysfs-selinux-user
 
-Merged into selinux/dev.
+Merged into selinux/dev, thanks!
 
 --
 paul-moore.com
