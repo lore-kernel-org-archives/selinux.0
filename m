@@ -1,60 +1,59 @@
-Received: from sonic309-27.consmr.mail.ne1.yahoo.com (sonic309-27.consmr.mail.ne1.yahoo.com [66.163.184.153])
+Received: from sonic305-27.consmr.mail.ne1.yahoo.com (sonic305-27.consmr.mail.ne1.yahoo.com [66.163.185.153])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 344DD16F0E8
-	for <selinux@vger.kernel.org>; Wed,  9 Oct 2024 17:34:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E055C1E0E16
+	for <selinux@vger.kernel.org>; Wed,  9 Oct 2024 17:34:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.185.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728495250; cv=none; b=Ucwv8bFL2ylRPrsQb8GnTc+TYLLijaIQKck2wjP5p+Lc/QketqMKzKQ+iZlvsAgI+UOilES6HQ0DJD49xRikVnHoDfyo9Pv/YvztzkVy9fgoMI896TQ7in6eMjKZFR//kAuPX8XJEXvxh43gKjQ5K2uKn8dIqdm1v+e9GAhwoXM=
+	t=1728495253; cv=none; b=LxaceNvjmPiFvW52elGeHzcD1VMON4C2C6I762zIKk17LewlTO1ZujygNc53eq17YRHbukzhPClBK2WoA01xjC/+LT9MK/FNpsJOKmNOTW/2fr/y6OuXEMbhBqa+qN7lH2jzfmD8JTU+hkK7XqRnh5Jj03W1x/NTFKbvKXqrMCo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728495250; c=relaxed/simple;
-	bh=FyZL+jVtpf/tYxhn0EH8VQfz1LJ7CjgK0uyii/nDry0=;
+	s=arc-20240116; t=1728495253; c=relaxed/simple;
+	bh=4P7C6WGa+3DAD3HMQ7qltgx4htUhGEAzSs7puUwwYFU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=J4I3XqHPZIq6xwJfhB05S8vVpg/ZfLik3K0YV/lDIljPhZuxfbyK1oOfMu8rrokZwD0Z1UVd3lqn0p4/o8tHHQxJ75yfLUdUMxMZL6wI70lccjpnzNCr/rfXio8KqWD21VRxTHiFRM4iPMOeCYbe+4pR9MAk12eMZVvBSARJOyw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=LvonbgFw; arc=none smtp.client-ip=66.163.184.153
+	 MIME-Version; b=Xn3VJQtM99JqmfUmaJaj+3ypjUWSnP/IsNGISd0Gj4nUuIqvunzvVoCetoYL8f+DNw5XlWRSfpCJ4UEhVc7eHwmubWNDdgwVxVW8fuNcaA5xUf4RIuCqZKTUZm85lGnsORI6I9Dgd8Cqu9sdvnd1/tnn4qc2fYI+EDRfFH5YNMg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=J+iFItwc; arc=none smtp.client-ip=66.163.185.153
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="LvonbgFw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1728495246; bh=VYsNlM7MDoh1w0refd1WTiBThNASgo71a3RwWgcl4/0=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=LvonbgFw2Rl2IS0tH08gK2X53SH40liToR8GRU/BVeFHW/2jZHPeLR3Z/7OM/fQM4Rv1ydbSBV9lDd7JPNgbHJqBPc2ge3phQa/GNMGyxWx6jon1q+lbBPLDKR+2NaE3sHSeuTkSBnTj7Y07zZQYJzv04CqQ6Fy3KWAiQjM7p6a1AFNhgm5j/AFOFNW8RhxIT0mp+n56TRtVBYUo8s/j/GRwpvkrXHHcAYbBovVS2Cwo+oYeovJOUQGRe5miwSomKYCKLyA4XTM9Zs2KQfzc28a/2SmST0FnpS8z3Rwf6Q81vXf+Z3Io3XwCyPz2F3l8pxNmZKHFGulFKp/XYt/Y4g==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1728495246; bh=F1NHCbXKJMETsP6fWTs1XGS+bnK5mUHVFJIHkOgDe6u=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=qjQe1ZDaHYIIQAQx0EnVwRxcYy36r4murrWvuRBJAiZv+UDU18jWmqCCIK4/ggyjzNqwzBkqvJL0YAo+pcHYHRkaRd0ah25JSpWVHw9ZkO4M3xroCIOv62cQ5ITaA7UzOEM6GpZ+fluZUr8nHNtvzqud9820aSf5qSbym3G1kS5VgGulmQZviqgG+06Qy1MTjTcmZp4ea3zWESK3DIEPzU+Aqy7AByONgF2b4TjBx+8o1uhSoyLo6cfNty9KoF3V4E+UN8dHwwqVJDdtvqgCx2ei+oM/cgF6l53wifQ6cwRkyeO1gHH0MjLNYYlyHPgLGzl8tH+WJxoK5iilxJPhwQ==
-X-YMail-OSG: iTph0FUVM1kN3HW.L4HLw84AhaHjg3jXRLplpeK83trgzaICP2sCyk1keOXVVnS
- DG5C0gtMPu33AiXRoBfCOMe2UOFQEYrAUZhRa5mSVn49X4dLInohkoZzsS7ejrAeAd3_wRnoSvCo
- SvnczOyFEayLtJXPlBM00i5vdl.8hu8XUqxC.8A3yqLjN1zg.tMCgnRxM2xmr8Ap_ObsOfAz7lqs
- s7H969tIi10uMjqPFyyLgbmyV5BJi1P_bh7ef1jiE.Pck_CKXv78IscTkGjVBKZP3i.oKCMAAN2X
- g9ABtl1E3BC8FwEKizDji6Kqo2TX3W.An.HdvZdwFgYSNjj9yQorwIV60oiHtWB2uBMmwu5yVXlw
- DNuitCCYEOMKpT5GELlUEh8yfBMk5Rd_fOJb2Sq63VmM.c9BCAKObrdlOmFuzjs1bhImI_7CljDR
- mhlhSFEJQwog5.fphVQWmKxARJ8FRYkez5Rt6OM4HqG.hWTz9Dowm1.OJlwSvYvRWcxUKsPHCBDQ
- uCHNI9sE.idzvvbuINUbfo2PY6Jd8lEmBhDURXOCQHpbFg3MvAg_b_WqtyB3vFHWrqgjUgZbGmzz
- jJve_HRl4SKgOWaFXSbJuCnDhM57VguVob7AvukQzqU3ZXWFHkagqsBFaduyLUM9vExGRRhq4SUv
- eMuRL_ABwwCzmNxcLnzAeJ6jQEGPlzp2YLzKa7P9kQzD.DTGGoj_wbS5oe3dzzh4iIbf9nSglOaj
- FlxHPGeqPN61R8lVm_b_sPSndQ7R1x1zERla.Y_rqEuM5lNvYYLf2lP2VwgtpyFV0YaGLHafHuX5
- fW1_Umg4Jr2RPki1rWKuVBo.l4VjAWcgsReGxLZmlhNaY3nC0CJbdGgMY3RgSRSRivhXUiVsXyoq
- dqYDdDP.pvnVe_BWuqQ5GP.40VE6RZzA6HgZ8AkDJ.gaFpsdYxv5BV3iOun4iQhiMEuGl_N4.n48
- LR7YS8dvimuRchKlSkoCtk4qXzZyqM4cgkwDKNrwYSX_OsZvq5EgJq4Ic7C2mOl3VIyPedT.ZYwn
- 1dESMJan5pl97sFGvgNRCJYLU_lCbJzJr2cpSJwkC6E9Dic.777jC0gbVsD6W3hy01JubAIZpryY
- xCYqx8Z.A6fhGuk6pUhRLoFfPm7INP_g2p5T_SVLSdO099uR9HygvmoPCmJUHe4j17lbDbeOcGZZ
- 9nZHWrVfgjudWlUVJY3jlyGkUx0GpatPM7t.mgjXCTOB5npJWOBW47l81of6UNn1_.Jd5hIg0d41
- hrileDyNyLuuEly_c.7FSb89Gtg4PFx1qIQXLAgc2ZJyzwBCyTgYF4aK8BieKoxhpzX7ON6ktK4O
- ef94hUH0uX.7pxcNxwJlQyxb95q01vITs9A32A2dmeJEgMho2IetKWG.nV4OR4qw_TM.5f_amaAe
- v376YCRj2KysxZThrxaIVwQOwJftXDp5WE.Jfaxa2LtcOYXvHEbowmzLUhNyw8uEAYJ5kl6L4TGl
- jRko.oUzcyYqpzaOwTVpTp6idZ35ZPBgsVHmt9tY5GdAdU05gDsMWmmHEfpbFGzmMM2LA2pou4QJ
- IRhHLv_.aJLEL4e9ZDdkPE6Rcb6w5boOkR5s_GArrcP2hAdNqTsjLIRag2TzSSSrozhahW6Sbjny
- 5a_zImP8_TGM7HUJ.vgyFWqxsl92M_fnlTS7IRewvSdvEfzhb2cpGpRZbhbwcU9u3MOe5qujqnuo
- dtEhiv19GuH5NUDzRI5k9U5FFR2OumXeWUN8.LxyNZ4LlB43zrzRFr3HAVzIUnKzKEXYz5yyBUb_
- zNqhdZHiZ7QaD7VGvAjtTTpH3oWOcg_1AClwxt8TGQwW18TFtR4oECkUsKUFJKefausHA1lLmTJx
- 6YIZEC8y_qB52uhSJYxxn9fCWWEjBWk0jpdv93C.ZQYuwo3F2j01cS2jzjM6LEY9gUXOB70EMhHY
- g4cnebk1M5rsYdRxkOjdQ.IbXAohshEmnBxgH2SdijM7tQt74g0CkdCkOZM_3diajNPpzhS5Ndj_
- .GQQ7JoiUEZwnwqUkJskmq5T0DIiK3PRywCgLZ0jF6ZTQ5sD5RMVraQvFq4wac.Jw3K46qafcy6s
- oobxx3lvGIaDMz.pEggQWMNBzKwVZS9wM22KSok.y_TZzZJTBEH0bjTbln87gPtNWeErM_D3sTFw
- xqFRMCUjeK7dTQFKjXvUYmtiwR1l9SBZNuZioo8FO77QKLHo9MtbYdZaj2jpoFtjJN2rX37RuAsv
- b65fEDadGxoheDtf1YVyNsp173g6S.a_EFgWab_RqRR5xTGqxB0pBhAovXBBFmvHoQC3f1vD9HTL
- bJK8GAJgaTGq6_XIjV3TbGwz8xv4.WMtRdS_S
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="J+iFItwc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1728495251; bh=Ri80MgNDcTseaGUsqfIA0tyVfuRU0LoKRoYnob2OWgM=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=J+iFItwczlZiRXdZ/QwzwnIiaH6DGZC9stRISMNEgTvFHRUzRbyVxg9ouO05iJqtr3q4B4NM+8uOtoP6dijBoJFzjQnUZJ+ionnMpSz40TAnZ1vqjtJdVP9ZLqb+GncBPTwqCWa2Ub7VxGdgZAL0+AXR1mPp3A04MKOtXzr6EaaAUjiEireDBzT8xaid5qN4mt1PIOZTJ3RNP/v8jf40ELP9QuzYCGsWrXYaGIQ9I8Clp0IV8tRS55mXDjRY0Qpydz75/bK+UUb8AL0WJk6meTDicwgBmL+YUaegBCZNaMATjcD9gb23l7gqIYgU31iFybrBdW9IkYtAkC/krFLteA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1728495251; bh=+LvK8j1vwCDTYPM1Mmj43JKM2tnho148gZz55FrWoGs=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=QctkixJESEl0WB8fgXqQuqkLCFMs72Le8fXThloUMEFm144yhKYdmbAbwv+RD9mWYakFbt6B5FKpK2uqprGJG+Fx3stKOGMhpRfle21vtJL0EuIxyJQBwrKf3AdIpj7eVT4vH88+qWtgd2vatnKT3bkt2qicYCGKaH/Gyq3FSs4NpEGu63a5BU/gGNyghp8EzW4mZJGK0XMNrlfVHDjSIcTGZ7IwPJjs5cJE6B5po5MG3m13Uii68ITbw1CoGiS6/lkcv+jNhOZ/WNJxU6qXLzcHWKsRBYlN03+Q6Yjq6xtcVHq0j3M4pQXtv3mEDKKzfDzk0oTC4wJgu3XALmEVPA==
+X-YMail-OSG: 6qG7DtAVM1krpNbgRCjAWDGlXzA47KbP2Bj4gUUM6eqXhQW5PWMCM7bMT0Yn6BV
+ fmJRJ28EHHToAvj1BGWZrgVVVhnsBDEw9BuFQbt4TU5emp2HhQVVK8Ye_AXdDc3D5AOIFElvJ.Ve
+ .9V9xKxbAfZFnZVxWlkNzrZSdS5E2Kn1IaoPPCy0CMC8I7nSE3IC3naIBtY78rYHYO.VNp3KIym7
+ gATDRwEzyH69IXvbq1eItACK2cSGioQYWcq96P_mms02_KEolQ9Art8L0E57XQNRKP9D.xGGRTXn
+ lqt6od1KoXsE33Eu2R4hnZF1wv_5zsU8vhGwAuxWPEfwfkLWFxjcLsQLNBDrcyh.WpODVPXTSE28
+ Pc40LLxOTNqaXDn79mPQUa1zguLGL2G0TwSjDjF2ax6Xenz1rNxVo6RE.SD0_U7krJd8bt9r70x0
+ cabaQ8lNZN06Kdv9lAPYDNn3d1z6zVZfPGuluIFmSIZOorcnvvcqpwsrOONtT8HZzaxJ154YI16L
+ uztu4u0bzAXqEECfImXn_VsiWigwLrZ7Diuuhwg6FXUnB0kzPAhCvkVTiBSXq6a82J4sT0SyATeu
+ d2J7qn3wabCZChMIOXy1XWDlW5wheMqd8PH0rrpdAMNbW9VkOgr_V5rh16XL2P4j9nG3TqbKLTvp
+ iKx2JtMEgU_WlmzZniRSNfdS3kKaBJqQxDBKtsgs11iQss8qYQC5_AYaB1iEJSFPAOedYvgsriY1
+ AS4YNGRh4D8F1bz9BWoCXQrBygH8.1OijyqOsFQlN0MwFdlctWJ1FnhT41MZlYk227eUmh_TH.kK
+ lnw9ROlMrjp7UO4rH0JGEhxsyeSWSHxQ78abNDknnRprNl1s2CWX57LqyiTv9CzkjLjCxBSPr4U1
+ ccxKRYod4aZmYabFVlUlr0L8A2qsOGf.B784Jg57GLyZl.KtogB2sx9ZFceKJY.pWakAnlaqAJl7
+ RI8.vsAy.FKj8CXKWZm7ktgiVL6jwNIbnerc3v4SqiseOVTCeOgZqYl6Q8tv6MfYxTCw4dnd1XKh
+ isMR1M9I8UP_1FR5sXbZhn3dXPzoavN3_SY6mYOVzWvRYAliJ28OBVmNI9qDQLt33947ZabyAVXN
+ z2mSkgYVYsNQspoinpHUbiN7f_u9IhrDGoqyBYzNyuFEFLTgG20qLD4KC714A9irdTKsrTmt2P57
+ q9vs7a0oaRKHlug4FkVB9xjcSNFk_BkF3o4glOI_eK93SyFUCzo0ixI6ft6K2vN3HMKW6B5QRAyl
+ SHhNupKfj.kaOGzlzKeyB_bPYSAaEHnH9Fd47vv2.WcTkxYa8eWlSuZwBzD0aPZSFhI.FLU2tZEd
+ bUq60PDgthb75E8Py_Oac.rK6CAHgkF7FlRHkwXEWZKxWaaeWFQOd25F09NSiacaNtSPaIz1ZE3a
+ AcyUM9PVHNctCNd9s3v34FAkTcx5RTQfDKLytvrStOs0wjCXzDhZAkxgJdrnR83Qyu84c8GpTV0s
+ .4lsMF1GMmV_O_c7GZRo5GYoo04ungpsz6GatQjA3_GeWWt2BjcYGZD4n9qul1MOEGl3Jr95Hn2k
+ plRd4VtL1tVy.XdBzB6eT8Lx3q6gyza.vtcmubHpKaGXb8S3Uo9uqY4LtKl58FGvMKl9uP1G.WcU
+ 3Q0R3sjUWu9H6E3qBPuPBU6YEXgxgfCQOIEf8dXm_IPnSSr_eAx2wCXxa0mX1CgEUWTJJ.NVvgsa
+ SmYkuTZC1a66NNQ6YM0nsMn3c2FpdOc7kihJOcvGC_1j9SyR.8EV1QniE5s9HPBHmtakGDcSgorw
+ u8AMN4H2SbHwvI4yD1.VCgZIeSU185AvRDztxb_H4t3dv5oo4l8GPKa.ESusvWhWZ5KEtwXNwudW
+ ooS9W9YT7utHeQPtYIe9GydvSCZ_pjgMmBmFvmz_Hl9mBLTqPsTeNJo9tPAJPfNgsSGuRRCUf5TL
+ 4Toi0seWuENQs3NuPEHyBV82UW3oecRWFVrOXno9OXO83Qecj_RT8YaH.lvZSWNKFAQZRYcj4ZZl
+ N4SCFeLVYosGmeDL9riOvfxya6zYmJKBkgYkC9sKilkh_yANDjZXqZyoeZmJ9MI1hs7qqXBN_.nc
+ uU1fgMZ0AdAeuLFir.Z9QeNAzq53Jd7B7wsbnaQ1evDEtUToziFcKptPHNztirXKJlfJaQGcuPYD
+ .rL8i_.p7YLMWJVjCRaeYfIoNiBbU_ETag4eTanspZBUt5GSNanOlYx.WN9E6Bwv6Ie.iyDzo5gK
+ 0I4WPwEhePPnmfoyZr3.JuK2D35A3Kk5ymqbiYzlsNPpP_lIPxDEGFsOtiA--
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 16617802-1c8b-43b6-9667-7bf386e0d09e
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Wed, 9 Oct 2024 17:34:06 +0000
+X-Sonic-ID: 1cd3087f-f37f-4167-921d-376d99fcc003
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic305.consmr.mail.ne1.yahoo.com with HTTP; Wed, 9 Oct 2024 17:34:11 +0000
 Received: by hermes--production-gq1-5d95dc458-6q8w6 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID a7e77129a0d9b2a8b8a48f1f6322a7dc;
-          Wed, 09 Oct 2024 17:34:04 +0000 (UTC)
+          Wed, 09 Oct 2024 17:34:08 +0000 (UTC)
 From: Casey Schaufler <casey@schaufler-ca.com>
 To: casey@schaufler-ca.com,
 	paul@paul-moore.com,
@@ -68,9 +67,9 @@ Cc: jmorris@namei.org,
 	linux-kernel@vger.kernel.org,
 	selinux@vger.kernel.org,
 	mic@digikod.net
-Subject: [PATCH v4 04/13] Audit: maintain an lsm_prop in audit_context
-Date: Wed,  9 Oct 2024 10:32:12 -0700
-Message-ID: <20241009173222.12219-5-casey@schaufler-ca.com>
+Subject: [PATCH v4 06/13] Audit: Update shutdown LSM data
+Date: Wed,  9 Oct 2024 10:32:14 -0700
+Message-ID: <20241009173222.12219-7-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.46.0
 In-Reply-To: <20241009173222.12219-1-casey@schaufler-ca.com>
 References: <20241009173222.12219-1-casey@schaufler-ca.com>
@@ -82,144 +81,66 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Replace the secid value stored in struct audit_context with a struct
-lsm_prop. Change the code that uses this value to accommodate the
-change. security_audit_rule_match() expects a lsm_prop, so existing
-scaffolding can be removed. A call to security_secid_to_secctx()
-is changed to security_lsmprop_to_secctx().  The call to
-security_ipc_getsecid() is scaffolded.
-
-A new function lsmprop_is_set() is introduced to identify whether
-an lsm_prop contains a non-zero value.
+The audit process LSM information is changed from a secid audit_sig_sid
+to an lsm_prop in audit_sig_lsm. Update the users of this data
+appropriately. Calls to security_secid_to_secctx() are changed to use
+security_lsmprop_to_secctx() instead. security_current_getsecid_subj()
+is scaffolded. It will be updated in a subsequent patch.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/security.h | 24 ++++++++++++++++++++++++
- kernel/audit.h           |  3 ++-
- kernel/auditsc.c         | 19 ++++++++-----------
- 3 files changed, 34 insertions(+), 12 deletions(-)
+ kernel/audit.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index f1c68e38b15d..5652baa4ca3c 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -291,6 +291,19 @@ static inline const char *kernel_load_data_id_str(enum kernel_load_data_id id)
+diff --git a/kernel/audit.c b/kernel/audit.c
+index 1edaa4846a47..47c41e6f9ea9 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -123,7 +123,7 @@ static u32	audit_backlog_wait_time = AUDIT_BACKLOG_WAIT_TIME;
+ /* The identity of the user shutting down the audit system. */
+ static kuid_t		audit_sig_uid = INVALID_UID;
+ static pid_t		audit_sig_pid = -1;
+-static u32		audit_sig_sid;
++static struct lsm_prop	audit_sig_lsm;
  
- #ifdef CONFIG_SECURITY
- 
-+/**
-+ * lsmprop_is_set - report if there is a value in the lsm_prop
-+ * @prop: Pointer to the exported LSM data
-+ *
-+ * Returns true if there is a value set, false otherwise
-+ */
-+static inline bool lsm_prop_is_set(struct lsm_prop *prop)
-+{
-+	const struct lsm_prop empty = {};
-+
-+	return !!memcmp(prop, &empty, sizeof(*prop));
-+}
-+
- int call_blocking_lsm_notifier(enum lsm_event event, void *data);
- int register_blocking_lsm_notifier(struct notifier_block *nb);
- int unregister_blocking_lsm_notifier(struct notifier_block *nb);
-@@ -552,6 +565,17 @@ int security_bdev_setintegrity(struct block_device *bdev,
- 			       size_t size);
- #else /* CONFIG_SECURITY */
- 
-+/**
-+ * lsmprop_is_set - report if there is a value in the lsm_prop
-+ * @prop: Pointer to the exported LSM data
-+ *
-+ * Returns true if there is a value set, false otherwise
-+ */
-+static inline bool lsm_prop_is_set(struct lsm_prop *prop)
-+{
-+	return false;
-+}
-+
- static inline int call_blocking_lsm_notifier(enum lsm_event event, void *data)
- {
- 	return 0;
-diff --git a/kernel/audit.h b/kernel/audit.h
-index a60d2840559e..d14924a887c9 100644
---- a/kernel/audit.h
-+++ b/kernel/audit.h
-@@ -11,6 +11,7 @@
- 
- #include <linux/fs.h>
- #include <linux/audit.h>
-+#include <linux/security.h>
- #include <linux/skbuff.h>
- #include <uapi/linux/mqueue.h>
- #include <linux/tty.h>
-@@ -160,7 +161,7 @@ struct audit_context {
- 			kuid_t			uid;
- 			kgid_t			gid;
- 			umode_t			mode;
--			u32			osid;
-+			struct lsm_prop		oprop;
- 			int			has_perm;
- 			uid_t			perm_uid;
- 			gid_t			perm_gid;
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index aaf672a962d6..e89499819817 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -724,9 +724,7 @@ static int audit_filter_rules(struct task_struct *tsk,
- 				/* Find ipc objects that match */
- 				if (!ctx || ctx->type != AUDIT_IPC)
- 					break;
--				/* scaffolding */
--				prop.scaffold.secid = ctx->ipc.osid;
--				if (security_audit_rule_match(&prop,
-+				if (security_audit_rule_match(&ctx->ipc.oprop,
- 							      f->type, f->op,
- 							      f->lsm_rule))
- 					++result;
-@@ -1394,19 +1392,17 @@ static void show_special(struct audit_context *context, int *call_panic)
- 			audit_log_format(ab, " a%d=%lx", i,
- 				context->socketcall.args[i]);
- 		break; }
--	case AUDIT_IPC: {
--		u32 osid = context->ipc.osid;
--
-+	case AUDIT_IPC:
- 		audit_log_format(ab, "ouid=%u ogid=%u mode=%#ho",
- 				 from_kuid(&init_user_ns, context->ipc.uid),
- 				 from_kgid(&init_user_ns, context->ipc.gid),
- 				 context->ipc.mode);
--		if (osid) {
-+		if (lsm_prop_is_set(&context->ipc.oprop)) {
- 			char *ctx = NULL;
- 			u32 len;
- 
--			if (security_secid_to_secctx(osid, &ctx, &len)) {
--				audit_log_format(ab, " osid=%u", osid);
-+			if (security_lsmprop_to_secctx(&context->ipc.oprop,
-+						       &ctx, &len)) {
- 				*call_panic = 1;
- 			} else {
- 				audit_log_format(ab, " obj=%s", ctx);
-@@ -1426,7 +1422,7 @@ static void show_special(struct audit_context *context, int *call_panic)
- 				context->ipc.perm_gid,
- 				context->ipc.perm_mode);
+ /* Records can be lost in several ways:
+    0) [suppressed in audit_alloc]
+@@ -1473,20 +1473,21 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	}
+ 	case AUDIT_SIGNAL_INFO:
+ 		len = 0;
+-		if (audit_sig_sid) {
+-			err = security_secid_to_secctx(audit_sig_sid, &ctx, &len);
++		if (lsmprop_is_set(&audit_sig_lsm)) {
++			err = security_lsmprop_to_secctx(&audit_sig_lsm, &ctx,
++							 &len);
+ 			if (err)
+ 				return err;
  		}
--		break; }
-+		break;
- 	case AUDIT_MQ_OPEN:
- 		audit_log_format(ab,
- 			"oflag=0x%x mode=%#ho mq_flags=0x%lx mq_maxmsg=%ld "
-@@ -2642,7 +2638,8 @@ void __audit_ipc_obj(struct kern_ipc_perm *ipcp)
- 	context->ipc.gid = ipcp->gid;
- 	context->ipc.mode = ipcp->mode;
- 	context->ipc.has_perm = 0;
--	security_ipc_getsecid(ipcp, &context->ipc.osid);
-+	/* scaffolding */
-+	security_ipc_getsecid(ipcp, &context->ipc.oprop.scaffold.secid);
- 	context->type = AUDIT_IPC;
- }
+ 		sig_data = kmalloc(struct_size(sig_data, ctx, len), GFP_KERNEL);
+ 		if (!sig_data) {
+-			if (audit_sig_sid)
++			if (lsmprop_is_set(&audit_sig_lsm))
+ 				security_release_secctx(ctx, len);
+ 			return -ENOMEM;
+ 		}
+ 		sig_data->uid = from_kuid(&init_user_ns, audit_sig_uid);
+ 		sig_data->pid = audit_sig_pid;
+-		if (audit_sig_sid) {
++		if (lsmprop_is_set(&audit_sig_lsm)) {
+ 			memcpy(sig_data->ctx, ctx, len);
+ 			security_release_secctx(ctx, len);
+ 		}
+@@ -2404,7 +2405,8 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 			audit_sig_uid = auid;
+ 		else
+ 			audit_sig_uid = uid;
+-		security_current_getsecid_subj(&audit_sig_sid);
++		/* scaffolding */
++		security_current_getsecid_subj(&audit_sig_lsm.scaffold.secid);
+ 	}
  
+ 	return audit_signal_info_syscall(t);
 -- 
 2.46.0
 
