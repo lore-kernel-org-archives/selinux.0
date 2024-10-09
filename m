@@ -1,54 +1,61 @@
-Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 127381D362B
-	for <selinux@vger.kernel.org>; Tue,  8 Oct 2024 13:40:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3517B178CC5
+	for <selinux@vger.kernel.org>; Wed,  9 Oct 2024 08:25:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728394859; cv=none; b=N0D3QgjlDYy8bMQHtVhVC8nZUgK9fVvXt1uC2I+rd2yT/F1lQRF+2pDHON/S6ba29+jo2H+nNdEedRKeA/mzhiMWOtq+4RuJwoyYm9vMo6SM2CuACdbDByQpasEjylLfWfSjtIeIE2+m+LIrAM6SObIP2TzrlGLEvi3/m9Q3F5s=
+	t=1728462343; cv=none; b=m8mrfp4VL5bafIcnZ9YU5cCcX3P1QH3LDI5e/y6+c6wR+KrqvtXBJyyo6wNrDmPRdTUg8vRoQ+RueHpb7t3Pq1/czz86siH4uzilztlMVORbV9Ju2bSTJKeJ7MbrrEnObxm6hvll1GpQEzE/Q2Cq1VbF4/FRX3EbHyvBAxU7z8E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728394859; c=relaxed/simple;
-	bh=08YU0YNnMO8H+dBPuEi8oXK+p2cD+Aq8KIEch6DVwco=;
+	s=arc-20240116; t=1728462343; c=relaxed/simple;
+	bh=jFAgE3qFuULuiM/EVaEKhJ/qLPcodqcJ690KcvvbWnE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PHzAhZ5FGtfn37dQPzjmQlWCH+x5w2mtcA9Bx4nTlnmSk1i5Qnl/sqDYgR5anpltu0xX5o8iHa/iLX8dRVvR5T3XNi+BqtddYhbcxvfJ2Cp3JTOuX3aLbcjD9+gBig/spQR3F9P9eqHQaquS3YG+URqdpwmx8eIhEtvmQLlyVI0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=NZPxvOTF; arc=none smtp.client-ip=209.85.219.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=WRraA7s5lDk/8LWHMaT5MsGNtd3EdZ55KFAbASXW0udRDPppGV6UnwHZDOw0Dj4Ac1sPC3L7+xNlOHzxGvyE6q9V1/vpa4wOgZXs2p7bmVckWjCTXJKmlha5Rptxn0VZ+k+YajNudNB5ojoyWQW7Fr+7QvktFzinZd6jqMJjkJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HOptJWVg; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="NZPxvOTF"
-Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-e263920b6bbso4568132276.0
-        for <selinux@vger.kernel.org>; Tue, 08 Oct 2024 06:40:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1728394857; x=1728999657; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=IO+1mqI5kWgnLXRRVFusLgoJMS9NHKgCg0l1GMdgWo0=;
-        b=NZPxvOTFqt/lIaJvdJsP5a3H6SCY3Zbz1612LLY3g99dTSOExWNyvSs6bkiucw+3ES
-         OKHti38vixStlG1qtpO5NkKPEWLBKEzeqJZxarwI1rPLD6RbeztcMFFZyd0bAFPUTCNd
-         k/wc0YkEEsAUwzoB3IcUUtxM2mEC+IHuLWek2PkFRD7EbpjX1hc4MsKv9mXemiGs9HdI
-         cjUhDdiW3KDystYGTCOQKmsQCBVl+x5akbZXUaWzLek1SF7rP3InkEu4GakXIsi+EbiU
-         YLZNJ7zIcIShbVGeEaEugj49w6O/6M7NGpRunu+lJfn9ppMdb/qsunTbWDKpDxS5qM3T
-         HPgA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HOptJWVg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1728462341;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BYjRvTGvKpXcM8QeH+7E/BU7m+Zk5pTEJ3LhtyGvK6Q=;
+	b=HOptJWVgGxg6928uaHGbMCtLOK2FTx+SY6qM+YU/kUESJNsaWmo5oRl+iuvyXysuphTnsh
+	kIcmDwtO4KSnZRX0SHfwmBVKlmx6qlbhIPXOXkx35O184GeihgN6lBpMtqGPzSwmG+SKNK
+	3CIV8Nrg3CgGxG1eQGVt1lRC94DmHZM=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-659-Rm9Vg0bdOeyft6qX-7l0mg-1; Wed, 09 Oct 2024 04:25:39 -0400
+X-MC-Unique: Rm9Vg0bdOeyft6qX-7l0mg-1
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2e18d5b9a25so8453778a91.2
+        for <selinux@vger.kernel.org>; Wed, 09 Oct 2024 01:25:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1728394857; x=1728999657;
+        d=1e100.net; s=20230601; t=1728462338; x=1729067138;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=IO+1mqI5kWgnLXRRVFusLgoJMS9NHKgCg0l1GMdgWo0=;
-        b=OJcPO0+H/Weevc+Qy9vil2sItq3+47qHlFiDCjj0gQNIOvG2VSIq3Q8P6NBkQkx+Jw
-         VGghzDQKuQcp9ok/kE4DfXDKl72LGnG2ESmv7luzrETsZPziiBJewywi/pjo81nHvCOs
-         9lyIBaH2XTDBPdQCpk6R04txntff2V07M8XMYItyXZdmv2fCCi8p36ECSvyFH5HxQE2L
-         McWo7a6e88QtPuM2405RFmZxZNYEeVrcdoMTyFXtmImtAl+EfSSqhLf93SC/lwOX47Dq
-         lyHbtGshL+3/lsxVbEcaswIC4Gmwdq2EtMuNuXoEG02N+1/18M34CWt47+QQEPEUl46s
-         b7eQ==
-X-Gm-Message-State: AOJu0YxAwZtJuGXRx98UBbX6xHracGZZerKg8UNfPVImSplvOLZAtLoK
-	GS6ReGWbnWU9yOTONV72TIRkyVn89hsp1bfFDj+NDQZoZ5i9KV82OJ1+RvZHFigfKPklM4nbqPw
-	yDuXjEc35VWsL+fWo3ZfTp3SyrGlaNrdHPdL5
-X-Google-Smtp-Source: AGHT+IE90H9w4bCJARlJ2ic7CVY6nuz1U6CoCbh0GVbS7PlZKmBvR03rXaO2hgBkt2XT3iQzRjq5ilUhsydM/vVC5kg=
-X-Received: by 2002:a05:6902:161d:b0:e28:a9d4:8328 with SMTP id
- 3f1490d57ef6-e28ad6a379dmr8164141276.35.1728394856860; Tue, 08 Oct 2024
- 06:40:56 -0700 (PDT)
+        bh=BYjRvTGvKpXcM8QeH+7E/BU7m+Zk5pTEJ3LhtyGvK6Q=;
+        b=b5LN9HQTNS9w8dHweXXOdRrgNjQMyFKRSVx6q4nR8K8b+dq0pJXdlyr7nUu1Qzo+jo
+         FPq9YhCeIWW8xKGr/D5hCpEJXSymmS49Ed87Ml71v9yWxLD5K2NLpkU0uSxEP5VwHP//
+         R5KQrl16JLiaQ1zxX2otp78RXYy9ngLTVmYafhN7K4dBI+eiwU05fBPrJ8+Vcy3RUZSu
+         0vEnHlcquHFGDiizv8wXAn2xNqXNoKKJ7aAQTRir7XUACbM7gajPG21KRpwY6MRlFNqN
+         9q3z+ifxcYIPFbfYblIjoVQuIH5OGXONeYZ6Z6i+pSqn4oxsLXgVQIkynvEQv7z+HKuU
+         4HoQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUjnWzqw3CknKo5TI6seFSRTMVH6Y0jYnp1DuH3DnzuDZ+BLu0KXY9T+Qu7YCubcHEPk8T3kzMY@vger.kernel.org
+X-Gm-Message-State: AOJu0YydpTU0axd2BGvkcQ+9irM2XZNRQQD8k6wgd7neDmRuBlv5jLXT
+	MwyIflMC/gn0gQROlGxF9wBs8tDL5wZRwLgeQoB9GIsHaTJgt3HV/cxnlRxqSt+G2HIOggcap07
+	YIC6jJzclS4z66EOXAt46iiSlAtlCxowBcfSsLsohRn36KnC+jEPjXRwQGa50vr+4rBCnNEmir9
+	MOf4IA3XwYQ5he5oFuB4W9zTzdIEkXnw==
+X-Received: by 2002:a17:90b:198e:b0:2e2:af57:37eb with SMTP id 98e67ed59e1d1-2e2af5748ffmr916153a91.41.1728462338591;
+        Wed, 09 Oct 2024 01:25:38 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHGT5t9+eUy9vBNNoQdNRiEc1iBho1fKsKK3VENcMPa8Pzdeb+2ucs7S0yFdCXRKdCVPdNpJvQCbwfYptto31Q=
+X-Received: by 2002:a17:90b:198e:b0:2e2:af57:37eb with SMTP id
+ 98e67ed59e1d1-2e2af5748ffmr916140a91.41.1728462338205; Wed, 09 Oct 2024
+ 01:25:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -56,77 +63,87 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20240828195755.19385-1-stephen.smalley.work@gmail.com>
- <CAEjxPJ4MH_r36Oy4K1Mcg4isGRQ+TC3Yr86DJV9fFOe3oddmLw@mail.gmail.com> <CAEjxPJ40boVZji2DZVzHn63KmNOf0MkjkS5h9eBU4CSptfSuNQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ40boVZji2DZVzHn63KmNOf0MkjkS5h9eBU4CSptfSuNQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 8 Oct 2024 09:40:46 -0400
-Message-ID: <CAHC9VhQ5bEPw8Kmy7Q4XJpWN1q9z5HpKVnkU2RN6TBrYvEecWA@mail.gmail.com>
+ <CAEjxPJ4MH_r36Oy4K1Mcg4isGRQ+TC3Yr86DJV9fFOe3oddmLw@mail.gmail.com>
+ <CAEjxPJ40boVZji2DZVzHn63KmNOf0MkjkS5h9eBU4CSptfSuNQ@mail.gmail.com> <CAHC9VhQ5bEPw8Kmy7Q4XJpWN1q9z5HpKVnkU2RN6TBrYvEecWA@mail.gmail.com>
+In-Reply-To: <CAHC9VhQ5bEPw8Kmy7Q4XJpWN1q9z5HpKVnkU2RN6TBrYvEecWA@mail.gmail.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Wed, 9 Oct 2024 10:25:27 +0200
+Message-ID: <CAFqZXNvc9Ux60qad0EWTDkzcz30ZwUS-y43XG=L2N=4gYB0yQQ@mail.gmail.com>
 Subject: Re: [PATCH testsuite] policy,tests: add tests for netlink xperms
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, omosnace@redhat.com, tweek@google.com, 
-	brambonne@google.com, jeffv@google.com
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org, 
+	tweek@google.com, brambonne@google.com, jeffv@google.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 8, 2024 at 9:02=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Mon, Sep 16, 2024 at 9:04=E2=80=AFAM Stephen Smalley
+On Tue, Oct 8, 2024 at 3:41=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
+te:
+>
+> On Tue, Oct 8, 2024 at 9:02=E2=80=AFAM Stephen Smalley
 > <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Wed, Aug 28, 2024 at 4:00=E2=80=AFPM Stephen Smalley
+> > On Mon, Sep 16, 2024 at 9:04=E2=80=AFAM Stephen Smalley
 > > <stephen.smalley.work@gmail.com> wrote:
 > > >
-> > > Add tests for netlink xperms. Test program is based on an earlier tes=
-t
-> > > program for netlink_send checking by Paul Moore. Exercising these
-> > > tests depends on the corresponding kernel patch, userspace patches,
-> > > and updating the base policy to define the new nlmsg permissions
-> > > and to enable the new netlink_xperm policy capability.
+> > > On Wed, Aug 28, 2024 at 4:00=E2=80=AFPM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > >
+> > > > Add tests for netlink xperms. Test program is based on an earlier t=
+est
+> > > > program for netlink_send checking by Paul Moore. Exercising these
+> > > > tests depends on the corresponding kernel patch, userspace patches,
+> > > > and updating the base policy to define the new nlmsg permissions
+> > > > and to enable the new netlink_xperm policy capability.
+> > > >
+> > > > For testing purposes, you can update the base policy by manually
+> > > > modifying your base module and tweaking /usr/share/selinux/devel
+> > > > (latter only required due to writing the test policy as a .te file
+> > > > rather than as .cil in order to use the test macros) as follows:
+> > > >     sudo semodule -c -E base
+> > > >     sudo sed -i.orig "s/nlmsg_read/nlmsg nlmsg_read/" base.cil
+> > > >     sudo semodule -i base.cil
+> > > >     echo "(policycap netlink_xperm)" > netlink_xperm.cil
+> > > >     sudo semodule -i netlink_xperm.cil
+> > > >     sudo sed -i.orig "s/nlmsg_read/nlmsg nlmsg_read/" \
+> > > >         /usr/share/selinux/devel/include/support/all_perms.spt
+> > > >
+> > > > When finished testing, you can semodule -r base netlink_xperm to
+> > > > undo the two module changes and restore your all_perms.spt file
+> > > > from the saved .orig file.
+> > > >
+> > > > NB The above may lead to unexpected denials of the new nlmsg permis=
+sion
+> > > > for existing domains on your system and prevent new ssh sessions fr=
+om
+> > > > being created. Recommend only inserting the netlink_xperm.cil modul=
+e
+> > > > just prior to running the testsuite and removing immediately therea=
+fter.
+> > > >
+> > > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 > > >
-> > > For testing purposes, you can update the base policy by manually
-> > > modifying your base module and tweaking /usr/share/selinux/devel
-> > > (latter only required due to writing the test policy as a .te file
-> > > rather than as .cil in order to use the test macros) as follows:
-> > >     sudo semodule -c -E base
-> > >     sudo sed -i.orig "s/nlmsg_read/nlmsg nlmsg_read/" base.cil
-> > >     sudo semodule -i base.cil
-> > >     echo "(policycap netlink_xperm)" > netlink_xperm.cil
-> > >     sudo semodule -i netlink_xperm.cil
-> > >     sudo sed -i.orig "s/nlmsg_read/nlmsg nlmsg_read/" \
-> > >         /usr/share/selinux/devel/include/support/all_perms.spt
-> > >
-> > > When finished testing, you can semodule -r base netlink_xperm to
-> > > undo the two module changes and restore your all_perms.spt file
-> > > from the saved .orig file.
-> > >
-> > > NB The above may lead to unexpected denials of the new nlmsg permissi=
-on
-> > > for existing domains on your system and prevent new ssh sessions from
-> > > being created. Recommend only inserting the netlink_xperm.cil module
-> > > just prior to running the testsuite and removing immediately thereaft=
-er.
-> > >
-> > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > Now that the kernel and userspace patches have been accepted, can we
+> > > get this testsuite patch merged please? The test will only be enabled
+> > > when the underlying policy defines the new nlmsg permission and
+> > > enables the new netlink_xperm policy capability, so it won't break
+> > > anything in the interim. We will need to separately submit a patch fo=
+r
+> > > refpolicy and/or Fedora policy to add these.
 > >
-> > Now that the kernel and userspace patches have been accepted, can we
-> > get this testsuite patch merged please? The test will only be enabled
-> > when the underlying policy defines the new nlmsg permission and
-> > enables the new netlink_xperm policy capability, so it won't break
-> > anything in the interim. We will need to separately submit a patch for
-> > refpolicy and/or Fedora policy to add these.
+> > Any objections to merging these tests now that the corresponding
+> > kernel support is merged?
 >
-> Any objections to merging these tests now that the corresponding
-> kernel support is merged?
+> Not from me, although since the kernel support was merged less than 24
+> hours ago I might give Ondrej another day or two just in case he was
+> waiting on that.  If we still haven't heard from Ondrej towards the
+> end of the week I think it's fair game to merge, I would have thought
+> if he had any concerns he would have voiced them by now.
 
-Not from me, although since the kernel support was merged less than 24
-hours ago I might give Ondrej another day or two just in case he was
-waiting on that.  If we still haven't heard from Ondrej towards the
-end of the week I think it's fair game to merge, I would have thought
-if he had any concerns he would have voiced them by now.
-
-> They will only run if the underlying base policy defines the new nlmsg
-> permissions and enables the new netlink_xperm policy capability so
-> nothing should break in the interim.
+It is now applied:
+https://github.com/SELinuxProject/selinux-testsuite/commit/023b79b8319e5fe2=
+22fb5af892c579593e1cbc50
 
 --=20
-paul-moore.com
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
