@@ -1,62 +1,61 @@
 Received: from sonic305-28.consmr.mail.ne1.yahoo.com (sonic305-28.consmr.mail.ne1.yahoo.com [66.163.185.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD1541C8FD3
-	for <selinux@vger.kernel.org>; Mon, 14 Oct 2024 22:04:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF502143722
+	for <selinux@vger.kernel.org>; Mon, 14 Oct 2024 22:07:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.185.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728943479; cv=none; b=bj0GaLajCM52eo+d1DrwE0JRAb6Dwvdhfcgw6srHCVgaCQHuY5EEdMwjOpeLROjQXn2mH491gORkJ0fj2cjdkO3zeyDg+p6LxTj4ZG0o0HgP0nqFx+xRkwh40XbsP3fw/Mr1tnqT+ctwQcaf0TAFj4VysSIYeziOecV6Ph416GA=
+	t=1728943675; cv=none; b=uDEUgBTPb4p/TFllRo8et6EPx+UYrM7zJF7N/RPPlSBc5MArjfxJ5GFdD3Ao/8CsJmSiZvFTdW4pL+1v0Es2kHPWUDGfrmK3nvof3ggPXHoyCmpUL7lGseZfCP58K9fKoomLY3Tf2WiPZVsG82qOk93emKpyT0bEIx9co5k5Tis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728943479; c=relaxed/simple;
-	bh=apKGEXU0vRXbU6g7jdQJdMnRukrdAOAYeQyEp3ogTR0=;
+	s=arc-20240116; t=1728943675; c=relaxed/simple;
+	bh=SHLLMD0d2Kc9hNDAalQSfWyUhGZBGvxlxqBJbxncQUc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SRWh1fuD1X6oKVmt1avtqdxJpaDEOBttGHW4kREkz/k/wsLiF09gT1qqQ84kqn94MKm/UbTGNHz9Ofp/FON7cpQgPCDbyFaDz1FTJjPoiqnEq4LHEbZ2oJxID7RL0qcqzeF9J0EJJtfsWRLghuGhRe8a4OxGC72aU5YfBPE3lGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=O6u/D5JM; arc=none smtp.client-ip=66.163.185.154
+	 In-Reply-To:Content-Type; b=QsCkEyoYw/jVC8+2//O02wuQqhjPOBhAQ44wN2vp9wXBeNy1CHqEIuyrO02LkHc1STe3Cnfq1gBpw4xKueZlSFTjliuvaHTijLKax4KHwN+WwxQ3u81Jr2PU9rwXR83w6DvM9SnMrdKrhF4eGSNe1xdCij0nj1GcZC4hy0wRAWE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=cpe0eBrg; arc=none smtp.client-ip=66.163.185.154
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="O6u/D5JM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1728943476; bh=tpFC+3e2BgWO13faeByk9G1Msjge7aBo6uI8U3GBV/g=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=O6u/D5JMjhHeubLpZgsUAym/G9jEKRTXGgl3ZdSUO/xsyGg2RCfy0+n3nWRO4gHgoF/1ptAzLooXveGlfODY52nNnwpfAPirP/1cOkdOFSpORdyIyH8EcEh5kWZwCF3vqDCGVYJ55EUeOQ5lei+FVAY1vhpLcOA2Xb7w0e+TOYsW+doI3Lj4lY4VW6L+kk3hPLIVZc5JEiTtaAvGMzpRaXp+9JcbpM4f2v+bl6jjzVvAfqopODrKMKHhuXsbOhCBNBn58Cth3eza6/aTBX2p03Qs3sNQrNhovttOfzwRxoKZFqiBKaqZLpUv8T6Tsl4QFh78hGx2kY4Nv8nOTwNRXw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1728943476; bh=yNAYbvrRcCx2GC3eBcxbMpiJlfbqkUjghpve13hFP2I=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=eecqZz4T8qbRkMtVrcUU5s7juDRHGipHUezKhMSLMw1Q0BrZFyzgdtk19iSu10hONYnwOH1xrLoXlWV46LCj8XPWj97ZTcWetyYMHe+CjlwPXJGb+LPIytH1MVq4J/lJ3AmYLCUJirGZZlaSsO0GG5i9wgWkxiH/XdVOINzdjhsPoJXiB9JxBB9firQulyDkicoFHg78I+gdAP8lN7da0DRY64Pzi0J9GzCP3RzcPtCK3IguqwQsRIJBqdEK5xTkaAcKbO5Fl9HwsrsV32pc8HbLTq2bm/lfOpRSGErNx1qolGYjRvOwBx3/Nkgw1I34qrJD85db+yEf6lqB3yNnhg==
-X-YMail-OSG: 4MetJaQVM1lYW17EhBUuB1CIRH8gtUrgiDRU0pJKVkB7F0ZLfZMkjuETyZMcIT4
- saVkien1MR4Dg5mZ9EBwuxsDvH99k8nKl1ccYGz_KWUC8bniX8H44zbczsRGXv5ABzfhiyK8n1DU
- ZrdA_7obazIHYjp5otGM_2JKHJQ0qHdcmIf4sGeVN4xFpua5GM.fe84vfpB82yW.t_EQNEXn3kyr
- phssNqrtnnP2xhhm.LneJmeCXPG6UNWY5tE0zt2I9usVpAiVgyUZFZvg_aZnJhecgCszqYGr2Ysb
- 7wHdiA0K9cUcoGLz9eDM9foiYFkPHQgV_vTdSWXQLV3K86yPqFBivuZLYr1txfXRdm2YIpgvTjab
- XHMT738irguDqKasjcFLNGL9Lr6Bz9X6WWHktGIhAd6aOUrsSCGg.6XQZ4y_QR5yQSStynBuXUfO
- NRPbKDyJLMsRAQKvFqpRrtt.cmQOUZg.WU7SeKBpUHfZWMZ2CGXs.Tm.Nl13WCcOuKnabzxqJp2G
- ai6CCDJhmbSdrdLl7iIN6RskFzTjr4QXMAwKUWSttXM_8gU9SNM.UyQy3yAyEPvhM6xXny_apADh
- lCGIKMAS7KW5Ute_uzj.JBZTTOQl2LB0sCVTmSUNNrblaaf8aavb_uHnbfVcjhI9JRQkpQ4aETZ4
- kgKbJr3RDYrm.9ZB7rWQCbx_PWkOLjryseWI571CvPnGNDAX56kBwiS2iVhOhsaR3bfwccKltYsE
- P1dhkm1ivLT8gduzzVZHbM1xTuMY.oFCVbeEi6m8wWXDEKorWPBQ_uIyLMWwXf4lyOFTcJL8tm7D
- AFgWlF6VDf5yaOmsIja0a0.O.3UQZhFpmokIel7Az_YHEfCXE4jStMTNnYTkaUtemQvFWodMgTh2
- Ho6zyMpwYd0zeeubJmt4DdIep4HC3JrtdSGM4le8M.laumjcgQcxBingDfLiuNMAVX4Kp4yQDn80
- IRNITcNWdeYPuMxXSyvU8gKDJKlIVQgqPxcJhDCDpv7B2DPGJFlPbeVc2p._1.AFQ8F05busqNrC
- yCz.nkMIQMYmV1YWRRcnkr3SNLnvD7PpIMkHPRm7RSg31G8_M7aZEcV1tctSZIlZQTF_uBL29Hew
- 0BRJZu1KmaPSt2E5j.jEUuT_rpy3dk57Z1G3OTTHtTOfVY.SA8IXXitzTeD4iRGBMEznxT.LBbd4
- 3t37WALETQ1kOkw3CmimY3AWXxS_t2dK929HjHTc7w8xGdF.AZ.c2Y88pibGhpykyPkHn_lvBbr2
- 1fSoAvnmD2R1v9tISyDSTA09Qs.K_kmPKudiInkTs1gb4Og58X82mB5vlAhxFr_GGyUiN9M7Li.P
- YFINPcN0wbhxvw.Ncb41zE0twkaE1eDk_xhIdwcVrvL1xv1rkB20WUfrjTXDOMzcqROHbbAzeNfX
- blCHz_lh0ObyDeQ8Y_AIQ3Xf4LdrB19vFbfml.BB_GxZYq1m3RYkKwM3lZA25H5RVoGyKALra_X.
- PTTpt_y0zQXKmFp4M8wJzBVipP6iuLNI5B1O.Ki8aXjjBotukTH48Ct9i1P5wzE0eHzlzEO2Ui5F
- JCc18CR_TZFpJdHoqVqev2fCNaJVgWnPo9vPmKvlp5_ckFB.ABhn5Y28ZoWfj1Vpi7FqC2YEH63m
- x3wBLrqxxu.BmCySF_MUcC8HasqtGDAYMGgRbCB7lgQeViod3CnFjGOqbPdA5_ZRJdycf9L29dwI
- F.4XX6ItnLvNu_hF0yqhGEgbzk7OAmjUKTsFiG2GrAkUlaXlt_R9MtVU0jYuNjuMHt2Zkghe9wrM
- yd_tfDj.gJxGyRujpLM_NYK66zIbfrG09CnBET4a_wLud_1GAQbxalVYVM1f9tkHaCR49e8jeosa
- A1WMoUoNHIzCftGa48DbkVsQOs41ir8UoEeE3hEYZZQt12F1nKOB1qUc18aqn9zLaYBCY05wDdpx
- pyZRzFiv1tWbclkQjjKYh_nv6h0fyTGITok5A_lquvIf.wEpnqzYNeQftOz.qCXLGn_MQOBxZSUh
- 3laNylFYYgOzKFp5QW62iM30avrrP2SxcBKOgSSNV63mmNKM8sIdIbDRAELPOHdddzN.Km8t5Y57
- vTFVtfrpfqJny.59V.l7X6gbvXePCM_bITkWA7HmPWywEqVB.SpHcfcwTcnnpiFJyBDqth592MTu
- cwb3z_iSbC.M9Vgb5W0WR0zsi8I3gpgiNUhyAZB4XHVW0JPY_v9rIUhZfaZIyBBvotJW9LoHFuEa
- eEYRJjcl5w7sSUs4Abi.fN0sWcDAkQZCURMbzv0IAoaLBrz2qGaWTMxHZfSj0vNCkCH1A_0W_Eq9
- LxmE54g428gF9pfqiHQ1lH._IZrO1tfYJPfY-
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="cpe0eBrg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1728943672; bh=NIhk5zxmPqsUqVGrXuHqmRSr0bOlHR4b1snNWPz6cxk=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=cpe0eBrgf04G3jvcHYu7sU4txmCiAAEwOD9EPHb9ZZECKHXXHc7Wg5rLcg0XYBrI68bXLVeHQvK1LETDYmgNWMBcGI5cOcNr47QLm/AF0PH1vzfGaJwxvXrZQzPmWGGKsYNcEDGIGmLuAilxCPiL0zJieBCD1gDDshDiEs1wPqXZxv/x9nJB8xyrYwzcSFVd5nEWKcenRt5jhJOVb8Tq2kkoDjz6UUgTMIPmKVHrcc4iheeS3QJYytF0rz+Rg3vpWXhhY0NDbq78FETpaO+ixeW9vbur6zh7sBOgMjHWGdddlTNSSXfjvhnHPcjmJ0XRgWzEUo61D13bhTONvdPdFA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1728943672; bh=lf4IcIhzGwCX4TfNz+SzHVn5E/ml81B25aAQ29MXLx0=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=EzCdq4lH5fycLhALrU8tqF3YOcCNPIocVWHGr7xcrWNTG0iV/4f7FOlMZQDYQE/W0Ri8ehe1MmejFerkrpDliLbi1cyf/8hDGHuwLrBLovnoEG60pbBLBd6twnhZJ2sho+XXnDkzp1oOpyJv79wUaqrhf4PEwcA7A/YVNB++CPvOxh4VGsC/WAVYmOx6ndLAHBGQtV0t/i+XnS2Wu9vePeYIyEwkyh11bodMLi2Mmc6l8UXWSXofJ7amzMl6xvHEpEMs6DIpelHJ3wxl+dWBfJ4rIYx6UEtmdG359FJDG+y0sLSweAk7q1xTpysGOj8eraF+lr+8vTj+ElfxXZnaDQ==
+X-YMail-OSG: cvr3Sp4VM1lcYvXeT3YTpZwAAhQMoLufVjwH6e0fenI.gm51rjevdUv5drGwtRS
+ jWo4DQNvXf8XQ7dx6f9lsaA5_G3fdZXGDN_0amxsV7tJV8ppgEMK3okvCW7MKyA3mX3OOZRK_4u5
+ AA4VoORW8yuGPCmL7tIXreirCtdeMCg8CdYPoOh.Uz7oG9l7LrdExTtyb1oSFCjcgPmQ2n2MgNl.
+ E8y6nWwP3XYjTVnvN5e8e2hwSCwtH41VMYy6SSSDbJuVOFTCtgIk4YDc3PHg4MhXKE5B7M1_yTws
+ wcA1A0itsedy7_uBm_n8vI6SoOqvy7AMY3R1EB8.TrIdUsSJhMT0lgUgAIZSfogYUoO6YBm4nOLy
+ hAd0OvO_YTym5xhI4dnwVvDB82wuAJ.Umg.aLXW1k5UFh4cmus28dAE.zdHROD1mHPtDsE0JqZNy
+ yt.VPpEQO8q6WdeYCiIXju4FTL5h2ayr2TS47LgnPPCc1kKJjK6_c_XvBmsezMl1fsCQ1ZQBtvYF
+ Kv0Me6G5eUzP6ndZiWfl3UwGYX4H6ZDmDHzWIAWDtR9w4Y13cXQbFGyAIjpvOz9Kh2y8I2GJ9QJ_
+ txffrHMK2dkhCoIjC2IqeIR2WIF3uOZ_8p.7mWDzpdHBh9t1ctKZpdMlq1XJs_gEmQbT57DdFfCW
+ tsIeJ6Z__xNjYq30O1os8S6n8_Z6GB9tlFDvhU4CcVUHL16XWhxFf2DJbiPYxwCppdTeAB1dypZr
+ Dcxvy.8USt43.Kb3ArV5yLJzMG8Cf5d_B4cPPxr2phX.JWQGxNLijKDsXsccllfiiV0FIX_c9FKJ
+ yP1mGL4fk.75QCgiiOmb2FBbj5xM8M8HF_iNUqTK1Tw_sPlFi13h7UckZHnmHqyfR7hzyMmnrtPa
+ OoFB6tnbx9Irr1ybn0JP8C31uc9Yc3s12mdwbB16WD_nJOejQnzCZAdthNXtqp4mYslTXqEaPwrS
+ aBflrqTIxSecg9isvqarfjrIP3BYX6BI0gcgqDQt7LtMfpqE2bmbVvZWI6ix6ycQQO.T13ir_R2T
+ _yMOdIVYGt9w4YDZDw2VDgVYBGYSkArTOZ_hiw6cx2MpUaNblutQwbSimW48WQR9oeR4Xkfz_Rrp
+ 5_fQEXvFScH8Xm3ZWmpWEsiQ55RwDhhDgSonvsEJjTu5BEsrQVLOnW16q.ETsIaOK_ibzTWS_Hty
+ lTkAgCK_eRNCgKbuWc0fPhz2QQKL5Nwkw4Nsn2PeHHoxNv8UVNTv967D9ORiR1m1l1sfY.kn61SH
+ BEj8aRoIb9Ki3UNo9bUdfpcQtV0eqOGbRQM1LmdnsEy8kEwXcABFwB2D627Gv21yTtOts1ZtsXng
+ dHnEUvpcDCQtr6Ylw8cG3H9DXsUntSZqk1YtDFmOLAtWKp62lqr3B1PGkNHl7MwKGAXlgR0bMm2V
+ 06SkTE4rNbw0XTX2QvYB8HY.VfycGG9lfwlpoM20K06Pt6Z4mjQAL8KTfWySncay9E8GdqLfn2cZ
+ KV7hjQrygEcLzB1.aBko5lcNYY6ttnDXXsfnDBcvZ91.LkD6JAsztyQy_jcn9kcNtkWFaO5t_IEk
+ Uf0zQLgG9B9qEd0R4GEhNX_YiKnYpR1tae4r7TH7h.F8Wv8hkI09rZCwv1JM2Hgk393HaWCV3YSk
+ LCOcnt3aG2lPFJtO7SR1lveTXcFjOt7.4OomO.kv5sqGu50Oufuj4s0TGcjwwJWD0wVNzk0SFRtA
+ IJw2qpMB0Ph3ftW.N.cD436XL1ejhrTY_nQHUvl.sHI04GHGXVMbUT_fTCmT95bIihLD1knLC5Iq
+ MXjyrWGIrhEIg4Tjnmt1uSpTvesmsK6Tr55N1wXmidhBVy3hyHJRGr_qHK7QDUZn.rz8vvu3.t5d
+ wkkUOxHiVN6CScpWVV5lT7D0yaBoM8W5cQvQqIP6qZiFY15s5l4V5SZrLeV92f88ajg5Qctmp5OK
+ IDTYkfUFR_Lts5V5I8DIBJK1yyGk1yGFA3z02C41PW6jCUgqKW8TrHuVLsFBWuNbccnMqeNbR78w
+ kK.Tr7lt5LmTzG7r1daPl1i1H0UJA2IHK1OmUrV3WgTFsCjTOTu_rjQHxR5OGu3tfqgiREyJTZvX
+ yz6klq.yrfNU4oNwCagTgPrYaWAw9sq5zw7BUKFOsXuUlSz_ZdnpiWPyT7Xdp_r4on.xR2uHPxsQ
+ giCzpvbOU.Nf2oavgy_Ouvt0W2phOJ9Dt60AxTeN1389wvkKkOiaqdZzl9FDS5n.azxZpU9BDEZG
+ 4I8IVr.ypyVv6WQ72FSxCIUdFoOShJqWcXSaTHNSPMK6hpeM0F9_n
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: a37fc936-bb74-4934-b98a-87094d092ab8
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic305.consmr.mail.ne1.yahoo.com with HTTP; Mon, 14 Oct 2024 22:04:36 +0000
-Received: by hermes--production-gq1-5dd4b47f46-prs6p (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 8cd769ecc3402b59fcfb097dfca91800;
-          Mon, 14 Oct 2024 21:54:26 +0000 (UTC)
-Message-ID: <88bc4a97-562d-4cb2-ac12-a7549cb20583@schaufler-ca.com>
-Date: Mon, 14 Oct 2024 14:54:24 -0700
+X-Sonic-ID: 5614bb35-af07-42eb-8e26-25b7795ce2fc
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic305.consmr.mail.ne1.yahoo.com with HTTP; Mon, 14 Oct 2024 22:07:52 +0000
+Received: by hermes--production-gq1-5dd4b47f46-wrqn7 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID b405248f52c8435ef29b2aae932f1528;
+          Mon, 14 Oct 2024 21:47:34 +0000 (UTC)
+Message-ID: <0e96fbdf-6dba-48a1-8758-0d60f6bad842@schaufler-ca.com>
+Date: Mon, 14 Oct 2024 14:47:32 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -74,51 +73,58 @@ Cc: paul@paul-moore.com, linux-security-module@vger.kernel.org,
 References: <20241014151450.73674-1-casey.ref@schaufler-ca.com>
  <20241014151450.73674-1-casey@schaufler-ca.com>
  <20241014212937.GA1100381@mail.hallyn.com>
- <20241014213534.GB1100381@mail.hallyn.com>
 Content-Language: en-US
 From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20241014213534.GB1100381@mail.hallyn.com>
+In-Reply-To: <20241014212937.GA1100381@mail.hallyn.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-Mailer: WebService/1.1.22806 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On 10/14/2024 2:35 PM, Serge E. Hallyn wrote:
-> On Mon, Oct 14, 2024 at 04:29:37PM -0500, Serge E. Hallyn wrote:
->> On Mon, Oct 14, 2024 at 08:14:44AM -0700, Casey Schaufler wrote:
->>> LSM: Replace secctx/len pairs with lsm_context
->>>
->>> Several of the Linux Security Module (LSM) interfaces use a pair of
->>> pointers for transmitting security context data and data length. The
->>> data passed is refered to as a security context.  While all existing
->>> modules provide nul terminated strings, there is no requirement that
->>> they to so. Hence, the length is necessary.
->>>
->>> Security contexts are provided by a number of interfaces. The interface
->>> security_release_secctx() is used when the caller is finished with the
->>> data. Each of the security modules that provide security contexts manages
->>> them differently. This was safe in the past, because only one security
->>> module that provides security contexts is allowed to be active. To allow
->>> multiple active modules that use security contexts it is necessary to
->>> identify which security module created a security context. Adding a third
->>> pointer to the interfaces for the LSM identification is not appealing.
->>>
->>> A new structure, lsm_context, is created for use in these interfaces.
->>> It includes three members: the data pointer, the data length and
->>> the LSM ID of its creator. The interfaces that create contexts and
->>> security_release_secctx() now use a pointer to an lsm_context instead
->>> of a pointer pair.
->>>
->>> The changes are mostly mechanical, and some scaffolding is used within
->>> the patch set to allow for smaller individual patches.
->> Hey Casey,
+On 10/14/2024 2:29 PM, Serge E. Hallyn wrote:
+> On Mon, Oct 14, 2024 at 08:14:44AM -0700, Casey Schaufler wrote:
+>> LSM: Replace secctx/len pairs with lsm_context
 >>
->> so this set is not bisectable.  Applying just patch 1 will no compile, right?
->> What is your plan for getting past that?  Squash some or all of them into one?
->> Or are you planning a wider reorg of the patches down the line, once the
->> basics of the end result are agreed upon?
-> Sorry, I may have misread that.  secids make my eyes glaze over.
+>> Several of the Linux Security Module (LSM) interfaces use a pair of
+>> pointers for transmitting security context data and data length. The
+>> data passed is refered to as a security context.  While all existing
+>> modules provide nul terminated strings, there is no requirement that
+>> they to so. Hence, the length is necessary.
+>>
+>> Security contexts are provided by a number of interfaces. The interface
+>> security_release_secctx() is used when the caller is finished with the
+>> data. Each of the security modules that provide security contexts manages
+>> them differently. This was safe in the past, because only one security
+>> module that provides security contexts is allowed to be active. To allow
+>> multiple active modules that use security contexts it is necessary to
+>> identify which security module created a security context. Adding a third
+>> pointer to the interfaces for the LSM identification is not appealing.
+>>
+>> A new structure, lsm_context, is created for use in these interfaces.
+>> It includes three members: the data pointer, the data length and
+>> the LSM ID of its creator. The interfaces that create contexts and
+>> security_release_secctx() now use a pointer to an lsm_context instead
+>> of a pointer pair.
+>>
+>> The changes are mostly mechanical, and some scaffolding is used within
+>> the patch set to allow for smaller individual patches.
 
-They make my skin crawl, and have since I first saw them circa 1986.
-I would love to eradicate them, but they're like bad tattoos, showing
-up in embarrassing places for which removal would be too painful.
+The next lines in cover letter are:
 
+	This patch set depends on the patch set LSM: Move away from secids:
+		https://github.com/cschaufler/lsm-stacking.git#lsmprop-6.12-rc1-v4
+
+	https://github.com/cschaufler/lsm-stacking.git#context-6.12-rc1-v2
+
+
+> Hey Casey,
+>
+> so this set is not bisectable.  Applying just patch 1 will no compile, right?
+> What is your plan for getting past that?  Squash some or all of them into one?
+> Or are you planning a wider reorg of the patches down the line, once the
+> basics of the end result are agreed upon?
+
+You shouldn't have any trouble with the lsmprop patches in place.
+
+>
+> -serge
+>
