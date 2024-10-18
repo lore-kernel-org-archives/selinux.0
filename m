@@ -1,140 +1,126 @@
-Received: from mail-ot1-f52.google.com (mail-ot1-f52.google.com [209.85.210.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73AEF2022C1
-	for <selinux@vger.kernel.org>; Fri, 18 Oct 2024 15:32:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.52
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 40A62188CB1
+	for <selinux@vger.kernel.org>; Fri, 18 Oct 2024 17:22:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729265542; cv=none; b=ZpzPuVy1VzsQADlEAJzHdr/VMS4ZN/yaS66qXA8RRKrIpkTg5/dim5d4viffqw+cHcZ7tdTs7Fu6j+wuTAReFsWZKk5ZPBLBiDoAaY6o3LghNrp5XKyX9d8vaASaihOHnCz9/Wo7Qlsh1Vo5aiXSOwE/2KJcas9ovwEPKUBOT70=
+	t=1729272141; cv=none; b=Ca1ic+Jz4kVCRfF/1Wjxjkw3zVu8RQR77iyXiKyxoAHo6cWZJ1sfThm9cYYGHSlgojdWKkRs+Mj2ccErMzwwW8wjXh/ggIB2d3y8vhcpGcIXBtfg3Y24VqwVToC6dEsg8PSbbochI3d3plQ03vRC82pGPogsnDTp2L49L+ghJWY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729265542; c=relaxed/simple;
-	bh=RNKet7t1hYT+xNj0Jz4RMPwSbCurr2T9K3R9ZIgDEjU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MPcIIdx0fZ0STcJlT0c9eBbir92RtY9EeJjvp/lWaQav4FM39Qfzno8tbIn0BWwB+3v4hqSfudkR8kRmH3pSdW/tKcJHod45Y4QkOKyXELhrTuC59gqPzEeVnQyofBeR/bDUA0N0QBsuaou/bCURmxxlryDYpHXFCIcWS+m9aTc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=W3IbzvNz; arc=none smtp.client-ip=209.85.210.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	s=arc-20240116; t=1729272141; c=relaxed/simple;
+	bh=fqi3DO6O2zRzwAqp+2MTKeBFIAJ0GDirD3cpXzna9Es=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=cX9NGu+s3qbe2XrOECxaiQQLS0Qd9nY3X6z/6vaYTvmV937T4vu2HpjLqn5Gfh8QMxYOdNnOhnmr3vAIzuCi3wDZn7/+rKdHXUt5a3NV9ev1MDPt58rGgtfL3XyhrIzqVuJazCoR8i9lO6dQc4H7u1sq/v/Fmwde/eqYN/Wzwf8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=JMWg3eBG; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="W3IbzvNz"
-Received: by mail-ot1-f52.google.com with SMTP id 46e09a7af769-7180cc146d8so1184887a34.0
-        for <selinux@vger.kernel.org>; Fri, 18 Oct 2024 08:32:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1729265539; x=1729870339; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vHUnrGICmAPGHQYF6/N572r4+c4u84iqn5uYp+PkKXM=;
-        b=W3IbzvNz9nhGeqwi6ccwb5nJL/nqjnTvzyK5IV06HjAv9PmuHq/fyoMIxVu04XZGNZ
-         z+5hcXy2b1pOBWZSts9njPrI7ZOrnGAZyJQfry5n5BmWpBbuKqTh3uPTv8zHUJZ1u6F2
-         AE/u6kMBuYtD6tyZcGSN7Vc8Kob7YIzXhl/QwzIqR6TycFSvSlMthi1HRo+EJ4DKE8yP
-         0sU+jtb40ggOxGzVCzAQOM67ZxEN/rWg+0S2n/4TpAL3KJ7vncwA94JPUDnAyBu2DJO3
-         UjA/jNzOhEYPn5E7jGHNyInwwsgs/Q6mYwVBtqjtkp2E6nOFneQpvSmbnkQ/Qb73/3rr
-         rfLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729265539; x=1729870339;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vHUnrGICmAPGHQYF6/N572r4+c4u84iqn5uYp+PkKXM=;
-        b=G2i+1p1wc7TcVCXqKIN8nW2SecNuVUiNQ0WYk19vQu2WMVActnUBrxly+w8JtgZ9If
-         cIU1C2GvRlKto3TyvAuDGAtSNQfapS0RwDECrgaqzk/hOtYSWeuH4dSzP350QC1YFTdG
-         TGNXjYtK6K93SZI4Yu7e/P3NAIY/vL3+DN+PdbvT1qdDnwaKQ2fyb62fJCFSKkhg4/Ly
-         24QDWPTm0gfJfZKyOO4UXGIwSWqD3z7VwCfATC8b/54ISvtxRXS7O5Jwi8cYZCN83Y1h
-         gAyzhOxv67UkVpncnpouISZqtpr+d7hSv3msk4yY9DJUwRLaDic38sdtK5DgiNqMwybc
-         nojw==
-X-Gm-Message-State: AOJu0YzXGZDgDx+SsQ/QodjGQ8iOCUyO+YX5EJ8EXlJWwkT8Ft6iXdg4
-	wFfAp/OZDgCEDombe3O3CPFUatZ32lYNsRYhGLsb/ADf5FLNe+IpnzDZrss6Yglrpunty3x8LYp
-	w+HWL5kj/BN90PII2OY5LxImmxyo=
-X-Google-Smtp-Source: AGHT+IHhzebRZq+UkN+X2PzPxgAaU7uWmgyq4OD1l38YawG0Ru9DOj4fXJ8rDb2Q6VYgojDVh4bkZgGZKe0OhuxnV60=
-X-Received: by 2002:a05:6830:6dc7:b0:713:7415:3c61 with SMTP id
- 46e09a7af769-7181a84f70amr2395357a34.9.1729265539471; Fri, 18 Oct 2024
- 08:32:19 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="JMWg3eBG"
+Received: from [192.168.1.211] (ip68-106-0-169.ph.ph.cox.net [68.106.0.169])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 92BB520FEB69;
+	Fri, 18 Oct 2024 10:22:19 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 92BB520FEB69
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1729272139;
+	bh=kkmNYKuXSn2sl+2tAD5aWKbTza6Mo3zb1yf1eBHYyj0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=JMWg3eBG1+bcZs62gMZ1CIAjVVYfHHWkniMQBnxw6OHMUesyhCm4viF6KWGVwCNf0
+	 XvTy71JXU0uTFRXzwtMPO+S8QbSxs8V/hk4cOeXDpeW6+bLR5IIHf/p2wD8WuH5j8Q
+	 eaw84jYHMLTwgpW43SqkMD0rSHjyhOLCfhZ3tkP8=
+Message-ID: <26bb6b4c-6a5f-49c4-a9eb-9acaa8e2e1e4@linux.microsoft.com>
+Date: Fri, 18 Oct 2024 10:22:18 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240408153006.69840-1-cgoettsche@seltendoof.de> <CAEjxPJ4MRkgTSjc1uzASZzcvCNgnkcpZW-QHCYU7sMHqVQB8Eg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4MRkgTSjc1uzASZzcvCNgnkcpZW-QHCYU7sMHqVQB8Eg@mail.gmail.com>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Fri, 18 Oct 2024 17:32:08 +0200
-Message-ID: <CAJ2a_DeVbO-8_UUvCk=OWY6s=rZnUpNR02nBA9r29XC0weRtOg@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/3] newrole: constant time password comparison
+User-Agent: Mozilla Thunderbird
+Subject: Re: selinux_set_callback for policy load not triggering
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Cc: SELinux <selinux@vger.kernel.org>
+References: <a79e0e6f-e83d-4b4b-a55c-3f2c20b93c83@linux.microsoft.com>
+ <CAEjxPJ4Yby2Y9mYf-mCaFy3cPZ-Ukzs6VCQER6uB0K_UeG=wUQ@mail.gmail.com>
+ <CAEjxPJ6vEf0kpOkVUcb0LY2u2svGt+8XRg_t3ywbnPa+nnY1GA@mail.gmail.com>
+Content-Language: en-US
+From: Matthew Sheets <masheets@linux.microsoft.com>
+In-Reply-To: <CAEjxPJ6vEf0kpOkVUcb0LY2u2svGt+8XRg_t3ywbnPa+nnY1GA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, 9 Apr 2024 at 19:56, Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Mon, Apr 8, 2024 at 11:31=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
-> >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > Perform the password hash comparison in a time constant way to avoid
-> > leaking the length of the identical prefix via a side-channel.
-> > Since only hashes are compared leaking the total length is non critical=
-.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> Should we just require PAM for newrole and be done with it?
 
-Since the shadow backend still works and seems to not to have a high
-maintenance cost, I would argue to keep it.
-Maybe one could stronger emphasize to use the PAM backend, via a note
-in the Makefile or a warning during compilation.
 
->
-> > ---
-> >  policycoreutils/newrole/newrole.c | 20 +++++++++++++++++++-
-> >  1 file changed, 19 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/policycoreutils/newrole/newrole.c b/policycoreutils/newrol=
-e/newrole.c
-> > index 5a1a1129..1e01d2ef 100644
-> > --- a/policycoreutils/newrole/newrole.c
-> > +++ b/policycoreutils/newrole/newrole.c
-> > @@ -338,6 +338,24 @@ static void memzero(void *ptr, size_t size)
-> >         }
-> >  }
-> >
-> > +static int streq_constant(const char *userinput, const char *secret)
-> > +{
-> > +       const volatile char *x =3D userinput, *y =3D secret;
-> > +       size_t i, u_len, s_len;
-> > +       int ret =3D 0;
-> > +
-> > +       u_len =3D strlen(userinput);
-> > +       s_len =3D strlen(secret);
-> > +
-> > +       if (u_len !=3D s_len)
-> > +               return 0;
-> > +
-> > +       for (i =3D 0; i < u_len; i++)
-> > +               ret |=3D x[i] ^ y[i];
-> > +
-> > +       return ret =3D=3D 0;
-> > +}
-> > +
-> >  /* authenticate_via_shadow_passwd()
-> >   *
-> >   * in:     uname - the calling user's user name
-> > @@ -383,7 +401,7 @@ static int authenticate_via_shadow_passwd(const cha=
-r *uname)
-> >                 return 0;
-> >         }
-> >
-> > -       ret =3D !strcmp(encrypted_password_s, p_shadow_line->sp_pwdp);
-> > +       ret =3D streq_constant(encrypted_password_s, p_shadow_line->sp_=
-pwdp);
-> >         memzero(encrypted_password_s, strlen(encrypted_password_s));
-> >         return ret;
-> >  }
-> > --
-> > 2.43.0
-> >
-> >
+On 10/18/2024 7:52 AM, Stephen Smalley wrote:
+> On Fri, Oct 18, 2024 at 10:44 AM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+>>
+>> On Thu, Oct 17, 2024 at 3:42 PM Matthew Sheets
+>> <masheets@linux.microsoft.com> wrote:
+>>>
+>>> Hi All,
+>>>
+>>> I am currently working on an update for dbus-broker to trigger reload of
+>>> its configuration whenever an SELinux policy load event is seen.
+>>>
+>>> For some background dbus-broker is comprised of two major elements the
+>>> launcher and the broker.  To trigger a config reload you can either send
+>>> a SIGHUP to the launcher or send a message to the launcher over dbus.
+>>> In most cases the launcher will be the brokers parent.
+>>>
+>>> Here is a link to my current PR:
+>>> https://github.com/bus1/dbus-broker/pull/379
+>>>
+>>> In this current state things work.  The broker will see the POLICY_LOAD
+>>> event and properly send a SIGHUP to its parent, but as David pointed out
+>>> my initial attempt at the fix is no good since there is no guarantee
+>>> that the brokers parent will be the launcher.
+>>>
+>>> My attempts at moving the callback registration into the launcher have
+>>> been less successful.  From what my debugging has told me is that the
+>>> selinux_set_callback is going through successfully and the function
+>>> pointer is correctly pointing to the callback function I define.  But
+>>> when I trigger a load_policy my callback function is never called.
+>>>
+>>> I am not familiar with how the callbacks in libselinux work under the
+>>> hood so I am unsure about what could be blocking them in this situation.
+>>
+>> Caveat: I haven't looked deeply so take this with a grain of salt (or two).
+>> There are generally two ways of discovering when policy has been reloaded:
+>> 1. Create and receive notifications on a SELinux netlink socket, or
+>> 2. Map the SELinux status page and poll it for updates to the policy seqno.
+>>
+>> Internally libselinux has switched to using the status page whenever
+>> the kernel supports it since doing so is more efficient (no syscall
+>> required to read it once you've mapped the page). As an aside, the
+>> status page is also more easily "virtualizable" for SELinux namespaces
+>> since it is per-SELinux state/namespace already (the netlink socket
+>> can also be virtualized via a separate network namespace if/when my
+>> namespace patches land but that requires you to unshare the network
+>> namespace too).
+>>
+>> As far as libselinux APIs are concerned for the status page, you can
+>> check for a policy reload or enforcing mode change by calling
+>> selinux_status_updated() at any time after having done an initial
+>> selinux_status_open(). selinux_status_updated() will call any
+>> registered callbacks if enforcing mode or policy was changed, and, it
+>> returns an indicator as to whether anything changed since the last
+>> time it was called.
+>>
+>> Or if you choose to use the netlink socket and want to use the
+>> libselinux APIs, you'd call avc_netlink_acquire_fd() to create and
+>> take ownership of the SELinux netlink socket and then poll/select on
+>> it for notifications, and upon receiving them, calling
+>> avc_netlink_check_nb() to process them, including calling your
+>> callbacks.
+>>
+>> But you have to do one of those two things in order for your callback
+>> to be invoked. I assume dbus and dbus-broker are already doing one of
+>> them which is why it works for them but not for the launcher.
+> 
+> Also, both avc_has_perm*() and selinux_check_access() internally call
+> selinux_status_updated() to ensure that they are using the latest
+> enforcing mode and policy. So anything using those libselinux
+> functions would get the status update for free.
+
+Just to close the loop.  With the info above I was able to trace down
+that selinux_status_updated is being called by when the broker calls
+selinux_check_access.  Thus triggering the callback.  The launcher has
+no such check access call.  Thanks for your help Stephen.
