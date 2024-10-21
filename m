@@ -1,152 +1,154 @@
-Received: from mail-yw1-f201.google.com (mail-yw1-f201.google.com [209.85.128.201])
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E0B31E201D
-	for <selinux@vger.kernel.org>; Mon, 21 Oct 2024 23:12:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E7351FEFC6
+	for <selinux@vger.kernel.org>; Mon, 21 Oct 2024 23:39:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729552336; cv=none; b=XdL7ZFBE7FsCC6jJ3UNfLH4jVn7BW5FRcgdJbduIiLBJ0bYxl67Ja3ZOtbPG3eVT0Kd+GpQNaiEtZefzzDgtJwgG+k9yVVRvVvvRqgrVpIbWja7vRPdspILHsfAge3fzHmatTe3Fg1NzN3bkEhy5gwhQH5IVTYo8gRKErnhr17I=
+	t=1729553992; cv=none; b=ZIxIlEvEoHIs+rZeLcSpUM1GNEasRHpjZF+dcqcHJugyLsRdfrKAiezjOvYVb6jT2llux4K1zAqgIzT2jlMVjvSTwj/+4BSOhs6aHgoDzKSgIIVMDCep0BR5Q2NbQNQpQhZBp0SYAnI9fWGMr821hm4SjRV76e+DSEiMeWxfLTM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729552336; c=relaxed/simple;
-	bh=xHVMoO4waU/DXtGrLBetMPKBcuPkwiSg96773y8cKSg=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=lTRbGkjk2qRKnENS0ET0CRVpfiyBukyJGbGvz4yTAba8OS78ij1xsUNelxVLZoA0TgpYkzaOcBA/VogM5XfOk4uDG2g/genfGGvnlvNZzmTD9wsT3sV3TF8hzMR/xD6ATIrTlCmUKS2KcUU1LTabjtm0HHBCe9eJFKGtzySnJss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=x9X0v1i3; arc=none smtp.client-ip=209.85.128.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
+	s=arc-20240116; t=1729553992; c=relaxed/simple;
+	bh=9Mjk+knGxo9nQGglniMu8WtjiPcCZiTfSPn+6KQqmgY=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=PASlkixFNKIxK52OcjxyfK2sPXPxj8uHO0+ZuGizQljpO9cq6DKqMfx3amtH3S6vyvcCRV4e9q9D1awBxpfd6a/0BgRepDy4CQXWBKY/PA84lfRzSXaOIIfmseSyvisSr8ooeBvRyCWG/T8KSei16OWk/iWwYsbTye0Vn5JaRJ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=B4FRDqRK; arc=none smtp.client-ip=209.85.222.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="x9X0v1i3"
-Received: by mail-yw1-f201.google.com with SMTP id 00721157ae682-6e35a643200so103421797b3.0
-        for <selinux@vger.kernel.org>; Mon, 21 Oct 2024 16:12:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="B4FRDqRK"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-7b158542592so293069985a.2
+        for <selinux@vger.kernel.org>; Mon, 21 Oct 2024 16:39:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1729552330; x=1730157130; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=umUR3vHeRaPpH2DSarytnsjxJRG2JZV+lU20lccer1s=;
-        b=x9X0v1i3JFv/aNWnXBUXDryVKTYkZUstJH0rJ4ybbo24s0Vjem0G4L7i/OHAYmPZkF
-         R/y4i/U634HwCWgeJ3rEHrbMDyHgXnC/ecDmGWSfqjeEWS/AS+jfAKIPKb/n/OK3MbzU
-         Kaqt94RC7FTHQp5wqqiXJwR39503XltW60tQxN+xLBFqJaoZ+blawr01QtK5j9HE4TpL
-         16QIWC6UitCBI96Aa1oorsCgkuXWLcMAIsC38OJrj+5LO+di/us+nDifhQM0OXYn69OU
-         KIkAfFhB9Nx/7Eazw+gcDq+JNibPw/WQBTi3zMlssetQayVl1y262PNydDjLI/k74S47
-         mVYQ==
+        d=paul-moore.com; s=google; t=1729553989; x=1730158789; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5e2lRCBhF/0lrzI1nrw+s1eH3A9IyPYDFt7tmHKeZEQ=;
+        b=B4FRDqRKcaXEsQ//LBESnkawFmz/cI2L8teK23drofWiu86po54i+Jmpgw0/dFNdze
+         YQCu1kUfCGmgBgvwV0yAepGWwGWwfxf3x/ebdrE/kRYvCytocfehOmw+dpLludhxI2DQ
+         D/BKYp5q5VHz9Vo6sw2ITl5PvT2Dm3Xc0kn92xekAY2E+uMIO6eTKI60FcFQO4eGUT31
+         OUZwJkyBDdfmV8HOqqyg8UXmc/5vzIFEESga7lB0uJWyQCydBW3U3KVwd3+e2E4LQgQ7
+         ITjgpVIgQ/2d+WElpNBfZK/TN54B6wNxU59bYyX3G6N2H5WSfuZHVcD/30USnOEkkyY7
+         15rA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729552330; x=1730157130;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=umUR3vHeRaPpH2DSarytnsjxJRG2JZV+lU20lccer1s=;
-        b=F/kApcPW6wCt6suPCa5PbU8lz4Fh+Scnzx0oxK0ylp4ME6Lo21BOnVT9fo4iyn4OWN
-         tp1QOCFme5hQyN19EU4byBfy/Oe+oPDFVUb5frQ0Af4ZCadQ6HuJamFIZFulbqL4G7Tq
-         Q2EIrdCDhfx6X86pUty7iTRdoF+0Hz7SrZmrQZfa73LJ6cVlveLoye7ZFHDoirnC/EcZ
-         EaL3VFrU4DvV+Rh4tLJGyijyjMMM9C7Tbl3PgzMV468nnp1h65SAlk4KwRe6mrqODDk4
-         ppRDFiio1TbDJchAXA3c1Rrg0fyvJQNT49yK1MY0rHs40cC+HTcO1wlDFbXYJpDgCWCH
-         r7gA==
-X-Forwarded-Encrypted: i=1; AJvYcCX9dTxX+Kj/5pm0fGGEb79U2hKjye2LbDP95+y2/j4KrOJoSAiOMY3dmxcq7zNCs3WxX4dP5QQN@vger.kernel.org
-X-Gm-Message-State: AOJu0YzxdipvM9SFzfQYM3SKzwX5/vnZqqBSEVePOQ4Yy6IUvluWunfF
-	fxIcAEtMIT5Agkk8fuDcCidaMDtS+ufbVh7B/vSb6Gwz1335WxIzYkSbk/Hcj0IKaMKK4YVC3A=
-	=
-X-Google-Smtp-Source: AGHT+IGNwbJE4DS4y57UJRDt2qgfgZb/KQokrazWwd/XbMmaEzVRWFyU4mEFISXfXhi6ALUkqRhA3rLtvQ==
-X-Received: from tweek-syd.c.googlers.com ([fda3:e722:ac3:cc00:b7:3870:c0a8:26])
- (user=tweek job=sendgmr) by 2002:a05:690c:c08:b0:62c:f6fd:5401 with SMTP id
- 00721157ae682-6e5bfd57cbemr931137b3.6.1729552330500; Mon, 21 Oct 2024
- 16:12:10 -0700 (PDT)
-Date: Tue, 22 Oct 2024 10:12:01 +1100
+        d=1e100.net; s=20230601; t=1729553989; x=1730158789;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=5e2lRCBhF/0lrzI1nrw+s1eH3A9IyPYDFt7tmHKeZEQ=;
+        b=MjeOvC2Z9iWdiHdkErLTwlyYR7yp45TK+BabWjrzwdq7NsO1x1tTU6II4Jiyc5V8oJ
+         WtpdWQsGxNYyzWUZeiW6uF3USH3+KMfZtHAprqvMVj2BNvz53WjemANAHCNP7GwSXJ3L
+         59e45ndWav+WiAJgEiKl+KnOuSGDuIYHXrb51vbvzi6QQ8dpHQxa7UV/A1Jv2TqLYUJB
+         4wPOoL77BLdU3JYa78XwOBC16RoMhBYGH2TL58Nm68LCS+5S1lAakt8PeYNrZM3l9Z86
+         tVIeLweDtRo7W6Bx0JGNxE+jSk93KbjDsVIr7ksmR+3b0m0IYaAuD/PKYm07MHxO9YMc
+         Cs+Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVEd1yjy2viESIctg8oNvwjtSZPzIWrYQdQISh/5thSFAmeQrMOFFVM+kO44DDTN0GK0uEeE4Cz@vger.kernel.org
+X-Gm-Message-State: AOJu0YwNAyvTd+TQvssAlrKM5CeE0rln4v8oC691lKDWA4hue+DlWcz4
+	XoLrpkbEULNGYQgnxIwWy94kaUx/7QwusR5uNyG302MUS1sWq9qbT8E1QCPEzw==
+X-Google-Smtp-Source: AGHT+IGc+EQuKBMmGMWGtVywnHwWIVFIhDEjXA67LbbrFi385rmMBG2jWd5aax6vHPWRTUq/OlgvAA==
+X-Received: by 2002:a05:6214:44a1:b0:6cb:9b65:5c75 with SMTP id 6a1803df08f44-6cde15d2f09mr209558626d6.32.1729553989320;
+        Mon, 21 Oct 2024 16:39:49 -0700 (PDT)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6ce008fe843sm23160626d6.45.2024.10.21.16.39.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 21 Oct 2024 16:39:48 -0700 (PDT)
+Date: Mon, 21 Oct 2024 19:39:48 -0400
+Message-ID: <dad74779768e7c00d2a3c9bf8c60045d@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.47.0.105.g07ac214952-goog
-Message-ID: <20241021231201.2638151-1-tweek@google.com>
-Subject: [PATCH] libsepol: Support nlmsg xperms in assertions
-From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-To: stephen.smalley.work@gmail.com
-Cc: paul@paul-moore.com, brambonne@google.com, jeffv@google.com, 
-	selinux@vger.kernel.org, 
-	"=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20241021_1626/pstg-lib:20241021_1624/pstg-pwork:20241021_1626
+From: Paul Moore <paul@paul-moore.com>
+To: Casey Schaufler <casey@schaufler-ca.com>, casey@schaufler-ca.com, linux-security-module@vger.kernel.org
+Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net, linux-integrity@vger.kernel.org, netdev@vger.kernel.org, audit@vger.kernel.org, netfilter-devel@vger.kernel.org, linux-nfs@vger.kernel.org, Todd Kjos <tkjos@google.com>
+Subject: Re: [PATCH v2 1/6] LSM: Ensure the correct LSM context releaser
+References: <20241014151450.73674-2-casey@schaufler-ca.com>
+In-Reply-To: <20241014151450.73674-2-casey@schaufler-ca.com>
 
-commit ba7945a250c added support for nlmsg extended permissions in the
-policy. The assertion validation was not updated which lead to false
-positives when evaluated. The optimization update was also missing. Add
-support for the new extended permission for optimization and assertions.
+On Oct 14, 2024 Casey Schaufler <casey@schaufler-ca.com> wrote:
+> 
+> Add a new lsm_context data structure to hold all the information about a
+> "security context", including the string, its size and which LSM allocated
+> the string. The allocation information is necessary because LSMs have
+> different policies regarding the lifecycle of these strings. SELinux
+> allocates and destroys them on each use, whereas Smack provides a pointer
+> to an entry in a list that never goes away.
+> 
+> Update security_release_secctx() to use the lsm_context instead of a
+> (char *, len) pair. Change its callers to do likewise.  The LSMs
+> supporting this hook have had comments added to remind the developer
+> that there is more work to be done.
+> 
+> The BPF security module provides all LSM hooks. While there has yet to
+> be a known instance of a BPF configuration that uses security contexts,
+> the possibility is real. In the existing implementation there is
+> potential for multiple frees in that case.
+> 
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> Cc: linux-integrity@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: audit@vger.kernel.org
+> Cc: netfilter-devel@vger.kernel.org
+> To: Pablo Neira Ayuso <pablo@netfilter.org>
+> Cc: linux-nfs@vger.kernel.org
+> Cc: Todd Kjos <tkjos@google.com>
+> Reviewed-by: Serge Hallyn <sergeh@kernel.org>
+> ---
+>  drivers/android/binder.c                | 24 ++++++-------
+>  fs/ceph/xattr.c                         |  6 +++-
+>  fs/nfs/nfs4proc.c                       |  8 +++--
+>  fs/nfsd/nfs4xdr.c                       |  8 +++--
+>  include/linux/lsm_hook_defs.h           |  2 +-
+>  include/linux/security.h                | 35 +++++++++++++++++--
+>  include/net/scm.h                       | 11 +++---
+>  kernel/audit.c                          | 30 ++++++++---------
+>  kernel/auditsc.c                        | 23 +++++++------
+>  net/ipv4/ip_sockglue.c                  | 10 +++---
+>  net/netfilter/nf_conntrack_netlink.c    | 10 +++---
+>  net/netfilter/nf_conntrack_standalone.c |  9 +++--
+>  net/netfilter/nfnetlink_queue.c         | 13 ++++---
+>  net/netlabel/netlabel_unlabeled.c       | 45 +++++++++++--------------
+>  net/netlabel/netlabel_user.c            | 11 +++---
+>  security/apparmor/include/secid.h       |  2 +-
+>  security/apparmor/secid.c               | 11 ++++--
+>  security/security.c                     |  8 ++---
+>  security/selinux/hooks.c                | 11 ++++--
+>  19 files changed, 167 insertions(+), 110 deletions(-)
 
-Fixes: ba7945a250c0794837f94ee1fb124426166bbc6e
-Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
----
- libsepol/src/assertion.c | 16 ++++++++++++++--
- libsepol/src/optimize.c  |  5 +++++
- 2 files changed, 19 insertions(+), 2 deletions(-)
+...
 
-diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-index 3076babe..5e129883 100644
---- a/libsepol/src/assertion.c
-+++ b/libsepol/src/assertion.c
-@@ -110,6 +110,10 @@ static int check_extended_permissions(av_extended_perm=
-s_t *neverallow, avtab_ext
- 	} else if ((neverallow->specified =3D=3D AVRULE_XPERMS_IOCTLDRIVER)
- 			&& (allow->specified =3D=3D AVTAB_XPERMS_IOCTLDRIVER)) {
- 		rc =3D extended_permissions_and(neverallow->perms, allow->perms);
-+	} else if ((neverallow->specified =3D=3D AVRULE_XPERMS_NLMSG)
-+			&& (allow->specified =3D=3D AVTAB_XPERMS_NLMSG)) {
-+		if (neverallow->driver =3D=3D allow->driver)
-+			rc =3D extended_permissions_and(neverallow->perms, allow->perms);
- 	}
-=20
- 	return rc;
-@@ -142,6 +146,12 @@ static void extended_permissions_violated(avtab_extend=
-ed_perms_t *result,
- 		result->specified =3D AVTAB_XPERMS_IOCTLDRIVER;
- 		for (i =3D 0; i < EXTENDED_PERMS_LEN; i++)
- 			result->perms[i] =3D neverallow->perms[i] & allow->perms[i];
-+	} else if ((neverallow->specified =3D=3D AVRULE_XPERMS_NLMSG)
-+			&& (allow->specified =3D=3D AVTAB_XPERMS_NLMSG)) {
-+		result->specified =3D AVTAB_XPERMS_NLMSG;
-+		result->driver =3D allow->driver;
-+		for (i =3D 0; i < EXTENDED_PERMS_LEN; i++)
-+			result->perms[i] =3D neverallow->perms[i] & allow->perms[i];
- 	}
- }
-=20
-@@ -176,7 +186,8 @@ static int report_assertion_extended_permissions(sepol_=
-handle_t *handle,
- 			     node =3D avtab_search_node_next(node, tmp_key.specified)) {
- 				xperms =3D node->datum.xperms;
- 				if ((xperms->specified !=3D AVTAB_XPERMS_IOCTLFUNCTION)
--						&& (xperms->specified !=3D AVTAB_XPERMS_IOCTLDRIVER))
-+						&& (xperms->specified !=3D AVTAB_XPERMS_IOCTLDRIVER)
-+						&& (xperms->specified !=3D AVTAB_XPERMS_NLMSG))
- 					continue;
- 				found_xperm =3D 1;
- 				rc =3D check_extended_permissions(avrule->xperms, xperms);
-@@ -376,7 +387,8 @@ static int check_assertion_extended_permissions_avtab(a=
-vrule_t *avrule, avtab_t
- 				xperms =3D node->datum.xperms;
-=20
- 				if ((xperms->specified !=3D AVTAB_XPERMS_IOCTLFUNCTION)
--						&& (xperms->specified !=3D AVTAB_XPERMS_IOCTLDRIVER))
-+						&& (xperms->specified !=3D AVTAB_XPERMS_IOCTLDRIVER)
-+						&& (xperms->specified !=3D AVTAB_XPERMS_NLMSG))
- 					continue;
- 				rc =3D check_extended_permissions(neverallow_xperms, xperms);
- 				if (rc)
-diff --git a/libsepol/src/optimize.c b/libsepol/src/optimize.c
-index a38025ec..8a0b70fe 100644
---- a/libsepol/src/optimize.c
-+++ b/libsepol/src/optimize.c
-@@ -189,6 +189,11 @@ static int process_avtab_datum(uint16_t specified,
-=20
- 			if (x2->specified =3D=3D AVTAB_XPERMS_IOCTLDRIVER)
- 				return process_xperms(x1->perms, x2->perms);
-+		} else if (x1->specified =3D=3D AVTAB_XPERMS_NLMSG
-+				&& x2->specified =3D=3D AVTAB_XPERMS_NLMSG) {
-+			if (x1->driver !=3D x2->driver)
-+				return 0;
-+			return process_xperms(x1->perms, x2->perms);
- 		}
- 		return 0;
- 	}
---=20
-2.47.0.105.g07ac214952-goog
+> diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
+> index 1bc2d0890a9f..8303bbcfc543 100644
+> --- a/net/netlabel/netlabel_unlabeled.c
+> +++ b/net/netlabel/netlabel_unlabeled.c
+> @@ -1127,14 +1122,14 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd,
+>  		secid = addr6->secid;
+>  	}
+>  
+> -	ret_val = security_secid_to_secctx(secid, &secctx, &secctx_len);
+> +	ret_val = security_secid_to_secctx(secid, &ctx.context, &ctx.len);
+>  	if (ret_val != 0)
+>  		goto list_cb_failure;
+>  	ret_val = nla_put(cb_arg->skb,
+>  			  NLBL_UNLABEL_A_SECCTX,
+> -			  secctx_len,
+> -			  secctx);
+> -	security_release_secctx(secctx, secctx_len);
+> +			  ctx.len,
+> +			  ctx.context);
 
+Nitpicky alignment issue; please keep the arguments aligned as they
+are currently.
+
+> +	security_release_secctx(&ctx);
+>  	if (ret_val != 0)
+>  		goto list_cb_failure;
+>  
+
+--
+paul-moore.com
