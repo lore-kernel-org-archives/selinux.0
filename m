@@ -1,59 +1,59 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+Received: from mail-ua1-f46.google.com (mail-ua1-f46.google.com [209.85.222.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E7351FEFC6
-	for <selinux@vger.kernel.org>; Mon, 21 Oct 2024 23:39:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA3B01FF7AF
+	for <selinux@vger.kernel.org>; Mon, 21 Oct 2024 23:39:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729553992; cv=none; b=ZIxIlEvEoHIs+rZeLcSpUM1GNEasRHpjZF+dcqcHJugyLsRdfrKAiezjOvYVb6jT2llux4K1zAqgIzT2jlMVjvSTwj/+4BSOhs6aHgoDzKSgIIVMDCep0BR5Q2NbQNQpQhZBp0SYAnI9fWGMr821hm4SjRV76e+DSEiMeWxfLTM=
+	t=1729553994; cv=none; b=fVMcnTFZ1yNTOXzxM8WmsCaMKIIwCZ9xxQCFXMcudiVA7pT/97EUFpneiAAkFbTLFpj+7vngAVwgsPoMIHOIHb6eiL1YApi/Fzz6dF5WTO29/1kA5KcLxjMudcldxSGJoJJFH95DzZMVmMNkQOuGDLO39YqxnrIpAxhJfoZnbKM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729553992; c=relaxed/simple;
-	bh=9Mjk+knGxo9nQGglniMu8WtjiPcCZiTfSPn+6KQqmgY=;
+	s=arc-20240116; t=1729553994; c=relaxed/simple;
+	bh=NInB1ELQ1g4XSXdcmSTFZeS7lQkYq0qiMSkXS/J8G1g=;
 	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=PASlkixFNKIxK52OcjxyfK2sPXPxj8uHO0+ZuGizQljpO9cq6DKqMfx3amtH3S6vyvcCRV4e9q9D1awBxpfd6a/0BgRepDy4CQXWBKY/PA84lfRzSXaOIIfmseSyvisSr8ooeBvRyCWG/T8KSei16OWk/iWwYsbTye0Vn5JaRJ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=B4FRDqRK; arc=none smtp.client-ip=209.85.222.173
+	 References:In-Reply-To; b=IZAm1WS85S6IDpCUenWTCzJ2ral6hgetW0d2e8D3aVPV/VzRI4BB5nmE21rca1Pio7+W5VLDv8TgtRGt+ERJwPXik76puxSDdhMQmENIL45A33yU8aS22uRqH1WRszQns+/bRI5OCPnfKK6fdsfu1/EjtsMwppikuUCnYvtPBVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=b8hwkhcz; arc=none smtp.client-ip=209.85.222.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="B4FRDqRK"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-7b158542592so293069985a.2
-        for <selinux@vger.kernel.org>; Mon, 21 Oct 2024 16:39:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="b8hwkhcz"
+Received: by mail-ua1-f46.google.com with SMTP id a1e0cc1a2514c-84fe06fbdc6so1533046241.0
+        for <selinux@vger.kernel.org>; Mon, 21 Oct 2024 16:39:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1729553989; x=1730158789; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1729553991; x=1730158791; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=5e2lRCBhF/0lrzI1nrw+s1eH3A9IyPYDFt7tmHKeZEQ=;
-        b=B4FRDqRKcaXEsQ//LBESnkawFmz/cI2L8teK23drofWiu86po54i+Jmpgw0/dFNdze
-         YQCu1kUfCGmgBgvwV0yAepGWwGWwfxf3x/ebdrE/kRYvCytocfehOmw+dpLludhxI2DQ
-         D/BKYp5q5VHz9Vo6sw2ITl5PvT2Dm3Xc0kn92xekAY2E+uMIO6eTKI60FcFQO4eGUT31
-         OUZwJkyBDdfmV8HOqqyg8UXmc/5vzIFEESga7lB0uJWyQCydBW3U3KVwd3+e2E4LQgQ7
-         ITjgpVIgQ/2d+WElpNBfZK/TN54B6wNxU59bYyX3G6N2H5WSfuZHVcD/30USnOEkkyY7
-         15rA==
+        bh=sDWEE14Y4prwCb9Fzm1EENaaRq06/1PNnuTUtMOSfEo=;
+        b=b8hwkhczIuUS4MDTwG13WlmxeVODuqeDR2T1YxKCKiIcUtQsQFdXYY10kU3Mp3yosW
+         gVPDcBjkg9pAU92BOHHGcGI2qcVG5iZnD5pd3qn1Pq2phOL6XcV/tGK1PrjD2JZBmX/T
+         QHzBV3yUIVlvtoRiCQHxvbXm/PU+XTn8TBvB2+XXXFkfZZvb9fRknVxn6wShCN1LR+cG
+         J9ISacDDRM4z9zKmx6BNu+SXaPiglOp5lwzt3o9PBlvfvaSCcDJ7mLwflooWt3Snm0Ux
+         jZ0X1DJ/bxV0V+KvSan2pLMPyyFaK0bCNbuYU4jbykY/9zUReQvr/OPkfEHTUM+03eNq
+         q9MA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729553989; x=1730158789;
+        d=1e100.net; s=20230601; t=1729553991; x=1730158791;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=5e2lRCBhF/0lrzI1nrw+s1eH3A9IyPYDFt7tmHKeZEQ=;
-        b=MjeOvC2Z9iWdiHdkErLTwlyYR7yp45TK+BabWjrzwdq7NsO1x1tTU6II4Jiyc5V8oJ
-         WtpdWQsGxNYyzWUZeiW6uF3USH3+KMfZtHAprqvMVj2BNvz53WjemANAHCNP7GwSXJ3L
-         59e45ndWav+WiAJgEiKl+KnOuSGDuIYHXrb51vbvzi6QQ8dpHQxa7UV/A1Jv2TqLYUJB
-         4wPOoL77BLdU3JYa78XwOBC16RoMhBYGH2TL58Nm68LCS+5S1lAakt8PeYNrZM3l9Z86
-         tVIeLweDtRo7W6Bx0JGNxE+jSk93KbjDsVIr7ksmR+3b0m0IYaAuD/PKYm07MHxO9YMc
-         Cs+Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVEd1yjy2viESIctg8oNvwjtSZPzIWrYQdQISh/5thSFAmeQrMOFFVM+kO44DDTN0GK0uEeE4Cz@vger.kernel.org
-X-Gm-Message-State: AOJu0YwNAyvTd+TQvssAlrKM5CeE0rln4v8oC691lKDWA4hue+DlWcz4
-	XoLrpkbEULNGYQgnxIwWy94kaUx/7QwusR5uNyG302MUS1sWq9qbT8E1QCPEzw==
-X-Google-Smtp-Source: AGHT+IGc+EQuKBMmGMWGtVywnHwWIVFIhDEjXA67LbbrFi385rmMBG2jWd5aax6vHPWRTUq/OlgvAA==
-X-Received: by 2002:a05:6214:44a1:b0:6cb:9b65:5c75 with SMTP id 6a1803df08f44-6cde15d2f09mr209558626d6.32.1729553989320;
-        Mon, 21 Oct 2024 16:39:49 -0700 (PDT)
+        bh=sDWEE14Y4prwCb9Fzm1EENaaRq06/1PNnuTUtMOSfEo=;
+        b=wx69cTmVaq5fi8Mxm7R4XHDzOIa4RHrZZQgLUDAVWR74w2vsP2UzarBa2ftm64n4Un
+         SyDcdQDZ8SXqibQGy0ucd6+VCMux9ZK2yUzor/dqXmhvh5cp6psDt+3hFqEXRaC7b9Ba
+         EPX+jQr64vkml7CXUiXUdNy5S3Eqo9bC931aEbHLgfGWIJfvzrfKCkHZsWUFG3NOzjAy
+         LXOx06EihcX4TcRy9GWd0V8MN6d/vbB6ILlsHfv3X6S1JeIAFA3l6TpcmG6MfiheLP7e
+         5IxIguGb6Eh3BRHojbW5T/1F73YrxLZylnRsPJ6XzDZRZ018qJ64XwJ0ILNAhO3aQZU/
+         BFww==
+X-Forwarded-Encrypted: i=1; AJvYcCUwEAldLLrYGq6CseymjZkC4dBooeoxBexoVEsbCYR9N6Giq303lSDgOa7ZTsrSsLoQ+G/sJjjB@vger.kernel.org
+X-Gm-Message-State: AOJu0YwwsclpSU4INF2sEbkUn3MI9tPuuOWJhww0YRkbY7K9Tl580dCI
+	HxU96lLnjtEIVQFfANYFjP9WGYTmzp0CFopDq8aOuv/jtcQWhbQzUKQK1FhPKw==
+X-Google-Smtp-Source: AGHT+IFWWAbYXocHhlD1zYem9kRJwJmJqB2DCjjBRaGPSAY+7moTo2ts1qOtpARGMDwTWMEgN4Zm7g==
+X-Received: by 2002:a05:6102:2924:b0:4a4:8b30:53e with SMTP id ada2fe7eead31-4a742d5c725mr800271137.7.1729553991685;
+        Mon, 21 Oct 2024 16:39:51 -0700 (PDT)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6ce008fe843sm23160626d6.45.2024.10.21.16.39.48
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-460d3d69467sm23730721cf.75.2024.10.21.16.39.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Oct 2024 16:39:48 -0700 (PDT)
-Date: Mon, 21 Oct 2024 19:39:48 -0400
-Message-ID: <dad74779768e7c00d2a3c9bf8c60045d@paul-moore.com>
+        Mon, 21 Oct 2024 16:39:51 -0700 (PDT)
+Date: Mon, 21 Oct 2024 19:39:50 -0400
+Message-ID: <5b6addd938c9feae0b4df8f54d56f9f0@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -65,90 +65,74 @@ Content-Transfer-Encoding: 8bit
 X-Mailer: pstg-pwork:20241021_1626/pstg-lib:20241021_1624/pstg-pwork:20241021_1626
 From: Paul Moore <paul@paul-moore.com>
 To: Casey Schaufler <casey@schaufler-ca.com>, casey@schaufler-ca.com, linux-security-module@vger.kernel.org
-Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net, linux-integrity@vger.kernel.org, netdev@vger.kernel.org, audit@vger.kernel.org, netfilter-devel@vger.kernel.org, linux-nfs@vger.kernel.org, Todd Kjos <tkjos@google.com>
-Subject: Re: [PATCH v2 1/6] LSM: Ensure the correct LSM context releaser
-References: <20241014151450.73674-2-casey@schaufler-ca.com>
-In-Reply-To: <20241014151450.73674-2-casey@schaufler-ca.com>
+Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net
+Subject: Re: [PATCH v2 5/6] LSM: secctx provider check on release
+References: <20241014151450.73674-6-casey@schaufler-ca.com>
+In-Reply-To: <20241014151450.73674-6-casey@schaufler-ca.com>
 
 On Oct 14, 2024 Casey Schaufler <casey@schaufler-ca.com> wrote:
 > 
-> Add a new lsm_context data structure to hold all the information about a
-> "security context", including the string, its size and which LSM allocated
-> the string. The allocation information is necessary because LSMs have
-> different policies regarding the lifecycle of these strings. SELinux
-> allocates and destroys them on each use, whereas Smack provides a pointer
-> to an entry in a list that never goes away.
-> 
-> Update security_release_secctx() to use the lsm_context instead of a
-> (char *, len) pair. Change its callers to do likewise.  The LSMs
-> supporting this hook have had comments added to remind the developer
-> that there is more work to be done.
-> 
-> The BPF security module provides all LSM hooks. While there has yet to
-> be a known instance of a BPF configuration that uses security contexts,
-> the possibility is real. In the existing implementation there is
-> potential for multiple frees in that case.
+> Verify that the LSM releasing the secctx is the LSM that
+> allocated it. This was not necessary when only one LSM could
+> create a secctx, but once there can be more than one it is.
 > 
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> Cc: linux-integrity@vger.kernel.org
-> Cc: netdev@vger.kernel.org
-> Cc: audit@vger.kernel.org
-> Cc: netfilter-devel@vger.kernel.org
-> To: Pablo Neira Ayuso <pablo@netfilter.org>
-> Cc: linux-nfs@vger.kernel.org
-> Cc: Todd Kjos <tkjos@google.com>
-> Reviewed-by: Serge Hallyn <sergeh@kernel.org>
 > ---
->  drivers/android/binder.c                | 24 ++++++-------
->  fs/ceph/xattr.c                         |  6 +++-
->  fs/nfs/nfs4proc.c                       |  8 +++--
->  fs/nfsd/nfs4xdr.c                       |  8 +++--
->  include/linux/lsm_hook_defs.h           |  2 +-
->  include/linux/security.h                | 35 +++++++++++++++++--
->  include/net/scm.h                       | 11 +++---
->  kernel/audit.c                          | 30 ++++++++---------
->  kernel/auditsc.c                        | 23 +++++++------
->  net/ipv4/ip_sockglue.c                  | 10 +++---
->  net/netfilter/nf_conntrack_netlink.c    | 10 +++---
->  net/netfilter/nf_conntrack_standalone.c |  9 +++--
->  net/netfilter/nfnetlink_queue.c         | 13 ++++---
->  net/netlabel/netlabel_unlabeled.c       | 45 +++++++++++--------------
->  net/netlabel/netlabel_user.c            | 11 +++---
->  security/apparmor/include/secid.h       |  2 +-
->  security/apparmor/secid.c               | 11 ++++--
->  security/security.c                     |  8 ++---
->  security/selinux/hooks.c                | 11 ++++--
->  19 files changed, 167 insertions(+), 110 deletions(-)
-
-...
-
-> diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-> index 1bc2d0890a9f..8303bbcfc543 100644
-> --- a/net/netlabel/netlabel_unlabeled.c
-> +++ b/net/netlabel/netlabel_unlabeled.c
-> @@ -1127,14 +1122,14 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd,
->  		secid = addr6->secid;
->  	}
+>  security/apparmor/secid.c | 10 ++--------
+>  security/selinux/hooks.c  | 10 ++--------
+>  2 files changed, 4 insertions(+), 16 deletions(-)
+> 
+> diff --git a/security/apparmor/secid.c b/security/apparmor/secid.c
+> index 5d92fc3ab8b4..974f802cbe5a 100644
+> --- a/security/apparmor/secid.c
+> +++ b/security/apparmor/secid.c
+> @@ -122,14 +122,8 @@ int apparmor_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
 >  
-> -	ret_val = security_secid_to_secctx(secid, &secctx, &secctx_len);
-> +	ret_val = security_secid_to_secctx(secid, &ctx.context, &ctx.len);
->  	if (ret_val != 0)
->  		goto list_cb_failure;
->  	ret_val = nla_put(cb_arg->skb,
->  			  NLBL_UNLABEL_A_SECCTX,
-> -			  secctx_len,
-> -			  secctx);
-> -	security_release_secctx(secctx, secctx_len);
-> +			  ctx.len,
-> +			  ctx.context);
+>  void apparmor_release_secctx(struct lsm_context *cp)
+>  {
+> -	/*
+> -	 * stacking scaffolding:
+> -	 * When it is possible for more than one LSM to provide a
+> -	 * release hook, do this check:
+> -	 * if (cp->id == LSM_ID_APPARMOR || cp->id == LSM_ID_UNDEF)
+> -	 */
+> -
+> -	kfree(cp->context);
+> +	if (cp->id == LSM_ID_APPARMOR)
+> +		kfree(cp->context);
 
-Nitpicky alignment issue; please keep the arguments aligned as they
-are currently.
+Should we set cp->context to NULL too?  One could argue that it's an
+unecessary assignment, given the cp->id checks, and they wouldn't be
+wrong, but considering the potential for a BPF LSM to do things with
+a lsm_context, I wonder if resetting the pointer to NULL is the
+smart thing to do.
 
-> +	security_release_secctx(&ctx);
->  	if (ret_val != 0)
->  		goto list_cb_failure;
+This obviously applies to the SELinux code (below) too.
+
+>  }
 >  
+>  /**
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 79776a5e651d..b9286c2c5efe 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -6640,14 +6640,8 @@ static int selinux_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
+>  
+>  static void selinux_release_secctx(struct lsm_context *cp)
+>  {
+> -	/*
+> -	 * stacking scaffolding:
+> -	 * When it is possible for more than one LSM to provide a
+> -	 * release hook, do this check:
+> -	 * if (cp->id == LSM_ID_SELINUX || cp->id == LSM_ID_UNDEF)
+> -	 */
+> -
+> -	kfree(cp->context);
+> +	if (cp->id == LSM_ID_SELINUX)
+> +		kfree(cp->context);
+>  }
+>  
+>  static void selinux_inode_invalidate_secctx(struct inode *inode)
 
 --
 paul-moore.com
