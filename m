@@ -1,126 +1,109 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 40A62188CB1
-	for <selinux@vger.kernel.org>; Fri, 18 Oct 2024 17:22:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mail-vs1-f41.google.com (mail-vs1-f41.google.com [209.85.217.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A7491E573E
+	for <selinux@vger.kernel.org>; Mon, 21 Oct 2024 17:35:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729272141; cv=none; b=Ca1ic+Jz4kVCRfF/1Wjxjkw3zVu8RQR77iyXiKyxoAHo6cWZJ1sfThm9cYYGHSlgojdWKkRs+Mj2ccErMzwwW8wjXh/ggIB2d3y8vhcpGcIXBtfg3Y24VqwVToC6dEsg8PSbbochI3d3plQ03vRC82pGPogsnDTp2L49L+ghJWY=
+	t=1729532122; cv=none; b=YuQ1yoWO2/MBzEAimWFNEWSyyKLcVZJmtf5H2GVEV5lH44seqdxZtYSjOMYHQY9xHFipbgTrpNlHB91BN9T0Y67AC15JFhJMYzvzD4pWj9Zeh+/fbckJNJIr8OZHK3e98+8kdOYmzMZwvTQLaW9ObWKgAAnMgXV2o9MisKoX1lY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729272141; c=relaxed/simple;
-	bh=fqi3DO6O2zRzwAqp+2MTKeBFIAJ0GDirD3cpXzna9Es=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cX9NGu+s3qbe2XrOECxaiQQLS0Qd9nY3X6z/6vaYTvmV937T4vu2HpjLqn5Gfh8QMxYOdNnOhnmr3vAIzuCi3wDZn7/+rKdHXUt5a3NV9ev1MDPt58rGgtfL3XyhrIzqVuJazCoR8i9lO6dQc4H7u1sq/v/Fmwde/eqYN/Wzwf8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=JMWg3eBG; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1729532122; c=relaxed/simple;
+	bh=NixG2MqnSZWvXZAnOW0XgHgg9coCJ/+3XNAkUa3oMzw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nDqWvAjKHGrf5FsnuJd8CZhjCFxKlp9VsnqQYizsgdbv+PKNVxFZ/+tkLQBvpH9k9ZNtd/5m/Jbhot4syOa3vQtDOPuZhhg+OcXRKUo/Kp4JNaSUMB07+aS1DBJJnglE31duRXAr7lPhnffgToMyJGYIRJybr+OHt1oYQUJnLQY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IA8JkVLy; arc=none smtp.client-ip=209.85.217.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="JMWg3eBG"
-Received: from [192.168.1.211] (ip68-106-0-169.ph.ph.cox.net [68.106.0.169])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 92BB520FEB69;
-	Fri, 18 Oct 2024 10:22:19 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 92BB520FEB69
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1729272139;
-	bh=kkmNYKuXSn2sl+2tAD5aWKbTza6Mo3zb1yf1eBHYyj0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=JMWg3eBG1+bcZs62gMZ1CIAjVVYfHHWkniMQBnxw6OHMUesyhCm4viF6KWGVwCNf0
-	 XvTy71JXU0uTFRXzwtMPO+S8QbSxs8V/hk4cOeXDpeW6+bLR5IIHf/p2wD8WuH5j8Q
-	 eaw84jYHMLTwgpW43SqkMD0rSHjyhOLCfhZ3tkP8=
-Message-ID: <26bb6b4c-6a5f-49c4-a9eb-9acaa8e2e1e4@linux.microsoft.com>
-Date: Fri, 18 Oct 2024 10:22:18 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IA8JkVLy"
+Received: by mail-vs1-f41.google.com with SMTP id ada2fe7eead31-4a47d1a62bdso1126274137.0
+        for <selinux@vger.kernel.org>; Mon, 21 Oct 2024 10:35:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1729532119; x=1730136919; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=18ANe5LIsMWTXO2qEjSmhQCNfmADHEfcpR5+SmldDsA=;
+        b=IA8JkVLyOt35W5VbPXksNLqyYR4BHnt+yc/n06cJZOqQwdgHiaQftJHt4344Obx1UZ
+         nmWdbT2RyBJjaPpshAAllrB1yeM3ilB4VFagNNJJT8ajFFmk2pBrW9wr+hXXDXho+uHR
+         sfV8iRxMhTrcF5zONESXvs9NqeNq8YIFEk7B0StXJsEW73aorrnzDtPZtyDpF4bA0uho
+         4jN251rHLkbTE+wp6uJkeEnQlZiSmvVcrIAZN4IAx8k31LHb0LHdmBJwGg/3kEysNHP5
+         SZpx8tA2v4FFHZ0R9NrEdNXMdpTuBUwRezh9kjCDFXd2bc8YmIOQAWt7lko2WymKcGXc
+         Qy9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729532119; x=1730136919;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=18ANe5LIsMWTXO2qEjSmhQCNfmADHEfcpR5+SmldDsA=;
+        b=AaPUFKncFJJs2Ewc0u/H6lODabNVb9BsQOwPE3MIDYZshwZDtoC7XVwF1aq0Bbt2Yp
+         DcqJoliAv3ZHb7Sw4jWNytOBRENdDtEQE6RnPC2E7gtgkv7aPsfsGlwky5p+nGbUUbur
+         hzJkwRgIs6F17Y41D5/+tEu3hatC2Ox08TTJ8d03XCw2FqBBW/NU2wDW/RZ7iY+T6Dvo
+         oe79VEpfGbwwCYH5BbqkMhocMtZ0vbPYw1QI6379v+qKlcPV47xMl44ih6wv7i5n9Q9i
+         14pjO+9trcMFZuws30cW0ASHfL3nXjwtoa62KQ2xn7ancXK7Tt9Njq0ujnbzpGGI2EiE
+         ck8A==
+X-Gm-Message-State: AOJu0YyLL5wm8J0tUZzGVg54PASQQbL2GBwMi4OrBigDOh6Z9FzjhciB
+	RzOrM2VTl+OGikRAaPzs0IkNS+M96R6TTHjJJa63Dc76NOcHUaMlcrU65zEGtKQZLwuZe2eiQlN
+	VL1wEi6AQZICOo8GlYqqzkCX7qGQ=
+X-Google-Smtp-Source: AGHT+IFpKIM7Z2Xf84vJ3tRgflDARnOa7wa7yUPX5bmtPE6wdfUUKPcPaCLUFt4xYMVhgfv2SAJmrAZoNGTE3mWGKwA=
+X-Received: by 2002:a05:6102:5112:b0:4a4:87f8:f414 with SMTP id
+ ada2fe7eead31-4a5d6aa0ecemr8490068137.6.1729532118713; Mon, 21 Oct 2024
+ 10:35:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: selinux_set_callback for policy load not triggering
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: SELinux <selinux@vger.kernel.org>
-References: <a79e0e6f-e83d-4b4b-a55c-3f2c20b93c83@linux.microsoft.com>
- <CAEjxPJ4Yby2Y9mYf-mCaFy3cPZ-Ukzs6VCQER6uB0K_UeG=wUQ@mail.gmail.com>
- <CAEjxPJ6vEf0kpOkVUcb0LY2u2svGt+8XRg_t3ywbnPa+nnY1GA@mail.gmail.com>
-Content-Language: en-US
-From: Matthew Sheets <masheets@linux.microsoft.com>
-In-Reply-To: <CAEjxPJ6vEf0kpOkVUcb0LY2u2svGt+8XRg_t3ywbnPa+nnY1GA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+References: <20241018151213.444982-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20241018151213.444982-1-cgoettsche@seltendoof.de>
+From: James Carter <jwcart2@gmail.com>
+Date: Mon, 21 Oct 2024 13:35:07 -0400
+Message-ID: <CAP+JOzQ-e5u+tXD4f0DhtWHW189=6MzFvbDGeGTvd=GuyMTyNA@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy/fuzz: fix setjmp condition
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, Oct 18, 2024 at 11:23=E2=80=AFAM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
+>
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> setjmp(3) returns 0 on the first fake invocation, adjust the condition
+> accordingly.
+>
+> Reported by the OSS Fuzz Introspector[1].
+>
+> [1]: https://storage.googleapis.com/oss-fuzz-introspector/selinux/inspect=
+or-report/20241016/fuzz_report.html
+>
+> Fixes: f07fc2a75 ("checkpolicy/fuzz: override YY_FATAL_ERROR")
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
+Acked-by: James Carter <jwcart2@gmail.com>
 
-On 10/18/2024 7:52 AM, Stephen Smalley wrote:
-> On Fri, Oct 18, 2024 at 10:44 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
->>
->> On Thu, Oct 17, 2024 at 3:42 PM Matthew Sheets
->> <masheets@linux.microsoft.com> wrote:
->>>
->>> Hi All,
->>>
->>> I am currently working on an update for dbus-broker to trigger reload of
->>> its configuration whenever an SELinux policy load event is seen.
->>>
->>> For some background dbus-broker is comprised of two major elements the
->>> launcher and the broker.  To trigger a config reload you can either send
->>> a SIGHUP to the launcher or send a message to the launcher over dbus.
->>> In most cases the launcher will be the brokers parent.
->>>
->>> Here is a link to my current PR:
->>> https://github.com/bus1/dbus-broker/pull/379
->>>
->>> In this current state things work.  The broker will see the POLICY_LOAD
->>> event and properly send a SIGHUP to its parent, but as David pointed out
->>> my initial attempt at the fix is no good since there is no guarantee
->>> that the brokers parent will be the launcher.
->>>
->>> My attempts at moving the callback registration into the launcher have
->>> been less successful.  From what my debugging has told me is that the
->>> selinux_set_callback is going through successfully and the function
->>> pointer is correctly pointing to the callback function I define.  But
->>> when I trigger a load_policy my callback function is never called.
->>>
->>> I am not familiar with how the callbacks in libselinux work under the
->>> hood so I am unsure about what could be blocking them in this situation.
->>
->> Caveat: I haven't looked deeply so take this with a grain of salt (or two).
->> There are generally two ways of discovering when policy has been reloaded:
->> 1. Create and receive notifications on a SELinux netlink socket, or
->> 2. Map the SELinux status page and poll it for updates to the policy seqno.
->>
->> Internally libselinux has switched to using the status page whenever
->> the kernel supports it since doing so is more efficient (no syscall
->> required to read it once you've mapped the page). As an aside, the
->> status page is also more easily "virtualizable" for SELinux namespaces
->> since it is per-SELinux state/namespace already (the netlink socket
->> can also be virtualized via a separate network namespace if/when my
->> namespace patches land but that requires you to unshare the network
->> namespace too).
->>
->> As far as libselinux APIs are concerned for the status page, you can
->> check for a policy reload or enforcing mode change by calling
->> selinux_status_updated() at any time after having done an initial
->> selinux_status_open(). selinux_status_updated() will call any
->> registered callbacks if enforcing mode or policy was changed, and, it
->> returns an indicator as to whether anything changed since the last
->> time it was called.
->>
->> Or if you choose to use the netlink socket and want to use the
->> libselinux APIs, you'd call avc_netlink_acquire_fd() to create and
->> take ownership of the SELinux netlink socket and then poll/select on
->> it for notifications, and upon receiving them, calling
->> avc_netlink_check_nb() to process them, including calling your
->> callbacks.
->>
->> But you have to do one of those two things in order for your callback
->> to be invoked. I assume dbus and dbus-broker are already doing one of
->> them which is why it works for them but not for the launcher.
-> 
-> Also, both avc_has_perm*() and selinux_check_access() internally call
-> selinux_status_updated() to ensure that they are using the latest
-> enforcing mode and policy. So anything using those libselinux
-> functions would get the status update for free.
-
-Just to close the loop.  With the info above I was able to trace down
-that selinux_status_updated is being called by when the broker calls
-selinux_check_access.  Thus triggering the callback.  The launcher has
-no such check access call.  Thanks for your help Stephen.
+> ---
+>  checkpolicy/fuzz/checkpolicy-fuzzer.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/checkpolicy/fuzz/checkpolicy-fuzzer.c b/checkpolicy/fuzz/che=
+ckpolicy-fuzzer.c
+> index ddb43260..331201c0 100644
+> --- a/checkpolicy/fuzz/checkpolicy-fuzzer.c
+> +++ b/checkpolicy/fuzz/checkpolicy-fuzzer.c
+> @@ -101,7 +101,7 @@ static int read_source_policy(policydb_t *p, const ui=
+nt8_t *data, size_t size)
+>
+>         init_parser(1);
+>
+> -       if (!setjmp(fuzzing_pre_parse_stack_state)) {
+> +       if (setjmp(fuzzing_pre_parse_stack_state) !=3D 0) {
+>                 queue_destroy(id_queue);
+>                 fclose(yyin);
+>                 yylex_destroy();
+> --
+> 2.45.2
+>
+>
