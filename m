@@ -1,116 +1,170 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com [209.85.219.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BC5913A87E
-	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 09:04:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BDB11BB6BA
+	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 16:25:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729587845; cv=none; b=JsDBKp6HszGwW4EQtKRhtZ2qqa1xt77oLCh+xaoY/RO5xX9LS3feS9HvdHuss7OhZ3tRjJhKHPOtxQUoyVzfc4CqijVm8J3qMbAys4GlhWu52rBuq0drprpWW0X4WejNgC/n3o5RxQbLXQ5riDqclKUmXDH+c8gcR7JvTljZD1c=
+	t=1729614349; cv=none; b=axpseGE6ZSmtS0PbHPV5eykHQ9SerMux6hj1pFThedc7h3tpMW7WHAZSzpKpI65RyTiwsNVG2EKDZlKKMBKiRkuxjrEf/QlxQJqloNLXb2WFcFStnNtYnTAPfr3HDBU5/YYl41oVwoTTbPNA514MpWTsoZHEuP7Re2qbVi4aWIM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729587845; c=relaxed/simple;
-	bh=+cwYIZnbNVeipG7kuWSyYqiYU9n7VBdxpU9bjyFTltI=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dVNJn1ATdHo6xd6MCA6dnPgZJaNWiA/wL8RBpWhjUkHyj9+r7ar0OpVgRSzthrGWMcHzkvbfWn1NEVp/GYIArhy9vbNohMTC5j25QHLfdjE1kPVx3qyPhlu1kmduzBgQHSPpZ7BOhkTreBZOS6e7h9ISnRDPEwssZn2GH22IfzI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ea9edeHr; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729614349; c=relaxed/simple;
+	bh=x/EpTFWcpafdx4yQZpuOCX0QNjRr/XNDp+88mspQTb4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=PVYwAYIG11st9jZlFpZJslg6pX4oC9Uml3odJaq6E+x3Phv3xG5CA+0PDRBAesU4fPjiaOindlF2h1Yzl/fwOxWVuOt89B30TXTg66SNh1xLijWPwglN1VG/vm+6BtRxv9zYhoiZVpdn/pAq15SKUZGhaCASOxq7USPJWx+4rrc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Sm/BRd7m; arc=none smtp.client-ip=209.85.219.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ea9edeHr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729587843;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jBovyVCks93imgd3Ar2i2bSgf7MjSQfEpKOKbXi7CLM=;
-	b=ea9edeHrf5gIsV2Lq9spT5oD7zExxyk/uzLka2+wMA1xuqI1QvVlmqUouzBVNYaXaSvnwZ
-	ZrSpe3suPkSFT3OrPWo70CjevSjxoEEKbGLZwAD4CiKdrErCVTskCTNti9cv3klZUzXOew
-	lmMxRqdB3ThksjVBRqv6tbKwCC31Ox4=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-634-m7nQcsWqM2auDZI3GZrjlQ-1; Tue,
- 22 Oct 2024 05:04:00 -0400
-X-MC-Unique: m7nQcsWqM2auDZI3GZrjlQ-1
-Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 9A88719560AF
-	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 09:03:59 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.225.247])
-	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 11BEE19560AE
-	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 09:03:57 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH 4/4] libsepol: Initialize "strs" on declaration
-Date: Tue, 22 Oct 2024 11:03:14 +0200
-Message-ID: <20241022090314.173002-4-vmojzis@redhat.com>
-In-Reply-To: <20241022090314.173002-1-vmojzis@redhat.com>
-References: <20241022090314.173002-1-vmojzis@redhat.com>
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Sm/BRd7m"
+Received: by mail-yb1-f181.google.com with SMTP id 3f1490d57ef6-e2903a48ef7so5651913276.2
+        for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 09:25:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1729614346; x=1730219146; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=/FcFULehhwAxlgpbjAQH5GvQbdOX1Yt9+//ukehIaF4=;
+        b=Sm/BRd7mkh6HX69sr8olD+37sceM+80v6PrS5EcixOUU4a2KrTmJLi8DNJWSaQbDrz
+         s/qt43XcXrFCV1qws3+Me8WMWnv38bMJDU5osONzZSMte+FicqIxbDlgZuj8wG8P+ow9
+         b7I3Gjg9B5548gxue+hXFQ1TE1hNJ0f3YlSKG1A/K0InLhxyJ47C3oMertlGIipoiHK0
+         FB5Yqk/upwwqdyQIbYwLr/UzzzJ9f47VMYFd8PRHjqkVxzNg1/PbbILBtXNcdht7xLsO
+         RX3l04zioRt8zZa4MhTRybqfw6l92WMtcvRGBFSYb3jHfTQETBw//8qDBeqv2hv6M7bZ
+         c3UQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729614346; x=1730219146;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=/FcFULehhwAxlgpbjAQH5GvQbdOX1Yt9+//ukehIaF4=;
+        b=nto/WlW//cIZLsSgQJuqmsaa6NwqUy/503x00jtCFcPqqqjeMUiBwOnoKRodQIPqyn
+         shPHL3D9Co0nmbV1EvTMNw223I4fofQQ22yn7R+g1t+o2s8q7+D5a6ByiMJLtdwRZSqZ
+         9YKHx+MQZQ1ICbOAlQTf0sEIiu58fnm+kUAcZwEzhrHMaKWqQcSq9tAk/DhFbsd0T81G
+         ZocMHgeYePS9E3apNzv1rvJ8vN4HqboZbD4QPsR/NG+PPx+0zta1pV55gPZsQOi3Y7jW
+         ICRq1Anin4bt77KYjLKuK15fO5vDJhgpO4ld2dureYkI17Wnl8Grt36AenzFnmMkOWqF
+         IqfQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVjrcdzuxV2ic537vXhl+mxlU9Y/jAZuIMwNLEV8Z7MKDrZ38oMlyLHL8Foh1IEvY06NDrTnT1a@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyb8PeVj6n5RQi9b3ytNaBAWRW2GnJjOzhKGlHIeg2BMCbr1SQO
+	KSR6v+MeKvTFGh2wCdyUZ8OQwqErNiVW1CwWPI5xtxvDlCdQx5nIKOzBxIx871xJJgSomLntdOI
+	goxzWoi9BAYHobqa4whzNumDcrAPmaR7ilfQ7
+X-Google-Smtp-Source: AGHT+IHmXg9dtHAkm/7oEMwvTrSAmrcx0Tkk5Vpql4w7fIuSXGrdcLHvVQoR+ZoH/iPhezQ76TFTXoN23QB1mIW32CM=
+X-Received: by 2002:a05:6902:2603:b0:e29:2ab7:6c03 with SMTP id
+ 3f1490d57ef6-e2e271bb480mr2927136276.33.1729614346507; Tue, 22 Oct 2024
+ 09:25:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
+References: <20241014151450.73674-2-casey@schaufler-ca.com>
+ <dad74779768e7c00d2a3c9bf8c60045d@paul-moore.com> <bab1de2e-0205-40dd-af3e-5956ff349948@schaufler-ca.com>
+In-Reply-To: <bab1de2e-0205-40dd-af3e-5956ff349948@schaufler-ca.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 22 Oct 2024 12:25:35 -0400
+Message-ID: <CAHC9VhQ0mBKz-y33+xV-de+hjA-wMbcv9+VmBXWiPjk5Ygz2eQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/6] LSM: Ensure the correct LSM context releaser
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: linux-security-module@vger.kernel.org, jmorris@namei.org, serge@hallyn.com, 
+	keescook@chromium.org, john.johansen@canonical.com, 
+	penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, 
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net, 
+	linux-integrity@vger.kernel.org, netdev@vger.kernel.org, 
+	audit@vger.kernel.org, netfilter-devel@vger.kernel.org, 
+	linux-nfs@vger.kernel.org, Todd Kjos <tkjos@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The value of "strs" was not always initialized before being used by
-strs_destroy.
+On Mon, Oct 21, 2024 at 7:58=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
+.com> wrote:
+> On 10/21/2024 4:39 PM, Paul Moore wrote:
+> > On Oct 14, 2024 Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >> Add a new lsm_context data structure to hold all the information about=
+ a
+> >> "security context", including the string, its size and which LSM alloc=
+ated
+> >> the string. The allocation information is necessary because LSMs have
+> >> different policies regarding the lifecycle of these strings. SELinux
+> >> allocates and destroys them on each use, whereas Smack provides a poin=
+ter
+> >> to an entry in a list that never goes away.
+> >>
+> >> Update security_release_secctx() to use the lsm_context instead of a
+> >> (char *, len) pair. Change its callers to do likewise.  The LSMs
+> >> supporting this hook have had comments added to remind the developer
+> >> that there is more work to be done.
+> >>
+> >> The BPF security module provides all LSM hooks. While there has yet to
+> >> be a known instance of a BPF configuration that uses security contexts=
+,
+> >> the possibility is real. In the existing implementation there is
+> >> potential for multiple frees in that case.
+> >>
+> >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> >> Cc: linux-integrity@vger.kernel.org
+> >> Cc: netdev@vger.kernel.org
+> >> Cc: audit@vger.kernel.org
+> >> Cc: netfilter-devel@vger.kernel.org
+> >> To: Pablo Neira Ayuso <pablo@netfilter.org>
+> >> Cc: linux-nfs@vger.kernel.org
+> >> Cc: Todd Kjos <tkjos@google.com>
+> >> Reviewed-by: Serge Hallyn <sergeh@kernel.org>
+> >> ---
+> >>  drivers/android/binder.c                | 24 ++++++-------
+> >>  fs/ceph/xattr.c                         |  6 +++-
+> >>  fs/nfs/nfs4proc.c                       |  8 +++--
+> >>  fs/nfsd/nfs4xdr.c                       |  8 +++--
+> >>  include/linux/lsm_hook_defs.h           |  2 +-
+> >>  include/linux/security.h                | 35 +++++++++++++++++--
+> >>  include/net/scm.h                       | 11 +++---
+> >>  kernel/audit.c                          | 30 ++++++++---------
+> >>  kernel/auditsc.c                        | 23 +++++++------
+> >>  net/ipv4/ip_sockglue.c                  | 10 +++---
+> >>  net/netfilter/nf_conntrack_netlink.c    | 10 +++---
+> >>  net/netfilter/nf_conntrack_standalone.c |  9 +++--
+> >>  net/netfilter/nfnetlink_queue.c         | 13 ++++---
+> >>  net/netlabel/netlabel_unlabeled.c       | 45 +++++++++++-------------=
+-
+> >>  net/netlabel/netlabel_user.c            | 11 +++---
+> >>  security/apparmor/include/secid.h       |  2 +-
+> >>  security/apparmor/secid.c               | 11 ++++--
+> >>  security/security.c                     |  8 ++---
+> >>  security/selinux/hooks.c                | 11 ++++--
+> >>  19 files changed, 167 insertions(+), 110 deletions(-)
+> > ..
+> >
+> >> diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel=
+_unlabeled.c
+> >> index 1bc2d0890a9f..8303bbcfc543 100644
+> >> --- a/net/netlabel/netlabel_unlabeled.c
+> >> +++ b/net/netlabel/netlabel_unlabeled.c
+> >> @@ -1127,14 +1122,14 @@ static int netlbl_unlabel_staticlist_gen(u32 c=
+md,
+> >>              secid =3D addr6->secid;
+> >>      }
+> >>
+> >> -    ret_val =3D security_secid_to_secctx(secid, &secctx, &secctx_len)=
+;
+> >> +    ret_val =3D security_secid_to_secctx(secid, &ctx.context, &ctx.le=
+n);
+> >>      if (ret_val !=3D 0)
+> >>              goto list_cb_failure;
+> >>      ret_val =3D nla_put(cb_arg->skb,
+> >>                        NLBL_UNLABEL_A_SECCTX,
+> >> -                      secctx_len,
+> >> -                      secctx);
+> >> -    security_release_secctx(secctx, secctx_len);
+> >> +                      ctx.len,
+> >> +                      ctx.context);
+> > Nitpicky alignment issue; please keep the arguments aligned as they
+> > are currently.
+>
+> Not a problem, although it looks like it's correct to me. I'll check to m=
+ake sure.
 
-Fixes:
-Error: UNINIT (CWE-457):
-libsepol-3.7/src/kernel_to_cil.c:1439:2: var_decl: Declaring variable "strs" without initializer.
-libsepol-3.7/src/kernel_to_cil.c:1487:2: uninit_use_in_call: Using uninitialized value "strs" when calling "strs_destroy".
- \# 1485|
- \# 1486|   exit:
- \# 1487|-> 	strs_destroy(&strs);
- \# 1488|
- \# 1489|   	if (rc != 0) {
+Thanks.  It's likely just an oddity due to tabs rendering a bit odd in
+the diff, I usually check that but maybe I didn't/forgot here.  Not a
+major problem either way, I only mentioned it because I was commenting
+on other patches in the series.
 
-Error: UNINIT (CWE-457):
-libsepol-3.7/src/kernel_to_conf.c:1422:2: var_decl: Declaring variable "strs" without initializer.
-libsepol-3.7/src/kernel_to_conf.c:1461:2: uninit_use_in_call: Using uninitialized value "strs" when calling "strs_destroy".
- \# 1459|
- \# 1460|   exit:
- \# 1461|-> 	strs_destroy(&strs);
- \# 1462|
- \# 1463|   	if (rc != 0) {
-
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- libsepol/src/kernel_to_cil.c  | 2 +-
- libsepol/src/kernel_to_conf.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-index 7243b3c0..2d563e7d 100644
---- a/libsepol/src/kernel_to_cil.c
-+++ b/libsepol/src/kernel_to_cil.c
-@@ -1436,7 +1436,7 @@ static int map_type_aliases_to_strs(char *key, void *data, void *args)
- static int write_type_alias_rules_to_cil(FILE *out, struct policydb *pdb)
- {
- 	type_datum_t *alias;
--	struct strs *strs;
-+	struct strs *strs = NULL;
- 	char *name;
- 	char *type;
- 	unsigned i, num = 0;
-diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
-index ca91ffae..661546af 100644
---- a/libsepol/src/kernel_to_conf.c
-+++ b/libsepol/src/kernel_to_conf.c
-@@ -1419,7 +1419,7 @@ static int map_type_aliases_to_strs(char *key, void *data, void *args)
- static int write_type_alias_rules_to_conf(FILE *out, struct policydb *pdb)
- {
- 	type_datum_t *alias;
--	struct strs *strs;
-+	struct strs *strs = NULL;
- 	char *name;
- 	char *type;
- 	unsigned i, num = 0;
--- 
-2.47.0
-
+--=20
+paul-moore.com
