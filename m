@@ -1,170 +1,122 @@
-Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com [209.85.219.181])
+Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com [209.85.219.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BDB11BB6BA
-	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 16:25:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C7D41B5820
+	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 16:28:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729614349; cv=none; b=axpseGE6ZSmtS0PbHPV5eykHQ9SerMux6hj1pFThedc7h3tpMW7WHAZSzpKpI65RyTiwsNVG2EKDZlKKMBKiRkuxjrEf/QlxQJqloNLXb2WFcFStnNtYnTAPfr3HDBU5/YYl41oVwoTTbPNA514MpWTsoZHEuP7Re2qbVi4aWIM=
+	t=1729614520; cv=none; b=p4d7+iH2sqFVMVaRM6+lO5KAyHywkAg7NVOsy+dbUlK0Ldk+7++gzhgBBhUdDUSRxY9WLEa6ctU+o2RXFLK0aD6WJLlqrv/p7G0EfVbu7vIs4nTRglAqWHJDvAPVO/sItAOjpc/rn2Ons0sRhs3QgaulNdJ8AdmadNi760DKlyA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729614349; c=relaxed/simple;
-	bh=x/EpTFWcpafdx4yQZpuOCX0QNjRr/XNDp+88mspQTb4=;
+	s=arc-20240116; t=1729614520; c=relaxed/simple;
+	bh=iXjeFKiD99haFW/5MC3Hv9lDG8yZPMN7OzwoUnSvoRk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PVYwAYIG11st9jZlFpZJslg6pX4oC9Uml3odJaq6E+x3Phv3xG5CA+0PDRBAesU4fPjiaOindlF2h1Yzl/fwOxWVuOt89B30TXTg66SNh1xLijWPwglN1VG/vm+6BtRxv9zYhoiZVpdn/pAq15SKUZGhaCASOxq7USPJWx+4rrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Sm/BRd7m; arc=none smtp.client-ip=209.85.219.181
+	 To:Cc:Content-Type; b=dvoGV88ELSr3cPRWPQO9AbJM4njW2ujJaaE908GJVu5C5oUe2R9B+Ie9NKdEOUTWqwfAVRwGcToy31lDZYTy/DKoz6zMYRl2lm9kM2BFW3kAZPV7eSO63Fr4PydnrVIbcCoZS11OG036IkEniPwwUl/COGm9tTK31JmIlACRGP4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FNyJs8ZA; arc=none smtp.client-ip=209.85.219.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Sm/BRd7m"
-Received: by mail-yb1-f181.google.com with SMTP id 3f1490d57ef6-e2903a48ef7so5651913276.2
-        for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 09:25:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FNyJs8ZA"
+Received: by mail-yb1-f170.google.com with SMTP id 3f1490d57ef6-e2903a48ef7so5655472276.2
+        for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 09:28:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1729614346; x=1730219146; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1729614517; x=1730219317; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/FcFULehhwAxlgpbjAQH5GvQbdOX1Yt9+//ukehIaF4=;
-        b=Sm/BRd7mkh6HX69sr8olD+37sceM+80v6PrS5EcixOUU4a2KrTmJLi8DNJWSaQbDrz
-         s/qt43XcXrFCV1qws3+Me8WMWnv38bMJDU5osONzZSMte+FicqIxbDlgZuj8wG8P+ow9
-         b7I3Gjg9B5548gxue+hXFQ1TE1hNJ0f3YlSKG1A/K0InLhxyJ47C3oMertlGIipoiHK0
-         FB5Yqk/upwwqdyQIbYwLr/UzzzJ9f47VMYFd8PRHjqkVxzNg1/PbbILBtXNcdht7xLsO
-         RX3l04zioRt8zZa4MhTRybqfw6l92WMtcvRGBFSYb3jHfTQETBw//8qDBeqv2hv6M7bZ
-         c3UQ==
+        bh=tWYJNGzZWfbmwj1ofhCHll6/oPb1z1h29ShW2Fi22MM=;
+        b=FNyJs8ZAmFYvq4M4Cro/+ITlt7MppTmuKsaI9XEdsWZJqdC5JAe84o8VGDG+objZ51
+         jM7eY6SljnSXUHvmgwpGVll+FiJcKc7GlkJIkqlBf+qGoSPCX4oKv2rd6iLOymSfEysb
+         HA3iLDqL7Cm92mP4QIzmTpJkUnDMhHlozb2EdDsaPOwmixaJlhGHpTTrV50URAdSuKqu
+         oRjTO5eYTkhBuRz4i4VYrEJQbA0D7ApUXZA2H5is4KRlQITEsVnHsLXKSewZpWYFDLRJ
+         ROA4VTBMtuXEghn/+yjPK0y+8x018Mhx6q2on2d8LYEEXrOp0CU4SG7Lp+C1RY881e1z
+         IW9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729614346; x=1730219146;
+        d=1e100.net; s=20230601; t=1729614517; x=1730219317;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/FcFULehhwAxlgpbjAQH5GvQbdOX1Yt9+//ukehIaF4=;
-        b=nto/WlW//cIZLsSgQJuqmsaa6NwqUy/503x00jtCFcPqqqjeMUiBwOnoKRodQIPqyn
-         shPHL3D9Co0nmbV1EvTMNw223I4fofQQ22yn7R+g1t+o2s8q7+D5a6ByiMJLtdwRZSqZ
-         9YKHx+MQZQ1ICbOAlQTf0sEIiu58fnm+kUAcZwEzhrHMaKWqQcSq9tAk/DhFbsd0T81G
-         ZocMHgeYePS9E3apNzv1rvJ8vN4HqboZbD4QPsR/NG+PPx+0zta1pV55gPZsQOi3Y7jW
-         ICRq1Anin4bt77KYjLKuK15fO5vDJhgpO4ld2dureYkI17Wnl8Grt36AenzFnmMkOWqF
-         IqfQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVjrcdzuxV2ic537vXhl+mxlU9Y/jAZuIMwNLEV8Z7MKDrZ38oMlyLHL8Foh1IEvY06NDrTnT1a@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyb8PeVj6n5RQi9b3ytNaBAWRW2GnJjOzhKGlHIeg2BMCbr1SQO
-	KSR6v+MeKvTFGh2wCdyUZ8OQwqErNiVW1CwWPI5xtxvDlCdQx5nIKOzBxIx871xJJgSomLntdOI
-	goxzWoi9BAYHobqa4whzNumDcrAPmaR7ilfQ7
-X-Google-Smtp-Source: AGHT+IHmXg9dtHAkm/7oEMwvTrSAmrcx0Tkk5Vpql4w7fIuSXGrdcLHvVQoR+ZoH/iPhezQ76TFTXoN23QB1mIW32CM=
-X-Received: by 2002:a05:6902:2603:b0:e29:2ab7:6c03 with SMTP id
- 3f1490d57ef6-e2e271bb480mr2927136276.33.1729614346507; Tue, 22 Oct 2024
- 09:25:46 -0700 (PDT)
+        bh=tWYJNGzZWfbmwj1ofhCHll6/oPb1z1h29ShW2Fi22MM=;
+        b=wKCP5zOY3jxTrh51yKcCYz5GMwiyKZE+jIsWQvUmCipbRYEGHZObEyxS3WywTccohG
+         uhYKdL27N+O2mCk9nkB41FTulfPT9YOWesX1w8UJyy5zo9YPBZaoy+SJSDsShLIy1/70
+         MmNh0aQq6fxOzCdRkPvSDA4r8WTEFerqFzjvtgW7kC+lfbc1vRbjMudGgBwMD0d4bjdO
+         iEa0x+fEmkKCpYmswFYarl1ilc8i5WekQnbYbK7HH3YpyzgRMSLB/XJ4OoHCQKDNcUVl
+         1nOnBnCiFn+jeQsZPQChsM8zjFlVnF2Af8+Yx8htHGh2qib/kk9JgNegyulq8srO+IFq
+         zEtQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVG3KQFw8geD0gUOyxqDzco7AV8Dx/qJQiTnsQopQ6aWbOMJFto6P4rF5tZF36rSU7IfmWmm/o5@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz18s6yLBG8C/V07mE66s3Ko/wgM+JObkx/vbb3i64vzHOeeQ0f
+	xyZPZk0N84l6OnNFzaNm96WQsFfQ7cVoFfZ7yb7oSk5Xqrlh2d1A4dbVZ60Gzen2vIoIrPkuUeX
+	8AQiNUipXltNP3k47Dnv7ILGhBqujvGLCcxJf
+X-Google-Smtp-Source: AGHT+IG8gwlSMlcXwhB5hmB2a2N3NP1Y0saoWpYAmsDJuzddp8xHNIDF6id0PJuosvZNqRP2WWC0i4XxnfSqteqw3o4=
+X-Received: by 2002:a05:6902:2501:b0:e28:fec0:c673 with SMTP id
+ 3f1490d57ef6-e2e271bb115mr2837315276.31.1729614517559; Tue, 22 Oct 2024
+ 09:28:37 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241014151450.73674-2-casey@schaufler-ca.com>
- <dad74779768e7c00d2a3c9bf8c60045d@paul-moore.com> <bab1de2e-0205-40dd-af3e-5956ff349948@schaufler-ca.com>
-In-Reply-To: <bab1de2e-0205-40dd-af3e-5956ff349948@schaufler-ca.com>
+References: <20241014151450.73674-6-casey@schaufler-ca.com>
+ <5b6addd938c9feae0b4df8f54d56f9f0@paul-moore.com> <617a2679-404c-4127-8dfd-4f3895e2372f@schaufler-ca.com>
+In-Reply-To: <617a2679-404c-4127-8dfd-4f3895e2372f@schaufler-ca.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 22 Oct 2024 12:25:35 -0400
-Message-ID: <CAHC9VhQ0mBKz-y33+xV-de+hjA-wMbcv9+VmBXWiPjk5Ygz2eQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/6] LSM: Ensure the correct LSM context releaser
+Date: Tue, 22 Oct 2024 12:28:26 -0400
+Message-ID: <CAHC9VhQzva=uKWqFduADzvyTR+NXokCH6R7WNe6RgmDDa-Ge1g@mail.gmail.com>
+Subject: Re: [PATCH v2 5/6] LSM: secctx provider check on release
 To: Casey Schaufler <casey@schaufler-ca.com>
 Cc: linux-security-module@vger.kernel.org, jmorris@namei.org, serge@hallyn.com, 
 	keescook@chromium.org, john.johansen@canonical.com, 
 	penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, 
-	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net, 
-	linux-integrity@vger.kernel.org, netdev@vger.kernel.org, 
-	audit@vger.kernel.org, netfilter-devel@vger.kernel.org, 
-	linux-nfs@vger.kernel.org, Todd Kjos <tkjos@google.com>
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 21, 2024 at 7:58=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
+On Mon, Oct 21, 2024 at 8:06=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
 .com> wrote:
 > On 10/21/2024 4:39 PM, Paul Moore wrote:
 > > On Oct 14, 2024 Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >> Add a new lsm_context data structure to hold all the information about=
- a
-> >> "security context", including the string, its size and which LSM alloc=
-ated
-> >> the string. The allocation information is necessary because LSMs have
-> >> different policies regarding the lifecycle of these strings. SELinux
-> >> allocates and destroys them on each use, whereas Smack provides a poin=
-ter
-> >> to an entry in a list that never goes away.
-> >>
-> >> Update security_release_secctx() to use the lsm_context instead of a
-> >> (char *, len) pair. Change its callers to do likewise.  The LSMs
-> >> supporting this hook have had comments added to remind the developer
-> >> that there is more work to be done.
-> >>
-> >> The BPF security module provides all LSM hooks. While there has yet to
-> >> be a known instance of a BPF configuration that uses security contexts=
-,
-> >> the possibility is real. In the existing implementation there is
-> >> potential for multiple frees in that case.
+> >> Verify that the LSM releasing the secctx is the LSM that
+> >> allocated it. This was not necessary when only one LSM could
+> >> create a secctx, but once there can be more than one it is.
 > >>
 > >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> >> Cc: linux-integrity@vger.kernel.org
-> >> Cc: netdev@vger.kernel.org
-> >> Cc: audit@vger.kernel.org
-> >> Cc: netfilter-devel@vger.kernel.org
-> >> To: Pablo Neira Ayuso <pablo@netfilter.org>
-> >> Cc: linux-nfs@vger.kernel.org
-> >> Cc: Todd Kjos <tkjos@google.com>
-> >> Reviewed-by: Serge Hallyn <sergeh@kernel.org>
 > >> ---
-> >>  drivers/android/binder.c                | 24 ++++++-------
-> >>  fs/ceph/xattr.c                         |  6 +++-
-> >>  fs/nfs/nfs4proc.c                       |  8 +++--
-> >>  fs/nfsd/nfs4xdr.c                       |  8 +++--
-> >>  include/linux/lsm_hook_defs.h           |  2 +-
-> >>  include/linux/security.h                | 35 +++++++++++++++++--
-> >>  include/net/scm.h                       | 11 +++---
-> >>  kernel/audit.c                          | 30 ++++++++---------
-> >>  kernel/auditsc.c                        | 23 +++++++------
-> >>  net/ipv4/ip_sockglue.c                  | 10 +++---
-> >>  net/netfilter/nf_conntrack_netlink.c    | 10 +++---
-> >>  net/netfilter/nf_conntrack_standalone.c |  9 +++--
-> >>  net/netfilter/nfnetlink_queue.c         | 13 ++++---
-> >>  net/netlabel/netlabel_unlabeled.c       | 45 +++++++++++-------------=
--
-> >>  net/netlabel/netlabel_user.c            | 11 +++---
-> >>  security/apparmor/include/secid.h       |  2 +-
-> >>  security/apparmor/secid.c               | 11 ++++--
-> >>  security/security.c                     |  8 ++---
-> >>  security/selinux/hooks.c                | 11 ++++--
-> >>  19 files changed, 167 insertions(+), 110 deletions(-)
-> > ..
-> >
-> >> diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel=
-_unlabeled.c
-> >> index 1bc2d0890a9f..8303bbcfc543 100644
-> >> --- a/net/netlabel/netlabel_unlabeled.c
-> >> +++ b/net/netlabel/netlabel_unlabeled.c
-> >> @@ -1127,14 +1122,14 @@ static int netlbl_unlabel_staticlist_gen(u32 c=
-md,
-> >>              secid =3D addr6->secid;
-> >>      }
+> >>  security/apparmor/secid.c | 10 ++--------
+> >>  security/selinux/hooks.c  | 10 ++--------
+> >>  2 files changed, 4 insertions(+), 16 deletions(-)
 > >>
-> >> -    ret_val =3D security_secid_to_secctx(secid, &secctx, &secctx_len)=
-;
-> >> +    ret_val =3D security_secid_to_secctx(secid, &ctx.context, &ctx.le=
-n);
-> >>      if (ret_val !=3D 0)
-> >>              goto list_cb_failure;
-> >>      ret_val =3D nla_put(cb_arg->skb,
-> >>                        NLBL_UNLABEL_A_SECCTX,
-> >> -                      secctx_len,
-> >> -                      secctx);
-> >> -    security_release_secctx(secctx, secctx_len);
-> >> +                      ctx.len,
-> >> +                      ctx.context);
-> > Nitpicky alignment issue; please keep the arguments aligned as they
-> > are currently.
+> >> diff --git a/security/apparmor/secid.c b/security/apparmor/secid.c
+> >> index 5d92fc3ab8b4..974f802cbe5a 100644
+> >> --- a/security/apparmor/secid.c
+> >> +++ b/security/apparmor/secid.c
+> >> @@ -122,14 +122,8 @@ int apparmor_secctx_to_secid(const char *secdata,=
+ u32 seclen, u32 *secid)
+> >>
+> >>  void apparmor_release_secctx(struct lsm_context *cp)
+> >>  {
+> >> -    /*
+> >> -     * stacking scaffolding:
+> >> -     * When it is possible for more than one LSM to provide a
+> >> -     * release hook, do this check:
+> >> -     * if (cp->id =3D=3D LSM_ID_APPARMOR || cp->id =3D=3D LSM_ID_UNDE=
+F)
+> >> -     */
+> >> -
+> >> -    kfree(cp->context);
+> >> +    if (cp->id =3D=3D LSM_ID_APPARMOR)
+> >> +            kfree(cp->context);
+> > Should we set cp->context to NULL too?  One could argue that it's an
+> > unecessary assignment, given the cp->id checks, and they wouldn't be
+> > wrong, but considering the potential for a BPF LSM to do things with
+> > a lsm_context, I wonder if resetting the pointer to NULL is the
+> > smart thing to do.
 >
-> Not a problem, although it looks like it's correct to me. I'll check to m=
-ake sure.
+> Wouldn't hurt. I'll go ahead and add that. If a BPF LSM does anything
+> with a lsm_context we're likely to hear about the many issues quite
+> quickly.
 
-Thanks.  It's likely just an oddity due to tabs rendering a bit odd in
-the diff, I usually check that but maybe I didn't/forgot here.  Not a
-major problem either way, I only mentioned it because I was commenting
-on other patches in the series.
+Yes, I suspect you're right about that, at least we can protect
+against a UAF in this one case :)
 
 --=20
 paul-moore.com
