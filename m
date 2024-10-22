@@ -1,141 +1,144 @@
-Received: from mail-ua1-f49.google.com (mail-ua1-f49.google.com [209.85.222.49])
+Received: from mail-yw1-f201.google.com (mail-yw1-f201.google.com [209.85.128.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42FDF13E41A
-	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 20:28:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 155F51CCB41
+	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 22:37:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729628890; cv=none; b=nkoadmORKycizZ/rgyS9po1wl64NiTM/6jp7jaQp530z6u/octSTbOAJIa62xqSPNzAXUp5oqEdUhhl2cgNGIDunK7ljQ/IcPkfW5Y7e/4JcMJjKv0meQu7s18AV/YNlzx/kvXsc+1mO/ezuvEhAazlm5k/B0ct0+Z0uyOILsVA=
+	t=1729636650; cv=none; b=kuIc70Pj41Z9SHGIeEkv0J7f6JA2KSi+g0geD6rceEhScREMMZkK16s+fIu/Sh6g4/kX3ZdhV2lNdj1DsSlVEbGrxAcbKrC1wKiHTpsV3kG9Bq7YyYNqhQw8tk/QRl7ipKo/dDbpcCH/a34WiJjwOMAOEum05VPIW9ShMq/KOwo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729628890; c=relaxed/simple;
-	bh=7Hxk7O4gBxAUUX0j2yTNjBBJVmW4I7j2ny/nYQJAlYI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qpRQ7bYeGK/AiFB+vbrYFMcgpofsDtPtLcJpsDppnpU7emPa2VP1R2viwk80fiQK+mQN56CpELjg1HEgsJfqKk3wasTVsk4woUwUbO3gHjQW50MdJXnjl2UMb44gDpDFI3F3Q7AeTmh2R41l5n8RkyvpdiUwA6BL9Ac842QW+6s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h6IxKTPd; arc=none smtp.client-ip=209.85.222.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1729636650; c=relaxed/simple;
+	bh=qyq2t/bbjYNhgYIxai9S7x1ULd/4YoID2sGCP/k9si8=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=XNpD8UBTPM5fM6mPbpJdmWptvQPBHtQ45C2e0XnhfnxNdp2pZaikxoK6IQINbE5w7GZukmmLnIGLL7VXonadOvlIp5bKGNf88qu9GkeXUuq5h8t1z+X+BD+HdNQjdQQtJvI4E2rsa6IxGOLrUMSsB1RSDyAwTdpr7aaEV0RRtok=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=2R8x2l4v; arc=none smtp.client-ip=209.85.128.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h6IxKTPd"
-Received: by mail-ua1-f49.google.com with SMTP id a1e0cc1a2514c-84fc0209e87so1969672241.1
-        for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 13:28:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="2R8x2l4v"
+Received: by mail-yw1-f201.google.com with SMTP id 00721157ae682-6e3497c8eb0so4537087b3.0
+        for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 15:37:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1729628888; x=1730233688; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=O0M1kS++TYC11LLOvL7XqjtAuE5qmMkETPoZEBj1tgE=;
-        b=h6IxKTPdg8gxDbhmccK2XT8Y/eFEAQ+4Gc2BjGzkcp+vzSw5CgfsrRfJDcJmExaaWq
-         thmGqPJjcruvP0rf0JqHTFOYIhNI5YcEIIz1yHBmJJnJiby9yHgLXb39ZGAbTn2MFDlZ
-         02tgjkgN5KIunHJbLlM2HZJzo/0kcjt/iaX5CKfku76yH2h5DV+eFEfMuQc5yhkg2hDi
-         u89tkuYQ7wZ+Fp8BdgKNVfXnRgzkTC8DHxvlwCEphbEiljBKtxaEfa68D6SakY2i8Ntu
-         yPz1tGOsxvdlVpBaZKCYSEjv4kNijhI0qAr5Eel+uTJmoVbBhqekiXcjg5zQZ8NkRbJh
-         qgfg==
+        d=google.com; s=20230601; t=1729636648; x=1730241448; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=4/Sh1lEYa0z4h2BPPPcBpKo+7EFcOZnqeALFUfsoU1E=;
+        b=2R8x2l4vdWR/y9QSgFhOluIrpUEzGOCOu05+yWfbiQzWvxn8Fpu5s9TX3WJ0JI5dOv
+         bq3Sr0HB3oQDfWPM44x3XC9hZNcy/aloUZnChebsE2X932vzpwVqL7DtvdYP6/0Ihs7D
+         WuaSXVYF5rr9ATru1Og+hZi+nJ6gvChDm6LtWhQWZn8gM4x8U0c1vBP6TUYARBnRqRQi
+         8+qg2xg1O2eghiU+5uhZsKNj1BozwpxwAiYl8fSnEj1JLS3AJgb15pP4HL5SOTvPg1Q5
+         sR5GmbiKnbKvXYF9p8/zjqvin6lYS8umQGpz+8sgzS+NsZGqYlV0aqZz0qAwGx62iJRZ
+         2weg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729628888; x=1730233688;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=O0M1kS++TYC11LLOvL7XqjtAuE5qmMkETPoZEBj1tgE=;
-        b=iDVUGeWxFjR8QemgRBvoTHwpb2OM4V5gtnlOzuS8e5Eh5pQ3k3XVyV/VVHRu3T08DU
-         Smrgw9YMa2NpVBL4hIo2K4pXljaIPd8FRQDWRAxRuiw9epM9A5GcVQKqdHBkrRWwb5A4
-         rMiq3HEjt76K2+UzHOEX0zza9XrwnNbpEX2PeLbh5GNtI4zXxcBrFgHh+x3EhRN7/iS8
-         d+7E2WcTtbHOVMjwlXEedXzFpTPQDCCkkcDCWxoif2lYDid0OGZXgSACWUZfZ+ttOvcJ
-         gYGnjtwymfmiv1IhEAhkXyODVJk/WVzQ5C0eKGg12MAYNIhUXHmF0LXS9iziEzngTMg7
-         b1Fg==
-X-Gm-Message-State: AOJu0Yzv84JBBQwHQeHCeU21t+4c8JaZY+KvGRYfRoFRluyJr5W8sMUg
-	/sfDifG3bADJTwgNcc4pLNs8jPfC8JrJz8bnqNXb8pP35mxBotOT40+85Vl0ZSjifPYtqKyzvYZ
-	lcCgNi37W2G57uikOokf/qB7nG+4=
-X-Google-Smtp-Source: AGHT+IFQotEGQZ+AcA1G5tfIRmFOKOnLAJLv17a9SlfkPn6NHI5Zn0hcnqhKTMSyhUM2hHkuqwuLuC1c0yhzVsTvLHc=
-X-Received: by 2002:a05:6102:4415:b0:4a4:8651:3c46 with SMTP id
- ada2fe7eead31-4a751c9268dmr405887137.18.1729628888039; Tue, 22 Oct 2024
- 13:28:08 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1729636648; x=1730241448;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=4/Sh1lEYa0z4h2BPPPcBpKo+7EFcOZnqeALFUfsoU1E=;
+        b=jEoglcP6E0gpXdKJ/zv6gvly7OEc//qKW7XvYYAcHGo7O6sB2jo03dfXBH3ewjKR/I
+         jj7ujF9kMIyMkfgL5SO5ecOkwSOwCq+i8G8RvLIqQ2txkhZetAOsTERWzVMSx1VHa60f
+         dwvb2zynEbelj3Bl2dvL5bMhxZ/Is3M1LhLMstT3M63SrpDGJRS9AY0iZ05fS5tmTzdh
+         xfeYtudjQMOmIQy1ttHS2LMia+uHnYMMt9jNRlhCeJyHCdJBs7VHCfdeak5GwzJrlnb1
+         Ro+b36SG2qq5JwzsVsR+Jzco4wJQRqXI1VQoQ5/6qXIz4Llx0ypWEFGgpX6DMg9MReBE
+         7s8w==
+X-Forwarded-Encrypted: i=1; AJvYcCWZkmZoROy70WyLesEH5YnKsN5nrThh4SvJMdCxezcFClxFC4K8Yq0DvelMVQIGjDcHlkszzxzY@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw8SgzVwy5KpzJ80ZoRp6Jn45U9sS1wchd3Y6mbfIiyuPwD1NLe
+	lsu1EGgZ+9+FWycrzzKnMHdrZBQr3z9xJJv34d4+t/8AZRHuLE6eqXEUY2nESf/xQBiUCLCP8A=
+	=
+X-Google-Smtp-Source: AGHT+IFAd9Pn2Snwb1KlMLZP1AGFDiYqjro8lzRMQNevS6pharWgVE44y+2q6r5SlMcHuCQCIskB2pc7SA==
+X-Received: from tweek-syd.c.googlers.com ([fda3:e722:ac3:cc00:b7:3870:c0a8:26])
+ (user=tweek job=sendgmr) by 2002:a05:690c:6e05:b0:6be:523:af53 with SMTP id
+ 00721157ae682-6e7d49d4f9cmr2169157b3.3.1729636648010; Tue, 22 Oct 2024
+ 15:37:28 -0700 (PDT)
+Date: Wed, 23 Oct 2024 09:37:11 +1100
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20241022090314.173002-1-vmojzis@redhat.com> <20241022090314.173002-4-vmojzis@redhat.com>
-In-Reply-To: <20241022090314.173002-4-vmojzis@redhat.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Tue, 22 Oct 2024 16:27:57 -0400
-Message-ID: <CAP+JOzSs3i0bTUAuxzssgirFV41s2wfrpkBFx-s9EU38Sp2BDQ@mail.gmail.com>
-Subject: Re: [PATCH 4/4] libsepol: Initialize "strs" on declaration
-To: Vit Mojzis <vmojzis@redhat.com>
-Cc: selinux@vger.kernel.org
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.47.0.105.g07ac214952-goog
+Message-ID: <20241022223711.3066190-1-tweek@google.com>
+Subject: [PATCH] selinux: add netlink nlmsg_type audit message
+From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To: paul@paul-moore.com
+Cc: brambonne@google.com, jeffv@google.com, selinux@vger.kernel.org, 
+	stephen.smalley.work@gmail.com, 
+	"=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 22, 2024 at 5:09=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> wro=
-te:
->
-> The value of "strs" was not always initialized before being used by
-> strs_destroy.
->
-> Fixes:
-> Error: UNINIT (CWE-457):
-> libsepol-3.7/src/kernel_to_cil.c:1439:2: var_decl: Declaring variable "st=
-rs" without initializer.
-> libsepol-3.7/src/kernel_to_cil.c:1487:2: uninit_use_in_call: Using uninit=
-ialized value "strs" when calling "strs_destroy".
->  \# 1485|
->  \# 1486|   exit:
->  \# 1487|->     strs_destroy(&strs);
->  \# 1488|
->  \# 1489|       if (rc !=3D 0) {
->
-> Error: UNINIT (CWE-457):
-> libsepol-3.7/src/kernel_to_conf.c:1422:2: var_decl: Declaring variable "s=
-trs" without initializer.
-> libsepol-3.7/src/kernel_to_conf.c:1461:2: uninit_use_in_call: Using unini=
-tialized value "strs" when calling "strs_destroy".
->  \# 1459|
->  \# 1460|   exit:
->  \# 1461|->     strs_destroy(&strs);
->  \# 1462|
->  \# 1463|       if (rc !=3D 0) {
->
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+Add a new audit message type to capture nlmsg-related information. This
+is similar to LSM_AUDIT_DATA_IOCTL_OP which was added for the other
+SELinux extended permission (ioctl).
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Adding a new type is preferred to adding to the existing
+lsm_network_audit structure which contains irrelevant information for
+the netlink sockets (i.e., dport, sport).
 
-> ---
->  libsepol/src/kernel_to_cil.c  | 2 +-
->  libsepol/src/kernel_to_conf.c | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-> index 7243b3c0..2d563e7d 100644
-> --- a/libsepol/src/kernel_to_cil.c
-> +++ b/libsepol/src/kernel_to_cil.c
-> @@ -1436,7 +1436,7 @@ static int map_type_aliases_to_strs(char *key, void=
- *data, void *args)
->  static int write_type_alias_rules_to_cil(FILE *out, struct policydb *pdb=
-)
->  {
->         type_datum_t *alias;
-> -       struct strs *strs;
-> +       struct strs *strs =3D NULL;
->         char *name;
->         char *type;
->         unsigned i, num =3D 0;
-> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
-c
-> index ca91ffae..661546af 100644
-> --- a/libsepol/src/kernel_to_conf.c
-> +++ b/libsepol/src/kernel_to_conf.c
-> @@ -1419,7 +1419,7 @@ static int map_type_aliases_to_strs(char *key, void=
- *data, void *args)
->  static int write_type_alias_rules_to_conf(FILE *out, struct policydb *pd=
-b)
->  {
->         type_datum_t *alias;
-> -       struct strs *strs;
-> +       struct strs *strs =3D NULL;
->         char *name;
->         char *type;
->         unsigned i, num =3D 0;
-> --
-> 2.47.0
->
->
+Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+---
+ include/linux/lsm_audit.h | 2 ++
+ security/lsm_audit.c      | 3 +++
+ security/selinux/hooks.c  | 4 ++--
+ 3 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
+index 97a8b21eb033..69d2b7bc00ed 100644
+--- a/include/linux/lsm_audit.h
++++ b/include/linux/lsm_audit.h
+@@ -77,6 +77,7 @@ struct common_audit_data {
+ #define LSM_AUDIT_DATA_LOCKDOWN 15
+ #define LSM_AUDIT_DATA_NOTIFICATION 16
+ #define LSM_AUDIT_DATA_ANONINODE	17
++#define LSM_AUDIT_DATA_NLMSGTYPE	18
+ 	union 	{
+ 		struct path path;
+ 		struct dentry *dentry;
+@@ -98,6 +99,7 @@ struct common_audit_data {
+ 		struct lsm_ibendport_audit *ibendport;
+ 		int reason;
+ 		const char *anonclass;
++		u16 nlmsg_type;
+ 	} u;
+ 	/* this union contains LSM specific data */
+ 	union {
+diff --git a/security/lsm_audit.c b/security/lsm_audit.c
+index 849e832719e2..b6544024f688 100644
+--- a/security/lsm_audit.c
++++ b/security/lsm_audit.c
+@@ -425,6 +425,9 @@ static void dump_common_audit_data(struct audit_buffer =
+*ab,
+ 	case LSM_AUDIT_DATA_ANONINODE:
+ 		audit_log_format(ab, " anonclass=3D%s", a->u.anonclass);
+ 		break;
++	case LSM_AUDIT_DATA_NLMSGTYPE:
++		audit_log_format(ab, " nlmsg_type=3D%hu", a->u.nlmsg_type);
++		break;
+ 	} /* switch (a->type) */
+ }
+=20
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index ad3abd48eed1..40afeba0b7de 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5932,14 +5932,14 @@ static int nlmsg_sock_has_extended_perms(struct soc=
+k *sk, u32 perms, u16 nlmsg_t
+ {
+ 	struct sk_security_struct *sksec =3D sk->sk_security;
+ 	struct common_audit_data ad;
+-	struct lsm_network_audit net;
+ 	u8 driver;
+ 	u8 xperm;
+=20
+ 	if (sock_skip_has_perm(sksec->sid))
+ 		return 0;
+=20
+-	ad_net_init_from_sk(&ad, &net, sk);
++	ad.type =3D LSM_AUDIT_DATA_NLMSGTYPE;
++	ad.u.nlmsg_type =3D nlmsg_type;
+=20
+ 	driver =3D nlmsg_type >> 8;
+ 	xperm =3D nlmsg_type & 0xff;
+--=20
+2.47.0.105.g07ac214952-goog
+
