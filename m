@@ -1,142 +1,105 @@
-Received: from sonic315-22.consmr.mail.bf2.yahoo.com (sonic315-22.consmr.mail.bf2.yahoo.com [74.6.134.196])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40FDD81E
-	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 00:20:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.6.134.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E0C913A87E
+	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 09:03:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729556450; cv=none; b=qO3dSvPRa5rpC8V4S1XEFpDsfJiLyYy5Q2GChldVvQHdsyi6WMfd3L5l7gHyfS1fV7fARV3ruVPFm290163513wni+A9QOx9rmSoYh3l3kdIWMZ+64RLDrofrQQyM688vnTfHUtDQP2W3yp8Ln4j/LvZ8quMNqF3QxslAnVHjck=
+	t=1729587839; cv=none; b=Unb0lJuoXr71AInQqjR3Mn0MfPTMKr/OuaS4MGD7BcQutxpApmtwVh6eccuyYloaDFf3+Kz20F3I5SnaWr7tlJ6qV6JjujNaYWdOC87p9eaKAJe6LwYAPZeGMyLCDub6ZPLbz2rMnXmwGcO6JYjqfO5eJBxk5fytf1B0/7o2NzM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729556450; c=relaxed/simple;
-	bh=g2hE1WEcvzFd3lrsuFbjFYGS4IfgneZqzB/K2Y1ufSs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=eC7mzhh+t/q0aNIk7vLQLLA3jRK/CCaW2ump42rFNMANF5HcjOJtVMhWlRsLP70huIa16pJqwOOHpM/YpKN+wxJsfczhTolpwKcoBrbD10CWdM4XG9X+UrvPNR7avdxGLw+4Dlt+jXwropg4HAlht2Ztrm2PfjBkOBwZdtJWpGY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=SqXIGCDS; arc=none smtp.client-ip=74.6.134.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1729587839; c=relaxed/simple;
+	bh=3JPrxQFOe72SqSRNbLDqr+RlUkSdMTC1v6KwIFepv5Q=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=laUs8hGZCRny7yGRW6nNYwYinj8JZT9PvEgrRjqxW2CgcB+kRzz/XMYm259oULwMFr0BX936/8GCyisFQSFt3pa6swF+b5TBldeSYDW5aa+77JY/8mkx2uwxLUbh5GHCJT7hItR2yC0n3Ak0MsmfbMd2MT03/5Nq0VO47KEloYg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZdA4zo6Z; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="SqXIGCDS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1729556448; bh=pUVserrOqjjheIVK2zlgb58YznUavZUYeG9J/bknkFE=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=SqXIGCDS+AuR4SlUrrMtISuPcrwVva55Po//UZzwxYFkw+cP2OtAamXEDtGk4zBSMka/xFNMAF64yPh3WChyO/R8pgyW4A1p6tQXBTQSNb5nednnRXSrULTXv2DNJicLKzQKF66mSln+oPCzqnDxhpYGACwgAOH0MPScBIyJFvQ5ti+EWFkYAXzp6nLr8jhmj75Zvfp90qjv558nPrIcFB9dBZV85CggzMUbqwPH54Cz8r33/JKmiPgUeymUlLqqxGgYvm0pbMbcAAEhDaldEZRN8Oh+cUSmk5stg0ms8k4/2pRY2Qc8kY27VeHRYBV6UWpvh2I4JtGcmQXQigziLA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1729556448; bh=v9PVl5sSON2bdtKAaESv7a28pgMR+URwWpFeOzGI04V=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=iq/QJFnOkiICxnuR9tJxG1waAxeB9N2F0+Wx2riCUWuMibIsE5AaEx6AIrhzuL5Ws7Waa++F7U0GMbI+2ot/TkoSgrUZiPmjXR+MVA7KdWvgBFNQGKn/fARuo6vN+77Mq135H2Za5Whl6JyURTRDRM0sUXi9S/q+AcCcBwB30oHXSQ04UH47pfQ4FRvXLIYgJ7jqBeG3vIct5ljXRru7kqENipGx2mwzmcCojXT2A87kZnJGm4m3PKgkiF95cMRlrLxnQ7wtKOAwv6u0rdrAzhcclU+N+G7GI5Jt1gdeM9/09yCEbUeVIb2Ma2UZhlQOygzp75KhEY7oEX+sVx1Sog==
-X-YMail-OSG: blKsv6gVM1mbqlTp_znbpm2ldrh.uN1rtZiKvHerhd17GF1fCNVNJ7JgsJVudPH
- JuwnfRrdkJqZmHk_aBv.X6nTQYkbDWNH.EXUJk6de3QqnRa.1Z1XZpT41TVuaSMENhHZ3LohYuRX
- UOJxgF4HYa6gTIje0.z5wY9.x5HlHHI0l.suq39fYYaSfmsvXN2ZDu4fCq5zkAzuGy3cwrwcUNAV
- dziyYl4Z_LAtH32uQqoF1NAhsuqBZsn2PBvten3ehgqJGfRb4sj1X1G7Wk4RtZVk_ItNj4JCXabt
- H.VgTKo4SzuvRyG4x3qH8TqSFfXCbcEKQhL8xrlPtX8YRBn1Wp6vBuikq3vppAqzd7rV4Al9.zr7
- Y5iiDfZvHaE39JaKIn77Vg2Ho02oQjJwQA_qxu60dj6pFVi7AmTXF2_keweAbSdznfG74FBGvGU7
- 2bxJsKaauzvh17.eKJdMiuJtIAY3lAfPEqqaqPhbNAEM2GgSkChwLuAGcy9U1saCneojLCBeQkXs
- Ljjz7oyvT3WubwTWrLN6Tr_eVsDq6fHS8RilSzra8Sh.7LUu1kkg_pZWdG5K16k4VpzCFKoDCarx
- 9DDz8k.wxvM.50OjtMsZbUjXZ9iFX3O7WXWEMy23NbktgdrDpyN.1RavsdATiDy2jz7VCGJ4y1pj
- wPbE6X0vaviJKhWfSNs4I3M7O5AT0vDop55aeoTzuV.jd.PWKp9Vwap.DLYW5Uj1YlOvIi9h._6m
- GcrC.hSKCp94WS4gwR71srKe4GjmBBaM92a7ZUu3g7cN422H0xetwgk1kPYI.4q949bsGlO0HQrB
- ziqy5YPcnHN7tJHqL9WyRwxuss4qFzzXb5VA7RnTWBm2pkiaTidZFzyQANVKGSfo_QK3FE7p2dzu
- 8mU88WQcYCYocjpEGP4uMEJF__zEN0d3ZjsH1DeX3lwSqnxnWvZcItEXJX.djYVm27nUwsuBd_sT
- .hRToazxy8xygL9VafdexW3vBIUQ0fzZybrhf1jZNnzUBKr2gR4f3kvlNPZvD2A27IbGFkwRiYI_
- 7FMUAYc6cGNjcykzJ9siYh2Fsm.EBhSAw1x.QzndAD59hG_84lrnutyqGapy5Zt8OTNp1e1egt1x
- vId0u5usQC1es40AYq9g4IQcSaGUsoZORM0wFmPQT9BkBAvBOHu7yAUVN670SlT7LoGXEZm9x.VZ
- D.o99PkpVH25Ff9y7SDvgz7fhZsu7HKyIzH8wuz4rL9_iLp1y86BsAE4C5zhoyVszi6LPP0EvhV9
- .J5NF1cRCEQ1guO.jE3lWDj0WAbdDLbnIAECyx5xQqUk0IhKu3arHRuxKhMeEqJfCv4eRID1C0jB
- Z8i5TGnpAxhVH1nRKG5Zrf67X3GBYLxIc59Qj7Jj2JpcnZUWMaw.4NBTg79qx7v8gtG2FjgoJGmc
- ZFdN6UuEZz_M0fvmshKZfJXz7W1uLJPuiqPMISm1Bck5s02VsmU2qNnEraAarDgc5wn1tAyO7ktx
- IbtC4YgAxI6XnnGOSuOUi0cr_mzBicrz1hZ.lNpDrTVcFpohvb7UA57hwMoBthAxSewSRXbMbvBD
- eZTAd1RntmBLYjogKcxM7pTIIVy0Xsfh7n_BJzokKoRh7L3FcjfRIiGAdtHZRFHCfVqkO.jLJkhw
- 75O6h9jdMMXG5qF3g37Bea25EVlPK1S_h6bmZ3jUVMsSbKbPLLKBtiNdrkrb_X5WjNuFymtAbCZl
- u4xxMgH64fjmaRVx8e8WKRlVpMoucJ75H3IzDnxexk1lFuikQ7TfX6GkA3..9qPOAXb4vN0Ba16s
- Qcp3qXz0NfM51.cm.HlJ.w4QhL3qpExgjON7k4PB3WnzDJ8H4qkRB4PXza5F1IViHKpwg2.VnuiL
- 7GiJPA2diHlmONuo4DYYFuD6bCg6OuJvJAxyMXxlMUVOSZXbZm.NEBbgW_0PKmZpWWQE7.LvkQV3
- o.3tnnxGIAqVZcgyFSWEmGKvOXgso7MW1fEJ8L5ZhalOB8cAF4Gi2s5j6YCK3vwkHVdMbZ5Cdiy6
- c645Uq4Uk.8iYol0vHhlB1rUNpwl172JyqNOe..zK1dZaNmkqZESyH16VtHb1RDkTimnPDEsAIIt
- NZ_YZEtTdHCapQ50g3_zKnfyHjt7_3Jq76S1Y.nee1nzO2V5NrqOFpS8pN6_hulzrDymeqeH7Q1c
- qLhv57vUjqfw1z.gOyJGOsDUMWBJGGEVIzzt_KE.hegoRij30isWM3kjsoFs33.2TnuqWZy8LMwi
- 0257iF5xbcaIJ3bKKqA3rRls9Ti3tZ2YiGurnkMFur6CXaPSlKAz5bL_PboaaA._XsrH1Y5CpA6o
- HYYlqxIVciw1QVpGoVLmwDpDQUYcKgA--
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 4b11dd98-73fb-4a66-a5e4-68bdd261eb16
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.bf2.yahoo.com with HTTP; Tue, 22 Oct 2024 00:20:48 +0000
-Received: by hermes--production-gq1-5dd4b47f46-k4d2j (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID bbbab94bfacf20b28d9123c76cae1022;
-          Tue, 22 Oct 2024 00:00:32 +0000 (UTC)
-Message-ID: <d2d34843-e23c-40a7-92ae-5ebd7c678ad4@schaufler-ca.com>
-Date: Mon, 21 Oct 2024 17:00:30 -0700
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZdA4zo6Z"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1729587836;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=A7+NB/d69f1eLcTUEBhoXdrqfgIgN6ikMwOW274utMs=;
+	b=ZdA4zo6ZNOreb5slfRXLNMz2veTnO4/Dy1XKjbCVH4LvtYIVEHPjQzpstI11bVFt9Vp5Or
+	XAWm6wjyjk9pi7jhj4UdPY8aq3fOu4LU+k9yPJBXJdeKbPN3kSIKd8eJIW5YmtpDL3iZ46
+	mWe112C+4LDheIr37btbXl+1xsDJjbQ=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-467-LdteiyxoOx-CbOBfouGoNg-1; Tue,
+ 22 Oct 2024 05:03:51 -0400
+X-MC-Unique: LdteiyxoOx-CbOBfouGoNg-1
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 36F5E1956089
+	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 09:03:51 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.225.247])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8279319560AE
+	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 09:03:49 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH 1/4] libsepol/cil: Initialize avtab_datum on declaration
+Date: Tue, 22 Oct 2024 11:03:11 +0200
+Message-ID: <20241022090314.173002-1-vmojzis@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 4/6] LSM: lsm_context in security_dentry_init_security
-To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org
-Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org,
- john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
- stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
- selinux@vger.kernel.org, mic@digikod.net, ceph-devel@vger.kernel.org,
- linux-nfs@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
-References: <20241014151450.73674-5-casey@schaufler-ca.com>
- <b94aa34a25a19ea729faa1c8240ebf5b@paul-moore.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <b94aa34a25a19ea729faa1c8240ebf5b@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.22806 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-On 10/21/2024 4:39 PM, Paul Moore wrote:
-> On Oct 14, 2024 Casey Schaufler <casey@schaufler-ca.com> wrote:
->> Replace the (secctx,seclen) pointer pair with a single lsm_context
->> pointer to allow return of the LSM identifier along with the context
->> and context length. This allows security_release_secctx() to know how
->> to release the context. Callers have been modified to use or save the
->> returned data from the new structure.
->>
->> Special care is taken in the NFS code, which uses the same data structure
->> for its own copied labels as it does for the data which comes from
->> security_dentry_init_security().  In the case of copied labels the data
->> has to be freed, not released.
->>
->> The scaffolding funtion lsmcontext_init() is no longer needed and is
->> removed.
->>
->> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->> Cc: ceph-devel@vger.kernel.org
->> Cc: linux-nfs@vger.kernel.org
->> ---
->>  fs/ceph/super.h               |  3 +--
->>  fs/ceph/xattr.c               | 16 ++++++----------
->>  fs/fuse/dir.c                 | 35 ++++++++++++++++++-----------------
->>  fs/nfs/dir.c                  |  2 +-
->>  fs/nfs/inode.c                | 17 ++++++++++-------
->>  fs/nfs/internal.h             |  8 +++++---
->>  fs/nfs/nfs4proc.c             | 22 +++++++++-------------
->>  fs/nfs/nfs4xdr.c              | 22 ++++++++++++----------
->>  include/linux/lsm_hook_defs.h |  2 +-
->>  include/linux/nfs4.h          |  8 ++++----
->>  include/linux/nfs_fs.h        |  2 +-
->>  include/linux/security.h      | 26 +++-----------------------
->>  security/security.c           |  9 ++++-----
->>  security/selinux/hooks.c      |  9 +++++----
->>  14 files changed, 80 insertions(+), 101 deletions(-)
-> ..
->
->> diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
->> index 039898d70954..47652d217d05 100644
->> --- a/include/linux/nfs_fs.h
->> +++ b/include/linux/nfs_fs.h
->> @@ -457,7 +457,7 @@ static inline void nfs4_label_free(struct nfs4_label *label)
->>  {
->>  #ifdef CONFIG_NFS_V4_SECURITY_LABEL
->>  	if (label) {
->> -		kfree(label->label);
->> +		kfree(label->lsmctx.context);
-> Shouldn't this be a call to security_release_secctx() instead of a raw
-> kfree()?
+avtab_datum.xperms was not always initialized before being used.
 
-As mentioned in the description, the NFS data is a copy that NFS
-manages, so it does need to be freed, not released.
+Fixes:
+Error: UNINIT (CWE-457):
+libsepol-3.7/cil/src/cil_binary.c:977:2: var_decl: Declaring variable "avtab_datum" without initializer.
+libsepol-3.7/cil/src/cil_binary.c:1059:3: uninit_use_in_call: Using uninitialized value "avtab_datum". Field "avtab_datum.xperms" is uninitialized when calling "__cil_cond_insert_rule".
+ \# 1057|   			}
+ \# 1058|   		}
+ \# 1059|-> 		rc = __cil_cond_insert_rule(&pdb->te_cond_avtab, &avtab_key, &avtab_datum, cond_node, cond_flavor);
+ \# 1060|   	}
 
->
->>  		kfree(label);
->>  	}
->>  #endif
-> --
-> paul-moore.com
->
+Error: UNINIT (CWE-457):
+libsepol-3.7/cil/src/cil_binary.c:1348:2: var_decl: Declaring variable "avtab_datum" without initializer.
+libsepol-3.7/cil/src/cil_binary.c:1384:3: uninit_use_in_call: Using uninitialized value "avtab_datum". Field "avtab_datum.xperms" is uninitialized when calling "__cil_cond_insert_rule".
+ \# 1382|   	} else {
+ \# 1383|   		avtab_datum.data = data;
+ \# 1384|-> 		rc = __cil_cond_insert_rule(&pdb->te_cond_avtab, &avtab_key, &avtab_datum, cond_node, cond_flavor);
+ \# 1385|   	}
+ \# 1386|
+
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ libsepol/cil/src/cil_binary.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 3dec1883..eb6120d9 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -975,7 +975,7 @@ static int __cil_insert_type_rule(policydb_t *pdb, uint32_t kind, uint32_t src,
+ {
+ 	int rc = SEPOL_OK;
+ 	avtab_key_t avtab_key;
+-	avtab_datum_t avtab_datum;
++	avtab_datum_t avtab_datum = { .data = res, .xperms = NULL };
+ 	avtab_ptr_t existing;	
+ 
+ 	avtab_key.source_type = src;
+@@ -1346,7 +1346,7 @@ static int __cil_insert_avrule(policydb_t *pdb, uint32_t kind, uint32_t src, uin
+ {
+ 	int rc = SEPOL_OK;
+ 	avtab_key_t avtab_key;
+-	avtab_datum_t avtab_datum;
++	avtab_datum_t avtab_datum = { .xperms = NULL };
+ 	avtab_datum_t *avtab_dup = NULL;
+ 
+ 	avtab_key.source_type = src;
+-- 
+2.47.0
+
