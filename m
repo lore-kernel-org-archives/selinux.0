@@ -1,66 +1,66 @@
-Received: from mail-ua1-f50.google.com (mail-ua1-f50.google.com [209.85.222.50])
+Received: from mail-ua1-f49.google.com (mail-ua1-f49.google.com [209.85.222.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC76413E41A
-	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 20:27:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42FDF13E41A
+	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 20:28:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729628853; cv=none; b=ALNFObMnfuoBbfOrpb28GAIJIBwTIuoFVPjTOUZwoEJI4tu3635HArq/RAT2odXJZDTMOAmot+1NH2E4QrRdKV1OijLxZEepDsETCH7uW+J41sn3i8ruU17q6ti01pakKlF9pLOjCTze3SZkV00nIROgZQf6XgK7i74IOZYEamU=
+	t=1729628890; cv=none; b=nkoadmORKycizZ/rgyS9po1wl64NiTM/6jp7jaQp530z6u/octSTbOAJIa62xqSPNzAXUp5oqEdUhhl2cgNGIDunK7ljQ/IcPkfW5Y7e/4JcMJjKv0meQu7s18AV/YNlzx/kvXsc+1mO/ezuvEhAazlm5k/B0ct0+Z0uyOILsVA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729628853; c=relaxed/simple;
-	bh=C5iERYscM1c2IRPi8qzik4CZJoRho/DQNPQbSVOvHIA=;
+	s=arc-20240116; t=1729628890; c=relaxed/simple;
+	bh=7Hxk7O4gBxAUUX0j2yTNjBBJVmW4I7j2ny/nYQJAlYI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=i+G7LpBnBj6yiZp8zmqD0YU1ZJABlas/cJP4igpuFU+gOit3yve2E3sNx5mZ4qEbwDETb899Vm2Ud8pkY5L59hF3tSZsVOLKomJ7n7hRTJccb12FOO5HyTDI3eXPoS9GzmzK2fKyrpqrEmKxerKxd6bgNt+HFDHD8Cy396IbTSo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eIM6IW1B; arc=none smtp.client-ip=209.85.222.50
+	 To:Cc:Content-Type; b=qpRQ7bYeGK/AiFB+vbrYFMcgpofsDtPtLcJpsDppnpU7emPa2VP1R2viwk80fiQK+mQN56CpELjg1HEgsJfqKk3wasTVsk4woUwUbO3gHjQW50MdJXnjl2UMb44gDpDFI3F3Q7AeTmh2R41l5n8RkyvpdiUwA6BL9Ac842QW+6s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h6IxKTPd; arc=none smtp.client-ip=209.85.222.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eIM6IW1B"
-Received: by mail-ua1-f50.google.com with SMTP id a1e0cc1a2514c-84fb86af725so1705835241.0
-        for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 13:27:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h6IxKTPd"
+Received: by mail-ua1-f49.google.com with SMTP id a1e0cc1a2514c-84fc0209e87so1969672241.1
+        for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 13:28:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1729628850; x=1730233650; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1729628888; x=1730233688; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wjKEkh2fcnMq6MC7+qIa6A6k2wz6En1vF6SrjNcrkAo=;
-        b=eIM6IW1BSMGMQtyzeban7bYnBdQOieA9nRAuM7ek9Sv/D70Wbd+VstayFs6jpNdvMS
-         RukfNYXW9A+P/bYenZ2bFUrR3JBk9AMZSRyr0p1QZ67ubLs9hgdeOwPslTcDivQB7uvM
-         h5LlnPZo7nVMEOWSpmoRVKZlK4Ve/Pi7QereIxn+lsALTafTrL2jJw3OmyEBfi3W510C
-         s6VzJ5VQktPTx+1j/DFvh9vI4IR4KFKXxwX4Dkw2pg8KSy31Pt/h3tbtGR0KuyQdpUxU
-         uptSFX24Q4KIZIHCvWZ+S3uRnjKQlsF74H5k5HWT2RWn4gZvhskgZA2lsv4aEePpCzYV
-         awnA==
+        bh=O0M1kS++TYC11LLOvL7XqjtAuE5qmMkETPoZEBj1tgE=;
+        b=h6IxKTPdg8gxDbhmccK2XT8Y/eFEAQ+4Gc2BjGzkcp+vzSw5CgfsrRfJDcJmExaaWq
+         thmGqPJjcruvP0rf0JqHTFOYIhNI5YcEIIz1yHBmJJnJiby9yHgLXb39ZGAbTn2MFDlZ
+         02tgjkgN5KIunHJbLlM2HZJzo/0kcjt/iaX5CKfku76yH2h5DV+eFEfMuQc5yhkg2hDi
+         u89tkuYQ7wZ+Fp8BdgKNVfXnRgzkTC8DHxvlwCEphbEiljBKtxaEfa68D6SakY2i8Ntu
+         yPz1tGOsxvdlVpBaZKCYSEjv4kNijhI0qAr5Eel+uTJmoVbBhqekiXcjg5zQZ8NkRbJh
+         qgfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729628850; x=1730233650;
+        d=1e100.net; s=20230601; t=1729628888; x=1730233688;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wjKEkh2fcnMq6MC7+qIa6A6k2wz6En1vF6SrjNcrkAo=;
-        b=NpaJ6MzIGm3gG+WgXdG9PVuOFYsONl1FV4DuiK8DuTduR7pxB/9qGxDOZw3vvel+bi
-         QdP4etHHFhtHJtjRiHZB86KGve4WqqnKLCSIOsDiV3SzCOfF48UvAARaIct+dARsfUmW
-         xyX0fcxiGQo9fslb/A9uFv+Ud0vFX4XaE+UFu8R7kVr2OnRhY5/QVrgssz1QIdCIpdjf
-         9Ji8XvQlW+UvwVInUbarF1nLygxohq9ycHAGAAyAqPDoLWn9HQmbbMoWNlF5wQqMVu0u
-         U2raEfAGg2ykQo0XVxgaZ5vBSHLm70B66wTnce4ouQSBjoUUFX9Pjx/cfmUNFZPMeZeG
-         bbhA==
-X-Gm-Message-State: AOJu0Ywx5EmzcZCuoowLlRefDtkfTBdguCup8th5wmFDwUI20eZr2xls
-	k1zclEjco4WlGfACPjCEUlb1Gzt+qB47UIbfG/9Owiou2lYWXivuWYbFgL736zBwkQhZwKLs65h
-	S8OyisdXl1OCmOFY1JDek8E/ImiM=
-X-Google-Smtp-Source: AGHT+IHQca3iUx9l+KbL1wLxQHBbxRyqIyZDLsne/10ufrxLowLb+3Bldpz3BwalifBHiuLmBAGwcSnwfFJngN00nJQ=
-X-Received: by 2002:a05:6102:5112:b0:4a3:d9da:16d6 with SMTP id
- ada2fe7eead31-4a751a8c663mr367570137.3.1729628850656; Tue, 22 Oct 2024
- 13:27:30 -0700 (PDT)
+        bh=O0M1kS++TYC11LLOvL7XqjtAuE5qmMkETPoZEBj1tgE=;
+        b=iDVUGeWxFjR8QemgRBvoTHwpb2OM4V5gtnlOzuS8e5Eh5pQ3k3XVyV/VVHRu3T08DU
+         Smrgw9YMa2NpVBL4hIo2K4pXljaIPd8FRQDWRAxRuiw9epM9A5GcVQKqdHBkrRWwb5A4
+         rMiq3HEjt76K2+UzHOEX0zza9XrwnNbpEX2PeLbh5GNtI4zXxcBrFgHh+x3EhRN7/iS8
+         d+7E2WcTtbHOVMjwlXEedXzFpTPQDCCkkcDCWxoif2lYDid0OGZXgSACWUZfZ+ttOvcJ
+         gYGnjtwymfmiv1IhEAhkXyODVJk/WVzQ5C0eKGg12MAYNIhUXHmF0LXS9iziEzngTMg7
+         b1Fg==
+X-Gm-Message-State: AOJu0Yzv84JBBQwHQeHCeU21t+4c8JaZY+KvGRYfRoFRluyJr5W8sMUg
+	/sfDifG3bADJTwgNcc4pLNs8jPfC8JrJz8bnqNXb8pP35mxBotOT40+85Vl0ZSjifPYtqKyzvYZ
+	lcCgNi37W2G57uikOokf/qB7nG+4=
+X-Google-Smtp-Source: AGHT+IFQotEGQZ+AcA1G5tfIRmFOKOnLAJLv17a9SlfkPn6NHI5Zn0hcnqhKTMSyhUM2hHkuqwuLuC1c0yhzVsTvLHc=
+X-Received: by 2002:a05:6102:4415:b0:4a4:8651:3c46 with SMTP id
+ ada2fe7eead31-4a751c9268dmr405887137.18.1729628888039; Tue, 22 Oct 2024
+ 13:28:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241022090314.173002-1-vmojzis@redhat.com> <20241022090314.173002-3-vmojzis@redhat.com>
-In-Reply-To: <20241022090314.173002-3-vmojzis@redhat.com>
+References: <20241022090314.173002-1-vmojzis@redhat.com> <20241022090314.173002-4-vmojzis@redhat.com>
+In-Reply-To: <20241022090314.173002-4-vmojzis@redhat.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Tue, 22 Oct 2024 16:27:20 -0400
-Message-ID: <CAP+JOzSyQf4NsAX7Fy28xt3NOzmPY+C5RQrQPU6V0R8bSEgP8g@mail.gmail.com>
-Subject: Re: [PATCH 3/4] libsepol/cil/cil_post: Initialize tmp on declaration
+Date: Tue, 22 Oct 2024 16:27:57 -0400
+Message-ID: <CAP+JOzSs3i0bTUAuxzssgirFV41s2wfrpkBFx-s9EU38Sp2BDQ@mail.gmail.com>
+Subject: Re: [PATCH 4/4] libsepol: Initialize "strs" on declaration
 To: Vit Mojzis <vmojzis@redhat.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -69,49 +69,72 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Oct 22, 2024 at 5:09=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> wro=
 te:
 >
-> tmp.node was not always initialized before being used by
-> ebitmap_destroy.
+> The value of "strs" was not always initialized before being used by
+> strs_destroy.
 >
 > Fixes:
 > Error: UNINIT (CWE-457):
-> libsepol-3.7/cil/src/cil_post.c:1309:2: var_decl: Declaring variable "tmp=
-" without initializer.
-> libsepol-3.7/cil/src/cil_post.c:1382:6: uninit_use_in_call: Using uniniti=
-alized value "tmp.node" when calling "ebitmap_destroy".
->  \# 1380|                               if (rc !=3D SEPOL_OK) {
->  \# 1381|                                       cil_log(CIL_INFO, "Failed=
- to apply operator to bitmaps\n");
->  \# 1382|->                                     ebitmap_destroy(&tmp);
->  \# 1383|                                       goto exit;
->  \# 1384|                               }
+> libsepol-3.7/src/kernel_to_cil.c:1439:2: var_decl: Declaring variable "st=
+rs" without initializer.
+> libsepol-3.7/src/kernel_to_cil.c:1487:2: uninit_use_in_call: Using uninit=
+ialized value "strs" when calling "strs_destroy".
+>  \# 1485|
+>  \# 1486|   exit:
+>  \# 1487|->     strs_destroy(&strs);
+>  \# 1488|
+>  \# 1489|       if (rc !=3D 0) {
+>
+> Error: UNINIT (CWE-457):
+> libsepol-3.7/src/kernel_to_conf.c:1422:2: var_decl: Declaring variable "s=
+trs" without initializer.
+> libsepol-3.7/src/kernel_to_conf.c:1461:2: uninit_use_in_call: Using unini=
+tialized value "strs" when calling "strs_destroy".
+>  \# 1459|
+>  \# 1460|   exit:
+>  \# 1461|->     strs_destroy(&strs);
+>  \# 1462|
+>  \# 1463|       if (rc !=3D 0) {
 >
 > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+
+Acked-by: James Carter <jwcart2@gmail.com>
+
 > ---
->  libsepol/cil/src/cil_post.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  libsepol/src/kernel_to_cil.c  | 2 +-
+>  libsepol/src/kernel_to_conf.c | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 >
-> diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-> index ac99997f..c8dbfd3e 100644
-> --- a/libsepol/cil/src/cil_post.c
-> +++ b/libsepol/cil/src/cil_post.c
-> @@ -1306,7 +1306,7 @@ static int __cil_expr_to_bitmap(struct cil_list *ex=
-pr, ebitmap_t *out, int max,
->         int rc =3D SEPOL_ERR;
->         struct cil_list_item *curr;
->         enum cil_flavor flavor;
-> -       ebitmap_t tmp, b1, b2;
-> +       ebitmap_t tmp =3D {.node =3D NULL}, b1, b2;
->
->         if (expr =3D=3D NULL || expr->head =3D=3D NULL) {
->                 return SEPOL_OK;
-
-I would rather have "ebitmap_init(&tmp);" here. That is how we
-normally initialize an ebitmap.
-
-Thanks,
-Jim
-
-
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index 7243b3c0..2d563e7d 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -1436,7 +1436,7 @@ static int map_type_aliases_to_strs(char *key, void=
+ *data, void *args)
+>  static int write_type_alias_rules_to_cil(FILE *out, struct policydb *pdb=
+)
+>  {
+>         type_datum_t *alias;
+> -       struct strs *strs;
+> +       struct strs *strs =3D NULL;
+>         char *name;
+>         char *type;
+>         unsigned i, num =3D 0;
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
+c
+> index ca91ffae..661546af 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -1419,7 +1419,7 @@ static int map_type_aliases_to_strs(char *key, void=
+ *data, void *args)
+>  static int write_type_alias_rules_to_conf(FILE *out, struct policydb *pd=
+b)
+>  {
+>         type_datum_t *alias;
+> -       struct strs *strs;
+> +       struct strs *strs =3D NULL;
+>         char *name;
+>         char *type;
+>         unsigned i, num =3D 0;
 > --
 > 2.47.0
 >
