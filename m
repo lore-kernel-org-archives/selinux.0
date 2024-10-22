@@ -1,154 +1,71 @@
-Received: from sonic310-22.consmr.mail.bf2.yahoo.com (sonic310-22.consmr.mail.bf2.yahoo.com [74.6.135.196])
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12C70256D
-	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 16:47:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.6.135.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 871331C9DC6
+	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 19:14:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729615635; cv=none; b=IRMaLafC0ZwMp92FvjgbTbtHCb4ApZGJJo6ovrlbwHAqxbemZtoTLnqkrWGM5dFjmUmaYBbS4NH0aNnsNSmolvfSx+Ex041S9TnTXc3DV8reNH14n2chfCmqkVej2SVQROismxHzvOAn/Ay4U2cPXxxYosn+73V0AU4dQhhlZEo=
+	t=1729624463; cv=none; b=dYm+G5UUtGkK61bJGy24FTFtNma3pVz6w9l371hQqCKhLSTMn49HyzjGxQSfPRy8RMyMuAM3kz4hpDiWbfVMUC+1qA8UvH/nUpChq67EyTlxajCYM5wyLCRy1DZUqmBTgVSrqWgkL632VqFX9mQ376J5QW5H5VfUnFWlYaDJ0gQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729615635; c=relaxed/simple;
-	bh=LGvZfBG932kQ1YrUvUr/IcYClA07C6OSPqb3K/idqnA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AN7wwz1hZ9m/91xToTmzaQ4QF+pvEN4B8mu6gYC9uA6w2vYvOHHD5zgJ+Rnk0UFNPkyVDP+w6x6ClnL9OzPVzn68TL4QDsxAm3vKN8O2pExU2i1DG9VSDadnhOqCsJg0LTkvONmVK6z/HPbiA8v6HW9tAV2FaYDDIOTQ7coQ8DE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=FqnCFpoq; arc=none smtp.client-ip=74.6.135.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1729624463; c=relaxed/simple;
+	bh=//1CpTxAYNvTDgaSCqn2f07Dswj7PehYDuhlNai42U0=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=qSARqa3pw221kNqnU4szLv3lS/n8lUYqnwsdQyV5zg7YeOVnuzJUzL/4m3zMmG397tfce+iRxjN/TeGq3C9tGZzo/QP3EPaagc2vqeF4BpQMPc4fRE7xgm8DU8Jo5Mj42hWtfLGUUfAMK2gD2Lc/0D72UFEi/1UqJnl8gr2Os/Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CONkqHjk; arc=none smtp.client-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="FqnCFpoq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1729615626; bh=W+YjoM+UFsc+LXmblPgB436l9oughyTIbgOOXvBruAo=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=FqnCFpoq4jCFPithiMRhzrH6/bQ5DnkHF1qBy13oYrO4qV+tunzbgWpMQSbouxzN0DzGC9tVspro4/le3iFQO4VmLPPsJCAQ4zvywr2eOySFmQ0AUrSvPw5t0S4Wj0Z861cIHEc9vPng33XHQc5J6B4aKk9OBaLxCB7Ulck9ScoR4ddzfz7L551RBREZuIS2egH9hYTJPCNnxp+AKz1b2iZEvc1Xl8/vufKGziBM5EiTJ/ezWmFFnHramlaLI39n9AncgaCzHHwe450EKCDRo1bHQGOQPYQ8feeK/QM6+np54MtOmNYUjj8jGALU0HNjpbnzWR0Lr0i+0zhYTRe9Hg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1729615626; bh=8ljbTKG1CBu5VxP3Wr9j7681FZtFjfm8i3yCvVR/QlJ=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=P0XBXDGHiWkYf8fBqsO1jjiuFU2PJy8pAI66/ED2pyc+3AzyGHxPZqUuS8R1L/o0qIiIZm8gNsNvtsXOWH/jwyFvsrelrz7x/L0OQL8yMt/kJZc0gs2Sg8TMjU1eJRFgitHIuDr535RNLHVAk0axb1R5iPuzKbjrnvpL/MJlVB34xZsCuSUlnABgMLOuTZdc8qLpML1ks90lLT6POrTeopYsQ158dBTaR5YzuQ1Kb2vpksVe/bgdHywr4Xy4M60CaPedcq+ZtvgKVqTg7ancNTk2Ev0IxjacndRzAoIYK2GCafcyW87r1Pvr1Ie9M8Qv++RX3PJvTahGVhe3k/8AGQ==
-X-YMail-OSG: S.gcgSEVM1mhBlYSMpGksHU3UnFXpOxOFfQ11kpgsEQ44mS6gPshQRhu44cC_TZ
- bLrtowY2iy1ZoKBaGB2XJf8vQDAtgxdylNVpLzxYzKdfgqeObMLWP4NodJoiOyh3UolCCyGnG0Op
- BVYEfXs3Oj2VOnki5cNJ.0Xy5H0X.qjThRv1eQSoe6Ykm6xyyi6w0_z.CSIqkgZUo6aeDeLKMa3A
- g64PLIvdQmbqscPkDrS.5lq1GNgJ3VYU.M6sE6HCSkIUomRUVlqP5_MzHE_UE9ckeuKPep3rwwTd
- ET2.wQWFZSNK84SRqHoER0vww.8jxfVVef.YLwC2_ald4dCtDA_UAI9_9gffQYZWLPbTJVHIAOOi
- fNTSTDf4EbaP8wDgqY_wvYjgSnc7c0jnzizqebZ47_xi4ZpIoCc2srV_.wH4yU4I_1PSMcAKIntg
- b8NBv0B8OkrBlz_QPZXRPzmFoAIxxqXVasnw5hKv5djFHIRjFE0uCeB6NFQuF9DceiDkAQ7IQInm
- qJpTDhwsNKdnhN7A521cyxy13Ix9zRPQWja7hheeLJ8MWHXmxetb5dqOoF_u5PLiShJW9pvY9vc9
- _wgt_SLecosY.Z9BEtaF8V_b4L9dMqWvfevM3_OOZ6s9zWjUcWqKzPQMwoOXExfyErPRIrNb99Ow
- JvWTRUtXIFvcTq.llSknRayxy9DFOPzzxNkkkCWme.UkQyt6loXVmafhvvV3SYEQtrDayKrswAQi
- hUcAwFet.msF1poOLI0IF54sYZhe3RGX0zAt5pzFJWmbaSE_dOQcEiqxDHPYMS5pVq37wSDTfcv5
- sTscDBC6LGo6imhe5y0OO0E1IdOsFYy7h_RyEHfS6PaC8TfTjmqmkWMWZp7LJI..NtXHX7R6pX6p
- bUQhxCPiJsMFQPwrB2jXFe_7IW8mGxXTGHCaUU3jM6dWrc4cyMpKrLU0PO9aFX1GaJbdOnD4DIbF
- uRLtFP2BzS0bdXk0fb4sXjnqtsh7X9Ao26PZfbgET02BUcsL0c7hcXGi50XkPVTYMkpr.wysgjMr
- fyB6C.2FFT.qt5RcsEUv3Uu3EqsSVZlSXHgp202dEqgXv.btqKQr3SqMpdGZz2pWvrJPvypIYy2s
- 1eyj83RK8oZCit9c3QuneekVol_KF68h7gthX_FP1XJJbcSCgjZAReVrg7FMSca.ZY_L3ZUUvI5m
- vN0fd.gYWoqOSXykbZl_iZr3gYlPor_ujRpi21MYWqeQvUaxL13j7tKxaoChbyJh_sROwMMc.gC6
- jl_LIMosVWAO9z8SO_ohfYEp5W6GHSDRTjuU_QwEP8JQAymkEcYTXxwUJCh4cqUDe.hvLJX0sjl1
- N31MLFBJZO9hqh_7jWqErDEsAmoEi_dyngqWrZgBXdux2GV8tL5WtG9PBW1zXYswNQNoBMFZRIPh
- s5fNcKkX3YMMzDz9TWNM1Wr6rojNVBkxMAT2WPav0RRTsdlS7yj_mPEngouIJXXDZ73SpavN3yS4
- .Cw96yAep9OtN0WQYkBRVA0IItTu7VzJXdWDqy28Rv4OhAqAS1gFK5e2AeSDMn_bnCrIyiruiMq3
- CgPFG1hblTSsgKYhdq4PtmhjD5YL81QElvtBhh7Ok5hIjJZE5LCD8OQSAyOorU2hGQpxU.iRtK3R
- hZWzOl9SVSxfxdZIhThhqtk03F242vn3C2YDHVNco.MIP3iwItYbuziIEan3abEV3SLtFqSYvLZM
- MOcDigr32.nTQVwb3Wc8rqOJcZnFBp4rF9RMbFUlGnEu4UCzZiTpYwyWAW8MZC4mDHgx9C26_nxt
- 5dR7HdNeDqxUpbdVSkI6wPOC7PscMKbcIak52A0BIqFSOY.B9dASRtTdqfqJyDu4P8q.tIWK_XFK
- z8yKzY8BLxBkUrIhHL3DDdC2oy5z2_OR4yZOyozaCmPxCN0CajPxJcLkBJI3fGr0PbZBWxpwb73Z
- rJk6WjlnmzCCJV.n.EUqBTqlilPm4z51BUgkXXXzhEXombZyEk0DyhJxt0DfjReKr9INKyiomtgX
- Bvo.aUICSmhoMx2U1x7ZBhvB.ec9egcK.s3MJeDR12DsQy1yfiEUyOiTWF2nyMHPWhZiGeWtpwq4
- FCldIVTUqnW71Xu5xnRybxAgm6O3mGytqZH92EgH0pKuWlwt9pXJqYGCtnFhykpo84nbHFYX3IfJ
- kzWoRd_xBb45psnPLUYPKZsXegO4AyuAI7H_LIckk60FkHLuDHKZ_oXF5q1C8E1Ii2XQdWt4lpHn
- kekTNVwjcBwhKUFgV.KqOoP6mGDyH8PJxv9jGcinNZxw2mtExFZBVo7h9fsaDWjHgUiIB88ISKr.
- C85D5HyLLGGypjUww
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: cb6630a2-79bc-4591-ab0b-03f7386e3ee5
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.bf2.yahoo.com with HTTP; Tue, 22 Oct 2024 16:47:06 +0000
-Received: by hermes--production-gq1-5dd4b47f46-dvwsq (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 6a5b3f8172a524a4157cdb05ea625898;
-          Tue, 22 Oct 2024 16:46:59 +0000 (UTC)
-Message-ID: <6dc1c686-108e-41a2-bda3-8744e5f7626f@schaufler-ca.com>
-Date: Tue, 22 Oct 2024 09:46:57 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CONkqHjk"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-71e5a1c9071so4290402b3a.0
+        for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 12:14:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1729624462; x=1730229262; darn=vger.kernel.org;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=//1CpTxAYNvTDgaSCqn2f07Dswj7PehYDuhlNai42U0=;
+        b=CONkqHjkGxe97d7DlsOeHkvqQ5l/Mol0OujOs78DUMCf7PVLAoygQojYmgJs6bLvHT
+         hKJSHGs61HAmkFSmjVesb+6tm7McLepvCExNZtH3xM5I6wXj/H4I6NoQ0tOQglQnfPdL
+         BTlVrYzb4m46YJFnR+e2q2G7zfaZun9AtnzExo6nXe8G0uA6iQ/1fTyTs/YqY6gJC1dt
+         cHsUeEk4wKeWpVhnCukYJXqINylosPVCpgeonxmuWelnlmTv5UqADenrmDX43rcF/MC/
+         yg9ml2aN0pSjLHLBlty9HJA+PPP7zN2fSHWkWEIfHBqVT6HtQ0iNe32GZ6tV9GpRgyDY
+         rVXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729624462; x=1730229262;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=//1CpTxAYNvTDgaSCqn2f07Dswj7PehYDuhlNai42U0=;
+        b=CtZy+Q1XYOrp5C/omagOOdgHY0PBqDD+LRIyNIXsfW+HhgX9YwMd6iiQLD4mRUKkEX
+         PeqID99McFfxy0D3+ZG2xw7yK7YoCvCoEQn6VrWxkxeDm7PESWJd0FRMOXErtKlB4H/A
+         Bpr8ocAfQ7tnTXrpKxinLOojvHtleOWm73OKdSQ83VGR3uesxwXgYyJcVc0fpafl5q91
+         Xud/IeakJwnOXKreeSkiIl1W+WK1JlPQBoexgq+xiyAa7cDn0Os0VPcPnCI07Uxk+qx+
+         neh/fbVMaujcLIGfRvyMg7H4+l0hnWor4c8M4HOUhC9SJGIt6DLGJtcP6P50PT8kQ6Li
+         8bFg==
+X-Forwarded-Encrypted: i=1; AJvYcCVnC9oBsMn4WX+FRvQcP2lsaCdFf49J0Qjx6AF31nbKiXa7ZE7i4iA3MsID+RaQwG8Y8TQQv97a@vger.kernel.org
+X-Gm-Message-State: AOJu0YxVb68Y1fWqyiNNHnL2zGdX6rPjmRzzUwEoZYiOXLE/Jk+xh5T7
+	DkDhCD4nFKgdlcVfR7eB/h8VOgebR2ix6NqmeelfzgUXL+aWOrnEPg5KzlykaXPRW/UvLODqVZ4
+	i9QOpUfaP/SIMvuQAvZR+1oG85Vg=
+X-Google-Smtp-Source: AGHT+IEoQMbahAA/S8GWgxgm6hBwJw599yJUXq1bXpHkPiytH/C/2Oc3pPMpRqS6UcaArvL6pqU4bGCk6JfUCXLWUII=
+X-Received: by 2002:a05:6a00:852:b0:71e:3b8f:926 with SMTP id
+ d2e1a72fcca58-72030b677bcmr407164b3a.22.1729624461679; Tue, 22 Oct 2024
+ 12:14:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 4/6] LSM: lsm_context in security_dentry_init_security
-To: Paul Moore <paul@paul-moore.com>
-Cc: linux-security-module@vger.kernel.org, jmorris@namei.org,
- serge@hallyn.com, keescook@chromium.org, john.johansen@canonical.com,
- penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com,
- linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net,
- ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20241014151450.73674-5-casey@schaufler-ca.com>
- <b94aa34a25a19ea729faa1c8240ebf5b@paul-moore.com>
- <d2d34843-e23c-40a7-92ae-5ebd7c678ad4@schaufler-ca.com>
- <CAHC9VhS0zagjyqQmN6x=_ftHeeeeF50NW91yY5eEW4RF4sE98g@mail.gmail.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAHC9VhS0zagjyqQmN6x=_ftHeeeeF50NW91yY5eEW4RF4sE98g@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.22806 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Tue, 22 Oct 2024 15:14:10 -0400
+Message-ID: <CAEjxPJ7JTbEk-=r=Lnjm8MFC1VRn49wWjLUKsfSk=eAryt6S6A@mail.gmail.com>
+Subject: testsuite astyle options no longer supported
+To: Ondrej Mosnacek <omosnace@redhat.com>, Paul Moore <paul@paul-moore.com>, 
+	SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-On 10/22/2024 9:35 AM, Paul Moore wrote:
-> On Mon, Oct 21, 2024 at 8:00 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->> On 10/21/2024 4:39 PM, Paul Moore wrote:
->>> On Oct 14, 2024 Casey Schaufler <casey@schaufler-ca.com> wrote:
->>>> Replace the (secctx,seclen) pointer pair with a single lsm_context
->>>> pointer to allow return of the LSM identifier along with the context
->>>> and context length. This allows security_release_secctx() to know how
->>>> to release the context. Callers have been modified to use or save the
->>>> returned data from the new structure.
->>>>
->>>> Special care is taken in the NFS code, which uses the same data structure
->>>> for its own copied labels as it does for the data which comes from
->>>> security_dentry_init_security().  In the case of copied labels the data
->>>> has to be freed, not released.
->>>>
->>>> The scaffolding funtion lsmcontext_init() is no longer needed and is
->>>> removed.
->>>>
->>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->>>> Cc: ceph-devel@vger.kernel.org
->>>> Cc: linux-nfs@vger.kernel.org
->>>> ---
->>>>  fs/ceph/super.h               |  3 +--
->>>>  fs/ceph/xattr.c               | 16 ++++++----------
->>>>  fs/fuse/dir.c                 | 35 ++++++++++++++++++-----------------
->>>>  fs/nfs/dir.c                  |  2 +-
->>>>  fs/nfs/inode.c                | 17 ++++++++++-------
->>>>  fs/nfs/internal.h             |  8 +++++---
->>>>  fs/nfs/nfs4proc.c             | 22 +++++++++-------------
->>>>  fs/nfs/nfs4xdr.c              | 22 ++++++++++++----------
->>>>  include/linux/lsm_hook_defs.h |  2 +-
->>>>  include/linux/nfs4.h          |  8 ++++----
->>>>  include/linux/nfs_fs.h        |  2 +-
->>>>  include/linux/security.h      | 26 +++-----------------------
->>>>  security/security.c           |  9 ++++-----
->>>>  security/selinux/hooks.c      |  9 +++++----
->>>>  14 files changed, 80 insertions(+), 101 deletions(-)
-> ..
->
->>>> diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
->>>> index 039898d70954..47652d217d05 100644
->>>> --- a/include/linux/nfs_fs.h
->>>> +++ b/include/linux/nfs_fs.h
->>>> @@ -457,7 +457,7 @@ static inline void nfs4_label_free(struct nfs4_label *label)
->>>>  {
->>>>  #ifdef CONFIG_NFS_V4_SECURITY_LABEL
->>>>      if (label) {
->>>> -            kfree(label->label);
->>>> +            kfree(label->lsmctx.context);
->>> Shouldn't this be a call to security_release_secctx() instead of a raw
->>> kfree()?
->> As mentioned in the description, the NFS data is a copy that NFS
->> manages, so it does need to be freed, not released.
-> It does, my apologies.
->
-> However, this makes me wonder if using the lsm_context struct for the
-> private NFS copy is the right decision.  The NFS code assumes and
-> requires a single string, ala secctx, but I think we want the ability
-> to potentially do other/additional things with lsm_context, even if
-> this patchset doesn't do that.
+tools/check-syntax in the testsuite is calling astyle with options
+that seemingly don't exist anymore on my shiny new F41. The end result
+is that it will generate a diff deleting any C file from the
+testsuite.
 
-This came down to a choice about where the ugly code would be.
-I'll restore the old behavior.
-
->
-> I would suggest keeping the NFS private copy as sec_ctx/sec_ctxlen and
-> keep the concept of a translation between the data structures in
-> place, even though it is just a simple string duplication right now.
->
+Invalid Artistic Style options:
+indent-preprocessor
+max-instatement-indent=80
