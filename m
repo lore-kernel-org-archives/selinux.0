@@ -1,182 +1,171 @@
-Received: from mail-oi1-f171.google.com (mail-oi1-f171.google.com [209.85.167.171])
+Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 051DB1CBE9A
-	for <selinux@vger.kernel.org>; Wed, 23 Oct 2024 18:13:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F4D814658F
+	for <selinux@vger.kernel.org>; Wed, 23 Oct 2024 19:10:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729707212; cv=none; b=n0LEv8uP4C9UwntAHYuOa764RxpkMBlGi7uW3YwWOsievYxFH6M3b6o5G2HorvWmD3lK+4YCxufxAoOPl7TkaLx/ZN7RaTHsfsxSkoV7uhCB6HQDbDi5cpf5pyrjzJTfF/hShlc++FRH2u+bN++hf+evmvU+BDx59d1iy2ZN7OE=
+	t=1729710654; cv=none; b=UTxJUoL7LiwOaVuTSsHm96IcCZn0lanqLGlr5LHuWyfP6/llCAMM65FB/aEhyGguQ5T3hI0gFNTpATh30S7L+jF0ZdlDpQmD9cEEUpYo66wWVEMt5K+ZA8tbTJynZ94MZ12xzq8OaGhLSKnfx8ZhAWd+UqDXM3agKdU1qc+hgP0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729707212; c=relaxed/simple;
-	bh=r2jUphAncv4ZajzF8aNrKg6+rwVGSNaNeVuJfBHXj9g=;
+	s=arc-20240116; t=1729710654; c=relaxed/simple;
+	bh=xPA0ho92wOGpEN4q9o73alCxa3eTcsr8DgPS4BF9tmk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=B3dnPMpVlpkHKtyGccizZD6FTX7MT79zSgGmDjvbTjIhWEMO5DYxZStfCjigmVtWbHxXe71VToyuweKJ6UNwOUHJA/jKllcHFNdQKTV3w1vs5iWFl8E8YuHZolzKG0FGl9N2+NkqjggB+L7CehuTrNYVf6JiiigVPdketFOQjbE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BwxpGraX; arc=none smtp.client-ip=209.85.167.171
+	 To:Cc:Content-Type; b=ZMwfnseIOV7ECdaEFRvc+nV/Z4+Y3NSdknAmUh3zfOLGN9JvV4vlOObsd7w63PA65NPlprO5TjQtWdi/3QCmF+WiD/Nr2VCRM1rtGJ7IofmaVUrXHZmkdoQ1ovpf4ePyxAgBMADAUAJn11kDFh7egSnysXWLJvByySup8ti7W6g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XvzW8ybO; arc=none smtp.client-ip=209.85.210.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BwxpGraX"
-Received: by mail-oi1-f171.google.com with SMTP id 5614622812f47-3e60e57a322so100198b6e.3
-        for <selinux@vger.kernel.org>; Wed, 23 Oct 2024 11:13:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XvzW8ybO"
+Received: by mail-ot1-f42.google.com with SMTP id 46e09a7af769-7180dc76075so87622a34.3
+        for <selinux@vger.kernel.org>; Wed, 23 Oct 2024 12:10:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1729707210; x=1730312010; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1729710652; x=1730315452; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=WYjqZOuqtl4hOkvm+gm91AqF8AoKFJP0pr3NJC2ZKM4=;
-        b=BwxpGraXrLDZ4OtdujmjvG0gyqIoUCRP7z9aCcqvGmO7rGDsKuNcILC/OwexsF6H8L
-         y7B0vaDbWKT+9tSq+5ii94l0QUePZSs0LZKZUL51mhkR++6Zpd3Fc+Qxf4qtL2IXHOq0
-         4k6FALibAoTfKh/xKqV5SXqf+u875BZKVYg1glJsYIwE4OrBMIH8iXbXHxSvOcvrD5i5
-         xCCLIPXJdwBVueMk5hxAb0kQU4Svo70BAEc5REMxXL2p1TcXUij2Cb0oWmTilvcsGJNw
-         9ri6iEk0j6Y2eI1EFu94p2KbESrQ9POiYoXJYpHAz2VBhFVI+KeLMrbTyls6NYQgS0wh
-         LbCw==
+        bh=CSnQummQnZigmXwd3OxYNp3RNjDpPhzMIWsbFu31cuI=;
+        b=XvzW8ybO+bOUnYDnSKlUJ0byYMLR8LU/bRfLyYAwakXiA9bYMARglIf9jUjEgOJ4QA
+         682ZJs2/JmcfzRufACYiWPJwadOIX8696MVGRZCDtk6blWoJ11bH67sd90lfRDo2w6By
+         XC/aWn4UPXx77K2bNHj2Pm7IhB1e4qg1b9QlgPC584WPqQTpFnAHzTxItCMHvDdMwDa9
+         F2fVf7i+fR43Ms4Hw8eg5H9XDzXgOVt7Jyd7HXVQpMEC0zToUZVi8yiTweYpCuRfC9na
+         qTF9z+vVfi4aaFii3VDlxtQJB5YRkagwOc39nIl1KBcMl7PDynlcrhbSnFpX+1pHjwnk
+         Ca0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729707210; x=1730312010;
+        d=1e100.net; s=20230601; t=1729710652; x=1730315452;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=WYjqZOuqtl4hOkvm+gm91AqF8AoKFJP0pr3NJC2ZKM4=;
-        b=cDoL86KgcNoHpX7Slc8W/PoB2EQgP72SwzEWJgOKjDYte4ysGKXx+yzuQK6UTpT59B
-         WbQgRFZNYGZ0yybI2bCZVNsPc46biilhZThEzI+wCj4pDzhuyozvwy8TG8llDijJHhEH
-         wb5LqJtUxdQ8caq1625iQ4ZbTBYg3+QArWEpRt1LQ6G4PMA3frYbAgUlVLTkPM9nlc0z
-         +5+ohpf08N384impqRaqqxBLTmkQzWuNOjfr9s+NNW1BPlVwuCQ+11tpuYCYxW/KpmDN
-         MOeWE7skpY4CxF5ew+9MJF5rTukp1OJJ0QCuEYg0n1z0Ntflnl0YXH7jK4fPsY55Y1Mp
-         zIKA==
-X-Forwarded-Encrypted: i=1; AJvYcCX8j86nNsVxFYepwZlipfD3rF6KK6wRHxRJl1CvfDGHIJk7m9g1njQz+mJOH9ce1qsfdmnesqGa@vger.kernel.org
-X-Gm-Message-State: AOJu0YzSZZQ8gpQB7bJXkPsVMO+/7QOcv+CcoRHOR1iQ/B7osL4cElSN
-	/8rKVPGGPV9x5ICjosSFfzrpbsQQLfvO/kGnqZKgBJ+VGqAjmm5xXKjca9Vn/kYEkKOp4o0nGul
-	YKMyl7z0MqkNr1WOQ0+mKv7jE8gw=
-X-Google-Smtp-Source: AGHT+IGkjy5ZF37h2BSePQT7Z64da/Q/Fct87VxVjuZqMBuSnfrMm+WmW8tkaD99nNjE3l+ZVlawHATO3XEKkCsK9aQ=
-X-Received: by 2002:a05:6808:150a:b0:3e6:89d:5294 with SMTP id
- 5614622812f47-3e6245cb3cemr3874794b6e.42.1729707209879; Wed, 23 Oct 2024
- 11:13:29 -0700 (PDT)
+        bh=CSnQummQnZigmXwd3OxYNp3RNjDpPhzMIWsbFu31cuI=;
+        b=dLMJm/nsRjHbEFyw9+m5pHz/sMk0Y/Whdfc7xQXjZRjh2fV/u1OcoT9eLrX4dmwIN7
+         eHwW0Aay/QsgDwSYkH+k02pJNCH9zJh8ryUEuG9ixgQw4nc+9wQKP80pfVXlyzsAvtD6
+         ylh246sl0I/G/L3JQsuLogQSTUOW4Yhaq+km39TZcL27cQFyhfsmt+MAtXwbcUztLWiP
+         x7N1IHA1d9NYuuIMCrnzffQtXDbtqM7EnanJKL8JVjqSx1kYkkm4S3+SSN4eDzSMxh8C
+         XKMYXGehuUNVrJE5T/RNraBfnHpijfZFvAexBv/B0h9YtuE/JBiczqeSkmprcmm4vSau
+         5hKw==
+X-Gm-Message-State: AOJu0YzqStEawUekNhSy9H+TX3bpq5Wsm+ARz7NTm+T6Z/uGRsusI7YN
+	sRKWvM6xTLAPNpwrxg7ou6tAq7SpwU2L9PNs6UYtaT1fQ6EI7dKCWQiS5uzZjhli6S6kvYu2Pep
+	6rld0wi2wcUj4W4pQyIc3M5oCOCs=
+X-Google-Smtp-Source: AGHT+IHV3WoiFNz7cW/rhbPEi2jTqKj7WiDZSb4MHcy/3G3J4xp8sfxQGmhkAUUPwQ/4DK1rZXdEsNMMnkrWKjlkyiM=
+X-Received: by 2002:a05:6808:3084:b0:3e6:140:c15b with SMTP id
+ 5614622812f47-3e6244fea5bmr3976737b6e.12.1729710651990; Wed, 23 Oct 2024
+ 12:10:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241021231201.2638151-1-tweek@google.com>
-In-Reply-To: <20241021231201.2638151-1-tweek@google.com>
+References: <CAP+JOzRURZwsyvGzs3U7M7mw4NWD3Brh-K4wnztCS81MLYRHYg@mail.gmail.com>
+ <20241023134318.733305-1-vmojzis@redhat.com>
+In-Reply-To: <20241023134318.733305-1-vmojzis@redhat.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 23 Oct 2024 14:13:19 -0400
-Message-ID: <CAP+JOzRH5QNpPhyj4=ZAnC7_hdAazfCdFRd8_j5secuOxb2Aww@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Support nlmsg xperms in assertions
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: stephen.smalley.work@gmail.com, paul@paul-moore.com, brambonne@google.com, 
-	jeffv@google.com, selinux@vger.kernel.org
+Date: Wed, 23 Oct 2024 15:10:40 -0400
+Message-ID: <CAP+JOzS2tm_7pXW46rWsOaMG1Nv=kKqFBQYsDbLfhFr4=F9QXQ@mail.gmail.com>
+Subject: Re: [PATCH v2 1/4] libsepol/cil: Initialize avtab_datum on declaration
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Oct 21, 2024 at 7:12=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@googl=
-e.com> wrote:
+On Wed, Oct 23, 2024 at 9:46=E2=80=AFAM Vit Mojzis <vmojzis@redhat.com> wro=
+te:
 >
-> commit ba7945a250c added support for nlmsg extended permissions in the
-> policy. The assertion validation was not updated which lead to false
-> positives when evaluated. The optimization update was also missing. Add
-> support for the new extended permission for optimization and assertions.
+> avtab_datum.xperms was not always initialized before being used.
 >
-> Fixes: ba7945a250c0794837f94ee1fb124426166bbc6e
-> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> Fixes:
+> Error: UNINIT (CWE-457):
+> libsepol-3.7/cil/src/cil_binary.c:977:2: var_decl: Declaring variable "av=
+tab_datum" without initializer.
+> libsepol-3.7/cil/src/cil_binary.c:1059:3: uninit_use_in_call: Using unini=
+tialized value "avtab_datum". Field "avtab_datum.xperms" is uninitialized w=
+hen calling "__cil_cond_insert_rule".
+>  \# 1057|                       }
+>  \# 1058|               }
+>  \# 1059|->             rc =3D __cil_cond_insert_rule(&pdb->te_cond_avtab=
+, &avtab_key, &avtab_datum, cond_node, cond_flavor);
+>  \# 1060|       }
+>
+> Error: UNINIT (CWE-457):
+> libsepol-3.7/cil/src/cil_binary.c:1348:2: var_decl: Declaring variable "a=
+vtab_datum" without initializer.
+> libsepol-3.7/cil/src/cil_binary.c:1384:3: uninit_use_in_call: Using unini=
+tialized value "avtab_datum". Field "avtab_datum.xperms" is uninitialized w=
+hen calling "__cil_cond_insert_rule".
+>  \# 1382|       } else {
+>  \# 1383|               avtab_datum.data =3D data;
+>  \# 1384|->             rc =3D __cil_cond_insert_rule(&pdb->te_cond_avtab=
+, &avtab_key, &avtab_datum, cond_node, cond_flavor);
+>  \# 1385|       }
+>  \# 1386|
+>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
+For these four patches:
 Acked-by: James Carter <jwcart2@gmail.com>
 
 > ---
->  libsepol/src/assertion.c | 16 ++++++++++++++--
->  libsepol/src/optimize.c  |  5 +++++
->  2 files changed, 19 insertions(+), 2 deletions(-)
+>  libsepol/cil/src/cil_binary.c | 8 ++------
+>  1 file changed, 2 insertions(+), 6 deletions(-)
 >
-> diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-> index 3076babe..5e129883 100644
-> --- a/libsepol/src/assertion.c
-> +++ b/libsepol/src/assertion.c
-> @@ -110,6 +110,10 @@ static int check_extended_permissions(av_extended_pe=
-rms_t *neverallow, avtab_ext
->         } else if ((neverallow->specified =3D=3D AVRULE_XPERMS_IOCTLDRIVE=
-R)
->                         && (allow->specified =3D=3D AVTAB_XPERMS_IOCTLDRI=
-VER)) {
->                 rc =3D extended_permissions_and(neverallow->perms, allow-=
->perms);
-> +       } else if ((neverallow->specified =3D=3D AVRULE_XPERMS_NLMSG)
-> +                       && (allow->specified =3D=3D AVTAB_XPERMS_NLMSG)) =
-{
-> +               if (neverallow->driver =3D=3D allow->driver)
-> +                       rc =3D extended_permissions_and(neverallow->perms=
-, allow->perms);
+> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
+c
+> index 3dec1883..3d920182 100644
+> --- a/libsepol/cil/src/cil_binary.c
+> +++ b/libsepol/cil/src/cil_binary.c
+> @@ -975,7 +975,7 @@ static int __cil_insert_type_rule(policydb_t *pdb, ui=
+nt32_t kind, uint32_t src,
+>  {
+>         int rc =3D SEPOL_OK;
+>         avtab_key_t avtab_key;
+> -       avtab_datum_t avtab_datum;
+> +       avtab_datum_t avtab_datum =3D { .data =3D res, .xperms =3D NULL }=
+;
+>         avtab_ptr_t existing;
+>
+>         avtab_key.source_type =3D src;
+> @@ -997,8 +997,6 @@ static int __cil_insert_type_rule(policydb_t *pdb, ui=
+nt32_t kind, uint32_t src,
+>                 goto exit;
 >         }
 >
->         return rc;
-> @@ -142,6 +146,12 @@ static void extended_permissions_violated(avtab_exte=
-nded_perms_t *result,
->                 result->specified =3D AVTAB_XPERMS_IOCTLDRIVER;
->                 for (i =3D 0; i < EXTENDED_PERMS_LEN; i++)
->                         result->perms[i] =3D neverallow->perms[i] & allow=
-->perms[i];
-> +       } else if ((neverallow->specified =3D=3D AVRULE_XPERMS_NLMSG)
-> +                       && (allow->specified =3D=3D AVTAB_XPERMS_NLMSG)) =
-{
-> +               result->specified =3D AVTAB_XPERMS_NLMSG;
-> +               result->driver =3D allow->driver;
-> +               for (i =3D 0; i < EXTENDED_PERMS_LEN; i++)
-> +                       result->perms[i] =3D neverallow->perms[i] & allow=
-->perms[i];
->         }
->  }
+> -       avtab_datum.data =3D res;
+> -
+>         existing =3D avtab_search_node(&pdb->te_avtab, &avtab_key);
+>         if (existing) {
+>                 /* Don't add duplicate type rule and warn if they conflic=
+t.
+> @@ -1346,7 +1344,7 @@ static int __cil_insert_avrule(policydb_t *pdb, uin=
+t32_t kind, uint32_t src, uin
+>  {
+>         int rc =3D SEPOL_OK;
+>         avtab_key_t avtab_key;
+> -       avtab_datum_t avtab_datum;
+> +       avtab_datum_t avtab_datum =3D { .data =3D data, .xperms =3D NULL =
+};
+>         avtab_datum_t *avtab_dup =3D NULL;
 >
-> @@ -176,7 +186,8 @@ static int report_assertion_extended_permissions(sepo=
-l_handle_t *handle,
->                              node =3D avtab_search_node_next(node, tmp_ke=
-y.specified)) {
->                                 xperms =3D node->datum.xperms;
->                                 if ((xperms->specified !=3D AVTAB_XPERMS_=
-IOCTLFUNCTION)
-> -                                               && (xperms->specified !=
-=3D AVTAB_XPERMS_IOCTLDRIVER))
-> +                                               && (xperms->specified !=
-=3D AVTAB_XPERMS_IOCTLDRIVER)
-> +                                               && (xperms->specified !=
-=3D AVTAB_XPERMS_NLMSG))
->                                         continue;
->                                 found_xperm =3D 1;
->                                 rc =3D check_extended_permissions(avrule-=
->xperms, xperms);
-> @@ -376,7 +387,8 @@ static int check_assertion_extended_permissions_avtab=
-(avrule_t *avrule, avtab_t
->                                 xperms =3D node->datum.xperms;
->
->                                 if ((xperms->specified !=3D AVTAB_XPERMS_=
-IOCTLFUNCTION)
-> -                                               && (xperms->specified !=
-=3D AVTAB_XPERMS_IOCTLDRIVER))
-> +                                               && (xperms->specified !=
-=3D AVTAB_XPERMS_IOCTLDRIVER)
-> +                                               && (xperms->specified !=
-=3D AVTAB_XPERMS_NLMSG))
->                                         continue;
->                                 rc =3D check_extended_permissions(neveral=
-low_xperms, xperms);
->                                 if (rc)
-> diff --git a/libsepol/src/optimize.c b/libsepol/src/optimize.c
-> index a38025ec..8a0b70fe 100644
-> --- a/libsepol/src/optimize.c
-> +++ b/libsepol/src/optimize.c
-> @@ -189,6 +189,11 @@ static int process_avtab_datum(uint16_t specified,
->
->                         if (x2->specified =3D=3D AVTAB_XPERMS_IOCTLDRIVER=
-)
->                                 return process_xperms(x1->perms, x2->perm=
-s);
-> +               } else if (x1->specified =3D=3D AVTAB_XPERMS_NLMSG
-> +                               && x2->specified =3D=3D AVTAB_XPERMS_NLMS=
-G) {
-> +                       if (x1->driver !=3D x2->driver)
-> +                               return 0;
-> +                       return process_xperms(x1->perms, x2->perms);
+>         avtab_key.source_type =3D src;
+> @@ -1372,7 +1370,6 @@ static int __cil_insert_avrule(policydb_t *pdb, uin=
+t32_t kind, uint32_t src, uin
+>         if (!cond_node) {
+>                 avtab_dup =3D avtab_search(&pdb->te_avtab, &avtab_key);
+>                 if (!avtab_dup) {
+> -                       avtab_datum.data =3D data;
+>                         rc =3D avtab_insert(&pdb->te_avtab, &avtab_key, &=
+avtab_datum);
+>                 } else {
+>                         if (kind =3D=3D CIL_AVRULE_DONTAUDIT)
+> @@ -1381,7 +1378,6 @@ static int __cil_insert_avrule(policydb_t *pdb, uin=
+t32_t kind, uint32_t src, uin
+>                                 avtab_dup->data |=3D data;
 >                 }
->                 return 0;
+>         } else {
+> -               avtab_datum.data =3D data;
+>                 rc =3D __cil_cond_insert_rule(&pdb->te_cond_avtab, &avtab=
+_key, &avtab_datum, cond_node, cond_flavor);
 >         }
+>
 > --
-> 2.47.0.105.g07ac214952-goog
+> 2.47.0
 >
 >
