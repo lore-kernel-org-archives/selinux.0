@@ -1,426 +1,153 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
+Received: from sonic313-22.consmr.mail.bf2.yahoo.com (sonic313-22.consmr.mail.bf2.yahoo.com [74.6.133.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA8D515B0EE
-	for <selinux@vger.kernel.org>; Wed, 23 Oct 2024 21:03:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D012E56A
+	for <selinux@vger.kernel.org>; Wed, 23 Oct 2024 21:22:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.6.133.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729717432; cv=none; b=I2WPanSauh/ytvUgxoffFANWzKlfgJpXCt4SFKGMtFYiQ/dO59zS/AOZF30CDpGYJlB277m+4TKVlREctQe/7Ki3hAbNXxTM/1OzdsMZhSK4HeK6mvF066/nZzw7xN0ILfr14mcDJIG8+DztbxZpJyUfiIkkjmBPudIGzvw5lOQ=
+	t=1729718533; cv=none; b=VAnWxcEYQI7SIekkfA1nukLp8UltqwWp2gmk8bJKEIqVmxarmRHrLOugfcTuyN1DwRgePuU4puRDxhJmswjxEx4e0BXgAjlcdeG37uD3Vy/A6FiaRbDZT9XCpTIpi2gRrBV8RpDbnPY+npKVMNGYeR9Hyyr2CSr1luRxrBH7gDM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729717432; c=relaxed/simple;
-	bh=Bcfl9ZPiSz/zqiCvud05feI51ih/PAjh2sHLV6qU6d4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P2Vt3cW4qhFJ984qsPu3aSiD9rAFJyX5ayv1utjAOoac0sE/XLuWwvY9+ZA5CZ7NQJY0GMN2i2ZsDkq9ln/xAYGnsgZ4sfg+rNfcFabeEvrXmvkMZo7Y9Qv76Km91DR5L0am4eU4UcA1IqFHYd1dndyts137oCjCsCbOlBNcoug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kHl/9x39; arc=none smtp.client-ip=209.85.222.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1729718533; c=relaxed/simple;
+	bh=6VSn9m0+4gEQ/QemkSdtlH1FACIinNvkgPUOAlJPnQk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:References; b=uw5UGJwG3ZqeoTrCxO8DSkeu2Tmsc6+W7diJlDUwXgYXDXWck6S1vPTZhcTYPyZTk7ZuJEzLzBqnC8VOjsFjAO2reYjYi0vEKQ+MgNFlHcUJ3M/Yl85+pxXLy6UL5usNVJRhb8ZK0zStJTqxdQuGcwQVOP6ZJxgAtiQMoHNJTvE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=I0UqB5YY; arc=none smtp.client-ip=74.6.133.196
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kHl/9x39"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-7b14077ec5aso122611085a.1
-        for <selinux@vger.kernel.org>; Wed, 23 Oct 2024 14:03:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1729717430; x=1730322230; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ufaVKuX2ErkkSnZ6umB1YhtvjCG2izteK9+9DpU0jkY=;
-        b=kHl/9x39aQRi+aVOnHxJi2CBtRBFZP4T5rJQfQOeLa/1eTNFW2LnheXbTHEwKoH3UW
-         3XRekLBX1f54g2S5t8vi/en93rz/V5CaU+D30RPuWkPVeHO3ka2RU/phWa8fd7c3nOv6
-         dLAqA/KI8jsFW1LfbMkFyFqwOLQINWArC9asHe+lEt07spw6GE3sEfylZxPPF4yF3OA8
-         WixuV1HEBzoqTPFLwC/qepjiX2TKy+yHYeDao+1/vRv6ZZ/N9NgD3kJELFWaTwiHFZW/
-         hkDMq5Qi4sb3HR3+Ag/r5va5qO+rr1DgQY1sE2zHNJUJUC1M7hZMS2HtcObbE41Cn4GD
-         W9NA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729717430; x=1730322230;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ufaVKuX2ErkkSnZ6umB1YhtvjCG2izteK9+9DpU0jkY=;
-        b=qoys7XZrUfq/6fvl5KVy0gFo7tv8/000meiBNokbZLc46vYor/HSE//3OwwqVsyKmz
-         X5KNGhtwmKsKFIRteaYt+zy1oO68qtwGXfDNz0BZu/04zG7UFEE1r7e55z5Astrp+rvw
-         B1kPgVdm2QTF4tqp5/4slA5Sg/2us4wB6J6VonaEPcjVjB69NsX8//z6729+Lhft4xDb
-         +DFqomEhqEDtNVNKmCH4SZpnG12VLfq9cFf9msYrtIXfgpBfUKvxiQccL0Sl5r8AwQYv
-         H/rUe5t0WFwxDqoKZzr0jqNmGKAd03lVCeRrYJHSdQ0P16JT4pVc/Xt5s5kvlc24sfbc
-         eABw==
-X-Gm-Message-State: AOJu0Yz978oirpw5pBOcAv2EjJYgTRYuvpcMCrSWFC5mXt6Bs2qfYccM
-	hj81xkPans6W1vio/48dce3wFaPAwiQg1OsGjGUea9IIaS7/GyI1prbPNi+Ph7dqVqUkdfyHMcB
-	pqv83glXtTD8eoKyf4CVTn/yApvsQNikX
-X-Google-Smtp-Source: AGHT+IE9F8QgmRGigshxQSX4OAXgYFCSPPfGrIvkBW1ER3QYHB3HDlHgYPOohxhLCVedXWh47ZHgmC63ivayYBFNCdg=
-X-Received: by 2002:a05:6214:21c9:b0:6cb:440c:c44 with SMTP id
- 6a1803df08f44-6ce21790658mr148900326d6.1.1729717429529; Wed, 23 Oct 2024
- 14:03:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="I0UqB5YY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1729718524; bh=3qg/Mtih7gPvp6NyFPLR4Rs2mLIKzdNL25OcNztnx2I=; h=From:To:Cc:Subject:Date:References:From:Subject:Reply-To; b=I0UqB5YYeXK8/lVjDZk69SCVbmlZB5cUQYsfsdK4bXuZiT9vaqC7kxJ/j2GF4YeGwKXjQb7KaD+FlmEZi/TTM5xNkx2kOe5lKCI/EKgeWYgQuJx9a4kG8u13NO6QxVxmtefJ76bLeppDms0Vb/Q66k2rtC5N5XmdV+iVgbbAX8ONYxDJGq02rB6O+Oek6V8iinLqoDIlyz9uIW2I0r4l6GmtgLiP3p0hDUHqsfOxxNFyUhIyHUJb8qoEGfYFrr1q6DElq72vEBWm7LMoFO+atFs6idNKmipsMuaEYjd2jefti3YK/oDXxjI9JFO0mjl4H3nmlW+JcdeDNWdCz2qaeQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1729718524; bh=DpOqfmqrutMNJNlWP4j9QWtg9YOcj8qMzHXGeJCw7DH=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=PKtT93bjVAeE6Ed/D/RoiGMOhgqeb5feFrQwfbquv+DmAEt2WTyex0QSK7ViAOxSpO+5+xg1FfSuFy7+o0/FARC1uVVcXyIYXmzMlZK0dhBfwN7BNjMq1apaRNf5ow368i4l9kWUlS0OmSVWYQ7XNj9t9Eq6b2RBixuND4et6eoGs+iL4nhX6SUfW7gKBEFMYygoULu0xHSbFr4++aUnntscDy4jDXx+8LYDN+6sxuYCIGC7EsoGAOPq1aCCrkCU998K6fYJ3pm4XoDb/SPruZi+4pQhQAmc4kiHgO4HiLIvCCz7u7256Jn6fzWKsKSc/bPfHAeV+eWHOAbbCp0zDQ==
+X-YMail-OSG: AZNQGCkVM1lC18jb2sMmPVhEat2tyNN8dwKODTN6VzbUXxK0H1V5EYHwQaDZffx
+ EERpTdR0NLzx14quO7sk_os9huiJsr.v90Yo6YiIMRqvWXsnrpeSEtU94PpSvEsA5edvGt7ItpUI
+ Vlk0xqn5Yn.vxO7.5AhJyDTfEtUDPqdH7ZhalcrCUJXh_hkO5hiZ30SMrLAN0oQodS_cSP_Tp42B
+ CpmCvbY6s_GJUMN2NTvE.1dqATikWp6PoX8VYa35Re8tWw0o1z9VoyZk21mdF0ySIYHAOG30.UGW
+ tBkZBuYxZz9OAqJK7OTG2WJd6b5JVZiA9csIh48GV.VGg4_XFvtlDKpPtiZK9BpNko0hw4KXXhtw
+ QOl24rjU6oCo13bGZf.1PrXGYxHkb8E3hlCFiBkrtRO0OZRWuVb0M5yvR4Ev8BKD3cZbEE.2No91
+ ZCRnyU8pQERQLMXRHkq4TI8rusRoFT9Eu2fzjlHlgAA9REaZSCNjb1d5VLuS4Gi8ZqIDbirupNEU
+ nIyPt3Lwvy7LopwUp4DkNCHSsIC8MashS7OVrwMazYY4fVghFGv2m25asb3Vybh86nrEBqBSIdbB
+ H88DTSet4sgVHctMhsjZJhqYNFWWer9GeQLL4RDB3hMxnIyxPNdkHpoxdn_1TvpZdFNZyWGyiU4.
+ 4a5fZHIQqAnuX_jJPIAFKO6nV7xPH1ZM8pzDEiYchiLSmpwXXXVtIxIkvgNU1yaP6IxwzjbPSg_Q
+ .gZEE_0J0lSwB4IrqmzKP264jsClSg7DOHRFqkGxR6enV1FtAdmG36zRKwMiiV50BXMEvARcSGzl
+ Ibaz02Mt1nPixPTd1itNhYXl365ZFX59rUOK7PPlR6Y0yTdItbRh.RB84yV5aOfUWeBpCPvxKcXz
+ 6eed1Z16SKTEkfEhBtgueThlLNBxKB78ldl7ao6L89pqtZ5qHLC_yq686IdlXktb99I9EifN4u2.
+ kztnlkIqxidGlx7cwK_hliW2lEHR8mZEasAmS4qzkIAUT_KxJsNdPJDMjwOdVFqHUVCPKZr7H9U3
+ KwBndkZIBGGuAXWxEeszUIyQ8IctcQzoD586ZIUO0RI_2WMWu_ZQrtHwuRx_bhsNDOM6TBPwwqgH
+ bkDlIea4NC.jQUvUDn7glQHJv4eAWyLuUU.be8JakiYFdqvd8Au6AtC9WpEJtGTPJM4grJfOE2Gn
+ 5nbPA0UUKEe3pJCPWyH5Vm0EC_i65ykn7kR0XqPo8cKH84.NtoqnzYUhHFYJKGCdU.qy.5R5a5XD
+ aVv8Kx4.rDhi1jxOKtfCfnN_VEFU0zGUAPoMM7VvF9I6Y1eC6kK05r.95V_mFpfyTg4LlhHxHVcL
+ NSdWz3GTr4kEPtxlTqROkvcXQScxUj0igHNZ5HyEfDSZXzQ7CMHMnbtEcTUUyObO0VVKHTlw2D98
+ 4LoGkfwo26uvc7iet55s1aPdeoe36uUkQKbjkWi4GDtVh7h.piXf9AC4HYIV4vHzCxIAZAFr8cco
+ fPe_Dw8VFhEz0HiVuxOBIKRlClG89pMQ7z4EkYYkRm98X6E8IWoyqIeIpLeaqRUzY_oT2YhIuR1A
+ rYUqVnLd637GUyodRTToEnKaPvFyF9qNNIp9ImGbfruwG_bufFwtp4cacciR0WAshUvfeaVUoHWS
+ mIO2SRPBGHh5oQPTzfsMPykAOz19xzrYWVi9XacdjDsdYWw36LJcA0XhNtL88KF4yfGu6GfEkxvj
+ NclvCqyLa5MT4Lovis68mbe7Iir.ZfhiDDAAjHRqmWnIQtfKLohDNbvGpgyXTeQVWYyEJFiLb5ZJ
+ k57xNmgkfZ9uM4aCA2WLFKNK2DTB62Q_kz3KY1CzYT1DrVgB9iUQzzsqL.EP7w665IJOYX0pa5xe
+ CTbeitbrCs2nQGmZrWNW.uCNT4iIEYETfWpHGbQE3UPzVe0na4L9MiRC4.uu8_vpj_1kemWiWDi8
+ pezHgV.IKFBCpbm2qytZsJ4utpmE4iHd8iR_1WMQZGduh23kYSWmempzxN4cFQZ5bMm3CM.dWe8z
+ hjhgsEWofciZ5HcQqEclWlXz0c0t3zqEqFZdoojOXJ8ImR57NBYPdmkkAIusnNpnDcYa0aC0SqX6
+ dspLkHMEMQkZi_Fkmu0sBWITF4sc2J6FXoY5JcJqF0JR6MpIWg2CdzBEZBxZcuuSE3nsxkaF_2uE
+ 4P2AW9xFMPaFG.epxYWXUN84QGxgZSVbM2.qmF5xV89YPG7pTtyMHlKb5HjyY5CPoD1.fUrX8ORP
+ IsXHSxAahLctdoWPNwTM7YOTRamYvDwUCZFCii4xVgdFjfSuBBzAPjxd_YKjB5ZLvCi74p0.xsBH
+ mQPi2J6r.fGfV.3DQxOnd1A--
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: ef4f947b-0e71-4ba0-a253-5c2b5d6757af
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.bf2.yahoo.com with HTTP; Wed, 23 Oct 2024 21:22:04 +0000
+Received: by hermes--production-gq1-5dd4b47f46-5xsmt (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 8a7972f72a0226c80fd86fd6bd5371c9;
+          Wed, 23 Oct 2024 21:22:01 +0000 (UTC)
+From: Casey Schaufler <casey@schaufler-ca.com>
+To: casey@schaufler-ca.com,
+	paul@paul-moore.com,
+	linux-security-module@vger.kernel.org
+Cc: jmorris@namei.org,
+	serge@hallyn.com,
+	keescook@chromium.org,
+	john.johansen@canonical.com,
+	penguin-kernel@i-love.sakura.ne.jp,
+	stephen.smalley.work@gmail.com,
+	linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org,
+	mic@digikod.net
+Subject: [PATCH v3 0/5] LSM: Replace secctx/len pairs with lsm_context
+Date: Wed, 23 Oct 2024 14:21:53 -0700
+Message-ID: <20241023212158.18718-1-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.46.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241023172044.98572-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20241023172044.98572-1-cgoettsche@seltendoof.de>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 23 Oct 2024 17:03:38 -0400
-Message-ID: <CAP+JOzQXsn-r+SVUXw4twAuzf1H1j10Z48zPc58HHZBJxRaUdg@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libsepol: add support for xperms in conditional policies
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+References: <20241023212158.18718-1-casey.ref@schaufler-ca.com>
 
-On Wed, Oct 23, 2024 at 1:21=E2=80=AFPM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
->
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> Add support for extended permission rules in conditional policies by
-> adding a new policy version and adjusting writing and validating
-> policies accordingly.
+LSM: Replace secctx/len pairs with lsm_context
 
+Several of the Linux Security Module (LSM) interfaces use a pair of
+pointers for transmitting security context data and data length. The
+data passed is refered to as a security context.  While all existing
+modules provide nul terminated strings, there is no requirement that
+they to so. Hence, the length is necessary.
 
-Some changes are going to be needed to the assertion checking for this.
+Security contexts are provided by a number of interfaces. The interface
+security_release_secctx() is used when the caller is finished with the
+data. Each of the security modules that provide security contexts manages
+them differently. This was safe in the past, because only one security
+module that provides security contexts is allowed to be active. To allow
+multiple active modules that use security contexts it is necessary to
+identify which security module created a security context. Adding a third
+pointer to the interfaces for the LSM identification is not appealing.
 
-optional work as expected.
-boolean if's work if everything is in one branch, but problems occur
-if they are not.
+A new structure, lsm_context, is created for use in these interfaces.
+It includes three members: the data pointer, the data length and
+the LSM ID of its creator. The interfaces that create contexts and
+security_release_secctx() now use a pointer to an lsm_context instead
+of a pointer pair.
 
-A couple of examples that fail
+The changes are mostly mechanical, and some scaffolding is used within
+the patch set to allow for smaller individual patches.
 
-if bb04 {
-  allow tp41 tpx : clx ioctl;
-} else {
-  allowxperm tp41 tpx : clx ioctl 0x1101;
-}
-neverallowxperm tp41 tpx : clx ioctl 0x4101;
-This should be an assertion failure, but is not.
+This patch set depends on the patch set LSM: Move away from secids:
+        https://github.com/cschaufler/lsm-stacking.git#lsmprop-6.12-rc1-v4
 
-allow tp51 tpx : clx ioctl;
-if bb05 {
-  allowxperm tp51 tpx : clx ioctl 0x1101;
-} else {
-  allowxperm tp51 tpx : clx ioctl 0x1101;
-}
-neverallowxperm tp51 tpx : clx ioctl 0x4101;
-This should not be an assertion failure, but is.
+https://github.com/cschaufler/lsm-stacking.git#context-6.12-rc1-v3
 
-Thanks,
-Jim
+Revisons:
+	v3: Don't change NFS data storage format
+	    Retain argument alignments
+	    Set released context pointers to NULL
+        v2: Rebase for static calls in LSM infrastructure
 
+Casey Schaufler (5):
+  LSM: Ensure the correct LSM context releaser
+  LSM: Replace context+len with lsm_context
+  LSM: Use lsm_context in security_inode_getsecctx
+  LSM: lsm_context in security_dentry_init_security
+  LSM: secctx provider check on release
 
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  libsepol/include/sepol/policydb/policydb.h | 12 +++++-
->  libsepol/src/policydb.c                    | 21 ++++++++++
->  libsepol/src/policydb_validate.c           |  4 +-
->  libsepol/src/write.c                       | 46 +++++++++++++++-------
->  4 files changed, 64 insertions(+), 19 deletions(-)
->
-> diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/includ=
-e/sepol/policydb/policydb.h
-> index f73e21fc..ccff4d71 100644
-> --- a/libsepol/include/sepol/policydb/policydb.h
-> +++ b/libsepol/include/sepol/policydb/policydb.h
-> @@ -759,10 +759,11 @@ extern int policydb_set_target_platform(policydb_t =
-*p, int platform);
->  #define POLICYDB_VERSION_INFINIBAND            31 /* Linux-specific */
->  #define POLICYDB_VERSION_GLBLUB                32
->  #define POLICYDB_VERSION_COMP_FTRANS   33 /* compressed filename transit=
-ions */
-> +#define POLICYDB_VERSION_COND_XPERMS   34 /* extended permissions in con=
-ditional policies */
->
->  /* Range of policy versions we understand*/
->  #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
-> -#define POLICYDB_VERSION_MAX   POLICYDB_VERSION_COMP_FTRANS
-> +#define POLICYDB_VERSION_MAX   POLICYDB_VERSION_COND_XPERMS
->
->  /* Module versions and specific changes*/
->  #define MOD_POLICYDB_VERSION_BASE              4
-> @@ -785,9 +786,10 @@ extern int policydb_set_target_platform(policydb_t *=
-p, int platform);
->  #define MOD_POLICYDB_VERSION_INFINIBAND                19
->  #define MOD_POLICYDB_VERSION_GLBLUB            20
->  #define MOD_POLICYDB_VERSION_SELF_TYPETRANS    21
-> +#define MOD_POLICYDB_VERSION_COND_XPERMS       22
->
->  #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
-> -#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_SELF_TYPETRANS
-> +#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_COND_XPERMS
->
->  #define POLICYDB_CONFIG_MLS    1
->
-> @@ -801,6 +803,12 @@ extern int policydb_set_target_platform(policydb_t *=
-p, int platform);
->          ((p)->policy_type !=3D POLICY_KERN                       \
->           && (p)->policyvers >=3D MOD_POLICYDB_VERSION_BOUNDARY))
->
-> +#define policydb_has_cond_xperms_feature(p)                    \
-> +       (((p)->policy_type =3D=3D POLICY_KERN                       \
-> +         && (p)->policyvers >=3D POLICYDB_VERSION_COND_XPERMS) ||       =
- \
-> +        ((p)->policy_type !=3D POLICY_KERN                       \
-> +         && (p)->policyvers >=3D MOD_POLICYDB_VERSION_COND_XPERMS))
-> +
->  /* the config flags related to unknown classes/perms are bits 2 and 3 */
->  #define DENY_UNKNOWN   SEPOL_DENY_UNKNOWN
->  #define REJECT_UNKNOWN SEPOL_REJECT_UNKNOWN
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index e90ccca1..0747e789 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -208,6 +208,13 @@ static const struct policydb_compat_info policydb_co=
-mpat[] =3D {
->          .ocon_num =3D OCON_IBENDPORT + 1,
->          .target_platform =3D SEPOL_TARGET_SELINUX,
->         },
-> +       {
-> +        .type =3D POLICY_KERN,
-> +        .version =3D POLICYDB_VERSION_COND_XPERMS,
-> +        .sym_num =3D SYM_NUM,
-> +        .ocon_num =3D OCON_IBENDPORT + 1,
-> +        .target_platform =3D SEPOL_TARGET_SELINUX,
-> +       },
->         {
->          .type =3D POLICY_BASE,
->          .version =3D MOD_POLICYDB_VERSION_BASE,
-> @@ -334,6 +341,13 @@ static const struct policydb_compat_info policydb_co=
-mpat[] =3D {
->          .ocon_num =3D OCON_IBENDPORT + 1,
->          .target_platform =3D SEPOL_TARGET_SELINUX,
->         },
-> +       {
-> +        .type =3D POLICY_BASE,
-> +        .version =3D MOD_POLICYDB_VERSION_COND_XPERMS,
-> +        .sym_num =3D SYM_NUM,
-> +        .ocon_num =3D OCON_IBENDPORT + 1,
-> +        .target_platform =3D SEPOL_TARGET_SELINUX,
-> +       },
->         {
->          .type =3D POLICY_MOD,
->          .version =3D MOD_POLICYDB_VERSION_BASE,
-> @@ -460,6 +474,13 @@ static const struct policydb_compat_info policydb_co=
-mpat[] =3D {
->          .ocon_num =3D 0,
->          .target_platform =3D SEPOL_TARGET_SELINUX,
->         },
-> +       {
-> +        .type =3D POLICY_MOD,
-> +        .version =3D MOD_POLICYDB_VERSION_COND_XPERMS,
-> +        .sym_num =3D SYM_NUM,
-> +        .ocon_num =3D 0,
-> +        .target_platform =3D SEPOL_TARGET_SELINUX,
-> +       },
->  };
->
->  #if 0
-> diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_val=
-idate.c
-> index 5035313b..e021e025 100644
-> --- a/libsepol/src/policydb_validate.c
-> +++ b/libsepol/src/policydb_validate.c
-> @@ -903,7 +903,7 @@ static int validate_avtab_key(const avtab_key_t *key,=
- int conditional, const pol
->         case AVTAB_XPERMS_DONTAUDIT:
->                 if (p->target_platform !=3D SEPOL_TARGET_SELINUX)
->                         goto bad;
-> -               if (conditional)
-> +               if (conditional && !policydb_has_cond_xperms_feature(p))
->                         goto bad;
->                 break;
->         default:
-> @@ -1046,7 +1046,7 @@ static int validate_avrules(sepol_handle_t *handle,=
- const avrule_t *avrule, int
->                 case AVRULE_XPERMS_AUDITALLOW:
->                 case AVRULE_XPERMS_DONTAUDIT:
->                 case AVRULE_XPERMS_NEVERALLOW:
-> -                       if (conditional)
-> +                       if (conditional && !policydb_has_cond_xperms_feat=
-ure(p))
->                                 goto bad;
->                         break;
->                 default:
-> diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-> index a52e2e82..4ef98449 100644
-> --- a/libsepol/src/write.c
-> +++ b/libsepol/src/write.c
-> @@ -56,7 +56,8 @@ struct policy_data {
->  };
->
->  static int avrule_write_list(policydb_t *p,
-> -                            avrule_t * avrules, struct policy_file *fp);
-> +                            avrule_t * avrules, struct policy_file *fp,
-> +                            unsigned conditional);
->
->  static int ebitmap_write(ebitmap_t * e, struct policy_file *fp)
->  {
-> @@ -104,7 +105,8 @@ static uint16_t spec_order[] =3D {
->
->  static int avtab_write_item(policydb_t * p,
->                             avtab_ptr_t cur, struct policy_file *fp,
-> -                           unsigned merge, unsigned commit, uint32_t * n=
-el)
-> +                           unsigned merge, unsigned commit, unsigned con=
-ditional,
-> +                           uint32_t * nel)
->  {
->         avtab_ptr_t node;
->         uint8_t buf8;
-> @@ -229,14 +231,20 @@ static int avtab_write_item(policydb_t * p,
->                 return POLICYDB_ERROR;
->         if ((p->policyvers < POLICYDB_VERSION_XPERMS_IOCTL) &&
->                         (cur->key.specified & AVTAB_XPERMS)) {
-> -               ERR(fp->handle, "policy version %u does not support ioctl=
- extended"
-> +               ERR(fp->handle, "policy version %u does not support exten=
-ded"
->                                 "permissions rules and one was specified"=
-, p->policyvers);
->                 return POLICYDB_ERROR;
->         }
->
-> +       if (!policydb_has_cond_xperms_feature(p) && (cur->key.specified &=
- AVTAB_XPERMS) && conditional) {
-> +               ERR(fp->handle, "policy version %u does not support exten=
-ded"
-> +                               "permissions rules in conditional policie=
-s and one was specified", p->policyvers);
-> +               return POLICYDB_ERROR;
-> +       }
-> +
->         if (p->target_platform !=3D SEPOL_TARGET_SELINUX &&
->                         (cur->key.specified & AVTAB_XPERMS)) {
-> -               ERR(fp->handle, "Target platform %s does not support ioct=
-l "
-> +               ERR(fp->handle, "Target platform %s does not support "
->                                 "extended permissions rules and one was s=
-pecified",
->                                 policydb_target_strings[p->target_platfor=
-m]);
->                 return POLICYDB_ERROR;
-> @@ -313,7 +321,7 @@ static int avtab_write(struct policydb *p, avtab_t * =
-a, struct policy_file *fp)
->                 for (cur =3D a->htable[i]; cur; cur =3D cur->next) {
->                         /* If old format, compute final nel.
->                            If new format, write out the items. */
-> -                       if (avtab_write_item(p, cur, fp, 1, !oldvers, &ne=
-l)) {
-> +                       if (avtab_write_item(p, cur, fp, 1, !oldvers, 0, =
-&nel)) {
->                                 rc =3D -1;
->                                 goto out;
->                         }
-> @@ -332,7 +340,7 @@ static int avtab_write(struct policydb *p, avtab_t * =
-a, struct policy_file *fp)
->                 avtab_reset_merged(a);
->                 for (i =3D 0; i < a->nslot; i++) {
->                         for (cur =3D a->htable[i]; cur; cur =3D cur->next=
-) {
-> -                               if (avtab_write_item(p, cur, fp, 1, 1, NU=
-LL)) {
-> +                               if (avtab_write_item(p, cur, fp, 1, 1, 0,=
- NULL)) {
->                                         rc =3D -1;
->                                         goto out;
->                                 }
-> @@ -795,7 +803,7 @@ static int cond_write_av_list(policydb_t * p,
->
->         for (cur_list =3D list; cur_list !=3D NULL; cur_list =3D cur_list=
-->next) {
->                 if (cur_list->node->parse_context)
-> -                       if (avtab_write_item(p, cur_list->node, fp, 0, 1,=
- NULL))
-> +                       if (avtab_write_item(p, cur_list->node, fp, 0, 1,=
- 1, NULL))
->                                 goto out;
->         }
->
-> @@ -846,9 +854,9 @@ static int cond_write_node(policydb_t * p,
->                 if (cond_write_av_list(p, node->false_list, fp) !=3D 0)
->                         return POLICYDB_ERROR;
->         } else {
-> -               if (avrule_write_list(p, node->avtrue_list, fp))
-> +               if (avrule_write_list(p, node->avtrue_list, fp, 1))
->                         return POLICYDB_ERROR;
-> -               if (avrule_write_list(p, node->avfalse_list, fp))
-> +               if (avrule_write_list(p, node->avfalse_list, fp, 1))
->                         return POLICYDB_ERROR;
->         }
->
-> @@ -1743,7 +1751,7 @@ static int range_write(policydb_t * p, struct polic=
-y_file *fp)
->  /************** module writing functions below **************/
->
->  static int avrule_write(policydb_t *p, avrule_t * avrule,
-> -                       struct policy_file *fp)
-> +                       struct policy_file *fp, unsigned conditional)
->  {
->         size_t items, items2;
->         uint32_t buf[32], len;
-> @@ -1801,15 +1809,23 @@ static int avrule_write(policydb_t *p, avrule_t *=
- avrule,
->
->                 if (p->policyvers < MOD_POLICYDB_VERSION_XPERMS_IOCTL) {
->                         ERR(fp->handle,
-> -                           "module policy version %u does not support io=
-ctl"
-> +                           "module policy version %u does not support"
->                             " extended permissions rules and one was spec=
-ified",
->                             p->policyvers);
->                         return POLICYDB_ERROR;
->                 }
->
-> +               if (conditional && !policydb_has_cond_xperms_feature(p)) =
-{
-> +                       ERR(fp->handle,
-> +                           "module policy version %u does not support"
-> +                           " extended permissions rules in conditional p=
-olicies and one was specified",
-> +                           p->policyvers);
-> +                       return POLICYDB_ERROR;
-> +               }
-> +
->                 if (p->target_platform !=3D SEPOL_TARGET_SELINUX) {
->                         ERR(fp->handle,
-> -                           "Target platform %s does not support ioctl"
-> +                           "Target platform %s does not support"
->                             " extended permissions rules and one was spec=
-ified",
->                             policydb_target_strings[p->target_platform]);
->                         return POLICYDB_ERROR;
-> @@ -1834,7 +1850,7 @@ static int avrule_write(policydb_t *p, avrule_t * a=
-vrule,
->  }
->
->  static int avrule_write_list(policydb_t *p, avrule_t * avrules,
-> -                            struct policy_file *fp)
-> +                            struct policy_file *fp, unsigned conditional=
-)
->  {
->         uint32_t buf[32], len;
->         avrule_t *avrule;
-> @@ -1852,7 +1868,7 @@ static int avrule_write_list(policydb_t *p, avrule_=
-t * avrules,
->
->         avrule =3D avrules;
->         while (avrule) {
-> -               if (avrule_write(p, avrule, fp))
-> +               if (avrule_write(p, avrule, fp, conditional))
->                         return POLICYDB_ERROR;
->                 avrule =3D avrule->next;
->         }
-> @@ -2056,7 +2072,7 @@ static int avrule_decl_write(avrule_decl_t * decl, =
-int num_scope_syms,
->                 return POLICYDB_ERROR;
->         }
->         if (cond_write_list(p, decl->cond_list, fp) =3D=3D -1 ||
-> -           avrule_write_list(p, decl->avrules, fp) =3D=3D -1 ||
-> +           avrule_write_list(p, decl->avrules, fp, 0) =3D=3D -1 ||
->             role_trans_rule_write(p, decl->role_tr_rules, fp) =3D=3D -1 |=
-|
->             role_allow_rule_write(decl->role_allow_rules, fp) =3D=3D -1) =
-{
->                 return POLICYDB_ERROR;
-> --
-> 2.45.2
->
->
+ drivers/android/binder.c                | 25 +++++-----
+ fs/ceph/super.h                         |  3 +-
+ fs/ceph/xattr.c                         | 12 ++---
+ fs/fuse/dir.c                           | 35 +++++++-------
+ fs/nfs/nfs4proc.c                       | 22 ++++++---
+ fs/nfsd/nfs4xdr.c                       | 22 ++++-----
+ include/linux/lsm_hook_defs.h           | 13 +++--
+ include/linux/security.h                | 37 ++++++++++-----
+ include/net/scm.h                       | 12 ++---
+ kernel/audit.c                          | 33 +++++++------
+ kernel/auditsc.c                        | 27 +++++------
+ net/ipv4/ip_sockglue.c                  | 12 ++---
+ net/netfilter/nf_conntrack_netlink.c    | 16 +++----
+ net/netfilter/nf_conntrack_standalone.c | 11 ++---
+ net/netfilter/nfnetlink_queue.c         | 22 ++++-----
+ net/netlabel/netlabel_unlabeled.c       | 44 +++++++----------
+ net/netlabel/netlabel_user.c            | 10 ++--
+ security/apparmor/include/secid.h       |  7 ++-
+ security/apparmor/secid.c               | 34 +++++++------
+ security/security.c                     | 63 ++++++++++++-------------
+ security/selinux/hooks.c                | 50 ++++++++++++++------
+ security/smack/smack_lsm.c              | 49 +++++++++++--------
+ 22 files changed, 293 insertions(+), 266 deletions(-)
+
+-- 
+2.46.0
+
