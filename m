@@ -1,134 +1,218 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC1C6E56A
-	for <selinux@vger.kernel.org>; Wed, 23 Oct 2024 13:46:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176591A08C2;
+	Wed, 23 Oct 2024 15:24:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729691168; cv=none; b=nWgw6DFe3OLwXaKYIl+nkFtcLcicUZTvHdbd6JYUvVEfkkTKMbUM7jeQCLrU+G6xwC9wvrVYNiKsTHwX7w90Y7IxoSA9qaA2RqU+OHloDUYnJyhn1HiqpJ5aOsbH0Q4jicZbf2JEpyuf73x4fGrH1EDzz2JJbojuymHDyd6h3A0=
+	t=1729697062; cv=none; b=Rv0MFPYNydcyV1LTdHFJPn3ASRdwzZmJei+2bOjT1iObwA1oig9OeKkN6NbXYUznaYOekHVI9/qbJPOUssGL80iQWgVJziEUR7pWYbjJVwL3wXcikmFU+eYbvdtUfwGxIn9jtCPTUBlHFAi6N0yC5mXTK/k5qJIkNughPsLyXlI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729691168; c=relaxed/simple;
-	bh=EsxdwvQjuD7RovcvUH7WeD0PJV6yxN+jYWYrz9Z3xRI=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sXiCogf/gkWTKGQ5yeRRh+qLGkNJVGMrLIAfAuk1GCMQKNIDtdoHHjYV/0cjad6R8UbgSHMNfOppmbiT28gNTG8hL2oyTkXz/de0Ket8jSMskqNESOL2ZFD3PLNjeRgF+/otP3ndImimtxfzgV+bJTEkYhKZH4W78rlvwoyW8wk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fuuSgNNs; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1729697062; c=relaxed/simple;
+	bh=ENUeDQRKZmcyBeEorDU3djMQXwXKmHQA5UwOA1nzLig=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=mihN6rI3En1FKr1GrbREyA0jQ8RSiWc4GLUOuXGKfvT6IkwDgp/zTmtDRxMKZ2YPzzHdswc5QCxz68RSg7jMuLO3YGmo8fbzxZK+HVxPWsSXTLx6Fu5KIdEHhNK4+I7ckZ9OV2yakXGUy4monh8LjPhLWeG+qWP7+Fn+6s377no=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=ESZL7lAo; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fuuSgNNs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729691165;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kgYRaCbTdjXaFcfkOT0nR3rrB6xCp69iXBnS2UZvUh0=;
-	b=fuuSgNNsYVmbPtJcoBhtj/0GAX1QJztmdAp2ICDRIkg9HvyhUTLTDxR2GvqQL83YUNpLSD
-	ZtP0O7Hihd/bvoAhp2gtx8uhqOpA8LJbAElpAkcGpfyEL3CSKUsjEDxgYttBcozZaZuEme
-	fO810NUkHXjyoRhtYxUMrBmAGsDwq4I=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-35-H155zI4BM3GUi7j7sDM-GA-1; Wed,
- 23 Oct 2024 09:46:04 -0400
-X-MC-Unique: H155zI4BM3GUi7j7sDM-GA-1
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B83F1190556E
-	for <selinux@vger.kernel.org>; Wed, 23 Oct 2024 13:43:31 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.225.164])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 066AA19560A2
-	for <selinux@vger.kernel.org>; Wed, 23 Oct 2024 13:43:30 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="ESZL7lAo"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1729697050;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=EFlQFop5Cj0jHkJDP/E169f0Zu4SqnosYllHOpEn32E=;
+	b=ESZL7lAoqnK+lK4Uk3NxXLr1lY+7sdHwKgUokNyxj1UlmcgZ4UqtSbhl0jFiaxGfucBaog
+	xgNtThNl9Q5zu5m2j9aP9ygMXyVLpHD3QIN8MDBwcfgbpSrgP+Pz+zvkwnv98lpUAvkVE/
+	RvU54ivtDtrTg0cgCHlLuJM6TbUgPD3NHaS4CvIXztG2OHhQtEkKGJyQOTeCvr8snExAoL
+	0bQSi0HX3tuiFWoxAlva4RVzSSNQGfzn0cZ03Xb7VLHVrfKSOkwB2dFwMNfL12aVqGVGJQ
+	eEQj0xOCT2nbVsDUYmxRW8ZuhLPVqWNxdTOTBb3R78hbCxK4E3x8iWHgo+G6bA==
 To: selinux@vger.kernel.org
-Subject: [PATCH v2 1/4] libsepol/cil: Initialize avtab_datum on declaration
-Date: Wed, 23 Oct 2024 15:43:15 +0200
-Message-ID: <20241023134318.733305-1-vmojzis@redhat.com>
-In-Reply-To: <CAP+JOzRURZwsyvGzs3U7M7mw4NWD3Brh-K4wnztCS81MLYRHYg@mail.gmail.com>
-References: <CAP+JOzRURZwsyvGzs3U7M7mw4NWD3Brh-K4wnztCS81MLYRHYg@mail.gmail.com>
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+	Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	=?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>,
+	Jacob Satterfield <jsatterfield.linux@gmail.com>,
+	Eric Suen <ericsu@linux.microsoft.com>,
+	=?UTF-8?q?Bram=20Bonn=C3=A9?= <brambonne@google.com>,
+	Canfeng Guo <guocanfeng@uniontech.com>,
+	John Johansen <john.johansen@canonical.com>,
+	GUO Zihua <guozihua@huawei.com>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] selinux: add support for xperms in conditional policies
+Date: Wed, 23 Oct 2024 17:23:36 +0200
+Message-ID: <20241023152351.22622-1-cgoettsche@seltendoof.de>
+Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-avtab_datum.xperms was not always initialized before being used.
+From: Christian Göttsche <cgzones@googlemail.com>
 
-Fixes:
-Error: UNINIT (CWE-457):
-libsepol-3.7/cil/src/cil_binary.c:977:2: var_decl: Declaring variable "avtab_datum" without initializer.
-libsepol-3.7/cil/src/cil_binary.c:1059:3: uninit_use_in_call: Using uninitialized value "avtab_datum". Field "avtab_datum.xperms" is uninitialized when calling "__cil_cond_insert_rule".
- \# 1057|   			}
- \# 1058|   		}
- \# 1059|-> 		rc = __cil_cond_insert_rule(&pdb->te_cond_avtab, &avtab_key, &avtab_datum, cond_node, cond_flavor);
- \# 1060|   	}
+Add support for extended permission rules in conditional policies.
+Currently the kernel accepts such rules already, but evaluating a
+security decision will hit a BUG() in
+services_compute_xperms_decision().  Thus reject extended permission
+rules in conditional policies for current policy versions.
 
-Error: UNINIT (CWE-457):
-libsepol-3.7/cil/src/cil_binary.c:1348:2: var_decl: Declaring variable "avtab_datum" without initializer.
-libsepol-3.7/cil/src/cil_binary.c:1384:3: uninit_use_in_call: Using uninitialized value "avtab_datum". Field "avtab_datum.xperms" is uninitialized when calling "__cil_cond_insert_rule".
- \# 1382|   	} else {
- \# 1383|   		avtab_datum.data = data;
- \# 1384|-> 		rc = __cil_cond_insert_rule(&pdb->te_cond_avtab, &avtab_key, &avtab_datum, cond_node, cond_flavor);
- \# 1385|   	}
- \# 1386|
+Add a new policy version for this feature.
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsepol/cil/src/cil_binary.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ security/selinux/include/security.h |  3 ++-
+ security/selinux/ss/avtab.c         | 11 +++++++++--
+ security/selinux/ss/avtab.h         |  2 +-
+ security/selinux/ss/conditional.c   |  2 +-
+ security/selinux/ss/policydb.c      |  5 +++++
+ security/selinux/ss/services.c      | 12 ++++++++----
+ 6 files changed, 26 insertions(+), 9 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index 3dec1883..3d920182 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -975,7 +975,7 @@ static int __cil_insert_type_rule(policydb_t *pdb, uint32_t kind, uint32_t src,
- {
- 	int rc = SEPOL_OK;
- 	avtab_key_t avtab_key;
--	avtab_datum_t avtab_datum;
-+	avtab_datum_t avtab_datum = { .data = res, .xperms = NULL };
- 	avtab_ptr_t existing;	
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index c7f2731abd03..10949df22fa4 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -46,10 +46,11 @@
+ #define POLICYDB_VERSION_INFINIBAND	     31
+ #define POLICYDB_VERSION_GLBLUB		     32
+ #define POLICYDB_VERSION_COMP_FTRANS	     33 /* compressed filename transitions */
++#define POLICYDB_VERSION_COND_XPERMS	     34 /* extended permissions in conditional policies */
  
- 	avtab_key.source_type = src;
-@@ -997,8 +997,6 @@ static int __cil_insert_type_rule(policydb_t *pdb, uint32_t kind, uint32_t src,
- 		goto exit;
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN POLICYDB_VERSION_BASE
+-#define POLICYDB_VERSION_MAX POLICYDB_VERSION_COMP_FTRANS
++#define POLICYDB_VERSION_MAX POLICYDB_VERSION_COND_XPERMS
+ 
+ /* Mask for just the mount related flags */
+ #define SE_MNTMASK 0x0f
+diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+index 8e400dd736b7..83add633f92a 100644
+--- a/security/selinux/ss/avtab.c
++++ b/security/selinux/ss/avtab.c
+@@ -339,7 +339,7 @@ static const uint16_t spec_order[] = {
+ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+ 		    int (*insertf)(struct avtab *a, const struct avtab_key *k,
+ 				   const struct avtab_datum *d, void *p),
+-		    void *p)
++		    void *p, bool conditional)
+ {
+ 	__le16 buf16[4];
+ 	u16 enabled;
+@@ -457,6 +457,13 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+ 		       "was specified\n",
+ 		       vers);
+ 		return -EINVAL;
++	} else if ((vers < POLICYDB_VERSION_COND_XPERMS) &&
++		   (key.specified & AVTAB_XPERMS) && conditional) {
++		pr_err("SELinux:  avtab:  policy version %u does not "
++		       "support extended permissions rules in conditional "
++		       "policies and one was specified\n",
++		       vers);
++		return -EINVAL;
+ 	} else if (key.specified & AVTAB_XPERMS) {
+ 		memset(&xperms, 0, sizeof(struct avtab_extended_perms));
+ 		rc = next_entry(&xperms.specified, fp, sizeof(u8));
+@@ -523,7 +530,7 @@ int avtab_read(struct avtab *a, void *fp, struct policydb *pol)
+ 		goto bad;
+ 
+ 	for (i = 0; i < nel; i++) {
+-		rc = avtab_read_item(a, fp, pol, avtab_insertf, NULL);
++		rc = avtab_read_item(a, fp, pol, avtab_insertf, NULL, false);
+ 		if (rc) {
+ 			if (rc == -ENOMEM)
+ 				pr_err("SELinux: avtab: out of memory\n");
+diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
+index f4407185401c..a7cbb80a11eb 100644
+--- a/security/selinux/ss/avtab.h
++++ b/security/selinux/ss/avtab.h
+@@ -108,7 +108,7 @@ struct policydb;
+ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+ 		    int (*insert)(struct avtab *a, const struct avtab_key *k,
+ 				  const struct avtab_datum *d, void *p),
+-		    void *p);
++		    void *p, bool conditional);
+ 
+ int avtab_read(struct avtab *a, void *fp, struct policydb *pol);
+ int avtab_write_item(struct policydb *p, const struct avtab_node *cur,
+diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+index 64ba95e40a6f..c9a3060f08a4 100644
+--- a/security/selinux/ss/conditional.c
++++ b/security/selinux/ss/conditional.c
+@@ -349,7 +349,7 @@ static int cond_read_av_list(struct policydb *p, void *fp,
+ 	for (i = 0; i < len; i++) {
+ 		data.dst = &list->nodes[i];
+ 		rc = avtab_read_item(&p->te_cond_avtab, fp, p, cond_insertf,
+-				     &data);
++				     &data, true);
+ 		if (rc) {
+ 			kfree(list->nodes);
+ 			list->nodes = NULL;
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 383f3ae82a73..3ba5506a3fff 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -155,6 +155,11 @@ static const struct policydb_compat_info policydb_compat[] = {
+ 		.sym_num = SYM_NUM,
+ 		.ocon_num = OCON_NUM,
+ 	},
++	{
++		.version = POLICYDB_VERSION_COND_XPERMS,
++		.sym_num = SYM_NUM,
++		.ocon_num = OCON_NUM,
++	},
+ };
+ 
+ static const struct policydb_compat_info *
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 9652aec400cb..66d2472d3874 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -946,7 +946,7 @@ static void avd_init(struct selinux_policy *policy, struct av_decision *avd)
+ }
+ 
+ static void update_xperms_extended_data(u8 specified,
+-					struct extended_perms_data *from,
++					const struct extended_perms_data *from,
+ 					struct extended_perms_data *xp_data)
+ {
+ 	unsigned int i;
+@@ -967,6 +967,8 @@ static void update_xperms_extended_data(u8 specified,
+ void services_compute_xperms_decision(struct extended_perms_decision *xpermd,
+ 					struct avtab_node *node)
+ {
++	u16 specified;
++
+ 	switch (node->datum.u.xperms->specified) {
+ 	case AVTAB_XPERMS_IOCTLFUNCTION:
+ 	case AVTAB_XPERMS_NLMSG:
+@@ -982,17 +984,19 @@ void services_compute_xperms_decision(struct extended_perms_decision *xpermd,
+ 		BUG();
  	}
  
--	avtab_datum.data = res;
--	
- 	existing = avtab_search_node(&pdb->te_avtab, &avtab_key);
- 	if (existing) {
- 		/* Don't add duplicate type rule and warn if they conflict.
-@@ -1346,7 +1344,7 @@ static int __cil_insert_avrule(policydb_t *pdb, uint32_t kind, uint32_t src, uin
- {
- 	int rc = SEPOL_OK;
- 	avtab_key_t avtab_key;
--	avtab_datum_t avtab_datum;
-+	avtab_datum_t avtab_datum = { .data = data, .xperms = NULL };
- 	avtab_datum_t *avtab_dup = NULL;
- 
- 	avtab_key.source_type = src;
-@@ -1372,7 +1370,6 @@ static int __cil_insert_avrule(policydb_t *pdb, uint32_t kind, uint32_t src, uin
- 	if (!cond_node) {
- 		avtab_dup = avtab_search(&pdb->te_avtab, &avtab_key);
- 		if (!avtab_dup) {
--			avtab_datum.data = data;
- 			rc = avtab_insert(&pdb->te_avtab, &avtab_key, &avtab_datum);
- 		} else {
- 			if (kind == CIL_AVRULE_DONTAUDIT)
-@@ -1381,7 +1378,6 @@ static int __cil_insert_avrule(policydb_t *pdb, uint32_t kind, uint32_t src, uin
- 				avtab_dup->data |= data;
- 		}
- 	} else {
--		avtab_datum.data = data;
- 		rc = __cil_cond_insert_rule(&pdb->te_cond_avtab, &avtab_key, &avtab_datum, cond_node, cond_flavor);
- 	}
- 
+-	if (node->key.specified == AVTAB_XPERMS_ALLOWED) {
++	specified = node->key.specified & ~(AVTAB_ENABLED | AVTAB_ENABLED_OLD);
++
++	if (specified == AVTAB_XPERMS_ALLOWED) {
+ 		xpermd->used |= XPERMS_ALLOWED;
+ 		update_xperms_extended_data(node->datum.u.xperms->specified,
+ 					    &node->datum.u.xperms->perms,
+ 					    xpermd->allowed);
+-	} else if (node->key.specified == AVTAB_XPERMS_AUDITALLOW) {
++	} else if (specified == AVTAB_XPERMS_AUDITALLOW) {
+ 		xpermd->used |= XPERMS_AUDITALLOW;
+ 		update_xperms_extended_data(node->datum.u.xperms->specified,
+ 					    &node->datum.u.xperms->perms,
+ 					    xpermd->auditallow);
+-	} else if (node->key.specified == AVTAB_XPERMS_DONTAUDIT) {
++	} else if (specified == AVTAB_XPERMS_DONTAUDIT) {
+ 		xpermd->used |= XPERMS_DONTAUDIT;
+ 		update_xperms_extended_data(node->datum.u.xperms->specified,
+ 					    &node->datum.u.xperms->perms,
 -- 
-2.47.0
+2.45.2
 
