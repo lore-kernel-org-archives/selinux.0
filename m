@@ -1,48 +1,54 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176591A08C2;
-	Wed, 23 Oct 2024 15:24:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 798C619DF45;
+	Wed, 23 Oct 2024 15:27:26 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729697062; cv=none; b=Rv0MFPYNydcyV1LTdHFJPn3ASRdwzZmJei+2bOjT1iObwA1oig9OeKkN6NbXYUznaYOekHVI9/qbJPOUssGL80iQWgVJziEUR7pWYbjJVwL3wXcikmFU+eYbvdtUfwGxIn9jtCPTUBlHFAi6N0yC5mXTK/k5qJIkNughPsLyXlI=
+	t=1729697249; cv=none; b=WfUdysFytP8PyLP2D2MSzyJlch/z4SkLDcyKfxB6VhsE90gUiQ1ZQ7ucjgc5jcIvDFuawwqgpv6QwbOi4fZHMnyOhwsJw8iGU/Y/foESFp+VacoYfFwlcDM8j+GtcTuG47e8fyn3QcHb/rs1HYlJ0+TTQi73Qh2wJJfnVR57kXU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729697062; c=relaxed/simple;
-	bh=ENUeDQRKZmcyBeEorDU3djMQXwXKmHQA5UwOA1nzLig=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=mihN6rI3En1FKr1GrbREyA0jQ8RSiWc4GLUOuXGKfvT6IkwDgp/zTmtDRxMKZ2YPzzHdswc5QCxz68RSg7jMuLO3YGmo8fbzxZK+HVxPWsSXTLx6Fu5KIdEHhNK4+I7ckZ9OV2yakXGUy4monh8LjPhLWeG+qWP7+Fn+6s377no=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=ESZL7lAo; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1729697249; c=relaxed/simple;
+	bh=oik+V/RNJwWo+SeFZOEQL78KxqbRBVcEF9pGR/uapd0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=VVyULNsxFI75rV2q7VA9NzqIDxwbR+iKJaYygXQ5DAbvmzE87r2SVjwruIE45iJxtC6WI/bmtKzzAa/yQfvi1tULVar+/snfrPb7RaZmcfAbv36jG8LesoP5vJXJX0O/ffYTQoTTgYK6Urq+fzptQNRiok2MXDZRBTy2T1oRB28=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=UrrcmPwg; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="ESZL7lAo"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="UrrcmPwg"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1729697050;
+	s=2023072701; t=1729697243;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=EFlQFop5Cj0jHkJDP/E169f0Zu4SqnosYllHOpEn32E=;
-	b=ESZL7lAoqnK+lK4Uk3NxXLr1lY+7sdHwKgUokNyxj1UlmcgZ4UqtSbhl0jFiaxGfucBaog
-	xgNtThNl9Q5zu5m2j9aP9ygMXyVLpHD3QIN8MDBwcfgbpSrgP+Pz+zvkwnv98lpUAvkVE/
-	RvU54ivtDtrTg0cgCHlLuJM6TbUgPD3NHaS4CvIXztG2OHhQtEkKGJyQOTeCvr8snExAoL
-	0bQSi0HX3tuiFWoxAlva4RVzSSNQGfzn0cZ03Xb7VLHVrfKSOkwB2dFwMNfL12aVqGVGJQ
-	eEQj0xOCT2nbVsDUYmxRW8ZuhLPVqWNxdTOTBb3R78hbCxK4E3x8iWHgo+G6bA==
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xMk5VRfzH74Sdi7bz4nUNRyR99yVu65+lDcpBo3YmLM=;
+	b=UrrcmPwgR9Olu8Gq/devFDpg9lqeq2FAqh/MIdXYGMz9A9KlVUlVAGxYHmuExxpt7KFiHG
+	vmvyV9m1yKbZEy1I04orNFG+4SVt71+CyRr/D0CUARz6cFZgoXxrw6gBId4XD0h2TEcS3m
+	ZzT37Ts0id+AJtO4XVbhTt5tiYHGpqucl/LW25dcUdqfgDv/UTK7r0Pw2ZnyXIxSpx+ZGo
+	6av703RFdKrAaHK6qczoNjqcRFQhVmnOxifOJgR8de8MmRofaNYJZOn5Jilehxg8vMjoR1
+	sGdRLQyH1hRF74hYdRpOYGzPAu6rXp/LVqrVAEk3PV6/jztBbgtibKmx3fWdYw==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
 	Paul Moore <paul@paul-moore.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Ondrej Mosnacek <omosnace@redhat.com>,
 	=?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>,
+	=?UTF-8?q?Bram=20Bonn=C3=A9?= <brambonne@google.com>,
 	Jacob Satterfield <jsatterfield.linux@gmail.com>,
 	Eric Suen <ericsu@linux.microsoft.com>,
-	=?UTF-8?q?Bram=20Bonn=C3=A9?= <brambonne@google.com>,
-	Canfeng Guo <guocanfeng@uniontech.com>,
+	Casey Schaufler <casey@schaufler-ca.com>,
 	John Johansen <john.johansen@canonical.com>,
+	Canfeng Guo <guocanfeng@uniontech.com>,
 	GUO Zihua <guozihua@huawei.com>,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH] selinux: add support for xperms in conditional policies
-Date: Wed, 23 Oct 2024 17:23:36 +0200
-Message-ID: <20241023152351.22622-1-cgoettsche@seltendoof.de>
+Subject: [PATCH v2] selinux: add support for xperms in conditional policies
+Date: Wed, 23 Oct 2024 17:27:10 +0200
+Message-ID: <20241023152719.24118-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20240405161042.260113-1-cgoettsche@seltendoof.de>
+References: <20240405161042.260113-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -64,6 +70,9 @@ rules in conditional policies for current policy versions.
 Add a new policy version for this feature.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v2:
+  rebased onto the netlink xperm patch
 ---
  security/selinux/include/security.h |  3 ++-
  security/selinux/ss/avtab.c         | 11 +++++++++--
