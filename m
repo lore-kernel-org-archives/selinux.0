@@ -1,144 +1,109 @@
-Received: from mail-yw1-f201.google.com (mail-yw1-f201.google.com [209.85.128.201])
+Received: from mail-yb1-f171.google.com (mail-yb1-f171.google.com [209.85.219.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 155F51CCB41
-	for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 22:37:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0F132914
+	for <selinux@vger.kernel.org>; Wed, 23 Oct 2024 00:14:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729636650; cv=none; b=kuIc70Pj41Z9SHGIeEkv0J7f6JA2KSi+g0geD6rceEhScREMMZkK16s+fIu/Sh6g4/kX3ZdhV2lNdj1DsSlVEbGrxAcbKrC1wKiHTpsV3kG9Bq7YyYNqhQw8tk/QRl7ipKo/dDbpcCH/a34WiJjwOMAOEum05VPIW9ShMq/KOwo=
+	t=1729642457; cv=none; b=oSvrKG7t+QGmec1w3WQiJpt9QHlu8w897w1vcAbONDkhTh+Q5LG9L+GlgTaqaiHO1i3pqo9jIWDvkzLVL7Kd5jsttCQJAje+a4gPbeM0ZB/gGik1AF5rS0jmBAGcxML0/ibesurv2X1jSYon08n0eP3JeipBWyYRClhja0IicxM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729636650; c=relaxed/simple;
-	bh=qyq2t/bbjYNhgYIxai9S7x1ULd/4YoID2sGCP/k9si8=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=XNpD8UBTPM5fM6mPbpJdmWptvQPBHtQ45C2e0XnhfnxNdp2pZaikxoK6IQINbE5w7GZukmmLnIGLL7VXonadOvlIp5bKGNf88qu9GkeXUuq5h8t1z+X+BD+HdNQjdQQtJvI4E2rsa6IxGOLrUMSsB1RSDyAwTdpr7aaEV0RRtok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=2R8x2l4v; arc=none smtp.client-ip=209.85.128.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
+	s=arc-20240116; t=1729642457; c=relaxed/simple;
+	bh=odY+y3UzaTo9AY0ajrF8E4n4kT75AnnIjuT7joNLwEQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=iyxbB4JbeGESYhF/Hg2YAXMoCAyKFTY9GeaK5lu2E22/ythDL3WsJclgU/vk3FPy+/5yuTP+xK5eSi3ci52fMIn4Sf6VZoWaahT87CgzgeJnCFHCoTvqTPsKCwR7kMVanvDVSBi1gqyhVzQS4z2x8xL9RIibyHcG1Q+FFoOEuDQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Fprj+Cco; arc=none smtp.client-ip=209.85.219.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="2R8x2l4v"
-Received: by mail-yw1-f201.google.com with SMTP id 00721157ae682-6e3497c8eb0so4537087b3.0
-        for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 15:37:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Fprj+Cco"
+Received: by mail-yb1-f171.google.com with SMTP id 3f1490d57ef6-e290222fdd0so5352135276.2
+        for <selinux@vger.kernel.org>; Tue, 22 Oct 2024 17:14:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1729636648; x=1730241448; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=4/Sh1lEYa0z4h2BPPPcBpKo+7EFcOZnqeALFUfsoU1E=;
-        b=2R8x2l4vdWR/y9QSgFhOluIrpUEzGOCOu05+yWfbiQzWvxn8Fpu5s9TX3WJ0JI5dOv
-         bq3Sr0HB3oQDfWPM44x3XC9hZNcy/aloUZnChebsE2X932vzpwVqL7DtvdYP6/0Ihs7D
-         WuaSXVYF5rr9ATru1Og+hZi+nJ6gvChDm6LtWhQWZn8gM4x8U0c1vBP6TUYARBnRqRQi
-         8+qg2xg1O2eghiU+5uhZsKNj1BozwpxwAiYl8fSnEj1JLS3AJgb15pP4HL5SOTvPg1Q5
-         sR5GmbiKnbKvXYF9p8/zjqvin6lYS8umQGpz+8sgzS+NsZGqYlV0aqZz0qAwGx62iJRZ
-         2weg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729636648; x=1730241448;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+        d=paul-moore.com; s=google; t=1729642454; x=1730247254; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4/Sh1lEYa0z4h2BPPPcBpKo+7EFcOZnqeALFUfsoU1E=;
-        b=jEoglcP6E0gpXdKJ/zv6gvly7OEc//qKW7XvYYAcHGo7O6sB2jo03dfXBH3ewjKR/I
-         jj7ujF9kMIyMkfgL5SO5ecOkwSOwCq+i8G8RvLIqQ2txkhZetAOsTERWzVMSx1VHa60f
-         dwvb2zynEbelj3Bl2dvL5bMhxZ/Is3M1LhLMstT3M63SrpDGJRS9AY0iZ05fS5tmTzdh
-         xfeYtudjQMOmIQy1ttHS2LMia+uHnYMMt9jNRlhCeJyHCdJBs7VHCfdeak5GwzJrlnb1
-         Ro+b36SG2qq5JwzsVsR+Jzco4wJQRqXI1VQoQ5/6qXIz4Llx0ypWEFGgpX6DMg9MReBE
-         7s8w==
-X-Forwarded-Encrypted: i=1; AJvYcCWZkmZoROy70WyLesEH5YnKsN5nrThh4SvJMdCxezcFClxFC4K8Yq0DvelMVQIGjDcHlkszzxzY@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw8SgzVwy5KpzJ80ZoRp6Jn45U9sS1wchd3Y6mbfIiyuPwD1NLe
-	lsu1EGgZ+9+FWycrzzKnMHdrZBQr3z9xJJv34d4+t/8AZRHuLE6eqXEUY2nESf/xQBiUCLCP8A=
-	=
-X-Google-Smtp-Source: AGHT+IFAd9Pn2Snwb1KlMLZP1AGFDiYqjro8lzRMQNevS6pharWgVE44y+2q6r5SlMcHuCQCIskB2pc7SA==
-X-Received: from tweek-syd.c.googlers.com ([fda3:e722:ac3:cc00:b7:3870:c0a8:26])
- (user=tweek job=sendgmr) by 2002:a05:690c:6e05:b0:6be:523:af53 with SMTP id
- 00721157ae682-6e7d49d4f9cmr2169157b3.3.1729636648010; Tue, 22 Oct 2024
- 15:37:28 -0700 (PDT)
-Date: Wed, 23 Oct 2024 09:37:11 +1100
+        bh=a0nkODUymzcBaZ/BR2ZkBHf2AEcpK9fd3W2/+PYst7A=;
+        b=Fprj+CcoFwNy8u4rRJE7XEecCol5BfPAZ260rZ5b5VsI9ST+1+d/K7ImdKHSjUxXP8
+         o8uNMf6jRxq1BI6HKL6a0cqO9+aMK5yDUHCtsuKGf/jrP5Ays5cTbjwiaOGvQkynIeiF
+         N4ZKUntoTs5ZXLNZ4hIKyiGUX4rNCtAnCYFiu8RmN8ZIj5St6wcXAk/1os4Hj6o/k1/E
+         mvO7JeuT+lvZIsCoU7nLJ+25o061MK+5rQ2G6gjN1yvSSasf0mQ4Ro37mvNFaz+jRa8v
+         IRE8NDyog2NVpDqTe/SBki0wVqgT/pJTMIJz8qtE1M4dNy0LtFkG0AcHxg7mjCEJBv22
+         p58Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1729642454; x=1730247254;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=a0nkODUymzcBaZ/BR2ZkBHf2AEcpK9fd3W2/+PYst7A=;
+        b=AB/kJ10mCT6bAo6lvY81LOO+2OVsuQxz8AeFkTnq1i06ogxReo0BOfgAUL9ES2ownp
+         G88OWUHpGWagbU9IfOauM12pzF1ZCOLAQrEKztquS4niZ5mIbMtfaOdO9UImIGRPNV8N
+         9ZiEvzq9wncy3DOTjGsYXHe9J4EhDV/+2k8QMkTHd+BJSiHGULZqUjGsNU4/coSqn97h
+         3NF1OoJolZDdE4kzDpjN2fSuRrWnZnH9PkFBiHthWIZTfdnaId8bdA508bFPCqpk9He3
+         QPax51W0z2cG2dR51T7twvaDTrauR+V2jZKr7D/cjCTg+ouizOv/W3mAL5c8QfVCaOyu
+         vuYA==
+X-Forwarded-Encrypted: i=1; AJvYcCU6fR4hCyA1XpJMJ61H08MNNiG1rZE78oi89Uv7h7mCko4wO951vVlevo4PG56SKZiclyn0Lob9@vger.kernel.org
+X-Gm-Message-State: AOJu0YxemE1R/P9/CdANu6m4er5iidvvXe2NWniTk8uT7rFTzfiRxVSh
+	5zB2WpXdNctV9peP8cPV4tF6kFbM6FVwwSiF3Rpuxy/f4e0gC0v4fEz8f3uZP1jJfo6xdE6vNF6
+	yutnGZO8Uka5VL5hq40DApCIxhYlZijmeJFto+dBsZ8NDpb9YjdhC
+X-Google-Smtp-Source: AGHT+IGOthNoHG/n67oHj9DXSU7ZYuv44uXKjcZkYQzs3ANqfoU/9SGpEZtRYIqF/9Yun/Ssc6QU4YYUv5OYGhzf1SE=
+X-Received: by 2002:a05:6902:18d1:b0:e26:1041:498e with SMTP id
+ 3f1490d57ef6-e2e3a632d0dmr774166276.13.1729642454617; Tue, 22 Oct 2024
+ 17:14:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.47.0.105.g07ac214952-goog
-Message-ID: <20241022223711.3066190-1-tweek@google.com>
-Subject: [PATCH] selinux: add netlink nlmsg_type audit message
-From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-To: paul@paul-moore.com
-Cc: brambonne@google.com, jeffv@google.com, selinux@vger.kernel.org, 
-	stephen.smalley.work@gmail.com, 
-	"=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+MIME-Version: 1.0
+References: <CAEjxPJ7JTbEk-=r=Lnjm8MFC1VRn49wWjLUKsfSk=eAryt6S6A@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7JTbEk-=r=Lnjm8MFC1VRn49wWjLUKsfSk=eAryt6S6A@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 22 Oct 2024 20:14:03 -0400
+Message-ID: <CAHC9VhTUWcZFr8HZg3gHnqgZ2PAUazpRX71Jpue1b0QUCEJKsw@mail.gmail.com>
+Subject: Re: testsuite astyle options no longer supported
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Ondrej Mosnacek <omosnace@redhat.com>, SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Add a new audit message type to capture nlmsg-related information. This
-is similar to LSM_AUDIT_DATA_IOCTL_OP which was added for the other
-SELinux extended permission (ioctl).
+On Tue, Oct 22, 2024 at 3:14=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> tools/check-syntax in the testsuite is calling astyle with options
+> that seemingly don't exist anymore on my shiny new F41. The end result
+> is that it will generate a diff deleting any C file from the
+> testsuite.
 
-Adding a new type is preferred to adding to the existing
-lsm_network_audit structure which contains irrelevant information for
-the netlink sockets (i.e., dport, sport).
+I ran into something similar last year with the audit-testsuite and
+astyle v3.2.x (may have been an issue with earlier versions, not
+sure).  I should have sent a heads-up to Ondrej and the list, but it
+looks like I forgot or was distracted.
 
-Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
----
- include/linux/lsm_audit.h | 2 ++
- security/lsm_audit.c      | 3 +++
- security/selinux/hooks.c  | 4 ++--
- 3 files changed, 7 insertions(+), 2 deletions(-)
+> Invalid Artistic Style options:
+> indent-preprocessor
 
-diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
-index 97a8b21eb033..69d2b7bc00ed 100644
---- a/include/linux/lsm_audit.h
-+++ b/include/linux/lsm_audit.h
-@@ -77,6 +77,7 @@ struct common_audit_data {
- #define LSM_AUDIT_DATA_LOCKDOWN 15
- #define LSM_AUDIT_DATA_NOTIFICATION 16
- #define LSM_AUDIT_DATA_ANONINODE	17
-+#define LSM_AUDIT_DATA_NLMSGTYPE	18
- 	union 	{
- 		struct path path;
- 		struct dentry *dentry;
-@@ -98,6 +99,7 @@ struct common_audit_data {
- 		struct lsm_ibendport_audit *ibendport;
- 		int reason;
- 		const char *anonclass;
-+		u16 nlmsg_type;
- 	} u;
- 	/* this union contains LSM specific data */
- 	union {
-diff --git a/security/lsm_audit.c b/security/lsm_audit.c
-index 849e832719e2..b6544024f688 100644
---- a/security/lsm_audit.c
-+++ b/security/lsm_audit.c
-@@ -425,6 +425,9 @@ static void dump_common_audit_data(struct audit_buffer =
-*ab,
- 	case LSM_AUDIT_DATA_ANONINODE:
- 		audit_log_format(ab, " anonclass=3D%s", a->u.anonclass);
- 		break;
-+	case LSM_AUDIT_DATA_NLMSGTYPE:
-+		audit_log_format(ab, " nlmsg_type=3D%hu", a->u.nlmsg_type);
-+		break;
- 	} /* switch (a->type) */
- }
-=20
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index ad3abd48eed1..40afeba0b7de 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5932,14 +5932,14 @@ static int nlmsg_sock_has_extended_perms(struct soc=
-k *sk, u32 perms, u16 nlmsg_t
- {
- 	struct sk_security_struct *sksec =3D sk->sk_security;
- 	struct common_audit_data ad;
--	struct lsm_network_audit net;
- 	u8 driver;
- 	u8 xperm;
-=20
- 	if (sock_skip_has_perm(sksec->sid))
- 		return 0;
-=20
--	ad_net_init_from_sk(&ad, &net, sk);
-+	ad.type =3D LSM_AUDIT_DATA_NLMSGTYPE;
-+	ad.u.nlmsg_type =3D nlmsg_type;
-=20
- 	driver =3D nlmsg_type >> 8;
- 	xperm =3D nlmsg_type & 0xff;
+I dropped this in the audit-testsuite and it didn't seem to have a
+significant impact.
+
+> max-instatement-indent=3D80
+
+I replaced this with '--max-continuation-indent=3D80' to get a reasonable r=
+esult.
+
+The current astyle (v3.6.2) call in the audit-testsuite looks like this:
+
+  astyle --options=3Dnone --lineend=3Dlinux --mode=3Dc \
+    --style=3Dlinux \
+    --indent=3Dforce-tab=3D8 \
+    --indent-col1-comments \
+    --min-conditional-indent=3D0 \
+    --max-continuation-indent=3D80 \
+    --pad-oper \
+    --align-pointer=3Dname \
+    --align-reference=3Dname \
+    --max-code-length=3D80 \
+    --break-after-logical
+
 --=20
-2.47.0.105.g07ac214952-goog
-
+paul-moore.com
