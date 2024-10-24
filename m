@@ -1,79 +1,78 @@
-Received: from sonic314-22.consmr.mail.bf2.yahoo.com (sonic314-22.consmr.mail.bf2.yahoo.com [74.6.132.196])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9B5E1FBF4C
-	for <selinux@vger.kernel.org>; Wed, 23 Oct 2024 21:23:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.6.132.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA31C6F305
+	for <selinux@vger.kernel.org>; Thu, 24 Oct 2024 08:48:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729718635; cv=none; b=LiVQtd7QTAudzP0E2nwu75Uqzqfvv5RujeZ/HVgoaCQ89OeDT8eP5krze9mdeUjr4grFZW3M9uiPq1gkZOaJXngA6kKRGL51yIfT3tSZk8UdbZO2V/YgER1yXSHR4RbepZUPZXr7MuyRE9Wog7Q2sx5JYIYs7i0HZW+3H52Th60=
+	t=1729759717; cv=none; b=rvWFjBGcy3yYfW+05cj2Nzmv3KYRoROJWxNotuK0YicdBIFhOOhk6xR5wV4l/Xq6J/YS2IObh2nXP4DWp2JuhEO/HKXt3PdvafpsRxvUOXKXaIP7LbBh5VvqSIU0LX35MFG2M/h1JnjE/H/8NGeAFHN7LxHTCn9IekD9WOR2VY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729718635; c=relaxed/simple;
-	bh=xI5Udp7+iPy8mZha0q7CIj13Ny/nmKfB0rckcmSATx4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=m8VD0y44SZfMooeWnDsVrehgTtD/V4KA3VSwo0/sD3ho4dv+3pDoa0o34zHYnspzzyNkDMCEhadq4PixcNGojGcUAgY0ltJ9sKy/YA781r4N7PMS90X1tZAnwVOKrzydmQsvoJws4uxu0SkgKTj2gxeWUMrhDmwQBAHLQNUxP2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=fr7uK6et; arc=none smtp.client-ip=74.6.132.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1729759717; c=relaxed/simple;
+	bh=KypG1W260AkdpwfY1T/v5w3Cu+x4usPXGuGm32n0TNg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MZOtIE+4LefYCSVV2ROjEay03XAmj84go2P327L90C03vmeF4t/cfU407LGq1SZw0lHE4jJM87htIExAkMuLAlIn3zh4UH10tkIb8eBoDeb9i/7Tytb+XZayKWSqRIAeikU50J+T73X0HtcL4y4LGLXy+oVa8r2AkgWFMSNMbj8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=eWgh+G4s; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=RWilu+RW; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ABT5di2v; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=VGj/gSFl; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="fr7uK6et"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1729718632; bh=UnQ0rI2w33MXrRKYOUPZC8/87Ao4K9IiWmtcpAV7+bI=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=fr7uK6et/YAx+qyUKA6eygkZedeebOOL6bKeY2Sndbhjumpk95padF92MsLEvYfv+nczDAThs9IgoCyts0C/lItVJdCsbgh0ZbWjm1EfxUqANMtLtSgZQ7bqaH5+qCw3CR4/Z1yDXpdL2oqJxVMKGYdjBA1U0lyapksb4gmyLquy0SLXNez5aLue1+ymRq2/WJnr5gtKAdMkgB8D2pGREqaant+MBP1BBiSwwuYuzH4eFakhIZQ/SDYL3FbTuGtCYd7K1cG8G4OuOOhm6aM0frYO9OVPD8k+o0As3wD5rVI2mKCPExhmjQ7ln6nRu2f1bn6smUQ2VmNzib9KqpZ9eA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1729718632; bh=BtzF3sJGDcYWa7OTjtwH1ZCDRrlzg+6XoLpnavP8yrW=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=qqHEoFeRaQO+PRJ6aEUO/jCkTdizp4xQEI4RwOQdCl3oSoPEiiyjC8Edx2xmY+jFz+duZtL/2CtbvsWZq6lbvQgk7cadQdWzlaMMW4HA3T9VPZi4Y84hxKhiC/y9e5JUexpIQa719PjYg3kdblSr1VFHHlg0sPKowy1wdVKdJS+0xC/gzi7P/DWUL8eYvBB7zpwtOfS74BQS3L3YgHx5qeu1oXwBwtYcKBNCymJ1QwBhbrAckrgbOAUpG5TKFj5FRh3roH54QM2Eio/oVyjufg/0pwevatHW0vcWadSdGdyuALJ1eSImYeHs0maf4Q0dN2uWzREj3pHXRRC2FVUzFw==
-X-YMail-OSG: DYTnJWUVM1nuMpFoEsfs9VW7mCAzIzNOUfaT6wet0nBcvqIzpI6zQpBsEkyLSHS
- LBSZkPUVNZQwH4PCdqwqey6eZ5Ha6btUjGs9CRUMj4e_ii3qur.dcLLuC_h9L0B6VFUUUR42OdY5
- J4aUpkOL_2J9mb6oQxEgFyGXoXNd5LOFdDQj3arTOxWoczEq0TZWX2CmU9UewVLYr2ep1mxsdCi2
- Q8kd_7d507eAd3UgzH.2d7vuijBjvX9E098.4IpGhCxlHIO5jVe9.0LZeJ2tOFqRo9_UqR.ncj58
- he0bIhV6QnBLv5RKxYWhrtT98ECFCG0zkovfxpNBPRYBNBW2UCefRKNKyuzrxVPsWejYckzv_FeG
- Z8oX53z7lqdXomVUMNOtnYI.njw_WIdSb5UIzuFnV9zGba9iSzZ5E97RvdmykNbYeBkaH8P.O8wI
- pM0QPQ8IOq_YfboQqohCNBB1Q_W9sxChWMSOavo_UGBf4VeuO8jFAgN5pCKL0bdVmOJL7q5BNYjf
- XzENkJj9BOvF9bsd6Lb0AKbu3rwdKwC58Cn6ZUzxGpIoYbwrSSmpFafaFzDZHdV2tofohqaAfEaj
- N8NzaQoHo_2YYvcJ6mpVN5VKpCm7LBN72Ypq65tCm_vTC_DvFfnQpFew32XpcKGSptiFRIPSXlKA
- MiQfNU8N43SVvgd7U8UVoZsuVDRMRUqtko10f6PdP_LfrQJEYbpLPL012YqJM45ZJmNmyrLDyseO
- OspWQcvxDsAPMwsM1o85WKzAREPUolCEILYJy279n7u0xy5Xo6DwE3UVRnkrC2Rz8RHQ9H4zQ0er
- enJ5xXKWW2I1qhJN2rY7WNKJGeHti04gFKta7D2fqLwhqxbdlLSBMt.RqVRaNNLznJ6j8XzAPxDo
- S1GUGdFe58E4NjsdtyX_cDx0qIgsBcl29FZ0U_yTvWDAH0FM.fmjA4CdiLTrSejFAERe7ftTRl5I
- 3hZIh46uURW1Uvde99rgjzQl2WRInYZELT1lZVZQTvsxHSesHTsUSLm6KLCgvocbRJ1T8.0CzVO6
- A1_pSod3p3w2DJF.ag_RObL3Qt4RnK_.WZdZhoB3m2TZ3PX_vL4cTISPuRKotVZJgFA5vrjAOXsc
- ERIcvkxBTp7ZxgGICdyUDigX4RlbtThOKztYEKJY.TsnJEe5at4HNqGDWtoMIBQfqZ.WRzK55Yk0
- YeWXAktwTg63mO5vZyIrEQjyZPQLM18wkxJVsDsh7NBbooUirke6H45PYFed9LtYwcWD6txMbEGd
- IK8BUDtNjDFRHwusbq78INyOQaceCguh_OX7V5AnRzR.Dg0B6EhX.xOo2E1RNHjqkhm0r556HE52
- 5B1R.og1bGGbYkhtXznVrloql.qL5aZyUYdCUNzMqXXTiu9qDBIX5hss9de4wXULR9lGfUZ.CAJV
- hBi6TedEiaC2zEHw4HhBjCerAntGTANOxuIdLOOCJV89MlvbUq1kYzTAsuUm4XlShB.h0yWcXbCa
- IsMnFeIm._9wS7h32vzdpPbuIOrQjQdquYfGyD6K_tZ4Wj0UGsvA9sirU8ZX1cwWQuTqPThxpkp1
- eKKvs5nyRlVf2CVy5fELFd5LHlBxfb8WzlUPlkvg.vLUuUmw1b92teD649Gvrpd5XVD61mjBAyIl
- LHyZzqU2Jz2fJvpo.VndfSwbTrR44bRcMBJRm9WSwwJyGi9i2LBRaDiVha0q1xp5Z_pSBAR7VLC.
- spG8YU2uj2wzXa97AeZ7T5SGHI2CAblS8zhwie3cSngh1gLr7hJ.ulnZEmLlr_fCy0u2f_6BcjmM
- bQw00GFMwBqpq_QJA_Y7Wzc_Kccku9fIYeCIkchxWvRkkRNG_YQVVst9u6qQdzAEuNlgKqq0gpYA
- x2VTVFg_MQkbUSvTFPRJtVAx.bbQZAraCwdTue3Nbhx0q0HjlCwXR._edJ75RNojyJx_Kz9bT.Uv
- rEZbPRBwssicwFQHxg2IIuQiR80wEQapNiXbslI9ylCtAZ9CI9Yf3pRLmfMjqNiTfqFQDgYkphBt
- iOOWRegwp5RvJYdQdwNE.Wzm9vV3i8FPJMAYE3bsJCOYIOVhpFyDmkNyfh1JtOFAed9S_xM9xNGB
- rqN99HBamaTkHjyD5RDRreqoQUumCKLOo9ZN31pJ1gbqZmZni0Rm0loLHfKAjsVM8TmxR_bmfrBj
- j2lcliA4ECttSVgnVFsiWuKCsf9v23Xmd9fLocOxrDaZfv0hox0inNmtrwxhcZ0KWWxnxkXh4x14
- bqRDOEcd4ujewUfd1G9qMixyGYYHohAl1onzTTIA6Pjm2_cjU0VXkZqZQtv9.j5myKezWRzOJGkf
- lXKH8pJX5ziTsN.V.Zkv4gScJdQ4-
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 0349e8d1-6b76-498c-9fd1-a59c85c93dce
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.bf2.yahoo.com with HTTP; Wed, 23 Oct 2024 21:23:52 +0000
-Received: by hermes--production-gq1-5dd4b47f46-pfhh2 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID d261940d1cdfc655543cc442dda3a810;
-          Wed, 23 Oct 2024 21:23:44 +0000 (UTC)
-From: Casey Schaufler <casey@schaufler-ca.com>
-To: casey@schaufler-ca.com,
-	paul@paul-moore.com,
-	linux-security-module@vger.kernel.org
-Cc: jmorris@namei.org,
-	serge@hallyn.com,
-	keescook@chromium.org,
-	john.johansen@canonical.com,
-	penguin-kernel@i-love.sakura.ne.jp,
-	stephen.smalley.work@gmail.com,
-	linux-kernel@vger.kernel.org,
-	selinux@vger.kernel.org,
-	mic@digikod.net
-Subject: [PATCH v3 5/5] LSM: secctx provider check on release
-Date: Wed, 23 Oct 2024 14:21:58 -0700
-Message-ID: <20241023212158.18718-6-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.46.0
-In-Reply-To: <20241023212158.18718-1-casey@schaufler-ca.com>
-References: <20241023212158.18718-1-casey@schaufler-ca.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="eWgh+G4s";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="RWilu+RW";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ABT5di2v";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="VGj/gSFl"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id EF3641FE6C;
+	Thu, 24 Oct 2024 08:48:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1729759714; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=5v3ZAaFrb5+Eoe61+jrzFU1sdg43W2svFo/Rv4M0nWE=;
+	b=eWgh+G4sGG7fQEKVYCWVmlEZQwiDRlSYepVf3MtD/IS8XaktZpYma0m52clz6ZzQafYYyq
+	VHp9b4oD2KK6EtyXdxAqL1XkLC3eR8YCu/bfyQFyFAGKdVqi+Td33VdZvk5vMoJCtGh+Gs
+	C3fcn1KYE45pRDMm+7adbEnXPpm5VVM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1729759714;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=5v3ZAaFrb5+Eoe61+jrzFU1sdg43W2svFo/Rv4M0nWE=;
+	b=RWilu+RWCmVivkLvfcx7koAtUpYLEUsVmEO2Ye8hioTzQrcJkkVL8l4I4Niq3WyM801WGy
+	EvkCGxAh6jrRjkCg==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=ABT5di2v;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="VGj/gSFl"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1729759713; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=5v3ZAaFrb5+Eoe61+jrzFU1sdg43W2svFo/Rv4M0nWE=;
+	b=ABT5di2v4cVaNJVN6nTeCpg0SJ8IfqHTrDb5dby0vvk56Eo9Qsqa7HmoTlPkWOvXx7tDny
+	bcOihLYZmaNVElI5MOIpu8apgjBHN6yM8GBql4FkEyzOyYR9EeJWuzlTTSHcKr+19VUruN
+	gM9kz/GRd0K/xiPvpRtZ+Y8DJ5n6Z2I=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1729759713;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=5v3ZAaFrb5+Eoe61+jrzFU1sdg43W2svFo/Rv4M0nWE=;
+	b=VGj/gSFlCjC12/h1C81gco4tA4Clca7cfPBoKsAyQkAFS2WgmVbVpq33SoKDbw4daJ+wtN
+	BricCU3Bvof+JHBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id D6285136F5;
+	Thu, 24 Oct 2024 08:48:33 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id qHTHM+EJGmdcPQAAD6G6ig
+	(envelope-from <fvogt@suse.de>); Thu, 24 Oct 2024 08:48:33 +0000
+From: Fabian Vogt <fvogt@suse.de>
+To: SELinux List <selinux@vger.kernel.org>
+Cc: Cathy Hu <cahu@suse.de>,
+	Fabian Vogt <fvogt@suse.de>
+Subject: [PATCH 0/2] restorecond: GLib IO channel fixes
+Date: Thu, 24 Oct 2024 10:48:14 +0200
+Message-ID: <20241024084816.40872-1-fvogt@suse.de>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -81,65 +80,50 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: EF3641FE6C
+X-Spam-Score: -2.82
+X-Rspamd-Action: no action
+X-Spamd-Result: default: False [-2.82 / 50.00];
+	BAYES_HAM(-2.81)[99.17%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FUZZY_BLOCKED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	TO_DN_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	ASN(0.00)[asn:25478, ipnet:::/0, country:RU];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RCPT_COUNT_THREE(0.00)[3];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:dkim,opensuse.org:url]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spam-Flag: NO
+X-Spam-Level: 
 
-Verify that the LSM releasing the secctx is the LSM that
-allocated it. This was not necessary when only one LSM could
-create a secctx, but once there can be more than one it is.
+Downstream we hit a bug that "restorecond -u" kept running even after the user
+logged out (https://bugzilla.opensuse.org/show_bug.cgi?id=1231512). The cause
+for that was that SIGTERM was handled, but had no effect. While testing the fix
+(PATCH 2), I found that the inotify events weren't actually read properly.
+That's addressed by PATCH 1.
 
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
----
- security/apparmor/secid.c | 13 +++++--------
- security/selinux/hooks.c  | 13 +++++--------
- 2 files changed, 10 insertions(+), 16 deletions(-)
+Fabian Vogt (2):
+  restorecond: Set GLib IO channels to binary mode
+  restorecond: Set GLib IO channels to nonblocking
 
-diff --git a/security/apparmor/secid.c b/security/apparmor/secid.c
-index 5d92fc3ab8b4..854613e58e34 100644
---- a/security/apparmor/secid.c
-+++ b/security/apparmor/secid.c
-@@ -122,14 +122,11 @@ int apparmor_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
- 
- void apparmor_release_secctx(struct lsm_context *cp)
- {
--	/*
--	 * stacking scaffolding:
--	 * When it is possible for more than one LSM to provide a
--	 * release hook, do this check:
--	 * if (cp->id == LSM_ID_APPARMOR || cp->id == LSM_ID_UNDEF)
--	 */
--
--	kfree(cp->context);
-+	if (cp->id == LSM_ID_APPARMOR) {
-+		kfree(cp->context);
-+		cp->context = NULL;
-+		cp->id = LSM_ID_UNDEF;
-+	}
- }
- 
- /**
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 79776a5e651d..996e765b6823 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6640,14 +6640,11 @@ static int selinux_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
- 
- static void selinux_release_secctx(struct lsm_context *cp)
- {
--	/*
--	 * stacking scaffolding:
--	 * When it is possible for more than one LSM to provide a
--	 * release hook, do this check:
--	 * if (cp->id == LSM_ID_SELINUX || cp->id == LSM_ID_UNDEF)
--	 */
--
--	kfree(cp->context);
-+	if (cp->id == LSM_ID_SELINUX) {
-+		kfree(cp->context);
-+		cp->context = NULL;
-+		cp->id = LSM_ID_UNDEF;
-+	}
- }
- 
- static void selinux_inode_invalidate_secctx(struct inode *inode)
+ restorecond/user.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
 -- 
-2.46.0
+2.47.0
 
