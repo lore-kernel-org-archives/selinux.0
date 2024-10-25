@@ -1,49 +1,53 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71CF220D4E8
-	for <selinux@vger.kernel.org>; Fri, 25 Oct 2024 18:30:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDC1F185E50
+	for <selinux@vger.kernel.org>; Fri, 25 Oct 2024 18:30:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729881043; cv=none; b=SQfJLSjXQdP783AwhLTdHXjkiR62mZI9PquYo2J5C1qebi35yvucEa4fyy88kCGpdp/E/w2qYW4NKmrV2sDrKO4Qn7Eqql94hjCrllpOB3PVwh+6lB4QQHJcHLL5ysDdiF2OMF7Edm5n8cb/HvO5nLFGlXu4ZSDEPHwKDF9kby4=
+	t=1729881047; cv=none; b=nz/OGHINuqAnaN6B9oXN/pI+gi/BdayfNlw5zpJO2+dIHehtbrb5EBm/Dljjo12C5ZvHMORJyRAfqo1Kjj/IbUY+mjQyB0g+QqUT4GBZ13pVszj6Pk2Mgw5kNsSIfzDAots2nJtsHAquToN7HY9LTlsldsUNpkm36ebwLVnrhrA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729881043; c=relaxed/simple;
-	bh=RD5IyU4Ycs2NzQJEvvRARxz2ZgvBE/jYp8rdoxD2ZH8=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=Z2ibyWztY6qAnuAGhcaZW2X+bfisK+tk8TWnFn7VmvLX7lx8dtTUP3z2JoNqDujXjXoYSAmAThdsXfC8KszW928d5lJCcTYwTvUFuLtX4Y9HGyfYli+fWJ7l6I4QdfNTCVt3XaTKaVIk1QT02ftNtIjl5OMhKSAsGk2nRsg5ZDI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gw60Z9fE; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1729881047; c=relaxed/simple;
+	bh=w9RSmWIvMwgde6CutuogvPfityH1bQNzjfNGaJisnVA=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=a4xCKqEm1iHg7m5wUqMqrK+U1nKOpoqRraAAQOsag4GYvWejEmQqt/2uOsvZqbTRSrVj5pKwz5V7lQQLkWwE3Gi+jrnsGJaOvgotxY/LtMk70idMqRatwtjS1aTDYzIvfTemGXB/d1GVTt8FmtNKLgO/m49OFO5/1CZQ65MWXG0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RTTnQuYW; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gw60Z9fE"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RTTnQuYW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1729881039;
+	s=mimecast20190719; t=1729881044;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=HyZSbFW1vYqMwT24u9iC/6uXQBBQXEOd9nTy1nphhuc=;
-	b=gw60Z9fExRbAn8MYgl7cDxg3Y7Y6mq7n+Dw82Ofa534P0roXpxNLvfM8zU24ndcfQOCsgD
-	02WwNnsRo6Rs2dsJCzQPdc7qAdUDcXMNANfn9tNlFzSyvQLKfuRtUAgF3PvV0xfmjuMhK4
-	3wH7f6yz5Yglq+Qbqm5VKj4td+RVOyg=
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CabjybX8wpPdOTpOKilOCKBweB2aOd7EQsl12FKgFlo=;
+	b=RTTnQuYWpmsh/n7REAHivAWqz9Ho16uDqxWbS/eFXIfL61+tbZ6bZgVGeWobk7HVcnQSd5
+	w215U9OPa/3JywCCDCXIULYiKgVBQnq4YJPNvEqc0ZHIpuyLn4bgexSJFgmiHr5viBxvl5
+	0599hA9DRqo7yl2jv84ZdRdrjosPgwU=
 Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-27-Wy0xnKN2NTOqs5pvHhhOrA-1; Fri,
- 25 Oct 2024 14:30:37 -0400
-X-MC-Unique: Wy0xnKN2NTOqs5pvHhhOrA-1
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-5-4wJ1BwrjNbOiJyd8v4rEoA-1; Fri,
+ 25 Oct 2024 14:30:43 -0400
+X-MC-Unique: 4wJ1BwrjNbOiJyd8v4rEoA-1
 Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id BDFA119560B2
-	for <selinux@vger.kernel.org>; Fri, 25 Oct 2024 18:30:36 +0000 (UTC)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 327D41956089
+	for <selinux@vger.kernel.org>; Fri, 25 Oct 2024 18:30:42 +0000 (UTC)
 Received: from fedora.tail6b4d1.ts.net (unknown [10.45.225.141])
-	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 0D6D71955F43
-	for <selinux@vger.kernel.org>; Fri, 25 Oct 2024 18:30:35 +0000 (UTC)
+	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 76FFD1956088
+	for <selinux@vger.kernel.org>; Fri, 25 Oct 2024 18:30:41 +0000 (UTC)
 From: Vit Mojzis <vmojzis@redhat.com>
 To: selinux@vger.kernel.org
-Subject: [PATCH 1/2] libselinux/setexecfilecon: Remove useless rc check
-Date: Fri, 25 Oct 2024 20:30:13 +0200
-Message-ID: <20241025183014.1826149-1-vmojzis@redhat.com>
+Subject: [PATCH 2/2] libselinux/matchpathcon: RESOURCE_LEAK: Variable "con"
+Date: Fri, 25 Oct 2024 20:30:14 +0200
+Message-ID: <20241025183014.1826149-2-vmojzis@redhat.com>
+In-Reply-To: <20241025183014.1826149-1-vmojzis@redhat.com>
+References: <20241025183014.1826149-1-vmojzis@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -54,33 +58,36 @@ Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
 
 Fixes:
- Error: IDENTICAL_BRANCHES (CWE-398):
- libselinux-3.6/src/setexecfilecon.c:45: implicit_else: The code from the above if-then branch is identical to the code after the if statement.
- libselinux-3.6/src/setexecfilecon.c:43: identical_branches: The same code is executed when the condition "rc < 0" is true or false, because the code in the if-then branch and after the if statement is identical. Should the if statement be removed?
- \#   41|
- \#   42|           rc = setexeccon(newcon);
- \#   43|->         if (rc < 0)
- \#   44|                   goto out;
- \#   45|         out:
+ Error: RESOURCE_LEAK (CWE-772):
+ libselinux-3.6/src/matchpathcon.c:519: alloc_arg: "lgetfilecon_raw" allocates memory that is stored into "con". [Note: The source code implementation of the function has been overridden by a user model.]
+ libselinux-3.6/src/matchpathcon.c:528: leaked_storage: Variable "con" going out of scope leaks the storage it points to.
+ \#  526|
+ \#  527|           if (!hnd && (matchpathcon_init_prefix(NULL, NULL) < 0))
+ \#  528|->                         return -1;
+ \#  529|
+ \#  530|           if (selabel_lookup_raw(hnd, &fcontext, path, mode) != 0) {
 
 Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- libselinux/src/setexecfilecon.c | 2 --
- 1 file changed, 2 deletions(-)
+ libselinux/src/matchpathcon.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/libselinux/src/setexecfilecon.c b/libselinux/src/setexecfilecon.c
-index 2c6505a9..4b31e775 100644
---- a/libselinux/src/setexecfilecon.c
-+++ b/libselinux/src/setexecfilecon.c
-@@ -40,8 +40,6 @@ int setexecfilecon(const char *filename, const char *fallback_type)
+diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
+index e44734c3..967520e4 100644
+--- a/libselinux/src/matchpathcon.c
++++ b/libselinux/src/matchpathcon.c
+@@ -524,8 +524,10 @@ int selinux_file_context_verify(const char *path, mode_t mode)
+ 			return 0;
  	}
+ 	
+-	if (!hnd && (matchpathcon_init_prefix(NULL, NULL) < 0))
++	if (!hnd && (matchpathcon_init_prefix(NULL, NULL) < 0)){
++			freecon(con);
+ 			return -1;
++	}
  
- 	rc = setexeccon(newcon);
--	if (rc < 0)
--		goto out;
-       out:
- 
- 	if (rc < 0 && security_getenforce() == 0)
+ 	if (selabel_lookup_raw(hnd, &fcontext, path, mode) != 0) {
+ 		if (errno != ENOENT)
 -- 
 2.47.0
 
