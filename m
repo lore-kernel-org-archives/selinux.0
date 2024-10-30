@@ -1,178 +1,184 @@
-Received: from mail-oo1-f48.google.com (mail-oo1-f48.google.com [209.85.161.48])
+Received: from mail-oi1-f175.google.com (mail-oi1-f175.google.com [209.85.167.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ABB11D1E7A
-	for <selinux@vger.kernel.org>; Wed, 30 Oct 2024 13:13:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E6C51D1E7A
+	for <selinux@vger.kernel.org>; Wed, 30 Oct 2024 13:14:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730294017; cv=none; b=dN0tDZ0sYnO3JkpiddzZBXozZ/sJHQ8SMsVBgJ3ElVtx6oF8Dy6DmasG9kNMK9o+XATiDbdsIhwWtELX9DbNPTk89xNOvzxiuEkstUYcxe1tzp7xKSli3OleLFF6WgoY4GwTSETmt6+K8NzeYHqnJtlRRF/91XSKQo0i+23QR/A=
+	t=1730294050; cv=none; b=VEItZKejXpwcY1BwiUe2qS3izfppBIS6yadyd+br4Es7rx+Q0PtthoLLY8fjBwKfK+VQ057kNi6UI5i618rdVe/qfxHjYDK5Vr4JDvqTdwDNIEDqx3tCIaQcAI5GIPr2CrtvMw2GIegLYQpHkhroPV+cPi5IvdaAg7wuGuig54Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730294017; c=relaxed/simple;
-	bh=usaNunAbFTMTpJmYbosIby/dF0xGW3JQmeGKjettUos=;
+	s=arc-20240116; t=1730294050; c=relaxed/simple;
+	bh=YWz11gSaK+4WBn5EpoaAFSOknIX8/a6caJzwOpdrfEA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=quWEW6oee5D+2xsWAKypdmJffAvCAIR2Gb7rHjHRCW2j0+BrJaSYsjTug5hE2qvi59llWDfkIFPF2b3oWaTmnA2BOWuzj2hoDpDNCh0sOm2nqwV2kljN6HMtjZ9fRrHEcCt2iC8Fz+BRJY7TtysYordhc2iNPBzJ4GJJBHHUSQ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dUYtUjO2; arc=none smtp.client-ip=209.85.161.48
+	 To:Cc:Content-Type; b=q+vN/K9md9Y2hjpWnZVL8sGxEUg3+fNp77QRK9T4YI25CLyjvaRuUPzzQQjlhYiN0kESnekNqeVTdRiyrO9/LaVxonVx0vLA4gxPwlDFfCVeL8P2qfpFezJ4T5Wwarh+u0yJwZQYgRzutfWc7yYyynDXqNTKNSri+R4BqYXddlQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WLFvLYw6; arc=none smtp.client-ip=209.85.167.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dUYtUjO2"
-Received: by mail-oo1-f48.google.com with SMTP id 006d021491bc7-5ebc1af8f10so2819476eaf.2
-        for <selinux@vger.kernel.org>; Wed, 30 Oct 2024 06:13:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WLFvLYw6"
+Received: by mail-oi1-f175.google.com with SMTP id 5614622812f47-3e602a73ba1so3747000b6e.2
+        for <selinux@vger.kernel.org>; Wed, 30 Oct 2024 06:14:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1730294014; x=1730898814; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1730294047; x=1730898847; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lH25q+NP+/zYxrfTSs8dxzgkMCJu54b7UHV/KcaJNxc=;
-        b=dUYtUjO2TKJL2ss1iIDXg9g8r6/k4zG4FZknT6sZ+SDQGTDKAT4Bpmv0CslGCCWvuu
-         oo3Mt6erHWsFYPEqvvo8jWJoRFR9W2V01sgGxoONv8xPxb3UAmLlTSvpFLV/u5CpzT7t
-         Wus2cBYDgV542FLmn5/PYdKqibcJenwjMDS9gtnJtnzpTwscR0QKlPGtPk6h4RNQnnuQ
-         sn+bKfAws3yD3hlcXwb83IJYduPHUminYI9ihxkBdLehXkxxnZOhwFdj+Vjgb5bw4QJL
-         2+NclLTtVE9thzOVGzE3nl+nwoKOYeb8/loanxi0Gq2pSkY48g6v4ZtC0XpwBSLBSAJe
-         oP8Q==
+        bh=oKZk5QXUsgtnclQnP2+pn0IVWhgUtxEfFsAKBuiZ5SI=;
+        b=WLFvLYw6kNcD0douvk7OH5SAOeUk8rOPDtKxt3iA8hxzMdOmTBSDGZfmqUcEr/4RgX
+         xnrbWjeM+NxHHUpr6aM3mDTFlz4zwsEbInxSqhF4Lk8x9MpcmR6UsN3UDmvZE/vVjTz3
+         1V3UeNw8K6/5G/Eu5PA1ZaIlmthm1G/fCct5sRlqvSqFLeR6KUOHzYhTiG3p6X2e20OR
+         wthWdkuv2JpG+LmYL1hD4eqGP28UaNsgn5Dj1NX7xkAYUR9D3o4K+tuTu59P7DK//b9+
+         35F6JthwkB9JZGZSKJJ+0msC4qgnPI5MS923qs6yZUKjqjsNwm9GZnDHsvOlBWGfFMdr
+         u9fQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730294014; x=1730898814;
+        d=1e100.net; s=20230601; t=1730294047; x=1730898847;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lH25q+NP+/zYxrfTSs8dxzgkMCJu54b7UHV/KcaJNxc=;
-        b=QK+3E3urwYwRD2kHQxSpgcAh/ehHLGR1jNGa1rwCeyGr+5AGPHy75eu3m1dhsf1Idc
-         YMVgNRduV556e87+VcpijS8eyWOIN0ovvnwJN4S/d63pQ+Wx6lr0NmAP8eOG215vP7NO
-         QUJSxtiBZR91Vtz6Isrcj0xFlXMlrX0yQ3Gk08zp2ilsAG07b8FhuUzUL4mSO3xO2rIZ
-         5GI7/ASnBHkJdKMdOO8yC1Dnl8BC42vR+k45TfC/Y4brzlDLiTAGq0ADI2ES/4soJGdq
-         B6MlMtIq6cYUcIf4ZNoyKW00vi4rGAanOIx5vvZrg3gzvIDrZkHz7nh2TCvSEGb1+Tbl
-         sVBQ==
-X-Gm-Message-State: AOJu0YzCRmQrJDXMtuBLNXOZpvFIKLsHLAg3FJGAli0T+McNAHrPUvKt
-	VLtJ2rEZ+4FKcRLFzd75oG+Rl7j6wvymeLzdkXecNdNKfXgQotk4EAKdfiqHtuCusl4TEQhywyW
-	1WwA5z8+8pwQvjac1XhPyuOyG0fs=
-X-Google-Smtp-Source: AGHT+IH+wiHyp37iBUkUYwwytcJlkrgKlpeSAhrhT/HL2dYOoOgYxPV9gxujHcv1MpQ+9WC37oU9jkRleRZaWfe9SLw=
-X-Received: by 2002:a05:6359:4c9d:b0:1c3:90ff:9721 with SMTP id
- e5c5f4694b2df-1c3f9f7a546mr772725455d.23.1730294014438; Wed, 30 Oct 2024
- 06:13:34 -0700 (PDT)
+        bh=oKZk5QXUsgtnclQnP2+pn0IVWhgUtxEfFsAKBuiZ5SI=;
+        b=C3eE3avQ1jCe842bPJs6L54oWdKRBYIhugQKxkeIRTJ0xQX1EZzNsvPXEl0PeG0fuh
+         KiO4lSK1LTy/nI3TBAnl9zL4WV06cc+l/jLO17q1GgZImWUKkPc1fZg3XQh39jpDUuUJ
+         vUgI2p3dCOeC7cC61znL0LA8rugyA9cBrQ9O9BBdVQbRsD1Q79upj5Dhskmj2qVlU8+Q
+         jy0zYSRepfX+bcsHQcv2mg1BqdXj82clnGVFkbzftqB6J+RUjBjmm+V8JocGRV1iXvXW
+         u3UDPTyATwWIkIihrULo9VkA029hcy0re53GHABxv/CPTMp//hanA71Qf3n4dk8K7/N1
+         QWdA==
+X-Gm-Message-State: AOJu0YygfSSLPxAjOlqoAPkKZ+g+T1tXqtnUm+FwIT8bhKSnkoeu364h
+	5mzK/vaAJGIoJU+UnF+QG4170O32lkQzv14Ykq6FsFFzHNLcEhkS2VUGcZ4Y248loSEUgArOE3b
+	y+k+5L8SLNuVo0Cb3CCpHm2l3lfw=
+X-Google-Smtp-Source: AGHT+IEbTWh8vqvTNKjzLMhhQ1Ls1xt2bMkwKQiCBMf8vFwTH50O9h/w7Ypb+1uFTVJoq3jhLwdNt9jBHjpS6Ju5fEA=
+X-Received: by 2002:a05:6359:45a0:b0:1b5:f81c:875f with SMTP id
+ e5c5f4694b2df-1c3f9d4973dmr685909355d.5.1730294047230; Wed, 30 Oct 2024
+ 06:14:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241016184825.200567-1-lautrbach@redhat.com> <CAP+JOzT8_6sojgrqzqcGQ7s24netTEd_3Xo4M_7JoyP3Fnqkyw@mail.gmail.com>
-In-Reply-To: <CAP+JOzT8_6sojgrqzqcGQ7s24netTEd_3Xo4M_7JoyP3Fnqkyw@mail.gmail.com>
+References: <20241018151300.445618-1-cgoettsche@seltendoof.de> <CAP+JOzRwYeawhhALJpcHftegkp_f_Ni=Vz8zhZs7Dftm8fV1hA@mail.gmail.com>
+In-Reply-To: <CAP+JOzRwYeawhhALJpcHftegkp_f_Ni=Vz8zhZs7Dftm8fV1hA@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 30 Oct 2024 09:13:23 -0400
-Message-ID: <CAP+JOzRL=MA2FAqNMHQ8zwNxrpf8stZyCcT=Gw=FdhmAsVcdFA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libselinux: fix swig bindings for 4.3.0
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux@vger.kernel.org, Jitka Plesnikova <jplesnik@redhat.com>
+Date: Wed, 30 Oct 2024 09:13:56 -0400
+Message-ID: <CAP+JOzRpeJ8RRpY9+=VqAVP4AXhP8Yijpf-CQ6fZti4WmunBjw@mail.gmail.com>
+Subject: Re: [PATCH 1/4] libselinux: avoid errno modification by fclose(3)
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Oct 17, 2024 at 2:34=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+On Mon, Oct 21, 2024 at 3:30=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
-> On Wed, Oct 16, 2024 at 2:48=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.=
-com> wrote:
+> On Fri, Oct 18, 2024 at 11:13=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
 > >
-> > https://github.com/swig/swig/blob/master/CHANGES.current
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > >
-> > "[Python] #2907 Fix returning null from functions with output
-> > parameters.  Ensures OUTPUT and INOUT typemaps are handled
-> > consistently wrt return type.
+> > In case fclose(3) might modify the global variable errno, use a wrapper
+> > retaining the errno value.  In the affected cases the success of
+> > fclose(3) itself is not important, since the underlying descriptor is
+> > only read from.
 > >
-> > New declaration of SWIG_Python_AppendOutput is now:
-> >
-> >   SWIG_Python_AppendOutput(PyObject* result, PyObject* obj, int is_void=
-);
-> >
-> > The 3rd parameter is new and the new $isvoid special variable
-> > should be passed to it, indicating whether or not the wrapped
-> > function returns void.
-> >
-> > Also consider replacing with:
-> >
-> >   SWIG_AppendOutput(PyObject* result, PyObject* obj);
-> >
-> > which calls SWIG_Python_AppendOutput with same parameters but adding $i=
-svoid
-> > for final parameter."
-> >
-> > Fixes: https://github.com/SELinuxProject/selinux/issues/447
-> >
-> >     selinuxswig_python_wrap.c: In function =E2=80=98_wrap_security_comp=
-ute_user=E2=80=99:
-> >     selinuxswig_python_wrap.c:11499:17: error: too few arguments to fun=
-ction =E2=80=98SWIG_Python_AppendOutput=E2=80=99
-> >     11499 |     resultobj =3D SWIG_Python_AppendOutput(resultobj, plist=
-);
-> >           |                 ^~~~~~~~~~~~~~~~~~~~~~~~
-> >     selinuxswig_python_wrap.c:1248:1: note: declared here
-> >      1248 | SWIG_Python_AppendOutput(PyObject* result, PyObject* obj, i=
-nt is_void) {
-> >           | ^~~~~~~~~~~~~~~~~~~~~~~~
-> >     selinuxswig_python_wrap.c: In function =E2=80=98_wrap_security_comp=
-ute_user_raw=E2=80=99:
-> >     selinuxswig_python_wrap.c:11570:17: error: too few arguments to fun=
-ction =E2=80=98SWIG_Python_AppendOutput=E2=80=99
-> >     11570 |     resultobj =3D SWIG_Python_AppendOutput(resultobj, plist=
-);
-> >           |                 ^~~~~~~~~~~~~~~~~~~~~~~~
-> >     selinuxswig_python_wrap.c:1248:1: note: declared here
-> >      1248 | SWIG_Python_AppendOutput(PyObject* result, PyObject* obj, i=
-nt is_void) {
-> >           | ^~~~~~~~~~~~~~~~~~~~~~~~
-> >     selinuxswig_python_wrap.c: In function =E2=80=98_wrap_security_get_=
-boolean_names=E2=80=99:
-> >     selinuxswig_python_wrap.c:12470:17: error: too few arguments to fun=
-ction =E2=80=98SWIG_Python_AppendOutput=E2=80=99
-> >     12470 |     resultobj =3D SWIG_Python_AppendOutput(resultobj, list)=
-;
-> >           |                 ^~~~~~~~~~~~~~~~~~~~~~~~
-> >     selinuxswig_python_wrap.c:1248:1: note: declared here
-> >      1248 | SWIG_Python_AppendOutput(PyObject* result, PyObject* obj, i=
-nt is_void) {
-> >           | ^~~~~~~~~~~~~~~~~~~~~~~~
-> >     error: command '/usr/bin/gcc' failed with exit code 1
-> >
-> > Suggested-by: Jitka Plesnikova <jplesnik@redhat.com>
-> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+> > Reported-by: clang-analyzer
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> For these two patches:
+> For these four patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-These two patches have been merged.
+These four patches have been merged.
 Thanks,
 Jim
 
->
 > > ---
-> >  libselinux/src/selinuxswig_python.i | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >  libselinux/src/get_context_list.c |  4 ++--
+> >  libselinux/src/label_file.c       |  4 ++--
+> >  libselinux/src/selinux_internal.h | 11 +++++++++++
+> >  3 files changed, 15 insertions(+), 4 deletions(-)
 > >
-> > diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selin=
-uxswig_python.i
-> > index 17e03b9e36a5..03ed296d5b85 100644
-> > --- a/libselinux/src/selinuxswig_python.i
-> > +++ b/libselinux/src/selinuxswig_python.i
-> > @@ -71,7 +71,7 @@ def install(src, dest):
-> >         for (i =3D 0; i < *$2; i++) {
-> >                 PyList_SetItem(list, i, PyString_FromString((*$1)[i]));
-> >         }
-> > -       $result =3D SWIG_Python_AppendOutput($result, list);
-> > +       $result =3D SWIG_AppendOutput($result, list);
-> >  }
+> > diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_con=
+text_list.c
+> > index 0ad24654..222b54c1 100644
+> > --- a/libselinux/src/get_context_list.c
+> > +++ b/libselinux/src/get_context_list.c
+> > @@ -438,7 +438,7 @@ int get_ordered_context_list(const char *user,
+> >                 __fsetlocking(fp, FSETLOCKING_BYCALLER);
+> >                 rc =3D get_context_user(fp, con, user, &reachable, &nre=
+achable);
 > >
-> >  /* return a sid along with the result */
-> > @@ -108,7 +108,7 @@ def install(src, dest):
-> >                 plist =3D PyList_New(0);
-> >         }
+> > -               fclose(fp);
+> > +               fclose_errno_safe(fp);
+> >                 if (rc < 0 && errno !=3D ENOENT) {
+> >                         selinux_log(SELINUX_ERROR,
+> >                                 "%s:  error in processing configuration=
+ file %s\n",
+> > @@ -451,7 +451,7 @@ int get_ordered_context_list(const char *user,
+> >         if (fp) {
+> >                 __fsetlocking(fp, FSETLOCKING_BYCALLER);
+> >                 rc =3D get_context_user(fp, con, user, &reachable, &nre=
+achable);
+> > -               fclose(fp);
+> > +               fclose_errno_safe(fp);
+> >                 if (rc < 0 && errno !=3D ENOENT) {
+> >                         selinux_log(SELINUX_ERROR,
+> >                                 "%s:  error in processing configuration=
+ file %s\n",
+> > diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> > index 2fad0c93..40628e2c 100644
+> > --- a/libselinux/src/label_file.c
+> > +++ b/libselinux/src/label_file.c
+> > @@ -628,7 +628,7 @@ static int process_file(const char *path, const cha=
+r *suffix,
 > >
-> > -       $result =3D SWIG_Python_AppendOutput($result, plist);
-> > +       $result =3D SWIG_AppendOutput($result, plist);
-> >  }
+> >                 rc =3D fcontext_is_binary(fp);
+> >                 if (rc < 0) {
+> > -                       (void) fclose(fp);
+> > +                       fclose_errno_safe(fp);
+> >                         return -1;
+> >                 }
 > >
-> >  /* Makes functions in get_context_list.h return a Python list of conte=
-xts */
+> > @@ -639,7 +639,7 @@ static int process_file(const char *path, const cha=
+r *suffix,
+> >                         rc =3D digest_add_specfile(digest, fp, NULL, sb=
+.st_size,
+> >                                 found_path);
+> >
+> > -               fclose(fp);
+> > +               fclose_errno_safe(fp);
+> >
+> >                 if (!rc)
+> >                         return 0;
+> > diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux=
+_internal.h
+> > index 450a42c2..372837dd 100644
+> > --- a/libselinux/src/selinux_internal.h
+> > +++ b/libselinux/src/selinux_internal.h
+> > @@ -2,7 +2,9 @@
+> >  #define SELINUX_INTERNAL_H_
+> >
+> >  #include <selinux/selinux.h>
+> > +#include <errno.h>
+> >  #include <pthread.h>
+> > +#include <stdio.h>
+> >
+> >
+> >  extern int require_seusers ;
+> > @@ -131,4 +133,13 @@ void *reallocarray(void *ptr, size_t nmemb, size_t=
+ size);
+> >  #define IGNORE_DEPRECATED_DECLARATION_END
+> >  #endif
+> >
+> > +static inline void fclose_errno_safe(FILE *stream)
+> > +{
+> > +       int saved_errno;
+> > +
+> > +       saved_errno =3D errno;
+> > +       (void) fclose(stream);
+> > +       errno =3D saved_errno;
+> > +}
+> > +
+> >  #endif /* SELINUX_INTERNAL_H_ */
 > > --
-> > 2.47.0
+> > 2.45.2
 > >
 > >
