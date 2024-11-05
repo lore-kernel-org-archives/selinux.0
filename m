@@ -1,21 +1,21 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAC821E8825
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B5D41E3DF2
 	for <selinux@vger.kernel.org>; Tue,  5 Nov 2024 18:33:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730831613; cv=none; b=UA9E0T+1c9k++w2r9TJpiZpfiiPN1ISB18KR1pkP3N2D+4iJZbRVYK/ITVm9dW6L4KxEcyI+k7Bi0bbbjFhWVUGmuj7DlzUp9l7KTYbrbyaJLdcJLc8A5daEYTt3QVbQN56T0t5L10iI5VpzhAggVcau9dyziMa5CQApP/6/X5Q=
+	t=1730831613; cv=none; b=olRFLp0OCTYjdGooOyBkPHXp4ffdfdI+ZIUMTrDqpluNJSzJmQMIGYyxwtyQ0CEWZWPB3rcysRu5XOOESoo91yofFT2ZHHSrbdb/dYIHYM1ZaDnHBbRJp71odCFmXlFmEi/s2B1IQtUWe9xwNu7eFNfHHzee0fErJaU+rN+smok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1730831613; c=relaxed/simple;
-	bh=JQvPI0dwlcbtXenHQpByDU/wElZ5A1cHQEIAp7TlkIE=;
+	bh=+/CFZYDlXzAirQOdEpfHgCmQ+mrZia/Mu3/XNXVXfvk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=EgfrfnBJHdIQ3aMgZxN5pUriwchHLDVV+j5PL0elz/bQlymJWxNL1wSm9WENvXF6o2tZFeG9fUkSCQX4f8UyL1vcKzhSexiplCWcnFG4NC0eAuI6PMr15l06olwJu3dT7QvivEtu2sigDUZOL9PbH0eiMXoFBPzy5Lyr2e3kFO4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=qPiNayk8; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=dqrNY5LcqjKEGTs5Oqcl3uyEFN2sHUp74o3EbT4w4E7mQRkrh3RK9cTyuMgApfmjonNPcJQVoH0kce8ViAFGptTtz/cuk6EbIypdHAcIrm/uLnuE0YEgOM44KVLjfcEMSWaEhma9I7+wPAUeskU6Wf/OOWgBgA/j00uFphbMVtc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=MXEB6UyP; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="qPiNayk8"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="MXEB6UyP"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1730831608;
@@ -24,17 +24,18 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=M0T40JtsodI6Qzfe5bxPCIH5sxHsZhJgh4gnTR7BYVA=;
-	b=qPiNayk8nFlscNzc7G9/FCahu7aJTZX+bOzUzZgmsQ2ZO3rDEA7/wDY40F4jVz1W2ikx0n
-	VYauP8VD/uYj8A8cSV/fXDouAB9ZaZW4YGrI+YVsbcxI5KadSUC7wJfTjnamycbfJWKuVe
-	Pww/0AfCPZCD++djRqfZjY3jFsWMm6n0z93qyoU381Mibneo32mTxTrd+TNwUu8yefnZ3V
-	lsznT6qgRyXP6jsUmYqNHAQ1R2X2cSSkK71Hh3OFR8juXCW4EjCtsSrjgd8ZjZiRe67wcm
-	G902IGQkrtlK3UwZWQc6otj7k/zpfYvUml3OV/7IF2iObSyVZLYGGfyRFbgkWg==
+	bh=Z7IpiAWAAeBHDqMH98wEEpDyGrsk60rdgWHHDTZiTgQ=;
+	b=MXEB6UyP7zIpBXJ2RrmpfZKA+MJNspP9BiDTegmJqmSRRgTnMx7qM7CnMGTRHcQV76uuDm
+	wWcgXTqpcek6wuYE+Qqszt3FXhNUit//O9d1jdGOG5TRi5beyztKouoX8T0qVeHgXDRa0l
+	xPYK413kj8j1Cd1+fhEhx6L7YbWCuv5vr2tjFNb0OicxWI99rmhQ8sAP33V5Q/I70yy3Ww
+	42x/PzqaMetX1/MaABMGp3+/WRnrzT3w5K7fl7wN6GKEKTKUjOOkG0qWMEkLaLy03VIBx/
+	mBOPqESjKM0T9xUDpkjsdydsvcihb/OURd+uW8f5ykdff7zRrVWeqtuIrBbZaQ==
 To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v3 9/9] libselinux: support parallel selabel_lookup(3)
-Date: Tue,  5 Nov 2024 19:33:19 +0100
-Message-ID: <20241105183319.250410-10-cgoettsche@seltendoof.de>
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+	Evgeny Vereshchagin <evverx@gmail.com>
+Subject: [PATCH v3 8/9] libselinux: add selabel_file(5) fuzzer
+Date: Tue,  5 Nov 2024 19:33:18 +0100
+Message-ID: <20241105183319.250410-9-cgoettsche@seltendoof.de>
 In-Reply-To: <20241105183319.250410-1-cgoettsche@seltendoof.de>
 References: <20241105183319.250410-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,196 +50,705 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Support the parallel usage of the translated label lookup via
-selabel_lookup(3) in multi threaded applications by locking the step
-of computing the translated context and the validation state.
+Add two fuzzers reading and performing lookup on selabel_file(5)
+databases.  One fuzzer takes input in form of a textual fcontext
+definition, the other one takes compiled fcontexts definitions.  The
+lookup key and whether to lookup any or a specific file type is also
+part of the generated input.
 
-A potential use case might can usage from a Rust application via FFI.
-
+CC: Evgeny Vereshchagin <evverx@gmail.com>
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/src/label.c          | 56 +++++++++++++++++++++++++++------
- libselinux/src/label_db.c       |  2 ++
- libselinux/src/label_file.h     |  4 +++
- libselinux/src/label_internal.h |  1 +
- libselinux/src/label_media.c    |  1 +
- libselinux/src/label_x.c        |  1 +
- 6 files changed, 56 insertions(+), 9 deletions(-)
+v2: add patch
+---
+ libselinux/fuzz/input                         |   0
+ .../fuzz/selabel_file_compiled-fuzzer.c       | 281 ++++++++++++++++++
+ libselinux/fuzz/selabel_file_text-fuzzer.c    | 225 ++++++++++++++
+ libselinux/src/label_file.c                   |  38 ++-
+ libselinux/src/label_file.h                   |  17 ++
+ scripts/oss-fuzz.sh                           |  25 ++
+ 6 files changed, 566 insertions(+), 20 deletions(-)
+ create mode 100644 libselinux/fuzz/input
+ create mode 100644 libselinux/fuzz/selabel_file_compiled-fuzzer.c
+ create mode 100644 libselinux/fuzz/selabel_file_text-fuzzer.c
 
-diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-index 06d743ec..2c510290 100644
---- a/libselinux/src/label.c
-+++ b/libselinux/src/label.c
-@@ -124,18 +124,32 @@ static inline int selabel_is_validate_set(const struct selinux_opt *opts,
- 
- int selabel_validate(struct selabel_lookup_rec *contexts)
- {
--	int rc = 0;
-+	bool validated;
-+	int rc;
- 
--	if (contexts->validated)
--		goto out;
-+	validated = __atomic_load_n(&contexts->validated, __ATOMIC_ACQUIRE);
-+	if (validated)
-+		return 0;
+diff --git a/libselinux/fuzz/input b/libselinux/fuzz/input
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/libselinux/fuzz/selabel_file_compiled-fuzzer.c b/libselinux/fuzz/selabel_file_compiled-fuzzer.c
+new file mode 100644
+index 00000000..cf0710ad
+--- /dev/null
++++ b/libselinux/fuzz/selabel_file_compiled-fuzzer.c
+@@ -0,0 +1,281 @@
++#include <errno.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <sys/mman.h>
++#include <unistd.h>
 +
-+	__pthread_mutex_lock(&contexts->lock);
++#include <selinux/label.h>
 +
-+	/* Check if another thread validated the context while we waited on the mutex */
-+	validated = __atomic_load_n(&contexts->validated, __ATOMIC_ACQUIRE);
-+	if (validated) {
-+		__pthread_mutex_unlock(&contexts->lock);
-+		return 0;
-+	}
- 
- 	rc = selinux_validate(&contexts->ctx_raw);
-+	if (rc == 0)
-+		__atomic_store_n(&contexts->validated, true, __ATOMIC_RELEASE);
++#include "../src/label_file.h"
 +
-+	__pthread_mutex_unlock(&contexts->lock);
++extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
 +
- 	if (rc < 0)
--		goto out;
-+		return -1;
- 
--	contexts->validated = true;
--out:
--	return rc;
++#define MEMFD_FILE_NAME "file_contexts"
++#define CTRL_PARTIAL  (1U << 0)
++#define CTRL_FIND_ALL (1U << 1)
++#define CTRL_MODE     (1U << 2)
++
++
++__attribute__ ((format(printf, 2, 3)))
++static int null_log(int type __attribute__((unused)), const char *fmt __attribute__((unused)), ...)
++{
 +	return 0;
- }
- 
- /* Public API helpers */
-@@ -143,11 +157,35 @@ static int selabel_fini(const struct selabel_handle *rec,
- 			    struct selabel_lookup_rec *lr,
- 			    bool translating)
- {
-+	char *ctx_trans;
-+	int rc;
++}
 +
- 	if (compat_validate(rec, lr, rec->spec_file, lr->lineno))
- 		return -1;
- 
--	if (translating && !lr->ctx_trans &&
--	    selinux_raw_to_trans_context(lr->ctx_raw, &lr->ctx_trans))
-+	if (!translating)
-+		return 0;
++static int validate_context(char **ctxp)
++{
++	assert(strcmp(*ctxp, "<<none>>") != 0);
 +
-+	ctx_trans = __atomic_load_n(&lr->ctx_trans, __ATOMIC_ACQUIRE);
-+	if (ctx_trans)
-+		return 0;
-+
-+	__pthread_mutex_lock(&lr->lock);
-+
-+	/* Check if another thread translated the context while we waited on the mutex */
-+	ctx_trans = __atomic_load_n(&lr->ctx_trans, __ATOMIC_ACQUIRE);
-+	if (ctx_trans) {
-+		__pthread_mutex_unlock(&lr->lock);
-+		return 0;
++	if (*ctxp[0] == '\0') {
++		errno = EINVAL;
++		return -1;
 +	}
 +
-+	rc = selinux_raw_to_trans_context(lr->ctx_raw, &ctx_trans);
-+	if (rc == 0)
-+		__atomic_store_n(&lr->ctx_trans, ctx_trans, __ATOMIC_RELEASE);
++	return 0;
++}
 +
-+	__pthread_mutex_unlock(&lr->lock);
++static int write_full(int fd, const void *data, size_t size)
++{
++	ssize_t rc;
++	const unsigned char *p = data;
 +
-+	if (rc)
- 		return -1;
++	while (size > 0) {
++		rc = write(fd, p, size);
++		if (rc == -1) {
++			if (errno == EINTR)
++				continue;
++
++			return -1;
++		}
++
++		p += rc;
++		size -= rc;
++	}
++
++	return 0;
++}
++
++static FILE* convert_data(const uint8_t *data, size_t size)
++{
++	FILE* stream;
++	int fd, rc;
++
++	fd = memfd_create(MEMFD_FILE_NAME, MFD_CLOEXEC);
++	if (fd == -1)
++		return NULL;
++
++	rc = write_full(fd, data, size);
++	if (rc == -1) {
++		close(fd);
++		return NULL;
++	}
++
++	stream = fdopen(fd, "r");
++	if (!stream) {
++		close(fd);
++		return NULL;
++	}
++
++	rc = fseek(stream, 0L, SEEK_SET);
++	if (rc == -1) {
++		fclose(stream);
++		return NULL;
++	}
++
++	return stream;
++}
++
++int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
++{
++	struct selabel_handle rec;
++	struct saved_data sdata = {};
++	struct spec_node *root = NULL;
++	FILE* fp = NULL;
++	struct lookup_result *result = NULL;
++	uint8_t control;
++	uint8_t *fcontext_data1 = NULL, *fcontext_data2 = NULL, *fcontext_data3 = NULL;
++	char *key = NULL;
++	size_t fcontext_data1_len, fcontext_data2_len, fcontext_data3_len, key_len;
++	bool partial, find_all;
++	mode_t mode;
++	int rc;
++
++	/*
++	 * Treat first byte as control byte, whether to use partial mode, find all matches or mode to lookup
++	 */
++	if (size == 0)
++		return 0;
++
++	control = data[0];
++	data++;
++	size--;
++
++	if (control & ~(CTRL_PARTIAL | CTRL_FIND_ALL | CTRL_MODE))
++		return 0;
++
++	partial  = control & CTRL_PARTIAL;
++	find_all = control & CTRL_FIND_ALL;
++	/* S_IFSOCK has the highest integer value */
++	mode     = (control & CTRL_MODE) ? S_IFSOCK : 0;
++
++
++	/*
++	 * Split the fuzzer input into up to four pieces: one to three compiled fcontext
++	 * definitions (to mimic file_contexts, file_contexts.homedirs and file_contexts.local,
++	 * and the lookup key
++	 */
++	const unsigned char separator[4] = { 0xde, 0xad, 0xbe, 0xef };
++	const uint8_t *sep = memmem(data, size, separator, 4);
++	if (!sep || sep == data)
++		return 0;
++
++	fcontext_data1_len = sep - data;
++	fcontext_data1 = malloc(fcontext_data1_len);
++	if (!fcontext_data1)
++		goto cleanup;
++
++	memcpy(fcontext_data1, data, fcontext_data1_len);
++	data += fcontext_data1_len + 4;
++	size -= fcontext_data1_len + 4;
++
++	sep = memmem(data, size, separator, 4);
++	if (sep) {
++		fcontext_data2_len = sep - data;
++		fcontext_data2 = malloc(fcontext_data2_len);
++		if (!fcontext_data2)
++			goto cleanup;
++
++		memcpy(fcontext_data2, data, fcontext_data2_len);
++		data += fcontext_data2_len + 4;
++		size -= fcontext_data2_len + 4;
++	}
++
++	sep = memmem(data, size, separator, 4);
++	if (sep) {
++		fcontext_data3_len = sep - data;
++		fcontext_data3 = malloc(fcontext_data3_len);
++		if (!fcontext_data3)
++			goto cleanup;
++
++		memcpy(fcontext_data3, data, fcontext_data3_len);
++		data += fcontext_data3_len + 4;
++		size -= fcontext_data3_len + 4;
++	}
++
++	key_len = size;
++	key = malloc(key_len + 1);
++	if (!key)
++		goto cleanup;
++
++	memcpy(key, data, key_len);
++	key[key_len] = '\0';
++
++
++	/*
++	 * Mock selabel handle
++	 */
++	rec = (struct selabel_handle) {
++		.backend = SELABEL_CTX_FILE,
++		.validating = 1,
++		.data = &sdata,
++	};
++
++	selinux_set_callback(SELINUX_CB_LOG, (union selinux_callback) { .func_log = &null_log });
++	/* validate to pre-compile regular expressions */
++	selinux_set_callback(SELINUX_CB_VALIDATE, (union selinux_callback) { .func_validate = &validate_context });
++
++	root = calloc(1, sizeof(*root));
++	if (!root)
++		goto cleanup;
++
++	sdata.root = root;
++
++	fp = convert_data(fcontext_data1, fcontext_data1_len);
++	if (!fp)
++		goto cleanup;
++
++	errno = 0;
++	rc = load_mmap(fp, fcontext_data1_len, &rec, MEMFD_FILE_NAME);
++	if (rc) {
++		assert(errno != 0);
++		goto cleanup;
++	}
++
++	fclose(fp);
++
++	fp = convert_data(fcontext_data2, fcontext_data2_len);
++	if (!fp)
++		goto cleanup;
++
++	errno = 0;
++	rc = load_mmap(fp, fcontext_data2_len, &rec, MEMFD_FILE_NAME);
++	if (rc) {
++		assert(errno != 0);
++		goto cleanup;
++	}
++
++	fclose(fp);
++
++	fp = convert_data(fcontext_data3, fcontext_data3_len);
++	if (!fp)
++		goto cleanup;
++
++	errno = 0;
++	rc = load_mmap(fp, fcontext_data3_len, &rec, MEMFD_FILE_NAME);
++	if (rc) {
++		assert(errno != 0);
++		goto cleanup;
++	}
++
++	sort_specs(&sdata);
++
++	assert(cmp(&rec, &rec) == SELABEL_EQUAL);
++
++	errno = 0;
++	result = lookup_all(&rec, key, mode, partial, find_all);
++
++	if (!result)
++		assert(errno != 0);
++
++	for (const struct lookup_result *res = result; res; res = res->next) {
++		assert(res->regex_str);
++		assert(res->regex_str[0] != '\0');
++		assert(res->lr->ctx_raw);
++		assert(res->lr->ctx_raw[0] != '\0');
++		assert(strcmp(res->lr->ctx_raw, "<<none>>") != 0);
++		assert(!res->lr->ctx_trans);
++		assert(res->lr->validated);
++		assert(res->prefix_len <= strlen(res->regex_str));
++	}
++
++
++cleanup:
++	free_lookup_result(result);
++	if (fp)
++		fclose(fp);
++	if (sdata.root) {
++		free_spec_node(sdata.root);
++		free(sdata.root);
++	}
++
++	{
++		struct mmap_area *area, *last_area;
++
++		area = sdata.mmap_areas;
++		while (area) {
++			rc = munmap(area->addr, area->len);
++			assert(rc == 0);
++			last_area = area;
++			area = area->next;
++			free(last_area);
++		}
++	}
++
++	free(key);
++	free(fcontext_data3);
++	free(fcontext_data2);
++	free(fcontext_data1);
++
++	/* Non-zero return values are reserved for future use. */
++	return 0;
++}
+diff --git a/libselinux/fuzz/selabel_file_text-fuzzer.c b/libselinux/fuzz/selabel_file_text-fuzzer.c
+new file mode 100644
+index 00000000..5d851de1
+--- /dev/null
++++ b/libselinux/fuzz/selabel_file_text-fuzzer.c
+@@ -0,0 +1,225 @@
++#include <errno.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <sys/mman.h>
++#include <unistd.h>
++
++#include <selinux/label.h>
++
++#include "../src/label_file.h"
++
++extern int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size);
++
++#define MEMFD_FILE_NAME "file_contexts"
++#define CTRL_PARTIAL  (1U << 0)
++#define CTRL_FIND_ALL (1U << 1)
++#define CTRL_MODE     (1U << 2)
++
++
++__attribute__ ((format(printf, 2, 3)))
++static int null_log(int type __attribute__((unused)), const char *fmt __attribute__((unused)), ...)
++{
++	return 0;
++}
++
++static int validate_context(char **ctxp)
++{
++	assert(strcmp(*ctxp, "<<none>>") != 0);
++
++	if (*ctxp[0] == '\0') {
++		errno = EINVAL;
++		return -1;
++	}
++
++	return 0;
++}
++
++static int write_full(int fd, const void *data, size_t size)
++{
++	ssize_t rc;
++	const unsigned char *p = data;
++
++	while (size > 0) {
++		rc = write(fd, p, size);
++		if (rc == -1) {
++			if (errno == EINTR)
++				continue;
++
++			return -1;
++		}
++
++		p += rc;
++		size -= rc;
++	}
++
++	return 0;
++}
++
++static FILE* convert_data(const uint8_t *data, size_t size)
++{
++	FILE* stream;
++	int fd, rc;
++
++	fd = memfd_create(MEMFD_FILE_NAME, MFD_CLOEXEC);
++	if (fd == -1)
++		return NULL;
++
++	rc = write_full(fd, data, size);
++	if (rc == -1) {
++		close(fd);
++		return NULL;
++	}
++
++	stream = fdopen(fd, "r");
++	if (!stream) {
++		close(fd);
++		return NULL;
++	}
++
++	rc = fseek(stream, 0L, SEEK_SET);
++	if (rc == -1) {
++		fclose(stream);
++		return NULL;
++	}
++
++	return stream;
++}
++
++int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
++{
++	struct selabel_handle rec;
++	struct saved_data sdata = {};
++	struct spec_node *root = NULL;
++	FILE* fp = NULL;
++	struct lookup_result *result = NULL;
++	uint8_t control;
++	uint8_t *fcontext_data = NULL;
++	char *key = NULL;
++	size_t fcontext_data_len, key_len;
++	bool partial, find_all;
++	mode_t mode;
++	int rc;
++
++	/*
++	 * Treat first byte as control byte, whether to use partial mode, find all matches or mode to lookup
++	 */
++	if (size == 0)
++		return 0;
++
++	control = data[0];
++	data++;
++	size--;
++
++	if (control & ~(CTRL_PARTIAL | CTRL_FIND_ALL | CTRL_MODE))
++		return 0;
++
++	partial  = control & CTRL_PARTIAL;
++	find_all = control & CTRL_FIND_ALL;
++	/* S_IFSOCK has the highest integer value */
++	mode     = (control & CTRL_MODE) ? S_IFSOCK : 0;
++
++
++	/*
++	 * Split the fuzzer input into two pieces: the textual fcontext definition and the lookup key
++	 */
++	const unsigned char separator[4] = { 0xde, 0xad, 0xbe, 0xef };
++	const uint8_t *sep = memmem(data, size, separator, 4);
++	if (!sep || sep == data)
++		return 0;
++
++	fcontext_data_len = sep - data;
++	fcontext_data = malloc(fcontext_data_len);
++	if (!fcontext_data)
++		goto cleanup;
++
++	memcpy(fcontext_data, data, fcontext_data_len);
++
++	key_len = size - fcontext_data_len - 4;
++	key = malloc(key_len + 1);
++	if (!key)
++		goto cleanup;
++
++	memcpy(key, sep + 4, key_len);
++	key[key_len] = '\0';
++
++
++	/*
++	 * Mock selabel handle
++	 */
++	rec = (struct selabel_handle) {
++		.backend = SELABEL_CTX_FILE,
++		.validating = 1,
++		.data = &sdata,
++	};
++
++	selinux_set_callback(SELINUX_CB_LOG, (union selinux_callback) { .func_log = &null_log });
++	/* validate to pre-compile regular expressions */
++	selinux_set_callback(SELINUX_CB_VALIDATE, (union selinux_callback) { .func_validate = &validate_context });
++
++	root = calloc(1, sizeof(*root));
++	if (!root)
++		goto cleanup;
++
++	sdata.root = root;
++
++	fp = convert_data(fcontext_data, fcontext_data_len);
++	if (!fp)
++		goto cleanup;
++
++	errno = 0;
++	rc = process_text_file(fp, /*prefix=*/ NULL, &rec, MEMFD_FILE_NAME);
++	if (rc) {
++		assert(errno != 0);
++		goto cleanup;
++	}
++
++	sort_specs(&sdata);
++
++	assert(cmp(&rec, &rec) == SELABEL_EQUAL);
++
++	errno = 0;
++	result = lookup_all(&rec, key, mode, partial, find_all);
++
++	if (!result)
++		assert(errno != 0);
++
++	for (const struct lookup_result *res = result; res; res = res->next) {
++		assert(res->regex_str);
++		assert(res->regex_str[0] != '\0');
++		assert(res->lr->ctx_raw);
++		assert(res->lr->ctx_raw[0] != '\0');
++		assert(strcmp(res->lr->ctx_raw, "<<none>>") != 0);
++		assert(!res->lr->ctx_trans);
++		assert(res->lr->validated);
++		assert(res->prefix_len <= strlen(res->regex_str));
++	}
++
++
++cleanup:
++	free_lookup_result(result);
++	if (fp)
++		fclose(fp);
++	if (sdata.root) {
++		free_spec_node(sdata.root);
++		free(sdata.root);
++	}
++
++	{
++		struct mmap_area *area, *last_area;
++
++		area = sdata.mmap_areas;
++		while (area) {
++			rc = munmap(area->addr, area->len);
++			assert(rc == 0);
++			last_area = area;
++			area = area->next;
++			free(last_area);
++		}
++	}
++
++	free(key);
++	free(fcontext_data);
++
++	/* Non-zero return values are reserved for future use. */
++	return 0;
++}
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index c7713d7c..267f708e 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -27,6 +27,13 @@
+ #include "label_file.h"
  
- 	return 0;
-diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
-index 40d5fc4a..eb060ede 100644
---- a/libselinux/src/label_db.c
-+++ b/libselinux/src/label_db.c
-@@ -186,6 +186,7 @@ db_close(struct selabel_handle *rec)
- 		free(spec->key);
- 		free(spec->lr.ctx_raw);
- 		free(spec->lr.ctx_trans);
-+		__pthread_mutex_destroy(&spec->lr.lock);
- 	}
- 	free(catalog);
+ 
++#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
++# define FUZZ_EXTERN
++#else
++# define FUZZ_EXTERN static
++#endif  /* FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION */
++
++
+ /*
+  * Warn about duplicate specifications.
+  */
+@@ -114,8 +121,8 @@ static int nodups_spec_node(const struct spec_node *node, const char *path)
+ 	return rc;
  }
-@@ -358,6 +359,7 @@ out_error:
- 		free(spec->key);
- 		free(spec->lr.ctx_raw);
- 		free(spec->lr.ctx_trans);
-+		__pthread_mutex_destroy(&spec->lr.lock);
- 	}
- 	free(catalog);
- 	fclose(filp);
+ 
+-static int process_text_file(FILE *fp, const char *prefix,
+-			     struct selabel_handle *rec, const char *path)
++FUZZ_EXTERN int process_text_file(FILE *fp, const char *prefix,
++				  struct selabel_handle *rec, const char *path)
+ {
+ 	int rc;
+ 	size_t line_len;
+@@ -720,8 +727,8 @@ static int load_mmap_spec_node(struct mmap_area *mmap_area, const char *path, bo
+ 	return 0;
+ }
+ 
+-static int load_mmap(FILE *fp, const size_t len, struct selabel_handle *rec,
+-		     const char *path)
++FUZZ_EXTERN int load_mmap(FILE *fp, const size_t len, struct selabel_handle *rec,
++			  const char *path)
+ {
+ 	struct saved_data *data = rec->data;
+ 	struct spec_node *root = NULL;
+@@ -1449,16 +1456,7 @@ static uint32_t search_literal_spec(const struct literal_spec *array, uint32_t s
+ 	return (uint32_t)-1;
+ }
+ 
+-struct lookup_result {
+-	const char *regex_str;
+-	struct selabel_lookup_rec *lr;
+-	uint16_t prefix_len;
+-	uint8_t file_kind;
+-	bool has_meta_chars;
+-	struct lookup_result *next;
+-};
+-
+-static void free_lookup_result(struct lookup_result *result)
++FUZZ_EXTERN void free_lookup_result(struct lookup_result *result)
+ {
+ 	struct lookup_result *tmp;
+ 
+@@ -1690,11 +1688,11 @@ static uint8_t mode_to_file_kind(int type) {
+ // Finds all the matches of |key| in the given context. Returns the result in
+ // the allocated array and updates the match count. If match_count is NULL,
+ // stops early once the 1st match is found.
+-static struct lookup_result *lookup_all(struct selabel_handle *rec,
+-					const char *key,
+-					int type,
+-					bool partial,
+-					bool find_all)
++FUZZ_EXTERN struct lookup_result *lookup_all(struct selabel_handle *rec,
++				 const char *key,
++				 int type,
++				 bool partial,
++				 bool find_all)
+ {
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+ 	struct lookup_result *result = NULL;
+@@ -2283,7 +2281,7 @@ static enum selabel_cmp_result spec_node_cmp(const struct spec_node *node1, cons
+ 	return result;
+ }
+ 
+-static enum selabel_cmp_result cmp(const struct selabel_handle *h1, const struct selabel_handle *h2)
++FUZZ_EXTERN enum selabel_cmp_result cmp(const struct selabel_handle *h1, const struct selabel_handle *h2)
+ {
+ 	const struct saved_data *data1, *data2;
+ 
 diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-index 529a1bd2..de8190f9 100644
+index 2dc772eb..529a1bd2 100644
 --- a/libselinux/src/label_file.h
 +++ b/libselinux/src/label_file.h
-@@ -661,6 +661,7 @@ static int insert_spec(const struct selabel_handle *rec, struct saved_data *data
- 			.lr.ctx_trans = NULL,
- 			.lr.lineno = lineno,
- 			.lr.validated = false,
-+			.lr.lock = PTHREAD_MUTEX_INITIALIZER,
- 		};
+@@ -50,6 +50,23 @@
+ #define LABEL_FILE_KIND_LNK		6
+ #define LABEL_FILE_KIND_REG		7
  
- 		data->num_specs++;
-@@ -794,6 +795,7 @@ static int insert_spec(const struct selabel_handle *rec, struct saved_data *data
- 			.lr.ctx_trans = NULL,
- 			.lr.lineno = lineno,
- 			.lr.validated = false,
-+			.lr.lock = PTHREAD_MUTEX_INITIALIZER,
- 		};
++/* Only exported for fuzzing */
++struct lookup_result {
++	const char *regex_str;
++	struct selabel_lookup_rec *lr;
++	uint16_t prefix_len;
++	uint8_t file_kind;
++	bool has_meta_chars;
++	struct lookup_result *next;
++};
++#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
++extern int load_mmap(FILE *fp, const size_t len, struct selabel_handle *rec, const char *path);
++extern int process_text_file(FILE *fp, const char *prefix, struct selabel_handle *rec, const char *path);
++extern void free_lookup_result(struct lookup_result *result);
++extern struct lookup_result *lookup_all(struct selabel_handle *rec, const char *key, int type, bool partial, bool find_all);
++extern enum selabel_cmp_result cmp(const struct selabel_handle *h1, const struct selabel_handle *h2);
++#endif  /* FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION */
++
+ struct selabel_sub {
+ 	char *src;
+ 	unsigned int slen;
+diff --git a/scripts/oss-fuzz.sh b/scripts/oss-fuzz.sh
+index 069f130a..9376b6e4 100755
+--- a/scripts/oss-fuzz.sh
++++ b/scripts/oss-fuzz.sh
+@@ -44,10 +44,13 @@ export LIB_FUZZING_ENGINE=${LIB_FUZZING_ENGINE:--fsanitize=fuzzer}
  
- 		data->num_specs++;
-@@ -818,6 +820,7 @@ static inline void free_spec_node(struct spec_node *node)
+ rm -rf "$DESTDIR"
+ make -C libsepol clean
++make -C libselinux clean
+ # LIBSO and LIBMAP shouldn't be expanded here because their values are unknown until Makefile
+ # has been read by make
+ # shellcheck disable=SC2016
+ make -C libsepol V=1 LD_SONAME_FLAGS='-soname,$(LIBSO),--version-script=$(LIBMAP)' -j"$(nproc)" install
++# shellcheck disable=SC2016
++make -C libselinux V=1 LD_SONAME_FLAGS='-soname,$(LIBSO),--version-script=libselinux.map' -j"$(nproc)" install
  
- 		free(lspec->lr.ctx_raw);
- 		free(lspec->lr.ctx_trans);
-+		__pthread_mutex_destroy(&lspec->lr.lock);
+ ## secilc fuzzer ##
  
- 		if (lspec->from_mmap)
- 			continue;
-@@ -832,6 +835,7 @@ static inline void free_spec_node(struct spec_node *node)
+@@ -84,3 +87,25 @@ $CXX $CXXFLAGS $LIB_FUZZING_ENGINE checkpolicy-fuzzer.o checkpolicy/*.o "$DESTDI
  
- 		free(rspec->lr.ctx_raw);
- 		free(rspec->lr.ctx_trans);
-+		__pthread_mutex_destroy(&rspec->lr.lock);
- 		regex_data_free(rspec->regex);
- 		__pthread_mutex_destroy(&rspec->regex_lock);
- 
-diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
-index 854f92fa..743dbf94 100644
---- a/libselinux/src/label_internal.h
-+++ b/libselinux/src/label_internal.h
-@@ -71,6 +71,7 @@ extern void digest_gen_hash(struct selabel_digest *digest);
- struct selabel_lookup_rec {
- 	char * ctx_raw;
- 	char * ctx_trans;
-+	pthread_mutex_t lock;	/* lock for validation and translation */
- 	unsigned int lineno;
- 	bool validated;
- };
-diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
-index d535ef86..0510b5b1 100644
---- a/libselinux/src/label_media.c
-+++ b/libselinux/src/label_media.c
-@@ -177,6 +177,7 @@ static void close(struct selabel_handle *rec)
- 		free(spec->key);
- 		free(spec->lr.ctx_raw);
- 		free(spec->lr.ctx_trans);
-+		__pthread_mutex_destroy(&spec->lr.lock);
- 	}
- 
- 	if (spec_arr)
-diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
-index c0d1d475..1a5b9268 100644
---- a/libselinux/src/label_x.c
-+++ b/libselinux/src/label_x.c
-@@ -204,6 +204,7 @@ static void close(struct selabel_handle *rec)
- 		free(spec->key);
- 		free(spec->lr.ctx_raw);
- 		free(spec->lr.ctx_trans);
-+		__pthread_mutex_destroy(&spec->lr.lock);
- 	}
- 
- 	if (spec_arr)
+ zip -j "$OUT/checkpolicy-fuzzer_seed_corpus.zip" checkpolicy/fuzz/min_pol.mls.conf
+ cp checkpolicy/fuzz/checkpolicy-fuzzer.dict "$OUT/"
++
++## selabel-file text fcontext based fuzzer ##
++
++# CFLAGS, CXXFLAGS and LIB_FUZZING_ENGINE have to be split to be accepted by
++# the compiler/linker so they shouldn't be quoted
++# shellcheck disable=SC2086
++$CC $CFLAGS -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=8 -c -o selabel_file_text-fuzzer.o libselinux/fuzz/selabel_file_text-fuzzer.c
++# shellcheck disable=SC2086
++$CXX $CXXFLAGS $LIB_FUZZING_ENGINE selabel_file_text-fuzzer.o "$DESTDIR/usr/lib/libselinux.a" -lpcre2-8 -o "$OUT/selabel_file_text-fuzzer"
++
++zip -j "$OUT/selabel_file_text-fuzzer_seed_corpus.zip" libselinux/fuzz/input
++
++## selabel-file compiled fcontext based fuzzer ##
++
++# CFLAGS, CXXFLAGS and LIB_FUZZING_ENGINE have to be split to be accepted by
++# the compiler/linker so they shouldn't be quoted
++# shellcheck disable=SC2086
++$CC $CFLAGS -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=8 -c -o selabel_file_compiled-fuzzer.o libselinux/fuzz/selabel_file_compiled-fuzzer.c
++# shellcheck disable=SC2086
++$CXX $CXXFLAGS $LIB_FUZZING_ENGINE selabel_file_compiled-fuzzer.o "$DESTDIR/usr/lib/libselinux.a" -lpcre2-8 -o "$OUT/selabel_file_compiled-fuzzer"
++
++zip -j "$OUT/selabel_file_compiled-fuzzer_seed_corpus.zip" libselinux/fuzz/input
 -- 
 2.45.2
 
