@@ -1,40 +1,40 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 879411E6DCD
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A70D51E7660
 	for <selinux@vger.kernel.org>; Tue,  5 Nov 2024 18:33:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730831609; cv=none; b=n8QKSAh3J6A7h4x1SCVfmzZ6qohsIdhIBbPpopI5aMLbOR1V5DzPXDxk3BK3KCeBvQmxRMw3Z4VNeo5wKX+eDJpfwyAOHGtJyZAubWDkT5ZSkAAeMvuJYyYrgp11TND28LnhZ06Nx8KadacQZhhaTRkjqZjaTta1blG3SvzTq2c=
+	t=1730831609; cv=none; b=s04GAYRj0ncA84TbaUZS2mKcG0v2Jl52oDB/xc6qi+iADFlFQSpULjTWagFJK7w6yT183PJeaIcG6HWTpn+Bp8Ntvgh88FVdp1sby1zKhc8+5pMm4hmWx8k/L7SNferjr1CGIUzKOaFmPGOWecVRcQh4NfxxqduhuuKHwxs2zLk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1730831609; c=relaxed/simple;
-	bh=7TjSWdal1fJ5jJd1CoGqc+MyKwRE/dr/L3dlofBlOFI=;
+	bh=M73H7tpknxBJ8UkFozegK25Rfnrqg+6zbb1S9L2OMpY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=mEIWaEr5zpc4wK5e2W9JJLrm1gMNj2Jl7eCA+7ZvM4F5MddqN+V8QxmOKQGfyQ3KcXLSwZ/EYf9SQm8UV3nCLK+3H6QdCXiloP5MDcLtz9uytq76IX2sLALx1L74X6xRxGdIj2+Rg80atyOUXZhQ/12R+LjuX9gkScAvSrCwAV0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=HqQR2Moo; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=kxK7YLLCKKoUNZDPpIg7rwiEaXAuZdg9SbtfApYfYPQXDxRbwVB+mA+nbFCGoVBjcCAvshr7JMvb328Iq7zE8cB28p25ZqNb7b/tcbWJKGzSCbB1TenS1tNjfq2Y9Kb3eYqJYEQwv0tMZ6Zs+OHcPgsueyq9euhatpxA1DSFwvI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Tq83Lrpe; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="HqQR2Moo"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Tq83Lrpe"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1730831605;
+	s=2023072701; t=1730831606;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=CZzXl71UqrpurA0M2pvOQ6mxrFu255NQsUTq9gJQjGU=;
-	b=HqQR2MooMQWdp/PEY3aHDdjiPPeYTVUK7XErg/VD2sdZcQw4One+eXRn+dWvDeS43xW7HY
-	zz3nHUxyF4Nus03/shUbETCAh4fF3XHYojB0cQkMQighghZeDIBWtDU9Akz4se8FpXW3Ec
-	vum4Yq/QkXOO2LOuik8iUenms8FUJm9thiBO7RGFpPeoRec9EBADLWrrx/MXPLHPR32q3j
-	Auotuk7/h4nEiDcB4cwEnEHMKrvFpYsNHLp1ABtnSlMKaKqAcGcqMwWkeMJ2v+33OsZra7
-	/sWt6fXMYYfAXZKHZft066sZ95XGTclm8kJkLl3Xnu86hGj0LWWil1lp4zvXOQ==
+	bh=Z32Fk+r8IvUS/QE5Cbt9dPqQpvQROIdsuWYXJBv89xo=;
+	b=Tq83LrpePPHLI5kw9GyxExY8IPudqkMSO/ik6hUuiIkW0maBAdwz/Z25dbbY7CLU6G1OOT
+	m6ynOdeQMe6o/GZHB63DHbXY6OheVvzwCNCIhVEn8gDHu2Ffhry5kBXp6Uub8Nvwy5KB2E
+	Lkp71FlAftIdsUUwymlsXAOLOFSCV/Hq78rcmRdS+U3rBeKAxEqUhr+QPr2smXeyPm7ADQ
+	jlrxbKFq+i+5M8ZvfndJLkcDt7JLWk5GDNrzBwnmV4mmT8jTNEUypj3amid9Q+dkzEdZHU
+	lOjerLUmJfocbc0lb7/8TLDRpUq9tx6TPB9d5pkLEvVzxiGmp85QwEeJSv7nNg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v3 2/9] libselinux/utils: introduce selabel_compare
-Date: Tue,  5 Nov 2024 19:33:12 +0100
-Message-ID: <20241105183319.250410-3-cgoettsche@seltendoof.de>
+Subject: [PATCH v3 3/9] libselinux: use more appropriate types in sidtab
+Date: Tue,  5 Nov 2024 19:33:13 +0100
+Message-ID: <20241105183319.250410-4-cgoettsche@seltendoof.de>
 In-Reply-To: <20241105183319.250410-1-cgoettsche@seltendoof.de>
 References: <20241105183319.250410-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,164 +49,81 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Add a utility around selabel_cmp(3).
-
-Can be used by users to compare a pre-compiled fcontext file to an
-original text-based file context definition file.
-
-Can be used for development to verify compilation and parsing of the
-pre-compiled fcontext format works correctly.
+Use type unsigned for hash values, as returned by sidtab_hash().
+Use size_t for buffer length and counting variables.
+Constify stats parameter.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
 v2:
-   split nested block into own function
+  add patch
 ---
- libselinux/utils/.gitignore        |   1 +
- libselinux/utils/selabel_compare.c | 122 +++++++++++++++++++++++++++++
- 2 files changed, 123 insertions(+)
- create mode 100644 libselinux/utils/selabel_compare.c
+ libselinux/src/avc_sidtab.c | 16 +++++++++-------
+ libselinux/src/avc_sidtab.h |  2 +-
+ 2 files changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/libselinux/utils/.gitignore b/libselinux/utils/.gitignore
-index b3311360..2e10b14f 100644
---- a/libselinux/utils/.gitignore
-+++ b/libselinux/utils/.gitignore
-@@ -16,6 +16,7 @@ getseuser
- matchpathcon
- policyvers
- sefcontext_compile
-+selabel_compare
- selabel_digest
- selabel_get_digests_all_partial_matches
- selabel_lookup
-diff --git a/libselinux/utils/selabel_compare.c b/libselinux/utils/selabel_compare.c
-new file mode 100644
-index 00000000..9ca6eff1
---- /dev/null
-+++ b/libselinux/utils/selabel_compare.c
-@@ -0,0 +1,122 @@
-+#include <getopt.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+
-+#include <selinux/label.h>
-+
-+
-+static void usage(const char *progname)
-+{
-+	fprintf(stderr,
-+		"usage: %s [-b backend] [-v] file1 file2\n\n"
-+		"Where:\n\t"
-+		"-b           The backend - \"file\", \"media\", \"x\", \"db\" or \"prop\" (defaults to \"file\")\n\t"
-+		"-v           Validate entries against loaded policy.\n\t"
-+		"file1/file2  Files containing the specs.\n",
-+		progname);
-+}
-+
-+static int compare(const char *file1, const char *file2, const char *validate, unsigned int backend)
-+{
-+	struct selabel_handle *hnd1, *hnd2;
-+	const struct selinux_opt selabel_option1[] = {
-+		{ SELABEL_OPT_PATH, file1 },
-+		{ SELABEL_OPT_VALIDATE, validate }
-+	};
-+	const struct selinux_opt selabel_option2[] = {
-+		{ SELABEL_OPT_PATH, file2 },
-+		{ SELABEL_OPT_VALIDATE, validate }
-+	};
-+	enum selabel_cmp_result result;
-+
-+	hnd1 = selabel_open(backend, selabel_option1, 2);
-+	if (!hnd1) {
-+		fprintf(stderr, "ERROR: selabel_open - Could not obtain handle for %s:  %m\n", file1);
-+		return EXIT_FAILURE;
-+	}
-+
-+	hnd2 = selabel_open(backend, selabel_option2, 2);
-+	if (!hnd2) {
-+		fprintf(stderr, "ERROR: selabel_open - Could not obtain handle for %s:  %m\n", file2);
-+		selabel_close(hnd1);
-+		return EXIT_FAILURE;
-+	}
-+
-+	result = selabel_cmp(hnd1, hnd2);
-+
-+	selabel_close(hnd2);
-+	selabel_close(hnd1);
-+
-+	switch (result) {
-+	case SELABEL_SUBSET:
-+		printf("spec %s is a subset of spec %s\n", file1, file2);
-+		break;
-+	case SELABEL_EQUAL:
-+		printf("spec %s is equal to spec %s\n", file1, file2);
-+		break;
-+	case SELABEL_SUPERSET:
-+		printf("spec %s is a superset of spec %s\n", file1, file2);
-+		break;
-+	case SELABEL_INCOMPARABLE:
-+		printf("spec %s is uncomparable to spec %s\n", file1, file2);
-+		break;
-+	default:
-+		fprintf(stderr, "ERROR: selabel_cmp - Unexpected result %d\n", result);
-+		return EXIT_FAILURE;
-+	}
-+
-+	return EXIT_SUCCESS;
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	unsigned int backend = SELABEL_CTX_FILE;
-+	int opt;
-+	const char *validate = NULL, *file1 = NULL, *file2 = NULL;
-+
-+	if (argc < 3) {
-+		usage(argv[0]);
-+		return EXIT_FAILURE;
-+	}
-+
-+	while ((opt = getopt(argc, argv, "b:v")) > 0) {
-+		switch (opt) {
-+		case 'b':
-+			if (!strcasecmp(optarg, "file")) {
-+				backend = SELABEL_CTX_FILE;
-+			} else if (!strcmp(optarg, "media")) {
-+				backend = SELABEL_CTX_MEDIA;
-+			} else if (!strcmp(optarg, "x")) {
-+				backend = SELABEL_CTX_X;
-+			} else if (!strcmp(optarg, "db")) {
-+				backend = SELABEL_CTX_DB;
-+			} else if (!strcmp(optarg, "prop")) {
-+				backend = SELABEL_CTX_ANDROID_PROP;
-+			} else if (!strcmp(optarg, "service")) {
-+				backend = SELABEL_CTX_ANDROID_SERVICE;
-+			} else {
-+				fprintf(stderr, "Unknown backend: %s\n", optarg);
-+				usage(argv[0]);
-+				return EXIT_FAILURE;
-+			}
-+			break;
-+		case 'v':
-+			validate = (char *)1;
-+			break;
-+		default:
-+			usage(argv[0]);
-+			return EXIT_FAILURE;
-+		}
-+	}
-+
-+	if (argc != optind + 2) {
-+		usage(argv[0]);
-+		return EXIT_FAILURE;
-+	}
-+
-+	file1 = argv[optind++];
-+	file2 = argv[optind];
-+
-+	return compare(file1, file2, validate, backend);
-+}
+diff --git a/libselinux/src/avc_sidtab.c b/libselinux/src/avc_sidtab.c
+index 3303537b..fce5bddf 100644
+--- a/libselinux/src/avc_sidtab.c
++++ b/libselinux/src/avc_sidtab.c
+@@ -45,7 +45,8 @@ int sidtab_init(struct sidtab *s)
+ 
+ int sidtab_insert(struct sidtab *s, const char * ctx)
+ {
+-	int hvalue, rc = 0;
++	unsigned hvalue;
++	int rc = 0;
+ 	struct sidtab_node *newnode;
+ 	char * newctx;
+ 
+@@ -75,7 +76,8 @@ int
+ sidtab_context_to_sid(struct sidtab *s,
+ 		      const char * ctx, security_id_t * sid)
+ {
+-	int hvalue, rc = 0;
++	unsigned hvalue;
++	int rc = 0;
+ 	struct sidtab_node *cur;
+ 
+ 	*sid = NULL;
+@@ -98,10 +100,10 @@ sidtab_context_to_sid(struct sidtab *s,
+ 	return rc;
+ }
+ 
+-void sidtab_sid_stats(struct sidtab *s, char *buf, int buflen)
++void sidtab_sid_stats(const struct sidtab *s, char *buf, size_t buflen)
+ {
+-	int i, chain_len, slots_used, max_chain_len;
+-	struct sidtab_node *cur;
++	size_t i, chain_len, slots_used, max_chain_len;
++	const struct sidtab_node *cur;
+ 
+ 	slots_used = 0;
+ 	max_chain_len = 0;
+@@ -121,8 +123,8 @@ void sidtab_sid_stats(struct sidtab *s, char *buf, int buflen)
+ 	}
+ 
+ 	snprintf(buf, buflen,
+-		 "%s:  %u SID entries and %d/%d buckets used, longest "
+-		 "chain length %d\n", avc_prefix, s->nel, slots_used,
++		 "%s:  %u SID entries and %zu/%d buckets used, longest "
++		 "chain length %zu\n", avc_prefix, s->nel, slots_used,
+ 		 SIDTAB_SIZE, max_chain_len);
+ }
+ 
+diff --git a/libselinux/src/avc_sidtab.h b/libselinux/src/avc_sidtab.h
+index cc5abe35..e823e3f3 100644
+--- a/libselinux/src/avc_sidtab.h
++++ b/libselinux/src/avc_sidtab.h
+@@ -29,7 +29,7 @@ int sidtab_insert(struct sidtab *s, const char * ctx) ;
+ int sidtab_context_to_sid(struct sidtab *s,
+ 			  const char * ctx, security_id_t * sid) ;
+ 
+-void sidtab_sid_stats(struct sidtab *s, char *buf, int buflen) ;
++void sidtab_sid_stats(const struct sidtab *s, char *buf, size_t buflen) ;
+ void sidtab_destroy(struct sidtab *s) ;
+ 
+ #endif				/* _SELINUX_AVC_SIDTAB_H_ */
 -- 
 2.45.2
 
