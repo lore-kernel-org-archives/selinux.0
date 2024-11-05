@@ -1,267 +1,87 @@
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05381215C7D
-	for <selinux@vger.kernel.org>; Tue,  5 Nov 2024 21:06:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 372CD212624
+	for <selinux@vger.kernel.org>; Tue,  5 Nov 2024 22:05:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730840789; cv=none; b=Xp70g8mdI5zM8Zv9iulRdsT7x444N+B444WG1VHaxdTYjObRS+qNqxA3yFBuvBT4Y1wuYOoSL1w7Li91jZ56ckPewWZU5ZUndx9H1bJv0xjO0J1au3ujbAgehdxCKTG0zs1D75b2DvxMm0fWwJ31cIxJgJBWFTtjqxk2IK8U1tQ=
+	t=1730844324; cv=none; b=GqanSN+n0UMMF440YQTW2hVEPzzyVOCYBUfjyxBBP1KhZB1CYnkxcIrpmAjAiJKW0JIRDDbB8qPg1tc3nzkPhqcBq9al9f1SJnGtNChX/aC5oRBp3Q4dswP0+V5vSsQdKAkv1uoJ8fCb2b4RVCHeinyeLC8Db8otgj8Em59hYWs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730840789; c=relaxed/simple;
-	bh=UqZOgpgDSwaWrimtTgU859k5NgX5VGMulVo3nwMa0A4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jNoU8jK2Vyrj00K+sxvbetN4oPC3kVDpFpfENEpG5BYwcVEITkaVmSOSCyE48AE7rKh9Ysapm9kMkYdSRijgBF6hiB6FlMcg3sI3vYpJ+zS2KdKEFZ5VbyxCkoI//rbM+l6Ckot0fTAXs5N3jUFj3CV1fXSYmDVLnKDLeFI1pmo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=a83n0MbA; arc=none smtp.client-ip=168.119.48.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	s=arc-20240116; t=1730844324; c=relaxed/simple;
+	bh=djBJ3X9b8PV3X9FBvYB2DvR8/bEo6mFq5HQ90DmmY4A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NMXRt9HWrx3z1bysaaZwp9hNP+Z5LMsClUw2y6jA7So8TEqgGuyuOgX28q4heHWZjpHOK5OwENB8t7NKr2+UccrC69v51kkjdho7w+k+vmc9o3RIu8pgVSL7jq/+prwAK0/9KAYrfbnKdUwo20plD+6fL3D/6ALsrw4nonU+HPM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=MOCTC9us; arc=none smtp.client-ip=209.85.128.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="a83n0MbA"
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1730840781;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=mxCyGb4rGlyJ92DD2hRJlZgKGlWSNV58Ovr7ihpyefs=;
-	b=a83n0MbAPTqhx5lsYUJT/EEe2a/9JU3ukdWAFZ11J4XQAnac1rMfIz3Hl6jLgdaLW2Pk6W
-	3Nxh8KNASsMhKnuOapYtYwa2F1M1sWZhw93tmgbwceLXDG2ecBVsdtTaZ1Kyfl5ziXV4dP
-	pjdnz/46H7i08CeOZGOVDLtbmZUpeUtNZBm2tFgL6/FWlgznL0XPMOIeVuzjieKa4P7qbI
-	StBWVJIGlHrUUnKQP2SjCNDWhwWG3yUPGznY05cd3FL7cWLMRYtJ6s6oTfKsLhHOJ/KUCE
-	PXYNbBiSsGqK+ZuXjrEst2blPPH2/+KLoGQ9HudyCDA4K2MAFn4OetH32BnHfA==
-To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH] checkpolicy: avoid memory leaks on redeclarations
-Date: Tue,  5 Nov 2024 22:06:18 +0100
-Message-ID: <20241105210618.326533-1-cgoettsche@seltendoof.de>
-Reply-To: cgzones@googlemail.com
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="MOCTC9us"
+Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-6ea8419a57eso36226797b3.1
+        for <selinux@vger.kernel.org>; Tue, 05 Nov 2024 14:05:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1730844322; x=1731449122; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PhZ+0Y9dSaLb2rve1kOjUAczY7wbLs+msnWKXaMK6Qs=;
+        b=MOCTC9usKgp1nGk5iaqLnYdttea3fDU3AX2cnt0Bet4WEu2WUWTwboM3TzvZ1sWM7E
+         MG4dk2wGRgdYj6Csuxn/qOPGhXr3iQSvAeEl4Ix61PtiJ+4ktyhbKB3BFqcSdGhvs0fL
+         AMCogWlcLAcIJvqo+W3H6AcGi9bMg3ZWZWpM8gPVltPVsnd1CUEgCIVFvYlfoMpwEgdZ
+         DkZ77YiEGzXFyj/8UoGM80TKVUYMhYid6toEzy2QKo1hD/WWgBGL8hhW/shGNQBI4i+N
+         ElfyCHB5/Q9/iS5yJi+1/gjTrYLonnbr+TAMbIz86OzvVWZ9pEUB0Z6rHowzD5qj5m+g
+         iI7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1730844322; x=1731449122;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PhZ+0Y9dSaLb2rve1kOjUAczY7wbLs+msnWKXaMK6Qs=;
+        b=qvR8Ws/kD54uEnofJmzoMxQmBmWfNJGCFpHB0P+hY2qc3ZaBpZcQa7b+iu1eEzilNh
+         HeV+3ssf5+hdzWPp+TNE1axZD2NxeN8VzLXG0WYtDrnUg/i7DD3yYcLzIPDVDuwpx5xd
+         2M8WSaLiml7bGJ55JxuiyXY/dRNyrDz2IsJ5Aq42wj2tEFkVQKa1jxcIN4tNyg169PpN
+         oSKhRP1daZa6Vq/3b/A1QT6ATmCbC7g4M1wA3dujtH6Y2dHCQgz043zpryCr31ZmNWLT
+         5MjvDCqJta+KnntQ25l9VjgIkDg7H88YjiIdQWK2rTTQBwXxZlTvUzqaEgHG71XcKvQG
+         YvoA==
+X-Forwarded-Encrypted: i=1; AJvYcCWT4ap8YUiwd3aW3bz7EyhN38FZG/R+oDgdEiy2TvWOxXLlgn5GjaccCazgerygtX6RkjBt5rV4@vger.kernel.org
+X-Gm-Message-State: AOJu0YyAZSI6hKJB3/JAQctS9Ul/iKB95J/oTk8jVVOZqeoJG0tRBCD6
+	b1gMy7Ib/0s06zqR6QvC5dlExi/S8erZzlz38jLbNj+eK73cgddbph1XeOu5bPKGGmrFLHDf/jE
+	JKTCENHreD24rkCPU+KPMEP/Js/wJuaWzL003
+X-Google-Smtp-Source: AGHT+IHOquUqvyWgtXT2/sE8iENbvnsQpc3TOSa8HX4MAum2KDhJxz63gYWb26deeOkneLh0dVm/l7sooH5/2AEa+1s=
+X-Received: by 2002:a05:690c:b82:b0:6e3:1008:6d7c with SMTP id
+ 00721157ae682-6e9d8939dc8mr367029867b3.11.1730844322234; Tue, 05 Nov 2024
+ 14:05:22 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <2d02f331-42ee-40db-a64f-5ee378eb44db@stanley.mountain>
+In-Reply-To: <2d02f331-42ee-40db-a64f-5ee378eb44db@stanley.mountain>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 5 Nov 2024 17:05:11 -0500
+Message-ID: <CAHC9VhQw-DGzCq-q=ZUXjzM8GN-cUJXb6nU2PhOMre3nhiQJ4Q@mail.gmail.com>
+Subject: Re: [PATCH next] lsm: Fix signedness bug in selinux_secid_to_secctx()
+To: Dan Carpenter <dan.carpenter@linaro.org>
+Cc: Casey Schaufler <casey@schaufler-ca.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Christian Göttsche <cgzones@googlemail.com>
+On Sat, Nov 2, 2024 at 5:31=E2=80=AFAM Dan Carpenter <dan.carpenter@linaro.=
+org> wrote:
+>
+> The "ret" variable needs to be signed for the error checking to work.
+>
+> Fixes: 95a3c11eb670 ("lsm: replace context+len with lsm_context")
+> Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
+> ---
+>  security/selinux/hooks.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-If declare_symbol() returns 1 the id and the datum are already defined
-and not consumed by the function, so it they must be free'd by the
-caller.
+Merged into lsm/dev-staging, thanks Dan.
 
-Example policy (generated by fuzzer):
-
-    class s sid e class s{i}optional{require{bool K;}bool K true;
-
-Reported-by: oss-fuzz (issue 377544445)
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- checkpolicy/module_compiler.c |  2 +-
- checkpolicy/module_compiler.h |  2 +-
- checkpolicy/policy_define.c   | 72 +++++++++++++++++++++++------------
- 3 files changed, 49 insertions(+), 27 deletions(-)
-
-diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
-index 4efd77bf..3a7ad1bb 100644
---- a/checkpolicy/module_compiler.c
-+++ b/checkpolicy/module_compiler.c
-@@ -190,7 +190,7 @@ static int create_symbol(uint32_t symbol_type, hashtab_key_t key, hashtab_datum_
-  * not be restricted pointers. */
- int declare_symbol(uint32_t symbol_type,
- 		   hashtab_key_t key, hashtab_datum_t datum,
--		   uint32_t * dest_value, uint32_t * datum_value)
-+		   uint32_t * dest_value, const uint32_t * datum_value)
- {
- 	avrule_decl_t *decl = stack_top->decl;
- 	int ret = create_symbol(symbol_type, key, datum, dest_value, SCOPE_DECL);
-diff --git a/checkpolicy/module_compiler.h b/checkpolicy/module_compiler.h
-index e43bc6c0..2fe3455d 100644
---- a/checkpolicy/module_compiler.h
-+++ b/checkpolicy/module_compiler.h
-@@ -28,7 +28,7 @@ int define_policy(int pass, int module_header_given);
-  */
- int declare_symbol(uint32_t symbol_type,
- 		   hashtab_key_t key, hashtab_datum_t datum,
--		   uint32_t * dest_value, uint32_t * datum_value);
-+		   uint32_t * dest_value, const uint32_t * datum_value);
- 
- role_datum_t *declare_role(unsigned char isattr);
- type_datum_t *declare_type(unsigned char primary, unsigned char isattr);
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index f8a10154..9aae8378 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -156,9 +156,9 @@ static int id_has_dot(const char *id)
- 
- int define_class(void)
- {
--	char *id = 0;
--	class_datum_t *datum = 0;
--	int ret;
-+	char *id = NULL;
-+	class_datum_t *datum = NULL;
-+	int ret = -1;
- 	uint32_t value;
- 
- 	if (pass == 2) {
-@@ -175,27 +175,29 @@ int define_class(void)
- 	datum = (class_datum_t *) malloc(sizeof(class_datum_t));
- 	if (!datum) {
- 		yyerror("out of memory");
--		goto bad;
-+		goto cleanup;
- 	}
- 	memset(datum, 0, sizeof(class_datum_t));
- 	ret = declare_symbol(SYM_CLASSES, id, datum, &value, &value);
- 	switch (ret) {
- 	case -3:{
- 			yyerror("Out of memory!");
--			goto bad;
-+			goto cleanup;
- 		}
- 	case -2:{
- 			yyerror2("duplicate declaration of class %s", id);
--			goto bad;
-+			goto cleanup;
- 		}
- 	case -1:{
- 			yyerror("could not declare class here");
--			goto bad;
-+			goto cleanup;
- 		}
--	case 0:
--	case 1:{
-+	case 0: {
- 			break;
- 		}
-+	case 1:{
-+			goto cleanup;
-+		}
- 	default:{
- 			assert(0);	/* should never get here */
- 		}
-@@ -203,12 +205,10 @@ int define_class(void)
- 	datum->s.value = value;
- 	return 0;
- 
--      bad:
--	if (id)
--		free(id);
--	if (datum)
--		free(datum);
--	return -1;
-+      cleanup:
-+	free(id);
-+	free(datum);
-+	return ret == 1 ? 0 : -1;
- }
- 
- int define_permissive(void)
-@@ -785,8 +785,13 @@ int define_sens(void)
- 			yyerror2("could not declare sensitivity level %s here", id);
- 			goto bad;
- 		}
--	case 0:
-+	case 0: {
-+			break;
-+		}
- 	case 1:{
-+			level_datum_destroy(datum);
-+			free(datum);
-+			free(id);
- 			break;
- 		}
- 	default:{
-@@ -827,8 +832,13 @@ int define_sens(void)
- 				    ("could not declare sensitivity alias %s here", id);
- 				goto bad_alias;
- 			}
--		case 0:
-+		case 0: {
-+				break;
-+			}
- 		case 1:{
-+				level_datum_destroy(aliasdatum);
-+				free(aliasdatum);
-+				free(id);
- 				break;
- 			}
- 		default:{
-@@ -957,15 +967,20 @@ int define_category(void)
- 			yyerror2("could not declare category %s here", id);
- 			goto bad;
- 		}
--	case 0:
-+	case 0:{
-+			datum->s.value = value;
-+			break;
-+		}
- 	case 1:{
-+			cat_datum_destroy(datum);
-+			free(datum);
-+			free(id);
- 			break;
- 		}
- 	default:{
- 			assert(0);	/* should never get here */
- 		}
- 	}
--	datum->s.value = value;
- 
- 	while ((id = queue_remove(id_queue))) {
- 		if (id_has_dot(id)) {
-@@ -981,11 +996,11 @@ int define_category(void)
- 		}
- 		cat_datum_init(aliasdatum);
- 		aliasdatum->isalias = TRUE;
--		aliasdatum->s.value = datum->s.value;
-+		aliasdatum->s.value = value;
- 
- 		ret =
- 		    declare_symbol(SYM_CATS, id, aliasdatum, NULL,
--				   &datum->s.value);
-+				   &value);
- 		switch (ret) {
- 		case -3:{
- 				yyerror("Out of memory!");
-@@ -1001,8 +1016,13 @@ int define_category(void)
- 				    ("could not declare category alias %s here", id);
- 				goto bad_alias;
- 			}
--		case 0:
-+		case 0:{
-+				break;
-+			}
- 		case 1:{
-+				cat_datum_destroy(aliasdatum);
-+				free(aliasdatum);
-+				free(id);
- 				break;
- 			}
- 		default:{
-@@ -1833,10 +1853,12 @@ int define_bool_tunable(int is_tunable)
- 			yyerror2("could not declare boolean %s here", id);
- 			goto cleanup;
- 		}
--	case 0:
--	case 1:{
-+	case 0:{
- 			break;
- 		}
-+	case 1:{
-+			goto cleanup;
-+		}
- 	default:{
- 			assert(0);	/* should never get here */
- 		}
-@@ -1854,7 +1876,7 @@ int define_bool_tunable(int is_tunable)
- 	return 0;
-       cleanup:
- 	cond_destroy_bool(id, datum, NULL);
--	return -1;
-+	return ret == 1 ? 0 : -1;
- }
- 
- avrule_t *define_cond_pol_list(avrule_t * avlist, avrule_t * sl)
--- 
-2.45.2
-
+--=20
+paul-moore.com
