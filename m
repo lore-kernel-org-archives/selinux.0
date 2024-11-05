@@ -1,37 +1,42 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C51E1D47BD
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C30E1D2B3E
 	for <selinux@vger.kernel.org>; Tue,  5 Nov 2024 14:00:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730815219; cv=none; b=q6URxW9mlbfudrNIVpzMJq37zVc3ZXX//gAgFbkuCOgr06+HhxSNPoDvSdXxZ+5SeCSz6mRKHIm0URDa6I2sJ43cgmzTpjuDcNxV/iQH3MpOYfRcCuJhJx4yRS3Xd6frBK0L7YqOM+2B3LUPcidHArSVmQE2nK1U2/eRdvw1pEY=
+	t=1730815220; cv=none; b=u1VfzEX5cZmdfgm8k46EW0txmebnX/RUyNpc89zKuQ29m0Q2lswCjOBtPmjRnnccxqgk+P8wxPNlKEaPHvSEUrNmEDoyG8RC1rjO8hH9aViEkySl4kzfF89os3MKPIfyj9L79jnlhT/3x7maB/Bc4wA0CKquwQvrFyj23y8mp1E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730815219; c=relaxed/simple;
-	bh=+JgPnwgzgEjEMsL7l1QcV4ieZckg0BDNQDda+nxon8s=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=j8aSweWj3mOogjgB/wY2cErJxKwQzzZwS9yO34U/BwYqiU4BwYSuazgJJo/aLPM9zFs1E+OZrrDyDRLQS9l7AbeU7XIXcuCvjkvcNteHdLrNsnqt//ooSgimBursRXBn0lAYOC0XPr/NoRanl+35D2DGBcAocNdIrPA4Xxmst7k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=MGQEuk0G; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1730815220; c=relaxed/simple;
+	bh=OdNVHxPHFwXg7A5PSjaAp9MoRebGEONJ/Wb4tNsJQVY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=rUs6NddVvzW78jtbgX7Sws9xXXUKAPyX3BZIQrxGxljdmllYm3d3uqCccOd4t+UveTWA2O3JaxxjOhpMStfXz15bVfLsLKY7v85JBvI6CfGwacSSgW053g172WzPpjWExx39omVAZb3lFLgyW/grp/5ErJ0uRFOFFNUXOlE6u+w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=hsNKsWsa; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="MGQEuk0G"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="hsNKsWsa"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1730814872;
+	s=2023072701; t=1730814873;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=XcUFEqa0hmIufGSA9/OEsgNcbKRB1qq/97My+AyHxjo=;
-	b=MGQEuk0G0lukEm/B/8rT01bRP+phO9Ko1xTUooqae91LEII+QwZ7rT295tTh9gdWD1Cbtg
-	2sIpDxK4Z0hxx+m+Pw1wE/z1dlyMdMiBL/jADie0YwN9VR3cZCXxNdkElczxebVWNoSd7p
-	buwU86r0AoTQGbLMFyXLczsZ3RV0EyG6vH6f/h9073pgb3afSRJhom6RtQH0bf8j3yGdmW
-	HbmlANvA24QwMVpM5x1X6pZHR+xykI/RRake4ngi9k3SmW3eFG5ale1ZSKmInND9Sa7UMF
-	ls34sRt9AivrNIpTkT9/PQ5UZx8u52Zgf69ALNrW9N2Do8l0jptYP0ftPlOiTA==
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=J8vNQRMaORuZ7Cc2b6AzghxLc83VWb4L3XtQarDluOw=;
+	b=hsNKsWsaWlCNdPrX2oluGUR+ri10nK6S4R4nkFwMVEqTH949xx07q59cc9EbQABOr/gzcb
+	+qsNb17gOAMcxzeGfV7UtylJmAxxj0gA4hT4aT7PhrjQ8U/4sA1pDm8BoIfE57ZrXE7XwR
+	YT6Xb8upEwObS0aVDaUNIjXM3PqUp9ytLxmX4zH2wwdNAeDvSEQfkSp6PqjaOxV3DBc0s7
+	sbPldwlW2paD3KlXfCrrBeafxO/m2AsqebBR4n/mwpc2vQTCtT6+xsjEnl2e7ZjVdoMv4T
+	pud5uZWSvSO5gwlJ+Y1I7fNJo7A9kEK6Abvxx709hBnto6PH8Z2MjIeneNzYOg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v4 1/6] libsepol: misc assertion cleanup
-Date: Tue,  5 Nov 2024 14:54:23 +0100
-Message-ID: <20241105135428.124398-1-cgoettsche@seltendoof.de>
+Subject: [PATCH v4 4/6] libsepol/cil: add support for xperms in conditional policies
+Date: Tue,  5 Nov 2024 14:54:26 +0100
+Message-ID: <20241105135428.124398-4-cgoettsche@seltendoof.de>
+In-Reply-To: <20241105135428.124398-1-cgoettsche@seltendoof.de>
+References: <20241105135428.124398-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -44,593 +49,455 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Use const parameters where applicable to signal immutability.
-
-Rename the passed iterator avrule from avrule to narule, to make clear
-its the neverallow rule to assert against, not the allow rule to check.
-
-Drop needless branch in check_assertions(), since in the case avrules is
-NULL the for loop won't execute and errors will stay at 0, so 0 will be
-returned regardless. Also there is no call to free() as mentioned in the
-outdated comment.
+Add support for extended permission rules in conditional policies.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
-v3:
-  - use C99 bool where applicable
-  - minor additions
-v2:
-  add patch
----
- libsepol/include/sepol/policydb/policydb.h |   4 +-
- libsepol/src/assertion.c                   | 222 ++++++++++-----------
- 2 files changed, 107 insertions(+), 119 deletions(-)
+ libsepol/cil/src/cil_binary.c      | 153 +++++++++++++++++++++++++----
+ libsepol/cil/src/cil_build_ast.c   |   6 +-
+ libsepol/cil/src/cil_resolve_ast.c |   6 +-
+ libsepol/cil/src/cil_verify.c      |   3 +-
+ secilc/test/policy.cil             |  13 ++-
+ 5 files changed, 153 insertions(+), 28 deletions(-)
 
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index f73e21fc..88fb3672 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -698,9 +698,9 @@ extern void level_datum_init(level_datum_t * x);
- extern void level_datum_destroy(level_datum_t * x);
- extern void cat_datum_init(cat_datum_t * x);
- extern void cat_datum_destroy(cat_datum_t * x);
--extern int check_assertion(policydb_t *p, avrule_t *avrule);
-+extern int check_assertion(policydb_t *p, const avrule_t *avrule);
- extern int check_assertions(sepol_handle_t * handle,
--			    policydb_t * p, avrule_t * avrules);
-+			    policydb_t * p, const avrule_t * avrules);
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 3d920182..070bf525 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -59,14 +59,18 @@
+ #define AVRULEX_TABLE_SIZE (1 <<  10)
+ #define PERMS_PER_CLASS 32
  
- extern int symtab_insert(policydb_t * x, uint32_t sym,
- 			 hashtab_key_t key, hashtab_datum_t datum,
-diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
-index 5e129883..e0e8685f 100644
---- a/libsepol/src/assertion.c
-+++ b/libsepol/src/assertion.c
-@@ -20,6 +20,7 @@
-  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-  */
- 
-+#include <stdbool.h>
- #include <sepol/policydb/avtab.h>
- #include <sepol/policydb/policydb.h>
- #include <sepol/policydb/expand.h>
-@@ -31,35 +32,31 @@
- struct avtab_match_args {
- 	sepol_handle_t *handle;
- 	policydb_t *p;
--	avrule_t *avrule;
-+	const avrule_t *narule;
- 	avtab_t *avtab;
- 	unsigned long errors;
++struct cil_args_xperm_tables {
++	hashtab_t ioctl;
++	hashtab_t nlmsg;
++};
++
+ struct cil_args_binary {
+ 	const struct cil_db *db;
+ 	policydb_t *pdb;
+ 	struct cil_list *neverallows;
+ 	int pass;
+ 	hashtab_t role_trans_table;
+-	hashtab_t avrulex_ioctl_table;
+-	hashtab_t avrulex_nlmsg_table;
++	struct cil_args_xperm_tables avrulex_xperm_tables;
+ 	void **type_value_to_cil;
  };
  
--static const char* policy_name(policydb_t *p) {
--	const char *policy_file = "policy.conf";
--	if (p->name) {
--		policy_file = p->name;
--	}
--	return policy_file;
-+static const char* policy_name(const policydb_t *p) {
-+	return p->name ?: "policy.conf";
- }
+@@ -75,8 +79,14 @@ struct cil_args_booleanif {
+ 	policydb_t *pdb;
+ 	cond_node_t *cond_node;
+ 	enum cil_flavor cond_flavor;
++	struct cil_args_xperm_tables avrulex_xperm_tables;
+ };
  
--static void report_failure(sepol_handle_t *handle, policydb_t *p, const avrule_t *avrule,
-+static void report_failure(sepol_handle_t *handle, const policydb_t *p, const avrule_t *narule,
- 			   unsigned int stype, unsigned int ttype,
- 			   const class_perm_node_t *curperm, uint32_t perms)
++static unsigned int avrulex_hash(__attribute__((unused)) hashtab_t h, const_hashtab_key_t key);
++static int avrulex_compare(hashtab_t h
++             __attribute__ ((unused)), const_hashtab_key_t key1,
++			              const_hashtab_key_t key2);
++
+ static int __cil_get_sepol_user_datum(policydb_t *pdb, struct cil_symtab_datum *datum, user_datum_t **sepol_user)
  {
- 	char *permstr = sepol_av_to_string(p, curperm->tclass, perms);
- 
--	if (avrule->source_filename) {
-+	if (narule->source_filename) {
- 		ERR(handle, "neverallow on line %lu of %s (or line %lu of %s) violated by allow %s %s:%s {%s };",
--		    avrule->source_line, avrule->source_filename, avrule->line, policy_name(p),
-+		    narule->source_line, narule->source_filename, narule->line, policy_name(p),
- 		    p->p_type_val_to_name[stype],
- 		    p->p_type_val_to_name[ttype],
- 		    p->p_class_val_to_name[curperm->tclass - 1],
- 		    permstr ?: "<format-failure>");
--	} else if (avrule->line) {
-+	} else if (narule->line) {
- 		ERR(handle, "neverallow on line %lu violated by allow %s %s:%s {%s };",
--		    avrule->line, p->p_type_val_to_name[stype],
-+		    narule->line, p->p_type_val_to_name[stype],
- 		    p->p_type_val_to_name[ttype],
- 		    p->p_class_val_to_name[curperm->tclass - 1],
- 		    permstr ?: "<format-failure>");
-@@ -74,29 +71,29 @@ static void report_failure(sepol_handle_t *handle, policydb_t *p, const avrule_t
- 	free(permstr);
- }
- 
--static int match_any_class_permissions(class_perm_node_t *cp, uint32_t class, uint32_t data)
-+static bool match_any_class_permissions(const class_perm_node_t *cp, uint32_t class, uint32_t data)
+ 	*sepol_user = hashtab_search(pdb->p_users.table, datum->fqn);
+@@ -1758,7 +1768,10 @@ static int __cil_permx_bitmap_to_sepol_xperms_list(uint32_t kind, ebitmap_t *xpe
+ static int __cil_avrulex_xperm_to_policydb(hashtab_key_t k, hashtab_datum_t datum, uint32_t xperm_kind, void *args)
  {
- 	for (; cp; cp = cp->next) {
- 		if ((cp->tclass == class) && (cp->data & data))
--			return 1;
-+			return true;
- 	}
+ 	int rc = SEPOL_OK;
+-	struct policydb *pdb;
++	struct cil_args_booleanif *booleanif_args = args;
++	struct policydb *pdb = booleanif_args->pdb;
++	cond_node_t *cond_node = booleanif_args->cond_node;
++	enum cil_flavor cond_flavor = booleanif_args->cond_flavor;
+ 	avtab_key_t *avtab_key;
+ 	avtab_datum_t avtab_datum;
+ 	struct cil_list *xperms_list = NULL;
+@@ -1768,7 +1781,6 @@ static int __cil_avrulex_xperm_to_policydb(hashtab_key_t k, hashtab_datum_t datu
+ 	char *kind = NULL;
  
--	return 0;
-+	return false;
- }
+ 	avtab_key = (avtab_key_t *)k;
+-	pdb = args;
  
--static int extended_permissions_and(uint32_t *perms1, uint32_t *perms2) {
-+static bool extended_permissions_and(const uint32_t *perms1, const uint32_t *perms2) {
- 	size_t i;
- 	for (i = 0; i < EXTENDED_PERMS_LEN; i++) {
- 		if (perms1[i] & perms2[i])
--			return 1;
-+			return true;
- 	}
+ 	sepol_obj = pdb->class_val_to_struct[avtab_key->target_class - 1];
  
--	return 0;
-+	return false;
- }
+@@ -1789,7 +1801,12 @@ static int __cil_avrulex_xperm_to_policydb(hashtab_key_t k, hashtab_datum_t datu
  
--static int check_extended_permissions(av_extended_perms_t *neverallow, avtab_extended_perms_t *allow)
-+static bool check_extended_permissions(const av_extended_perms_t *neverallow, const avtab_extended_perms_t *allow)
- {
--	int rc = 0;
-+	bool rc = false;
- 	if ((neverallow->specified == AVRULE_XPERMS_IOCTLFUNCTION)
- 			&& (allow->specified == AVTAB_XPERMS_IOCTLFUNCTION)) {
- 		if (neverallow->driver == allow->driver)
-@@ -121,8 +118,8 @@ static int check_extended_permissions(av_extended_perms_t *neverallow, avtab_ext
- 
- /* Compute which allowed extended permissions violate the neverallow rule */
- static void extended_permissions_violated(avtab_extended_perms_t *result,
--					av_extended_perms_t *neverallow,
--					avtab_extended_perms_t *allow)
-+					const av_extended_perms_t *neverallow,
-+					const avtab_extended_perms_t *allow)
- {
- 	size_t i;
- 	if ((neverallow->specified == AVRULE_XPERMS_IOCTLFUNCTION)
-@@ -157,21 +154,20 @@ static void extended_permissions_violated(avtab_extended_perms_t *result,
- 
- /* Same scenarios of interest as check_assertion_extended_permissions */
- static int report_assertion_extended_permissions(sepol_handle_t *handle,
--				policydb_t *p, const avrule_t *avrule,
-+				policydb_t *p, const avrule_t *narule,
- 				unsigned int stype, unsigned int ttype,
- 				const class_perm_node_t *curperm, uint32_t perms,
--				avtab_key_t *k, avtab_t *avtab)
-+				const avtab_key_t *k, avtab_t *avtab)
- {
- 	avtab_ptr_t node;
- 	avtab_key_t tmp_key;
- 	avtab_extended_perms_t *xperms;
- 	avtab_extended_perms_t error;
--	ebitmap_t *sattr = &p->type_attr_map[stype];
--	ebitmap_t *tattr = &p->type_attr_map[ttype];
-+	const ebitmap_t *sattr = &p->type_attr_map[stype];
-+	const ebitmap_t *tattr = &p->type_attr_map[ttype];
- 	ebitmap_node_t *snode, *tnode;
- 	unsigned int i, j;
--	int rc;
--	int found_xperm = 0;
-+	bool found_xperm = false;
- 	int errors = 0;
- 
- 	memcpy(&tmp_key, k, sizeof(avtab_key_t));
-@@ -189,18 +185,17 @@ static int report_assertion_extended_permissions(sepol_handle_t *handle,
- 						&& (xperms->specified != AVTAB_XPERMS_IOCTLDRIVER)
- 						&& (xperms->specified != AVTAB_XPERMS_NLMSG))
- 					continue;
--				found_xperm = 1;
--				rc = check_extended_permissions(avrule->xperms, xperms);
-+				found_xperm = true;
- 				/* failure on the extended permission check_extended_permissions */
--				if (rc) {
-+				if (check_extended_permissions(narule->xperms, xperms)) {
- 					char *permstring;
- 
--					extended_permissions_violated(&error, avrule->xperms, xperms);
-+					extended_permissions_violated(&error, narule->xperms, xperms);
- 					permstring = sepol_extended_perms_to_string(&error);
- 
- 					ERR(handle, "neverallowxperm on line %lu of %s (or line %lu of %s) violated by\n"
- 							"allowxperm %s %s:%s %s;",
--							avrule->source_line, avrule->source_filename, avrule->line, policy_name(p),
-+							narule->source_line, narule->source_filename, narule->line, policy_name(p),
- 							p->p_type_val_to_name[i],
- 							p->p_type_val_to_name[j],
- 							p->p_class_val_to_name[curperm->tclass - 1],
-@@ -219,7 +214,7 @@ static int report_assertion_extended_permissions(sepol_handle_t *handle,
- 
- 		ERR(handle, "neverallowxperm on line %lu of %s (or line %lu of %s) violated by\n"
- 				"allow %s %s:%s {%s };",
--				avrule->source_line, avrule->source_filename, avrule->line, policy_name(p),
-+				narule->source_line, narule->source_filename, narule->line, policy_name(p),
- 				p->p_type_val_to_name[stype],
- 				p->p_type_val_to_name[ttype],
- 				p->p_class_val_to_name[curperm->tclass - 1],
-@@ -240,26 +235,26 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
- 	sepol_handle_t *handle = a->handle;
- 	policydb_t *p = a->p;
- 	avtab_t *avtab = a->avtab;
--	avrule_t *avrule = a->avrule;
--	class_perm_node_t *cp;
-+	const avrule_t *narule = a->narule;
-+	const class_perm_node_t *cp;
- 	uint32_t perms;
- 	ebitmap_t src_matches, tgt_matches, self_matches;
- 	ebitmap_node_t *snode, *tnode;
- 	unsigned int i, j;
--	const int is_avrule_self = (avrule->flags & RULE_SELF) != 0;
--	const int is_avrule_notself = (avrule->flags & RULE_NOTSELF) != 0;
-+	const bool is_narule_self = (narule->flags & RULE_SELF) != 0;
-+	const bool is_narule_notself = (narule->flags & RULE_NOTSELF) != 0;
- 
- 	if ((k->specified & AVTAB_ALLOWED) == 0)
- 		return 0;
- 
--	if (!match_any_class_permissions(avrule->perms, k->target_class, d->data))
-+	if (!match_any_class_permissions(narule->perms, k->target_class, d->data))
- 		return 0;
- 
- 	ebitmap_init(&src_matches);
- 	ebitmap_init(&tgt_matches);
- 	ebitmap_init(&self_matches);
- 
--	rc = ebitmap_and(&src_matches, &avrule->stypes.types,
-+	rc = ebitmap_and(&src_matches, &narule->stypes.types,
- 			 &p->attr_type_map[k->source_type - 1]);
- 	if (rc < 0)
- 		goto oom;
-@@ -267,22 +262,22 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
- 	if (ebitmap_is_empty(&src_matches))
- 		goto exit;
- 
--	if (is_avrule_notself) {
--		if (ebitmap_is_empty(&avrule->ttypes.types)) {
-+	if (is_narule_notself) {
-+		if (ebitmap_is_empty(&narule->ttypes.types)) {
- 			/* avrule tgt is of the form ~self */
- 			rc = ebitmap_cpy(&tgt_matches, &p->attr_type_map[k->target_type -1]);
- 		} else {
- 			/* avrule tgt is of the form {ATTR -self} */
--			rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type - 1]);
-+			rc = ebitmap_and(&tgt_matches, &narule->ttypes.types, &p->attr_type_map[k->target_type - 1]);
+ 	cil_list_for_each(item, xperms_list) {
+ 		avtab_datum.xperms = item->data;
+-		rc = avtab_insert(&pdb->te_avtab, avtab_key, &avtab_datum);
++
++		if (cond_node) {
++			rc = __cil_cond_insert_rule(&pdb->te_cond_avtab, avtab_key, &avtab_datum, cond_node, cond_flavor);
++		} else {
++			rc = avtab_insert(&pdb->te_avtab, avtab_key, &avtab_datum);
++		}
+ 		if (rc != SEPOL_OK) {
+ 			goto exit;
  		}
- 		if (rc)
- 			goto oom;
- 	} else {
--		rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type -1]);
-+		rc = ebitmap_and(&tgt_matches, &narule->ttypes.types, &p->attr_type_map[k->target_type -1]);
- 		if (rc < 0)
- 			goto oom;
- 
--		if (is_avrule_self) {
-+		if (is_narule_self) {
- 			rc = ebitmap_and(&self_matches, &src_matches, &p->attr_type_map[k->target_type - 1]);
- 			if (rc < 0)
- 				goto oom;
-@@ -298,7 +293,7 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
- 	if (ebitmap_is_empty(&tgt_matches))
- 		goto exit;
- 
--	for (cp = avrule->perms; cp; cp = cp->next) {
-+	for (cp = narule->perms; cp; cp = cp->next) {
- 
- 		perms = cp->data & d->data;
- 		if ((cp->tclass != k->target_class) || !perms) {
-@@ -307,16 +302,16 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
- 
- 		ebitmap_for_each_positive_bit(&src_matches, snode, i) {
- 			ebitmap_for_each_positive_bit(&tgt_matches, tnode, j) {
--				if (is_avrule_self && i != j)
-+				if (is_narule_self && i != j)
- 					continue;
--				if (is_avrule_notself && i == j)
-+				if (is_narule_notself && i == j)
- 					continue;
--				if (avrule->specified == AVRULE_XPERMS_NEVERALLOW) {
--					a->errors += report_assertion_extended_permissions(handle,p, avrule,
-+				if (narule->specified == AVRULE_XPERMS_NEVERALLOW) {
-+					a->errors += report_assertion_extended_permissions(handle,p, narule,
- 											i, j, cp, perms, k, avtab);
- 				} else {
- 					a->errors++;
--					report_failure(handle, p, avrule, i, j, cp, perms);
-+					report_failure(handle, p, narule, i, j, cp, perms);
- 				}
- 			}
- 		}
-@@ -330,22 +325,22 @@ exit:
+@@ -1872,7 +1889,7 @@ exit:
  	return rc;
  }
  
--static int report_assertion_failures(sepol_handle_t *handle, policydb_t *p, avrule_t *avrule)
-+static int report_assertion_failures(sepol_handle_t *handle, policydb_t *p, const avrule_t *narule)
+-static int __cil_avrulex_to_hashtable_helper(policydb_t *pdb, uint16_t kind, struct cil_symtab_datum *src, struct cil_symtab_datum *tgt, struct cil_permissionx *permx, struct cil_args_binary *args)
++static int __cil_avrulex_to_hashtable_helper(policydb_t *pdb, uint16_t kind, struct cil_symtab_datum *src, struct cil_symtab_datum *tgt, struct cil_permissionx *permx, struct cil_args_xperm_tables *xt)
  {
- 	int rc;
--	struct avtab_match_args args;
--
--	args.handle = handle;
--	args.p = p;
--	args.avrule = avrule;
--	args.errors = 0;
-+	struct avtab_match_args args = {
-+		.handle = handle,
-+		.p = p,
-+		.narule = narule,
-+		.errors = 0,
-+	};
+ 	int rc = SEPOL_ERR;
+ 	type_datum_t *sepol_src = NULL;
+@@ -1895,11 +1912,11 @@ static int __cil_avrulex_to_hashtable_helper(policydb_t *pdb, uint16_t kind, str
  
--	args.avtab =  &p->te_avtab;
-+	args.avtab = &p->te_avtab;
- 	rc = avtab_map(&p->te_avtab, report_assertion_avtab_matches, &args);
- 	if (rc < 0)
- 		goto oom;
- 
--	args.avtab =  &p->te_cond_avtab;
-+	args.avtab = &p->te_cond_avtab;
- 	rc = avtab_map(&p->te_cond_avtab, report_assertion_avtab_matches, &args);
- 	if (rc < 0)
- 		goto oom;
-@@ -360,19 +355,19 @@ oom:
-  * Look up the extended permissions in avtab and verify that neverallowed
-  * permissions are not granted.
-  */
--static int check_assertion_extended_permissions_avtab(avrule_t *avrule, avtab_t *avtab,
-+static bool check_assertion_extended_permissions_avtab(const avrule_t *narule, avtab_t *avtab,
- 						unsigned int stype, unsigned int ttype,
--						avtab_key_t *k, policydb_t *p)
-+						const avtab_key_t *k, policydb_t *p)
- {
- 	avtab_ptr_t node;
- 	avtab_key_t tmp_key;
--	avtab_extended_perms_t *xperms;
--	av_extended_perms_t *neverallow_xperms = avrule->xperms;
--	ebitmap_t *sattr = &p->type_attr_map[stype];
--	ebitmap_t *tattr = &p->type_attr_map[ttype];
-+	const avtab_extended_perms_t *xperms;
-+	const av_extended_perms_t *neverallow_xperms = narule->xperms;
-+	const ebitmap_t *sattr = &p->type_attr_map[stype];
-+	const ebitmap_t *tattr = &p->type_attr_map[ttype];
- 	ebitmap_node_t *snode, *tnode;
- 	unsigned int i, j;
--	int rc = 1;
-+	bool ret = true;
- 
- 	memcpy(&tmp_key, k, sizeof(avtab_key_t));
- 	tmp_key.specified = AVTAB_XPERMS_ALLOWED;
-@@ -390,14 +385,14 @@ static int check_assertion_extended_permissions_avtab(avrule_t *avrule, avtab_t
- 						&& (xperms->specified != AVTAB_XPERMS_IOCTLDRIVER)
- 						&& (xperms->specified != AVTAB_XPERMS_NLMSG))
- 					continue;
--				rc = check_extended_permissions(neverallow_xperms, xperms);
--				if (rc)
--					return rc;
-+				ret = check_extended_permissions(neverallow_xperms, xperms);
-+				if (ret)
-+					return ret;
- 			}
- 		}
- 	}
- 
--	return rc;
-+	return ret;
+ 		switch (permx->kind) {
+ 		case  CIL_PERMX_KIND_IOCTL:
+-			rc = __cil_avrulex_xperm_to_hashtable(args->avrulex_ioctl_table, kind, sepol_src->s.value, sepol_tgt->s.value, sepol_obj->s.value, permx->perms);
++			rc = __cil_avrulex_xperm_to_hashtable(xt->ioctl, kind, sepol_src->s.value, sepol_tgt->s.value, sepol_obj->s.value, permx->perms);
+ 			if (rc != SEPOL_OK) goto exit;
+ 			break;
+ 		case  CIL_PERMX_KIND_NLMSG:
+-			rc = __cil_avrulex_xperm_to_hashtable(args->avrulex_nlmsg_table, kind, sepol_src->s.value, sepol_tgt->s.value, sepol_obj->s.value, permx->perms);
++			rc = __cil_avrulex_xperm_to_hashtable(xt->nlmsg, kind, sepol_src->s.value, sepol_tgt->s.value, sepol_obj->s.value, permx->perms);
+ 			if (rc != SEPOL_OK) goto exit;
+ 			break;
+ 		default:
+@@ -1916,7 +1933,7 @@ exit:
+ 	return rc;
  }
  
- /*
-@@ -416,21 +411,21 @@ static int check_assertion_extended_permissions_avtab(avrule_t *avrule, avtab_t
-  * 4. FAIL - The ioctl permission is granted AND the extended permission is
-  *    granted
-  */
--static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab,
--						avtab_key_t *k, policydb_t *p)
-+static int check_assertion_extended_permissions(const avrule_t *narule, avtab_t *avtab,
-+						const avtab_key_t *k, policydb_t *p)
+-static int cil_avrulex_to_hashtable(policydb_t *pdb, const struct cil_db *db, struct cil_avrule *cil_avrulex, struct cil_args_binary *args)
++static int cil_avrulex_to_hashtable(policydb_t *pdb, const struct cil_db *db, struct cil_avrule *cil_avrulex, struct cil_args_xperm_tables *xt)
  {
- 	ebitmap_t src_matches, tgt_matches, self_matches;
- 	unsigned int i, j;
- 	ebitmap_node_t *snode, *tnode;
--	const int is_avrule_self = (avrule->flags & RULE_SELF) != 0;
--	const int is_avrule_notself = (avrule->flags & RULE_NOTSELF) != 0;
-+	const bool is_narule_self = (narule->flags & RULE_SELF) != 0;
-+	const bool is_narule_notself = (narule->flags & RULE_NOTSELF) != 0;
- 	int rc;
+ 	int rc = SEPOL_ERR;
+ 	uint16_t kind;
+@@ -1942,7 +1959,7 @@ static int cil_avrulex_to_hashtable(policydb_t *pdb, const struct cil_db *db, st
  
- 	ebitmap_init(&src_matches);
- 	ebitmap_init(&tgt_matches);
- 	ebitmap_init(&self_matches);
+ 		ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
+ 			src = DATUM(db->val_to_type[s]);
+-			rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, src, cil_avrulex->perms.x.permx, args);
++			rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, src, cil_avrulex->perms.x.permx, xt);
+ 			if (rc != SEPOL_OK) {
+ 				ebitmap_destroy(&src_bitmap);
+ 				goto exit;
+@@ -1960,7 +1977,7 @@ static int cil_avrulex_to_hashtable(policydb_t *pdb, const struct cil_db *db, st
+ 			for (t = 0; t < (unsigned int)db->num_types; t++) {
+ 				if (s != t) {
+ 					tgt = DATUM(db->val_to_type[t]);
+-					rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, args);
++					rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, xt);
+ 					if (rc != SEPOL_OK) {
+ 						ebitmap_destroy(&src_bitmap);
+ 						goto exit;
+@@ -1980,7 +1997,7 @@ static int cil_avrulex_to_hashtable(policydb_t *pdb, const struct cil_db *db, st
+ 			ebitmap_for_each_positive_bit(&src_bitmap, tnode, t) {
+ 				if (s != t) {
+ 					tgt = DATUM(db->val_to_type[t]);
+-					rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, args);
++					rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, xt);
+ 					if (rc != SEPOL_OK) {
+ 						ebitmap_destroy(&src_bitmap);
+ 						goto exit;
+@@ -1994,7 +2011,7 @@ static int cil_avrulex_to_hashtable(policydb_t *pdb, const struct cil_db *db, st
+ 		int expand_tgt = __cil_should_expand_attribute(db, tgt);
  
--	rc = ebitmap_and(&src_matches, &avrule->stypes.types,
-+	rc = ebitmap_and(&src_matches, &narule->stypes.types,
- 			 &p->attr_type_map[k->source_type - 1]);
- 	if (rc < 0)
- 		goto oom;
-@@ -440,22 +435,22 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
- 		goto exit;
- 	}
- 
--	if (is_avrule_notself) {
--		if (ebitmap_is_empty(&avrule->ttypes.types)) {
-+	if (is_narule_notself) {
-+		if (ebitmap_is_empty(&narule->ttypes.types)) {
- 			/* avrule tgt is of the form ~self */
- 			rc = ebitmap_cpy(&tgt_matches, &p->attr_type_map[k->target_type -1]);
- 		} else {
- 			/* avrule tgt is of the form {ATTR -self} */
--			rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type - 1]);
-+			rc = ebitmap_and(&tgt_matches, &narule->ttypes.types, &p->attr_type_map[k->target_type - 1]);
- 		}
- 		if (rc < 0)
- 			goto oom;
- 	} else {
--		rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type -1]);
-+		rc = ebitmap_and(&tgt_matches, &narule->ttypes.types, &p->attr_type_map[k->target_type -1]);
- 		if (rc < 0)
- 			goto oom;
- 
--		if (is_avrule_self) {
-+		if (is_narule_self) {
- 			rc = ebitmap_and(&self_matches, &src_matches, &p->attr_type_map[k->target_type - 1]);
- 			if (rc < 0)
- 				goto oom;
-@@ -475,11 +470,11 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
- 
- 	ebitmap_for_each_positive_bit(&src_matches, snode, i) {
- 		ebitmap_for_each_positive_bit(&tgt_matches, tnode, j) {
--			if (is_avrule_self && i != j)
-+			if (is_narule_self && i != j)
- 				continue;
--			if (is_avrule_notself && i == j)
-+			if (is_narule_notself && i == j)
- 				continue;
--			if (check_assertion_extended_permissions_avtab(avrule, avtab, i, j, k, p)) {
-+			if (check_assertion_extended_permissions_avtab(narule, avtab, i, j, k, p)) {
- 				rc = 1;
+ 		if (!expand_src && !expand_tgt) {
+-			rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, args);
++			rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, xt);
+ 			if (rc != SEPOL_OK) {
  				goto exit;
  			}
-@@ -496,7 +491,7 @@ exit:
- 	return rc;
- }
+@@ -2015,7 +2032,7 @@ static int cil_avrulex_to_hashtable(policydb_t *pdb, const struct cil_db *db, st
+ 				ebitmap_for_each_positive_bit(&tgt_bitmap, tnode, t) {
+ 					tgt = DATUM(db->val_to_type[t]);
  
--static int check_assertion_notself_match(avtab_key_t *k, avrule_t *avrule, policydb_t *p)
-+static int check_assertion_notself_match(const avtab_key_t *k, const avrule_t *narule, policydb_t *p)
- {
- 	ebitmap_t src_matches, tgt_matches;
- 	unsigned int num_src_matches, num_tgt_matches;
-@@ -505,16 +500,16 @@ static int check_assertion_notself_match(avtab_key_t *k, avrule_t *avrule, polic
- 	ebitmap_init(&src_matches);
- 	ebitmap_init(&tgt_matches);
+-					rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, args);
++					rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, xt);
+ 					if (rc != SEPOL_OK) {
+ 						ebitmap_destroy(&src_bitmap);
+ 						ebitmap_destroy(&tgt_bitmap);
+@@ -2034,7 +2051,7 @@ static int cil_avrulex_to_hashtable(policydb_t *pdb, const struct cil_db *db, st
+ 			ebitmap_for_each_positive_bit(&src_bitmap, snode, s) {
+ 				src = DATUM(db->val_to_type[s]);
  
--	rc = ebitmap_and(&src_matches, &avrule->stypes.types, &p->attr_type_map[k->source_type - 1]);
-+	rc = ebitmap_and(&src_matches, &narule->stypes.types, &p->attr_type_map[k->source_type - 1]);
- 	if (rc < 0)
- 		goto oom;
+-				rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, args);
++				rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, xt);
+ 				if (rc != SEPOL_OK) {
+ 					ebitmap_destroy(&src_bitmap);
+ 					goto exit;
+@@ -2050,7 +2067,7 @@ static int cil_avrulex_to_hashtable(policydb_t *pdb, const struct cil_db *db, st
+ 			ebitmap_for_each_positive_bit(&tgt_bitmap, tnode, t) {
+ 				tgt = DATUM(db->val_to_type[t]);
  
--	if (ebitmap_is_empty(&avrule->ttypes.types)) {
-+	if (ebitmap_is_empty(&narule->ttypes.types)) {
- 		/* avrule tgt is of the form ~self */
- 		rc = ebitmap_cpy(&tgt_matches, &p->attr_type_map[k->target_type - 1]);
- 	} else {
- 		/* avrule tgt is of the form {ATTR -self} */
--		rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type - 1]);
-+		rc = ebitmap_and(&tgt_matches, &narule->ttypes.types, &p->attr_type_map[k->target_type - 1]);
- 	}
- 	if (rc < 0)
- 		goto oom;
-@@ -551,7 +546,7 @@ nomatch:
- 	return rc;
- }
- 
--static int check_assertion_self_match(avtab_key_t *k, avrule_t *avrule, policydb_t *p)
-+static int check_assertion_self_match(const avtab_key_t *k, const avrule_t *narule, policydb_t *p)
- {
- 	ebitmap_t src_matches;
- 	int rc;
-@@ -560,7 +555,7 @@ static int check_assertion_self_match(avtab_key_t *k, avrule_t *avrule, policydb
- 	 * and the key's source.
- 	 */
- 
--	rc = ebitmap_and(&src_matches, &avrule->stypes.types, &p->attr_type_map[k->source_type - 1]);
-+	rc = ebitmap_and(&src_matches, &narule->stypes.types, &p->attr_type_map[k->source_type - 1]);
- 	if (rc < 0)
- 		goto oom;
- 
-@@ -582,29 +577,29 @@ static int check_assertion_avtab_match(avtab_key_t *k, avtab_datum_t *d, void *a
- 	int rc;
- 	struct avtab_match_args *a = (struct avtab_match_args *)args;
- 	policydb_t *p = a->p;
--	avrule_t *avrule = a->avrule;
-+	const avrule_t *narule = a->narule;
- 	avtab_t *avtab = a->avtab;
- 
- 	if ((k->specified & AVTAB_ALLOWED) == 0)
- 		goto nomatch;
- 
--	if (!match_any_class_permissions(avrule->perms, k->target_class, d->data))
-+	if (!match_any_class_permissions(narule->perms, k->target_class, d->data))
- 		goto nomatch;
- 
--	if (!ebitmap_match_any(&avrule->stypes.types, &p->attr_type_map[k->source_type - 1]))
-+	if (!ebitmap_match_any(&narule->stypes.types, &p->attr_type_map[k->source_type - 1]))
- 		goto nomatch;
- 
--	if (avrule->flags & RULE_NOTSELF) {
--		rc = check_assertion_notself_match(k, avrule, p);
-+	if (narule->flags & RULE_NOTSELF) {
-+		rc = check_assertion_notself_match(k, narule, p);
- 		if (rc < 0)
- 			goto oom;
- 		if (rc == 0)
- 			goto nomatch;
- 	} else {
- 		/* neverallow may have tgts even if it uses SELF */
--		if (!ebitmap_match_any(&avrule->ttypes.types, &p->attr_type_map[k->target_type -1])) {
--			if (avrule->flags == RULE_SELF) {
--				rc = check_assertion_self_match(k, avrule, p);
-+		if (!ebitmap_match_any(&narule->ttypes.types, &p->attr_type_map[k->target_type -1])) {
-+			if (narule->flags == RULE_SELF) {
-+				rc = check_assertion_self_match(k, narule, p);
- 				if (rc < 0)
- 					goto oom;
- 				if (rc == 0)
-@@ -615,8 +610,8 @@ static int check_assertion_avtab_match(avtab_key_t *k, avtab_datum_t *d, void *a
+-				rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, args);
++				rc = __cil_avrulex_to_hashtable_helper(pdb, kind, src, tgt, cil_avrulex->perms.x.permx, xt);
+ 				if (rc != SEPOL_OK) {
+ 					ebitmap_destroy(&tgt_bitmap);
+ 					goto exit;
+@@ -2119,6 +2136,21 @@ static int __cil_cond_to_policydb_helper(struct cil_tree_node *node, __attribute
+ 			goto exit;
  		}
+ 		break;
++	case CIL_AVRULEX:
++		if (db->policy_version < POLICYDB_VERSION_COND_XPERMS) {
++			cil_tree_log(node, CIL_ERR, "Extended permission rules are not supported in policy version %d\n",
++				     db->policy_version);
++			rc = SEPOL_ERR;
++			goto exit;
++		}
++		cil_avrule = node->data;
++		rc = cil_avrulex_to_hashtable(pdb, db, cil_avrule, &args->avrulex_xperm_tables);
++		if (rc != SEPOL_OK) {
++			cil_tree_log(node, CIL_ERR, "Failed to insert avrulex into avtab");
++			goto exit;
++		}
++		break;
++
+ 	case CIL_CALL:
+ 	case CIL_TUNABLEIF:
+ 		break;
+@@ -2425,6 +2457,8 @@ int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
+ 	int was_created;
+ 	int swapped = CIL_FALSE;
+ 	cond_av_list_t tmp_cl;
++	hashtab_t avrulex_ioctl_table = NULL;
++	hashtab_t avrulex_nlmsg_table = NULL;
+ 
+ 	tmp_cond = cond_node_create(pdb, NULL);
+ 	if (tmp_cond == NULL) {
+@@ -2493,26 +2527,97 @@ int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
+ 	bool_args.cond_node = cond_node;
+ 
+ 	if (true_node != NULL) {
++		avrulex_ioctl_table = hashtab_create(avrulex_hash, avrulex_compare, AVRULEX_TABLE_SIZE);
++		if (!avrulex_ioctl_table) {
++			cil_log(CIL_INFO, "Failure to create hashtab for avrulex\n");
++			goto exit;
++		}
++
++		avrulex_nlmsg_table = hashtab_create(avrulex_hash, avrulex_compare, AVRULEX_TABLE_SIZE);
++		if (!avrulex_nlmsg_table) {
++			cil_log(CIL_INFO, "Failure to create hashtab for avrulex\n");
++			goto exit;
++		}
++
+ 		bool_args.cond_flavor = CIL_CONDTRUE;
++		bool_args.avrulex_xperm_tables.ioctl = avrulex_ioctl_table;
++		bool_args.avrulex_xperm_tables.nlmsg = avrulex_nlmsg_table;
+ 		rc = cil_tree_walk(true_node, __cil_cond_to_policydb_helper, NULL, NULL, &bool_args);
+ 		if (rc != SEPOL_OK) {
+ 			cil_tree_log(true_node, CIL_ERR, "Failure while walking true conditional block");
+ 			goto exit;
+ 		}
++
++		rc = hashtab_map(avrulex_ioctl_table, __cil_avrulex_ioctl_to_policydb, &bool_args);
++		if (rc != SEPOL_OK) {
++			cil_log(CIL_INFO, "Failure creating avrulex rules\n");
++			goto exit;
++		}
++
++		rc = hashtab_map(avrulex_nlmsg_table, __cil_avrulex_nlmsg_to_policydb, &bool_args);
++		if (rc != SEPOL_OK) {
++			cil_log(CIL_INFO, "Failure creating avrulex rules\n");
++			goto exit;
++		}
++
++		hashtab_map(avrulex_nlmsg_table, __cil_avrulex_xperm_destroy, NULL);
++		hashtab_destroy(avrulex_nlmsg_table);
++		avrulex_nlmsg_table = NULL;
++
++		hashtab_map(avrulex_ioctl_table, __cil_avrulex_xperm_destroy, NULL);
++		hashtab_destroy(avrulex_ioctl_table);
++		avrulex_ioctl_table = NULL;
  	}
  
--	if (avrule->specified == AVRULE_XPERMS_NEVERALLOW) {
--		rc = check_assertion_extended_permissions(avrule, avtab, k, p);
-+	if (narule->specified == AVRULE_XPERMS_NEVERALLOW) {
-+		rc = check_assertion_extended_permissions(narule, avtab, k, p);
- 		if (rc < 0)
- 			goto oom;
- 		if (rc == 0)
-@@ -631,17 +626,17 @@ oom:
- 	return rc;
- }
+ 	if (false_node != NULL) {
++		avrulex_ioctl_table = hashtab_create(avrulex_hash, avrulex_compare, AVRULEX_TABLE_SIZE);
++		if (!avrulex_ioctl_table) {
++			cil_log(CIL_INFO, "Failure to create hashtab for avrulex\n");
++			goto exit;
++		}
++
++		avrulex_nlmsg_table = hashtab_create(avrulex_hash, avrulex_compare, AVRULEX_TABLE_SIZE);
++		if (!avrulex_nlmsg_table) {
++			cil_log(CIL_INFO, "Failure to create hashtab for avrulex\n");
++			goto exit;
++		}
++
+ 		bool_args.cond_flavor = CIL_CONDFALSE;
++		bool_args.avrulex_xperm_tables.ioctl = avrulex_ioctl_table;
++		bool_args.avrulex_xperm_tables.nlmsg = avrulex_nlmsg_table;
+ 		rc = cil_tree_walk(false_node, __cil_cond_to_policydb_helper, NULL, NULL, &bool_args);
+ 		if (rc != SEPOL_OK) {
+ 			cil_tree_log(false_node, CIL_ERR, "Failure while walking false conditional block");
+ 			goto exit;
+ 		}
++
++		rc = hashtab_map(avrulex_ioctl_table, __cil_avrulex_ioctl_to_policydb, &bool_args);
++		if (rc != SEPOL_OK) {
++			cil_log(CIL_INFO, "Failure creating avrulex rules\n");
++			goto exit;
++		}
++
++		rc = hashtab_map(avrulex_nlmsg_table, __cil_avrulex_nlmsg_to_policydb, &bool_args);
++		if (rc != SEPOL_OK) {
++			cil_log(CIL_INFO, "Failure creating avrulex rules\n");
++			goto exit;
++		}
++
++		hashtab_map(avrulex_nlmsg_table, __cil_avrulex_xperm_destroy, NULL);
++		hashtab_destroy(avrulex_nlmsg_table);
++		avrulex_nlmsg_table = NULL;
++
++
++		hashtab_map(avrulex_ioctl_table, __cil_avrulex_xperm_destroy, NULL);
++		hashtab_destroy(avrulex_ioctl_table);
++		avrulex_ioctl_table = NULL;
+ 	}
  
--int check_assertion(policydb_t *p, avrule_t *avrule)
-+int check_assertion(policydb_t *p, const avrule_t *narule)
- {
- 	int rc;
--	struct avtab_match_args args;
-+	struct avtab_match_args args = {
-+		.handle = NULL,
-+		.p = p,
-+		.narule = narule,
-+		.errors = 0,
-+	};
+ 	return SEPOL_OK;
  
--	args.handle = NULL;
--	args.p = p;
--	args.avrule = avrule;
--	args.errors = 0;
- 	args.avtab = &p->te_avtab;
--
- 	rc = avtab_map(&p->te_avtab, check_assertion_avtab_match, &args);
+ exit:
++	hashtab_map(avrulex_ioctl_table, __cil_avrulex_xperm_destroy, NULL);
++	hashtab_destroy(avrulex_ioctl_table);
+ 	if (tmp_cond) {
+ 		if (tmp_cond->expr)
+ 			cond_expr_destroy(tmp_cond->expr);
+@@ -4087,7 +4192,7 @@ static int __cil_node_to_policydb(struct cil_tree_node *node, void *extra_args)
+ 		case CIL_AVRULEX: {
+ 				struct cil_avrule *rule = node->data;
+ 				if (rule->rule_kind != CIL_AVRULE_NEVERALLOW) {
+-					rc = cil_avrulex_to_hashtable(pdb, db, node->data, args);
++					rc = cil_avrulex_to_hashtable(pdb, db, node->data, &args->avrulex_xperm_tables);
+ 				}
+ 			}
+ 			break;
+@@ -5158,6 +5263,7 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
+ 	int rc = SEPOL_ERR;
+ 	int i;
+ 	struct cil_args_binary extra_args;
++	struct cil_args_booleanif booleanif_args;
+ 	policydb_t *pdb = &policydb->p;
+ 	struct cil_list *neverallows = NULL;
+ 	hashtab_t role_trans_table = NULL;
+@@ -5222,10 +5328,15 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
+ 	extra_args.pdb = pdb;
+ 	extra_args.neverallows = neverallows;
+ 	extra_args.role_trans_table = role_trans_table;
+-	extra_args.avrulex_ioctl_table = avrulex_ioctl_table;
+-	extra_args.avrulex_nlmsg_table = avrulex_nlmsg_table;
++	extra_args.avrulex_xperm_tables.ioctl = avrulex_ioctl_table;
++	extra_args.avrulex_xperm_tables.nlmsg = avrulex_nlmsg_table;
+ 	extra_args.type_value_to_cil = type_value_to_cil;
  
- 	if (rc == 0) {
-@@ -653,20 +648,13 @@ int check_assertion(policydb_t *p, avrule_t *avrule)
- }
++	booleanif_args.db = db;
++	booleanif_args.pdb = pdb;
++	booleanif_args.cond_node = NULL;
++	booleanif_args.cond_flavor = CIL_NONE;
++
+ 	for (i = 1; i <= 3; i++) {
+ 		extra_args.pass = i;
  
- int check_assertions(sepol_handle_t * handle, policydb_t * p,
--		     avrule_t * avrules)
-+		     const avrule_t * narules)
- {
- 	int rc;
--	avrule_t *a;
-+	const avrule_t *a;
- 	unsigned long errors = 0;
+@@ -5244,12 +5355,12 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
+ 		}
  
--	if (!avrules) {
--		/* Since assertions are stored in avrules, if it is NULL
--		   there won't be any to check. This also prevents an invalid
--		   free if the avtabs are never initialized */
--		return 0;
--	}
--
--	for (a = avrules; a != NULL; a = a->next) {
-+	for (a = narules; a != NULL; a = a->next) {
- 		if (!(a->specified & (AVRULE_NEVERALLOW | AVRULE_XPERMS_NEVERALLOW)))
- 			continue;
- 		rc = check_assertion(p, a);
+ 		if (i == 3) {
+-			rc = hashtab_map(avrulex_ioctl_table, __cil_avrulex_ioctl_to_policydb, pdb);
++			rc = hashtab_map(avrulex_ioctl_table, __cil_avrulex_ioctl_to_policydb, &booleanif_args);
+ 			if (rc != SEPOL_OK) {
+ 				cil_log(CIL_INFO, "Failure creating avrulex rules\n");
+ 				goto exit;
+ 			}
+-			rc = hashtab_map(avrulex_nlmsg_table, __cil_avrulex_nlmsg_to_policydb, pdb);
++			rc = hashtab_map(avrulex_nlmsg_table, __cil_avrulex_nlmsg_to_policydb, &booleanif_args);
+ 			if (rc != SEPOL_OK) {
+ 				cil_log(CIL_INFO, "Failure creating avrulex rules\n");
+ 				goto exit;
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index 19fbb04e..8cc3f9b2 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -6158,7 +6158,11 @@ static int check_for_illegal_statement(struct cil_tree_node *parse_current, stru
+ 			parse_current->data != CIL_KEY_AUDITALLOW &&
+ 			parse_current->data != CIL_KEY_TYPETRANSITION &&
+ 			parse_current->data != CIL_KEY_TYPECHANGE &&
+-			parse_current->data != CIL_KEY_TYPEMEMBER) {
++			parse_current->data != CIL_KEY_TYPEMEMBER &&
++			((args->db->policy_version < POLICYDB_VERSION_COND_XPERMS) ||
++			  (parse_current->data != CIL_KEY_ALLOWX &&
++			   parse_current->data != CIL_KEY_DONTAUDITX &&
++			   parse_current->data != CIL_KEY_AUDITALLOWX))) {
+ 			if (((struct cil_booleanif*)args->boolif->data)->preserved_tunable) {
+ 				cil_tree_log(parse_current, CIL_ERR, "%s is not allowed in tunableif being treated as a booleanif", (char *)parse_current->data);
+ 			} else {
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index da8863c4..a8fa89df 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -3848,9 +3848,11 @@ static int __cil_resolve_ast_node_helper(struct cil_tree_node *node, uint32_t *f
+ 			node->flavor != CIL_CONDBLOCK &&
+ 			node->flavor != CIL_AVRULE &&
+ 			node->flavor != CIL_TYPE_RULE &&
+-			node->flavor != CIL_NAMETYPETRANSITION) {
++			node->flavor != CIL_NAMETYPETRANSITION &&
++			((args->db->policy_version < POLICYDB_VERSION_COND_XPERMS) ||
++			 (node->flavor != CIL_AVRULEX))) {
+ 			rc = SEPOL_ERR;
+-		} else if (node->flavor == CIL_AVRULE) {
++		} else if (node->flavor == CIL_AVRULE || node->flavor == CIL_AVRULEX) {
+ 			struct cil_avrule *rule = node->data;
+ 			if (rule->rule_kind == CIL_AVRULE_NEVERALLOW) {
+ 				rc = SEPOL_ERR;
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index 9621a247..550b4542 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -1101,7 +1101,8 @@ static int __cil_verify_booleanif_helper(struct cil_tree_node *node, __attribute
+ 	struct cil_booleanif *bif = node->parent->parent->data;
+ 
+ 	switch (rule_node->flavor) {
+-	case CIL_AVRULE: {
++	case CIL_AVRULE:
++	case CIL_AVRULEX: {
+ 		struct cil_avrule *avrule = NULL;
+ 		avrule = rule_node->data;
+ 		if (avrule->rule_kind == CIL_AVRULE_NEVERALLOW) {
+diff --git a/secilc/test/policy.cil b/secilc/test/policy.cil
+index e6b78618..d0d52d0d 100644
+--- a/secilc/test/policy.cil
++++ b/secilc/test/policy.cil
+@@ -47,8 +47,9 @@
+ 
+ (block policy
+ 	(class file (execute_no_trans entrypoint execmod open audit_access a b c d e))
+-	; order should be: file char b c a dir d e f
+-	(classorder (file char))
++	(class socket (nlmsg))
++	; order should be: file socket char b c a dir d e f
++	(classorder (file socket char))
+ 	(classorder (unordered dir))
+ 	(classorder (unordered c a b d e f))
+ 	(classorder (char b c a))
+@@ -161,7 +162,10 @@
+ 	;;(allow bad_t not_bad_type (file (execute)))
+ 	;;(allow bad_t exec_t (file (execute)))
+ 	(neverallow bad_t not_bad_type (file (execute)))
+-			
++
++	(auditallowx getty_t console_device_t (ioctl file (range 0x1000 0x10FF)))
++	(auditallowx getty_t kernel_t (nlmsg socket (range 0x1000 0x10FF)))
++
+ 	(booleanif secure_mode
+ 		(true
+ 			(auditallow device_t exec_t (file (read write)))
+@@ -172,9 +176,12 @@
+ 		(true
+ 			(typechange auditadm_t console_device_t file user_tty_device_t)
+ 			(allow getty_t console_device_t (file (getattr open read write append)))
++			(auditallowx getty_t console_device_t (ioctl file (range 0x2000 0x21FF)))
++			(auditallowx getty_t kernel_t (nlmsg socket (0x1)))
+ 		)
+ 		(false
+ 			(dontaudit getty_t console_device_t (file (getattr open read write append)))
++			(dontauditx getty_t console_device_t (ioctl file (range 0x3000 0x31FF)))
+ 		)
+ 	)
+ 
 -- 
 2.45.2
 
