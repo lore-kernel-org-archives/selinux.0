@@ -1,172 +1,308 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+Received: from mail-ua1-f45.google.com (mail-ua1-f45.google.com [209.85.222.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7737C1DEFE7
-	for <selinux@vger.kernel.org>; Wed,  6 Nov 2024 17:00:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AE72212634
+	for <selinux@vger.kernel.org>; Wed,  6 Nov 2024 19:43:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730912430; cv=none; b=ERtKomyJ7GW193Cnu0KHYLDM16oUWEExfx/uDi60KR5tYjeo31wG3gX8TM6YCsJTWfyZSt5jL4SZ3qH8wm876wkJ1UcgG/cqLCeKBQl9xlg+HmKXaJye02+KhpSaBdvlVTin+wid3HQ+9J2g/3QZxrW7uvjmUUeqLq7gVmI3drk=
+	t=1730922198; cv=none; b=TAEwzB6pN+5HAWiezcH7wjhtvbaRYD64sCVfgqhPImPZSLZjZlhweUuEjE+iVMmlapkFbWH0pnoKk2RNu7ASNQc0pBumhgW6fbRsqAUSk+qmQvijlUiuPnoyLp1LSakOMv9MpX8uGodIXQPMi4WkPTKjpvpTY/ktGqO17rFelUI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730912430; c=relaxed/simple;
-	bh=M0P7cs84jjZ9MZPgSMNMZ4jFY7gU+GyjBVnr9jmkpNE=;
+	s=arc-20240116; t=1730922198; c=relaxed/simple;
+	bh=Hxsw05o+9Q0D5xOmr4wFlnl+iTkc8lsUSzLIxMEz/PU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lQvPfTBj27pwztZT4UWyqYGEYimaxv3pudlKrClFhKrunOowU8XXZU8vjwOQm52iuAMj/9ueYreUkQz/R7yNj9GIba9FziprO3Ln7A/QHWJ+CX/DE8uT0FT8eGPlkZCeu4RdZapv9+pYBK/lb6giv+4o+tvyLR1lm82/yOxG5go=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Fv8908II; arc=none smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	 To:Cc:Content-Type; b=Wad2ef1CedD804WFmK93NN8TSiZ4fE+3wVF3/XsOl4sDbG5QWak2I/0SoL+6KV3PcHOT4d5NMXzNN6fq0w4ffLfdO26dTPuKp6R5lUibaauH7qmYeSw1+WRoOgRMmmyvX3Ezc1cq7CYfw5WcZn9GDWiC02ioiiKejy1maFMUuNs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cjvIXC20; arc=none smtp.client-ip=209.85.222.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Fv8908II"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-37d4ba20075so4780884f8f.0
-        for <selinux@vger.kernel.org>; Wed, 06 Nov 2024 09:00:28 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cjvIXC20"
+Received: by mail-ua1-f45.google.com with SMTP id a1e0cc1a2514c-84fc21ac668so34351241.1
+        for <selinux@vger.kernel.org>; Wed, 06 Nov 2024 11:43:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1730912427; x=1731517227; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1730922195; x=1731526995; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BLNouObUorCzJ6AkcXYcYQkgJBmZc32SGAGNMMbQIqo=;
-        b=Fv8908IIWKbmy2IzdZhM+rXLzKQDIh35Pyg+zUqFd1hp+8/KaQM0B/BbcvgEx0X9tb
-         LMrDs+HRM1Amudb7fo19JACipRDY0poa96ro0fZyNNgZUl8EzI8IO8b3oHkfH/4JLOFu
-         svnavBQ6kbRqydpZycJyzmaNY0FTehqW0ZUIfHb5MVGkTGag5O6p2Kq4/EGJgY0D1WjH
-         q19PSr9Sv6vPwr2QUsk6ew8yRPoKCaa8kRUTiwkHO2pmklPG9wL44uQcohz55pfjh6ep
-         GZpsJekj1kOGIIbrpALXxQiDqgd+oWVqh7WdHYTfdM+sj9PzZfWx7J5d0pMXpw1Y/Yku
-         tmpA==
+        bh=dVeUbv6ZAGIoWkTi/rR5Jls+ppeHhoPDlrAmzfMw94E=;
+        b=cjvIXC20eI3PqlYqLXiGgPFbnYUg49VdRa46oFxlHv6a1ktE/ofeO2qWCZxZq6Pwsp
+         +rC0hj8KpqVuMgpgd2qftyILVqSCq4WZfDMs3snOh5JfnMHtx4Z8p7i92VuV5r6d3h+v
+         ayWk8trLBGQHsqIfkvH5XCKJAdUUoddsNiD/lvirp6LiOy+STVdNMgUH3XrA2ugV45ww
+         7ShEBeQQtevq0+izUwy5Bbc3fOa/4L7bHO39ieL152WPLqAUWqQmGLt+ACqct+MuCEsQ
+         51HTgC938+fsdta86fK7bX8in/N+DFdCutb3tvqFFO78aYd2kmzntVt2mktJS8g/tC86
+         E7zA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730912427; x=1731517227;
+        d=1e100.net; s=20230601; t=1730922195; x=1731526995;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=BLNouObUorCzJ6AkcXYcYQkgJBmZc32SGAGNMMbQIqo=;
-        b=o7IKLsV2lp4Js7RSxSArZV/0W6aDwxPDGhgNuafWpFkOLo/u0Z63Wne85bb/LQqmRQ
-         bcfN+icFg4Ya2UnmstG+manFZHAnHhwPTLjqbBYi7H+FCwmdNbmjOToE7+1mbOf3LxnP
-         aiWt5jW7eq73VDDiEI5E1X+KWRvlODOwFpmQAxXtEF6AqT6NM5cPWdVqLV63t1l2Qzt7
-         6k/XMPL5YOXrUgo5D6nEmRoWROzOecr1yQWDcN+5BOZNiaD5tfr0VmKg6+7TFiANkZTl
-         jgEot5r5rb081kWzv9mdSYVNtJU0eYHLRlWbvSVwi35FV6SadUtqlT6hFYQ14aeWzxZC
-         9I9w==
-X-Forwarded-Encrypted: i=1; AJvYcCXW8bXHJbAxlhjWMnmvSn3OrAmXthMlk7lwaGhoH6DdpjBG1gMl32CuvQ64XD14Un2Mi4Ju1npN@vger.kernel.org
-X-Gm-Message-State: AOJu0YwruNMl6pcGiTupARy3KAx0mPWKKz4sDLOGB0BdnUj+F6Ro5Btb
-	b3rLyinhfU0laKUFPAbeV2O7i7oMLS8cB5aaqZqUN5WDPBStoKgL0mq0f77ToQgzOCBelsrNLzp
-	Yu5NZjQ1jv+ItSgESTEjWnjh2RLisWsrD0Ira
-X-Google-Smtp-Source: AGHT+IHrnx1TLzKwmMZlGwZeX1FBkou/Z8ONAtZQvMq43XEgpy8Y8EBDJpgktHzfFZkFyumWTNC5i3EASlSIUyX9odk=
-X-Received: by 2002:a5d:59a2:0:b0:37d:5129:f454 with SMTP id
- ffacd0b85a97d-381be776c81mr20504534f8f.15.1730912426398; Wed, 06 Nov 2024
- 09:00:26 -0800 (PST)
+        bh=dVeUbv6ZAGIoWkTi/rR5Jls+ppeHhoPDlrAmzfMw94E=;
+        b=Rsm2MtpQR85jezHJwMK7QIbA+6sn4McKsih0MaL6P90vsyfz2ThOZW1pW+8egU5AzH
+         XJlNQX9HP5g/LpO90PFIvhRowon+ODoe2xLtmDLjEpiy550pwJkJUWYHZWwitm+J4dpM
+         J2bhyD5SrYGQFpoIfdkfzpoag03SSKlpTOSBLj6DV2pjq3WK8vpSTCsbZQW+TZgKXQxm
+         wznK1CwQhjNyrJ27DiwUsxn1VokRA7Mcz848E0AErrOgF6fpOyyrRvgGAxkz9RbOuCas
+         qKN57Yl1deMVueeRRquWb97KcU7DtP1+XsiSy6lxN21U8BMl+zLx0LpA0Sc3IRVLaPzr
+         UinQ==
+X-Gm-Message-State: AOJu0YwOV4OqTRPLE9rqNwurM2C8XuMRNafk6t+0mMQ+0xUITpgPALhY
+	wCpakrmA3hsgtSXqPUmNV8VtghRpz64hhrIGccP+fTPq1TBSfCATPeaPLtelmoi1xFX0H0geRn4
+	PmrTEXNNObi8H3EIbmEDEdVI8kpU=
+X-Google-Smtp-Source: AGHT+IFg50rtmdf2UpM/PRKT8gpqiscN+ZkMbyCtDGk28yIVO83jPILOUHTclGj1fwqxR1nyRCQ8vyWU3FcUWDbJfF0=
+X-Received: by 2002:a05:6102:390b:b0:4a3:e644:54dd with SMTP id
+ ada2fe7eead31-4a8cfb4d9e4mr38495439137.12.1730922195142; Wed, 06 Nov 2024
+ 11:43:15 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241106155509.1706965-1-omosnace@redhat.com> <CANn89iKag19EPvnQRthsG98pfjriRwtS+YND0359xFijGAoEYg@mail.gmail.com>
- <CAFqZXNumyhpRvrZ6mAK9OVxbte=_3MG195i_+Z1j79PsE=6k_g@mail.gmail.com>
-In-Reply-To: <CAFqZXNumyhpRvrZ6mAK9OVxbte=_3MG195i_+Z1j79PsE=6k_g@mail.gmail.com>
-From: Eric Dumazet <edumazet@google.com>
-Date: Wed, 6 Nov 2024 18:00:14 +0100
-Message-ID: <CANn89iJj2sQX3rZvmbL0zQjX7K-OFwyautgAXqxNvk2M17++bw@mail.gmail.com>
-Subject: Re: [PATCH] selinux,xfrm: fix dangling refcount on deferred skb free
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Paul Moore <paul@paul-moore.com>, Steffen Klassert <steffen.klassert@secunet.com>, 
-	Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, netdev@vger.kernel.org
+References: <20241105210618.326533-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20241105210618.326533-1-cgoettsche@seltendoof.de>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 6 Nov 2024 14:43:04 -0500
+Message-ID: <CAP+JOzTMjLah6iX0WYzQUOQ18-s9Yj5-yJ6F_w=Yf5MMoW7zWQ@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy: avoid memory leaks on redeclarations
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 6, 2024 at 5:54=E2=80=AFPM Ondrej Mosnacek <omosnace@redhat.com=
-> wrote:
+On Tue, Nov 5, 2024 at 4:06=E2=80=AFPM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
 >
-> On Wed, Nov 6, 2024 at 5:13=E2=80=AFPM Eric Dumazet <edumazet@google.com>=
- wrote:
-> >
-> > On Wed, Nov 6, 2024 at 4:55=E2=80=AFPM Ondrej Mosnacek <omosnace@redhat=
-.com> wrote:
-> > >
-> > > SELinux tracks the number of allocated xfrm_state/xfrm_policy objects
-> > > (via the selinux_xfrm_refcount variable) as an input in deciding if p=
-eer
-> > > labeling should be used.
-> > >
-> > > However, as a result of commits f35f821935d8 ("tcp: defer skb freeing
-> > > after socket lock is released") and 68822bdf76f1 ("net: generalize sk=
-b
-> > > freeing deferral to per-cpu lists"), freeing of a sk_buff object, whi=
-ch
-> > > may hold a reference to an xfrm_state object, can be deferred for
-> > > processing on another CPU core, so even after xfrm_state is deleted f=
-rom
-> > > the configuration by userspace, the refcount isn't decremented until =
-the
-> > > deferred freeing of relevant sk_buffs happens. On a system with many
-> > > cores this can take a very long time (even minutes or more if the sys=
-tem
-> > > is not very active), leading to peer labeling being enabled for much
-> > > longer than expected.
-> > >
-> > > Fix this by moving the selinux_xfrm_refcount decrementing to just aft=
-er
-> > > the actual deletion of the xfrm objects rather than waiting for the
-> > > freeing to happen. For xfrm_policy it currently doesn't seem to be
-> > > necessary, but let's do the same there for consistency and
-> > > future-proofing.
-> > >
-> > > We hit this issue on a specific aarch64 256-core system, where the
-> > > sequence of unix_socket/test and inet_socket/tcp/test from
-> > > selinux-testsuite [1] would quite reliably trigger this scenario, and=
- a
-> > > subsequent sctp/test run would then stumble because the policy for th=
-at
-> > > test misses some rules that would make it work under peer labeling
-> > > enabled (namely it was getting the netif::egress permission denied in
-> > > some of the test cases).
-> > >
-> > > [1] https://github.com/SELinuxProject/selinux-testsuite/
-> > >
-> > > Fixes: f35f821935d8 ("tcp: defer skb freeing after socket lock is rel=
-eased")
-> > > Fixes: 68822bdf76f1 ("net: generalize skb freeing deferral to per-cpu=
- lists")
-> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > ---
-> >
-> > Can we explain why TCP packets sitting in TCP receive queues would
-> > need to keep xfrm_state around ?
-> >
-> > With thousands of TCP sockets. I would imagine that a similar issue
-> > would be hit,
-> > regardless of f35f821935d8 ("tcp: defer skb freeing after socket lock
-> > is released") and 68822bdf76f1 ("net: generalize skb freeing deferral
-> > to per-cpu lists")
-> >
-> > We remove the dst from these incoming packets (see skb_dst_drop() in
-> > tcp_data_queue() and tcp_add_backlog()),
-> > I do not see how XFRM state could be kept ?
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> The problem is not with the xfrm_state reference via dst_entry, but
-> the one in skb_ext (skb->extensions) -> sec_path
-> (skb_ext_get_ptr(skb->extensions, SKB_EXT_SEC_PATH)) -> the xvec
-> array. But you have a point that I should say that in the commit
-> message...
+> If declare_symbol() returns 1 the id and the datum are already defined
+> and not consumed by the function, so it they must be free'd by the
+> caller.
 >
+> Example policy (generated by fuzzer):
+>
+>     class s sid e class s{i}optional{require{bool K;}bool K true;
+>
+> Reported-by: oss-fuzz (issue 377544445)
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-So some secpath_reset() calls should be added in various protocol handlers
-before packets are possibly queued for hours in a socket queue  ?
+Acked-by: James Carter <jwcart2@gmail.com>
 
-I see one in l2tp_eth_dev_recv().
-
-> And I think you're right that even without those commits a delay in
-> processing the RCU free callbacks could cause a similar issue, it just
-> wouldn't be as easy to trigger. That made me look deeper into history
-> which commit actually added the decrement on free and it turns out it
-> was done intentionally as a bugfix - see commit e4e8536f65b5
-> ("selinux: fix the labeled xfrm/IPsec reference count handling").
-> Before that commit the logic was similar to what my patch is doing, so
-> I could be re-introducing another bug here :-/ The commit message is
-> not very helpful there - Paul, do you happen to remember what the
-> issue was that prompted it? I guess there can be some alloc's that
-> won't have a matching delete in the right circumstances? Or something
-> involving the selinux_xfrm_policy_clone() case?
+> ---
+>  checkpolicy/module_compiler.c |  2 +-
+>  checkpolicy/module_compiler.h |  2 +-
+>  checkpolicy/policy_define.c   | 72 +++++++++++++++++++++++------------
+>  3 files changed, 49 insertions(+), 27 deletions(-)
 >
+> diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.=
+c
+> index 4efd77bf..3a7ad1bb 100644
+> --- a/checkpolicy/module_compiler.c
+> +++ b/checkpolicy/module_compiler.c
+> @@ -190,7 +190,7 @@ static int create_symbol(uint32_t symbol_type, hashta=
+b_key_t key, hashtab_datum_
+>   * not be restricted pointers. */
+>  int declare_symbol(uint32_t symbol_type,
+>                    hashtab_key_t key, hashtab_datum_t datum,
+> -                  uint32_t * dest_value, uint32_t * datum_value)
+> +                  uint32_t * dest_value, const uint32_t * datum_value)
+>  {
+>         avrule_decl_t *decl =3D stack_top->decl;
+>         int ret =3D create_symbol(symbol_type, key, datum, dest_value, SC=
+OPE_DECL);
+> diff --git a/checkpolicy/module_compiler.h b/checkpolicy/module_compiler.=
+h
+> index e43bc6c0..2fe3455d 100644
+> --- a/checkpolicy/module_compiler.h
+> +++ b/checkpolicy/module_compiler.h
+> @@ -28,7 +28,7 @@ int define_policy(int pass, int module_header_given);
+>   */
+>  int declare_symbol(uint32_t symbol_type,
+>                    hashtab_key_t key, hashtab_datum_t datum,
+> -                  uint32_t * dest_value, uint32_t * datum_value);
+> +                  uint32_t * dest_value, const uint32_t * datum_value);
+>
+>  role_datum_t *declare_role(unsigned char isattr);
+>  type_datum_t *declare_type(unsigned char primary, unsigned char isattr);
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index f8a10154..9aae8378 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -156,9 +156,9 @@ static int id_has_dot(const char *id)
+>
+>  int define_class(void)
+>  {
+> -       char *id =3D 0;
+> -       class_datum_t *datum =3D 0;
+> -       int ret;
+> +       char *id =3D NULL;
+> +       class_datum_t *datum =3D NULL;
+> +       int ret =3D -1;
+>         uint32_t value;
+>
+>         if (pass =3D=3D 2) {
+> @@ -175,27 +175,29 @@ int define_class(void)
+>         datum =3D (class_datum_t *) malloc(sizeof(class_datum_t));
+>         if (!datum) {
+>                 yyerror("out of memory");
+> -               goto bad;
+> +               goto cleanup;
+>         }
+>         memset(datum, 0, sizeof(class_datum_t));
+>         ret =3D declare_symbol(SYM_CLASSES, id, datum, &value, &value);
+>         switch (ret) {
+>         case -3:{
+>                         yyerror("Out of memory!");
+> -                       goto bad;
+> +                       goto cleanup;
+>                 }
+>         case -2:{
+>                         yyerror2("duplicate declaration of class %s", id)=
+;
+> -                       goto bad;
+> +                       goto cleanup;
+>                 }
+>         case -1:{
+>                         yyerror("could not declare class here");
+> -                       goto bad;
+> +                       goto cleanup;
+>                 }
+> -       case 0:
+> -       case 1:{
+> +       case 0: {
+>                         break;
+>                 }
+> +       case 1:{
+> +                       goto cleanup;
+> +               }
+>         default:{
+>                         assert(0);      /* should never get here */
+>                 }
+> @@ -203,12 +205,10 @@ int define_class(void)
+>         datum->s.value =3D value;
+>         return 0;
+>
+> -      bad:
+> -       if (id)
+> -               free(id);
+> -       if (datum)
+> -               free(datum);
+> -       return -1;
+> +      cleanup:
+> +       free(id);
+> +       free(datum);
+> +       return ret =3D=3D 1 ? 0 : -1;
+>  }
+>
+>  int define_permissive(void)
+> @@ -785,8 +785,13 @@ int define_sens(void)
+>                         yyerror2("could not declare sensitivity level %s =
+here", id);
+>                         goto bad;
+>                 }
+> -       case 0:
+> +       case 0: {
+> +                       break;
+> +               }
+>         case 1:{
+> +                       level_datum_destroy(datum);
+> +                       free(datum);
+> +                       free(id);
+>                         break;
+>                 }
+>         default:{
+> @@ -827,8 +832,13 @@ int define_sens(void)
+>                                     ("could not declare sensitivity alias=
+ %s here", id);
+>                                 goto bad_alias;
+>                         }
+> -               case 0:
+> +               case 0: {
+> +                               break;
+> +                       }
+>                 case 1:{
+> +                               level_datum_destroy(aliasdatum);
+> +                               free(aliasdatum);
+> +                               free(id);
+>                                 break;
+>                         }
+>                 default:{
+> @@ -957,15 +967,20 @@ int define_category(void)
+>                         yyerror2("could not declare category %s here", id=
+);
+>                         goto bad;
+>                 }
+> -       case 0:
+> +       case 0:{
+> +                       datum->s.value =3D value;
+> +                       break;
+> +               }
+>         case 1:{
+> +                       cat_datum_destroy(datum);
+> +                       free(datum);
+> +                       free(id);
+>                         break;
+>                 }
+>         default:{
+>                         assert(0);      /* should never get here */
+>                 }
+>         }
+> -       datum->s.value =3D value;
+>
+>         while ((id =3D queue_remove(id_queue))) {
+>                 if (id_has_dot(id)) {
+> @@ -981,11 +996,11 @@ int define_category(void)
+>                 }
+>                 cat_datum_init(aliasdatum);
+>                 aliasdatum->isalias =3D TRUE;
+> -               aliasdatum->s.value =3D datum->s.value;
+> +               aliasdatum->s.value =3D value;
+>
+>                 ret =3D
+>                     declare_symbol(SYM_CATS, id, aliasdatum, NULL,
+> -                                  &datum->s.value);
+> +                                  &value);
+>                 switch (ret) {
+>                 case -3:{
+>                                 yyerror("Out of memory!");
+> @@ -1001,8 +1016,13 @@ int define_category(void)
+>                                     ("could not declare category alias %s=
+ here", id);
+>                                 goto bad_alias;
+>                         }
+> -               case 0:
+> +               case 0:{
+> +                               break;
+> +                       }
+>                 case 1:{
+> +                               cat_datum_destroy(aliasdatum);
+> +                               free(aliasdatum);
+> +                               free(id);
+>                                 break;
+>                         }
+>                 default:{
+> @@ -1833,10 +1853,12 @@ int define_bool_tunable(int is_tunable)
+>                         yyerror2("could not declare boolean %s here", id)=
+;
+>                         goto cleanup;
+>                 }
+> -       case 0:
+> -       case 1:{
+> +       case 0:{
+>                         break;
+>                 }
+> +       case 1:{
+> +                       goto cleanup;
+> +               }
+>         default:{
+>                         assert(0);      /* should never get here */
+>                 }
+> @@ -1854,7 +1876,7 @@ int define_bool_tunable(int is_tunable)
+>         return 0;
+>        cleanup:
+>         cond_destroy_bool(id, datum, NULL);
+> -       return -1;
+> +       return ret =3D=3D 1 ? 0 : -1;
+>  }
+>
+>  avrule_t *define_cond_pol_list(avrule_t * avlist, avrule_t * sl)
 > --
-> Ondrej Mosnacek
-> Senior Software Engineer, Linux Security - SELinux kernel
-> Red Hat, Inc.
+> 2.45.2
+>
 >
