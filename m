@@ -1,157 +1,93 @@
-Received: from mail-ua1-f50.google.com (mail-ua1-f50.google.com [209.85.222.50])
+Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1C8E204958
-	for <selinux@vger.kernel.org>; Wed,  6 Nov 2024 21:42:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35116218923
+	for <selinux@vger.kernel.org>; Thu,  7 Nov 2024 23:04:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730929335; cv=none; b=eMykiEN/Pq9iX29xWAeoz817I6VPf49Enm+vvUeWn5HWbBSf4cpjfWpETgV/4ur7GluyzUywVO+XTdzhCKkUs4V+UQ7O9/STs8F3/K8NKQb5VUM/ZQVnqX33T6weEouafaMp3zX9fdJRK/1F9TxU/I48IjUGhqEZMbpzXyu69OQ=
+	t=1731020655; cv=none; b=g1bZ7sUowC7PxUXan7HNwNIR+YwT77760wL/OuWmHNHTp7fNHIn9TLPxw4CtHrEEjnvkHiYerLW3vTXVhNuot5ZxTRdeuVc+LnaYBtfw0S7BtjKo0wy++IAnEGwBQN84Sm8QpAqbq6kEYXVxIqXnT1mcfpNj9WgoSCjvrmBjU+E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730929335; c=relaxed/simple;
-	bh=eZccHAF2D4Ug1xtkrZ7EAV6VHYdcslQZRocs8Uv6sow=;
+	s=arc-20240116; t=1731020655; c=relaxed/simple;
+	bh=BhxcMHtLLtHwPPWGtXd9fvcEeapSiu/a60i7ogxcNi0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pcLKq2qb4lC8LdM6Q2kaqhadka8sI2rV2VTWdyKdt8GvtgU4Zounr6fMPxFiVvybpdstu59HVWtedq52D2VwzqpOvc1bl9lvDaWy0CbJWFE80RARWexySZxaCmHptKINs6c4t7dAhLrfjSkgpcEoSwHa+6zcYc30HK9JFYitEiQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WLFt+Qef; arc=none smtp.client-ip=209.85.222.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=qX0p3Aj7hAd0GubzPtzSPz+rhWbnJWPnjKNHqzr7ZJGR7A/rD6s32evz0h96ob1dIWCRjU5796+ZxSwrsjMvauV6R7g9jL+bdUS1WAVAGSRw6dMBFtkIBFD7UXsToCZKizCfJ3xAUo6w/ZdMIJYk9HbRyPGEldkG/hhulloMFXs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=dUdxFw1J; arc=none smtp.client-ip=209.85.128.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WLFt+Qef"
-Received: by mail-ua1-f50.google.com with SMTP id a1e0cc1a2514c-84fc0209e87so87336241.1
-        for <selinux@vger.kernel.org>; Wed, 06 Nov 2024 13:42:13 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="dUdxFw1J"
+Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-6e38fc62b9fso13418347b3.2
+        for <selinux@vger.kernel.org>; Thu, 07 Nov 2024 15:04:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1730929332; x=1731534132; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1731020653; x=1731625453; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=q144VAgCcVd1vsiXZJZkYdk2KimqsHbjpTX+IuAHgRc=;
-        b=WLFt+Qef0bopof9NNZM0g0bUrrmOyLEuMWg2zmFGpwRLtJoOgXmji9CMSpGXfhNwOt
-         RSK1ZNMo1Bx6lvGaNFwK+TjBNTI5JLPWIQwELdd/GXNKUrfPhksC5lcITGz82gmVkyPB
-         L5Xfl4VKl4ZP5GWS861hljF20ZHFHyzpp9XTZ4Mdtzt2Z7mCmbAa6k0GOIseEdbUrZoB
-         BXwo1uIZ66JR1lapQlChitDU8oBFifpvGmYDc15QhPzIqHK/c2/jRt28E0UiMFJhny3S
-         +kaQmTSTREb1d/ElqkG8/F4pUDeZzh+2/fMbyo4mkRg3pgITqoedGGtXmeJXWYA8I7zV
-         2Glw==
+        bh=QlntkSFiHNeZkBFtAn8m126DlC2mYBr54/x5PoDfpxA=;
+        b=dUdxFw1JDMG/3R2o1Pf1cCjtVoF8bUHifzwKWzNb/EcEa53q+dhrFlgp05wBedUweN
+         WG4qf47Csa2xa1GWvvdnSPQGmAVxqCJ97lzsnerijupoZ1A6ETj1wRoVjPYRetishazn
+         9YZjOqv/HCnMIhRGzgl01vNGVggdp/qJJ2WzqSAUZyYD3Ke22Pn44Uf7Z62801inPvYs
+         9WpYgkoT9ZGJSkLDPmM3G0r1bNsa41zc4uQUQUaAmwCmyueTaCRCegt2pRz/IUM7ebaY
+         ixaRKzvIQ6M7qvntf+Z6wfTnxagMNOklQlzjcNuQpE2il8d92BELvq6baEU3x6z+4hWl
+         OCGw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1730929332; x=1731534132;
+        d=1e100.net; s=20230601; t=1731020653; x=1731625453;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=q144VAgCcVd1vsiXZJZkYdk2KimqsHbjpTX+IuAHgRc=;
-        b=jel8mlFkbAMjEUN+f+YXdgTMDLIHwa1UlTedQZr7SLa2zs1+xT3ED7PBQ8pDo6eSZY
-         sG7w/uNCHuXl5Uuc7sK0+/iV+Y3pS4xfPd3y6Iv+6xDiEVfoc960PzNLBr0HW7P3YqK2
-         zM9VZ909gn3APWeFhsLQmH+5DloNVVeQPjro9/RJFgsmnAcmQVZR2U/cjZYD0YVgHgKY
-         IBv8d6uoV08jYShgseJ4yXH51dURG3g+ZrTUxEob20TqsJ//uOfCMOBCq+RsFvV1DZk3
-         aQaEf1fz7afBTC+QHx6965WHR6Q93fZxLtCk0dTHpuhPLzZkZ5bIcnua+rQxonAOFDan
-         8XTw==
-X-Gm-Message-State: AOJu0YxQZu7MiUx9BQQbLqu/Y+TsIt8sENT1g+m0YF1Qz58LGXJha8hG
-	Ljmj2kI1VzH2EvtA+vd70IhvHJ4t0c3rl8Wiw0Om+tk+vfdTdrsO3FuTYPBnpx09plZ8vV53q9Z
-	62Chjt7wdDxee3D5QV4gojB8QQxiHlQ==
-X-Google-Smtp-Source: AGHT+IFhnuHU0Oddu4D2j187QUrtUj4CQi5X5sgN9sfTObu5NuC/jRIrM9054xHJ4JeN6tpzkZK4HYj3HqUGNPciISo=
-X-Received: by 2002:a67:f4d1:0:b0:4a4:878a:e3b7 with SMTP id
- ada2fe7eead31-4a954afdd07mr20739194137.22.1730929330940; Wed, 06 Nov 2024
- 13:42:10 -0800 (PST)
+        bh=QlntkSFiHNeZkBFtAn8m126DlC2mYBr54/x5PoDfpxA=;
+        b=sqoenTBqaEB1ATgiNmbRUahlu3SEn3LrwGOn5MN2uNoQ0ouNgkUlmsfn+FL+XcsGE5
+         3XIxrcmKVv11xeX+qdstzT/VXPZ+J/EOdvZL+r84DG1/x3yG0pZf6x0VkF4T9G5aiGmp
+         a4YVs5xrAHDOWAvr2GUOs4UdEkD/pyKc8hGkD6s/927z40ITIcKWu4K462nZC0ifVIq8
+         /pBm+HaydDR6LMSXRM/nve36agDWIJlgYOMNfi4e6H12PZDQQ/IvhDI8vOOOzQlZKSLp
+         QY4NUqQ8TrydCv9O+iVOSWagxTXDu0EnaMlFaHWK/tCqL2fJWONEtuiTh+/sSt6S6Tmz
+         aIOg==
+X-Forwarded-Encrypted: i=1; AJvYcCXEA+lNXu66Aztaa6Bkl6NLRoR0Cx8QCY/jPrbzoLmo/35knWiRsgCpHx8ostD60P1pBQ7EbOMw@vger.kernel.org
+X-Gm-Message-State: AOJu0YzKNCXUnIq+oysvFS29iQbd10G/+4A2DoIAyNAK9x1AvU5rwycI
+	xbv0oegmBjmX1GA/nOmmI2CybqX3A0ytf8LJ6BfLDLI+STTAbvIMoF/qayn3Fh6CiuxjrJq7y4G
+	mD3vJ6e9Il6hRWExQuRtz1i/AtEqvAHnjRsVC
+X-Google-Smtp-Source: AGHT+IEb2Xaj5GrD2ejkS6S27Jg/4eqckXGxaD2HDeWP/WC9GDRcrkcjw/qpYzRH6bRDS4ZblgpGPOdYoz9Xo5Wte98=
+X-Received: by 2002:a05:690c:4d89:b0:6ea:4d3f:df9d with SMTP id
+ 00721157ae682-6eaddd71c30mr9760277b3.4.1731020653185; Thu, 07 Nov 2024
+ 15:04:13 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241105183936.252530-1-cgoettsche@seltendoof.de> <20241105183936.252530-2-cgoettsche@seltendoof.de>
-In-Reply-To: <20241105183936.252530-2-cgoettsche@seltendoof.de>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 6 Nov 2024 16:42:00 -0500
-Message-ID: <CAP+JOzQemwf6hor+=fRm7p9LLBy9znGob=6rSYVhs3tWbqgPoQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] libselinux: avoid dynamic allocation in openattr()
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org
+References: <20241106155509.1706965-1-omosnace@redhat.com> <CANn89iKag19EPvnQRthsG98pfjriRwtS+YND0359xFijGAoEYg@mail.gmail.com>
+ <CAFqZXNumyhpRvrZ6mAK9OVxbte=_3MG195i_+Z1j79PsE=6k_g@mail.gmail.com>
+In-Reply-To: <CAFqZXNumyhpRvrZ6mAK9OVxbte=_3MG195i_+Z1j79PsE=6k_g@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 7 Nov 2024 18:04:02 -0500
+Message-ID: <CAHC9VhSdC_EnMMu05UbcFAGa8y8OyufTra6kC5zhxDP_S6QucQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux,xfrm: fix dangling refcount on deferred skb free
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Eric Dumazet <edumazet@google.com>, Steffen Klassert <steffen.klassert@secunet.com>, 
+	Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, netdev@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Nov 5, 2024 at 1:46=E2=80=AFPM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
+On Wed, Nov 6, 2024 at 11:54=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
+m> wrote:
 >
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> openattr() supplies the simplementation for the getcon(3) interface
+> ... That made me look deeper into history
+> which commit actually added the decrement on free and it turns out it
+> was done intentionally as a bugfix - see commit e4e8536f65b5
+> ("selinux: fix the labeled xfrm/IPsec reference count handling").
+> Before that commit the logic was similar to what my patch is doing, so
+> I could be re-introducing another bug here :-/ The commit message is
+> not very helpful there - Paul, do you happen to remember what the
+> issue was that prompted it?
 
-implementation
+With that commit being over 10 years old, I can't say I recall much
+about it.  I did try to sift through the SELinux archives, but I
+didn't see much from 2013.  It's possible there is an old RH bugzilla
+issue for this, but my RHBZ-fu isn't good enough to search that out -
+sorry.
 
-> family.  Use a short local buffer instead of descend into memory
-
-"Use a short local buffer instead of dynamic memory allocation"?
-
-> allocation.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  libselinux/src/procattr.c | 24 ++++++++++++------------
->  1 file changed, 12 insertions(+), 12 deletions(-)
->
-> diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
-> index ddcc7f8d..ee1f48af 100644
-> --- a/libselinux/src/procattr.c
-> +++ b/libselinux/src/procattr.c
-> @@ -86,32 +86,32 @@ static void init_procattr(void)
->  static int openattr(pid_t pid, const char *attr, int flags)
->  {
->         int fd, rc;
-> -       char *path;
-> +       char path[56];  /* must hold "/proc/self/task/%d/attr/sockcreate"=
- */
-
-Why 56? I understand that sockcreate is the largest attr, but it looks
-to me like you are giving way more space than is needed for the pid. I
-am just curious. Maybe I am missing something.
-
-Thanks,
-Jim
-
-
->         pid_t tid;
->
->         if (pid > 0) {
-> -               rc =3D asprintf(&path, "/proc/%d/attr/%s", pid, attr);
-> +               rc =3D snprintf(path, sizeof(path), "/proc/%d/attr/%s", p=
-id, attr);
->         } else if (pid =3D=3D 0) {
-> -               rc =3D asprintf(&path, "/proc/thread-self/attr/%s", attr)=
-;
-> -               if (rc < 0)
-> +               rc =3D snprintf(path, sizeof(path), "/proc/thread-self/at=
-tr/%s", attr);
-> +               if (rc < 0 || (size_t)rc >=3D sizeof(path)) {
-> +                       errno =3D EOVERFLOW;
->                         return -1;
-> +               }
->                 fd =3D open(path, flags | O_CLOEXEC);
->                 if (fd >=3D 0 || errno !=3D ENOENT)
-> -                       goto out;
-> -               free(path);
-> +                       return fd;
->                 tid =3D selinux_gettid();
-> -               rc =3D asprintf(&path, "/proc/self/task/%d/attr/%s", tid,=
- attr);
-> +               rc =3D snprintf(path, sizeof(path), "/proc/self/task/%d/a=
-ttr/%s", tid, attr);
->         } else {
->                 errno =3D EINVAL;
->                 return -1;
->         }
-> -       if (rc < 0)
-> +       if (rc < 0 || (size_t)rc >=3D sizeof(path)) {
-> +               errno =3D EOVERFLOW;
->                 return -1;
-> +       }
->
-> -       fd =3D open(path, flags | O_CLOEXEC);
-> -out:
-> -       free(path);
-> -       return fd;
-> +       return open(path, flags | O_CLOEXEC);
->  }
->
->  static int getprocattrcon_raw(char **context, pid_t pid, const char *att=
-r,
-> --
-> 2.45.2
->
->
+--=20
+paul-moore.com
