@@ -1,411 +1,170 @@
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4955199939
-	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 13:51:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF71619C552
+	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 13:57:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731333087; cv=none; b=hJ0BaJmHSHbuvcC9iSmJNA9tjCmlLINCUsRaetimgKxVOnVxNEfCcZviFkq/KEgX44N9xX0Fs4DK14HLLK6RDKQlkDkZYRkTIG67rb9A1uzDkqnebtuKBj8+4/+ZzKUxGFmGYxljHh66bzSgoLqa0QivYiVNCnZN23bOmf5pnBU=
+	t=1731333467; cv=none; b=uA3+/yaQW6V0//InNZdEweGt4fGlTUAcr3yUoblRCpRqbs+TduBWDvMrq9X8Whfun6ddLO/7Enukw49OWJdddCtjpCKFu7Rb7oacTHX17HM/HQutl+E2GMza3odT9/+gK4dXODlsOvdPlg3kAf3HtrK+9eKwiRTSB/8AvK2Ohg4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731333087; c=relaxed/simple;
-	bh=mUb+6GkpmUryt5c+yLjwa81WnGujteJ+xV504mZxjTA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=lsSVJDuJVVJ0Y1x8XReWrgRXx1shNe2UlNxZ1B81VgkJeBiGW4fJyAgq/VJjxTfrm90nkDEmzqiwK96sjuOuWgbI5CNO+GqpY9Fd/108gXYxj7FJd6wuWbfTt6nH7IgwoaIcsHCYPuoNFHcHkADMCdsevIydfFhcGK10ghrXlmE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=chzG1d6N; arc=none smtp.client-ip=168.119.48.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	s=arc-20240116; t=1731333467; c=relaxed/simple;
+	bh=atAY5QT7nEc4c9OcLWIFcLCpW68hCJV0F88Anq/DykU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SVWYik98Pdv39u9FGoP4uCDEadmMzni4AgoYLn5UopD+mwZarClcoaSCDxp32VI76PpJRmAJrpO4J+Xb7/nBxQcCW85/R1QZPR1CK2ZpIi4NIV+CRsNJ7mA3rvHW96NTqYnRlfcEctcy9a9PZPDQAHK6zIu/fB6DeWv25cHKJUQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=dt+B0huj; arc=none smtp.client-ip=209.85.128.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="chzG1d6N"
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1731333073;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8nuz/y0cDyq+4YN7xtLUvUoW+hRtphEvPBmT70dgDqs=;
-	b=chzG1d6NN0FnQlfLTkZruSAOeVHKu5h26TOElgtsnPIu7EQhbTwNMliyGt7tNvsHA13Z1x
-	FUPlrHh8qsRK/G36yYO7v/fUDZlVkyaJy71d9t9uFLD10ydq4nrNbuP6QaekWwS0d4rBTG
-	BL8jR1rFy3OOm1PSjodA/Zfd7eHIE6OHzoo1uYMpcTRNGx862pQSZ13Z7t/UeWbv2oELWG
-	9QcBnwX566RNIDlkHSeDcTwyidH094d7qMwEo9dHzOssH2LtFLoJtkEPKAC653DsHLTTwu
-	bv4Hbyn/rTM+VzWKfyetDuJEAtb54C7QvcVPUR+R68fVi6zR03KFI+rcGQiqBA==
-To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v5 6/6] libsepol/tests: add cond xperm neverallow tests
-Date: Mon, 11 Nov 2024 14:51:07 +0100
-Message-ID: <20241111135107.20280-6-cgoettsche@seltendoof.de>
-In-Reply-To: <20241111135107.20280-1-cgoettsche@seltendoof.de>
-References: <20241111135107.20280-1-cgoettsche@seltendoof.de>
-Reply-To: cgzones@googlemail.com
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="dt+B0huj"
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-6e5b7cd1ef5so37954497b3.1
+        for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 05:57:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20230601; t=1731333465; x=1731938265; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UJZMXc4A545eSsIiGQkBeSgal5DlvYN15avXbBNcRe4=;
+        b=dt+B0hujn1jnuv4A7dab3E2NhsXDiOnqpXUK2bV4fIkUE+ZUD+hjFs0P2q3oXeptN5
+         CdRSf8H0+qPIMszblp9JPYtlebkzoNywlVEKrxKqIknIxEhRVXEtg+wN9FKNKhOq8UGe
+         AYGgd/ER5GfxUzjo8WahMXfX0tvf+tQ04CqWPe1e32HSlO9Jp+ShOM+FFKxf0ODzk3VX
+         oIXoSugf2aRG/IltqueUYseLBLELdg+Gj0Oc37Om0vzLK33Fe2iNsYpJjMBj7k8FyKKQ
+         qHXJ0Hf4RUsOWge7c9/iRYTOW7Gdm6HMPpOjrNwRjvUndYGEvBEDyj47h0M5Z7Rz7ux0
+         of3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1731333465; x=1731938265;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UJZMXc4A545eSsIiGQkBeSgal5DlvYN15avXbBNcRe4=;
+        b=dyWnQv34p3Z602jsp6/+kBFkFfiaJ7pbDvEsum0P91HPMOTiS9QRjJi+DA+dEHWSVX
+         iAtOM71ukWnVbonZrU65YZp269Pfsln34HmrfrXiKnTqlxqPCd96I7nq2CfMiVT/8rYa
+         XDXKm98krhC/6rt0GkxmK+UmnRRBjw7oC2pGkykwXruvu3lJBmSNLPhvkKOQnfsmN2gQ
+         LnyDJ170QqKy9IfHMyHov8fo5dVX6Ytfz0xCHUV3ffEbfrplETWwN3EbJrVRAE8R2Yuj
+         g7soE8R1jsCF6BcGxY0aXzJ7vNFL4J9ZnF8h9IQAcE3wbGG/m8/6sNAMdaTwq4sBuS9/
+         UdFA==
+X-Gm-Message-State: AOJu0YxA1/MPl6bOihUKI6EY8AewUMxmxYgOiyAmML81mFuVXVQA+JVu
+	QX01HZazCPZ7LjPKikVEIJ+5stSNoQnRuXZb+X1XMTnPoxsmnTmZPdcZlx/4xU+uviBJMHDHqXN
+	htkUGM5pYA7PqaEXqtSJtneD7YGo=
+X-Google-Smtp-Source: AGHT+IHLYRvXP8BJ91BWOWNyySM5dgoiEIn2zJsgkScH7r+8+mkWxewUEUD/85tA7Nvqzs3oQIfSzurPr7ZQgS7zeMw=
+X-Received: by 2002:a05:690c:6206:b0:6dd:cdb9:cf2a with SMTP id
+ 00721157ae682-6eaddd86c7emr107361967b3.1.1731333464729; Mon, 11 Nov 2024
+ 05:57:44 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20241105183936.252530-1-cgoettsche@seltendoof.de>
+ <20241105183936.252530-2-cgoettsche@seltendoof.de> <CAP+JOzQemwf6hor+=fRm7p9LLBy9znGob=6rSYVhs3tWbqgPoQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzQemwf6hor+=fRm7p9LLBy9znGob=6rSYVhs3tWbqgPoQ@mail.gmail.com>
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Mon, 11 Nov 2024 14:57:34 +0100
+Message-ID: <CAJ2a_DdjOwceWnnQju3xGpgg38RqxACYkA5oBCQzvAvSxk9gcA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] libselinux: avoid dynamic allocation in openattr()
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Christian Göttsche <cgzones@googlemail.com>
+On Wed, 6 Nov 2024 at 22:42, James Carter <jwcart2@gmail.com> wrote:
+>
+> On Tue, Nov 5, 2024 at 1:46=E2=80=AFPM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
+> >
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > openattr() supplies the simplementation for the getcon(3) interface
+>
+> implementation
 
-Add some tests to verify assertion checking works for extended
-permissions in conditional policies.
+Tkanks, I'll fix in v2.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-v3:
-  add patch
----
- libsepol/tests/helpers.c                      |   1 +
- .../policies/test-neverallow/policy_cond.conf | 251 ++++++++++++++++++
- libsepol/tests/test-neverallow.c              |  57 ++++
- 3 files changed, 309 insertions(+)
- create mode 100644 libsepol/tests/policies/test-neverallow/policy_cond.conf
+> > family.  Use a short local buffer instead of descend into memory
+>
+> "Use a short local buffer instead of dynamic memory allocation"?
 
-diff --git a/libsepol/tests/helpers.c b/libsepol/tests/helpers.c
-index 1192734b..97ddfe8e 100644
---- a/libsepol/tests/helpers.c
-+++ b/libsepol/tests/helpers.c
-@@ -53,6 +53,7 @@ int test_load_policy(policydb_t * p, int policy_type, int mls, const char *test_
- 
- 	p->policy_type = policy_type;
- 	p->mls = mls;
-+	p->policyvers = MOD_POLICYDB_VERSION_MAX;
- 
- 	if (read_source_policy(p, filename, test_name)) {
- 		fprintf(stderr, "failed to read policy %s\n", filename);
-diff --git a/libsepol/tests/policies/test-neverallow/policy_cond.conf b/libsepol/tests/policies/test-neverallow/policy_cond.conf
-new file mode 100644
-index 00000000..c81fc01d
---- /dev/null
-+++ b/libsepol/tests/policies/test-neverallow/policy_cond.conf
-@@ -0,0 +1,251 @@
-+class process
-+class blk_file
-+class chr_file
-+class dir
-+class fifo_file
-+class file
-+class lnk_file
-+class sock_file
-+
-+sid kernel
-+sid security
-+sid unlabeled
-+sid file
-+sid port
-+sid netif
-+sid netmsg
-+sid node
-+sid devnull
-+
-+class process { dyntransition transition }
-+class file { getattr ioctl open read write }
-+
-+bool boolean1 false;
-+bool boolean2 true;
-+
-+ifdef(`enable_mls',`
-+sensitivity s0;
-+dominance { s0 }
-+category c0; category c1; category c2; category c3;
-+category c4; category c5; category c6; category c7;
-+category c8; category c9; category c10; category c11;
-+category c12; category c13; category c14; category c15;
-+category c16; category c17; category c18; category c19;
-+category c20; category c21; category c22; category c23;
-+
-+level s0:c0.c23;
-+
-+mlsconstrain file { write } ( h1 dom h2 );
-+')
-+
-+
-+########################################
-+#
-+# Test start
-+#
-+########################################
-+
-+
-+## Test 1 (basic - fail)
-+
-+type test1_t;
-+if boolean1 {
-+	allow test1_t self : file read;
-+}
-+neverallow test1_t * : file *;
-+
-+
-+## Test 2 (basic - fail)
-+
-+attribute test2_a;
-+type test2_1_t, test2_a;
-+type test2_2_t;
-+if !boolean1 {
-+	allow test2_1_t test2_1_t : file write;
-+	allow test2_2_t test2_2_t : file write;
-+}
-+neverallow test2_a * : file *;
-+
-+
-+## Test 3 (xperm - no xperm in one branch - fail)
-+
-+type test3_t;
-+if boolean1 {
-+	allow test3_t self : file ioctl;
-+} else {
-+	allowxperm test3_t self : file ioctl 0x1;
-+}
-+neverallowxperm test3_t self : file ioctl 0x4;
-+
-+
-+## Test 4 (xperm - xperm in neither branch - fail)
-+
-+type test4_t;
-+allow test4_t self : file ioctl;
-+if boolean1 {
-+	allow test4_t self : file read;
-+} else {
-+	allow test4_t self : file write;
-+}
-+neverallowxperm test4_t self : file ioctl 0x4;
-+
-+
-+## Test 5 (xperm - xperm in both branches - no failure)
-+
-+type test5_t;
-+allow test5_t self : file ioctl;
-+if boolean1 {
-+	allowxperm test5_t self : file ioctl 0x1;
-+} else {
-+	allowxperm test5_t self : file ioctl 0x2;
-+}
-+neverallowxperm test5_t self : file ioctl 0x4;  # nofail
-+
-+
-+## Test 6 (xperm - failure in one branch - fail)
-+
-+type test6_t;
-+if boolean1 {
-+	allow test6_t self : file ioctl;
-+	allowxperm test6_t self : file ioctl 0x1;
-+} else {
-+	allow test6_t self : file write;
-+}
-+neverallowxperm test6_t self : file ioctl 0x1;
-+
-+
-+## Test 7 (xperm - failure in both branches - fail)
-+
-+type test7_t;
-+if boolean1 {
-+	allow test7_t self : file ioctl;
-+	allowxperm test7_t self : file ioctl 0x1;
-+} else {
-+	allow test7_t self : file ioctl;
-+	allowxperm test7_t self : file ioctl 0x2;
-+}
-+neverallowxperm test7_t self : file ioctl { 0x1-0x2 };
-+
-+
-+## Test 8 (xperm - different xperm in both branches - no failure)
-+
-+type test8_t;
-+allow test8_t self : file ioctl;
-+if boolean1 {
-+	allowxperm test8_t self : file ioctl 0x1;
-+} else {
-+	allowxperm test8_t self : file ioctl 0x2;
-+}
-+neverallowxperm test8_t self : file ioctl 0x3;  # nofail
-+
-+
-+## Test 9 (xperm - rules split into two booleans - no failure)
-+
-+type test9_t;
-+allow test9_t self : file ioctl;
-+if boolean1 {
-+	allowxperm test9_t self : file ioctl 0x1;
-+}
-+if !boolean2 {
-+	allowxperm test9_t self : file ioctl 0x1;
-+}
-+neverallowxperm test9_t self : file ioctl 0x4;
-+
-+
-+## Test 10 (xperm - valid usage in one branch - no failure)
-+
-+type test10_t;
-+if boolean1 {
-+	allow test10_t self : file ioctl;
-+	allowxperm test10_t self : file ioctl 0x1;
-+} else {
-+	allow test10_t self : file write;
-+}
-+neverallowxperm test10_t self : file ioctl 0x2;  # nofail
-+
-+
-+## Test 11 (xperm - valid usage in both branches - no failure)
-+
-+type test11_t;
-+if boolean1 {
-+	allow test11_t self : file ioctl;
-+	allowxperm test11_t self : file ioctl 0x1;
-+} else {
-+	allow test11_t self : file ioctl;
-+	allowxperm test11_t self : file ioctl 0x2;
-+}
-+neverallowxperm test11_t self : file ioctl 0x3;  # nofail
-+
-+
-+## Test 12 (xperm - base allow in one branch - fail)
-+
-+type test12_t;
-+if boolean1 {
-+	allow test12_t self : file ioctl;
-+} else {
-+	allow test12_t self : file write;
-+}
-+neverallowxperm test12_t self : file ioctl 0x1;
-+
-+
-+## Test 13 (xperm - invalid second branch - fail)
-+
-+type test13_t;
-+allow test13_t self : file ioctl;
-+if boolean1 {
-+	allow test13_t self : file ioctl;
-+	allowxperm test13_t self : file ioctl 0x1;
-+} else {
-+	allow test13_t self : file write;
-+}
-+neverallowxperm test13_t self : file ioctl 0x1;
-+
-+
-+## Test 14 (xperm - invalid second branch - fail)
-+
-+type test14_t;
-+allow test14_t self : file ioctl;
-+if boolean1 {
-+	allow test14_t self : file ioctl;
-+	allowxperm test14_t self : file ioctl 0x1;
-+} else {
-+	allow test14_t self : file write;
-+}
-+neverallowxperm test14_t self : file ioctl 0x2;
-+
-+
-+## Test 15 (xperm - base uncond in one branch - fail)
-+
-+type test15_t;
-+allow test15_t self : file ioctl;
-+allowxperm test15_t self : file ioctl 0x1;
-+if boolean1 {
-+	allow test15_t self : file ioctl;
-+} else {
-+	allow test15_t self : file write;
-+}
-+neverallowxperm test15_t self : file ioctl 0x2;
-+
-+
-+########################################
-+#
-+# Test End
-+#
-+########################################
-+
-+
-+type sys_isid;
-+role sys_role;
-+role sys_role types sys_isid;
-+gen_user(sys_user,, sys_role, s0, s0 - s0:c0.c23)
-+sid kernel gen_context(sys_user:sys_role:sys_isid, s0)
-+sid security gen_context(sys_user:sys_role:sys_isid, s0)
-+sid unlabeled gen_context(sys_user:sys_role:sys_isid, s0)
-+sid file gen_context(sys_user:sys_role:sys_isid, s0)
-+sid port gen_context(sys_user:sys_role:sys_isid, s0)
-+sid netif gen_context(sys_user:sys_role:sys_isid, s0)
-+sid netmsg gen_context(sys_user:sys_role:sys_isid, s0)
-+sid node gen_context(sys_user:sys_role:sys_isid, s0)
-+sid devnull gen_context(sys_user:sys_role:sys_isid, s0)
-+fs_use_trans devpts gen_context(sys_user:sys_role:sys_isid, s0);
-+fs_use_trans devtmpfs gen_context(sys_user:sys_role:sys_isid, s0);
-diff --git a/libsepol/tests/test-neverallow.c b/libsepol/tests/test-neverallow.c
-index 80f91bf5..9c3001c4 100644
---- a/libsepol/tests/test-neverallow.c
-+++ b/libsepol/tests/test-neverallow.c
-@@ -293,6 +293,58 @@ static void test_neverallow_not_self(void)
- 	policydb_destroy(&base_expanded);
- }
- 
-+static void test_neverallow_cond(void)
-+{
-+	policydb_t basemod, base_expanded;
-+	sepol_handle_t *handle;
-+	static const char *const expected_messages[] = {
-+		"16 neverallow failures occurred",
-+		"neverallow on line 58 of policies/test-neverallow/policy_cond.conf.std (or line 58 of policies/test-neverallow/policy_cond.conf.std) violated by allow test1_t test1_t:file { read };",
-+		"neverallow on line 70 of policies/test-neverallow/policy_cond.conf.std (or line 70 of policies/test-neverallow/policy_cond.conf.std) violated by allow test2_1_t test2_1_t:file { write };",
-+		"neverallowxperm on line 81 of policies/test-neverallow/policy_cond.conf.std (or line 81 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allow test3_t test3_t:file { ioctl };",
-+		"neverallowxperm on line 93 of policies/test-neverallow/policy_cond.conf.std (or line 93 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allow test4_t test4_t:file { ioctl };",
-+		"neverallowxperm on line 117 of policies/test-neverallow/policy_cond.conf.std (or line 117 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allowxperm test6_t test6_t:file ioctl { 0x1 };",
-+		"neverallowxperm on line 130 of policies/test-neverallow/policy_cond.conf.std (or line 130 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allowxperm test7_t test7_t:file ioctl { 0x2 };",
-+		"neverallowxperm on line 130 of policies/test-neverallow/policy_cond.conf.std (or line 130 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allowxperm test7_t test7_t:file ioctl { 0x1 };",
-+		"neverallowxperm on line 130 of policies/test-neverallow/policy_cond.conf.std (or line 130 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allowxperm test7_t test7_t:file ioctl { 0x2 };",
-+		"neverallowxperm on line 130 of policies/test-neverallow/policy_cond.conf.std (or line 130 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allowxperm test7_t test7_t:file ioctl { 0x1 };",
-+		"neverallowxperm on line 155 of policies/test-neverallow/policy_cond.conf.std (or line 155 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allow test9_t test9_t:file { ioctl };",
-+		"neverallowxperm on line 191 of policies/test-neverallow/policy_cond.conf.std (or line 191 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allow test12_t test12_t:file { ioctl };",
-+		"neverallowxperm on line 204 of policies/test-neverallow/policy_cond.conf.std (or line 204 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allowxperm test13_t test13_t:file ioctl { 0x1 };",
-+		"neverallowxperm on line 204 of policies/test-neverallow/policy_cond.conf.std (or line 204 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allow test13_t test13_t:file { ioctl };",
-+		"neverallowxperm on line 204 of policies/test-neverallow/policy_cond.conf.std (or line 204 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allowxperm test13_t test13_t:file ioctl { 0x1 };",
-+		"neverallowxperm on line 217 of policies/test-neverallow/policy_cond.conf.std (or line 217 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allow test14_t test14_t:file { ioctl };",
-+		"neverallowxperm on line 230 of policies/test-neverallow/policy_cond.conf.std (or line 230 of policies/test-neverallow/policy_cond.conf.std) violated by\n  allow test15_t test15_t:file { ioctl };",
-+	};
-+
-+	if (policydb_init(&base_expanded))
-+		CU_FAIL_FATAL("Failed to initialize policy");
-+
-+	if (test_load_policy(&basemod, POLICY_BASE, mls, "test-neverallow", "policy_cond.conf"))
-+		CU_FAIL_FATAL("Failed to load policy");
-+
-+	if (link_modules(NULL, &basemod, NULL, 0, 0))
-+		CU_FAIL_FATAL("Failed to link base module");
-+
-+	if (expand_module(NULL, &basemod, &base_expanded, 0, 0))
-+		CU_FAIL_FATAL("Failed to expand policy");
-+
-+	if ((handle = sepol_handle_create()) == NULL)
-+		CU_FAIL_FATAL("Failed to initialize handle");
-+
-+	sepol_msg_set_callback(handle, msg_handler, NULL);
-+
-+	if (check_assertions(handle, &base_expanded, base_expanded.global->branch_list->avrules) != -1)
-+		CU_FAIL("Assertions did not trigger");
-+
-+	messages_check(ARRAY_SIZE(expected_messages), expected_messages);
-+
-+	sepol_handle_destroy(handle);
-+	messages_clean();
-+	policydb_destroy(&basemod);
-+	policydb_destroy(&base_expanded);
-+}
-+
- int neverallow_add_tests(CU_pSuite suite)
- {
- 	/*
-@@ -317,5 +369,10 @@ int neverallow_add_tests(CU_pSuite suite)
- 		return CU_get_error();
- 	}
- 
-+	if (NULL == CU_add_test(suite, "neverallow_cond", test_neverallow_cond)) {
-+		CU_cleanup_registry();
-+		return CU_get_error();
-+	}
-+
- 	return 0;
- }
--- 
-2.45.2
+Dito
 
+> > allocation.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> >  libselinux/src/procattr.c | 24 ++++++++++++------------
+> >  1 file changed, 12 insertions(+), 12 deletions(-)
+> >
+> > diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
+> > index ddcc7f8d..ee1f48af 100644
+> > --- a/libselinux/src/procattr.c
+> > +++ b/libselinux/src/procattr.c
+> > @@ -86,32 +86,32 @@ static void init_procattr(void)
+> >  static int openattr(pid_t pid, const char *attr, int flags)
+> >  {
+> >         int fd, rc;
+> > -       char *path;
+> > +       char path[56];  /* must hold "/proc/self/task/%d/attr/sockcreat=
+e" */
+>
+> Why 56? I understand that sockcreate is the largest attr, but it looks
+> to me like you are giving way more space than is needed for the pid. I
+> am just curious. Maybe I am missing something.
+
+My calculation was:
+  32 character for the length of "/proc/self/task//attr/sockcreate"
+  +1 for NUL terminator
+  +20 for the unlikely case of pid_t being ULONG_MAX or LONG_MIN
+  round to next multiple of 8
+
+> Thanks,
+> Jim
+>
+>
+> >         pid_t tid;
+> >
+> >         if (pid > 0) {
+> > -               rc =3D asprintf(&path, "/proc/%d/attr/%s", pid, attr);
+> > +               rc =3D snprintf(path, sizeof(path), "/proc/%d/attr/%s",=
+ pid, attr);
+> >         } else if (pid =3D=3D 0) {
+> > -               rc =3D asprintf(&path, "/proc/thread-self/attr/%s", att=
+r);
+> > -               if (rc < 0)
+> > +               rc =3D snprintf(path, sizeof(path), "/proc/thread-self/=
+attr/%s", attr);
+> > +               if (rc < 0 || (size_t)rc >=3D sizeof(path)) {
+> > +                       errno =3D EOVERFLOW;
+> >                         return -1;
+> > +               }
+> >                 fd =3D open(path, flags | O_CLOEXEC);
+> >                 if (fd >=3D 0 || errno !=3D ENOENT)
+> > -                       goto out;
+> > -               free(path);
+> > +                       return fd;
+> >                 tid =3D selinux_gettid();
+> > -               rc =3D asprintf(&path, "/proc/self/task/%d/attr/%s", ti=
+d, attr);
+> > +               rc =3D snprintf(path, sizeof(path), "/proc/self/task/%d=
+/attr/%s", tid, attr);
+> >         } else {
+> >                 errno =3D EINVAL;
+> >                 return -1;
+> >         }
+> > -       if (rc < 0)
+> > +       if (rc < 0 || (size_t)rc >=3D sizeof(path)) {
+> > +               errno =3D EOVERFLOW;
+> >                 return -1;
+> > +       }
+> >
+> > -       fd =3D open(path, flags | O_CLOEXEC);
+> > -out:
+> > -       free(path);
+> > -       return fd;
+> > +       return open(path, flags | O_CLOEXEC);
+> >  }
+> >
+> >  static int getprocattrcon_raw(char **context, pid_t pid, const char *a=
+ttr,
+> > --
+> > 2.45.2
+> >
+> >
