@@ -1,40 +1,40 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2F991A0721
-	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 14:17:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AAF41A072A
+	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 14:17:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731334644; cv=none; b=SpdR9VsscKJzDJ1iSma7kMNUFi6JqcHSU5giL+BigZn23kstQDSYIz4zR+9G0iSYxKXD4PxC1KehGqnvE5zfpeoYGLB/NoiYA5bww9wPhpdGJPMUwof/x6ER7keLBsZTo614APNMY+GIgI9s6WGW1yyqcMWK4MfgiAB6Xec46Bw=
+	t=1731334645; cv=none; b=RnLoTHVbT8XkZCQRQ1fyQv3bBHb3+xCvDtaa2IgZRu/6Oq9Mu4sPPmcGLif2UyzS9Qqjbb2+dztQpFKudAb/JUVhTjmO2Qn//Vxe8f7/6+FBLy3Nf5YpfT5bxYJm++IzWZljc8ioGvefUch4UyE9x8wGwCw/4yeucjSr/AUqbQM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731334644; c=relaxed/simple;
-	bh=Gc/1q3VKbWRM/C3IwC9jUGDHohr3fYVYRU1NvUQtmB0=;
+	s=arc-20240116; t=1731334645; c=relaxed/simple;
+	bh=jixhs1z319aSFFVMRNS4eQTvnnAaGXnVa9fExrT/Z+k=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=DrGxShc3VQvIBPfWt6TyKbCVTaJy2fKa5a+EGTr85DKo2lvLzPk7umuO4Rpm+3Vq0aQ5oFqsEprHJL6RO2ibaSxxtF6qUqkEIdT2SeOb1B6BLrX+QlUbe2L9BzFarl34m3RA0MGYnuvZSW96vMmfNgYxlaVkNQ8TDn8sgPCWknE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=rpy6TzVe; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=uhAbsDjY84KSoHsq39tKZTCvttHeBq5beU9UNpsnBDu+U0iDkNP72vtUYdk26fUeyvXdj6b26HrIl17LQudDAx3wk+UbrUewThtp6v8YdvZDC3YlMY1dzvdWVhzi/BvZ88EnkeATsR7eV8dMSXlxTjXObNS9/k8VRHVM+uhRI0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=AiU1L4Nu; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="rpy6TzVe"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="AiU1L4Nu"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1731334637;
+	s=2023072701; t=1731334638;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=VZpBwwbly1+1nfkmJzE4u7V79GtAviKmPHPtUFNfR3Y=;
-	b=rpy6TzVeoCWqVfDqtZAQiXpx9sCdHmrxlkaiY+LFvp0/XS9LUy2TUiYcp1m1HUS4kZO48s
-	Pu70B9AdwqggBEqmMoz9+uti1g4Tjv+5hu4Icbf8CfdnJTo+Twa7GIr4kcceMiflyizWLr
-	7AVtYspIag+zEngD/X62cu74yEidaIEFuodKeRtDxahm1L7/QLZdgdr8Xq3+dlgFEwx6SX
-	wr/9ncG3iUPHQTGwZVGfSrygu9K7FbnJByQe1NneS8SUFWsdcuzdfLILqu+Cbrwz8/wueS
-	7LWXX//Nmhpr5qfxSc9mwNfjpO64wvCkhlCScda8T0R+5au2EroSsW8mM83gHg==
+	bh=g4k3U6c/LIu11hCwplrBAAoRyBkhG09e0AAaUJ7G5D4=;
+	b=AiU1L4Nu7v6WqlmwC+l1sTxVZJNcaXSrSM18GHtL8Q6bOWwOCvtJE6K0tS3JG4RDWa3pD3
+	ICkwDQW3PYlK3Xt3BSSZtHvus2Qj9noL/aHP4a1aRs+8nN2XUg4QNY7z6YgR9Am/+OtDC7
+	pcasliTUJNueHDPtefEKZJAB8aKUJ+7qHiT0b8xWgmE0LO8sP+lMpr0KZGGA2BJrJ1EOdw
+	LLM7zVZZWcqZv9sdLQbB915lzB6dSfOLxFTChI4y+MZfKEdY/Xl4uvuQ+iD22L1TO+Ksmp
+	B+zvBpFTgw+g3OoXxMmQY4zY1/QCrGOa1bkuRY08nTbX5J4qtWo40kAAMp5awA==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 22/47] libsemanage: free ibdev names in semanage_ibendport_validate_local()
-Date: Mon, 11 Nov 2024 15:16:41 +0100
-Message-ID: <20241111141706.38039-22-cgoettsche@seltendoof.de>
+Subject: [PATCH 31/47] libsemanage: adjust sizes to avoid implicit truncations
+Date: Mon, 11 Nov 2024 15:16:50 +0100
+Message-ID: <20241111141706.38039-31-cgoettsche@seltendoof.de>
 In-Reply-To: <20241111141706.38039-1-cgoettsche@seltendoof.de>
 References: <20241111141706.38039-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,62 +49,141 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
+Use size_t for sizes and align miscellaneous type mismatches.
+
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsemanage/src/ibendports_local.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ libsemanage/src/compressed_file.c |  2 +-
+ libsemanage/src/handle.c          |  2 +-
+ libsemanage/src/parse_utils.c     |  4 ++--
+ libsemanage/src/semanage_store.c  | 12 ++++++------
+ libsemanage/src/utilities.c       |  6 +++---
+ libsemanage/src/utilities.h       |  2 +-
+ 6 files changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/libsemanage/src/ibendports_local.c b/libsemanage/src/ibendports_local.c
-index e696fdca..feebfa63 100644
---- a/libsemanage/src/ibendports_local.c
-+++ b/libsemanage/src/ibendports_local.c
-@@ -80,8 +80,8 @@ int semanage_ibendport_validate_local(semanage_handle_t *handle)
- 	semanage_ibendport_t **ibendports = NULL;
- 	unsigned int nibendports = 0;
- 	unsigned int i = 0, j = 0;
--	char *ibdev_name;
--	char *ibdev_name2;
-+	char *ibdev_name = NULL;
-+	char *ibdev_name2 = NULL;
- 	int port;
- 	int port2;
+diff --git a/libsemanage/src/compressed_file.c b/libsemanage/src/compressed_file.c
+index 74185c92..e4a1efb0 100644
+--- a/libsemanage/src/compressed_file.c
++++ b/libsemanage/src/compressed_file.c
+@@ -104,7 +104,7 @@ static ssize_t bunzip(semanage_handle_t *sh, FILE *f, void **data)
+ 	size_t   total = 0;
+ 	uint8_t* uncompress = NULL;
+ 	uint8_t* tmpalloc = NULL;
+-	int      ret = -1;
++	ssize_t  ret = -1;
  
-@@ -97,6 +97,8 @@ int semanage_ibendport_validate_local(semanage_handle_t *handle)
- 	while (i < nibendports) {
- 		int stop = 0;
- 
-+		free(ibdev_name);
-+		ibdev_name = NULL;
- 		if (STATUS_SUCCESS !=
- 				semanage_ibendport_get_ibdev_name(handle,
- 								  ibendports[i],
-@@ -114,6 +116,8 @@ int semanage_ibendport_validate_local(semanage_handle_t *handle)
- 			if (j == nibendports - 1)
- 				goto next;
- 			j++;
-+			free(ibdev_name2);
-+			ibdev_name2 = NULL;
- 			if (STATUS_SUCCESS !=
- 				semanage_ibendport_get_ibdev_name(handle,
- 								  ibendports[j],
-@@ -136,6 +140,8 @@ next:
- 		j = i;
+ 	buf = malloc(bufsize);
+ 	if (buf == NULL) {
+diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
+index 4577ac35..740bc83f 100644
+--- a/libsemanage/src/handle.c
++++ b/libsemanage/src/handle.c
+@@ -172,7 +172,7 @@ int semanage_get_hll_compiler_path(semanage_handle_t *sh,
  	}
  
-+	free(ibdev_name);
-+	free(ibdev_name2);
- 	for (i = 0; i < nibendports; i++)
- 		semanage_ibendport_free(ibendports[i]);
- 	free(ibendports);
-@@ -145,6 +151,8 @@ err:
- 	ERR(handle, "could not complete ibendports validity check");
+ 	num_printed = snprintf(compiler, len, "%s/%s", sh->conf->compiler_directory_path, lower_lang_ext);
+-	if (num_printed < 0 || (int)num_printed >= (int)len) {
++	if (num_printed < 0 || (size_t)num_printed >= len) {
+ 		ERR(sh, "Error creating compiler path.");
+ 		status = -1;
+ 		goto cleanup;
+diff --git a/libsemanage/src/parse_utils.c b/libsemanage/src/parse_utils.c
+index d57e59c9..d1d6e930 100644
+--- a/libsemanage/src/parse_utils.c
++++ b/libsemanage/src/parse_utils.c
+@@ -85,7 +85,7 @@ int parse_skip_space(semanage_handle_t * handle, parse_info_t * info)
  
- invalid:
-+	free(ibdev_name);
-+	free(ibdev_name2);
- 	for (i = 0; i < nibendports; i++)
- 		semanage_ibendport_free(ibendports[i]);
- 	free(ibendports);
+ 	size_t buf_len = 0;
+ 	ssize_t len;
+-	int lineno = info->lineno;
++	unsigned int lineno = info->lineno;
+ 	char *buffer = NULL;
+ 	char *ptr;
+ 
+@@ -271,7 +271,7 @@ int parse_fetch_string(semanage_handle_t * handle,
+ {
+ 
+ 	const char *start = info->ptr;
+-	int len = 0;
++	size_t len = 0;
+ 	char *tmp_str = NULL;
+ 
+ 	if (parse_assert_noeof(handle, info) < 0)
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 427952a1..937089b2 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -137,10 +137,10 @@ typedef struct semanage_file_context_node {
+ 	char *path;
+ 	char *file_type;
+ 	char *context;
+-	int path_len;
+-	int effective_len;
+-	int type_len;
+-	int context_len;
++	size_t path_len;
++	size_t effective_len;
++	size_t type_len;
++	size_t context_len;
+ 	int meta;		/* position of first meta char in path, -1 if none */
+ 	struct semanage_file_context_node *next;
+ } semanage_file_context_node_t;
+@@ -514,7 +514,7 @@ const char *semanage_final_path(enum semanage_final_defs store,
+ char *semanage_conf_path(void)
+ {
+ 	char *semanage_conf = NULL;
+-	int len;
++	size_t len;
+ 	struct stat sb;
+ 
+ 	len = strlen(semanage_root()) + strlen(selinux_path()) + strlen(SEMANAGE_CONF_FILE);
+@@ -2895,7 +2895,7 @@ int semanage_nc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
+ 
+ 	/* parsing bits */
+ 	const char *priority_names[] = NC_SORT_NAMES;
+-	const int priority_names_len[] = NC_SORT_NAMES_LEN;
++	const size_t priority_names_len[] = NC_SORT_NAMES_LEN;
+ 	size_t line_len, buf_remainder, i, offset;
+ 	const char *line_buf, *line_end;
+ 
+diff --git a/libsemanage/src/utilities.c b/libsemanage/src/utilities.c
+index a64015f8..38ac72e4 100644
+--- a/libsemanage/src/utilities.c
++++ b/libsemanage/src/utilities.c
+@@ -202,9 +202,9 @@ int semanage_cmp_plist_t(const void *x, const void *y)
+ 	return strcmp((*l1)->data, (*l2)->data);
+ }
+ 
+-int semanage_str_count(const char *data, char what)
++size_t semanage_str_count(const char *data, char what)
+ {
+-	int count = 0;
++	size_t count = 0;
+ 
+ 	if (!data)
+ 		return 0;
+@@ -219,7 +219,7 @@ int semanage_str_count(const char *data, char what)
+ 
+ void semanage_rtrim(char *str, char trim_to)
+ {
+-	int len = 0;
++	size_t len;
+ 
+ 	if (!str)
+ 		return;
+diff --git a/libsemanage/src/utilities.h b/libsemanage/src/utilities.h
+index 4cc41f84..c2d484a7 100644
+--- a/libsemanage/src/utilities.h
++++ b/libsemanage/src/utilities.h
+@@ -104,7 +104,7 @@ int semanage_cmp_plist_t(const void *x, const void *y);
+  * @param      what  a character
+  * @returns    the number of times the char appears in the string
+  */
+-int semanage_str_count(const char *data, char what);
++size_t semanage_str_count(const char *data, char what);
+ /**
+  * @param      - a string
+  * @param            the character to trim to
 -- 
 2.45.2
 
