@@ -1,222 +1,103 @@
-Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com [209.85.219.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59376634
-	for <selinux@vger.kernel.org>; Fri,  8 Nov 2024 00:09:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BABD14A62B
+	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 12:33:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731024551; cv=none; b=tkdEWAzhv4kG7hSMfoCUoC0jMJAsuH75e9BfbrvsOSzCVGt1BglCTp2p0xkxMw8oeFdHDDa8URqL8ECx+hI7OUifcny4BKgeW14UpHy/B7k0z2WeWojcoMPlK4+kin2gkF9HbDjaiwmAMagI6QdhLZaBkbDW5EY/NEpaLjEmyII=
+	t=1731328395; cv=none; b=EMhbILE7cwMG2JEMSgyWqk/xjcNER3X5Q4rk8IpMdkUKt5fPMqKcMbKL5nQkgu+s8iXZp0qi+E4Ym7j4NtZkBbXxDSv+N/d4mfnQwqYftwPfmvCU1v+0qFJlL1a5Ekrj2dHnPk+qx24vGJN4ePhOqn17sMcx1SHllkJCTdkWA9g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731024551; c=relaxed/simple;
-	bh=bJ2P20AN8cDjZQ0XfwgDLYWnqcBSl8k5ypfy5tVqflk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GUDJBL1TReVFRW8e7076P3bgxwoC//tbOQlzooiqEbMlRa01xtLx1Wg6xjohuRY+Nfk8aeHr1Jt2SrmHCW9xHAzGElf77pcu097gWc0ny5wPsAU4GCgVvWr6hNMCel9QsdckZsGZSrmRDcMMD3FMBj8vfddAIKIOgThtUspWdUU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=YViT8mGW; arc=none smtp.client-ip=209.85.219.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1731328395; c=relaxed/simple;
+	bh=JGM0EvycVzegrFm5k62F0NEGaTSBkNP9B2QrvYS2AUs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-type; b=OY+5Ethq/Z/xBdbu2l/fSftX7GX81NqZA31qMjEEf7mz3+/hS7oVnj+DxYWPFcq1OvOhwdzL8S3zywa103B94avaVbLz5AzR9mouNVJO6gO3ZZhqcPge74jqfbWqVNMGGwSU3AHx1FOWz90MamhRN/RBZRGHT9GiJOMOKEU/qsc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aAH5mcqA; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="YViT8mGW"
-Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-e28fd8cdfb8so1578926276.3
-        for <selinux@vger.kernel.org>; Thu, 07 Nov 2024 16:09:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1731024548; x=1731629348; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jbCwZydrQslWxwqzFgVm6Z6/uYlo1zjGWUOPL95a3K0=;
-        b=YViT8mGW8dR+t4PTbkDbAp4rrF2mPSnwy2j6fkiLZ2vnxOO9xytrlfX6gxXYurxrqb
-         7qRUlk2L9sdMGqXCGkZzfw+nK3I4Iu/zUCgKFurTzvwYub5zuIjHrMwpnEsWcF2e++Tl
-         /9tkLwYbtNmKNhuASWZ4lOon5vaK9UIZDNhMbSVLiV+IrNzU3GxTeM1T5Py95H/ojcv5
-         bGqulrvx2q1WUeFjTiziOlM2US8WDLpIYZqo7YJL3ANC3jwso3rIqFrQXfmd9BDCSFq3
-         ynCi0wudfdgLFIz4iV/EqLMC3qT2rTxgAxxS/YXdPDyo+iZCHa9DSS87ISr4ulfaHLWe
-         uKgw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731024548; x=1731629348;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jbCwZydrQslWxwqzFgVm6Z6/uYlo1zjGWUOPL95a3K0=;
-        b=GANSBhMr0R6CKS+FaLocDU9v6hhxv+5EvU7nC2iU6wtSvxvqlZ3Fv4Z8fqnfagAdEU
-         +mjV6Ur4Nd+IEc0bmAKWuO2Z0V80T8/vMQrGWZu6xKahXF2ToeINAE7NdwT1S8OkjOfR
-         kVzuhmHr/D8ZBlLau3w+hpRBb7ktabWhFwefjXZA9vGjgVooIlDvhAnTsHZiZkB5Zl2c
-         Asn1b8c6uxTq+V2n0Aa8Q36IVfzEFV2ZrQxZ3OASzUcmcQixB8Utfo+Zvhc4dJDCDZU2
-         X7kPEt2yewftbZU+QjvMqegPrZlUrml+fswwBGu1+PAPhyqGToDU4zBu3M5h9HC3bpDd
-         qUCg==
-X-Forwarded-Encrypted: i=1; AJvYcCVMYzijstkOFiGZz+/p2gbUQis3K2wHjl322Gpwm1xcJbNHu9TBs1xfVVrkev6iFQ/8MG8AalBh@vger.kernel.org
-X-Gm-Message-State: AOJu0YyW2S/y9GzNundJoOY6jTqvFCtMy3dzfO/Y1KpcA8ujrCL7K2Zo
-	6yKp3v54vmHbuGlwuNHGazL0WvkfCw/br6zrIeEXIUranZ6rto+jwoE7OfC2TN8/jPrQDeyrCD4
-	xVlfPGD5XOI079YRWfS7GIIyvEULgA1CfoUns
-X-Google-Smtp-Source: AGHT+IEFY/Z5gF8qAR4zZA1iORWkmzMJW8bQ2tPZYEKW7ACn+ixJs7j+yN1gMVbsT56MLsOsXKPmyf5zuDrLEq7uS74=
-X-Received: by 2002:a05:6902:2d04:b0:e30:cbdd:7c85 with SMTP id
- 3f1490d57ef6-e337f841ad8mr1283168276.11.1731024548355; Thu, 07 Nov 2024
- 16:09:08 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aAH5mcqA"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1731328391;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=0US39sEzAWT5LffmpGwpOJTN950TperuhFIcvD7+NIY=;
+	b=aAH5mcqAcuZD5DgaSGkUmbUT2xuVYgFbomaPjQHa+b3bXcuE6SKWFuwlVRkxumSTTcbimI
+	PDqLwwYQXbOtqm1b11rqHW/WBYbDdczFjRSNc1SV3S46RwHvfF0f68bbDUcLx9XZGxhBsl
+	LRbgfY3BsmhHoN8BK3GlYyCjeg0ydTk=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-640-h9YXWji5MUCC9a3_SMg5kQ-1; Mon,
+ 11 Nov 2024 07:33:10 -0500
+X-MC-Unique: h9YXWji5MUCC9a3_SMg5kQ-1
+X-Mimecast-MFC-AGG-ID: h9YXWji5MUCC9a3_SMg5kQ
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C719B1956088
+	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 12:33:09 +0000 (UTC)
+Received: from toolbox.redhat.com (unknown [10.45.225.86])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8C93119560A3;
+	Mon, 11 Nov 2024 12:33:08 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Cc: Petr Lautrbach <lautrbach@redhat.com>
+Subject: [PATCH] libsemanage: open lock_file with O_RDWR
+Date: Mon, 11 Nov 2024 13:32:50 +0100
+Message-ID: <20241111123304.651436-1-lautrbach@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241106155509.1706965-1-omosnace@redhat.com>
-In-Reply-To: <20241106155509.1706965-1-omosnace@redhat.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 7 Nov 2024 19:08:57 -0500
-Message-ID: <CAHC9VhQLDCu4S+SiY=s=tpxPFLn4AJiuhijAVS63QayfRoPN8A@mail.gmail.com>
-Subject: Re: [PATCH] selinux,xfrm: fix dangling refcount on deferred skb free
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>, Herbert Xu <herbert@gondor.apana.org.au>, 
-	"David S. Miller" <davem@davemloft.net>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Eric Dumazet <edumazet@google.com>, selinux@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, netdev@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-On Wed, Nov 6, 2024 at 10:55=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
-m> wrote:
->
-> SELinux tracks the number of allocated xfrm_state/xfrm_policy objects
-> (via the selinux_xfrm_refcount variable) as an input in deciding if peer
-> labeling should be used.
->
-> However, as a result of commits f35f821935d8 ("tcp: defer skb freeing
-> after socket lock is released") and 68822bdf76f1 ("net: generalize skb
-> freeing deferral to per-cpu lists"), freeing of a sk_buff object, which
-> may hold a reference to an xfrm_state object, can be deferred for
-> processing on another CPU core, so even after xfrm_state is deleted from
-> the configuration by userspace, the refcount isn't decremented until the
-> deferred freeing of relevant sk_buffs happens. On a system with many
-> cores this can take a very long time (even minutes or more if the system
-> is not very active), leading to peer labeling being enabled for much
-> longer than expected.
->
-> Fix this by moving the selinux_xfrm_refcount decrementing to just after
-> the actual deletion of the xfrm objects rather than waiting for the
-> freeing to happen. For xfrm_policy it currently doesn't seem to be
-> necessary, but let's do the same there for consistency and
-> future-proofing.
->
-> We hit this issue on a specific aarch64 256-core system, where the
-> sequence of unix_socket/test and inet_socket/tcp/test from
-> selinux-testsuite [1] would quite reliably trigger this scenario, and a
-> subsequent sctp/test run would then stumble because the policy for that
-> test misses some rules that would make it work under peer labeling
-> enabled (namely it was getting the netif::egress permission denied in
-> some of the test cases).
->
-> [1] https://github.com/SELinuxProject/selinux-testsuite/
->
-> Fixes: f35f821935d8 ("tcp: defer skb freeing after socket lock is release=
-d")
-> Fixes: 68822bdf76f1 ("net: generalize skb freeing deferral to per-cpu lis=
-ts")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  include/linux/lsm_hook_defs.h   |  2 ++
->  include/linux/security.h        | 10 ++++++++++
->  net/xfrm/xfrm_policy.c          |  1 +
->  net/xfrm/xfrm_state.c           |  2 ++
->  security/security.c             | 26 ++++++++++++++++++++++++++
->  security/selinux/hooks.c        |  2 ++
->  security/selinux/include/xfrm.h |  2 ++
->  security/selinux/xfrm.c         | 17 ++++++++++++++++-
->  8 files changed, 61 insertions(+), 1 deletion(-)
+man 2 flock:
+    Since Linux 2.6.12, NFS clients support flock() locks by emulating
+    them as fcntl(2) byte-range locks on the entire file.  This means
+    that fcntl(2) and  flock()  locks  do  interact with one another
+    over NFS.  It also means that in order to place an exclusive lock,
+    the file must be opened for writing.
 
-...
+Fixes:
+    # semanage fcontext -d -e /home /tmp/testdir
+    libsemanage.semanage_get_lock: Error obtaining direct transaction lock at /var/lib/selinux/targeted/semanage.trans.LOCK. (Bad file descriptor).
+    OSError: Bad file descriptor
 
-> diff --git a/security/security.c b/security/security.c
-> index 6875eb4a59fcc..f6a985417f6f8 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -5295,6 +5295,19 @@ int security_xfrm_policy_delete(struct xfrm_sec_ct=
-x *ctx)
->         return call_int_hook(xfrm_policy_delete_security, ctx);
->  }
->
-> +/**
-> + * security_xfrm_policy_deleted() - Handle deletion of xfrm policy
-> + * @ctx: xfrm security context
-> + *
-> + * Handle deletion of xfrm policy. This is called on the actual deletion
-> + * of the policy from the xfrm system. References to the policy may be
-> + * still held elsewhere, so resources should not be freed yet.
-> + */
-> +void security_xfrm_policy_deleted(struct xfrm_sec_ctx *ctx)
-> +{
-> +       call_void_hook(xfrm_policy_deleted, ctx);
-> +}
-> +
->  /**
->   * security_xfrm_state_alloc() - Allocate a xfrm state LSM blob
->   * @x: xfrm state being added to the SAD
-> @@ -5345,6 +5358,19 @@ int security_xfrm_state_delete(struct xfrm_state *=
-x)
->  }
->  EXPORT_SYMBOL(security_xfrm_state_delete);
->
-> +/**
-> + * security_xfrm_state_deleted() - Handle deletion of xfrm state
-> + * @x: xfrm state
-> + *
-> + * Handle deletion of xfrm state. This is called on the actual deletion
-> + * of the state from the xfrm system. References to the state may be
-> + * still held elsewhere, so resources should not be freed yet.
-> + */
-> +void security_xfrm_state_deleted(struct xfrm_state *x)
-> +{
-> +       call_void_hook(xfrm_state_deleted, x);
-> +}
+Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+---
+ libsemanage/src/semanage_store.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-I'm not really liking the names or the descriptions above.  The
-"_deleted" hooks are named a little too close to the existing
-"_delete" hooks for comfort; I can see people mistakenly calling the
-wrong hooks and causing problems in the future.  I'd also suggest a
-change in the hooks description to clarify the "actual deletion"
-aspect as that is confusing when you later talk about how references
-still may exist.  The xfrm hooks have a "_delete" to authorize the
-deletion of the object, and a "_free" to finally release any LSM state
-associated with the object once all the references are gone; using
-"_put" may be problematic without an associated "_get", but how about
-something along the lines of "_release" or "_drop" with a description
-that talks about all references to the xfrm object being released or
-dropped?
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 0ac2e5b2ad39..c26f5667b3cd 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -1899,14 +1899,12 @@ static int semanage_get_lock(semanage_handle_t * sh,
+ 	struct timeval origtime, curtime;
+ 	int got_lock = 0;
+ 
+-	if ((fd = open(lock_file, O_RDONLY)) == -1) {
+-		if ((fd =
+-		     open(lock_file, O_RDWR | O_CREAT | O_TRUNC,
+-			  S_IRUSR | S_IWUSR)) == -1) {
+-			ERR(sh, "Could not open direct %s at %s.", lock_name,
+-			    lock_file);
+-			return -1;
+-		}
++	if ((fd =
++	     open(lock_file, O_RDWR | O_CREAT | O_TRUNC,
++		  S_IRUSR | S_IWUSR)) == -1) {
++		ERR(sh, "Could not open direct %s at %s.", lock_name,
++		    lock_file);
++		return -1;
+ 	}
+ 	if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
+ 		ERR(sh, "Could not set close-on-exec for %s at %s.", lock_name,
+-- 
+2.47.0
 
-> diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-> index 90ec4ef1b082f..35372bdba7279 100644
-> --- a/security/selinux/xfrm.c
-> +++ b/security/selinux/xfrm.c
-> @@ -321,6 +320,14 @@ int selinux_xfrm_policy_delete(struct xfrm_sec_ctx *=
-ctx)
->         return selinux_xfrm_delete(ctx);
->  }
->
-> +/*
-> + * LSM hook implementation that handles deletion of labeled SAs.
-> + */
-> +void selinux_xfrm_policy_deleted(struct xfrm_sec_ctx *ctx)
-> +{
-> +       atomic_dec(&selinux_xfrm_refcount);
-> +}
-> +
->  /*
->   * LSM hook implementation that allocates a xfrm_sec_state, populates it=
- using
->   * the supplied security context, and assigns it to the xfrm_state.
-> @@ -389,6 +396,14 @@ int selinux_xfrm_state_delete(struct xfrm_state *x)
->         return selinux_xfrm_delete(x->security);
->  }
->
-> +/*
-> + * LSM hook implementation that handles deletion of labeled SAs.
-> + */
-> +void selinux_xfrm_state_deleted(struct xfrm_state *x)
-> +{
-> +       atomic_dec(&selinux_xfrm_refcount);
-> +}
-> +
->  /*
->   * LSM hook that controls access to unlabelled packets.  If
->   * a xfrm_state is authorizable (defined by macro) then it was
-> --
-> 2.47.0
-
---=20
-paul-moore.com
