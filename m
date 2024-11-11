@@ -1,21 +1,21 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E03271A0739
-	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 14:17:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2F991A0721
+	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 14:17:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731334644; cv=none; b=e0uLfmvAtaq7krKKsy/QOtpgCDYtYt47a4VqfNdRH/BxJ/seiTL/rnN+0o+jByMz6LavLa4IYZTybr+ejHsVVildzW2aXyjIr8Wq5TH1Eu5uiBiVVhG3ILafZaGrLCl3KngDP1mYfg174IJY7hpYLs0u7uuTOPG+hQOWmtZYMcs=
+	t=1731334644; cv=none; b=SpdR9VsscKJzDJ1iSma7kMNUFi6JqcHSU5giL+BigZn23kstQDSYIz4zR+9G0iSYxKXD4PxC1KehGqnvE5zfpeoYGLB/NoiYA5bww9wPhpdGJPMUwof/x6ER7keLBsZTo614APNMY+GIgI9s6WGW1yyqcMWK4MfgiAB6Xec46Bw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1731334644; c=relaxed/simple;
-	bh=ZbyLeGCSbngFiWA0hTedladW9hdyVCIFS/FvutSfTpE=;
+	bh=Gc/1q3VKbWRM/C3IwC9jUGDHohr3fYVYRU1NvUQtmB0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=oGlKcN1iYOXfCFPFvGFBB3+Jkt/liZ31wYiELy11Gq0YvwRrEoQ6Ga0WtjVeT6ek1cTNMCKYDUkVNw2wzooA+zd862Bg9mvCjAZnUd/m1NUQKzU67hPBzQ/DTzEsHOS1OJGs+dOT79MPgUV7hnsGS70QIVp25JE1xJJoKY+apsc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=G6k0nmof; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=DrGxShc3VQvIBPfWt6TyKbCVTaJy2fKa5a+EGTr85DKo2lvLzPk7umuO4Rpm+3Vq0aQ5oFqsEprHJL6RO2ibaSxxtF6qUqkEIdT2SeOb1B6BLrX+QlUbe2L9BzFarl34m3RA0MGYnuvZSW96vMmfNgYxlaVkNQ8TDn8sgPCWknE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=rpy6TzVe; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="G6k0nmof"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="rpy6TzVe"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1731334637;
@@ -24,17 +24,17 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=wJ6B3YFncbxVbxIYFO2omBl/KcuEbZxwzNm+I9LQSzU=;
-	b=G6k0nmofmSHxWaRgTVs3Rb2IWhMs5g88VZwriIySCJJ6yDdShskZDjuiCtrYXV94VBTNfj
-	/fghJm2eCCAvHU4eHj/gcYEtj7qT5hyvoErGoyOPX+8EiuYnc0f+BW36miUJWlpfuOk7Gm
-	vvjbS8riHwgseS2Tv2PKA/OlOZDGvEu1alh27WVDV5JbcGlEpUSQa/J6a7ApOpLXQuR7b8
-	+jbwfl6H7GdqCnHFE3rBtMjlIxNkW+x9+cSgrl8KkgXY2Ka3ex9TpcCXPGkhSgc+6O2k9Z
-	WVuu6YRck+t4luzHtUSiY3Rqy9FmsZhy0TjDktQ8FyvBIOwx82nh0BxUvqm9/Q==
+	bh=VZpBwwbly1+1nfkmJzE4u7V79GtAviKmPHPtUFNfR3Y=;
+	b=rpy6TzVeoCWqVfDqtZAQiXpx9sCdHmrxlkaiY+LFvp0/XS9LUy2TUiYcp1m1HUS4kZO48s
+	Pu70B9AdwqggBEqmMoz9+uti1g4Tjv+5hu4Icbf8CfdnJTo+Twa7GIr4kcceMiflyizWLr
+	7AVtYspIag+zEngD/X62cu74yEidaIEFuodKeRtDxahm1L7/QLZdgdr8Xq3+dlgFEwx6SX
+	wr/9ncG3iUPHQTGwZVGfSrygu9K7FbnJByQe1NneS8SUFWsdcuzdfLILqu+Cbrwz8/wueS
+	7LWXX//Nmhpr5qfxSc9mwNfjpO64wvCkhlCScda8T0R+5au2EroSsW8mM83gHg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 26/47] libsemanage: more strict value parsing
-Date: Mon, 11 Nov 2024 15:16:45 +0100
-Message-ID: <20241111141706.38039-26-cgoettsche@seltendoof.de>
+Subject: [PATCH 22/47] libsemanage: free ibdev names in semanage_ibendport_validate_local()
+Date: Mon, 11 Nov 2024 15:16:41 +0100
+Message-ID: <20241111141706.38039-22-cgoettsche@seltendoof.de>
 In-Reply-To: <20241111141706.38039-1-cgoettsche@seltendoof.de>
 References: <20241111141706.38039-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,98 +49,62 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Be more strict when parsing values from semanage.conf, especially
-numeric ones.
-
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsemanage/src/conf-parse.y | 44 ++++++++++++++++++++++++++----------
- 1 file changed, 32 insertions(+), 12 deletions(-)
+ libsemanage/src/ibendports_local.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-index 9c806fdd..83aa3402 100644
---- a/libsemanage/src/conf-parse.y
-+++ b/libsemanage/src/conf-parse.y
-@@ -26,6 +26,7 @@
- #include <selinux/selinux.h>
- #include <semanage/handle.h>
+diff --git a/libsemanage/src/ibendports_local.c b/libsemanage/src/ibendports_local.c
+index e696fdca..feebfa63 100644
+--- a/libsemanage/src/ibendports_local.c
++++ b/libsemanage/src/ibendports_local.c
+@@ -80,8 +80,8 @@ int semanage_ibendport_validate_local(semanage_handle_t *handle)
+ 	semanage_ibendport_t **ibendports = NULL;
+ 	unsigned int nibendports = 0;
+ 	unsigned int i = 0, j = 0;
+-	char *ibdev_name;
+-	char *ibdev_name2;
++	char *ibdev_name = NULL;
++	char *ibdev_name2 = NULL;
+ 	int port;
+ 	int port2;
  
-+#include <errno.h>
- #include <unistd.h>
- #include <stdio.h>
- #include <stdlib.h>
-@@ -139,13 +140,15 @@ ignore_module_cache:	IGNORE_MODULE_CACHE '=' ARG  {
-         ;
+@@ -97,6 +97,8 @@ int semanage_ibendport_validate_local(semanage_handle_t *handle)
+ 	while (i < nibendports) {
+ 		int stop = 0;
  
- version:        VERSION '=' ARG  {
--                        current_conf->policyvers = atoi($3);
-+                        char *endptr;
-+                        long value;
-+                        errno = 0;
-+                        value = strtol($3, &endptr, 10);
-+                        if (*endptr != '\0' || errno != 0 || value < sepol_policy_kern_vers_min() || value > sepol_policy_kern_vers_max())
-+                                yyerror("policy-version must be a valid policy version");
-+                        else
-+                                current_conf->policyvers = value;
-                         free($3);
--                        if (current_conf->policyvers < sepol_policy_kern_vers_min() ||
--                            current_conf->policyvers > sepol_policy_kern_vers_max()) {
--                                parse_errors++;
--                                YYABORT;
--                        }
-                 }
-         ;
++		free(ibdev_name);
++		ibdev_name = NULL;
+ 		if (STATUS_SUCCESS !=
+ 				semanage_ibendport_get_ibdev_name(handle,
+ 								  ibendports[i],
+@@ -114,6 +116,8 @@ int semanage_ibendport_validate_local(semanage_handle_t *handle)
+ 			if (j == nibendports - 1)
+ 				goto next;
+ 			j++;
++			free(ibdev_name2);
++			ibdev_name2 = NULL;
+ 			if (STATUS_SUCCESS !=
+ 				semanage_ibendport_get_ibdev_name(handle,
+ 								  ibendports[j],
+@@ -136,6 +140,8 @@ next:
+ 		j = i;
+ 	}
  
-@@ -162,13 +165,27 @@ target_platform: TARGET_PLATFORM '=' ARG  {
-         ;
++	free(ibdev_name);
++	free(ibdev_name2);
+ 	for (i = 0; i < nibendports; i++)
+ 		semanage_ibendport_free(ibendports[i]);
+ 	free(ibendports);
+@@ -145,6 +151,8 @@ err:
+ 	ERR(handle, "could not complete ibendports validity check");
  
- expand_check:   EXPAND_CHECK '=' ARG  {
--                        current_conf->expand_check = atoi($3);
-+                        char *endptr;
-+                        long value;
-+                        errno = 0;
-+                        value = strtol($3, &endptr, 10);
-+                        if (*endptr != '\0' || errno != 0 || (value != 0 && value != 1))
-+                                yyerror("expand-check can only be '1' or '0'");
-+                        else
-+                                current_conf->expand_check = value;
-                         free($3);
-                 }
-         ;
- 
- file_mode:   FILE_MODE '=' ARG  {
--                        current_conf->file_mode = strtoul($3, NULL, 8);
-+                        char *endptr;
-+                        long value;
-+                        errno = 0;
-+                        value = strtol($3, &endptr, 8);
-+                        if (*endptr != '\0' || errno != 0 || value < 0 || value > 0777)
-+                                yyerror("file-mode must be a valid permission mode");
-+                        else
-+                                current_conf->file_mode = value;
-                         free($3);
-                 }
-         ;
-@@ -239,12 +256,15 @@ handle_unknown: HANDLE_UNKNOWN '=' ARG {
-  }
- 
- bzip_blocksize:  BZIP_BLOCKSIZE '=' ARG {
--	int blocksize = atoi($3);
--	free($3);
--	if (blocksize > 9)
-+	char *endptr;
-+	long value;
-+	errno = 0;
-+	value = strtol($3, &endptr, 10);
-+	if (*endptr != '\0' || errno != 0 || value < 0 || value > 9)
- 		yyerror("bzip-blocksize can only be in the range 0-9");
- 	else
--		current_conf->bzip_blocksize = blocksize;
-+		current_conf->bzip_blocksize = value;
-+	free($3);
- }
- 
- bzip_small:  BZIP_SMALL '=' ARG {
+ invalid:
++	free(ibdev_name);
++	free(ibdev_name2);
+ 	for (i = 0; i < nibendports; i++)
+ 		semanage_ibendport_free(ibendports[i]);
+ 	free(ibendports);
 -- 
 2.45.2
 
