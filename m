@@ -1,40 +1,40 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DED3719F113
-	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 14:17:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3FC11A01C3
+	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 14:17:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731334640; cv=none; b=TTF9ZlriqUBKOlxGn6+5L0Mk86rPVLH2otYJL/eUwUQu3A4NABReQVq/XT21663B6vpfgfbVSnpCkpZpfh2ADxQT2/fYsxgNmZDcdtYM9u6YbQCaDiH2SWS7XhRUoCFU2I9eHUNtkFmO4caJg85Lgbwco6WfB2rw0qgSJGzjj/M=
+	t=1731334641; cv=none; b=CUB1dQhhXhoVcNi0avStnOREWTy3/2K5xWlqiBYkG4EkGemxD0YmDKVIGZ6acO7NOsFp8pqW1YuY+L3cFy9AJrUTNixTIbRSUQT/oDdVnmD2YEvbbYpz7EvzD2zAhXsDKM+A1mI8px2eNdqGPlPqZ0yyTPDEE99RkXXuma680u4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731334640; c=relaxed/simple;
-	bh=u65SspZ9dlDGHOuo+pxrh/Gtaq0XL3CSP8/xV+ceuiY=;
+	s=arc-20240116; t=1731334641; c=relaxed/simple;
+	bh=mNzjuVVYk4ihMJIufHQj/QE5Yr8x/JHlQr3snt2zed0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=s1GfyMu+sBoNKGNSlaCIdL8LSWI/KQfWAju5LtbcnXsjPksLU1/3ybppuolAv9nGiwtx0T/Zs9h964E9pLm+KdA4bBGfprRVnYNnO619it5Y1ZU9wvXu6ljPJ7aPhcPm9Lf2he8tHwGXoZ8x4myS5HG03onr4kvT9aEVLW7wNpQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=D7o/vXDw; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=aohDgr9qEjutlshrQi/pvGAyBwK1meR6+aYWYa97XIEXmpnlr8g3s+tApgUNSm4VkejlGFS+6GfpmG+7LCFbdutyCmPwQPyYjtpl7Op/gABuzQj06Pqz/3T6psN1XSBCNOdGiNVbhM1/irR6gLnvcLYcVzOqFVA/I8NQM8ZoDRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=m1anhFcz; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="D7o/vXDw"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="m1anhFcz"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1731334634;
+	s=2023072701; t=1731334635;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=S30nL3g6+5cD4/G2Aa3/tEF2FB5Xy/D6M99N65p6sGk=;
-	b=D7o/vXDwn3hqPwmulxnhkshv3EpaKGAS2+73RuuSkQcE2mj+bVaM8SrWcZQN9snuPTUPBG
-	+hvQF9FhFcoP5U9CzRmfxeB5tRWcilZ7P+2GMwSqZykpl6ahhWdxxPVnl5ga2sBfPsV41X
-	uLc3+E5HPP9Xq23AIYAK4GKj4kjVGSjZjNbFbVPlVChjimiHaX45EAh6WfZmVBYo1buvyf
-	BS+TOJKHai7VCzIDje21AZdVW+TiR3qv2m3TdCHLgECcVh2TkzzaF4eIpZlffDDAnxSKYK
-	8n/GNtqXL4eMPI1X18wWhA6ui6Hsbo5IumXRG7FtP9loyLA20k41GBJ8CoxJ7g==
+	bh=Hy6MACwipdsTTMvFPvD2QsfECfdAB67fKKSBlCb3Erk=;
+	b=m1anhFcz07qOr3XAgXNO2r6Nn1/7Lg/8mN9oZIpIRoJgZteBas9SZB7HzUqoz8drhKFzwV
+	6Wcsh6Tz9156FzgZK4TVwLWpCP03nEIsiPaM9iGG+RJWC9pt5j5cK1liFj5v7vrQ/3cXrU
+	su2nmUMylOGgfa7NfTKwkM5NbZYOHJ9y+rp6Ba+08QokfNP387C6RvKOH1FVtaQMyPutSQ
+	bfuwa0+Zi2sfF4D3L+VqqnWnQDDgK5RxgOOQbWes+N0bDOREGrg7CAY0fYZqdCIj4oQK2y
+	tRXio2+JIT+eoumKX4TG1dtWYDxVKrNRIZWpEnj4qGZYT53ZvhOVh7G0bEjzvQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 11/47] libsemanage: check memory allocations
-Date: Mon, 11 Nov 2024 15:16:30 +0100
-Message-ID: <20241111141706.38039-11-cgoettsche@seltendoof.de>
+Subject: [PATCH 12/47] libsemanage: use unlink on non directory
+Date: Mon, 11 Nov 2024 15:16:31 +0100
+Message-ID: <20241111141706.38039-12-cgoettsche@seltendoof.de>
 In-Reply-To: <20241111141706.38039-1-cgoettsche@seltendoof.de>
 References: <20241111141706.38039-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,42 +49,26 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
+remove(3) just calls unlink(2) for non directories.
+
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsemanage/src/conf-parse.y | 6 ++++++
- libsemanage/src/handle.c     | 2 ++
- 2 files changed, 8 insertions(+)
+ libsemanage/src/semanage_store.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-index 9e58345a..9c806fdd 100644
---- a/libsemanage/src/conf-parse.y
-+++ b/libsemanage/src/conf-parse.y
-@@ -369,6 +369,12 @@ static int semanage_conf_init(semanage_conf_t * conf)
- 	conf->save_previous = 0;
- 	conf->save_linked = 0;
- 
-+	if (!conf->store_path ||
-+	    !conf->store_root_path ||
-+	    !conf->compiler_directory_path) {
-+		return -1;
-+	}
-+
- 	if ((conf->load_policy =
- 	     calloc(1, sizeof(*(current_conf->load_policy)))) == NULL) {
- 		return -1;
-diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-index d5baa614..f048f6d7 100644
---- a/libsemanage/src/handle.c
-+++ b/libsemanage/src/handle.c
-@@ -45,6 +45,8 @@ int semanage_set_root(const char *root)
- {
- 	free(private_semanage_root);
- 	private_semanage_root = strdup(root);
-+	if (!private_semanage_root)
-+		return -1;
- 	return 0;
- }
- 
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 7c9f5b2a..29bde24a 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -880,7 +880,7 @@ int semanage_remove_directory(const char *path)
+ 				return retval;
+ 			}
+ 		} else {
+-			if (remove(s) == -1) {
++			if (unlink(s) == -1) {
+ 				return -3;
+ 			}
+ 		}
 -- 
 2.45.2
 
