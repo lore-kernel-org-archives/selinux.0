@@ -1,40 +1,40 @@
 Received: from markus.defensec.nl (markus.defensec.nl [45.80.168.93])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E78AA42A87
-	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 18:33:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FAC814EC55
+	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 18:35:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.80.168.93
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731349990; cv=none; b=RL8IgnWRSAqsftkGDxFLgZAoRbyU70xWQtv6Adu45HfbZW1tCj5N00VI9o6BWYF30i0zjc7AZgd7YfHO5zWoEVOQomEsdkpP2gcfAJIqk1L6yP3g56B3jQsLzASBdBmH0qFvmaDGzYs2mxq4LWuF6HLEy5XeWhsMRufalhLnYag=
+	t=1731350126; cv=none; b=FCeBTJPN04bcJUyw1ajxBrenbBC9eAkJuiSXeb6mDh8zEhhhfVV4sqNe+YEnBul+SUPuGmU+P101vHVt+W8S4Prf5TdFNsVw3paduBJbHg8qh2XSXkkntOVwIRFTJZixbLz/DnSjHMWdB3dEcz7rKwXWGgCf5ZrtPkBgh8m/m7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731349990; c=relaxed/simple;
-	bh=AecZYOkXyQNvtsN2F6QGS+Md3xK+SMBPlEU+Jl4SAtM=;
+	s=arc-20240116; t=1731350126; c=relaxed/simple;
+	bh=FsepWrXP28decJzHy+s7O3Dg9Jci0wYGK0NWKJP0TLY=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=rlbT7M0ZoogrBXrAbc12N0sJx6gVSqZ9nrzIRlotcoR9Btrqxo+N2GRQH0fcfHvjPxnNLMd8OICN35neDZqgheQEQ3ilkGnwVbgqD7xCMYUyyQ1z2Uv6Ji9e3GybfNsgdyV0WptiIkBxodfq0PiKNlqPcw2+YWL3B9h4eY8DJKY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl; spf=pass smtp.mailfrom=defensec.nl; dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b=B2bmavgy; arc=none smtp.client-ip=45.80.168.93
+	 MIME-Version:Content-Type; b=Q+maKvX+aehJ13JvOE6PShI6dVmmLunfeMDFR4jd63J9gw0p4OM+a9+z+PivOeZyV0gR5wvkqfAnX0RlqiEH0xroqfTnishyNMeVM1y7aYiG9TgqSp6edriQSQWxq8RfIO+dV6D1snqyuYPfCyq6gDldgRAMxtifWj5FxjsiJVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl; spf=pass smtp.mailfrom=defensec.nl; dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b=NQTOnG77; arc=none smtp.client-ip=45.80.168.93
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=defensec.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="B2bmavgy"
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="NQTOnG77"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
-	s=default; t=1731349985;
-	bh=AecZYOkXyQNvtsN2F6QGS+Md3xK+SMBPlEU+Jl4SAtM=;
+	s=default; t=1731349656;
+	bh=FsepWrXP28decJzHy+s7O3Dg9Jci0wYGK0NWKJP0TLY=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=B2bmavgyc3A+VTdHBTixFsgWpmitaYd0pE4yUxyUCh7eUE2HNBR9sHTa1WZrR3cUq
-	 OZ4lu4pKoGEpJ8zOmsPSnWiUuzSOqlGJZb5aCvphUDpoVkWblDBHV1lN+JoqsBK7Wv
-	 uaehf2D0sIUFc2E4SCNHsO0TkujgRhOiLZgn0r5w=
+	b=NQTOnG77Z/F4lYMl6XPvPVsMdfHaEJLH6nJ20UkteqAbXOioo2Xfmxdn/bLZQbSsy
+	 VI3p/HYUftd57sB1+gsVMZ0QfMG8kuYtM7P6Hmu5OBqFY7pWzL1kfOVNSccQlEma2t
+	 fP0zW9DKtBgCG9m8h6aqtt+Rfu+QYcMR7rDra1xE=
 Received: from nimbus (nimbus.lan [IPv6:2a10:3781:2099::514])
-	by markus.defensec.nl (Postfix) with ESMTPSA id E6543DF5A0;
-	Mon, 11 Nov 2024 19:33:05 +0100 (CET)
+	by markus.defensec.nl (Postfix) with ESMTPSA id CBC0EDF59D;
+	Mon, 11 Nov 2024 19:27:36 +0100 (CET)
 From: Dominick Grift <dominick.grift@defensec.nl>
 To: Ian Pilcher <arequipeno@gmail.com>
 Cc: SElinux list <selinux@vger.kernel.org>
-Subject: Re: How to write a policy for a "service wrapper"?
-In-Reply-To: <435b1b8a-a6b6-4180-a038-520d226b88ef@gmail.com> (Ian Pilcher's
-	message of "Mon, 11 Nov 2024 10:14:02 -0600")
-References: <435b1b8a-a6b6-4180-a038-520d226b88ef@gmail.com>
-Date: Mon, 11 Nov 2024 19:33:05 +0100
-Message-ID: <87ldxp8vtq.fsf@defensec.nl>
+Subject: Re: Allow rule not having any effect?!
+In-Reply-To: <3df128ad-cd76-4fea-a905-60d7f02ca4ee@gmail.com> (Ian Pilcher's
+	message of "Mon, 11 Nov 2024 11:30:08 -0600")
+References: <3df128ad-cd76-4fea-a905-60d7f02ca4ee@gmail.com>
+Date: Mon, 11 Nov 2024 19:27:36 +0100
+Message-ID: <87pln18w2v.fsf@defensec.nl>
 User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -44,45 +44,41 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain
 
-
 Ian Pilcher <arequipeno@gmail.com> writes:
 
-> I have a service (stunnel) that runs in a confined domain (stunnel_t).
+> I'm either missing something incredibly obvious, or something really,
+> really weird is going on.
 >
-> Due to changes in Fedora's systemwide cryptographic policy, I need to
-> run this service under the "legacy" cryptographic policy, using the
-> 'runcp' wrapper[1].
+> I have a policy module that includes this rule.
 >
-> So my idea is to create new domain for the wrapper (runcp_t or similar),
-> give that domain the permissions required to perform its functions, and
-> then use a type transition rule to run the actual service in its normal
-> domain.
+>   allow runcp_t etc_t:file { create write setattr };
 >
-> It's simple enough to write a type transition rule for a specific
-> service, e.g.:
+> And I can see that the rule is loaded.
 >
->   type_transition runcp_t stunnel_exec_t:process stunnel_t;
+>   $ sesearch --allow -s runcp_t -t etc_t -c file -ds -dt
+>   allow runcp_t etc_t:file { create setattr write };
 >
-> However, it would obviously be nice to allow the wrapper to be used
-> without the need for service-specific rules.
+> Nonetheless, I am still getting this denial.
 >
-> Any service that normally runs in a confined domain presumably already
-> provides a type transition rule for the init system, e.g.:
->
->   type_transition init_t stunnel_exec_t:process stunnel_t;
->
-> Is there some way that I can make the wrapper take advantage of these
-> rules, possibly by transitioning back to init_t?
+>   type=AVC msg=audit(1731345803.780:3765): avc:  denied  { create } for
+>   pid=289668 comm="cp" name="config"
+>   scontext=system_u:system_r:runcp_t:s0
+>   tcontext=unconfined_u:object_r:etc_t:s0 tclass=file permissive=0
 
-You can label the runcp command with a private executable file type and
-then allow systemd to execute it without a transition effectively
-running runcp in init_t just like systemd. Then when runcp executes
-stunnel it should transparently transition from init_t to stunnel_t as
-if runcp was not there.
+I suspect cp is called with -a when copying that "config" file.
+It tries to create the file with an identity other than its own
+(unconfined_u versus system_u) and object identity changes are
+constrained by identity-based access control.
+
+echo '(typeattributeset can_change_object_identity runcp_t)' >
+mytest.cil && sudo semodule -i mytest.cil
+
+The above should lift the object identity change constrain.
 
 >
-> [1]
-> https://gitlab.com/redhat-crypto/crypto-policies-extras/-/blob/main/runcp.c
+> AFAICT, this makes no sense at all.
+>
+> Any ideas?
 
 -- 
 gpg --locate-keys dominick.grift@defensec.nl (wkd)
