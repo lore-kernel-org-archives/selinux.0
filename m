@@ -1,21 +1,21 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E798A19F41B
-	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 14:17:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3ABA61A08A3
+	for <selinux@vger.kernel.org>; Mon, 11 Nov 2024 14:17:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731334645; cv=none; b=Ro3qEQuJutvKOXuSDf/X7XPktHTDxKbt8PiYpZdAF2uh5Zclnja6lHh6BjT54sPCftlqLE3kdJxobER06GMHKTAdpaImIDJ8nj92WBLVw8k3C6ooGUiU3ZK3jeZKBFEO4oxj8Y/7ZGazBJ/I5XdczKW4TUKGoakpARyV5kH8A5c=
+	t=1731334645; cv=none; b=eK7eGaiUDX+zrrhm8paooLgkLscubWkCbD5yYDp/YnNGYLDgXr9wKb6zS/rxrhwINL9smvWO+uDz3LOMBLCKau+6b7EtNb3yQSYgnwDpuy/3OL4wU6+B3Hoj7SuMCIqoupGCDnqa3ceEQQJEyhrSwTx4b0RLTzA6Q9z33oetmPc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1731334645; c=relaxed/simple;
-	bh=mIYzz/3frDMJqOCbgZ9H5V+XrzrCBwBCGAKhx6VP+z4=;
+	bh=QpP3lG3OTkKbciCe5Jo2aIlHtEiXCq5nWe1UMCEMYIw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=uAdI08j7oUc3sXgQSvWPRvLwbMWAJipoQHHxRYuYjANijZ48ykzlY1TsdDRrV1AuGuX6N4X23N/QR6GOW67rxRUOXHBmM+x+5oGYPZTEV7jg34zl1STr9eqOocthsFCfXpLql6RmTQt3g6aVHA77XyFewCMBrOelCBFgW13eq+E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=LZP6m+wp; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=R9shSys/x8/Klzt+QVgZ/bs6kGFOaalxfuyEkl0PWhkbzInJKaMTMMJ4yxnIKUMgkV0HAfK6YSuIIcBFnkpBJuiB70hhEHLuSz+ZItBuLZqDKLMCEbMQSr/AJ8KhWInfzGlw0Q4RbhRwT1tcuVOVVhPRXs9qk93d/VRV0fdd9bQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=quDJg2Hx; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="LZP6m+wp"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="quDJg2Hx"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1731334638;
@@ -24,17 +24,17 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AEzBNfEpNfiPDgohy/Jb1uo9aHSZrzIEXLSExTZ60b8=;
-	b=LZP6m+wpBzZ4MCsu5eKICK0haCzHUtUvUWYBExVBZHQylZrhltv/9Fj3WIveJ3bcFgzwnT
-	N4UjttrclWGa7ldhcpKlokJJUWEgQ+nyz0GRmGF06TOXe3VDKKuYzEFhxidwosDzzUPDrs
-	H/xL62JTl38naGGqpZOrobE/cpTdcmzYoBMcxR2+nl++MDT07VvgRH6HsaIe3jlrohFi3A
-	kVceTlV//iDYBn5xa3fZhyH17mwWKoj/VD6HRc6GrwbC8w7N/JvnUH3YTfunI+2XhHAHrD
-	0aQtW/lJjuiovvVpkyGGBDN6xNJhLVV9m+Eau8dBUh9Ee/+Z3cbniRmbL7nfeA==
+	bh=bRF8X5JJqpASKAzaf0T9f2wPz7QehjAVj2xI0bmt4v8=;
+	b=quDJg2Hx+z8Xg8V9d5PsI76lZK3KcDx3BNE12vOFHelDrS/6Nah1qCz/1c6GXn1SeJSKgW
+	XiHH5M+FKIGA5wJ44ipQtoTVCSX8zASBs1vBns2lr7eAO0iojtGWH3qBXGxQebElZP2p1z
+	3fzxeGD/763VqjAhYcaZNhCPUDcXUJLO3Ny9rf5AlJfJIQLrDDES7p2MACw/1dSTjk9w+l
+	IdWvMaRr/32xJPF7QMuSntyVZYtJhadoDSOS6lihUarcXOnH5/OpyMwJfEaOhP28LTQGPD
+	X4vnP5p5xlvPFVNSCsGUqkZTT1oCEj19netX0qwABWd9zNSStBCvTOTzSTro7A==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 29/47] libsemanage: constify read only parameters and variables
-Date: Mon, 11 Nov 2024 15:16:48 +0100
-Message-ID: <20241111141706.38039-29-cgoettsche@seltendoof.de>
+Subject: [PATCH 30/47] libsemanage: avoid misc function pointer casts
+Date: Mon, 11 Nov 2024 15:16:49 +0100
+Message-ID: <20241111141706.38039-30-cgoettsche@seltendoof.de>
 In-Reply-To: <20241111141706.38039-1-cgoettsche@seltendoof.de>
 References: <20241111141706.38039-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,493 +49,514 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
+Function pointer casts are strictly speaking undefined behavior.
+
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsemanage/include/semanage/handle.h |  4 ++--
- libsemanage/src/booleans_file.c       |  2 +-
- libsemanage/src/database.c            |  2 +-
- libsemanage/src/database_file.h       |  2 +-
- libsemanage/src/database_llist.h      |  4 ++--
- libsemanage/src/direct_api.c          |  8 ++++----
- libsemanage/src/fcontexts_file.c      |  2 +-
- libsemanage/src/genhomedircon.c       | 12 ++++++------
- libsemanage/src/handle.c              |  4 ++--
- libsemanage/src/ibendports_file.c     |  5 +++--
- libsemanage/src/ibpkeys_file.c        |  5 +++--
- libsemanage/src/interfaces_file.c     |  2 +-
- libsemanage/src/nodes_file.c          |  2 +-
- libsemanage/src/parse_utils.c         |  2 +-
- libsemanage/src/policy_components.c   |  4 ++--
- libsemanage/src/ports_file.c          |  2 +-
- libsemanage/src/semanage_store.c      | 16 ++++++++--------
- libsemanage/src/seusers_file.c        |  2 +-
- libsemanage/src/users_base_file.c     |  4 ++--
- libsemanage/src/users_extra_file.c    |  2 +-
- libsemanage/src/utilities.c           |  4 ++--
- 21 files changed, 46 insertions(+), 44 deletions(-)
+ libsemanage/src/boolean_record.c     |  7 ++++---
+ libsemanage/src/database.h           |  2 +-
+ libsemanage/src/database_join.c      |  6 ++----
+ libsemanage/src/fcontext_record.c    |  9 ++++-----
+ libsemanage/src/genhomedircon.c      | 21 ++++++++++++---------
+ libsemanage/src/ibendport_internal.h |  3 +--
+ libsemanage/src/ibendport_record.c   |  8 +++++---
+ libsemanage/src/ibendports_local.c   |  4 +---
+ libsemanage/src/ibpkey_internal.h    |  3 +--
+ libsemanage/src/ibpkey_record.c      |  8 +++++---
+ libsemanage/src/ibpkeys_local.c      |  4 +---
+ libsemanage/src/iface_record.c       |  8 +++++---
+ libsemanage/src/node_internal.h      |  3 +--
+ libsemanage/src/node_record.c        |  7 ++++---
+ libsemanage/src/policy_components.c  |  4 +---
+ libsemanage/src/port_internal.h      |  3 +--
+ libsemanage/src/port_record.c        |  7 ++++---
+ libsemanage/src/ports_local.c        |  4 +---
+ libsemanage/src/seuser_record.c      |  7 ++++---
+ libsemanage/src/seusers_local.c      |  3 ++-
+ libsemanage/src/user_base_record.c   |  8 ++++----
+ libsemanage/src/user_extra_record.c  |  9 ++++-----
+ libsemanage/src/user_record.c        |  7 ++++---
+ libsemanage/src/utilities.c          | 10 ++++++----
+ libsemanage/src/utilities.h          |  3 +--
+ 25 files changed, 79 insertions(+), 79 deletions(-)
 
-diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
-index 41db000f..a5ea31de 100644
---- a/libsemanage/include/semanage/handle.h
-+++ b/libsemanage/include/semanage/handle.h
-@@ -51,7 +51,7 @@ enum semanage_connect_type {
-  * It must be called after semanage_handle_create but before
-  * semanage_connect. The argument should be the full path to the store.
-  */
--extern void semanage_select_store(semanage_handle_t * handle, char *path,
-+extern void semanage_select_store(semanage_handle_t * handle, const char *path,
- 				  enum semanage_connect_type storetype);
- 
- /* Just reload the policy */
-@@ -74,7 +74,7 @@ extern void semanage_set_check_ext_changes(semanage_handle_t * handle, int do_ch
- /* Fills *compiler_path with the location of the hll compiler sh->conf->compiler_directory_path
-  * corresponding to lang_ext.
-  * Upon success returns 0, -1 on error. */
--extern int semanage_get_hll_compiler_path(semanage_handle_t *sh, char *lang_ext, char **compiler_path);
-+extern int semanage_get_hll_compiler_path(semanage_handle_t *sh, const char *lang_ext, char **compiler_path);
- 
- /* create the store if it does not exist, this only has an effect on
-  * direct connections and must be called before semanage_connect
-diff --git a/libsemanage/src/booleans_file.c b/libsemanage/src/booleans_file.c
-index 52628b63..9f2ad1f2 100644
---- a/libsemanage/src/booleans_file.c
-+++ b/libsemanage/src/booleans_file.c
-@@ -21,7 +21,7 @@ typedef struct dbase_file dbase_t;
- #include "debug.h"
- 
- static int bool_print(semanage_handle_t * handle,
--		      semanage_bool_t * boolean, FILE * str)
-+		      const semanage_bool_t * boolean, FILE * str)
- {
- 
- 	const char *name = semanage_bool_get_name(boolean);
-diff --git a/libsemanage/src/database.c b/libsemanage/src/database.c
-index fc4f7179..921a4052 100644
---- a/libsemanage/src/database.c
-+++ b/libsemanage/src/database.c
-@@ -6,7 +6,7 @@
- #include "database.h"
- #include "debug.h"
- 
--static int assert_init(semanage_handle_t * handle, dbase_config_t * dconfig)
-+static int assert_init(semanage_handle_t * handle, const dbase_config_t * dconfig)
- {
- 
- 	if (dconfig->dtable == NULL) {
-diff --git a/libsemanage/src/database_file.h b/libsemanage/src/database_file.h
-index c65a9f9a..f5d9d81b 100644
---- a/libsemanage/src/database_file.h
-+++ b/libsemanage/src/database_file.h
-@@ -22,7 +22,7 @@ typedef struct record_file_table {
- 
- 	/* Print record to stream */
- 	int (*print) (semanage_handle_t * handle,
--		      record_t * record, FILE * str);
-+		      const record_t * record, FILE * str);
- 
- } record_file_table_t;
- 
-diff --git a/libsemanage/src/database_llist.h b/libsemanage/src/database_llist.h
-index 639b784d..de843683 100644
---- a/libsemanage/src/database_llist.h
-+++ b/libsemanage/src/database_llist.h
-@@ -69,14 +69,14 @@ static inline void dbase_llist_set_modified(dbase_llist_t * dbase, int status)
- /* LLIST - cache/transactions */
- extern void dbase_llist_drop_cache(dbase_llist_t * dbase);
- 
--static inline int dbase_llist_is_modified(dbase_llist_t * dbase)
-+static inline int dbase_llist_is_modified(const dbase_llist_t * dbase)
- {
- 
- 	return dbase->modified;
+diff --git a/libsemanage/src/boolean_record.c b/libsemanage/src/boolean_record.c
+index 2cbdd09b..41632052 100644
+--- a/libsemanage/src/boolean_record.c
++++ b/libsemanage/src/boolean_record.c
+@@ -64,11 +64,12 @@ int semanage_bool_compare2(const semanage_bool_t * boolean,
  }
  
- /* LLIST - polymorphism */
--static inline const record_table_t *dbase_llist_get_rtable(dbase_llist_t * dbase)
-+static inline const record_table_t *dbase_llist_get_rtable(const dbase_llist_t * dbase)
+ 
+-static int semanage_bool_compare2_qsort(const semanage_bool_t ** boolean,
+-					const semanage_bool_t ** boolean2)
++static int semanage_bool_compare2_qsort(const void *p1, const void *p2)
  {
- 	return dbase->rtable;
++	const semanage_bool_t *const *boolean1 = p1;
++	const semanage_bool_t *const *boolean2 = p2;
+ 
+-	return sepol_bool_compare2(*boolean, *boolean2);
++	return sepol_bool_compare2(*boolean1, *boolean2);
  }
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index b71e8e81..3b2ab449 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -618,7 +618,7 @@ static int read_from_pipe_to_data(semanage_handle_t *sh, size_t initial_len, int
+ 
+ /* Name */
+diff --git a/libsemanage/src/database.h b/libsemanage/src/database.h
+index 1950b63d..33348e2e 100644
+--- a/libsemanage/src/database.h
++++ b/libsemanage/src/database.h
+@@ -43,7 +43,7 @@ typedef struct record_table {
+ 	/* Same as above, but dereferences the pointer first.
+ 	 * This function is intenteded to be used as a qsort
+ 	 * comparator. */
+-	int (*compare2_qsort) (const record_t ** rec, const record_t ** rec2);
++	int (*compare2_qsort) (const void * rec, const void * rec2);
+ 
+ 	/* Deep-copy clone of this record */
+ 	int (*clone) (struct semanage_handle * handle,
+diff --git a/libsemanage/src/database_join.c b/libsemanage/src/database_join.c
+index 3e97f432..abe6c43c 100644
+--- a/libsemanage/src/database_join.c
++++ b/libsemanage/src/database_join.c
+@@ -78,12 +78,10 @@ static int dbase_join_cache(semanage_handle_t * handle, dbase_join_t * dbase)
+ 
+ 	/* Sort for quicker merge later */
+ 	if (rcount1 > 0) {
+-		qsort(records1, rcount1, sizeof(record1_t *),
+-		      (int (*)(const void *, const void *))rtable1->compare2_qsort);
++		qsort(records1, rcount1, sizeof(record1_t *), rtable1->compare2_qsort);
+ 	}
+ 	if (rcount2 > 0) {
+-		qsort(records2, rcount2, sizeof(record2_t *),
+-		      (int (*)(const void *, const void *))rtable2->compare2_qsort);
++		qsort(records2, rcount2, sizeof(record2_t *), rtable2->compare2_qsort);
+ 	}
+ 
+ 	/* Now merge into this dbase */
+diff --git a/libsemanage/src/fcontext_record.c b/libsemanage/src/fcontext_record.c
+index f36e8317..cc6932eb 100644
+--- a/libsemanage/src/fcontext_record.c
++++ b/libsemanage/src/fcontext_record.c
+@@ -121,13 +121,12 @@ int semanage_fcontext_compare2(const semanage_fcontext_t * fcontext,
+ }
+ 
+ 
+-static int semanage_fcontext_compare2_qsort(const semanage_fcontext_t **
+-					    fcontext,
+-					    const semanage_fcontext_t **
+-					    fcontext2)
++static int semanage_fcontext_compare2_qsort(const void *p1, const void *p2)
+ {
++	const semanage_fcontext_t *const *fcontext1 = p1;
++	const semanage_fcontext_t *const *fcontext2 = p2;
+ 
+-	return semanage_fcontext_compare2(*fcontext, *fcontext2);
++	return semanage_fcontext_compare2(*fcontext1, *fcontext2);
+ }
+ 
+ /* Create */
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index 2fabbbd8..53673645 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -757,14 +757,20 @@ static int seuser_sort_func(const void *arg1, const void *arg2)
+ 	return strcmp(name1, name2);
+ }
+ 
+-static int user_sort_func(semanage_user_t ** arg1, semanage_user_t ** arg2)
++static int user_sort_func(const void *arg1, const void *arg2)
+ {
+-	return strcmp(semanage_user_get_name(*arg1),
+-		      semanage_user_get_name(*arg2));
++	const semanage_user_t *const *user1 = arg1;
++	const semanage_user_t *const *user2 = arg2;
++
++	return strcmp(semanage_user_get_name(*user1),
++		      semanage_user_get_name(*user2));
+ }
+ 
+-static int name_user_cmp(char *key, semanage_user_t ** val)
++static int name_user_cmp(const void *arg1, const void *arg2)
+ {
++	const char *key = arg1;
++	const semanage_user_t *const *val = arg2;
++
+ 	return strcmp(key, semanage_user_get_name(*val));
+ }
+ 
+@@ -1184,8 +1190,7 @@ static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
+ 
+ 	qsort(seuser_list, nseusers, sizeof(semanage_seuser_t *),
+ 	      &seuser_sort_func);
+-	qsort(user_list, nusers, sizeof(semanage_user_t *),
+-	      (int (*)(const void *, const void *))&user_sort_func);
++	qsort(user_list, nusers, sizeof(semanage_user_t *), user_sort_func);
+ 
+ 	for (i = 0; i < nseusers; i++) {
+ 		seuname = semanage_seuser_get_sename(seuser_list[i]);
+@@ -1195,9 +1200,7 @@ static genhomedircon_user_entry_t *get_users(genhomedircon_settings_t * s,
+ 			continue;
+ 
+ 		/* find the user structure given the name */
+-		u = bsearch(seuname, user_list, nusers, sizeof(semanage_user_t *),
+-			    (int (*)(const void *, const void *))
+-			    &name_user_cmp);
++		u = bsearch(seuname, user_list, nusers, sizeof(semanage_user_t *), name_user_cmp);
+ 
+ 		/* %groupname syntax */
+ 		if (name[0] == '%') {
+diff --git a/libsemanage/src/ibendport_internal.h b/libsemanage/src/ibendport_internal.h
+index 04e0da5a..946c262a 100644
+--- a/libsemanage/src/ibendport_internal.h
++++ b/libsemanage/src/ibendport_internal.h
+@@ -26,7 +26,6 @@ extern int semanage_ibendport_validate_local(semanage_handle_t *handle);
+ 
+ /* ==== Internal (to ibendports) API === */
+ 
+- int semanage_ibendport_compare2_qsort(const semanage_ibendport_t **ibendport,
+-					     const semanage_ibendport_t **ibendport2);
++ int semanage_ibendport_compare2_qsort(const void *p1, const void *p2);
+ 
+ #endif
+diff --git a/libsemanage/src/ibendport_record.c b/libsemanage/src/ibendport_record.c
+index 6afe8975..38f1a4b0 100644
+--- a/libsemanage/src/ibendport_record.c
++++ b/libsemanage/src/ibendport_record.c
+@@ -37,10 +37,12 @@ int semanage_ibendport_compare2(const semanage_ibendport_t *ibendport,
+ }
+ 
+ 
+- int semanage_ibendport_compare2_qsort(const semanage_ibendport_t **ibendport,
+-					     const semanage_ibendport_t **ibendport2)
++ int semanage_ibendport_compare2_qsort(const void *p1, const void *p2)
+ {
+-	return sepol_ibendport_compare2(*ibendport, *ibendport2);
++	const semanage_ibendport_t *const *ibendport1 = p1;
++	const semanage_ibendport_t *const *ibendport2 = p2;
++
++	return sepol_ibendport_compare2(*ibendport1, *ibendport2);
+ }
+ 
+ int semanage_ibendport_key_create(semanage_handle_t *handle,
+diff --git a/libsemanage/src/ibendports_local.c b/libsemanage/src/ibendports_local.c
+index feebfa63..0b8c14d2 100644
+--- a/libsemanage/src/ibendports_local.c
++++ b/libsemanage/src/ibendports_local.c
+@@ -89,9 +89,7 @@ int semanage_ibendport_validate_local(semanage_handle_t *handle)
+ 	if (semanage_ibendport_list_local(handle, &ibendports, &nibendports) < 0)
+ 		goto err;
+ 
+-	qsort(ibendports, nibendports, sizeof(semanage_ibendport_t *),
+-	      (int (*)(const void *, const void *))
+-	      &semanage_ibendport_compare2_qsort);
++	qsort(ibendports, nibendports, sizeof(semanage_ibendport_t *), semanage_ibendport_compare2_qsort);
+ 
+ 	/* Test each ibendport */
+ 	while (i < nibendports) {
+diff --git a/libsemanage/src/ibpkey_internal.h b/libsemanage/src/ibpkey_internal.h
+index c1d97876..8761b5af 100644
+--- a/libsemanage/src/ibpkey_internal.h
++++ b/libsemanage/src/ibpkey_internal.h
+@@ -26,7 +26,6 @@ extern int semanage_ibpkey_validate_local(semanage_handle_t *handle);
+ 
+ /* ==== Internal (to ibpkeys) API === */
+ 
+- int semanage_ibpkey_compare2_qsort(const semanage_ibpkey_t **ibpkey,
+-					  const semanage_ibpkey_t **ibpkey2);
++ int semanage_ibpkey_compare2_qsort(const void *p1, const void *p2);
+ 
+ #endif
+diff --git a/libsemanage/src/ibpkey_record.c b/libsemanage/src/ibpkey_record.c
+index 9a47f53b..e015663f 100644
+--- a/libsemanage/src/ibpkey_record.c
++++ b/libsemanage/src/ibpkey_record.c
+@@ -37,10 +37,12 @@ int semanage_ibpkey_compare2(const semanage_ibpkey_t *ibpkey,
+ }
+ 
+ 
+- int semanage_ibpkey_compare2_qsort(const semanage_ibpkey_t **ibpkey,
+-					  const semanage_ibpkey_t **ibpkey2)
++ int semanage_ibpkey_compare2_qsort(const void *p1, const void *p2)
+ {
+-	return sepol_ibpkey_compare2(*ibpkey, *ibpkey2);
++	const semanage_ibpkey_t *const *ibpkey1 = p1;
++	const semanage_ibpkey_t *const *ibpkey2 = p2;
++
++	return sepol_ibpkey_compare2(*ibpkey1, *ibpkey2);
+ }
+ 
+ int semanage_ibpkey_key_create(semanage_handle_t *handle,
+diff --git a/libsemanage/src/ibpkeys_local.c b/libsemanage/src/ibpkeys_local.c
+index 6d05d125..6848bd0d 100644
+--- a/libsemanage/src/ibpkeys_local.c
++++ b/libsemanage/src/ibpkeys_local.c
+@@ -91,9 +91,7 @@ int semanage_ibpkey_validate_local(semanage_handle_t *handle)
+ 	if (semanage_ibpkey_list_local(handle, &ibpkeys, &nibpkeys) < 0)
+ 		goto err;
+ 
+-	qsort(ibpkeys, nibpkeys, sizeof(semanage_ibpkey_t *),
+-	      (int (*)(const void *, const void *))
+-	      &semanage_ibpkey_compare2_qsort);
++	qsort(ibpkeys, nibpkeys, sizeof(semanage_ibpkey_t *), semanage_ibpkey_compare2_qsort);
+ 
+ 	/* Test each ibpkey for overlap */
+ 	while (i < nibpkeys) {
+diff --git a/libsemanage/src/iface_record.c b/libsemanage/src/iface_record.c
+index b94afa04..15c3175e 100644
+--- a/libsemanage/src/iface_record.c
++++ b/libsemanage/src/iface_record.c
+@@ -40,11 +40,13 @@ int semanage_iface_compare2(const semanage_iface_t * iface,
+ }
+ 
+ 
+-static int semanage_iface_compare2_qsort(const semanage_iface_t ** iface,
+-					 const semanage_iface_t ** iface2)
++static int semanage_iface_compare2_qsort(const void *p1,
++					 const void *p2)
+ {
++	const semanage_iface_t *const *iface1 = p1;
++	const semanage_iface_t *const *iface2 = p2;
+ 
+-	return sepol_iface_compare2(*iface, *iface2);
++	return sepol_iface_compare2(*iface1, *iface2);
+ }
+ 
+ int semanage_iface_key_create(semanage_handle_t * handle,
+diff --git a/libsemanage/src/node_internal.h b/libsemanage/src/node_internal.h
+index 24041101..632e41e5 100644
+--- a/libsemanage/src/node_internal.h
++++ b/libsemanage/src/node_internal.h
+@@ -26,7 +26,6 @@ extern int semanage_node_validate_local(semanage_handle_t * handle);
+ 
+ /* ==== Internal (to nodes) API === */
+ 
+- int semanage_node_compare2_qsort(const semanage_node_t ** node,
+-					const semanage_node_t ** node2);
++ int semanage_node_compare2_qsort(const void *p1, const void *p2);
+ 
+ #endif
+diff --git a/libsemanage/src/node_record.c b/libsemanage/src/node_record.c
+index 9a018d4b..4d9bca42 100644
+--- a/libsemanage/src/node_record.c
++++ b/libsemanage/src/node_record.c
+@@ -41,11 +41,12 @@ int semanage_node_compare2(const semanage_node_t * node,
+ }
+ 
+ 
+- int semanage_node_compare2_qsort(const semanage_node_t ** node,
+-					const semanage_node_t ** node2)
++ int semanage_node_compare2_qsort(const void *p1, const void *p2)
+ {
++	const semanage_node_t *const *node1 = p1;
++	const semanage_node_t *const *node2 = p2;
+ 
+-	return sepol_node_compare2(*node, *node2);
++	return sepol_node_compare2(*node1, *node2);
+ }
+ 
+ int semanage_node_key_create(semanage_handle_t * handle,
+diff --git a/libsemanage/src/policy_components.c b/libsemanage/src/policy_components.c
+index ca3fbd20..6557bb18 100644
+--- a/libsemanage/src/policy_components.c
++++ b/libsemanage/src/policy_components.c
+@@ -169,9 +169,7 @@ int semanage_base_merge_components(semanage_handle_t * handle)
+ 
+ 		/* Sort records on MODE_SORT */
+ 		if (mode & MODE_SORT) {
+-			qsort(records, nrecords, sizeof(record_t *),
+-			      (int (*)(const void *, const void *))rtable->
+-			      compare2_qsort);
++			qsort(records, nrecords, sizeof(record_t *), rtable->compare2_qsort);
+ 		}
+ 
+ 		/* Clear obsolete ones for MODE_SET */
+diff --git a/libsemanage/src/port_internal.h b/libsemanage/src/port_internal.h
+index 3699ac7f..25c1f511 100644
+--- a/libsemanage/src/port_internal.h
++++ b/libsemanage/src/port_internal.h
+@@ -26,7 +26,6 @@ extern int semanage_port_validate_local(semanage_handle_t * handle);
+ 
+ /* ==== Internal (to ports) API === */
+ 
+- int semanage_port_compare2_qsort(const semanage_port_t ** port,
+-					const semanage_port_t ** port2);
++ int semanage_port_compare2_qsort(const void* p1, const void *p2);
+ 
+ #endif
+diff --git a/libsemanage/src/port_record.c b/libsemanage/src/port_record.c
+index d93e68f6..2ea138ce 100644
+--- a/libsemanage/src/port_record.c
++++ b/libsemanage/src/port_record.c
+@@ -40,11 +40,12 @@ int semanage_port_compare2(const semanage_port_t * port,
+ }
+ 
+ 
+- int semanage_port_compare2_qsort(const semanage_port_t ** port,
+-					const semanage_port_t ** port2)
++ int semanage_port_compare2_qsort(const void *p1, const void *p2)
+ {
++	const semanage_port_t *const * port1 = p1;
++	const semanage_port_t *const * port2 = p2;
+ 
+-	return sepol_port_compare2(*port, *port2);
++	return sepol_port_compare2(*port1, *port2);
+ }
+ 
+ int semanage_port_key_create(semanage_handle_t * handle,
+diff --git a/libsemanage/src/ports_local.c b/libsemanage/src/ports_local.c
+index 0261b07f..7d4d0768 100644
+--- a/libsemanage/src/ports_local.c
++++ b/libsemanage/src/ports_local.c
+@@ -82,9 +82,7 @@ int semanage_port_validate_local(semanage_handle_t * handle)
+ 	/* List and sort the ports */
+ 	if (semanage_port_list_local(handle, &ports, &nports) < 0)
+ 		goto err;
+-	qsort(ports, nports, sizeof(semanage_port_t *),
+-	      (int (*)(const void *, const void *))
+-	      &semanage_port_compare2_qsort);
++	qsort(ports, nports, sizeof(semanage_port_t *), semanage_port_compare2_qsort);
+ 
+ 	/* Test each port for overlap */
+ 	while (i < nports) {
+diff --git a/libsemanage/src/seuser_record.c b/libsemanage/src/seuser_record.c
+index bfaa0d7a..3a8ebfe0 100644
+--- a/libsemanage/src/seuser_record.c
++++ b/libsemanage/src/seuser_record.c
+@@ -99,11 +99,12 @@ int semanage_seuser_compare2(const semanage_seuser_t * seuser,
+ }
+ 
+ 
+-static int semanage_seuser_compare2_qsort(const semanage_seuser_t ** seuser,
+-					  const semanage_seuser_t ** seuser2)
++static int semanage_seuser_compare2_qsort(const void *p1, const void *p2)
+ {
++	const semanage_seuser_t *const *seuser1 = p1;
++	const semanage_seuser_t *const *seuser2 = p2;
+ 
+-	return strcmp((*seuser)->name, (*seuser2)->name);
++	return semanage_seuser_compare2(*seuser1, *seuser2);
+ }
+ 
+ /* Name */
+diff --git a/libsemanage/src/seusers_local.c b/libsemanage/src/seusers_local.c
+index ec7bfb08..eb3f82bc 100644
+--- a/libsemanage/src/seusers_local.c
++++ b/libsemanage/src/seusers_local.c
+@@ -126,7 +126,8 @@ int semanage_seuser_modify_local(semanage_handle_t * handle,
+ 				 const semanage_seuser_t * data)
+ {
+ 	int rc;
+-	void *callback = (void *) handle->msg_callback;
++	__attribute__((format(printf, 3, 4)))
++	void (*callback) (void*, semanage_handle_t*, const char*, ...) = handle->msg_callback;
+ 	dbase_config_t *dconfig = semanage_seuser_dbase_local(handle);
+ 	const char *sename = semanage_seuser_get_sename(data);
+ 	const char *mls_range = semanage_seuser_get_mlsrange(data);
+diff --git a/libsemanage/src/user_base_record.c b/libsemanage/src/user_base_record.c
+index 3c20aa46..ed911de8 100644
+--- a/libsemanage/src/user_base_record.c
++++ b/libsemanage/src/user_base_record.c
+@@ -47,12 +47,12 @@ static int semanage_user_base_compare2(const semanage_user_base_t * user,
+ 	return sepol_user_compare2(user, user2);
+ }
+ 
+-static int semanage_user_base_compare2_qsort(const semanage_user_base_t ** user,
+-					     const semanage_user_base_t **
+-					     user2)
++static int semanage_user_base_compare2_qsort(const void *p1, const void *p2)
+ {
++	const semanage_user_base_t *const *user1 = p1;
++	const semanage_user_base_t *const *user2 = p2;
+ 
+-	return sepol_user_compare2(*user, *user2);
++	return sepol_user_compare2(*user1, *user2);
+ }
+ 
+ /* Name */
+diff --git a/libsemanage/src/user_extra_record.c b/libsemanage/src/user_extra_record.c
+index 25349a9b..a948114a 100644
+--- a/libsemanage/src/user_extra_record.c
++++ b/libsemanage/src/user_extra_record.c
+@@ -66,13 +66,12 @@ static int semanage_user_extra_compare2(const semanage_user_extra_t *
+ 	return strcmp(user_extra->name, user_extra2->name);
+ }
+ 
+-static int semanage_user_extra_compare2_qsort(const semanage_user_extra_t **
+-					      user_extra,
+-					      const semanage_user_extra_t **
+-					      user_extra2)
++static int semanage_user_extra_compare2_qsort(const void *p1, const void *p2)
+ {
++	const semanage_user_extra_t *const *user_extra1 = p1;
++	const semanage_user_extra_t *const *user_extra2 = p2;
+ 
+-	return strcmp((*user_extra)->name, (*user_extra2)->name);
++	return semanage_user_extra_compare2(*user_extra1, *user_extra2);
+ }
+ 
+ /* Name */
+diff --git a/libsemanage/src/user_record.c b/libsemanage/src/user_record.c
+index 325c719d..47e89145 100644
+--- a/libsemanage/src/user_record.c
++++ b/libsemanage/src/user_record.c
+@@ -79,11 +79,12 @@ int semanage_user_compare2(const semanage_user_t * user,
+ }
+ 
+ 
+-static int semanage_user_compare2_qsort(const semanage_user_t ** user,
+-					const semanage_user_t ** user2)
++static int semanage_user_compare2_qsort(const void *p1, const void *p2)
+ {
++	const semanage_user_t *const *user1 = p1;
++	const semanage_user_t *const *user2 = p2;
+ 
+-	return strcmp((*user)->name, (*user2)->name);
++	return semanage_user_compare2(*user1, *user2);
+ }
+ 
+ /* Name */
+diff --git a/libsemanage/src/utilities.c b/libsemanage/src/utilities.c
+index ec578340..a64015f8 100644
+--- a/libsemanage/src/utilities.c
++++ b/libsemanage/src/utilities.c
+@@ -183,8 +183,7 @@ int semanage_list_sort(semanage_list_t ** l)
+ 		array[i++] = temp;
+ 	}
+ 
+-	qsort(array, count, sizeof(semanage_list_t *),
+-	      (int (*)(const void *, const void *))&semanage_cmp_plist_t);
++	qsort(array, count, sizeof(semanage_list_t *), semanage_cmp_plist_t);
+ 	for (i = 0; i < (count - 1); ++i) {
+ 		array[i]->next = array[i + 1];
+ 	}
+@@ -195,9 +194,12 @@ int semanage_list_sort(semanage_list_t ** l)
  	return 0;
  }
  
--static int semanage_pipe_data(semanage_handle_t *sh, char *path, char *in_data, size_t in_data_len, char **out_data, size_t *out_data_len, char **err_data, size_t *err_data_len)
-+static int semanage_pipe_data(semanage_handle_t *sh, const char *path, const char *in_data, size_t in_data_len, char **out_data, size_t *out_data_len, char **err_data, size_t *err_data_len)
+-int semanage_cmp_plist_t(const semanage_list_t ** x, const semanage_list_t ** y)
++int semanage_cmp_plist_t(const void *x, const void *y)
  {
- 	int input_fd[2] = {-1, -1};
- 	int output_fd[2] = {-1, -1};
-@@ -1722,8 +1722,8 @@ static int semanage_direct_install_file(semanage_handle_t * sh,
- 
- 	int retval = -1;
- 	char *path = NULL;
--	char *filename;
--	char *lang_ext = NULL;
-+	const char *filename;
-+	const char *lang_ext = NULL;
- 	char *module_name = NULL;
- 	char *separator;
- 	char *version = NULL;
-@@ -2215,7 +2215,7 @@ static int semanage_direct_get_module_info(semanage_handle_t *sh,
- 
- 	semanage_module_info_t *modinfos = NULL;
- 	int modinfos_len = 0;
--	semanage_module_info_t *highest = NULL;
-+	const semanage_module_info_t *highest = NULL;
- 
- 	/* check module name */
- 	ret = semanage_module_validate_name(modkey->name);
-diff --git a/libsemanage/src/fcontexts_file.c b/libsemanage/src/fcontexts_file.c
-index e4ef1672..c3c1fc4f 100644
---- a/libsemanage/src/fcontexts_file.c
-+++ b/libsemanage/src/fcontexts_file.c
-@@ -43,7 +43,7 @@ static const char *type_str(int type)
+-	return strcmp((*x)->data, (*y)->data);
++	const semanage_list_t *const *l1 = x;
++	const semanage_list_t *const *l2 = y;
++
++	return strcmp((*l1)->data, (*l2)->data);
  }
  
- static int fcontext_print(semanage_handle_t * handle,
--			  semanage_fcontext_t * fcontext, FILE * str)
-+			  const semanage_fcontext_t * fcontext, FILE * str)
- {
- 
- 	char *con_str = NULL;
-diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index 5e7315d8..2fabbbd8 100644
---- a/libsemanage/src/genhomedircon.c
-+++ b/libsemanage/src/genhomedircon.c
-@@ -170,7 +170,7 @@ err:
- }
- 
- static int ignore(const char *homedir) {
--	ignoredir_t *ptr = ignore_head;
-+	const ignoredir_t *ptr = ignore_head;
- 	while (ptr) {
- 		if (strcmp(ptr->dir, homedir) == 0) {
- 			return 1;
-@@ -685,7 +685,7 @@ fail:
- static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
- 				  semanage_list_t * tpl, const genhomedircon_user_entry_t *user)
- {
--	replacement_pair_t repl[] = {
-+	const replacement_pair_t repl[] = {
- 		{.search_for = TEMPLATE_HOME_DIR,.replace_with = user->home},
- 		{.search_for = TEMPLATE_ROLE,.replace_with = user->prefix},
- 		{NULL, NULL}
-@@ -703,9 +703,9 @@ static int write_home_dir_context(genhomedircon_settings_t * s, FILE * out,
- }
- 
- static int write_home_root_context(genhomedircon_settings_t * s, FILE * out,
--				   semanage_list_t * tpl, char *homedir)
-+				   semanage_list_t * tpl, const char *homedir)
- {
--	replacement_pair_t repl[] = {
-+	const replacement_pair_t repl[] = {
- 		{.search_for = TEMPLATE_HOME_ROOT,.replace_with = homedir},
- 		{NULL, NULL}
- 	};
-@@ -717,7 +717,7 @@ static int write_username_context(genhomedircon_settings_t * s, FILE * out,
- 				  semanage_list_t * tpl,
- 				  const genhomedircon_user_entry_t *user)
- {
--	replacement_pair_t repl[] = {
-+	const replacement_pair_t repl[] = {
- 		{.search_for = TEMPLATE_USERNAME,.replace_with = user->name},
- 		{.search_for = TEMPLATE_USERID,.replace_with = user->uid},
- 		{.search_for = TEMPLATE_ROLE,.replace_with = user->prefix},
-@@ -730,7 +730,7 @@ static int write_username_context(genhomedircon_settings_t * s, FILE * out,
- static int write_user_context(genhomedircon_settings_t * s, FILE * out,
- 			      semanage_list_t * tpl, const genhomedircon_user_entry_t *user)
- {
--	replacement_pair_t repl[] = {
-+	const replacement_pair_t repl[] = {
- 		{.search_for = TEMPLATE_USER,.replace_with = user->name},
- 		{.search_for = TEMPLATE_ROLE,.replace_with = user->prefix},
- 		{NULL, NULL}
-diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-index 9bb84546..4577ac35 100644
---- a/libsemanage/src/handle.c
-+++ b/libsemanage/src/handle.c
-@@ -138,7 +138,7 @@ void semanage_set_check_ext_changes(semanage_handle_t * sh, int do_check)
- }
- 
- int semanage_get_hll_compiler_path(semanage_handle_t *sh,
--				char *lang_ext,
-+				const char *lang_ext,
- 				char **compiler_path)
- {
- 	assert(sh != NULL);
-@@ -272,7 +272,7 @@ int semanage_is_connected(semanage_handle_t * sh)
- 	return sh->is_connected;
- }
- 
--void semanage_select_store(semanage_handle_t * sh, char *storename,
-+void semanage_select_store(semanage_handle_t * sh, const char *storename,
- 			   enum semanage_connect_type storetype)
- {
- 
-diff --git a/libsemanage/src/ibendports_file.c b/libsemanage/src/ibendports_file.c
-index 2bebbdcf..b0f0aa96 100644
---- a/libsemanage/src/ibendports_file.c
-+++ b/libsemanage/src/ibendports_file.c
-@@ -20,9 +20,10 @@ typedef struct dbase_file dbase_t;
- #include "debug.h"
- 
- static int ibendport_print(semanage_handle_t *handle,
--			   semanage_ibendport_t *ibendport,
-+			   const semanage_ibendport_t *ibendport,
- 			   FILE *str)
- {
-+	const semanage_context_t *con;
- 	char *con_str = NULL;
- 	char *ibdev_name_str = NULL;
- 	int port = semanage_ibendport_get_port(ibendport);
-@@ -30,7 +31,7 @@ static int ibendport_print(semanage_handle_t *handle,
- 	if (semanage_ibendport_get_ibdev_name(handle, ibendport, &ibdev_name_str) != 0)
- 		goto err;
- 
--	semanage_context_t *con = semanage_ibendport_get_con(ibendport);
-+	con = semanage_ibendport_get_con(ibendport);
- 
- 	if (fprintf(str, "ibendportcon %s ", ibdev_name_str) < 0)
- 		goto err;
-diff --git a/libsemanage/src/ibpkeys_file.c b/libsemanage/src/ibpkeys_file.c
-index 7a7c5772..8dad8d47 100644
---- a/libsemanage/src/ibpkeys_file.c
-+++ b/libsemanage/src/ibpkeys_file.c
-@@ -20,8 +20,9 @@ typedef struct dbase_file dbase_t;
- #include "debug.h"
- 
- static int ibpkey_print(semanage_handle_t *handle,
--			semanage_ibpkey_t *ibpkey, FILE *str)
-+			const semanage_ibpkey_t *ibpkey, FILE *str)
- {
-+	const semanage_context_t *con;
- 	char *con_str = NULL;
- 	char *subnet_prefix_str = NULL;
- 
-@@ -31,7 +32,7 @@ static int ibpkey_print(semanage_handle_t *handle,
- 	if (semanage_ibpkey_get_subnet_prefix(handle, ibpkey, &subnet_prefix_str) != 0)
- 		goto err;
- 
--	semanage_context_t *con = semanage_ibpkey_get_con(ibpkey);
-+	con = semanage_ibpkey_get_con(ibpkey);
- 
- 	if (fprintf(str, "ibpkeycon %s ", subnet_prefix_str) < 0)
- 		goto err;
-diff --git a/libsemanage/src/interfaces_file.c b/libsemanage/src/interfaces_file.c
-index d61010ee..9b49e30d 100644
---- a/libsemanage/src/interfaces_file.c
-+++ b/libsemanage/src/interfaces_file.c
-@@ -19,7 +19,7 @@ typedef struct dbase_file dbase_t;
- #include "debug.h"
- 
- static int iface_print(semanage_handle_t * handle,
--		       semanage_iface_t * iface, FILE * str)
-+		       const semanage_iface_t * iface, FILE * str)
- {
- 
- 	char *con_str = NULL;
-diff --git a/libsemanage/src/nodes_file.c b/libsemanage/src/nodes_file.c
-index 3ed34be1..781da0e7 100644
---- a/libsemanage/src/nodes_file.c
-+++ b/libsemanage/src/nodes_file.c
-@@ -20,7 +20,7 @@ typedef struct dbase_file dbase_t;
- #include "debug.h"
- 
- static int node_print(semanage_handle_t * handle,
--		      semanage_node_t * node, FILE * str)
-+		      const semanage_node_t * node, FILE * str)
- {
- 
- 	char *con_str = NULL;
-diff --git a/libsemanage/src/parse_utils.c b/libsemanage/src/parse_utils.c
-index d3bc148b..d57e59c9 100644
---- a/libsemanage/src/parse_utils.c
-+++ b/libsemanage/src/parse_utils.c
-@@ -270,7 +270,7 @@ int parse_fetch_string(semanage_handle_t * handle,
- 		       parse_info_t * info, char **str, char delim, int allow_spaces)
- {
- 
--	char *start = info->ptr;
-+	const char *start = info->ptr;
- 	int len = 0;
- 	char *tmp_str = NULL;
- 
-diff --git a/libsemanage/src/policy_components.c b/libsemanage/src/policy_components.c
-index bd3747b6..ca3fbd20 100644
---- a/libsemanage/src/policy_components.c
-+++ b/libsemanage/src/policy_components.c
-@@ -115,7 +115,7 @@ int semanage_base_merge_components(semanage_handle_t * handle)
- 	/* Order is important here - change things carefully.
- 	 * System components first, local next. Verify runs with
- 	 * mutual dependencies are ran after everything is merged */
--	load_table_t components[] = {
-+	const load_table_t components[] = {
- 
- 		{semanage_user_base_dbase_local(handle),
- 		 semanage_user_base_dbase_policy(handle), MODE_MODIFY},
-@@ -210,7 +210,7 @@ int semanage_commit_components(semanage_handle_t * handle)
- {
- 
- 	int i;
--	dbase_config_t *components[] = {
-+	const dbase_config_t *components[] = {
- 		semanage_iface_dbase_local(handle),
- 		semanage_bool_dbase_local(handle),
- 		semanage_user_base_dbase_local(handle),
-diff --git a/libsemanage/src/ports_file.c b/libsemanage/src/ports_file.c
-index 64f0c79d..e2b6b5d5 100644
---- a/libsemanage/src/ports_file.c
-+++ b/libsemanage/src/ports_file.c
-@@ -20,7 +20,7 @@ typedef struct dbase_file dbase_t;
- #include "debug.h"
- 
- static int port_print(semanage_handle_t * handle,
--		      semanage_port_t * port, FILE * str)
-+		      const semanage_port_t * port, FILE * str)
- {
- 
- 	char *con_str = NULL;
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index c84ca43b..427952a1 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -78,13 +78,13 @@ static char *semanage_files[SEMANAGE_NUM_FILES] = { NULL };
- static int semanage_paths_initialized = 0;
- 
- /* These are paths relative to the bottom of the module store */
--static const char *semanage_relative_files[SEMANAGE_NUM_FILES] = {
-+static const char *const semanage_relative_files[SEMANAGE_NUM_FILES] = {
- 	"",
- 	"/semanage.trans.LOCK",
- 	"/semanage.read.LOCK"
- };
- 
--static const char *semanage_store_paths[SEMANAGE_NUM_STORES] = {
-+static const char *const semanage_store_paths[SEMANAGE_NUM_STORES] = {
- 	"/active",
- 	"/previous",
- 	"/tmp"
-@@ -92,7 +92,7 @@ static const char *semanage_store_paths[SEMANAGE_NUM_STORES] = {
- 
- /* relative path names to enum sandbox_paths for special files within
-  * a sandbox */
--static const char *semanage_sandbox_paths[SEMANAGE_STORE_NUM_PATHS] = {
-+static const char *const semanage_sandbox_paths[SEMANAGE_STORE_NUM_PATHS] = {
- 	"",
- 	"/modules",
- 	"/policy.linked",
-@@ -1152,7 +1152,7 @@ int semanage_get_active_modules(semanage_handle_t * sh,
- 	int j = 0;
- 
- 	semanage_list_t *list = NULL;
--	semanage_list_t *found = NULL;
-+	const semanage_list_t *found = NULL;
- 
- 	semanage_module_info_t *all_modinfos = NULL;
- 	int all_modinfos_len = 0;
-@@ -2093,7 +2093,7 @@ int semanage_direct_get_serial(semanage_handle_t * sh)
- int semanage_load_files(semanage_handle_t * sh, cil_db_t *cildb, char **filenames, int numfiles)
- {
- 	int i, retval;
--	char *filename;
-+	const char *filename;
- 	struct file_contents contents = {};
- 
- 	for (i = 0; i < numfiles; i++) {
-@@ -2218,7 +2218,7 @@ int semanage_verify_modules(semanage_handle_t * sh,
- 		return 0;
- 	}
- 	for (i = 0; i < num_modules; i++) {
--		char *module = module_filenames[i];
-+		const char *module = module_filenames[i];
- 		external_prog_t *e;
- 		for (e = conf->mod_prog; e != NULL; e = e->next) {
- 			if (semanage_exec_prog(sh, e, module, "$<") != 0) {
-@@ -2331,8 +2331,8 @@ static void semanage_fc_bucket_list_destroy(semanage_file_context_bucket_t * x)
-  * now.  A proper comparison would determine which (if either)
-  * regular expression is a subset of the other.
+ int semanage_str_count(const char *data, char what)
+diff --git a/libsemanage/src/utilities.h b/libsemanage/src/utilities.h
+index 78f1f96e..4cc41f84 100644
+--- a/libsemanage/src/utilities.h
++++ b/libsemanage/src/utilities.h
+@@ -98,8 +98,7 @@ int semanage_list_sort(semanage_list_t ** l) WARN_UNUSED;
+  * returns strcmp(x->data, y->data)
+  * used internally by semanage_list_sort()
   */
--static int semanage_fc_compare(semanage_file_context_node_t * a,
--			       semanage_file_context_node_t * b)
-+static int semanage_fc_compare(const semanage_file_context_node_t * a,
-+			       const semanage_file_context_node_t * b)
- {
- 	int a_has_meta = (a->meta >= 0);
- 	int b_has_meta = (b->meta >= 0);
-diff --git a/libsemanage/src/seusers_file.c b/libsemanage/src/seusers_file.c
-index ed3bcb31..9e463e35 100644
---- a/libsemanage/src/seusers_file.c
-+++ b/libsemanage/src/seusers_file.c
-@@ -20,7 +20,7 @@ typedef struct dbase_file dbase_t;
- #include "handle.h"
- 
- static int seuser_print(semanage_handle_t * handle,
--			semanage_seuser_t * seuser, FILE * str)
-+			const semanage_seuser_t * seuser, FILE * str)
- {
- 
- 	const char *name = semanage_seuser_get_name(seuser);
-diff --git a/libsemanage/src/users_base_file.c b/libsemanage/src/users_base_file.c
-index bbce4eed..b9998b37 100644
---- a/libsemanage/src/users_base_file.c
-+++ b/libsemanage/src/users_base_file.c
-@@ -21,7 +21,7 @@ typedef struct dbase_file dbase_t;
- #include "debug.h"
- 
- static int user_base_print(semanage_handle_t * handle,
--			   semanage_user_base_t * user, FILE * str)
-+			   const semanage_user_base_t * user, FILE * str)
- {
- 
- 	const char **roles = NULL;
-@@ -68,7 +68,7 @@ static int user_base_parse(semanage_handle_t * handle,
- 
- 	int islist;
- 	char *str = NULL;
--	char *start;
-+	const char *start;
- 	char *name_str = NULL;
- 
- 	if (parse_skip_space(handle, info) < 0)
-diff --git a/libsemanage/src/users_extra_file.c b/libsemanage/src/users_extra_file.c
-index 8f2f7139..d7b2df05 100644
---- a/libsemanage/src/users_extra_file.c
-+++ b/libsemanage/src/users_extra_file.c
-@@ -21,7 +21,7 @@ typedef struct dbase_file dbase_t;
- #include "handle.h"
- 
- static int user_extra_print(semanage_handle_t * handle,
--			    semanage_user_extra_t * user_extra, FILE * str)
-+			    const semanage_user_extra_t * user_extra, FILE * str)
- {
- 
- 	const char *name = semanage_user_extra_get_name(user_extra);
-diff --git a/libsemanage/src/utilities.c b/libsemanage/src/utilities.c
-index 4beccb5b..ec578340 100644
---- a/libsemanage/src/utilities.c
-+++ b/libsemanage/src/utilities.c
-@@ -73,7 +73,7 @@ int semanage_is_prefix(const char *str, const char *prefix)
- char *semanage_split_on_space(const char *str)
- {
- 	/* as per the man page, these are the isspace() chars */
--	const char *seps = "\f\n\r\t\v ";
-+	const char *const seps = "\f\n\r\t\v ";
- 	size_t off = 0;
- 
- 	if (!str)
-@@ -88,7 +88,7 @@ char *semanage_split_on_space(const char *str)
- 
- char *semanage_split(const char *str, const char *delim)
- {
--	char *retval;
-+	const char *retval;
- 
- 	if (!str)
- 		return NULL;
+-int semanage_cmp_plist_t(const semanage_list_t ** x,
+-			 const semanage_list_t ** y);
++int semanage_cmp_plist_t(const void *x, const void *y);
+ /**
+  * @param      data a target string
+  * @param      what  a character
 -- 
 2.45.2
 
