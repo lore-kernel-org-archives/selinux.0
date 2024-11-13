@@ -1,62 +1,66 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DD461853
-	for <selinux@vger.kernel.org>; Wed, 13 Nov 2024 07:52:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F5BC187553
+	for <selinux@vger.kernel.org>; Wed, 13 Nov 2024 07:52:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731484330; cv=none; b=bMF0Kvh8+aNPxkT7NATsTqLN+8K40yhQgCx0Wg2joEfSH2g+nHRT09AarMFFpWO06EwKQgTEqHH5BwkGbFbL3KwsSDiu1q5TwPiYyxj2YLq/Hez1eqUkkX7Mv4To5sCrfaIDHrciKd0mG5uIw0V4HTaGZ3TSpcuZUvx10uNLzyg=
+	t=1731484333; cv=none; b=lvc3dzG0UKRTqdUEID/quK9q6R/qtRsngl5F4BYslR/U6nZRhWGROZProzeO6DeIyYFGAWWA0WPbJUMU0rzvFKr4tbPJATG0npzkBV68tjpCtF9HZ85u2PIOz+IE85zIUXc2hQwmdWSEW4fKAredFXOvqs7cOwesWsPGvTfAYuU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731484330; c=relaxed/simple;
-	bh=mPHM9bowmFG7PHf2CtF9drkEZOQeIh1gPdDyvziM934=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XpvO+YdMEAvMCEgt8OPyg54fZR7lCF8G2HWHC1DGwYWO3dd2m3qdsuaPs5ecsCPesAhejhHEQwiDnyzxXz0Qt9AdiQLmRWOpEKu0/udU0DGMGIxpXK8vCa7oEGGU4HOG0ACWVapO5L+48zR4dP6etjmRkpUYmp2w59q4Zi9MaiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=siderolabs.com; spf=pass smtp.mailfrom=siderolabs.com; dkim=pass (2048-bit key) header.d=siderolabs.com header.i=@siderolabs.com header.b=Mp1Wa1g3; arc=none smtp.client-ip=209.85.218.53
+	s=arc-20240116; t=1731484333; c=relaxed/simple;
+	bh=a8Z2mzQu+WK1myt6VKqSdTsq/tIo246LQ67NgZxzoik=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ZA2zTVrpXDmGpH4tfIwmtvugl8O9Mc5WkulpcslMoQOCWW+aarEnOTZAj5Uz2ISGbKeKaM0YmxxuLGrTDd08ZDTIhbDqxx15yDiMp14hxjcf0DQYRcv8XChKgVBpmPbsXkyvfye+UFsGXH8jF1DPtAMipMdRooh0gYuHaxj25rk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=siderolabs.com; spf=pass smtp.mailfrom=siderolabs.com; dkim=pass (2048-bit key) header.d=siderolabs.com header.i=@siderolabs.com header.b=YVQNjPPN; arc=none smtp.client-ip=209.85.218.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=siderolabs.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=siderolabs.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=siderolabs.com header.i=@siderolabs.com header.b="Mp1Wa1g3"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a9a4031f69fso1055199866b.0
-        for <selinux@vger.kernel.org>; Tue, 12 Nov 2024 23:52:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=siderolabs.com header.i=@siderolabs.com header.b="YVQNjPPN"
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-a9f1c590ecdso538409166b.1
+        for <selinux@vger.kernel.org>; Tue, 12 Nov 2024 23:52:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=siderolabs.com; s=google; t=1731484327; x=1732089127; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=8M8jCCV0g8TEVZia4BDJJEUfgwiZzzq+R0/FoUSfE5A=;
-        b=Mp1Wa1g3bHol3CapKwO+ko7fbb5VSmXOfl/loKYRgM9oAHPHYi4gDxkz8MhpT7sZ74
-         Xx7nu49G6tITTSMHibTtAlKyo9UFoTr3B1Bd5GZZbjgxrdbiQzHe/DVCPFh7XMuzFb/h
-         Mn8BPMOFcH51twhSqoM4fZKU3f0QcHvgPfdp02YZZLinL31c5YCDk4AYBGuSyLntkBoi
-         hsYuRKd0v2t/cbsddCQWzLMTBKN20tsA4NBkAXKVe3W/Z4+yLalsUAvYHiK5kxGZw2z/
-         yT1c//5goYMpDQ6eVSGGpL+cB3o9h1+LlsW2AxXXRL/0aJ8qSutlcMQ9FApx4MSKqTno
-         avEg==
+        d=siderolabs.com; s=google; t=1731484329; x=1732089129; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Vta2hTKUoT8mjgmgJ007gxUyzwfbdEkpwkD8e+YtOik=;
+        b=YVQNjPPNyEO58qFyGArG52gDroDLuN1b1uUJ90Ke+pati+ey8k38tgXGFHIopnUYQ1
+         8EI2DAwSjFYX7UOOR+BLrrzaPDoIh6lSw5DJr1FqBefXtahrI01zjYMtf39NGQDXCXjJ
+         N1qmhBPr1GIWe7L4m6hYN5XYINjRsaNuThOja7dZ9eiWvMYTaFx5xn7qA3/DCZAczK4o
+         1xZDBkH50LYozhFw1AnN+l9+dZeqG2+i6SpXH1RvsbHD/cnBCCKD6TZmdjt7pDvcUc33
+         PMeYQ5RcojhrW8Cx+UgfQyfttxSPmLMITp4uh3ntvzxbd5NYLRA8p1dwzXYh+wdxc+NH
+         jPiQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731484327; x=1732089127;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=8M8jCCV0g8TEVZia4BDJJEUfgwiZzzq+R0/FoUSfE5A=;
-        b=psKXDTtUF1iaeqinTipJZeIHCHHEBDvaIrIQwfx0abZI5UqgyklcVHqqZKYkSqgEwb
-         Kxxr7R6vihPp0LpscDM8ab9WmF8wvSrmgrxvip6bLhVD3+w1vXEz1DeUtR46LJ8iZjMc
-         isl3zWWJmDMMx0lv5Fmpx1N6Y56A8QHzRrtboErSY8lcwmrzyRq164Ep3Ohhi97QW4p7
-         UCgXPYJNXwSXusW69sX4aHIpcVNAeU9dOBz/OLfZA0wZdoMIDgLtuRWdSbZC6QwsexU2
-         r4/xch91ajOSuDNkPPrUUdKaF+QSZI+h+8UVtBsuaQK7c4I/7jX+iobmQdGA4kKcMfLr
-         PckA==
-X-Gm-Message-State: AOJu0YywK758bw18tPEywGKizLI4AtixxDINrBiYEaxcx3J1IV8vMkjX
-	SjABmgjRlFGagvx6AA6gjzfUYlvj4zkl6s/9UXr9dtdV4m2gy0GBtBQkVY5DoSCT4vyLtgQTno2
-	7
-X-Google-Smtp-Source: AGHT+IEb8KnbJgmnYFavbRuM7KjDyOjPReAuH0Pru1WKmixPfyP4dcThWveQdWkQdJ05MVYWkMeDtA==
-X-Received: by 2002:a17:907:d8f:b0:a9a:6b4c:a331 with SMTP id a640c23a62f3a-a9ef004e07cmr1866890466b.54.1731484326494;
-        Tue, 12 Nov 2024 23:52:06 -0800 (PST)
+        d=1e100.net; s=20230601; t=1731484329; x=1732089129;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Vta2hTKUoT8mjgmgJ007gxUyzwfbdEkpwkD8e+YtOik=;
+        b=DE4EVG7uuIDZ15Je0DoX0Zkc/0OVb4K2dctW02fZtnOrj8orC77x9fnUDzp2k9Qq+N
+         jWAwAC3fBM3NPmMYdf8375/O2uTZTUQcu37z0tQNWnsRyf1KUmuwFm0uX7+SiAoqi+rJ
+         ulPI8ehexbLKP690FOxMmq6STZcPHh1GajsCbaUs93oKi0EjuQPF+ZTKguh/W2hOLLPv
+         ShU6srhdyN0muDlR9Ib0l0RNSDCT04jCkdvLSQKHHt/arULqimJE5DsOJ2a01Z+tCnju
+         GXoRo5gFJU+b8+rtXVrbCf/rUZejiBAlsEz82+h0YFfyHazmjX0VVbBGjW74uTkEuBFq
+         cCWQ==
+X-Gm-Message-State: AOJu0YzJmJq00tziWMRwzHe/meJnjo/b+LMrzQPPKOab8I/AialzCqDd
+	Ooj890ZGubRGo5Bc/6HENt52Kykox+a16touadxliksT5ydwsscZSCclAUfjI4HoP5LamQWRf8U
+	k
+X-Google-Smtp-Source: AGHT+IHMufHaftHFNuGRCV4gRlL1tlBkRmm5hrqv5DSfX34mxIcG29aOOZhdp+9PUFlWbV5j5VqVoA==
+X-Received: by 2002:a17:906:c156:b0:a9a:478:2ee3 with SMTP id a640c23a62f3a-aa1f81062bemr159633066b.40.1731484329105;
+        Tue, 12 Nov 2024 23:52:09 -0800 (PST)
 Received: from localhost.localdomain (B-228.ahl.uni-linz.ac.at. [193.171.46.128])
-        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-a9ee0a188b0sm843073966b.26.2024.11.12.23.52.06
+        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-a9ee0a188b0sm843073966b.26.2024.11.12.23.52.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Nov 2024 23:52:06 -0800 (PST)
+        Tue, 12 Nov 2024 23:52:08 -0800 (PST)
 From: dmitry.sharshakov@siderolabs.com
 To: selinux@vger.kernel.org
 Cc: Dmitry Sharshakov <dmitry.sharshakov@siderolabs.com>
-Subject: [PATCH v1 1/2] libsepol: allow specifying SUBDIRS when building
-Date: Wed, 13 Nov 2024 08:49:30 +0100
-Message-ID: <20241113074931.2730415-1-dmitry.sharshakov@siderolabs.com>
+Subject: [PATCH v1 2/2] libsemanage: allow specifying SUBDIRS when building
+Date: Wed, 13 Nov 2024 08:49:31 +0100
+Message-ID: <20241113074931.2730415-2-dmitry.sharshakov@siderolabs.com>
 X-Mailer: git-send-email 2.47.0
+In-Reply-To: <20241113074931.2730415-1-dmitry.sharshakov@siderolabs.com>
+References: <20241113074931.2730415-1-dmitry.sharshakov@siderolabs.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -73,73 +77,79 @@ Also make the Makefile modular as in libselinux.
 
 Signed-off-by: Dmitry Sharshakov <dmitry.sharshakov@siderolabs.com>
 ---
- libsepol/Makefile         | 27 +++++----------------------
- libsepol/include/Makefile |  2 +-
- libsepol/man/Makefile     |  2 +-
- 3 files changed, 7 insertions(+), 24 deletions(-)
+ libsemanage/Makefile         | 25 ++++++-------------------
+ libsemanage/include/Makefile |  2 +-
+ libsemanage/man/Makefile     |  2 +-
+ 3 files changed, 8 insertions(+), 21 deletions(-)
 
-diff --git a/libsepol/Makefile b/libsepol/Makefile
-index 5b5d03e2..e354d3cb 100644
---- a/libsepol/Makefile
-+++ b/libsepol/Makefile
-@@ -1,29 +1,12 @@
-+SUBDIRS = include src utils man
- DISABLE_CIL ?= n
- 
- export DISABLE_CIL
- 
+diff --git a/libsemanage/Makefile b/libsemanage/Makefile
+index 390176fe..66c45c5a 100644
+--- a/libsemanage/Makefile
++++ b/libsemanage/Makefile
+@@ -1,5 +1,9 @@
 -all: 
--	$(MAKE) -C src 
--	$(MAKE) -C utils
--
--install: 
--	$(MAKE) -C include install
--	$(MAKE) -C src install
--	$(MAKE) -C utils install
--	$(MAKE) -C man install
--
--relabel:
--	$(MAKE) -C src relabel
--
--clean:
--	$(MAKE) -C src clean
--	$(MAKE) -C utils clean
--	$(MAKE) -C tests clean
--
--indent:
--	$(MAKE) -C src $@
--	$(MAKE) -C include $@
--	$(MAKE) -C utils $@
-+all install relabel clean indent:
+-	$(MAKE) -C src all
++SUBDIRS = include src utils man
++
++all install relabel clean distclean indent:
 +	@for subdir in $(SUBDIRS); do \
 +		(cd $$subdir && $(MAKE) $@) || exit 1; \
 +	done
  
- test:
+ swigify:
+ 	$(MAKE) -C src swigify
+@@ -10,28 +14,11 @@ pywrap:
+ rubywrap:
+ 	$(MAKE) -C src rubywrap
+ 
+-install: 
+-	$(MAKE) -C include install
+-	$(MAKE) -C src install
+-	$(MAKE) -C man install
+-	$(MAKE) -C utils install
+-
+ install-pywrap: 
+ 	$(MAKE) -C src install-pywrap
+ 
+ install-rubywrap:
+ 	$(MAKE) -C src install-rubywrap
+ 
+-relabel:
+-	$(MAKE) -C src relabel
+-
+-clean distclean:
+-	$(MAKE) -C src $@
+-	$(MAKE) -C tests $@
+-
+-indent:
+-	$(MAKE) -C src $@
+-	$(MAKE) -C include $@
+-
+ test: all
  	$(MAKE) -C tests test
-diff --git a/libsepol/include/Makefile b/libsepol/include/Makefile
-index 1ad4ecab..8d64e846 100644
---- a/libsepol/include/Makefile
-+++ b/libsepol/include/Makefile
-@@ -3,7 +3,7 @@ PREFIX ?= /usr
- INCDIR = $(PREFIX)/include/sepol
- CILDIR ?= ../cil
+diff --git a/libsemanage/include/Makefile b/libsemanage/include/Makefile
+index 6e44a28a..c08aafec 100644
+--- a/libsemanage/include/Makefile
++++ b/libsemanage/include/Makefile
+@@ -2,7 +2,7 @@
+ PREFIX ?= /usr
+ INCDIR ?= $(PREFIX)/include/semanage
  
 -all:
-+all relabel clean:
++all relabel clean distclean:
  
  install: all
  	test -d $(DESTDIR)$(INCDIR) || install -m 755 -d $(DESTDIR)$(INCDIR)
-diff --git a/libsepol/man/Makefile b/libsepol/man/Makefile
-index 0b410c19..6017ff51 100644
---- a/libsepol/man/Makefile
-+++ b/libsepol/man/Makefile
-@@ -7,7 +7,7 @@ MAN8SUBDIR ?= man8
+diff --git a/libsemanage/man/Makefile b/libsemanage/man/Makefile
+index 5e21a65e..88143db8 100644
+--- a/libsemanage/man/Makefile
++++ b/libsemanage/man/Makefile
+@@ -7,7 +7,7 @@ MAN5SUBDIR ?= man5
  MAN3DIR ?= $(MANDIR)/$(MAN3SUBDIR)
- MAN8DIR ?= $(MANDIR)/$(MAN8SUBDIR)
+ MAN5DIR ?= $(MANDIR)/$(MAN5SUBDIR)
  
 -all:
-+all relabel clean indent:
++all relabel clean distclean indent:
  
  install: all
  	mkdir -p $(DESTDIR)$(MAN3DIR)
