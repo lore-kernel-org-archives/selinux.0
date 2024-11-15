@@ -1,46 +1,49 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D20591D0E39;
-	Fri, 15 Nov 2024 13:37:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAEAB1CDA09;
+	Fri, 15 Nov 2024 13:37:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731677832; cv=none; b=utxOZC3/r2qpok1WshtYdwQqlos55CuJLDN/nSTJV8i548MmeMTDzjCxZCGIATB9y4BrODsXmGyNiFOcuaMyDDvttctU87nv5Lle7qOZL7CBpBSeIG3gAmwOc70Nhodfcr1p8nlOywfYoJgxnwxvmiy2OFDUSGq60GI8TlFTy08=
+	t=1731677833; cv=none; b=rhhOSQIP4g05A+bLY+glez0uHjsA/DU9obgFIRe+cN17TYZtLaPDpXNGpKyjB1K2BDVWOw5tnzzfkfb7q0piXzhaftsmipKu59Zt5Ye2qgFPQb70MmhHGg0JO2AFdWA9RkGcno22cbfZL1+PFEC0Tkaf6Le7lrxaD1ywKR5OoMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731677832; c=relaxed/simple;
-	bh=qcfBvmfGWkIlrewQXYb1TAGPO1hvX71hpCIs/My5hhk=;
+	s=arc-20240116; t=1731677833; c=relaxed/simple;
+	bh=wbZeP+FqrGHfxL8k2FfPz/C2u93Wbv/O5/Sm2nOrQSg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=FNPJ2eVaTBsaSHJWbuZsr7bzCtjIF0VJUX8vfax9HLMl5Bk08g3UrZuvBCsd5vBkV27n1r8vEcGBtPuS2rC6LTrk0FFHYVfrwHWjKjQXXqnRn/WVaz3A9lmk8qm2g9P+QC9x3Dsl9xIjd5woSvZP3h+cQUHYkNpfXqWCcVtzgoQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=TopbRp8q; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=jRadhXt1qrlC9v5eVw+FlOKhxTAR6Gft7TnkIxE2cXYsNhnOJUVzjZyYQUaaUUKRnup6+Ylp24TArkCjBMDMm/bsCAlocO0nAOBcK1Lb74h7yWROUw9IsY57NM5x8IfKevEj0LOzhfi0ZKPOsmYquY7n+Kq/AXdGYFyY9Vi63mE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=CS9awf2R; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="TopbRp8q"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="CS9awf2R"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1731677828;
+	s=2023072701; t=1731677829;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5GOfwNjweZQXFgxAZppiPVUYGdPQwCTMdHpI9UPXEbM=;
-	b=TopbRp8qBbqX/8NRLk5Q6/q6PpSCzLH1MSsU0byiATXDMLFZnPASPyT5G1qy9gaRkTaUSw
-	WgO2kD1PkkADKJFAqm5Sp4Lp8jD28iJPiJu3ppFaTP60y933npwrEY5xuDeIAVOLwo9Wr6
-	ZMb0ZFeMtsOypv4s7RzzWyYlsXX080AhzV+APybJhUa/pNIV2ydihakwgR4MkgJguHb8BL
-	LELXHw+PUF/TX/gAh/WcD/reOHrYHfnAjKHBOT4eGnKX5Y9NW5wn8GN2LqqO+V/quD5mp7
-	qdnjc4dmxdniSDPolPCiYbgjD8D09iuY3Cl0LD03/aKPdDAd2Iph52aHkyhLJw==
+	bh=NNe8CasdOqHvzGa8GCttK8HX6bCvp4pEw3d94J1Ra9E=;
+	b=CS9awf2RoaagJnJBZq/a9g7JaemxTgRXpvsJdf9eu9TFwtvifeg6/SK8yRJRNozbQNPAau
+	ASo2kG0r0vH5k6aJDflys5AbFl5y1RuidGJu3Y1FH5G1zUp2gpJiL72kLnqJqKE2SD2t4R
+	SVPjamMfvn6VGO6TILl4SVTVYC6VHS42FmbIk9OJ6FTS4Bpzqr+/F9aWuPwqFtDLXyUW+g
+	W83Y2i53YwllTiGypLzgZ5EganlQTsrc2DAyNfFB/Qnu9Mdeyj4BmjZhL9GVKDfjUOKsLT
+	lAATwLpwM9XGBo66a2BuZ+e+yjADXE2pkZf3aJvvCgxvaszxdt1J//V6yzycCA==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
 	Paul Moore <paul@paul-moore.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Ondrej Mosnacek <omosnace@redhat.com>,
-	Eric Suen <ericsu@linux.microsoft.com>,
-	Jacob Satterfield <jsatterfield.linux@gmail.com>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Canfeng Guo <guocanfeng@uniontech.com>,
+	Mimi Zohar <zohar@linux.ibm.com>,
+	GUO Zihua <guozihua@huawei.com>,
+	=?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>,
 	linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 12/22] selinux: check length fields in policies
-Date: Fri, 15 Nov 2024 14:35:31 +0100
-Message-ID: <20241115133619.114393-12-cgoettsche@seltendoof.de>
+Subject: [RFC PATCH 13/22] selinux: validate constraints
+Date: Fri, 15 Nov 2024 14:35:32 +0100
+Message-ID: <20241115133619.114393-13-cgoettsche@seltendoof.de>
 In-Reply-To: <20241115133619.114393-1-cgoettsche@seltendoof.de>
 References: <20241115133619.114393-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -55,174 +58,227 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-In multiple places the binary policy announces how many items of some
-kind are to be expected next.  Before reading them the kernel already
-allocates enough memory for that announced size.  Validate that the
-remaining input size can actually fit the announced items, to avoid OOM
-issues on malformed binary policies.
+Validate constraint expressions during reading the policy.
+Avoid the usage of BUG() on constraint evaluation, to mitigate malformed
+policies halting the system.
+
+Closes: https://github.com/SELinuxProject/selinux-testsuite/issues/76
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/avtab.c       |  4 ++++
- security/selinux/ss/conditional.c | 14 ++++++++++++++
- security/selinux/ss/policydb.c    | 23 +++++++++++++++++++++++
- security/selinux/ss/policydb.h    | 13 +++++++++++++
- 4 files changed, 54 insertions(+)
+ security/selinux/ss/policydb.c | 61 ++++++++++++++++++++++++++++++++--
+ security/selinux/ss/services.c | 55 +++++++++++++++---------------
+ 2 files changed, 88 insertions(+), 28 deletions(-)
 
-diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 6122c1c7e951..002853dd3443 100644
---- a/security/selinux/ss/avtab.c
-+++ b/security/selinux/ss/avtab.c
-@@ -550,6 +550,10 @@ int avtab_read(struct avtab *a, struct policy_file *fp, struct policydb *pol)
- 		goto bad;
- 	}
- 
-+	rc = oom_check(2 * sizeof(u32), nel, fp);
-+	if (rc)
-+		goto bad;
-+
- 	rc = avtab_alloc(a, nel);
- 	if (rc)
- 		goto bad;
-diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-index f85d22952d5a..07008ea081ba 100644
---- a/security/selinux/ss/conditional.c
-+++ b/security/selinux/ss/conditional.c
-@@ -12,6 +12,7 @@
- 
- #include "security.h"
- #include "conditional.h"
-+#include "policydb.h"
- #include "services.h"
- 
- /*
-@@ -329,6 +330,10 @@ static int cond_read_av_list(struct policydb *p, struct policy_file *fp,
- 	if (len == 0)
- 		return 0;
- 
-+	rc = oom_check(2 * sizeof(u32), len, fp);
-+	if (rc)
-+		return rc;
-+
- 	list->nodes = kcalloc(len, sizeof(*list->nodes), GFP_KERNEL);
- 	if (!list->nodes)
- 		return -ENOMEM;
-@@ -379,6 +384,11 @@ static int cond_read_node(struct policydb *p, struct cond_node *node, struct pol
- 
- 	/* expr */
- 	len = le32_to_cpu(buf[1]);
-+
-+	rc = oom_check(2 * sizeof(u32), len, fp);
-+	if (rc)
-+		return rc;
-+
- 	node->expr.nodes = kcalloc(len, sizeof(*node->expr.nodes), GFP_KERNEL);
- 	if (!node->expr.nodes)
- 		return -ENOMEM;
-@@ -417,6 +427,10 @@ int cond_read_list(struct policydb *p, struct policy_file *fp)
- 
- 	len = le32_to_cpu(buf[0]);
- 
-+	rc = oom_check(2 * sizeof(u32), len, fp);
-+	if (rc)
-+		goto err;
-+
- 	p->cond_list = kcalloc(len, sizeof(*p->cond_list), GFP_KERNEL);
- 	if (!p->cond_list)
- 		return -ENOMEM;
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 1157e66b4664..5ba1e8d483fb 100644
+index 5ba1e8d483fb..5d99e1498b55 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -1095,6 +1095,9 @@ int str_read(char **strp, gfp_t flags, struct policy_file *fp, u32 len)
- 	if ((len == 0) || (len == (u32)-1))
- 		return -EINVAL;
+@@ -1251,6 +1251,8 @@ static int read_cons_helper(struct policydb *p, struct constraint_node **nodep,
+ 			return rc;
+ 		c->permissions = le32_to_cpu(buf[0]);
+ 		nexpr = le32_to_cpu(buf[1]);
++		if (nexpr == 0)
++			return -EINVAL;
+ 		le = NULL;
+ 		depth = -1;
+ 		for (j = 0; j < nexpr; j++) {
+@@ -1282,15 +1284,70 @@ static int read_cons_helper(struct policydb *p, struct constraint_node **nodep,
+ 				depth--;
+ 				break;
+ 			case CEXPR_ATTR:
+-				if (depth == (CEXPR_MAXDEPTH - 1))
++				if (depth >= (CEXPR_MAXDEPTH - 1))
+ 					return -EINVAL;
+ 				depth++;
+ 				break;
++
++				switch (e->op) {
++				case CEXPR_EQ:
++				case CEXPR_NEQ:
++					break;
++				case CEXPR_DOM:
++				case CEXPR_DOMBY:
++				case CEXPR_INCOMP:
++					if ((e->attr & CEXPR_USER) || (e->attr & CEXPR_TYPE))
++						return -EINVAL;
++					break;
++				default:
++					return -EINVAL;
++				}
++
++				switch (e->attr) {
++				case CEXPR_USER:
++				case CEXPR_ROLE:
++				case CEXPR_TYPE:
++				case CEXPR_L1L2:
++				case CEXPR_L1H2:
++				case CEXPR_H1L2:
++				case CEXPR_H1H2:
++				case CEXPR_L1H1:
++				case CEXPR_L2H2:
++					break;
++				default:
++					return -EINVAL;
++				}
++
++				break;
+ 			case CEXPR_NAMES:
+ 				if (!allowxtarget && (e->attr & CEXPR_XTARGET))
+ 					return -EINVAL;
+-				if (depth == (CEXPR_MAXDEPTH - 1))
++				if (depth >= (CEXPR_MAXDEPTH - 1))
++					return -EINVAL;
++
++				switch (e->op) {
++				case CEXPR_EQ:
++				case CEXPR_NEQ:
++					break;
++				default:
++					return -EINVAL;
++				}
++
++				switch (e->attr) {
++				case CEXPR_USER:
++				case CEXPR_USER | CEXPR_TARGET:
++				case CEXPR_USER | CEXPR_XTARGET:
++				case CEXPR_ROLE:
++				case CEXPR_ROLE | CEXPR_TARGET:
++				case CEXPR_ROLE | CEXPR_XTARGET:
++				case CEXPR_TYPE:
++				case CEXPR_TYPE | CEXPR_TARGET:
++				case CEXPR_TYPE | CEXPR_XTARGET:
++					break;
++				default:
+ 					return -EINVAL;
++				}
++
+ 				depth++;
+ 				rc = ebitmap_read(&e->names, fp);
+ 				if (rc)
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index d8b5fb98adb9..b1b90f802328 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -278,22 +278,25 @@ static int constraint_expr_eval(struct policydb *policydb,
+ 	for (e = cexpr; e; e = e->next) {
+ 		switch (e->expr_type) {
+ 		case CEXPR_NOT:
+-			BUG_ON(sp < 0);
++			if (unlikely(sp < 0))
++				goto invalid;
+ 			s[sp] = !s[sp];
+ 			break;
+ 		case CEXPR_AND:
+-			BUG_ON(sp < 1);
++			if (unlikely(sp < 1))
++				goto invalid;
+ 			sp--;
+ 			s[sp] &= s[sp + 1];
+ 			break;
+ 		case CEXPR_OR:
+-			BUG_ON(sp < 1);
++			if (unlikely(sp < 1))
++				goto invalid;
+ 			sp--;
+ 			s[sp] |= s[sp + 1];
+ 			break;
+ 		case CEXPR_ATTR:
+-			if (sp == (CEXPR_MAXDEPTH - 1))
+-				return 0;
++			if (unlikely(sp >= (CEXPR_MAXDEPTH - 1)))
++				goto invalid;
+ 			switch (e->attr) {
+ 			case CEXPR_USER:
+ 				val1 = scontext->user;
+@@ -369,13 +372,11 @@ static int constraint_expr_eval(struct policydb *policydb,
+ 					s[++sp] = mls_level_incomp(l2, l1);
+ 					continue;
+ 				default:
+-					BUG();
+-					return 0;
++					goto invalid;
+ 				}
+ 				break;
+ 			default:
+-				BUG();
+-				return 0;
++				goto invalid;
+ 			}
  
-+	if (oom_check(sizeof(char), len, fp))
-+		return -EINVAL;
-+
- 	str = kmalloc(len + 1, flags | __GFP_NOWARN);
- 	if (!str)
- 		return -ENOMEM;
-@@ -1169,6 +1172,10 @@ static int common_read(struct policydb *p, struct symtab *s, struct policy_file
- 	if (nel > 32)
- 		goto bad;
+ 			switch (e->op) {
+@@ -386,22 +387,19 @@ static int constraint_expr_eval(struct policydb *policydb,
+ 				s[++sp] = (val1 != val2);
+ 				break;
+ 			default:
+-				BUG();
+-				return 0;
++				goto invalid;
+ 			}
+ 			break;
+ 		case CEXPR_NAMES:
+-			if (sp == (CEXPR_MAXDEPTH-1))
+-				return 0;
++			if (unlikely(sp >= (CEXPR_MAXDEPTH-1)))
++				goto invalid;
+ 			c = scontext;
+ 			if (e->attr & CEXPR_TARGET)
+ 				c = tcontext;
+ 			else if (e->attr & CEXPR_XTARGET) {
+ 				c = xcontext;
+-				if (!c) {
+-					BUG();
+-					return 0;
+-				}
++				if (unlikely(!c))
++					goto invalid;
+ 			}
+ 			if (e->attr & CEXPR_USER)
+ 				val1 = c->user;
+@@ -409,10 +407,8 @@ static int constraint_expr_eval(struct policydb *policydb,
+ 				val1 = c->role;
+ 			else if (e->attr & CEXPR_TYPE)
+ 				val1 = c->type;
+-			else {
+-				BUG();
+-				return 0;
+-			}
++			else
++				goto invalid;
  
-+	rc = oom_check(/*guaranteed read by perm_read()*/2 * sizeof(u32), nel, fp);
-+	if (rc)
-+		goto bad;
-+
- 	rc = symtab_init(&comdatum->permissions, nel);
- 	if (rc)
- 		goto bad;
-@@ -1343,6 +1350,10 @@ static int class_read(struct policydb *p, struct symtab *s, struct policy_file *
- 		goto bad;
- 	cladatum->value = val;
+ 			switch (e->op) {
+ 			case CEXPR_EQ:
+@@ -422,18 +418,25 @@ static int constraint_expr_eval(struct policydb *policydb,
+ 				s[++sp] = !ebitmap_get_bit(&e->names, val1 - 1);
+ 				break;
+ 			default:
+-				BUG();
+-				return 0;
++				goto invalid;
+ 			}
+ 			break;
+ 		default:
+-			BUG();
+-			return 0;
++			goto invalid;
+ 		}
+ 	}
  
-+	rc = oom_check(/*guaranteed read by perm_read()*/2 * sizeof(u32), nel, fp);
-+	if (rc)
-+		goto bad;
+-	BUG_ON(sp != 0);
++	if (unlikely(sp != 0))
++		goto invalid;
 +
- 	rc = symtab_init(&cladatum->permissions, nel);
- 	if (rc)
- 		goto bad;
-@@ -1916,6 +1927,10 @@ static int range_read(struct policydb *p, struct policy_file *fp)
- 
- 	nel = le32_to_cpu(buf[0]);
- 
-+	rc = oom_check(sizeof(u32) * 2, nel, fp);
-+	if (rc)
-+		return rc;
+ 	return s[0];
 +
- 	rc = hashtab_init(&p->range_tr, nel);
- 	if (rc)
- 		return rc;
-@@ -2684,6 +2699,10 @@ int policydb_read(struct policydb *p, struct policy_file *fp)
- 		nprim = le32_to_cpu(buf[0]);
- 		nel = le32_to_cpu(buf[1]);
- 
-+		rc = oom_check(/*guaranteed read by read_f()*/ 4 * sizeof(u32), nel, fp);
-+		if (rc)
-+			goto out;
-+
- 		rc = symtab_init(&p->symtab[i], nel);
- 		if (rc)
- 			goto out;
-@@ -2725,6 +2744,10 @@ int policydb_read(struct policydb *p, struct policy_file *fp)
- 		goto bad;
- 	nel = le32_to_cpu(buf[0]);
- 
-+	rc = oom_check(3 * sizeof(u32), nel, fp);
-+	if (rc)
-+		goto bad;
-+
- 	rc = hashtab_init(&p->role_tr, nel);
- 	if (rc)
- 		goto bad;
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 4d278583c172..fee9132b0d42 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -353,6 +353,19 @@ struct policy_data {
- 	struct policy_file *fp;
- };
- 
-+static inline int oom_check(size_t bytes, size_t num, const struct policy_file *fp)
-+{
-+	size_t len;
-+
-+	if (unlikely(check_mul_overflow(bytes, num, &len)))
-+		return -EINVAL;
-+
-+	if (unlikely(len > fp->len))
-+		return -EINVAL;
-+
++invalid:
++	/* Should *never* be reached, cause malformed constraints should
++	 * have been filtered by read_cons_helper().
++	 */
++	WARN_ONCE(true, "SELinux: invalid constraint passed validation\n");
 +	return 0;
-+}
-+
- static inline int next_entry(void *buf, struct policy_file *fp, size_t bytes)
- {
- 	if (bytes > fp->len)
+ }
+ 
+ /*
 -- 
 2.45.2
 
