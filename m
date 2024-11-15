@@ -1,49 +1,44 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAEAB1CDA09;
-	Fri, 15 Nov 2024 13:37:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30E161D12E7;
+	Fri, 15 Nov 2024 13:37:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731677833; cv=none; b=rhhOSQIP4g05A+bLY+glez0uHjsA/DU9obgFIRe+cN17TYZtLaPDpXNGpKyjB1K2BDVWOw5tnzzfkfb7q0piXzhaftsmipKu59Zt5Ye2qgFPQb70MmhHGg0JO2AFdWA9RkGcno22cbfZL1+PFEC0Tkaf6Le7lrxaD1ywKR5OoMw=
+	t=1731677835; cv=none; b=l16Yf1kEPC09nXssPc2VJLSap2ViGFR6frWpoNiVcDoxRuV+PgCsrVv+cP0X6CfghNHAUDPjCBYLB4NW5bZBqmjYGyvK8QMXkF7tPSGb06TYWt4eS5L2IizgCOKS14uufuL5naJXbp2dvsmzd4/5Wgkm0fO8iFqVXM87l76pVPA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731677833; c=relaxed/simple;
-	bh=wbZeP+FqrGHfxL8k2FfPz/C2u93Wbv/O5/Sm2nOrQSg=;
+	s=arc-20240116; t=1731677835; c=relaxed/simple;
+	bh=YCmxocFjVW/QPScnM+jx3LAcf7uLd3n4k6yk2XY8Bpk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jRadhXt1qrlC9v5eVw+FlOKhxTAR6Gft7TnkIxE2cXYsNhnOJUVzjZyYQUaaUUKRnup6+Ylp24TArkCjBMDMm/bsCAlocO0nAOBcK1Lb74h7yWROUw9IsY57NM5x8IfKevEj0LOzhfi0ZKPOsmYquY7n+Kq/AXdGYFyY9Vi63mE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=CS9awf2R; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=PuMPbICmiMzTwgFoxfIaOlk1lKAhkOQZYxnGH41nOhOGfDFqLuNvPi5pfamGC0UozAF5Tizj8LPyIW24ZiNqsBueXGSfleRLjKkGtvXeMIAsz0d0plZF8+VbkzGGfxBMY023UjDHYJpugGKPa0OBapKfCSP5glJ7CqBdXdP5+gQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=tYyxzTSj; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="CS9awf2R"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="tYyxzTSj"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1731677829;
+	s=2023072701; t=1731677831;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=NNe8CasdOqHvzGa8GCttK8HX6bCvp4pEw3d94J1Ra9E=;
-	b=CS9awf2RoaagJnJBZq/a9g7JaemxTgRXpvsJdf9eu9TFwtvifeg6/SK8yRJRNozbQNPAau
-	ASo2kG0r0vH5k6aJDflys5AbFl5y1RuidGJu3Y1FH5G1zUp2gpJiL72kLnqJqKE2SD2t4R
-	SVPjamMfvn6VGO6TILl4SVTVYC6VHS42FmbIk9OJ6FTS4Bpzqr+/F9aWuPwqFtDLXyUW+g
-	W83Y2i53YwllTiGypLzgZ5EganlQTsrc2DAyNfFB/Qnu9Mdeyj4BmjZhL9GVKDfjUOKsLT
-	lAATwLpwM9XGBo66a2BuZ+e+yjADXE2pkZf3aJvvCgxvaszxdt1J//V6yzycCA==
+	bh=SHcvjlb6cyEnD4k6C25pa+KjATBvNG4Z+HzMzBZN1WM=;
+	b=tYyxzTSjmhlCeVXjj6sIhynePGIr3F/ww0E7hDl2pL2mXq2exiG+TT8XT6Q9zde5ywoKH0
+	MomU0xHw2yYb+uplLy8jR+8hfqBgBMGlJD/OQK8EllzqK/VoWRGhFI8NtMsWGKquUxo0SL
+	qYn8zFZbSFtBaKQSy0o8AGM0hFcav++N2NTQyVEbou31k782uXdIw+Fc4DbKEqRF++LOsD
+	/zxMv0b6O0SBYpoaM0CsklGQa8KB7csOi6c3bHDiHIOyRsr7P/wuZvrYXcpHziqdj3HMBh
+	Q/0aEp2ZMeB+M00KnidbxKuELlZH0nJpWqePzs0sbDkjmPs6dsnEjXTZN2KmnQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
 	Paul Moore <paul@paul-moore.com>,
 	Stephen Smalley <stephen.smalley.work@gmail.com>,
 	Ondrej Mosnacek <omosnace@redhat.com>,
-	Casey Schaufler <casey@schaufler-ca.com>,
-	Canfeng Guo <guocanfeng@uniontech.com>,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	GUO Zihua <guozihua@huawei.com>,
-	=?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>,
 	linux-kernel@vger.kernel.org
-Subject: [RFC PATCH 13/22] selinux: validate constraints
-Date: Fri, 15 Nov 2024 14:35:32 +0100
-Message-ID: <20241115133619.114393-13-cgoettsche@seltendoof.de>
+Subject: [RFC PATCH 14/22] selinux: pre-validate conditional expressions
+Date: Fri, 15 Nov 2024 14:35:33 +0100
+Message-ID: <20241115133619.114393-14-cgoettsche@seltendoof.de>
 In-Reply-To: <20241115133619.114393-1-cgoettsche@seltendoof.de>
 References: <20241115133619.114393-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -58,227 +53,235 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Validate constraint expressions during reading the policy.
-Avoid the usage of BUG() on constraint evaluation, to mitigate malformed
-policies halting the system.
-
-Closes: https://github.com/SELinuxProject/selinux-testsuite/issues/76
+Validate conditional expressions while reading the policy, to avoid
+unexpected access decisions on malformed policies.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/policydb.c | 61 ++++++++++++++++++++++++++++++++--
- security/selinux/ss/services.c | 55 +++++++++++++++---------------
- 2 files changed, 88 insertions(+), 28 deletions(-)
+ security/selinux/ss/conditional.c | 116 ++++++++++++++++++++----------
+ security/selinux/ss/policydb.c    |   7 ++
+ security/selinux/ss/policydb.h    |   1 +
+ 3 files changed, 88 insertions(+), 36 deletions(-)
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 5ba1e8d483fb..5d99e1498b55 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -1251,6 +1251,8 @@ static int read_cons_helper(struct policydb *p, struct constraint_node **nodep,
- 			return rc;
- 		c->permissions = le32_to_cpu(buf[0]);
- 		nexpr = le32_to_cpu(buf[1]);
-+		if (nexpr == 0)
-+			return -EINVAL;
- 		le = NULL;
- 		depth = -1;
- 		for (j = 0; j < nexpr; j++) {
-@@ -1282,15 +1284,70 @@ static int read_cons_helper(struct policydb *p, struct constraint_node **nodep,
- 				depth--;
- 				break;
- 			case CEXPR_ATTR:
--				if (depth == (CEXPR_MAXDEPTH - 1))
-+				if (depth >= (CEXPR_MAXDEPTH - 1))
- 					return -EINVAL;
- 				depth++;
- 				break;
-+
-+				switch (e->op) {
-+				case CEXPR_EQ:
-+				case CEXPR_NEQ:
-+					break;
-+				case CEXPR_DOM:
-+				case CEXPR_DOMBY:
-+				case CEXPR_INCOMP:
-+					if ((e->attr & CEXPR_USER) || (e->attr & CEXPR_TYPE))
-+						return -EINVAL;
-+					break;
-+				default:
-+					return -EINVAL;
-+				}
-+
-+				switch (e->attr) {
-+				case CEXPR_USER:
-+				case CEXPR_ROLE:
-+				case CEXPR_TYPE:
-+				case CEXPR_L1L2:
-+				case CEXPR_L1H2:
-+				case CEXPR_H1L2:
-+				case CEXPR_H1H2:
-+				case CEXPR_L1H1:
-+				case CEXPR_L2H2:
-+					break;
-+				default:
-+					return -EINVAL;
-+				}
-+
-+				break;
- 			case CEXPR_NAMES:
- 				if (!allowxtarget && (e->attr & CEXPR_XTARGET))
- 					return -EINVAL;
--				if (depth == (CEXPR_MAXDEPTH - 1))
-+				if (depth >= (CEXPR_MAXDEPTH - 1))
-+					return -EINVAL;
-+
-+				switch (e->op) {
-+				case CEXPR_EQ:
-+				case CEXPR_NEQ:
-+					break;
-+				default:
-+					return -EINVAL;
-+				}
-+
-+				switch (e->attr) {
-+				case CEXPR_USER:
-+				case CEXPR_USER | CEXPR_TARGET:
-+				case CEXPR_USER | CEXPR_XTARGET:
-+				case CEXPR_ROLE:
-+				case CEXPR_ROLE | CEXPR_TARGET:
-+				case CEXPR_ROLE | CEXPR_XTARGET:
-+				case CEXPR_TYPE:
-+				case CEXPR_TYPE | CEXPR_TARGET:
-+				case CEXPR_TYPE | CEXPR_XTARGET:
-+					break;
-+				default:
- 					return -EINVAL;
-+				}
-+
- 				depth++;
- 				rc = ebitmap_read(&e->names, fp);
- 				if (rc)
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index d8b5fb98adb9..b1b90f802328 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -278,22 +278,25 @@ static int constraint_expr_eval(struct policydb *policydb,
- 	for (e = cexpr; e; e = e->next) {
- 		switch (e->expr_type) {
- 		case CEXPR_NOT:
--			BUG_ON(sp < 0);
+diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+index 07008ea081ba..d37b4bdf6ba9 100644
+--- a/security/selinux/ss/conditional.c
++++ b/security/selinux/ss/conditional.c
+@@ -21,65 +21,119 @@
+  * or undefined (-1). Undefined occurs when the expression
+  * exceeds the stack depth of COND_EXPR_MAXDEPTH.
+  */
+-static int cond_evaluate_expr(struct policydb *p, struct cond_expr *expr)
++static int cond_evaluate_expr(const struct policydb *p, const struct cond_expr *expr)
+ {
+ 	u32 i;
+ 	int s[COND_EXPR_MAXDEPTH];
+ 	int sp = -1;
+ 
+-	if (expr->len == 0)
+-		return -1;
++	if (unlikely(expr->len == 0))
++		goto invalid;
+ 
+ 	for (i = 0; i < expr->len; i++) {
+-		struct cond_expr_node *node = &expr->nodes[i];
++		const struct cond_expr_node *node = &expr->nodes[i];
+ 
+ 		switch (node->expr_type) {
+ 		case COND_BOOL:
+-			if (sp == (COND_EXPR_MAXDEPTH - 1))
+-				return -1;
++			if (unlikely(sp >= (COND_EXPR_MAXDEPTH - 1)))
++				goto invalid;
+ 			sp++;
+ 			s[sp] = p->bool_val_to_struct[node->boolean - 1]->state;
+ 			break;
+ 		case COND_NOT:
+-			if (sp < 0)
+-				return -1;
 +			if (unlikely(sp < 0))
 +				goto invalid;
  			s[sp] = !s[sp];
  			break;
- 		case CEXPR_AND:
--			BUG_ON(sp < 1);
-+			if (unlikely(sp < 1))
-+				goto invalid;
- 			sp--;
- 			s[sp] &= s[sp + 1];
- 			break;
- 		case CEXPR_OR:
--			BUG_ON(sp < 1);
+ 		case COND_OR:
+-			if (sp < 1)
+-				return -1;
 +			if (unlikely(sp < 1))
 +				goto invalid;
  			sp--;
  			s[sp] |= s[sp + 1];
  			break;
- 		case CEXPR_ATTR:
--			if (sp == (CEXPR_MAXDEPTH - 1))
--				return 0;
-+			if (unlikely(sp >= (CEXPR_MAXDEPTH - 1)))
+ 		case COND_AND:
+-			if (sp < 1)
+-				return -1;
++			if (unlikely(sp < 1))
 +				goto invalid;
- 			switch (e->attr) {
- 			case CEXPR_USER:
- 				val1 = scontext->user;
-@@ -369,13 +372,11 @@ static int constraint_expr_eval(struct policydb *policydb,
- 					s[++sp] = mls_level_incomp(l2, l1);
- 					continue;
- 				default:
--					BUG();
--					return 0;
-+					goto invalid;
- 				}
- 				break;
- 			default:
--				BUG();
--				return 0;
-+				goto invalid;
- 			}
- 
- 			switch (e->op) {
-@@ -386,22 +387,19 @@ static int constraint_expr_eval(struct policydb *policydb,
- 				s[++sp] = (val1 != val2);
- 				break;
- 			default:
--				BUG();
--				return 0;
-+				goto invalid;
- 			}
+ 			sp--;
+ 			s[sp] &= s[sp + 1];
  			break;
- 		case CEXPR_NAMES:
--			if (sp == (CEXPR_MAXDEPTH-1))
--				return 0;
-+			if (unlikely(sp >= (CEXPR_MAXDEPTH-1)))
+ 		case COND_XOR:
+-			if (sp < 1)
+-				return -1;
++			if (unlikely(sp < 1))
 +				goto invalid;
- 			c = scontext;
- 			if (e->attr & CEXPR_TARGET)
- 				c = tcontext;
- 			else if (e->attr & CEXPR_XTARGET) {
- 				c = xcontext;
--				if (!c) {
--					BUG();
--					return 0;
--				}
-+				if (unlikely(!c))
-+					goto invalid;
- 			}
- 			if (e->attr & CEXPR_USER)
- 				val1 = c->user;
-@@ -409,10 +407,8 @@ static int constraint_expr_eval(struct policydb *policydb,
- 				val1 = c->role;
- 			else if (e->attr & CEXPR_TYPE)
- 				val1 = c->type;
--			else {
--				BUG();
--				return 0;
--			}
-+			else
+ 			sp--;
+ 			s[sp] ^= s[sp + 1];
+ 			break;
+ 		case COND_EQ:
+-			if (sp < 1)
+-				return -1;
++			if (unlikely(sp < 1))
 +				goto invalid;
- 
- 			switch (e->op) {
- 			case CEXPR_EQ:
-@@ -422,18 +418,25 @@ static int constraint_expr_eval(struct policydb *policydb,
- 				s[++sp] = !ebitmap_get_bit(&e->names, val1 - 1);
- 				break;
- 			default:
--				BUG();
--				return 0;
+ 			sp--;
+ 			s[sp] = (s[sp] == s[sp + 1]);
+ 			break;
+ 		case COND_NEQ:
+-			if (sp < 1)
+-				return -1;
++			if (unlikely(sp < 1))
 +				goto invalid;
- 			}
+ 			sp--;
+ 			s[sp] = (s[sp] != s[sp + 1]);
  			break;
  		default:
--			BUG();
--			return 0;
+-			return -1;
 +			goto invalid;
  		}
  	}
- 
--	BUG_ON(sp != 0);
++
 +	if (unlikely(sp != 0))
 +		goto invalid;
 +
  	return s[0];
 +
 +invalid:
-+	/* Should *never* be reached, cause malformed constraints should
-+	 * have been filtered by read_cons_helper().
++	/* Should *never* be reached, cause malformed expressions should
++	 * have been filtered by cond_validate_expr().
 +	 */
-+	WARN_ONCE(true, "SELinux: invalid constraint passed validation\n");
++	WARN_ONCE(true, "SELinux: invalid conditional expression passed validation\n");
++	return -1;
++}
++
++static int cond_validate_expr(const struct policydb *p, const struct cond_expr *expr)
++{
++	u32 i;
++	int depth = -1;
++
++	if (expr->len == 0)
++		return -EINVAL;
++
++	for (i = 0; i < expr->len; i++) {
++		const struct cond_expr_node *node = &expr->nodes[i];
++
++		switch (node->expr_type) {
++		case COND_BOOL:
++			if (depth >= (COND_EXPR_MAXDEPTH - 1))
++				return -EINVAL;
++			depth++;
++			if (!policydb_boolean_isvalid(p, node->boolean))
++				return -EINVAL;
++			break;
++		case COND_NOT:
++			if (depth < 0)
++				return -EINVAL;
++			break;
++		case COND_OR:
++		case COND_AND:
++		case COND_XOR:
++		case COND_EQ:
++		case COND_NEQ:
++			if (depth < 1)
++				return -EINVAL;
++			depth--;
++			break;
++		default:
++			return -EINVAL;
++		}
++	}
++
++	if (depth != 0)
++		return -EINVAL;
++
 +	return 0;
  }
  
  /*
+@@ -355,21 +409,6 @@ static int cond_read_av_list(struct policydb *p, struct policy_file *fp,
+ 	return 0;
+ }
+ 
+-static int expr_node_isvalid(struct policydb *p, struct cond_expr_node *expr)
+-{
+-	if (expr->expr_type <= 0 || expr->expr_type > COND_LAST) {
+-		pr_err("SELinux: conditional expressions uses unknown operator.\n");
+-		return 0;
+-	}
+-
+-	if (expr->expr_type == COND_BOOL &&
+-	    (expr->boolean == 0 || expr->boolean > p->p_bools.nprim)) {
+-		pr_err("SELinux: conditional expressions uses unknown bool.\n");
+-		return 0;
+-	}
+-	return 1;
+-}
+-
+ static int cond_read_node(struct policydb *p, struct cond_node *node, struct policy_file *fp)
+ {
+ 	__le32 buf[2];
+@@ -384,6 +423,8 @@ static int cond_read_node(struct policydb *p, struct cond_node *node, struct pol
+ 
+ 	/* expr */
+ 	len = le32_to_cpu(buf[1]);
++	if (len == 0)
++		return -EINVAL;
+ 
+ 	rc = oom_check(2 * sizeof(u32), len, fp);
+ 	if (rc)
+@@ -404,9 +445,12 @@ static int cond_read_node(struct policydb *p, struct cond_node *node, struct pol
+ 
+ 		expr->expr_type = le32_to_cpu(buf[0]);
+ 		expr->boolean = le32_to_cpu(buf[1]);
++	}
+ 
+-		if (!expr_node_isvalid(p, expr))
+-			return -EINVAL;
++	rc = cond_validate_expr(p, &node->expr);
++	if (rc) {
++		pr_err("SELinux: invalid conditional expression\n");
++		return rc;
+ 	}
+ 
+ 	rc = cond_read_av_list(p, fp, &node->true_list, NULL);
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 5d99e1498b55..1768ac4ecc2c 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -940,6 +940,13 @@ int policydb_type_isvalid(struct policydb *p, unsigned int type)
+ 	return 1;
+ }
+ 
++int policydb_boolean_isvalid(const struct policydb *p, u32 boolean)
++{
++	if (!boolean || boolean > p->p_bools.nprim)
++		return 0;
++	return 1;
++}
++
+ /*
+  * Return 1 if the fields in the security context
+  * structure `c' are valid.  Return 0 otherwise.
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index fee9132b0d42..c94253a1ddbc 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -318,6 +318,7 @@ extern int policydb_context_isvalid(struct policydb *p, struct context *c);
+ extern int policydb_class_isvalid(struct policydb *p, u16 class);
+ extern int policydb_type_isvalid(struct policydb *p, unsigned int type);
+ extern int policydb_role_isvalid(struct policydb *p, unsigned int role);
++extern int policydb_boolean_isvalid(const struct policydb *p, u32 boolean);
+ 
+ struct policy_file {
+ 	char *data;
 -- 
 2.45.2
 
