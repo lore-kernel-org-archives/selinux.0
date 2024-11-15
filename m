@@ -1,140 +1,106 @@
-Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com [209.85.219.170])
+Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B21B31CDA2D
-	for <selinux@vger.kernel.org>; Fri, 15 Nov 2024 14:47:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52E21126C10
+	for <selinux@vger.kernel.org>; Fri, 15 Nov 2024 18:40:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731682075; cv=none; b=dm8VTzhvtNT7rfs4ZHTVY0T7fI2vR6YpuqmKzwgBqWpV1V84k0jp4PSgEivc4t8T8A1+sBCBQX8t7hQJtq+OHp/dUI44uziLCnBQN0iYpZnOdjXeXcy3r1K/VgRM2ge1BFSLcbcNPjyNVUS9EYgcOAX1coJkrpWII7+R29+9OFs=
+	t=1731696025; cv=none; b=chdQAiOlE63knmFemFTL6Fc6aErwnYRaHaDyeXv4LlYnpv8rkE/cV6ZA3luoN9v12C03sNEUQ61o4UDbbr1dAlY8dhucecXOWyDazVQuDDEEeEP0puzbE/MaswRBbrpQd0ElCmFvGoTD6FaQZ7WeN4f2AvlBLJp2MQBT8OcABuc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731682075; c=relaxed/simple;
-	bh=T/EyYVYYGd+GoKisfYhrPazHCEASjhtX/JUIQXjgbmQ=;
+	s=arc-20240116; t=1731696025; c=relaxed/simple;
+	bh=5qPmmCQFw1GLJWZnGu+8zc4z5EDDMOvl7s13qP3L6HA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kfuQd2zr6YTGVuFr+JJbm2fze1HLRjjiZ0O7033SHDPHCKF4RySmuBiYSzDOv3VNVN4M/KWxIrDH/rV+T9BczEwaaTtjng0nbzLudGnAQXIRe6NFHWh5yUkLd4GLrP7OaGKdrjbyOVxMfeKq9KTz6HbiNfMSFRyjk+d+ouNZZ9M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e+aY2VkT; arc=none smtp.client-ip=209.85.219.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=a8HTsVL6z2bUJMoUCXAo5xiEA0eF9Wv+HGx26AkTi2+DrxhghHmQ1FD3m0Bna46LhH1lRL3De9dNIRkIOs7ZTnDlaoWZbssE+C19LYPDI+B+IiQpMite7oQrgLTN+Ii9kEjugrxJ1t8Ssr8RZqPr+FB7vykcgkyYxueSMOPnyQg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=EofFHI+W; arc=none smtp.client-ip=209.85.219.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e+aY2VkT"
-Received: by mail-yb1-f170.google.com with SMTP id 3f1490d57ef6-e380f16217cso1947192276.1
-        for <selinux@vger.kernel.org>; Fri, 15 Nov 2024 06:47:53 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="EofFHI+W"
+Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-e380fe87b09so2039277276.1
+        for <selinux@vger.kernel.org>; Fri, 15 Nov 2024 10:40:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1731682073; x=1732286873; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gC4dhW4f/hQyKHHqlBrdHPviXzhzjc8n6+Mh96iCHxY=;
-        b=e+aY2VkTuBtKn5tiXk4H4PBMOCWmTD7AuFI2hqM+m/JTqH7P2/POKukvjifJIQ+E3H
-         k+OvlowyWu2dx2ANkmp0TNzUKvx0lCionBLKnM+013DCU9Qm4a1402sdd2qQI8gDeykI
-         tdXKiuAlzoqpFZ5dFg+A9t8nDqbhOoE5hxdLlQoA7Jf8RhP+f1PXnCFIx3uODR//RGnJ
-         i5SmpFKP7J6n9sdQJolw9NF9XgGBuCPsxmJALU7IH0pPeKEhxeFesYMrAGbTIT7VH77y
-         mnX/nYobgPZlydEGecoz9KMrcjANeiYChO3K+ludO/IbYLXf/S1BRK4/CpaLPsGRSluL
-         Q7PQ==
+        d=googlemail.com; s=20230601; t=1731696023; x=1732300823; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=5qPmmCQFw1GLJWZnGu+8zc4z5EDDMOvl7s13qP3L6HA=;
+        b=EofFHI+WOuLQl5LF/OVhwQ2HTKgO4bpuJkgpQA/jC0pthvRU4NLqF6HEIxEtFv512s
+         3d9V/w/1cb7DNZsivHMbnA+KIhbnVSwqfo1BuGEgooF/2aO5VmBOktPKO+D1m4Rfc5RR
+         io0X4TuNJ3awOpsv/eol/H/jLIbVgJuzLk6qvvmSwJzd2hILPKo7hVNNNR/X/sL7bmog
+         eiHkwqo3H1RZoKAkjmpK/RrHFBB2kIME9koQVGrPj7eT3HmzDwLogwUwTMW9vane1sBS
+         uJIYbspEUxityPiOyqruB9sC3dgHpl+FypSxaV7Ay0ioSens2ylnWpzVgtuL42j8ULjX
+         8ZaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731682073; x=1732286873;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=gC4dhW4f/hQyKHHqlBrdHPviXzhzjc8n6+Mh96iCHxY=;
-        b=cwjwr2yGHPXJ+JqSyk6yo3f2jcCBv6Z+XmA2tVxAAgpOmhS7rbaHpamtvV5nyKK8Wv
-         WlvZBXY+ClTbcNK3ZmVJ9X0OTcVYQEqnrU4eV8wpXTHfW6PCoXeQyNhee11GXjowyTk1
-         XdhZGO0GvvxEOM9CxbMCQYteDw/WXqew74cSsWohFVHMYjIfx0H9XIzsDBs7y/cOaknb
-         7EnaZ7gmhUm4OC2/pWVc9nmZ9bW/INGPYAwJEIdX22y2NFJU5PXLfv/KvdW7pvdabMir
-         tIguvQWcSnxlzu80fLLXExOldzt+T/EhrgMA21aL0gY0bxlqoYmBSQXeBle9wcYHutqO
-         giEg==
-X-Gm-Message-State: AOJu0Yxn9jHpfzfdpk+S8FKeG9cffKPEOdAjvoA24PIxMTZheHmIRkGW
-	CISvJ58+ElPcOMelBrFkAIc06CllGlGhkwafcvNCRXcIgaWxk/63AOOtTUtYeeK5T6wAbACD3MS
-	Fv4NYU8QLWu/g/qu4aMqZyUM7GtjWSIwf
-X-Google-Smtp-Source: AGHT+IFmiM+AmbtiwbiBk90Nud5/lxhSCDR/2J8G2Maxbt7k1e7x/wvpdJIvyBdscnc0Vw75SkUSf9v1sIiLbrl78jw=
-X-Received: by 2002:a05:6902:330c:b0:e29:3bb6:d63e with SMTP id
- 3f1490d57ef6-e38265e3374mr2592404276.51.1731682072731; Fri, 15 Nov 2024
- 06:47:52 -0800 (PST)
+        d=1e100.net; s=20230601; t=1731696023; x=1732300823;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=5qPmmCQFw1GLJWZnGu+8zc4z5EDDMOvl7s13qP3L6HA=;
+        b=Tuf6FSMQv+7RKecaorJ75xp8cSz2SxxY4VgvMdiFcGeyOfmJMqYHyhkzBqHI4Qj5vN
+         WvSJuy1r0CJH0a5k2KubNh+RpRC4FysTKL7ETKHMj9xPcyihsZE6m57MvaU0tzxMI0HX
+         luTWK+ZUtfZO/+CmNu/4fBKY8jSjB5oK/QlNdf+2SqtD0BRsazBfS2NATHgco/hdfE61
+         EaShL6o8+tyaXa9Ny3wRuHp3MXsWvu5oRuz4k8DbcxCOmKg/gLmCevR2+3m1+pdATbsF
+         VmJOAEI5ldN9UFlwohTlQ/GFqqV70soI4+oJA4LEqGQb4C7mmXYR1Q96rpvJCHi7gJ3N
+         6fXA==
+X-Gm-Message-State: AOJu0YxXJuLF1mh79PElrzfSsHIla97McqEtzJsk7vBzBCl4u+iP3zWL
+	R0cA2CTUS6Hl+nPqhZbTjH4Bi0nQXAotq7KdVaEBADgbUlSYz/GGgGSSq0HkiRF0C7aiAXMOrGS
+	7lu7G4H1ZqVk8ce2htmEcCxbqQ8tn4ey4vNg=
+X-Google-Smtp-Source: AGHT+IGXRhVRb6n5IG7URZCoaQe1oS2/3nEWp01HDwPbot+47tJ5oVUXwhjn/GR991RyGhxFvnNE6MxQl1NSeUypxkM=
+X-Received: by 2002:a05:6902:2989:b0:e30:d9b2:d8d1 with SMTP id
+ 3f1490d57ef6-e38263ed077mr2763594276.52.1731696023149; Fri, 15 Nov 2024
+ 10:40:23 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241113130206.1417824-1-lautrbach@redhat.com>
-In-Reply-To: <20241113130206.1417824-1-lautrbach@redhat.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Fri, 15 Nov 2024 09:47:41 -0500
-Message-ID: <CAP+JOzT_qOFo7b0xroSnK35YjAF9=tuQj74+w_eiTf_3nOyjqw@mail.gmail.com>
-Subject: Re: [PATCH] fixfiles: use `grep -F` when search in mounts
+References: <87ed3flbjd.fsf@redhat.com>
+In-Reply-To: <87ed3flbjd.fsf@redhat.com>
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Fri, 15 Nov 2024 19:40:12 +0100
+Message-ID: <CAJ2a_DdumsYPSWKz5F=QhB+Jq04OTbNXGAMgrtKh3CXDYXZeOw@mail.gmail.com>
+Subject: Re: Intent to release 3.7
 To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux@vger.kernel.org, Christopher Tubbs <ctubbsii@fedoraproject.org>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 13, 2024 at 8:15=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.co=
-m> wrote:
+On Wed, 13 Nov 2024 at 10:37, Petr Lautrbach <lautrbach@redhat.com> wrote:
 >
-> systemd escapes luks uid so that mount points contain '\' and grep
-> should not consider this as regexp
-> Fixes:
->     $ cat /proc/self/mounts | sort | uniq | awk '{print $2}'
->     /run/credentials/systemd-cryptsetup@luks\134x2d6d1f41e6\134x2d5538\13=
-4x2d41a0\134x2db383\134x2cd41c2ddcacaa.service
+> Hello,
 >
->     $ sudo fixfiles -B onboot
->     grep: Invalid back reference
->     grep: Invalid back reference
->     System will relabel on next boot
+> It's been about 6 months since the last release so we're going to start
+> the release process.
 >
-> Suggested-by: Christopher Tubbs <ctubbsii@fedoraproject.org>
-> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+> Original plan was to ship final release before end of the year, but
+> given the number of changes delivered to the mailing list in last day, I
+> think it'll better to postpone 3.8 to January 2025
+>
+> I'll tag and announce 3.8-rc1 on next Wednesday, November 27, 2024 and
+> continue with next rcX every two weeks. As written above the target for
+> the final release would be at the beginning of the next year.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Sounds good to me.
+Some patches that might deserve a look:
 
-> ---
->  policycoreutils/scripts/fixfiles | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+I. Changing the lstat64(2) call to plain lstat(2), to improve compatibility.
+Suggested on GitHub[1] and reported on the Debian Bug Tracker[2].
+
+[1]: https://github.com/SELinuxProject/selinux/pull/401
+[2]: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1087016
+
+II. Always build for LFS mode on 32-bit archs
+Originally reported in February[3] and updated in March[4].
+Patch looks good to me.
+
+[3]: https://lore.kernel.org/selinux/Zc6tzKPsYZRICHya@homer.dodds.net/
+[4]: https://lore.kernel.org/selinux/ZeQuOBwQ2eSbkUAS@homer.dodds.net/
+
+The following two series from patchwork have been superseded:
+- https://patchwork.kernel.org/project/selinux/list/?series=902774
+- https://patchwork.kernel.org/project/selinux/list/?series=903201
+
 >
-> diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/f=
-ixfiles
-> index cb50fef3ca65..b7cd765c15e4 100755
-> --- a/policycoreutils/scripts/fixfiles
-> +++ b/policycoreutils/scripts/fixfiles
-> @@ -45,9 +45,9 @@ FS=3D"`cat /proc/self/mounts | sort | uniq | awk '{prin=
-t $2}'`"
->  for i in $FS; do
->         if [ `useseclabel` -ge 0 ]
->         then
-> -               grep " $i " /proc/self/mounts | awk '{print $4}' | grep -=
-E --silent '(^|,)seclabel(,|$)' && echo $i
-> +               grep -F " $i " /proc/self/mounts | awk '{print $4}' | gre=
-p -E --silent '(^|,)seclabel(,|$)' && echo $i
->         else
-> -               grep " $i " /proc/self/mounts | grep -v "context=3D" | gr=
-ep -E --silent '(ext[234]| ext4dev | gfs2 | xfs | jfs | btrfs )' && echo $i
-> +               grep -F " $i " /proc/self/mounts | grep -v "context=3D" |=
- grep -E --silent '(ext[234]| ext4dev | gfs2 | xfs | jfs | btrfs )' && echo=
- $i
->         fi
->  done
->  }
-> @@ -55,14 +55,14 @@ done
->  get_rw_labeled_mounts() {
->  FS=3D`get_all_labeled_mounts | sort | uniq`
->  for i in $FS; do
-> -       grep " $i " /proc/self/mounts | awk '{print $4}' | grep -E --sile=
-nt '(^|,)rw(,|$)' && echo $i
-> +       grep -F " $i " /proc/self/mounts | awk '{print $4}' | grep -E --s=
-ilent '(^|,)rw(,|$)' && echo $i
->  done
->  }
 >
->  get_ro_labeled_mounts() {
->  FS=3D`get_all_labeled_mounts | sort | uniq`
->  for i in $FS; do
-> -       grep " $i " /proc/self/mounts | awk '{print $4}' | grep -E --sile=
-nt '(^|,)ro(,|$)' && echo $i
-> +       grep -F " $i " /proc/self/mounts | awk '{print $4}' | grep -E --s=
-ilent '(^|,)ro(,|$)' && echo $i
->  done
->  }
->
-> --
-> 2.47.0
+> Petr
 >
 >
