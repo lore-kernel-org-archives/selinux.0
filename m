@@ -1,21 +1,21 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAD411AA1D7
-	for <selinux@vger.kernel.org>; Mon, 18 Nov 2024 15:03:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDB521B0F0B
+	for <selinux@vger.kernel.org>; Mon, 18 Nov 2024 15:03:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731942192; cv=none; b=cTB439W6N7J15SU9XytDkAuht6QiqH9pDJZfH6XygAvinsiseamWEShbZnyYLqpVpUocHWZMqoH16eGnv8XawAtGobo/H+km8Ku62yG4QBsxqOtB1//txs1MLPxef38O+XqSpxMwEPYcEPL4YUhzYp6CWjdo8ndRSN/eTorFf6E=
+	t=1731942193; cv=none; b=L0hM36C0U6xWVH+4bTZpPhxLJxe7l1MLOduSwsSEf4zgw4kXbjF0KoIyikUsBQinfHZiFZyr0UBmVFqUVbz959QkuXbZjZP8NlSlN2CjFYPCZ42M1lC5p++S5V1rdiYuzXPzYu9OClZuoSU7VGywBoDod+upD0sz8Xh+chHd20Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731942192; c=relaxed/simple;
-	bh=oEk1jQ+/80qQmGrucPlGx3zyGkOSfKXFsUZCiZfYASE=;
+	s=arc-20240116; t=1731942193; c=relaxed/simple;
+	bh=faZRreWquVe700OZGYMSo0dSlhb7Uz0PJ11Md7W1r0s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hMRs+aueWOwLOdbBZQnGNEUsPh7j81NI64Q7dJhK60YqRgWYZc6twq9Q6ZVsOaOigJrnVfJhXY6u+rGNVB1DeeSQly1nUc10NJkE6+tQS/vNpO0cbpkp1t4Kvp44nxSqpRiACfepUgeP2AJFmNhSIYdDtXMQq1dzLs4EGaCuWu0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=eIbo8VEO; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=snHTWHgO8TKATOy0IsaoS4/c7d/Vuk9PR17MAcOAbfg0n8Fhu7BVnhsadkSxTLYbVyJs5XjWLZSFpe5n84UXU4fONpHL23CFDUPGoeyYRuyp046ixd2D5AGiGGD7lZZFubQJXl7zXa5Zqd8WpFgAB5h4raxa0BRcYxuuoIBgm38=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=RWxscOZK; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="eIbo8VEO"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="RWxscOZK"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1731942182;
@@ -23,17 +23,17 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=xElDK9FN6w7nntOkfia3KzozUGVjvrMHpBsk9cyr6Zc=;
-	b=eIbo8VEO3XNvP5eCnhqkc3YDSKS1kpRmPtUsAcufSTxJ+vSNgz17pXrGwFjgSJ4BNCdKTh
-	d4Zsml/TU+hTItJRpxHNodp7C+TZWAW2A/K6B98iGlY3zBmSdU1M18kI1hV2nhum1oR/GK
-	zBrNSlm9nE6HWFvZsvidWUH3+mdMxlr7FaZvSy6lEqUMMYGhg7XfEhe7looGGE43NY/mOX
-	As8Clofhrl/QRcIbfdr6JoIaVZxaHghIHQxAHpfsfFtIM/Z8y0kO0COPxcflqG1ki0lqOZ
-	uA8W80ZU9NB7m65+LArqPRKa5dehYu/dOheCXQuQzd+XNiWOFdsohwp4pZi9vw==
+	bh=IXSqTavrILkr8R4UvsKit71r/AdRNMGLzyGo5EHv1dQ=;
+	b=RWxscOZKeUc1RMFpFaAqMTa+oENw4o8ialrC2UG+m5fYlQIN9+2mcyQzzerFvKXrrbAoKk
+	KCBrC64H9ZdKHKynn2jgY5C2ny+M1hYRH5j6FwWyxEWIGfZJaf9jqXbYdcfU70S3en5bCL
+	hs9zMd9Ade7dK7kFurYKNmh311q2ZFIBr95w3YYZMATx1/j2eXClCVoJOWPsskLw7wrqa7
+	W7Ny7op3jUGPLk9feN+31zHNDSzTmrXzw80rzWJN/KGCPW/FEfpOB/mCnv/TYJV+Rg+pS8
+	F6hkwuVFVkK1BYfamF+onrF96Fm+n98/GK8dYF3+M3+Ek78XF+HHXSht0cC2Bg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 03/17] tools: quote command to prevent word splitting
-Date: Mon, 18 Nov 2024 16:02:25 +0100
-Message-ID: <20241118150256.135432-4-cgoettsche@seltendoof.de>
+Subject: [PATCH 04/17] tests: port scripts to sh and please shellcheck
+Date: Mon, 18 Nov 2024 16:02:26 +0100
+Message-ID: <20241118150256.135432-5-cgoettsche@seltendoof.de>
 In-Reply-To: <20241118150256.135432-1-cgoettsche@seltendoof.de>
 References: <20241118150256.135432-1-cgoettsche@seltendoof.de>
 Precedence: bulk
@@ -47,26 +47,90 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Reported by shellcheck(1).
+Improve portability and avoid actual issues being hidden.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- tools/check-syntax | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tests/kvercmp    | 16 +++++++++-------
+ tests/os_detect  | 10 ++++++----
+ tests/pol_detect | 12 +++++++-----
+ 3 files changed, 22 insertions(+), 16 deletions(-)
 
-diff --git a/tools/check-syntax b/tools/check-syntax
-index 2115a79..d09a3dd 100755
---- a/tools/check-syntax
-+++ b/tools/check-syntax
-@@ -112,7 +112,7 @@ function style_fix() {
- 	[[ -z "$1" ]] && return
- 	[[ -z "$2" || ! -w "$2" ]] && return
+diff --git a/tests/kvercmp b/tests/kvercmp
+index 3742f16..4b1e345 100755
+--- a/tests/kvercmp
++++ b/tests/kvercmp
+@@ -1,15 +1,17 @@
+-#!/bin/bash
++#!/bin/sh
  
--	tmp="$(mktemp --tmpdir=$(dirname "$2"))"
-+	tmp="$(mktemp --tmpdir="$(dirname "$2")")"
- 	case "$1" in
- 	c|C)
- 		tool_c_style "$2" > "$tmp"
+-function kvercmp()
++set -eu
++
++kvercmp()
+ {
+-	ver1=`echo $1 | sed 's/-/./'`
+-	ver2=`echo $2 | sed 's/-/./'`
++	ver1=$(echo "$1" | sed 's/-/./')
++	ver2=$(echo "$2" | sed 's/-/./')
+ 
+ 	ret=0
+ 	i=1
+-	while [ 1 ]; do
+-		digit1=`echo $ver1 | cut -d . -f $i`
+-		digit2=`echo $ver2 | cut -d . -f $i`
++	while true; do
++		digit1=$(echo "$ver1" | cut -d . -f $i)
++		digit2=$(echo "$ver2" | cut -d . -f $i)
+ 
+ 		if [ -z "$digit1" ]; then
+ 			if [ -z "$digit2" ]; then
+diff --git a/tests/os_detect b/tests/os_detect
+index cddcb85..6b723f6 100755
+--- a/tests/os_detect
++++ b/tests/os_detect
+@@ -1,8 +1,10 @@
+-#!/bin/bash
++#!/bin/sh
+ 
+-if [[ -r /etc/redhat-release ]]; then
+-	ver=$(cat /etc/redhat-release | sed -ne '/^Red Hat Enterprise Linux/p')
+-	if [[ -n $ver ]]; then
++set -eu
++
++if [ -r /etc/redhat-release ]; then
++	ver=$(sed -ne '/^Red Hat Enterprise Linux/p' /etc/redhat-release)
++	if [ -n "$ver" ]; then
+ 		echo "$ver" | \
+ 			sed -e 's/Red Hat Enterprise Linux[ \ta-zA-Z]*\([0-9]\+\).*/RHEL\1/'
+ 	fi
+diff --git a/tests/pol_detect b/tests/pol_detect
+index ba25b94..8c07997 100755
+--- a/tests/pol_detect
++++ b/tests/pol_detect
+@@ -1,4 +1,6 @@
+-#!/bin/bash
++#!/bin/sh
++
++set -eu
+ 
+ if [ $# -ne 1 ]; then
+ 	echo "Usage $0 <selinuxfs directory>"
+@@ -8,10 +10,10 @@ fi
+ # This is heuristic but seems unlikely to be wrong,
+ # the kernel initial sid should always be SystemHigh
+ # and SystemHigh is normally s15
+-level=$(cat $1/initial_contexts/kernel | tr '\0' '\n' | cut -d: -f4)
++level=$(cat "$1/initial_contexts/kernel" | tr '\0' '\n' | cut -d: -f4)
+ 
+-if [ -z $level ]; then echo "NON-MLS"
+-elif [ $level = 's0' ]; then echo "MCS"
+-elif [ $level = 's15' ]; then echo "MLS"
++if [ -z "$level" ]; then echo "NON-MLS"
++elif [ "$level" = 's0' ]; then echo "MCS"
++elif [ "$level" = 's15' ]; then echo "MLS"
+ else echo "UNKNOWN"
+ fi
 -- 
 2.45.2
 
