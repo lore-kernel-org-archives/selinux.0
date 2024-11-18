@@ -1,39 +1,39 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF2791C2304
-	for <selinux@vger.kernel.org>; Mon, 18 Nov 2024 15:03:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DB231C3033
+	for <selinux@vger.kernel.org>; Mon, 18 Nov 2024 15:03:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731942198; cv=none; b=N0/aZx7RRje3v6soG1e7yizfOA72PndHcO4GgHoXn9rDpXtfnpIpg5n/iQlVmcZW87HGb3sTQlaJx8IDlJtns8nk/vP9hpibKzhDqHdUAIflBgf13AvuHxlkMbDJ73tqyDsf4j0nO2JxhfFz9Ve84w7P8cWPHN7wiUk728E8SWk=
+	t=1731942198; cv=none; b=GRXEiv0E8v+8Rz3J+mHl+scFZDlEbyZYCYdpAiAGFXKFfBVwm6Vm6Dbud8J3nT1gtcEWB1ZE2zKr4RkCH/hxYAKqxFmQwGF36z5uA1xGIaSvHsbXvAsquitC+3XXVl/L6P8b/VrRXi24U2e9HM10ml0RnbMmCHkogy4cXDT+q8s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1731942198; c=relaxed/simple;
-	bh=h1M2u0m6G1MIc04LpAa9NOpyaxz0F9ikzwss0o8Bz5g=;
+	bh=raoDcVNtzrIvrLDJsiPnjEE+u/CiKjv8xnMHBULvPmE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=E9cTt5OPmvYDNVUvCbx6PpYmN4m0fK9z90tLxkrpcygOITVu6epIMO8vcJTL8UFkXZu2xax65E/u4PRr11C7aL1KBV4JM99Ng60IvaqTll1S4RPWAEqhr3+Khq6IQU4HtICE40i9NXsBy0Y+Zjcn8huk5s+IVIScxQtMgiDAorA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Vwb3erst; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=AlwyotJA0oz8oabCO4hmJTk+M6POT4F/dxWV/5OgpW+/MWDN8oehj6+4chp++eu+GebYFXlD9o3dVaQMQAjqWCwMux4gyx5HlnHh2X0dwRpYitj/vhK2AYBo/WwX5cL3BewSULaH9ZyjfY8vOk9+2dzsAM2zlBBRcstHOG9pvXM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=LzTUHlrI; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Vwb3erst"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="LzTUHlrI"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1731942184;
+	s=2023072701; t=1731942185;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Hi3vhawF/IYimFHeJeTkmuepcqDCrm/RvH8JkI/8nr0=;
-	b=Vwb3erst8k7P2OvBBlzy+TivbA/bQVYRfmrx9sM3oeYXvB3ibih+v8RTRnxbqm6bKBzIsN
-	Svnyzlss1pzjeaoOqbjqHd27ag3uuRElUlk8/Txs+aMSmUFec46/58gRzu9zznMftivIjf
-	zcOncLKUn22zIbTCNegdvoxhme6wuVT6X/37SfpfzpJHOFV9WvtwxlvybFph9RUT06l8xI
-	f34YWxbwaAk5gEBCceWjjAIhATTsucq1s0SXvFunvrwY4zLMF2MTSViATCE8myqE9sTBiZ
-	JIhzhvXPDy+IXTG1ps5Glu41NBD3QJiiIaayZib58bYBdPrortZ9Ci3qh2t2MA==
+	bh=/Pq/cAdlDKH+alQicJ/sW3t1bVgLumUnYH1N46P13ZM=;
+	b=LzTUHlrIHjpLE+Qcy4sb0Ylb7j4rlDr7mrxvArDT09ujFX673KOHZJolWZb08fPIUuT+aO
+	Q3gNNe7XwnVrb3O7CexScLGTs3Lit/sbW5Ch2YEKuGLec9LstODgLa9nIeD88DZvsJTysQ
+	GAQCkTMdosohGSlySBC9Ohh7dW9YwFdoKh4ONb5R7cDzR1TQDHiy5fwfGwd0GCCBd9cAu2
+	DgtjQff3NdqkaDeuroRj02hJkYpXGuskZwccQEipWm75agGvcnyg7Z0YiFldtXoTyVHv55
+	1Nlecx17jBmw9iDT3QqluKI+6kqGunuujnF+wOq+RqsP0+PgumWQXw+sh9uE4A==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 11/17] tests/inet_socket: skip mptcp if not supported
-Date: Mon, 18 Nov 2024 16:02:33 +0100
-Message-ID: <20241118150256.135432-12-cgoettsche@seltendoof.de>
+Subject: [PATCH 13/17] defconfig: enable CONFIG_XFRM_USER
+Date: Mon, 18 Nov 2024 16:02:35 +0100
+Message-ID: <20241118150256.135432-14-cgoettsche@seltendoof.de>
 In-Reply-To: <20241118150256.135432-1-cgoettsche@seltendoof.de>
 References: <20241118150256.135432-1-cgoettsche@seltendoof.de>
 Precedence: bulk
@@ -47,36 +47,25 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Also fix a typo in the unknown protocol case.
+Required for inet_socket/tcp checks.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- tests/inet_socket/test | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tests/inet_socket/test b/tests/inet_socket/test
-index 08c7b1d..71bc7dd 100755
---- a/tests/inet_socket/test
-+++ b/tests/inet_socket/test
-@@ -9,6 +9,9 @@ BEGIN {
-     $proto = basename($basedir);
- 
-     if ( $proto eq "tcp" or $proto eq "mptcp" ) {
-+        if ( $proto eq "mptcp" && system("modprobe mptcp 2>/dev/null") ne 0 ) {
-+            plan skip_all => "protocol mptcp not supported";
-+        }
-         $is_stream   = 1;
-         $fail_value1 = 5;
-         $fail_value2 = 5;
-@@ -21,7 +24,7 @@ BEGIN {
-         $test_count  = 11;
-     }
-     else {
--        plan skip => "unknown protocol name \'$proto\'";
-+        plan skip_all => "unknown protocol name \'$proto\'";
-     }
- 
-     $test_ipsec = 0;
+diff --git a/defconfig b/defconfig
+index b2d4a90..b86a1dc 100644
+--- a/defconfig
++++ b/defconfig
+@@ -10,6 +10,7 @@ CONFIG_SECURITY_SELINUX=y
+ # For testing of labeled IPSEC, NetLabel, and SECMARK functionality.
+ # Not strictly required for basic SELinux operation.
+ CONFIG_SECURITY_NETWORK_XFRM=y
++CONFIG_XFRM_USER=y
+ CONFIG_NETLABEL=y
+ CONFIG_IP_NF_SECURITY=m
+ CONFIG_INET_XFRM_MODE_TRANSPORT=m
 -- 
 2.45.2
 
