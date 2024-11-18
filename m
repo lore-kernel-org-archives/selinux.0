@@ -1,106 +1,72 @@
-Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52E21126C10
-	for <selinux@vger.kernel.org>; Fri, 15 Nov 2024 18:40:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAD411AA1D7
+	for <selinux@vger.kernel.org>; Mon, 18 Nov 2024 15:03:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731696025; cv=none; b=chdQAiOlE63knmFemFTL6Fc6aErwnYRaHaDyeXv4LlYnpv8rkE/cV6ZA3luoN9v12C03sNEUQ61o4UDbbr1dAlY8dhucecXOWyDazVQuDDEEeEP0puzbE/MaswRBbrpQd0ElCmFvGoTD6FaQZ7WeN4f2AvlBLJp2MQBT8OcABuc=
+	t=1731942192; cv=none; b=cTB439W6N7J15SU9XytDkAuht6QiqH9pDJZfH6XygAvinsiseamWEShbZnyYLqpVpUocHWZMqoH16eGnv8XawAtGobo/H+km8Ku62yG4QBsxqOtB1//txs1MLPxef38O+XqSpxMwEPYcEPL4YUhzYp6CWjdo8ndRSN/eTorFf6E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731696025; c=relaxed/simple;
-	bh=5qPmmCQFw1GLJWZnGu+8zc4z5EDDMOvl7s13qP3L6HA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=a8HTsVL6z2bUJMoUCXAo5xiEA0eF9Wv+HGx26AkTi2+DrxhghHmQ1FD3m0Bna46LhH1lRL3De9dNIRkIOs7ZTnDlaoWZbssE+C19LYPDI+B+IiQpMite7oQrgLTN+Ii9kEjugrxJ1t8Ssr8RZqPr+FB7vykcgkyYxueSMOPnyQg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=EofFHI+W; arc=none smtp.client-ip=209.85.219.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	s=arc-20240116; t=1731942192; c=relaxed/simple;
+	bh=oEk1jQ+/80qQmGrucPlGx3zyGkOSfKXFsUZCiZfYASE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=hMRs+aueWOwLOdbBZQnGNEUsPh7j81NI64Q7dJhK60YqRgWYZc6twq9Q6ZVsOaOigJrnVfJhXY6u+rGNVB1DeeSQly1nUc10NJkE6+tQS/vNpO0cbpkp1t4Kvp44nxSqpRiACfepUgeP2AJFmNhSIYdDtXMQq1dzLs4EGaCuWu0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=eIbo8VEO; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="EofFHI+W"
-Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-e380fe87b09so2039277276.1
-        for <selinux@vger.kernel.org>; Fri, 15 Nov 2024 10:40:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1731696023; x=1732300823; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=5qPmmCQFw1GLJWZnGu+8zc4z5EDDMOvl7s13qP3L6HA=;
-        b=EofFHI+WOuLQl5LF/OVhwQ2HTKgO4bpuJkgpQA/jC0pthvRU4NLqF6HEIxEtFv512s
-         3d9V/w/1cb7DNZsivHMbnA+KIhbnVSwqfo1BuGEgooF/2aO5VmBOktPKO+D1m4Rfc5RR
-         io0X4TuNJ3awOpsv/eol/H/jLIbVgJuzLk6qvvmSwJzd2hILPKo7hVNNNR/X/sL7bmog
-         eiHkwqo3H1RZoKAkjmpK/RrHFBB2kIME9koQVGrPj7eT3HmzDwLogwUwTMW9vane1sBS
-         uJIYbspEUxityPiOyqruB9sC3dgHpl+FypSxaV7Ay0ioSens2ylnWpzVgtuL42j8ULjX
-         8ZaA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731696023; x=1732300823;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5qPmmCQFw1GLJWZnGu+8zc4z5EDDMOvl7s13qP3L6HA=;
-        b=Tuf6FSMQv+7RKecaorJ75xp8cSz2SxxY4VgvMdiFcGeyOfmJMqYHyhkzBqHI4Qj5vN
-         WvSJuy1r0CJH0a5k2KubNh+RpRC4FysTKL7ETKHMj9xPcyihsZE6m57MvaU0tzxMI0HX
-         luTWK+ZUtfZO/+CmNu/4fBKY8jSjB5oK/QlNdf+2SqtD0BRsazBfS2NATHgco/hdfE61
-         EaShL6o8+tyaXa9Ny3wRuHp3MXsWvu5oRuz4k8DbcxCOmKg/gLmCevR2+3m1+pdATbsF
-         VmJOAEI5ldN9UFlwohTlQ/GFqqV70soI4+oJA4LEqGQb4C7mmXYR1Q96rpvJCHi7gJ3N
-         6fXA==
-X-Gm-Message-State: AOJu0YxXJuLF1mh79PElrzfSsHIla97McqEtzJsk7vBzBCl4u+iP3zWL
-	R0cA2CTUS6Hl+nPqhZbTjH4Bi0nQXAotq7KdVaEBADgbUlSYz/GGgGSSq0HkiRF0C7aiAXMOrGS
-	7lu7G4H1ZqVk8ce2htmEcCxbqQ8tn4ey4vNg=
-X-Google-Smtp-Source: AGHT+IGXRhVRb6n5IG7URZCoaQe1oS2/3nEWp01HDwPbot+47tJ5oVUXwhjn/GR991RyGhxFvnNE6MxQl1NSeUypxkM=
-X-Received: by 2002:a05:6902:2989:b0:e30:d9b2:d8d1 with SMTP id
- 3f1490d57ef6-e38263ed077mr2763594276.52.1731696023149; Fri, 15 Nov 2024
- 10:40:23 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="eIbo8VEO"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1731942182;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xElDK9FN6w7nntOkfia3KzozUGVjvrMHpBsk9cyr6Zc=;
+	b=eIbo8VEO3XNvP5eCnhqkc3YDSKS1kpRmPtUsAcufSTxJ+vSNgz17pXrGwFjgSJ4BNCdKTh
+	d4Zsml/TU+hTItJRpxHNodp7C+TZWAW2A/K6B98iGlY3zBmSdU1M18kI1hV2nhum1oR/GK
+	zBrNSlm9nE6HWFvZsvidWUH3+mdMxlr7FaZvSy6lEqUMMYGhg7XfEhe7looGGE43NY/mOX
+	As8Clofhrl/QRcIbfdr6JoIaVZxaHghIHQxAHpfsfFtIM/Z8y0kO0COPxcflqG1ki0lqOZ
+	uA8W80ZU9NB7m65+LArqPRKa5dehYu/dOheCXQuQzd+XNiWOFdsohwp4pZi9vw==
+To: selinux@vger.kernel.org
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH 03/17] tools: quote command to prevent word splitting
+Date: Mon, 18 Nov 2024 16:02:25 +0100
+Message-ID: <20241118150256.135432-4-cgoettsche@seltendoof.de>
+In-Reply-To: <20241118150256.135432-1-cgoettsche@seltendoof.de>
+References: <20241118150256.135432-1-cgoettsche@seltendoof.de>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <87ed3flbjd.fsf@redhat.com>
-In-Reply-To: <87ed3flbjd.fsf@redhat.com>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Fri, 15 Nov 2024 19:40:12 +0100
-Message-ID: <CAJ2a_DdumsYPSWKz5F=QhB+Jq04OTbNXGAMgrtKh3CXDYXZeOw@mail.gmail.com>
-Subject: Re: Intent to release 3.7
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, 13 Nov 2024 at 10:37, Petr Lautrbach <lautrbach@redhat.com> wrote:
->
-> Hello,
->
-> It's been about 6 months since the last release so we're going to start
-> the release process.
->
-> Original plan was to ship final release before end of the year, but
-> given the number of changes delivered to the mailing list in last day, I
-> think it'll better to postpone 3.8 to January 2025
->
-> I'll tag and announce 3.8-rc1 on next Wednesday, November 27, 2024 and
-> continue with next rcX every two weeks. As written above the target for
-> the final release would be at the beginning of the next year.
+From: Christian Göttsche <cgzones@googlemail.com>
 
-Sounds good to me.
-Some patches that might deserve a look:
+Reported by shellcheck(1).
 
-I. Changing the lstat64(2) call to plain lstat(2), to improve compatibility.
-Suggested on GitHub[1] and reported on the Debian Bug Tracker[2].
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ tools/check-syntax | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-[1]: https://github.com/SELinuxProject/selinux/pull/401
-[2]: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1087016
+diff --git a/tools/check-syntax b/tools/check-syntax
+index 2115a79..d09a3dd 100755
+--- a/tools/check-syntax
++++ b/tools/check-syntax
+@@ -112,7 +112,7 @@ function style_fix() {
+ 	[[ -z "$1" ]] && return
+ 	[[ -z "$2" || ! -w "$2" ]] && return
+ 
+-	tmp="$(mktemp --tmpdir=$(dirname "$2"))"
++	tmp="$(mktemp --tmpdir="$(dirname "$2")")"
+ 	case "$1" in
+ 	c|C)
+ 		tool_c_style "$2" > "$tmp"
+-- 
+2.45.2
 
-II. Always build for LFS mode on 32-bit archs
-Originally reported in February[3] and updated in March[4].
-Patch looks good to me.
-
-[3]: https://lore.kernel.org/selinux/Zc6tzKPsYZRICHya@homer.dodds.net/
-[4]: https://lore.kernel.org/selinux/ZeQuOBwQ2eSbkUAS@homer.dodds.net/
-
-The following two series from patchwork have been superseded:
-- https://patchwork.kernel.org/project/selinux/list/?series=902774
-- https://patchwork.kernel.org/project/selinux/list/?series=903201
-
->
->
-> Petr
->
->
