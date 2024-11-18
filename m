@@ -1,39 +1,39 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0CCE1C230E
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF2791C2304
 	for <selinux@vger.kernel.org>; Mon, 18 Nov 2024 15:03:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731942197; cv=none; b=uRKKCV4ebd9MfXiV2Q+pE3axkMvj7upKBqkTsZqfFXiAnuxcio/xlpFsmvdht1clkcN/Gz+akCJMW/aKW86ocpvxvPjyVDGEdE1a8hM79Whjgc2QTJxSTNCzo8euUmrMDZtaFf1krjAOOfmv7P3xHzjH/QbXu2ocL7xG14S6eTs=
+	t=1731942198; cv=none; b=N0/aZx7RRje3v6soG1e7yizfOA72PndHcO4GgHoXn9rDpXtfnpIpg5n/iQlVmcZW87HGb3sTQlaJx8IDlJtns8nk/vP9hpibKzhDqHdUAIflBgf13AvuHxlkMbDJ73tqyDsf4j0nO2JxhfFz9Ve84w7P8cWPHN7wiUk728E8SWk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731942197; c=relaxed/simple;
-	bh=qn66shCH8fMVqd6lI8x2JwAV19hPOKt/jfYDsArJqDY=;
+	s=arc-20240116; t=1731942198; c=relaxed/simple;
+	bh=h1M2u0m6G1MIc04LpAa9NOpyaxz0F9ikzwss0o8Bz5g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qL2GNMbqwTtvYr502Q775XIrUAyb5ASo7FqJEt2uVfVxURw1i20Xb5bJ2eI5ps2IIbJCymOENDYqkKSd59WJCq9UqKHclUM5NIT3j6A6qt3NDBGglVoX7oHXpxzfd9K2RjSAX222QFSXZogjeE/WbhL1dnaMVoiS/jfNO3cbBXg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=NB4mlZ8W; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=E9cTt5OPmvYDNVUvCbx6PpYmN4m0fK9z90tLxkrpcygOITVu6epIMO8vcJTL8UFkXZu2xax65E/u4PRr11C7aL1KBV4JM99Ng60IvaqTll1S4RPWAEqhr3+Khq6IQU4HtICE40i9NXsBy0Y+Zjcn8huk5s+IVIScxQtMgiDAorA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Vwb3erst; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="NB4mlZ8W"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Vwb3erst"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1731942185;
+	s=2023072701; t=1731942184;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=HFxMi7KbFK+ca8mjranagTa6Yxcu2vho3L0vM1umt5Y=;
-	b=NB4mlZ8WMIC8/mKYAgwMsMfP4vhoVdolisV53330KSoEn6BMvRtDaHcg30z5hzZoAGuUS+
-	WwxULkeFfvUI7UIko5mjrGmBx6vznVU7vvp1/qIkSr/fgstsuKzB0HjR7M1uOupOLjbkws
-	zy/wrayVbcHxKjGwEmlxLAtgFE95ag+bHcyhvsRhkIZ9H00j6rAKmDpKwyfOzdfBx4BH16
-	hA5XV0vpXpgXp9gqFVG2l55MPrvMx5nn3wi4J22eW4/Hqzjt7/kSuDuSGel4rOXzPjPi01
-	1Z7mfUZmGn4VuigjsAngmaYsyK0V4YYfjdXx+Mpgouu0pp98lG+ScrVXSE7pRA==
+	bh=Hi3vhawF/IYimFHeJeTkmuepcqDCrm/RvH8JkI/8nr0=;
+	b=Vwb3erst8k7P2OvBBlzy+TivbA/bQVYRfmrx9sM3oeYXvB3ibih+v8RTRnxbqm6bKBzIsN
+	Svnyzlss1pzjeaoOqbjqHd27ag3uuRElUlk8/Txs+aMSmUFec46/58gRzu9zznMftivIjf
+	zcOncLKUn22zIbTCNegdvoxhme6wuVT6X/37SfpfzpJHOFV9WvtwxlvybFph9RUT06l8xI
+	f34YWxbwaAk5gEBCceWjjAIhATTsucq1s0SXvFunvrwY4zLMF2MTSViATCE8myqE9sTBiZ
+	JIhzhvXPDy+IXTG1ps5Glu41NBD3QJiiIaayZib58bYBdPrortZ9Ci3qh2t2MA==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 12/17] tests/filesystem: improve fsnotify check and preload loop module
-Date: Mon, 18 Nov 2024 16:02:34 +0100
-Message-ID: <20241118150256.135432-13-cgoettsche@seltendoof.de>
+Subject: [PATCH 11/17] tests/inet_socket: skip mptcp if not supported
+Date: Mon, 18 Nov 2024 16:02:33 +0100
+Message-ID: <20241118150256.135432-12-cgoettsche@seltendoof.de>
 In-Reply-To: <20241118150256.135432-1-cgoettsche@seltendoof.de>
 References: <20241118150256.135432-1-cgoettsche@seltendoof.de>
 Precedence: bulk
@@ -47,43 +47,36 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-fsnotify support might be missing from the running kernel.
-
-Pre-load the loop module to ensure creating a loop device succeeds.
+Also fix a typo in the unknown protocol case.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- tests/filesystem/Filesystem.pm | 2 +-
- tests/filesystem/test          | 3 +++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ tests/inet_socket/test | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/tests/filesystem/Filesystem.pm b/tests/filesystem/Filesystem.pm
-index f169464..ab5db31 100644
---- a/tests/filesystem/Filesystem.pm
-+++ b/tests/filesystem/Filesystem.pm
-@@ -15,7 +15,7 @@ sub check_config {
-     $watch         = 0;
+diff --git a/tests/inet_socket/test b/tests/inet_socket/test
+index 08c7b1d..71bc7dd 100755
+--- a/tests/inet_socket/test
++++ b/tests/inet_socket/test
+@@ -9,6 +9,9 @@ BEGIN {
+     $proto = basename($basedir);
  
-     $result = `$base/../kvercmp $kvercur $kverminstream`;
--    if ( $result > 0 && -e $fanotify_fs ) {
-+    if ( $result > 0 && -e $fanotify_fs && -d "/proc/sys/fs/fanotify/" ) {
-         $watch = 1;
-         $tst_count += 11;
+     if ( $proto eq "tcp" or $proto eq "mptcp" ) {
++        if ( $proto eq "mptcp" && system("modprobe mptcp 2>/dev/null") ne 0 ) {
++            plan skip_all => "protocol mptcp not supported";
++        }
+         $is_stream   = 1;
+         $fail_value1 = 5;
+         $fail_value2 = 5;
+@@ -21,7 +24,7 @@ BEGIN {
+         $test_count  = 11;
      }
-diff --git a/tests/filesystem/test b/tests/filesystem/test
-index a7d8b24..c12fed2 100755
---- a/tests/filesystem/test
-+++ b/tests/filesystem/test
-@@ -176,6 +176,9 @@ ok( $result >> 8 eq 13 );
+     else {
+-        plan skip => "unknown protocol name \'$proto\'";
++        plan skip_all => "unknown protocol name \'$proto\'";
+     }
  
- system("rm -rf $basedir/mntpoint 2>/dev/null");
- 
-+# Preload module
-+system("modprobe loop 2>/dev/null");
-+
- ############### Test Basic Mount/Unmount ##########################
- mk_mntpoint_1($private_path);
- 
+     $test_ipsec = 0;
 -- 
 2.45.2
 
