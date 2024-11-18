@@ -1,431 +1,317 @@
-Received: from mail-ot1-f48.google.com (mail-ot1-f48.google.com [209.85.210.48])
+Received: from mail-oo1-f50.google.com (mail-oo1-f50.google.com [209.85.161.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61CBD1A9B44
-	for <selinux@vger.kernel.org>; Mon, 18 Nov 2024 20:12:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 432981E570E
+	for <selinux@vger.kernel.org>; Mon, 18 Nov 2024 20:13:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731960756; cv=none; b=OIrluFThd+5f8NL8PbaaI68CUtLT91sF0FXQuK7vYT3/hbPPA3zIPa/VS9Hvn66pnaq83EcH+0QroEH60SLBxR7DGdFp+ZwHhSJCuBqgNTWlGSGMqyHkqPMXGgtghNpsWaoyhlQPts8zcV8dUi/1cgDCEJx/w0O9UbTmFjVF4V8=
+	t=1731960819; cv=none; b=exfSQ4/eGHYUCMGT4b/hocG9ALprFu2o44tK0aPxTpzgzgzC6ZPXpz5g2sntHCfoVOYNFFZskZhpdxIui4Z0iZOOkp+Bnj1UcmZbUKEUxZGim2K0v/s2Gk0QIdvsTezN/CqnKfnGAW8b4ENezyP83cy6cU4wewH0vWeJEw7/TXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731960756; c=relaxed/simple;
-	bh=HDenSzwxsV6EqFUq0E47LkSFK/79C01CK6sdlMC8/QI=;
+	s=arc-20240116; t=1731960819; c=relaxed/simple;
+	bh=diOiyQOIRedQaJYntGUQR3O8fk4He3YeSRlBaSaL1DU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jcD4Mltb2M3SCckNkoobPB5wTNohLlRXs6gFyoLV2bkbV2rk8QUrOMAsBpbMVfbuucFpah5iYB8+rpJya+Z+ez5IdQ8AaYeV0cU+3ga7WSnfKpJVyaPxZApsyDo2fRPW2fZ6l6MPoc7q9QVL9o2bjWi1Rn5x1SclS6q61ulBmbs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Mt68FpGv; arc=none smtp.client-ip=209.85.210.48
+	 To:Cc:Content-Type; b=iTOqbvk2ItyCO7H7B0LX3BY/6z3G8lr/7yuiYyrUnwB/lbDKKJJ6vcQSNw5JeKzeB2bhHK4fW0l+KyVpy3lrKcLFJ0IPr875Qf3pyfTNtdmqV+uXHiY6nwNLyP/4C5A0tWWFURW8U2PAKitUaNF50YvkKhIFoXEHeRelB/zrsM0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZfcIGpct; arc=none smtp.client-ip=209.85.161.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Mt68FpGv"
-Received: by mail-ot1-f48.google.com with SMTP id 46e09a7af769-71806621d42so1575204a34.3
-        for <selinux@vger.kernel.org>; Mon, 18 Nov 2024 12:12:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZfcIGpct"
+Received: by mail-oo1-f50.google.com with SMTP id 006d021491bc7-5ec1ee25504so1504766eaf.3
+        for <selinux@vger.kernel.org>; Mon, 18 Nov 2024 12:13:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1731960753; x=1732565553; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1731960816; x=1732565616; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=L0wW0k+ihpupvZ1+FY/FDSEglExMDwjinf0kVY8PiUk=;
-        b=Mt68FpGvf5hM2rtneSsY6ZLnOHGDWR0618yI5nzDOiVVixek6M+KRwB55UypCg1BIN
-         4jPyu6t2gbryFCDr00+fLbynSlfih8eUQFV7KCvk83mKnJ2ySi5atuALTz8Bcg3eaL8X
-         ConbwUg5Y91mak76uDXyzOXy6GgbKvASVHVAj4IgtimnDEGFpWkS4G9XAxrLvN3u8zVa
-         36RKHJ1Z7NM1Ud3NRyudqkkqYM8cu4As6JkxOcLSJB+pXdYpFPSMSIm0ykUXR3RB8Try
-         WXJVN+Z9Gd4GEpntS8zVN2COwM5oSOx41lc6n9SvjiZgBdbP6C+PYqI7Hj7D6yEZiJtx
-         AnBQ==
+        bh=JbIteTHicCe/Zyfi/7ObhkAZ8NEWbuev7eKW4eOmIXw=;
+        b=ZfcIGpctxCOtQHyaSA7JM2AsJYARJ2MAEHoeHtk4snGoL5XO3SOQ0FhxprTmLP5sc3
+         H1kk6+GXPvI6S4ersNKu8izROjGBUb37u81Q6i27eSozA980gQjCR9NkUSUpnA2LxVya
+         7peiaTeBXW2X/F46fwLKZ+B8jgjnUqGPYzljxbwoj5hhys9bqP58UEzwocwVaCsTAytY
+         oPecfnInEVr3YmAh/zq3bz8WpOaoZJgrJ/I3WewJpehjvHlK3br2/3Mv6BW1yv/O6wIf
+         5fvyfNGZ9ibydhGLrTrMati47EaiQfLLurlPT7VdDOe4ig+6GsknoImIniTea90Bay3y
+         ZiKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731960753; x=1732565553;
+        d=1e100.net; s=20230601; t=1731960816; x=1732565616;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=L0wW0k+ihpupvZ1+FY/FDSEglExMDwjinf0kVY8PiUk=;
-        b=O/zu2NK7Z+LVkXPJj/U9xuhe8FAE84XoHKYXcwSOzj/mwNcjSLZfmlxe27UWht5gnz
-         ++HUh8lMBx11HaP4DC176xCrnhbTAzo1Nyo7OpWke3MXA796iZXSqxj1T1DPCN+a8qH0
-         pEnJO4CDjwUpYRTJrifaqa51Azlzdm0JMRU4Op1qre077DqH5lnMUzab/CHEblnl90IC
-         bwopWly2yClEYIVs7lDzF0Yec2BOV8sRsktBtYhBLvlUYFigiTB3ijtu0WOOT3dvR9Sj
-         Ir2UiLHI1PaDLCiYBS1u7BgttEs2rUlSZS6wh5vFWUlKNxB+3od+I4GuNugdmPpQErR6
-         +GTw==
-X-Gm-Message-State: AOJu0YyRkjMq1MHmGQ6IYZn6NImK0tYT4lskNL2EkeoirKfuf7YPREzw
-	PAFi4GmAfuhFbZvfsVZX86rEs+zdsH9cVmJCJSbdpoNuZhmV9sRAUbfvKIzqDFiC7RN9GRQ3RlF
-	1gJZ5DWJ1RGfQw8npTH+vbBmnF0T8BA==
-X-Google-Smtp-Source: AGHT+IGzYAphHMgJdpCEcWVwU8Yw+m0+kmWnHwkdDkKZw8ikAcFZY16xvm2DNKKgUTSC8zryDo5VxF+eXk/htKXPCwM=
-X-Received: by 2002:a05:6830:600c:b0:716:1530:fc7e with SMTP id
- 46e09a7af769-71a7793753emr9079391a34.1.1731960753375; Mon, 18 Nov 2024
- 12:12:33 -0800 (PST)
+        bh=JbIteTHicCe/Zyfi/7ObhkAZ8NEWbuev7eKW4eOmIXw=;
+        b=H4H/V31LQP8rwuxCzzUh/b5d6zQ3Py654hlu3tDLwWSh60E+yPuuA8v/s1Za8nK71r
+         oZKHLq/Gf8groezs33Kiu611onCi9VgN/3ikIFKVCPkLbsOeZvRqauOqfT3pt/sfdqdF
+         x/6fKOeXKsbGIId+yer5w+K8U0LjEpAcdOAqRoxPnOVMBcOz++Kby06Opv4YWbasDAtg
+         LUjaHjYP5ya/kwgPCQXkviE9y5gz7cwxQp5/gHjYgi0T6OPDFeFJkYS2codZR2zz/rFq
+         XIfHAyjn7OFbmcANe4xE3LLAzrNJsBsOOfHM98/i0FYInn0Vp277RF1xClMys48IzdWw
+         kz5Q==
+X-Gm-Message-State: AOJu0Ywic/xZL5dLLG3DSA0lATomhJrPRYLg72nTt9Z6NblcVXqGY1zv
+	NY7MYfl/neKY4b9GfoWP8JDoKx/qjXsSUBdAM8zo4jbJ0c/sJJKRPchkQXmaZyX9iS/nqc/zeXE
+	s4NPBxaK13zipVxVRvIXRsI/LIzU=
+X-Google-Smtp-Source: AGHT+IFiMusZYXVwFgmgFoCJ7zun+oHXt1pWpRHSbbIHsiNNkmY5v43zSRdWB608ak0qQvfBSeqEoS2XE+8BAU+mRdk=
+X-Received: by 2002:a05:6808:1807:b0:3e5:f43a:5d77 with SMTP id
+ 5614622812f47-3e7bc850c93mr9110828b6e.42.1731960816060; Mon, 18 Nov 2024
+ 12:13:36 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241105183319.250410-1-cgoettsche@seltendoof.de>
- <20241105183319.250410-2-cgoettsche@seltendoof.de> <CAP+JOzSH1vDNcz6mktCwNMpcv6+BHcps_3KM3w3_rEDHX=Z0eQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzSH1vDNcz6mktCwNMpcv6+BHcps_3KM3w3_rEDHX=Z0eQ@mail.gmail.com>
+References: <20241105210618.326533-1-cgoettsche@seltendoof.de> <CAP+JOzTMjLah6iX0WYzQUOQ18-s9Yj5-yJ6F_w=Yf5MMoW7zWQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzTMjLah6iX0WYzQUOQ18-s9Yj5-yJ6F_w=Yf5MMoW7zWQ@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Mon, 18 Nov 2024 15:12:22 -0500
-Message-ID: <CAP+JOzQexh51+gaivt1+PSY8W9HtQXu9-Xq=v3eWSC8DG7_A+Q@mail.gmail.com>
-Subject: Re: [PATCH v3 1/9] policycoreutils: introduce unsetfiles
+Date: Mon, 18 Nov 2024 15:13:25 -0500
+Message-ID: <CAP+JOzRqTz=MRdmEP3BYgx45BwsVvRd+qmPVDFNdVjEpAQthzw@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy: avoid memory leaks on redeclarations
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 13, 2024 at 4:50=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
-ote:
+On Wed, Nov 6, 2024 at 2:43=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
+te:
 >
-> On Tue, Nov 5, 2024 at 1:34=E2=80=AFPM Christian G=C3=B6ttsche
+> On Tue, Nov 5, 2024 at 4:06=E2=80=AFPM Christian G=C3=B6ttsche
 > <cgoettsche@seltendoof.de> wrote:
 > >
 > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > >
-> > Introduce a helper to remove SELinux file security contexts.
+> > If declare_symbol() returns 1 the id and the datum are already defined
+> > and not consumed by the function, so it they must be free'd by the
+> > caller.
 > >
-> > Mainly for testing label operations, and only for SELinux disabled
-> > systems, since removing file contexts is not supported by SELinux.
+> > Example policy (generated by fuzzer):
 > >
+> >     class s sid e class s{i}optional{require{bool K;}bool K true;
+> >
+> > Reported-by: oss-fuzz (issue 377544445)
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> For these nine patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-These nine patches have been merged.
+Merged.
 Thanks,
 Jim
 
 > > ---
-> > v2:
-> >    move from libselinux/utils to policycoreutils and rename
-> > ---
-> >  policycoreutils/.gitignore              |   1 +
-> >  policycoreutils/Makefile                |   2 +-
-> >  policycoreutils/unsetfiles/Makefile     |  26 ++++
-> >  policycoreutils/unsetfiles/unsetfiles.1 |  46 ++++++
-> >  policycoreutils/unsetfiles/unsetfiles.c | 183 ++++++++++++++++++++++++
-> >  5 files changed, 257 insertions(+), 1 deletion(-)
-> >  create mode 100644 policycoreutils/unsetfiles/Makefile
-> >  create mode 100644 policycoreutils/unsetfiles/unsetfiles.1
-> >  create mode 100644 policycoreutils/unsetfiles/unsetfiles.c
+> >  checkpolicy/module_compiler.c |  2 +-
+> >  checkpolicy/module_compiler.h |  2 +-
+> >  checkpolicy/policy_define.c   | 72 +++++++++++++++++++++++------------
+> >  3 files changed, 49 insertions(+), 27 deletions(-)
 > >
-> > diff --git a/policycoreutils/.gitignore b/policycoreutils/.gitignore
-> > index 47c9cc52..33e7414c 100644
-> > --- a/policycoreutils/.gitignore
-> > +++ b/policycoreutils/.gitignore
-> > @@ -9,4 +9,5 @@ setfiles/restorecon
-> >  setfiles/restorecon_xattr
-> >  setfiles/setfiles
-> >  setsebool/setsebool
-> > +unsetfiles/unsetfiles
-> >  hll/pp/pp
-> > diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
-> > index b930b297..32ad0201 100644
-> > --- a/policycoreutils/Makefile
-> > +++ b/policycoreutils/Makefile
-> > @@ -1,4 +1,4 @@
-> > -SUBDIRS =3D setfiles load_policy newrole run_init secon sestatus semod=
-ule setsebool scripts po man hll
-> > +SUBDIRS =3D setfiles load_policy newrole run_init secon sestatus semod=
-ule setsebool scripts po man hll unsetfiles
+> > diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compile=
+r.c
+> > index 4efd77bf..3a7ad1bb 100644
+> > --- a/checkpolicy/module_compiler.c
+> > +++ b/checkpolicy/module_compiler.c
+> > @@ -190,7 +190,7 @@ static int create_symbol(uint32_t symbol_type, hash=
+tab_key_t key, hashtab_datum_
+> >   * not be restricted pointers. */
+> >  int declare_symbol(uint32_t symbol_type,
+> >                    hashtab_key_t key, hashtab_datum_t datum,
+> > -                  uint32_t * dest_value, uint32_t * datum_value)
+> > +                  uint32_t * dest_value, const uint32_t * datum_value)
+> >  {
+> >         avrule_decl_t *decl =3D stack_top->decl;
+> >         int ret =3D create_symbol(symbol_type, key, datum, dest_value, =
+SCOPE_DECL);
+> > diff --git a/checkpolicy/module_compiler.h b/checkpolicy/module_compile=
+r.h
+> > index e43bc6c0..2fe3455d 100644
+> > --- a/checkpolicy/module_compiler.h
+> > +++ b/checkpolicy/module_compiler.h
+> > @@ -28,7 +28,7 @@ int define_policy(int pass, int module_header_given);
+> >   */
+> >  int declare_symbol(uint32_t symbol_type,
+> >                    hashtab_key_t key, hashtab_datum_t datum,
+> > -                  uint32_t * dest_value, uint32_t * datum_value);
+> > +                  uint32_t * dest_value, const uint32_t * datum_value)=
+;
 > >
-> >  all install relabel clean indent:
-> >         @for subdir in $(SUBDIRS); do \
-> > diff --git a/policycoreutils/unsetfiles/Makefile b/policycoreutils/unse=
-tfiles/Makefile
-> > new file mode 100644
-> > index 00000000..9e5edc04
-> > --- /dev/null
-> > +++ b/policycoreutils/unsetfiles/Makefile
-> > @@ -0,0 +1,26 @@
-> > +PREFIX ?=3D /usr
-> > +SBINDIR ?=3D $(PREFIX)/sbin
-> > +MANDIR ?=3D $(PREFIX)/share/man
-> > +
-> > +override CFLAGS +=3D -D_GNU_SOURCE
-> > +override LDLIBS +=3D -lselinux
-> > +
-> > +
-> > +all: unsetfiles
-> > +
-> > +unsetfiles: unsetfiles.o
-> > +
-> > +install: all
-> > +       test -d $(DESTDIR)$(SBINDIR)     || install -m 755 -d $(DESTDIR=
-)$(SBINDIR)
-> > +       test -d $(DESTDIR)$(MANDIR)/man1 || install -m 755 -d $(DESTDIR=
-)$(MANDIR)/man1
-> > +       install -m 755 unsetfiles $(DESTDIR)$(SBINDIR)
-> > +       install -m 644 unsetfiles.1 $(DESTDIR)$(MANDIR)/man1/
-> > +
-> > +clean:
-> > +       -rm -f unsetfiles *.o
-> > +
-> > +indent:
-> > +       ../../scripts/Lindent $(wildcard *.[ch])
-> > +
-> > +relabel: install
-> > +       /sbin/restorecon $(DESTDIR)$(SBINDIR)/unsetfiles
-> > diff --git a/policycoreutils/unsetfiles/unsetfiles.1 b/policycoreutils/=
-unsetfiles/unsetfiles.1
-> > new file mode 100644
-> > index 00000000..49d0c821
-> > --- /dev/null
-> > +++ b/policycoreutils/unsetfiles/unsetfiles.1
-> > @@ -0,0 +1,46 @@
-> > +.TH UNSETFILES "1" "December 2023" "Security Enhanced Linux"
-> > +.SH NAME
-> > +unsetfiles \- Remove SELinux file security contexts.
-> > +.SH SYNOPSIS
-> > +.B unsetfiles
-> > +.RB [ \-hnrvx ]
-> > +.IR pathname \ ...
-> > +
-> > +.SH DESCRIPTION
-> > +.P
-> > +This program removes the SELinux file security contexts of files.  It =
-can help
-> > +cleaning extended file attributes after disabling SELinux.
-> > +.P
-> > +.B unsetfiles
-> > +will only work on SELinux disabled systems, since removing file securi=
-ty
-> > +contexts is not supported by SELinux.
-> > +
-> > +.SH OPTIONS
-> > +.TP
-> > +.B \-h
-> > +Show usage information and exit.
-> > +.TP
-> > +.B \-n
-> > +Do not actually remove any SELinux file security contexts.
-> > +.TP
-> > +.B \-r
-> > +Remove SELinux file security contexts recursive.
-> > +.TP
-> > +.B \-v
-> > +Be verbose about performed actions.
-> > +.TP
-> > +.B \-x
-> > +Do not cross filesystem boundaries.
-> > +
-> > +.SH ARGUMENTS
-> > +.TP
-> > +.IR pathname \ ...
-> > +One or more path names to operate on.
-> > +
-> > +.SH SEE ALSO
-> > +.BR restorecon (8),
-> > +.BR setfiles (8)
-> > +
-> > +.SH AUTHORS
-> > +.nf
-> > +Christian G=C3=B6ttsche (cgzones@googlemail.com)
-> > diff --git a/policycoreutils/unsetfiles/unsetfiles.c b/policycoreutils/=
-unsetfiles/unsetfiles.c
-> > new file mode 100644
-> > index 00000000..6293d00f
-> > --- /dev/null
-> > +++ b/policycoreutils/unsetfiles/unsetfiles.c
-> > @@ -0,0 +1,183 @@
-> > +#include <dirent.h>
-> > +#include <errno.h>
-> > +#include <fcntl.h>
-> > +#include <getopt.h>
-> > +#include <linux/magic.h>
-> > +#include <stdbool.h>
-> > +#include <stdio.h>
-> > +#include <stdlib.h>
-> > +#include <string.h>
-> > +#include <sys/stat.h>
-> > +#include <sys/types.h>
-> > +#include <sys/xattr.h>
-> > +#include <unistd.h>
-> > +
-> > +#include <selinux/selinux.h>
-> > +
-> > +
-> > +#define XATTR_NAME_SELINUX "security.selinux"
-> > +
-> > +
-> > +static void usage(const char *progname)
-> > +{
-> > +       fprintf(stderr, "usage: %s [-nrvx] <path>\n\n"
-> > +                       "Options:\n"
-> > +                       "\t-n\tdon't remove any file labels\n"
-> > +                       "\t-r\tremove labels recursive\n"
-> > +                       "\t-v\tbe verbose\n"
-> > +                       "\t-x\tdo not cross filesystem boundaries\n",
-> > +                       progname);
-> > +}
-> > +
-> > +static void unset(int atfd, const char *path, const char *fullpath,
-> > +                  bool dry_run, bool recursive, bool verbose,
-> > +                  dev_t root_dev)
-> > +{
-> > +       ssize_t ret;
-> > +       int fd, rc;
-> > +       DIR *dir;
-> > +
-> > +       ret =3D lgetxattr(fullpath, XATTR_NAME_SELINUX, NULL, 0);
-> > +       if (ret <=3D 0) {
-> > +               if (errno !=3D ENODATA && errno !=3D ENOTSUP)
-> > +                       fprintf(stderr, "Failed to get SELinux label of=
- %s:  %m\n", fullpath);
-> > +               else if (verbose)
-> > +                       printf("Failed to get SELinux label of %s:  %m\=
-n", fullpath);
-> > +       } else {
-> > +               if (dry_run) {
-> > +                       printf("Would remove SELinux label of %s\n", fu=
-llpath);
-> > +               } else {
-> > +                       if (verbose)
-> > +                               printf("Removing label of %s\n", fullpa=
-th);
-> > +
-> > +                       rc =3D lremovexattr(fullpath, XATTR_NAME_SELINU=
-X);
-> > +                       if (rc < 0)
-> > +                               fprintf(stderr, "Failed to remove SELin=
-ux label of %s:  %m\n", fullpath);
+> >  role_datum_t *declare_role(unsigned char isattr);
+> >  type_datum_t *declare_type(unsigned char primary, unsigned char isattr=
+);
+> > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> > index f8a10154..9aae8378 100644
+> > --- a/checkpolicy/policy_define.c
+> > +++ b/checkpolicy/policy_define.c
+> > @@ -156,9 +156,9 @@ static int id_has_dot(const char *id)
+> >
+> >  int define_class(void)
+> >  {
+> > -       char *id =3D 0;
+> > -       class_datum_t *datum =3D 0;
+> > -       int ret;
+> > +       char *id =3D NULL;
+> > +       class_datum_t *datum =3D NULL;
+> > +       int ret =3D -1;
+> >         uint32_t value;
+> >
+> >         if (pass =3D=3D 2) {
+> > @@ -175,27 +175,29 @@ int define_class(void)
+> >         datum =3D (class_datum_t *) malloc(sizeof(class_datum_t));
+> >         if (!datum) {
+> >                 yyerror("out of memory");
+> > -               goto bad;
+> > +               goto cleanup;
+> >         }
+> >         memset(datum, 0, sizeof(class_datum_t));
+> >         ret =3D declare_symbol(SYM_CLASSES, id, datum, &value, &value);
+> >         switch (ret) {
+> >         case -3:{
+> >                         yyerror("Out of memory!");
+> > -                       goto bad;
+> > +                       goto cleanup;
+> >                 }
+> >         case -2:{
+> >                         yyerror2("duplicate declaration of class %s", i=
+d);
+> > -                       goto bad;
+> > +                       goto cleanup;
+> >                 }
+> >         case -1:{
+> >                         yyerror("could not declare class here");
+> > -                       goto bad;
+> > +                       goto cleanup;
+> >                 }
+> > -       case 0:
+> > -       case 1:{
+> > +       case 0: {
+> >                         break;
+> >                 }
+> > +       case 1:{
+> > +                       goto cleanup;
 > > +               }
-> > +       }
-> > +
-> > +       if (!recursive)
-> > +               return;
-> > +
-> > +       fd =3D openat(atfd, path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW |=
- O_CLOEXEC);
-> > +       if (fd < 0) {
-> > +               if (errno !=3D ENOTDIR)
-> > +                       fprintf(stderr, "Failed to open %s:  %m\n", ful=
-lpath);
-> > +               return;
-> > +       }
-> > +
-> > +       if (root_dev !=3D (dev_t)-1) {
-> > +               struct stat sb;
-> > +
-> > +               rc =3D fstat(fd, &sb);
-> > +               if (rc =3D=3D -1) {
-> > +                       fprintf(stderr, "Failed to stat directory %s:  =
-%m\n", fullpath);
-> > +                       close(fd);
-> > +                       return;
-> > +               }
-> > +
-> > +               if (sb.st_dev !=3D root_dev) {
-> > +                       if (verbose)
-> > +                               printf("Skipping directory %s due to fi=
-lesystem boundary\n", fullpath);
-> > +
-> > +                       close(fd);
-> > +                       return;
-> > +               }
-> > +       }
-> > +
-> > +       dir =3D fdopendir(fd);
-> > +       if (!dir) {
-> > +               fprintf(stderr, "Failed to open directory %s:  %m\n", f=
-ullpath);
-> > +               close(fd);
-> > +               return;
-> > +       }
-> > +
-> > +       while (true) {
-> > +               const struct dirent *entry;
-> > +               char *nextfullpath;
-> > +
-> > +               errno =3D 0;
-> > +               entry =3D readdir(dir);
-> > +               if (!entry) {
-> > +                       if (errno)
-> > +                               fprintf(stderr, "Failed to iterate dire=
-ctory %s:  %m\n", fullpath);
+> >         default:{
+> >                         assert(0);      /* should never get here */
+> >                 }
+> > @@ -203,12 +205,10 @@ int define_class(void)
+> >         datum->s.value =3D value;
+> >         return 0;
+> >
+> > -      bad:
+> > -       if (id)
+> > -               free(id);
+> > -       if (datum)
+> > -               free(datum);
+> > -       return -1;
+> > +      cleanup:
+> > +       free(id);
+> > +       free(datum);
+> > +       return ret =3D=3D 1 ? 0 : -1;
+> >  }
+> >
+> >  int define_permissive(void)
+> > @@ -785,8 +785,13 @@ int define_sens(void)
+> >                         yyerror2("could not declare sensitivity level %=
+s here", id);
+> >                         goto bad;
+> >                 }
+> > -       case 0:
+> > +       case 0: {
 > > +                       break;
 > > +               }
-> > +
-> > +               if (entry->d_name[0] =3D=3D '.' && (entry->d_name[1] =
-=3D=3D '\0' || (entry->d_name[1] =3D=3D '.' && entry->d_name[2] =3D=3D '\0'=
-)))
-> > +                       continue;
-> > +
-> > +               rc =3D asprintf(&nextfullpath, "%s/%s", strcmp(fullpath=
-, "/") =3D=3D 0 ? "" : fullpath, entry->d_name);
-> > +               if (rc < 0) {
-> > +                       fprintf(stderr, "Out of memory!\n");
-> > +                       closedir(dir);
-> > +                       return;
-> > +               }
-> > +
-> > +               unset(dirfd(dir), entry->d_name, nextfullpath, dry_run,=
- recursive, verbose, root_dev);
-> > +
-> > +               free(nextfullpath);
-> > +       }
-> > +
-> > +       closedir(dir);
-> > +}
-> > +
-> > +
-> > +int main(int argc, char *argv[])
-> > +{
-> > +       bool dry_run =3D false, recursive =3D false, verbose =3D false,=
- same_dev =3D false;
-> > +       int c;
-> > +
-> > +       while ((c =3D getopt(argc, argv, "hnrvx")) !=3D -1) {
-> > +               switch (c) {
-> > +               case 'h':
-> > +                       usage(argv[0]);
-> > +                       return EXIT_SUCCESS;
-> > +               case 'n':
-> > +                       dry_run =3D true;
-> > +                       break;
-> > +               case 'r':
-> > +                       recursive =3D true;
-> > +                       break;
-> > +               case 'v':
-> > +                       verbose =3D true;
-> > +                       break;
-> > +               case 'x':
-> > +                       same_dev =3D true;
-> > +                       break;
-> > +               default:
-> > +                       usage(argv[0]);
-> > +                       return EXIT_FAILURE;
-> > +               }
-> > +       }
-> > +
-> > +       if (optind >=3D argc) {
-> > +               usage(argv[0]);
-> > +               return EXIT_FAILURE;
-> > +       }
-> > +
-> > +       if (is_selinux_enabled()) {
-> > +               fprintf(stderr, "Removing SELinux attributes on a SELin=
-ux enabled system is not supported!\n");
-> > +               return EXIT_FAILURE;
-> > +       }
-> > +
-> > +       for (int index =3D optind; index < argc; index++) {
-> > +               dev_t root_dev =3D (dev_t)-1;
-> > +
-> > +               if (same_dev) {
-> > +                       struct stat sb;
-> > +                       int rc;
-> > +
-> > +                       rc =3D stat(argv[index], &sb);
-> > +                       if (rc =3D=3D -1) {
-> > +                               fprintf(stderr, "Failed to stat %s:  %m=
-\n", argv[index]);
-> > +                               continue;
+> >         case 1:{
+> > +                       level_datum_destroy(datum);
+> > +                       free(datum);
+> > +                       free(id);
+> >                         break;
+> >                 }
+> >         default:{
+> > @@ -827,8 +832,13 @@ int define_sens(void)
+> >                                     ("could not declare sensitivity ali=
+as %s here", id);
+> >                                 goto bad_alias;
+> >                         }
+> > -               case 0:
+> > +               case 0: {
+> > +                               break;
 > > +                       }
-> > +
-> > +                       root_dev =3D sb.st_dev;
+> >                 case 1:{
+> > +                               level_datum_destroy(aliasdatum);
+> > +                               free(aliasdatum);
+> > +                               free(id);
+> >                                 break;
+> >                         }
+> >                 default:{
+> > @@ -957,15 +967,20 @@ int define_category(void)
+> >                         yyerror2("could not declare category %s here", =
+id);
+> >                         goto bad;
+> >                 }
+> > -       case 0:
+> > +       case 0:{
+> > +                       datum->s.value =3D value;
+> > +                       break;
 > > +               }
-> > +               unset(AT_FDCWD, argv[index], argv[index], dry_run, recu=
-rsive, verbose, root_dev);
-> > +       }
-> > +
-> > +       return EXIT_SUCCESS;
-> > +}
+> >         case 1:{
+> > +                       cat_datum_destroy(datum);
+> > +                       free(datum);
+> > +                       free(id);
+> >                         break;
+> >                 }
+> >         default:{
+> >                         assert(0);      /* should never get here */
+> >                 }
+> >         }
+> > -       datum->s.value =3D value;
+> >
+> >         while ((id =3D queue_remove(id_queue))) {
+> >                 if (id_has_dot(id)) {
+> > @@ -981,11 +996,11 @@ int define_category(void)
+> >                 }
+> >                 cat_datum_init(aliasdatum);
+> >                 aliasdatum->isalias =3D TRUE;
+> > -               aliasdatum->s.value =3D datum->s.value;
+> > +               aliasdatum->s.value =3D value;
+> >
+> >                 ret =3D
+> >                     declare_symbol(SYM_CATS, id, aliasdatum, NULL,
+> > -                                  &datum->s.value);
+> > +                                  &value);
+> >                 switch (ret) {
+> >                 case -3:{
+> >                                 yyerror("Out of memory!");
+> > @@ -1001,8 +1016,13 @@ int define_category(void)
+> >                                     ("could not declare category alias =
+%s here", id);
+> >                                 goto bad_alias;
+> >                         }
+> > -               case 0:
+> > +               case 0:{
+> > +                               break;
+> > +                       }
+> >                 case 1:{
+> > +                               cat_datum_destroy(aliasdatum);
+> > +                               free(aliasdatum);
+> > +                               free(id);
+> >                                 break;
+> >                         }
+> >                 default:{
+> > @@ -1833,10 +1853,12 @@ int define_bool_tunable(int is_tunable)
+> >                         yyerror2("could not declare boolean %s here", i=
+d);
+> >                         goto cleanup;
+> >                 }
+> > -       case 0:
+> > -       case 1:{
+> > +       case 0:{
+> >                         break;
+> >                 }
+> > +       case 1:{
+> > +                       goto cleanup;
+> > +               }
+> >         default:{
+> >                         assert(0);      /* should never get here */
+> >                 }
+> > @@ -1854,7 +1876,7 @@ int define_bool_tunable(int is_tunable)
+> >         return 0;
+> >        cleanup:
+> >         cond_destroy_bool(id, datum, NULL);
+> > -       return -1;
+> > +       return ret =3D=3D 1 ? 0 : -1;
+> >  }
+> >
+> >  avrule_t *define_cond_pol_list(avrule_t * avlist, avrule_t * sl)
 > > --
 > > 2.45.2
 > >
