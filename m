@@ -1,176 +1,141 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59C901547D2
-	for <selinux@vger.kernel.org>; Wed, 20 Nov 2024 16:36:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8760A1CACE9;
+	Thu, 21 Nov 2024 08:09:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732120590; cv=none; b=ekozUWebvwsXOzpU5bsa/NHn3wDc6UfU1F362pdrKtM1+EaFPCLRbv1ix+THg0oaiZn8Aqodhdch3pjHZAoCLRfwsM+ESOE73cnB/vV+KnrAsprNAA1ou49MwMv9Y/n/6U5MidEXisNRPqrPH/w0XwzYd+6p25O1TalV4qYgr+Y=
+	t=1732176580; cv=none; b=F4MYbAiXMDxsvV+jVX3E5X7c2dZO3OWadX83+38+iU25DL6MpVYWAkfXHojCm9GOixOt63h4AOyH9d/e4e9XpDjRHMkl9BRUPHMydIMhfU8x0fNGUaiXif6vO1L2f39fOVRlPdYLv8OFbic3VH0QMptlOk//o/je6QITzgOl7TY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732120590; c=relaxed/simple;
-	bh=VfR9wdxer9kVXX+JA4Pugu2yWhtmDNWs7LhPukfN9pM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ScLNEQMCinF1vnt4OqZ1FdP5TjaxBTivVNjE5fgZmFf2MoQsLZWsSyze0LK/1ygY+rwBhLZcveoKnE4X/5UbWbJyxWWZ4Oo2Bg00sRHlTtSzqJ+wBf3Va9A5VhWKIGj2K1xTXyR5pLo0ORMIbwjqzW18emA+WJa/U5z01PsbCco=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VYut2etb; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1732176580; c=relaxed/simple;
+	bh=BvEyhnyI0XDIdgF3tPtxKSiOJGP23vgPNFMQaakLTGk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uNwM+vfFswGF0cy08wfjaAOrBFUJc0wIeoESo5LfGF5J6uMoi6d9Iq+aMuvpKJy4wwE2XOrh5yb96RTflqNR0gUJD8ZNzl/niH7hoRZGXD3o7+LnlfgIcxhc4/ZdQRNAktjHNeOAPg80eU5S01FYyEHNzBY6jpBpZt8aOl+5uCA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=UB1IE6oX; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=2fS3USbt; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VYut2etb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1732120585;
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="UB1IE6oX";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="2fS3USbt"
+Date: Thu, 21 Nov 2024 09:09:33 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1732176576;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=qhU3S0A4Mnpsnqs/3/13cFEa605q4UA1j817veP3A6U=;
-	b=VYut2etbzdF/ppWrPIXAbNqc4IWYoa+nNGY/QdKdJn8c8i5ReQb56fER6Ob/sye6zNwfk4
-	380Q/1CXDOiodjFJjhGmz0USrb2VWA4GFTcEqyh5JHAl68LzGwq8ClOX7yb2XGs/etY/kA
-	yZD6K6v4xhb2FXS86kRO0oj+wiAOcLQ=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-8-ShFhZ9wiMbiNx5DRWZqGgg-1; Wed, 20 Nov 2024 11:36:17 -0500
-X-MC-Unique: ShFhZ9wiMbiNx5DRWZqGgg-1
-X-Mimecast-MFC-AGG-ID: ShFhZ9wiMbiNx5DRWZqGgg
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-20d15285c87so49527385ad.3
-        for <selinux@vger.kernel.org>; Wed, 20 Nov 2024 08:36:16 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732120575; x=1732725375;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=qhU3S0A4Mnpsnqs/3/13cFEa605q4UA1j817veP3A6U=;
-        b=t82FwgsRRfQxvLFt++uS0mbNi8sq6P0zOBl0c/5g6gkNSJISNIXm9VSEWpN7bY4ORu
-         A43U/Zsk6+azY5AjvZ/wZcCt3tRKy/Jkv+ahwA+5F9uoLyL7tEuSnc1yaJDV9zY/O25G
-         n/iri4LoXk7YnR17TT1H/TIjGWY9KAwcs5Ku9maxYiwA/KM5QKhL/XGXzccYHcIbwvcs
-         l3PfkfqskIfyIeEhaqkiSig14k8AI1DXdBOKQgtQmnHMgs9KeVWzjrlRKjYh2L/tfqeh
-         X0QUHaFFwRdNFNaS8/5fw0QKBNF2FsV23rowSng0vZ7xXrDAB9kwTToqc1jOcULsHIzk
-         FrBw==
-X-Forwarded-Encrypted: i=1; AJvYcCVFSliZy4UzhM6eyYe0Z2TzVY6jxDsN8hA40swaDFErydNdDG7eUD1xXDjfBeAThyebyfRe8617@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxml+dvGiiNS/97/L9da+SQZ58jgbkDm+uPbE0qtes8joSAQAbK
-	cg1NuEoNG2VL/zO0nyQFmbiTFLBjuAwVstSI9CHQNlJEVZS1oWCgrli8+xEMYSyEfG/QaVcSMhC
-	NXUb8JZLE44K9TE56xdTTaI6WBRQf280C9IHoY0i8rhB+TnqPPv1Oh8ZXjsJdXOCuXasV40VTM6
-	/I88+1euqd6v10wUiYxW6ZIUShbMvS2g==
-X-Received: by 2002:a17:902:ccd1:b0:20b:b40b:3454 with SMTP id d9443c01a7336-2126f9fb108mr36420165ad.0.1732120575534;
-        Wed, 20 Nov 2024 08:36:15 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IFEndC+AthKB1mpAbXnqOydUaK60UqI1oD1suHPMIJwIkfHNBJIHODhd4fFPf5EbSrZJ9RZvD8mL6P1+1iEOyY=
-X-Received: by 2002:a17:902:ccd1:b0:20b:b40b:3454 with SMTP id
- d9443c01a7336-2126f9fb108mr36419915ad.0.1732120575211; Wed, 20 Nov 2024
- 08:36:15 -0800 (PST)
+	bh=be4tTM+SqMFCpbwOaFbBKI9pXVAlJLs1b+OQG81BDrs=;
+	b=UB1IE6oXBYkFO/J97uHPV36m2ZdVgvPsU3jm7lCpx596p7Azoyhc2fVVnuf0FWLD7gQD8m
+	a2JbPEqfEiYuTZfhypdbGYkNbJ7Ov42HvPPsGHWplmyphQCmdWpt1txwLR28FHgwuiwJhn
+	AVVpcw8eka6OuCon2vva3e0ofwng2wMe8Sb5Zu/z7pDGkEYJf7Jopuic9T1bS/9y8CDgoc
+	2dkPR0p99xweKWkNoaiXV+d8JPZEMlExd2FAIURH3h9YBEhuzCcU8Um5xlZaiSvEH/6Z9e
+	SY27fHC7om4OliyidxSbH1OjMytxDMshQRCWs6WsQKFXtINk8HYRZP8UYLsC3g==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1732176576;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=be4tTM+SqMFCpbwOaFbBKI9pXVAlJLs1b+OQG81BDrs=;
+	b=2fS3USbtB9V1nqNf8D3rhSHW0dmQUQ/lw6VtQ7sw7sg8MLyODHqkUkHRn5sY5wqzeyycPk
+	nPcUq3tVXnYWWiCg==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Paul Moore <paul@paul-moore.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Nathan Chancellor <nathan@kernel.org>, Nicolas Schier <nicolas@fjasle.eu>, linux-kbuild@vger.kernel.org, 
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] selinux: explicitly clean generated av_permissions.h
+Message-ID: <20241121085228-327b3d62-4e9b-4f4e-9100-b62bcedfab1d@linutronix.de>
+References: <20241120-selinux-clean-v1-1-68704e007f7a@linutronix.de>
+ <CAK7LNATUnCPt03BRFSKh1EH=+Sy0Q48wE4ER0BZdJqOb_44L8w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241120102325.3538-1-acarmina@redhat.com> <Zz332cG45rNSeE_B@arm.com>
- <20241120102602.3e17f2d5@gandalf.local.home>
-In-Reply-To: <20241120102602.3e17f2d5@gandalf.local.home>
-From: Alessandro Carminati <acarmina@redhat.com>
-Date: Wed, 20 Nov 2024 17:36:04 +0100
-Message-ID: <CAGegRW74BOvkAmo4UiH-D45o4HijL7B4CPvEvNfze3AEoTKfCg@mail.gmail.com>
-Subject: Re: [PATCH] mm/kmemleak: Fix sleeping function called from invalid
- context in kmemleak_seq_show
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Clark Williams <clrkwllms@kernel.org>, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev, 
-	Thomas Weissschuh <thomas.weissschuh@linutronix.de>, Steven Rostedt <rostedt@goodmis.org>, 
-	Alessandro Carminati <alessandro.carminati@gmail.com>, Juri Lelli <juri.lelli@redhat.com>, 
-	Gabriele Paoloni <gpaoloni@redhat.com>, Eric Chanudet <echanude@redhat.com>, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAK7LNATUnCPt03BRFSKh1EH=+Sy0Q48wE4ER0BZdJqOb_44L8w@mail.gmail.com>
 
-Looping selinix Maintainers into the conversation.
+Hi,
 
-
-On Wed, Nov 20, 2024 at 4:30=E2=80=AFPM Steven Rostedt <rostedt@goodmis.org=
-> wrote:
->
-> On Wed, 20 Nov 2024 14:53:13 +0000
-> Catalin Marinas <catalin.marinas@arm.com> wrote:
->
-> > > -static void print_unreferenced(struct seq_file *seq,
-> > > +static depot_stack_handle_t print_unreferenced(struct seq_file *seq,
-> > >                            struct kmemleak_object *object)
-> > >  {
-> > > -   int i;
-> > > -   unsigned long *entries;
-> > > -   unsigned int nr_entries;
-> > > -
-> > > -   nr_entries =3D stack_depot_fetch(object->trace_handle, &entries);
-> > >     warn_or_seq_printf(seq, "unreferenced object 0x%08lx (size %zu):\=
-n",
-> > >                       object->pointer, object->size);
-> > >     warn_or_seq_printf(seq, "  comm \"%s\", pid %d, jiffies %lu\n",
-> > > @@ -371,6 +366,23 @@ static void print_unreferenced(struct seq_file *=
-seq,
-> > >     hex_dump_object(seq, object);
-> > >     warn_or_seq_printf(seq, "  backtrace (crc %x):\n", object->checks=
-um);
-> > >
-> > > +   return object->trace_handle;
-> > > +}
+On Wed, Nov 20, 2024 at 08:55:00PM +0900, Masahiro Yamada wrote:
+> On Wed, Nov 20, 2024 at 6:15 PM Thomas Weißschuh
+> <thomas.weissschuh@linutronix.de> wrote:
 > >
-> > What I don't fully understand - is this a problem with any seq_printf()
-> > or just the backtrace pointers from the stack depot that trigger this
-> > issue? I guess it's something to do with restricted pointers but I'm no=
-t
-> > familiar with the PREEMPT_RT concepts. It would be good to explain,
-> > ideally both in the commit log and a comment in the code, why we only
-> > need to do this for the stack dump.
->
-> In PREEMPT_RT, to achieve the ability to preempt in more context,
-> spin_lock() is converted to a special sleeping mutex. But there's some
-> places where it can not be converted, and in those cases we use
-> raw_spin_lock(). kmemleak has been converted to use raw_spin_lock() which
-> means anything that gets called under that lock can not take a normal
-> spin_lock().
->
-> What happened here is that the kmemleak raw spinlock is held and
-> seq_printf() is called. Normally, this is not an issue, but the behavior =
-of
-> seq_printf() is dependent on what values is being printed.
->
-> The "%pK" dereferences a pointer and there's some SELinux hooks attached =
-to
-> that code. The problem is that the SELinux hooks take spinlocks. This wou=
-ld
-> not have been an issue if it wasn't for that "%pK" in the format.
->
-> Maybe SELinux locks should be converted to raw? I don't know how long tha=
-t
-> lock is held. There are some loops though :-/
->
-> avc_insert():
->
->         spin_lock_irqsave(lock, flag);
->         hlist_for_each_entry(pos, head, list) {
->                 if (pos->ae.ssid =3D=3D ssid &&
->                         pos->ae.tsid =3D=3D tsid &&
->                         pos->ae.tclass =3D=3D tclass) {
->                         avc_node_replace(node, pos);
->                         goto found;
->                 }
->         }
->         hlist_add_head_rcu(&node->list, head);
-> found:
->         spin_unlock_irqrestore(lock, flag);
->
-> Perhaps that could be converted to simple RCU?
->
-> As I'm sure there's other places that call vsprintf() under a raw_spin_lo=
-ck
-> or non-preemptable context, perhaps this should be the fix we do.
-@Paul and @Stephen do you have any feedback on this idea?
+> > av_permissions.h is not declared as a target and therefore won't be
+> > added to clean-files automatically by kbuild.
+> > For details why it is not a target see the Makefile itself.
+> >
+> > Signed-off-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
+> > ---
+> >  security/selinux/Makefile | 3 +++
+> >  1 file changed, 3 insertions(+)
+> >
+> > diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+> > index 86f0575f670da66a9dc57e13a236d6a5551af38e..58129a7c8cfa08f9caf5444f7df776f41056b77a 100644
+> > --- a/security/selinux/Makefile
+> > +++ b/security/selinux/Makefile
+> > @@ -41,5 +41,8 @@ targets += flask.h
+> >  $(obj)/flask.h: $(obj)/genheaders FORCE
+> >         $(call if_changed,genhdrs)
+> >
+> > +# see the note above, remove this line
+> > +clean-files += av_permissions.h
+> > +
+> >  hostprogs := genheaders
+> >  HOST_EXTRACFLAGS += -I$(srctree)/security/selinux/include
+> 
+> 
+> 
+> Presumably, the attached fixup.diff (comment in 'targets' assignment)
+> would align with the intention of the maintainer of this Makefile
+> because you can do
+> 
+>   targets += $(genhdrs)
+> 
+> without the need of the grouped target feature.
+> 'make clean' removes files listed in 'targets'.
+> 
+> 
+> 
+> BTW, the NOTE in this Makefile is not true.
+>   https://github.com/torvalds/linux/blob/v6.12/security/selinux/Makefile#L7
+> 
+> 
+> Even if you use GNU Make 4.3, the grouped target does not work with
+> the if_changed macro.
+> 
+> With GNU Make 4.4, it will work as a side-effect of commit
+> fabb03eac412b5ea19f1a97be31dc8c6fa7fc047
+> 
+> 
+> I asked about this behavior some time ago in GNU Make ML.
+> 
+> https://lists.gnu.org/archive/html/help-make/2024-08/msg00001.html
+>   or
+> https://savannah.gnu.org/bugs/index.php?66073
+> 
+> 
+> The combination of the grouped target and if_changed
+> is working with GNU Make 4.4+, but I do not know if
+> it is future promising.
 
->
-> -- Steve
->
+Thanks for all the insights!
+
+> IMHO, I do not see much benefits for using the group target in this case
+> because you can still generate flask.h and av_permissions.h
+> separately.
+
+I'm fine either way.
+
+@Selinux maintainers:
+
+What do you prefer? Also feel free to just commit whatever you think is
+best.
 
 
---=20
----
-172
-
+Thomas
