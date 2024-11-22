@@ -1,2635 +1,328 @@
-Received: from mail-vs1-f54.google.com (mail-vs1-f54.google.com [209.85.217.54])
+Received: from mail-oo1-f54.google.com (mail-oo1-f54.google.com [209.85.161.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B654A158DA3
-	for <selinux@vger.kernel.org>; Fri, 22 Nov 2024 19:37:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4D1C4A0C
+	for <selinux@vger.kernel.org>; Fri, 22 Nov 2024 21:02:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732304234; cv=none; b=bvT4M/gaRmJhcgoL1TQH1XZFraAmEtKeWgYVFrvUi8xqrptxGqq6Wjo/ScjCVjLvKSW5drsXppVazaYZY9J9blLUOyEeWqE3My9X1ao0bBqHGjdmcPwdTM42gDUcCInrk+ddPE62IM6NWLURAXuN7c1Hw1RfCNq9n+E2Zbp7+TY=
+	t=1732309378; cv=none; b=K053Amque64za9cZ8d6Qhsm3oCxewjxGkOr5Mhq0aZYn0J2WfhOwnxfJEr5EJUXvYo7OzUQ1a8uhkZyg5VQFaKhbDh1RV+bHDDq1LwPVzHE4kzq1NQbzg/ShJhBW/4ttNVweoiFDLyrlnvFa8nKl5Z6XWuf7WfNN5IgMo4bTcPo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732304234; c=relaxed/simple;
-	bh=8eiUmte43ng+GsCh74bpnPXNYPjeReSO7I08HYYAkPA=;
+	s=arc-20240116; t=1732309378; c=relaxed/simple;
+	bh=rSCvkp5Qanwt1tPLW/ue+LdGfNupFYxxE/GI82L6Toc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gJ30KP7OBEqLNcneBkxkp/k+H/l/4i0AbKhfC0Ylvn1ADXa07hniMgJi9I6/XFd1Ah88f7izbZ404F0HEJH3064GEuVxUSqA6ixlXaEXNW6oKrYQ4etOTiDz7pl5J+EUly9PJc/FzlSizPU6ER1FJft5xysYEKEVNuZL0i/Xly0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L4Kvdbh+; arc=none smtp.client-ip=209.85.217.54
+	 To:Cc:Content-Type; b=KZ5i13k0gVTUt9aNa2FNU/8F0GRL1YiBkTupb+cyFWHiiXOrpkgEYBmm0z5DdCbP2dS9IqaJ85AiO/7KJOM6DWhgXBZUQvyigGL3sCfo70ooFZITZC7E5/Q56JhXruR2p5DyosrZRARmwmUSolV0cUbNWhQdZpKmP73EtzMARPQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GVrKAcRK; arc=none smtp.client-ip=209.85.161.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L4Kvdbh+"
-Received: by mail-vs1-f54.google.com with SMTP id ada2fe7eead31-4ad564437edso740158137.1
-        for <selinux@vger.kernel.org>; Fri, 22 Nov 2024 11:37:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GVrKAcRK"
+Received: by mail-oo1-f54.google.com with SMTP id 006d021491bc7-5eb9ee4f14cso1225675eaf.1
+        for <selinux@vger.kernel.org>; Fri, 22 Nov 2024 13:02:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1732304228; x=1732909028; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1732309376; x=1732914176; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=eRV0TWLCDbPgEqvupiJQvdGUg/cHDDWEBT7K77pYQ2U=;
-        b=L4Kvdbh+rt8KccP1I3OilCsOg+a4FaN+kgyR0e51VlsO4BOAD1BHShrJhk7z4RksC/
-         3uTfpFOfAMSKNwKUQ6Zgt9lJf6/576LS28x4NQT68aOUtdfBVhTyCnYqPiOzAFk6VBaZ
-         mDnkQwJNuFji1Dbr5D8/DaOVvu3N8AIldiPH2S8OkG8VcZnqliCAlcQdQrdv+hbMnU4K
-         X526g5oBoPtcNcNs9fmNJjim32H52WnvVRGgoLk9Y4/sSGqNR3Mta5nJ5jdQuOawVWRc
-         uy6xEVjHmk6XKLAi0ByAaclsPTYN5U1Yr3Oq88A1KnL8tIv26tg4BqNdTmIRRk78WBUg
-         ifEw==
+        bh=wIIK6f5qVlohxhNp1pijMKAU+Cs4kYi9dk7jsYv0U8w=;
+        b=GVrKAcRKMgfxFtaCvmJe9799b44F++Hg4kjNYSsuTs1DHQzLD+jSDoAm0h547tEWiq
+         +OOnoiuePb0CSnEDB/X+cNanzwyDopl/X4knQeax3A9zPwTKHo1U+23avXnHLQ5L57c+
+         PMifYspr8loe7Er2cnbtLgcwPM/e+FqxvXnrpfs6sOKVaG3On9V0A25GrIXNAUzT+NHS
+         lnB7S78O6qTcKgaqNU1TuAidEEul6aDKOKIz5Q46dfRb26U/QgH1TVRZXgaw+pq8qGWY
+         f1dc7U/I60UC7sYsiwNCklivQp7KxmMFntc+POsPNHCDv869O5H4UE5xk863Ju+nqq3Z
+         EtlQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732304228; x=1732909028;
+        d=1e100.net; s=20230601; t=1732309376; x=1732914176;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=eRV0TWLCDbPgEqvupiJQvdGUg/cHDDWEBT7K77pYQ2U=;
-        b=ZBZNLmV5Nu1rLlYtrDMXqYtsdWd+EmERhkSN8bfWoV+wEWefBNMefVsEN/ws+K8uhS
-         l8oGZMZqCNM5KPaAhsyniN7UA3/fL02bsJfkvhgzcfNt1OEGewTuvBLFL4KrjcZwy69W
-         tYKBk60BCJvW71w/AuvWQR5fBR1c+0IAaFxy1fv+OjVyKlZuBSIn1qTIgxPGOrVV2t81
-         qtULaQyjDfyC7n6LeAw5Z7TOwb9932Z0wK10PZSwiq1kDkb4M3MWHuLMfRJIjVFaAXDl
-         jdOX8LRad1w0op9dsBUVtTDebqpzk4ckkC5+u/WpHcUAFjfVwgcDsrgcWkG8tjwHdgLX
-         xK0A==
-X-Gm-Message-State: AOJu0YzdmVypQCHgMJIi/6vyyLl7LEJI3SEvbzcOJUY+YvEUfMynW63g
-	3zP9clG0qxInwGnaQ70/2yFfTvHGjvArRVJC2P6ewgc2zYVvSZNVNW1Lcke0GcxIx2sfalc+Sy0
-	VCVNf5kXuSQNcbiHGUTwEvS/QsLqOVg==
-X-Gm-Gg: ASbGncvtViSxAvWAWn1B3oOFGiFatjlP6kBf5IVwOUZ9Z1KTeOEYt+lfTTrVTOdNkmi
-	rDnsgZssNJWd8R5YG2Ns39BkZ7Nj/Rbo=
-X-Google-Smtp-Source: AGHT+IF3+ZhJcXKq9qhwQdyj1XvIqHmcxCortcrKw7Jrfx5gOlY8ISVH5XG0wxwr6pORhi6ZA4u3rZYS7ngJPb50Mts=
-X-Received: by 2002:a05:6102:2c8b:b0:4ad:c186:5498 with SMTP id
- ada2fe7eead31-4adc1865a67mr8762405137.6.1732304226371; Fri, 22 Nov 2024
- 11:37:06 -0800 (PST)
+        bh=wIIK6f5qVlohxhNp1pijMKAU+Cs4kYi9dk7jsYv0U8w=;
+        b=drzIZeZ5XTS3G3srbzEveOBxG6EpyWRkOIQZhH7p2EEWtwhPLNWS1AXb1ebRGACOdY
+         4WcJPUJ51CQrFMfr7H2bIUd+zQz+QX54pFLgciNUBth4FCia2kGGy7t0iuWgqkvoRBIv
+         vrjqvgvmUd07r28cPTExNQ8mPBz7R75QiEMijJ0axmg9Zn8OoA4IGlYlJN2OnHknG3rf
+         m/+9p4UnVwRm82aB+jlFDfZINUlAzQea45GjJxV0MGGyNIF1iS+2MRVxKqCsEWjsCWEO
+         3UZZBEfOjGGVir6Enpkd2XgMQD5J89uBDFvtI6kE4vRm6/8lUkSdqyD1AvL5hequtp1g
+         1csQ==
+X-Gm-Message-State: AOJu0Yyu8z3Nr/Zrex/y2edmJBikizBBE2e86L/40IESNIJcxpzQjq2b
+	eJGiImh1UJ+kzTfAFG4dILapgrWAAhdqle0/z0xI19xPB6/x4DbdAQ7G3FxtPl6Pe9DVJrrQoym
+	7c6JScuPG5gaBllN1jrpW6fRduZfRXGV+
+X-Gm-Gg: ASbGncutcBhpnir9/o43JNqoz6feLLU4wpLD+yZmgZMuCGxumA83cJVL4JfZqd1Ts3t
+	VTLwFDdCsdZjPhV+6WBDstQEIiPPsUNo=
+X-Google-Smtp-Source: AGHT+IFSv2Gtsexl/LtTL+h2JF99VDuHPw6DC7pCnFSNWkBOHclsT4x6D3/UPfZfCMXl26F51s754pzRHqJ+QVTxBEQ=
+X-Received: by 2002:a05:6359:5ce0:b0:1ca:79f0:4e25 with SMTP id
+ e5c5f4694b2df-1ca79f0681fmr346094155d.7.1732309375566; Fri, 22 Nov 2024
+ 13:02:55 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241111141706.38039-1-cgoettsche@seltendoof.de> <CAP+JOzTJi9BmJC3ysZ67EU_7P-Di+p4p+O=-2Ct2zcU6stYGGg@mail.gmail.com>
-In-Reply-To: <CAP+JOzTJi9BmJC3ysZ67EU_7P-Di+p4p+O=-2Ct2zcU6stYGGg@mail.gmail.com>
+References: <20241120115951.42445-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20241120115951.42445-1-cgoettsche@seltendoof.de>
 From: James Carter <jwcart2@gmail.com>
-Date: Fri, 22 Nov 2024 14:36:55 -0500
-Message-ID: <CAP+JOzSD=MdT_zWO6opxUy-mtMF3yAceRiUyqwkAMHMjQfrqbw@mail.gmail.com>
-Subject: Re: [PATCH 01/47] libsemanage: white space cleanup
+Date: Fri, 22 Nov 2024 16:02:44 -0500
+Message-ID: <CAP+JOzSY4U+LJmP1reVw=mse7eG897=oj79gDp6XvRCxmFpS-g@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] libselinux: make use of calloc(3)
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 21, 2024 at 11:28=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
-rote:
+On Wed, Nov 20, 2024 at 7:00=E2=80=AFAM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
 >
-> On Mon, Nov 11, 2024 at 9:17=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
-> >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > Avoid unrelated changes in followup patches.
-> >
-> > No functional change.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> I am just going to reply to this email.
+> Use calloc(3) instead of calling malloc(3) plus a call to memset(3) or
+> manual zero'ing.
 >
-> For patches 1-9, 11-20, 22-34, 36-39, 45, and 47
-> Acked-by: James Carter <jwcart2@gmail.com>
->
-> I plan on merging these patches very soon.
->
-> Patches 10, 21, 35, 40-44, and 46 no longer apply after the recent merges=
-.
->
-> Thanks,
-> Jim
->
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Patches 1-9, 11-20, 22-34, 36-39, 45, and 47 from this series have been mer=
-ged.
-Thanks,
-Jim
+For these three patches:
+Acked-by: James Carter <jwcart2@gmail.com>
 
+> ---
+>  libselinux/src/fgetfilecon.c         | 3 +--
+>  libselinux/src/get_context_list.c    | 3 +--
+>  libselinux/src/get_initial_context.c | 3 +--
+>  libselinux/src/getfilecon.c          | 3 +--
+>  libselinux/src/getpeercon.c          | 3 +--
+>  libselinux/src/label_media.c         | 6 ++----
+>  libselinux/src/label_x.c             | 6 ++----
+>  libselinux/src/lgetfilecon.c         | 3 +--
+>  libselinux/src/matchpathcon.c        | 3 +--
+>  libselinux/src/procattr.c            | 3 +--
+>  libselinux/src/setrans_client.c      | 5 ++---
+>  11 files changed, 14 insertions(+), 27 deletions(-)
 >
-> > ---
-> >  libsemanage/LICENSE                           | 20 ++---
-> >  libsemanage/Makefile                          |  8 +-
-> >  libsemanage/example/test_fcontext.c           |  2 +-
-> >  libsemanage/include/semanage/debug.h          |  4 +-
-> >  libsemanage/include/semanage/handle.h         | 12 +--
-> >  libsemanage/include/semanage/modules.h        |  6 +-
-> >  libsemanage/include/semanage/semanage.h       |  2 +-
-> >  libsemanage/man/man3/semanage_bool.3          | 18 ++---
-> >  .../man/man3/semanage_bool_set_active.3       | 16 ++--
-> >  libsemanage/man/man3/semanage_count.3         |  6 +-
-> >  libsemanage/man/man3/semanage_del.3           | 18 ++---
-> >  libsemanage/man/man3/semanage_exists.3        | 14 ++--
-> >  libsemanage/man/man3/semanage_fcontext.3      | 20 ++---
-> >  libsemanage/man/man3/semanage_iface.3         | 24 +++---
-> >  libsemanage/man/man3/semanage_iterate.3       | 14 ++--
-> >  libsemanage/man/man3/semanage_list.3          | 12 +--
-> >  libsemanage/man/man3/semanage_modify.3        | 14 ++--
-> >  libsemanage/man/man3/semanage_node.3          | 32 ++++----
-> >  libsemanage/man/man3/semanage_port.3          | 18 ++---
-> >  libsemanage/man/man3/semanage_query.3         | 16 ++--
-> >  libsemanage/man/man3/semanage_seuser.3        | 26 +++----
-> >  libsemanage/man/man3/semanage_user.3          | 26 +++----
-> >  libsemanage/man/man5/semanage.conf.5          | 10 +--
-> >  libsemanage/src/Makefile                      | 14 ++--
-> >  libsemanage/src/booleans_activedb.c           |  2 +-
-> >  libsemanage/src/conf-parse.y                  |  6 +-
-> >  libsemanage/src/database.h                    | 24 +++---
-> >  libsemanage/src/database_activedb.c           |  4 +-
-> >  libsemanage/src/database_file.c               |  4 +-
-> >  libsemanage/src/database_join.c               |  6 +-
-> >  libsemanage/src/database_policydb.c           |  2 +-
-> >  libsemanage/src/database_policydb.h           |  2 +-
-> >  libsemanage/src/debug.c                       |  2 +-
-> >  libsemanage/src/direct_api.c                  | 15 ++--
-> >  libsemanage/src/genhomedircon.c               |  4 +-
-> >  libsemanage/src/handle.c                      |  6 +-
-> >  libsemanage/src/handle.h                      |  2 +-
-> >  libsemanage/src/parse_utils.h                 |  4 +-
-> >  libsemanage/src/policy_components.c           |  2 +-
-> >  libsemanage/src/ports_file.c                  |  2 +-
-> >  libsemanage/src/ports_local.c                 |  6 +-
-> >  libsemanage/src/semanage_store.c              | 50 ++++++-------
-> >  libsemanage/src/semanageswig.i                |  2 +-
-> >  libsemanage/src/semanageswig_python.i         | 74 +++++++++----------
-> >  libsemanage/src/semanageswig_ruby.i           |  2 +-
-> >  libsemanage/src/seuser_record.c               |  2 +-
-> >  libsemanage/src/seusers_local.c               |  2 +-
-> >  libsemanage/src/user_record.c                 |  2 +-
-> >  libsemanage/src/utilities.c                   |  2 +-
-> >  libsemanage/tests/Makefile                    |  4 +-
-> >  libsemanage/tests/README                      | 12 +--
-> >  libsemanage/tests/test_semanage_store.c       |  2 +-
-> >  52 files changed, 299 insertions(+), 300 deletions(-)
-> >
-> > diff --git a/libsemanage/LICENSE b/libsemanage/LICENSE
-> > index 8add30ad..148d531c 100644
-> > --- a/libsemanage/LICENSE
-> > +++ b/libsemanage/LICENSE
-> > @@ -55,7 +55,7 @@ modified by someone else and passed on, the recipient=
-s should know
-> >  that what they have is not the original version, so that the original
-> >  author's reputation will not be affected by problems that might be
-> >  introduced by others.
-> > -
-> > +
-> >    Finally, software patents pose a constant threat to the existence of
-> >  any free program.  We wish to make sure that a company cannot
-> >  effectively restrict the users of a free program by obtaining a
-> > @@ -111,7 +111,7 @@ modification follow.  Pay close attention to the di=
-fference between a
-> >  "work based on the library" and a "work that uses the library".  The
-> >  former contains code derived from the library, whereas the latter must
-> >  be combined with the library in order to run.
-> > -
-> > +
-> >                   GNU LESSER GENERAL PUBLIC LICENSE
-> >     TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-> >
-> > @@ -146,7 +146,7 @@ such a program is covered only if its contents cons=
-titute a work based
-> >  on the Library (independent of the use of the Library in a tool for
-> >  writing it).  Whether that is true depends on what the Library does
-> >  and what the program that uses the Library does.
-> > -
-> > +
-> >    1. You may copy and distribute verbatim copies of the Library's
-> >  complete source code as you receive it, in any medium, provided that
-> >  you conspicuously and appropriately publish on each copy an
-> > @@ -158,7 +158,7 @@ Library.
-> >    You may charge a fee for the physical act of transferring a copy,
-> >  and you may at your option offer warranty protection in exchange for a
-> >  fee.
-> > -
-> > +
-> >    2. You may modify your copy or copies of the Library or any portion
-> >  of it, thus forming a work based on the Library, and copy and
-> >  distribute such modifications or work under the terms of Section 1
-> > @@ -216,7 +216,7 @@ instead of to this License.  (If a newer version th=
-an version 2 of the
-> >  ordinary GNU General Public License has appeared, then you can specify
-> >  that version instead if you wish.)  Do not make any other change in
-> >  these notices.
-> > -
-> > +
-> >    Once this change is made in a given copy, it is irreversible for
-> >  that copy, so the ordinary GNU General Public License applies to all
-> >  subsequent copies and derivative works made from that copy.
-> > @@ -267,7 +267,7 @@ Library will still fall under Section 6.)
-> >  distribute the object code for the work under the terms of Section 6.
-> >  Any executables containing that work also fall under Section 6,
-> >  whether or not they are linked directly with the Library itself.
-> > -
-> > +
-> >    6. As an exception to the Sections above, you may also combine or
-> >  link a "work that uses the Library" with the Library to produce a
-> >  work containing portions of the Library, and distribute that work
-> > @@ -329,7 +329,7 @@ restrictions of other proprietary libraries that do=
- not normally
-> >  accompany the operating system.  Such a contradiction means you cannot
-> >  use both them and the Library together in an executable that you
-> >  distribute.
-> > -
-> > +
-> >    7. You may place library facilities that are a work based on the
-> >  Library side-by-side in a single library together with other library
-> >  facilities not covered by this License, and distribute such a combined
-> > @@ -370,7 +370,7 @@ subject to these terms and conditions.  You may not=
- impose any further
-> >  restrictions on the recipients' exercise of the rights granted herein.
-> >  You are not responsible for enforcing compliance by third parties with
-> >  this License.
-> > -
-> > +
-> >    11. If, as a consequence of a court judgment or allegation of patent
-> >  infringement or for any other reason (not limited to patent issues),
-> >  conditions are imposed on you (whether by court order, agreement or
-> > @@ -422,7 +422,7 @@ conditions either of that version or of any later v=
-ersion published by
-> >  the Free Software Foundation.  If the Library does not specify a
-> >  license version number, you may choose any version ever published by
-> >  the Free Software Foundation.
-> > -
-> > +
-> >    14. If you wish to incorporate parts of the Library into other free
-> >  programs whose distribution conditions are incompatible with these,
-> >  write to the author to ask for permission.  For software which is
-> > @@ -456,7 +456,7 @@ SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE =
-POSSIBILITY OF SUCH
-> >  DAMAGES.
-> >
-> >                      END OF TERMS AND CONDITIONS
-> > -
-> > +
-> >             How to Apply These Terms to Your New Libraries
-> >
-> >    If you develop a new library, and you want it to be of the greatest
-> > diff --git a/libsemanage/Makefile b/libsemanage/Makefile
-> > index 390176fe..dbd240da 100644
-> > --- a/libsemanage/Makefile
-> > +++ b/libsemanage/Makefile
-> > @@ -1,22 +1,22 @@
-> > -all:
-> > +all:
-> >         $(MAKE) -C src all
-> >
-> >  swigify:
-> >         $(MAKE) -C src swigify
-> >
-> > -pywrap:
-> > +pywrap:
-> >         $(MAKE) -C src pywrap
-> >
-> >  rubywrap:
-> >         $(MAKE) -C src rubywrap
-> >
-> > -install:
-> > +install:
-> >         $(MAKE) -C include install
-> >         $(MAKE) -C src install
-> >         $(MAKE) -C man install
-> >         $(MAKE) -C utils install
-> >
-> > -install-pywrap:
-> > +install-pywrap:
-> >         $(MAKE) -C src install-pywrap
-> >
-> >  install-rubywrap:
-> > diff --git a/libsemanage/example/test_fcontext.c b/libsemanage/example/=
-test_fcontext.c
-> > index c2ffcab8..abf41e3c 100644
-> > --- a/libsemanage/example/test_fcontext.c
-> > +++ b/libsemanage/example/test_fcontext.c
-> > @@ -15,7 +15,7 @@ int main(const int argc, const char **argv) {
-> >
-> >         int exist =3D 0;
-> >         sh =3D semanage_handle_create();
-> > -       if (sh =3D=3D NULL) {
-> > +       if (sh =3D=3D NULL) {
-> >                 perror("Can't create semanage handle\n");
-> >                 return -1;
-> >         }
-> > diff --git a/libsemanage/include/semanage/debug.h b/libsemanage/include=
-/semanage/debug.h
-> > index effc24ad..ad79beca 100644
-> > --- a/libsemanage/include/semanage/debug.h
-> > +++ b/libsemanage/include/semanage/debug.h
-> > @@ -35,9 +35,9 @@ extern const char *semanage_msg_get_channel(semanage_=
-handle_t * handle);
-> >
-> >  extern const char *semanage_msg_get_fname(semanage_handle_t * handle);
-> >
-> > -/* Set the messaging callback.
-> > +/* Set the messaging callback.
-> >   * By the default, the callback will print
-> > - * the message on standard output, in a
-> > + * the message on standard output, in a
-> >   * particular format. Passing NULL here
-> >   * indicates that messaging should be suppressed */
-> >  extern void semanage_msg_set_callback(semanage_handle_t * handle,
-> > diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/includ=
-e/semanage/handle.h
-> > index 4cf30815..41db000f 100644
-> > --- a/libsemanage/include/semanage/handle.h
-> > +++ b/libsemanage/include/semanage/handle.h
-> > @@ -25,7 +25,7 @@
-> >
-> >  /* All accesses with semanage are through a "semanage_handle".  The
-> >   * handle may ultimately reference local config files,
-> > - * the binary policy file, a module store, or a policy management serv=
-er.
-> > + * the binary policy file, a module store, or a policy management serv=
-er.
-> >   */
-> >  struct semanage_handle;
-> >  typedef struct semanage_handle semanage_handle_t;
-> > @@ -48,7 +48,7 @@ enum semanage_connect_type {
-> >  };
-> >
-> >  /* This function allows you to specify the store to  connect to.
-> > - * It must be called after semanage_handle_create but before
-> > + * It must be called after semanage_handle_create but before
-> >   * semanage_connect. The argument should be the full path to the store=
-.
-> >   */
-> >  extern void semanage_select_store(semanage_handle_t * handle, char *pa=
-th,
-> > @@ -76,8 +76,8 @@ extern void semanage_set_check_ext_changes(semanage_h=
-andle_t * handle, int do_ch
-> >   * Upon success returns 0, -1 on error. */
-> >  extern int semanage_get_hll_compiler_path(semanage_handle_t *sh, char =
-*lang_ext, char **compiler_path);
-> >
-> > -/* create the store if it does not exist, this only has an effect on
-> > - * direct connections and must be called before semanage_connect
-> > +/* create the store if it does not exist, this only has an effect on
-> > + * direct connections and must be called before semanage_connect
-> >   * 1 for yes, 0 for no (default) */
-> >  extern void semanage_set_create_store(semanage_handle_t * handle, int =
-create_store);
-> >
-> > @@ -103,9 +103,9 @@ extern int semanage_set_default_priority(semanage_h=
-andle_t *sh, uint16_t priorit
-> >   */
-> >  extern int semanage_is_managed(semanage_handle_t *);
-> >
-> > -/* "Connect" to a manager based on the configuration and
-> > +/* "Connect" to a manager based on the configuration and
-> >   * associate the provided handle with the connection.
-> > - * If the connect fails then this function returns a negative value,
-> > + * If the connect fails then this function returns a negative value,
-> >   * else it returns zero.
-> >   */
-> >  extern int semanage_connect(semanage_handle_t *);
-> > diff --git a/libsemanage/include/semanage/modules.h b/libsemanage/inclu=
-de/semanage/modules.h
-> > index 14666f6d..0d482dae 100644
-> > --- a/libsemanage/include/semanage/modules.h
-> > +++ b/libsemanage/include/semanage/modules.h
-> > @@ -29,7 +29,7 @@
-> >  typedef struct semanage_module_key semanage_module_key_t;
-> >
-> >  /* High level module management functions. These are all part of
-> > - * a transaction
-> > + * a transaction
-> >   */
-> >
-> >  extern int semanage_module_install(semanage_handle_t *,
-> > @@ -222,7 +222,7 @@ extern int semanage_module_set_enabled(semanage_han=
-dle_t *sh,
-> >
-> >  /* Lookup @modinfo by @modkey. Caller should use
-> >   * semanage_module_info_destroy and free on @modinfo.
-> > - *
-> > + *
-> >   * Returns 0 on success and -1 on error.
-> >   */
-> >  extern int semanage_module_get_module_info(semanage_handle_t *sh,
-> > @@ -242,7 +242,7 @@ extern int semanage_module_list_all(semanage_handle=
-_t *sh,
-> >                                     semanage_module_info_t **modinfos,
-> >                                     int *modinfos_len);
-> >
-> > -/* Install the module indicated by @modinfo with input data from
-> > +/* Install the module indicated by @modinfo with input data from
-> >   * @module_data with length @data_len.
-> >   *
-> >   * @modinfo must have all values filled in.
-> > diff --git a/libsemanage/include/semanage/semanage.h b/libsemanage/incl=
-ude/semanage/semanage.h
-> > index 04890148..9a55d110 100644
-> > --- a/libsemanage/include/semanage/semanage.h
-> > +++ b/libsemanage/include/semanage/semanage.h
-> > @@ -3,7 +3,7 @@
-> >   *
-> >   * Copyright (C) 2005 Tresys Technology, LLC
-> >   * Copyright (C) 2005 Red Hat, Inc.
-> > - *
-> > + *
-> >   *  This library is free software; you can redistribute it and/or
-> >   *  modify it under the terms of the GNU Lesser General Public
-> >   *  License as published by the Free Software Foundation; either
-> > diff --git a/libsemanage/man/man3/semanage_bool.3 b/libsemanage/man/man=
-3/semanage_bool.3
-> > index 67da6325..806fc187 100644
-> > --- a/libsemanage/man/man3/semanage_bool.3
-> > +++ b/libsemanage/man/man3/semanage_bool.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_bool 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage AP=
-I documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_bool \- SELinux Policy Booleans Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -20,8 +20,8 @@ For details on a specific function, see its manual pa=
-ge.
-> >
-> >  .SH "Record API Overview"
-> >
-> > -.HP
-> > -.BR semanage_bool_create "(3)" \-
-> > +.HP
-> > +.BR semanage_bool_create "(3)" \-
-> >  .br
-> >  create a boolean
-> >
-> > @@ -41,17 +41,17 @@ create a key, which can be used to identify a boole=
-an
-> >  release resources for this boolean key
-> >
-> >  .HP
-> > -.BR semanage_bool_key_extract "(3)" \-
-> > +.BR semanage_bool_key_extract "(3)" \-
-> >  .br
-> >  create a key matching this boolean
-> >
-> >  .HP
-> > -.BR semanage_bool_clone "(3)" \-
-> > +.BR semanage_bool_clone "(3)" \-
-> >  .br
-> >  create an identical boolean (deep-copy clone)
-> >
-> >  .HP
-> > -.BR semanage_bool_compare "(3)" \-
-> > +.BR semanage_bool_compare "(3)" \-
-> >  .br
-> >  compare this boolean to the provided key
-> >
-> > @@ -87,7 +87,7 @@ set the value of this boolean
-> >  .SH "Record Store API Overview"
-> >
-> >  .HP
-> > -.BR semanage_bool_modify_local "(3)" \-
-> > +.BR semanage_bool_modify_local "(3)" \-
-> >  .br
-> >  add or update a boolean in the local store
-> >
-> > @@ -122,7 +122,7 @@ check if a boolean is defined in the currently acti=
-ve policy
-> >  query a boolean in the persistent policy
-> >
-> >  .HP
-> > -.BR semanage_bool_query_local "(3)" \-
-> > +.BR semanage_bool_query_local "(3)" \-
-> >  .br
-> >  query a boolean in the local store
-> >
-> > @@ -174,4 +174,4 @@ return an array containing all booleans in the loca=
-l store
-> >  .HP
-> >  .BR semanage_bool_list_active "(3)" \-
-> >  .br
-> > -return an array containing all booleans in the currently active policy
-> > +return an array containing all booleans in the currently active policy
-> > diff --git a/libsemanage/man/man3/semanage_bool_set_active.3 b/libseman=
-age/man/man3/semanage_bool_set_active.3
-> > index d868fe86..2b6150a1 100644
-> > --- a/libsemanage/man/man3/semanage_bool_set_active.3
-> > +++ b/libsemanage/man/man3/semanage_bool_set_active.3
-> > @@ -17,25 +17,25 @@ semanage_bool_set_active \- update an existing SELi=
-nux boolean in the currently
-> >  .SH "DESCRIPTION"
-> >  .TP
-> >  .B Behavior:
-> > -The set function will fail if no matching key is found in the local st=
-ore. Otherwise, the provided object will replace the current one. When
-> > -.BR semanage_commit "(3)"
-> > -is invoked, changes will be written permanently into the local store, =
-and will be loaded into policy. Validity of the object being added is check=
-ed at commit time.
-> > +The set function will fail if no matching key is found in the local st=
-ore. Otherwise, the provided object will replace the current one. When
-> > +.BR semanage_commit "(3)"
-> > +is invoked, changes will be written permanently into the local store, =
-and will be loaded into policy. Validity of the object being added is check=
-ed at commit time.
-> >
-> >  .TP
-> >  .B Parameters:
-> > -The
-> > +The
-> >  .I handle
-> >  is used to track persistent state across semanage calls, and for error=
- reporting. The
-> > -.I key
-> > -identifies the
-> > +.I key
-> > +identifies the
-> >  .I data
-> >  object, which will be written into the store. The key are data are pro=
-perties of the caller, and are not stored or modified internally.
-> >
-> >  .TP
-> >  .B Requirements:
-> > -This function requires an semanage connection to be established (see
-> > +This function requires an semanage connection to be established (see
-> >  .BR semanage_connect "(3)"
-> > -), and must be executed in a transaction (see
-> > +), and must be executed in a transaction (see
-> >  .BR semanage_begin_transaction "(3)"
-> >  ).
-> >
-> > diff --git a/libsemanage/man/man3/semanage_count.3 b/libsemanage/man/ma=
-n3/semanage_count.3
-> > index 6ff89be3..27696981 100644
-> > --- a/libsemanage/man/man3/semanage_count.3
-> > +++ b/libsemanage/man/man3/semanage_count.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_count 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage A=
-PI documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_count \- SELinux Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -21,14 +21,14 @@ The count function will return the number of all ob=
-jects in the selected locatio
-> >
-> >  .TP
-> >  .B Parameters:
-> > -The
-> > +The
-> >  .I handle
-> >  is used to track persistent state across semanage calls, and for error=
- reporting. The number of objects will be stored at the location pointed by
-> >  .I response.
-> >
-> >  .TP
-> >  .B Requirements:
-> > -This function requires an semanage connection to be established (see
-> > +This function requires an semanage connection to be established (see
-> >  .BR semanage_connect "(3)"
-> >  )
-> >
-> > diff --git a/libsemanage/man/man3/semanage_del.3 b/libsemanage/man/man3=
-/semanage_del.3
-> > index 4dd0a771..7e6da477 100644
-> > --- a/libsemanage/man/man3/semanage_del.3
-> > +++ b/libsemanage/man/man3/semanage_del.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_del 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage API=
- documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_del \- SELinux Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -17,25 +17,25 @@ Replace the function and object name as necessary.
-> >  .SH "DESCRIPTION"
-> >  .TP
-> >  .B Behavior:
-> > -The delete function will remove the object corresponding to the provid=
-ed key from the local store. If no match is found, no action is taken. Chan=
-ges will become permanent when
-> > -.BR semanage_commit "(3)"
-> > -is invoked. Additional checks may be performed at that time to ensure =
-the system is left in a valid state.
-> > +The delete function will remove the object corresponding to the provid=
-ed key from the local store. If no match is found, no action is taken. Chan=
-ges will become permanent when
-> > +.BR semanage_commit "(3)"
-> > +is invoked. Additional checks may be performed at that time to ensure =
-the system is left in a valid state.
-> >
-> >  .TP
-> >  .B Parameters:
-> > -The
-> > +The
-> >  .I handle
-> >  is used to track persistent state across semanage calls, and for error=
- reporting. The
-> > -.I key
-> > -identifies the
-> > +.I key
-> > +identifies the
-> >  .I data
-> >  object, which will be deleted from the local store. The key is a prope=
-rty of the caller, and will not be stored or modified internally.
-> >
-> >  .TP
-> >  .B Requirements:
-> > -This function requires an semanage connection to be established (see
-> > +This function requires an semanage connection to be established (see
-> >  .BR semanage_connect "(3)"
-> > -), and must be executed in a transaction (see
-> > +), and must be executed in a transaction (see
-> >  .BR semanage_begin_transaction "(3)"
-> >  ).
-> >
-> > diff --git a/libsemanage/man/man3/semanage_exists.3 b/libsemanage/man/m=
-an3/semanage_exists.3
-> > index 6d68c76e..a272a0b3 100644
-> > --- a/libsemanage/man/man3/semanage_exists.3
-> > +++ b/libsemanage/man/man3/semanage_exists.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_exists 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage =
-API documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_exists \- SELinux Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -19,21 +19,21 @@ Replace the function and object name as necessary.
-> >  .SH "DESCRIPTION"
-> >  .TP
-> >  .B Behavior:
-> > -The exists function will return 0 if a matching key is not found, and =
-1 otherwise.
-> > +The exists function will return 0 if a matching key is not found, and =
-1 otherwise.
-> >
-> >  .TP
-> >  .B Parameters:
-> > -The
-> > +The
-> >  .I handle
-> >  is used to track persistent state across semanage calls, and for error=
- reporting. The
-> > -.I key
-> > -identifies the object being checked. The result of the test will be st=
-ored in the address pointed by
-> > +.I key
-> > +identifies the object being checked. The result of the test will be st=
-ored in the address pointed by
-> >  .I response
-> > -The key is a property of the caller, and will not be stored or modifie=
-d internally.
-> > +The key is a property of the caller, and will not be stored or modifie=
-d internally.
-> >
-> >  .TP
-> >  .B Requirements:
-> > -This function requires an semanage connection to be established (see
-> > +This function requires an semanage connection to be established (see
-> >  .BR semanage_connect "(3)"
-> >  )
-> >
-> > diff --git a/libsemanage/man/man3/semanage_fcontext.3 b/libsemanage/man=
-/man3/semanage_fcontext.3
-> > index 1f0bf320..96e300bf 100644
-> > --- a/libsemanage/man/man3/semanage_fcontext.3
-> > +++ b/libsemanage/man/man3/semanage_fcontext.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_fcontext 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanag=
-e API documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_fcontext \- SELinux File Context Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -18,15 +18,15 @@ For details on a specific function, see its manual =
-page.
-> >
-> >  .SH "Record API Overview"
-> >
-> > -.HP
-> > -.BR semanage_fcontext_create "(3)" \-
-> > +.HP
-> > +.BR semanage_fcontext_create "(3)" \-
-> >  .br
-> >  create a file context spec
-> >
-> >  .HP
-> >  .BR semanage_fcontext_free "(3)" \-
-> >  .br
-> > -release resources for this file context spec
-> > +release resources for this file context spec
-> >
-> >  .HP
-> >  .BR semanage_fcontext_key_create "(3)" \-
-> > @@ -39,17 +39,17 @@ create a key, which can be used to identify a file =
-context spec
-> >  release resources for this file context spec key
-> >
-> >  .HP
-> > -.BR semanage_fcontext_key_extract "(3)" \-
-> > +.BR semanage_fcontext_key_extract "(3)" \-
-> >  .br
-> > -create a key matching this file context spec
-> > +create a key matching this file context spec
-> >
-> >  .HP
-> > -.BR semanage_fcontext_clone "(3)" \-
-> > +.BR semanage_fcontext_clone "(3)" \-
-> >  .br
-> >  create an identical file context spec (deep-copy clone)
-> >
-> >  .HP
-> > -.BR semanage_fcontext_compare "(3)" \-
-> > +.BR semanage_fcontext_compare "(3)" \-
-> >  .br
-> >  compare this file context spec to the provided key
-> >
-> > @@ -100,7 +100,7 @@ set the SELinux context for this file context spec
-> >  .SH "Record Store API Overview"
-> >
-> >  .HP
-> > -.BR semanage_fcontext_modify_local "(3)" \-
-> > +.BR semanage_fcontext_modify_local "(3)" \-
-> >  .br
-> >  add or update a file context spec in the local store
-> >
-> > @@ -125,7 +125,7 @@ check if a file context spec is defined in the loca=
-l store
-> >  query a file context spec in the persistent policy
-> >
-> >  .HP
-> > -.BR semanage_fcontext_query_local "(3)" \-
-> > +.BR semanage_fcontext_query_local "(3)" \-
-> >  .br
-> >  query a file context spec in the local store
-> >
-> > diff --git a/libsemanage/man/man3/semanage_iface.3 b/libsemanage/man/ma=
-n3/semanage_iface.3
-> > index 90af8b45..8a8437fd 100644
-> > --- a/libsemanage/man/man3/semanage_iface.3
-> > +++ b/libsemanage/man/man3/semanage_iface.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_iface 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage A=
-PI documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_iface \- SELinux Network Interfaces Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -11,15 +11,15 @@ semanage_iface \- SELinux Network Interfaces Manage=
-ment API
-> >  .B #include <semanage/interfaces_local.h>
-> >
-> >  .PP
-> > -This object contains properties associated with a network interface.
-> > +This object contains properties associated with a network interface.
-> >
-> >  .PP
-> >  For details on a specific function, see its manual page.
-> >
-> >  .SH "Record API Overview"
-> >
-> > -.HP
-> > -.BR semanage_iface_create "(3)" \-
-> > +.HP
-> > +.BR semanage_iface_create "(3)" \-
-> >  .br
-> >  create an interface
-> >
-> > @@ -39,17 +39,17 @@ create a key, which can be used to identify an inte=
-rface
-> >  release resources for this interface key
-> >
-> >  .HP
-> > -.BR semanage_iface_key_extract "(3)" \-
-> > +.BR semanage_iface_key_extract "(3)" \-
-> >  .br
-> >  create a key matching this interface
-> >
-> >  .HP
-> > -.BR semanage_iface_clone "(3)" \-
-> > +.BR semanage_iface_clone "(3)" \-
-> >  .br
-> >  create an identical interface (deep-copy clone)
-> >
-> >  .HP
-> > -.BR semanage_iface_compare "(3)" \-
-> > +.BR semanage_iface_compare "(3)" \-
-> >  .br
-> >  compare this interface to the provided key
-> >
-> > @@ -61,14 +61,14 @@ compare this interface to another
-> >  .SH "Properties API Overview"
-> >
-> >  .HP
-> > -.BR semanage_iface_get_name "(3)" \-
-> > +.BR semanage_iface_get_name "(3)" \-
-> >  .br
-> > -return the name of this interface
-> > +return the name of this interface
-> >
-> >  .HP
-> >  .BR semanage_iface_set_name "(3)" \-
-> >  .br
-> > -set the name of this interface
-> > +set the name of this interface
-> >
-> >  .HP
-> >  .BR semanage_iface_get_ifcon "(3)" \-
-> > @@ -93,7 +93,7 @@ set the SELinux context associated with packets sent =
-over this interface
-> >  .SH "Record Store API Overview"
-> >
-> >  .HP
-> > -.BR semanage_iface_modify_local "(3)" \-
-> > +.BR semanage_iface_modify_local "(3)" \-
-> >  .br
-> >  add or update an interface in the local store
-> >
-> > @@ -118,7 +118,7 @@ check if an interface is defined in the local store
-> >  query an interface in the persistent policy
-> >
-> >  .HP
-> > -.BR semanage_iface_query_local "(3)" \-
-> > +.BR semanage_iface_query_local "(3)" \-
-> >  .br
-> >  query an interface in the local store
-> >
-> > diff --git a/libsemanage/man/man3/semanage_iterate.3 b/libsemanage/man/=
-man3/semanage_iterate.3
-> > index 15281647..d45c43f0 100644
-> > --- a/libsemanage/man/man3/semanage_iterate.3
-> > +++ b/libsemanage/man/man3/semanage_iterate.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_iterate 3 "15 March 2006" "ivg2@cornell.edu" "Libsemanage=
- API documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_iterate \- SELinux Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -23,10 +23,10 @@ Replace the function and object name as necessary.
-> >  .SH "DESCRIPTION"
-> >  .TP
-> >  .B Behavior:
-> > -The iterate function will execute the specified handler over all objec=
-ts in the selected location. An arbitrary argument can be passed into the h=
-andler function along with each object.
-> > +The iterate function will execute the specified handler over all objec=
-ts in the selected location. An arbitrary argument can be passed into the h=
-andler function along with each object.
-> >
-> > -The object passed in is property of the libsemanage library, and may n=
-ot be modified or preserved - use
-> > -.B semanage_OBJECT_clone
-> > +The object passed in is property of the libsemanage library, and may n=
-ot be modified or preserved - use
-> > +.B semanage_OBJECT_clone
-> >  if that is necessary.
-> >
-> >  The handler code may not invoke any semanage write requests for the sa=
-me object type (i.e. modifying the underlying store is not allowed). The it=
-erate function is reentrant only while inside a transaction (see
-> > @@ -35,17 +35,17 @@ The handler code may not invoke any semanage write =
-requests for the same object
-> >
-> >  .TP
-> >  .B Parameters:
-> > -The
-> > +The
-> >  .I handle
-> >  is used to track persistent state across semanage calls, and for error=
- reporting. The
-> >  .I handler
-> > -is the function to execute, with
-> > +is the function to execute, with
-> >  .I handler_arg
-> >  as its second parameter, and each object as its first parameter.
-> >
-> >  .TP
-> >  .B Requirements:
-> > -This function requires an semanage connection to be established (see
-> > +This function requires an semanage connection to be established (see
-> >  .BR semanage_connect "(3)"
-> >  )
-> >
-> > diff --git a/libsemanage/man/man3/semanage_list.3 b/libsemanage/man/man=
-3/semanage_list.3
-> > index 0e1ca7b4..9f0414e2 100644
-> > --- a/libsemanage/man/man3/semanage_list.3
-> > +++ b/libsemanage/man/man3/semanage_list.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_list 3 "16 March 2006" "ivg2@cornell.edu" "SELinux manage=
-nt API documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_list \- SELinux Lists Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -23,18 +23,18 @@ The list function will return an array of all the o=
-bjects in the selected locati
-> >
-> >  .TP
-> >  .B Parameters:
-> > -The
-> > +The
-> >  .I handle
-> >  is used to track persistent state across semanage calls, and for error=
- reporting. The function will allocate and populate the array of objects, a=
-nd store it at the location pointed by
-> >  .I objects.
-> > -It will write the number of objects at the location pointed by
-> > +It will write the number of objects at the location pointed by
-> >  .I count.
-> > -The array, and all its objects become property of the caller. Each obj=
-ect must be freed with
-> > -.B semanage_OBJECT_free.
-> > +The array, and all its objects become property of the caller. Each obj=
-ect must be freed with
-> > +.B semanage_OBJECT_free.
-> >
-> >  .TP
-> >  .B Requirements:
-> > -This function requires an semanage connection to be established (see
-> > +This function requires an semanage connection to be established (see
-> >  .BR semanage_connect "(3)"
-> >  )
-> >
-> > diff --git a/libsemanage/man/man3/semanage_modify.3 b/libsemanage/man/m=
-an3/semanage_modify.3
-> > index ee239009..abcdce1c 100644
-> > --- a/libsemanage/man/man3/semanage_modify.3
-> > +++ b/libsemanage/man/man3/semanage_modify.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_modify 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage =
-API documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_modify \- SELinux Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -20,24 +20,24 @@ Replace the function and object name as necessary.
-> >  .TP
-> >  .B Behavior:
-> >  If a matching key is found in the local store, the provided object wil=
-l replace the current one. Otherwise, it will be added to the store. When
-> > -.BR semanage_commit "(3)"
-> > +.BR semanage_commit "(3)"
-> >  is invoked, changes will be permanently written into the local store, =
-and then loaded into policy. Validity of the object being added is checked =
-at commit time. Adding new objects with respect to policy is allowed, excep=
-t in the case of booleans. Attempt to add new booleans with respect to poli=
-cy will fail at commit time.
-> >
-> >  .TP
-> >  .B Parameters:
-> > -The
-> > +The
-> >  .I handle
-> >  is used to track persistent state across semanage calls, and for error=
- reporting. The
-> > -.I key
-> > -identifies the
-> > +.I key
-> > +identifies the
-> >  .I data
-> >  object, which will be written into the store. The key are data are pro=
-perties of the caller, and are not stored or modified internally.
-> >
-> >  .TP
-> >  .B Requirements:
-> > -This function requires an semanage connection to be established (see
-> > +This function requires an semanage connection to be established (see
-> >  .BR semanage_connect "(3)"
-> > -), and must be executed in a transaction (see
-> > +), and must be executed in a transaction (see
-> >  .BR semanage_begin_transaction "(3)"
-> >  ).
-> >
-> > diff --git a/libsemanage/man/man3/semanage_node.3 b/libsemanage/man/man=
-3/semanage_node.3
-> > index 2df7a914..29be96e0 100644
-> > --- a/libsemanage/man/man3/semanage_node.3
-> > +++ b/libsemanage/man/man3/semanage_node.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_node 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage AP=
-I documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_node \- SELinux Network Nodes Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -11,27 +11,27 @@ semanage_node \- SELinux Network Nodes Management A=
-PI
-> >  .B #include <semanage/nodes_local.h>
-> >
-> >  .PP
-> > -This object contains properties associated with a network node.
-> > +This object contains properties associated with a network node.
-> >
-> >  .PP
-> >  For details on a specific function, see its manual page.
-> >
-> >  .SH "Record API Overview"
-> >
-> > -.HP
-> > -.BR semanage_node_create "(3)" \-
-> > +.HP
-> > +.BR semanage_node_create "(3)" \-
-> >  .br
-> > -create a node
-> > +create a node
-> >
-> >  .HP
-> >  .BR semanage_node_free "(3)" \-
-> >  .br
-> > -release resources for this node
-> > +release resources for this node
-> >
-> >  .HP
-> >  .BR semanage_node_key_create "(3)" \-
-> >  .br
-> > -create a key, which can be used to identify a node
-> > +create a key, which can be used to identify a node
-> >
-> >  .HP
-> >  .BR semanage_node_key_free "(3)" \-
-> > @@ -39,17 +39,17 @@ create a key, which can be used to identify a node
-> >  release resources for this node key
-> >
-> >  .HP
-> > -.BR semanage_node_key_extract "(3)" \-
-> > +.BR semanage_node_key_extract "(3)" \-
-> >  .br
-> > -create a key matching this node
-> > +create a key matching this node
-> >
-> >  .HP
-> > -.BR semanage_node_clone "(3)" \-
-> > +.BR semanage_node_clone "(3)" \-
-> >  .br
-> >  create an identical node (deep-copy clone)
-> >
-> >  .HP
-> > -.BR semanage_node_compare "(3)" \-
-> > +.BR semanage_node_compare "(3)" \-
-> >  .br
-> >  compare this node to the provided key
-> >
-> > @@ -61,7 +61,7 @@ compare this node to another
-> >  .SH "Properties API Overview"
-> >
-> >  .HP
-> > -.BR semanage_node_get_addr "(3)" \-
-> > +.BR semanage_node_get_addr "(3)" \-
-> >  .br
-> >  return the IP address of this node in string representation
-> >
-> > @@ -118,17 +118,17 @@ set the IP protocol version for this node
-> >  .HP
-> >  .BR semanage_node_get_con "(3)" \-
-> >  .br
-> > -return the SELinux context associated with this node
-> > +return the SELinux context associated with this node
-> >
-> >  .HP
-> >  .BR semanage_node_set_con "(3)" \-
-> >  .br
-> > -set the SELinux context associated with this node
-> > +set the SELinux context associated with this node
-> >
-> >  .SH "Record Store API Overview"
-> >
-> >  .HP
-> > -.BR semanage_node_modify_local "(3)" \-
-> > +.BR semanage_node_modify_local "(3)" \-
-> >  .br
-> >  add or update an interface in the local store
-> >
-> > @@ -153,7 +153,7 @@ check if an interface is defined in the local store
-> >  query an interface in the persistent policy
-> >
-> >  .HP
-> > -.BR semanage_node_query_local "(3)" \-
-> > +.BR semanage_node_query_local "(3)" \-
-> >  .br
-> >  query an interface in the local store
-> >
-> > diff --git a/libsemanage/man/man3/semanage_port.3 b/libsemanage/man/man=
-3/semanage_port.3
-> > index 3a4e6265..a8977d7e 100644
-> > --- a/libsemanage/man/man3/semanage_port.3
-> > +++ b/libsemanage/man/man3/semanage_port.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_port 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage AP=
-I documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_port \- SELinux Network Ports Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -18,8 +18,8 @@ For details on a specific function, see its manual pa=
-ge.
-> >
-> >  .SH "Record API Overview"
-> >
-> > -.HP
-> > -.BR semanage_port_create "(3)" \-
-> > +.HP
-> > +.BR semanage_port_create "(3)" \-
-> >  .br
-> >  create a port range
-> >
-> > @@ -39,17 +39,17 @@ create a key, which can be used to identify a port =
-range
-> >  release resources for this port range key
-> >
-> >  .HP
-> > -.BR semanage_port_key_extract "(3)" \-
-> > +.BR semanage_port_key_extract "(3)" \-
-> >  .br
-> >  create a key matching this port range
-> >
-> >  .HP
-> > -.BR semanage_port_clone "(3)" \-
-> > +.BR semanage_port_clone "(3)" \-
-> >  .br
-> >  create an identical port range (deep-copy clone)
-> >
-> >  .HP
-> > -.BR semanage_port_compare "(3)" \-
-> > +.BR semanage_port_compare "(3)" \-
-> >  .br
-> >  compare this port range to the provided key
-> >
-> > @@ -109,7 +109,7 @@ set the SELinux context for this port range
-> >  .SH "Record Store API Overview"
-> >
-> >  .HP
-> > -.BR semanage_port_modify_local "(3)" \-
-> > +.BR semanage_port_modify_local "(3)" \-
-> >  .br
-> >  add or update a port range in the local store
-> >
-> > @@ -134,7 +134,7 @@ check if a port range is defined in the local store
-> >  query a port range in the persistent policy
-> >
-> >  .HP
-> > -.BR semanage_port_query_local "(3)" \-
-> > +.BR semanage_port_query_local "(3)" \-
-> >  .br
-> >  query a port range in the local store
-> >
-> > @@ -166,4 +166,4 @@ return an array containing all port ranges in the p=
-ersistent policy
-> >  .HP
-> >  .BR semanage_port_list_local "(3)" \-
-> >  .br
-> > -return an array containing all port ranges in the local store
-> > +return an array containing all port ranges in the local store
-> > diff --git a/libsemanage/man/man3/semanage_query.3 b/libsemanage/man/ma=
-n3/semanage_query.3
-> > index e61c8b8b..4e77870b 100644
-> > --- a/libsemanage/man/man3/semanage_query.3
-> > +++ b/libsemanage/man/man3/semanage_query.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_query 3 "15 March 2006" "ivg2@cornell.edu" "Libsemanage A=
-PI documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_query \- SELinux Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -19,22 +19,22 @@ Replace the function and object name as necessary.
-> >  .SH "DESCRIPTION"
-> >  .TP
-> >  .B Behavior:
-> > -The query function will fail if a matching key is not found. Otherwise=
-, the corresponding object is returned.
-> > +The query function will fail if a matching key is not found. Otherwise=
-, the corresponding object is returned.
-> >
-> >  .TP
-> >  .B Parameters:
-> > -The
-> > +The
-> >  .I handle
-> >  is used to track persistent state across semanage calls, and for error=
- reporting. The
-> > -.I key
-> > -identifies the object being queried, which will be stored in the addre=
-ss pointed by
-> > +.I key
-> > +identifies the object being queried, which will be stored in the addre=
-ss pointed by
-> >  .I response
-> > -The key is a property of the caller, and will not be stored or modifie=
-d internally. The object returned becomes a property of the caller, and mus=
-t be freed with
-> > -.B semanage_OBJECT_free.
-> > +The key is a property of the caller, and will not be stored or modifie=
-d internally. The object returned becomes a property of the caller, and mus=
-t be freed with
-> > +.B semanage_OBJECT_free.
-> >
-> >  .TP
-> >  .B Requirements:
-> > -This function requires an semanage connection to be established (see
-> > +This function requires an semanage connection to be established (see
-> >  .BR semanage_connect "(3)"
-> >  )
-> >
-> > diff --git a/libsemanage/man/man3/semanage_seuser.3 b/libsemanage/man/m=
-an3/semanage_seuser.3
-> > index be0fa687..9e00b024 100644
-> > --- a/libsemanage/man/man3/semanage_seuser.3
-> > +++ b/libsemanage/man/man3/semanage_seuser.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_seuser 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage =
-API documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_seuser \- Linux UID to SELinux User Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -11,17 +11,17 @@ semanage_seuser \- Linux UID to SELinux User Manage=
-ment API
-> >  .B #include <semanage/seusers_local.h>
-> >
-> >  .PP
-> > -This object contains properties associated with a Unix user. Typically=
- many Unix users are mapped to the same SELinux user. See
-> > +This object contains properties associated with a Unix user. Typically=
- many Unix users are mapped to the same SELinux user. See
-> >  .BR semanage_user "(3)"
-> > -for overview of the SELinux user API.
-> > +for overview of the SELinux user API.
-> >
-> >  .PP
-> >  For details on a specific function, see its manual page.
-> >
-> >  .SH "Record API Overview"
-> >
-> > -.HP
-> > -.BR semanage_seuser_create "(3)" \-
-> > +.HP
-> > +.BR semanage_seuser_create "(3)" \-
-> >  .br
-> >  create a seuser
-> >
-> > @@ -33,7 +33,7 @@ release resources for this seuser
-> >  .HP
-> >  .BR semanage_seuser_key_create "(3)" \-
-> >  .br
-> > -create a key, which can be used to identify a seuser
-> > +create a key, which can be used to identify a seuser
-> >
-> >  .HP
-> >  .BR semanage_seuser_key_free "(3)" \-
-> > @@ -41,17 +41,17 @@ create a key, which can be used to identify a seuse=
-r
-> >  release resources for this seuser key
-> >
-> >  .HP
-> > -.BR semanage_seuser_key_extract "(3)" \-
-> > +.BR semanage_seuser_key_extract "(3)" \-
-> >  .br
-> > -create a key matching this seuser
-> > +create a key matching this seuser
-> >
-> >  .HP
-> > -.BR semanage_seuser_clone "(3)" \-
-> > +.BR semanage_seuser_clone "(3)" \-
-> >  .br
-> >  create an identical seuser (deep-copy clone)
-> >
-> >  .HP
-> > -.BR semanage_seuser_compare "(3)" \-
-> > +.BR semanage_seuser_compare "(3)" \-
-> >  .br
-> >  compare this seuser to the provided key
-> >
-> > @@ -63,7 +63,7 @@ compare this seuser to another
-> >  .SH "Properties API Overview"
-> >
-> >  .HP
-> > -.BR semanage_seuser_get_name "(3)" \-
-> > +.BR semanage_seuser_get_name "(3)" \-
-> >  .br
-> >  return the name of this seuser
-> >
-> > @@ -95,7 +95,7 @@ set the range of valid MLS sensitivities and categori=
-es for this user
-> >  .SH "Record Store API Overview"
-> >
-> >  .HP
-> > -.BR semanage_seuser_modify_local "(3)" \-
-> > +.BR semanage_seuser_modify_local "(3)" \-
-> >  .br
-> >  add or update a seuser in the local store
-> >
-> > @@ -120,7 +120,7 @@ check if a seuser is defined in the local store
-> >  query a seuser in the persistent policy
-> >
-> >  .HP
-> > -.BR semanage_seuser_query_local "(3)" \-
-> > +.BR semanage_seuser_query_local "(3)" \-
-> >  .br
-> >  query a seuser in the local store
-> >
-> > diff --git a/libsemanage/man/man3/semanage_user.3 b/libsemanage/man/man=
-3/semanage_user.3
-> > index 6102dd5b..1304f0fa 100644
-> > --- a/libsemanage/man/man3/semanage_user.3
-> > +++ b/libsemanage/man/man3/semanage_user.3
-> > @@ -1,6 +1,6 @@
-> >  .TH semanage_user 3 "16 March 2006" "ivg2@cornell.edu" "Libsemanage AP=
-I documentation"
-> >
-> > -.SH "NAME"
-> > +.SH "NAME"
-> >  semanage_user \- SELinux User Management API
-> >
-> >  .SH "SYNOPSIS"
-> > @@ -11,20 +11,20 @@ semanage_user \- SELinux User Management API
-> >  .B #include <semanage/users_local.h>
-> >
-> >  .PP
-> > -This object contains properties associated with a SELinux user.
-> > -Typically many Unix users are mapped to the same SELinux user. See
-> > +This object contains properties associated with a SELinux user.
-> > +Typically many Unix users are mapped to the same SELinux user. See
-> >  .BR semanage_seuser "(3)"
-> > -for overview of the Unix user API.
-> > +for overview of the Unix user API.
-> >
-> >  .PP
-> >  For details on a specific function, see its manual page.
-> >
-> >  .SH "Record API Overview"
-> >
-> > -.HP
-> > -.BR semanage_user_create "(3)" \-
-> > +.HP
-> > +.BR semanage_user_create "(3)" \-
-> >  .br
-> > -create a user
-> > +create a user
-> >
-> >  .HP
-> >  .BR semanage_user_free "(3)" \-
-> > @@ -42,17 +42,17 @@ create a key, which can be used to identify a user
-> >  release resources for this user key
-> >
-> >  .HP
-> > -.BR semanage_user_key_extract "(3)" \-
-> > +.BR semanage_user_key_extract "(3)" \-
-> >  .br
-> >  create a key matching this user
-> >
-> >  .HP
-> > -.BR semanage_user_clone "(3)" \-
-> > +.BR semanage_user_clone "(3)" \-
-> >  .br
-> >  create an identical user (deep-copy clone)
-> >
-> >  .HP
-> > -.BR semanage_user_compare "(3)" \-
-> > +.BR semanage_user_compare "(3)" \-
-> >  .br
-> >  compare this user to the provided key
-> >
-> > @@ -64,7 +64,7 @@ compare this user to another
-> >  .SH "Properties API Overview"
-> >
-> >  .HP
-> > -.BR semanage_user_get_name "(3)" \-
-> > +.BR semanage_user_get_name "(3)" \-
-> >  .br
-> >  return the name of this user
-> >
-> > @@ -135,7 +135,7 @@ set the roles for this user
-> >  .SH "Record Store API Overview"
-> >
-> >  .HP
-> > -.BR semanage_user_modify_local "(3)" \-
-> > +.BR semanage_user_modify_local "(3)" \-
-> >  .br
-> >  add or update a user in the local store
-> >
-> > @@ -160,7 +160,7 @@ check if a user is defined in the local store
-> >  query a user in the persistent policy
-> >
-> >  .HP
-> > -.BR semanage_user_query_local "(3)" \-
-> > +.BR semanage_user_query_local "(3)" \-
-> >  .br
-> >  query a user in the local store
-> >
-> > diff --git a/libsemanage/man/man5/semanage.conf.5 b/libsemanage/man/man=
-5/semanage.conf.5
-> > index 380b58be..e6e8e27a 100644
-> > --- a/libsemanage/man/man5/semanage.conf.5
-> > +++ b/libsemanage/man/man5/semanage.conf.5
-> > @@ -17,7 +17,7 @@ The following parameters are allowed:
-> >
-> >  .RS
-> >  .TP
-> > -.B module-store
-> > +.B module-store
-> >  Specify how the SELinux Management library should interact with the SE=
-Linux policy store. When set to "direct", the SELinux
-> >  Management library writes to the SELinux policy module store directly =
-(this is the default setting).
-> >  Otherwise a socket path or a server name can be used for the argument.
-> > @@ -45,7 +45,7 @@ Whether or not to ignore the cache of CIL modules com=
-piled from HLL. It can be s
-> >  If the cache is ignored, then all CIL modules are recompiled from thei=
-r HLL modules.
-> >
-> >  .TP
-> > -.B policy-version
-> > +.B policy-version
-> >  When generating the policy, by default
-> >  .BR semanage
-> >  will set the policy version to POLICYDB_VERSION_MAX, as defined in <se=
-pol/policydb/policydb.h>. Change this setting if a different
-> > @@ -78,11 +78,11 @@ It can be set to either "true" or "false" and by de=
-fault it is set to "false" (t
-> >
-> >  .TP
-> >  .B ignoredirs
-> > -List, separated by ";",  of directories to ignore when setting up user=
-s homedirs.
-> > -Some distributions use this to stop labeling /root as a homedir.
-> > +List, separated by ";",  of directories to ignore when setting up user=
-s homedirs.
-> > +Some distributions use this to stop labeling /root as a homedir.
-> >
-> >  .TP
-> > -.B usepasswd
-> > +.B usepasswd
-> >  Whether or not to enable the use getpwent() to obtain a list of home d=
-irectories to label. It can be set to either "true" or "false".
-> >  By default it is set to "true".
-> >
-> > diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-> > index d5259967..8dfbd762 100644
-> > --- a/libsemanage/src/Makefile
-> > +++ b/libsemanage/src/Makefile
-> > @@ -43,9 +43,9 @@ SWIGRUBYIF=3D semanageswig_ruby.i
-> >  SWIGCOUT=3D semanageswig_wrap.c
-> >  SWIGRUBYCOUT=3D semanageswig_ruby_wrap.c
-> >  SWIGLOBJ:=3D $(patsubst %.c,$(PYPREFIX)%.lo,$(SWIGCOUT))
-> > -SWIGRUBYLOBJ:=3D $(patsubst %.c,$(RUBYPREFIX)%.lo,$(SWIGRUBYCOUT))
-> > +SWIGRUBYLOBJ:=3D $(patsubst %.c,$(RUBYPREFIX)%.lo,$(SWIGRUBYCOUT))
-> >  SWIGSO=3D$(PYPREFIX)_semanage.so
-> > -SWIGFILES=3D$(SWIGSO) semanage.py
-> > +SWIGFILES=3D$(SWIGSO) semanage.py
-> >  SWIGRUBYSO=3D$(RUBYPREFIX)_semanage.so
-> >  LIBSO=3D$(TARGET).$(LIBVERSION)
-> >
-> > @@ -107,7 +107,7 @@ conf-parse.c: conf-parse.y
-> >
-> >  conf-parse.h: conf-parse.c
-> >
-> > -%.o:  %.c
-> > +%.o:  %.c
-> >         $(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
-> >
-> >  %.lo:  %.c
-> > @@ -134,7 +134,7 @@ $(SWIGRUBYCOUT): $(SWIGRUBYIF)
-> >  swigify: $(SWIGIF)
-> >         $(SWIG) $<
-> >
-> > -install: all
-> > +install: all
-> >         test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LI=
-BDIR)
-> >         install -m 644 $(LIBA) $(DESTDIR)$(LIBDIR)
-> >         install -m 755 $(LIBSO) $(DESTDIR)$(LIBDIR)
-> > @@ -143,20 +143,20 @@ install: all
-> >         test -f $(DESTDIR)$(DEFAULT_SEMANAGE_CONF_LOCATION) || install =
--m 644 -D semanage.conf $(DESTDIR)$(DEFAULT_SEMANAGE_CONF_LOCATION)
-> >         cd $(DESTDIR)$(LIBDIR) && ln -sf $(LIBSO) $(TARGET)
-> >
-> > -install-pywrap: pywrap
-> > +install-pywrap: pywrap
-> >         test -d $(DESTDIR)$(PYTHONLIBDIR) || install -m 755 -d $(DESTDI=
-R)$(PYTHONLIBDIR)
-> >         install -m 755 $(SWIGSO) $(DESTDIR)$(PYTHONLIBDIR)/_semanage$(P=
-YCEXT)
-> >         install -m 644 semanage.py $(DESTDIR)$(PYTHONLIBDIR)
-> >
-> >
-> >  install-rubywrap: rubywrap
-> > -       test -d $(DESTDIR)$(RUBYINSTALL) || install -m 755 -d $(DESTDIR=
-)$(RUBYINSTALL)
-> > +       test -d $(DESTDIR)$(RUBYINSTALL) || install -m 755 -d $(DESTDIR=
-)$(RUBYINSTALL)
-> >         install -m 755 $(SWIGRUBYSO) $(DESTDIR)$(RUBYINSTALL)/semanage.=
-so
-> >
-> >  relabel:
-> >         /sbin/restorecon $(DESTDIR)$(LIBDIR)/$(LIBSO)
-> >
-> > -clean:
-> > +clean:
-> >         -rm -f $(LIBPC) $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(SWIGLOBJ) $=
-(SWIGSO) $(SWIGRUBYSO) $(TARGET) conf-parse.c conf-parse.h conf-scan.c *.o =
-*.lo *~
-> >
-> >  distclean: clean
-> > diff --git a/libsemanage/src/booleans_activedb.c b/libsemanage/src/bool=
-eans_activedb.c
-> > index 9bcc9d71..6ebb520b 100644
-> > --- a/libsemanage/src/booleans_activedb.c
-> > +++ b/libsemanage/src/booleans_activedb.c
-> > @@ -106,7 +106,7 @@ static int bool_commit_list(semanage_handle_t * han=
-dle,
-> >         for (i =3D 0; i < count; i++) {
-> >                 name =3D semanage_bool_get_name(booleans[i]);
-> >                 if (!name)
-> > -                       goto omem;
-> > +                       goto omem;
-> >                 newvalue =3D semanage_bool_get_value(booleans[i]);
-> >                 curvalue =3D security_get_boolean_active(name);
-> >                 if (newvalue =3D=3D curvalue)
-> > diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.=
-y
-> > index eac91344..8cfbd580 100644
-> > --- a/libsemanage/src/conf-parse.y
-> > +++ b/libsemanage/src/conf-parse.y
-> > @@ -177,7 +177,7 @@ save_previous:    SAVE_PREVIOUS '=3D' ARG {
-> >                         if (strcasecmp($3, "true") =3D=3D 0)
-> >                                 current_conf->save_previous =3D 1;
-> >                         else if (strcasecmp($3, "false") =3D=3D 0)
-> > -                               current_conf->save_previous =3D 0;
-> > +                               current_conf->save_previous =3D 0;
-> >                         else {
-> >                                 yyerror("save-previous can only be 'tru=
-e' or 'false'");
-> >                         }
-> > @@ -190,7 +190,7 @@ save_linked:    SAVE_LINKED '=3D' ARG {
-> >                         if (strcasecmp($3, "true") =3D=3D 0)
-> >                                 current_conf->save_linked =3D 1;
-> >                         else if (strcasecmp($3, "false") =3D=3D 0)
-> > -                               current_conf->save_linked =3D 0;
-> > +                               current_conf->save_linked =3D 0;
-> >                         else {
-> >                                 yyerror("save-linked can only be 'true'=
- or 'false'");
-> >                         }
-> > @@ -280,7 +280,7 @@ optimize_policy:  OPTIMIZE_POLICY '=3D' ARG {
-> >         free($3);
-> >  }
-> >
-> > -command_block:
-> > +command_block:
-> >                  command_start external_opts BLOCK_END  {
-> >                          if (new_external->path =3D=3D NULL) {
-> >                                  parse_errors++;
-> > diff --git a/libsemanage/src/database.h b/libsemanage/src/database.h
-> > index a1cd32b8..8bd894df 100644
-> > --- a/libsemanage/src/database.h
-> > +++ b/libsemanage/src/database.h
-> > @@ -30,7 +30,7 @@ typedef struct record_table {
-> >         /* Free record key */
-> >         void (*key_free) (record_key_t * key);
-> >
-> > -       /* Return 0 if the record matches the key,
-> > +       /* Return 0 if the record matches the key,
-> >          * -1 if the key represents a record that should
-> >          * be ordered before this record, and 1 if vice-versa */
-> >         int (*compare) (const record_t * rec, const record_key_t * key)=
-;
-> > @@ -60,7 +60,7 @@ typedef struct dbase_table {
-> >         /* --------------- Database Functionality ----------- */
-> >
-> >         /* Note: In all the functions below, the key is property
-> > -        * of the caller, and will not be modified by the database.
-> > +        * of the caller, and will not be modified by the database.
-> >          * In add/set/modify, the data is also property of the caller *=
-/
-> >
-> >         /* Add the specified record to
-> > @@ -69,8 +69,8 @@ typedef struct dbase_table {
-> >                     dbase_t * dbase,
-> >                     const record_key_t * key, const record_t * data);
-> >
-> > -       /* Add the specified record to the
-> > -        * database if it not present.
-> > +       /* Add the specified record to the
-> > +        * database if it not present.
-> >          * If it's present, replace it
-> >          */
-> >         int (*modify) (struct semanage_handle * handle,
-> > @@ -89,12 +89,12 @@ typedef struct dbase_table {
-> >                     dbase_t * dbase, const record_key_t * key);
-> >
-> >         /* Clear all records, and leave the database in
-> > -        * cached, modified state. This function does
-> > +        * cached, modified state. This function does
-> >          * not require a call to cache() */
-> >         int (*clear) (struct semanage_handle * handle, dbase_t * dbase)=
-;
-> >
-> > -       /* Retrieve a record
-> > -        *
-> > +       /* Retrieve a record
-> > +        *
-> >          * Note: the resultant record
-> >          * becomes property of the caller, and
-> >          * must be freed accordingly */
-> > @@ -112,17 +112,17 @@ typedef struct dbase_table {
-> >         int (*count) (struct semanage_handle * handle,
-> >                       dbase_t * dbase, unsigned int *response);
-> >
-> > -       /* Execute the specified handler over
-> > +       /* Execute the specified handler over
-> >          * the records of this database. The handler
-> >          * can signal a successful exit by returning 1,
-> >          * an error exit by returning -1, and continue by
-> >          * returning 0
-> > -        *
-> > +        *
-> >          * Note: The record passed into the iterate handler
-> >          * may or may not persist after the handler invocation,
-> >          * and writing to it has unspecified behavior. It *must*
-> >          * be cloned if modified, or preserved.
-> > -        *
-> > +        *
-> >          * Note: The iterate handler may not invoke any other
-> >          * semanage read functions outside a transaction. It is only
-> >          * reentrant while in transaction. The iterate handler may
-> > @@ -134,9 +134,9 @@ typedef struct dbase_table {
-> >                                    void *varg), void *fn_arg);
-> >
-> >         /* Construct a list of all records in this database
-> > -        *
-> > +        *
-> >          * Note: The list returned becomes property of the caller,
-> > -        * and must be freed accordingly.
-> > +        * and must be freed accordingly.
-> >          */
-> >         int (*list) (struct semanage_handle * handle,
-> >                      dbase_t * dbase,
-> > diff --git a/libsemanage/src/database_activedb.c b/libsemanage/src/data=
-base_activedb.c
-> > index 1cce0b82..fa6b6105 100644
-> > --- a/libsemanage/src/database_activedb.c
-> > +++ b/libsemanage/src/database_activedb.c
-> > @@ -1,7 +1,7 @@
-> >  /* Copyright (C) 2005 Red Hat, Inc. */
-> >
-> >  /* Object: dbase_activedb_t (Active/Kernel)
-> > - * Extends: dbase_llist_t (Linked List)
-> > + * Extends: dbase_llist_t (Linked List)
-> >   * Implements: dbase_t (Database)
-> >   */
-> >
-> > @@ -20,7 +20,7 @@ typedef struct dbase_activedb dbase_t;
-> >  /* ACTIVEDB dbase */
-> >  struct dbase_activedb {
-> >
-> > -       /* Parent object - must always be
-> > +       /* Parent object - must always be
-> >          * the first field - here we are using
-> >          * a linked list to store the records */
-> >         dbase_llist_t llist;
-> > diff --git a/libsemanage/src/database_file.c b/libsemanage/src/database=
-_file.c
-> > index a51269e7..a7773fb5 100644
-> > --- a/libsemanage/src/database_file.c
-> > +++ b/libsemanage/src/database_file.c
-> > @@ -1,7 +1,7 @@
-> >  /* Copyright (C) 2005 Red Hat, Inc. */
-> >
-> >  /* Object: dbase_file_t (File)
-> > - * Extends: dbase_llist_t (Linked List)
-> > + * Extends: dbase_llist_t (Linked List)
-> >   * Implements: dbase_t (Database)
-> >   */
-> >
-> > @@ -25,7 +25,7 @@ typedef struct dbase_file dbase_t;
-> >  /* FILE dbase */
-> >  struct dbase_file {
-> >
-> > -       /* Parent object - must always be
-> > +       /* Parent object - must always be
-> >          * the first field - here we are using
-> >          * a linked list to store the records */
-> >         dbase_llist_t llist;
-> > diff --git a/libsemanage/src/database_join.c b/libsemanage/src/database=
-_join.c
-> > index a49a6226..2a2008e8 100644
-> > --- a/libsemanage/src/database_join.c
-> > +++ b/libsemanage/src/database_join.c
-> > @@ -1,7 +1,7 @@
-> >  /* Copyright (C) 2005 Red Hat, Inc. */
-> >
-> >  /* Object: dbase_join_t (Join)
-> > - * Extends: dbase_llist_t (Linked List)
-> > + * Extends: dbase_llist_t (Linked List)
-> >   * Implements: dbase_t (Database)
-> >   */
-> >
-> > @@ -20,7 +20,7 @@ typedef struct dbase_join dbase_t;
-> >  /* JOIN dbase */
-> >  struct dbase_join {
-> >
-> > -       /* Parent object - must always be
-> > +       /* Parent object - must always be
-> >          * the first field - here we are using
-> >          * a linked list to store the records */
-> >         dbase_llist_t llist;
-> > @@ -194,7 +194,7 @@ static int dbase_join_flush(semanage_handle_t * han=
-dle, dbase_join_t * dbase)
-> >
-> >         /* Then clear all records from the cache.
-> >          * This is *not* the same as dropping the cache - it's an expli=
-cit
-> > -        * request to delete all current records. We need to do
-> > +        * request to delete all current records. We need to do
-> >          * this because we don't store delete deltas for the join,
-> >          * so we must re-add all records from scratch */
-> >         if (dtable1->clear(handle, dbase1) < 0)
-> > diff --git a/libsemanage/src/database_policydb.c b/libsemanage/src/data=
-base_policydb.c
-> > index 748a6ed6..95418365 100644
-> > --- a/libsemanage/src/database_policydb.c
-> > +++ b/libsemanage/src/database_policydb.c
-> > @@ -109,7 +109,7 @@ static int dbase_policydb_cache(semanage_handle_t *=
- handle,
-> >                 goto err;
-> >         }
-> >
-> > -       /* Try opening file
-> > +       /* Try opening file
-> >          * ENOENT is not fatal - we just create an empty policydb */
-> >         fp =3D fopen(fname, "rb");
-> >         if (fp =3D=3D NULL && errno !=3D ENOENT) {
-> > diff --git a/libsemanage/src/database_policydb.h b/libsemanage/src/data=
-base_policydb.h
-> > index f782e0d5..8cb66f71 100644
-> > --- a/libsemanage/src/database_policydb.h
-> > +++ b/libsemanage/src/database_policydb.h
-> > @@ -68,7 +68,7 @@ typedef int (*record_policydb_table_iterate_t) (sepol=
-_handle_t * h,
-> >  typedef struct record_policydb_table {
-> >         /* Add policy record */
-> >         record_policydb_table_add_t add;
-> > -       /* Modify policy record, or add if
-> > +       /* Modify policy record, or add if
-> >          * the key isn't found */
-> >         record_policydb_table_modify_t modify;
-> >         /* Set policy record */
-> > diff --git a/libsemanage/src/debug.c b/libsemanage/src/debug.c
-> > index 3c345462..902ab5a5 100644
-> > --- a/libsemanage/src/debug.c
-> > +++ b/libsemanage/src/debug.c
-> > @@ -1,6 +1,6 @@
-> >  /* Author: Joshua Brindle <jbrindle@tresys.co
-> >   *         Jason Tang     <jtang@tresys.com>
-> > - *         Ivan Gyurdiev  <ivg2@cornell.edu>
-> > + *         Ivan Gyurdiev  <ivg2@cornell.edu>
-> >   *
-> >   * Copyright (C) 2004-2005 Tresys Technology, LLC
-> >   * Copyright (C) 2005 Red Hat Inc.
-> > diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.=
+> diff --git a/libselinux/src/fgetfilecon.c b/libselinux/src/fgetfilecon.c
+> index d7051171..782861ed 100644
+> --- a/libselinux/src/fgetfilecon.c
+> +++ b/libselinux/src/fgetfilecon.c
+> @@ -39,10 +39,9 @@ int fgetfilecon_raw(int fd, char ** context)
+>         ssize_t ret;
+>
+>         size =3D INITCONTEXTLEN + 1;
+> -       buf =3D malloc(size);
+> +       buf =3D calloc(1, size);
+>         if (!buf)
+>                 return -1;
+> -       memset(buf, 0, size);
+>
+>         ret =3D fgetxattr_wrapper(fd, XATTR_NAME_SELINUX, buf, size - 1);
+>         if (ret < 0 && errno =3D=3D ERANGE) {
+> diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_conte=
+xt_list.c
+> index 222b54c1..8d5ee6fb 100644
+> --- a/libselinux/src/get_context_list.c
+> +++ b/libselinux/src/get_context_list.c
+> @@ -481,12 +481,11 @@ int get_ordered_context_list(const char *user,
+>            the "failsafe" context to at least permit root login
+>            for emergency recovery if possible. */
+>         freeconary(reachable);
+> -       reachable =3D malloc(2 * sizeof(char *));
+> +       reachable =3D calloc(2, sizeof(char *));
+>         if (!reachable) {
+>                 rc =3D -1;
+>                 goto out;
+>         }
+> -       reachable[0] =3D reachable[1] =3D 0;
+>         rc =3D get_failsafe_context(user, &reachable[0]);
+>         if (rc < 0) {
+>                 freeconary(reachable);
+> diff --git a/libselinux/src/get_initial_context.c b/libselinux/src/get_in=
+itial_context.c
+> index 0f25ba3f..fb774c82 100644
+> --- a/libselinux/src/get_initial_context.c
+> +++ b/libselinux/src/get_initial_context.c
+> @@ -39,12 +39,11 @@ int security_get_initial_context_raw(const char * nam=
+e, char ** con)
+>                 return -1;
+>
+>         size =3D selinux_page_size;
+> -       buf =3D malloc(size);
+> +       buf =3D calloc(1, size);
+>         if (!buf) {
+>                 ret =3D -1;
+>                 goto out;
+>         }
+> -       memset(buf, 0, size);
+>         ret =3D read(fd, buf, size - 1);
+>         if (ret < 0)
+>                 goto out2;
+> diff --git a/libselinux/src/getfilecon.c b/libselinux/src/getfilecon.c
+> index 4bee3137..31c9f0de 100644
+> --- a/libselinux/src/getfilecon.c
+> +++ b/libselinux/src/getfilecon.c
+> @@ -14,10 +14,9 @@ int getfilecon_raw(const char *path, char ** context)
+>         ssize_t ret;
+>
+>         size =3D INITCONTEXTLEN + 1;
+> -       buf =3D malloc(size);
+> +       buf =3D calloc(1, size);
+>         if (!buf)
+>                 return -1;
+> -       memset(buf, 0, size);
+>
+>         ret =3D getxattr(path, XATTR_NAME_SELINUX, buf, size - 1);
+>         if (ret < 0 && errno =3D=3D ERANGE) {
+> diff --git a/libselinux/src/getpeercon.c b/libselinux/src/getpeercon.c
+> index a9dca73e..c7abd886 100644
+> --- a/libselinux/src/getpeercon.c
+> +++ b/libselinux/src/getpeercon.c
+> @@ -18,10 +18,9 @@ int getpeercon_raw(int fd, char ** context)
+>         ssize_t ret;
+>
+>         size =3D INITCONTEXTLEN + 1;
+> -       buf =3D malloc(size);
+> +       buf =3D calloc(1, size);
+>         if (!buf)
+>                 return -1;
+> -       memset(buf, 0, size);
+>
+>         ret =3D getsockopt(fd, SOL_SOCKET, SO_PEERSEC, buf, &size);
+>         if (ret < 0 && errno =3D=3D ERANGE) {
+> diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
+> index 0510b5b1..be3df388 100644
+> --- a/libselinux/src/label_media.c
+> +++ b/libselinux/src/label_media.c
+> @@ -134,10 +134,9 @@ static int init(struct selabel_handle *rec, const st=
+ruct selinux_opt *opts,
+>                                 status =3D 0;
+>                                 goto finish;
+>                         }
+> -                       data->spec_arr =3D malloc(sizeof(spec_t)*data->ns=
+pec);
+> +                       data->spec_arr =3D calloc(data->nspec, sizeof(spe=
+c_t));
+>                         if (data->spec_arr =3D=3D NULL)
+>                                 goto finish;
+> -                       memset(data->spec_arr, 0, sizeof(spec_t)*data->ns=
+pec);
+>                         maxnspec =3D data->nspec;
+>
+>                         status =3D fseek(fp, 0L, SEEK_SET);
+> @@ -230,10 +229,9 @@ int selabel_media_init(struct selabel_handle *rec,
+>  {
+>         struct saved_data *data;
+>
+> -       data =3D (struct saved_data *)malloc(sizeof(*data));
+> +       data =3D (struct saved_data *)calloc(1, sizeof(*data));
+>         if (!data)
+>                 return -1;
+> -       memset(data, 0, sizeof(*data));
+>
+>         rec->data =3D data;
+>         rec->func_close =3D &close;
+> diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
+> index 1a5b9268..5b0e4063 100644
+> --- a/libselinux/src/label_x.c
+> +++ b/libselinux/src/label_x.c
+> @@ -161,10 +161,9 @@ static int init(struct selabel_handle *rec, const st=
+ruct selinux_opt *opts,
+>                                 status =3D 0;
+>                                 goto finish;
+>                         }
+> -                       data->spec_arr =3D malloc(sizeof(spec_t)*data->ns=
+pec);
+> +                       data->spec_arr =3D calloc(data->nspec, sizeof(spe=
+c_t));
+>                         if (data->spec_arr =3D=3D NULL)
+>                                 goto finish;
+> -                       memset(data->spec_arr, 0, sizeof(spec_t)*data->ns=
+pec);
+>                         maxnspec =3D data->nspec;
+>
+>                         status =3D fseek(fp, 0L, SEEK_SET);
+> @@ -255,10 +254,9 @@ int selabel_x_init(struct selabel_handle *rec, const=
+ struct selinux_opt *opts,
+>  {
+>         struct saved_data *data;
+>
+> -       data =3D (struct saved_data *)malloc(sizeof(*data));
+> +       data =3D (struct saved_data *)calloc(1, sizeof(*data));
+>         if (!data)
+>                 return -1;
+> -       memset(data, 0, sizeof(*data));
+>
+>         rec->data =3D data;
+>         rec->func_close =3D &close;
+> diff --git a/libselinux/src/lgetfilecon.c b/libselinux/src/lgetfilecon.c
+> index d1fb821b..f0a3aa1a 100644
+> --- a/libselinux/src/lgetfilecon.c
+> +++ b/libselinux/src/lgetfilecon.c
+> @@ -14,10 +14,9 @@ int lgetfilecon_raw(const char *path, char ** context)
+>         ssize_t ret;
+>
+>         size =3D INITCONTEXTLEN + 1;
+> -       buf =3D malloc(size);
+> +       buf =3D calloc(1, size);
+>         if (!buf)
+>                 return -1;
+> -       memset(buf, 0, size);
+>
+>         ret =3D lgetxattr(path, XATTR_NAME_SELINUX, buf, size - 1);
+>         if (ret < 0 && errno =3D=3D ERANGE) {
+> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.=
 c
-> > index 7631c7bf..84c31399 100644
-> > --- a/libsemanage/src/direct_api.c
-> > +++ b/libsemanage/src/direct_api.c
-> > @@ -3,7 +3,7 @@
-> >   *
-> >   * Copyright (C) 2004-2006 Tresys Technology, LLC
-> >   * Copyright (C) 2005 Red Hat, Inc.
-> > - *
-> > + *
-> >   *  This library is free software; you can redistribute it and/or
-> >   *  modify it under the terms of the GNU Lesser General Public
-> >   *  License as published by the Free Software Foundation; either
-> > @@ -514,7 +514,7 @@ static int semanage_direct_update_user_extra(semana=
-ge_handle_t * sh, cil_db_t *c
-> >                         goto cleanup;
-> >
-> >                 pusers_extra->dtable->drop_cache(pusers_extra->dbase);
-> > -
-> > +
-> >         } else {
-> >                 retval =3D  pusers_extra->dtable->clear(sh, pusers_extr=
-a->dbase);
-> >         }
-> > @@ -1509,8 +1509,8 @@ static int semanage_direct_commit(semanage_handle=
-_t * sh)
-> >         /* =3D=3D=3D=3D=3D=3D=3D Post-process: Validate non-policydb co=
-mponents =3D=3D=3D=3D=3D */
-> >
-> >         /* Validate local modifications to file contexts.
-> > -        * Note: those are still cached, even though they've been
-> > -        * merged into the main file_contexts. We won't check the
-> > +        * Note: those are still cached, even though they've been
-> > +        * merged into the main file_contexts. We won't check the
-> >          * large file_contexts - checked at compile time */
-> >         if (do_rebuild || fcontexts_modified) {
-> >                 retval =3D semanage_fcontext_validate_local(sh, out);
-> > @@ -1603,7 +1603,7 @@ static int semanage_direct_commit(semanage_handle=
-_t * sh)
-> >                                 See /etc/selinux/semanage.conf if you n=
-eed to enable it.");
-> >          }
-> >
-> > -       /* free out, if we don't free it before calling semanage_instal=
-l_sandbox
-> > +       /* free out, if we don't free it before calling semanage_instal=
-l_sandbox
-> >          * then fork() may fail on low memory machines */
-> >         sepol_policydb_free(out);
-> >         out =3D NULL;
-> > @@ -2735,7 +2735,7 @@ cleanup:
-> >                 if (modinfos !=3D NULL) {
-> >                         for (i =3D 0; i < *modinfos_len; i++) {
-> >                                 semanage_module_info_destroy(
-> > -                                               sh,
-> > +                                               sh,
-> >                                                 &(*modinfos)[i]);
-> >                         }
-> >                         free(*modinfos);
-> > @@ -2846,7 +2846,7 @@ static int semanage_direct_install_info(semanage_=
-handle_t *sh,
-> >                 status =3D -3;
-> >                 goto cleanup;
-> >         }
-> > -
-> > +
-> >         /* if this is an HLL, delete the CIL cache if it exists so it w=
-ill get recompiled */
-> >         if (type =3D=3D SEMANAGE_MODULE_PATH_HLL) {
-> >                 ret =3D semanage_module_get_path(
-> > @@ -2992,4 +2992,3 @@ cleanup:
-> >
-> >         return status;
-> >  }
-> > -
-> > diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomed=
-ircon.c
-> > index ecb34fc7..ede2d67d 100644
-> > --- a/libsemanage/src/genhomedircon.c
-> > +++ b/libsemanage/src/genhomedircon.c
-> > @@ -145,7 +145,7 @@ static void ignore_free(void) {
-> >
-> >  static int ignore_setup(char *ignoredirs) {
-> >         char *tok;
-> > -       ignoredir_t *ptr =3D NULL;
-> > +       ignoredir_t *ptr =3D NULL;
-> >
-> >         tok =3D strtok(ignoredirs, ";");
-> >         while(tok) {
-> > @@ -1372,7 +1372,7 @@ done:
-> >
-> >  int semanage_genhomedircon(semanage_handle_t * sh,
-> >                            sepol_policydb_t * policydb,
-> > -                          int usepasswd,
-> > +                          int usepasswd,
-> >                            char *ignoredirs)
-> >  {
-> >         genhomedircon_settings_t s;
-> > diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-> > index b2201ee3..c489a75f 100644
-> > --- a/libsemanage/src/handle.c
-> > +++ b/libsemanage/src/handle.c
-> > @@ -3,7 +3,7 @@
-> >   *
-> >   * Copyright (C) 2004-2005 Tresys Technology, LLC
-> >   * Copyright (C) 2005 Red Hat, Inc.
-> > - *
-> > + *
-> >   *  This library is free software; you can redistribute it and/or
-> >   *  modify it under the terms of the GNU Lesser General Public
-> >   *  License as published by the Free Software Foundation; either
-> > @@ -207,7 +207,7 @@ int semanage_get_disable_dontaudit(semanage_handle_=
-t * sh)
-> >  void semanage_set_disable_dontaudit(semanage_handle_t * sh, int disabl=
-e_dontaudit)
-> >  {
-> >         assert(sh !=3D NULL);
-> > -
-> > +
-> >         sepol_set_disable_dontaudit(sh->sepolh, disable_dontaudit);
-> >         return;
-> >  }
-> > @@ -279,7 +279,7 @@ void semanage_select_store(semanage_handle_t * sh, =
-char *storename,
-> >
-> >         assert(sh !=3D NULL);
-> >
-> > -       /* This just sets the storename to what the user requests, no
-> > +       /* This just sets the storename to what the user requests, no
-> >            verification of existence will be done until connect */
-> >         free(sh->conf->store_path);
-> >         sh->conf->store_path =3D strdup(storename);
-> > diff --git a/libsemanage/src/handle.h b/libsemanage/src/handle.h
-> > index c7f4e903..2853ca39 100644
-> > --- a/libsemanage/src/handle.h
-> > +++ b/libsemanage/src/handle.h
-> > @@ -1,7 +1,7 @@
-> >  /* Author: Joshua Brindle <jbrindle@tresys.com>
-> >   *         Jason Tang     <jtang@tresys.com>
-> >   *         Ivan Gyurdiev  <ivg2@cornell.edu>
-> > - *
-> > + *
-> >   * Copyright (C) 2005 Tresys Technology, LLC
-> >   * Copyright (C) 2005 Red Hat Inc.
-> >   *
-> > diff --git a/libsemanage/src/parse_utils.h b/libsemanage/src/parse_util=
-s.h
-> > index 3e44aca1..52408373 100644
-> > --- a/libsemanage/src/parse_utils.h
-> > +++ b/libsemanage/src/parse_utils.h
-> > @@ -45,12 +45,12 @@ extern int parse_assert_noeof(semanage_handle_t * h=
-andle, parse_info_t * info);
-> >   * otherwise eat the whitespace */
-> >  extern int parse_assert_space(semanage_handle_t * handle, parse_info_t=
- * info);
-> >
-> > -/* Throw an error if the specified character
-> > +/* Throw an error if the specified character
-> >   * does not follow, otherwise eat that character */
-> >  extern int parse_assert_ch(semanage_handle_t * handle,
-> >                            parse_info_t * info, const char ch);
-> >
-> > -/* Throw an error if the specified string
-> > +/* Throw an error if the specified string
-> >   * does not follow is not found, otherwise
-> >   * eat the string */
-> >  extern int parse_assert_str(semanage_handle_t * handle,
-> > diff --git a/libsemanage/src/policy_components.c b/libsemanage/src/poli=
-cy_components.c
-> > index 896ac512..69835550 100644
-> > --- a/libsemanage/src/policy_components.c
-> > +++ b/libsemanage/src/policy_components.c
-> > @@ -113,7 +113,7 @@ int semanage_base_merge_components(semanage_handle_=
-t * handle)
-> >         int rc =3D STATUS_SUCCESS;
-> >
-> >         /* Order is important here - change things carefully.
-> > -        * System components first, local next. Verify runs with
-> > +        * System components first, local next. Verify runs with
-> >          * mutual dependencies are ran after everything is merged */
-> >         load_table_t components[] =3D {
-> >
-> > diff --git a/libsemanage/src/ports_file.c b/libsemanage/src/ports_file.=
-c
-> > index 1356021a..90909eb4 100644
-> > --- a/libsemanage/src/ports_file.c
-> > +++ b/libsemanage/src/ports_file.c
-> > @@ -101,7 +101,7 @@ static int port_parse(semanage_handle_t * handle,
-> >         if (parse_fetch_int(handle, info, &low, '-') < 0)
-> >                 goto err;
-> >
-> > -       /* If range (-) does not follow immediately, require a space
-> > +       /* If range (-) does not follow immediately, require a space
-> >          * In other words, the space here is optional, but only
-> >          * in the ranged case, not in the single port case,
-> >          * so do a custom test */
-> > diff --git a/libsemanage/src/ports_local.c b/libsemanage/src/ports_loca=
-l.c
-> > index e7e9bdbf..0261b07f 100644
-> > --- a/libsemanage/src/ports_local.c
-> > +++ b/libsemanage/src/ports_local.c
-> > @@ -97,7 +97,7 @@ int semanage_port_validate_local(semanage_handle_t * =
-handle)
-> >                 const char *proto_str2;
-> >                 int proto2, low2, high2;
-> >
-> > -               /* Find the first port with matching
-> > +               /* Find the first port with matching
-> >                    protocol to compare against */
-> >                 do {
-> >                         if (j =3D=3D nports - 1)
-> > @@ -119,8 +119,8 @@ int semanage_port_validate_local(semanage_handle_t =
-* handle)
-> >                 }
-> >
-> >                 /* If closest port of matching protocol doesn't overlap=
- with
-> > -                * test port, neither do the rest of them, because that=
-'s
-> > -                * how the sort function works on ports - lower bound
-> > +                * test port, neither do the rest of them, because that=
-'s
-> > +                * how the sort function works on ports - lower bound
-> >                  * ports come first */
-> >               next:
-> >                 i++;
-> > diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanag=
-e_store.c
-> > index 0ac2e5b2..aa5f4961 100644
-> > --- a/libsemanage/src/semanage_store.c
-> > +++ b/libsemanage/src/semanage_store.c
-> > @@ -187,7 +187,7 @@ static int semanage_init_paths(const char *root)
-> >         return 0;
-> >  }
-> >
-> > -/* This initializes the paths inside the stores, this is only necessar=
-y
-> > +/* This initializes the paths inside the stores, this is only necessar=
-y
-> >   * when directly accessing the store
-> >   */
-> >  static int semanage_init_store_paths(const char *root)
-> > @@ -649,7 +649,7 @@ int semanage_create_store(semanage_handle_t * sh, i=
-nt create)
-> >  }
-> >
-> >  /* returns <0 if the active store cannot be read or doesn't exist
-> > - * 0 if the store exists but the lock file cannot be accessed
-> > + * 0 if the store exists but the lock file cannot be accessed
-> >   * SEMANAGE_CAN_READ if the store can be read and the lock file used
-> >   * SEMANAGE_CAN_WRITE if the modules directory and binary policy dir c=
-an be written to
-> >   */
-> > @@ -732,7 +732,7 @@ int semanage_copy_file(const char *src, const char =
-*dst, mode_t mode,
-> >
-> >         if (!mode)
-> >                 mode =3D S_IRUSR | S_IWUSR;
-> > -
-> > +
-> >         mask =3D umask(0);
-> >         if ((out =3D open(tmp, O_WRONLY | O_CREAT | O_TRUNC, mode)) =3D=
-=3D -1) {
-> >                 umask(mask);
-> > @@ -1496,7 +1496,7 @@ static int semanage_exec_prog(semanage_handle_t *=
- sh,
-> >         return WEXITSTATUS(status);
-> >  }
-> >
-> > -/* reloads the policy pointed to by the handle, used locally by instal=
-l
-> > +/* reloads the policy pointed to by the handle, used locally by instal=
-l
-> >   * and exported for user reload requests */
-> >  int semanage_reload_policy(semanage_handle_t * sh)
-> >  {
-> > @@ -2106,8 +2106,8 @@ int semanage_load_files(semanage_handle_t * sh, c=
-il_db_t *cildb, char **filename
-> >         return 0;
-> >  }
-> >
-> > -/*
-> > - * Expands the policy contained within *base
-> > +/*
-> > + * Expands the policy contained within *base
-> >   */
-> >
-> >  /**
-> > @@ -2291,7 +2291,7 @@ static void semanage_fc_node_list_destroy(semanag=
-e_file_context_node_t * x)
-> >         }
-> >  }
-> >
-> > -/* Free the linked list of buckets (and their node lists)
-> > +/* Free the linked list of buckets (and their node lists)
-> >   * starting at the given bucket. */
-> >  static void semanage_fc_bucket_list_destroy(semanage_file_context_buck=
-et_t * x)
-> >  {
-> > @@ -2319,7 +2319,7 @@ static void semanage_fc_bucket_list_destroy(seman=
-age_file_context_bucket_t * x)
-> >   *      -> a is less specific than b.
-> >   *     If a does not have a specified type and b does not,
-> >   *      -> a is less specific than b.
-> > - * FIXME: These heuristics are imperfect, but good enough for
-> > + * FIXME: These heuristics are imperfect, but good enough for
-> >   * now.  A proper comparison would determine which (if either)
-> >   * regular expression is a subset of the other.
-> >   */
-> > @@ -2357,13 +2357,13 @@ static int semanage_fc_compare(semanage_file_co=
-ntext_node_t * a,
-> >         if (!b->file_type && a->file_type)
-> >                 return 1;
-> >
-> > -       /* If none of the above conditions were satisfied,
-> > +       /* If none of the above conditions were satisfied,
-> >          * then a and b are equally specific. */
-> >         return 0;
-> >  }
-> >
-> >  /* Merges two sorted file context linked lists into a single sorted on=
-e.
-> > - * The left list is assumed to represent nodes that came first in the =
-original ordering.
-> > + * The left list is assumed to represent nodes that came first in the =
-original ordering.
-> >   * The final sorted list is returned.
-> >   */
-> >  static semanage_file_context_node_t
-> > @@ -2415,9 +2415,9 @@ static semanage_file_context_node_t
-> >   *  This is a stable implementation of an iterative merge sort.
-> >   *  Each bucket initially has a linked list of file contexts
-> >   *   that are 1 node long.
-> > - *  Each pass, buckets (and the nodes they contain) are merged
-> > + *  Each pass, buckets (and the nodes they contain) are merged
-> >   *   two at time.
-> > - *  Buckets are merged until there is only one bucket left,
-> > + *  Buckets are merged until there is only one bucket left,
-> >   *   containing the list of file contexts, sorted.
-> >   */
-> >  static void semanage_fc_merge_sort(semanage_file_context_bucket_t * ma=
-in)
-> > @@ -2430,9 +2430,9 @@ static void semanage_fc_merge_sort(semanage_file_=
-context_bucket_t * main)
-> >         while (main->next) {
-> >                 current =3D main;
-> >
-> > -               /* Merge buckets two-by-two.
-> > -                * If there is an odd number of buckets, the last
-> > -                * bucket will be left alone, which corresponds
-> > +               /* Merge buckets two-by-two.
-> > +                * If there is an odd number of buckets, the last
-> > +                * bucket will be left alone, which corresponds
-> >                  * to the operation of merging it with an empty bucket.=
- */
-> >                 while (current) {
-> >                         if (current->next) {
-> > @@ -2444,7 +2444,7 @@ static void semanage_fc_merge_sort(semanage_file_=
-context_bucket_t * main)
-> >
-> >                                 /* Free the (now empty) second bucket.
-> >                                  * (This does not touch the node list
-> > -                                * in the bucket because it has been
-> > +                                * in the bucket because it has been
-> >                                  * shifted over to the first bucket. */
-> >                                 free(temp);
-> >                         }
-> > @@ -2453,8 +2453,8 @@ static void semanage_fc_merge_sort(semanage_file_=
-context_bucket_t * main)
-> >         }
-> >  }
-> >
-> > -/* Compute the location of the first regular expression
-> > - *   meta character in the path of the given node, if it exists.
-> > +/* Compute the location of the first regular expression
-> > + *   meta character in the path of the given node, if it exists.
-> >   * On return:
-> >   *     fc_node->meta =3D position of meta character, if it exists
-> >   *                     (-1 corresponds to no character)
-> > @@ -2515,7 +2515,7 @@ static char *semanage_strnchr(const char *buf, si=
-ze_t buf_len, char c)
-> >  }
-> >
-> >  /* Returns a pointer to the end of line character in the given buffer.
-> > - * Used in the context of a file context char buffer that we will be
-> > + * Used in the context of a file context char buffer that we will be
-> >   * parsing and sorting.
-> >   */
-> >  static char *semanage_get_line_end(const char *buf, size_t buf_len)
-> > @@ -2540,7 +2540,7 @@ static char *semanage_get_line_end(const char *bu=
-f, size_t buf_len)
-> >   *  Returns 0 on success, -1 on failure.
-> >   *  Allocates a buffer pointed to by sorted_buf that contains the sort=
-ed lines.
-> >   *  sorted_buf_len is set to the size of this buffer.
-> > - *  This buffer is guaranteed to have a final \0 character.
-> > + *  This buffer is guaranteed to have a final \0 character.
-> >   *  This buffer must be released by the caller.
-> >   */
-> >  int semanage_fc_sort(semanage_handle_t * sh, const char *buf, size_t b=
-uf_len,
-> > @@ -2573,7 +2573,7 @@ int semanage_fc_sort(semanage_handle_t * sh, cons=
-t char *buf, size_t buf_len,
-> >                 return -1;
-> >         }
-> >
-> > -       /* Initialize the head of the linked list
-> > +       /* Initialize the head of the linked list
-> >          * that will contain a node for each file context line. */
-> >         head =3D current =3D
-> >             (semanage_file_context_node_t *) calloc(1,
-> > @@ -2643,7 +2643,7 @@ int semanage_fc_sort(semanage_handle_t * sh, cons=
-t char *buf, size_t buf_len,
-> >                                         escape_chars++;
-> >                                         just_saw_escape =3D 1;
-> >                                 } else {
-> > -                                       /* We're looking at an escaped
-> > +                                       /* We're looking at an escaped
-> >                                            escape. Reset our flag. */
-> >                                         just_saw_escape =3D 0;
-> >                                 }
-> > @@ -2792,7 +2792,7 @@ int semanage_fc_sort(semanage_handle_t * sh, cons=
-t char *buf, size_t buf_len,
-> >         /* Sort the bucket list. */
-> >         semanage_fc_merge_sort(main);
-> >
-> > -       /* First, calculate how much space we'll need for
-> > +       /* First, calculate how much space we'll need for
-> >          * the newly sorted block of data.  (We don't just
-> >          * use buf_len for this because we have extracted
-> >          * comments and whitespace.) */
-> > @@ -2880,7 +2880,7 @@ static void semanage_nc_destroy_ruletab(semanage_=
-netfilter_context_node_t *
-> >   *  Returns 0 on success, -1 on failure.
-> >   *  Allocates a buffer pointed to by sorted_buf that contains the sort=
-ed lines.
-> >   *  sorted_buf_len is set to the size of this buffer.
-> > - *  This buffer is guaranteed to have a final \0 character.
-> > + *  This buffer is guaranteed to have a final \0 character.
-> >   *  This buffer must be released by the caller.
-> >   */
-> >  int semanage_nc_sort(semanage_handle_t * sh, const char *buf, size_t b=
-uf_len,
-> > @@ -2994,7 +2994,7 @@ int semanage_nc_sort(semanage_handle_t * sh, cons=
-t char *buf, size_t buf_len,
-> >                 line_buf =3D line_end + 1;
-> >         }
-> >
-> > -       /* First, calculate how much space we'll need for
-> > +       /* First, calculate how much space we'll need for
-> >          * the newly sorted block of data.  (We don't just
-> >          * use buf_len for this because we have extracted
-> >          * comments and whitespace.)  Start at 1 for trailing \0 */
-> > diff --git a/libsemanage/src/semanageswig.i b/libsemanage/src/semanages=
-wig.i
-> > index ebf39cfb..9c198e5a 100644
-> > --- a/libsemanage/src/semanageswig.i
-> > +++ b/libsemanage/src/semanageswig.i
-> > @@ -2,7 +2,7 @@
-> >   *
-> >   * Copyright (C) 2004-2005 Tresys Technology, LLC
-> >   * Copyright (C) 2006 Red Hat, Inc.
-> > - *
-> > + *
-> >   *  This library is free software; you can redistribute it and/or
-> >   *  modify it under the terms of the GNU Lesser General Public
-> >   *  License as published by the Free Software Foundation; either
-> > diff --git a/libsemanage/src/semanageswig_python.i b/libsemanage/src/se=
-manageswig_python.i
-> > index 0e27424f..0ca09763 100644
-> > --- a/libsemanage/src/semanageswig_python.i
-> > +++ b/libsemanage/src/semanageswig_python.i
-> > @@ -2,7 +2,7 @@
-> >   *
-> >   * Copyright (C) 2004-2005 Tresys Technology, LLC
-> >   * Copyright (C) 2006 Red Hat, Inc
-> > - *
-> > + *
-> >   *  This library is free software; you can redistribute it and/or
-> >   *  modify it under the terms of the GNU Lesser General Public
-> >   *  License as published by the Free Software Foundation; either
-> > @@ -36,34 +36,34 @@
-> >
-> >         /* There are two ways to call this function:
-> >          * One is with a valid swig_type and destructor.
-> > -        * Two is with a NULL swig_type and NULL destructor.
-> > -        *
-> > +        * Two is with a NULL swig_type and NULL destructor.
-> > +        *
-> >          * In the first mode, the function converts
-> > -        * an array of *cloned* objects [of the given pointer swig type=
-]
-> > -        * into a PyList, and destroys the array in the process
-> > +        * an array of *cloned* objects [of the given pointer swig type=
-]
-> > +        * into a PyList, and destroys the array in the process
-> >          * (the objects pointers are preserved).
-> >          *
-> >          * In the second mode, the function converts
-> >          * an array of *constant* strings into a PyList, and destroys
-> > -        * the array in the process
-> > +        * the array in the process
-> >          * (the strings are copied, originals not freed). */
-> >
-> >         static int semanage_array2plist(
-> >                 semanage_handle_t* handle,
-> > -               void** arr,
-> > -               unsigned int asize,
-> > +               void** arr,
-> > +               unsigned int asize,
-> >                 swig_type_info* swig_type,
-> > -               void (*destructor) (void*),
-> > +               void (*destructor) (void*),
-> >                 PyObject** result) {
-> > -
-> > +
-> >                 PyObject* plist =3D PyList_New(0);
-> >                 unsigned int i;
-> >
-> > -               if (!plist)
-> > +               if (!plist)
-> >                         goto err;
-> > -
-> > +
-> >                 for (i =3D 0; i < asize; i++)  {
-> > -
-> > +
-> >                         PyObject* obj =3D NULL;
-> >
-> >                         /* NULL indicates string conversion,
-> > @@ -71,31 +71,31 @@
-> >                         if (!swig_type)
-> >                                 obj =3D SWIG_FromCharPtr(arr[i]);
-> >                         else
-> > -                               obj =3D SWIG_NewPointerObj(arr[i], swig=
-_type, 0);
-> > +                               obj =3D SWIG_NewPointerObj(arr[i], swig=
-_type, 0);
-> >
-> > -                       if (!obj)
-> > +                       if (!obj)
-> >                                 goto err;
-> >
-> > -                       if (PyList_Append(plist, obj) < 0)
-> > +                       if (PyList_Append(plist, obj) < 0)
-> >                                 goto err;
-> >                 }
-> >
-> >                 free(arr);
-> > -
-> > -               *result =3D plist;
-> > +
-> > +               *result =3D plist;
-> >                 return STATUS_SUCCESS;
-> >
-> >                 err:
-> > -               for (i =3D 0; i < asize; i++)
-> > +               for (i =3D 0; i < asize; i++)
-> >                         if (destructor)
-> >                                 destructor(arr[i]);
-> >                 free(arr);
-> >                 return STATUS_ERR;
-> >         }
-> > -%}
-> > +%}
-> >  /* a few helpful typemaps are available in this library */
-> >  %include <typemaps.i>
-> > -/* wrap all int*'s so they can be used for results
-> > +/* wrap all int*'s so they can be used for results
-> >     if it becomes necessary to send in data this should be changed to I=
-NOUT */
-> >  %apply int *OUTPUT { int * };
-> >  %apply int *OUTPUT { size_t * };
-> > @@ -122,10 +122,10 @@
-> >  %typemap(argout) (
-> >         semanage_handle_t* handle,
-> >         const semanage_user_t* user,
-> > -       const char*** roles_arr,
-> > +       const char*** roles_arr,
-> >         unsigned int* num_roles) {
-> >
-> > -       if ($result) {
-> > +       if ($result) {
-> >                 int value;
-> >                 SWIG_AsVal_int($result, &value);
-> >                 if (value >=3D 0) {
-> > @@ -185,10 +185,10 @@
-> >
-> >  %typemap(argout) (
-> >         semanage_handle_t* handle,
-> > -       semanage_bool_t*** records,
-> > +       semanage_bool_t*** records,
-> >         unsigned int* count) {
-> >
-> > -       if ($result) {
-> > +       if ($result) {
-> >                 int value;
-> >                 SWIG_AsVal_int($result, &value);
-> >                 if (value >=3D 0) {
-> > @@ -228,10 +228,10 @@
-> >
-> >  %typemap(argout) (
-> >         semanage_handle_t* handle,
-> > -       semanage_fcontext_t*** records,
-> > +       semanage_fcontext_t*** records,
-> >         unsigned int* count) {
-> >
-> > -       if ($result) {
-> > +       if ($result) {
-> >                 int value;
-> >                 SWIG_AsVal_int($result, &value);
-> >                 if (value >=3D 0) {
-> > @@ -272,10 +272,10 @@
-> >
-> >  %typemap(argout) (
-> >         semanage_handle_t* handle,
-> > -       semanage_iface_t*** records,
-> > +       semanage_iface_t*** records,
-> >         unsigned int* count) {
-> >
-> > -       if ($result) {
-> > +       if ($result) {
-> >                 int value;
-> >                 SWIG_AsVal_int($result, &value);
-> >                 if (value >=3D 0) {
-> > @@ -316,10 +316,10 @@
-> >
-> >  %typemap(argout) (
-> >         semanage_handle_t* handle,
-> > -       semanage_seuser_t*** records,
-> > +       semanage_seuser_t*** records,
-> >         unsigned int* count) {
-> >
-> > -       if ($result) {
-> > +       if ($result) {
-> >                 int value;
-> >                 SWIG_AsVal_int($result, &value);
-> >                 if (value >=3D 0) {
-> > @@ -359,10 +359,10 @@
-> >
-> >  %typemap(argout) (
-> >         semanage_handle_t* handle,
-> > -       semanage_user_t*** records,
-> > +       semanage_user_t*** records,
-> >         unsigned int* count) {
-> >
-> > -       if ($result) {
-> > +       if ($result) {
-> >                 int value;
-> >                 SWIG_AsVal_int($result, &value);
-> >                 if (value >=3D 0) {
-> > @@ -402,10 +402,10 @@
-> >
-> >  %typemap(argout) (
-> >         semanage_handle_t* handle,
-> > -       semanage_port_t*** records,
-> > +       semanage_port_t*** records,
-> >         unsigned int* count) {
-> >
-> > -       if ($result) {
-> > +       if ($result) {
-> >                 int value;
-> >                 SWIG_AsVal_int($result, &value);
-> >                 if (value >=3D 0) {
-> > @@ -531,10 +531,10 @@
-> >
-> >  %typemap(argout) (
-> >         semanage_handle_t* handle,
-> > -       semanage_node_t*** records,
-> > +       semanage_node_t*** records,
-> >         unsigned int* count) {
-> >
-> > -       if ($result) {
-> > +       if ($result) {
-> >                 int value;
-> >                 SWIG_AsVal_int($result, &value);
-> >                 if (value >=3D 0) {
-> > diff --git a/libsemanage/src/semanageswig_ruby.i b/libsemanage/src/sema=
-nageswig_ruby.i
-> > index 9010b545..18ea6841 100644
-> > --- a/libsemanage/src/semanageswig_ruby.i
-> > +++ b/libsemanage/src/semanageswig_ruby.i
-> > @@ -12,7 +12,7 @@
-> >  /* a few helpful typemaps are available in this library */
-> >  %include <typemaps.i>
-> >
-> > -/* wrap all int*'s so they can be used for results
-> > +/* wrap all int*'s so they can be used for results
-> >     if it becomes necessary to send in data this should be changed to I=
-NOUT */
-> >  %apply int *OUTPUT { int * };
-> >  %apply int *OUTPUT { size_t * };
-> > diff --git a/libsemanage/src/seuser_record.c b/libsemanage/src/seuser_r=
-ecord.c
-> > index 44a54758..69ebea51 100644
-> > --- a/libsemanage/src/seuser_record.c
-> > +++ b/libsemanage/src/seuser_record.c
-> > @@ -23,7 +23,7 @@ struct semanage_seuser {
-> >         /* This user's name */
-> >         char *name;
-> >
-> > -       /* This user's corresponding
-> > +       /* This user's corresponding
-> >          * seuser ("role set") */
-> >         char *sename;
-> >
-> > diff --git a/libsemanage/src/seusers_local.c b/libsemanage/src/seusers_=
-local.c
-> > index 795a33d6..ec7bfb08 100644
-> > --- a/libsemanage/src/seusers_local.c
-> > +++ b/libsemanage/src/seusers_local.c
-> > @@ -316,7 +316,7 @@ static int validate_handler(const semanage_seuser_t=
- * seuser, void *varg)
-> >         return -1;
-> >  }
-> >
-> > -/* This function may not be called outside a transaction, or
-> > +/* This function may not be called outside a transaction, or
-> >   * it will (1) deadlock, because iterate is not reentrant outside
-> >   * a transaction, and (2) be racy, because it makes multiple dbase cal=
-ls */
-> >
-> > diff --git a/libsemanage/src/user_record.c b/libsemanage/src/user_recor=
-d.c
-> > index bb8f4de1..b22c5c1c 100644
-> > --- a/libsemanage/src/user_record.c
-> > +++ b/libsemanage/src/user_record.c
-> > @@ -301,7 +301,7 @@ void semanage_user_free(semanage_user_t * user)
-> >         if (!tmp_user)
-> >                 goto omem;
-> >
-> > -       /* Set the shared name from one of the records
-> > +       /* Set the shared name from one of the records
-> >          * (at least one is available) */
-> >         if (record1 =3D=3D NULL)
-> >                 name =3D semanage_user_extra_get_name(record2);
-> > diff --git a/libsemanage/src/utilities.c b/libsemanage/src/utilities.c
-> > index fdbb8ad6..24284d65 100644
-> > --- a/libsemanage/src/utilities.c
-> > +++ b/libsemanage/src/utilities.c
-> > @@ -318,7 +318,7 @@ semanage_list_t *semanage_slurp_file_filter(FILE * =
-file,
-> >                 if (pred(line)) {
-> >                         semanage_rtrim(line, '\n');
-> >                         current =3D list_addafter_controlmem(current, l=
-ine);
-> > -                       if (!current)
-> > +                       if (!current)
-> >                                 break;
-> >                         line =3D NULL;
-> >                         buff_len =3D 0;
-> > diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
-> > index 69f49a36..b0869558 100644
-> > --- a/libsemanage/tests/Makefile
-> > +++ b/libsemanage/tests/Makefile
-> > @@ -20,9 +20,9 @@ $(EXECUTABLE): $(OBJECTS) ../src/libsemanage.a
-> >  %.policy: %.cil
-> >         ../../secilc/secilc $*.cil -o $*.policy -f /dev/null
-> >
-> > -clean distclean:
-> > +clean distclean:
-> >         rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE)
-> >
-> > -test: all
-> > +test: all
-> >         ./$(EXECUTABLE)
-> >
-> > diff --git a/libsemanage/tests/README b/libsemanage/tests/README
-> > index 424970cf..396591cb 100644
-> > --- a/libsemanage/tests/README
-> > +++ b/libsemanage/tests/README
-> > @@ -5,7 +5,7 @@ read-only filesystem by using DAC permissions. Conseque=
-ntly, these tests
-> >  will fail if run as root, as root can override DAC permissions.
-> >
-> >
-> > -How to add and use unit tests
-> > +How to add and use unit tests
-> >  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D
-> >
-> >  We are using the CUnit unit testing framework.  This framework--and th=
-e
-> > @@ -22,13 +22,13 @@ add unit tests for your code:
-> >     semanage_store.c.   Your new .h/.c files represent a suite of relat=
-ed
-> >     tests.
-> >
-> > -2. Write or add new tests to a suite.  Tests are simply functions that
-> > +2. Write or add new tests to a suite.  Tests are simply functions that
-> >     take the form:
-> >
-> >         void test_my_function(void)
-> >
-> >     These tests are where you will make calls to the CUnit assertions.
-> > -
-> > +
-> >     If you are making a new test suite, also add the suite init/cleanup
-> >     functions.  These take the form:
-> >
-> > @@ -51,9 +51,9 @@ add unit tests for your code:
-> >  6. Run your tests.  Rejoice or despair, as appropriate.
-> >
-> >
-> > -A note on the the utilities.c: Add functions that can be commonly used
-> > -here.  For example, it is handy to have a dummy message callback
-> > -function to silence error messages produced by libsemanage and keep
-> > +A note on the the utilities.c: Add functions that can be commonly used
-> > +here.  For example, it is handy to have a dummy message callback
-> > +function to silence error messages produced by libsemanage and keep
-> >  your output pretty.  To do this, include utilities.h and specify the
-> >  callback like so:
-> >
-> > diff --git a/libsemanage/tests/test_semanage_store.c b/libsemanage/test=
-s/test_semanage_store.c
-> > index 92085361..2e6c38e1 100644
-> > --- a/libsemanage/tests/test_semanage_store.c
-> > +++ b/libsemanage/tests/test_semanage_store.c
-> > @@ -124,7 +124,7 @@ int semanage_store_test_cleanup(void)
-> >         return 0;
-> >  }
-> >
-> > -/* Adds all the tests needed for this suite.
-> > +/* Adds all the tests needed for this suite.
-> >   */
-> >  int semanage_store_add_tests(CU_pSuite suite)
-> >  {
-> > --
-> > 2.45.2
-> >
-> >
+> index 967520e4..dbc11ee1 100644
+> --- a/libselinux/src/matchpathcon.c
+> +++ b/libselinux/src/matchpathcon.c
+> @@ -202,10 +202,9 @@ int matchpathcon_filespec_add(ino_t ino, int specind=
+, const char *file)
+>         struct stat sb;
+>
+>         if (!fl_head) {
+> -               fl_head =3D malloc(sizeof(file_spec_t) * HASH_BUCKETS);
+> +               fl_head =3D calloc(HASH_BUCKETS, sizeof(file_spec_t));
+>                 if (!fl_head)
+>                         goto oom;
+> -               memset(fl_head, 0, sizeof(file_spec_t) * HASH_BUCKETS);
+>         }
+>
+>         h =3D (ino + (ino >> HASH_BITS)) & HASH_MASK;
+> diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
+> index b7a93a2b..ddcc7f8d 100644
+> --- a/libselinux/src/procattr.c
+> +++ b/libselinux/src/procattr.c
+> @@ -139,12 +139,11 @@ static int getprocattrcon_raw(char **context, pid_t=
+ pid, const char *attr,
+>                 return -1;
+>
+>         size =3D selinux_page_size;
+> -       buf =3D malloc(size);
+> +       buf =3D calloc(1, size);
+>         if (!buf) {
+>                 ret =3D -1;
+>                 goto out;
+>         }
+> -       memset(buf, 0, size);
+>
+>         do {
+>                 ret =3D read(fd, buf, size - 1);
+> diff --git a/libselinux/src/setrans_client.c b/libselinux/src/setrans_cli=
+ent.c
+> index d7dbc0ca..45cbe5c1 100644
+> --- a/libselinux/src/setrans_client.c
+> +++ b/libselinux/src/setrans_client.c
+> @@ -173,11 +173,10 @@ receive_response(int fd, uint32_t function, char **=
+outdata, int32_t * ret_val)
+>                 return -1;
+>         }
+>
+> -       data =3D malloc(data_size);
+> +       /* coveriety doesn't realize that data will be initialized in rea=
+dv */
+> +       data =3D calloc(1, data_size);
+>         if (!data)
+>                 return -1;
+> -       /* coveriety doesn't realize that data will be initialized in rea=
+dv */
+> -       memset(data, 0, data_size);
+>
+>         resp_data.iov_base =3D data;
+>         resp_data.iov_len =3D data_size;
+> --
+> 2.45.2
+>
+>
