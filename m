@@ -1,134 +1,111 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D0208F62;
-	Sat, 23 Nov 2024 12:37:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AA7C188704;
+	Sun, 24 Nov 2024 23:45:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732365428; cv=none; b=SjyicnSpgtk/iDnKpjwtdJDlyDtynjCeF6UBjXmz6zMCQcElRojdw7FdNo0zXssIsBPuX4Ee1ygR8iZDmZ+UbNSzW/PUn6CyesRWQgFdl8E/0s1wupUyiliBc0wCxYeucINK5X8JaqQ8WwPIi/Ruv2gPP6ThIj1/V+/dTaGTIjc=
+	t=1732491918; cv=none; b=qr/dN7sagniggNhYZG94ncMmEwq3yUqas7C2jpAg2rCNRz2NgZds+pk6xvgeTRe1/5ZPqnOyU8ITeti60Ziem4eNWk7l4m6B4a6HFw6E5P9yXyTghdxZFcvdcE2geIDc/XGZ1yqHjdgmFeldb7p29Rq5RoSLykNtQizqdeDistQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732365428; c=relaxed/simple;
-	bh=/KqLI+c6V+eHCk3PcyFlMtCqEsq2g5NGUwg4Z3SZNO4=;
-	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kSxrEXz/PjbZ7KyHq9SDdpK5e6SAD5lqyBTxSj+/LEKapLj5ECWI08obbcnJr2mxtzFukilmrG26s2FgYIbL/ccDLPV0n+XUpGvRCMAXFTAtN62S63ZnrWLmNfm4kmpR2Gkk4I/QvCkAPYzo12qm8qK5eoFdMcNegpW0bnbDY1E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KDnWeUWz; arc=none smtp.client-ip=209.85.128.48
+	s=arc-20240116; t=1732491918; c=relaxed/simple;
+	bh=DhQYv3h1vmFWAOcdoccCc8+IlIkNIPvU3AQtRViaYic=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FifuGxFhIhWfTdHF0YqmuyoHrv4G0xZeB/k7t06NBovVQduSr1vVkZJUxCERXAzHt7Rl7LXD9oWx+SJB0mJo+9FewWaiidD32rPyBN5f4m+1vi2jAAtosQ/4WvlfTOj5+C2Br/vtANIwTb3Sv8dBLVicLB6lBTbad+n1jJpaKAo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G96337Wc; arc=none smtp.client-ip=209.85.128.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KDnWeUWz"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-431616c23b5so16589915e9.0;
-        Sat, 23 Nov 2024 04:37:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G96337Wc"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4314fa33a35so33989045e9.1;
+        Sun, 24 Nov 2024 15:45:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1732365424; x=1732970224; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:date:from:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=j+FIYWNxDRo9TU3lZYYljtUtoA1ai5ejfbOQhPyfFvI=;
-        b=KDnWeUWzG7cuHyquu8J075LbsAPTI8lJImB+IQ/n+8xJlUunWsDaRG7xEUA+g0MuUY
-         klolXIGrFuUAXajcRLvUfWPi4lyxh1KUD3Uw5fMqLBXrvV5Kz1FrEveVyHs/9pLIVBQj
-         4rlwtNoWjXK6SLQlG0+aet0GdiR/fy5MDEh1YizTw4BUBoFGNPYTz4Ad/dUbTbybUaTq
-         yi05xwsXbkXdf0B2Me8aKkdVOMH4yAmNk8jqo426nmGslHH+UYueTwG69DkTucVzkDFv
-         7FJSSwGXvGOIO8WvUBniWg8mK8GNYaWcy364ITnC5ZI7FLil9Bx3gqDxMEqyTvrvlqOu
-         j1Ow==
+        d=gmail.com; s=20230601; t=1732491915; x=1733096715; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zD3mihCwNWFtiQ3u7MQvI/RPQE5lnct8KZkJL7efwOU=;
+        b=G96337WcIODA7we5ZXMoSFincaYFnnp03DBWezwKMlY+KMD0gOF9w+YgwvNWb/wwTN
+         18Rn/XU00pr0L21BUwUzb1Uzrh31WedLSfGJ1ZwzIic+dRtxVfnNwggzIkb7qDH380T6
+         js/C2YoYiYrJgDCbesO+iM1mxgTsYDasoanaHsSPJYggDnb/L2ZYElx3MpjJCHcJWca8
+         1FDpYJxO1xZM18yC7isVJq08gFMYWzt2fTMlY2YFVcRKYLCRnBTAbSYGyrMfUDq3FaTU
+         k2EtJCP8/ZqFzilfRLUKTZJQm2ZzcHoJkenb6NgbGZd68vbWA93HM/MOVevAKBKJPrXk
+         AGIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732365424; x=1732970224;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:date:from
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=j+FIYWNxDRo9TU3lZYYljtUtoA1ai5ejfbOQhPyfFvI=;
-        b=Dl4PfRqjud3HYnRqo+8lIiywsJvjcrUQapXWqV+ID8Wv3lCEfDaRb+LAKWCRU6fZgV
-         /9eb5CKBC8lwP7bXx+rTipFve28peKTAQe38g3ebk0nLyI93q4pW/8166AAx58UyDbN1
-         KkGnl4vT+ttyxip52lMp0BTe6MQ8O+I8VAGfG2selUTsdRP2znZoJ5EPY4kmuA/wMK6T
-         IHUEp4kxgqSn1jkBwHd5Vok7YfEFXRLwovXGi2yRdU70kpohRFBl3Upkg6loiiJNv01Y
-         1/KVI7lBJxQi75bBD18efB+jtnSSQgvo6eTePtFUvhh5+O9JuhiJOI5pJC0lBW+zq3TA
-         ytMg==
-X-Forwarded-Encrypted: i=1; AJvYcCWOH/0VzFe3auhXNqyPIHdNY5HkLZ+pv0lzHCe2pRtoDt3H/2dp6sHqE0aQYLxnzNP5TZF9EcLp9kjVZPLU@vger.kernel.org, AJvYcCX6lR4KNipb73OQ/yQT/ah6PAP7uDvEcDrEgtTTaEO2M7sZatjB8tmfn9yisHKdI2o1tZ2L@vger.kernel.org, AJvYcCXI8sN0DafD2sdmnAF35WATy0W9C/GBrnYJ/G/YaHS8AkmpgC3yLSrMMVCU6brJDsXCK+B5z3UQVQ==@vger.kernel.org, AJvYcCXiQOSZLg6Qut3EbvkRMqpNuH0MV9iPKnKMOy41ItDu8NTKZIoHTL8FLVK5KTf6Ypkch0WbaA==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxa265K8xLZfcqovMrgEMcA4tqRrJMv4tSO/dWIcJ/yuGoUF0Uf
-	e3izegQhrPpzePWfxxSYz1cGVNzZ+ZUPbHczt58kStHNldptlB9o
-X-Gm-Gg: ASbGncsjZmwhfG/GYFoo9tvTWKYdmnRsb5f395JSjnDSjGLOvVwAP4xX4r5mK/LzC6l
-	rthDn3dpvM1++W19s9g9zhWHsatrUKZzRP0DFAzFEiR0f/iGjL+rewiMIhzyvruPxFzVMpmn0gY
-	wJVgiK/iCw5D9u8Sbmj3QvByWd2WchCqquoSNg4QXOQQ/Cho6VgWPYBbEgptarZO/WGHtm/9vv6
-	TDzTW200egtMerJZHTJpulgF72QYODvRWahz/Yhcly6liXq1YFRjM1dpoiZ439dHkLHLj4=
-X-Google-Smtp-Source: AGHT+IGHNtE8JDX0+q6Lv6PMJPfhfsNRALK4ZhqFSQb8QeR03JV46vW7ocE89UcLvWXZNiEP33bteQ==
-X-Received: by 2002:a05:600c:1ca1:b0:431:559d:4103 with SMTP id 5b1f17b1804b1-433cdb0b2ffmr52512575e9.7.1732365424054;
-        Sat, 23 Nov 2024 04:37:04 -0800 (PST)
-Received: from krava (ip-94-113-247-30.net.vodafone.cz. [94.113.247.30])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43498a31432sm3012315e9.28.2024.11.23.04.37.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 23 Nov 2024 04:37:03 -0800 (PST)
-From: Jiri Olsa <olsajiri@gmail.com>
-X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
-Date: Sat, 23 Nov 2024 13:37:00 +0100
-To: Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>
-Cc: KP Singh <kpsingh@kernel.org>,
-	Matt Bobrowski <mattbobrowski@google.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Martin KaFai Lau <martin.lau@linux.dev>,
-	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
-	Yonghong Song <yonghong.song@linux.dev>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>,
-	Paul Moore <paul@paul-moore.com>,
-	Casey Schaufler <casey@schaufler-ca.com>, bpf@vger.kernel.org,
-	linux-kernel@vger.kernel.org, audit@vger.kernel.org,
-	selinux@vger.kernel.org
-Subject: Re: [PATCH] bpf, lsm: Fix getlsmprop hooks BTF IDs
-Message-ID: <Z0HMbErrqgrklLSC@krava>
-References: <20241123-bpf_lsm_task_getsecid_obj-v1-1-0d0f94649e05@weissschuh.net>
+        d=1e100.net; s=20230601; t=1732491915; x=1733096715;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zD3mihCwNWFtiQ3u7MQvI/RPQE5lnct8KZkJL7efwOU=;
+        b=X/Gm7wVRFt+05Egt04IDW+k98ZM6IxknJ1oWHduBBYh+V680G+BnO2m6jhmtYMtN0T
+         sPrt3FAotua9TlZokVrwOuFQGx+PobCYMxZUaxjW0jPou8UFd7kmagdn8JRA2EozbzP3
+         7uiECC/BBqktXy3u5XnY0gmM14luJwR5cWvilD1Glfb65P2dW+xSmkHxwhpkucXuevMj
+         xn1gnESc2UNq+QuT2LU/TUi6rCyPZJbwHEcWS+o2AXpsgS/SPDhIzQyhku/kuLiYp7k6
+         17D0j3/yF+AqEI50iWrwo99C+eU4Nq1U5QtF/B8TfkfPuw2UDc5JOISU8RqubqD6aaIp
+         phjA==
+X-Forwarded-Encrypted: i=1; AJvYcCUjYvIbk7vcLZn7XWz11AkHSJXXDHeOLO787OLNkHi+D8y4VEb8Aqw+ACAYwgLaAnpVebPhJA==@vger.kernel.org, AJvYcCVybf2qI2tnUUIb9isgCz987wvzbo9ouB5ab3JRSamxntBsIqWQcjX57UT1nvFFAOrRE+1A@vger.kernel.org, AJvYcCXFlQByAmho+PtCo+zPhqQTwz10zlcyYsf1jicKh/gx6zNGntYNZDCeVMgVQjxIehdMib6K1dK2CA==@vger.kernel.org, AJvYcCXdichBKzTRThNSh9YUSCQPtzD5CrXKJvbZW9PRtKCTVGav3On6hu3WLi94HejHryGegVJn4gZoIWgX7mQb@vger.kernel.org
+X-Gm-Message-State: AOJu0YzLZv28dcxW3qdwlUbzfUHFhWfSDm7SSS21hF3UynadR9CAz1pC
+	MZNJY6Edb0vogvq78B/NOdGrK9GrdYWU+eHxqcFcQFwEdIHGgTvaEcKFf1TBUUQ0Gqay8mgxR+9
+	b3Q1WaSvIv4vflHUD/YLEeJ2Bz5k=
+X-Gm-Gg: ASbGncsRB0L5jlpV1jFuuXGX+Vm0phvLGpZ6uNv8+B70Ez9Rt7k1996w8V0G4BIHDDp
+	rK0iOuMFReC5VX572W6L5bKKba/E6XP3JZixr/4P9jbLd8oQ=
+X-Google-Smtp-Source: AGHT+IHXlo3psjhvmLC59iyJ2c2Irteph+vRZzZG4ccEzhBOzIj3D+JFCvQT0yaAVuqpjY9v84dOi8gINPCKWjefaRU=
+X-Received: by 2002:a5d:64cc:0:b0:382:4bdc:2be2 with SMTP id
+ ffacd0b85a97d-38260bce4c8mr8219911f8f.40.1732491915212; Sun, 24 Nov 2024
+ 15:45:15 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+References: <20241123-bpf_lsm_task_getsecid_obj-v1-1-0d0f94649e05@weissschuh.net>
 In-Reply-To: <20241123-bpf_lsm_task_getsecid_obj-v1-1-0d0f94649e05@weissschuh.net>
+From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Date: Sun, 24 Nov 2024 15:45:04 -0800
+Message-ID: <CAADnVQ++-VwPnem-xY+Urec0=zi71s-Pmzox+TXYgaVpshHtEA@mail.gmail.com>
+Subject: Re: [PATCH] bpf, lsm: Fix getlsmprop hooks BTF IDs
+To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
+Cc: KP Singh <kpsingh@kernel.org>, Matt Bobrowski <mattbobrowski@google.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Andrii Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>, 
+	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
+	Yonghong Song <yonghong.song@linux.dev>, John Fastabend <john.fastabend@gmail.com>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, Casey Schaufler <casey@schaufler-ca.com>, bpf <bpf@vger.kernel.org>, 
+	LKML <linux-kernel@vger.kernel.org>, audit@vger.kernel.org, 
+	selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Nov 23, 2024 at 11:19:01AM +0100, Thomas Weiﬂschuh wrote:
+On Sat, Nov 23, 2024 at 2:19=E2=80=AFAM Thomas Wei=C3=9Fschuh <linux@weisss=
+chuh.net> wrote:
+>
 > The hooks got renamed, adapt the BTF IDs.
 > Fixes the following build warning:
-> 
+>
 >   BTFIDS  vmlinux
 > WARN: resolve_btfids: unresolved symbol bpf_lsm_task_getsecid_obj
 > WARN: resolve_btfids: unresolved symbol bpf_lsm_current_getsecid_subj
-> 
+>
 > Fixes: 37f670aacd48 ("lsm: use lsm_prop in security_current_getsecid")
-> Signed-off-by: Thomas Weiﬂschuh <linux@weissschuh.net>
-
-Acked-by: Jiri Olsa <olsajiri@gmail.com>
-
-thanks,
-jirka
-
+> Signed-off-by: Thomas Wei=C3=9Fschuh <linux@weissschuh.net>
 > ---
 >  kernel/bpf/bpf_lsm.c | 4 ++--
 >  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
+>
 > diff --git a/kernel/bpf/bpf_lsm.c b/kernel/bpf/bpf_lsm.c
-> index 3bc61628ab251e05d7837eb27dabc3b62bcc4783..5be76572ab2e8a0c6e18a81f9e4c14812a11aad2 100644
+> index 3bc61628ab251e05d7837eb27dabc3b62bcc4783..5be76572ab2e8a0c6e18a81f9=
+e4c14812a11aad2 100644
 > --- a/kernel/bpf/bpf_lsm.c
 > +++ b/kernel/bpf/bpf_lsm.c
 > @@ -375,8 +375,8 @@ BTF_ID(func, bpf_lsm_socket_socketpair)
->  
+>
 >  BTF_ID(func, bpf_lsm_syslog)
 >  BTF_ID(func, bpf_lsm_task_alloc)
 > -BTF_ID(func, bpf_lsm_current_getsecid_subj)
 > -BTF_ID(func, bpf_lsm_task_getsecid_obj)
 > +BTF_ID(func, bpf_lsm_current_getlsmprop_subj)
 > +BTF_ID(func, bpf_lsm_task_getlsmprop_obj)
->  BTF_ID(func, bpf_lsm_task_prctl)
->  BTF_ID(func, bpf_lsm_task_setscheduler)
->  BTF_ID(func, bpf_lsm_task_to_inode)
-> 
-> ---
-> base-commit: 228a1157fb9fec47eb135b51c0202b574e079ebf
-> change-id: 20241123-bpf_lsm_task_getsecid_obj-afdd47f84c7f
-> 
-> Best regards,
-> -- 
-> Thomas Weiﬂschuh <linux@weissschuh.net>
-> 
+
+Maybe we can remove these two instead?
+I couldn't come up with a reason for bpf_lsm to attach to these two.
