@@ -1,21 +1,21 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BC5D1990CE
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A50631990D3
 	for <selinux@vger.kernel.org>; Mon, 25 Nov 2024 11:18:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732533531; cv=none; b=PfLhONRT4a11IVHkcU1a5AOCalVup0nN36sYsJsuUBC7OFFm9NxSuADVJwLDYCQTNTbpcZB1JbpFgVWAQ+dvuOIVjaQqM7BKCkcXU74FgLWn5PQsMZB/9ZTpJSH05uX9ELHVxGWmwTS3jlauhGE+Y8ZoNZN4Zqci7QmQ39eNZoA=
+	t=1732533532; cv=none; b=RIVNQG9fEb5jRRfmUeoNDW/DrNpGh+JjQj93s6RNblXQ51txu9P6eRQJedFIazsxmIZfPOvTHv7g8YdztGK9PTshi+HFF6GsCIY1/F4wW7aN7xJnyyzVrDqNqKsBxX48yKnx+o61tuixiwrjh1GKOBOH+IXFOY+QV+XxKjcW6sE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732533531; c=relaxed/simple;
-	bh=CBICRA3m+l8pwJk1yVAGvMQgxVQSgNkoOutadCnNSw8=;
+	s=arc-20240116; t=1732533532; c=relaxed/simple;
+	bh=UgHP+oReoy7OLVBgNQ0IKQJ7ZPFuZlJ3xggYJ7VnxuA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KUi4wqfH0k+DB1PXgWnSJBcXBC1NN7rZNbVgGDs6sLoGDUF6zW79DDstohjZ6jBmIvXrm0hAJUhjgWVB8Zrz8z8ErVYiVQi3ecMmP+TsXigrLxDq7xzJ6JkHrl6xbQw02ZVOHczcWCDAigvLO9BOZk9yrOrvHROc1cQMOtvrwWA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=SJkJyXrw; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=tMVLjq8Tbi9QbUam2K7EqWIwfxAEEVOAbQtPHTzi5amD43WtP9O7nwsu5gNa3UCJkzhxQ8FqtcUnticAKQVx8lOPrQH34vS2MMBW7PTfQPSnGITrRiRzgXWqkR1ffDGjQq05nVqJ+iAB5chPXRbfps17iGfJG2XA2NC+qwWOw0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Uk0CRlZZ; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="SJkJyXrw"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Uk0CRlZZ"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1732533526;
@@ -24,17 +24,17 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=M2CeE+Dw0DNxNGWi7bvPJ4DaRD93fdA/Svgjm6kizRY=;
-	b=SJkJyXrwhNO5yzWilwlWASVRSjkaEGy6iOLj6w+LYxxackE7CFF9/kXj9ysZtMnM48/Q9+
-	TIvYCaNwhnDumRlPZHtTe7zT9r2NyFhQwLT1FE+6GMBniYpWsuVHfoesTq24p/EBOv+8jN
-	krunVL4gCh/GOPY+hzSddJUThTHgHYQh/QJz1q2HhYPyw8qyzob52VPW1E0qqzDqcEH0do
-	04UuJxD0mxQhN0rdzJu2z70HvHxZ26sgRqTBoZm3z3KgmAYX1byhVwWNPBVnN8UhR3FnkD
-	+bwRKKV0rzPwONOPIWzrD2DIMGDvWvLv92GJhmMElG4N0J2X/oAe+V/dnZbaRA==
+	bh=woLjiBHNAMrp6exXJNdJmHyi+kmMIyT7H1QJKNDoPBE=;
+	b=Uk0CRlZZLB5zzVwEIUBPqQaqgQFu5VKuK8OeuRmkCJaywscw+b8qLUSHznf7G6kzcE5aUc
+	ET2yUkg9OPgaShRcL1KT1CPzJiK8LZeHnljmkpC4V5eAv45HUUIqmTyZG2HVRkTJqA9Ezs
+	LaXxlbee0msW4iS1JmR1Ppk1yNnTQ97wCyQPdejhjvVFx6URGtQ0zU3rSDxrnwyMvfylHj
+	MSE1jRCVetfzoa4DVgcIjets061LrHBCJ4yP3LbWQSVVHe//4yRtAPN3ZEA1B6H9H0zmgl
+	ucp3QWeAD2H/ZuiGanb0xylHTTOxU3G11HtCjCHrZ6IWqt09n1+X6fctarcqzw==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2 8/9] libsemanage/man: add documentation for command overrides
-Date: Mon, 25 Nov 2024 12:18:39 +0100
-Message-ID: <20241125111840.63845-8-cgoettsche@seltendoof.de>
+Subject: [PATCH v2 9/9] libsemanage: respect shell paths with /usr prefix
+Date: Mon, 25 Nov 2024 12:18:40 +0100
+Message-ID: <20241125111840.63845-9-cgoettsche@seltendoof.de>
 In-Reply-To: <20241125111840.63845-1-cgoettsche@seltendoof.de>
 References: <20241125111840.63845-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -49,108 +49,79 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-For example fedora contains the following cdefault configuration:
-
-    [sefcontext_compile]
-    path = /usr/sbin/sefcontext_compile
-    args = -r $@
-    [end]
+Consider paths with the prefix /usr for shells by including them in the
+list of fallback default shells and by extending the check for a nologin
+shell.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libsemanage/man/man5/semanage.conf.5 | 79 ++++++++++++++++++++++++++++
- 1 file changed, 79 insertions(+)
+ libsemanage/src/genhomedircon.c | 32 +++++++++++++++++++++++---------
+ 1 file changed, 23 insertions(+), 9 deletions(-)
 
-diff --git a/libsemanage/man/man5/semanage.conf.5 b/libsemanage/man/man5/semanage.conf.5
-index 6a1afc13..b22e65bd 100644
---- a/libsemanage/man/man5/semanage.conf.5
-+++ b/libsemanage/man/man5/semanage.conf.5
-@@ -131,6 +131,85 @@ It can be set to either "true" or "false" and by default it is set to "true".
- When set to "true", duplicate type, type attribute, and role declarations will be allowed.
- It can be set to either "true" or "false" and by default it is set to "true".
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index 19543799..8782e2cb 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -192,15 +192,23 @@ static semanage_list_t *default_shell_list(void)
+ 	semanage_list_t *list = NULL;
  
-+.RE
-+.PP
-+For certain tasks the SELinux Management library resorts to running
-+external commands.  For the following commands their path and arguments can
-+be overridden:
+ 	if (semanage_list_push(&list, "/bin/csh")
++	    || semanage_list_push(&list, "/usr/bin/csh")
+ 	    || semanage_list_push(&list, "/bin/tcsh")
++	    || semanage_list_push(&list, "/usr/bin/tcsh")
+ 	    || semanage_list_push(&list, "/bin/ksh")
++	    || semanage_list_push(&list, "/usr/bin/ksh")
+ 	    || semanage_list_push(&list, "/bin/bsh")
++	    || semanage_list_push(&list, "/usr/bin/bsh")
+ 	    || semanage_list_push(&list, "/bin/ash")
+-	    || semanage_list_push(&list, "/usr/bin/ksh")
++	    || semanage_list_push(&list, "/usr/bin/ash")
++	    || semanage_list_push(&list, "/bin/pdksh")
+ 	    || semanage_list_push(&list, "/usr/bin/pdksh")
+ 	    || semanage_list_push(&list, "/bin/zsh")
++	    || semanage_list_push(&list, "/usr/bin/zsh")
+ 	    || semanage_list_push(&list, "/bin/sh")
+-	    || semanage_list_push(&list, "/bin/bash"))
++	    || semanage_list_push(&list, "/usr/bin/sh")
++	    || semanage_list_push(&list, "/bin/bash")
++	    || semanage_list_push(&list, "/usr/bin/bash"))
+ 		goto fail;
+ 
+ 	return list;
+@@ -210,6 +218,12 @@ static semanage_list_t *default_shell_list(void)
+ 	return NULL;
+ }
+ 
++static bool is_nologin_shell(const char *path)
++{
++	return strcmp(path, PATH_NOLOGIN_SHELL) == 0 ||
++	       strcmp(path, "/usr" PATH_NOLOGIN_SHELL) == 0;
++}
 +
-+.RS
-+.RS
-+.TP
-+.B load_policy
-+Command to load a kernel policy.
-+Requires no argument.
-+Defaults to
-+.IR /sbin/load_policy
-+with no arguments.
-+
-+.TP
-+.B setfiles
-+Command to verify file context definitions.
-+Requires two arguments, the path to the kernel policy and the path to the
-+file context definition file.
-+Defaults to
-+.IR /sbin/setfiles
-+with the arguments '\-q \-c $@ $<'.
-+
-+.TP
-+.B sefcontext_compile
-+Command to compile a file context definition file.
-+Requires one argument, the path to the to be compiled file context
-+definition file.
-+Defaults to
-+.IR /sbin/sefcontext_compile
-+with the argument '$@'.
-+
-+.RE
-+.PP
-+Either
-+.IR path
-+or
-+.IR args
-+can be omitted.
-+The argument string must contain '$@' for the first required argument,
-+and '$<' for the second one.
-+The syntax for overriding an external command property is:
-+
-+.RS
-+
-+[\fIname\fR]
-+.sp 0
-+path = /path/to/command
-+.sp 0
-+args = --flag
-+.sp 0
-+[end]
-+
-+.RE
-+
-+.TP
-+Example
-+
-+.RS
-+
-+[sefcontext_compile]
-+.sp 0
-+path = /usr/sbin/sefcontext_compile
-+.sp 0
-+args = -r $@
-+.sp 0
-+[end]
-+
-+.RE
-+.PP
-+Optionally the SELinux Management library can invoke external commands to
-+verify source modules (\fBverify module\fR), linked modules
-+(\fBverify linked\fR), and kernel policies (\fBverify kernel\fR).
-+The syntax is identical to the above command overrides.
-+The program should exit with a value of 0 on success, and non zero on
-+failure.
-+
- .SH "SEE ALSO"
- .TP
- semanage(8)
+ static semanage_list_t *get_shell_list(void)
+ {
+ 	FILE *shells;
+@@ -223,13 +237,13 @@ static semanage_list_t *get_shell_list(void)
+ 		return default_shell_list();
+ 	while ((len = getline(&temp, &buff_len, shells)) > 0) {
+ 		if (temp[len-1] == '\n') temp[len-1] = 0;
+-		if (strcmp(temp, PATH_NOLOGIN_SHELL)) {
+-			if (semanage_list_push(&list, temp)) {
+-				free(temp);
+-				semanage_list_destroy(&list);
+-				fclose(shells);
+-				return NULL;
+-			}
++		if (is_nologin_shell(temp))
++			continue;
++		if (semanage_list_push(&list, temp)) {
++			free(temp);
++			semanage_list_destroy(&list);
++			fclose(shells);
++			return NULL;
+ 		}
+ 	}
+ 	free(temp);
 -- 
 2.45.2
 
