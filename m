@@ -1,318 +1,139 @@
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3468B2500BA
-	for <selinux@vger.kernel.org>; Mon, 25 Nov 2024 12:08:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AE9B1B415F
+	for <selinux@vger.kernel.org>; Mon, 25 Nov 2024 17:26:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732536518; cv=none; b=iDHHly5ivg2jQ2qqgXuGzbpBA2ZFL2J/1DqrAxrrEPLVQPf7ZLfGzPXmHYl6oEUaPRgXdy28Z9iS9D1zJ3bfsw0JQ+c/0ZFFkvs++zP5Jas8Q89FNZ/GcWrILz/VY7ThoxNxuFLruvAIYd/oZgMaKFH86Mw9ExLdRSMTeLqvafg=
+	t=1732555608; cv=none; b=btXoTJcbJ2JExTypNzZ+TuFSgeFWX43QjePZM3zzNShdYVXuT4Dn8DPwdihYN/fJ8GPKGBv86FrJ5aBGQEeHAT4caCaRWADBREdIfFsO99Xn3L/X1sC06FB6e/w5rlFRVh8XocwIF1gAK9NK2FLq5ytqxem4oHzoqNAbyJ4dzSE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732536518; c=relaxed/simple;
-	bh=FU9hOxAsf7+9rprPXtzqxlwq7WGorsjoDW/6yH6pfFQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ctKO8FMYCPy889ZQw3u954Mn6uYwo8hQxHpEhr1ApWShvkgQESa8Ms5dNt9I8Zn8ULfBKYHhvpRVVYQcU0aBxRRaBe8N+y3fjgFt5yAKUYiA6Gry9n3Un0sPe4yZk+OV0zJcdJ+FsZJlYyg4jz88HShBuhoRFHICVOeA6vPpMu8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=D8/Gh7EO; arc=none smtp.client-ip=168.119.48.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	s=arc-20240116; t=1732555608; c=relaxed/simple;
+	bh=t73WbR3ab3rF0Q9RppmNDg+jLwz+yZEqwvg6KqtHwl4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=AMi88eYT+RHNWNPFQy4tdoxrdsxT1BhhAAsPAkNhE7oPCylD1gxPdNsAqMadhQcDxGz7zKXkH/AWz51iDgrbxfT4O3EmLSFnij3hMjr5XDeowsDlfssq46fdCXRjYpjFETDosaAUFNwGKZ29f/pRHmATI6BYdKPDzyvTK604ruc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=lyYpqJ+K; arc=none smtp.client-ip=209.85.128.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="D8/Gh7EO"
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1732536512;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=mtKidiXapmX3A9JU3r1UYAElvEUaIuKmxPRyI0z97GE=;
-	b=D8/Gh7EOqElcUxFDB/8awkPv5eRgvMdqo6WY+t7CLhPOP0un5V6ZMROf0bLjY8KXhPnaFD
-	XPSrjxuLqW+aR1fU0Kw/tK+XQLOXL/h06FyZ1yN6MuFYe35S/0P2jtttPeUZ3KbADu1u2H
-	gJ51p0uryfzYIBAH1I2awlT9wcR/OYBdpwgQvg1wYQ2xnoPcdGFy5I5MHyT5r5aC0DyrRT
-	tHunm/+oOn6IOGbpmun7cYDGmX471WvaqqHh0MvJY6ry+3VWBXN/qyjBuMno1upHSnKXTl
-	Oe0OzgaqbNypn6NfcCpWvd2NFk29FupFB9SOG5tPcM1teLROQAUHIyvR1YOPqg==
-To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2 1/3] libselinux: avoid memory allocation in common file label lookup
-Date: Mon, 25 Nov 2024 13:08:25 +0100
-Message-ID: <20241125120827.97332-1-cgoettsche@seltendoof.de>
-Reply-To: cgzones@googlemail.com
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="lyYpqJ+K"
+Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-6eeb2680092so45662507b3.1
+        for <selinux@vger.kernel.org>; Mon, 25 Nov 2024 09:26:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20230601; t=1732555606; x=1733160406; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TzxgNxqaDGuk1IV5pj/Zv7sx7PZeGmYwY8RUgm1VgKg=;
+        b=lyYpqJ+KBsugKE9bMwElz91tdmNhZRPsoWajB0fwnFB9mP7DllvGwsJyIhpALNe+Tc
+         KjuJU0755Fw+NXRoErJi4CHa5mUixR+d+xxQ+gNsgVkJfHoF/9nfmvLDsq7AeYxiR8Lk
+         S13djs5Vqhj1u5JEgNl8bump1mf86HBasNEQxnZsPuD81LV/JPs+5dgmuogvxSVT18/d
+         04JNjTB/iVLzUPUJjlStnaF+Z+bpFuYhagmfZ9FYvryzGghWub/6nhGr+EWRa5aD7Vho
+         lcfKK9Y/zgkHB3sUxtpnQP6pUOc4O+Rih8bHSc6yt+/bbSXzB2nuSg3zld+5bWbjACw+
+         RDNw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1732555606; x=1733160406;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TzxgNxqaDGuk1IV5pj/Zv7sx7PZeGmYwY8RUgm1VgKg=;
+        b=IGAFp+c7ecxR11R66ecorrjQjnZ4MGSfJof+nb7Pkg6SeOkhuFGTylO8GyBF8qaSoL
+         /EsVUIe6NBpEmKZxifnjynLC1kH82Gtr2mswnu03U8V74eTNbzagTRnmulAJ53mTnsY2
+         hWMVbMhmaC0dbeMWQTmDPn3ZIDCsHsyjTPqEcqienN6iTe5ORyUP7y8wBnGLBjoByT1m
+         nFkb3CSkeP3HldGwjtDd/d/MYFDpCje2Bsb/UHJx6K9DPGuwfmRrr3ZaSCKLnpu02zwd
+         28S712dm+jCRS//tOfkpx7OoPbV2mawH6nmnAYqzPPCiJl4Sd7JtjyvkfACQNv8n9LRp
+         I+yg==
+X-Gm-Message-State: AOJu0YyzK1D1UPqseo15tl9SzA9QpkWQ/K2LTViPg0++3C0ZhaAjvmAT
+	TSMcD265q36pMv9rUNcemF1+rr01pbJqsnRIYWpt++Sb5YxfKBdCZ1ljL0B4v1d11ohEqCJ9Dyt
+	CBHNJyk+VJf6Eom9gNCbj1iDThvw0fiftx94=
+X-Gm-Gg: ASbGnctMzgsmDQAOtPZ/bJY9twb1USaxBE7OxDgUSBCkUXUlZdJ6SLGdzHQv0X7muSB
+	REglCdsQhMDc5tACKVYAuEBpDW2v9DjM+
+X-Google-Smtp-Source: AGHT+IF+UQsuO8ZW51g4f2XEayPf9CN5c7ZfkWRzb6SNlBf2q/jkygZddutiIwn8SHVQ/Sro8/QU3C+Gtsnr6SEobVY=
+X-Received: by 2002:a05:6902:124e:b0:e38:b767:4cd4 with SMTP id
+ 3f1490d57ef6-e38f8b22755mr11288332276.26.1732555606004; Mon, 25 Nov 2024
+ 09:26:46 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20241115133619.114393-1-cgoettsche@seltendoof.de>
+ <20241115133619.114393-23-cgoettsche@seltendoof.de> <342b4afd-3a1a-41bd-8e2d-63eebb1fbcd2@linux.microsoft.com>
+In-Reply-To: <342b4afd-3a1a-41bd-8e2d-63eebb1fbcd2@linux.microsoft.com>
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Mon, 25 Nov 2024 18:26:35 +0100
+Message-ID: <CAJ2a_DfU5yPQk11MLMuTLB43Z-xrQ8w_M6T1zgshydbcNY=KvQ@mail.gmail.com>
+Subject: Re: [RFC PATCH 00/22] selinux: harden against malformed policies
+To: Daniel Burgener <dburgener@linux.microsoft.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Christian Göttsche <cgzones@googlemail.com>
+On Mon, 18 Nov 2024 at 16:35, Daniel Burgener
+<dburgener@linux.microsoft.com> wrote:
+>
+> On 11/15/2024 8:35 AM, Christian G=C3=B6ttsche wrote:
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > With the SELinux namespace feature on the horizon it becomes important
+> > to identify and reject malformed policies at load time.  Otherwise
+> > memory corruptions can compromise the kernel or NULL-pointer dereferenc=
+es
+> > and BUG() encounters can bring systems down.  Currently this is not a
+> > security relevant issue since loading a policy requires root privileges
+> > and permission of the current loaded SELinux policy, making it one of t=
+he
+> > most privileged operation.
+> >
+> > The first 9 patches are cleanup commits with overseeable diffs.
+> >
+> > Patch 10 unifies the underlying type used for security class identifier=
+s.
+> >
+> > Patch 11 to 21 add various checks at policy load time to reject malform=
+ed
+> > policies.
+> >
+> > Patch 22 needs some discussion:
+> > It limits the valid set of characters and the length for strings define=
+d
+> > by policies.  Currently there are no restrictions, so control character=
+s
+> > are accepted, e.g. Esc as part of a type name, and their length can be
+> > arbitrary.  Human formatted security contexts however must not be
+> > arbitrarily long, one example is they must fit in a page size for
+> > selinuxfs interaction and network associations.
+> > Thus the patch introduces the following restrictions:
+> >    * Disallow control characters
+> >    * Limit characters of identifiers to alphanumeric, underscore, dash,
+> >      and dot
+> >    * Limit identifiers in length to 128, expect types to 1024 and
+> >      categories to 32, characters (excluding NUL-terminator)
+>
+> I believe that those first two restrictions match what CIL will do today
+> (https://github.com/SELinuxProject/selinux/blob/9b4eff9222b24d4b5f2784db2=
+81f4f53019263b0/libsepol/cil/src/cil_verify.c#L96),
+> but the length restriction in CIL is 2048.
+>
+> https://github.com/SELinuxProject/selinux/blob/9b4eff9222b24d4b5f2784db28=
+1f4f53019263b0/libsepol/cil/src/cil_internal.h#L49
 
-Remove a memory allocation during a common file label lookup,
-e.g. requested by restorecon(8)/setfiles(8), by using a local stack
-buffer for a potential lookup result.
+My intent is to make it hard to reach the page size limit with a full
+context of `user:role:type:mls`.
+Also the current SECMARK limit for the security context length is
+*only* 256 characters, see
+https://elixir.bootlin.com/linux/v6.12/source/include/uapi/linux/netfilter/=
+nf_tables.h#L1379
+and https://elixir.bootlin.com/linux/v6.12/source/include/uapi/linux/netfil=
+ter/xt_SECMARK.h#L15
 
-Additional minor optimization tweaks.
+> I would think that we'd want to end up in a situation where the kernel
+> is either equally restrictive or less restrictive than CIL.
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-v2: drop claim about this being the sole memory allocation, since
-    applying a substitution path allocates as well
----
- libselinux/src/label_file.c       | 103 +++++++++++++++++-------------
- libselinux/src/selinux_internal.h |   8 +++
- 2 files changed, 68 insertions(+), 43 deletions(-)
+Yes, i agree.
 
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 189a5ed2..4e212aa4 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -1467,12 +1467,30 @@ FUZZ_EXTERN void free_lookup_result(struct lookup_result *result)
- 	}
- }
- 
--static struct lookup_result *lookup_check_node(struct spec_node *node, const char *key, uint8_t file_kind, bool partial, bool find_all)
-+/**
-+ * lookup_check_node() - Try to find a file context definition in the given node or parents.
-+ * @node:      The deepest specification node to match against. Parent nodes are successively
-+ *             searched on no match or when finding all matches.
-+ * @key:       The absolute file path to look up.
-+ * @file_kind: The kind of the file to look up (translated from file type into LABEL_FILE_KIND_*).
-+ * @partial:   Whether to partially match the given file path or completely.
-+ * @find_all:  Whether to find all file context definitions or just the most specific.
-+ * @buf:       A pre-allocated buffer for a potential result to avoid allocating it on the heap or
-+ *             NULL. Mututal exclusive with @find_all.
-+ *
-+ * Return: A pointer to a file context definition if a match was found. If @find_all was specified
-+ *         its a linked list of all results. If @buf was specified it is returned on a match found.
-+ *         NULL is returned in case of no match found.
-+ */
-+static struct lookup_result *lookup_check_node(struct spec_node *node, const char *key, uint8_t file_kind,
-+					       bool partial, bool find_all, struct lookup_result *buf)
- {
- 	struct lookup_result *result = NULL;
- 	struct lookup_result **next = &result;
- 	size_t key_len = strlen(key);
- 
-+	assert(!(find_all && buf != NULL));
-+
- 	for (struct spec_node *n = node; n; n = n->parent) {
- 
- 		uint32_t literal_idx = search_literal_spec(n->literal_specs, n->literal_specs_num, key, key_len, partial);
-@@ -1495,10 +1513,14 @@ static struct lookup_result *lookup_check_node(struct spec_node *node, const cha
- 						return NULL;
- 					}
- 
--					r = malloc(sizeof(*r));
--					if (!r) {
--						free_lookup_result(result);
--						return NULL;
-+					if (likely(buf)) {
-+						r = buf;
-+					} else {
-+						r = malloc(sizeof(*r));
-+						if (!r) {
-+							free_lookup_result(result);
-+							return NULL;
-+						}
- 					}
- 
- 					*r = (struct lookup_result) {
-@@ -1510,11 +1532,11 @@ static struct lookup_result *lookup_check_node(struct spec_node *node, const cha
- 						.next = NULL,
- 					};
- 
-+					if (likely(!find_all))
-+						return r;
-+
- 					*next = r;
- 					next = &r->next;
--
--					if (!find_all)
--						return result;
- 				}
- 
- 				literal_idx++;
-@@ -1556,10 +1578,14 @@ static struct lookup_result *lookup_check_node(struct spec_node *node, const cha
- 					return NULL;
- 				}
- 
--				r = malloc(sizeof(*r));
--				if (!r) {
--					free_lookup_result(result);
--					return NULL;
-+				if (likely(buf)) {
-+					r = buf;
-+				} else {
-+					r = malloc(sizeof(*r));
-+					if (!r) {
-+						free_lookup_result(result);
-+						return NULL;
-+					}
- 				}
- 
- 				*r = (struct lookup_result) {
-@@ -1571,12 +1597,12 @@ static struct lookup_result *lookup_check_node(struct spec_node *node, const cha
- 					.next = NULL,
- 				};
- 
-+				if (likely(!find_all))
-+					return r;
-+
- 				*next = r;
- 				next = &r->next;
- 
--				if (!find_all)
--					return result;
--
- 				continue;
- 			}
- 
-@@ -1692,7 +1718,8 @@ FUZZ_EXTERN struct lookup_result *lookup_all(struct selabel_handle *rec,
- 				 const char *key,
- 				 int type,
- 				 bool partial,
--				 bool find_all)
-+				 bool find_all,
-+				 struct lookup_result *buf)
- {
- 	struct saved_data *data = (struct saved_data *)rec->data;
- 	struct lookup_result *result = NULL;
-@@ -1704,18 +1731,18 @@ FUZZ_EXTERN struct lookup_result *lookup_all(struct selabel_handle *rec,
- 	unsigned int sofar = 0;
- 	char *sub = NULL;
- 
--	if (!key) {
-+	if (unlikely(!key)) {
- 		errno = EINVAL;
- 		goto finish;
- 	}
- 
--	if (!data->num_specs) {
-+	if (unlikely(!data->num_specs)) {
- 		errno = ENOENT;
- 		goto finish;
- 	}
- 
- 	/* Remove duplicate slashes */
--	if ((next_slash = strstr(key, "//"))) {
-+	if (unlikely(next_slash = strstr(key, "//"))) {
- 		clean_key = (char *) malloc(strlen(key) + 1);
- 		if (!clean_key)
- 			goto finish;
-@@ -1732,12 +1759,12 @@ FUZZ_EXTERN struct lookup_result *lookup_all(struct selabel_handle *rec,
- 
- 	/* remove trailing slash */
- 	len = strlen(key);
--	if (len == 0) {
-+	if (unlikely(len == 0)) {
- 		errno = EINVAL;
- 		goto finish;
- 	}
- 
--	if (len > 1 && key[len - 1] == '/') {
-+	if (unlikely(len > 1 && key[len - 1] == '/')) {
- 		/* reuse clean_key from above if available */
- 		if (!clean_key) {
- 			clean_key = (char *) malloc(len);
-@@ -1757,7 +1784,7 @@ FUZZ_EXTERN struct lookup_result *lookup_all(struct selabel_handle *rec,
- 
- 	node = lookup_find_deepest_node(data->root, key);
- 
--	result = lookup_check_node(node, key, file_kind, partial, find_all);
-+	result = lookup_check_node(node, key, file_kind, partial, find_all, buf);
- 
- finish:
- 	free(clean_key);
-@@ -1768,14 +1795,9 @@ finish:
- static struct lookup_result *lookup_common(struct selabel_handle *rec,
- 					   const char *key,
- 					   int type,
--					   bool partial) {
--	struct lookup_result *result = lookup_all(rec, key, type, partial, false);
--	if (!result)
--		return NULL;
--
--	free_lookup_result(result->next);
--	result->next = NULL;
--	return result;
-+					   bool partial,
-+					   struct lookup_result *buf) {
-+	return lookup_all(rec, key, type, partial, false, buf);
- }
- 
- /*
-@@ -1835,7 +1857,7 @@ static bool hash_all_partial_matches(struct selabel_handle *rec, const char *key
- {
- 	assert(digest);
- 
--	struct lookup_result *matches = lookup_all(rec, key, 0, true, true);
-+	struct lookup_result *matches = lookup_all(rec, key, 0, true, true, NULL);
- 	if (!matches) {
- 		return false;
- 	}
-@@ -1864,25 +1886,20 @@ static bool hash_all_partial_matches(struct selabel_handle *rec, const char *key
- static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
- 					 const char *key, int type)
- {
--	struct lookup_result *result;
--	struct selabel_lookup_rec *lookup_result;
-+	struct lookup_result buf, *result;
- 
--	result = lookup_common(rec, key, type, false);
-+	result = lookup_common(rec, key, type, false, &buf);
- 	if (!result)
- 		return NULL;
- 
--	lookup_result = result->lr;
--	free_lookup_result(result);
--	return lookup_result;
-+	return result->lr;
- }
- 
- static bool partial_match(struct selabel_handle *rec, const char *key)
- {
--	struct lookup_result *result = lookup_common(rec, key, 0, true);
--	bool ret = result;
-+	struct lookup_result buf;
- 
--	free_lookup_result(result);
--	return ret;
-+	return !!lookup_common(rec, key, 0, true, &buf);
- }
- 
- static struct selabel_lookup_rec *lookup_best_match(struct selabel_handle *rec,
-@@ -1904,7 +1921,7 @@ static struct selabel_lookup_rec *lookup_best_match(struct selabel_handle *rec,
- 	results = calloc(n+1, sizeof(*results));
- 	if (!results)
- 		return NULL;
--	results[0] = lookup_common(rec, key, type, false);
-+	results[0] = lookup_common(rec, key, type, false, NULL);
- 	if (results[0]) {
- 		if (!results[0]->has_meta_chars) {
- 			/* exact match on key */
-@@ -1915,7 +1932,7 @@ static struct selabel_lookup_rec *lookup_best_match(struct selabel_handle *rec,
- 		prefix_len = results[0]->prefix_len;
- 	}
- 	for (i = 1; i <= n; i++) {
--		results[i] = lookup_common(rec, aliases[i-1], type, false);
-+		results[i] = lookup_common(rec, aliases[i-1], type, false, NULL);
- 		if (results[i]) {
- 			if (!results[i]->has_meta_chars) {
- 				/* exact match on alias */
-diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-index 372837dd..964b8418 100644
---- a/libselinux/src/selinux_internal.h
-+++ b/libselinux/src/selinux_internal.h
-@@ -142,4 +142,12 @@ static inline void fclose_errno_safe(FILE *stream)
- 	errno = saved_errno;
- }
- 
-+#ifdef __GNUC__
-+# define likely(x)			__builtin_expect(!!(x), 1)
-+# define unlikely(x)			__builtin_expect(!!(x), 0)
-+#else
-+# define likely(x)			(x)
-+# define unlikely(x)			(x)
-+#endif /* __GNUC__ */
-+
- #endif /* SELINUX_INTERNAL_H_ */
--- 
-2.45.2
-
+>
+> -Daniel
+>
+>
+>
