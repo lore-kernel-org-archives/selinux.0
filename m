@@ -1,41 +1,37 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4F4618FDBA
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4FA21CC89D
 	for <selinux@vger.kernel.org>; Tue, 26 Nov 2024 10:26:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732616800; cv=none; b=Xl/f3+6WD7qTZSwl47475KkYXKqHLO9cW33w+wQ1BV3I03MVW2PuVzmpyhVTXXzafAEAudeK7CXR6qqjDRV0xYqFnFu+miozU5/PI+GNYw8HS8qNvGX7iHxaDB8IxHKunR30VYHLiVcaX4d5nhqTgu2XFvXuw5bUyKFQuYDCGKk=
+	t=1732616800; cv=none; b=ZcUzv04jwZGl5furFjXGAgZQO/lKy+Ljb42Y2eYMvFV6RUHWCre6AK7u/WYg0yjRP06auT9kgcXNOVxBUDJkakiv8ahIjbE6j57YfhmKJ/Gbsp55BPVU49KuzQvXCs19eWiUPhoHQvAikZ/WhoD7H+yI0unZBTXcESoE/nmO6GE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1732616800; c=relaxed/simple;
-	bh=1ZTCypzcXHi9LvzLnyJ/KcXnQ3VHQ7pQobATp7NmzZQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=IOzpp8yf6eoGG8yNVBMoOPpvOWcSJKPCsDiuzzIR4imfiVOgQIea1jyzz4zoxxEPwmjiPvbIzPpWM8vilRevUwZAwQelQrRFucWMwCzMZPQwf7o3IucJh0RcCSpgTvufHE2XM0ce1qxjMrzVAwt8L4Noey/bT2lh4MaPCgavOAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=HPLsn4J0; arc=none smtp.client-ip=168.119.48.163
+	bh=FU9hOxAsf7+9rprPXtzqxlwq7WGorsjoDW/6yH6pfFQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Sso9XNjYuM+VkDs0Zq8xZuvtpCD4YTLdkBVgWduWR4/jEG5sRq5YBRjW9n0lJXCLekkRSywGS15VzUJJcj4jXfSBsGa9AyvQpNmFD3KDllF+Yd1v8mCDn6L+mT9ekF1pijtmAcZjikYP0iamHzA4DJUnvqzq+3RWgkqyhcLTCP0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=kwnzXcXS; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="HPLsn4J0"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="kwnzXcXS"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1732616794;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8WnnYKqGsvMRFUBHZQHjvdFa3fGLJmOEoy4PQW5YTKQ=;
-	b=HPLsn4J0QKuYWyE8AK9O3M5y0XiW7ogwEdNgylkr/wpI2xhI2O2K5ErrylxySdo31WyTSc
-	OFhLGJsC8u4Cyw28sPLej+LLBgJjcl+YEYvr0eMwUs1sRV0cH/+s0b+Wp+003hTyONXkuR
-	tO7i4eEBueCDKbTdRPf0SBKKoTexyj3HpAXHc4LR435B1gJiF7cKaJuWV0mD3dSSn5r9pV
-	u+4arCLJ9meizAkMvzlYHnVB4NBuFafHgxW2AaF5JzXBObChQCLyZqQY3vVKhchVgcAdC7
-	WHD8mQM9Qr4QKa7gVtFBANvAOCCJLmUJ9N9WD13WIUhwTXpNGu1P0MMFtewOFA==
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=mtKidiXapmX3A9JU3r1UYAElvEUaIuKmxPRyI0z97GE=;
+	b=kwnzXcXSf8UtmhHRB2xe+pP16gTycQEaGhi44aV3jKO2Z4QAWbCNOT3RHg18FF4yVzlc0U
+	8i/3stqJt53YI6BYMe/NV7YCmSTCgy+YJ0dmwTWNDD9bdQO9gTWX3YJmWhDLH+VQ1DDJ0z
+	JiHPFmA0YRW76/8/uCpfQnm2DnqS9Er7DYAgZkBPrg6dOm7u/DTc7xUe3wp+Y0S7l7+9v1
+	rUIe13D0g3VENxsjWoTMCYWed+sTOCuvxMmW1Z9FapD4wMl4+Qe9UUClUh4YS8Vu8U28MS
+	jSeqORjkOQOCoYxnMtag6Dy6WO9SS3B3jG0GVEijU0ws1ZGnkbPumKkRqRt+AQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v3 2/3] libselinux: use vector instead of linked list for substitutions
-Date: Tue, 26 Nov 2024 11:26:20 +0100
-Message-ID: <20241126102621.20253-2-cgoettsche@seltendoof.de>
-In-Reply-To: <20241126102621.20253-1-cgoettsche@seltendoof.de>
-References: <20241126102621.20253-1-cgoettsche@seltendoof.de>
+Subject: [PATCH v3 1/3] libselinux: avoid memory allocation in common file label lookup
+Date: Tue, 26 Nov 2024 11:26:19 +0100
+Message-ID: <20241126102621.20253-1-cgoettsche@seltendoof.de>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -47,300 +43,275 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Utilize cache locality for the substitutions by storing them in
-contiguous memory instead of a linked list.
+Remove a memory allocation during a common file label lookup,
+e.g. requested by restorecon(8)/setfiles(8), by using a local stack
+buffer for a potential lookup result.
+
+Additional minor optimization tweaks.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
-v3: fix memleak in err label in selabel_subs_init()
-v2: drop unnecessary check for zero length
+v2: drop claim about this being the sole memory allocation, since
+    applying a substitution path allocates as well
 ---
- libselinux/src/label_file.c | 129 +++++++++++++++++++-----------------
- libselinux/src/label_file.h |  20 ++++--
- 2 files changed, 83 insertions(+), 66 deletions(-)
+ libselinux/src/label_file.c       | 103 +++++++++++++++++-------------
+ libselinux/src/selinux_internal.h |   8 +++
+ 2 files changed, 68 insertions(+), 43 deletions(-)
 
 diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 4e212aa4..8050ef1a 100644
+index 189a5ed2..4e212aa4 100644
 --- a/libselinux/src/label_file.c
 +++ b/libselinux/src/label_file.c
-@@ -1120,28 +1120,27 @@ static int process_file(const char *path, const char *suffix,
- 	return -1;
- }
- 
--static void selabel_subs_fini(struct selabel_sub *ptr)
-+static void selabel_subs_fini(struct selabel_sub *subs, uint32_t num)
- {
--	struct selabel_sub *next;
--
--	while (ptr) {
--		next = ptr->next;
--		free(ptr->src);
--		free(ptr->dst);
--		free(ptr);
--		ptr = next;
-+	for (uint32_t i = 0; i < num; i++) {
-+		free(subs[i].src);
-+		free(subs[i].dst);
+@@ -1467,12 +1467,30 @@ FUZZ_EXTERN void free_lookup_result(struct lookup_result *result)
  	}
-+
-+	free(subs);
  }
  
--static char *selabel_sub(const struct selabel_sub *ptr, const char *src)
-+static char *selabel_apply_subs(const struct selabel_sub *subs, uint32_t num, const char *src)
+-static struct lookup_result *lookup_check_node(struct spec_node *node, const char *key, uint8_t file_kind, bool partial, bool find_all)
++/**
++ * lookup_check_node() - Try to find a file context definition in the given node or parents.
++ * @node:      The deepest specification node to match against. Parent nodes are successively
++ *             searched on no match or when finding all matches.
++ * @key:       The absolute file path to look up.
++ * @file_kind: The kind of the file to look up (translated from file type into LABEL_FILE_KIND_*).
++ * @partial:   Whether to partially match the given file path or completely.
++ * @find_all:  Whether to find all file context definitions or just the most specific.
++ * @buf:       A pre-allocated buffer for a potential result to avoid allocating it on the heap or
++ *             NULL. Mututal exclusive with @find_all.
++ *
++ * Return: A pointer to a file context definition if a match was found. If @find_all was specified
++ *         its a linked list of all results. If @buf was specified it is returned on a match found.
++ *         NULL is returned in case of no match found.
++ */
++static struct lookup_result *lookup_check_node(struct spec_node *node, const char *key, uint8_t file_kind,
++					       bool partial, bool find_all, struct lookup_result *buf)
  {
--	char *dst = NULL;
--	unsigned int len;
-+	char *dst;
-+	uint32_t len;
-+
-+	for (uint32_t i = 0; i < num; i++) {
-+		const struct selabel_sub *ptr = &subs[i];
+ 	struct lookup_result *result = NULL;
+ 	struct lookup_result **next = &result;
+ 	size_t key_len = strlen(key);
  
--	while (ptr) {
- 		if (strncmp(src, ptr->src, ptr->slen) == 0 ) {
- 			if (src[ptr->slen] == '/' ||
--			    src[ptr->slen] == 0) {
-+			    src[ptr->slen] == '\0') {
- 				if ((src[ptr->slen] == '/') &&
- 				    (strcmp(ptr->dst, "/") == 0))
- 					len = ptr->slen + 1;
-@@ -1152,34 +1151,38 @@ static char *selabel_sub(const struct selabel_sub *ptr, const char *src)
- 				return dst;
++	assert(!(find_all && buf != NULL));
++
+ 	for (struct spec_node *n = node; n; n = n->parent) {
+ 
+ 		uint32_t literal_idx = search_literal_spec(n->literal_specs, n->literal_specs_num, key, key_len, partial);
+@@ -1495,10 +1513,14 @@ static struct lookup_result *lookup_check_node(struct spec_node *node, const cha
+ 						return NULL;
+ 					}
+ 
+-					r = malloc(sizeof(*r));
+-					if (!r) {
+-						free_lookup_result(result);
+-						return NULL;
++					if (likely(buf)) {
++						r = buf;
++					} else {
++						r = malloc(sizeof(*r));
++						if (!r) {
++							free_lookup_result(result);
++							return NULL;
++						}
+ 					}
+ 
+ 					*r = (struct lookup_result) {
+@@ -1510,11 +1532,11 @@ static struct lookup_result *lookup_check_node(struct spec_node *node, const cha
+ 						.next = NULL,
+ 					};
+ 
++					if (likely(!find_all))
++						return r;
++
+ 					*next = r;
+ 					next = &r->next;
+-
+-					if (!find_all)
+-						return result;
+ 				}
+ 
+ 				literal_idx++;
+@@ -1556,10 +1578,14 @@ static struct lookup_result *lookup_check_node(struct spec_node *node, const cha
+ 					return NULL;
+ 				}
+ 
+-				r = malloc(sizeof(*r));
+-				if (!r) {
+-					free_lookup_result(result);
+-					return NULL;
++				if (likely(buf)) {
++					r = buf;
++				} else {
++					r = malloc(sizeof(*r));
++					if (!r) {
++						free_lookup_result(result);
++						return NULL;
++					}
+ 				}
+ 
+ 				*r = (struct lookup_result) {
+@@ -1571,12 +1597,12 @@ static struct lookup_result *lookup_check_node(struct spec_node *node, const cha
+ 					.next = NULL,
+ 				};
+ 
++				if (likely(!find_all))
++					return r;
++
+ 				*next = r;
+ 				next = &r->next;
+ 
+-				if (!find_all)
+-					return result;
+-
+ 				continue;
  			}
- 		}
--		ptr = ptr->next;
- 	}
-+
- 	return NULL;
- }
  
- #if !defined(BUILD_HOST) && !defined(ANDROID)
- static int selabel_subs_init(const char *path, struct selabel_digest *digest,
--			     struct selabel_sub **out_subs)
-+			     struct selabel_sub **out_subs,
-+			     uint32_t *out_num, uint32_t *out_alloc)
+@@ -1692,7 +1718,8 @@ FUZZ_EXTERN struct lookup_result *lookup_all(struct selabel_handle *rec,
+ 				 const char *key,
+ 				 int type,
+ 				 bool partial,
+-				 bool find_all)
++				 bool find_all,
++				 struct lookup_result *buf)
  {
- 	char buf[1024];
--	FILE *cfg = fopen(path, "re");
--	struct selabel_sub *list = NULL, *sub = NULL;
-+	FILE *cfg;
- 	struct stat sb;
--	int status = -1;
-+	struct selabel_sub *tmp = NULL;
-+	uint32_t tmp_num = 0, tmp_alloc = 0;
-+	char *src_cpy = NULL, *dst_cpy = NULL;
-+	int rc;
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+ 	struct lookup_result *result = NULL;
+@@ -1704,18 +1731,18 @@ FUZZ_EXTERN struct lookup_result *lookup_all(struct selabel_handle *rec,
+ 	unsigned int sofar = 0;
+ 	char *sub = NULL;
  
- 	*out_subs = NULL;
-+	*out_num = 0;
-+	*out_alloc = 0;
-+
-+	cfg = fopen(path, "re");
- 	if (!cfg) {
- 		/* If the file does not exist, it is not fatal */
- 		return (errno == ENOENT) ? 0 : -1;
+-	if (!key) {
++	if (unlikely(!key)) {
+ 		errno = EINVAL;
+ 		goto finish;
  	}
  
--	if (fstat(fileno(cfg), &sb) < 0)
--		goto out;
+-	if (!data->num_specs) {
++	if (unlikely(!data->num_specs)) {
+ 		errno = ENOENT;
+ 		goto finish;
+ 	}
+ 
+ 	/* Remove duplicate slashes */
+-	if ((next_slash = strstr(key, "//"))) {
++	if (unlikely(next_slash = strstr(key, "//"))) {
+ 		clean_key = (char *) malloc(strlen(key) + 1);
+ 		if (!clean_key)
+ 			goto finish;
+@@ -1732,12 +1759,12 @@ FUZZ_EXTERN struct lookup_result *lookup_all(struct selabel_handle *rec,
+ 
+ 	/* remove trailing slash */
+ 	len = strlen(key);
+-	if (len == 0) {
++	if (unlikely(len == 0)) {
+ 		errno = EINVAL;
+ 		goto finish;
+ 	}
+ 
+-	if (len > 1 && key[len - 1] == '/') {
++	if (unlikely(len > 1 && key[len - 1] == '/')) {
+ 		/* reuse clean_key from above if available */
+ 		if (!clean_key) {
+ 			clean_key = (char *) malloc(len);
+@@ -1757,7 +1784,7 @@ FUZZ_EXTERN struct lookup_result *lookup_all(struct selabel_handle *rec,
+ 
+ 	node = lookup_find_deepest_node(data->root, key);
+ 
+-	result = lookup_check_node(node, key, file_kind, partial, find_all);
++	result = lookup_check_node(node, key, file_kind, partial, find_all, buf);
+ 
+ finish:
+ 	free(clean_key);
+@@ -1768,14 +1795,9 @@ finish:
+ static struct lookup_result *lookup_common(struct selabel_handle *rec,
+ 					   const char *key,
+ 					   int type,
+-					   bool partial) {
+-	struct lookup_result *result = lookup_all(rec, key, type, partial, false);
+-	if (!result)
+-		return NULL;
 -
- 	while (fgets_unlocked(buf, sizeof(buf) - 1, cfg)) {
--		char *ptr = NULL;
-+		char *ptr;
- 		char *src = buf;
--		char *dst = NULL;
-+		char *dst;
- 		size_t len;
- 
- 		while (*src && isspace((unsigned char)*src))
-@@ -1207,62 +1210,68 @@ static int selabel_subs_init(const char *path, struct selabel_digest *digest,
- 			goto err;
- 		}
- 
--		sub = calloc(1, sizeof(*sub));
--		if (! sub)
-+		src_cpy = strdup(src);
-+		if (!src_cpy)
- 			goto err;
- 
--		sub->src = strdup(src);
--		if (! sub->src)
-+		dst_cpy = strdup(dst);
-+		if (!dst_cpy)
- 			goto err;
- 
--		sub->dst = strdup(dst);
--		if (! sub->dst)
-+		rc = GROW_ARRAY(tmp);
-+		if (rc)
- 			goto err;
- 
--		sub->slen = len;
--		sub->next = list;
--		list = sub;
--		sub = NULL;
-+		tmp[tmp_num++] = (struct selabel_sub) {
-+			.src = src_cpy,
-+			.slen = len,
-+			.dst = dst_cpy,
-+		};
-+		src_cpy = NULL;
-+		dst_cpy = NULL;
- 	}
- 
-+	rc = fstat(fileno(cfg), &sb);
-+	if (rc < 0)
-+		goto err;
-+
- 	if (digest_add_specfile(digest, cfg, NULL, sb.st_size, path) < 0)
- 		goto err;
- 
--	*out_subs = list;
--	status = 0;
-+	*out_subs = tmp;
-+	*out_num = tmp_num;
-+	*out_alloc = tmp_alloc;
- 
--out:
- 	fclose(cfg);
--	return status;
-+
-+	return 0;
-+
- err:
--	if (sub)
--		free(sub->src);
--	free(sub);
--	while (list) {
--		sub = list->next;
--		free(list->src);
--		free(list->dst);
--		free(list);
--		list = sub;
-+	free(dst_cpy);
-+	free(src_cpy);
-+	for (uint32_t i = 0; i < tmp_num; i++) {
-+		free(tmp[i].src);
-+		free(tmp[i].dst);
- 	}
--	goto out;
-+	free(tmp);
-+	fclose_errno_safe(cfg);
-+	return -1;
- }
- #endif
- 
- static char *selabel_sub_key(const struct saved_data *data, const char *key)
- {
--	char *ptr = NULL;
--	char *dptr = NULL;
-+	char *ptr, *dptr;
- 
--	ptr = selabel_sub(data->subs, key);
-+	ptr = selabel_apply_subs(data->subs, data->subs_num, key);
- 	if (ptr) {
--		dptr = selabel_sub(data->dist_subs, ptr);
-+		dptr = selabel_apply_subs(data->dist_subs, data->dist_subs_num, ptr);
- 		if (dptr) {
- 			free(ptr);
- 			ptr = dptr;
- 		}
- 	} else {
--		ptr = selabel_sub(data->dist_subs, key);
-+		ptr = selabel_apply_subs(data->dist_subs, data->dist_subs_num, key);
- 	}
- 
- 	return ptr;
-@@ -1307,23 +1316,25 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
- 	if (!path) {
- 		status = selabel_subs_init(
- 			selinux_file_context_subs_dist_path(),
--			rec->digest, &data->dist_subs);
-+			rec->digest,
-+			&data->dist_subs, &data->dist_subs_num, &data->dist_subs_alloc);
- 		if (status)
- 			goto finish;
- 		status = selabel_subs_init(selinux_file_context_subs_path(),
--			rec->digest, &data->subs);
-+			rec->digest,
-+			&data->subs, &data->subs_num, &data->subs_alloc);
- 		if (status)
- 			goto finish;
- 		path = selinux_file_context_path();
- 	} else {
- 		snprintf(subs_file, sizeof(subs_file), "%s.subs_dist", path);
- 		status = selabel_subs_init(subs_file, rec->digest,
--					   &data->dist_subs);
-+					   &data->dist_subs, &data->dist_subs_num, &data->dist_subs_alloc);
- 		if (status)
- 			goto finish;
- 		snprintf(subs_file, sizeof(subs_file), "%s.subs", path);
- 		status = selabel_subs_init(subs_file, rec->digest,
--					   &data->subs);
-+					   &data->subs, &data->subs_num, &data->subs_alloc);
- 		if (status)
- 			goto finish;
- 	}
-@@ -1391,8 +1402,8 @@ static void closef(struct selabel_handle *rec)
- 	if (!data)
- 		return;
- 
--	selabel_subs_fini(data->subs);
--	selabel_subs_fini(data->dist_subs);
-+	selabel_subs_fini(data->subs, data->subs_num);
-+	selabel_subs_fini(data->dist_subs, data->dist_subs_num);
- 
- 	free_spec_node(data->root);
- 	free(data->root);
-diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-index de8190f9..436982bf 100644
---- a/libselinux/src/label_file.h
-+++ b/libselinux/src/label_file.h
-@@ -67,11 +67,11 @@ extern struct lookup_result *lookup_all(struct selabel_handle *rec, const char *
- extern enum selabel_cmp_result cmp(const struct selabel_handle *h1, const struct selabel_handle *h2);
- #endif  /* FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION */
- 
-+/* A path substitution entry */
- struct selabel_sub {
--	char *src;
--	unsigned int slen;
--	char *dst;
--	struct selabel_sub *next;
-+	char *src;				/* source path prefix */
-+	char *dst;				/* substituted path prefix */
-+	uint32_t slen;				/* length of source path prefix */
- };
- 
- /* A regular expression file security context specification */
-@@ -159,9 +159,17 @@ struct saved_data {
- 
- 	struct mmap_area *mmap_areas;
- 
--	/* substitution support */
-+	/*
-+	 * Array of distribution substitutions
-+	 */
- 	struct selabel_sub *dist_subs;
-+	uint32_t dist_subs_num, dist_subs_alloc;
-+
-+	/*
-+	 * Array of local substitutions
-+	 */
- 	struct selabel_sub *subs;
-+	uint32_t subs_num, subs_alloc;
- };
- 
- static inline mode_t string_to_file_kind(const char *mode)
-@@ -811,8 +819,6 @@ static int insert_spec(const struct selabel_handle *rec, struct saved_data *data
- 	return 0;
+-	free_lookup_result(result->next);
+-	result->next = NULL;
+-	return result;
++					   bool partial,
++					   struct lookup_result *buf) {
++	return lookup_all(rec, key, type, partial, false, buf);
  }
  
--#undef GROW_ARRAY
--
- static inline void free_spec_node(struct spec_node *node)
+ /*
+@@ -1835,7 +1857,7 @@ static bool hash_all_partial_matches(struct selabel_handle *rec, const char *key
  {
- 	for (uint32_t i = 0; i < node->literal_specs_num; i++) {
+ 	assert(digest);
+ 
+-	struct lookup_result *matches = lookup_all(rec, key, 0, true, true);
++	struct lookup_result *matches = lookup_all(rec, key, 0, true, true, NULL);
+ 	if (!matches) {
+ 		return false;
+ 	}
+@@ -1864,25 +1886,20 @@ static bool hash_all_partial_matches(struct selabel_handle *rec, const char *key
+ static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
+ 					 const char *key, int type)
+ {
+-	struct lookup_result *result;
+-	struct selabel_lookup_rec *lookup_result;
++	struct lookup_result buf, *result;
+ 
+-	result = lookup_common(rec, key, type, false);
++	result = lookup_common(rec, key, type, false, &buf);
+ 	if (!result)
+ 		return NULL;
+ 
+-	lookup_result = result->lr;
+-	free_lookup_result(result);
+-	return lookup_result;
++	return result->lr;
+ }
+ 
+ static bool partial_match(struct selabel_handle *rec, const char *key)
+ {
+-	struct lookup_result *result = lookup_common(rec, key, 0, true);
+-	bool ret = result;
++	struct lookup_result buf;
+ 
+-	free_lookup_result(result);
+-	return ret;
++	return !!lookup_common(rec, key, 0, true, &buf);
+ }
+ 
+ static struct selabel_lookup_rec *lookup_best_match(struct selabel_handle *rec,
+@@ -1904,7 +1921,7 @@ static struct selabel_lookup_rec *lookup_best_match(struct selabel_handle *rec,
+ 	results = calloc(n+1, sizeof(*results));
+ 	if (!results)
+ 		return NULL;
+-	results[0] = lookup_common(rec, key, type, false);
++	results[0] = lookup_common(rec, key, type, false, NULL);
+ 	if (results[0]) {
+ 		if (!results[0]->has_meta_chars) {
+ 			/* exact match on key */
+@@ -1915,7 +1932,7 @@ static struct selabel_lookup_rec *lookup_best_match(struct selabel_handle *rec,
+ 		prefix_len = results[0]->prefix_len;
+ 	}
+ 	for (i = 1; i <= n; i++) {
+-		results[i] = lookup_common(rec, aliases[i-1], type, false);
++		results[i] = lookup_common(rec, aliases[i-1], type, false, NULL);
+ 		if (results[i]) {
+ 			if (!results[i]->has_meta_chars) {
+ 				/* exact match on alias */
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index 372837dd..964b8418 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -142,4 +142,12 @@ static inline void fclose_errno_safe(FILE *stream)
+ 	errno = saved_errno;
+ }
+ 
++#ifdef __GNUC__
++# define likely(x)			__builtin_expect(!!(x), 1)
++# define unlikely(x)			__builtin_expect(!!(x), 0)
++#else
++# define likely(x)			(x)
++# define unlikely(x)			(x)
++#endif /* __GNUC__ */
++
+ #endif /* SELINUX_INTERNAL_H_ */
 -- 
 2.45.2
 
