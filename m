@@ -1,37 +1,37 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76AE06F06A
-	for <selinux@vger.kernel.org>; Thu, 28 Nov 2024 15:32:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B4E225761
+	for <selinux@vger.kernel.org>; Thu, 28 Nov 2024 15:40:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732807969; cv=none; b=IpeS5u+xbQFCTU32sczc3HQd/1uj56KB/Tv0PkD1/c0nuFMwxEZs3/KZAWs1oCAiKENqWIeQAGiGx7iNUQG2gJZLqgtErQK8Wv0dOpFc2hu+sM/6dQH34QPj9FAXsLlWVRvmiWS7+Og9ulDa/L/3keNV8J/h5zlv/k+EyRaomF8=
+	t=1732808446; cv=none; b=gXHx8DIPnCxsHtRbl00xyPjsu7aIUBSf0bDO3D+MlmlShNt7nUaNAJTH1rLF084UZtFGa28pis3TcwTJEEGo30l5ZJUu6t7R8CbUHmbahGCYtrCtXd4Z0bhGYLNB6T+HM2WnwMXef78aTi6V4mMWWxAvPScfGBxHEftM1Yd0RlI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732807969; c=relaxed/simple;
-	bh=eVBiL5rNgy2Rv9052/s2YCjt5EpMyfBjchNk/GhvdJQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Y4oTnvFg7s4tx6bY20R4OUwQO2osLBODtLrIFtQLKRkjKDWpdabn60hOh8XGiqDwJptWAD0RMfk3EvLemIN5k31aKFywE7BtflhjMrMZ2IZ3+yJ0vVjlZI0CZpd7jbZE3YJO+Qn+fVlW1+xJR/uNKxnmtZPlEhQSppWH/apw2Us=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=cR7d5dnC; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1732808446; c=relaxed/simple;
+	bh=lC88kg1+xJUL8xXwIg4eR3dZEPH09pKxIIGdoe3WYic=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VjRYvhA2cedrSVadHf8lEhMxE6f4R6CbwLcDcCrFTCWOOikYCBEewafxSkQO66kFA5pSfLXjKiWY/iIKPd6ZIk98oIBlXUFaU5fE0APKREHDv+34laHCtetl0aMIZTEMNsus6SL5K+EDylvj3NX/IbCGf4GkWG6LE+9HHmXzhRU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=OO8RW6r/; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="cR7d5dnC"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="OO8RW6r/"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1732807962;
+	s=2023072701; t=1732808441;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=Cp1bxvpWCg8BBrReY/U1h+N8cQZq/V92LWIJnEWwVIE=;
-	b=cR7d5dnCMLBA2v1xFv0z4vDx1mJRdIL88EmoZczYijIk+mx5C5Ub0tXn6eE+9vd8Vsz6Ro
-	Rij5x44snaVkAnGcGoh9xgP1PkG3A/7LMbAM1S0trcRo1KNmUxBRqs14+90dJX+HvAs2Fm
-	AEUtwnDbR8Sw/0ua+tYlLRBhiVG050zUzb0qFdZOQqYuCpoi+apaJFaz9dvnN37hI9S2I8
-	JSL2AZ7CLaBREz1RF0VGiy68XRgZIAzOKbuNsbjkO29STKIk55RgUh3XlDjRhrhovE9R79
-	haDPguwmiqQ3dwQfKAOZUtKto79pG7AAGeXIbxt2N4d+ZoiXv/4j3Ktyh9IxUQ==
+	bh=mJM6UWBEXtDrEtvyrvgY4By1wZRScmBNJYoNUAGOarU=;
+	b=OO8RW6r/NP3lTZkDtQgfYtUyjiarOB1o4LE4XmjWekV3fIi23hQN6jUqlDpijCjO5Codqs
+	k1tJpozUPSqpYWORyiIDNN1qLAiSHuzduQC61lWtz1kDQGjEqzRjNta2AhUcpFWcVDGfxn
+	vkqG4dx8RTEv5HqBSO9HGHsP57lH0FwD4I22AGbQJM+EFUohiOWjvWlXw3vASnFev/c+h0
+	Vdpu4DDLdfkEYbl1sWNHiels8qPUQlwLk5jRctC9Ay6GITezwZOEJaPCK8jT8lU7JNl9cB
+	C0TKR7Ld7VUG7V0h5xYmn8MAjgZdidGQiNZtnABKWt8JNthp3mo1xxe6tMOJTQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH] libselinux/utils: use correct error handling
-Date: Thu, 28 Nov 2024 16:32:39 +0100
-Message-ID: <20241128153239.16472-1-cgoettsche@seltendoof.de>
+Subject: [PATCH] libsepol: avoid unnecessary memset(3) calls in hashtab
+Date: Thu, 28 Nov 2024 16:40:34 +0100
+Message-ID: <20241128154034.23298-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -44,29 +44,65 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Instead of returning directly goto the err label, which prints a message
-and closes the opened file stream.
+Use struct initialization with designators to skip unnecessary memset(3)
+calls.  Since libsepol is not a security boundary uninitialized padding
+is not a concern.
 
-Found by clang-analyzer.
+Also drop the dead assignment of a region to be free'd in the next line.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- libselinux/utils/sefcontext_compile.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libsepol/src/hashtab.c | 23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
-index 23d31274..5d7ab301 100644
---- a/libselinux/utils/sefcontext_compile.c
-+++ b/libselinux/utils/sefcontext_compile.c
-@@ -471,7 +471,7 @@ static int write_binary_file(const struct saved_data *data, const struct sidtab
- 	/* write context table */
- 	rc = write_sidtab(bin_file, stab);
- 	if (rc)
--		return rc;
-+		goto err;
+diff --git a/libsepol/src/hashtab.c b/libsepol/src/hashtab.c
+index 399582b1..4c658588 100644
+--- a/libsepol/src/hashtab.c
++++ b/libsepol/src/hashtab.c
+@@ -48,12 +48,14 @@ hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
+ 	if (p == NULL)
+ 		return p;
  
- 	rc = write_spec_node(bin_file, do_write_precompregex, data->root, stab);
- 	if (rc)
+-	memset(p, 0, sizeof(hashtab_val_t));
+-	p->size = size;
+-	p->nel = 0;
+-	p->hash_value = hash_value;
+-	p->keycmp = keycmp;
+-	p->htable = (hashtab_ptr_t *) calloc(size, sizeof(hashtab_ptr_t));
++	*p = (hashtab_val_t) {
++		.size = size,
++		.nel = 0,
++		.hash_value = hash_value,
++		.keycmp = keycmp,
++		.htable = (hashtab_ptr_t *) calloc(size, sizeof(hashtab_ptr_t)),
++	};
++
+ 	if (p->htable == NULL) {
+ 		free(p);
+ 		return NULL;
+@@ -127,9 +129,10 @@ int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
+ 	newnode = (hashtab_ptr_t) malloc(sizeof(hashtab_node_t));
+ 	if (newnode == NULL)
+ 		return SEPOL_ENOMEM;
+-	memset(newnode, 0, sizeof(struct hashtab_node));
+-	newnode->key = key;
+-	newnode->datum = datum;
++	*newnode = (hashtab_node_t) {
++		.key = key,
++		.datum = datum,
++	};
+ 	if (prev) {
+ 		newnode->next = prev->next;
+ 		prev->next = newnode;
+@@ -223,8 +226,6 @@ void hashtab_destroy(hashtab_t h)
+ 	}
+ 
+ 	free(h->htable);
+-	h->htable = NULL;
+-
+ 	free(h);
+ }
+ 
 -- 
 2.45.2
 
