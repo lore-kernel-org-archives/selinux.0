@@ -1,80 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com [209.85.219.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19EE815E5CA;
-	Wed, 27 Nov 2024 23:53:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FA1F13D8B4;
+	Thu, 28 Nov 2024 12:49:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732751635; cv=none; b=QTxMAIZjg32eYz8TiHx3voCfpFDYH9mwsUeCH+8ENjKVQuqdGs2Pt9af2NOSp8cLm0NBsGOywZrhO8aknlA9QzuF1ZnS7MagbT8vMukULPLxwLgY/N8wUXxyVkXmA+U9C1RRs52IeaoV2PU/zQnwUbOwftIpIpvs3cUNibEQEUA=
+	t=1732798191; cv=none; b=dWlkDAb47Sz7zL772zT84qxHkZ9ecdNUX+/M1PZdGfEEUJvTI79OdQSkC6u+7EQ+T0QPQU3Z7NAmYCo39oXnfiAOyRqwYHqsrsByDAONbwi4u9qzs8tTV2JF1GUaV6seQoibH3m1JJo41zTZiODLOZ0Ew/wOIEjCMYtVubVibj0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732751635; c=relaxed/simple;
-	bh=kiqiUHGZQKDYDLk9fO3maDsxVcc0F+gp/DU8rZH1+FQ=;
+	s=arc-20240116; t=1732798191; c=relaxed/simple;
+	bh=BqSvddOO7uzl+51J37esKBdrOTlw1w5GUalne+Zm4xQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gW/8kEX8u0NeAvYEVNuPe0UADVw9CH9eI7GSnOwpAmufE21LKsyTy7JEFc7MzqnSh8WqmpCXfGGvPAUGE+IS5clbFMtZckZgxhXEbxkomb/ndl4I+tQFpB7bXSCVfkeCw/aH0YK/YCvBwclr1KSzSi2ezb2nCjL9SEIfx9jyF3M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GeG7vUmN; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=WbGQLUkvlNhIRJsU8AsCQ+oixoYOT5O7EOl+eSZQ58DI5buN+AP5B+Ml/Hx/2LnzNcBMmFtevYObbwDNtItbZ3wXvDQQhvh253qmykzcGUXlht33mbUdQUy0qi1P7MF4h+0F9Z5oidPZ8d8WT/GMKqvDuPhFRvNwus2EcLj5o9Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=mAV0GvUq; arc=none smtp.client-ip=209.85.219.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GeG7vUmN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D001C4CED4;
-	Wed, 27 Nov 2024 23:53:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1732751634;
-	bh=kiqiUHGZQKDYDLk9fO3maDsxVcc0F+gp/DU8rZH1+FQ=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=GeG7vUmNZxbSth87JooSfMF70IdT3fmdmMXXf3fotyZKM4wDTZKySh6/5dMAENZG+
-	 fQSYLbqMyRYMmCkBitkqzLK8OanqDV8g4hL8G3ktzy12e0uHSsKnAoK+ull1W/Qrtm
-	 winMgGo7shI9dK1PMEGiYmzxwRXOIWUGwJEE1x7Eny5Ura6yST/t+WESAttYWhKVNU
-	 EzcN2TCkGTwCzHwgVfMoA/aUZTABc6qB/VzMdR4jObHzc5B4B5Hm+nrg2UePPTBIND
-	 0//7C4UTE2M9bPDtYYrCqrwKCi07Ukb1R+xEdNYoe0VaN6LS27LVjLSrdaBmkdWfc4
-	 kfh7Xyp8EDsHw==
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-53de5ec22adso233749e87.3;
-        Wed, 27 Nov 2024 15:53:54 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUTeYMrN8/ZFzLNEuNy9eKAc4hv8C6MOys19tbitvHXwiFAzZtuvzHaGOBx1zp3HtuYGU74lLbyqb6LzkU=@vger.kernel.org, AJvYcCVpGQmBlxJAiu1gWm4e85a3VYz/MoqQ3Qy1pF4U9abk66JnVZAn5napMmHTkOuhYJupFnSGdcNdZpWlo0MC@vger.kernel.org, AJvYcCXLDiiebSqQvHLd6+7f1QL3elgzXz4Dka/Lxork6TlSjNp/+yiJj0lzkn7j2Ygnj6BAOMxsCHrrHA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwmZCZLdN//JWWdUc2rZpxQpJ7oyg4+vQPllKpyh2cLZhDk2pAQ
-	bey5PLo/diK2K6POeoe7F5oxBMXHEfGTDOpzl6ybuSLSOKvynXY/QZvajG/y0aIXosd5CZVD6rG
-	SYoCgm9OlmYRquR0xWOYkb5qdFC4=
-X-Google-Smtp-Source: AGHT+IGCxQxyu7QI4OzPAUT0z2wKT6cIjeMzPvwQlBLfhKTYIg/LEjqElhB370EqPzFIOc43+h4829TCnjPUJgXQ+N4=
-X-Received: by 2002:ac2:4c45:0:b0:53d:e5c0:b99d with SMTP id
- 2adb3069b0e04-53df010ead6mr2748857e87.49.1732751633236; Wed, 27 Nov 2024
- 15:53:53 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="mAV0GvUq"
+Received: by mail-yb1-f172.google.com with SMTP id 3f1490d57ef6-e387afcb162so782123276.1;
+        Thu, 28 Nov 2024 04:49:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20230601; t=1732798188; x=1733402988; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=k8enuKRoYuGx+UMyN4wbQkK8SaUw8qYySH+tZSLJzqc=;
+        b=mAV0GvUqFLP7VhvKQw+5PvB+lVdLvdQzkij7fwbAvK+FVOjN5NwhD8zevhHqvPhkgg
+         vy1NYv4THwvmUCxUnMY2fMnNbGh0WUCi//oqZI5JJdWk7iSYcn3D/4hBV67jhyUZHOlU
+         zL+/k6CFQ/MPCAHABB3v7x9B6pyHpBd/2sBXkeFvQWxVl8DXkhQ1oyVBSbyugvpksnMG
+         OTBEfpFFev+gtNfe8vYi50/5VVoluR49I24Mnfu50ce44wozHOVvAMRF50WLmv9Lbwm5
+         6PxVpV+ZDqDffO1ghkfRaiE4lER5ZWrqDnQuhF2e18ogbG1QxDA55qKvu88MDWDNYa4Y
+         bcTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1732798188; x=1733402988;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=k8enuKRoYuGx+UMyN4wbQkK8SaUw8qYySH+tZSLJzqc=;
+        b=ZKmR5WFjAuGpNzz4KoRGmUNh1J4/1O8jWI5gU4JIFxeFfDJkI2lz7akXouHSSnc8Js
+         fGKr0vHhcQ2LiPK66zcv4AqV/9djEHGsZuTAAm3pEcZURz0EJV1sV+NpZdahS9I3KCc/
+         D8flFK/gAR9HUZ8hkIH6rYzkoOMcCETgCtQ9kg56s0hRZNw7FC+i2y5Gub4GWvClNZIc
+         lbZ59M3cAVWEaZL75zVAT7y9/sgmr8rjBKbcMnwTGuBnTOfprRAtga0g7n47nvbU6z5a
+         /aYQQni3U9yfiZlqJPMgCiGtuA8+Hn3FwD/9lPN5hq3nUW3Pa0WXKsn/STGYCm19JWn9
+         5KGg==
+X-Forwarded-Encrypted: i=1; AJvYcCX2ofQh3MHZTNPy2A2XeNXT0ftiZiuAFrl8IhTyjg0Bw46j30oSlYACwaBC6AIkfbCVyX2ODn0vFgRZljE=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzuLeTlVhqGaH8r7YzabzwexoH7S28Ez9ImQhpgvdWNByrM2cHo
+	L6UFwQDDFIvg4K9daOzXXkZ4T/FIBzAKp3veEyqlhvhD1tqe7bEfHazzJgXg+eXXDizpsfKImel
+	fTnE8R2puOEzEZSD5HLx7uGWGyhM=
+X-Gm-Gg: ASbGncu/oxC3U7b1SdfdOl53r2HjsJkEf/mWm+UHbSWI5lp24FefvmlSkwV6QxGYfO6
+	CRr/bGZKqlPeZGTZQsIK2oqqDSHCQ
+X-Google-Smtp-Source: AGHT+IHBo3KFH8jkIO5SbMSbUey4I9GnEZpMOVORzkoe2iFn3uMqC81/CgEeGD1vVAPrpQqe1U+NlyQKRj5OYiNbdZ0=
+X-Received: by 2002:a05:6902:2784:b0:e38:b3e0:5006 with SMTP id
+ 3f1490d57ef6-e395b89c79fmr6453581276.15.1732798188333; Thu, 28 Nov 2024
+ 04:49:48 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241127-selinux-clean-v2-1-a6e528c1ff93@linutronix.de>
-In-Reply-To: <20241127-selinux-clean-v2-1-a6e528c1ff93@linutronix.de>
-From: Masahiro Yamada <masahiroy@kernel.org>
-Date: Thu, 28 Nov 2024 08:53:16 +0900
-X-Gmail-Original-Message-ID: <CAK7LNAQRtzeUQq8W6GsSJsA5jq4cnn4=-Cvz=J_tZeb-3n+A_w@mail.gmail.com>
-Message-ID: <CAK7LNAQRtzeUQq8W6GsSJsA5jq4cnn4=-Cvz=J_tZeb-3n+A_w@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: add generated av_permissions.h to targets
-To: =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Nathan Chancellor <nathan@kernel.org>, 
-	Nicolas Schier <nicolas@fjasle.eu>, linux-kbuild@vger.kernel.org, selinux@vger.kernel.org, 
+References: <20240405161042.260113-1-cgoettsche@seltendoof.de>
+ <20241023152719.24118-1-cgoettsche@seltendoof.de> <CAHC9VhQ+SmaYB-1zz2q9j1XJeAFaY+emn_KoNiXxqJDt6wjT0w@mail.gmail.com>
+In-Reply-To: <CAHC9VhQ+SmaYB-1zz2q9j1XJeAFaY+emn_KoNiXxqJDt6wjT0w@mail.gmail.com>
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Thu, 28 Nov 2024 13:49:37 +0100
+Message-ID: <CAJ2a_DcHZMkGuwPm69xD1VGnJe2Qjjucn8qRNJ65aqNS1VBAYw@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: add support for xperms in conditional policies
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@vger.kernel.org, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+	=?UTF-8?Q?Bram_Bonn=C3=A9?= <brambonne@google.com>, 
+	Jacob Satterfield <jsatterfield.linux@gmail.com>, Eric Suen <ericsu@linux.microsoft.com>, 
+	Casey Schaufler <casey@schaufler-ca.com>, John Johansen <john.johansen@canonical.com>, 
+	Canfeng Guo <guocanfeng@uniontech.com>, GUO Zihua <guozihua@huawei.com>, 
 	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 27, 2024 at 7:09=E2=80=AFPM Thomas Wei=C3=9Fschuh
-<thomas.weissschuh@linutronix.de> wrote:
+On Thu, 31 Oct 2024 at 23:20, Paul Moore <paul@paul-moore.com> wrote:
 >
-> av_permissions.h was not declared as a target and therefore not cleaned
-> up automatically by kbuild.
+> On Wed, Oct 23, 2024 at 11:27=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
+> >
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > Add support for extended permission rules in conditional policies.
+> > Currently the kernel accepts such rules already, but evaluating a
+> > security decision will hit a BUG() in
+> > services_compute_xperms_decision().  Thus reject extended permission
+> > rules in conditional policies for current policy versions.
+> >
+> > Add a new policy version for this feature.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> > v2:
+> >   rebased onto the netlink xperm patch
+> > ---
+> >  security/selinux/include/security.h |  3 ++-
+> >  security/selinux/ss/avtab.c         | 11 +++++++++--
+> >  security/selinux/ss/avtab.h         |  2 +-
+> >  security/selinux/ss/conditional.c   |  2 +-
+> >  security/selinux/ss/policydb.c      |  5 +++++
+> >  security/selinux/ss/services.c      | 12 ++++++++----
+> >  6 files changed, 26 insertions(+), 9 deletions(-)
 >
-> Suggested-by: Masahiro Yamada <masahiroy@kernel.org>
-> Link: https://lore.kernel.org/lkml/CAK7LNATUnCPt03BRFSKh1EH=3D+Sy0Q48wE4E=
-R0BZdJqOb_44L8w@mail.gmail.com/
-> Signed-off-by: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
+> This looks fine to me, but I believe there are some outstanding
+> userspace issues that need to be resolved?
 
+Hi,
 
-Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
+I know it's very late in the development cycle, but I wanted to ask if
+there is a chance this could be merged for 6.13?
+The userspace patches are merged and currently part of 3.8-rc1, and
+these kernel changes are quite simple, since most of the needed
+functionality was already in place.
+I created a testsuite patch over at
+https://github.com/SELinuxProject/selinux-testsuite/pull/98.
 
-
-
-
-
---=20
-Best Regards
-Masahiro Yamada
+>
+> --
+> paul-moore.com
