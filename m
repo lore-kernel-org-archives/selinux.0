@@ -1,37 +1,37 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCACD847B
-	for <selinux@vger.kernel.org>; Thu, 28 Nov 2024 15:29:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76AE06F06A
+	for <selinux@vger.kernel.org>; Thu, 28 Nov 2024 15:32:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732807748; cv=none; b=bFlfHd4m2jtjTAlu+IhcKRt1xWqNH8wEaKihBuzhldBwXkpW9MqbMO4G7U0aWdiLRnYyWoxek06gmDuwe/Zenw/dmDTmjX1VXo1vGPJpf7SyZLjG1h2/opgxEBeVWXCeCtlwk5atInGdJeGwRAR8n4ttdyMYPs20NuLf57uDa+k=
+	t=1732807969; cv=none; b=IpeS5u+xbQFCTU32sczc3HQd/1uj56KB/Tv0PkD1/c0nuFMwxEZs3/KZAWs1oCAiKENqWIeQAGiGx7iNUQG2gJZLqgtErQK8Wv0dOpFc2hu+sM/6dQH34QPj9FAXsLlWVRvmiWS7+Og9ulDa/L/3keNV8J/h5zlv/k+EyRaomF8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732807748; c=relaxed/simple;
-	bh=jMWTY0miLp3ttWuiXCG2mtq15p23KYcMCA1olS2lfE4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=TtpL4S88SGjNF5vCnFqocIwnbAnCLnQxcdZ5MpV8Rxupzoe5eZo25/EfXR1a/XdcFxcSpEfesMbRdSFb8GQHK9ctbCsLr7+C4orSw91nexImFc2F1AvZ5s8TgHTrvPCyFt8OdAf8x4UQPnyi4+UNnBtjZufDNp9ZjB1+QUE1ih4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=jakcZN5/; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1732807969; c=relaxed/simple;
+	bh=eVBiL5rNgy2Rv9052/s2YCjt5EpMyfBjchNk/GhvdJQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Y4oTnvFg7s4tx6bY20R4OUwQO2osLBODtLrIFtQLKRkjKDWpdabn60hOh8XGiqDwJptWAD0RMfk3EvLemIN5k31aKFywE7BtflhjMrMZ2IZ3+yJ0vVjlZI0CZpd7jbZE3YJO+Qn+fVlW1+xJR/uNKxnmtZPlEhQSppWH/apw2Us=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=cR7d5dnC; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="jakcZN5/"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="cR7d5dnC"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1732807736;
+	s=2023072701; t=1732807962;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=zkRonoBd42DMjYyyUqHvAawwBbv+NhzgTqmC6oFIM6Y=;
-	b=jakcZN5/fmc73XBnA/56NPwBs+5WduBGwCD4k0PyDoqYetlZdFMm9WFEy54CBsu9xW1zxk
-	aDsMTaHRiflar9sF9ZbFXEYWjeRK7JbsAvSZjHRJ20HoUi6CPFO6zDb8Sjq/Z+6sEqFvFj
-	HAqVUHAOtNrXEYH4vnKYp9tPtGGIglzDnDX2v/v2dht5xUdWBRbJmYzrJGSkxtv8AedAr8
-	E232ukL22B7xZQ8RjLk5E0OIpsrFkyp8PkWi7IF2RqM9/y1E15HAYbfUA/yC/5O1WYbhMP
-	RM7s2AoIYRlcvE5Cs8LnfmjihGm88SqWhK/ikKhaoLUqQbY0VySMwle2EG2T6g==
+	bh=Cp1bxvpWCg8BBrReY/U1h+N8cQZq/V92LWIJnEWwVIE=;
+	b=cR7d5dnCMLBA2v1xFv0z4vDx1mJRdIL88EmoZczYijIk+mx5C5Ub0tXn6eE+9vd8Vsz6Ro
+	Rij5x44snaVkAnGcGoh9xgP1PkG3A/7LMbAM1S0trcRo1KNmUxBRqs14+90dJX+HvAs2Fm
+	AEUtwnDbR8Sw/0ua+tYlLRBhiVG050zUzb0qFdZOQqYuCpoi+apaJFaz9dvnN37hI9S2I8
+	JSL2AZ7CLaBREz1RF0VGiy68XRgZIAzOKbuNsbjkO29STKIk55RgUh3XlDjRhrhovE9R79
+	haDPguwmiqQ3dwQfKAOZUtKto79pG7AAGeXIbxt2N4d+ZoiXv/4j3Ktyh9IxUQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [RFC PATCH] ioctl: add test for conditional xperms
-Date: Thu, 28 Nov 2024 16:28:51 +0100
-Message-ID: <20241128152851.14704-1-cgoettsche@seltendoof.de>
+Subject: [PATCH] libselinux/utils: use correct error handling
+Date: Thu, 28 Nov 2024 16:32:39 +0100
+Message-ID: <20241128153239.16472-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -44,263 +44,29 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Add checks for extended permission av rules in conditional blocks.
-Requires policy version 34.
+Instead of returning directly goto the err label, which prints a message
+and closes the opened file stream.
+
+Found by clang-analyzer.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- policy/Makefile                  |  5 ++
- policy/test_ioctl_cond_xperms.te | 26 ++++++++++
- tests/ioctl/.gitignore           |  2 +
- tests/ioctl/test                 | 82 +++++++++++++++++++++++++++++++-
- tests/ioctl/test_siocgifindex.c  | 32 +++++++++++++
- tests/ioctl/test_siocgifname.c   | 32 +++++++++++++
- 6 files changed, 177 insertions(+), 2 deletions(-)
- create mode 100644 policy/test_ioctl_cond_xperms.te
- create mode 100644 tests/ioctl/test_siocgifindex.c
- create mode 100644 tests/ioctl/test_siocgifname.c
+ libselinux/utils/sefcontext_compile.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/policy/Makefile b/policy/Makefile
-index 32d7ede..46e51f3 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -175,6 +175,11 @@ ifeq ($(shell grep -q user_namespace $(POLDEV)/include/support/all_perms.spt &&
- export M4PARAM += -Duser_namespace_defined
- endif
+diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
+index 23d31274..5d7ab301 100644
+--- a/libselinux/utils/sefcontext_compile.c
++++ b/libselinux/utils/sefcontext_compile.c
+@@ -471,7 +471,7 @@ static int write_binary_file(const struct saved_data *data, const struct sidtab
+ 	/* write context table */
+ 	rc = write_sidtab(bin_file, stab);
+ 	if (rc)
+-		return rc;
++		goto err;
  
-+# conditional xperm dependency: policy >= 34
-+ifeq ($(shell [ $(POL_VERS) -ge 34 -a $(MAX_KERNEL_POLICY) -ge 34 ] && echo true),true)
-+TARGETS += test_ioctl_cond_xperms.te
-+endif
-+
- all: build
- 
- expand_check:
-diff --git a/policy/test_ioctl_cond_xperms.te b/policy/test_ioctl_cond_xperms.te
-new file mode 100644
-index 0000000..03e6c0f
---- /dev/null
-+++ b/policy/test_ioctl_cond_xperms.te
-@@ -0,0 +1,26 @@
-+define(`SIOCGIFNAME', `{ 0x8910 }')
-+define(`SIOCGIFINDEX', `{ 0x8933 }')
-+
-+bool test_ioctl_cond_xperm_switch false;
-+
-+# Domain for process that is allowed SIOCGIFNAME on true and SIOCGIFINDEX on false.
-+type test_ioctl_cond_xperm_a_t;
-+testsuite_domain_type(test_ioctl_cond_xperm_a_t)
-+typeattribute test_ioctl_cond_xperm_a_t ioctldomain;
-+allow test_ioctl_cond_xperm_a_t self:udp_socket { create ioctl };
-+if (test_ioctl_cond_xperm_switch) {
-+  allowxperm test_ioctl_cond_xperm_a_t self:udp_socket ioctl SIOCGIFNAME;
-+} else {
-+  allowxperm test_ioctl_cond_xperm_a_t self:udp_socket ioctl SIOCGIFINDEX;
-+}
-+
-+# Domain for process that is allowed SIOCGIFINDEX on true and SIOCGIFNAME on false.
-+type test_ioctl_cond_xperm_b_t;
-+testsuite_domain_type(test_ioctl_cond_xperm_b_t)
-+typeattribute test_ioctl_cond_xperm_b_t ioctldomain;
-+allow test_ioctl_cond_xperm_b_t self:udp_socket { create ioctl };
-+if (test_ioctl_cond_xperm_switch) {
-+  allowxperm test_ioctl_cond_xperm_b_t self:udp_socket ioctl SIOCGIFINDEX;
-+} else {
-+  allowxperm test_ioctl_cond_xperm_b_t self:udp_socket ioctl SIOCGIFNAME;
-+}
-diff --git a/tests/ioctl/.gitignore b/tests/ioctl/.gitignore
-index e89db81..a4e44e7 100644
---- a/tests/ioctl/.gitignore
-+++ b/tests/ioctl/.gitignore
-@@ -1,2 +1,4 @@
- test_ioctl
- test_noioctl
-+test_siocgifindex
-+test_siocgifname
-diff --git a/tests/ioctl/test b/tests/ioctl/test
-index f313f06..6c33bf5 100755
---- a/tests/ioctl/test
-+++ b/tests/ioctl/test
-@@ -6,9 +6,11 @@
- use Test;
- 
- BEGIN {
--    $test_count  = 2;
--    $test_xperms = 0;
-+    $test_count       = 2;
-+    $test_xperms      = 0;
-+    $test_cond_xperms = 0;
- 
-+    $polver    = `checkpolicy -V | cut -f 1 -d ' '`;
-     $modver    = `checkmodule -V | cut -f 2 -d -`;
-     $selinuxfs = `cat /proc/mounts | grep selinuxfs | cut -f 2 -d ' '`;
-     chomp($selinuxfs);
-@@ -17,6 +19,10 @@ BEGIN {
-         $test_xperms = 1;
-         $test_count += 2;
-     }
-+    if ( $polver >= 34 && $kernver >= 34 ) {
-+        $test_cond_xperms = 1;
-+        $test_count += 15;
-+    }
- 
-     plan tests => $test_count;
- }
-@@ -62,6 +68,78 @@ if ($test_xperms) {
-     ok($result);
- }
- 
-+if ($test_cond_xperms) {
-+    #
-+    # Attempt to perform the ioctls in the false configuration
-+    #
-+
-+    #
-+    # First round with boolean set to false
-+    #
-+    $result = system "setsebool test_ioctl_cond_xperm_switch off 2>&1";
-+    ok( $result, 0 );
-+
-+    $result = system
-+      "runcon -t test_ioctl_cond_xperm_a_t -- $basedir/test_siocgifname 2>&1";
-+    ok( $result >> 8, 7 );
-+
-+    $result = system
-+      "runcon -t test_ioctl_cond_xperm_a_t -- $basedir/test_siocgifindex 2>&1";
-+    ok( $result, 0 );
-+
-+    $result = system
-+      "runcon -t test_ioctl_cond_xperm_b_t -- $basedir/test_siocgifname 2>&1";
-+    ok( $result, 0 );
-+
-+    $result = system
-+      "runcon -t test_ioctl_cond_xperm_b_t -- $basedir/test_siocgifindex 2>&1";
-+    ok( $result >> 8, 7 );
-+
-+    #
-+    # Second round with boolean set to true
-+    #
-+    $result = system "setsebool test_ioctl_cond_xperm_switch on 2>&1";
-+    ok( $result, 0 );
-+
-+    $result = system
-+      "runcon -t test_ioctl_cond_xperm_a_t -- $basedir/test_siocgifname 2>&1";
-+    ok( $result, 0 );
-+
-+    $result = system
-+      "runcon -t test_ioctl_cond_xperm_a_t -- $basedir/test_siocgifindex 2>&1";
-+    ok( $result >> 8, 7 );
-+
-+    $result = system
-+      "runcon -t test_ioctl_cond_xperm_b_t -- $basedir/test_siocgifname 2>&1";
-+    ok( $result >> 8, 7 );
-+
-+    $result = system
-+      "runcon -t test_ioctl_cond_xperm_b_t -- $basedir/test_siocgifindex 2>&1";
-+    ok( $result, 0 );
-+
-+    $result = system "setsebool test_ioctl_cond_xperm_switch off 2>&1";
-+    ok( $result, 0 );
-+
-+    $result = system
-+      "runcon -t test_ioctl_cond_xperm_a_t -- $basedir/test_siocgifname 2>&1";
-+    ok( $result >> 8, 7 );
-+
-+    #
-+    # Third (control) round with boolean set to false
-+    #
-+    $result = system
-+      "runcon -t test_ioctl_cond_xperm_a_t -- $basedir/test_siocgifindex 2>&1";
-+    ok( $result, 0 );
-+
-+    $result = system
-+      "runcon -t test_ioctl_cond_xperm_b_t -- $basedir/test_siocgifname 2>&1";
-+    ok( $result, 0 );
-+
-+    $result = system
-+      "runcon -t test_ioctl_cond_xperm_b_t -- $basedir/test_siocgifindex 2>&1";
-+    ok( $result >> 8, 7 );
-+}
-+
- system "rm -f $basedir/temp_file 2>&1";
- 
- exit;
-diff --git a/tests/ioctl/test_siocgifindex.c b/tests/ioctl/test_siocgifindex.c
-new file mode 100644
-index 0000000..ab21ad4
---- /dev/null
-+++ b/tests/ioctl/test_siocgifindex.c
-@@ -0,0 +1,32 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <fcntl.h>
-+#include <sys/ioctl.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <unistd.h>
-+#include <errno.h>
-+#include <net/if.h>
-+
-+int main(int argc, char **argv)
-+{
-+	int sock;
-+	int rc;
-+	struct ifreq val = {};
-+
-+	sock = socket(AF_INET, SOCK_DGRAM, 0);
-+	if(sock == -1) {
-+		perror("test_siocgifindex:open");
-+		exit(1);
-+	}
-+
-+	rc = ioctl(sock, SIOCGIFINDEX, &val);
-+	if (rc < 0 && errno != ENODEV) {
-+		perror("test_siocgifindex:SIOCGIFINDEX");
-+		close(sock);
-+		exit(7);
-+	}
-+
-+	close(sock);
-+	exit(0);
-+}
-diff --git a/tests/ioctl/test_siocgifname.c b/tests/ioctl/test_siocgifname.c
-new file mode 100644
-index 0000000..5308bfe
---- /dev/null
-+++ b/tests/ioctl/test_siocgifname.c
-@@ -0,0 +1,32 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <fcntl.h>
-+#include <sys/ioctl.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <unistd.h>
-+#include <errno.h>
-+#include <net/if.h>
-+
-+int main(int argc, char **argv)
-+{
-+	int sock;
-+	int rc;
-+	struct ifreq val = {};
-+
-+	sock = socket(AF_INET, SOCK_DGRAM, 0);
-+	if(sock == -1) {
-+		perror("test_siocgifname:socket");
-+		exit(1);
-+	}
-+
-+	rc = ioctl(sock, SIOCGIFNAME, &val);
-+	if (rc < 0 && errno != ENODEV) {
-+		perror("test_siocgifname:SIOCGIFNAME");
-+		close(sock);
-+		exit(7);
-+	}
-+
-+	close(sock);
-+	exit(0);
-+}
+ 	rc = write_spec_node(bin_file, do_write_precompregex, data->root, stab);
+ 	if (rc)
 -- 
 2.45.2
 
