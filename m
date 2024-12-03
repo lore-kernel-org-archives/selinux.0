@@ -1,38 +1,38 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E61CE1F76C0
-	for <selinux@vger.kernel.org>; Tue,  3 Dec 2024 15:49:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EA261AB6C9
+	for <selinux@vger.kernel.org>; Tue,  3 Dec 2024 15:54:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733240999; cv=none; b=U+3CAlngju66ypaucgyVUJohMqJhxZP0KLebGGkJTo+5AqpZHu/92uktjXNgTECOso/8qg6knYW8IICmy+wtYY3ZQlCsO/HioMCdGqHd9fbyUPogrG3dmVdM2bFECQ4kc8em7d4kJ5E92jdfelaKGHoeWi8+51efF7zUBaktJeo=
+	t=1733241297; cv=none; b=HAK1gamwqmdZ0Emrf6fZ4QOGNSqW+hzgP/eSp+0rWgC8O1wIZa7ENnZMx9rwQ91FuaOM0O027EV7laN/O/nHBDpc7dtgzmDXLcpiWMLzZuDgeSrIpB1+0axYeqsLd0U4C9GuUj43WiC7CZoS3FJNenKpHdnjdgCJmZHzVM4KbdE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733240999; c=relaxed/simple;
-	bh=CcJ6nmx7SJu5VKAjzPQ62qu5/41swdfpMtVKXg+fP9Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=hwGpzaWWlIgaLYltjSSJn9kV49fsYov6+c0ff6gLnJ/l7cAoBTduOGYDvrNX5Jk97CDXWMOeRP7oe9hyfiIinlF3FEg6IsBfDleyvE2diustLxIqg9LXuQF5OlnKZiWjkKG7HXSk/xl1msZhoir2Up+WrnpcuQiIaddIbZFUY9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=qkr9APqe; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1733241297; c=relaxed/simple;
+	bh=RaZ6VUbwNbq0ophyxKoH/5HQVvd7asbZwinvAZxoccc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=mwFz1UH9Qu5rIG7i/CL1r/yUlYDjDU6I/BPBitB5gPn+QP4kRjpd/Jonv2knu3cOJ9sMqCZWX0dIrHVFzL+Iflry2nv1u64JvDuKBfXuOUw0xcPlWTNIDsVUJJhv6oeZTupUrASC51YYek1IeRp2lRol3GxtOOP4p5yT8p1aU6U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=EagTjRx1; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="qkr9APqe"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="EagTjRx1"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1733240987;
+	s=2023072701; t=1733241291;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=X2rkTz6gx9fBIs6saI4gNW5hRi1B2H4db8/unC72DHw=;
-	b=qkr9APqefhojU8MH1vaOtUoGOGpyPLt8vHH3573qGQ0booIUouoUYuhTmYWuvq+J/IweRe
-	s+dNXakpVRpSZBIPEwUmm2EBWYIv7IUCtV6TPsjjjSoADCw9lcNDw7GZE869WC4BPChI32
-	IRjqef6YFO6i8bc8IrWQQT1Bx/rg7S8fFGqyGL0vXml2D1z83/DlUzc8Vc5o0wQhZv5pNP
-	TyH/GgJU9vgWvEEbsdosFQ+6/o/zTWzERP4kUhObTt6NQy8bU6Hkle27xnJR6mdkNLt9Jg
-	3GtIWPk62VP3O64Tttx7ERgM+FNsfUYCk+CABba2g0Qnom6+i9k8UUZlUjjeLA==
+	bh=Lp2UAomghlvdT8D6tawx3ymNqj4lJ3Mh+MFloBbA3Mg=;
+	b=EagTjRx150zbzXjWZMJb96doDV1cshKFDqsX9ORp5UBxPdS15x1cK2p/+0Gb1JqBQVViJx
+	HG1OXO7B/LquPPgrqrqQqpopeUmk0hnkYDgZRNO4vZZUphb80xdbSayWpwRJFkrjuzJiuc
+	+dC5Tg4ocKXtxZHEo8AoDBDVXkWa7RRxqwlBd6nXK2ehk3uu80BeRaQYEuKHTdb4Q/EQ65
+	fUK5mnBA66IFt834AJFlwr5Iy+W3d61/49+9WEwceuyr5XSmC75tvDLJ8aJtnj47UYnSIU
+	UaRa4gtImovbDY1ATp9k0UuohdpRHgEIOH0soJ3hDM9NukY6hK0hvJhmDDcipg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
 	Petr Lautrbach <lautrbach@redhat.com>
-Subject: [PATCH] libselinux/utils: drop reachable assert in sefcontext_compile
-Date: Tue,  3 Dec 2024 16:49:42 +0100
-Message-ID: <20241203154942.45669-1-cgoettsche@seltendoof.de>
+Subject: [PATCH v2] libselinux/utils: drop reachable assert in sefcontext_compile
+Date: Tue,  3 Dec 2024 16:54:48 +0100
+Message-ID: <20241203155448.48237-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -59,18 +59,21 @@ Closes: https://lore.kernel.org/selinux/87jzchqck5.fsf@redhat.com/
 Fixes: 92306daf ("libselinux: rework selabel_file(5) database")
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
+v2: fix condition from not zero to equal to zero
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
  libselinux/utils/sefcontext_compile.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
-index 23d31274..b3793e8e 100644
+index 23d31274..e5da51ea 100644
 --- a/libselinux/utils/sefcontext_compile.c
 +++ b/libselinux/utils/sefcontext_compile.c
 @@ -188,6 +188,9 @@ static int write_sidtab(FILE *bin_file, const struct sidtab *stab)
  	if (len != 1)
  		return -1;
  
-+	if (stab->nel)
++	if (stab->nel == 0)
 +		return 0;
 +
  	/* sort entries by id */
