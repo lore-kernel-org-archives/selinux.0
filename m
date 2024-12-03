@@ -1,106 +1,110 @@
-Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C6BB2500DF
-	for <selinux@vger.kernel.org>; Tue,  3 Dec 2024 20:50:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.170
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 811C41E3DED
+	for <selinux@vger.kernel.org>; Tue,  3 Dec 2024 20:59:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733259060; cv=none; b=J7UUbApFcqPTOAmz9vUkh7Dgx0NVi4t4ADZe2NoGD8/UFsRUJXLhwLnbXkdXmStF+yfuZo03zzVvKgQt5of5cRlMW6XxtCCRF1qH6hfTKtS9WwH3Ky/ECnuQ2Agz4edy/YorETL/RGuZZMGx3egqC+GZhquwbaZMuFeMyX76MyQ=
+	t=1733259550; cv=none; b=HiZLXb751rI9RoH1fb6tuKFxPPpfuGcsIwqYJOySmDtn7kQ1wgWrVzks0/K/EFTDQW0k99R1iCqJWKCqVOIY9Pbh4PuQCVSrd0R39MIyQigY4tuqI9F1FeUKYLxKOIbqs8MzVzSB+7zXsby20OiZQQ9pFKnu7LJsaFmC133nidA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733259060; c=relaxed/simple;
-	bh=0jrgZwpKPRjGzlJxUIaUnijR+xRE5akyKtN5kB7pdgw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ty8m4yeWyu9AyUaDo17iWKzRS8k4F14CG+Y78TH7YStiBqfaRjXTGoIzeAuGcUVPUYU/v2ABdZsUKykpq9raAB/dphdG4y6G/VhImZanDiFbizmbu67IaxHjiVGg/ERPwQ7jZTnMwrgnHdVGAdr2bwqov/DLEfhySCZViKe7Bbo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=JXszHkTk; arc=none smtp.client-ip=209.85.128.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1733259550; c=relaxed/simple;
+	bh=PgJPLuTyCLM6uZruzM6uykOtjWDFmpPyNqk5HlEpxro=;
+	h=Message-ID:Date:MIME-Version:To:From:Subject:Cc:Content-Type; b=jDXDV61IAllQDRvC0jmjLbkn5LK260viIBMYoslitrMd/axgckXfPoyLjJCpNZV+4llccGFNVq8JyrApfu7mJLsajoK7R5aHzcxYCYEJYbiTFz5LP+4sLBCcX1WsWtWE1acSxXdjiYqwLV6/EG0vaF/TbbTPH/luZT3x6epsfbA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=NDqqSbdk; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="JXszHkTk"
-Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-6ef8028fe9fso29871337b3.2
-        for <selinux@vger.kernel.org>; Tue, 03 Dec 2024 12:50:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1733259057; x=1733863857; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=g/umpvWZPnDmrSAxJLv/ctlpcerObMggE3HlXzf7jLg=;
-        b=JXszHkTkDIHSdz/aHS58uBCT1AwH3pKHPPUPKOSqeT7W7iEN5FOpQP1GNXhy3mivxm
-         MIP9a7ZFBF/UumDV/Yy1PRjBGInVxKtE99iM6WB5dbPclnJRzHcNdHqV0uovdqxO7uAA
-         rzydGzet1GmhKZGKCkMEtyXHiLJuOsuBhNt7id9rzeLSPCBIO2oaqdcYxy2FkgXhLJCu
-         nDNi/YREFncRHszMoBNeyGq7eZg4tpUKu/H51GxzlcGSsJ5SjLwgkim8MV4K3O2wvauJ
-         Uf3owSTpyScHAaq203618Lyx3s2hc0n5/r92ULGqW1GFuX80XgethUztOpF9CS6BLQsj
-         EqOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733259057; x=1733863857;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=g/umpvWZPnDmrSAxJLv/ctlpcerObMggE3HlXzf7jLg=;
-        b=ZXPfw4kvTKI0yqUlhJPkImY/0K5xfaHXJnMIdfujmSvthlbJvzEM4gA0nIp7w+V/Uo
-         QU3OXFeYTBIxbGQQRi04Xw9bu750sK/3b+m0zTGUQ39Xl1R/IbSCqKtiB/Z9yP8J2JeW
-         PVaQQPPqy17kizU4uYEnZ/yIzvLm7VgLqDqZZ+eALYzdNxyJI69pdT2j4Dzp8tZwxx6k
-         lCAc8X+0pBC/TB4gNXYDPwT7Xtl9eN6rLXpKec8NZuMPoP8CZ32aH0gWWKnjOSp0i688
-         91N2LzlCN1IVzLctC5KBTUALWlBRlUbNkpTYMkQO1PX3nv+h+EmV24Rn/LyjdyiFLWW8
-         A1zw==
-X-Forwarded-Encrypted: i=1; AJvYcCWa2BO6wzTtQ5bkW6tWRPhTBKHGKtcOh9waBoqDT1cHqAS3t/Bg14qFl6aVhvdl3mWPCKmEdJPP@vger.kernel.org
-X-Gm-Message-State: AOJu0Yykp0+f/4TD9oGCWKGK+spAo/l0r+mC4xpN+922qhtuuDQaXSF5
-	tU0lHSeiFbgIXN8eN5RRCmFH1R5Qwwoedx1Zu2cFz6wpnk8oVEp801j1/p/pvYZPRkEjp1/OYm+
-	Ct1OsGUYgFvxKwQai86Cc+0q+Y8OnhEs0Jr7/
-X-Gm-Gg: ASbGncs6dLAYhp706IyRr3mZWgN0jrzAkOXwSKKUvdW3RcK9NllssSuIgpbPVspTdq2
-	yex03foyZvvSKnjbDjK9Yb0Bbhuvfbw==
-X-Google-Smtp-Source: AGHT+IETyrPn+qxpgNa2zd4Zu/tXJRKTNJh3mXdNJVuHLjp9T9+PvrVxCQJU1B/HIq28nlX/Sl8ivZYRSJyiga6LujA=
-X-Received: by 2002:a05:6902:260b:b0:e39:9f40:7a85 with SMTP id
- 3f1490d57ef6-e39de281957mr1629188276.42.1733259057201; Tue, 03 Dec 2024
- 12:50:57 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="NDqqSbdk"
+Received: from [192.168.1.13] (pool-96-241-22-207.washdc.fios.verizon.net [96.241.22.207])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 5ECBC20BCADD;
+	Tue,  3 Dec 2024 12:59:07 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 5ECBC20BCADD
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1733259548;
+	bh=b/hrT39QHimlVRBa9CU3wzPEsi3YfnnmsqEwlo7uCY0=;
+	h=Date:To:From:Subject:Cc:From;
+	b=NDqqSbdkkvZtAyxmeQzjw1b9cRaN00IvHPG9tgzW51o+An5X7j3H2S2+MWYBOggnQ
+	 lLM1zn3eVdT2NLZc+hInvtsDjd+xG5zS4uV7yIDju3aK9MIJyKBehTD/V/CTz6D27f
+	 yO8rBufVJ+5Qos9AghIN2Mt/XDtAFbC8dg49OQN4=
+Message-ID: <b9852970-71fd-4a44-b428-537a3f0fc381@linux.microsoft.com>
+Date: Tue, 3 Dec 2024 15:59:05 -0500
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241126145911.4187198-1-edumazet@google.com> <173300343374.2487269.7082262124805020262.git-patchwork-notify@kernel.org>
-In-Reply-To: <173300343374.2487269.7082262124805020262.git-patchwork-notify@kernel.org>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 3 Dec 2024 15:50:46 -0500
-Message-ID: <CAHC9VhQFEsPfAZ2MLw7mB7xwOFHPA+TXf9fv9JQDMEFfsZDWJQ@mail.gmail.com>
-Subject: Re: [PATCH net] selinux: use sk_to_full_sk() in selinux_ip_output()
-To: Jakub Kicinski <kuba@kernel.org>, davem@davemloft.net
-Cc: Eric Dumazet <edumazet@google.com>, pabeni@redhat.com, netdev@vger.kernel.org, 
-	eric.dumazet@gmail.com, syzbot+2d9f5f948c31dcb7745e@syzkaller.appspotmail.com, 
-	stephen.smalley.work@gmail.com, omosnace@redhat.com, selinux@vger.kernel.org, 
-	kuniyu@amazon.com, brianvv@google.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To: selinux@vger.kernel.org
+From: Daniel Burgener <dburgener@linux.microsoft.com>
+Subject: Systemd socket labeling issue
+Cc: paul@paul-moore.com, pebenito@ieee.org, masheets@microsoft.com,
+ luca.boccassi@microsoft.com, lpoettering@microsoft.com, jmorris@namei.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sat, Nov 30, 2024 at 4:50=E2=80=AFPM <patchwork-bot+netdevbpf@kernel.org=
-> wrote:
->
-> Hello:
->
-> This patch was applied to netdev/net.git (main)
-> by Jakub Kicinski <kuba@kernel.org>:
+We've recently noticed an issue with how systemd handles SELinux 
+labeling for sockets.
 
-Jakub, do you know when we can expect to see this sent up to Linus?
+In the common case, systemd checks the label of the binary it expects to 
+execute, then calls security_compute_create_raw() to determine the label 
+of the process it will create, and applies that label to the socket 
+using setsockcreatecon().  This makes sense as it matches the label the 
+socket would get if the process created it itself.
 
-> On Tue, 26 Nov 2024 14:59:11 +0000 you wrote:
-> > In blamed commit, TCP started to attach timewait sockets to
-> > some skbs.
-> >
-> > syzbot reported that selinux_ip_output() was not expecting them yet.
-> >
-> > Note that using sk_to_full_sk() is still allowing the
-> > following sk_listener() check to work as before.
-> >
-> > [...]
->
-> Here is the summary with links:
->   - [net] selinux: use sk_to_full_sk() in selinux_ip_output()
->     https://git.kernel.org/netdev/net/c/eedcad2f2a37
->
-> You are awesome, thank you!
-> --
-> Deet-doot-dot, I am a bot.
-> https://korg.docs.kernel.org/patchwork/pwbot.html
+However, when certain systemd directives are set, such as RootImage= or 
+ExtensionImage=, systemd simply skips the above behavior and creates 
+sockets without any special labeling handling, so they inherit the label 
+of systemd (typically init_t):
 
---=20
-paul-moore.com
+https://github.com/systemd/systemd/blob/13a42b776db9f4bd1e827091b6640801c54304e0/src/core/service.c#L5483-L5486
+
+The result is that socket labels end up either with the label or the 
+process or the label of systemd, based on unrelated systemd directive 
+changes.  Additionally, the init_t label prevents policy authors from 
+controlling access granularly on these sockets.
+
+On most upstream policies this ends up working functionally.  Fedora 
+added a "temporary" workaround to allow the init_t access for all init_t 
+daemons back in 2010 and never removed it:
+
+https://github.com/fedora-selinux/selinux-policy/blob/8dfcddb1f7227bbdf98776f795be53cf50734b04/policy/modules/system/init.te#L604-L605
+
+That workaround accidentally got pulled into refpolicy in a large block 
+of systemd changes back in 2017:
+
+https://github.com/SELinuxProject/refpolicy/blob/6e54a2eda6f493c585a3fc59e8ddc54f341dbf0c/policy/modules/system/init.te#L1600-L1601
+
+So in practice a lot of upstream policies are allowing access either 
+way, preventing functional issues.
+
+We've spoken with a few systemd maintainers internally and they have 
+indicated that there is a fundamental timing issue with the current 
+approach - there are use cases where the socket must be available prior 
+to the image that contains the binary, so determining the label of the 
+binary prior to socket creation is impossible.
+
+* The current approach of applying the label of the resulting process 
+seems impossible to do in all cases from a systemd perspective
+* Reading the expected binary label from the file_contexts would avoid 
+the timing issue, but assumes a system where the binary labels generally 
+match the file_contexts
+* Inheriting the init_t label prevents security enforcement across 
+different systemd created sockets, and conflates IPC with systemd with 
+IPC with systemd spawned processes
+* Setting some other static label for all sockets avoids the conflation 
+between systemd and its children, but not between various children
+* Checking the file_contexts for the path of the socket makes a lot of 
+sense in the case where sockets have paths, but systemd supports 
+creating sockets without paths such as abstract unix sockets (for example)
+* Using the SELinuxContext= systemd directive causes systemd to use that 
+label for the resulting process (and therefore socket), so it skips 
+checking the binary and socket labeling works.  However, this scatters 
+policy details across unit files, and doesn't permit decoupling unit 
+files and policy.  Not to mention that it's unintuitive to expect anyone 
+to know that when they use RootImage= or ExtensionImage= they must also 
+use SELinuxContext= or their sockets will be mislabeled.
+
+We're curious for the communities thoughts here.  Any ideas or 
+suggestions for how we might address this situation?
+
+-Daniel
