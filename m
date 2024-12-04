@@ -1,123 +1,400 @@
-Received: from mail-vs1-f54.google.com (mail-vs1-f54.google.com [209.85.217.54])
+Received: from mail-ot1-f45.google.com (mail-ot1-f45.google.com [209.85.210.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 855A4BE4A
-	for <selinux@vger.kernel.org>; Wed,  4 Dec 2024 14:30:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC41D1F7087
+	for <selinux@vger.kernel.org>; Wed,  4 Dec 2024 14:30:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733322626; cv=none; b=OPaXBcrm/FBUyQkpHqrEKS5Bqz11HKhqW3OEGSkfiKgLmmsDdg/fuz0u9d+o0lJxXM3XnhT1GWgvCrPClEJQheTi45MPlWp6nKtkqqtPRkqwBrdgIoJobd39aAZdK6kdnntS2t6zWyZQaR7dXB3ugz6wb5CDHPRUUUeyYDd1/Pw=
+	t=1733322656; cv=none; b=nSJmEFTCxUc2uGp1m+ww2u0lZ4soOxLHYttcUpLgkIHEG9pujnr72pmFwrETLdeglrQ7xlqENfJnG2LYmIgqDFlpZO/kFqBjwIOw9migPceTQMrm8g0b6cBrVWEnEb6UR9oVeMRa528PEcqZ36/PqilP+Q74fJ1EJrxwyIlYkJQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733322626; c=relaxed/simple;
-	bh=Om2xo6esE8DTm5aElTYW7iJB+fXLi6Kgs82wvkBDEu8=;
+	s=arc-20240116; t=1733322656; c=relaxed/simple;
+	bh=Q+hG+hnBAQFWksV26NXVMdh6UDcG/8r/o/e0gu/B2Zs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PwJcxgK3C/57cweUvXz1WqN2Lkqb1dxX0yKJmxUf4E7jOUN0QQ7KI2miQtt1PJ/75p0Y/kl2fJck5DzIl29J5qxb0aqje4NraCd64+gkSpKTFZj7jzd5V9BTOth/Ijl7//YbHBEBq24w8VGxwUTJQy6O3nq1Unme3u4eGcHLF88=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bOXb3e94; arc=none smtp.client-ip=209.85.217.54
+	 To:Cc:Content-Type; b=fNfkQScz9p2jVKrDYxugkqNQSPWgscUBRkW9ZwMiq6xQznnX/CJeROBqeHOAdZYRf5n7xv8h8QT2lVQxJOzQ2lOBf6F/28fnHgXzEVlxpnvcpnz+8/gC3svLXhjgYC8CgduhNyvdVNYfzP5tcAyCw4oobnxWNr+XyjOKhSj6RB8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WJJkZgVi; arc=none smtp.client-ip=209.85.210.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bOXb3e94"
-Received: by mail-vs1-f54.google.com with SMTP id ada2fe7eead31-4afab735b6cso322408137.1
-        for <selinux@vger.kernel.org>; Wed, 04 Dec 2024 06:30:24 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WJJkZgVi"
+Received: by mail-ot1-f45.google.com with SMTP id 46e09a7af769-71d47201b3fso2498862a34.2
+        for <selinux@vger.kernel.org>; Wed, 04 Dec 2024 06:30:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733322623; x=1733927423; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1733322654; x=1733927454; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=PyJ0E6aSJfKtmk0sbx0KfiLYU1QpJn/2PHt732h55es=;
-        b=bOXb3e94SBDWQv43pumq0qK3pVMJ30KjSRVWsorBLJp8RtkpE1F2hBuZRws6JYBwGU
-         isaxOyEr2wZW6rrD1pAaK9CKr+tIbX/ekEKW/OeV9WRV8A+fZsg4LOuXGTu36T6hiEc9
-         xgcgRgdD5/Q1DZK3JnLJWAWaxIQLDujdjXdzZ2PRDUOZehW0Ld/ale+cnLPcdD6hby2C
-         erlxCekOdr+v2AITgQvrAOqsDd9Xsi2Fo9e8R6d0ap948q/XwpavdLheUvWQ6pvuvQPr
-         PQbDKJnUtpezdOTvDgxSAnwhmE7v/1l1UehHqXwndTfch4bkoR5p6oPj01I6yA/wzTxk
-         6Hxw==
+        bh=xOZ3tHKGKgdQ3jyWnZGaj85lEWkbnTLZN+TxO+bOkO4=;
+        b=WJJkZgViKi3OOlWB+qBh46cMjSPNgxG2mcO9SgGUnb0bS99tQqHCTApxe0M7UvmOe0
+         ftGVACdTG1d93mPqsLrhooQUp/3MNklLRKggWwfo8F6w4JRmgrNLuIsTQMXzHRiBQVaP
+         NCZrIizkNGGqUe/vCFhdmOwZ6tOjr3Dy3wUOawxiJbDuamz5nar14qnYbXiJ0/rB1+sQ
+         yF68ho2z22UV4iEZAdtUBV3SDOE3f3jNbF1LIhi7C9BRjH8BttITGUOUO7oyyBoVpV16
+         Z7kQCXmnC9eNt8faMKlcSXMtZbPh2U269Y4Rb3iOfqAe5G/14My9/e1/XfTFGqu1CTfr
+         zWTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733322623; x=1733927423;
+        d=1e100.net; s=20230601; t=1733322654; x=1733927454;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=PyJ0E6aSJfKtmk0sbx0KfiLYU1QpJn/2PHt732h55es=;
-        b=XlnxtyOQbxrGqBpHv6kE29rwVBqVDldA9lnwy6QH9XIGYWxT8zkDorBMq9UOUA3jC4
-         DH6Oi6p/cPdigH+sRI/dYvGT1NoWxSxOZiXSB8bBqMt7M8C8TD0SS5yj94Aw9GAqnLNf
-         8uPCQZWppxEE1jlslIOFMBG8SeAEul+dcsBznbvCY41kM4rUcC3zzFzTKnvzsRi9vcBV
-         jNIWvNGDIjFj3BUKCBFiG08fuKX6OqU94fgUT8LfXfRXyV2iOicaiXwHDUV1D6x+eWhI
-         LDmHr4dNKbOFibR3INHKN7x+AF2gJNqH9Xo8TC5DZGKijen+ISkJZ8D3WBSuVhAg4HMT
-         XCKQ==
-X-Gm-Message-State: AOJu0Yw4wmZyaWuVCXT41p8xrpBkaNoxaueyrdvGHUL1fyD0YpHI6eSz
-	FnNETuYNrvaY1BZZtArAzsBY/nl7Bqs6RDxuSsr5d2fViOY1Oz6e/iye+dT/nsYmrI8QgiarA9i
-	jvlyWygv8OtohX6yXGK9CaNDoJ7g=
-X-Gm-Gg: ASbGncst8kH6THT3yD1tvlQ+GgZuCOaIAc68YhPbvSKKl+4cY9powuHNRL5DjPTL1td
-	IinvYlzFk31GUMOISu8mkevS7Q+5MvGQ=
-X-Google-Smtp-Source: AGHT+IH/9Q3FDIfl4JaCHhba4evZB+bLg7YIPArCT4pGLC49KbOVgKF2Qc2MKTZf4cL6fKp+LQ3rdlttj5M7gSE2GE8=
-X-Received: by 2002:a05:6102:3ed0:b0:4af:476:f3ca with SMTP id
- ada2fe7eead31-4af9723e3e9mr9335524137.12.1733322622346; Wed, 04 Dec 2024
- 06:30:22 -0800 (PST)
+        bh=xOZ3tHKGKgdQ3jyWnZGaj85lEWkbnTLZN+TxO+bOkO4=;
+        b=WwOpSU9jXZtG6EJjMPszaG806MNf7H02/1fxtx3uHdB5GpvzJjAkhBhV/Yr/8p4o2q
+         rDD6KhEPX1Gv9Ri8cW9gqfS/z6tsqEQcVE5+u91KkEnpZbHWHY9FDmM/r88lgGfNMZUB
+         X8VNbUe37o+JhF7sGBq76piXPrjhad//wfOocCM2F+OPdGPCPCxpYXMOH7WGqRP2i5Kd
+         RnC1xUG41FG40tvGW0cusji/okuB6hrDZLthpM0TG8Bg68Ah5ulW/zDLVS+x/emPcriz
+         HPFBKzkJglOp44pk0f5CrecT45qGPjwLKJP7FG+bURMQcFESpdnDd3mESqZqAB1l6BGw
+         oGCw==
+X-Gm-Message-State: AOJu0YyWq88f5PSYO0uu7v1W8eXQ1BrSOIMJp8wJcgzYTF/DMbZ49TDU
+	vOvLb0p/23HXSxImbdpeJu/SrusOqs+/1WTCv9xNT9tuKJWofM7XzVdvgH5WiNVShLE8J4SJXsf
+	SJ9PeOFuCiAHGjpgQxrsA3H73jC8=
+X-Gm-Gg: ASbGnctd51BJulYXt7vjePoTWvTdhaUTrWOory6Jl6Udd07ZYPWQFbiiFsvg0jL4iOC
+	dkMculq11jrsQbjqGUUidbqVtFN8h/jI=
+X-Google-Smtp-Source: AGHT+IEtLIJaPnIBwk3Lb7mDL/DgNFgfjRRNMMbQPcv0tho/eJ1DfbQPPanK1qGLPvdPvPdINZrTv/HsuJTaNgnHweA=
+X-Received: by 2002:a05:6830:410d:b0:710:f38a:191c with SMTP id
+ 46e09a7af769-71dad635c18mr5374622a34.11.1733322653665; Wed, 04 Dec 2024
+ 06:30:53 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241120131004.58662-1-cgoettsche@seltendoof.de> <CAP+JOzQR2c0rCseuNNjxY8Eo3fKwa-7i01V1YXkHy1F81brrkw@mail.gmail.com>
-In-Reply-To: <CAP+JOzQR2c0rCseuNNjxY8Eo3fKwa-7i01V1YXkHy1F81brrkw@mail.gmail.com>
+References: <20241126102621.20253-1-cgoettsche@seltendoof.de> <CAP+JOzSe-wfPdCXv4OKQ7eaXeH+qP7zDK=LiWp9HAjDW1uNG1Q@mail.gmail.com>
+In-Reply-To: <CAP+JOzSe-wfPdCXv4OKQ7eaXeH+qP7zDK=LiWp9HAjDW1uNG1Q@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 4 Dec 2024 09:30:11 -0500
-Message-ID: <CAP+JOzTxnUn_-k8jBoT3ag2OqdGJ2g2KGH43_gmA4k0nLSQhpA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libsepol: harden availability check against user CFLAGS
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org
+Date: Wed, 4 Dec 2024 09:30:43 -0500
+Message-ID: <CAP+JOzR3G1cvmZPkAir9uGqhjQfBAFhmV6J1tj-vBAoRrsc95g@mail.gmail.com>
+Subject: Re: [PATCH v3 1/3] libselinux: avoid memory allocation in common file
+ label lookup
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+Cc: selinux@vger.kernel.org, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 22, 2024 at 4:20=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
-ote:
+On Mon, Dec 2, 2024 at 3:18=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
+te:
 >
-> On Wed, Nov 20, 2024 at 8:10=E2=80=AFAM Christian G=C3=B6ttsche
+> On Tue, Nov 26, 2024 at 5:45=E2=80=AFAM Christian G=C3=B6ttsche
 > <cgoettsche@seltendoof.de> wrote:
 > >
 > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > >
-> > If CFLAGS set by the user contains the warnings override
-> > `-Wno-error=3Dimplicit-function-declaration` the availability check doe=
-s
-> > not work properly.  Explicitly enable and treat this warnings as failur=
-e
-> > by appending the appropriate flag.
+> > Remove a memory allocation during a common file label lookup,
+> > e.g. requested by restorecon(8)/setfiles(8), by using a local stack
+> > buffer for a potential lookup result.
 > >
-> > Also include CPPFLAGS in the check.
+> > Additional minor optimization tweaks.
 > >
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> For these two patches:
+> For these three patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-These two patches have been merged.
+These three patches have been merged.
 Thanks,
 Jim
 
 
 > > ---
-> >  libsepol/src/Makefile | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > v2: drop claim about this being the sole memory allocation, since
+> >     applying a substitution path allocates as well
+> > ---
+> >  libselinux/src/label_file.c       | 103 +++++++++++++++++-------------
+> >  libselinux/src/selinux_internal.h |   8 +++
+> >  2 files changed, 68 insertions(+), 43 deletions(-)
 > >
-> > diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-> > index 7b0e8446..71fa3ed7 100644
-> > --- a/libsepol/src/Makefile
-> > +++ b/libsepol/src/Makefile
-> > @@ -31,7 +31,7 @@ endif
+> > diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> > index 189a5ed2..4e212aa4 100644
+> > --- a/libselinux/src/label_file.c
+> > +++ b/libselinux/src/label_file.c
+> > @@ -1467,12 +1467,30 @@ FUZZ_EXTERN void free_lookup_result(struct look=
+up_result *result)
+> >         }
+> >  }
 > >
-> >  # check for reallocarray(3) availability
-> >  H :=3D \#
-> > -ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){retur=
-n reallocarray(NULL,0,0)=3D=3DNULL;}' | $(CC) $(CFLAGS) $(LDFLAGS) -x c -o =
-/dev/null - >/dev/null 2>&1 && echo yes))
-> > +ifeq (yes,$(shell printf '${H}include <stdlib.h>\nint main(void){retur=
-n reallocarray(NULL,0,0)=3D=3DNULL;}' | $(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLA=
-GS) -Werror=3Dimplicit-function-declaration -x c -o /dev/null - >/dev/null =
-2>&1 && echo yes))
-> >  override CFLAGS +=3D -DHAVE_REALLOCARRAY
-> >  endif
+> > -static struct lookup_result *lookup_check_node(struct spec_node *node,=
+ const char *key, uint8_t file_kind, bool partial, bool find_all)
+> > +/**
+> > + * lookup_check_node() - Try to find a file context definition in the =
+given node or parents.
+> > + * @node:      The deepest specification node to match against. Parent=
+ nodes are successively
+> > + *             searched on no match or when finding all matches.
+> > + * @key:       The absolute file path to look up.
+> > + * @file_kind: The kind of the file to look up (translated from file t=
+ype into LABEL_FILE_KIND_*).
+> > + * @partial:   Whether to partially match the given file path or compl=
+etely.
+> > + * @find_all:  Whether to find all file context definitions or just th=
+e most specific.
+> > + * @buf:       A pre-allocated buffer for a potential result to avoid =
+allocating it on the heap or
+> > + *             NULL. Mututal exclusive with @find_all.
+> > + *
+> > + * Return: A pointer to a file context definition if a match was found=
+. If @find_all was specified
+> > + *         its a linked list of all results. If @buf was specified it =
+is returned on a match found.
+> > + *         NULL is returned in case of no match found.
+> > + */
+> > +static struct lookup_result *lookup_check_node(struct spec_node *node,=
+ const char *key, uint8_t file_kind,
+> > +                                              bool partial, bool find_=
+all, struct lookup_result *buf)
+> >  {
+> >         struct lookup_result *result =3D NULL;
+> >         struct lookup_result **next =3D &result;
+> >         size_t key_len =3D strlen(key);
 > >
+> > +       assert(!(find_all && buf !=3D NULL));
+> > +
+> >         for (struct spec_node *n =3D node; n; n =3D n->parent) {
+> >
+> >                 uint32_t literal_idx =3D search_literal_spec(n->literal=
+_specs, n->literal_specs_num, key, key_len, partial);
+> > @@ -1495,10 +1513,14 @@ static struct lookup_result *lookup_check_node(=
+struct spec_node *node, const cha
+> >                                                 return NULL;
+> >                                         }
+> >
+> > -                                       r =3D malloc(sizeof(*r));
+> > -                                       if (!r) {
+> > -                                               free_lookup_result(resu=
+lt);
+> > -                                               return NULL;
+> > +                                       if (likely(buf)) {
+> > +                                               r =3D buf;
+> > +                                       } else {
+> > +                                               r =3D malloc(sizeof(*r)=
+);
+> > +                                               if (!r) {
+> > +                                                       free_lookup_res=
+ult(result);
+> > +                                                       return NULL;
+> > +                                               }
+> >                                         }
+> >
+> >                                         *r =3D (struct lookup_result) {
+> > @@ -1510,11 +1532,11 @@ static struct lookup_result *lookup_check_node(=
+struct spec_node *node, const cha
+> >                                                 .next =3D NULL,
+> >                                         };
+> >
+> > +                                       if (likely(!find_all))
+> > +                                               return r;
+> > +
+> >                                         *next =3D r;
+> >                                         next =3D &r->next;
+> > -
+> > -                                       if (!find_all)
+> > -                                               return result;
+> >                                 }
+> >
+> >                                 literal_idx++;
+> > @@ -1556,10 +1578,14 @@ static struct lookup_result *lookup_check_node(=
+struct spec_node *node, const cha
+> >                                         return NULL;
+> >                                 }
+> >
+> > -                               r =3D malloc(sizeof(*r));
+> > -                               if (!r) {
+> > -                                       free_lookup_result(result);
+> > -                                       return NULL;
+> > +                               if (likely(buf)) {
+> > +                                       r =3D buf;
+> > +                               } else {
+> > +                                       r =3D malloc(sizeof(*r));
+> > +                                       if (!r) {
+> > +                                               free_lookup_result(resu=
+lt);
+> > +                                               return NULL;
+> > +                                       }
+> >                                 }
+> >
+> >                                 *r =3D (struct lookup_result) {
+> > @@ -1571,12 +1597,12 @@ static struct lookup_result *lookup_check_node(=
+struct spec_node *node, const cha
+> >                                         .next =3D NULL,
+> >                                 };
+> >
+> > +                               if (likely(!find_all))
+> > +                                       return r;
+> > +
+> >                                 *next =3D r;
+> >                                 next =3D &r->next;
+> >
+> > -                               if (!find_all)
+> > -                                       return result;
+> > -
+> >                                 continue;
+> >                         }
+> >
+> > @@ -1692,7 +1718,8 @@ FUZZ_EXTERN struct lookup_result *lookup_all(stru=
+ct selabel_handle *rec,
+> >                                  const char *key,
+> >                                  int type,
+> >                                  bool partial,
+> > -                                bool find_all)
+> > +                                bool find_all,
+> > +                                struct lookup_result *buf)
+> >  {
+> >         struct saved_data *data =3D (struct saved_data *)rec->data;
+> >         struct lookup_result *result =3D NULL;
+> > @@ -1704,18 +1731,18 @@ FUZZ_EXTERN struct lookup_result *lookup_all(st=
+ruct selabel_handle *rec,
+> >         unsigned int sofar =3D 0;
+> >         char *sub =3D NULL;
+> >
+> > -       if (!key) {
+> > +       if (unlikely(!key)) {
+> >                 errno =3D EINVAL;
+> >                 goto finish;
+> >         }
+> >
+> > -       if (!data->num_specs) {
+> > +       if (unlikely(!data->num_specs)) {
+> >                 errno =3D ENOENT;
+> >                 goto finish;
+> >         }
+> >
+> >         /* Remove duplicate slashes */
+> > -       if ((next_slash =3D strstr(key, "//"))) {
+> > +       if (unlikely(next_slash =3D strstr(key, "//"))) {
+> >                 clean_key =3D (char *) malloc(strlen(key) + 1);
+> >                 if (!clean_key)
+> >                         goto finish;
+> > @@ -1732,12 +1759,12 @@ FUZZ_EXTERN struct lookup_result *lookup_all(st=
+ruct selabel_handle *rec,
+> >
+> >         /* remove trailing slash */
+> >         len =3D strlen(key);
+> > -       if (len =3D=3D 0) {
+> > +       if (unlikely(len =3D=3D 0)) {
+> >                 errno =3D EINVAL;
+> >                 goto finish;
+> >         }
+> >
+> > -       if (len > 1 && key[len - 1] =3D=3D '/') {
+> > +       if (unlikely(len > 1 && key[len - 1] =3D=3D '/')) {
+> >                 /* reuse clean_key from above if available */
+> >                 if (!clean_key) {
+> >                         clean_key =3D (char *) malloc(len);
+> > @@ -1757,7 +1784,7 @@ FUZZ_EXTERN struct lookup_result *lookup_all(stru=
+ct selabel_handle *rec,
+> >
+> >         node =3D lookup_find_deepest_node(data->root, key);
+> >
+> > -       result =3D lookup_check_node(node, key, file_kind, partial, fin=
+d_all);
+> > +       result =3D lookup_check_node(node, key, file_kind, partial, fin=
+d_all, buf);
+> >
+> >  finish:
+> >         free(clean_key);
+> > @@ -1768,14 +1795,9 @@ finish:
+> >  static struct lookup_result *lookup_common(struct selabel_handle *rec,
+> >                                            const char *key,
+> >                                            int type,
+> > -                                          bool partial) {
+> > -       struct lookup_result *result =3D lookup_all(rec, key, type, par=
+tial, false);
+> > -       if (!result)
+> > -               return NULL;
+> > -
+> > -       free_lookup_result(result->next);
+> > -       result->next =3D NULL;
+> > -       return result;
+> > +                                          bool partial,
+> > +                                          struct lookup_result *buf) {
+> > +       return lookup_all(rec, key, type, partial, false, buf);
+> >  }
+> >
+> >  /*
+> > @@ -1835,7 +1857,7 @@ static bool hash_all_partial_matches(struct selab=
+el_handle *rec, const char *key
+> >  {
+> >         assert(digest);
+> >
+> > -       struct lookup_result *matches =3D lookup_all(rec, key, 0, true,=
+ true);
+> > +       struct lookup_result *matches =3D lookup_all(rec, key, 0, true,=
+ true, NULL);
+> >         if (!matches) {
+> >                 return false;
+> >         }
+> > @@ -1864,25 +1886,20 @@ static bool hash_all_partial_matches(struct sel=
+abel_handle *rec, const char *key
+> >  static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
+> >                                          const char *key, int type)
+> >  {
+> > -       struct lookup_result *result;
+> > -       struct selabel_lookup_rec *lookup_result;
+> > +       struct lookup_result buf, *result;
+> >
+> > -       result =3D lookup_common(rec, key, type, false);
+> > +       result =3D lookup_common(rec, key, type, false, &buf);
+> >         if (!result)
+> >                 return NULL;
+> >
+> > -       lookup_result =3D result->lr;
+> > -       free_lookup_result(result);
+> > -       return lookup_result;
+> > +       return result->lr;
+> >  }
+> >
+> >  static bool partial_match(struct selabel_handle *rec, const char *key)
+> >  {
+> > -       struct lookup_result *result =3D lookup_common(rec, key, 0, tru=
+e);
+> > -       bool ret =3D result;
+> > +       struct lookup_result buf;
+> >
+> > -       free_lookup_result(result);
+> > -       return ret;
+> > +       return !!lookup_common(rec, key, 0, true, &buf);
+> >  }
+> >
+> >  static struct selabel_lookup_rec *lookup_best_match(struct selabel_han=
+dle *rec,
+> > @@ -1904,7 +1921,7 @@ static struct selabel_lookup_rec *lookup_best_mat=
+ch(struct selabel_handle *rec,
+> >         results =3D calloc(n+1, sizeof(*results));
+> >         if (!results)
+> >                 return NULL;
+> > -       results[0] =3D lookup_common(rec, key, type, false);
+> > +       results[0] =3D lookup_common(rec, key, type, false, NULL);
+> >         if (results[0]) {
+> >                 if (!results[0]->has_meta_chars) {
+> >                         /* exact match on key */
+> > @@ -1915,7 +1932,7 @@ static struct selabel_lookup_rec *lookup_best_mat=
+ch(struct selabel_handle *rec,
+> >                 prefix_len =3D results[0]->prefix_len;
+> >         }
+> >         for (i =3D 1; i <=3D n; i++) {
+> > -               results[i] =3D lookup_common(rec, aliases[i-1], type, f=
+alse);
+> > +               results[i] =3D lookup_common(rec, aliases[i-1], type, f=
+alse, NULL);
+> >                 if (results[i]) {
+> >                         if (!results[i]->has_meta_chars) {
+> >                                 /* exact match on alias */
+> > diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux=
+_internal.h
+> > index 372837dd..964b8418 100644
+> > --- a/libselinux/src/selinux_internal.h
+> > +++ b/libselinux/src/selinux_internal.h
+> > @@ -142,4 +142,12 @@ static inline void fclose_errno_safe(FILE *stream)
+> >         errno =3D saved_errno;
+> >  }
+> >
+> > +#ifdef __GNUC__
+> > +# define likely(x)                     __builtin_expect(!!(x), 1)
+> > +# define unlikely(x)                   __builtin_expect(!!(x), 0)
+> > +#else
+> > +# define likely(x)                     (x)
+> > +# define unlikely(x)                   (x)
+> > +#endif /* __GNUC__ */
+> > +
+> >  #endif /* SELINUX_INTERNAL_H_ */
 > > --
 > > 2.45.2
 > >
