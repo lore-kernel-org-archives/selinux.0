@@ -1,149 +1,167 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+Received: from mail-vs1-f54.google.com (mail-vs1-f54.google.com [209.85.217.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 857E516BE20
-	for <selinux@vger.kernel.org>; Wed,  4 Dec 2024 14:32:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83DD21A8F6E
+	for <selinux@vger.kernel.org>; Wed,  4 Dec 2024 19:13:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733322745; cv=none; b=ElejQFySS21ygrbmliFonHdrT6SL9TP3vbfDFwXchR1snIoDRq1cPWINI7ovinWDg4TBXw2hbSu1TFVgNZOf6KdvQ01t8vV6QXwm++rrREmFslJM75+KqG2fWJRg8VNPWKBvJCvpfmw+jDaKDBuaru8W0lpy1glyRPkSkM1nHCY=
+	t=1733339590; cv=none; b=WoirJdjQmudeds13CKAmlCVmwUT1ULE5WmyxttH1iPp9P//JWVLrubRTWA2Um/cEF4PJqcPnSCdcea6sL5495O1i1qP/tlZJiVw1l8XPvSOwtBCYkuPa2k94BlGNxMckId2yULs2SEDqT1mc61Xf+hUNXDvXFMlVx2psUvXo+Fk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733322745; c=relaxed/simple;
-	bh=rpAdguYzguJ4xJJcXZPpr19454CrS2+POE7Du42mh9g=;
+	s=arc-20240116; t=1733339590; c=relaxed/simple;
+	bh=kWUAmislDh4sTshx+sYpot/fYLnVXKtWTWQugGnmlWk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MdcfXJbSE0Q84K1nJc7hpqpVjl3YMX8Vfazt3DBm/fzAM6xhTHdloPTJQYj7jar5q0OYGCdLSHzYBq0tu+84WHGlYDpPN2yBNJbxSvdM0ucrVuoNvEc5RGDoiI3g5pF9vUA4GxeYRmRKp3XJlJ0GQMBKpK5Iz4vZx9pg4tQJdg0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=j1MtzHdi; arc=none smtp.client-ip=209.85.222.178
+	 To:Cc:Content-Type; b=rybx4vyAybjyfjlcS7OL36lIH9xQ0v40rvpf64v/aDVdjBUA0lq2p9qDgSW1jbfTCyRtc9cWfVL7kyJWhrajd4jnKU/UHRtDo6n4BwB30fCFa+OevmYvDDFjG7gHg2kW47yFfyXNE4g9oCyy/FQLc54LhQDkTsJJ97eVypHCkCA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QOWM8KkT; arc=none smtp.client-ip=209.85.217.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="j1MtzHdi"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-7b66d55522dso466893285a.1
-        for <selinux@vger.kernel.org>; Wed, 04 Dec 2024 06:32:23 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QOWM8KkT"
+Received: by mail-vs1-f54.google.com with SMTP id ada2fe7eead31-4af1578d288so8281137.3
+        for <selinux@vger.kernel.org>; Wed, 04 Dec 2024 11:13:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733322742; x=1733927542; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1733339587; x=1733944387; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=EsXjSPdKp1OmrfhHIz4Hm+LPy45dQyl0TlfU40guLkk=;
-        b=j1MtzHdiNVXMKzvOsGAfCYAWzES2RrT+3noYM8/kFJpEPLdgQiDA8bV4xwmwg8ArTh
-         MRb9NlO+n6jSrxhNKFJZcffjiohp0g9KWc0QtVmchMqKYoATwhFbOJ9MuOGJRXfNUW3p
-         +uhc91PuB1cPOfVqDBxTszvPqh5BugDhHTRtNVCh8+ZGoy/1ptb19dC9dzLEtNJt3wwZ
-         NHL9V/VLVOHo91hmvPZ9eTxwOCcS+RfFvfrcn0gbUid5alN7L9sFw6inmCGwmzL44qXO
-         4ytQBfIB/ccMP5fAFmi7giWFaDO71bNjdyIkzPy74sJTC2SyLYluYv/SCA/aLXGKuQ/r
-         +4Hw==
+        bh=mIfZ+7UVomT+UrLcfHeEH3RM5MK3p7JQIyiqdFFP00Y=;
+        b=QOWM8KkTpxCmfwi1blQGAMEY+AgWR/Dq/LsiYQNd6bQ9zGMXfLu55WSFkJBoVsbeS9
+         MJeY1inG7g0m7S5jSvNTNocfUuOC4LP6PyD2MWbc8SqFlr8NUaOpz3XPZyXUfo9LwABo
+         vvA+hybyKrph+jKoIsgsGMhA0VziLACpXgi8BckUi/AyQoJUcMcE2HowskzoEYUJWRix
+         lZZn3mnFvkppLjEcrhqMewasJeQ8LKjg7wjRh4SjJphwMRu4bK8EBowU6BHQk1kfCBCu
+         wN2DcFm8wS63XZ4bGFDbhO4u/+PCHgRE+KyhA6cBq69WsdNfcRrvf10gRZUIIMzuUb8x
+         68HA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733322742; x=1733927542;
+        d=1e100.net; s=20230601; t=1733339587; x=1733944387;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=EsXjSPdKp1OmrfhHIz4Hm+LPy45dQyl0TlfU40guLkk=;
-        b=fULDi2zmGIZKJ8OwgijycuN3XCAUxAgq+LsZ0mBNkEsd1//vCtWh6YECctnTobm5ZM
-         n3YLfwSRTxhfhg6rubTXxfvSZ+sPQ/ynksTNua3hm0XEdYOxqWGBfLCVVebYfT8D8270
-         tbJJKzhV6pQAbeMkLmojFpgpyJFq3Ax9rlZow6ZdNs0CPzLmJDShvSSAWP5HMnJqeDTg
-         PcC2ar5qmuX4xpYsRBRcJwIjLc2VqqQj5LC0rh69ykeWG3E7cgmyE16yJuyFxNSdJ1Z6
-         8V/jdNsA2pVnR3m8+MIYifoXFCvZAp6dodsF6VpdXK//8n8pPLN6VRsblePMBfGqYbW0
-         Xklw==
-X-Forwarded-Encrypted: i=1; AJvYcCXmVkI1XEpDNPxwCYjndTVPHkVdRYrw7i+Ibg0jFW+BOk/2Wt22ZPJjrv5ctp8PPcgdduQHbks/@vger.kernel.org
-X-Gm-Message-State: AOJu0YzHnCuNBmbRWSaI06rYfbErT9PYr0J+28rGAGOkvZX/q/sLx4eC
-	C9dLQfKTI4sI7zsVLrVLUcYRvf/VtrscUSbdlf5aWPIHAo50o9KWM2u2LYX9CrHpjFVsaRv10fe
-	6aZCX8NP/9UMIUbSMXrFuqDoCKsg=
-X-Gm-Gg: ASbGncv2QywVqk2A/ey152APfBmxEuXDNATR46KUUYywDEM04dXEzb33OEGwQjYNVOn
-	aRrpOvHsZVvN0n7gbteDrjNr+MBJ8QCM=
-X-Google-Smtp-Source: AGHT+IFBb+87N8OB+DnJjgozPpBaZ+ydSms+1iU8zoYkM2GkxonIGrhz4shJZ7IufuOiBaWCd8QOt2rmOV5Zh1gaVec=
-X-Received: by 2002:a05:620a:1916:b0:7b6:6756:eef5 with SMTP id
- af79cd13be357-7b6a5d28ec8mr770864885a.4.1733322742353; Wed, 04 Dec 2024
- 06:32:22 -0800 (PST)
+        bh=mIfZ+7UVomT+UrLcfHeEH3RM5MK3p7JQIyiqdFFP00Y=;
+        b=djdVI16T89JdjbbJWYno4YbkDL61ZIurhw0cGHmmw1h9jDp9E0YkUs1jv0qmZ7tngs
+         nqctLEz+XLUazxuNsfpVXmkJSmMn4ChZMUZnO532lvcS6ye2AF2PaDYDqChAXYSJg7BO
+         Bs9/P+NR8nh0+6YcZifVtemEwK9RVePUBuCInNRXt7jwZYJNM3FxZL93ArGtsy9ZSQbM
+         0/gU1HoVwbuJ657RrQogsrExPIa138yoyrZBq88AY2H+IGDaLZisKfyai1HgiKiG73hk
+         gyG7K5cjjuQq4qDJFGDYu1KSEzcq5EggaC7f+4Gr81k+El4BpmoLHiAKa/l6cy24nYSA
+         XeHw==
+X-Gm-Message-State: AOJu0YzIiTeCOuRVKQw+EevF1hA/fV5Po1C5FWHeH3iZWr5jW2IrngkA
+	6+3z70iKQ2U9Uk9qOjbW809YiH4/NrueMvCUnKfHQSECgsX0P8o20uUBVmaP7JuuhZ9ubUfbZkw
+	aRlEozjxF0pomUlqpSuvREdD8eWI=
+X-Gm-Gg: ASbGnculzsZ4w1yhEifQzRNoTqQ7eHbWuFoNFpt9WCTpQe121HYomp4L1k84F/Gmzz4
+	USyxP2jXv9YIHXDemgxjqugSJQRlpVWc=
+X-Google-Smtp-Source: AGHT+IHIC1ZP65P1UI+26a3OnW6l8YOmq6HiyG//UELCHRJk/Bfjpn7Id8pUVuWRzZ8RzaZZ9zQqtbtCy8chS1AWiAs=
+X-Received: by 2002:a05:6102:2909:b0:4ad:b85c:e6c with SMTP id
+ ada2fe7eead31-4af96e7e220mr12439978137.0.1733339587455; Wed, 04 Dec 2024
+ 11:13:07 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241203155448.48237-1-cgoettsche@seltendoof.de>
- <87ed2orb32.fsf@redhat.com> <CAP+JOzQKgatY=eDeN42A5Rh7pq6KCR_ux5ab63JhTojOTrCovg@mail.gmail.com>
-In-Reply-To: <CAP+JOzQKgatY=eDeN42A5Rh7pq6KCR_ux5ab63JhTojOTrCovg@mail.gmail.com>
+References: <20241113074931.2730415-1-dmitry.sharshakov@siderolabs.com>
+In-Reply-To: <20241113074931.2730415-1-dmitry.sharshakov@siderolabs.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 4 Dec 2024 09:32:11 -0500
-Message-ID: <CAP+JOzQ0pn2yN5aTOpU5nMJjr9rANWM7vyqxdBR8ewPtUhMJWA@mail.gmail.com>
-Subject: Re: [PATCH v2] libselinux/utils: drop reachable assert in sefcontext_compile
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>, 
-	selinux@vger.kernel.org, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Wed, 4 Dec 2024 14:12:56 -0500
+Message-ID: <CAP+JOzQQnGA4icsG6n7H0DBPxE4ouY8F2PtP+XtKKBGWKPWsbQ@mail.gmail.com>
+Subject: Re: [PATCH v1 1/2] libsepol: allow specifying SUBDIRS when building
+To: dmitry.sharshakov@siderolabs.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 3, 2024 at 5:01=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
-te:
+On Wed, Nov 13, 2024 at 2:52=E2=80=AFAM <dmitry.sharshakov@siderolabs.com> =
+wrote:
 >
-> On Tue, Dec 3, 2024 at 11:24=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.=
-com> wrote:
-> >
-> > Christian G=C3=B6ttsche <cgoettsche@seltendoof.de> writes:
-> >
-> > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > >
-> > > The two asserts following qsort(3) where useful during development to
-> > > ensure the comparison function and the corresponding pointer handling
-> > > were correct.  They however do not take into account an empty file
-> > > context definition file containing no definitions and thus `stab->nel=
-`
-> > > being NULL.  Drop the two asserts.
-> > >
-> > > Also return early to not depend on whether calloc(3) called with a si=
-ze
-> > > of zero returns NULL or a special value.
-> > >
-> > > Reported-by: Petr Lautrbach <lautrbach@redhat.com>
-> > > Closes: https://lore.kernel.org/selinux/87jzchqck5.fsf@redhat.com/
-> > > Fixes: 92306daf ("libselinux: rework selabel_file(5) database")
-> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > Works for me. Thanks!
-> >
-> > Tested-by: Petr Lautrbach <lautrbach@redhat.com>
-> >
+> From: Dmitry Sharshakov <dmitry.sharshakov@siderolabs.com>
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
+> Allow building without utils and man for minimalist builds which do not n=
+eed those.
 >
+> Also make the Makefile modular as in libselinux.
+>
+> Signed-off-by: Dmitry Sharshakov <dmitry.sharshakov@siderolabs.com>
+> ---
+>  libsepol/Makefile         | 27 +++++----------------------
+>  libsepol/include/Makefile |  2 +-
+>  libsepol/man/Makefile     |  2 +-
+>  3 files changed, 7 insertions(+), 24 deletions(-)
+>
+> diff --git a/libsepol/Makefile b/libsepol/Makefile
+> index 5b5d03e2..e354d3cb 100644
+> --- a/libsepol/Makefile
+> +++ b/libsepol/Makefile
+> @@ -1,29 +1,12 @@
+> +SUBDIRS =3D include src utils man
 
-Merged.
+To allow specifying only some of the subdirectories wouldn't you have
+to use "SUBDIRS ?=3D include src utils man"?
+This seems to always set SUBDIRS to include those subdirectories, but
+I am definitely not a Makefile guru.
+
 Thanks,
 Jim
 
-> > > ---
-> > > v2: fix condition from not zero to equal to zero
-> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > > ---
-> > >  libselinux/utils/sefcontext_compile.c | 5 +++--
-> > >  1 file changed, 3 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils=
-/sefcontext_compile.c
-> > > index 23d31274..e5da51ea 100644
-> > > --- a/libselinux/utils/sefcontext_compile.c
-> > > +++ b/libselinux/utils/sefcontext_compile.c
-> > > @@ -188,6 +188,9 @@ static int write_sidtab(FILE *bin_file, const str=
-uct sidtab *stab)
-> > >       if (len !=3D 1)
-> > >               return -1;
-> > >
-> > > +     if (stab->nel =3D=3D 0)
-> > > +             return 0;
-> > > +
-> > >       /* sort entries by id */
-> > >       sids =3D calloc(stab->nel, sizeof(*sids));
-> > >       if (!sids)
-> > > @@ -203,8 +206,6 @@ static int write_sidtab(FILE *bin_file, const str=
-uct sidtab *stab)
-> > >       }
-> > >       assert(index =3D=3D stab->nel);
-> > >       qsort(sids, stab->nel, sizeof(struct security_id), security_id_=
-compare);
-> > > -     assert(sids[0].id =3D=3D 1);
-> > > -     assert(sids[stab->nel - 1].id =3D=3D stab->nel);
-> > >
-> > >       /* write raw contexts sorted by id */
-> > >       for (uint32_t i =3D 0; i < stab->nel; i++) {
-> > > --
-> > > 2.45.2
-> >
-> >
+
+>  DISABLE_CIL ?=3D n
+>
+>  export DISABLE_CIL
+>
+> -all:
+> -       $(MAKE) -C src
+> -       $(MAKE) -C utils
+> -
+> -install:
+> -       $(MAKE) -C include install
+> -       $(MAKE) -C src install
+> -       $(MAKE) -C utils install
+> -       $(MAKE) -C man install
+> -
+> -relabel:
+> -       $(MAKE) -C src relabel
+> -
+> -clean:
+> -       $(MAKE) -C src clean
+> -       $(MAKE) -C utils clean
+> -       $(MAKE) -C tests clean
+> -
+> -indent:
+> -       $(MAKE) -C src $@
+> -       $(MAKE) -C include $@
+> -       $(MAKE) -C utils $@
+> +all install relabel clean indent:
+> +       @for subdir in $(SUBDIRS); do \
+> +               (cd $$subdir && $(MAKE) $@) || exit 1; \
+> +       done
+>
+>  test:
+>         $(MAKE) -C tests test
+> diff --git a/libsepol/include/Makefile b/libsepol/include/Makefile
+> index 1ad4ecab..8d64e846 100644
+> --- a/libsepol/include/Makefile
+> +++ b/libsepol/include/Makefile
+> @@ -3,7 +3,7 @@ PREFIX ?=3D /usr
+>  INCDIR =3D $(PREFIX)/include/sepol
+>  CILDIR ?=3D ../cil
+>
+> -all:
+> +all relabel clean:
+>
+>  install: all
+>         test -d $(DESTDIR)$(INCDIR) || install -m 755 -d $(DESTDIR)$(INCD=
+IR)
+> diff --git a/libsepol/man/Makefile b/libsepol/man/Makefile
+> index 0b410c19..6017ff51 100644
+> --- a/libsepol/man/Makefile
+> +++ b/libsepol/man/Makefile
+> @@ -7,7 +7,7 @@ MAN8SUBDIR ?=3D man8
+>  MAN3DIR ?=3D $(MANDIR)/$(MAN3SUBDIR)
+>  MAN8DIR ?=3D $(MANDIR)/$(MAN8SUBDIR)
+>
+> -all:
+> +all relabel clean indent:
+>
+>  install: all
+>         mkdir -p $(DESTDIR)$(MAN3DIR)
+> --
+> 2.47.0
+>
+>
