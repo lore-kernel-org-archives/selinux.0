@@ -1,108 +1,101 @@
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D2411D9A4E
-	for <selinux@vger.kernel.org>; Thu,  5 Dec 2024 10:34:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04C6682C60
+	for <selinux@vger.kernel.org>; Thu,  5 Dec 2024 19:40:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733394856; cv=none; b=AvojPD25pUdmLkRgTRRbhxknA56xHKWnxs5x7e8PWMVCMlh3RrTKnXULtCBOxxXfAdUZtAyS04X7nnTDNepS9uphDjYSjPRCjsilg4usNuvNX9f3RdRqrNl7ikOgoc69gH6xpcD32ZG2IyV8OncwURjfoAxTG6ijDf7estTHeSI=
+	t=1733427610; cv=none; b=oEAdTtZOe/uAqHbYbmF/VUGu9tmHZUcPk1aG1WQOZT6AXr7CAjKdzRyWj5QMvP+psmv3Kaywo/W+jyZRMAtCZBzUGnboHwDArtK11laeyuyl8S5jg4H2BWLlWDCFNj8CJq5e6ZxBvUoIEyNnALyp82lJoPsTtcsxZ84MOqVG6/4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733394856; c=relaxed/simple;
-	bh=iNNSlUMKio6BMScmGlcjZKiFLz/tKqFuBlOe3QJsMHI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=H1sVx6XsjQDarhiYVrozUNlSQQRPtTPdV+3aDRYFKWa72cimW0VzOm9dPkMEdH6O/vPj8NGWoWg4BXZAVlPR3tOiVA/vWATemHb0NTsPii23rx0xyu7FrMYU9UScVUuljFqehSC9lc4SUNiuCPeprur3hAzYiqEjPiNFrPpCYXI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=sUS+sSwG; arc=none smtp.client-ip=209.85.167.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1733427610; c=relaxed/simple;
+	bh=VGsJSbCtwi/7op2cpGuyuwUQnK8TuR8qASiR/j21Obs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=nRkwBbXqe02pwa4zM7ozoItV5mxtJO8MR3slm/BDe/+m7GmM7A0LaUuksZvPu1S1ng3FvWZjA5KfDbncLMRQkz0+cwmgrcsOUSITy0m9R+oFQwXqcAjm+PbFI3BS+1UTy45R3Xxlgafu671JqYDHHXsnU8CkI63tQl3YShMKH08=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Tp1LatN/; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="sUS+sSwG"
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-53de18437aeso4483e87.1
-        for <selinux@vger.kernel.org>; Thu, 05 Dec 2024 02:34:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1733394852; x=1733999652; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MAX9OZc5fi5Jorm88cMfQH8I9F+YyQu+8r7M5mFyRn4=;
-        b=sUS+sSwGxt6DK9/VthAUdRIRcr5p0dID1Kqe3VoCWyeAtkYQb3j4FkoA+nLx83zWJj
-         mSkOl0gUKKsjE1EK6z28MS4Sm9IS3hWyGC5OvKhBFUle5mzUNZhK4Npy4lisqJUiiN9R
-         lfkY7BirXtyJaxkoWZHwsLHaObtUFh48XgRCo+veHPr+zna239nbCjZZIreUKefL7hid
-         YsTBXmDoHSmcFf2Tgc+/mxJEiZwELPVb10IxXRP+PtTtMGRZcyXnV2T9UqUbHWfiUMAw
-         sBaaJHMcTHisVDi3A0vlhn6PzR7Uoapwp4qIZIgIW+Zr+iJcm7TMtn5HCYhA3tZowP77
-         6FdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733394852; x=1733999652;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MAX9OZc5fi5Jorm88cMfQH8I9F+YyQu+8r7M5mFyRn4=;
-        b=Z14u06qv9I3hPSb0KGEnxSm+Bfd2w0zJQKeSLtoSIb5F4emEZc7Fscm9WrvhdHSgA+
-         7fcCWINR7HsEKYppx1qAWJ7xHSYr9SWHTCAfPYoc7+lo5M1KNMyMSRPdJIcx/IbUGaKP
-         5qPcat5U2Y0P8ge3kfPLBy6ESzxpULbCkovg5u22yOoRrWfo96YhTsRcE7wbwSXA2fMr
-         qzAcqupZfqqkGiNJgWMk4QZWJK5yMuQx18YEkDbzfb1ssNUAJNSf8RwYsIUugEuPYAGT
-         iLQdH5kn3Cuh9IwI0YzsId51C4Cfkko3+L7kmamuWp82o/L9a0j+b4kr7PBFK8FSAqCA
-         ooWg==
-X-Forwarded-Encrypted: i=1; AJvYcCWgC/t6UZ9QEBUREI/hKz4yZleYimig0CDflA7fSziGpTcBW0AKsSlfzzUTW7K21JHRNDd5mN6c@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz1bDeCptgwLh2um/nTduh0SWHOE+z4usSkmm6bfyZJoJ5Ijqpv
-	MBGQFlDLF9W47fwj/vweOoyXtvDWCqPsG+/sY+xWugeIWGO6Bq8ZwFsFntsE9c5Fq1+E3qtL5e5
-	Lpit3xIc/r1wqCdsOJFTgyp92Tq9YQEOzLAns
-X-Gm-Gg: ASbGncuRJjpDe+Y4N9aU+Oc0twZyNCK0g3WuQNKyJ3ojpd3eFy+WAuUCpFcn/pR/wAe
-	TRu2w57nNTuvIKBaeD/PWm+0tKWSn1x8=
-X-Google-Smtp-Source: AGHT+IGt+5aP+iEfQ8woydcbNlVOoacxjPcRs4/5HKPXiqt0zdaJFDxLUiU7UR5wV85tYrUBnM1Yy3zidsxa1C+Swd8=
-X-Received: by 2002:a05:6512:32d5:b0:53d:d8a5:2833 with SMTP id
- 2adb3069b0e04-53e229c0d64mr130211e87.3.1733394851665; Thu, 05 Dec 2024
- 02:34:11 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Tp1LatN/"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1733427009;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=sJDRrVa66mAKKQw0cQngJ3C6Kgoxxv0kLZjdBEX362Q=;
+	b=Tp1LatN/45f00kb1kofdbvZw8Pz+vlXVb9fIowFQ/ngvIgf04X/11SpZ6z1+B5Wq3w1FNF
+	lGxy+JbATnX3lGonoPzJj86V40XT+5JGGAN2dTS7pDC2BObO8TeFRKHFqEVzkeSwyqO/7d
+	2oaWM5yfnRlu0BIYyy80IzUg++/949/evyIveW9y4MB6Umy9BHbY9KfdQp28+P9BJDEOD4
+	0sWGI9+bf9WWkSHwI3mFQBf7+z2DAR2vmV09f6NVecaj/q8Pu094Ozgh0GwzVKuAPl+8Br
+	kgf97GyVY8d47wS4mnFErOG4XHqKXmgOl9goSI6fD8GYz808yLUYZ1mq/0Xi1Q==
+To: selinux@vger.kernel.org
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH] libselinux/fuzz: update for lookup_all() change
+Date: Thu,  5 Dec 2024 20:30:05 +0100
+Message-ID: <20241205193005.20532-1-cgoettsche@seltendoof.de>
+Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241205010919.1419288-1-tweek@google.com> <6e526f37-960a-4db0-bd17-4dab7803ca68@googlemail.com>
-In-Reply-To: <6e526f37-960a-4db0-bd17-4dab7803ca68@googlemail.com>
-From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Date: Thu, 5 Dec 2024 21:33:54 +1100
-Message-ID: <CA+zpnLezpYaagkF=WxoVFXRWhcRMSMD2JP6_G==HErp0LuE_uw@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: ignore unknown extended permissions
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	=?UTF-8?Q?Bram_Bonn=C3=A9?= <brambonne@google.com>, 
-	Jeffrey Vander Stoep <jeffv@google.com>, selinux@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Thu, Dec 5, 2024 at 6:42=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Dec 5, 2024 02:09:39 Thi=C3=A9baud Weksteen <tweek@google.com>:
->
-> > When evaluating extended permissions, ignore unknown permissions instea=
-d
-> > of calling BUG(). This commit ensures that future permissions can be
-> > added without interfering with older kernels.
-> >
-> > Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+From: Christian Göttsche <cgzones@googlemail.com>
 
-> > -       BUG();
-> > +       pr_warn_once(
-> > +           "SELinux: unknown extended permission (%u) will be ignored\=
-n",
-> > +           node->datum.u.xperms->specified);
-> > +       return;
-> >     }
->
-> What about instead of logging once per boot at access decision time loggi=
-ng once per policyload at parse time, like suggested for patch https://patc=
-hwork.kernel.org/project/selinux/patch/20241115133619.114393-11-cgoettsche@=
-seltendoof.de/ ?
->
+Commit 89dd0b23 ("libselinux: avoid memory allocation in common file
+label lookup") added an additional parameter to lookup_all() for an
+optional buffer the return value might be placed into.  Update the
+fuzzing related code accordingly.
 
-I agree, warning when the policy is loaded makes more sense. For this
-particular bug, I am trying to keep the patch to a bare minimum as I
-intend to backport it to stable kernels (on Android, this is
-preventing us from deploying a policy compatible with both older and
-newer kernels). Maybe we could land the first version of this patch
-(without any warning message), with the understanding that your patch
-will land soon after?
+Fixes: 89dd0b23 ("libselinux: avoid memory allocation in common file label lookup")
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libselinux/fuzz/selabel_file_compiled-fuzzer.c | 2 +-
+ libselinux/fuzz/selabel_file_text-fuzzer.c     | 2 +-
+ libselinux/src/label_file.h                    | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/libselinux/fuzz/selabel_file_compiled-fuzzer.c b/libselinux/fuzz/selabel_file_compiled-fuzzer.c
+index cf0710ad..d1249a76 100644
+--- a/libselinux/fuzz/selabel_file_compiled-fuzzer.c
++++ b/libselinux/fuzz/selabel_file_compiled-fuzzer.c
+@@ -232,7 +232,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 	assert(cmp(&rec, &rec) == SELABEL_EQUAL);
+ 
+ 	errno = 0;
+-	result = lookup_all(&rec, key, mode, partial, find_all);
++	result = lookup_all(&rec, key, mode, partial, find_all, NULL);
+ 
+ 	if (!result)
+ 		assert(errno != 0);
+diff --git a/libselinux/fuzz/selabel_file_text-fuzzer.c b/libselinux/fuzz/selabel_file_text-fuzzer.c
+index 5d851de1..ed67ea25 100644
+--- a/libselinux/fuzz/selabel_file_text-fuzzer.c
++++ b/libselinux/fuzz/selabel_file_text-fuzzer.c
+@@ -178,7 +178,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+ 	assert(cmp(&rec, &rec) == SELABEL_EQUAL);
+ 
+ 	errno = 0;
+-	result = lookup_all(&rec, key, mode, partial, find_all);
++	result = lookup_all(&rec, key, mode, partial, find_all, NULL);
+ 
+ 	if (!result)
+ 		assert(errno != 0);
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index c7fe3a48..562c3da6 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -63,7 +63,7 @@ struct lookup_result {
+ extern int load_mmap(FILE *fp, const size_t len, struct selabel_handle *rec, const char *path);
+ extern int process_text_file(FILE *fp, const char *prefix, struct selabel_handle *rec, const char *path);
+ extern void free_lookup_result(struct lookup_result *result);
+-extern struct lookup_result *lookup_all(struct selabel_handle *rec, const char *key, int type, bool partial, bool find_all);
++extern struct lookup_result *lookup_all(struct selabel_handle *rec, const char *key, int type, bool partial, bool find_all, struct lookup_result *buf);
+ extern enum selabel_cmp_result cmp(const struct selabel_handle *h1, const struct selabel_handle *h2);
+ #endif  /* FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION */
+ 
+-- 
+2.45.2
+
