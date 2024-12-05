@@ -1,116 +1,115 @@
-Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com [209.85.219.170])
+Received: from mail-pf1-f202.google.com (mail-pf1-f202.google.com [209.85.210.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 149823FB0E
-	for <selinux@vger.kernel.org>; Wed,  4 Dec 2024 22:08:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA66717579
+	for <selinux@vger.kernel.org>; Thu,  5 Dec 2024 01:09:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733350101; cv=none; b=RE2KkOpdmZLmZ3f0fuTkDhNIm013wH0kL7/Y/dpFiWhTI6ESDL36aXlgs70Ro65KRhvJDKZlHh8SAAsXCp1IX63a6Fi3FonkrMZV2CTsXZpzAUhhgrl+WCpwnda9DqEwEjY+MVGeIcwPpMnTaWdJnjLE+uxR0iyADbm7gKHInxs=
+	t=1733360981; cv=none; b=gYLtR5Y/ruX5KOdMs6talylFFuUFGkZyB3vE5EawmXKSXcOU/snN9Ayxetei3CwQGgUl7TDrs8aWF/fOmJ/LmAWBOwjTFkInrPKu8Z1AsQShC8Cub7ulKXGs/N+va8Tad9d82TW/FRvMThkOprKK8/ISyB40XLzfFa/j1cvgO+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733350101; c=relaxed/simple;
-	bh=q5OhOzwVG+k/pOiLTI389gqSC97MS66v9zEBOF5UeMs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cGIuxNKo+Fxd5GdSAtKPYkkyICj7z32PFeuGXbEmIzS0bY0SQNqUdZgdCkOCihdVKPTJnKNLZpGEejbbv4LR+fyWA9K9LlhkitvqDCXNeJkKTyk3VoQEd7CC5x5nGtl89lKStCjzqcUlO/3pix49fsOtWtWxusAwt775+aaq6pI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=LWnw+FQf; arc=none smtp.client-ip=209.85.219.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1733360981; c=relaxed/simple;
+	bh=fK8aXyugHxZZ2C2Y/zkgdBQLIkxLT4EIWlla4y/kXg4=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=B0x4CO93f1TWoRew6ySK6Slsb/4gK59ZvFA8MlFcwLSOiB9oP4YjU5lBOTcSWyXI4EOP01RldngHVirqfNpQTIBGrenOc6y/ouRO7bTntrjNalPHxryJNT73Aj6SNhSnIDSzfQbYclPLgLHBbdpc9wXygamwDtnxrR/bxv47XVo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=MzN2iVwo; arc=none smtp.client-ip=209.85.210.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="LWnw+FQf"
-Received: by mail-yb1-f170.google.com with SMTP id 3f1490d57ef6-e3983426f80so380609276.1
-        for <selinux@vger.kernel.org>; Wed, 04 Dec 2024 14:08:19 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="MzN2iVwo"
+Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-72527c426a2so333815b3a.2
+        for <selinux@vger.kernel.org>; Wed, 04 Dec 2024 17:09:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1733350099; x=1733954899; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HrwnGgCCWRQTdxJ9OT4Enu4LhAL/3xLqgw2hy87dtYc=;
-        b=LWnw+FQfpWHpcO+EjOSRusQbv+QgZD/t6U3luZHTfQ5leJFP7CT4rAbBY7NnMd8CgA
-         0ttbCkn5VzZ5vw1AhmihemJhZGxdZLgG2QtSMQWlNEbG+jjTkbZPvzcvZsqU6iL1wbPD
-         AMyLCbXwONlR/8Dwtb93r0zNqdxurt7rjkb4ARTk5Xobt8kioITIMtYhRP9vqDFwZUQV
-         Hm6Tba9M9Ri1soDZ9u57Sy2vOHEzrnI2zBz/NKQZ8bgRuB9ITims6UYF4pGTMQnPwfXb
-         Smrc2y4egKsMZMzKWWBWZBChjNYXKNA1pIEnD0EyDmVMW2FP/XFHFvEzDzIldAJv8irp
-         8U5A==
+        d=google.com; s=20230601; t=1733360979; x=1733965779; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=n59Xnl6D50ylHiqQ1RjIxFw3EGEnTlwF1fv399YL458=;
+        b=MzN2iVwoDcUaROIc8ynFpbFUanbanPTDBVR1TEXa0hZiH5b11HMPmmZTWCYSc+jkIE
+         h+pc6VxhMEqRvbJTVUSmgTX+2jr1HIP77R7f8zxA5eDErDISEQSAfvag/8k5FJlx+AeC
+         g2Zl8KlOQwuTZkNrFEozzK+D0UmgD7Y0Bb1/bmQIbeTRRG1LIkJPbhd9dO4hCUOczgDH
+         OUdM/kkiA0IKItP7Ua5vVa1tcDHxBjv3eM2jcQ5pwAxUbHZR54Uz04JO+q3oex/bwEC3
+         kIWi7twM7mXEq4dh92Cy2ioFpTFB1goxkSuaspZ99td1xI/bgHkgR/4caxMhbKIXjCcR
+         3rgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733350099; x=1733954899;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HrwnGgCCWRQTdxJ9OT4Enu4LhAL/3xLqgw2hy87dtYc=;
-        b=rPUVfLFMXHqshDwYtGr7ztUN4jQD6df950Iap1L8j7qqXxKrHwDfRyzeF7TBPy040T
-         /1nCSRsWpas8QuIFroSqVTI7e6sPThrfHg1nUeRupIKV5gIvP0CEv2Bw/45ouzN97jP0
-         mSI5YJWJkcw88z1q5123msUV3uxeAn+R2L7CvbNrb/1fgSL7SZqauS3pd/jpx5qM6Mmo
-         4A0lgitc3vuVK2a8MYpmvqjVp07qKOSFhaRc48XqXA7rWPng0BXpScXsN2yAruPrTcb7
-         pXLLgqR99Q9a7v4/Q2+zeSzbv2mFvWAb8GFXfzfgzsa8MCKNfjm5SQ1CNGZm5hvGTlq7
-         Lwvw==
-X-Forwarded-Encrypted: i=1; AJvYcCXfa4Ar3bS9PKTK7KDfZoNVX7KK1h8L2koD86vpTc6hkm9UPX88eBHv5iw24CJgyejKp0ZT1PHX@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx8/G0fs32M02NpZ2TQI0kVG2wN9hnd1dCw+T/6ELOJizCPBaAB
-	Z/UngYKCNmLuvO/jKTrrbB+CEe2xI9q3u9qLAAYLsk6y5fOzzHyE8s87TxK5YIMJDzMheU23gOE
-	WLkBMYxG08HwI0itYlLoWhe2s9mMlDfBDM+xv
-X-Gm-Gg: ASbGncvvD0tNwjlVSqwGjm50MUE+WhlqRz9vex1rJYpZcVdsjYB6f/hmUtzS+P6/0rr
-	Xb+zYU0ysO+Bb/z7lxaOYnNpwmfqwAw==
-X-Google-Smtp-Source: AGHT+IG9J5dfJZtkdH4Xl4lwZXjltkdTFM/VIpSFWhQTq9Yxj5XvuqJj4SKWPdWcqJCxskqSjKkd2zQirO/VWFATcUE=
-X-Received: by 2002:a05:6902:1a43:b0:e39:a15b:907d with SMTP id
- 3f1490d57ef6-e39d4387f53mr7736105276.50.1733350098841; Wed, 04 Dec 2024
- 14:08:18 -0800 (PST)
+        d=1e100.net; s=20230601; t=1733360979; x=1733965779;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=n59Xnl6D50ylHiqQ1RjIxFw3EGEnTlwF1fv399YL458=;
+        b=hRa0d4vw558iGNZ+oNmwrafQCoW4Lz1NUX7zKnKmBY5Bn9oPvRsCdgYaIghSQjyYrH
+         4KHs4NiwfYqkh+CjMUCrquJIroDyGVUsALZo8DgClgXEeohCs9+lD+cC6fWJ24hrH5b/
+         9pf+xCWzqWds0mparkMY+ZndWzd4n0aXTIrYHGDRnRx5FT3sUhl4cYGDBkeNcptltQ0v
+         RucsFEhlTLUFRhGbySAPEv9JGRffl8052Mg9Ylpte2mh+gkwdayriuMvbPFC9tCpVSrt
+         NkQg/KZc7N5LUMx7WJNr3PRMzv67bhbzMTU9hjtpYm2Cfcw2hQ0DmW8t2lY45o7Xft9y
+         +SbA==
+X-Forwarded-Encrypted: i=1; AJvYcCWET4qxp0W6+fOIeZrwUELih6szSiniITToGd8hoU6DIOGC6Wc/g8a/++sW5o+CD1Pd9J/qtZ2/@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywm3NtRLGWU2v1+9Q95r9r+T2IugRvIt0cLUjSaaio2vSHSKfda
+	9+d+LsA+rUgsK0FqAYq4M7AYmx059wTtk/atGPhU+UUgJjkOyEWfdeFANWA2KT5JzeroTAjtJA=
+	=
+X-Google-Smtp-Source: AGHT+IG9q/7Y6jw7LO5D1bpEuo1BX4/QTu8OeJ5x0t6/Jsyxa1hzCp86q2jhrL5XYS6WhbIRB8FVkpXZ0g==
+X-Received: from pfbjo4.prod.google.com ([2002:a05:6a00:9084:b0:725:9eaa:f2f5])
+ (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:1414:b0:71e:5b4a:66d4
+ with SMTP id d2e1a72fcca58-72587f00581mr9491823b3a.9.1733360979157; Wed, 04
+ Dec 2024 17:09:39 -0800 (PST)
+Date: Thu,  5 Dec 2024 12:09:19 +1100
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20241203222741.1739916-1-tweek@google.com>
-In-Reply-To: <20241203222741.1739916-1-tweek@google.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 4 Dec 2024 17:08:08 -0500
-Message-ID: <CAHC9VhQxcNtVLkORLFkd=a=_aEfYreRJt-xs3ZRdXwqd9sjBmg@mail.gmail.com>
-Subject: Re: [PATCH] selinux: ignore unknown extended permissions
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, =?UTF-8?Q?Bram_Bonn=C3=A9?= <brambonne@google.com>, 
-	Jeffrey Vander Stoep <jeffv@google.com>, selinux@vger.kernel.org, stable@vger.kernel.org
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.47.0.338.g60cca15819-goog
+Message-ID: <20241205010919.1419288-1-tweek@google.com>
+Subject: [PATCH v2] selinux: ignore unknown extended permissions
+From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: "=?UTF-8?q?Christian=20G=C3=B6ttsche?=" <cgzones@googlemail.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	"=?UTF-8?q?Bram=20Bonn=C3=A9?=" <brambonne@google.com>, Jeffrey Vander Stoep <jeffv@google.com>, selinux@vger.kernel.org, 
+	"=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Dec 3, 2024 at 5:27=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@google=
-.com> wrote:
->
-> When evaluating extended permissions, ignore unknown permissions instead
-> of calling BUG(). This commit ensures that future permissions can be
-> added without interfering with older kernels.
->
-> Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-> ---
->  security/selinux/ss/services.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/service=
-s.c
-> index 971c45d576ba..2fa8aebcb2e5 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -979,7 +979,8 @@ void services_compute_xperms_decision(struct extended=
-_perms_decision *xpermd,
->                         return;
->                 break;
->         default:
-> -               BUG();
-> +               // An unknown extended permission has been found. Ignore =
-it.
-> +               return;
+When evaluating extended permissions, ignore unknown permissions instead
+of calling BUG(). This commit ensures that future permissions can be
+added without interfering with older kernels.
 
-There is also a BUG() call lower in the function when it generates the
-extended data, do you want to update/remove that as well?
+Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+---
+v2: Add pr_warn_once, remove other BUG() call for key.specified
 
-It also seems like we should have a pr_warn_once() or
-pr_warn_ratelimited() message here to alert the admin of a mismatch
-between the policy and the kernel.
+ security/selinux/ss/services.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
->         }
->
->         if (node->key.specified =3D=3D AVTAB_XPERMS_ALLOWED) {
-> --
-
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.=
+c
+index 971c45d576ba..3d5c563cfc4c 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -979,7 +979,10 @@ void services_compute_xperms_decision(struct extended_=
+perms_decision *xpermd,
+ 			return;
+ 		break;
+ 	default:
+-		BUG();
++		pr_warn_once(
++			"SELinux: unknown extended permission (%u) will be ignored\n",
++			node->datum.u.xperms->specified);
++		return;
+ 	}
+=20
+ 	if (node->key.specified =3D=3D AVTAB_XPERMS_ALLOWED) {
+@@ -998,7 +1001,8 @@ void services_compute_xperms_decision(struct extended_=
+perms_decision *xpermd,
+ 					    &node->datum.u.xperms->perms,
+ 					    xpermd->dontaudit);
+ 	} else {
+-		BUG();
++		pr_warn_once("SELinux: unknown specified key (%u)\n",
++			     node->key.specified);
+ 	}
+ }
+=20
 --=20
-paul-moore.com
+2.47.0.338.g60cca15819-goog
+
