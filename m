@@ -1,473 +1,273 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 554722F56
-	for <selinux@vger.kernel.org>; Thu,  5 Dec 2024 01:50:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABB181D0DEC
+	for <selinux@vger.kernel.org>; Thu,  5 Dec 2024 08:53:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733363402; cv=none; b=K/0W6dRdAW4p9Ocv7SS4RZcOLm3DhLVWOnVNcT6iXmh1Sojc6fvxrAlr2PMI9SMk1mjRdN9kqTeT/qAe6NO31GdCWGS2EItVuLuBMIdW+QRoHBlqDda/BmNtMlsoXfX1jH+98LH90noNnD54/qklAF9sAVPV5whzLIlIS0RchVc=
+	t=1733388810; cv=none; b=ghP37AhAvklu3wG5jr8ZpqDKaZ1Yz2tZKwwpSgP9KFduAhETq4PP5epo0UefqrYSfgNsKxyclrA479JDUF6uRu+LPLA80Kea94GotLrZTSfucPTtXXXWVad8tjH/dKVDaE+c3w0nD1yCHv4VoSHULdDtX0An1acPg1m7WrulDvY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733363402; c=relaxed/simple;
-	bh=9ksMHZWxvG+NJxdosROt5oMaU5nzqWKsGVkldsWs2ng=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=dkT9U8EetXe2MHAQZjIoHQ9pllGOe6TR8oeKeiVIqrEHCGib2bysNw6B0/vQaTs4DakE5O44QJU63n0WaeuVDgu73Ey9TuefkCTleCaiov2L3dpfAO2xPrEcZuJUj4QZNOLpGc6Wpu7cx3/CTEtDSZMuRWMQfBX0ofH15sf9do4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=IBcb2S99; arc=none smtp.client-ip=209.85.216.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
+	s=arc-20240116; t=1733388810; c=relaxed/simple;
+	bh=5seNRPtQPYizUzL8Ff+RqINT5ml3+2sd/JTLG7b9np8=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=F7ToME+7rliTstVZSYfOY5AAJQ8/lF1F98RYq0rugeHwTbwXCmVJ0QWNhzbu7w4fKl9Si1pb6Yy5FBLYIvZ1Ow0qNwejtlbrT8uzMOOxS0fJm67CbSLRX3SmuVO5DxK05JwdJdH3VzTznuhdw62MTa9Igeg1sQf/S0hMN5wHimc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=ENeDhAun; arc=none smtp.client-ip=209.85.167.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="IBcb2S99"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2ee6b027a90so641647a91.1
-        for <selinux@vger.kernel.org>; Wed, 04 Dec 2024 17:50:00 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="ENeDhAun"
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-53dde4f0f23so604022e87.3
+        for <selinux@vger.kernel.org>; Thu, 05 Dec 2024 00:53:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1733363400; x=1733968200; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=LgoOEM+ywTI9c/0ktTFyhemzWUpoEDzXO4f02iT8wRc=;
-        b=IBcb2S99/g8OQfMVBjkHhyNUcVT0Ekw8uj+g2j+IkYbYaVMWOaMvg5YjNlOaiAn6F+
-         /k+nugCZlxgPtbnnpZMX1DaMVKGSPgXFKA2gLZ0aNoOn2007qTMgvJ8mz+go1HtE5ZjQ
-         BDgNS8O2//mjdXPSPw68FOXI1UvcBmtIugqvfOf/lBy4JuuQGDYc6Jy0VpO2nADdGC++
-         /d1t0rDVOtXKnVTAxomcc/hp9D4oHQ5khwSegYSaviXu01dXBqJx+NkVF7VMJg7Wow6R
-         A59NxLqALnhyuFzbr7SvoXYmrD69kt5sTQ1tHZoFUULRRyjfl/fjjUJqrKJTCpFMq8/O
-         7XOg==
+        d=chromium.org; s=google; t=1733388806; x=1733993606; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=mHsrvq+mjk1DOofbb56eKBkfsZAOUG7NEPelJMCd78M=;
+        b=ENeDhAun2K0PjV78Zga9db6EXpVjUYsEwapvW9/vSWfg//LLVJpWVE+zu0rURwsNnF
+         fW1q5VWsn0XHK+NO0R9j7GTxumtdYA+gSuIF1RnuM1ZrUj9nf8FAV1CqPNKAdIKmJij4
+         UpNFaG4ucZlXTOxY6/bXMBKPpESL4AxRQ2qos=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733363400; x=1733968200;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LgoOEM+ywTI9c/0ktTFyhemzWUpoEDzXO4f02iT8wRc=;
-        b=DkRoH7SVWhLJSauW4mEmyz5AJ4BqxNy33867wEgZlScT9EKW2YUD/WH7/OVu/3Py9c
-         XI7wLx6dU0IoXeLtDDfE5JhLuEC3LstmQNQ9VJO6CJgcigeO2KXdjSz2fdhkx5qISV/S
-         iri2Vo07KoRSJ6N0sbOeRViPrth5B5blRbEHR288tb7v7TF7cGoBV4sfed0JQB0gY8TW
-         hYyd3BCR3lQKipTQ6xLuwpKz2TRCbgEKsGADn+GK1Lt8MshrwTqiDb40uqvh1mg5YT46
-         vUuIfLtkUr0kjzcyoiXopf40TSPueUHPQxcVF7QdftcYalp15OOGYGBPELD/6LxW6UQL
-         J6Ag==
-X-Forwarded-Encrypted: i=1; AJvYcCUrOOqXA/Pq0eMdo2WqOV1OAOR6CNsv3kJRJg1f9zZP1lN4+5Err0xTpRIA2DqK0S6c2tpEiT3y@vger.kernel.org
-X-Gm-Message-State: AOJu0YzcC1lk24acy8JBvoVNtM4FtL3VMmb5tFyIJm+UV0GE/m0bqkTw
-	k6yCoNBJ/N8iXQrKNRAndQGlv/zHzSbYX5BDs14XeUjP8MFs4M/rMVnH8sGUZV0yMQeooqz/fw=
-	=
-X-Google-Smtp-Source: AGHT+IHh9+rrVP1nqGGR1Tv1LPwKA9OANsTHBWpWFPLExbstGUzMKqNzglvOZWbdFCzHFNwo3/cMTm3vOg==
-X-Received: from pfbea18.prod.google.com ([2002:a05:6a00:4c12:b0:725:1e91:d36b])
- (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:1b49:b0:2ee:b0b0:8e02
- with SMTP id 98e67ed59e1d1-2ef0125b0d8mr11715573a91.28.1733363399711; Wed, 04
- Dec 2024 17:49:59 -0800 (PST)
-Date: Thu,  5 Dec 2024 12:49:51 +1100
+        d=1e100.net; s=20230601; t=1733388806; x=1733993606;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=mHsrvq+mjk1DOofbb56eKBkfsZAOUG7NEPelJMCd78M=;
+        b=DqTjmTLe/A0q6QCt/KDPAahdTRStDKUBGwyhBOtRpE0jIRO2JfIdJ0NS0bulOX2Jl3
+         0CIqJJo6qwb7+u7GlpUeTJLlHPbGdxdJ2jyHxTbBhpeyRnpLx+DcUvGLRdyrt4+c61Ex
+         b914oXfT4IqAYre/gLI/NK+oRzY1PPKWRgD72EKeinhnpBRTlyAaf5DT60Tt65dRvyg/
+         kv+wd7DRWGC/o8CeExO/c0TqYaGENB9BAqDd06FNjUH7Kw6FZaqbdbWpsMQOHOoGdASX
+         qzMMA6Ifne29t+OaT5BZetieBccS8K+TkaG6py+bOQocyGof4SC4kKD8e15zRgBx9pMN
+         KWBw==
+X-Gm-Message-State: AOJu0YxxK0lPJeD/GessoOqBd7MHTMfwoa+1svcYk5oHA32eTm+d36lM
+	EhkGeFJsaThNjOlgoE85iiCBuznB/tLEmGiV/LprNg4R3wQXxsP9zLwrGdv3eGsb8JGzSos0KKu
+	Yiv+i0aMDDHFYi7GIXliZ+Q+LMwpShOCBE0FlCxTkNkKxeQKa
+X-Gm-Gg: ASbGncsHZy64mSspzVRdZs+yX1ykbmxc6O+Tc0SdeF417Qk1d6Q/FNWRX982W2VA9vN
+	9YhO2dYb8C1D2WoG0LuTL7StYohuLURlmvBo7mITMdO/s1l+2UIpdgmNbaA==
+X-Google-Smtp-Source: AGHT+IG8y8IDJ4sRCCh4nxFeaeAwjB8/W1uEs06d5eN0lYQyY0p4xbtVyOgmkrRLX5g097MWLjek/DI/paoC1wlpFwU=
+X-Received: by 2002:a05:6512:128b:b0:539:8a9a:4e63 with SMTP id
+ 2adb3069b0e04-53e12a21812mr4445912e87.42.1733388806480; Thu, 05 Dec 2024
+ 00:53:26 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.47.0.338.g60cca15819-goog
-Message-ID: <20241205014951.1451858-1-tweek@google.com>
-Subject: [PATCH] selinux: match extended permissions to their base permissions
-From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: "=?UTF-8?q?Christian=20G=C3=B6ttsche?=" <cgzones@googlemail.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	"=?UTF-8?q?Bram=20Bonn=C3=A9?=" <brambonne@google.com>, Jeffrey Vander Stoep <jeffv@google.com>, selinux@vger.kernel.org, 
-	"=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+MIME-Version: 1.0
+From: Takaya Saeki <takayas@chromium.org>
+Date: Thu, 5 Dec 2024 17:53:14 +0900
+Message-ID: <CAH9xa6dmxzcooYYya5kH=KwfhhKUJSq9LYVKiwxj1sxsDB3h-w@mail.gmail.com>
+Subject: [RFC] genfscon wildcard support for faster sysfs labeling
+To: selinux@vger.kernel.org
+Cc: tweek@google.com, nnk@google.com, jeffv@google.com, 
+	Junichi Uekawa <uekawa@chromium.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-In commit d1d991efaf34 ("selinux: Add netlink xperm support") a new
-extended permission was added ("nlmsg"). This was the second extended
-permission implemented in selinux ("ioctl" being the first one).
+Hello SELinux developers,
 
-Extended permissions are associated with a base permission. It was found
-that, in the access vector cache (avc), the extended permission did not
-keep track of its base permission. This is an issue for a domain that is
-using both extended permissions (i.e., a domain calling ioctl() on a
-netlink socket). In this case, the extended permissions were
-overlapping.
+I propose wildcard match support in genfscon to improve sysfs labeling
+performance, and I would like to hear your opinions on it.
 
-Keep track of the base permission in the cache. A new field "base_perm"
-is added to struct extended_perms_decision to make sure that the
-extended permission refers to the correct policy permission. A new field
-"base_perms" is added to struct extended_perms to quickly decide if
-extended permissions apply.
+Currently, labeling numerous dynamic sysfs entries (e.g.,
+`/sys/devices/pci0000:00/0000:00:03.1/<...>/0000:04:00.1/wakeup`)
+requires either listing all specific PCI paths in genfscon entries,
+which are hard to maintain, or using slow regex rules in file_contexts
+with restorecon. On our test device, `restorecon -R /sys` takes 2.7
+seconds with regular expression rules.
 
-While it is in theory possible to retrieve the base permission from the
-access vector, the same base permission may not be mapped to the same
-bit for each class (e.g., "nlmsg" is mapped to a different bit for
-"netlink_route_socket" and "netlink_audit_socket"). Instead, use a
-constant (AVC_EXT_IOCTL or AVC_EXT_NLMSG) provided by the caller.
+Wildcard matching offers a good balance here. The patch below allows us
+to avoid the slowdowns of regex while keeping genfscon maintainable for
+diverse hardware.
 
-Fixes: d1d991efaf34 ("selinux: Add netlink xperm support")
-Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+This requires defining precedence when multiple wildcards match. I
+suggest prioritizing longer matches, which is the existing behavior. For
+example, given the rules `/sys/devices/*/wakeup` and
+`/sys/devices/*/wakeup/*/uevent` (note `*` also matches `/`), the path
+`/devices/LNXSYSTM:00/PNP0C14:01/wakeup/wakeup57/uevent` would match
+both, but the second rule would be applied. Users can control the
+precedence by writing concrete parent directories.
+
+There are also cases where multiple rules of the same length match
+against a path. To remove this ambiguity, we can document the current
+behavior that the first matching rule in the genfscon file takes
+precedence. Users should not rely on this rule but should specify paths
+that are concrete enough, though.
+
+I'd appreciate your feedback.
+
+Signed-off-by: Takaya Saeki <takayas@chromium.org>
 ---
- security/selinux/avc.c              | 61 ++++++++++++++++-------------
- security/selinux/hooks.c            |  6 +--
- security/selinux/include/avc.h      |  5 ++-
- security/selinux/include/security.h |  3 ++
- security/selinux/ss/services.c      | 23 ++++++++++-
- 5 files changed, 65 insertions(+), 33 deletions(-)
+ security/selinux/include/policycap.h       |  1 +
+ security/selinux/include/policycap_names.h |  1 +
+ security/selinux/include/security.h        |  6 +++
+ security/selinux/ss/policydb.c             | 56 ++++++++++++++++++----
+ security/selinux/ss/services.c             | 13 +++--
+ 5 files changed, 66 insertions(+), 11 deletions(-)
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index cc0b0af20296..1f2680bcc43a 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -174,13 +174,15 @@ int avc_get_hash_stats(char *page)
-  * using a linked list for extended_perms_decision lookup because the list=
- is
-  * always small. i.e. less than 5, typically 1
-  */
--static struct extended_perms_decision *avc_xperms_decision_lookup(u8 drive=
-r,
--					struct avc_xperms_node *xp_node)
-+static struct extended_perms_decision *
-+avc_xperms_decision_lookup(u8 driver, u8 base_perm,
-+			   struct avc_xperms_node *xp_node)
- {
- 	struct avc_xperms_decision_node *xpd_node;
-=20
- 	list_for_each_entry(xpd_node, &xp_node->xpd_head, xpd_list) {
--		if (xpd_node->xpd.driver =3D=3D driver)
-+		if (xpd_node->xpd.driver =3D=3D driver &&
-+		    xpd_node->xpd.base_perm =3D=3D base_perm)
- 			return &xpd_node->xpd;
- 	}
- 	return NULL;
-@@ -205,11 +207,12 @@ avc_xperms_has_perm(struct extended_perms_decision *x=
-pd,
- }
-=20
- static void avc_xperms_allow_perm(struct avc_xperms_node *xp_node,
--				u8 driver, u8 perm)
-+				  u8 driver, u8 base_perm, u8 perm)
- {
- 	struct extended_perms_decision *xpd;
- 	security_xperm_set(xp_node->xp.drivers.p, driver);
--	xpd =3D avc_xperms_decision_lookup(driver, xp_node);
-+	xp_node->xp.base_perms |=3D base_perm;
-+	xpd =3D avc_xperms_decision_lookup(driver, base_perm, xp_node);
- 	if (xpd && xpd->allowed)
- 		security_xperm_set(xpd->allowed->p, perm);
- }
-@@ -245,6 +248,7 @@ static void avc_xperms_free(struct avc_xperms_node *xp_=
-node)
- static void avc_copy_xperms_decision(struct extended_perms_decision *dest,
- 					struct extended_perms_decision *src)
- {
-+	dest->base_perm =3D src->base_perm;
- 	dest->driver =3D src->driver;
- 	dest->used =3D src->used;
- 	if (dest->used & XPERMS_ALLOWED)
-@@ -272,6 +276,7 @@ static inline void avc_quick_copy_xperms_decision(u8 pe=
-rm,
- 	 */
- 	u8 i =3D perm >> 5;
-=20
-+	dest->base_perm =3D src->base_perm;
- 	dest->used =3D src->used;
- 	if (dest->used & XPERMS_ALLOWED)
- 		dest->allowed->p[i] =3D src->allowed->p[i];
-@@ -357,6 +362,7 @@ static int avc_xperms_populate(struct avc_node *node,
-=20
- 	memcpy(dest->xp.drivers.p, src->xp.drivers.p, sizeof(dest->xp.drivers.p))=
-;
- 	dest->xp.len =3D src->xp.len;
-+	dest->xp.base_perms =3D src->xp.base_perms;
-=20
- 	/* for each source xpd allocate a destination xpd and copy */
- 	list_for_each_entry(src_xpd, &src->xpd_head, xpd_list) {
-@@ -807,6 +813,7 @@ int __init avc_add_callback(int (*callback)(u32 event),=
- u32 events)
-  * @event : Updating event
-  * @perms : Permission mask bits
-  * @driver: xperm driver information
-+ * @base_perm: the base permission associated with the extended permission
-  * @xperm: xperm permissions
-  * @ssid: AVC entry source sid
-  * @tsid: AVC entry target sid
-@@ -820,10 +827,9 @@ int __init avc_add_callback(int (*callback)(u32 event)=
-, u32 events)
-  * otherwise, this function updates the AVC entry. The original AVC-entry =
-object
-  * will release later by RCU.
-  */
--static int avc_update_node(u32 event, u32 perms, u8 driver, u8 xperm, u32 =
-ssid,
--			   u32 tsid, u16 tclass, u32 seqno,
--			   struct extended_perms_decision *xpd,
--			   u32 flags)
-+static int avc_update_node(u32 event, u32 perms, u8 driver, u8 base_perm,
-+			   u8 xperm, u32 ssid, u32 tsid, u16 tclass, u32 seqno,
-+			   struct extended_perms_decision *xpd, u32 flags)
- {
- 	u32 hvalue;
- 	int rc =3D 0;
-@@ -880,7 +886,7 @@ static int avc_update_node(u32 event, u32 perms, u8 dri=
-ver, u8 xperm, u32 ssid,
- 	case AVC_CALLBACK_GRANT:
- 		node->ae.avd.allowed |=3D perms;
- 		if (node->ae.xp_node && (flags & AVC_EXTENDED_PERMS))
--			avc_xperms_allow_perm(node->ae.xp_node, driver, xperm);
-+			avc_xperms_allow_perm(node->ae.xp_node, driver, base_perm, xperm);
- 		break;
- 	case AVC_CALLBACK_TRY_REVOKE:
- 	case AVC_CALLBACK_REVOKE:
-@@ -987,10 +993,9 @@ static noinline void avc_compute_av(u32 ssid, u32 tsid=
-, u16 tclass,
- 	avc_insert(ssid, tsid, tclass, avd, xp_node);
- }
-=20
--static noinline int avc_denied(u32 ssid, u32 tsid,
--			       u16 tclass, u32 requested,
--			       u8 driver, u8 xperm, unsigned int flags,
--			       struct av_decision *avd)
-+static noinline int avc_denied(u32 ssid, u32 tsid, u16 tclass, u32 request=
-ed,
-+			       u8 driver, u8 base_perm, u8 xperm,
-+			       unsigned int flags, struct av_decision *avd)
- {
- 	if (flags & AVC_STRICT)
- 		return -EACCES;
-@@ -999,7 +1004,7 @@ static noinline int avc_denied(u32 ssid, u32 tsid,
- 	    !(avd->flags & AVD_FLAGS_PERMISSIVE))
- 		return -EACCES;
-=20
--	avc_update_node(AVC_CALLBACK_GRANT, requested, driver,
-+	avc_update_node(AVC_CALLBACK_GRANT, requested, driver, base_perm,
- 			xperm, ssid, tsid, tclass, avd->seqno, NULL, flags);
- 	return 0;
- }
-@@ -1012,7 +1017,8 @@ static noinline int avc_denied(u32 ssid, u32 tsid,
-  * driver field is used to specify which set contains the permission.
-  */
- int avc_has_extended_perms(u32 ssid, u32 tsid, u16 tclass, u32 requested,
--			   u8 driver, u8 xperm, struct common_audit_data *ad)
-+			   u8 driver, u8 base_perm, u8 xperm,
-+			   struct common_audit_data *ad)
- {
- 	struct avc_node *node;
- 	struct av_decision avd;
-@@ -1047,22 +1053,23 @@ int avc_has_extended_perms(u32 ssid, u32 tsid, u16 =
-tclass, u32 requested,
- 	local_xpd.auditallow =3D &auditallow;
- 	local_xpd.dontaudit =3D &dontaudit;
-=20
--	xpd =3D avc_xperms_decision_lookup(driver, xp_node);
-+	xpd =3D avc_xperms_decision_lookup(driver, base_perm, xp_node);
- 	if (unlikely(!xpd)) {
- 		/*
- 		 * Compute the extended_perms_decision only if the driver
--		 * is flagged
-+		 * is flagged and the base permission is known.
- 		 */
--		if (!security_xperm_test(xp_node->xp.drivers.p, driver)) {
-+		if (!security_xperm_test(xp_node->xp.drivers.p, driver) ||
-+		    !(xp_node->xp.base_perms & base_perm)) {
- 			avd.allowed &=3D ~requested;
- 			goto decision;
- 		}
- 		rcu_read_unlock();
--		security_compute_xperms_decision(ssid, tsid, tclass,
--						 driver, &local_xpd);
-+		security_compute_xperms_decision(ssid, tsid, tclass, driver,
-+						 base_perm, &local_xpd);
- 		rcu_read_lock();
--		avc_update_node(AVC_CALLBACK_ADD_XPERMS, requested,
--				driver, xperm, ssid, tsid, tclass, avd.seqno,
-+		avc_update_node(AVC_CALLBACK_ADD_XPERMS, requested, driver,
-+				base_perm, xperm, ssid, tsid, tclass, avd.seqno,
- 				&local_xpd, 0);
- 	} else {
- 		avc_quick_copy_xperms_decision(xperm, &local_xpd, xpd);
-@@ -1075,8 +1082,8 @@ int avc_has_extended_perms(u32 ssid, u32 tsid, u16 tc=
-lass, u32 requested,
- decision:
- 	denied =3D requested & ~(avd.allowed);
- 	if (unlikely(denied))
--		rc =3D avc_denied(ssid, tsid, tclass, requested,
--				driver, xperm, AVC_EXTENDED_PERMS, &avd);
-+		rc =3D avc_denied(ssid, tsid, tclass, requested, driver,
-+				base_perm, xperm, AVC_EXTENDED_PERMS, &avd);
-=20
- 	rcu_read_unlock();
-=20
-@@ -1110,7 +1117,7 @@ static noinline int avc_perm_nonode(u32 ssid, u32 tsi=
-d, u16 tclass,
- 	avc_compute_av(ssid, tsid, tclass, avd, &xp_node);
- 	denied =3D requested & ~(avd->allowed);
- 	if (unlikely(denied))
--		return avc_denied(ssid, tsid, tclass, requested, 0, 0,
-+		return avc_denied(ssid, tsid, tclass, requested, 0, 0, 0,
- 				  flags, avd);
- 	return 0;
- }
-@@ -1158,7 +1165,7 @@ inline int avc_has_perm_noaudit(u32 ssid, u32 tsid,
- 	rcu_read_unlock();
-=20
- 	if (unlikely(denied))
--		return avc_denied(ssid, tsid, tclass, requested, 0, 0,
-+		return avc_denied(ssid, tsid, tclass, requested, 0, 0, 0,
- 				  flags, avd);
- 	return 0;
- }
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index f5a08f94e094..011d9121b3ab 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3688,8 +3688,8 @@ static int ioctl_has_perm(const struct cred *cred, st=
-ruct file *file,
- 		return 0;
-=20
- 	isec =3D inode_security(inode);
--	rc =3D avc_has_extended_perms(ssid, isec->sid, isec->sclass,
--				    requested, driver, xperm, &ad);
-+	rc =3D avc_has_extended_perms(ssid, isec->sid, isec->sclass, requested,
-+				    driver, AVC_EXT_IOCTL, xperm, &ad);
- out:
- 	return rc;
- }
-@@ -5952,7 +5952,7 @@ static int nlmsg_sock_has_extended_perms(struct sock =
-*sk, u32 perms, u16 nlmsg_t
- 	xperm =3D nlmsg_type & 0xff;
-=20
- 	return avc_has_extended_perms(current_sid(), sksec->sid, sksec->sclass,
--			perms, driver, xperm, &ad);
-+				      perms, driver, AVC_EXT_NLMSG, xperm, &ad);
- }
-=20
- static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
-diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.=
-h
-index 96a614d47df8..281f40103663 100644
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -136,8 +136,11 @@ int avc_has_perm_noaudit(u32 ssid, u32 tsid, u16 tclas=
-s, u32 requested,
- int avc_has_perm(u32 ssid, u32 tsid, u16 tclass, u32 requested,
- 		 struct common_audit_data *auditdata);
-=20
-+#define AVC_EXT_IOCTL	(1 << 0) /* Cache entry for an ioctl extended permis=
-sion */
-+#define AVC_EXT_NLMSG	(1 << 1) /* Cache entry for an nlmsg extended permis=
-sion */
- int avc_has_extended_perms(u32 ssid, u32 tsid, u16 tclass, u32 requested,
--			   u8 driver, u8 perm, struct common_audit_data *ad);
-+			   u8 driver, u8 base_perm, u8 perm,
-+			   struct common_audit_data *ad);
-=20
- u32 avc_policy_seqno(void);
-=20
-diff --git a/security/selinux/include/security.h b/security/selinux/include=
-/security.h
-index c7f2731abd03..0f6ff19d420c 100644
+diff --git a/security/selinux/include/policycap.h
+b/security/selinux/include/policycap.h
+index 079679fe7254..2b4014a826f0 100644
+--- a/security/selinux/include/policycap.h
++++ b/security/selinux/include/policycap.h
+@@ -15,6 +15,7 @@ enum {
+  POLICYDB_CAP_IOCTL_SKIP_CLOEXEC,
+  POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT,
+  POLICYDB_CAP_NETLINK_XPERM,
++ POLICYDB_CAP_GENFS_SECLABEL_WILDCARD,
+  __POLICYDB_CAP_MAX
+ };
+ #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
+diff --git a/security/selinux/include/policycap_names.h
+b/security/selinux/include/policycap_names.h
+index e080827408c4..17e5c51f3cf4 100644
+--- a/security/selinux/include/policycap_names.h
++++ b/security/selinux/include/policycap_names.h
+@@ -18,6 +18,7 @@ const char *const
+selinux_policycap_names[__POLICYDB_CAP_MAX] = {
+  "ioctl_skip_cloexec",
+  "userspace_initial_context",
+  "netlink_xperm",
++ "genfs_wildcard",
+ };
+ /* clang-format on */
+
+diff --git a/security/selinux/include/security.h
+b/security/selinux/include/security.h
+index c7f2731abd03..ccd80fb037d5 100644
 --- a/security/selinux/include/security.h
 +++ b/security/selinux/include/security.h
-@@ -239,6 +239,7 @@ struct extended_perms_data {
- struct extended_perms_decision {
- 	u8 used;
- 	u8 driver;
-+	u8 base_perm;
- 	struct extended_perms_data *allowed;
- 	struct extended_perms_data *auditallow;
- 	struct extended_perms_data *dontaudit;
-@@ -247,6 +248,7 @@ struct extended_perms_decision {
- struct extended_perms {
- 	u16 len; /* length associated decision chain */
- 	struct extended_perms_data drivers; /* flag drivers that are used */
-+	u8 base_perms; /* which base permissions are covered */
- };
-=20
- /* definitions of av_decision.flags */
-@@ -257,6 +259,7 @@ void security_compute_av(u32 ssid, u32 tsid, u16 tclass=
-,
- 			 struct extended_perms *xperms);
-=20
- void security_compute_xperms_decision(u32 ssid, u32 tsid, u16 tclass, u8 d=
-river,
-+				      u8 base_perm,
- 				      struct extended_perms_decision *xpermd);
-=20
- void security_compute_av_user(u32 ssid, u32 tsid, u16 tclass,
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.=
-c
-index 971c45d576ba..04ac4138a8b7 100644
+@@ -201,6 +201,12 @@ static inline bool selinux_policycap_netlink_xperm(void)
+  selinux_state.policycap[POLICYDB_CAP_NETLINK_XPERM]);
+ }
+
++static inline bool selinux_policycap_genfs_seclabel_wildcard(void)
++{
++ return READ_ONCE(
++ selinux_state.policycap[POLICYDB_CAP_GENFS_SECLABEL_WILDCARD]);
++}
++
+ struct selinux_policy_convert_data;
+
+ struct selinux_load_state {
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 383f3ae82a73..959e98fae3d5 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -1090,29 +1090,59 @@ static int context_read_and_validate(struct
+context *c, struct policydb *p,
+  * binary representation file.
+  */
+
+-static int str_read(char **strp, gfp_t flags, void *fp, u32 len)
++static int entry_read(char **bufp, gfp_t flags, void *fp, u32 entry_len,
++       u32 buf_len)
+ {
+  int rc;
+- char *str;
++ char *buf;
+
+- if ((len == 0) || (len == (u32)-1))
++ if ((buf_len == 0) || (buf_len == (u32)-1) || (buf_len < entry_len))
+  return -EINVAL;
+
+- str = kmalloc(len + 1, flags | __GFP_NOWARN);
+- if (!str)
++ buf = kmalloc(buf_len, flags | __GFP_NOWARN);
++ if (!buf)
+  return -ENOMEM;
+
+- rc = next_entry(str, fp, len);
++ rc = next_entry(buf, fp, entry_len);
+  if (rc) {
+- kfree(str);
++ kfree(buf);
+  return rc;
+  }
+
++ *bufp = buf;
++ return 0;
++}
++
++static int str_read(char **strp, gfp_t flags, void *fp, u32 len)
++{
++ int rc;
++ char *str;
++
++ rc = entry_read(&str, flags, fp, len, len + 1);
++ if (rc)
++ return rc;
++
+  str[len] = '\0';
+  *strp = str;
+  return 0;
+ }
+
++static int str_read_with_padding(char **strp, gfp_t flags, void *fp, u32 len,
++ char padding)
++{
++ int rc;
++ char *str;
++
++ rc = entry_read(&str, flags, fp, len, len + 2);
++ if (rc)
++ return rc;
++
++ str[len] = padding;
++ str[len + 1] = '\0';
++ *strp = str;
++ return 0;
++}
++
+ static int perm_read(struct policydb *p, struct symtab *s, void *fp)
+ {
+  char *key = NULL;
+@@ -2193,7 +2223,17 @@ static int genfs_read(struct policydb *p, void *fp)
+  if (!newc)
+  goto out;
+
+- rc = str_read(&newc->u.name, GFP_KERNEL, fp, len);
++ if (ebitmap_get_bit(
++     &p->policycaps,
++     POLICYDB_CAP_GENFS_SECLABEL_WILDCARD))
++ /* Append a wildcard '*' to make it a wildcard pattern */
++ rc = str_read_with_padding(&newc->u.name,
++    GFP_KERNEL, fp, len,
++    '*');
++ else
++ /* Prefix pattern */
++ rc = str_read(&newc->u.name, GFP_KERNEL, fp,
++       len);
+  if (rc)
+  goto out;
+
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 971c45d576ba..da4d22220fe8 100644
 --- a/security/selinux/ss/services.c
 +++ b/security/selinux/ss/services.c
-@@ -582,7 +582,7 @@ static void type_attribute_bounds_av(struct policydb *p=
-olicydb,
- }
-=20
- /*
-- * Flag which drivers have permissions.
-+ * Flag which drivers have permissions and which base permissions are cove=
-red.
-  */
- void services_compute_xperms_drivers(
- 		struct extended_perms *xperms,
-@@ -592,12 +592,19 @@ void services_compute_xperms_drivers(
-=20
- 	switch (node->datum.u.xperms->specified) {
- 	case AVTAB_XPERMS_IOCTLDRIVER:
-+		xperms->base_perms |=3D AVC_EXT_IOCTL;
- 		/* if one or more driver has all permissions allowed */
- 		for (i =3D 0; i < ARRAY_SIZE(xperms->drivers.p); i++)
- 			xperms->drivers.p[i] |=3D node->datum.u.xperms->perms.p[i];
- 		break;
- 	case AVTAB_XPERMS_IOCTLFUNCTION:
-+		xperms->base_perms |=3D AVC_EXT_IOCTL;
-+		/* if allowing permissions within a driver */
-+		security_xperm_set(xperms->drivers.p,
-+					node->datum.u.xperms->driver);
-+		break;
- 	case AVTAB_XPERMS_NLMSG:
-+		xperms->base_perms |=3D AVC_EXT_NLMSG;
- 		/* if allowing permissions within a driver */
- 		security_xperm_set(xperms->drivers.p,
- 					node->datum.u.xperms->driver);
-@@ -632,6 +639,7 @@ static void context_struct_compute_av(struct policydb *=
-policydb,
- 	avd->auditdeny =3D 0xffffffff;
- 	if (xperms) {
- 		memset(&xperms->drivers, 0, sizeof(xperms->drivers));
-+		xperms->base_perms =3D 0;
- 		xperms->len =3D 0;
- 	}
-=20
-@@ -969,14 +977,23 @@ void services_compute_xperms_decision(struct extended=
-_perms_decision *xpermd,
- {
- 	switch (node->datum.u.xperms->specified) {
- 	case AVTAB_XPERMS_IOCTLFUNCTION:
--	case AVTAB_XPERMS_NLMSG:
- 		if (xpermd->driver !=3D node->datum.u.xperms->driver)
- 			return;
-+		if (xpermd->base_perm !=3D AVC_EXT_IOCTL)
-+			return;
- 		break;
- 	case AVTAB_XPERMS_IOCTLDRIVER:
- 		if (!security_xperm_test(node->datum.u.xperms->perms.p,
- 					xpermd->driver))
- 			return;
-+		if (xpermd->base_perm !=3D AVC_EXT_IOCTL)
-+			return;
-+		break;
-+	case AVTAB_XPERMS_NLMSG:
-+		if (xpermd->driver !=3D node->datum.u.xperms->driver)
-+			return;
-+		if (xpermd->base_perm !=3D AVC_EXT_NLMSG)
-+			return;
- 		break;
- 	default:
- 		BUG();
-@@ -1006,6 +1023,7 @@ void security_compute_xperms_decision(u32 ssid,
- 				      u32 tsid,
- 				      u16 orig_tclass,
- 				      u8 driver,
-+				      u8 base_perm,
- 				      struct extended_perms_decision *xpermd)
- {
- 	struct selinux_policy *policy;
-@@ -1019,6 +1037,7 @@ void security_compute_xperms_decision(u32 ssid,
- 	struct ebitmap_node *snode, *tnode;
- 	unsigned int i, j;
-=20
-+	xpermd->base_perm =3D base_perm;
- 	xpermd->driver =3D driver;
- 	xpermd->used =3D 0;
- 	memset(xpermd->allowed->p, 0, sizeof(xpermd->allowed->p));
---=20
-2.47.0.338.g60cca15819-goog
+@@ -48,6 +48,7 @@
+ #include <linux/audit.h>
+ #include <linux/vmalloc.h>
+ #include <linux/lsm_hooks.h>
++#include <linux/parser.h>
+ #include <net/netlabel.h>
 
+ #include "flask.h"
+@@ -2861,9 +2862,15 @@ static inline int __security_genfs_sid(struct
+selinux_policy *policy,
+
+  for (c = genfs->head; c; c = c->next) {
+  size_t len = strlen(c->u.name);
+- if ((!c->v.sclass || sclass == c->v.sclass) &&
+-     (strncmp(c->u.name, path, len) == 0))
+- break;
++ if (selinux_policycap_genfs_seclabel_wildcard()) {
++ if ((!c->v.sclass || sclass == c->v.sclass) &&
++     (match_wildcard(c->u.name, path)))
++ break;
++ } else {
++ if ((!c->v.sclass || sclass == c->v.sclass) &&
++     (strncmp(c->u.name, path, len)))
++ break;
++ }
+  }
+
+  if (!c)
+-- 
+2.47.0.338.g60cca15819-goog
