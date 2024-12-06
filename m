@@ -1,88 +1,83 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D958E82C60
-	for <selinux@vger.kernel.org>; Thu,  5 Dec 2024 19:43:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46A8F26AD4
+	for <selinux@vger.kernel.org>; Fri,  6 Dec 2024 13:12:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733427833; cv=none; b=eN84CGXK2jrimBBu4Vv1mS7kPuvUhdhpy4VCI0XNj5+fNytE5P9Jk6aobFK1Q8Pgy7YtxsKNXx6S5s+YQIPGD7chJNplkGvQu8SBQq0ATTeA9y4zII7sl9K5quXtTIvIuQ9Um5jGil6uBhgzH2rm6+aenUT2jJA+Gr/1O1s+u48=
+	t=1733490754; cv=none; b=kQPqXyx4gNqoMEONVGf0lO6bee66buNm/IV3Mv5RfieoiH0+jGeU7ls390eFInoybojR0d83TyM6HEhFMASz+hLvi4opFcdnBkaTXk+di0oD/RNv6OpVi5hWdDtTVTNVI9tjjPTeL4LW4HwujYhtAU3bsaLFeA5pbWOYVZGfP58=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733427833; c=relaxed/simple;
-	bh=QBhyypICwAVspu4GGNPbszMAYjwvUxt84/mz/077kBQ=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=naHtXsx5kZxOmBYk6I+P+lKINea6KXNrn4YyZTC+1zFm/uxzVTV8d/VUtNcbnIfKqGDtMbrqVFm45ZW/p5d2PSLE/jyAB7lvbnueMpcDRno5TnfICIiThYtVZntVIgUhsGKWV9+1Esz0IywBBtxyqQdivl8e5NNEEpAvGofmBKw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=c1jRsvCn; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1733490754; c=relaxed/simple;
+	bh=/DQJtWc8rFhhG0y6x/OP6gIGjkGBJBGirO6slvbRipM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=o/9XeSrqbbsHGIhROEeyCTOvrSubDd3VfW6HW30zqMLVSEHOHa3a4b9nOS3NmjsGEvLY2zNfeqQLOJ2pYnudlCBeOHqAISVeBd0kLcdNup/1v8in9JyB7dxbRj0sOgNgrqnM7GAvWYOLQjwbGBXVAye+pbu41ePomAdw4W5CWCc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=UHNfXHc3; arc=none smtp.client-ip=209.85.167.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="c1jRsvCn"
-Received: from [192.168.1.13] (pool-96-241-22-207.washdc.fios.verizon.net [96.241.22.207])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 3D67020BCAD0;
-	Thu,  5 Dec 2024 11:34:37 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3D67020BCAD0
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1733427277;
-	bh=qO2j0+VSVXAwtPkudJZDr/hZCndduBnBusNiwVx8Nuk=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-	b=c1jRsvCnnvVCDMd7BzI5QlzAglD4WhYIRvc/UYmDpyQtUiwxH3+I4689Gmm9n3njU
-	 26cEoet7SC7739aKdveKc3/wdE5zVciAA9scOz10do6oKWsJWwwgL1Xzjq4AEt7YiZ
-	 NXGSja0Pnc2DRS/Zr5vhoA2nwl1V43rWaJsjBkTw=
-Message-ID: <3d839c02-913e-4900-bba3-02a3beb116a7@linux.microsoft.com>
-Date: Thu, 5 Dec 2024 14:34:34 -0500
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="UHNfXHc3"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-53de880c77eso2155811e87.1
+        for <selinux@vger.kernel.org>; Fri, 06 Dec 2024 05:12:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1733490749; x=1734095549; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=/DQJtWc8rFhhG0y6x/OP6gIGjkGBJBGirO6slvbRipM=;
+        b=UHNfXHc3xxWIFLp2/DO56RK5IJ8FyRiaP5xczyoEkjffla5U0+h2CcoeZoO+r2gJOH
+         RJM8TP5WUaH45hZUV9aiYnUxQwNWX+Dqy92uP2sVCThMhK/4G2a5ZarfThlhjVxnCNY7
+         PTz9lM5uiCSw1JySt3q0LMucHEWviKV1qE+Hs=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733490749; x=1734095549;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=/DQJtWc8rFhhG0y6x/OP6gIGjkGBJBGirO6slvbRipM=;
+        b=o7Sv6jsXgLlPMAgWW2h3PiH1peFu4gxbpxxBIkZbzKALPrHv9wkTl19LwolEJkGWXD
+         /NsQNqVQsv5E72yXFUtM+zQ74/+rD7i9ZnKdI/OOPU2kT/hZ3Q/n9oeGKCg395LFBeiD
+         cwM3ZdvB8YVnxteXJtK/01mbbklpc8HrDo4Ph7DfQNGxCTcP3QnXkJUX7YZmioX+wBef
+         Mh5ERTroi/8p5uhbuiuydCzXC1NykcnD4t/tnz8TAR7vuhPrvwdJaJfCKMdgfOPjaRbU
+         yx3mgIfpKdBX8Tno0NLjR5J4apS9z5RzmOBTJwG2Af4eKG9uT9rJPnPje0hRFBNcjIPg
+         46nw==
+X-Gm-Message-State: AOJu0Yxzf2OLAVML+O+Ryp5XYvFW7v8rGcFR3FWI3s5BwT+kJLGWG2K4
+	Oioj9h1SFizGPqLhB3hldOasWnTul6Of+p0wzCMbide1Nh++s6tE1akzVqeZ7Kd7/Fh0l986bkJ
+	9aLl3TFnUUzBQcwas/StanCnSfu8nJ2Zt+fs=
+X-Gm-Gg: ASbGncuFPn/3GUzo8UuO/fc/+p28ejGp5tL+xu3QNGXhKwrspnPLBfdzcA8aKGGxblz
+	+q3Pxpx1rYGijy/fy3Pp1trAUGcX7oTjZXeXMXj5SzdOsA/hPeZzhDrhcjGLStA==
+X-Google-Smtp-Source: AGHT+IGpYdMwU4zSe8oVtOWTqRA9TXz8wv/88fcTUXkcfn31GditG+DPFxvMGtTndhWnN+iEYjEzTckuFcr/K4GYKqw=
+X-Received: by 2002:a05:6512:234a:b0:53e:12c3:b4e with SMTP id
+ 2adb3069b0e04-53e2c30da6cmr852274e87.52.1733490749301; Fri, 06 Dec 2024
+ 05:12:29 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Systemd socket labeling issue
-From: Daniel Burgener <dburgener@linux.microsoft.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com, pebenito@ieee.org, masheets@microsoft.com,
- luca.boccassi@microsoft.com, lpoettering@microsoft.com, jmorris@namei.org
-References: <b9852970-71fd-4a44-b428-537a3f0fc381@linux.microsoft.com>
-Content-Language: en-US
-In-Reply-To: <b9852970-71fd-4a44-b428-537a3f0fc381@linux.microsoft.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <CAH9xa6dmxzcooYYya5kH=KwfhhKUJSq9LYVKiwxj1sxsDB3h-w@mail.gmail.com>
+ <206b1563-c3c3-4e6c-b7b8-da1d44640772@googlemail.com>
+In-Reply-To: <206b1563-c3c3-4e6c-b7b8-da1d44640772@googlemail.com>
+From: Takaya Saeki <takayas@chromium.org>
+Date: Fri, 6 Dec 2024 22:12:17 +0900
+Message-ID: <CAH9xa6ct0Zf+vg6H6aN9aYzsAPjq8dYM7aF5Sw2eD31cFQ9BZA@mail.gmail.com>
+Subject: Re: [RFC] genfscon wildcard support for faster sysfs labeling
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: selinux@vger.kernel.org, tweek@google.com, nnk@google.com, 
+	jeffv@google.com, Junichi Uekawa <uekawa@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 
+> Out of curiosity: can you give libselinux 3.8-rc1 a try, which might/should
+> improve the runtime?
 
-> * Reading the expected binary label from the file_contexts would avoid 
-> the timing issue, but assumes a system where the binary labels generally 
-> match the file_contexts
+Yes, we are excited to see the latest rework on the file_label structure.
+However, we have a few hundreds of non-trivial regular expression rules instead
+of literal rules. So, the latest rework is still not enough for us. By the way,
+I found a bug in the latest libselinux which breaks our existing rules. I'll
+share it in another thread.
 
-I had some off-list conversations with a few people and there seemed to 
-be a lot of interest in this idea, particularly as a fallback if the 
-binary label is not available.  The approach would be:
-
-* If the binary label is available, use that
-* If the binary label is unavailable, use the expected label from the 
-file_contexts based on the ExecStart= path (using selabel_lookup())
-
-This would potentially have drawbacks for systems where binaries are 
-moved around or typically expected to not match file_contexts.
-
-It might also cause challenges troubleshooting why systemd used a 
-particular socket label ("Did it read off the binary or the 
-file_contexts?"), and a last potential problem I'm aware of is this 
-systemd bug:
-
-https://github.com/systemd/systemd/issues/30560
-
-Currently finding binaries does not support systemd $PATH resolution. 
-Determining which field from the PATH to use in the file_context lookup 
-could be tricky.  Typically many possible fields would return a valid 
-context (possibly something generic like default_t or bin_t in typical 
-policies).  There's not a clear way for systemd to prioritize one label 
-over another, since the actual binary may not exist yet, so we don't 
-know which path we will ultimately find it at.
-
-Those are the problems I'm aware of.  The first two may not be real 
-problems in practice.  My questions to the community are:
-
-1. Are the first two problems (binary labels expected to differ from 
-file_contexts, and troubleshooting systemd labeling) real problems for 
-people?
-2. Are there suggestions on how to handle the PATH lookup problem in a 
-sane way if we go down the selabel_lookup() route?
-
--Daniel
+In addition, it's not enough even if restorecon is improved from 2.7 seconds to
+a few hundred milliseconds, which is the time of `restorecon -R /sys` in a
+clean Debian with the latest libselinux. On Android, restorecon runs for `/sys`
+when a device wakes up. Spending a few hundred milliseconds CPU time every time
+hurts the battery life a lot. Thus, we want to eliminate this overhead entirely
+by genfscon. Actually, we have another PoC to further improve the restorecon
+performance, but for the reason above we want to improve genfscon instead.
