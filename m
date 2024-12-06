@@ -1,83 +1,153 @@
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46A8F26AD4
-	for <selinux@vger.kernel.org>; Fri,  6 Dec 2024 13:12:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
+Received: from bout3.ijzerbout.nl (bout3.ijzerbout.nl [136.144.140.114])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id BFA411C5490;
+	Fri,  6 Dec 2024 20:05:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=136.144.140.114
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733490754; cv=none; b=kQPqXyx4gNqoMEONVGf0lO6bee66buNm/IV3Mv5RfieoiH0+jGeU7ls390eFInoybojR0d83TyM6HEhFMASz+hLvi4opFcdnBkaTXk+di0oD/RNv6OpVi5hWdDtTVTNVI9tjjPTeL4LW4HwujYhtAU3bsaLFeA5pbWOYVZGfP58=
+	t=1733515559; cv=none; b=fezHinubyyXaRNDAO8BbAGnuIcP4VWje2ZigeQamOX61v5L/NiYSdePPycJ/7YeTa5Hgn0ftBJ0RZDsLbYLj6h3Sec5QNwUE4Khrbg1g2kKkQtri2ENFgigjJEGWNVupJvcbKzZVztqLZnCFrZvT7jmInNvs/HBlaO0/ffGw+L4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733490754; c=relaxed/simple;
-	bh=/DQJtWc8rFhhG0y6x/OP6gIGjkGBJBGirO6slvbRipM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=o/9XeSrqbbsHGIhROEeyCTOvrSubDd3VfW6HW30zqMLVSEHOHa3a4b9nOS3NmjsGEvLY2zNfeqQLOJ2pYnudlCBeOHqAISVeBd0kLcdNup/1v8in9JyB7dxbRj0sOgNgrqnM7GAvWYOLQjwbGBXVAye+pbu41ePomAdw4W5CWCc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=UHNfXHc3; arc=none smtp.client-ip=209.85.167.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1733515559; c=relaxed/simple;
+	bh=ZkAyDHoiZXuUqwRzLPJuGNgHzpQ9dkeWgabZ4ONtDhs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=f10ReLtH48PgmacPgTKDQGeXJZYaShg4XHOcZzGziyc3GhK7+373SQFDaZU0Z00Uf1bGmZKwRZyn0+b99Ipelnu78g6vBE3HKCTDa1Lz6VwxFfVgTGzadKUN+1dtON29oEecPyX6Gzz4womWSr8l6FlKmOa7heE3AS0Ca646WoA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ijzerbout.nl; spf=pass smtp.mailfrom=ijzerbout.nl; dkim=pass (4096-bit key) header.d=ijzerbout.nl header.i=@ijzerbout.nl header.b=CWCIrYfm; arc=none smtp.client-ip=136.144.140.114
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ijzerbout.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ijzerbout.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="UHNfXHc3"
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-53de880c77eso2155811e87.1
-        for <selinux@vger.kernel.org>; Fri, 06 Dec 2024 05:12:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1733490749; x=1734095549; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=/DQJtWc8rFhhG0y6x/OP6gIGjkGBJBGirO6slvbRipM=;
-        b=UHNfXHc3xxWIFLp2/DO56RK5IJ8FyRiaP5xczyoEkjffla5U0+h2CcoeZoO+r2gJOH
-         RJM8TP5WUaH45hZUV9aiYnUxQwNWX+Dqy92uP2sVCThMhK/4G2a5ZarfThlhjVxnCNY7
-         PTz9lM5uiCSw1JySt3q0LMucHEWviKV1qE+Hs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733490749; x=1734095549;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=/DQJtWc8rFhhG0y6x/OP6gIGjkGBJBGirO6slvbRipM=;
-        b=o7Sv6jsXgLlPMAgWW2h3PiH1peFu4gxbpxxBIkZbzKALPrHv9wkTl19LwolEJkGWXD
-         /NsQNqVQsv5E72yXFUtM+zQ74/+rD7i9ZnKdI/OOPU2kT/hZ3Q/n9oeGKCg395LFBeiD
-         cwM3ZdvB8YVnxteXJtK/01mbbklpc8HrDo4Ph7DfQNGxCTcP3QnXkJUX7YZmioX+wBef
-         Mh5ERTroi/8p5uhbuiuydCzXC1NykcnD4t/tnz8TAR7vuhPrvwdJaJfCKMdgfOPjaRbU
-         yx3mgIfpKdBX8Tno0NLjR5J4apS9z5RzmOBTJwG2Af4eKG9uT9rJPnPje0hRFBNcjIPg
-         46nw==
-X-Gm-Message-State: AOJu0Yxzf2OLAVML+O+Ryp5XYvFW7v8rGcFR3FWI3s5BwT+kJLGWG2K4
-	Oioj9h1SFizGPqLhB3hldOasWnTul6Of+p0wzCMbide1Nh++s6tE1akzVqeZ7Kd7/Fh0l986bkJ
-	9aLl3TFnUUzBQcwas/StanCnSfu8nJ2Zt+fs=
-X-Gm-Gg: ASbGncuFPn/3GUzo8UuO/fc/+p28ejGp5tL+xu3QNGXhKwrspnPLBfdzcA8aKGGxblz
-	+q3Pxpx1rYGijy/fy3Pp1trAUGcX7oTjZXeXMXj5SzdOsA/hPeZzhDrhcjGLStA==
-X-Google-Smtp-Source: AGHT+IGpYdMwU4zSe8oVtOWTqRA9TXz8wv/88fcTUXkcfn31GditG+DPFxvMGtTndhWnN+iEYjEzTckuFcr/K4GYKqw=
-X-Received: by 2002:a05:6512:234a:b0:53e:12c3:b4e with SMTP id
- 2adb3069b0e04-53e2c30da6cmr852274e87.52.1733490749301; Fri, 06 Dec 2024
- 05:12:29 -0800 (PST)
+	dkim=pass (4096-bit key) header.d=ijzerbout.nl header.i=@ijzerbout.nl header.b="CWCIrYfm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ijzerbout.nl; s=key;
+	t=1733515553; bh=ZkAyDHoiZXuUqwRzLPJuGNgHzpQ9dkeWgabZ4ONtDhs=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=CWCIrYfmr4jBC7IfciYLfthTNr3fRCZQuFiQb/5JiI+9MeVtS+CxqdqSpOoyuGKE7
+	 DlVJxMOPjRYLPv6YnBABHRCG2SEWR4hfWWnbVvfMkb2QV+dyOYvdRSVmIhpZGU/qpR
+	 hO+qaD1n98xGGxo1CsojlHhKYNPpddoQmTGX+ldloYg3gd00An3fytXUh1HHQ1MbXy
+	 wcRcCIm+tChRGZwXXEEg8evuUvKGbteKTiAqabQoWmDeRp/s/IrJRJAh75v8pK31PQ
+	 AxoQpd1VvXOyCi9EcJLTqZtQRLw1Hy3un+MZou8Duo6bMnWEVrkur1uiNdN7CDlWtT
+	 7Cx4FjMUpUict119Nk61mgxeFjcuw8uMKJn6U6PQUh6hP4K/+nvWHm1tRrEWeyklfx
+	 0KpOqK0iBXBoaxpc3rEWECr4RZMz0+pgUbVXWdtLEwz1m1BLyFAodQpQ5ZzqX5wFFH
+	 UE8fOEKdTb34c0hXAZJJXX1ymS7XFGNqEdFiu5btb8APtZ9rRJyqWZRTdEhQ6dasgI
+	 LVu2QwED1oxbrXaxP+u3MrpxV671szViq8vPCZUX1GUKDEJ6UC1x9eLsXK1QkawAiP
+	 YRAR9VlJKbNNeKeQtzZY09mX838PgPspseu1w2kv92vvdm0YheiixZP/8Jol2fqaM4
+	 FYPPHN8uRmabUmCVZGhZ91EI=
+Received: from [IPV6:2a10:3781:99:1:1ac0:4dff:fea7:ec3a] (racer.ijzerbout.nl [IPv6:2a10:3781:99:1:1ac0:4dff:fea7:ec3a])
+	by bout3.ijzerbout.nl (Postfix) with ESMTPSA id B604218E22A;
+	Fri,  6 Dec 2024 21:05:52 +0100 (CET)
+Message-ID: <78666cf5-2214-413f-9450-19377a06049e@ijzerbout.nl>
+Date: Fri, 6 Dec 2024 21:05:50 +0100
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAH9xa6dmxzcooYYya5kH=KwfhhKUJSq9LYVKiwxj1sxsDB3h-w@mail.gmail.com>
- <206b1563-c3c3-4e6c-b7b8-da1d44640772@googlemail.com>
-In-Reply-To: <206b1563-c3c3-4e6c-b7b8-da1d44640772@googlemail.com>
-From: Takaya Saeki <takayas@chromium.org>
-Date: Fri, 6 Dec 2024 22:12:17 +0900
-Message-ID: <CAH9xa6ct0Zf+vg6H6aN9aYzsAPjq8dYM7aF5Sw2eD31cFQ9BZA@mail.gmail.com>
-Subject: Re: [RFC] genfscon wildcard support for faster sysfs labeling
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org, tweek@google.com, nnk@google.com, 
-	jeffv@google.com, Junichi Uekawa <uekawa@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 1/5] LSM: Ensure the correct LSM context releaser
+To: Casey Schaufler <casey@schaufler-ca.com>, paul@paul-moore.com,
+ linux-security-module@vger.kernel.org
+Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org,
+ john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+ stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
+ selinux@vger.kernel.org, mic@digikod.net, linux-integrity@vger.kernel.org,
+ netdev@vger.kernel.org, audit@vger.kernel.org,
+ netfilter-devel@vger.kernel.org, linux-nfs@vger.kernel.org,
+ Todd Kjos <tkjos@google.com>
+References: <20241023212158.18718-1-casey@schaufler-ca.com>
+ <20241023212158.18718-2-casey@schaufler-ca.com>
+Content-Language: en-US
+From: Kees Bakker <kees@ijzerbout.nl>
+In-Reply-To: <20241023212158.18718-2-casey@schaufler-ca.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Out of curiosity: can you give libselinux 3.8-rc1 a try, which might/should
-> improve the runtime?
+Op 23-10-2024 om 23:21 schreef Casey Schaufler:
+> Add a new lsm_context data structure to hold all the information about a
+> "security context", including the string, its size and which LSM allocated
+> the string. The allocation information is necessary because LSMs have
+> different policies regarding the lifecycle of these strings. SELinux
+> allocates and destroys them on each use, whereas Smack provides a pointer
+> to an entry in a list that never goes away.
+>
+> Update security_release_secctx() to use the lsm_context instead of a
+> (char *, len) pair. Change its callers to do likewise.  The LSMs
+> supporting this hook have had comments added to remind the developer
+> that there is more work to be done.
+>
+> The BPF security module provides all LSM hooks. While there has yet to
+> be a known instance of a BPF configuration that uses security contexts,
+> the possibility is real. In the existing implementation there is
+> potential for multiple frees in that case.
+>
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> Cc: linux-integrity@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: audit@vger.kernel.org
+> Cc: netfilter-devel@vger.kernel.org
+> To: Pablo Neira Ayuso <pablo@netfilter.org>
+> Cc: linux-nfs@vger.kernel.org
+> Cc: Todd Kjos <tkjos@google.com>
+> ---
+>   drivers/android/binder.c                | 24 +++++++--------
+>   fs/ceph/xattr.c                         |  6 +++-
+>   fs/nfs/nfs4proc.c                       |  8 +++--
+>   fs/nfsd/nfs4xdr.c                       |  8 +++--
+>   include/linux/lsm_hook_defs.h           |  2 +-
+>   include/linux/security.h                | 35 ++++++++++++++++++++--
+>   include/net/scm.h                       | 11 +++----
+>   kernel/audit.c                          | 30 +++++++++----------
+>   kernel/auditsc.c                        | 23 +++++++-------
+>   net/ipv4/ip_sockglue.c                  | 10 +++----
+>   net/netfilter/nf_conntrack_netlink.c    | 10 +++----
+>   net/netfilter/nf_conntrack_standalone.c |  9 +++---
+>   net/netfilter/nfnetlink_queue.c         | 13 +++++---
+>   net/netlabel/netlabel_unlabeled.c       | 40 +++++++++++--------------
+>   net/netlabel/netlabel_user.c            | 11 ++++---
+>   security/apparmor/include/secid.h       |  2 +-
+>   security/apparmor/secid.c               | 11 +++++--
+>   security/security.c                     |  8 ++---
+>   security/selinux/hooks.c                | 11 +++++--
+>   19 files changed, 165 insertions(+), 107 deletions(-)
+>
+> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> index 978740537a1a..d4229bf6f789 100644
+> --- a/drivers/android/binder.c
+> +++ b/drivers/android/binder.c
+> @@ -3011,8 +3011,7 @@ static void binder_transaction(struct binder_proc *proc,
+>   	struct binder_context *context = proc->context;
+>   	int t_debug_id = atomic_inc_return(&binder_last_id);
+>   	ktime_t t_start_time = ktime_get();
+> -	char *secctx = NULL;
+> -	u32 secctx_sz = 0;
+> +	struct lsm_context lsmctx;
+Not initialized ?
+>   	struct list_head sgc_head;
+>   	struct list_head pf_head;
+>   	const void __user *user_buffer = (const void __user *)
+> @@ -3291,7 +3290,8 @@ static void binder_transaction(struct binder_proc *proc,
+>   		size_t added_size;
+>   
+>   		security_cred_getsecid(proc->cred, &secid);
+> -		ret = security_secid_to_secctx(secid, &secctx, &secctx_sz);
+> +		ret = security_secid_to_secctx(secid, &lsmctx.context,
+> +					       &lsmctx.len);
+>   		if (ret) {
+>   			binder_txn_error("%d:%d failed to get security context\n",
+>   				thread->pid, proc->pid);
+> @@ -3300,7 +3300,7 @@ static void binder_transaction(struct binder_proc *proc,
+>   			return_error_line = __LINE__;
+>   			goto err_get_secctx_failed;
+>   		}
+> -		added_size = ALIGN(secctx_sz, sizeof(u64));
+> +		added_size = ALIGN(lsmctx.len, sizeof(u64));
+>   		extra_buffers_size += added_size;
+>   		if (extra_buffers_size < added_size) {
+>   			binder_txn_error("%d:%d integer overflow of extra_buffers_size\n",
+> @@ -3334,23 +3334,23 @@ static void binder_transaction(struct binder_proc *proc,
+>   		t->buffer = NULL;
+>   		goto err_binder_alloc_buf_failed;
+>   	}
+> -	if (secctx) {
+> +	if (lsmctx.context) {
+ From code inspection it is not immediately obvious. Can you
+guarantee that lsmctx is always initialized when the code
+gets to this point? Perhaps it is safer to just initialize when
+it is defined above (line 3014).
 
-Yes, we are excited to see the latest rework on the file_label structure.
-However, we have a few hundreds of non-trivial regular expression rules instead
-of literal rules. So, the latest rework is still not enough for us. By the way,
-I found a bug in the latest libselinux which breaks our existing rules. I'll
-share it in another thread.
-
-In addition, it's not enough even if restorecon is improved from 2.7 seconds to
-a few hundred milliseconds, which is the time of `restorecon -R /sys` in a
-clean Debian with the latest libselinux. On Android, restorecon runs for `/sys`
-when a device wakes up. Spending a few hundred milliseconds CPU time every time
-hurts the battery life a lot. Thus, we want to eliminate this overhead entirely
-by genfscon. Actually, we have another PoC to further improve the restorecon
-performance, but for the reason above we want to improve genfscon instead.
