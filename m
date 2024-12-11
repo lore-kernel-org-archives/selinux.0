@@ -1,364 +1,117 @@
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E52111DACAA
-	for <selinux@vger.kernel.org>; Wed, 11 Dec 2024 16:15:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6053A1494CC
+	for <selinux@vger.kernel.org>; Wed, 11 Dec 2024 16:25:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733933709; cv=none; b=XnVg/mAytm7HeGO7jbzqS6UtLVCFOcjXYBPJfc3qHfFmAzEWZzfxRCOU+zYJ06nnVk7D8lw21H7A8pxAdQa6tZRbLmHog54PVejXyUXalNZHBj/a24tLO9QxiemVuDir8YkwSrG6QhLeDkd0H+zwr2KHXTzqwlrmUu+9cU9e1eY=
+	t=1733934328; cv=none; b=V/Z24EbFKU/f3Ck10xlkmJY6IcSlbfvmzIj/ECYyDMlH2X/yCz/CbkpkP/jDlqziSgfUMRBZMxk6AzbyQMbzqI0wfbU/YNRuKQgP58V7rNjekBp2sd3Sd08awx2RToBkx1tUIj9J+uoLc3yj+JbcXUMcyIqjA4qALmRVDW4ItNQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733933709; c=relaxed/simple;
-	bh=2K+TOaLCdwOwIOW2QXyLxk1PWqIVhySRUn41RK/aQFc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=IcxO7oQXknCu7ghWXVIAjMck5wMpI0FomQW0SyDWWKZk/qkvY00pa3utPsVHK4TCv7tMM+Sujct/D6uNXK9k5JJ2Uf6S+JdclDqTEM8gRXCV3Gil6WEhCQIR8ZL++/hmKy3gpM7+cTbvLFMiqIHBHLuP953pdewNi0lbWoVuH0k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=pNZpM8YD; arc=none smtp.client-ip=168.119.48.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	s=arc-20240116; t=1733934328; c=relaxed/simple;
+	bh=+wYV5Xv0EAaZ7y9QLEZ2We+6/+m0khA/IJslB2yeC4A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=W85bQy4cUTEAvSB/pCEFiijE43UYNnOXo/MAtoxV4ddTRlfhxo+hK9ByZjKzmsxFp3jsI8JQngzul00Xqmu+kLtHfIrk746kVxTrBCRhF//F9RJz9UVQBVnlxygHxqSYeigLiqyhi+I6t5hhFW8rX/meBk3fQOrdlbihMujKjLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VqAlyEwM; arc=none smtp.client-ip=209.85.217.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="pNZpM8YD"
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1733933697;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=I0eePQUggxIUogPo2DqKUc6FnN75BmKtg+iF5ZkfVGY=;
-	b=pNZpM8YD/TtIoSVAAXceT04TBKzP/T93FYIm8AXvlZ8Nw2AGHHK7L7crmxTwJS4hewAdus
-	HhqrH6DpO1wFFi6SOpW78IFd3rKaAYTrdSxARYP8EsrTMLJ8TtosaGL+RJaA9wWhQLLv+8
-	NRpKzXTTXZlW0rdJjITUvRLKeunBBjpRDoTZXX/1nYXAG991XoiPeBn9PajSPQrzz3f6/J
-	Cc3ehNUl4aWF5zJkeVr/c1UGVP99vkypa/jXYzocmAkRmWbsNP/Y5ySh7I6sTrqZ2VArSw
-	w6c2Ue46D0Y9C0eEjQ+kpPdf48W40g9KH9GRYx3cGzgscQWX18nJAe4WlDWddQ==
-To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
-	Takaya Saeki <takayas@chromium.org>
-Subject: [RFC PATCH] libselinux: restore previous regex spec ordering
-Date: Wed, 11 Dec 2024 17:14:43 +0100
-Message-ID: <20241211161443.51286-1-cgoettsche@seltendoof.de>
-Reply-To: cgzones@googlemail.com
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VqAlyEwM"
+Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-4afdd15db60so1418302137.1
+        for <selinux@vger.kernel.org>; Wed, 11 Dec 2024 08:25:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1733934326; x=1734539126; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wyyLC6DaTLgTSbxIFcl9H/2X8G9DoJTMHqusw/vLL4w=;
+        b=VqAlyEwMwyZk8FR52z3Wd0o89rttMzPgosRgblVWsozAAYzLzaWlP3P3yRjC5j6TGx
+         563Rog7VVRD+MHOiR2WL3FroQN7fPGUJaepqC0lHD9DMqzVfu7hJ9O3YJyouMODgoicp
+         3LNIArBBVvwyhFQYtKy8q3KS5286Lq1+ao6MApUtFphsK9pWVetJpzPT+2JWqBQ5nQ8x
+         7c/QarQ2aFjLWODCTIcBwxCg2gqxyf61Aq1Pe/XBceybhD7Be/g7I7436/7fhpSwQpov
+         /V3rcUmEHYPb86XaBfpPCu3i1SVfdX2Aopvvi+oxh+lVX/nTsl1FLZgrKY9FwaU0ZGo7
+         DE3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733934326; x=1734539126;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wyyLC6DaTLgTSbxIFcl9H/2X8G9DoJTMHqusw/vLL4w=;
+        b=ggDk1cff5jF8DGXFeVqXTougm5AboISEm22U8g0oQo3yumTxNIU4yXytW7RotTlWfE
+         TtjDWqnvpKLwDgmZw1z/Bg2sNa+xrUxlo9c57kbyVpNWJPtTZrQLSvlU/M/cRpLQwNqU
+         Hlk9AP/SoESL7blVZIrv07WUyD2tJ1tLBXaZxFMbJRyUY6dw+DHO0MqmMxkG5gh8mfts
+         e+xjfqPTTNvVwc5vSleL6TFL4MM/dDWXz+wr4tWQybN8/OdPjvDIF1lVStsWnRuQ1wnK
+         F02guWrt+f/MZa2mqNJm7py+fUmMXgxMbPCfr5Oq7xuYM1u+LPtyUsVk/l68hIZrTGX2
+         SCVg==
+X-Gm-Message-State: AOJu0YzgWllb742CWTMiNKTLlVj0mdA1QYT9p4sAS8nYGiUlk0isna6h
+	41EXf5A7Jl+8O1Emnc5MJHk5DYSf9EYjRIgEVyHDtg12jYH3syhfpMUME/H5vTV/SofPJJyDiWx
+	a8VjuK5OoOW/nNFLUnZMtNGzBYEnwag==
+X-Gm-Gg: ASbGnctU9u50v3MZ5PW/u4h20Nnn8VTDRVP/ZMrRfX14AgB6+biF+ibqUvEy1j7x2oo
+	3f+x5as1Yj4pZKMXkgZJ0Za5dTY7tV3vyUz0=
+X-Google-Smtp-Source: AGHT+IE95N0ApEWSw7HemZxqqIKsXcmO0RjULxWzrjAiWysaGCii9Soo7enninljxjqvtS9v3EFaK8ifW2nuwjABO6Y=
+X-Received: by 2002:a05:6122:1348:b0:518:965c:34a with SMTP id
+ 71dfb90a1353d-518a3a1028fmr4043849e0c.2.1733934326091; Wed, 11 Dec 2024
+ 08:25:26 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20241211161417.126236-1-jwcart2@gmail.com>
+In-Reply-To: <20241211161417.126236-1-jwcart2@gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 11 Dec 2024 11:25:15 -0500
+Message-ID: <CAP+JOzSM9CN_gV61FyeWdpw6ZB7EF+XhpVqr0Hp-+r-14JOE4Q@mail.gmail.com>
+Subject: Re: [PATCH 1/9] Revert "libselinux/utils: drop reachable assert in sefcontext_compile"
+To: selinux@vger.kernel.org
+Cc: cgzones@googlemail.com, takayas@chromium.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Christian Göttsche <cgzones@googlemail.com>
+It looks like Christian was able to fix the problem, so ignore these.
+Jim
 
-Prior the recent selabel_file(5) rework regular expressions for a
-certain stem where matched in the order given by the input.
-The Reference and Fedora Policy as well as CIL and libsemanage pre-sort
-the file context definitions based on the prefix stem length, so this
-ordering was adopted.
-Do not alter the order by the input of regex specifications to retain
-backward compatibility, e.g. for Android.
-
-Reported-by: Takaya Saeki <takayas@chromium.org>
-Closes: https://lore.kernel.org/selinux/CAH9xa6eFO6BNeGko90bsq8CuDba9eO+qdDoF+7zfyAUHEDpH9g@mail.gmail.com/
-Fixes: 92306da ("libselinux: rework selabel_file(5) database")
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-**NOTE**:
-Using a pre-compiled fcontext file generated with 3.8-rc1 (3.7 and prior
-is fine) will result in vastly wrong lookup results.
-Thus all users upgrading from 3.8-rc1 **should** remove their
-pre-compiled fcontext definitions, e.g. via
-
-  rm /etc/selinux/*/contexts/files/*.bin
-
-In case this commits get applied this should be mentioned in the release
-notes for 3.8-rc2.
----
- libselinux/src/label_file.c | 163 +++++++++++++++++-------------------
- libselinux/src/label_file.h |  34 +-------
- 2 files changed, 80 insertions(+), 117 deletions(-)
-
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 80a7c5ab..3e35381d 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -87,14 +87,14 @@ void sort_spec_node(struct spec_node *node, struct spec_node *parent)
- 
- 	node->parent = parent;
- 
--	/* Sort for comparison support and binary search lookup */
-+	/*
-+	 * Sort for comparison support and binary search lookup,
-+	 * except for regex specs which are matched in reverse input order.
-+	 */
- 
- 	if (node->literal_specs_num > 1)
- 		qsort(node->literal_specs, node->literal_specs_num, sizeof(struct literal_spec), compare_literal_spec);
- 
--	if (node->regex_specs_num > 1)
--		qsort(node->regex_specs, node->regex_specs_num, sizeof(struct regex_spec), compare_regex_spec);
--
- 	if (node->children_num > 1)
- 		qsort(node->children, node->children_num, sizeof(struct spec_node), compare_spec_node);
- 
-@@ -144,36 +144,38 @@ static int nodups_spec_node(const struct spec_node *node, const char *path)
- 
- 	if (node->regex_specs_num > 1) {
- 		for (uint32_t i = 0; i < node->regex_specs_num - 1; i++) {
--			const struct regex_spec *node1 = &node->regex_specs[i];
--			const struct regex_spec *node2 = &node->regex_specs[i+1];
-+			for (uint32_t j = i; j < node->regex_specs_num - 1; j++) {
-+				const struct regex_spec *node1 = &node->regex_specs[i];
-+				const struct regex_spec *node2 = &node->regex_specs[j + 1];
- 
--			if (node1->prefix_len != node2->prefix_len)
--				continue;
-+				if (node1->prefix_len != node2->prefix_len)
-+					continue;
- 
--			if (strcmp(node1->regex_str, node2->regex_str) != 0)
--				continue;
-+				if (strcmp(node1->regex_str, node2->regex_str) != 0)
-+					continue;
- 
--			if (node1->file_kind != LABEL_FILE_KIND_ALL && node2->file_kind != LABEL_FILE_KIND_ALL && node1->file_kind != node2->file_kind)
--				continue;
-+				if (node1->file_kind != LABEL_FILE_KIND_ALL && node2->file_kind != LABEL_FILE_KIND_ALL && node1->file_kind != node2->file_kind)
-+					continue;
- 
--			rc = -1;
--			errno = EINVAL;
--			if (strcmp(node1->lr.ctx_raw, node2->lr.ctx_raw) != 0) {
--				COMPAT_LOG
--					(SELINUX_ERROR,
--						"%s: Multiple different specifications for %s %s  (%s and %s).\n",
--						path,
--						file_kind_to_string(node1->file_kind),
--						node1->regex_str,
--						node1->lr.ctx_raw,
--						node2->lr.ctx_raw);
--			} else {
--				COMPAT_LOG
--					(SELINUX_ERROR,
--						"%s: Multiple same specifications for %s %s.\n",
--						path,
--						file_kind_to_string(node1->file_kind),
--						node1->regex_str);
-+				rc = -1;
-+				errno = EINVAL;
-+				if (strcmp(node1->lr.ctx_raw, node2->lr.ctx_raw) != 0) {
-+					COMPAT_LOG
-+						(SELINUX_ERROR,
-+							"%s: Multiple different specifications for %s %s  (%s and %s).\n",
-+							path,
-+							file_kind_to_string(node1->file_kind),
-+							node1->regex_str,
-+							node1->lr.ctx_raw,
-+							node2->lr.ctx_raw);
-+				} else {
-+					COMPAT_LOG
-+						(SELINUX_ERROR,
-+							"%s: Multiple same specifications for %s %s.\n",
-+							path,
-+							file_kind_to_string(node1->file_kind),
-+							node1->regex_str);
-+				}
- 			}
- 		}
- 	}
-@@ -1637,8 +1639,9 @@ static struct lookup_result *lookup_check_node(struct spec_node *node, const cha
- 					  : (strcmp(n->literal_specs[literal_idx].literal_match, key) == 0)));
- 		}
- 
--		for (uint32_t i = 0; i < n->regex_specs_num; i++) {
--			struct regex_spec *rspec = &n->regex_specs[i];
-+		for (uint32_t i = n->regex_specs_num; i > 0; i--) {
-+			/* search in reverse order */
-+			struct regex_spec *rspec = &n->regex_specs[i - 1];
- 			const char *errbuf = NULL;
- 			int rc;
- 
-@@ -2221,81 +2224,69 @@ static enum selabel_cmp_result spec_node_cmp(const struct spec_node *node1, cons
- 		while (iter1 < node1->regex_specs_num && iter2 < node2->regex_specs_num) {
- 			const struct regex_spec *rspec1 = &node1->regex_specs[iter1];
- 			const struct regex_spec *rspec2 = &node2->regex_specs[iter2];
--			int cmp;
--
--			if (rspec1->prefix_len > rspec2->prefix_len) {
--				if (result == SELABEL_EQUAL || result == SELABEL_SUPERSET) {
--					result = SELABEL_SUPERSET;
--					iter1++;
--					continue;
--				}
-+			bool found_successor;
- 
--				return rspec_incomp(node1->stem, rspec1, rspec2, "regex_prefix_length", iter1, iter2);
-+			if (rspec1->file_kind == rspec2->file_kind && strcmp(rspec1->regex_str, rspec2->regex_str) == 0) {
-+				iter1++;
-+				iter2++;
-+				continue;
- 			}
- 
--			if (rspec1->prefix_len < rspec2->prefix_len) {
--				if (result == SELABEL_EQUAL || result == SELABEL_SUBSET) {
--					result = SELABEL_SUBSET;
--					iter2++;
--					continue;
--				}
-+			if (result == SELABEL_SUPERSET) {
-+				iter1++;
-+				continue;
-+			}
- 
--				return rspec_incomp(node1->stem, rspec1, rspec2, "regex_prefix_length", iter1, iter2);
-+			if (result == SELABEL_SUBSET) {
-+				iter2++;
-+				continue;
- 			}
- 
--			/* If prefix length is equal compare regex string */
-+			assert(result == SELABEL_EQUAL);
- 
--			cmp = strcmp(rspec1->regex_str, rspec2->regex_str);
--			if (cmp < 0) {
--				if (result == SELABEL_EQUAL || result == SELABEL_SUPERSET) {
--					result = SELABEL_SUPERSET;
--					iter1++;
--					continue;
--				}
-+			found_successor = false;
- 
--				return rspec_incomp(node1->stem, rspec1, rspec2, "regex_str", iter1, iter2);
--			}
-+			for (uint32_t i = iter2; i < node2->regex_specs_num; i++) {
-+				const struct regex_spec *successor = &node2->regex_specs[i];
- 
--			if (cmp > 0) {
--				if (result == SELABEL_EQUAL || result == SELABEL_SUBSET) {
-+				if (rspec1->file_kind == successor->file_kind && strcmp(rspec1->regex_str, successor->regex_str) == 0) {
- 					result = SELABEL_SUBSET;
--					iter2++;
--					continue;
-+					iter1++;
-+					iter2 = i + 1;
-+					found_successor = true;
-+					break;
- 				}
--
--				return rspec_incomp(node1->stem, rspec1, rspec2, "regex_str", iter1, iter2);
- 			}
- 
--			/* If literal match is equal compare file kind */
--
--			if (rspec1->file_kind > rspec2->file_kind) {
--				if (result == SELABEL_EQUAL || result == SELABEL_SUPERSET) {
--					result = SELABEL_SUPERSET;
--					iter1++;
--					continue;
--				}
-+			if (found_successor)
-+				continue;
- 
--				return rspec_incomp(node1->stem, rspec1, rspec2, "file_kind", iter1, iter2);
--			}
-+			for (uint32_t i = iter1; i < node1->regex_specs_num; i++) {
-+				const struct regex_spec *successor = &node1->regex_specs[i];
- 
--			if (rspec1->file_kind < rspec2->file_kind) {
--				if (result == SELABEL_EQUAL || result == SELABEL_SUBSET) {
--					result = SELABEL_SUBSET;
-+				if (successor->file_kind == rspec2->file_kind && strcmp(successor->regex_str, rspec2->regex_str) == 0) {
-+					result = SELABEL_SUPERSET;
-+					iter1 = i + 1;
- 					iter2++;
--					continue;
-+					found_successor = true;
-+					break;
- 				}
--
--				return rspec_incomp(node1->stem, rspec1, rspec2, "file_kind", iter1, iter2);
- 			}
- 
--			iter1++;
--			iter2++;
-+			if (found_successor)
-+				continue;
-+
-+			return rspec_incomp(node1->stem, rspec1, rspec2, "regex", iter1, iter2);
- 		}
- 		if (iter1 != node1->regex_specs_num) {
- 			if (result == SELABEL_EQUAL || result == SELABEL_SUPERSET) {
- 				result = SELABEL_SUPERSET;
- 			} else {
--				selinux_log(SELINUX_INFO, "selabel_cmp: mismatch regex_str left remnant in stem %s\n", fmt_stem(node1->stem));
-+				const struct regex_spec *rspec1 = &node1->regex_specs[iter1];
-+
-+				selinux_log(SELINUX_INFO, "selabel_cmp: mismatch regex left remnant in stem %s entry %u: (%s, %s, %s)\n",
-+					    fmt_stem(node1->stem),
-+					    iter1, rspec1->regex_str, file_kind_to_string(rspec1->file_kind), rspec1->lr.ctx_raw);
- 				return SELABEL_INCOMPARABLE;
- 			}
- 		}
-@@ -2303,7 +2294,11 @@ static enum selabel_cmp_result spec_node_cmp(const struct spec_node *node1, cons
- 			if (result == SELABEL_EQUAL || result == SELABEL_SUBSET) {
- 				result = SELABEL_SUBSET;
- 			} else {
--				selinux_log(SELINUX_INFO, "selabel_cmp: mismatch regex_str right remnant in stem %s\n", fmt_stem(node1->stem));
-+				const struct regex_spec *rspec2 = &node2->regex_specs[iter2];
-+
-+				selinux_log(SELINUX_INFO, "selabel_cmp: mismatch regex right remnant in stem %s entry %u: (%s, %s, %s)\n",
-+					    fmt_stem(node1->stem),
-+					    iter2, rspec2->regex_str, file_kind_to_string(rspec2->file_kind), rspec2->lr.ctx_raw);
- 				return SELABEL_INCOMPARABLE;
- 			}
- 		}
-diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-index c7fe3a48..7e999ce8 100644
---- a/libselinux/src/label_file.h
-+++ b/libselinux/src/label_file.h
-@@ -123,7 +123,7 @@ struct spec_node {
- 	uint32_t literal_specs_num, literal_specs_alloc;
- 
- 	/*
--	 * Array of regular expression specifications (ordered from most to least specific)
-+	 * Array of regular expression specifications (order preserved from input)
- 	 */
- 	struct regex_spec *regex_specs;
- 	uint32_t regex_specs_num, regex_specs_alloc;
-@@ -369,38 +369,6 @@ static inline int compare_literal_spec(const void *p1, const void *p2)
- 	return (l1->file_kind < l2->file_kind) - (l1->file_kind > l2->file_kind);
- }
- 
--static inline int compare_regex_spec(const void *p1, const void *p2)
--{
--	const struct regex_spec *r1 = p1;
--	const struct regex_spec *r2 = p2;
--	size_t regex_len1, regex_len2;
--	int ret;
--
--	/* Order from high prefix length to low */
--	ret = (r1->prefix_len < r2->prefix_len) - (r1->prefix_len > r2->prefix_len);
--	if (ret)
--		return ret;
--
--	/* Order from long total regex length to short */
--	regex_len1 = strlen(r1->regex_str);
--	regex_len2 = strlen(r2->regex_str);
--	ret = (regex_len1 < regex_len2) - (regex_len1 > regex_len2);
--	if (ret)
--		return ret;
--
--	/*
--	 * Order for no-duplicates check.
--	 * Use reverse alphabetically order to retain the Fedora ordering of
--	 * `/usr/(.* /)?lib(/.*)?` before `/usr/(.* /)?bin(/.*)?`.
--	 */
--	ret = strcmp(r1->regex_str, r2->regex_str);
--	if (ret)
--		return -ret;
--
--	/* Order wildcard mode (0) last */
--	return (r1->file_kind < r2->file_kind) - (r1->file_kind > r2->file_kind);
--}
--
- static inline int compare_spec_node(const void *p1, const void *p2)
- {
- 	const struct spec_node *n1 = p1;
--- 
-2.45.2
-
+On Wed, Dec 11, 2024 at 11:14=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+rote:
+>
+> This reverts commit f50abe2a3aad0716a0711cfcc07f934f4a9d2b02.
+>
+> Needed to revert commit 92306daf5219e73f6e8bc9fc7699399457999bcd
+> "libselinux: rework selabel_file(5) database", which broke Android
+> file_context matching.
+>
+> Signed-off-by: James Carter <jwcart2@gmail.com>
+> ---
+>  libselinux/utils/sefcontext_compile.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+>
+> diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sef=
+context_compile.c
+> index b4445a1f..5d7ab301 100644
+> --- a/libselinux/utils/sefcontext_compile.c
+> +++ b/libselinux/utils/sefcontext_compile.c
+> @@ -188,9 +188,6 @@ static int write_sidtab(FILE *bin_file, const struct =
+sidtab *stab)
+>         if (len !=3D 1)
+>                 return -1;
+>
+> -       if (stab->nel =3D=3D 0)
+> -               return 0;
+> -
+>         /* sort entries by id */
+>         sids =3D calloc(stab->nel, sizeof(*sids));
+>         if (!sids)
+> @@ -206,6 +203,8 @@ static int write_sidtab(FILE *bin_file, const struct =
+sidtab *stab)
+>         }
+>         assert(index =3D=3D stab->nel);
+>         qsort(sids, stab->nel, sizeof(struct security_id), security_id_co=
+mpare);
+> +       assert(sids[0].id =3D=3D 1);
+> +       assert(sids[stab->nel - 1].id =3D=3D stab->nel);
+>
+>         /* write raw contexts sorted by id */
+>         for (uint32_t i =3D 0; i < stab->nel; i++) {
+> --
+> 2.47.1
+>
