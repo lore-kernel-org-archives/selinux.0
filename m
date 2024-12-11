@@ -1,142 +1,110 @@
-Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 837491D5CDD
-	for <selinux@vger.kernel.org>; Wed, 11 Dec 2024 16:12:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61A7F1DACAA
+	for <selinux@vger.kernel.org>; Wed, 11 Dec 2024 16:14:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733933546; cv=none; b=uRvNWPhpXAwNVEdGr+TkR33IgeO0rwMZiif2V02PKqCFIsD8Aunh9euv5/mgYNs+UfEHXRBwVKgxJcqw541hkcDp5iwaHC/rU3ZQN1lzPahVNoLxDQ7/3QmwTyE+lepYCvcyPKjPWCGpjp9QOEFAIWlNlMNJSpMHuqKhBk1rsSA=
+	t=1733933663; cv=none; b=sPxjRrRCcsD/GY6ocUfm/x4TiYvO2MuU3l2+5DeoqWA6wAnRZqzrcq1EKMq2Rg90bOmqM1d+83+H9MXxv9wlohuBE1j+JCadLSRkCaVVF8YQPQa4JLALPEzmRusKexXIQgk/9wAqb1kSHzuiS//0kTYKlFomT9dfsfEtslc5iNY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733933546; c=relaxed/simple;
-	bh=x8+I5qAyUOO5t9kF3+Pe8JETjoa3HTW5/j4+z7zPHYg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tinYZqMZeKWT41QLTLdKvqgfH9HiPqdGTii43DjKR4w8+LfqPnXNODew5sjKD9N7lTc+Oi6mvOG0VKZGuUM/MUWKujI8t6KjbzHBSYPqL9PGTJCQieaZKsxz8p6a1MKM8j9o6dk1GygqiDqEfj4XPW7IC4gtHA6GOfLWeQA23CI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ay2VlwVZ; arc=none smtp.client-ip=209.85.222.171
+	s=arc-20240116; t=1733933663; c=relaxed/simple;
+	bh=/NqFHTzlLGTn8j8gfXUtpQgXhLkGPyHRiPD0N3wMYk4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=REdubbK7TGKsxQ0J55k4Kr264luJxBL891MfSrtGoWyK4XRwHGc1Ttmn0MrSQGpufti6YQGpjrTiLbuSPWOSQdBfyRNeYW/TTrSfbnRJc5UzpQazpTDNoxRAWKirXmh2rdVFItQzry+nEqsMSJctauSo0QrOnrl2SuJZRrKfgDY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Nudw0G+Q; arc=none smtp.client-ip=209.85.128.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ay2VlwVZ"
-Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-7b6c70220f7so228899785a.0
-        for <selinux@vger.kernel.org>; Wed, 11 Dec 2024 08:12:24 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Nudw0G+Q"
+Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-6eff4f0d627so38368137b3.1
+        for <selinux@vger.kernel.org>; Wed, 11 Dec 2024 08:14:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733933543; x=1734538343; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=guqRkONuADPwFf27Ro22bfpU4KQ80TRbMmtVd7H2ZYo=;
-        b=ay2VlwVZSEa3cKNgZy0XoGn6UcreVWVwWS/zjrvkTv9oPeSHKY48+ya1+o7DQ+tJZj
-         HjsRGJALSfDzPyFnUET6o/vpLvgFhZkPEQZ67dpZnIft1FWmvQVM3Q8NIc/45HGKo/Cs
-         ewjAoiagK6VKJbKu5+95a1YxvUKk8RePlDh4PcTo14LAp5PqxnWly98Q9l2EoN8bDJCR
-         stxS2XCu+u3npXJDg9+9l0eOGFPr3wHavtWEqjmqU3HluiY8u2TugaMUFn/95LsefSPo
-         0qSYG5xhstvxF3EoJ5nhLEYpJmSOkcADyBi/2zQXAKJslCNMlzDVeKebTBg/hhIYuLJS
-         jJ5w==
+        d=gmail.com; s=20230601; t=1733933661; x=1734538461; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=khlMIab2G7Qnqnu2ehl1tE8BEbAldemlfNyTInB5uik=;
+        b=Nudw0G+QsTJnFMUKl/1pZCNRGSw3hwTMvDyynL3+toh1cfzz+TP/miiSK1T5lKtFS7
+         Yo9lGG4NsXkUMZMve4f2Ncx/7GyvWiGCM1+jRte8HnzVNHYYXjS4ql40wrxSl4ouAzEX
+         f8+6M/LKSkXn3SD/+0FZ9p7p62mSraALQzaeOypZI2uG/5CEnt1cNgWBkM1yKVmf8eEt
+         bRwD5cHz+EVwYOkLbK/3ajlw2mEYRnL9D3kG0ZAJd2jJYBOYj8+VQjM9TgGiiBKNLHC0
+         D9tcSsDzhqOILcn1owkaqJUFx8pJwGDiznUdJOcN0wUIlshQijFvaib1dnz9joIFcgG9
+         V4Ug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733933543; x=1734538343;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=guqRkONuADPwFf27Ro22bfpU4KQ80TRbMmtVd7H2ZYo=;
-        b=WIABW0gUk1v/KbJEr7oOL0BA81mQqB/huxrwrdQcJKuuqTI20GarKTsZIz4TpF/ngn
-         dB1oXUdqxWiVgaYrqiNl5SPwWNJFB+iI8VLiz4ZXNpD9AgcHs/5jswHO1PYIfUDl20yt
-         JMOEFsBfSSJTUgU4XAVMyYhEOs9FVTjAFNg7RM8X9ZRwK7pvWPX5UsfjnkOKGhGXmTco
-         PVh4Px780wNfAxmungIutal6jUq7Nm2vpvwWie/J4JUnD2jSF0WF94NzepBlPLWNaaw+
-         AYypJDoDZnijEF6umyU5NqhJrf5AkT50lGNi9vIMPQWIqjEIwQF1uKpxJFgEXHRihbGf
-         rEsw==
-X-Forwarded-Encrypted: i=1; AJvYcCVXYqtzX0i8RwmkElTSZDFsNrn3v1zEl4PqGAkSG4xJF+7ztH+WjT3o9nai42Ry3qzeElRk7Xzb@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw6+GmUS/6u51/dz2dyQhG1YqIn5TQAJ448lClv4xZMhdaiwVSz
-	AX8+yOlehXaY81FZoyEGnUvN5RDztRc0w2iiZmQTsdEdlewSCs3N3dCqFrGQiR5K+3jVd0RGi1D
-	OdNTelbTNTr0uqGsAGr1j5044TEM=
-X-Gm-Gg: ASbGncsIoyBfJyoTHHQs00vYCU3rV1j0TkbVAa/Ug2hu/JCdWpjiUwLvasyJrdgtcRG
-	WdKkOMoMZhlTbAqnn0QLhtkNkvd8WnbzgaSQ=
-X-Google-Smtp-Source: AGHT+IF2x/YqPRdM3G1AZb/3dJNgVeEb++xBbjdc/6IbwbIuErWjVv0fp7dlTMtkaO7CuIlUXItozFCTKLYjx8dNHNs=
-X-Received: by 2002:a05:620a:262a:b0:7b6:7970:6522 with SMTP id
- af79cd13be357-7b6eb50648cmr572173685a.40.1733933543270; Wed, 11 Dec 2024
- 08:12:23 -0800 (PST)
+        d=1e100.net; s=20230601; t=1733933661; x=1734538461;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=khlMIab2G7Qnqnu2ehl1tE8BEbAldemlfNyTInB5uik=;
+        b=Ymxi1j8WeRN0Cp3LXg9BqjnicdLWzM9TfdergmJ0cFwhmh41AE4BAPLc4bcVpm7IW1
+         GPKqcvpCcEk2XRz1L9VFxZEklxRVbHDL6ZXqprjOrhAWeXNEH7bzbHg3g9SqwCq2TqDa
+         FlGzkTPN5//0qzq9uWpG+NXNuD8JuC2A6zwc2rrnUXRYGI3EAhHYbGQtxuCBYJHmPN7b
+         UN/PM2ARoXzNl4bLuRN9cKUefcXyiI8bCMGCm2713lCHD15EiVDRgy845to+iAXnMObF
+         1V6jEyUJgC5f3+fPv0PRtQUz+p+lomg2DlyVy7YgJ1bVuk4IgyvmoFAZS2nkQEk0QwKV
+         p/rg==
+X-Gm-Message-State: AOJu0YzaHwi4zSAUAtNb9Ec+Oz16ZJc/K3gmw6Fd7svrdL/o4sXuoEwB
+	JHrSGBIc8qON01B7mihPf8AZJS9upsIq1tMkb5JilHX7mOFddLyRKDW6Sw==
+X-Gm-Gg: ASbGncujJlKMq+pYpYhEJrAb77L6Ywqpori8KDdLge6Lt1SY51Q7DXj7GNJ8NuuWKRn
+	qivjoFTP/gMvRhIBTOggcQupCNRfE3kKPvwsC/VlT+O4HiSZRlzIOsYLoq6cRefefJgfYIiOW+g
+	FfvU04+jMbymn5QniI1wQBLRYzpCxYY210qj9CLfn0VPwwj5YBbbGcc6gmODNr6yr57tZnpRtGA
+	aGol9Wly6uNyqdg0xdRBCspQ0gbFqDjBlEs2TPzMIbNWxwlbNXcqWHTpFvuP87KD5NSqoWtniJE
+	2JpCmjwmQ84=
+X-Google-Smtp-Source: AGHT+IFcVgvTqEvibDro0z00/g3TrSO8c0F0Z4q8GXCqjC5m2F2C4hzuWuMW18Fi51b4Gi36A9Vy/Q==
+X-Received: by 2002:a05:690c:3388:b0:6ef:6cdd:57e3 with SMTP id 00721157ae682-6f198a3c9c3mr809627b3.8.1733933661187;
+        Wed, 11 Dec 2024 08:14:21 -0800 (PST)
+Received: from electric.. (c-69-140-100-37.hsd1.md.comcast.net. [69.140.100.37])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-6f14cd96799sm2890237b3.41.2024.12.11.08.14.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Dec 2024 08:14:20 -0800 (PST)
+From: James Carter <jwcart2@gmail.com>
+To: selinux@vger.kernel.org
+Cc: cgzones@googlemail.com,
+	takayas@chromium.org,
+	James Carter <jwcart2@gmail.com>
+Subject: [PATCH 1/9] Revert "libselinux/utils: drop reachable assert in sefcontext_compile"
+Date: Wed, 11 Dec 2024 11:13:58 -0500
+Message-ID: <20241211161417.126236-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAH9xa6eFO6BNeGko90bsq8CuDba9eO+qdDoF+7zfyAUHEDpH9g@mail.gmail.com>
- <CAJ2a_DcWjVFkAysPtuswuQ_7BExcBHrrS_783CK7WoL_VugVCA@mail.gmail.com> <CAH9xa6c=jKj-0pwCT9sx-t25ZkN_g6nUmi85KYd-wRSTt5SVEA@mail.gmail.com>
-In-Reply-To: <CAH9xa6c=jKj-0pwCT9sx-t25ZkN_g6nUmi85KYd-wRSTt5SVEA@mail.gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 11 Dec 2024 11:12:11 -0500
-Message-ID: <CAP+JOzT2YFKcvga5dM3XoRseGSVKs2MZ2ZijPZ8b4N0vekHF+w@mail.gmail.com>
-Subject: Re: Incompatible file_contexts precedence in 3.8-rc1
-To: Takaya Saeki <takayas@chromium.org>
-Cc: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	selinux@vger.kernel.org, tweek@google.com, nnk@google.com, jeffv@google.com, 
-	Junichi Uekawa <uekawa@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Dec 11, 2024 at 4:10=E2=80=AFAM Takaya Saeki <takayas@chromium.org>=
- wrote:
->
-> > Thanks for testing and reporting.
->
-> Thank you for investigating this as well.
->
-> > > Before 3.8-rc1, when multiple rules matched a path, the last matching=
- rule in
-> > > the file_contexts file was applied. However, in 3.8-rc1, the rule pre=
-cedence
-> > > has changed, and the chosen rule is no longer easily predictable. I t=
-hink we
-> > > should keep the older version's precedence rule to avoid breaking exi=
-sting
-> > > rules.
-> > >
-> > > This is a real-world example from Android:
-> > >
-> > > > /system(/.*)?              u:object_r:system_file:s0
-> > > > /(vendor|system/vendor)(/.*)?  u:object_r:vendor_file:s0
-> > >
-> > > Before 3.8-rc1, the second rule was applied to /system/vendor because=
- it was
-> > > the last matching rule.  However, with 3.8-rc1, the first rule is app=
-lied
-> > > instead. In 3.8-rc1, the rules appear to be sorted by decreasing rege=
-x string
-> > > length, leading to this incompatible behavior.
-> >
-> > I can reproduce the behavior.
-> > The precedence logic was based on the common and (in my point of view)
-> > standard SELinux file context order:
-> >     Order regular expressions based on the length of their prefix stem
-> > (non-regex characters).
->
-> I double-checked the behavior of 3.5, but the precedence rule was not bas=
-ed on
-> this; My previous explanation was a bit simplified. To be precise, it fir=
-st
-> looked for literal rules that exactly matched the path, then applied the =
-last
-> matching regular expression rule based on the order in the file.
->
-> > The precedence logic was based on the common and (in my point of view)
-> > standard SELinux file context order:
-> >     Order regular expressions based on the length of their prefix stem
-> > (non-regex characters).
-> > See support/fc_sort.py in the Reference and Fedora Policy,
->
-> If I understand correctly, this means the libselinux behavior was changed=
- from
-> using line order (and exact matches) to this new stem-based behavior, ali=
-gning
-> with Fedora's policy order? This seems like a breaking change for non-Fed=
-ora
-> libselinux users.
->
-> For example, this change breaks the Android SELinux policy, which relied =
-on the
-> previous line order and exact match behavior. Now, many files are not lab=
-eled
-> as expected.
->
+This reverts commit f50abe2a3aad0716a0711cfcc07f934f4a9d2b02.
 
-We can't break Android, so I think we will have to revert this patch for no=
-w.
-Jim
+Needed to revert commit 92306daf5219e73f6e8bc9fc7699399457999bcd
+"libselinux: rework selabel_file(5) database", which broke Android
+file_context matching.
+
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libselinux/utils/sefcontext_compile.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sefcontext_compile.c
+index b4445a1f..5d7ab301 100644
+--- a/libselinux/utils/sefcontext_compile.c
++++ b/libselinux/utils/sefcontext_compile.c
+@@ -188,9 +188,6 @@ static int write_sidtab(FILE *bin_file, const struct sidtab *stab)
+ 	if (len != 1)
+ 		return -1;
+ 
+-	if (stab->nel == 0)
+-		return 0;
+-
+ 	/* sort entries by id */
+ 	sids = calloc(stab->nel, sizeof(*sids));
+ 	if (!sids)
+@@ -206,6 +203,8 @@ static int write_sidtab(FILE *bin_file, const struct sidtab *stab)
+ 	}
+ 	assert(index == stab->nel);
+ 	qsort(sids, stab->nel, sizeof(struct security_id), security_id_compare);
++	assert(sids[0].id == 1);
++	assert(sids[stab->nel - 1].id == stab->nel);
+ 
+ 	/* write raw contexts sorted by id */
+ 	for (uint32_t i = 0; i < stab->nel; i++) {
+-- 
+2.47.1
+
