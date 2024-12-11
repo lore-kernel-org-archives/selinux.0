@@ -1,117 +1,149 @@
-Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
+Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6053A1494CC
-	for <selinux@vger.kernel.org>; Wed, 11 Dec 2024 16:25:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67006246344
+	for <selinux@vger.kernel.org>; Wed, 11 Dec 2024 18:02:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733934328; cv=none; b=V/Z24EbFKU/f3Ck10xlkmJY6IcSlbfvmzIj/ECYyDMlH2X/yCz/CbkpkP/jDlqziSgfUMRBZMxk6AzbyQMbzqI0wfbU/YNRuKQgP58V7rNjekBp2sd3Sd08awx2RToBkx1tUIj9J+uoLc3yj+JbcXUMcyIqjA4qALmRVDW4ItNQ=
+	t=1733940181; cv=none; b=Td1F9mLH197cLiagDhFRXN/hQ8TL6oowX+hythk2bQqK7ElqaoDLVLhDHeeOIJ8eiPy2fX1zDDeIF/OOHHGd+xmnChA05PRflOGIEJPCoQWrgH4UVHAGt7Hq9r/EgEpfFTLPaTRQPNp7ge1nz80EIQqFnYcaTr6qejzcbLMMFKA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733934328; c=relaxed/simple;
-	bh=+wYV5Xv0EAaZ7y9QLEZ2We+6/+m0khA/IJslB2yeC4A=;
+	s=arc-20240116; t=1733940181; c=relaxed/simple;
+	bh=nS7HyS4ozxW9sPRYjPUD/a5phvFyGZFlPgAOVWKF+uc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=W85bQy4cUTEAvSB/pCEFiijE43UYNnOXo/MAtoxV4ddTRlfhxo+hK9ByZjKzmsxFp3jsI8JQngzul00Xqmu+kLtHfIrk746kVxTrBCRhF//F9RJz9UVQBVnlxygHxqSYeigLiqyhi+I6t5hhFW8rX/meBk3fQOrdlbihMujKjLU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VqAlyEwM; arc=none smtp.client-ip=209.85.217.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=Hm5hjXv2BNJSfvQ3x9LLnXtXwcgmDl6LApt2Ty7YMr/JWQsjJDGSzYyZEb8XS2HeepYpIn6aMuawTvVqpulZod4EWFG5RvO+R2HOaDELyvKtf2OASg2lq6JRJQXIP2iZvMIqfEREYnXyYasD4x71GiaEIvOq0yie0HuZPXRvD9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=N1lfyNT1; arc=none smtp.client-ip=209.85.128.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VqAlyEwM"
-Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-4afdd15db60so1418302137.1
-        for <selinux@vger.kernel.org>; Wed, 11 Dec 2024 08:25:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="N1lfyNT1"
+Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-6f006748fd1so36917097b3.3
+        for <selinux@vger.kernel.org>; Wed, 11 Dec 2024 10:02:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733934326; x=1734539126; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1733940178; x=1734544978; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wyyLC6DaTLgTSbxIFcl9H/2X8G9DoJTMHqusw/vLL4w=;
-        b=VqAlyEwMwyZk8FR52z3Wd0o89rttMzPgosRgblVWsozAAYzLzaWlP3P3yRjC5j6TGx
-         563Rog7VVRD+MHOiR2WL3FroQN7fPGUJaepqC0lHD9DMqzVfu7hJ9O3YJyouMODgoicp
-         3LNIArBBVvwyhFQYtKy8q3KS5286Lq1+ao6MApUtFphsK9pWVetJpzPT+2JWqBQ5nQ8x
-         7c/QarQ2aFjLWODCTIcBwxCg2gqxyf61Aq1Pe/XBceybhD7Be/g7I7436/7fhpSwQpov
-         /V3rcUmEHYPb86XaBfpPCu3i1SVfdX2Aopvvi+oxh+lVX/nTsl1FLZgrKY9FwaU0ZGo7
-         DE3Q==
+        bh=jqtcPeGztb2EjLpFwZkziN/sq/KtEWy6S2Bxg643PTU=;
+        b=N1lfyNT1s5uitXj87cF5ZCuNw0OzDiNymqof689Q+Aw8u3HB2OA9kqN5N2+mxpuYHO
+         3fIPYYz2nglWHGegls3mKnRQUvqv/Zj2Ua7MA/3KlnJf19wXW+zvDgGR/G9M8yC4+dc7
+         UWpcsbCwDzD2sLAV2z3TJdncyEZlHaJfASes/H3FfZ7PDshdHcPBaKoaVJ4RIObxq+XN
+         ogbP3lXT+f91uC6p9GUCFTElBd4Cd8YhoSQ5Kqt9vwn9H6vU/FCoBucBqEcIdAfZrEdm
+         8a/wWHgdAmcrJRwko+x8PI+BYT9nEuyWqS+Oda2XJicxfxMOapx0EhPbpB3ht8TMHjnw
+         ISig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733934326; x=1734539126;
+        d=1e100.net; s=20230601; t=1733940178; x=1734544978;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wyyLC6DaTLgTSbxIFcl9H/2X8G9DoJTMHqusw/vLL4w=;
-        b=ggDk1cff5jF8DGXFeVqXTougm5AboISEm22U8g0oQo3yumTxNIU4yXytW7RotTlWfE
-         TtjDWqnvpKLwDgmZw1z/Bg2sNa+xrUxlo9c57kbyVpNWJPtTZrQLSvlU/M/cRpLQwNqU
-         Hlk9AP/SoESL7blVZIrv07WUyD2tJ1tLBXaZxFMbJRyUY6dw+DHO0MqmMxkG5gh8mfts
-         e+xjfqPTTNvVwc5vSleL6TFL4MM/dDWXz+wr4tWQybN8/OdPjvDIF1lVStsWnRuQ1wnK
-         F02guWrt+f/MZa2mqNJm7py+fUmMXgxMbPCfr5Oq7xuYM1u+LPtyUsVk/l68hIZrTGX2
-         SCVg==
-X-Gm-Message-State: AOJu0YzgWllb742CWTMiNKTLlVj0mdA1QYT9p4sAS8nYGiUlk0isna6h
-	41EXf5A7Jl+8O1Emnc5MJHk5DYSf9EYjRIgEVyHDtg12jYH3syhfpMUME/H5vTV/SofPJJyDiWx
-	a8VjuK5OoOW/nNFLUnZMtNGzBYEnwag==
-X-Gm-Gg: ASbGnctU9u50v3MZ5PW/u4h20Nnn8VTDRVP/ZMrRfX14AgB6+biF+ibqUvEy1j7x2oo
-	3f+x5as1Yj4pZKMXkgZJ0Za5dTY7tV3vyUz0=
-X-Google-Smtp-Source: AGHT+IE95N0ApEWSw7HemZxqqIKsXcmO0RjULxWzrjAiWysaGCii9Soo7enninljxjqvtS9v3EFaK8ifW2nuwjABO6Y=
-X-Received: by 2002:a05:6122:1348:b0:518:965c:34a with SMTP id
- 71dfb90a1353d-518a3a1028fmr4043849e0c.2.1733934326091; Wed, 11 Dec 2024
- 08:25:26 -0800 (PST)
+        bh=jqtcPeGztb2EjLpFwZkziN/sq/KtEWy6S2Bxg643PTU=;
+        b=D/Q132YDThYmNiLlomjnJjTeNmARyUFM5Kxo3BhirD7JRwYlA9u3S+HnVo674VhWHn
+         l5FKsE+wx5XaA91uMXLy92PP1JY81m6bAax9gSaStAKV9mJd9w/iakfJmbQTSH1tEZLL
+         t5HlkAXZpCXn9EDQCwb1NjoBV4hw/G9qCVZ68QhXYIEUaRQLXzWDetywtNammYfPtXNf
+         vqdhLqxQnOD0dswM7LdTe7vmO0QpY06WtFftsWtNGmdvd6Q7LUGk0Nq8kC0dMOSXoZ1o
+         g6OBM6u8EsbYxlzQGR9X0YDnQkimSjXy3GAxEo3UV7hWvDq7esnNqQTDPamo6tGO2dUZ
+         gZiw==
+X-Forwarded-Encrypted: i=1; AJvYcCWsGD0jEKSF04gKlhBt8INs/FhgmsR5x537Q01nMWLaZbp5LyaVpzv+P/vrsPMa4/ccf/SBrRTT@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw9L6KhmAesy679g8G6wn37AN+6o9NIvq36gXlgonDcjmY6vujT
+	vc7KoH4hp5+SnJwjNaXGcKkrdg7uLJam8hReH+Oba6zN0ghK0Q+Zy6O5jpMTfXDeAfCzlFJ73xh
+	NeDMvaAfzz0taQcKvbOKEenhFnR6h6HS2DGlD
+X-Gm-Gg: ASbGncvATSnQtLmuiulLGly9+wFSmNb/YnjvT7g1QwRYM0IZ2OZ3AH4MR3mQ4c/QmYj
+	nhMwLoKhnFzRKNZ3izo3vj8iTKzjoiaoknw==
+X-Google-Smtp-Source: AGHT+IGhaiFjX/L099aGUNCtwGLyut2XxdA9jeU0mNzlqVQ9FVK9XIMu333rd8wujZZNnZZmrQ7W8WIJ6CN1dUDcaf4=
+X-Received: by 2002:a05:690c:314:b0:6ef:61b9:dfd4 with SMTP id
+ 00721157ae682-6f1a50fa362mr3546537b3.30.1733940176912; Wed, 11 Dec 2024
+ 10:02:56 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241211161417.126236-1-jwcart2@gmail.com>
-In-Reply-To: <20241211161417.126236-1-jwcart2@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 11 Dec 2024 11:25:15 -0500
-Message-ID: <CAP+JOzSM9CN_gV61FyeWdpw6ZB7EF+XhpVqr0Hp-+r-14JOE4Q@mail.gmail.com>
-Subject: Re: [PATCH 1/9] Revert "libselinux/utils: drop reachable assert in sefcontext_compile"
-To: selinux@vger.kernel.org
-Cc: cgzones@googlemail.com, takayas@chromium.org
+References: <20241210010030.2854024-1-quic_jiangenj@quicinc.com>
+In-Reply-To: <20241210010030.2854024-1-quic_jiangenj@quicinc.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 11 Dec 2024 13:02:46 -0500
+Message-ID: <CAHC9VhSNc5AeVDh69SV9-pSLgsC1T0Fip=Y3nepYCdc8FBFijg@mail.gmail.com>
+Subject: Re: [PATCH] selinux: KASAN; slab-out-of-bounds in avc_lookup
+To: Joey Jiao <quic_jiangenj@quicinc.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	"open list:SELINUX SECURITY MODULE" <selinux@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, 
+	kernel@quicinc.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-It looks like Christian was able to fix the problem, so ignore these.
-Jim
-
-On Wed, Dec 11, 2024 at 11:14=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
-rote:
+On Mon, Dec 9, 2024 at 8:00=E2=80=AFPM Joey Jiao <quic_jiangenj@quicinc.com=
+> wrote:
+> From: "Jiao, Joey" <quic_jiangenj@quicinc.com>
 >
-> This reverts commit f50abe2a3aad0716a0711cfcc07f934f4a9d2b02.
+> BUG: KASAN: slab-out-of-bounds in avc_lookup+0x174/0x298
+> Read of size 8 at addr ffffff8846ef70b1 by task spdaemon/1037
 >
-> Needed to revert commit 92306daf5219e73f6e8bc9fc7699399457999bcd
-> "libselinux: rework selabel_file(5) database", which broke Android
-> file_context matching.
+> Call trace:
+>  dump_backtrace+0xf0/0x13c
+>  show_stack+0x18/0x28
+>  dump_stack_lvl+0xd0/0x128
+>  print_report+0x13c/0x6f8
+>  kasan_report+0xe8/0x148
+>  __asan_load8+0x98/0xa0
+>  avc_lookup+0x174/0x298
+>  avc_has_perm_noaudit+0x60/0x12c
+>  selinux_inode_permission+0x278/0x3cc
+>  security_inode_permission+0x84/0xc8
+>  inode_permission+0xb8/0x2b8
+>  link_path_walk+0x178/0x7c0
+>  path_lookupat+0x6c/0x298
+>  filename_lookup+0x11c/0x2e4
+>  vfs_statx+0xb4/0x3f0
+>  vfs_fstatat+0xfc/0x3e4
+>  __arm64_sys_newfstatat+0x88/0x340
+>  invoke_syscall+0x6c/0x17c
+>  el0_svc_common+0xf8/0x138
+>  do_el0_svc+0x30/0x40
+>  el0_svc+0x3c/0x70
+>  el0t_64_sync_handler+0x68/0xbc
+>  el0t_64_sync+0x19c/0x1a0
 >
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+> To fix this, protect the rcu read access
+>
+> Signed-off-by: Jiao, Joey <quic_jiangenj@quicinc.com>
 > ---
->  libselinux/utils/sefcontext_compile.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
+>  security/selinux/avc.c | 2 ++
+>  1 file changed, 2 insertions(+)
 >
-> diff --git a/libselinux/utils/sefcontext_compile.c b/libselinux/utils/sef=
-context_compile.c
-> index b4445a1f..5d7ab301 100644
-> --- a/libselinux/utils/sefcontext_compile.c
-> +++ b/libselinux/utils/sefcontext_compile.c
-> @@ -188,9 +188,6 @@ static int write_sidtab(FILE *bin_file, const struct =
-sidtab *stab)
->         if (len !=3D 1)
->                 return -1;
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 32eb67fb3e42..ded3823d4451 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -528,6 +528,7 @@ static inline struct avc_node *avc_search_node(u32 ss=
+id, u32 tsid, u16 tclass)
 >
-> -       if (stab->nel =3D=3D 0)
-> -               return 0;
-> -
->         /* sort entries by id */
->         sids =3D calloc(stab->nel, sizeof(*sids));
->         if (!sids)
-> @@ -206,6 +203,8 @@ static int write_sidtab(FILE *bin_file, const struct =
-sidtab *stab)
+>         hvalue =3D avc_hash(ssid, tsid, tclass);
+>         head =3D &selinux_avc.avc_cache.slots[hvalue];
+> +       rcu_read_lock();
+>         hlist_for_each_entry_rcu(node, head, list) {
+>                 if (ssid =3D=3D node->ae.ssid &&
+>                     tclass =3D=3D node->ae.tclass &&
+> @@ -536,6 +537,7 @@ static inline struct avc_node *avc_search_node(u32 ss=
+id, u32 tsid, u16 tclass)
+>                         break;
+>                 }
 >         }
->         assert(index =3D=3D stab->nel);
->         qsort(sids, stab->nel, sizeof(struct security_id), security_id_co=
-mpare);
-> +       assert(sids[0].id =3D=3D 1);
-> +       assert(sids[stab->nel - 1].id =3D=3D stab->nel);
+> +       rcu_read_unlock();
 >
->         /* write raw contexts sorted by id */
->         for (uint32_t i =3D 0; i < stab->nel; i++) {
+>         return ret;
+>  }
 > --
 > 2.47.1
->
+
+Thanks for the bug report, do you have any more information about the
+kernel that demonstrated this problem?
+
+I'm asking because when I look at the kernel sources, all callers of
+avc_search_node() should already be holding the RCU read lock:
+
+  avc_has_extended_perms() or avc_has_perm_noaudit()
+    avc_lookup()
+      avc_search_node()
+
+--=20
+paul-moore.com
