@@ -1,147 +1,119 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC4BA205517;
-	Thu, 12 Dec 2024 17:54:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3770A1D8DFB
+	for <selinux@vger.kernel.org>; Thu, 12 Dec 2024 18:55:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734026082; cv=none; b=S+rPsP7tPCBpL3pt9/mlftFWhSG4DZP0QMCc3JrX9i3GjVnQSGuJrH6zHyOY4p+D3bs/e3rIvMTKz0QbNi1jj82RL9f+GbalQLWLY3OGrRNNMP1Ef/m3cIBk4NpRKrFDnUicLwv3cWPAGGjAffisV8kH/JiI/mR3fjxVV6TVTkE=
+	t=1734029738; cv=none; b=KSj6Tt2zYr8MS4CAqqqkrhDi7+AtQWYi8BHU6n9+MMDh/QoVjtl8mXTIZCNJfMKS1rcoQ47maD4BdcGAenGmZ1Q9dkn1hj3+LnzdUjPZj4uvI+ZuI8hX3gs64piH4Ravmfg1vTMVVdKZdB/TYENjUotgOAG2hFn/9kLrCOXR5ss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734026082; c=relaxed/simple;
-	bh=FN326kwmo+usXXkE7JMlfZ8nRm/bpLoTgK37DeHwPjQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fzgB1jhcVkAUwyU0lyInKnfzU9id1FlpMw+7pfJzC/fY6nlIyIES4u39GmHyQ7GMXoj8PCi9vXdUuSqt16937xHkk11osp95g1scCDDBdu2QWa9UaysZOi8gl99coc/mxZ/jotqhb4ViL6PyY2BqnBzCqZDIvSo0CN5UimIdnng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XBG0apyx; arc=none smtp.client-ip=209.85.215.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1734029738; c=relaxed/simple;
+	bh=xQtDpg0LFesHeujM8hlUi0Y4yzLq1nmTJOwR8mOxi6E=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=PIaSrU8Rf9mBzH0fUID+jM/ifBWfzXpRj0/18VfgF7nz+fFa7p+Hzc/WoJUkvYxqaWlMeP/2YjNheDhMFFdKBMkqVuPe17iGqnotBtK8SJITwU+OhxNqJk/oeM+je9T4yL11KkjBeYlO/QKKfv8c6CzUMC7FO80elTn/jfWBjNY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JMMjHjz9; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XBG0apyx"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-7fd4c0220bbso901749a12.0;
-        Thu, 12 Dec 2024 09:54:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1734026080; x=1734630880; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Ev4lgX+KZs+L6jXNa7LK4+bkXUMVJIDLTTwkZV/NGlk=;
-        b=XBG0apyxDcNOFd2U42QUQYi+di4EokTScvAjvrjiM52N2mlOfj6NaXUChe17TGHcpK
-         qYMC3pAqD7KI5Yn8EaCIXxf/35y/APenOlMM0RonhBE3u3+M+OXkXqDHC1IOsSUjlmPp
-         4RZJvdKijUvQGCdNJrUhmPCpEf2kXBCw3dT6gDloYTDU4mnlXYEsfneO+qTGIK8dP3Jl
-         Jl79Ff3x6IVWQEmXPkB+r29blqOQX9FC1My/WAIjSaTzINVzbrbUI0NWipkjgd4cOFlI
-         VmKPT716MeSaXGAsjK7ghXweA5duz7Bq9icqWJrNapgFLHMQedqsglwsoLBJNanlvycN
-         DSyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734026080; x=1734630880;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Ev4lgX+KZs+L6jXNa7LK4+bkXUMVJIDLTTwkZV/NGlk=;
-        b=QtbvVWLYo6leFRGoSPx9QtA0RpstN9S5cECv7W4hv4PvTUvamrI3Y5uh+LC7QbcBAM
-         jy5VP81W7XtGhB7AyNqIE+YHCMm9zqSbvkkt7Upqn73RMJ53MhXzSo2cIC5DAK1tySCo
-         mOTXnrO/wn4QsYX3CgXjUoJXVdjzffQn+z1P9kCyiLbvxgHCB8LpoiiqG8B5iZ9A4XGb
-         7lCB9sPONgGIz8fu6j5R9ZOxpuWm0xu5LkIHG2tIoiaogW0KWf63dzlMXxYJNU5eaJ4g
-         utDg6/yXSOHjExMNptYdzOES6QGI5EBy2tV8y067JCcsRO4sIgl1T+rfzB5WPSGbvqnF
-         37ow==
-X-Forwarded-Encrypted: i=1; AJvYcCXHyUm7an7mk5D4uffUf563ZfOLdHQD+Y3ML/X2qKcODECzvXSWGYU1R0Mz0i/hSPj2jzXX+7c6d5D2pjS7jJsJzg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YyQgnJ7jStMJPEQUm2qA7vsafZLt6Hu42hwaRbr4YYw1zx1QKLh
-	GuEP+pw3jntxrfqNFzCp4dMC5XX4V7iGR2YAjiqpap6WKOGWXzBqoNRcUcoI+SxaL10HDnonooH
-	5Es1mnsEAHQzonL1nFlo5OYbb+lM7pg==
-X-Gm-Gg: ASbGncuXHNBhCxsBJg/e8LkY9BFrCesBM6asncx+alkm5fhsSJfJOoqd5Hfaxl/H2Vq
-	88ZHDVjDGOgB2JCVu1SUOCvHNVUOJSlZmGoVmHw==
-X-Google-Smtp-Source: AGHT+IFwiU2+XgJj14YAhzP03pHsYS/He28pX3YqZcZ1qvek5TtKSbYPbqCVXQxlqMCXwmmCw2yZUNyoAseSiUIEkcI=
-X-Received: by 2002:a05:6a21:789e:b0:1e1:ab03:8653 with SMTP id
- adf61e73a8af0-1e1daaf4b52mr2081110637.9.1734026079997; Thu, 12 Dec 2024
- 09:54:39 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JMMjHjz9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1734029734;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=biqGD2Dw3UDvWdWPMjXl7fAtpV2ddbmSrBWi95IpofU=;
+	b=JMMjHjz9Mi8MxgHSUFtQ4qsBb2L7GJXOx/z3MrGf2LShjTIwF1ygBcJaaanK6l/iMwR5du
+	qIi8XSZfsjoVZ3ArsoEyWuh8GskXLiTDF4t+uGkKHJSG4t2FioMFqWulSPvql9T6HEfGmI
+	EbLlVC9BlZLLYjN2fCr9l7VXuE0VxZE=
+Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-201-4UrMkijFNaK_5NU0RAWIgA-1; Thu,
+ 12 Dec 2024 13:55:32 -0500
+X-MC-Unique: 4UrMkijFNaK_5NU0RAWIgA-1
+X-Mimecast-MFC-AGG-ID: 4UrMkijFNaK_5NU0RAWIgA
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E42621944B18
+	for <selinux@vger.kernel.org>; Thu, 12 Dec 2024 18:55:28 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.45.224.227])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 42FA1195394B
+	for <selinux@vger.kernel.org>; Thu, 12 Dec 2024 18:55:28 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH] libsemanage: Mute error messages from selinux_restorecon
+Date: Thu, 12 Dec 2024 19:44:25 +0100
+Message-ID: <20241212185416.2187747-1-vmojzis@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAHC9VhTUX1L=WDtVaEMWDgCreyphrOLDtjL4Fg3gvQk8ihs0Dg@mail.gmail.com>
- <CAEjxPJ5DXJRRYB+RHfeWm7TYKF=LJKFNFq5X6S8H6JrQwhf4iw@mail.gmail.com>
- <CAEjxPJ57bUx05FYh6Eu-06CEV2-zfWLbo_yz3j-HDDZK0JLnCw@mail.gmail.com> <CAHC9VhRaeQC1amoQSJSNUz1F4FYfJmj5YuwnkJUU_r4ft81Rwg@mail.gmail.com>
-In-Reply-To: <CAHC9VhRaeQC1amoQSJSNUz1F4FYfJmj5YuwnkJUU_r4ft81Rwg@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 12 Dec 2024 12:54:28 -0500
-Message-ID: <CAEjxPJ7A1MDoSB37o8AHN8U3==9ByVTQ9Vkegwk1fMyG9_wH5A@mail.gmail.com>
-Subject: Re: The curious case of pidfs and pidfds
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org, selinux-refpolicy@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Thu, Dec 12, 2024 at 12:48=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
-rote:
->
-> On Thu, Dec 12, 2024 at 12:10=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Thu, Dec 12, 2024 at 11:19=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Wed, Dec 11, 2024 at 10:49=E2=80=AFPM Paul Moore <paul@paul-moore.=
-com> wrote:
-> > > >
-> > > > Late last year Chris sent an email[0] about the increasing use of
-> > > > pidfds on modern systems and the difficulty in distinguishing betwe=
-en
-> > > > pidfds and other file descriptors when passing or inheriting fds
-> > > > across a process boundary.  A few months later there was a similar =
-and
-> > > > very brief discussion on a related GitHub PR[1] to add some basic
-> > > > enablement in refpol.  Unfortunately both discussions faded without
-> > > > much in the way of resolution and I'm concerned that we don't have =
-a
-> > > > (good) plan for handling pidfds.
-> > > >
-> > > > As we are starting to see pidfds become more common (which I view a=
-s
-> > > > an overall positive), the lack of a good way to handle pidfds is
-> > > > becoming more of an issue.  Having just started to look at some of =
-the
-> > > > kernel code a couple of hours ago (see fs/pidfs.c) I'm worried that
-> > > > many of the access controls we have for /proc/PID may be missing or
-> > > > bypassed with pidfds and their associated inodes.  I haven't spent =
-a
-> > > > lot of time on this just yet, and with the upcoming holidays it isn=
-'t
-> > > > clear how far I'll get before the end of the year, but I wanted to
-> > > > send out another email on this topic to see if anyone else has spen=
-t
-> > > > any time looking at pidfds and pidfs.
-> > > >
-> > > > Anyone?
-> > > >
-> > > > [0] https://lore.kernel.org/selinux/da1d9efd-fdc1-4651-8a7a-30ae4a3=
-99926@linux.microsoft.com
-> > > > [1] https://github.com/SELinuxProject/refpolicy/pull/762
-> > >
-> > > I could be wrong, but I think pidfds are controlled via ptrace hooks
-> > > and those check the task label rather than whatever random inode is i=
-n
-> > > the pidfd.
-> >
-> > Apparently I'm wrong. If you take the sample program shown under
-> > EXAMPLES in the pidfd_open man page, you can seemingly run it on any
-> > PID in your PID namespace, irrespective of whether you are related to
-> > said process, have a different UID, a different context, etc. What am
-> > I missing?
->
-> I haven't had the time yet to really dig into everything, but one of
-> the things that I noticed very quickly is that the inodes are marked
-> as S_PRIVATE which avoids a lot of the inode level access controls.  I
-> believe there are other concerns beyond that, but that is likely the
-> biggest.
+Mute error messages produced by selinux_restorecon when rebuilding the
+policy store to avoid error messages in containers, image mode, etc.
 
-I think that part is ok - IIUC the inodes are just anon inodes and
-don't actually contain any of the process state and reads/writes of
-the pidfds don't return or modify process state.
-The question though is whether any of the pidfd syscalls or ioctls
-allow one to access the process state without going through some kind
-of permission check on the task label. It appear that some of the
-pidfd syscall do apply checking, e.g. pidfd_getfd() checks ptrace
-access to the target task, pidfd_send_signal() likely hits the usual
-hook in kill, but others do not, like just polling the pidfd to see
-when the process exits or the PIDFD_GETINFO ioctl. We're not just
-talking about a lack of LSM/MAC checks there - there don't appear to
-be any DAC restrictions either.
+Fixes:
+ #podman build --security-opt=label=disable --cap-add=all --device /dev/fuse -t quay.io/jlebon/fedora-bootc:tier-x . --build-arg MANIFEST=fedora-tier-x.yaml --from quay.io/fedora/fedora:rawhide
+...
+Could not set context for /etc/selinux/targeted/tmp/modules/100/rtas/lang_ext:  Operation not supported
+Could not set context for /etc/selinux/targeted/tmp/modules/100/rtas:  Operation not supported
+Could not set context for /etc/selinux/targeted/tmp/modules/100/rtkit/cil:  Operation not supported
+Could not set context for /etc/selinux/targeted/tmp/modules/100/rtkit/hll:  Operation not supported
+...
+
+https://bugzilla.redhat.com/show_bug.cgi?id=2326348
+
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+I feel like this is probably not the best solution, so feel free to
+suggest a better way.
+The logs are all the more annoying because there is so many at once and
+they clog up the logs and terminals so I am wonering about removing
+the ERR after a failed fchown as well.
+
+ libsemanage/src/semanage_store.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index e44efc16..2ca2e900 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -3000,15 +3000,29 @@ int semanage_nc_sort(semanage_handle_t * sh, const char *buf, size_t buf_len,
+ 	return 0;
+ }
+ 
++/* log_callback muting all logs */
++static int __attribute__ ((format(printf, 2, 3)))
++log_callback_mute(__attribute__((unused)) int type, __attribute__((unused)) const char *fmt, ...)
++{
++	return 0;
++}
++
+ /* Make sure the file context and ownership of files in the policy
+  * store does not change */
+ void semanage_setfiles(semanage_handle_t * sh, const char *path){
+ 	struct stat sb;
+ 	int fd;
++	union selinux_callback cb_orig = selinux_get_callback(SELINUX_CB_LOG);
++	union selinux_callback cb = { .func_log = log_callback_mute };
++
++	/* Mute all logs */
++	selinux_set_callback(SELINUX_CB_LOG, cb);
++
+ 	/* Fix the user and role portions of the context, ignore errors
+ 	 * since this is not a critical operation */
+ 	selinux_restorecon(path, SELINUX_RESTORECON_SET_SPECFILE_CTX | SELINUX_RESTORECON_IGNORE_NOENTRY);
+-
++	/* restore log_logging */
++	selinux_set_callback(SELINUX_CB_LOG, cb_orig);
+ 	/* Make sure "path" is owned by root */
+ 	if ((geteuid() != 0 || getegid() != 0) &&
+ 	    ((fd = open(path, O_RDONLY | O_CLOEXEC)) != -1)){
+-- 
+2.47.0
+
