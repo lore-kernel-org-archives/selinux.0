@@ -1,79 +1,69 @@
-Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 158EA20E011
-	for <selinux@vger.kernel.org>; Thu, 12 Dec 2024 09:41:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50E67210193
+	for <selinux@vger.kernel.org>; Thu, 12 Dec 2024 10:14:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733996516; cv=none; b=RaGKCb8FjGSMlh45L/KLvdsJTZaa0flu1kvwXRTd5UNGvNsmGtiaTKyeZ1AyNSkiT0vUIeszh9VMSTUirB0/Fp+nKLP802wMFsx69MU50CzsFEIyvngEWn6TrJpOogZsXbgDtM5iTy11S7n7+QSrfD0JG22LjrZyqg7SF4P/P/4=
+	t=1733998466; cv=none; b=NNLFV7tVf5I939BfbB9XQ/33qTWHT/BjWjFRPu9UH5HPpUXQlLTJyTAGGXGkA+S7enD7wxc2P2Gxnnj4vgPHAr4hfPPVzxhZD5YDRhYszwGbpDkQeYPnATYUbnHHQ9mMI19YyEgBUHX90jK+u5HZMjUzL2Co5zdhRtQ6sarubrE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733996516; c=relaxed/simple;
-	bh=rykx200Pd7CMaRJoCkzpc93aYccHME07TEZuSvlK3Vk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mda/I4lncP1fveE7JSrZ2eHWbkW30MUSd/Yr02+3otxGaxYxag6Y9jC4+hnD3yTn12h4lKjB9EWfColqip5Zxcha9vG8pZ/S/yET/xrW9c8PUCmfbPa77AEQSYcFBl6OwnK9AvpcLiBYGiwCRDnWVuCQm+4CKLlVpITzciQ59H0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=TE3wF44v; arc=none smtp.client-ip=209.85.208.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1733998466; c=relaxed/simple;
+	bh=ovCn6kkM7LPI5eCO8cwlbmS3zS9S8izo8YCa2WYyNuk=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=mLnGhlbbIc95SQ1vHeCF7nlq7VAsaINMAgQj4sOmS9TzXrm5wyT8ebRhq0A8Ni/lp3m5YxICQ7mpi2RyZmhQZVxkTnaPYl81GZbRN2BU0zUgA0eaJ9J8rgPDCcHJqIn3lZYPkp4XGQUhcnuk0PMO4xFCT4eJ9rYRn6KvJGcO9+Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BVNIKUAc; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="TE3wF44v"
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-3003943288bso2809651fa.0
-        for <selinux@vger.kernel.org>; Thu, 12 Dec 2024 01:41:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1733996512; x=1734601312; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=qCrA6gFBsaSL2nwTvaDb8dnwSVQYMYz3hDGQs0QKsrE=;
-        b=TE3wF44v1qLXMVjOVvzK+MnBUqJ73lmZhZoylw21mx8yma/2ehwGSUkdYIYWXeSTSv
-         YuGh+4Ac+gZgJuoAFfJSdSiBNcpaEPb97PPn+mOnMNFhnGxjHHe/D7ljfV8srMEOUFxO
-         Gm0dbmOUrwNafEW5EJrmMVd7Sn9cPdiQQ45k8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733996512; x=1734601312;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=qCrA6gFBsaSL2nwTvaDb8dnwSVQYMYz3hDGQs0QKsrE=;
-        b=r7fwjNKn3tTxrDUxu9mkFM1KXL90Qlj2Ujqk/SYxsEs+j4xnF6cffpAsPcuuecQmOE
-         RiWt7dQsTcB+lsTtv/qscGstwS1YDuFdmOn8Eebu7w4lxKY533BWqY+GqSPXE6vGESeS
-         S5KUWJIEHSiORh56hygQd58px7mDBODnHX0sAdEYenkpvayvxvCYmTS8fN6ykXJAhrJe
-         ctR6fQVbZCKQ3mXFK7cI8FIVQvibrN3fjt1+6Kab/mPzVAYY0NA8TUxIvdNWwblWHz1R
-         KkCPUplyQHoQHSRgVvPDStD4bESwjFqJnO8vjifTWxpWmhkBTDQcVGij0dd000uEgYfI
-         tbPw==
-X-Forwarded-Encrypted: i=1; AJvYcCW0drUpDNakZWXHHCMx0UszeW96RM1u7j2Vb8D5CHCHZI3G3jD121IGYKxV4F63zdB1B9QvLbE7@vger.kernel.org
-X-Gm-Message-State: AOJu0YxrNgYMQkIPwXrrD8Zoam21AGLLYwKwhZwgGljC5gw4sTYMkqwp
-	r01RL9YnDMzJct8V0a68Csylo9++UOvS9xRzVHs55ezvvuwTwjCRdQwFx0i3Y8NZK2C3XWcey/5
-	bwAxWEono3oiKdUXSDWX3P8wNVwSc1zjhxJA=
-X-Gm-Gg: ASbGncsR7bFDT82/EtKPX9EZDowMwqS+7fEIfwK7tTvV0LzRMph1vjAw4mf5imbsFPi
-	Hq7awfNALirf51ik8FbTYGVvRIILEH3h4h5xV2mMfIhL/pq6Qu3QfekCN9CE1eAv2jMs=
-X-Google-Smtp-Source: AGHT+IEUVPWBdlK7ckkViUtwQLH70clyJxMpGdb7elm8xzQNCRG+kPBGOxpFcRkDjtA2LUWnAlHbJBKIX7sjB93YIy8=
-X-Received: by 2002:a05:6512:3c8d:b0:53e:3aaa:5c7d with SMTP id
- 2adb3069b0e04-54032c326edmr272523e87.13.1733996512191; Thu, 12 Dec 2024
- 01:41:52 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BVNIKUAc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1733998463;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type;
+	bh=ovCn6kkM7LPI5eCO8cwlbmS3zS9S8izo8YCa2WYyNuk=;
+	b=BVNIKUAcV2JiAwsrIgt6gJ8TQ0orhPD0Q4DXM8h5zDJw1wF1cItEjSz81c80DCV7j8opcy
+	YivW4YTpWy/lfw3qDL3nduPG6xqpqzBwT0Ha+bxnu5as7KafXeWE5oOa9j7XnwVO85G3gf
+	s18org/Z4dzfcKlsFMt+8sPAqQlSgxQ=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-149-3I_wVMDeM1qmyD7lUx2Bag-1; Thu,
+ 12 Dec 2024 05:14:21 -0500
+X-MC-Unique: 3I_wVMDeM1qmyD7lUx2Bag-1
+X-Mimecast-MFC-AGG-ID: 3I_wVMDeM1qmyD7lUx2Bag
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 007A719560BD
+	for <selinux@vger.kernel.org>; Thu, 12 Dec 2024 10:14:21 +0000 (UTC)
+Received: from localhost (unknown [10.45.225.58])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 82997195394B
+	for <selinux@vger.kernel.org>; Thu, 12 Dec 2024 10:14:20 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Subject: 3.8-rc2 will become rc3
+Date: Thu, 12 Dec 2024 11:14:19 +0100
+Message-ID: <87seqtjjic.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241211161443.51286-1-cgoettsche@seltendoof.de> <87v7vqjd0a.fsf@redhat.com>
-In-Reply-To: <87v7vqjd0a.fsf@redhat.com>
-From: Takaya Saeki <takayas@chromium.org>
-Date: Thu, 12 Dec 2024 18:41:40 +0900
-Message-ID: <CAH9xa6etgNe24pGEL82WqgLzFq714WMpQLyDE4mKf6wReu4tvA@mail.gmail.com>
-Subject: Re: [RFC PATCH] libselinux: restore previous regex spec ordering
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>, 
-	selinux@vger.kernel.org, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	Junichi Uekawa <uekawa@chromium.org>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-Hi, thanks for working on this so quickly.
+Hi,
 
-I tested this patch, but it seems that the following pattern I wrote in
-https://lore.kernel.org/selinux/CAH9xa6eFO6BNeGko90bsq8CuDba9eO+qdDoF+7zfyAUHEDpH9g@mail.gmail.com/
-is still not incompatible with older versions.
+Yesterday I tagged 3.8-rc2 but didn't announce it. Here's why.
 
-> the first rule is applied to /foo/bar. This is because now the node for `foo`
-> is processed first.
->
-> > /foo/b.*   u:object_r:b_something_file:s0
-> > /(foo|baz)/bar  u:object_r:bar_file:s0
+There's a regression in regex spec ordering, see
+https://lore.kernel.org/selinux/CAP+JOzT2YFKcvga5dM3XoRseGSVKs2MZ2ZijPZ8b4N0vekHF+w@mail.gmail.com/T/#t
+and
+https://lore.kernel.org/selinux/CAH9xa6etgNe24pGEL82WqgLzFq714WMpQLyDE4mKf6wReu4tvA@mail.gmail.com/T/#t
+
+So I decided to not release and announce rc2, but wait for the fix and then release rc3.
+
+
+Petr
+
