@@ -1,149 +1,93 @@
-Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com [209.85.219.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64537185949
-	for <selinux@vger.kernel.org>; Fri, 13 Dec 2024 22:18:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACB2613AA2A
+	for <selinux@vger.kernel.org>; Sat, 14 Dec 2024 21:08:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.58.86.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734128300; cv=none; b=VGDB173JZwU9lfUKoDZ6qeDjC3FkAubtEwZsq9+h+BPiv25RkCqLGuP1J5mF+nyfL+qg9nW0p7HdMIrzYDiWsyGYsytOp5XxRODDAufyVcnCmWpmwXh3cftdCBc6W3UjcJk3nO5G48XDS9wZng6fbzWjr4OiQTNZ2XBoNhgLzeE=
+	t=1734210509; cv=none; b=fYy9hJuS++HKkAdZ32K3HGRkVbR01OUQOt0wvd1+fTgI0zDBzTgn8wRRhUppJkHixGwQCjVfYxWbeG7hdQ04sJ/R2RHNmQjAcN6OeqSH9vwp5CbWHOsCFyjLVUgOHdifONa8PwnMthkzP5mcR9OVZPmTomKWosvB7OnxwO9T3+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734128300; c=relaxed/simple;
-	bh=xtqRxBTJHmJaUXy5R/4swYGNg6ruYMLcY1OffP6TbxE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=D34FBVG9u10FUOeLhGGIoe4OctQwRSiRVajxU4QoOlIpF0XnVycuANDyfhb9fH+OihzD3DpZBikiA1ceF73n87HQzslS9hyxac4MPqISuqq+fMoh8AVeNmYPqfqlGvkG/2Txq0Ip0pe1eCDaZSBXb/3N5BAJkqQhn6hrZ2Wu77s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=LiP0KqM5; arc=none smtp.client-ip=209.85.219.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="LiP0KqM5"
-Received: by mail-yb1-f178.google.com with SMTP id 3f1490d57ef6-e39fb8548e2so1569282276.3
-        for <selinux@vger.kernel.org>; Fri, 13 Dec 2024 14:18:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1734128296; x=1734733096; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bv/b25gVOUG5Oyb6GNJio9Wgg0bVBvq3pEzsy35+P5M=;
-        b=LiP0KqM5H/apFcl1PQ3ie+fIMSLwo2ippC6dRjNA+ExVG2pxOUcPI8XO0QVjFfTd4Y
-         g7QB+Sz0mFYunAJK7HbvCe4iItiTXvwJo7whTeg6scpbLRyqmWr/sRkSZMUxAP0wnoFq
-         niUjhKff73pWgRt/eYr+0TXON4UZSWOCofx1D4WJiHo64cXyuOEuaQJwnEP2I4iduA2F
-         n+wgV9Yq5FzAzZEODw5wfkP8ihwtbAMEC74gFbuRZlwLhkq8KlNd5004Nj/Icq/4tZaa
-         2bw45XaWFZtNbhpkutF0HZwKBVuyXf240S2E7x8rcr1DWAdNC+kzQPPKhCFOa/sAN/5j
-         /5Bg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734128296; x=1734733096;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bv/b25gVOUG5Oyb6GNJio9Wgg0bVBvq3pEzsy35+P5M=;
-        b=BD7/n37Fw4avyed1BlckO4sprJaf4Vm6oQ6oXdA5RXGkhZj5vaL118eiWHwHnwBQHD
-         IjYh31SwlT9EvHI8Yt6gGr4L6CLP2bQQW6rGN9wHOt6Qb/L6W2+Gr0f/wHe2LGbx2dIu
-         Axhy9qbxLRksISg8OhlwyLLo56kpjrNm4WOPGNamq/Sq5Jw6kPM3ncS7VwToQy3FlOWo
-         8wu+1zljDI+UP5agHAIgxN5aBCY92ysaGXuoZpHwmj8kGWq2OykbkECc1iUzDW5Oa3cN
-         oPjHNvfxjyPMsG9DPzaM38HJlCBFYJgEKsPM1MCCi/N+eDLeazKDcWAJNJ15xPZvaQcw
-         KTcw==
-X-Forwarded-Encrypted: i=1; AJvYcCVpp+R/I4MBPMgbavCQmO9izV3vnocRiABUMteGnLODuW6rie2b6SGBiXwayCl77wjgVKF1tlTO@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy1X/VuaznQnGMwgh9ji2XRvWsU3XkeMNHZLlxQlo9HTkKDTs36
-	ALFHtRKVPqTU+mm9FfZXDGMkJZgytiTKEOXkuhABU7lTRXhs8dIINgdB1lZ0TQ9FCf02j8meran
-	bFOS+eV7bSqxMJTkhQLkG8o6oFO/ueE60uQ+A
-X-Gm-Gg: ASbGnctbbsz13spWt9QgkI/jvQHJBLoc0wPBwqby96xxKbItNg4URNx8w/sQiQ/2gGD
-	IS0XmE4cg8krzYRqAtbEXr3pIoUFL90mrAFTM
-X-Google-Smtp-Source: AGHT+IEIvZaN/yqHbz0I33TeeQrkqHFU7+1slWRampxrE1HaYXHUkKCaIBmDv/EK7yvSxErp0BEtNyu8dgc7EcmI/X8=
-X-Received: by 2002:a05:6902:f88:b0:e38:8749:815e with SMTP id
- 3f1490d57ef6-e434b698336mr3697466276.30.1734128296359; Fri, 13 Dec 2024
- 14:18:16 -0800 (PST)
+	s=arc-20240116; t=1734210509; c=relaxed/simple;
+	bh=pSasa4Z/EMgBx2yj8XWroJ8IbqLfmTemT58gWOYUjEk=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 MIME-Version:Content-Type; b=ZmVv9yQJl42ph5d1OLdZufKN8CWYI71TJtNb35dtlP/fLGW5TYejvxkF4i497692RNWLRTsD9ovG/j9tQ1MTIdqGVVOwN+Iviq2nIW33KsN8lQdR2Dg5YisfqH7my3AZi2ovwkcr8/C+MkNRgnEDh4nfBNdMRjRmTql6JLOlK5w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM; spf=pass smtp.mailfrom=aculab.com; arc=none smtp.client-ip=185.58.86.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ACULAB.COM
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aculab.com
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-73-oSBGEs7GN0yjU65DchMHVg-1; Sat, 14 Dec 2024 21:08:18 +0000
+X-MC-Unique: oSBGEs7GN0yjU65DchMHVg-1
+X-Mimecast-MFC-AGG-ID: oSBGEs7GN0yjU65DchMHVg
+Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
+ (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.48; Sat, 14 Dec
+ 2024 21:07:20 +0000
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.048; Sat, 14 Dec 2024 21:07:20 +0000
+From: David Laight <David.Laight@ACULAB.COM>
+To: 'Paul Moore' <paul@paul-moore.com>,
+	=?utf-8?B?Q2hyaXN0aWFuIEfDtnR0c2NoZQ==?= <cgoettsche@seltendoof.de>, "Linus
+ Torvalds" <torvalds@linux-foundation.org>
+CC: =?utf-8?B?Q2hyaXN0aWFuIEfDtnR0c2NoZQ==?= <cgzones@googlemail.com>,
+	"Stephen Smalley" <stephen.smalley.work@gmail.com>, Ondrej Mosnacek
+	<omosnace@redhat.com>, Nathan Chancellor <nathan@kernel.org>, "Nick
+ Desaulniers" <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>, "selinux@vger.kernel.org"
+	<selinux@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "llvm@lists.linux.dev" <llvm@lists.linux.dev>
+Subject: RE: [PATCH] selinux: use native iterator types
+Thread-Topic: [PATCH] selinux: use native iterator types
+Thread-Index: AQHbTABPeXe5tbZR/Uu2GVc6bedDr7LmQAyg
+Date: Sat, 14 Dec 2024 21:07:20 +0000
+Message-ID: <f7bfbf89d2ac4b929637bbb25f749c96@AcuMS.aculab.com>
+References: <20241125110646.50799-1-cgoettsche@seltendoof.de>
+ <e43da8418fc54a5eba7cdbb594b24bb9@paul-moore.com>
+In-Reply-To: <e43da8418fc54a5eba7cdbb594b24bb9@paul-moore.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241210115551.1225204-1-takayas@chromium.org>
- <8d8da243506dd9291fa5f02adc7f6142@paul-moore.com> <CAH9xa6ccd51V9fswkRX+xGfXHQog-wJQzB1LvK0pLT3CLYkfsw@mail.gmail.com>
-In-Reply-To: <CAH9xa6ccd51V9fswkRX+xGfXHQog-wJQzB1LvK0pLT3CLYkfsw@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 13 Dec 2024 17:18:05 -0500
-Message-ID: <CAHC9VhQrSGitY_TUAHbds-A8uQmn2TveTUrK-Jcd6quuMPHh1g@mail.gmail.com>
-Subject: Re: [PATCH] selinux: support wildcard match in genfscon
-To: Takaya Saeki <takayas@chromium.org>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Nick Kralevich <nnk@google.com>, Jeffrey Vander Stoep <jeffv@google.com>, Junichi <uekawa@chromium.org>, 
-	selinux@vger.kernel.org, selinux-refpolicy@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: HxA9t6LPSSTqR4g9cdOY7_qNP4XNW2ZTKLG5xkBqif0_1734210497
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 
-On Thu, Dec 12, 2024 at 12:26=E2=80=AFAM Takaya Saeki <takayas@chromium.org=
-> wrote:
->
-> > I would like to hear from the policy and toolchain folks on this idea b=
-efore
-> > we go too much further with this, but I did take a quick look at the pa=
-tch
-> > and left my comments below.
->
-> Thank you for reviewing this patch. Could you let me know the relevant fo=
-lks
-> who could provide feedback from the policy and toolchain perspective?
+RnJvbTogUGF1bCBNb29yZQ0KPiBTZW50OiAxMSBEZWNlbWJlciAyMDI0IDE4OjU0DQo+IA0KPiBP
+biBOb3YgMjUsIDIwMjQgPT9VVEYtOD9xP0NocmlzdGlhbj0yMEc9QzM9QjZ0dHNjaGU/PSA8Y2dv
+ZXR0c2NoZUBzZWx0ZW5kb29mLmRlPiB3cm90ZToNCj4gPg0KPiA+IFVzZSB0eXBlcyBmb3IgaXRl
+cmF0b3JzIGVxdWFsIHRvIHRoZSB0eXBlIG9mIHRoZSB0byBiZSBjb21wYXJlZCB2YWx1ZXMuDQo+
+ID4NCj4gPiBSZXBvcnRlZCBieSBjbGFuZzoNCj4gPg0KPiA+ICAgICBzZWN1cml0eS9zZWxpbnV4
+L3NzL3NpZHRhYi5jOjEyNjoyOiB3YXJuaW5nOiBjb21wYXJpc29uIG9mIGludGVnZXJzIG9mIGRp
+ZmZlcmVudCBzaWduczogJ2ludCcNCj4gYW5kICd1bnNpZ25lZCBsb25nJyBbLVdzaWduLWNvbXBh
+cmVdDQo+ID4gICAgICAgMTI2IHwgICAgICAgICBoYXNoX2Zvcl9lYWNoX3JjdShzaWR0YWItPmNv
+bnRleHRfdG9fc2lkLCBpLCBlbnRyeSwgbGlzdCkgew0KPiA+ICAgICAgICAgICB8ICAgICAgICAg
+Xn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+
+DQo+ID4gICAgIC4vaW5jbHVkZS9saW51eC9oYXNodGFibGUuaDoxMzk6NTE6IG5vdGU6IGV4cGFu
+ZGVkIGZyb20gbWFjcm8gJ2hhc2hfZm9yX2VhY2hfcmN1Jw0KPiA+ICAgICAgIDEzOSB8ICAgICAg
+ICAgZm9yICgoYmt0KSA9IDAsIG9iaiA9IE5VTEw7IG9iaiA9PSBOVUxMICYmIChia3QpIDwgSEFT
+SF9TSVpFKG5hbWUpO1wNCj4gPiAgICAgICAgICAgfCAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgfn5+ICBeIH5+fn5+fn5+fn5+fn5+fg0KPiA+DQo+
+ID4gICAgIHNlY3VyaXR5L3NlbGludXgvc2VsaW51eGZzLmM6MTUyMDoyMzogd2FybmluZzogY29t
+cGFyaXNvbiBvZiBpbnRlZ2VycyBvZiBkaWZmZXJlbnQgc2lnbnM6ICdpbnQnDQo+IGFuZCAndW5z
+aWduZWQgaW50JyBbLVdzaWduLWNvbXBhcmVdDQo+ID4gICAgICAxNTIwIHwgICAgICAgICBmb3Ig
+KGNwdSA9ICppZHg7IGNwdSA8IG5yX2NwdV9pZHM7ICsrY3B1KSB7DQo+ID4gICAgICAgICAgIHwg
+ICAgICAgICAgICAgICAgICAgICAgICAgIH5+fiBeIH5+fn5+fn5+fn4NCj4gPg0KPiA+ICAgICBz
+ZWN1cml0eS9zZWxpbnV4L2hvb2tzLmM6NDEyOjE2OiB3YXJuaW5nOiBjb21wYXJpc29uIG9mIGlu
+dGVnZXJzIG9mIGRpZmZlcmVudCBzaWduczogJ2ludCcgYW5kDQo+ICd1bnNpZ25lZCBsb25nJyBb
+LVdzaWduLWNvbXBhcmVdDQo+ID4gICAgICAgNDEyIHwgICAgICAgICBmb3IgKGkgPSAwOyBpIDwg
+QVJSQVlfU0laRSh0b2tlbnMpOyBpKyspIHsNCj4gPiAgICAgICAgICAgfCAgICAgICAgICAgICAg
+ICAgICAgIH4gXiB+fn5+fn5+fn5+fn5+fn5+fn4NCg0KSXNuJ3QgdGhpcyBhbiBleGFtcGxlIG9m
+IHdoeSAtV3NpZ24tY29tcGFyZSBpcyBlbnRpcmVseSBzdHVwaWQgYW5kIGlzbid0IGVuYWJsZWQN
+CmluIHRoZSBub3JtYWwga2VybmVsIGJ1aWxkPw0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBB
+ZGRyZXNzIExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMs
+IE1LMSAxUFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
 
-The toolchain people are already on this email as they belong to the
-normal selinux@vger mailing list.  From a practical perspective I
-believe the policy people are on this mailing list as well, but I just
-CC'd the Reference Policy mailing too just in case.
-
-> > > @@ -2193,7 +2223,17 @@ static int genfs_read(struct policydb *p, void=
- *fp)
-> > >                       if (!newc)
-> > >                               goto out;
-> > >
-> > > -                     rc =3D str_read(&newc->u.name, GFP_KERNEL, fp, =
-len);
-> > > +                     if (ebitmap_get_bit(
-> > > +                                 &p->policycaps,
-> > > +                                 POLICYDB_CAP_GENFS_SECLABEL_WILDCAR=
-D))
-> > > +                             /* Append a wildcard '*' to make it a w=
-ildcard pattern */
-> > > +                             rc =3D str_read_with_padding(&newc->u.n=
-ame,
-> > > +                                                        GFP_KERNEL, =
-fp, len,
-> > > +                                                        '*');
-> > > +                     else
-> > > +                             /* Prefix pattern */
-> > > +                             rc =3D str_read(&newc->u.name, GFP_KERN=
-EL, fp,
-> > > +                                           len);
-> >
-> > More on this below, but it isn't immediately clear to me why we need to
-> > have the special handling above, can you help me understand why these
-> > changes are necessary?
->
-> Sure. Thank you very much for the comments.
->
-> > I understand you are "marking" the wildcard entries with a trailing '*'=
-, but
-> > since we are calling match_wildcard() in __security_genfs_sid(), why no=
-t
-> > fully embrace the match_wildcard() capabilities...
->
-> Currently, genfscon rules perform prefix matching (e.g., `/sys/dev` match=
-es
-> `/sys/devices`). Directly using `match_wildcard()` would not preserve thi=
-s
-> behavior, as it does full match. To maintain compatibility with this exis=
-ting
-> prefix-matching behavior, the trailing '*' is added.
-
-Yes, the existing genfscon handling does prefix matching, likely as an
-easy workaround for the lack of wildcard matching, so if we move to
-properly supporting wildcard matching, and the policy explicitly opts
-into using this new capability, I'd rather just see the policy do the
-right thing with wildcards.  It might mean more work to convert the
-policy, but this should be easier to understand and more consistent
-than silently adding a '*' wildcard at the end of every path when the
-path matching supports explicit wildcards anywhere in the path.
-
---=20
-paul-moore.com
