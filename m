@@ -1,53 +1,57 @@
-Received: from mail-lj1-f171.google.com (mail-lj1-f171.google.com [209.85.208.171])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9033F1CDA0B
-	for <selinux@vger.kernel.org>; Mon, 16 Dec 2024 06:50:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D3B6F9DA;
+	Mon, 16 Dec 2024 14:06:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734331860; cv=none; b=HO5WNXSZwxpu1BPCUeNXr7X1LJxtmfhwpf+gkN6DwZGgBafoNUVMKnYnig8c2uX18Sstjf3oCBnSygVKSXnhMoNST8QtlXvwhfFmll7DbDEoQwdaNHt+jdaZgNt+thTBLJCMrJPbf+SgTbfjt/oibVmbV2kNaK3YUfsrQlTwacY=
+	t=1734358011; cv=none; b=F5q5picc42avOxg1l2XN/44gzmhVbAWPGOdy1t1rGzh88nc7TNM10rj0qkG4Cl6v3VwMjsBE75Vmsblg61CCXVl6DARc9eomafZnnGhbMMUkQeg4M1VFKBpAVdjUGHe5UqLpOhssq33E2SIWy3PEu96C05aAcN5HNbEG3jBznk8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734331860; c=relaxed/simple;
-	bh=aumZNbjCC9r4VVEVufGEkcyTrarCxXWpUa+1IeKbrb0=;
+	s=arc-20240116; t=1734358011; c=relaxed/simple;
+	bh=za955f5yytbP6XETn6xT5Fn97sIWB1ARQsMsbId7G1s=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P22WL3RAhH6Kh/TvLMQ35ZXL1ibtZ1Otb7okwfsv1ynYcc03sSyMGI3vx0yFlavfsMuHNIjoBSda7ZfPcwYRgRyULhBjbW2GNzNf8GKtiqH3hJ4IpHWUnbmrTQt7EX7UYeDvfLBkaV2YRdHtvBQEdiFoggH+sgiv7HzPuzpwR+M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=U2G5wraY; arc=none smtp.client-ip=209.85.208.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	 To:Cc:Content-Type; b=cAjxlp4UiXf5p7dixdkdkMvSxxDfLkG2TcTcH4+1osxsM45dqhT+FwJcF6KKzPWefOQ4cg1pM+/a6e21eLBHdJgkVyQU3Zg2XPh5GJsbZMsBm2INJuqWUuSbdEdIKrWXmzceaGRTkpd4VhVnrdH2kslX1yV9AAV5ZMiC8e3bGDQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IAEkYxgA; arc=none smtp.client-ip=209.85.216.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="U2G5wraY"
-Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-2ffdbc0c103so34420251fa.3
-        for <selinux@vger.kernel.org>; Sun, 15 Dec 2024 22:50:58 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IAEkYxgA"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-2ee76929a98so3002351a91.1;
+        Mon, 16 Dec 2024 06:06:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1734331857; x=1734936657; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=+tWYOCcWRN9FNJCqpuoIaOvic0DEQYdB1bbsNMBvAYo=;
-        b=U2G5wraYUd5lC9AQ38ehrbw/EKF8rNIoworf3gsnkX8C8hqlWq9P/EJupsyzMdw8ZK
-         5RaYl3/ZJ8miWIi5aAONSfqZ/6hAOUjQ4sEG+b/ZhInVSXM6ybFjq3u4TQZRHu2MEsfi
-         i3vKAlngcXH19W95m1ECzcOat+8YVSS+6+law=
+        d=gmail.com; s=20230601; t=1734358009; x=1734962809; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DR+GKpOhUkgjRJRCGj+6G2Ttdso5dJH3Im5WlzUjyiQ=;
+        b=IAEkYxgAKJkyenuJrwWqbNWTDtW5xYJxIC6tG40Y1bNkhcigO9RDjGgbEw8brXKxcq
+         4A7MW+s0Muc7lqo2oaC6/yjykR/iOkUcnEtRDDEZaKdOaOT0ST+0Y7dRqVsk3d/zhHoS
+         ZAh2MopxZ/rt0BGEyaOK0PpJ81nr1KGKN6ZL4tYTO+triLleUKY7lfgej4GA3QzvDgjK
+         VA5+lPcavdQQ+ACGoUgPC3Yoqvs9tdD64cO4jFeavSJY7fkxe6mUqGh6WHKUP38IJPbD
+         pc0odcRddeHj2s7HR8DLyz6GRfuxSaxjmvteSnHo9vZUm3quHuRIsPvLRAPWmJPTlsfK
+         578Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734331857; x=1734936657;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=+tWYOCcWRN9FNJCqpuoIaOvic0DEQYdB1bbsNMBvAYo=;
-        b=NYiVk2ZdvhcZKvzAA13vMF6KOiS1jCstW5ViCYQpEnU5DK2m5Us2tvK0oFxMA3rwEw
-         ziFP+In8emz64/K5kSEP7TRpPdKf8JHGnJk2Nwd4gkNgBRvGLGR0Kws4xObb5ctMT/3U
-         slZ5TieDJOz18zScXPtNCg1uv/Pa5GirBLsxSo+YMcZLoPD+i1vVdsM4qk37+wAKaFCl
-         dzCAX63E0sqz7ZgsWf2E1tdUx3quPBZnuCGGHdgQ/h4AjtE+IyAhTqiK1ctN9EzUk2JS
-         8vwTqqtMTAEBFBaJtYeK8v+HL8UxdUiBnD/iqbmSxMxvavKZPJRYmuOyAjPoHMBM2J/8
-         JFXA==
-X-Forwarded-Encrypted: i=1; AJvYcCX8MqaR+N2ZhOWOP+JSb+u4el4cBtb6zCOvEbQhy9rUuEoHu1ePNXUU65T3mt7YATc/9LZ/UxQV@vger.kernel.org
-X-Gm-Message-State: AOJu0YwBMxjBcgrf9lexZMaFDjXA0w/vP+9gKACPuguxE4p5/uoEUqNY
-	EHQXdgY6zUh7y3+l0/mJUuAenB0RZFpV1Gi99cbc13ZYcR9J+j/C0Dr687H9Y0yPgfvIOsNMjI+
-	5GfW5qpzAeaMXPAftOCcvav7LNLdQzaph3N8=
-X-Gm-Gg: ASbGncvffh8tCMPitrdK5Yru7C7SucaVXrESbUSxkn5FhB8f5Yiotbu9mg2lJW85jHZ
-	p29TdWkkEpLNdi9nruTzggy5pZqnfFA5nauziuRBJX80VxxtcmpXqNEUZG5ZL1I6cC1/q
-X-Google-Smtp-Source: AGHT+IE8XrxVrlUaL9o2H6Ld31pJFPbsfDE9KdeY2aF/kFPlO3XPdw9KcjmY0Ec1G2qV9zM0Az6OQxTAEmhmsboiq0E=
-X-Received: by 2002:a05:651c:1544:b0:300:1e0e:48db with SMTP id
- 38308e7fff4ca-3025448cbd0mr36196771fa.24.1734331856714; Sun, 15 Dec 2024
- 22:50:56 -0800 (PST)
+        d=1e100.net; s=20230601; t=1734358009; x=1734962809;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=DR+GKpOhUkgjRJRCGj+6G2Ttdso5dJH3Im5WlzUjyiQ=;
+        b=T1AZ8fZdQwAeBTgWYasUloGcUfLbaV1OOZ0S2bxzRscIPHC6G8wgDUxMhnZD2DsUpo
+         +qV7HAR10h+vNxRFnn/LYUL/085ofUCCzihPp7vMg4+9IXBWuGAersboFlqTa/wScIpY
+         jf5h+QERudtTKudecXHZYSFKlFx/RIEZv2nL07j5C5cd9QaQFmVt7fxJdxmhPeTVJmgf
+         3bQsPVEgfzwCEYS9HPQZgnAJIGBAng65xiVefHrMrTBEZzyFOZZMBTfoh30jNufBSO61
+         yxvIwHgRdl+vhbGf0mrVThGpBJNZS5tjijneaVDOe+Oxu18ffFIDDh+JrM9y7IUy2Q0c
+         7RFA==
+X-Forwarded-Encrypted: i=1; AJvYcCWMCieqzrZe0RTHiko3W5cBUgaAIdqqBofU5InfaiBCYK1HEuXs45ZfEJLKpFmvWfiHv05n13Outw==@vger.kernel.org, AJvYcCWRdyvi7WBnmXvlcJN4RdpprrF2LLSFgKiBIP9KV5ubYDuwo5dL227zHDBwCY+3Q6HFO5KEkRo8kAyEvFZTmkGQ+g==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxd3qUBwWkT24eTUXZrfAz046wVwmDaJYFQ1JJ1GlpY4pSm31LH
+	eIPwscGWeHGgGy81zjU8G0ieTGaIFw392fh7pm9iwLUUP2EdBD7Fcer/d+yjWGLgsKClzLcrn32
+	XTqwaeG1/hNLwYXafuWdPPSVcPGZabg==
+X-Gm-Gg: ASbGncvO5qhQdViAyUeT0l82oH7RMlg6hAyINgZeEC6k9V3aLGFmaiC8wZpF2OQGgMH
+	AWzMP5hkfHdZDPX+GR8zSFV1cRhvryl+kEzAkXg==
+X-Google-Smtp-Source: AGHT+IFdbcHbVPkdPYImeVz016De8H0T3X4g5Lg85rV3R69MOf4zweRovpoGCgGAXBBhW8mAqHUPQQRcUWmQEq5gRBM=
+X-Received: by 2002:a17:90b:54cf:b0:2ee:8cbb:de28 with SMTP id
+ 98e67ed59e1d1-2f29164efbbmr17690706a91.8.1734358009189; Mon, 16 Dec 2024
+ 06:06:49 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -58,21 +62,83 @@ References: <20241210115551.1225204-1-takayas@chromium.org>
  <8d8da243506dd9291fa5f02adc7f6142@paul-moore.com> <CAH9xa6ccd51V9fswkRX+xGfXHQog-wJQzB1LvK0pLT3CLYkfsw@mail.gmail.com>
  <CAHC9VhQrSGitY_TUAHbds-A8uQmn2TveTUrK-Jcd6quuMPHh1g@mail.gmail.com>
 In-Reply-To: <CAHC9VhQrSGitY_TUAHbds-A8uQmn2TveTUrK-Jcd6quuMPHh1g@mail.gmail.com>
-From: Takaya Saeki <takayas@chromium.org>
-Date: Mon, 16 Dec 2024 15:50:44 +0900
-Message-ID: <CAH9xa6ecz_P+GwLQ_73_M==WF8cZt3bzD9NJz84U9B4mRdTOrA@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 16 Dec 2024 09:06:38 -0500
+Message-ID: <CAEjxPJ44mJ0sUSSp9h0Q+H_=AVRBa7i_P5g0kMjB6VS1AtZ=Jg@mail.gmail.com>
 Subject: Re: [PATCH] selinux: support wildcard match in genfscon
 To: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+Cc: Takaya Saeki <takayas@chromium.org>, Ondrej Mosnacek <omosnace@redhat.com>, 
 	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
 	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
 	Nick Kralevich <nnk@google.com>, Jeffrey Vander Stoep <jeffv@google.com>, Junichi <uekawa@chromium.org>, 
 	selinux@vger.kernel.org, selinux-refpolicy@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> > Currently, genfscon rules perform prefix matching (e.g., `/sys/dev` matches
-> > `/sys/devices`). Directly using `match_wildcard()` would not preserve this
-> > behavior, as it does full match. To maintain compatibility with this existing
+On Fri, Dec 13, 2024 at 5:18=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+>
+> On Thu, Dec 12, 2024 at 12:26=E2=80=AFAM Takaya Saeki <takayas@chromium.o=
+rg> wrote:
+> >
+> > > I would like to hear from the policy and toolchain folks on this idea=
+ before
+> > > we go too much further with this, but I did take a quick look at the =
+patch
+> > > and left my comments below.
+> >
+> > Thank you for reviewing this patch. Could you let me know the relevant =
+folks
+> > who could provide feedback from the policy and toolchain perspective?
+>
+> The toolchain people are already on this email as they belong to the
+> normal selinux@vger mailing list.  From a practical perspective I
+> believe the policy people are on this mailing list as well, but I just
+> CC'd the Reference Policy mailing too just in case.
+>
+> > > > @@ -2193,7 +2223,17 @@ static int genfs_read(struct policydb *p, vo=
+id *fp)
+> > > >                       if (!newc)
+> > > >                               goto out;
+> > > >
+> > > > -                     rc =3D str_read(&newc->u.name, GFP_KERNEL, fp=
+, len);
+> > > > +                     if (ebitmap_get_bit(
+> > > > +                                 &p->policycaps,
+> > > > +                                 POLICYDB_CAP_GENFS_SECLABEL_WILDC=
+ARD))
+> > > > +                             /* Append a wildcard '*' to make it a=
+ wildcard pattern */
+> > > > +                             rc =3D str_read_with_padding(&newc->u=
+.name,
+> > > > +                                                        GFP_KERNEL=
+, fp, len,
+> > > > +                                                        '*');
+> > > > +                     else
+> > > > +                             /* Prefix pattern */
+> > > > +                             rc =3D str_read(&newc->u.name, GFP_KE=
+RNEL, fp,
+> > > > +                                           len);
+> > >
+> > > More on this below, but it isn't immediately clear to me why we need =
+to
+> > > have the special handling above, can you help me understand why these
+> > > changes are necessary?
+> >
+> > Sure. Thank you very much for the comments.
+> >
+> > > I understand you are "marking" the wildcard entries with a trailing '=
+*', but
+> > > since we are calling match_wildcard() in __security_genfs_sid(), why =
+not
+> > > fully embrace the match_wildcard() capabilities...
+> >
+> > Currently, genfscon rules perform prefix matching (e.g., `/sys/dev` mat=
+ches
+> > `/sys/devices`). Directly using `match_wildcard()` would not preserve t=
+his
+> > behavior, as it does full match. To maintain compatibility with this ex=
+isting
 > > prefix-matching behavior, the trailing '*' is added.
 >
 > Yes, the existing genfscon handling does prefix matching, likely as an
@@ -84,20 +150,13 @@ Content-Type: text/plain; charset="UTF-8"
 > than silently adding a '*' wildcard at the end of every path when the
 > path matching supports explicit wildcards anywhere in the path.
 
-Thanks for clarification. Backward incompatibility will make it challenging to
-enable the new wildcard feature for Android or any systems that allow users to
-define genfscon rules in addition to the system policy, since enabling it
-breaks existing user-defined policies. It would be nice we can keep the
-existing rules working.
-
-On second thought, we might need the POLICYDB_CAP_GENFS_SECLABEL_WILDCARD in
-the first place. Instead, we could make genfscon just support wildcard, since
-this does not make breaking changes actually. Genfscon will be applied to
-either pseudo filesystems, or old filesystems such as DOS and ISO9660. Pseudo
-filesystems will not contain '*' or '?' in the file names, and old filesystems
-do not allow these characters in file names either. Thus, there should be no
-"*" or "?" in genfscon policies in practice. I'd appreciate your opinion.
-
-Or alternatively, we can add POLICYDB_CAP_GENFS_SECLABEL_FULL_MATCH capability
-for users to choose the full match behavior. Adding a statement like
-`genfscon_wildcard` that does full match would be another idea as well.
+I think the problem with that approach is that it assumes that the
+entire policy can be updated at one time.
+If as is the case in Fedora you have independent policy modules
+shipped in individual packages, or as in the case of Android you have
+multiple distinct policy module providers (platform vs vendor vs odm
+vs product ... - seemingly they add another new one every release or
+so), if/when the base policy enables the new policy capability, there
+may still be policy modules present using the old genfscon rules.
+And since the kernel has no concept of policy modules, enabling the
+capability is necessarily global in its effect.
