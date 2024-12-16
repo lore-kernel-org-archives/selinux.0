@@ -1,35 +1,35 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 712D1193430;
-	Mon, 16 Dec 2024 16:41:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 924331FF7D4;
+	Mon, 16 Dec 2024 16:41:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734367295; cv=none; b=MoRNEb2Hb5QaPslbmZMtOWE4Sk7JqhUah//VZaiM2V4+1nyrVgV4dUjODFkvMD0cZTiQbnzOVb/6/iEDK/Vz7fT/4pAnXg1GDr18tMdFnIDMitaMf9ZxICi4XJ1w1KhsrZj/nTb8zfND5fS6DbuOd68jDCsFlfhy0PMpF02+Z1w=
+	t=1734367295; cv=none; b=VKm/HguONv6hDqHF6rhFB12AYuE0ArSG7vFNiQfzSBpnP46YAuZpMM9F8vZ3WMwypi3xeJz0tCK4m6rdXJPdN1SpbWfqVqLHcEclbUU4xZ47Nbd9qU8poaJyv865vcAOJmweh+9ZNFPqAIQ9RmhDz6tnUU5IhBJWlKOfx4Rqusg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1734367295; c=relaxed/simple;
-	bh=LzsFpOls8oXtgcc/LvXjxf3PJjqQkyOjKQSP/0EcyIY=;
+	bh=uAapJO9f5WIp0vG8iHGKY9a5LPw8uhA4byTpuXc1vok=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KiRxIz+W7OQqD7cd+6DMJRHeduVCmEyKgKSysREEYgcncfLb87WXpmsr4OmVsJ//E1F8107DLhuR1Z4I9Jrj09sl2G69fPWhFt7CJ/PNqUD1FYcwiaeXCbONaMMCmhyY/Oe5mn7ka2jDhu1XmKmLiQhx3lzx7a6ET8ro2LYJy4E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=GmBH3LoD; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=uczna+dDZsOZY9ni7YXptkoviYSOF5qBbI6NgS32bh92XOXm7wHu5SnWZCOb3jVYcdEVmUsXF7nYKHcQbsietSOA0HkCSiSPnP9pr840V6EZN5C0eY55Jtea8w1pHGjEgQQHEBHkVAPvjXUmwcfFHlwdExLvGvqrWEjoXx7y/EM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=GhgjcsM1; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="GmBH3LoD"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="GhgjcsM1"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1734367285;
+	s=2023072701; t=1734367290;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=4k4ZF75QAu6g5n+iQVxb/sSwhil14zmDfkFwEEcBxjs=;
-	b=GmBH3LoDTtK/VWa31laPQErpC4e8J3goHHaekNxnEThLfGyr9amANp6lmEbZmY59wuqG+w
-	JbAiSrBwpvZ6hgBSU30OKYLV7PsHAl5RcHlnqBQQj6Sb3SG0t0fZldqjaRVccqe2vZcM97
-	JPhBzLS8yv6qsrCQamP6MMgkuad3EXHKIcL7bBSPm8zmBQMzsgQxOXMagFbO9oPYcsVvr9
-	zhKYdTPnqexlglq+AAc2GgMOi8LZnpVXy2Uf2eA5Qzdb88MXhzCs/x0fPbzwtWMXV+FSDV
-	ZkIwtZb01mmPQaaOlk/mF3jovAiy50TDo5Fb0cVALOluizO2Ad0jt5VOHO/Unw==
+	bh=zWx/z0/7bycu6qAOJH4he8ulyETYX9kiEzi2aLNPf+0=;
+	b=GhgjcsM1Aza9bMf/z5P8NDuNta+/E9uY2T39ni5dCktO0xlPQpulRO/esFl+GdWx1szp3t
+	Z/1C7LCjNp8UHQubH/cQUu8e4maFM1Cja60N+SF6OFOxfwsk6Hv/g5LXK3f2UjtFbFjyNY
+	WCiwZ2+PAmJOXFDuS/22Lo9WDoqUnKd/CydP/jX716dj2gLUiV9S4NpmFx1vo1mG1yxlOx
+	dCeeqvhd3GIpnW2qjko9UQX8vDAm+zEJ1omN41Ew7rXZMZC09sQ02ZG5UxdnyhpdHRzd8Z
+	xw6Nygx04rPkfrLF6UmNKEHiht7XjT1/Tdupn+I5Siz3tMCuojVf8mqofv9LvQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
 	Paul Moore <paul@paul-moore.com>,
@@ -44,9 +44,9 @@ Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
 	Masahiro Yamada <masahiroy@kernel.org>,
 	linux-kernel@vger.kernel.org,
 	llvm@lists.linux.dev
-Subject: [RFC PATCH v2 02/22] selinux: avoid using types indicating user space interaction
-Date: Mon, 16 Dec 2024 17:40:00 +0100
-Message-ID: <20241216164055.96267-2-cgoettsche@seltendoof.de>
+Subject: [RFC PATCH v2 05/22] selinux: avoid nontransitive comparison
+Date: Mon, 16 Dec 2024 17:40:03 +0100
+Message-ID: <20241216164055.96267-5-cgoettsche@seltendoof.de>
 In-Reply-To: <20241216164055.96267-1-cgoettsche@seltendoof.de>
 References: <20241216164055.96267-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -61,43 +61,81 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Integer types starting with a double underscore, like __u32, are
-intended for usage of variables interacting with user-space.
-
-Just use the plain variant.
+Avoid using nontransitive comparison to prevent unexpected sorting
+results due to (well-defined) overflows.
+See https://www.qualys.com/2024/01/30/qsort.txt for a related issue in
+glibc's qsort(3).
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/hooks.c       | 2 +-
- security/selinux/ss/policydb.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ security/selinux/ss/policydb.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 617f54abb640..7b2e2c60f0f4 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3135,7 +3135,7 @@ static int selinux_inode_setattr(struct mnt_idmap *idmap, struct dentry *dentry,
- 	const struct cred *cred = current_cred();
- 	struct inode *inode = d_backing_inode(dentry);
- 	unsigned int ia_valid = iattr->ia_valid;
--	__u32 av = FILE__WRITE;
-+	u32 av = FILE__WRITE;
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 3ba5506a3fff..eb944582d7a6 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -37,6 +37,8 @@
+ #include "mls.h"
+ #include "services.h"
  
- 	/* ATTR_FORCE is just used for ATTR_KILL_S[UG]ID. */
- 	if (ia_valid & ATTR_FORCE) {
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 4bba386264a3..5c11069121d3 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -144,7 +144,7 @@ struct range_trans {
++#define spaceship_cmp(a, b) (((a) > (b)) - ((a) < (b)))
++
+ #ifdef CONFIG_SECURITY_SELINUX_DEBUG
+ /* clang-format off */
+ static const char *const symtab_name[SYM_NUM] = {
+@@ -426,11 +428,11 @@ static int filenametr_cmp(const void *k1, const void *k2)
+ 	const struct filename_trans_key *ft2 = k2;
+ 	int v;
  
- /* Boolean data type */
- struct cond_bool_datum {
--	__u32 value; /* internal type value */
-+	u32 value; /* internal type value */
- 	int state;
- };
+-	v = ft1->ttype - ft2->ttype;
++	v = spaceship_cmp(ft1->ttype, ft2->ttype);
+ 	if (v)
+ 		return v;
  
+-	v = ft1->tclass - ft2->tclass;
++	v = spaceship_cmp(ft1->tclass, ft2->tclass);
+ 	if (v)
+ 		return v;
+ 
+@@ -461,15 +463,15 @@ static int rangetr_cmp(const void *k1, const void *k2)
+ 	const struct range_trans *key1 = k1, *key2 = k2;
+ 	int v;
+ 
+-	v = key1->source_type - key2->source_type;
++	v = spaceship_cmp(key1->source_type, key2->source_type);
+ 	if (v)
+ 		return v;
+ 
+-	v = key1->target_type - key2->target_type;
++	v = spaceship_cmp(key1->target_type, key2->target_type);
+ 	if (v)
+ 		return v;
+ 
+-	v = key1->target_class - key2->target_class;
++	v = spaceship_cmp(key1->target_class, key2->target_class);
+ 
+ 	return v;
+ }
+@@ -498,15 +500,15 @@ static int role_trans_cmp(const void *k1, const void *k2)
+ 	const struct role_trans_key *key1 = k1, *key2 = k2;
+ 	int v;
+ 
+-	v = key1->role - key2->role;
++	v = spaceship_cmp(key1->role, key2->role);
+ 	if (v)
+ 		return v;
+ 
+-	v = key1->type - key2->type;
++	v = spaceship_cmp(key1->type, key2->type);
+ 	if (v)
+ 		return v;
+ 
+-	return key1->tclass - key2->tclass;
++	return spaceship_cmp(key1->tclass, key2->tclass);
+ }
+ 
+ static const struct hashtab_key_params roletr_key_params = {
 -- 
 2.45.2
 
