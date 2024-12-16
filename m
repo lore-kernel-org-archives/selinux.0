@@ -1,115 +1,103 @@
-Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E94F52063D2;
-	Mon, 16 Dec 2024 14:18:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.177
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id BA4D0204585;
+	Mon, 16 Dec 2024 14:28:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734358729; cv=none; b=paWyWYblKZuKIDorOFVUNeX9SPPZ8U/CF3YT6bgWQtKZ9aQsl1nVVSAeQTvqaiVv9l025mUsHbDR4S4Q3NAQn/4V1etESIBbyMuJo89A8B+UX7LAOmq+xS0cWnfYsYlRmmUK+0AE3dl0xdxlgRU5n9idGmRLuU/dZzNBf4CE9oM=
+	t=1734359296; cv=none; b=O+np9sXrwPGaObBlR6Zof3E8buIzSuZWrzAgc8EzjHddr/za1pDGvbaZka76uboY1Yq7qTuRiXfpX3yl3lBdJo72XVSTeKrls0X/+POfp01ZRK7r9msC9+nh/cod5TAZh3CNSbCGPckwHYiLlDZDv9nlNfIjE3SBbdezXo6seVE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734358729; c=relaxed/simple;
-	bh=PxrPr/Krj1U8XTgIJLipME3FysDYl/LFJ6QaZJvD214=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oCpP4Qfkxs6VkR22oVFWYHSBqX2iTFo3lQ4h0Kv65f1IwvdmuhM1PkUFvCwd0JSE57HnlnqaoMET0KCc0iLxNJ1Pce5+3K57DoSPT/T5XnOQjRfd1MtpJwDWdwBVvFpKi3+BOJBEtvzOAjdfGbhbFJTS3yTQGG2ZjWisRWVEcec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=EKTQ5+0I; arc=none smtp.client-ip=209.85.128.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	s=arc-20240116; t=1734359296; c=relaxed/simple;
+	bh=MElMlEENTYJQv3QEDrPQ4mKy0lTJukyrhv1g80PSamw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=dqXwSzLGNEFtEJ11AkcMZnLnQmiOtT55HssdpUXK/Wl3042Ci0swPfny8kYlto0BUS+roFbqdzSqphXkjhhJFnzgWWDMGaQysAx7mU0KC0FudlT8yZwfAN9QLhs8PoQNG7qQEWMdyj61xF0TiIgVjR89b5p4zMgZY0GBf6frCRY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=NGXpTPYb; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="EKTQ5+0I"
-Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-6eff5ad69a1so33083627b3.3;
-        Mon, 16 Dec 2024 06:18:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1734358727; x=1734963527; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6B6xbMJ3heJG4U9cdD+cnJPtEtdixFqaU+BhqzcXQco=;
-        b=EKTQ5+0IHRyccaa3l9ba2bzBEjTNcqIEokVaId4oJcDFiGjMoWlymDkKDmWINXR9mC
-         MjU57+22USB2aag3efBA8ty7Tl20cZ7uKSmJbcJh7cZLHgNo5x9RpFRTbXgmloA0If66
-         ARifvEFhMn5c2EPNJ8vgVaeGVXHIEJOC34rmiBN7S0+vOzptGVfmo3CzBXcIMSihjoe0
-         9croGRceC6xYEan7FoWMXamHW1JYfQFio4JQdRvoUrURI2jCSHYwvx5NWHkf+Su4hDSw
-         nGfOVWIDowMgu1g44wkL0E7rA+qQWoZJER4mt7ylKeIABf3jiHOv1nI3DiHpPDyotzzJ
-         Akww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1734358727; x=1734963527;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6B6xbMJ3heJG4U9cdD+cnJPtEtdixFqaU+BhqzcXQco=;
-        b=Z8jA8vMrdhnjlIqzSNyW0DhsCAIeKlTMeGCnAnV+M8fgX5hWGrCSlax4cs/dg1IxEO
-         pRq/4EZ4O1nb/nAxHj4OB1HmjHly8dnffVrHd4FeZeb1wa0ShtwIKuruoT8dC7EQQOlI
-         HkfB/lJ91x+5pIyEQMvrNgqxRkhenRMJS3z6gNGNiy/dw1gb21CaIMe0xHaDqpP8kgoN
-         YuiuRig4GS9l2tyAEU+M+npY2TR4D7QPWlXhgqaar5T0L/e77Wg/6fg5WrcITeU8iu7b
-         0e2LKAkD/B8Or2EbGBJ+vOS4qza377dsplkp2DNqcckdicAnky0Osx6d9lXu+o45gMkw
-         mF9Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWFZhIInmm5Jh0jhOCSNQ7ty4QP2GoZElRJyDJ5LXOvaHNp/L8l0+P7Z6aCepdfxheJWXpOb/XQFg==@vger.kernel.org, AJvYcCXKxhAMqoPOxRk+iBhBlK7WBKpSPGTLdQjZo0bfeNLCYm5T83P0R4TbLaMVJL7+EMo/xk3hqLhxptx26+o=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzdSg1o7i8ZX2v8j6ZvGlgjOMXnbiDqQYpKw4jUb0OxJgFhZAO8
-	JC37Y6hvBTDeC8+g9w8TX1J9DTlbu5wQaQWtbzsFMRS3515dSj9ZhSdFJR2ucE9uZmfowk1ZOYx
-	wmhy9HbmhlMYj7XjmggNzqJfPsnI=
-X-Gm-Gg: ASbGnctR/mE7OyJhx6ryUiuJlaDdL5rYSfIozz6gACjZ0ukSFiUE/iIvZLZIGUiYwy7
-	RvLMP9N5L8k12L3PMFlPcvg0bZJlcbm6eyMfA
-X-Google-Smtp-Source: AGHT+IE7O106teXGJgMuGx92iD9nbQNfIz/hXI//hj3qWeavajLtySdJCUp1biONYIUYbr8j2P9w55vT0Z/+jp/sZZo=
-X-Received: by 2002:a05:690c:6113:b0:6ef:a5bf:510b with SMTP id
- 00721157ae682-6f279ad838bmr109461637b3.1.1734358726938; Mon, 16 Dec 2024
- 06:18:46 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="NGXpTPYb"
+Received: from [192.168.1.13] (pool-96-241-22-207.washdc.fios.verizon.net [96.241.22.207])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 2E5E12042FD2;
+	Mon, 16 Dec 2024 06:28:13 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 2E5E12042FD2
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1734359294;
+	bh=mxutLUmRXxC9hOlpMbuLFXyKhhFJ+piQ1nIkRvimiUM=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=NGXpTPYbKBCdHz32jl9yMUfrprMYPH7JSSl+0PdnSf5tF2FX2TPZoNmbJ9PIJw/lc
+	 jHl7um3476q1QA8D6AYQNCwfPhapI4ThMYh0q8bm3L5lzvz1d5VtrGbAW4sqVG78jQ
+	 xLvanf70lOsFbCOUqTf8d46X3p1Waj9V5J7ETYO0=
+Message-ID: <f00152c1-6eb9-487d-af69-42573b5f79bc@linux.microsoft.com>
+Date: Mon, 16 Dec 2024 09:28:10 -0500
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241125110646.50799-1-cgoettsche@seltendoof.de>
- <e43da8418fc54a5eba7cdbb594b24bb9@paul-moore.com> <f7bfbf89d2ac4b929637bbb25f749c96@AcuMS.aculab.com>
- <CAHk-=wgraNfcOCZ4n_C+ircQkD_AhsPM-=z7snt+eLgE-6otkg@mail.gmail.com> <CAHC9VhSDfn5QgQsF9qq6-k67bQB_M6UZoLODDYs4qkwHcr4-gw@mail.gmail.com>
-In-Reply-To: <CAHC9VhSDfn5QgQsF9qq6-k67bQB_M6UZoLODDYs4qkwHcr4-gw@mail.gmail.com>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Mon, 16 Dec 2024 15:18:36 +0100
-Message-ID: <CAJ2a_DdBTwiu5cXzL+eojJzjTCT6CWSKASXiUYRXZSDKqztyXA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: use native iterator types
-To: Paul Moore <paul@paul-moore.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, David Laight <David.Laight@aculab.com>, 
-	=?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, 
-	Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, 
-	"selinux@vger.kernel.org" <selinux@vger.kernel.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"llvm@lists.linux.dev" <llvm@lists.linux.dev>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 06/22] selinux: rename comparison functions for
+ clarity
+To: cgzones@googlemail.com, selinux@vger.kernel.org
+Cc: Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>,
+ John Johansen <john.johansen@canonical.com>,
+ Casey Schaufler <casey@schaufler-ca.com>,
+ =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>,
+ Canfeng Guo <guocanfeng@uniontech.com>, GUO Zihua <guozihua@huawei.com>,
+ linux-kernel@vger.kernel.org
+References: <20241115133619.114393-1-cgoettsche@seltendoof.de>
+ <20241115133619.114393-6-cgoettsche@seltendoof.de>
+Content-Language: en-US
+From: Daniel Burgener <dburgener@linux.microsoft.com>
+In-Reply-To: <20241115133619.114393-6-cgoettsche@seltendoof.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Sat, 14 Dec 2024 at 23:48, Paul Moore <paul@paul-moore.com> wrote:
->
-> On Sat, Dec 14, 2024 at 4:10=E2=80=AFPM Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> > On Sat, 14 Dec 2024 at 13:08, David Laight <David.Laight@aculab.com> wr=
-ote:
-> > >
-> > > Isn't this an example of why -Wsign-compare is entirely stupid and is=
-n't enabled
-> > > in the normal kernel build?
-> >
-> > Yes. Please don't try to "fix" the warnings pointed out by that
-> > completely broken warning.
-> >
-> > I don't understand why some people seem to think "more warnings good".
-> >
-> > -Wsign-compare is actively detrimental, and causes people to write
-> > worse code (and often causes mindless type conversions that then
-> > result in actual real bugs).
+On 11/15/2024 8:35 AM, Christian Göttsche wrote:
+> From: Christian Göttsche <cgzones@googlemail.com>
+> 
+> The functions context_cmp() and mls_context_cmp() are not traditional
+> C style compare functions returning -1, 0, and 1 for less than, equal,
+> and greater than; they only return whether their arguments are equal.
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> ---
+>   security/selinux/ss/context.c  |  2 +-
+>   security/selinux/ss/context.h  | 10 +++++-----
+>   security/selinux/ss/services.c |  2 +-
+>   security/selinux/ss/sidtab.c   |  2 +-
+>   4 files changed, 8 insertions(+), 8 deletions(-)
+> 
+> diff --git a/security/selinux/ss/context.c b/security/selinux/ss/context.c
+> index e39990f494dd..a528b7f76280 100644
+> --- a/security/selinux/ss/context.c
+> +++ b/security/selinux/ss/context.c
+> @@ -20,7 +20,7 @@ u32 context_compute_hash(const struct context *c)
+>   	 * context struct with only the len & str set (and vice versa)
+>   	 * under a given policy. Since context structs from different
+>   	 * policies should never meet, it is safe to hash valid and
+> -	 * invalid contexts differently. The context_cmp() function
+> +	 * invalid contexts differently. The context_equal() function
+>   	 * already operates under the same assumption.
+>   	 */
+>   	if (c->len)
+> diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+> index 7ccab2e6965f..e1307f6f7f50 100644
+> --- a/security/selinux/ss/context.h
+> +++ b/security/selinux/ss/context.h
+> @@ -132,8 +132,8 @@ static inline int mls_context_glblub(struct context *dst,
+>   	return rc;
+>   }
+>   
+> -static inline int mls_context_cmp(const struct context *c1,
+> -				  const struct context *c2)
+> +static inline bool mls_context_equal(const struct context *c1,
+> +				     const struct context *c2)
+>   {
+>   	return ((c1->range.level[0].sens == c2->range.level[0].sens) &&
+>   		ebitmap_cmp(&c1->range.level[0].cat, &c2->range.level[0].cat) &&
 
-I somehow like compiler warnings since for me they offload some trains
-of thought and let me concentrate more an the overall code structure.
-Also while not building the kernel with this warning, I like to enable
-it in the language server in my editor.
-And sometimes a warning can point at a real issue, see a65d9d1d893b
-("ima: uncover hidden variable in ima_match_rules()").
+Should the same logic in this patch be applied to ebitmap_cmp as well?
 
-> I'm not going to argue the usefulness of '-Wsign-compare' in a general
-> sense, but I will say that in my opinion the changes proposed by
-> Christian in this patch are correct and an improvement which is why I
-> merged the code.  If anyone has an objection to this particular path,
-> especially if you believe this introduces a bug, please let us know.
->
-> --
-> paul-moore.com
+-Daniel
+
