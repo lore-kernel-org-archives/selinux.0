@@ -1,35 +1,35 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B6DD20A5EB;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD3AB20ADC4;
 	Mon, 16 Dec 2024 16:41:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734367315; cv=none; b=kHLN+UBjRDT1jY5D+f6Xr6u+2xWn1DkfTrQTzjpHFzrGQxx9tjXolPUT6k1QUDItXjU5vEq3hrCNJ6b/gzRkLnhZ00hH25k8fbBkdMqx/9uRtLZjNiOptJf+8AnZECkSYA9JUbv8+031k9rW/TkoU9a/aw6qyUIbgP+nV2VOqAc=
+	t=1734367316; cv=none; b=Imhoa/e2oN28z1ifaT1NlVrh+T0E62kFdXsII0+hUg7OvqdTGtnMGSn5zw/7bbWBwAIG9Lak0Gwo3vCZb2XD16T/8Nu503YZhyBhysa32DnIXcdTdrycRXxzpLyZluZxLGZdd40/S+nM+zFajR8of1cJaGCaKmqdsikaywHYmZs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734367315; c=relaxed/simple;
-	bh=Aoo2TUyVMCRqWGQNdXqp4UdITl9PGjDQT6gFlTVAUiU=;
+	s=arc-20240116; t=1734367316; c=relaxed/simple;
+	bh=hwcN29obroXhrm5aJt/8aR4DfYxwb15fzF13yoPBSHQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qjakq8LjvKqZU6VINuCB0gUFlxhk1g9LrRFIMxJUl+tWwzueKJWB3nKfnYfHGpV7NqNnQHJwGTXVa+ZQNjWkkPWh3pfkKcYkLpq22HlzbjqNoGr1LdL1/hHo19u5u6tBIBwKri2QqnaRLmxnJ9+t+u55WgMne338otR6Jf1cCfE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=CjKA0z2n; arc=none smtp.client-ip=168.119.48.163
+	 MIME-Version:Content-Type; b=jcgy0W3ckleZneRjLfKX5SvTzQ9alOj84BuJCynvRqV0CovxmynGpEKNARygyOj7lKdvZHkHQtAQ5Owx29wAUd7Z/lNcXDoYWijJObcr4Gqn6RgDcINkilG8U7m19Jumeq7c1I5MH+epGSrLXq8Tu+hOgQMJumS+1gaghETG1BI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=BAwBzQjB; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="CjKA0z2n"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="BAwBzQjB"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1734367312;
+	s=2023072701; t=1734367313;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=vON9japLNEO+Zm4m72u5Sr35uELFkN8ik8KW4BXu24Y=;
-	b=CjKA0z2n4jyVC22oLsLzPln5TuKSBOOjlM/s4aQQ1nD3wWtiY3iUkZa5c5z/oE5y1vDzdn
-	1hweFEBDRnNzKQfu1DTNDVDC6cCGowXGprKVGL+N7adDbgz7Sqnb5y4oG9TbAdvgaIuxFX
-	fMWBtYS3Yl5VxdZdDS8N2GzuzdEe61zO1MXQy7zP+2uby0UqcjN4Uqeb/25uxrkFUMtscR
-	xvLWqFpMpo8dTSBXTVewt0tTo3a9w+a151Iu9optYqglsJm1cSNazb+rErnxiWW0YC9B32
-	9l121xYVyWQSa2S4Id8rcsVIjaIH3RTE54QG54iNQAQfZCrAy09ncB7S2iz/EA==
+	bh=v0TYDu/9cDjTVlwHEhIn455hbVIKkcj246nhArRZl4U=;
+	b=BAwBzQjBAhUBwMwBSHmIR9zQZr8nNxf5aCgwg2SWRPW5eLu0bnKmT+2aR8QnpW/R/1DJ4c
+	wYyM5yHiYTVHEOoLCi8WxwXYDUPfkDjHhHxw4QDCtPF/sC74DV+lMyZ5LF4pJm2TkgYnnb
+	iOyJDJr9as9L9lX3Niu46pqS0Xqa7J8OwfReG8meGXlO9HO6c0wy6kdhy26z1mWC4FnXjA
+	++Qrchu9J+zOP72ZefByrnOovt/pfAYtCrA9v2tEq6qTBN0X8WcFe593ZaiDb4MN74aDil
+	Z0d6IuKMGvk/Ote0ZdXdp5+4+/20JslSMzwvjhXgrLmCVVjsS9fGyXOSRQWkvg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
 	Paul Moore <paul@paul-moore.com>,
@@ -43,12 +43,10 @@ Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
 	=?UTF-8?q?Bram=20Bonn=C3=A9?= <brambonne@google.com>,
 	Masahiro Yamada <masahiroy@kernel.org>,
 	linux-kernel@vger.kernel.org,
-	llvm@lists.linux.dev,
-	Eric Suen <ericsu@linux.microsoft.com>,
-	Canfeng Guo <guocanfeng@uniontech.com>
-Subject: [RFC PATCH v2 15/22] selinux: introduce ebitmap_highest_set_bit()
-Date: Mon, 16 Dec 2024 17:40:13 +0100
-Message-ID: <20241216164055.96267-15-cgoettsche@seltendoof.de>
+	llvm@lists.linux.dev
+Subject: [RFC PATCH v2 16/22] selinux: check type attr map overflows
+Date: Mon, 16 Dec 2024 17:40:14 +0100
+Message-ID: <20241216164055.96267-16-cgoettsche@seltendoof.de>
 In-Reply-To: <20241216164055.96267-1-cgoettsche@seltendoof.de>
 References: <20241216164055.96267-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
@@ -63,64 +61,30 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Introduce an ebitmap function to calculate the highest set bit.
+Validate that no types with an invalid too high ID are present in the
+attribute map.  Gaps are still not checked.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/ebitmap.c | 27 +++++++++++++++++++++++++++
- security/selinux/ss/ebitmap.h |  1 +
- 2 files changed, 28 insertions(+)
+ security/selinux/ss/policydb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index 43bc19e21960..5d6b5b72b3e5 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -257,6 +257,33 @@ int ebitmap_contains(const struct ebitmap *e1, const struct ebitmap *e2,
- 	return 1;
- }
- 
-+u32 ebitmap_highest_set_bit(const struct ebitmap *e)
-+{
-+	const struct ebitmap_node *n;
-+	unsigned long unit;
-+	u32 pos = 0;
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 3f85bb63cb5e..b4381a0b93f6 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -2946,6 +2946,11 @@ int policydb_read(struct policydb *p, struct policy_file *fp)
+ 			if (rc)
+ 				goto bad;
+ 		}
 +
-+	n = e->node;
-+	if (!n)
-+		return 0;
++		rc = -EINVAL;
++		if (ebitmap_highest_set_bit(e) >= p->p_types.nprim)
++			goto bad;
 +
-+	while (n->next)
-+		n = n->next;
-+
-+	for (unsigned int i = EBITMAP_UNIT_NUMS; i > 0; i--) {
-+		unit = n->maps[i - 1];
-+		if (unit == 0)
-+			continue;
-+
-+		pos = (i - 1) * EBITMAP_UNIT_SIZE;
-+		while (unit >>= 1)
-+			pos++;
-+		break;
-+	}
-+
-+	return n->startbit + pos;
-+}
-+
- int ebitmap_get_bit(const struct ebitmap *e, u32 bit)
- {
- 	const struct ebitmap_node *n;
-diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
-index c9569998f287..12bb359e83ff 100644
---- a/security/selinux/ss/ebitmap.h
-+++ b/security/selinux/ss/ebitmap.h
-@@ -126,6 +126,7 @@ int ebitmap_and(struct ebitmap *dst, const struct ebitmap *e1,
- 		const struct ebitmap *e2);
- int ebitmap_contains(const struct ebitmap *e1, const struct ebitmap *e2,
- 		     u32 last_e2bit);
-+u32 ebitmap_highest_set_bit(const struct ebitmap *e);
- int ebitmap_get_bit(const struct ebitmap *e, u32 bit);
- int ebitmap_set_bit(struct ebitmap *e, u32 bit, int value);
- void ebitmap_destroy(struct ebitmap *e);
+ 		/* add the type itself as the degenerate case */
+ 		rc = ebitmap_set_bit(e, i, 1);
+ 		if (rc)
 -- 
 2.45.2
 
