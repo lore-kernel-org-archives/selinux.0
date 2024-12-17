@@ -1,159 +1,110 @@
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6E651F63C8
-	for <selinux@vger.kernel.org>; Tue, 17 Dec 2024 13:59:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC7B7142E77
+	for <selinux@vger.kernel.org>; Tue, 17 Dec 2024 16:28:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734443993; cv=none; b=OAppXoCxhGE0EwXuyEFl+LOp5beWlaM9nERLXY/R03Yq4usLdbY41UtDgv8qfbeT8bPaSTOPG7wjoN9TFiVmjd5MTHXBVUomJJyufRHdT9wNUkH5QBPOaJfHyl9AAgC9w2Zo5GF8UAaEtVTB5tGqlpBaI42hxD70mBZuLcbN5HM=
+	t=1734452922; cv=none; b=Wr4d/GApFuqMUXTFcDviOo1p0qbKB2SNuEfIjXzCNAL+A9Q89mZxVHvvEF6Tx6KEOTtRVL3NqBF05+N+3ehLoqMzBniJ93CnLhFrdsMOLZr6eqlOqCFTR9W8pOh2Kj/GT8uo/Yh34t5AkxJwQ7uAr3Fayd9mlqb+sYvYw4el960=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734443993; c=relaxed/simple;
-	bh=+dmwgXcQvc0CgAPNBg2/vwMLHofWMsy86k11QaohlmE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=BW/wemT1Bor9e9JJEO99LbeQf5aj8kn5yLB3X9Zj320Ut+64/UjwAFljllj+Zsj1mTQbY4iO1xPb6+uV4rMW2PLWej/vnU4ppb8kt9rB3P2l+QQu8KAwWy3wVVPgBqwcJ1sX26/hnSMDrx/gDNC21XpxN9q/zRsPKMB9OLrW64g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=eeHjyD5m; arc=none smtp.client-ip=168.119.48.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	s=arc-20240116; t=1734452922; c=relaxed/simple;
+	bh=xi+EvDv3mfP7FJNM7jdAx/U/zCcNzlpG//oDHVtyOAA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=K2wGilCn1BCmegSS0xVfP2NgC/tArsOG+a9ZDlGJW/bEJRJngQQsrRxj/z/sd5RjUXsWlkaejjjVDI8iv8PuDRKr9ExcsRYnUVnmzkbaWng8PzqsM1sn4rLZQOC/mqliv8ag418G0c15dgub6wIjIQKcPwoTcg1ZcaRuEumCkmE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=DMWimmlg; arc=none smtp.client-ip=209.85.128.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="eeHjyD5m"
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1734443987;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SW6njnvX3XKcOhrWMxYYei52sfXpGhxha5b5S6HureI=;
-	b=eeHjyD5mq3MVLfm6ZjBQ4xmJNWZUZpSxIwY5q5T3Jx5+Bl2ql23lhZOS4CzgrlDTCLRy5T
-	/LcK1WEPtqdi4z3RipN7IxdTjOl/xjl+GBZZ6fkhufPvoHGP7ZSBmx5pTOlMb2ZFNn36Y7
-	hPYuxLnQ9XgD43Uw0HCAq2RuWj5Olb8bwcYiAXO/yrQ3O/HnuOA8hRpf5tczIpaPUE4ta2
-	zkmxJPlnKmaEatsJDJmLyZ8GEEzfgwn7JlutF/E2n8MY2l5w09tMwR+fOHjbW9JCqO/dQ2
-	gE70K+s6XNwIdSPRHUPvc603xPfr7JRBR9DRATJDcp7EJbQLqFBTbQ7W6DLJ4w==
-To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [RFC PATCH 1/3] libsepol: update sort order for netifcon definitions
-Date: Tue, 17 Dec 2024 14:59:41 +0100
-Message-ID: <20241217135941.536152-3-cgoettsche@seltendoof.de>
-In-Reply-To: <20241217135941.536152-1-cgoettsche@seltendoof.de>
-References: <20241217135941.536152-1-cgoettsche@seltendoof.de>
-Reply-To: cgzones@googlemail.com
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="DMWimmlg"
+Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-6eff0f3306fso42124647b3.2
+        for <selinux@vger.kernel.org>; Tue, 17 Dec 2024 08:28:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1734452919; x=1735057719; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Oplx5EF9Uv6U6y0+zlXvsrW8UpMXAgXXwfP/18u7p/8=;
+        b=DMWimmlgUENUoyOyh9659i7Av5UKOCFH7XAFr1kRu6R20PAXJ/jkYY1OyTNU8wUA9V
+         OHgiaNuwjRaiCK5rIx4Gm17pj5py2aozbmpfaa32KCYZRnGpxMwmygRVgNW1LEGxMKZ9
+         dBxzgrJfSw+0Z51JpLrQhG9aFYsTg/jxYcoYI8WR0BCS84wRYHhOlJ4U/xCVQBCzQzfY
+         cVrDsKilC/HO2L2E4pY4QKNAK33A+VYr7CEzzTpJRHTup4ePNFlsoOexg/AybuaFK5mj
+         CqVjjKjsxK30XMAHO8NCSiAklQcbPWO7P6kRjXBMG3vvpuqfR5CMV0txhuf53l4VD/47
+         dtyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734452919; x=1735057719;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Oplx5EF9Uv6U6y0+zlXvsrW8UpMXAgXXwfP/18u7p/8=;
+        b=NufDjjUIPgYMcAKIE/iBv1Chxjccd6f34r5J+8hebZKp1/KgfpfpQKbOP4QE4PWojX
+         48PVFPTU+awy/jIIZBdp79iMVzIYXRn8WMRtIks8gsAfkxDWeNpE+Z8RpI+Z/U2i02Vn
+         1bzC3g83SXBFwCSdeDK7uFoiia16A6cuosXuPQVOd4yjm1GBhVeRohl7Ye84a0KNOtIr
+         MeifKRBxpXzCM/omSZUUZJGZZi0H4x8XXmCoVMuVerxhakUhYEoR99dO970wHFyg1aBl
+         YsD2//2vPFL1UqUatoN36UDk1gRpEZI6aS69pzOWM+NWltUvyDQYryWgJK65M/7XIjGT
+         jEZA==
+X-Forwarded-Encrypted: i=1; AJvYcCWSUyTeo7k/f+3oCjFkfIY6PGYLqBtgowdjiG+PTy735241YTTSkErcuWNT0deSHUpMy67lIStH@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyaxy4/Lp5xNB3iOqjgjJJ4691iz1qVAxfDUmX1NuvCVJUbfCVE
+	/JDoUYUy50zOhW7mlpXlOv7yivk1o81D2W+/M3HK3P6czcAdhrSaX1fEB3b6/+8UC8dD+J0AJIy
+	nSaJmf3tI5JLO6kMGi83IV0/VToMfKB7p8vVo
+X-Gm-Gg: ASbGncu1Q7ub0nI285nXbDOxSh/496dIrTCX5lLJOy3sLcunBYSrp8i7Ku0CI29RESV
+	njQ6dbQvMgFuqlNNPZfMKrq9KgeUry/g0UDSK
+X-Google-Smtp-Source: AGHT+IGc5fBo1Pf0q19qCQSdLfh3T0jW14Juegj81JBHUIpwPQbSXQ3S+6e28+PUlrptzsHP39NFArMWHgbJK3AEG5k=
+X-Received: by 2002:a05:6902:2413:b0:e39:8b94:16e6 with SMTP id
+ 3f1490d57ef6-e43508bbc94mr13345721276.39.1734452918882; Tue, 17 Dec 2024
+ 08:28:38 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <CAFqZXNuVK=Pt6Vx8xiUF7WFhCD3VrqjW=dvox4wHWZfHBCEDTQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNuVK=Pt6Vx8xiUF7WFhCD3VrqjW=dvox4wHWZfHBCEDTQ@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 17 Dec 2024 11:28:28 -0500
+Message-ID: <CAHC9VhTqe9roT1dySDXDMQzbOSZyA0f34H0a1xinDSLd-TyQTw@mail.gmail.com>
+Subject: Re: kernel-secnext aarch64 builds missing?
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: kernel-secnext@googlegroups.com, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Christian Göttsche <cgzones@googlemail.com>
+On Tue, Dec 17, 2024 at 4:17=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
+m> wrote:
+> Hi Paul,
+>
+> It seems that aarch64 builds of the secnext kernel stopped appearing
+> in [1] some time ago (and kernel-secnext testing results for aarch64
+> stopped appearing as well). Were they intentionally stopped or is
+> there a problem that prevents them from being produced?
+>
+> The new Testing-Farm-based selinux-testsuite CI matrix includes
+> aarch64 + secnext kernel, so it is somewhat affected (until [2] it has
+> been quietly installing rawhide kernels instead and passing; now it
+> will fail when no secnext kernel is available). Any chance the aarch64
+> builds could be reinstated?
 
-Order netifcon definitions with a wildcard interface name last in object
-contexts, so the kernel tries to match literal names first.
+[NOTE: adding the selinux list since it is somewhat related]
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- libsepol/cil/src/cil_post.c     | 36 ++++++++++++++++++++++++++++++---
- libsepol/src/kernel_to_common.c | 36 ++++++++++++++++++++++++++++++---
- 2 files changed, 66 insertions(+), 6 deletions(-)
+Hi Ondrej,
 
-diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-index d63a5496..70e5b734 100644
---- a/libsepol/cil/src/cil_post.c
-+++ b/libsepol/cil/src/cil_post.c
-@@ -316,10 +316,40 @@ int cil_post_genfscon_compare(const void *a, const void *b)
- 
- int cil_post_netifcon_compare(const void *a, const void *b)
- {
--	struct cil_netifcon *anetifcon = *(struct cil_netifcon**)a;
--	struct cil_netifcon *bnetifcon = *(struct cil_netifcon**)b;
-+	/* keep in sync with kernel_to_common.c:netif_data_cmp() */
-+	const struct cil_netifcon *anetifcon = *(struct cil_netifcon**)a;
-+	const struct cil_netifcon *bnetifcon = *(struct cil_netifcon**)b;
-+	const char *a_name = anetifcon->interface_str;
-+	const char *b_name = bnetifcon->interface_str;
-+	size_t a_stem = strcspn(a_name, "*?");
-+	size_t b_stem = strcspn(b_name, "*?");
-+	size_t a_len = strlen(a_name);
-+	size_t b_len = strlen(b_name);
-+	int a_iswildcard = a_stem != a_len;
-+	int b_iswildcard = b_stem != b_len;
-+	int rc;
-+
-+	/* order non-wildcards first */
-+	rc = spaceship_cmp(a_iswildcard, b_iswildcard);
-+	if (rc)
-+		return rc;
-+
-+	/* order non-wildcards alphabetically */
-+	if (!a_iswildcard)
-+		return strcmp(a_name, b_name);
-+
-+	/* order by decreasing stem length */
-+	rc = spaceship_cmp(a_stem, b_stem);
-+	if (rc)
-+		return -rc;
-+
-+	/* order '?' (0x3f) before '*' (0x2A) */
-+	rc = spaceship_cmp(a_name[a_stem], b_name[b_stem]);
-+	if (rc)
-+		return -rc;
- 
--	return  strcmp(anetifcon->interface_str, bnetifcon->interface_str);
-+	/* order alphabetically */
-+	return strcmp(a_name, b_name);
- }
- 
- int cil_post_ibendportcon_compare(const void *a, const void *b)
-diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
-index 44f0be23..e4338ec6 100644
---- a/libsepol/src/kernel_to_common.c
-+++ b/libsepol/src/kernel_to_common.c
-@@ -441,10 +441,40 @@ static int portcon_data_cmp(const void *a, const void *b)
- 
- static int netif_data_cmp(const void *a, const void *b)
- {
--	struct ocontext *const *aa = a;
--	struct ocontext *const *bb = b;
-+	/* keep in sync with cil_post.c:cil_post_netifcon_compare() */
-+	const struct ocontext *const *aa = a;
-+	const struct ocontext *const *bb = b;
-+	const char *a_name = (*aa)->u.name;
-+	const char *b_name = (*bb)->u.name;
-+	size_t a_stem = strcspn(a_name, "*?");
-+	size_t b_stem = strcspn(b_name, "*?");
-+	size_t a_len = strlen(a_name);
-+	size_t b_len = strlen(b_name);
-+	int a_iswildcard = a_stem != a_len;
-+	int b_iswildcard = b_stem != b_len;
-+	int rc;
- 
--	return strcmp((*aa)->u.name, (*bb)->u.name);
-+	/* order non-wildcards first */
-+	rc = spaceship_cmp(a_iswildcard, b_iswildcard);
-+	if (rc)
-+		return rc;
-+
-+	/* order non-wildcards alphabetically */
-+	if (!a_iswildcard)
-+		return strcmp(a_name, b_name);
-+
-+	/* order by decreasing stem length */
-+	rc = spaceship_cmp(a_stem, b_stem);
-+	if (rc)
-+		return -rc;
-+
-+	/* order '?' (0x3f) before '*' (0x2A) */
-+	rc = spaceship_cmp(a_name[a_stem], b_name[b_stem]);
-+	if (rc)
-+		return -rc;
-+
-+	/* order alphabetically */
-+	return strcmp(a_name, b_name);
- }
- 
- static int node_data_cmp(const void *a, const void *b)
--- 
-2.45.2
+Yes, sadly for some reason Fedora Rawhide, which I use to build the
+kernel-secnext kernels, started panicking my aarch64 system *hard*
+after an update some time ago and I was forced to disable the
+kernel-secnext builds.  Unfortunately the issue appeared to be due to
+some userspace, or compiler change, that affected the entire system
+and once my build chroot was updated using dnf the entire chroot was
+bricked.  I saw similar problems on my aarch64 dev/test VMs.  I dug
+around on the RH bugzilla and didn't see any reports, nor anything
+obvious via google searches.  I was hoping to go back and try to debug
+and/or restore the chroot and VM but I haven't had the time.
 
+As a reference point, Fedora 41, Alama v9.5, and Ubuntu 24.04 are all
+working fine on my aarch64 system so I doubt there is some hardware
+issue.
+
+Are you aware of any nasty aarch64 problems in Rawhide, either now or
+starting back in October?
+
+--=20
+paul-moore.com
