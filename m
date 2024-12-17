@@ -1,127 +1,121 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82E514D8CE
-	for <selinux@vger.kernel.org>; Tue, 17 Dec 2024 12:13:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 301211F6680;
+	Tue, 17 Dec 2024 13:55:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734437596; cv=none; b=nlyzvD+VjjzzF+out6DVVW5I605g3qv4j2hocmzvDnRSOxQsvib/n9nusikYyvjgUpjhym6YzsOi9dHnNehIVxRVurJnTLF5splAnv+cFS04FbRanBNYri7xaPxOEKpf1lekiwhhiTLIZ6anWbKmVfwTM9/Ih3YX6yg9AqLED2c=
+	t=1734443731; cv=none; b=gPDMjcN2SsxTRTwVCdTDxfH6GHIcv4nYGPjmmXzUho93f+vQh6f9dNtojLq1V6ybpaiMVjzZWYpjl+eNEUwQNFXftepcdIXl7MpjWGr9letk9WrrOz4JjTWOe7SfHgH9CN1m+OZGhALZTsNZhqeq3L6hHztee9zz2N9vBE3MNEg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734437596; c=relaxed/simple;
-	bh=Nn5d34YltUhHwCWLpteRyHLZLMrHmmzxddJ4NnWKkGo=;
-	h=From:To:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=WirDuBlA+K7HISh2zsiHCrOt8SjB+GbFOmSetZGfejl4MrgmBwmfbD5oq+r52J60LE5/k6xC10XJO9cmGSQvg/G+F1WnV9GMZBbA7AqUVAXRdl3od2I9m1y9/kgZI6ENngRMCywSMz37oyx132r1St34LCdiCP2hJd/KTamblrg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LRXX2kYl; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1734443731; c=relaxed/simple;
+	bh=uF8BewMwaD3cn5+1ov5Hqor26jTBT7+OQAF0JaxtUwA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Wyzi4eeo/o3Ov7vdvUvTGLLUkyeqCXpPrBkhs89Hjjk+TXJRfaykaEFj2/jnopbFVJVvDYjRpQM/vNK9dQOq6IqPWtR0wmKYPYsp1i5oFu6s/hlPCxZ4+/K1AKtsR3MUDLDSx/7AoLxukAvrTV1o8gLzkIdvqLUNct4wY5VZJEM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=WjL0D1mv; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LRXX2kYl"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1734437593;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=htQArtASkTIUWWWT+IzlXb6VIIubo2a7QOoxVch8sk0=;
-	b=LRXX2kYlNHMVN5ZICVzQej8nhkCqR2oIkSSwRd4fuX/rugrwx9xSPa8YtOt1zAAvyBbQdX
-	LWiUotDyzNqseaGT/O2V0PqYBEWhGONxud0JQ4+/P/fBOkVUqBbpB95eWQkGlFgEY+yvVh
-	azl3h+p5RFzdo6ZZZdlE6mFL4NOEwcU=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-417-OBS-JiEAMsOTcUEgyYH6cg-1; Tue,
- 17 Dec 2024 07:13:11 -0500
-X-MC-Unique: OBS-JiEAMsOTcUEgyYH6cg-1
-X-Mimecast-MFC-AGG-ID: OBS-JiEAMsOTcUEgyYH6cg
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 0EDCB19560B5
-	for <selinux@vger.kernel.org>; Tue, 17 Dec 2024 12:13:11 +0000 (UTC)
-Received: from localhost (unknown [10.45.224.77])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8501A1955F41
-	for <selinux@vger.kernel.org>; Tue, 17 Dec 2024 12:13:10 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: selinux@vger.kernel.org
-Subject: Re: [PATCH v2] sepolgen-ifgen: allow M4 escaped filenames
-In-Reply-To: <20240827113150.1843304-1-lautrbach@redhat.com>
-References: <20240819182123.1037607-2-lautrbach@redhat.com>
- <20240827113150.1843304-1-lautrbach@redhat.com>
-Date: Tue, 17 Dec 2024 13:13:09 +0100
-Message-ID: <871py6zewa.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="WjL0D1mv"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1734443724;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=jgM7Zxn8uQMa75Yf9CuxrECzaG36pVrY1WipQDdWu7I=;
+	b=WjL0D1mvI9ucx3WXRO/+5+jzhwnj+OHb7oyhyJ+UZaJKoNOTLqtKJxnzXF2DCfxqJGCCrM
+	GxQW5iZNn6XgGr4iAaBb4zHJ8/sHtzjGIHZdtBF4YF47Trxc0YkDfpCiS2oYMDbk5+70vP
+	ibsRQyF2QSMbsJT6ygfw9/Nr6lfM47vJPKgd0uZf6ayQD4bp2tSDcap6Qae7PQmo2uHlcl
+	N2CRwvCJQrxW9HNNQBs9eNIpcLRS7JmwvnzeTmsjCkf52o6BYEc4OOuoqd6O/f1Q7/4mtO
+	Wdo8/+po1xZIcNjnRIjy6ESPgpw95i1SUtybN9D5JG39q/PkFJLLe8UxkHzr6A==
+To: 
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+	Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	=?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>,
+	=?UTF-8?q?Bram=20Bonn=C3=A9?= <brambonne@google.com>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	GUO Zihua <guozihua@huawei.com>,
+	Canfeng Guo <guocanfeng@uniontech.com>,
+	selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	John Johansen <john.johansen@canonical.com>
+Subject: [RFC PATCH] selinux: support wildcard network interface names
+Date: Tue, 17 Dec 2024 14:55:12 +0100
+Message-ID: <20241217135517.534645-1-cgoettsche@seltendoof.de>
+Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Petr Lautrbach <lautrbach@redhat.com> writes:
+From: Christian Göttsche <cgzones@googlemail.com>
 
-> When a file name in type transition rule used in an interface is same as
-> a keyword, it needs to be M4 escaped so that the keyword is not expanded
-> by M4, e.g.
->
-> -	filetrans_pattern($1, virt_var_run_t, virtinterfaced_var_run_t, dir, "interface")
-> +	filetrans_pattern($1, virt_var_run_t, virtinterfaced_var_run_t, dir, ``"interface"'')
->
-> But sepolgen-ifgen could not parse such string:
->
->     # sepolgen-ifgen
->     Illegal character '`'
->
-> This change allows M4 escaping inside quoted strings and fixed described
-> problem.
->
-> https://bugzilla.redhat.com/show_bug.cgi?id=2254206
->
-> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+Add support for wildcard matching of network interface names.  This is
+useful for auto-generated interfaces, for example podman creates network
+interfaces for containers with the naming scheme podman0, podman1,
+podman2, ...
 
-If there's no objection I would like to merge before tomorrows rc3.
+Since the wildcard characters '?' and '*' should be very uncommon in
+network interface names, and thus if netifcon definitions, avoid
+introducing a new policy version or capability.
 
-Petr
+Netifcon definitions are compared against in the order given by the
+policy, so userspace tools should sort them in a reasonable order.
 
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ security/selinux/include/security.h | 2 +-
+ security/selinux/ss/services.c      | 5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-
-> ---
->
-> change to v1:
->
-> - use ``"..."'' instead of "``..''" - sugested in https://github.com/SELinuxProject/selint/pull/291 by
->   @cgzones
->
-> - controls right number of openning and closing quotes
->
->  python/sepolgen/src/sepolgen/refparser.py | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
->
-> diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/src/sepolgen/refparser.py
-> index e261d3f78f87..c8a3eb54d679 100644
-> --- a/python/sepolgen/src/sepolgen/refparser.py
-> +++ b/python/sepolgen/src/sepolgen/refparser.py
-> @@ -486,7 +486,7 @@ def p_interface_call_param(p):
->                              | nested_id_set
->                              | TRUE
->                              | FALSE
-> -                            | FILENAME
-> +                            | quoted_filename
->      '''
->      # Intentionally let single identifiers pass through
->      # List means set, non-list identifier
-> @@ -1027,6 +1027,11 @@ def p_optional_semi(p):
->                     | empty'''
->      pass
->  
-> +def p_quoted_filename(p):
-> +    '''quoted_filename : TICK quoted_filename SQUOTE
-> +                       | FILENAME
-> +    '''
-> +    p[0] = p[1]
->  
->  #
->  # Interface to the parser
-> -- 
-> 2.46.0
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 10949df22fa4..f6e7ba57a1fc 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -298,7 +298,7 @@ int security_ib_pkey_sid(u64 subnet_prefix, u16 pkey_num, u32 *out_sid);
+ 
+ int security_ib_endport_sid(const char *dev_name, u8 port_num, u32 *out_sid);
+ 
+-int security_netif_sid(char *name, u32 *if_sid);
++int security_netif_sid(const char *name, u32 *if_sid);
+ 
+ int security_node_sid(u16 domain, void *addr, u32 addrlen, u32 *out_sid);
+ 
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 55fdc7ca232b..2f878fa99692 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -46,6 +46,7 @@
+ #include <linux/in.h>
+ #include <linux/sched.h>
+ #include <linux/audit.h>
++#include <linux/parser.h>
+ #include <linux/vmalloc.h>
+ #include <linux/lsm_hooks.h>
+ #include <net/netlabel.h>
+@@ -2554,7 +2555,7 @@ int security_ib_endport_sid(const char *dev_name, u8 port_num, u32 *out_sid)
+  * @name: interface name
+  * @if_sid: interface SID
+  */
+-int security_netif_sid(char *name, u32 *if_sid)
++int security_netif_sid(const char *name, u32 *if_sid)
+ {
+ 	struct selinux_policy *policy;
+ 	struct policydb *policydb;
+@@ -2576,7 +2577,7 @@ int security_netif_sid(char *name, u32 *if_sid)
+ 
+ 	c = policydb->ocontexts[OCON_NETIF];
+ 	while (c) {
+-		if (strcmp(name, c->u.name) == 0)
++		if (match_wildcard(c->u.name, name))
+ 			break;
+ 		c = c->next;
+ 	}
+-- 
+2.45.2
 
