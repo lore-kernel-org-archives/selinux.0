@@ -1,37 +1,37 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3108325949E
-	for <selinux@vger.kernel.org>; Mon, 30 Dec 2024 13:57:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E23B1C32
+	for <selinux@vger.kernel.org>; Mon, 30 Dec 2024 14:03:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735567062; cv=none; b=k45XS+SSzhaVcP5eUhB44sk4Xp/2Dn6zKSUIIouULdgCCjCmYl/EYy9qgbN9oL5f4fPX7bXUwouKrKRNk590JEs/8cJk1Fx7e8GLSiR++Jy6OkcAUHM4TYUcLx9G4kwa/uvaoNNV2g0yZYlEQghq/y9DOFXvSCA+w0zThzg5Vak=
+	t=1735567410; cv=none; b=VnksWuFxzyx2YDDUR0i/x5SPsluhzz6BWwDgkBMjlxt/LCmHn+dfeKApCKuzQAgBUGmsZmG1K/QFtuTLojHrFrQ953GrYD31vMaIZNFdt86AIkWV+raO03VnVEzQHxnB4btM1WYKOOsbsJh4KopNgXBVoNG49TkhnmMvz8+nO90=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735567062; c=relaxed/simple;
-	bh=7ORmchYkXlxdGfzbkr4UhxWF+lrUdqTxhOgmjkM9LNI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=c3Lxucy2HGHGBgLIKRIx6PD0r2I74Fp64Apuf/H8I0wSc06Envgh/50w883DhCgZevgeLiBUyKnEHqYHZueB5mmPfpQV4dzKIvBYgtwwRBzY4U82cTw/SAj2DwUiMt9QNP1HEkHG5Xj1llVTWJiaAWFGzxmJg+roW2TB7AgjF58=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=LLPiNd20; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1735567410; c=relaxed/simple;
+	bh=NpGmlg4qh8VMjoGMygMrH+p1VXQzg7p+VcYhCSVLN5s=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=HHyxHYG2JsvFaMu7Sle/VzwSKzKZwqclmlO0utkqSTxsKo4V0RIelxF0xcW54eGp8wz+VY6HIZQA3uwkihSwxoQX7Xmmv00FoSbZKjR8tpLjXWyGIRg3c0I8LPNStiNpRQ3I9kfGfPvkUY8i2RdZvzzCHWbSE01awNoivtfAtK0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=M69fLe9j; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="LLPiNd20"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="M69fLe9j"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1735566638;
+	s=2023072701; t=1735567406;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
 	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=Iq6luduMJrad+kLJ8pOlf5UfAkNy+dPUTkZtLWgfps8=;
-	b=LLPiNd202EDe2KlhxCxh+VbN/wQuXpmrNcrtz7LpjxqVVdt3UmRQSYtsVSrr/wD9A+C9Ew
-	ldTq3nNCfjkyl6Dz809PCDkrSF+I48vmYlqG4UKsK+RRBvVX23S0lgMW0McMTTD6i8Fs5h
-	bfo5yUbInuv7LV5Dfmli1oX8f6+GiOiz8cniwAgBGrR/mN4MHkd4zBXgZf6P4cX9xI9F5j
-	ZTsltSblZfFlL3QhrKB14C97adcL5JnbnRmOfi4/TRF3WKQfq/PAi9zAEjQms5AqDrmkSi
-	cDkaA8TvSD1RXALggDm3PTtLVnnRryyzLE+AmmZvy4n96UCumaKw2iQjTv+mFQ==
+	bh=1y7RLvvicEQVmkVOATy0lwg5RfIlmB6PpV+Qj7euyTA=;
+	b=M69fLe9j6na4uXmyxg0wZ+r7Mp7U0/TThOrs8HJluGmrblOQ/PF39GBUsF54xjVln7xTpe
+	czBhVVi4JZaezpjlAH2yPnXGYlk0zoFmy/GvtOZSiqvxvXDhUcPKMgeLH+EZQHgyfdV9Wa
+	+qTV84jOc3wb2MtABuHAdaH1FyyLkTSPboaBoovXl50uaPkJqlgK/SMw+kb0O7G2ZrWNQ4
+	JSTC/w9yMwV3j6+a7VWGKVFFS4AuwGSEGlwATRH7a/oNg+AGDf9mEyyb7WEPQw80o4rCSb
+	+HzCxuwgorS4kgYeWOvtGxOjWMFyF/MyHXLfKs00GSwu+RjYBuFYTYZlnJWZCQ==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH] semanage: improve -e documentation and fix delete operation
-Date: Mon, 30 Dec 2024 14:50:33 +0100
-Message-ID: <20241230135033.41492-1-cgoettsche@seltendoof.de>
+Subject: [PATCH] libselinux: avoid quadratic complexity for many regex specs validation
+Date: Mon, 30 Dec 2024 15:03:23 +0100
+Message-ID: <20241230140323.58852-1-cgoettsche@seltendoof.de>
 Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -44,121 +44,129 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Improve the documentation around the -e/--equal option for semanage
-fcontext.
+In the degenerate case of many regular expression specifications in a
+single node switch to a n*log(n) algorithm (with allocation) instead of
+the default n^2 (without allocation) one.
 
-Add support for entry deletion.
+See 2c7b71db ("libselinux: performance optimization for duplicate detection")
+for a predecessor.
 
-Closes: https://github.com/SELinuxProject/selinux/issues/457
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- python/semanage/semanage            | 15 ++++++++-------
- python/semanage/semanage-fcontext.8 |  6 +++---
- python/semanage/seobject.py         | 13 +++++++++++++
- 3 files changed, 24 insertions(+), 10 deletions(-)
+ libselinux/src/label_file.c | 85 +++++++++++++++++++++++++++++++++++--
+ 1 file changed, 82 insertions(+), 3 deletions(-)
 
-diff --git a/python/semanage/semanage b/python/semanage/semanage
-index b269b9fc..ec6fa2dd 100644
---- a/python/semanage/semanage
-+++ b/python/semanage/semanage
-@@ -54,7 +54,7 @@ usage_login = "semanage login [-h] [-n] [-N] [-S STORE] ["
- usage_login_dict = {' --add': ('-s SEUSER', '-r RANGE', 'LOGIN',), ' --modify': ('-s SEUSER', '-r RANGE', 'LOGIN',), ' --delete': ('LOGIN',), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 56e20949..b1884e80 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -102,6 +102,38 @@ void sort_spec_node(struct spec_node *node, struct spec_node *parent)
+ 		sort_spec_node(&node->children[i], node);
+ }
  
- usage_fcontext = "semanage fcontext [-h] [-n] [-N] [-S STORE] ["
--usage_fcontext_dict = {' --add': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --delete': ('(', '-t TYPE', '-f FTYPE', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --modify': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --list': ('[-C]',), ' --extract': ('',), ' --deleteall': ('',)}
-+usage_fcontext_dict = {' --add': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e TARGET_PATH', ')', 'FILE_SPEC',), ' --delete': ('(', '-t TYPE', '-f FTYPE', '|', '-e TARGET_PATH', ')', 'FILE_SPEC',), ' --modify': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e TARGET_PATH', ')', 'FILE_SPEC',), ' --list': ('[-C]',), ' --extract': ('',), ' --deleteall': ('',)}
- 
- usage_user = "semanage user [-h] [-n] [-N] [-S STORE] ["
- usage_user_dict = {' --add': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', 'SEUSER', ')'), ' --delete': ('SEUSER',), ' --modify': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', '-s SEUSER', 'SEUSER', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
-@@ -306,7 +306,7 @@ def setupLoginParser(subparsers):
- def handleFcontext(args):
-     fcontext_args = {'list': [('equal', 'ftype', 'seuser', 'type'), ('')], 'add': [('locallist'), ('type', 'file_spec')], 'modify': [('locallist'), ('type', 'file_spec')], 'delete': [('locallist'), ('file_spec')], 'extract': [('locallist', 'equal', 'ftype', 'seuser', 'type'), ('')], 'deleteall': [('locallist'), ('')]}
-     # we can not use mutually for equal because we can define some actions together with equal
--    fcontext_equal_args = {'equal': [('list', 'locallist', 'type', 'ftype', 'seuser', 'deleteall', 'extract'), ()]}
-+    fcontext_equal_args = {'equal': [('list', 'locallist', 'type', 'ftype', 'seuser', 'deleteall', 'extract'), ('file_spec')]}
- 
-     if args.action and args.equal:
-         handle_opts(args, fcontext_equal_args, "equal")
-@@ -327,7 +327,7 @@ def handleFcontext(args):
-             OBJECT.modify(args.file_spec, args.type, args.ftype, args.range, args.seuser)
-     if args.action == "delete":
-         if args.equal:
--            OBJECT.delete(args.file_spec, args.equal)
-+            OBJECT.delete_equal(args.file_spec, args.equal)
-         else:
-             OBJECT.delete(args.file_spec, args.ftype)
-     if args.action == "list":
-@@ -355,9 +355,10 @@ def setupFcontextParser(subparsers):
-     parser_add_extract(fcontext_action, "fcontext")
-     parser_add_deleteall(fcontext_action, "fcontext")
- 
--    fcontextParser.add_argument('-e', '--equal', help=_(
--        'Substitute target path with sourcepath when generating default label. This is used with fcontext. Requires source and target \
--path arguments. The context labeling for the target subtree is made equivalent to that defined for the source.'
-+    fcontextParser.add_argument('-e', '--equal', metavar='TARGET_PATH' help=_(
-+        'Substitute FILE_SPEC with TARGET_PATH for file label lookup. This is used with fcontext. Requires source and target \
-+path arguments to be path prefixes and does not support regular expressions. \
-+The context labeling for the target subtree is made equivalent to that defined for the source.'
-     ))
-     fcontextParser.add_argument('-f', '--ftype', default="", choices=["a", "f", "d", "c", "b", "s", "l", "p"], help=_(
-         'File Type. This is used with fcontext. Requires a file type as shown in the mode field by ls, e.g. use d to match only \
-@@ -368,7 +369,7 @@ If you do not specify a file type, the file type will default to "all files".'
-     parser_add_seuser(fcontextParser, "fcontext")
-     parser_add_type(fcontextParser, "fcontext")
-     parser_add_range(fcontextParser, "fcontext")
--    fcontextParser.add_argument('file_spec', nargs='?', default=None, help=_('Path to be labeled (may be in the form of a Perl compatible regular expression)'))
-+    fcontextParser.add_argument('file_spec', nargs='?', default=None, metavar='FILE_SPEC', help=_('Path to be labeled (may be in the form of a Perl compatible regular expression)'))
-     fcontextParser.set_defaults(func=handleFcontext)
- 
- 
-diff --git a/python/semanage/semanage-fcontext.8 b/python/semanage/semanage-fcontext.8
-index 3e327d88..3a96c62f 100644
---- a/python/semanage/semanage-fcontext.8
-+++ b/python/semanage/semanage-fcontext.8
-@@ -3,7 +3,7 @@
- semanage\-fcontext \- SELinux Policy Management file context tool
- 
- .SH "SYNOPSIS"
--.B semanage fcontext [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e EQUAL ) FILE_SPEC | \-\-delete ( \-t TYPE \-f FTYPE | \-e EQUAL ) FILE_SPEC | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e EQUAL ) FILE_SPEC ]
-+.B semanage fcontext [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e TARGET_PATH ) FILE_SPEC | \-\-delete ( \-t TYPE \-f FTYPE | \-e TARGET_PATH ) FILE_SPEC | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e TARGET_PATH ) FILE_SPEC ]
- 
- .SH "DESCRIPTION"
- semanage is used to configure certain elements of
-@@ -66,8 +66,8 @@ Extract customizable commands, for use within a transaction
- .I   \-D, \-\-deleteall
- Remove all local customizations
- .TP
--.I   \-e EQUAL, \-\-equal EQUAL
--Substitute target path with sourcepath when generating default label. This is used with fcontext. Requires source and target path arguments. The context labeling for the target subtree is made equivalent to that defined for the source.
-+.I   \-e TARGET_PATH, \-\-equal TARGET_PATH
-+Substitute FILE_SPEC with TARGET_PATH for file label lookup. This is used with fcontext. Requires source and target path arguments to be path prefixes and does not support regular expressions. The context labeling for the target subtree is made equivalent to that defined for the source.
- .TP
- .I   \-f [{a,f,d,c,b,s,l,p}], \-\-ftype [{a,f,d,c,b,s,l,p}]
- File Type. This is used with fcontext. Requires a file type as shown in the mode field by ls, e.g. use 'd' to match only directories or 'f' to match only regular files. The following file type options can be passed: f (regular file),d (directory),c (character device), b (block device),s (socket),l (symbolic link),p (named pipe).  If you do not specify a file type, the file type will default to "all files".
-diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-index 10963e81..854381d4 100644
---- a/python/semanage/seobject.py
-+++ b/python/semanage/seobject.py
-@@ -2453,6 +2453,19 @@ class fcontextRecords(semanageRecords):
- 
-         self.commit()
- 
-+    def delete_equal(self, target, substitute):
-+        self.begin()
-+        if target not in self.equiv.keys():
-+            raise ValueError(_("Equivalence class for %s does not exist") % target)
-+        if substitute != self.equiv[target]:
-+            raise ValueError(_("Equivalence class for %s does not match %s but %s") % (target, substitute, self.equiv[target]))
-+        del self.equiv[target]
-+        self.equal_ind = True
++static inline int compare_regex_spec(const void *p1, const void *p2)
++{
++	const struct regex_spec *r1 = p1;
++	const struct regex_spec *r2 = p2;
++	size_t regex_len1, regex_len2;
++	int ret;
 +
-+        self.mylog.log_change("resrc=fcontext op=delete-equal %s %s" % (audit.audit_encode_nv_string("sglob", target, 0), audit.audit_encode_nv_string("tglob", substitute, 0)))
++	/* Order from high prefix length to low */
++	ret = (r1->prefix_len < r2->prefix_len) - (r1->prefix_len > r2->prefix_len);
++	if (ret)
++		return ret;
 +
-+        self.commit()
++	/* Order from long total regex length to short */
++	regex_len1 = strlen(r1->regex_str);
++	regex_len2 = strlen(r2->regex_str);
++	ret = (regex_len1 < regex_len2) - (regex_len1 > regex_len2);
++	if (ret)
++		return ret;
 +
-     def createcon(self, target, seuser="system_u"):
-         (rc, con) = semanage_context_create(self.sh)
-         if rc < 0:
++	/*
++	 * Order for no-duplicates check.
++	 * Use reverse alphabetically order to retain the Fedora ordering of
++	 * `/usr/(.* /)?lib(/.*)?` before `/usr/(.* /)?bin(/.*)?`.
++	 */
++	ret = strcmp(r1->regex_str, r2->regex_str);
++	if (ret)
++		return -ret;
++
++	/* Order wildcard mode (0) last */
++	return (r1->file_kind < r2->file_kind) - (r1->file_kind > r2->file_kind);
++}
++
+ /*
+  * Warn about duplicate specifications.
+  */
+@@ -143,10 +175,18 @@ static int nodups_spec_node(const struct spec_node *node, const char *path)
+ 	}
+ 
+ 	if (node->regex_specs_num > 1) {
+-		for (uint32_t i = 0; i < node->regex_specs_num - 1; i++) {
+-			for (uint32_t j = i; j < node->regex_specs_num - 1; j++) {
++		if (node->regex_specs_num > 512) {
++			uint32_t num = node->regex_specs_num;
++			struct regex_spec *copy = malloc(num * sizeof(struct regex_spec));
++			if (!copy)
++				goto default_algo;
++
++			memcpy(copy, node->regex_specs, num * sizeof(struct regex_spec));
++			qsort(copy, num, sizeof(struct regex_spec), compare_regex_spec);
++
++			for (uint32_t i = 0; i < node->regex_specs_num - 1; i++) {
+ 				const struct regex_spec *node1 = &node->regex_specs[i];
+-				const struct regex_spec *node2 = &node->regex_specs[j + 1];
++				const struct regex_spec *node2 = &node->regex_specs[i + 1];
+ 
+ 				if (node1->prefix_len != node2->prefix_len)
+ 					continue;
+@@ -177,6 +217,45 @@ static int nodups_spec_node(const struct spec_node *node, const char *path)
+ 							node1->regex_str);
+ 				}
+ 			}
++
++			free(copy);
++		} else {
++			default_algo:
++			for (uint32_t i = 0; i < node->regex_specs_num - 1; i++) {
++				for (uint32_t j = i; j < node->regex_specs_num - 1; j++) {
++					const struct regex_spec *node1 = &node->regex_specs[i];
++					const struct regex_spec *node2 = &node->regex_specs[j + 1];
++
++					if (node1->prefix_len != node2->prefix_len)
++						continue;
++
++					if (strcmp(node1->regex_str, node2->regex_str) != 0)
++						continue;
++
++					if (node1->file_kind != LABEL_FILE_KIND_ALL && node2->file_kind != LABEL_FILE_KIND_ALL && node1->file_kind != node2->file_kind)
++						continue;
++
++					rc = -1;
++					errno = EINVAL;
++					if (strcmp(node1->lr.ctx_raw, node2->lr.ctx_raw) != 0) {
++						COMPAT_LOG
++							(SELINUX_ERROR,
++								"%s: Multiple different specifications for %s %s  (%s and %s).\n",
++								path,
++								file_kind_to_string(node1->file_kind),
++								node1->regex_str,
++								node1->lr.ctx_raw,
++								node2->lr.ctx_raw);
++					} else {
++						COMPAT_LOG
++							(SELINUX_ERROR,
++								"%s: Multiple same specifications for %s %s.\n",
++								path,
++								file_kind_to_string(node1->file_kind),
++								node1->regex_str);
++					}
++				}
++			}
+ 		}
+ 	}
+ 
 -- 
 2.45.2
 
