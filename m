@@ -1,115 +1,169 @@
-Received: from dggsgout12.his.huawei.com (dggsgout12.his.huawei.com [45.249.212.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com [209.85.219.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E552519006B;
-	Mon, 23 Dec 2024 06:57:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A6001A0BF1
+	for <selinux@vger.kernel.org>; Mon, 30 Dec 2024 11:49:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734937075; cv=none; b=jZUcDW94Vl0V3nhwcqHH7+2JbhXvjhlswwXYtsVMKzzGW4h9vl94rQWtqqspUNWq6fw4+X0zmddOvfAuxt5jiL2qnKwk503znHdeD1DNFrTJhJZJvP04Gq/QxaSJwbkG6LSP76KTqjON3MZxGCmniXEi0LcpG/CK+R49eBE/ea0=
+	t=1735559369; cv=none; b=XjNnAd3b/RR3EMCRRdeZ42+qGOUl3IvSLN6DetLV/MHIx0uPWRs5YvUZpCfLDqMedwTRnwySlmNcMFDTrgjefG0/LUSE2gOlXC1YpN5WYiy5wN+rA4hrHeDzUZZ84nCkyD5oYmj4cjgNQwDw0EBX2kGqy/bLetiFOdQrbiOmzyI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734937075; c=relaxed/simple;
-	bh=iM223PkQZDqo/Te4I4lOt5OkAiDiGHc6wnKJ/ZHtVE0=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=mu6mjKu71jcXdUBSJ/kgkdi6MGnIQrr6iCeMJA8L0+t4f5njmKXs1Zpc2lOj7NU4IASa+lKgxqhLHRqzl9Ew6/EiNuyujAww6m7X8ExWB/Bm4lJ61PnGmZ/YQiABrhQwFs7gk41U6lfI36b7E1+8eQXNqrBOO70dzyfYgWjpdSU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=45.249.212.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.19.163.216])
-	by dggsgout12.his.huawei.com (SkyGuard) with ESMTP id 4YGpjx4Fn2z4f3kFj;
-	Mon, 23 Dec 2024 14:57:25 +0800 (CST)
-Received: from mail02.huawei.com (unknown [10.116.40.128])
-	by mail.maildlp.com (Postfix) with ESMTP id 392441A018C;
-	Mon, 23 Dec 2024 14:57:45 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.67.174.193])
-	by APP4 (Coremail) with SMTP id gCh0CgC33oLoCWlnoBWSFQ--.8658S6;
-	Mon, 23 Dec 2024 14:57:44 +0800 (CST)
-From: Luo Gengkun <luogengkun@huaweicloud.com>
-To: peterz@infradead.org
-Cc: mingo@redhat.com,
-	acme@kernel.org,
-	namhyung@kernel.org,
-	mark.rutland@arm.com,
-	alexander.shishkin@linux.intel.com,
-	jolsa@kernel.org,
-	irogers@google.com,
-	adrian.hunter@intel.com,
-	kan.liang@linux.intel.com,
-	tglx@linutronix.de,
-	bp@alien8.de,
-	dave.hansen@linux.intel.com,
-	x86@kernel.org,
-	hpa@zytor.com,
-	will@kernel.org,
-	paul@paul-moore.com,
-	jmorris@namei.org,
-	serge@hallyn.com,
-	rostedt@goodmis.org,
-	mhiramat@kernel.org,
-	mathieu.desnoyers@efficios.com,
-	stephen.smalley.work@gmail.com,
-	omosnace@redhat.com,
-	linux-perf-users@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-security-module@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org,
-	selinux@vger.kernel.org,
-	luogengkun@huaweicloud.com
-Subject: [PATCH linux-next 2/2] perf: Return EACCESS when need perfmon capability
-Date: Mon, 23 Dec 2024 07:06:50 +0000
-Message-Id: <20241223070650.2810747-3-luogengkun@huaweicloud.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20241223070650.2810747-1-luogengkun@huaweicloud.com>
-References: <20241223070650.2810747-1-luogengkun@huaweicloud.com>
+	s=arc-20240116; t=1735559369; c=relaxed/simple;
+	bh=yPHckcGt5AQbY4O1EoBubWHnyFJIr31nRjEqRdnoG+A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DEonX7dm8WB5C51L0gNA3Wr3OPgT4PGQPR3lkLlOEvoszSzKi768E/NftX7xJpT6PczqraHYSYWeSUoeC0ecOTNFFtftIu4L1ucKBDA+R5Q17FD3++UPRODBEiIPA3im6efiUMgh2ySrAg9YxzCYOlbdoKdgOm9WWRSt8D/nu5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=UYSTflNo; arc=none smtp.client-ip=209.85.219.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="UYSTflNo"
+Received: by mail-yb1-f178.google.com with SMTP id 3f1490d57ef6-e5372a2fbddso11886493276.3
+        for <selinux@vger.kernel.org>; Mon, 30 Dec 2024 03:49:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20230601; t=1735559365; x=1736164165; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Bw3IhXFBATGqJtlSQ0dGdrxGqYlLXu8zgwem7qJDXX4=;
+        b=UYSTflNoRR9zyWCLwJ7G0KtGHOqJ2S02tsOd2PnZShghWveNkNB/LwVEyIyhoz2KAH
+         j7FcHbp+HerhEYKIC9h1g1lreDNA2QAzqhzES8ofgmvHdFKtcv2WtBRZWe+whpa1qjiW
+         zfePqiPC93p3mHHSQFD6SBAbRJXl4BPyWolmBK2u+q8NqkuTbWR+YVj+3GSGtiljEfKV
+         x+G3VHHj56xc6/YY7AaIj9axjQu6WQxpjyQpqyQtJf36+gLPT3yVm5NVA7NveXHXVz2j
+         xJLnWU8fIZ4itfF0db90tcCHmr9T8A3cvfWLckJm7727KQNAAyhhLu36rT9ZEZMAoIUR
+         RXWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1735559365; x=1736164165;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Bw3IhXFBATGqJtlSQ0dGdrxGqYlLXu8zgwem7qJDXX4=;
+        b=s3jaBZ2DkbbjxoAVtQxJJs/5pqUUAJ2I/X4L/n9odwgXvgmt/ZMMVqObTSGx1vLe3v
+         25n6t5dDT9FFJrRFXDDTzbRBQ9HT9lcUyiwa7oqtU4QKJEuuTvXtUZM8GCwz3HWUelC3
+         QWPpMH4/gf+/5Z7MoLRo+uWKDsTWCYOMwPRC3wD05zR2vFY29FW3RSo2C6FSLsP32ia2
+         8+FJ73JNPS/fFn6x0hu6SCyiwsTrwFQwk0rQP8qxAyXEs+QgykLodCYriEcb1QzUeAl+
+         eJSK7P0ve28L7AKZCLSXgl9Hr9/N2cCWuWe1GOmwClOW4NAj4ttFr/N0Mi0jCDabH8d/
+         BFnQ==
+X-Gm-Message-State: AOJu0Yx4/q4nO1+ar0PNcPeXdE0SrAb/Rwi6VnU0uSGycTDfSQc+t6Cu
+	LplPJdAKvyBXB4yYit1sdf2N1xkzEd6z7kDC7VTs4GixUDKMcgHn8hTRJUV4grOfdIxKFtQgZm0
+	jF13xGi/FqqQ9Qb0aPQdiriAGE6E=
+X-Gm-Gg: ASbGncvTMuwzJg/Nl4WBM7n4z/G1J8AzhPcAJoa5uDyArM7/aT5MyVngIpAPsSYl08H
+	A9gJdpQYSqexJjVkXre6X65Rzgy+vutY5aAM=
+X-Google-Smtp-Source: AGHT+IHTmg+VGxBz+QeJAgoqhcEsc8xZq81zthQpCbnRbAsOh6iKxdmC3Ec7aIl8ITeWJ2q3hj/d2GKybGD2nv3qs94=
+X-Received: by 2002:a05:690c:6005:b0:6e2:ada7:ab3e with SMTP id
+ 00721157ae682-6f3f821a3femr231820397b3.30.1735559365145; Mon, 30 Dec 2024
+ 03:49:25 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:gCh0CgC33oLoCWlnoBWSFQ--.8658S6
-X-Coremail-Antispam: 1UD129KBjvdXoWrZF13ZFy5ur43urW3Jr4UXFb_yoW3trg_u3
-	WxJrn2vr1kWF12q3y7Jw1xtr15Ww1rG3WFvrn5G347Cr90gws5A34rJryDtrW7CFs7ursr
-	Kw18Wr97Zr1Y9jkaLaAFLSUrUUUUbb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUIcSsGvfJTRUUUbkAFF20E14v26rWj6s0DM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI8067AKxVWUXwA2048vs2IY02
-	0Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxSw2x7M28EF7xv
-	wVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxVW8Jr0_Cr1UM2
-	8EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s0DM2AI
-	xVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20x
-	vE14v26r106r15McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xv
-	r2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7M4IIrI8v6xkF7I0E8cxan2IY04
-	v7MxkF7I0En4kS14v26r4a6rW5MxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j
-	6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7
-	AF67AKxVW8ZVWrXwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1I6r4UMIIF0xvE
-	2Ix0cI8IcVCY1x0267AKxVWxJVW8Jr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0x
-	vEx4A2jsIE14v26r4j6F4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr1j6F4UJbIYCTnIWIev
-	Ja73UjIFyTuYvjTRNrcTDUUUU
-X-CM-SenderInfo: 5oxrwvpqjn3046kxt4xhlfz01xgou0bp/
+References: <20241217212752.23866-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20241217212752.23866-1-cgoettsche@seltendoof.de>
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Mon, 30 Dec 2024 12:49:14 +0100
+Message-ID: <CAJ2a_Dd+jLPdJUYqSpCepbUfC-fKCajYU+NBD6+LydB=ejDgRA@mail.gmail.com>
+Subject: Re: [PATCH] libselinux/fuzz: readjust load_mmap() update
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-For perf_allow_kernel and perf_allow_cpu, both return EACCES when require
-CAP_PERFMON or CAP_SYS_ADMIN permissions, so update perf_allow_tracepoint
-to keep them the same.
+On Wed, 18 Dec 2024 at 09:06, Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
+>
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Update the fuzzers for the input number parameter addition.
 
-Signed-off-by: Luo Gengkun <luogengkun@huaweicloud.com>
----
- include/linux/perf_event.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi Jim,
 
-diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
-index 5d2ec4283ebf..c1bc0d7a275b 100644
---- a/include/linux/perf_event.h
-+++ b/include/linux/perf_event.h
-@@ -1685,7 +1685,7 @@ static inline int perf_allow_cpu(void)
- static inline int perf_allow_tracepoint(void)
- {
- 	if (sysctl_perf_event_paranoid > -1 && !perfmon_capable())
--		return -EPERM;
-+		return -EACCES;
- 
- 	return security_perf_event_open(PERF_SECURITY_TRACEPOINT);
- }
--- 
-2.34.1
+could you please have a brief look at this patch and maybe merge it,
+so the fuzzer can get some runtime before the 3.8 release.
 
+Best regards,
+       Christian G=C3=B6ttsche
+
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  libselinux/fuzz/selabel_file_compiled-fuzzer.c | 6 +++---
+>  libselinux/fuzz/selabel_file_text-fuzzer.c     | 2 +-
+>  libselinux/src/label_file.h                    | 2 +-
+>  3 files changed, 5 insertions(+), 5 deletions(-)
+>
+> diff --git a/libselinux/fuzz/selabel_file_compiled-fuzzer.c b/libselinux/=
+fuzz/selabel_file_compiled-fuzzer.c
+> index d1249a76..09fbddd1 100644
+> --- a/libselinux/fuzz/selabel_file_compiled-fuzzer.c
+> +++ b/libselinux/fuzz/selabel_file_compiled-fuzzer.c
+> @@ -195,7 +195,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_=
+t size)
+>                 goto cleanup;
+>
+>         errno =3D 0;
+> -       rc =3D load_mmap(fp, fcontext_data1_len, &rec, MEMFD_FILE_NAME);
+> +       rc =3D load_mmap(fp, fcontext_data1_len, &rec, MEMFD_FILE_NAME, 0=
+);
+>         if (rc) {
+>                 assert(errno !=3D 0);
+>                 goto cleanup;
+> @@ -208,7 +208,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_=
+t size)
+>                 goto cleanup;
+>
+>         errno =3D 0;
+> -       rc =3D load_mmap(fp, fcontext_data2_len, &rec, MEMFD_FILE_NAME);
+> +       rc =3D load_mmap(fp, fcontext_data2_len, &rec, MEMFD_FILE_NAME, 1=
+);
+>         if (rc) {
+>                 assert(errno !=3D 0);
+>                 goto cleanup;
+> @@ -221,7 +221,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_=
+t size)
+>                 goto cleanup;
+>
+>         errno =3D 0;
+> -       rc =3D load_mmap(fp, fcontext_data3_len, &rec, MEMFD_FILE_NAME);
+> +       rc =3D load_mmap(fp, fcontext_data3_len, &rec, MEMFD_FILE_NAME, 2=
+);
+>         if (rc) {
+>                 assert(errno !=3D 0);
+>                 goto cleanup;
+> diff --git a/libselinux/fuzz/selabel_file_text-fuzzer.c b/libselinux/fuzz=
+/selabel_file_text-fuzzer.c
+> index ed67ea25..1f8942dd 100644
+> --- a/libselinux/fuzz/selabel_file_text-fuzzer.c
+> +++ b/libselinux/fuzz/selabel_file_text-fuzzer.c
+> @@ -167,7 +167,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_=
+t size)
+>                 goto cleanup;
+>
+>         errno =3D 0;
+> -       rc =3D process_text_file(fp, /*prefix=3D*/ NULL, &rec, MEMFD_FILE=
+_NAME);
+> +       rc =3D process_text_file(fp, /*prefix=3D*/ NULL, &rec, MEMFD_FILE=
+_NAME, 0);
+>         if (rc) {
+>                 assert(errno !=3D 0);
+>                 goto cleanup;
+> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+> index 597b756e..60ebbb47 100644
+> --- a/libselinux/src/label_file.h
+> +++ b/libselinux/src/label_file.h
+> @@ -60,7 +60,7 @@ struct lookup_result {
+>         struct lookup_result *next;
+>  };
+>  #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+> -extern int load_mmap(FILE *fp, const size_t len, struct selabel_handle *=
+rec, const char *path);
+> +extern int load_mmap(FILE *fp, const size_t len, struct selabel_handle *=
+rec, const char *path, uint8_t inputno);
+>  extern int process_text_file(FILE *fp, const char *prefix, struct selabe=
+l_handle *rec, const char *path, uint8_t inputno);
+>  extern void free_lookup_result(struct lookup_result *result);
+>  extern struct lookup_result *lookup_all(struct selabel_handle *rec, cons=
+t char *key, int type, bool partial, bool find_all, struct lookup_result *b=
+uf);
+> --
+> 2.45.2
+>
