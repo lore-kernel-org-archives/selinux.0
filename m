@@ -1,69 +1,69 @@
 Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E112D14D2BB
-	for <selinux@vger.kernel.org>; Thu,  2 Jan 2025 16:45:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEC0D1494D9
+	for <selinux@vger.kernel.org>; Thu,  2 Jan 2025 16:45:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735836341; cv=none; b=Hjk1qnjnOKSHGbzj8XaPA4AB1yTuxmLP15aLpOc8UrS9vJrZe2KPJOqjFK0aEVzGZ3a0a+pG7oDv6ywlvM7wE4AO+pCq0ZRnZhU7M6OV6UHtrtOY4x44Dy5c0hOPPRkEJS+64nf3l7tGQcNQFyF2/FJXrqK7DM/Ftft90+iQ16o=
+	t=1735836341; cv=none; b=AnYCkoVBUizQRmU9qGEYcT4Eeq5DXor6sOyeRjPcrfZU1Bo8DwjazpU6TnmlyX9d0OoKZxuWyqy+c4fDDbl90S2bAl/VllHPJMIsAX11r0d5Dbn1RKUlFTIKaAdxWiBqiO3hvQ02vNTO8OTOfcJI3KgN7enM+w9W4PRlod5P4z4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1735836341; c=relaxed/simple;
-	bh=ztXafw18nKBJhPnq0WpT34WGf3+j9jnaMQ0ItyuaR1w=;
+	bh=RcMbi9nddwmJHMorQUzNSo89Dk3dqrzYCUyVlcFTUEk=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=TcMA5rzynJhxhJXDwM6wJa1P4ybw29iG/3TSYVafFt8+ZL3Pvs6TCg7LYOh3LfdePAUeSHw3Y60erXkKlL9qXx8TVSKFWVrL9WoTr9OkAZnDsSOIzafI+DDNnxJbIhuk5xftnRZJriojoYPluDD3EFcbwUztEoI0Rt40VL0osM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JLf7ckY2; arc=none smtp.client-ip=209.85.160.173
+	 MIME-Version; b=jP/7yzhW23ODMBh/Wrey01PkoHI6epPvQHT6JDG2UNhl3EDC9Vqe7o1TxDOUALt64ffm4ZxaVoD6o3DkGhKOeg8cheiuGndzq87IoeVqRy5gCrkMh5i75rF5Rt20Y2q8KMVHfgSVCcXg/ux+FT3+DUdbZ7NIVRwzkm6OlMA6h04=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AKxZthYE; arc=none smtp.client-ip=209.85.160.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JLf7ckY2"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-4678664e22fso101979981cf.2
-        for <selinux@vger.kernel.org>; Thu, 02 Jan 2025 08:45:38 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AKxZthYE"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-4678afeb133so104917181cf.0
+        for <selinux@vger.kernel.org>; Thu, 02 Jan 2025 08:45:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1735836337; x=1736441137; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1735836335; x=1736441135; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=U3Um5zRV/W7T37Tpj3IijsXpxgyL0XfNem9+py8wIME=;
-        b=JLf7ckY2J60hK2fb/1lSB7qALvj35PCZjSMcEmRKWhwNVsVWcZ1Cg+Mok26Ll1qWkk
-         7rEMtEQuaXoaF92mDRxetAiMGvMSXqz7Tru2AyeO27HwVHr7RK3lpVyBdjkxcW588Pe4
-         +1DHo+lG3QG9g3fY1g2bYYXabqqeS7MOAErXXRqwO4GJqEUbmp1KqXoy/7T0uSfMlSf4
-         mLXNWUw4GwhF+B2zlLAUxE1eHJ+8hIJg6mX5ZJfltHVv60MUX5jGNP6/P4jGulGUxiF6
-         sDx7juWztEbKfHgpNC8HyuJIqnNaHYcVxkoHjfE8wYnSnXGXHGgOnm92IIIVpqIxOIlr
-         8xNQ==
+        bh=uT04y3a33bZnWQ3lpMmcbghAidNRHEASFWX7vpcA7YA=;
+        b=AKxZthYE3Gokd+213V3dw6hOF6WOGSN4sR19a7wCMaM65S0+GqkkLu8UeNM+Ew/PEs
+         kuASfyxkr00sb+zDKvPNKYEoFfhGR089JvBF0cupjQbMx4V+L65MHX1g9nQiWqmVyXS3
+         3Gw0zcWBKTvXj7EznnJfKnSzAaEzcPdO3wK4+4JNhyua6jSrRruFKrDjohBJO9/qQw8D
+         7Zp4KZSBecUAmuUkQ+RLfhrgYKkYFU/fDfNxAkZsFZWVRSELj+kJnS5Vdar0Y45rBKkf
+         uYw0fumKyTLLdXJQwewgHNFdP2ECuf+dxDCPGQ6sanms+gLiVwU03Lnkj5p+iKmMPIKg
+         kiJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1735836337; x=1736441137;
+        d=1e100.net; s=20230601; t=1735836335; x=1736441135;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=U3Um5zRV/W7T37Tpj3IijsXpxgyL0XfNem9+py8wIME=;
-        b=IBUCRWF0cty/uv4q8DSr8TR7chY6dD377b1DeKfzF69wipfV3Wa4FPWsW7zVYEuq/A
-         +4M6nM9kMSlWWB0RsxVwRSezFL/JGo2MRwCLw9ygU7rt7k5rKfQowoD3R7cDLVzL9YVa
-         15PC+rEDv0b1IbPaEOVKKiUzzuMlEBKlem9ojyqc6jjWgmBtovdeOP6qQPCc5Ww36JXU
-         QfjeZ286aDotRjTjKBB4jL8SmSzg6PTznsUuq9Rn5qyvP23iYOSx8t0s2WW868qoNPf1
-         ONC+J90hr1k5Ze37VsCZ3Vsxs8Gx6cuOrR2x5V1VVVrWtgJpLpj6D1lHTBFovsZF0qYK
-         RXpQ==
-X-Gm-Message-State: AOJu0Yw9UKRbPI12D7MjjHJNM6n9wOKLjokn3In6SoD/c4ZGjEaDFQk8
-	X+bhbVbYiqSIqpKRvxHYHZrDiBO1tLPj72wNqjHMvDFfOlrvM1L/HV4PNA==
-X-Gm-Gg: ASbGnctjIvC41VpDBqi3m7Odo01n1Pc9U69dRNM/GGfD+U/hBwsBXqOBmsm7BlAY4MJ
-	tYR90uNHBu4agAFLVFJuh5SVRQSx39H7PeqeJi6gFTJB1nQyNSB+aIvsFE2LMmSRopz7+t7RKxV
-	Swc+N+/+6G8wDxuCAhvb4yCvx3kxKjJnnhlB0HYj3DIdERv0WKb5lBaxv9LX/SnTzIEesoyg1lt
-	OfkbxkpUKVNB5J+pz+Omgrjw84XDDrf3Jl/EaeLklcHjhZAU0PldRZTTxFCCzOkR2EiSaBSVikM
-	Gqua9ymENJu31IL1AbNC495CTyfIgrx2ioo/QhxsM5ZJ0nZuMF+BbJ6o6oswFWiF2K7PlA==
-X-Google-Smtp-Source: AGHT+IElheFvfvqVqxQ/CC3Qi86lpqBJQhpaiyFvzQ9/FquK3hj68UKvbV2kzYl1Yq0gqEze+hRCUg==
-X-Received: by 2002:ac8:5d90:0:b0:46a:3176:f78b with SMTP id d75a77b69052e-46a4a976ef3mr861452851cf.38.1735836336566;
-        Thu, 02 Jan 2025 08:45:36 -0800 (PST)
-Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-46a3eb19684sm136795101cf.58.2025.01.02.08.45.35
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        bh=uT04y3a33bZnWQ3lpMmcbghAidNRHEASFWX7vpcA7YA=;
+        b=bzlTDDUe3Jj6TB3utav2er/fP0ciJVfbAAn9c7MQEqomygsOfm5ZgyybOQVMikpzR5
+         l03fZYAGSoV7oGiUIoB/DuUTxWrOdmH9gRGzUzmuSDbno+tUkW+sSpHpT5l1f68w3TNa
+         HgJvrEwHkmsO6qIaIkHE8PevEZUMfrcE7/0cLv5wUcAJL/jj82YUtu+eHnXgyVL2iUTL
+         Sjg9HmZUVWq2ecHLhC0kM1K/AIUdVeI3Xl0laKCFcY1vwuwruTJmeSXE4DxGVQe884ox
+         w4naYgTJejbH28yHk14UZwBFd4dJV3JVJgb+b3H0qvfOMN00UrX9ssFVwyBMq4rJzBdK
+         DkEw==
+X-Gm-Message-State: AOJu0YyFSwcyrSO5U3ASKg2aXd/z543hY1t9LQwGt04BOZswHRxnkluX
+	2KgI4Q59mDCn+Xtv6kTF+YN+XU9nvqoxSHSnpazhtA2p31MPBVoxesMEDQ==
+X-Gm-Gg: ASbGncuUj+WPFFyhFCbGLPCc+UVyfZAoLUiJdxbHgUAxCMhdcD8bsOGeq0dWvTu7z7R
+	FPgI0xRSgvi12Vj1MFvYEV5vm+WJxKFkY2eI30AJlRSCkDwGgcJ9bqk0DcEHoN91CRaln2Llkvj
+	TEYmOQ6AeACN0rDQb+AMX9nTiazqxbs94ZqdHr5+bSFy+8hRqb3nNvBhAH/9GrbtkrX8/fC59J4
+	tsTNxuETLVybr9tWYa5U1phE1xsgtWZXZdYEKAYoAcPWJVGXIn7jhJNuhH9cMY00gOJP88IKCPL
+	Nr6DTLPdnNzPhHd6HoDZzOw5mu1b8/tyhfy3JQ5eDg1KY+wH6FH/Rdraset9U/+4iuKmMg==
+X-Google-Smtp-Source: AGHT+IGLWUKA04FiJmlHz3C/h0SB92Hz2g1oWrO29Im/9+lUSZO3vAPT1sA9x3syeWiWbF/+gJQudw==
+X-Received: by 2002:ac8:590e:0:b0:467:7076:37c7 with SMTP id d75a77b69052e-46a3b0964c4mr815200781cf.22.1735836335273;
         Thu, 02 Jan 2025 08:45:35 -0800 (PST)
+Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-46a3eb19684sm136795101cf.58.2025.01.02.08.45.34
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 02 Jan 2025 08:45:34 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [RFC PATCH 05/44] netstate,selinux: create the selinux netlink socket per network namespace
-Date: Thu,  2 Jan 2025 11:44:30 -0500
-Message-Id: <20250102164509.25606-6-stephen.smalley.work@gmail.com>
+Subject: [RFC PATCH 04/44] selinux: dynamically allocate selinux namespace
+Date: Thu,  2 Jan 2025 11:44:29 -0500
+Message-Id: <20250102164509.25606-5-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20250102164509.25606-1-stephen.smalley.work@gmail.com>
 References: <20250102164509.25606-1-stephen.smalley.work@gmail.com>
@@ -75,124 +75,227 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The selinux netlink socket is used to notify userspace of changes to
-the enforcing mode and policy reloads.  At present, these notifications
-are always sent to the initial network namespace.  In order to support
-multiple selinux namespaces, each with its own enforcing mode and
-policy, we need to create and use a separate selinux netlink socket
-for each network namespace.
-
-Without this change, a policy reload in a child selinux namespace
-causes a notification to be sent to processes in the init namespace
-with a sequence number that may be higher than the policy sequence
-number for that namespace.  As a result, userspace AVC instances in
-the init namespace will then end up rejecting any further access
-vector results from its own security server instance due to the
-policy sequence number appearing to regress, which in turn causes
-all subsequent uncached access checks to fail.  Similarly,
-without this change, changing enforcing mode in the child selinux
-namespace triggers a notification to all userspace AVC instances
-in the init namespace that will switch their enforcing modes.
-
-This change does alter SELinux behavior, since previously reloading
-policy or changing enforcing mode in a non-init network namespace would
-trigger a notification to processes in the init network namespace.
-However, this behavior is not being relied upon by existing userspace
-AFAICT and is arguably wrong regardless.
-
-This change presumes that one will always unshare the network namespace
-when unsharing a new selinux namespace (the reverse is not required).
-Otherwise, the same inconsistencies could arise between the notifications
-and the relevant policy.  At present, nothing enforces this guarantee
-at the kernel level; it is left up to userspace (e.g. container runtimes).
-It is an open question as to whether this is a good idea or whether
-unsharing of the selinux namespace should automatically unshare the network
-namespace.  However, keeping them separate is consistent with the handling
-of the mount namespace currently, which also should be unshared so that
-a private selinuxfs mount can be created.
+Move from static allocation of a single selinux namespace to
+dynamic allocation.  Include necessary support for lifecycle management
+of the selinux namespace, modeled after the user namespace support.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- include/net/net_namespace.h |  3 +++
- security/selinux/netlink.c  | 31 +++++++++++++++++++++++++------
- 2 files changed, 28 insertions(+), 6 deletions(-)
+ security/selinux/avc.c              | 32 ++++++++++----
+ security/selinux/hooks.c            | 65 +++++++++++++++++++++++++----
+ security/selinux/include/security.h | 26 +++++++++++-
+ security/selinux/selinuxfs.c        |  3 +-
+ security/selinux/ss/services.c      |  2 +-
+ 5 files changed, 109 insertions(+), 19 deletions(-)
 
-diff --git a/include/net/net_namespace.h b/include/net/net_namespace.h
-index 873c0f9fdac6..f7d23eca086e 100644
---- a/include/net/net_namespace.h
-+++ b/include/net/net_namespace.h
-@@ -192,6 +192,9 @@ struct net {
- 	/* Move to a better place when the config guard is removed. */
- 	struct mutex		rtnl_mutex;
- #endif
-+#if IS_ENABLED(CONFIG_SECURITY_SELINUX)
-+	struct sock		*selnl;
-+#endif
- } __randomize_layout;
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index effa0accefc5..cc20c5d8b63a 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -91,20 +91,34 @@ struct selinux_avc {
+ 	struct avc_cache avc_cache;
+ };
  
- #include <linux/seq_file_net.h>
-diff --git a/security/selinux/netlink.c b/security/selinux/netlink.c
-index 1760aee712fd..03678a76f4bb 100644
---- a/security/selinux/netlink.c
-+++ b/security/selinux/netlink.c
-@@ -19,8 +19,6 @@
- 
- #include "security.h"
- 
--static struct sock *selnl __ro_after_init;
+-static struct selinux_avc selinux_avc;
 -
- static int selnl_msglen(int msgtype)
+-void selinux_avc_init(struct selinux_avc **avc)
++int selinux_avc_create(struct selinux_avc **avc)
  {
- 	int ret = 0;
-@@ -66,6 +64,7 @@ static void selnl_add_payload(struct nlmsghdr *nlh, int len, int msgtype, void *
++	struct selinux_avc *newavc;
+ 	int i;
  
- static void selnl_notify(int msgtype, void *data)
- {
-+	struct sock *selnl = current->nsproxy->net_ns->selnl;
- 	int len;
- 	sk_buff_data_t tmp;
- 	struct sk_buff *skb;
-@@ -105,16 +104,36 @@ void selnl_notify_policyload(u32 seqno)
- 	selnl_notify(SELNL_MSG_POLICYLOAD, &seqno);
- }
- 
--static int __init selnl_init(void)
-+static int __net_init selnl_net_init(struct net *net)
- {
-+	struct sock *sk;
- 	struct netlink_kernel_cfg cfg = {
- 		.groups	= SELNLGRP_MAX,
- 		.flags	= NL_CFG_F_NONROOT_RECV,
- 	};
- 
--	selnl = netlink_kernel_create(&init_net, NETLINK_SELINUX, &cfg);
--	if (selnl == NULL)
--		panic("SELinux:  Cannot create netlink socket.");
-+	sk = netlink_kernel_create(net, NETLINK_SELINUX, &cfg);
-+	if (!sk)
+-	selinux_avc.avc_cache_threshold = AVC_DEF_CACHE_THRESHOLD;
++	newavc = kzalloc(sizeof(*newavc), GFP_KERNEL);
++	if (!newavc)
 +		return -ENOMEM;
-+	net->selnl = sk;
++
++	newavc->avc_cache_threshold = AVC_DEF_CACHE_THRESHOLD;
++
+ 	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
+-		INIT_HLIST_HEAD(&selinux_avc.avc_cache.slots[i]);
+-		spin_lock_init(&selinux_avc.avc_cache.slots_lock[i]);
++		INIT_HLIST_HEAD(&newavc->avc_cache.slots[i]);
++		spin_lock_init(&newavc->avc_cache.slots_lock[i]);
+ 	}
+-	atomic_set(&selinux_avc.avc_cache.active_nodes, 0);
+-	atomic_set(&selinux_avc.avc_cache.lru_hint, 0);
+-	*avc = &selinux_avc;
++	atomic_set(&newavc->avc_cache.active_nodes, 0);
++	atomic_set(&newavc->avc_cache.lru_hint, 0);
++
++	*avc = newavc;
 +	return 0;
 +}
 +
-+static void __net_exit selnl_net_exit(struct net *net)
-+{
-+	netlink_kernel_release(net->selnl);
-+	net->selnl = NULL;
-+}
++static void avc_flush(struct selinux_avc *avc);
 +
-+static struct pernet_operations selnl_net_ops = {
-+	.init = selnl_net_init,
-+	.exit = selnl_net_exit,
-+};
-+
-+static int __init selnl_init(void)
++void selinux_avc_free(struct selinux_avc *avc)
 +{
-+	if (register_pernet_subsys(&selnl_net_ops))
-+		panic("Could not register selinux netlink operations\n");
- 	return 0;
++	avc_flush(avc);
++	kfree(avc);
  }
  
+ unsigned int avc_get_cache_threshold(struct selinux_avc *avc)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 400e4dec90a5..ad8172ae7fda 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -108,7 +108,7 @@
+ 
+ #define SELINUX_INODE_INIT_XATTRS 1
+ 
+-static struct selinux_state init_selinux_state;
++static struct selinux_state *init_selinux_state;
+ struct selinux_state *current_selinux_state;
+ 
+ /* SECMARK reference count */
+@@ -7562,16 +7562,67 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+ #endif
+ };
+ 
++static void selinux_state_free(struct work_struct *work);
++
++int selinux_state_create(struct selinux_state *parent,
++			 struct selinux_state **state)
++{
++	struct selinux_state *newstate;
++	int rc;
++
++	newstate = kzalloc(sizeof(*newstate), GFP_KERNEL);
++	if (!newstate)
++		return -ENOMEM;
++
++	refcount_set(&newstate->count, 1);
++	INIT_WORK(&newstate->work, selinux_state_free);
++
++	mutex_init(&newstate->status_lock);
++	mutex_init(&newstate->policy_mutex);
++
++	rc = selinux_avc_create(&newstate->avc);
++	if (rc)
++		goto err;
++
++	if (parent)
++		newstate->parent = get_selinux_state(parent);
++
++	*state = newstate;
++	return 0;
++err:
++	kfree(newstate);
++	return rc;
++}
++
++static void selinux_state_free(struct work_struct *work)
++{
++	struct selinux_state *parent, *state =
++		container_of(work, struct selinux_state, work);
++
++	do {
++		parent = state->parent;
++		if (state->status_page)
++			__free_page(state->status_page);
++		selinux_policy_free(state->policy);
++		selinux_avc_free(state->avc);
++		kfree(state);
++		state = parent;
++	} while (state && refcount_dec_and_test(&state->count));
++}
++
++void __put_selinux_state(struct selinux_state *state)
++{
++	schedule_work(&state->work);
++}
++
+ static __init int selinux_init(void)
+ {
+ 	pr_info("SELinux:  Initializing.\n");
+ 
+-	memset(&init_selinux_state, 0, sizeof(init_selinux_state));
+-	enforcing_set(&init_selinux_state, selinux_enforcing_boot);
+-	selinux_avc_init(&init_selinux_state.avc);
+-	mutex_init(&init_selinux_state.status_lock);
+-	mutex_init(&init_selinux_state.policy_mutex);
+-	current_selinux_state = &init_selinux_state;
++	if (selinux_state_create(NULL, &init_selinux_state))
++		panic("SELinux: Could not create initial namespace\n");
++	enforcing_set(init_selinux_state, selinux_enforcing_boot);
++	current_selinux_state = init_selinux_state;
+ 
+ 	/* Set the security state for the initial task. */
+ 	cred_init_security();
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 14aa2cbb391a..6df38c714d1f 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -104,9 +104,33 @@ struct selinux_state {
+ 	struct selinux_avc *avc;
+ 	struct selinux_policy __rcu *policy;
+ 	struct mutex policy_mutex;
++	struct selinux_state *parent;
++
++	refcount_t count;
++	struct work_struct work;
+ } __randomize_layout;
+ 
+-void selinux_avc_init(struct selinux_avc **avc);
++int selinux_state_create(struct selinux_state *parent,
++			 struct selinux_state **state);
++void __put_selinux_state(struct selinux_state *state);
++
++void selinux_policy_free(struct selinux_policy __rcu *policy);
++
++int selinux_avc_create(struct selinux_avc **avc);
++void selinux_avc_free(struct selinux_avc *avc);
++
++static inline void put_selinux_state(struct selinux_state *state)
++{
++	if (state && refcount_dec_and_test(&state->count))
++		__put_selinux_state(state);
++}
++
++static inline struct selinux_state *
++get_selinux_state(struct selinux_state *state)
++{
++	refcount_inc(&state->count);
++	return state;
++}
+ 
+ extern struct selinux_state *current_selinux_state;
+ 
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index a72fc91f10ec..a59153c322cc 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -90,7 +90,7 @@ static int selinux_fs_info_create(struct super_block *sb)
+ 		return -ENOMEM;
+ 
+ 	fsi->last_ino = SEL_INO_NEXT - 1;
+-	fsi->state = current_selinux_state;
++	fsi->state = get_selinux_state(current_selinux_state);
+ 	fsi->sb = sb;
+ 	sb->s_fs_info = fsi;
+ 	return 0;
+@@ -102,6 +102,7 @@ static void selinux_fs_info_free(struct super_block *sb)
+ 	unsigned int i;
+ 
+ 	if (fsi) {
++		put_selinux_state(fsi->state);
+ 		for (i = 0; i < fsi->bool_num; i++)
+ 			kfree(fsi->bool_pending_names[i]);
+ 		kfree(fsi->bool_pending_names);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index db6c17bb274d..bbac5f3f2fd3 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2183,7 +2183,7 @@ static void security_load_policycaps(struct selinux_state *state,
+ static int security_preserve_bools(struct selinux_policy *oldpolicy,
+ 				struct selinux_policy *newpolicy);
+ 
+-static void selinux_policy_free(struct selinux_policy *policy)
++void selinux_policy_free(struct selinux_policy __rcu *policy)
+ {
+ 	if (!policy)
+ 		return;
 -- 
 2.47.1
 
