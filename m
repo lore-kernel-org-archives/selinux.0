@@ -1,69 +1,69 @@
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
+Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AEB81547FB
-	for <selinux@vger.kernel.org>; Thu,  2 Jan 2025 16:45:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB3A57B3E1
+	for <selinux@vger.kernel.org>; Thu,  2 Jan 2025 16:45:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735836344; cv=none; b=PypUbhSFxh6kbFjiGAaqA/DUOQk1JqkpU2eBi0+YWoHGz1XWmPPc5W43Z6qlL5VTxyaKMLUJxVVju5rmVDjXHdkk6Sb6ovQOgH7Uww/IqmXWPASeK0KFRY7LOFkNqhZYNSGRm0O2g2g5X0udoMcrzMtMBbBaTUFxnTxR/9yh9/w=
+	t=1735836347; cv=none; b=OgrUluj5R1XA6o0bbtaDveGCpLqk9QW5W+kSdPFPl/86QzYimAMwzrwcWAklC6z2Ddg0t8L5g2G3w44bQxJE1GFY3ZEagJeD7D4iQarfuosQBWqVxRyKW9v+MOaTT0JjRUbS39YdAM6cTrXb0wNdSXHwwJh/wKfS1bxtxbzDS88=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735836344; c=relaxed/simple;
-	bh=+wgSUrfBNcSxnhjdhXGTQqX8dDLfMwhcw/rztHHLK6g=;
+	s=arc-20240116; t=1735836347; c=relaxed/simple;
+	bh=KwpRHOUviaH4AiGAOCn1t9ffHK9VouigNcBVqx2O2HM=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=c9OivI4jVv1ACmHdPmxaRTFhlgYuHVbXrwtu0uMr3l/OSfj7TyHlX6goronwvvqH4JqP8OJokZcVqBJg+3anL3Q6OL/ZzsA9zwLS3Wp3hVdSvnHqY3NGzKNimSU9m/VKI7mgxZkREXm7SH18jm5VfaHq2N0vhRKHCVDjo9bP+1I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K9MnNJ0X; arc=none smtp.client-ip=209.85.160.178
+	 MIME-Version; b=Uoqrirb9dNmTEtQOO5gghm5DW6N7qy+qWM8ICWnTAifx0Bmgyzoqb1nydMajLZe/AoMQ5FpmFmRVc+hPjvAVoF4IlYnGGVY1SnPXPSFJM6+m26mz4aLUiz6sXgWPowWUq9FaepUe411XKLz9b+JZ+oHAUkr7kZmmAAHh+7UYetI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jbtua4Zr; arc=none smtp.client-ip=209.85.160.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K9MnNJ0X"
-Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-467a1ee7ff2so94757461cf.0
-        for <selinux@vger.kernel.org>; Thu, 02 Jan 2025 08:45:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jbtua4Zr"
+Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-467b086e0easo59349741cf.1
+        for <selinux@vger.kernel.org>; Thu, 02 Jan 2025 08:45:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1735836340; x=1736441140; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1735836343; x=1736441143; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ss3+Xgf2qnfOq82Ts7mEUS75c6/pwDte5IzPghKPzB8=;
-        b=K9MnNJ0XzCL2GMws+Fpn7v/imK4rFAT82y6/dA/Iqg4U7vs6mgTEzzpQETaXE+sILw
-         w2Ef8kpUIb0gPlf0PVvq7pkFRt0w4iOn/5SWPd4f65zQngSm+PGoznFrP+EfYqIh5cDT
-         vfPhwkFQJslVyczoAt4i+FGHzPnQ3i2mc4cr61LzKwB0HbM56V04xcsSrNEQWC0Wdo2Y
-         FWiU1VWtQRF8wF/3vaqEI1pyQ0CxefVNXavS78B0R7YsX9N3Bu+bSd7CXDc+iBugsoeu
-         5mvD0l3Ai7M2yZjQJQQuH0/PQV00vUFHD5t3/MWJSfAzT9jr+5J/x8jXtcPMqTVedX65
-         SdaA==
+        bh=2UhssZCc2QQmkomt4jnH3pklSAzAm4l66a8xNIU+ZcI=;
+        b=Jbtua4ZrEo1Xyofugd/a/oaYwqjck4JKzoyth2oivZ4Wk56S9jrQ/hg3R2QCQ4+JFZ
+         Pxqkvvqz0SPljMtp271i/nrMSbgP3Z79cRrm7nA0HwoIBauS0MnpFXApYAUvYR7JW7OT
+         sId5Q+x7hUCwgLrPlqZLqWeZ1yh+3FSPC01dRzocuy2ZDUh9oBhAgkPxFhWgXcFauYUl
+         c+JBrZ+/rmxMex1kUzTzyvesIF+CPe9xY7IB6Od771CDD5wfvX9MdCv5QEDxLVyn6J7G
+         uEN8ZDByYMe67i96Q/wfAiuqb4QpPfrCsHfCRI9ax6JXHjmuVHhIdXQmhCOYwu75pw54
+         1WsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1735836340; x=1736441140;
+        d=1e100.net; s=20230601; t=1735836343; x=1736441143;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ss3+Xgf2qnfOq82Ts7mEUS75c6/pwDte5IzPghKPzB8=;
-        b=Cek0rV0GONc54T3dkGOJGT2ag1P89aZEC4tvILLICqoGY2+rBj8qfwCAU5Ab5xtTDs
-         KZWJdgKTQivCCKzpl1Rs5JS8tQhC4Q3f/KCt9pU1Nw2BAf39IU24l1RkyduITa7EYatM
-         zFisFDQxAIg8lqOGJ9yT+TArbBTUSVVI+WMUvSOgKjdDUewgwikfbJGHR70Uy5NQl5H0
-         ZlEIfGhNA05VHBtxn5HaVEF8iackfitOprT6qEkVf3/xz7q4rw2kQNEX49YNe6WT0Hxe
-         u7AV5FZR8/Znedut8fyARF4FNNFvi7vMo+hTDrM/5MXTRtv3hN1D3Bo4JHPe8T/GFlBF
-         DwFQ==
-X-Gm-Message-State: AOJu0Yz7U7pxVqpu2nHGrRE1CK1NERVT4o076qLxl4XbhHs2KA8omQod
-	rngzs3aflviBNKvUlZCnJd5pARKhJMLUcmWxxKCh9Q1rfj/HXDqQbqR39A==
-X-Gm-Gg: ASbGnctpKXfijsam9heapt7LMAoGuBFNpeLKMz9dkDgfkLN5mJbGfHwVeTEnphFavur
-	g+CuDrI7op9Jk3hU16feqjFp2W0JQBKMymr5qOdilnjBIQnOH6P9fVeiX3nxnKd0WYIRYBfrgxg
-	kEefgF1ayr/vd/OncBpWXK/wO0O6wjuA0UqzmjbWFxTSOqviy0hk1VF2ZRjb2SdiFr6mzNQ7UWf
-	BoJKfgENfEA60P+zzqbKiHFqKr5S/oiVqyLS2yThcpx/jCXL9PcJ42HQhXFuK9pczZiw2w7toNz
-	dZBDjDQVRgLUEh35lqKzYxMYr1Xa0i3f6BOAHgh6YsFuWuDfOAJn5lXERa8XTroxNz+91A==
-X-Google-Smtp-Source: AGHT+IFYVzcT0DttA1ea16/WZKDKLgmk/tNsTUSN3YacHSNRLdhbXKYfcP6XBgEKQA/orVhfXqQ9nw==
-X-Received: by 2002:a05:622a:28b:b0:467:63a5:fb9c with SMTP id d75a77b69052e-46a4a98a203mr862126761cf.44.1735836339962;
-        Thu, 02 Jan 2025 08:45:39 -0800 (PST)
+        bh=2UhssZCc2QQmkomt4jnH3pklSAzAm4l66a8xNIU+ZcI=;
+        b=QGjStvi9EZx2Tx8z73PB+EeUQ4iFmat3A+nB34orXpaPegeqe43lbPWpqCP408E5MA
+         Xv1oxL4N/Ms4gwEoL3us1opgGeYChA/gxFe65123suOUaoc3urUHN7PID88RTYoMed7W
+         59sGGol1B80K8Gq57Tf3pkVk/UAahaE78wRcmI/iYH5OMkue5pBzC6kM7vxpWY2u5vTt
+         zoI5gHx7nBRwdjOG7/z1r6p02QunS9Z/VhU44+YnrQCekhq1wQy6gRFJCd+fNo+hPC+m
+         mGaqz8bK1IvN30pzhRqDvFdqeSIyilYHNnSEizkrXjzjA31WdfIZSdRnlqfE93wZ+EMN
+         QQqQ==
+X-Gm-Message-State: AOJu0Yz5Q+R38ZQdVyh0ncAuda/UxoLa3AInHlYf7mtl5lSlWuGAkMWH
+	L9w/XX8Q/9Ex1nIsJGt6VdjlYFvOMZl1K0eWIY/f8b6x3gwLEW10C2IkTw==
+X-Gm-Gg: ASbGnctWF/69qBHywZF/kjqlqfCnA+2KD/2QzmWKAoAo4dEdjfizAJuS9B7IhGeUutm
+	jgriyasnYb6HfKw4iAisqD4YwMX+H6IOnc9k7q/KVVziFEtZuVYqOIpfYP7aCrk/lgi2B2D1AP0
+	FILaWioNhjJTvvg9mrQD/tP2qInZ+6CeIV0AsE8STeuwgd82/ryB7e0xU6cJ7z2x7+oVw+hkI+d
+	7tkOmwo6PVKPXhC5F60pq/472KWLSvKphChIQ7K7KWaHX4N5hSYKaLKSi7QlCHRHRK5tWn9H7Bs
+	KwYyhns7rhrU+rf3Pv3orSl3mp/Ue/XK8Ns/kKrv152DNpYdvdgnYmbFiTotyKKZ7FLCUw==
+X-Google-Smtp-Source: AGHT+IGvio6JXwApI62myZ793TlORPuuofLf8R/19inAHK1X2jz/gip8MhyNwBwWxxv17drFNjRldQ==
+X-Received: by 2002:a05:622a:594:b0:467:7f7e:57fa with SMTP id d75a77b69052e-46a4a8ee54amr661943591cf.33.1735836342916;
+        Thu, 02 Jan 2025 08:45:42 -0800 (PST)
 Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-46a3eb19684sm136795101cf.58.2025.01.02.08.45.38
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-46a3eb19684sm136795101cf.58.2025.01.02.08.45.42
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 02 Jan 2025 08:45:39 -0800 (PST)
+        Thu, 02 Jan 2025 08:45:42 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [RFC PATCH 10/44] selinux: introduce a global SID table
-Date: Thu,  2 Jan 2025 11:44:35 -0500
-Message-Id: <20250102164509.25606-11-stephen.smalley.work@gmail.com>
+Subject: [RFC PATCH 13/44] selinux: introduce cred_task_has_perm()
+Date: Thu,  2 Jan 2025 11:44:38 -0500
+Message-Id: <20250102164509.25606-14-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20250102164509.25606-1-stephen.smalley.work@gmail.com>
 References: <20250102164509.25606-1-stephen.smalley.work@gmail.com>
@@ -75,260 +75,254 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Introduce a global SID table to provide stable global SID values
-independent of any particular policy or namespace. This table will only
-map between global SIDs and security context strings since it must
-remain policy-independent. Internally each of these global SIDs can then
-be mapped on a per-policy/namespace basis to per-namespace SIDs and
-context structures. The LSM interfaces and blob structures will only use
-the global SID values and thus remain namespace-neutral.
+Introduce cred_task_has_perm() for checking permissions between a cred
+and a target task against not only the current SELinux namespace but all
+ancestor namespaces too.
 
-Note that this required moving the SID table header and its dependencies
-out of the security server subdirectory. While we could re-factor it to
-to reduce the scope of this change, doing so does not seem worthwhile.
-The security server abstraction is largely obsoleted by LSM, no one has
-contributed any other security server implementation for SELinux, and
-over time there has been an increasing blurring of the boundary between the
-security server and the rest of the SELinux module. Eventually, I
-anticipate fully moving the security server files out of the ss
-subdirectory but that is left for a future change.
+Convert existing cred-task permission checks in the SELinux hook
+functions to use cred_task_has_perm() instead of calling avc_has_perm().
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/Makefile                     |   2 +-
- security/selinux/global_sidtab.c              | 100 ++++++++++++++++++
- security/selinux/hooks.c                      |   4 +
- security/selinux/{ss => include}/avtab.h      |   0
- security/selinux/{ss => include}/constraint.h |   0
- security/selinux/{ss => include}/context.h    |   0
- security/selinux/{ss => include}/ebitmap.h    |   0
- security/selinux/include/global_sidtab.h      |  19 ++++
- security/selinux/{ss => include}/hashtab.h    |   0
- security/selinux/{ss => include}/mls.h        |   0
- security/selinux/{ss => include}/mls_types.h  |   0
- security/selinux/{ss => include}/policydb.h   |   0
- security/selinux/{ss => include}/sidtab.h     |   0
- security/selinux/{ss => include}/symtab.h     |   0
- 14 files changed, 124 insertions(+), 1 deletion(-)
- create mode 100644 security/selinux/global_sidtab.c
- rename security/selinux/{ss => include}/avtab.h (100%)
- rename security/selinux/{ss => include}/constraint.h (100%)
- rename security/selinux/{ss => include}/context.h (100%)
- rename security/selinux/{ss => include}/ebitmap.h (100%)
- create mode 100644 security/selinux/include/global_sidtab.h
- rename security/selinux/{ss => include}/hashtab.h (100%)
- rename security/selinux/{ss => include}/mls.h (100%)
- rename security/selinux/{ss => include}/mls_types.h (100%)
- rename security/selinux/{ss => include}/policydb.h (100%)
- rename security/selinux/{ss => include}/sidtab.h (100%)
- rename security/selinux/{ss => include}/symtab.h (100%)
+ security/selinux/avc.c         | 44 ++++++++++++++++++
+ security/selinux/hooks.c       | 81 ++++++++++++----------------------
+ security/selinux/include/avc.h |  4 ++
+ 3 files changed, 77 insertions(+), 52 deletions(-)
 
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index 66e56e9011df..fe5f6f4bb0ea 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -15,7 +15,7 @@ ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
- ccflags-$(CONFIG_SECURITY_SELINUX_DEBUG) += -DDEBUG
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index cc20c5d8b63a..bdd97f8bb571 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -1233,6 +1233,50 @@ int avc_has_perm(struct selinux_state *state, u32 ssid, u32 tsid, u16 tclass,
+ 	return rc;
+ }
  
- selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
--	     netnode.o netport.o status.o \
-+	     netnode.o netport.o status.o global_sidtab.o \
- 	     ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
- 	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o ss/context.o
- 
-diff --git a/security/selinux/global_sidtab.c b/security/selinux/global_sidtab.c
-new file mode 100644
-index 000000000000..161cf31f1ba4
---- /dev/null
-+++ b/security/selinux/global_sidtab.c
-@@ -0,0 +1,100 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include "global_sidtab.h"
-+#include "sidtab.h"
-+
-+static struct sidtab global_sidtab;
-+
-+int global_sidtab_init(void)
++static u32 task_sid_obj_for_state(const struct task_struct *p,
++				  const struct selinux_state *state)
 +{
-+	struct context ctx;
-+	int rc, sid;
-+
-+	rc = sidtab_init(&global_sidtab);
-+	if (rc)
-+		return rc;
-+
-+	memset(&ctx, 0, sizeof(ctx));
-+	for (sid = 1; sid <= SECINITSID_NUM; sid++) {
-+		const char *str = security_get_initial_sid_context(sid);
-+
-+		if (!str)
-+			continue;
-+		ctx.str = (char *)str;
-+		ctx.len = strlen(str)+1;
-+		rc = sidtab_set_initial(&global_sidtab, sid, &ctx);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	return 0;
-+}
-+
-+int global_sid_to_context(u32 sid, char **scontext, u32 *scontext_len)
-+{
-+	struct context *ctx;
++	const struct task_security_struct *tsec;
++	u32 sid;
 +
 +	rcu_read_lock();
-+	ctx = sidtab_search_force(&global_sidtab, sid);
-+	if (!ctx) {
-+		rcu_read_unlock();
-+		*scontext = NULL;
-+		*scontext_len = 0;
-+		return -EINVAL;
-+	}
-+	*scontext_len = ctx->len;
-+	/*
-+	 * Could eliminate allocation + copy if callers do not free
-+	 * since the global sidtab entries are never freed.
-+	 * This however would not match the current expectation
-+	 * of callers of security_sid_to_context().
-+	 * TODO: Update all callers and get rid of this copy.
-+	 */
-+	*scontext = kstrdup(ctx->str, GFP_ATOMIC);
-+	if (!(*scontext)) {
-+		rcu_read_unlock();
-+		*scontext_len = 0;
-+		return -ENOMEM;
-+	}
-+
++	tsec = selinux_cred(__task_cred(p));
++	while (tsec->state != state && tsec->parent_cred)
++		tsec = selinux_cred(tsec->parent_cred);
++	if (tsec->state == state)
++		sid = tsec->sid;
++	else
++		sid = SECINITSID_UNLABELED;
 +	rcu_read_unlock();
-+	return 0;
++	return sid;
 +}
 +
-+int global_context_to_sid(const char *scontext, u32 scontext_len, u32 *out_sid,
-+			gfp_t gfp)
++int cred_task_has_perm(const struct cred *cred, const struct task_struct *p,
++		       u16 tclass, u32 requested,
++		       struct common_audit_data *ad)
 +{
-+	char *str;
-+	struct context ctx;
++	struct task_security_struct *tsec;
++	struct selinux_state *state;
++	u32 ssid;
++	u32 tsid;
 +	int rc;
 +
-+	if (!scontext_len)
-+		return -EINVAL;
++	do {
++		tsec = selinux_cred(cred);
++		ssid = tsec->sid;
++		state = tsec->state;
++		tsid = task_sid_obj_for_state(p, state);
 +
-+	/*
-+	 * Could eliminate allocation + copy if callers were required to
-+	 * pass in a NUL-terminated string or if the context_cmp/cpy()
-+	 * functions did not assume that ctx.str is NUL-terminated.
-+	 * This however would not match the current expectation of
-+	 * callers of security_context_to_sid, particularly contexts
-+	 * fetched from xattr values or provided by the xattr APIs.
-+	 * TODO: Change context_cmp/cpy() or update all callers and
-+	 * get rid of this copy.
-+	 */
-+	str = kmemdup_nul(scontext, scontext_len, gfp);
-+	if (!str)
-+		return -ENOMEM;
++		rc = avc_has_perm(state, ssid, tsid, tclass, requested, ad);
++		if (rc)
++			return rc;
 +
-+	ctx.str = str;
-+	ctx.len = strlen(str)+1;
++		cred = tsec->parent_cred;
++	} while (cred);
 +
-+retry:
-+	rcu_read_lock();
-+	rc = sidtab_context_to_sid(&global_sidtab, &ctx, out_sid);
-+	if (rc == -ESTALE) {
-+		rcu_read_unlock();
-+		goto retry;
-+	}
-+	rcu_read_unlock();
-+	kfree(str);
-+	return rc;
++	return 0;
 +}
++
+ u32 avc_policy_seqno(struct selinux_state *state)
+ {
+ 	return state->avc->avc_cache.latest_notif;
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 1aa0bb1a83ce..3f6c49c62e96 100644
+index 6fffd0aa088c..c7aca5610402 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -105,6 +105,7 @@
- #include "netlabel.h"
- #include "audit.h"
- #include "avc_ss.h"
-+#include "global_sidtab.h"
+@@ -2144,15 +2144,12 @@ static int selinux_binder_transfer_file(const struct cred *from,
+ static int selinux_ptrace_access_check(struct task_struct *child,
+ 				       unsigned int mode)
+ {
+-	u32 sid = current_sid();
+-	u32 csid = task_sid_obj(child);
+-
+ 	if (mode & PTRACE_MODE_READ)
+-		return avc_has_perm(current_selinux_state,
+-				    sid, csid, SECCLASS_FILE, FILE__READ, NULL);
++		return cred_task_has_perm(current_cred(), child,
++					  SECCLASS_FILE, FILE__READ, NULL);
  
- #define SELINUX_INODE_INIT_XATTRS 1
+-	return avc_has_perm(current_selinux_state,
+-			    sid, csid, SECCLASS_PROCESS, PROCESS__PTRACE, NULL);
++	return cred_task_has_perm(current_cred(), child, SECCLASS_PROCESS,
++				  PROCESS__PTRACE, NULL);
+ }
  
-@@ -7662,6 +7663,9 @@ static __init int selinux_init(void)
- 		panic("SELinux: Could not create initial namespace\n");
- 	enforcing_set(init_selinux_state, selinux_enforcing_boot);
+ static int selinux_ptrace_traceme(struct task_struct *parent)
+@@ -2165,9 +2162,8 @@ static int selinux_ptrace_traceme(struct task_struct *parent)
+ static int selinux_capget(const struct task_struct *target, kernel_cap_t *effective,
+ 			  kernel_cap_t *inheritable, kernel_cap_t *permitted)
+ {
+-	return avc_has_perm(current_selinux_state,
+-			    current_sid(), task_sid_obj(target), SECCLASS_PROCESS,
+-			    PROCESS__GETCAP, NULL);
++	return cred_task_has_perm(current_cred(), target, SECCLASS_PROCESS,
++				  PROCESS__GETCAP, NULL);
+ }
  
-+	if (global_sidtab_init())
-+		panic("SELinux: Could not create global SID table\n");
-+
- 	/* Set the security state for the initial task. */
- 	cred_init_security();
+ static int selinux_capset(struct cred *new, const struct cred *old,
+@@ -4274,23 +4270,20 @@ static int selinux_kernel_load_data(enum kernel_load_data_id id, bool contents)
  
-diff --git a/security/selinux/ss/avtab.h b/security/selinux/include/avtab.h
-similarity index 100%
-rename from security/selinux/ss/avtab.h
-rename to security/selinux/include/avtab.h
-diff --git a/security/selinux/ss/constraint.h b/security/selinux/include/constraint.h
-similarity index 100%
-rename from security/selinux/ss/constraint.h
-rename to security/selinux/include/constraint.h
-diff --git a/security/selinux/ss/context.h b/security/selinux/include/context.h
-similarity index 100%
-rename from security/selinux/ss/context.h
-rename to security/selinux/include/context.h
-diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/include/ebitmap.h
-similarity index 100%
-rename from security/selinux/ss/ebitmap.h
-rename to security/selinux/include/ebitmap.h
-diff --git a/security/selinux/include/global_sidtab.h b/security/selinux/include/global_sidtab.h
-new file mode 100644
-index 000000000000..f62a9165d26a
---- /dev/null
-+++ b/security/selinux/include/global_sidtab.h
-@@ -0,0 +1,19 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * A global security identifier table (sidtab) is a lookup table
-+ * of security context strings indexed by SID value.
-+ */
+ static int selinux_task_setpgid(struct task_struct *p, pid_t pgid)
+ {
+-	return avc_has_perm(current_selinux_state,
+-			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+-			    PROCESS__SETPGID, NULL);
++	return cred_task_has_perm(current_cred(), p, SECCLASS_PROCESS,
++				  PROCESS__SETPGID, NULL);
+ }
+ 
+ static int selinux_task_getpgid(struct task_struct *p)
+ {
+-	return avc_has_perm(current_selinux_state,
+-			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+-			    PROCESS__GETPGID, NULL);
++	return cred_task_has_perm(current_cred(), p, SECCLASS_PROCESS,
++				  PROCESS__GETPGID, NULL);
+ }
+ 
+ static int selinux_task_getsid(struct task_struct *p)
+ {
+-	return avc_has_perm(current_selinux_state,
+-			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+-			    PROCESS__GETSESSION, NULL);
++	return cred_task_has_perm(current_cred(), p, SECCLASS_PROCESS,
++				  PROCESS__GETSESSION, NULL);
+ }
+ 
+ static void selinux_current_getlsmprop_subj(struct lsm_prop *prop)
+@@ -4306,23 +4299,20 @@ static void selinux_task_getlsmprop_obj(struct task_struct *p,
+ 
+ static int selinux_task_setnice(struct task_struct *p, int nice)
+ {
+-	return avc_has_perm(current_selinux_state,
+-			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+-			    PROCESS__SETSCHED, NULL);
++	return cred_task_has_perm(current_cred(), p, SECCLASS_PROCESS,
++				  PROCESS__SETSCHED, NULL);
+ }
+ 
+ static int selinux_task_setioprio(struct task_struct *p, int ioprio)
+ {
+-	return avc_has_perm(current_selinux_state,
+-			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+-			    PROCESS__SETSCHED, NULL);
++	return cred_task_has_perm(current_cred(), p, SECCLASS_PROCESS,
++				  PROCESS__SETSCHED, NULL);
+ }
+ 
+ static int selinux_task_getioprio(struct task_struct *p)
+ {
+-	return avc_has_perm(current_selinux_state,
+-			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+-			    PROCESS__GETSCHED, NULL);
++	return cred_task_has_perm(current_cred(), p, SECCLASS_PROCESS,
++				  PROCESS__GETSCHED, NULL);
+ }
+ 
+ static int selinux_task_prlimit(const struct cred *cred, const struct cred *tcred,
+@@ -4351,56 +4341,43 @@ static int selinux_task_setrlimit(struct task_struct *p, unsigned int resource,
+ 	   later be used as a safe reset point for the soft limit
+ 	   upon context transitions.  See selinux_bprm_committing_creds. */
+ 	if (old_rlim->rlim_max != new_rlim->rlim_max)
+-		return avc_has_perm(current_selinux_state,
+-				    current_sid(), task_sid_obj(p),
+-				    SECCLASS_PROCESS, PROCESS__SETRLIMIT, NULL);
++		return cred_task_has_perm(current_cred(), p, SECCLASS_PROCESS,
++					  PROCESS__SETRLIMIT, NULL);
+ 
+ 	return 0;
+ }
+ 
+ static int selinux_task_setscheduler(struct task_struct *p)
+ {
+-	return avc_has_perm(current_selinux_state,
+-			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+-			    PROCESS__SETSCHED, NULL);
++	return cred_task_has_perm(current_cred(), p, SECCLASS_PROCESS,
++				  PROCESS__SETSCHED, NULL);
+ }
+ 
+ static int selinux_task_getscheduler(struct task_struct *p)
+ {
+-	return avc_has_perm(current_selinux_state,
+-			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+-			    PROCESS__GETSCHED, NULL);
++	return cred_task_has_perm(current_cred(), p, SECCLASS_PROCESS,
++				  PROCESS__GETSCHED, NULL);
+ }
+ 
+ static int selinux_task_movememory(struct task_struct *p)
+ {
+-	return avc_has_perm(current_selinux_state,
+-			    current_sid(), task_sid_obj(p), SECCLASS_PROCESS,
+-			    PROCESS__SETSCHED, NULL);
++	return cred_task_has_perm(current_cred(), p, SECCLASS_PROCESS,
++				  PROCESS__SETSCHED, NULL);
+ }
+ 
+ static int selinux_task_kill(struct task_struct *p, struct kernel_siginfo *info,
+ 				int sig, const struct cred *cred)
+ {
+-	struct selinux_state *state;
+-	u32 secid;
+ 	u32 perm;
+ 
+-	if (cred)
+-		state = cred_selinux_state(cred);
+-	else
+-		state = current_selinux_state;
++	if (!cred)
++		cred = current_cred();
+ 
+ 	if (!sig)
+ 		perm = PROCESS__SIGNULL; /* null signal; existence test */
+ 	else
+ 		perm = signal_to_av(sig);
+-	if (!cred)
+-		secid = current_sid();
+-	else
+-		secid = cred_sid(cred);
+-	return avc_has_perm(state, secid, task_sid_obj(p),
+-			    SECCLASS_PROCESS, perm, NULL);
++	return cred_task_has_perm(cred, p, SECCLASS_PROCESS, perm, NULL);
+ }
+ 
+ static void selinux_task_to_inode(struct task_struct *p,
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index 9c6d9c5e727e..0a12ebe43632 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -144,6 +144,10 @@ int avc_has_extended_perms(struct selinux_state *state, u32 ssid, u32 tsid,
+ 			   u16 tclass, u32 requested, u8 driver, u8 perm,
+ 			   struct common_audit_data *ad);
+ 
++int cred_task_has_perm(const struct cred *cred, const struct task_struct *p,
++		       u16 tclass, u32 requested,
++		       struct common_audit_data *auditdata);
 +
-+#ifndef _GLOBAL_SIDTAB_H_
-+#define _GLOBAL_SIDTAB_H_
-+
-+#include <linux/types.h>
-+
-+extern int global_sidtab_init(void);
-+
-+extern int global_sid_to_context(u32 sid, char **scontext, u32 *scontext_len);
-+
-+extern int global_context_to_sid(const char *scontext, u32 scontext_len,
-+				 u32 *out_sid, gfp_t gfp);
-+
-+#endif /* _GLOBAL_SIDTAB_H_ */
-diff --git a/security/selinux/ss/hashtab.h b/security/selinux/include/hashtab.h
-similarity index 100%
-rename from security/selinux/ss/hashtab.h
-rename to security/selinux/include/hashtab.h
-diff --git a/security/selinux/ss/mls.h b/security/selinux/include/mls.h
-similarity index 100%
-rename from security/selinux/ss/mls.h
-rename to security/selinux/include/mls.h
-diff --git a/security/selinux/ss/mls_types.h b/security/selinux/include/mls_types.h
-similarity index 100%
-rename from security/selinux/ss/mls_types.h
-rename to security/selinux/include/mls_types.h
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/include/policydb.h
-similarity index 100%
-rename from security/selinux/ss/policydb.h
-rename to security/selinux/include/policydb.h
-diff --git a/security/selinux/ss/sidtab.h b/security/selinux/include/sidtab.h
-similarity index 100%
-rename from security/selinux/ss/sidtab.h
-rename to security/selinux/include/sidtab.h
-diff --git a/security/selinux/ss/symtab.h b/security/selinux/include/symtab.h
-similarity index 100%
-rename from security/selinux/ss/symtab.h
-rename to security/selinux/include/symtab.h
+ u32 avc_policy_seqno(struct selinux_state *state);
+ 
+ #define AVC_CALLBACK_GRANT		1
 -- 
 2.47.1
 
