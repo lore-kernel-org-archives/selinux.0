@@ -1,69 +1,69 @@
-Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D9D615B554
-	for <selinux@vger.kernel.org>; Thu,  2 Jan 2025 16:46:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F384E1547C0
+	for <selinux@vger.kernel.org>; Thu,  2 Jan 2025 16:46:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735836368; cv=none; b=tUntjFenJKbfVR+PsOm3boNdAP+2nMeIMttdNB5l8dqqduBi+8GWL9jQM/c9GaXoXUqRsUHFMGsVEqIQ2VzjFZU4V5nYdwc+5wcXwBf3agSejfOs9gi+4o1PcEVmwU7RB+t39WIvAucAz/2Hp4vewBQUnPN9eLFCXHPMx4HsXWw=
+	t=1735836370; cv=none; b=ssY69Iorl8ZdYl+4KCSxP2BcY5iYQXysz0YEs4phmfC/B4LLqLadP2DIggJzuyJN+vmlo+/wujjnt1WS7pBaMV0zSiCG3Br9GcEbqfteyjniTRDTCEu4Vhk5OWYMah/A6ARksqdcPHHvtMazq/kDFuJ1Imfn3KdUjJ1IBCRLZUA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735836368; c=relaxed/simple;
-	bh=K8R8kC3jcmlf0rDFUv28CZDFUfJ0vqtVQSVDSGRDxvg=;
+	s=arc-20240116; t=1735836370; c=relaxed/simple;
+	bh=+iZpS2Rr1b/5SWTrq6fU9FOEkkYcEP/Ggj4ViT0wFNI=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=m8y+KhTURb8bFHDRXQsKhDQxpbi1zE6M7G4hhjfvf9sXHpwO6JRQArKLDgkk5T2CEkXCkiF1YdZ/d2rPrPSKNsZWitBiY7W+3HXzyhvNQ/gleO8KjItyCVXkcCLZlCyCA08+Zan0ZAHE6eVJEM2+eJPR6Gmdu/J46osTMBw318I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MDU3xeh9; arc=none smtp.client-ip=209.85.160.177
+	 MIME-Version; b=V481wETQoupFDcHoRrQoVW8vOkboDeCnt9hwd3oJlx9iVmbUzAmu8kJr+Ock/Uo4y+zL2n+b79fcczpypITrrrZ7nnCILdllD6JFRD9xLi4ghlbEA0B+GfCIsTcCiHZPUSziP9TwZbxYBE9kPONAwFtB+UhfQdSYe0J/bro13eY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WRqNitaJ; arc=none smtp.client-ip=209.85.222.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MDU3xeh9"
-Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-467a3f1e667so66794931cf.0
-        for <selinux@vger.kernel.org>; Thu, 02 Jan 2025 08:46:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WRqNitaJ"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-7b6e8814842so991322685a.0
+        for <selinux@vger.kernel.org>; Thu, 02 Jan 2025 08:46:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1735836364; x=1736441164; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1735836365; x=1736441165; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ZRpte4Yj3L0lxneuJsucmfxqmY0Gdyz1zaBITUyNYP8=;
-        b=MDU3xeh9hPwyY2cBQ18hKSzgEGVEWvL7lH3pRc2FoOpkjSVjGAfvR/ZNod6fV7O9dt
-         WM62RDex/Qms6zbTJvVVisY7jj6MNR8+mDkOKL93m5uZTYoi3iwamT26MESFGMXHWS6U
-         Ki1c64D/SY22bNJs8r6pWXbE69WL4nUTPuE49UX3lMoaX6J3PQhSfhSwB8NgbjiRvgZ+
-         qqsbMgA5VFe0PCltR09E7vlNnHXf5BvOZRsG5XFZ2me3CKG+2tl3GM+eVOYl0/94qkJd
-         XOjEkW9EgTHza5LxTB8rKdKjMs6ZO/t78Ub9bBblWU0QHE0OKyUtebO8ldouf5fV8Ebf
-         Sbdg==
+        bh=YeDvGkxIoG2pQKa7PHtBx1HxqggtqDBJK5ahsNF77fc=;
+        b=WRqNitaJRwi9dV9ieqEQWSR6sNmvQzJyyiA349BRe9WiXuLJYm6nrmAxxt/bYK8I3G
+         HKdNRrLS7yWeUzwW5KTKsNR6EVhNZJseoEJeloalyJnj7HjXtBb+YIodHjYbkQp0NSl8
+         wUZlhI8lSn9mdSuV/qi1HuLrlkc5ej24Ll0kKCAzFE8Se+I8RKtIFWHpLrmVCNe2/+Qi
+         S8CrZydHGJXmynXOtc5z1meK9pO6f88ugr2hv0e182xTwDURUG/XKhjoUmYfX/B8aEOZ
+         XdfHkVd988vIiezwFnprtAiUxZKZLeb6hMLeNH8kibbFwGfdsImfCG3JHPzX5ZYnl3z5
+         W6/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1735836364; x=1736441164;
+        d=1e100.net; s=20230601; t=1735836365; x=1736441165;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ZRpte4Yj3L0lxneuJsucmfxqmY0Gdyz1zaBITUyNYP8=;
-        b=SY8jSvpmUtkNWQ6AsCiAVicl2ykLRwNuMzcoyYOmw3vB2WKSnQVi/+dnSEXAp8JvKM
-         Jk4Qyzr+KWmwXVkgnFQlF7j4AOvC5y1eqVowNem11IeD14OY1t362cp0sAh3F/CUFXLB
-         T4hMEfB4zoJ0RVBk9Ms9kgXw7ygAyIKhAZXafXvJW6stQjnaQ1rFPYvZlsl4CFtLBxSZ
-         ANagLIT8/m53LOBZfgI+++jLVP087UBtsp+QUEij+B5hO7A9lQ1u6Q/KoOMZAEBAF3QG
-         jWfstaimTYyjgZze8/aLSeFBtEYC9qfmzTE5qNP2eu/ziBY9IWpBc6Iff9FrWkxQkJLB
-         GsCA==
-X-Gm-Message-State: AOJu0Yx+r1fRRbldWOH+U1mH6l/Xj45zhJteGhu5Jt6YB0dZT4kE1O6A
-	d0khYNE6wKBgcm4Rhe4LaNLYKTPQi/IP3/GrPNL+nAud1olUPimKXAgTWQ==
-X-Gm-Gg: ASbGncs/9b9aCrfUs8W4moEY2zziSkjwl2TrHw/9ola4VyUjo4m+Duf3YUACeErZAii
-	GCnEFD12DQfZIE365HPCNd6HhTaCCrPkSkpXijIqr8zjHfcV01Icf1NTTTfYP5MmcU67U/jY0LY
-	rLdL//eJQ+be8tnemBeuNgCDKjhiO+cr9dRqgebkFXEdKAUqJL+LdA/sovZwdlJFSH0GvmqgW6n
-	83+p5P4NCVwbnznulYtTLNhWt276nKHweFlJMT81Vb2UlbfQjP4NzN2FUiRUBmHEy+4rLcPTOUa
-	p6EKf/XHYQ0D6l9ObRV5xyZVXdrOhc71KUCQ8KtOtlGH8gN5gUxheThB/7HYiY7Xh1bTlQ==
-X-Google-Smtp-Source: AGHT+IHj+jiISNkqg/TKfNxAlmeSW9VyqQL4jLiVFvRCCXPBOvMkevROIcQZWtX7DNqktmBINUnJbw==
-X-Received: by 2002:ac8:5d51:0:b0:467:5144:8374 with SMTP id d75a77b69052e-46a4a8eb034mr685568111cf.25.1735836364079;
-        Thu, 02 Jan 2025 08:46:04 -0800 (PST)
+        bh=YeDvGkxIoG2pQKa7PHtBx1HxqggtqDBJK5ahsNF77fc=;
+        b=Ju3cOEhSLV7baxzO8IJGgvo0tRTs09tmuvcxkfH1uKYIIGp5Yslh8ofLAVnGCigaln
+         J3iVlIrxAUcTxt7RV8qkJ8gWvZTP1SMSwgCPem9dVM5lL9+dUkpGI3bYvWa0imTZ8VRj
+         sosN967LgbxFdaxwW0t6iHKOFW+i9Mutxk7sN9zzrXLZCaUlxNvpOVgMaOIqHypKCVek
+         q7eOZNt16WjPWnqdKrKuqvSRjEaqJTOevIQNHk3fBsjByU+Gkn1ASNuoLlhD6TLrxcgh
+         n6WGvnD4S7aXSrAgfAz5xzQMIlKxGWsGE8du+hSkPGKigf6zq2rJpdJ/7Ucu1cMfs3Dh
+         0xTQ==
+X-Gm-Message-State: AOJu0YyXy0BsQ5KDX4FJs3QTfykqyXNAKBaNldOo036wV2jphwqZDs0y
+	jPkBQ8PC01GFf4pq6ghC+6NhpfQ3lPE72hk5aOruVsns4Q3WpiNjZB+X7g==
+X-Gm-Gg: ASbGncvEkeNbGKy9LAbm/QBY3LrPG0yAaG8bFfda+EVkwyXFu0Nws5t66xEnDJwSJCE
+	zNAlRbaDF3knQGCilJ0ZD8QbjtXTwHqdlWwz5DBcEg5ooU6h1Cy2kQUFuWXTDWgqmqei3uso8PC
+	xawbiN7Ca5o93XbNxYwJ7M5nbugXJVtt+rvw3dfy7ELeY7WQ3xFHYdSMt4lfyRAsDGOyQjrF2EF
+	/s5i1vr/pEPl+io6/rkq0LB0TNKzFZ/paHtP1RgIMHi56/Mp65N9WcANGmq9j2e5LgxKqOas3qn
+	+0T0xfKHVyTODDo7oJiKlskxLcxLjNCPyMH7Abmpo8fEVoZ53bRnKORJ9UeTb6QvUJ/FMA==
+X-Google-Smtp-Source: AGHT+IEi9WSUdQocLTMkARF2ziQEnyawHYcEjRuV0AjP8twKBNDZD3/BgzOeTCdp4dbvhfER9I2BYA==
+X-Received: by 2002:a05:620a:650a:b0:7b6:6634:5a42 with SMTP id af79cd13be357-7b9ba79b290mr6575707985a.23.1735836365253;
+        Thu, 02 Jan 2025 08:46:05 -0800 (PST)
 Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-46a3eb19684sm136795101cf.58.2025.01.02.08.46.03
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-46a3eb19684sm136795101cf.58.2025.01.02.08.46.04
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 02 Jan 2025 08:46:03 -0800 (PST)
+        Thu, 02 Jan 2025 08:46:04 -0800 (PST)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [RFC PATCH 43/44] selinux: introduce a Kconfig option for SELinux namespaces
-Date: Thu,  2 Jan 2025 11:45:08 -0500
-Message-Id: <20250102164509.25606-44-stephen.smalley.work@gmail.com>
+Subject: [RFC PATCH 44/44] selinux: fix inode initialization when no namespace is initialized
+Date: Thu,  2 Jan 2025 11:45:09 -0500
+Message-Id: <20250102164509.25606-45-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20250102164509.25606-1-stephen.smalley.work@gmail.com>
 References: <20250102164509.25606-1-stephen.smalley.work@gmail.com>
@@ -75,164 +75,52 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Introduce a separate SECURITY_SELINUX_NS Kconfig option for enabling
-SELinux namespaces and have it default to n since it is experimental.
-Make the SECURITY_SELINUX_MAXNS and SECURITY_SELINUX_MAXNSDEPTH Kconfig
-options depend on this new option.
-
-This option only controls whether the SELinux namespace support is
-exposed to userspace, not the underlying infrastructure support.
-When set to n, the kernel APIs for unsharing the SELinux namespace
-(/sys/fs/selinux/unshare) and for setting limits on SELinux namespaces
-(/sys/fs/selinux/{maxns,maxnsdepth}) are not created and only a
-single initial SELinux namespace is created during startup and
-associated with all tasks. When set to y, the kernel APIs are created
-and userspace can use them (if permitted by policy and constrained by
-the limits) to unshare the SELinux namespace.
+commit e8087cb36d3d2c6eab77 ("selinux: init inode from nearest
+initialized namespace") wrongly assumed that there must be at least one
+ancestor namespace that is initialized. In the case where the init
+SELinux namespace was never initialized (i.e. no policy loaded on the
+host), then this assumption can be false. Fix the logic to defer
+initialization of the inode in that situation.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/Kconfig     | 42 +++++++++++++++++++++++++++++++++---
- security/selinux/hooks.c     |  4 ++++
- security/selinux/selinuxfs.c |  7 +++++-
- 3 files changed, 49 insertions(+), 4 deletions(-)
+ security/selinux/hooks.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
-index 82db54462253..aa25da389c46 100644
---- a/security/selinux/Kconfig
-+++ b/security/selinux/Kconfig
-@@ -88,10 +88,46 @@ config SECURITY_SELINUX_DEBUG
- 		echo -n 'file "security/selinux/*" +p' > \
- 			/proc/dynamic_debug/control
- 
-+config SECURITY_SELINUX_NS
-+	bool "SELinux namespace support (experimental)"
-+	depends on SECURITY_SELINUX
-+	default n
-+	help
-+	  This enables (experimental) support for SELinux namespaces,
-+	  i.e the ability to create multiple SELinux namespaces where
-+	  each namespace has its own independent enforcing mode,
-+	  AVC, and policy, accessible through its own independent
-+	  selinuxfs instance. When a task unshares its SELinux namespace,
-+	  it is associated with a new child namespace whose initial
-+	  state is permissive with no policy loaded, and the task is assigned
-+	  a separate SID in the new namespace, initially the kernel SID,
-+	  which is likewise independent of its SID in ancestor namespaces.
-+	  Subsequent actions by the task and its descendants are checked
-+	  against the new namespace and all ancestor namespaces, using the
-+	  SID it has in each namespace for that namespace's checks. Objects
-+	  like inodes only have a single SID irrespective of the namespace
-+	  in which they are created or accessed. If the context associated
-+	  with a SID is not defined in a namespace, then it is treated as
-+	  the unlabeled SID for access checking purposes in that namespace.
-+	  The current kernel API for unsharing the SELinux namespace is to
-+	  write a "1" to /sys/fs/selinux/unshare; this is likely to change
-+	  before upstreaming. Experimental patches for libselinux and
-+	  systemd to use this support can be found in the selinuxns
-+	  branches of https://github.com/stephensmalley/selinux, which
-+	  provides a selinux_unshare() API that wraps the kernel interface,
-+	  and https://github.com/stephensmalley/systemd, which has
-+	  a modified systemd-nspawn that uses this API when called
-+	  with --selinux-namespace and a modified systemd to perform
-+	  SELinux initialization when started within a container that
-+	  has its own SELinux namespace. Userspace can also detect
-+	  whether it is running in a non-init SELinux namespace by
-+	  reading /sys/fs/selinux/unshare ("1" means it has been unshared,
-+	  "0" means it has not) but an API for this might not be retained.
-+
- config SECURITY_SELINUX_MAXNS
- 	int "SELinux default maximum number of namespaces"
--	depends on SECURITY_SELINUX
--	range 0 65535
-+	depends on SECURITY_SELINUX_NS
-+	range 1 65535
- 	default 65535
- 	help
- 	  This option sets the default maximum number of SELinux namespaces.
-@@ -99,7 +135,7 @@ config SECURITY_SELINUX_MAXNS
- 
- config SECURITY_SELINUX_MAXNSDEPTH
- 	int "SELinux default maximum depth of namespaces"
--	depends on SECURITY_SELINUX
-+	depends on SECURITY_SELINUX_NS
- 	range 0 32
- 	default 32
- 	help
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 8c0e44effdbc..a6c980f9117b 100644
+index a6c980f9117b..da8f76707c8c 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -7622,8 +7622,10 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+@@ -1441,8 +1441,14 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	if (isec->sclass == SECCLASS_FILE)
+ 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
  
- static void selinux_state_free(struct work_struct *work);
++	/*
++	 * Find an initialized state to use.
++	 */
++	while (state && !selinux_initialized(state))
++		state = state->parent;
++
+ 	sbsec = selinux_superblock(inode->i_sb);
+-	if (!(sbsec->flags & SE_SBINITIALIZED)) {
++	if (!state || !(sbsec->flags & SE_SBINITIALIZED)) {
+ 		/* Defer initialization until selinux_complete_init,
+ 		   after the initial policy is loaded and the security
+ 		   server is ready to handle calls. */
+@@ -1453,13 +1459,6 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 		goto out_unlock;
+ 	}
  
-+#ifdef CONFIG_SECURITY_SELINUX_NS
- unsigned int selinux_maxns = CONFIG_SECURITY_SELINUX_MAXNS;
- unsigned int selinux_maxnsdepth = CONFIG_SECURITY_SELINUX_MAXNSDEPTH;
-+#endif
- 
- static atomic_t selinux_nsnum = ATOMIC_INIT(0);
- 
-@@ -7635,11 +7637,13 @@ int selinux_state_create(const struct cred *cred)
- 	struct selinux_state *newstate;
- 	int rc;
- 
-+#ifdef CONFIG_SECURITY_SELINUX_NS
- 	if (parent && atomic_read(&selinux_nsnum) >= selinux_maxns)
- 		return -ENOSPC;
- 
- 	if (parent && parent->depth >= selinux_maxnsdepth)
- 		return -ENOSPC;
-+#endif
- 
- 	newstate = kzalloc(sizeof(*newstate), GFP_KERNEL);
- 	if (!newstate)
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index efceb3ac9157..785991d77166 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -65,9 +65,11 @@ enum sel_inos {
- 	SEL_STATUS,	/* export current status using mmap() */
- 	SEL_POLICY,	/* allow userspace to read the in kernel policy */
- 	SEL_VALIDATE_TRANS, /* compute validatetrans decision */
-+#ifdef CONFIG_SECURITY_SELINUX_NS
- 	SEL_UNSHARE,	    /* unshare selinux namespace */
- 	SEL_MAXNS,	    /* maximum number of SELinux namespaces */
- 	SEL_MAXNSDEPTH,	    /* maximum depth of SELinux namespaces */
-+#endif
- 	SEL_INO_NEXT,	/* The next inode number to use */
- };
- 
-@@ -329,6 +331,7 @@ static const struct file_operations sel_disable_ops = {
- 	.llseek		= generic_file_llseek,
- };
- 
-+#ifdef CONFIG_SECURITY_SELINUX_NS
- static ssize_t sel_read_unshare(struct file *filp, char __user *buf,
- 				size_t count, loff_t *ppos)
- {
-@@ -531,7 +534,7 @@ static const struct file_operations sel_maxnsdepth_ops = {
- 	.write		= sel_write_maxnsdepth,
- 	.llseek		= generic_file_llseek,
- };
+-	/*
+-	 * Find an initialized state to use; there must be at least
+-	 * one or else the sbsec won't have been initialized.
+-	 */
+-	while (!selinux_initialized(state))
+-		state = state->parent;
 -
-+#endif
- 
- static ssize_t sel_read_policyvers(struct file *filp, char __user *buf,
- 				   size_t count, loff_t *ppos)
-@@ -2353,9 +2356,11 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
- 		[SEL_POLICY] = {"policy", &sel_policy_ops, S_IRUGO},
- 		[SEL_VALIDATE_TRANS] = {"validatetrans", &sel_transition_ops,
- 					S_IWUGO},
-+#ifdef CONFIG_SECURITY_SELINUX_NS
- 		[SEL_UNSHARE] = {"unshare", &sel_unshare_ops, 0600},
- 		[SEL_MAXNS] = {"maxns", &sel_maxns_ops, 0600},
- 		[SEL_MAXNSDEPTH] = {"maxnsdepth", &sel_maxnsdepth_ops, 0600},
-+#endif
- 		/* last one */ {""}
- 	};
- 
+ 	sclass = isec->sclass;
+ 	task_sid = isec->task_sid;
+ 	sid = isec->sid;
 -- 
 2.47.1
 
