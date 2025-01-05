@@ -1,116 +1,149 @@
-Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
+Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com [209.85.167.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51478C2F2
-	for <selinux@vger.kernel.org>; Sun,  5 Jan 2025 02:45:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F50E13D891;
+	Sun,  5 Jan 2025 23:26:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736045120; cv=none; b=K0BiUx4O4tBk9LsAc5H0M33lHI/TANlkrTVCXc4Hzf1G0sQ5l/rjh2+rjHdYKdrxG/FwNaeFbEeejdkKoA3sGpTFTqXoPq5Pw0en2rIKJJQn0ZfwLLh73Fn00Ire0FvmNX2dRMWtOFcjaFlyLJjcALaeae/Fi+7CfRR+EO+SWis=
+	t=1736119577; cv=none; b=sx7MxSTQzkcwrQEHSNNkF874HzBzLSE7F53gj08zMCmxzcJ03EM+pMnabEbQzrNkzIEWFH6AY96JcuArFhJp5LAvwF2hNJejhKI0Ooocr0KOXbKbBr9vIXWvDCulMG09hiqEGFdaVgDjq7/QO0/eGzbHKdiGyF+JKdyLnSbP8+o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736045120; c=relaxed/simple;
-	bh=2niM7QSDO7vIA7tySXm3RyrEBzfXKmBzlRoR6+V8WhI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TRPYm7pWsVrjY/grDWpw0AJW8n56/w92oPJs4ZkJZSaFGI96RTJ7bSvgE+5wljvi5PjOtRGs2ivAnZVfnaGTxU9qU7wdWPIRq3BryW3A/J5D5d5ANnbvCJRsd51SaZgwjd6sLZYV1u03Kp+9rcMHVwQtgBiIzL6EDCda7YhG+ZQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=bsfY9nbF; arc=none smtp.client-ip=209.85.219.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1736119577; c=relaxed/simple;
+	bh=7rhACLPYa6zrhtNIbntw0+Wcposv67yPIXB4CCHibtE=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=XWuZiWTs88jzwV+H9UPB8CKMyFda9o7zw/bKE4FsBGP8virK9XkAj679Asary5Dx0Bdz8anqSoE+s8ulYfKEZQ/JJf5FHlWwlXUZ4rqVdhIiYcrAQ/f/5O6h31KrFJqTLu4ASWO9MC0v8Qp75Yl79SPPQn91Fa/5h1ZTowTDPec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RkM3Yna2; arc=none smtp.client-ip=209.85.167.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="bsfY9nbF"
-Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-e46ebe19489so16694106276.2
-        for <selinux@vger.kernel.org>; Sat, 04 Jan 2025 18:45:16 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RkM3Yna2"
+Received: by mail-oi1-f170.google.com with SMTP id 5614622812f47-3ebc678b5c9so7687839b6e.3;
+        Sun, 05 Jan 2025 15:26:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1736045116; x=1736649916; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1736119575; x=1736724375; darn=vger.kernel.org;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=GUhUFqDCLLYcCKnTvKrRzZf5y8VDBYHwWNIj7mYbRr8=;
-        b=bsfY9nbFARMvkb1N/MALpH9KXMi78I91FMkxsnz+qHOS6IG4tNJpDRWr6ESQhX0MxF
-         T8Jvan12nnhMkqtDC5xblfEbvCOh3TfamTLQlkeJTAodek3qanTvZwP8WBk9A2rCjwFF
-         T9Oc9bN1Bm112n/wlUpaF0isvHiqfQuegGWip84hynRWzuJ3tTPDvtuOIgyKLERvhNzP
-         K1OxIzlcneyobBD6Jft+D7Cl5YkSHgrYXjxoQcA21UStVnfOSkFQyDZhdg0nU2r7Lz+x
-         S+avvDgG4boTYB3m8Xjvql+EbOQhQ/b8464iP8yM7dQ+hVtzV+wuEQY4UN0gcMquXqbA
-         vqog==
+        bh=Q0ECpIFIKltWeXSgfqPd3+YixblViapulEUWk4IC4AQ=;
+        b=RkM3Yna2oIBrQr6qFj9H6EyMg4xLdoXEpcAhW6CpXMx/YlBPUXrZMtgzFBPTBpYzmr
+         iihpMIhl1KuDcqDRYJABQBrj8p9XncGpNDfve9ec/PUZOWq5ccf9r8WZ9pUieWzikY0t
+         XoiX+3qLkZlxj8i6P43+opIU6GE1iH8fZ/0aKHmAqlh7wdE9RKYDDwJ60SwhNtsSU1T+
+         Uq12gRjvKEhvM28kdG0EYb32sEZBRkLwbTlLaxUsPlnKC8SLZsxVAUoGy3ybXsRj+l0M
+         YaYSYMd+vXK5/fAT6Md4ogFk84+IGB/t1cUJhrH3WVfyDsB0L4GOshVDesmIx6Gd2SBF
+         3DAQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736045116; x=1736649916;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1736119575; x=1736724375;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GUhUFqDCLLYcCKnTvKrRzZf5y8VDBYHwWNIj7mYbRr8=;
-        b=rKaEMEXqgzQbVOHRpXR5Ap2K2bF010PmJL2iUkM21joXNlfzJA4HExpAC5Uj9aA+Bo
-         3VOd5nrDM95f+DiS9CwhyHXStDoip9n6SJWw+CZzVmXfjbwbNOrzRC1hnF8vhMpoijdM
-         Xxj0Kys/9wscqeQk0YszSmPpeEOzELIGMSAsmZtg4hv0wFrwuOEktaNSqx61hC3tHGh/
-         tw+ejoXhuCrLMPGhUl5Ud5NbLLD2XAp0Icm7vnXPTmo/Xb3EO1Bkkmc1z4jlDFkcTAmi
-         65Brp21a1KnTti7srVgh2C1LboPkrrOy4Z+GaKZi0dgCmWGwIRufOKxsmCdze244+Rmj
-         0wRQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV+pLDJlEa1W00BADIxw4NhVF/4khQNyPW6sC3/bNK6SRTATOZ/VNqdAtDoc7sB6JZzyoQDrQdP@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyx3yPEKpxZep/LO/cmgtvXkb5GNFqWcokeKfTDBXQ0iuRTu9vB
-	pfa8/BKLW5h4fqNiFnV2EBUtQXkukxSOczd3nt1dI+QA74cxeLkWkYgoUQZxEzXf2fYPfpebhEp
-	D+EhZBXWYF9LGOuOzjylpYF2qDewiR4cUsbKR
-X-Gm-Gg: ASbGncsk7yxvseDDfOZKtCQX31Bh+sgLkSUfyJG5G36Pp+VkQhSqqxDg34810jTzjLl
-	oxLYUpioMOirByG9rUrPAEor4fvmv1kIrqWx8
-X-Google-Smtp-Source: AGHT+IGThgi8HmQDrrdLZKo7/6iXHtT/+1efSKbFMBP4wTU/9vzStB4XDWagUs38rOJg1HKyWbfdsUnbP2IRzhgHd+w=
-X-Received: by 2002:a05:690c:4b05:b0:6ef:801f:437d with SMTP id
- 00721157ae682-6f3f820e12amr435589197b3.26.1736045115828; Sat, 04 Jan 2025
- 18:45:15 -0800 (PST)
+        bh=Q0ECpIFIKltWeXSgfqPd3+YixblViapulEUWk4IC4AQ=;
+        b=gLVRrl4wtxt0QknGNryetqQNCiCkDxOUU/9aUV9a/Tc08H8u2EOmjl7ZUM+ENwY0+n
+         eqjDQeoPykQAIKrw0NVFv2UsBsjcdTjCo5Kxajm6HlKrrCNrFQkVU3LyImrPm6Z0Xowe
+         v9GzKv2uHYWHaKFZIerlj/IEoZlNEf+gmgqGmYd932aytFqdpm10YJlW8j6l3FSciTZq
+         uHiFB9rOQ63x7ctHm/XXadNP0Vlebl8/+txxj2x/hA3BjDv0U/VDmmX7yP4VBLpEZa/G
+         HyHQJnGTw9dGmSR6Uct0gCY6SFWyibWYlnkLu7WjkwDk08cTcOY5g/qIyZGZ4VKtvxIo
+         g3Uw==
+X-Forwarded-Encrypted: i=1; AJvYcCV2OsVqQRkq+6E/Kt/3mlYvShLI5h28293laZ82W/tLAhwMfC5XNo5BZafOO0XUhoO6mZBPs6vsALIY70U=@vger.kernel.org, AJvYcCVNvRDosBWMl4TYHnzCXfbSbDjM+qfY8PMAjXd/Qhr7JCHkO2kZw0O2jszHnn9npM/7KaIom1sQkQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YySjK3CeHVlMnskfyhJpe8njKX8tWLZqY791Yprfmd0jxc8ZB1j
+	cbZVb1e2S4RH/eVw69OplE+TGorssMeiNDIJbJlf+oEbde99YnSb
+X-Gm-Gg: ASbGncuIiummhCNFY8KzUz3/ayMFVxsHFWGdBkNCW0SaJeoD0XM/P0k0MosNZe8ke3i
+	goaEgWoH/svmtv7yMjRUaH3/4nlS6/f/VGUPjiHHW+1yHN+VmsYL8tdDwGouhiLY5zeEfnZcQDa
+	4ou1ROzyOPnKhmzJQbPgqCOBjvtDdU2OXTMpA8WECyplfyzwviUhycAEoYGxlia5k8LGo16Wexh
+	IQeeqyuto9hNsffnWSuwTLhenT1QVLVflT2EzhCOtO+9wLMLuLT+i7RDiRkzPCIu5e93A==
+X-Google-Smtp-Source: AGHT+IF9WY9LXPItu4B0zNMvCVw+rcPI8wvPC9vNyZ9c/PRVPKF+X1S/xpE3/XCqk8/UIZNSWsIJ2w==
+X-Received: by 2002:a05:6808:1305:b0:3eb:6044:5a8c with SMTP id 5614622812f47-3ed88f86c06mr32231463b6e.20.1736119575376;
+        Sun, 05 Jan 2025 15:26:15 -0800 (PST)
+Received: from smtpclient.apple ([136.62.88.244])
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-3ece251f667sm9810838b6e.31.2025.01.05.15.26.12
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 05 Jan 2025 15:26:14 -0800 (PST)
+Content-Type: text/plain;
+	charset=utf-8
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20241223070650.2810747-1-luogengkun@huaweicloud.com> <20241223070650.2810747-2-luogengkun@huaweicloud.com>
-In-Reply-To: <20241223070650.2810747-2-luogengkun@huaweicloud.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Sat, 4 Jan 2025 21:45:05 -0500
-Message-ID: <CAHC9VhRRu-UYEV_-0-QgOZ3ByVwp-ZdEphmsvy4NcdqynH_tDg@mail.gmail.com>
-Subject: Re: [PATCH linux-next 1/2] perf: Remove unnecessary parameter of
- security check
-To: Luo Gengkun <luogengkun@huaweicloud.com>
-Cc: peterz@infradead.org, mingo@redhat.com, acme@kernel.org, 
-	namhyung@kernel.org, mark.rutland@arm.com, alexander.shishkin@linux.intel.com, 
-	jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com, 
-	kan.liang@linux.intel.com, tglx@linutronix.de, bp@alien8.de, 
-	dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, will@kernel.org, 
-	jmorris@namei.org, serge@hallyn.com, rostedt@goodmis.org, mhiramat@kernel.org, 
-	mathieu.desnoyers@efficios.com, stephen.smalley.work@gmail.com, 
-	omosnace@redhat.com, linux-perf-users@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-security-module@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
-	selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.300.87.4.3\))
+Subject: Re: [RFC PATCH v2 22/22] selinux: restrict policy strings
+From: Joe Nall <joenall@gmail.com>
+In-Reply-To: <CAEjxPJ7NdTWu4dspY9cbPMtRsW_jERoRbKBsObbvsEnwgmZ8Ew@mail.gmail.com>
+Date: Sun, 5 Jan 2025 17:26:02 -0600
+Cc: cgzones@googlemail.com,
+ selinux@vger.kernel.org,
+ Paul Moore <paul@paul-moore.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>,
+ Nathan Chancellor <nathan@kernel.org>,
+ Nick Desaulniers <ndesaulniers@google.com>,
+ Bill Wendling <morbo@google.com>,
+ Justin Stitt <justinstitt@google.com>,
+ =?utf-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>,
+ =?utf-8?Q?Bram_Bonn=C3=A9?= <brambonne@google.com>,
+ Masahiro Yamada <masahiroy@kernel.org>,
+ linux-kernel@vger.kernel.org,
+ llvm@lists.linux.dev
 Content-Transfer-Encoding: quoted-printable
+Message-Id: <EF4B3759-2C4C-4A15-A721-6B2D0FAFD84F@gmail.com>
+References: <20241216164055.96267-1-cgoettsche@seltendoof.de>
+ <20241216164055.96267-22-cgoettsche@seltendoof.de>
+ <CAEjxPJ7NdTWu4dspY9cbPMtRsW_jERoRbKBsObbvsEnwgmZ8Ew@mail.gmail.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+X-Mailer: Apple Mail (2.3826.300.87.4.3)
 
-On Mon, Dec 23, 2024 at 1:57=E2=80=AFAM Luo Gengkun <luogengkun@huaweicloud=
-.com> wrote:
->
-> It seems that the attr parameter was never been used in security
-> checks since it was first introduced by:
->
-> commit da97e18458fb ("perf_event: Add support for LSM and SELinux checks"=
-)
->
-> so remove it.
->
-> Signed-off-by: Luo Gengkun <luogengkun@huaweicloud.com>
-> ---
->  arch/x86/events/intel/bts.c     |  2 +-
->  arch/x86/events/intel/core.c    |  2 +-
->  arch/x86/events/intel/p4.c      |  2 +-
->  drivers/perf/arm_spe_pmu.c      |  4 ++--
->  include/linux/lsm_hook_defs.h   |  2 +-
->  include/linux/perf_event.h      | 10 +++++-----
->  include/linux/security.h        |  5 ++---
->  kernel/events/core.c            | 14 +++++++-------
->  kernel/trace/trace_event_perf.c |  4 ++--
->  security/security.c             |  5 ++---
->  security/selinux/hooks.c        |  2 +-
->  11 files changed, 25 insertions(+), 27 deletions(-)
 
-This patch seems fine to me from a LSM and SELinux perspective, but
-I'd want to see an ACK from the perf folks before I merge this.
 
-I'll also leave patch 2/2 for the perf folks as it seems largely
-unrelated to this patch.
+> On Jan 3, 2025, at 2:12=E2=80=AFPM, Stephen Smalley =
+<stephen.smalley.work@gmail.com> wrote:
+>=20
+> On Mon, Dec 16, 2024 at 11:42=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
+>>=20
+>> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>>=20
+>> Validate the characters and the lengths of strings parsed from binary
+>> policies.
+Excellent idea.
 
---=20
-paul-moore.com
+>>  * Disallow control characters
+Fine here.
+
+>>  * Limit characters of identifiers to alphanumeric, underscore, dash,
+>>    and dot
+Fine again.
+
+>>  * Limit identifiers in length to 128,
+Fine again, our longest
+ - type is 51 characters
+ - attribute is 31
+ - boolean is 46
+ - role is 12
+
+>> expect types to 1024 and
+I don=E2=80=99t understand what this means.
+
+>>    categories to 32, characters (excluding NUL-terminator)
+One category or the whole category string? A single category longer than =
+7 characters seems pretty unlikely and 32 is wildly short for the whole =
+string.
+
+Joe
+
+> One option if we are concerned about breaking backward compatibility
+> with policies in the wild would be to make these restrictions
+> conditional on whether the policy is being loaded into a non-init
+> SELinux namespace, similar to:
+> =
+https://lore.kernel.org/selinux/20250102164509.25606-38-stephen.smalley.wo=
+rk@gmail.com/T/#u
+>=20
+> That said, it seems hard to imagine real-world policies that would
+> exceed these limits, and likely could make them even smaller.
+> But as Daniel said, we should make them consistently enforced in both
+> userspace and kernel, and potentially these should all be #define'd
+> symbols in a uapi header that can be referenced by both.
+> Looks like you left the type limit at 1024 despite Daniel's
+> observation that CIL uses 2048 as the limit, but as you noted, given
+> the page size limit on the entire context by various kernel
+> interfaces,
+> this is likely fine.
+>=20
+
