@@ -1,154 +1,134 @@
-Received: from mail-yb1-f173.google.com (mail-yb1-f173.google.com [209.85.219.173])
+Received: from mail-vk1-f178.google.com (mail-vk1-f178.google.com [209.85.221.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 120E41F3D28;
-	Tue,  7 Jan 2025 14:05:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D98581E32DA
+	for <selinux@vger.kernel.org>; Tue,  7 Jan 2025 14:46:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736258750; cv=none; b=Uk7JbIqjE2N+7hRBBmw8EQqkHx6zyl8LmANip4RJsmVF8Ws7ZZnG4giNhIqEtQv61zdfP7G+vspwx7QpshOxq76nwGsuxwsAswV9dwSppoZixt9EwtM8JW+sbGrWj1X1T+C1vHLbGjUBTOHUHGkih7bPV5KuXNe0uv5ljPOiWv8=
+	t=1736261178; cv=none; b=OSzAjXehQfjtO5rRB07UwLptPTOGbSybeiNRDHchq/eI6Fvr0XhLTpG0qQMDaMr83qxPZXegiZocohfKKdWTBqkDh4mzdpXUdp1CJuQAD+zo92pioL2PDUul9rM/6GH59qQX2zukd8o8qJI/2xf8PHjoS1z7O0q/Q8Xuyho6PtU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736258750; c=relaxed/simple;
-	bh=3bC+tt/tkpsjnf3Sk8QNcmJWfrjb6U9Hh8ZMcrCOkCk=;
+	s=arc-20240116; t=1736261178; c=relaxed/simple;
+	bh=4nOWYvCb9ZfU+PyGQfpk3Jm3Aq4nNY8tSjlMUENWrwc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UIn2JUBYVkBftt4jWJTOjNEvnY+cOdSBUHN5LBs0Tlyfd5huQkDUjWXQEWWZcm9W7ldwU6HKvN1aFLfK3kRpg42JuPrTI9lVXruty7fRo9//aViBq4k0kYa1qhBpordjOmvuvieSnyylLFSJrldscJM7nHw7PBOxXinBNUw+wM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=VFj/Mbd3; arc=none smtp.client-ip=209.85.219.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	 To:Cc:Content-Type; b=YzjxXdFS/ML4fJIjIAUoNvF5fX4EzKd59GQVpSZ5QoDYmLgh1pTwlmlmC0oMUnqdyeEk5WU076qPMA+2NQZfOpbp2Cp1MGlPaFSSuQu7M0tyRskAIwNIBpQ8MBG3tc4H+xYNbOJ5TQ0/qZtC/2vfHK+IKH7C9OC2QzcN118NJmM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KR3XQhZz; arc=none smtp.client-ip=209.85.221.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="VFj/Mbd3"
-Received: by mail-yb1-f173.google.com with SMTP id 3f1490d57ef6-e549a71dd3dso6272723276.0;
-        Tue, 07 Jan 2025 06:05:46 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KR3XQhZz"
+Received: by mail-vk1-f178.google.com with SMTP id 71dfb90a1353d-51878cf85a7so4611989e0c.0
+        for <selinux@vger.kernel.org>; Tue, 07 Jan 2025 06:46:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1736258746; x=1736863546; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1736261170; x=1736865970; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=mHVjIzLvyGRcBtjNbLL/xyb7E5vuoQFJEgdfAWywMng=;
-        b=VFj/Mbd3dLXycDYaHpDgyDneck9kWDWudfsuIkiWJFLaGIAYe6YtBeFj1QfA6pwUMK
-         WDhdHdV/qkEPHVKxJise8OoyXpvfge0a+sEzSeo9r4lZHAbbJ3dJYY0RWTpEVbxdbY4K
-         BJBMYJRi5HZv66vCq9jI+YpcrPdCRJ06Oriet0rs6Y0aISeofV079XW1vl0GK9UHuKFf
-         H3vfVDKBLFwUm87/54IT14lQBRycTSpzatv0qK40fkIgezZU4gmEyH75UMrJAzAjS69/
-         M2zceiG+VdkndNbCN6MF3IHTONU1MV5En/lGLs8i/anjcrQYPbuLYcJ4EhyUHmsM4YdS
-         tifQ==
+        bh=DK/OubUAgr6mIVS6X0DMWmzjs18FZFXpSc50240dhDU=;
+        b=KR3XQhZz+iqo+7gE8PGIP8jHFWQ55T9o+LSHOjgnh0gEukZIhbFGdeuUZqJmHdMlmA
+         hvfUPF8nJoI9FnN7SXUk6bJcWxhmfzC7ULFe56B1XunFHz2h58eb2MVJDkZRrBmzRcUZ
+         QErPkJu0ZWDV8CBGIB3qnYMC/RgnvKdvp0VMgNqNAc9HCcI/P4oUutNJI1qjLcxuyswj
+         TT9l16UKsrCTsk0P+mWDLCpFL00LcF8Qjes9OlaFeQKZ6RMlKobDvTvfK8HtuWW78uFq
+         kNsUugTGdkIyTndQO8vu0rWs71sjYGixS5WWmWp/64JzrBkzT6ya2wtru9wZeTx8n20P
+         FL8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736258746; x=1736863546;
+        d=1e100.net; s=20230601; t=1736261170; x=1736865970;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=mHVjIzLvyGRcBtjNbLL/xyb7E5vuoQFJEgdfAWywMng=;
-        b=ZlflDv9C0VhnbNW+dChU9subs4feGvz6p51hqAwnwBXcQOnG+ylyVxj2bZM7xA/7cw
-         wa/iHgOa6b1ufQnAmXpKEk7q0EnoH1r7LmRBmom/VVw/uROyCaTE68HwM0kAk5uscoGO
-         KcQ4tCaxGh2xhtEkfsxWLggv0KVGg0UoXn2HmCfBZejgcoR5von0BkIbFnPNPo4XFyEV
-         HYSgvo5aBxrRU/rMYESVrTfN29i28cyyQY0rtYB4bjex29uDak5kk0I9qUtjlbQmvCJy
-         /BioX0CpVnqVDU9KH3Uux/TtOs/yxVTifYY2mv8xrgdPMSjq5NO5QqLhDv80yL9uvkee
-         +1eg==
-X-Forwarded-Encrypted: i=1; AJvYcCUK4gii70xUZW8KF9/aEw6nY/n/AdgvRLo1p06X3CQTUpsm+H3yUCvuIhl/mqoX9i4sWNqJb0Al0icTqlE=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwjPsK2/PfNZ1WKN4C7DyL/3sO6FKMNmu4Jk0jRLnEGKdPjCdAI
-	UeN4KzcKNCq+Wc2e1ZaJ6DIaOE4rU4W4dv/6vgXkPifKMMQeIpb3kzgjb5mGQbsAltSoVRlE3SB
-	E9faNYTQ+E399PJHjU64KvNIcmMEprzgEe5E=
-X-Gm-Gg: ASbGncv06ouZG+lxa7HlRQQbCsCHNor0+WSLO4/sPeHwONEAZAdhiN0tQKLBEAHMLVI
-	onTd6+O7xgf0QjGUWlYzzVBo77CuDb2atFMU+
-X-Google-Smtp-Source: AGHT+IH6q4C6mMp5olTt4sGag1740rTP0Pzug36chJ/cclYY0AG9azo/tKWADMhY2oOeMKwfTuA8Ianx/eUAJspLGq0=
-X-Received: by 2002:a05:690c:3604:b0:6ef:7312:d05c with SMTP id
- 00721157ae682-6f3f80d2d0bmr527112787b3.2.1736258745670; Tue, 07 Jan 2025
- 06:05:45 -0800 (PST)
+        bh=DK/OubUAgr6mIVS6X0DMWmzjs18FZFXpSc50240dhDU=;
+        b=B18ERnoGZSL4+spHfGEGd2Ql84LbLekcc5lct6PIv7iXQjCRd8kQ/fbmwvKE8Hl8Br
+         EvttNrjvLNrS5+KiFj0KNbtQGx46UWxi07agLcaaE0Svx+D4K9u9f1dCvbDQ67QNRcr0
+         0Ga681dTlqacC9uNdFrX/PkUEwULAfPPEDlJn1iq6vb8L1hhjRP7a2tyLz5y/H+GZqSF
+         i6/BF/nQUECr79Vv8xSX2ELGpJURhuPlR4pjRgKcPsoUWhKjR+i/QtEveohEvdesNYWj
+         vQRf0LYoThpM6JwfAZQ0s3tHA5Ab5CVF/YFAcfzN0/Py3ZI0uNOzaojzDTj3qx3pR4hZ
+         tOrQ==
+X-Gm-Message-State: AOJu0Yzdi1pXqvknUCXE5wja4yVSSGFEw8U+LgQd2ni/OJMH4ELA3Icf
+	9zsQnoxaOul8uJ3jtr617uYK1l3WAgjeSXk/im1c90gVCrQjt6IWtTYFOS4Jl18Ul9brRSjRbF2
+	bAan2CaHvGC+ovnTVroOYWfsCxv/tmw==
+X-Gm-Gg: ASbGncuUMfv5op91aMjVFdCECs9xofQuGp1b35TFs3VC17aY303B51Net6s8v3YgOIM
+	AZPkly6PyaSYNmb9YZWegPSNT+NACDuRq0RXRWA==
+X-Google-Smtp-Source: AGHT+IFjfEyCaF/OJr4Whyt4RMquFVqZfWHpQ/tCxXUmV7vDBFQCdFn5yjPdAJvUa2G4v44gm9SSx/GjsPmAhGO8rxg=
+X-Received: by 2002:a05:6122:6029:b0:51b:8949:c9ab with SMTP id
+ 71dfb90a1353d-51b8949cb69mr31683206e0c.9.1736261170293; Tue, 07 Jan 2025
+ 06:46:10 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241217135517.534645-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20241217135517.534645-1-cgoettsche@seltendoof.de>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Tue, 7 Jan 2025 15:05:35 +0100
-Message-ID: <CAJ2a_DdDnBeCgXuoVC0yRZT6+R8h4z85q+Vw81Oaw5ahvm7dJQ@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: support wildcard network interface names
-To: selinux@vger.kernel.org
-Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	=?UTF-8?Q?Bram_Bonn=C3=A9?= <brambonne@google.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, GUO Zihua <guozihua@huawei.com>, 
-	Canfeng Guo <guocanfeng@uniontech.com>, linux-kernel@vger.kernel.org, 
-	John Johansen <john.johansen@canonical.com>, cgzones@googlemail.com
+References: <20241230135114.41947-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20241230135114.41947-1-cgoettsche@seltendoof.de>
+From: James Carter <jwcart2@gmail.com>
+Date: Tue, 7 Jan 2025 09:45:59 -0500
+X-Gm-Features: AbW1kvZ0rJ3Qq6UkkbochgxI2NtElsWkReSUQ1ZplCkhxENdVTLlpc6onggQr1U
+Message-ID: <CAP+JOzQBAMW3zi18Txb+RWavJKZkGxGFGDguC+SxBvcnXaR4bQ@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: update max node depth
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, 17 Dec 2024 at 15:11, Christian G=C3=B6ttsche
+On Mon, Dec 30, 2024 at 8:51=E2=80=AFAM Christian G=C3=B6ttsche
 <cgoettsche@seltendoof.de> wrote:
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Add support for wildcard matching of network interface names.  This is
-> useful for auto-generated interfaces, for example podman creates network
-> interfaces for containers with the naming scheme podman0, podman1,
-> podman2, ...
+> Bump the maximum specification node depth from 3 to 4 based on updated
+> benchmark on Fedora 41:
 >
-> Since the wildcard characters '?' and '*' should be very uncommon in
-> network interface names, and thus if netifcon definitions, avoid
-> introducing a new policy version or capability.
+
+I am not sure I understand these numbers.
+
+>     Benchmark 1: /tmp/destdir3/sbin/restorecon -vRn /
+>       Time (mean =C2=B1 =CF=83):      1.397 s =C2=B1  0.018 s    [User: 0=
+.755 s, System: 0.641 s]
+>       Range (min =E2=80=A6 max):    1.353 s =E2=80=A6  1.419 s    20 runs
 >
-> Netifcon definitions are compared against in the order given by the
-> policy, so userspace tools should sort them in a reasonable order.
+Is this for depth 3?
 
-Kindly ping.
-Any comments on this one?
+>     Benchmark 1: /tmp/destdir4/sbin/restorecon -vRn /
+>       Time (mean =C2=B1 =CF=83):      1.376 s =C2=B1  0.021 s    [User: 0=
+.737 s, System: 0.637 s]
+>       Range (min =E2=80=A6 max):    1.348 s =E2=80=A6  1.414 s    20 runs
+>
+Depth 4?
 
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>     Benchmark 1: /tmp/destdir5/sbin/restorecon -vRn /
+>       Time (mean =C2=B1 =CF=83):      1.389 s =C2=B1  0.021 s    [User: 0=
+.748 s, System: 0.640 s]
+>       Range (min =E2=80=A6 max):    1.351 s =E2=80=A6  1.420 s    20 runs
+Depth 5?
+
+I see the comment below talks about more memory, how much more memory
+is required for a depth of 4?
+
+Thanks,
+Jim
+
 > ---
->  security/selinux/include/security.h | 2 +-
->  security/selinux/ss/services.c      | 5 +++--
->  2 files changed, 4 insertions(+), 3 deletions(-)
+>  libselinux/src/label_file.h | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 >
-> diff --git a/security/selinux/include/security.h b/security/selinux/inclu=
-de/security.h
-> index 10949df22fa4..f6e7ba57a1fc 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -298,7 +298,7 @@ int security_ib_pkey_sid(u64 subnet_prefix, u16 pkey_=
-num, u32 *out_sid);
->
->  int security_ib_endport_sid(const char *dev_name, u8 port_num, u32 *out_=
-sid);
->
-> -int security_netif_sid(char *name, u32 *if_sid);
-> +int security_netif_sid(const char *name, u32 *if_sid);
->
->  int security_node_sid(u16 domain, void *addr, u32 addrlen, u32 *out_sid)=
-;
->
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/service=
-s.c
-> index 55fdc7ca232b..2f878fa99692 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -46,6 +46,7 @@
->  #include <linux/in.h>
->  #include <linux/sched.h>
->  #include <linux/audit.h>
-> +#include <linux/parser.h>
->  #include <linux/vmalloc.h>
->  #include <linux/lsm_hooks.h>
->  #include <net/netlabel.h>
-> @@ -2554,7 +2555,7 @@ int security_ib_endport_sid(const char *dev_name, u=
-8 port_num, u32 *out_sid)
->   * @name: interface name
->   * @if_sid: interface SID
+> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+> index 597b756e..41b2a939 100644
+> --- a/libselinux/src/label_file.h
+> +++ b/libselinux/src/label_file.h
+> @@ -105,10 +105,10 @@ struct literal_spec {
+>   * Max depth of specification nodes
+>   *
+>   * Measure before changing:
+> - *   - 2  leads to slower lookup
+> - *   - >4 require more memory (and allocations) for no performance gain
+> + *   <  leads to slower lookup
+> + *   >  require more memory (and allocations) for no performance gain
 >   */
-> -int security_netif_sid(char *name, u32 *if_sid)
-> +int security_netif_sid(const char *name, u32 *if_sid)
->  {
->         struct selinux_policy *policy;
->         struct policydb *policydb;
-> @@ -2576,7 +2577,7 @@ int security_netif_sid(char *name, u32 *if_sid)
+> -#define SPEC_NODE_MAX_DEPTH 3
+> +#define SPEC_NODE_MAX_DEPTH 4
 >
->         c =3D policydb->ocontexts[OCON_NETIF];
->         while (c) {
-> -               if (strcmp(name, c->u.name) =3D=3D 0)
-> +               if (match_wildcard(c->u.name, name))
->                         break;
->                 c =3D c->next;
->         }
+>  /* A specification node */
+>  struct spec_node {
 > --
 > 2.45.2
+>
 >
