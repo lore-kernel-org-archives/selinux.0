@@ -1,134 +1,176 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-vk1-f174.google.com (mail-vk1-f174.google.com [209.85.221.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3535A18A6D4
-	for <selinux@vger.kernel.org>; Tue,  7 Jan 2025 18:31:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84A031F7077
+	for <selinux@vger.kernel.org>; Tue,  7 Jan 2025 20:01:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736274702; cv=none; b=nBAJq4ToZet5hsI0QN8guEGoCHtx3nNLOZLQnBSbAOvWs/EE2y9KHTQTcaIAWCCuEsV6DY7ivG+RFzK/LtGf0VR66DQy8xV+q6rFN4X94SlaHYajOPPkQz80+Fv3uSyg1mG7G9FeQR2HB7claXP8FG2yhqUZVVejnry7qTgu37k=
+	t=1736280076; cv=none; b=RFF7HsOQP4+LgFZs6EBJpgA5MQQHLEju45SE32pCyFifiScUCtt6J4+uFRiio6Qmd532qNtwwuaA2xjXORjVScN/IMCcZNmoa+dHaJMI/Nl1f3zOdvO6Mq7O6zGDE67wSJTGqF+ij1z2rz6ZpSUqZOshdzMikc2lUZjN79gsuno=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736274702; c=relaxed/simple;
-	bh=taG9SanWeLVMrVH3HJEJ9Y68WDBKGzbGdgV9HsIndkM=;
+	s=arc-20240116; t=1736280076; c=relaxed/simple;
+	bh=KdAGBTGelXzkEbKJPXJBFDqWD8atheeiUyT2W+MfcVY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aebPDRmWlCBr8jZhvlw68Nnznxbhi8KLyqXMZkHHZqYXtEyf5sdPyPuQRVoS4xprfzdxV57AqpOsDQKBCEFI+SCqoNAxPzZj0nTqdYFmCR2L3SkmR1V3pzsoJSwAR956T7SFvkRmVnlehwcv4SkUuoniFhSVlssgmY0uOAjtM6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fmBSAGag; arc=none smtp.client-ip=209.85.216.48
+	 To:Cc:Content-Type; b=ZSVG6KpC+ooViFkiMeISDJLDZyt2kLrhIH5h03TFaLdqL234x4mOgXtf8iuoDnq3GcwZAv0x2kEL6J8jBJ7V6apLRtiAvko9yJzyZnUzuKJU4ZDRnS0ptRh6Frzq9nbDvzyW8oyEdn2u2ch0VgG1Oi38i2mbzW2pefJXz4C/A6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZgRj+fPv; arc=none smtp.client-ip=209.85.221.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fmBSAGag"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-2ef8c012913so17893001a91.3
-        for <selinux@vger.kernel.org>; Tue, 07 Jan 2025 10:31:40 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZgRj+fPv"
+Received: by mail-vk1-f174.google.com with SMTP id 71dfb90a1353d-518c46cc6e4so5081531e0c.3
+        for <selinux@vger.kernel.org>; Tue, 07 Jan 2025 12:01:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736274700; x=1736879500; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1736280072; x=1736884872; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=E46xFUC1dyNnoHtb/eIBmGy4LwsZKNmqD0kTnLLQjAg=;
-        b=fmBSAGagKyF09Hwg0CYCtjWb50K5mNYR2mvoLsfTj4OqVM4MTvOtjjaalJ6alP/OvG
-         3KzqM0Z+70TMx/kwQFTjUvAqpz/yDhJBnqiInN/FI4QLcWho7PQg0V2bbXcvACljZwdT
-         vRZKrnYOrU70BmyfOonsA+1yBBdyf52YwJTqKsH9oQBykz0RwMeJHW4RvtV7LltNdez0
-         XMepT5fcVv50BB8DlBF+gl1Eob1EXkj0nvBPIb/iVs0JdDS7E7JnrdmaisemK++6utql
-         ppKEB3ojgsz8gnPu7MLxx15lrDqFCrH11gURTQtPh6FnvGzc96q3Tqak6PTCRwClxToa
-         uuzg==
+        bh=n0D3azDmIkovKSPOxucICIkBiH6yQsc1qqx3iwXE7B4=;
+        b=ZgRj+fPvVYZruNwUrg+Jspfbvn1WwxzIUlq6mbiwTD5vp9z4NOgg7DYzudNQ6xXNyn
+         fvfsVYGl6gtAQ4XJr6vr6LRpbjfC59Sg8Dcpa+S/25MMpw9Oqz6Wy3q5wbUcyqzoxws9
+         Mkm3TavCX5TbhEUb1gXfqSSvYqG0SpHXiE9HOyHn/PD/Gzdm2A6B2fk1g3dNVeLxiAmy
+         WwRA+0O1ErDgpPZ1aWq5f/jvZ6MoAolNHUja0k6A7eXfsbHj67mDxtGg1p7nVOnM+JJm
+         T6wdjMUK9zLprIu+U3pI3qgtPO3ony23IQYqOeH/dbW4M5//HreUHbYsXTfJ994pAR89
+         ZbyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736274700; x=1736879500;
+        d=1e100.net; s=20230601; t=1736280072; x=1736884872;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=E46xFUC1dyNnoHtb/eIBmGy4LwsZKNmqD0kTnLLQjAg=;
-        b=jDwVJ+Bxa+3YpW53++/73ou5A+/U+QLM9MMKRWPoBuFAq/oG76b5qxiu8fHGjfIjpq
-         EOS/8KTiFKoARisDQpEEcMSmxF0IMsGvRP5ugCiP0orZld4nM3Bt2FiL3u/XBwKJbxAi
-         KE1PoCtnVfCniJid0XgtSh3Tund5QQ36/0QRS4ihgWFGrzNk+8cnISkBp8Hxtt17Ovlf
-         VfomX9f8lo/Z/7ua2S83Ic7FXf7U68DoJLn0/+TjKK2A17pVxdrLXucddtDuIAEmg84j
-         Hz4qV2l7XPGLPmSfyo8T/9uImWc/rIkssW4+QU1okH0bOL70Q43+Mq205veiRbFdWBHD
-         1Vtw==
-X-Gm-Message-State: AOJu0YxEGdimM0XQL9lw+hSG4W1H88/HpUm6wZb+GpGU6E0V2jA4ELUm
-	fwYvgLJFaEwD87389gbdg/ko1dkSCt6aH00+18xAQrdnO8702vqvAzyKwuyj4ozFxcWnoi7TcAo
-	Gon86IDhAgmtItM+sucnMYUYJwQS3+t89
-X-Gm-Gg: ASbGncueSRkLTn+5EmgZBZK6QEAFXBBmO3BHMNQTkpjLLEdvHAOu2gHGE6HoCKC8L0G
-	qIkqnV/Ta3dzwKKctPY+7nQpYfoUIrGpK2AEj6A==
-X-Google-Smtp-Source: AGHT+IHh4DA7oP6DuUzXCF4CvuF5dIdvH9t5y/90YiNgH6zqVD7lR8w5WOO9VaJH29CpJ4TZlXnW5aEX0yVjQvAv3oM=
-X-Received: by 2002:a17:90b:5245:b0:2ee:ed07:d6d2 with SMTP id
- 98e67ed59e1d1-2f452f027c4mr94844123a91.37.1736274700112; Tue, 07 Jan 2025
- 10:31:40 -0800 (PST)
+        bh=n0D3azDmIkovKSPOxucICIkBiH6yQsc1qqx3iwXE7B4=;
+        b=M+al9ngQ7tW7pIBBsl1Gx73oieBXbntoA7XPGL9rRKeCq3dEGTHeehkMlaz8NzpRt8
+         B9DatVjpKUokGrl20Q/tLrquiuJWKrpiHaTlIxH3eHfaeyZRBSgxrl0tBTTZeOeZhlFb
+         3Jw7m1U7y2KMWMfOf+8TGcvCu8Fo0dpQrnQ9ULJC5lNiEhcqzl8Ezns9Fw6VppFzQC4s
+         +Q547uZAHWN7aM0d+sm3SNw4wVYTmf1sMXe0rQzYFjbXPC1ZjmAjheqPFJwBGyEOnQA9
+         wkkPpBi03IVy3N7H3R/Lrwi1HkEseHU/AiSbyaHRKoYjqgcTpIASGBd/WvILfb5PZuB6
+         4zng==
+X-Gm-Message-State: AOJu0YzxpJjqsG70IqVvZftZOH46/AK1EPEY08j4KIrfefSGi7wrxYrA
+	pmp96HWzwt2BA05itTj24bUOtmLGIwfTd30gWc8m/3iI090OMV9Qj8627enatliw9JmiM0tuZZF
+	o0Z2Zl4lrmLGkifgjuZIeppeaGRw=
+X-Gm-Gg: ASbGnctO+NrJGiEMGDNypvzyJqBYi9sD9K5eBvyYThNuHx0jEJ+cfqUrN0nFgZHx+wY
+	81XLAFXiOacHShe88A7JlxBdnpxg+PpdGAI3CHw==
+X-Google-Smtp-Source: AGHT+IFzzXQ4URL8CfhwgA3dpTae8HI/DyFX+FyPIBGFD0paoj1JTQKwrlxqeeaVIIuzNHOD0L/29Wl2+J+VpYzexQI=
+X-Received: by 2002:a05:6122:1d15:b0:517:83d1:d438 with SMTP id
+ 71dfb90a1353d-51c6c437bd7mr433981e0c.3.1736280072188; Tue, 07 Jan 2025
+ 12:01:12 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250102164509.25606-1-stephen.smalley.work@gmail.com> <20250102164509.25606-45-stephen.smalley.work@gmail.com>
-In-Reply-To: <20250102164509.25606-45-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 7 Jan 2025 13:31:29 -0500
-X-Gm-Features: AbW1kvYhr_qYujpEZJ0DKGnRwM7qmtZJXekuBbpd3NvTHoKYn9DAX-CxKkoDOQ4
-Message-ID: <CAEjxPJ6aaa9t7uZ1=FSm6C6Xy4z232UNDPsSbDFz_pEORjKFFg@mail.gmail.com>
-Subject: Re: [RFC PATCH 44/44] selinux: fix inode initialization when no
- namespace is initialized
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com, omosnace@redhat.com
+References: <20241217212752.23866-1-cgoettsche@seltendoof.de> <CAP+JOzRTuWzAO2SBmHD8EbDXTn3Qjwmk0kkTmoiavUdL_my3DQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzRTuWzAO2SBmHD8EbDXTn3Qjwmk0kkTmoiavUdL_my3DQ@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Tue, 7 Jan 2025 15:01:01 -0500
+X-Gm-Features: AbW1kvYav2gkB-4RkqhXZmqQdthO48Egoxy01aW-In5qJe8LgZq3LkjEWVu-txg
+Message-ID: <CAP+JOzQxvC1rqRcoQp=aVpgfoaR6FV7xAN_JCOT-TkOGheFA=Q@mail.gmail.com>
+Subject: Re: [PATCH] libselinux/fuzz: readjust load_mmap() update
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 2, 2025 at 11:46=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Mon, Jan 6, 2025 at 10:07=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
+ote:
 >
-> commit e8087cb36d3d2c6eab77 ("selinux: init inode from nearest
-> initialized namespace") wrongly assumed that there must be at least one
-> ancestor namespace that is initialized. In the case where the init
-> SELinux namespace was never initialized (i.e. no policy loaded on the
-> host), then this assumption can be false. Fix the logic to defer
-> initialization of the inode in that situation.
+> On Thu, Dec 19, 2024 at 12:04=E2=80=AFPM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
+> >
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > Update the fuzzers for the input number parameter addition.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
 
-Note: I've squashed this patch, the cited commit, and its predecessor
-since neither of these have been merged yet and they are bug fixes to
-the earlier unmerged commit.
-Updated on my branch,
-https://github.com/stephensmalley/selinux-kernel/tree/working-selinuxns
+Merged.
+Thanks,
+Jim
 
-> ---
->  security/selinux/hooks.c | 15 +++++++--------
->  1 file changed, 7 insertions(+), 8 deletions(-)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index a6c980f9117b..da8f76707c8c 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1441,8 +1441,14 @@ static int inode_doinit_with_dentry(struct inode *=
-inode, struct dentry *opt_dent
->         if (isec->sclass =3D=3D SECCLASS_FILE)
->                 isec->sclass =3D inode_mode_to_security_class(inode->i_mo=
-de);
->
-> +       /*
-> +        * Find an initialized state to use.
-> +        */
-> +       while (state && !selinux_initialized(state))
-> +               state =3D state->parent;
-> +
->         sbsec =3D selinux_superblock(inode->i_sb);
-> -       if (!(sbsec->flags & SE_SBINITIALIZED)) {
-> +       if (!state || !(sbsec->flags & SE_SBINITIALIZED)) {
->                 /* Defer initialization until selinux_complete_init,
->                    after the initial policy is loaded and the security
->                    server is ready to handle calls. */
-> @@ -1453,13 +1459,6 @@ static int inode_doinit_with_dentry(struct inode *=
-inode, struct dentry *opt_dent
->                 goto out_unlock;
->         }
->
-> -       /*
-> -        * Find an initialized state to use; there must be at least
-> -        * one or else the sbsec won't have been initialized.
-> -        */
-> -       while (!selinux_initialized(state))
-> -               state =3D state->parent;
-> -
->         sclass =3D isec->sclass;
->         task_sid =3D isec->task_sid;
->         sid =3D isec->sid;
-> --
-> 2.47.1
->
+> > ---
+> >  libselinux/fuzz/selabel_file_compiled-fuzzer.c | 6 +++---
+> >  libselinux/fuzz/selabel_file_text-fuzzer.c     | 2 +-
+> >  libselinux/src/label_file.h                    | 2 +-
+> >  3 files changed, 5 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/libselinux/fuzz/selabel_file_compiled-fuzzer.c b/libselinu=
+x/fuzz/selabel_file_compiled-fuzzer.c
+> > index d1249a76..09fbddd1 100644
+> > --- a/libselinux/fuzz/selabel_file_compiled-fuzzer.c
+> > +++ b/libselinux/fuzz/selabel_file_compiled-fuzzer.c
+> > @@ -195,7 +195,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, siz=
+e_t size)
+> >                 goto cleanup;
+> >
+> >         errno =3D 0;
+> > -       rc =3D load_mmap(fp, fcontext_data1_len, &rec, MEMFD_FILE_NAME)=
+;
+> > +       rc =3D load_mmap(fp, fcontext_data1_len, &rec, MEMFD_FILE_NAME,=
+ 0);
+> >         if (rc) {
+> >                 assert(errno !=3D 0);
+> >                 goto cleanup;
+> > @@ -208,7 +208,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, siz=
+e_t size)
+> >                 goto cleanup;
+> >
+> >         errno =3D 0;
+> > -       rc =3D load_mmap(fp, fcontext_data2_len, &rec, MEMFD_FILE_NAME)=
+;
+> > +       rc =3D load_mmap(fp, fcontext_data2_len, &rec, MEMFD_FILE_NAME,=
+ 1);
+> >         if (rc) {
+> >                 assert(errno !=3D 0);
+> >                 goto cleanup;
+> > @@ -221,7 +221,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, siz=
+e_t size)
+> >                 goto cleanup;
+> >
+> >         errno =3D 0;
+> > -       rc =3D load_mmap(fp, fcontext_data3_len, &rec, MEMFD_FILE_NAME)=
+;
+> > +       rc =3D load_mmap(fp, fcontext_data3_len, &rec, MEMFD_FILE_NAME,=
+ 2);
+> >         if (rc) {
+> >                 assert(errno !=3D 0);
+> >                 goto cleanup;
+> > diff --git a/libselinux/fuzz/selabel_file_text-fuzzer.c b/libselinux/fu=
+zz/selabel_file_text-fuzzer.c
+> > index ed67ea25..1f8942dd 100644
+> > --- a/libselinux/fuzz/selabel_file_text-fuzzer.c
+> > +++ b/libselinux/fuzz/selabel_file_text-fuzzer.c
+> > @@ -167,7 +167,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, siz=
+e_t size)
+> >                 goto cleanup;
+> >
+> >         errno =3D 0;
+> > -       rc =3D process_text_file(fp, /*prefix=3D*/ NULL, &rec, MEMFD_FI=
+LE_NAME);
+> > +       rc =3D process_text_file(fp, /*prefix=3D*/ NULL, &rec, MEMFD_FI=
+LE_NAME, 0);
+> >         if (rc) {
+> >                 assert(errno !=3D 0);
+> >                 goto cleanup;
+> > diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+> > index 597b756e..60ebbb47 100644
+> > --- a/libselinux/src/label_file.h
+> > +++ b/libselinux/src/label_file.h
+> > @@ -60,7 +60,7 @@ struct lookup_result {
+> >         struct lookup_result *next;
+> >  };
+> >  #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+> > -extern int load_mmap(FILE *fp, const size_t len, struct selabel_handle=
+ *rec, const char *path);
+> > +extern int load_mmap(FILE *fp, const size_t len, struct selabel_handle=
+ *rec, const char *path, uint8_t inputno);
+> >  extern int process_text_file(FILE *fp, const char *prefix, struct sela=
+bel_handle *rec, const char *path, uint8_t inputno);
+> >  extern void free_lookup_result(struct lookup_result *result);
+> >  extern struct lookup_result *lookup_all(struct selabel_handle *rec, co=
+nst char *key, int type, bool partial, bool find_all, struct lookup_result =
+*buf);
+> > --
+> > 2.45.2
+> >
+> >
