@@ -1,146 +1,154 @@
-Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9EEA1F237E
-	for <selinux@vger.kernel.org>; Tue,  7 Jan 2025 15:07:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 807E41F37A1;
+	Tue,  7 Jan 2025 16:10:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736262476; cv=none; b=Epa7Fiwhpn8V9Lm2ufAF/eZkfgHou4fxFTASnd/SYW7Tgmz5HYUwYmQ9j7hzI2XXqiW2RipsbIW6ZYu/I/Rgm9/Ix4COj0b7D4nd8OF6ORrmqZK9H8fXag8Lup9h/WLSxJgvxwL5QwxIc0ceVxms8DmtM704D/+MDSqCN7gfsiI=
+	t=1736266205; cv=none; b=GJxswlCwmvEUFfv/MGSwAyVMqdQG3A4aWq/FOgtwcc98jZWkvXl7UjQUFxVXbn9Jbv2shi7aoqTD4ehb3C0FFzk7T83jCQ5feq+UIyjh5C2jRZHiOiuSH0zOuJAnVkzgzuogmJbqznB6S0CUPVGlkGBl0lVLtw9a2VdRjRy9JEk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736262476; c=relaxed/simple;
-	bh=yqwlEcOHutBULI60YWMVnCxRv3RJdq+xMngJhlSx/jQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fJfaknB3DKS2VYZ0lO07wocfDwNdF4lkzItcxYex0LvFH3Jv2gTIt62EWFduB8q0r08+PFtf8E1WgMXEu4jYQFlR4NBECPSdp3DwrIf0ZxENJAygimQnFoa3Y0QYZeksTJG1NtUEdHtwyHDtsvuPdhugQ5AbOvDLF2zoSJBD+0k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=aH0cILfk; arc=none smtp.client-ip=209.85.219.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	s=arc-20240116; t=1736266205; c=relaxed/simple;
+	bh=BLvBXkcC6ssstTngM2MxSIifHbhzF+9k4d6CngTIMN8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=iUarqRW72nEZyqtCgBg+CVHf2I6H97WH1/xfNA09N14w7nj5xUDbCqEy8r5q/oxI16vdzJD6x2qwrzGeD71z9SBZKYTlE3QC9JPjcAoDq0NSofF5q6AzxvFbOBXy901pkVQUQrVT4mewA25Jwv6mvScqqi7ma9kpZmHBHxfPkyM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=ijSVPE01; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="aH0cILfk"
-Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-e549be93d5eso6356759276.1
-        for <selinux@vger.kernel.org>; Tue, 07 Jan 2025 07:07:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1736262472; x=1736867272; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cNEZ+oQ1CmOA8uLsAYsFpP7pUalKhyCRsuFAppTytpw=;
-        b=aH0cILfkjcGJYsvb0c1QEd99sK6EQi9QdBppvpj9MknN6INwkIRr2REdVe9NscGpQx
-         lliT85Dg2l2CtaAEO1Ig+w+vhupOZNZ1HRfOvEkeQr27F2vpK0cpYGBUVknhdKADC2C6
-         yv3Cs0z4RnXmFPkdn+1syLZiFnIIOnQDVGfnFL9LFJEGBb8Ba4gGjbSUVAPnWkkcl+B2
-         1E4d9A52m5kDCcvOmJGGaZU1qxfHmefke36DIchs+nM4weur4u3kzYnXrOrRxogPmudE
-         gOZk3QkZ+VuAroMxwX8xNPUFHdF494vArETUP8tPA6kXo7nd66Jn94qasqpNViX8LU0W
-         xR5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736262472; x=1736867272;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=cNEZ+oQ1CmOA8uLsAYsFpP7pUalKhyCRsuFAppTytpw=;
-        b=w9qsU9ZNkrQjQGQAQ3mn/FmOnVEL0zXarCiAa7bJbxvwbiHFZyNDfwhKFXE7nrgPXJ
-         B8REZujy9UYISVbTYzahbg4zC9InuwTgLPqrPoKJmnl5Zvy6kelq0yQOaKOnI7QMNE2l
-         TcSEux92gmDrVykaavga961dUD1SxUJlEP/VjxoJ6/0eChHoUQ6khnsg2hsoWH6Kxj8L
-         r+UZxitfruZRkZ9DAjndEfASVHGqssThUN+jKdFCWVqLA0JRW9116yE65ObPspuG4/ME
-         7KjuOV8XXT89A0Nv1RVOv8YDP7akf2OOjLD/EMbg3hleRu25prNPSyKEwUT11Yd6mnA3
-         M4DA==
-X-Gm-Message-State: AOJu0YylSVXxWOG5caGiUnCAeWLsiV1HONYhsfoS/BWFgAmf2LbGaniM
-	H4N9Cs631dJ/R950p0qvBSLe8ytCYyTcOywufoqyP3b3zIp0/0UpMNweSlyYEIr5m77umxScDgK
-	MXoTBuJmDxhaClIAeTPGhft4OOZoQ7p0a4xQ=
-X-Gm-Gg: ASbGnctbWvmWl0nHVeNgwg5f1Rj7155tcSzLZSJs7/ifRGqL8Fkzli/SUqItleD2QER
-	MhgPDG8YRnS3vhw1L3WvJIDhas2KJwa9IWWMl
-X-Google-Smtp-Source: AGHT+IFJ2UfbyffwPA+kKXLURAsZe1mwWq6+XWGVU1iZKDojRhYUmL25YYign6n8xRXadaqDsb5+p/esaruumIhpQB0=
-X-Received: by 2002:a05:690c:7406:b0:6f2:955a:d25 with SMTP id
- 00721157ae682-6f3f81103dbmr435787267b3.10.1736262471862; Tue, 07 Jan 2025
- 07:07:51 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="ijSVPE01"
+Received: from [192.168.1.13] (pool-96-241-22-207.washdc.fios.verizon.net [96.241.22.207])
+	by linux.microsoft.com (Postfix) with ESMTPSA id E41AB206AB9C;
+	Tue,  7 Jan 2025 08:10:00 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E41AB206AB9C
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1736266202;
+	bh=7ddpPet55sgnfnLofuy1LQslUTu20r7I0nEzfZLkYYQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=ijSVPE01H9JNPGr1EMzstpni+NHe7hl0ZK05v73Xdle2NDWbPpfRYcdlhzuWlLjJ5
+	 S+KFyNplFbImqHwzxIcLQRKl7XhDzGQw5fzCpvdUa7X9EAj1+xxPyS0sb9Mv+v3S9s
+	 jAUUtX0JiLw/4e+Tgb5iopjIhnYzK44C5X+YOT7g=
+Message-ID: <6b9cd467-cc34-4ded-b68e-c98bd5870537@linux.microsoft.com>
+Date: Tue, 7 Jan 2025 11:09:59 -0500
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241230135114.41947-1-cgoettsche@seltendoof.de> <CAP+JOzQBAMW3zi18Txb+RWavJKZkGxGFGDguC+SxBvcnXaR4bQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzQBAMW3zi18Txb+RWavJKZkGxGFGDguC+SxBvcnXaR4bQ@mail.gmail.com>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Tue, 7 Jan 2025 16:07:41 +0100
-Message-ID: <CAJ2a_DdNg3+z_qrabieKq+s6eJ-SSLhFTwQCZ8fwvpJoXTqgng@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: update max node depth
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH v2 22/22] selinux: restrict policy strings
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+ selinux@vger.kernel.org
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>,
+ Nathan Chancellor <nathan@kernel.org>,
+ Nick Desaulniers <ndesaulniers@google.com>, Bill Wendling
+ <morbo@google.com>, Justin Stitt <justinstitt@google.com>,
+ =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>,
+ =?UTF-8?Q?Bram_Bonn=C3=A9?= <brambonne@google.com>,
+ Masahiro Yamada <masahiroy@kernel.org>, linux-kernel@vger.kernel.org,
+ llvm@lists.linux.dev, Joe Nall <joenall@gmail.com>
+References: <20241216164055.96267-1-cgoettsche@seltendoof.de>
+ <20241216164055.96267-22-cgoettsche@seltendoof.de>
+ <CAEjxPJ7NdTWu4dspY9cbPMtRsW_jERoRbKBsObbvsEnwgmZ8Ew@mail.gmail.com>
+ <EF4B3759-2C4C-4A15-A721-6B2D0FAFD84F@gmail.com>
+ <CAJ2a_Dcw3KQUNv1HQFp4qPOoZ972hjr6Qa2LAXTTv6SkV_Pd0A@mail.gmail.com>
+Content-Language: en-US
+From: Daniel Burgener <dburgener@linux.microsoft.com>
+In-Reply-To: <CAJ2a_Dcw3KQUNv1HQFp4qPOoZ972hjr6Qa2LAXTTv6SkV_Pd0A@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, 7 Jan 2025 at 15:46, James Carter <jwcart2@gmail.com> wrote:
->
-> On Mon, Dec 30, 2024 at 8:51=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
-> >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > Bump the maximum specification node depth from 3 to 4 based on updated
-> > benchmark on Fedora 41:
-> >
->
-> I am not sure I understand these numbers.
->
-> >     Benchmark 1: /tmp/destdir3/sbin/restorecon -vRn /
-> >       Time (mean =C2=B1 =CF=83):      1.397 s =C2=B1  0.018 s    [User:=
- 0.755 s, System: 0.641 s]
-> >       Range (min =E2=80=A6 max):    1.353 s =E2=80=A6  1.419 s    20 ru=
-ns
-> >
-> Is this for depth 3?
+On 1/7/2025 9:04 AM, Christian Göttsche wrote:
+> On Mon, 6 Jan 2025 at 00:26, Joe Nall <joenall@gmail.com> wrote:
+>>
+>>
+>>
+>>> On Jan 3, 2025, at 2:12 PM, Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
+>>>
+>>> On Mon, Dec 16, 2024 at 11:42 AM Christian Göttsche
+>>> <cgoettsche@seltendoof.de> wrote:
+>>>>
+>>>> From: Christian Göttsche <cgzones@googlemail.com>
+>>>>
+>>>> Validate the characters and the lengths of strings parsed from binary
+>>>> policies.
+>> Excellent idea.
+>>
+>>>>   * Disallow control characters
+>> Fine here.
+>>
+>>>>   * Limit characters of identifiers to alphanumeric, underscore, dash,
+>>>>     and dot
+>> Fine again.
+>>
+>>>>   * Limit identifiers in length to 128,
+>> Fine again, our longest
+>>   - type is 51 characters
+>>   - attribute is 31
+>>   - boolean is 46
+>>   - role is 12
+>>
+>>>> expect types to 1024 and
+>> I don’t understand what this means.
+> 
+> Similar to your list of the length in you policy boolean, role, user,
+> class, and permission identifiers are limited to 128 charatcers (not
+> including NUL), types (and attributes, which are just special types)
+> are limited to 1024 characters, and individual sensitivities and
+> categories are limited to 32 characters.
+> 
+>>
+>>>>     categories to 32, characters (excluding NUL-terminator)
+>> One category or the whole category string? A single category longer than 7 characters seems pretty unlikely and 32 is wildly short for the whole string.
+> 
+> This only affects individual sensitivities and categories, like "s9"
+> or "c1023", not whole MCS/MLS parts.
+> 
+>> Joe
+>>
+>>> One option if we are concerned about breaking backward compatibility
+>>> with policies in the wild would be to make these restrictions
+>>> conditional on whether the policy is being loaded into a non-init
+>>> SELinux namespace, similar to:
+>>> https://lore.kernel.org/selinux/20250102164509.25606-38-stephen.smalley.work@gmail.com/T/#u
+>>>
+>>> That said, it seems hard to imagine real-world policies that would
+>>> exceed these limits, and likely could make them even smaller.
+>>> But as Daniel said, we should make them consistently enforced in both
+>>> userspace and kernel, and potentially these should all be #define'd
+>>> symbols in a uapi header that can be referenced by both.
+>>> Looks like you left the type limit at 1024 despite Daniel's
+>>> observation that CIL uses 2048 as the limit, but as you noted, given
+>>> the page size limit on the entire context by various kernel
+>>> interfaces,
+>>> this is likely fine.
+> 
+> I interpreted Daniels comment more like a assessment what CIL
+> currently constrains, not as a request for a change, maybe I
+> misunderstood?
 
-Yes, I should have made this more clear.
+That is what I intended, yes.  My related request was "I would think 
+that we'd want to end up in a situation where the kernel is either 
+equally restrictive or less restrictive than CIL".  In isolation, my 
+opinion is that the 1024 limit is fine, but I've been hoping James would 
+chime in about the feasibility of dropping the CIL limit at some point 
+to get them in sync.
 
-> >     Benchmark 1: /tmp/destdir4/sbin/restorecon -vRn /
-> >       Time (mean =C2=B1 =CF=83):      1.376 s =C2=B1  0.021 s    [User:=
- 0.737 s, System: 0.637 s]
-> >       Range (min =E2=80=A6 max):    1.348 s =E2=80=A6  1.414 s    20 ru=
-ns
-> >
-> Depth 4?
->
-> >     Benchmark 1: /tmp/destdir5/sbin/restorecon -vRn /
-> >       Time (mean =C2=B1 =CF=83):      1.389 s =C2=B1  0.021 s    [User:=
- 0.748 s, System: 0.640 s]
-> >       Range (min =E2=80=A6 max):    1.351 s =E2=80=A6  1.420 s    20 ru=
-ns
-> Depth 5?
->
-> I see the comment below talks about more memory, how much more memory
-> is required for a depth of 4?
+FWIW we have a few generated type names internally that subjectively 
+feel long to humans, but are still under 100 characters.  So 1024 is 
+plenty of extra margin in my opinion.
 
-The maximum memory usage for `selabel_lookup -b file -k /usr/bin/bash`
-for all three depths is in the range 3800-4000kB, with depth 5
-occasionally being at 4060kB.
+-Daniel
 
->
-> Thanks,
-> Jim
->
-> > ---
-> >  libselinux/src/label_file.h | 6 +++---
-> >  1 file changed, 3 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-> > index 597b756e..41b2a939 100644
-> > --- a/libselinux/src/label_file.h
-> > +++ b/libselinux/src/label_file.h
-> > @@ -105,10 +105,10 @@ struct literal_spec {
-> >   * Max depth of specification nodes
-> >   *
-> >   * Measure before changing:
-> > - *   - 2  leads to slower lookup
-> > - *   - >4 require more memory (and allocations) for no performance gai=
-n
-> > + *   <  leads to slower lookup
-> > + *   >  require more memory (and allocations) for no performance gain
-> >   */
-> > -#define SPEC_NODE_MAX_DEPTH 3
-> > +#define SPEC_NODE_MAX_DEPTH 4
-> >
-> >  /* A specification node */
-> >  struct spec_node {
-> > --
-> > 2.45.2
-> >
-> >
+> 
+> Exporting the limits via a public headers seems reasonable.
+> 
+> Maybe for a smooth transition one could introduce a build time
+> configuration (CONFIG_SELINUX_STRICT_IDENTIFIERS?).
+> This configuration can be disabled by default, leading to identifiers
+> not being rejected only logged.
+> Than after two releases the default can change to reject instead of log.
+> And after the next LTS release the configuration can be dropped again.
+> 
+>>>
+>>
+
