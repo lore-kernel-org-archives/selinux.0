@@ -1,63 +1,63 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF1DF1A7046
-	for <selinux@vger.kernel.org>; Wed,  8 Jan 2025 03:00:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F3781A83E1
+	for <selinux@vger.kernel.org>; Wed,  8 Jan 2025 03:00:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736305212; cv=none; b=XuyufYU5Wu8YfWyekoWqo9Wc9cRAxk3PeV3B10dClr8EBFnxeuo1rIAuo6WA1AM32ZKXW5dAQ9Q+6UISd27exckrRfDMWk8rn5TziJAJpx2zvS23oqVRPJMQfotnt1fLa8TqDPYponlG8LohltZmmmzONqbQVQ4WnJsyjVpkGjE=
+	t=1736305213; cv=none; b=UaTPR7q+/QqGZAQPPVVzFwsibAm7MRb0C4EmO0efgNW8VpiGRwLR7jlKbbx+THFsufPUBjXNf1suqY2gDTIpNM+9rZTmy8j8fR8bnejyYDdShYvG/upNUmuW6Z+qSqNVQ0R2PZrED6l72GpFw6WWrG6lcxDH2UF4togEvExphU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736305212; c=relaxed/simple;
-	bh=0VG17PRuHlW3P5YOhYh3yyxpCMq13IluxgCP9Xm0xDs=;
+	s=arc-20240116; t=1736305213; c=relaxed/simple;
+	bh=dpW07r02+vAWiXyYKKllW9tQ/V7+u4ovL/HDCCgJWQE=;
 	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=lxRvA+eL7w8Tl4N/OCJmnFPSO0XhrF/uESeSgJEJODpW8HxB/Eo7IkmLXKTClC0NgBKyuohkcMSZ6CEnPstsCS54WsVPeshAeMf0SNdj/j56xsX9A0M7vjfBSQb99iLTiItDjci2SBCtWTSZaNiyYZAzzjA0SAZt0HcI+ihEsLc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=SkhrdvN+; arc=none smtp.client-ip=209.85.160.173
+	 References:In-Reply-To; b=ZnHiyW5Rpuj+zvsfcEcp4jyo1RekKKEeur4D9zUpz2g5vsqTMTTZgfutNtHgyt1s35nTnBlnEAg9yeSzdF2GPik0zrrAyLQ34wskXvZM+sDYOUDasja+0lDNf4MFfHpUa/8yNX4oGFOhaEKRXqv+XRz2ECN3CtSOgcQrb9EAuHI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=fgm0g4g6; arc=none smtp.client-ip=209.85.222.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="SkhrdvN+"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-46788c32a69so24250891cf.2
-        for <selinux@vger.kernel.org>; Tue, 07 Jan 2025 19:00:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="fgm0g4g6"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-7b6f19a6c04so1386122985a.0
+        for <selinux@vger.kernel.org>; Tue, 07 Jan 2025 19:00:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1736305209; x=1736910009; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1736305210; x=1736910010; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=bbS3FaNV2ZChC2KdX4lKqZIM1KAT1GNHxbb4N/ECpgI=;
-        b=SkhrdvN+J8JTENVLfmuIS1xDu2VFq8eMaxD7b9h0T97d6sfo5RQQzbrmYQ55oCFSXN
-         +icLff8wAyT5so7oaWjos3/jAemR0dp9yR5RGwJVCi2/0F0p3ESU8ID2NBhZf8xWKTgB
-         F3AbtBU4ZLAkqGBVv4l8FSJSgfSzmnTMTwwb/Cnyhf5izNQPptqsIS63nx3crSyALZT3
-         +351j9AlX4dBN9MsMUq5APdtSiYgWs7KTzVjDkD/+26hV1j1Hu6T8YcBm4qPAjwkl6K9
-         dsTcAd+QND4Wh2q0myZI8qfSf0Xm3MHlj6w32uo7ZVM7mbBeDmjdQqGZK/2JMzYJB4Zg
-         QY7w==
+        bh=zpwGF4ZPc5zkh/c6DMxwRDr8v/VzMYpFaykW6r71bZk=;
+        b=fgm0g4g6k+0FU8jqK1L8bHAW9FGT4neDqBz5K5XzMJKI9R6q1+sKFVzovb8syq2o7r
+         Aq+o+R/VAYdQje1xQhF12D5Kcv/3Q5R5+PRsPpSZYKCttM7PMxfUGiVnytfMs0Krm0qD
+         3BRpRy1oZKA58V8uVVOQqpoPmUrDdYy/TE1jpOUHNMNGxoH/Lu5Itcs32xtuxhgKLgUI
+         kOTiV3g/Gp2ltWkPCR+FprgxnBE9JJOntRAj4yqoz/aX3T4CVaGJyko0K9JXGJ8LDwhr
+         wREJLc2z1MWxwDi5tAAoYbG7UT9BXnvXXb3n6kvtNJAb7+0zVTevzGLL2A3FDGXyPUCO
+         o6Mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736305209; x=1736910009;
+        d=1e100.net; s=20230601; t=1736305210; x=1736910010;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=bbS3FaNV2ZChC2KdX4lKqZIM1KAT1GNHxbb4N/ECpgI=;
-        b=fMEjPImM3QCDuvj/PFmzTH2Rk65/P5aUB/HBzj9aCaoMcCo9TDzu7iYtVedWN2bdtM
-         LGkpeV+zSSuQpnYdJhswwtJ4YbY4m+BA1yVWimL2dCYIENvoi3TTToWGVP0Nt8NUQrha
-         YQkZMOLh2hcxYKI4Xq7dqT3li1lBPZOtxoHQZaZcJlVQsHZZv9CYRqExwRxxUxA88IyX
-         G9Rk+slRXxVAouDKibe5t3F2C4zHYq8p6dx85qKIIGGsqxSMBESpnmsFr5Cci8GLP9Al
-         gdwVYqB5xrlP+8nma939iW/16OXV5iKphMyZFz9zHAPCkWNeBEg6e99L6mKaaNLL3QNC
-         HBKA==
-X-Forwarded-Encrypted: i=1; AJvYcCWXMfQ1s47PmIscyXfDisWUTkMKWDMAlfubQuhPWMm9W3/Di1YO2LTOIE1y3yEd8TcO3W3r7lsf@vger.kernel.org
-X-Gm-Message-State: AOJu0YzPwx3O8PqXgxZ3o6Dv5wCmlGsn1KSuo3Z2py2kkSl3NTHqR+74
-	+9cvdkiWb0oDlCs95wotHBq1cwC31ezoskf1yZPTHO4I/dp2j+1Z9gT8pGHQnQ==
-X-Gm-Gg: ASbGncsDtthI4IDVTwREKabwz9TnhUIoBj0pqzf43jQjaNZGQYSM69uVzb4oJKwffAy
-	Lj9zURmv16qSipFEY/CiII1aNxFJiQu5WdZ6t6mXtjZfornm7Rjo8zTkAZCYCnT6Fx46OCzNMLq
-	kRk/RKhoq6liT8tyGphO0AqLSiPZ/DYNur6qa9WscHU6/hMKGJhB8toPR/IcZ36+SIbz/J84xAd
-	1zqHYLK9Gj68da1X7ifHS8/BlxhrNV8XGL39wd6lNboWu77kFo=
-X-Google-Smtp-Source: AGHT+IGlvlEtC2oSxSG/w2tS74y+OnJ6UIskVvDabz5llHEY9yRt3+4BKZSyuRVj3w8/8HU/CBRy6w==
-X-Received: by 2002:a05:6214:20ce:b0:6dd:d24:3072 with SMTP id 6a1803df08f44-6df9b1f453fmr22476186d6.3.1736305209150;
-        Tue, 07 Jan 2025 19:00:09 -0800 (PST)
+        bh=zpwGF4ZPc5zkh/c6DMxwRDr8v/VzMYpFaykW6r71bZk=;
+        b=v5zokre13WRF6NlgH9LM1oZKGgkAj1Y71yrfXI+lpkVVlwj5ZSFRfyTUBc1ahGi3hZ
+         2NnC3MaRTA8JfkAXF+CpAVG/Ct4nE6ZRuZMVylSYcvRoO8t+wIzY9w8szP7+tTaQUZOs
+         wLot4oE0z8nlDfP5VHF866tThOtZa+9Vr2KRVBTYZROu+BnCtMm93AyqLqTpsok82jOg
+         AKeDimBRWYbGmgQ81wL1Mhk4XZx6hPzL0FJ+g9WrTCssRcLjVKiYuHY1UKcVAuu8cPjM
+         3bfTA/AV1SQg3GiiQtX9ZfbcDS+WkICZXbIfOtXJhuCyRftfK2v/ZQW8yQ6yDBJ+qwqd
+         wwkA==
+X-Forwarded-Encrypted: i=1; AJvYcCWpP3l78C6BmKUv9+Llw3bQ3IbQjOq0o9K15xuev7ZIwRpJiqAgqk6zxuPtOg3xPdejBWLzM5fE@vger.kernel.org
+X-Gm-Message-State: AOJu0YzQGHELUwql+QvDz4QLZ9JTxUIVHSZqGI8CU2l6wpgikQ8hRr1m
+	/o6N+w+lyFckFcHlyLxiAq6DrUWE33LP3NGV7OEdiEKKDKqdqizG2JbZ1FKxHg==
+X-Gm-Gg: ASbGnctoxDfL3rJqXhD9n+tcX5x42HY7o6uxcxhWqGuYjZ6C8EwxsUIhMy7wqCQCXa9
+	/mp1/KC9Z/Ks5WdieLwIJTJINSVjpQ2Ar8MtKr5oBz0SKWWkIgV3SOfzHcThVPcskPI0TC3RJYB
+	AuHMMD7oLfnNdbYj4T5IDGwIGY13oEawBahaZPSIceGUoje/Yx+iCZeoao+1klHktCvDVMQvuKF
+	pugDyDe6YDrulaJ60iLCmzvbW5e+X0csNcqc14yXaX6hVcxZ/Q=
+X-Google-Smtp-Source: AGHT+IG9lHm2hSXpL2ALHMVYpNGR+NPhmNlgxnbcIWTjNSbgzaPtBoqVZFBXmmBFrsxuavT1v+9vtg==
+X-Received: by 2002:a05:620a:240d:b0:7b1:e0f:bf9b with SMTP id af79cd13be357-7bcd97afd59mr145106485a.45.1736305210186;
+        Tue, 07 Jan 2025 19:00:10 -0800 (PST)
 Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6dd18110450sm187110216d6.44.2025.01.07.19.00.08
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7b9ac2f8fe6sm1637237185a.51.2025.01.07.19.00.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jan 2025 19:00:08 -0800 (PST)
-Date: Tue, 07 Jan 2025 22:00:08 -0500
-Message-ID: <00d497cd0162f3033c8c7aa57daf4630@paul-moore.com>
+        Tue, 07 Jan 2025 19:00:09 -0800 (PST)
+Date: Tue, 07 Jan 2025 22:00:09 -0500
+Message-ID: <e1e67dea8520f71bc54377a93e26d849@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -69,59 +69,24 @@ Content-Transfer-Encoding: 8bit
 X-Mailer: pstg-pwork:20250107_1610/pstg-lib:20250107_1603/pstg-pwork:20250107_1610
 From: Paul Moore <paul@paul-moore.com>
 To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>, selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>, =?UTF-8?q?Bram=20Bonn=C3=A9?= <brambonne@google.com>, Masahiro Yamada <masahiroy@kernel.org>, linux-kernel@vger.kernel.org, llvm@lists.linux.dev, Eric Suen <ericsu@linux.microsoft.com>, Canfeng Guo <guocanfeng@uniontech.com>
-Subject: Re: [PATCH RFC v2 15/22] selinux: introduce ebitmap_highest_set_bit()
-References: <20241216164055.96267-15-cgoettsche@seltendoof.de>
-In-Reply-To: <20241216164055.96267-15-cgoettsche@seltendoof.de>
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>, =?UTF-8?q?Bram=20Bonn=C3=A9?= <brambonne@google.com>, Masahiro Yamada <masahiroy@kernel.org>, linux-kernel@vger.kernel.org, llvm@lists.linux.dev
+Subject: Re: [PATCH RFC v2 19/22] selinux: validate symbols
+References: <20241216164055.96267-19-cgoettsche@seltendoof.de>
+In-Reply-To: <20241216164055.96267-19-cgoettsche@seltendoof.de>
 
 On Dec 16, 2024 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de> wrote:
 > 
-> Introduce an ebitmap function to calculate the highest set bit.
+> Some symbol tables need to be validated after indexing, since during
+> indexing their referenced entries might not yet have been indexed.
 > 
 > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->  security/selinux/ss/ebitmap.c | 27 +++++++++++++++++++++++++++
->  security/selinux/ss/ebitmap.h |  1 +
->  2 files changed, 28 insertions(+)
-> 
-> diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-> index 43bc19e21960..5d6b5b72b3e5 100644
-> --- a/security/selinux/ss/ebitmap.c
-> +++ b/security/selinux/ss/ebitmap.c
-> @@ -257,6 +257,33 @@ int ebitmap_contains(const struct ebitmap *e1, const struct ebitmap *e2,
->  	return 1;
->  }
->  
-> +u32 ebitmap_highest_set_bit(const struct ebitmap *e)
-> +{
-> +	const struct ebitmap_node *n;
-> +	unsigned long unit;
-> +	u32 pos = 0;
-> +
-> +	n = e->node;
-> +	if (!n)
-> +		return 0;
-> +
-> +	while (n->next)
-> +		n = n->next;
-> +
-> +	for (unsigned int i = EBITMAP_UNIT_NUMS; i > 0; i--) {
-> +		unit = n->maps[i - 1];
-> +		if (unit == 0)
-> +			continue;
-> +
-> +		pos = (i - 1) * EBITMAP_UNIT_SIZE;
-> +		while (unit >>= 1)
-> +			pos++;
-> +		break;
-> +	}
-> +
-> +	return n->startbit + pos;
-> +}
+>  security/selinux/ss/policydb.c | 94 ++++++++++++++++++++++++++++++++++
+>  1 file changed, 94 insertions(+)
 
-Squash this patch with 16/22.  We generally don't add code that isn't
-used, so squashing this with the caller in 16/22 ensures we have at
-least one caller.
+Out of curiosity, have you measured the policy load times before and
+after this patchset?  I'd like to understand the performance impact of
+the additional checks and validations.
 
 --
 paul-moore.com
