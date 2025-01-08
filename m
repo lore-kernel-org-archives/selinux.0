@@ -1,63 +1,101 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04668137C2A;
-	Tue,  7 Jan 2025 23:46:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89EAC198A17
+	for <selinux@vger.kernel.org>; Wed,  8 Jan 2025 02:59:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736293604; cv=none; b=dqcgmjF4mARTgL6LSj7nNS7dNcYuR1DiL4IjYmkxew3yZiPfmL1WtdHnVGFhTEbrYb1Hhq7kw4d4OJToXc/4r6zlOgOa9rFQYLsGmYHJLUqTNbOyFcuuu8DUrQGQmf9TLYEvheiewOP+OkupT66mZlDUN6Jadagk+yfqw+Hxhw0=
+	t=1736305198; cv=none; b=DbyU6yvmoTPmamco9cjK7Fy7nSYD5dSJXcym8Sb7YTVDB7sC3X3cD3sj5+xqpA/9nIW5AIVPXhPnZfoC4PJ//mMHM1IfzFNZ0b1Xztk3L3ok0bf9s/0NGc9RJQmcJby6EjD0W/Ygd1W0glqB430VV0F3+PWEienrqK5G9XYoM7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736293604; c=relaxed/simple;
-	bh=ViPtpKCnXu+XTWbVnpl7IxKO3ec7cgZpCB8a5RDpD1Y=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=DLAZWaj2UZ3sfYOVf818EfCoaqQPofoLLoC4yF64G6ALEjQjxTWdaQrjfZjQZHpexjFScvv1XtbirpI6LXL/fZW0X8TsYJVKOcMKNKI2aawGoWD6yBvGjby3GKhznPu7v5GiBhTprlmlDA1e63WMT2xhlVs/zxA6uHz4o6VbFB4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=q8WWg7s5; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1736305198; c=relaxed/simple;
+	bh=C/ZHYIyY3SZv7cvhFXdzRTbZhaNsjCv+TbLGC3G9X7I=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=hJSyh3CKWffP9sWn9au+n2t3n3optfu7xSB/t9aGBRE8KV2LthIV1Zy89hRxD5zYwQXGmf2JUx1tfJBsJjeThSiP02W5mZVxWXaYOHWWFB/9z94F1iVPw5frugJt38g/aBhAmW9+Tr7186FYmpXiHYJgejisMEJilYkJEVzimbg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=MmrvpNNL; arc=none smtp.client-ip=209.85.160.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="q8WWg7s5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B0F9C4CED6;
-	Tue,  7 Jan 2025 23:46:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1736293603;
-	bh=ViPtpKCnXu+XTWbVnpl7IxKO3ec7cgZpCB8a5RDpD1Y=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=q8WWg7s5PDkDLW73ENKTBNXMUsl+M+UYctRCOVz9GNxjVd/+laPKgsWrtoGZVHry9
-	 Ewxk3y3i2mPkVgafIWINWS73qU8uuAJTMWT3Ao2/L1Ywps35NiJKE5r/6OEqdLdDxU
-	 44Gnm+rlQclYWaAt0OkW5dDGjeAzjdO1A4kQyD6BwVxLfqiqNeZVBo3jAS3nfs3rUo
-	 Hs0bARKIoLK329R9Bb1Mn7f1XFBEM925ZZKHR7QR3CugRDZCJ6kZFQZJTeUrWp1Gbf
-	 8pgf/QKVQ/43vqwEDXf29/ZEdx6VYSKPnXOQmpoVq49jNNez2gChCUQi6f1R6xrROx
-	 EJrKsCee04GiA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33F3B380A97E;
-	Tue,  7 Jan 2025 23:47:06 +0000 (UTC)
-Subject: Re: [GIT PULL] selinux/selinux-pr-20250107
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <c3eecfb79581eed47b37aac6b1ab8432@paul-moore.com>
-References: <c3eecfb79581eed47b37aac6b1ab8432@paul-moore.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <c3eecfb79581eed47b37aac6b1ab8432@paul-moore.com>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20250107
-X-PR-Tracked-Commit-Id: 5e7f0efd23238039bcd4fc72ff28d94f364ec26b
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 09a0fa92e5b45e99cf435b2fbf5ebcf889cf8780
-Message-Id: <173629362465.134782.14256338314126652661.pr-tracker-bot@kernel.org>
-Date: Tue, 07 Jan 2025 23:47:04 +0000
-To: Paul Moore <paul@paul-moore.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="MmrvpNNL"
+Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-467918c35easo60121361cf.2
+        for <selinux@vger.kernel.org>; Tue, 07 Jan 2025 18:59:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1736305195; x=1736909995; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=3tz22nuryVbOFmn+oYqrauvaNZiy7Fik4w1VGFcXWlE=;
+        b=MmrvpNNLKlwDF7r/+xYZtIeax/jBBW5guSIo9X+fsj4bzJHODMx3cBNqswftyyql/N
+         BdGqpL3mvRv2LvBTslRBz//P/fBiZSGb69C1bnXRJ8OkD1I0epJXMyfv39WKYQRyrZab
+         w6HuR+LYnWdYNBXIRkCZ8n7Tq5BCHDJkjJyrmOzlhp4Am5KFnP9ohjsM7nBjM0PwTz/s
+         ICS119lTQp5z0cWaCl4zbbiBRi2pEwhfQPqEVKsYxV07AGJSJ9oipdU37GitAAhjvMTS
+         1ialALGbL3L1NVAWVF1iKoSBKBF7IomhRtnNRFXsz2JHMc2BebbkEjW6DebThbv+CUgP
+         NLaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736305195; x=1736909995;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=3tz22nuryVbOFmn+oYqrauvaNZiy7Fik4w1VGFcXWlE=;
+        b=nswsMUzP5GHKFT1p3UFMOAyp45fToRbgOQymCLZOpDT6KvWoBCFGzGtt76ncV0TLJZ
+         cWd+YG5fz3l9PCxVudsEVgtu+KqUSF+k5YOhBHQxQgOmIfAiKOdQ4bQcUE2xer6IZGjC
+         rEZXT7UBSm+POPwTUZVgPabY6WpqYTPQ1uOGVoXz+ivWz8fGZ09jNYCCiqtCtLkVXUGQ
+         JpueF5cxg6gf8Cc4Z/srHZ5o+6Dgp04PJ4YulaICrOJtXbNkx9Zfg5W+2Mpbm5B7myky
+         X+43rp85/kqlwwDJreVwYbYxUZkodvse2xZNf+8ePM55jhIzkiZoSjuR6IdaGekCvUpl
+         ZvWQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXOssJ5m5zMi4qCRXfZkF1QdzdQs7Cy4YJrpyUFtlSwO/qaNkwzrc8wfJkR6nwmJJOTKcWe1Mus@vger.kernel.org
+X-Gm-Message-State: AOJu0YyhUIE7P43qAsE0j7z4kQSNBQbxeiMnsEKwfiel3h6vOJo2i2bW
+	WhMtiJHkgiW+4LSDLi6L+LJH5mi9ptlMo0yQLTf8zncwJNz2jcsUJprSKw5gMA==
+X-Gm-Gg: ASbGnctvrNog7EaV7NhbsnVIcVuuIIzR/oBaO6bleT+0GthL6ROk9qaA/bTyN7u4wu5
+	eEx5aiSVIgIVafuTszOvHdMdXgdLaDFBQb+LbsLFo7m1/K8iIhF1VAIR6scuuTvSPBScTCd0Ymo
+	KBWthfUrouVWA7BSU4yjSfdSUjHwq0I3ddQgDpVXD3NgGaqDcrf+V2q/Sg5nRhdxqBxmso+c37B
+	k8KVXfazb/FSmpuFZNVS5smEU2DGT8hATtN3BOVdC4i0VK5ipQ=
+X-Google-Smtp-Source: AGHT+IG/qZatNsIQPUIMGpi/gDD5LuQycIfXktP/17Ciff+gHXaJdBEJVnCXiT5bnSst3fW/DC2oRA==
+X-Received: by 2002:a05:622a:144e:b0:467:6fa1:9e2a with SMTP id d75a77b69052e-46c7107e0bfmr18520211cf.40.1736305195538;
+        Tue, 07 Jan 2025 18:59:55 -0800 (PST)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-46a3eb5cacfsm191575531cf.89.2025.01.07.18.59.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Jan 2025 18:59:54 -0800 (PST)
+Date: Tue, 07 Jan 2025 21:59:54 -0500
+Message-ID: <0ac6d10bcba40994814d5c4d400d86cd@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20250107_1610/pstg-lib:20250107_1603/pstg-pwork:20250107_1610
+From: Paul Moore <paul@paul-moore.com>
+To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>, selinux@vger.kernel.org
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>, =?UTF-8?q?Bram=20Bonn=C3=A9?= <brambonne@google.com>, Masahiro Yamada <masahiroy@kernel.org>, linux-kernel@vger.kernel.org, llvm@lists.linux.dev
+Subject: Re: [PATCH RFC v2 1/22] selinux: supply missing field initializers
+References: <20241216164055.96267-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20241216164055.96267-1-cgoettsche@seltendoof.de>
 
-The pull request you sent on Tue, 07 Jan 2025 16:08:48 -0500:
+On Dec 16, 2024 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de> wrote:
+> 
+> Please clang by supplying the missing field initializes:
+> 
+>     security/selinux/selinuxfs.c:2004:21: warning: missing field 'ops' initializer [-Wmissing-field-initializers]
+>      2004 |                 /* last one */ {""}
+>           |                                   ^
+>     ./security/selinux/include/classmap.h:182:9: warning: missing field 'perms' initializer [-Wmissing-field-initializers]
+>       182 |         { NULL }
+>           |                ^
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> ---
+>  security/selinux/include/classmap.h | 2 +-
+>  security/selinux/selinuxfs.c        | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20250107
+Merged into selinux/dev, thanks.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/09a0fa92e5b45e99cf435b2fbf5ebcf889cf8780
+In the future, please try to write the commit descriptions such that
+they display without line wraps when using 'git log' on an 80-char wide
+terminal.
 
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+--
+paul-moore.com
