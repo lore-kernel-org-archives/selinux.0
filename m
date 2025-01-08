@@ -1,404 +1,262 @@
-Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com [209.85.219.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5BA1201001;
-	Wed,  8 Jan 2025 15:49:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD59C2905
+	for <selinux@vger.kernel.org>; Wed,  8 Jan 2025 16:29:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736351386; cv=none; b=lsFwHMxhpONTtDr9CnajVTGzFoyeWWqct9XCCaTI0rYN9MIoPG527xVCTlkKeIswAC3NAyn9kDHtMoBUr1dgGXAXWNYjcMok3CodIIcDY/wWB7zYofVoonZQpJul6zBRwTp5cAMiwyGxUF5fEk/FFucWp32P6e54NXImhdbFj38=
+	t=1736353761; cv=none; b=lb15fJAfNXxyBDcGhu6xZ83kDeWdh9flLYlA54cpDrrBZzNDPaCFSS9sqH0f1WjlRz47nkR81NaI3GwfvVV6FTTXkckmSgt2NVup7zeVENDbve/7+xI/nZxZzuqL4vUbiuo2ziPaMMKAe6c1rgSBLddO5mWdA25HRIcUbm8R6JU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736351386; c=relaxed/simple;
-	bh=HnhD7qLoF2xw9DuWcbGxiSpLsuyqXXj5iz9UAsTjxdo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=J+GDnZEji5xBdHe8dISUGtlYkxDAUaoBaH+SybvbDw4Pg/ulueOIQlSYnC8dRLjotVFNF7Mvy9b39tEfexrqzFm5Apc5KOzc5ZqPAtJiSLPZ9gkX8PmZuN6VhYjHRU4HdgZlhernsgIUhvFo2ip/Dqdw5NTush0pfqImls/vjyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=efRjOiVt; arc=none smtp.client-ip=209.85.219.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	s=arc-20240116; t=1736353761; c=relaxed/simple;
+	bh=hUwjKO5IJvXI20o300/KHs012/HovAz/eW9RChXQCvw=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=COSxkJnQLg5yTcJklAMwPN+2LWAbfcjNOXUIbddS3pYt2KgoPU/e5tKt8zN6ZrjX6zKojXoj+1zosqf0AEyjjTu8FePKhHhGa2xSunUYsvP+/Lgq2MMw7vhIh7gzyg0TT4j+nBlmGBaOm8L6ta75QgmRIuknGfuOPWXLGJVZc7E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KNS7+coU; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="efRjOiVt"
-Received: by mail-yb1-f178.google.com with SMTP id 3f1490d57ef6-e39f43344c5so22494366276.1;
-        Wed, 08 Jan 2025 07:49:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1736351384; x=1736956184; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vDW/Ako6zjMiCuxIC7DipSyinlux1XQkA/YVTKRT8+0=;
-        b=efRjOiVtsl5a+uuI8oVKQF0qpToP89P2RP3RjFoz3eeG7s5CDvMqZGBket9f5lodtP
-         WKcWJ6IOnFwGy0ltgrTsZMqqN19aQrNQjZyJRr+ldOCWCh7soiTwN1KR1yw3Rpvh+MUG
-         lzHA3/7wfHNFG0rZyt1YPGqQpv/LmCeV/eumqjFcOcLyKROULUhO+aRtg2riLGOiRHmz
-         M3U+NRGPFI1TcjDVX++AJaBh7kN2ILdn/keC4bW1RoP6Nugke7E7U2GKzoOjq8yhQ3Ko
-         /DclN06ORJy0X7owMRfW7fybR3BTC8EFbJrDAfWioKSJvvgrDCFrNp5y7bAPJ+y6I/xF
-         3rTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736351384; x=1736956184;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=vDW/Ako6zjMiCuxIC7DipSyinlux1XQkA/YVTKRT8+0=;
-        b=O8hSp5ClcBTnk3i89NhvOqbd94+53zv4D5KitoKZx7ojhskTMgaQK3e4TWZ6ji+w/A
-         BpY7D4ahi01pz7QYl0vuvjUntlZpuBirQG84Vf42IViPBxwD3l99OtsiExArbwNnWhGz
-         hLtZhC/cMunBEP3OMRm34nyhPxWhEhj7VrIM8q8OPNuv2QCV6+uvMDqlYa3vUju8Xf6j
-         wmS7PMjjx2SW7gHafLBYfwSyUHg6OS+cybwVbfnrBnLz3C0Qi8A0icVsO6IpW0OSLmqj
-         VESgvO0bbr6r8HkjI0IHp5x1u64Zzc4yM/ZFO/PerCRkE0bUHdENThdoO6uoTm8t6wHh
-         dAxw==
-X-Forwarded-Encrypted: i=1; AJvYcCV2vaSNOIxNjd7zIEK8o2qJ6qJ+3iTqxvUeSZZv9J3fKJlHh/s4Ve5mBAXgT6f2M2aZpagN0sS5VSyZmb8=@vger.kernel.org, AJvYcCWCOk5ly/+HlA+trLlB34DUQGgq6PCYxDM72fDj6NDLfB58ZEz4TRuJ9k96zUQ9hfoxHd7NkJSqUw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzgJ4HBBhqsQ0BMC3UFyfcvfFBD7md96K6aK2pUscVYrOzbtvvw
-	BdUYaMn5kcbjhvoCXhNzfazyDsbZLRHyzrW+4gEzvUjCeMCj15mXsK8DDOM7UAO6LqUKAdSPOpP
-	j9R56BtIRLxquUkI02fOaFUIO7Nk=
-X-Gm-Gg: ASbGnctNxFEfgBJP79u135yyyOOMi4+oaYVlZ3v9BaHN+Vpnv/HCYyFYY56EFDC9/f/
-	kohuA6/1Rj81sHYE879oDjgwogT3iT1uq6EtQ
-X-Google-Smtp-Source: AGHT+IHOsUdl20Vn8APEMawYUBEFyeYi7/RbP+yoN0I9+eYmWaKxd5jhuOs4pqoLc/S2RW9zbrJTYpR4GnrzmZsqepc=
-X-Received: by 2002:a05:690c:e1f:b0:6ef:5fee:1ca6 with SMTP id
- 00721157ae682-6f531233b36mr24445507b3.18.1736351383819; Wed, 08 Jan 2025
- 07:49:43 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KNS7+coU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1736353758;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Axn/AftznvRKodOm0jayetydL+bzpp9wnCKsr7KSew8=;
+	b=KNS7+coUh58S1SVYl3cDbHufv7N9YTbzzMkEkQqs0mRmOrdk0l8uknl95Ph/tK3Uu9xRE3
+	PYUUC899FBeOuGJNkRw1IDZlucenPc1Miuuq5aAbOcl7hMWj34XEEybzynSmujBQVmTZ7S
+	ls1ENw2Gz6Xh1W5hf/Q8EyV2u4NPnWo=
+Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-168-3PWZbKK6MJa0cUnu60nDnA-1; Wed,
+ 08 Jan 2025 11:29:16 -0500
+X-MC-Unique: 3PWZbKK6MJa0cUnu60nDnA-1
+X-Mimecast-MFC-AGG-ID: 3PWZbKK6MJa0cUnu60nDnA
+Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 749BF19560B7;
+	Wed,  8 Jan 2025 16:29:15 +0000 (UTC)
+Received: from localhost (unknown [10.45.224.210])
+	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id D48B31956054;
+	Wed,  8 Jan 2025 16:29:14 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: Christian =?utf-8?Q?G=C3=B6ttsche?= <cgoettsche@seltendoof.de>,
+ selinux@vger.kernel.org
+Cc: Christian =?utf-8?Q?G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: Re: [PATCH] semanage: improve -e documentation and fix delete
+ operation
+In-Reply-To: <20241230135033.41492-1-cgoettsche@seltendoof.de>
+References: <20241230135033.41492-1-cgoettsche@seltendoof.de>
+Date: Wed, 08 Jan 2025 17:29:13 +0100
+Message-ID: <87y0zlxo9y.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241216164055.96267-11-cgoettsche@seltendoof.de> <ef5f7c20f5a3a485cdf2603ea4a4cde9@paul-moore.com>
-In-Reply-To: <ef5f7c20f5a3a485cdf2603ea4a4cde9@paul-moore.com>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Wed, 8 Jan 2025 16:49:33 +0100
-X-Gm-Features: AbW1kvaCC9pclqT_gbVW4g6FIPabHxHJRgccp1c8FcVaewnMkcg_3Myvkhc7t-c
-Message-ID: <CAJ2a_De+XFMA=VZr7AEXydozLyO0E0ggggb-Gq-h2TVWgYZsqw@mail.gmail.com>
-Subject: Re: [PATCH RFC v2 11/22] selinux: more strict policy parsing
-To: Paul Moore <paul@paul-moore.com>
-Cc: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>, 
-	selinux@vger.kernel.org, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Nathan Chancellor <nathan@kernel.org>, 
-	Nick Desaulniers <ndesaulniers@google.com>, Bill Wendling <morbo@google.com>, 
-	Justin Stitt <justinstitt@google.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	=?UTF-8?Q?Bram_Bonn=C3=A9?= <brambonne@google.com>, 
-	Masahiro Yamada <masahiroy@kernel.org>, linux-kernel@vger.kernel.org, llvm@lists.linux.dev, 
-	Eric Suen <ericsu@linux.microsoft.com>, Casey Schaufler <casey@schaufler-ca.com>, 
-	Mimi Zohar <zohar@linux.ibm.com>, Canfeng Guo <guocanfeng@uniontech.com>, 
-	GUO Zihua <guozihua@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
 
-On Wed, 8 Jan 2025 at 04:00, Paul Moore <paul@paul-moore.com> wrote:
->
-> On Dec 16, 2024 =3D?UTF-8?q?Christian=3D20G=3DC3=3DB6ttsche?=3D <cgoettsc=
-he@seltendoof.de> wrote:
-> >
-> > Be more strict during parsing of policies and reject invalid values.
-> >
-> > Add some error messages in the case of policy parse failures, to
-> > enhance debugging, either on a malformed policy or a too strict check.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> > v2:
-> >   accept unknown xperm specifiers to support backwards compatibility fo=
-r
-> >   future ones, suggested by Thi=C3=A9baud
-> > ---
-> >  security/selinux/ss/avtab.c       |  37 +++++--
-> >  security/selinux/ss/conditional.c |  18 ++--
-> >  security/selinux/ss/constraint.h  |   2 +-
-> >  security/selinux/ss/policydb.c    | 157 ++++++++++++++++++++++++------
-> >  security/selinux/ss/policydb.h    |  19 +++-
-> >  security/selinux/ss/services.c    |   2 -
-> >  6 files changed, 182 insertions(+), 53 deletions(-)
-> >
-> > diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-> > index c2c31521cace..3bd949a200ef 100644
-> > --- a/security/selinux/ss/avtab.c
-> > +++ b/security/selinux/ss/avtab.c
-> > @@ -349,7 +349,7 @@ int avtab_read_item(struct avtab *a, struct policy_=
-file *fp, struct policydb *po
-> >       struct avtab_extended_perms xperms;
-> >       __le32 buf32[ARRAY_SIZE(xperms.perms.p)];
-> >       int rc;
-> > -     unsigned int set, vers =3D pol->policyvers;
-> > +     unsigned int vers =3D pol->policyvers;
-> >
-> >       memset(&key, 0, sizeof(struct avtab_key));
-> >       memset(&datum, 0, sizeof(struct avtab_datum));
-> > @@ -361,8 +361,8 @@ int avtab_read_item(struct avtab *a, struct policy_=
-file *fp, struct policydb *po
-> >                       return rc;
-> >               }
-> >               items2 =3D le32_to_cpu(buf32[0]);
-> > -             if (items2 > ARRAY_SIZE(buf32)) {
-> > -                     pr_err("SELinux: avtab: entry overflow\n");
-> > +             if (items2 < 5 || items2 > ARRAY_SIZE(buf32)) {
-> > +                     pr_err("SELinux: avtab: invalid item count\n");
-> >                       return -EINVAL;
-> >               }
->
-> A reminder that magic numbers are a bad thing, if we can't make it clear
-> what the '5' in the conditional above represents by using a computed
-> value, let's either use a #define with a helpful name or a comment to
-> make this a bit more understandable.
->
-> > @@ -444,9 +456,13 @@ int avtab_read_item(struct avtab *a, struct policy=
-_file *fp, struct policydb *po
-> >               return -EINVAL;
-> >       }
-> >
-> > -     set =3D hweight16(key.specified & (AVTAB_XPERMS | AVTAB_TYPE | AV=
-TAB_AV));
-> > -     if (!set || set > 1) {
-> > -             pr_err("SELinux:  avtab:  more than one specifier\n");
-> > +     if (hweight16(key.specified & ~AVTAB_ENABLED) !=3D 1) {
-> > +             pr_err("SELinux:  avtab:  not exactly one specifier\n");
-> > +             return -EINVAL;
-> > +     }
-> > +
-> > +     if (key.specified & ~(AVTAB_AV | AVTAB_TYPE | AVTAB_XPERMS | AVTA=
-B_ENABLED)) {
-> > +             pr_err("SELinux:  avtab:  invalid specifier\n");
-> >               return -EINVAL;
-> >       }
->
-> Let's define a macro in avtab.h with all of the allowed avtab key
-> values, otherwise I think people are going to forget about this check
-> when adding a new flag and they are going to get frustrated :)
->
-> > @@ -471,6 +487,15 @@ int avtab_read_item(struct avtab *a, struct policy=
-_file *fp, struct policydb *po
-> >                       pr_err("SELinux: avtab: truncated entry\n");
-> >                       return rc;
-> >               }
-> > +             switch (xperms.specified) {
-> > +             case AVTAB_XPERMS_IOCTLFUNCTION:
-> > +             case AVTAB_XPERMS_IOCTLDRIVER:
-> > +             case AVTAB_XPERMS_NLMSG:
-> > +                     break;
-> > +             default:
-> > +                     pr_warn_once_policyload(pol, "SELinux: avtab: uns=
-upported xperm specifier %#x\n",
-> > +                                             xperms.specified);
-> > +             }
->
-> Similar to the avtab flags discussion above, can we create a small
-> inline function in avtab.h that checks to see if an xperm is valid?
->
->   /* feel free to come up with a better name */
->   static inline bool avtab_xpermspec_valid(u8 specified)
->   {
->     if (specified =3D=3D AVTAB_XPERMS_IOCTLFUNCTION)
->       return true;
->     elif (...)
->       return true;
->
->     return false;
->   }
->
-> > diff --git a/security/selinux/ss/constraint.h b/security/selinux/ss/con=
-straint.h
-> > index 203033cfad67..26ffdb8c1c29 100644
-> > --- a/security/selinux/ss/constraint.h
-> > +++ b/security/selinux/ss/constraint.h
-> > @@ -50,7 +50,7 @@ struct constraint_expr {
-> >       u32 op; /* operator */
-> >
-> >       struct ebitmap names; /* names */
-> > -     struct type_set *type_names;
-> > +     struct type_set *type_names; /* (unused) */
->
-> If we're not using this field, let's remove it.  If for some odd reason
-> we need to keep it here for size reasons, or something similar, let's
-> turn it into a 'void *unused;' field.
+Christian G=C3=B6ttsche <cgoettsche@seltendoof.de> writes:
 
-This member (and the one later down this patch) is not used
-internally, but forwarded to userspace via policydb_write() to
-/sys/fs/selinux/policy.
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> Improve the documentation around the -e/--equal option for semanage
+> fcontext.
+>
+> Add support for entry deletion.
+>
+> Closes: https://github.com/SELinuxProject/selinux/issues/457
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  python/semanage/semanage            | 15 ++++++++-------
+>  python/semanage/semanage-fcontext.8 |  6 +++---
+>  python/semanage/seobject.py         | 13 +++++++++++++
+>  3 files changed, 24 insertions(+), 10 deletions(-)
+>
+> diff --git a/python/semanage/semanage b/python/semanage/semanage
+> index b269b9fc..ec6fa2dd 100644
+> --- a/python/semanage/semanage
+> +++ b/python/semanage/semanage
+> @@ -54,7 +54,7 @@ usage_login =3D "semanage login [-h] [-n] [-N] [-S STOR=
+E] ["
+>  usage_login_dict =3D {' --add': ('-s SEUSER', '-r RANGE', 'LOGIN',), ' -=
+-modify': ('-s SEUSER', '-r RANGE', 'LOGIN',), ' --delete': ('LOGIN',), ' -=
+-list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
+>=20=20
+>  usage_fcontext =3D "semanage fcontext [-h] [-n] [-N] [-S STORE] ["
+> -usage_fcontext_dict =3D {' --add': ('(', '-t TYPE', '-f FTYPE', '-r RANG=
+E', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --delete': ('(', '-=
+t TYPE', '-f FTYPE', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --modify': ('('=
+, '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FI=
+LE_SPEC',), ' --list': ('[-C]',), ' --extract': ('',), ' --deleteall': ('',=
+)}
+> +usage_fcontext_dict =3D {' --add': ('(', '-t TYPE', '-f FTYPE', '-r RANG=
+E', '-s SEUSER', '|', '-e TARGET_PATH', ')', 'FILE_SPEC',), ' --delete': ('=
+(', '-t TYPE', '-f FTYPE', '|', '-e TARGET_PATH', ')', 'FILE_SPEC',), ' --m=
+odify': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e TARG=
+ET_PATH', ')', 'FILE_SPEC',), ' --list': ('[-C]',), ' --extract': ('',), ' =
+--deleteall': ('',)}
+>=20=20
+>  usage_user =3D "semanage user [-h] [-n] [-N] [-S STORE] ["
+>  usage_user_dict =3D {' --add': ('(', '-L LEVEL', '-R ROLES', '-r RANGE',=
+ 'SEUSER', ')'), ' --delete': ('SEUSER',), ' --modify': ('(', '-L LEVEL', '=
+-R ROLES', '-r RANGE', '-s SEUSER', 'SEUSER', ')'), ' --list': ('-C',), ' -=
+-extract': ('',), ' --deleteall': ('',)}
+> @@ -306,7 +306,7 @@ def setupLoginParser(subparsers):
+>  def handleFcontext(args):
+>      fcontext_args =3D {'list': [('equal', 'ftype', 'seuser', 'type'), ('=
+')], 'add': [('locallist'), ('type', 'file_spec')], 'modify': [('locallist'=
+), ('type', 'file_spec')], 'delete': [('locallist'), ('file_spec')], 'extra=
+ct': [('locallist', 'equal', 'ftype', 'seuser', 'type'), ('')], 'deleteall'=
+: [('locallist'), ('')]}
+>      # we can not use mutually for equal because we can define some actio=
+ns together with equal
+> -    fcontext_equal_args =3D {'equal': [('list', 'locallist', 'type', 'ft=
+ype', 'seuser', 'deleteall', 'extract'), ()]}
+> +    fcontext_equal_args =3D {'equal': [('list', 'locallist', 'type', 'ft=
+ype', 'seuser', 'deleteall', 'extract'), ('file_spec')]}
+>=20=20
+>      if args.action and args.equal:
+>          handle_opts(args, fcontext_equal_args, "equal")
+> @@ -327,7 +327,7 @@ def handleFcontext(args):
+>              OBJECT.modify(args.file_spec, args.type, args.ftype, args.ra=
+nge, args.seuser)
+>      if args.action =3D=3D "delete":
+>          if args.equal:
+> -            OBJECT.delete(args.file_spec, args.equal)
+> +            OBJECT.delete_equal(args.file_spec, args.equal)
+>          else:
+>              OBJECT.delete(args.file_spec, args.ftype)
+>      if args.action =3D=3D "list":
+> @@ -355,9 +355,10 @@ def setupFcontextParser(subparsers):
+>      parser_add_extract(fcontext_action, "fcontext")
+>      parser_add_deleteall(fcontext_action, "fcontext")
+>=20=20
+> -    fcontextParser.add_argument('-e', '--equal', help=3D_(
+> -        'Substitute target path with sourcepath when generating default =
+label. This is used with fcontext. Requires source and target \
+> -path arguments. The context labeling for the target subtree is made equi=
+valent to that defined for the source.'
+> +    fcontextParser.add_argument('-e', '--equal', metavar=3D'TARGET_PATH'=
+ help=3D_(
+> +        'Substitute FILE_SPEC with TARGET_PATH for file label lookup. Th=
+is is used with fcontext. Requires source and target \
+> +path arguments to be path prefixes and does not support regular expressi=
+ons. \
+> +The context labeling for the target subtree is made equivalent to that d=
+efined for the source.'
+>      ))
+>      fcontextParser.add_argument('-f', '--ftype', default=3D"", choices=
+=3D["a", "f", "d", "c", "b", "s", "l", "p"], help=3D_(
+>          'File Type. This is used with fcontext. Requires a file type as =
+shown in the mode field by ls, e.g. use d to match only \
+> @@ -368,7 +369,7 @@ If you do not specify a file type, the file type will=
+ default to "all files".'
+>      parser_add_seuser(fcontextParser, "fcontext")
+>      parser_add_type(fcontextParser, "fcontext")
+>      parser_add_range(fcontextParser, "fcontext")
+> -    fcontextParser.add_argument('file_spec', nargs=3D'?', default=3DNone=
+, help=3D_('Path to be labeled (may be in the form of a Perl compatible reg=
+ular expression)'))
+> +    fcontextParser.add_argument('file_spec', nargs=3D'?', default=3DNone=
+, metavar=3D'FILE_SPEC', help=3D_('Path to be labeled (may be in the form o=
+f a Perl compatible regular expression)'))
+>      fcontextParser.set_defaults(func=3DhandleFcontext)
+>=20=20
+>=20=20
+> diff --git a/python/semanage/semanage-fcontext.8 b/python/semanage/semana=
+ge-fcontext.8
+> index 3e327d88..3a96c62f 100644
+> --- a/python/semanage/semanage-fcontext.8
+> +++ b/python/semanage/semanage-fcontext.8
+> @@ -3,7 +3,7 @@
+>  semanage\-fcontext \- SELinux Policy Management file context tool
+>=20=20
+>  .SH "SYNOPSIS"
+> -.B semanage fcontext [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-t TYPE =
+\-f FTYPE \-r RANGE \-s SEUSER | \-e EQUAL ) FILE_SPEC | \-\-delete ( \-t T=
+YPE \-f FTYPE | \-e EQUAL ) FILE_SPEC | \-\-deleteall  | \-\-extract  | \-\=
+-list [\-C] | \-\-modify ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e EQ=
+UAL ) FILE_SPEC ]
+> +.B semanage fcontext [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-t TYPE =
+\-f FTYPE \-r RANGE \-s SEUSER | \-e TARGET_PATH ) FILE_SPEC | \-\-delete (=
+ \-t TYPE \-f FTYPE | \-e TARGET_PATH ) FILE_SPEC | \-\-deleteall  | \-\-ex=
+tract  | \-\-list [\-C] | \-\-modify ( \-t TYPE \-f FTYPE \-r RANGE \-s SEU=
+SER | \-e TARGET_PATH ) FILE_SPEC ]
+>=20=20
+>  .SH "DESCRIPTION"
+>  semanage is used to configure certain elements of
+> @@ -66,8 +66,8 @@ Extract customizable commands, for use within a transac=
+tion
+>  .I   \-D, \-\-deleteall
+>  Remove all local customizations
+>  .TP
+> -.I   \-e EQUAL, \-\-equal EQUAL
+> -Substitute target path with sourcepath when generating default label. Th=
+is is used with fcontext. Requires source and target path arguments. The co=
+ntext labeling for the target subtree is made equivalent to that defined fo=
+r the source.
+> +.I   \-e TARGET_PATH, \-\-equal TARGET_PATH
+> +Substitute FILE_SPEC with TARGET_PATH for file label lookup. This is use=
+d with fcontext. Requires source and target path arguments to be path prefi=
+xes and does not support regular expressions. The context labeling for the =
+target subtree is made equivalent to that defined for the source.
+>  .TP
+>  .I   \-f [{a,f,d,c,b,s,l,p}], \-\-ftype [{a,f,d,c,b,s,l,p}]
+>  File Type. This is used with fcontext. Requires a file type as shown in =
+the mode field by ls, e.g. use 'd' to match only directories or 'f' to matc=
+h only regular files. The following file type options can be passed: f (reg=
+ular file),d (directory),c (character device), b (block device),s (socket),=
+l (symbolic link),p (named pipe).  If you do not specify a file type, the f=
+ile type will default to "all files".
+> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+> index 10963e81..854381d4 100644
+> --- a/python/semanage/seobject.py
+> +++ b/python/semanage/seobject.py
+> @@ -2453,6 +2453,19 @@ class fcontextRecords(semanageRecords):
+>=20=20
+>          self.commit()
+>=20=20
+> +    def delete_equal(self, target, substitute):
+> +        self.begin()
+> +        if target not in self.equiv.keys():
+> +            raise ValueError(_("Equivalence class for %s does not exist"=
+) % target)
+> +        if substitute !=3D self.equiv[target]:
+> +            raise ValueError(_("Equivalence class for %s does not match =
+%s but %s") % (target, substitute, self.equiv[target]))
+> +        del self.equiv[target]
+> +        self.equal_ind =3D True
+> +
+> +        self.mylog.log_change("resrc=3Dfcontext op=3Ddelete-equal %s %s"=
+ % (audit.audit_encode_nv_string("sglob", target, 0), audit.audit_encode_nv=
+_string("tglob", substitute, 0)))
+> +
+> +        self.commit()
+> +
 
->
-> > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/polic=
-ydb.c
-> > index eeca470cc90c..1275fd7d9148 100644
-> > --- a/security/selinux/ss/policydb.c
-> > +++ b/security/selinux/ss/policydb.c
-> > @@ -634,13 +634,11 @@ static int sens_index(void *key, void *datum, voi=
-d *datap)
-> >       levdatum =3D datum;
-> >       p =3D datap;
-> >
-> > -     if (!levdatum->isalias) {
-> > -             if (!levdatum->level.sens ||
-> > -                 levdatum->level.sens > p->p_levels.nprim)
-> > -                     return -EINVAL;
-> > +     if (!levdatum->level.sens || levdatum->level.sens > p->p_levels.n=
-prim)
-> > +             return -EINVAL;
-> >
-> > +     if (!levdatum->isalias)
-> >               p->sym_val_to_name[SYM_LEVELS][levdatum->level.sens - 1] =
-=3D key;
-> > -     }
-> >
-> >       return 0;
-> >  }
->
-> Hmm, I don't think the code above does the error checking in the same
-> way, [...]
+Why is this necessary?
 
-That is the point of this change: to also validate the sensitivities aliase=
-s.
+It seems to work in current version:
 
->
->   int sens_index(...)
->   {
->     if (isalias)
->       return 0;
->     if (!level->sens || level->send > levels.nprim)
->       return -EINVAL;
->     p =3D ...;
->     return 0;
->   }
->
-> > @@ -653,12 +651,11 @@ static int cat_index(void *key, void *datum, void=
- *datap)
-> >       catdatum =3D datum;
-> >       p =3D datap;
-> >
-> > -     if (!catdatum->isalias) {
-> > -             if (!catdatum->value || catdatum->value > p->p_cats.nprim=
-)
-> > -                     return -EINVAL;
-> > +     if (!catdatum->value || catdatum->value > p->p_cats.nprim)
-> > +             return -EINVAL;
-> >
-> > +     if (!catdatum->isalias)
-> >               p->sym_val_to_name[SYM_CATS][catdatum->value - 1] =3D key=
-;
-> > -     }
-> >
-> >       return 0;
-> >  }
->
-> Similar to the sensitivity level comment above.
->
-> > @@ -1136,6 +1133,9 @@ static int perm_read(struct policydb *p, struct s=
-ymtab *s, struct policy_file *f
-> >
-> >       len =3D le32_to_cpu(buf[0]);
-> >       perdatum->value =3D le32_to_cpu(buf[1]);
-> > +     rc =3D -EINVAL;
-> > +     if (perdatum->value < 1 || perdatum->value > 32)
-> > +             goto bad;
->
-> More magic number problems.
->
-> >       rc =3D str_read(&key, GFP_KERNEL, fp, len);
-> >       if (rc)
-> > @@ -1170,6 +1170,9 @@ static int common_read(struct policydb *p, struct=
- symtab *s, struct policy_file
-> >       len =3D le32_to_cpu(buf[0]);
-> >       comdatum->value =3D le32_to_cpu(buf[1]);
-> >       nel =3D le32_to_cpu(buf[3]);
-> > +     rc =3D -EINVAL;
-> > +     if (nel > 32)
-> > +             goto bad;
->
-> Magic number.
->
-> >       rc =3D symtab_init(&comdatum->permissions, nel);
-> >       if (rc)
-> > @@ -1335,6 +1338,9 @@ static int class_read(struct policydb *p, struct =
-symtab *s, struct policy_file *
-> >       len =3D le32_to_cpu(buf[0]);
-> >       len2 =3D le32_to_cpu(buf[1]);
-> >       nel =3D le32_to_cpu(buf[4]);
-> > +     rc =3D -EINVAL;
-> > +     if (nel > 32)
-> > +             goto bad;
->
-> Again.
->
-> > @@ -1527,7 +1578,7 @@ static int type_read(struct policydb *p, struct s=
-ymtab *s, struct policy_file *f
-> >   * Read a MLS level structure from a policydb binary
-> >   * representation file.
-> >   */
-> > -static int mls_read_level(struct mls_level *lp, struct policy_file *fp=
-)
-> > +static int mls_read_level(const struct policydb *p, struct mls_level *=
-lp, struct policy_file *fp)
-> >  {
-> >       __le32 buf[1];
-> >       int rc;
->
-> Why is this here?  You don't use the @p parameter anywhere in this
-> patch and it add some code churn in all of the callers.
->
-> > @@ -1606,7 +1657,7 @@ static int sens_read(struct policydb *p, struct s=
-ymtab *s, struct policy_file *f
-> >       struct level_datum *levdatum;
-> >       int rc;
-> >       __le32 buf[2];
-> > -     u32 len;
-> > +     u32 len, val;
-> >
-> >       levdatum =3D kzalloc(sizeof(*levdatum), GFP_KERNEL);
-> >       if (!levdatum)
-> > @@ -1617,13 +1668,17 @@ static int sens_read(struct policydb *p, struct=
- symtab *s, struct policy_file *f
-> >               goto bad;
-> >
-> >       len =3D le32_to_cpu(buf[0]);
-> > -     levdatum->isalias =3D le32_to_cpu(buf[1]);
-> > +     val =3D le32_to_cpu(buf[1]);
-> > +     rc =3D -EINVAL;
-> > +     if (val !=3D 0 && val !=3D 1)
-> > +             goto bad;
-> > +     levdatum->isalias =3D val;
->
-> Should we have a simple inline function to do the integer boolean check?
->
-> Considering all the places we check for 0 and 1, it seems like it might
-> be a bit cleaner, and would help with self-documenting.
->
-> > @@ -2221,7 +2303,7 @@ static int genfs_read(struct policydb *p, struct =
-policy_file *fp)
-> >
-> >                       rc =3D -EINVAL;
-> >                       val =3D le32_to_cpu(buf[0]);
-> > -                     if (val >=3D U16_MAX)
-> > +                     if (val >=3D U16_MAX || (val !=3D 0 && !policydb_=
-class_isvalid(p, val)))
-> >                               goto out;
-> >                       newc->v.sclass =3D val;
-> >                       rc =3D context_read_and_validate(&newc->context[0=
-], p,
->
-> This should probably be in patch 10/22, yes?
->
-> > @@ -110,15 +110,15 @@ struct role_allow {
-> >  /* Type attributes */
-> >  struct type_datum {
-> >       u32 value; /* internal type value */
-> > -     u32 bounds; /* boundary of type */
-> > -     unsigned char primary; /* primary name? */
-> > +     u32 bounds; /* boundary of type, 0 for none */
-> > +     unsigned char primary; /* primary name? (unused) */
->
-> See my previous comment about unused fields.
->
-> >  #endif /* _SS_POLICYDB_H_ */
-> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/servi=
-ces.c
-> > index 28c0bdf9fc9d..d5725c768d59 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -445,8 +445,6 @@ static int dump_masked_av_helper(void *k, void *d, =
-void *args)
-> >       struct perm_datum *pdatum =3D d;
-> >       char **permission_names =3D args;
-> >
-> > -     BUG_ON(pdatum->value < 1 || pdatum->value > 32);
->
-> Do we need to convert this to a if-then check that does the proper error
-> handling, or is it already handled in the other changes in this patch?
+[root@localhost ~]# semanage fcontext -a -e /home /domov
+[root@localhost ~]# semanage fcontext -l | grep domov
+/domov =3D /home
+[root@localhost ~]# semanage fcontext -d -e /home /domov
+[root@localhost ~]# semanage fcontext -l | grep domov
+[root@localhost ~]#
 
-perm_read() now performs this check at policyload time.
 
->
-> --
-> paul-moore.com
+
+>      def createcon(self, target, seuser=3D"system_u"):
+>          (rc, con) =3D semanage_context_create(self.sh)
+>          if rc < 0:
+> --=20
+> 2.45.2
+
