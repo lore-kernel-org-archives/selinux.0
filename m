@@ -1,119 +1,103 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0CA32153CF
-	for <selinux@vger.kernel.org>; Thu,  9 Jan 2025 09:24:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DF6C20551B
+	for <selinux@vger.kernel.org>; Thu,  9 Jan 2025 12:15:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736414699; cv=none; b=EkGbyS5IM99XBtEFRqRxtZzjJc5SxU8NS+PFsaJED/XoODxKLKN5IIlkjwV2pfI531q2CLQgJx7dznFZE5pURTWghHS+fgdRlgxbPuaMMQzbVH25gvN7qpaGkft/aC+QcjerxD/r5+x0MiIrQh89vEhIQmNz2te7Qxohl+eM9Ww=
+	t=1736424943; cv=none; b=L8q9sWOChc6xrln4homlurhx368BiyxWg0ML3AoI4/RYSvtzA3wOMUFPS/2QyHQ29AMdp6H/6rp7R8QiS4toDlXWxshHKL+RJFfpuwyl4j0SZOxmzevbUsvUE9p0wkTi51+72oihruUlqi8pEZU1GSi+gFrrFl+uRCM5nRCWsrE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736414699; c=relaxed/simple;
-	bh=L5i8L8vWWYkt0gtsjdsyrb1GPxinM310z9jA2KtCYN0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=S3cQDdIbut7b0RlZ21so/Pv9se7onv/k14bdaGQaQGDBezuyim4Pvhwtr6UpMubIt10udWepGkkEzw6AO37CpKvVSguzWHiPm7bSSrZAMxFTtY1QyttsA3DAzdfOJnT1Vdm7Nces0kEpI0wkTwwJHkIhLL94mS2aHfOCg7+awks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=6wind.com; spf=pass smtp.mailfrom=6wind.com; dkim=pass (2048-bit key) header.d=6wind.com header.i=@6wind.com header.b=dr7K1FuO; arc=none smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=6wind.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=6wind.com
+	s=arc-20240116; t=1736424943; c=relaxed/simple;
+	bh=r0ytzMEHCnbGYWc3ohVOExh6UcGNWkhuQQBwJfoiXQ4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=qv+vVLkYkn1nHZBvTEn2qWu5ui/TRR0miNsqPtHpdJqurOjLH5XHDQWcbfcUZ8dTwq0pDaFG6NdiXnQjVj1OxDvcgDENdBEx8R7zJrZWDz1AepfIXykQ28K8MX/4szLvWieDmqV7vnJpG6RJGqRGyfNo+g7uLKgiQW2wlbicDD8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=A8ZSJwN0; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=6wind.com header.i=@6wind.com header.b="dr7K1FuO"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-436284cdbe0so1051105e9.3
-        for <selinux@vger.kernel.org>; Thu, 09 Jan 2025 01:24:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=6wind.com; s=google; t=1736414695; x=1737019495; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:organization:content-language
-         :from:references:cc:to:subject:reply-to:user-agent:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=6fwwdpIdVMnI2XF+i5+tXNgS/k7VPLfX7Im7tSV5FSU=;
-        b=dr7K1FuOeP7o4jbX95OzPmN4xLx3XjwiTCHUe8dVk/+GNPTLYgA9xV5qQzolt38vCR
-         P+uB0TtvJjWvNB53bFi6BcN3I6ENqv6FmIy7tRKkMAlvDfqgio2n6F5FOVcl4Xl5T6Em
-         mDXpWpxO7m631UgkZoHkCPRQoTEXNYi9nFuZZgjsYWBVMLCmh3eNdaBbxkCcF1utAawE
-         Rz3zmrIU5coR6nugpB/UxXztojv+ROh/lEUdOCyE67xKZYxuEY+tB9glEAt9z/YxNu8w
-         uEY0bCQy0cyPM9YyaXfv8cl7P19Km3O10OqCwozi1SEVf623EXJ9plwUbQqh3AuSyILi
-         ZZ6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736414695; x=1737019495;
-        h=content-transfer-encoding:in-reply-to:organization:content-language
-         :from:references:cc:to:subject:reply-to:user-agent:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=6fwwdpIdVMnI2XF+i5+tXNgS/k7VPLfX7Im7tSV5FSU=;
-        b=oQRMu0Zb/cZzNAEsg9rnkgsv4Vt1cdOdVm8atwT+WXfY8vP/RXCXZQDvNbNN6udHja
-         ryO6JhVBhbMRqlBsqEQr8t9on4I3CHGKBMNhJ3+HFeI1bPsxQlPBebPNWHJSlYKH863Q
-         2uQ4fWEFDSdJdkM36xncgLcMNiThTmW91x9ikrPT3dI4VTQBULOshLBzrsWrGW8i0d2G
-         iPyXuDRO/2zKce7FC0WjzPC92FEQRcdYONQQtH7fCrX6zYgsFGM5SYDFPRmGxtTuh1WQ
-         uy28U8cYFGmV6JeMEU/3X/OySKz5NLksa+nykUe2A5uaKRZ8++WNSITdMas2CSX9s6/u
-         d/BA==
-X-Forwarded-Encrypted: i=1; AJvYcCUgwJVPnAdYc7pUsvkKkV4dK7r/tWbWbQBvI2WhXWMVcXvHmWmUsONgsare4JTmGKBDBVV3PdcW@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxg4Dqi4puTEXp2ULRrrCa0q0f6/yHbP6oVA3R2SC8yiH3d0AOv
-	70RAS7IabVv0fHRmQAQa/E4Orfm+i/LQW6S1wYqZcSi0p1Dc00zOiOv32EDkpug=
-X-Gm-Gg: ASbGncsY5k51RAWw2NCIE8CoIYnSK/pLmA4ub17GpfeW4LrV0AIA1KUo9V7HamNUy08
-	qVU6Lnb13GR3wCV2+CdO0UmjRqj0Et6CISURQDhLtTt5BxeDTCTzPxuTQ2WF0lQiijrbjVracLF
-	QeuljMAuDxE4bTv9h81rApQ5BuinOxofTOfvphlInIDed/fvb2Mi5o+h87DKQECnPafoZSA6gOv
-	LSda1TRhHNL9vv0zr0bMdTm0fjhf+NZyXvSIvsIRPW2+cGXiCAnUSxqruk4VoLIUbSALcCbZ6bu
-	OQl6/9a3w5Tfg3WHZM0AdvIWUmaxBwpgcw==
-X-Google-Smtp-Source: AGHT+IF567dxiBb/07iXMh69b5WH52czFz7cR2N65fQFUZV1SxcNFwyyB0gXKeKlwZX0jZJH6XqZLw==
-X-Received: by 2002:a05:600c:1d07:b0:436:1902:23b5 with SMTP id 5b1f17b1804b1-436e26f4abbmr20840175e9.4.1736414695099;
-        Thu, 09 Jan 2025 01:24:55 -0800 (PST)
-Received: from ?IPV6:2a01:e0a:b41:c160:e7da:5a6d:1e09:2e14? ([2a01:e0a:b41:c160:e7da:5a6d:1e09:2e14])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-436e2da6336sm48679115e9.8.2025.01.09.01.24.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 09 Jan 2025 01:24:54 -0800 (PST)
-Message-ID: <266861ab-cc0d-4a7c-9804-6bf4670868b1@6wind.com>
-Date: Thu, 9 Jan 2025 10:24:53 +0100
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="A8ZSJwN0"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1736424936;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=xzXdfnaaNbmymrNNKg6Kq1CLRQh8fsIZ5daw0E/zZLI=;
+	b=A8ZSJwN0a7M546zvavxiFnmi5oSJysow6g2C/PAeo/dzNpvelIXhZJgx/o2v/sgMHHZnOv
+	LLqCwaFqbu/eSeeb+IlxssQibsMN9ZTLrQCcOq1/18RZVw+54vc/jA8wei1cbTsx/364nD
+	FWeuOw3xPCyEKvf0JW8B5KbiFzig3Lftyvs47v8yXU3gzr93Vdk3QqzDBAd0oECh6yaAXk
+	V4sTayoSVnd++KPVLmETUrUMDU2CtLWQkPDfHHIuZMXDmfgM8lBqfx6VY6nQvl7mWxqfu8
+	mQBMCQ5OybMtQcMwWgO2LxPD+/na4E+4KiuJbN+3ekuhqOaYmRhh+FBWzqQ91g==
+To: selinux@vger.kernel.org
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH] libselinux: limit node depth while parsing compiled fcontexts
+Date: Thu,  9 Jan 2025 13:15:30 +0100
+Message-ID: <20250109121530.21728-1-cgoettsche@seltendoof.de>
+Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Reply-To: nicolas.dichtel@6wind.com
-Subject: Re: [PATCH] selinux: map RTM_DELNSID to nlmsg_write
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>,
- Paul Moore <paul@paul-moore.com>
-Cc: "David S . Miller" <davem@davemloft.net>, selinux@vger.kernel.org,
- netdev <netdev@vger.kernel.org>
-References: <20250108231554.3634987-1-tweek@google.com>
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Content-Language: en-US
-Organization: 6WIND
-In-Reply-To: <20250108231554.3634987-1-tweek@google.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Le 09/01/2025 à 00:15, Thiébaud Weksteen a écrit :
-> The mapping for RTM_DELNSID was added in commit 387f989a60db
-> ("selinux/nlmsg: add RTM_GETNSID"). While this message type is not
-> expected from userspace, other RTM_DEL* types are mapped to the more
-> restrictive nlmsg_write permission. Move RTM_DELNSID to nlmsg_write in
-> case the implementation is changed in the future.
-Frankly, I don't think this will ever change. It's not a problem of implementing
-the delete command, it's conceptually no sense.
+From: Christian Göttsche <cgzones@googlemail.com>
 
-I don't see why the DEL should be restricted in any way.
+Limit the node depth while parsing a pre-compiled fcontext definition to
+avoid unlimited recursions causing stack overflows.
 
+Use a sufficiently high value of 32, instead of the node depth of
+currently 3 for generating a database, to not unnecessarily limit
+custom changes.
 
-Regards,
-Nicolas
+Fixes: 92306daf ("libselinux: rework selabel_file(5) database")
+Reported-by: oss-fuzz (issues 388615595 and 388592303)
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libselinux/src/label_file.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-> 
-> Fixes: 387f989a60db ("selinux/nlmsg: add RTM_GETNSID")
-> Signed-off-by: Thiébaud Weksteen <tweek@google.com>
-> ---
->  security/selinux/nlmsgtab.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
-> index 3a95986b134f..f97e75301018 100644
-> --- a/security/selinux/nlmsgtab.c
-> +++ b/security/selinux/nlmsgtab.c
-> @@ -71,7 +71,7 @@ static const struct nlmsg_perm nlmsg_route_perms[] = {
->  	{ RTM_DELMDB, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
->  	{ RTM_GETMDB, NETLINK_ROUTE_SOCKET__NLMSG_READ },
->  	{ RTM_NEWNSID, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
-> -	{ RTM_DELNSID, NETLINK_ROUTE_SOCKET__NLMSG_READ },
-> +	{ RTM_DELNSID, NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
->  	{ RTM_GETNSID, NETLINK_ROUTE_SOCKET__NLMSG_READ },
->  	{ RTM_NEWSTATS, NETLINK_ROUTE_SOCKET__NLMSG_READ },
->  	{ RTM_GETSTATS, NETLINK_ROUTE_SOCKET__NLMSG_READ },
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 56e20949..125eb601 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -674,12 +674,16 @@ static int load_mmap_regex_spec(struct mmap_area *mmap_area, bool validating, bo
+ }
+ 
+ static int load_mmap_spec_node(struct mmap_area *mmap_area, const char *path, bool validating, bool do_load_precompregex,
+-			       struct spec_node *node, bool is_root, uint8_t inputno, const struct context_array *ctx_array)
++			       struct spec_node *node, const unsigned depth, uint8_t inputno, const struct context_array *ctx_array)
+ {
+ 	uint32_t data_u32, lspec_num, rspec_num, children_num;
+ 	uint16_t data_u16, stem_len;
++	const bool is_root = (depth == 0);
+ 	int rc;
+ 
++	if (depth >= 32)
++		return -1;
++
+ 	node->from_mmap = true;
+ 
+ 
+@@ -794,7 +798,7 @@ static int load_mmap_spec_node(struct mmap_area *mmap_area, const char *path, bo
+ 		node->children_alloc = children_num;
+ 
+ 		for (uint32_t i = 0; i < children_num; i++) {
+-			rc = load_mmap_spec_node(mmap_area, path, validating, do_load_precompregex, &node->children[i], false, inputno, ctx_array);
++			rc = load_mmap_spec_node(mmap_area, path, validating, do_load_precompregex, &node->children[i], depth + 1, inputno, ctx_array);
+ 			if (rc)
+ 				return -1;
+ 
+@@ -969,7 +973,7 @@ end_arch_check:
+ 
+ 	rc = load_mmap_spec_node(mmap_area, path, rec->validating,
+ 				 reg_version_matches && reg_arch_matches,
+-				 root, true,
++				 root, 0,
+ 				 inputno,
+ 				 &ctx_array);
+ 	if (rc)
+-- 
+2.47.1
 
