@@ -1,130 +1,264 @@
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com [209.85.219.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1378223242C
-	for <selinux@vger.kernel.org>; Tue, 14 Jan 2025 15:52:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3BEF1C8776
+	for <selinux@vger.kernel.org>; Tue, 14 Jan 2025 16:11:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736869963; cv=none; b=tm/bf4hMilhTvwOoiDbFvJaVQ5sypTUGi/DPw2WuKC5MecL9sWrkslXg4bWdLhTFYvg8yT3rYS2Bp1GMkzVHlbHs0j/ZUSxJSasZya14xipFQUTn/TWF+VK3nFN0eHHfsOt7rVy2eOxzusCZHphKc1gzmg4hvVOwNPdq61pD3hs=
+	t=1736871121; cv=none; b=rSwAKElV8I2ELDtWSxee1UH+i1Taz/q/GSKS+S+lqkYo1f2zaAnZbXzEqi+5MKn0H5DVOj9TgN9Azu28LKKXHAW5jNVM5gGIsGJZ+Ct3SAVAK9iMIPJIispGa21/e48ZlVYcDBDNcz8QmiTZegR6DDPAx5bD0J061TT105O49s4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736869963; c=relaxed/simple;
-	bh=6/TZEXurcrLeu+ybqLbQRsUbTJ03VME25vy+Siu/2Nw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=L1d/lYe/bmvG1V6hBgUjsiHOhdXD418Xe4JJO/HDRqAmUTCIXSNHSgybG3jo/rs1L8DrFGV+E6lTXjS69NNd7DQt90Gywq/lOq6fvKzYOaxFS3jrRiau8+H0YquvBHCrkSm8wGGmqMWCbzaG1wj+u7pd77T75+RnbWA5ccVnafM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=GOUMmNqG; arc=none smtp.client-ip=168.119.48.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	s=arc-20240116; t=1736871121; c=relaxed/simple;
+	bh=zikMH/eTS8xay4yLUSV87ydkyEwAsM250g8TvtV92nc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=oui689Xj3yGa/bqTR0J5bo/71IxFTpAajdJnw6lAA7SY+VC9LjP6P9o/ea5SA5VDduJyYkpSJTjx1CkcJR9Ittl+W8E9TE74Zs7USFvC267Wp6ncOiYhP0ne6Hp33j86HBdz5o6qzt7EENPL4NwnZWC2ivtJ6qostDBf4VtWl8U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=DRXZMMP4; arc=none smtp.client-ip=209.85.219.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="GOUMmNqG"
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1736869952;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=JwHyEQFJQzk47NB+mwyOZQkUGmaUVW5TA/pUB68oAvY=;
-	b=GOUMmNqGyyE3dvwF+4DXv/KGA3e98w/u2Z5Eg9bEV/nv0V5rx+n0fvrEHJjMihdOngdaAZ
-	8w3SkHsm/YzVq6SMfqT61CDlvKPjG8qqbcYsw9rUxZsdjngAoGTn7aL8G14z7vpDw3G2sv
-	glLNRa1f3LlyIIFVwK5Y7v6ktj6lgSKHTszz8s7GO9XOAqVYsYCOUNBnRCDeqAV25bOhVh
-	LX9urOPWvjxfY8EzKrfcvk1a1GmLnDVq044KsGf+xE/V2R7xfSF023KnvTcSJghkOmORro
-	IEJcZXDdAIN5UdziFs+kmZiCR1ILyYBGdzykPl8wi9zQZqbALGmD6Pkt9mu3VA==
-To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2] semanage: improve -e documentation and fix delete operation
-Date: Tue, 14 Jan 2025 16:52:28 +0100
-Message-ID: <20250114155228.72450-1-cgoettsche@seltendoof.de>
-Reply-To: cgzones@googlemail.com
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="DRXZMMP4"
+Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-e398484b60bso8621740276.1
+        for <selinux@vger.kernel.org>; Tue, 14 Jan 2025 08:11:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20230601; t=1736871119; x=1737475919; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SP1D2GoPIIstLujaPUBXWspOdF9qbnyZVJdJir9TELo=;
+        b=DRXZMMP4n6meHnPiOa17fmFyHpyXbeugU5D+Ug7EaVccmQeXbIMIM/sITyJNmnurfZ
+         TM71JxjHqUUY916PMUWZ3SOY51o+i1ZQseYBrgyJR2evWvlkWwFX5zHtL0FY0tm8jAB0
+         Y06W2ffV+g/ZYNB+ZRKeBi6iN7MvMFdVaZ5aZ0IfuQ9aquc0+QC4TRYFiQGFOW5jwBZh
+         88UVJfLWu6GXgZxO7OhpGF9VQUJ14FWsUabnimtQNA3pAEzWuGre+14iDNEFiZoMgxcF
+         vngjHMGI9xs1jvrhKLU1t/jGdKjOn3MqXZPqx+T6bQxValbgXq3VYYnfqUGW/fdzQGHR
+         MvpA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1736871119; x=1737475919;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=SP1D2GoPIIstLujaPUBXWspOdF9qbnyZVJdJir9TELo=;
+        b=JRGrrgGlULidWVAFNeRT+0geJAaVLgqvFSDHNYQHTDxtcnOU6yCFtgLA79OgAPpO6S
+         clXZUaTnYUbRvSzKEBk7natPSNdndwLzZ6n7bgmuCKVgIQFunJi7YEO3amD88QCkYlCy
+         swT56dWYsqCIHYpnEi7HLObjBdc2eBh6ZVYNKCeUGpsJVNyaX8DQG6d7ewGGQ1IYwPKN
+         +hbIHW6aHST7SjLymuAfikK7Ld4V5AhXIyz4cGd0E2OPkyI2pRKcL8yz8HIjNt7MBR5D
+         f/vPl/JZmSqW/LTctMoxA69DDkcqKHGgB0IcYxg5dDlZY5DjjfjEfet9QnW6Ga2+5GCd
+         2+ow==
+X-Gm-Message-State: AOJu0YwsMOoRAkANdiY0QmoTco5HcNCpiJ4gGvteVF9Ck9PX81r245JN
+	h4je6gMj9R658C34kHLv4bE9AuP2qGDfobuo56PXMsNjF6/lS87CyxDqtMhYYcwT5KaRMngaWwt
+	otUHv3kfMXFW6NUfIKPwlTt2zfOz4pJh/
+X-Gm-Gg: ASbGnctOBU9GufD4YjydEikp5Cyyn2dJyW5cint60wK73g4tvtzqde8HAhY4pNPYE9I
+	OVVsJQ5FPnJe6nuISjzPZvgm5ILH1R3DrZONv
+X-Google-Smtp-Source: AGHT+IGm10yORNHQ9QivO1lf8RSQuUmNCRM1CKeu1AK8y3Prnb8bgmbOUefniNzkgd95Nt1+AFDge+McK5PfpcsYWoY=
+X-Received: by 2002:a05:6902:13cb:b0:e3a:5820:feaf with SMTP id
+ 3f1490d57ef6-e5722ffcea6mr10724505276.43.1736871118845; Tue, 14 Jan 2025
+ 08:11:58 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20241230140323.58852-1-cgoettsche@seltendoof.de> <CAP+JOzTgnFxVxbUiTTh9gxL4kvX8Mg0wF5BO7npBogjvSOmLwQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzTgnFxVxbUiTTh9gxL4kvX8Mg0wF5BO7npBogjvSOmLwQ@mail.gmail.com>
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Tue, 14 Jan 2025 17:11:47 +0100
+X-Gm-Features: AbW1kvaCu5P1Va7LgoYgY8QMXd5qoC08yu5JFv_H0mSBlO1dsK-BGSMrmES5Ok0
+Message-ID: <CAJ2a_DdmrhqBcMnhkoAQCyD9bg8GsifxyDWy98dN+4xrJSL41Q@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: avoid quadratic complexity for many regex
+ specs validation
+To: James Carter <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Christian Göttsche <cgzones@googlemail.com>
+On Wed, 8 Jan 2025 at 22:51, James Carter <jwcart2@gmail.com> wrote:
+>
+> On Mon, Dec 30, 2024 at 9:03=E2=80=AFAM Christian G=C3=B6ttsche
+> <cgoettsche@seltendoof.de> wrote:
+> >
+> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> >
+> > In the degenerate case of many regular expression specifications in a
+> > single node switch to a n*log(n) algorithm (with allocation) instead of
+> > the default n^2 (without allocation) one.
+> >
+> > See 2c7b71db ("libselinux: performance optimization for duplicate detec=
+tion")
+> > for a predecessor.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> >  libselinux/src/label_file.c | 85 +++++++++++++++++++++++++++++++++++--
+> >  1 file changed, 82 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> > index 56e20949..b1884e80 100644
+> > --- a/libselinux/src/label_file.c
+> > +++ b/libselinux/src/label_file.c
+> > @@ -102,6 +102,38 @@ void sort_spec_node(struct spec_node *node, struct=
+ spec_node *parent)
+> >                 sort_spec_node(&node->children[i], node);
+> >  }
+> >
+> > +static inline int compare_regex_spec(const void *p1, const void *p2)
+> > +{
+> > +       const struct regex_spec *r1 =3D p1;
+> > +       const struct regex_spec *r2 =3D p2;
+> > +       size_t regex_len1, regex_len2;
+> > +       int ret;
+> > +
+> > +       /* Order from high prefix length to low */
+> > +       ret =3D (r1->prefix_len < r2->prefix_len) - (r1->prefix_len > r=
+2->prefix_len);
+> > +       if (ret)
+> > +               return ret;
+> > +
+> > +       /* Order from long total regex length to short */
+> > +       regex_len1 =3D strlen(r1->regex_str);
+> > +       regex_len2 =3D strlen(r2->regex_str);
+> > +       ret =3D (regex_len1 < regex_len2) - (regex_len1 > regex_len2);
+> > +       if (ret)
+> > +               return ret;
+> > +
+> > +       /*
+> > +        * Order for no-duplicates check.
+> > +        * Use reverse alphabetically order to retain the Fedora orderi=
+ng of
+> > +        * `/usr/(.* /)?lib(/.*)?` before `/usr/(.* /)?bin(/.*)?`.
+> > +        */
+> > +       ret =3D strcmp(r1->regex_str, r2->regex_str);
+> > +       if (ret)
+> > +               return -ret;
+> > +
+> > +       /* Order wildcard mode (0) last */
+> > +       return (r1->file_kind < r2->file_kind) - (r1->file_kind > r2->f=
+ile_kind);
+> > +}
+> > +
+>
+> This function was just deleted when the fix was applied to restore
+> regex spec ordering. I am a little worried about breaking that
+> ordering again.
 
-Improve the documentation around the -e/--equal option for semanage
-fcontext.
+Only a temporary copied array is sorted, not the original data.
 
-Closes: https://github.com/SELinuxProject/selinux/issues/457
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-v2: drop delete_equal() addition
----
- python/semanage/semanage            | 13 +++++++------
- python/semanage/semanage-fcontext.8 |  6 +++---
- 2 files changed, 10 insertions(+), 9 deletions(-)
+> I am also wondering if this is addressing an actual problem. A quick
+> test on my system shows a max value for node->regex_specs_num of 347
+> and only eight instances of it being more than 100.
 
-diff --git a/python/semanage/semanage b/python/semanage/semanage
-index b269b9fc..dd5066bf 100644
---- a/python/semanage/semanage
-+++ b/python/semanage/semanage
-@@ -54,7 +54,7 @@ usage_login = "semanage login [-h] [-n] [-N] [-S STORE] ["
- usage_login_dict = {' --add': ('-s SEUSER', '-r RANGE', 'LOGIN',), ' --modify': ('-s SEUSER', '-r RANGE', 'LOGIN',), ' --delete': ('LOGIN',), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
- 
- usage_fcontext = "semanage fcontext [-h] [-n] [-N] [-S STORE] ["
--usage_fcontext_dict = {' --add': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --delete': ('(', '-t TYPE', '-f FTYPE', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --modify': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --list': ('[-C]',), ' --extract': ('',), ' --deleteall': ('',)}
-+usage_fcontext_dict = {' --add': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e TARGET_PATH', ')', 'FILE_SPEC',), ' --delete': ('(', '-t TYPE', '-f FTYPE', '|', '-e TARGET_PATH', ')', 'FILE_SPEC',), ' --modify': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e TARGET_PATH', ')', 'FILE_SPEC',), ' --list': ('[-C]',), ' --extract': ('',), ' --deleteall': ('',)}
- 
- usage_user = "semanage user [-h] [-n] [-N] [-S STORE] ["
- usage_user_dict = {' --add': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', 'SEUSER', ')'), ' --delete': ('SEUSER',), ' --modify': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', '-s SEUSER', 'SEUSER', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
-@@ -306,7 +306,7 @@ def setupLoginParser(subparsers):
- def handleFcontext(args):
-     fcontext_args = {'list': [('equal', 'ftype', 'seuser', 'type'), ('')], 'add': [('locallist'), ('type', 'file_spec')], 'modify': [('locallist'), ('type', 'file_spec')], 'delete': [('locallist'), ('file_spec')], 'extract': [('locallist', 'equal', 'ftype', 'seuser', 'type'), ('')], 'deleteall': [('locallist'), ('')]}
-     # we can not use mutually for equal because we can define some actions together with equal
--    fcontext_equal_args = {'equal': [('list', 'locallist', 'type', 'ftype', 'seuser', 'deleteall', 'extract'), ()]}
-+    fcontext_equal_args = {'equal': [('list', 'locallist', 'type', 'ftype', 'seuser', 'deleteall', 'extract'), ('file_spec')]}
- 
-     if args.action and args.equal:
-         handle_opts(args, fcontext_equal_args, "equal")
-@@ -355,9 +355,10 @@ def setupFcontextParser(subparsers):
-     parser_add_extract(fcontext_action, "fcontext")
-     parser_add_deleteall(fcontext_action, "fcontext")
- 
--    fcontextParser.add_argument('-e', '--equal', help=_(
--        'Substitute target path with sourcepath when generating default label. This is used with fcontext. Requires source and target \
--path arguments. The context labeling for the target subtree is made equivalent to that defined for the source.'
-+    fcontextParser.add_argument('-e', '--equal', metavar='TARGET_PATH' help=_(
-+        'Substitute FILE_SPEC with TARGET_PATH for file label lookup. This is used with fcontext. Requires source and target \
-+path arguments to be path prefixes and does not support regular expressions. \
-+The context labeling for the target subtree is made equivalent to that defined for the source.'
-     ))
-     fcontextParser.add_argument('-f', '--ftype', default="", choices=["a", "f", "d", "c", "b", "s", "l", "p"], help=_(
-         'File Type. This is used with fcontext. Requires a file type as shown in the mode field by ls, e.g. use d to match only \
-@@ -368,7 +369,7 @@ If you do not specify a file type, the file type will default to "all files".'
-     parser_add_seuser(fcontextParser, "fcontext")
-     parser_add_type(fcontextParser, "fcontext")
-     parser_add_range(fcontextParser, "fcontext")
--    fcontextParser.add_argument('file_spec', nargs='?', default=None, help=_('Path to be labeled (may be in the form of a Perl compatible regular expression)'))
-+    fcontextParser.add_argument('file_spec', nargs='?', default=None, metavar='FILE_SPEC', help=_('Path to be labeled (may be in the form of a Perl compatible regular expression)'))
-     fcontextParser.set_defaults(func=handleFcontext)
- 
- 
-diff --git a/python/semanage/semanage-fcontext.8 b/python/semanage/semanage-fcontext.8
-index 3e327d88..3a96c62f 100644
---- a/python/semanage/semanage-fcontext.8
-+++ b/python/semanage/semanage-fcontext.8
-@@ -3,7 +3,7 @@
- semanage\-fcontext \- SELinux Policy Management file context tool
- 
- .SH "SYNOPSIS"
--.B semanage fcontext [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e EQUAL ) FILE_SPEC | \-\-delete ( \-t TYPE \-f FTYPE | \-e EQUAL ) FILE_SPEC | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e EQUAL ) FILE_SPEC ]
-+.B semanage fcontext [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e TARGET_PATH ) FILE_SPEC | \-\-delete ( \-t TYPE \-f FTYPE | \-e TARGET_PATH ) FILE_SPEC | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify ( \-t TYPE \-f FTYPE \-r RANGE \-s SEUSER | \-e TARGET_PATH ) FILE_SPEC ]
- 
- .SH "DESCRIPTION"
- semanage is used to configure certain elements of
-@@ -66,8 +66,8 @@ Extract customizable commands, for use within a transaction
- .I   \-D, \-\-deleteall
- Remove all local customizations
- .TP
--.I   \-e EQUAL, \-\-equal EQUAL
--Substitute target path with sourcepath when generating default label. This is used with fcontext. Requires source and target path arguments. The context labeling for the target subtree is made equivalent to that defined for the source.
-+.I   \-e TARGET_PATH, \-\-equal TARGET_PATH
-+Substitute FILE_SPEC with TARGET_PATH for file label lookup. This is used with fcontext. Requires source and target path arguments to be path prefixes and does not support regular expressions. The context labeling for the target subtree is made equivalent to that defined for the source.
- .TP
- .I   \-f [{a,f,d,c,b,s,l,p}], \-\-ftype [{a,f,d,c,b,s,l,p}]
- File Type. This is used with fcontext. Requires a file type as shown in the mode field by ls, e.g. use 'd' to match only directories or 'f' to match only regular files. The following file type options can be passed: f (regular file),d (directory),c (character device), b (block device),s (socket),l (symbolic link),p (named pipe).  If you do not specify a file type, the file type will default to "all files".
--- 
-2.47.1
+True, but I tried to avoid reports like this one:
+https://lore.kernel.org/selinux/20230209114253.120485-1-wanghuizhao1@huawei=
+.com/
 
+>
+> Thanks,
+> Jim
+>
+> >  /*
+> >   * Warn about duplicate specifications.
+> >   */
+> > @@ -143,10 +175,18 @@ static int nodups_spec_node(const struct spec_nod=
+e *node, const char *path)
+> >         }
+> >
+> >         if (node->regex_specs_num > 1) {
+> > -               for (uint32_t i =3D 0; i < node->regex_specs_num - 1; i=
+++) {
+> > -                       for (uint32_t j =3D i; j < node->regex_specs_nu=
+m - 1; j++) {
+> > +               if (node->regex_specs_num > 512) {
+> > +                       uint32_t num =3D node->regex_specs_num;
+> > +                       struct regex_spec *copy =3D malloc(num * sizeof=
+(struct regex_spec));
+> > +                       if (!copy)
+> > +                               goto default_algo;
+> > +
+> > +                       memcpy(copy, node->regex_specs, num * sizeof(st=
+ruct regex_spec));
+> > +                       qsort(copy, num, sizeof(struct regex_spec), com=
+pare_regex_spec);
+> > +
+> > +                       for (uint32_t i =3D 0; i < node->regex_specs_nu=
+m - 1; i++) {
+> >                                 const struct regex_spec *node1 =3D &nod=
+e->regex_specs[i];
+> > -                               const struct regex_spec *node2 =3D &nod=
+e->regex_specs[j + 1];
+> > +                               const struct regex_spec *node2 =3D &nod=
+e->regex_specs[i + 1];
+
+This should be `&copy[i]` and `&copy[i + 1]` instead of `
+&node->regex_specs[i]` and `&node->regex_specs[i + 1]`.
+
+> >
+> >                                 if (node1->prefix_len !=3D node2->prefi=
+x_len)
+> >                                         continue;
+> > @@ -177,6 +217,45 @@ static int nodups_spec_node(const struct spec_node=
+ *node, const char *path)
+> >                                                         node1->regex_st=
+r);
+> >                                 }
+> >                         }
+> > +
+> > +                       free(copy);
+> > +               } else {
+> > +                       default_algo:
+> > +                       for (uint32_t i =3D 0; i < node->regex_specs_nu=
+m - 1; i++) {
+> > +                               for (uint32_t j =3D i; j < node->regex_=
+specs_num - 1; j++) {
+> > +                                       const struct regex_spec *node1 =
+=3D &node->regex_specs[i];
+> > +                                       const struct regex_spec *node2 =
+=3D &node->regex_specs[j + 1];
+> > +
+> > +                                       if (node1->prefix_len !=3D node=
+2->prefix_len)
+> > +                                               continue;
+> > +
+> > +                                       if (strcmp(node1->regex_str, no=
+de2->regex_str) !=3D 0)
+> > +                                               continue;
+> > +
+> > +                                       if (node1->file_kind !=3D LABEL=
+_FILE_KIND_ALL && node2->file_kind !=3D LABEL_FILE_KIND_ALL && node1->file_=
+kind !=3D node2->file_kind)
+> > +                                               continue;
+> > +
+> > +                                       rc =3D -1;
+> > +                                       errno =3D EINVAL;
+> > +                                       if (strcmp(node1->lr.ctx_raw, n=
+ode2->lr.ctx_raw) !=3D 0) {
+> > +                                               COMPAT_LOG
+> > +                                                       (SELINUX_ERROR,
+> > +                                                               "%s: Mu=
+ltiple different specifications for %s %s  (%s and %s).\n",
+> > +                                                               path,
+> > +                                                               file_ki=
+nd_to_string(node1->file_kind),
+> > +                                                               node1->=
+regex_str,
+> > +                                                               node1->=
+lr.ctx_raw,
+> > +                                                               node2->=
+lr.ctx_raw);
+> > +                                       } else {
+> > +                                               COMPAT_LOG
+> > +                                                       (SELINUX_ERROR,
+> > +                                                               "%s: Mu=
+ltiple same specifications for %s %s.\n",
+> > +                                                               path,
+> > +                                                               file_ki=
+nd_to_string(node1->file_kind),
+> > +                                                               node1->=
+regex_str);
+> > +                                       }
+> > +                               }
+> > +                       }
+> >                 }
+> >         }
+> >
+> > --
+> > 2.45.2
+> >
+> >
