@@ -1,150 +1,115 @@
-Received: from mail-vs1-f53.google.com (mail-vs1-f53.google.com [209.85.217.53])
+Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BE0870801
-	for <selinux@vger.kernel.org>; Wed, 15 Jan 2025 15:19:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4CBE86335
+	for <selinux@vger.kernel.org>; Wed, 15 Jan 2025 15:37:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736954354; cv=none; b=MaMNad9Ts1i6GsQban3GMf32wfxq9bibBNRQxKgRLjJ2kA7qL0nTKTbQoi0zAGFgInqO6JXYRTetQqdb4D7LKEqJcnjKNb1TqhHCfYOt84rf8945WR82MPoVSOxogTuI889ytt36sz+yDRoJW3tNO4qgJ9QLe/Duq8FXjI1Pzwg=
+	t=1736955439; cv=none; b=IvL6VVGdMs+2Py2P6HLqxBJoBS70fkecaLdiIbDnEL8p3QP12saueksbX1QZgATiJuAWy1KlGkFIH1Zbzhx9B4gt5TIsWv60vNMWrvtznPmLKuafpvWlAQdi3wUME4VAWBMJA07tgGUrsaSi19/DnKoE1cEcMVN7oBqkvTd+3Yg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736954354; c=relaxed/simple;
-	bh=QSUXwS4UkhK9RtlL2p2RgcgGrz3FIXWjKc0qSOOPQr8=;
+	s=arc-20240116; t=1736955439; c=relaxed/simple;
+	bh=Zxfl3ga7AYE79KWf1Z+DSr22xOmiMDSxNKnRvrbSVbg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HZD2vuDmMaju06dyVsBzIQnMevcpYi+xL2zd14fWfNVQrpR/CtGb7csZ2LR5tySI5hRlQlYLIWDIcKB2X4wpbGKTiJj1TCEWyFUcEDzNJFEO6fdp1VgPQy6wTJ0kKkpT8OBYa1l1L1v909YepNMPKimw4fLTChndbwp/bHjJsuY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Nl+ef773; arc=none smtp.client-ip=209.85.217.53
+	 To:Cc:Content-Type; b=TziF8ZiYEYPCdDrk/815/jTwNWhudVJJGXhE63Iqg8wbb3zNCd1h/pClRdK2xbG8r8+XZO1XPsxQhblb52YV0GlcMiPeL1snPNfNeNOMWQAD4V7bWKC4YeXfMcctypqGrrWaFV0vKszGJuxNJvrOIifgQas5xf5LMhDw0qRAhrY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d/1keElU; arc=none smtp.client-ip=209.85.217.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Nl+ef773"
-Received: by mail-vs1-f53.google.com with SMTP id ada2fe7eead31-4afdf8520c2so2219133137.2
-        for <selinux@vger.kernel.org>; Wed, 15 Jan 2025 07:19:12 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d/1keElU"
+Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-4b1279ca1d2so2009189137.3
+        for <selinux@vger.kernel.org>; Wed, 15 Jan 2025 07:37:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736954352; x=1737559152; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1736955437; x=1737560237; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gu5FrFbkX2SjGRhH57yNoKg0FNmc7jd8hsc8fd4Bd5I=;
-        b=Nl+ef773vrALvi4nMRmZz+itEwoWOu4+3pTm2rl07fD4WCdSi8G/1Zpq0pSRdWFINs
-         cokEuW2d/Ho6BYmLnBhWY+akEAMLakuBsfZL+bhHcx50rTnRIKcEsWqjoSdcafPFSUsN
-         7dtRJz3ei0Puqq9X/g8KZ2+FQA0Hl7cCC9djOOK4JwARiRYO86woA94zxkqXgDZfeWCC
-         MdGaxb85ZJyWOAnXXzxmsdKMLqW/waD6hjWO8VQpZxxLJXd2q4UphCVX+o2/uIOXpA+X
-         zFnZglnks/0jMLM29RPpcoqF9ABq5v662wavf1dthEoMD7goWUm1+KpVJsfgp5SdWA0l
-         z9Ng==
+        bh=tm9SoNGMGHej3K6+PcQSLK9zTOjXgliCtlLLxQU3zU0=;
+        b=d/1keElUe/hIWHsOLZM7UW4O55AmAx2fxOJzaXfezUhjEQ8UulvCqIt/NyaaZsFlyQ
+         dOin8IJ2maj3GP2rn+fCUliwWjV7Ig2PCOA9zYeN4LpBljhIggFA1DhYk33ygE2C1Atc
+         QeR6/USHSU3nSAyvCZK+uBh6o/eorOmju6UXvBwB3yZfLnFPouW/a4d+bNRwBkNK3GvC
+         8G3CEUs0UWCuxWOq+32OtRiJ2SQItHAoQziZyLDA5eWV3H9tF34pej0xLKQ1BZRDRdDW
+         7Ue82gX3mdebXuj0ThgAFV8rWo36RhUd75lUlD10i/y83XyLXN7wGazefvbLww7MMjRC
+         0i/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736954352; x=1737559152;
+        d=1e100.net; s=20230601; t=1736955437; x=1737560237;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=gu5FrFbkX2SjGRhH57yNoKg0FNmc7jd8hsc8fd4Bd5I=;
-        b=mRtld36ADmXZaGfsSNZQt13iGpJbB/5v+Hqg7wJ5XLm3f8SwK+sD57FJZ4Zqneam/A
-         GLP8AktCzN+XjtDuBayCQvpwKJPGlMpc0a9Tv1TNMaNKbTdZD2G+8VKq33++wCKiNXQP
-         8dlIFxDldImMq0p+zjx1HyeVpwBg9uvCd3mOMOt8kdDI/sddIG1YouVJ910j5EBHceto
-         LMDls2GC9IyqJ0iISs8MrnxUvaxBT71oOdeA0ONtn7MG+WvVuowTMsvHvOCU/k/TuAQY
-         lVfQp1wO18zI2tWL7LjbjvrimA0bH3IyiK9q6Je8p2uh92bJwN11AzWnS0iMrcFMW9uv
-         59SQ==
-X-Gm-Message-State: AOJu0Yzk65eZL84aQeE+RP08FLu0A6O2sMGH0GsgdKG0j4feybEq2cz9
-	XcD51UghkcRcP+Sa7MBs9M5UrLXSiBlC0T7/Qredt4+vSRmZlmZ3g67BIvtcxjI6mc6hsCMjVq1
-	iN5Akno5OARz51Jzw6EaA+h2F7Is=
-X-Gm-Gg: ASbGnctqrEaW0xErxaK76Duf37fpCZbt/sdxN2E/xFuE/dPSbEwfooPhGZPnCl+FKI9
-	ZD2rIsmv84DRWk3sc/xssYpLe52e5ck484z6qsw==
-X-Google-Smtp-Source: AGHT+IEg/y+5NBAIDqGN/2xT/D5LkD2KqjfxiDLJ192/VWS39HOoOhbAg+G7ru2+LdcKrzBonLhk3f+JY1wkBX2h3bE=
-X-Received: by 2002:a05:6102:a47:b0:4b2:5c4b:b0aa with SMTP id
- ada2fe7eead31-4b3d0fc5060mr25339198137.17.1736954352061; Wed, 15 Jan 2025
- 07:19:12 -0800 (PST)
+        bh=tm9SoNGMGHej3K6+PcQSLK9zTOjXgliCtlLLxQU3zU0=;
+        b=FTmhtIesMw5FSUfRoBcNWbx7hpok73rqXM5UoU62CNNJ3PaG662kP1ESx3J5KlWgFu
+         f/iM5XghUqWkZHv31blC+7qy3eZUqboBhZf2KELNWFjMRcNpuAIPGquKHptRE1fjeJSB
+         two9yBRqzsnAPElp+XT1QIuW0mDrxZPHeHhIYBbeTBoFML5yuAJBJGTZwnG65m4z6Fd7
+         kCvC6136VkdEE6XWWcJfP6O7wWstutBM9CjOsrPmBaG45ReLbU4fHQsMesCCCTw8HYbN
+         IMrNp0M1N44la9U0ktgWZCbdPK4TX+qs4MmzrW99Acyo14f79sL6tvVLHhjKZ43eXtZD
+         EnkQ==
+X-Gm-Message-State: AOJu0YwAZ3tRJu+wItOCTcemVNin7LpWNNA5sECtAc+SPCf18ZOOMfRj
+	wEeEKxk98wbIKAK+sQFzzy4Om1hrRrRE8ui1nJONKlzY1ppVCH4dhIIsIijlNgIvglJLw62lDjn
+	F3sd2Q4okmTSX4lEHoN8YbjB0IwBO7yHg
+X-Gm-Gg: ASbGncsBsIck5NcOdqy6lSMJ6JbrF5NnRVFXNEMzaB0SRMw/RgRreQFCQt/oDBChLWH
+	Iq/vJintMsHtfqH8CzL0roHhvjSDm/nXFFgoX8g==
+X-Google-Smtp-Source: AGHT+IHZri1DS81DV4hfkzzDjbGO5jGBEpE4Z+VNZ8z0QLHtAJHDIvpJn+6KJk0uqMHGC97w1IcZxLeV6ycYCDGzKKY=
+X-Received: by 2002:a05:6102:2acb:b0:4b1:11c6:d3c6 with SMTP id
+ ada2fe7eead31-4b3d0ee45a7mr24301143137.5.1736955436662; Wed, 15 Jan 2025
+ 07:37:16 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250109121530.21728-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20250109121530.21728-1-cgoettsche@seltendoof.de>
+References: <20250113213824.26000-1-dburgener@linux.microsoft.com>
+In-Reply-To: <20250113213824.26000-1-dburgener@linux.microsoft.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 15 Jan 2025 10:19:01 -0500
-X-Gm-Features: AbW1kvbWIosX1P4_8RfcmVz-QJNsn56V6CctQ54RAPdjb1jF6LxWkZsry7LCroc
-Message-ID: <CAP+JOzRSxEH8refEFbP2vcjT80dQXPXKcmSjRmQ--xqpiL5bVg@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: limit node depth while parsing compiled fcontexts
-To: cgzones@googlemail.com
+Date: Wed, 15 Jan 2025 10:37:06 -0500
+X-Gm-Features: AbW1kvaeDc0k5os5S5DHurwgewWec-emRSIb22lcReMaRjmSHMp2g0gT3tbDJ00
+Message-ID: <CAP+JOzQPqG6DXH5025tpK9AG=MNoa-uALOBPjGkq7nmLrW3bAA@mail.gmail.com>
+Subject: Re: [PATCH] CONTRIBUTING.md: Drop dependency and build instructions
+To: Daniel Burgener <dburgener@linux.microsoft.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 9, 2025 at 7:15=E2=80=AFAM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
+On Mon, Jan 13, 2025 at 4:38=E2=80=AFPM Daniel Burgener
+<dburgener@linux.microsoft.com> wrote:
 >
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> They are redundant with README.md, and haven't been kept up to date.
+> For example, the CONTRIBUTING.md dependencies are missing the xmlto
+> dependency.  Rather than try to maintain this information in two places,
+> just refer contributors to the README and keep the CONTRIBUTING doc
+> focused on high level process.
 >
-> Limit the node depth while parsing a pre-compiled fcontext definition to
-> avoid unlimited recursions causing stack overflows.
->
-> Use a sufficiently high value of 32, instead of the node depth of
-> currently 3 for generating a database, to not unnecessarily limit
-> custom changes.
->
-> Fixes: 92306daf ("libselinux: rework selabel_file(5) database")
-> Reported-by: oss-fuzz (issues 388615595 and 388592303)
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
+
+Acked-by: James Carter <jwcart2@gmail.com>
+
 > ---
->  libselinux/src/label_file.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
+>  CONTRIBUTING.md | 9 +--------
+>  1 file changed, 1 insertion(+), 8 deletions(-)
 >
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index 56e20949..125eb601 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -674,12 +674,16 @@ static int load_mmap_regex_spec(struct mmap_area *m=
-map_area, bool validating, bo
->  }
+> diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+> index 7c548e58..e6a677a0 100644
+> --- a/CONTRIBUTING.md
+> +++ b/CONTRIBUTING.md
+> @@ -23,14 +23,7 @@ using a custom policy please include it as well.
 >
->  static int load_mmap_spec_node(struct mmap_area *mmap_area, const char *=
-path, bool validating, bool do_load_precompregex,
-> -                              struct spec_node *node, bool is_root, uint=
-8_t inputno, const struct context_array *ctx_array)
-> +                              struct spec_node *node, const unsigned dep=
-th, uint8_t inputno, const struct context_array *ctx_array)
->  {
->         uint32_t data_u32, lspec_num, rspec_num, children_num;
->         uint16_t data_u16, stem_len;
-> +       const bool is_root =3D (depth =3D=3D 0);
->         int rc;
+>  ## Compiling
 >
-> +       if (depth >=3D 32)
-
-I would like to see a comment here explaining that this check is to
-prevent unlimited recursions and that 32 was arbitrarily chosen as a
-sufficiently high value that is not expected to occur. (Or something
-to that effect.)
-Jim
-
-> +               return -1;
-> +
->         node->from_mmap =3D true;
+> -There are a number of dependencies required to build the userspace
+> -tools/libraries. On a Fedora system you can install them with yum:
+> -
+> -    # yum install audit-libs-devel bison bzip2-devel dbus-devel dbus-gli=
+b-devel flex flex-devel flex-static glib2-devel libcap-devel libcap-ng-deve=
+l pam-devel pcre2-devel python-devel setools-devel swig ustr-devel
+> -
+> -The tools and libraries can be built and installed under a private direc=
+tory from the top level with make, e.g.
+> -
+> -    $ make DESTDIR=3D~/obj install install-pywrap
+> +See README.md for instructions on how to compile and test this project.
 >
+>  ## Contributing Code
 >
-> @@ -794,7 +798,7 @@ static int load_mmap_spec_node(struct mmap_area *mmap=
-_area, const char *path, bo
->                 node->children_alloc =3D children_num;
->
->                 for (uint32_t i =3D 0; i < children_num; i++) {
-> -                       rc =3D load_mmap_spec_node(mmap_area, path, valid=
-ating, do_load_precompregex, &node->children[i], false, inputno, ctx_array)=
-;
-> +                       rc =3D load_mmap_spec_node(mmap_area, path, valid=
-ating, do_load_precompregex, &node->children[i], depth + 1, inputno, ctx_ar=
-ray);
->                         if (rc)
->                                 return -1;
->
-> @@ -969,7 +973,7 @@ end_arch_check:
->
->         rc =3D load_mmap_spec_node(mmap_area, path, rec->validating,
->                                  reg_version_matches && reg_arch_matches,
-> -                                root, true,
-> +                                root, 0,
->                                  inputno,
->                                  &ctx_array);
->         if (rc)
 > --
-> 2.47.1
+> 2.34.1
 >
 >
