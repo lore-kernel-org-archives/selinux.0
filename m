@@ -1,123 +1,111 @@
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 186921DA631
-	for <selinux@vger.kernel.org>; Wed, 15 Jan 2025 21:56:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2898F19539F
+	for <selinux@vger.kernel.org>; Thu, 16 Jan 2025 10:54:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736978162; cv=none; b=mWifSWqMUUvTKmJSZAm83sFdfDx+agxNWOnzSu0HSiNtwBH1xhdrVPYtAUhZWAyDnUu6bg4sQoJ2UO9Q1zFJnkxzvxmS/MmA9vvCd6vyuX9mnL60cM2S7vvvWtdDr7O11Tjp3+HHwWg32fuXgy2BUCuW2hTsf4uwm7utGO4rU7I=
+	t=1737024884; cv=none; b=nhQ2CcuvlesxfME1eLW+w8tyKlwrFJGEzOohDc5PTogCON2r+CRNHHY966qIaWYSHFe7GaudQ0Z8JaicAtUq+O41fv1lPWYzlcx+GQCfzHpA7ZDBPzktWtIpLn77aQSxbROAi4+4ACBbZ2yftgauFxZan67pqOC0O324QzZ+ay0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736978162; c=relaxed/simple;
-	bh=C4VLBJzPBpAwYolk7n9Iw5sT6nUxlMb2oibYKArKT6Q=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=H93Ko72Oytk71QABNMxCN/S1LBGMb0wj0jSGh0UWWiCZDS4EN8JNUMiEqVeAlnY0+Ld0HHN3qN7YfvnQ5wUdiMU7ZMnm0UBo3PS5DyX27JoqlL11OqMBtjSUsCdlV8uN2JJJtqgvjLz0R7rhmYSDSr5/OaAbCLwMflTFhBJS6XE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=BQKbtbOj; arc=none smtp.client-ip=209.85.167.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1737024884; c=relaxed/simple;
+	bh=Un9QANz5cVU8gVy4d1HQH2tjG/8HFInk0Hlt93dNBTw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Ipq6oMrqTWQPMNlGMBtIsPgDfl/FLhmktgx651C+KAKo+ve8wQW0G2Rqi1IHlPPufyHKDhtL64+yQ1yzmGF3i/aGE2xvYGEiXyBi2AW6vUxmd/BDlmJ28Q+50BewHnCPoQPb3zl9tBgmPAK1QZAVrT7yYPX2DnoeyUC8eAT2CFs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Qwubk2LH; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BQKbtbOj"
-Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-53e44a42512so599e87.1
-        for <selinux@vger.kernel.org>; Wed, 15 Jan 2025 13:56:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1736978159; x=1737582959; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=hns+SMO/Ao9YuYT65xxYfiz6buCFo3AsAultAnKCQ1w=;
-        b=BQKbtbOjQQVMhKdgwioS1ejxeo43XA01CjvxXW7/X+OfwZjvSQQeVI6eFHiahRug+1
-         b9ZpcMq7rmjDglOLk5bTHwraDtEm2DqmTk3CQKuShItqTYhaUrYnlC0lXpFgX83ChDT6
-         Tk7QFmkUF3lrnqTBjF3XBderihdpAQ9aFKVf8v47QB09M8pMJcCEbG1DIjJgjxO7X2d2
-         tE+SLieW9wjzNyFqYRoy9BPx0EhVcBmeNkBdFzB9oxXYgG3HQopOwRlEPw8G9j1Pn1ck
-         uc6z8V/w5TSodIEaRtsli8Fs5o/IPAZ1sHdmTzc7BvwMZzT+eN1d0Yn1RFJCTlmV7Pbp
-         5ItA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736978159; x=1737582959;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=hns+SMO/Ao9YuYT65xxYfiz6buCFo3AsAultAnKCQ1w=;
-        b=VH3VugwZCRTvD3r7Tzbnh/r7ISzyOqblKkWEU6zarWsz+gcjN+5lN+C7YLw1vd0UjB
-         pXugPojmIgTKUlRyojE6xOrZMRBnPcV3eScYYskVKAN3EL7zJJjQ0Q5uuOO/IMaaaKVe
-         zuvQNhH8mG8pDuB5XDROpWwNDVsdaeZTAvwKE9gikkzV94GKOxUtQP0Ds2M3XKX4CG/D
-         2yYcoexCbQTlo01f52DgXLvnK61ABgWVQrIlBvwENoqd7XxyozOf/+LTkXglaGuBIJJo
-         DBLCNEHEkhuQgAGvQgMiG5zgmHALaYWKvILX/Mqxq/RIgN3X7E/8i33hAVwZ3EfC3ExM
-         x+NQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV+FeOFi6K1AjkLGdjlK05mJ+HcBoDmnDeWDPF/6HVCRfim+es2623AgmTayOzBwKC1V0h/r6E2@vger.kernel.org
-X-Gm-Message-State: AOJu0YwfpqCuvVjoRsTZMNjui0P8p/Ghz/gggwp1/zFQDFoRl50y7See
-	rPu8hELuWkm+PptzzOODrNfAuHMqDn1xterhEdcyvYRg6/r5tao95J9tyzAmRKPc80Sp5eFin/k
-	nFRFLiwc2clmtoV4LaCvProUXTnCn2w70cZxw
-X-Gm-Gg: ASbGncu4OKw9ofqImq3SNmFPwzwtWxbzWrrF8p0h3Bv7J0LiOcjltIu5xbRkbtpsaUy
-	4dgCBE2n5lsf7rgGBHGsNs839IOxIiBbIGKNh/g==
-X-Google-Smtp-Source: AGHT+IGTV6ubfbmZ9HdqjvdhW/BnJYZtaGRJECv23F8XKO9TCEAFvfjBcaGr8u0+8YFr43+cogVdF5PFS6ifymptHiI=
-X-Received: by 2002:a05:6512:982:b0:542:7130:bad2 with SMTP id
- 2adb3069b0e04-542f46b229amr10124e87.5.1736978158947; Wed, 15 Jan 2025
- 13:55:58 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Qwubk2LH"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1737024872;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=jfr5MT4CcImXe2AnUci0SLEjE7WE5v5kOTe1e0xl7Ug=;
+	b=Qwubk2LHL9CXleBatV7XeWkhhHkkqlZBpHW0C662Phj7ThpDnhFUTL1dDHHV2nGCZH2F3x
+	QBZ36FAQp0RBhX13Tegf99knCWPivC23Iv0v4PNRwuDPDU9BcoVr3nEhPBPsv1SSxhQikP
+	h4VPhbqqDeaseF9R02xZL8w1QD2RmnYqjuFq0AfDjBeZfi5tt1vizMa7wUGQEsrJdCwgbR
+	0GrmZP+hfMNzqLNpDgt+o96PLQBJr5xYidKJjzm6COt/NvUh66YoB3RTj1mJIoFhkiehPI
+	86ed2JvrfwT78IvdarsAeTCyuB4AMow7Ef9Yw0AypDi/glj8fRulqvI4UyWK2A==
+To: selinux@vger.kernel.org
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH v2] libselinux: limit node depth while parsing compiled fcontexts
+Date: Thu, 16 Jan 2025 11:54:27 +0100
+Message-ID: <20250116105427.22307-1-cgoettsche@seltendoof.de>
+Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250108231554.3634987-1-tweek@google.com> <266861ab-cc0d-4a7c-9804-6bf4670868b1@6wind.com>
- <CAHC9VhTFBPG2Ai7zT80m=Ez7RRN5J+1rA+n=q4SrAjrVvs+Dpw@mail.gmail.com>
-In-Reply-To: <CAHC9VhTFBPG2Ai7zT80m=Ez7RRN5J+1rA+n=q4SrAjrVvs+Dpw@mail.gmail.com>
-From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Date: Thu, 16 Jan 2025 08:55:41 +1100
-X-Gm-Features: AbW1kvZE6yaIQBrluZBM2IBghqmkgTZ0CZ6JYC27IEVNIDDuS0uE4-gyyI8iJX4
-Message-ID: <CA+zpnLe5X3jcjF2=A72Bgpxt7wDrSgK0Y29h42mttTDr6vk9NA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: map RTM_DELNSID to nlmsg_write
-To: Paul Moore <paul@paul-moore.com>
-Cc: nicolas.dichtel@6wind.com, "David S . Miller" <davem@davemloft.net>, selinux@vger.kernel.org, 
-	netdev <netdev@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jan 16, 2025 at 4:29=E2=80=AFAM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Thu, Jan 9, 2025 at 4:24=E2=80=AFAM Nicolas Dichtel
-> <nicolas.dichtel@6wind.com> wrote:
-> > Le 09/01/2025 =C3=A0 00:15, Thi=C3=A9baud Weksteen a =C3=A9crit :
-> > >
-> > > The mapping for RTM_DELNSID was added in commit 387f989a60db
-> > > ("selinux/nlmsg: add RTM_GETNSID"). While this message type is not
-> > > expected from userspace, other RTM_DEL* types are mapped to the more
-> > > restrictive nlmsg_write permission. Move RTM_DELNSID to nlmsg_write i=
-n
-> > > case the implementation is changed in the future.
-> >
-> > Frankly, I don't think this will ever change. It's not a problem of imp=
-lementing
-> > the delete command, it's conceptually no sense.
-> >
-> > I don't see why the DEL should be restricted in any way.
->
-> While the RTM_DELNSID messages are not generated from userspace, the
-> presence of the SELinux access control point is visible to userspace
-> and thus we have to worry about the backwards compatibility impact of
-> changing a "read" operation to a "write" operation.
->
-> We could likely have a discussion about which is a better permission
-> mapping for RTM_DELNSID, read or write, but ultimately I think this
-> should probably be treated as a read operation since the kernel is
-> using this simply as a notification message.  Sending, or receiving, a
-> RTM_DELNSID message doesn't affect the state of the netns ID, or the
-> netns itself; in other words, a RTM_DELNSID is not the cause of netns
-> state change, it is a notification artifact of such a change.  Leaving
-> this mapped as a "read" operation seems correct to me.
->
-> It is also worth noting that the SELinux netlink xperms support that
-> will ship for the first time in v6.13 will allow policy developers to
-> target RTM_DELNSID messages with much greater permissions granularity,
-> largely solving this problem for those who care about it.
->
-> Finally, looking at unhash_nsid(), the only place which seems to
-> generate RTM_DELNSID notification messages, an access control denial
-> on the netlink notification operation will have no impact on the
-> removal of the netns or the netns ID, only the notification itself
-> should be impacted.
+From: Christian Göttsche <cgzones@googlemail.com>
 
-Ack. No worries. I agree with you Paul. When I was going through the
-list for updating our policy, this entry stood out as the only DEL_
-mapped to nlmsg_read. But as you described, it makes little sense to
-move it now. Thanks for the review.
+Limit the node depth while parsing a pre-compiled fcontext definition to
+avoid unlimited recursions causing stack overflows.
+
+Use a sufficiently high value of 32, instead of the node depth of
+currently 3 for generating a database, to not unnecessarily limit
+custom changes.
+
+Fixes: 92306daf ("libselinux: rework selabel_file(5) database")
+Reported-by: oss-fuzz (issues 388615595 and 388592303)
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v2: add code comment
+---
+ libselinux/src/label_file.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 56e20949..507ce0d3 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -674,12 +674,22 @@ static int load_mmap_regex_spec(struct mmap_area *mmap_area, bool validating, bo
+ }
+ 
+ static int load_mmap_spec_node(struct mmap_area *mmap_area, const char *path, bool validating, bool do_load_precompregex,
+-			       struct spec_node *node, bool is_root, uint8_t inputno, const struct context_array *ctx_array)
++			       struct spec_node *node, const unsigned depth, uint8_t inputno, const struct context_array *ctx_array)
+ {
+ 	uint32_t data_u32, lspec_num, rspec_num, children_num;
+ 	uint16_t data_u16, stem_len;
++	const bool is_root = (depth == 0);
+ 	int rc;
+ 
++	/*
++	 * Guard against deep recursion by malicious pre-compiled fcontext
++	 * definitions. The limit of 32 is chosen intuitively and should
++	 * suffice for any real world scenario. See the macro
++	 * SPEC_NODE_MAX_DEPTH for the current value used for tree building.
++	 */
++	if (depth >= 32)
++		return -1;
++
+ 	node->from_mmap = true;
+ 
+ 
+@@ -794,7 +804,7 @@ static int load_mmap_spec_node(struct mmap_area *mmap_area, const char *path, bo
+ 		node->children_alloc = children_num;
+ 
+ 		for (uint32_t i = 0; i < children_num; i++) {
+-			rc = load_mmap_spec_node(mmap_area, path, validating, do_load_precompregex, &node->children[i], false, inputno, ctx_array);
++			rc = load_mmap_spec_node(mmap_area, path, validating, do_load_precompregex, &node->children[i], depth + 1, inputno, ctx_array);
+ 			if (rc)
+ 				return -1;
+ 
+@@ -969,7 +979,7 @@ end_arch_check:
+ 
+ 	rc = load_mmap_spec_node(mmap_area, path, rec->validating,
+ 				 reg_version_matches && reg_arch_matches,
+-				 root, true,
++				 root, 0,
+ 				 inputno,
+ 				 &ctx_array);
+ 	if (rc)
+-- 
+2.47.1
+
