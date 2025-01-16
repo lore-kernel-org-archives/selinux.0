@@ -1,140 +1,120 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E77A422B8C4
-	for <selinux@vger.kernel.org>; Thu, 16 Jan 2025 16:09:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1126118FC8F;
+	Thu, 16 Jan 2025 19:55:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737043780; cv=none; b=T9aJhPTHAq/GdlBL+oyx002pjlzBLtF0O2iNAtz7PZiDe3cgkQAoSCqtjdVjV+diXiQTJKsEQ++Eu0sw/atbkG5931LD3+Bd6b7PY+018pEazHRwLTRS44m6MKwcFLSUGpT/Xb7ac0yFVvhLbjUMXwgBqR9NLwCzMo3wcTirbO0=
+	t=1737057336; cv=none; b=F/046O41W3TMJK0lux4CPJlDQ1hOGqit/FW6QjqpvMo7msx0ZggSJ/2oQhAZs3CdBCyZDaGaOcAjjwZde8m6oX73u+43P2NRkowmgSrKxDZBnYsmM9Ft/JB6G5vCYBhQAmM61XeWOZY4EEwMIpcAtFS/JwO6X6dNyU2TkrHzdnc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737043780; c=relaxed/simple;
-	bh=1hCF2uYmc6JF2Nu8Z6z1+Ufyg7WxH85thgV1P17Qj3Y=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=nrbS97DZqzbgCPcDe7b43Eacz8KH5LPiiJqpXnrUHTZWhCK1F027kLzuuUMRyy69lgOzIyHvhxEqQrdzQNDZZjzlWN0DIShcUeQFUAb1IYu0UQaU9Eutnq/787XA10Y/S4DPGF1tJjshwz67Jnmo9bkPq7lyhbYpY73D2KvVwzs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=e+q9191/; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1737057336; c=relaxed/simple;
+	bh=dyRV/Tom+tDbX+C7Xad40mX0GjP/1YzX3fAenE+bTJk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=i0nE+wBqKUqgET3Qo5phQumgMQ3mpFwFY+H+VLupy8sXQzBjiDVwn+NnVGmO/7Z1yzxY1PziCaGqO/BJPuaSvrTZV9erUlEbZP2njj2iEMKXFjPY65zrSEWp1Wn/kos6iOakY3n8lXlSdfUReio0tsomU5Mn9Vw73gaQJcDsNHk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Sfr06F/n; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e+q9191/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1737043777;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=rrwWIb4MkA1fUu0Q7CQ6oqj2H2ZBc6mRteyZG59pGIs=;
-	b=e+q9191/IzpYgUX2s5oXg90RkNiGAE6HzNh5Mk0xAg6qolKn20mm+tWuvOvZyEOZ2fhuWS
-	rHNBye4J2pZH3GbZRhXmy7/JlXX92a9tCVsoyJb1Z+f0+YVsFykrrXUhHX7d1SPkbCnzf3
-	oXST0cCmq2N7szsFjtQFUOlIEnkc3B0=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-584-e8BT28juOLieWo2QLi81VA-1; Thu,
- 16 Jan 2025 11:09:34 -0500
-X-MC-Unique: e8BT28juOLieWo2QLi81VA-1
-X-Mimecast-MFC-AGG-ID: e8BT28juOLieWo2QLi81VA
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 43EFB1955DCC;
-	Thu, 16 Jan 2025 16:09:33 +0000 (UTC)
-Received: from localhost (unknown [10.39.196.32])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id BCB0B1955F1B;
-	Thu, 16 Jan 2025 16:09:32 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: James Carter <jwcart2@gmail.com>, cgzones@googlemail.com,
- selinux@vger.kernel.org
-Cc: 
-Subject: Re: [PATCH 1/2] libsepol: fix typos
-In-Reply-To: <CAP+JOzQkEU_TGtL4cYzZAL0tUARjyL1y1jn1MXs6WdOYRwARpw@mail.gmail.com>
-References: <20241230140523.60053-1-cgoettsche@seltendoof.de>
- <20241230140523.60053-2-cgoettsche@seltendoof.de>
- <CAP+JOzQkEU_TGtL4cYzZAL0tUARjyL1y1jn1MXs6WdOYRwARpw@mail.gmail.com>
-Date: Thu, 16 Jan 2025 17:09:31 +0100
-Message-ID: <877c6uwxj8.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Sfr06F/n"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-216401de828so23786235ad.3;
+        Thu, 16 Jan 2025 11:55:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1737057334; x=1737662134; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=HxojJr/VObF6kXqu5nshWdLf7yDujw0TbB3CUodRBcc=;
+        b=Sfr06F/nPPPGmpfkylsbKXahzBd/qdjSMiBJKNjkkVg3ETU996yU76M9aivriRRDLM
+         XJ1VdO6mYuNGOqP4qPBQPunwkC/j2aeQtNYSicJFHySAdbtOe/cIegc5/dkD77v0gARj
+         bXoMvB8T0w9FdlfgsXp7ci3+h8DROrcimam405mhvfw4035vVUZ3jd10h0KmQgAGEJni
+         eu+AGeHU6PVQW8zFVCLTnQVljPDmInrizP9LPovdVxiRv/Eh2fBhXXV2+hb9JVTfUw6a
+         pBZ9aDd/BbrHfF9U0d5d8kSNmKbmraav9u+/CwskPAs0tQyvgYMrhvZpdR9mBXT5EX7E
+         xI+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737057334; x=1737662134;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=HxojJr/VObF6kXqu5nshWdLf7yDujw0TbB3CUodRBcc=;
+        b=WNO5MlKkyqE/ir+NL6hksRsuHBdgFS2abyBn9VaGqQwK9Pwjnknb4sHpBo5pFFaXRt
+         tzkzX8Vm1fWkuodQLMjixQIbVJrFkQfmDDzx5h12GJBYKGKwHUpOfsDFtQWtzaJrGbMY
+         Up6GmK1KY78MWfOfYov0/yC1DelVsq738Z1+ctACNjc053gUzf9Ipp/nEL4sRi0Xmwqe
+         yKu6EA0tBtNawWjuJNyMbAglzxGkVADFybcFI9ZZGQZRB3l/vej22B6vyO0qwqbj4liF
+         ib+6tiO+Yy3bajYYyEMCwIHdxvrWrpF6qgwtYtCw3Dj/WU7cbW5lmFvRmsrKfvHvL/SY
+         iGiQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW6oCvsUp3KfQYBaR+AXaQz3XrqH9qLe2n6CqZtcBPGNYDswm8FMfiTh15++cakizg4zRrqqEnXxA==@vger.kernel.org, AJvYcCXIkiXNS3ky+YR9mYNwkVvys1TXne/1jCqXH7fYd9Wt/7m7D62u1rwMub3/McrISkDbRIUxswDvTFRE+Go=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz6NQjgANuF8sWkxa+DD7IAPrxl5o2ISlyGIYaFmGe4RHazSnN+
+	4DKj1+vN4JCc3GQlbjm5wmJkdgJ/xJpPforwkyCNB+QTQX+i9U8d4JFaY1PGHu0=
+X-Gm-Gg: ASbGncsJ/L3gy5VqYXWcyBmcCj9nqGuZfxK7MZgDokF+RFpN/+nICDi3CXQDq5wYfMI
+	RKY0pLJe234MOzgpeu3s+s9oMYr6yvruzvoq/pIrBpcHGpAWF3G6BMZY0znij3P5TaNxcDJYJkp
+	jWRGNmy1YtUXgAM9zQ+iU6r6vE0nNfNFFgMZ8K6jh7RfDBUhtw1sM8fvHk9E2wFC+wZ/oWhWF/C
+	Rj3j7kE/8VFlTn2NiR/MEmedhLjGqQAw0XFqRjPkaDaNeBHz/EXQg==
+X-Google-Smtp-Source: AGHT+IGymoW4dbss59UHu9fiOysoxBA+UJpqMJRU86LsjLLKEMM7T02A0lFgB2NnXZEMHrLPAjFgVA==
+X-Received: by 2002:a17:902:db0a:b0:216:2426:7666 with SMTP id d9443c01a7336-21c352ec44bmr191635ad.12.1737057334271;
+        Thu, 16 Jan 2025 11:55:34 -0800 (PST)
+Received: from s2lab02.. ([114.70.9.226])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2f77629ac0dsm546392a91.34.2025.01.16.11.55.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Jan 2025 11:55:34 -0800 (PST)
+From: Ingyu Jang <ingyujang25@gmail.com>
+To: Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Ingyu Jang <ingyujang25@gmail.com>,
+	selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] selinux: Handle NULL return from selinux_inode in inode_security_rcu
+Date: Fri, 17 Jan 2025 04:55:25 +0900
+Message-Id: <20250116195526.2303758-1-ingyujang25@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+Content-Transfer-Encoding: 8bit
 
-James Carter <jwcart2@gmail.com> writes:
+The 'selinux_inode' function may return NULL if 'inode->i_security' is
+uninitialized or if 'inode->i_security' is NULL.
+Previously, this scenario was not explicitly handled in
+'inode_security_rcu', which might lead to NULL Pointer dereference.
 
-> On Mon, Dec 30, 2024 at 9:05=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
->>
->> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->>
->> Found by codespell(1) and typos[1].
->>
->> [1]: https://github.com/crate-ci/typos
->>
->> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> For these two patches:
-> Acked-by: James Carter <jwcart2@gmail.com>
+This patch modifies 'inode_security_rcu' to call 'selinux_inode' and
+check its return value.
+If 'selinux_inode' returns NULL, '-EACCES' is returned to ensure
+consistent error handling.
 
-Merged. Thanks!
+Furthermore, analysis confirmed that all current usages of
+'inode_security_rcu' check the return value using 'IS_ERR', ensuring
+compatibility with this change.
 
->> ---
->>  libsepol/src/kernel_to_cil.c | 2 +-
->>  libsepol/src/module_to_cil.c | 2 +-
->>  libsepol/src/policydb.c      | 2 +-
->>  3 files changed, 3 insertions(+), 3 deletions(-)
->>
->> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
->> index 2d563e7d..ddca2b62 100644
->> --- a/libsepol/src/kernel_to_cil.c
->> +++ b/libsepol/src/kernel_to_cil.c
->> @@ -1802,7 +1802,7 @@ static char *avtab_node_to_str(struct policydb *pd=
-b, avtab_key_t *key, avtab_dat
->>                 } else if (datum->xperms->specified =3D=3D AVTAB_XPERMS_=
-NLMSG) {
->>                         xperm =3D (char *) "nlmsg";
->>                 } else {
->> -                       ERR(NULL, "Unknown extended permssion");
->> +                       ERR(NULL, "Unknown extended permission");
->>                         goto exit;
->>                 }
->>                 rule =3D create_str("(%s %s %s (%s %s (%s)))",
->> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
->> index 0ede0c9b..ae9a2b5d 100644
->> --- a/libsepol/src/module_to_cil.c
->> +++ b/libsepol/src/module_to_cil.c
->> @@ -709,7 +709,7 @@ static int avrulex_to_cil(int indent, struct policyd=
-b *pdb, uint32_t type, const
->>         } else if (xperms->specified =3D=3D AVTAB_XPERMS_NLMSG) {
->>                 xperm =3D "nlmsg";
->>         } else {
->> -               ERR(NULL, "Unkown avrule xperms->specified: %i", xperms-=
->specified);
->> +               ERR(NULL, "Unknown avrule xperms->specified: %i", xperms=
-->specified);
->>                 rc =3D -1;
->>                 goto exit;
->>         }
->> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
->> index 0747e789..8443380b 100644
->> --- a/libsepol/src/policydb.c
->> +++ b/libsepol/src/policydb.c
->> @@ -1662,7 +1662,7 @@ int policydb_load_isids(policydb_t * p, sidtab_t *=
- s)
->>   *
->>   * arguments:
->>   *   policydb_t *pol       module policy to modify
->> - *   uint32_t sym          the symbole table for insertion (SYM_*)
->> + *   uint32_t sym          the symbol table for insertion (SYM_*)
->>   *   hashtab_key_t key     the key for the symbol - not cloned
->>   *   hashtab_datum_t data  the data for the symbol - not cloned
->>   *   scope                 scope of this symbol, either SCOPE_REQ or SC=
-OPE_DECL
->> --
->> 2.45.2
->>
->>
+Signed-off-by: Ingyu Jang <ingyujang25@gmail.com>
+---
+ security/selinux/hooks.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 171dd7fceac5..61c9191bafbe 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -310,11 +310,17 @@ static struct inode_security_struct *inode_security_novalidate(struct inode *ino
+ static struct inode_security_struct *inode_security_rcu(struct inode *inode, bool rcu)
+ {
+ 	int error;
++	struct inode_security_struct *isec;
+ 
+ 	error = __inode_security_revalidate(inode, NULL, !rcu);
+ 	if (error)
+ 		return ERR_PTR(error);
+-	return selinux_inode(inode);
++
++	isec = selinux_inode(inode);
++	if (!isec)
++		return ERR_PTR(-EACCES);
++
++	return isec;
+ }
+ 
+ /*
+-- 
+2.34.1
 
