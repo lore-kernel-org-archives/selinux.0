@@ -1,111 +1,103 @@
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2898F19539F
-	for <selinux@vger.kernel.org>; Thu, 16 Jan 2025 10:54:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CF0B19539F
+	for <selinux@vger.kernel.org>; Thu, 16 Jan 2025 13:14:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737024884; cv=none; b=nhQ2CcuvlesxfME1eLW+w8tyKlwrFJGEzOohDc5PTogCON2r+CRNHHY966qIaWYSHFe7GaudQ0Z8JaicAtUq+O41fv1lPWYzlcx+GQCfzHpA7ZDBPzktWtIpLn77aQSxbROAi4+4ACBbZ2yftgauFxZan67pqOC0O324QzZ+ay0=
+	t=1737033258; cv=none; b=YQ9+5vYS5yam/U0TAiHVtND/yh9NDWhwhtZ3m/eCcXOOtWS2PudSWw9PBR3rm3/vYbcUeE6RS/K2tGFGr2wr8W3QV9Y4iqy2TU8xAXH9K/vx/GaUpmP1LdmTciv+rZx4VDWHGuZZh5h1LJwPqB4eLWi39xmabifQw5b9S4MNyaM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737024884; c=relaxed/simple;
-	bh=Un9QANz5cVU8gVy4d1HQH2tjG/8HFInk0Hlt93dNBTw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Ipq6oMrqTWQPMNlGMBtIsPgDfl/FLhmktgx651C+KAKo+ve8wQW0G2Rqi1IHlPPufyHKDhtL64+yQ1yzmGF3i/aGE2xvYGEiXyBi2AW6vUxmd/BDlmJ28Q+50BewHnCPoQPb3zl9tBgmPAK1QZAVrT7yYPX2DnoeyUC8eAT2CFs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=Qwubk2LH; arc=none smtp.client-ip=168.119.48.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	s=arc-20240116; t=1737033258; c=relaxed/simple;
+	bh=PzoC7WHdYgf5DHVZ8SSGSsdh4l3vFCyeSvA3A/1mDb0=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=mykbj1gtenqTIJQOdNt/xhsS9pf9ZY04BieJVc/1dOJC89LeMIhrfZo5d5wLiabkqPYcsY0D8bq+HCKoDn5ng2lI7ehp+3L/qpgy8gThARQCWaTQdh2LqQJ1cMYUA6Ol9iz39GacR5yqYF+7NcFCdX4xlBnhlGjqtnHkcyKgDKs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dXpxkrPh; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="Qwubk2LH"
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1737024872;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=jfr5MT4CcImXe2AnUci0SLEjE7WE5v5kOTe1e0xl7Ug=;
-	b=Qwubk2LHL9CXleBatV7XeWkhhHkkqlZBpHW0C662Phj7ThpDnhFUTL1dDHHV2nGCZH2F3x
-	QBZ36FAQp0RBhX13Tegf99knCWPivC23Iv0v4PNRwuDPDU9BcoVr3nEhPBPsv1SSxhQikP
-	h4VPhbqqDeaseF9R02xZL8w1QD2RmnYqjuFq0AfDjBeZfi5tt1vizMa7wUGQEsrJdCwgbR
-	0GrmZP+hfMNzqLNpDgt+o96PLQBJr5xYidKJjzm6COt/NvUh66YoB3RTj1mJIoFhkiehPI
-	86ed2JvrfwT78IvdarsAeTCyuB4AMow7Ef9Yw0AypDi/glj8fRulqvI4UyWK2A==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dXpxkrPh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1737033255;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=IeqAwmPs1Sx+5eZ98zH3rU3YP9boqEEHGEGAkQlsayI=;
+	b=dXpxkrPhdnusmBaDRyC6nHEqqJkrI+moyoJFJ3kM2jroehE/CTR22dxeoDfKKi7oqoLlzK
+	eOyN1zfUJSyFZmeIg7ABxZjPZEtnqNmfYOec2b4DaVnNirs/2g79stI0Sz/EAsiM5xat7o
+	KVWce/DXznvmQLgM95jJE83koOJVt0o=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-223-DUu_V1wNMXSrleQOj5zXZw-1; Thu, 16 Jan 2025 08:14:14 -0500
+X-MC-Unique: DUu_V1wNMXSrleQOj5zXZw-1
+X-Mimecast-MFC-AGG-ID: DUu_V1wNMXSrleQOj5zXZw
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-38a35a65575so707094f8f.1
+        for <selinux@vger.kernel.org>; Thu, 16 Jan 2025 05:14:13 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737033252; x=1737638052;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=IeqAwmPs1Sx+5eZ98zH3rU3YP9boqEEHGEGAkQlsayI=;
+        b=UCOkSdy6/iu79bYORcj8HfugbTRIBL5gfhYI+sfDPYJCp5p2rckmvJo06X6MtDRgsf
+         QezpCGf3BtCWwlTPME20rbFxWs1PXsODgmP+oGMoe/F26f6IqvNcBoG/QmGoN4Jq+DsL
+         zUmCXdgXuRYZ5wTQjAtG1qIC1M2SQaRMqFgTEyv3USWLSSzyEsHCSLdfiq5Am9IDUqTV
+         i6HE5Sx3NDDyQEOweCR4ZEvtw8rEXnvqGzOWmWidd4QQhbLaVk572UyShtKAsoGzEqTS
+         yEwNB9ogW0Y4Ztp64vfI9CanVIBOHQ5ih5jXHv+KpFiS2oEzefcF6UxRPInCGfAIbCSW
+         VFYA==
+X-Gm-Message-State: AOJu0Yx/K8TlwsUj2aTKki6Br5AZ4Bajo7eKWS1hbwwPcP4Y965W/QyJ
+	gOEpR7jEb/alo/0m2T/pg5zPWjQXjElK2RwfhYpKJE5dJB32EY9pK25GCoomjwQ64sN3GWx5Hi/
+	0mI4AfZ7PukwdWhGAiPVA1SSjVxNC6SVcIl8SXtvYGFzvuX1/nSaG116df22Kq/tGvu9X5QH1/D
+	z1zBNIh6P8nsK1zoU3a9iUn/0nJkc37Mku0vy29Kc=
+X-Gm-Gg: ASbGncsPMQ27LncY5O2S0GhD01lchsva31UGNF9BRqF5Y+2E83y6R866A6ixSkypoXI
+	0u/XWxTZsGqDOxskyM9OGuJK+BOwoLkhQ/toesdn1J/MKXyixVH27X1bk3rc2yylt9yHkOkiz1f
+	5ZoCGUQg0A/zk9FqIRLj4J77dE7hp+6K988XICo5P/qm5C8pCmgo1yflT5Ddsncv8u8eJNecGKl
+	toWdiei8TA9xsVfm/Et0CAaW7X/nLCWRwk+x19DSjBXD+O9XehJ+WJiAflwBNel5WAoEZLsBPsY
+	D4p4A5Obnv9QGLw1sw==
+X-Received: by 2002:a5d:5f82:0:b0:385:e1a8:e28e with SMTP id ffacd0b85a97d-38a872faed5mr31788700f8f.10.1737033252560;
+        Thu, 16 Jan 2025 05:14:12 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEfsgNYoXBVbmI9tH1AqhDKMtFV+l1Vuyk4FYY3DsQ3BSZv5TilVgvAclFp8eGpkMO1oXWZ2g==
+X-Received: by 2002:a5d:5f82:0:b0:385:e1a8:e28e with SMTP id ffacd0b85a97d-38a872faed5mr31788668f8f.10.1737033252159;
+        Thu, 16 Jan 2025 05:14:12 -0800 (PST)
+Received: from localhost.localdomain (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a8e38f176sm20831276f8f.63.2025.01.16.05.14.11
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Jan 2025 05:14:11 -0800 (PST)
+From: Ondrej Mosnacek <omosnace@redhat.com>
 To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v2] libselinux: limit node depth while parsing compiled fcontexts
-Date: Thu, 16 Jan 2025 11:54:27 +0100
-Message-ID: <20250116105427.22307-1-cgoettsche@seltendoof.de>
-Reply-To: cgzones@googlemail.com
+Subject: [PATCH userspace] README: fix broken testsuite run status badge
+Date: Thu, 16 Jan 2025 14:14:10 +0100
+Message-ID: <20250116131410.50853-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.48.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Christian Göttsche <cgzones@googlemail.com>
+The workflow name has changed for the testsuite run, so update README.md
+accordingly.
 
-Limit the node depth while parsing a pre-compiled fcontext definition to
-avoid unlimited recursions causing stack overflows.
-
-Use a sufficiently high value of 32, instead of the node depth of
-currently 3 for generating a database, to not unnecessarily limit
-custom changes.
-
-Fixes: 92306daf ("libselinux: rework selabel_file(5) database")
-Reported-by: oss-fuzz (issues 388615595 and 388592303)
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+Fixes: ee667ed976b5 ("ci: use Testing Farm for running the testsuite")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
-v2: add code comment
----
- libselinux/src/label_file.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 56e20949..507ce0d3 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -674,12 +674,22 @@ static int load_mmap_regex_spec(struct mmap_area *mmap_area, bool validating, bo
- }
+diff --git a/README.md b/README.md
+index 765b5626..1e16beea 100644
+--- a/README.md
++++ b/README.md
+@@ -3,7 +3,7 @@ SELinux Userspace
  
- static int load_mmap_spec_node(struct mmap_area *mmap_area, const char *path, bool validating, bool do_load_precompregex,
--			       struct spec_node *node, bool is_root, uint8_t inputno, const struct context_array *ctx_array)
-+			       struct spec_node *node, const unsigned depth, uint8_t inputno, const struct context_array *ctx_array)
- {
- 	uint32_t data_u32, lspec_num, rspec_num, children_num;
- 	uint16_t data_u16, stem_len;
-+	const bool is_root = (depth == 0);
- 	int rc;
+ ![SELinux logo](https://github.com/SELinuxProject.png)
+ [![Run Tests](https://github.com/SELinuxProject/selinux/actions/workflows/run_tests.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actions/workflows/run_tests.yml)
+-[![Run SELinux testsuite in a virtual machine](https://github.com/SELinuxProject/selinux/actions/workflows/vm_testsuite.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actions/workflows/vm_testsuite.yml)
++[![Run SELinux testsuite in Testing Farm](https://github.com/SELinuxProject/selinux/actions/workflows/tf_testsuite.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actions/workflows/tf_testsuite.yml)
+ [![OSS-Fuzz Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/selinux.svg)](https://oss-fuzz-build-logs.storage.googleapis.com/index.html#selinux)
+ [![CIFuzz Status](https://github.com/SELinuxProject/selinux/actions/workflows/cifuzz.yml/badge.svg)](https://github.com/SELinuxProject/selinux/actions/workflows/cifuzz.yml)
  
-+	/*
-+	 * Guard against deep recursion by malicious pre-compiled fcontext
-+	 * definitions. The limit of 32 is chosen intuitively and should
-+	 * suffice for any real world scenario. See the macro
-+	 * SPEC_NODE_MAX_DEPTH for the current value used for tree building.
-+	 */
-+	if (depth >= 32)
-+		return -1;
-+
- 	node->from_mmap = true;
- 
- 
-@@ -794,7 +804,7 @@ static int load_mmap_spec_node(struct mmap_area *mmap_area, const char *path, bo
- 		node->children_alloc = children_num;
- 
- 		for (uint32_t i = 0; i < children_num; i++) {
--			rc = load_mmap_spec_node(mmap_area, path, validating, do_load_precompregex, &node->children[i], false, inputno, ctx_array);
-+			rc = load_mmap_spec_node(mmap_area, path, validating, do_load_precompregex, &node->children[i], depth + 1, inputno, ctx_array);
- 			if (rc)
- 				return -1;
- 
-@@ -969,7 +979,7 @@ end_arch_check:
- 
- 	rc = load_mmap_spec_node(mmap_area, path, rec->validating,
- 				 reg_version_matches && reg_arch_matches,
--				 root, true,
-+				 root, 0,
- 				 inputno,
- 				 &ctx_array);
- 	if (rc)
 -- 
-2.47.1
+2.48.0
 
