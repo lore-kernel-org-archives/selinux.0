@@ -1,157 +1,120 @@
-Received: from mail-vs1-f43.google.com (mail-vs1-f43.google.com [209.85.217.43])
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D49F78F41;
-	Mon, 27 Jan 2025 14:50:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F72CF510
+	for <selinux@vger.kernel.org>; Mon, 27 Jan 2025 15:00:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737989419; cv=none; b=IpJGZIF/mahLGrmMhJfvcr2YSeDJghoCjNM5nHLC1OlsL+IpLgmSqFa5+AQRqJ/pFcMtCAI9nGqvRrxbHvAdu4ZEkYe9Z0XflFGh9oyEAU7m/1nKfLQcs0bR2Lhe6CcnKlHOdpvGCZ6/YNemeXQCNTJ+9Xl8y4fv3VIiLrP6O6U=
+	t=1737990046; cv=none; b=b8ijmMWEHs4hIF/IclD5/b4spEU676r3CVFSLZ21Fm5pW39JiBEOC2SFSeYpdp9C9laP+fSivOrRu7VbkAq00iatwEHz9RocCNuIYWfjoegtxnztMwLd66vTniHnvyHF1Lnyhb+7a1y/hf00tN3pFKPtM7Lfkwgs/Y3BUWq5BjY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737989419; c=relaxed/simple;
-	bh=4jmummf21eCG5N7yeeWqWb8xZ7DSnhTI4KnzJZ2Brdg=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=DzMuBIRGMBNtyNA8LZtV6lweSrhbcz3kfbZDSPs78fKCfggn2gHPY9Ika/J59qOKlTXUe2gguHil3o1oE65CO84itGXeF01G9cP/wQ4xSq8NHKxpbhGohNohHmjVoerj0OJhD96sehQKNpA1iFsTtoe/CLVEQNL8Ys1hp9imtjE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TZvylBee; arc=none smtp.client-ip=209.85.217.43
+	s=arc-20240116; t=1737990046; c=relaxed/simple;
+	bh=cUZsgFABjuuJ0JkTiLHU0q4TuE312CeT032ucCjFrRs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ekNgyPYbfGPinUGYZgnt2Oa8J0elF5f8dqE79WGU33fPnVIkDgso0/hxe/SOrfuha012Af2mJQqhyhAnpsjzaY1l/HZ91UhycdSzv+oSk/ClHBzbl+01MBWa/KeYIrQuQL9qYRd1mAHzFNZWDQFAo7CLkHhk+hd+/YNySUDa3Is=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CyTiiDVg; arc=none smtp.client-ip=209.85.214.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TZvylBee"
-Received: by mail-vs1-f43.google.com with SMTP id ada2fe7eead31-4afde39e360so1156169137.0;
-        Mon, 27 Jan 2025 06:50:15 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CyTiiDVg"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-21bc1512a63so87887765ad.1
+        for <selinux@vger.kernel.org>; Mon, 27 Jan 2025 07:00:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1737989414; x=1738594214; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1737990044; x=1738594844; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=j+4PFphjG6BR9vrdCpxlvOY56GsX5BOUCbDC8gOl9Zs=;
-        b=TZvylBee0wnmUmZb5Dw1rjWHugdMpT4Jk19QLxB1q069Xzx006zhdpcbrrt5OHX8t3
-         TWgVThSJWszRHfGusKRmeeCq27y7C4D62JALk+so+uIFA85q0cvKH7in57Bm009mqyEl
-         J99cuEFJh71px6z9xXrw3g9hs1BsJRyvAmSsZI6mqwtgk1yD37bHwvdAxKphva0yUJgd
-         USCgLf8QDNSkJjvqpxT+BbSF/Lye2i5CtWVcaAmXtqwCdRbHasEmx8DHIEwva2Xtai9w
-         HkI82kKS7CLBZdm7CSMB4nspwNr8kR2tSxsu77B8XHhoaulyTfj/GWVqaBqz+uM3Z3Tx
-         c0sQ==
+        bh=2/y5ui3U96hxQPLTOq5B3Eh3u82qp8u9V/kZ2vyW/LI=;
+        b=CyTiiDVgD2Q6puNJDGuqMIzU8erGJCd+RAIy/4bOjv9YVGW6Gr39fgBZwabUtb5hsE
+         ogfU7YWIZBM6Nto6gyVPbqzj9B5WJvqH3Mh8vyWw1rKyhOOswqpqt87UPbkTRCWUZuZt
+         /+KXLSY3PIROtHBAfsPrZEKSNcWYmKhNseD8lUwAALjNcxr44ws7GDouPvO8RDTc5vb6
+         AXUUmUHq9zRnGrRCv4LJSnKTYtv2nbFaz6Z+eFINE8ftmhx9azNgmDZGUYdUk2web+BL
+         Uh0ml+z8ZUvE7KHDmRTVptHO/WHSqA6jcEx6qaGC069vQQBlQdJQdr2CLN1Vg8uB7QFc
+         Wylg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737989414; x=1738594214;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=j+4PFphjG6BR9vrdCpxlvOY56GsX5BOUCbDC8gOl9Zs=;
-        b=ZgZl4+VO6uJF/Z2zWzZjG5VDpZYbDTIV32iY+xXvGG93JxK4WrEyr3D/VbKrzSstQt
-         2dNQ7QXbRQPMXvEsjXes+Urh1wpJJK9POJP6/gJqF1rGR2O5ybA1Psq5qb2raWvZpnCP
-         ljZ/SUJUVG47J2pUejY97bxb3xffnZe4Ol6MsYuhasJgxmAGnhgwh8sXZ9XGyRSsdI1G
-         LGx8NF1azLJr+JxuFJWNJLmkrTius07ov7eOmM5Paixhp4kI0v5wmpiaHegSIt/+kKzn
-         QEHLix8EEsysUmjnfCfRlDb2C4qknMvHJfSupxXiItYAdRtmFBErl2aEX4nHrMSWKN7l
-         DAnA==
-X-Forwarded-Encrypted: i=1; AJvYcCUNYBUHFQ0VgcrlTihmnsc8Ee2U9ZT81264ru5u3zvDOeZbNSCRAbCgztOMz2QpU+MXLpwvhA+wJw==@vger.kernel.org, AJvYcCWBF2Os3npPTCkJjU5PaCe66UO/qWJF6lEq6VMhmaKsulC2odYW2bx1BfQETQH6xyFoQ6bTpsq/@vger.kernel.org, AJvYcCWtUtV5P/yfKmmXD16/a0089b11dvKOXxbZwpVxf84Vxx2Dg6lUryeS1dJvyH9RQvWVqXNQ4t/Vzyfy4yBibMZ23s2VZEw=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwAJQB6AAlGEC29O8BN/HhzX4EASL7igIEC1FbUfYf5XLkLpOCJ
-	KogZTZZhcq6U7TSqpphYUMsAH6gSzryOyB8aUTXf58M9i++k9HwW
-X-Gm-Gg: ASbGnctfpAitHrpo/V7C2kCK8NjZWnTrfeIxNFWO5gHiu/Jtn/h0u9eG7smS0eSmePU
-	zdsyJJnfSLzWDgPRXrxuvAYbeQtnzkYenr31bVTpWr+V6yaHO2J1V8QN1W2qDyp21LIGrTh0Qpa
-	d05xm8aYZ4QVlcc3K4LSqz9bza+X00P5krgoxLdvhKv7kqyX1EfdIuctUVhvs4GAdW/WkrYbVh+
-	zwadorQRx59paOWTJZ/3VmzrrSadfY5SaT+7fto2pzxb5tDBgatQtwADIAnLi+bAdT1PuLm9ZNs
-	bvk0xLo3+87cpTPV21MREoUJdo7lx1b3hM3fKfQKegGWn39F2n7K
-X-Google-Smtp-Source: AGHT+IHiPK8GERIaHyGFAwU9SeGFw2Lt/7vnkO4qXmXaLxYiJ6qqJJKmrSbn29Bn7h/SuNMzrSVk3w==
-X-Received: by 2002:a05:6102:5249:b0:4af:e5fd:77fc with SMTP id ada2fe7eead31-4b690b5ba88mr36746604137.3.1737989414037;
-        Mon, 27 Jan 2025 06:50:14 -0800 (PST)
-Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-864a9af3a53sm1915095241.11.2025.01.27.06.50.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Jan 2025 06:50:13 -0800 (PST)
-Date: Mon, 27 Jan 2025 09:50:12 -0500
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: stsp <stsp2@yandex.ru>, 
- Ondrej Mosnacek <omosnace@redhat.com>, 
- Willem de Bruijn <willemb@google.com>, 
- Jason Wang <jasowang@redhat.com>
-Cc: Jakub Kicinski <kuba@kernel.org>, 
- network dev <netdev@vger.kernel.org>, 
- Linux Security Module list <linux-security-module@vger.kernel.org>, 
- SElinux list <selinux@vger.kernel.org>
-Message-ID: <67979d24d21bc_3f1a29434@willemb.c.googlers.com.notmuch>
-In-Reply-To: <e8b6c6f9-9647-4ab6-8bbb-ccc94b04ade4@yandex.ru>
-References: <CAFqZXNtkCBT4f+PwyVRmQGoT3p1eVa01fCG_aNtpt6dakXncUg@mail.gmail.com>
- <e8b6c6f9-9647-4ab6-8bbb-ccc94b04ade4@yandex.ru>
-Subject: Re: Possible mistake in commit 3ca459eaba1b ("tun: fix group
- permission check")
+        d=1e100.net; s=20230601; t=1737990044; x=1738594844;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2/y5ui3U96hxQPLTOq5B3Eh3u82qp8u9V/kZ2vyW/LI=;
+        b=jTvY3wY444hGMMDkSnzVJveW0GqhXr4gyrK/AUoOx5LJ9xpDT9gDUQeePFRiv3weBg
+         /xBVoLn2ZBsuWuYqS9xP5TDw+p8SOukpcTfJQAIJaDJMhfN+sUKjNyOWZDIvy1YT/Vzn
+         m07E2SyjmwhzyfYMG8DHymFO9tDuG7J9wGw4TbIfikgZREEruPPY8Fv3NXJu0a96U6DP
+         us0+ExrrA7bpvfJZaJUEwfhKfIY2rIcJwTEbym5G8ki5OZ0mvvsaDTelGWWzv/9p0DGd
+         BtGSf8fuY71zHgM9CiNeB6+ERmHu8nCn4wLlDaziEDU9wlrEyLgnlyZmvKL/fSmuHNeJ
+         8ajw==
+X-Gm-Message-State: AOJu0YzhgzenEDht/mmyLe9DThR6MPF7vvrgyDb5rIzSfxTJYqmO9kVP
+	guL2cY1wR3FNlIHauHIEHY3WDd0WQS1EJd5j4h0AFJXuoqSD14O6ziDsTIsf+pjAkp7erlT9SZn
+	Ro/UNwrpA0JxZ4Au3MlU2GHmn2wo=
+X-Gm-Gg: ASbGncuOjJqzIYwwxD4pzCxWN7nqXqrSFohcZiYrTRniKdTEPn+c6zXZnRnw1OgGGqU
+	YYkADcC31ZR+gLhpp4F4NrG1T9i9FFCEq/D2d47hzraTOs948UPRlS7S+C8u75g==
+X-Google-Smtp-Source: AGHT+IGJ4XqfcznHSLGuhROnAy/J97gnUEWbNKWHC7PFPjj6NYRikg8t8AQ9qFGSQyZP/cXVILI3i45JDN/DL8HtumA=
+X-Received: by 2002:a05:6a20:7490:b0:1db:dfc0:d342 with SMTP id
+ adf61e73a8af0-1eb21461417mr70950705637.7.1737990044339; Mon, 27 Jan 2025
+ 07:00:44 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
+MIME-Version: 1.0
+References: <20250102164509.25606-1-stephen.smalley.work@gmail.com>
+ <20250102164509.25606-6-stephen.smalley.work@gmail.com> <Z5b92VmV-tEM-MU-@lei>
+In-Reply-To: <Z5b92VmV-tEM-MU-@lei>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 27 Jan 2025 10:00:32 -0500
+X-Gm-Features: AWEUYZkSVrNQaLWAJKzePrfOzxhhY-RrUJlM3v4auf7nUlCRKOzKTgQ5M16FZmc
+Message-ID: <CAEjxPJ4kmttoP7=GvdX5f=oSCYBiB6MxHTKW9v=0v+Bq1EcvNg@mail.gmail.com>
+Subject: Re: [RFC PATCH 05/44] netstate,selinux: create the selinux netlink
+ socket per network namespace
+To: sergeh@kernel.org
+Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-stsp wrote:
-> 27.01.2025 12:10, Ondrej Mosnacek =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
-> > Hello,
+On Sun, Jan 26, 2025 at 10:30=E2=80=AFPM <sergeh@kernel.org> wrote:
+>
+> On Thu, Jan 02, 2025 at 11:44:30AM -0500, Stephen Smalley wrote:
+> > The selinux netlink socket is used to notify userspace of changes to
+> > the enforcing mode and policy reloads.  At present, these notifications
+> > are always sent to the initial network namespace.  In order to support
+> > multiple selinux namespaces, each with its own enforcing mode and
+> > policy, we need to create and use a separate selinux netlink socket
+> > for each network namespace.
 > >
-> > It looks like the commit in $SUBJ may have introduced an unintended
-> > change in behavior. According to the commit message, the intent was t=
-o
-> > require just one of {user, group} to match instead of both, which
-> > sounds reasonable, but the commit also changes the behavior for when
-> > neither of tun->owner and tun->group is set. Before the commit the
-> > access was always allowed, while after the commit CAP_NET_ADMIN is
-> > required in this case.
+> > Without this change, a policy reload in a child selinux namespace
+> > causes a notification to be sent to processes in the init namespace
+> > with a sequence number that may be higher than the policy sequence
+> > number for that namespace.  As a result, userspace AVC instances in
+> > the init namespace will then end up rejecting any further access
+> > vector results from its own security server instance due to the
+> > policy sequence number appearing to regress, which in turn causes
+> > all subsequent uncached access checks to fail.  Similarly,
+> > without this change, changing enforcing mode in the child selinux
+> > namespace triggers a notification to all userspace AVC instances
+> > in the init namespace that will switch their enforcing modes.
 > >
-> > I'm asking because the tun_tap subtest of selinux-testuite [1] starte=
-d
-> > to fail after this commit (it assumed CAP_NET_ADMIN was not needed),
-> > so I'm trying to figure out if we need to change the test or if it
-> > needs to be fixed in the kernel.
+> > This change does alter SELinux behavior, since previously reloading
+> > policy or changing enforcing mode in a non-init network namespace would
+> > trigger a notification to processes in the init network namespace.
+> > However, this behavior is not being relied upon by existing userspace
+> > AFAICT and is arguably wrong regardless.
 > >
-> > Thanks,
-> >
-> > [1] https://github.com/SELinuxProject/selinux-testsuite/
-> >
-> Hi, IMHO having the persistent
-> TAP device inaccessible by anyone
-> but the CAP_NET_ADMIN is rather
-> useless, so the compatibility should
-> be restored on the kernel side.
-> I'd raise the questions about adding
-> the CAP_NET_ADMIN checks into
-> TUNSETOWNER and/or TUNSETPERSIST,
-> but this particular change to TUNSETIFF,
-> at least on my side, was unintentional.
-> =
+> > This change presumes that one will always unshare the network namespace
+> > when unsharing a new selinux namespace (the reverse is not required).
+> > Otherwise, the same inconsistencies could arise between the notificatio=
+ns
+> > and the relevant policy.  At present, nothing enforces this guarantee
+> > at the kernel level; it is left up to userspace (e.g. container runtime=
+s).
+> > It is an open question as to whether this is a good idea or whether
+> > unsharing of the selinux namespace should automatically unshare the net=
+work
+>
+> Is there any advantage to not enforcing that?  Something useful it might
+> facilitate?
 
-> Sorry about that. :(
-
-Thanks for the report Ondrej.
-
-Agreed that we need to reinstate this. I suggest this explicit
-extra branch after the more likely cases:
-
-        @@ -585,6 +585,9 @@ static inline bool tun_capable(struct tun_str=
-uct *tun)
-        		return 1;
-        	if (gid_valid(tun->group) && in_egroup_p(tun->group))
-        		return 1;
-        +       if (!uid_valid(tun->owner) && !gid_valid(tun->group))
-        +               return 1;
-        +
-        	return 0;
-         }
-
-The intent clearly has always been to allow access if owner and group
-are not explicitly set.
-
-It's easy to see when group support was added in commit 8c644623fe7e
-("[NET]: Allow group ownership of TUN/TAP devices."), and the even
-simpler check before that:
-
-                /* Check permissions */
--               if (tun->owner !=3D -1 &&
--                   current->euid !=3D tun->owner && !capable(CAP_NET_ADM=
-IN))
-+               if (((tun->owner !=3D -1 &&
-+                     current->euid !=3D tun->owner) ||
-+                    (tun->group !=3D -1 &&
-+                     current->egid !=3D tun->group)) &&
-+                    !capable(CAP_NET_ADMIN))
-                        return -EPERM;
-
-
+I'm not aware of any other namespace that triggers automatic unsharing
+of a different namespace when it is unshared. Patch 32/44 ("selinux:
+limit selinux netlink notifications to init namespace") also makes it
+unnecessary to unshare the network namespace if you have no other
+reason for doing so.
