@@ -1,127 +1,108 @@
-Received: from mail-yb1-f171.google.com (mail-yb1-f171.google.com [209.85.219.171])
+Received: from mail-vs1-f49.google.com (mail-vs1-f49.google.com [209.85.217.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 817821DB361
-	for <selinux@vger.kernel.org>; Tue, 28 Jan 2025 16:09:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA79F27452
+	for <selinux@vger.kernel.org>; Tue, 28 Jan 2025 16:55:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738080542; cv=none; b=kdkC5FEQM+py9vB7GGPurksMwjhMhnD4B5h5ydjRvJFyZnk8p52HoNddAQj76aXNW2rcuFVpFlDiTrEaPPsSL4naHfecU+V6rxF0q13y6zhXNQiWiaf/f66AXdcNfd4ViVQJq5hocnY+OqB7a9wJUoyWa0wNnXNwOsjVZXdb46k=
+	t=1738083309; cv=none; b=W5/yxBZjN3Lyyit7suhvnXZYfOtHIbhyWG46w1OT7oCTS0tJDnSpw0yoRaDD0NuzoGCpoOM1nBe0LP1RnZgGL2sPf74SPoITyac7ST3Mfe2jPoLK+k5Zqws/6ty640fwE86/ba0v1wzgEe4IJhr2NSQ/kaFVWDxA34tC9f/8jr4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738080542; c=relaxed/simple;
-	bh=Dn0P45VrKtJdMb5KPwpO/NtVS716d73WlS+6htsC3M4=;
+	s=arc-20240116; t=1738083309; c=relaxed/simple;
+	bh=WljSzM8rOU3ggTGDfUKs5i4ksmR0f629Z7Xt/1pKCSo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nVEPjAJQtSonuQNdPlUpq4Na5AQo9J8DW+pz2XTIZxpufLSAM56o4tVzIyn7k1wgcZaRy5UwBnBj4aUpHsQjZy9wzKpB4HXAcvi01rtsCl/bopfazn/Xn7vnxyYwMHRfH9FnM3v5wIucb3dJTZhfwWJXtZv8NTfZkFKfC7iMfLc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=f9QMIkQB; arc=none smtp.client-ip=209.85.219.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=RrYLHuVh5Sudu9lnfCOknXqGRbw5y0HFa+Pq9c/Fp6rwRwh9tEueF4CTQe15x7Yspw0fZgAXoU2f5A6uvjprSHQ/kTGTvGx2gSxlHmuZ7Qa15IlBdHmg/PhjSr5scIbLCWSZBBB6kAs0aQiGGb/RNbZVthkTOVkGSgFxgY1i0kw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YplcAkyU; arc=none smtp.client-ip=209.85.217.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="f9QMIkQB"
-Received: by mail-yb1-f171.google.com with SMTP id 3f1490d57ef6-e5773c5901aso11082086276.1
-        for <selinux@vger.kernel.org>; Tue, 28 Jan 2025 08:09:00 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YplcAkyU"
+Received: by mail-vs1-f49.google.com with SMTP id ada2fe7eead31-4b60c221587so3330387137.3
+        for <selinux@vger.kernel.org>; Tue, 28 Jan 2025 08:55:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1738080539; x=1738685339; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1738083307; x=1738688107; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jPuvl94gfBPCbR4KZpc49Kx/KlsgzgdO3rR7H34hrp0=;
-        b=f9QMIkQBg2gyT2laHiH2ElTV/E6ZkgCG/Vbn88nt/DNEebNclDyhcFwWD8KrU/yPl2
-         TcHF4j8xMXdGMv8JGJLypCRNM1ijJAg6Os5gXT56eSn8t9hJOs6zfOfZxj1oQ1ZJqFct
-         WOIjFFrFQ1JnYHPvgxTy05REPIsxG7gdXwLG7gEI2kBZC1Z+cvO6+L1uWemZTflyk2ms
-         8lX2GJNtdpywrnJkwK2ezqy+CVLcJh261nIpUOV8xD0SId04lGFtSrwg2eIMAGW+EsYH
-         YiEJBhewJ1rqQwKY8WbZref+vzI8wZge/gf5EUvRbPz+dnKheD9yedf3s1+zLmg9ok78
-         I7Ew==
+        bh=01WBDB08O17Uc78F7jlYNIhW1MEMZthkNiFwxqp6LLQ=;
+        b=YplcAkyUebKpSN3VhSzeEA+YQIY7nEaAvDPOGaCzSDFVqPisbriWLyQTM9j1C850D8
+         0SRKL1W9AIcqM1Ye1TgP+7U8qzcyhv/IZFkhIXmrjfT4c+zXJP5Rmvvp+xIyzJOnhp+R
+         X6gVcaejuy8sChpEs5KEj3t/tePDZAn1hBHFxxJKGQtliwkQMjMXj4ckm8tQ2XZJ1Q6B
+         5Qtvuwy1I4dNLtSfUtgHnb3eCc0GSxKkTp2RNwYL1OJp5kQez0UlHfP727QOC8TjLiu/
+         4B0dLoFGuTpH8ymHX5D/Qa2l8MMVpLCKxAga9h46jWIhr0YHSj6gjI03uvc3aXI2NGwT
+         1RoQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738080539; x=1738685339;
+        d=1e100.net; s=20230601; t=1738083307; x=1738688107;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jPuvl94gfBPCbR4KZpc49Kx/KlsgzgdO3rR7H34hrp0=;
-        b=GGfCx+uHpiI0c4xZktwdvN1TmTU2MTqvoJVIbI9l0Jhewz6rPYYaQtDMuBSin0DhSG
-         iFu9nvCLu2PlSB/hNTjdRXmgKzZx/Z39dA0tgu1uxn+O/SNS8i89UyTi856G7se+qz3U
-         CXxQjZH/iLmYdifrwt/hgve/6OOEgsS2l8Sw9BklUOFJe1HpsWeQjinTN6YVh/+l0MOA
-         XTPATQSe2P1htuasET8sjMnJvQYGZ3xSwmpUt353kV059zjWycHV+xfZjDwe88+L2Za3
-         FSndvMeQXPV2uD+c80+cMJSfisKTFaYxL+V5I4e4rOfOtd830b9i/ENoZ/pKYi3nVysu
-         /eKg==
-X-Gm-Message-State: AOJu0YxyOsR73uVDh8itdBLytXjxiKL0bAFJRn1qoLkqDrRUmVID5lJN
-	jZ/ZI7b/j8p0mJh6GDV0athtNLXRbValHbX9ppJ+Y7Yde/NRI2VVslDjiKzBc1TLaW5v+WStio0
-	LdFOphwMzj3IZBoqI1RolOFUugG0F9a5Pqg8FChnr+2/0r6o=
-X-Gm-Gg: ASbGncsIbsPE2eYfuRHYsBqJCOKOL2QoFEmH+jQCZFP/cItfRf/TGJejXGbSO9Bkk8R
-	7lR19gLJJn4kTndjZgsUVyu2U4gQQ8kBsrFC+TlX67xWERb36l2VFcIczIBzvwDMsBf/Mugul7B
-	/HHwCOmQ==
-X-Google-Smtp-Source: AGHT+IED/Gbba9B7p/2hFPyhtW0fOM2RLr2wPghcCKJ4pIetyeP13UWaaS6GHk0rqv5KsjZcmPRzrGprGQmNMQgyzR0=
-X-Received: by 2002:a05:690c:6483:b0:6e2:fcb5:52fa with SMTP id
- 00721157ae682-6f79769a31cmr30457447b3.9.1738080539421; Tue, 28 Jan 2025
- 08:08:59 -0800 (PST)
+        bh=01WBDB08O17Uc78F7jlYNIhW1MEMZthkNiFwxqp6LLQ=;
+        b=dpjjFLNuM02x5FjNgftSb/5bN3xp2dn4EwaNBhVOZC9XR3Q+MficvI5KTilp2aM8HF
+         WZ65W1NB5e3Wy39myfw8UozCY4P8f2eUHoXBNEIgpv27fyQ8+DbxZYbz+XK4i+L+vEtL
+         JWz5fI44f0QA3AYWyfUlVrNMirUF2DuHJF5+dXowG2kX4owapoXBMvzBxsqJ4vcItoVS
+         xcEjUy19oRfKtM/sLvk+twnqWWgemg7aFR37FNuaUUh2sFN3v1OoJbZDsBeVhf+oxOLV
+         zI3i5BINDyCX3+cOopcZ9kZWRjIqCTgnN+sl4faB0+ASytzgzdaQH2bwkgXvQ5b3evrl
+         X/BQ==
+X-Gm-Message-State: AOJu0Yyjamt6rPHtAGj4/xaLW6N9fDYdjh5F6+38NslsHQA2PIqOSwcv
+	p550l9i7BbM5ArI3VEeDaSOJLGm1wZsCyFJC9j0Q2msQdrYrZ0kZXs2YIDSwzycWv9hWhUcG1q4
+	BiiSvaUw1UD17Fd1A0cublkpfbM+lXg==
+X-Gm-Gg: ASbGncvsNvLZGtQ+Wa4hYVjqWg/UL2ZkYrKLdSOgpGZY4HgExchVXuUB7/Uh2GzGd+U
+	socMK1EOMtCMHJD5GvwTni5d9PDx21IQvrKGcLsyjOza1gHx+NlemKA5fp8wqXFXdv+ZLhCyC
+X-Google-Smtp-Source: AGHT+IHj3WmwZppc5CyB/urJY61Gz66q6lrwh43dU2p7Afo70u7UwOaZccDCC+qilEIcB2Xw80QnpN2KP1FbuGtinkM=
+X-Received: by 2002:a05:6102:390e:b0:4b0:c214:fbd6 with SMTP id
+ ada2fe7eead31-4b690cf688fmr41100962137.23.1738083306862; Tue, 28 Jan 2025
+ 08:55:06 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAFqZXNtF8wDyQajPCdGn=iOawX4y77ph0EcfcqcUUj+T87FKyA@mail.gmail.com>
- <CAEjxPJ6OrkBiw8yAzpV6_B7a5kusTYHgvGs=H_f-qZhNRNR-dg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6OrkBiw8yAzpV6_B7a5kusTYHgvGs=H_f-qZhNRNR-dg@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 28 Jan 2025 11:08:48 -0500
-X-Gm-Features: AWEUYZntZh1rQ4aAcMTn9BWT81e46OyE1Im3MluLx2BVhLwcxqq99uCDHDpaPq4
-Message-ID: <CAHC9VhRj4CWBbSCEiznjNh_WaHr2vEGB-_Xem=VqRyptR=MtGw@mail.gmail.com>
-Subject: Re: ls from coreutils 9.6 doesn't show labels of some files
-To: Ondrej Mosnacek <omosnace@redhat.com>, Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: SElinux list <selinux@vger.kernel.org>
+References: <877c6f83bz.fsf@redhat.com>
+In-Reply-To: <877c6f83bz.fsf@redhat.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Tue, 28 Jan 2025 11:54:56 -0500
+X-Gm-Features: AWEUYZmoXIhYSC9AdvDaCM8Dy49VwmkIE26NITQeowK3mEPC-pFI_mhxQNovAEI
+Message-ID: <CAP+JOzRcyZZFA8BL2tWy4QEe9OLODcWDM_jdr50=2nM4244pgw@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/2] Possible solution to possible regression
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jan 28, 2025 at 10:27=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Tue, Jan 28, 2025 at 10:12=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat=
-.com> wrote:
-> >
-> > Hello everyone,
-> >
-> > In a recent commit [1] that has already made it into the coreutils
-> > package in Fedora Rawhide, ls changed the way it retrieves security
-> > labels from files, which causes the SELinux label not to be displayed
-> > with -Z for some files. It seems that the key difference is that it
-> > now relies on the result of llistxattr(2) to determine if the label
-> > should be retrieved and if security.selinux is not listed, it just
-> > prints ? as if the file had no label. On some inodes on some
-> > filesystems (e.g. the root inode on tmpfs or most sysfs inodes),
-> > however, security.selinux is not currently returned in *listxattr(2),
-> > so the labels are not shown even though they are there (and would be
-> > returned in a *getxattr(2) call).
-> >
-> > We can of course ask coreutils to go back to fetching the label
-> > unconditionally, but perhaps we should also/instead fix the
-> > *listxattr(2) output to be correct? IIUC, in some cases it's a matter
-> > of adding a security_inode_init_security() call, while other ones may
-> > need a hook for listxattr that would inject the security.selinux entry
-> > when it's not returned by the filesystem already.
-> >
-> > [1] https://git.savannah.gnu.org/cgit/coreutils.git/commit/?id=3D4ce432=
-ad8738387f1b2e80e883dc7080df3afabe
+On Tue, Jan 28, 2025 at 8:39=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.co=
+m> wrote:
 >
-> There may be other side effects of that commit, e.g. loss of context
-> translation if using mcstrans or equivalent.
+> James Carter <jwcart2@gmail.com> writes:
+>
+> > As reported by Petr Lautrbach (lautrbach@redhat.com), commit d96f27bf7c=
+b9
+> > ("libsemanage: Preserve file context and ownership in policy store") ca=
+n cause
+> > restorecon to use old data.
+> >
+> > Here is a possible fix. It seems to work.
+>
+>
+> Works for me. Thanks!
+>
+> Acked-by: Petr Lautrbach <lautrbach@redhat.com>
+>
 
-Out of curiosity, do we have any idea of the motivation behind that
-change?  The commit description is poorly formatted, but it looks like
-a number of changes that are only loosely related around xattrs with
-the only motivation appearing to be in the subject: "use fewer
-xattr-related syscalls".
+I merged these two patches adding details above about the commit that
+caused the problem.
 
-Regardless, I think Stephen has a good point with the potential for a
-loss of translation surprising some users.
+Thanks,
+Jim
 
-> WRT to returning security.selinux, selinux_inode_listsecurity()
-> already includes the SELinux xattr name so that should already be
-> returned,
-> unless the filesystem implements its own listxattr handler for
-> security.* _and_ doesn't include the SELinux one.
-
-I can't think of a good reason why we would ever want the *listxattr()
-syscalls to not provide security.selinux, if there is an individual
-filesystem that is different/broken in this regard it should be
-treated as a BUG and fixed.
-
---=20
-paul-moore.com
+> >
+> > James Carter (2):
+> >   libselinux: Close old selabel handle when setting a new one
+> >   libsemanage: Set new restorecon handle before doing restorecon
+> >
+> >  libselinux/src/selinux_restorecon.c | 4 ++++
+> >  libsemanage/src/semanage_store.c    | 5 +++++
+> >  2 files changed, 9 insertions(+)
+> >
+> > --
+> > 2.48.1
+>
