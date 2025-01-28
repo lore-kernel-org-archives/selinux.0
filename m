@@ -1,53 +1,53 @@
-Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
+Received: from mail-qt1-f171.google.com (mail-qt1-f171.google.com [209.85.160.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39E102F29
-	for <selinux@vger.kernel.org>; Tue, 28 Jan 2025 12:42:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 019A119F111
+	for <selinux@vger.kernel.org>; Tue, 28 Jan 2025 13:37:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738068176; cv=none; b=qrNuQk5f+WhpzNHP3CdgaIfZ+qHyc27+rJahO6Nt3808wuP3ky7nDw4y8ygrueyYyEkiPVtg/JNB4F9b+RWEFmki5dgJiytV0QXvSQUTQ3QeB6KSCDkh3ljn0+2lxSas20WD13PYGcK2TstsZlx4fHPY7yetFTjUpgraEPMkE3E=
+	t=1738071434; cv=none; b=VpWw5iLJ4J5gC9Y3xxely6bCXpPasMp/esgvVwLsi7O5qHRe3ph6mivN+BtLA+8eGWEkaYwLQJssNbstVeBoc5SbfImTj9rl0yQAZZaIVTcTK//LGAJVG/RfSrxc3DO/GT663suNJdccKUgrELGpzrftqHy2ZTkdxCCv/C6AOTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738068176; c=relaxed/simple;
-	bh=i4Ih4yOsCitMuKZsbd4LjFylOAQUX1g8j4CPdMxyPDE=;
+	s=arc-20240116; t=1738071434; c=relaxed/simple;
+	bh=za4jWSIXiWnx1/PtIdrlQUWfgRWi88/FEbsBClDq++Y=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nAmesXkMt9PDdpCSpM0FqNXj96e/QfgrPDx4vfgdaIemMejuUhBaJG9CK759FkVM6mtMHblyOhXOKtpErNJkJP0Vw5TKwB2FhWTGnYwEN0qaJZvGygGOWJpHT7waIwZk3O9lFNo22Max3LONtsXIiOKHczCyRq0cE9AQ0Pj/82w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=OKUl7Q1q; arc=none smtp.client-ip=209.85.160.174
+	 To:Cc:Content-Type; b=NbOl1s3n/i92pAuw1mNcs3q1Kzb2d9khNgR3Wt9SZDySsg8VmeH6GxVTRKfprIRcRPSpviCQRUKgzJat0Ya3lnvrHH141feKbL1ocvibLopGeb71g5zAocHejP1HSzR7MzlZA033eRDGMbUkz11gE462I1fN25gDEzAapx+phAM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu; spf=pass smtp.mailfrom=szeredi.hu; dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b=BM/I/aVo; arc=none smtp.client-ip=209.85.160.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=szeredi.hu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=szeredi.hu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="OKUl7Q1q"
-Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-467b74a1754so76187651cf.1
-        for <selinux@vger.kernel.org>; Tue, 28 Jan 2025 04:42:54 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="BM/I/aVo"
+Received: by mail-qt1-f171.google.com with SMTP id d75a77b69052e-46c8474d8daso44604901cf.3
+        for <selinux@vger.kernel.org>; Tue, 28 Jan 2025 05:37:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google; t=1738068174; x=1738672974; darn=vger.kernel.org;
+        d=szeredi.hu; s=google; t=1738071432; x=1738676232; darn=vger.kernel.org;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=P9Hjz/HBikG9/lKNWOcgvjSfQzXvtdwqalUBjRJ0K+I=;
-        b=OKUl7Q1qkBRpl6L88ox9Yk92wtAsOuVo5IayOUU/hzGVgf3Rjjecryl2WT1lZFfS+E
-         35FcxVpBKuvDaSdC7AJdwWVFVzBNhQqmFJAiwmz0BfFiNYgIRVTYuRuHS49codimYGWh
-         YOqM3wAb0i8y6dAuFhqKpLnsBaAxtDrfuqFOQ=
+        bh=cEBqaIaDwYzpAfJb0Xza7F8apQH4HtqaJ+JjUwM8mEQ=;
+        b=BM/I/aVopvQmXAAU9Lx1lLYfIsFez4u45iXCOilKTl7APoK/QCR33ZVougxbmZ2gci
+         TW171voLB67P7eFXO54deYTFS2jCJ+VRUj7eNV1ZJS2fV++Ldaw73t7+w1eywC/EUeKm
+         eH/YKXNOz+nYR/rWsYV+53sm75gtKTIAmL3PA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738068174; x=1738672974;
+        d=1e100.net; s=20230601; t=1738071432; x=1738676232;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=P9Hjz/HBikG9/lKNWOcgvjSfQzXvtdwqalUBjRJ0K+I=;
-        b=fad46/EJ/7U+KLmmn9rOSqYKInYrkQ7XWGfVDDQSCMNywoIYQDhi891tRk8OdrulhS
-         NSDOm26pdkShbhwwLFAJP3S0b+OlTdO5SF6ZQQ7XSFp4Vrz+02evQxYrTbZ1crKZEsoq
-         Oin1YnrDrzS+7th5rhfFScrTtYqQp1975Rt56yuVDau0rQRgETAx4JHxg2uffwUAsIpy
-         EToVT49xp2trAPpVlaowVoCenw17mpYom7qydp+Z7YoER3KZt7IL5lBxAqkAwv24Tm/I
-         IcTtZgLrqd/3TV80g970ubbFQURB1IJMnPl2w3zdtaZ8Ju5p1ek5ja5UJs4dIYw1fqi7
-         gJRQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVwy7xi9mra/xLN0aluvOqsxlcdebnRDowHMcWVbTxgpB+YFQpDLtOHlLJIIWuc+UcZSv+LWYqA@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzg2uZZpDgftC6N9Rj1a4CtVpN6iFmX6rR3Q5XTeEkiMca1mxZw
-	WoilK0RhDmN9lvD+HsY1BF2uha0WHFBdhfTJNQ/G3lbKncB6EgYMM33Ahs32sq/aV/N20jl/D34
-	2fIxK6A80R+naa2QRYHMnDZfUuOaiq1yCaLk1iQ==
-X-Gm-Gg: ASbGncvYLAyzNygMiAXWtCl5qBPSzGHmNXMBr8JfbUttElyoP1NTwjLMWEWqwewkAtH
-	pqL4DqFmd7mF+LqXPG1F1ufBTIHasvbQN+KY2oPBrnFE5IaBzUK8YPhUl0fTvksLni2+1zGU=
-X-Google-Smtp-Source: AGHT+IFHqb1dD1KZwsa+gpNM1NJUXqlXL4Uhb8XNRH7U63qw4cN6AM1D6ndQnVoLZlpWFWSgCzZ1R+5zN2z1g9INqw8=
-X-Received: by 2002:a05:6214:590a:b0:6d4:22d4:f5b0 with SMTP id
- 6a1803df08f44-6e1b220a5abmr649661266d6.33.1738068174227; Tue, 28 Jan 2025
- 04:42:54 -0800 (PST)
+        bh=cEBqaIaDwYzpAfJb0Xza7F8apQH4HtqaJ+JjUwM8mEQ=;
+        b=mrs2Hrj04oKjbh2sfQzVMWyEdak2CbI7EUtAhSFW7j8x2r2VOFgH0xyaX24prIFi7V
+         DubuN2c58XRMzYA7yYyKFcfJ6jD34IOm7ciR9dZD5aqWl7wEKBCBlMWuRXaXS/ZrahSY
+         ouNVgEwXnM9rkp/ldQtNyOxAECuzVbEdMxCzA6aRvipP5qc5cwQ8QiAd0LF8nX97FlA4
+         vmnJiz/shRysDfyuu6tYe8LXvR7hI9MrPvRA7VQSAGlArzcBOc/M1kQ6aJgvup0NY8y3
+         /qncObbBdTv1GkLDX3jG54eOafi9dF0TL5/SumMVB0hgskmrCqrkeoRp6/s+IKrnTxv3
+         C/QA==
+X-Forwarded-Encrypted: i=1; AJvYcCVuX0mS70HxAZw2486hgplis8we39gstsxt7KOZtTvsf/xqZ+iIBwfnBpr7V9BbP1bUBw5nZG+u@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx1J7hlu0UOso+AmZ9yf1RTZkenhqezxFbMOMUSqp3ISQNXdqpE
+	cxWcIOMr/rliZLcujt7siG7qqgWptD5ReObj3YrOlpizotkjDwLLcyj/bfAIeJ0hfCOSPcvUgsu
+	L9dsKYeE06IWiOqdlkyup/FgJf+H1dBP+mseaXA==
+X-Gm-Gg: ASbGncuMAlX6yaQg3VJcojuXjFoQG59ftXxr+t7S0C3bLvGGYp3XDXzuvyqcifIvNsz
+	wM9trNbEEOk5Q+I8evgz9EcL94ybAvR2NRXFC/WjfDDZul4aM5lGiP0ThU6rhBJBhMZYts7c=
+X-Google-Smtp-Source: AGHT+IFWTIAnK+5eL7HyrGG7lpTg04Tgrx5YKQ2A5MNEXhLez1EsL/JNf1CxyLCjHr2w2Q9lyVqeWMCdUDReSZN1y/4=
+X-Received: by 2002:a05:622a:1311:b0:467:5eb6:5153 with SMTP id
+ d75a77b69052e-46e12a3f746mr729277911cf.19.1738071431912; Tue, 28 Jan 2025
+ 05:37:11 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -55,12 +55,13 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20250123194108.1025273-1-mszeredi@redhat.com> <20250123194108.1025273-3-mszeredi@redhat.com>
- <CAHC9VhRzRqhXxcrv3ROChToFf4xX2Tdo--q-eMAc=KcUb=xb_w@mail.gmail.com> <2041942.usQuhbGJ8B@xev>
-In-Reply-To: <2041942.usQuhbGJ8B@xev>
+ <CAHC9VhRzRqhXxcrv3ROChToFf4xX2Tdo--q-eMAc=KcUb=xb_w@mail.gmail.com>
+ <2041942.usQuhbGJ8B@xev> <CAJfpegsKWitBYVRSjWO6O_uO-qmnG88Wko2-O+zogvAjZ9CCxA@mail.gmail.com>
+In-Reply-To: <CAJfpegsKWitBYVRSjWO6O_uO-qmnG88Wko2-O+zogvAjZ9CCxA@mail.gmail.com>
 From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 28 Jan 2025 13:42:43 +0100
-X-Gm-Features: AWEUYZncrMihch-xJFLSWbspT9bam0hgksBqzvIpiATyQ_1noZ-r1ZsPAgPon9U
-Message-ID: <CAJfpegsKWitBYVRSjWO6O_uO-qmnG88Wko2-O+zogvAjZ9CCxA@mail.gmail.com>
+Date: Tue, 28 Jan 2025 14:37:00 +0100
+X-Gm-Features: AWEUYZmizeJU0a7RXrBJlqhjTqK1mNWtSBDQH9Nt1-ZaM-h_jUVyMC5_wxbnhOg
+Message-ID: <CAJfpegs7n5eO6yOms+_TqeXGrN=OaJbjRB9qVm4VsW7JpWG5Xg@mail.gmail.com>
 Subject: Re: [PATCH v4 2/4] fanotify: notify on mount attach and detach
 To: russell@coker.com.au
 Cc: Miklos Szeredi <mszeredi@redhat.com>, Paul Moore <paul@paul-moore.com>, 
@@ -71,31 +72,15 @@ Cc: Miklos Szeredi <mszeredi@redhat.com>, Paul Moore <paul@paul-moore.com>,
 	selinux@vger.kernel.org, selinux-refpolicy@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 
-On Sat, 25 Jan 2025 at 02:17, Russell Coker <russell@coker.com.au> wrote:
+On Tue, 28 Jan 2025 at 13:42, Miklos Szeredi <miklos@szeredi.hu> wrote:
 
-> What's the benefit in watching mount being separate from watching a namespace
-> mount?
+> fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,  FAN_OPEN,
+> AT_FDCWD, "/proc/self/ns/mnt");
+
+Sorry, this should have been:
 
 1)
-fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,  FAN_OPEN,
-AT_FDCWD, "/proc/self/ns/mnt");
+fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_MNTNS, FAN_MNT_ATTACH |
+FAN_MNT_DETACH, AT_FDCWD, "/proc/self/ns/mnt");
 
 This notifies on mount and unmount events in the current mount namespace.
-
-2)
-fanotify_mark(fan, FAN_MARK_ADD | FAN_MARK_MOUNT, FAN_OPEN, AT_FDCWD,
-"/proc/self/ns/mnt");
-
-This notifies on open events within the nsfs mount (proc uses a kernel
-private nsfs mount, so all accesses through proc will trigger this).
-
-The latter doesn't really make sense (these files are not openable),
-but it's doable with current kernels and events on the failed opens do
-get generated.
-
-So overloading FILE__WATCH_MOUNT might work, but it is also very
-confusing, since watching a mount namespace and watching a mount mean
-completely different things.
-
-Thanks,
-Miklos
