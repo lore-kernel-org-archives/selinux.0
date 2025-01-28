@@ -1,239 +1,98 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 485081B4159;
-	Tue, 28 Jan 2025 15:04:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0535742AA3
+	for <selinux@vger.kernel.org>; Tue, 28 Jan 2025 15:11:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738076671; cv=none; b=YHmvbCL2sEeXMnSDoyKIU6bz8yznTzgpiFwbOZZalawNTPkXfiT489x6wheL5Cyizm2uxz40XvrH9qTp5/rgkmN2CuQw9jgc6Rsal2G+5GMyKqFEgZtvEVUKVikTh6mZEDbYVSU5dKedXIbbauV2/D7gYRAr1DRdm8H3Mazc8M8=
+	t=1738077115; cv=none; b=nFluAow7UMOnyYFq0hP48IafvHiiuDLaW+Kdbfa21VZE5CxrG+7UJzc4wauco39nRLsU86aKR7/y0o5XmZa1DP8ZciC1uzPB2de2iJ43bPPpi54eVfNTN94eQfJWtqFjucSw2lzrvO9coxsIRJeyVRUGkLxTRe6l/TVOyGcGUVQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738076671; c=relaxed/simple;
-	bh=BG50g8Dxwewc6NTA4uGnAnCRjwxyPVrmOaMneGiCKjo=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=FpsQ9AAQlAxv5KMgoNiP3DIBzAq44K5XNxYxMjUDKhSg1qQofD9NXeJGr7izKAYJ/6pRXb+64vW2A/2FwkyF0y/bBd1WZsj3Mg9/iErGhLsahenMjFkADFOrZe569tYFcUq8B2Bd1jCRJ7QijgPw5ZKqkbPIZb8v3D5zIEQzVSU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dUUx3+2a; arc=none smtp.client-ip=209.85.222.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1738077115; c=relaxed/simple;
+	bh=U19G9rYas4O7o6akb2ZeMMsqjbJm5q6So25IGH3ve4I=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=Nw8AUxX7GvqTBv9cw1U4xcHNY2uY+yxDTYJI7OtxDuSIhY7R6wq8mtM1rdJ+5/NnQGpoiDbTd3TIzKaC5DlM0RrAKQ+XJ253iMvrjOqc2Ob/E3/SvFbZjCL+WemkpmMkDNhWrWtbaRey/Q8bXv8TKrUs+RtoL4RUlAmmMGWO8Aw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bfZuUE99; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dUUx3+2a"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-7b8618be68bso554908985a.3;
-        Tue, 28 Jan 2025 07:04:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1738076669; x=1738681469; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vGB2ywVgwZKvqhNWmwKN2lR7K6Sb/8MtlbD/h+nPQZc=;
-        b=dUUx3+2aEDucRjPHO3o8lp6wjOkfYh57/QUaDMTdD1OOFNaYLdVc9xbuTIzPZ7tEVr
-         Nag3uDJd+apWj9Lp1X+H7guKl0OPo1gNw+ECwp6hziIDL+mhWMoLcyO4k21Av02NTNvO
-         vYajf7j+iqLaq1ReocGJMm03BDCqVhJuf1k28zjGKvztyP5gFviWj5cTzqLuQ9QFQmRb
-         5PnySgmuV1zU9VoCYwrzbhEVDK8BPR+S28q3mSuRPzipV1xlnYn6jvnRTp+P7mRR4+9p
-         h+MfzZosf3pnory1hbMBPtP7S0h0GoDMMiRDOJzDWd30+s483S4hb4BSmLMxKvHRyJWG
-         63aw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bfZuUE99"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1738077112;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type;
+	bh=PmEnc8aZMvudVyRuXVLEdlDFEJU60rJysidCyVa3v6g=;
+	b=bfZuUE99L5SzCX33v04XG2SJoE0g2om/AeVDoVcjdq52wG1lU0G01FebkSD+0dMj32Uq8/
+	7hG7Vogl9AdYVuHCWG+h6fJ/4jr5GRwIZeEk8W+6O2i4XnZkd1wHF4UtNQg/HpnfFkhCAU
+	gU7TVntSvsZOIXJDffKbnWEeaodawaU=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-260-UWW1p_17PA-W4qJ9wrX_jw-1; Tue, 28 Jan 2025 10:11:51 -0500
+X-MC-Unique: UWW1p_17PA-W4qJ9wrX_jw-1
+X-Mimecast-MFC-AGG-ID: UWW1p_17PA-W4qJ9wrX_jw
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2ef9da03117so16146022a91.1
+        for <selinux@vger.kernel.org>; Tue, 28 Jan 2025 07:11:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738076669; x=1738681469;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=vGB2ywVgwZKvqhNWmwKN2lR7K6Sb/8MtlbD/h+nPQZc=;
-        b=uyk02WCxt9plnDsP/j65gwb2f693bsPUY0yAcxdlgoKiMkFCZvj49RWWs4gdygycqL
-         y0mtqNtHzne7x+9/54DAxEc2kf6mrO/aD0vdOp9dgUUwixtGyVLWZZJdqnyqrH5qFbGa
-         V+MbBt2MF4w8zT4Le3F6lPCioFGFrLC0QbtSSeLz3Y+bZQzeVAII6hnHnVTTe1tS6K90
-         dq3UjOEMwr1Y5yIf03IAQ/pJ2bazs1+dPqFrRX+VQWkk8fkGJTF6spUQUuFqKWzxw88H
-         tBS00dGZ076Jdim7XYEcJfEY1MUfDkm3fNgr0BH3rln0gJq40LTqgG97S2i+23b18tvm
-         cL5Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUl44Zhjp1HhYHd4Ajq0RwKwCbXGHlM8qSS4AjGDd3u9lfEzf44/c2luAsXKJ6XLvD0yHd0UTMh@vger.kernel.org, AJvYcCWG6/vRkE5InBEb+0vPgYCcfAPGZ9by96lU1MpjmTb58/m3VSsBtie2RdxJosZHHVpouz1KP2EO4g==@vger.kernel.org, AJvYcCXaGXu7GMwCagb1+ddTriNT+JDabxLgCY/0tq/zQQmYMpl5SNlYXHa3K/Ux8TaRP2IwxmsCPtThvDcWFrTn8Y4KHDyvdmU=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz2CpJFlaLoOwCSyBvkDP28tYGCnoDLcVQNwFkpVMeN1j5DcKs9
-	DR1TKqdIHNwg1jfS3ddq63GW32i317NQCSR8PGAWumGTqEX2uUHOL3DMhg==
-X-Gm-Gg: ASbGncvejabWF6Kcnb4pKRqFnJovFv28rn6dnIClwGcBjGxAcFQldp/lpZkIyZ6dfpp
-	+imejTe8Ig3oqUEtWTBwKdTX69QnB4i/vL9jn/UWYTjttmLw2JLNQahFrmF5KhkbvaV2Q2gqhxb
-	f9fWLBRv4+KiyDoWmkQCT0ATOXO6wwVgjMAB23EqKF+wAG3uAj7keELF4E8AplJM9xZLOI754fT
-	qoh5NC1HMa2upJLrEda57OO5lrY3XoglwgXVu2LLEDxuY+lINNNj5CJvVjzEBCA6++oFVpvORs2
-	8UowthSQTpLea4ElGEelTLmqkEpuWiEC6vVf5GfDPSlVT5sAe+JKI07PO9Cwf95quoGJYmk/4g=
-	=
-X-Google-Smtp-Source: AGHT+IE3rV0pPvgbs1ZViZXuz4cti2VZtxFozOK5sf1zUJLl1yEqf9u+gJUYtFCV4etGkMg41DaZTA==
-X-Received: by 2002:a05:620a:838e:b0:7b6:c540:9531 with SMTP id af79cd13be357-7be6321bca4mr7741886085a.18.1738076668488;
-        Tue, 28 Jan 2025 07:04:28 -0800 (PST)
-Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-864a9b1afacsm2320055241.15.2025.01.28.07.04.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jan 2025 07:04:27 -0800 (PST)
-Date: Tue, 28 Jan 2025 10:04:27 -0500
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: Ondrej Mosnacek <omosnace@redhat.com>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: stsp <stsp2@yandex.ru>, 
- Willem de Bruijn <willemb@google.com>, 
- Jason Wang <jasowang@redhat.com>, 
- Jakub Kicinski <kuba@kernel.org>, 
- network dev <netdev@vger.kernel.org>, 
- Linux Security Module list <linux-security-module@vger.kernel.org>, 
- SElinux list <selinux@vger.kernel.org>
-Message-ID: <6798f1fb5e1ba_987d9294dc@willemb.c.googlers.com.notmuch>
-In-Reply-To: <CAFqZXNscJnX2VF-TyZaEC5nBtUUXdWPM2ejXTWBL8=5UyakssA@mail.gmail.com>
-References: <CAFqZXNtkCBT4f+PwyVRmQGoT3p1eVa01fCG_aNtpt6dakXncUg@mail.gmail.com>
- <e8b6c6f9-9647-4ab6-8bbb-ccc94b04ade4@yandex.ru>
- <67979d24d21bc_3f1a29434@willemb.c.googlers.com.notmuch>
- <CAFqZXNscJnX2VF-TyZaEC5nBtUUXdWPM2ejXTWBL8=5UyakssA@mail.gmail.com>
-Subject: Re: Possible mistake in commit 3ca459eaba1b ("tun: fix group
- permission check")
+        d=1e100.net; s=20230601; t=1738077109; x=1738681909;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=PmEnc8aZMvudVyRuXVLEdlDFEJU60rJysidCyVa3v6g=;
+        b=naEMiDdu4omX7Ns27zyV+Ed5CR/Ask6amkKTisbydAZE+kYfi1Em1c6TAq6L4lXOID
+         A6wo7s/ekSHdayUlh3E9vsA2S800UEFmlQVZ5wu3HcnM9gt5MRo1tGxgx9FbVsrYYSlg
+         8pag7Jg29kdQzfv65Q49YD7CmmfgvQZaRbrsE2g0aHW1aEkBHy+gogHWClkMJpjWsXS4
+         YtsYOvkbUOTrtwvbTBmHCFCrAxwi81TFXdfso0G5K8paxoxTVYKAz25++mcVw8nmpXga
+         RD556NresbcvP2FHUdxnjkAH2UglxaQBOcGmoVprpJDZFedfmekfiP+q6aZ0walAbAM/
+         R50A==
+X-Gm-Message-State: AOJu0Yz7cKhDkMmOmF73E1L0pN0jZCwRbWp/WyqgbHsHxaItCIfBygNm
+	q5bUYptlmSdXwzM0/xwGM8d9b3RfYiKSoMnrMueK5UZfPjUcAcmtrFqbTSgGIG6Ni57mgvbYNLZ
+	9OKrSpcP+Ly2hxV5PzOJIOAmteY4ewzLhD7kZ9H6eyE+i+Qr6tuDI+tu4MCN3mL6kZjRdYECKLf
+	yzFLVu86HewQ6C3G6rh8T9Ni/Q2fjsF657IyA+hBvn
+X-Gm-Gg: ASbGncsvyQ2kfLvvqoY9kjJVCW7qGlntT4PZB1Ni6lvztoOoSFYn0IHjQ+mBg4FBsP4
+	QYsvMtsWNABA2CHv1BFjveZEaGzvAZjdPbdmNA6mOIf+AGlC5AkShiTWTeWqW8g==
+X-Received: by 2002:a17:90b:54cb:b0:2ee:dcf6:1c8f with SMTP id 98e67ed59e1d1-2f782cb4d3fmr73933535a91.16.1738077109042;
+        Tue, 28 Jan 2025 07:11:49 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHVuAqid8l261AvcewaaJyrZCq5pAK/HLABrN8g/gy3qUhi4orarE+P7kB2Sn69rSVs+sjeKfRF35gX9FFFip4=
+X-Received: by 2002:a17:90b:54cb:b0:2ee:dcf6:1c8f with SMTP id
+ 98e67ed59e1d1-2f782cb4d3fmr73933495a91.16.1738077108725; Tue, 28 Jan 2025
+ 07:11:48 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Tue, 28 Jan 2025 16:11:37 +0100
+X-Gm-Features: AWEUYZl3dxWVFkNUJi2YPa30o-HV49eK32n-VcwiJ1GnbBVAnp90ALmoYAgeQzA
+Message-ID: <CAFqZXNtF8wDyQajPCdGn=iOawX4y77ph0EcfcqcUUj+T87FKyA@mail.gmail.com>
+Subject: ls from coreutils 9.6 doesn't show labels of some files
+To: SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-Ondrej Mosnacek wrote:
-> On Mon, Jan 27, 2025 at 3:50=E2=80=AFPM Willem de Bruijn
-> <willemdebruijn.kernel@gmail.com> wrote:
-> >
-> > stsp wrote:
-> > > 27.01.2025 12:10, Ondrej Mosnacek =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
-> > > > Hello,
-> > > >
-> > > > It looks like the commit in $SUBJ may have introduced an unintend=
-ed
-> > > > change in behavior. According to the commit message, the intent w=
-as to
-> > > > require just one of {user, group} to match instead of both, which=
+Hello everyone,
 
-> > > > sounds reasonable, but the commit also changes the behavior for w=
-hen
-> > > > neither of tun->owner and tun->group is set. Before the commit th=
-e
-> > > > access was always allowed, while after the commit CAP_NET_ADMIN i=
-s
-> > > > required in this case.
-> > > >
-> > > > I'm asking because the tun_tap subtest of selinux-testuite [1] st=
-arted
-> > > > to fail after this commit (it assumed CAP_NET_ADMIN was not neede=
-d),
-> > > > so I'm trying to figure out if we need to change the test or if i=
-t
-> > > > needs to be fixed in the kernel.
-> > > >
-> > > > Thanks,
-> > > >
-> > > > [1] https://github.com/SELinuxProject/selinux-testsuite/
-> > > >
-> > > Hi, IMHO having the persistent
-> > > TAP device inaccessible by anyone
-> > > but the CAP_NET_ADMIN is rather
-> > > useless, so the compatibility should
-> > > be restored on the kernel side.
-> > > I'd raise the questions about adding
-> > > the CAP_NET_ADMIN checks into
-> > > TUNSETOWNER and/or TUNSETPERSIST,
-> > > but this particular change to TUNSETIFF,
-> > > at least on my side, was unintentional.
-> > >
-> > > Sorry about that. :(
-> >
-> > Thanks for the report Ondrej.
-> >
-> > Agreed that we need to reinstate this. I suggest this explicit
-> > extra branch after the more likely cases:
-> >
-> >         @@ -585,6 +585,9 @@ static inline bool tun_capable(struct tun=
-_struct *tun)
-> >                         return 1;
-> >                 if (gid_valid(tun->group) && in_egroup_p(tun->group))=
+In a recent commit [1] that has already made it into the coreutils
+package in Fedora Rawhide, ls changed the way it retrieves security
+labels from files, which causes the SELinux label not to be displayed
+with -Z for some files. It seems that the key difference is that it
+now relies on the result of llistxattr(2) to determine if the label
+should be retrieved and if security.selinux is not listed, it just
+prints ? as if the file had no label. On some inodes on some
+filesystems (e.g. the root inode on tmpfs or most sysfs inodes),
+however, security.selinux is not currently returned in *listxattr(2),
+so the labels are not shown even though they are there (and would be
+returned in a *getxattr(2) call).
 
-> >                         return 1;
-> >         +       if (!uid_valid(tun->owner) && !gid_valid(tun->group))=
+We can of course ask coreutils to go back to fetching the label
+unconditionally, but perhaps we should also/instead fix the
+*listxattr(2) output to be correct? IIUC, in some cases it's a matter
+of adding a security_inode_init_security() call, while other ones may
+need a hook for listxattr that would inject the security.selinux entry
+when it's not returned by the filesystem already.
 
-> >         +               return 1;
-> >         +
-> >                 return 0;
-> >          }
-> =
+[1] https://git.savannah.gnu.org/cgit/coreutils.git/commit/?id=4ce432ad8738387f1b2e80e883dc7080df3afabe
 
-> That could work, but the semantics become a bit weird, actually: When
-> you set both uid and gid, one of them needs to match. If you unset
-> uid/gid, you get a stricter condition (gid/uid must match).
-
-I don't follow this point.
-
-Judging from the history, the intent was that
-
-- if user is set, then it must match.
-- if group is set, then it must match.
-
-And I think the group constraint was added with the idea that no one
-would try to use both constraints at the same time.
-
-The referenced patch intended to (only) relax the condition when both
-are set after all.
-
-> And if you
-> then also unset the other one, you suddenly get a less strict
-> condition than the first two - nothing has to match. Might be
-> acceptable, but it may confuse people unless well documented.
-
-I find that ownership is optional and must be set explicitly through
-TUNSETOWNER and TUNSETGROUP quite surprising too.
-
-But this is only reverting to long established behavior.
-
-> Also there is another smaller issue in the new code that I forgot to
-> mention - with LSMs (such as SELinux) the ns_capable() call will
-> produce an audit record when the capability is denied by an LSM. These
-> audit records are meant to indicate that the permission was needed but
-> denied and that the policy was either breached or needs to be
-> adjusted. Therefore, the ns_capable() call should ideally only happen
-> after the user/group checks so that only accesses that actually
-> wouldn't succeed without the capability yield an audit record.
-> =
-
-> So I would suggest this version:
-> =
-
-> static inline bool tun_capable(struct tun_struct *tun)
-> {
->     const struct cred *cred =3D current_cred();
->     struct net *net =3D dev_net(tun->dev);
-> =
-
->     if (uid_valid(tun->owner) && uid_eq(cred->euid, tun->owner))
->         return 1;
->     if (gid_valid(tun->group) && in_egroup_p(tun->group))
->         return 1;
->     if (!uid_valid(tun->owner) && !gid_valid(tun->group))
->         return 1;
->     return ns_capable(net->user_ns, CAP_NET_ADMIN);
-> }
-
-Improvement makes sense, thanks.
-
-One more point, based on the problem description in the referenced
-patch:
-
-    Currently tun checks the group permission even if the user have match=
-ed.
-    Besides going against the usual permission semantic, this has a
-    very interesting implication: if the tun group is not among the
-    supplementary groups of the tun user, then effectively no one can
-    access the tun device.
-
-The intent was to skip the group check if the user matches. Not
-necessarily the reverse.
-
-To minimize the impact of the patch, perhaps it can still always deny
-if tun->owner is set and does not match. That keeps the group check
-iff the owner is not explicitly set as well.
- =
-
-> -- =
-
-> Ondrej Mosnacek
-> Senior Software Engineer, Linux Security - SELinux kernel
-> Red Hat, Inc.
-> =
-
-
+-- 
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
 
