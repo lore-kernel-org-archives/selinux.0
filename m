@@ -1,275 +1,147 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+Received: from sonic309-28.consmr.mail.ne1.yahoo.com (sonic309-28.consmr.mail.ne1.yahoo.com [66.163.184.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EBDA193402;
-	Tue, 28 Jan 2025 22:59:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5838A28FF
+	for <selinux@vger.kernel.org>; Wed, 29 Jan 2025 00:02:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738105177; cv=none; b=Hm5/L0CUniw/BaAfR18qec+5TqLSHBiz5UhkbpEJ1F+9qrOXulRqqU30gaXMcWJWA8SvW5KGGemPPhJpxRDbhe3+lPZymDPf6uxQWW9jAIRuqPzz895aq8lQdwfiL+nh1nO71wSISMJfBGVNrAcWavsVJ1ptwMTaGIQX7d/2nlE=
+	t=1738108929; cv=none; b=IwHhGfrnBTi9aAmMqg0Uy1s74irSufGBT58W3a2sgutaXXALoDTt4s7EmM47m3Kga5Qfr8yd5SWRUMknI9Qd21fBssL8uzGHCrPxY1aNQ9nMzW7irxcZ7sa290gB7ttznrirxeNqA8YT9L0LBuveG/rzxitDrSseUI+ZH9pBrEo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738105177; c=relaxed/simple;
-	bh=zfkcybfngaj0Ecg4WGGGpIGMkGQUkL+GJCvEkUahP6U=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 Mime-Version:Content-Type; b=lREuwogfXlZrh9gY3vfh4qVZMmkpRi63vPOLUNeNjS8xvgWUVgUbO0J6lt+l2jE3fjUTQ6bDahdoqPAg5OgiDa5ZQRshAXChB2Lz1hmu2z8cGO9YEX5LpITGLuRL+hNLOWvo1IfcAJoNcdgAbswBcSfEbq7s0bu1ZYdmbMPcZNQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZJ87Od6w; arc=none smtp.client-ip=209.85.222.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1738108929; c=relaxed/simple;
+	bh=d9s7R1FlGhnoCg/BX1Amdn3NuScio9jVOq4QUYKgb6I=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=h7rYPWdazstnpYZBWZgvOpzqvcOrCPUyjL8JWRfbhgtQmAc9ACRpIy7/vgImkBykZ4ugu1s2JeNn3BqZuIsvgx35pJGZC4unwtDIxpD15Cc2cyET7c9pk+j18ct3Np72FanZH9TsjbVeVJ0y/xtyzk+ReAZ8+hmzS7QbIZVozgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=FM/K62No; arc=none smtp.client-ip=66.163.184.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZJ87Od6w"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-7be3d681e74so557499685a.0;
-        Tue, 28 Jan 2025 14:59:34 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1738105174; x=1738709974; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KlUhzh1vAkoJJDwjc5wMYu0SSkfNiXZepvV9vpAC7Iw=;
-        b=ZJ87Od6w6j6Tu3PfjYo+lFTSj5U4q8czXN7OrLMLCrlY+wQxFdQNaVSXyXiNVTFIKv
-         cziwv4jBN3lRcx3U5Sfs1b2qAhpEb7Qt3uOvwohLbKZiu14DFED+O2DRogfXI029fte2
-         1eym/FuUqUeQahnRcODIERhum2wJeTHF/J3UqIu/VpNpqWvwUTc1/hYpo5gA0uZ240RF
-         wQc5biVWPLlW7BIUw2sF2Htu+ym7L5CHRpENmcQqNig5YdfhrAWHbhB7OHQBex6fp3QD
-         7/zO2AY0SKy6m3DHeAiI8Hmz8fbKHS1fuGmv3BHyvK+YzBP8mx3ky8ellMhB0LU+7TJe
-         9Ptg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738105174; x=1738709974;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=KlUhzh1vAkoJJDwjc5wMYu0SSkfNiXZepvV9vpAC7Iw=;
-        b=UCRRu6BZLVg/e/pILKijj1nPfhC6r0zzHLF50bXSaULaup53L6l3MiozEhsXnFolYK
-         wxyolNXfTFbWFVka17L4zy2QTlw04BeiicMmhqM/Odv46I1CQE827UXLcYUO8W5uwYeI
-         klC3DEszFxjyCPJVaC0uyW7XozfBJR0C13YhjbiRkxkUFLRq5U0bBdYLVgjBqeZnwfPh
-         zfyD1v5NJtYvKjAX+Ve59RYL0FS+aX3zSVa255pco4nNmmirCACLqL6Jy2r1fhkEh8jJ
-         rxvRtXl57aXQTPlmwco3OB23eI1yTdgCOXzDXhVEf+Tpz7c5nnPVieeJjQn9UWYzhVSO
-         RIog==
-X-Forwarded-Encrypted: i=1; AJvYcCUyA3weuNzxMy7moBuzc+pT/pbjjV1eOSM+v7+PRsK7Bmhz57uq9eob79n+pgukHYX5m3LlDAlVHVv/LODfYaanBafA2dc=@vger.kernel.org, AJvYcCVTvRO1eu8hVGy963fBvlwxYyPfxaZ+FzNxjtbovKE78VPZeLhy6uculOx6jfyzd2PDhUHUcwyB@vger.kernel.org, AJvYcCXKvNloLZ7zrNwklDvXR8eFY4IwfGq04m3klLNHVjSzxWLdJRVlWQwS+hp5SX8r1hy4zuxIcbSrUQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxBi+gBvnI8DKFU1QWLDp/iosPX2/djB0PMAO11Yr6arZlC1g5N
-	61r6p9EhW+2TqY0Lah13AX5yIJn2nV17SAY06dKIHK4aJtmb1DIo
-X-Gm-Gg: ASbGnctTjv1o+3l3ICVbFBHC6fdj9SiVE4L0JeWIei7CVatlEKWZ6c2kiexcKonuCba
-	u9yOxHEsuLch4pNw2OOpNRL0olqnXgXPfPeKdAMt+ksYdZZ3TW1TY0ds1YuEeJk/khtXg6Hh4wy
-	V7P+aIWvhH/gr6ZoSytykb72v8Jd54hfmwcOuMB5rW91vQOWyK+pTu+5QsnAsuSoQoKzVIVyPTB
-	cWIQZSt1TXZiFrL1q99jNHDONCJ5WjTIuLRqwUbZJCqy8hUtmcJdZejCe8Wr28bamJh8y8kGIAV
-	vweDDql9rZbmC532Z2m6Gzrc9YIkv4l9tgMQikNS6KNV1VV1gw8UasIum224NV8=
-X-Google-Smtp-Source: AGHT+IFanmbd/MTyn1ZZFSURf3w89NQnsv3Vzjf5Ubxr32GgGRRl6ui8bfsFDokAwoTnomNNK2uh7w==
-X-Received: by 2002:a05:620a:d8a:b0:7b6:e9ba:2853 with SMTP id af79cd13be357-7bffcd958f2mr102413185a.35.1738105173831;
-        Tue, 28 Jan 2025 14:59:33 -0800 (PST)
-Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7be9ae8a67csm565048485a.29.2025.01.28.14.59.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jan 2025 14:59:33 -0800 (PST)
-Date: Tue, 28 Jan 2025 17:59:32 -0500
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-To: stsp <stsp2@yandex.ru>, 
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
- Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Willem de Bruijn <willemb@google.com>, 
- Jason Wang <jasowang@redhat.com>, 
- Jakub Kicinski <kuba@kernel.org>, 
- network dev <netdev@vger.kernel.org>, 
- Linux Security Module list <linux-security-module@vger.kernel.org>, 
- SElinux list <selinux@vger.kernel.org>
-Message-ID: <67996154e30ce_d9324294c4@willemb.c.googlers.com.notmuch>
-In-Reply-To: <c4413e16-d04f-4370-8edc-e4db21cc25f6@yandex.ru>
-References: <CAFqZXNtkCBT4f+PwyVRmQGoT3p1eVa01fCG_aNtpt6dakXncUg@mail.gmail.com>
- <e8b6c6f9-9647-4ab6-8bbb-ccc94b04ade4@yandex.ru>
- <67979d24d21bc_3f1a29434@willemb.c.googlers.com.notmuch>
- <CAFqZXNscJnX2VF-TyZaEC5nBtUUXdWPM2ejXTWBL8=5UyakssA@mail.gmail.com>
- <6798f1fb5e1ba_987d9294dc@willemb.c.googlers.com.notmuch>
- <c4413e16-d04f-4370-8edc-e4db21cc25f6@yandex.ru>
-Subject: Re: Possible mistake in commit 3ca459eaba1b ("tun: fix group
- permission check")
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="FM/K62No"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1738108926; bh=teQC2LZ5zSH/sS+eQI6aKaJiOhVbqoZ6j55vxMZd7iM=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=FM/K62NojoZxeFL5DAFaBaul8Wbez9LKtblf35gY4sTX+9FmdvpdIcISBydRwQ2AG5KPKRNweAh0be9VNHF2hR07hVxuLPPRhCu76csev8/iD/JdKKoRWuLi+QFOrNpiLeplUi+2PgkbJWE7vhnF0HhE7A39604wQ83kqQ6/UljvCuWHBylEI1Lbhd6VrgYUwnjIsV9aVjnoQ+QmJY1kJg635Ctvwu7BTRjR2yPpGmQPJhIEcCDJdFzM7QWv25B46NsXGA2+ltUr7iT1hsajOoLC26m7tz3Xjapu9KZjpYVphgIe2YUtb2/2JfRAbIbtw4cY8p1vNBxD9froWxgSlA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1738108926; bh=XnNthY7Z7ABMoByRKv4/cpA+SvmLpxTxX6pBiX7juQB=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=JOQ2vwd1fZUlZ2kwM1kHyQ2F4MAMrZEKO2BqzjUqOVkU27Sobo9510hz1r9IrGqfGakKgxDB9LVCWMm1vTJPcsCpWrAPx5yGPpF3TjPtHiTrVoLnS8PFUOQuUko1dKcvbAJQRTm7P/49PxacVL+I7EXS71ZqKk4hzQwsIXDp/eWSyFo9naT99UQhItJlLox0pszt7ZXACO79ZEcczBfZhVZPWXVSpxhAUR7zSyeiATT1qDkqiL28/3KjeRALg8Zo4E4ZjK0rZZFBuXyNJmmYQKnEq9+uVvImC3eTXQZ3BZ3oqKVdr/b2fDUNfaHM5oYc6EtQR+dIwzh//E98IBBkwA==
+X-YMail-OSG: Za2rmoQVM1m6yjeHTtRWCQGVG7ON.ZE0BMe61C20oPPWp39QKT.ZxfvDELlFB7w
+ IAa4kL.jT.ZVHXYMTNhAch9M4tPpVZMlhQqLUIEOtJYhB0jM7wU.ro.rlZEla33X._2rKiHFFe5e
+ F22DibBEYz3FIfAQPU5pyazStc1wkDizsKKxUZBT6fQHrSZMzXi.QJzbqXIpDAi1FDG7pMNLwVoz
+ m.hvorp5kM9pk26xD3qW6LsVUcD6Zkf46wvngQzoZljGZCb3FT8XSH2sYXE7jWoFRXJDp1tG.R.M
+ DMWNCLGSlDTmuwV6pBw6UjNPBlV6HoL5X27Qv7SobTs70VA8CjVRyVgEBLyjgR1K5aDWPfmSqsf2
+ W9tDlRI_JLdvjlF3_yZp..PvKdWaDHEqDk.THYVfbfgaExnARGf832hM4E8F5OoeZbvkADHh_ZBf
+ RAr5bMkT89rvn_kX0b9.DaE8rllAhvaNboHNdrd.84IyhZEhO4Og_PDtK2sI4wot0FO4awkbPowk
+ TCkQ3V7OH45mP.Pcoqttgt24jhDZkSHdIaa6BmRe2Ya6dDln7D9tcz4sCSlfq5bxMkpRfSPOlati
+ WwDVJTGHoTMrmOOAP8yRenmMFN7CFAOYOROEash82OjzqKdDC0HUWw_lQ7Vwi0ngckfZVJifb1mf
+ 8fakaiFr5LxxdOY7S4w6cjuS5k0hHYVW68fmkrQ8m1r1YreGGdhm0IVhl4HHK4tFFhqJ_d9nwbx0
+ .UwtAO9qJyZ4nmDsEjjd72Xhqz.L_A8aO2dPj3U.FLLTaL6eZWnLT4RbyVD4Ib_pqR40OwpbT0Jn
+ S_Fy4ypTMtoVg1C.KKYelV3FZ2eaz_XBtkLWYk3wabvlP41LoEpZLuu6UzT8MwMogQrSE5Yn1aHS
+ _m_Ztvs2O7fdXBC_8NPRSnmtkJgWw2P3ZeiHdOz4CRee3jntYyCQ0EJ20rml1WK4z820Lmr3s9YO
+ 2LbR1UFuviJ24h5Obvfsi1r2Ej1aM5uJlnWgKe3qVVaet6T9xsYtj5Dk9Y9hNQxxpOLvW5O35.9d
+ ny4moUlsSRrjlqKkwvcmw7sOa96F4hEVU6ajVrz_UVCW2DitchUQI5K1uiW8FTV_Z0S.WYCaIi0u
+ bY7TguI6KcxS2Rtf.whIXhJu.F5rEK.VZRLO_2iqK07T_iMAzt_vZVV7BYyEoMABYinlIhvN1I0k
+ Cnx2WkvTz7HdCFz0OYQmKUR0p4S2x1OkwzX_zDa0QCOTrGD6vJ9Y0C_grUs1st0RMOmzqmHJmCqU
+ 4gq2VNrKYKcm.pC6mTkixmFfbp5NVrI2b8oReYo4tE1A9MSIjPEAOTsZAGPDqlWZmj1L44S3n69L
+ qQUTJPfncWJgtist5F9LG0glCRl8IQOs5RE5OPetXusE45NUXT6LYMwtpF1syAEOPZFoUOqr8XOp
+ CZOyem3Jr0xoDvYq3QAE0PTNfMbmezOVf.gQPP6ZzSKY8dDpH8M5bjAV9uf4BlbNasjpMsaWrQ.1
+ egbd3y_kVvNB54.BOq1Qq7nQBUYTQh43QhkKF9gIr0EL2CnHYIngzIwGDCyrH15z8x89XmQE8V4P
+ RqNCLZh1_eCvHmidK.462GWjlizet0Eka600dghZHkt0bPTmSflQjTYbxuRtCKPVR2ZfmtG0c1SS
+ qeGpT.hbcI7J6Mg2bf6fr4socAOdaj8rYqVt67iSN839Kz1dy.x1AqjnObhLZ7HNf4wY1SUwTlSe
+ .8iZaihGf7PXEjIjqY6GyXu1OyxJc2exCv0Q1PNRW3wiUVHGEVUGd0JCBNkklrqGAcF9nfaEG4mS
+ yNZFZP1TqjkIT8qIw1sYQxEZds4lwe5obr7nzzD3vXvgzko09ywtvSwXjBa3CWEk8AFVTUojYos8
+ ijjts157U_ppbS9XBpDiNzx3g1vukNQK21zz0tnCOxvVQilyve7u3lLQ0vueoLVvPvM.65y6oCbR
+ XmHy.Ip71gpIIGC8P7ZX6Gn3YG55aZRSuNZS9eEtWc36y.OVaBAQ2iz7JviIOEs7mGMk1sgQyWHb
+ NEyDHBwnbo6uzhJ4wX626xWUQ4S9f4Gex_AFneg_8xge47h8Qd24kLXwW3C9csF4kqYOrJEAhagx
+ bAeQvL9cqglCs9Iuo4iIc5EePtadyQeEk_z9brdz1Y0hc4KU7pa4lM70fnrmGJDvVJumUZLBBOMG
+ KoBkp2UNBSkqJff64Musd9A4jvScuC7rzBBYnX6mRYTNiMgpLNF0DRg9HwdHP2NkLq5a1vntI_hA
+ xo8ag9wrxKYMUSjn9sdRGZLy1xiIEBGgQhnaLaliEWDiGpaee3vJdCy0gf0PK1rO2IpJFSNO1rzX
+ XO27tzeH._M_fji0C1sNcwRg-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 0092f601-379e-43b1-879c-af8004618239
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Wed, 29 Jan 2025 00:02:06 +0000
+Received: by hermes--production-gq1-5dd4b47f46-9j75b (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 8507b724dd85e7e8946c93db75fc6dcb;
+          Wed, 29 Jan 2025 00:02:04 +0000 (UTC)
+Message-ID: <84e580b3-0af9-457f-822c-f03271d20e21@schaufler-ca.com>
+Date: Tue, 28 Jan 2025 16:02:02 -0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/2] lsm,io_uring: add LSM hooks for io_uring_setup()
+To: Paul Moore <paul@paul-moore.com>
+Cc: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>,
+ linux-kernel@vger.kernel.org, James Morris <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>, Jens Axboe <axboe@kernel.dk>,
+ Pavel Begunkov <asml.silence@gmail.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>, =?UTF-8?Q?Bram_Bonn=C3=A9?=
+ <brambonne@google.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?=
+ <tweek@google.com>, =?UTF-8?Q?Christian_G=C3=B6ttsche?=
+ <cgzones@googlemail.com>, Masahiro Yamada <masahiroy@kernel.org>,
+ linux-security-module@vger.kernel.org, io-uring@vger.kernel.org,
+ selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
+References: <20250127155723.67711-1-hamzamahfooz@linux.microsoft.com>
+ <20250127155723.67711-2-hamzamahfooz@linux.microsoft.com>
+ <bd6c2bee-b9bb-4eba-9216-135df204a10e@schaufler-ca.com>
+ <CAHC9VhRaXgLKo6NbEVBiZOA1NowbwdoYNkFEpZ65VJ6h0TSdFw@mail.gmail.com>
+ <bb360079-f485-48c5-825d-89cbf4cf0c52@schaufler-ca.com>
+ <CAHC9VhTAunsgA-k64-qmQzeyvmAHuQ-=Jp-yWDi9XDP9CHkhHA@mail.gmail.com>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <CAHC9VhTAunsgA-k64-qmQzeyvmAHuQ-=Jp-yWDi9XDP9CHkhHA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Mailer: WebService/1.1.23187 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-stsp wrote:
-> 28.01.2025 18:04, Willem de Bruijn =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
-> > Ondrej Mosnacek wrote:
-> >> On Mon, Jan 27, 2025 at 3:50=E2=80=AFPM Willem de Bruijn
-> >> <willemdebruijn.kernel@gmail.com> wrote:
-> >>> stsp wrote:
-> >>>> 27.01.2025 12:10, Ondrej Mosnacek =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
-> >>>>> Hello,
-> >>>>>
-> >>>>> It looks like the commit in $SUBJ may have introduced an unintend=
-ed
-> >>>>> change in behavior. According to the commit message, the intent w=
-as to
-> >>>>> require just one of {user, group} to match instead of both, which=
+On 1/28/2025 2:35 PM, Paul Moore wrote:
+> On Mon, Jan 27, 2025 at 7:23 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>> On 1/27/2025 1:23 PM, Paul Moore wrote:
+>>> On Mon, Jan 27, 2025 at 12:18 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>>>> On 1/27/2025 7:57 AM, Hamza Mahfooz wrote:
+>>>>> It is desirable to allow LSM to configure accessibility to io_uring
+>>>>> because it is a coarse yet very simple way to restrict access to it. So,
+>>>>> add an LSM for io_uring_allowed() to guard access to io_uring.
+>>>> I don't like this at all at all. It looks like you're putting in a hook
+>>>> so that io_uring can easily deflect any responsibility for safely
+>>>> interacting with LSMs.
+>>> That's not how this works Casey, unless you're seeing something different?
+>> Yes, it's just me being paranoid. When a mechanism is introduced that makes
+>> it easy to disable a system feature in the LSM environment I start hearing
+>> voices saying "You can't use security and the cool thing together", and the
+>> developers of "the cool thing" wave hands and say "just disable it" and it
+>> never gets properly integrated. I have seen this so many times it makes me
+>> wonder how anything ever does get made to work in multiple configurations.
+> While there is plenty of precedent regarding paranoia over kernel
+> changes outside the LSM, and yes, I do agree that there are likely
+> some configurations that aren't tested (or make little sense for that
+> matter), I don't believe that to be the case here.  The proposed LSM
+> hook is simply another access control, and it makes it much easier for
+> LSMs without full and clear anonymous inode controls to apply access
+> controls to io_uring.
 
-> >>>>> sounds reasonable, but the commit also changes the behavior for w=
-hen
-> >>>>> neither of tun->owner and tun->group is set. Before the commit th=
-e
-> >>>>> access was always allowed, while after the commit CAP_NET_ADMIN i=
-s
-> >>>>> required in this case.
-> >>>>>
-> >>>>> I'm asking because the tun_tap subtest of selinux-testuite [1] st=
-arted
-> >>>>> to fail after this commit (it assumed CAP_NET_ADMIN was not neede=
-d),
-> >>>>> so I'm trying to figure out if we need to change the test or if i=
-t
-> >>>>> needs to be fixed in the kernel.
-> >>>>>
-> >>>>> Thanks,
-> >>>>>
-> >>>>> [1] https://github.com/SELinuxProject/selinux-testsuite/
-> >>>>>
-> >>>> Hi, IMHO having the persistent
-> >>>> TAP device inaccessible by anyone
-> >>>> but the CAP_NET_ADMIN is rather
-> >>>> useless, so the compatibility should
-> >>>> be restored on the kernel side.
-> >>>> I'd raise the questions about adding
-> >>>> the CAP_NET_ADMIN checks into
-> >>>> TUNSETOWNER and/or TUNSETPERSIST,
-> >>>> but this particular change to TUNSETIFF,
-> >>>> at least on my side, was unintentional.
-> >>>>
-> >>>> Sorry about that. :(
-> >>> Thanks for the report Ondrej.
-> >>>
-> >>> Agreed that we need to reinstate this. I suggest this explicit
-> >>> extra branch after the more likely cases:
-> >>>
-> >>>          @@ -585,6 +585,9 @@ static inline bool tun_capable(struct =
-tun_struct *tun)
-> >>>                          return 1;
-> >>>                  if (gid_valid(tun->group) && in_egroup_p(tun->grou=
-p))
-> >>>                          return 1;
-> >>>          +       if (!uid_valid(tun->owner) && !gid_valid(tun->grou=
-p))
-> >>>          +               return 1;
-> >>>          +
-> >>>                  return 0;
-> >>>           }
-> >> That could work, but the semantics become a bit weird, actually: Whe=
-n
-> >> you set both uid and gid, one of them needs to match. If you unset
-> >> uid/gid, you get a stricter condition (gid/uid must match).
-> > I don't follow this point.
-> >
-> > Judging from the history, the intent was that
-> >
-> > - if user is set, then it must match.
-> > - if group is set, then it must match.
-> >
-> > And I think the group constraint was added with the idea that no one
-> > would try to use both constraints at the same time.
-> >
-> > The referenced patch intended to (only) relax the condition when both=
+I can't say I agree that it's an access control because although it is
+specific to a process it isn't specific to an object. You can still access
+the set of objects using other means. It is a mechanism control, preventing
+use of io_uring entirely.
 
-> > are set after all.
-> >
-> >> And if you
-> >> then also unset the other one, you suddenly get a less strict
-> >> condition than the first two - nothing has to match. Might be
-> >> acceptable, but it may confuse people unless well documented.
-> > I find that ownership is optional and must be set explicitly through
-> > TUNSETOWNER and TUNSETGROUP quite surprising too.
-> >
-> > But this is only reverting to long established behavior.
-> >
-> >> Also there is another smaller issue in the new code that I forgot to=
+>>> This is an additional access control point for io_uring, largely to
+>>> simplify what a LSM would need to do to help control a process' access
+>>> to io_uring, it does not replace any of the io_uring LSM hooks or
+>>> access control points.
+>> What I see is "LSM xyzzy has an issue with io_uring? Just create a
+>> io_uring_allowed() hook that always disables io_uring." LSM xyzzy never
+>> gets attention from the io_uring developers because, as far as they care,
+>> the problem is solved.
+> To be honest, I wouldn't expect the io_uring developers (or any kernel
+> subsystem maintainer outside the LSMs) to worry about a specific LSM.
+> The io_uring developers should be focused on ensuring that the LSM
+> hooks for io_uring are updated as necessary and called from all of the
+> right locations as io_uring continues to evolve.  If there is a
+> problem with LSM xyzzy because it provides a buggy LSM callback for
+> the io_uring LSM hooks, that is a xyzzy issue not an io_uring issue.
 
-> >> mention - with LSMs (such as SELinux) the ns_capable() call will
-> >> produce an audit record when the capability is denied by an LSM. The=
-se
-> >> audit records are meant to indicate that the permission was needed b=
-ut
-> >> denied and that the policy was either breached or needs to be
-> >> adjusted. Therefore, the ns_capable() call should ideally only happe=
-n
-> >> after the user/group checks so that only accesses that actually
-> >> wouldn't succeed without the capability yield an audit record.
-> >>
-> >> So I would suggest this version:
-> >>
-> >> static inline bool tun_capable(struct tun_struct *tun)
-> >> {
-> >>      const struct cred *cred =3D current_cred();
-> >>      struct net *net =3D dev_net(tun->dev);
-> >>
-> >>      if (uid_valid(tun->owner) && uid_eq(cred->euid, tun->owner))
-> >>          return 1;
-> >>      if (gid_valid(tun->group) && in_egroup_p(tun->group))
-> >>          return 1;
-> >>      if (!uid_valid(tun->owner) && !gid_valid(tun->group))
-> >>          return 1;
-> >>      return ns_capable(net->user_ns, CAP_NET_ADMIN);
-> >> }
-> > Improvement makes sense, thanks.
-> >
-> > One more point, based on the problem description in the referenced
-> > patch:
-> >
-> >      Currently tun checks the group permission even if the user have =
-matched.
-> >      Besides going against the usual permission semantic, this has a
-> >      very interesting implication: if the tun group is not among the
-> >      supplementary groups of the tun user, then effectively no one ca=
-n
-> >      access the tun device.
-> >
-> > The intent was to skip the group check if the user matches. Not
-> > necessarily the reverse.
-> >
-> > To minimize the impact of the patch, perhaps it can still always deny=
+I'm much more concerned about bugs in io_uring than in xyzzy. The io_uring
+people have been pretty good about addressing LSM issues, so it's not
+a huge deal, but I never like seeing switches to turn off features because
+security is active.
 
-> > if tun->owner is set and does not match. That keeps the group check
-> > iff the owner is not explicitly set as well.
-> =
-
-> Doesn't this mean, if the user
-> is set then group is completely
-> ignored?
-
-Yes
-
-> By doing that you indeed avoid
-> the problem of "completely
-> inaccessible tap". However, that
-> breaks my setup, as I really
-> intended to provide tap to the
-> owner and the unrelated group.
-> This is because, eg when setting
-> a CI job, you can add the needed
-> user to the needed group, but
-> you also need to re-login, which
-> is not always possible. :(
-
-Could you leave tun->owner unset?
-
-> Also completely ignoring group
-> when the user is set, is somewhat
-> questionable. At the very least,
-> perhaps then you need to explicitly
-> clear the group when the user
-> is set, to avoid the confusion.
-> Having "either user or group"
-> sounds like a sensible semantic,
-> but its a different semantic.
-
-True. I think that would have satisfied the intent of adding the
-group check at the time, and would have avoided this situation.
-
-But we indeed cannot retroactively restrict allowed behavior.
-As that will break users.
-
-Conversely, it might be that an existing user out there depends on
-the prior behavior that only a process that matches both user and
-group can use the device. Which might be reason for reverting the
-patch entirely.
-
-
-
+If no one else shares my concern you can put my comments down to the
+ravings of the lunatic fringe and ignore them.
 
