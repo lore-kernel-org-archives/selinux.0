@@ -1,142 +1,101 @@
-Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8F3A3D984
-	for <selinux@vger.kernel.org>; Tue,  4 Feb 2025 00:30:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 337BC1547C5;
+	Tue,  4 Feb 2025 10:07:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738629007; cv=none; b=JFv/nuuMnElU4NURxiVbBK6HoIIBYChejVXOtmKhcxuL8yu4f4aiYPIxJMWSrBrW9JgGabp3glzS07xzPcdwJjW+frBRHkz24IjZkWPw4+mRC8GhgLpnVDKRQz8SyjSZbRkYp2GmPsqrPLwgcByZsMeJmYRO2TjUPKGnsVb8BUE=
+	t=1738663658; cv=none; b=QHf8NT5YRjchjbVzf76Me7ToXc5/U5BMgtOKpD8miXpVK3wX3Y94mfpybbxZD2fOEUB35t5Tj43q4MaRRl4DbP79uHG1HeA8xNydl7gYi9NsCfRJSd19czJDoX7O+lzH8vHL/KbUJ+tVjsPSlhEHLEa4Q2jvL/U+apeUU4aNkYw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738629007; c=relaxed/simple;
-	bh=NrOjKgLQr3QfAne2gG2ROs8/SBnGodNEd1uyXzcB0Qo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=VURPhKEa+WMjltfkT7TR8dXmtskcuVub9BOC3w0Q2wGz4/bWAmqlVigT9roxAKBi5G0k/XOiQ//J/2MdQNbr+IBONtffNsCeVCwQGBYJbqm8MxoES41QswoNzh8lHdfnyqJ2yBnCu5nrEwHXzbdRAidr7ztFvRZqXoN6PAu3Exw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=AcOX3u0C; arc=none smtp.client-ip=209.85.128.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1738663658; c=relaxed/simple;
+	bh=X6YYsQzMBZlfPhE2lzhckYnWMCNyVdl8+F/ZdpE5GkE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nQCK2/uOX24PDhZmZNiH+9Xd+YIaCk8I3pzsw9GQ1iUS2UtLQpoNNZPL9lQ9PrKM50yY3QqDgepSj7kumyIVpBxNAKpZGS6l9u5y4zFzc9p2/Ju7sTzYegoCcCn8kVxUytgYVbwps7ICHJPbG8PyH477c9uDjE5qo1WvJvIYxfs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EBtgUd0K; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="AcOX3u0C"
-Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-6ef9b8b4f13so30340537b3.2
-        for <selinux@vger.kernel.org>; Mon, 03 Feb 2025 16:30:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1738629005; x=1739233805; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NrOjKgLQr3QfAne2gG2ROs8/SBnGodNEd1uyXzcB0Qo=;
-        b=AcOX3u0CE8uA7DeD5MPddVECOozCU1QSyO17jqn5/GUixgkVaAXBQUiMNVzVCxMS9x
-         4mDjmn9tqsPMasGp/j+f2kZrGNas8X+mWTdhU2+rx2ZRDMtFb+QARHLxCwxV9uRn4POi
-         Lw5H6FM34Jq/+xWV7ZHCCti4vdThpZU4SxTY0CmPg81GKwEV78QcCtGVfkYzO6O5O1az
-         L5Xkx7Kn8bZ6WLR54p/1heCupZRtxj0RTSIqdUFKjtaFSGRb3b3ygaeHZmRaRY5lvW4r
-         iL180QOPEhI1oyoVHJkz0txXrAFp+nX8dw+mYQBL7cQ9faAGrW/Xy7wq7eJvJHyEZVGc
-         iOJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738629005; x=1739233805;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NrOjKgLQr3QfAne2gG2ROs8/SBnGodNEd1uyXzcB0Qo=;
-        b=MfTLUlMXBLc8uqL0k0nd/+lO0c01y2JljHwL2CcG5boVFfF3dxppuIbRe/Qs7vnyXf
-         ZuzhTeLJLN0SeKc9TGO7VqWDarC6NlVhUV/pR23KBc7mMn2nVIdhx2CBgO8PlVErw57O
-         ij2ki0jzvmgq9Y26KKnGsBNAh9gYxi89bmm0odAworSAhpYuRRt/74Jxrh7aTkUUWTCz
-         otWQ7Mr8ubyb1WBv1aX2NXk9kZDyI2yXMr7MRprZYz98+xH4NeV8Z8vaaHKG2dDJI4Tn
-         zxM0pvglsAJ4lud3jxt3q9Uo4kZmlMQhb9ii1ke3YmY1lLUL93ChG7/rFdq+lUIm3qTC
-         IXtQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUhoM7j4aGRz9lqvruLUBioLCj0L+OMshqQXvttO3PzqiY0vxnD8ciV1LN+Lra8v23e1twM4PfU@vger.kernel.org
-X-Gm-Message-State: AOJu0YzCaswQz8iO/xKYnUDdlZwEXGhCS9lc7L2zIQny4Ju3nDPVOw1c
-	FbUJVVI8788VMIWY5s8tX2X/xa+8ZcZ2qVe2oatUVnEvQzyFDIkW50apjgi3ODVNla8T4EauhKg
-	hjgTcf4yJCUtIRbSS389pXqDEvNADNdyAu3zk
-X-Gm-Gg: ASbGncuzF/5EV1ABXYvvbt7GQycH7vbN7Nt9S20iX218Fb8AsjC+/ThUoDgE9S9iuJJ
-	OwXN2i2gAGOTgbYLkSKpGkgMVC+BXN8sQk5SkWrUhuA93EI5lJJ6s7kmlv0jhtA3kPW1Lh1U=
-X-Google-Smtp-Source: AGHT+IEVbwtz+5w3Q/0H35+gEOBvf9lHbFARWTV19VmX2LqAuhVy8RS03DnQT9OFtbiSGhWCOlD2FbmJsxoDJGFVn2U=
-X-Received: by 2002:a05:690c:7445:b0:6f8:cedc:570d with SMTP id
- 00721157ae682-6f8cedc5710mr129600047b3.6.1738629004567; Mon, 03 Feb 2025
- 16:30:04 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EBtgUd0K"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0253EC4CEDF;
+	Tue,  4 Feb 2025 10:07:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1738663657;
+	bh=X6YYsQzMBZlfPhE2lzhckYnWMCNyVdl8+F/ZdpE5GkE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=EBtgUd0K4rexLyqU4eQnjG8JQ5Rl3gShCEN19Ms7NacPzu67XrKkcrwGYNPRoben9
+	 BOhzWv21DKI+I8AVFgaxjBUY+PbBJAjK46efbe+TL4zBQP3U894oIFQSwaJg5xfQyj
+	 Vneg3MOnUGyfjsburl4YsUwtOUc2iDdAtPzlzWK4A1Fmtymaol1zUhxvhozuKjBKj2
+	 l+Krqa3yDpxTccWskcY4cVOGwki8tZ1OQzwgvklcqP5OjpQWp/Bk5Ue8aRCC2Ccw3M
+	 Prhdpvvdmt0sEldEfu5hZJiBC4vzEmlfDpc3o+wPnSD+uVjQj8bGF+Sw5dSpXTVprR
+	 8wDVnM/gumeDw==
+Date: Tue, 4 Feb 2025 11:07:30 +0100
+From: Christian Brauner <brauner@kernel.org>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Miklos Szeredi <mszeredi@redhat.com>, linux-fsdevel@vger.kernel.org, 
+	Jan Kara <jack@suse.cz>, Amir Goldstein <amir73il@gmail.com>, Karel Zak <kzak@redhat.com>, 
+	Lennart Poettering <lennart@poettering.net>, Ian Kent <raven@themaw.net>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux-refpolicy@vger.kernel.org
+Subject: Re: [PATCH v5 2/3] fanotify: notify on mount attach and detach
+Message-ID: <20250204-gepachtet-mehrmalig-debca5265df8@brauner>
+References: <20250129165803.72138-1-mszeredi@redhat.com>
+ <20250129165803.72138-3-mszeredi@redhat.com>
+ <CAHC9VhTOmCjCSE2H0zwPOmpFopheexVb6jyovz92ZtpKtoVv6A@mail.gmail.com>
+ <20250131-durften-weitblick-075d05e8f616@brauner>
+ <CAHC9VhTSt-UoGOZvez8WPLxv4s6UQqJgDb5M4hWeTUeJY2oz3w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAFqZXNtkCBT4f+PwyVRmQGoT3p1eVa01fCG_aNtpt6dakXncUg@mail.gmail.com>
- <e8b6c6f9-9647-4ab6-8bbb-ccc94b04ade4@yandex.ru> <67979d24d21bc_3f1a29434@willemb.c.googlers.com.notmuch>
- <CAFqZXNscJnX2VF-TyZaEC5nBtUUXdWPM2ejXTWBL8=5UyakssA@mail.gmail.com>
- <6798f1fb5e1ba_987d9294dc@willemb.c.googlers.com.notmuch> <c4413e16-d04f-4370-8edc-e4db21cc25f6@yandex.ru>
- <67996154e30ce_d9324294c4@willemb.c.googlers.com.notmuch> <8b81a534-9c30-4123-bd7d-bf3a9d89dfcb@yandex.ru>
- <679a376739b99_132e08294f3@willemb.c.googlers.com.notmuch>
- <04879909-72e5-4ab6-8c28-5d3cb551feb5@yandex.ru> <679bace3a753f_1d35f32942d@willemb.c.googlers.com.notmuch>
-In-Reply-To: <679bace3a753f_1d35f32942d@willemb.c.googlers.com.notmuch>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 3 Feb 2025 19:29:53 -0500
-X-Gm-Features: AWEUYZmUsmD5zCo4hDfd3nWC-dGlKyR6ryMJMAzMHvcapPBgUl5n85uHWuFs7UY
-Message-ID: <CAHC9VhS-uSaVmy65oA8p6tCzMZxMsuzdmxO-vf7L0p44ZKO=_A@mail.gmail.com>
-Subject: Re: Possible mistake in commit 3ca459eaba1b ("tun: fix group
- permission check")
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: stsp <stsp2@yandex.ru>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Willem de Bruijn <willemb@google.com>, Jason Wang <jasowang@redhat.com>, 
-	Jakub Kicinski <kuba@kernel.org>, network dev <netdev@vger.kernel.org>, 
-	Linux Security Module list <linux-security-module@vger.kernel.org>, 
-	SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHC9VhTSt-UoGOZvez8WPLxv4s6UQqJgDb5M4hWeTUeJY2oz3w@mail.gmail.com>
 
-On Thu, Jan 30, 2025 at 11:48=E2=80=AFAM Willem de Bruijn
-<willemdebruijn.kernel@gmail.com> wrote:
-> stsp wrote:
-> > 29.01.2025 17:12, Willem de Bruijn =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
-> > > stsp wrote:
-> > >> 29.01.2025 01:59, Willem de Bruijn =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
-> > >>> stsp wrote:
-> > >>>> By doing that you indeed avoid
-> > >>>> the problem of "completely
-> > >>>> inaccessible tap". However, that
-> > >>>> breaks my setup, as I really
-> > >>>> intended to provide tap to the
-> > >>>> owner and the unrelated group.
-> > >>>> This is because, eg when setting
-> > >>>> a CI job, you can add the needed
-> > >>>> user to the needed group, but
-> > >>>> you also need to re-login, which
-> > >>>> is not always possible. :(
-> > >>> Could you leave tun->owner unset?
-> > >> That's exactly the problem: when
-> > >> the user is not in the needed group,
-> > >> then you need to unset _both_.
-> > >> Unsetting only owner is not enough.
-> > >> Adding the user to the group is not
-> > >> enough because then you need to
-> > >> re-login (bad for CI jobs).
-> > > At some point we can question whether the issue is with the setup,
-> > > rather than the kernel mechanism.
+On Fri, Jan 31, 2025 at 09:39:31AM -0500, Paul Moore wrote:
+> On Fri, Jan 31, 2025 at 7:09 AM Christian Brauner <brauner@kernel.org> wrote:
+> > On Thu, Jan 30, 2025 at 04:05:53PM -0500, Paul Moore wrote:
 > > >
-> > > Why does your setup have an initial user that lacks the group
-> > > permissions of the later processes, and a tun instance that has both
-> > > owner and group constraints set?
-> > >
-> > > Can this be fixed in userspace, rather than allow this odd case in th=
-e
-> > > kernel. Is it baked deeply into common containerization tools, say?
+> > > Now back to the merge into the VFS tree ... I was very surprised to
+> > > open this patchset and see that Christian had merged v5 after less
+> > > than 24 hours (at least according to the email timestamps that I see)
+> > > and without an explicit ACK for the SELinux changes.  I've mentioned
+> > > this to you before Christian, please do not merge any SELinux, LSM
+> > > framework, or audit related patches without an explicit ACK.  I
 > >
-> > No-no, its not a real or unfixible
-> > problem. At the end, I can just
-> > drop both group and user ownership
-> > of the TAP, and simply not to care.
->
-> In that case the safest course of action is to revert the patch.
->
-> It relaxes some access control restrictions that other users may have
-> come to depend on.
->
-> Say, someone expects that no process can use the device until it
-> adds the user to one of the groups.
->
-> It's farfetched, but in cases of access control, err on the side of
-> caution. Especially retroactively.
+> > Things go into the tree for testing when the VFS side is ready for
+> > testing. We're at v5 and the patchset has gone through four iterations
+> > over multiple months. It will go into linux-next and fs-next now for as
+> > much expsure as possible.
+> >
+> > I'm not sure what the confusion between merging things into a tree and
+> > sending things upstream is. I have explained this to you before. The
+> > application message is also pretty clear about that.
+> 
+> I'm not sure what the confusion is around my explicit request that you
+> refrain from merging anything that touches the LSM framework, SELinux,
+> or the audit subsystem without an explicit ACK.  I have explained this
+> to you before.
+> 
+> For the record, your application/merge email makes no statement about
+> only sending patches to Linus that have been ACK'd by all relevant
+> parties.  The only statement I can see in your email that remotely
+> relates to ACKs is this:
+> 
+>   "It's encouraged to provide Acked-bys and Reviewed-bys
+>    even though the patch has now been applied. If possible
+>    patch trailers will be updated."
+> 
+> ... which once again makes no claims about holding back changes that
+> have not been properly ACK'd.
 
-If a revert is the best path forward for v6.14, do you think it would
-be possible to get this fixed this week, or do you expect it to take
-longer?
+If seems you're having difficulties understanding that included patches
+are subject to be updated from this content. You might want to remember
+that this is similar for the various mm trees where this isn't even
+mentioned. In other words this isn't a novel concept.
 
---
-paul-moore.com
+Anyway, VFS patch series will continue to appear in testing trees when
+they are ready from the VFS side.
+
+Going forward it might be best to add the required LSM integration via
+the LSM subsystem.
