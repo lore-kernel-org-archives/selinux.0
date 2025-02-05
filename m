@@ -1,45 +1,45 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57232214216
-	for <selinux@vger.kernel.org>; Wed,  5 Feb 2025 20:59:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF51E214A61
+	for <selinux@vger.kernel.org>; Wed,  5 Feb 2025 20:59:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738789161; cv=none; b=Ue6N3Cmdv1sKeG38I0qcPj7sh8yYAu99jVvktZfIs+9wMqQItychljMJClApsN/F1Eu5ABQqs/862/BkN8rQ9WfuIDXG5S72lkKE4AKw+I5eIaWFa4KDxXHrX6it0Ij7fr/8r2JWQeG/ItuTKvC+gBz5d7mXdVrm6Ux1THG7AEw=
+	t=1738789198; cv=none; b=CqGuqQsMTfncQGyVIS5stK8Wsl1OKuHH3F8t13YftWvzrUy5QAIMww2Ff62Uahx7magqApdj93BN9vzrpOIe0O3rN8RfW+k2YCicp4H3BduMj5GMKnNg1I+QNkpe8PGkCg7RiV+upqEqi4Z6pGOuRETRtmHt+dyS4YDmPnEHL1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738789161; c=relaxed/simple;
-	bh=xQIiXSB/5DfjJWl2fH/vZNdH9MAEJxK2cVYZXbHCxd0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=a/IJF/Qa5RLOyUSnbewBERHjulupSfzX6ACi70Honc6b80TuxOGnrSAu3Kk3dGeIjArtUmyL4XQBKDudJ7FPmojQmt/3mDQngsrQUy6PrWROO4RUkCeeLnHeGZhxloEBEN14lGBt1UMlVAUboVfjWHpcUI1wIheiBaZ2gi6lOsg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com; spf=pass smtp.mailfrom=gmx.com; dkim=pass (2048-bit key) header.d=gmx.com header.i=kippndavis.work@gmx.com header.b=IS5cuELi; arc=none smtp.client-ip=212.227.15.19
+	s=arc-20240116; t=1738789198; c=relaxed/simple;
+	bh=mzgpe83V2l6GW9seL/xYKbhu8ppMGJ3jkfe00TU0Fp0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ony1eahTM9kFoXDYoXYz5vINXLLaXTgwwYc+DQgNY6laCsfCkvMrYgzFkLZ3KNWSCwwwBDt7dpIgMWqLZcuxA2mm8trtXC1NhcD3sV67kYwv1+QPt54iRv7kIAXyjKHQ/Xdtw1r0i+X9TTJtrb7hj6kXVd16/PRiwcP2eb8k6dM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com; spf=pass smtp.mailfrom=gmx.com; dkim=pass (2048-bit key) header.d=gmx.com header.i=kippndavis.work@gmx.com header.b=OvcRUqDL; arc=none smtp.client-ip=212.227.15.18
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.com header.i=kippndavis.work@gmx.com header.b="IS5cuELi"
+	dkim=pass (2048-bit key) header.d=gmx.com header.i=kippndavis.work@gmx.com header.b="OvcRUqDL"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.com;
-	s=s31663417; t=1738789155; x=1739393955; i=kippndavis.work@gmx.com;
-	bh=4ITmxPiD4Dxufx6bIBs13bU4YVtq9CbB2GZM4b6BCJM=;
+	s=s31663417; t=1738789189; x=1739393989; i=kippndavis.work@gmx.com;
+	bh=KhJHE/w1d4pG9IspSoAHQsRWsUMzgj0MmQqe4MqDD8c=;
 	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:
 	 MIME-Version:Content-Transfer-Encoding:cc:
 	 content-transfer-encoding:content-type:date:from:message-id:
 	 mime-version:reply-to:subject:to;
-	b=IS5cuELiK4kha3iWvP+aubWZzPNL0dn1wgnFKzcYSHgVj/J3c9yKJBhC/7vIuN9O
-	 Ns/Ad75a18pchy+U7AMGA8pSlniGELC9p1mX8/VIvDFJYOj5MkecSaAtG92ayF79j
-	 yaDO81PtZeF5/AvxYFwdW4gtCaaJGEUyh3KAYrrzEoK5awyN34nEK9m256u8jNI9a
-	 1imMvylNxDoA2Hyv1bJEF6VTEkaYywEf4L8Tw5lWnv+QOuHb5zIlz0i5GtfMgKjuu
-	 inkOx781D3GaYSQfMCLP5t0iMlMjT1KdiyFJnA8HPIddaMgCOh264iDWHPUYXbTGR
-	 yL0dWMAwVLg2Fp0vYA==
+	b=OvcRUqDL1Xsa1dG5SeVp8Yw/1icIJa3NgP1ZO6i4+CmSOUvrpyDDhvYDOAGgFnX0
+	 FlLrJxLE/Z+dV8rdC4KxvtO3JHKFmI0Zfqyijv48+fi6uYRMioOr2vjJC/aRrzNIG
+	 jZSqqXqp20SYvjZZu7yf8fByllhA7hPtCblPovTjFhfp07dDP54g0k6v42yu43Kq8
+	 ZLKfQlotUjZG+hSGXLBcF2Ag3em6eXizRgFqPaSctz5YSnbsHt4fOo7zx6fak8oKe
+	 WELPrOgPxJI+sqX9bGHpZ3tnPMZMCL4e0C9LWm71NgTK2F09ZLFa5801lfeYuwekZ
+	 BjLQuxIgns5fZdstjg==
 X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
 Received: from ip-192-168-122-31.ec2.internal ([52.70.167.183]) by
  mail.gmx.net (mrgmx005 [212.227.17.184]) with ESMTPSA (Nemesis) id
- 1MlNpH-1t0iZK2S5N-00oUoG; Wed, 05 Feb 2025 21:59:15 +0100
+ 1MRCOE-1u2nWy3Uay-00LXg4; Wed, 05 Feb 2025 21:59:49 +0100
 From: kippndavis.work@gmx.com
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	stephen.smalley.work@gmail.com
-Subject: [PATCH] selinux: add permission checks for loading other kinds of kernel files
-Date: Wed,  5 Feb 2025 15:59:09 -0500
-Message-ID: <20250205205909.19515-1-kippndavis.work@gmx.com>
+Subject: [PATCH testsuite] policy,tests: add tests for new permissions for loading files/data
+Date: Wed,  5 Feb 2025 15:59:40 -0500
+Message-ID: <20250205205940.19527-1-kippndavis.work@gmx.com>
 X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -48,170 +48,372 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:pdT7fm6hBDT2maErn7cJvYkWiG3MhK4n9zey+SfwYGsxXR1BGuz
- sFe5gwss279E8OKVkrqkApm2A/U6odDRMgGQ3W0CYPZRGvm5xMwJ2QWmEO4ZheZArpGykBQ
- PM8ov417dFUKmh6YnVJKhSJcJWNFYq8Y/kUibCk/E5U/0UQeIPXa6PJ5w+b7Hu+9DPHi0TV
- 0JczAZRU8BdnRJ3PVBcQw==
+X-Provags-ID: V03:K1:p83pcS4Avw0L0eNxSCr8HCa2Xky/eZBWVmFUj142HJWOn8OnLCU
+ 0XtoRbwH6sRZt08K8nx2To+arsKsetzOpbhuuaiwtFVauvRLtjrl/GNJj969InfX6ui26Ua
+ 3x6fSlmEL/he+rryji3DjSZtbrR0v1IVoxOjdrmsivC/B/JSnOX0Q/Yew+3mHapLwj41tei
+ A1P1V/e7z5ExfhCC2mu3w==
 X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:cFZV4fuVfvc=;VOtX/fwEO0KrNsGWyA2Byq6izxy
- 5pPtxXe4TD8mquEI1F9sD5ia3CiW9rg/Q23xHcEx6kEiYOBJ0XR/+yq6SaX2xy8X0rsBWoBaJ
- D1chW3F2NVywGsBq81DJJ/7hpUu5aKAN+M7VnFqynXZr9NKI3nz03Z4hK2S/3ZVX/TLv/eKgw
- eFrhOJiZgP/lmcgWs13YKaRjmpZNZvJUenHFtw9YWLRpr/pYBk8lAjuvJB0GyBXpl1FbF4Fc/
- ROcU1Vxrr8Nosq9qqdzf98MAv8Jr5jH1evZa2T/44y09RO0ukvitc2r7kAEQ0Fpo3wo/HlL4n
- R1Ih1QkT2mi1xJxT82GBDO6/MzXXqi187iVIjjpSBnPoAinpUi7Si5JoQiSnRt1LoK2AO9QRn
- ss7bxK/tYAYdGHL5InujArhhQkPKX6yzozOVKHaJFWnNbVF19WlsXZTb9hBWWVqQYnHeleh7L
- iaIBZoCEinLE2o6e/Zu7PWVuSTBilGnGs8QVpC0fP24AVxRkF3AQE4RNpI082cZEOnPz47huP
- yMEAvFYmfptYgN/+X4YE4KyH/hzmw3VwGVLZ/XaGntP5vVPu9TLixw7Q1wt+jENdXZOsLkF7X
- VCHNGL+uypRRdjK9ga0Sl4Eh2XHIO4HHQRRzi/X4q6BTcUcWEki7QxDLshO5Z13eC6PC8/YCi
- 8a/Ycfr9HM9RIEAHPDZ+dqOdbsO8EdZU+wNtLEbLpLoq3GvvozgbdQMlS3HNHpn4HW/LVk5Fm
- bCY2fZyoutqfdvvAdBdNO/lkhAJCXAc1Xcgez7mgv5mPmrbt1ju8JxEFY3vLBlH9Kr2/i5xC+
- fZk60d2V/zkzF7jsCfN+M9y3yEYf0y+IeEZ5e33+E3A6YvNGEhlm02PIQFZNqWQoVUHqbt4ZE
- G/c+hIKXzWnEf0R1utpjGY0gBNj46WWq3OqKEVRb4oe3qsQjysx/rvw342cwMG/4c0N73turr
- zr4QnrJO0XP+sRfsNmSSmK0+gFvCwBw9Ew6yA18LdZgsum1L4lvNV6QfqZNo1hvzUtDGReMLr
- 9JNfOfbS9VjIc83KkkKYDhJXFNh9MPmMp4zMmXanTNLAqJN40dr7j8iEA7OmPu4ZyqdyiaONR
- OlfwkXgXUfEx1FaS1evxFypcnuEbIpIIvCFmjUTy/z78T5BLcU6e8tjIdqQTv0btfcXkL9R8t
- bxBX0NgHgjDFD2wtSMG4bREDEdurazWFkD0HMa1pvt6f+TS+TjVwejh3llXTO3tLrWCdNXd1+
- 0H5dguUMmsFsOCIZXV4gyIcMVsaTsTrtXwMfJM1DX7ZZkVYJi1X1mMI0EoOZ29tDeBSP3BVZz
- /hsqhlnfRMRmSOZ9no2N6hGfrftudvtZSQDfTSOYnBHzkQ=
+UI-OutboundReport: notjunk:1;M01:P0:FiBZ9/aF8Io=;4jeHcRwo9cv5dxSrgLmhjCESeCY
+ l7HsC4zqUfQFZae6M4nF3PRw3PiXksD5nhroidjq70gSv2esWtBLRiRgjTp7N98hBfn/WAgap
+ ONmPEuTFeUovD9c1xrvoHLxXidFHRIyFNUYOUMbVVmTfggOTDVK9qisPNLNw4ltfGFawIJjUs
+ SMP9jf60LzTYvycxlJXY0spjGP84Jarh6VV95UVfZddc28q/H2lvUMu5xtZL5RfVzto+U1z0A
+ 1Bdb0pK91HL+CuQco+oLwHBJtZM8uiHn78JWVspwN3w0M7D6at1LdbgUarS9Cye3rSYPTmM47
+ FJ3P1l2N6qelFa6lBWYp0d8ePpH8UBUFtrRYOI5LD035DDPZbC/gfmnce+WXt1jUR3gOKrHKv
+ GoWRluLbjoBkjYCiIf7TdBVZrJN2fBT5PKq76QA27J0oT3c6+sAFi4LNLzY4Yb0eHTypoJk9f
+ vFPhrAHzEL1Cum2zwTGNyaz4Oz1A0d8zIVrleQ+gtZyjr6lJ2Y1Iop+eoZGOTbo1YBlHse/Qe
+ GRC38VHWyCQXpFXEqTBK2LXJK02QmSMNYQlq/PpEQzeLtOeT6nzyzavojqtj5a4bUPwuuUFRx
+ zovldQjenmk+KKRUc4o8v71/Z1UXsvp/nNjzUAdBGYliNCVtQP21gjdwb7IJ8xuYO9gg7NHpk
+ AefWeZ1iKjroiKXwJN+oEVGqj0NmHS5/nwZJWqzPiY7cItDakxhyDvffJXz7/4KbO83yB4xFc
+ BSHfx2JJ7IJ0Wz/jW7BgpPCAdoZJh+rlVILka/HYXT6s1m6vn60/hpsKmYU365Vri1Mlrh63W
+ lqvMd61HrmZdBvB1usmTJVzscNBotAURJ45DXDesZEo3Uj8ggSNNaA6TBJ+ehVyTmfsrHrSkR
+ xH+jh1JSAXp+2GJZjC6s/qqxDn5aD+1+egIVIolz091eKFgrVg1pSgFzHUQyIViLYc0cqAfH3
+ wCPqAo95kajTh3DirBgqmQG2tkeEpuH0WG3Pz0UWPuT7BKAaYtDLqji5F5petIWiFwE2w5XkY
+ VMRRpxMrWi5X1/KltowlJmWnlGzsCw+DvA4U3LH9+hzkhhSyYE0LH34pLem5QJR5srbd1LXOO
+ 7rIYrCeX8VpUEMQ/RljfJBRnx3qTsv7D2lS/4014kIS98Y4RdmwsB4QimZRulAH+413bR845X
+ suag9bSrCoH904/ulxNPQJIk31kYppU9wH5L+mjj8lNNn0/dNah9fGLV2Ks2WE13u9Fdp636p
+ brCW+/ICz2k+gbo8wKLoC+MV4Ughp/tNDVaJ5qOf71PWX/w2Bwf5LjHn+scw63wHT+x8id8NJ
+ PWeecVGr7CwDUU0sEDCRbK43d1T+YwgISS/on65p+42/LGIQx0anR6qo0DYLlg3LmJckPSgBo
+ KKM0QJA1SK2GzLAs8SqpjSTf+Io6OFsJZiBDs+oD4NIaTOuDssYMtLk4eux0wmspMkISVa0ge
+ C43Y1iA==
 
 From: "Kipp N. Davis" <kippndavis.work@gmx.com>
 
-Although the LSM hooks for loading kernel modules were later generalized
-to cover loading other kinds of files, SELinux didn't implement
-corresponding permission checks, leaving only the module case covered.
-Define and add new permission checks for these other cases.
+These tests exercise new SELinux hooks for firmware_load, kexec_image_load=
+,
+kexec_initramfs_load, and policy_load alongside module_load. These tests
+depend on the corresponding kernel patch and updating the base policy to
+define the new system permissions. If the kernel does not support them,
+they will be skipped.
 
-Signed-off-by: Cameron K. Williams <ckwilliams.work@gmail.com>
-Signed-off-by: Kipp N. Davis <kippndavis.work@gmx.com>
+For testing purposes, you can update the base policy by manually modifying
+your base module and tweaking /usr/share/selinux/devel (latter only requir=
+ed
+due to writing the test policy as a .te file rather than as a .cil in orde=
+r
+to use the test macros) as follows:
+
+    sudo semodule -c -E base
+    sudo sed -i.orig \
+    "s/module_load/module_load firmware_load kexec_image_load \
+    kexec_initramfs_load policy_load x509_certificate_load/" base.cil
+    sudo semodule -i base.cil
+    sudo sed -i.orig \
+    "s/module_load/module_load firmware_load kexec_image_load \
+    kexec_initramfs_load policy_load x509_certificate_load/" \
+    /usr/share/selinux/devel/include/support/all_perms.spt
+
+When finished testing, you can sudo semodule -r base to undo the module
+change and restore your all_perms.spt file from the saved .orig file.
+
+Note: The x509_certificate_load permission is newly added in the kernel
+but is not tested here due to no callers remaining after boot.
+
+Signed-off-by: Kipp Davis <kippndavis.work@gmx.com>
 =2D--
- security/selinux/hooks.c            | 54 ++++++++++++++++++++++++-----
- security/selinux/include/classmap.h |  4 ++-
- 2 files changed, 49 insertions(+), 9 deletions(-)
+ policy/Makefile                          |   8 ++
+ policy/test_file_load.te                 | 102 +++++++++++++++++++++++
+ tests/module_load/Makefile               |   2 +-
+ tests/module_load/setest_firmware_load.c |  29 +++++++
+ tests/module_load/test                   |  70 +++++++++++++++-
+ 5 files changed, 209 insertions(+), 2 deletions(-)
+ create mode 100644 policy/test_file_load.te
+ create mode 100644 tests/module_load/setest_firmware_load.c
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 7b867dfec88b..e96ade50c137 100644
-=2D-- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4096,7 +4096,7 @@ static int selinux_kernel_module_request(char *kmod_=
-name)
- 			    SYSTEM__MODULE_REQUEST, &ad);
+diff --git a/policy/Makefile b/policy/Makefile
+index 46e51f3..fcc80f0 100644
+=2D-- a/policy/Makefile
++++ b/policy/Makefile
+@@ -180,6 +180,14 @@ ifeq ($(shell [ $(POL_VERS) -ge 34 -a $(MAX_KERNEL_PO=
+LICY) -ge 34 ] && echo true
+ TARGETS +=3D test_ioctl_cond_xperms.te
+ endif
+
++ifeq ($(shell grep -q firmware_load $(POLDEV)/include/support/all_perms.s=
+pt && \
++             grep -q kexec_image_load $(POLDEV)/include/support/all_perms=
+.spt && \
++             grep -q kexec_initramfs_load $(POLDEV)/include/support/all_p=
+erms.spt && \
++             grep -q policy_load $(POLDEV)/include/support/all_perms.spt =
+&& \
++             echo true),true)
++TARGETS +=3D test_file_load.te
++endif
++
+ all: build
+
+ expand_check:
+diff --git a/policy/test_file_load.te b/policy/test_file_load.te
+new file mode 100644
+index 0000000..e98503a
+=2D-- /dev/null
++++ b/policy/test_file_load.te
+@@ -0,0 +1,102 @@
++###################### Test file loading ###################
++
++require {
++    type boot_t;
++    type kdump_exec_t;
++    type tmpfs_t;
++    type user_tmp_t;
++}
++
++###################### Allow sys kexec_image_load ######################
++type test_kexec_allow_kexec_image_load_t;
++testsuite_domain_type_minimal(test_kexec_allow_kexec_image_load_t);
++
++files_search_boot(test_kexec_allow_kexec_image_load_t);
++fs_rw_inherited_tmpfs_files(test_kexec_allow_kexec_image_load_t);
++exec_files_pattern(test_kexec_allow_kexec_image_load_t, kdump_exec_t, kdu=
+mp_exec_t);
++domain_entry_file(test_kexec_allow_kexec_image_load_t, kdump_exec_t);
++allow test_kexec_allow_kexec_image_load_t self:capability sys_boot;
++
++allow test_kexec_allow_kexec_image_load_t boot_t:system  kexec_image_load=
+;
++allow test_kexec_allow_kexec_image_load_t tmpfs_t:system kexec_image_load=
+;
++
++###################### Deny sys kexec_image_load ######################
++type test_kexec_deny_kexec_image_load_t;
++testsuite_domain_type_minimal(test_kexec_deny_kexec_image_load_t);
++
++files_search_boot(test_kexec_deny_kexec_image_load_t);
++fs_rw_inherited_tmpfs_files(test_kexec_deny_kexec_image_load_t);
++exec_files_pattern(test_kexec_deny_kexec_image_load_t, kdump_exec_t, kdum=
+p_exec_t);
++domain_entry_file(test_kexec_deny_kexec_image_load_t, kdump_exec_t);
++allow test_kexec_deny_kexec_image_load_t self:capability sys_boot;
++
++neverallow test_kexec_deny_kexec_image_load_t boot_t:system  kexec_image_=
+load;
++neverallow test_kexec_deny_kexec_image_load_t tmpfs_t:system kexec_image_=
+load;
++
++###################### Allow sys kexec_initramfs_load ###################=
+###
++type test_kexec_allow_kexec_initramfs_load_t;
++testsuite_domain_type_minimal(test_kexec_allow_kexec_initramfs_load_t);
++
++files_search_boot(test_kexec_allow_kexec_initramfs_load_t);
++fs_rw_inherited_tmpfs_files(test_kexec_allow_kexec_initramfs_load_t);
++domain_entry_file(test_kexec_allow_kexec_initramfs_load_t, kdump_exec_t);
++allow test_kexec_allow_kexec_initramfs_load_t  self:capability sys_boot;
++
++allow test_kexec_allow_kexec_initramfs_load_t  boot_t:system  { kexec_ima=
+ge_load kexec_initramfs_load } ;
++allow test_kexec_allow_kexec_initramfs_load_t  tmpfs_t:system { kexec_ima=
+ge_load kexec_initramfs_load };
++
++###################### Deny sys kexec_initramfs_load ####################=
+##
++type test_kexec_deny_kexec_initramfs_load_t;
++testsuite_domain_type_minimal(test_kexec_deny_kexec_initramfs_load_t);
++
++files_search_boot(test_kexec_deny_kexec_initramfs_load_t);
++fs_rw_inherited_tmpfs_files(test_kexec_deny_kexec_initramfs_load_t);
++domain_entry_file(test_kexec_deny_kexec_initramfs_load_t, kdump_exec_t);
++allow test_kexec_deny_kexec_initramfs_load_t boot_t:system  kexec_image_l=
+oad;
++allow test_kexec_deny_kexec_initramfs_load_t tmpfs_t:system kexec_image_l=
+oad;
++allow test_kexec_deny_kexec_initramfs_load_t self:capability sys_boot;
++
++neverallow test_kexec_deny_kexec_initramfs_load_t boot_t:system  kexec_in=
+itramfs_load;
++neverallow test_kexec_deny_kexec_initramfs_load_t tmpfs_t:system kexec_in=
+itramfs_load;
++
++###################### Allow sys firmware_load ######################
++type test_kmodule_allow_firmware_load_t;
++testsuite_domain_type_minimal(test_kmodule_allow_firmware_load_t)
++typeattribute test_kmodule_allow_firmware_load_t kmoduledomain;
++
++type firmware_allow_file_t;
++files_type(firmware_allow_file_t);
++
++allow test_kmodule_allow_firmware_load_t self:capability sys_module;
++allow test_kmodule_allow_firmware_load_t test_file_t:system module_load;
++allow test_kmodule_allow_firmware_load_t self:system module_load;
++allow kernel_t firmware_allow_file_t:system firmware_load;
++
++###################### Deny sys firmware_load ######################
++type test_kmodule_deny_firmware_load_t;
++testsuite_domain_type_minimal(test_kmodule_deny_firmware_load_t)
++typeattribute test_kmodule_deny_firmware_load_t kmoduledomain;
++
++type firmware_deny_file_t;
++files_type(firmware_deny_file_t);
++
++allow test_kmodule_deny_firmware_load_t self:capability { sys_module };
++allow test_kmodule_deny_firmware_load_t test_file_t:system { module_load =
+};
++allow test_kmodule_deny_firmware_load_t self:system { module_load };
++neverallow kernel_t firmware_deny_file_t:system firmware_load;
++
++###################### Allow sys policy_load ######################
++type test_policy_allow_policy_load_t;
++testsuite_domain_type_minimal(test_policy_allow_policy_load_t);
++
++userdom_read_inherited_user_tmp_files(test_policy_allow_policy_load_t);
++userdom_write_user_tmp_files(test_policy_allow_policy_load_t);
++allow test_policy_allow_policy_load_t user_tmp_t:system policy_load;
++
++###################### Deny sys policy_load ######################
++type test_policy_deny_policy_load_t;
++testsuite_domain_type_minimal(test_policy_deny_policy_load_t);
++
++userdom_read_inherited_user_tmp_files(test_policy_deny_policy_load_t);
++userdom_write_user_tmp_files(test_policy_deny_policy_load_t);
++neverallow test_policy_deny_policy_load_t user_tmp_t:system policy_load;
+diff --git a/tests/module_load/Makefile b/tests/module_load/Makefile
+index 0839532..fc93aec 100644
+=2D-- a/tests/module_load/Makefile
++++ b/tests/module_load/Makefile
+@@ -1,4 +1,4 @@
+-obj-m =3D setest_module_load.o setest_module_request.o
++obj-m =3D setest_module_load.o setest_module_request.o setest_firmware_lo=
+ad.o
+
+ TARGETS =3D finit_load init_load
+ LDLIBS +=3D -lselinux
+diff --git a/tests/module_load/setest_firmware_load.c b/tests/module_load/=
+setest_firmware_load.c
+new file mode 100644
+index 0000000..d67470b
+=2D-- /dev/null
++++ b/tests/module_load/setest_firmware_load.c
+@@ -0,0 +1,29 @@
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/firmware.h>
++
++static int __init setest_firmware_request_init(void)
++{
++	const struct firmware *fw;
++	int result;
++
++	pr_info("INIT - setest_firmware_request\n");
++	result =3D request_firmware(&fw, "dummy-firmware", NULL);
++	if (result) {
++		pr_err("request_firmware failed: %d\n", result);
++		return result;
++	}
++	pr_info("request_firmware succeeded\n");
++	release_firmware(fw);
++	return 0;
++}
++
++static void __exit setest_firmware_request_exit(void)
++{
++	pr_info("EXIT - setest_firmware_request\n");
++}
++
++module_init(setest_firmware_request_init);
++module_exit(setest_firmware_request_exit);
++MODULE_LICENSE("GPL");
+\ No newline at end of file
+diff --git a/tests/module_load/test b/tests/module_load/test
+index 524b333..98c5946 100755
+=2D-- a/tests/module_load/test
++++ b/tests/module_load/test
+@@ -16,7 +16,13 @@ BEGIN {
+         $v =3D " ";
+     }
+
+-    plan tests =3D> 8;
++    $kexec_perm_file   =3D "/sys/fs/selinux/class/system/perms/kexec_imag=
+e_load";
++    $kexec_load_exists =3D 0;
++    if ( -f $kexec_perm_file ) {
++        $kexec_load_exists =3D 1;
++    }
++
++    plan tests =3D> 17;
  }
 
--static int selinux_kernel_module_from_file(struct file *file)
-+static int selinux_kernel_load_from_file(struct file *file, u32 requested=
-)
- {
- 	struct common_audit_data ad;
- 	struct inode_security_struct *isec;
-@@ -4104,12 +4104,9 @@ static int selinux_kernel_module_from_file(struct f=
-ile *file)
- 	u32 sid =3D current_sid();
- 	int rc;
+ print "Test finit_module(2)\n";
+@@ -59,4 +65,66 @@ $result =3D system
+ "runcon -t test_kmodule_deny_module_request_t $basedir/init_load $v $base=
+dir setest_module_request 2>&1";
+ ok( $result >> 8 eq 13 );
 
--	/* init_module */
- 	if (file =3D=3D NULL)
- 		return avc_has_perm(sid, sid, SECCLASS_SYSTEM,
--					SYSTEM__MODULE_LOAD, NULL);
--
--	/* finit_module */
-+					requested, NULL);
-
- 	ad.type =3D LSM_AUDIT_DATA_FILE;
- 	ad.u.file =3D file;
-@@ -4123,7 +4120,7 @@ static int selinux_kernel_module_from_file(struct fi=
-le *file)
-
- 	isec =3D inode_security(file_inode(file));
- 	return avc_has_perm(sid, isec->sid, SECCLASS_SYSTEM,
--				SYSTEM__MODULE_LOAD, &ad);
-+				requested, &ad);
- }
-
- static int selinux_kernel_read_file(struct file *file,
-@@ -4133,10 +4130,33 @@ static int selinux_kernel_read_file(struct file *f=
-ile,
- 	int rc =3D 0;
-
- 	switch (id) {
-+	case READING_FIRMWARE:
-+		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
-+				SYSTEM__FIRMWARE_LOAD);
-+		break;
- 	case READING_MODULE:
--		rc =3D selinux_kernel_module_from_file(contents ? file : NULL);
-+		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
-+				SYSTEM__MODULE_LOAD);
-+		break;
-+	case READING_KEXEC_IMAGE:
-+		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
-+				SYSTEM__KEXEC_IMAGE_LOAD);
-+		break;
-+	case READING_KEXEC_INITRAMFS:
-+		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
-+				SYSTEM__KEXEC_INITRAMFS_LOAD);
-+		break;
-+	case READING_POLICY:
-+		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
-+				SYSTEM__POLICY_LOAD);
-+		break;
-+	case READING_X509_CERTIFICATE:
-+		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
-+				SYSTEM__X509_CERTIFICATE_LOAD);
- 		break;
- 	default:
-+		pr_err("SELinux:  kernel_read_file_id unknown");
-+		rc =3D -EACCES;
- 		break;
- 	}
-
-@@ -4148,10 +4168,28 @@ static int selinux_kernel_load_data(enum kernel_lo=
-ad_data_id id, bool contents)
- 	int rc =3D 0;
-
- 	switch (id) {
-+	case LOADING_FIRMWARE:
-+		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__FIRMWARE_LOAD);
-+		break;
- 	case LOADING_MODULE:
--		rc =3D selinux_kernel_module_from_file(NULL);
-+		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__MODULE_LOAD);
-+		break;
-+	case LOADING_KEXEC_IMAGE:
-+		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__KEXEC_IMAGE_LOAD);
-+		break;
-+	case LOADING_KEXEC_INITRAMFS:
-+		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__KEXEC_INITRAMFS_LOAD=
-);
-+		break;
-+	case LOADING_POLICY:
-+		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__POLICY_LOAD);
-+		break;
-+	case LOADING_X509_CERTIFICATE:
-+		rc =3D selinux_kernel_load_from_file(NULL,
-+				SYSTEM__X509_CERTIFICATE_LOAD);
- 		break;
- 	default:
-+		pr_err("SELinux:  kernel_read_file_id unknown");
-+		rc =3D -EACCES;
- 		break;
- 	}
-
-diff --git a/security/selinux/include/classmap.h b/security/selinux/includ=
-e/classmap.h
-index 03e82477dce9..cfac41d12f7d 100644
-=2D-- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -63,7 +63,9 @@ const struct security_class_mapping secclass_map[] =3D {
- 	{ "process2", { "nnp_transition", "nosuid_transition", NULL } },
- 	{ "system",
- 	  { "ipc_info", "syslog_read", "syslog_mod", "syslog_console",
--	    "module_request", "module_load", NULL } },
-+	    "module_request", "module_load", "firmware_load",
-+	    "kexec_image_load", "kexec_initramfs_load", "policy_load",
-+	    "x509_certificate_load", NULL } },
- 	{ "capability", { COMMON_CAP_PERMS, NULL } },
- 	{ "filesystem",
- 	  { "mount", "remount", "unmount", "getattr", "relabelfrom",
++SKIP: {
++    skip(
++"Not all system permissions available; skipping kexec, initramfs, firmwar=
+e and policy tests",
++        9
++    ) unless $kexec_load_exists;
++
++    $kver =3D `uname -r`;
++    chomp($kver);
++    $kernel =3D "/boot/vmlinuz-$kver";
++    $initrd =3D "/boot/initramfs-$kver.img";
++
++    $result =3D
++      system "runcon -t test_kexec_allow_kexec_image_load_t kexec -l $ker=
+nel";
++    ok( $result eq 0 );
++
++    $result =3D system "runcon -t test_kexec_allow_kexec_image_load_t kex=
+ec -u";
++    ok( $result eq 0 );
++
++    # Deny system { kexec_image_load }
++    $result =3D system
++      "runcon -t test_kexec_deny_kexec_image_load_t kexec -l $kernel 2>&1=
+";
++    ok( $result >> 8 eq 255 );
++
++    $result =3D system
++"runcon -t test_kexec_allow_kexec_initramfs_load_t kexec -l --initrd=3D$i=
+nitrd $kernel";
++    ok( $result eq 0 );
++
++    # Deny system { kexec_initramfs_load }
++    $result =3D system
++"runcon -t test_kexec_deny_kexec_initramfs_load_t kexec -l --initrd=3D$in=
+itrd $kernel 2>&1";
++    ok( $result >> 8 eq 255 );
++
++    system("mkdir -p /usr/lib/firmware");
++    system("echo 'Test firmware' > /usr/lib/firmware/dummy-firmware");
++    system("chcon -t firmware_allow_file_t /usr/lib/firmware/dummy-firmwa=
+re");
++
++    $result =3D system
++"runcon -t test_kmodule_allow_firmware_load_t $basedir/init_load $v $base=
+dir setest_firmware_load";
++    ok( $result eq 0 );
++
++    system("chcon -t firmware_deny_file_t /usr/lib/firmware/dummy-firmwar=
+e");
++
++    # Deny system { firmware_load } - EACCES
++    $result =3D system
++"runcon -t test_kmodule_deny_firmware_load_t $basedir/init_load $v $based=
+ir setest_firmware_load 2>&1";
++    ok( $result >> 8 eq 13 );
++
++    system("rm -f /usr/lib/firmware/dummy-firmware");
++    system("echo 'measure func=3DBPRM_CHECK' > /tmp/test_ima_policy");
++
++    $result =3D system
++qq(runcon -t test_policy_allow_policy_load_t bash -c "echo '/tmp/test_ima=
+_policy' > /sys/kernel/security/ima/policy");
++    ok( $result eq 0 );
++
++    # Deny system { policy_load } - EACCES
++    $result =3D system
++qq(runcon -t test_policy_deny_policy_load_t bash -c "echo '/tmp/test_ima_=
+policy' > /sys/kernel/security/ima/policy 2>&1");
++    ok( $result >> 8 eq 1 );
++
++    system("rm -f /tmp/test_ima_policy");
++}
++
+ exit;
 =2D-
 2.48.1
 
