@@ -1,133 +1,217 @@
-Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A62621D5B5
-	for <selinux@vger.kernel.org>; Tue,  4 Feb 2025 23:52:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57232214216
+	for <selinux@vger.kernel.org>; Wed,  5 Feb 2025 20:59:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738713152; cv=none; b=uKKmVmZLY8HqXR/o8CBtf58zPSyDzsCkP2IxjhPdW9bdsTXIgkS90wLMQKUjR7Kxd7QJDFydh3SKEy/wESiFBSWL0VfGpO0sKm5m+iS4V0LGy05EuPPNpyMXbajmE4kdlLbWGpw6CZB/6ERZo0XjjawbdSRpliXArLOjeF48kN4=
+	t=1738789161; cv=none; b=Ue6N3Cmdv1sKeG38I0qcPj7sh8yYAu99jVvktZfIs+9wMqQItychljMJClApsN/F1Eu5ABQqs/862/BkN8rQ9WfuIDXG5S72lkKE4AKw+I5eIaWFa4KDxXHrX6it0Ij7fr/8r2JWQeG/ItuTKvC+gBz5d7mXdVrm6Ux1THG7AEw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738713152; c=relaxed/simple;
-	bh=5l6ADnv5b2mbmvX0rsybSYCtEF2u5mxcpaeARc7J5ns=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oA0enT3JV2JgN1PFqTGZ0mzixT74K9g0mEneeLPUPmHzxubBzxfyclzEy726uqOkajLzClRZ0wbZyxdrE39Kh1YriPP5WyqWDYql0QPmY3cQvhymVY3M3+Mogqd/eOhOXZCychwuPQgRMUdq5Kn7ikrg/3iS6/qz3N2EL9LACVs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=fXNPe+6o; arc=none smtp.client-ip=209.85.128.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1738789161; c=relaxed/simple;
+	bh=xQIiXSB/5DfjJWl2fH/vZNdH9MAEJxK2cVYZXbHCxd0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=a/IJF/Qa5RLOyUSnbewBERHjulupSfzX6ACi70Honc6b80TuxOGnrSAu3Kk3dGeIjArtUmyL4XQBKDudJ7FPmojQmt/3mDQngsrQUy6PrWROO4RUkCeeLnHeGZhxloEBEN14lGBt1UMlVAUboVfjWHpcUI1wIheiBaZ2gi6lOsg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com; spf=pass smtp.mailfrom=gmx.com; dkim=pass (2048-bit key) header.d=gmx.com header.i=kippndavis.work@gmx.com header.b=IS5cuELi; arc=none smtp.client-ip=212.227.15.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="fXNPe+6o"
-Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-6f6ae4846c7so39942147b3.1
-        for <selinux@vger.kernel.org>; Tue, 04 Feb 2025 15:52:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1738713149; x=1739317949; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=l36A6AVJMDU9uRJ7DIwtIfqpyZuenOjv0s0yyt1jqr8=;
-        b=fXNPe+6oaCfzKwi7DVu4dKmQ4cYlGMJjkxSFIdH3VjRVTiB4WqFkd/TMIcfrQl4GvP
-         v5+piVlvipXBcUH74Fq08T0njLjXJq1qkkN1pgymJPArOJYF+sC/HvEtpOgATdTiNpIt
-         x7h7u6X9TA4WY6lhbQpxmCFp41j1FzyHD0q4z7nEJqwmQlEltlP1BsqpjlsOqzmOvSK7
-         gBz75tEA3wD2LedSWqjq16CZPOmDDyPLsESIGFRmPUao7jCr69wJfsp3e3wnBDsh9b6r
-         RKk0lbTDVHKjtsxYWjOpcIG31tPawJk9QDHD2S6o7vBJa7Jcde2+RXfjEDx0irB7hupQ
-         GIbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738713149; x=1739317949;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=l36A6AVJMDU9uRJ7DIwtIfqpyZuenOjv0s0yyt1jqr8=;
-        b=e14PkwqDS+7H+/UeY7G0cUQaxrGXJy1uSQlq4Wv6F4R+jJ0JPAyCoSlgjrNT4QNOSF
-         DLfh855YZBFZSTX1jmNQ0kynC3rJw/gmrN+O39/mOFeQP8cVYzI4bVryVwNX8Brbs9SW
-         5ZI1ErI5FQJoVFgm3KGdqfcgKJBY3Dp6FJHCyWisHBlu5NJhJ3oVFTPJ60eSXVAC9s3U
-         NZQoX72LbyJKKvnua9WVtV7+yQb4sgD7hUXaMdt5fvSAhHO5a6YDKY7CyFQgOKxVnd3C
-         N++KjYLqIQslZF+2VKhyGgPtS4Po12UDN06IhSHE+sX7X8HicttMA+Fpsbc/8RvdD1Ps
-         0Gxg==
-X-Forwarded-Encrypted: i=1; AJvYcCXsXDSxJ572gK/vKdPLN2n2E9Kg2AGM/SRkgteQA7oqG1X3CerPYMWgYew2zQcIsk+PFnIMopyN@vger.kernel.org
-X-Gm-Message-State: AOJu0YyYEW/NM4OwDt4jVo/fNb1F0T0VNFkuCzfyrZbSJEQGzcsBZrK3
-	iCzuH8ML/xc+MHb21oOSLoNvuC7xQToXOksWtwp0Ox6CFPKZb7mLSMBpULHioBBBVrWJnZMZhF9
-	vBC34eX/qegyMJLGoL7iZn9oHScDg2yknbNIi
-X-Gm-Gg: ASbGnctnWFOEkDCAgrLvPFIb22smtNglTqRL+uzIp8vSxn+T6S8jFpQ5OvfB0edetSK
-	6r1d+AHzV028zY38R77ZME391y5NyZZ7+bb7R2vfOzM58gEiHdEWat1o5snNvL+tlonRLgGY=
-X-Google-Smtp-Source: AGHT+IFzPuhfJtcZSLnDRJaPSXwwbf5Qw3rSKr99Mir42c38+Xcm1tFlPBf1odITUXjMtibTW9GpBvgZPvyOhQyyssI=
-X-Received: by 2002:a05:690c:48c3:b0:6f6:cad0:9ddd with SMTP id
- 00721157ae682-6f989ee68bbmr7768737b3.18.1738713149315; Tue, 04 Feb 2025
- 15:52:29 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmx.com header.i=kippndavis.work@gmx.com header.b="IS5cuELi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.com;
+	s=s31663417; t=1738789155; x=1739393955; i=kippndavis.work@gmx.com;
+	bh=4ITmxPiD4Dxufx6bIBs13bU4YVtq9CbB2GZM4b6BCJM=;
+	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:
+	 MIME-Version:Content-Transfer-Encoding:cc:
+	 content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=IS5cuELiK4kha3iWvP+aubWZzPNL0dn1wgnFKzcYSHgVj/J3c9yKJBhC/7vIuN9O
+	 Ns/Ad75a18pchy+U7AMGA8pSlniGELC9p1mX8/VIvDFJYOj5MkecSaAtG92ayF79j
+	 yaDO81PtZeF5/AvxYFwdW4gtCaaJGEUyh3KAYrrzEoK5awyN34nEK9m256u8jNI9a
+	 1imMvylNxDoA2Hyv1bJEF6VTEkaYywEf4L8Tw5lWnv+QOuHb5zIlz0i5GtfMgKjuu
+	 inkOx781D3GaYSQfMCLP5t0iMlMjT1KdiyFJnA8HPIddaMgCOh264iDWHPUYXbTGR
+	 yL0dWMAwVLg2Fp0vYA==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from ip-192-168-122-31.ec2.internal ([52.70.167.183]) by
+ mail.gmx.net (mrgmx005 [212.227.17.184]) with ESMTPSA (Nemesis) id
+ 1MlNpH-1t0iZK2S5N-00oUoG; Wed, 05 Feb 2025 21:59:15 +0100
+From: kippndavis.work@gmx.com
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	stephen.smalley.work@gmail.com
+Subject: [PATCH] selinux: add permission checks for loading other kinds of kernel files
+Date: Wed,  5 Feb 2025 15:59:09 -0500
+Message-ID: <20250205205909.19515-1-kippndavis.work@gmx.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250129165803.72138-1-mszeredi@redhat.com> <20250129165803.72138-3-mszeredi@redhat.com>
- <CAHC9VhTOmCjCSE2H0zwPOmpFopheexVb6jyovz92ZtpKtoVv6A@mail.gmail.com>
- <20250131-durften-weitblick-075d05e8f616@brauner> <CAHC9VhTSt-UoGOZvez8WPLxv4s6UQqJgDb5M4hWeTUeJY2oz3w@mail.gmail.com>
- <20250204-gepachtet-mehrmalig-debca5265df8@brauner>
-In-Reply-To: <20250204-gepachtet-mehrmalig-debca5265df8@brauner>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 4 Feb 2025 18:52:18 -0500
-X-Gm-Features: AWEUYZmxvU9YBBRFSC9Dc7RTfcn4AC_OBYzlikGSwACt4guDBQ0naNT9F1dVLSY
-Message-ID: <CAHC9VhSSxaYKj6J_HxY+cEbeea==_WgwPXH2APcZ0YQg+RhC9Q@mail.gmail.com>
-Subject: Re: [PATCH v5 2/3] fanotify: notify on mount attach and detach
-To: Christian Brauner <brauner@kernel.org>
-Cc: Miklos Szeredi <mszeredi@redhat.com>, linux-fsdevel@vger.kernel.org, 
-	Jan Kara <jack@suse.cz>, Amir Goldstein <amir73il@gmail.com>, Karel Zak <kzak@redhat.com>, 
-	Lennart Poettering <lennart@poettering.net>, Ian Kent <raven@themaw.net>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, selinux@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux-refpolicy@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:pdT7fm6hBDT2maErn7cJvYkWiG3MhK4n9zey+SfwYGsxXR1BGuz
+ sFe5gwss279E8OKVkrqkApm2A/U6odDRMgGQ3W0CYPZRGvm5xMwJ2QWmEO4ZheZArpGykBQ
+ PM8ov417dFUKmh6YnVJKhSJcJWNFYq8Y/kUibCk/E5U/0UQeIPXa6PJ5w+b7Hu+9DPHi0TV
+ 0JczAZRU8BdnRJ3PVBcQw==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:cFZV4fuVfvc=;VOtX/fwEO0KrNsGWyA2Byq6izxy
+ 5pPtxXe4TD8mquEI1F9sD5ia3CiW9rg/Q23xHcEx6kEiYOBJ0XR/+yq6SaX2xy8X0rsBWoBaJ
+ D1chW3F2NVywGsBq81DJJ/7hpUu5aKAN+M7VnFqynXZr9NKI3nz03Z4hK2S/3ZVX/TLv/eKgw
+ eFrhOJiZgP/lmcgWs13YKaRjmpZNZvJUenHFtw9YWLRpr/pYBk8lAjuvJB0GyBXpl1FbF4Fc/
+ ROcU1Vxrr8Nosq9qqdzf98MAv8Jr5jH1evZa2T/44y09RO0ukvitc2r7kAEQ0Fpo3wo/HlL4n
+ R1Ih1QkT2mi1xJxT82GBDO6/MzXXqi187iVIjjpSBnPoAinpUi7Si5JoQiSnRt1LoK2AO9QRn
+ ss7bxK/tYAYdGHL5InujArhhQkPKX6yzozOVKHaJFWnNbVF19WlsXZTb9hBWWVqQYnHeleh7L
+ iaIBZoCEinLE2o6e/Zu7PWVuSTBilGnGs8QVpC0fP24AVxRkF3AQE4RNpI082cZEOnPz47huP
+ yMEAvFYmfptYgN/+X4YE4KyH/hzmw3VwGVLZ/XaGntP5vVPu9TLixw7Q1wt+jENdXZOsLkF7X
+ VCHNGL+uypRRdjK9ga0Sl4Eh2XHIO4HHQRRzi/X4q6BTcUcWEki7QxDLshO5Z13eC6PC8/YCi
+ 8a/Ycfr9HM9RIEAHPDZ+dqOdbsO8EdZU+wNtLEbLpLoq3GvvozgbdQMlS3HNHpn4HW/LVk5Fm
+ bCY2fZyoutqfdvvAdBdNO/lkhAJCXAc1Xcgez7mgv5mPmrbt1ju8JxEFY3vLBlH9Kr2/i5xC+
+ fZk60d2V/zkzF7jsCfN+M9y3yEYf0y+IeEZ5e33+E3A6YvNGEhlm02PIQFZNqWQoVUHqbt4ZE
+ G/c+hIKXzWnEf0R1utpjGY0gBNj46WWq3OqKEVRb4oe3qsQjysx/rvw342cwMG/4c0N73turr
+ zr4QnrJO0XP+sRfsNmSSmK0+gFvCwBw9Ew6yA18LdZgsum1L4lvNV6QfqZNo1hvzUtDGReMLr
+ 9JNfOfbS9VjIc83KkkKYDhJXFNh9MPmMp4zMmXanTNLAqJN40dr7j8iEA7OmPu4ZyqdyiaONR
+ OlfwkXgXUfEx1FaS1evxFypcnuEbIpIIvCFmjUTy/z78T5BLcU6e8tjIdqQTv0btfcXkL9R8t
+ bxBX0NgHgjDFD2wtSMG4bREDEdurazWFkD0HMa1pvt6f+TS+TjVwejh3llXTO3tLrWCdNXd1+
+ 0H5dguUMmsFsOCIZXV4gyIcMVsaTsTrtXwMfJM1DX7ZZkVYJi1X1mMI0EoOZ29tDeBSP3BVZz
+ /hsqhlnfRMRmSOZ9no2N6hGfrftudvtZSQDfTSOYnBHzkQ=
 
-On Tue, Feb 4, 2025 at 5:07=E2=80=AFAM Christian Brauner <brauner@kernel.or=
-g> wrote:
-> On Fri, Jan 31, 2025 at 09:39:31AM -0500, Paul Moore wrote:
-> > On Fri, Jan 31, 2025 at 7:09=E2=80=AFAM Christian Brauner <brauner@kern=
-el.org> wrote:
-> > > On Thu, Jan 30, 2025 at 04:05:53PM -0500, Paul Moore wrote:
-> > > >
-> > > > Now back to the merge into the VFS tree ... I was very surprised to
-> > > > open this patchset and see that Christian had merged v5 after less
-> > > > than 24 hours (at least according to the email timestamps that I se=
-e)
-> > > > and without an explicit ACK for the SELinux changes.  I've mentione=
-d
-> > > > this to you before Christian, please do not merge any SELinux, LSM
-> > > > framework, or audit related patches without an explicit ACK.  I
-> > >
-> > > Things go into the tree for testing when the VFS side is ready for
-> > > testing. We're at v5 and the patchset has gone through four iteration=
-s
-> > > over multiple months. It will go into linux-next and fs-next now for =
-as
-> > > much expsure as possible.
-> > >
-> > > I'm not sure what the confusion between merging things into a tree an=
-d
-> > > sending things upstream is. I have explained this to you before. The
-> > > application message is also pretty clear about that.
-> >
-> > I'm not sure what the confusion is around my explicit request that you
-> > refrain from merging anything that touches the LSM framework, SELinux,
-> > or the audit subsystem without an explicit ACK.  I have explained this
-> > to you before.
-> >
-> > For the record, your application/merge email makes no statement about
-> > only sending patches to Linus that have been ACK'd by all relevant
-> > parties.  The only statement I can see in your email that remotely
-> > relates to ACKs is this:
-> >
-> >   "It's encouraged to provide Acked-bys and Reviewed-bys
-> >    even though the patch has now been applied. If possible
-> >    patch trailers will be updated."
-> >
-> > ... which once again makes no claims about holding back changes that
-> > have not been properly ACK'd.
->
-> If seems you're having difficulties understanding that included patches
-> are subject to be updated from this content.
+From: "Kipp N. Davis" <kippndavis.work@gmx.com>
 
-I'm having difficulties reconciling the inconsistencies between what
-you've said here (which is presumably your actual policy/behavior?)
-and what you've said in your merge emails.
+Although the LSM hooks for loading kernel modules were later generalized
+to cover loading other kinds of files, SELinux didn't implement
+corresponding permission checks, leaving only the module case covered.
+Define and add new permission checks for these other cases.
 
---=20
-paul-moore.com
+Signed-off-by: Cameron K. Williams <ckwilliams.work@gmail.com>
+Signed-off-by: Kipp N. Davis <kippndavis.work@gmx.com>
+=2D--
+ security/selinux/hooks.c            | 54 ++++++++++++++++++++++++-----
+ security/selinux/include/classmap.h |  4 ++-
+ 2 files changed, 49 insertions(+), 9 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7b867dfec88b..e96ade50c137 100644
+=2D-- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4096,7 +4096,7 @@ static int selinux_kernel_module_request(char *kmod_=
+name)
+ 			    SYSTEM__MODULE_REQUEST, &ad);
+ }
+
+-static int selinux_kernel_module_from_file(struct file *file)
++static int selinux_kernel_load_from_file(struct file *file, u32 requested=
+)
+ {
+ 	struct common_audit_data ad;
+ 	struct inode_security_struct *isec;
+@@ -4104,12 +4104,9 @@ static int selinux_kernel_module_from_file(struct f=
+ile *file)
+ 	u32 sid =3D current_sid();
+ 	int rc;
+
+-	/* init_module */
+ 	if (file =3D=3D NULL)
+ 		return avc_has_perm(sid, sid, SECCLASS_SYSTEM,
+-					SYSTEM__MODULE_LOAD, NULL);
+-
+-	/* finit_module */
++					requested, NULL);
+
+ 	ad.type =3D LSM_AUDIT_DATA_FILE;
+ 	ad.u.file =3D file;
+@@ -4123,7 +4120,7 @@ static int selinux_kernel_module_from_file(struct fi=
+le *file)
+
+ 	isec =3D inode_security(file_inode(file));
+ 	return avc_has_perm(sid, isec->sid, SECCLASS_SYSTEM,
+-				SYSTEM__MODULE_LOAD, &ad);
++				requested, &ad);
+ }
+
+ static int selinux_kernel_read_file(struct file *file,
+@@ -4133,10 +4130,33 @@ static int selinux_kernel_read_file(struct file *f=
+ile,
+ 	int rc =3D 0;
+
+ 	switch (id) {
++	case READING_FIRMWARE:
++		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
++				SYSTEM__FIRMWARE_LOAD);
++		break;
+ 	case READING_MODULE:
+-		rc =3D selinux_kernel_module_from_file(contents ? file : NULL);
++		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
++				SYSTEM__MODULE_LOAD);
++		break;
++	case READING_KEXEC_IMAGE:
++		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
++				SYSTEM__KEXEC_IMAGE_LOAD);
++		break;
++	case READING_KEXEC_INITRAMFS:
++		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
++				SYSTEM__KEXEC_INITRAMFS_LOAD);
++		break;
++	case READING_POLICY:
++		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
++				SYSTEM__POLICY_LOAD);
++		break;
++	case READING_X509_CERTIFICATE:
++		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
++				SYSTEM__X509_CERTIFICATE_LOAD);
+ 		break;
+ 	default:
++		pr_err("SELinux:  kernel_read_file_id unknown");
++		rc =3D -EACCES;
+ 		break;
+ 	}
+
+@@ -4148,10 +4168,28 @@ static int selinux_kernel_load_data(enum kernel_lo=
+ad_data_id id, bool contents)
+ 	int rc =3D 0;
+
+ 	switch (id) {
++	case LOADING_FIRMWARE:
++		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__FIRMWARE_LOAD);
++		break;
+ 	case LOADING_MODULE:
+-		rc =3D selinux_kernel_module_from_file(NULL);
++		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__MODULE_LOAD);
++		break;
++	case LOADING_KEXEC_IMAGE:
++		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__KEXEC_IMAGE_LOAD);
++		break;
++	case LOADING_KEXEC_INITRAMFS:
++		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__KEXEC_INITRAMFS_LOAD=
+);
++		break;
++	case LOADING_POLICY:
++		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__POLICY_LOAD);
++		break;
++	case LOADING_X509_CERTIFICATE:
++		rc =3D selinux_kernel_load_from_file(NULL,
++				SYSTEM__X509_CERTIFICATE_LOAD);
+ 		break;
+ 	default:
++		pr_err("SELinux:  kernel_read_file_id unknown");
++		rc =3D -EACCES;
+ 		break;
+ 	}
+
+diff --git a/security/selinux/include/classmap.h b/security/selinux/includ=
+e/classmap.h
+index 03e82477dce9..cfac41d12f7d 100644
+=2D-- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -63,7 +63,9 @@ const struct security_class_mapping secclass_map[] =3D {
+ 	{ "process2", { "nnp_transition", "nosuid_transition", NULL } },
+ 	{ "system",
+ 	  { "ipc_info", "syslog_read", "syslog_mod", "syslog_console",
+-	    "module_request", "module_load", NULL } },
++	    "module_request", "module_load", "firmware_load",
++	    "kexec_image_load", "kexec_initramfs_load", "policy_load",
++	    "x509_certificate_load", NULL } },
+ 	{ "capability", { COMMON_CAP_PERMS, NULL } },
+ 	{ "filesystem",
+ 	  { "mount", "remount", "unmount", "getattr", "relabelfrom",
+=2D-
+2.48.1
+
