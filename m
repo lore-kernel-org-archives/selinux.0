@@ -1,419 +1,119 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF51E214A61
-	for <selinux@vger.kernel.org>; Wed,  5 Feb 2025 20:59:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E25EBA32;
+	Thu,  6 Feb 2025 03:04:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738789198; cv=none; b=CqGuqQsMTfncQGyVIS5stK8Wsl1OKuHH3F8t13YftWvzrUy5QAIMww2Ff62Uahx7magqApdj93BN9vzrpOIe0O3rN8RfW+k2YCicp4H3BduMj5GMKnNg1I+QNkpe8PGkCg7RiV+upqEqi4Z6pGOuRETRtmHt+dyS4YDmPnEHL1U=
+	t=1738811091; cv=none; b=fHpFLfJx+rumQra6XxGONL07blJoe+oGIPVX7O+PX7QO/PyEaZNYq+LWFAnUEjsDeLXK/LoJwWq2ELaWWgrXQEQSHtkEvEQj6RriEjichtJ88WX5uX+xEKi01zDfvx7bGncZ9jc+wM0w51qcCCEvSDKkhd4LlXJi/yYtNFN6/HI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738789198; c=relaxed/simple;
-	bh=mzgpe83V2l6GW9seL/xYKbhu8ppMGJ3jkfe00TU0Fp0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ony1eahTM9kFoXDYoXYz5vINXLLaXTgwwYc+DQgNY6laCsfCkvMrYgzFkLZ3KNWSCwwwBDt7dpIgMWqLZcuxA2mm8trtXC1NhcD3sV67kYwv1+QPt54iRv7kIAXyjKHQ/Xdtw1r0i+X9TTJtrb7hj6kXVd16/PRiwcP2eb8k6dM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com; spf=pass smtp.mailfrom=gmx.com; dkim=pass (2048-bit key) header.d=gmx.com header.i=kippndavis.work@gmx.com header.b=OvcRUqDL; arc=none smtp.client-ip=212.227.15.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.com
+	s=arc-20240116; t=1738811091; c=relaxed/simple;
+	bh=oXp18l47nlla4/efBUQIMlXG2GCCVSQbGjwXCaJpre8=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 Mime-Version:Content-Type; b=Q/z2UYIWO3t+bKRdHjU8cusTG280IOdKkDIrSstVwSvlu9N08NhkpF1Et1Yb3vWKPBa+qbnpHhF9At5vcpxAtJnTxbWNrAG3ktsQlJj6Wri739QdjftJgIF1PRdMCpsuirZkgNbgZ2OUurKr1ChnT9NfS7O477upMvv59cIrjcQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LglbChjW; arc=none smtp.client-ip=209.85.160.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.com header.i=kippndavis.work@gmx.com header.b="OvcRUqDL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.com;
-	s=s31663417; t=1738789189; x=1739393989; i=kippndavis.work@gmx.com;
-	bh=KhJHE/w1d4pG9IspSoAHQsRWsUMzgj0MmQqe4MqDD8c=;
-	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:
-	 MIME-Version:Content-Transfer-Encoding:cc:
-	 content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=OvcRUqDL1Xsa1dG5SeVp8Yw/1icIJa3NgP1ZO6i4+CmSOUvrpyDDhvYDOAGgFnX0
-	 FlLrJxLE/Z+dV8rdC4KxvtO3JHKFmI0Zfqyijv48+fi6uYRMioOr2vjJC/aRrzNIG
-	 jZSqqXqp20SYvjZZu7yf8fByllhA7hPtCblPovTjFhfp07dDP54g0k6v42yu43Kq8
-	 ZLKfQlotUjZG+hSGXLBcF2Ag3em6eXizRgFqPaSctz5YSnbsHt4fOo7zx6fak8oKe
-	 WELPrOgPxJI+sqX9bGHpZ3tnPMZMCL4e0C9LWm71NgTK2F09ZLFa5801lfeYuwekZ
-	 BjLQuxIgns5fZdstjg==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from ip-192-168-122-31.ec2.internal ([52.70.167.183]) by
- mail.gmx.net (mrgmx005 [212.227.17.184]) with ESMTPSA (Nemesis) id
- 1MRCOE-1u2nWy3Uay-00LXg4; Wed, 05 Feb 2025 21:59:49 +0100
-From: kippndavis.work@gmx.com
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	stephen.smalley.work@gmail.com
-Subject: [PATCH testsuite] policy,tests: add tests for new permissions for loading files/data
-Date: Wed,  5 Feb 2025 15:59:40 -0500
-Message-ID: <20250205205940.19527-1-kippndavis.work@gmx.com>
-X-Mailer: git-send-email 2.48.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LglbChjW"
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-4679eacf2c5so5273221cf.0;
+        Wed, 05 Feb 2025 19:04:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1738811088; x=1739415888; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=oXp18l47nlla4/efBUQIMlXG2GCCVSQbGjwXCaJpre8=;
+        b=LglbChjWFitKkzuYvP6flHg1m15YdfyvidaVVhoecbAjEm6pg1G2l1nKMd0hC02B/l
+         2xjA9loawYkiHe7d0stmx1gAlycMrQse6MYIZj+BLbhnhWy7EtGfha5kkB2dhM1c0ybr
+         1d6fc99G2wXSIwr07Td0SqJWYmx1/F6oBUb5VhNR1KiGpGToP+k1B5jHGA3ZcpaJ4Z5G
+         UEZgAEBSVciI0pm1xn2NOxQEZnPIOzPwZWTNdSLs380L+kUcr/G5gHsCrxEewBslQ8aq
+         OC0utUcmmB8ZaT2qmD4quMrZ2yz2B34PZjaCMeWDAWM71YA55cSq83H3yiU2ufGPmXEN
+         oCkg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1738811088; x=1739415888;
+        h=content-transfer-encoding:mime-version:subject:references
+         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=oXp18l47nlla4/efBUQIMlXG2GCCVSQbGjwXCaJpre8=;
+        b=Pi4CBmR7gYrFM7y/XkocM+ckcFA3QAsZ3K6yOmXrY4KmNHbNvr/yBgmtHTnvClZCkn
+         UMy+PKskUQKQo5sTOWBIknyhyKCuzRhskFM/FYsIr4xYcwyTj03dCXXOXH7pLMeMlyWK
+         DuxUJ6x7Hwurd1q4hzOcHTfjIIFX7nxz2bFM5YGOV5Oep6IkQx1cJUZbRHjjpdpuqtUt
+         eqz8DJSHSIB8NZ/OogdwlG7Evn977t1vKVOdQXW3sc2WYXoLpQ3zFRz4Ffhprjxp5568
+         T1qAqsguUWctN+tlIGR0q+DhvM9OaXikmw61QwM2ae9dOyDtDlvlTnOcoWTsHSnqB6ow
+         7WmA==
+X-Forwarded-Encrypted: i=1; AJvYcCWTqhDHWf6/yGwoRCrrDt3sOTv5Sp6uypwoEfPP0okM7SWZ0MP6H9eb2IgQLClyBM7X9g6l36oqkPe7YJ0BHOOxIPVQIr0=@vger.kernel.org, AJvYcCWa2uOgjzs8UBhnjGvvejXk99jPmT2PiHA9MrEtjzTvz8rf+c2l4kJpueZGoXfZchYW1OV7ebKN@vger.kernel.org, AJvYcCXfMCMXcV+HE8nY7n/Y/Jmv80jJsf47nQrgh6P8tOHNftvWs1RipcUs0BO5L0tEqbvsekhz51zj4g==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzeG3N/2XlB+7XMHqSGS986LV5HmqVF8iLIJhs5XKTDcOCOCn1v
+	UOFSf0cY38HGONg40MEV/aMPO6bKs+MM+lw8jPwu8vS/FTOobQ3y
+X-Gm-Gg: ASbGncuFrZ44PLUy5V6ezNTFIzWaABdj5VTGplKlj1NntVYLkGv4ive8wmX0NS3mTzh
+	qmG6CsWSAHmZz7MFWxyrQaFY0r1S118z3znTxCNXhRUC0B/Q0rXC0WxAmMnbtA1idjyLMgzNkXv
+	jaE/Lo6tv0jEFqZZ/X++MRD5CUEbPtnk/vuW/jc94ow5fY0JY63Zw/hpX2PPx12lKj4lfVA8gvH
+	kj72SP73oSnFLg4TTskqW7LbdARDsaodYusy+wFV7LwWs0Q58tTfTfZXDY/qS1fNbdGaw/W4NnR
+	HDAbHjLyaJO4IGfq/vuxJusb5Gs4Ko5zi7DCvXMOBdbWP7cV8fyFqSQOr8SQSfg=
+X-Google-Smtp-Source: AGHT+IF385RaF+e4LBZY/dU8q/qmiAATNu7nZk6sXtBuQ9brNJS69/yBpsY3C9G7pYbXCngtYh2gLw==
+X-Received: by 2002:a05:622a:1488:b0:46d:faa2:b6f8 with SMTP id d75a77b69052e-470281970b1mr82138371cf.20.1738811087752;
+        Wed, 05 Feb 2025 19:04:47 -0800 (PST)
+Received: from localhost (15.60.86.34.bc.googleusercontent.com. [34.86.60.15])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-471492bb931sm1480711cf.40.2025.02.05.19.04.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Feb 2025 19:04:46 -0800 (PST)
+Date: Wed, 05 Feb 2025 22:04:45 -0500
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+To: Paul Moore <paul@paul-moore.com>, 
+ Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, 
+ stsp <stsp2@yandex.ru>, 
+ Willem de Bruijn <willemb@google.com>, 
+ Jason Wang <jasowang@redhat.com>, 
+ Jakub Kicinski <kuba@kernel.org>, 
+ network dev <netdev@vger.kernel.org>, 
+ Linux Security Module list <linux-security-module@vger.kernel.org>, 
+ SElinux list <selinux@vger.kernel.org>
+Message-ID: <67a426cdb29f1_199430294e5@willemb.c.googlers.com.notmuch>
+In-Reply-To: <CAHC9VhRF0bka4zY5y1uNYUGXNSSwz6cdta+c0NH_YDO0MxauRg@mail.gmail.com>
+References: <CAFqZXNtkCBT4f+PwyVRmQGoT3p1eVa01fCG_aNtpt6dakXncUg@mail.gmail.com>
+ <e8b6c6f9-9647-4ab6-8bbb-ccc94b04ade4@yandex.ru>
+ <67979d24d21bc_3f1a29434@willemb.c.googlers.com.notmuch>
+ <CAFqZXNscJnX2VF-TyZaEC5nBtUUXdWPM2ejXTWBL8=5UyakssA@mail.gmail.com>
+ <6798f1fb5e1ba_987d9294dc@willemb.c.googlers.com.notmuch>
+ <c4413e16-d04f-4370-8edc-e4db21cc25f6@yandex.ru>
+ <67996154e30ce_d9324294c4@willemb.c.googlers.com.notmuch>
+ <8b81a534-9c30-4123-bd7d-bf3a9d89dfcb@yandex.ru>
+ <679a376739b99_132e08294f3@willemb.c.googlers.com.notmuch>
+ <04879909-72e5-4ab6-8c28-5d3cb551feb5@yandex.ru>
+ <679bace3a753f_1d35f32942d@willemb.c.googlers.com.notmuch>
+ <CAHC9VhS-uSaVmy65oA8p6tCzMZxMsuzdmxO-vf7L0p44ZKO=_A@mail.gmail.com>
+ <CAFqZXNtq7SZSu_JyY5yaiOQy89c=5jG+vqdg3_RSUWm4JNN00w@mail.gmail.com>
+ <CAHC9VhRF0bka4zY5y1uNYUGXNSSwz6cdta+c0NH_YDO0MxauRg@mail.gmail.com>
+Subject: Re: Possible mistake in commit 3ca459eaba1b ("tun: fix group
+ permission check")
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
+Mime-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:p83pcS4Avw0L0eNxSCr8HCa2Xky/eZBWVmFUj142HJWOn8OnLCU
- 0XtoRbwH6sRZt08K8nx2To+arsKsetzOpbhuuaiwtFVauvRLtjrl/GNJj969InfX6ui26Ua
- 3x6fSlmEL/he+rryji3DjSZtbrR0v1IVoxOjdrmsivC/B/JSnOX0Q/Yew+3mHapLwj41tei
- A1P1V/e7z5ExfhCC2mu3w==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:FiBZ9/aF8Io=;4jeHcRwo9cv5dxSrgLmhjCESeCY
- l7HsC4zqUfQFZae6M4nF3PRw3PiXksD5nhroidjq70gSv2esWtBLRiRgjTp7N98hBfn/WAgap
- ONmPEuTFeUovD9c1xrvoHLxXidFHRIyFNUYOUMbVVmTfggOTDVK9qisPNLNw4ltfGFawIJjUs
- SMP9jf60LzTYvycxlJXY0spjGP84Jarh6VV95UVfZddc28q/H2lvUMu5xtZL5RfVzto+U1z0A
- 1Bdb0pK91HL+CuQco+oLwHBJtZM8uiHn78JWVspwN3w0M7D6at1LdbgUarS9Cye3rSYPTmM47
- FJ3P1l2N6qelFa6lBWYp0d8ePpH8UBUFtrRYOI5LD035DDPZbC/gfmnce+WXt1jUR3gOKrHKv
- GoWRluLbjoBkjYCiIf7TdBVZrJN2fBT5PKq76QA27J0oT3c6+sAFi4LNLzY4Yb0eHTypoJk9f
- vFPhrAHzEL1Cum2zwTGNyaz4Oz1A0d8zIVrleQ+gtZyjr6lJ2Y1Iop+eoZGOTbo1YBlHse/Qe
- GRC38VHWyCQXpFXEqTBK2LXJK02QmSMNYQlq/PpEQzeLtOeT6nzyzavojqtj5a4bUPwuuUFRx
- zovldQjenmk+KKRUc4o8v71/Z1UXsvp/nNjzUAdBGYliNCVtQP21gjdwb7IJ8xuYO9gg7NHpk
- AefWeZ1iKjroiKXwJN+oEVGqj0NmHS5/nwZJWqzPiY7cItDakxhyDvffJXz7/4KbO83yB4xFc
- BSHfx2JJ7IJ0Wz/jW7BgpPCAdoZJh+rlVILka/HYXT6s1m6vn60/hpsKmYU365Vri1Mlrh63W
- lqvMd61HrmZdBvB1usmTJVzscNBotAURJ45DXDesZEo3Uj8ggSNNaA6TBJ+ehVyTmfsrHrSkR
- xH+jh1JSAXp+2GJZjC6s/qqxDn5aD+1+egIVIolz091eKFgrVg1pSgFzHUQyIViLYc0cqAfH3
- wCPqAo95kajTh3DirBgqmQG2tkeEpuH0WG3Pz0UWPuT7BKAaYtDLqji5F5petIWiFwE2w5XkY
- VMRRpxMrWi5X1/KltowlJmWnlGzsCw+DvA4U3LH9+hzkhhSyYE0LH34pLem5QJR5srbd1LXOO
- 7rIYrCeX8VpUEMQ/RljfJBRnx3qTsv7D2lS/4014kIS98Y4RdmwsB4QimZRulAH+413bR845X
- suag9bSrCoH904/ulxNPQJIk31kYppU9wH5L+mjj8lNNn0/dNah9fGLV2Ks2WE13u9Fdp636p
- brCW+/ICz2k+gbo8wKLoC+MV4Ughp/tNDVaJ5qOf71PWX/w2Bwf5LjHn+scw63wHT+x8id8NJ
- PWeecVGr7CwDUU0sEDCRbK43d1T+YwgISS/on65p+42/LGIQx0anR6qo0DYLlg3LmJckPSgBo
- KKM0QJA1SK2GzLAs8SqpjSTf+Io6OFsJZiBDs+oD4NIaTOuDssYMtLk4eux0wmspMkISVa0ge
- C43Y1iA==
 
-From: "Kipp N. Davis" <kippndavis.work@gmx.com>
+Paul Moore wrote:
+> On Tue, Feb 4, 2025 at 11:19=E2=80=AFAM Ondrej Mosnacek <omosnace@redha=
+t.com> wrote:
+> > On Tue, Feb 4, 2025 at 1:30=E2=80=AFAM Paul Moore <paul@paul-moore.co=
+m> wrote:
+> > >
+> > > If a revert is the best path forward for v6.14, do you think it wou=
+ld
+> > > be possible to get this fixed this week, or do you expect it to tak=
+e
+> > > longer?
+> >
+> > Willem has already posted patches on netdev [1][2] (thanks!), so I
+> > expect it will be fixed soon.
 
-These tests exercise new SELinux hooks for firmware_load, kexec_image_load=
-,
-kexec_initramfs_load, and policy_load alongside module_load. These tests
-depend on the corresponding kernel patch and updating the base policy to
-define the new system permissions. If the kernel does not support them,
-they will be skipped.
+You just beated me as I wrote a response :)
 
-For testing purposes, you can update the base policy by manually modifying
-your base module and tweaking /usr/share/selinux/devel (latter only requir=
-ed
-due to writing the test policy as a .te file rather than as a .cil in orde=
-r
-to use the test macros) as follows:
+> Great, thanks everyone!
 
-    sudo semodule -c -E base
-    sudo sed -i.orig \
-    "s/module_load/module_load firmware_load kexec_image_load \
-    kexec_initramfs_load policy_load x509_certificate_load/" base.cil
-    sudo semodule -i base.cil
-    sudo sed -i.orig \
-    "s/module_load/module_load firmware_load kexec_image_load \
-    kexec_initramfs_load policy_load x509_certificate_load/" \
-    /usr/share/selinux/devel/include/support/all_perms.spt
-
-When finished testing, you can sudo semodule -r base to undo the module
-change and restore your all_perms.spt file from the saved .orig file.
-
-Note: The x509_certificate_load permission is newly added in the kernel
-but is not tested here due to no callers remaining after boot.
-
-Signed-off-by: Kipp Davis <kippndavis.work@gmx.com>
-=2D--
- policy/Makefile                          |   8 ++
- policy/test_file_load.te                 | 102 +++++++++++++++++++++++
- tests/module_load/Makefile               |   2 +-
- tests/module_load/setest_firmware_load.c |  29 +++++++
- tests/module_load/test                   |  70 +++++++++++++++-
- 5 files changed, 209 insertions(+), 2 deletions(-)
- create mode 100644 policy/test_file_load.te
- create mode 100644 tests/module_load/setest_firmware_load.c
-
-diff --git a/policy/Makefile b/policy/Makefile
-index 46e51f3..fcc80f0 100644
-=2D-- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -180,6 +180,14 @@ ifeq ($(shell [ $(POL_VERS) -ge 34 -a $(MAX_KERNEL_PO=
-LICY) -ge 34 ] && echo true
- TARGETS +=3D test_ioctl_cond_xperms.te
- endif
-
-+ifeq ($(shell grep -q firmware_load $(POLDEV)/include/support/all_perms.s=
-pt && \
-+             grep -q kexec_image_load $(POLDEV)/include/support/all_perms=
-.spt && \
-+             grep -q kexec_initramfs_load $(POLDEV)/include/support/all_p=
-erms.spt && \
-+             grep -q policy_load $(POLDEV)/include/support/all_perms.spt =
-&& \
-+             echo true),true)
-+TARGETS +=3D test_file_load.te
-+endif
-+
- all: build
-
- expand_check:
-diff --git a/policy/test_file_load.te b/policy/test_file_load.te
-new file mode 100644
-index 0000000..e98503a
-=2D-- /dev/null
-+++ b/policy/test_file_load.te
-@@ -0,0 +1,102 @@
-+###################### Test file loading ###################
-+
-+require {
-+    type boot_t;
-+    type kdump_exec_t;
-+    type tmpfs_t;
-+    type user_tmp_t;
-+}
-+
-+###################### Allow sys kexec_image_load ######################
-+type test_kexec_allow_kexec_image_load_t;
-+testsuite_domain_type_minimal(test_kexec_allow_kexec_image_load_t);
-+
-+files_search_boot(test_kexec_allow_kexec_image_load_t);
-+fs_rw_inherited_tmpfs_files(test_kexec_allow_kexec_image_load_t);
-+exec_files_pattern(test_kexec_allow_kexec_image_load_t, kdump_exec_t, kdu=
-mp_exec_t);
-+domain_entry_file(test_kexec_allow_kexec_image_load_t, kdump_exec_t);
-+allow test_kexec_allow_kexec_image_load_t self:capability sys_boot;
-+
-+allow test_kexec_allow_kexec_image_load_t boot_t:system  kexec_image_load=
-;
-+allow test_kexec_allow_kexec_image_load_t tmpfs_t:system kexec_image_load=
-;
-+
-+###################### Deny sys kexec_image_load ######################
-+type test_kexec_deny_kexec_image_load_t;
-+testsuite_domain_type_minimal(test_kexec_deny_kexec_image_load_t);
-+
-+files_search_boot(test_kexec_deny_kexec_image_load_t);
-+fs_rw_inherited_tmpfs_files(test_kexec_deny_kexec_image_load_t);
-+exec_files_pattern(test_kexec_deny_kexec_image_load_t, kdump_exec_t, kdum=
-p_exec_t);
-+domain_entry_file(test_kexec_deny_kexec_image_load_t, kdump_exec_t);
-+allow test_kexec_deny_kexec_image_load_t self:capability sys_boot;
-+
-+neverallow test_kexec_deny_kexec_image_load_t boot_t:system  kexec_image_=
-load;
-+neverallow test_kexec_deny_kexec_image_load_t tmpfs_t:system kexec_image_=
-load;
-+
-+###################### Allow sys kexec_initramfs_load ###################=
-###
-+type test_kexec_allow_kexec_initramfs_load_t;
-+testsuite_domain_type_minimal(test_kexec_allow_kexec_initramfs_load_t);
-+
-+files_search_boot(test_kexec_allow_kexec_initramfs_load_t);
-+fs_rw_inherited_tmpfs_files(test_kexec_allow_kexec_initramfs_load_t);
-+domain_entry_file(test_kexec_allow_kexec_initramfs_load_t, kdump_exec_t);
-+allow test_kexec_allow_kexec_initramfs_load_t  self:capability sys_boot;
-+
-+allow test_kexec_allow_kexec_initramfs_load_t  boot_t:system  { kexec_ima=
-ge_load kexec_initramfs_load } ;
-+allow test_kexec_allow_kexec_initramfs_load_t  tmpfs_t:system { kexec_ima=
-ge_load kexec_initramfs_load };
-+
-+###################### Deny sys kexec_initramfs_load ####################=
-##
-+type test_kexec_deny_kexec_initramfs_load_t;
-+testsuite_domain_type_minimal(test_kexec_deny_kexec_initramfs_load_t);
-+
-+files_search_boot(test_kexec_deny_kexec_initramfs_load_t);
-+fs_rw_inherited_tmpfs_files(test_kexec_deny_kexec_initramfs_load_t);
-+domain_entry_file(test_kexec_deny_kexec_initramfs_load_t, kdump_exec_t);
-+allow test_kexec_deny_kexec_initramfs_load_t boot_t:system  kexec_image_l=
-oad;
-+allow test_kexec_deny_kexec_initramfs_load_t tmpfs_t:system kexec_image_l=
-oad;
-+allow test_kexec_deny_kexec_initramfs_load_t self:capability sys_boot;
-+
-+neverallow test_kexec_deny_kexec_initramfs_load_t boot_t:system  kexec_in=
-itramfs_load;
-+neverallow test_kexec_deny_kexec_initramfs_load_t tmpfs_t:system kexec_in=
-itramfs_load;
-+
-+###################### Allow sys firmware_load ######################
-+type test_kmodule_allow_firmware_load_t;
-+testsuite_domain_type_minimal(test_kmodule_allow_firmware_load_t)
-+typeattribute test_kmodule_allow_firmware_load_t kmoduledomain;
-+
-+type firmware_allow_file_t;
-+files_type(firmware_allow_file_t);
-+
-+allow test_kmodule_allow_firmware_load_t self:capability sys_module;
-+allow test_kmodule_allow_firmware_load_t test_file_t:system module_load;
-+allow test_kmodule_allow_firmware_load_t self:system module_load;
-+allow kernel_t firmware_allow_file_t:system firmware_load;
-+
-+###################### Deny sys firmware_load ######################
-+type test_kmodule_deny_firmware_load_t;
-+testsuite_domain_type_minimal(test_kmodule_deny_firmware_load_t)
-+typeattribute test_kmodule_deny_firmware_load_t kmoduledomain;
-+
-+type firmware_deny_file_t;
-+files_type(firmware_deny_file_t);
-+
-+allow test_kmodule_deny_firmware_load_t self:capability { sys_module };
-+allow test_kmodule_deny_firmware_load_t test_file_t:system { module_load =
-};
-+allow test_kmodule_deny_firmware_load_t self:system { module_load };
-+neverallow kernel_t firmware_deny_file_t:system firmware_load;
-+
-+###################### Allow sys policy_load ######################
-+type test_policy_allow_policy_load_t;
-+testsuite_domain_type_minimal(test_policy_allow_policy_load_t);
-+
-+userdom_read_inherited_user_tmp_files(test_policy_allow_policy_load_t);
-+userdom_write_user_tmp_files(test_policy_allow_policy_load_t);
-+allow test_policy_allow_policy_load_t user_tmp_t:system policy_load;
-+
-+###################### Deny sys policy_load ######################
-+type test_policy_deny_policy_load_t;
-+testsuite_domain_type_minimal(test_policy_deny_policy_load_t);
-+
-+userdom_read_inherited_user_tmp_files(test_policy_deny_policy_load_t);
-+userdom_write_user_tmp_files(test_policy_deny_policy_load_t);
-+neverallow test_policy_deny_policy_load_t user_tmp_t:system policy_load;
-diff --git a/tests/module_load/Makefile b/tests/module_load/Makefile
-index 0839532..fc93aec 100644
-=2D-- a/tests/module_load/Makefile
-+++ b/tests/module_load/Makefile
-@@ -1,4 +1,4 @@
--obj-m =3D setest_module_load.o setest_module_request.o
-+obj-m =3D setest_module_load.o setest_module_request.o setest_firmware_lo=
-ad.o
-
- TARGETS =3D finit_load init_load
- LDLIBS +=3D -lselinux
-diff --git a/tests/module_load/setest_firmware_load.c b/tests/module_load/=
-setest_firmware_load.c
-new file mode 100644
-index 0000000..d67470b
-=2D-- /dev/null
-+++ b/tests/module_load/setest_firmware_load.c
-@@ -0,0 +1,29 @@
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/firmware.h>
-+
-+static int __init setest_firmware_request_init(void)
-+{
-+	const struct firmware *fw;
-+	int result;
-+
-+	pr_info("INIT - setest_firmware_request\n");
-+	result =3D request_firmware(&fw, "dummy-firmware", NULL);
-+	if (result) {
-+		pr_err("request_firmware failed: %d\n", result);
-+		return result;
-+	}
-+	pr_info("request_firmware succeeded\n");
-+	release_firmware(fw);
-+	return 0;
-+}
-+
-+static void __exit setest_firmware_request_exit(void)
-+{
-+	pr_info("EXIT - setest_firmware_request\n");
-+}
-+
-+module_init(setest_firmware_request_init);
-+module_exit(setest_firmware_request_exit);
-+MODULE_LICENSE("GPL");
-\ No newline at end of file
-diff --git a/tests/module_load/test b/tests/module_load/test
-index 524b333..98c5946 100755
-=2D-- a/tests/module_load/test
-+++ b/tests/module_load/test
-@@ -16,7 +16,13 @@ BEGIN {
-         $v =3D " ";
-     }
-
--    plan tests =3D> 8;
-+    $kexec_perm_file   =3D "/sys/fs/selinux/class/system/perms/kexec_imag=
-e_load";
-+    $kexec_load_exists =3D 0;
-+    if ( -f $kexec_perm_file ) {
-+        $kexec_load_exists =3D 1;
-+    }
-+
-+    plan tests =3D> 17;
- }
-
- print "Test finit_module(2)\n";
-@@ -59,4 +65,66 @@ $result =3D system
- "runcon -t test_kmodule_deny_module_request_t $basedir/init_load $v $base=
-dir setest_module_request 2>&1";
- ok( $result >> 8 eq 13 );
-
-+SKIP: {
-+    skip(
-+"Not all system permissions available; skipping kexec, initramfs, firmwar=
-e and policy tests",
-+        9
-+    ) unless $kexec_load_exists;
-+
-+    $kver =3D `uname -r`;
-+    chomp($kver);
-+    $kernel =3D "/boot/vmlinuz-$kver";
-+    $initrd =3D "/boot/initramfs-$kver.img";
-+
-+    $result =3D
-+      system "runcon -t test_kexec_allow_kexec_image_load_t kexec -l $ker=
-nel";
-+    ok( $result eq 0 );
-+
-+    $result =3D system "runcon -t test_kexec_allow_kexec_image_load_t kex=
-ec -u";
-+    ok( $result eq 0 );
-+
-+    # Deny system { kexec_image_load }
-+    $result =3D system
-+      "runcon -t test_kexec_deny_kexec_image_load_t kexec -l $kernel 2>&1=
-";
-+    ok( $result >> 8 eq 255 );
-+
-+    $result =3D system
-+"runcon -t test_kexec_allow_kexec_initramfs_load_t kexec -l --initrd=3D$i=
-nitrd $kernel";
-+    ok( $result eq 0 );
-+
-+    # Deny system { kexec_initramfs_load }
-+    $result =3D system
-+"runcon -t test_kexec_deny_kexec_initramfs_load_t kexec -l --initrd=3D$in=
-itrd $kernel 2>&1";
-+    ok( $result >> 8 eq 255 );
-+
-+    system("mkdir -p /usr/lib/firmware");
-+    system("echo 'Test firmware' > /usr/lib/firmware/dummy-firmware");
-+    system("chcon -t firmware_allow_file_t /usr/lib/firmware/dummy-firmwa=
-re");
-+
-+    $result =3D system
-+"runcon -t test_kmodule_allow_firmware_load_t $basedir/init_load $v $base=
-dir setest_firmware_load";
-+    ok( $result eq 0 );
-+
-+    system("chcon -t firmware_deny_file_t /usr/lib/firmware/dummy-firmwar=
-e");
-+
-+    # Deny system { firmware_load } - EACCES
-+    $result =3D system
-+"runcon -t test_kmodule_deny_firmware_load_t $basedir/init_load $v $based=
-ir setest_firmware_load 2>&1";
-+    ok( $result >> 8 eq 13 );
-+
-+    system("rm -f /usr/lib/firmware/dummy-firmware");
-+    system("echo 'measure func=3DBPRM_CHECK' > /tmp/test_ima_policy");
-+
-+    $result =3D system
-+qq(runcon -t test_policy_allow_policy_load_t bash -c "echo '/tmp/test_ima=
-_policy' > /sys/kernel/security/ima/policy");
-+    ok( $result eq 0 );
-+
-+    # Deny system { policy_load } - EACCES
-+    $result =3D system
-+qq(runcon -t test_policy_deny_policy_load_t bash -c "echo '/tmp/test_ima_=
-policy' > /sys/kernel/security/ima/policy 2>&1");
-+    ok( $result >> 8 eq 1 );
-+
-+    system("rm -f /tmp/test_ima_policy");
-+}
-+
- exit;
-=2D-
-2.48.1
-
+The revert has now just been merged to net.
