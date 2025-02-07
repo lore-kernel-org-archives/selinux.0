@@ -1,110 +1,129 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAE2CA2D
-	for <selinux@vger.kernel.org>; Fri,  7 Feb 2025 03:30:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD76C175D5D
+	for <selinux@vger.kernel.org>; Fri,  7 Feb 2025 18:07:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738899035; cv=none; b=sDnu/5/ObhxfMh+D9088Gzr38aAsEPgtSBkc/76OzVcmmfd6Rw0qKc6wIkks4U8hS0duGHn+aqSY6NMi5iCmq8KlCETPcFh62bVvcdL6q3rZR2Fb3FruRcqw8r2MAU+UEHGMQVStygXGe2QFkZzJqXc4Ry410hDVGf4+oarx++s=
+	t=1738951663; cv=none; b=W5VTJPaWzlHQ5s2pXPzWOZzCNI+d1AIfIkadx8rOcBaSV8AGDs4mvD7rRww3fKAbQgwGJlO0BpGtvobJg49Q629zaNuddWKPcNgGt48Ogt8hPPm6YzPzuomiNDXcGF3XNJT2l1Or9UvdLRij32UggNa3DbtyBBy1tiU/N9DUXhQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738899035; c=relaxed/simple;
-	bh=DFqAJ2DO9OkDC3ufc+kZUwj4CLSBT1lLeQe/EbQGSHk=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=DWKHGn/DPnn/0Q5iBXQbs/6Xbjq2dlNDH77xLsvjqGxi8L+DXgZ7AmTmGGdQuZFpl7KwvEC3Zt4bVOAimLUTEvfGS98od3dBztKteY1g6UF83tqzWbOMXNZl5mJqol614X87FV5vzgaq50EYGNe8mwgfoWDkqjxpijavdhiiKMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=GCrRKbja; arc=none smtp.client-ip=209.85.219.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1738951663; c=relaxed/simple;
+	bh=f0HSQziLQ9mxAalYb1/C8shgRhWQcLY3lNUzUiw9e0Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Gx++yVnfFX/gANtzWTIQXaJNQ/7nVD76Kn9Cy7XEh7kLAIYvYLVAKoIDTxHOMyWuXWK2ffCD+FghPdmqu5oz4RxvphXOagluV4faWud3PZGhYxCH11sVw44SYaAbVVUjilSdqcQ8Kzoj1iTy4R6EBtyreg4/+ZoxtEEwJbk08qA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lB8N+QCF; arc=none smtp.client-ip=209.85.216.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="GCrRKbja"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-6dfbc45355bso18327156d6.2
-        for <selinux@vger.kernel.org>; Thu, 06 Feb 2025 19:30:33 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lB8N+QCF"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-2f833af7a09so3408543a91.2
+        for <selinux@vger.kernel.org>; Fri, 07 Feb 2025 10:07:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1738899032; x=1739503832; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=BQl9SSuxU5fl60LAI+eTj8wVreaokPOLmf8nxgxwFeE=;
-        b=GCrRKbjaageHbA6niemZi4ej75IiuU83Nk2jVNJ90udU940XBNu7qiIkU2A8XMYdOx
-         zyJT35dgBSipwRD/zqwNmvfbSdgcvoPyJfzWc5BEgvveMq4nJrD1ytRo3tCTXtJebShv
-         Ey3Jb7uLd0Lcp2XpI7AUAI2Y8SeWs/3gz5cjtOWLanFhTSJB7tZHOg5vgNnA4zP27FJB
-         Hj/v/OGt9ZDvU0kUI7MC+bCT0Wdyn2e7bmpNdqsY8KBtFdX4Rv2B4byiM5BSyLNNz+Hb
-         D7QrxbbsOXZzObaQ2frUIeKd86+oUxNKjsSyOHNasjQHLMqnuiLvOrRUt0QeaTprtsus
-         emHw==
+        d=gmail.com; s=20230601; t=1738951661; x=1739556461; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5RcpMQ5YwUzbDvaVUO24oOJ/0As6XZY1+iCAF4v5fmk=;
+        b=lB8N+QCFHPR4BsrUTs6xxrFzXw+ZfdTZ3vIyHBOItqrB4elUS9h1LyTBiPEVxKXYzw
+         P9b1qo6cIhSiEGVa99OlhKOPaHvxi6t9NNYI7ZA0kY47OR7hgAeAO447GJm1WTC8z2Bp
+         4TveciGkS0xqa2sZkA7LHqmayIBs53mcOoQvMUhbNmijZOXUk1IwrLBwUuAAckysaF9s
+         1Wyczn8VKybPhQ64znram+J5OjnOoE5RPUzG5cS/9QCEdDgIAwrWVCSEXLjVqcaHv0Aw
+         oo1x0IcRqsa4rk3arjCV3LUgmNGmsXA0uNTbvPXBdtpKX7B5kpxSCaMRlYDPvmBRUFLN
+         wO2Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738899032; x=1739503832;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:to
-         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=BQl9SSuxU5fl60LAI+eTj8wVreaokPOLmf8nxgxwFeE=;
-        b=b85jGvFUgFb8+N+M8JKeoLfodn4YVkEAwVydMPzkyUwlEdd7b/KkRCeyJ+MgeyNnaS
-         DRQI1S0tQf7J/WWMmsL+PPNdqR0qx0691cfMHdlZAXrVZ+4+0l0ArTbPLNlFYtcWaTpK
-         sD3nyU9JfFu6N59ExpPbA+Zs30rV7N3Fmi+r6yO2YZESH4cTSr+5d6CwEyt53kK1Jf4I
-         5wW2V/5jKYNZavwLeaiV7VFiSXfwfFoHqRxHToY9MMIiveOWk+IwWS86h2higrIIDvQz
-         f4JMnJ58DN8FTdDkJb2S9uo6rkXLAjZbFQArDnWkqgDR/ZKoAvh8BeuWg3KrEa1q70of
-         gErw==
-X-Gm-Message-State: AOJu0YzwCGJi16S3VhF9s/9ec0cSTueOw+dV6DLtC742nshQpKJ/Ci9j
-	QHtMRbtuw677CLGg+5Z6uddtClrpWWoWwHz9swvxUS8+G7ZdSY54Ap8c1A6REVmniZiYHyCBZ8I
-	=
-X-Gm-Gg: ASbGncs3PIEDpUcXE1JzECmQOgtlBHASzbzjWX/BC9SI5YKdwnXGplcz3UVKZMj4F4Q
-	BD83DPfKOFwyZzBa9eS7GE8WV3WjNv0+oj0e8VLTxc7doVSIr8KxXfDK/Jj+TI/WFAY3lNeryq0
-	QIVAG9Earl+iw1Bnxcu6/A0hPsKc3yLRqWEcAky0GooVgxwweJJbJPxzit8yyCeOFH1TQBUWh6K
-	shXO00n3ooyBpFiCkrmMk8w32RqSNmQMx6wlltB9BJAwtPP3fAXZKgO7fGlYXXo+ErXQ/Ruumyd
-	ur/ZYt6dCA==
-X-Google-Smtp-Source: AGHT+IG+wxIJPXe1xdHZ38e4gu9eRFLnPl9ezNG2TTsvAVCraYCyM7eM+/KhPs9FxGGIvzk9crGngA==
-X-Received: by 2002:ad4:5f85:0:b0:6e4:3de7:d90b with SMTP id 6a1803df08f44-6e44566e6e4mr24780466d6.25.1738899032476;
-        Thu, 06 Feb 2025 19:30:32 -0800 (PST)
-Received: from localhost ([70.22.175.108])
-        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-6e444b5ad24sm4881266d6.103.2025.02.06.19.30.31
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Feb 2025 19:30:32 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH] selinux: always check the file label in selinux_kernel_read_file()
-Date: Thu,  6 Feb 2025 22:30:20 -0500
-Message-ID: <20250207033019.479292-2-paul@paul-moore.com>
-X-Mailer: git-send-email 2.48.1
+        d=1e100.net; s=20230601; t=1738951661; x=1739556461;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=5RcpMQ5YwUzbDvaVUO24oOJ/0As6XZY1+iCAF4v5fmk=;
+        b=XxTE+TW+PuBJX0rtupFGFox7pR6QZadQ2dvo2Z572U6ku93DkiyBKKqgxgPslK8YFV
+         SJ/0pnRfXrLR6z9kds/n6QdroJotSGeENqy2tgvs6BHygRikkiV7RWArqrP2wpR4jlKG
+         s5AZUCqcwVZe7GnBM7vxKq0t0yTPIgxbTqGKiq/GGy3MxYsGzI39oYRA0sTQJOQGgbZW
+         rRWHOVbLnqbnX3DtpIy2lX0UBO9iwadXIjiUgq2TrdTDdaVHUpWDgc/ScRaQQjymydS9
+         gtmDeF2h1HtQUOEqGcePisKQGpjBU2v8CcFIJn5RgG0BWIpjagnauGyeaa/u5yNwlwDZ
+         j2ig==
+X-Gm-Message-State: AOJu0Ywijr5umoHlenPauU+HoETw7EIiuDvg9UgwMRakcUde82LwmCm0
+	ToUDiZ+rBSRIkI/loJSXN213yt0QQsdUyIjL0Sr7UAgS/yOCVj2JGD2pU4GxSPK+0mVW1Uh0BzY
+	a+f0S/OpOloDEZXwbRr5TzABBT+8fP7xq
+X-Gm-Gg: ASbGncvyKwV9gy9iYyX/uEj5QzBFBE7VPKJQniz80cvZBdWq991qGO1oDzEIPxSL8JY
+	mfMmeaDit7wv5kpXJXE4oGboR0FAu2w9qwzA/GKWCuw2n59jFnaeeGvRdu5D2jbeo2/rjVQN1
+X-Google-Smtp-Source: AGHT+IGAY57ryAVbaFF/WYp37rKh4tTR1FGBDnr4EMmywz7oEXBdaio7JM+ls5NsIQOiXWzTqQw57gfdlJdNJ3nzKOg=
+X-Received: by 2002:a17:90b:164e:b0:2fa:b8e:3d26 with SMTP id
+ 98e67ed59e1d1-2fa243f2c2fmr5903786a91.30.1738951660585; Fri, 07 Feb 2025
+ 10:07:40 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1556; i=paul@paul-moore.com; h=from:subject; bh=DFqAJ2DO9OkDC3ufc+kZUwj4CLSBT1lLeQe/EbQGSHk=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBnpX5L7FiWcZt+soHDhy1McwAr1gN1DYkbjwfhs WWLm0R+w2eJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZ6V+SwAKCRDqIPLalzeJ c7m9D/9us7f71QsA6cToqR1rFRukBYmlIQ3OVF/kv1DobM1gRmGykA+E/kWmPeLhnoEBzz1bh7n Q60GM6uWs/0IfrM1IGnXW1xD2qSzL5sEZ6TgdpGNYumN0GjP9+eZ4FyY3Rx4Hi3LDBn48U+/Dhl bw1YHtIGa4t+kM3SqwLwnlBXc9Oh5ZHwwT+oul0tbTHCErsJQaF1zeyK8DYhgYpbbUsfTJappct 4kRbqxlDWkdg7cofcr43ukU+O7h7My8jSwxSfF372X966tdlqQEKUDvQiHkH3QUf70DZWpBUtJu FaMhbE6xuikK2RcjGP5obcG0CrrrZyL6bL4cyUJGqLu6SJhT220NdLSLUWsj5kF1vs9h9+/eZvL 3w/SHq9zSNoCOHI0o/WEAZuul00gbSWz8fpVLa85xblxsFYiY1EWm1jxqMSmLiWnawTGKry7E6P wkCYZfloJNubmtvwfcNcysHKAjmZbtZwjg+LzWHe/CuAHa7RuAfmunU/X+0BEscocyb9ho0V2JT wx2rmW5AaaRIA5czuh6SSh8lUV4pxp+0tzOkjq8nHrufaa4TfZJh83gqTB3VLXh2+URAgeB3Goz r7Jtpe0ej9V96ujyLJGZBnjHc1FcJJhBCzwm0KDa3oxSSKiACHyacXoDgwAeZNJ0kXvUeREw9jF Xowze1jsSc3+vAA==
-X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
-Content-Transfer-Encoding: 8bit
+References: <20250102164509.25606-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20250102164509.25606-1-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 7 Feb 2025 13:07:29 -0500
+X-Gm-Features: AWEUYZnKvbnxm1TJheN1ezdPfZ9BIKp-1aSZWkKw-FEt0yxJCKzEiC4nOrOdpXM
+Message-ID: <CAEjxPJ7n-qTTYN1+6XXNiL82ZYiHBujO4ijpKvhiJOoW1xgZkg@mail.gmail.com>
+Subject: Re: [RFC PATCH 00/44] SELinux namespace support
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com, omosnace@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Commit 2039bda1fa8d ("LSM: Add "contents" flag to kernel_read_file hook")
-added a new flag to the security_kernel_read_file() LSM hook, "contents",
-which was set if a file was being read in its entirety or if it was the
-first chunk read in a multi-step process.  The SELinux LSM callback was
-updated to only check against the file label if this "contents" flag was
-set, meaning that in multi-step reads the file label was not considered
-in the access control decision after the initial chunk.
+On Thu, Jan 2, 2025 at 11:45=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> This is an RFC-only for the SELinux namespace support, just to
+> encourage early review and identification of any show-stoppers
+> with respect to the design and implementation to date.
+> Patches 0001 through 0009 are just re-based versions of the original
+> SELinux namespace series that predated COVID. The remaining patches
+> are all new relative to mid-2024 when work on the namespace
+> support restarted.
+>
+> If you actually want to try running it, I'd recommend instead using
+> my branch which has an additional cherry-picked fix from upstream
+> needed to avoid crashing the kernel. This can be cloned via
+>     git clone -b working-selinuxns \
+>         https://github.com/stephensmalley/selinux-kernel
+>
+> Configure the kernel as usual but add CONFIG_SECURITY_SELINUX_NS=3Dy
+> to enable the support. More detailed instructions on building, booting,
+> and testing the SELinux namespace support available upon request. I
+> have been running the SELinux testsuite and booting Fedora,
+> Rocky 9, and Rocky 8 containers with SELinux enforcing within
+> the container on a Fedora SELinux-enforcing host OS, a Fedora
+> SELinux-disabled (no policy) host, and an Ubuntu SELinux-disabled
+> (no policy) host.
+>
+> Known remaining issues include:
+> - Per-namespace checking of all relevant policy capabilities (currently
+>   done for the open_perms capability),
+> - Proper handling of peer/packet labels when they cross SELinux namespace=
+s,
+> - Optimizing the implementation for the single SELinux namespace case,
+> - Review, and if desired, change the kernel interface for unsharing the
+>   SELinux namespace (currently via /sys/fs/selinux/unshare with a
+>   libselinux wrapper),
+> - Namespace-aware context mount options for sVirt-like setups,
+> - Namespace support for certain residual networking hooks that lack it
+> - Anything else noted in the patches themselves.
+>
+> It is an open question as to whether some or all of the changes could
+> be merged before all of the above issues are resolved, given that
+> the support is only exposed to userspace if CONFIG_SECURITY_SELINUX_NS=3D=
+y
+> and even then only to privileged userspace. I think at a minimum we
+> would likely need to optimize the implementation for the single SELinux
+> namespace case so that it does not introduce any significant overhead
+> prior to merging, or extend CONFIG_SECURITY_SELINUX_NS to actually
+> compile away the extra storage and runtime overheads introduced by
+> the infrastructure. Open to suggestions.
 
-Thankfully the only in-tree user that performs a multi-step read is the
-"bcm-vk" driver and it is loading firmware, not a kernel module, so there
-are no security regressions to worry about.  However, we still want to
-ensure that the SELinux code does the right thing, and *always* checks
-the file label, especially as there is a chance the file could change
-between chunk reads.
+For those following along, I have created a repo with a README.md
+capturing instructions for how to build and use this support along
+with open issues for the known remaining work items here,
+https://github.com/stephensmalley/selinuxns
 
-Fixes: 2039bda1fa8d ("LSM: Add "contents" flag to kernel_read_file hook")
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- security/selinux/hooks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 7b867dfec88b..a80e3f01153f 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4134,7 +4134,7 @@ static int selinux_kernel_read_file(struct file *file,
- 
- 	switch (id) {
- 	case READING_MODULE:
--		rc = selinux_kernel_module_from_file(contents ? file : NULL);
-+		rc = selinux_kernel_module_from_file(file);
- 		break;
- 	default:
- 		break;
--- 
-2.48.1
-
+Also, I addressed a couple of comments I received, squashed a few
+commits together where it didn't make sense to keep them separate, and
+re-based on latest selinux/dev.
