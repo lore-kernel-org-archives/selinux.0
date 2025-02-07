@@ -1,139 +1,110 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F309225404
-	for <selinux@vger.kernel.org>; Thu,  6 Feb 2025 08:23:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAE2CA2D
+	for <selinux@vger.kernel.org>; Fri,  7 Feb 2025 03:30:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738830202; cv=none; b=N/jJ+lySmt4pHLxyve/iW1dXk2sEvuObvGiuMiWDyGFLoW0q3FnxhYx/LCnGQxBhgZPfZsGEV/WcuaPu8WD1LfedKJIQ837GHbP18jBH3UHxpW5l6hDBL1YyPNJuKbTQzdoXuXfwrViQ4RhnGKjtImuiPDT7isUA+sx8zH9E7wI=
+	t=1738899035; cv=none; b=sDnu/5/ObhxfMh+D9088Gzr38aAsEPgtSBkc/76OzVcmmfd6Rw0qKc6wIkks4U8hS0duGHn+aqSY6NMi5iCmq8KlCETPcFh62bVvcdL6q3rZR2Fb3FruRcqw8r2MAU+UEHGMQVStygXGe2QFkZzJqXc4Ry410hDVGf4+oarx++s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738830202; c=relaxed/simple;
-	bh=kbinpm6EjpVBnHf9D+rZO+K/ZjB874zSSU3l821KiYA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=WseZaOmT6BIB/FaLFTFYTT+kHpPbyfkByESqmlzXS33lMShw1vJzeuGbvmBoHqxNlgzDBjG5oIu76X1/TnwJ/j0Bmn+1E3RUtjNMezuDUAIOW5cxISGxzNjT89mfhS8PbCVslMXuQs2xux8oVoow1sugugfgzrRm+0voACPs9ts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ffh285JQ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1738899035; c=relaxed/simple;
+	bh=DFqAJ2DO9OkDC3ufc+kZUwj4CLSBT1lLeQe/EbQGSHk=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=DWKHGn/DPnn/0Q5iBXQbs/6Xbjq2dlNDH77xLsvjqGxi8L+DXgZ7AmTmGGdQuZFpl7KwvEC3Zt4bVOAimLUTEvfGS98od3dBztKteY1g6UF83tqzWbOMXNZl5mJqol614X87FV5vzgaq50EYGNe8mwgfoWDkqjxpijavdhiiKMo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=GCrRKbja; arc=none smtp.client-ip=209.85.219.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ffh285JQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1738830199;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4bSUld+qymXILC7ikHY7pNZeDTjjWVmJiDBZ5aRYDzo=;
-	b=ffh285JQzT80IhW/2di+k6gPry4+j08MKb7BvY3lf2JtIiw4V5Zt+r9WEK/pQ4ptpBkuRO
-	35c6di23xudLITxojx+YyNXl0HIWl02rWCb5NmJxlMCALmhxucxonny0/n9T2OWotECM2o
-	g77NJfTND7Jl9nUHgrfNYXNP6pgzHu8=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-640-eQyjNe0nNTCwSgFLQXc75A-1; Thu, 06 Feb 2025 03:23:17 -0500
-X-MC-Unique: eQyjNe0nNTCwSgFLQXc75A-1
-X-Mimecast-MFC-AGG-ID: eQyjNe0nNTCwSgFLQXc75A
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2f9c1b95ed9so2019502a91.2
-        for <selinux@vger.kernel.org>; Thu, 06 Feb 2025 00:23:17 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="GCrRKbja"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-6dfbc45355bso18327156d6.2
+        for <selinux@vger.kernel.org>; Thu, 06 Feb 2025 19:30:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1738899032; x=1739503832; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=BQl9SSuxU5fl60LAI+eTj8wVreaokPOLmf8nxgxwFeE=;
+        b=GCrRKbjaageHbA6niemZi4ej75IiuU83Nk2jVNJ90udU940XBNu7qiIkU2A8XMYdOx
+         zyJT35dgBSipwRD/zqwNmvfbSdgcvoPyJfzWc5BEgvveMq4nJrD1ytRo3tCTXtJebShv
+         Ey3Jb7uLd0Lcp2XpI7AUAI2Y8SeWs/3gz5cjtOWLanFhTSJB7tZHOg5vgNnA4zP27FJB
+         Hj/v/OGt9ZDvU0kUI7MC+bCT0Wdyn2e7bmpNdqsY8KBtFdX4Rv2B4byiM5BSyLNNz+Hb
+         D7QrxbbsOXZzObaQ2frUIeKd86+oUxNKjsSyOHNasjQHLMqnuiLvOrRUt0QeaTprtsus
+         emHw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1738830196; x=1739434996;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4bSUld+qymXILC7ikHY7pNZeDTjjWVmJiDBZ5aRYDzo=;
-        b=OowX+0Mdf3rybIJwqZ0EofFLRemeiKO4j8m2D38CLzs4yh1qdfh+/qRmmK80tucaL1
-         6xpslawwPG3CRcry9X8X662Qma0XSja4QrBniTJGdr8vMqGXZuz5NyJ24qcFYXY992zX
-         S3UmoSxgb9woMiN4NukjHwBc/b4zSjAWOcKi+7/wYdaCQuHF7oGfGNdcenFbCsO5Vek9
-         w6T3ew7nfiRuTTyWI+7bdgjYLPdmDeJlXlFKDBSB9ldzpv9ipkSznFXgPiTLRaPWzgNT
-         wWTppI0Kdpbm7vMJqoRB/25aOLvT7YGm38feyqsDt2NB/eOpKqsJY7dCgJylnlUgdqxd
-         LK0w==
-X-Gm-Message-State: AOJu0Yy7MLDrrAtBw3b+QRwk7Or+m/sbdkm1osUmPnE+nd7UI0Wzo7G0
-	lrLQaHBHn2AXEn2eIl9LsrjBZPsk9R3PLlD0psbJNL2EbHexy/88p/MqFWtnBGPTD83jW0LLFRX
-	LGxdOtWCdI037q1FUhzlHv8v8Ay6N4Y4tizZEAqj09BpCFIi76UDgpiBHPk1NBNoHV1WsEMgfjm
-	GGvh1CbWXkpejvFJbX2+39Yb6mfHMYsacWr6wrB+bF
-X-Gm-Gg: ASbGncvko6jPimeZR5OdSAftvFpRmIjcDv9Yr3WGZknyj1dJze4VXQq7/67UTGHxePC
-	20PCjCBADMt8dwSkpfo7dlXbaEKMcKTWFzWU9tzPfLebNP2JLdDqEHa+MB3xpPP+9Jnj2hE6uFX
-	uES1MuKWai0GcCflNDymE=
-X-Received: by 2002:a17:90b:5109:b0:2ee:b0b0:8e02 with SMTP id 98e67ed59e1d1-2f9e080f2femr9144072a91.28.1738830195787;
-        Thu, 06 Feb 2025 00:23:15 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IExxZbnWfHsPHJu1vNLqrA9jjmaMtKWVlU1yPT8F6VMUIQFp8aBTaWyX3/tbpZzR6U09CqIv/I8eEDuEzfSxSs=
-X-Received: by 2002:a17:90b:5109:b0:2ee:b0b0:8e02 with SMTP id
- 98e67ed59e1d1-2f9e080f2femr9144056a91.28.1738830195517; Thu, 06 Feb 2025
- 00:23:15 -0800 (PST)
+        d=1e100.net; s=20230601; t=1738899032; x=1739503832;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=BQl9SSuxU5fl60LAI+eTj8wVreaokPOLmf8nxgxwFeE=;
+        b=b85jGvFUgFb8+N+M8JKeoLfodn4YVkEAwVydMPzkyUwlEdd7b/KkRCeyJ+MgeyNnaS
+         DRQI1S0tQf7J/WWMmsL+PPNdqR0qx0691cfMHdlZAXrVZ+4+0l0ArTbPLNlFYtcWaTpK
+         sD3nyU9JfFu6N59ExpPbA+Zs30rV7N3Fmi+r6yO2YZESH4cTSr+5d6CwEyt53kK1Jf4I
+         5wW2V/5jKYNZavwLeaiV7VFiSXfwfFoHqRxHToY9MMIiveOWk+IwWS86h2higrIIDvQz
+         f4JMnJ58DN8FTdDkJb2S9uo6rkXLAjZbFQArDnWkqgDR/ZKoAvh8BeuWg3KrEa1q70of
+         gErw==
+X-Gm-Message-State: AOJu0YzwCGJi16S3VhF9s/9ec0cSTueOw+dV6DLtC742nshQpKJ/Ci9j
+	QHtMRbtuw677CLGg+5Z6uddtClrpWWoWwHz9swvxUS8+G7ZdSY54Ap8c1A6REVmniZiYHyCBZ8I
+	=
+X-Gm-Gg: ASbGncs3PIEDpUcXE1JzECmQOgtlBHASzbzjWX/BC9SI5YKdwnXGplcz3UVKZMj4F4Q
+	BD83DPfKOFwyZzBa9eS7GE8WV3WjNv0+oj0e8VLTxc7doVSIr8KxXfDK/Jj+TI/WFAY3lNeryq0
+	QIVAG9Earl+iw1Bnxcu6/A0hPsKc3yLRqWEcAky0GooVgxwweJJbJPxzit8yyCeOFH1TQBUWh6K
+	shXO00n3ooyBpFiCkrmMk8w32RqSNmQMx6wlltB9BJAwtPP3fAXZKgO7fGlYXXo+ErXQ/Ruumyd
+	ur/ZYt6dCA==
+X-Google-Smtp-Source: AGHT+IG+wxIJPXe1xdHZ38e4gu9eRFLnPl9ezNG2TTsvAVCraYCyM7eM+/KhPs9FxGGIvzk9crGngA==
+X-Received: by 2002:ad4:5f85:0:b0:6e4:3de7:d90b with SMTP id 6a1803df08f44-6e44566e6e4mr24780466d6.25.1738899032476;
+        Thu, 06 Feb 2025 19:30:32 -0800 (PST)
+Received: from localhost ([70.22.175.108])
+        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-6e444b5ad24sm4881266d6.103.2025.02.06.19.30.31
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 06 Feb 2025 19:30:32 -0800 (PST)
+From: Paul Moore <paul@paul-moore.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH] selinux: always check the file label in selinux_kernel_read_file()
+Date: Thu,  6 Feb 2025 22:30:20 -0500
+Message-ID: <20250207033019.479292-2-paul@paul-moore.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250131152122.1452103-1-omosnace@redhat.com>
-In-Reply-To: <20250131152122.1452103-1-omosnace@redhat.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Thu, 6 Feb 2025 09:23:04 +0100
-X-Gm-Features: AWEUYZmNdYvSjg5Rw1KrXe1x9Epcrni646JTmX76uZAtyd5LJjcG7WjeR7QL5pI
-Message-ID: <CAFqZXNswtA-ABhv=GOYK9grJROuzyZwnd57ZGZ_OdpSeuLB1fQ@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/inet_socket: enable MPTCP if it's
- disabled via sysctl
-To: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1556; i=paul@paul-moore.com; h=from:subject; bh=DFqAJ2DO9OkDC3ufc+kZUwj4CLSBT1lLeQe/EbQGSHk=; b=owEBbQKS/ZANAwAIAeog8tqXN4lzAcsmYgBnpX5L7FiWcZt+soHDhy1McwAr1gN1DYkbjwfhs WWLm0R+w2eJAjMEAAEIAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCZ6V+SwAKCRDqIPLalzeJ c7m9D/9us7f71QsA6cToqR1rFRukBYmlIQ3OVF/kv1DobM1gRmGykA+E/kWmPeLhnoEBzz1bh7n Q60GM6uWs/0IfrM1IGnXW1xD2qSzL5sEZ6TgdpGNYumN0GjP9+eZ4FyY3Rx4Hi3LDBn48U+/Dhl bw1YHtIGa4t+kM3SqwLwnlBXc9Oh5ZHwwT+oul0tbTHCErsJQaF1zeyK8DYhgYpbbUsfTJappct 4kRbqxlDWkdg7cofcr43ukU+O7h7My8jSwxSfF372X966tdlqQEKUDvQiHkH3QUf70DZWpBUtJu FaMhbE6xuikK2RcjGP5obcG0CrrrZyL6bL4cyUJGqLu6SJhT220NdLSLUWsj5kF1vs9h9+/eZvL 3w/SHq9zSNoCOHI0o/WEAZuul00gbSWz8fpVLa85xblxsFYiY1EWm1jxqMSmLiWnawTGKry7E6P wkCYZfloJNubmtvwfcNcysHKAjmZbtZwjg+LzWHe/CuAHa7RuAfmunU/X+0BEscocyb9ho0V2JT wx2rmW5AaaRIA5czuh6SSh8lUV4pxp+0tzOkjq8nHrufaa4TfZJh83gqTB3VLXh2+URAgeB3Goz r7Jtpe0ej9V96ujyLJGZBnjHc1FcJJhBCzwm0KDa3oxSSKiACHyacXoDgwAeZNJ0kXvUeREw9jF Xowze1jsSc3+vAA==
+X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
+Content-Transfer-Encoding: 8bit
 
-On Fri, Jan 31, 2025 at 4:21=E2=80=AFPM Ondrej Mosnacek <omosnace@redhat.co=
-m> wrote:
->
-> In CentOS Stream 10 (and possibly other environments) the
-> net.mptcp.enabled sysctl will be set to 0 by default. The testuite
-> currently doesn't detect this and hangs when trying to run the MPTCP
-> tests. Adjust the test to temporarily enable MPTCP during the test so
-> that it can succeed in these conditions.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  tests/inet_socket/test | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
->
-> diff --git a/tests/inet_socket/test b/tests/inet_socket/test
-> index 08c7b1d..ae06ae7 100755
-> --- a/tests/inet_socket/test
-> +++ b/tests/inet_socket/test
-> @@ -91,6 +91,16 @@ sub server_end {
->      system("rm -f $basedir/flag");
->  }
->
-> +if ( $proto eq "mptcp" ) {
-> +
-> +    # Temporarily enable MPTCP if it's disabled by default
-> +    $mptcp_enabled =3D `sysctl -n net.mptcp.enabled`;
-> +    chomp($mptcp_enabled);
-> +    if ( $mptcp_enabled ne "1" ) {
-> +        system("sysctl -w net.mptcp.enabled=3D1");
-> +    }
-> +}
-> +
->  # Load NetLabel configuration for full CIPSO/IPv4 labeling over loopback=
-.
->  system "/bin/sh $basedir/cipso-fl-load";
->
-> @@ -445,4 +455,10 @@ if ($test_calipso) {
->      system "/bin/sh $basedir/calipso-flush";
->  }
->
-> +if ( $proto eq "mptcp" and $mptcp_enabled ne "1" ) {
-> +
-> +    # Reset net.mptcp.enabled if it was 0 before test
-> +    system("sysctl -w net.mptcp.enabled=3D0");
-> +}
-> +
->  exit;
-> --
-> 2.48.1
->
+Commit 2039bda1fa8d ("LSM: Add "contents" flag to kernel_read_file hook")
+added a new flag to the security_kernel_read_file() LSM hook, "contents",
+which was set if a file was being read in its entirety or if it was the
+first chunk read in a multi-step process.  The SELinux LSM callback was
+updated to only check against the file label if this "contents" flag was
+set, meaning that in multi-step reads the file label was not considered
+in the access control decision after the initial chunk.
 
-Applied:
-https://github.com/SELinuxProject/selinux-testsuite/commit/6aba9eb5ba78bcab=
-e8abb5e3809f3680dc0403a1
+Thankfully the only in-tree user that performs a multi-step read is the
+"bcm-vk" driver and it is loading firmware, not a kernel module, so there
+are no security regressions to worry about.  However, we still want to
+ensure that the SELinux code does the right thing, and *always* checks
+the file label, especially as there is a chance the file could change
+between chunk reads.
 
---=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+Fixes: 2039bda1fa8d ("LSM: Add "contents" flag to kernel_read_file hook")
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/hooks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7b867dfec88b..a80e3f01153f 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4134,7 +4134,7 @@ static int selinux_kernel_read_file(struct file *file,
+ 
+ 	switch (id) {
+ 	case READING_MODULE:
+-		rc = selinux_kernel_module_from_file(contents ? file : NULL);
++		rc = selinux_kernel_module_from_file(file);
+ 		break;
+ 	default:
+ 		break;
+-- 
+2.48.1
 
