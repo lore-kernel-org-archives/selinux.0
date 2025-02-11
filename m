@@ -1,195 +1,234 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1D21253B4C;
-	Tue, 11 Feb 2025 15:50:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2310C1E4110
+	for <selinux@vger.kernel.org>; Tue, 11 Feb 2025 18:22:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739289046; cv=none; b=ovdTJTLkn/95DomUBi+9WQrnNf3KBrAX0zTFM1g+/6do2sfEBrsYuyyw7/pxjBD4qR6loaHrXdZS5NuPwJYzPSc93Y51lFy27xbuRJaM0vKwKBY681mr+OjKx3ZphRnZ2P/W1A0Y1nhabGnGj9mq+LH9Emhz5sNYngaKGohb2xA=
+	t=1739298133; cv=none; b=QVfmPOzFO7h9XGgD4N8iP380cAsXSS34m2DddDdPiUlziaFD2fJIuflnpyX/og12JJ42j/iMbXEpfrkEA7iMpdrEa0Gp698tHZYwv2I2l6dnb3fOzoaOPrcFt4Z2p/KQOikaLfpJxqttJ8R7oL4XNhmiX4z3aUYLwBNoaW4V4xE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739289046; c=relaxed/simple;
-	bh=DLoVaWN4pPM06i7274kUimEBAEHvEAUb+WbMY772pi4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LKVMwjvJ+uqCU1O3fFX8zTCxB01A6G/cmKtEDDS1E6kCI6v0bLfgKvqFo3xgLusxIiRYA1XIe0PJEH5XlZL09WCRBcIUQYcpc8AFGd7fwiZSP+FAqwbn86JhXU2qjzJirj2YrX3t9++q8SJ8d3EI1gX/f3A4BRvIs8oLTS9R4ek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Y+D9bioG; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=cUfJNtWX; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=Y+D9bioG; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=cUfJNtWX; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1739298133; c=relaxed/simple;
+	bh=ITRZrP3FpfDeiyplYaXyZTKMATGzwsyCTLD/YeblKZ4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fH9lwdD0lkdhiMwTzniQhMen44dlCwmkGuNPu/W1XC1g7AOyEvMtkiyue9cg2/gJCTxfpVgwtKc7EZwA9/iS+KO/RPuTDKahXNEBqnOrBtJRJIwbaVYcNMCHtBlfkC3uo9mkR/lJfBSqqf+Dma/tehCKCrZTDXz3F0vikAu5scw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com; spf=pass smtp.mailfrom=gmx.com; dkim=pass (2048-bit key) header.d=gmx.com header.i=kippndavis.work@gmx.com header.b=c58dtGVh; arc=none smtp.client-ip=212.227.17.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Y+D9bioG";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="cUfJNtWX";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="Y+D9bioG";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="cUfJNtWX"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 90B43339CA;
-	Tue, 11 Feb 2025 13:32:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1739280741; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OQgKLohp9UJppT3FHipy+VgWaxpWCieTbQmYejKjYXo=;
-	b=Y+D9bioGmHa3DDMKdgMsSTgkLT52ggg513kAY8MGyJo9J+RRuPxmzxrz2jzIjsDWXn/LZ8
-	gEyfQUVq5fthuIEy1dQCcDrvTlKHeG82eM0LeaBA5HNEqG/YHozg+247wLhrLpkFo/hl5R
-	pFWJ2Z2FDhZp23o6G91hAm+hxv4AFXI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1739280741;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OQgKLohp9UJppT3FHipy+VgWaxpWCieTbQmYejKjYXo=;
-	b=cUfJNtWXPk4bQ4zdkwAwWtQYsC8ktoRqy5MbAny9T2dyKu7Ut+agGB3+Aw1OF1M/YyifI0
-	0iL5fMt+7L4VmmAA==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=Y+D9bioG;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=cUfJNtWX
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1739280741; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OQgKLohp9UJppT3FHipy+VgWaxpWCieTbQmYejKjYXo=;
-	b=Y+D9bioGmHa3DDMKdgMsSTgkLT52ggg513kAY8MGyJo9J+RRuPxmzxrz2jzIjsDWXn/LZ8
-	gEyfQUVq5fthuIEy1dQCcDrvTlKHeG82eM0LeaBA5HNEqG/YHozg+247wLhrLpkFo/hl5R
-	pFWJ2Z2FDhZp23o6G91hAm+hxv4AFXI=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1739280741;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OQgKLohp9UJppT3FHipy+VgWaxpWCieTbQmYejKjYXo=;
-	b=cUfJNtWXPk4bQ4zdkwAwWtQYsC8ktoRqy5MbAny9T2dyKu7Ut+agGB3+Aw1OF1M/YyifI0
-	0iL5fMt+7L4VmmAA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8292513715;
-	Tue, 11 Feb 2025 13:32:21 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id AW7cH2VRq2dTOgAAD6G6ig
-	(envelope-from <jack@suse.cz>); Tue, 11 Feb 2025 13:32:21 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-	id 41745A095C; Tue, 11 Feb 2025 14:32:17 +0100 (CET)
-Date: Tue, 11 Feb 2025 14:32:17 +0100
-From: Jan Kara <jack@suse.cz>
-To: Miklos Szeredi <mszeredi@redhat.com>
-Cc: linux-fsdevel@vger.kernel.org, Christian Brauner <brauner@kernel.org>, 
-	Jan Kara <jack@suse.cz>, Amir Goldstein <amir73il@gmail.com>, Karel Zak <kzak@redhat.com>, 
-	Lennart Poettering <lennart@poettering.net>, Ian Kent <raven@themaw.net>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux-refpolicy@vger.kernel.org
-Subject: Re: [PATCH v5 2/3] fanotify: notify on mount attach and detach
-Message-ID: <7fjcocufagvqgytwiqvbcehovmehgwytz67jv76327c52jrz2y@5re5g57otcws>
-References: <20250129165803.72138-1-mszeredi@redhat.com>
- <20250129165803.72138-3-mszeredi@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmx.com header.i=kippndavis.work@gmx.com header.b="c58dtGVh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.com;
+	s=s31663417; t=1739298127; x=1739902927; i=kippndavis.work@gmx.com;
+	bh=Xq1RYqk5Qe817yTEKtqAmUfPfJkN1K9pJ44b/LVYtPE=;
+	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:
+	 MIME-Version:Content-Transfer-Encoding:cc:
+	 content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=c58dtGVhXyPp0WhiI/77Y7YiIV7im36+KeTBGeGF0/mi/Fc50SoSw547GU5f8X34
+	 0E34m3pSd0ZuL0imsVzy3nq07dKBIhNgcmCEwhHvQ5CFJ6OvKPRKnG+g80qn/wnAg
+	 TM6JrBG0fuxVOZoxBpqzIIg3xRS/VFnqbcWpYMXYxTeyqBpn/eiiOe2QHWHnH/Svb
+	 tfkPJLwQaz5i/eco0mk/QONNRcVxYvvKKWjjOI3OlCjGiGjBBTfK9aWpry3GuRSfX
+	 JIyI+xasIJCo315koYbSD7bqgrH116NFf4XEvMgc2h66OzorszbBWTTTOzAXhULm4
+	 M76j6Rc27bIZJrNYxQ==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from ip-192-168-122-31.ec2.internal ([52.70.167.183]) by
+ mail.gmx.net (mrgmx105 [212.227.17.174]) with ESMTPSA (Nemesis) id
+ 1MWzfl-1tsjah2FHl-00KIHq; Tue, 11 Feb 2025 19:22:06 +0100
+From: kippndavis.work@gmx.com
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	stephen.smalley.work@gmail.com
+Subject: [PATCH v2] selinux: add permission checks for loading other kinds of kernel files
+Date: Tue, 11 Feb 2025 13:21:59 -0500
+Message-ID: <20250211182159.37744-1-kippndavis.work@gmx.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250129165803.72138-3-mszeredi@redhat.com>
-X-Rspamd-Queue-Id: 90B43339CA
-X-Spam-Score: -4.01
-X-Rspamd-Action: no action
-X-Spamd-Result: default: False [-4.01 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	RCVD_COUNT_THREE(0.00)[3];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[13];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	MIME_TRACE(0.00)[0:+];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCVD_TLS_LAST(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	ASN(0.00)[asn:25478, ipnet:::/0, country:RU];
-	FREEMAIL_CC(0.00)[vger.kernel.org,kernel.org,suse.cz,gmail.com,redhat.com,poettering.net,themaw.net,zeniv.linux.org.uk,paul-moore.com];
-	DKIM_TRACE(0.00)[suse.cz:+];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.cz:email,suse.cz:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.com:email]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:JJDF0FlhCcIJTZWYjl2vVIEDbpyDFZ0V7w2dQcGxhUX0ICSeND9
+ Z5z1Usd+xApx00Py9T44Ks3Q9XBerQCzDNBS95IB5J/9b2bwEaaEdGx8zsGEFfQlsL6vGn8
+ xL3KGVxxc6WETPS2tmZnpoxF4PsdIHjaHZmbZnQdwVtqkoFAh2NEuwzUS60ztVZtFw3i0FY
+ D82SSzkQs3p7A435sfUHA==
 X-Spam-Flag: NO
-X-Spam-Level: 
+UI-OutboundReport: notjunk:1;M01:P0:B19rRLN2+I0=;5B3ezFDXRwc8UknVOl3dXgnjOw6
+ o71SCcWe8tCs+KXrCW3rsV3xJ5aEDj1zJaTuavv+xOH9IiV+v+hBC5WXYtA9UfzN6F2QhPm/N
+ aeZf9RsbhCKXYvkGCPe871WHMrSpxa+iv3F3nhEDT48tZhUIoO2kIDcGmQAesa4LiWlceAEDX
+ bNmuuM53hy8w5f+vFFbEZMCnAYnE62VADARcY+sftpdK9lbEdOstTNH3KQeoMOTIq+J9azKWj
+ oJyf9BX+Gw8Lif3+PDX42R1/CaR9BhLsed02PGLnJ5QVztmRe4tiYd2aeCkfI9tP5atDbuh8o
+ vZ28dIVUYXj2AAszZFRB251NMyld1hw15tEoMLBLD71sHeGO9C5XIVGM/HUw6QcgiW1OcBmZf
+ Zo7pwJ2Db1d5dgj1MAvHUmoWi0MvritLBg7nRMWjqFXOih76i1ZFvjegmArgjq1b9NJd7gbkY
+ 8J93oEPA9OcZgiJ0y7XW7An8d0JmUNBju0at6d2XxcZ9IaAg9EBGMS4mXkENwqQhUr/MNFs5C
+ VnQTDsKRCW4N+aLX3i9fhR0akys5xCiCHXMLNvhjmMAMh4Mo47FNjUG4/wGBVxz0NovUegXTV
+ lzfokCWj0ZfO2cE3q1XH+s6Ea2CtShLRpqYVXgGMPzWrB/IBWo2yB+4q2yCxGNch54PiY9ai9
+ HEV/KynAh4M84lDcep+Ejt8uijzgTEgakbIpu07+S5TP6nMgjImzHdWaGnCg7pY82J0i4Yg8F
+ GUNjFm2f2MBFcl9fVoyoPqEXQIAdZ00QKM1Zv3wSsw3UMbfMCbxHjrpUx5rIn9dbFgCrujGru
+ N8jlfEmTtAxs0xllgbAXmueYqNyOH8NUUGN7rpuMsVFojTGAI0lspnrWdpx66cKjZB5JK7UHh
+ wnkdxj4uabyh+xxM3/zdCtTq42ondMkdZ3DxkkAy+DbAWgcrTd5digtPJnQ0W1NA+5UL5fLgp
+ rcVUqHneeBnr2F4s3YqbA2VquVCeq04Zs22a5tEpBTNN7n5Uz1IvIpzJrKgqVORHiHYceL7pq
+ Yo8f62PDDDpliJObWpA4I7QomIyMDTKEOF2njyqFUQAhe6S7WXLNLXfBX0twOXRmyApJ1l6Ps
+ VYCyga7dSS3CZ2fdflISPYZ1wvFkX1FU3mdrG7g+6Opn82Z3K7XhxhiDQ02JAWo+5aBGrZ4Lg
+ 8SXpQg+Yc/ISrLjG+wUvNo8Da02sB+Z48RfKFSntwD2+bajospYhlzwjUDIvkksmmFg/8LhDu
+ pbr6dfqljOiS215aC7u3oTBrKpP1D+Ed7jfB6WJQhfvvlaWb3ngbu96CFZo9Nk1QVHiZFBIii
+ hnxaT+4+69nnQ5Un3v0m7a8s+ywTkumOyg12n+x3sVjZFzBl2t9D/8F8DpukRGGlZPjEhlEFM
+ Y5Hx5sI4d6RXFBDFyqVBxAnzFIaBLNWvi9wLvOdv7B97WHzoWbTBqvnXw3a1pJLtpkYliD7qU
+ pDLWcMg==
 
-On Wed 29-01-25 17:58:00, Miklos Szeredi wrote:
-> Add notifications for attaching and detaching mounts.  The following new
-> event masks are added:
-> 
->   FAN_MNT_ATTACH  - Mount was attached
->   FAN_MNT_DETACH  - Mount was detached
-> 
-> If a mount is moved, then the event is reported with (FAN_MNT_ATTACH |
-> FAN_MNT_DETACH).
-> 
-> These events add an info record of type FAN_EVENT_INFO_TYPE_MNT containing
-> these fields identifying the affected mounts:
-> 
->   __u64 mnt_id    - the ID of the mount (see statmount(2))
-> 
-> FAN_REPORT_MNT must be supplied to fanotify_init() to receive these events
-> and no other type of event can be received with this report type.
-> 
-> Marks are added with FAN_MARK_MNTNS, which records the mount namespace from
-> an nsfs file (e.g. /proc/self/ns/mnt).
-> 
-> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+From: "Kipp N. Davis" <kippndavis.work@gmx.com>
 
-Just one small comment below. Otherwise feel free to add:
+Although the LSM hooks for loading kernel modules were later generalized
+to cover loading other kinds of files, SELinux didn't implement
+corresponding permission checks, leaving only the module case covered.
+Define and add new permission checks for these other cases.
 
-Reviewed-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Cameron K. Williams <ckwilliams.work@gmail.com>
+Signed-off-by: Kipp N. Davis <kippndavis.work@gmx.com>
 
-> @@ -1847,6 +1890,19 @@ static int do_fanotify_mark(int fanotify_fd, unsigned int flags, __u64 mask,
->  		return -EINVAL;
->  	group = fd_file(f)->private_data;
->  
-> +	/* Only report mount events on mnt namespace */
-> +	if (FAN_GROUP_FLAG(group, FAN_REPORT_MNT)) {
-> +		if (mask & ~FANOTIFY_MOUNT_EVENTS)
-> +			return -EINVAL;
-> +		if (mark_type != FAN_MARK_MNTNS)
-> +			return -EINVAL;
-> +	} else {
-> +		if (mask & FANOTIFY_MOUNT_EVENTS)
-> +			return -EINVAL;
-> +		if (mark_type == FAN_MARK_MNTNS)
-> +			return -EINVAL;
-> +	}
-> +
->  	/*
->  	 * An unprivileged user is not allowed to setup mount nor filesystem
->  	 * marks.  This also includes setting up such marks by a group that
-> @@ -1888,7 +1944,7 @@ static int do_fanotify_mark(int fanotify_fd, unsigned int flags, __u64 mask,
->  	 * point.
->  	 */
->  	fid_mode = FAN_GROUP_FLAG(group, FANOTIFY_FID_BITS);
-> -	if (mask & ~(FANOTIFY_FD_EVENTS|FANOTIFY_EVENT_FLAGS) &&
-> +	if (mask & ~(FANOTIFY_FD_EVENTS|FANOTIFY_MOUNT_EVENTS|FANOTIFY_EVENT_FLAGS) &&
+=2D--
+Changes in v2:
+  - Removed the `-EACCES` return in default case in
+    selinux_kernel_read_file() and selinux_kernel_load_from_file(),
+    reverting previous fallback behavior.
+  - Added a compile-time check in these	functions to catch new
+    READING/LOADING_XXX	entries.
 
-I understand why you need this but the condition is really hard to
-understand now and the comment above it becomes out of date. Perhaps I'd
-move this and the following two checks for FAN_RENAME and
-FANOTIFY_PRE_CONTENT_EVENTS into !FAN_GROUP_FLAG(group, FAN_REPORT_MNT)
-branch to make things more obvious?
+Thanks for your review! I've adjusted the default case so as to not
+return an error and depart from pre-existing logic. I first tried to use
+the pre-processor #errors but failed with the READING/LOADING_MAX_ID
+enums, so I opted for BUILD_BUG_ON_MSG as a compile-time check with
+those same enums instead to catch new entries.
+=2D--
+ security/selinux/hooks.c            | 56 +++++++++++++++++++++++------
+ security/selinux/include/classmap.h |  4 ++-
+ 2 files changed, 49 insertions(+), 11 deletions(-)
 
-								Honza
--- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7b867dfec88b..67bf37693cd7 100644
+=2D-- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4096,7 +4096,7 @@ static int selinux_kernel_module_request(char *kmod_=
+name)
+ 			    SYSTEM__MODULE_REQUEST, &ad);
+ }
+
+-static int selinux_kernel_module_from_file(struct file *file)
++static int selinux_kernel_load_from_file(struct file *file, u32 requested=
+)
+ {
+ 	struct common_audit_data ad;
+ 	struct inode_security_struct *isec;
+@@ -4104,12 +4104,9 @@ static int selinux_kernel_module_from_file(struct f=
+ile *file)
+ 	u32 sid =3D current_sid();
+ 	int rc;
+
+-	/* init_module */
+ 	if (file =3D=3D NULL)
+ 		return avc_has_perm(sid, sid, SECCLASS_SYSTEM,
+-					SYSTEM__MODULE_LOAD, NULL);
+-
+-	/* finit_module */
++					requested, NULL);
+
+ 	ad.type =3D LSM_AUDIT_DATA_FILE;
+ 	ad.u.file =3D file;
+@@ -4123,7 +4120,7 @@ static int selinux_kernel_module_from_file(struct fi=
+le *file)
+
+ 	isec =3D inode_security(file_inode(file));
+ 	return avc_has_perm(sid, isec->sid, SECCLASS_SYSTEM,
+-				SYSTEM__MODULE_LOAD, &ad);
++				requested, &ad);
+ }
+
+ static int selinux_kernel_read_file(struct file *file,
+@@ -4131,10 +4128,32 @@ static int selinux_kernel_read_file(struct file *f=
+ile,
+ 				    bool contents)
+ {
+ 	int rc =3D 0;
+-
++	BUILD_BUG_ON_MSG(READING_MAX_ID > 7,
++                 "New kernel_read_file_id introduced; update SELinux!");
+ 	switch (id) {
++	case READING_FIRMWARE:
++		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
++				SYSTEM__FIRMWARE_LOAD);
++		break;
+ 	case READING_MODULE:
+-		rc =3D selinux_kernel_module_from_file(contents ? file : NULL);
++		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
++				SYSTEM__MODULE_LOAD);
++		break;
++	case READING_KEXEC_IMAGE:
++		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
++				SYSTEM__KEXEC_IMAGE_LOAD);
++		break;
++	case READING_KEXEC_INITRAMFS:
++		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
++				SYSTEM__KEXEC_INITRAMFS_LOAD);
++		break;
++	case READING_POLICY:
++		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
++				SYSTEM__POLICY_LOAD);
++		break;
++	case READING_X509_CERTIFICATE:
++		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
++				SYSTEM__X509_CERTIFICATE_LOAD);
+ 		break;
+ 	default:
+ 		break;
+@@ -4146,10 +4165,27 @@ static int selinux_kernel_read_file(struct file *f=
+ile,
+ static int selinux_kernel_load_data(enum kernel_load_data_id id, bool con=
+tents)
+ {
+ 	int rc =3D 0;
+-
++	BUILD_BUG_ON_MSG(LOADING_MAX_ID > 7,
++        "New kernel_load_data_id introduced; update SELinux!");
+ 	switch (id) {
++	case LOADING_FIRMWARE:
++		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__FIRMWARE_LOAD);
++		break;
+ 	case LOADING_MODULE:
+-		rc =3D selinux_kernel_module_from_file(NULL);
++		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__MODULE_LOAD);
++		break;
++	case LOADING_KEXEC_IMAGE:
++		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__KEXEC_IMAGE_LOAD);
++		break;
++	case LOADING_KEXEC_INITRAMFS:
++		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__KEXEC_INITRAMFS_LOAD=
+);
++		break;
++	case LOADING_POLICY:
++		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__POLICY_LOAD);
++		break;
++	case LOADING_X509_CERTIFICATE:
++		rc =3D selinux_kernel_load_from_file(NULL,
++				SYSTEM__X509_CERTIFICATE_LOAD);
+ 		break;
+ 	default:
+ 		break;
+diff --git a/security/selinux/include/classmap.h b/security/selinux/includ=
+e/classmap.h
+index 03e82477dce9..cfac41d12f7d 100644
+=2D-- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -63,7 +63,9 @@ const struct security_class_mapping secclass_map[] =3D {
+ 	{ "process2", { "nnp_transition", "nosuid_transition", NULL } },
+ 	{ "system",
+ 	  { "ipc_info", "syslog_read", "syslog_mod", "syslog_console",
+-	    "module_request", "module_load", NULL } },
++	    "module_request", "module_load", "firmware_load",
++	    "kexec_image_load", "kexec_initramfs_load", "policy_load",
++	    "x509_certificate_load", NULL } },
+ 	{ "capability", { COMMON_CAP_PERMS, NULL } },
+ 	{ "filesystem",
+ 	  { "mount", "remount", "unmount", "getattr", "relabelfrom",
+=2D-
+2.48.1
+
