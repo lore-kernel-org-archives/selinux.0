@@ -1,234 +1,390 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
+Received: from fout-a8-smtp.messagingengine.com (fout-a8-smtp.messagingengine.com [103.168.172.151])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2310C1E4110
-	for <selinux@vger.kernel.org>; Tue, 11 Feb 2025 18:22:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7DC5266F03
+	for <selinux@vger.kernel.org>; Tue, 11 Feb 2025 21:19:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739298133; cv=none; b=QVfmPOzFO7h9XGgD4N8iP380cAsXSS34m2DddDdPiUlziaFD2fJIuflnpyX/og12JJ42j/iMbXEpfrkEA7iMpdrEa0Gp698tHZYwv2I2l6dnb3fOzoaOPrcFt4Z2p/KQOikaLfpJxqttJ8R7oL4XNhmiX4z3aUYLwBNoaW4V4xE=
+	t=1739308773; cv=none; b=M7zGpv2U5rRd3cj0Eqj/fDk8TGQrsdPYlsh3XjrFZI+AV+zIaOY4LP9n3bx5NBn/rbuEXvJ3OFcd4RvS33LHYK4kumw7CAuLhyWfKzRQxL5Jj6ew7KHFTLZos41zrdrMRJMQjbGscLO0iPOCxh5Vly43uhEJeFg4GP1oizOpvSk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739298133; c=relaxed/simple;
-	bh=ITRZrP3FpfDeiyplYaXyZTKMATGzwsyCTLD/YeblKZ4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fH9lwdD0lkdhiMwTzniQhMen44dlCwmkGuNPu/W1XC1g7AOyEvMtkiyue9cg2/gJCTxfpVgwtKc7EZwA9/iS+KO/RPuTDKahXNEBqnOrBtJRJIwbaVYcNMCHtBlfkC3uo9mkR/lJfBSqqf+Dma/tehCKCrZTDXz3F0vikAu5scw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com; spf=pass smtp.mailfrom=gmx.com; dkim=pass (2048-bit key) header.d=gmx.com header.i=kippndavis.work@gmx.com header.b=c58dtGVh; arc=none smtp.client-ip=212.227.17.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.com
+	s=arc-20240116; t=1739308773; c=relaxed/simple;
+	bh=dsK8tynRW8RqcikBfPmcMHXfMX+sOraaGNs1lqkhZFs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dkAKgwg12x0LAeu3cM8In/JJ5S2J/DQM85cJoUSm2kj4iMozzJYIX1rr9+NkIV9LB3X+F52V9CMzyOBH39ibuXK1giO+U+Tj9dZSJr2fEyZN3HHyjEqHE31wjw+E0kGprRYe7TCN9np51MPoADMTOkTVxTR7lrjZuAI7Glrx0Mo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=QO9rxGF3; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=dsRNXGrw; arc=none smtp.client-ip=103.168.172.151
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alyssa.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.com header.i=kippndavis.work@gmx.com header.b="c58dtGVh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.com;
-	s=s31663417; t=1739298127; x=1739902927; i=kippndavis.work@gmx.com;
-	bh=Xq1RYqk5Qe817yTEKtqAmUfPfJkN1K9pJ44b/LVYtPE=;
-	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:
-	 MIME-Version:Content-Transfer-Encoding:cc:
-	 content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=c58dtGVhXyPp0WhiI/77Y7YiIV7im36+KeTBGeGF0/mi/Fc50SoSw547GU5f8X34
-	 0E34m3pSd0ZuL0imsVzy3nq07dKBIhNgcmCEwhHvQ5CFJ6OvKPRKnG+g80qn/wnAg
-	 TM6JrBG0fuxVOZoxBpqzIIg3xRS/VFnqbcWpYMXYxTeyqBpn/eiiOe2QHWHnH/Svb
-	 tfkPJLwQaz5i/eco0mk/QONNRcVxYvvKKWjjOI3OlCjGiGjBBTfK9aWpry3GuRSfX
-	 JIyI+xasIJCo315koYbSD7bqgrH116NFf4XEvMgc2h66OzorszbBWTTTOzAXhULm4
-	 M76j6Rc27bIZJrNYxQ==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from ip-192-168-122-31.ec2.internal ([52.70.167.183]) by
- mail.gmx.net (mrgmx105 [212.227.17.174]) with ESMTPSA (Nemesis) id
- 1MWzfl-1tsjah2FHl-00KIHq; Tue, 11 Feb 2025 19:22:06 +0100
-From: kippndavis.work@gmx.com
+	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="QO9rxGF3";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="dsRNXGrw"
+Received: from phl-compute-04.internal (phl-compute-04.phl.internal [10.202.2.44])
+	by mailfout.phl.internal (Postfix) with ESMTP id AA3E0138099B;
+	Tue, 11 Feb 2025 16:19:28 -0500 (EST)
+Received: from phl-mailfrontend-01 ([10.202.2.162])
+  by phl-compute-04.internal (MEProxy); Tue, 11 Feb 2025 16:19:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
+	:cc:content-transfer-encoding:content-type:date:date:from:from
+	:in-reply-to:message-id:mime-version:reply-to:subject:subject:to
+	:to; s=fm2; t=1739308768; x=1739395168; bh=FrJ6lsft3Igdr6w2bvUoT
+	gkgULa1RI2BaQR/YnwXEbs=; b=QO9rxGF33FGIU1ab9szsPmlWbnS/m2ts91bIC
+	CJJ2Y16vhFxWdINKijrSw/qXFEASFKrvC2P81+pi0g5oV+ITa+dhzTvzbvzibGb8
+	aCnsZ7MiyqO+n9+CmY3dgmrNQFjkuPBR57V9Ms2MssFQ83c3RRYMgxWVbsM6aGDW
+	WwzxE6/ax6oo+z8YvOE6qOUnX55JpPwr9qMAIwGVXIAi+sxZRC/lwhmrkNOTGciz
+	5ICImtyfbO2iMOdy62bPk2T7FgXWH+c5DBPFOiQRvrOhX4i3R+qIZsz67TC7lVMC
+	mR5eOmtDM48Lh3CbA9vUGW0yl8Y/+tueEUXFUnPt4ZsKEXinw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:date:date:feedback-id:feedback-id:from:from
+	:in-reply-to:message-id:mime-version:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+	1739308768; x=1739395168; bh=FrJ6lsft3Igdr6w2bvUoTgkgULa1RI2BaQR
+	/YnwXEbs=; b=dsRNXGrwwDHgHuirqP1y691/VvPs7eM4oUOTKfI5OTZMZCLwimP
+	11Kq94OcG9rMtpYr2qqflbSccuA+twzc+CoNqo59K0w5Bpf37IqE5kIBD79Q3Hlk
+	FlDglHeNBWBvYX7zmJk3BTGQGcmGBEPRZJEq4YjZxjChi6+THplbaVB/wXcJVUkp
+	b5GXWWifmf130yc2WnaG6fyQTa6orn7OcNvv2bjqPinuoF/PeFAEQdjx8v9BzNJ3
+	48HYqFXrm/Lp66fMSGS15aY89gqTr+FAEtMdi7C8LMs1IdWfWfNYxpjqbo1wW5a2
+	4lf5A7HSi27U3aSOCrBgpXOv1KamqG2RSnQ==
+X-ME-Sender: <xms:376rZ8JIjk9x2cxZxBj6P8YPZsP4tBj8tDPXuXPWGrAQ533oAUAJuQ>
+    <xme:376rZ8JiwUvAIpzB_LdxpJ1Xig77rClYepwMdI5q7ZFhYEMhHOpsxKq3zQvNY1e7-
+    1FUrCY0NemZUT990Q>
+X-ME-Received: <xmr:376rZ8uwST6u18wvDcgk5puSj11kHjBh0UrIdAiZ97xHJHrpog3hQcKQTjAHVVKHZztASekBF8zml9R_tPIDKge6Qsg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdegvddtiecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdp
+    uffrtefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivg
+    hnthhsucdlqddutddtmdenucfjughrpefhvfevufffkffoggfgsedtkeertdertddtnecu
+    hfhrohhmpeetlhihshhsrgcutfhoshhsuceohhhisegrlhihshhsrgdrihhsqeenucggtf
+    frrghtthgvrhhnpeeufeeivdehffevgeeijeejvefgjeejudevkeffieevueevvdetvdfh
+    leeiuedtgfenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuih
+    iivgeptdenucfrrghrrghmpehmrghilhhfrhhomhephhhisegrlhihshhsrgdrihhspdhn
+    sggprhgtphhtthhopedvpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehnihgtoh
+    hlrghsrdhiohhoshhssehmgeigrdhorhhgpdhrtghpthhtohepshgvlhhinhhugiesvhhg
+    vghrrdhkvghrnhgvlhdrohhrgh
+X-ME-Proxy: <xmx:4L6rZ5YUPgTQm_znE3wNSgEOK2WjGd_wUHsALROa_AmR2DVwM6-hNg>
+    <xmx:4L6rZzZMed_aKREbCpl8jyTbOqdDRRtYmkIWiHxC6Pv3pMaPNayZ_w>
+    <xmx:4L6rZ1CTzLfS5iEY88BoQO79RCrlFOkDD9O9ovGJ8H_n70Bsnb5dVQ>
+    <xmx:4L6rZ5Yq0q5Bo-iPTdi-rManoS3U30smQ86Fl9ItSvdJ0wrI8jLfqQ>
+    <xmx:4L6rZylqkW95k4XX6trAgDWB3X4d0lWZH5UGRtVqH7gnBrNq1aODWoRS>
+Feedback-ID: i12284293:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 11 Feb 2025 16:19:27 -0500 (EST)
+Received: by sf.qyliss.net (Postfix, from userid 1000)
+	id 070EE3AA3890; Tue, 11 Feb 2025 22:19:24 +0100 (CET)
+From: Alyssa Ross <hi@alyssa.is>
 To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	stephen.smalley.work@gmail.com
-Subject: [PATCH v2] selinux: add permission checks for loading other kinds of kernel files
-Date: Tue, 11 Feb 2025 13:21:59 -0500
-Message-ID: <20250211182159.37744-1-kippndavis.work@gmx.com>
-X-Mailer: git-send-email 2.48.1
+Cc: Nicolas Iooss <nicolas.iooss@m4x.org>
+Subject: [PATCH v3] Support static-only builds
+Date: Tue, 11 Feb 2025 22:16:53 +0100
+Message-ID: <20250211211651.1297357-3-hi@alyssa.is>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:JJDF0FlhCcIJTZWYjl2vVIEDbpyDFZ0V7w2dQcGxhUX0ICSeND9
- Z5z1Usd+xApx00Py9T44Ks3Q9XBerQCzDNBS95IB5J/9b2bwEaaEdGx8zsGEFfQlsL6vGn8
- xL3KGVxxc6WETPS2tmZnpoxF4PsdIHjaHZmbZnQdwVtqkoFAh2NEuwzUS60ztVZtFw3i0FY
- D82SSzkQs3p7A435sfUHA==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:B19rRLN2+I0=;5B3ezFDXRwc8UknVOl3dXgnjOw6
- o71SCcWe8tCs+KXrCW3rsV3xJ5aEDj1zJaTuavv+xOH9IiV+v+hBC5WXYtA9UfzN6F2QhPm/N
- aeZf9RsbhCKXYvkGCPe871WHMrSpxa+iv3F3nhEDT48tZhUIoO2kIDcGmQAesa4LiWlceAEDX
- bNmuuM53hy8w5f+vFFbEZMCnAYnE62VADARcY+sftpdK9lbEdOstTNH3KQeoMOTIq+J9azKWj
- oJyf9BX+Gw8Lif3+PDX42R1/CaR9BhLsed02PGLnJ5QVztmRe4tiYd2aeCkfI9tP5atDbuh8o
- vZ28dIVUYXj2AAszZFRB251NMyld1hw15tEoMLBLD71sHeGO9C5XIVGM/HUw6QcgiW1OcBmZf
- Zo7pwJ2Db1d5dgj1MAvHUmoWi0MvritLBg7nRMWjqFXOih76i1ZFvjegmArgjq1b9NJd7gbkY
- 8J93oEPA9OcZgiJ0y7XW7An8d0JmUNBju0at6d2XxcZ9IaAg9EBGMS4mXkENwqQhUr/MNFs5C
- VnQTDsKRCW4N+aLX3i9fhR0akys5xCiCHXMLNvhjmMAMh4Mo47FNjUG4/wGBVxz0NovUegXTV
- lzfokCWj0ZfO2cE3q1XH+s6Ea2CtShLRpqYVXgGMPzWrB/IBWo2yB+4q2yCxGNch54PiY9ai9
- HEV/KynAh4M84lDcep+Ejt8uijzgTEgakbIpu07+S5TP6nMgjImzHdWaGnCg7pY82J0i4Yg8F
- GUNjFm2f2MBFcl9fVoyoPqEXQIAdZ00QKM1Zv3wSsw3UMbfMCbxHjrpUx5rIn9dbFgCrujGru
- N8jlfEmTtAxs0xllgbAXmueYqNyOH8NUUGN7rpuMsVFojTGAI0lspnrWdpx66cKjZB5JK7UHh
- wnkdxj4uabyh+xxM3/zdCtTq42ondMkdZ3DxkkAy+DbAWgcrTd5digtPJnQ0W1NA+5UL5fLgp
- rcVUqHneeBnr2F4s3YqbA2VquVCeq04Zs22a5tEpBTNN7n5Uz1IvIpzJrKgqVORHiHYceL7pq
- Yo8f62PDDDpliJObWpA4I7QomIyMDTKEOF2njyqFUQAhe6S7WXLNLXfBX0twOXRmyApJ1l6Ps
- VYCyga7dSS3CZ2fdflISPYZ1wvFkX1FU3mdrG7g+6Opn82Z3K7XhxhiDQ02JAWo+5aBGrZ4Lg
- 8SXpQg+Yc/ISrLjG+wUvNo8Da02sB+Z48RfKFSntwD2+bajospYhlzwjUDIvkksmmFg/8LhDu
- pbr6dfqljOiS215aC7u3oTBrKpP1D+Ed7jfB6WJQhfvvlaWb3ngbu96CFZo9Nk1QVHiZFBIii
- hnxaT+4+69nnQ5Un3v0m7a8s+ywTkumOyg12n+x3sVjZFzBl2t9D/8F8DpukRGGlZPjEhlEFM
- Y5Hx5sI4d6RXFBDFyqVBxAnzFIaBLNWvi9wLvOdv7B97WHzoWbTBqvnXw3a1pJLtpkYliD7qU
- pDLWcMg==
+Content-Transfer-Encoding: 8bit
 
-From: "Kipp N. Davis" <kippndavis.work@gmx.com>
+Sometimes it's useful to have a static-only toolchain.  This can be
+due to targetting some weird embedded platform, or it can be because
+it ensures that no dynamic libraries are sneaking into a system that's
+supposed to be 100% static due to non-cooperative build systems.  Most
+build systems support static-only builds, e.g. autoconf provides a
+--disable-shared configure option.
 
-Although the LSM hooks for loading kernel modules were later generalized
-to cover loading other kinds of files, SELinux didn't implement
-corresponding permission checks, leaving only the module case covered.
-Define and add new permission checks for these other cases.
+selinux's custom make-based build system did not support such an
+option, so here I've added one.  Apart from the obvious changes, I had
+to make the utilities that use external libraries link against them
+manually, because that can't be inferred from the static selinux
+libraries.  For downstream users of libselinux using pkg-config, this
+shouldn't be a problem, because libselinux.pc already includes the
+Requires.private line that specifies libpcre should be linked against
+as well.
 
-Signed-off-by: Cameron K. Williams <ckwilliams.work@gmail.com>
-Signed-off-by: Kipp N. Davis <kippndavis.work@gmx.com>
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+---
+Changes since v3:
 
-=2D--
-Changes in v2:
-  - Removed the `-EACCES` return in default case in
-    selinux_kernel_read_file() and selinux_kernel_load_from_file(),
-    reverting previous fallback behavior.
-  - Added a compile-time check in these	functions to catch new
-    READING/LOADING_XXX	entries.
+ • Resolve conflicts.
+ • Add selabel_compare to PCRE_USERS.
+ • Use pkg-config for libselinux in policycoreutils, so PCRE is linked.
 
-Thanks for your review! I've adjusted the default case so as to not
-return an error and depart from pre-existing logic. I first tried to use
-the pre-processor #errors but failed with the READING/LOADING_MAX_ID
-enums, so I opted for BUILD_BUG_ON_MSG as a compile-time check with
-those same enums instead to catch new entries.
-=2D--
- security/selinux/hooks.c            | 56 +++++++++++++++++++++++------
- security/selinux/include/classmap.h |  4 ++-
- 2 files changed, 49 insertions(+), 11 deletions(-)
+v2: https://lore.kernel.org/selinux/20211113141616.361640-1-hi@alyssa.is
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 7b867dfec88b..67bf37693cd7 100644
-=2D-- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4096,7 +4096,7 @@ static int selinux_kernel_module_request(char *kmod_=
-name)
- 			    SYSTEM__MODULE_REQUEST, &ad);
- }
+ libselinux/src/Makefile              | 11 ++++++++---
+ libselinux/utils/Makefile            |  8 +++++++-
+ libsemanage/src/Makefile             |  9 +++++++--
+ libsepol/src/Makefile                | 11 ++++++++---
+ policycoreutils/Makefile             |  5 +++++
+ policycoreutils/load_policy/Makefile |  2 +-
+ policycoreutils/newrole/Makefile     |  2 +-
+ policycoreutils/run_init/Makefile    |  2 +-
+ policycoreutils/secon/Makefile       |  2 +-
+ policycoreutils/semodule/Makefile    |  3 ++-
+ policycoreutils/sestatus/Makefile    |  2 +-
+ policycoreutils/setfiles/Makefile    |  2 +-
+ policycoreutils/setsebool/Makefile   |  3 ++-
+ policycoreutils/unsetfiles/Makefile  |  2 +-
+ 14 files changed, 46 insertions(+), 18 deletions(-)
 
--static int selinux_kernel_module_from_file(struct file *file)
-+static int selinux_kernel_load_from_file(struct file *file, u32 requested=
-)
- {
- 	struct common_audit_data ad;
- 	struct inode_security_struct *isec;
-@@ -4104,12 +4104,9 @@ static int selinux_kernel_module_from_file(struct f=
-ile *file)
- 	u32 sid =3D current_sid();
- 	int rc;
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 213c7d34..261c22d4 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -147,7 +147,10 @@ endif
+ 
+ SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./ $(DISABLE_FLAGS)
+ 
+-all: $(LIBA) $(LIBSO) $(LIBPC)
++all: $(LIBA) $(LIBPC)
++ifneq ($(DISABLE_SHARED),y)
++all: $(LIBSO)
++endif
+ 
+ pywrap: all selinuxswig_python_exception.i
+ 	CFLAGS="$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) setup.py build_ext
+@@ -186,11 +189,13 @@ $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+ install: all 
+ 	test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LIBDIR)
+ 	install -m 644 $(LIBA) $(DESTDIR)$(LIBDIR)
+-	test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(SHLIBDIR)
+-	install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
+ 	test -d $(DESTDIR)$(LIBDIR)/pkgconfig || install -m 755 -d $(DESTDIR)$(LIBDIR)/pkgconfig
+ 	install -m 644 $(LIBPC) $(DESTDIR)$(LIBDIR)/pkgconfig
++ifneq ($(DISABLE_SHARED),y)
++	test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(SHLIBDIR)
++	install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
+ 	ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
++endif
+ 
+ install-pywrap: pywrap
+ 	CFLAGS="$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m pip install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR) --ignore-installed --no-deps` $(PYTHON_SETUP_ARGS) .
+diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+index 0d7095b1..6b1dc7c9 100644
+--- a/libselinux/utils/Makefile
++++ b/libselinux/utils/Makefile
+@@ -53,7 +53,13 @@ else
+ TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+ endif
+ 
+-sefcontext_compile: LDLIBS += ../src/libselinux.a $(PCRE_LDLIBS) -lsepol
++sefcontext_compile: LDLIBS += ../src/libselinux.a -lsepol
++
++PCRE_USERS = matchpathcon sefcontext_compile selabel_compare \
++	selabel_digest selabel_get_digests_all_partial_matches \
++	selabel_lookup selabel_lookup_best_match \
++	selabel_partial_match
++$(PCRE_USERS): LDLIBS += $(PCRE_LDLIBS)
+ 
+ all: $(TARGETS)
+ 
+diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+index 8dfbd762..7d60b1e9 100644
+--- a/libsemanage/src/Makefile
++++ b/libsemanage/src/Makefile
+@@ -67,7 +67,10 @@ SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./
+ 
+ SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./
+ 
+-all: $(LIBA) $(LIBSO) $(LIBPC)
++all: $(LIBA) $(LIBPC)
++ifneq ($(DISABLE_SHARED),y)
++all: $(LIBSO)
++endif
+ 
+ pywrap: all $(SWIGSO)
+ 
+@@ -137,11 +140,13 @@ swigify: $(SWIGIF)
+ install: all
+ 	test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LIBDIR)
+ 	install -m 644 $(LIBA) $(DESTDIR)$(LIBDIR)
+-	install -m 755 $(LIBSO) $(DESTDIR)$(LIBDIR)
+ 	test -d $(DESTDIR)$(LIBDIR)/pkgconfig || install -m 755 -d $(DESTDIR)$(LIBDIR)/pkgconfig
+ 	install -m 644 $(LIBPC) $(DESTDIR)$(LIBDIR)/pkgconfig
+ 	test -f $(DESTDIR)$(DEFAULT_SEMANAGE_CONF_LOCATION) || install -m 644 -D semanage.conf $(DESTDIR)$(DEFAULT_SEMANAGE_CONF_LOCATION)
++ifneq ($(DISABLE_SHARED),y)
++	install -m 755 $(LIBSO) $(DESTDIR)$(LIBDIR)
+ 	cd $(DESTDIR)$(LIBDIR) && ln -sf $(LIBSO) $(TARGET)
++endif
+ 
+ install-pywrap: pywrap
+ 	test -d $(DESTDIR)$(PYTHONLIBDIR) || install -m 755 -d $(DESTDIR)$(PYTHONLIBDIR)
+diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+index 71fa3ed7..a1aed072 100644
+--- a/libsepol/src/Makefile
++++ b/libsepol/src/Makefile
+@@ -45,7 +45,10 @@ LDFLAGS += -undefined dynamic_lookup
+ LN=gln
+ endif
+ 
+-all: $(LIBA) $(LIBSO) $(LIBPC)
++all: $(LIBA) $(LIBPC)
++ifneq ($(DISABLE_SHARED),y)
++all: $(LIBSO)
++endif
+ 
+ 
+ $(LIBA):  $(OBJS)
+@@ -87,11 +90,13 @@ endif
+ install: all
+ 	test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LIBDIR)
+ 	install -m 644 $(LIBA) $(DESTDIR)$(LIBDIR)
+-	test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(SHLIBDIR)
+-	install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
+ 	test -d $(DESTDIR)$(LIBDIR)/pkgconfig || install -m 755 -d $(DESTDIR)$(LIBDIR)/pkgconfig
+ 	install -m 644 $(LIBPC) $(DESTDIR)$(LIBDIR)/pkgconfig
++ifneq ($(DISABLE_SHARED),y)
++	test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(SHLIBDIR)
++	install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
+ 	$(LN) -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
++endif
+ 
+ relabel:
+ 	/sbin/restorecon $(DESTDIR)$(SHLIBDIR)/$(LIBSO)
+diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
+index 32ad0201..7acd51dd 100644
+--- a/policycoreutils/Makefile
++++ b/policycoreutils/Makefile
+@@ -1,5 +1,10 @@
+ SUBDIRS = setfiles load_policy newrole run_init secon sestatus semodule setsebool scripts po man hll unsetfiles
+ 
++PKG_CONFIG ?= pkg-config
++
++LIBSELINUX_LDLIBS := $(shell $(PKG_CONFIG) --libs libselinux)
++export LIBSELINUX_LDLIBS
++
+ all install relabel clean indent:
+ 	@for subdir in $(SUBDIRS); do \
+ 		(cd $$subdir && $(MAKE) $@) || exit 1; \
+diff --git a/policycoreutils/load_policy/Makefile b/policycoreutils/load_policy/Makefile
+index ad80d500..37c0111b 100644
+--- a/policycoreutils/load_policy/Makefile
++++ b/policycoreutils/load_policy/Makefile
+@@ -7,7 +7,7 @@ LOCALEDIR ?= $(DESTDIR)$(PREFIX)/share/locale
+ 
+ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += $(LDFLAGS) -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+-override LDLIBS += -lsepol -lselinux
++override LDLIBS += $(LIBSELINUX_LDLIBS) -lsepol
+ 
+ TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+ 
+diff --git a/policycoreutils/newrole/Makefile b/policycoreutils/newrole/Makefile
+index 4b8145d3..6e95e79f 100644
+--- a/policycoreutils/newrole/Makefile
++++ b/policycoreutils/newrole/Makefile
+@@ -25,7 +25,7 @@ VERSION = $(shell cat ../VERSION)
+ CFLAGS ?= -Werror -Wall -W
+ EXTRA_OBJS =
+ override CFLAGS += -DVERSION=\"$(VERSION)\" -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+-override LDLIBS += -lselinux
++override LDLIBS += $(LIBSELINUX_LDLIBS)
+ ifeq ($(PAMH), y)
+ 	override CFLAGS += -DUSE_PAM
+ 	EXTRA_OBJS += hashtab.o
+diff --git a/policycoreutils/run_init/Makefile b/policycoreutils/run_init/Makefile
+index 619ebc1d..a5002587 100644
+--- a/policycoreutils/run_init/Makefile
++++ b/policycoreutils/run_init/Makefile
+@@ -11,7 +11,7 @@ AUDITH ?= $(shell test -f /usr/include/libaudit.h && echo y)
+ 
+ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+-override LDLIBS += -lselinux
++override LDLIBS += $(LIBSELINUX_LDLIBS)
+ ifeq ($(PAMH), y)
+ 	override CFLAGS += -DUSE_PAM
+ 	override LDLIBS += -lpam -lpam_misc
+diff --git a/policycoreutils/secon/Makefile b/policycoreutils/secon/Makefile
+index 440503a1..daa3e10e 100644
+--- a/policycoreutils/secon/Makefile
++++ b/policycoreutils/secon/Makefile
+@@ -8,7 +8,7 @@ WARNS=-Werror -W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wca
+ VERSION = $(shell cat ../VERSION)
+ CFLAGS ?= $(WARNS) -O1
+ override CFLAGS += -DVERSION=\"$(VERSION)\"
+-override LDLIBS += -lselinux
++override LDLIBS += $(LIBSELINUX_LDLIBS)
+ 
+ all: secon
+ 
+diff --git a/policycoreutils/semodule/Makefile b/policycoreutils/semodule/Makefile
+index 9fbf99d6..3855f95e 100644
+--- a/policycoreutils/semodule/Makefile
++++ b/policycoreutils/semodule/Makefile
+@@ -5,11 +5,12 @@ SBINDIR ?= $(PREFIX)/sbin
+ MANDIR = $(PREFIX)/share/man
+ 
+ CFLAGS ?= -Werror -Wall -W
+-override LDLIBS += -lsepol -lselinux -lsemanage
++override LDLIBS += -lsemanage -lsepol $(LIBSELINUX_LDLIBS)
+ SEMODULE_OBJS = semodule.o
+ 
+ all: semodule genhomedircon
+ 
++semodule: LDLIBS += -laudit -lbz2
+ semodule: $(SEMODULE_OBJS)
+ 
+ genhomedircon:
+diff --git a/policycoreutils/sestatus/Makefile b/policycoreutils/sestatus/Makefile
+index aebf050c..b0df6d28 100644
+--- a/policycoreutils/sestatus/Makefile
++++ b/policycoreutils/sestatus/Makefile
+@@ -8,7 +8,7 @@ ETCDIR ?= /etc
+ 
+ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += -D_FILE_OFFSET_BITS=64
+-override LDLIBS += -lselinux
++override LDLIBS += $(LIBSELINUX_LDLIBS)
+ 
+ all: sestatus
+ 
+diff --git a/policycoreutils/setfiles/Makefile b/policycoreutils/setfiles/Makefile
+index 84ffb08b..0b27e934 100644
+--- a/policycoreutils/setfiles/Makefile
++++ b/policycoreutils/setfiles/Makefile
+@@ -6,7 +6,7 @@ MANDIR = $(PREFIX)/share/man
+ AUDITH ?= $(shell test -f /usr/include/libaudit.h && echo y)
+ 
+ CFLAGS ?= -g -Werror -Wall -W
+-override LDLIBS += -lselinux -lsepol -lpthread
++override LDLIBS += $(LIBSELINUX_LDLIBS) -lsepol -lpthread
+ 
+ ifeq ($(AUDITH), y)
+ 	override CFLAGS += -DUSE_AUDIT
+diff --git a/policycoreutils/setsebool/Makefile b/policycoreutils/setsebool/Makefile
+index fc5b4ff6..12b6315d 100644
+--- a/policycoreutils/setsebool/Makefile
++++ b/policycoreutils/setsebool/Makefile
+@@ -6,13 +6,14 @@ MANDIR = $(PREFIX)/share/man
+ BASHCOMPLETIONDIR ?= $(PREFIX)/share/bash-completion/completions
+ 
+ CFLAGS ?= -Werror -Wall -W
+-override LDLIBS += -lselinux -lsemanage
++override LDLIBS += -lsemanage $(LIBSELINUX_LDLIBS)
+ SETSEBOOL_OBJS = setsebool.o
+ 
+ BASHCOMPLETIONS=setsebool-bash-completion.sh 
+ 
+ all: setsebool
+ 
++setsebool: LDLIBS += -laudit -lbz2
+ setsebool: $(SETSEBOOL_OBJS)
+ 
+ install: all
+diff --git a/policycoreutils/unsetfiles/Makefile b/policycoreutils/unsetfiles/Makefile
+index 9e5edc04..bdc1b9de 100644
+--- a/policycoreutils/unsetfiles/Makefile
++++ b/policycoreutils/unsetfiles/Makefile
+@@ -3,7 +3,7 @@ SBINDIR ?= $(PREFIX)/sbin
+ MANDIR ?= $(PREFIX)/share/man
+ 
+ override CFLAGS += -D_GNU_SOURCE
+-override LDLIBS += -lselinux
++override LDLIBS += $(LIBSELINUX_LDLIBS)
+ 
+ 
+ all: unsetfiles
 
--	/* init_module */
- 	if (file =3D=3D NULL)
- 		return avc_has_perm(sid, sid, SECCLASS_SYSTEM,
--					SYSTEM__MODULE_LOAD, NULL);
--
--	/* finit_module */
-+					requested, NULL);
-
- 	ad.type =3D LSM_AUDIT_DATA_FILE;
- 	ad.u.file =3D file;
-@@ -4123,7 +4120,7 @@ static int selinux_kernel_module_from_file(struct fi=
-le *file)
-
- 	isec =3D inode_security(file_inode(file));
- 	return avc_has_perm(sid, isec->sid, SECCLASS_SYSTEM,
--				SYSTEM__MODULE_LOAD, &ad);
-+				requested, &ad);
- }
-
- static int selinux_kernel_read_file(struct file *file,
-@@ -4131,10 +4128,32 @@ static int selinux_kernel_read_file(struct file *f=
-ile,
- 				    bool contents)
- {
- 	int rc =3D 0;
--
-+	BUILD_BUG_ON_MSG(READING_MAX_ID > 7,
-+                 "New kernel_read_file_id introduced; update SELinux!");
- 	switch (id) {
-+	case READING_FIRMWARE:
-+		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
-+				SYSTEM__FIRMWARE_LOAD);
-+		break;
- 	case READING_MODULE:
--		rc =3D selinux_kernel_module_from_file(contents ? file : NULL);
-+		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
-+				SYSTEM__MODULE_LOAD);
-+		break;
-+	case READING_KEXEC_IMAGE:
-+		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
-+				SYSTEM__KEXEC_IMAGE_LOAD);
-+		break;
-+	case READING_KEXEC_INITRAMFS:
-+		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
-+				SYSTEM__KEXEC_INITRAMFS_LOAD);
-+		break;
-+	case READING_POLICY:
-+		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
-+				SYSTEM__POLICY_LOAD);
-+		break;
-+	case READING_X509_CERTIFICATE:
-+		rc =3D selinux_kernel_load_from_file(contents ? file : NULL,
-+				SYSTEM__X509_CERTIFICATE_LOAD);
- 		break;
- 	default:
- 		break;
-@@ -4146,10 +4165,27 @@ static int selinux_kernel_read_file(struct file *f=
-ile,
- static int selinux_kernel_load_data(enum kernel_load_data_id id, bool con=
-tents)
- {
- 	int rc =3D 0;
--
-+	BUILD_BUG_ON_MSG(LOADING_MAX_ID > 7,
-+        "New kernel_load_data_id introduced; update SELinux!");
- 	switch (id) {
-+	case LOADING_FIRMWARE:
-+		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__FIRMWARE_LOAD);
-+		break;
- 	case LOADING_MODULE:
--		rc =3D selinux_kernel_module_from_file(NULL);
-+		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__MODULE_LOAD);
-+		break;
-+	case LOADING_KEXEC_IMAGE:
-+		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__KEXEC_IMAGE_LOAD);
-+		break;
-+	case LOADING_KEXEC_INITRAMFS:
-+		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__KEXEC_INITRAMFS_LOAD=
-);
-+		break;
-+	case LOADING_POLICY:
-+		rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__POLICY_LOAD);
-+		break;
-+	case LOADING_X509_CERTIFICATE:
-+		rc =3D selinux_kernel_load_from_file(NULL,
-+				SYSTEM__X509_CERTIFICATE_LOAD);
- 		break;
- 	default:
- 		break;
-diff --git a/security/selinux/include/classmap.h b/security/selinux/includ=
-e/classmap.h
-index 03e82477dce9..cfac41d12f7d 100644
-=2D-- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -63,7 +63,9 @@ const struct security_class_mapping secclass_map[] =3D {
- 	{ "process2", { "nnp_transition", "nosuid_transition", NULL } },
- 	{ "system",
- 	  { "ipc_info", "syslog_read", "syslog_mod", "syslog_console",
--	    "module_request", "module_load", NULL } },
-+	    "module_request", "module_load", "firmware_load",
-+	    "kexec_image_load", "kexec_initramfs_load", "policy_load",
-+	    "x509_certificate_load", NULL } },
- 	{ "capability", { COMMON_CAP_PERMS, NULL } },
- 	{ "filesystem",
- 	  { "mount", "remount", "unmount", "getattr", "relabelfrom",
-=2D-
-2.48.1
+base-commit: 71aec30d068789e856e7cc429b620ae1cfa890f1
+-- 
+2.47.0
 
