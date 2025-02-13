@@ -1,108 +1,167 @@
-Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 527AC433AD
-	for <selinux@vger.kernel.org>; Thu, 13 Feb 2025 02:22:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E184227EBA
+	for <selinux@vger.kernel.org>; Thu, 13 Feb 2025 11:49:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739413334; cv=none; b=svBuo0iRSgkvUHnxuPEUh4G1BSc3Mt5p7G0M9hwlL9S8LSeX7vTd0OOtcdx583+XBvjH2C+Y01PM6RSQyu7BHVHslSRCVpslxPMbXGDho8D2tjbdEdYOWXdhBOmLeSOsyuThO6vZqMp9i6lPxfteFruB7rlSOgVrOdB7Hyx5/Qc=
+	t=1739447344; cv=none; b=NfMhMO/PLdEbw8paiL2V3H6OCH2sAgnNE2rjUVoESvHL1IkwBHK+TadMmopxNG4x6q6APFFhoOs3jTMmhCJMXxkUd09TAS7BO5B3UXJAXjqB4oUQfEHNzkCifpoNT1GY0xHWH9MoIXU2lKQiDtvP3bJPpsMCauVLZC/w3FFvFuw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739413334; c=relaxed/simple;
-	bh=HZcCfhRZP/c+JfvcJZJWCvY7xbnSndu8Wkdvl+bNfms=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=KKdLyo14EJLPI2Njaa4GuRxm6eWP/T+O3L/KOvdhYJOp+joUXFP91KfLs3QquQ1UUl+NOSAAdZx9yqWt6rhnVBj1jDn63RGExrrdc/Vbcl0jqs06iquYpSqF2wN+cvHj5HbXol0YxYhbc5CTKEhBoLAMdhpPau6xbHagOm5uYYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=DihZlfBX; arc=none smtp.client-ip=209.85.216.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
+	s=arc-20240116; t=1739447344; c=relaxed/simple;
+	bh=unEIe0CTSPFmARaE1uLGvzPg9lrOWLZ6TMTBfCEbXAQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=fImZEsUv58nJDsYyeX/8BaNtPCQyyVaMWNq/chlInfG3A9lcGQeo09w5myDHxcSIl2yAK9FpL8Bh4dURaXixN6uoQ3j4WfdgXAth25Mymxodzo/tnU7P6J/qh9OW8d1+8bTDQwdCMQHqvLf7FwMpaqgklIocBRADCm+rYneSSSU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=IDhod/uK; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=S7WulbCU; arc=none smtp.client-ip=202.12.124.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alyssa.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="DihZlfBX"
-Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-2fa480350a5so899733a91.3
-        for <selinux@vger.kernel.org>; Wed, 12 Feb 2025 18:22:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1739413332; x=1740018132; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=9ZkPcjYR5ck3R+l7JgL16r7l/ax+sLRaubPhWfQ2fmw=;
-        b=DihZlfBX5bvfSbOjFBMUGUADOITLNkMnNzKw5YTNmU2/l1wr/gSLt51bPLsn236vzn
-         fuE5Dhm/T6xYw7L6FLDZIPBPyM6xsZJSlcs+9Qw62oFhjEmqt83RkYOV0lW5eT7Q664K
-         AUd11iwfUbZ2gUC/H1ViVt9XQPySxiR2UJC3TlfJD5lq2G3s2PUOfQwyCftwJmcfn1A6
-         zJIdemE9k8C/UomwZP7OcIGQXWxjIps4hF8N7fRC94ZVkLRyBWlyU78ubSlL7LdxJnmQ
-         +clQ+F1KRc6/SIfMqaRcxKydm7DuG8c6UpOU7kCc9piAYml+mLs3YxEuwYnpTGYV7Ir1
-         SS5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739413332; x=1740018132;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9ZkPcjYR5ck3R+l7JgL16r7l/ax+sLRaubPhWfQ2fmw=;
-        b=smZ2BICHyBmkRFRPs2A2QouRbV6PzsIPnJ6ivWTlCHqv7xcydPi+4ubs1Eu2YquNNV
-         m3ttgxClA60Ufhks6e9o4z0IugveZCVaBbYFlrW8w0ZjKd0zAE/ysexasFDgYGrN3Fga
-         KIb4mziUHPd2amA+IX9jQNorAHbDWc+JQis6ODCp+Jee0qsAtbNhlMR3XJRMcBbH+E8Y
-         z0EuAAkXQSbZcXzWB+aRGkOJHkj/f+LAi0M3l9m5dM73BRLCi+O2lnww/RwZpeZPiGCx
-         kN5MSFeuC8e+WDWp3b5AvN+T+qKCfO/cLXeJdGsed2vmkp1S6YlmR2SXug4Jt1AezY59
-         jGnA==
-X-Gm-Message-State: AOJu0Yzt9QKC5gDvtmhmG807Iew8B5Yzztm1/sVUUiX7z/AUoQ8i2Dg6
-	Yyg4mrhucmrfao3gKLLuTBEqaUkOZ1iEBFFSQwdXQnxM813jvvYwOkf1RsXnieYQcNE0tobF2vP
-	Sbu1Y5pWF/hQ0NQHX3Td6QhIQnbyRiLPxp/abWzxG5ehCNDPesa5IMl7JocMaoOYenB8jZwsUoX
-	Upq6xn4g4B+UbudITvNV9UORsI+Vwz
-X-Google-Smtp-Source: AGHT+IHg7+GPBvGxcUWuSQunEtwEg0ggMYbq0syB6+jFwWl21ZWqtAt2HtIRa/wPKLoBzfl5srwsm6cE9A==
-X-Received: from pjbpl10.prod.google.com ([2002:a17:90b:268a:b0:2fc:11a0:c53f])
- (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:51cd:b0:2ee:e18b:c1fa
- with SMTP id 98e67ed59e1d1-2fbf5c57f6amr8287178a91.28.1739413332537; Wed, 12
- Feb 2025 18:22:12 -0800 (PST)
-Date: Thu, 13 Feb 2025 13:22:05 +1100
+	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="IDhod/uK";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="S7WulbCU"
+Received: from phl-compute-02.internal (phl-compute-02.phl.internal [10.202.2.42])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id F1FB525400CC;
+	Thu, 13 Feb 2025 06:48:59 -0500 (EST)
+Received: from phl-mailfrontend-01 ([10.202.2.162])
+  by phl-compute-02.internal (MEProxy); Thu, 13 Feb 2025 06:49:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm2; t=1739447339; x=1739533739; bh=KazkcGk/i4
+	GJMki4G6b9xYw0kzvs9pexxPM2VGuc1ng=; b=IDhod/uKDW1QHxpR0D6nYnerUW
+	inpLiH/bups1O6mr5MKUr+VDmQwGXgdgYx4vEFbJEFx9xqSKYZSR0HmlDRbdNNXF
+	9p0vEP2LNgBE3K83epqTwaA/G4TMM6FS4R/OhQZ1uyf/2t7pUQCV/AWVL4a/0l3p
+	IZrOM36lxj2jco2xRKXWXrrjchcd96PMuprOS0bkCFFBF7dnycvx5KjDEIh/uitu
+	2k8coi0oxTE2w6JDyPBlCFl8VNcp7lBOBxRFqMN2dg5hosdayV9v2rMwNOvAv9vl
+	Ztzud9Bmz73H9eIg1+zGB5v0ktPLb9r6sAkMCRdgvXPhDIIEYRARA3oftVjQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
+	1739447339; x=1739533739; bh=KazkcGk/i4GJMki4G6b9xYw0kzvs9pexxPM
+	2VGuc1ng=; b=S7WulbCUytYJhhBlCncRFOZGttINLtxJLWfTC8WTF6W0H5Pqm1t
+	LnJflyvHgaXL/8LUpFS9xWgSrDKCzJr2HXYfh+E9XxwxZhkogW3UDY+nzWHVSy03
+	rYA40U4lJ3vEzEuPWWk0O/tFFffiOqEcpcyOzUZ0TOSmVOlI+LFa9sV5jsastH4a
+	M8rTst17a8i/151wLdjVP+d4n+EtO50VSKA17eAHJJE0CpVfLJn1wgKVF4sil+gS
+	nwiLLBdPtYyXhQCp3fprRE0M1usXECLt5umJCucNpJpQrksi9b/0p0NJay9P4sCq
+	TRzf6FvZ73qfSwjfj+5VfGU08peF1qtuofg==
+X-ME-Sender: <xms:K9ytZ6RmzX31ttgiQ1xGcvnH2KpUWIE0-B9UIj1DsxTpbA59aT1xlw>
+    <xme:K9ytZ_wn0jkFTgkTUdqFL8W5sE5uEIbFnZHjYmmB2zeKvbiMApr_Dchf_iKAAosmo
+    S2IlZ_vg0brUhLmqQ>
+X-ME-Received: <xmr:K9ytZ33GF8qvj46dLwp10lTcgBWHuFsTSbna1TjglQhI7aDWZgbKoczE086C2a-2Q6cu6KT8lYUR8yJPrG-LGt2FDXo>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdegieeilecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdp
+    uffrtefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivg
+    hnthhsucdlqddutddtmdenucfjughrpefhvfevufgjfhffkfggtgesghdtreertddtjeen
+    ucfhrhhomheptehlhihsshgrucftohhsshcuoehhihesrghlhihsshgrrdhisheqnecugg
+    ftrfgrthhtvghrnhephfeugeelkedtjefhudfgfeelleeltedtfeejvdelieffkeevudfg
+    veegfeevteeinecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecuvehluh
+    hsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhephhhisegrlhihshhs
+    rgdrihhspdhnsggprhgtphhtthhopeefpdhmohguvgepshhmthhpohhuthdprhgtphhtth
+    hopegusghurhhgvghnvghrsehlihhnuhigrdhmihgtrhhoshhofhhtrdgtohhmpdhrtghp
+    thhtohepnhhitgholhgrshdrihhoohhsshesmheggidrohhrghdprhgtphhtthhopehsvg
+    hlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:K9ytZ2A9kw4BOIkIhHEWS2_sDFG1ALm43wXR1C-HwM2nZcgPrlFLNQ>
+    <xmx:K9ytZzgmmY79nhL5KJlpl8gsW5od-IDwoEIK9jR_gUbmWAWHloWmDQ>
+    <xmx:K9ytZyoyEpyf8JtUWdN3Prmt9XxLT5hQcGqMaMmTMjfyDI6NFapSTQ>
+    <xmx:K9ytZ2ipJuo_xDPR3Z8dKoAkja6QXTHUSA7O4POavR4xhY5S6VPICg>
+    <xmx:K9ytZwvzOqfC0XAMvk6qmDuUEky6D16u1h4MIN_IxXUgJ9u1Dry-TgJy>
+Feedback-ID: i12284293:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 13 Feb 2025 06:48:58 -0500 (EST)
+Received: by sf.qyliss.net (Postfix, from userid 1000)
+	id 704D44E8FF3A; Thu, 13 Feb 2025 12:48:57 +0100 (CET)
+From: Alyssa Ross <hi@alyssa.is>
+To: Daniel Burgener <dburgener@linux.microsoft.com>
+Cc: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@vger.kernel.org
+Subject: Re: [PATCH v3] Support static-only builds
+In-Reply-To: <06fd3492-f8b4-4b68-aeef-fd38f6f3587c@linux.microsoft.com>
+References: <20250211211651.1297357-3-hi@alyssa.is>
+ <9316b48f-64f0-469b-8dde-1386aa13d384@linux.microsoft.com>
+ <87a5aro74k.fsf@alyssa.is>
+ <d36501b0-e546-4de6-aa73-85613b276366@linux.microsoft.com>
+ <06fd3492-f8b4-4b68-aeef-fd38f6f3587c@linux.microsoft.com>
+Date: Thu, 13 Feb 2025 12:48:55 +0100
+Message-ID: <871pw26p5k.fsf@alyssa.is>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.48.1.502.g6dc24dfdaf-goog
-Message-ID: <20250213022205.972878-1-tweek@google.com>
-Subject: [PATCH] libselinux: warn on identical duplicate properties
-From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-To: selinux@vger.kernel.org
-Cc: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha512; protocol="application/pgp-signature"
+
+--=-=-=
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-Instead of raising an error in case of matching duplicates, only report
-the issue as a warning. This matches the downstream (AOSP) behaviour for
-Android.
+Daniel Burgener <dburgener@linux.microsoft.com> writes:
 
-Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
----
- libselinux/src/label_backends_android.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> On 2/12/2025 10:11 AM, Daniel Burgener wrote:
+>> On 2/12/2025 4:16 AM, Alyssa Ross wrote:
+>>> Daniel Burgener <dburgener@linux.microsoft.com> writes:
+>>>
+>>>> On 2/11/2025 4:16 PM, Alyssa Ross wrote:
+>>>>> diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
+>>>>> index 32ad0201..7acd51dd 100644
+>>>>> --- a/policycoreutils/Makefile
+>>>>> +++ b/policycoreutils/Makefile
+>>>>> @@ -1,5 +1,10 @@
+>>>>> =C2=A0=C2=A0 SUBDIRS =3D setfiles load_policy newrole run_init secon =
+sestatus=20
+>>>>> semodule setsebool scripts po man hll unsetfiles
+>>>>> +PKG_CONFIG ?=3D pkg-config
+>>>>> +
+>>>>> +LIBSELINUX_LDLIBS :=3D $(shell $(PKG_CONFIG) --libs libselinux)
+>>>>> +export LIBSELINUX_LDLIBS
+>>>>> +
+>>>>
+>>>> I think that in the DISABLE_SHARED case, the pkg-config command needs
+>>>> --static as well.=C2=A0 I tried your patch, and I get errors that the
+>>>> downstream users of libselinux have undefined references to libpcre2,
+>>>> and they are being build without -lpcre2-8.=C2=A0 Based on the pkg-con=
+fig man
+>>>> page, it looks like Requires.private libraries are only included if the
+>>>> --static flag is passed.
+>>>
+>>> I think it's generally expected that the user set
+>>> PKG_CONFIG=3D"pkg-config --static" when they want static linking.=C2=A0=
+ See
+>>> e.g. <https://bugs.freedesktop.org/show_bug.cgi?id=3D19541#c3>.
+>>=20
+>> Thanks for clarifying.=C2=A0 Yes, this command builds everything for me:
+>>=20
+>> make DESTDIR=3D~/obj PKG_CONFIG=3D"pkg-config --static" DISABLE_SHARED=
+=3Dy=20
+>> install
+>>=20
+>> However, the binaries still appear dynamically linked when I investigate=
+=20
+>> them with the "file" command.=C2=A0 Am I missing some other step?
+>
+> It occurs to me that I've possibly misunderstood the point of your=20
+> patch.  This is just about not building the shared libraries,=20
+> independent of whether the binaries are statically linked?
 
-diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/label=
-_backends_android.c
-index cbe932ae..cf4f5cbf 100644
---- a/libselinux/src/label_backends_android.c
-+++ b/libselinux/src/label_backends_android.c
-@@ -58,10 +58,10 @@ static int nodups_specs(struct saved_data *data, const =
-char *path)
- 		for (jj =3D ii + 1; jj < data->nspec; jj++) {
- 			if (!strcmp(spec_arr[jj].property_key,
- 					    curr_spec->property_key)) {
--				rc =3D -1;
--				errno =3D EINVAL;
- 				if (strcmp(spec_arr[jj].lr.ctx_raw,
- 						    curr_spec->lr.ctx_raw)) {
-+					rc =3D -1;
-+					errno =3D EINVAL;
- 					selinux_log
- 						(SELINUX_ERROR,
- 						 "%s: Multiple different specifications for %s  (%s and %s).\n",
-@@ -70,7 +70,7 @@ static int nodups_specs(struct saved_data *data, const ch=
-ar *path)
- 						 curr_spec->lr.ctx_raw);
- 				} else {
- 					selinux_log
--						(SELINUX_ERROR,
-+						(SELINUX_WARNING,
- 						 "%s: Multiple same specifications for %s.\n",
- 						 path, curr_spec->property_key);
- 				}
---=20
-2.48.1.502.g6dc24dfdaf-goog
+Yes.  The purpose of this is to make it possible to build using a
+compiler that only supports static linking.  In Nixpkgs, we have a
+special mode where a package and all its dependencies can be built
+statically, and my intention here is to be able to build packages that
+depend on libselinux in that mode.
 
+Would it maybe make more sense if I split this patch up, so one patch
+just makes it possible to disable building shared libraries, and another
+fixes building using only static libraries?  Originally this patch was
+only the former, but then it grew=E2=80=A6
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQRV/neXydHjZma5XLJbRZGEIw/wogUCZ63cKAAKCRBbRZGEIw/w
+ol+lAP9kiFjSJ4wACEb95nzyOJo1rcz28mAKImFwB44GvammPAD8COJZhAYOoDkh
+MEczm2O6bfUrroRNQfVvCdgJPT8HAA8=
+=Y2Ts
+-----END PGP SIGNATURE-----
+--=-=-=--
