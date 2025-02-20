@@ -1,244 +1,111 @@
-Received: from sonic314-27.consmr.mail.ne1.yahoo.com (sonic314-27.consmr.mail.ne1.yahoo.com [66.163.189.153])
+Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E58B1F78E4
-	for <selinux@vger.kernel.org>; Thu, 20 Feb 2025 21:08:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.189.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F8221DF735
+	for <selinux@vger.kernel.org>; Thu, 20 Feb 2025 21:13:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740085716; cv=none; b=DwBuQskdgaMoBIQrw/bAe5LZe6Xl/wfQprIKUX1PhJJtWtLRCPmGE7ZH6pbGtlVuErCTtu/Qfhp64i9DKeRXfqdQXDOROi13W4LWVHt4iHnPFYkIxWethpqM9DUHFFg9HCFaBaqyW2bgRWKce6gEgPeprdsZI+qanFOdOtYjiJg=
+	t=1740086003; cv=none; b=hS7Gi2pqTJCDg2jMyM1uTB6sXcPlo+rp8tNF2QUVHl1jEh7qLU3pA+xlyEllC6zP163k1pf9Ru/JBih2zoD55OO2qPLehOV2BfCIBq2sJbOT7Bx3A+vjapzoImOZe0v6vdIOyjNQQlaOggSlRuHSdQ9oFF0tJyGENAuJfegx2Ys=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740085716; c=relaxed/simple;
-	bh=fHGJ9ma0uaPWRxbhXmuiwJ3p7H7R6z3UD6fTox006tk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=tzTY5euymxit4heE0EbJaTAA+cCD/f2ppdwx54ZuPfkVqWbmg7Il+/V7Qi1XlAktNdIvWS5QE7kDj1ecoFhe5ztJF61AArW1fC1y4796tD9JNpRhIBvuFFOp2lMcmfbxVspZOrFZzYmblhg3v1N3vzCySd08IDpXFjsieU07pJg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=pPvYk5yp; arc=none smtp.client-ip=66.163.189.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1740086003; c=relaxed/simple;
+	bh=kwaF2DNIph8YhlDyP8NPsyeFoka7CBeWB9CX+t6NcBo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dhZMt0nQvWEPBrnkOSOXH9hrp9+j2m9y3njrUwQbbNE4AsoanFgNpoE8Kg8k5YcbsamuesjITmcYZmY+q3uet1zBuH7RQsszE9Fu7+AxKi7BNHnosUw0nphdyMSxLuMoTSH1JD4wH4a7HeKgAZqs6rr/Do7IEgq6OO+BIom1V6E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fZ7c0/FE; arc=none smtp.client-ip=209.85.221.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="pPvYk5yp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1740085712; bh=Ls601Pnnpzai5fbmWn3A/wbMHrwBgOZ4RlzYkYE8c4U=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=pPvYk5yp1AivRNHyR6e4vygZ6v6YQ5xrYjA6W9hJzluZrqVkVqJn6fQW2bNhq7SaVyaquYpb0TlzM56CVyYIcBr1dQ4LPU3KupaJ8aIVq0KwjLOIw2Vz/tO96EeGMN+aglRu75O96G0rHmrWPz/kaOhKSqUFtZ+4DPjHsWGMkWCa4mBjRrfp5dOq3yhZF8bX9DIkcWpMaU+XPRD55+53n3ZBoWYBR+nKvogRTjLiUBpH63PU5AcSbuTlRr3q65jeT5OJj3a6ioaw1NBzuoWwA87D26VvLMwjb/AiMRuzlqSQa21BzItBMN2/2LoRyS6Uu+95b6bJPKso/vGY7JoCtw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1740085712; bh=o9HmKBfQQwe4C6Jh2g2sjzGimM67Xu19yHUj4y/HDRP=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=UQAOtrVCAtMNQCu70S6ffoRz9ep7PzkYkEMoA2QS6vS51rlaLCOb1YXSPSh/HWHS8iMs9Uls6HMke0J2/xPOMNNkBkmyRgERuLeDmK1B9LAsQH0k+YeR6SFgX0e6o3laL7dHkxo/PVdxhFtdnGcWb17vFkfCmVF1d6NilQEunEOTBCLe6aKrDjCoqcVoSvHD3/yDZ05xJNhirVFPdFXg+DJLMl39Ahiy88DY/55gyGBm+LkJQP+84iJVHKrLxVIunDAtyS7Zby8nIQzTkcIXfqaRPmcF9M3PfacPekTdxXGcjr4BfaarbSZHhAdXTIK8ih+/baiaJMIW9q8IQ4qOFQ==
-X-YMail-OSG: S8mhbE0VM1n_FRSpy7KljNE.5oxIXr0jfOonF7giTFVs8SiEwpukC9TZrrBBuav
- 4duS_MrRLXeywiDDUNjYAH1BMrZmmGL9oQejetpbSkMHOfQe_mHuyInXfCuB8YrTIi5gi8B6lTHF
- iRXn7G_IJgwFMg_MysrW2JOs5YINkeRTp09OzwXCiZPkwMoSh6tvDnV__FrZ5jIsQ43nGuBaQtzA
- M54_.K_mwbPHX7tYzf_oxQDB1pkoP1naOQDJ7YNcLf7jkk2sgekRA2AVQMoFePPQcKzd3J14LbzA
- RRP9UjGIq5_BLrMEU.TIAUeXp994mnWig0RGZCSBHW3dx8U8EIInyeT8.JCcK7xzmaYchutNybDH
- vFtHMZDyyRxt71eqeWctTKEBdqp5k7jy0OQEOnDQEsKluqcO67gDRCck0jndwQb8UYWcm609x1Lr
- sq7MPrqQjtnSOspTl7A8O3jdo07A0k2RaKtg2A3sWPmUk86bqC6GKrvAf62Dui5YT3RSTyRLqc84
- uhIcqkGJDJ8QScaahjKoMAzwrpZ.oIx3fr0kpGNF4xV9R0zxh7jxHvc6.BUCFyDwXggX5rhDcEo3
- DkZl4ZdFyJ_coFipbpsesyXiqyc8pEZ0aywNcPgSP1w1Hif.UyokZc28yYvgm8VgSLX8CYG.w0B2
- .1s7qnJg..1zV6iGFOcYTt7XSv9GM_Z_gdX5xQyX8TxbStBVMwfEXLk6avpXzJgv6IctM60Lkh8D
- FHya1CnFH0I_3bdUtijgp4fOr1ApO9_iYCtFgsNghyiEbsTnoMSc0YYj1GYW3EIP7iSoCjOpSTmF
- IzhB.9HZF7KWsO8h4ni1vUOdGTtVNmVAS9qg9dTVTDz7oECle6wRSN7Zm6aaB8P.sP3BnoEK3EFs
- JwXiwAW3apaLLLnyqlWw6MXGZvCQaYXA6hOH_LVSzy3x6T8Wh9IwCGT70QdEs18UgRAU_pBOoBIR
- qKUqhwmbv.TGTO_qJ4eLB2nvVjg6s9ZSZgZmIAGM9Z0y81HEzl.rdxVmLeX9qC0xcTRBt1eBij.0
- esM6IMcfwIQbByndq1HZH8mo0bfxDXBjbgn8JH06tpalk8gc7j7mYkm.38yBwGdRt_7Ri8GjzaiJ
- KOKIQmUv9Ow0lxhfzSXFsHlLDRRwSiGjDZ3_8qxHNONm2sKesqJGRXYCseDsqSHLeHVowfFyFn6M
- .Zh1FD0T7RrorxUV5h8D.s3B0gUCWbcTGK3QIw4ETgsJqlv9KFDyL5tXfS4TYT0VYe7churDoPpg
- PJrSClq9sIo8DfSZ7.cwL7MQh0pZkI00ljr1yrs4wxP2OzeJCFSmjxG4z02QxczF8FgjyhYMSv1h
- xFh2SFg6WSbfUmzUHjMZWESJ9.H_LtKHNlBslNCaJ3zaZWMMM.7LKGevZqWWGuGOCgko7RvoRWru
- tYRCYocIaNxsxykK7iJkb3htypRSqKxi3hPBIluxxmHR0mKUdId11YyrrLuMVGMXtq_uAHaoZOub
- jGE66yWHBxq1Eekrg9xYTYV0oGJ8drdaIDRyfDowyM._7RfITemk5tyPCZ3oKk61whSu_c66p8rH
- QsULDG5Zf3bktGOwOBNIsOXAnWbmsQ_q_EO3XBOdAhk.8OPqr2559Vo1EQjOceXARYagp5OGLBjK
- ej7RI.onIAJSDbyhxysYAUGihDVzIuoiTCcpONlNtJAxmlIFpl0_1FcmbXn_h.K5Ujr0vtAHkc.h
- Bm.97_0xf.QKgRHmhjQAK6DzdwAKPNCt5C1Py6D0W6SU668HSsLdNllDW71onBOG0vJcPeSe8Abv
- Kymsbm_qzJB5O18QWHBPRbRF7PpfZY2AxXBIbZEAGw4DB9tMRpsiYtrqzSydoT2iiKbCPMa7M_nT
- Sl9rl9tXwNqVLBUaPvCnA1D4ahkpzpCdTb.ca4eBtnKy6P8TBwAYyrBG4muOeiilFd8NlT4gj.pL
- BAxP2YD1hMiRX0OMkO4YfMwKHrh5Ee7.Y6bvyFzkH7o1CddsuglxmvzFsGWDQ6rxxoOK9CbdvwET
- JL.iR_lv_rhn3NXXl0Gbpa83GbAYnTvNorVIvEINOmTKocYWmaxxJ5HOqTpPhuIn.v15kGTgvv7F
- VzzKyfaRPgVm5tIJRcpRzGagaYDasboJ4NbFl6Mgz8g_SKYsQ9xpkoF50G9_SA0LFyHASeC.4pzJ
- 1ymdMr1u6vW0rInYiJBiUXr4zjznOz77BnxY.S30sdrGYOlXlIXpZoK9kZurd.W3uloPS_M2xX8E
- HIYIM50tk8v42QI.S7vdGvjF.9wD5WArjLEbEN82_3d1DiBU3ExAraL6AgbPI1gtaTQxRuC_Rtyz
- exAWM5Bst8K_LymAAgkf0vAOVeL0-
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 0afeb5a0-6019-4eae-9389-51f560899813
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.ne1.yahoo.com with HTTP; Thu, 20 Feb 2025 21:08:32 +0000
-Received: by hermes--production-gq1-5dd4b47f46-mb2l9 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 4748797154ba520462eaa80991b069db;
-          Thu, 20 Feb 2025 21:08:29 +0000 (UTC)
-Message-ID: <784b9c6d-22e1-44d0-86f8-d2b13c4b0e11@schaufler-ca.com>
-Date: Thu, 20 Feb 2025 13:08:26 -0800
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fZ7c0/FE"
+Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-38f2b7ce2e5so825520f8f.2
+        for <selinux@vger.kernel.org>; Thu, 20 Feb 2025 13:13:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1740086000; x=1740690800; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=yVB/89gECu7C9KUBEsEGb+zk43O2sbt6SQ4uAaK2x7I=;
+        b=fZ7c0/FE8SfcAW9AOZiyhA6uBTPLvkTdXdp6Mbhr4CrO7mioyRbqkijn/hHoBZCGUG
+         bAsBoU3eXm3IhVzSeFnQW+GImg0J1Mdcm2D7DJnflr46PLW674Tid/sFkfIhI3ZT0KLI
+         3QdIy6mM9UZRqU3d7Ca10E8peiqttxO1FA+wNDYFAuS9/xOpH+Dv8d8mREeK17vonERC
+         jc/xmLSIiLvdr/rmGunbTdNdTdQ/8I2/BHzPI8nqpC+a9EItxV0oRoQAkWuGuAQf2/AH
+         DEYnoa5xtstcPBR7lKJTYUCcprMfO715dKADVZTld1kx4CY8M4fJ/4VIaVwYbgfcVJ9T
+         ABQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740086000; x=1740690800;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=yVB/89gECu7C9KUBEsEGb+zk43O2sbt6SQ4uAaK2x7I=;
+        b=pBsXf7Thi3pJTqKe6rmk1Wr778NiXxzYSJ7ub9o9cLDg86//iA66yeBZsZ7B57ZUik
+         GfOWP4yXpUnT5SzJtnRYiEaSJ/KAm+YIoV04oJZft+BYkW1sf03PZ0lFsyQP5cW8ZqNy
+         42WlsYv3+tYyaqQ8Tlrm3rkXzHbS7MikXFFtB+aAmkTIuVfIU3BjefoLzpd22SZo1um7
+         HMKgOrNx17q5epWR9uNSQCLxDtmAvYM+Pd+z1glNG5j7tHh/3ViLL5RofAHuqX7wuUFx
+         6EbRjLXpVRyTh6qYGetON73vK3QRoQ6vJQATok0vczRmAGUP3Xr8f5DxNzW9HyTj6wW3
+         WY0A==
+X-Gm-Message-State: AOJu0YyFEWqjwpjbUl4tJFb8eJQzsWryhh48LtJw9ohvYX4yoObd8qSU
+	/FL1UsyF3BLSbtd55+NyMSOJ4dySy3J553Vud2o+XrCLY/jHw59UHziwOXQPxmo=
+X-Gm-Gg: ASbGncsHEMbuG733a8RbKfvzYDEfU2mk7yP/yE4qy4i9tbPvtdbrBVvvMnbyng/DREX
+	I5hkjMfsGwN7O4Y/hQV0eir+IHRazbogZ4100xRSrWlrj7qjHHmPfDBGBykYTMlgGzEshVFmBKn
+	luNdti2JuZshSvynMW68C6vrgbUQN+6dsZIEEEgxWgUMnZ+Nlmb6DpPwtvnoIpSjBjyY791s+c1
+	2Q4HoGu0pTEJ0JrYlNdaDkivvnmRutS86mlicXLXwLF+ViD4Am25Tz/3jNltiqZQ+WElh30ctYX
+	GKsSJrmScAeCFu9fUhf+iw==
+X-Google-Smtp-Source: AGHT+IHF5gFTRPaAZi9O1Jcljz0fzEZ2S8fYpmal5Jt2zt4szcCG3lBVkx7Ag5o0qaTADSQIiq5x3Q==
+X-Received: by 2002:a5d:678e:0:b0:38f:3a89:fdb1 with SMTP id ffacd0b85a97d-38f6e982ba0mr479882f8f.30.1740086000314;
+        Thu, 20 Feb 2025 13:13:20 -0800 (PST)
+Received: from localhost.localdomain ([81.79.13.113])
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-38f25915785sm22219515f8f.58.2025.02.20.13.13.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Feb 2025 13:13:19 -0800 (PST)
+From: Rahul Sandhu <nvraxn@gmail.com>
+To: selinux@vger.kernel.org
+Cc: Rahul Sandhu <nvraxn@gmail.com>
+Subject: [PATCH] libsemanage: define basename macro for non-glibc systems
+Date: Thu, 20 Feb 2025 21:12:49 +0000
+Message-ID: <20250220211249.574456-1-nvraxn@gmail.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 4/5] LSM: lsm_context in security_dentry_init_security
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
- jmorris@namei.org, serge@hallyn.com, keescook@chromium.org,
- john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
- linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net,
- ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20241023212158.18718-1-casey@schaufler-ca.com>
- <20241023212158.18718-5-casey@schaufler-ca.com>
- <CAEjxPJ56H_Y-ObgNHrCggDK28NOARZ0CDmLDRvY5qgzu=YgE=A@mail.gmail.com>
- <CAHC9VhSSpLx=ku7ZJ7qVxHHyOZZPQWs_hoxVRZpTfhOJ=T2X9w@mail.gmail.com>
- <CAHC9VhQUUOqh3j9mK5eaVOc6H7JXsjH8vajgrDOoOGOBTszWQw@mail.gmail.com>
- <CAEjxPJ6-jL=h-Djxp5MGRbTexQF1vRDPNcwpxCZwFM22Gja0dg@mail.gmail.com>
- <CAEjxPJ5KTJ1DDaAJ89sSdxUetbP_5nHB5OZ0qL18m4b_5N10-w@mail.gmail.com>
- <1b6af217-a84e-4445-a856-3c69222bf0ed@schaufler-ca.com>
- <CAEjxPJ44NNZU7u7vLN_Oj4jeptZ=Mb9RkKvJtL=xGciXOWDmKA@mail.gmail.com>
- <eba48af3-a8ef-4220-87a1-c86b96bcdad8@schaufler-ca.com>
- <CAEjxPJ7aXgOCP4+1Lbfe2b5fjB9Mu1n2h2juDY1RjPgP10PUxQ@mail.gmail.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAEjxPJ7aXgOCP4+1Lbfe2b5fjB9Mu1n2h2juDY1RjPgP10PUxQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.23369 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On 2/20/2025 12:33 PM, Stephen Smalley wrote:
-> On Thu, Feb 20, 2025 at 3:31 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->> On 2/20/2025 11:37 AM, Stephen Smalley wrote:
->>> On Thu, Feb 20, 2025 at 2:33 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->>>> On 2/20/2025 10:16 AM, Stephen Smalley wrote:
->>>>> On Thu, Feb 20, 2025 at 1:02 PM Stephen Smalley
->>>>> <stephen.smalley.work@gmail.com> wrote:
->>>>>> On Thu, Feb 20, 2025 at 12:54 PM Paul Moore <paul@paul-moore.com> wrote:
->>>>>>> On Thu, Feb 20, 2025 at 12:40 PM Paul Moore <paul@paul-moore.com> wrote:
->>>>>>>> On Thu, Feb 20, 2025 at 11:43 AM Stephen Smalley
->>>>>>>> <stephen.smalley.work@gmail.com> wrote:
->>>>>>>>> On Wed, Oct 23, 2024 at 5:23 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->>>>>>>>>> Replace the (secctx,seclen) pointer pair with a single lsm_context
->>>>>>>>>> pointer to allow return of the LSM identifier along with the context
->>>>>>>>>> and context length. This allows security_release_secctx() to know how
->>>>>>>>>> to release the context. Callers have been modified to use or save the
->>>>>>>>>> returned data from the new structure.
->>>>>>>>>>
->>>>>>>>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->>>>>>>>>> Cc: ceph-devel@vger.kernel.org
->>>>>>>>>> Cc: linux-nfs@vger.kernel.org
->>>>>>>>>> ---
->>>>>>>>>>  fs/ceph/super.h               |  3 +--
->>>>>>>>>>  fs/ceph/xattr.c               | 16 ++++++----------
->>>>>>>>>>  fs/fuse/dir.c                 | 35 ++++++++++++++++++-----------------
->>>>>>>>>>  fs/nfs/nfs4proc.c             | 20 ++++++++++++--------
->>>>>>>>>>  include/linux/lsm_hook_defs.h |  2 +-
->>>>>>>>>>  include/linux/security.h      | 26 +++-----------------------
->>>>>>>>>>  security/security.c           |  9 ++++-----
->>>>>>>>>>  security/selinux/hooks.c      |  9 +++++----
->>>>>>>>>>  8 files changed, 50 insertions(+), 70 deletions(-)
->>>>>>>>>>
->>>>>>>>>> diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
->>>>>>>>>> index 76776d716744..0b116ef3a752 100644
->>>>>>>>>> --- a/fs/nfs/nfs4proc.c
->>>>>>>>>> +++ b/fs/nfs/nfs4proc.c
->>>>>>>>>> @@ -114,6 +114,7 @@ static inline struct nfs4_label *
->>>>>>>>>>  nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
->>>>>>>>>>         struct iattr *sattr, struct nfs4_label *label)
->>>>>>>>>>  {
->>>>>>>>>> +       struct lsm_context shim;
->>>>>>>>>>         int err;
->>>>>>>>>>
->>>>>>>>>>         if (label == NULL)
->>>>>>>>>> @@ -128,21 +129,24 @@ nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
->>>>>>>>>>         label->label = NULL;
->>>>>>>>>>
->>>>>>>>>>         err = security_dentry_init_security(dentry, sattr->ia_mode,
->>>>>>>>>> -                               &dentry->d_name, NULL,
->>>>>>>>>> -                               (void **)&label->label, &label->len);
->>>>>>>>>> -       if (err == 0)
->>>>>>>>>> -               return label;
->>>>>>>>>> +                               &dentry->d_name, NULL, &shim);
->>>>>>>>>> +       if (err)
->>>>>>>>>> +               return NULL;
->>>>>>>>>>
->>>>>>>>>> -       return NULL;
->>>>>>>>>> +       label->label = shim.context;
->>>>>>>>>> +       label->len = shim.len;
->>>>>>>>>> +       return label;
->>>>>>>>>>  }
->>>>>>>>>>  static inline void
->>>>>>>>>>  nfs4_label_release_security(struct nfs4_label *label)
->>>>>>>>>>  {
->>>>>>>>>> -       struct lsm_context scaff; /* scaffolding */
->>>>>>>>>> +       struct lsm_context shim;
->>>>>>>>>>
->>>>>>>>>>         if (label) {
->>>>>>>>>> -               lsmcontext_init(&scaff, label->label, label->len, 0);
->>>>>>>>>> -               security_release_secctx(&scaff);
->>>>>>>>>> +               shim.context = label->label;
->>>>>>>>>> +               shim.len = label->len;
->>>>>>>>>> +               shim.id = LSM_ID_UNDEF;
->>>>>>>>> Is there a patch that follows this one to fix this? Otherwise, setting
->>>>>>>>> this to UNDEF causes SELinux to NOT free the context, which produces a
->>>>>>>>> memory leak for every NFS inode security context. Reported by kmemleak
->>>>>>>>> when running the selinux-testsuite NFS tests.
->>>>>>>> I don't recall seeing anything related to this, but patches are
->>>>>>>> definitely welcome.
->>>>>>> Looking at this quickly, this is an interesting problem as I don't
->>>>>>> believe we have enough context in nfs4_label_release_security() to
->>>>>>> correctly set the shim.id value.  If there is a positive, it is that
->>>>>>> lsm_context is really still just a string wrapped up with some
->>>>>>> metadata, e.g. length/ID, so we kfree()'ing shim.context is going to
->>>>>>> be okay-ish, at least for the foreseeable future.
->>>>>>>
->>>>>>> I can think of two ways to fix this, but I'd love to hear other ideas too.
->>>>>>>
->>>>>>> 1. Handle the LSM_ID_UNDEF case directly in security_release_secctx()
->>>>>>> and skip any individual LSM processing.
->>>>>>>
->>>>>>> 2. Define a new LSM_ID_ANY value and update all of the LSMs to also
->>>>>>> process the ANY case as well as their own.
->>>>>>>
->>>>>>> I'm not finding either option very exciting, but option #2 looks
->>>>>>> particularly ugly, so I think I'd prefer to see someone draft a patch
->>>>>>> for option #1 assuming nothing better is presented.
->>>>>> We could perhaps add a u32 lsmid to struct nfs4_label, save it from
->>>>>> the shim.id obtained in nfs4_label_init_security(), and use it in
->>>>>> nfs4_label_release_security(). Not sure why that wasn't done in the
->>>>>> first place.
->>>>> Something like this (not tested yet). If this looks sane, will submit
->>>>> separately.
->>>>>
->>>>> commit b530104f50e8 ("lsm: lsm_context in security_dentry_init_security")
->>>>> did not preserve the lsm id for subsequent release calls, which results
->>>>> in a memory leak. Fix it by saving the lsm id in the nfs4_label and
->>>>> providing it on the subsequent release call.
->>>>>
->>>>> Fixes: b530104f50e8 ("lsm: lsm_context in security_dentry_init_security")
->>>>> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
->>>> I'm not a fan of adding secids into other subsystems, especially in cases
->>>> where they've tried to avoid them in the past.
->>>>
->>>> The better solution, which I'm tracking down the patch for now, is for
->>>> the individual LSMs to always do their release, and for security_release_secctx()
->>>> to check the lsm_id and call the appropriate LSM specific hook. Until there
->>>> are multiple LSMs with contexts, LSM_ID_UNDEF is as good as a match.
->>>>
->>>> Please don't use this patch.
->>> It doesn't add a secid; it just saves the LSM id obtained from
->>> lsm_context populated by the security_dentry_init_security() hook call
->>> and passes it back in the lsm_context to the security_release_secctx()
->>> call.
->> Right. Sorry. If you're going to do that, the nfs_label struct should
->> just include a lsm_context instead. But that hit opposition when proposed
->> initially.
->>
->> The practical solution has to acknowledge that at this stage there can only
->> be one LSM providing contexts, and each LSM can release the context if the
->> LSM is matches the LSM or is LSM_ID_UNDEF. That will change before SELinux,
->> AppArmor and Smack can co-exist, but that's not yet available. For now the
->> check
->>
->>         if (cp->id == LSM_ID_SELINUX)
->>
->> can either be removed or changed to
->>
->>         if (cp->id == LSM_ID_SELINUX || cp->id == LSM_ID_UNDEF)
->>
->> In a system that respects LSM_FLAG_LEGACY_MAJOR the id isn't relevant
->> with the context using LSMs all being thus identified.
-> Shrug. My patch seemed cleaner,
+Passing a const char *path to basename(3) is a glibc specific
+extension.
 
-Adding the lsm_context was cleaner. Not worth yet another roadblock.
-I will have a patch asap. I'm dealing with a facilities issue at
-Smack Labs (whole site being painted, everything in disarray) that
-is slowing things down.
+Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+---
+ libsemanage/src/conf-parse.y | 3 +++
+ libsemanage/src/direct_api.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
->  but I don't really care as long as it
-> is fixed, preferably before 6.14 goes final.
->
+diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
+index 6cb8a598..97cc5438 100644
+--- a/libsemanage/src/conf-parse.y
++++ b/libsemanage/src/conf-parse.y
+@@ -50,6 +50,9 @@ static external_prog_t *new_external;
+ static int parse_errors;
+ 
+ #define PASSIGN(p1,p2) { free(p1); p1 = p2; }
++#if !defined(__GLIBC__)
++#define basename(src) (strrchr(src, '/') ? strrchr(src, '/') + 1 : src)
++#endif
+ 
+ %}
+ 
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 99cba7f7..4459a7d7 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -63,6 +63,9 @@
+ #define PIPE_READ 0
+ #define PIPE_WRITE 1
+ #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
++#if !defined(__GLIBC__)
++#define basename(src) (strrchr(src, '/') ? strrchr(src, '/') + 1 : src)
++#endif
+ 
+ static void semanage_direct_destroy(semanage_handle_t * sh);
+ static int semanage_direct_disconnect(semanage_handle_t * sh);
+-- 
+2.48.1
+
