@@ -1,291 +1,291 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from sonic313-15.consmr.mail.ne1.yahoo.com (sonic313-15.consmr.mail.ne1.yahoo.com [66.163.185.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6127C1DDC3B
-	for <selinux@vger.kernel.org>; Thu, 20 Feb 2025 20:25:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A0BD1DE896
+	for <selinux@vger.kernel.org>; Thu, 20 Feb 2025 20:31:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.185.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740083104; cv=none; b=mE20bvozcR3U61Up1y/hykdcU+v0pGKSPPR3HBktOrYGmYfEQalOqynm9hzwNBw/mRx4HwNSMduTTbOIFudUwtEPKUhQI6ZDl0MRMabNpec/hNeK3Ni0aFKiwMrUN6sDbMFX+DSu3cDctaixJuejWdSwbq1t+yNgd3G9JOUq4Os=
+	t=1740083491; cv=none; b=g2vavK/klcgFK5JOukKVwPx1sLVS5ZYtkO44d6H09cqk4HX/4AR8ppb4fUYgrYA55y/jecQ8pLn1bHkxLaVIfRm8UL31Pkr0M9Upg8qUp3FWvy5UHgtAAxayWpEi4dXPjU5Tz+C2fVqzd9Uq1/MBIPTK0euIZ1V5yCFTD8EXw+c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740083104; c=relaxed/simple;
-	bh=IdNp+1gm4rJnRh3ypGaydC8T9fQ88N4nnQvp2+CJBl0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hLThOswjKTyq+cGWjH3HSXgGBDVsG/PrroPXJR76D8axb8hUIiGVUkTXi00Ek0GXZAm81teJlAtr4oRdJpHe6IIkbIqcunyvr7c0s+T6yeSvJm8E+AKAjzTlCd56FFJMTTIpcjXILQeM5Ay7PGuXq0d6qFbMjq7h0JghOR260oc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KKX3zAD3; arc=none smtp.client-ip=209.85.216.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1740083491; c=relaxed/simple;
+	bh=d/3FqiLdzWOdjz0PG6ytncZssG9QXCKrrKuPpYZ6bq0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Qee2K6jDOeSJHwEBcl4u/iGLyE5GgiRdy/Ypq7yFYQmVkTvl9Nu9ABnBJTHxSjDBBK0pfMEYj3XCHY+ZaLVbTudcY2doOvzCzKEvYbD+WcinZYk6IfJpAClb/OoCp47S4IOvJBmttJhzEK0frszRxcR4Vq3MVSsLsnVI++eIbOU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=jtvDgRad; arc=none smtp.client-ip=66.163.185.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KKX3zAD3"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-2fc291f7ddbso2235510a91.1
-        for <selinux@vger.kernel.org>; Thu, 20 Feb 2025 12:25:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740083101; x=1740687901; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/vL8QiGjgQqd9SXQYuR1WJoIUvCEispcI+klPYbEyYw=;
-        b=KKX3zAD3duYE8G/3N6AKxABWon0sQxuWKHvCN8Ku5n6mMwv8Wur6m0SeE1/vZXcR+u
-         h98QLS2M8raDHmjGhLOHZ04WYCAsvfPS8YieaxPXJPVVywjG4OVmk5SeFEgoE7rFZnrV
-         6k1cNfUvfizCOf0Ot5JK0qMQhjuMU1Mu5e4jbQWIhaEtFrLTSIbCY7DJ0coHIHd0gVBW
-         yNPXkeADOv0nyMzdda41/L5Fx5CT+fSpusLMLq6R/aEAWx4c1/sHDlH9d9WNl3NC1yWA
-         1n27066J17AyRCq93b5wnwslUN+HcAmdkVscFy5DPKLhDuWO2h4CzRQDjOQC7vN8pCt3
-         Ru8w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740083101; x=1740687901;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/vL8QiGjgQqd9SXQYuR1WJoIUvCEispcI+klPYbEyYw=;
-        b=ZZsBDlBbkaTwHl7EQEZIX7wEc894K5ZfOBTGnsKiybIb0Khgro2ZkKainPPp0v1Q0p
-         93u92VITE2AJk1PtC/ep0+FYta/M6Y9R2yyh2xgMzybtqG2dxLK+StHv+ZAe1DMGs/Ls
-         isiGPL+aNtLGxcy7d0ui+dZDFx1rMujqhHnM8p9xe8eC0mddu5EgdAGcC9XFEaURlSWo
-         vP4SYGevqhdpOWeEM2qvdDTBF46i6TEX12YD3WimhY4NFh4UiIs8BtKjd+Pcikktgm9h
-         0V36YqZfBwC0ZPXnd4Zx+R9qc/6gA69TyCU+mSGB53d8RMAluMKh8jUwTproD/pK5YSL
-         XqZg==
-X-Forwarded-Encrypted: i=1; AJvYcCVMXmCpgfG0t7Omd4DW3nrU2gY/FrpXEAkmiBe37M6dXyxLim2nwjpj166+7j867NnrQZTEQv9U@vger.kernel.org
-X-Gm-Message-State: AOJu0YyaoN82usmXN/xarjZRRyOCpLO6B5AWtvQQ7v9IbCWTnBfLSBRE
-	6fB5iBOv3iIAhAREg8Cw68xSSTvAb7kp3So4gzfnIMAd5/8UnD7zqV96UNCGwfgezz6DlTUaR01
-	DY9PXkOmNz1/y/3NqPeRnbecLRk0=
-X-Gm-Gg: ASbGnct0/I3GCR06Qjy45Pn46g/qYecGrd4H884Z3rHovHUiAfrbfo2PcO8GUEnRTj4
-	wZegD4SLaYFFozEp6CIuevOxW2oIM3PyKQpWIyIXohtkhDuB13sNM0Utn9lx7E+NFR61WBofU
-X-Google-Smtp-Source: AGHT+IGFMAFF6NwzQs9/IMM2pORXIQhL3v7dppfUTnHnSdKqBzMz59VG/LraajTg5X+MhPmi+v00PZPXPIJudbaRMYA=
-X-Received: by 2002:a17:90b:5488:b0:2fc:a3b7:1099 with SMTP id
- 98e67ed59e1d1-2fce789b23bmr875573a91.4.1740083101437; Thu, 20 Feb 2025
- 12:25:01 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="jtvDgRad"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1740083488; bh=fgTo2d6NtjHPueDo2KAAJhEa90dOTzWdqu55/iRf3EI=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=jtvDgRadKUDfRgcs4pNz+dt1ihp/Ew3RKG3obHes4a83qccafT/QD4F+P5kOYMeT1o/vyyKrrOC1/RXgpHZFRSbxXL4lDlpNcwSTTv+GMuIAu4ld4WATAvUCyxmKc8kCLX/jr7hxIZTvgeYGQTB0pbZcqaUJPhJuMQw114M7UYuD90I8+JFcN1y6BCbYQbaytnB60sujnmkwUw0MyuubUTB4bDr/rG5LccbLUp6eMxYk8X08/nAAyCtOSjUD/MiicnhrDkbgiL2I7aoeEMr2JZ9MqZByYbkSxZZ7x3H3EtCkRCffu4iOTa7XBtHruwJrllScryfPZ8XIvaWjU9Q17g==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1740083488; bh=ajikE1QVDupOcUWzirPptAv9RUFux8SGaezz9PwiwU+=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=UZmuUwONGYAvshX1F/n4DiRXUlwFjiBQJcJSsBOVN2o29wnG4ucWvipOqx9iqt4sJFgqJtF76CyvJhLp+YTZ11zcyYaq388HlulOgp3V1/wet+po87tOz/ui/ai+oM8350ex9wklhrYQRWl/v97iXVYn6cZPSeXE/gW9k0yQ482jJ9d7pOCP93K50YYRnIDvlmJsz/SPpJUFMStdCfzP/uhFd/GQm1Uf/IghbWExy9qXwzLulhXeaEQgbxPrn+7WnrUIGIInrRv4BKDXQveIhTCRjUdyeUTK80JiFAwL4U9nTkIdqT12fpXI9Qux5MIN1bw7f7Sb4iutSpx/I9rOTw==
+X-YMail-OSG: OtlB4bMVM1mMCjAqCweJUyTMrLIOKU54Qs4qj.Z7CBYqcIqJ9nDohZESaFUm5.w
+ JkqZRrs9Ekm8Of0cZ8nvI4NYQKflwsNYQC8hQb5BdckY70Efmifp4yEp1j61MqffaPEi85BpW9qS
+ k1mV5D3U2AARZ.wIFbtwIu1kWI7U0jDpRSevfruyCyy.A8VeTeoXtCYpayujJ_4WKkhKYypqi.y0
+ Niejb6YVKae2EVuOeIJIOLfsHU1KmZh1bNybKu6vIm5GgALZ9YevCgfOtCwdXRU5dqAcP2qrpmEG
+ iYNQ0tkheZIVCmFdQdrsSSuTo8.bZ_bFyJ6KTf6KfhXFLkowf0UlYleYOgfSIwF7yDu7XxzJEPx.
+ q6PCvU2NlGAeTapZP3gS3biFxd.V5JD283JKDKwbv1kJa9Cca2BhH06NBN97kZxDzri1tu6.1LN3
+ xljwpE0Bgy7SIKlx4ppVtSAG2owNVVNwyZnvDyLk.8tqM1_FG8fyNTGCIJYXhtpS778c7B0zryyd
+ O_9zjk5j7fh__lFaFZRZH.feTJipOQXiVksAIMbjRJEbyWxVsnOHxV0XsUx2_vjWx8K709Nbnuyy
+ iBHXgx.aC36TfyLDR8MnQQUDQ2UbpDQ8ryIRy.3WXbcTaRYIXcHiBDOJDdWBpi1gVzaz4zA62zIG
+ oMaWqsi7tt91pC8ue6cvnJqhOktgYRSVMr3s7mur94JwYmLMEvcPyma_9DIiTf8jS0yZhR1fy3rJ
+ X_vJp5xGc64fcEqzr0PjBlHOpi8gLQAZtpFGEVW2NTQeSu1Ojr7ogTDgbbB.Y0scq9ALHg4jIzk.
+ KhKzYJaaEYXgRVpEWlDbf5h5ucXeWt5yPY9SgwAO73HmRS6rqLr.R3RcAVZTogARhPEjzVm7zE6A
+ dCsj4Zq43fiH9EX.sUxksN4jG49t60vazOurAoGIWaszL5KlOXjDggtWS_JItc7OXROcFps2_xhC
+ vqNuADWx8ScYfy.cEE3mpxsRZMT_ya3Oag1eU_JbpBi9aTVE.fYBy1OfOG_SNkamgQKfsYHZpJzS
+ zwaCraZa8QXwG6ZzbdWLdaz.8DnIUPxqr1xCPiDeUnnEOM3osNPX2FPuOUpMeahdJmYf_SNMnwpv
+ ubimBsutCFOQ06iCVt5irK_uKjvMm2cw0HgpQlrlnsbcAfU7vXMXse955aRiVLkj0mEqTYc0MoV4
+ L.UMRP3gnanCSMwBBLSiEskFLvs9PXdAL1gg13c9D9pShEU4SjeE5ncE.gsg1hIpS.AQp8p.GHCO
+ Lt8mmuZzaxmP7ocgCoFEeUBa50gSwKHaI8H3OYYGE2bhrlzAFfzybhFpQ0jfzd_G1iT5z.iMtyKl
+ N3DQaNEmg_J5nDUHcE45LsYdr9Et1HpowvjulL1h.PcyENsg_ewiHzhSHw37O6qFYRXYwaCcdfMQ
+ q5GFOvrVr5zX4Ixgsr9nmZwecUIb6xvTGpreH9A3q9aGdkB5u5YCyZmHLU3YFKvNn5yb8GPGs.Eq
+ sbnR7auhBYtjOHhs_NoqlW9FikVsFuwhoZkhqyChHJaoLIah8Gaah1f_VvNwutnln1Ihh.1WS0Ld
+ oVF5uQ.fHBf_cUfDkY4QrSBwMGb3P.xxzNv2e2l1ociIYOxoaTp4A60zHKkRsMqMiWsU5bMZ2wd0
+ 0ZdntLjKaf2ltcl96EiShiitdvUClTe60S3KNNPRrd5m83gJzIAx4W7_UZBdoAZ.XLYEVzIrTo0V
+ LZzgme8Yt2zT7fvYvqecVKAxPqHqXDqjPn4c7OhmM.rYZs7tH06I0Z3XudIrtHcK8v6X_REz3llc
+ KetNKNZUHSOd.HlWFAWMeldnLJE6RjTDzW_E9lZDbBju8fp0Nu3uUGfG3SFOzfYcby_7NmX.poEQ
+ thBsJ4OruOzMdY9r1ZPtxXYmGQAZyvv1Llif9rpaFb9a5d2_pR.QjpTaldjn1Vv5NigVkcArzAaA
+ VQNLjNVjTQIeMXIV.GMwTHML1vQqZNll25O2I2HQtyX0JhTQ4QO74Xiab1rQBel_KfI5JJqW2hWg
+ 9OZOmsrYlQESHk4uE9iI9PLjlhbRGKPNtimOuZtJph3D5PRo2XJ5iD8El6QXr5HqD_LBJnVK6BQd
+ J0d2AUgVeEH6wxfFVRJ0LTLLPIgoMMRx5oxGqtGD5_kl0yizX2pR_KrrRIaU60jPZP2.x5GWTzka
+ f1PCOko9IAZtSBWjLcSX.vOlwr.7nDa5DPxsrsXpPiGillW7dHwU4TMYARKDJrUkSxIqjpmjrvPa
+ iVDPIhb2d.Nk7Jlime88iNP_chVzXJ09blebu1wLL3cfvcW6iRyW4.y4I3OhsfBWjqc6FbSykYhX
+ vfTVeJy6qBEV.ONdYohveZfejYQ--
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 1e0edb76-3636-4367-9793-a6623c898840
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Thu, 20 Feb 2025 20:31:28 +0000
+Received: by hermes--production-gq1-5dd4b47f46-dvwsq (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID d98218f19ea55084dbc7a9596a27abdb;
+          Thu, 20 Feb 2025 20:31:21 +0000 (UTC)
+Message-ID: <eba48af3-a8ef-4220-87a1-c86b96bcdad8@schaufler-ca.com>
+Date: Thu, 20 Feb 2025 12:31:19 -0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250211182159.37744-1-kippndavis.work@gmx.com>
- <CAJ2a_DdXpShgNYUgO6XRTPV=sKVC6+po6ZebHSVS5p3MNAx7ng@mail.gmail.com> <CAEjxPJ7eqMriJmcwoKPwSnLeKkgW+woYGwzKxyOQ1SnY1N0Eig@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7eqMriJmcwoKPwSnLeKkgW+woYGwzKxyOQ1SnY1N0Eig@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 20 Feb 2025 15:24:50 -0500
-X-Gm-Features: AWEUYZnjn5XUDWZUGmVrbebEnFDpeqc2UmyQwj6QH8c4_jiJa3YrvfpV-gRsNG4
-Message-ID: <CAEjxPJ4CDt6NmsLJhLtGQCoKHR6vxnBqY0JB5RQCyx84PKO9rg@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: add permission checks for loading other kinds
- of kernel files
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: kippndavis.work@gmx.com, selinux@vger.kernel.org, paul@paul-moore.com, 
-	omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 4/5] LSM: lsm_context in security_dentry_init_security
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
+ jmorris@namei.org, serge@hallyn.com, keescook@chromium.org,
+ john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+ linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net,
+ ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20241023212158.18718-1-casey@schaufler-ca.com>
+ <20241023212158.18718-5-casey@schaufler-ca.com>
+ <CAEjxPJ56H_Y-ObgNHrCggDK28NOARZ0CDmLDRvY5qgzu=YgE=A@mail.gmail.com>
+ <CAHC9VhSSpLx=ku7ZJ7qVxHHyOZZPQWs_hoxVRZpTfhOJ=T2X9w@mail.gmail.com>
+ <CAHC9VhQUUOqh3j9mK5eaVOc6H7JXsjH8vajgrDOoOGOBTszWQw@mail.gmail.com>
+ <CAEjxPJ6-jL=h-Djxp5MGRbTexQF1vRDPNcwpxCZwFM22Gja0dg@mail.gmail.com>
+ <CAEjxPJ5KTJ1DDaAJ89sSdxUetbP_5nHB5OZ0qL18m4b_5N10-w@mail.gmail.com>
+ <1b6af217-a84e-4445-a856-3c69222bf0ed@schaufler-ca.com>
+ <CAEjxPJ44NNZU7u7vLN_Oj4jeptZ=Mb9RkKvJtL=xGciXOWDmKA@mail.gmail.com>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <CAEjxPJ44NNZU7u7vLN_Oj4jeptZ=Mb9RkKvJtL=xGciXOWDmKA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Mailer: WebService/1.1.23369 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On Thu, Feb 20, 2025 at 3:23=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Mon, Feb 17, 2025 at 3:58=E2=80=AFPM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > On Tue, 11 Feb 2025 at 19:22, <kippndavis.work@gmx.com> wrote:
-> > >
-> > > From: "Kipp N. Davis" <kippndavis.work@gmx.com>
-> > >
-> > > Although the LSM hooks for loading kernel modules were later generali=
-zed
-> > > to cover loading other kinds of files, SELinux didn't implement
-> > > corresponding permission checks, leaving only the module case covered=
-.
-> > > Define and add new permission checks for these other cases.
-> > >
-> > > Signed-off-by: Cameron K. Williams <ckwilliams.work@gmail.com>
-> > > Signed-off-by: Kipp N. Davis <kippndavis.work@gmx.com>
-> > >
-> > > ---
-> > > Changes in v2:
-> > >   - Removed the `-EACCES` return in default case in
-> > >     selinux_kernel_read_file() and selinux_kernel_load_from_file(),
-> > >     reverting previous fallback behavior.
-> > >   - Added a compile-time check in these functions to catch new
-> > >     READING/LOADING_XXX entries.
-> > >
-> > > Thanks for your review! I've adjusted the default case so as to not
-> > > return an error and depart from pre-existing logic. I first tried to =
-use
-> > > the pre-processor #errors but failed with the READING/LOADING_MAX_ID
-> > > enums, so I opted for BUILD_BUG_ON_MSG as a compile-time check with
-> > > those same enums instead to catch new entries.
-> > > ---
-> > >  security/selinux/hooks.c            | 56 +++++++++++++++++++++++----=
---
-> > >  security/selinux/include/classmap.h |  4 ++-
-> > >  2 files changed, 49 insertions(+), 11 deletions(-)
-> > >
-> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > index 7b867dfec88b..67bf37693cd7 100644
-> > > --- a/security/selinux/hooks.c
-> > > +++ b/security/selinux/hooks.c
-> > > @@ -4096,7 +4096,7 @@ static int selinux_kernel_module_request(char *=
-kmod_name)
-> > >                             SYSTEM__MODULE_REQUEST, &ad);
-> > >  }
-> > >
-> > > -static int selinux_kernel_module_from_file(struct file *file)
-> > > +static int selinux_kernel_load_from_file(struct file *file, u32 requ=
-ested)
-> > >  {
-> > >         struct common_audit_data ad;
-> > >         struct inode_security_struct *isec;
-> > > @@ -4104,12 +4104,9 @@ static int selinux_kernel_module_from_file(str=
-uct file *file)
-> > >         u32 sid =3D current_sid();
-> > >         int rc;
-> > >
-> > > -       /* init_module */
-> > >         if (file =3D=3D NULL)
-> > >                 return avc_has_perm(sid, sid, SECCLASS_SYSTEM,
-> > > -                                       SYSTEM__MODULE_LOAD, NULL);
-> > > -
-> > > -       /* finit_module */
-> > > +                                       requested, NULL);
-> > >
-> > >         ad.type =3D LSM_AUDIT_DATA_FILE;
-> > >         ad.u.file =3D file;
-> > > @@ -4123,7 +4120,7 @@ static int selinux_kernel_module_from_file(stru=
-ct file *file)
-> > >
-> > >         isec =3D inode_security(file_inode(file));
-> > >         return avc_has_perm(sid, isec->sid, SECCLASS_SYSTEM,
-> > > -                               SYSTEM__MODULE_LOAD, &ad);
-> > > +                               requested, &ad);
-> > >  }
-> > >
-> > >  static int selinux_kernel_read_file(struct file *file,
-> > > @@ -4131,10 +4128,32 @@ static int selinux_kernel_read_file(struct fi=
-le *file,
-> > >                                     bool contents)
-> > >  {
-> > >         int rc =3D 0;
-> > > -
-> > > +       BUILD_BUG_ON_MSG(READING_MAX_ID > 7,
-> > > +                 "New kernel_read_file_id introduced; update SELinux=
-!");
-> > >         switch (id) {
-> >
-> > Should READING_UNKNOWN be handled?
-> > It seems not to be used currently in-tree, but maybe stay on the safe s=
-ide?
->
-> IMHO, no. READING_UNKNOWN/LOADING_UNKNOWN aren't intended to be used
-> and would be a bug elsewhere in the kernel.
->
-> >
-> > > +       case READING_FIRMWARE:
-> > > +               rc =3D selinux_kernel_load_from_file(contents ? file =
-: NULL,
-> > > +                               SYSTEM__FIRMWARE_LOAD);
-> > > +               break;
-> > >         case READING_MODULE:
-> > > -               rc =3D selinux_kernel_module_from_file(contents ? fil=
-e : NULL);
-> > > +               rc =3D selinux_kernel_load_from_file(contents ? file =
-: NULL,
-> > > +                               SYSTEM__MODULE_LOAD);
-> > > +               break;
-> > > +       case READING_KEXEC_IMAGE:
-> > > +               rc =3D selinux_kernel_load_from_file(contents ? file =
-: NULL,
-> > > +                               SYSTEM__KEXEC_IMAGE_LOAD);
-> > > +               break;
-> > > +       case READING_KEXEC_INITRAMFS:
-> > > +               rc =3D selinux_kernel_load_from_file(contents ? file =
-: NULL,
-> > > +                               SYSTEM__KEXEC_INITRAMFS_LOAD);
-> > > +               break;
-> > > +       case READING_POLICY:
-> > > +               rc =3D selinux_kernel_load_from_file(contents ? file =
-: NULL,
-> > > +                               SYSTEM__POLICY_LOAD);
-> > > +               break;
-> > > +       case READING_X509_CERTIFICATE:
-> > > +               rc =3D selinux_kernel_load_from_file(contents ? file =
-: NULL,
-> > > +                               SYSTEM__X509_CERTIFICATE_LOAD);
-> > >                 break;
-> > >         default:
-> > >                 break;
-> > > @@ -4146,10 +4165,27 @@ static int selinux_kernel_read_file(struct fi=
-le *file,
-> > >  static int selinux_kernel_load_data(enum kernel_load_data_id id, boo=
-l contents)
-> > >  {
-> > >         int rc =3D 0;
-> > > -
-> > > +       BUILD_BUG_ON_MSG(LOADING_MAX_ID > 7,
-> > > +        "New kernel_load_data_id introduced; update SELinux!");
-> > >         switch (id) {
-> >
-> > dito
-> >
-> > > +       case LOADING_FIRMWARE:
-> > > +               rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__FI=
-RMWARE_LOAD);
-> > > +               break;
-> > >         case LOADING_MODULE:
-> > > -               rc =3D selinux_kernel_module_from_file(NULL);
-> > > +               rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__MO=
-DULE_LOAD);
-> > > +               break;
-> > > +       case LOADING_KEXEC_IMAGE:
-> > > +               rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__KE=
-XEC_IMAGE_LOAD);
-> > > +               break;
-> > > +       case LOADING_KEXEC_INITRAMFS:
-> > > +               rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__KE=
-XEC_INITRAMFS_LOAD);
-> > > +               break;
-> > > +       case LOADING_POLICY:
-> > > +               rc =3D selinux_kernel_load_from_file(NULL, SYSTEM__PO=
-LICY_LOAD);
-> > > +               break;
-> > > +       case LOADING_X509_CERTIFICATE:
-> > > +               rc =3D selinux_kernel_load_from_file(NULL,
-> > > +                               SYSTEM__X509_CERTIFICATE_LOAD);
-> > >                 break;
-> > >         default:
-> > >                 break;
-> > > diff --git a/security/selinux/include/classmap.h b/security/selinux/i=
-nclude/classmap.h
-> > > index 03e82477dce9..cfac41d12f7d 100644
-> > > --- a/security/selinux/include/classmap.h
-> > > +++ b/security/selinux/include/classmap.h
-> > > @@ -63,7 +63,9 @@ const struct security_class_mapping secclass_map[] =
-=3D {
-> > >         { "process2", { "nnp_transition", "nosuid_transition", NULL }=
- },
-> > >         { "system",
-> > >           { "ipc_info", "syslog_read", "syslog_mod", "syslog_console"=
-,
-> > > -           "module_request", "module_load", NULL } },
-> > > +           "module_request", "module_load", "firmware_load",
-> > > +           "kexec_image_load", "kexec_initramfs_load", "policy_load"=
-,
-> >
-> > In the SELinux world the word "policy" refers mostly to the SELinux pol=
-icy.
-> > Maybe rename the permission verb "policy_load" to
-> > "security_policy_load" or similar? (it seems to be used by IMA,
-> > loadpin and zram currently)
->
-> I don't really see how that is less ambiguous since SELinux policy is
-> a security policy too, but don't have any strong feelings either way.
-> We have the load_policy permission in the security class for loading
-> SELinux policy, so if we use security_policy_load here, then we'll end
-> up with SECURITY__LOAD_POLICY and SYSTEM__SECURITY_LOAD_POLICY.
-> What could go wrong?
+On 2/20/2025 11:37 AM, Stephen Smalley wrote:
+> On Thu, Feb 20, 2025 at 2:33 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>> On 2/20/2025 10:16 AM, Stephen Smalley wrote:
+>>> On Thu, Feb 20, 2025 at 1:02 PM Stephen Smalley
+>>> <stephen.smalley.work@gmail.com> wrote:
+>>>> On Thu, Feb 20, 2025 at 12:54 PM Paul Moore <paul@paul-moore.com> wrote:
+>>>>> On Thu, Feb 20, 2025 at 12:40 PM Paul Moore <paul@paul-moore.com> wrote:
+>>>>>> On Thu, Feb 20, 2025 at 11:43 AM Stephen Smalley
+>>>>>> <stephen.smalley.work@gmail.com> wrote:
+>>>>>>> On Wed, Oct 23, 2024 at 5:23 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>>>>>>>> Replace the (secctx,seclen) pointer pair with a single lsm_context
+>>>>>>>> pointer to allow return of the LSM identifier along with the context
+>>>>>>>> and context length. This allows security_release_secctx() to know how
+>>>>>>>> to release the context. Callers have been modified to use or save the
+>>>>>>>> returned data from the new structure.
+>>>>>>>>
+>>>>>>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>>>>>>>> Cc: ceph-devel@vger.kernel.org
+>>>>>>>> Cc: linux-nfs@vger.kernel.org
+>>>>>>>> ---
+>>>>>>>>  fs/ceph/super.h               |  3 +--
+>>>>>>>>  fs/ceph/xattr.c               | 16 ++++++----------
+>>>>>>>>  fs/fuse/dir.c                 | 35 ++++++++++++++++++-----------------
+>>>>>>>>  fs/nfs/nfs4proc.c             | 20 ++++++++++++--------
+>>>>>>>>  include/linux/lsm_hook_defs.h |  2 +-
+>>>>>>>>  include/linux/security.h      | 26 +++-----------------------
+>>>>>>>>  security/security.c           |  9 ++++-----
+>>>>>>>>  security/selinux/hooks.c      |  9 +++++----
+>>>>>>>>  8 files changed, 50 insertions(+), 70 deletions(-)
+>>>>>>>>
+>>>>>>>> diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+>>>>>>>> index 76776d716744..0b116ef3a752 100644
+>>>>>>>> --- a/fs/nfs/nfs4proc.c
+>>>>>>>> +++ b/fs/nfs/nfs4proc.c
+>>>>>>>> @@ -114,6 +114,7 @@ static inline struct nfs4_label *
+>>>>>>>>  nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
+>>>>>>>>         struct iattr *sattr, struct nfs4_label *label)
+>>>>>>>>  {
+>>>>>>>> +       struct lsm_context shim;
+>>>>>>>>         int err;
+>>>>>>>>
+>>>>>>>>         if (label == NULL)
+>>>>>>>> @@ -128,21 +129,24 @@ nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
+>>>>>>>>         label->label = NULL;
+>>>>>>>>
+>>>>>>>>         err = security_dentry_init_security(dentry, sattr->ia_mode,
+>>>>>>>> -                               &dentry->d_name, NULL,
+>>>>>>>> -                               (void **)&label->label, &label->len);
+>>>>>>>> -       if (err == 0)
+>>>>>>>> -               return label;
+>>>>>>>> +                               &dentry->d_name, NULL, &shim);
+>>>>>>>> +       if (err)
+>>>>>>>> +               return NULL;
+>>>>>>>>
+>>>>>>>> -       return NULL;
+>>>>>>>> +       label->label = shim.context;
+>>>>>>>> +       label->len = shim.len;
+>>>>>>>> +       return label;
+>>>>>>>>  }
+>>>>>>>>  static inline void
+>>>>>>>>  nfs4_label_release_security(struct nfs4_label *label)
+>>>>>>>>  {
+>>>>>>>> -       struct lsm_context scaff; /* scaffolding */
+>>>>>>>> +       struct lsm_context shim;
+>>>>>>>>
+>>>>>>>>         if (label) {
+>>>>>>>> -               lsmcontext_init(&scaff, label->label, label->len, 0);
+>>>>>>>> -               security_release_secctx(&scaff);
+>>>>>>>> +               shim.context = label->label;
+>>>>>>>> +               shim.len = label->len;
+>>>>>>>> +               shim.id = LSM_ID_UNDEF;
+>>>>>>> Is there a patch that follows this one to fix this? Otherwise, setting
+>>>>>>> this to UNDEF causes SELinux to NOT free the context, which produces a
+>>>>>>> memory leak for every NFS inode security context. Reported by kmemleak
+>>>>>>> when running the selinux-testsuite NFS tests.
+>>>>>> I don't recall seeing anything related to this, but patches are
+>>>>>> definitely welcome.
+>>>>> Looking at this quickly, this is an interesting problem as I don't
+>>>>> believe we have enough context in nfs4_label_release_security() to
+>>>>> correctly set the shim.id value.  If there is a positive, it is that
+>>>>> lsm_context is really still just a string wrapped up with some
+>>>>> metadata, e.g. length/ID, so we kfree()'ing shim.context is going to
+>>>>> be okay-ish, at least for the foreseeable future.
+>>>>>
+>>>>> I can think of two ways to fix this, but I'd love to hear other ideas too.
+>>>>>
+>>>>> 1. Handle the LSM_ID_UNDEF case directly in security_release_secctx()
+>>>>> and skip any individual LSM processing.
+>>>>>
+>>>>> 2. Define a new LSM_ID_ANY value and update all of the LSMs to also
+>>>>> process the ANY case as well as their own.
+>>>>>
+>>>>> I'm not finding either option very exciting, but option #2 looks
+>>>>> particularly ugly, so I think I'd prefer to see someone draft a patch
+>>>>> for option #1 assuming nothing better is presented.
+>>>> We could perhaps add a u32 lsmid to struct nfs4_label, save it from
+>>>> the shim.id obtained in nfs4_label_init_security(), and use it in
+>>>> nfs4_label_release_security(). Not sure why that wasn't done in the
+>>>> first place.
+>>> Something like this (not tested yet). If this looks sane, will submit
+>>> separately.
+>>>
+>>> commit b530104f50e8 ("lsm: lsm_context in security_dentry_init_security")
+>>> did not preserve the lsm id for subsequent release calls, which results
+>>> in a memory leak. Fix it by saving the lsm id in the nfs4_label and
+>>> providing it on the subsequent release call.
+>>>
+>>> Fixes: b530104f50e8 ("lsm: lsm_context in security_dentry_init_security")
+>>> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>> I'm not a fan of adding secids into other subsystems, especially in cases
+>> where they've tried to avoid them in the past.
+>>
+>> The better solution, which I'm tracking down the patch for now, is for
+>> the individual LSMs to always do their release, and for security_release_secctx()
+>> to check the lsm_id and call the appropriate LSM specific hook. Until there
+>> are multiple LSMs with contexts, LSM_ID_UNDEF is as good as a match.
+>>
+>> Please don't use this patch.
+> It doesn't add a secid; it just saves the LSM id obtained from
+> lsm_context populated by the security_dentry_init_security() hook call
+> and passes it back in the lsm_context to the security_release_secctx()
+> call.
 
-Sorry, that last one would be SYSTEM__SECURITY_POLICY_LOAD to be
-precise, but the point remains.
+Right. Sorry. If you're going to do that, the nfs_label struct should
+just include a lsm_context instead. But that hit opposition when proposed
+initially.
+
+The practical solution has to acknowledge that at this stage there can only
+be one LSM providing contexts, and each LSM can release the context if the
+LSM is matches the LSM or is LSM_ID_UNDEF. That will change before SELinux,
+AppArmor and Smack can co-exist, but that's not yet available. For now the
+check
+
+	if (cp->id == LSM_ID_SELINUX)
+
+can either be removed or changed to
+
+	if (cp->id == LSM_ID_SELINUX || cp->id == LSM_ID_UNDEF)
+
+In a system that respects LSM_FLAG_LEGACY_MAJOR the id isn't relevant
+with the context using LSMs all being thus identified.
 
 >
-> >
-> > > +           "x509_certificate_load", NULL } },
-> > >         { "capability", { COMMON_CAP_PERMS, NULL } },
-> > >         { "filesystem",
-> > >           { "mount", "remount", "unmount", "getattr", "relabelfrom",
-> > > --
-> > > 2.48.1
-> > >
-> > >
+>>> ---
+>>>  fs/nfs/nfs4proc.c    | 7 ++++---
+>>>  include/linux/nfs4.h | 1 +
+>>>  2 files changed, 5 insertions(+), 3 deletions(-)
+>>>
+>>> diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+>>> index df9669d4ded7..c0caaec7bd20 100644
+>>> --- a/fs/nfs/nfs4proc.c
+>>> +++ b/fs/nfs/nfs4proc.c
+>>> @@ -133,6 +133,7 @@ nfs4_label_init_security(struct inode *dir, struct
+>>> dentry *dentry,
+>>>   if (err)
+>>>   return NULL;
+>>>
+>>> + label->lsmid = shim.id;
+>>>   label->label = shim.context;
+>>>   label->len = shim.len;
+>>>   return label;
+>>> @@ -145,7 +146,7 @@ nfs4_label_release_security(struct nfs4_label *label)
+>>>   if (label) {
+>>>   shim.context = label->label;
+>>>   shim.len = label->len;
+>>> - shim.id = LSM_ID_UNDEF;
+>>> + shim.id = label->lsmid;
+>>>   security_release_secctx(&shim);
+>>>   }
+>>>  }
+>>> @@ -6269,7 +6270,7 @@ static int _nfs4_get_security_label(struct inode
+>>> *inode, void *buf,
+>>>   size_t buflen)
+>>>  {
+>>>   struct nfs_server *server = NFS_SERVER(inode);
+>>> - struct nfs4_label label = {0, 0, buflen, buf};
+>>> + struct nfs4_label label = {0, 0, 0, buflen, buf};
+>>>
+>>>   u32 bitmask[3] = { 0, 0, FATTR4_WORD2_SECURITY_LABEL };
+>>>   struct nfs_fattr fattr = {
+>>> @@ -6374,7 +6375,7 @@ static int nfs4_do_set_security_label(struct inode *inode,
+>>>  static int
+>>>  nfs4_set_security_label(struct inode *inode, const void *buf, size_t buflen)
+>>>  {
+>>> - struct nfs4_label ilabel = {0, 0, buflen, (char *)buf };
+>>> + struct nfs4_label ilabel = {0, 0, 0, buflen, (char *)buf };
+>>>   struct nfs_fattr *fattr;
+>>>   int status;
+>>>
+>>> diff --git a/include/linux/nfs4.h b/include/linux/nfs4.h
+>>> index 71fbebfa43c7..9ac83ca88326 100644
+>>> --- a/include/linux/nfs4.h
+>>> +++ b/include/linux/nfs4.h
+>>> @@ -47,6 +47,7 @@ struct nfs4_acl {
+>>>  struct nfs4_label {
+>>>   uint32_t lfs;
+>>>   uint32_t pi;
+>>> + u32 lsmid;
+>>>   u32 len;
+>>>   char *label;
+>>>  };
