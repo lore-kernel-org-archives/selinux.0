@@ -1,108 +1,239 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 787A820468E
-	for <selinux@vger.kernel.org>; Fri, 21 Feb 2025 09:03:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65D24205AD8
+	for <selinux@vger.kernel.org>; Fri, 21 Feb 2025 09:39:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740128597; cv=none; b=Nk3WLKiX+wiLh1MUgghnP6R4bI2UOsRB5ZYiNGd3DpE7gdeVSo6THgNxqvkPpLcc1X8ee9Dxvw7wScuYWSgf+TPp0kwLjWKA3QunREmA74Kd5e2q5ZNwXCAM4wLFT4J/zczYAOpO3EF4EkyCh4JrU/+zdrTH0oA0Y1AkB/m2JlI=
+	t=1740130767; cv=none; b=WFCrcLSjhAm1NY5czylwe+Slr321X3sVpLxDPhoDw7yplF58JkRxcmxX5vm3bEfJbpBKMFdyLej3n5TdJ9kT3lsIvzAcMCbxS9h13G3erxWYUGnxTgwI9fy08y27P9/Bip97Q+2jdqZk8OOiLdXsWYXwO4J9ZhEYcTvN0VwgCs4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740128597; c=relaxed/simple;
-	bh=1v1Bhu/PVDaDeHRtZs+DGS3Sv4t/XwcmHfXsL6hK4zs=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 In-Reply-To; b=aBnfbLXyMKFkst+V44Hsul25/QwO7EfwwVvsxXW/kzqLo5cImSdLgh5N4f3FSA9JeCXRj/PdZC62o1GMagsNjUATEeSn557ysOloc+kRlBPDwVeJvrw4fDrzsNf0AQTwCakn7r7a74AJyV1/9q7/LAWOicsbgk4EeBpANcvRC4E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fOLlcF97; arc=none smtp.client-ip=209.85.221.52
+	s=arc-20240116; t=1740130767; c=relaxed/simple;
+	bh=fpEwVHshg7qtpYYguLHzdf+nyf/hVNTF3Ua2H4HBJMc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=bOvLYlUHwOXsHRgDeiLTyBgXundmPiraVXyl/7BU8yX3Y9DkiqlCxHwqBLWmv9LqJMD6lAF4gHekQh+cT/qnhJNMQHyqC91ZkJDrg25YeQYE90SFD7FkC1BXIucrbkDxRRiXmEsnRjyMQ6nKqMtobsUSSjpfeheKYs6w2JBUI3I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LK+paus5; arc=none smtp.client-ip=209.85.128.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fOLlcF97"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-38a8b17d7a7so994793f8f.2
-        for <selinux@vger.kernel.org>; Fri, 21 Feb 2025 01:03:14 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LK+paus5"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-439a2780b44so11732365e9.1
+        for <selinux@vger.kernel.org>; Fri, 21 Feb 2025 01:39:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740128593; x=1740733393; darn=vger.kernel.org;
-        h=in-reply-to:to:from:subject:cc:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1740130764; x=1740735564; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=1v1Bhu/PVDaDeHRtZs+DGS3Sv4t/XwcmHfXsL6hK4zs=;
-        b=fOLlcF97zPSqwpZrjKGKtuLwyHC69sbkVvo6xGEyKxAKw8AWPCTIDcDstL+4Opc4JD
-         t+6URwW8pOdpTvlNmOcVqQEb0D7twgZC49AAoT0BWbgYXZZfUs/sEqcZEX7oV3MIxP29
-         P7QTjOxeIzv00CjzeyTda3RZQHlz3V67GRr9QvlP3GPGrytP+4TWDHIsG6xiBsK67DC/
-         Hfa8+kamJtC+e5H5Ul4uWkoOM1H2ik6+pdtWCQ2ec+Y8la0ajOWcO7x4de6++HzwFVKv
-         S8OI2jniHp4a4gFBi2Js3eNk/wrv1nYKRk1kBw7jR0nwzUjxZlbB3PIlQSn0HU7ewGbH
-         R7tg==
+        bh=ZKzRUOjhOHx60W22j8GJRf7AUxscxfJzP2Zr+ZGOGek=;
+        b=LK+paus5xaxfT9AoS5dOuwDua5SRnTzEA1rohQaiubw9qlvwu6QtbumjLNe+rRu5+F
+         3DetT8L4AcQEQ94ASqFSi52irRrb9kua4b80tQKEPJwEtWqZfb+3W2EPuopJ1ZPpXMCz
+         pgOKv9r4fnxx7l3oUI0Tm68fRleQngGNlG4mPXjNsrK5WZiZBXYirULEOisoA6cWlf36
+         1yTT8Mh3vu0dHbWp3fFd1FNS3C46oC0h9+I0RJi978Zg/D6tQNloetg+Ruap04ds8T+v
+         2nazBSL/doBgaoSiK2dA7RdjhJSG5Yv5zPukG/ZeZbxT22SrBd28h04T4KIsVu41+yKL
+         P6ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740128593; x=1740733393;
-        h=in-reply-to:to:from:subject:cc:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=1v1Bhu/PVDaDeHRtZs+DGS3Sv4t/XwcmHfXsL6hK4zs=;
-        b=narCaE393yvWKeD90hH4rIp4NJcELvoYR8rkdJqhn1Kwwwo1T53OukE3M/vbAi6/OE
-         cQYcRmfSQUnhMLYqg9zWAZpFRm2IELsVFHtV0V5lrXw/xkWw4slNrgJyGePYK7A89ayl
-         hb6tLmZIn3ysgQMCOlraXsxlu4L1M1qKdaRls/ansTllsUuNEbP07rwP4fF1uRcS7bSP
-         Go5/0C/3kMUUqneTvjwUXBMMl2gPGWmpcqCFP34K31hWtoYAoULXVuyz4Vl8XjrwbwvZ
-         YbExqpDdG87YnoThhw4RDnSZ8h02w1OfkyVRj6rk3HZy0kguvRi93AQJI8cf/7iSsNcN
-         Hx1A==
-X-Forwarded-Encrypted: i=1; AJvYcCVMO0bxwz1PpXonjfZGMDjVFtZnqdIW/yDVv82ILazf2qCStDqRywfHmDMU87AvX/5Sb+Bv3YGR@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx92lRdLsRn4x3v0zF6WTIth0Pl/XseL+eMXq9TzXt0+fZW/c5w
-	HaYElyQaSaIXLOulIgoJFeKOOAed/Xf/IaFcKE3f91nqr1cVvbkQ
-X-Gm-Gg: ASbGncvs3ZDof3p+PJXuSSZT3D9aGRiZAsL7oiyW0RsNQqaCakgzgw3n4VRJGFznSOn
-	FJP1x4GQtG5m4OKZ3KFuJaUZ0qIBI3l9umUwR/NpECo0dRJyn44ZC5J8izpdOo3i+XVFFxdMrg8
-	7MPLGIdONSeBZ/o7zsj4mQjVqaMH8y0JPk2yrApu9tCNEdOglw97wxHTizuopvSVuWQnlWvKdD/
-	atgQcIQ0py5eTqQleZo42DzTBYivuf+2rJey5+fpoXHGX8VummyUPGBXWfVDJbuT/V1DZESgiRC
-	pPanPC/6zAhCTdhM
-X-Google-Smtp-Source: AGHT+IG42flO6FO1WxFUiIm4JTuTnypn/Tv2L0WwVaVrl/GJwan2Kc+a8lU9v1WuASg5XaFJzljy3Q==
-X-Received: by 2002:a5d:47ca:0:b0:38d:e078:43a0 with SMTP id ffacd0b85a97d-38f6f0b1c8cmr2801437f8f.38.1740128593374;
-        Fri, 21 Feb 2025 01:03:13 -0800 (PST)
-Received: from localhost ([81.79.13.113])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38f69b3ca41sm3158824f8f.27.2025.02.21.01.03.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 21 Feb 2025 01:03:13 -0800 (PST)
+        d=1e100.net; s=20230601; t=1740130764; x=1740735564;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ZKzRUOjhOHx60W22j8GJRf7AUxscxfJzP2Zr+ZGOGek=;
+        b=lkhA1WmG1WcsPcRpwu8Pxxa181wqjsKllhTILT0sFQYeA5lXSuW/GpLLzTetKVfEn9
+         UfGUX6tGUqIyIFSKx7xXSa3EwHIu79ldns+epjHtb+M/XJxhjPgAZj/HJ4QWFe8xdTQm
+         T0kvr/UWyjxetQ/fUlLjaW3N2GMUP+Q2e1RNw0ag0NYUhzdr5y0+jHH9sc63TAoGjQUs
+         lLYwsHcIkYaSCMqdnMJhVKsrpATdlKGkanEsLD84MoQKYPNKcoyXH1ebxuLA4M53Dp05
+         oLHt+GMbL4iFWVkrlFbapqciooD/qkGdbglJmTBSNB7sMSoYtsv24i4/aIihIfLYCy3M
+         E42Q==
+X-Gm-Message-State: AOJu0YygwpFku74SHIrZGdhvAn3trPkOhLp7tiDhVdDTUKGbRG+e2d1E
+	u8z0OyOchhlADlmZh/mqHLwziT+vgP4OjusDJtvrNUp9kjyPYI3hz2rvRfI4
+X-Gm-Gg: ASbGncuIZ78OkFvN3cDaf3Zv6e18woMiOXFULxlN0Xw5S4FYKcLU6LgX88KNUKm23f3
+	j6evzQVIhKwisKFJc294Gs5dHvgzqx8dxfwXMGUPbCbaemRtqj+t87g9GPXk5ISYJV0BMtI4yOu
+	RmZb0oAWzvWxPhs9/naTwlVSibBZ+MBL3PX4Z/TPMLEKgU4CgHk5P6FELiYn+rHJ4vsizt3daej
+	o2/BP/2g7wZ+V74BaLHYx1ECfgMuYKF4gN6ZGK4lRcY9uY0i/7arXz9XJ/90z0mELWo1bQoE0ck
+	W4o6RhhIEOzjyJg/IeRi7wm3JN+RQx6x
+X-Google-Smtp-Source: AGHT+IHUplyJebvaACQQnZrgpDTfH/2IeL2WNKlrK+b6cCpu/TiGorCJeDUNvINYCMuH06HdYYc/gg==
+X-Received: by 2002:a05:600c:4f13:b0:439:98ca:e3a4 with SMTP id 5b1f17b1804b1-439ae2128f9mr19664255e9.19.1740130763330;
+        Fri, 21 Feb 2025 01:39:23 -0800 (PST)
+Received: from localhost.localdomain ([81.79.13.113])
+        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-38f258ddbbdsm23036707f8f.37.2025.02.21.01.39.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Feb 2025 01:39:23 -0800 (PST)
+From: Rahul Sandhu <nvraxn@gmail.com>
+To: selinux@vger.kernel.org,
+	nvraxn@gmail.com
+Cc: bill.c.roberts@gmail.com
+Subject: [PATCH v2] libsemanage: create semanage_basename to ensure posix compliance
+Date: Fri, 21 Feb 2025 09:39:10 +0000
+Message-ID: <20250221093910.657484-1-nvraxn@gmail.com>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <D7Y03RIRQTEH.1SUBF6LGYYEM6@gmail.com>
+References: <D7Y03RIRQTEH.1SUBF6LGYYEM6@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 21 Feb 2025 09:03:12 +0000
-Message-Id: <D7Y03RIRQTEH.1SUBF6LGYYEM6@gmail.com>
-Cc: <bill.c.roberts@gmail.com>, <selinux@vger.kernel.org>
-Subject: Re: [PATCH] libsemanage: define basename macro for non-glibc
- systems
-From: "Rahul Sandhu" <nvraxn@gmail.com>
-To: <nvraxn@gmail.com>
-X-Mailer: aerc 0.20.1
-In-Reply-To: <D7XW1Q3407I9.2LRX5QH5BAHGX@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-In regards to this:
+Passing a const char * to basename(3) is a glibc-specific extension, so
+create our own basename implementation. As it's a trivial 2 LOC, always
+use our implementation of basename even if glibc is available to avoid
+the complications of attaining the non-posix glibc implementation of
+basename(3) as _GNU_SOURCE needs to be defined, but libgen.h also needs
+to have not been included.
 
-> There are two ways you could approach this:
-> 1. If you wanted to do an implementation, I would add it to
-> utilities.c/h and call it something other than basename so we don't
-> get any odd issues with it choosing the one from the headers over the
-> macro. Perhaps libsemange_basename(). On glibc systems this would just
-> call basename directly and on non-glibc systems do the implementation
-> with your own logic.
-> 2. Just copy the path into a modifiable buffer on non-glibc systems
->
-> I would do both approaches. Create a utility routine that calls
-> basename for glibc and for non-glibc just copies it to a modifiable
-> buffer and then calls basename over rolling our own and the bugs
-> associated with it, also add a unit test for this. This would keep the
-> logic in one place and be dirt simple.
+Also fix a missing check for selinux_policy_root(3). From the man page:
+On failure, selinux_policy_root returns NULL.
 
-It appears that glibc's basename(3) has a different behaviour to the
-version of basename(3) defined in posix. From the man page:
+As the glibc basename(3) (unlike posix basename(3)) does not support
+having a nullptr passed to it, only pass the policy_root to basename(3)
+if it is non-null.
 
-> The GNU version never modifies its argument, and returns the empty
-> string when path has a trailing slash, and in particular also when it
-> is "/".
+Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+---
+ libsemanage/src/conf-parse.y       | 13 ++++++++++---
+ libsemanage/src/direct_api.c       |  1 +
+ libsemanage/src/utilities.c        |  9 +++++++++
+ libsemanage/src/utilities.h        | 13 +++++++++++++
+ libsemanage/tests/test_utilities.c | 26 ++++++++++++++++++++++++++
+ 5 files changed, 59 insertions(+), 3 deletions(-)
 
-So I think it might be best to just define an semanage_basename based
-off the GNU behaviour as it is fairly trivial (being 2 LOC).
+diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
+index 6cb8a598..d3ca5f1f 100644
+--- a/libsemanage/src/conf-parse.y
++++ b/libsemanage/src/conf-parse.y
+@@ -21,6 +21,7 @@
+ %{
+ 
+ #include "semanage_conf.h"
++#include "utilities.h"
+ 
+ #include <sepol/policydb.h>
+ #include <selinux/selinux.h>
+@@ -382,7 +383,10 @@ external_opt:   PROG_PATH '=' ARG  { PASSIGN(new_external->path, $3); }
+ static int semanage_conf_init(semanage_conf_t * conf)
+ {
+ 	conf->store_type = SEMANAGE_CON_DIRECT;
+-	conf->store_path = strdup(basename(selinux_policy_root()));
++	const char *policy_root = selinux_policy_root();
++	if (policy_root != NULL) {
++		conf->store_path = strdup(semanage_basename(policy_root));
++	}
+ 	conf->ignoredirs = NULL;
+ 	conf->store_root_path = strdup("/var/lib/selinux");
+ 	conf->compiler_directory_path = strdup("/usr/libexec/selinux/hll");
+@@ -544,8 +548,11 @@ static int parse_module_store(char *arg)
+ 	free(current_conf->store_path);
+ 	if (strcmp(arg, "direct") == 0) {
+ 		current_conf->store_type = SEMANAGE_CON_DIRECT;
+-		current_conf->store_path =
+-		    strdup(basename(selinux_policy_root()));
++		const char *policy_root = selinux_policy_root();
++		if (policy_root != NULL) {
++			current_conf->store_path =
++			    strdup(semanage_basename(policy_root));
++		}
+ 		current_conf->server_port = -1;
+ 	} else if (*arg == '/') {
+ 		current_conf->store_type = SEMANAGE_CON_POLSERV_LOCAL;
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 99cba7f7..ce12ccaf 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -26,6 +26,7 @@
+ 
+ #include <assert.h>
+ #include <fcntl.h>
++#include <libgen.h>
+ #include <stdio.h>
+ #include <stdio_ext.h>
+ #include <stdlib.h>
+diff --git a/libsemanage/src/utilities.c b/libsemanage/src/utilities.c
+index 70b5b677..004ffb62 100644
+--- a/libsemanage/src/utilities.c
++++ b/libsemanage/src/utilities.c
+@@ -349,3 +349,12 @@ int write_full(int fd, const void *buf, size_t len)
+ 
+ 	return 0;
+ }
++
++#ifdef __GNUC__
++__attribute__((nonnull))
++#endif
++char *semanage_basename(const char *filename)
++{
++	char *p = strrchr(filename, '/');
++	return p ? p + 1 : (char *)filename;
++}
+diff --git a/libsemanage/src/utilities.h b/libsemanage/src/utilities.h
+index c2d484a7..7481077a 100644
+--- a/libsemanage/src/utilities.h
++++ b/libsemanage/src/utilities.h
+@@ -156,4 +156,17 @@ semanage_list_t *semanage_slurp_file_filter(FILE * file,
+ 
+ int write_full(int fd, const void *buf, size_t len) WARN_UNUSED;
+ 
++/**
++ * Portable implementation of the glibc version of basename(3).
++ *
++ * @param filename  path to find basename of
++ *
++ * @return          basename of filename
++ */
++
++#ifdef __GNUC__
++__attribute__((nonnull))
++#endif
++char *semanage_basename(const char *filename);
++
+ #endif
+diff --git a/libsemanage/tests/test_utilities.c b/libsemanage/tests/test_utilities.c
+index bbd5af30..70a76fe7 100644
+--- a/libsemanage/tests/test_utilities.c
++++ b/libsemanage/tests/test_utilities.c
+@@ -46,6 +46,7 @@ static void test_semanage_rtrim(void);
+ static void test_semanage_str_replace(void);
+ static void test_semanage_findval(void);
+ static void test_slurp_file_filter(void);
++static void test_semanage_basename(void);
+ 
+ static char fname[] = {
+ 	'T', 'E', 'S', 'T', '_', 'T', 'E', 'M', 'P', '_', 'X', 'X', 'X', 'X',
+@@ -117,6 +118,10 @@ int semanage_utilities_add_tests(CU_pSuite suite)
+ 				test_slurp_file_filter)) {
+ 		goto err;
+ 	}
++	if (NULL == CU_add_test(suite, "semanage_basename",
++				test_semanage_basename)) {
++		goto err;
++	}
+ 	return 0;
+       err:
+ 	CU_cleanup_registry();
+@@ -346,3 +351,24 @@ static void test_slurp_file_filter(void)
+ 
+ 	semanage_list_destroy(&data);
+ }
++
++static void test_semanage_basename(void)
++{
++	char *basename1 = semanage_basename("/foo/bar");
++	CU_ASSERT_STRING_EQUAL(basename1, "bar");
++
++	char *basename2 = semanage_basename("/foo/bar/");
++	CU_ASSERT_STRING_EQUAL(basename2, "");
++
++	char *basename3 = semanage_basename("/foo.bar");
++	CU_ASSERT_STRING_EQUAL(basename3, "foo.bar");
++
++	char *basename5 = semanage_basename(".");
++	CU_ASSERT_STRING_EQUAL(basename5, ".");
++
++	char *basename6 = semanage_basename("");
++	CU_ASSERT_STRING_EQUAL(basename6, "");
++
++	char *basename7 = semanage_basename("/");
++	CU_ASSERT_STRING_EQUAL(basename7, "");
++}
+-- 
+2.48.1
 
-I'll send a patch to do this shortly.
-
-Thanks,
-Rahul
