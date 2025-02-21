@@ -1,156 +1,100 @@
-Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
+Received: from mail-vk1-f180.google.com (mail-vk1-f180.google.com [209.85.221.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FFB4AD5A
-	for <selinux@vger.kernel.org>; Fri, 21 Feb 2025 00:50:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D8041F3FD7
+	for <selinux@vger.kernel.org>; Fri, 21 Feb 2025 03:16:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740099025; cv=none; b=bSZ+xh9hTfg4eYTAf1e4EcV0DVBwZ5uNABruK0QO/+7MvnTRWuep3q90fH8mbOBjEqsJjbg+8G7if6I9IJCcY4pbn1IEaJ3op0iWXatlSvd6h+I0M8ytAPbuWn/39yhyfpSq0ITQon+wamtS1gO7NWCQHXQEfAUSwsd4DIz2SA0=
+	t=1740107804; cv=none; b=Sdzg6phzmOemUVXJ58myuHvBut2QTMsOwOtap8M54bCJrQFkODNzeanHjxW6SLFIFqtygMY57x2qQslR8bw0spj1z9q2t3UMK1E3MvdgjP8E/NDTLdmWlcHBqWCzHtVbifVqF2WsLs3gHAgaJsHg1wyS571fEJEboTHR4d2u5RY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740099025; c=relaxed/simple;
-	bh=ufcXxv0aXRI2BMParyC1pnNAax4ke0dhcnMU8SPQf60=;
+	s=arc-20240116; t=1740107804; c=relaxed/simple;
+	bh=kdrOUzgVVdFR3sHFxXYQEjkbdG9MBlaaptabQxv0kQU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=owoGX5m/hNaudf8xl3QGj+xDiUSfNPEFflvwSGZ5CUt4f6F/ITqyctYtrAvHtoBssRMn0IS8JQzql7OV32VhhlAdxG9Z+pgJLEJSJHXdYWLBFHG/ta135IrHgF2jiEP2ObAWHlqHF0eItsmfDIIfKG6Hb3pyTK5+FSqfoe4XjaE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fhRRx4ni; arc=none smtp.client-ip=209.85.167.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=CflbWhnB9ptPZQtHNV5KHxnTw0tc0fCBmpT6WuGFvxyeMw7TDB8cfD4zU3pSsfUWQg98tjkxL1aiAoNoH5DC1tgggyIFxuTcq/mDh21LUR5JQYW5Ilqv6/aaPCOc/BBhZllD8+PeRpRXweFIk/mzIpzD9pq7uELImOCi7S8uREI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=a4RAVbIO; arc=none smtp.client-ip=209.85.221.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fhRRx4ni"
-Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-5461cb12e39so1490286e87.2
-        for <selinux@vger.kernel.org>; Thu, 20 Feb 2025 16:50:23 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="a4RAVbIO"
+Received: by mail-vk1-f180.google.com with SMTP id 71dfb90a1353d-5209962eefbso1616521e0c.1
+        for <selinux@vger.kernel.org>; Thu, 20 Feb 2025 19:16:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740099021; x=1740703821; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1740107801; x=1740712601; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=x5kg6auP0xeQwURcf1/sEbjBkxPDy+21giujDCZGblU=;
-        b=fhRRx4niO9HaFkMtWiC3OZNTutqM5o7OnR1oA8uo1fg7TN19z0ej+65jhYwTc9NGsK
-         +rIAliY6r1ab8jjMiP4SWYuD987CLAREuCvyePM6wisFFcPXMwrZw9uO35zqKFFxFeZw
-         1LH4T+4nGfYYob38Jr8Se3NW4T8kFeFgRVvHyP3sEa1ZoLXK9YLPX5ruJZtimxe6tGaT
-         qONzsSFT0NxS8Fw/DCewE5gut7zR9dHtPcaXueCmp+LnEkM8Myi1FOpBLRUZ8YVJJEBy
-         93A6s5CmLAi1p2/xj5MRn9GaCkoCfpcBBKmUIjyD9wgfhBbb4csHtK3BpBXlnpVRuqkL
-         Rdug==
+        bh=DkwUVxurgul/K7FCcMY+3Tk9R0xuunIgonMxNv/xP3Q=;
+        b=a4RAVbIOfJ9x4isztn4snzAIQkKsa2B4Ev/2g9k8qeTpj9xGOAW87HuLHh5HVLExoX
+         lzAadz9B0iCjyj/k2wlypSEkZdlaov3Kur7BqYAC/qDAmeXIfHGOeyp6HJAe5/dT1+qR
+         +Q5bAVtg/QIEE+y+DUnyABwyURrH2xk3DqWvEwbSjsO8HgBmu5JYgMxYfgKXFlYKfA+K
+         h+YHXjAZ/MOqhqi3GJLJOUw7hn1WZZtlMLmy1iAss+p4Q6wEke2fx08JzXfhveqn9TWY
+         R0UaJaovVuhL6I5AXhPbom6thjGdPXeGd+8Yq354mUBhZTB4FO7GDPvrGbHvAUu2V+77
+         3icg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740099021; x=1740703821;
+        d=1e100.net; s=20230601; t=1740107801; x=1740712601;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=x5kg6auP0xeQwURcf1/sEbjBkxPDy+21giujDCZGblU=;
-        b=CGj1ZneEnts1sJ5A7DBBDQbNfJclXKHKYpTNf5w7qxnSgfsuCLkBRE8OopWzSK2vps
-         XpBrTUfb2aAeRDRaLENp3uUIfkHZuP/0UEGHsZfRMoxx8gewxWaVFfsrIQ5xavSbr+f2
-         8gMH4vjNhQmBxLlCXa2Hjpx3zEPzDdBccssEEQwybMnEgv7bhBL+NQ7P9bfgX21CmP2P
-         we/XtxMVrhVYHA1l370Vw8Kiy3PFYN3DTwKSA2VIIwDO31sIxa/arz4hAKzCsPv1TxUt
-         Bd7qf/f69LfWiDmPLnxJ5aV9WhHBLooK9dEukYUNdGTFt/g2Ae9L4GRVAloo/JHLtcJx
-         0Djw==
-X-Gm-Message-State: AOJu0Yx44I0eOCW14hkbw0HJOZ4DZ61riZsJiDh3z3mdO4YVKus8yeS+
-	qZj27mfKmO81VGONB4AQX3P4N3hZKeX0kD2mMEUpXH1VrzW84glFZPP5Pp/MZZQqOIiAjv6NgNS
-	F/0SdUEOudtUpoUfsyYgv7nbhtRfG8if0
-X-Gm-Gg: ASbGnctAUhcFc6QUlvmEORH6Znbn71pwMxo06xnjvKPCcs32gb37WBxJgww0TpaxNuS
-	iVrsFMxkrCNhpxgFmEwMmQTO14C4HtYLDOkQ/ntezwWv5AlVunHPrjzHlRFVDk/1lBh9RdKL0zw
-	==
-X-Google-Smtp-Source: AGHT+IFhMV4ASDRNSwL9ax2vQvavJfyc09m5/9ZPFllI8Rt7LMAYhxm1VVle0fnw+i9++pxAJArqmSiMSr5GE0atLmk=
-X-Received: by 2002:a05:6512:108b:b0:545:bf4:4bc7 with SMTP id
- 2adb3069b0e04-54838ee9139mr381167e87.19.1740099021294; Thu, 20 Feb 2025
- 16:50:21 -0800 (PST)
+        bh=DkwUVxurgul/K7FCcMY+3Tk9R0xuunIgonMxNv/xP3Q=;
+        b=cvU46s+pzkJdRGoU2x4AH5bb17v/MI7Jr0W2DlZIWBDOFzSJGLijJgq1irtzk7RClz
+         xRi8fX048F4eZ+q0hwDOURzDJpuUf0lLKipFnwpW6IQcYUxcx6eQ4JEWWbSYER5hCgkr
+         TVD+WjwV+KqrEm481UfK7WKVCEzXYjzfr1h560wVxaEnyEgDJjK5Uq+zh3hse2mu6rvs
+         XICzIep9TEQ2P2LLGBb4/cdWwqft54Frt6xjWlP/hsenO99BLvqsS4yWyEDLAUP+AU2H
+         GIRed7JGu2+OaPOwmxihVL64BPeFDcCmtyX1hPu+2alk6CWBV8V7k5gl9at3bw9C+bOT
+         qjkA==
+X-Forwarded-Encrypted: i=1; AJvYcCWkdeOl9R34MU+8OPi9nPDbG09++OeBhii9Qg8i1TwUlrYPPk1Zp8+iEglOfSumrmuVO5YYh8Iv@vger.kernel.org
+X-Gm-Message-State: AOJu0YwaXxfA7VsTtzLmYejfEK9I7yIu8tFNzf9kijTpdPAH0OC5avxR
+	pumai8hKXdug9/uovFaLprxt+1BE6Ga2/7UrNsrAGefhNi02qKo+jO8HuWjgkvjubN85TDnU4EN
+	i+cazMozoK+Vyat/BKttq5U/QqRUXVv9GIfUL
+X-Gm-Gg: ASbGncs/HTGS7/nbOBdEK7MstXfljikCrZi7Dcza2fibFKA+2oxfPe/z8Jn2tRqQZB3
+	cqquo7eDhklxD4YyZEPBLW6ivyW+3hjawGns92GY9VxvWl0KFu3mormQUYSU8qg53V1Ez9c7P4z
+	yOS3HIY2c=
+X-Google-Smtp-Source: AGHT+IH4wi2+Fbki2I5z7rt08OZ60QpOG7qQiecIvmmUTNGESL+MgXrnaybH2kx63UDin7eeHdz7nGr7qRecyFqb7AQ=
+X-Received: by 2002:a05:6122:1789:b0:520:a84c:1b59 with SMTP id
+ 71dfb90a1353d-521dcfc0dd1mr3393922e0c.5.1740107801011; Thu, 20 Feb 2025
+ 19:16:41 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250220211249.574456-1-nvraxn@gmail.com> <CAFftDdo6SvOE9+XZY3bKidFGz_So6_N6jNxxSyB0OPR8thSY=Q@mail.gmail.com>
-In-Reply-To: <CAFftDdo6SvOE9+XZY3bKidFGz_So6_N6jNxxSyB0OPR8thSY=Q@mail.gmail.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Thu, 20 Feb 2025 18:50:10 -0600
-X-Gm-Features: AWEUYZlf0uVwoLLlz6CsWQJ7tLeg7IRuY2SFZO6R2-CTKDoHmfMxFTdElU3azlE
-Message-ID: <CAFftDdpV-dnLKVTDACgm2RUG8gnBU=3YnJDp5_ZyvR78p0eZdw@mail.gmail.com>
-Subject: Re: [PATCH] libsemanage: define basename macro for non-glibc systems
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: selinux@vger.kernel.org
+References: <20241023212158.18718-1-casey@schaufler-ca.com>
+ <20241023212158.18718-5-casey@schaufler-ca.com> <CAEjxPJ56H_Y-ObgNHrCggDK28NOARZ0CDmLDRvY5qgzu=YgE=A@mail.gmail.com>
+ <CAHC9VhSSpLx=ku7ZJ7qVxHHyOZZPQWs_hoxVRZpTfhOJ=T2X9w@mail.gmail.com>
+ <CAHC9VhQUUOqh3j9mK5eaVOc6H7JXsjH8vajgrDOoOGOBTszWQw@mail.gmail.com>
+ <CAEjxPJ6-jL=h-Djxp5MGRbTexQF1vRDPNcwpxCZwFM22Gja0dg@mail.gmail.com>
+ <CAEjxPJ5KTJ1DDaAJ89sSdxUetbP_5nHB5OZ0qL18m4b_5N10-w@mail.gmail.com>
+ <1b6af217-a84e-4445-a856-3c69222bf0ed@schaufler-ca.com> <CAEjxPJ44NNZU7u7vLN_Oj4jeptZ=Mb9RkKvJtL=xGciXOWDmKA@mail.gmail.com>
+ <eba48af3-a8ef-4220-87a1-c86b96bcdad8@schaufler-ca.com> <CAEjxPJ7aXgOCP4+1Lbfe2b5fjB9Mu1n2h2juDY1RjPgP10PUxQ@mail.gmail.com>
+ <784b9c6d-22e1-44d0-86f8-d2b13c4b0e11@schaufler-ca.com>
+In-Reply-To: <784b9c6d-22e1-44d0-86f8-d2b13c4b0e11@schaufler-ca.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 20 Feb 2025 22:16:30 -0500
+X-Gm-Features: AWEUYZmAClGRobwy2rc6ntcXOfyVW75ozxug9Z5R0cdhhnSfjf0Qve2WSPi3N4M
+Message-ID: <CAHC9VhT968J3zBxtzJcnW+6AKzDKA4MzBgMYoHHXsEaREAe=ww@mail.gmail.com>
+Subject: Re: [PATCH v3 4/5] LSM: lsm_context in security_dentry_init_security
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, linux-security-module@vger.kernel.org, 
+	jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, 
+	john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, 
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, mic@digikod.net, 
+	ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 20, 2025 at 6:16=E2=80=AFPM William Roberts
-<bill.c.roberts@gmail.com> wrote:
+On Thu, Feb 20, 2025 at 4:08=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
+.com> wrote:
 >
-> On Thu, Feb 20, 2025 at 3:13=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> w=
-rote:
-> >
-> > Passing a const char *path to basename(3) is a glibc specific
-> > extension.
-> >
-> > Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
-> > ---
-> >  libsemanage/src/conf-parse.y | 3 +++
-> >  libsemanage/src/direct_api.c | 3 +++
-> >  2 files changed, 6 insertions(+)
-> >
-> > diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.=
-y
-> > index 6cb8a598..97cc5438 100644
-> > --- a/libsemanage/src/conf-parse.y
-> > +++ b/libsemanage/src/conf-parse.y
-> > @@ -50,6 +50,9 @@ static external_prog_t *new_external;
-> >  static int parse_errors;
-> >
-> >  #define PASSIGN(p1,p2) { free(p1); p1 =3D p2; }
-> > +#if !defined(__GLIBC__)
-> > +#define basename(src) (strrchr(src, '/') ? strrchr(src, '/') + 1 : src=
-)
-> > +#endif
-> >
-> >  %}
-> >
-> > diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.=
-c
-> > index 99cba7f7..4459a7d7 100644
-> > --- a/libsemanage/src/direct_api.c
-> > +++ b/libsemanage/src/direct_api.c
-> > @@ -63,6 +63,9 @@
-> >  #define PIPE_READ 0
-> >  #define PIPE_WRITE 1
-> >  #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-> > +#if !defined(__GLIBC__)
-> > +#define basename(src) (strrchr(src, '/') ? strrchr(src, '/') + 1 : src=
-)
-> > +#endif
-> >
-> >  static void semanage_direct_destroy(semanage_handle_t * sh);
-> >  static int semanage_direct_disconnect(semanage_handle_t * sh);
-> > --
-> > 2.48.1
-> >
->
-> What system are you on where you run libsemange without glibc, just curio=
-us?
->
-> I am not opposed to adding an implementation for basename where the
-> input can be read only for non-glibc, but this patch doesn't work:
-> Per the man page, https://man7.org/linux/man-pages/man3/basename.3.html,
-> basename("/") should return "/", this one return "\0"
-> basename("/usr/"); should return "usr", this returns "\0".
->
-> There are two ways you could approach this:
-> 1. If you wanted to do an implementation, I would add it to
-> utilities.c/h and call it something other than basename so we don't
-> get any odd issues with it choosing the one from the headers over the
-> macro. Perhaps libsemange_basename(). On glibc systems this would just
-> call basename directly and on non-glibc systems do the implementation
-> with your own logic.
-> 2. Just copy the path into a modifiable buffer on non-glibc systems
->
-> I would do both approaches. Create a utility routine that calls
-> basename for glibc and for non-glibc just copies it to a modifiable
-> buffer and then calls basename over rolling our own and the bugs
-> associated with it, also add a unit test for this. This would keep the
-> logic in one place and be dirt simple.
->
+> Adding the lsm_context was cleaner. Not worth yet another roadblock.
+> I will have a patch asap. I'm dealing with a facilities issue at
+> Smack Labs (whole site being painted, everything in disarray) that
+> is slowing things down.
 
-Looking even more closely it's only the conf-parse.y usage where
-selinux_policy_root() returns a const char *,
-the usage in direct_api.c path is a char *, so we only need one spot
-changed and that can just be a simple
-copy to an intermediate buffer or am I missing something else here
-you're pointing out?
+Sorry for the delay today, I was distracted by some meetings and
+wrestling with gcc v15 on my Fedora Rawhide dev/test system while I
+try to test the LSM init patchset.  Anyway, I'll add my comments to
+Stephen's formal patch posting.
 
-> Bill
+--=20
+paul-moore.com
