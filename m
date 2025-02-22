@@ -1,80 +1,175 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id ABE3320E31D
-	for <selinux@vger.kernel.org>; Fri, 21 Feb 2025 14:57:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE0712AEFB
+	for <selinux@vger.kernel.org>; Sat, 22 Feb 2025 17:34:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740149825; cv=none; b=k70jf4c4a8eXg/DJEy3IkZPKo3uJFcvpfzDe8YOGcPZONEemF9NDGtYQG1laRIhpNd3/nXqJBd1OHclJbRGuL4P/x7ngklS6P5q4xXF4YiR5y3UPPrJB3zZgCZFgg4RzntbXnkdaMfu2MWpaWqiKBlt5E2mLSnr0ImiPg4Mxhe4=
+	t=1740245656; cv=none; b=s1Y23WygsiL0akD+wqd3RmuYn8l2BYEPiNfsdL96JBbPK4HprLIjV17WimhBYknqqrC2pIJQqqIf7+cFo3Ofo5Yzy+Nj4lomugsIzE5wWsmVPLPw2mtODfvekneXi8rWCwzStdH/cDVVoUR8JMrMiCTFLznz7hLj6xXa2tONbhI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740149825; c=relaxed/simple;
-	bh=+BS2H/jwkdiPaQ19Vc9kWIGSlpitWyQ75aADBCa63rA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kcmrWLSNxKcoT08UCFXc6tihYVlgROApcKr6Du4HZ8WR7pofO05cDETwnuiZiRbRQthQceYCWohxD6SOFx0V28Lpe//NSDRd/uzyCdr3w8MxuKEYi7O5KvH833QUTbbhp15/2ZvTqxt7w6LWZEEs9im8l+e361l4tzBx4EcuoBg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=YOFheoxJ; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1740245656; c=relaxed/simple;
+	bh=fXuwtselYbnFmkfFBfDkEuErHtVJkcI66PaUayMh47c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=QsZj/NidQrVznadjvNFrM4GDl20D0qipoJsJaMiI7KvbE51fvBpc6HkQkp1IP9fcghunIY+1KyBefIZSdA8mJE4o6xEoiqtsVrLas+aCpDWnZkIe+v7mL2aZunuYLc2UTwU+7hel47crcb2U9KzAxt80rUsdCe5s2Rrm3Gvixyo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=MgLNLVEn; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="YOFheoxJ"
-Received: from [192.168.1.13] (pool-96-241-22-207.washdc.fios.verizon.net [96.241.22.207])
-	by linux.microsoft.com (Postfix) with ESMTPSA id BA6A8204E5B7;
-	Fri, 21 Feb 2025 06:57:02 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com BA6A8204E5B7
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1740149823;
-	bh=z9GjJbKeJ5keGQJXQju5ESMe4W0kVgyaozsjHQfBoYk=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=YOFheoxJilZAezNAyvLU+JEFFqUOfoUgPyB9fCvkOEEcc/6huU85gkJNrPA4ssw6Q
-	 VMkf1mhntQyzEpz3duCz0vgKNrGBPz2ch5TvzuHUOoqitCLAQrNhcvtGU6yQ+PHlrO
-	 10eMhuT7+yuHhew3XSOlEpBbI2erfwVcs7atUw+Q=
-Message-ID: <76560279-4373-4cad-8d69-7c00fb0d2fa7@linux.microsoft.com>
-Date: Fri, 21 Feb 2025 09:57:01 -0500
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="MgLNLVEn"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1740245194;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=OUwDezd1XS672hPuuj2ojpcIf4NlacAIG84GUpfrvhU=;
+	b=MgLNLVEnQU5iZv10deofYGPCtr05tlzUjGMvWpJOQBYAIBit2yxo++3EOF8CQO+mFKQ4Y2
+	1bjE5RQCqP/cOms24gYfYwTGJYYUGbN+ipW1ocmxUArFtLcOsVlgj+SSTAqMDNtLCKSSBz
+	Obuz+ftcPBK9Bzsd5Wg9qnw255wxA1actwbPTxOuwMuTqjBKqQdO1NquDr1WpzD/nN0x7E
+	Yu+hDjTG4hDCTKpmj8jz0eJtHKL3LvwwIpnI5cD1zWJVeOs1zd3bCzwgd5EDt3tjuNdg/a
+	hwCQdEvCjf2A6NB95TQE8/scNnVz7auXfFHoN0gq1hnmoJSETCqJc4LsASNGDw==
+To: selinux@vger.kernel.org
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH] checkpolicy: rework cleanup in define_te_avtab_xperms_helper()
+Date: Sat, 22 Feb 2025 18:26:30 +0100
+Message-ID: <20250222172631.18683-1-cgoettsche@seltendoof.de>
+Reply-To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] selinux: add permission checks for loading other kinds of
- kernel files
-To: Paul Moore <paul@paul-moore.com>, kippndavis.work@gmx.com,
- selinux@vger.kernel.org
-Cc: omosnace@redhat.com, stephen.smalley.work@gmail.com
-References: <20250205205909.19515-1-kippndavis.work@gmx.com>
- <1e88f4bd89d4fa90e890877ff6ded21b@paul-moore.com>
-Content-Language: en-US
-From: Daniel Burgener <dburgener@linux.microsoft.com>
-In-Reply-To: <1e88f4bd89d4fa90e890877ff6ded21b@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On 2/7/2025 4:08 PM, Paul Moore wrote:
-> On Feb  5, 2025 kippndavis.work@gmx.com wrote:
->>
->> Although the LSM hooks for loading kernel modules were later generalized
->> to cover loading other kinds of files, SELinux didn't implement
->> corresponding permission checks, leaving only the module case covered.
->> Define and add new permission checks for these other cases.
->>
->> Signed-off-by: Cameron K. Williams <ckwilliams.work@gmail.com>
->> Signed-off-by: Kipp N. Davis <kippndavis.work@gmx.com>
->> ---
->>   security/selinux/hooks.c            | 54 ++++++++++++++++++++++++-----
->>   security/selinux/include/classmap.h |  4 ++-
->>   2 files changed, 49 insertions(+), 9 deletions(-)
-> 
-> Thanks for putting this patch together, and double thank you for the
-> tests too!  If you've got the time, it would be great if you could
-> submit a patch/PR to update notebook too:
-> 
->   * https://github.com/SELinuxProject/selinux-notebook
+From: Christian Göttsche <cgzones@googlemail.com>
 
-I went ahead and put together a notebook PR here: 
-https://github.com/SELinuxProject/selinux-notebook/pull/45
+Clean up the local avrule on error, since its ownership is not
+transferred. Also clean up the local ebitmap on error.
 
-Kipp, if you are able to take a look and make sure I have the details 
-right, that would be appreciated.
+Reported-by: oss-fuzz (issue 398356438)
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ checkpolicy/policy_define.c | 29 ++++++++++++++---------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
 
-I'll keep the notebook PR updated if the permissions change and merge it 
-after the code is in -next.
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index f19e9f6d..06068556 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -1610,7 +1610,8 @@ struct val_to_name {
+ 
+ /* Adds a type, given by its textual name, to a typeset.  If *add is
+    0, then add the type to the negative set; otherwise if *add is 1
+-   then add it to the positive side. */
++   then add it to the positive side.
++   The identifier `id` is always consumed. */
+ static int set_types(type_set_t * set, char *id, int *add, char starallowed)
+ {
+ 	type_datum_t *t;
+@@ -2117,18 +2118,17 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
+ {
+ 	char *id;
+ 	class_perm_node_t *perms, *tail = NULL, *cur_perms = NULL;
+-	class_datum_t *cladatum;
+-	perm_datum_t *perdatum = NULL;
++	const class_datum_t *cladatum;
++	const perm_datum_t *perdatum;
+ 	ebitmap_t tclasses;
+ 	ebitmap_node_t *node;
+ 	avrule_t *avrule;
+ 	unsigned int i;
+-	int add = 1, ret = 0;
++	int add = 1, ret;
+ 
+ 	avrule = (avrule_t *) malloc(sizeof(avrule_t));
+ 	if (!avrule) {
+ 		yyerror("out of memory");
+-		ret = -1;
+ 		goto out;
+ 	}
+ 	avrule_init(avrule);
+@@ -2139,14 +2139,13 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
+ 	avrule->xperms = NULL;
+ 	if (!avrule->source_filename) {
+ 		yyerror("out of memory");
+-		return -1;
++		goto out;
+ 	}
+ 
+ 	while ((id = queue_remove(id_queue))) {
+ 		if (set_types
+ 		    (&avrule->stypes, id, &add,
+ 		     which == AVRULE_XPERMS_NEVERALLOW ? 1 : 0)) {
+-			ret = -1;
+ 			goto out;
+ 		}
+ 	}
+@@ -2156,13 +2155,11 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
+ 			free(id);
+ 			if (add == 0 && which != AVRULE_XPERMS_NEVERALLOW) {
+ 				yyerror("-self is only supported in neverallow and neverallowxperm rules");
+-				ret = -1;
+ 				goto out;
+ 			}
+ 			avrule->flags |= (add ? RULE_SELF : RULE_NOTSELF);
+ 			if ((avrule->flags & RULE_SELF) && (avrule->flags & RULE_NOTSELF)) {
+ 				yyerror("self and -self are mutual exclusive");
+-				ret = -1;
+ 				goto out;
+ 			}
+ 			continue;
+@@ -2170,7 +2167,6 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
+ 		if (set_types
+ 		    (&avrule->ttypes, id, &add,
+ 		     which == AVRULE_XPERMS_NEVERALLOW ? 1 : 0)) {
+-			ret = -1;
+ 			goto out;
+ 		}
+ 	}
+@@ -2178,7 +2174,6 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
+ 	if ((avrule->ttypes.flags & TYPE_COMP)) {
+ 		if (avrule->flags & RULE_NOTSELF) {
+ 			yyerror("-self is not supported in complements");
+-			ret = -1;
+ 			goto out;
+ 		}
+ 		if (avrule->flags & RULE_SELF) {
+@@ -2190,7 +2185,7 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
+ 	ebitmap_init(&tclasses);
+ 	ret = read_classes(&tclasses);
+ 	if (ret)
+-		goto out;
++		goto out2;
+ 
+ 	perms = NULL;
+ 	id = queue_head(id_queue);
+@@ -2199,8 +2194,7 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
+ 		    (class_perm_node_t *) malloc(sizeof(class_perm_node_t));
+ 		if (!cur_perms) {
+ 			yyerror("out of memory");
+-			ret = -1;
+-			goto out;
++			goto out2;
+ 		}
+ 		class_perm_node_init(cur_perms);
+ 		cur_perms->tclass = i + 1;
+@@ -2238,9 +2232,14 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
+ 
+ 	avrule->perms = perms;
+ 	*rule = avrule;
++	return 0;
+ 
++out2:
++	ebitmap_destroy(&tclasses);
+ out:
+-	return ret;
++	avrule_destroy(avrule);
++	free(avrule);
++	return -1;
+ }
+ 
+ /* index of the u32 containing the permission */
+-- 
+2.47.2
 
--Daniel
