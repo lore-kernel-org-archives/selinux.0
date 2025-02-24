@@ -1,175 +1,127 @@
-Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE0712AEFB
-	for <selinux@vger.kernel.org>; Sat, 22 Feb 2025 17:34:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A768F25B667
+	for <selinux@vger.kernel.org>; Mon, 24 Feb 2025 15:48:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740245656; cv=none; b=s1Y23WygsiL0akD+wqd3RmuYn8l2BYEPiNfsdL96JBbPK4HprLIjV17WimhBYknqqrC2pIJQqqIf7+cFo3Ofo5Yzy+Nj4lomugsIzE5wWsmVPLPw2mtODfvekneXi8rWCwzStdH/cDVVoUR8JMrMiCTFLznz7hLj6xXa2tONbhI=
+	t=1740412123; cv=none; b=FIwy9O/mXrPj18Kpzbc1AULqPhQ8lHjB6iG4ouz2ESkclVmQH8YgD1vyWKQxaEwv+M6KW0Vb9zFdduhBRrLj9haIm41eRctF4SkFICV7O2fikjkFFazmRL1+nCC2DJ68qUc1uVMbmoZ142ziOQQu8ihT8Oq8HkdRYba7qp5enMU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740245656; c=relaxed/simple;
-	bh=fXuwtselYbnFmkfFBfDkEuErHtVJkcI66PaUayMh47c=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=QsZj/NidQrVznadjvNFrM4GDl20D0qipoJsJaMiI7KvbE51fvBpc6HkQkp1IP9fcghunIY+1KyBefIZSdA8mJE4o6xEoiqtsVrLas+aCpDWnZkIe+v7mL2aZunuYLc2UTwU+7hel47crcb2U9KzAxt80rUsdCe5s2Rrm3Gvixyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=MgLNLVEn; arc=none smtp.client-ip=168.119.48.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
+	s=arc-20240116; t=1740412123; c=relaxed/simple;
+	bh=Yoe+1Q/wd9KnY0rECwMRuQsaRIV7NNTtgYXl3H+TA1g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gfIKe/oY7cw2w6DnmYCDUtOJLuVMh3Zh3Y/RRMXXRrsSwI+u8f4p2BXlS2q9bsIiS/XOhB+Vb8En2RQ2T1lDlGuaZC91nhNKN1wFuWj9/QmtPkGuCxWcp5etvkJCj1f3CqR684m1PdTNZcbRkmwiVq82I644LvfhTBsSQeQHmW8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=D407c1VU; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="MgLNLVEn"
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1740245194;
-	h=from:from:reply-to:reply-to:subject:subject:date:date:
-	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=OUwDezd1XS672hPuuj2ojpcIf4NlacAIG84GUpfrvhU=;
-	b=MgLNLVEnQU5iZv10deofYGPCtr05tlzUjGMvWpJOQBYAIBit2yxo++3EOF8CQO+mFKQ4Y2
-	1bjE5RQCqP/cOms24gYfYwTGJYYUGbN+ipW1ocmxUArFtLcOsVlgj+SSTAqMDNtLCKSSBz
-	Obuz+ftcPBK9Bzsd5Wg9qnw255wxA1actwbPTxOuwMuTqjBKqQdO1NquDr1WpzD/nN0x7E
-	Yu+hDjTG4hDCTKpmj8jz0eJtHKL3LvwwIpnI5cD1zWJVeOs1zd3bCzwgd5EDt3tjuNdg/a
-	hwCQdEvCjf2A6NB95TQE8/scNnVz7auXfFHoN0gq1hnmoJSETCqJc4LsASNGDw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D407c1VU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1740412120;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=VZ6BYY6WM+ve8w+hCFhsoiQPqDoYIprknITffKagk4A=;
+	b=D407c1VUmd77MsTWgupOFWDm/xHWWnlKT5I7h0TCe10n9G51NgJZxvddB8SvwmV26hHq52
+	L8PTMXoC8wg1yaQSSXQWLaYBToUvP6XjY/11K3Y0Y/Q2CMfqZP6gAQ8DUTFDmHvZ//qMua
+	fFwx7TLnAMYwndMxd4Z+NN4vJeRudDg=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-1-Nu--6kNjNSOjAILw4bXF3g-1; Mon, 24 Feb 2025 10:48:39 -0500
+X-MC-Unique: Nu--6kNjNSOjAILw4bXF3g-1
+X-Mimecast-MFC-AGG-ID: Nu--6kNjNSOjAILw4bXF3g_1740412118
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4399c32efb4so23195625e9.1
+        for <selinux@vger.kernel.org>; Mon, 24 Feb 2025 07:48:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740412118; x=1741016918;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=VZ6BYY6WM+ve8w+hCFhsoiQPqDoYIprknITffKagk4A=;
+        b=ki+ZTC0aSkreqSGkoIm3ZezkX9chnGfYG9Cywt3CHhbOFZjyuhk7fkI10LET5SB6va
+         bQ64u+xQxK+AGzeKWJArEb5bP8L6PqKDMUj/eE4EcM+7fMF6jq7lhu+qcBqHkXJ4b0sV
+         3LNYK2hlEQwTRoSHTeNaI6s8jr0eeDTBf4mbzA6A8rcuDUwqzSt9HepcvG4jrWA9UX3w
+         vB3iwZDpfu7jXI72ukbxhFi0YtxCbNCBXQpINXgA6ypeNRkGEIW+n4c8f3pGzZ1gGh1I
+         q3x3/inYBYey0HeCRKPG6qObEIoRo2ITWY4G4GjilPLLZyZFxjEhMUTVFS+4ktMmBoK0
+         urHQ==
+X-Gm-Message-State: AOJu0Yx650do4bN2QIea3DHxAQDoV1Ly+FQ4nEBfoKpA/Z3/cRjqqZUK
+	PvNnVpSkjizgAAE7nHONCQGnK0U6fzqk+q97XS0rvxdnFecFCmgvaN3KmRX4U6JYjv3sUbUOu/j
+	orUV/Q6yeueJb4N0wkkJckfJRFj7qsIRTS6X1fqIYNLROGJ0aH7QrBNGGKQ0kcCPY4mS+h9dWcJ
+	jeqCCgtjBjvmCXrURBGD4V8Q1rZLRXX9EvoUGBrbnihg==
+X-Gm-Gg: ASbGncvqyOeyPhZbCZWkGv9kkJIGGncvAzYPY41kvE1FM2cQqdgCbBTE/FbZ5uy4EsC
+	I8aevt9R8QnuFUnRMbANDX1VQYwLx32zn3dDcyHMe54dHWJw2EmFhghcP6Uw4GBGjwZ6cBuSlzX
+	JqvY2g//AapLIHL97DLXQE7uXsVu0ndiRWqeOHXrQk/PtUAAaaAQRmhTJeoTtdzhqZWdtsgI/mk
+	r+Tfd/G9UGsRV6Z0dekwo4QLpfyXAhwHUQ5lNCkGeFdSiWnDBHIVvYp5P1CiQ/+1SNf+NoZjjiU
+	8I9QlN0efyMmQMa/HNM2XS8frHuhGCfWBjcI6IkPoSwWDzKp4z3ekMUobEso/mmeH28x8nRY
+X-Received: by 2002:a05:600c:4ec7:b0:439:95b9:99f1 with SMTP id 5b1f17b1804b1-439ae2e1d53mr110480855e9.4.1740412117999;
+        Mon, 24 Feb 2025 07:48:37 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IF6TrZ14Kh1RvspHl0cC4TVOhV53fmM42M70m1mCqCLCXtOJB/rbhrvWdei//Y3u75VLLDQ1g==
+X-Received: by 2002:a05:600c:4ec7:b0:439:95b9:99f1 with SMTP id 5b1f17b1804b1-439ae2e1d53mr110480595e9.4.1740412117540;
+        Mon, 24 Feb 2025 07:48:37 -0800 (PST)
+Received: from maszat.piliscsaba.szeredi.hu (89-148-117-232.pool.digikabel.hu. [89.148.117.232])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-439b0371cfcsm108736435e9.36.2025.02.24.07.48.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Feb 2025 07:48:37 -0800 (PST)
+From: Miklos Szeredi <mszeredi@redhat.com>
 To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH] checkpolicy: rework cleanup in define_te_avtab_xperms_helper()
-Date: Sat, 22 Feb 2025 18:26:30 +0100
-Message-ID: <20250222172631.18683-1-cgoettsche@seltendoof.de>
-Reply-To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: linux-fsdevel@vger.kernel.org,
+	Christian Brauner <brauner@kernel.org>,
+	linux-security-module@vger.kernel.org,
+	Paul Moore <paul@paul-moore.com>
+Subject: [PATCH] selinux: add FILE__WATCH_MOUNTNS
+Date: Mon, 24 Feb 2025 16:48:36 +0100
+Message-ID: <20250224154836.958915-1-mszeredi@redhat.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Christian Göttsche <cgzones@googlemail.com>
+Watching mount namespaces for changes (mount, umount, move mount) was added
+by previous patches.
 
-Clean up the local avrule on error, since its ownership is not
-transferred. Also clean up the local ebitmap on error.
+This patch adds the file/watch_mountns permission that can be applied to
+nsfs files (/proc/$$/ns/mnt), making it possible to allow or deny watching
+a particular namespace for changes.
 
-Reported-by: oss-fuzz (issue 398356438)
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+Suggested-by: Paul Moore <paul@paul-moore.com>
+Link: https://lore.kernel.org/all/CAHC9VhTOmCjCSE2H0zwPOmpFopheexVb6jyovz92ZtpKtoVv6A@mail.gmail.com/
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 ---
- checkpolicy/policy_define.c | 29 ++++++++++++++---------------
- 1 file changed, 14 insertions(+), 15 deletions(-)
+ security/selinux/hooks.c            | 3 +++
+ security/selinux/include/classmap.h | 2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index f19e9f6d..06068556 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -1610,7 +1610,8 @@ struct val_to_name {
- 
- /* Adds a type, given by its textual name, to a typeset.  If *add is
-    0, then add the type to the negative set; otherwise if *add is 1
--   then add it to the positive side. */
-+   then add it to the positive side.
-+   The identifier `id` is always consumed. */
- static int set_types(type_set_t * set, char *id, int *add, char starallowed)
- {
- 	type_datum_t *t;
-@@ -2117,18 +2118,17 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
- {
- 	char *id;
- 	class_perm_node_t *perms, *tail = NULL, *cur_perms = NULL;
--	class_datum_t *cladatum;
--	perm_datum_t *perdatum = NULL;
-+	const class_datum_t *cladatum;
-+	const perm_datum_t *perdatum;
- 	ebitmap_t tclasses;
- 	ebitmap_node_t *node;
- 	avrule_t *avrule;
- 	unsigned int i;
--	int add = 1, ret = 0;
-+	int add = 1, ret;
- 
- 	avrule = (avrule_t *) malloc(sizeof(avrule_t));
- 	if (!avrule) {
- 		yyerror("out of memory");
--		ret = -1;
- 		goto out;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7b867dfec88b..212cdead2b52 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3395,6 +3395,9 @@ static int selinux_path_notify(const struct path *path, u64 mask,
+ 	case FSNOTIFY_OBJ_TYPE_INODE:
+ 		perm = FILE__WATCH;
+ 		break;
++	case FSNOTIFY_OBJ_TYPE_MNTNS:
++		perm = FILE__WATCH_MOUNTNS;
++		break;
+ 	default:
+ 		return -EINVAL;
  	}
- 	avrule_init(avrule);
-@@ -2139,14 +2139,13 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
- 	avrule->xperms = NULL;
- 	if (!avrule->source_filename) {
- 		yyerror("out of memory");
--		return -1;
-+		goto out;
- 	}
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 03e82477dce9..f9b5ca92a825 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -8,7 +8,7 @@
+ 	COMMON_FILE_SOCK_PERMS, "unlink", "link", "rename", "execute",   \
+ 		"quotaon", "mounton", "audit_access", "open", "execmod", \
+ 		"watch", "watch_mount", "watch_sb", "watch_with_perm",   \
+-		"watch_reads"
++		"watch_reads", "watch_mountns"
  
- 	while ((id = queue_remove(id_queue))) {
- 		if (set_types
- 		    (&avrule->stypes, id, &add,
- 		     which == AVRULE_XPERMS_NEVERALLOW ? 1 : 0)) {
--			ret = -1;
- 			goto out;
- 		}
- 	}
-@@ -2156,13 +2155,11 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
- 			free(id);
- 			if (add == 0 && which != AVRULE_XPERMS_NEVERALLOW) {
- 				yyerror("-self is only supported in neverallow and neverallowxperm rules");
--				ret = -1;
- 				goto out;
- 			}
- 			avrule->flags |= (add ? RULE_SELF : RULE_NOTSELF);
- 			if ((avrule->flags & RULE_SELF) && (avrule->flags & RULE_NOTSELF)) {
- 				yyerror("self and -self are mutual exclusive");
--				ret = -1;
- 				goto out;
- 			}
- 			continue;
-@@ -2170,7 +2167,6 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
- 		if (set_types
- 		    (&avrule->ttypes, id, &add,
- 		     which == AVRULE_XPERMS_NEVERALLOW ? 1 : 0)) {
--			ret = -1;
- 			goto out;
- 		}
- 	}
-@@ -2178,7 +2174,6 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
- 	if ((avrule->ttypes.flags & TYPE_COMP)) {
- 		if (avrule->flags & RULE_NOTSELF) {
- 			yyerror("-self is not supported in complements");
--			ret = -1;
- 			goto out;
- 		}
- 		if (avrule->flags & RULE_SELF) {
-@@ -2190,7 +2185,7 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
- 	ebitmap_init(&tclasses);
- 	ret = read_classes(&tclasses);
- 	if (ret)
--		goto out;
-+		goto out2;
- 
- 	perms = NULL;
- 	id = queue_head(id_queue);
-@@ -2199,8 +2194,7 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
- 		    (class_perm_node_t *) malloc(sizeof(class_perm_node_t));
- 		if (!cur_perms) {
- 			yyerror("out of memory");
--			ret = -1;
--			goto out;
-+			goto out2;
- 		}
- 		class_perm_node_init(cur_perms);
- 		cur_perms->tclass = i + 1;
-@@ -2238,9 +2232,14 @@ static int define_te_avtab_xperms_helper(int which, avrule_t ** rule)
- 
- 	avrule->perms = perms;
- 	*rule = avrule;
-+	return 0;
- 
-+out2:
-+	ebitmap_destroy(&tclasses);
- out:
--	return ret;
-+	avrule_destroy(avrule);
-+	free(avrule);
-+	return -1;
- }
- 
- /* index of the u32 containing the permission */
+ #define COMMON_SOCK_PERMS                                              \
+ 	COMMON_FILE_SOCK_PERMS, "bind", "connect", "listen", "accept", \
 -- 
-2.47.2
+2.48.1
 
