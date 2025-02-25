@@ -1,127 +1,120 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A768F25B667
-	for <selinux@vger.kernel.org>; Mon, 24 Feb 2025 15:48:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D541425B67D
+	for <selinux@vger.kernel.org>; Tue, 25 Feb 2025 07:56:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740412123; cv=none; b=FIwy9O/mXrPj18Kpzbc1AULqPhQ8lHjB6iG4ouz2ESkclVmQH8YgD1vyWKQxaEwv+M6KW0Vb9zFdduhBRrLj9haIm41eRctF4SkFICV7O2fikjkFFazmRL1+nCC2DJ68qUc1uVMbmoZ142ziOQQu8ihT8Oq8HkdRYba7qp5enMU=
+	t=1740470167; cv=none; b=XcthUyZz1OjPNx8O5kk8kuyONu7zSVzYrt9ErrNNcsadpaZAJkkfASmDXMxhgmmTfBxe7XGzOUJox0G95qMcT1clKB1/+rZFbCkTHGJIP0NVohuSc0EodR0cbV5bKC67ZSNwbAZPkioo6O0mgBbI1KRAe/hK8MZdfPP7t14YOHo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740412123; c=relaxed/simple;
-	bh=Yoe+1Q/wd9KnY0rECwMRuQsaRIV7NNTtgYXl3H+TA1g=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gfIKe/oY7cw2w6DnmYCDUtOJLuVMh3Zh3Y/RRMXXRrsSwI+u8f4p2BXlS2q9bsIiS/XOhB+Vb8En2RQ2T1lDlGuaZC91nhNKN1wFuWj9/QmtPkGuCxWcp5etvkJCj1f3CqR684m1PdTNZcbRkmwiVq82I644LvfhTBsSQeQHmW8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=D407c1VU; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1740470167; c=relaxed/simple;
+	bh=nX+JcrvA2VN5NPf/pvOm4HstWSSTBQrrT76sls4OnLw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-type; b=ZC5DHc037Y67KLQSlWZvrEUCV9WQJz5YVgx5APDKhcf0uE0eS5GkC8vqidocauP8NB59ItMG1F0eM7JGvoBbTRtimbjX5f1It2KbCI10UMByt1vc07TaTsOtQPfUZYedUavggKd0tbDPTaeIP2PMusjgivrJGBVLG6d/xcQo2Bg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IrjAFFMj; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D407c1VU"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IrjAFFMj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1740412120;
+	s=mimecast20190719; t=1740470163;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding;
-	bh=VZ6BYY6WM+ve8w+hCFhsoiQPqDoYIprknITffKagk4A=;
-	b=D407c1VUmd77MsTWgupOFWDm/xHWWnlKT5I7h0TCe10n9G51NgJZxvddB8SvwmV26hHq52
-	L8PTMXoC8wg1yaQSSXQWLaYBToUvP6XjY/11K3Y0Y/Q2CMfqZP6gAQ8DUTFDmHvZ//qMua
-	fFwx7TLnAMYwndMxd4Z+NN4vJeRudDg=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-1-Nu--6kNjNSOjAILw4bXF3g-1; Mon, 24 Feb 2025 10:48:39 -0500
-X-MC-Unique: Nu--6kNjNSOjAILw4bXF3g-1
-X-Mimecast-MFC-AGG-ID: Nu--6kNjNSOjAILw4bXF3g_1740412118
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4399c32efb4so23195625e9.1
-        for <selinux@vger.kernel.org>; Mon, 24 Feb 2025 07:48:39 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740412118; x=1741016918;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=VZ6BYY6WM+ve8w+hCFhsoiQPqDoYIprknITffKagk4A=;
-        b=ki+ZTC0aSkreqSGkoIm3ZezkX9chnGfYG9Cywt3CHhbOFZjyuhk7fkI10LET5SB6va
-         bQ64u+xQxK+AGzeKWJArEb5bP8L6PqKDMUj/eE4EcM+7fMF6jq7lhu+qcBqHkXJ4b0sV
-         3LNYK2hlEQwTRoSHTeNaI6s8jr0eeDTBf4mbzA6A8rcuDUwqzSt9HepcvG4jrWA9UX3w
-         vB3iwZDpfu7jXI72ukbxhFi0YtxCbNCBXQpINXgA6ypeNRkGEIW+n4c8f3pGzZ1gGh1I
-         q3x3/inYBYey0HeCRKPG6qObEIoRo2ITWY4G4GjilPLLZyZFxjEhMUTVFS+4ktMmBoK0
-         urHQ==
-X-Gm-Message-State: AOJu0Yx650do4bN2QIea3DHxAQDoV1Ly+FQ4nEBfoKpA/Z3/cRjqqZUK
-	PvNnVpSkjizgAAE7nHONCQGnK0U6fzqk+q97XS0rvxdnFecFCmgvaN3KmRX4U6JYjv3sUbUOu/j
-	orUV/Q6yeueJb4N0wkkJckfJRFj7qsIRTS6X1fqIYNLROGJ0aH7QrBNGGKQ0kcCPY4mS+h9dWcJ
-	jeqCCgtjBjvmCXrURBGD4V8Q1rZLRXX9EvoUGBrbnihg==
-X-Gm-Gg: ASbGncvqyOeyPhZbCZWkGv9kkJIGGncvAzYPY41kvE1FM2cQqdgCbBTE/FbZ5uy4EsC
-	I8aevt9R8QnuFUnRMbANDX1VQYwLx32zn3dDcyHMe54dHWJw2EmFhghcP6Uw4GBGjwZ6cBuSlzX
-	JqvY2g//AapLIHL97DLXQE7uXsVu0ndiRWqeOHXrQk/PtUAAaaAQRmhTJeoTtdzhqZWdtsgI/mk
-	r+Tfd/G9UGsRV6Z0dekwo4QLpfyXAhwHUQ5lNCkGeFdSiWnDBHIVvYp5P1CiQ/+1SNf+NoZjjiU
-	8I9QlN0efyMmQMa/HNM2XS8frHuhGCfWBjcI6IkPoSwWDzKp4z3ekMUobEso/mmeH28x8nRY
-X-Received: by 2002:a05:600c:4ec7:b0:439:95b9:99f1 with SMTP id 5b1f17b1804b1-439ae2e1d53mr110480855e9.4.1740412117999;
-        Mon, 24 Feb 2025 07:48:37 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IF6TrZ14Kh1RvspHl0cC4TVOhV53fmM42M70m1mCqCLCXtOJB/rbhrvWdei//Y3u75VLLDQ1g==
-X-Received: by 2002:a05:600c:4ec7:b0:439:95b9:99f1 with SMTP id 5b1f17b1804b1-439ae2e1d53mr110480595e9.4.1740412117540;
-        Mon, 24 Feb 2025 07:48:37 -0800 (PST)
-Received: from maszat.piliscsaba.szeredi.hu (89-148-117-232.pool.digikabel.hu. [89.148.117.232])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-439b0371cfcsm108736435e9.36.2025.02.24.07.48.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Feb 2025 07:48:37 -0800 (PST)
-From: Miklos Szeredi <mszeredi@redhat.com>
+	bh=hAjpv4Hzpp7J+PVk3mbqTKKuT8TTd9TIOAhB2feG2r4=;
+	b=IrjAFFMjxjzDy9leyF/l7k2gjN9tB3+BGDizCTEGU8e6+aT85GTnyxoSahqKO47gRRArKX
+	NXMdpDKWvpHYDUjXaGxkrqhCSUp0AwbfygU/cbbgUWNuRwdP0DDLX5GHEq8H2gvqbpXRTy
+	6KzPLBFopttcNe9sUTOzBositWcR0qI=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-457-JXbrXs2GMIehjjpPTlNlng-1; Tue,
+ 25 Feb 2025 02:56:01 -0500
+X-MC-Unique: JXbrXs2GMIehjjpPTlNlng-1
+X-Mimecast-MFC-AGG-ID: JXbrXs2GMIehjjpPTlNlng_1740470160
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B78C919560BC
+	for <selinux@vger.kernel.org>; Tue, 25 Feb 2025 07:56:00 +0000 (UTC)
+Received: from p16v.redhat.com (unknown [10.45.225.8])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 8434E19560A3;
+	Tue, 25 Feb 2025 07:55:59 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
 To: selinux@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org,
-	Christian Brauner <brauner@kernel.org>,
-	linux-security-module@vger.kernel.org,
-	Paul Moore <paul@paul-moore.com>
-Subject: [PATCH] selinux: add FILE__WATCH_MOUNTNS
-Date: Mon, 24 Feb 2025 16:48:36 +0100
-Message-ID: <20250224154836.958915-1-mszeredi@redhat.com>
-X-Mailer: git-send-email 2.48.1
+Cc: Petr Lautrbach <lautrbach@redhat.com>
+Subject: [PATCH] libsemanage: improve performance of semanage store rebuild
+Date: Tue, 25 Feb 2025 08:55:23 +0100
+Message-ID: <20250225075555.16136-1-lautrbach@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-type: text/plain
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Watching mount namespaces for changes (mount, umount, move mount) was added
-by previous patches.
+Commit 9d107ab77ba4 ("libsemanage: Set new restorecon handle before doing restorecon
+") added reopeniong selabel handle every time semanage_setfiles() is
+called. It means that during `semodule -B`, `selabel_close()` and
+`selabel_open()` could be called more than 1800x what could have a
+significant performance impact.
 
-This patch adds the file/watch_mountns permission that can be applied to
-nsfs files (/proc/$$/ns/mnt), making it possible to allow or deny watching
-a particular namespace for changes.
+It should be enough to reopen selabel handle just after semanage commit
+when changes are applied.
 
-Suggested-by: Paul Moore <paul@paul-moore.com>
-Link: https://lore.kernel.org/all/CAHC9VhTOmCjCSE2H0zwPOmpFopheexVb6jyovz92ZtpKtoVv6A@mail.gmail.com/
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Before 9d107ab77ba4:
+    semodule -B  5.84s user 0.52s system 96% cpu 6.585 total
+
+After 9d107ab77ba4:
+    semodule -B  11.15s user 0.64s system 98% cpu 11.952 total
+
+With this patch:
+    semodule -B  5.51s user 0.41s system 98% cpu 6.014 total
+
+Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 ---
- security/selinux/hooks.c            | 3 +++
- security/selinux/include/classmap.h | 2 +-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ libsemanage/src/semanage_store.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 7b867dfec88b..212cdead2b52 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3395,6 +3395,9 @@ static int selinux_path_notify(const struct path *path, u64 mask,
- 	case FSNOTIFY_OBJ_TYPE_INODE:
- 		perm = FILE__WATCH;
- 		break;
-+	case FSNOTIFY_OBJ_TYPE_MNTNS:
-+		perm = FILE__WATCH_MOUNTNS;
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index 03e82477dce9..f9b5ca92a825 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -8,7 +8,7 @@
- 	COMMON_FILE_SOCK_PERMS, "unlink", "link", "rename", "execute",   \
- 		"quotaon", "mounton", "audit_access", "open", "execmod", \
- 		"watch", "watch_mount", "watch_sb", "watch_with_perm",   \
--		"watch_reads"
-+		"watch_reads", "watch_mountns"
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index cf9aa809b7f8..307f27f9838b 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -1712,6 +1712,7 @@ static int semanage_commit_sandbox(semanage_handle_t * sh)
+ 	    semanage_path(SEMANAGE_PREVIOUS, SEMANAGE_TOPLEVEL);
+ 	const char *sandbox = semanage_path(SEMANAGE_TMP, SEMANAGE_TOPLEVEL);
+ 	struct stat buf;
++	struct selabel_handle *sehandle;
  
- #define COMMON_SOCK_PERMS                                              \
- 	COMMON_FILE_SOCK_PERMS, "bind", "connect", "listen", "accept", \
+ 	/* update the commit number */
+ 	if ((commit_number = semanage_direct_get_serial(sh)) < 0) {
+@@ -1822,6 +1823,8 @@ static int semanage_commit_sandbox(semanage_handle_t * sh)
+ 
+       cleanup:
+ 	semanage_release_active_lock(sh);
++	sehandle = selinux_restorecon_default_handle();
++	selinux_restorecon_set_sehandle(sehandle);
+ 	return retval;
+ }
+ 
+@@ -3012,14 +3015,10 @@ log_callback_mute(__attribute__((unused)) int type, __attribute__((unused)) cons
+ void semanage_setfiles(semanage_handle_t * sh, const char *path){
+ 	struct stat sb;
+ 	int fd;
+-	struct selabel_handle *sehandle;
+ 
+ 	union selinux_callback cb_orig = selinux_get_callback(SELINUX_CB_LOG);
+ 	union selinux_callback cb = { .func_log = log_callback_mute };
+ 
+-	sehandle = selinux_restorecon_default_handle();
+-	selinux_restorecon_set_sehandle(sehandle);
+-
+ 	/* Mute all logs */
+ 	selinux_set_callback(SELINUX_CB_LOG, cb);
+ 
 -- 
 2.48.1
 
