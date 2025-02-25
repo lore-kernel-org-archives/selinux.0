@@ -1,101 +1,100 @@
-Received: from mail-ot1-f73.google.com (mail-ot1-f73.google.com [209.85.210.73])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B9C71A8F95
-	for <selinux@vger.kernel.org>; Tue, 25 Feb 2025 19:26:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2126211A29;
+	Tue, 25 Feb 2025 21:59:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740511608; cv=none; b=jTedrMeOqRuHb7JcZ3+ZZScg37V+1RmClR5rATo42+ZNsk+XGtmW8i2tfdGGBf8mlamgCpdyKbnKDVEwYQ92tyi/oLEfisENCri52BxNDoNJTvkNShRCPNt8Jc3Cjdqmc8+f0vVGRlCXlA+JcmWQCOP9Ikps7UQr8zrrXJ5ryQs=
+	t=1740520761; cv=none; b=Ny1WLRbQf4xvDikHta0z1xmU9bg1TDG8RIG5EJQyegU+qnwur4qL+vanDsHaDjhFn/FTq5RrAMvzQKBIL/e8s9mu7qflzO2brwF0ORBg10PuU5HTQq7PYUKqnnm3aR434M9+POkadp/HefwXZUaHDeC0yu606uZBalRigTq4A00=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740511608; c=relaxed/simple;
-	bh=DJlfk6b3RJau9l+w6GknKKnQt/3tbE8gdqZES9yqU5o=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=Cfw3TA820SYA5Mr/daTMZMCoqiVOvLby7lW6bBcm8LkRAMMbuL/p7DYw7rKpZ3/KtsC5jeZIpNZNea4eaCu98mTv0lS2eA/9VT0PUEcJxfBqtFYz8fNSQqnWzy3DdbEze11g6Zn6iwP/tEWKM/+f5QArGbx3com3j/lff8CUDWM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--paullawrence.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=H4hcWf0Q; arc=none smtp.client-ip=209.85.210.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--paullawrence.bounces.google.com
+	s=arc-20240116; t=1740520761; c=relaxed/simple;
+	bh=k3ncfrBzSzEk4e3l0PwPp8uuDaQQnMOGnDx+adJQiso=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=anrfEQj9iUWSzFAlw+rlzhy3rnosd505gdYeSwVOrR5KsCTKP7n3XOrmUltavinfCcstfk+GOHH6hNAxI1VQ77F5jhr69jiVpLFAKrG9JnUsjscSRW9hpoLFTt0o+LQ+Mkup5MIJYe21g5Qnj8+oCtWqk5XaFFMeI3VILDly37A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DNJREjHr; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="H4hcWf0Q"
-Received: by mail-ot1-f73.google.com with SMTP id 46e09a7af769-727294aa679so6180746a34.0
-        for <selinux@vger.kernel.org>; Tue, 25 Feb 2025 11:26:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1740511606; x=1741116406; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=DJlfk6b3RJau9l+w6GknKKnQt/3tbE8gdqZES9yqU5o=;
-        b=H4hcWf0Q+oQQQ3tVXB9N28PRzDtT7eVVDRv1gHV3DZQ7xe6LumpB9/MqchQ0yASsxK
-         ly0Hb9Q/SuYmBYIv/YLCE3y9p6G2QUKInZU/RiPPfDLa5f7lHrD6EidAR907TuhHOOBj
-         1DuUMpna10vkjNvGgnJCfGwtkodhzlA00SgxvCpN/JJr/ePRn7LbnO1/bg3rYpLnq560
-         D86JRVZcCmFBBsZ1ZUlV8Uapo9+4uegNmYLNK36Q0GO0D5ZXSPV/O0svVml6lK0ieMb9
-         dZ1fhrCVp8r1VfjjFGIJInlcSD0q70rCkzu8SJShv4FrFXioXz3nV9Xhii2iqZIJMSSW
-         dtmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740511606; x=1741116406;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=DJlfk6b3RJau9l+w6GknKKnQt/3tbE8gdqZES9yqU5o=;
-        b=CTBSwehvF2L9MF46IPljb53WzXz3GGKUG+VtIAceWOUVdW2NUZQSKQ4JmATW3eRobW
-         ebrsHXxT7CC+uz4D/tKpJS0xDg0et63zWu1RWWQ0I1z/o2wkULCsVeajTYg8+FZ/Aedy
-         Qz+dAL0s4wJe06JskCMNerKfTYvRHsQTVOayksiTpN5KdukU14wr82Iye+eNUAV3BgXm
-         SubuXcd07BwtxNRbjPiRze5QKYI9Ga5gSAh8J4FuYPZ0lsZLwiJxv2IvSS0eRX8xinV/
-         Q03VTVq1oxEkGr8Vczn4a6ZE+khNGaBenl1WEF2WiuQYXPrHGz5SQTeubEUw1rn0HcDa
-         aQ4A==
-X-Forwarded-Encrypted: i=1; AJvYcCV6Jmc+8HV317s6LM0N1k/4MAAopRtJ3Aq1R10e77OaadrS8mYaEpkvJ0U7XnhDJcq1Mpeaixf7@vger.kernel.org
-X-Gm-Message-State: AOJu0YxUhRNRhNLEfJudiwwAVNduqi9cuDXV/7Zgd/Gp3derwh7AMjya
-	eLCH+89a/7NkH//2xNpKfz+1H2rQnzMc1dIYZU9pnZ/En0RgpmloJbegpB1W4i2X2MxaHuwSkkt
-	cLH1CUKnPVkemg+FyJqlhg9HwTA==
-X-Google-Smtp-Source: AGHT+IH42rZCjQxhtGaX41R/FygdO39bmt4VMVb9EHOMyqJQj1A1hd9V5S6V3ciDnhUFtYvqHYTc4Cmq0ZkSclZIm6Q=
-X-Received: from oabxl3.prod.google.com ([2002:a05:6870:9f03:b0:2bc:6c19:c219])
- (user=paullawrence job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:6830:2701:b0:727:26ca:bd2d with SMTP id 46e09a7af769-7274c184410mr11658399a34.3.1740511606242;
- Tue, 25 Feb 2025 11:26:46 -0800 (PST)
-Date: Tue, 25 Feb 2025 11:26:44 -0800
-In-Reply-To: <CAOQ4uxhxQfFfrpmRS6tOv5ANVug6d8dGx6Hsc7MYYe63sUOpcg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DNJREjHr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B2B9C4CEDD;
+	Tue, 25 Feb 2025 21:59:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1740520761;
+	bh=k3ncfrBzSzEk4e3l0PwPp8uuDaQQnMOGnDx+adJQiso=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=DNJREjHrwh1OskgVIKX5DsQWTc2CXp6wLiWAdnrSNnPC4jgZ3S4U2kfx4GL3GoiBu
+	 U08JQWiNQQfoz7nedqt56zZvW3fnEJkmjVkwjNMRO3Omr+ogO1W6JtYk4Ns69uOwNQ
+	 5D2RPkMXPA/biKIQub67KAZ9Zki/jusGxOE/yOJx9wBpO3YtSVmKxFca5T+X8kvcLv
+	 5QJKZp/ByrPDLpivh4XMPonqYuJu+4u4yop+L9iEOdGlHfstQ5fQH1+nGVNfJ3sDOt
+	 utZt0Fagif/KlfefjW7jEpElrpTy0FzekyUbmlKIJaZR41pVDaJHDBDpWjjzRUazxK
+	 79pH2sMJzTeaA==
+Date: Tue, 25 Feb 2025 22:59:06 +0100
+From: Ingo Molnar <mingo@kernel.org>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Luo Gengkun <luogengkun@huaweicloud.com>, peterz@infradead.org,
+	mingo@redhat.com, acme@kernel.org, namhyung@kernel.org,
+	mark.rutland@arm.com, alexander.shishkin@linux.intel.com,
+	jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com,
+	kan.liang@linux.intel.com, tglx@linutronix.de, bp@alien8.de,
+	dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
+	will@kernel.org, jmorris@namei.org, serge@hallyn.com,
+	rostedt@goodmis.org, mhiramat@kernel.org,
+	mathieu.desnoyers@efficios.com, stephen.smalley.work@gmail.com,
+	omosnace@redhat.com, linux-perf-users@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-security-module@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH linux-next 1/2] perf: Remove unnecessary parameter of
+ security check
+Message-ID: <Z749KuWROxQMsbnu@gmail.com>
+References: <20241223070650.2810747-1-luogengkun@huaweicloud.com>
+ <20241223070650.2810747-2-luogengkun@huaweicloud.com>
+ <CAHC9VhRRu-UYEV_-0-QgOZ3ByVwp-ZdEphmsvy4NcdqynH_tDg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-References: <CAOQ4uxhxQfFfrpmRS6tOv5ANVug6d8dGx6Hsc7MYYe63sUOpcg@mail.gmail.com>
-X-Mailer: git-send-email 2.48.1.711.g2feabab25a-goog
-Message-ID: <20250225192644.1410948-1-paullawrence@google.com>
-Subject: Re: [PATCH v19 0/4] overlayfs override_creds=off & nested get xattr fix
-From: Paul Lawrence <paullawrence@google.com>
-To: amir73il@gmail.com
-Cc: corbet@lwn.net, dvander@google.com, ebiederm@xmission.com, 
-	john.stultz@linaro.org, kernel-team@android.com, linux-doc@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-unionfs@vger.kernel.org, 
-	luca.boccassi@microsoft.com, miklos@szeredi.hu, paulmoore@microsoft.com, 
-	rdunlap@infradead.org, salyzyn@android.com, sds@tycho.nsa.gov, 
-	selinux@vger.kernel.org, vgoyal@redhat.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHC9VhRRu-UYEV_-0-QgOZ3ByVwp-ZdEphmsvy4NcdqynH_tDg@mail.gmail.com>
 
-> As I wrote, this is one specific problem that I identified.
-> If you propose a different behavior base on mount flag you should
-> be able to argue that is cannot be exploited to circumvent security
-> access policies, by peaking into cached copies of objects that the user
-> has no access to, or by any other way.
 
-> I have no idea how to implement what you want and prove that
-> it is safe.
-> Maybe if you explained the use case in greater details with some
-> examples someone could help you reach a possible solution.
+* Paul Moore <paul@paul-moore.com> wrote:
 
-I'm going to wake up this thread one last time to lay it to rest permanently.
-We have now reimplemented our use of overlayfs to no longer need these patches.
-We will no longer be attempting to get this patch set accepted.
+> On Mon, Dec 23, 2024 at 1:57 AM Luo Gengkun <luogengkun@huaweicloud.com> wrote:
+> >
+> > It seems that the attr parameter was never been used in security
+> > checks since it was first introduced by:
+> >
+> > commit da97e18458fb ("perf_event: Add support for LSM and SELinux checks")
+> >
+> > so remove it.
+> >
+> > Signed-off-by: Luo Gengkun <luogengkun@huaweicloud.com>
+> > ---
+> >  arch/x86/events/intel/bts.c     |  2 +-
+> >  arch/x86/events/intel/core.c    |  2 +-
+> >  arch/x86/events/intel/p4.c      |  2 +-
+> >  drivers/perf/arm_spe_pmu.c      |  4 ++--
+> >  include/linux/lsm_hook_defs.h   |  2 +-
+> >  include/linux/perf_event.h      | 10 +++++-----
+> >  include/linux/security.h        |  5 ++---
+> >  kernel/events/core.c            | 14 +++++++-------
+> >  kernel/trace/trace_event_perf.c |  4 ++--
+> >  security/security.c             |  5 ++---
+> >  security/selinux/hooks.c        |  2 +-
+> >  11 files changed, 25 insertions(+), 27 deletions(-)
+> 
+> This patch seems fine to me from a LSM and SELinux perspective, but
+> I'd want to see an ACK from the perf folks before I merge this.
 
-One issue - remount does not update the mounter credentials, either by default
-or via a flag. I was able to work around this, but it would have been much
-easier had I simply been able to remount with new credentials. (The specific
-use case is that we load sepolicy from a potentially overlaid partition, so the
-original mounter will always have the default kernel domain, which will not be
-suitable once sepolicy is enforced.)
+A belated:
 
-Is this a design decision? Would a patch to set credentials during remount be
-of interest?
+  Reviewed-by: Ingo Molnar <mingo@kernel.org>
+
+Patch still seems to apply fine.
 
 Thanks,
-Paul
+
+	Ingo
