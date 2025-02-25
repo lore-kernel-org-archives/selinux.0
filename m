@@ -1,37 +1,42 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 317D71FCFD9
-	for <selinux@vger.kernel.org>; Tue, 25 Feb 2025 14:33:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA3C42690EA
+	for <selinux@vger.kernel.org>; Tue, 25 Feb 2025 14:33:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740494011; cv=none; b=ABhBA2xO1x4TSFZa+Gg2Z0VaLEiYldtjC81BLHpH8NEcf63TkqgWQ/d4MMkMEONC6Y9aVBUQQl3Qm/f/Yi6psMpTX+wC97OX+dtvKZTtPY+J/tpc0C+f5saUwU4kzc0Idu7DRXO60kTUh8qAteqlBy11kvyDdNtNLwQMSRJBkN8=
+	t=1740494012; cv=none; b=F1Nu7arS9NSFtscHzuiQvV4X1qEcti6LdPnc+JSEyiNG279Cld8yn5Y6eXyc4rVaIO+8/59CfYOiNuVHghyOqyMNcIY9qsA76nHb0GurINvxCbo1GP/H804krW2sPPq9DXHoCr4bNDwtNHYuWpBwVefJhm8zyysoNIAapz5VOAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740494011; c=relaxed/simple;
-	bh=MJOjnvAc/2XJRJnUd0gXSf3quU4fOODLSappYyYSOG4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=iQavTEGDj3kyilh8z8EUxhG5B9NwATxg6xtrCpLMWPfafL/gXzgo2J0n92kjhmG5b8SbDqQg50ZtRlo9PSv9zg2NagKtBASzg0jpS9Gdu9CMbfVeOWyvrGryV83hu3jDeWwAmyRGOG71u71Odv1Tz9JHb9UVu0oCXdnQvRx9GEQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=eXd8SWdz; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1740494012; c=relaxed/simple;
+	bh=E7Q/uJa/AI0itNEzLc7hZdIWbFJ/JKO+yCFpUGjO1P0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=IqPCOeHaxemYtYp/5UqXkOGvVBXJ73rc4/2raKWNZ4yx0TppfabQG0+5lWJr/mbOD1OI4sb/4HKeigDR8Lq7YQbzW7Wt2HxEQ0L7i53yYkagVpX5ti4LySzKjwym9wGmO+OPsOiiGTACLkHzyC5AEERkGsy76pc2Q9GHNtEgLO4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=bLPRZ0zp; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="eXd8SWdz"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="bLPRZ0zp"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1740494000;
+	s=2023072701; t=1740494001;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=IP8jQCXeMRlkXk6Et0h1aJ/qNT0ysPNweO4IpGnIKGc=;
-	b=eXd8SWdzhuWbRjaRiAf7B3P93CbrCedhvI8b75b1X227uUK/w+LfoBhk85v4nAVMGP7v8b
-	RfYUmlx90inDF0IlZpy37wJTUV0eh2rMsJq82kTP4BH3Nq7kscA06dcsv6IEdff2261/Yf
-	KZ3j3YdRhmeBdKIbgvGIyErFB0+yhc2FREQ4hRnO7IBxcRdbJWGTEFX1+pTQKJjs9J97yL
-	OdxV+XofW46qUbVkuurTvxrzHBR42//ZU4ZnXHtS3QHyC2QXqf2hUmNJ/c6ORGdGC2+lLa
-	a3vVjeb4vh1lUEM6SqnbM1j9Ai39K8JCDgtZe7vPTfjtp9cZQ5K1v72TazZLWg==
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Hi7rCc2JcUsU02PJdARws73BCBAvp4iCn9M3Svjns+c=;
+	b=bLPRZ0zpkpPoWNdWUtO+bjhyUKAZNLi05fZ0tq0uIkcUAiNzKhemBOzvcIPl+S+nLSbfGi
+	u9wdH8/jb4V/yupZa40q0wPeMnH6aB8j5EAVDF2t9OIPvVZRhLUofOwqeP30St2tISiUYF
+	abfduIj3ow257QwQ804S++z6HiLCJoPaNX52o4zJw7pXadPJPy2v2PcyBdW5IreTD844s2
+	EsSyNNd6r36JsR3w01rOzrwQncLI7Pg2wqP7MW8NvjffurzvUdF+nmYqKLRewOxnkeLvU0
+	kst+Oi0cYFBzqT9OnFMWfhlOLgluJs8H/RUmv/jWxSK1R3q1xbuEizU1O0/Pvg==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 2/3] checkpolicy: abort on mismatched declarations
-Date: Tue, 25 Feb 2025 15:33:10 +0100
-Message-ID: <20250225143312.47755-1-cgoettsche@seltendoof.de>
+Subject: [PATCH 1/3] checkpolicy: free left hand conditional expression on error
+Date: Tue, 25 Feb 2025 15:33:12 +0100
+Message-ID: <20250225143312.47755-3-cgoettsche@seltendoof.de>
+In-Reply-To: <20250225143312.47755-1-cgoettsche@seltendoof.de>
+References: <20250225143312.47755-1-cgoettsche@seltendoof.de>
 Reply-To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -44,35 +49,26 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-In case a type or role gets re-declared as an attribute abort parsing
-immediately. Since yyerror() is called the variable policydb_errors is
-increased and will signal an error later on.
+On a failure during a binray conditional expression free the left hand
+side expression.
 
-Reported-by: oss-fuzz (issue 398527873)
+Reported-by: oss-fuzz (issue 398356455)
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- checkpolicy/module_compiler.c | 2 ++
- 1 file changed, 2 insertions(+)
+ checkpolicy/policy_define.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/checkpolicy/module_compiler.c b/checkpolicy/module_compiler.c
-index 3a7ad1bb..efbcfa7d 100644
---- a/checkpolicy/module_compiler.c
-+++ b/checkpolicy/module_compiler.c
-@@ -291,6 +291,7 @@ static int create_role(uint32_t scope, unsigned char isattr, role_datum_t **role
- 		if (*role && (isattr != (*role)->flavor)) {
- 			yyerror2("Identifier %s used as both an attribute and a role",
- 				 id);
-+			*role = NULL;
- 			free(id);
- 			role_datum_destroy(datum);
- 			free(datum);
-@@ -428,6 +429,7 @@ static int create_type(uint32_t scope, unsigned char isattr, type_datum_t **type
- 		if (*type && (isattr != (*type)->flavor)) {
- 			yyerror2("Identifier %s used as both an attribute and a type",
- 				 id);
-+			*type = NULL;
- 			free(id);
- 			return -1;
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index f19e9f6d..18654d00 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -4202,6 +4202,7 @@ cond_expr_t *define_cond_expr(uint32_t expr_type, void *arg1, void *arg2)
+ 		if (!e1 || e1->next) {
+ 			yyerror
+ 			    ("illegal right side of conditional binary op expression");
++			cond_expr_destroy(arg1);
+ 			free(expr);
+ 			return NULL;
  		}
 -- 
 2.47.2
