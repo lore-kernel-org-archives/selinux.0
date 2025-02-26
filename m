@@ -1,64 +1,64 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E712A236449
-	for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 18:54:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5B782376E7
+	for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 19:13:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740596051; cv=none; b=eMifOnbyhAS5J6W5QqdRX766E7Z4LiwKiFgSBZqxevRUonwBYkU3lBLrgoA3dELycpSqwq5o5cvWFMEf1NtxNBaM474cgUb+zJIXEqLucG2KKqd4dpTy+4AZFXFrY3giSma6yc5q7Ym/xH5Q1F/c8XOBjJSP5iA5FJ7l3Gk6LYo=
+	t=1740597240; cv=none; b=KZ7iuk86G9ebqQ5W1b6M7DCx+CqJS3TmdWS21QW2WABqfblH4bs2g0X89tWAKKUHO0BfRXK0d7hU220e3htWJHJximm0MfT8EdDgtpV2HXng55wCdO1JmKq05Ll66/gDDQloD88KLN1N3zUjJG5mqqXb6lUwUNIE+6HOX1qB6mU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740596051; c=relaxed/simple;
-	bh=1qlr8GJL2BB9n4kNH3+Dz6Pj/CYC0DiifTzkrZhOxhg=;
+	s=arc-20240116; t=1740597240; c=relaxed/simple;
+	bh=vHzrEzooH4K8CcIGUei7pRVS17MmHjHrMcmzZoer/Ec=;
 	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=JOU6L9jBe5yaUclGn7fNQuV6hPoQ5dw/CYwi/Qt7htg+80+TLpTXzTbxc0ykFiDEUVT68cGxJAh0jGjLTJ56lGh3YToaeRwCRiZZ4YXzrLfrxWukMrQp6nT+05fsH0Pg4zp3SVxHzMS86LvGFtd86CqQ9hqcPZAbBX/roPFAj8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=QWtINTwO; arc=none smtp.client-ip=209.85.219.46
+	 References:In-Reply-To; b=Vwv7/duPdovlsEbPkdl6J/PeIdmV/XpRu7pA1fEuGn1W8sJdK8XkeOmwQp70PkxMpMBtkzP4vItdXnlc2mzuoMuCwcOefEGGvl7a2d6pyQ0/nbvDJTDnbLTQS/Q9+xVbRVSMSJZJjEbiP000OwW0hWiY/bWWmnUyw0aY0pUQis8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=PrgrgjIB; arc=none smtp.client-ip=209.85.160.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="QWtINTwO"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-6df83fd01cbso1088566d6.2
-        for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 10:54:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PrgrgjIB"
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-4721325e3b5so1226111cf.0
+        for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 11:13:58 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1740596049; x=1741200849; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1740597238; x=1741202038; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=hoab8tVH1emRrehVBE7lcewSYOeTGxv6we7fWwNFkB0=;
-        b=QWtINTwOX3ikRRvkYBUyzqSZaAT8IHmL1vvxh4uDLCAHTSdnFv8gMcxEnt1KPlGuz/
-         OhkYa+bSue/vGxbhfhQ7cNWbe700tMIWgJ8QO788KybP+j/5X7vItjEwttAjy0i6lWpk
-         QzLdEzNSQ+hiPGlKjVnwzvKylSSOHaKF4ZAr96eqc54IRDDh4T/T6qWtjke7fR8pMQjN
-         Br/pbRBgaXdGZpiQyNl2d1TKDK2/Q+5Mn9dVXDeBml/acE9RCzqJF5sbY7r7JeWAZhNo
-         Hiofa9iJ3W7Dn7a77BLXqsUTiGc1ZeWuPsRBvoAE5iK4fGKSopShjvn3Y+xdRbaJu/LJ
-         bA1g==
+        bh=O/7HubgIS3yguXLFwagiKL0MIanaDsiXeL1ZcDJnpI0=;
+        b=PrgrgjIBDzFyuCW0/BkssmUrWr+ejDo9K2GOMxCGaRhnW6xhcbtTD1JwwVGKLo/83P
+         3dM9rKUsAMq62CVpok1RfQHA2wfcnXMzJ18qMcZcYUdGiwaEKk+ikc6U0hO+hXP5eQ2E
+         NyqwDG/QmtPKzQkkLdTGYwhvbp9CTaW2CN1tiR+JGk13bm+x5+rLq5IqlamFPgOFO8PM
+         HjoHxNDXIv68a/z/4EiqGgLE/s9X5kBDvYWorhxzCCaJ/Ef6jGrbARuL5iiZvdsP0RaR
+         Wk+ZOlH0gvpRUqepXN07eMUzObSySHsdNfhHZlo1wCex2FQyD78d2/r2De4OapeVF9iC
+         RAJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740596049; x=1741200849;
+        d=1e100.net; s=20230601; t=1740597238; x=1741202038;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=hoab8tVH1emRrehVBE7lcewSYOeTGxv6we7fWwNFkB0=;
-        b=kQ6MJ/DjgI52WK7i6g9EY74Qd+hqEeDq40LzfqmQK4kh3/CzIIaS2LvmorKczdI9es
-         JLDKetjU028NpjXNkgX5ic8rVKle9fwz6L3tN/BtF644rhfJuRzWXv5ol422S8QmmFUd
-         Qi+fvEIsRsYPv2JD2IPpy4TR3J9m+v/ljAbdMWykOVzF+KB32IfmdzKQBmtgo3Mi2plC
-         YTa0QJzBT76DQLKgwZJkxzemyNzigWKOKkVAhwHlkawOWBw3tzbRwl5E3gB167zCNEYd
-         X+ucZKLDiZ3cH9FyAdu4fJg0ulbGrwLPYVk/HSnQjPThMsPmbJ6cAJNiyPPNUFLItTQ4
-         JB6w==
-X-Forwarded-Encrypted: i=1; AJvYcCUbGQtEzS1wWF11d6lEL675ZMLdeWww3+g+4kFgNUIqIIBo9Yw0dGH9FetslvjLhm0DPSyiOt1U@vger.kernel.org
-X-Gm-Message-State: AOJu0YzYwX/Uyxpg5F1IFZ3zcLofypZsdGWESCGZwOJFdV164ohyUqN3
-	qC2BRYk9uY56YMeRzBN6AZMsYdRhNh3binKffRJ5b3czbxS/24wMCkKBLrMT9A==
-X-Gm-Gg: ASbGncuxohhgVPAQNgwgnbpuxLf/kFYt+6wkOPX2Cxynh2qCnSYxuU2VLQ3W+j0tKIN
-	cwfBLFxcsh5xDP9D5HPxEgHt5FeHIYLf7CstF7Qz09C5W5fuo3zkMrZzZjCBHJZ4RRD+0zBxP1t
-	VVQ0HyFow/pMMIBtWteDg/T0WvxY8BIOfk8Flx+g42DiOI5WyfwrBZzRdXmuQwn/3nkRr1O42zX
-	xrXc64/k17t04I51LLS6Kbf96WFixZf/pazV4zK4O49MpvMq5p0i3/KrpxE+zS6nWgRsoLKX5TF
-	gXYqcoBJet+CaN4eiT3NuLlOoa5TJT7WH5O7aTNKqxAWxc3/o7bUk7n63nk9GFEIl9eMXfw=
-X-Google-Smtp-Source: AGHT+IHY/gHo5RS8nzj65pSBp8fkAoqDG1AiuqhWo7HfbKQRXOpF245m1711zOR2hDgAKQKomzvLAA==
-X-Received: by 2002:a05:6214:19ee:b0:6e6:6c7f:111a with SMTP id 6a1803df08f44-6e88690302emr53863356d6.40.1740596048790;
-        Wed, 26 Feb 2025 10:54:08 -0800 (PST)
+        bh=O/7HubgIS3yguXLFwagiKL0MIanaDsiXeL1ZcDJnpI0=;
+        b=DajdVcyJDulvw1wiY7zVWpNA2HIPXD3PHCRGtjpfyveTddw3trNS4hlJGIWFreoWhJ
+         EwkPT07jF/PgSrDVBWW9+160KoTf9kReEWWqiFL8nG0w2GvdShK1xNYfoOSnmqJCsHI1
+         PhQ+UNQ27pUnOKicmtQxHBHR5oqxAGnorhV+plrgIkQxqnqTbo6rmq11ELDxkmu68Ji1
+         +pzO1vpMnh7vjxe9F/pTrfP5abzBjJ196hV8U3lUV/e1csXiPAvfMmsbuDgDBveQQqfj
+         CLC81b2sEe0YW/yoyGwuncTem3ySPtn+QxmcmCzzzmxrCA6o88pcxboLk5+qIc6zNV8L
+         a1zg==
+X-Forwarded-Encrypted: i=1; AJvYcCUdOZYdt8xFQqWsgYkh7n6n85883+2TgkHxhWYJQt4PzWVxoJyCOUZyCg0hZH3pUUSuGgm3RTqa@vger.kernel.org
+X-Gm-Message-State: AOJu0YwyHpdl3LsHpNyjHFGKZoxiYcftBaWpmUd4Amc4lh2neCt9+ReH
+	QgQrmgGEPP/6ybLOvIhjkNEAQf1gXcO52UsXPrDCAGS3jsLPO3eemtZNauwiYQ==
+X-Gm-Gg: ASbGncuf5Gm1VEplsEuybMCR7l4ug1kvJioen9aAM/2wR/EKKwcc1pQRbG6HDrzMhyn
+	UNY51Ubf/88lZqOLjto5ywdS8s4UXvKMKfKAJRdUBAv54GUJCt4CW4QF6dypeL5xISwcZCAA9UF
+	u3jAcJBpPy+t4zdGW7bGacx5O9Q31JgEhdwa0fL76dcqOxgvSLQfhMM+ZWVV48anS3RbwpsCPBt
+	SI2BuZfE6ZdaygZAHPdBntOS0Dh2wbIHF+H+rGDOPGON6t+oT8iTol4PmjWnL4PfvRh3x4oP+uI
+	GGrdMVLNDjK7kWQxu38elaC6M1Im2dz8QUZm+WxMUFe4MRiInnPVFM8pFvcSwBAY56kG4b0=
+X-Google-Smtp-Source: AGHT+IGZKQ763FRka4tXmeqX9uwcpJ0v96pIEchafXYFD2cwhU7ih42tfW2HHRWzr2HQKaEkzBO+qA==
+X-Received: by 2002:a05:622a:1a07:b0:472:201c:aa45 with SMTP id d75a77b69052e-47377116ed2mr109013401cf.9.1740597237709;
+        Wed, 26 Feb 2025 11:13:57 -0800 (PST)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-6e87b15406csm25877106d6.70.2025.02.26.10.54.08
+        by smtp.gmail.com with UTF8SMTPSA id d75a77b69052e-47377e1543csm28407591cf.27.2025.02.26.11.13.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Feb 2025 10:54:08 -0800 (PST)
-Date: Wed, 26 Feb 2025 13:54:07 -0500
-Message-ID: <8fdd1a7b0714532aa2498c52f0461386@paul-moore.com>
+        Wed, 26 Feb 2025 11:13:57 -0800 (PST)
+Date: Wed, 26 Feb 2025 14:13:56 -0500
+Message-ID: <41cb98ddf724ade0fc529b8c952f3efc@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -69,36 +69,39 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit 
 X-Mailer: pstg-pwork:20250226_1339/pstg-lib:20250226_1339/pstg-pwork:20250226_1339
 From: Paul Moore <paul@paul-moore.com>
-To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>, =?UTF-8?q?Bram=20Bonn=C3=A9?= <brambonne@google.com>, Casey Schaufler <casey@schaufler-ca.com>, GUO Zihua <guozihua@huawei.com>, Canfeng Guo <guocanfeng@uniontech.com>, selinux@vger.kernel.org, linux-kernel@vger.kernel.org, John Johansen <john.johansen@canonical.com>
-Subject: Re: [PATCH RFC] selinux: support wildcard network interface names
-References: <20241217135517.534645-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20241217135517.534645-1-cgoettsche@seltendoof.de>
+To: Luo Gengkun <luogengkun@huaweicloud.com>, peterz@infradead.org
+Cc: mingo@redhat.com, acme@kernel.org, namhyung@kernel.org, mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@kernel.org, irogers@google.com, adrian.hunter@intel.com, kan.liang@linux.intel.com, tglx@linutronix.de, bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com, will@kernel.org, jmorris@namei.org, serge@hallyn.com, rostedt@goodmis.org, mhiramat@kernel.org, mathieu.desnoyers@efficios.com, stephen.smalley.work@gmail.com, omosnace@redhat.com, linux-perf-users@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-security-module@vger.kernel.org, linux-trace-kernel@vger.kernel.org, selinux@vger.kernel.org, luogengkun@huaweicloud.com
+Subject: Re: [PATCH 1/2] perf: Remove unnecessary parameter of security check
+References: <20241223070650.2810747-2-luogengkun@huaweicloud.com>
+In-Reply-To: <20241223070650.2810747-2-luogengkun@huaweicloud.com>
 
-On Dec 17, 2024 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de> wrote:
+On Dec 23, 2024 Luo Gengkun <luogengkun@huaweicloud.com> wrote:
 > 
-> Add support for wildcard matching of network interface names.  This is
-> useful for auto-generated interfaces, for example podman creates network
-> interfaces for containers with the naming scheme podman0, podman1,
-> podman2, ...
+> It seems that the attr parameter was never been used in security
+> checks since it was first introduced by:
 > 
-> Since the wildcard characters '?' and '*' should be very uncommon in
-> network interface names, and thus if netifcon definitions, avoid
-> introducing a new policy version or capability.
+> commit da97e18458fb ("perf_event: Add support for LSM and SELinux checks")
 > 
-> Netifcon definitions are compared against in the order given by the
-> policy, so userspace tools should sort them in a reasonable order.
+> so remove it.
 > 
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> Signed-off-by: Luo Gengkun <luogengkun@huaweicloud.com>
+> Reviewed-by: Ingo Molnar <mingo@kernel.org>
 > ---
->  security/selinux/include/security.h | 2 +-
->  security/selinux/ss/services.c      | 5 +++--
->  2 files changed, 4 insertions(+), 3 deletions(-)
+>  arch/x86/events/intel/bts.c     |  2 +-
+>  arch/x86/events/intel/core.c    |  2 +-
+>  arch/x86/events/intel/p4.c      |  2 +-
+>  drivers/perf/arm_spe_pmu.c      |  4 ++--
+>  include/linux/lsm_hook_defs.h   |  2 +-
+>  include/linux/perf_event.h      | 10 +++++-----
+>  include/linux/security.h        |  5 ++---
+>  kernel/events/core.c            | 14 +++++++-------
+>  kernel/trace/trace_event_perf.c |  4 ++--
+>  security/security.c             |  5 ++---
+>  security/selinux/hooks.c        |  2 +-
+>  11 files changed, 25 insertions(+), 27 deletions(-)
 
-My apologies on the delay in responding, overall I think is a nice
-improvement, but I would feel a lot better if we wrapped this with a
-policy capability so that users/admins that did run into a problem
-would have a way to work around this using policy.
+Now that we have Ingo's Reviewed-by, I've gone ahead and merged
+patch 1/2 into lsm/dev, thanks everyone!
 
 --
 paul-moore.com
