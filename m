@@ -1,58 +1,61 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17C2D21D594
-	for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 19:20:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD1FF237A3B
+	for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 19:21:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740597660; cv=none; b=dF1ONLeZSMMpxXnnSn16jJv/N/5iuv737X0hnikwvoZ1Wv2Q9bTDuzkzVKzye4+7Mg9VEJFphNaBt+/1n2TbSgds5tP+B6wASNkpLTEPn5yuqOCkzDGPxa7azjUwkM/QXc0g0GpmJjlwtUaschZCoMGZvZgQw47+SfuPCbxppIs=
+	t=1740597662; cv=none; b=lkyfWLEzBqJmqwvT7z35MN2Gzkgnt3Xv1b0HXvkhL+uauZvCiSJemKceYHSNbBbglsrZs0KSo5yk34QwfeB2U2GtThR5hFvaLHew4GaqPyVltnqfXbeZaDWTbuZwMhdh+r8gzh/vjBUQkU+3vl34UtXzHA5mU3aF8Z93TqPbZpg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740597660; c=relaxed/simple;
-	bh=UUYvAQhs1KiAGxC1m7xaV5aQ4fWZ/WwKa5MJLLC+w30=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=XC3AAAGyC7PCZK1cwqembtJl6KSU/dl7g2zidLTz6ZBAou37TZ80+pyRDgDtFTi9QKwFG5JkyN1PyQ1VqPNCyYmkokUXhLOEucq5q02bZgi7dwz85YFl9ef+c9o57/6WUaP9/p8A18v2eHgNkPypP9cKDzGtmCeWjb6VOJvLAjU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=H8Xzo1ZC; arc=none smtp.client-ip=209.85.214.178
+	s=arc-20240116; t=1740597662; c=relaxed/simple;
+	bh=f3D5SzrEgNHbb8uoACbdyA7D/ocFrbJamaLh8HLKBTE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ih9Wb2OjFwVfSOHhE3wX+pDfAb4I4z+2O/aSd5D3vcs3hrG7Am+NWJpmh/AaQZxxPKRSNwxeCAP6aVcov7OH+1/rqpw+igIacmR18ybTcczkslNYsmCVUP5kmj2ul9g4kXLvRGJoY0+ajJ4/Wvd166kdkl57dTODpdGLY1d5gs0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=T9CLWFGF; arc=none smtp.client-ip=209.85.214.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="H8Xzo1ZC"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-22339936bbfso1737895ad.1
-        for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 11:20:58 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="T9CLWFGF"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2232aead377so2547625ad.0
+        for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 11:21:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1740597658; x=1741202458; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=czH1DcjvV2gJQRKqe6n0e4xla1CwWZ0MjiBisJa1Rf4=;
-        b=H8Xzo1ZCb5FjF0xbUoxYv0Zp6vqdBEXQ2y7K0MlrSzJUeJMBiZGPcaQZZ4i2NDqh3z
-         AFOQoiyjaFr2ajIn9z5z5WbJIk1X71OsLfe0LayUUJYT8Ols2AVtkLuSDLJy4TF3Iwvr
-         NF3ucL3LQLbdoGiJF+ZKHcnOTpLQ2KsN6HS2E=
+        d=chromium.org; s=google; t=1740597660; x=1741202460; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ftDlP5dl9GiHDKQQcwmxqQBAFQOLT3kYr7RqF+evPv4=;
+        b=T9CLWFGFyxObY7Qdi9ncQ7o6G+xyuOxMupLBqbOD9c3DAw/QZfPyBVK27YA50802io
+         qORMbZQpF/wfrBqnpiPnoX2Gl+fA4zbS7JrILqyiKmOupXC+iK6/rXHbtEPowXIvsAYz
+         OaCr5vzX/awnAEXfEjknAMKq03TMaICLZl0qY=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740597658; x=1741202458;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=czH1DcjvV2gJQRKqe6n0e4xla1CwWZ0MjiBisJa1Rf4=;
-        b=Kv0TMdByCqSvrZL0yt/XfaKVLAhozporbOxR6cZs0JuFO8Ao1RO008gzBmTzRsmHGp
-         Z5QhKrrmzNqHEzugHhIF0rv9UODLfYLo7MezGaEo7E8hx2VMWxR1zvRHZvOuQ17KXCH5
-         6rj0jR0uDmwwta7Kc2zW2GOnGwpYaAZcA4nytSnyrArHcWApJIknOXj5frwrub0SeLlz
-         5fD3t+kUZLOcfigt8HuW9slGcqDY6ZkJS9QSLoG7zvdRb+VY3IVG7YaZ6jF+BwfcLvN6
-         AzHoXjYtoPCTQv7op2rwbSbAwpW+0c/URXDofhRq0Yi0yDdHKZIXVytN9wJ63cYilLXD
-         fxeQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWI24TbYlsnoy8na4+77X1od82HfpDN0KOEjlF6soYPBxZxk391qZFqf9flmeNNGbivnf1jzV8c@vger.kernel.org
-X-Gm-Message-State: AOJu0YzgZcCb9CzJUgqBQXQ3dsEtqn06rAxTXBi9YfWL9B1U7+Cy8MI6
-	YZNuBH5WQl0gbEfmUFUlLB06h+OCCSyFE9acDL4J1hW8w04+jOJhJm/geJxYlg==
-X-Gm-Gg: ASbGncu1oeXrGf28f46QjAySMuhwrzpR391RCxruX9mTEDzYSzU/mWiQcWOzYcyVAZU
-	zmeGXTgq754pOROuPEhw4gGmaLz7smN5e7NE0O4dGRixi+aLVEyDi8NZZXZF6fAFax6JGBxLZYV
-	BjoxPjO6UflDhrgI99t8oDwmAkrhvO0wxCxF0015hQ3MUQRwpSp67BfQ8Fy+hbncD32CFVj/Tcy
-	ehyG4Z/KiFR7lRvtxW1h146floXoC4Alv1oM7OCkd2hGPTBLqNviOWxCnFobWVbjWITG3QyENpO
-	MrI0FoQ9iWcXZnoin/ZdsTR5XaDUjlkvNAnB6T696ODm1JDNGFONR+uwb3n7iuxOD+5NSc7yW32
-	OzVmlDoJ7NjMR
-X-Google-Smtp-Source: AGHT+IHvyZFAQDOhL2Je3ZfmlWmLMsIrm8gpqy56p6L/5rQl0hxXWMZtg3kbi5Xu9/6ZKG3MoybU4Q==
-X-Received: by 2002:a17:902:cec5:b0:21f:81f4:21b8 with SMTP id d9443c01a7336-221a002df1cmr361262255ad.50.1740597658269;
-        Wed, 26 Feb 2025 11:20:58 -0800 (PST)
+        d=1e100.net; s=20230601; t=1740597660; x=1741202460;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ftDlP5dl9GiHDKQQcwmxqQBAFQOLT3kYr7RqF+evPv4=;
+        b=GBW+vpNHZGwl9lh8qcuvnFmxAKAoSRfomV/gj/UrrZhtigb2nq0iq9BNIeUKMd7MOV
+         7BGN9L0gSLLe1jGoYWS3UjwuYSmp64QySdiBGmV2iR87Jq/62Ah2W/dRC0Cyl0SKX4Sg
+         ZECsv64kj+T3RAo8T5T8ijeONDoSGvUEHrTxR9D04AdeytQ8x9RRINuJXHhfCLCI5Dz7
+         6xBO2bwTON+RR/Fikw6XRN9+gLpuuPHaBKJubAMB/k2q+tpEUYqkaKwqz7gGPG58yOGD
+         CAboE60OdajKJPOYzbfTUte8t+pC8usAq2DSkkN+5q0vgk5DvH8ISwaDlokyOOzZMYgE
+         Fcyw==
+X-Forwarded-Encrypted: i=1; AJvYcCU4xpKe2e7ly18brjhwuMtqWKZXv68+XX4ozFeE5E8clMlH/1ASm/8PClufduhkKdiWV0d6n8DP@vger.kernel.org
+X-Gm-Message-State: AOJu0YzPjoQEglQyBZa5Z7dsR3NjrPh+QNrFsNiCDlUvy2nER9RG4WKo
+	DOWro2tTlpVTa+P6WDSRNdl7R+wq5ie7vEo8Km6BbNODwY4rx9StQEKzpaL1+HEatbgganQg1AY
+	=
+X-Gm-Gg: ASbGncuRV+KfaccVry9ckF18IXZeCzUbkoSIz6p0ThZtYtG2ouf5taEBM3y6RVEuU8X
+	/oQmcwYqBBVzFKn+A0djdkRqvP0S77rHha1pKg2qnwEhPxtaTGx9/0Q7OdlATJWf8es6I0CX72G
+	/Y4voFvBK5D9E9yluXvIk/8L0fe72zpDFkWnRnEbAXkNUHKbA61TYTVYGMfsiQ99GyXxORdYWmA
+	1OlHxHCa+rzlM6yv5fyLxViMfhxjBujkpdnMPy4V3NTy2mBm1KDMEF5llnQn/l5fJFsAkSzKYnh
+	BNfFLF+4jAYeLhIYRw5xxgecYCSRKOHknO0G+BlrxeFraQfU0z9prUajpHV7k34LEL14kdC/dk3
+	Jpta0h2dFaVi5
+X-Google-Smtp-Source: AGHT+IEw7fjT6gjAu149mqZBw/+HbKxFMCO0gdM2niphUvj6eNocm8iaPbU/SjDPbzzxoTCe6NQ10A==
+X-Received: by 2002:a17:902:d50a:b0:220:d1c3:24d1 with SMTP id d9443c01a7336-223202136b8mr65669475ad.46.1740597659906;
+        Wed, 26 Feb 2025 11:20:59 -0800 (PST)
 Received: from li-cloudtop.c.googlers.com.com (4.198.125.34.bc.googleusercontent.com. [34.125.198.4])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22341c04d16sm8473865ad.190.2025.02.26.11.20.56
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22341c04d16sm8473865ad.190.2025.02.26.11.20.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Feb 2025 11:20:57 -0800 (PST)
+        Wed, 26 Feb 2025 11:20:59 -0800 (PST)
 From: Li Li <dualli@chromium.org>
 To: dualli@google.com,
 	corbet@lwn.net,
@@ -84,10 +87,12 @@ To: dualli@google.com,
 Cc: smoreland@google.com,
 	ynaffit@google.com,
 	kernel-team@android.com
-Subject: [PATCH v15 0/3] binder: report txn errors via generic netlink
-Date: Wed, 26 Feb 2025 11:20:44 -0800
-Message-ID: <20250226192047.734627-1-dualli@chromium.org>
+Subject: [PATCH v15 1/3] lsm, selinux: Add setup_report permission to binder
+Date: Wed, 26 Feb 2025 11:20:45 -0800
+Message-ID: <20250226192047.734627-2-dualli@chromium.org>
 X-Mailer: git-send-email 2.48.1.658.g4767266eb4-goog
+In-Reply-To: <20250226192047.734627-1-dualli@chromium.org>
+References: <20250226192047.734627-1-dualli@chromium.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -97,176 +102,109 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Li Li <dualli@google.com>
+From: Thiébaud Weksteen <tweek@google.com>
 
-It's a known issue that neither the frozen processes nor the system
-administration process of the OS can correctly deal with failed binder
-transactions. The reason is that there's no reliable way for the user
-space administration process to fetch the binder errors from the kernel
-binder driver.
+Introduce a new permission "setup_report" to the "binder" class.
+This persmission controls the ability to set up the binder generic
+netlink driver to report certain binder transactions.
 
-Android is such an OS suffering from this issue. Since cgroup freezer
-was used to freeze user applications to save battery, innocent frozen
-apps have to be killed when they receive sync binder transactions or
-when their async binder buffer is running out.
+Signed-off-by: Thiébaud Weksteen <tweek@google.com>
+Signed-off-by: Li Li <dualli@google.com>
+---
+ include/linux/lsm_hook_defs.h       |  1 +
+ include/linux/security.h            |  1 +
+ security/security.c                 | 13 +++++++++++++
+ security/selinux/hooks.c            |  7 +++++++
+ security/selinux/include/classmap.h |  3 ++-
+ 5 files changed, 24 insertions(+), 1 deletion(-)
 
-This patch introduces the Linux generic netlink messages into the binder
-driver so that the Linux/Android system administration process can
-listen to important events and take corresponding actions, like stopping
-a broken app from attacking the OS by sending huge amount of spamming
-binder transactiions.
-
-The 1st version uses a global generic netlink for all binder contexts,
-raising potential security concerns. There were a few other feedbacks
-like request to kernel docs and test code. The thread can be found at
-https://lore.kernel.org/lkml/20240812211844.4107494-1-dualli@chromium.org/
-
-The 2nd version fixes those issues and has been tested on the latest
-version of AOSP. See https://r.android.com/3305462 for how userspace is
-going to use this feature and the test code. It can be found at
-https://lore.kernel.org/lkml/20241011064427.1565287-1-dualli@chromium.org/
-
-The 3rd version replaces the handcrafted netlink source code with the
-netlink protocal specs in YAML. It also fixes the documentation issues.
-https://lore.kernel.org/lkml/20241021182821.1259487-1-dualli@chromium.org/
-
-The 4th version just containsi trivial fixes, making the subject of the
-patch aligned with the subject of the cover letter.
-https://lore.kernel.org/lkml/20241021191233.1334897-1-dualli@chromium.org/
-
-The 5th version incorporates the suggested fixes to the kernel doc and
-the init function. It also removes the unsupported uapi-header in YAML
-that contains "/" for subdirectory.
-https://lore.kernel.org/lkml/20241025075102.1785960-1-dualli@chromium.org/
-
-The 6th version has some trivial kernel doc fixes, without modifying
-any other source code.
-https://lore.kernel.org/lkml/20241028101952.775731-1-dualli@chromium.org/
-
-The 7th version breaks the binary struct netlink message into individual
-attributes to better support automatic error checking. Thanks Jakub for
-improving ynl-gen.
-https://lore.kernel.org/all/20241031092504.840708-1-dualli@chromium.org/
-
-The 8th version solves the multi-genl-family issue by demuxing the
-messages based on a new context attribute. It also improves the YAML
-spec to be consistent with netlink tradition. A Huge 'Thank You' to
-Jakub who taught me a lot about the netlink protocol!
-https://lore.kernel.org/all/20241113193239.2113577-1-dualli@chromium.org/
-
-The 9th version only contains a few trivial fixes, removing a redundant
-pr_err and unnecessary payload check. The ynl-gen patch to allow uapi
-header in sub-dirs has been merged so it's no longer included in this
-patch set.
-https://lore.kernel.org/all/20241209192247.3371436-1-dualli@chromium.org/
-
-The 10th version renames binder genl to binder netlink, improves the
-readability of the kernel doc and uses more descriptive variable names.
-The function binder_add_device() is moved out to a new commit per request.
-It also fixes a warning about newline used in NL_SET_ERR_MSG.
-Thanks Carlos for his valuable suggestions!
-https://lore.kernel.org/all/20241212224114.888373-1-dualli@chromium.org/
-
-The 11th version simplifies the yaml filename to avoid redundant words in
-variable names. This also makes binder netlink yaml more aligned with
-other existing netlink specs. Another trivial change is to use reverse
-xmas tree for function variables.
-https://lore.kernel.org/all/20241218203740.4081865-1-dualli@chromium.org/
-
-The 12th version makes Documentation/admin-guide/binder_netlink.rst aligned
-with the binder netlink yaml change introduced in the 11th revision. It
-doesn't change any source code.
-https://lore.kernel.org/all/20241218212935.4162907-1-dualli@chromium.org/
-
-The 13th version removes the unnecessary dependency to binder file ops.
-Now the netlink configuration is reset using sock_priv_destroy. It also
-requires CAP_NET_ADMIN to send commands to the driver. One of the
-patches ("binderfs: add new binder devices to binder_devices") has been
-merged to linux-next. To avoid conflict, switch to linux-next master
-branch and remove the merged one. Adding sock_priv into netlink spec
-results in CFI failure, which is fixed by the new trampoline patches.
-https://lore.kernel.org/all/20250115102950.563615-1-dualli@chromium.org/
-
-The 14th version fix the code style issue by wrapping the sock priv
-in a separate struct, as suggested by Jakub. The other 2 patches are
-no longer included in this patchset as the equvilent fix has already
-been merged to upstream linux master branch, as well as net & net-next.
-This version has already been rebased to TOT of linux-next.
-https://lore.kernel.org/all/20250118080939.2835687-1-dualli@chromium.org/
-
-The 15th version switches from unicast to multicast per feedback and
-feature requriements from binder users. With this change, multiple user
-space processes can listen to the binder reports from the kernel driver
-at the same time. To receive the multicast messages, those user space
-processs should query the mcast group id and join the mcast group. In
-the previous unicast solution, a portid is saved in the kernel driver to
-prevent unauthorized process to send commands to the kernel driver. In
-this multicast solution, this is replaced by a new "setup_report"
-permission in the "binder" class. Meanwhile, the sock_priv_destroy
-callback and CAP_NET_ADMIN restriction are no longer required in favor
-of the multicast solution and the new "setup_report" permission.
-
-v1: add a global binder genl socket for all contexts
-v2: change to per-context binder genl for security reason
-    replace the new ioctl with a netlink command
-    add corresponding doc Documentation/admin-guide/binder_genl.rst
-    add user space test code in AOSP
-v3: use YNL spec (./tools/net/ynl/ynl-regen.sh)
-    fix documentation index
-v4: change the subject of the patch and remove unsed #if 0
-v5: improve the kernel doc and the init function
-    remove unsupported uapi-header in YAML
-v6: fix some trivial kernel doc issues
-v7: break the binary struct binder_report into individual attributes
-v8: use multiplex netlink message in a unified netlink family
-    improve the YAML spec to be consistent with netlink tradition
-v9: remove unnecessary check to netlink flags and message payloads
-v10: improve the readability of kernel doc and variable names
-v11: rename binder_netlinnk.yaml to binder.yaml
-     use reverse xmas tree for function variables
-v12: make kernel doc aligned with source code
-v13: use sock_priv_destroy to cleanup netlink
-     require CAP_NET_ADMIN to send netlink commands
-     add trampolines in ynl-gen to fix CFI failure
-v14: wrap the sock priv in a separate struct
-v15: switch from unicast to multicast netlink message
-     add a "setup_report" permission in the "binder" class
-     add generic_netlink to binder_features
-
-Li Li (2):
-  binder: report txn errors via generic netlink
-  binder: generic netlink binder_features flag
-
-Thiébaud Weksteen (1):
-  lsm, selinux: Add setup_report permission to binder
-
- Documentation/admin-guide/binder_netlink.rst  | 108 +++++++++
- Documentation/admin-guide/index.rst           |   1 +
- Documentation/netlink/specs/binder.yaml       | 116 +++++++++
- drivers/android/Kconfig                       |   1 +
- drivers/android/Makefile                      |   2 +-
- drivers/android/binder.c                      | 229 +++++++++++++++++-
- drivers/android/binder_internal.h             |  16 ++
- drivers/android/binder_netlink.c              |  46 ++++
- drivers/android/binder_netlink.h              |  23 ++
- drivers/android/binder_trace.h                |  35 +++
- drivers/android/binderfs.c                    |   8 +
- include/linux/lsm_hook_defs.h                 |   1 +
- include/linux/security.h                      |   1 +
- include/uapi/linux/android/binder_netlink.h   |  57 +++++
- security/security.c                           |  13 +
- security/selinux/hooks.c                      |   7 +
- security/selinux/include/classmap.h           |   3 +-
- .../filesystems/binderfs/binderfs_test.c      |   1 +
- 18 files changed, 663 insertions(+), 5 deletions(-)
- create mode 100644 Documentation/admin-guide/binder_netlink.rst
- create mode 100644 Documentation/netlink/specs/binder.yaml
- create mode 100644 drivers/android/binder_netlink.c
- create mode 100644 drivers/android/binder_netlink.h
- create mode 100644 include/uapi/linux/android/binder_netlink.h
-
-
-base-commit: 8433c776e1eb1371f5cd40b5fd3a61f9c7b7f3ad
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index 9eb313bd0c93..5291cd712147 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -33,6 +33,7 @@ LSM_HOOK(int, 0, binder_transfer_binder, const struct cred *from,
+ 	 const struct cred *to)
+ LSM_HOOK(int, 0, binder_transfer_file, const struct cred *from,
+ 	 const struct cred *to, const struct file *file)
++LSM_HOOK(int, 0, binder_setup_report, const struct cred *to)
+ LSM_HOOK(int, 0, ptrace_access_check, struct task_struct *child,
+ 	 unsigned int mode)
+ LSM_HOOK(int, 0, ptrace_traceme, struct task_struct *parent)
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 27f64a9747f8..28fcd7047051 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -338,6 +338,7 @@ int security_binder_transfer_binder(const struct cred *from,
+ 				    const struct cred *to);
+ int security_binder_transfer_file(const struct cred *from,
+ 				  const struct cred *to, const struct file *file);
++int security_binder_setup_report(const struct cred *to);
+ int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
+ int security_ptrace_traceme(struct task_struct *parent);
+ int security_capget(const struct task_struct *target,
+diff --git a/security/security.c b/security/security.c
+index c9fae447327e..6212158cec72 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1043,6 +1043,19 @@ int security_binder_transfer_file(const struct cred *from,
+ 	return call_int_hook(binder_transfer_file, from, to, file);
+ }
+ 
++/**
++ * security_binder_setup_report() - Check if process allowed to set up binder reports.
++ * @to: receiving process
++ *
++ * Check whether @to is allowed to set up binder reports.
++ *
++ * Return: Returns 0 if permission is granted.
++ */
++int security_binder_setup_report(const struct cred *to)
++{
++	return call_int_hook(binder_setup_report, to);
++}
++
+ /**
+  * security_ptrace_access_check() - Check if tracing is allowed
+  * @child: target process
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index b49f28f15ed1..12da5861ec18 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2092,6 +2092,12 @@ static int selinux_binder_transfer_file(const struct cred *from,
+ 			    &ad);
+ }
+ 
++static int selinux_binder_setup_report(const struct cred *to)
++{
++	return avc_has_perm(current_sid(), cred_sid(to), SECCLASS_BINDER,
++			    BINDER__SETUP_REPORT, NULL);
++}
++
+ static int selinux_ptrace_access_check(struct task_struct *child,
+ 				       unsigned int mode)
+ {
+@@ -7176,6 +7182,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
+ 	LSM_HOOK_INIT(binder_transfer_binder, selinux_binder_transfer_binder),
+ 	LSM_HOOK_INIT(binder_transfer_file, selinux_binder_transfer_file),
++	LSM_HOOK_INIT(binder_setup_report, selinux_binder_setup_report),
+ 
+ 	LSM_HOOK_INIT(ptrace_access_check, selinux_ptrace_access_check),
+ 	LSM_HOOK_INIT(ptrace_traceme, selinux_ptrace_traceme),
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 8a8f3908aac8..11e6fa92799b 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -133,7 +133,8 @@ const struct security_class_mapping secclass_map[] = {
+ 	{ "kernel_service", { "use_as_override", "create_files_as", NULL } },
+ 	{ "tun_socket", { COMMON_SOCK_PERMS, "attach_queue", NULL } },
+ 	{ "binder",
+-	  { "impersonate", "call", "set_context_mgr", "transfer", NULL } },
++	  { "impersonate", "call", "set_context_mgr", "transfer",
++	    "setup_report", NULL } },
+ 	{ "cap_userns", { COMMON_CAP_PERMS, NULL } },
+ 	{ "cap2_userns", { COMMON_CAP2_PERMS, NULL } },
+ 	{ "sctp_socket",
 -- 
 2.48.1.658.g4767266eb4-goog
 
