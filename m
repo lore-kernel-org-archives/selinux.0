@@ -1,54 +1,52 @@
 Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 41D32236A66;
-	Wed, 26 Feb 2025 19:21:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 34E9F2505C5;
+	Wed, 26 Feb 2025 19:40:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740597707; cv=none; b=upirvRH93dTC1yXiNnrNUHk6D3j5NLw5Sn6Rev7zsR93hYB2dHErcu0OoDmuPqT2rorNFvGET9hKCESNzX7/BoVglV0gKFqFDijUZ5nRMKbZnpgx1ZwwILPwNGfttsbtHG1C4BFxgVWWpmXFXeQ2+qD1xcEMmgwrhekZzvlK5Xw=
+	t=1740598818; cv=none; b=WIkrBeJmwBa8glVXO0BFNaRmjXMipbjvM7dsieP3AqdfhJdRRr/UGlrXW8CczfoIH0Kbrs64KLvi3vJ2kiQi1sHnyK7y2VXF6+q1Z/zrCvfVKY2LGX6m93pZm0ox40UK+xFAFBMsOuQoTHi2NmHS1wZTIsVwn0zeiqw9GLEQ8QI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740597707; c=relaxed/simple;
-	bh=9voOCpIr5KsR2MrzPyH2v0+Hl+LD4VAcKc3oOdHexTo=;
+	s=arc-20240116; t=1740598818; c=relaxed/simple;
+	bh=IUheWlSSUJ/8vMzGkjBK+S3uf36PkLWD7up/x3PrCag=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=bERe8gWXMOILJ/kL73AIX7ZA0e5ZsZgVCl5evAQBNNHUeWJLx6Ht8veB/210fzCtR3En5F6aU2SNbMJ8b69QztQ7aUZbhKqxMyPERt38gD4AH7jVlc2rmYVGPG4vIeL5xxXgvhrVYBf+511DxKW4y1NG1RJwX6NOUXMGf9jaA98=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=i1DdCjY7; arc=none smtp.client-ip=13.77.154.182
+	 MIME-Version:Content-Type; b=CVXXdmUtSgjhM+nnsPVvCTVE99HP3Cx41bkadTWP1xL4uMvp+Q4qE5o5I5EsRCl1PShUI4FhuljzXQAyFw597Eo8Cn9uLyyQk/1SJrzWn9CQwmfAUb8TmzFLskBBOir8LPYPMq3YGz/LsHaxX6uD5+Q3AovV+SCBOB29TXLYzmA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=YkO3EX0R; arc=none smtp.client-ip=13.77.154.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="i1DdCjY7"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="YkO3EX0R"
 Received: from narnia (unknown [167.220.2.28])
-	by linux.microsoft.com (Postfix) with ESMTPSA id F37A72107AAB;
-	Wed, 26 Feb 2025 11:21:32 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com F37A72107AAB
+	by linux.microsoft.com (Postfix) with ESMTPSA id 8826C2107AAB;
+	Wed, 26 Feb 2025 11:40:11 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 8826C2107AAB
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1740597700;
-	bh=9voOCpIr5KsR2MrzPyH2v0+Hl+LD4VAcKc3oOdHexTo=;
+	s=default; t=1740598816;
+	bh=yAUqEIXMpQVqzzO/rrGdO+RRJpFARicVp+JsEMr+UQA=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=i1DdCjY7F0rctTcaMxKIxXXmBJZYfZpU2ARs6hjfPwxgl/oOBWgQ8ZkwhMtwb7dAt
-	 kvdQLVVWHY+r3NlVA73slr8Gx16VJbEED1agkRJwxq9pcC4t78BnizML2qgpxUw9uJ
-	 8pwpJebUVF+/3SH4DjtuCeb/QpvlHUD7V/CmQ/2g=
+	b=YkO3EX0R5EzmxjLKaYYWj0JsXC3WdDaznQqsJZsWLBvVMh9IdTgQSyiQWoHwTt32K
+	 bb/rZql6j3R7Nz1hM17MON4RkIg2sC5Nb4mupokc3NeAlEt2cx0+rYWA/Mi4AQ6kt+
+	 kQi1oRRMj71nuHEdS7hlGoqf00zxodC6L/m0GTbQ=
 From: Blaise Boscaccy <bboscaccy@linux.microsoft.com>
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>, Song Liu
- <song@kernel.org>
-Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>, Alexei Starovoitov <ast@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, John Fastabend
- <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, Martin
- KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>,
- Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>,
- Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri
- Olsa <jolsa@kernel.org>, Stephen Smalley <stephen.smalley.work@gmail.com>,
- Ondrej Mosnacek <omosnace@redhat.com>, LSM List
- <linux-security-module@vger.kernel.org>, LKML
- <linux-kernel@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
- selinux@vger.kernel.org
+To: Paul Moore <paul@paul-moore.com>, Song Liu <song@kernel.org>
+Cc: James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
+ Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann
+ <daniel@iogearbox.net>, John Fastabend <john.fastabend@gmail.com>, Andrii
+ Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>,
+ Eduard Zingerman <eddyz87@gmail.com>, Yonghong Song
+ <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, Stanislav
+ Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa
+ <jolsa@kernel.org>, Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ bpf@vger.kernel.org, selinux@vger.kernel.org
 Subject: Re: [PATCH 1/1] security: Propagate universal pointer data in bpf
  hooks
-In-Reply-To: <CAADnVQJWMBRspP-srQwe8_B1smGG1hs3kVbpeiuYo-0mLWAnUA@mail.gmail.com>
+In-Reply-To: <CAHC9VhS8ST6ODB2pFJTMK4qu8FdM2J=6qEbB=XGxo2ZAZgo1Aw@mail.gmail.com>
 References: <20250226003055.1654837-1-bboscaccy@linux.microsoft.com>
  <20250226003055.1654837-2-bboscaccy@linux.microsoft.com>
  <CAPhsuW7=uALYiLfKfApvSG0V+RV+M20w5x3myTZVLNRyYnBFnQ@mail.gmail.com>
- <CAADnVQJWMBRspP-srQwe8_B1smGG1hs3kVbpeiuYo-0mLWAnUA@mail.gmail.com>
-Date: Wed, 26 Feb 2025 11:21:30 -0800
-Message-ID: <87plj4jyv9.fsf@microsoft.com>
+ <CAHC9VhS8ST6ODB2pFJTMK4qu8FdM2J=6qEbB=XGxo2ZAZgo1Aw@mail.gmail.com>
+Date: Wed, 26 Feb 2025 11:40:08 -0800
+Message-ID: <87mse8jy07.fsf@microsoft.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -58,10 +56,9 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-Alexei Starovoitov <alexei.starovoitov@gmail.com> writes:
+Paul Moore <paul@paul-moore.com> writes:
 
-> On Tue, Feb 25, 2025 at 11:06=E2=80=AFPM Song Liu <song@kernel.org> wrote:
->>
+> On Wed, Feb 26, 2025 at 2:06=E2=80=AFAM Song Liu <song@kernel.org> wrote:
 >> On Tue, Feb 25, 2025 at 4:31=E2=80=AFPM Blaise Boscaccy
 >> <bboscaccy@linux.microsoft.com> wrote:
 >> >
@@ -82,15 +79,38 @@ Alexei Starovoitov <alexei.starovoitov@gmail.com> writes:
 >> > be called from the kernel.
 >>
 >> I think this information is useful for LSM hooks.
->>
+>
+> I've only looked at it quickly, but so far it seems reasonable.  I'm
+> going to take a closer look today.
+>
 >> Question: Do we need a full bpfptr_t for these hooks, or just a boolean
 >> "is_kernel or not"?
 >
-> +1
-> Just passing the bool should do.
-> Passing uattr is a footgun. Last thing we need is to open up TOCTOU conce=
-rns.
+> I may be misunderstanding the patch, but what if we swapped the
+> existing 'union bpf_attr' parameter for a 'bpfptr_t' parameter?  That
+> would allow for both kernel and usermode pointers, complete with a
+> 'is_kernel' flag; or am I missing something (likely)?
+>
+> --=20
+> paul-moore.com
 
-Sounds good to me, I'll rework it to use a bool instead.
+bpfptr_t is just a typedef for a sockptr_t, which contains a void
+pointer and bool, so if we replaced bpf_attr with it, we might lose a
+bit of type safety going that route.
+
+In syscall.c a most of the subcommand handlers have a
+
+static int bpf_foo(union bpf_attr *attr, bpfptr_t uattr);
+
+pattern that is used. I was trying to mimic for this patch.
+
+The actual parts where the is_kernel flag gets used currently, is for
+pointer chasing/copy stuff, e.g.
+
+make_bpfptr(attr->insns, uattr.is_kernel)
+make_bpfptr(attr->license, uattr.is_kernel)
+make_bpfptr(attr->fd_array, uattr.is_kernel)
+
+and subcommand structs may contain multiple pointers.
 
 -blaise
