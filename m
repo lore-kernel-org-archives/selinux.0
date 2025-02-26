@@ -1,103 +1,109 @@
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53CDE2755E0
-	for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 20:19:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A595122425A;
+	Wed, 26 Feb 2025 22:02:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740601171; cv=none; b=jcxEodn9BTjqmyQ6btKFKEknBB6cjzDdiZvv0V2zv8jzjL0zlEseIrJ3vaW4jVGr5f1zpBEuWkqfoWP7iA8bfqCaYtUcwuaY3CUhMmCQBPdsTkq6x1cYSgSoajHTC96LnvZvfATBSJqFYxXL6wNjzanxkH2cuTtie+C7q3J3QmY=
+	t=1740607344; cv=none; b=jHLzoU8Mk7NlqQd9/iTftNNHJA88SMKod8IxhHXj/Q3SQvhBPPCMPfO+gvuoX4VPJgU167Rap5qjKXO2IW93LJWUSBdj5sIyWfz0JsrmTzL+QhOvlk1x+89IIYb95yE7nYijj6kOwoUNckOCoocWKyuK9HM4wB7tz6+r3il+Vpg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740601171; c=relaxed/simple;
-	bh=pRMgXJFWpAts+pU5cfw2qJI3yKgdhqxFVB1HP3y8nVc=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=LkyvgA9VacKG+seaiFIYuxDnev6ZVf7KUhEf80ZwlSQN6CaApNwjrNl4LFT7TAm05uoXiTlrzHpWXX3cCB5HYwE25PaYJq03cGlKaYjJw+AU0Oy0ymFt/oWK5+NTAlk7D+u3zZr17G9i+dVGn/pd6l3D+AHm95ikjhXvISryYm4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=dveIoudK; arc=none smtp.client-ip=209.85.160.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1740607344; c=relaxed/simple;
+	bh=HcGovQDGE4BqvsArC5and/FvCf5uqHO7axy7rZfiDQM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Jt1X/LkI2C6RreDOl8sfFDxI6j9RwZnMCDgKj0pQMShxXZPCEOIZyV1f/I+gcythKVLRKB5ZUDelkpOxUS5bUVajfrrELM/dPmWhbUxLM1oRMVHi1+2aMYznI5pToK3HuqtmisPIH24jwEAeB+OsBBMSzTDFBlwq3eV7LN83pTE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZmVWKMC3; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="dveIoudK"
-Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-472003f8c47so2457581cf.1
-        for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 12:19:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1740601169; x=1741205969; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ghoD3ag/pzPbCtjFY/jPNaeLEDXXel6+TW59rVHfjfk=;
-        b=dveIoudKzKxKugANPB5GGsZegCwMrqDZcYGyKaEojssEcxYPTMjaP6BNUAButblbPy
-         zbS5usrttUNCBSCnB3ybRBs8awJI2cASsu1AEF+JS+RJS3rFCxP3v78pWBlXIgUc33lY
-         6FvP23ZUb7XMbgD86DpwYk3IpYZGNHAnO6yAsuGpixq2myYv0kfg/1voWZ1QGHRC3ytc
-         fglXNgv6NNvGAiRh7rugpzBbWn2iogvJZ8Aa5BCQflLaQP0t+4QVBSz9o62UXeX9RDg8
-         eoYLKcIeaLBnQEO/hfAvUPW1Bw8Firq21NSMkhtvcqEa1xImEcpcz/GumpEqCTKo7Gkh
-         g+cA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740601169; x=1741205969;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=ghoD3ag/pzPbCtjFY/jPNaeLEDXXel6+TW59rVHfjfk=;
-        b=imCSz2c0nwvdfTAw4RQ9S51soFMlQC2X1dnvhhuhp3dROFWvcLpvjyHPg2pjfC3zX+
-         HmcDFvVH03HDF91LMLok4ZqV2LamFU/ReLgxIqahywr72OqGd0fNEXQ7BVPedD28nEp7
-         gL9NR0dyJgi65L9KlwhXEFid72vmSQ6Jtx+F11M4ae6XN7BV1KTDIb73Texj7np53luG
-         x/CCB5LHxY6ML2uLuEwILwAb/EsjGqX+7heqVKTtkRIdMmmTWrAqOhRh+2B7l8qH2i8a
-         E1GGeGu33UPVtcmUFEZ89YGgnKlM9cNTNvuGTv7kcPGz6MRTYWktLJs16leUqMmKVc23
-         CB+Q==
-X-Forwarded-Encrypted: i=1; AJvYcCX/P7LB2bAcDayEMJD2hL/3Twpzecw3XG6EuY7wSWHvdRq1X9n4SHm/Vy71Om3Fg/AWuVVPaMsY@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz5TrgJJwKKr08bdvAaHTawnsBstqtayOg+M3KOyi1F7rwvAY1n
-	yNwv5CbFiuMD9BXPduA2WtsCnOpwHCvfxoeSETVVbojxL/4atguUn6cbIJgb7d0Uti8EA/x8qNZ
-	2vw==
-X-Gm-Gg: ASbGncsR2kFjfQBTo+v1FWL6gN9a5+Hs4n17l8mAhE666+g9j7ebtT7yTdhxQACmjXe
-	/sNRJ5mJqkPFFnTKD8XfEVrfGLefZ6HPePE9kjMXEAc4gxBt3JnpAA9M073vib4ZilD9gKLv9Mg
-	1RVHU98kGIz9o7QjpZIo4MZtFTXfj1NMuVLVhKkGR+Lz93Rpr5YILglXrFN+CO7nllaWzdBUSnz
-	kUNHdf0u8lSZKQA/uXLnI7q1LY9oMOO12ENZEyJoUppaaa9Xr2509hlqCli5XnginzYDnEtD4Ge
-	kjY042moVsXOE+ZwvxhiZDmlbh+98GBLUFvtp2koV2aH1eteZm5xkSnlF9fblyH/VGxwx2g=
-X-Google-Smtp-Source: AGHT+IHlD52Lc+Tn+8mhSVeF3cbMWb5L2ojc8igqm9bfmEeYLdqG9MAA2o2DdRWX5V2W073wALgrfQ==
-X-Received: by 2002:ac8:59d0:0:b0:472:521:871a with SMTP id d75a77b69052e-473e55a7432mr13431481cf.23.1740601169160;
-        Wed, 26 Feb 2025 12:19:29 -0800 (PST)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id d75a77b69052e-474691a45d3sm357351cf.8.2025.02.26.12.19.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Feb 2025 12:19:28 -0800 (PST)
-Date: Wed, 26 Feb 2025 15:19:28 -0500
-Message-ID: <4a98d88878a18dd02b3df5822030617a@paul-moore.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZmVWKMC3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1343EC4AF09;
+	Wed, 26 Feb 2025 22:02:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1740607344;
+	bh=HcGovQDGE4BqvsArC5and/FvCf5uqHO7axy7rZfiDQM=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=ZmVWKMC3rsbx1KFyxD9w+PJU186QyKnQzHX4Xm8J6JmLWGygsI5SpeZjQWkLUDiDh
+	 wLIwdQwcJb7nlWhki+sK5QSY26E03e2JwPjJANEapXLgpmG7SzGBJJdOvF01qpLwTx
+	 F0CJmSv5Pc5K95kzwufIGYcb9UBzhVaRGRuuTXdlE6CuvNspAa5m3eyWtPFz6hJezl
+	 q+1cGJZ5cxRPYBK80PlETbXWivNaBJ41wgZiR+7cw+zoxoLv5RDVYC/huuWeXg+PES
+	 0O2+Y578qwE5O5WfsSJBH/yrH4EWhJS3ka9O4BzWLZFJ+Q5ZUUme57sM4QqaxisEI3
+	 XSF8lkSFR1jcA==
+Received: by mail-io1-f53.google.com with SMTP id ca18e2360f4ac-855bb9fa914so7837439f.1;
+        Wed, 26 Feb 2025 14:02:24 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCU8eDTozv1NF8spQVqpdF2u7o1CRfa6ehblWQCNNQzSSnhlzkWxx+g9WmbdqOt9dXjxfeKP1QmKlhWSjvQ4c8lqpfMFuEgd@vger.kernel.org, AJvYcCVq29IlnEdMlcXgudA4m/huO+gYMP3+BrqJrKpVcxUe0hXIOdnV66mhYMh97CZog4vx3icQ4BeetQ==@vger.kernel.org, AJvYcCXeIUVryhV+LDSjVewiX0qLyCqH6IxdKWgqOVkbP5YrGRKvMeEZjVzEH89TObBvPU/zD4bKSI9h9cHdl7Hv@vger.kernel.org, AJvYcCXiLSbxToyaJnVRg7x+5uQLaDVBVL+6ccmCxY16OI7LRKa2mmuYhjlvbMpLMAiF026KZ+U=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzAbu+ZOSFnvJ5hLyh8XeoEXQimnrUTWy8eJ00RpMURpFip9TKg
+	PAnSpiD1hruSnkPMoMDtFvrBuaXdMzzukKyEQlTJQP3Ob/1Ku8MVUNgrjxtX/4zbiNQmeUMOpPG
+	6mRTs1z5wqW+jkIl96mvI7zftbks=
+X-Google-Smtp-Source: AGHT+IF56aMtVC9kgzhrEn1BazaQuVa1V57LakSmtHHshyBopSU62FSVL1llGe6JYotFsOu+WB8yT45gFYnnGg9VS9A=
+X-Received: by 2002:a05:6e02:3103:b0:3d2:6f1e:8a4b with SMTP id
+ e9e14a558f8ab-3d2cb5151ccmr202103765ab.16.1740607343398; Wed, 26 Feb 2025
+ 14:02:23 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20250226_1339/pstg-lib:20250226_1339/pstg-pwork:20250226_1339
-From: Paul Moore <paul@paul-moore.com>
-To: Miklos Szeredi <mszeredi@redhat.com>, selinux@vger.kernel.org
-Cc: linux-fsdevel@vger.kernel.org, Christian Brauner <brauner@kernel.org>, linux-security-module@vger.kernel.org
-Subject: Re: [PATCH] selinux: add FILE__WATCH_MOUNTNS
-References: <20250224154836.958915-1-mszeredi@redhat.com>
-In-Reply-To: <20250224154836.958915-1-mszeredi@redhat.com>
+MIME-Version: 1.0
+References: <20250226003055.1654837-1-bboscaccy@linux.microsoft.com>
+ <20250226003055.1654837-2-bboscaccy@linux.microsoft.com> <CAPhsuW7=uALYiLfKfApvSG0V+RV+M20w5x3myTZVLNRyYnBFnQ@mail.gmail.com>
+ <CAADnVQJWMBRspP-srQwe8_B1smGG1hs3kVbpeiuYo-0mLWAnUA@mail.gmail.com>
+In-Reply-To: <CAADnVQJWMBRspP-srQwe8_B1smGG1hs3kVbpeiuYo-0mLWAnUA@mail.gmail.com>
+From: Song Liu <song@kernel.org>
+Date: Wed, 26 Feb 2025 14:02:12 -0800
+X-Gmail-Original-Message-ID: <CAPhsuW5Xzv7hsuG9RzO+KdxMXO3JCpC6UOTFDZiYGf_Vnfpo5g@mail.gmail.com>
+X-Gm-Features: AQ5f1JpLtpxSTDy_e-G9cvkC70zZHFez1SttCvfnEJ5lwovdBr4h5ckbHaT__AY
+Message-ID: <CAPhsuW5Xzv7hsuG9RzO+KdxMXO3JCpC6UOTFDZiYGf_Vnfpo5g@mail.gmail.com>
+Subject: Re: [PATCH 1/1] security: Propagate universal pointer data in bpf hooks
+To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc: Blaise Boscaccy <bboscaccy@linux.microsoft.com>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, 
+	Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	LSM List <linux-security-module@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, 
+	bpf <bpf@vger.kernel.org>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Feb 24, 2025 Miklos Szeredi <mszeredi@redhat.com> wrote:
-> 
-> Watching mount namespaces for changes (mount, umount, move mount) was added
-> by previous patches.
-> 
-> This patch adds the file/watch_mountns permission that can be applied to
-> nsfs files (/proc/$$/ns/mnt), making it possible to allow or deny watching
-> a particular namespace for changes.
-> 
-> Suggested-by: Paul Moore <paul@paul-moore.com>
-> Link: https://lore.kernel.org/all/CAHC9VhTOmCjCSE2H0zwPOmpFopheexVb6jyovz92ZtpKtoVv6A@mail.gmail.com/
-> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-> ---
->  security/selinux/hooks.c            | 3 +++
->  security/selinux/include/classmap.h | 2 +-
->  2 files changed, 4 insertions(+), 1 deletion(-)
+On Wed, Feb 26, 2025 at 8:00=E2=80=AFAM Alexei Starovoitov
+<alexei.starovoitov@gmail.com> wrote:
+>
+> On Tue, Feb 25, 2025 at 11:06=E2=80=AFPM Song Liu <song@kernel.org> wrote=
+:
+> >
+> > On Tue, Feb 25, 2025 at 4:31=E2=80=AFPM Blaise Boscaccy
+> > <bboscaccy@linux.microsoft.com> wrote:
+> > >
+> > > Certain bpf syscall subcommands are available for usage from both
+> > > userspace and the kernel. LSM modules or eBPF gatekeeper programs may
+> > > need to take a different course of action depending on whether or not
+> > > a BPF syscall originated from the kernel or userspace.
+> > >
+> > > Additionally, some of the bpf_attr struct fields contain pointers to
+> > > arbitrary memory. Currently the functionality to determine whether or
+> > > not a pointer refers to kernel memory or userspace memory is exposed
+> > > to the bpf verifier, but that information is missing from various LSM
+> > > hooks.
+> > >
+> > > Here we augment the LSM hooks to provide this data, by simply passing
+> > > the corresponding universal pointer in any hook that contains already
+> > > contains a bpf_attr struct that corresponds to a subcommand that may
+> > > be called from the kernel.
+> >
+> > I think this information is useful for LSM hooks.
+> >
+> > Question: Do we need a full bpfptr_t for these hooks, or just a boolean
+> > "is_kernel or not"?
+>
+> +1
+> Just passing the bool should do.
+> Passing uattr is a footgun. Last thing we need is to open up TOCTOU conce=
+rns.
 
-Thanks Miklos, this looks good to me.  VFS folks / Christian, can you
-merge this into the associated FSNOTIFY_OBJ_TYPE_MNTNS branch you are
-targeting for linux-next?
+Shall we also replace uattr with bool is_kernel in verifier.c? It appears t=
+o be
+a good cleanup.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
-
---
-paul-moore.com
+Thanks,
+Song
