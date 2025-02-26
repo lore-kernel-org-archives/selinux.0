@@ -1,37 +1,42 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6736258CE4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6766258CED
 	for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 09:01:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740560498; cv=none; b=GPv1rqktqIDP4hiOiRUJzBfS0WBaNtCg1cLSJSP/6OAAWEY1gO+9Q8X/7yLqkjCayxDjtN4FAStLfSCCrUdqHdbV/xRjRTc0iUp0BUKP+3fzsMWDMPFs+24XcPNfIyrnbvYWR6kh++EJGCcpr+YymcG6hHItpBHN96NitTzt40s=
+	t=1740560500; cv=none; b=c637p0zfaNDb2qsxrFi4lnq13t0y/Y/LXtxNkCi6SA5m4924WowAbI9T7iCWGPoDKpPTQmY2AsIo4F3qWZXmBJjwsk7K2ebAULKLY/jddtBOLqPteM33CcJPFU2qrUhlswV57JtPc+8kVzrcvdL0xqRtuyTh0uIOVeHMwJUFAP4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740560498; c=relaxed/simple;
-	bh=ITtJ1uKLI3tV5XvGYIOC/glqVM5vK0MQMgsUX4vc3Vk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=FxBLmHPH8efI+SKFqWp352z5XDosRJa9GZA+1PysJUP1MydfT0VGCWGGnaRXYFV19QNGySlgLGocEhVUUSVW8A7QfBgRvWIDjXyGLKIfr0hiBTG/9YaFR4LBzD/RqG8drUXAzASAZucdUGhkNDyDpVTgNZA39C0DbIG3WovdbXk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=VmfX+3i+; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1740560500; c=relaxed/simple;
+	bh=0cZcp+mBurGssFT3Nto/Dhtox6k/M3LQSh04jcEpQ0Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=CaZh5Fxgpmbv4SVksxdSVtJtvsQv91j6RcrOSzohckMYVjccI4XlqnaQ5GIHrag7NuD0/nMOBmVjiwW5IV1F0FAvPmCgOwrOUsDo3TvvtMy3Z81pYpzAdODdVdKb2gaZDfJYd06idMMWiMT85zERkpBR+Op+gEBrm3+dUsTPl7w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=TNJpLRJd; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="VmfX+3i+"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="TNJpLRJd"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
 	s=2023072701; t=1740560491;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=19MxxPIC+2LXrxB1N0PZwNtRaMMjiuXfByMQRCiU1vc=;
-	b=VmfX+3i+BSJuLJXnVr/XRCxA/RhB4csHFkSsNKsudshBI7RiEsSjPXNhP5VcNLFGb45wfO
-	pJDrMvu5BYBKEOFP3lymtq/BQ639uOlfZVWriwZcCT6XAysvuo6S999c3rMQdLqsUveZFo
-	P2b+7vOftWFB9LgAwvRRAVaUKvFmfnSttTYgIxS9IpWGGDfc85bDDAAh1p1fyQ8rY4ACQY
-	gDQ6k8PbGD5I2mNFimUiOoQWjGbBEMKlMDBsB8uDsJ8EGpUhAc0i/1JiP2YZwU1sXjSaI8
-	LmCcO0+WtevUrg38goTOt0Ra8QdMld2F3VlQb+I5IWz9ROhM6o5KhT0qZYTYAQ==
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=GnssgpErzA78GEy5ysCUyJIiD36lwPmnEvPYr/Qod8o=;
+	b=TNJpLRJda9qUnvctEblRdxGdidDU1915Fk8Q+rZ2J95sWZdpV0SPOFdWN0nidTiuwgpWpx
+	0wYogo9vuOpzIu2ryejvIoOZke2BZkqUp722SYVXpF6n/cVLMQSHGv3Y+6HnSK8ygxmuid
+	6lWWzpj+RA2FK2XkBDNCShU+NzvBpgcof29zi1sSekt/rDZrfXVi3uv7YS8PDRlMroxD4i
+	SF7QNJJrt8HRncNnob85LX11zlbZRxooiW+nda/K0KN+gAPjZgEJ2SV0E7AWX48Itt31lT
+	02/pI+NlQasvHzVjCOlVcAqRcCi00Wdam50OLvJJDNJKQ/DESbfoucnpseVH/w==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH 2/2] setfiles: add option to modify user and role portions
-Date: Wed, 26 Feb 2025 10:01:26 +0100
-Message-ID: <20250226090127.25701-1-cgoettsche@seltendoof.de>
+Subject: [PATCH 1/2] libselinux: add restore option to modify user and role portions
+Date: Wed, 26 Feb 2025 10:01:27 +0100
+Message-ID: <20250226090127.25701-2-cgoettsche@seltendoof.de>
+In-Reply-To: <20250226090127.25701-1-cgoettsche@seltendoof.de>
+References: <20250226090127.25701-1-cgoettsche@seltendoof.de>
 Reply-To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -48,162 +53,159 @@ Useful for data of MCS separated applications, like containers.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- policycoreutils/setfiles/restore.c    |  1 +
- policycoreutils/setfiles/restore.h    |  1 +
- policycoreutils/setfiles/restorecon.8 | 10 +++++++++-
- policycoreutils/setfiles/setfiles.8   | 11 ++++++++++-
- policycoreutils/setfiles/setfiles.c   | 18 +++++++++++-------
- 5 files changed, 32 insertions(+), 9 deletions(-)
+ libselinux/include/selinux/restorecon.h |  6 ++
+ libselinux/src/selinux_restorecon.c     | 77 +++++++++++++++++--------
+ 2 files changed, 59 insertions(+), 24 deletions(-)
 
-diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
-index d045e948..2c031ccc 100644
---- a/policycoreutils/setfiles/restore.c
-+++ b/policycoreutils/setfiles/restore.c
-@@ -36,6 +36,7 @@ void restore_init(struct restore_opts *opts)
- 	opts->restorecon_flags = 0;
- 	opts->restorecon_flags = opts->nochange | opts->verbose |
- 			   opts->progress | opts->set_specctx  |
-+			   opts->set_user_role |
- 			   opts->add_assoc | opts->ignore_digest |
- 			   opts->recurse | opts->userealpath |
- 			   opts->xdev | opts->abort_on_error |
-diff --git a/policycoreutils/setfiles/restore.h b/policycoreutils/setfiles/restore.h
-index a5af81fe..95afb960 100644
---- a/policycoreutils/setfiles/restore.h
-+++ b/policycoreutils/setfiles/restore.h
-@@ -24,6 +24,7 @@ struct restore_opts {
- 	unsigned int progress;
- 	unsigned int mass_relabel;
- 	unsigned int set_specctx;
-+	unsigned int set_user_role;
- 	unsigned int add_assoc;
- 	unsigned int ignore_digest;
- 	unsigned int recurse;
-diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-index c3cc5c9b..1134420e 100644
---- a/policycoreutils/setfiles/restorecon.8
-+++ b/policycoreutils/setfiles/restorecon.8
-@@ -11,6 +11,7 @@ restorecon \- restore file(s) default SELinux security contexts.
- .RB [ \-v ]
- .RB [ \-i ]
- .RB [ \-F ]
-+.RB [ \-U ]
- .RB [ \-W ]
- .RB [ \-I | \-D ]
- .RB [ \-x ]
-@@ -30,6 +31,7 @@ restorecon \- restore file(s) default SELinux security contexts.
- .RB [ \-v ]
- .RB [ \-i ]
- .RB [ \-F ]
-+.RB [ \-U ]
- .RB [ \-W ]
- .RB [ \-I | \-D ]
- .RB [ \-x ]
-@@ -60,7 +62,9 @@ context,
- will only modify the type portion of the security context.
- The
- .B \-F
--option will force a replacement of the entire context.
-+and
-+.B \-U
-+options will force a replacement of the entire context.
- .P
- If a file is labeled with
- .BR customizable
-@@ -88,6 +92,10 @@ for
- Force reset of context to match file_context for customizable files, and the
- default file context, changing the user, role, range portion as well as the type.
- .TP
-+.B \-U
-+In addition to the type portion also change the user and role portions, but
-+not the range portion.
-+.TP
- .B \-h, \-?
- display usage information and exit.
- .TP
-diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
-index ee017250..eabf0a1c 100644
---- a/policycoreutils/setfiles/setfiles.8
-+++ b/policycoreutils/setfiles/setfiles.8
-@@ -19,6 +19,7 @@ setfiles \- set SELinux file security contexts.
- .RB [ \-v ]
- .RB [ \-W ]
- .RB [ \-F ]
-+.RB [ \-U ]
- .RB [ \-I | \-D ]
- .RB [ \-T
- .IR nthreads ]
-@@ -52,8 +53,12 @@ context,
- .B setfiles
- will only modify the type portion of the security context.
- The
-+.B \-U
-+option will also modify the user and role portions of the security context.
-+The
- .B \-F
--option will force a replacement of the entire context.
-+option will force a replacement of the entire context, including the range
-+portion of the security context and modify customizable files.
- .SH "OPTIONS"
- .TP
- .B \-c
-@@ -88,6 +93,10 @@ Force reset of context to match file_context for customizable files, and the
- default file context, changing the user, role, range portion as well as the
- type.
- .TP
-+.B \-U
-+In addition to the type portion also change the user and role portions, but
-+not the range portion.
-+.TP
- .B \-h, \-?
- display usage information and exit.
- .TP
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 88a27241..ad09f840 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -35,14 +35,14 @@ static __attribute__((__noreturn__)) void usage(const char *const name)
+diff --git a/libselinux/include/selinux/restorecon.h b/libselinux/include/selinux/restorecon.h
+index 5be6542c..0ccf73a6 100644
+--- a/libselinux/include/selinux/restorecon.h
++++ b/libselinux/include/selinux/restorecon.h
+@@ -128,6 +128,12 @@ extern int selinux_restorecon_parallel(const char *pathname,
+  */
+ #define SELINUX_RESTORECON_COUNT_ERRORS			0x20000
+ 
++/*
++ * In addition to the type component also change the user and
++ * role component of security contexts.
++ */
++#define SELINUX_RESTORECON_SET_USER_ROLE		0x40000
++
+ /**
+  * selinux_restorecon_set_sehandle - Set the global fc handle.
+  * @hndl: specifies handle to set as the global fc handle.
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index ab1c5216..72242c90 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -76,6 +76,7 @@ struct rest_flags {
+ 	bool progress;
+ 	bool mass_relabel;
+ 	bool set_specctx;
++	bool set_user_role;
+ 	bool add_assoc;
+ 	bool recurse;
+ 	bool userealpath;
+@@ -585,43 +586,65 @@ static void filespec_destroy(void)
+ /*
+  * Called if SELINUX_RESTORECON_SET_SPECFILE_CTX is not set to check if
+  * the type components differ, updating newtypecon if so.
++ * Also update user and role components if
++ * SELINUX_RESTORECON_SET_USER_ROLE is set.
+  */
+-static int compare_types(const char *curcon, const char *newcon, char **newtypecon)
++static int compare_portions(const char *curcon, const char *newcon,
++			    bool set_user_role, char **newtypecon)
  {
- 	if (iamrestorecon) {
- 		fprintf(stderr,
--			"usage:  %s [-iIDFmnprRv0xT] [-e excludedir] pathname...\n"
--			"usage:  %s [-iIDFmnprRv0xT] [-e excludedir] -f filename\n",
-+			"usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] pathname...\n"
-+			"usage:  %s [-iIDFUmnprRv0xT] [-e excludedir] -f filename\n",
- 			name, name);
- 	} else {
- 		fprintf(stderr,
--			"usage:  %s [-diIDlmnpqvCEFWT] [-e excludedir] [-r alt_root_path] [-c policyfile] spec_file pathname...\n"
--			"usage:  %s [-diIDlmnpqvCEFWT] [-e excludedir] [-r alt_root_path] [-c policyfile] spec_file -f filename\n"
--			"usage:  %s -s [-diIDlmnpqvFWT] spec_file\n",
-+			"usage:  %s [-diIDlmnpqvCEFUWT] [-e excludedir] [-r alt_root_path] [-c policyfile] spec_file pathname...\n"
-+			"usage:  %s [-diIDlmnpqvCEFUWT] [-e excludedir] [-r alt_root_path] [-c policyfile] spec_file -f filename\n"
-+			"usage:  %s -s [-diIDlmnpqvFUWT] spec_file\n",
- 			name, name, name);
+-	int types_differ = 0;
+-	context_t cona;
+-	context_t conb;
++	context_t curctx;
++	context_t newctx;
++	bool update = false;
+ 	int rc = 0;
+ 
+-	cona = context_new(curcon);
+-	if (!cona) {
++	curctx = context_new(curcon);
++	if (!curctx) {
+ 		rc = -1;
+ 		goto out;
  	}
- 	exit(-1);
-@@ -146,8 +146,8 @@ int main(int argc, char **argv)
- 	size_t buf_len, nthreads = 1;
- 	const char *base;
- 	int errors = 0;
--	const char *ropts = "e:f:hiIDlmno:pqrsvFRW0xT:";
--	const char *sopts = "c:de:f:hiIDlmno:pqr:svCEFR:W0T:";
-+	const char *ropts = "e:f:hiIDlmno:pqrsvFURW0xT:";
-+	const char *sopts = "c:de:f:hiIDlmno:pqr:svCEFUR:W0T:";
- 	const char *opts;
- 	union selinux_callback cb;
- 	long unsigned skipped_errors;
-@@ -298,6 +298,10 @@ int main(int argc, char **argv)
- 			r_opts.set_specctx =
- 					   SELINUX_RESTORECON_SET_SPECFILE_CTX;
- 			break;
-+		case 'U':
-+			r_opts.set_user_role =
-+					   SELINUX_RESTORECON_SET_USER_ROLE;
-+			break;
- 		case 'm':
- 			r_opts.ignore_mounts =
- 					   SELINUX_RESTORECON_IGNORE_MOUNTS;
+-	conb = context_new(newcon);
+-	if (!conb) {
+-		context_free(cona);
++	newctx = context_new(newcon);
++	if (!newctx) {
++		context_free(curctx);
+ 		rc = -1;
+ 		goto out;
+ 	}
+ 
+-	types_differ = strcmp(context_type_get(cona), context_type_get(conb));
+-	if (types_differ) {
+-		rc |= context_user_set(conb, context_user_get(cona));
+-		rc |= context_role_set(conb, context_role_get(cona));
+-		rc |= context_range_set(conb, context_range_get(cona));
+-		if (!rc) {
+-			*newtypecon = strdup(context_str(conb));
+-			if (!*newtypecon) {
+-				rc = -1;
++	if (strcmp(context_type_get(curctx), context_type_get(newctx)) != 0) {
++		update = true;
++		rc = context_type_set(curctx, context_type_get(newctx));
++		if (rc)
++		    goto err;
++	}
++
++	if (set_user_role) {
++		if (strcmp(context_user_get(curctx), context_user_get(newctx)) != 0) {
++			update = true;
++			rc = context_user_set(curctx, context_user_get(newctx));
++			if (rc)
++				goto err;
++		}
++
++		if (strcmp(context_role_get(curctx), context_role_get(newctx)) != 0) {
++			update = true;
++			rc = context_role_set(curctx, context_role_get(newctx));
++			if (rc)
+ 				goto err;
+-			}
+ 		}
+ 	}
+ 
++	if (update) {
++		*newtypecon = strdup(context_str(curctx));
++		if (!*newtypecon) {
++			rc = -1;
++			goto err;
++		}
++	} else {
++		*newtypecon = NULL;
++	}
++
+ err:
+-	context_free(cona);
+-	context_free(conb);
++	context_free(curctx);
++	context_free(newctx);
+ out:
+ 	return rc;
+ }
+@@ -631,7 +654,6 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ {
+ 	char *newcon = NULL;
+ 	char *curcon = NULL;
+-	char *newtypecon = NULL;
+ 	int rc;
+ 	const char *lookup_path = pathname;
+ 
+@@ -724,8 +746,13 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 		}
+ 
+ 		if (!flags->set_specctx && curcon) {
+-			/* If types different then update newcon. */
+-			rc = compare_types(curcon, newcon, &newtypecon);
++			char *newtypecon;
++
++			/* If types are different then update newcon.
++			 * Also update if SELINUX_RESTORECON_SET_USER_ROLE
++			 * is set and user or role differs.
++			 */
++			rc = compare_portions(curcon, newcon, flags->set_user_role, &newtypecon);
+ 			if (rc)
+ 				goto err;
+ 
+@@ -1025,6 +1052,8 @@ static int selinux_restorecon_common(const char *pathname_orig,
+ 		    SELINUX_RESTORECON_RECURSE) ? true : false;
+ 	state.flags.set_specctx = (restorecon_flags &
+ 		    SELINUX_RESTORECON_SET_SPECFILE_CTX) ? true : false;
++	state.flags.set_user_role = (restorecon_flags &
++		    SELINUX_RESTORECON_SET_USER_ROLE) ? true : false;
+ 	state.flags.userealpath = (restorecon_flags &
+ 		   SELINUX_RESTORECON_REALPATH) ? true : false;
+ 	state.flags.set_xdev = (restorecon_flags &
 -- 
 2.48.1
 
