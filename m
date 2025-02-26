@@ -1,116 +1,116 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 34E9F2505C5;
-	Wed, 26 Feb 2025 19:40:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC2552755E0
+	for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 20:14:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740598818; cv=none; b=WIkrBeJmwBa8glVXO0BFNaRmjXMipbjvM7dsieP3AqdfhJdRRr/UGlrXW8CczfoIH0Kbrs64KLvi3vJ2kiQi1sHnyK7y2VXF6+q1Z/zrCvfVKY2LGX6m93pZm0ox40UK+xFAFBMsOuQoTHi2NmHS1wZTIsVwn0zeiqw9GLEQ8QI=
+	t=1740600886; cv=none; b=rxwc10WpTTLVgH84U7mS7c63BQlD+aK6ny+j/B8MsU8IaejQ3Zi7S8l7zks1Ip/xo5RmD6hNb5eqgrybDVuZhwYleGdiwg61103JoLRSoJbYDVSFBymFq6JGSKjWfmDL9tVAjoG/uCOb0YI0UHqBwj/W/eWzDQ5kN9jg7hvhDMM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740598818; c=relaxed/simple;
-	bh=IUheWlSSUJ/8vMzGkjBK+S3uf36PkLWD7up/x3PrCag=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=CVXXdmUtSgjhM+nnsPVvCTVE99HP3Cx41bkadTWP1xL4uMvp+Q4qE5o5I5EsRCl1PShUI4FhuljzXQAyFw597Eo8Cn9uLyyQk/1SJrzWn9CQwmfAUb8TmzFLskBBOir8LPYPMq3YGz/LsHaxX6uD5+Q3AovV+SCBOB29TXLYzmA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=YkO3EX0R; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1740600886; c=relaxed/simple;
+	bh=RYhyiIVWz9eFn2w79ZC0aXWXcXzgo5ScTBPjf4pmajE=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=m89skOOhBI8UR/XXni3F+0xGtAd4cd+QYTCDmtdHMzTn6IXExFkkmwp7bUT8NIcTE2sZ2Odfzvgg2ORyblGQOzhposeKrXHi6NgK9aC/DvnK77Lu5PqQTW8KgZ9zj7ZVb8YWoo1nOQ6qAULjYKRpqL+3bodcZT7+rYLJqAZNOZ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=CkdSYGOz; arc=none smtp.client-ip=209.85.222.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="YkO3EX0R"
-Received: from narnia (unknown [167.220.2.28])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 8826C2107AAB;
-	Wed, 26 Feb 2025 11:40:11 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 8826C2107AAB
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1740598816;
-	bh=yAUqEIXMpQVqzzO/rrGdO+RRJpFARicVp+JsEMr+UQA=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=YkO3EX0R5EzmxjLKaYYWj0JsXC3WdDaznQqsJZsWLBvVMh9IdTgQSyiQWoHwTt32K
-	 bb/rZql6j3R7Nz1hM17MON4RkIg2sC5Nb4mupokc3NeAlEt2cx0+rYWA/Mi4AQ6kt+
-	 kQi1oRRMj71nuHEdS7hlGoqf00zxodC6L/m0GTbQ=
-From: Blaise Boscaccy <bboscaccy@linux.microsoft.com>
-To: Paul Moore <paul@paul-moore.com>, Song Liu <song@kernel.org>
-Cc: James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
- Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann
- <daniel@iogearbox.net>, John Fastabend <john.fastabend@gmail.com>, Andrii
- Nakryiko <andrii@kernel.org>, Martin KaFai Lau <martin.lau@linux.dev>,
- Eduard Zingerman <eddyz87@gmail.com>, Yonghong Song
- <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, Stanislav
- Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa
- <jolsa@kernel.org>, Stephen Smalley <stephen.smalley.work@gmail.com>,
- Ondrej Mosnacek <omosnace@redhat.com>,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
- bpf@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH 1/1] security: Propagate universal pointer data in bpf
- hooks
-In-Reply-To: <CAHC9VhS8ST6ODB2pFJTMK4qu8FdM2J=6qEbB=XGxo2ZAZgo1Aw@mail.gmail.com>
-References: <20250226003055.1654837-1-bboscaccy@linux.microsoft.com>
- <20250226003055.1654837-2-bboscaccy@linux.microsoft.com>
- <CAPhsuW7=uALYiLfKfApvSG0V+RV+M20w5x3myTZVLNRyYnBFnQ@mail.gmail.com>
- <CAHC9VhS8ST6ODB2pFJTMK4qu8FdM2J=6qEbB=XGxo2ZAZgo1Aw@mail.gmail.com>
-Date: Wed, 26 Feb 2025 11:40:08 -0800
-Message-ID: <87mse8jy07.fsf@microsoft.com>
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="CkdSYGOz"
+Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-7c0ba9825e9so13134685a.0
+        for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 12:14:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1740600883; x=1741205683; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8/m858znNp+e/bEeyuLLSlFR+G7YCuRp1y/0iqr49/o=;
+        b=CkdSYGOzjipGNbgKg9MHVK1eM3p6Ved0KDxYlRYa+8qlt0zjZ+46xa8AFtC5nIR5Fn
+         x1ApIwTCC+syWZfq1Mw7wMXDUJaLbU0fnNj0YnQaRPTfFWl0oAj+4kSIAS6wN+LwYtKW
+         B55reWj6x3Dka/OecLSGKuh9RHXS5LfRkk5LrB1eUkMh1DrWb8bIoN3MhnEAo7nTkf9J
+         eU4V0ANYz+K4tIjCsmOmj2zooObaYhGyUtc5e8ZdzoQyozdTQxeINTBBwzknkiLwkuf3
+         +3gYlqXdG+ydhETOfjbFWW/BlwQrX6SKJkPEwhCJd/sx5Q0IVQoNiF6O3P87HUl/eMDp
+         RX5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740600883; x=1741205683;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=8/m858znNp+e/bEeyuLLSlFR+G7YCuRp1y/0iqr49/o=;
+        b=VVfjS2k4cf3zU/hu0o2mfMAjodrUp42wvnHWCQ+7MkBwvGY8jLoUWU1yVXKu1D63mK
+         HCJm37ydaDV34mv4AhyOVcDjwSe88zZNXsHke8ce2luFlbM0BeB8oFfdOIxJQCIqC+es
+         SDqLi0EcNDYv3CmtYT7puTvYPDPgnrGepM6iPbZqPlq37S8OwxeX+DbVINtr0I0DnLjt
+         VWIS0WNFAbX2cQV12Z3p2pWuvLzBNBE3SuweJZIf8/12eSAEKoSunwwHPx4dXd5QTIrR
+         5mjSQVEJWyKRSzngspMe4/lIUGJDe+MKdp/gv4L+wWjYz/pGOQxunnWQeUWDh7QQkpMU
+         Qt6g==
+X-Forwarded-Encrypted: i=1; AJvYcCV0h2CgZNE6attuR4vt3GYnAZ+0HGJjgHVsPUn88gV/w9ghie7ONzhvMgYaHrh70o9GjA3c3LVZ@vger.kernel.org
+X-Gm-Message-State: AOJu0YwKK9JJPc5qupv9hSLAoR4Lre5HfRHmnCfYAVIueHI+1bolaC2L
+	mmrBDur9QjmMkXbv/hhvwVIiI5HiBhlTTTnP/hG3Sfx8wE0l2sWtNANyGlGtvg==
+X-Gm-Gg: ASbGnctn3aJPcQScggitbBu8M4uJFzPcoGQ1IY3U0Ex563bwpkknS8adh1fBSrPt5OF
+	R7X/tOdie63qCFvyD6nRVN+Jn3+rgUgjtXyjdO4bRy+XvCnojgBnzbUjA8wZViosCbfTxVQ9zpJ
+	9phXjkxap4yMCEviIXPcshdc71AulCKumxiSoaLO5MeHSLPjLojOn7rk2KSBLo1DnqJeP8JHEbd
+	qLfKCOvyNEZTNMpHPbNgkniAeVWNvg4t+vOfIfpNwQX1ZwxEiYSmtVTLUh5o5EyTgPxdxAD/Jzl
+	u1tKRxSMGpF/PR/+Icb+bQBp56y8SOC6mrQJFzPS8dnasd3cyu62Rh6YWB8uvWdbFUxdSYY=
+X-Google-Smtp-Source: AGHT+IGOmSQpXkUnZdYt3mMxmKIKuJThMobl2OAw26tHyyC7x+W3/uSQd654Hib3GW+DawwwLa83SQ==
+X-Received: by 2002:a05:620a:1a8c:b0:7c0:9ac5:7fb6 with SMTP id af79cd13be357-7c247f00cd6mr730633285a.7.1740600882744;
+        Wed, 26 Feb 2025 12:14:42 -0800 (PST)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-7c23c327f4esm292153985a.75.2025.02.26.12.14.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Feb 2025 12:14:42 -0800 (PST)
+Date: Wed, 26 Feb 2025 15:14:41 -0500
+Message-ID: <f1c9e72d2c44e7c6dcafed2d24b26b7f@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20250226_1339/pstg-lib:20250226_1339/pstg-pwork:20250226_1339
+From: Paul Moore <paul@paul-moore.com>
+To: kippndavis.work@gmx.com, selinux@vger.kernel.org
+Cc: omosnace@redhat.com, stephen.smalley.work@gmail.com
+Subject: Re: [PATCH v2] selinux: add permission checks for loading other kinds  of kernel files
+References: <20250211182159.37744-1-kippndavis.work@gmx.com>
+In-Reply-To: <20250211182159.37744-1-kippndavis.work@gmx.com>
 
-Paul Moore <paul@paul-moore.com> writes:
+On Feb 11, 2025 kippndavis.work@gmx.com wrote:
+> 
+> Although the LSM hooks for loading kernel modules were later generalized
+> to cover loading other kinds of files, SELinux didn't implement
+> corresponding permission checks, leaving only the module case covered.
+> Define and add new permission checks for these other cases.
+> 
+> Signed-off-by: Cameron K. Williams <ckwilliams.work@gmail.com>
+> Signed-off-by: Kipp N. Davis <kippndavis.work@gmx.com>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+> Changes in v2:
+>   - Removed the `-EACCES` return in default case in
+>     selinux_kernel_read_file() and selinux_kernel_load_from_file(),
+>     reverting previous fallback behavior.
+>   - Added a compile-time check in these	functions to catch new
+>     READING/LOADING_XXX	entries.
+> 
+> Thanks for your review! I've adjusted the default case so as to not
+> return an error and depart from pre-existing logic. I first tried to use
+> the pre-processor #errors but failed with the READING/LOADING_MAX_ID
+> enums, so I opted for BUILD_BUG_ON_MSG as a compile-time check with
+> those same enums instead to catch new entries.
+> ---
+>  security/selinux/hooks.c            | 56 +++++++++++++++++++++++------
+>  security/selinux/include/classmap.h |  4 ++-
+>  2 files changed, 49 insertions(+), 11 deletions(-)
 
-> On Wed, Feb 26, 2025 at 2:06=E2=80=AFAM Song Liu <song@kernel.org> wrote:
->> On Tue, Feb 25, 2025 at 4:31=E2=80=AFPM Blaise Boscaccy
->> <bboscaccy@linux.microsoft.com> wrote:
->> >
->> > Certain bpf syscall subcommands are available for usage from both
->> > userspace and the kernel. LSM modules or eBPF gatekeeper programs may
->> > need to take a different course of action depending on whether or not
->> > a BPF syscall originated from the kernel or userspace.
->> >
->> > Additionally, some of the bpf_attr struct fields contain pointers to
->> > arbitrary memory. Currently the functionality to determine whether or
->> > not a pointer refers to kernel memory or userspace memory is exposed
->> > to the bpf verifier, but that information is missing from various LSM
->> > hooks.
->> >
->> > Here we augment the LSM hooks to provide this data, by simply passing
->> > the corresponding universal pointer in any hook that contains already
->> > contains a bpf_attr struct that corresponds to a subcommand that may
->> > be called from the kernel.
->>
->> I think this information is useful for LSM hooks.
->
-> I've only looked at it quickly, but so far it seems reasonable.  I'm
-> going to take a closer look today.
->
->> Question: Do we need a full bpfptr_t for these hooks, or just a boolean
->> "is_kernel or not"?
->
-> I may be misunderstanding the patch, but what if we swapped the
-> existing 'union bpf_attr' parameter for a 'bpfptr_t' parameter?  That
-> would allow for both kernel and usermode pointers, complete with a
-> 'is_kernel' flag; or am I missing something (likely)?
->
-> --=20
-> paul-moore.com
+I too am a little concerned about confusion around the policy load
+permission name, but after reading through all the suggestions and trying
+to think of something better I'm left with the feeling that no matter
+what we pick it is going to be awkward/confusing.  With that in mind,
+I think the choice in this patch is as good as any, so let's just stick
+with that.
 
-bpfptr_t is just a typedef for a sockptr_t, which contains a void
-pointer and bool, so if we replaced bpf_attr with it, we might lose a
-bit of type safety going that route.
+Merged into selinux/dev, thanks everyone!
 
-In syscall.c a most of the subcommand handlers have a
-
-static int bpf_foo(union bpf_attr *attr, bpfptr_t uattr);
-
-pattern that is used. I was trying to mimic for this patch.
-
-The actual parts where the is_kernel flag gets used currently, is for
-pointer chasing/copy stuff, e.g.
-
-make_bpfptr(attr->insns, uattr.is_kernel)
-make_bpfptr(attr->license, uattr.is_kernel)
-make_bpfptr(attr->fd_array, uattr.is_kernel)
-
-and subcommand structs may contain multiple pointers.
-
--blaise
+--
+paul-moore.com
