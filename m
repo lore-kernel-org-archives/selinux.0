@@ -1,113 +1,142 @@
-Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F2CF79D0;
-	Wed, 26 Feb 2025 16:00:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69C982144AF
+	for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 16:27:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740585637; cv=none; b=ZypeDKUbgl7BnnJ2mJXOKihjz9QjyxurUQv8LNJ85ypzBXnnct7TdA6pbkq4kxoeu841LFk5J7SX4oqyUzBX3Ffnz+9isaQgCCBBWX4mO3lE3dEPDbY1AYqtTke/pAXkmDS0/Gubn9UE2wX63/w8Y07y2EkC5JpSmOKY5zv0jy4=
+	t=1740587263; cv=none; b=Ms/JZMs8B9xXekHnCm39Vtfek4y5KNxEhTru/MP84gb4778RdNUrJgZV77hYgvRVzLNVhiDjC5EBhEkKzp0cCHJHoLz+bFVugPcUBBBz6kCtQ/TGEuY1QBdqZVsK2mcxY1VM27YbymaSXcdTbnNF4LrMdVX5CTGVkYnZIIC2i6I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740585637; c=relaxed/simple;
-	bh=kHkB+HCaBdSvy0bFIms6en6j+ch1WkP5IOkqbnS1gSY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FMvCRltD4Td0TwzIp7wF/uEKZRF2sWs4iC8VTwUdLgdV5+ex9XpxJpl5gbSQKjb73OhK7hoBEDIy7Pcooo+zUhfyASpPSZOC4cguF9nF3KuPlG9bXnoLOzGRPEJWcYuP0T5H6QTfRVRj2XDxmluAtyHdYfrsV+BlGh8s1hdqqeY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QP/HB7ym; arc=none smtp.client-ip=209.85.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1740587263; c=relaxed/simple;
+	bh=jdsDLDnbLi+jDvV8tDl4S6b6ysi6r8hSdf4p+BBfZ6s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JjmWzlzW2l+vPn9wF4l7eZ2pXP8PujbUcyshLwP8Oh1RbKDbsdeyIayBM5OLhJSpi6ZIhWg3I+ccSXI5P1ng4diUKlEYkadPdsCe8R64iPDQEyfb9eyUrPgH/qY1SOLnLargbaUuaDe+YLwVaxbZFQdOtlv9KqnlwzqzwiZJ/sQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com; spf=none smtp.mailfrom=perfinion.com; dkim=pass (2048-bit key) header.d=perfinion-com.20230601.gappssmtp.com header.i=@perfinion-com.20230601.gappssmtp.com header.b=jCXrDWHv; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perfinion.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=perfinion.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QP/HB7ym"
-Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4394036c0efso45294005e9.2;
-        Wed, 26 Feb 2025 08:00:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=perfinion-com.20230601.gappssmtp.com header.i=@perfinion-com.20230601.gappssmtp.com header.b="jCXrDWHv"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-220c665ef4cso124395055ad.3
+        for <selinux@vger.kernel.org>; Wed, 26 Feb 2025 08:27:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740585633; x=1741190433; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kHkB+HCaBdSvy0bFIms6en6j+ch1WkP5IOkqbnS1gSY=;
-        b=QP/HB7ymyPudJ3I4Wqhk/S5eVzWclxnPKfgoS/DmWCh1+xWScs4W5MS/I73T48D1oJ
-         jeq6o+1R62mxBMctZ1HZ+dFQsRYHt4Pz5SLpigd0kj/gFqNnKAXMjjxgOGUdt43QERB1
-         cDRlpGvZ4Y9Ev8gu9hAOlDoBFEZRVR8bbMg0CgRf7/Ox2HTHsiAmJIpnxjps906FXjx0
-         Dm2w6Zo0Urmw2JN99AXvp1kUHMt4iAq3LpjiPZBw7EEiZEiQkjb/0Wd50+LbRz1fQ5dI
-         YXoZsJEsDq5hNwa+BizBdia8cuTAtb2q6CQN6lvTWSTIHrB6x11zNkeoKGR+ZNNCZiIW
-         MVEA==
+        d=perfinion-com.20230601.gappssmtp.com; s=20230601; t=1740587257; x=1741192057; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=GU9ns2nI2AiJccw5i3Ov5a/FFLlrbEd4LvJEfzdWgS4=;
+        b=jCXrDWHvpRjy48qJZSsBcLFsktXGuqH841asXzGf5GpI0n0Idp0Z5yeMA/V4pSl8cf
+         /otK1iqcDZnQT3jBlCroXzHD9atLOMRKuBxxBs61yd72ytK06FsoWefc5lP+DAr9j7jW
+         HmiS6VQlfMOC9THB5MUjXRVjgaEnhM3JUF30+YgfUzCZMnvevJGzGwHOB3qjIoW0rrF/
+         hMTU/blPhh6dJiN0nSTlbs5rQTOGKIDxIqvLtkRC+C2T1PMQVhLjt51F6SRgrQ+YhgTu
+         mgssARltLpWc4UFRJC4tKCw7f4vuAZCE+b5bNNqYwifugW5sLjh1MzilPXI/VnxpUnqu
+         EjOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740585633; x=1741190433;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kHkB+HCaBdSvy0bFIms6en6j+ch1WkP5IOkqbnS1gSY=;
-        b=aUQy29w7tbJv/FCYVdDw2t6N2XqiucPV1kBZoJr5SsYH6zufZlQHs5+hLYRkudUOVZ
-         VhvT3rLSVlRbK08cn/8L7OfdM/rXgY9+7GvSb2Dlo3AvvOdoXJxOwqQ8BxvvgmahkrxC
-         eYSZntWNhTEzJkPIlOKuMvmvm82/g4G1M8J5MRhFXvPtJeWo/qBVXSo4qnuOwJJjg/PE
-         H/htgUATONL9emXccFtIykd45l48fgw5ozjWcpdo/j2pTE5hEgcys9ok7VpkqDWo7g6J
-         ALYfiualdfngt99KmspKWIw4lMFq8/LN7HvHicRnNaQD0TyM7vXZcMA3QK+Je4wb6bPm
-         atIQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVNQyg19SB81raOJCSzyJZxB+BH8Nd0UIBo+DIKMdS/pHQaCYp2HjjQwFYRbDolPWqDZDBESik6DQ==@vger.kernel.org, AJvYcCWbeofh/YL4a1yL8mMDo6zjGaMCldaFdG8XBoDeEJgQ5jUyrNqDjfnznCvIYdHwrDCIJ57dCtPWRtdtC2+Btaje1zOYWZO8@vger.kernel.org, AJvYcCWlZFtVWYiADK6uy9RvlYU16HvtyRYj8DrLWEXmHFX2bkPLhfBvlNzs3iwSo/ISVWbV/dbh2MCiPcLgS27F@vger.kernel.org, AJvYcCXRR2ch2tnlPBlmrgT/egIcCpfZOKoXqXh6kqfFU0cPktTB+Y4xGZeP9TiJS6XCghT2VaI=@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywt3hyLEoIK8xDQ8ZqiMJBmzVtpYM3WfUY5IJRPeyg9dyxEukj4
-	tPtCFGs97fEYnjXTzepbx7qZx9Pom2SiNVPCvpgKKMoA4zW27FB9AbemqXQztgrbs1lCGvwAH0x
-	SLGK+ebdKQfcUnO5MLsRe1MduphM=
-X-Gm-Gg: ASbGncvki0pCZhKCNxp+uWlMkTxwjUKoGcjwGvuhGPJHojf842AgdnxO2IQ9pDso+T9
-	8kQp3HrcsP4QFLILOxrHXuKJ+ZmOQ2cemVN1lStYd8tg+gBRoVrgnlgwMk4MvPMgyb15871ngmi
-	G+ZWWNVNbqz2Q4jAwyW+mgiLM=
-X-Google-Smtp-Source: AGHT+IEnzIccpTSpu38ZRm976PQcvhBwWZzlzuIa9i47JomSH3nFGn6WIQR/4wJQ7agbT1bgR03CzlctzwvY2FprXoU=
-X-Received: by 2002:a5d:64ee:0:b0:38f:4acd:976d with SMTP id
- ffacd0b85a97d-390d4f367e8mr2395003f8f.9.1740585632741; Wed, 26 Feb 2025
- 08:00:32 -0800 (PST)
+        d=1e100.net; s=20230601; t=1740587257; x=1741192057;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=GU9ns2nI2AiJccw5i3Ov5a/FFLlrbEd4LvJEfzdWgS4=;
+        b=EeXPgicHV+HRqTouxDb/VD2TlqkjOJHz7pHtANpPnN/JdBP5MRWVUx8oOKwoJc4hCK
+         1hKwLWJo4iB9Ftya5NDqCxyPhnWu9QS57vNHyJbVVvkMzfmerT5RIRuyBUv0laRVQ50I
+         okLWWNQbPKpW8vv0cI4RqVurR3h6M9ZOKbZEA8x8HyhEBxYS1MYps1Q36Xr0x+t+iYUl
+         YguBaJbb8Aah/l7HCZ2d5XprADjLd1NcxqYiBB2DMwKUdmU0zrTKCfOtUG3akThKLfqc
+         +T7t1ecr6yyXhysT/rnGY5OT0c42yj0wNICrQiygju0HJrucYEWPyXaqwUPHM8MdO6qP
+         bDNw==
+X-Gm-Message-State: AOJu0YzCcIcU5ESucrkOr52X8NJ1puUMp8wNmB8DU/Xz55J7R1AEDB90
+	phc5vjjZoP+GX91QL1fexrx/webhcVklrNLecBAs681j6KxxePgYLNZFMNddQc+itb7Rd64Kbqd
+	+
+X-Gm-Gg: ASbGncsQq+ZE59NEjZDg5AqcHNludbvo6cZxPoLTifJLo+jQqyR2nyBPWx+Fh0+3ABb
+	+WB3pIojlFWo08zuRJiy9tJpARrDIkIOHKz4HR4oSY1rPkR7O9kjh6gWcP2BhD4g7ekgcYQPWiK
+	MzsQdc2VgpnRspnPVQdXzheiYfOzMasPQuR/Tt57WwLFzwt3ryeOxzf2ZpQfeeZ+wBqODoGNgD4
+	Q+Bu132M4kJGVhhQMwCJH7Vq3bqUieuZ4Zf9aeKSxhh051Gk/45nS9d1XGKfFQK7CWofBFkFU6B
+	nWvk5K/1yvwq8ai/4+uv7994gesUg5i3GmUkS1WTd7lUlnYmNQ/GXbaDBoBRDPodroHD4uI=
+X-Google-Smtp-Source: AGHT+IH7lqYIzxKc6IlK3tImNLMjSxbdDNDb6Nnr7hHMaQhBvMl4OtTWXSPksxNvjP4tgcZBaWScvA==
+X-Received: by 2002:a05:6a00:174c:b0:732:6231:f2a3 with SMTP id d2e1a72fcca58-73426c8d3a7mr37772983b3a.3.1740587257078;
+        Wed, 26 Feb 2025 08:27:37 -0800 (PST)
+Received: from localhost (99-123-3-233.lightspeed.sntcca.sbcglobal.net. [99.123.3.233])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7347a8375easm3695313b3a.163.2025.02.26.08.27.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Feb 2025 08:27:36 -0800 (PST)
+Date: Wed, 26 Feb 2025 08:27:35 -0800
+From: Jason Zaman <jason@perfinion.com>
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org
+Subject: Re: [PATCH] libsemanage: improve performance of semanage store
+ rebuild
+Message-ID: <Z79A97uBFd_6RTFz@anduin.perfinion.com>
+References: <20250225075555.16136-1-lautrbach@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250226003055.1654837-1-bboscaccy@linux.microsoft.com>
- <20250226003055.1654837-2-bboscaccy@linux.microsoft.com> <CAPhsuW7=uALYiLfKfApvSG0V+RV+M20w5x3myTZVLNRyYnBFnQ@mail.gmail.com>
-In-Reply-To: <CAPhsuW7=uALYiLfKfApvSG0V+RV+M20w5x3myTZVLNRyYnBFnQ@mail.gmail.com>
-From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date: Wed, 26 Feb 2025 08:00:21 -0800
-X-Gm-Features: AQ5f1JqssAv3oBHTb3IsiX4NYi90Rnt9V3TLX6TONZbYMfDzNUbG2vAqbXFr2u8
-Message-ID: <CAADnVQJWMBRspP-srQwe8_B1smGG1hs3kVbpeiuYo-0mLWAnUA@mail.gmail.com>
-Subject: Re: [PATCH 1/1] security: Propagate universal pointer data in bpf hooks
-To: Song Liu <song@kernel.org>
-Cc: Blaise Boscaccy <bboscaccy@linux.microsoft.com>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
-	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	LSM List <linux-security-module@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, 
-	bpf <bpf@vger.kernel.org>, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250225075555.16136-1-lautrbach@redhat.com>
 
-On Tue, Feb 25, 2025 at 11:06=E2=80=AFPM Song Liu <song@kernel.org> wrote:
->
-> On Tue, Feb 25, 2025 at 4:31=E2=80=AFPM Blaise Boscaccy
-> <bboscaccy@linux.microsoft.com> wrote:
-> >
-> > Certain bpf syscall subcommands are available for usage from both
-> > userspace and the kernel. LSM modules or eBPF gatekeeper programs may
-> > need to take a different course of action depending on whether or not
-> > a BPF syscall originated from the kernel or userspace.
-> >
-> > Additionally, some of the bpf_attr struct fields contain pointers to
-> > arbitrary memory. Currently the functionality to determine whether or
-> > not a pointer refers to kernel memory or userspace memory is exposed
-> > to the bpf verifier, but that information is missing from various LSM
-> > hooks.
-> >
-> > Here we augment the LSM hooks to provide this data, by simply passing
-> > the corresponding universal pointer in any hook that contains already
-> > contains a bpf_attr struct that corresponds to a subcommand that may
-> > be called from the kernel.
->
-> I think this information is useful for LSM hooks.
->
-> Question: Do we need a full bpfptr_t for these hooks, or just a boolean
-> "is_kernel or not"?
+On Tue, Feb 25, 2025 at 08:55:23AM +0100, Petr Lautrbach wrote:
+> Commit 9d107ab77ba4 ("libsemanage: Set new restorecon handle before doing restorecon
+> ") added reopeniong selabel handle every time semanage_setfiles() is
+> called. It means that during `semodule -B`, `selabel_close()` and
+> `selabel_open()` could be called more than 1800x what could have a
+> significant performance impact.
+> 
+> It should be enough to reopen selabel handle just after semanage commit
+> when changes are applied.
+> 
+> Before 9d107ab77ba4:
+>     semodule -B  5.84s user 0.52s system 96% cpu 6.585 total
+> 
+> After 9d107ab77ba4:
+>     semodule -B  11.15s user 0.64s system 98% cpu 11.952 total
+> 
+> With this patch:
+>     semodule -B  5.51s user 0.41s system 98% cpu 6.014 total
+> 
+> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+Acked-by: Jason Zaman <jason@perfinion.com>
 
-+1
-Just passing the bool should do.
-Passing uattr is a footgun. Last thing we need is to open up TOCTOU concern=
-s.
+> ---
+>  libsemanage/src/semanage_store.c | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
+> 
+> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+> index cf9aa809b7f8..307f27f9838b 100644
+> --- a/libsemanage/src/semanage_store.c
+> +++ b/libsemanage/src/semanage_store.c
+> @@ -1712,6 +1712,7 @@ static int semanage_commit_sandbox(semanage_handle_t * sh)
+>  	    semanage_path(SEMANAGE_PREVIOUS, SEMANAGE_TOPLEVEL);
+>  	const char *sandbox = semanage_path(SEMANAGE_TMP, SEMANAGE_TOPLEVEL);
+>  	struct stat buf;
+> +	struct selabel_handle *sehandle;
+>  
+>  	/* update the commit number */
+>  	if ((commit_number = semanage_direct_get_serial(sh)) < 0) {
+> @@ -1822,6 +1823,8 @@ static int semanage_commit_sandbox(semanage_handle_t * sh)
+>  
+>        cleanup:
+>  	semanage_release_active_lock(sh);
+> +	sehandle = selinux_restorecon_default_handle();
+> +	selinux_restorecon_set_sehandle(sehandle);
+>  	return retval;
+>  }
+>  
+> @@ -3012,14 +3015,10 @@ log_callback_mute(__attribute__((unused)) int type, __attribute__((unused)) cons
+>  void semanage_setfiles(semanage_handle_t * sh, const char *path){
+>  	struct stat sb;
+>  	int fd;
+> -	struct selabel_handle *sehandle;
+>  
+>  	union selinux_callback cb_orig = selinux_get_callback(SELINUX_CB_LOG);
+>  	union selinux_callback cb = { .func_log = log_callback_mute };
+>  
+> -	sehandle = selinux_restorecon_default_handle();
+> -	selinux_restorecon_set_sehandle(sehandle);
+> -
+>  	/* Mute all logs */
+>  	selinux_set_callback(SELINUX_CB_LOG, cb);
+>  
+> -- 
+> 2.48.1
+> 
+> 
