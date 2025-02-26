@@ -1,92 +1,89 @@
-Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9047515198B
-	for <selinux@vger.kernel.org>; Tue, 25 Feb 2025 22:14:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.179
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6CB2429D0E;
+	Wed, 26 Feb 2025 00:31:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740521675; cv=none; b=HNtt5h0t9FFOnn3hrNtenHUm1xR4qLYxhPB3B8V7JP8ItEKcnDFW1qKNmiI4PmE5YOM8Q4GY5AT1sOIGKJ+jKEUIyyHfcjjlsBcxMQSxK7CbQrIyYSqF/4GQOaigRJz2hlvHjAj5dp5WUv7iZlbO8RMjApH0KYv2DVR4P3NP5qg=
+	t=1740529871; cv=none; b=juG3Ier/T2FhC9VyUSzu2/Gm1+kZI7q6OrFgG7QxHIwSz/ynL+vDJLzlM/53yullw6+Y4E3EdBCl+HEyA1wO1l2xrKsL13nByJf5aC9MnDo75YRi6QF1Q3Qw6Nv8iFg/BNxJEsV+ygC5964+unvDFq3WOwevR0nvOvECeIqU4NI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740521675; c=relaxed/simple;
-	bh=MDGLRB1elogkq5ZS7O3/EtHbyE61wRXahwAtSkqJ0aw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QswyQZPaTvb7QX6HH3IshlrjTBsM54qlXhKf/L9ljLVVkNKtIjwglyKEMKWNFmGfKtV2UDcdPqTgRIeHH3+cPE4ApuO0hqdJq3vgQiI/uwvY+8BKCIzOH/7sTLoP2tCl37bvRAu8qFkaC6TRGqkNUEZDaQQKBc0Ee7g8WR3WsyI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=HKHrvHIP; arc=none smtp.client-ip=209.85.128.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1740529871; c=relaxed/simple;
+	bh=7u8Urx6xbaSc2nMybYjuCDRx1MQ5fV1RW8+qDsUXiXk=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=uhOZmkFZZRQBki2EBbjwHsI4DbH75auCbxaANRYITjFWQrIiBUO+9u9rfSmjjbpAMynjtmG5uED0hAGgDuMHpuH0kgMA6R7wQfwRuMk1S2Q3sCRGotGoW/lDlxOGeN3Wz5YDZDr2tqKgARFoMI3g5a/OugWCVFlU7g86kiW81PI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=Www5p8X7; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="HKHrvHIP"
-Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-6f754678c29so54666797b3.0
-        for <selinux@vger.kernel.org>; Tue, 25 Feb 2025 14:14:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1740521672; x=1741126472; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MDGLRB1elogkq5ZS7O3/EtHbyE61wRXahwAtSkqJ0aw=;
-        b=HKHrvHIPGOs1LAPhaKGNVYAN4p1hSmui5H2x05WfT8rpf/+sxE5cNaJe4j4UPShABd
-         QdglBIJRHJlmFTsh0oXtBBF8oK31iko2mj5XAMfkURIXlnHuNViYHY6r4rtcvAFOoCtI
-         iKp00SFOYRRF4IrIH5cz9W1tHw+QlEtTRXMqgiMh24y1D7JKw+EngatYg/Lh+9uAIW+r
-         B1jSUsbiiMY20xcsisZek9Fjju86noKydwlAvseGVqLwOeC4Pci7nwp+jLZt0Uf28mO8
-         we5gSJFCqE0NJTVwC1+55Q/k4JgavG3yBljPZJ2worsbEqjsdGQPxVIwT4TwA5Y2IM+5
-         ukpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740521672; x=1741126472;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=MDGLRB1elogkq5ZS7O3/EtHbyE61wRXahwAtSkqJ0aw=;
-        b=A170jJ3kI74hw27NfyhRNc9i4PYqvfd6AgcF4G+9A2p1jq7GiczfhULdgvGsEvlafT
-         6lHPcHmarRziWsYfBkOqOBm5L/auAexnetelmZbKyG1xNjUUIJgPq9XPwwUX5j8WK5BK
-         GYNkip8gYzI7hRFLpdBGDBVFuGhcsA8gHM7Flq9JAxBUtHvwJmT1+/DMo0ag4onzJx6K
-         HVcFVXl314+P7tw1jteT4w5bBerCFjwFcyDuXcz4jwjaxzD1JLT+zs3nyu00JaF/EaA9
-         RjHMksIBf14cpBvHGnlyOMFuF2WcMSqjBPZuog/XSgY21I9c8GwqhAfDpWsMesp627Zw
-         qseQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVTP8lepWw52uVeruDQ6wJ93H0QI/+T+qqEl9MZghCKLK0F0RPJz6brcgQROuAepIkQCe57C28q@vger.kernel.org
-X-Gm-Message-State: AOJu0YwlYoNF3EnjzbtZs6Y+A3GOwx05ZNANcj5JHJH4UMn11+4TIZGU
-	5jlUBBGUc1awYsn3SKnGbxxSN2BUo3BXz13fq1G6FYAHt/u+QkHdrB8Oo1JhpvAHACMm4T7eucl
-	lj9XZeCdQwSKQKWyxIa6pqgtuNY9kn4a58hkK
-X-Gm-Gg: ASbGnct6NCDCbsD75FPTsj8heC18iMn1MyNttnIZcdOMj56ub7+b/HN3PEB6dA+L0W1
-	NCZFnKyDOSGgiQL7YPmX1iyjusmYk/mk1FGkl+L5RhVTy/Wf+ekDZKOkdSbG1ypKPN4GSBbYXsB
-	l6NMaTPbs=
-X-Google-Smtp-Source: AGHT+IEq+q/3SNBzxXflir8s+6QdmuMLr7mPJKzm7/BUu7IXjxCgJ1uEovP+G+hSJ9QqgINvHv7u8FQo9Dm4e0gAv10=
-X-Received: by 2002:a05:690c:312:b0:6fb:9fb2:5840 with SMTP id
- 00721157ae682-6fd10ad8d15mr47580827b3.28.1740521672571; Tue, 25 Feb 2025
- 14:14:32 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Www5p8X7"
+Received: from narnia.corp.microsoft.com (unknown [167.220.2.28])
+	by linux.microsoft.com (Postfix) with ESMTPSA id C83ED203CDFD;
+	Tue, 25 Feb 2025 16:31:04 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com C83ED203CDFD
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1740529869;
+	bh=Km3jX9X6KTYjsEDd3nzA6yCAbUXbwEpnswIIoKZCbKY=;
+	h=From:To:Subject:Date:From;
+	b=Www5p8X7rPz9jCtj/syOpKPEtf+WUWo9iozLUUxACDprDqLaM0WueD2es0YiephT8
+	 b8MgwlRHemGiFZnvpSh9sbBPyTceOFSSkXj0yPaeAZwWB7CBblRZGYzB2jCh+78iAO
+	 hhkAJ8aiIDgXSvQXgaaRXw7AtxinjmxLWq71x/W8=
+From: Blaise Boscaccy <bboscaccy@linux.microsoft.com>
+To: Paul Moore <paul@paul-moore.com>,
+	James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Eduard Zingerman <eddyz87@gmail.com>,
+	Song Liu <song@kernel.org>,
+	Yonghong Song <yonghong.song@linux.dev>,
+	KP Singh <kpsingh@kernel.org>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Hao Luo <haoluo@google.com>,
+	Jiri Olsa <jolsa@kernel.org>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	linux-security-module@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	bpf@vger.kernel.org,
+	selinux@vger.kernel.org,
+	bboscaccy@linux.microsoft.com
+Subject: [PATCH 0/1] security: Propagate universal pointer data in bpf hooks
+Date: Tue, 25 Feb 2025 16:30:29 -0800
+Message-ID: <20250226003055.1654837-1-bboscaccy@linux.microsoft.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAOQ4uxhxQfFfrpmRS6tOv5ANVug6d8dGx6Hsc7MYYe63sUOpcg@mail.gmail.com>
- <20250225192644.1410948-1-paullawrence@google.com>
-In-Reply-To: <20250225192644.1410948-1-paullawrence@google.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 25 Feb 2025 17:14:18 -0500
-X-Gm-Features: AQ5f1JqI7MeM_scLLuLOFY1u27DXLEkWvnLakhLURvGM4cGQ0eQrhjUWTYnMN4E
-Message-ID: <CAHC9VhSu-034tguAKj+rptYB0w8D9mtgmjbDgLwVc-bJQcSrBg@mail.gmail.com>
-Subject: Re: [PATCH v19 0/4] overlayfs override_creds=off & nested get xattr fix
-To: amir73il@gmail.com
-Cc: corbet@lwn.net, dvander@google.com, ebiederm@xmission.com, 
-	john.stultz@linaro.org, kernel-team@android.com, linux-doc@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-unionfs@vger.kernel.org, 
-	luca.boccassi@microsoft.com, miklos@szeredi.hu, paulmoore@microsoft.com, 
-	rdunlap@infradead.org, salyzyn@android.com, sds@tycho.nsa.gov, 
-	selinux@vger.kernel.org, vgoyal@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Feb 25, 2025 at 2:26=E2=80=AFPM Paul Lawrence <paullawrence@google.=
-com> wrote:
-> Would a patch to set credentials during remount be
-> of interest?
+Hello,
 
-Amir mentioned (in a html email so I'm not sure it will go through the
-lists, I haven't seen it yet) that Christian recently proposed an
-override_creds option using the new mount API, does anyone have a lore
-link they could share?
+While trying to implement an eBPF gatekeeper program, we ran into an
+issue whereas the LSM hooks are missing some relevant data.
 
---=20
-paul-moore.com
+Certain subcommands passed to the bpf() syscall can be invoked from
+either the kernel or userspace. Additionally, some fields in the
+bpf_attr sruct contain pointers, and depending on where the subcommand
+was invoked, could point to either user or kernel memory. One example
+of this, is the bpf_prog_load subcommand and it's fd_array.  This data
+is made available and used by the verifier, but not made available to
+the LSM subsystem. This patchset simply exposes that information to
+applicable LSM hooks.
+
+
+Blaise Boscaccy (1):
+  security: Propagate universal pointer data in bpf hooks
+
+ include/linux/lsm_hook_defs.h |  6 +++---
+ include/linux/security.h      | 13 +++++++------
+ kernel/bpf/syscall.c          | 10 +++++-----
+ security/security.c           | 17 ++++++++++-------
+ security/selinux/hooks.c      |  6 +++---
+ 5 files changed, 28 insertions(+), 24 deletions(-)
+
+-- 
+2.48.1
+
