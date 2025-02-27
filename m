@@ -1,109 +1,202 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 079EB259493;
-	Thu, 27 Feb 2025 15:22:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1E1C26E944;
+	Thu, 27 Feb 2025 16:05:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740669764; cv=none; b=B4AxDb+dNCa8rFRiqO3SUExGyxg39wojL6ravjj/yIDgWvXyfBS09D5JWD7WQYHdIFrZR/mGyLTRNL6fWKmF2hCEHXejMvVe7WsrvLnG/ahbGTiZj8bO00W/6BM89Zb84rHP8G0/W5xUd8wRsE9Bygn/9hrgzwiSllaJ5AROYaw=
+	t=1740672306; cv=none; b=DtBFaWnEDt0rKtKTLQf8C9z+6PBbyTTFKhski/Ou9pEzm+zODcfWxE+/JR9gUeR28X1Wc0oE6MFE2DXim4djEUKNTXrO3yFG5bQzOw9IT10vzeqQMwTqxltYLcQi4UaKxGNtkXqOSqLOP6FHluzewLhuQR1SNn35L/SLDZPb8nQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740669764; c=relaxed/simple;
-	bh=1SVxacu8ATtmAP908NS6+KKXwalFxj5EJQoy7daa6ks=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FAEr9ngd0mtMuUi970ChuyGjEtVhDiQe9Q01zLkjTis0QoFR6OvQgkx0g2YJ36bfbrHL2+lRJRV92YoIIStfTFLVG9L9RcWB4JPYV+Sz77en7+95VA7pFNgboYKP/gzad0OBc5j8X13og9ZMaPrIbG6tOZkmlatfRhFYsPrjGPs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=m5Z+0LQ/; arc=none smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1740672306; c=relaxed/simple;
+	bh=sj5RoctSbIGx3p/cbQm/bVUcln1LHkula1nexu5M2Yc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XMTpr9MR8I+MaFB1MjtHV2PMGEB/9sipEGXIL06yqhf5/ApdMVv2cru8eMmBPoKYaBOdMBLDnclpyjWQIrFveVh6pHD7Popk6sJs7QM38gZASI2HbuYvP4oqHEksg1Y3Ls/7q2/qodJ4hZN37GwNTZPQflQCjE72ixzjhC6TVnc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VpbbLZRQ; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m5Z+0LQ/"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2235908a30aso15710155ad.3;
-        Thu, 27 Feb 2025 07:22:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740669761; x=1741274561; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=g7a/cAUhkti68XpQh7UWKw8QuI4mozU9EgVOFOHErTo=;
-        b=m5Z+0LQ/1bQxZP63sf3Ar4qrc7rtQGG6mmp5ZO5aPPlEM7ntfXnkhQnLH6US9fA+gP
-         bMXZb2RiILo+S+a2zCDEtfO6BFbqRaougQvlggUQavWEn/3y8Hc2gl2wXuyZ7CwPeyPj
-         eQFyld2HkPIY33hLPX7+gFGb1L++msVEDQVdt8+O94LAjWZBPClWM2wIvT0f8UGKJA1h
-         HA2g/Fn7A3/wG+CTKg97kV9lSudUnNJ+oCtK6Pdi8+cisrwehxg0FTXeDwT+SjTdJps8
-         dUsuiwQ2sa4KN7Up0RJcsA3MSMiXRx0747EnlTyR0OJjysWVS15PMAx7pfVdgc0Qhc5h
-         llTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740669761; x=1741274561;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=g7a/cAUhkti68XpQh7UWKw8QuI4mozU9EgVOFOHErTo=;
-        b=QCZevnXeO1n6oGMW+WKMav6QNl1HenyErC9+t9EEukBesF0oS97L1b7B93NZbQM4GP
-         BZTTrEM7CHKrG6B4v5vv3lbg7ZmO+ZInER/sZQQ1To5O29RRsu0jMVq69XfxMis6EoAR
-         HGKtq7Oa9CxFoLq3ecS/axuOIgvz/u6Gm0T7KWdd1hdeJH9OOfnn3l2w/dn/l3ssjRhR
-         u5iTHnKqwaFYgqoVIqWGE9rxsnCs3F9xoSVLzQEgy6eL3EV5IBaSELRjKNw7j5n6GIIs
-         Z2pXCWSdRQgweG9aq28xKnYF8IyGdHLcxpV5o2M3Ah7grbSG1pgYDk6xkhv8kmYwQAVp
-         qicQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUJXqg/Z/k/J5Ggeup7/QqN0Iu2au/j5DQbQO0vsfFdlbGxJga2s1waTVt1Xy45YCq8xNAX7npLhg==@vger.kernel.org, AJvYcCUXVHQ3v/PqkoQ43c6eIG6FltBqZhLkiGLwJ6qi/gKvv/VsGqK7+Aj+3cmK7WN4cPND9Ocys0jR8WJ2OeFViBO6qCCDYZXK@vger.kernel.org, AJvYcCXUkz0Ow/YW44Ox84CyxgLIXrXGlHCEovD2ZSJXHdvsEE07xyDI7x6OqbZbBL9spE3Oa9ihU1z1cAzaUnd0@vger.kernel.org
-X-Gm-Message-State: AOJu0YzhbjI3CZyOb2SVoeCOglbn+6RQI2tIUaMLYRGQCA1Sd3UiZEsx
-	MYKr4Nqg4mJ3SGyT7/C7HjLXwBM2eJmoPvZg9tJnyrLEOXx4KMIjRShwMiX2aOBjAMAQ/E3toUK
-	ObVoQDAVHRw4twB0+JF0+XtyWJGI=
-X-Gm-Gg: ASbGncu1Ok6LWtY9LoEAWymmE7mSpuDfkwsVFU4/PmFrNNF0XgcVlua2XN/vaceH4xy
-	5a7iuoAXpBb7Ha2T3e93hVpOyTGQN5aJpByzsKnlF8qF0p1PstFNLbkdIoeX1E8m57W/eC2Ywxk
-	eAwa7gCZc=
-X-Google-Smtp-Source: AGHT+IE+w5fusJYoHQ3wPbckiON8o5BwLP3W2r4hHKOfZZFZkBYr77XbwtHjwHWjmZo9lBiybVv+m3pNyWzdDCAbP74=
-X-Received: by 2002:a17:902:f706:b0:21f:6584:208d with SMTP id
- d9443c01a7336-22320213441mr131908065ad.43.1740669761190; Thu, 27 Feb 2025
- 07:22:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VpbbLZRQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1740672305; x=1772208305;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=sj5RoctSbIGx3p/cbQm/bVUcln1LHkula1nexu5M2Yc=;
+  b=VpbbLZRQ3VixHYzmJZQp1fx6e+tlLAVfLrYQQHG703jNi/x54nOH4nGy
+   NDPSFxjZ/OUgwgsspUqQTVJFKI93/Fg9N/H1aSLwr9D7jdyJDpZFToo8e
+   Ec0f9s63m7KoXkxf/SV3aNjp5eSWfaFQYGWVngzTHvveu2uMCrbQCKGpR
+   S8t90P55sPlj5tXppGQQEVVFbgT1S9mFF76JvB60OH2IKbMvPB1XUctoK
+   eJKTAX//IT2BOOXmUrfJKeUJVrZ1qtwSbPgr5GIgum3oOvJb4eivIVRpC
+   +iKEsJP/8b/HdsXTRbUTbb/Pm10fv1oQJjj4f+fSGUgd88a3qqFpaU1Wx
+   Q==;
+X-CSE-ConnectionGUID: acx7fHkGTKuH88/XDzgAgA==
+X-CSE-MsgGUID: VuWxpeIrTMigvEh834yw/A==
+X-IronPort-AV: E=McAfee;i="6700,10204,11358"; a="58986105"
+X-IronPort-AV: E=Sophos;i="6.13,320,1732608000"; 
+   d="scan'208";a="58986105"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Feb 2025 08:05:01 -0800
+X-CSE-ConnectionGUID: ssF3YDBeRBu6QxaaafjaCg==
+X-CSE-MsgGUID: MU9sB79WT7iA8Qeu7d4S1w==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.13,320,1732608000"; 
+   d="scan'208";a="140298768"
+Received: from lkp-server02.sh.intel.com (HELO 76cde6cc1f07) ([10.239.97.151])
+  by fmviesa002.fm.intel.com with ESMTP; 27 Feb 2025 08:04:51 -0800
+Received: from kbuild by 76cde6cc1f07 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1tngMy-000Ddu-31;
+	Thu, 27 Feb 2025 16:04:21 +0000
+Date: Fri, 28 Feb 2025 00:03:49 +0800
+From: kernel test robot <lkp@intel.com>
+To: Li Li <dualli@chromium.org>, dualli@google.com, corbet@lwn.net,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, donald.hunter@gmail.com,
+	gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
+	maco@android.com, joel@joelfernandes.org, brauner@kernel.org,
+	cmllamas@google.com, surenb@google.com, omosnace@redhat.com,
+	shuah@kernel.org, arnd@arndb.de, masahiroy@kernel.org,
+	bagasdotme@gmail.com, horms@kernel.org, tweek@google.com,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	netdev@vger.kernel.org, selinux@vger.kernel.org, hridya@google.com
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	smoreland@google.com, ynaffit@google.com, kernel-team@android.com
+Subject: Re: [PATCH v15 2/3] binder: report txn errors via generic netlink
+Message-ID: <202502272346.6XGVfFlz-lkp@intel.com>
+References: <20250226192047.734627-3-dualli@chromium.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250224154836.958915-1-mszeredi@redhat.com> <4a98d88878a18dd02b3df5822030617a@paul-moore.com>
-In-Reply-To: <4a98d88878a18dd02b3df5822030617a@paul-moore.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 27 Feb 2025 10:22:29 -0500
-X-Gm-Features: AQ5f1JpcFANpUeCWvjxniU8h27ug25dYTeV4rnjCDFZymbqEOfkmhYqddoMbtPQ
-Message-ID: <CAEjxPJ5V9z87c6pHVRemKxENoNq9TvqpQ3tJpLEbP4QEViZTHQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: add FILE__WATCH_MOUNTNS
-To: Paul Moore <paul@paul-moore.com>
-Cc: Miklos Szeredi <mszeredi@redhat.com>, selinux@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, Christian Brauner <brauner@kernel.org>, 
-	linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250226192047.734627-3-dualli@chromium.org>
 
-On Wed, Feb 26, 2025 at 3:19=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On Feb 24, 2025 Miklos Szeredi <mszeredi@redhat.com> wrote:
-> >
-> > Watching mount namespaces for changes (mount, umount, move mount) was a=
-dded
-> > by previous patches.
-> >
-> > This patch adds the file/watch_mountns permission that can be applied t=
-o
-> > nsfs files (/proc/$$/ns/mnt), making it possible to allow or deny watch=
-ing
-> > a particular namespace for changes.
-> >
-> > Suggested-by: Paul Moore <paul@paul-moore.com>
-> > Link: https://lore.kernel.org/all/CAHC9VhTOmCjCSE2H0zwPOmpFopheexVb6jyo=
-vz92ZtpKtoVv6A@mail.gmail.com/
-> > Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-> > ---
-> >  security/selinux/hooks.c            | 3 +++
-> >  security/selinux/include/classmap.h | 2 +-
-> >  2 files changed, 4 insertions(+), 1 deletion(-)
->
-> Thanks Miklos, this looks good to me.  VFS folks / Christian, can you
-> merge this into the associated FSNOTIFY_OBJ_TYPE_MNTNS branch you are
-> targeting for linux-next?
->
-> Acked-by: Paul Moore <paul@paul-moore.com>
+Hi Li,
 
-I'm not objecting to this patch, but just for awareness, this adds the
-permission for all file-related classes, including dir(ectory), and we
-are almost out of space in the access vector at which point we'll need
-to introduce a file2 class or similar (as with process2).
+kernel test robot noticed the following build errors:
+
+[auto build test ERROR on 8433c776e1eb1371f5cd40b5fd3a61f9c7b7f3ad]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Li-Li/lsm-selinux-Add-setup_report-permission-to-binder/20250227-032351
+base:   8433c776e1eb1371f5cd40b5fd3a61f9c7b7f3ad
+patch link:    https://lore.kernel.org/r/20250226192047.734627-3-dualli%40chromium.org
+patch subject: [PATCH v15 2/3] binder: report txn errors via generic netlink
+config: hexagon-randconfig-002-20250227 (https://download.01.org/0day-ci/archive/20250227/202502272346.6XGVfFlz-lkp@intel.com/config)
+compiler: clang version 16.0.6 (https://github.com/llvm/llvm-project 7cbf1a2591520c2491aa35339f227775f4d3adf6)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250227/202502272346.6XGVfFlz-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202502272346.6XGVfFlz-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+>> drivers/android/binder.c:6479:8: error: call to undeclared function 'security_binder_setup_report'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+           ret = security_binder_setup_report(current_cred());
+                 ^
+   1 error generated.
+
+
+vim +/security_binder_setup_report +6479 drivers/android/binder.c
+
+  6462	
+  6463	/**
+  6464	 * binder_nl_report_setup_doit() - netlink .doit handler
+  6465	 * @skb:	the metadata struct passed from netlink driver
+  6466	 * @info:	the generic netlink struct passed from netlink driver
+  6467	 *
+  6468	 * Implements the .doit function to process binder netlink commands.
+  6469	 */
+  6470	int binder_nl_report_setup_doit(struct sk_buff *skb, struct genl_info *info)
+  6471	{
+  6472		struct binder_context *context = NULL;
+  6473		struct binder_device *device;
+  6474		struct binder_proc *proc;
+  6475		u32 flags, pid;
+  6476		void *hdr;
+  6477		int ret;
+  6478	
+> 6479		ret = security_binder_setup_report(current_cred());
+  6480		if (ret < 0) {
+  6481			NL_SET_ERR_MSG(info->extack, "Permission denied");
+  6482			return ret;
+  6483		}
+  6484	
+  6485		hlist_for_each_entry(device, &binder_devices, hlist) {
+  6486			if (!nla_strcmp(info->attrs[BINDER_A_CMD_CONTEXT],
+  6487					device->context.name)) {
+  6488				context = &device->context;
+  6489				break;
+  6490			}
+  6491		}
+  6492	
+  6493		if (!context) {
+  6494			NL_SET_ERR_MSG(info->extack, "Unknown binder context");
+  6495			return -EINVAL;
+  6496		}
+  6497	
+  6498		pid = nla_get_u32(info->attrs[BINDER_A_CMD_PID]);
+  6499		flags = nla_get_u32(info->attrs[BINDER_A_CMD_FLAGS]);
+  6500	
+  6501		if (!pid) {
+  6502			/* Set the global flags for the whole binder context */
+  6503			context->report_flags = flags;
+  6504		} else {
+  6505			/* Set the per-process flags */
+  6506			proc = binder_find_proc(pid);
+  6507			if (!proc) {
+  6508				NL_SET_ERR_MSG_FMT(info->extack,
+  6509						   "Invalid binder report pid %u",
+  6510						   pid);
+  6511				ret = -EINVAL;
+  6512				goto err_exit;
+  6513			}
+  6514	
+  6515			proc->report_flags = flags;
+  6516		}
+  6517	
+  6518		skb = genlmsg_new(GENLMSG_DEFAULT_SIZE, GFP_KERNEL);
+  6519		if (!skb) {
+  6520			pr_err("Failed to alloc binder netlink reply message\n");
+  6521			ret = -ENOMEM;
+  6522			goto err_exit;
+  6523		}
+  6524	
+  6525		hdr = genlmsg_iput(skb, info);
+  6526		if (!hdr)
+  6527			goto free_skb;
+  6528	
+  6529		if (nla_put_string(skb, BINDER_A_CMD_CONTEXT, context->name) ||
+  6530		    nla_put_u32(skb, BINDER_A_CMD_PID, pid) ||
+  6531		    nla_put_u32(skb, BINDER_A_CMD_FLAGS, flags))
+  6532			goto cancel_skb;
+  6533	
+  6534		genlmsg_end(skb, hdr);
+  6535	
+  6536		if (genlmsg_reply(skb, info)) {
+  6537			pr_err("Failed to send binder netlink reply message\n");
+  6538			ret = -EFAULT;
+  6539			goto err_exit;
+  6540		}
+  6541	
+  6542		return 0;
+  6543	
+  6544	cancel_skb:
+  6545		pr_err("Failed to add reply attributes to binder netlink message\n");
+  6546		genlmsg_cancel(skb, hdr);
+  6547	free_skb:
+  6548		pr_err("Free binder netlink reply message on error\n");
+  6549		nlmsg_free(skb);
+  6550		ret = -EMSGSIZE;
+  6551	err_exit:
+  6552		return ret;
+  6553	}
+  6554	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
