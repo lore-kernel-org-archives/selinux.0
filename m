@@ -1,119 +1,94 @@
-Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com [209.85.219.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52E141B0103
-	for <selinux@vger.kernel.org>; Thu, 27 Feb 2025 16:48:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.179
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C5BE1270023
+	for <selinux@vger.kernel.org>; Thu, 27 Feb 2025 18:30:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740674902; cv=none; b=Q7qhBcr/FT13p3x4ueq4J4b33sfTKkzkPtfGIkqNtq7q7vjEzzAQI4ypxqm9uxDv0taMUGvtHmJw8WwlQi5XG3ruOm7WcAesyDpQdG1oUHUxcz1nqQxeBzk2lw2W0FG16BTOQFbWx9MjpbKpNHuLwVV1nvVMljWphTFgzv16csY=
+	t=1740681052; cv=none; b=D+59FWPYBylkMN2Hin3PKCXJrHDD6Tu9iMrpMbA7cizliSADXt7SuHXHWgwQrK3IbKFCVMGW4Abhteb+Je9/A03Hy7rSx1xIpTpdxj0GQLwAY9DpiyJBKhQ4N6df1jO0mKplEttENqRnR90iJjhxrvCyfo8sczlhOtzZmbTyTRs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740674902; c=relaxed/simple;
-	bh=kjNwow5X4ZZ01USyEwmrs9aAMem57HqtvhZwTRgcBNo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rQ0soWc5IcGadVNxO+fUgXKhE1LxHkI44GKYj7YrcRC1wTkg5wIaaK/3rOY3x5cK9jzPid3XrOlBV7XJ6LdI608tLtg/8opYPzU4ISZf9ZQ0fcb2XG4zgO3CEuKDai0hgfaU/+1hFk9HfTCvzbwjSH0BvuM8qPhg7F7RomowmBg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=aFGm/P6E; arc=none smtp.client-ip=209.85.219.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1740681052; c=relaxed/simple;
+	bh=D4NwanHkCkx1GyJhy1IUimxjxyaTEBt9K5csWzXuEWk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=pIZPg0fybciNkLAy8+S2VKFCPsuszvyfs5aZBaD5/mrpra6Lkl+JiMRE7ElIC06TDTumsfDXzWL3vLt7SQu7X+QyAIi++mcf0mCe7shunbek9ILuxlpmZAPsM2cNpahE+sm9wqoXxsYo+3Rp7PZ8UaQKXNuL5h4iryF4EENrxGU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=JzgbRFPv; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="aFGm/P6E"
-Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-e608b2698fcso858124276.1
-        for <selinux@vger.kernel.org>; Thu, 27 Feb 2025 08:48:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1740674900; x=1741279700; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=3+CwlNOwz6cX/UtBgNuuvuqtR0CZarS1LGfkpgdEQ4w=;
-        b=aFGm/P6EA+fOrqfeuLBh8ZkU2FSqNU5NoCwbJjTQDRL/RTELoynFTZxgrNc5IgVccC
-         uiODXHU85IT/fsY9H1nVeXJ/9xVnZ5wlBFGSaZoKGLGcI02CqfIGLoF/3Slw0W/99xdG
-         ma1IOm9fn6p0hxaAiaV0NLnhYTN+FxZXi4PdMva+leh6+bRooqh3/lME7jeane7CZK7E
-         LJuqf/KaqKBoVuJz/HrVfyF1UT8UwZ6hYwaLD00wTbz8nGIb6BiFauqKJMF1cXShsShf
-         J59OenIJ/umBY/K6bMURTRnu6AVZG8d+2+m2kTVks93Sf7Li51OF7rnoO3Eu0LmAo2yx
-         SoAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740674900; x=1741279700;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=3+CwlNOwz6cX/UtBgNuuvuqtR0CZarS1LGfkpgdEQ4w=;
-        b=wtxP+TqEQsCOE2gL0MkRjlQzTi78jewj2ceSYw04/1xUT2iUTC3KYteD7vM72dVE3g
-         9UvPK6Xf0WBz7URaiI+Cnanv5pn0rUtOGXsUcTG6g2vwkf2EzPsIO2DoOBnj2kJ7qubc
-         hQ4uw4uCWQqkUWj27wE2nIYe558J5mOKqDg714+QbUM0phRbR76G60b3BqDufRCbJmsb
-         JgnBTY6rENMyIwGcgQNDX3V1YpMmR9Szpls/qwhuDo2M0E9Yd8lgdcfOPD123JlH14DI
-         Cyb0UDA1Yrxxn1EzwBZNp/TWeumsg2WsvXvWAxElGc3bed9ng+RiQwnPT/yKVC5bmI1G
-         bV6g==
-X-Forwarded-Encrypted: i=1; AJvYcCWzwU6SY7opgkSPTZtp2uR5h7ms+/3gQ9cx/e4IjJzptbFRyVI0aJrdtgiBbyEB2Be9WH/V6vb5@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz5j83WzauV9NeSeVn18UEVoJHHrGLtBTWncSxyRdzrVWtIjY7h
-	hl2TmVPd/DQRb/UYrKQx+yEwWUkYVwPPr3ENB8/MncuFDYlzQGF3bdOryFKU4eGS63I1//s8BGe
-	B52xLvpKeGhIvxjvVdBMxWLhAHn+9YdfbI8Eh251chQ35Rx3Nkg==
-X-Gm-Gg: ASbGncsXxGMAbHtMXH6olVHfW+LxxjDqmoIk1lVb2w7s3wWiOrvcjJyXwzRNkx1UIJs
-	Q31OTVtOV1ZXHFJEHS/kSHMMhf7shyOhWkQ5fiFmZmIdaFW3rKede7fo4xiTpS15gQMLJSqTKO0
-	RHBfRou5I=
-X-Google-Smtp-Source: AGHT+IFYI+8SraAdigQGx7lYdH5LUnt1/UBb+qYVnBDFc3+wD7MPjfWvDbf4Mkowsvjayh1/wuUuat9GLQUM9I01TCE=
-X-Received: by 2002:a05:6902:2e0b:b0:e58:aa00:ffe0 with SMTP id
- 3f1490d57ef6-e5e8359551emr21182111276.5.1740674900254; Thu, 27 Feb 2025
- 08:48:20 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="JzgbRFPv"
+Received: from [192.168.1.13] (pool-96-241-22-207.washdc.fios.verizon.net [96.241.22.207])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 4A7072107A9A;
+	Thu, 27 Feb 2025 10:30:49 -0800 (PST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 4A7072107A9A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1740681050;
+	bh=akCKmcYxc2XpLEoy24mWqqDpO2WeLguMOeUeQaOBvvQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=JzgbRFPvXDm1/bHULFrxopT2+56Hs4zzNcksdbnKQUi39/FwT+QImpjnK9icwuLQi
+	 kl4kC/kcA2NfhGIps71Kan5eDW8dXJ38/GdrcvJqmCcODD1E8Sh7lG5OQVfyzQic9d
+	 XZiUxPX+d8L6th/yPvVTbzz/zzXFVStinHV+FdjA=
+Message-ID: <7ae30862-13ef-4875-a4fc-dff60c4c27b6@linux.microsoft.com>
+Date: Thu, 27 Feb 2025 13:30:47 -0500
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250224154836.958915-1-mszeredi@redhat.com> <4a98d88878a18dd02b3df5822030617a@paul-moore.com>
- <CAEjxPJ5V9z87c6pHVRemKxENoNq9TvqpQ3tJpLEbP4QEViZTHQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5V9z87c6pHVRemKxENoNq9TvqpQ3tJpLEbP4QEViZTHQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 27 Feb 2025 11:48:09 -0500
-X-Gm-Features: AQ5f1JqX1rQ6m62bB5eNpWIdO0cQOPLAxtXa7BRO08xtGHgf2ADpYVSS1Bp8tTM
-Message-ID: <CAHC9VhTVBY7qkNQ-_vUWm_Y5bQ7OREp2hOWmfLizAXJs0f6Rtg@mail.gmail.com>
-Subject: Re: [PATCH] selinux: add FILE__WATCH_MOUNTNS
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Miklos Szeredi <mszeredi@redhat.com>, selinux@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, Christian Brauner <brauner@kernel.org>, 
-	linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] selinux: support wildcard match in genfscon
+To: Takaya Saeki <takayas@chromium.org>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>
+Cc: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+ =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>,
+ Nick Kralevich <nnk@google.com>, Jeffrey Vander Stoep <jeffv@google.com>,
+ Junichi <uekawa@chromium.org>, selinux@vger.kernel.org
+References: <20241210115551.1225204-1-takayas@chromium.org>
+Content-Language: en-US
+From: Daniel Burgener <dburgener@linux.microsoft.com>
+In-Reply-To: <20241210115551.1225204-1-takayas@chromium.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Thu, Feb 27, 2025 at 10:22=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Feb 26, 2025 at 3:19=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> > On Feb 24, 2025 Miklos Szeredi <mszeredi@redhat.com> wrote:
-> > >
-> > > Watching mount namespaces for changes (mount, umount, move mount) was=
- added
-> > > by previous patches.
-> > >
-> > > This patch adds the file/watch_mountns permission that can be applied=
- to
-> > > nsfs files (/proc/$$/ns/mnt), making it possible to allow or deny wat=
-ching
-> > > a particular namespace for changes.
-> > >
-> > > Suggested-by: Paul Moore <paul@paul-moore.com>
-> > > Link: https://lore.kernel.org/all/CAHC9VhTOmCjCSE2H0zwPOmpFopheexVb6j=
-yovz92ZtpKtoVv6A@mail.gmail.com/
-> > > Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-> > > ---
-> > >  security/selinux/hooks.c            | 3 +++
-> > >  security/selinux/include/classmap.h | 2 +-
-> > >  2 files changed, 4 insertions(+), 1 deletion(-)
-> >
-> > Thanks Miklos, this looks good to me.  VFS folks / Christian, can you
-> > merge this into the associated FSNOTIFY_OBJ_TYPE_MNTNS branch you are
-> > targeting for linux-next?
-> >
-> > Acked-by: Paul Moore <paul@paul-moore.com>
->
-> I'm not objecting to this patch, but just for awareness, this adds the
-> permission for all file-related classes, including dir(ectory), and we
-> are almost out of space in the access vector at which point we'll need
-> to introduce a file2 class or similar (as with process2).
+On 12/10/2024 6:55 AM, Takaya Saeki wrote:
+> Currently, genfscon only supports string prefix match to label files.
+> Thus, labeling numerous dynamic sysfs entries requires many specific
+> path rules. For example, labeling device paths such as
+> `/sys/devices/pci0000:00/0000:00:03.1/<...>/0000:04:00.1/wakeup`
+> requires listing all specific PCI paths, which is challenging to
+> maintain. While user-space restorecon can handle these paths with
+> regular expression rules, but relabeling thousands of paths under sysfs
+> after it is mounted is inefficient compared to using genfscon.
+> 
+> This commit adds wildcard match to support rules efficient but
+> expressive enough. This allows users to create fine-grained sysfs rules
+> without burden of listing specific paths. When multiple wildcard rules
+> match against a path, then the longest rule (determined by the length of
+> the rule string) will be applied. If multiple rules of the same length
+> match, the first matching rule encountered in the genfscon policy will
+> be applied. However, users are encouraged to write longer, more explicit
+> path rules to avoid relying on this behavior.
+> 
+> This change resulted in nice real-world performance improvements. For
+> example, boot times on test Android devices were reduced by 15%. This
+> improvement is due to the elimination of the "restorecon -R /sys" step
+> during boot, which takes more than two seconds in the worst case.
+> 
+> Signed-off-by: Takaya Saeki <takayas@chromium.org>
+> ---
+> This patch is based on the RFC:
+> https://lore.kernel.org/selinux/CAH9xa6ct0Zf+vg6H6aN9aYzsAPjq8dYM7aF5Sw2eD31cFQ9BZA@mail.gmail.com/T/#t
+>   security/selinux/include/policycap.h       |  1 +
+>   security/selinux/include/policycap_names.h |  1 +
+>   security/selinux/include/security.h        |  6 +++
+>   security/selinux/ss/policydb.c             | 56 ++++++++++++++++++----
+>   security/selinux/ss/services.c             | 13 +++--
+>   5 files changed, 66 insertions(+), 11 deletions(-)
 
-Yes, I've been paying closer attention to this over the past several
-years as we start to nudge the permission count limits.  However, as
-you mentioned, this isn't a new concern and we've successfully dealt
-with it in the past.
+Takaya,
 
---=20
-paul-moore.com
+It sounds like below you were going to send a follow-up patch for this? 
+I ask because we've recently had a similar use case come up that would 
+benefit from this work and wanted to see if it was still in progress and 
+if there was anything needed to help it along?
+
+-Daniel
