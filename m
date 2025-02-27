@@ -1,202 +1,353 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+Received: from tarta.nabijaczleweli.xyz (tarta.nabijaczleweli.xyz [139.28.40.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B1951DE4C8;
-	Thu, 27 Feb 2025 20:47:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28DD4270054
+	for <selinux@vger.kernel.org>; Thu, 27 Feb 2025 21:32:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=139.28.40.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740689231; cv=none; b=ngv66roNM1AniIGa4ZesLtaANj2SA7X+7Jrr8150XfuqGgQ6s9UiZJMabKVpASqPFPqEGJvRIUt259nTtAVACrR+p67zb2uAURCwCbN4LrVaDBxFS1vYWdnTfpqAvdFrZEICREFQFlo4Hk/+5xCouFUCR2jqBOePucE+b0qVcew=
+	t=1740691963; cv=none; b=F4AKrvKkhCZ2jlEyVZel6KK6MkFNjqqzfSDkTrr4u+ub+9JAUMSJqTsXjVMiklzCY9gIR35h5C1b2WWA2NZyQ/afoK7xG/Qehx9OohQbR7cYh4ntoBLggRATNXxOFdL2pbFe09bXOiXG5s6FJ4gOukcpD17rklzXGNKYgMUT8sA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740689231; c=relaxed/simple;
-	bh=utQVCfMq3XX4+WH1ud4ZibztAqFiiIfTgmuA4Y+wqLA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Pwt0gPGk+xvlKcc9KN9opMWgo0jjd9YLXyEwm1yalkLdpPU2gLocq+n6APgSPAhAiKp06bAlZrWXVkq4lkM2H3NlDhGMCm/1l4N6PyyI68ySiLvoa8658qBiqFczXNpphcD6qvfux4OD1G6EUaAtlJjdZ9BwRKEXEiJRWS7mVXc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FHMEHhIL; arc=none smtp.client-ip=192.198.163.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1740691963; c=relaxed/simple;
+	bh=B8tSdwhUmEXjU9oJp2MBebRetK2+h4xhWfGIeTmRFMQ=;
+	h=Date:From:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=O1gfCzlrzCZHoelYv2XwwO2k2VWI2auT6asAC0xAF1fyFUXYCipYv1AFc8aR9RUq92uCEs07v3hDhztlWgyRlru8e+nkRhQjFhoPOOspxQVnC2MOAqOy0UzrL9RPAZPEMnT2J9VQ66SywBWUPVnBiurjDqySZ5CgLzsvd53qGGg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nabijaczleweli.xyz; spf=pass smtp.mailfrom=nabijaczleweli.xyz; dkim=pass (2048-bit key) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.b=X1WwXwYc; arc=none smtp.client-ip=139.28.40.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nabijaczleweli.xyz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabijaczleweli.xyz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FHMEHhIL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1740689229; x=1772225229;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=utQVCfMq3XX4+WH1ud4ZibztAqFiiIfTgmuA4Y+wqLA=;
-  b=FHMEHhIL+4WQIZcNE7nb2fe7Ohcr53/hcOhl6cnBDSOJGeWwt2YnYAuj
-   bY4CNP5mSr3ZvYLJY7tFjDBob5CFr6M81rjd+JUN74mFqcSfPPcIA7lii
-   e9YAH8KrBqPea0tSSLvICGvNVR8P+ptQ6xCe/LY/v0JX3zC36xBuWSBlT
-   /09Bjf+T3SZIbhLpkxaEtChz8Z5HCt/NC730XB74j/2hyiGbm0Dtjo/Jd
-   lE0XA2wNYAk9zeSGlssCeiNyorxJRxt7tDQxuTDzb2ZL1CUFolr33ADMo
-   Y5l1+WezXiY6RasquuXnZRYztdkeLOY5JJU0UMlCCkQ7/N0jq2jXVH99+
-   Q==;
-X-CSE-ConnectionGUID: osap7yFDS164lmwIYAnmmw==
-X-CSE-MsgGUID: s4dX6GsqT8OGb+cCHKR3bw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11358"; a="40844740"
-X-IronPort-AV: E=Sophos;i="6.13,320,1732608000"; 
-   d="scan'208";a="40844740"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Feb 2025 12:47:08 -0800
-X-CSE-ConnectionGUID: rGYSMAJhT1+XTk4WV27ENA==
-X-CSE-MsgGUID: SM0f+tdaRo2Ez/7u3JP6Sw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.13,320,1732608000"; 
-   d="scan'208";a="117160740"
-Received: from lkp-server02.sh.intel.com (HELO 76cde6cc1f07) ([10.239.97.151])
-  by orviesa006.jf.intel.com with ESMTP; 27 Feb 2025 12:47:01 -0800
-Received: from kbuild by 76cde6cc1f07 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1tnkmV-000E14-1N;
-	Thu, 27 Feb 2025 20:46:56 +0000
-Date: Fri, 28 Feb 2025 04:46:26 +0800
-From: kernel test robot <lkp@intel.com>
-To: Li Li <dualli@chromium.org>, dualli@google.com, corbet@lwn.net,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, donald.hunter@gmail.com,
-	gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com,
-	maco@android.com, joel@joelfernandes.org, brauner@kernel.org,
-	cmllamas@google.com, surenb@google.com, omosnace@redhat.com,
-	shuah@kernel.org, arnd@arndb.de, masahiroy@kernel.org,
-	bagasdotme@gmail.com, horms@kernel.org, tweek@google.com,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	netdev@vger.kernel.org, selinux@vger.kernel.org, hridya@google.com
-Cc: oe-kbuild-all@lists.linux.dev, smoreland@google.com, ynaffit@google.com,
-	kernel-team@android.com
-Subject: Re: [PATCH v15 2/3] binder: report txn errors via generic netlink
-Message-ID: <202502280430.x785GFat-lkp@intel.com>
-References: <20250226192047.734627-3-dualli@chromium.org>
+	dkim=pass (2048-bit key) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.b="X1WwXwYc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
+	s=202405; t=1740691955;
+	bh=B8tSdwhUmEXjU9oJp2MBebRetK2+h4xhWfGIeTmRFMQ=;
+	h=Date:From:Cc:Subject:From;
+	b=X1WwXwYcpr85648lPDsMffGLy4Q530vVGablRa4tQAfWSuhBduJ2G123zfThflfXb
+	 dNyE/gcfQ772vEVqJVl4dHOoFT2lhuQvueWNaQXYmc29dr7MxpYW2RtwuaQIlAoyo6
+	 9bhCOZP/zIZgT39usj2I/UpQq8psA3w6juxxCUDUNhQi8UhT3ABoX6AgYi+43H01Vt
+	 t89zJ8gqD+pkBwhAMmDWjWQRaHr0LjhNGRozF4Jn/k/TzUIN18Alq8lncPFafdDZhh
+	 rNlVwtxUzNc0kLqcuCp01CN/VwdPuwDLOnEgiJxW+E6m7568yfODSRj4GZgYnZpmG3
+	 3RqFK5QOrKhYw==
+Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
+	by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 8C6AFA360
+	for <selinux@vger.kernel.org>; Thu, 27 Feb 2025 22:32:35 +0100 (CET)
+Date: Thu, 27 Feb 2025 22:32:35 +0100
+From: =?utf-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
+Cc: selinux@vger.kernel.org
+Subject: [PATCH] Insert -I../../libselinux/include and -L../../libselinux/src
+ into subprograms where needed
+Message-ID: <kwnnb3dirxubncipnklpimiv34bmetaxchzvzkoztsw62kx7zd@tarta.nabijaczleweli.xyz>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="bg5po75vmn5wt3ud"
 Content-Disposition: inline
-In-Reply-To: <20250226192047.734627-3-dualli@chromium.org>
-
-Hi Li,
-
-kernel test robot noticed the following build errors:
-
-[auto build test ERROR on 8433c776e1eb1371f5cd40b5fd3a61f9c7b7f3ad]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Li-Li/lsm-selinux-Add-setup_report-permission-to-binder/20250227-032351
-base:   8433c776e1eb1371f5cd40b5fd3a61f9c7b7f3ad
-patch link:    https://lore.kernel.org/r/20250226192047.734627-3-dualli%40chromium.org
-patch subject: [PATCH v15 2/3] binder: report txn errors via generic netlink
-config: arm-randconfig-001-20250227 (https://download.01.org/0day-ci/archive/20250228/202502280430.x785GFat-lkp@intel.com/config)
-compiler: arm-linux-gnueabi-gcc (GCC) 14.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250228/202502280430.x785GFat-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202502280430.x785GFat-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   drivers/android/binder.c: In function 'binder_nl_report_setup_doit':
->> drivers/android/binder.c:6479:15: error: implicit declaration of function 'security_binder_setup_report' [-Wimplicit-function-declaration]
-    6479 |         ret = security_binder_setup_report(current_cred());
-         |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+User-Agent: NeoMutt/20231221-2-4202cf-dirty
 
 
-vim +/security_binder_setup_report +6479 drivers/android/binder.c
+--bg5po75vmn5wt3ud
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-  6462	
-  6463	/**
-  6464	 * binder_nl_report_setup_doit() - netlink .doit handler
-  6465	 * @skb:	the metadata struct passed from netlink driver
-  6466	 * @info:	the generic netlink struct passed from netlink driver
-  6467	 *
-  6468	 * Implements the .doit function to process binder netlink commands.
-  6469	 */
-  6470	int binder_nl_report_setup_doit(struct sk_buff *skb, struct genl_info *info)
-  6471	{
-  6472		struct binder_context *context = NULL;
-  6473		struct binder_device *device;
-  6474		struct binder_proc *proc;
-  6475		u32 flags, pid;
-  6476		void *hdr;
-  6477		int ret;
-  6478	
-> 6479		ret = security_binder_setup_report(current_cred());
-  6480		if (ret < 0) {
-  6481			NL_SET_ERR_MSG(info->extack, "Permission denied");
-  6482			return ret;
-  6483		}
-  6484	
-  6485		hlist_for_each_entry(device, &binder_devices, hlist) {
-  6486			if (!nla_strcmp(info->attrs[BINDER_A_CMD_CONTEXT],
-  6487					device->context.name)) {
-  6488				context = &device->context;
-  6489				break;
-  6490			}
-  6491		}
-  6492	
-  6493		if (!context) {
-  6494			NL_SET_ERR_MSG(info->extack, "Unknown binder context");
-  6495			return -EINVAL;
-  6496		}
-  6497	
-  6498		pid = nla_get_u32(info->attrs[BINDER_A_CMD_PID]);
-  6499		flags = nla_get_u32(info->attrs[BINDER_A_CMD_FLAGS]);
-  6500	
-  6501		if (!pid) {
-  6502			/* Set the global flags for the whole binder context */
-  6503			context->report_flags = flags;
-  6504		} else {
-  6505			/* Set the per-process flags */
-  6506			proc = binder_find_proc(pid);
-  6507			if (!proc) {
-  6508				NL_SET_ERR_MSG_FMT(info->extack,
-  6509						   "Invalid binder report pid %u",
-  6510						   pid);
-  6511				ret = -EINVAL;
-  6512				goto err_exit;
-  6513			}
-  6514	
-  6515			proc->report_flags = flags;
-  6516		}
-  6517	
-  6518		skb = genlmsg_new(GENLMSG_DEFAULT_SIZE, GFP_KERNEL);
-  6519		if (!skb) {
-  6520			pr_err("Failed to alloc binder netlink reply message\n");
-  6521			ret = -ENOMEM;
-  6522			goto err_exit;
-  6523		}
-  6524	
-  6525		hdr = genlmsg_iput(skb, info);
-  6526		if (!hdr)
-  6527			goto free_skb;
-  6528	
-  6529		if (nla_put_string(skb, BINDER_A_CMD_CONTEXT, context->name) ||
-  6530		    nla_put_u32(skb, BINDER_A_CMD_PID, pid) ||
-  6531		    nla_put_u32(skb, BINDER_A_CMD_FLAGS, flags))
-  6532			goto cancel_skb;
-  6533	
-  6534		genlmsg_end(skb, hdr);
-  6535	
-  6536		if (genlmsg_reply(skb, info)) {
-  6537			pr_err("Failed to send binder netlink reply message\n");
-  6538			ret = -EFAULT;
-  6539			goto err_exit;
-  6540		}
-  6541	
-  6542		return 0;
-  6543	
-  6544	cancel_skb:
-  6545		pr_err("Failed to add reply attributes to binder netlink message\n");
-  6546		genlmsg_cancel(skb, hdr);
-  6547	free_skb:
-  6548		pr_err("Free binder netlink reply message on error\n");
-  6549		nlmsg_free(skb);
-  6550		ret = -EMSGSIZE;
-  6551	err_exit:
-  6552		return ret;
-  6553	}
-  6554	
+These subprograms (sublibraries) use plain
+  #include <selinux/selinux.h>
+  cc ... -lselinux ...
+&c. which includes/links to the system libselinux.
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Naturally, this doesn't work if you don't have one.
+
+All of these fell out of a plain make invocation,
+yielding errors like
+  cc  -O2 -Werror -Wall -Wextra -Wfloat-equal -Wformat=3D2 -Winit-self -Wmi=
+ssing-format-attribute -Wmissing-noreturn -Wmissing-prototypes -Wnull-deref=
+erence -Wpointer-arith -Wshadow -Wstrict-prototypes -Wundef -Wunused -Wwrit=
+e-strings -fno-common -I../include -D_GNU_SOURCE -c -o boolean_record.o boo=
+lean_record.c
+  boolean_record.c:26:10: fatal error: selinux/selinux.h: No such file or d=
+irectory
+     26 | #include <selinux/selinux.h>
+        |          ^~~~~~~~~~~~~~~~~~~
+  compilation terminated.
+
+  make[2]: Entering directory '/tmp/selinux/policycoreutils/sestatus'
+  cc -O2 -Werror -Wall -Wextra -Wfloat-equal -Wformat=3D2 -Winit-self -Wmis=
+sing-format-attribute -Wmissing-noreturn -Wmissing-prototypes -Wnull-derefe=
+rence -Wpointer-arith -Wshadow -Wstrict-prototypes -Wundef -Wunused -Wwrite=
+-strings -fno-common -D_FILE_OFFSET_BITS=3D64   -c -o sestatus.o sestatus.c
+  sestatus.c:12:10: fatal error: selinux/selinux.h: No such file or directo=
+ry
+     12 | #include <selinux/selinux.h>
+        |          ^~~~~~~~~~~~~~~~~~~
+  compilation terminated.
+
+Signed-off-by: =D0=BD=D0=B0=D0=B1 <nabijaczleweli@nabijaczleweli.xyz>
+---
+ libsemanage/src/Makefile             | 4 ++--
+ mcstrans/src/Makefile                | 2 ++
+ mcstrans/utils/Makefile              | 3 +++
+ policycoreutils/load_policy/Makefile | 2 +-
+ policycoreutils/newrole/Makefile     | 3 ++-
+ policycoreutils/run_init/Makefile    | 3 ++-
+ policycoreutils/secon/Makefile       | 3 ++-
+ policycoreutils/semodule/Makefile    | 2 ++
+ policycoreutils/sestatus/Makefile    | 3 ++-
+ policycoreutils/setfiles/Makefile    | 2 ++
+ policycoreutils/setsebool/Makefile   | 2 ++
+ policycoreutils/unsetfiles/Makefile  | 3 ++-
+ python/audit2allow/Makefile          | 2 ++
+ restorecond/Makefile                 | 4 ++--
+ 14 files changed, 28 insertions(+), 10 deletions(-)
+
+diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+index 8dfbd762..4db45aad 100644
+--- a/libsemanage/src/Makefile
++++ b/libsemanage/src/Makefile
+@@ -60,7 +60,7 @@ CFLAGS ?=3D -Werror -Wall -W -Wundef -Wshadow -Wmissing-n=
+oreturn -Wmissing-format-
+ SWIG_CFLAGS +=3D -Wno-error -Wno-unused-but-set-variable -Wno-unused-varia=
+ble -Wno-shadow \
+ 		-Wno-unused-parameter -Wno-missing-prototypes
+=20
+-override CFLAGS +=3D -I../include -D_GNU_SOURCE
++override CFLAGS +=3D -I../include -I../../libselinux/include -D_GNU_SOURCE
+ RANLIB ?=3D ranlib
+=20
+ SWIG =3D swig -Wall -python -o $(SWIGCOUT) -outdir ./
+@@ -90,7 +90,7 @@ $(LIBA): $(OBJS)
+ 	$(RANLIB) $@
+=20
+ $(LIBSO): $(LOBJS)
+-	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lsepol -laudit -=
+lselinux -lbz2 -Wl,-soname,$(LIBSO),--version-script=3Dlibsemanage.map,-z,d=
+efs
++	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -L../../libselinu=
+x/src -lsepol -laudit -lselinux -lbz2 -Wl,-soname,$(LIBSO),--version-script=
+=3Dlibsemanage.map,-z,defs
+ 	ln -sf $@ $(TARGET)
+=20
+ $(LIBPC): $(LIBPC).in ../VERSION
+diff --git a/mcstrans/src/Makefile b/mcstrans/src/Makefile
+index 89dbac16..88487068 100644
+--- a/mcstrans/src/Makefile
++++ b/mcstrans/src/Makefile
+@@ -16,6 +16,8 @@ PROG_OBJS=3D $(patsubst %.c,%.o,$(PROG_SRC))
+ PROG=3Dmcstransd
+ INITSCRIPT=3Dmcstrans
+ CFLAGS ?=3D -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
++override CFLAGS +=3D -I../../libselinux/include
++override LDFLAGS+=3D -L../../libselinux/src
+=20
+ all: $(PROG)
+=20
+diff --git a/mcstrans/utils/Makefile b/mcstrans/utils/Makefile
+index eec714f1..57a73932 100644
+--- a/mcstrans/utils/Makefile
++++ b/mcstrans/utils/Makefile
+@@ -2,6 +2,9 @@
+ PREFIX ?=3D /usr
+ SBINDIR ?=3D $(PREFIX)/sbin
+=20
++override CFLAGS +=3D -I../../libselinux/include
++override LDFLAGS+=3D -L../../libselinux/src
++
+ TARGETS=3Dtranscon untranscon
+=20
+ # If no specific libsepol.a is specified, fall back on LDFLAGS search path
+diff --git a/policycoreutils/load_policy/Makefile b/policycoreutils/load_po=
+licy/Makefile
+index ad80d500..6b2fa880 100644
+--- a/policycoreutils/load_policy/Makefile
++++ b/policycoreutils/load_policy/Makefile
+@@ -6,7 +6,7 @@ MANDIR ?=3D $(PREFIX)/share/man
+ LOCALEDIR ?=3D $(DESTDIR)$(PREFIX)/share/locale
+=20
+ CFLAGS ?=3D -Werror -Wall -W
+-override CFLAGS +=3D $(LDFLAGS) -DUSE_NLS -DLOCALEDIR=3D"\"$(LOCALEDIR)\""=
+ -DPACKAGE=3D"\"policycoreutils\""
++override CFLAGS +=3D $(LDFLAGS) -I../../libselinux/include -L../../libseli=
+nux/src -DUSE_NLS -DLOCALEDIR=3D"\"$(LOCALEDIR)\"" -DPACKAGE=3D"\"policycor=
+eutils\""
+ override LDLIBS +=3D -lsepol -lselinux
+=20
+ TARGETS=3D$(patsubst %.c,%,$(sort $(wildcard *.c)))
+diff --git a/policycoreutils/newrole/Makefile b/policycoreutils/newrole/Mak=
+efile
+index 4b8145d3..308e92dc 100644
+--- a/policycoreutils/newrole/Makefile
++++ b/policycoreutils/newrole/Makefile
+@@ -24,7 +24,8 @@ VERSION =3D $(shell cat ../VERSION)
+=20
+ CFLAGS ?=3D -Werror -Wall -W
+ EXTRA_OBJS =3D
+-override CFLAGS +=3D -DVERSION=3D\"$(VERSION)\" -DUSE_NLS -DLOCALEDIR=3D"\=
+"$(LOCALEDIR)\"" -DPACKAGE=3D"\"policycoreutils\""
++override CFLAGS +=3D -I../../libselinux/include -DVERSION=3D\"$(VERSION)\"=
+ -DUSE_NLS -DLOCALEDIR=3D"\"$(LOCALEDIR)\"" -DPACKAGE=3D"\"policycoreutils\=
+""
++override LDFLAGS+=3D -L../../libselinux/src
+ override LDLIBS +=3D -lselinux
+ ifeq ($(PAMH), y)
+ 	override CFLAGS +=3D -DUSE_PAM
+diff --git a/policycoreutils/run_init/Makefile b/policycoreutils/run_init/M=
+akefile
+index 619ebc1d..6c92fda1 100644
+--- a/policycoreutils/run_init/Makefile
++++ b/policycoreutils/run_init/Makefile
+@@ -10,7 +10,8 @@ PAMH ?=3D $(shell test -f /usr/include/security/pam_appl.=
+h && echo y)
+ AUDITH ?=3D $(shell test -f /usr/include/libaudit.h && echo y)
+=20
+ CFLAGS ?=3D -Werror -Wall -W
+-override CFLAGS +=3D -DUSE_NLS -DLOCALEDIR=3D"\"$(LOCALEDIR)\"" -DPACKAGE=
+=3D"\"policycoreutils\""
++override CFLAGS +=3D -I../../libselinux/include -DUSE_NLS -DLOCALEDIR=3D"\=
+"$(LOCALEDIR)\"" -DPACKAGE=3D"\"policycoreutils\""
++override LDFLAGS+=3D -L../../libselinux/src
+ override LDLIBS +=3D -lselinux
+ ifeq ($(PAMH), y)
+ 	override CFLAGS +=3D -DUSE_PAM
+diff --git a/policycoreutils/secon/Makefile b/policycoreutils/secon/Makefile
+index 440503a1..c2102606 100644
+--- a/policycoreutils/secon/Makefile
++++ b/policycoreutils/secon/Makefile
+@@ -7,7 +7,8 @@ MANDIR ?=3D $(PREFIX)/share/man
+ WARNS=3D-Werror -W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-c=
+ast -Wcast-align -Wwrite-strings -Waggregate-return -Wstrict-prototypes -Wm=
+issing-prototypes -Wmissing-declarations -Wnested-externs -Wno-format-zero-=
+length -Wformat-nonliteral -Wformat-security -Wfloat-equal
+ VERSION =3D $(shell cat ../VERSION)
+ CFLAGS ?=3D $(WARNS) -O1
+-override CFLAGS +=3D -DVERSION=3D\"$(VERSION)\"
++override CFLAGS +=3D -I../../libselinux/include -DVERSION=3D\"$(VERSION)\"
++override LDFLAGS+=3D -L../../libselinux/src
+ override LDLIBS +=3D -lselinux
+=20
+ all: secon
+diff --git a/policycoreutils/semodule/Makefile b/policycoreutils/semodule/M=
+akefile
+index 9fbf99d6..31cb2670 100644
+--- a/policycoreutils/semodule/Makefile
++++ b/policycoreutils/semodule/Makefile
+@@ -5,6 +5,8 @@ SBINDIR ?=3D $(PREFIX)/sbin
+ MANDIR =3D $(PREFIX)/share/man
+=20
+ CFLAGS ?=3D -Werror -Wall -W
++override CFLAGS +=3D -I../../libselinux/include -I../../libsemanage/include
++override LDFLAGS+=3D -L../../libselinux/src     -L../../libsemanage/src
+ override LDLIBS +=3D -lsepol -lselinux -lsemanage
+ SEMODULE_OBJS =3D semodule.o
+=20
+diff --git a/policycoreutils/sestatus/Makefile b/policycoreutils/sestatus/M=
+akefile
+index aebf050c..70748157 100644
+--- a/policycoreutils/sestatus/Makefile
++++ b/policycoreutils/sestatus/Makefile
+@@ -7,7 +7,8 @@ MANDIR =3D $(PREFIX)/share/man
+ ETCDIR ?=3D /etc
+=20
+ CFLAGS ?=3D -Werror -Wall -W
+-override CFLAGS +=3D -D_FILE_OFFSET_BITS=3D64
++override CFLAGS +=3D -I../../libselinux/include -D_FILE_OFFSET_BITS=3D64
++override LDFLAGS+=3D -L../../libselinux/src
+ override LDLIBS +=3D -lselinux
+=20
+ all: sestatus
+diff --git a/policycoreutils/setfiles/Makefile b/policycoreutils/setfiles/M=
+akefile
+index 84ffb08b..8e589a30 100644
+--- a/policycoreutils/setfiles/Makefile
++++ b/policycoreutils/setfiles/Makefile
+@@ -6,6 +6,8 @@ MANDIR =3D $(PREFIX)/share/man
+ AUDITH ?=3D $(shell test -f /usr/include/libaudit.h && echo y)
+=20
+ CFLAGS ?=3D -g -Werror -Wall -W
++override CFLAGS +=3D -I../../libselinux/include
++override LDFLAGS+=3D -L../../libselinux/src
+ override LDLIBS +=3D -lselinux -lsepol -lpthread
+=20
+ ifeq ($(AUDITH), y)
+diff --git a/policycoreutils/setsebool/Makefile b/policycoreutils/setsebool=
+/Makefile
+index fc5b4ff6..54489ba3 100644
+--- a/policycoreutils/setsebool/Makefile
++++ b/policycoreutils/setsebool/Makefile
+@@ -6,6 +6,8 @@ MANDIR =3D $(PREFIX)/share/man
+ BASHCOMPLETIONDIR ?=3D $(PREFIX)/share/bash-completion/completions
+=20
+ CFLAGS ?=3D -Werror -Wall -W
++override CFLAGS +=3D -I../../libselinux/include -I../../libsemanage/include
++override LDFLAGS+=3D -L../../libselinux/src     -L../../libsemanage/src
+ override LDLIBS +=3D -lselinux -lsemanage
+ SETSEBOOL_OBJS =3D setsebool.o
+=20
+diff --git a/policycoreutils/unsetfiles/Makefile b/policycoreutils/unsetfil=
+es/Makefile
+index 9e5edc04..08fa1abb 100644
+--- a/policycoreutils/unsetfiles/Makefile
++++ b/policycoreutils/unsetfiles/Makefile
+@@ -2,7 +2,8 @@ PREFIX ?=3D /usr
+ SBINDIR ?=3D $(PREFIX)/sbin
+ MANDIR ?=3D $(PREFIX)/share/man
+=20
+-override CFLAGS +=3D -D_GNU_SOURCE
++override CFLAGS +=3D -I../../libselinux/include -D_GNU_SOURCE
++override LDFLAGS+=3D -L../../libselinux/src
+ override LDLIBS +=3D -lselinux
+=20
+=20
+diff --git a/python/audit2allow/Makefile b/python/audit2allow/Makefile
+index fb04b8bd..28b8f7f2 100644
+--- a/python/audit2allow/Makefile
++++ b/python/audit2allow/Makefile
+@@ -8,6 +8,8 @@ BINDIR ?=3D $(PREFIX)/bin
+ MANDIR ?=3D $(PREFIX)/share/man
+=20
+ CFLAGS ?=3D -Werror -Wall -W
++override CFLAGS +=3D -I../../libselinux/include
++override LDFLAGS+=3D -L../../libselinux/src
+=20
+ # If no specific libsepol.a is specified, fall back on LDFLAGS search path
+ # Otherwise, as $(LIBSEPOLA) already appears in the dependencies, there
+diff --git a/restorecond/Makefile b/restorecond/Makefile
+index 1ddfcc92..b8b86eb4 100644
+--- a/restorecond/Makefile
++++ b/restorecond/Makefile
+@@ -18,8 +18,8 @@ GIO_CFLAGS =3D -DHAVE_DBUS $(shell $(PKG_CONFIG) --cflags=
+ gio-2.0)
+ GIO_LIBS =3D $(shell $(PKG_CONFIG) --libs gio-2.0)
+=20
+ CFLAGS ?=3D -g -Werror -Wall -W
+-override CFLAGS +=3D $(GIO_CFLAGS)
+-
++override CFLAGS +=3D -I../../libselinux/include $(GIO_CFLAGS)
++override LDFLAGS+=3D -L../../libselinux/src
+ override LDLIBS +=3D -lselinux $(GIO_LIBS)
+=20
+ all: restorecond
+--=20
+2.39.5
+
+--bg5po75vmn5wt3ud
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmfA2fMACgkQvP0LAY0m
+WPFWHA/8DqKgZQvJo1wGfKpC+uKewKEANhLDsu7D9CjOnS6NiMUJ44DSnc3MjL49
+XDaYsgmM4udXSWR2Eidz4g+oiLox0Xs9lFMkXDJ71AIFdlTXCRjwlTrCbzm+AKdd
+j0hE/Kusw/+ML6Y9D5HKQyx9/a5RztITScuVLkYQY1EQieW/EkkfyFyGc6LKqedj
+NvzXSTzcgUaKSd+q87+yrjzy8Qp1Ys1J0sncPWHcdo1iDyCj4tEpNhQ4/z9cTWwo
+YezzdLXza/C/999h5rzpG5EtXmO7L9PAdlWPHpMWu25Joo079Svb/cP1w8iun5u7
+qFQ2ZV7POVDpa8D6FRfAohSes7Zz7iuKOBG6fJTTCScErGur53TypxDhGjtypiK+
+R32a3QCNiLBLVF1+0LBf3jbRTQlXcf5p7ORuvY9CJafMwZzpUVGv5d+5W9X3TDCI
+O6TIthaDGbfjoem+HlCSqud6FnVBE60E4bpTHxnVlXnIOOTnJVJUTc5IjWBhJXko
+i2kzUzbsED3/VhqoLBKXXMKHNQlf2DV2+lCY6Y4JyBKYbV+RBBDnXgiyI0iQTUn1
+b7ryo34Vzok2s5PBnsf7ppBJT7vOfcX9DLesUk8tcwHs/V3RSWjgB+vV+pBI+0ks
+TeuO/i3FWk8D0j1pEKpzcLWzdqSl4lwfj6NMDLjEsn6dbg8SnII=
+=Q7vQ
+-----END PGP SIGNATURE-----
+
+--bg5po75vmn5wt3ud--
