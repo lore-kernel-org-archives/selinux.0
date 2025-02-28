@@ -1,76 +1,74 @@
-Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC66D819
-	for <selinux@vger.kernel.org>; Fri, 28 Feb 2025 04:35:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3838C26A1CB
+	for <selinux@vger.kernel.org>; Fri, 28 Feb 2025 12:55:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740717323; cv=none; b=EsVRikwoMPZxSd2rQRXYjEprld/DVsSU/9tfv4ibdRN/ers2oGRZZ7FXigiXdVvJHh4vKfGL0XLObYbPVDKHDxD8UcY9f+LZ+DqqizZzkzf6A6Oh9VxSuiYRUhgH5KcvzWodTIVfIJiN67olZTN3wGcqQRpdTO7rHNYHv4+CnB0=
+	t=1740747315; cv=none; b=e3VhazE+8IDbBBu0+VtxBUZ5A6Mqk4hRIb90SsD7A50Bu4RD/7aljm80XMwJ7iAFFP2Hr/gxB6GaI+ge1FERweXG1cfx/3cJVWhGEKjPcVLFQTQgp3yu76rSz5wv01GjPa1gkRh4DCbicu7FaDOh4uevoqVj9xVA6fR3fK8PiCY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740717323; c=relaxed/simple;
-	bh=yP90KD9+CRJuHMbdeepo9UxP1ry0oJtxTbf/m+nv+KE=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=r8z3T3HccguFTMk1OyiRl4qwU7nSxx7yJfzYBGqFeXrQOIewVuvnTASLS52wzzTdu4AIjRhYAxivAZDFKW1SwYIBE5OFb7tfGWSL2pOkKbk0AvgGfSQDuqhS9l+xML+7IgO0AQ3axmaRpRruKZrM/hryS77ZKPTlB2dZ7g/kxHk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=EVMBq6xn; arc=none smtp.client-ip=209.85.208.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1740747315; c=relaxed/simple;
+	bh=RlJ+m0QK0u2N29DBEshzEh2oSE4Buusu1FjBW/QyZ7A=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=g4HyFvgoPnQDsMqP6R1HgXwpiE68S0wUrbNo/qS9Rn6hxWiRr5fhytSOdK8/KZqM44/m0NHbsEGhww48SEaRQmLvWSFVe05FXr/+y2JbPEPDjyC673gtYFQRdGyGl8yttC4laliKeZ6JSohiIY3b1y/oB3IQEm+R9eynR7rRSiU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ADNzwm3/; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="EVMBq6xn"
-Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-307c13298eeso20616921fa.0
-        for <selinux@vger.kernel.org>; Thu, 27 Feb 2025 20:35:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1740717320; x=1741322120; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=yP90KD9+CRJuHMbdeepo9UxP1ry0oJtxTbf/m+nv+KE=;
-        b=EVMBq6xnCugOr8b/JJTvw0exUV8SkkM8JgWLi2wTofa/Q0Ea29ZDf3LnD3wIYW43LM
-         HwMP/bOljDn8gr82/2ItjpnZh5k10a/q+55Pt0EU3ySiPWpMmkBCC1tmFfFAdOeXg1Ch
-         CMJDKZlwsQ/BoAHzfpQMsMOwyENu6kcVOBmW8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740717320; x=1741322120;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=yP90KD9+CRJuHMbdeepo9UxP1ry0oJtxTbf/m+nv+KE=;
-        b=e+rsGpwHcl/pfJndChvZCj58Yc91DXlIuU+xv4ZI/oe6iud+9VM37RGcqRHgFBYZk2
-         ffe/jVoU2YZ4Fw55sNOPBSvJrkbTo+vDZmGdapQuVs+QB/eFM2W/YJ0NQAMVH7PtpXr+
-         IQI/bcv6k9yZ6eMJ6qdlpuR8FSolTvp7Vi1FzaLCX67BZmF+stqxfXUIFGz9pKXjB/v8
-         OxA78UhE7u1I/8Y9P4ToniwWjx/jnC+LL8CbJ2VVl7aMOadQXmPbZ1qGbXhkBz6nLQDz
-         hmf5edTHpRMYMMF2GJIAZczIhCKo8vs4tfy+61/6FUfZdRgZ8PMOb7Pg5ta+nubmKTW1
-         Mm+Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVn5ALMsrXT4oi3XBp2lgXuAd2tjsv/Ak27ddMU8WiAznXvF18I3D286+zdAGkSaWapS8j6EiQA@vger.kernel.org
-X-Gm-Message-State: AOJu0YzqtCO710BAnIWVQWj90pGWN5yWUwvPVa7lmx2su+o/iiS36AQ/
-	wKnlvXzJLlLQdOkZSl3fEZGEOGGGugW1ztiOLkkTvcUYaunB1bAzJyAJM5Iu5nTRUUlEEuB0tg1
-	lG2h3V3tbCgbMJNWPZUIV+NEA/3A3ZAM0vwQ=
-X-Gm-Gg: ASbGncvX8Ps+uxaH4AkQCQ6hxfsHN6loVN/tApNF2/XMOhhFxvxj+OiEZfIturD8KfH
-	VHz98JXdy8GMe6r1tgNwF+7lFihzaA+vjcRZbfEzn/jnH0Kg08i8eJ553m46AcM1Y+5sxEhMvOc
-	BPwlLjS6CIyukTcb4xvKsWKqI1l3Zn9PCwHxOP
-X-Google-Smtp-Source: AGHT+IElxauQfBzM1tCTNoFNkHzmXVmCmQ5xy5gh05HCDVZl8us0Ea0quzw4porhzOERz0Uzix18Vcy/RWswBOYoXZ0=
-X-Received: by 2002:a2e:3208:0:b0:30b:9a2d:a50b with SMTP id
- 38308e7fff4ca-30b9a2daa2dmr898851fa.16.1740717319874; Thu, 27 Feb 2025
- 20:35:19 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ADNzwm3/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1740747310;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type;
+	bh=RlJ+m0QK0u2N29DBEshzEh2oSE4Buusu1FjBW/QyZ7A=;
+	b=ADNzwm3/c591Yn+XdGp6jU52FafUoh4HNjdQBal6KJkJSGbznnqueQ02ouhpkBVKNXfzTR
+	pTzRhpa3k6OK2I8jDTi0kj4KIPYTpAr/Rs2o3aexqku8XWsH2WYTHJ/Re+uOjo1tp7t2oo
+	1coEOXsQGKkYT/w6D5yh38L/vriv9EU=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-328-OHI5K7pUP_-zP0cqnePzgA-1; Fri,
+ 28 Feb 2025 07:55:08 -0500
+X-MC-Unique: OHI5K7pUP_-zP0cqnePzgA-1
+X-Mimecast-MFC-AGG-ID: OHI5K7pUP_-zP0cqnePzgA_1740747308
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id DE29C19560BC
+	for <selinux@vger.kernel.org>; Fri, 28 Feb 2025 12:55:07 +0000 (UTC)
+Received: from localhost (unknown [10.45.225.7])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 62A5D180098C
+	for <selinux@vger.kernel.org>; Fri, 28 Feb 2025 12:55:07 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Subject: Userspace: 3.8.1 release next week?
+Date: Fri, 28 Feb 2025 13:55:06 +0100
+Message-ID: <87plj2dyad.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241210115551.1225204-1-takayas@chromium.org> <7ae30862-13ef-4875-a4fc-dff60c4c27b6@linux.microsoft.com>
-In-Reply-To: <7ae30862-13ef-4875-a4fc-dff60c4c27b6@linux.microsoft.com>
-From: Takaya Saeki <takayas@chromium.org>
-Date: Fri, 28 Feb 2025 13:35:08 +0900
-X-Gm-Features: AQ5f1Jo4A7LeOZmd9S-eYzQpm99TUy1rxFfszlymrZr7dFfNfgpcwKRKV9EpECE
-Message-ID: <CAH9xa6fLoj0XOz-ju913BojNB1_6-BaBBKSjCSHsrYs6pjcmoA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: support wildcard match in genfscon
-To: Daniel Burgener <dburgener@linux.microsoft.com>
-Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Nick Kralevich <nnk@google.com>, Jeffrey Vander Stoep <jeffv@google.com>, Junichi <uekawa@chromium.org>, 
-	selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-Hi Daniel,
+Hi,
 
-Yes, I'm going to send a follow-up patch. I was tied up with other
-tasks for a while. Let me send a follow-up patch shortly.
+there's a performance regression between 3.8-rc4 and 3.8. A fix already
+available [1] and acked so if there's no objection I'll merge it on
+Monday.
+
+Also I would like to release 3.8.1 version as a minor release just with
+this patch to improve the performance of operations on semanage store.
+Again, if there's no objection, I'll do it on Wednesday next week.
+
+So if have any comment or objection, tell us.
+
+[1] https://lore.kernel.org/selinux/20250225075555.16136-1-lautrbach@redhat.com/
+
+
+Thanks,
+
+Petr
+
