@@ -1,97 +1,74 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 834CD567D;
-	Wed,  5 Mar 2025 17:20:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8681253357
+	for <selinux@vger.kernel.org>; Wed,  5 Mar 2025 19:23:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741195239; cv=none; b=IWdMpyvX4fxy3QtUetF/eLKw05YMu4HlWu1YmNR0pkf/QkqqwWkZnlXjAe9rMOZPS/4s1n5T1///f5uSFkzVPeZhUFmzxtHuYAWCAAxWJ1FUZHOOo50tQYp1Kf6prriJ8ycMEXECsjd5yTK+2Zrkm3xuUT6NFkhwetWfr6oqXC8=
+	t=1741202626; cv=none; b=NAn2RJjOGsG2gopPBVn1ajH9s7p1YDf/QFaQTRiyyfNnqGop5re2OiGHJStjtfSF4a1Rkan3cvQTz/aMV0GSn0Gi7apByShgQJ4G7cHtt5xw88TS2FJvWum1TOyKtt73DaKLOIW6+5v4o0E2dBlEFhx7e0aTAf9PZxDWH38wUAQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741195239; c=relaxed/simple;
-	bh=WpDBlYrRrddG1QZTvQAGM3RflVC0/iMkOC0i1mENe24=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uo3Oq8OIqTWkAyC0KeTTdonktEUmhT3F7e8y50dcpey3/qwKQVjq9zT9zioGmoqymxeQYfNnoS1LpNQ3yWLvBVWlJDfKANupqxnnE0A3wj4RjV7N+FNyoaDbOSn9me79OoLPWlvVcQuglwPLub5q2cg1I0BWtMre4YOt1n/E8P0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RdtJ5gvz; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1741202626; c=relaxed/simple;
+	bh=na1zWvZtyCPTL1JfPA3eNyahi7WguSpFiSI6haqTf0M=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=OUky1iA3IHUVnTJ+ZkgLa7y8PWMrImrmqc1J/Qgu7PXDUAyX8YyPlqwlZUtdZCFByVvr/I+rqpuAMFsqyza4u10Bx8k/1UbM7xkeJjKkaWor6dJ/N7Z/tljclSJFMnTQm9RVZ6Kj/y1RD9PtzXizSVNMr0BQ/6jqODgcmlVPiN0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DIvMfuUa; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RdtJ5gvz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F21F7C4CEED;
-	Wed,  5 Mar 2025 17:20:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1741195239;
-	bh=WpDBlYrRrddG1QZTvQAGM3RflVC0/iMkOC0i1mENe24=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=RdtJ5gvzDRKV3XgOmkAHAQwl5tgl+7W3pGMVDMsLSOUKlgixzGbnM11eEwljtNt7h
-	 6VxJdqCevgv/ajXqXoMdlSWaGvRjcLfZQJBDPhZm+Mhn6t5AJE4QQkKgPlEVXO3vXP
-	 CeCpLfGxypDUYawQpnPcM70MIseAm3n3ecwJTh7c50ZtsfGirKrGOkCB8VOncm7MU5
-	 tm/JfjjfFOOqj//H7qUvK7jBviPt2vAEazBLS70H0XgrielARN6pd4JV28IwUVpFJE
-	 sFKDhWKYzOnWgXw/TQRsyuRqYqDx25wx92knhjfJ0KNQq+bIn7X3L2PzW7COCAqndu
-	 zXQWo+j9/Ukew==
-Received: by mail-il1-f181.google.com with SMTP id e9e14a558f8ab-3d2a869d016so21134955ab.0;
-        Wed, 05 Mar 2025 09:20:38 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCULBkrzg5oQkCyQxWjOT2rzQuhyn9gdGqOh7GV2Tw/E3lri+SFus3WDKo72iSPf1euFQb1DPMq+J6AkxVddTh0A0kMTScW2@vger.kernel.org, AJvYcCVVlcXW7rKo8tRCUEqfCY4p68E6786Ctxe7YroHkbNTfZTDcu+KHk2WqClKo2I/ogW5/Hc=@vger.kernel.org, AJvYcCXC7q8ZWY6tJ7xDDpEfQboDn3Lk+KaXOuexSvcNlrGbomIjm1yHU+CKUOtwfSqTadg2kvzV73i1zNyr8f0t@vger.kernel.org, AJvYcCXlqEbTWsNqh6WWpVxtvxLPBhqZrqMc0NG3Crwi48p8c6ax0BzJvR/yxJ9a+eQdYRrQNC7bsiE9Iw==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzct8OrTivJQBmu2lfqJ3w4j80oBIVzJXRGn3CcKcX4hz+7GBbz
-	kpzInShkiRf1/ONR+pam/MXo2ambwefVWzn6+8K+NcPgOAcvgKJtsWhysSeqa76H8Md1i5BuW2+
-	0sZnX0FA2kl7BTlqoLlear8THm/I=
-X-Google-Smtp-Source: AGHT+IHJhox4U/rWW/uMifWKfbyEY9Rrz8YE11KbN++wNd5Mwq3TIeJMWPZEODjurE7eFo9PAGD1VjnRPV8ISAHlwEU=
-X-Received: by 2002:a05:6e02:17cb:b0:3d3:fa0a:7242 with SMTP id
- e9e14a558f8ab-3d42b8a598cmr43289235ab.9.1741195238274; Wed, 05 Mar 2025
- 09:20:38 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DIvMfuUa"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1741202623;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type;
+	bh=MnlPQyBm5AHT1xHKC8stB6Rf8ue+UWveWUmTe1u5jRk=;
+	b=DIvMfuUacLEVw+P70Ajv5xITXoIZPJ1hJdyFE/q4uuFIqeI2sFeTgOdrGCHbCI/q2d9oai
+	joOJCo/itsRfhWfaV+5+O3Zn92olL95eRm6vvG3EKK5atjFIoVbFgO2iQHVxWBGG2v94QW
+	kNBNXTr35whyam0VEtHPTdnsCRJ9WR0=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-605-Oax2MPZjOx6YnEmQBxVxbA-1; Wed,
+ 05 Mar 2025 14:23:42 -0500
+X-MC-Unique: Oax2MPZjOx6YnEmQBxVxbA-1
+X-Mimecast-MFC-AGG-ID: Oax2MPZjOx6YnEmQBxVxbA_1741202621
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 56898180AB1D
+	for <selinux@vger.kernel.org>; Wed,  5 Mar 2025 19:23:41 +0000 (UTC)
+Received: from localhost (unknown [10.44.32.66])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id C2B9A1800266
+	for <selinux@vger.kernel.org>; Wed,  5 Mar 2025 19:23:40 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Subject: ANN: SELinux userspace 3.8.1
+Date: Wed, 05 Mar 2025 20:23:39 +0100
+Message-ID: <87h6475lj8.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250304203123.3935371-1-bboscaccy@linux.microsoft.com>
- <20250304203123.3935371-3-bboscaccy@linux.microsoft.com> <CAHC9VhS5Gnj98K4fBCq3hDXjmj1Zt9WWqoOiTrwH85CDSTGEYA@mail.gmail.com>
- <877c54jmjl.fsf@microsoft.com> <CAHC9VhQO_CVeg0sU_prvQ_Z8c9pSB02K3E5s84pngYN1RcxXGQ@mail.gmail.com>
- <CAPhsuW6RrUiXaQe1HBYOvwUx2GFaA-RKx22955A2StsP2erTeA@mail.gmail.com>
- <CAHC9VhQ1BHXfQSxMMbFtGDb2yVtBvuLD0b34=eSrCAKEtFq=OQ@mail.gmail.com> <CAADnVQJL77xLR+E18re88XwX0kSfkx_5O3=f8YQ1rVdVkf8-hQ@mail.gmail.com>
-In-Reply-To: <CAADnVQJL77xLR+E18re88XwX0kSfkx_5O3=f8YQ1rVdVkf8-hQ@mail.gmail.com>
-From: Song Liu <song@kernel.org>
-Date: Wed, 5 Mar 2025 09:20:27 -0800
-X-Gmail-Original-Message-ID: <CAPhsuW7sc_gYP=U0j41GgQGuF1Qj4ontKDiib64qB0COq84huA@mail.gmail.com>
-X-Gm-Features: AQ5f1Jq6LMCyQsH5491-2X3aI9H8rWYPUpga1R1rjIwi8DAvg25eSbIT1vLvV7s
-Message-ID: <CAPhsuW7sc_gYP=U0j41GgQGuF1Qj4ontKDiib64qB0COq84huA@mail.gmail.com>
-Subject: Re: [PATCH v4 bpf-next 2/2] selftests/bpf: Add is_kernel parameter to
- LSM/bpf test programs
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: Paul Moore <paul@paul-moore.com>, Blaise Boscaccy <bboscaccy@linux.microsoft.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, 
-	Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
-	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	LSM List <linux-security-module@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, 
-	bpf <bpf@vger.kernel.org>, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-On Wed, Mar 5, 2025 at 9:08=E2=80=AFAM Alexei Starovoitov
-<alexei.starovoitov@gmail.com> wrote:
-[...]
-> My preference is to go via bpf-next, since changes are bigger
-> on bpf side than on lsm side.
->
-> Re: selftest.
->
-> Why change them at all if 'bool kernel' attribute is unused ?
-> Addition of the attr should be backward compatible change,
-> so all tests should still pass as-is.
+Hello!
 
-I was thinking of keeping the argument list in the selftests up
-to date, so that the users can use selftests as examples when
-writing their BPF programs.
+The 3.8.1 release for the SELinux userspace is now available at:
 
-OTOH, with the "bool kernel" at the end of the argument list,
-it is backward compatible.
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-> You probably should add a new test where 'kernel' arg is actually
-> used for something. That would be patch 2.
+I signed all tarballs using my gpg key, see .asc files.
+You can download the public key from
+https://github.com/bachradsusi.gpg
 
-+1. This is a great idea.
+This is just a minor release which contains only fix for performance
+issues in semanage store rebuild introduced in 3.8 release.
 
-Thanks,
-Song
+Shortlog of the changes since 3.8.1 release
+-------------------------------------------
+Petr Lautrbach (2):
+      libsemanage: improve performance of semanage store rebuild
+      Update VERSIONs to 3.8.1 for release.
+
