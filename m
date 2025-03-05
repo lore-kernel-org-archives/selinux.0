@@ -1,58 +1,41 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD5671C5F11;
-	Wed,  5 Mar 2025 17:08:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 834CD567D;
+	Wed,  5 Mar 2025 17:20:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741194526; cv=none; b=Iwg7Oh4dOVZ/tR/DpzWQpyGdUAG1MqsmhYBruKsAh763uQpv7URLVykgBt4HIlJ7d7HjR+91sYHrwgLRbUKW9UQTifCLNZCL7DT94x3oxDp0M1IYKrFIaw9PL0r3IiNP8ExYUV0fnS9ZBYAC9BxrH+rNR3tLqVhUoNCtaxGyj/k=
+	t=1741195239; cv=none; b=IWdMpyvX4fxy3QtUetF/eLKw05YMu4HlWu1YmNR0pkf/QkqqwWkZnlXjAe9rMOZPS/4s1n5T1///f5uSFkzVPeZhUFmzxtHuYAWCAAxWJ1FUZHOOo50tQYp1Kf6prriJ8ycMEXECsjd5yTK+2Zrkm3xuUT6NFkhwetWfr6oqXC8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741194526; c=relaxed/simple;
-	bh=BvrpRLEjubg+uBgW0PQjlbnPvYou/AIaycZ0Uh7wWfU=;
+	s=arc-20240116; t=1741195239; c=relaxed/simple;
+	bh=WpDBlYrRrddG1QZTvQAGM3RflVC0/iMkOC0i1mENe24=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=H9/PXjl18wEPUyb88oDucpFcNcPIX/SiC6EInTOgnNc5beVRtI58YH+Itbb72xQTuFmfr2c71UG5ihM5qObVo6KSu8JGszCjSYaucL8/xdpu4ZGQHtn+UVkDGTCxxvz16lejS1HaM26WQCvV6GKaruz9BR93D2UafKzDEts/0S4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FQoHmrXd; arc=none smtp.client-ip=209.85.221.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=uo3Oq8OIqTWkAyC0KeTTdonktEUmhT3F7e8y50dcpey3/qwKQVjq9zT9zioGmoqymxeQYfNnoS1LpNQ3yWLvBVWlJDfKANupqxnnE0A3wj4RjV7N+FNyoaDbOSn9me79OoLPWlvVcQuglwPLub5q2cg1I0BWtMre4YOt1n/E8P0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RdtJ5gvz; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FQoHmrXd"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-390f69e71c8so797811f8f.0;
-        Wed, 05 Mar 2025 09:08:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741194522; x=1741799322; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JCmHH2sBXFrU1aD2JeP8UinBUcmUwStB8VTMjRRTo3M=;
-        b=FQoHmrXdqO0w+XXlB//31Jxe+OAGHe+Nzz4tPapIiA7SSAPVBG9JpOVQ3PiiE00KDR
-         8GONP7edeJJ4F5lANFGmQCEjELagKZf/URAISfLvDQ2Hup9DvfSP6kSjSmvnDYPL/ImT
-         D7WfJ0mcaWY/UFZb2l4bNa3PYiIXcF6lnFzMCs5HyIT39GcQUXb8mjqvk5oMFSaSI3ov
-         hWt3CJrOUKFck+oR/rp+CyDsDyrFuGmytxCTHlkm6TZz17Jsb0xQf9SN+TrG0+qPeG81
-         VsY7NSV6VfAM69IZjZqn3HW/72a4E1rHFEg2GKuOFoEssBJ49DTYvnmFuoA127K+MkbM
-         mcLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741194522; x=1741799322;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JCmHH2sBXFrU1aD2JeP8UinBUcmUwStB8VTMjRRTo3M=;
-        b=F5moFPO7gwksMHz0iJT1vmOAprn13lR3oLwu1UyyfH4mjpqhAEfHLHikYgH7DE5REt
-         9FjFFVDfA1p3svNz75ynyU8heZHcAXXEOp3LLqYjoFMOJ1+XT6uA54p+Bw8gwIYpfW5A
-         GnPhDNOL4MAYT4wtmByHjeBsRoXafPCq1I9RNRrb5kOx2JnmmyjFCPOnQN4E3GWgVBOF
-         Il2jmegRO9OdHoMTIEZl6dma1uDhBDbV21ddF0xzMAs5GJzIvl2Fzy4vIM1aiFaebTOR
-         rXNUgLdxfMNjZxsDfB6B16irINGsl/aE3PiLpmWaOScW5Plh79EWRzqzh+KoyAEEbv+q
-         6nJA==
-X-Forwarded-Encrypted: i=1; AJvYcCU0Cpr2M1UQZqpnngdAytqsymIEieChuBHuEcd5p3b+KrPhV9MXME8Y04zoOedkubHb3UuvjmJSPHvSNpO/@vger.kernel.org, AJvYcCWww2VKavtVte2q1TNnu6Neufy8OXHEkoBKSpkGIqlDDsR+pJhR5fAtfFqqS63oNELOX3I=@vger.kernel.org, AJvYcCX+EVoI3lSkg86m8bNKt+Ll7Eu+I+b2AS1XJ4QeXitNd8sNmR5QMiL1Th+neErE1i8zncLsoiQw+c9gXGCGTXaqgrumcYdu@vger.kernel.org, AJvYcCXK6s0FTdDOkuaie5BLyRj/QbFkXo1Gp38etKL33sMB6w/SOsvYrSEyPymy2j/ADbaMFrukLbQ/fQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyesdwu+XeOVHWUqmneKHocYQ154ROTeehwvEZSt11YhMI48yP4
-	+uMaCAYYzR5UTaZzoz6515GfUltniFGP41S1JDP8V677KeqeVSN02I9OueXBTU3nwCnp7pxI0Kv
-	7tSw0P1rZpW0QT9ODnXms6Ve5n6s=
-X-Gm-Gg: ASbGncssJL5J3TMcRbEBvh/H8m7ee0yZ2YvrA2y7z7NofGHezRIQ1/gcH/ipxkqC0o7
-	DKxbvvkpPp/hvE83LwgugUrhCJfKh3nehnlWI/M6+aj+8TGfdAgFQmF0qRYRtx+299/7RoXGO4V
-	pCnSINugguJs5IWgQ/n10bh9NXHZG+2a4CWnFwtQMqmQ==
-X-Google-Smtp-Source: AGHT+IFhLsvM9iNsC7Z9Gk77B7oPmq2594HIGrrnihVI9DffiOarfWHTZWxnq+tOuVUjiytsYWy3FUj5+D18DIphGKg=
-X-Received: by 2002:a05:6000:154c:b0:390:ff84:532b with SMTP id
- ffacd0b85a97d-391296d894dmr55899f8f.7.1741194521507; Wed, 05 Mar 2025
- 09:08:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RdtJ5gvz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F21F7C4CEED;
+	Wed,  5 Mar 2025 17:20:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1741195239;
+	bh=WpDBlYrRrddG1QZTvQAGM3RflVC0/iMkOC0i1mENe24=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=RdtJ5gvzDRKV3XgOmkAHAQwl5tgl+7W3pGMVDMsLSOUKlgixzGbnM11eEwljtNt7h
+	 6VxJdqCevgv/ajXqXoMdlSWaGvRjcLfZQJBDPhZm+Mhn6t5AJE4QQkKgPlEVXO3vXP
+	 CeCpLfGxypDUYawQpnPcM70MIseAm3n3ecwJTh7c50ZtsfGirKrGOkCB8VOncm7MU5
+	 tm/JfjjfFOOqj//H7qUvK7jBviPt2vAEazBLS70H0XgrielARN6pd4JV28IwUVpFJE
+	 sFKDhWKYzOnWgXw/TQRsyuRqYqDx25wx92knhjfJ0KNQq+bIn7X3L2PzW7COCAqndu
+	 zXQWo+j9/Ukew==
+Received: by mail-il1-f181.google.com with SMTP id e9e14a558f8ab-3d2a869d016so21134955ab.0;
+        Wed, 05 Mar 2025 09:20:38 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCULBkrzg5oQkCyQxWjOT2rzQuhyn9gdGqOh7GV2Tw/E3lri+SFus3WDKo72iSPf1euFQb1DPMq+J6AkxVddTh0A0kMTScW2@vger.kernel.org, AJvYcCVVlcXW7rKo8tRCUEqfCY4p68E6786Ctxe7YroHkbNTfZTDcu+KHk2WqClKo2I/ogW5/Hc=@vger.kernel.org, AJvYcCXC7q8ZWY6tJ7xDDpEfQboDn3Lk+KaXOuexSvcNlrGbomIjm1yHU+CKUOtwfSqTadg2kvzV73i1zNyr8f0t@vger.kernel.org, AJvYcCXlqEbTWsNqh6WWpVxtvxLPBhqZrqMc0NG3Crwi48p8c6ax0BzJvR/yxJ9a+eQdYRrQNC7bsiE9Iw==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzct8OrTivJQBmu2lfqJ3w4j80oBIVzJXRGn3CcKcX4hz+7GBbz
+	kpzInShkiRf1/ONR+pam/MXo2ambwefVWzn6+8K+NcPgOAcvgKJtsWhysSeqa76H8Md1i5BuW2+
+	0sZnX0FA2kl7BTlqoLlear8THm/I=
+X-Google-Smtp-Source: AGHT+IHJhox4U/rWW/uMifWKfbyEY9Rrz8YE11KbN++wNd5Mwq3TIeJMWPZEODjurE7eFo9PAGD1VjnRPV8ISAHlwEU=
+X-Received: by 2002:a05:6e02:17cb:b0:3d3:fa0a:7242 with SMTP id
+ e9e14a558f8ab-3d42b8a598cmr43289235ab.9.1741195238274; Wed, 05 Mar 2025
+ 09:20:38 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -62,16 +45,18 @@ MIME-Version: 1.0
 References: <20250304203123.3935371-1-bboscaccy@linux.microsoft.com>
  <20250304203123.3935371-3-bboscaccy@linux.microsoft.com> <CAHC9VhS5Gnj98K4fBCq3hDXjmj1Zt9WWqoOiTrwH85CDSTGEYA@mail.gmail.com>
  <877c54jmjl.fsf@microsoft.com> <CAHC9VhQO_CVeg0sU_prvQ_Z8c9pSB02K3E5s84pngYN1RcxXGQ@mail.gmail.com>
- <CAPhsuW6RrUiXaQe1HBYOvwUx2GFaA-RKx22955A2StsP2erTeA@mail.gmail.com> <CAHC9VhQ1BHXfQSxMMbFtGDb2yVtBvuLD0b34=eSrCAKEtFq=OQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhQ1BHXfQSxMMbFtGDb2yVtBvuLD0b34=eSrCAKEtFq=OQ@mail.gmail.com>
-From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date: Wed, 5 Mar 2025 09:08:30 -0800
-X-Gm-Features: AQ5f1JpbqWJ2U2ge5hW2KG36R4uPAlWjU6dS7IbAVApjbqNIyD5ZAKIyRS1MGwQ
-Message-ID: <CAADnVQJL77xLR+E18re88XwX0kSfkx_5O3=f8YQ1rVdVkf8-hQ@mail.gmail.com>
+ <CAPhsuW6RrUiXaQe1HBYOvwUx2GFaA-RKx22955A2StsP2erTeA@mail.gmail.com>
+ <CAHC9VhQ1BHXfQSxMMbFtGDb2yVtBvuLD0b34=eSrCAKEtFq=OQ@mail.gmail.com> <CAADnVQJL77xLR+E18re88XwX0kSfkx_5O3=f8YQ1rVdVkf8-hQ@mail.gmail.com>
+In-Reply-To: <CAADnVQJL77xLR+E18re88XwX0kSfkx_5O3=f8YQ1rVdVkf8-hQ@mail.gmail.com>
+From: Song Liu <song@kernel.org>
+Date: Wed, 5 Mar 2025 09:20:27 -0800
+X-Gmail-Original-Message-ID: <CAPhsuW7sc_gYP=U0j41GgQGuF1Qj4ontKDiib64qB0COq84huA@mail.gmail.com>
+X-Gm-Features: AQ5f1Jq6LMCyQsH5491-2X3aI9H8rWYPUpga1R1rjIwi8DAvg25eSbIT1vLvV7s
+Message-ID: <CAPhsuW7sc_gYP=U0j41GgQGuF1Qj4ontKDiib64qB0COq84huA@mail.gmail.com>
 Subject: Re: [PATCH v4 bpf-next 2/2] selftests/bpf: Add is_kernel parameter to
  LSM/bpf test programs
-To: Paul Moore <paul@paul-moore.com>
-Cc: Song Liu <song@kernel.org>, Blaise Boscaccy <bboscaccy@linux.microsoft.com>, 
+To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc: Paul Moore <paul@paul-moore.com>, Blaise Boscaccy <bboscaccy@linux.microsoft.com>, 
 	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
 	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
 	John Fastabend <john.fastabend@gmail.com>, Andrii Nakryiko <andrii@kernel.org>, 
@@ -84,44 +69,29 @@ Cc: Song Liu <song@kernel.org>, Blaise Boscaccy <bboscaccy@linux.microsoft.com>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 5, 2025 at 8:12=E2=80=AFAM Paul Moore <paul@paul-moore.com> wro=
-te:
+On Wed, Mar 5, 2025 at 9:08=E2=80=AFAM Alexei Starovoitov
+<alexei.starovoitov@gmail.com> wrote:
+[...]
+> My preference is to go via bpf-next, since changes are bigger
+> on bpf side than on lsm side.
 >
-> On Tue, Mar 4, 2025 at 10:32=E2=80=AFPM Song Liu <song@kernel.org> wrote:
-> > On Tue, Mar 4, 2025 at 6:14=E2=80=AFPM Paul Moore <paul@paul-moore.com>=
- wrote:
-> > > On Tue, Mar 4, 2025 at 8:26=E2=80=AFPM Blaise Boscaccy
-> > > <bboscaccy@linux.microsoft.com> wrote:
-> > > > Paul Moore <paul@paul-moore.com> writes:
-> > > > > On Tue, Mar 4, 2025 at 3:31=E2=80=AFPM Blaise Boscaccy
-> > > > > <bboscaccy@linux.microsoft.com> wrote:
+> Re: selftest.
 >
-> ...
->
-> > Do we need this in the LSM tree before the upcoming merge window?
-> > If not, we would prefer to carry it in bpf-next.
->
-> As long as we can send this up to Linus during the upcoming merge
-> window I'll be happy; if you feel strongly and want to take it via the
-> BPF tree, that's fine by me.  I'm currently helping someone draft a
-> patchset to implement the LSM/SELinux access control LSM callbacks for
-> the BPF tokens and I'm also working on a fix for the LSM framework
-> initialization code, both efforts may land in a development tree
-> during the next dev cycle and may cause a merge conflict with Blaise's
-> changes.  Not that a merge conflict is a terrible thing that we can't
-> work around, but if we can avoid it I'd be much happier :)
->
-> Please do make the /is_kernel/kernel/ change I mentioned in patch 1/2,
-> and feel free to keep my ACK from this patchset revision.
+> Why change them at all if 'bool kernel' attribute is unused ?
+> Addition of the attr should be backward compatible change,
+> so all tests should still pass as-is.
 
-My preference is to go via bpf-next, since changes are bigger
-on bpf side than on lsm side.
+I was thinking of keeping the argument list in the selftests up
+to date, so that the users can use selftests as examples when
+writing their BPF programs.
 
-Re: selftest.
+OTOH, with the "bool kernel" at the end of the argument list,
+it is backward compatible.
 
-Why change them at all if 'bool kernel' attribute is unused ?
-Addition of the attr should be backward compatible change,
-so all tests should still pass as-is.
+> You probably should add a new test where 'kernel' arg is actually
+> used for something. That would be patch 2.
 
-You probably should add a new test where 'kernel' arg is actually
-used for something. That would be patch 2.
++1. This is a great idea.
+
+Thanks,
+Song
