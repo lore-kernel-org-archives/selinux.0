@@ -1,124 +1,99 @@
-Received: from mail-ua1-f50.google.com (mail-ua1-f50.google.com [209.85.222.50])
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 494C421C198
-	for <selinux@vger.kernel.org>; Fri,  7 Mar 2025 19:10:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 460542571C2
+	for <selinux@vger.kernel.org>; Fri,  7 Mar 2025 19:38:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741374626; cv=none; b=lqxtHFdiDe+I0Ym2n6pI5oRarcosL0OA3brmAJ+NsrsgkL/wg5DV9aKEIJVGLKcgwUZOyxwbd/QdlPmwNHMhVEA4ALv5lhIwW76pw6kNzZ8RDSw7Y/CqoZWYSC80PtMRSuOI9ngCs3sSpNDfK8J3leZFHW9muQ2n4I9gdLoPFVI=
+	t=1741376318; cv=none; b=Ck+jAAbePUzClCT75IbRdVs3IUFMcXbOYDFJ5DdLo1OAszvxuHfDapl9VFl8aVHp9YadFbsXtIvwypoyiriAVCctUeBw0vWAE904wHz6HXGsFfbd+Cjx8qycowUNuDLW6dfMk4OXCw9L6fMwnZFwdgi3Rr5E09Bg4EEnVIB7DGk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741374626; c=relaxed/simple;
-	bh=oFXwijcltbateQ/K0OMdE3Ty0lJtlp9JhjuQt22A824=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=avJ9Z6vp4Jg33hId8i4j5W/ZHMgEeU1l5SUo+MOHN00rYKWwnU0HxoHRPFguRwJfzwAnhORyAfegkqOMIZNyhbXWt7BLwKQqws+XTGYnDA1uXFHdO/Acs54mmrXmg5YDmHnMIXk/zZ9EwPCE5Klnz+6nIPwBLmAJQkcYk6HCJKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dFzhlUp+; arc=none smtp.client-ip=209.85.222.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1741376318; c=relaxed/simple;
+	bh=1ZI28/lCSvGnh96hlD+BJ/dGZVhUIKQvcBo7eAC6zwM=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=u49IsQdVyKtN4ksZdUHJkP6BovFh7AiTgr9mE9G54+ZUW6PULgy/fhbJ+AsrXJX06ylCkX7al08QEq37CAV+JuLP5piqTvC113nyuMA1XFj4F5NH46BAwLh0rqGYbtIbdeh65jeC1Rvmh4bxVw+zlU7AFydAk8Fn/M2LQkMuuC4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=BVPPwIRW; arc=none smtp.client-ip=209.85.222.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dFzhlUp+"
-Received: by mail-ua1-f50.google.com with SMTP id a1e0cc1a2514c-86d30787263so1010765241.1
-        for <selinux@vger.kernel.org>; Fri, 07 Mar 2025 11:10:24 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="BVPPwIRW"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-7c3b63dfebfso253437585a.3
+        for <selinux@vger.kernel.org>; Fri, 07 Mar 2025 11:38:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741374624; x=1741979424; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=G320vO3tNGq5LjjYUJYVn9vH/OecsbxF7bGuK6RaMF8=;
-        b=dFzhlUp+Ii3+nkoQQ3LSnQukW5JL7vQjSlups/hP22WrUnoOXpNIGQig5oUtewExp7
-         Ud9l2HT3d+MRxRFoeTWyqCK7cFT0Nj6y4b5mt6gD33DhA3o2fYqZMCnG0Ujr9L6bZvaC
-         b1CIjaKkDElJW8GFPonNzg7zFRIrs0l7tGa6s/jaSCRIRLA14VsCdu8dDnuZgZwIHjry
-         kPYz9Jb7QNRjjJUg7ny2JzouC1EiscXUtUcbp1EZVD1HvL3vmc7BI6/A8BUdXM2fNzH8
-         nxRPuhCWHlSRZUOPd0CK3V+y5PBFZRkIaQrdjdC9euf3iCV2rJc2qPFs7t80LyITAOL8
-         y3qQ==
+        d=paul-moore.com; s=google; t=1741376314; x=1741981114; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=p5igKSTxPFTOS+xKkR9/4WsthgWnkE2Mlv3quJUlVtk=;
+        b=BVPPwIRW2ghmQcoIDPZeU+9/lWwojSNIRbcZl1LY5JrFKSbIV2i0icUaDnI4Gs7E2C
+         rEI9jd64zXzIX6LN0ryop9Ks6bH6Gl4GXPTZT5Dvql3vKTTDWUHQqJggV1DIkizxGPJM
+         7sGcrs5x66PU9/XipCpN2r3MG1gxCAMoMd2OskVnMqWUBBvaIPp4rh3NLryD0Km9IVaI
+         VGpLc9GSkokOIiJRrb75ThBIFN9I7oTTl6Fidhn/DSGaLZnQCZS6lpmPPrqXh0SmKXBE
+         TtkUlHOzBVh1avqW9F+e59x1p1J6mIFxahDJlMVCt4C5HJL9llntIi/YKB4mbyMUk4o/
+         4HiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741374624; x=1741979424;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=G320vO3tNGq5LjjYUJYVn9vH/OecsbxF7bGuK6RaMF8=;
-        b=Ebnbmng5az+ztOevWwzggBHk7nIod55Zen48S1EHClBVVaaUooOmEsyRSDZxhn0uZI
-         +sTDaheLZkKGpSaJWiUZX3QRGCftgoaSjYQGpABuc97IXNR5MoOLwMAfq0KmbvsiOXy1
-         kOHi9ssD6XG2Jr717mRWtdG9Rm7JYYUPfQXkpgkvwVr7XOifVXOW5NdQtm6HTgrlRz9S
-         SxkQrz3b1P9gxA7ESQqt1Z8ZSFohPHeEKkZUeNgQJBwFRscaLn5I4LJXERV7yumEeZ83
-         J8iDIfrVJ+jnOyu77nsNGeaZcJ2k3GTI6E2SBowEI7lwkMqP5U5mEZwvku87Q+eYFySN
-         H9bA==
-X-Gm-Message-State: AOJu0Yxo5Sm5O2MlMRHRTyJvjcXXv53fpjDvEUxY9hmkqKAdmVm46Xaw
-	M+xu/Y7Dp0cJ3KCMXDSuaV9v0OO2E2d/vumiXqOCGlZZAnTvo1wsCxBcSsqZyBd7C6jL2h9zl0B
-	47uFI5aVp0EQLBHOvPWT7PAqoCIs=
-X-Gm-Gg: ASbGncsuCidB+YRDITBa8c9FUaqZsBQ3I/Y1Id0tOFly0N1gv7JGg7HBkIBhM4ahds5
-	r9PsY8bjORLaLu+XTDMFhOzcP4v40StjYPrwqBfco7410jpMPe+7D4+dMA/EWE8viTYfgnqHWoL
-	L83PyUBI6/VBeFFEQ64yzTYQo=
-X-Google-Smtp-Source: AGHT+IFcCtf3OZ5JV1HRJFskFd2gKVkD8MsdMIZmMwZjx8X1iHFzHhCbMIzFSJ3JJGdmt81moiIED/UyaGlSc9DZjdo=
-X-Received: by 2002:a05:6102:1606:b0:4bb:d7f0:6e65 with SMTP id
- ada2fe7eead31-4c30a537431mr3707840137.2.1741374624040; Fri, 07 Mar 2025
- 11:10:24 -0800 (PST)
+        d=1e100.net; s=20230601; t=1741376314; x=1741981114;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=p5igKSTxPFTOS+xKkR9/4WsthgWnkE2Mlv3quJUlVtk=;
+        b=txGerLko55veViVzVe5wENWGuaODFUJs+3VIKo3bAgoXZ0J2sAqlSwPolJPFOuUqwQ
+         4vI1kubEt7sTmKd7I9C03dEl18vET2sgGo/P/3PW+sv/lqokRudayTpzGW7VPY6MOjv3
+         VR+JOGLn3teQMsnIz6omYCBZFGsp/PSSuWsnlfm/Bmal3F5diiFNdH3Ntj9xeiWyRFNG
+         uH82CARn9Q3y60alaB2MV4wThcnpVcGI35pmo4EPkXDWw6STC5IV7goeyr4QPp1ZCCkZ
+         zEThyG4CT+YL2UWEREM/oOQ1duryDhHtqMRM0YQ6HkNJLrXmww+GAJtV+Tq7d3JAHWmY
+         6G8w==
+X-Forwarded-Encrypted: i=1; AJvYcCXax0kPMYxEQbNV27OpTLscWF2sbnuqA/qDtEeDf80VJvyMFfAjhkbF+m4Za0xEnJFJQKy/FAPF@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywdgex2mHM6WztziXY8r3z3/UIpA2xCjsvWsR9ouFvKRslaKXJA
+	46Wl6mZSna2M+RWQkQhBkfd7oJB/VL6YWC60JopUMkR3yStd5GrETTGnEvc9s4of7Z5X2NmVeb0
+	=
+X-Gm-Gg: ASbGncssRbCIBMuNTpDaAbVB0XYBHdtq1TgLOsx2unkeL4nC5+SE37ldXKaxgpdYubV
+	dEgfnKnPMHPyUnNe1MEVlQnVcgZY2Zs6ZGYOMVj4aaT+mnIh+Bu8Wl9JTZiTVfsml+r6TjcAQA9
+	prlBfiVlSgqLw8HJGElMMzyci1qQ4mwcSFgDIq14DslMiUK80LTGCq+4BslFmt+BH0u33+R1YQd
+	HrggMWJLg8D/Jd8STPKaSkmMHTP4/XSl8Kd1t28TtMAA+vjDl/8LJYmOLS1kSG3v36CgmMB61im
+	Xv+QWjFJSK9ULWxwqum1pPseE2bZ6Y+b04zfVvkOq2f9tT6tJI5cNCqxthymxRluGHDj4aK5Tbg
+	dq5N+zORAVZKDxg==
+X-Google-Smtp-Source: AGHT+IFkaMYQx1ylHwG/iz2um/dPEpd79CYsvVILlcJOk6aOGsNMrx8/W8JzuRmdiXyhUsZ9RsL0vQ==
+X-Received: by 2002:a05:620a:8017:b0:7c3:c1b4:c8f5 with SMTP id af79cd13be357-7c4e168267fmr655768285a.15.1741376314157;
+        Fri, 07 Mar 2025 11:38:34 -0800 (PST)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-7c3e538448fsm280105385a.63.2025.03.07.11.38.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Mar 2025 11:38:33 -0800 (PST)
+Date: Fri, 07 Mar 2025 14:38:33 -0500
+Message-ID: <aa05b93c973149a86385a6cb7f7c1138@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250213022205.972878-1-tweek@google.com>
-In-Reply-To: <20250213022205.972878-1-tweek@google.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Fri, 7 Mar 2025 14:10:13 -0500
-X-Gm-Features: AQ5f1JqlO3-Yo0Tgt-DD_0F09a1if9X8M5P-8Va6IJpzVcGgtTjvdrPyRMCXoUY
-Message-ID: <CAP+JOzQkPPZtzNHSY2L8Quw8btoYLEJ83t1=WT37vBDyhG0J3w@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: warn on identical duplicate properties
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20250307_1437/pstg-lib:20250307_1437/pstg-pwork:20250307_1437
+From: Paul Moore <paul@paul-moore.com>
+To: Tim Schumacher <tim.schumacher1@huawei.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, Dominick Grift <dominick.grift@defensec.nl>
+Cc: Tim Schumacher <tim.schumacher1@huawei.com>, Stephen Smalley <sds@tycho.nsa.gov>, <selinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] selinux: Chain up tool resolving errors in  install_policy.sh
+References: <20250307095645.326982-1-tim.schumacher1@huawei.com>
+In-Reply-To: <20250307095645.326982-1-tim.schumacher1@huawei.com>
 
-On Wed, Feb 12, 2025 at 9:22=E2=80=AFPM Thi=C3=A9baud Weksteen <tweek@googl=
-e.com> wrote:
->
-> Instead of raising an error in case of matching duplicates, only report
-> the issue as a warning. This matches the downstream (AOSP) behaviour for
-> Android.
->
-> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-
-Acked-by: James Carter <jwcart2@gmail.com>
-
+On Mar  7, 2025 Tim Schumacher <tim.schumacher1@huawei.com> wrote:
+> 
+> Subshell evaluations are not exempt from errexit, so if a command is
+> not available, `which` will fail and exit the script as a whole.
+> This causes the helpful error messages to not be printed if they are
+> tacked on using a `$?` comparison.
+> 
+> Resolve the issue by using chains of logical operators, which are not
+> subject to the effects of errexit.
+> 
+> Fixes: e37c1877ba5b1 ("scripts/selinux: modernize mdp")
+> Signed-off-by: Tim Schumacher <tim.schumacher1@huawei.com>
 > ---
->  libselinux/src/label_backends_android.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/lab=
-el_backends_android.c
-> index cbe932ae..cf4f5cbf 100644
-> --- a/libselinux/src/label_backends_android.c
-> +++ b/libselinux/src/label_backends_android.c
-> @@ -58,10 +58,10 @@ static int nodups_specs(struct saved_data *data, cons=
-t char *path)
->                 for (jj =3D ii + 1; jj < data->nspec; jj++) {
->                         if (!strcmp(spec_arr[jj].property_key,
->                                             curr_spec->property_key)) {
-> -                               rc =3D -1;
-> -                               errno =3D EINVAL;
->                                 if (strcmp(spec_arr[jj].lr.ctx_raw,
->                                                     curr_spec->lr.ctx_raw=
-)) {
-> +                                       rc =3D -1;
-> +                                       errno =3D EINVAL;
->                                         selinux_log
->                                                 (SELINUX_ERROR,
->                                                  "%s: Multiple different =
-specifications for %s  (%s and %s).\n",
-> @@ -70,7 +70,7 @@ static int nodups_specs(struct saved_data *data, const =
-char *path)
->                                                  curr_spec->lr.ctx_raw);
->                                 } else {
->                                         selinux_log
-> -                                               (SELINUX_ERROR,
-> +                                               (SELINUX_WARNING,
->                                                  "%s: Multiple same speci=
-fications for %s.\n",
->                                                  path, curr_spec->propert=
-y_key);
->                                 }
-> --
-> 2.48.1.502.g6dc24dfdaf-goog
->
->
+>  scripts/selinux/install_policy.sh | 15 ++++++---------
+>  1 file changed, 6 insertions(+), 9 deletions(-)
+
+Nice catch, merged into selinux/dev, thanks!
+
+--
+paul-moore.com
