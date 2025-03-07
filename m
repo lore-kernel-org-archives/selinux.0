@@ -1,66 +1,65 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 460542571C2
-	for <selinux@vger.kernel.org>; Fri,  7 Mar 2025 19:38:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91BF72505D4
+	for <selinux@vger.kernel.org>; Fri,  7 Mar 2025 20:11:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741376318; cv=none; b=Ck+jAAbePUzClCT75IbRdVs3IUFMcXbOYDFJ5DdLo1OAszvxuHfDapl9VFl8aVHp9YadFbsXtIvwypoyiriAVCctUeBw0vWAE904wHz6HXGsFfbd+Cjx8qycowUNuDLW6dfMk4OXCw9L6fMwnZFwdgi3Rr5E09Bg4EEnVIB7DGk=
+	t=1741378273; cv=none; b=CIrmOTV8CnKHjgqESdL2IQsylxPoIR8ns1nE5f/a769V4e5aJkMe4+QgG6NtA9q/nGGr7z1qk17GMklr4XVW8spvWJD2lxF6sGkUZU4e4B1PcPFSFfSCf+WY3aFeiwX+niZgjt6iQQ+rO3wQ9hCdbxs2JmWv0zVPyKRGAgbIJRg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741376318; c=relaxed/simple;
-	bh=1ZI28/lCSvGnh96hlD+BJ/dGZVhUIKQvcBo7eAC6zwM=;
+	s=arc-20240116; t=1741378273; c=relaxed/simple;
+	bh=8mMyk1ulJwVyqgnppDDhKpfmvXF0Bc4Fw/7P5XU97/g=;
 	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=u49IsQdVyKtN4ksZdUHJkP6BovFh7AiTgr9mE9G54+ZUW6PULgy/fhbJ+AsrXJX06ylCkX7al08QEq37CAV+JuLP5piqTvC113nyuMA1XFj4F5NH46BAwLh0rqGYbtIbdeh65jeC1Rvmh4bxVw+zlU7AFydAk8Fn/M2LQkMuuC4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=BVPPwIRW; arc=none smtp.client-ip=209.85.222.173
+	 References:In-Reply-To; b=l/XiAto7E2rWeOsn3Q+vkqMevKoCZfMYmfBtjSWkk1X7eZvSWCc/qvRE2V5ImqjKmhMZP41JKaTBnn2G81PJbMsdGzuySrOU2GMX/ZRJSczrbrB/Bbt9fT2oKSRWfui8KVw5jJbj1EX/GBqJiUej+d1H2kCOgb/hpiuF81USL3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=XfOStQ/I; arc=none smtp.client-ip=209.85.222.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="BVPPwIRW"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-7c3b63dfebfso253437585a.3
-        for <selinux@vger.kernel.org>; Fri, 07 Mar 2025 11:38:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="XfOStQ/I"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-7be8f281714so242212685a.1
+        for <selinux@vger.kernel.org>; Fri, 07 Mar 2025 12:11:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1741376314; x=1741981114; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1741378270; x=1741983070; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=p5igKSTxPFTOS+xKkR9/4WsthgWnkE2Mlv3quJUlVtk=;
-        b=BVPPwIRW2ghmQcoIDPZeU+9/lWwojSNIRbcZl1LY5JrFKSbIV2i0icUaDnI4Gs7E2C
-         rEI9jd64zXzIX6LN0ryop9Ks6bH6Gl4GXPTZT5Dvql3vKTTDWUHQqJggV1DIkizxGPJM
-         7sGcrs5x66PU9/XipCpN2r3MG1gxCAMoMd2OskVnMqWUBBvaIPp4rh3NLryD0Km9IVaI
-         VGpLc9GSkokOIiJRrb75ThBIFN9I7oTTl6Fidhn/DSGaLZnQCZS6lpmPPrqXh0SmKXBE
-         TtkUlHOzBVh1avqW9F+e59x1p1J6mIFxahDJlMVCt4C5HJL9llntIi/YKB4mbyMUk4o/
-         4HiA==
+        bh=q78/HiWHJU/pFecas/YddCOoXzeJ1vsGLqv0kt0f1Vs=;
+        b=XfOStQ/IQBgHLs0DBQ03faY5Egd1dJT4aEYJePKvgj06hiFa1vryZ6ve29oF8j/CDf
+         nM14NvzrqCMIqaAhwzxaBiCsL5fyEPTvEqIgQkI+p5XgmYwdI4nV8SlbIxoglidRmocl
+         B0Hna8vUCkbq4wwdXFsfHLh2mJ4Y4xS6M0/sg0UQF2O10ABCgsoQYQd6krfjdMqmsdVZ
+         U69WmHBFKWCNPKUe/vH+nZWJErleT4dsETqnW6NRJt/wvqRQWmBfYaYnNrmlvGtnuQkg
+         php3LMJsptmoR4meZ3G+MG4JWsHa+lS7+maJAJ7zvNubMT7QfOu8gG62V1EmVTq3Pl8R
+         QVGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741376314; x=1741981114;
+        d=1e100.net; s=20230601; t=1741378270; x=1741983070;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=p5igKSTxPFTOS+xKkR9/4WsthgWnkE2Mlv3quJUlVtk=;
-        b=txGerLko55veViVzVe5wENWGuaODFUJs+3VIKo3bAgoXZ0J2sAqlSwPolJPFOuUqwQ
-         4vI1kubEt7sTmKd7I9C03dEl18vET2sgGo/P/3PW+sv/lqokRudayTpzGW7VPY6MOjv3
-         VR+JOGLn3teQMsnIz6omYCBZFGsp/PSSuWsnlfm/Bmal3F5diiFNdH3Ntj9xeiWyRFNG
-         uH82CARn9Q3y60alaB2MV4wThcnpVcGI35pmo4EPkXDWw6STC5IV7goeyr4QPp1ZCCkZ
-         zEThyG4CT+YL2UWEREM/oOQ1duryDhHtqMRM0YQ6HkNJLrXmww+GAJtV+Tq7d3JAHWmY
-         6G8w==
-X-Forwarded-Encrypted: i=1; AJvYcCXax0kPMYxEQbNV27OpTLscWF2sbnuqA/qDtEeDf80VJvyMFfAjhkbF+m4Za0xEnJFJQKy/FAPF@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywdgex2mHM6WztziXY8r3z3/UIpA2xCjsvWsR9ouFvKRslaKXJA
-	46Wl6mZSna2M+RWQkQhBkfd7oJB/VL6YWC60JopUMkR3yStd5GrETTGnEvc9s4of7Z5X2NmVeb0
-	=
-X-Gm-Gg: ASbGncssRbCIBMuNTpDaAbVB0XYBHdtq1TgLOsx2unkeL4nC5+SE37ldXKaxgpdYubV
-	dEgfnKnPMHPyUnNe1MEVlQnVcgZY2Zs6ZGYOMVj4aaT+mnIh+Bu8Wl9JTZiTVfsml+r6TjcAQA9
-	prlBfiVlSgqLw8HJGElMMzyci1qQ4mwcSFgDIq14DslMiUK80LTGCq+4BslFmt+BH0u33+R1YQd
-	HrggMWJLg8D/Jd8STPKaSkmMHTP4/XSl8Kd1t28TtMAA+vjDl/8LJYmOLS1kSG3v36CgmMB61im
-	Xv+QWjFJSK9ULWxwqum1pPseE2bZ6Y+b04zfVvkOq2f9tT6tJI5cNCqxthymxRluGHDj4aK5Tbg
-	dq5N+zORAVZKDxg==
-X-Google-Smtp-Source: AGHT+IFkaMYQx1ylHwG/iz2um/dPEpd79CYsvVILlcJOk6aOGsNMrx8/W8JzuRmdiXyhUsZ9RsL0vQ==
-X-Received: by 2002:a05:620a:8017:b0:7c3:c1b4:c8f5 with SMTP id af79cd13be357-7c4e168267fmr655768285a.15.1741376314157;
-        Fri, 07 Mar 2025 11:38:34 -0800 (PST)
+        bh=q78/HiWHJU/pFecas/YddCOoXzeJ1vsGLqv0kt0f1Vs=;
+        b=GXnb8C+Uv1UH2RmN+1RHkfY16xrk9WsS8o6LY1Mj8HCvE3xAq88zRs9BAQlc1mH7+w
+         JNJEPNum8XTONo/qGCAWlqUfef/KVhOLKzZgAj2KEKMrc/ZMb2KaR5Dv/LNcCl2QAwA3
+         03PpfCZ8LkbC9A9GnXAR31megir9Q07CRSAM3vGgXLBXT/klg4uanhId0BLo8KW0VIAQ
+         cJypxUFZs1wLxtJaYQ4gT3kYYzreWQsPN43H4h2cElbhDr9YA+xucWA/SbU5JPLCye1v
+         jbzqDVvnbr7UW3/Kpcwlr2c8Xbeu8b7b3wFCbTajjcxiPo8jYGz9uJwPcgyaPwVKLYHq
+         rd8w==
+X-Forwarded-Encrypted: i=1; AJvYcCWXb0oqDHoUN/vt5tB767CEinO1SiimL3z2WVbMFhJNu2vHO7DZjvU+iHirSKbpqf2/d+TDdsgF@vger.kernel.org
+X-Gm-Message-State: AOJu0YzCilQN6hisb3CRCenS9anDmXfWH7/FtgLPEMTdLw7UUTYR5lGz
+	kqmv8wtHDP07zyJErCiVQHse/V7tWIkvhO+hJei48x9TLcc7CR6E3R0WWLN/AQ==
+X-Gm-Gg: ASbGncsZK8cS+DPZF/nLEXdfDKDB31AWmsQHIKub5qBmpluYRKi92MjOG9lxDfUnVYW
+	lKKK8AZBYS8l3k4/EAcqCSBtpv6c9QJDMkZOShCDIDdzeGCQKqbZJp698nuxwuaBq7lSGngWZXl
+	vKNl4kA4KbxqCXgYwCL+JZsBsw7SH47Qme1QzwNExdLVQuKsR0MamWLYsd+iyc8vi1UxcJyfdn5
+	PGqqLJs19UiyiKsJbvF54sAMhi+eJXxXvYcUubXhvQnfIz3bHlSlYCjpxPlBW145OHyhVWcSL+g
+	nkdZlqJgs2GpM+YU8xqGq3zj69bf3e7SO7Xkp6yRJFTqqjy4RfSx2aHG24oyeIW5D+SNW8oZP8E
+	ks9C8qqfoRCLhHQ==
+X-Google-Smtp-Source: AGHT+IFigSgioC6qGGcWPMc1V2MMvwUklhtlL/Nr0hqqWle0uIyyD/88acNfu9IOe8cY2IJGlAOOrQ==
+X-Received: by 2002:a05:620a:1b84:b0:7c3:cd38:9be1 with SMTP id af79cd13be357-7c4e6193e60mr760431985a.48.1741378270458;
+        Fri, 07 Mar 2025 12:11:10 -0800 (PST)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-7c3e538448fsm280105385a.63.2025.03.07.11.38.33
+        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-7c3e5500015sm280557185a.85.2025.03.07.12.11.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Mar 2025 11:38:33 -0800 (PST)
-Date: Fri, 07 Mar 2025 14:38:33 -0500
-Message-ID: <aa05b93c973149a86385a6cb7f7c1138@paul-moore.com>
+        Fri, 07 Mar 2025 12:11:10 -0800 (PST)
+Date: Fri, 07 Mar 2025 15:11:09 -0500
+Message-ID: <c53b73fccbc24586776e9240a14dc6b3@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -71,29 +70,36 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit 
 X-Mailer: pstg-pwork:20250307_1437/pstg-lib:20250307_1437/pstg-pwork:20250307_1437
 From: Paul Moore <paul@paul-moore.com>
-To: Tim Schumacher <tim.schumacher1@huawei.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, Dominick Grift <dominick.grift@defensec.nl>
-Cc: Tim Schumacher <tim.schumacher1@huawei.com>, Stephen Smalley <sds@tycho.nsa.gov>, <selinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] selinux: Chain up tool resolving errors in  install_policy.sh
-References: <20250307095645.326982-1-tim.schumacher1@huawei.com>
-In-Reply-To: <20250307095645.326982-1-tim.schumacher1@huawei.com>
+To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>, selinux@vger.kernel.org
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>, =?UTF-8?q?Bram=20Bonn=C3=A9?= <brambonne@google.com>, Casey Schaufler <casey@schaufler-ca.com>, Canfeng Guo <guocanfeng@uniontech.com>, GUO Zihua <guozihua@huawei.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] selinux: support wildcard network interface names
+References: <20250302154100.104746-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20250302154100.104746-1-cgoettsche@seltendoof.de>
 
-On Mar  7, 2025 Tim Schumacher <tim.schumacher1@huawei.com> wrote:
+On Mar  2, 2025 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de> wrote:
 > 
-> Subshell evaluations are not exempt from errexit, so if a command is
-> not available, `which` will fail and exit the script as a whole.
-> This causes the helpful error messages to not be printed if they are
-> tacked on using a `$?` comparison.
+> Add support for wildcard matching of network interface names.  This is
+> useful for auto-generated interfaces, for example podman creates network
+> interfaces for containers with the naming scheme podman0, podman1,
+> podman2, ...
 > 
-> Resolve the issue by using chains of logical operators, which are not
-> subject to the effects of errexit.
+> To maintain backward compatibility guard this feature with a new policy
+> capability 'netif_wildcard'.
 > 
-> Fixes: e37c1877ba5b1 ("scripts/selinux: modernize mdp")
-> Signed-off-by: Tim Schumacher <tim.schumacher1@huawei.com>
+> Netifcon definitions are compared against in the order given by the
+> policy, so userspace tools should sort them in a reasonable order.
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > ---
->  scripts/selinux/install_policy.sh | 15 ++++++---------
->  1 file changed, 6 insertions(+), 9 deletions(-)
+> v2: add policy capability netif_wildcard
+> ---
+>  security/selinux/include/policycap.h       |  1 +
+>  security/selinux/include/policycap_names.h |  1 +
+>  security/selinux/include/security.h        |  8 +++++++-
+>  security/selinux/ss/services.c             | 16 +++++++++++++---
+>  4 files changed, 22 insertions(+), 4 deletions(-)
 
-Nice catch, merged into selinux/dev, thanks!
+Looks good, merged into selinux/dev, thanks!
 
 --
 paul-moore.com
