@@ -1,166 +1,114 @@
-Received: from out203-205-221-173.mail.qq.com (out203-205-221-173.mail.qq.com [203.205.221.173])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75C7535280;
-	Sun,  9 Mar 2025 05:06:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D37014D2BB;
+	Sun,  9 Mar 2025 14:19:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741496783; cv=none; b=FcfCCZli/pmhny7L8cueU6MC2VXTdXD3boYdsOrHw89nGf3w4wizJ+lOQ16UezZQpkrN3pZisLQ7DpqElElIFlfYTrmc1SFu20W56r5M2CcYdYULUeH2rNisjpp6vPVH9dqK1G48YSs7m4eCmmPqDHB5msKIHkQdVLg03zsPCDU=
+	t=1741529981; cv=none; b=Kp7ikBZl5lNDhhphKsxF1nfhZlpHC6Oux8yC+SGzXmIrrv34/ZrUhI1bhbbFI6EhJq8ELDJPa8Qr9cKZUt1IaihH5nqlpIAawXixs9ZyQqophGeWKY7yGOvrr3b7jj5W0lbbm3GfG8FyFbMc+K8mr7l+goGF5s+0LKUWhpB6wns=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741496783; c=relaxed/simple;
-	bh=ap14RnM0FXHiW/c1s1yggxVd0fRMyWGdyxBDMRKs5g4=;
-	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=Wm3WhazhUVNNFSrVxZsJ1jGCQysRIVfuTimkwsYO353wFPzOmSWh5ttI0JvcUY2BoRv26Fv6Inj2fp963zTMvDmdDoTYCIeK4Dj+PBEjrOps5luJgX560KQVES///AGWgoyqRaifdPTzS34nGxdzP2Jb7D2hE+vSoUWSIrL53+w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=ZqyLlcpG; arc=none smtp.client-ip=203.205.221.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	s=arc-20240116; t=1741529981; c=relaxed/simple;
+	bh=dgmnH3jivN7gBSE9ew8+WzchO37Kp9I0JWQg3tBMeRw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=T14d/0qBPL/mMpfiANt0K+0WoJd3Ot1P0MQbdEAjFMubL4q1iJcSyWqkSJZ+SzRDMvqGieKeolOuPkaNGPJml5k7FFTKKbptZuxQTTaUfp7ZG8MByFjnTCoUj2eVurrvB5milC7SitXusczwokadyDNcblZ42MYb2cU+Pq+FADg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=CxNC00Xq; arc=none smtp.client-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="ZqyLlcpG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1741496468; bh=zsWjWchoYt4RUeJrfVrKynL/2TGiCO85mo2XGyQv9tY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=ZqyLlcpG0KDJDenOjbu5amYOIR7g56xBxidFf2mpEeFJuTVjFNTvfTI81KH18j9kt
-	 EvmUPR7GbE2p9ve2UzWwxf8ph0F5V1hY2PQZToAGn3GA6LcwS2eET41Qv8xARUETfW
-	 Z5zh/+oFk3MFoNm02fYWvt4zs8NnWX85XSNX8A/k=
-Received: from pek-lxu-l1.wrs.com ([114.244.57.157])
-	by newxmesmtplogicsvrszc13-0.qq.com (NewEsmtp) with SMTP
-	id DC1984B7; Sun, 09 Mar 2025 12:55:01 +0800
-X-QQ-mid: xmsmtpt1741496101ta2qaz7oj
-Message-ID: <tencent_0BEE86CD3878D26D402DDD6F949484E96E0A@qq.com>
-X-QQ-XMAILINFO: N7MBeL6vDXVdHGCMEieOPTrj7H4vCU2dXZZuxupGB4Mm831JCzHmWX2hs9ROHF
-	 XCXxAwrJqidJgFeUQ9s4snV/CMkKNNy7isxOPeikc9plSlyKbmqzNioxN2LXQgDklcoCG7uMvOOH
-	 OI9iakV2BDj+w3UuJ4Qw9wnaiQ2XrGGbR/j4R2iu2Eq5YRsCMDKJMuSnbCrOlIPNYpnMGAKzjFDt
-	 szyCm1cU3QmGStBA2UVTTOd1r4N0kJqj24qY2iPPoTj0R6Rp1CTCBhwwoxMXG9lBZjNpcD33I9ru
-	 ipN9J7kvDw9VSAGg8YNC2g/Qovi2SM6kByyyCjiDtCjjHGtGTE1XIjqwCD/6WZTwC2aKAykUNhFZ
-	 oXM3aJSBbwQMWXuznZdMS8ZD7KzkIlp25kehKqXlrEKDWQzCEY3dHRTjfdEaPO/vpENyqmSRSq4q
-	 IQIiLRIzzduDwMkIxlWEh2dwp5NESs/uv89P2yrQMtiMebMs4+mbgmh+mVApHPUO13sZxuRlKbVG
-	 KJalETTyVXDqm9BhOcffuDUzWugmcccBOu46wt3HKFgKJdIABurBu1w5un4vR6s3Rk99L4tt34eQ
-	 roJkvCapEuXeHdOTef9Z908FrVxH1h/3P5eWJqzld2KPjVaXow/wc6m/PtmNGdJxIyex700DLPg+
-	 rEa67EujRYm6Z1gn99+fFJKCd9BVg9amiuhU/+VivFhhwGZDMAlgv36CgGrEO/DfLGQG9Im+cEG9
-	 dOHhL0NZCnLTWNY6vh6N2+j/6GOBXxVWNdD32NO2EGC7ej2HQZ8+JN13pyHxMwbGJt/oANsgu49j
-	 JSXCWAiegYaxsvR7wJ6VZibzL+OSOe+q6TMj5XJVXLSNB4TdaQ5Zo42pA15BO2R/ahZNGNvLFYh5
-	 6f8/dDZMpVWYvTncJTu06MEuJ4cWyGdj2SwFiMlZ/3
-X-QQ-XMRINFO: OD9hHCdaPRBwq3WW+NvGbIU=
-From: Edward Adam Davis <eadavis@qq.com>
-To: syzbot+00c633585760c05507c3@syzkaller.appspotmail.com
-Cc: linux-kernel@vger.kernel.org,
-	omosnace@redhat.com,
-	paul@paul-moore.com,
-	selinux@vger.kernel.org,
-	stephen.smalley.work@gmail.com,
-	syzkaller-bugs@googlegroups.com
-Subject: [PATCH] selinux: read and write sid under lock
-Date: Sun,  9 Mar 2025 12:55:02 +0800
-X-OQ-MSGID: <20250309045501.2651020-2-eadavis@qq.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <67cb894d.050a0220.d8275.0232.GAE@google.com>
-References: <67cb894d.050a0220.d8275.0232.GAE@google.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="CxNC00Xq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1741529979; x=1773065979;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=dgmnH3jivN7gBSE9ew8+WzchO37Kp9I0JWQg3tBMeRw=;
+  b=CxNC00XqB36xH3tER6VeebLEn8qwsamyKhW09Uiz5mrbUf+wkN2/iA0+
+   i0Spgsb5rsDk/803CGOaEu9v4bIugvslX8lTVnmCpgdxm8ho5MDdhapHs
+   InXgVRDHfD1iXiegousSyZBlbEfKB1tUjqrHXFIrJFUHMoAwQo5WkKKxC
+   1PChPYPCzu+BYDyW98xBZU3FsPZYq2vL9BXEjD9l/0L2kmYQUyggRnoGJ
+   4cy0QXN2V/UL5TFVbxSsxUN5jDcpodAgTiUHAGYuM26Bd77zc+5qg8UPS
+   hyMbS1sf+I0igrcGFl4YaPvAzx6vfUOBtVPwfXlua3HZjN8nXZrTYrg/u
+   Q==;
+X-CSE-ConnectionGUID: Xo3X5dVJT+eTLSwBSQUZzQ==
+X-CSE-MsgGUID: yiyKIoJPS/WBllnawuHWkQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11368"; a="42643655"
+X-IronPort-AV: E=Sophos;i="6.14,234,1736841600"; 
+   d="scan'208";a="42643655"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Mar 2025 07:19:38 -0700
+X-CSE-ConnectionGUID: BNvV+1E6QbGX8CO5DjlLYQ==
+X-CSE-MsgGUID: knhpWfGvQTiTukVADQAlmQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
+   d="scan'208";a="120286375"
+Received: from lkp-server02.sh.intel.com (HELO a4747d147074) ([10.239.97.151])
+  by orviesa007.jf.intel.com with ESMTP; 09 Mar 2025 07:19:35 -0700
+Received: from kbuild by a4747d147074 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1trHV3-0003Aq-0U;
+	Sun, 09 Mar 2025 14:19:30 +0000
+Date: Sun, 9 Mar 2025 22:18:58 +0800
+From: kernel test robot <lkp@intel.com>
+To: Casey Schaufler <casey@schaufler-ca.com>, paul@paul-moore.com,
+	eparis@redhat.com, linux-security-module@vger.kernel.org,
+	audit@vger.kernel.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev, jmorris@namei.org,
+	serge@hallyn.com, keescook@chromium.org,
+	john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+	stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: Re: [PATCH v2 6/6] Audit: Add record for multiple object contexts
+Message-ID: <202503092246.du8fixfZ-lkp@intel.com>
+References: <20250307183701.16970-7-casey@schaufler-ca.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250307183701.16970-7-casey@schaufler-ca.com>
 
-syzbot reported a data-race in selinux_socket_post_create /
-selinux_socket_sock_rcv_skb. [1]
+Hi Casey,
 
-When creating the socket path and receiving the network data packet path,
-effective data access protection is not performed when reading and writing
-the sid, resulting in a race condition.
+kernel test robot noticed the following build errors:
 
-Add a lock to synchronize the two.
+[auto build test ERROR on pcmoore-selinux/next]
+[also build test ERROR on linus/master v6.14-rc5 next-20250307]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-[1]
-BUG: KCSAN: data-race in selinux_socket_post_create / selinux_socket_sock_rcv_skb
+url:    https://github.com/intel-lab-lkp/linux/commits/Casey-Schaufler/Audit-Create-audit_stamp-structure/20250308-024950
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
+patch link:    https://lore.kernel.org/r/20250307183701.16970-7-casey%40schaufler-ca.com
+patch subject: [PATCH v2 6/6] Audit: Add record for multiple object contexts
+config: x86_64-kexec (https://download.01.org/0day-ci/archive/20250309/202503092246.du8fixfZ-lkp@intel.com/config)
+compiler: clang version 19.1.7 (https://github.com/llvm/llvm-project cd708029e0b2869e80abe31ddb175f7c35361f90)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250309/202503092246.du8fixfZ-lkp@intel.com/reproduce)
 
-write to 0xffff88811b989e30 of 4 bytes by task 3803 on cpu 0:
- selinux_socket_post_create+0x1b5/0x2a0 security/selinux/hooks.c:4681
- security_socket_post_create+0x5b/0xa0 security/security.c:4577
- __sock_create+0x35b/0x5a0 net/socket.c:1571
- sock_create net/socket.c:1606 [inline]
- __sys_socket_create net/socket.c:1643 [inline]
- __sys_socket+0xae/0x240 net/socket.c:1690
- __do_sys_socket net/socket.c:1704 [inline]
- __se_sys_socket net/socket.c:1702 [inline]
- __x64_sys_socket+0x3f/0x50 net/socket.c:1702
- x64_sys_call+0x2cf2/0x2dc0 arch/x86/include/generated/asm/syscalls_64.h:42
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0xc9/0x1c0 arch/x86/entry/common.c:83
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202503092246.du8fixfZ-lkp@intel.com/
 
-read to 0xffff88811b989e30 of 4 bytes by task 3805 on cpu 1:
- selinux_socket_sock_rcv_skb+0x72/0x6a0 security/selinux/hooks.c:5129
- security_sock_rcv_skb+0x3d/0x80 security/security.c:4781
- sk_filter_trim_cap+0xca/0x3c0 net/core/filter.c:151
- sk_filter include/linux/filter.h:1062 [inline]
- sock_queue_rcv_skb_reason+0x28/0xc0 net/core/sock.c:527
- sock_queue_rcv_skb include/net/sock.h:2403 [inline]
- packet_rcv_spkt+0x2f7/0x3b0 net/packet/af_packet.c:1967
- deliver_skb net/core/dev.c:2449 [inline]
- __netif_receive_skb_core+0x48f/0x2350 net/core/dev.c:5737
- __netif_receive_skb_list_core+0x115/0x520 net/core/dev.c:5968
- __netif_receive_skb_list net/core/dev.c:6035 [inline]
- netif_receive_skb_list_internal+0x4e4/0x660 net/core/dev.c:6126
- netif_receive_skb_list+0x31/0x230 net/core/dev.c:6178
- xdp_recv_frames net/bpf/test_run.c:280 [inline]
- xdp_test_run_batch net/bpf/test_run.c:361 [inline]
- bpf_test_run_xdp_live+0xe10/0x1040 net/bpf/test_run.c:390
- bpf_prog_test_run_xdp+0x51d/0x8b0 net/bpf/test_run.c:1316
- bpf_prog_test_run+0x20f/0x3a0 kernel/bpf/syscall.c:4407
- __sys_bpf+0x400/0x7a0 kernel/bpf/syscall.c:5813
- __do_sys_bpf kernel/bpf/syscall.c:5902 [inline]
- __se_sys_bpf kernel/bpf/syscall.c:5900 [inline]
- __x64_sys_bpf+0x43/0x50 kernel/bpf/syscall.c:5900
- x64_sys_call+0x2914/0x2dc0 arch/x86/include/generated/asm/syscalls_64.h:322
- do_syscall_x64 arch/x86/entry/common.c:52 [inline]
- do_syscall_64+0xc9/0x1c0 arch/x86/entry/common.c:83
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
+All errors (new ones prefixed by >>):
 
-value changed: 0x00000003 -> 0x00000087
+>> ld.lld: error: undefined symbol: lsm_objctx_cnt
+   >>> referenced by audit.c:2312 (kernel/audit.c:2312)
+   >>>               vmlinux.o:(audit_log_object_context)
+--
+>> ld.lld: error: undefined symbol: lsm_active_cnt
+   >>> referenced by audit.c:2329 (kernel/audit.c:2329)
+   >>>               vmlinux.o:(audit_log_object_context)
+   >>> referenced by audit.c:2329 (kernel/audit.c:2329)
+   >>>               vmlinux.o:(audit_log_object_context)
+--
+>> ld.lld: error: undefined symbol: lsm_idlist
+   >>> referenced by audit.c:2330 (kernel/audit.c:2330)
+   >>>               vmlinux.o:(audit_log_object_context)
 
-Reported-by: syzbot+00c633585760c05507c3@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=00c633585760c05507c3
-Signed-off-by: Edward Adam Davis <eadavis@qq.com>
----
- security/selinux/hooks.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 7b867dfec88b..ea5d0273f9d5 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4677,8 +4677,10 @@ static int selinux_socket_post_create(struct socket *sock, int family,
- 
- 	if (sock->sk) {
- 		sksec = selinux_sock(sock->sk);
-+		spin_lock(&sksec->lock);
- 		sksec->sclass = sclass;
- 		sksec->sid = sid;
-+		spin_unlock(&sksec->lock);
- 		/* Allows detection of the first association on this socket */
- 		if (sksec->sclass == SECCLASS_SCTP_SOCKET)
- 			sksec->sctp_assoc_state = SCTP_ASSOC_UNSET;
-@@ -5126,7 +5128,7 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 	int err, peerlbl_active, secmark_active;
- 	struct sk_security_struct *sksec = selinux_sock(sk);
- 	u16 family = sk->sk_family;
--	u32 sk_sid = sksec->sid;
-+	u32 sk_sid;
- 	struct common_audit_data ad;
- 	struct lsm_network_audit net;
- 	char *addrp;
-@@ -5155,6 +5157,9 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 	if (err)
- 		return err;
- 
-+	spin_lock(&sksec->lock);
-+	sk_sid = sksec->sid;
-+	spin_unlock(&sksec->lock);
- 	if (peerlbl_active) {
- 		u32 peer_sid;
- 
 -- 
-2.43.0
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
