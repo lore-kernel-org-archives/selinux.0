@@ -1,129 +1,99 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A9E01DE4FA
-	for <selinux@vger.kernel.org>; Mon, 10 Mar 2025 08:20:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2996B33991
+	for <selinux@vger.kernel.org>; Mon, 10 Mar 2025 13:54:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741594857; cv=none; b=NM4ZRRwbpfL12lvIuRLLwqCJHU4B8/FgGVOM1VZqu/8GeoN+M/VJtWsuboOryBL/+cdB1+yUZLhc2VhALGiCRiyyzu4nxMB10kxDVF+rMJo9SfM4kUMCt1AoBtruAUbcMJtpKlpm1h9nCUGa1a4edf5H/Ejdb1gPYWnkc6yQYEc=
+	t=1741614865; cv=none; b=JMyDsIg6tH7wBFhCwI6iG4Vj0txeYfBjsS4ewW6Z0YGMxQ5HHMG4yzl1p2asVft3iI+tpmoCoxOlxRtmI0EvulSie1qaItrrv+vrTTmReoG81vUIK+s80uFv3wH4H6pZllc6RIfEWt190G5VjCKdgoXtYTeKmrRpGrR0O8BJm18=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741594857; c=relaxed/simple;
-	bh=a3XRq5SZMIxfZ+2Mgp5d2cHVY8T95QU6b1B4CIW7pak=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=K8tpapKSkdiBG+a3X1XyUp/tCXS5IhWTUR2Qi9RVHpPZkuSlo4yR20YhbQCzdg2cLBM5ewNe4js/L5IIIZCsKHK1qYI7Kb9IspVZhwk175Y5QgQpMDM5OiqSA8TszZi02awNU6xcXzbLzl930xPHpF8AqzRRHEhxL/+k67Vj2qk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=cyaTK674; arc=none smtp.client-ip=209.85.221.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1741614865; c=relaxed/simple;
+	bh=nIzgCTZUY/o3WMjPpkdjsfJ383w3eJ0nzN/Cklt6ooQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iTzjVVRtxtfdzDpDbuMLru8Z31oXiUxVVl6HUEDBPWsx1kl7/SXRbwo7Wp5U4s420Ha3r/N8EvogLP94hYqmHilS8UDI9yxWZZ5Slwdwm6ov3SE5IAbbBm6EsKhaQRO0JqGjtqQTbJQsEf3ixbrKBSMnZUTNmdSQe6WpucWkkh0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=THaY3Ukt; arc=none smtp.client-ip=209.85.222.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="cyaTK674"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-3912d2c89ecso3319423f8f.2
-        for <selinux@vger.kernel.org>; Mon, 10 Mar 2025 01:20:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="THaY3Ukt"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-7c547932d2eso96570785a.0
+        for <selinux@vger.kernel.org>; Mon, 10 Mar 2025 06:54:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1741594853; x=1742199653; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=/IRa+YB+4QLff7q5apAvMehk6zSiN1B98VZ8cSYC1R0=;
-        b=cyaTK6740rbt95+uQsX5kzvSWPBI4uXp5z/vXsXqHXMs73rJSBuPA5DgvyA40T43IW
-         7RS1D16MMYdk1NFt747ltEZwmyfGQ73SESIwQ0QfjbaiLF4lh5abAAYnNJeiqNiVFMzM
-         Ncv7MEIdpD14lX12p/6/msmtYfw1YnSfrXvgydgxu6tm4ojjG5qFySXpTvGUiuJFHz5M
-         xL/HSMAC3yEIPfExh2eXv7evcd1LrBys36ArdiPD1GHWEdUVtStDyh2WtTBUacvvgg8h
-         DazycAcTQKU0Hn/7kxmGSr2JGP3SZ0DXzF3pT8m53MgHWiUVnM05x7yalcPCOUNNv7eh
-         IGlQ==
+        d=gmail.com; s=20230601; t=1741614862; x=1742219662; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ki66pE2CpFI23vkmcFdiU3TPsm0t6J1ofXV46IXgXVw=;
+        b=THaY3UktElzEs5f0HWZwcfQ0JANeumD7JAL/quHa6UlTSN3+0uhDfzHiMGdRJo1YD5
+         2mQwUwZOlTvzZd/MOhLEzmp1azYjwM/7kT8yWS9B1yXXPLU2Lqb8BgndCiEnrPfeX0hQ
+         7Hgrtv7MwvgE25rydHXk7GLJlR+XiGnAz2KgT8Zkc8oD5Dj2yvJs9e1O0+7ZydOChcHD
+         Gch922yx4LcJ6HFYSazh10KILSBVMdOpxJNLXwz2y2T+LUxt+7UlLE4I3lbJ1U8KN2zX
+         FlGEWg6bY6XPBN7Qc2gKTVbduAnrfzqLpEKLtVgfKUiKk1mpQEGyspzalp3ZHPXWBXah
+         hcPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741594853; x=1742199653;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=1e100.net; s=20230601; t=1741614862; x=1742219662;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=/IRa+YB+4QLff7q5apAvMehk6zSiN1B98VZ8cSYC1R0=;
-        b=LXoJh630fWf/IanTrnOEX+TaNUFpgpYUw1UndXNOkiE5DwPctKP2vzGhYXtHhnPRuI
-         LIQCsSL/LvK/x9urYd4RJqvx0JCpjniPyA8925Iw/F3CONYozUu9V0h8/GaNyAxeHesk
-         jWxqVZoABVza1gnPtgU70FYax8DFQno3pS0hOqRlj1+qN9QNdYfHstPEH7fNVrEojWUi
-         T87fYAJ4hUX4uhp+GOZC112LjzCJQoIyFfUsG+orhOlBE/Y+4VwzDaq1wXpEbZISHbvn
-         nyMy4RIlMxFYRSIdl4LpVK2X+6Pb9mhk0SjKUR0MrPB8ffWaJxg8xXTrti83u01bwa35
-         uqsA==
-X-Forwarded-Encrypted: i=1; AJvYcCV7oAkESaxg4F7nCi5eoxK7FkhSNJybz7k4h2g5WQHd6OPlfQcmdNcIQuh8y5wkxj4Gv6A8FBY8@vger.kernel.org
-X-Gm-Message-State: AOJu0YzoTnXA9wI6Kv5dUacpOIuLsH634bEe1lZ8/eBtmFQEKoo0JZ8G
-	AmRAl029R7K+islgeIIfUMiRyaQJ0K90HsLp0Tow+ao8ggIFNXqaG25/ZhnmbNA=
-X-Gm-Gg: ASbGncvkceMW3ERwWV9RtCUF8lWnQmxCkZtF+V3Lh7dwE8NnGUz97HoI3xvPgzbf0Lk
-	Xd0QeEEAyebqnhtDo6rwYu1Xmpwq6ZxbS4Al2+3AoV0t0FiSJXyLfbOExSJNWDolFp4+inRse/t
-	y+0iUJEcoBC16HmzVNOACVv09jaTtwq864ZaAs3WVBy5OQtdW3gVEcgJpimR6WSj9o4fpvotMcO
-	ojjD+RudGVwnIFLQke+709BZMe/dtnuWgpSrWYlmCwl4LRiVQa6rT2fwjdOgE/Z5LoAGGQKGO1o
-	xML0hlqxDQj7tC8qPkAqBmNPnrKF3VyZTmfLbOlKi93OaHX2ng==
-X-Google-Smtp-Source: AGHT+IEGATgu5VbdS6kbtg3c6tfuRZz15xP7b2oCeJs8qye1D0o8hlDPBidbACz+FOSKn4FK+JvF+A==
-X-Received: by 2002:a5d:47a2:0:b0:391:12a5:3c95 with SMTP id ffacd0b85a97d-39132d6b98dmr7210587f8f.22.1741594852971;
-        Mon, 10 Mar 2025 01:20:52 -0700 (PDT)
-Received: from localhost ([196.207.164.177])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-3912bfba87csm14444368f8f.17.2025.03.10.01.20.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Mar 2025 01:20:52 -0700 (PDT)
-Date: Mon, 10 Mar 2025 11:20:48 +0300
-From: Dan Carpenter <dan.carpenter@linaro.org>
-To: oe-kbuild@lists.linux.dev, Casey Schaufler <casey@schaufler-ca.com>,
-	paul@paul-moore.com, eparis@redhat.com,
-	linux-security-module@vger.kernel.org, audit@vger.kernel.org
-Cc: lkp@intel.com, oe-kbuild-all@lists.linux.dev, jmorris@namei.org,
-	serge@hallyn.com, keescook@chromium.org,
-	john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-	stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
-	selinux@vger.kernel.org
-Subject: Re: [PATCH v2 6/6] Audit: Add record for multiple object contexts
-Message-ID: <f57dc6f4-cc46-4a58-9525-1dfda105ea59@stanley.mountain>
+        bh=Ki66pE2CpFI23vkmcFdiU3TPsm0t6J1ofXV46IXgXVw=;
+        b=D2O2lEkjUooZJZVRwC4djdubcwuHGdRvCeDtDLcQfjlHHfVDRNOEvDGwD1QxYDVwjo
+         hxgZujLJhh7PyRMTqlloycupPs16CnmuUIL5z+eL6ppHKJxDQ6QFH5soc5EVFpSCD/L+
+         AHyd0ObP+DtvUjbpvH46vqAwlrInotY5myVCWhPKVZdx8Usc+nB3EmZMFr2l4Pd8zbBA
+         thxEuhpIc/pl5cz7hJ7c/LdJfgTcu21wXeUrTcUXIRtS1M0bnsrL7tqsUtYXF+jOCVcH
+         c1rgu7Fso1IhNQddyjEJ9LsI4doaovLI6QY23MuuTRwzh3bCHCWrBu+TaxPu1uaEXZDf
+         a3vw==
+X-Gm-Message-State: AOJu0YzbiTdMKScVky4xeiXsTYME6K3Y3haqaCpJbRbL5b65thmlIA0n
+	zgtgoU0UJNK1ZyBO73WAwPV8NcV4DSt+mbTeiP9NL9Wo4PR9BTma7n8njg==
+X-Gm-Gg: ASbGncsg+2NcGjAJnoes+Yy8O7tqCLdhmG6Wk6xxIvRwL7nnsuZRVBki0pL0XgsSDHl
+	IQHejSp4azPMiPscx0XmVX9oFyETmVX2bGx0VvYHIrk7lZixj1OvQUVUUsivQR8Kq6D9RaUC+L7
+	5gULJGObBQoGhaUHOasANB+9hi3aRJVp1wqyYdRjxOhhLwyWfVPA5v9Do9btFm0eYNZZpoXNyke
+	4zGTucsNAsff9539Ep604NkdcOjtE1+qC9Z3JcpnO+jDaGg0KxrD8GxOERSvIT3aneBzi+hXadq
+	mTcErrZ1rtTCU5tp09+pcFzxejK+YMFKS/v9IhFyxvDOQOCbv3yzh66gFxcCuSM3NW9Uh2mokDI
+	6piFREPplsXedDadKcXbZld0qIyPwH7++y66/V7k/jvI1igEAu7yS5Ql93Q==
+X-Google-Smtp-Source: AGHT+IHkzK3/G6MxRDaLY0ORMGWt1L4tbVZGWa7D2zLDRs3NXk110429doTKQfKH3gN3r8CkeF57MQ==
+X-Received: by 2002:a05:620a:838e:b0:7c5:3e22:616e with SMTP id af79cd13be357-7c53e226288mr1513852485a.56.1741614861749;
+        Mon, 10 Mar 2025 06:54:21 -0700 (PDT)
+Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7c54b916f6bsm261833185a.30.2025.03.10.06.54.20
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 10 Mar 2025 06:54:21 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH] mailmap: map my old email addresses
+Date: Mon, 10 Mar 2025 09:54:04 -0400
+Message-ID: <20250310135404.22385-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250307183701.16970-7-casey@schaufler-ca.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Casey,
+Map old email addresses that are no longer in use to my current
+email address.
 
-kernel test robot noticed the following build warnings:
+Suggested-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ .mailmap | 2 ++
+ 1 file changed, 2 insertions(+)
 
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Casey-Schaufler/Audit-Create-audit_stamp-structure/20250308-024950
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
-patch link:    https://lore.kernel.org/r/20250307183701.16970-7-casey%40schaufler-ca.com
-patch subject: [PATCH v2 6/6] Audit: Add record for multiple object contexts
-config: powerpc64-randconfig-r073-20250309 (https://download.01.org/0day-ci/archive/20250310/202503100802.Dqju4qc5-lkp@intel.com/config)
-compiler: powerpc64-linux-gcc (GCC) 14.2.0
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
-| Closes: https://lore.kernel.org/r/202503100802.Dqju4qc5-lkp@intel.com/
-
-smatch warnings:
-kernel/auditsc.c:1753 audit_log_exit() warn: if statement not indented
-
-vim +1753 kernel/auditsc.c
-
-e54dc2431d740a Amy Griffis        2007-03-29  1749  	for (aux = context->aux_pids; aux; aux = aux->next) {
-e54dc2431d740a Amy Griffis        2007-03-29  1750  		struct audit_aux_data_pids *axs = (void *)aux;
-e54dc2431d740a Amy Griffis        2007-03-29  1751  
-e54dc2431d740a Amy Griffis        2007-03-29  1752  		for (i = 0; i < axs->pid_count; i++)
-e54dc2431d740a Amy Griffis        2007-03-29 @1753  			if (audit_log_pid_context(context, axs->target_pid[i],
-c2a7780efe37d0 Eric Paris         2008-01-07  1754  						  axs->target_auid[i],
-c2a7780efe37d0 Eric Paris         2008-01-07  1755  						  axs->target_uid[i],
-4746ec5b01ed07 Eric Paris         2008-01-08  1756  						  axs->target_sessionid[i],
-13d826e564e2cc Casey Schaufler    2024-10-09  1757  						  &axs->target_ref[i],
-c2a7780efe37d0 Eric Paris         2008-01-07  1758  						  axs->target_comm[i]))
-e54dc2431d740a Amy Griffis        2007-03-29  1759  			call_panic = 1;
-
-This should be indented another tab.
-
-a5cb013da773a6 Al Viro            2007-03-20  1760  	}
-a5cb013da773a6 Al Viro            2007-03-20  1761  
-e54dc2431d740a Amy Griffis        2007-03-29  1762  	if (context->target_pid &&
-e54dc2431d740a Amy Griffis        2007-03-29  1763  	    audit_log_pid_context(context, context->target_pid,
-c2a7780efe37d0 Eric Paris         2008-01-07  1764  				  context->target_auid, context->target_uid,
-4746ec5b01ed07 Eric Paris         2008-01-08  1765  				  context->target_sessionid,
-
+diff --git a/.mailmap b/.mailmap
+index ae0adc499f4a..850221fcd63f 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -677,6 +677,8 @@ Stephen Hemminger <stephen@networkplumber.org> <shemminger@linux-foundation.org>
+ Stephen Hemminger <stephen@networkplumber.org> <shemminger@osdl.org>
+ Stephen Hemminger <stephen@networkplumber.org> <sthemmin@microsoft.com>
+ Stephen Hemminger <stephen@networkplumber.org> <sthemmin@vyatta.com>
++Stephen Smalley <stephen.smalley.work@gmail.com> <sds@epoch.ncsc.mil>
++Stephen Smalley <stephen.smalley.work@gmail.com> <sds@tycho.nsa.gov>
+ Steve Wise <larrystevenwise@gmail.com> <swise@chelsio.com>
+ Steve Wise <larrystevenwise@gmail.com> <swise@opengridcomputing.com>
+ Subash Abhinov Kasiviswanathan <quic_subashab@quicinc.com> <subashab@codeaurora.org>
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.47.1
 
