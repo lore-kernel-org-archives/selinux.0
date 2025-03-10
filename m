@@ -1,121 +1,139 @@
-Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEEB81DE881
-	for <selinux@vger.kernel.org>; Mon, 10 Mar 2025 20:18:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.180
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 32DAE36B;
+	Mon, 10 Mar 2025 22:17:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741637925; cv=none; b=uu/ZC7OJ4tEn56gtO8nRQFGCXnqerhvlMB6HStUQZYc8ZNQgg2AfCJ6NMJ+FOj3hgY5CLMzQqO4N3G0LlFMvYndlwi+uVvWJJNuLecodt7yOVhgYRd4psYN4pqMS7uVZd7kUshraHH58/vkoQC8iO9k9aXzgFsfeRvZROcJq77g=
+	t=1741645077; cv=none; b=PjOJByNgEXZenXvODXlIzvtzwfCaHGIdf8tqJmBVhJ/E81mcBkeBEn6cWpsmZx5Q77P/kcOpXol6cp1JtKZiBwzUY408AC4PW38mVZnGQCb7XZhhFDPDZfzD9FnKz7FPtJnEbZ4rlNALg8guowEMv9hZ8gSHKvd/x9kzZRko4YA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741637925; c=relaxed/simple;
-	bh=dNBOcmXv4yLqTFrO3VIX+EpkBqdtncVM6nDPAi2ht5g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HgeuhknhByKRcIoiys5grbUYnbtKYG6s3IbsiFT8CoHUVCRt/pnfVUKi+Sv7+eacZQnNWPe9pOvhBJm9GBr9Hec5jvuNmXZcfI9qv6vRQ2xl4yNWdNwSuemkkacSlYvsOhzHpe9YJ/GOasjgYYDZB1/4Q8lakMgPPLDngf24rDM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=IJ94421b; arc=none smtp.client-ip=209.85.128.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1741645077; c=relaxed/simple;
+	bh=1gJ8Px/hXdYSeOk/2qSjeq5whelRrLVeV0FCdhmv5dI=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=s8QFb62g2Je7CmUnbROAD7LcPjlu6q9k4z0dD7FI84Ux0/5G0WndPFRt07QE4cdT7m1y6w4fxHOzswkrI4Nuy8LeDNkorl8O6uHXjLDF0V0R0cMkTjreoHb8xJxhkecU+wg3v3TXitcmf6gGuxYCiBNmQH49K1ihx1629Yi8LwM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=NV4OumkG; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="IJ94421b"
-Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-6fecfae554bso23788867b3.0
-        for <selinux@vger.kernel.org>; Mon, 10 Mar 2025 13:18:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1741637923; x=1742242723; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=n7j7VrDGfjSW+piSXBuBjf4TItNrtuBqNTazSyrjysg=;
-        b=IJ94421bVHaW+fc2FdvnYD4cS8eH2da8ojEYPp6l40re5akQHO/7Mpgp4d0sQI6Qs8
-         F0xn0RBx5kjlD9lgKtuBPUtmeYI9nklZ9oqhpduxDsGG6Nbz5MT1FO6d+OCBcE3Qmx6I
-         8It6QDmO+YOYr+xRk6ifIG8z2+wdKbBCG9Xm5kfVOhhR6ixG8FCbubeinEdsRwt/g6Ui
-         2M7GnjAy8Q2gHc/knaEg5PXdJuTk6QozcBOvI8gbuRgo5o6wi43fxZpR4yj4Ikh0Umhu
-         koylMx6ekNUx6D8MEzCqRI5TZyhMkFjufaBix3ujUf7LX92c7w58FNJjX4Kt+BdZe0th
-         VPvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741637923; x=1742242723;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=n7j7VrDGfjSW+piSXBuBjf4TItNrtuBqNTazSyrjysg=;
-        b=Bgntdd37aVglHb59jKQqhm/FfRt21vA2+upd689IaRwgaDVPfqXe6rBomExf7oH3Fq
-         3HX8bQSNOvRaPIL39lzxl+Mlqw4DcD/O7z4wSTDvL92hwmBYpVVD8WeUq0u6C02rT1ka
-         JFGRR7eK4ElWiPmjgthOMs50KOr04txv907AxKmTwNR/MMLudEs/bTAY3cej+UYC9QEr
-         4ZqYLKdz9PkHVSWKuUDwkde26dz0X5sHA43GK9FMLR6GX9wcjrcMNu7+BWbN9jh7DRjd
-         ClD9NO+wyQXRGFB3l/xAByLOLNPQbDGI4P00wg4Y7VTxbD/9biN8MaRXxEkLGMF8z+gZ
-         0Ujw==
-X-Forwarded-Encrypted: i=1; AJvYcCUD+kTRB3rtGqnG/B1W7jM+H2lBy9jHhh7bQw6nzI29odOzc7lc7Wxg7n++oWYlO7EcXAA7P2jD@vger.kernel.org
-X-Gm-Message-State: AOJu0YypZ9EdJSaJ6AOiLbWuIwl7h+AypKEpBR4iyFazEr0+9smT1lQN
-	jG7SBKg1WVcT6FUngIbpkQj7FKdcdiFJ7NSlQyz2NGA5MMM7QbB4DyEsUEu2KxQJVFcc7Vmzkv0
-	WK7NrDtV6HzL0R/+iv4t/w1Q0MDpiK9LGTLbO
-X-Gm-Gg: ASbGncvxXdLmuO831SWYC0+nwhrPyWGq+zVctbuKASRjbc1R2iHViN1a5Y+YCzUV7cx
-	OqIJfIVyMlmrKa5p9cAXK6xRW/xJrC+b/PkpKpfsGckZ1eXDGfC06HpNX5lQUJ8Q+Lma1Dsh4WF
-	BCo274lIWXcGIFD8toskh6LuP1Ew==
-X-Google-Smtp-Source: AGHT+IG9WDx8ZAkHJVZqGMzMAmI3gsi1s9h5U2lJHR3eqS/CG9KHmGF1qjpk9M1cSxiZapUdewq9ADQphs2Rtbpa/58=
-X-Received: by 2002:a05:690c:28b:b0:6fd:346f:97ba with SMTP id
- 00721157ae682-6ff091c6271mr23109947b3.11.1741637922902; Mon, 10 Mar 2025
- 13:18:42 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="NV4OumkG"
+Received: from narnia.corp.microsoft.com (unknown [167.220.2.28])
+	by linux.microsoft.com (Postfix) with ESMTPSA id E638F205492E;
+	Mon, 10 Mar 2025 15:17:46 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E638F205492E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1741645075;
+	bh=S/hVMZ/Tm5pXhLhAqS9Ia0x+kWvutUUZYfnhEAxVL54=;
+	h=From:To:Subject:Date:From;
+	b=NV4OumkGGIKHmOv4uU63g9E6HukS9pYi5qYcIRCL554+GWmkSS2gA40WRj1GGphNh
+	 UyYTAkuW3vAukLpALywFGBDNicIYDKk8XPhDJtbg+CLVFD5PDLR4P6g8x5PtAOcBod
+	 91r+sbc8pgOVmlUyLd9YtnzbvurGHmSTp5YzXYEo=
+From: Blaise Boscaccy <bboscaccy@linux.microsoft.com>
+To: Paul Moore <paul@paul-moore.com>,
+	James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Eduard Zingerman <eddyz87@gmail.com>,
+	Song Liu <song@kernel.org>,
+	Yonghong Song <yonghong.song@linux.dev>,
+	KP Singh <kpsingh@kernel.org>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Hao Luo <haoluo@google.com>,
+	Jiri Olsa <jolsa@kernel.org>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	Mykola Lysenko <mykolal@fb.com>,
+	Shuah Khan <shuah@kernel.org>,
+	Blaise Boscaccy <bboscaccy@linux.microsoft.com>,
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+	Matt Bobrowski <mattbobrowski@google.com>,
+	Xu Kuohai <xukuohai@huawei.com>,
+	linux-kernel@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	bpf@vger.kernel.org,
+	selinux@vger.kernel.org,
+	linux-kselftest@vger.kernel.org
+Subject: [PATCH v7 bpf-next 0/2] security: Propagate caller information in bpf hooks
+Date: Mon, 10 Mar 2025 15:17:10 -0700
+Message-ID: <20250310221737.821889-1-bboscaccy@linux.microsoft.com>
+X-Mailer: git-send-email 2.48.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <67cb894d.050a0220.d8275.0232.GAE@google.com> <tencent_0BEE86CD3878D26D402DDD6F949484E96E0A@qq.com>
- <CAEjxPJ6qFSSBUmK_F-rDhvhh0xw3y1QMP6bVr0iQ+V0FZ3niDQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6qFSSBUmK_F-rDhvhh0xw3y1QMP6bVr0iQ+V0FZ3niDQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 10 Mar 2025 16:18:31 -0400
-X-Gm-Features: AQ5f1Jozk9bjIdyK5_Z3F8NS9II3-cE3r81pwcpWVImE2ku4Egdr1-NKjbklYaA
-Message-ID: <CAHC9VhT-VA74h90ScjwO11g7b0pmCjzhVYWKHmkKqD2LLio98g@mail.gmail.com>
-Subject: Re: [PATCH] selinux: read and write sid under lock
-To: Edward Adam Davis <eadavis@qq.com>, Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: syzbot+00c633585760c05507c3@syzkaller.appspotmail.com, 
-	linux-kernel@vger.kernel.org, omosnace@redhat.com, selinux@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Mon, Mar 10, 2025 at 3:53=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Sat, Mar 8, 2025 at 11:55=E2=80=AFPM Edward Adam Davis <eadavis@qq.com=
-> wrote:
-> >
-> > syzbot reported a data-race in selinux_socket_post_create /
-> > selinux_socket_sock_rcv_skb. [1]
-> >
-> > When creating the socket path and receiving the network data packet pat=
-h,
-> > effective data access protection is not performed when reading and writ=
-ing
-> > the sid, resulting in a race condition.
-> >
-> > Add a lock to synchronize the two.
+Hello,
 
-...
+While trying to implement an eBPF gatekeeper program, we ran into an
+issue whereas the LSM hooks are missing some relevant data.
 
-> > Reported-by: syzbot+00c633585760c05507c3@syzkaller.appspotmail.com
-> > Closes: https://syzkaller.appspot.com/bug?extid=3D00c633585760c05507c3
-> > Signed-off-by: Edward Adam Davis <eadavis@qq.com>
-> > ---
-> >  security/selinux/hooks.c | 7 ++++++-
-> >  1 file changed, 6 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 7b867dfec88b..ea5d0273f9d5 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -4677,8 +4677,10 @@ static int selinux_socket_post_create(struct soc=
-ket *sock, int family,
-> >
-> >         if (sock->sk) {
-> >                 sksec =3D selinux_sock(sock->sk);
-> > +               spin_lock(&sksec->lock);
->
-> You didn't include the diff that adds this lock field to
-> sk_security_struct, but aside from that, I would suggest something
-> lighter-weight like READ_ONCE/WRITE_ONCE if possible.
+Certain subcommands passed to the bpf() syscall can be invoked from
+either the kernel or userspace. Additionally, some fields in the
+bpf_attr struct contain pointers, and depending on where the
+subcommand was invoked, they could point to either user or kernel
+memory. One example of this is the bpf_prog_load subcommand and its
+fd_array. This data is made available and used by the verifier but not
+made available to the LSM subsystem. This patchset simply exposes that
+information to applicable LSM hooks.
 
-Yes, please don't add a spinlock to something that is potentially
-going to be hit on every packet entering the system.
+Change list:
+- v6 -> v7
+  - use gettid/pid in lieu of getpid/tgid in test condition
+- v5 -> v6
+  - fix regression caused by is_kernel renaming
+  - simplify test logic
+- v4 -> v5
+  - merge v4 selftest breakout patch back into a single patch
+  - change "is_kernel" to "kernel"
+  - add selftest using new kernel flag
+- v3 -> v4
+  - split out selftest changes into a separate patch
+- v2 -> v3
+  - reorder params so that the new boolean flag is the last param
+  - fixup function signatures in bpf selftests
+- v1 -> v2
+  - Pass a boolean flag in lieu of bpfptr_t
 
---=20
-paul-moore.com
+Revisions:
+- v6
+  https://lore.kernel.org/bpf/20250308013314.719150-1-bboscaccy@linux.microsoft.com/
+- v5
+  https://lore.kernel.org/bpf/20250307213651.3065714-1-bboscaccy@linux.microsoft.com/
+- v4
+  https://lore.kernel.org/bpf/20250304203123.3935371-1-bboscaccy@linux.microsoft.com/
+- v3
+  https://lore.kernel.org/bpf/20250303222416.3909228-1-bboscaccy@linux.microsoft.com/
+- v2
+  https://lore.kernel.org/bpf/20250228165322.3121535-1-bboscaccy@linux.microsoft.com/
+- v1
+  https://lore.kernel.org/bpf/20250226003055.1654837-1-bboscaccy@linux.microsoft.com/
+
+
+Blaise Boscaccy (2):
+  security: Propagate caller information in bpf hooks
+  selftests/bpf: Add a kernel flag test for LSM bpf hook
+
+ include/linux/lsm_hook_defs.h                 |  6 +--
+ include/linux/security.h                      | 12 +++---
+ kernel/bpf/syscall.c                          | 10 ++---
+ security/security.c                           | 15 ++++---
+ security/selinux/hooks.c                      |  6 +--
+ .../selftests/bpf/prog_tests/kernel_flag.c    | 43 +++++++++++++++++++
+ .../selftests/bpf/progs/rcu_read_lock.c       |  3 +-
+ .../bpf/progs/test_cgroup1_hierarchy.c        |  4 +-
+ .../selftests/bpf/progs/test_kernel_flag.c    | 28 ++++++++++++
+ .../bpf/progs/test_kfunc_dynptr_param.c       |  6 +--
+ .../selftests/bpf/progs/test_lookup_key.c     |  2 +-
+ .../selftests/bpf/progs/test_ptr_untrusted.c  |  2 +-
+ .../bpf/progs/test_task_under_cgroup.c        |  2 +-
+ .../bpf/progs/test_verify_pkcs7_sig.c         |  2 +-
+ 14 files changed, 108 insertions(+), 33 deletions(-)
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/kernel_flag.c
+ create mode 100644 tools/testing/selftests/bpf/progs/test_kernel_flag.c
+
+-- 
+2.48.1
+
