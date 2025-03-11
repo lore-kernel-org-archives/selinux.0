@@ -1,181 +1,157 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F89525E82D;
-	Tue, 11 Mar 2025 15:20:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C402525DAEC
+	for <selinux@vger.kernel.org>; Tue, 11 Mar 2025 15:33:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741706402; cv=none; b=TpqpIWCWcJAUpy+ajt7fUzB849MMhEHUqnnFFTA4OFah8qVDXC7Mvb4pRyW8402tA/l+T7W8qJqu2CGqHhIuUII32vK0FO+ldZJtZzKDntWEZtASTGsJtNviON3glk3eKzVqKiX1Hh8pXL3m7bRcxLPxv6bHdm5tTB8HbmQym2g=
+	t=1741707214; cv=none; b=jPhYUH4+nQV4Ly76zjEytYaBJocDvo5LiAxUWzLr/9etPdTdvSTsX9y+SsWxYFCPrjSRPKecm3/Oxy9Qp8buZeI0I9Of1ZsKMcO8pSXy/UD149N7cZfOe0NlvpqxTVbWiI4l7GrFQ2TXMO51/RERhRhTd8ECalywaytoZmW96Ow=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741706402; c=relaxed/simple;
-	bh=5/wG8nHMCM++cumW9en06xtU++e43LqeIRFj3/uNFAU=;
+	s=arc-20240116; t=1741707214; c=relaxed/simple;
+	bh=xVHThv0Gj7+LCFB31w608IEj6QhWvXOaYyUAZKeBtX4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jnOAG/xS/dPzYad2klEiH/Z4E7jGM/tBVbjqymZKIC2zR1pKTetUC0GhGQjNR+Jzt7epd3446qHXlh6m88tq4TJSUo8HgjAZACynbiyesADPB5yyfLEhWZT5CqRPN4w4wrYekFFAjIcv5i1zXhMAA/rAoOj2PW5SVJEWhEbRkbk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FNJTdbeM; arc=none smtp.client-ip=209.85.216.41
+	 To:Cc:Content-Type; b=SDRMwpPl9zAUAmjTUyvp/BEecSKfiE/W0SegmGTSZnTaNGW9tfrDWiW6o7Nd/B22EW1P/AklxopTLEmwNCCPQi84zqRs0YfEKwt8ApzmnPogpfqNr2y+UsmsuaRCnnSl/tzlxNf6LfULeR4ocVRWVMN6twaH7+DxGHLmwNL6Z1k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hpVAUcKH; arc=none smtp.client-ip=209.85.222.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FNJTdbeM"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-2fea8d8c322so11014176a91.2;
-        Tue, 11 Mar 2025 08:20:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hpVAUcKH"
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-7c04df48a5bso499673085a.2
+        for <selinux@vger.kernel.org>; Tue, 11 Mar 2025 08:33:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741706400; x=1742311200; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1741707211; x=1742312011; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=iLpGIQEzIXWjI4LL93GRRnhD9+U7WFwz7zuQh2rFuIk=;
-        b=FNJTdbeMZjgadnCutl7AFm7C+X6zerfxNTkDj0waENxVQomcyM3RNEXQIvaQsVmWIY
-         ngHe6ofroISGZmtjgkCk+gxP0cVF/ZbQIF+LnBFfT4tar90JwgLCXeXEPOP7MuNW+w1S
-         PjsudrQ46VNqnyFEXbFL2MhYWU7dyT4/cH5Gg361Mc6Uj24Ko3JgnCxXC8JqWtO7ONlW
-         7NEOY5yyxwNH3TdGLoUnv0xwr26472OoYJ6BgZnQS1mGUQb7GCTEq5YUNj4qt64+3Qs7
-         RvkJz3V8Tu8rP8jataQRBRzhDxw0Efpmz3fMRjm0r9im4O7WfsMZ/F1xrhIxBTF/KC/e
-         BbVw==
+        bh=3FEBoEOSqA6a0xbqDn4WPn/5/Cz1uMoP7ZSe5NuptXw=;
+        b=hpVAUcKHGAFmvEPSyiKkM9KxXRNLd8AnNWJfzcmmW6kf1iKzuWAXhESXg8I4OD8d4g
+         SqWjcjaCZ76FuRkPbH16FS+CUmABpt4lwy5B5C9SLmChiOz5ZJyNkxlJhMsfAWuDjhgX
+         S+bU0y5oVnuywu1MMbQxSQkkoHV0uNtcld3aMDCtk3aV7Zv+DcqzGXJLlV+0qHtPo5n6
+         KvnK7hcRoEns2V19AvJjIJzHVLpVGaxszHLyzmxpNr1L4/Lp6S8SNJznAx5yItSIGG2I
+         iDxKAUAi7KruGnRN3Mvc7Lwc6v7Jh1riYAcGNMWkDDPaaTdvGnqj/1s3q4tflzRc0MBp
+         ZV3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741706400; x=1742311200;
+        d=1e100.net; s=20230601; t=1741707211; x=1742312011;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=iLpGIQEzIXWjI4LL93GRRnhD9+U7WFwz7zuQh2rFuIk=;
-        b=WXPM2FTv/md72dT0p0cef3tO3HBUdz2rC5Ug76m0seq+V1i0HJXtI3Xm9QRwIV8rDO
-         KCl3HWx/2nnc8pfSUjxP7bSiZlCF1XKrdvKZZJafQVCdpgC62NLkOacxnJ4ZyASXXwwb
-         SOI0sKBnux66pV3kkMxRyCLtMZ7urpDTuv4RFJVQi5N60XPsrTVJjQ31nW13qORMK56F
-         a27Dz/NQuXVPhVesoNNKSzIGyVL0uLjYpHeoUieGZZm6x7F915s8mFEV4GNUu/q+JskE
-         AS6ve8xcxQpR30HoAL8wPx57qhq/C1mB/EhclXvbtKnVjR70VAQnMgeh6mHnkODUr6I/
-         FA7w==
-X-Forwarded-Encrypted: i=1; AJvYcCU+53i2+D8Us1JBXOoKIkh2v07dnLGvj9JmMlMWyhe+gcrIlK5rulzupVTWw5Tgr6TpVQWo7g8MnEjbRLc=@vger.kernel.org, AJvYcCWHa159QVma5KAD1a/WiLUPmpn8zz6pL4JCXO3dkpgBCEyeRl6XTMMNNrhpt9Vpi9XlaKlpFodhtQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwHFXhCLw2lRJH4Z7l2m8TAWXV7SL0hAhaswVpWt5hT9KH07Tsn
-	SvQyvTDnJeI8zvL2ogXNVfI9lkDvAOXjYwDVji1YSGJF+XGz4FxOQM0y+s0YFv45ZRGuo1GxFrn
-	aeHJZM4+vmC48U/g7jz1miw+qczo=
-X-Gm-Gg: ASbGncugwkVY6rHqDuv5LA0NhkyGHHL89sgsYh9yP0VzVT2oxb4xppkxBbRJJ9tLhKk
-	DL1XRBVz2u0/NT5JXz9kgIiFkbMAPpXZsZVzg56PeXVsAuZEDqbqjHt7Yr9Dkqr1cOVr6kWu64+
-	T4oBFOHxHnkWJNq+fhWKHyIVDtmQ==
-X-Google-Smtp-Source: AGHT+IFqh82SJYICKBnZ/1jGzEelREd8UX+AZQr+rvlBe76AuD5mjSivb03i5H86uGigOCGjRQRXJJdbgc7ZBFQpLmc=
-X-Received: by 2002:a17:90b:1b05:b0:2ee:8427:4b02 with SMTP id
- 98e67ed59e1d1-2ff7cef76acmr26271552a91.28.1741706400429; Tue, 11 Mar 2025
- 08:20:00 -0700 (PDT)
+        bh=3FEBoEOSqA6a0xbqDn4WPn/5/Cz1uMoP7ZSe5NuptXw=;
+        b=v9aSnC1ZLA0zinT8XbJRNFAieNtKVr7JihGrOr0VRELj+t7PD2kUc6f/NmRHPqLe1H
+         WcMXyl+U9cdoYajzsgNdIQCRgXzC72Nkc2qXobFKZqF5fngUcxt9BAxtSMR0M39otWdK
+         9/zyPjPLQiMRqj65AoATtcwYnC0f00s+WaunAv9imSRvfMP19FbHxXTSRS25krJC//W2
+         4m0kwoFEx5miwNcFwrnmNu8aVxwqeaWuNiWH8ixq1buFkL4nFCtLoB0iaAr0B0urlWl4
+         BSFerYvvBEs/13H6wye5LbhtEnHYxsyH1Ifw9/IqLT/fS3oLEJe1MgAF1Tegp2OLNNTl
+         JlCg==
+X-Gm-Message-State: AOJu0YzEz/PMSFmFfExae8uQaPsnvt6mmBwAQfCAYM2TyGnd8C9Hdhvr
+	Dq+5ieZr/lmElpupMTjru0BOZAfQbSt8zpio6LFPZzPjnhYLVjjH5sExpLvqK//pImLvNn0fiEc
+	UioPNKGPAanLbh4RItlbW4An59w4=
+X-Gm-Gg: ASbGncuO1IJ5wm3RMH4sbKGKLdG+cp902vNCkndYiLRExxgfgfANoX1CvZmDYOoDNxu
+	71NIQlYlaWsXNvavmtyEiOXikDUfWJoy5zNzZSLEeXqmTGsJDzXDi4pKykgj5pXFncDeTY04FJS
+	sb0a1iHzGBnWgsHJxEMxk6RMY=
+X-Google-Smtp-Source: AGHT+IHql+5NRvjvR+CSdis+1ajGM27krodWg9TuyhIv4RsNT+G5yIhHAsi8T9jt9bkz//m7lI+9lu9QalinTyH2yeM=
+X-Received: by 2002:a05:620a:269d:b0:7c5:55be:7bff with SMTP id
+ af79cd13be357-7c555be7d12mr1179848885a.43.1741707211460; Tue, 11 Mar 2025
+ 08:33:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAHC9VhT-VA74h90ScjwO11g7b0pmCjzhVYWKHmkKqD2LLio98g@mail.gmail.com>
- <tencent_5E4FD70DE825E68D96927A5DE95D90991807@qq.com>
-In-Reply-To: <tencent_5E4FD70DE825E68D96927A5DE95D90991807@qq.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 11 Mar 2025 11:19:49 -0400
-X-Gm-Features: AQ5f1Jpf1kQ-vndEfPtWu17udbcq2j5tuE4lhsjr-AFC8MKt65DdeypnTcHMBS8
-Message-ID: <CAEjxPJ7eFbsn7h7o90tOE6ymp4+g-bwYL_Rwy6t0EcxpaBAxAA@mail.gmail.com>
-Subject: Re: [PATCH V2] selinux: access sid under READ/WRITE_ONCE
-To: Edward Adam Davis <eadavis@qq.com>
-Cc: paul@paul-moore.com, linux-kernel@vger.kernel.org, omosnace@redhat.com, 
-	selinux@vger.kernel.org, syzkaller-bugs@googlegroups.com
+References: <20250116105427.22307-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20250116105427.22307-1-cgoettsche@seltendoof.de>
+From: James Carter <jwcart2@gmail.com>
+Date: Tue, 11 Mar 2025 11:33:20 -0400
+X-Gm-Features: AQ5f1Jpq2WnO07m__wgbpC7hhakg5U7UpDiFlRMlo4TBXsNbxdAli-8mh4wLWmg
+Message-ID: <CAP+JOzTkkjuvYF3e4Y+Gk19=vcRi7xeX4szKnA3HRnproFsRew@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: limit node depth while parsing compiled fcontexts
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 10, 2025 at 8:03=E2=80=AFPM Edward Adam Davis <eadavis@qq.com> =
-wrote:
+On Thu, Jan 16, 2025 at 5:54=E2=80=AFAM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
 >
-> syzbot reported a data-race in selinux_socket_post_create /
-> selinux_socket_sock_rcv_skb. [1]
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> When creating the socket path and receiving the network data packet path,
-> effective data access protection is not performed when reading and writin=
-g
-> the sid, resulting in a race condition.
+> Limit the node depth while parsing a pre-compiled fcontext definition to
+> avoid unlimited recursions causing stack overflows.
 >
-> Use READ_ONCE/WRITE_ONCE to synchronize the two.
+> Use a sufficiently high value of 32, instead of the node depth of
+> currently 3 for generating a database, to not unnecessarily limit
+> custom changes.
 >
-> [1]
-> BUG: KCSAN: data-race in selinux_socket_post_create / selinux_socket_sock=
-_rcv_skb
->
-> write to 0xffff88811b989e30 of 4 bytes by task 3803 on cpu 0:
->  selinux_socket_post_create+0x1b5/0x2a0 security/selinux/hooks.c:4681
->  security_socket_post_create+0x5b/0xa0 security/security.c:4577
->  __sock_create+0x35b/0x5a0 net/socket.c:1571
->  sock_create net/socket.c:1606 [inline]
->  __sys_socket_create net/socket.c:1643 [inline]
->  __sys_socket+0xae/0x240 net/socket.c:1690
->  __do_sys_socket net/socket.c:1704 [inline]
->  __se_sys_socket net/socket.c:1702 [inline]
->  __x64_sys_socket+0x3f/0x50 net/socket.c:1702
->  x64_sys_call+0x2cf2/0x2dc0 arch/x86/include/generated/asm/syscalls_64.h:=
-42
->  do_syscall_x64 arch/x86/entry/common.c:52 [inline]
->  do_syscall_64+0xc9/0x1c0 arch/x86/entry/common.c:83
->  entry_SYSCALL_64_after_hwframe+0x77/0x7f
->
-> read to 0xffff88811b989e30 of 4 bytes by task 3805 on cpu 1:
->  selinux_socket_sock_rcv_skb+0x72/0x6a0 security/selinux/hooks.c:5129
->  security_sock_rcv_skb+0x3d/0x80 security/security.c:4781
->  sk_filter_trim_cap+0xca/0x3c0 net/core/filter.c:151
->  sk_filter include/linux/filter.h:1062 [inline]
->  sock_queue_rcv_skb_reason+0x28/0xc0 net/core/sock.c:527
->  sock_queue_rcv_skb include/net/sock.h:2403 [inline]
->  packet_rcv_spkt+0x2f7/0x3b0 net/packet/af_packet.c:1967
->  deliver_skb net/core/dev.c:2449 [inline]
->  __netif_receive_skb_core+0x48f/0x2350 net/core/dev.c:5737
->  __netif_receive_skb_list_core+0x115/0x520 net/core/dev.c:5968
->  __netif_receive_skb_list net/core/dev.c:6035 [inline]
->  netif_receive_skb_list_internal+0x4e4/0x660 net/core/dev.c:6126
->  netif_receive_skb_list+0x31/0x230 net/core/dev.c:6178
->  xdp_recv_frames net/bpf/test_run.c:280 [inline]
->  xdp_test_run_batch net/bpf/test_run.c:361 [inline]
->  bpf_test_run_xdp_live+0xe10/0x1040 net/bpf/test_run.c:390
->  bpf_prog_test_run_xdp+0x51d/0x8b0 net/bpf/test_run.c:1316
->  bpf_prog_test_run+0x20f/0x3a0 kernel/bpf/syscall.c:4407
->  __sys_bpf+0x400/0x7a0 kernel/bpf/syscall.c:5813
->  __do_sys_bpf kernel/bpf/syscall.c:5902 [inline]
->  __se_sys_bpf kernel/bpf/syscall.c:5900 [inline]
->  __x64_sys_bpf+0x43/0x50 kernel/bpf/syscall.c:5900
->  x64_sys_call+0x2914/0x2dc0 arch/x86/include/generated/asm/syscalls_64.h:=
-322
->  do_syscall_x64 arch/x86/entry/common.c:52 [inline]
->  do_syscall_64+0xc9/0x1c0 arch/x86/entry/common.c:83
->  entry_SYSCALL_64_after_hwframe+0x77/0x7f
->
-> value changed: 0x00000003 -> 0x00000087
->
-> Reported-by: syzbot+00c633585760c05507c3@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=3D00c633585760c05507c3
-> Signed-off-by: Edward Adam Davis <eadavis@qq.com>
+> Fixes: 92306daf ("libselinux: rework selabel_file(5) database")
+> Reported-by: oss-fuzz (issues 388615595 and 388592303)
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+
+Acked-by: James Carter <jwcart2@gmail.com>
+
 > ---
-> V1 -> V2: replace with READ_ONCE/WRITE_ONCE
-
-Thanks for the patch. Did you audit all other users of sksec->sid to
-see if they too should be wrapped with READ_ONCE()/WRITE_ONCE() or are
-already safe?
-
+> v2: add code comment
+> ---
+>  libselinux/src/label_file.c | 16 +++++++++++++---
+>  1 file changed, 13 insertions(+), 3 deletions(-)
 >
->  security/selinux/hooks.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index 56e20949..507ce0d3 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -674,12 +674,22 @@ static int load_mmap_regex_spec(struct mmap_area *m=
+map_area, bool validating, bo
+>  }
 >
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7b867dfec88b..77d2953eaa4d 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4678,7 +4678,7 @@ static int selinux_socket_post_create(struct socket=
- *sock, int family,
->         if (sock->sk) {
->                 sksec =3D selinux_sock(sock->sk);
->                 sksec->sclass =3D sclass;
-> -               sksec->sid =3D sid;
-> +               WRITE_ONCE(sksec->sid, sid);
->                 /* Allows detection of the first association on this sock=
-et */
->                 if (sksec->sclass =3D=3D SECCLASS_SCTP_SOCKET)
->                         sksec->sctp_assoc_state =3D SCTP_ASSOC_UNSET;
-> @@ -5126,7 +5126,7 @@ static int selinux_socket_sock_rcv_skb(struct sock =
-*sk, struct sk_buff *skb)
->         int err, peerlbl_active, secmark_active;
->         struct sk_security_struct *sksec =3D selinux_sock(sk);
->         u16 family =3D sk->sk_family;
-> -       u32 sk_sid =3D sksec->sid;
-> +       u32 sk_sid =3D READ_ONCE(sksec->sid);
->         struct common_audit_data ad;
->         struct lsm_network_audit net;
->         char *addrp;
+>  static int load_mmap_spec_node(struct mmap_area *mmap_area, const char *=
+path, bool validating, bool do_load_precompregex,
+> -                              struct spec_node *node, bool is_root, uint=
+8_t inputno, const struct context_array *ctx_array)
+> +                              struct spec_node *node, const unsigned dep=
+th, uint8_t inputno, const struct context_array *ctx_array)
+>  {
+>         uint32_t data_u32, lspec_num, rspec_num, children_num;
+>         uint16_t data_u16, stem_len;
+> +       const bool is_root =3D (depth =3D=3D 0);
+>         int rc;
+>
+> +       /*
+> +        * Guard against deep recursion by malicious pre-compiled fcontex=
+t
+> +        * definitions. The limit of 32 is chosen intuitively and should
+> +        * suffice for any real world scenario. See the macro
+> +        * SPEC_NODE_MAX_DEPTH for the current value used for tree buildi=
+ng.
+> +        */
+> +       if (depth >=3D 32)
+> +               return -1;
+> +
+>         node->from_mmap =3D true;
+>
+>
+> @@ -794,7 +804,7 @@ static int load_mmap_spec_node(struct mmap_area *mmap=
+_area, const char *path, bo
+>                 node->children_alloc =3D children_num;
+>
+>                 for (uint32_t i =3D 0; i < children_num; i++) {
+> -                       rc =3D load_mmap_spec_node(mmap_area, path, valid=
+ating, do_load_precompregex, &node->children[i], false, inputno, ctx_array)=
+;
+> +                       rc =3D load_mmap_spec_node(mmap_area, path, valid=
+ating, do_load_precompregex, &node->children[i], depth + 1, inputno, ctx_ar=
+ray);
+>                         if (rc)
+>                                 return -1;
+>
+> @@ -969,7 +979,7 @@ end_arch_check:
+>
+>         rc =3D load_mmap_spec_node(mmap_area, path, rec->validating,
+>                                  reg_version_matches && reg_arch_matches,
+> -                                root, true,
+> +                                root, 0,
+>                                  inputno,
+>                                  &ctx_array);
+>         if (rc)
 > --
-> 2.43.0
+> 2.47.1
+>
 >
