@@ -1,106 +1,201 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0633227BA2;
-	Wed, 12 Mar 2025 13:23:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9919259CA4
+	for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 15:16:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741785807; cv=none; b=AxtjSX768s431oG/AebH2H/Gaau9SJhGlS++52Djp6WDCysbR2Tl/2eLxxUsNiHpRdjyrLKcp+d9Ozf1i3PZZHa5Tjiu/Nv6BrDns3m+3MXjLd+CQJwguZvCSAzerrCUrjt8M0N/iiBQgwFxN2uLjEom1D5FFL4uUQYLrJP4FT0=
+	t=1741792613; cv=none; b=BSaolQdX6kHomdoU97L25/x7C3j9zDpb5e0qenGEo2ffFx+33aX3WslJql3o7MFOWpRjNMb6OZINsOb4B6kNYOAISeEG2b9Bjlb7mwgo+8eSvA7BkFDDPGj93juiLi6BxB0v3r/TwIETtCtLoredshVZRoPs90HYD/hrC5xFG5E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741785807; c=relaxed/simple;
-	bh=5CCA5OimbTmkJSr1Vzl3nJAsRLiBd2O8dWOz2EXjo7k=;
+	s=arc-20240116; t=1741792613; c=relaxed/simple;
+	bh=dt/nZ8s0AqLsHabRP1E5nPo1f23VxEUY2vYeeUkxwC8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=iuQ4J01CYGp8D7QkxMUhirTsN5uKyPGPZfZtuBhaVB6vubzwo3pcIIfs7eFeVnxK8dXcvbB2KGyyqsSgGZqMByigOsXL8dBEdwpimX475jgRNUvQqVE5qOU8JBcQAgLlFzCOpGDObeWRm1BHowZYdxpFH4vuimTQ3quEZ5uLnPM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BOteC3Sq; arc=none smtp.client-ip=209.85.216.45
+	 To:Cc:Content-Type; b=Dd97tjqTeee7iZ4bmm99I2VI6hpPIzgSy4SaBFaNxsyl04VX74pcFjBLkpsDystl5EOCQzaFkWEqgyGGveDqE1IenMEID8mXfkxVnLBk6R8vIppfJjCvgTohcv58AdNMzVBN+VRcQt86iFft4p1j83bs72EJ8Du+KoN6EislvaA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K/dfNCYA; arc=none smtp.client-ip=209.85.219.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BOteC3Sq"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-300f92661fcso4406538a91.3;
-        Wed, 12 Mar 2025 06:23:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K/dfNCYA"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-6e8ec399427so47137776d6.2
+        for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 08:16:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741785805; x=1742390605; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1741792610; x=1742397410; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5CCA5OimbTmkJSr1Vzl3nJAsRLiBd2O8dWOz2EXjo7k=;
-        b=BOteC3SqFpJ07g6W0g+EgJRl16BorY4//KoPNLpGCLlkanm5vRtjh9noLZ1R6Gn8a3
-         C6nvCWsZc+5cVx1thBY5bMsyBNZfh8SBzNZDq+98Ky9ytiNqO0UqBEj7Qxbq+jygCfkT
-         MMy7ZL4Upu7OB4LGYIr0BoqyvlN6YjX73ws3ndbQTn2obpCQ/+peatoEHb7w6/Wi1ImN
-         EyG/zdIDQ5a5pqYV35THdGW8XsXAVV+SPQgsIdwMv5S5VTk6LxbwwZhfrEC56NsYjQmX
-         KyIjhL1qLsSKAVCqNtC6RZz1U1r05teD039rdyg6ri0Fdm/3nVqjXtUBtd1ihzjsRyRG
-         9yiw==
+        bh=tVfhDkvY+CHdgs6GWyKp0WDDDYXVUUHHXpNMICHKqUQ=;
+        b=K/dfNCYAYkw2dxykMCQsVUyAFZCwm1H6VuDujWAngPlTyfL+jGvH7jbdKjvANIyCco
+         99FnUdeILAGeqDSxcK2Sg/W11Uo1Evfo40NClhjKJhhCS6hrd3A7mBjhWuruFespu/sg
+         kZKZj+yBQq91p2Kf1TzbLbbzRupvV2aPqNiz4QqV/kZDBT0RNXgywwAuQH+cYsVQx80c
+         neGKIfko40lIkA9bWtCgBB0emV9/TQ2zj7NRET+24Cud37pGgEWDO5wL0bzk4aPQvchD
+         v6F2ctKckaPQAdTE8H9lKo/rE94i+6x9ptdeSKZAMN1LMDl8Monjog4FmO7ACWBNQeq+
+         aEsA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741785805; x=1742390605;
+        d=1e100.net; s=20230601; t=1741792610; x=1742397410;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=5CCA5OimbTmkJSr1Vzl3nJAsRLiBd2O8dWOz2EXjo7k=;
-        b=CUpSF7iwcaqpgJoDKzAS03tqfJTR9RrEJ3DXezV4CanbFpWAARKOVtZXQ+5mNYb9uy
-         3Xj8CzlpICW5OCchnBCJHN/2kpzic4ZDnmIiJ0DzZOGl19rQLpt1eBD1HZ9rPx+cfU8l
-         Y4AaRNnKAdyGHvV/2Zn5LS2aQ58VfMevDo6ZHzbezHKip2VNFEnkqxadSnn2K/kanXbj
-         Dm5zqo3MPvz7U5yZVlnXB5nvSjWhfsz9L0uuEV3DhP+deXrphfqyxBuca6smaGtNtRvF
-         qA5A/2c1MYkH4iB/U9sIFOPe2U9OfZOy/lHE7KbC4JShadYV7jcw5V2bIj1h6RqY871Q
-         mr3A==
-X-Forwarded-Encrypted: i=1; AJvYcCV04IkB3ogvopIuJlozGKUH30RMPLH8kCLSUVaRog96FNLlU6mpRkC0awXGXZQIsHA0kUIaNh9p@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz9MO7PnEKblcWxojyp0T0RS8Bfzd4VzyiuWqCvHhtq462sVY4f
-	FJG/6q9CeKlBsG2gYI8EWBTZl0nCdgfzYvrLoiOCUL35r5RaGDLrGsdRO4gvsJHs49bR+I+F77y
-	8l6+QnN1x74ziQfM7Di8lN21hhMw=
-X-Gm-Gg: ASbGncvkaU+t0t5PoB0hqnBQi6sPbmmaA4gsCWArdk5lcsWSmtEDY9ZT9cn6trNGrYa
-	M1b5fjPaFnXw9EmBvZrPHpQodgnCcYjD5yjR7Y6tMr21OjbezaafpL73l13PsaDfY3JLPOGA5gd
-	k4jgn168sOKec0vlXpSSrKVcDLKQ==
-X-Google-Smtp-Source: AGHT+IEHCann/MCovIC2ZNHjQ2rx/kB1M+h8nRI18Ge4TMq2tkNj3xnmy8qoUG8KGwKKyZrYk5YWp0Fpy40cFKjXtj0=
-X-Received: by 2002:a17:90b:4f8d:b0:2f8:b2c:5ef3 with SMTP id
- 98e67ed59e1d1-2ff7ce8a02fmr34823872a91.14.1741785805018; Wed, 12 Mar 2025
- 06:23:25 -0700 (PDT)
+        bh=tVfhDkvY+CHdgs6GWyKp0WDDDYXVUUHHXpNMICHKqUQ=;
+        b=X4PipI7hlwvMB+uB/BKJO/iQB91V8DVZPUbWcPwDp9uz3a19Uj5NS/Ro2SBSo+wCvI
+         KsjVvswv7CoxjV5pdBP8RuwmyQOvdsQXAxSanfmLmVRmS6R87yghgEbPKAgrt3iydICL
+         cOhe2opsKEXWQPMriGtF3/pGBc0gA2iDVbBagqwPQUYhtLP9cE89a6+gZHA3rgFSTwRN
+         0Y3DdlnWEjwNZ6g5kSkNLVCs0MHryviVE75ihLgp+0V2fH0oZ40O29+5XYrX0WFe/lO1
+         cUEHUj9tnmv8Y4E+nH/rev04Z91QNudIbkPd526XLa+zQHOjwtuNt7ndNu9I3oMCisEO
+         YHwg==
+X-Gm-Message-State: AOJu0YwlgDZuKhzSU5gQGaaFjQ94q5A9w1YiPxQrhc+4uIuHYfXuxeIi
+	TRC7Y/gFOSqEQZC/Sj04s/SWbkVs/jHd7xx1xacnXaANWVxfcKy8v3L8TGk7+tRD7zj14WFDwSE
+	R8cdrWtOVk4lTL5g1K4vFzuTbuUL3NjGg
+X-Gm-Gg: ASbGncv7wLof7OblH2RN/1UtLe8E3EWiPmNsWAykIACBvDbKNc+GJw+mDNEU6SbvOX9
+	8A9ebWWihKx442gQUbyalLdXj7kPD3MFMxy3qm8RW3SvjBMPNxSWyv3+8KbJmE9Mh8CvTQCgCDY
+	NLVRhD0JWsDZImDKBjqJQbvEc=
+X-Google-Smtp-Source: AGHT+IFuKfUzD2p6Bk0MM2QwuG8iHACs18UqqWLu5bg6STANR5spfZq7vzXoELhjpYzvZfxv9SI+MJQ4niBx/v5L4d0=
+X-Received: by 2002:a05:6214:226f:b0:6e8:ddf6:d122 with SMTP id
+ 6a1803df08f44-6e9005b6623mr319531936d6.3.1741792610285; Wed, 12 Mar 2025
+ 08:16:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ7eFbsn7h7o90tOE6ymp4+g-bwYL_Rwy6t0EcxpaBAxAA@mail.gmail.com>
- <tencent_E8AA2ECB6ED7CC88A7F746FED2C4065B0906@qq.com>
-In-Reply-To: <tencent_E8AA2ECB6ED7CC88A7F746FED2C4065B0906@qq.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 12 Mar 2025 09:23:13 -0400
-X-Gm-Features: AQ5f1JrlHIMUIyJ3VPeYl0LLCNN1TY7l9oMkCzu6354M_WivdVVGQHkKUEYmjr0
-Message-ID: <CAEjxPJ6QZwprWRXme4S2pAD9X-DmWSfMpoHL8NR+YufMdicZ2g@mail.gmail.com>
-Subject: Re: [PATCH V2] selinux: access sid under READ/WRITE_ONCE
-To: Edward Adam Davis <eadavis@qq.com>
-Cc: linux-kernel@vger.kernel.org, omosnace@redhat.com, paul@paul-moore.com, 
-	selinux@vger.kernel.org, syzkaller-bugs@googlegroups.com
+References: <20250131175556.21836-1-cgoettsche@seltendoof.de> <20250131175556.21836-2-cgoettsche@seltendoof.de>
+In-Reply-To: <20250131175556.21836-2-cgoettsche@seltendoof.de>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 12 Mar 2025 11:16:39 -0400
+X-Gm-Features: AQ5f1Jq1h5JD66-cFTKTOKH-RE4E1Qa2IlD188ycAg8TJbDmnwOX19z4J0YIHGs
+Message-ID: <CAP+JOzRuKz5rwa8TUrjDGuYKhk_XWD0KL_Q46V+_cD=tn54rUQ@mail.gmail.com>
+Subject: Re: [PATCH 2/4] libselinux: use local instead of global error buffer
+To: cgzones@googlemail.com
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 11, 2025 at 9:05=E2=80=AFPM Edward Adam Davis <eadavis@qq.com> =
-wrote:
+On Fri, Jan 31, 2025 at 1:03=E2=80=AFPM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
 >
-> On Tue, 11 Mar 2025 11:19:49 -0400, Stephen Smalley wrote:
-> > > Reported-by: syzbot+00c633585760c05507c3@syzkaller.appspotmail.com
-> > > Closes: https://syzkaller.appspot.com/bug?extid=3D00c633585760c05507c=
-3
-> > > Signed-off-by: Edward Adam Davis <eadavis@qq.com>
-> > > ---
-> > > V1 -> V2: replace with READ_ONCE/WRITE_ONCE
-> >
-> > Thanks for the patch. Did you audit all other users of sksec->sid to
-> > see if they too should be wrapped with READ_ONCE()/WRITE_ONCE() or are
-> > already safe?
-> This fix is only for the issues reported by syzbot+00c633585760c05507c3.
-> I have confirmed that there are many contexts related to "sksec->sid" (at
-> least 29). I am not familiar with selinux, and it is unnecessary to do
-> excessive fixes before syzbot reports other issues.
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Maybe the subject of my patch is not appropriate, and it may be more
-> appropriate to adjust it to "selinux: fix data race in socket create and
-> receive skb".
+> Use a function local, and thus thread-safe, buffer for error messages
+> instead of a shared global one.
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  libselinux/src/label_file.c |  4 ++--
+>  libselinux/src/label_file.h | 19 +++++++------------
+>  2 files changed, 9 insertions(+), 14 deletions(-)
+>
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index 56e20949..85d42ff2 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -1662,7 +1662,7 @@ static struct lookup_result *lookup_check_node(stru=
+ct spec_node *node, const cha
+>                 for (uint32_t i =3D n->regex_specs_num; i > 0; i--) {
+>                         /* search in reverse order */
+>                         struct regex_spec *rspec =3D &n->regex_specs[i - =
+1];
+> -                       const char *errbuf =3D NULL;
+> +                       char errbuf[256];
+>                         int rc;
+>
+>                         if (child_regex_match &&
+> @@ -1673,7 +1673,7 @@ static struct lookup_result *lookup_check_node(stru=
+ct spec_node *node, const cha
+>                         if (file_kind !=3D LABEL_FILE_KIND_ALL && rspec->=
+file_kind !=3D LABEL_FILE_KIND_ALL && file_kind !=3D rspec->file_kind)
+>                                 continue;
+>
+> -                       if (compile_regex(rspec, &errbuf) < 0) {
+> +                       if (compile_regex(rspec, errbuf, sizeof(errbuf)) =
+< 0) {
+>                                 COMPAT_LOG(SELINUX_ERROR, "Failed to comp=
+ile regular expression '%s':  %s\n",
+>                                            rspec->regex_str, errbuf);
+>                                 goto fail;
+> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+> index 60ebbb47..ad7699e6 100644
+> --- a/libselinux/src/label_file.h
+> +++ b/libselinux/src/label_file.h
+> @@ -388,16 +388,17 @@ static inline void sort_specs(struct saved_data *da=
+ta)
+>         sort_spec_node(data->root, NULL);
+>  }
+>
+> -static inline int compile_regex(struct regex_spec *spec, const char **er=
+rbuf)
+> +static inline int compile_regex(struct regex_spec *spec, char *errbuf, s=
+ize_t errbuf_size)
+>  {
+>         const char *reg_buf;
+>         char *anchored_regex, *cp;
+>         struct regex_error_data error_data;
+> -       static char regex_error_format_buffer[256];
+>         size_t len;
+>         int rc;
+>         bool regex_compiled;
+>
+> +       *errbuf =3D '\0';
+> +
 
-We don't want to just silence warnings but rather identify and fix
-root causes, and do so comprehensively.
-Looking more closely at the syzbot report, it appears that a sock that
-initially has SID 3 (aka SECINITSID_UNLABELED) is being assigned a
-specific SID via socket_post_create at a point where it might already
-be receiving packets.
-That seems like it requires a more general fix to ensure that the sock
-is correctly labeled before it can start receiving packets.
+I know that this will never be null because there is only one caller
+of this function, but since it is in a header file, there is no
+guarantee that it won't be called from somewhere else in the future.
+Can either let the caller deal with it or add a check here that errbuf
+is not NULL.
+
+Thanks,
+Jim
+
+
+>         /* We really want pthread_once() here, but since its
+>          * init_routine does not take a parameter, it's not possible
+>          * to use, so we generate the same effect with atomics and a
+> @@ -435,9 +436,8 @@ static inline int compile_regex(struct regex_spec *sp=
+ec, const char **errbuf)
+>         len =3D strlen(reg_buf);
+>         cp =3D anchored_regex =3D malloc(len + 3);
+>         if (!anchored_regex) {
+> -               if (errbuf)
+> -                       *errbuf =3D "out of memory";
+>                 __pthread_mutex_unlock(&spec->regex_lock);
+> +               snprintf(errbuf, errbuf_size, "out of memory");
+>                 return -1;
+>         }
+>
+> @@ -452,12 +452,7 @@ static inline int compile_regex(struct regex_spec *s=
+pec, const char **errbuf)
+>         rc =3D regex_prepare_data(&spec->regex, anchored_regex, &error_da=
+ta);
+>         free(anchored_regex);
+>         if (rc < 0) {
+> -               if (errbuf) {
+> -                       regex_format_error(&error_data,
+> -                                       regex_error_format_buffer,
+> -                                       sizeof(regex_error_format_buffer)=
+);
+> -                       *errbuf =3D &regex_error_format_buffer[0];
+> -               }
+> +               regex_format_error(&error_data, errbuf, errbuf_size);
+>                 __pthread_mutex_unlock(&spec->regex_lock);
+>                 errno =3D EINVAL;
+>                 return -1;
+> @@ -624,9 +619,9 @@ static int insert_spec(const struct selabel_handle *r=
+ec, struct saved_data *data
+>                 data->num_specs++;
+>
+>                 if (rec->validating) {
+> -                       const char *errbuf =3D NULL;
+> +                       char errbuf[256];
+>
+> -                       if (compile_regex(&node->regex_specs[id], &errbuf=
+)) {
+> +                       if (compile_regex(&node->regex_specs[id], errbuf,=
+ sizeof(errbuf))) {
+>                                 COMPAT_LOG(SELINUX_ERROR,
+>                                            "%s:  line %u has invalid rege=
+x %s:  %s\n",
+>                                            path, lineno, regex, errbuf);
+> --
+> 2.45.2
+>
+>
