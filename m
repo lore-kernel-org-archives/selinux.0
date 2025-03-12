@@ -1,119 +1,113 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com [209.85.222.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2294D253F30
-	for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 15:19:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F12D9198E76
+	for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 15:47:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741792752; cv=none; b=gNvhCwnzfqQEEl6u55hE6x317ioeBpU7Tyfdvn+4IQCyLUiLSmlt6MOW6LK5+Dr61Fxe/irU0dj5Laefkqe82s2TQW5Qf492dyd7GUmXaQmJeB0IiqStt59FFNFp53UfRrr4PzGzFDJf73MNPGbqHOetYV+CGNdW3+hf1S3wjWA=
+	t=1741794468; cv=none; b=tA+jiPhUdBqpo5d1NC5RN5gc9QHONTYqLldwiSakyMgMeKSu+K5clqIm3RXxuBhrSLH2LE6L40uP2GcAJ00gknDcEfPUF8xeoeVAR4YPbxwXmsoakVik6/Ac0iiIJhQZHBdcA/by/v3PdnsbpG16So2Twl1yWes5f0H68Qi8PxU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741792752; c=relaxed/simple;
-	bh=Qo4zmRNLgu6JxAeRou4PO7CGE0OiFyOb3VDGevusnFA=;
+	s=arc-20240116; t=1741794468; c=relaxed/simple;
+	bh=naLCbYkTj4wtNapPEI4cwvKFhu7lxXBAvCAlPeUlWPY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YagZNMto9I4wjiTVo0GRGGNBIXAyPLGMOFz7JVz8hi79NU+yZRU8Y2abtdGYUgYjtBv1hKyZ+qtDAeT0AF24KShJGH8UFw9lurJuJGax8XvzpoKaFSIJNtLvyxzMxSqIAGghF04qHb0k9SCWE9KbW6svxo1PUdo/lTnCpRVjQ9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RybevWW+; arc=none smtp.client-ip=209.85.160.173
+	 To:Cc:Content-Type; b=oFQd6z8Xs1NZwL9lpM8KdqfoSt1AH1A/D0xsnFHdkHHrTLbECyuQaEeqXUjVZMaJX1YaA6IsD0VzEujZjqg7WlnaEvF8A7I8j+6TdCwyUr8ljRBCWvGifSjRcrSgNNj0lbORhdzoZtYFyhYd/xcJ+9oBQYgsbR/ZOlrvUBPXuPY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OxZe2hzV; arc=none smtp.client-ip=209.85.222.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RybevWW+"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-471fe5e0a80so55923261cf.1
-        for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 08:19:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OxZe2hzV"
+Received: by mail-ua1-f41.google.com with SMTP id a1e0cc1a2514c-86d36e41070so2893646241.3
+        for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 08:47:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741792750; x=1742397550; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1741794466; x=1742399266; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Ta+2AXG9vGoVAfHuoTqamEWN9uDj8Tn9qcvuYur5Roc=;
-        b=RybevWW+1dvIKllMBqJvRsw9d8HMD6qXarhyYR8SYRMP1NTRstOP5D9fjO9IR1+s6e
-         9UuLv21RY4Kg3xCevG+V3hQvLeqUfqmXyCV1lR5DggccKZJNBGvo4K6HEOC+3QI3qvY7
-         P84EB+gQDTenzcXHPQrDIEM+PbKzD26E2Vnj3UWTCP8g6RFaarxEpFe9hKZeMPmIl2tG
-         SHlN1sibRM/hBTAlZ1lhcqHrm6tv00oN87TLT8KSjKKbBMHxLaU4lw5MfLx1zqa6imvO
-         eihjNQue1TVUum+o4xtdL1mdYBiAveOXLu0T16O+tL0zHfH+HU4F/AQt3K3VFRkIvlMF
-         enpQ==
+        bh=OwcPR810p4wa7P/ovIpgPsV6U2/DXYTB7TcHnulvtSU=;
+        b=OxZe2hzVz/AwJ+Hd/xM7v7p4KnT5y9ZbbvWAhLsKUuuSVhUIyyqaTQYBXQ6j0OlQrq
+         o4NjQpxdgRJ2BNz97BdbqeoqPJXtjVAu0SAn0olSv+XD+X0ZBThPHxW5lSsalXoZVun8
+         iR6+e/VpR/l5lMhGqGO6nGY5y/cxVQmG6HvpX1qTpofFX99LKbkoruvvEh6vY+VSpygw
+         mbnukzU9rcxt+651uXOUF5+qqJ5s6aRJjzvqKv2c2qfXMDROv7KW+FWvZD1Qj/MI2WQk
+         eJLxmxx92/DSACzUMr/uqdQc8ekDmZTnQ10ACkNm0l7GdJFZziR7QvhJXXupA4CfzfgO
+         6qlw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741792750; x=1742397550;
+        d=1e100.net; s=20230601; t=1741794466; x=1742399266;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Ta+2AXG9vGoVAfHuoTqamEWN9uDj8Tn9qcvuYur5Roc=;
-        b=B1/rZvWU9LIxGYfJz9AjhALduUu15cBLzGPf1U/ROxWJ4TVtYLP4WSrbxN7I8XJtyZ
-         9iBOuRyz1wVWG7JXt5IrIM8IiuVwr2Q2qL8IhjuxEoCJAVoHPryjlTJoUAdULUAaeeLR
-         oDQxm/U9/CDL7h95xE+cCdHQd04fDtMiFosokXcvxcpXGaLVuMOYCKmwjs3e+NpV0BYm
-         AF0x5UmtWPMlBPVAuSwhiGBHhfoyXySgOQOJdSji/sbQAu1PBmPrjY7TNMsTaaKAczJZ
-         QNm3KKQ3lSv1JYx/Dq069DjXTmqAy6UyGV7cuPahszQ5T++dfBoZSspL/fN7OM5qB7aJ
-         Drkw==
-X-Gm-Message-State: AOJu0YzknLvSFrVJU88Z8UHy0V1V3yE5lUkKGwUrJblXKsSfP4Uy3LtZ
-	pIxOiuNZmGJIk5M53TBpun3ZjPw/joUmhEl51synGVGjvo1WwXnj6LQXu3hIeUrgYEzn/1rJDmX
-	d/lQ8Y09MpUvVZPAhJZcnVFdHUu4=
-X-Gm-Gg: ASbGnctR3SZXiLQ/wmDF0cieC7zIuvKJBKwbS8Pme4UT8DeAt9w2MbbVW3qG2SJ7W3L
-	makqrQV7T5VFnO+Z0A3lOi1wwJYMkWQklXM8v+yP3YiMu77cajQZXgyvoxmErUYG54b2kPhKONO
-	OOx+gQcOFNBZ2j7yn2IjZV0Nk=
-X-Google-Smtp-Source: AGHT+IEoPvNbW0guIh7Yeqh9acvOxhbluTFwBTlz0cXKF51jCvqXsm0FgV2Kai9M/Sp9qr7g1I/KpRal9Q9DUnK1LlQ=
-X-Received: by 2002:ac8:57d0:0:b0:476:8028:71ce with SMTP id
- d75a77b69052e-4768028a24dmr211117491cf.3.1741792749807; Wed, 12 Mar 2025
- 08:19:09 -0700 (PDT)
+        bh=OwcPR810p4wa7P/ovIpgPsV6U2/DXYTB7TcHnulvtSU=;
+        b=aUk7nZluJ0f/iQ5jBKI8OoCc92RfACcw0kvH8PiKXzi/ceAb/I1rHFr0tp9V11cXjb
+         s0cL1qKBuhUI7//BA/+jnjf8bQ49REWP4lVVaaVvU85dgoQigWmQ0wuuS64DfM5p6V7m
+         PIo0QvcSup5BGh+yq2T1QxYrmE6w2/+3KUqikovFXAEordKhmC9PYzd1WnMX/FF4BNmk
+         4HeBXXy3QHeZ5Vmt3kSsNx9/2+60J2mtBQ79AU56u2hyMNVkfpSSfT1ceFTgFgwy0DEF
+         Ryma8ZZRga6mb7sHEXgL//HwTAJCrXuhuMiNY9pdKZgveQVQ5g19UfJ3wNL+9hYpg5Fe
+         yaWA==
+X-Gm-Message-State: AOJu0YzvBpxdyPQ7OteD2L0tY4G+Xs5fs6DMF3jHm/KOWvsi7UpJJPRN
+	F1rXhiCjM+9cCohT6SS/tKU14BPqCwHh81g6tuXPbeENpU9ue/VaObZpv62E/1SuBEO1f3jYPjx
+	nrGACMC4Yk8JAib9zjYH3TX4JLvcce9QB9GU=
+X-Gm-Gg: ASbGncuL6BkHHZxLW9xkPF7u/G4VKm7pzQ4yMPy4DhsMph2ifL3c5ndzbf1/xKMCK1o
+	WjEhnQHax+QxzBlOMhUBMB5VZmR7G79XDJ+eiWySgOTUyX9mfgKAdEzkSYTIwN+H/L4xxsgQmvA
+	teVJipbrJeZRt2nvvB6ZmGsPk=
+X-Google-Smtp-Source: AGHT+IHMzuYohXtPUVwDX2m42FjeaSLDB8qihzU1MsSgKbhVDw9Flghj6jWUHleorh7porzvAGFvjfHrXQ2Gcbdt0hw=
+X-Received: by 2002:a05:6102:4424:b0:4bb:dba6:99cd with SMTP id
+ ada2fe7eead31-4c30a5aa778mr14627395137.8.1741794465724; Wed, 12 Mar 2025
+ 08:47:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250131175556.21836-1-cgoettsche@seltendoof.de> <20250131175556.21836-4-cgoettsche@seltendoof.de>
-In-Reply-To: <20250131175556.21836-4-cgoettsche@seltendoof.de>
+References: <20250212164932.35152-1-dburgener@linux.microsoft.com>
+In-Reply-To: <20250212164932.35152-1-dburgener@linux.microsoft.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 12 Mar 2025 11:18:58 -0400
-X-Gm-Features: AQ5f1JqAbtt5FOIBSOGGLcIBcfSdVMYxyCiZLkJF60hI9CTbZcyg3U3aYLU9bK0
-Message-ID: <CAP+JOzSWHhqM_dahL9AZm=GGy0UALr+psZrzyJAnh-FY8p3yEw@mail.gmail.com>
-Subject: Re: [PATCH 4/4] libselinux: limit fcontext regex path length
-To: cgzones@googlemail.com
+Date: Wed, 12 Mar 2025 11:47:35 -0400
+X-Gm-Features: AQ5f1JogB3bPyUvSDjMrT3Jx0rusRAns0vufohVuXcbdk7L3hNtRsvSRW6EEygA
+Message-ID: <CAP+JOzSSt_N5u+zcYBS53vM8JqbqGe9CTjYNU-Rhvytm=5f2FA@mail.gmail.com>
+Subject: Re: [PATCH] Switch from bison name-prefix to api.prefix
+To: Daniel Burgener <dburgener@linux.microsoft.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 31, 2025 at 1:03=E2=80=AFPM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
+On Wed, Feb 12, 2025 at 11:50=E2=80=AFAM Daniel Burgener
+<dburgener@linux.microsoft.com> wrote:
 >
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Avoid a deprecation warning when building.
 >
-> Limit the length of regular expression paths in fcontext source
-> definitions to reduce the worst case regex compilation time for abnormal
-> inputs.
+> api.prefix was first released in bison 2.6, which was released in July
+> 2012 [1].  name-prefix was deprecated in favor of api.prefix in bison
+> 3.3, released January 2019 [2].
 >
-> Reported-by: oss-fuzz (issue 393203212)
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> The new api.prefix construct rewrites additional variables when compared
+> to name-prefix, such as YYTYPE and YYDEBUG. However, these variables are
+> unused currently in conf-parse.y, so this does not affect libsemanage.
+>
+> [1] http://savannah.gnu.org/news/?id=3D7269
+> [2] http://savannah.gnu.org/news/?id=3D9321
+>
+> Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
+
+Acked-by: James Carter <jwcart2@gmail.com>
+
 > ---
->  libselinux/src/label_file.h | 6 ++++++
->  1 file changed, 6 insertions(+)
+>  libsemanage/src/conf-parse.y | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-> index ad7699e6..7a9834a0 100644
-> --- a/libselinux/src/label_file.h
-> +++ b/libselinux/src/label_file.h
-> @@ -434,6 +434,12 @@ static inline int compile_regex(struct regex_spec *s=
-pec, char *errbuf, size_t er
->         reg_buf =3D spec->regex_str;
->         /* Anchor the regular expression. */
->         len =3D strlen(reg_buf);
-> +       if (len >=3D 4096) {
-
-I am assuming that 4096 was chosen as a reasonably larger number and
-not because there is some other constraint.
-I would just like to see a comment explaining that.
-
-Thanks,
-Jim
-
-
-> +               __pthread_mutex_unlock(&spec->regex_lock);
-> +               snprintf(errbuf, errbuf_size, "regex of length %zu too lo=
-ng", len);
-> +               errno =3D EINVAL;
-> +               return -1;
-> +       }
->         cp =3D anchored_regex =3D malloc(len + 3);
->         if (!anchored_regex) {
->                 __pthread_mutex_unlock(&spec->regex_lock);
+> diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
+> index 6cb8a598..93a04699 100644
+> --- a/libsemanage/src/conf-parse.y
+> +++ b/libsemanage/src/conf-parse.y
+> @@ -53,7 +53,7 @@ static int parse_errors;
+>
+>  %}
+>
+> -%name-prefix "semanage_"
+> +%define api.prefix {semanage_}
+>
+>  %union {
+>          int d;
 > --
-> 2.45.2
+> 2.34.1
 >
 >
