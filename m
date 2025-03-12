@@ -1,87 +1,108 @@
-Received: from out162-62-58-211.mail.qq.com (out162-62-58-211.mail.qq.com [162.62.58.211])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E994C80034;
-	Wed, 12 Mar 2025 01:10:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.62.58.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CD141D88A6
+	for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 07:56:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741741842; cv=none; b=uR02RFk/2368r7UEhM+YLi3w3Mp+qBI7pgd6j+O6qrr4faSCl8F0LBCpLIXp82uVb5bshnLj4g475IylK7yMaJ/qTe3hDtLvI53SBPewdMMQVOYIZIbjKu534V6EfFKSeHXyiwkbhHo75Gh47Mcl2uhI1+TgLFPFWjjkZj7sNOc=
+	t=1741766178; cv=none; b=OmBbDQbarfLYSfXYmbm3Zuz6jEa8K1BNaksndgxXvWuUaziHNAdRSR568DlSdrvS/vMGaemruYCng0BWctJQUSPC79EePv1fwUmwhdTWAC1gmQl3Bwfw5vOsm9xWCc6X0r3IiAE2XxidoLgNrCLn5P68N2iONHsBaWvjQWFZuME=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741741842; c=relaxed/simple;
-	bh=ihg5D7JjYwR8wMjfG32hR1vTg+jRmYudx4QHbcb4sIw=;
-	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=b444ltHQ1/6+qibohg5a+F7nQPZ1TIeag2DtUt1OoyNC0J/9kIZjbkGDDXijDMEXACjPoK1wfQlubXil3AIT1PE+sTj9BFo6xupchT9YS6rx0hPgOpKS/aUWnXzMH2zsPiGvd4by7j4FejSAUMAAHEnqzQYQLXJ/XZYS8AfNrQw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=d0ZMyQeH; arc=none smtp.client-ip=162.62.58.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	s=arc-20240116; t=1741766178; c=relaxed/simple;
+	bh=znNf1fAMzmCgbuZtmtCSU65xdGJmcPGnA2pGzlkz1i0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Zc6/p8TvjJ9otRhvKIMjdjQqFACpPQYhGnqiQuruhD9vV4mM7MwosD1TVDuw6EgNc2+u/Ut6XXohNcAj3YFMX8/hAfzMey55y/LRQaYJKAiC8MoEW8TWeLjMAnnPKvn9Jw/qoqZOTU9oA7kYH9UKJyBj73uwKpXrUsW148e6SFg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=NoT9QhJY; arc=none smtp.client-ip=209.85.167.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="d0ZMyQeH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1741741525; bh=hIU6OUXhJGBsv4djF82ZLszpiy8ehuXLtiXE6CrEhKw=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=d0ZMyQeHx575wW8g1gphD92SMaTyenXQOIQPeJ9OSWmfRaTl89XhRxBAtNw4XNPen
-	 W2C4852advLemtQlSSTYMzACkOvYZA5WHqdkIdhDuypvcg8GiEBha24Rd+FHrQbH5u
-	 9b5uzyFHofyJOqiWSKk/MlBbL83GnIfafixRMwuw=
-Received: from pek-lxu-l1.wrs.com ([114.244.57.157])
-	by newxmesmtplogicsvrszb16-1.qq.com (NewEsmtp) with SMTP
-	id 1569A20B; Wed, 12 Mar 2025 09:05:22 +0800
-X-QQ-mid: xmsmtpt1741741522ts27i5q8l
-Message-ID: <tencent_E8AA2ECB6ED7CC88A7F746FED2C4065B0906@qq.com>
-X-QQ-XMAILINFO: NN8wcaRHkJbBpHtqXl713Cg9E1IV7rv2clcZUpgVcxgqdBJMexZy63zArzO5my
-	 PC14odSXYx4DDVDwSZYsPXOvHGljY+DODeNSAOd8cSeLRAguH9OYIwVRKxLQxmhSfBs/uya+hQy7
-	 +BMNCpcRUgXtpmY/M61bWh9sQcP8ve8Sq6EbsdzM/CKid4S8jz6oT+u4BFtyCH/FIgnduREAL+CO
-	 +qlgDpXoS0Rjp5uG19JEW957SYcn2b8381U6pMjtstru+oBqPUTApG0PoZZVK4mpoaJhM2jXXzXT
-	 m/q4u9ZluCrWZoETIH78D4LpZG5mSr8agwOCTYE/qkB+X/nQfpin/eTp3oWIBsg3eNdkyrrjy9wb
-	 AzINr+9Y8LVmZJyJhZ6UUMOjW1fFKPs1qPqbHD+bowAjxKDM31YIdX92jiPgbgvBBMn05CHY7nU6
-	 Ivl5lM8xsdQR3UoNYRb4d2MZVZbHDeiYHVM3BAXSKwTetsIjtGzg4+D+QCACyMRjWk33uaN1rkGz
-	 Wy+TiAX4ix28fLwuKvClP5F1aSj2nF66FDqi/IzWaKva2Vv3mTASJfu99z6ydrHF9g65Mfw9p7Av
-	 zHcb7GkHKxZ4hMiiLxTOHTVxStcVoBQcLvFls/uFBs3lxjC+ruiX3iM09DN76hB0Avy5hSSWkwHp
-	 qvuP7dEC4nEuljYiIAuo6tcLLpN/OsQs7zMqgTahf5dkb2HGO9r/0OGjfPDSzq88QirGJwTTFNCY
-	 ZW7V0RCU3vb2mHKVpSLZCYlbABwkeZFbt8/cAGlhlQ4XZHguH+CEyJ0omuYe3khFgaVnBc9f5AHV
-	 cMkBEEoPrvIxT4Mj5Pl371iY504g8qEyKh13fD51c64/gpZnSduzXZT52S8v3n2k5848hAEmzKZb
-	 e857yzKpKV5zCfaS7RmsL9zh1rYjKmf6glPmgGIXSXC9fj5cPiIHj5Wmkk93esTA==
-X-QQ-XMRINFO: Mp0Kj//9VHAxr69bL5MkOOs=
-From: Edward Adam Davis <eadavis@qq.com>
-To: stephen.smalley.work@gmail.com
-Cc: eadavis@qq.com,
-	linux-kernel@vger.kernel.org,
-	omosnace@redhat.com,
-	paul@paul-moore.com,
-	selinux@vger.kernel.org,
-	syzkaller-bugs@googlegroups.com
-Subject: Re: [PATCH V2] selinux: access sid under READ/WRITE_ONCE
-Date: Wed, 12 Mar 2025 09:05:23 +0800
-X-OQ-MSGID: <20250312010522.232131-2-eadavis@qq.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <CAEjxPJ7eFbsn7h7o90tOE6ymp4+g-bwYL_Rwy6t0EcxpaBAxAA@mail.gmail.com>
-References: <CAEjxPJ7eFbsn7h7o90tOE6ymp4+g-bwYL_Rwy6t0EcxpaBAxAA@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="NoT9QhJY"
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-54957f0c657so582866e87.0
+        for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 00:56:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1741766174; x=1742370974; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=B7LXRptCi3W3HPkRnBXDsxLRWEGvWpGC6c/1OJFUi5I=;
+        b=NoT9QhJYWY8THcMnupaTC+ZB0heGnFiLl5mCfhUwzkZxqpQ+5gj8Jy3qZZnpl3I6iM
+         BvXtLGe3FhWZst8Bchuar/MOMjgrBOZY5xXyiNIpfVTb7UZbkf7tf7bjcXZSFdBix+os
+         HE1b3sPgP4votHJHxboY+6L03OmF1jyo34d78=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741766174; x=1742370974;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=B7LXRptCi3W3HPkRnBXDsxLRWEGvWpGC6c/1OJFUi5I=;
+        b=Y6AQDJUb8GY+nm6dIB8km6V2A2pDoHkmI3cXjJp8CAYWFa62P+lkZUGRsFUduiPcaB
+         aRY3suoYj25A+Zbihoih5ApSNeTGeulIaxy69P1i3LHB5lMrRgcs51JrXNC2UX0zvJK0
+         JOZ3enUThfYv4F25nwYqYrDW1EIyDPkm97dGs3RT9mvf29wpIYUQg3V0pS1AoVIoWISF
+         Z2UxFh72CFb9H2qf3C0FmQddhsB04WAd14bOyFTlwKAn2Q54DqnLXVsejz3yG9E0CKdK
+         H5b4mzzV5s+c1oOzUVBeWZFUSzQgKeFDSIo4IYqzf9MHUEzsGSGEmmO9VxN5nWaV2V5v
+         jCQQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW0bKdm3FFhjIMU7+2bZv8bpZrg1F5ftEFdJNE9awX4eBFZ+CyNDdUH+Byxnqs/oFyibsjsp253@vger.kernel.org
+X-Gm-Message-State: AOJu0YzkBXimA8eCcuma7CsMnAA4uQWIIetQsl3cISRLuHtt1R55JQi1
+	b83u7rmLRhWcNz1nY7nWJTWFjpZEHcWYEBq6vx2QfRlh2iIqCVmqpouDCDLNQKuwcpb316ZF3AM
+	tFs9gWRHbFh8QiZHgwO18z/PLRr7SiRO9AdQ=
+X-Gm-Gg: ASbGncvPi+uPoktgzIxX9JH7ssl45tQDqbNcnMVRIod91myRhkISzKEoocZSZQY8l/p
+	Ysr8jh/c54ftjOoHXfGXjE8RvDCWl+fAfJkzO6VUbxm43DOmVvOC7iT8/a4W+rKLo4V/D0YC8vg
+	puWuxbDGDzCi0PcQCXvVNrOyrc7voSRdAntmZSF3seKyR7tz2+iwwDI7c=
+X-Google-Smtp-Source: AGHT+IFf/2jMBxJMq7bA+qgCgSqlHobuc4JKog2m2C4xhOJcspr6bWB58MMs0jlxDxPGarogazBbBwtX3Cl5r8U2wMg=
+X-Received: by 2002:a05:6512:3a90:b0:549:8b4d:bd47 with SMTP id
+ 2adb3069b0e04-549abd14b52mr2407678e87.9.1741766174239; Wed, 12 Mar 2025
+ 00:56:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250311092920.1114210-1-takayas@chromium.org>
+ <CAH9xa6dtem=xKPZhF6s+ttiOsQRyz63Je=Qv1m8edxCV1hE7Lg@mail.gmail.com> <510029be-c806-48b6-8d8c-f2ee47ce15b4@googlemail.com>
+In-Reply-To: <510029be-c806-48b6-8d8c-f2ee47ce15b4@googlemail.com>
+From: Takaya Saeki <takayas@chromium.org>
+Date: Wed, 12 Mar 2025 16:56:02 +0900
+X-Gm-Features: AQ5f1JowghCzcFF6_Pk7EsvvvDWWpenO8cQQ_zC5YTibXCk2OuUxxftHxWohx-s
+Message-ID: <CAH9xa6eJzCgOJO_wKDyeeZbv9AXMoANt5vFvsqDEtAH_o2oQWA@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: support wildcard match in genfscon
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+	Nick Kralevich <nnk@google.com>, Jeffrey Vander Stoep <jeffv@google.com>, Junichi <uekawa@chromium.org>, 
+	Daniel Burgener <dburgener@linux.microsoft.com>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 11 Mar 2025 11:19:49 -0400, Stephen Smalley wrote:
-> > Reported-by: syzbot+00c633585760c05507c3@syzkaller.appspotmail.com
-> > Closes: https://syzkaller.appspot.com/bug?extid=00c633585760c05507c3
-> > Signed-off-by: Edward Adam Davis <eadavis@qq.com>
-> > ---
-> > V1 -> V2: replace with READ_ONCE/WRITE_ONCE
-> 
-> Thanks for the patch. Did you audit all other users of sksec->sid to
-> see if they too should be wrapped with READ_ONCE()/WRITE_ONCE() or are
-> already safe?
-This fix is only for the issues reported by syzbot+00c633585760c05507c3.
-I have confirmed that there are many contexts related to "sksec->sid" (at
-least 29). I am not familiar with selinux, and it is unnecessary to do
-excessive fixes before syzbot reports other issues.
+Thank you for feedbacks.
 
-Maybe the subject of my patch is not appropriate, and it may be more
-appropriate to adjust it to "selinux: fix data race in socket create and
-receive skb".
+On Tue, Mar 11, 2025 at 7:39=E2=80=AFPM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Mar 11, 2025 10:42:22 Takaya Saeki <takayas@chromium.org>:
+>
+> > Hello, now this patch no longer appends "*" in the kernel space.
+> > I tested this patch on Debian by creating a modified SELinux policy
+> > where all genfs rules were followed by a trailing '*" and the new
+> > genfs_seclabel_wildcard cap were enabled. Both the new policy with the
+> > capability enabled and Debian's default policy without that policy
+> > capability made correct labels.
+> >
+> >> +       bool wildcard =3D 0;
+> > I overlooked that this should be `=3D true`. I can fix it.
+>
+> Or maybe drop this assignment, since tge variable is always assigned late=
+r on (and modern compilers are good at warning about uninitialized local va=
+riables).
 
-BR,
-Edward
+I agree. Let me drop the initialization.
 
+>
+> On another point maybe this feature can be combined under the new policy =
+capability netif_wildcard, to avoid adding two?
+
+So, do we rename POLICYDB_CAP_NETIF_WILDCARD to POLICYDB_CAP_WILDCARD
+to control both wildcard capabilities? That should be fine for
+Android's use cases.
+However, it will mean users who want to enable the wildcard feature
+for network cards also have to take care of incompatibility of
+genfscon at the same time. I'd like to ask for opinions from
+maintainers.
