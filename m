@@ -1,119 +1,124 @@
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E27B41E489
-	for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 12:34:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F959282F1;
+	Wed, 12 Mar 2025 13:04:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741782875; cv=none; b=hvfJmvjfDUMc0+ppxghyYh6qRzQUhWZJxXQ6vs/qzjUOxsdiau81LqRH9wy56JFnZToudJiMoeNsQr2EuaEoPJliW37GVfHxQ6BGOBtytDpZ3S8WlTQbpj2J8TvEZqE/igRzAJ9VQCEvSPML7elGTtuBHDh6wbO2YinI35lzhEE=
+	t=1741784669; cv=none; b=hPU43iOS6yq3RlPjM+kgP6hYSLBn7B4E+Ydn44q+AW66KDgQoa3Gy8OQ6Utl1sZowgHBEkQb67uwedQoG0G1eNQ/kQm8qDqkAjR4yezgBD966Z7RpnehYS3lBi/858FXkxwVYtpyVpjM7VrpI72zWSs6HU6fXst0hxfWgRntHz8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741782875; c=relaxed/simple;
-	bh=oGKAlLruZC2gJdWmC8w8hWxc0Vq+iXtZG7Q5qQTmp7A=;
+	s=arc-20240116; t=1741784669; c=relaxed/simple;
+	bh=NUKmvCFfHH4W1XJIKs4M9ElG9Fs50YPkTV1BEEFxWbE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DIUyySQKkpXzuhSnC6Beg7XMWwoTyAzVVxGNn5WYIsSlre8R4Av5sxRDJuboklnDCsSYVg5pu5ts+f6OwUg8eKXMgWGtUCQ9Nzjj0W5vrv8O3hpDlt2wcrTXYnJwcIb1FdrfA4q5+Uyszox8I3MQjdLVsZQ5mB1E3wT/0BiPc4Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TI5qJHHR; arc=none smtp.client-ip=209.85.216.42
+	 To:Cc:Content-Type; b=phyKj8fJ6yihvgcpe15L6QgyO38JpbfFyApgvsBHgq3VXsZ95mEFHANK+u2p45+NlFE6RSlp139dEvXVOyhQXMSASs/XyYIiBtzO+8Jb8wj8x5BDxJ6GAA5hBB+cLyS0cMdJTjCJ0LwY2JlrzW+u+FBMroPtDJTj0bN4z3w5jio=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Pp/BbA7o; arc=none smtp.client-ip=209.85.216.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TI5qJHHR"
-Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-2fee05829edso12966846a91.3
-        for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 05:34:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Pp/BbA7o"
+Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-2feb96064e4so12824580a91.1;
+        Wed, 12 Mar 2025 06:04:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1741782873; x=1742387673; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1741784667; x=1742389467; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=m6BwZOxh6bjthsIBm31dem5Qs0/tnjKjb5FCc8KcK+8=;
-        b=TI5qJHHR7WsxZ06NQzGQGw5zFeeJuAPl+YAcB0bOX8HAwVdRnwlA4/PyTrkhGF7vWt
-         TxKhc4xPlM7BYvzp3zOuiAyH4C4/L8H3WVwdAnwMrNg2+0OjU3nFs1dqSFtpT7s08EYs
-         P7+PR5+8tmMARQLSvM9hHodk8uE32Wd7FiLhRnFG8Qc6ZDMcwz0OnA+QrQ84oaxnzn2Y
-         GU++0eht6z/Gt/vupI2skiy6eAVMBm58nMfrVqctMYTdhq55Bo640nR/7PFO8jdhkOE9
-         nW+2cPAebGY/q9PIPAi2qhv5Qsb7iHMLF8FoKPMve2nSeC0yr5fFrGcUBmw23QbQ4jcx
-         5czA==
+        bh=BrOEurKxcjjq8OkzdDYuj5GePA7tHx/oSCEN2/ELTlA=;
+        b=Pp/BbA7oftMg6+CVtqSR5ANfAf82zXL37AnjP0wq/IbVRHWelphQyDCpAmA6Zc+YKU
+         L7ZQnp6ic+YPuUm2Er3WXXPgrwJu97XIFNHieR+3C+FKjqigtL4iXLqLP65Uv44teGkI
+         siJDMEgzB9mZTZhKaPtHMfj9tOAxkjDJH4pGIPivBYMwrL75qcptyOz8bAuR8nFhAgkZ
+         MRl7sD1waKaxybG1lNcpQ2TP80Vcp30F6mjDWO+/CdD54GYN0O5i3w1yQGQNGkR0g32I
+         ANPUSrkZ5yQzFUuJ3hOWRw0Z5d1UtXmY5S1kA6DrpAzPnqG3mKc3ctA3KYNW+Ab7WkJp
+         oUcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741782873; x=1742387673;
+        d=1e100.net; s=20230601; t=1741784667; x=1742389467;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=m6BwZOxh6bjthsIBm31dem5Qs0/tnjKjb5FCc8KcK+8=;
-        b=kf4WCIumlhsFgoxFestqD3GcS5dgK38QlU3h/bfP6Zhy2PGCamjYZ96R/bNLqBlKyU
-         wY2djTjpDiRd2PQwynSLjMbGYjbiR4NLl2JB8yjsXeeIcQ+V+EXg86Jm0rDkhfg0gElh
-         L5cOu9bH3KehWFBH4xVZ2RkCWzpSLUhl2IdJYyBQFrqCZz/bcA3R7dfvGvJEXaaraehw
-         sjYQgvacLuDN8D5ev6Wa8a2BxOuyEF+etyYYmfE17mFUYI9a8CBJMusHbUtTj3c/WIE1
-         bZybKyvY1AFlYs8Rhn+Sl+khLqoRLJSysdejUXinjdm4MJLKdlRfZNzFbTcgJA0FLo4d
-         SgzQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWLitrJKOs/odkvAOmybG2/iViekoqaiK/LHQTq4EcETDsUztAL1DXlp4mVkGzBUfILHTIoX4hd@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy/fazaGcMoYTkpai22tEaXOimxRigDzz/cBJiavQv5E1lIIt6z
-	zSCz6EM/WiCX5iapSJLcgkZ7gOZZXbp2rJTDk1oD/mLnWAme0Glt5bXgQM3WMGoGFDlkutYWasw
-	+SaTb8DnPvzefj5IvmUkWtHMcL+Q=
-X-Gm-Gg: ASbGncs/3tZePqZkBN9nPD8i/eOiU/LMhiLcyqQAbf3xcsgjqmHikdsj00NTZURtmGL
-	Mx+EtDh8s8BBa5qDBiEcA/0vUJSN6SABjXbHZvjX00GmxlinZKmOdtUqOUReDHRGj8vvMdhUB6P
-	S1gbr51q2vniShujHmIp78wLhgTA==
-X-Google-Smtp-Source: AGHT+IHl8ProjulN4al+GWE91y1zBRucLHVYhqL5YUBvAk4vsvLBE/5rDM3xmIVpAk7EZ7rqQucXQqaERD8TRIDz1gk=
-X-Received: by 2002:a17:90b:1c0c:b0:2fe:a545:4c85 with SMTP id
- 98e67ed59e1d1-2ff7cefccd3mr31661204a91.27.1741782873126; Wed, 12 Mar 2025
- 05:34:33 -0700 (PDT)
+        bh=BrOEurKxcjjq8OkzdDYuj5GePA7tHx/oSCEN2/ELTlA=;
+        b=kix8e8bSWMLr50cLAKy8rHSD4iSK+dgiqbS0+I3zEzOcZfQ809aX59G56bIkyjruf/
+         P5Hov1sl/2ZyE/UtgJiNaH9BV/R/xYByPViZo1TQeZo3ZeDpr3qZWvOQwmD8BcEgdB2t
+         Ne/a9iXtZK/AgBgc0Fz9VNBoQ+UHwFJBFQVcy8yhOIUjIJeWx7CyQhEVaXWwP4attdPB
+         OI/XEy45xkFKoiEdJ5W2yYmW5c1zim7auEf3ksznhECksZOOPSzhwcyir0vl/67diB8b
+         KpRDYKIHXKCT0UZaue6JCVeU18gP+MV5UErg3qN7iyxgh7jp07rFOEueGBW+zvwiM3S2
+         ZwAA==
+X-Forwarded-Encrypted: i=1; AJvYcCUOh5Fp6LlFa9DdHWUJIfSyxFOG4DcB73RxS5GLBHzhesrfTGinw97OMkri8XUOs1dNdGwvixqGLQ==@vger.kernel.org, AJvYcCXXElD2alcfihXx7nAr01UbNdJJviUQsVvuUYwh2GiGowESDoxf0fnv54MwWUbfBn7fuOiUtB7OMgcHcQI=@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywz/cCSI2xeT7JeMJIrJ9f8NKiywF4BK+Vp08W5BpNKUdnuUTJB
+	TfzLC4vmo55Gq4+4Cg6pP3m/hIyKJPjR88fwBZP3cl2gIRKuuC5PcsY1wIDCX1yH7Dl9198ImVy
+	86GIO1f5yiXWbPVsM//ujlXPgs/o=
+X-Gm-Gg: ASbGnctuIuilTYOmTR7SBuhRPymnSZ99Z8jmdK+f6tNGZoK38J7UjikgIO8c2k7rhVt
+	G6f6GQvmTQa06w4/vttNe8Io2BUUuIUgImGu/DjZGAPltYnxWMdCKrOIT1jOAXwkeOLf510N5iB
+	4p78qwP7UkUv0hYNKSNjClER4o9A==
+X-Google-Smtp-Source: AGHT+IEoZ46HX7CGcd1Ce5EO0f/LDiJHDc9sBv88EwwFZGAG63dkZ+OtOgIQK9Pb5EgZMrfO568zYNbdc3gkzhLOAmk=
+X-Received: by 2002:a17:90a:d605:b0:2ee:df70:1ff3 with SMTP id
+ 98e67ed59e1d1-2ff7cd31b16mr39369425a91.0.1741784667175; Wed, 12 Mar 2025
+ 06:04:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250311092920.1114210-1-takayas@chromium.org>
- <CAH9xa6dtem=xKPZhF6s+ttiOsQRyz63Je=Qv1m8edxCV1hE7Lg@mail.gmail.com>
- <510029be-c806-48b6-8d8c-f2ee47ce15b4@googlemail.com> <CAH9xa6eJzCgOJO_wKDyeeZbv9AXMoANt5vFvsqDEtAH_o2oQWA@mail.gmail.com>
-In-Reply-To: <CAH9xa6eJzCgOJO_wKDyeeZbv9AXMoANt5vFvsqDEtAH_o2oQWA@mail.gmail.com>
+References: <20250312080055.8950-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20250312080055.8950-1-cgoettsche@seltendoof.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 12 Mar 2025 08:34:20 -0400
-X-Gm-Features: AQ5f1Jrn0HH0TXRhbwl9N5YRlIo7EKOnEDXVYDd-4nnwjQaxtShyU3UrJC_c0DE
-Message-ID: <CAEjxPJ5JgtdggL1Em2jgdZqRNEh7+UaErXaquP5QB=tUuMSZGA@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: support wildcard match in genfscon
-To: Takaya Saeki <takayas@chromium.org>
-Cc: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Nick Kralevich <nnk@google.com>, Jeffrey Vander Stoep <jeffv@google.com>, Junichi <uekawa@chromium.org>, 
-	Daniel Burgener <dburgener@linux.microsoft.com>, selinux@vger.kernel.org
+Date: Wed, 12 Mar 2025 09:04:15 -0400
+X-Gm-Features: AQ5f1Jp7sUoTSeKT84PKyrSnseU9L-kbdBkqb8eAsqXjy0y2NLZRQhFKSWbe1N0
+Message-ID: <CAEjxPJ4MAaN7P8ZtCcDhRvNt44LNyzL9azc-xNE54=tkW_4vjQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: get netlabel_wildcard policycap from policy
+ instead of cache
+To: cgzones@googlemail.com
+Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Casey Schaufler <casey@schaufler-ca.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+	Mimi Zohar <zohar@linux.ibm.com>, GUO Zihua <guozihua@huawei.com>, 
+	Canfeng Guo <guocanfeng@uniontech.com>, selinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Mar 12, 2025 at 3:56=E2=80=AFAM Takaya Saeki <takayas@chromium.org>=
- wrote:
+On Wed, Mar 12, 2025 at 4:01=E2=80=AFAM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
 >
-> Thank you for feedbacks.
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> On Tue, Mar 11, 2025 at 7:39=E2=80=AFPM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > Mar 11, 2025 10:42:22 Takaya Saeki <takayas@chromium.org>:
-> >
-> > > Hello, now this patch no longer appends "*" in the kernel space.
-> > > I tested this patch on Debian by creating a modified SELinux policy
-> > > where all genfs rules were followed by a trailing '*" and the new
-> > > genfs_seclabel_wildcard cap were enabled. Both the new policy with th=
-e
-> > > capability enabled and Debian's default policy without that policy
-> > > capability made correct labels.
-> > >
-> > >> +       bool wildcard =3D 0;
-> > > I overlooked that this should be `=3D true`. I can fix it.
-> >
-> > Or maybe drop this assignment, since tge variable is always assigned la=
-ter on (and modern compilers are good at warning about uninitialized local =
-variables).
+> Retrieve the netlabel_wildcard policy capability in security_netif_sid()
+> from the locked active policy instead of the cached value in
+> selinux_state.
 >
-> I agree. Let me drop the initialization.
->
-> >
-> > On another point maybe this feature can be combined under the new polic=
-y capability netif_wildcard, to avoid adding two?
->
-> So, do we rename POLICYDB_CAP_NETIF_WILDCARD to POLICYDB_CAP_WILDCARD
-> to control both wildcard capabilities? That should be fine for
-> Android's use cases.
-> However, it will mean users who want to enable the wildcard feature
-> for network cards also have to take care of incompatibility of
-> genfscon at the same time. I'd like to ask for opinions from
-> maintainers.
+> Fixes: 8af43b61c17e ("selinux: support wildcard network interface names")
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-It is Paul's call to make, but I would recommend keeping them separate.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+Do we have tests for this feature? I didn't see any.
+
+> ---
+>  security/selinux/ss/services.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/service=
+s.c
+> index 1b11648d9b85..e431772c6168 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -2587,14 +2587,13 @@ int security_netif_sid(const char *name, u32 *if_=
+sid)
+>                 return 0;
+>         }
+>
+> -       wildcard_support =3D selinux_policycap_netif_wildcard();
+> -
+>  retry:
+>         rc =3D 0;
+>         rcu_read_lock();
+>         policy =3D rcu_dereference(selinux_state.policy);
+>         policydb =3D &policy->policydb;
+>         sidtab =3D policy->sidtab;
+> +       wildcard_support =3D ebitmap_get_bit(&policydb->policycaps, POLIC=
+YDB_CAP_NETIF_WILDCARD);
+>
+>         c =3D policydb->ocontexts[OCON_NETIF];
+>         while (c) {
+> --
+> 2.47.2
+>
