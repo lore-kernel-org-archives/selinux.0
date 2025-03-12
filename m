@@ -1,178 +1,134 @@
-Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com [209.85.167.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30A371EF088
-	for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 20:56:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C936C1EF091
+	for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 21:22:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741813008; cv=none; b=PQZRg7FjxsJE+eJvoXiz2CowF4o9JKv5ZUP4fMxGoFJFQKYoYMKiPUuWByAEn3IK0QiQ/IzIlCZb4QQZb51x6oeOkgBlSNpPleb0ZyPaiOhvFI1t1fgk3O1lAwUl27H/EcC7iLUR3YycpIVBlxjafRSxwyltJM3xen/kWvcj450=
+	t=1741814577; cv=none; b=qvylvNj6EpE8F9YoTvOn8dMIrc68Q/yRg/Vb1TSwgcAI589Q1WfxXJn+zVuO1hhLw9zo6QYaIxSlo3g3uZXeivHlCC3QWN4379JNtDDp0tLZWDFE5/6VzNx48d5xo46EOfR5XoXkPF8uHU9CVeFTtgtGXYSWQVSZqDsKrLzDYGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741813008; c=relaxed/simple;
-	bh=/cLVu/i1J/npZ/UFxDKmVGIv97YHvczKzdlFovdn4U4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pPoYVhfyQ8uRPPQo2L7Judb0XsRUATidHQ/zdLxRZMkBkuZ9NG55UGqwdjp+8BWmDiZBaZ0ge1Axw99ZKXecABxG5OlW5zjJVsQOqaahP2N8XRhFuHLvFRY4gGsPBc65fJbu8GkXeTz8aaWLkigEX4u77BG1qb28tueb1lCEZzM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Qi0dasUx; arc=none smtp.client-ip=209.85.167.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1741814577; c=relaxed/simple;
+	bh=mvIFvWIp9NnNpqjlb78s7uPPK/9pOen0F/aXj53TS9k=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=YLEGP1P5iZ/qiZRblCFIJRKtZvurkM3WytutlCnPyGqNRgFEVH4xT8IYZH0luf2yyc73LkFKY2BA1RLpfJ4QJeecGrr7l5IcKjqxH4ZI/DOzId3B5LsNzKCvfUPO2P8bo3vRTNjrbeT6FBsgUveha/vigppWYVVufHciuyN3vXA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=aYQejKLd; arc=none smtp.client-ip=185.125.188.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Qi0dasUx"
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-5498d2a8b89so264878e87.1
-        for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 13:56:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1741813004; x=1742417804; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GrvETxTzEPANOEDl+dE9UqwlinAPB0E0IpXcGB+inLY=;
-        b=Qi0dasUxq1x9VsCH8pwLMM9wIPDwJKeOo2GKvPZTGkDa6G+3SsYGbbKKZWpnPFB+LP
-         Du2vp/qFMIwHKhI1NlHL90rBsymREqXVIJ4E98TAU/BnPR2/6qaZa3LIgYFsoZNeogy0
-         OzsmjACLuopczDpmH++aHe1uQUfOiiXZOW15M=
+	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="aYQejKLd"
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id E71213F2B2
+	for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 21:22:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+	s=20210705; t=1741814565;
+	bh=JJCUu0nnTlIAwhQtLazst1i1S2GtJ41RAYnP5gniTzw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version;
+	b=aYQejKLdGr5ExUmspDdnU4wPFXdH2B9XIl3jyJjix0AkrBK9MGcHnrPzRAu8tUxiD
+	 CgXF22FNABlCdCQFPRkIuncmGmy1MC2ACreWoVAnL4hUfkdlb6R5PNo7hXHZ5exizm
+	 nLJqAVl8zkEerBQidWAbFE061ZVDq1+HFicGaffj/wZ/1XyXXqr7ckr/I//oWYPfhY
+	 PST0r1MN8uJoG2WOyw1/4gYYr8RLnWvVe4f7K6fJrf/qhrVIF2JtQcojxe2sVjJssG
+	 ngO9tp/zB0TVsprWPMtZTdrE4MoIjrgFk+CTIUNt9FIacnlsZwjYuxIpr3Mn/P5zC4
+	 hitZsvYit1t3Q==
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2235a1f8aadso3652765ad.2
+        for <selinux@vger.kernel.org>; Wed, 12 Mar 2025 14:22:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741813004; x=1742417804;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1741814564; x=1742419364;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GrvETxTzEPANOEDl+dE9UqwlinAPB0E0IpXcGB+inLY=;
-        b=wFh40yK3IvpeXXIvRJTvYdgnIYpU0Am3rzxxayf5DDUa4TBO0Og6PKVU7p6dbIXzdr
-         gk3eJcfDun5l8lYnnS4+grwZBd4nw8xswgv8PuCeOSQDqYWAbFL77YLe4+C8AweFzKV/
-         ZdhCAjSHrnGdaqTqUSY5PUSW9RcytRAW2KVP1Qj1Sm+sNYGW1emyeNLT8lwGkl8Laku/
-         uqPgpmI796oSUjCf+5HVRNqfJZieXmbzl3Rz0Q/UihrhmEGbTgVp/4h+c3MzzC+wyxNp
-         c5DuHiDNGWkynENqcRf1A01JpdPgYjdJMnm8bg57uGMyiWxDCZqau74wrxPGpi4ZbfhL
-         7wlQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWNzzUgHvUNpFMnMHIx8W6UlFHyUAkhippmIggjFWR+fevwBIHGq3ccl8WL4y2v8a4parTzAr5/@vger.kernel.org
-X-Gm-Message-State: AOJu0YyDoI26NNketppV7BjcYAavylBNhag4om+JBhbZT5TzfrpRDMsN
-	ANpRFgvVxxjCymKC9QphKDGTRzt56ev3Fx5EBXhOHB7XMTWK6zVOHw6ZnvFfvRyEn4W7PQ1B5/I
-	B7AIa9Z+ogXyMOsEk/0WziRHuM3lg+dlFqt03
-X-Gm-Gg: ASbGnctQMetCia7piUtTsrTY9IVjfU7XziM+XzaUgq5rCQ+ej35XGih0V1z10U/utX+
-	IejhTXMXAAuZIUmeD1eWQDeg07j+MySQOB8MTLtZNBFk6S+OdL+eyIEgLD6IkWkg4OR8RpGindY
-	kRsWWyqh4Oq1GTh47MyKeJDQbP4A==
-X-Google-Smtp-Source: AGHT+IHUkHHcbtyRAkWY2R1TLCWecAoP+9J2rTrtsm1A8/LiKJUZvmvewYlVLMFBlhjz6pjBCx/KuuT00faBLcXTdlw=
-X-Received: by 2002:a05:6512:3d27:b0:545:df9:5bb5 with SMTP id
- 2adb3069b0e04-54990ec8bd9mr9152703e87.45.1741813004171; Wed, 12 Mar 2025
- 13:56:44 -0700 (PDT)
+        bh=JJCUu0nnTlIAwhQtLazst1i1S2GtJ41RAYnP5gniTzw=;
+        b=PruLV/Bpk2wJJr2RtajJn5leCdB4qeJqgCVgETaGWfuxRuzr5yNA/knPuONwK4BMeV
+         YirJ6XM4OHdCRaRYDXLtjrUw0ilQ7iGolqVI8YLP/C0Z3gFzCW44PrfGGkAkoaZeJXqh
+         6pY0PSNN9dZ2MTeQtfukEsrT4vNPmFabfeOVE6Mrs1QJChwCJFfBcmFXmiAdB/8Fj1ok
+         6gMPa4SyRwKgZdbnTUW4tgP+a4q8yRoNhlf+fjo+5AWgzbjQx6Hv51zMyQFBIpuULdp4
+         X+OE6wfexfHMSk5e0wJYx8YIROUZTv57RfLRfzT62LzgknhY3YG1mk0tMd38E7q81aeZ
+         KG8A==
+X-Forwarded-Encrypted: i=1; AJvYcCWBtsfGITspy79ClIwt32gpY3MVY0XEoni9F0NwsJyENyak0/SDjkTM/VkSh5OtNs/b5Bjq6r1V@vger.kernel.org
+X-Gm-Message-State: AOJu0YxECnzfk5nF0/VzXJaQiq0hVehyWLkHklE+mDreaBSnHbkHZxKO
+	BPP+iTWSSFLFNKkZq6Lcd7ZQC3H2NndNcRKf/YDvmuMDhpZZXZ4QagS4+nG/9tHk6zce+ipt/Gp
+	YY0IRLyZ/DjMMx6O6mMyabFIur2uO1A0TgWXpnkV9FHR63CmBcKgowtSR3oHUolw6hxNMJYg=
+X-Gm-Gg: ASbGncvlrnJDABl7sF1W2Z6cdCxYDtB8dAoy8JL6HzMOJJF45QAs4tVB/iMWi5FlTcz
+	EBzbr2IuJbM/v3Pen5cn50CGbt8bCIu+eRr/lKduErazfxUWi0P+adQVF2WRcyXEbrwpDbE8zLm
+	blfezM1cSIe5pvNhkm6z4c7Vlr/AHvgCD3ytip6lVXI9g9qLPoegWChT4NoHIBLq7FKnn5vg28c
+	WJHL90xBdym5GN1AC+CrLlnEWtbWgWKv609PbGJ9wxVPpu7tPioRmWOcnXEJyB5G0AHtj2oshfu
+	u1QcTI5J4zUlVExTX0KvnSEynUMVhs0A3ghKE0hWeE653jTO9or2uPrqV0fe0yE+jkcs+28=
+X-Received: by 2002:a17:902:ea07:b0:224:a79:5fe4 with SMTP id d9443c01a7336-2242888681cmr334106805ad.2.1741814564403;
+        Wed, 12 Mar 2025 14:22:44 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFjVvzREwSOFKw0Hfsl/h89sadLsPdTTQZ/I/XFETV/GwxC6RNVuLWxGdk5FbZ6Djc3RCsmNQ==
+X-Received: by 2002:a17:902:ea07:b0:224:a79:5fe4 with SMTP id d9443c01a7336-2242888681cmr334106495ad.2.1741814564101;
+        Wed, 12 Mar 2025 14:22:44 -0700 (PDT)
+Received: from ryan-lee-laptop-13-amd.. (c-76-103-38-92.hsd1.ca.comcast.net. [76.103.38.92])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-301190b98b7sm2353887a91.32.2025.03.12.14.22.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 12 Mar 2025 14:22:43 -0700 (PDT)
+From: Ryan Lee <ryan.lee@canonical.com>
+To: linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	apparmor@lists.ubuntu.com,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org
+Cc: Ryan Lee <ryan.lee@canonical.com>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>,
+	Jan Kara <jack@suse.cz>,
+	John Johansen <john.johansen@canonical.com>,
+	Paul Moore <paul@paul-moore.com>,
+	James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	=?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
+	=?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Kentaro Takeda <takedakn@nttdata.co.jp>,
+	Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [RFC PATCH 1/6] fs: invoke LSM file_open hook in do_dentry_open for O_PATH fds as well
+Date: Wed, 12 Mar 2025 14:21:41 -0700
+Message-ID: <20250312212148.274205-2-ryan.lee@canonical.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20250312212148.274205-1-ryan.lee@canonical.com>
+References: <20250312212148.274205-1-ryan.lee@canonical.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250303200212.3294679-1-dualli@chromium.org> <20250303200212.3294679-3-dualli@chromium.org>
- <Z8-4SZv6plpyQUwf@google.com> <CANBPYPhR-C3VTv=ZHc1LJ0c7OG8-K2iGS62vXHmg9gcX0y89Cw@mail.gmail.com>
- <CANBPYPg5i5PhqV0-1foaKwNOaoKNoit6-cLUAqNu=2S0AUp==w@mail.gmail.com> <Z9HrEdbI5JYu0pwS@google.com>
-In-Reply-To: <Z9HrEdbI5JYu0pwS@google.com>
-From: Li Li <dualli@chromium.org>
-Date: Wed, 12 Mar 2025 13:56:32 -0700
-X-Gm-Features: AQ5f1JqD9a5qsP1mO79Ph7ePMU0QhGNiwP1z2NP0wllQAR2ToDs_LwX9Kwcahfc
-Message-ID: <CANBPYPi8sT0m4bj9JhVn38rrRBg7nV9kduc34QC_edwHS-wNZg@mail.gmail.com>
-Subject: Re: Fwd: [PATCH v16 2/3] binder: report txn errors via generic netlink
-To: Carlos Llamas <cmllamas@google.com>
-Cc: "Cc:" <dualli@google.com>, corbet@lwn.net, davem@davemloft.net, 
-	edumazet@google.com, Jakub Kicinski <kuba@kernel.org>, pabeni@redhat.com, 
-	donald.hunter@gmail.com, Greg KH <gregkh@linuxfoundation.org>, 
-	=?UTF-8?B?QXJ2ZSBIasO4bm5ldsOlZw==?= <arve@android.com>, tkjos@android.com, 
-	maco@android.com, "Joel Fernandes (Google)" <joel@joelfernandes.org>, brauner@kernel.org, 
-	Suren Baghdasaryan <surenb@google.com>, omosnace@redhat.com, shuah@kernel.org, arnd@arndb.de, 
-	masahiroy@kernel.org, Bagas Sanjaya <bagasdotme@gmail.com>, 
-	Simon Horman <horms@kernel.org>, tweek@google.com, LKML <linux-kernel@vger.kernel.org>, 
-	linux-doc@vger.kernel.org, netdev@vger.kernel.org, selinux@vger.kernel.org, 
-	Hridya Valsaraju <hridya@google.com>, smoreland@google.com, ynaffit@google.com, 
-	Android Kernel Team <kernel-team@android.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Mar 12, 2025 at 1:14=E2=80=AFPM Carlos Llamas <cmllamas@google.com>=
- wrote:
->
-> On Wed, Mar 12, 2025 at 11:49:02AM -0700, Li Li wrote:
-> > > > +     mutex_lock(&binder_procs_lock);
-> > > > +     hlist_for_each_entry(proc, &binder_procs, proc_node) {
-> > > > +             if (proc->pid =3D=3D pid)
-> > > > +                     break;
-> > >
-> > > Wait... can't there be multiple binder_proc instances matching the sa=
-me
-> > > pid? I know that binder_proc is a bit of a misnomer but what should y=
-ou
-> > > do in such case? Shouldn't you set the flags in _all_ matching pids?
-> > >
-> > > Furthermore, there could be a single task talking on multiple context=
-s,
-> > > so you could be returning the 'proc' that doesn't match the context t=
-hat
-> > > you are looking for right?
-> > >
-> >
-> > You're right. I should update this logic to search the process within a
-> > certain binder_context only.
->
-> Also, note the comment about multiple 'struct binder_proc' matching the
-> same desired pid.
->
+Currently, opening O_PATH file descriptors completely bypasses the LSM
+infrastructure. Invoking the LSM file_open hook for O_PATH fds will
+be necessary for e.g. mediating the fsmount() syscall.
 
-Yes, multiple matching can be found when the context is not specified.
-I'll take care of that as well.
+Signed-off-by: Ryan Lee <ryan.lee@canonical.com>
+---
+ fs/open.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-> > > > +static void binder_netlink_report(struct binder_context *context, =
-u32 err,
-> > > > +                               u32 pid, u32 tid, u32 to_pid, u32 t=
-o_tid,
-> > >
-> > > Instead of all these parameters, is there a way to pass the transacti=
-on
-> > > itself? Isn't this info already populated there? I think it even hold=
-s
-> > > the info you are looking for from the 'binder_transaction_data' below=
-.
-> > >
-> >
-> > The binder_transaction_data doesn't include all of pid, tid, to_pid and=
- to_tid.
->
-> I'm not referring to binder_transaction_data, I mean 'struct
-> binder_transaction'. I _think_ this should have all you need?
->
+diff --git a/fs/open.c b/fs/open.c
+index 30bfcddd505d..0f8542bf6cd4 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -921,8 +921,13 @@ static int do_dentry_open(struct file *f,
+ 	if (unlikely(f->f_flags & O_PATH)) {
+ 		f->f_mode = FMODE_PATH | FMODE_OPENED;
+ 		file_set_fsnotify_mode(f, FMODE_NONOTIFY);
+ 		f->f_op = &empty_fops;
+-		return 0;
++		/*
++		 * do_o_path in fs/namei.c unconditionally invokes path_put
++		 * after this function returns, so don't path_put the path
++		 * upon LSM rejection of O_PATH opening
++		 */
++		return security_file_open(f);
+ 	}
+ 
+ 	if ((f->f_mode & (FMODE_READ | FMODE_WRITE)) == FMODE_READ) {
+-- 
+2.43.0
 
-Ah, yes, let me take a closer look and optimize this. Thanks!
-
-> > > > +     ret =3D genlmsg_multicast(&binder_nl_family, skb, 0, BINDER_N=
-LGRP_REPORT, GFP_KERNEL);
-> > >
-> > > Thanks for switching to multicast. On this topic, we can only have a
-> > > single global configuration at a time correct? e.g. context vs per-pr=
-oc.
-> > > So all listeners would ahve to work with the same setup?
-> > >
-> >
-> > We only have a single global configuration, which can include both
-> > context and proc setup.
-> > Yes, all listeners work with the same setup as we have only one
-> > multicast group defined.
-> > The user space code can demux it by checking the context field of the
-> > netlink messages.
->
-> Ack. I understand the demux solution. I was wondering if we'll need to
-> OR the different configurations (per-proc and flags) from each listener
-> in that case.
->
-
-They are already OR'ed from all listeners.
-
-> > > > +TRACE_EVENT(binder_netlink_report,
-> > > > +     TP_PROTO(const char *name, u32 err, u32 pid, u32 tid, u32 to_=
-pid,
-> > > > +              u32 to_tid, u32 reply, struct binder_transaction_dat=
-a *tr),
-> > >
-> > > Similarly here I think you could get away with passing 'struct
-> > > binder_transaction' instead of all the individual fields.
-> > >
-> >
-> > Same as above, the pid/tid fields are not in the struct
-> > binder_transaction (or redacted for oneway txns).
->
-> There is something off here. You have t->from_{pid|tid} and also
-> t->to_{proc|thead} that you can use. Isn't this what you are looking
-> for?
->
-> --
-> Carlos Llamas
+base-kernel: v6.14-rc6
