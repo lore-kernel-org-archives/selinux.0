@@ -1,37 +1,42 @@
 Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A99F2E3389
-	for <selinux@vger.kernel.org>; Fri, 14 Mar 2025 13:17:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B5751FA272
+	for <selinux@vger.kernel.org>; Fri, 14 Mar 2025 13:17:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741958278; cv=none; b=hkFiSp5MvHYzMtZNvbWgNv7cGL0CX4+kWHSRRuOFskmAfKdkrJ0olBStbV4kDM8cd1ess0Y+4qG+GjCC6HbKhnOFjKjQTT7Swp8vaJQws65NMShHQ1HxK0KormAUGpX4OpAD+MfD6c0O3o/WNkCq+B2u4nL1G+cNpFt2K21y9yg=
+	t=1741958279; cv=none; b=fgT/HJR9xLaBlogI+ra1tZ6qgeffCrm1m/98IFjUOiS0B6oF3LwE0j3LtCvhv5bQuneWATmifzv4vmOCcxZMIqGvrXBbVGoc2ZCCUDSsob4jyRJO2R+hJDqaVLJo1Rpg7zNCFLKM/tl7sBakHH5sxrSKtY9UXpU4eSF1w662sfw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741958278; c=relaxed/simple;
-	bh=q7rRAqqlQeW7LG80Ex07bSt1LbfFDJe+LlpSTGvSWT0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=YgVuVCsRhsmv0v0LFTwzvbhiDGZmU7p2Y5UM6WCr1agL1nx0jezFGgqUr7u4aU48OHhjANxjGK6e6uQ9oy5p63CkrbbyAayrK+1rWqYYso1MwG4V3sKcd7QfjLVKx6mx/L8ZeNdmXR4zRe2VWn5ck5/lAmRdpuUEGKn55sqFYLw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=dk89Pxer; arc=none smtp.client-ip=168.119.48.163
+	s=arc-20240116; t=1741958279; c=relaxed/simple;
+	bh=6mJtMCynq3/qFJfbuwBFmL6N1mZMD0UPGwHP82/HUQY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=kaXKXAWoZzXh8pSo3MXTidRKBqNIvm9nPNQ0kp6Nk7dZ0ViZTavsMt8UrZEJJbY5wcbnmfgvJIf0teV2iVHoI5jxVueVjFnHpaHpkw8FPABOcYwi6XRU0NMuv6tiCmr7egUgIYxFFvgtyZd620YUoHXu3ie5AthXN0RedLoSv3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=E6mDOeoe; arc=none smtp.client-ip=168.119.48.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="dk89Pxer"
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="E6mDOeoe"
 From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
-	s=2023072701; t=1741958274;
+	s=2023072701; t=1741958275;
 	h=from:from:reply-to:reply-to:subject:subject:date:date:
 	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-	bh=8dqm5HG3yNURV3/qzDFZrPN99picnYmF3QeLKHxGZpQ=;
-	b=dk89PxerS0/jR3LL779OO5O4CH1E1TmNFMY3ygbWJDNZIeoeuHHp6u+dJiSGtQGEsVV1bu
-	vtBFlAgXanbmMKdWjAOvDFTopSwrXEYhzEcbuAvTcPPLXMYAlhU8IbMfjOsegacowkujus
-	kbWUjiKew271Vw/TOyfzCy9B5ASirNeflFLwY15WN8b806wk5s/OypUAwABjUmJvTp5vPe
-	h+/CdTFH+KvWxtHQ2zvrZAWl8EjOsDeT7yoml3sLne6YtUrdMQP9oG/frlOEahddKalEc0
-	8+RcQfb64f4DDju5OyHrlEMzQSaxbqjNrI3kF9escvGYx3RPeEG2QHKWroyywQ==
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=W8dcfVRtMjJubp4rsFUjaEOXQkYrlFHgM6nWfwVWiio=;
+	b=E6mDOeoeOX6XxHcCLGBW17gdHf+8VAJ7VLAcuAuQvHKLoTTmjGQgYN/viLhim4wFhdkPlw
+	NVc5WKE+PnzfLs68pSi8k9NrSXCccX6Z5VoVm5KMYi7+ZSD0+E/0v2FIKxT07EcE5TOE26
+	pgN9QDcT4zIdO0ncEVDw+3xRXPvbYJmdx6RdP03HfO9/EWOeATpJsk6eXp9Zz9caCLs690
+	nZNVCNiZ6b6gfX/SfIm0tu9U1IvXW7kPHP6HoSYhrSDREvDPsWyKjz6vb0Jn8EmOKu4iGK
+	cJMCfBtVju5EZKjIZvgyT8zZTgfG7jpnH3TvkC56B4Xh79GvMv9Ql6ZP9OqJ+Q==
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-Subject: [PATCH v3 2/4] libselinux: use local instead of global error buffer
-Date: Fri, 14 Mar 2025 14:17:48 +0100
-Message-ID: <20250314131751.28289-1-cgoettsche@seltendoof.de>
+Subject: [PATCH v3 3/4] libselinux: initialize regex arch string in a thread safe way
+Date: Fri, 14 Mar 2025 14:17:49 +0100
+Message-ID: <20250314131751.28289-2-cgoettsche@seltendoof.de>
+In-Reply-To: <20250314131751.28289-1-cgoettsche@seltendoof.de>
+References: <20250314131751.28289-1-cgoettsche@seltendoof.de>
 Reply-To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -44,105 +49,76 @@ Content-Transfer-Encoding: 8bit
 
 From: Christian Göttsche <cgzones@googlemail.com>
 
-Use a function local, and thus thread-safe, buffer for error messages
-instead of a shared global one.
+Synchronize the initialization of the regex architecture string.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
-v2: check for valid error buffer in compile_regex()
----
- libselinux/src/label_file.c |  4 ++--
- libselinux/src/label_file.h | 24 ++++++++++++------------
- 2 files changed, 14 insertions(+), 14 deletions(-)
+ libselinux/src/regex.c | 46 ++++++++++++++++++++++++------------------
+ 1 file changed, 26 insertions(+), 20 deletions(-)
 
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index 56e20949..85d42ff2 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -1662,7 +1662,7 @@ static struct lookup_result *lookup_check_node(struct spec_node *node, const cha
- 		for (uint32_t i = n->regex_specs_num; i > 0; i--) {
- 			/* search in reverse order */
- 			struct regex_spec *rspec = &n->regex_specs[i - 1];
--			const char *errbuf = NULL;
-+			char errbuf[256];
- 			int rc;
+diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
+index 182c8c89..976f00d4 100644
+--- a/libselinux/src/regex.c
++++ b/libselinux/src/regex.c
+@@ -30,32 +30,38 @@
+ #endif
  
- 			if (child_regex_match &&
-@@ -1673,7 +1673,7 @@ static struct lookup_result *lookup_check_node(struct spec_node *node, const cha
- 			if (file_kind != LABEL_FILE_KIND_ALL && rspec->file_kind != LABEL_FILE_KIND_ALL && file_kind != rspec->file_kind)
- 				continue;
+ #ifdef USE_PCRE2
+-char const *regex_arch_string(void)
++static pthread_once_t once = PTHREAD_ONCE_INIT;
++static char arch_string_buffer[32];
++
++static void regex_arch_string_init(void)
+ {
+-	static char arch_string_buffer[32];
+-	static char const *arch_string = "";
+-	char const *endianness = NULL;
++	char const *endianness;
+ 	int rc;
  
--			if (compile_regex(rspec, &errbuf) < 0) {
-+			if (compile_regex(rspec, errbuf, sizeof(errbuf)) < 0) {
- 				COMPAT_LOG(SELINUX_ERROR, "Failed to compile regular expression '%s':  %s\n",
- 					   rspec->regex_str, errbuf);
- 				goto fail;
-diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-index 60ebbb47..470e2385 100644
---- a/libselinux/src/label_file.h
-+++ b/libselinux/src/label_file.h
-@@ -388,16 +388,22 @@ static inline void sort_specs(struct saved_data *data)
- 	sort_spec_node(data->root, NULL);
+-	if (arch_string[0] == '\0') {
+-		if (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+-			endianness = "el";
+-		else if (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+-			endianness = "eb";
++	if (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
++		endianness = "el";
++	else if (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
++		endianness = "eb";
++	else {
++		arch_string_buffer[0] = '\0';
++		return;
++	}
+ 
+-		if (!endianness)
+-			return NULL;
++	rc = snprintf(arch_string_buffer, sizeof(arch_string_buffer),
++			"%zu-%zu-%s", sizeof(void *),
++			sizeof(REGEX_ARCH_SIZE_T),
++			endianness);
++	if (rc < 0 || (size_t)rc >= sizeof(arch_string_buffer)) {
++		arch_string_buffer[0] = '\0';
++		return;
++	}
++}
+ 
+-		rc = snprintf(arch_string_buffer, sizeof(arch_string_buffer),
+-				"%zu-%zu-%s", sizeof(void *),
+-				sizeof(REGEX_ARCH_SIZE_T),
+-				endianness);
+-		if (rc < 0)
+-			abort();
++const char *regex_arch_string(void)
++{
++	__selinux_once(once, regex_arch_string_init);
+ 
+-		arch_string = &arch_string_buffer[0];
+-	}
+-	return arch_string;
++	return arch_string_buffer[0] != '\0' ? arch_string_buffer : NULL;
  }
  
--static inline int compile_regex(struct regex_spec *spec, const char **errbuf)
-+static inline int compile_regex(struct regex_spec *spec, char *errbuf, size_t errbuf_size)
- {
- 	const char *reg_buf;
- 	char *anchored_regex, *cp;
- 	struct regex_error_data error_data;
--	static char regex_error_format_buffer[256];
- 	size_t len;
- 	int rc;
- 	bool regex_compiled;
- 
-+	if (!errbuf || errbuf_size == 0) {
-+	    errno = EINVAL;
-+	    return -1;
-+	}
-+
-+	*errbuf = '\0';
-+
- 	/* We really want pthread_once() here, but since its
- 	 * init_routine does not take a parameter, it's not possible
- 	 * to use, so we generate the same effect with atomics and a
-@@ -435,9 +441,8 @@ static inline int compile_regex(struct regex_spec *spec, const char **errbuf)
- 	len = strlen(reg_buf);
- 	cp = anchored_regex = malloc(len + 3);
- 	if (!anchored_regex) {
--		if (errbuf)
--			*errbuf = "out of memory";
- 		__pthread_mutex_unlock(&spec->regex_lock);
-+		snprintf(errbuf, errbuf_size, "out of memory");
- 		return -1;
- 	}
- 
-@@ -452,12 +457,7 @@ static inline int compile_regex(struct regex_spec *spec, const char **errbuf)
- 	rc = regex_prepare_data(&spec->regex, anchored_regex, &error_data);
- 	free(anchored_regex);
- 	if (rc < 0) {
--		if (errbuf) {
--			regex_format_error(&error_data,
--					regex_error_format_buffer,
--					sizeof(regex_error_format_buffer));
--			*errbuf = &regex_error_format_buffer[0];
--		}
-+		regex_format_error(&error_data, errbuf, errbuf_size);
- 		__pthread_mutex_unlock(&spec->regex_lock);
- 		errno = EINVAL;
- 		return -1;
-@@ -624,9 +624,9 @@ static int insert_spec(const struct selabel_handle *rec, struct saved_data *data
- 		data->num_specs++;
- 
- 		if (rec->validating) {
--			const char *errbuf = NULL;
-+			char errbuf[256];
- 
--			if (compile_regex(&node->regex_specs[id], &errbuf)) {
-+			if (compile_regex(&node->regex_specs[id], errbuf, sizeof(errbuf))) {
- 				COMPAT_LOG(SELINUX_ERROR,
- 					   "%s:  line %u has invalid regex %s:  %s\n",
- 					   path, lineno, regex, errbuf);
+ struct regex_data {
 -- 
 2.47.2
 
