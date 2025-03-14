@@ -1,112 +1,164 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
+Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com [209.85.219.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C474326772F
-	for <selinux@vger.kernel.org>; Thu, 13 Mar 2025 12:29:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38DB135893
+	for <selinux@vger.kernel.org>; Fri, 14 Mar 2025 01:29:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741868986; cv=none; b=Sv3KOZIFT4PjtlpQCpw7dba/DVoOJknmT2hCGqxB/m3BmgrbzMWJGqTZC3MWA3QozDkST9snVJUnMCO1BgqiNBkf2dECTWDcpXImKGVy1wbSsOdeZzv7KWke3LykjEhFnljFQ9ayk31JNzCrmJQUJBoHqv0DC0oy/kORMfeb86E=
+	t=1741915747; cv=none; b=g+ibdLDZtTqTwjrcMpFFI5+B8Ltz/NiT35Y1ketPL1i/T09Q7LFwvY3S1qQOftlAHw/NnwnyCTC7z16SQ/BKl9695HsZ8/9gc/JEWvTd0STvzg0Rs2ENi6T4N271GO2igwZyDSBKNf/GLl1icL3t5Qw05CkD6selCbcbzPBU9ro=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741868986; c=relaxed/simple;
-	bh=1g+NyktzSKK2XkKOy3k13nywcL9Mhib0LiUglpwfgZw=;
-	h=From:To:CC:Date:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type; b=A4afzzsHUwLk/Y8NZigZYUM18OabACV/MCkfgZ5D0UdILutk7iygJAWNS+IKfVpZV0Vw5muzy9u2Jxh1cy9kwURRq0SwXxmFRSUH+7pRtYfqaq0J8O3sziyDJuJbpjQCoiF0HSfbfrcWXtCKI3ogYn2KUdKzhKStnot/fcgN0XU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=CQWub/lC; arc=none smtp.client-ip=209.85.219.44
+	s=arc-20240116; t=1741915747; c=relaxed/simple;
+	bh=X3iUNC2W7CqTwo25rU762CJ50V9BUX84A2chKkBkXIo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=rRf2vMdb20Tx97QhiezWEQrGZEa6Em8Ijg+TjP1+zhGUyh8K1bb+/2GAnNlHg6JzdgSjXDQ8AA1b7ZYgsy+RF/ZRuExZOQfN18Y5q7ohFmd772l5+ojp72ZHp73o8L9oZ+ZvFUjr2I1E7ENqG3XikX9zsrbpY3eH/pDm4ReI2Dc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=L7G91dQn; arc=none smtp.client-ip=209.85.219.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="CQWub/lC"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-6dd01781b56so11735656d6.0
-        for <selinux@vger.kernel.org>; Thu, 13 Mar 2025 05:29:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="L7G91dQn"
+Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e5372a2fbddso1360100276.3
+        for <selinux@vger.kernel.org>; Thu, 13 Mar 2025 18:29:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1741868982; x=1742473782; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:subject:user-agent
-         :references:in-reply-to:message-id:date:cc:to:from:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=7Zwf41u2oqw87EX3fkunUasMCQRwAQQeTNbOgyP9FzA=;
-        b=CQWub/lC8wNKB1Yhwx5NObbw85YNuo9VstX4QF7oFij3y04I4Ugh+rPvM188+fNxux
-         mJwhLF/AAjVpSEo+4QeZCQpxSTqlodQNJHsTrmSvAiQe5Usfrp8q/polQIRVqYyCjMBA
-         FrL1OxfapIpq9Bbn7F0kXk7Uwab2MmbFLowUAhdl/VPv+rs+2Bm4a5Hg4G+2f8dmJUUC
-         IBQvwMVxy/e1w3SV7cOF3wM6ba+iW9/zOVojPMYumqAvpWsbHvYf4Rh0Yu87z8+nl7PQ
-         7LHuuchejJduzP5pjXxYV2vdfHRX4WTFaSL6cdYWvGC3RCAqvRHIzcZQV4Jkxi5NnT6W
-         4x6A==
+        d=paul-moore.com; s=google; t=1741915744; x=1742520544; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8ES0wXessMMgqNwSiif0rlYAGpc7YP1QvwA1ts5IWAs=;
+        b=L7G91dQnQDp62jON5T5/YaMkHIMonIY8uPtBTsCTXmwcBz3Ra20xw0rIybModsmiYM
+         5QFtVFZw7GZB7jrHKV8ziYwMcMx0ea+J0qOl9bUXgKJf2NzKnD4ok+Yl6A5bmqRFPVYY
+         OAUl5CHTSUqUCNO2mM/TFroejkiZYQ5GTgURjvn+HqW53bynz10X23pwTAV6g3+0XM+z
+         YPsTmi6nHQQc+4Ax461I/eiellYKxphyp7H+rCzxv5iQGMoXulK7z/MlYdq0XJb/hzC4
+         cx2fzQATDu3X8uzVRP3oJJ6YbummtYvVrztuVbHB9hN6cws7A4LRaJLwGHMAVt5s2WOG
+         RCqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741868982; x=1742473782;
-        h=content-transfer-encoding:mime-version:subject:user-agent
-         :references:in-reply-to:message-id:date:cc:to:from
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=7Zwf41u2oqw87EX3fkunUasMCQRwAQQeTNbOgyP9FzA=;
-        b=SyLWF7eRWTwVomVOsnLDQ6CiV5eCQ8Far7U1mbvzcEE78Ayy4nzxeXZFKx4yKPHdIW
-         yIbUA1qlXnwdQZHQjjLVHvfEzZ2A4BGBhM7P6akYa/F/Ms8XPjELZSflY1MLhqBAZpaE
-         yrXIBG0dUrqQpFvnmZTjzDI3+zGcrn0cVTWHj8HxbrSmPXlB6k6f15wmQJKEJyFuA8fV
-         mgtq1a4yQqMMM7tu3Vb1h8N/2E+rtaYezhIX07IipDkK4BRmMcqpczKVObkRGPSgXQBw
-         wVQT1vfVkCrmDiaYrMpLZ//QeAmrqToCJu83RpWKo0ZuW7Jsbc5To8/Wnoji8zN7mGMw
-         OhNw==
-X-Forwarded-Encrypted: i=1; AJvYcCXDOLKMLXSYyx+x+dm9MKoi3Bd/Wtw/P+rlqBnPypyhszUIx8Qve3nq+u7hZO6qW1Av5iCrTdK2@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx8TN9s9qyMHDj5ra+gqyagBxAiWnUYCNnRHIV53oIVHZ6ttJ4q
-	sOyZPE2dbiC9A5B6gHY9M8yi0Hw+xIZtQAoDPTRY7mfqewzJUMABd0bt5k/z/Q==
-X-Gm-Gg: ASbGncs/XTqyMYHo99cIYJCnbNzFEuf9qS9wCP3LofRmJswpqJWRurj/J5PnTGz2UJ5
-	qfTUEzCb6XJancx0dTBTNgFiUVhYqjWJAXy9FRglDMRlVR3+OF9aBqHsRBKsxyFtf5hi/iJi/ip
-	a09JHVh44zjPiGPXX1faQIfhO0xiqWFYJ2Poodok3x7t4gxXWMh8RRArrfgEW72P8uUc5djlXAb
-	hOWPdrxs2kQ/WW3gqBsl0h6AHPgGCmMsIgXuFOhxuPNSG6gnzXFqnUf+PXPIIhJszWuDgdzfp5v
-	PMFhvptux2SQ/UVnuGDhyEqG6Tv6h1F9UGmLuygAFy4LO7k59PtwP2mHwEl5qi0gqbM0/jyX0Ls
-	v9p129h4m2FrRQ+2mHiI=
-X-Google-Smtp-Source: AGHT+IFnv2N7W3t0ayHxjjtCyn9mUUoe/Hxh3K5QKhmpW8fJk7aFYPPODamWfDzX3U1KP5rz9GLzbQ==
-X-Received: by 2002:ad4:4eed:0:b0:6e8:9957:e705 with SMTP id 6a1803df08f44-6e9006752e0mr464948326d6.34.1741868982415;
-        Thu, 13 Mar 2025 05:29:42 -0700 (PDT)
-Received: from [192.168.7.16] (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6eade24eabesm8979316d6.67.2025.03.13.05.29.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Mar 2025 05:29:42 -0700 (PDT)
-From: Paul Moore <paul@paul-moore.com>
-To: Casey Schaufler <casey@schaufler-ca.com>, <eparis@redhat.com>, <linux-security-module@vger.kernel.org>, <audit@vger.kernel.org>
-CC: <jmorris@namei.org>, <serge@hallyn.com>, <keescook@chromium.org>, <john.johansen@canonical.com>, <penguin-kernel@i-love.sakura.ne.jp>, <stephen.smalley.work@gmail.com>, <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>
-Date: Thu, 13 Mar 2025 08:29:36 -0400
-Message-ID: <1958f7b4780.28a7.85c95baa4474aabc7814e68940a78392@paul-moore.com>
-In-Reply-To: <5ea749e38c39e783741bdd0491a1338d@paul-moore.com>
-References: <20250307183701.16970-5-casey@schaufler-ca.com>
- <5ea749e38c39e783741bdd0491a1338d@paul-moore.com>
-User-Agent: AquaMail/1.54.1 (build: 105401536)
-Subject: Re: [PATCH v2 4/6] Audit: Add record for multiple task security contexts
+        d=1e100.net; s=20230601; t=1741915744; x=1742520544;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=8ES0wXessMMgqNwSiif0rlYAGpc7YP1QvwA1ts5IWAs=;
+        b=sTsz+59Mr0yvloOOTJrR14fArg4lylkTTVSh4wcJW75XhFQD4CmHZz7PqnqRKtfmNl
+         OH9OIwN7wdKWi227AhVVBUI2KmVAT0agftLlVmMrQ45gywNxqccgggAqjIGGTLjTeUgH
+         k187XJSm0C6zqqgJowi7zxczlsU1Cc9SFlTNfYGg6UwiqFy0vt71xFoqBulDkfoMRKby
+         0r/hbq/W/oqaS9pMnsIhmIc3cLwh4IAR1AqfbFlp2Sw2Smls6Rp4Er3PnZHznWnpz07L
+         SHXA19nfL8IvEOfEm0LHjb9ebwsWOHuQ66DZ+V80loyaTM5Lm6EwUR0SmUp48bNLy1e6
+         jWDg==
+X-Forwarded-Encrypted: i=1; AJvYcCUeqUhvDbWPIj26whYWINCW8XoIxaEDxFGkM7KgidKhktrGYbeK+ZA5ngYobvDjTkSN0i7VPz2I@vger.kernel.org
+X-Gm-Message-State: AOJu0YyWzaw4LZIKKLKin9OvJYa5gGGocNcf7ShsGCvQJrMfp5O7fFUm
+	zNHXl8N85/kXkCO6k3el+5j7CpuEpPHWIFCjE8zPxXhEhIhs4Vub+UNTqgc9jXimur/A34NuWJm
+	oVOIXYWAyoMg2Yys/VdovLZIsRULqyPcCcKJC
+X-Gm-Gg: ASbGncu/pE/QPst3NboyKxHqRf9uFroSapyAcPkxosqwdqQxRUwTTb5N42kt1iIWE9v
+	nnsMwF6Emh1iDcMTRjhSFd+QTtMQJ6OuwDZPjal3xiSzWPh8IV+4e/7AEdbX6ORLvITJZb1VK7f
+	S+RglZEFu6CI4t+lCAIerG+LzhEQ==
+X-Google-Smtp-Source: AGHT+IHD2TiU6XQ9tRFKuzzp3FmVek4PiqtcVodzoMshBpH8NjFlYdg8BZn1Vv4kyVm787txJ/ZZdGY4pPNsB4MucI4=
+X-Received: by 2002:a05:6902:15c7:b0:e5b:3b7a:fca7 with SMTP id
+ 3f1490d57ef6-e63f65b4672mr1039551276.39.1741915744021; Thu, 13 Mar 2025
+ 18:29:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="us-ascii"
-Content-Transfer-Encoding: 8bit
+References: <20250312212148.274205-1-ryan.lee@canonical.com>
+ <20250312212148.274205-2-ryan.lee@canonical.com> <20250312213714.GT2023217@ZenIV>
+ <20250313-dompteur-dachten-bb695fcbebf1@brauner>
+In-Reply-To: <20250313-dompteur-dachten-bb695fcbebf1@brauner>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 13 Mar 2025 21:28:53 -0400
+X-Gm-Features: AQ5f1Jo3Xy-0BZ6a7vddrckfIRl2pXF8wj3ycyI4FjDAH-FopUDoNWqpGjlm6MY
+Message-ID: <CAHC9VhScqcF12XYdqMSsLg55=nux6mjEGfxCpZHEzv-bGyP7Ew@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/6] fs: invoke LSM file_open hook in do_dentry_open
+ for O_PATH fds as well
+To: Christian Brauner <brauner@kernel.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>, Ryan Lee <ryan.lee@canonical.com>, 
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	apparmor@lists.ubuntu.com, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, Jan Kara <jack@suse.cz>, 
+	John Johansen <john.johansen@canonical.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Kentaro Takeda <takedakn@nttdata.co.jp>, 
+	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-
-On March 12, 2025 7:51:36 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Mar  7, 2025 Casey Schaufler <casey@schaufler-ca.com> wrote:
-
-...
-
+On Thu, Mar 13, 2025 at 4:50=E2=80=AFAM Christian Brauner <brauner@kernel.o=
+rg> wrote:
+> On Wed, Mar 12, 2025 at 09:37:14PM +0000, Al Viro wrote:
+> > On Wed, Mar 12, 2025 at 02:21:41PM -0700, Ryan Lee wrote:
+> > > Currently, opening O_PATH file descriptors completely bypasses the LS=
+M
+> > > infrastructure. Invoking the LSM file_open hook for O_PATH fds will
+> > > be necessary for e.g. mediating the fsmount() syscall.
 >
->> diff --git a/include/linux/security.h b/include/linux/security.h
->> index 540894695c4b..79a9bf4a7cdd 100644
->> --- a/include/linux/security.h
->> +++ b/include/linux/security.h
->> @@ -168,6 +168,7 @@ struct lsm_prop {
->>
->> extern const char *const lockdown_reasons[LOCKDOWN_CONFIDENTIALITY_MAX+1];
->> extern u32 lsm_active_cnt;
->> +extern u32 lsm_subjctx_cnt;
+> LSM mediation for the mount api should be done by adding appropriate
+> hooks to the new mount api.
 >
-> I'm not loving this.  More below, but I'd really like to hide some of
-> this detail inside a LSM API/hook if possible.
+> > >
+> > > Signed-off-by: Ryan Lee <ryan.lee@canonical.com>
+> > > ---
+> > >  fs/open.c | 7 ++++++-
+> > >  1 file changed, 6 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/fs/open.c b/fs/open.c
+> > > index 30bfcddd505d..0f8542bf6cd4 100644
+> > > --- a/fs/open.c
+> > > +++ b/fs/open.c
+> > > @@ -921,8 +921,13 @@ static int do_dentry_open(struct file *f,
+> > >     if (unlikely(f->f_flags & O_PATH)) {
+> > >             f->f_mode =3D FMODE_PATH | FMODE_OPENED;
+> > >             file_set_fsnotify_mode(f, FMODE_NONOTIFY);
+> > >             f->f_op =3D &empty_fops;
+> > > -           return 0;
+> > > +           /*
+> > > +            * do_o_path in fs/namei.c unconditionally invokes path_p=
+ut
+> > > +            * after this function returns, so don't path_put the pat=
+h
+> > > +            * upon LSM rejection of O_PATH opening
+> > > +            */
+> > > +           return security_file_open(f);
+> >
+> > Unconditional path_put() in do_o_path() has nothing to do with that -
+> > what gets dropped there is the reference acquired there; the reference
+> > acquired (and not dropped) here is the one that went into ->f_path.
+> > Since you are leaving FMODE_OPENED set, you will have __fput() drop
+> > that reference.
+> >
+> > Basically, you are simulating behaviour on the O_DIRECT open of
+> > something that does not support O_DIRECT - return an error, with
+> > ->f_path and FMODE_OPENED left in place.
+> >
+> > Said that, what I do not understand is the point of that exercise -
+> > why does LSM need to veto anything for those and why is security_file_o=
+pen()
+>
+> I really think this is misguided. This should be done via proper hooks
+> into apis that use O_PATH file descriptors for specific purposes but not
+> for the generic open() path.
 
-Thinking more about this I think we can't go with a LSM_MAX_PROPS, or 
-similar determined at build time since we have the ability to toggle LSMs 
-at boot.  Need to think on this some more, but the answer is going to have 
-to be a variable and not a #define.
+I agree that this patchset is at best incomplete, we don't add LSM
+hooks without at least one in-tree LSM demonstrating a need for it,
+and we don't see any of the LSMs actually making use of this new hook
+placement in this patchset.  In the future Ryan, please ensure that
+the patchset actually does "something" visible, e.g. new
+functionality, bug fixes, etc.  I understand part of your intent was
+to spark some discussion around O_PATH files, but without some initial
+code to do something meaningful, it's hard to have any real discussion
+that doesn't get lost in some rathole or tangent.
 
-The LSM init work I'm doing right now directly impacts this, and I'm in the 
-final stages now. Let me see what looks reasonable and I'll get back to you.
+Beyond that, I can only speculate on Ryan's intent here, but based on
+some off-list discussions, it's possible Ryan is (re)using the
+security_file_open() hook in the O_PATH case not necessarily to gate
+the creation of an O_PATH file, but rather to capture some of the
+context when the O_PATH file is created.  However, if that was the
+case I would think Ryan should be able to do that using the
+security_file_alloc() hook, although we would need to pass the file
+flags to that hook if Ryan wanted to do any special handling around
+O_PATH.  Regardless, it's just guessing at this point and I've got
+enough things asking for attention that I can't spend any more time on
+this patchset simply guessing ...
 
---
+--=20
 paul-moore.com
->
-
-
