@@ -1,105 +1,99 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 901631598F4
-	for <selinux@vger.kernel.org>; Mon, 17 Mar 2025 17:29:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 302B11D934D
+	for <selinux@vger.kernel.org>; Mon, 17 Mar 2025 20:22:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742232594; cv=none; b=DIbM2L+KgPxeiCP0sqp37Qo7dzVvOoP2tX4pTnhPIeTUibLAOAw3NrLFr9CweG/ncNuEZQj3acUCzWTHmR13zzfnkLfM+SNI7tuHR0/aqzLGkPoPrDFJKCgSGXLRY73w3iOawd7cvCjQYpN+f5nEIfgvsAmxX0bLt55H2ArsXmY=
+	t=1742242926; cv=none; b=MDjID4FO4mT/yY3eBkxp+BlqN3puzHHfwkMsIle3HAxI2PqhWY7mT6tOorR6CKDrZx45qBIPZEbtmDI2tX6xLO7yygeqU7824Bgb7UtZYNlp5FrifYk+lii4PnTZyMJYuqqcuQOTy29uvNe6/cyEd7ctePRdRLE/PqfbbBww5eg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742232594; c=relaxed/simple;
-	bh=KgS0GUOnAM298xWCuw+ZzeWyWVqHGU7gBlCKm+qm9ho=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=J4HgkjqMaqT0OQHOyUmJUv2xsPaJOlkVobw80QfUv13EgsZDHDseY2oIxr997dL7J7mqCsEdMSaLxnYKhUra7dmuVAXSYoSlXAFqPDFpANvBg5TLVSSWqVBU7Y2ihgXYVZ77BpY8dtMtRzAb5OxEKb24bPjE7WeGToUlhpu8zfE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UcFQRbRv; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1742242926; c=relaxed/simple;
+	bh=zceAdPhaSCTtexKuoLifqlAqvbet1WNBGfxs8S6cOUA=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=GgNRCUWj4yH7MUQQ+AR/F2IcKWvQK4LqgLVKo8pYEsu5XX+QFIRK3l46ag/7S3bhZFcNYPO+Z6GQBXyjGU+fGRdqj7ILKV6MTCez1rGWmVsboBIT6+AMoFK9LStdeZpkqtkHZGVuHs1k4EfPvLyiJUx1pw58eLSFYIGosj9kiL4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ENlSHbQM; arc=none smtp.client-ip=209.85.160.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UcFQRbRv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1742232591;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KgS0GUOnAM298xWCuw+ZzeWyWVqHGU7gBlCKm+qm9ho=;
-	b=UcFQRbRv8IoNZiRLQ/dgMSh2Z0rJEFzCAGAKJS01wKkmdEHWKopT+xW3sPvrBepCxXpR6q
-	GaEbKYvVdBbz4hQboVRiYIDIOj0akgFvPbu0YceVvP4GqaAkFbS9iGaya25p+ZWOLmT3V/
-	2TnPJvgJTqpT8c3Ew+SJJDKaI7KOO8c=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-314--TU26zTdN0Sj1vZTx5DANg-1; Mon,
- 17 Mar 2025 13:29:48 -0400
-X-MC-Unique: -TU26zTdN0Sj1vZTx5DANg-1
-X-Mimecast-MFC-AGG-ID: -TU26zTdN0Sj1vZTx5DANg_1742232587
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id F0679180AF4E;
-	Mon, 17 Mar 2025 17:29:46 +0000 (UTC)
-Received: from localhost (unknown [10.45.224.166])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 64DBA19560AD;
-	Mon, 17 Mar 2025 17:29:46 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: Cathy Hu <cahu@suse.de>, selinux@vger.kernel.org
-Cc: fvogt@suse.com, selinux@suse.de
-Subject: Re: Question regarding restorecon and btrfs read-only snapshots
-In-Reply-To: <8ca3a1ed-0f53-4da9-a86b-75699f306f8c@suse.de>
-References: <98f87fd6-6d3e-4539-ad8f-1a0dc09aa890@suse.de>
- <87senb7mt4.fsf@redhat.com> <8ca3a1ed-0f53-4da9-a86b-75699f306f8c@suse.de>
-Date: Mon, 17 Mar 2025 18:29:45 +0100
-Message-ID: <87plif7egm.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ENlSHbQM"
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-47690a4ec97so49396311cf.2
+        for <selinux@vger.kernel.org>; Mon, 17 Mar 2025 13:22:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1742242924; x=1742847724; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=w3yVvtqTsXtaBa+O5aEAfJ2z57v1Ir49y6aZrwtTF5o=;
+        b=ENlSHbQMmo4OQE/qtb6GwS6O/h2ftzbtyyBHsO5s/sJwGYcZz5KZV7VgQHBhpP+2zm
+         rXxI7Wk9wl3Z3KczjmbpCMFbcqBHAjvVia1vULJwxTLlB+SaVn++N/7vcd3OZ4y23nXR
+         DqM6ql+ouL7z2xwp6+gHswnLNF4QPJ8imaAUmlgFfaId0iWkPg3zdHIxyZqj9xy1NkNN
+         hQgtSm2436a3EAteg/722MTAuVU4khEKGjJSRVn3gfKlSfsYdnogtYSEdca1BK1ZmyF4
+         gjMAivZAtIs24AAjzfXQLgwpGLgbbxF+3OKzPPyB/FNivZBiDkne35AaZdbhEI26EAze
+         chaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742242924; x=1742847724;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=w3yVvtqTsXtaBa+O5aEAfJ2z57v1Ir49y6aZrwtTF5o=;
+        b=Pno98O6PqH+iTQnUiMwnzejkwG9KZDWCwXXdYAyflgW8yurQhkuowl6iwlizXVe7kz
+         WE5hWJ04LTwfUR+/Fn9HCddVfigIQOYbkwYPlaO5/1c/gjRfWk+Mnqcws8FOqMrwVws/
+         5qqNSpvxDHmuYD4zWgVHNDsBGKDNdgxT5nsUCCzuYpwUQKZbNzi7KF2KV5pHW0+DiT+J
+         9UM6u8kP1Aii9tmdO/ZMZJOnSL/jVZ2INdaplzCR4vjTIHBohu4fNYoHgzWAOQGJ54zF
+         cstC15jEUPKx6AERevhA8OylN1J6g4ansGVXEduYsTX8pGT47vLRxWobtuCTRQHKVGS8
+         uxMA==
+X-Forwarded-Encrypted: i=1; AJvYcCU7S0SooJJC7yEnpoZxH1Hm82c3MMi03Xy5V11XnFsCCOIE3pC6jxhoBv5sQzneThQtL/Swwqtf@vger.kernel.org
+X-Gm-Message-State: AOJu0YyY6QkN2gZOaCyThXFs9Q79EEmo4/5b/rWzs3ZRuAxzXfXbReCr
+	WUrSBT7b5nEiwF6JswPv45u49HYBMI7PlGV22B4kpJNNlr6HzjEFsZxIs0fdUg==
+X-Gm-Gg: ASbGncu4343kw340+PnHR8+T2HLF8sj5bavHOm29RjbmBfszK1CNn18PyaEbD/H56oP
+	ICzdV2OENWYFYDMgojLj6RJKqi2reW8dSLjHZ5eLl5MZQtor63OrxLgcKXTqOr7p/PIKuIBFvic
+	bUwokMow70uWekZMp9wQc7CLOAylTEM6qy9N6ggWiJzYSgoMu5Fg3PWuxTcyjccDkITaJJvAkf4
+	G7/9lCPlI3BGVjYInTGGku8Bo1TrseHLkvV8XfmL4BBYY7VwAn/F53n2OM6yNRCks0DEaYGH9SN
+	U/zP4r85lqhaONUqF4Pj6ndHqh8igeqUF0adGKYU9q+xt3rI/NmH5ZqPtfXW2SfdoW/oJCusbB1
+	s6ZSyhz2689IWslTZFJdkt8En
+X-Google-Smtp-Source: AGHT+IFqgRmBiB6XOIfe4MHqkwiowpZO3llF4b+bdu0iUKu4JEaIHtlLhk62/sn9MMeB8Sx4debo8A==
+X-Received: by 2002:a05:622a:41ca:b0:472:5f9:1f78 with SMTP id d75a77b69052e-476c8130df3mr130149511cf.9.1742242924031;
+        Mon, 17 Mar 2025 13:22:04 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id d75a77b69052e-476bb60a150sm58191861cf.7.2025.03.17.13.22.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Mar 2025 13:22:03 -0700 (PDT)
+Date: Mon, 17 Mar 2025 16:22:03 -0400
+Message-ID: <71ac186babee68dea38155b68d6a56e1@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20250317_1618/pstg-lib:20250317_1551/pstg-pwork:20250317_1618
+From: Paul Moore <paul@paul-moore.com>
+To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, Casey Schaufler <casey@schaufler-ca.com>, =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>, Mimi Zohar <zohar@linux.ibm.com>, GUO Zihua <guozihua@huawei.com>, Canfeng Guo <guocanfeng@uniontech.com>, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] selinux: get netlabel_wildcard policycap from policy  instead of cache
+References: <20250312080055.8950-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20250312080055.8950-1-cgoettsche@seltendoof.de>
 
-Cathy Hu <cahu@suse.de> writes:
+On Mar 12, 2025 =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de> wrote:
+> 
+> Retrieve the netlabel_wildcard policy capability in security_netif_sid()
+> from the locked active policy instead of the cached value in
+> selinux_state.
+> 
+> Fixes: 8af43b61c17e ("selinux: support wildcard network interface names")
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  security/selinux/ss/services.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 
-> On 17.03.25 15:29, Petr Lautrbach wrote:
->>=20
->> You could use `-e <directory>` to exclude read only subdirectories.
->>=20
->
-> Yes that is possible, but also requires a manual change by the user to set
-> this up together with the snapshot (same as telling them to add <<none>>),
-> which we would like to avoid.
+As this is a fix for a commit in selinux/dev, I've gone ahead and merged
+this into selinux/dev (with a /netlabel/netif/ tweak) to the commit
+description.
 
-Your -relabel.service's are generated and so can be restorecon options
-there.
+Thanks everyone.
 
-Fedora uses fixfiles -
-https://github.com/SELinuxProject/selinux/blob/main/policycoreutils/scripts=
-/fixfiles
-- which detects ro filesystems and skip them.
-
-
-
-> Is there a reason why these r-o subvolumes are not skipped by default?
-> Could they be skipped without a problem and it is just missing the implem=
-entation?
->
-> Thanks :)
->
-> Kind regards,
-> Cathy
->
-> --=20
-> Cathy Hu <cahu@suse.de>
-> SELinux Security Engineer
-> GPG: 5873 CFD1 8C0E A6D4 9CBB F6C4 062A 1016 1505 A08A
->
-> SUSE Software Solutions Germany GmbH
-> Frankenstrasse 146
-> 90461 N=C3=BCrnberg
->
-> Gesch=C3=A4ftsf=C3=BChrer: Ivo Totev, Andrew McDonald, Werner Knoblich
-> (HRB 36809, AG N=C3=BCrnberg)
-
+--
+paul-moore.com
