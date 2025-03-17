@@ -1,126 +1,214 @@
-Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
+Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C7371422AB
-	for <selinux@vger.kernel.org>; Mon, 17 Mar 2025 20:29:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACFEC1FF7C3
+	for <selinux@vger.kernel.org>; Mon, 17 Mar 2025 21:17:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742243384; cv=none; b=f+vfdqo6L0DvrD3eHVrxtGjkGnuY8rOi6ai0PacanGm72KgVHQ8AjDqdC6HJtnZyGyQuaup/MiR4nFp9/j0obDIw0sl8voVnTFP0PL2ZzVUHryBJsVliY/GTtX0082obKEc5uAABMHwWkZVPIOoSsG/69OI0AjVqldL2UtHMZEA=
+	t=1742246234; cv=none; b=Qr19pi41WTzRyax3qRRs1NImVm7NxxEPtUiPO9AhAi6s+zrRV8pfBj4iegYwFUu002oeANeNL1OxV9sxQtECXh/hk748G+tI7FkxtyD23qwlszUyvl4TrSbdpZQ1RMYWEMYBSbFvSL60kaUZOSI/NW/OeNvclWDFTSQW7vsv0/E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742243384; c=relaxed/simple;
-	bh=Ut4R8kljdeSHmBSOWlAz7KbZ3iGwHGKnHnQG8imaXEU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RsU7+lHS/HGhnZHvTB8bw8YqniMuLNmKTHDHwarOYCKzYSEs4p5yMQexwCw3cxw+fWgLRWC/row8bnOefTjPUNazyjFVDqqsi5LjO4W1BoxtK70+3jMaBH3plcHGLu6lI+ebPPTJn7oksBIB/1LJ4SKDpitd50t5xmevaGwZ+eU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=gJ9ibmL8; arc=none smtp.client-ip=209.85.219.177
+	s=arc-20240116; t=1742246234; c=relaxed/simple;
+	bh=NT/K25cmcnnBX6QzIcBu5FXMupG/8yJIWJxGccHMp0E=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=ltB5q0Lv8RCNuIWsi2Uxo3wWA8trMTP0X0x4GV6b/V1o1TV8/sIvXO2jJGF+zvpsvtUDeAYFqGXvkJdqXi0q1P5A5raPyT/qnbyRvbW7WEcPTQUoj++bmDg761Fkz1/f1uzX3aPkuwU5SOhZIcIrobcftZp87qJ9xJksqsKAbko=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=dvtnRmml; arc=none smtp.client-ip=209.85.219.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="gJ9ibmL8"
-Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-e4930eca0d4so3855732276.3
-        for <selinux@vger.kernel.org>; Mon, 17 Mar 2025 13:29:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="dvtnRmml"
+Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-6e8f916e75fso66969776d6.1
+        for <selinux@vger.kernel.org>; Mon, 17 Mar 2025 14:17:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1742243380; x=1742848180; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=USgnuXSkWNxVod9/HaDbRut81CKuV+cFsZQEm8UjkR8=;
-        b=gJ9ibmL80IQ9qABlE1dQkHnDcDuveA635uyWZvzhXvPvTl0IG59CezzYffNiPZt44C
-         Blu7oI4NMdEe4H/+U0z0P1PXXMd/umln69805LJEotfE5rO5yK1xugv/SVdVK8MuXx/K
-         W+XhwH4TwPV+2NbYe120VZoN1HEsTWIKLi130DyEjsWkVdo+PvKN51MvxIulCMOv9tBu
-         ctDI0abrmJfeoeixzZgSNLZRi0wrq8rDCwoYW9zDKN6V+n5COTDdu+NcSIlGXy8xvHJ7
-         UogHFHTIXKmUTkqLdnxeGIibabUFW4oYCGxoW7TKr5bSHGNz0UERGMA3Oztt/qfkZcDW
-         HDJA==
+        d=paul-moore.com; s=google; t=1742246231; x=1742851031; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Nm7JxfgD1i5a21sOUZgyWiBipBOWRr7gyHrbd93BnV0=;
+        b=dvtnRmml9PkZDXUjrIA6SfSeJZukrzdd1fhqb1Etq34ky9W+0TOkfG4zfFlQ0kvzZo
+         rfEJ80GbbjMuDCW8Yb39kCguiyUBHM6t65op8wJO/XyKLKVmOZXIRh9p6+QCKkGGtrtg
+         A6FprRvzS8xLp7F5sYuM1hPSAC7P1AitCbV4s2sMuXjST8l6BvJJU1v3kfLrFfAZ1of4
+         sARkwfi7/YuIrYrmE7InLHXvBVUqxkkKvHI9DOXw9vUFg0tWnk19lDXho+v59qffA/GB
+         B+M1oo8NSTXMx2GDtsYuAsVIoW5GbambPSiHn3Y5qi5b6DNgaN4f9MqZTv/BnAF/sWxt
+         H9tg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742243380; x=1742848180;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=USgnuXSkWNxVod9/HaDbRut81CKuV+cFsZQEm8UjkR8=;
-        b=RLRLdmz1qqf02+IgVBNG005MzOEfIW2md3YKzFXZu9+FbYMruBhDD++wXxsFdbbfV/
-         fCkyCiO37I8PpE4r1GusL4FP5TmRpvPv04VwRmkvspcRx4RElP/mCrCvRz6LfOwF/J7t
-         /IF6xSLIod3TQZE139PexqK9UI/m4FMRiXCSnSh6lH4eeZeUoHCeuc2PIUx3QVj0rw8k
-         WHuqeEzC8p6Gi2K6QdAzD00IfRxdne5wjfxyu1zvkKNg2AyByo8hqCJSNMq51Rh9Hc0+
-         n/LYEINxX3pGe5QmA88VUUR77X/j8pPK6bz9dmHNTVX4uRMKgRBefnI81cWjF2TdRw84
-         g9Rw==
-X-Forwarded-Encrypted: i=1; AJvYcCWamUUnwHnqdixcRDefzhhk5igWRXaEwvB10AOkU7kj5HbSlSPAk6Zy1vmoxwvTPSZSm22B0OLS@vger.kernel.org
-X-Gm-Message-State: AOJu0YzMycJ04IOSsyBsBSEfs+RNerKgFluxOrQV87bdnYvcoB6VlEGs
-	07dfBMA1oDts4bKuJMPNAn3J8whLFiSkEmegdE/GVQsi/g7MNwps+JqvCUxmfpzIZDl8yphBnrL
-	7PUuOVjR6aq/I43Lg2vRIWYCTREWAPBAqK4Wa
-X-Gm-Gg: ASbGncsI2dOzMsLKhbybhZRoaPEs2in0hjp7YOWWaWxHsY7S5XIUguIETeZwydselkY
-	iNwwUtgEo6rOyzMFngeyjTUuvqAGp96CYhi7/1ig+fkiZ8AHZN0HKNGZgVaX33+Hm7t3zRmU5o3
-	T5r6R+oKwbmtymkrB7FZKn5Sx/Jg==
-X-Google-Smtp-Source: AGHT+IG005odM+L3nZ0lzBU0FH3KHki2rwvxUv7HXNOHhJ56WVNlVSSQza7t2zYWnqB08g6Awj/gmcHcbRpvuS+mDVY=
-X-Received: by 2002:a05:6902:1144:b0:e5b:1c0a:6cb6 with SMTP id
- 3f1490d57ef6-e63f65c530fmr17573385276.36.1742243380228; Mon, 17 Mar 2025
- 13:29:40 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1742246231; x=1742851031;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=Nm7JxfgD1i5a21sOUZgyWiBipBOWRr7gyHrbd93BnV0=;
+        b=GtF5x3kJVcvPnW7varf06jxuDCraSa+lJMA35pRLrJLilpq5DJWCSdktk8cZGLf4rk
+         oMBifwUPp7M7z24LeKOTa4k+sLPnLuMUBwSU8+3eXkz42WGiE4Th1sZEuQ969JQEoHj3
+         TG6MNvNQLttzhcUuyWz6srpyTiy48maxzheou6Dr/DEjcQIYGSMNueRgeEnisbTP8+px
+         zqj4PRyMvMA3TuT/K+fbd/jHal5lSv5wMRTovRaDdaa8ibyd/g1IEbaHSXeHT6z8+vLw
+         u4AKaHSDD5p/ds3BFhjU/GYQnkSuzceIz3SMsFSaB8DcqiSFy/7XpBaGQ/OD8kvuP+zy
+         hRjA==
+X-Forwarded-Encrypted: i=1; AJvYcCWySFPM8cqfhtp99JQgFjn8z7JngBcFDFkjz9I7G2c0qnLWDMWmOSujJZVc2zRjVUBI6pLctP5W@vger.kernel.org
+X-Gm-Message-State: AOJu0YzdQeEmADsQROLZhmValOvnESfhi6UbwePz7LdP6DfmQu+uKExP
+	3fBZEGhRGpculxHrv0vzz1YX26zDV/06pWzN2u0ZdRwjgJwPKWEezQIgqPBkZg==
+X-Gm-Gg: ASbGncsMPoiLkEdHPt0sOOBxL5mTCzSri/LFzMQ1KvMlpFVTUup3LwVzJzXoVyJzKEF
+	ZITQCwWf6vjyiHaSOBOtSXydTwPaQtsL7mPQZcFclgWUtMxmI7EX8OFIs9tWoa+nmevsJnLnokO
+	APXP42gIWi19RVMil+9PzMrNG6UZ4vk0fjfL9sB3srrlC3YQVPqdqyhus7cK+xQ1E6KqMrAQt0O
+	Uvwk4K/GWY3HAXDb0IQNfmppRSncryT1o0wtCyROZR/hSXHnh26ysM8de060VUgFM+qLBq00XSb
+	rEowpTn8e6eX/ZS8M2jGZut4rvjLZL4L2U7+66we2KmU1QTgIBE28o7dzpNptR925dIgEWQtFqa
+	wKzQ9dOHvomQ0kg==
+X-Google-Smtp-Source: AGHT+IEu/zA/KmBu3i4+yYYBasDOL7q9y+GfHKDnVq+VWDyVOBtl0w2WBN9k4ofRexTO3FCkNGVVRA==
+X-Received: by 2002:a05:6214:54c6:b0:6e4:2198:12fe with SMTP id 6a1803df08f44-6eb1bd0a6eamr17902346d6.18.1742246231461;
+        Mon, 17 Mar 2025 14:17:11 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-6eade34bae9sm58857796d6.99.2025.03.17.14.17.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Mar 2025 14:17:10 -0700 (PDT)
+Date: Mon, 17 Mar 2025 17:17:10 -0400
+Message-ID: <b193793a15fe88b6f390e824da073238@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250312080055.8950-1-cgoettsche@seltendoof.de>
- <CAEjxPJ4MAaN7P8ZtCcDhRvNt44LNyzL9azc-xNE54=tkW_4vjQ@mail.gmail.com>
- <CAJ2a_Dc4pNdL8bp_wydmRmQ46GXkWhcA5jTVApF3E415stcA=A@mail.gmail.com> <CAEjxPJ5VuJpcZe-j5auXjviV=79jR2HzWfo-qPFAioRcw6Fi_w@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5VuJpcZe-j5auXjviV=79jR2HzWfo-qPFAioRcw6Fi_w@mail.gmail.com>
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20250317_1618/pstg-lib:20250317_1551/pstg-pwork:20250317_1618
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 17 Mar 2025 16:29:29 -0400
-X-Gm-Features: AQ5f1Joo_IT04Wmd3GNHv71tlEj32g96RMZeEnFmFCn5iTMsWJuRb8OZGHLjHgI
-Message-ID: <CAHC9VhSyEsj4jxKxkJUBLBqu6CXTwZTsraPL4tjosQV6Hv-8iQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: get netlabel_wildcard policycap from policy
- instead of cache
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Casey Schaufler <casey@schaufler-ca.com>, 
-	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To: Takaya Saeki <takayas@chromium.org>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>, =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>, Nick Kralevich <nnk@google.com>, Jeffrey Vander Stoep <jeffv@google.com>, Junichi <uekawa@chromium.org>, Daniel Burgener <dburgener@linux.microsoft.com>, selinux@vger.kernel.org, Takaya Saeki <takayas@chromium.org>
+Subject: Re: [PATCH v2] selinux: support wildcard match in genfscon
+References: <20250311092920.1114210-1-takayas@chromium.org>
+In-Reply-To: <20250311092920.1114210-1-takayas@chromium.org>
 
-On Fri, Mar 14, 2025 at 10:28=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Fri, Mar 14, 2025 at 9:01=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> > On Wed, 12 Mar 2025 at 14:04, Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Wed, Mar 12, 2025 at 4:01=E2=80=AFAM Christian G=C3=B6ttsche
-> > > <cgoettsche@seltendoof.de> wrote:
-> > > >
-> > > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > > >
-> > > > Retrieve the netlabel_wildcard policy capability in security_netif_=
-sid()
-> > > > from the locked active policy instead of the cached value in
-> > > > selinux_state.
-> > > >
-> > > > Fixes: 8af43b61c17e ("selinux: support wildcard network interface n=
-ames")
-> > > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > >
-> > > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > >
-> > > Do we have tests for this feature? I didn't see any.
-> >
-> > No.
-> >
-> > Is there a way to retrieve the context of a network interface without
-> > actually sending packets? (Then one could simply use `ip link add
-> > $name_to_test type dummy`).
+On Mar 11, 2025 Takaya Saeki <takayas@chromium.org> wrote:
+> 
+> Currently, genfscon only supports string prefix match to label files.
+> Thus, labeling numerous dynamic sysfs entries requires many specific
+> path rules. For example, labeling device paths such as
+> `/sys/devices/pci0000:00/0000:00:03.1/<...>/0000:04:00.1/wakeup`
+> requires listing all specific PCI paths, which is challenging to
+> maintain. While user-space restorecon can handle these paths with
+> regular expression rules, but relabeling thousands of paths under sysfs
+> after it is mounted is inefficient compared to using genfscon.
+> 
+> This commit adds wildcard match to support rules efficient but
+> expressive enough. This allows users to create fine-grained sysfs rules
+> without burden of listing specific paths. When multiple wildcard rules
+> match against a path, then the longest rule (determined by the length of
+> the rule string) will be applied. If multiple rules of the same length
+> match, the first matching rule encountered in the genfscon policy will
+> be applied. However, users are encouraged to write longer, more explicit
+> path rules to avoid relying on this behavior.
+> 
+> This change resulted in nice real-world performance improvements. For
+> example, boot times on test Android devices were reduced by 15%. This
+> improvement is due to the elimination of the "restorecon -R /sys" step
+> during boot, which takes more than two seconds in the worst case.
+> 
+> Signed-off-by: Takaya Saeki <takayas@chromium.org>
+> ---
+> Changelog between v2 and v1
+> - Use given genfs rules by the userspace as is, instead of appending "*".
+> - Fix __security_genfs_sid hadn't checked caps of the given argument.
+> - Fix the wrong strncmp usage bug.
+> 
+>  security/selinux/include/policycap.h       |  1 +
+>  security/selinux/include/policycap_names.h |  1 +
+>  security/selinux/ss/services.c             | 20 ++++++++++++++++----
+>  3 files changed, 18 insertions(+), 4 deletions(-)
+
+I would mention in the commit description above that the new
+functionality is gated by the "genfs_seclabel_wildcard" policy
+capability.  Otherwise this looks much better, thank you for the
+revision; there are a couple of comments below, but they are minor
+and you already mentioned one of them ;)
+
+> diff --git a/security/selinux/include/policycap.h b/security/selinux/include/policycap.h
+> index 079679fe7254..2b4014a826f0 100644
+> --- a/security/selinux/include/policycap.h
+> +++ b/security/selinux/include/policycap.h
+> @@ -15,6 +15,7 @@ enum {
+>  	POLICYDB_CAP_IOCTL_SKIP_CLOEXEC,
+>  	POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT,
+>  	POLICYDB_CAP_NETLINK_XPERM,
+> +	POLICYDB_CAP_GENFS_SECLABEL_WILDCARD,
+>  	__POLICYDB_CAP_MAX
+>  };
+
+As far as piggy-backing on top of NETIF_WILDCARD, it's generally best to
+use individual policy capabilities unless there is some reason why making
+one change to the policy would also require you to change the other.
+
+You could consider adding a
+selinux_policycap_genfs_seclabel_wildcard() function, but since there
+isn't a need for it in this patch, and I question where else we might
+ever need it, it's fine if you want to omit the helper function and leave
+it as-is.
+
+>  #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
+> diff --git a/security/selinux/include/policycap_names.h b/security/selinux/include/policycap_names.h
+> index e080827408c4..1053f2c95ff3 100644
+> --- a/security/selinux/include/policycap_names.h
+> +++ b/security/selinux/include/policycap_names.h
+> @@ -18,6 +18,7 @@ const char *const selinux_policycap_names[__POLICYDB_CAP_MAX] = {
+>  	"ioctl_skip_cloexec",
+>  	"userspace_initial_context",
+>  	"netlink_xperm",
+> +	"genfs_seclabel_wildcard",
+>  };
+>  /* clang-format on */
 >
-> Not as far as I know. The inet_socket tests should exercise the
-> relevant permission checks that use the netif SIDs.
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 8478842fbf9e..9f98c9dc71f6 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -48,6 +48,7 @@
+>  #include <linux/audit.h>
+>  #include <linux/vmalloc.h>
+>  #include <linux/lsm_hooks.h>
+> +#include <linux/parser.h>
+>  #include <net/netlabel.h>
+>  
+>  #include "flask.h"
+> @@ -2863,6 +2864,7 @@ static inline int __security_genfs_sid(struct selinux_policy *policy,
+>  	struct genfs *genfs;
+>  	struct ocontext *c;
+>  	int cmp = 0;
+> +	bool wildcard = 0;
 
-Unfortunately, I don't believe there is a mechanism to simply view the
-current label assigned to a network interface; adding something would
-be helpful.
+As you mentioned earlier, I think we can get rid of this assignment.
 
-The obvious thing would be to add something to iproute2, but that is
-going to involve some new LSM APIs to get that information as well as
-working with the netdev folks to export it out along with the other
-interface info.  It would likely be much easier to add something under
-/sys/fs/selinux, and such a change wouldn't prevent us from doing
-something in iproute2 in the future.
+>  	while (path[0] == '/' && path[1] == '/')
+>  		path++;
+> @@ -2879,11 +2881,21 @@ static inline int __security_genfs_sid(struct selinux_policy *policy,
+>  	if (!genfs || cmp)
+>  		return -ENOENT;
+>  
+> +
+> +	wildcard = ebitmap_get_bit(&policy->policydb.policycaps,
+> +				   POLICYDB_CAP_GENFS_SECLABEL_WILDCARD);
 
---=20
+It looks like you're adding an extra blank line above the wildcard
+assignment, please don't do that, a single blank line is sufficient
+vertical whitespace.
+
+>  	for (c = genfs->head; c; c = c->next) {
+> -		size_t len = strlen(c->u.name);
+> -		if ((!c->v.sclass || sclass == c->v.sclass) &&
+> -		    (strncmp(c->u.name, path, len) == 0))
+> -			break;
+> +		if (!c->v.sclass || sclass == c->v.sclass) {
+> +			if (wildcard) {
+> +				if (match_wildcard(c->u.name, path))
+> +					break;
+> +			} else {
+> +				size_t len = strlen(c->u.name);
+> +
+> +				if ((strncmp(c->u.name, path, len)) == 0)
+> +					break;
+> +			}
+> +		}
+>  	}
+>  
+>  	if (!c)
+> -- 
+> 2.49.0.rc1.451.g8f38331e32-goog
+
+--
 paul-moore.com
