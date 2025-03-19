@@ -1,248 +1,140 @@
-Received: from mail-ua1-f53.google.com (mail-ua1-f53.google.com [209.85.222.53])
+Received: from sonic309-27.consmr.mail.ne1.yahoo.com (sonic309-27.consmr.mail.ne1.yahoo.com [66.163.184.153])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3347C20AF6C
-	for <selinux@vger.kernel.org>; Wed, 19 Mar 2025 19:29:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBCF021C17B
+	for <selinux@vger.kernel.org>; Wed, 19 Mar 2025 22:27:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742412553; cv=none; b=SW08brY9b6RIDWz1DBYNgjToRoJ+vtPihdVkbxB/9si0PZjyj1h4o+Obhr7xaeP82D2u4z9GDJPMsda37E23zsURJNZANdNXpsr8j0sGWHW6kCvQVuO+lRXgt1ARyZM8DoYN1eltusHEynMw3uqKRZ/siZ83Cipo6TIfMYoHAow=
+	t=1742423282; cv=none; b=Kim/T+HLeQE87qopbTo2z0ujzbkZTB0hae63DQOBu59Y83Z8MtGz3awGHoIU7ZrOyHAbWzr/nggNOGqQ82Kr93hI9eJrpTfmTDx4SxS5lKaZ6RV6J2iJl4wHPSYnrzpe4jm1vQwXkdP1lN7fjM5+zNJWrAPNWCJ2ZODX1K33tD8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742412553; c=relaxed/simple;
-	bh=PTxlk65y+bSdffm9Q5jQRHrvnM3CWff2d/GxLvNPCdI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IeLaq+5XeNgLNel6Md4/pxH7VxSqCchx6lAXZAQxG8IU6UcjsQd5ZBWi2tYiBKglvjrCdDaLhE+BA+gF/42DD8yjylCMcwgZ6sU1fcak1qKIkcyAdMNvKkxal0uAcA0DaORXXEOIjjIhQUMAhhYr92xtpUZEPBJkid3Td1xufmk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OD5sNZ62; arc=none smtp.client-ip=209.85.222.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1742423282; c=relaxed/simple;
+	bh=sRz2BiU8Y8mQzXk19BZ18SfvUyKcB4QPv3377qEFka8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:References; b=P0pcwvxUR5ib6Z9jbF5qaIat7t1OhKuufe0bA317QvdlHPzU3TEiAPNuLnvW7oWQsUBY+EEYXU53Rd+xxhXptbMNvRQd1H0QLyj0vFiHaF//4PuEOtR8gnkz4fkKod8BqVIYYTp8lZJftpRXuOSf7foGskTBXFulsue1HTw+r80=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=ePlgc8y4; arc=none smtp.client-ip=66.163.184.153
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OD5sNZ62"
-Received: by mail-ua1-f53.google.com with SMTP id a1e0cc1a2514c-86b9d1f7249so6568366241.2
-        for <selinux@vger.kernel.org>; Wed, 19 Mar 2025 12:29:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742412551; x=1743017351; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=t78hhsVc5vLASeyNrniWb0Z0CNW5Btrc4aKhwzVfXMw=;
-        b=OD5sNZ62WoR/LyoFbYw209kR6cEzx+uBX/d998yQsRSi+VuvllSvaG/yYOHXi5QXg8
-         qZvFZF3iW35K5D3LbQwaTXfzdhaWZ5NyrpnDiqVHbP4tmYnKZWfmHFxfk8uAlABdJSHI
-         mpxa5ASiFTurT2JvI5b5yWJzUv1lYLN0NyNQT4cdrh81/aS0OOBw9rTu0TKozEmdFy/Y
-         4WDRdCs8GX4CNxj8OElr/rXLd2QpkZHKaPPkfsqjkmfbx7E/TLLiZIPJBg2dfV6MaYwf
-         zxfNZOMG83wyilh6Mz98Pqvu6EF72XkHB/BEOhrOwT17hUJUk9X584a1WB4jJ7p4SPcx
-         5wmw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742412551; x=1743017351;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=t78hhsVc5vLASeyNrniWb0Z0CNW5Btrc4aKhwzVfXMw=;
-        b=dJiZjGDs8uxLgLHMXS8FId9cUGHph2kiQVH7T83ul9FEYPGe76VJ089/3hgGsQgq7p
-         ilgtMmctkf6Uy3MujCTahOj9vS7eytFYitdScQC7k2gewYtU2QMS/pNC3IDhg4XVufgG
-         wWRVBZW+dG7+t6fiv3xHvVcdH4/XMfY5g0P4j39iChgBuPWUa2KVa8Ch95qyasmuukVb
-         WI0nwH7OX8hxVX6hBwwGhD4TO1zeohziky0G5vW642r6hBbtrEMf/c8lCKclgyNXF/Re
-         A1EThIlfP+GKoPVV+ctRBmJskKMDi9Y7bMz/sUlR3Vg+4Dj1Zx3la+18iwjDlQ8//52m
-         kpsQ==
-X-Gm-Message-State: AOJu0Ywog49DIdOvr90Vc4GeM/AQI3ogghn6mF1BYgU92wEOVrL2GYnE
-	4Z7yGsVwmnFxidXqgAs3iWpckI4RTzZ7rb4kVus+q53fhDpsQ5tajdy75xQfHiUPcNUVALuoT4D
-	m0Ow3dBgePLoz5YwycpcSWE073PLNs5JkdBU=
-X-Gm-Gg: ASbGnct65F/u3LBG5MpXdtayynQGJJavTevOI1GGpnBmUv03DwvHN7SZkIr05O2vv4I
-	UNQTyDBfLUML/d67CeoujtFjBaICX/VPMKUUYdx6K7OdAsb9zPWQkTDLtzqnF0n8r9Hhz0dkgTN
-	PVcLqun7uY/Y/KZyb6RlZZiH8=
-X-Google-Smtp-Source: AGHT+IFfAay0pjWYJMMAZcdUuLFUF5xuc0MkhXfOsctJe89mcALTj0ebm9OspzmdGWEb2hqAfMu0EI20i0WwTG4wc/Y=
-X-Received: by 2002:a05:6102:5707:b0:4c1:869b:7db4 with SMTP id
- ada2fe7eead31-4c4ec650e82mr3609084137.9.1742412550839; Wed, 19 Mar 2025
- 12:29:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ePlgc8y4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1742423273; bh=gAnxGggb52Au55yCpJeLGqRkh6FU+lKXXSkEtIgqIPA=; h=From:To:Cc:Subject:Date:References:From:Subject:Reply-To; b=ePlgc8y4eoCvlrd4KfX3oR0jPaV5Ol1r4ipxKk+YG57R0T15sv5gROh1ZZ667X/fgpC0s0ENF8miFnICE7DgM55ZFspEvMl9TCrHgbSSNe/njJXoZ+HoobJwfqY+MHU0meS20W8UV8Y3PzIXDBE7ZMFr828+016Xic35/JTG6mFP2BMX3Ydc3EnBExpdD1t917NXO+we/QJPqlS0bSeFLC8camVlg6KvtHmPRi/Fxp3v9qOOfiGZ1KOb1bNZ1Q9qhxXt8730xpAIe6sjihPJmysXEnU1yjJMA3FZogXdgQvhrRS7Jxk8KE4WDuzLytTNQvsNrIQN5zNcsaeUtGcTvA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1742423273; bh=kXt57kDgv8EsxHwb2w11kW/NQNBmTdX1rTUg/7LrDkK=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=U0yWafC+aCrGhVxuKCRtl5u4ZGfoIOYrgxRdhmcOrJrHjCH78xyq97QfQ/W4FOUrnXcHZKb1fpgUup30l/j2/XrnFjMo5UgWntjexYQEESKEITdaiEa+gM0lf2jOKDIPXIi/49Ny5lI0uXgRw70rizqmL7GaQq5c8q+5APRIsicfI56MBQSFcK7M0RxWV8Qmi8Lecu9rni28bmOZNp21xLkvBDwS4x43WlZ7ELsfzTiu/fiWZHEKtdE0eQLYm6iO4bxOBR6tIHzTCp8Ca0rBjJ27lKcNxK+PQ0Slz3BzxSHzwz7Lfg6oJw//Oxqi53brSgZxZPg6D15Me6ucNLZbEQ==
+X-YMail-OSG: IapKuloVM1nhWKzRo9k5vimV8u77sJMe7mKiPjhR.Va1PWu5GAOK_ajB.PWZqh2
+ MAx1f7pGvqsgj8zyJk1gOYiR5HyvR1k3FwEAKvrzQy7MHkMVYNJgWip.9lnjug2nhoPciUOt9xkr
+ hJhSc6gHCuuiXglzKuf8.sfPPyyq2.B_bN1EzqO1jNGpY2mP7IJ9lgC8ZmRDvT07kp8LZqfrna.i
+ UcuQlctf8urIC6WvNRCLtS5KEk.AKLYsu6UtHkne21r7yM7HcdSV_sWa2u6V6FMBWEUVtyD4WON8
+ xPFrdQlSn6nYgYJgAneK..eqRpJrkThU4k8DPeLPcYq2lDm8WomuHcE3iLjZvF7b9b8QCCE2F3FE
+ I6sEFTx_WhQ7dpPAEC1r9gY_AHSQMKw3KmMD_LSDXXrx2RXHYeyvO0KNOmta1ovjiDONBgQI4tvz
+ Gnyh9XVEpma_yfz4BgHRzkrgrBBBkqBRACpYkI6DqZY_G2bFKXJH6JZDneWPTvt2Q8qvVWH.HHu9
+ LwtMrhQmXBhStMPBF8BjXsrdI6nMa.trx79A6FmOyriePYSSMskyfTub8a_BoNz3Jlmu_bVYejno
+ Mbzl5iDk4YhcaC7De.UfWsUJiaQWq233mHfqPbSwPdiYRkFJa4T7QB98Gvqi4yOunGefEmhroPpy
+ eppNguCDwavkC0L6crgGQczTNH7opLEt_BMTRdXZP0.5VKf6cNThigewb5GXcgkVGdhKigXpzAeA
+ .t12pnsZDl5d1pguynvQZJnL.rlv1Fowno3yZx0FoMYpM33I9JPG7WIqPVQ5ppxxtql6a3cOLUYE
+ eQZlxjTnfckLLn7BcDxQiXKnEy0H_4OWPqivvKZbYbg.aATIcPpUhHzqpzqGdionHJv7vrpE5ITR
+ x9QTQi9HVV9r30nRnMpil4U39KsvwK5SbvU5gyFe64aTl_DfCXKGx0N_V_a5VFow4QhwernX_0sZ
+ a.s8QPRN08a86aEYIj.85Lk1AW4kG4fCO4H_CqZ1gME9y6a2vXGYOFLeH06sHF5tfJI.TQ7qhs6n
+ yF5JhOlkEFLWnsGxHeuTZnXo0SneqcWNsmE_yk5zse_zIKtwP9_EZNUrTaH3RKklPZZCMef9y13l
+ l.M.DNK.1c7vN3o4b0Xrpxd_hOmPfv_kQEaXrgsGaBlGhMhfm9bJ32gyoyQJzfBWFdXPYo.vrbbW
+ T2Y2CfzuDSD_P59pT.1lilJJQaSRK62Tr2soT4VCr_37KOlh6.dQlOn.cGNUOrs6R3maG.RR_l1t
+ YJGPcz6xD2muvgFuINOONSfICkuWfbgmDGhtzRJDG.ivXp7omUemXSZoGE0rqdrM2SznDb8yKAyT
+ wkr0sis8s0a395rLzsgSZ4sJR1ivvL5bsBrS8LF346jZM2v2vhjZM_G2ouw31M53vl_4W3nNLQbt
+ KjOVvsmNmAqRevcF.YgnCT6xDdFUFcVZ9te7W2cVpMwxWxN0NgjwidQdZqIBwXNRi0g6wLpxCA_O
+ n46KrZrsvynF6CYKC8On830J6YpYV8Q5u5hst856v5KNqmpLiUPf6UUu3t5eVMs6OOwYcR82EVyj
+ RxpL3j5WQW6bfgJuzhexFQvMpq.ZIYhItwf9pk.is8W3ikDDGVWYlkb50bx.fqe5VgsJYDI9nQZw
+ 6lo.VPnj57wy00.xZI3.2sawoDeqisfzsnjvF_KDX0DA05TWiL1CDWhJQKBbPR6PoLpvob2Ivwv2
+ 9L4vgWDolAX1PJcaDKBCkD9HxUBIOg0vmPIqbhSDVjPutWpYLxN2Q5ws7EJadl7Uqx5Sde_XMiEw
+ 9kqOSGq6nGoaqQhk8pjyNQA_eTDilNF.OzFU0Z5mqBoRl2cYcDMt5A5PG5Ko6Ntm0nZAQ2TyLZC6
+ 23VF0ExEZ0.oRcnMnNU1WXRv_90Erhhms2ufLuj4JQ1SPW_gS4AqJJmQHlBI5ihqf3lUMC.J.jMT
+ 78KimJghG0It_UPcz7xQXlnK2kwnP2kX9ultCBu0WAGh9b_XwDbySfEMMzM07TWivlqrdOfA_4.B
+ KvMTAgWYQe2Us7LDnF9tTPDB7NgJmtPVRLBvU0pcJDlKqrz2R9EEawl6a35xGf1HfoCo9NBAEUou
+ gkUGvqKqF_x2_Z5SyrDQ5VQiFKJ4X68_J11FlCK6r9Wm1trg25GLo_WEYFc8MDuVNqvpg7Z90uLv
+ IlMrDA3YRFsqYbjGwi5IneRVMBuDvwnig4sgRJL5kW1zomNB8J3yIHCGmLefMwaFWUCa.PDPYSiy
+ MneAEOVxAeUsyPHT4xzD6z0FO6x3MnlbgwwhvWmmLVCYSet1WA2i4vTEJkErcPwYYvMjefPwdklQ
+ NXv6bGf7trKxQte6Qx4otwQ--
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 6cb43d66-bab3-446e-91ec-94879a8a3b3f
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Wed, 19 Mar 2025 22:27:53 +0000
+Received: by hermes--production-gq1-7d5f4447dd-jcqz7 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 1e9bd32085bcf3fce38fe3767fad9b05;
+          Wed, 19 Mar 2025 22:27:48 +0000 (UTC)
+From: Casey Schaufler <casey@schaufler-ca.com>
+To: casey@schaufler-ca.com,
+	paul@paul-moore.com,
+	eparis@redhat.com,
+	linux-security-module@vger.kernel.org,
+	audit@vger.kernel.org
+Cc: jmorris@namei.org,
+	serge@hallyn.com,
+	keescook@chromium.org,
+	john.johansen@canonical.com,
+	penguin-kernel@i-love.sakura.ne.jp,
+	stephen.smalley.work@gmail.com,
+	linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: [PATCH v3 0/5] Audit: Records for multiple security contexts
+Date: Wed, 19 Mar 2025 15:27:39 -0700
+Message-ID: <20250319222744.17576-1-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.47.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <D7Y03RIRQTEH.1SUBF6LGYYEM6@gmail.com> <20250221093910.657484-1-nvraxn@gmail.com>
-In-Reply-To: <20250221093910.657484-1-nvraxn@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 19 Mar 2025 15:29:00 -0400
-X-Gm-Features: AQ5f1Jpogmn6GfxY05Cb7t7eLSYaaqTCoBBvTq1AWWK3V7FXVT7DHFu5eF79jJs
-Message-ID: <CAP+JOzQP5kXVnURObRpV6HJ+pqZiBeS9AGrsArJKy50EhTcyDg@mail.gmail.com>
-Subject: Re: [PATCH v2] libsemanage: create semanage_basename to ensure posix compliance
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: selinux@vger.kernel.org, bill.c.roberts@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+References: <20250319222744.17576-1-casey.ref@schaufler-ca.com>
 
-On Fri, Feb 21, 2025 at 4:41=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wro=
-te:
->
-> Passing a const char * to basename(3) is a glibc-specific extension, so
-> create our own basename implementation. As it's a trivial 2 LOC, always
-> use our implementation of basename even if glibc is available to avoid
-> the complications of attaining the non-posix glibc implementation of
-> basename(3) as _GNU_SOURCE needs to be defined, but libgen.h also needs
-> to have not been included.
->
-> Also fix a missing check for selinux_policy_root(3). From the man page:
-> On failure, selinux_policy_root returns NULL.
->
-> As the glibc basename(3) (unlike posix basename(3)) does not support
-> having a nullptr passed to it, only pass the policy_root to basename(3)
-> if it is non-null.
->
-> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+The Linux audit system includes LSM based security "context" information
+in its events. Historically, only one LSM that uses security contexts can
+be active on a system. One of the few obsticles to allowing multiple LSM
+support is the inability to report more than one security context in an
+audit event. This patchset provides a mechanism to provide supplimental
+records containing more than one security context for subjects and
+objects.
 
-Acked-by: James Carter <jwcart2@gmail.com>
+The mechanism for reporting multiple security contexts inspired
+considerable discussion. It would have been possible to add multiple
+contexts to existing records using sophisticated formatting. This would
+have significant backward compatibility issues, and require additional
+parsing in user space code. Adding new records for an event that contain
+the contexts is more in keeping with the way audit events have been
+constructed in the past.
 
-> ---
->  libsemanage/src/conf-parse.y       | 13 ++++++++++---
->  libsemanage/src/direct_api.c       |  1 +
->  libsemanage/src/utilities.c        |  9 +++++++++
->  libsemanage/src/utilities.h        | 13 +++++++++++++
->  libsemanage/tests/test_utilities.c | 26 ++++++++++++++++++++++++++
->  5 files changed, 59 insertions(+), 3 deletions(-)
->
-> diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-> index 6cb8a598..d3ca5f1f 100644
-> --- a/libsemanage/src/conf-parse.y
-> +++ b/libsemanage/src/conf-parse.y
-> @@ -21,6 +21,7 @@
->  %{
->
->  #include "semanage_conf.h"
-> +#include "utilities.h"
->
->  #include <sepol/policydb.h>
->  #include <selinux/selinux.h>
-> @@ -382,7 +383,10 @@ external_opt:   PROG_PATH '=3D' ARG  { PASSIGN(new_e=
-xternal->path, $3); }
->  static int semanage_conf_init(semanage_conf_t * conf)
->  {
->         conf->store_type =3D SEMANAGE_CON_DIRECT;
-> -       conf->store_path =3D strdup(basename(selinux_policy_root()));
-> +       const char *policy_root =3D selinux_policy_root();
-> +       if (policy_root !=3D NULL) {
-> +               conf->store_path =3D strdup(semanage_basename(policy_root=
-));
-> +       }
->         conf->ignoredirs =3D NULL;
->         conf->store_root_path =3D strdup("/var/lib/selinux");
->         conf->compiler_directory_path =3D strdup("/usr/libexec/selinux/hl=
-l");
-> @@ -544,8 +548,11 @@ static int parse_module_store(char *arg)
->         free(current_conf->store_path);
->         if (strcmp(arg, "direct") =3D=3D 0) {
->                 current_conf->store_type =3D SEMANAGE_CON_DIRECT;
-> -               current_conf->store_path =3D
-> -                   strdup(basename(selinux_policy_root()));
-> +               const char *policy_root =3D selinux_policy_root();
-> +               if (policy_root !=3D NULL) {
-> +                       current_conf->store_path =3D
-> +                           strdup(semanage_basename(policy_root));
-> +               }
->                 current_conf->server_port =3D -1;
->         } else if (*arg =3D=3D '/') {
->                 current_conf->store_type =3D SEMANAGE_CON_POLSERV_LOCAL;
-> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-> index 99cba7f7..ce12ccaf 100644
-> --- a/libsemanage/src/direct_api.c
-> +++ b/libsemanage/src/direct_api.c
-> @@ -26,6 +26,7 @@
->
->  #include <assert.h>
->  #include <fcntl.h>
-> +#include <libgen.h>
->  #include <stdio.h>
->  #include <stdio_ext.h>
->  #include <stdlib.h>
-> diff --git a/libsemanage/src/utilities.c b/libsemanage/src/utilities.c
-> index 70b5b677..004ffb62 100644
-> --- a/libsemanage/src/utilities.c
-> +++ b/libsemanage/src/utilities.c
-> @@ -349,3 +349,12 @@ int write_full(int fd, const void *buf, size_t len)
->
->         return 0;
->  }
-> +
-> +#ifdef __GNUC__
-> +__attribute__((nonnull))
-> +#endif
-> +char *semanage_basename(const char *filename)
-> +{
-> +       char *p =3D strrchr(filename, '/');
-> +       return p ? p + 1 : (char *)filename;
-> +}
-> diff --git a/libsemanage/src/utilities.h b/libsemanage/src/utilities.h
-> index c2d484a7..7481077a 100644
-> --- a/libsemanage/src/utilities.h
-> +++ b/libsemanage/src/utilities.h
-> @@ -156,4 +156,17 @@ semanage_list_t *semanage_slurp_file_filter(FILE * f=
-ile,
->
->  int write_full(int fd, const void *buf, size_t len) WARN_UNUSED;
->
-> +/**
-> + * Portable implementation of the glibc version of basename(3).
-> + *
-> + * @param filename  path to find basename of
-> + *
-> + * @return          basename of filename
-> + */
-> +
-> +#ifdef __GNUC__
-> +__attribute__((nonnull))
-> +#endif
-> +char *semanage_basename(const char *filename);
-> +
->  #endif
-> diff --git a/libsemanage/tests/test_utilities.c b/libsemanage/tests/test_=
-utilities.c
-> index bbd5af30..70a76fe7 100644
-> --- a/libsemanage/tests/test_utilities.c
-> +++ b/libsemanage/tests/test_utilities.c
-> @@ -46,6 +46,7 @@ static void test_semanage_rtrim(void);
->  static void test_semanage_str_replace(void);
->  static void test_semanage_findval(void);
->  static void test_slurp_file_filter(void);
-> +static void test_semanage_basename(void);
->
->  static char fname[] =3D {
->         'T', 'E', 'S', 'T', '_', 'T', 'E', 'M', 'P', '_', 'X', 'X', 'X', =
-'X',
-> @@ -117,6 +118,10 @@ int semanage_utilities_add_tests(CU_pSuite suite)
->                                 test_slurp_file_filter)) {
->                 goto err;
->         }
-> +       if (NULL =3D=3D CU_add_test(suite, "semanage_basename",
-> +                               test_semanage_basename)) {
-> +               goto err;
-> +       }
->         return 0;
->        err:
->         CU_cleanup_registry();
-> @@ -346,3 +351,24 @@ static void test_slurp_file_filter(void)
->
->         semanage_list_destroy(&data);
->  }
-> +
-> +static void test_semanage_basename(void)
-> +{
-> +       char *basename1 =3D semanage_basename("/foo/bar");
-> +       CU_ASSERT_STRING_EQUAL(basename1, "bar");
-> +
-> +       char *basename2 =3D semanage_basename("/foo/bar/");
-> +       CU_ASSERT_STRING_EQUAL(basename2, "");
-> +
-> +       char *basename3 =3D semanage_basename("/foo.bar");
-> +       CU_ASSERT_STRING_EQUAL(basename3, "foo.bar");
-> +
-> +       char *basename5 =3D semanage_basename(".");
-> +       CU_ASSERT_STRING_EQUAL(basename5, ".");
-> +
-> +       char *basename6 =3D semanage_basename("");
-> +       CU_ASSERT_STRING_EQUAL(basename6, "");
-> +
-> +       char *basename7 =3D semanage_basename("/");
-> +       CU_ASSERT_STRING_EQUAL(basename7, "");
-> +}
-> --
-> 2.48.1
->
->
+Only audit events associated with system calls have required multiple
+records prior to this. Mechanism has been added allowing any event
+to be composed of multiple records. This should make it easier to
+add information to existing audit events without breaking backward
+compatability.
+
+v3:
+Rework how security modules identify that they provide security
+contexts to the audit system. Maintain a list within the audit
+system of the security modules that provide security contexts.
+Revert the separate counts of subject and object contexts.
+v2:
+Maintain separate counts for LSMs using subject contexts and object
+contexts. AppArmor uses the former but not the latter.
+Correct error handling in object record creation.
+
+https://github.com/cschaufler/lsm-stacking#audit-6.14-rc1-v3
+
+Casey Schaufler (5):
+  Audit: Create audit_stamp structure
+  LSM: security_lsmblob_to_secctx module selection
+  Audit: Add record for multiple task security contexts
+  Audit: multiple subject lsm values for netlabel
+  Audit: Add record for multiple object contexts
+
+ include/linux/audit.h        |  19 +++
+ include/linux/security.h     |   6 +-
+ include/uapi/linux/audit.h   |   2 +
+ kernel/audit.c               | 255 +++++++++++++++++++++++++++++------
+ kernel/audit.h               |  13 +-
+ kernel/auditsc.c             |  65 +++------
+ net/netlabel/netlabel_user.c |   8 +-
+ security/apparmor/lsm.c      |   3 +
+ security/security.c          |  13 +-
+ security/selinux/hooks.c     |   3 +
+ security/smack/smack_lsm.c   |   3 +
+ 11 files changed, 291 insertions(+), 99 deletions(-)
+
+-- 
+2.47.0
+
