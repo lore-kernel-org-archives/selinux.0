@@ -1,156 +1,137 @@
-Received: from tarta.nabijaczleweli.xyz (tarta.nabijaczleweli.xyz [139.28.40.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71B4F85626
-	for <selinux@vger.kernel.org>; Tue, 18 Mar 2025 22:47:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=139.28.40.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDCD823AD
+	for <selinux@vger.kernel.org>; Wed, 19 Mar 2025 13:16:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742338082; cv=none; b=kTNJqux6DEXEaWFtoh0gg1CN5yKvR57OnYx5eimPSyJK0EJqE5OxqVW0bQhKWObTrph+hIo4YwWKw5ZU18iYH/I8MYwZt6Cg62UzWnSLz+e21xsn/BqdS9eoSCZuvRxBSDEQH2th/9VlitttVqHa1m3LiFp6lAgPOCgfs2knMSk=
+	t=1742390188; cv=none; b=mGFTubS3Yi8PX0BlPuTTo+3cgjpRIzl6mdAm0GGaaRz02x/kRamlJTXejA842bKe5ZGIV8b1v2j8BYHaoNkZj0oGNITU92foH5EKMzdTWsUQmz/5EiwGuffMe8ScQbF7Kl1srrhKnle7pGZ7tU9J0+YlJ6CO0xpQXzNZBq0hgOU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742338082; c=relaxed/simple;
-	bh=WQjPRH2t/ii27JdUEkhcOylXY9eARvj78N1HEfZHlpI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hvi/VVF5dqTqY53orBc2IK8xTwJlqUSbwZ2aswkD+1aJz1vh7cTa4UrUaBqG+Ag3HEd79xzPNpn9t8+80sqdIYRWVwMW6O4lpvTto+O29wz14N33OVMCCCEMnRdVGe6X9ScLQHbgU8AuALrPv7NWbsvIwRdf4mZki3DdxFFaFFY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nabijaczleweli.xyz; spf=pass smtp.mailfrom=nabijaczleweli.xyz; dkim=pass (2048-bit key) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.b=CpZm3FUg; arc=none smtp.client-ip=139.28.40.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nabijaczleweli.xyz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabijaczleweli.xyz
+	s=arc-20240116; t=1742390188; c=relaxed/simple;
+	bh=XjvWqfayuQaTFAiNTJ1nRGZz1jmLlmwbhc8nz2bTn/8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=nyCDrMGIl4+KQLh428qSM8VEd0S394Qf1sn45j3DrdQhMoHaJf/nAeeC1LoKWSAih9YavA9jaBzXbClOFGIu5kPjusOUf7/ZGZaeA+YH/by5s/6q6XlGqOaeppwOXSElO+cug2SvWL7zarya+3duKw5NXOaJbdqZOn19SQlkpZY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ndsXZ35f; arc=none smtp.client-ip=209.85.216.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nabijaczleweli.xyz header.i=@nabijaczleweli.xyz header.b="CpZm3FUg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nabijaczleweli.xyz;
-	s=202405; t=1742337677;
-	bh=WQjPRH2t/ii27JdUEkhcOylXY9eARvj78N1HEfZHlpI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=CpZm3FUgKUKcPmahxvVGkTAUHFGMnX8zLMc6PDgn5QqbzibHBPeed5NOtc4l2ggsh
-	 e44RHMQusQqyi5wYpflQ4l2gUrRwAXhe0VYW0qxOTgXHDfLacKZABUX5GHL0p+f0Kk
-	 T2lCoZiQPrqXHAAbzLhXf3jB9i5Cbx7G6rdOX/soxZOezkgDOyDPq6tHFMDZ1FyRzv
-	 0/4s15zAns7q8LKQW4dsV9OF0hdFWqYer63r8i+s6gH02EOfw00aEPJokMgPLYGOXw
-	 JFfHp7ZQQgOo08R4N1Z0+5MVMe0GwIty1BvvtU9eP/wPmg2TdaNFErDEAK8ZaFV8ZS
-	 KWTi0fet4YjoQ==
-Received: from tarta.nabijaczleweli.xyz (unknown [192.168.1.250])
-	by tarta.nabijaczleweli.xyz (Postfix) with ESMTPSA id 6D6EEBEBA;
-	Tue, 18 Mar 2025 23:41:17 +0100 (CET)
-Date: Tue, 18 Mar 2025 23:41:17 +0100
-From: =?utf-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
-To: selinux@vger.kernel.org
-Cc: Alba Mendez <me@alba.sh>
-Subject: [PATCH v2] Inject matchpathcon_filespec_add64() if
- !defined(__INO_T_MATCHES_INO64_T) instead of using __BITS_PER_LONG < 64 as
- proxy
-Message-ID: <cpbjftpok3lt54s6t7qmhzwbhl47vsz3efrxs45t5os7ztp3zg@tarta.nabijaczleweli.xyz>
-References: <jievtm5yb2pqqrn5p2idny7iipfoxnwn3gx5xtw6ycq6qqfgh5@tarta.nabijaczleweli.xyz>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ndsXZ35f"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-2f9d3d0f55dso8262819a91.1
+        for <selinux@vger.kernel.org>; Wed, 19 Mar 2025 06:16:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1742390185; x=1742994985; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=XjvWqfayuQaTFAiNTJ1nRGZz1jmLlmwbhc8nz2bTn/8=;
+        b=ndsXZ35fkqbsgee5FW/ryHJzh28E+Jd7EtfceTmRAkhknM6+gVQIASUCRamAfqMxbO
+         iGcd7GCFsYjCvjYKnr3JgLm6STe7G76PE1wHvjUIq/d1mjiHQ5PUr4AO4kImM4669RXZ
+         zO8MswQnRDf2SzIsPHf9qRID26o8VhKm+L6kEa2O6rBL1LHMJYgFiDTF5qs8eNg8cXcQ
+         p736Q+ov+JpEXAhrGgudS0owja2o9HOfbfM69Cr2PDC+cNh9ZMD83x/WelaNk5gsb9DM
+         LBCmUhpa6TTO04Moej9jYWRi+pJqFtC5PJKKHEtxrNVLgDAdQ7WKPgBV0y054MXXj3kb
+         txiw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742390185; x=1742994985;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=XjvWqfayuQaTFAiNTJ1nRGZz1jmLlmwbhc8nz2bTn/8=;
+        b=B8lxmr4n0W/ZToo9n3bGEHmvaV89kkO7Ij4e3H8f79wyoolvCEyU9jq6786dd8RcVW
+         eDAaYTdYT+bqo+dL1UjL9VXaly/24Dpq/TNQEgIuEw2otAYML49AdhlYBHBp/H/vCIvd
+         vh/NTjxHrVhVArhs5tICFeJREVko+cjBJkyzUOXW2H6aSL0MY3f3vpspKHAUvHNl3m5Y
+         uo2bhvTEuQYvACoPVnf+xF3/lMTyiXnRei/Nnio5vTeFWrI4oet/47vHBEABZciy1VxV
+         XiogQUVl21ku0yPqwrzVC4J5OzG4ZzkNGeXETL8l+pwaac86z+uybBc22dYRDjQEFosP
+         Q8Jg==
+X-Gm-Message-State: AOJu0YyN/34DMTPVSwJnZ4l8tOd/DGtsfrF1RASh4bHtoFZ2R0OBV+eJ
+	bo6sd8T9Y9qXBCGdz+YOBeyUDAjABeS4RVxdfJMR4xn4Z0qM4zgOcyL1vA24wdfQkVESBulGlHe
+	3+fBxv6VUBiUFHa8wixjhK4RMU2c=
+X-Gm-Gg: ASbGnctKAjMwmTJgVPNQ4MOD/rzBzkLEkWRZE/sxwSo8pSV+oliVnNGTM8OesUZa1tU
+	iLqLiu1OaopCYWyIpVLdf9U9h2VPPLZrR51hzY4PxDNgOy3UHG+/k1dZbv4/qSZWcjtQnj86jsB
+	q4CTaZ3ku+FfI6qw4lge5v1FqmEw==
+X-Google-Smtp-Source: AGHT+IGoZnI02u9bcfGhpQafq9Ch46olmZ/PFOAtAqLutT48vJaRkCNLCS5eMs68rLAZ3EjyfKuvpjy7Ex2ULWjEhiE=
+X-Received: by 2002:a17:90b:384e:b0:2ee:44ec:e524 with SMTP id
+ 98e67ed59e1d1-301be21990fmr3595592a91.35.1742390184900; Wed, 19 Mar 2025
+ 06:16:24 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="asfmaes4o5kagu7x"
-Content-Disposition: inline
-In-Reply-To: <jievtm5yb2pqqrn5p2idny7iipfoxnwn3gx5xtw6ycq6qqfgh5@tarta.nabijaczleweli.xyz>
-User-Agent: NeoMutt/20231221-2-4202cf-dirty
-
-
---asfmaes4o5kagu7x
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+References: <98f87fd6-6d3e-4539-ad8f-1a0dc09aa890@suse.de> <87senb7mt4.fsf@redhat.com>
+ <8ca3a1ed-0f53-4da9-a86b-75699f306f8c@suse.de> <87plif7egm.fsf@redhat.com>
+ <CAEjxPJ4DZs_1dPuO87UPpuvQL-PEq6zq9KA64SQvzsT1Mq8CqQ@mail.gmail.com> <87msdi7acy.fsf@redhat.com>
+In-Reply-To: <87msdi7acy.fsf@redhat.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 19 Mar 2025 09:16:13 -0400
+X-Gm-Features: AQ5f1Jrp6WQay2PK9BZz0FDdj5EkR4XSSHiE-EWtnZqa9G70dOHg0I0gw26V740
+Message-ID: <CAEjxPJ7Q8y+3S-kR6bKmRc8HW+ArDJb1z9D-=sRnWe+zYEW1eg@mail.gmail.com>
+Subject: Re: Question regarding restorecon and btrfs read-only snapshots
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org, Cathy Hu <cahu@suse.de>, fvogt@suse.com, selinux@suse.de
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-The __INO_T_MATCHES_INO64_T is defined
-if ino_t would be the same size as ino64_t
-if -D_FILE_OFFSET_BITS=3D64 were not defined.
+On Tue, Mar 18, 2025 at 9:11=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.co=
+m> wrote:
+>
+> Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+>
+> > On Mon, Mar 17, 2025 at 1:32=E2=80=AFPM Petr Lautrbach <lautrbach@redha=
+t.com> wrote:
+> >>
+> >> Cathy Hu <cahu@suse.de> writes:
+> >>
+> >> > On 17.03.25 15:29, Petr Lautrbach wrote:
+> >> >>
+> >> >> You could use `-e <directory>` to exclude read only subdirectories.
+> >> >>
+> >> >
+> >> > Yes that is possible, but also requires a manual change by the user =
+to set
+> >> > this up together with the snapshot (same as telling them to add <<no=
+ne>>),
+> >> > which we would like to avoid.
+> >>
+> >> Your -relabel.service's are generated and so can be restorecon options
+> >> there.
+> >>
+> >> Fedora uses fixfiles -
+> >> https://github.com/SELinuxProject/selinux/blob/main/policycoreutils/sc=
+ripts/fixfiles
+> >> - which detects ro filesystems and skip them.
+> >
+> > We already have logic in libselinux/src/selinux_restorecon.c to
+> > exclude filesystems that lack seclabel support; should we augment this
+> > to also exclude read-only filesystems to avoid the need to work around
+> > this in all callers?
+> >
+>
+> https://github.com/SELinuxProject/selinux/blob/main/libselinux/src/selinu=
+x_restorecon.c#L238
+>
+> You're right, I didn't know about that.
+>
+> I think it would make sense to exclude also `ro` mount points.
 
-This is /exactly/ what
-  /* ABI backwards-compatible shim for non-LFS 32-bit systems */
-  #if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && __BITS_P=
-ER_LONG < 64
-is trying to get at, but currently fails because x32/RV32 are "LFS"
-with 32-bit longs and 64-bit time_ts natively.
+I think the tricky part is the case where the caller deliberately
+passed those mount points to restorecon/setfiles. The current
+exclusion logic IIRC won't exclude any explicitly passed directories
+to avoid silently failing. But skipping read-only mounts on a
+traversal of a subdirectory would make sense IMHO.
 
-Thus, the
-  static_assert(sizeof(unsigned long) =3D=3D sizeof(__ino_t), "inode size m=
-ismatch");
-assertion fails (__ino_t is the "kernel ino_t" type,
-which generally corresponds to the kernel's ulong, which is u64 on x32).
-
-glibc headers allow us to check the condition we care about directly.
-
-Fixes: commit 9395cc0322 ("Always build for LFS mode on 32-bit archs.")
-Closes: #463
-Closes: Debian#1098481
-Signed-off-by: =D0=BD=D0=B0=D0=B1 <nabijaczleweli@nabijaczleweli.xyz>
-Cc: Alba Mendez <me@alba.sh>
----
- libselinux/include/selinux/selinux.h | 2 +-
- libselinux/src/matchpathcon.c        | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/seli=
-nux/selinux.h
-index f3cf5a20..f64896b7 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -537,7 +537,7 @@ extern int matchpathcon_index(const char *path,
-    with the same inode (e.g. due to multiple hard links).  If so, then
-    use the latter of the two specifications based on their order in the=20
-    file contexts configuration.  Return the used specification index. */
--#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && __BITS_PE=
-R_LONG < 64
-+#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && !defined(=
-__INO_T_MATCHES_INO64_T)
- #define matchpathcon_filespec_add matchpathcon_filespec_add64
- #endif
- extern int matchpathcon_filespec_add(ino_t ino, int specind, const char *f=
-ile);
-diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-index 51f0e4ff..ab7c3090 100644
---- a/libselinux/src/matchpathcon.c
-+++ b/libselinux/src/matchpathcon.c
-@@ -261,7 +261,7 @@ int matchpathcon_filespec_add(ino_t ino, int specind, c=
-onst char *file)
- 	return -1;
- }
-=20
--#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && __BITS_PE=
-R_LONG < 64
-+#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && !defined(=
-__INO_T_MATCHES_INO64_T)
- /* alias defined in the public header but we undefine it here */
- #undef matchpathcon_filespec_add
-=20
-@@ -282,7 +282,7 @@ int matchpathcon_filespec_add(unsigned long ino, int sp=
-ecind,
- }
- #else
-=20
--static_assert(sizeof(unsigned long) =3D=3D sizeof(ino_t), "inode size mism=
-atch");
-+static_assert(sizeof(uint64_t) =3D=3D sizeof(ino_t), "inode size mismatch"=
-);
-=20
- #endif
-=20
---=20
-2.42.0
-
---asfmaes4o5kagu7x
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEfWlHToQCjFzAxEFjvP0LAY0mWPEFAmfZ9ooACgkQvP0LAY0m
-WPEgcRAAjAkGnqZTq2I2D1w/WQpmt9hc0mTmf2HAd6EFxFm1KP1Ldhhx88UmI3fE
-yUJf3916vezHExaWH6eZZOuLVNH6yr/6lXV73O6c9dSYu+w+OdaQMrYfyFAcnDI+
-QfBM/4WnhL+VV+UNj2UaDRsiXCgybj4cvHh4+MeaKTOK63x2oc4gizuCsQKCNVLj
-6JAT8V3z1gysIHhTKGaXo8h0uCH4VHQttv20FwKp/hr9F5QaW8LWaQ8XxQKDZxCS
-S9d3mKFlyQ4hpurG+uhLZgf82tPLaxQoOX+nXu9aJVwp8D6nJQWE7Gf2LL36d/iF
-6dheMsVHP4tV7+WcVzuTieiDzFu3qICte8ixHrZInGUf9sULuLY0Mxj+DNQBV479
-0wGzBY7O5dQJlyFuhKC52kiodKIq/vB8nm9zTg9J8TjzzIO0FlzGMKZVDPwSHmbF
-xWoA6TgO8wozuSbwppn5MSJwPPHJ2qmQ2f6He82YXfn5s8mWP1teUi0K96M5BhUS
-e5HgdS+OeceNGZ4B0+wRsUvr0HJwC58D4tCcDGRUxnx1QgW6Y5AOIZfL9EGN257N
-Lr1cIzXB0UdNcWjGxIsGDxFwhqnR8qYlRT0TFLfo3m36RQVd5t81RMts4nwYIqgv
-v4xcHVqWM/QNgwoCimSftGd6DTp5Lp3Zbv1XI4lZolEiSvrnRN0=
-=8bnY
------END PGP SIGNATURE-----
-
---asfmaes4o5kagu7x--
+>
+> >>
+> >>
+> >>
+> >> > Is there a reason why these r-o subvolumes are not skipped by defaul=
+t?
+> >> > Could they be skipped without a problem and it is just missing the i=
+mplementation?
+> >> >
+> >> > Thanks :)
+> >> >
+> >> > Kind regards,
+> >> > Cathy
+> >> >
+>
