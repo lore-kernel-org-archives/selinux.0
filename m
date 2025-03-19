@@ -1,223 +1,248 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-ua1-f53.google.com (mail-ua1-f53.google.com [209.85.222.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51CA279C0
-	for <selinux@vger.kernel.org>; Wed, 19 Mar 2025 15:20:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3347C20AF6C
+	for <selinux@vger.kernel.org>; Wed, 19 Mar 2025 19:29:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742397653; cv=none; b=skudiRKNH8HE5Qm64YENSYJz5SW/Ko7WtPeD5ROjoMM+V0z6pPt9vSuV3SZ7ZvDUkcPJjLuIM5Rtv837JQlpM03szklZT94HHJLSqmVati647Eoytb/brQYRwHyQAJe9RR4sKGRvsNtM6akGN1rGkNNC39GG1VtPmuke9vxdC2U=
+	t=1742412553; cv=none; b=SW08brY9b6RIDWz1DBYNgjToRoJ+vtPihdVkbxB/9si0PZjyj1h4o+Obhr7xaeP82D2u4z9GDJPMsda37E23zsURJNZANdNXpsr8j0sGWHW6kCvQVuO+lRXgt1ARyZM8DoYN1eltusHEynMw3uqKRZ/siZ83Cipo6TIfMYoHAow=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742397653; c=relaxed/simple;
-	bh=Sn2VOZRV1HNgG9jNppqr+EAClzVi1Ruj1Kn22fOLh+M=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=oZRj5Spa7+r/6UkFy97MZ1c2TWWbU26f9cj62Co6j/SV0snT3yyPvKKte/7icX8W6bJls9si2xjPlTWN4KQCZvs0Qex4NpiaRFR0bhHHfqZau8N2N5rcwR/RKm8x0uRK3z/IgXu5DSgyR9HbFJ1yTNraDdLRrbMi08leMSqxxTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=Hp65S3Si; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=Hp65S3Si; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1742412553; c=relaxed/simple;
+	bh=PTxlk65y+bSdffm9Q5jQRHrvnM3CWff2d/GxLvNPCdI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=IeLaq+5XeNgLNel6Md4/pxH7VxSqCchx6lAXZAQxG8IU6UcjsQd5ZBWi2tYiBKglvjrCdDaLhE+BA+gF/42DD8yjylCMcwgZ6sU1fcak1qKIkcyAdMNvKkxal0uAcA0DaORXXEOIjjIhQUMAhhYr92xtpUZEPBJkid3Td1xufmk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OD5sNZ62; arc=none smtp.client-ip=209.85.222.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="Hp65S3Si";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="Hp65S3Si"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 59AE81FF49;
-	Wed, 19 Mar 2025 15:20:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1742397649; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Sn2VOZRV1HNgG9jNppqr+EAClzVi1Ruj1Kn22fOLh+M=;
-	b=Hp65S3SiEEXjFtWwSns2aN485YNz6GQBBVsWC3FL+tbNIOtzsKY0kVLbLJnMbZLvNeXQ3s
-	dipTVqWpilEFL0JFqp/4aWOqj3ZnZ0Ty1hcXBKfTit1txP38nkrpvRdWJXm5iYQVdbS3Dm
-	0g10XvTgpuhY1+UOCBI98JAcqdWANb4=
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1742397649; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Sn2VOZRV1HNgG9jNppqr+EAClzVi1Ruj1Kn22fOLh+M=;
-	b=Hp65S3SiEEXjFtWwSns2aN485YNz6GQBBVsWC3FL+tbNIOtzsKY0kVLbLJnMbZLvNeXQ3s
-	dipTVqWpilEFL0JFqp/4aWOqj3ZnZ0Ty1hcXBKfTit1txP38nkrpvRdWJXm5iYQVdbS3Dm
-	0g10XvTgpuhY1+UOCBI98JAcqdWANb4=
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 1165613A2C;
-	Wed, 19 Mar 2025 15:20:49 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id F1r9AtHg2mfDRgAAD6G6ig
-	(envelope-from <fvogt@suse.com>); Wed, 19 Mar 2025 15:20:49 +0000
-From: Fabian Vogt <fvogt@suse.com>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>,
- William Roberts <bill.c.roberts@gmail.com>
-Cc: Petr Lautrbach <lautrbach@redhat.com>, selinux@vger.kernel.org,
- Cathy Hu <cahu@suse.de>, selinux@suse.de
-Subject: Re: Question regarding restorecon and btrfs read-only snapshots
-Date: Wed, 19 Mar 2025 16:20:48 +0100
-Message-ID: <19802444.fSG56mABFh@fabians-envy>
-Organization: SUSE Linux GmbH
-In-Reply-To:
- <CAFftDdqhoXSFzTGS4682apa+MtVWWEqnC29WVbQQXfsVqZ+svA@mail.gmail.com>
-References:
- <98f87fd6-6d3e-4539-ad8f-1a0dc09aa890@suse.de>
- <CAEjxPJ5rG5yfwB=8aH8iDFTXgo8W8JBmjLMA7A5q_eMbEJmgaw@mail.gmail.com>
- <CAFftDdqhoXSFzTGS4682apa+MtVWWEqnC29WVbQQXfsVqZ+svA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OD5sNZ62"
+Received: by mail-ua1-f53.google.com with SMTP id a1e0cc1a2514c-86b9d1f7249so6568366241.2
+        for <selinux@vger.kernel.org>; Wed, 19 Mar 2025 12:29:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1742412551; x=1743017351; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=t78hhsVc5vLASeyNrniWb0Z0CNW5Btrc4aKhwzVfXMw=;
+        b=OD5sNZ62WoR/LyoFbYw209kR6cEzx+uBX/d998yQsRSi+VuvllSvaG/yYOHXi5QXg8
+         qZvFZF3iW35K5D3LbQwaTXfzdhaWZ5NyrpnDiqVHbP4tmYnKZWfmHFxfk8uAlABdJSHI
+         mpxa5ASiFTurT2JvI5b5yWJzUv1lYLN0NyNQT4cdrh81/aS0OOBw9rTu0TKozEmdFy/Y
+         4WDRdCs8GX4CNxj8OElr/rXLd2QpkZHKaPPkfsqjkmfbx7E/TLLiZIPJBg2dfV6MaYwf
+         zxfNZOMG83wyilh6Mz98Pqvu6EF72XkHB/BEOhrOwT17hUJUk9X584a1WB4jJ7p4SPcx
+         5wmw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742412551; x=1743017351;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=t78hhsVc5vLASeyNrniWb0Z0CNW5Btrc4aKhwzVfXMw=;
+        b=dJiZjGDs8uxLgLHMXS8FId9cUGHph2kiQVH7T83ul9FEYPGe76VJ089/3hgGsQgq7p
+         ilgtMmctkf6Uy3MujCTahOj9vS7eytFYitdScQC7k2gewYtU2QMS/pNC3IDhg4XVufgG
+         wWRVBZW+dG7+t6fiv3xHvVcdH4/XMfY5g0P4j39iChgBuPWUa2KVa8Ch95qyasmuukVb
+         WI0nwH7OX8hxVX6hBwwGhD4TO1zeohziky0G5vW642r6hBbtrEMf/c8lCKclgyNXF/Re
+         A1EThIlfP+GKoPVV+ctRBmJskKMDi9Y7bMz/sUlR3Vg+4Dj1Zx3la+18iwjDlQ8//52m
+         kpsQ==
+X-Gm-Message-State: AOJu0Ywog49DIdOvr90Vc4GeM/AQI3ogghn6mF1BYgU92wEOVrL2GYnE
+	4Z7yGsVwmnFxidXqgAs3iWpckI4RTzZ7rb4kVus+q53fhDpsQ5tajdy75xQfHiUPcNUVALuoT4D
+	m0Ow3dBgePLoz5YwycpcSWE073PLNs5JkdBU=
+X-Gm-Gg: ASbGnct65F/u3LBG5MpXdtayynQGJJavTevOI1GGpnBmUv03DwvHN7SZkIr05O2vv4I
+	UNQTyDBfLUML/d67CeoujtFjBaICX/VPMKUUYdx6K7OdAsb9zPWQkTDLtzqnF0n8r9Hhz0dkgTN
+	PVcLqun7uY/Y/KZyb6RlZZiH8=
+X-Google-Smtp-Source: AGHT+IFfAay0pjWYJMMAZcdUuLFUF5xuc0MkhXfOsctJe89mcALTj0ebm9OspzmdGWEb2hqAfMu0EI20i0WwTG4wc/Y=
+X-Received: by 2002:a05:6102:5707:b0:4c1:869b:7db4 with SMTP id
+ ada2fe7eead31-4c4ec650e82mr3609084137.9.1742412550839; Wed, 19 Mar 2025
+ 12:29:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+References: <D7Y03RIRQTEH.1SUBF6LGYYEM6@gmail.com> <20250221093910.657484-1-nvraxn@gmail.com>
+In-Reply-To: <20250221093910.657484-1-nvraxn@gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 19 Mar 2025 15:29:00 -0400
+X-Gm-Features: AQ5f1Jpogmn6GfxY05Cb7t7eLSYaaqTCoBBvTq1AWWK3V7FXVT7DHFu5eF79jJs
+Message-ID: <CAP+JOzQP5kXVnURObRpV6HJ+pqZiBeS9AGrsArJKy50EhTcyDg@mail.gmail.com>
+Subject: Re: [PATCH v2] libsemanage: create semanage_basename to ensure posix compliance
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: selinux@vger.kernel.org, bill.c.roberts@gmail.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="utf-8"
-X-Spam-Level: 
-X-Spamd-Result: default: False [-2.30 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-0.997];
-	MIME_GOOD(-0.10)[text/plain];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	TO_DN_SOME(0.00)[];
-	HAS_ORG_HEADER(0.00)[];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	FREEMAIL_TO(0.00)[gmail.com];
-	MIME_TRACE(0.00)[0:+];
-	URIBL_BLOCKED(0.00)[suse.de:email,imap1.dmz-prg2.suse.org:helo];
-	ARC_NA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCPT_COUNT_FIVE(0.00)[6];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email]
-X-Spam-Score: -2.30
-X-Spam-Flag: NO
 
-Hi,
+On Fri, Feb 21, 2025 at 4:41=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wro=
+te:
+>
+> Passing a const char * to basename(3) is a glibc-specific extension, so
+> create our own basename implementation. As it's a trivial 2 LOC, always
+> use our implementation of basename even if glibc is available to avoid
+> the complications of attaining the non-posix glibc implementation of
+> basename(3) as _GNU_SOURCE needs to be defined, but libgen.h also needs
+> to have not been included.
+>
+> Also fix a missing check for selinux_policy_root(3). From the man page:
+> On failure, selinux_policy_root returns NULL.
+>
+> As the glibc basename(3) (unlike posix basename(3)) does not support
+> having a nullptr passed to it, only pass the policy_root to basename(3)
+> if it is non-null.
+>
+> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 
-Am Mittwoch, 19. M=C3=A4rz 2025, 15:35:58 Mitteleurop=C3=A4ische Normalzeit=
- schrieb William Roberts:
-> On Wed, Mar 19, 2025 at 8:25=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Wed, Mar 19, 2025 at 9:16=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Tue, Mar 18, 2025 at 9:11=E2=80=AFAM Petr Lautrbach <lautrbach@red=
-hat.com> wrote:
-> > > >
-> > > > Stephen Smalley <stephen.smalley.work@gmail.com> writes:
-> > > >
-> > > > > On Mon, Mar 17, 2025 at 1:32=E2=80=AFPM Petr Lautrbach <lautrbach=
-@redhat.com> wrote:
-> > > > >>
-> > > > >> Cathy Hu <cahu@suse.de> writes:
-> > > > >>
-> > > > >> > On 17.03.25 15:29, Petr Lautrbach wrote:
-> > > > >> >>
-> > > > >> >> You could use `-e <directory>` to exclude read only subdirect=
-ories.
-> > > > >> >>
-> > > > >> >
-> > > > >> > Yes that is possible, but also requires a manual change by the=
- user to set
-> > > > >> > this up together with the snapshot (same as telling them to ad=
-d <<none>>),
-> > > > >> > which we would like to avoid.
-> > > > >>
-> > > > >> Your -relabel.service's are generated and so can be restorecon o=
-ptions
-> > > > >> there.
-> > > > >>
-> > > > >> Fedora uses fixfiles -
-> > > > >> https://github.com/SELinuxProject/selinux/blob/main/policycoreut=
-ils/scripts/fixfiles
-> > > > >> - which detects ro filesystems and skip them.
-> > > > >
-> > > > > We already have logic in libselinux/src/selinux_restorecon.c to
-> > > > > exclude filesystems that lack seclabel support; should we augment=
- this
-> > > > > to also exclude read-only filesystems to avoid the need to work a=
-round
-> > > > > this in all callers?
-> > > > >
-> > > > https://github.com/SELinuxProject/selinux/blob/main/libselinux/src/=
-selinux_restorecon.c#L238
-> > > >
-> > > > You're right, I didn't know about that.
-> > > >
-> > > > I think it would make sense to exclude also `ro` mount points.
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Note that btrfs subvolumes don't necessarily show up as separate mount poin=
-ts:
-Essentially any directory could be a subvolume. That makes it rather annoyi=
-ng
-to gather a complete list for -e before calling restorecon (would need full=
- FS
-traversal).
-
-To detect ro subols in restorecon, changes of st_dev need to be detected.
-Quoting my comment from bugzilla:
-
-> (Some notes for d): This could be implemented in restorecon by adding to =
-the
-> if (ftsent->fts_statp->st_dev !=3D state->dev_num) check. The
-> BTRFS_IOC_SUBVOL_GETFLAGS ioctl can be called on that FD and the result
-> checked against BTRFS_SUBVOL_RDONLY. That is not too complex or expensive=
- and
-> does not need additional dependencies on e.g. libbtrfs.)
-
-That leaves the question of what to do with that info. At first maybe just =
-set
-a flag that it's within a read-only subvol and soften error handling, i.e.
-this:
-
-> > > I think the tricky part is the case where the caller deliberately
-> > > passed those mount points to restorecon/setfiles. The current
-> > > exclusion logic IIRC won't exclude any explicitly passed directories
-> > > to avoid silently failing. But skipping read-only mounts on a
-> > > traversal of a subdirectory would make sense IMHO.
-> >
-> > Actually, maybe not. Scenario: Read-only mount on a higher level
-> > directory with read-write mount of a lower level directory (e.g.
-> > read-only / with a writable /var), and restorecon or setfiles invoked
-> > on /.
-> > Maybe it is best to just defer this to the callers.
->=20
-> You beat me to this, I had a draft sitting in my inbox. My suggestion
-> was to report that it occured, but not
-> fail and keep going if the return code is for read only failure.
-
-Cheers,
-=46abian
-
-> > > > >> > Is there a reason why these r-o subvolumes are not skipped by =
-default?
-> > > > >> > Could they be skipped without a problem and it is just missing=
- the implementation?
-> > > > >> >
-> > > > >> > Thanks :)
-> > > > >> >
-> > > > >> > Kind regards,
-> > > > >> > Cathy
-> > > > >> >
-> > > >
-> >
->=20
-
-
-
-
+> ---
+>  libsemanage/src/conf-parse.y       | 13 ++++++++++---
+>  libsemanage/src/direct_api.c       |  1 +
+>  libsemanage/src/utilities.c        |  9 +++++++++
+>  libsemanage/src/utilities.h        | 13 +++++++++++++
+>  libsemanage/tests/test_utilities.c | 26 ++++++++++++++++++++++++++
+>  5 files changed, 59 insertions(+), 3 deletions(-)
+>
+> diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
+> index 6cb8a598..d3ca5f1f 100644
+> --- a/libsemanage/src/conf-parse.y
+> +++ b/libsemanage/src/conf-parse.y
+> @@ -21,6 +21,7 @@
+>  %{
+>
+>  #include "semanage_conf.h"
+> +#include "utilities.h"
+>
+>  #include <sepol/policydb.h>
+>  #include <selinux/selinux.h>
+> @@ -382,7 +383,10 @@ external_opt:   PROG_PATH '=3D' ARG  { PASSIGN(new_e=
+xternal->path, $3); }
+>  static int semanage_conf_init(semanage_conf_t * conf)
+>  {
+>         conf->store_type =3D SEMANAGE_CON_DIRECT;
+> -       conf->store_path =3D strdup(basename(selinux_policy_root()));
+> +       const char *policy_root =3D selinux_policy_root();
+> +       if (policy_root !=3D NULL) {
+> +               conf->store_path =3D strdup(semanage_basename(policy_root=
+));
+> +       }
+>         conf->ignoredirs =3D NULL;
+>         conf->store_root_path =3D strdup("/var/lib/selinux");
+>         conf->compiler_directory_path =3D strdup("/usr/libexec/selinux/hl=
+l");
+> @@ -544,8 +548,11 @@ static int parse_module_store(char *arg)
+>         free(current_conf->store_path);
+>         if (strcmp(arg, "direct") =3D=3D 0) {
+>                 current_conf->store_type =3D SEMANAGE_CON_DIRECT;
+> -               current_conf->store_path =3D
+> -                   strdup(basename(selinux_policy_root()));
+> +               const char *policy_root =3D selinux_policy_root();
+> +               if (policy_root !=3D NULL) {
+> +                       current_conf->store_path =3D
+> +                           strdup(semanage_basename(policy_root));
+> +               }
+>                 current_conf->server_port =3D -1;
+>         } else if (*arg =3D=3D '/') {
+>                 current_conf->store_type =3D SEMANAGE_CON_POLSERV_LOCAL;
+> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> index 99cba7f7..ce12ccaf 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -26,6 +26,7 @@
+>
+>  #include <assert.h>
+>  #include <fcntl.h>
+> +#include <libgen.h>
+>  #include <stdio.h>
+>  #include <stdio_ext.h>
+>  #include <stdlib.h>
+> diff --git a/libsemanage/src/utilities.c b/libsemanage/src/utilities.c
+> index 70b5b677..004ffb62 100644
+> --- a/libsemanage/src/utilities.c
+> +++ b/libsemanage/src/utilities.c
+> @@ -349,3 +349,12 @@ int write_full(int fd, const void *buf, size_t len)
+>
+>         return 0;
+>  }
+> +
+> +#ifdef __GNUC__
+> +__attribute__((nonnull))
+> +#endif
+> +char *semanage_basename(const char *filename)
+> +{
+> +       char *p =3D strrchr(filename, '/');
+> +       return p ? p + 1 : (char *)filename;
+> +}
+> diff --git a/libsemanage/src/utilities.h b/libsemanage/src/utilities.h
+> index c2d484a7..7481077a 100644
+> --- a/libsemanage/src/utilities.h
+> +++ b/libsemanage/src/utilities.h
+> @@ -156,4 +156,17 @@ semanage_list_t *semanage_slurp_file_filter(FILE * f=
+ile,
+>
+>  int write_full(int fd, const void *buf, size_t len) WARN_UNUSED;
+>
+> +/**
+> + * Portable implementation of the glibc version of basename(3).
+> + *
+> + * @param filename  path to find basename of
+> + *
+> + * @return          basename of filename
+> + */
+> +
+> +#ifdef __GNUC__
+> +__attribute__((nonnull))
+> +#endif
+> +char *semanage_basename(const char *filename);
+> +
+>  #endif
+> diff --git a/libsemanage/tests/test_utilities.c b/libsemanage/tests/test_=
+utilities.c
+> index bbd5af30..70a76fe7 100644
+> --- a/libsemanage/tests/test_utilities.c
+> +++ b/libsemanage/tests/test_utilities.c
+> @@ -46,6 +46,7 @@ static void test_semanage_rtrim(void);
+>  static void test_semanage_str_replace(void);
+>  static void test_semanage_findval(void);
+>  static void test_slurp_file_filter(void);
+> +static void test_semanage_basename(void);
+>
+>  static char fname[] =3D {
+>         'T', 'E', 'S', 'T', '_', 'T', 'E', 'M', 'P', '_', 'X', 'X', 'X', =
+'X',
+> @@ -117,6 +118,10 @@ int semanage_utilities_add_tests(CU_pSuite suite)
+>                                 test_slurp_file_filter)) {
+>                 goto err;
+>         }
+> +       if (NULL =3D=3D CU_add_test(suite, "semanage_basename",
+> +                               test_semanage_basename)) {
+> +               goto err;
+> +       }
+>         return 0;
+>        err:
+>         CU_cleanup_registry();
+> @@ -346,3 +351,24 @@ static void test_slurp_file_filter(void)
+>
+>         semanage_list_destroy(&data);
+>  }
+> +
+> +static void test_semanage_basename(void)
+> +{
+> +       char *basename1 =3D semanage_basename("/foo/bar");
+> +       CU_ASSERT_STRING_EQUAL(basename1, "bar");
+> +
+> +       char *basename2 =3D semanage_basename("/foo/bar/");
+> +       CU_ASSERT_STRING_EQUAL(basename2, "");
+> +
+> +       char *basename3 =3D semanage_basename("/foo.bar");
+> +       CU_ASSERT_STRING_EQUAL(basename3, "foo.bar");
+> +
+> +       char *basename5 =3D semanage_basename(".");
+> +       CU_ASSERT_STRING_EQUAL(basename5, ".");
+> +
+> +       char *basename6 =3D semanage_basename("");
+> +       CU_ASSERT_STRING_EQUAL(basename6, "");
+> +
+> +       char *basename7 =3D semanage_basename("/");
+> +       CU_ASSERT_STRING_EQUAL(basename7, "");
+> +}
+> --
+> 2.48.1
+>
+>
