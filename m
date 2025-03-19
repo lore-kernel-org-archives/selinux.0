@@ -1,57 +1,57 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDCD823AD
-	for <selinux@vger.kernel.org>; Wed, 19 Mar 2025 13:16:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D40843596B
+	for <selinux@vger.kernel.org>; Wed, 19 Mar 2025 13:25:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742390188; cv=none; b=mGFTubS3Yi8PX0BlPuTTo+3cgjpRIzl6mdAm0GGaaRz02x/kRamlJTXejA842bKe5ZGIV8b1v2j8BYHaoNkZj0oGNITU92foH5EKMzdTWsUQmz/5EiwGuffMe8ScQbF7Kl1srrhKnle7pGZ7tU9J0+YlJ6CO0xpQXzNZBq0hgOU=
+	t=1742390733; cv=none; b=FNpmiPA0HI5SNtFc3AXNIxaSSCzzsMDYqBoOE+xHrdRV/WwWGZAn1Y7j+n3f9HfCSPXdobHLpxtjymEdGaygwYCx9SR1ODHUFHvEMRPFpHyeCj+1mX4fkw3l9B7+dHGxlyQSLzfgxQfIJ/2uOGDquW+2njADNLGlLtDZQxJ2T6Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742390188; c=relaxed/simple;
-	bh=XjvWqfayuQaTFAiNTJ1nRGZz1jmLlmwbhc8nz2bTn/8=;
+	s=arc-20240116; t=1742390733; c=relaxed/simple;
+	bh=6Y+jDEnR/C4ve9UIJoG4xWv65dQMzYVu0zgFm/doa2k=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nyCDrMGIl4+KQLh428qSM8VEd0S394Qf1sn45j3DrdQhMoHaJf/nAeeC1LoKWSAih9YavA9jaBzXbClOFGIu5kPjusOUf7/ZGZaeA+YH/by5s/6q6XlGqOaeppwOXSElO+cug2SvWL7zarya+3duKw5NXOaJbdqZOn19SQlkpZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ndsXZ35f; arc=none smtp.client-ip=209.85.216.45
+	 To:Cc:Content-Type; b=Y7GYfQI6XU6oShL1kTD1MUsrCh/mn9Kxz3fORXz0BShM/LYBZoMMHKuqYOeWSQkQvDh4JLDRkZIqYmv4jT8CFMvLkM2aSNdmDLej8X9VqNDhRaCtQq1VMU/mOEflZ3IpDFH0vMRTHzwZD5iViLvzS6BGyEpxAMTbS4xOfUJLYNY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lws4Yk+/; arc=none smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ndsXZ35f"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-2f9d3d0f55dso8262819a91.1
-        for <selinux@vger.kernel.org>; Wed, 19 Mar 2025 06:16:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lws4Yk+/"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-30185d00446so970603a91.0
+        for <selinux@vger.kernel.org>; Wed, 19 Mar 2025 06:25:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742390185; x=1742994985; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1742390731; x=1742995531; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=XjvWqfayuQaTFAiNTJ1nRGZz1jmLlmwbhc8nz2bTn/8=;
-        b=ndsXZ35fkqbsgee5FW/ryHJzh28E+Jd7EtfceTmRAkhknM6+gVQIASUCRamAfqMxbO
-         iGcd7GCFsYjCvjYKnr3JgLm6STe7G76PE1wHvjUIq/d1mjiHQ5PUr4AO4kImM4669RXZ
-         zO8MswQnRDf2SzIsPHf9qRID26o8VhKm+L6kEa2O6rBL1LHMJYgFiDTF5qs8eNg8cXcQ
-         p736Q+ov+JpEXAhrGgudS0owja2o9HOfbfM69Cr2PDC+cNh9ZMD83x/WelaNk5gsb9DM
-         LBCmUhpa6TTO04Moej9jYWRi+pJqFtC5PJKKHEtxrNVLgDAdQ7WKPgBV0y054MXXj3kb
-         txiw==
+        bh=6Y+jDEnR/C4ve9UIJoG4xWv65dQMzYVu0zgFm/doa2k=;
+        b=lws4Yk+/o+/JNCvR8nxYtJZxRb0Op4jTepMKxFGTgj+UH7Nj+6YScMgJU/XsFFSGS3
+         mzKg/VBk2DPXsotuBR0LbEnM1wgRlLxqno9AB4xHuJnMK2o8SwXopWo1qHUj2dIqhLni
+         PEqLqVHVlbwhH+cCndY8rxbfWnzFZxE1hr4h6i+yiJSVmwnE0FRMlpNAHaGMrJwILThx
+         mHkK0u1v2/xscP6hjMWSEvutZCLYCqGrPfQM7vPdLHSWP68VG1W2EmNkZ+Y0H8Q6i4IC
+         HUC8BgAK1/kAJbf5M2o6dkrorBvt2MvvvDuQIPnVLm5WTOOEbOEjc/IT3ymdJLwmrdot
+         W9CA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742390185; x=1742994985;
+        d=1e100.net; s=20230601; t=1742390731; x=1742995531;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=XjvWqfayuQaTFAiNTJ1nRGZz1jmLlmwbhc8nz2bTn/8=;
-        b=B8lxmr4n0W/ZToo9n3bGEHmvaV89kkO7Ij4e3H8f79wyoolvCEyU9jq6786dd8RcVW
-         eDAaYTdYT+bqo+dL1UjL9VXaly/24Dpq/TNQEgIuEw2otAYML49AdhlYBHBp/H/vCIvd
-         vh/NTjxHrVhVArhs5tICFeJREVko+cjBJkyzUOXW2H6aSL0MY3f3vpspKHAUvHNl3m5Y
-         uo2bhvTEuQYvACoPVnf+xF3/lMTyiXnRei/Nnio5vTeFWrI4oet/47vHBEABZciy1VxV
-         XiogQUVl21ku0yPqwrzVC4J5OzG4ZzkNGeXETL8l+pwaac86z+uybBc22dYRDjQEFosP
-         Q8Jg==
-X-Gm-Message-State: AOJu0YyN/34DMTPVSwJnZ4l8tOd/DGtsfrF1RASh4bHtoFZ2R0OBV+eJ
-	bo6sd8T9Y9qXBCGdz+YOBeyUDAjABeS4RVxdfJMR4xn4Z0qM4zgOcyL1vA24wdfQkVESBulGlHe
-	3+fBxv6VUBiUFHa8wixjhK4RMU2c=
-X-Gm-Gg: ASbGnctKAjMwmTJgVPNQ4MOD/rzBzkLEkWRZE/sxwSo8pSV+oliVnNGTM8OesUZa1tU
-	iLqLiu1OaopCYWyIpVLdf9U9h2VPPLZrR51hzY4PxDNgOy3UHG+/k1dZbv4/qSZWcjtQnj86jsB
-	q4CTaZ3ku+FfI6qw4lge5v1FqmEw==
-X-Google-Smtp-Source: AGHT+IGoZnI02u9bcfGhpQafq9Ch46olmZ/PFOAtAqLutT48vJaRkCNLCS5eMs68rLAZ3EjyfKuvpjy7Ex2ULWjEhiE=
-X-Received: by 2002:a17:90b:384e:b0:2ee:44ec:e524 with SMTP id
- 98e67ed59e1d1-301be21990fmr3595592a91.35.1742390184900; Wed, 19 Mar 2025
- 06:16:24 -0700 (PDT)
+        bh=6Y+jDEnR/C4ve9UIJoG4xWv65dQMzYVu0zgFm/doa2k=;
+        b=q5RtqTYcjr7eQpHZ9G4Hg43Cr5CeE1BwmuV8nF5uMHC9pfAg3NtNwtwOi5rVnLDkp9
+         andGqWit4sxja/W8hp7l1Wh1baCsTWFmhq/rd5udZJ6lnriXJ2Pykt5aY7MpJBJbwb5I
+         ecCC369wHKxGu6aVdN9wH74rJri1ojZvwRQF6Wxq/UqblA7wvgXRnawrLoylMH+/8WaW
+         0S7gQ5xcp5n9VHP2wZDdD3uW5Yq2h5zph9OQ0uSBxkG6OUGcLhfW8LguOtOKI52Vm/Cl
+         QtToyc7O+77mJj3d83q0FCOmsLMCmiW0XXWyTnGQnlM/fdy8N1QR9QcR9PLQMcxxZ61j
+         YOZQ==
+X-Gm-Message-State: AOJu0YxoasKz0AxERlbolJ4P91JAw7rmHbWNfdzLPKK8lP/wfNgSqwfD
+	JmdnlIwIHWEY1Z16qc3P4hSC5u2CfVNc8lmCqRApmkWMGm07OATx8KnAV2i9FOXqEcE1qbajkN6
+	g+FB77dRkLik+cHzSDu++mFg9Y24=
+X-Gm-Gg: ASbGnctEBwHaqaaQwZ3l1zya4/NNet9KSeJrcZLd0fATkBdxaCF0fsNHdSd9Zflno11
+	tKWuhuGLnWzTnUvxDAU2qEFA6OFO0Ms2ThLU+oCT/Y9jvB4+3VeTy30H3GjOzR8quIJkz9drFRr
+	1fYUWATFsxLzNWuv4tn33RPu//xA==
+X-Google-Smtp-Source: AGHT+IHZ39LCY4TmML2vh5thiTduua7dMllyx74FDDJZ5KSrY1+j/yNEutvY5JJFH4Y8l4r7jwJ/GqONson0f408Oj8=
+X-Received: by 2002:a17:90b:1b47:b0:2ff:5267:e7da with SMTP id
+ 98e67ed59e1d1-301bda17dabmr4512510a91.3.1742390730971; Wed, 19 Mar 2025
+ 06:25:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -60,78 +60,93 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <98f87fd6-6d3e-4539-ad8f-1a0dc09aa890@suse.de> <87senb7mt4.fsf@redhat.com>
  <8ca3a1ed-0f53-4da9-a86b-75699f306f8c@suse.de> <87plif7egm.fsf@redhat.com>
- <CAEjxPJ4DZs_1dPuO87UPpuvQL-PEq6zq9KA64SQvzsT1Mq8CqQ@mail.gmail.com> <87msdi7acy.fsf@redhat.com>
-In-Reply-To: <87msdi7acy.fsf@redhat.com>
+ <CAEjxPJ4DZs_1dPuO87UPpuvQL-PEq6zq9KA64SQvzsT1Mq8CqQ@mail.gmail.com>
+ <87msdi7acy.fsf@redhat.com> <CAEjxPJ7Q8y+3S-kR6bKmRc8HW+ArDJb1z9D-=sRnWe+zYEW1eg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7Q8y+3S-kR6bKmRc8HW+ArDJb1z9D-=sRnWe+zYEW1eg@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 19 Mar 2025 09:16:13 -0400
-X-Gm-Features: AQ5f1Jrp6WQay2PK9BZz0FDdj5EkR4XSSHiE-EWtnZqa9G70dOHg0I0gw26V740
-Message-ID: <CAEjxPJ7Q8y+3S-kR6bKmRc8HW+ArDJb1z9D-=sRnWe+zYEW1eg@mail.gmail.com>
+Date: Wed, 19 Mar 2025 09:25:18 -0400
+X-Gm-Features: AQ5f1JpPmTUp1akHZJJKC1NfOiZ8Ctf6PsaK9hUctf_LFN1l002tefVviT_DHsI
+Message-ID: <CAEjxPJ5rG5yfwB=8aH8iDFTXgo8W8JBmjLMA7A5q_eMbEJmgaw@mail.gmail.com>
 Subject: Re: Question regarding restorecon and btrfs read-only snapshots
 To: Petr Lautrbach <lautrbach@redhat.com>
 Cc: selinux@vger.kernel.org, Cathy Hu <cahu@suse.de>, fvogt@suse.com, selinux@suse.de
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 18, 2025 at 9:11=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.co=
-m> wrote:
+On Wed, Mar 19, 2025 at 9:16=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Stephen Smalley <stephen.smalley.work@gmail.com> writes:
->
-> > On Mon, Mar 17, 2025 at 1:32=E2=80=AFPM Petr Lautrbach <lautrbach@redha=
-t.com> wrote:
-> >>
-> >> Cathy Hu <cahu@suse.de> writes:
-> >>
-> >> > On 17.03.25 15:29, Petr Lautrbach wrote:
-> >> >>
-> >> >> You could use `-e <directory>` to exclude read only subdirectories.
-> >> >>
-> >> >
-> >> > Yes that is possible, but also requires a manual change by the user =
-to set
-> >> > this up together with the snapshot (same as telling them to add <<no=
-ne>>),
-> >> > which we would like to avoid.
-> >>
-> >> Your -relabel.service's are generated and so can be restorecon options
-> >> there.
-> >>
-> >> Fedora uses fixfiles -
-> >> https://github.com/SELinuxProject/selinux/blob/main/policycoreutils/sc=
-ripts/fixfiles
-> >> - which detects ro filesystems and skip them.
+> On Tue, Mar 18, 2025 at 9:11=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.=
+com> wrote:
 > >
-> > We already have logic in libselinux/src/selinux_restorecon.c to
-> > exclude filesystems that lack seclabel support; should we augment this
-> > to also exclude read-only filesystems to avoid the need to work around
-> > this in all callers?
+> > Stephen Smalley <stephen.smalley.work@gmail.com> writes:
 > >
+> > > On Mon, Mar 17, 2025 at 1:32=E2=80=AFPM Petr Lautrbach <lautrbach@red=
+hat.com> wrote:
+> > >>
+> > >> Cathy Hu <cahu@suse.de> writes:
+> > >>
+> > >> > On 17.03.25 15:29, Petr Lautrbach wrote:
+> > >> >>
+> > >> >> You could use `-e <directory>` to exclude read only subdirectorie=
+s.
+> > >> >>
+> > >> >
+> > >> > Yes that is possible, but also requires a manual change by the use=
+r to set
+> > >> > this up together with the snapshot (same as telling them to add <<=
+none>>),
+> > >> > which we would like to avoid.
+> > >>
+> > >> Your -relabel.service's are generated and so can be restorecon optio=
+ns
+> > >> there.
+> > >>
+> > >> Fedora uses fixfiles -
+> > >> https://github.com/SELinuxProject/selinux/blob/main/policycoreutils/=
+scripts/fixfiles
+> > >> - which detects ro filesystems and skip them.
+> > >
+> > > We already have logic in libselinux/src/selinux_restorecon.c to
+> > > exclude filesystems that lack seclabel support; should we augment thi=
+s
+> > > to also exclude read-only filesystems to avoid the need to work aroun=
+d
+> > > this in all callers?
+> > >
+> >
+> > https://github.com/SELinuxProject/selinux/blob/main/libselinux/src/seli=
+nux_restorecon.c#L238
+> >
+> > You're right, I didn't know about that.
+> >
+> > I think it would make sense to exclude also `ro` mount points.
 >
-> https://github.com/SELinuxProject/selinux/blob/main/libselinux/src/selinu=
-x_restorecon.c#L238
->
-> You're right, I didn't know about that.
->
-> I think it would make sense to exclude also `ro` mount points.
+> I think the tricky part is the case where the caller deliberately
+> passed those mount points to restorecon/setfiles. The current
+> exclusion logic IIRC won't exclude any explicitly passed directories
+> to avoid silently failing. But skipping read-only mounts on a
+> traversal of a subdirectory would make sense IMHO.
 
-I think the tricky part is the case where the caller deliberately
-passed those mount points to restorecon/setfiles. The current
-exclusion logic IIRC won't exclude any explicitly passed directories
-to avoid silently failing. But skipping read-only mounts on a
-traversal of a subdirectory would make sense IMHO.
+Actually, maybe not. Scenario: Read-only mount on a higher level
+directory with read-write mount of a lower level directory (e.g.
+read-only / with a writable /var), and restorecon or setfiles invoked
+on /.
+Maybe it is best to just defer this to the callers.
 
 >
-> >>
-> >>
-> >>
-> >> > Is there a reason why these r-o subvolumes are not skipped by defaul=
-t?
-> >> > Could they be skipped without a problem and it is just missing the i=
-mplementation?
-> >> >
-> >> > Thanks :)
-> >> >
-> >> > Kind regards,
-> >> > Cathy
-> >> >
->
+> >
+> > >>
+> > >>
+> > >>
+> > >> > Is there a reason why these r-o subvolumes are not skipped by defa=
+ult?
+> > >> > Could they be skipped without a problem and it is just missing the=
+ implementation?
+> > >> >
+> > >> > Thanks :)
+> > >> >
+> > >> > Kind regards,
+> > >> > Cathy
+> > >> >
+> >
