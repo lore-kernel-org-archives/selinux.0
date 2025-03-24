@@ -1,108 +1,125 @@
-Received: from mail-ua1-f45.google.com (mail-ua1-f45.google.com [209.85.222.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-190c.mail.infomaniak.ch (smtp-190c.mail.infomaniak.ch [185.125.25.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63AE326462B
-	for <selinux@vger.kernel.org>; Mon, 24 Mar 2025 19:05:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB5D0194C61
+	for <selinux@vger.kernel.org>; Mon, 24 Mar 2025 19:21:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.25.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742843130; cv=none; b=oPkW8lklJU9M5ayz+x4ASYzohJiSqZVfldP8pEdCqMPDy0fXZwgPLUAWQ8ctqk4kquMAj5wUn61v9F6iTyyL/kJtOZP/et2fUctyvqBjsHiTuxsuNybgVxDCDQ+/EhRfSft5+6oosoomKsaQG3fJ8+GKTDjQMELeyQZfLAKMRHU=
+	t=1742844115; cv=none; b=PUkeKV1vzPuEXarjkbRBVqvl8VNwBJDhU3VzZtxFathyK+Bt6elELEaP9PwFYXMYLNSQnCWtvPNXQA1y4qemZf/Iu0d2V1HbZLqd5YKoDkY030ApDMB1vTxHx2MeCYjeeE86t5lPnwVt05YbE0s/S5FxHVyid0j7gpJEaZ8j+jA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742843130; c=relaxed/simple;
-	bh=fkrxoZXx84oQ+TWQfdRL7O7FxbOoG/vwQC0mtPHJNiQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bg2vOSuNKxr4mztXO5twWMmV1/l3KsCz2q9os3PH0rlwjyBQlz/e1EwqqA93EJUL0TLumQKQ0Dpll6prfxMGLZXPspZoushHCQRJuKP6JSrk7z8SGfvronN/ydcgPSgvI/qyf+zn0QWv9bc3SY7cLaA1QXZTYtA0QQzX8tRXXgg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=S7CKSNQt; arc=none smtp.client-ip=209.85.222.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1742844115; c=relaxed/simple;
+	bh=TvB1EnMBcuPAfn2Ia82TJUwmEuxauLYHO6I+MZ04fBM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=C85x2yXaCXVawFEne29foVgkSGpRC9x8LXTGMxqthDGHiKDIFryqg/KrjyJaO17Nx4EV3U/sdu3oI8AV4E/DnjsBMgB/LlbC+J+WqUSKL/kxoc9R0lSAva1YIuXcUxgnYYsc8VrRHr7OP86/K46iN0qLWN6EYSVdX8svebezPPE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net; spf=pass smtp.mailfrom=digikod.net; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=fw0UGAxS; arc=none smtp.client-ip=185.125.25.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="S7CKSNQt"
-Received: by mail-ua1-f45.google.com with SMTP id a1e0cc1a2514c-86d3907524cso1995031241.0
-        for <selinux@vger.kernel.org>; Mon, 24 Mar 2025 12:05:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1742843128; x=1743447928; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KOfkCFVfwOaCBs9E5sxneViXDqo5Kfb0CogMXMNznWs=;
-        b=S7CKSNQtkzCT8uLcBNUnWBfRn0kV59Y4noXmVpLnsZfw4wD8sas9A65fDhRly/EHEZ
-         cgBRCihp7sFwUKK82Q9jrk8ZMVorwUu0FNw1DcZTFy8k7v6+A3+tq+WWxHr+YQ6GVnrp
-         biqKa1I6tCuKdRatOFcY3rfS0pigKZZooNE0vP9kmfKHf20ofaaH+UamgG9aJaoBVTsA
-         92R0ZuveIApKBRGIws+Lmb0U9xRq1PQ8ALLhE1eoxAjwrTA+/lq0JHZkuZ2CvaQDEXKh
-         ZpW4NDWqQlLprRHxNHx57FFap6ygocJQAuWhYIjVBymEzaOvBtJpXZ0tBIbK0yLBhyxg
-         lSug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1742843128; x=1743447928;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=KOfkCFVfwOaCBs9E5sxneViXDqo5Kfb0CogMXMNznWs=;
-        b=hcAA8b/lbdQWSP1ePcAkPCRTPumA3QU58pdxrjFqrr68sss6F+nA4gXSurMKV9VKkm
-         U7GS7LzCT50sdXVu9Cl/SUw9zuW0D+TFH3GupDKk4h1RvqyVBLKOJmmQpDZzUZA0BR/9
-         Mw4vgHwMcU5TgxlduzSr1bh1Z4CQIDZ3wrfLGit7jtzQcY22LQpxcBU5y2CQRvR8MuB5
-         dpbjry5ILvdcnivJcJZzhkoIV2CY344MeH8Gd+31VOOz/zTnyVp+36/T3tZn5z9DTcov
-         guXFBM2ZDSoN1iurNGhl5iXibG4eqHQzwGioax330CCGQWoQJqmmhftR2ZWjaWVFrmej
-         teSg==
-X-Gm-Message-State: AOJu0YycC7aH2664Hy07acLUXs+4+4uVVRioUWidtFoAziG7SIavupiN
-	SVJJ3EgEB6159q2GlJP7RYcx1Qi9PAmdKsg2yFnKWF36JIm0KjDJ7jy/9iVffvkriUl311cNREe
-	UwE2ff+NZMalwz6yysmREunzolc8=
-X-Gm-Gg: ASbGncvs9hIWh0fslPzhTaQfrENHr2v0xxZN3ix7SV4bcC+VopU78dNkbDEv7rtPdhZ
-	oi5VGeyKV7yujWGOy3JukyM1sLBCt+Q79F0eBR7Pxg40IsYJC+KlU1u1EIEspzIUAAPnsIErQOZ
-	BNA9a4K5RpUZw7JqVzfRnGfYc=
-X-Google-Smtp-Source: AGHT+IFNk2nWfG+YN4Q7lH9FVfZRRKfCNDbig9qAEE+S+WKGAApi946zyZ8BqcUxwUTSNEzewSi5imX/VdlkPoKWbQY=
-X-Received: by 2002:a05:6102:50a9:b0:4c1:9cb2:8389 with SMTP id
- ada2fe7eead31-4c50d481bb3mr11100667137.2.1742843127800; Mon, 24 Mar 2025
- 12:05:27 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="fw0UGAxS"
+Received: from smtp-3-0001.mail.infomaniak.ch (unknown [IPv6:2001:1600:4:17::246c])
+	by smtp-3-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4ZM2wm1cTKz9kh;
+	Mon, 24 Mar 2025 20:21:44 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
+	s=20191114; t=1742844104;
+	bh=KP5tQfq9jTZoEX5oO13eq6Eoqzftit1HmO0SOuoKa2E=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=fw0UGAxSsxyEHu4mAuVmj2W5BTDwTRKTUgpOIwFPcKgqCbgVLPf5mFIsd6M+a9TJ/
+	 CWMoIuNRwGsOREtC4ItQgIbaVZmF3Mrh7oq2hoog4Nkq2g5T7oVn/0MP94m6kx+zNO
+	 Zm92qRXtcEkLcCPRtv8St5nzyW7SucJ7LLndfX6w=
+Received: from unknown by smtp-3-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4ZM2wg62TjzhW0;
+	Mon, 24 Mar 2025 20:21:39 +0100 (CET)
+Date: Mon, 24 Mar 2025 20:21:38 +0100
+From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
+To: Andrey Albershteyn <aalbersh@redhat.com>
+Cc: Richard Henderson <richard.henderson@linaro.org>, 
+	Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	=?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, Arnd Bergmann <arnd@arndb.de>, 
+	Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
+	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
+	selinux@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
+Subject: Re: [PATCH v4 1/3] lsm: introduce new hooks for setting/getting
+ inode fsxattr
+Message-ID: <20250324.Sai1Chahyauw@digikod.net>
+References: <20250321-xattrat-syscall-v4-0-3e82e6fb3264@kernel.org>
+ <20250321-xattrat-syscall-v4-1-3e82e6fb3264@kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250225143312.47755-1-cgoettsche@seltendoof.de> <20250225143312.47755-3-cgoettsche@seltendoof.de>
-In-Reply-To: <20250225143312.47755-3-cgoettsche@seltendoof.de>
-From: James Carter <jwcart2@gmail.com>
-Date: Mon, 24 Mar 2025 15:05:17 -0400
-X-Gm-Features: AQ5f1JqCsxfFPMIbA_lAISc2_4alerTVwRkLs2wS5NZAOmEW7Qt2F8qYX_RTD18
-Message-ID: <CAP+JOzR0U7Hjo43R_TqpgS-OHE8T8ZV8nbmU9nhnXzSZH0E_PQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] checkpolicy: free left hand conditional expression on error
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20250321-xattrat-syscall-v4-1-3e82e6fb3264@kernel.org>
+X-Infomaniak-Routing: alpha
 
-On Tue, Feb 25, 2025 at 9:37=E2=80=AFAM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
->
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> On a failure during a binray conditional expression free the left hand
-> side expression.
->
-> Reported-by: oss-fuzz (issue 398356455)
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-
-For these three patches:
-Acked-by: James Carter <jwcart2@gmail.com>
-
+On Fri, Mar 21, 2025 at 08:48:40PM +0100, Andrey Albershteyn wrote:
+> Introduce new hooks for setting and getting filesystem extended
+> attributes on inode (FS_IOC_FSGETXATTR).
+> 
+> Cc: selinux@vger.kernel.org
+> Cc: Paul Moore <paul@paul-moore.com>
+> 
+> Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
 > ---
->  checkpolicy/policy_define.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index f19e9f6d..18654d00 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -4202,6 +4202,7 @@ cond_expr_t *define_cond_expr(uint32_t expr_type, v=
-oid *arg1, void *arg2)
->                 if (!e1 || e1->next) {
->                         yyerror
->                             ("illegal right side of conditional binary op=
- expression");
-> +                       cond_expr_destroy(arg1);
->                         free(expr);
->                         return NULL;
->                 }
-> --
-> 2.47.2
->
->
+>  fs/ioctl.c                    |  7 ++++++-
+>  include/linux/lsm_hook_defs.h |  4 ++++
+>  include/linux/security.h      | 16 ++++++++++++++++
+>  security/security.c           | 32 ++++++++++++++++++++++++++++++++
+>  4 files changed, 58 insertions(+), 1 deletion(-)
+> 
+> diff --git a/fs/ioctl.c b/fs/ioctl.c
+> index 638a36be31c14afc66a7fd6eb237d9545e8ad997..4434c97bc5dff5a3e8635e28745cd99404ff353e 100644
+> --- a/fs/ioctl.c
+> +++ b/fs/ioctl.c
+> @@ -525,10 +525,15 @@ EXPORT_SYMBOL(fileattr_fill_flags);
+>  int vfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
+>  {
+>  	struct inode *inode = d_inode(dentry);
+> +	int error;
+>  
+>  	if (!inode->i_op->fileattr_get)
+>  		return -ENOIOCTLCMD;
+>  
+> +	error = security_inode_getfsxattr(inode, fa);
+
+It would help for both of these hooks to pass the dentry instead of the
+inode.
+
+> +	if (error)
+> +		return error;
+> +
+>  	return inode->i_op->fileattr_get(dentry, fa);
+>  }
+>  EXPORT_SYMBOL(vfs_fileattr_get);
+> @@ -692,7 +697,7 @@ int vfs_fileattr_set(struct mnt_idmap *idmap, struct dentry *dentry,
+>  			fa->flags |= old_ma.flags & ~FS_COMMON_FL;
+>  		}
+>  		err = fileattr_set_prepare(inode, &old_ma, fa);
+> -		if (!err)
+> +		if (!err && !security_inode_setfsxattr(inode, fa))
+>  			err = inode->i_op->fileattr_set(idmap, dentry, fa);
+>  	}
+>  	inode_unlock(inode);
+
