@@ -1,146 +1,127 @@
-Received: from smtp-190b.mail.infomaniak.ch (smtp-190b.mail.infomaniak.ch [185.125.25.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CD13192D77
-	for <selinux@vger.kernel.org>; Mon, 24 Mar 2025 19:27:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.25.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAD251B4234
+	for <selinux@vger.kernel.org>; Tue, 25 Mar 2025 23:02:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742844435; cv=none; b=N/uDGinFeewc6q02cO52F7mIBnvpzU8a/PwfqrpIQWlScTLUB1H3bzS6FLJFwWrwSbGbKtGA0rrpgdDL2ilTwZag5CJIBjPn2Tzpd0y/c/O94ukeOW/j0cAUECkbwM6UE1/l0Bc/tf0Tx4BE4r7VUr5bkLpyBnIwOuYbEQ2LG70=
+	t=1742943754; cv=none; b=BlH5vcV/9ltLLafCUn0gjUeUothyqvxkXi8MPDjD46lVgKizsQBHC0GrzB65ku5dBdP7rk8R1a2nx8T0I71RH0FLYBBF16o49OgIUzn4ovEEKX/toocLOIHcLSbopyUEB3vghoV3ODhFIXbOypWKJqKd6lexwGii6tyGkg14A4o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742844435; c=relaxed/simple;
-	bh=P4P2z1eF/YNnOfLW8fBoOKbdAwyqWpJFO/rcNQNfqQo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=schmMIm1RyUKcYYh1jd5Nj+QbAA9/H74aPgQc9BP+O/BBP5G1Xd6Sq0AQpFykCwGFIxxuh8pVOQPEDeSevq697y+Cqck/seQsOPOF5OP6dwQwvKfoKIHySiPSEe+mXbRAkY6Kbf6oO4nlOwnXuWv1IdKNK4+551V6RRb7bqe0JA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net; spf=pass smtp.mailfrom=digikod.net; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=ZHOurTVq; arc=none smtp.client-ip=185.125.25.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
+	s=arc-20240116; t=1742943754; c=relaxed/simple;
+	bh=rvtaKCacTd+dMFEwCfsS4KnID/jFXOuQd2z1cHSbJkM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KbprBiwrUtKcQu6xrPII2JxVt6S8c/B5VRxnldfksKIvEVsxk9pJIxXFvXiUiI5aO8IO9Vy9b21qyAhTp8VKo1BBvgJkF9VTBbLk6F6/xAc588TV7Y3EtrWBSC51RW5bOKN7NDeJuFtXuLsLjyDlS3/Bi3ZqAMfEzI5ZROYoj24=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=Yn6rStf5; arc=none smtp.client-ip=209.85.208.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="ZHOurTVq"
-Received: from smtp-4-0000.mail.infomaniak.ch (unknown [IPv6:2001:1600:7:10:40ca:feff:fe05:0])
-	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4ZM32x2YZ7zdsP;
-	Mon, 24 Mar 2025 20:27:05 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
-	s=20191114; t=1742844425;
-	bh=QBR/kecod01J1h193BKpllSnIdD5DJtmTOWxdGopk5I=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ZHOurTVqBYQHfSi3F6pdPowbpieWYs2igBgvPmtLeNtKh6bOX6LndXdRYsKY6jh9C
-	 KH3Sauy/1pIzJ/oIq5tcqOK2Grf+Vopzl7YTCM6Ps/dI4TzMQV42PBtmh1lSd4a4Ot
-	 uxKt6oeGXt0Fw5OGk8If/a4DunNXPqyIjb/UWnHQ=
-Received: from unknown by smtp-4-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4ZM32v3B5vz9hp;
-	Mon, 24 Mar 2025 20:27:03 +0100 (CET)
-Date: Mon, 24 Mar 2025 20:27:02 +0100
-From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Andrey Albershteyn <aalbersh@redhat.com>, 
-	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
-	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	=?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
-	selinux@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
-Subject: Re: [PATCH v4 1/3] lsm: introduce new hooks for setting/getting
- inode  fsxattr
-Message-ID: <20250324.aThi9ioghiex@digikod.net>
-References: <20250321-xattrat-syscall-v4-1-3e82e6fb3264@kernel.org>
- <e2d5b27847fde03e0b4b9fc7a464fd87@paul-moore.com>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="Yn6rStf5"
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-5ec9d24acfbso604133a12.0
+        for <selinux@vger.kernel.org>; Tue, 25 Mar 2025 16:02:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google; t=1742943751; x=1743548551; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=qpbsUEYRhF7ODaqFjujOp9s2YRkxd4ZLPAugypnEK7A=;
+        b=Yn6rStf5pO+s7P+LMfXqHHu80sudrltuUvXpI2yHeTAbVmA6H+4cI274H67ddvaw+r
+         Ravjrco0JPax3g9JmXzaj2rcmhY4hb5F2vPW2OsF8TNypFozRxE8vtKbfx9dVKdSXHQL
+         WMo+6aU4qAe7hLZYESC8+N0ajp8Ik9Ewu9D8A=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742943751; x=1743548551;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=qpbsUEYRhF7ODaqFjujOp9s2YRkxd4ZLPAugypnEK7A=;
+        b=qgKCASri+rlhhYDGs0gTW/L/UjxqnQ0khMhZYG2scziXWiFASmi22tAjZzeI91u407
+         tTZenAUAN3ZaeDdi/PCeYPw8ETwOqrlQNCu0hzydMsbAmooT2LGKdsfCoKJ2CWknVcu5
+         5XOGK/2H9t8Rq/D4zkGPIWl8eIoiJqQSEe2Mj4ZwbZ84kVN2gbySflZcZLQwDqQLBFpM
+         aO9LA3Q/IEBYb7qqgtodXOhvcRKSkdYtSGbTc0jAMd5LwsbruO2rQuCCN+jKmphtdgYq
+         bmEbVPwQWOLedIccUV32nhpQpxNrykOVZ7L6i0iIthum13yd52YLMGBEXu8xb2gv5Gk/
+         RCkQ==
+X-Gm-Message-State: AOJu0YxdsX8AOXMo/28bHqt92nK/yXFuaWN20QLMMqFehAq7ggutJhnY
+	lUSa2TMM1vOk26EUrt1tCcADdUS7HK43ZEOlXni6iNKgAUxAjiv7cJGXCsfyJd+8wG0sM4k/s2G
+	iboOq4Q==
+X-Gm-Gg: ASbGnctr5piUdcCcrj//sVHMOz5GbZJb6RsmtRmyDT1XCtnxexwDjEriwN+vJl6a3nG
+	ndqHnWYKbihPg/u0Zo71Dggtb5vB37a6uPcpsnvwyynHJ7ch061p1/cN3GOgOAtCbcV2l/QtjS6
+	eMbAxa95saNco2bQGHc5zZkmE5KzxRpmAhDExEMEQg4GqIVAPcmKLXvFfFgEIVLv0W1+em+540q
+	JhAjDycaH8Xc5vlqGQY+bCYvpf3E4uqKl5Es+KKh2uIoCPyPtmL0Gl62bvbe8SAUY/N15+6IL7S
+	FIe+PKcIx7Cm35vrO3RqtfnsrLHSwiv4elq8yNOPyoh9A3WiXV9TAnhItSKdSAcQiYZVF8wxNwL
+	d3ga1lpS8L4nbfnIZKugFvfmnzyYOpQ==
+X-Google-Smtp-Source: AGHT+IEx5omITJbkLIxxDe98bTpbX7bej74kCHzHEjg1XewvJRndXCWaMFdvQ1mYbNjBFZ7hG+6eHA==
+X-Received: by 2002:a17:906:c106:b0:ac2:b813:ac25 with SMTP id a640c23a62f3a-ac6e0a48dc3mr127404366b.14.1742943750932;
+        Tue, 25 Mar 2025 16:02:30 -0700 (PDT)
+Received: from mail-ej1-f48.google.com (mail-ej1-f48.google.com. [209.85.218.48])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5ebccf668d9sm8326457a12.10.2025.03.25.16.02.29
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 25 Mar 2025 16:02:29 -0700 (PDT)
+Received: by mail-ej1-f48.google.com with SMTP id a640c23a62f3a-ac2aeada833so63526566b.0
+        for <selinux@vger.kernel.org>; Tue, 25 Mar 2025 16:02:29 -0700 (PDT)
+X-Received: by 2002:a17:906:81d6:b0:ac6:e42a:fb4c with SMTP id
+ a640c23a62f3a-ac6e42afbbbmr77412666b.9.1742943749513; Tue, 25 Mar 2025
+ 16:02:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <e2d5b27847fde03e0b4b9fc7a464fd87@paul-moore.com>
-X-Infomaniak-Routing: alpha
+References: <d0ade43454dee9c00689f03e8d9bd32a@paul-moore.com>
+In-Reply-To: <d0ade43454dee9c00689f03e8d9bd32a@paul-moore.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Tue, 25 Mar 2025 16:02:13 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjbahY4JjLCXNT4o3xVq2cejqBG69z+MNfHsN9FQBnbOw@mail.gmail.com>
+X-Gm-Features: AQ5f1Jq6H2w1UwofX9xTNQfWxTgnnyE_4keu9omt7uh5If6fR9mM7-LXzR1V2TI
+Message-ID: <CAHk-=wjbahY4JjLCXNT4o3xVq2cejqBG69z+MNfHsN9FQBnbOw@mail.gmail.com>
+Subject: Re: [GIT PULL] selinux/selinux-pr-20250323
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, Mar 21, 2025 at 05:32:25PM -0400, Paul Moore wrote:
-> On Mar 21, 2025 Andrey Albershteyn <aalbersh@redhat.com> wrote:
-> > 
-> > Introduce new hooks for setting and getting filesystem extended
-> > attributes on inode (FS_IOC_FSGETXATTR).
-> > 
-> > Cc: selinux@vger.kernel.org
-> > Cc: Paul Moore <paul@paul-moore.com>
-> > 
-> > Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
-> > ---
-> >  fs/ioctl.c                    |  7 ++++++-
-> >  include/linux/lsm_hook_defs.h |  4 ++++
-> >  include/linux/security.h      | 16 ++++++++++++++++
-> >  security/security.c           | 32 ++++++++++++++++++++++++++++++++
-> >  4 files changed, 58 insertions(+), 1 deletion(-)
-> 
-> Thanks Andrey, one small change below, but otherwise this looks pretty
-> good.  If you feel like trying to work up the SELinux implementation but
-> need some assitance please let me know, I'll be happy to help :)
-> 
-> > diff --git a/fs/ioctl.c b/fs/ioctl.c
-> > index 638a36be31c14afc66a7fd6eb237d9545e8ad997..4434c97bc5dff5a3e8635e28745cd99404ff353e 100644
-> > --- a/fs/ioctl.c
-> > +++ b/fs/ioctl.c
-> > @@ -525,10 +525,15 @@ EXPORT_SYMBOL(fileattr_fill_flags);
-> >  int vfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
-> >  {
-> >  	struct inode *inode = d_inode(dentry);
-> > +	int error;
-> >  
-> >  	if (!inode->i_op->fileattr_get)
-> >  		return -ENOIOCTLCMD;
-> >  
-> > +	error = security_inode_getfsxattr(inode, fa);
-> > +	if (error)
-> > +		return error;
-> > +
-> >  	return inode->i_op->fileattr_get(dentry, fa);
-> >  }
-> >  EXPORT_SYMBOL(vfs_fileattr_get);
-> > @@ -692,7 +697,7 @@ int vfs_fileattr_set(struct mnt_idmap *idmap, struct dentry *dentry,
-> >  			fa->flags |= old_ma.flags & ~FS_COMMON_FL;
-> >  		}
-> >  		err = fileattr_set_prepare(inode, &old_ma, fa);
-> > -		if (!err)
-> > +		if (!err && !security_inode_setfsxattr(inode, fa))
-> >  			err = inode->i_op->fileattr_set(idmap, dentry, fa);
-> >  	}
-> >  	inode_unlock(inode);
-> 
-> I don't believe we want to hide or otherwise drop the LSM return code as
-> that could lead to odd behavior, e.g. returning 0/success despite not
-> having executed the fileattr_set operation.
+On Sun, 23 Mar 2025 at 12:39, Paul Moore <paul@paul-moore.com> wrote:
+>
+> - Add additional SELinux access controls for kernel file reads/loads
+>
+>   The SELinux kernel file read/load access controls were never updated
+>   beyond the initial kernel module support, this pull request adds
+>   support for firmware, kexec, policies, and x.509 certificates.
 
-Yes, this should look something like this:
+Honestly, is there a *reason* for this, or is this just some misguided
+"for completeness" issue?
 
- 		err = fileattr_set_prepare(inode, &old_ma, fa);
- 		if (err)
- 			goto out;
- 		err = security_inode_setfsxattr(dentry, fa);
- 		if (err)
- 			goto out;
- 		err = inode->i_op->fileattr_set(idmap, dentry, fa);
- 		if (err)
- 			goto out;
+Because dammit, adding more complexity to the security rules isn't a
+feature, and isn't security. It's just theater.
 
-> 
-> --
-> paul-moore.com
-> 
+And it adds completely pointless extra cases making the different
+cases use artificially different code.
+
+The commit message doesn't actually make any mention of *why* any of
+this would be a good idea.
+
+I've pulled this, but honestly, I think all those new cases should be
+removed, and if people object to us having "LOADING_MODULE" for other
+kinds of reads, then I think the fix should be to just rename it to
+"KERNEL_LOAD" or whatever.
+
+Because dammit, this "make security interfaces more complicated just
+because" needs to STOP.
+
+We are literally wasting enormous amounts of time in the security
+layers - I regularly see the lsm and selinux layers spending *more*
+time on security than the actual operation takes because the security
+people have written random code without taking performance into
+account - and I need to see *reasons* for adding more crap in this
+area, not "let's expand" with no actual reason given.
+
+So I really think that commit needs to be either reverted or explained
+very clearly why user policy _needs_ to care for the difference
+between a module load and a firmware image load.
+
+Because I think any such explanation is likely complete BS. The
+difference between loading modules and loading firmware usually would
+boil down to "different hardware does things differently". There's no
+obvious reason why one should be considered different from another
+from a security standpoint.
+
+               Linus
