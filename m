@@ -1,150 +1,143 @@
-Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com [209.85.219.172])
+Received: from sonic313-14.consmr.mail.ne1.yahoo.com (sonic313-14.consmr.mail.ne1.yahoo.com [66.163.185.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE9641E835A
-	for <selinux@vger.kernel.org>; Wed, 26 Mar 2025 14:50:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACAF31DED5F
+	for <selinux@vger.kernel.org>; Wed, 26 Mar 2025 14:57:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.185.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743000661; cv=none; b=NNFYaREnWfj8zW75WPaYZWUtv/8EipLXcmDCw29rlPVU58iT95tslFxlzhX0P9k6ALUM1PyxCejh3nSWAWskF+zwK3hqmubht68VO6peB5vv6aYJYCBFWt/bnf4WhRDYkTCuj9EjBRlYN8FjBG+ZoGfB7YYESr0yuo/iPIxbI0U=
+	t=1743001079; cv=none; b=UCdOwe3chEte/HbtBi7AW7+FHejB4B9E4zkpgudHhMQnoejwCPft3vs3bOF1bEjzKiPlmn6IlagCdTI4b+S+6jQA0I7+a2Pi18B7rNdI1gKNKlwgd83GdOANZJ2mzhSEp1WdIRrglZUjMRz5Pxyhk14jOCcpiZ9vnPVDoQuiiZo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743000661; c=relaxed/simple;
-	bh=9+Wn4o4ZfYJnddu7wbT6vlJ4Zo7wtpFNww/i7dKFarQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=VhrWdRJVsqwFjCLtP9tgbr9GOTsL8o1gjmqeD6bKsk8RIbLbKrm7yUhDaOM4oaHKXqgE6DxFdznldMXDL1U+N5EMmOWurQI1ep+o7r3U9LuyjwvfSjEmHZYhjaU4AC96GZK5vDWXjN7UAaBHtsABXEwWHvDwoohaZyOC5/7+1nY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FBC4+J9T; arc=none smtp.client-ip=209.85.219.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1743001079; c=relaxed/simple;
+	bh=exv5Wd+eewQMayU5CJaut22C+m8Jzxi/ThRV8Id15Qk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=IgTleqILrtXQnKuD2TVoA2N9MohLjbxvDsONoBP1a1mn+bLK21J4wVarWXLV6pPP+vQlO4jjh4bI0FB0D6bYKBWiVnrTc39mKCt39Ky/fGa/4jET7HUkj/NtwhMwEJwK03pLG0qUha3omQ+JJHgI6R7g+jai1WaPUVOdM2avVzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=Kn7oAQyX; arc=none smtp.client-ip=66.163.185.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FBC4+J9T"
-Received: by mail-yb1-f172.google.com with SMTP id 3f1490d57ef6-e461015fbd4so5160333276.2
-        for <selinux@vger.kernel.org>; Wed, 26 Mar 2025 07:50:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1743000658; x=1743605458; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TryVD5CFfRquqiR5s54SHld1/iLLK9/M4gETsJY9Nk8=;
-        b=FBC4+J9TkwdRmbz0JgNv0uMP5iCC4kRGQLw8UgJ+DnDn/H1Z47dYNbJXhsK5Py4TqE
-         w2wHc+uJKE4K5Kf/8kFmdaztrVEQRdExq41pQ9tmUBiwPah0aB7FX2eF77m3d2bkUBv0
-         ncdNYRJfEhL7X5haNMA6hUedxoaggM/2szY7+nLn4kNFaCeQUnWtzfNVpVKgQ8YUlDBj
-         aAV9Pjee3DGCUq40ywSittvxVuppoCiA7dr0X4vd1f2K9NYG3IZXQ83auywIAcQnUXlv
-         zhlOIoD7R0mgueLOnekOaNXnwU8xtFYVFXNW/Ffp3Y3SVlOkMaAIN/coiL4OCGGNGvrE
-         rxUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743000658; x=1743605458;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TryVD5CFfRquqiR5s54SHld1/iLLK9/M4gETsJY9Nk8=;
-        b=STaaM+9QSNq3zZOa4qy2whZRB0XWRljjK64OzNKju2emEST/xiaKlY+h8MFyhY1vNb
-         Hm3gkIq+6W8Nq6zvgPUGn9SehM5uf2LD+Y1/6PD8/ViEzDG5sTwpsr7V2kT3vB72+8P4
-         lbutQGMI29+46wDDDGf1kOeFqIBhugQhcFgZ+Xfmi4DZPFhBa6LWmpO0RXld8y0hRev6
-         k9ru/QMXKgLB6qy2E/WsvJAZD3Ilsnt5zuaR7N8LdTDUip8dX7Bq7uY1VIBWH7UTlkkn
-         bJ2nk/h6sPRrtRvsrFTI8m6IOyJ0rnmsQqmHFAuiL1PwfqqDwEdzSWF1bPJJwxpCs8Fh
-         gN8g==
-X-Forwarded-Encrypted: i=1; AJvYcCXkCAd6xgP9ssZcML5+063aANpZZWumHMGajLQLPDpkZCN9prNguO6orjMXFC8y3JQO2h69XM6O@vger.kernel.org
-X-Gm-Message-State: AOJu0YwfwlAGfirLlBcldwpTgtQIx+TxxfFmVTUuRqQvywxSNtFTkR2I
-	asLUntTCNNQZ6Wjf3NETUW4Og6Z2wy0s2ZCiwdbTBknPK1EAAzlWpL2FgZ8VHXSjVgkZDseSTTb
-	lakGP/dnAISPvlsh+U4jhQ3FXRIKly64fJFAr
-X-Gm-Gg: ASbGncufWVbJz5LeJWo+xm/aUFjes/1md1o/FDcuNUV/fwD1OryCqgzn9cAxDQIDH5U
-	RRMdNVvDGpBZl8W7FqxnI2YWGOLsIYvH2hxseqN+nm7hEPExDwXFtn6kK1rWE/+5QKHDAxwlVr5
-	DXlE/BBYp2XKN9pyAPcwqwxi0HBA==
-X-Google-Smtp-Source: AGHT+IFcPaBFchl6GGXsFrbA3a18D06/oSA6/keB9qsRXz06Jix3SOEcuau74uHQbJqSgkjYgJHwTzGjP8JA6S9LCdk=
-X-Received: by 2002:a05:6902:1b0a:b0:e66:8fa5:622e with SMTP id
- 3f1490d57ef6-e66a4d29f57mr27836094276.5.1743000658423; Wed, 26 Mar 2025
- 07:50:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Kn7oAQyX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1743001075; bh=edSQWyJIbHxEQY7kDkt5m8uNXpnowVSyw4X2RefTDEQ=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=Kn7oAQyX3LQkDujintSS6WMPbLbFfqx+uUl+txcyPWBAY/XSWJLgQYmNBwd1sJyy+0DbJkZex7Zi8pCRs1+wCHqEHLTf8P9yK14b+6xwdl5dqVNTSGfvCY5ItSIyrjEejR6zKVVpPT9Z4NadZK9GTEYrw6nWmJ/EK2zmV1fYaUI92i/e4e0RiW7I/ld6aToPk9olGxA0CoHar4ph6sMGYPu27xQk8tV6q6mHAK4IsiezHeFLZ4io2Ei0Tq8c2+ILFVkLte9iWAxRLyRloOr14vlcMKXYREC1lYjdNZAqCJaskYxauDSqXHxQ4LNsEEfi0EZJjhX+Mjuso8EQrJ2XRA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1743001075; bh=qUZwwiXdqNDjulSLo1nrFVA/6+WE+UQNhELVP4j1Cq8=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=DOa65X926qz3PKdl4Nl9dJGF5F2ZGZVLnywRXG01OhujRBpFnd1vozK6Z6ma2WSWuveVyzO8OomMWK4UNa46ZlD3pAi4wiLPDYaDSsKg/rbNUH6DePONaUp7Rd+noy5sSNAp9gtyXSc1AY1N/D9MJzlh+7bTqhnKiVJ46MoVNy3lJmlgINMqPOsgqXUQFcG0UbMV1ZR8CbC+Z0kmSjQ92dst9UCq2zT18oBs+26aVve2HAZNjA2T1a2vaaI0o+uSpG56SkX/Tr5LJ3VSRSQAEMnEo8IQkxfeDGg8G0cpXjbq/9nolcdMupxHcE6pItnk+WUj1Ozn9N8/h2Xp/N7Fug==
+X-YMail-OSG: S52zud8VM1k0bDiH9z4vTJRHaQvs6lYhmhKL3OC3tdFo0J4IosFYzYtN4tUTQgk
+ qs6PhsXoji6WtW2QhYMqH8_j0bYlO6ZZWJyqohF85bPXisH3ATrfVyc5b6qJ9Zc_j5uKMWs2qRzv
+ CmutXd5KUTG6DqpLT9y9MJTsRm7wH4zMYAhhuFXPxJX0hMTgvlHhHMKv7mZHzU_L_byhGeC9n4nk
+ IVIaFGYBuDTgTsL.4skKMN3d8dJWYEUgjyzEo8_6OWebQ6q7hJoDsnUJXtyjipCgGgZ_E8a3JXda
+ 8ojtI5zeMGHhGNSUSqnIlzPnLhmUbOB9s4BFqnWVFK9cVnXRwZOEVj8u3ENAPhOjAt6Vb6vQGGeO
+ gEeEs0KU_HreOFgPr9tK_uoymsPNfKqAK6qCcBeEj_Szgz8qLvCAmEr8UMn7.q_373iqOP6TphUB
+ AS30MpuI55RADwsO2fVpCsYE4M_bUrY6XKmbYb6drlqrVZgN8747IiikCjw81ZnUsAZM5X5RLFfX
+ dsz48yt8m_ykJdpWA.v73XGczWrIPHfcKgqGcImPGtWr3KS.oHYO5NtPlzy6nBO46.GK4ZRzYD7f
+ oN1Tri5fuOtba80PgKlCGWrH2gT6z_GCXqH5IkqwajoW7PdyvrqX_raNFlo6eVlXZdTGHYDCPA_K
+ s3jhuqvRLrEj2fkISgEyOv1CKQtifJksC.yAsEw38zA6JmPCBiwWIz._SJUxlX2QJIITEueIVaF.
+ rqFyb.0aIoiyMkdxIPYPkMnXZKRfxGgiulgzaBJ7dlHpLUNjtvThBZodPnHKk9pFUtwNGWjBmsad
+ e31KwCoUnmrW7KZai7I709osjZwjqXbfH.u1AFzNcuIhFmHeOE5ot6UYs9njwaDsyRu4L9NDI66O
+ yEZHq3UcLOhKgJI2lp93_qRevmqDi8LAGRr5aETMnQFLe7o_voNejwGfpcmjp6_8PVVXL2Rotz5D
+ 8V6fA7FEbatvSMLYVAAVBC9DDl9TxUNTerRcI5X185ZCSoPoB0ZRiX_nY.Yg89LkHMfoo__Pjahg
+ BvW3sbruPJV0OdxKoQhqSzUJ3bVYc8gv1jfkWIE7hRoZQwogqKxY309HpyIv5QCEn.msukwDpIaG
+ rXGtcgV7pyAfsEuNdGrKUBcNn5eG0qYhLOmFjiZ0XgagVhtwYb47En.e8hiBcu8H8Gaq2C9OxHr1
+ .h32MfGjomz89pMJEkzOdkrFGOZgVM3Bw4Woi8XvbjikIOxJL5COh5425xgYymmd6OkzVIzAsNBJ
+ AcLAaEqCsSYo639ZF73IcWfp4sPitdkX3SIigWKhr1QLiaEkhZauHoaxp6h.Gsm34wQD48GjJDBc
+ XCNHPOWymty90Q9PfSunfwc3htRKH5e4MIyYmw.Wyip7c3xRR5O4n.TEzjf2DgCSRCSD1auQ_L3j
+ qKg_4qpoZ4x3xEeO16Cv_qsM9PYkt8GUI7.nROfQJkQK0as0DaTbUdXqOEr78GNZBmdgWivZKcFG
+ 6ubxqKRZcuJWnsOyaWCDAOIOJtBKlYhLvjWs8IS162WiXpCAUvXCcsBrkKpZN9MBab6hTIIoBXb8
+ MtdNF8mcWDVW_Us5rv_Ju..OAlqEPDIZM6di17ZmW0zdmr7I7eD1RA92i6On471YeSU_nAB0HXit
+ pZpSpwIOsFujcvhxO1E5YX0rtiZxmMNA9aav.8z3NmLWK_hQxbG8OUS7ddfjOpXzAWeCvbtye3xu
+ lZDZrRSg9fJscJxQtEXYDuQuC_1aXaq7cdXJUvrKlMV6x3ZCDYqBsWjWEhhxO0wozjGyHGO9uHes
+ M9eD8U_O_gaasTjNVebcrWhvH6rwsAHY3VzZvp2w7JLcHjsA9vRJ7780247_TW3vimsOMN.Vp6zE
+ zcP64orcYRQrZ8kMxPhdVIzRbqLxkgCW.3y8G84XaVynV892BgdeYJl6FqZkIMv_wJ95RZmdlpDT
+ B.TH.0_K._exf_76o5dB0nnYsetAp.BaYMhKaQVc2pNRRUFXLgZ_uoKTG3nDI.I4c.peAe8B9aHI
+ TOndCOVfvJT66kybH0e0zqYF.7zVLWEpu6T3JMa.EH_ML798DzKSXmQnZ7ESpd7gOPuLAWlUMY3A
+ tGpdx6AHR896CeFnC3n.HUPw2BzEFHcDFwgsLUtLDprpF5fiKBRvd29TlADyH7A5kHlmYbzTjWAV
+ 26DkEuKpILVy36k.sVQ3K5dp1XLFcC.Zd.tYhRN0P7oGbn_FHXBXPl5Cytyki9HsV2v0SdkxJex_
+ 3cWq2TSw.ADFQp8vK8pt6iD0EqpzPu61pfEg-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 29969114-1e5d-42ed-aa9c-e2f60df9c6f7
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Wed, 26 Mar 2025 14:57:55 +0000
+Received: by hermes--production-gq1-5c477bf655-cprz5 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 369724ad237849deda3651c5f1ab10e1;
+          Wed, 26 Mar 2025 14:57:50 +0000 (UTC)
+Message-ID: <aeceeebb-c207-43fb-999f-f7ffdeffd513@schaufler-ca.com>
+Date: Wed, 26 Mar 2025 07:57:48 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250326103819.93387-1-cgoettsche@seltendoof.de>
-In-Reply-To: <20250326103819.93387-1-cgoettsche@seltendoof.de>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 26 Mar 2025 10:50:47 -0400
-X-Gm-Features: AQ5f1JrV3Av0wV5o_U_aKmUG8HQHcRrvdTic1WTTG_JyJ2opcOPJaHy12pmnt2I
-Message-ID: <CAHC9VhRUzr2XpfP5XJpXLxEhYoFvtee8OgEwvib1x7+H7B68Qg@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: rename io_uring permission to match syscall
-To: cgzones@googlemail.com
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Miklos Szeredi <mszeredi@redhat.com>, =?UTF-8?Q?Bram_Bonn=C3=A9?= <brambonne@google.com>, 
-	"Kipp N. Davis" <kippndavis.work@gmx.com>, Masahiro Yamada <masahiroy@kernel.org>, 
-	Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>, Jens Axboe <axboe@kernel.dk>, 
-	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/5] LSM: security_lsmblob_to_secctx module selection
+To: Fan Wu <wufan@kernel.org>
+Cc: paul@paul-moore.com, eparis@redhat.com,
+ linux-security-module@vger.kernel.org, audit@vger.kernel.org,
+ jmorris@namei.org, serge@hallyn.com, keescook@chromium.org,
+ john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+ stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
+ selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>
+References: <20250319222744.17576-1-casey@schaufler-ca.com>
+ <20250319222744.17576-3-casey@schaufler-ca.com>
+ <CAKtyLkGGbB8yeWo3V4y2cMfcB=GyxLHtcH4HkGJQ7KZ_jz=XeA@mail.gmail.com>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <CAKtyLkGGbB8yeWo3V4y2cMfcB=GyxLHtcH4HkGJQ7KZ_jz=XeA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Mailer: WebService/1.1.23533 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On Wed, Mar 26, 2025 at 6:38=E2=80=AFAM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
+On 3/25/2025 4:44 PM, Fan Wu wrote:
+> On Wed, Mar 19, 2025 at 7:50 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>> Add a parameter lsmid to security_lsmblob_to_secctx() to identify which
+>> of the security modules that may be active should provide the security
+>> context. If the value of lsmid is LSM_ID_UNDEF the first LSM providing
+>> a hook is used. security_secid_to_secctx() is unchanged, and will
+>> always report the first LSM providing a hook.
+>>
+>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> ..
+>> diff --git a/security/security.c b/security/security.c
+>> index 143561ebc3e8..55f9c7ad3f89 100644
+>> --- a/security/security.c
+>> +++ b/security/security.c
+>> @@ -4312,6 +4312,7 @@ EXPORT_SYMBOL(security_ismaclabel);
+>>   * security_secid_to_secctx() - Convert a secid to a secctx
+>>   * @secid: secid
+>>   * @cp: the LSM context
+>> + * @lsmid: which security module to report
+>>   *
+>>   * Convert secid to security context.  If @cp is NULL the length of the
+>>   * result will be returned, but no data will be returned.  This
+>> @@ -4338,9 +4339,17 @@ EXPORT_SYMBOL(security_secid_to_secctx);
+>>   *
+>>   * Return: Return length of data on success, error on failure.
+>>   */
+>> -int security_lsmprop_to_secctx(struct lsm_prop *prop, struct lsm_context *cp)
+>> +int security_lsmprop_to_secctx(struct lsm_prop *prop, struct lsm_context *cp,
+>> +                              int lsmid)
+>>  {
+>> -       return call_int_hook(lsmprop_to_secctx, prop, cp);
+>> +       struct lsm_static_call *scall;
+>> +
+>> +       lsm_for_each_hook(scall, lsmprop_to_secctx) {
+>> +               if (lsmid != 0 && lsmid != scall->hl->lsmid->id)
+> It took me some time to figure out why if LSM_ID_UNDEF is passed the
+> first LSM providing a hook is used, might be better to change it to:
 >
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> Commit c6ad9fdbd44b ("io_uring,lsm,selinux: add LSM hooks for
-> io_uring_setup()") introduced the LSM hook `uring_allowed` and
-> implemented it in SELinux via a new `io_uring` class permission
-> `allowed`.  Rename the permission to `setup` since most permission verbs
-> are named after the corresponding syscall ...
+>                if (lsmid != LSM_ID_UNDEF && lsmid != scall->hl->lsmid->id)
 
-Some permissions are named after a syscall, but there are also a
-number that are not.  I believe "allowed" is the right choice here as
-it better reflects the intent of the permission.
+Thank you. That change will be in v4.
 
-As an aside, the original draft of this patch was sent to the lists
-back in late December and the final revision was merged in early
-February before going up to Linus a few days ago.  While I maintain
-that "allowed" is the better choice, the proper time to raise your
-concerns would have been during the past few months, not now.
-
-> ... in this case
-> io_uring_setup(2), and avoid confusing policy rules with an allow
-> keyword and an allowed permission.
 >
-> Fixes: c6ad9fdbd44b ("io_uring,lsm,selinux: add LSM hooks for io_uring_se=
-tup()")
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
-> Note: this patch targets torvalds/master
-> ---
->  security/selinux/hooks.c            | 2 +-
->  security/selinux/include/classmap.h | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+> Otherwise, it works as described. I'm working on adding a new IPE
+> property based on SELinux file labels, and this just came up as I
+> needed it. Thank you.
 >
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7150c953fec3..bcc66dea8bdc 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -7188,7 +7188,7 @@ static int selinux_uring_allowed(void)
->  {
->         u32 sid =3D current_sid();
+> Tested-by: Fan Wu <wufan@kernel.org>
 >
-> -       return avc_has_perm(sid, sid, SECCLASS_IO_URING, IO_URING__ALLOWE=
-D,
-> +       return avc_has_perm(sid, sid, SECCLASS_IO_URING, IO_URING__SETUP,
->                             NULL);
->  }
->  #endif /* CONFIG_IO_URING */
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/inclu=
-de/classmap.h
-> index 04a9b480885e..49fb584f2056 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -179,7 +179,7 @@ const struct security_class_mapping secclass_map[] =
-=3D {
->         { "perf_event",
->           { "open", "cpu", "kernel", "tracepoint", "read", "write", NULL =
-} },
->         { "anon_inode", { COMMON_FILE_PERMS, NULL } },
-> -       { "io_uring", { "override_creds", "sqpoll", "cmd", "allowed", NUL=
-L } },
-> +       { "io_uring", { "override_creds", "sqpoll", "cmd", "setup", NULL =
-} },
->         { "user_namespace", { "create", NULL } },
->         /* last one */ { NULL, {} }
->  };
-> --
-> 2.49.0
-
---=20
-paul-moore.com
+>> +                       continue;
+>> +               return scall->hl->hook.lsmprop_to_secctx(prop, cp);
+>> +       }
+>> +       return LSM_RET_DEFAULT(lsmprop_to_secctx);
+>>  }
+>>  EXPORT_SYMBOL(security_lsmprop_to_secctx);
+>>
+>> --
+>> 2.47.0
+>>
+>>
