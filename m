@@ -1,124 +1,104 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B4963FF1;
-	Tue, 25 Mar 2025 23:44:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9383419DF4A;
+	Wed, 26 Mar 2025 10:44:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742946258; cv=none; b=QoYzJ4qd0nK0kBIwfr98mBoCE+6lls6GI6kdEg8AUDsNcda2l58h6Bv6mRs+cUNO6gBOcWbU1tLjyDBkvG9mb6SD2chIQ5dIU/cwGZ4P76iydtNrp9TJdf70nICdPglmYy0h3EolSoH2rBnoT2txNfURTL024r8W5CnYZghd694=
+	t=1742985886; cv=none; b=elRt6wnKR7GjCPqYi8uSB5MyIJjWsDM8Y0Ilmjxqm/Dr1tUzVzAKj2bjIIQbUjwcouRhKWXNcIP++NYTQJZQQ7P3bg96IibYQNwhJywFceb9rl/HL/E2fOSk5s/zet5DY6BDVjj+tAaWbKiab9PMSSP4zMdz7fCbNWpMv2dRFJw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742946258; c=relaxed/simple;
-	bh=DdOHMzm56gcuGKAmKb5JIofqDdUM+vnewO5dm/udm9I=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YoKnjD49N1Q16uUwcIisOpEH9e7KmOkYFqLW33/wyljE//35Y4nHEMPKgBP/wCv4NV5svpYo5qP+JtJCq343z/Gj5e2yOV/QtO5rs1i1Dm0GJcfiEm7H5aZ1KZKB+O3nUmszI362ZfymY12ZDCD81AmHnqNw71HWblCEiki1/5g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tA0hemOr; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1742985886; c=relaxed/simple;
+	bh=9Tu1NPoHREO5KCMLTljMMco/ZIML/4h+5x/5DN/1080=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=oEDR3TH7d8AzZ+XVY+nmmBz+u4HQpAJtJNc7i3MqT5OaFMBFmAwmqrowoPuH7g15c3QDSMi1claaQbHR07NZyXOgN7GdF2z0KAMt40OzqkLml73LcGXOg7eDVOOtP2r+dQMeNipxNt3ZCvaTn61mebCnlnlxTGKrRYbtjWIlCHs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=KP6VJ4Zi; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tA0hemOr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BBCAC4CEF1;
-	Tue, 25 Mar 2025 23:44:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1742946257;
-	bh=DdOHMzm56gcuGKAmKb5JIofqDdUM+vnewO5dm/udm9I=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=tA0hemOrdR4EHq/wmJKxTi9PvrWLj7OS9lwO3411notuo7j8i55riYm5izgYHa7pi
-	 tD+XhQ7v8gYGDdZ8y89BfruUTugGxbis8Pjq4vwFWyCm39+axWCZBRiDc4h7MV9vrB
-	 v4RnK2ryA2+GW96GY+elaFV6V0PWDR/h4MqD30wE1vSRl2qZWWC5bkpRbBXG0QVuY/
-	 ryH0HSIp68U6do/io8FDaUQn9tbh3+jv+B7G0HyRyr4IX7wJUAnkdK9yp0zBJz6sZ3
-	 OWDp/uJU/70amxxe0rHbRBloNbTbIpFKd4Xk7KFBYDReZqWm4LlwBc85Bh8RtwsHWH
-	 t/p2YMN2NmQQg==
-Received: by mail-yb1-f182.google.com with SMTP id 3f1490d57ef6-e637edaa652so4561108276.1;
-        Tue, 25 Mar 2025 16:44:17 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCUEIhnyoSAgC4x7eskO7ipNN4I5BbIpW2QHwyRs+D99eA3zYyTAoutknHJ/2Xqh0KanNy6yWiX9BopilU6G@vger.kernel.org, AJvYcCVRzStbKq37rGP9MFy75n/V7wyr5+RGnn7YAdN1bsUifmz9C4xRUoBGmLlUN3u4JpLAaJdbsgpbsg==@vger.kernel.org, AJvYcCWBrdHsJSShFlnPfYl/mx7Qo+nyu653CTuySELLvpfKQmXIqrY7qxiTQxYFfvCZU5Eka/LA8w==@vger.kernel.org, AJvYcCX9jrugQxPolBq2VffrMMjmlH8hoS170d+Ppf0eXRfwUukPWFPgjJb8916C38O9tCO/89hvm0PA91BK95r821wPiftt55UJ@vger.kernel.org
-X-Gm-Message-State: AOJu0YxmW+wmFMSzuYevMtKL/N/pJBFrMnlmI4rMnd5wV3W5FsVF+ES1
-	RE/deUQNFkUyymYBhsj0JhaDYoI9Cz8Bb8T8QtEnzIXq8EtP5tlm/4Vkr+eiQPHyuN+5av/2js9
-	sSVGwTw1M9Y3KZDJNtiJXBP5/buo=
-X-Google-Smtp-Source: AGHT+IHUlpVF3JR11gc21lnog8AOzPHYMgz5YtFUABsOXE6btf7B2zjPo2qbm81fmLGJeWZoQwjmUQMiute8+8C5EFg=
-X-Received: by 2002:a05:6902:2009:b0:e5b:42c7:8f28 with SMTP id
- 3f1490d57ef6-e66a4fa4e51mr21905462276.35.1742946256704; Tue, 25 Mar 2025
- 16:44:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="KP6VJ4Zi"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1742985520;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=PXzJ60ydahUKlZREbw7QqW/SQ79Dg/dg31FTuvz+gew=;
+	b=KP6VJ4Zi35QZ3i5fop5jmr/bqjQ1/OMuohYmAG1hCKO63iVvfy62TfpaN27sGvw/QWbVDx
+	e0U7LX1XXWpMIjtCXHA0/36PeCfjDz09nVQQ+ckiJHQPL48z4il8bqFjwzcP23XzruheVi
+	JzP6iU2ZYM/nZygSrb6+1o7J72fCkWPPx2BVSJUQDsUFF8gpQeyYKacnM7Yqfh4yTWttUi
+	HOOqO5rDiWUwalDfu73Hu4qIjG5lxryZNJNlqMaMJLNhf/wyugKA/8miV7M2GG4BlzkNSH
+	NGODIhOvfPcf+2/f4EY3RYTRoTmpU7TFved+It0RR4sIdr9C0opHMnyziFj63w==
+To: 
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+	Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	=?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>,
+	Miklos Szeredi <mszeredi@redhat.com>,
+	=?UTF-8?q?Bram=20Bonn=C3=A9?= <brambonne@google.com>,
+	"Kipp N. Davis" <kippndavis.work@gmx.com>,
+	Masahiro Yamada <masahiroy@kernel.org>,
+	Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>,
+	Jens Axboe <axboe@kernel.dk>,
+	selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [RFC PATCH] selinux: rename io_uring permission to match syscall
+Date: Wed, 26 Mar 2025 11:38:11 +0100
+Message-ID: <20250326103819.93387-1-cgoettsche@seltendoof.de>
+Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250319222744.17576-1-casey@schaufler-ca.com> <20250319222744.17576-3-casey@schaufler-ca.com>
-In-Reply-To: <20250319222744.17576-3-casey@schaufler-ca.com>
-From: Fan Wu <wufan@kernel.org>
-Date: Tue, 25 Mar 2025 16:44:05 -0700
-X-Gmail-Original-Message-ID: <CAKtyLkGGbB8yeWo3V4y2cMfcB=GyxLHtcH4HkGJQ7KZ_jz=XeA@mail.gmail.com>
-X-Gm-Features: AQ5f1JqMXrStTuJmRwKPaKn3N5g2o0K2YkB5bm9rJygAaGBj_Y-nYY3Q4HZDTxM
-Message-ID: <CAKtyLkGGbB8yeWo3V4y2cMfcB=GyxLHtcH4HkGJQ7KZ_jz=XeA@mail.gmail.com>
-Subject: Re: [PATCH v3 2/5] LSM: security_lsmblob_to_secctx module selection
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: paul@paul-moore.com, eparis@redhat.com, 
-	linux-security-module@vger.kernel.org, audit@vger.kernel.org, 
-	jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, 
-	john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, 
-	stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org, 
-	selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, Mar 19, 2025 at 7:50=E2=80=AFPM Casey Schaufler <casey@schaufler-ca=
-.com> wrote:
->
-> Add a parameter lsmid to security_lsmblob_to_secctx() to identify which
-> of the security modules that may be active should provide the security
-> context. If the value of lsmid is LSM_ID_UNDEF the first LSM providing
-> a hook is used. security_secid_to_secctx() is unchanged, and will
-> always report the first LSM providing a hook.
->
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-...
-> diff --git a/security/security.c b/security/security.c
-> index 143561ebc3e8..55f9c7ad3f89 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -4312,6 +4312,7 @@ EXPORT_SYMBOL(security_ismaclabel);
->   * security_secid_to_secctx() - Convert a secid to a secctx
->   * @secid: secid
->   * @cp: the LSM context
-> + * @lsmid: which security module to report
->   *
->   * Convert secid to security context.  If @cp is NULL the length of the
->   * result will be returned, but no data will be returned.  This
-> @@ -4338,9 +4339,17 @@ EXPORT_SYMBOL(security_secid_to_secctx);
->   *
->   * Return: Return length of data on success, error on failure.
->   */
-> -int security_lsmprop_to_secctx(struct lsm_prop *prop, struct lsm_context=
- *cp)
-> +int security_lsmprop_to_secctx(struct lsm_prop *prop, struct lsm_context=
- *cp,
-> +                              int lsmid)
->  {
-> -       return call_int_hook(lsmprop_to_secctx, prop, cp);
-> +       struct lsm_static_call *scall;
-> +
-> +       lsm_for_each_hook(scall, lsmprop_to_secctx) {
-> +               if (lsmid !=3D 0 && lsmid !=3D scall->hl->lsmid->id)
+From: Christian Göttsche <cgzones@googlemail.com>
 
-It took me some time to figure out why if LSM_ID_UNDEF is passed the
-first LSM providing a hook is used, might be better to change it to:
+Commit c6ad9fdbd44b ("io_uring,lsm,selinux: add LSM hooks for
+io_uring_setup()") introduced the LSM hook `uring_allowed` and
+implemented it in SELinux via a new `io_uring` class permission
+`allowed`.  Rename the permission to `setup` since most permission verbs
+are named after the corresponding syscall, in this case
+io_uring_setup(2), and avoid confusing policy rules with an allow
+keyword and an allowed permission.
 
-               if (lsmid !=3D LSM_ID_UNDEF && lsmid !=3D scall->hl->lsmid->=
-id)
+Fixes: c6ad9fdbd44b ("io_uring,lsm,selinux: add LSM hooks for io_uring_setup()")
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+Note: this patch targets torvalds/master
+---
+ security/selinux/hooks.c            | 2 +-
+ security/selinux/include/classmap.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Otherwise, it works as described. I'm working on adding a new IPE
-property based on SELinux file labels, and this just came up as I
-needed it. Thank you.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7150c953fec3..bcc66dea8bdc 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7188,7 +7188,7 @@ static int selinux_uring_allowed(void)
+ {
+ 	u32 sid = current_sid();
+ 
+-	return avc_has_perm(sid, sid, SECCLASS_IO_URING, IO_URING__ALLOWED,
++	return avc_has_perm(sid, sid, SECCLASS_IO_URING, IO_URING__SETUP,
+ 			    NULL);
+ }
+ #endif /* CONFIG_IO_URING */
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 04a9b480885e..49fb584f2056 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -179,7 +179,7 @@ const struct security_class_mapping secclass_map[] = {
+ 	{ "perf_event",
+ 	  { "open", "cpu", "kernel", "tracepoint", "read", "write", NULL } },
+ 	{ "anon_inode", { COMMON_FILE_PERMS, NULL } },
+-	{ "io_uring", { "override_creds", "sqpoll", "cmd", "allowed", NULL } },
++	{ "io_uring", { "override_creds", "sqpoll", "cmd", "setup", NULL } },
+ 	{ "user_namespace", { "create", NULL } },
+ 	/* last one */ { NULL, {} }
+ };
+-- 
+2.49.0
 
-Tested-by: Fan Wu <wufan@kernel.org>
-
-> +                       continue;
-> +               return scall->hl->hook.lsmprop_to_secctx(prop, cp);
-> +       }
-> +       return LSM_RET_DEFAULT(lsmprop_to_secctx);
->  }
->  EXPORT_SYMBOL(security_lsmprop_to_secctx);
->
-> --
-> 2.47.0
->
->
