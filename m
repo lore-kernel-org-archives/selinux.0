@@ -1,73 +1,79 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+Received: from sonic307-15.consmr.mail.ne1.yahoo.com (sonic307-15.consmr.mail.ne1.yahoo.com [66.163.190.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F1D219B59C
-	for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 15:50:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8AA51B043C
+	for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 16:41:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.190.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743090605; cv=none; b=ma3j8FLTzE186EHZznEnNz3McmtGYnIBNJrYrVkpSJ+IbbgX2zFdtXy4EgSYUfxciclQOrfd9ERDbizmI3jBBQ5zsXYC0UK+2hQbqvGsBhoN3Nk9KxieT3211Y1r+Xd2vN7RGURB8W0r3LFxG/3rmhFQd49D+40c2sAKwAvvOvE=
+	t=1743093693; cv=none; b=em+2EkPN1qCAtJxvquoA0u8VP5bFTQlkcWQUNjjc3L+cav1/Fde5HshIuzzRrklmteIP6t1oWmk70+zIKbiGsoeSxh/wY+iDM0PrA4EaezL6ufAMGYLqwuWVaqTlHkv+HcWStgzR/u7oBKlOv39eUztPrADXoXLv781018wS39Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743090605; c=relaxed/simple;
-	bh=qeSfzsuQ+OnvzOB9ynW6I4+8VDYguG/d7VHfeNiTSM8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qfI9MFpfp+3YwBO4usHNNwniZ32kVEgU2hOOIhslaAklT5ggdyyv83hcOc1IyjISiOEfBjr4dYJyX6yqF4ynryx8uDDVq8/ciCB6X/SlZ+owY6O5Z4i7aL/7tUhY21qSxY3RMIJczq5/pKmrJyvR9Df0fZj7UHw3varn4uTusYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=Oq+xEplI; arc=none smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	s=arc-20240116; t=1743093693; c=relaxed/simple;
+	bh=ERe0YYQQppbhCRnZs4v51rqVSyPLNE3D2fW1lrVn1Uo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tOu4lKMCQwCzdPDomTU7Dn7c0CKYfsdPiMvw8B0ZKb+FmJY+5q9/AZZukBCde843VSjvxKaAKKEgJ5lQXvbOcMFl1mFIKQdVWHX3d5myQ6tGOoJcmTyy6B+xkww3bbDlG1zeV+VsjCZpcJyymByvAS42RjNv6GgUQ/ubq6rBasw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=HSEJln9l; arc=none smtp.client-ip=66.163.190.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="Oq+xEplI"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-5e5e0caa151so2192487a12.0
-        for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 08:50:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1743090601; x=1743695401; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=giFLnP1jrB3bJbmUGr3lK+uOvsNT5VzaCpu7lPsk4hs=;
-        b=Oq+xEplIxNaC/jjoSOBE9weI6KgcgDj/cxp2XfEfDNSMHOHFJKs7ikjxwqCJ11MjWA
-         B8F/ireESXVCfC93P6lHubTdu7DWI+fTRbuZ1KyH9VdIV8Qp+br4FSrvT+AS+vKXL66L
-         VOhxhwC2UWnarwcIKdDnOyJiV/ZLgCcZ5kztI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743090601; x=1743695401;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=giFLnP1jrB3bJbmUGr3lK+uOvsNT5VzaCpu7lPsk4hs=;
-        b=HzjYPLzHTAdabXcIvMR9B1sVxXBn2yL68CQ83oT2Fo1ZMbITkdPnxPcrTr8D4182yf
-         WErv/3uNmKx7Vexm7OnFc0JF9JtIaVQR83GgNgpmWAiz4XnoY0gHYYixOBmN1zwUWDeU
-         vytermBbF6vJaJGFDALeq6GSHolwM9zcIeUi3jNGZ2hC2m/pXEwG+oqW1xjcriGgzWpJ
-         CRyAucZBbPhOZWTY1PU861uEYcI3bJ/3IF0GMz6s7YuZhff7BfDntYqrpgNILtLRrnz+
-         Ix1DWOdD7xvNYgcbqAh9EIMDoTE6VNuKagDnv2TRtNgOb+vQfCqOH4vkbRBT5Zmn9mGz
-         Fofg==
-X-Forwarded-Encrypted: i=1; AJvYcCU6i9sMasj+LFkeEAT81FTjAjqgkCaeytt++GKlHnUylShL1+RmHt6TCbNg7jZaggLZVIRF5muA@vger.kernel.org
-X-Gm-Message-State: AOJu0YyO/E908BkVJQE1iuLZP8sWQrCQ05Ufz2B5sbO4iIry3oA5GV2a
-	irhXXSaxXbrmTIp0i8cFZUmMhYQ0/12eMTSkSd0rccUiGBWVI8gjYtxEcTXnwzq91JvqKnHbI9O
-	Xp6g=
-X-Gm-Gg: ASbGnct17sGoUKiR7Ie5okayZpzyFzOc1ctC4of7bL+RPz64kDiW4oO+bNjSiumIiie
-	XDCl8l7euYQeVtRIpHKG8wv2anyEuk24HGCXATftqhbZ3G9S1Al62UQwXe90bgXyTwLBs69WDrP
-	ppaRPXi/hhpmxkSIbwcfPwS47oc2Q9wiPfWD/6NHf7RnMx9dcQb1h76mZkUo7GrcJ5WH5sutuYJ
-	OL2ueyQk6pTAVnDcgOKpGDDxDsQ1hjXdwRTFFV/sJLaZ7E+1kxKstjQhtALVPy/159/lspGqyV+
-	ny76K3VOFVE1ed0sCfot6p0rQOYHJGsE38ciLxkg49mebsw+/QhX4O0Nq6Fd2cmu5kWzWumgUV4
-	K2/oPzrq462y7VS8SDYU=
-X-Google-Smtp-Source: AGHT+IHPm1OHTBKfHpiAfdCxcyZ9SlUiGc2xA7arTMRyZe+At+0ErW03suS7/NbA8aVHo2lK7bFZvg==
-X-Received: by 2002:a05:6402:2102:b0:5e5:dbcd:185e with SMTP id 4fb4d7f45d1cf-5ed8e4a51c9mr4713554a12.13.1743090601234;
-        Thu, 27 Mar 2025 08:50:01 -0700 (PDT)
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com. [209.85.208.43])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5ebcd0df880sm11211987a12.76.2025.03.27.08.50.00
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 27 Mar 2025 08:50:00 -0700 (PDT)
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-5e8be1c6ff8so2150276a12.1
-        for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 08:50:00 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCXe3QnGNML5hcWfT54onpLJGF39haeTKlIOSzMsAngAc9827FlldLnTTU7LONBJKvgru03SFcrY@vger.kernel.org
-X-Received: by 2002:a17:907:969e:b0:ac3:3f13:4b98 with SMTP id
- a640c23a62f3a-ac6fb14a9eemr321047366b.39.1743090599993; Thu, 27 Mar 2025
- 08:49:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="HSEJln9l"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1743093685; bh=ERe0YYQQppbhCRnZs4v51rqVSyPLNE3D2fW1lrVn1Uo=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=HSEJln9llrJi2viwDhjhtqGgabGFgDMkvZqH6UFUVPHqV6AEzLZnvGaykPDvYMTf4z68og77Te1sQ8ZMknCQCsQ9oj07JAOFedEw7BkszpxPvEHXxBKHg0fjyDbNz2ELJssNCmg8DrmCyrMmHOr5Bdu7cMT5Fm/yY/7amSTks+3xcshYKABB5pN+KPNrvfLB8kUodmUFIhYJBNCmioI8u6ckTcVTCxw1Etn19Da37xUUoKmx9UaMV+6J89BbkqM60ukS5/96C+UR5RTEgUIC25Ie8nqKSUPkjPr8Wv6FHy54OpK5lvJfE/YMSZaRrsR0qyawZDfBpV6z2WWDF4PuzQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1743093685; bh=/ks5cXxo1HWmhjKyu5wVa/iIPNyqYhrcNYj8pb85pgZ=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=e7VWfH4L29IRrQ+i3r8Hejrz1oN2IME420D2X3XOEICyDTIryC+P5LV3l0wKKnu5vu363OiBT7bCWjq0B9BYx8Us1SDjq3PUrbmYd/vdlPLi7T32d0yP+F+7Nz4gMa0HYBbaGk5Z/wWoYl4n9a5HS0WBuLVLdWh4qLmOfQwjr/Cz+XawTHN5xoZSum5wcfZh1kO+/gxvTDTStabmQXFij9ImROuTm44wTRbdQ+dyaEEF2vOXluwhf7/mI5Ota2pubT6xXzFneaaTxVUUvyCr/7dEmjnjpMiy9PmLOueQJ0hMOuItXDqOe3vBS1DAYclnjztr2WLzUGJ+yK8LR4/qyw==
+X-YMail-OSG: 55S29aYVM1mFzO6bwYKyspS3pl70O7aif7Og4n.Bb9Hjij_C44am73pMPqb.1yJ
+ uT5vD34NAR7OiPJu.bubSBIA6YhZvUW_dnzdMW_yn2CNKOcopp0n_j_ahhek4XG48MsvIKWVcahO
+ t2NAE2ONaQYpefCo7zVg_X9JJJTL6Z8UcVzpFlP8plG7DhQspaFgKxLkaf.NbbPgGaaKuUyeFA1e
+ QLRABI_h0F_kcEhsU4oscrW9lI7RKEw_qttHtHugPXTuNugdwiGJPl8SCY.ma_aq_ERUcujm6qJN
+ elem3HD14t7Q26N4jlZ0jD.AzZylIcBr.P9LfDXEXhanAD4sIaNVqaxU1sfeXujb5m61fLGtJFNU
+ C0tmx78YSON.iDCpGu6QwhVKnq9bBaObbWSHNbOIDA.HA_s8eW29hwjqfqSiNtcPWQoy8Uljuu9k
+ mvjukC7pXTSSIc118K8piJF57gnDMstIwhZFrn5wmfu0ceVbXS4vHHHgQRiygAq0qgdcBcljY6Gw
+ sIiM.WKtUOGSfDmeQdlemyUKtPU5a7CUAaSUtG.Wq3jk7A5XtW3pWfEpwMtDU2Tw0ei8wn5c0H2i
+ 4Rbjo8.4wsxkzeh2bEsL_VttutIC1KxafwbxrSc1At0ZxAl0mhPHddhkobvRJMP4.0U21yQ3KImX
+ OKK0QfbSa1BNsSYivWDyWCf3pXfckkyohCRX.DHnWBdA2tpk1aE7mjTEPBuCjGJWaNn176R.p1QJ
+ hmriwy103GwMC3FuMbxlo1SREWMkw8QWUuY1uCXua_h5.SZu4rbsDSqTepnXI1YDSrBhGolqzo2K
+ gl60rOzpa1THqSc4bDcua_6QrGC8kFwVmTikr80PvgwrZks5G0R2P_WhlffRgv.M7WsJB4hlnnvn
+ K_bgh8EeRrreZmraGaynAz02MqMGNsUUqipjkIBCVLZw20H07Jzw7Lzt3j8Zd6sp1z.dH8T9qStY
+ E7Pvy1ltc.uKjJTisUoGICqosMnzoB5MXYOEAOkmPFj_yoi2nuh00vUm_j0eVYjRn40mY101AMMp
+ A94jDSGKgqW.dvL3ddX1ms490764ANugsrikT4TAFpRMAKMQNxhuCcPehFZ_jneZpdpHpMO.heTe
+ XNmn5UMMWGN8ewJnplU6gx2_pmyv2eehEOppoj7A1OEfAQfwizo8C3pAv0_vGV8OVrE5dJC5PHXc
+ L8navpn93LmYRVGoFyGVUtiCN_kDNBzA6K2W.P1_0XJff5DVKn9MnjJ29v1Wp3fUG8OWwc3iTggg
+ 1uqz8cm92mXNb_4Bh2ec996Gm8n46Fdtiiw3tkpfgYQNuEx9EUECISiDV5QDkAk29WbQTmA8nsv5
+ JQiosfWiUHi7tbdLCHoeGnubpybCtZxfn8GZyeD4L5_CozQpCGJXlfTeypbS3CnewkKmydgyCN6C
+ bYTaHUHz8VmbR9KerbX7sz70hg9yWlwbhZfTLinnJjw5TXLez4gS2mV8SOhNNtZengnZwoeClZZi
+ lyQdjqDRm.zbuNQyC__PQ4xq_LZE_CEaR67qrZu50a4pMg9HkRhCHbkznGqU7gK43YsDwWwNX9my
+ 3_hprhweBqqQDvzgNkc2HhIQKU3_ysHh9Uz3NGBisyV_6sY1o3aM3855EIvIMx8.YeEPDk4Mmyv7
+ 7Kba49c88eOfhxo7lJV.NzA4YXONyH9svwl7o2rj59Q5aIloMmGQTrTE8j.ylVSAqONji0GV.v2O
+ Se9s9WKVEGRxUtJD1Gjw5gwJVgEwBIw73cEUhsqFwwT4.5SDw.ouRgFyjm1tpeQfi2qZnfhN_ef.
+ koakCum34NqEfl77nuy_9vYfq2CXkBMvsU.qljr7GGQyIrdg6GZAKwjCSzvvW3fDBD98OgN8jIyW
+ 3Vp9ZOrCHel1WS8nem88N2mbzZzIoUDBhdPS4w7BEHHR7RCcDde2JeV35_YEGnMbCRYUTaF18I_y
+ uiAbubgOCbzOLvlFfoKtQu88M6aXiw6ukJcW.GNy.ID3nGFdJEwkSCe7sg1KIQOwx3.a.r7JJ34R
+ HayBWml_krPaSCsTBPrACxuV1UyyK2_arykStHbTV8zEY39X59ExOBzMCHwCOsKsmFoJU4Mk7cle
+ 6DPsIyZbko5IjMIcwu0QS50uYu1VQ4VH7lhzZOK3jfpNV1QTrwlpSw0TTVr3rBZIfugl0uy45mSl
+ JZF31BKzEeThSdSRsozS3OemqToW5Ybpwi.UKez.jFSfUmBB5AtxR.4O2P1fk__2r62yfZTVeqwo
+ X4gOfKrZTCO6MlLnUbyyoyuTNzW9fX4rmjTcJnweFIhas3Z2lAUU727SdWTRiT8uGal9alkMdrSK
+ jylv3EHIpcigwOkGUYbfye8OGvA--
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 48194f79-7568-4829-816f-26b8d6c6d76d
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Thu, 27 Mar 2025 16:41:25 +0000
+Received: by hermes--production-gq1-5c477bf655-5s42x (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID f11c2ac843a44436a94966781ae7c982;
+          Thu, 27 Mar 2025 16:41:21 +0000 (UTC)
+Message-ID: <cfece0a5-fd0a-41d7-939d-5a2f524c9ced@schaufler-ca.com>
+Date: Thu, 27 Mar 2025 09:41:19 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [GIT PULL] selinux/selinux-pr-20250323
+To: Jeffrey Vander Stoep <jeffv@google.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>
+Cc: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>,
+ Paul Moore <paul@paul-moore.com>,
+ "Cameron K. Williams" <ckwilliams.work@gmail.com>,
+ "Kipp N. Davis" <kippndavis.work@gmx.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Nick Kralevich <nnk@google.com>, Casey Schaufler <casey@schaufler-ca.com>
 References: <d0ade43454dee9c00689f03e8d9bd32a@paul-moore.com>
  <CAHk-=wjbahY4JjLCXNT4o3xVq2cejqBG69z+MNfHsN9FQBnbOw@mail.gmail.com>
  <CAHC9VhRExVqdhHqs0njs7NY6bFg0BfcE-gMpS30HW9O7MSDfWQ@mail.gmail.com>
@@ -79,68 +85,46 @@ References: <d0ade43454dee9c00689f03e8d9bd32a@paul-moore.com>
  <CA+zpnLeK2Ecj1mBod2rFe4ymd9eXiJkbyYwFh4Yrmck3DVB2SA@mail.gmail.com>
  <CAHk-=wiBH8FBL+pnXui8O-FSdyoG-yX81mUF9bsZcC6rR5ZtgQ@mail.gmail.com>
  <CA+zpnLe_AOpS_F1UBNOvN3YRswUSy_3=0jjUAy4GPxEHYumD0g@mail.gmail.com>
- <CAHk-=wgJ0gzYJD+MghfVW-YeGLW6sLU5soFY13KWmPAxobk5Mw@mail.gmail.com> <CABXk95AqgpqGtjzK2o=mxWJg5RUZG80dAEaKF9JdUT6n5eFENQ@mail.gmail.com>
+ <CAHk-=wgJ0gzYJD+MghfVW-YeGLW6sLU5soFY13KWmPAxobk5Mw@mail.gmail.com>
+ <CABXk95AqgpqGtjzK2o=mxWJg5RUZG80dAEaKF9JdUT6n5eFENQ@mail.gmail.com>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
 In-Reply-To: <CABXk95AqgpqGtjzK2o=mxWJg5RUZG80dAEaKF9JdUT6n5eFENQ@mail.gmail.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Thu, 27 Mar 2025 08:49:43 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wh1refm6JkAB__TmC8OBJyNdH2DmNQAbvcL=tKepkHrYw@mail.gmail.com>
-X-Gm-Features: AQ5f1JpfPxIDPXqHseSeuENAM4paunItAZJKgsQVaCtDcDayjV2pwNNW6TWk5bQ
-Message-ID: <CAHk-=wh1refm6JkAB__TmC8OBJyNdH2DmNQAbvcL=tKepkHrYw@mail.gmail.com>
-Subject: Re: [GIT PULL] selinux/selinux-pr-20250323
-To: Jeffrey Vander Stoep <jeffv@google.com>
-Cc: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Paul Moore <paul@paul-moore.com>, "Cameron K. Williams" <ckwilliams.work@gmail.com>, 
-	"Kipp N. Davis" <kippndavis.work@gmx.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Nick Kralevich <nnk@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Mailer: WebService/1.1.23533 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On Thu, 27 Mar 2025 at 01:59, Jeffrey Vander Stoep <jeffv@google.com> wrote:
->
+On 3/27/2025 1:59 AM, Jeffrey Vander Stoep wrote:
+> On Thu, Mar 27, 2025 at 5:10 AM Linus Torvalds
+> <torvalds@linux-foundation.org> wrote:
+>> On Wed, 26 Mar 2025 at 20:28, Thiébaud Weksteen <tweek@google.com> wrote:
+>>> That is not quite right. If you look at commit 581dd6983034 [1], when
+>>> a firmware is about to be loaded, the kernel credentials are used.
+>> Ahh, that's good, at least there's no "random state" to check.
+>>
+>> But it does still mean that the security check is pointless - there
+>> aren't any other credentials that would validly be used for firmware
+>> loading, so what was the point of checking them again?
 > The value here isn't so much about checking the source context
 > "kernel", but rather about checking the target context and enforcing
 > that firmware can only come from trusted filesystems. So even a
 > compromised privileged process that sets firmware_class.path cannot
 > cause the kernel to load firmware from an arbitrary source.
+>
+> These restrictions reduce our reliance on (1) individual component
+> manufacturers (e.g. NFC chips) implementing signature verification
+> correctly in their firmware loading procedure, or (2) the fallout for
+> the Android ecosystem if a component manufacturer's private key leaks
+> because even firmware signed with the leaked key will not be trusted
+> if it doesn't come from the trusted filesystem signed by the Android
+> device manufacturer. Leaked keys is a very real problem. Restrictions
+> like those added here can significantly reduce the severity of such
+> incidences.
+>
+> With this, we can write policies for Android devices that enforce that
+> firmware only comes from trusted filesystems. For example:
+>
+> allow kernel vendor_file:system firmware_load;
 
-Yes, and that's literally why I earlier in the thread pointed out the
-new code in selinux_kernel_load_data()
+Am I missing something, or isn't that what loadpin is for?
 
-  "I'm looking at selinux_kernel_load_data() in particular, where you
-   don't even pass it a file at all, so it's not like it could check for
-   "is this file integrity-protected" or anything like that"
-
-because I understand that you might want to verify the *file* the
-firmware comes from, but I think verifying the context in which the
-firmware is loaded is absolutely insane and incorrect.
-
-And that is literally *all* that the new case in
-selinux_kernel_load_data() does. There is no excuse for that craziness
-that I can come up with.
-
-And yes, I'm harping on this, because I really *hate* how the security
-layer comes up in my performance profiles so much. It's truly
-disgusting. So when I see new hooks that don't make sense to me, I
-react *very* strongly.
-
-Do I believe this insanity matters for performance? No.
-
-But do I believe that the security code needs to *think* about the
-random hooks it adds more? Yes. YES!
-
-Which is why I really hate seeing new random hooks where I then go
-"that is complete and utter nonsense".
-
-[ This whole patch triggered me for another reason too - firmware
-loading in particular has a history of user space actively and
-maliciously screwing the kernel up.
-
-  The reason we load firmware directly from the kernel is because user
-space "policy" decisions actively broke our original "let user space
-do it" model.
-
-  So if somebody thinks I'm overreacting, they are probably right, but
-dammit, this triggers two of my big red flags for "this is horribly
-wrong" ]
-
-                Linus
