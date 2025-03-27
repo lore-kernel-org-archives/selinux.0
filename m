@@ -1,192 +1,181 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 778E920B204
-	for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 09:19:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9344213E6B;
+	Thu, 27 Mar 2025 11:47:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743067191; cv=none; b=SxGahu0q4B/8KXPhO5aESj4FAg6SGBR7qjD2MnYebl5YIf4hGlgkr3WFJMnJGz88j7Ko2VKRP9nOdS5idVc8E/J99Mu/AmhOdJedvm0+AjWxNRJUJ82sPtloIfUJv/UX4dhzfJyjyt0KZzt3Su2jwjMdvTuipL9GB73A/wFBm4E=
+	t=1743076037; cv=none; b=ib1rF7DylRMjQ9iPsgsDB76zfUsB3f/AYKaluItmf9QMoqzoZbv8U2bi39APPZPB/4CJycy4sLjkQ2GNpUQOvgjEd4W5KSK/jSnJaazs/OPYT1PlySjHO91rfnHsCCAmWYxK8ktFu6s110Tl/8372OvUZHDdZyIDOJna9wldqeY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743067191; c=relaxed/simple;
-	bh=4Uqg1XG05HdJPsxOwRpf2Ggurmvyrn6hqtvAxIbW18E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uj690maxAmmsXer4lt0M9iGxbihmW2jt2/hypSD6Gl56RH2VphYwM0ZrA3nczUWX5dZ3gKjorWZ/NCob809Vu13uv7JxLVQmS80PNbW053zUWgdd0vYOMb2DjffvcdgS+QBUCk8ipeUlQDAzhigi6nAng129kaQJLoxnIQbcxec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QHXkr8uV; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1743076037; c=relaxed/simple;
+	bh=n1qijx/OKy6vODUrZhMc5X8x/a/woXnDRx8es3Z+U2Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=k2z9w3NAPZQK9HgwB+BPQrMY+Zutn/FCgmWwWQbZrDd7N2Mr20t1SCiHmHcBnw0wOM9bDTCjuAlBBoGd2+derLakUqmTG4Ab7wWvQLSW8gr7SKHjkjrxKXZK3Yn69jx1XnNA/pYbxyGHK/r1vQCAnl4rwy5mbyji3pMpZGz1wxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OHWBdwZd; arc=none smtp.client-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QHXkr8uV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1743067188;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=9pyhn0HoGdNIq8NPYxOEem1nAHX/1X+tuTFMgKgOzvo=;
-	b=QHXkr8uVzJVu1lNvazKkYO1y0eb1+aOQkTiRRgTDujYWI5bbvTs6xyBu9Qka744lYEXICZ
-	3DG2J/R7y/gvJYLrjVvsssQPis4YgO5Dz8S4NN2hJZFEG1dSrAA8P/LhMzGjhjXpHvj/54
-	3eA8G+kswbvpGDw3d6jz6DFXOpfhQCg=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-76-e3aH8m_wO-uAB4O8t_V5hA-1; Thu, 27 Mar 2025 05:19:46 -0400
-X-MC-Unique: e3aH8m_wO-uAB4O8t_V5hA-1
-X-Mimecast-MFC-AGG-ID: e3aH8m_wO-uAB4O8t_V5hA_1743067185
-Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-5e5d9682f6eso777443a12.3
-        for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 02:19:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OHWBdwZd"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-ac3fcf5ab0dso142165466b.3;
+        Thu, 27 Mar 2025 04:47:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1743076034; x=1743680834; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=is9+y2X85jwUJpC2vpoBI5XsOCH7hq1X1nDpdTQ6gJo=;
+        b=OHWBdwZdGHxXuu64JeK3LatbgC/vLSSnwlW7ynWR8oJtMJAlOPLJy23623Lwc++xjU
+         0oKbDkimsU9WUTUv7Yg5c9ms5y0gCXr4900HHeUdyex9w9dYelAYPwHx+aE7uSAYlUDJ
+         pgfXp8wWrzO7UqbZuOlZQUaqy5KSWRDx5TTcG4rn3NAZ11ZRshUlsIvE3C33z0OuDWCo
+         DsBUCXzbqYRk6TAC+PbMSL15q0U9moWPmupH50K+XCP22aby0GLcJ9TYQ1AFL9Y0PTEp
+         5TonltQNY4d/FrW9juEBFavTGlBCdNg5CjfEK53EK4Qpt/NdVvXwnlTp+9nveK3Fmd5Q
+         UleA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743067185; x=1743671985;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=9pyhn0HoGdNIq8NPYxOEem1nAHX/1X+tuTFMgKgOzvo=;
-        b=h3brUxtSz02kr0+4/9Qp3T3apvkCoDmHd3sCRMbF4L0lw0LzVxEDqgU76nJx+UhFcm
-         KzQrpEWbi9RdY0M0AEmo62ZPHaRIpBceMDSJkRDuHeJaeOfidoruZeWPvBroWxjGXWLd
-         9ZUJNz9yt4CeedZXDdnwIx4v2w+apzYvQFt4sFVvZW1dBuoqQuCIb1n1Kmx0vnSSw9Bi
-         NOES2EOa376UhuEOF/yKdpQ0TGfSJgpGbk0UQIsmSvaq4Zuau6e2zDLAWKbNRSRPPEKU
-         OFekz1SejibfXxcZOhBXqMTxNKTt7eCtBGjhFg+35FUiMY3DhwUFHT+MBPnE2aZA2ZTP
-         /n0Q==
-X-Forwarded-Encrypted: i=1; AJvYcCU599swY3iz5ErXP4RWR5TfIhNc1+bEqTc17donhm6fPyyglLPt49qjKyNGclgkFltSc3FzO1ji@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxjgki6OhuJfOyPF+GNEuL33Z+AipN3YFASRKI9i5Wwje08uPP2
-	5JL8T1b32h8crjQGhyT8PTZ2gj78bmAiytxj8z12dswsgT18tIFb+RkHdxvp3zsFjItpkIzGOmC
-	GYBQt7at4lssKRbf/7ROIX4i3O3xsgFbXZv6C2HqsxQ8VBBhzpE8EPQ==
-X-Gm-Gg: ASbGncveoNu0LgVndJzL5QSadAjcIMEiO6Bw7CN3I3aytd1Uwsn72ASyJDnQccf6RBy
-	9hoC0PFLUoI0rWYURt3Vs9QpPNHf6CVAcfJfxMxDs82AcQWr1VYqUPtjPWCNr2N3U5YeZELM16d
-	rBmY2s/FMfpAbCVUceRgPkYYFT5pkkEkNsI7FQbUAKarVVYgFaSwBaaBszedzhSb+dT328s1THP
-	N+TmicCrrJ1XBAVJjTasOxAS4UncmdmQYJyuCvtdEDZbLBKZFhroQEBJpuecF3s8uCganGTXVxw
-	EKAu7qErMXNcDQGWScGJ8J8EanemULfZF/E=
-X-Received: by 2002:a05:6402:84f:b0:5ed:5554:7c3b with SMTP id 4fb4d7f45d1cf-5ed8f01bf27mr2519932a12.32.1743067184694;
-        Thu, 27 Mar 2025 02:19:44 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IF/DbC1eDv4uqQP1EBxN610IysnB9dK2feEI/zaqXDqyNyHZNke1rzsRI6Nd8rV/ipuBURwEg==
-X-Received: by 2002:a05:6402:84f:b0:5ed:5554:7c3b with SMTP id 4fb4d7f45d1cf-5ed8f01bf27mr2519867a12.32.1743067184134;
-        Thu, 27 Mar 2025 02:19:44 -0700 (PDT)
-Received: from thinky (ip-217-030-074-039.aim-net.cz. [217.30.74.39])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5ebcd0e0470sm10684007a12.77.2025.03.27.02.19.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Mar 2025 02:19:43 -0700 (PDT)
-Date: Thu, 27 Mar 2025 10:19:40 +0100
-From: Andrey Albershteyn <aalbersh@redhat.com>
-To: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
-Cc: Paul Moore <paul@paul-moore.com>, 
-	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
-	Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, 
-	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
-	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
-	Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, 
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, "David S. Miller" <davem@davemloft.net>, 
-	Andreas Larsson <andreas@gaisler.com>, Andy Lutomirski <luto@kernel.org>, 
-	Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
-	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	=?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, Arnd Bergmann <arnd@arndb.de>, 
-	Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, 
-	linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
-	selinux@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
-Subject: Re: [PATCH v4 1/3] lsm: introduce new hooks for setting/getting
- inode  fsxattr
-Message-ID: <gsg4crfqqc7xmvaadcaqiztsr2ngstswmax4aourvc7iuu3tew@mluhff6a2ip5>
-References: <20250321-xattrat-syscall-v4-1-3e82e6fb3264@kernel.org>
- <e2d5b27847fde03e0b4b9fc7a464fd87@paul-moore.com>
- <20250324.aThi9ioghiex@digikod.net>
+        d=1e100.net; s=20230601; t=1743076034; x=1743680834;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=is9+y2X85jwUJpC2vpoBI5XsOCH7hq1X1nDpdTQ6gJo=;
+        b=etKGX0P0N2SdRxT3laCTJuUxy3C4UjRCv3zhGnWNMgc5woShSSe6Aw+gDdMi2mU1Tu
+         XyPVac5QSoxsxrMQfjMPozaO/RS/05tmYOWSItGKExym8oYVuCz428tFhzR0nARSc0eC
+         3nt1KnY4nbpC+yxmF+VfWdesjLXlugzPEGzlaDIfeynbCat9s4BaVqPYt484oljZoLOh
+         EffkQsJr4EfoPsVsdGYQGQVg3cIGLip93jmnGwi9jB777HNbmn+asMHRj4vuJWg8jtu3
+         bl06dwHh4FUHYaf4PbaCe6Iiam5KNyEMAWy/ziG/6nYEPFOdyYgBTAZcRIWU41LY915X
+         G2mQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUhcpaPjt/WOsLNDlKo/sn87CvnYW1K75mUsN8fbi+v0+sW4M3bC1mjcBhddrCOF4RpHwkSzxT5eR9CFA==@vger.kernel.org, AJvYcCV8Ts24HwzGSZ8Smqj6pcWnwBbIZQV6xGJYRU8mpeLA4XSoDLVr4S/HQ0apVXiQGJ9byLNsHBT21cpak0gCGQ==@vger.kernel.org, AJvYcCVL0gMQumgGJbSYFoa72DHD2W2tm6gWTaNDCH+PNqxpIKtkI0denaPTdJTA3vvmtFsPD0Lbjb4dgdub6g==@vger.kernel.org, AJvYcCVXdJvqmAorpkhh3vZeY/xOYGBIWcrkM+N2wjN8/aJje0kfbs4696Mf4GY7aS30RwBaku0vn8ydmNjx@vger.kernel.org, AJvYcCW0T2mdqUwRg6+X4sXTJNjdbV4uhf79v2+wCo2BP1MN0s4ptDbT2lQRJgidU4fVWvy+F45lDWjO2lIUXg==@vger.kernel.org, AJvYcCW5ZGoDCaT8N/e9oL6QKcrdVdJnlp3cZmqqPFhz/ucYumTGX+/J5maUTdQ7DZ5RjduAbdg3jpzUhRV/jhrbWBH7lV5YLzAy@vger.kernel.org, AJvYcCWtqcCjsjMV1EPokgT/74IVjyS9t6aOkVgaQWbpvyqFj5SizKeSXNaGX8QkPxqz+WjOBqumtJ+34Ds=@vger.kernel.org, AJvYcCWw4e9jLog1rsquRE+l+d9YKl1cXQ0WvKJPqhUNqAlSmDlXO2qRNwJPhTSVHsFNun5E9ZX/oa20H7rRKR+V@vger.kernel.org, AJvYcCXDNi5mgCc4H/YiGGsdYRYPwAOuS8jqCCXUAAvoT3wRZ1snTc22JiCYHCzWI6tph389kP4go9S9nA==@vger.kernel.org, AJvYcCXF5DLFlOKck6HQkJbQRfJPMI2lq6yAC9i4E1g92mKm65F8piJmZ2VEo10TyJEhLVrcItub1mctUrAazQ==@vger.kernel.org, AJvYcCXFZpxIHLrAJhsFk/vy7s3Kujl7sEOvjlKV6XZf2o1t67S5/s1zvbX/uMw5ikPZqnKKOvG5TVavplqH@vger.kernel.org, AJvYcCXWd339mxkn33FRYdDQJwECgTt/FWq5NbwpHhJhmB1rFB4YP5WLCgszLRZ7FteJrtq5/tOZ2VCS+4PMzQ==@vger.kernel.org, AJvYcCXkO0+OFNNXlClftTez8QzsyVGudv8fE9+qW6G+ZcNeKEximzM2cf9bvaXenVo9ZzG5YBcZ0dT4x1CLdA0Q@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz/08V4JT1k7O2KrOVLXpFV9SRPSxm+KWN52UbGkV2iufQuBMmR
+	aE+v+MGGa1nZmqof9SfE7eGrLNzN29LLYZ9ZP4O4Cv1/jvtLq3YSb3i7JXwdHwffs107iRVtIXL
+	9t8QaLzhM2agFZM04IzQVleStmM8=
+X-Gm-Gg: ASbGnctoQULFj7XmWF3qvuYdcZvaentGyogwYs1KSBURFr3CDPfS74vXXWw21BMQgR9
+	u2d0y7hIZ1bOv4UuvODKydJ8U85gwKR+9zw9IhKF9mhtsbqwWfPDJ0fb919tdtPlzgh5CCoW/Vr
+	+K445EEBqguFf+RyKVcr8WjvT3ng==
+X-Google-Smtp-Source: AGHT+IFDMEzXsY+VZjpd0kG58wjWGn9FeNWYrZGZgOC4akNvRiDgmmjaMJcSLaslSRq0Qq/XBA95rVTpeV7+0zkMjwY=
+X-Received: by 2002:a17:907:7292:b0:ac2:9683:ad25 with SMTP id
+ a640c23a62f3a-ac6faf46d6dmr291188966b.34.1743076033463; Thu, 27 Mar 2025
+ 04:47:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20250324.aThi9ioghiex@digikod.net>
+References: <20250321-xattrat-syscall-v4-0-3e82e6fb3264@kernel.org>
+ <CAOQ4uxjQDUg8HFG+mSxMkR54zen7nC2jttzOKqh13Bx-uosh3Q@mail.gmail.com> <20250323103234.2mwhpsbigpwtiby4@pali>
+In-Reply-To: <20250323103234.2mwhpsbigpwtiby4@pali>
+From: Amir Goldstein <amir73il@gmail.com>
+Date: Thu, 27 Mar 2025 12:47:02 +0100
+X-Gm-Features: AQ5f1Jpi0M5N9RWSGdapIu4-VZrbOc2LlwCzBFz2QmmwPCZLH_QgJtaO5jSCIs8
+Message-ID: <CAOQ4uxiTKhGs1H-w1Hv-+MqY284m92Pvxfem0iWO+8THdzGvuA@mail.gmail.com>
+Subject: Re: [PATCH v4 0/3] fs: introduce getfsxattrat and setfsxattrat syscalls
+To: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>
+Cc: Andrey Albershteyn <aalbersh@redhat.com>, Richard Henderson <richard.henderson@linaro.org>, 
+	Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
+	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, linux-alpha@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
+	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
+	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, 
+	linux-arch@vger.kernel.org, selinux@vger.kernel.org, 
+	Andrey Albershteyn <aalbersh@kernel.org>, linux-xfs@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2025-03-24 20:27:02, Mickaël Salaün wrote:
-> On Fri, Mar 21, 2025 at 05:32:25PM -0400, Paul Moore wrote:
-> > On Mar 21, 2025 Andrey Albershteyn <aalbersh@redhat.com> wrote:
-> > > 
-> > > Introduce new hooks for setting and getting filesystem extended
-> > > attributes on inode (FS_IOC_FSGETXATTR).
-> > > 
-> > > Cc: selinux@vger.kernel.org
-> > > Cc: Paul Moore <paul@paul-moore.com>
-> > > 
-> > > Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
-> > > ---
-> > >  fs/ioctl.c                    |  7 ++++++-
-> > >  include/linux/lsm_hook_defs.h |  4 ++++
-> > >  include/linux/security.h      | 16 ++++++++++++++++
-> > >  security/security.c           | 32 ++++++++++++++++++++++++++++++++
-> > >  4 files changed, 58 insertions(+), 1 deletion(-)
-> > 
-> > Thanks Andrey, one small change below, but otherwise this looks pretty
-> > good.  If you feel like trying to work up the SELinux implementation but
-> > need some assitance please let me know, I'll be happy to help :)
-> > 
-> > > diff --git a/fs/ioctl.c b/fs/ioctl.c
-> > > index 638a36be31c14afc66a7fd6eb237d9545e8ad997..4434c97bc5dff5a3e8635e28745cd99404ff353e 100644
-> > > --- a/fs/ioctl.c
-> > > +++ b/fs/ioctl.c
-> > > @@ -525,10 +525,15 @@ EXPORT_SYMBOL(fileattr_fill_flags);
-> > >  int vfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
-> > >  {
-> > >  	struct inode *inode = d_inode(dentry);
-> > > +	int error;
-> > >  
-> > >  	if (!inode->i_op->fileattr_get)
-> > >  		return -ENOIOCTLCMD;
-> > >  
-> > > +	error = security_inode_getfsxattr(inode, fa);
-> > > +	if (error)
-> > > +		return error;
-> > > +
-> > >  	return inode->i_op->fileattr_get(dentry, fa);
-> > >  }
-> > >  EXPORT_SYMBOL(vfs_fileattr_get);
-> > > @@ -692,7 +697,7 @@ int vfs_fileattr_set(struct mnt_idmap *idmap, struct dentry *dentry,
-> > >  			fa->flags |= old_ma.flags & ~FS_COMMON_FL;
-> > >  		}
-> > >  		err = fileattr_set_prepare(inode, &old_ma, fa);
-> > > -		if (!err)
-> > > +		if (!err && !security_inode_setfsxattr(inode, fa))
-> > >  			err = inode->i_op->fileattr_set(idmap, dentry, fa);
-> > >  	}
-> > >  	inode_unlock(inode);
-> > 
-> > I don't believe we want to hide or otherwise drop the LSM return code as
-> > that could lead to odd behavior, e.g. returning 0/success despite not
-> > having executed the fileattr_set operation.
-> 
-> Yes, this should look something like this:
-> 
->  		err = fileattr_set_prepare(inode, &old_ma, fa);
->  		if (err)
->  			goto out;
->  		err = security_inode_setfsxattr(dentry, fa);
->  		if (err)
->  			goto out;
->  		err = inode->i_op->fileattr_set(idmap, dentry, fa);
->  		if (err)
->  			goto out;
-> 
-> > 
-> > --
-> > paul-moore.com
-> > 
-> 
+On Sun, Mar 23, 2025 at 11:32=E2=80=AFAM Pali Roh=C3=A1r <pali@kernel.org> =
+wrote:
+>
+> On Sunday 23 March 2025 09:45:06 Amir Goldstein wrote:
+> > On Fri, Mar 21, 2025 at 8:50=E2=80=AFPM Andrey Albershteyn <aalbersh@re=
+dhat.com> wrote:
+> > >
+> > > This patchset introduced two new syscalls getfsxattrat() and
+> > > setfsxattrat(). These syscalls are similar to FS_IOC_FSSETXATTR ioctl=
+()
+> > > except they use *at() semantics. Therefore, there's no need to open t=
+he
+> > > file to get an fd.
+> > >
+> > > These syscalls allow userspace to set filesystem inode attributes on
+> > > special files. One of the usage examples is XFS quota projects.
+> > >
+> > > XFS has project quotas which could be attached to a directory. All
+> > > new inodes in these directories inherit project ID set on parent
+> > > directory.
+> > >
+> > > The project is created from userspace by opening and calling
+> > > FS_IOC_FSSETXATTR on each inode. This is not possible for special
+> > > files such as FIFO, SOCK, BLK etc. Therefore, some inodes are left
+> > > with empty project ID. Those inodes then are not shown in the quota
+> > > accounting but still exist in the directory. This is not critical but=
+ in
+> > > the case when special files are created in the directory with already
+> > > existing project quota, these new inodes inherit extended attributes.
+> > > This creates a mix of special files with and without attributes.
+> > > Moreover, special files with attributes don't have a possibility to
+> > > become clear or change the attributes. This, in turn, prevents usersp=
+ace
+> > > from re-creating quota project on these existing files.
+> > >
+> > > Christian, if this get in some mergeable state, please don't merge it
+> > > yet. Amir suggested these syscalls better to use updated struct fsxat=
+tr
+> > > with masking from Pali Roh=C3=A1r patchset, so, let's see how it goes=
+.
+> >
+> > Andrey,
+> >
+> > To be honest I don't think it would be fair to delay your syscalls more
+> > than needed.
+>
+> I agree.
+>
+> > If Pali can follow through and post patches on top of your syscalls for
+> > next merge window that would be great, but otherwise, I think the
+> > minimum requirement is that the syscalls return EINVAL if fsx_pad
+> > is not zero. we can take it from there later.
+>
+> IMHO SYS_getfsxattrat is fine in this form.
+>
+> For SYS_setfsxattrat I think there are needed some modifications
+> otherwise we would have problem again with backward compatibility as
+> is with ioctl if the syscall wants to be extended in future.
+>
+> I would suggest for following modifications for SYS_setfsxattrat:
+>
+> - return EINVAL if fsx_xflags contains some reserved or unsupported flag
+>
+> - add some flag to completely ignore fsx_extsize, fsx_projid, and
+>   fsx_cowextsize fields, so SYS_setfsxattrat could be used just to
+>   change fsx_xflags, and so could be used without the preceding
+>   SYS_getfsxattrat call.
+>
+> What do you think about it?
 
-Sure, thanks for noticing, will switch to dentries and handle error
-code it in v5
+I think all Andrey needs to do now is return -EINVAL if fsx_pad is not zero=
+.
 
--- 
-- Andrey
+You can use this later to extend for the semantics of flags/fields mask
+and we can have a long discussion later on what this semantics should be.
 
+Right?
+
+Amir.
