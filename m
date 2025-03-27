@@ -1,67 +1,67 @@
 Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94D6520330
-	for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 18:16:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37FC72FB2
+	for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 19:03:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743099380; cv=none; b=fRb0uXzZUqizhs47UUrsiBYarsFh3V79jPpH/yT6TizfsqriqqrPzThjQngyTU//YAwTg3kYYcF0FQIZEHt5s7+CK4Eg/k/KIY6LcbU7nPleyaXwdBqmWcmhI8ie1ci40ixN0Ca3+NARC+BYXe6p/ZyU7R3C6tU5/1moF5lgIhw=
+	t=1743102237; cv=none; b=L2Ep4tdkQdI51vdwD0s/aPwOmO68/ve6Y/SonVmIhe/3hCVJV7TvMZ6ObQOdIxnPRU8Aw0381olmXRKIq7MvfIYaD9Ev8OLW+RzglLsAPaTOFqy8Fj3soTPj5JPWkhVLN8URv4wkMttfxiwRLbwxvXMWTG88Rnd/eRWGULzNbwc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743099380; c=relaxed/simple;
-	bh=qMj55OgEXjwHputJ8S8fmURGCDSurMmVFEx6sQGoflw=;
+	s=arc-20240116; t=1743102237; c=relaxed/simple;
+	bh=ZV+lHTqy2y18sHJQYhQiUkM92LLosntDULZ7IsN9AuI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hB6bDU6oKmdUFO+hbo+NL2x2WE1t1AuLfEd5MVAWL7rhXafz7oyRQzkRCV1Q+rOnvtzYbZgEnVUWnWkUSUuFlWIUAr2yaS8zhboNAHVPGQdtcwmXl0kTHgFF4OQfp+5ekG/PEnHLKWvn+Szy5r/Nw6L5Plqfu8bf2o17wp7hoJw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=QOREcTDB; arc=none smtp.client-ip=209.85.208.45
+	 To:Cc:Content-Type; b=M6jYFvXxhB4WYfCsiHqP9XuseBTtL3pWXrAKmN96IcVlGTzmH1gHb3dTM4oGoXiSpsR7xzL1KscC1Tx82ecfhhsKyttOdgX+jNok4sKSCY6ObCZB30nqv8BjSxMssUh18KrHwyOjVMD5zQVTQXrU9sbBQGiL9ijLCbdhCzTipRk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=QZxT5thJ; arc=none smtp.client-ip=209.85.208.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="QOREcTDB"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-5dc89df7eccso2438735a12.3
-        for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 11:16:18 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="QZxT5thJ"
+Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-5e673822f76so2170331a12.2
+        for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 12:03:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1743099377; x=1743704177; darn=vger.kernel.org;
+        d=linux-foundation.org; s=google; t=1743102233; x=1743707033; darn=vger.kernel.org;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=YAD3FrghPaJkpW039wt/AHmDgQi7dvtgBZolcDWTamY=;
-        b=QOREcTDBi2Ygo5wWtk7R8Pwzp8Yp/e6NZYqr8ZhL/vVKWpu4qs6ZrbTD37KbwSn+jX
-         HVpaSjXHetTWLtULjVXaeejUHgzP0NTjgJqT4fygIHQAGoclKoHW3EzRPqLixL5pQWju
-         djZquQFjXcXyViNUh+CUJXacBU5INrIy48M4o=
+        bh=eckh3c+xZEpUAPcGpuJWSWBJz7nrFu2WDtg6sHEX70w=;
+        b=QZxT5thJ6UJr6xbe5k3gkC3nbBHDn6OYIaJOu172bF5U97AeMWILLVjVv1jG4nRcqr
+         LkEnDfDFmJ17ou308bkqTd4sS2RAh9wPPlSQfJ8++3qQL9Yz8zTPr0jaDScbf4GG+G04
+         zPZaiII5nVYw/PD7o9mrO/Q2U5WgHxY9nwNWM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743099377; x=1743704177;
+        d=1e100.net; s=20230601; t=1743102233; x=1743707033;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=YAD3FrghPaJkpW039wt/AHmDgQi7dvtgBZolcDWTamY=;
-        b=hA2K3CKJBzGhq2dRkXNYK5qaavy8+zZiaHpoETNzoSrcBx4ctWa4a5bDkeVySX3rfn
-         0Ttl3i1fJ0llgDq0qgS2gbz6axlVY4SXNP0MdfHRvYjynGfMyBRj1C9BzY6Pt0onFsdS
-         gSzHYPiwctKqsBh4yNgSgpHkCPP7o19JboeEEGonEilI+8yOU8YsCd4dVKBFF+P68RKV
-         McsrDgdtJPTacp3zmyNE+yGGt4WepNhBqvK2HZezkuUFUwtcZiAqNQJLNGjtuXpCrUyl
-         Vu4ecM0KkSMLrTWuA972znsuwrQF45TF/j/ikClf9YoLrSCYXITSjEUGy5VySJMxjJ9+
-         moBA==
-X-Forwarded-Encrypted: i=1; AJvYcCW4fWQok/W3gQlEDsnvQcsH02NEOjPsZGw4wmdIIdB3RgyawiHi6l6mUBDb2qmkTFMvX5RXEch4@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzy3O/WSO2IeikYiYpe6Bg+rwbe1Wo2NAwYIcaR/tVvaYv/BF92
-	Al6O3LzrPFW/qj3b2VH3efdE8h4cweYz7k6AE6ajrz8bIk9j/hvihuFx5pd2uGVhmT03mccFeS6
-	PGRA=
-X-Gm-Gg: ASbGncsB+OVXBcaNMhhfyBBC+PDE6WV60r8BRscfF+bnwDJJR3kJTqXZVmMZ1NYcnkx
-	r/+peUJjNwoTO3m6pYXtytOVmzteULOD4CTfVcQ9I275aATCf5LZ4PJIR8SVWqB3U5c6meGuDVC
-	7OhbX+PQevL5T41PLKb4pxCwSKXMYJwjFdXJzAzGpaaM8DlL9upcGlEzl8SNxcSFBjnAA/O6Kq/
-	svTxBg8u6Jrc8J8K+NcgI8lLvde9D2DQTQoqOYufBF0vIdoY/JV9Cnv5t5K+HRXbbuLp1oMzkau
-	+8exAMGLplujh/Tm85+5TGsqyh8WI+MsR8z324zQSqVguWIXSCU+FfAnflulwLe6i7pNSLsAVpB
-	Nu1le3amOHLRXqJTYHxU=
-X-Google-Smtp-Source: AGHT+IEp0Vb+nnuQFdF0hdNjlVRpYjpBfS7f6V6ix7bBPDxlkJQRX19aSQ0Rqgw5VQEIM1lTUEFrew==
-X-Received: by 2002:a05:6402:3506:b0:5ed:764f:dd73 with SMTP id 4fb4d7f45d1cf-5ed8f3fd018mr4043907a12.20.1743099376395;
-        Thu, 27 Mar 2025 11:16:16 -0700 (PDT)
-Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com. [209.85.218.44])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5edc17b1e41sm156659a12.63.2025.03.27.11.16.14
+        bh=eckh3c+xZEpUAPcGpuJWSWBJz7nrFu2WDtg6sHEX70w=;
+        b=pSzciM3WN3OSYNdkheOANPS373fuqyvzR3HGNCYx/REdj9LabYpAryTtffN16dF/MW
+         dhQ4aKSUt+9Y9mTfN4FjRGQmvAl2/bPPREAwXLQsvYo+bu24bNXnffFZGAAhuv/tGiQj
+         kl6EykIxufs2oEBZlvg5s+kZtKmb6fE+5jzaT1VufLjQ347upKiV8CS//WzvEiTGFQMe
+         4Do6i2MnPnSorkmd/ERL9ha9iDv3fGaJpOWkDIXFo++N2X77J3W6g2Qm6Hk0a1c7N7YH
+         qqy5z+DQ2UAK06oAXzuyrd4FvAMwBjOwcccUFNA5gOi37vzxJVeD7YgbMy4bvuPJkuLx
+         yWsQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW86LXwPlvBdHBZn3hzvZwk9jtpdhrw2mWN8+UYJG/shdPW16zNMBlHtYSVPbubQlhF+VtMKQ5X@vger.kernel.org
+X-Gm-Message-State: AOJu0YwHVOt0A7RT/KeYZtG4OHZsvBWi5lHYlTNiWHF8Fg0/WSDNhJPs
+	Rt3bFlOUuMlZqAdBVth1aLw1u12hSxUox4pbr10cfHOQDt+Ly/oqIswaSzZ2tITSoOYzIP0oajj
+	kHho=
+X-Gm-Gg: ASbGncslwBCizQEI6V1j32lrYXMbbwqviiY3Hb/4+YuBhUEIZGIPeKWzSkJ6OjeaJDW
+	8Cns3OByFAKdwaWfw32voqzkGpemJ/Wt5TeIDqfmgo1SY4xLb4tRvdC+YTUGGF9mIKnbNdifGHJ
+	h/V2hl4tmahhRIUIYgSTiKSuPxShOTrvXaZcqdbJ34xFEo+C1H3JCCNLDOShqWQ4m5DzRoU8Njh
+	iQXcARGsQoIwgjVwzXdJ+wGLot6e9pfF5agyAEGwTcvjk2c/znFbTAoXrAaSDrWF8ZJ2ZrPI1TD
+	CVEF7XvsBkFpfmkSg8h7D7XeqrTM7VTcODnTtvENEVKs5rPL29aHL7Eth2eVYH8tZgHQX6JUv/N
+	eBuSq0w/cLSknTaiK94DgXTWEXC1xIw==
+X-Google-Smtp-Source: AGHT+IFxJz3ry9z1DF9r08ca9TQ2HGdHn59UxQvjLE34WVwgBbDnyRvQHEgXjRp2tMnOLrizdljjbA==
+X-Received: by 2002:a17:906:2c0a:b0:ac7:1c1a:d0f6 with SMTP id a640c23a62f3a-ac71c1ae015mr35002466b.37.1743102233017;
+        Thu, 27 Mar 2025 12:03:53 -0700 (PDT)
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com. [209.85.218.45])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac71961f8c2sm36355466b.105.2025.03.27.12.03.51
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 27 Mar 2025 11:16:15 -0700 (PDT)
-Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-ac3b12e8518so248327266b.0
-        for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 11:16:14 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCX/i+gfbMcGSK6dWcJF6wSyYMAsDDetf6yd7gp9woYH+JqO8pSAdafxX/Yab3Lh4ISo9d5xCDHX@vger.kernel.org
-X-Received: by 2002:a17:907:8711:b0:ac7:1d9a:4db5 with SMTP id
- a640c23a62f3a-ac71d9a6707mr3076666b.0.1743099373902; Thu, 27 Mar 2025
- 11:16:13 -0700 (PDT)
+        Thu, 27 Mar 2025 12:03:52 -0700 (PDT)
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-ac29af3382dso212916466b.2
+        for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 12:03:51 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXmpIPc26QB2XKMPpSFiSr/FODUfJ/45i9wIwiJEI0C4QYxb43LbCzhgFPyiFJkt3thJmNPe8/3@vger.kernel.org
+X-Received: by 2002:a17:907:724a:b0:ac6:ecd8:a235 with SMTP id
+ a640c23a62f3a-ac6faef94bbmr415071366b.28.1743102230511; Thu, 27 Mar 2025
+ 12:03:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -81,13 +81,14 @@ References: <d0ade43454dee9c00689f03e8d9bd32a@paul-moore.com>
  <CA+zpnLe_AOpS_F1UBNOvN3YRswUSy_3=0jjUAy4GPxEHYumD0g@mail.gmail.com>
  <CAHk-=wgJ0gzYJD+MghfVW-YeGLW6sLU5soFY13KWmPAxobk5Mw@mail.gmail.com>
  <CABXk95AqgpqGtjzK2o=mxWJg5RUZG80dAEaKF9JdUT6n5eFENQ@mail.gmail.com>
- <CAHk-=wh1refm6JkAB__TmC8OBJyNdH2DmNQAbvcL=tKepkHrYw@mail.gmail.com> <CAEjxPJ6XnBmbzH44YVQxxv8WOyPN7N81fpj7OYonEOTB=rn6wg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6XnBmbzH44YVQxxv8WOyPN7N81fpj7OYonEOTB=rn6wg@mail.gmail.com>
+ <CAHk-=wh1refm6JkAB__TmC8OBJyNdH2DmNQAbvcL=tKepkHrYw@mail.gmail.com>
+ <CAEjxPJ6XnBmbzH44YVQxxv8WOyPN7N81fpj7OYonEOTB=rn6wg@mail.gmail.com> <CAHk-=wguzgJu4p_khuEXKHmh-6abSN7xLJdCTuyVEfjsopY7iQ@mail.gmail.com>
+In-Reply-To: <CAHk-=wguzgJu4p_khuEXKHmh-6abSN7xLJdCTuyVEfjsopY7iQ@mail.gmail.com>
 From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Thu, 27 Mar 2025 11:15:57 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wguzgJu4p_khuEXKHmh-6abSN7xLJdCTuyVEfjsopY7iQ@mail.gmail.com>
-X-Gm-Features: AQ5f1JomcXU8uedXsS_SUCgWLMCnhZ5GwaGBQB7qWRik00JwiQRThwSwSUer2Dw
-Message-ID: <CAHk-=wguzgJu4p_khuEXKHmh-6abSN7xLJdCTuyVEfjsopY7iQ@mail.gmail.com>
+Date: Thu, 27 Mar 2025 12:03:34 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wh4H3j3TYWn6KSgznUsOXz8vfHMOfTNmFvjGr=hwULWsw@mail.gmail.com>
+X-Gm-Features: AQ5f1JqA5bKkmZKwxCnmbWV1-xhL46E4nM7-YF5EKDpJAQBP2OdnLsbOul3uyVQ
+Message-ID: <CAHk-=wh4H3j3TYWn6KSgznUsOXz8vfHMOfTNmFvjGr=hwULWsw@mail.gmail.com>
 Subject: Re: [GIT PULL] selinux/selinux-pr-20250323
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: Jeffrey Vander Stoep <jeffv@google.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
@@ -97,171 +98,54 @@ Cc: Jeffrey Vander Stoep <jeffv@google.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= 
 	Nick Kralevich <nnk@google.com>, Kees Cook <kees@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 
-On Thu, 27 Mar 2025 at 09:55, Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Thu, 27 Mar 2025 at 11:15, Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
 >
-> If you have constructive suggestions (or patches!) to improve
-> performance of LSM and/or SELinux, we'd be glad to take them. Or even
-> helpful hints on how to best measure and see the same overheads you
-> are seeing and where.
+> The best fix would be to be able to cache the "this doesn't have any
+> extra security rules outside of the regular POSIX ones" and avoid
+> calling the hook entirely. That's what we've done for the ACL path,
+> and that has turned ACL costs into almost a non-issue.
 
-So measuring it is fairly easy. I have various loads I care about, but
-the simplest one that I feel is actually a real load - rather than the
-more artificial bencmarks I then use for verification when I make any
-changes - is literally "do an allmodconfig kernel rebuild with no
-changes".
+.. just to follow up on that, because I tried to look into it, but
+didn't know the lsm and selinux code well enough to actually make much
+progress, so if somebody who does is really willing to take a deeper
+look, please pester me for details.
 
-That empty kernel rebuild approximates what I actually do for most
-small pull requests when only a couple of files really get re-built. I
-don't want to actually try to profile user space and the actual
-compiler overhead.
+But the big high-level case for pathname lookup tends to be the calls
+we have to do not just for the final inode, but the "every single
+component" cases.
 
-To see that load, first do this as root:
+Which is a much *simpler* and more targeted security check than the
+"any random permissions". It's the "can I use this directory for
+lookups", and if we had an inode flag that said "this inode has no
+security policies that change the lookup rules", just that single big
+would likely be a *huge* improvement.
 
-    echo -1 > /proc/sys/kernel/perf_event_paranoid
+Because then you don't need to try to optimize the security check
+itself, because instead the VFS layer can optimize it all by not
+calling into the security layer at all.
 
-so that you as a regular user can then do a kernel build and get good
-kernel-level profiles (there are other ways you can do this: you can
-obviously also do a full profile as root). Obviously you should *not*
-do this on a machine with other users, the above basically says "let
-anybody do profiling on kernel".
+And from a "this is called too much" standpoint, the "every path
+component" cases tend to outnumber the "final file open" case by
+something like 5-to-1 (handwavy, but not entirely made up).
 
-Then I just do
+I think the main case is
 
-   make allmodconfig
-   make -j64
+   link_path_walk -> may_lookup -> security_inode_permission
 
-to prep the tree and causing everything to be built (well - normally I
-obviously don't do that, because my kernel tree is always built
-anyway, but I'm just trying to make it obvious how to reproduce it).
+where the special case is that may_lookup() only sets MAY_EXEC and
+MAY_NOT_BLOCK (for the RCU lookup case, which is what matters).
 
-And then I just do
+So if inode_permission() (in fs/namei.c) could avoid calling
+security_inode_permission() because the inode has some flag that says
+"none of the security models disallow MAY_EXEC for this directory
+walk", I really think that would help.
 
-   perf record -e cycles:pp make -j64 > ../makes
-   perf report --sort=symbol,dso
+I think trying to optimize the AVC hash table lookup further or
+something like that is a dead end. The cost is "many many many calls",
+and each individual call is fairly cheap on its own, but they all walk
+different hash chains, and it all adds up to "lots of cost".
 
-and press 'k' to just get the kernel side (again - there's little I
-can do, or care, about the user space profiles).
+Hmm?
 
-The "--sort=symbol,dso" is because I don't care _which_ process it is
-that does what, so I just want the output binned by kernel function.
-
-Just on a very high level, this is what I get with the v6.14 tree
-(cut-off at 0.25%, this is "out of total cost" for the load including
-user space, so these top functions account for just over 9% of the
-*total* cost of the benchmark):
-
-   1.26%  [k] clear_page_rep
-   0.82%  [k] avc_has_perm_noaudit
-   0.73%  [k] link_path_walk
-   0.73%  [k] terminate_walk
-   0.58%  [k] __d_lookup_rcu
-   0.56%  [k] step_into
-   0.52%  [k] selinux_inode_permission
-   0.50%  [k] memset_orig
-   0.49%  [k] vfs_statx_path
-   0.47%  [k] strncpy_from_user
-   0.47%  [k] rep_movs_alternative
-   0.37%  [k] vfs_statx
-   0.31%  [k] __rcu_read_unlock
-   0.30%  [k] btrfs_getattr
-   0.28%  [k] inode_permission
-   0.26%  [k] kmem_cache_free
-   0.26%  [k] generic_permission
-   [...]
-
-so the top thing is the page clearing (and you see other memcpy/memset
-variations there too), but the #2 hit for the kernel profile is
-selinux, which takes more time than the basic path walking.
-
-And selinux_inode_permission() is rather high up there too, as you can
-see. Together, those two functions are about 1.3% of the whole load.
-
-Now, the above profile is just from *my* machine, and
-microarchitecture will matter a *LOT*. So the details will depend
-hugely on your hardware, but I've been doing kernel profiles for
-decades, and the basics haven't really changed. memory movement and
-clearing is universally the biggest thing, and that's fine. It's
-fundamental.
-
-Also, when I do profiles I turn off the CPU mitigations, because again
-depending on microarchitecture those can just swamp everything else,
-and while they are a real overhead, from a performance standpoint I'm
-hoping they are something that long-term is going to be mostly fixed
-in hardware (apart from the basic Spectre-v1 branch speculation, which
-is *not* turned off in my kerrels, and which we've actually worked
-fairly hard on making sure is handled efficiently).
-
-Now, looking at instruction level profiles is kind of iffy, and you
-have to know your microarchitecture to really make sense of them. The
-"cycles:pp" helps make profiles more relevant (and requires PEBS/IBS
-or equivalent CPU support to work), but it won't replace "you have to
-understand hardware".
-
-You do want to look at instruction profiles at least a bit, partly
-because inlining makes _not_ looking at them often kind of misleading.
-The real cost may be in a function that was inlined.
-
-Typically, once you look at instruction-level profiles, and understand
-them, you'll see one of three issues:
-
- - cache misses. This is typically the big obvious one.
-
-   And you'll see them both for I$ and D$. People will tell you that
-I$ cache misses are in the noise, but people are wrong. It's simply
-not true for the kernel or many other real benchmarks, and you'll
-often see it as big hits at the beginnings of functions - or at the
-return points of calls - where the instructions otherwise look very
-benign.
-
- - serialization. This shows up hugely on modern CPUs, so any memory
-barriers etc (ie locked instructions on x86) will stand out.
-
- - branch misprediction. This will typically show up in the profiles
-not on the branch, but on the mispredicted _target_ of the branch, so
-it can end up being a bit confusing. The CPU speculation mitigations
-typically turn this issue up to 11 and add misprediction noise
-absolutely everywhere, which is why turning those off is such a big
-deal.
-
-but in an OoO CPU all of the above will basically result in various
-instruction profile "patterns", so you in general cannot really look
-at individual instructions, and should use the above patterns to try
-to figure out *why* the profile looks like it does.
-
-It's not obvious, and the patterns will be different for different
-microarchitectures. You can use fancier perf things to try to figure
-out exactly what is going on, but you should always _start_ from the
-"where are the costs" on a pure basic cycle basis. Only after that
-does it make sense to say something like "Oh, this is expensive and
-seems to be taking excessive cache misses, let's drill down into why".
-
-Also, typically, code that has already been tweaked to death tends to
-show fewer obvious peaks in the profile.
-
-Because the obvious peaks have often been getting some attention. So
-the profile ends up not showing a big read flag any more, because the
-big issue has been fixed and now it's mostly a "it's called too much"
-issue.
-
-For the security layer, at least historically the big cache miss (on
-this load) has been the inode->i_security access (not loading the
-pointer itself, but the accesses following it), and the hash tables
-for that AVC lookup.
-
-And both been improved upon, and I didn't do try to analyze the above
-profiles any closer when it comes to exactly what is going on, so take
-that with the grain of salt it deserves. The exact details may have
-changed, but as you can see, avc_has_perm_noaudit() really is very
-much a top offender today.
-
-And yes, the reason is that we have to call it a *lot* for any
-filename lookups. Some of those security hooks get called for every
-path component, others get called only for the final one.
-
-The best fix would be to be able to cache the "this doesn't have any
-extra security rules outside of the regular POSIX ones" and avoid
-calling the hook entirely. That's what we've done for the ACL path,
-and that has turned ACL costs into almost a non-issue.
-
-                  Linus
+                      Linus
