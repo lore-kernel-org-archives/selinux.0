@@ -1,68 +1,58 @@
-Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
+Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5E2A46B8
-	for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 01:21:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 374B114E2E2
+	for <selinux@vger.kernel.org>; Thu, 27 Mar 2025 03:28:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743038463; cv=none; b=Aiy2PElms9CQiZP8Rt/UotyNJvxfLGn5+joPJbU+F15MwFWqFbKGjlpRWbp5UR2or5WDB8Gpn/Wzq7492uz3iRv1ViTBaWwMn65Y9zT2BnxIIh1B96+rfwuBpwOYAhIHi0Q1tMKQWp1hV5ZEYtCw3LNZIJF1Ruy6yRfhjxuD/q4=
+	t=1743046097; cv=none; b=QuK66L9irxJGgUVCodTvNmu+qkLLbSim1bJkTT5HMBsy74c7xy1m/50wragdvez4H+kTm0iIPSOI2pU7FhfzBmJv5hV+I2oxgnV6XxDCEmOlo4mF75Tu06Yvvo0jS6TmgXH5MkkGDWdYFJhsEQ5uwrn1sHMHdb+P+ukwl+LW0U8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743038463; c=relaxed/simple;
-	bh=rkxtS5suWD5Evz+m11GQWGobt3dWkXZJA9nOgREsdpE=;
+	s=arc-20240116; t=1743046097; c=relaxed/simple;
+	bh=KOVnteOSYGMuX/fuEdTCskNxSepC6g2ivttGd3p/tAw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kq8bQIjL7249Y0vetAedGW/q2VgRiZyPUGoKm2RQ+KfD41GJ9SDDcz8GA27IE3EkgloKdHxWXZmQn3dVo0KoQfS0J2slYI3UO0BIoRTBGatNiWzO1qw1YIvQbd0rf2OQRnEe2MkF5qGtHAxNuF3X4lvcLH5HU8KsRBdqTp/U/F8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=F3jLtJqF; arc=none smtp.client-ip=209.85.208.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
+	 To:Cc:Content-Type; b=A4b6ryOQjLsbwzvVp0kLTB/TTCVafGQyDupgBf1qFklgImYQ3h1NogUCEogAcX1QbUcy1MP09aIOtZr4B96RfkqleYkaofCMCi0UgOvckcqcGTxGbvJTRA9+ctpxa3x98Nwo3zt86s8W+htwi3GsTcROBfZ3giskCeaBFiM3De8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Cg/I/Jy5; arc=none smtp.client-ip=209.85.167.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="F3jLtJqF"
-Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-5ec9d24acfbso2787497a12.0
-        for <selinux@vger.kernel.org>; Wed, 26 Mar 2025 18:21:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Cg/I/Jy5"
+Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-549924bc82aso2567e87.1
+        for <selinux@vger.kernel.org>; Wed, 26 Mar 2025 20:28:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google; t=1743038460; x=1743643260; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1743046093; x=1743650893; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=mI0EdooEMFFqAW+WoUqWF95O/QEtZzQxFpMruePbYtw=;
-        b=F3jLtJqFpo7sSLRrDpi/Mpo9sO4dk9OizTo5gkiZOqYgGHteTU53Suevxd2zXiMhSV
-         I5LfR6ZTjrHM6hVrRm9Ekw6ahaM61JljSrVW3ivIp5g0oslysnsPhRYn0MLM2K2Pmpwa
-         PI2CD/uYQbRpFy5lQwUuWveiNQ/ypfyGEFdxU=
+        bh=KOVnteOSYGMuX/fuEdTCskNxSepC6g2ivttGd3p/tAw=;
+        b=Cg/I/Jy5pK5twBUNtl1PT4ZWHCKzzkxNiR3kiri1KS38V1jdvmYgHqwwY3HKWuECfZ
+         mdrW0FQ/7aWNh0rQ5Keno8mx59A6cLsGErm6TAuQ1h1Iu+tVXvEGZkZAuWgrER2+qlTh
+         2gWqDuVbFX+T0ZFsppTX6WDuqIzSgPBaDc2HIcisIzWBAHF6ETzhv1O1936RpeMbD6vF
+         2LmAt4/4QgUWyZy/Av0ij8slMPSM6hj8Tv1aJQfeLRwcCang6Wbhql17J+W+NmYSJM3u
+         sa4cWArWfl+vKdl5kzUdSOI1/Bx8VRyjIRgPVz7wgNoQYK1wVYAh7Dv5XNOvBB1poDQ8
+         D3sw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743038460; x=1743643260;
+        d=1e100.net; s=20230601; t=1743046093; x=1743650893;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=mI0EdooEMFFqAW+WoUqWF95O/QEtZzQxFpMruePbYtw=;
-        b=ZJInYK/52nUDQPZCj668p+LitkdijkE6agnJG2swEUkwrk+MijLpXom4udI9eDtZV+
-         ekoaFkIITAUpYkAmGbwZMIftZlvU5599igyrMbqbrk+4IhLJJ1j7zZLU6/k9HbOFha39
-         rtqm2ABiRcX3GfUcsk0aJ+Qwe2ClMt862SP1cmGf3GOyzQStB4nn3QoDiJ/a0MwU+2n4
-         4oSL6LRXqCznTWFHmEbPQmyCV4damvbeeo06msdQJMv/k0owRIHA9xkYKBtg5tZbFS/u
-         TdaNcSR6V86mayt6Y1PJR77Ab7RMSnqxzunoqlfByr8nWlc2hu4RvrG/s54Mfh/0bcpA
-         Bgsw==
-X-Forwarded-Encrypted: i=1; AJvYcCU/ndoX3G8rHuMVOQm8lfuq+wsP+yra5KHTLR2dKVZkOxniWF894YRs4Oszo3da0KDKpLr+DVIl@vger.kernel.org
-X-Gm-Message-State: AOJu0YzXMAYRTNkSwwXKn/wuTDzLFI2Ttt9dm5Zsh7KQOtZAhv9FvpQB
-	zwAw9gyinjY6hf0QgbgJ3jLvYEtBuGVpC2Nqx+fXOQlC6X7WOEU9SCiO7VQ1GwRPORAiZZS4gle
-	tGy0=
-X-Gm-Gg: ASbGncv5gziYI6CpnbwkphfZCNfWioB67hadDbbfgd4h6CF8kYM9lVSe1fIBUyIKgpr
-	j9YiyaZKvwTkLxmArkbIIOfVlP+msO9zVxujkDg/lvpHSjCTQS1EUzFXvLRRWNaHBgYgkerPSBB
-	8DSsEtWJCLETda39Eymb/d/ZYPHIraXnsXjbwWZyw+2q3IYht1GJ0fHRlnb1RwwHZSXq7esei3h
-	FfDULEE4Fp5cp80OhAwAGFRGFPpT1W+WjwtTD6A4YVdabWWscu/8L4KkM0/2RF1/Bae671ha0Jy
-	CeW1gRG1sIiDsq0vXXNcZcIhFq3mWk+MLYOFpm/i9VGy/Uz7ykUVWlhV54rEgVGeOlnbEqb9W7h
-	SQhwCa8gWrIHgCUUgaZodlmNvlmDdww==
-X-Google-Smtp-Source: AGHT+IHwVnOM1hZEKz5QOfbk73SlRzC6njF1GcoDbIXHKXSwycoxleKDuXH+hSr1/C9KwbF64En4yg==
-X-Received: by 2002:a05:6402:5211:b0:5e7:87ea:b18c with SMTP id 4fb4d7f45d1cf-5ed8a45a90dmr1625396a12.15.1743038459772;
-        Wed, 26 Mar 2025 18:20:59 -0700 (PDT)
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com. [209.85.218.45])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5ebcd0df302sm10501107a12.66.2025.03.26.18.20.57
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 26 Mar 2025 18:20:58 -0700 (PDT)
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-ac2a089fbbdso82517566b.1
-        for <selinux@vger.kernel.org>; Wed, 26 Mar 2025 18:20:57 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCV3V6sNa8hdlz+NXgHTGjjOw+ovUXXmoEVKRRKRkGDCDEKPcOkoC0YIhcIUWXlo0cnewnCM7qru@vger.kernel.org
-X-Received: by 2002:a17:906:c106:b0:ac2:b813:ac25 with SMTP id
- a640c23a62f3a-ac6e0a48dc3mr490833166b.14.1743038457610; Wed, 26 Mar 2025
- 18:20:57 -0700 (PDT)
+        bh=KOVnteOSYGMuX/fuEdTCskNxSepC6g2ivttGd3p/tAw=;
+        b=wZ8uyZhWt86HXByjS+QThHlwIyXs0XnkdWraWzFmJN+25g3CeIpy2IBRLDtV1fqUSM
+         irnTy38Y0Fwrj5IUeKm8C85At2O1TfkilYW6RLaG80/Mtq0wHebh3nGaGNpc/8jXk9h1
+         Ee1lJwQM8HTzip4kuhAOtpguDrQmS4Sqf+xfUlazLsQPOjU6y10/XEW3efT0kg72d3s5
+         TDAeO0X52O/h8n+Zwz5nRTf4WNlRqeH2oz3ZYw/L1ADZaQNhjfvuU8FsvP5FNRO+bXga
+         pf1aXrx3tkJDsEvgJ3Oz3k8nTLYjFTQu5EtOW6SaQ/aoAljboYMqEe567rH2C1GV2liK
+         Sbaw==
+X-Forwarded-Encrypted: i=1; AJvYcCW4O/IH6kbvGMUC6cuLW8qxzmUYqyf0cBN8Vc+Gb5GOsVSK7sG0v6e/EjrFGCDyXD/GbiAbAqCB@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy1TnLCyEheTbONCgd7Y0HTZUVkYc3UsdHnH3Kt19r1X6zd2dkX
+	X7xEX149Beo/3TJeLnnfUYMP9NODFDsyJKmptGJQBKWDRObSjRRJT1TkQmn9GOx++KPLQKOUDS5
+	Zo37aY89PevliGxYroDmJJo9wmrTV2/mrQuSN
+X-Gm-Gg: ASbGncusYEqIEuw7FnHAFOxVfDARbOrgV1mRfuzaaRZ/PtTbfxebQRS0g8aKo3TI2Vu
+	hpr9Nlk8fgt0L9dnLY7d0v8a2bqQUX3I4b1FEyj/I0Sjo99a9hw/MTnh+QygFeYVFPgZ0X5BqqQ
+	FpbvesFkA9Ci+ENc5vr+oKSfLZkg==
+X-Google-Smtp-Source: AGHT+IHYYFlkLGcHWQC0DZtFRzC5jMavP2eA8uXYZeFMCn/56q0uV8KxVI27nSwI2Vfa/40Osf6iwX3o7rurFC2Hu5o=
+X-Received: by 2002:ac2:41d6:0:b0:543:e3c3:5a5e with SMTP id
+ 2adb3069b0e04-54b02ce7e5dmr108762e87.4.1743046093026; Wed, 26 Mar 2025
+ 20:28:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -76,15 +66,15 @@ References: <d0ade43454dee9c00689f03e8d9bd32a@paul-moore.com>
  <CAHC9VhT3D7X=4SpO5xbYm=JUwJqTa7tn=J6QMDBV96c7VBUw4g@mail.gmail.com>
  <CAHk-=wiH3hoPTxX3=xTRzRuCwktf3pNzFWP45-x6AwoVAjUsUQ@mail.gmail.com>
  <CAHC9VhT5G6W7g9pB3VM6W7wCEJjWfYSUWNgWF+rRiQ4ZQbGMEQ@mail.gmail.com>
- <CAHk-=whwQhJtafHN4B1w-z2Gno__xLHS4NouKKHrYNTYa8kz3g@mail.gmail.com> <CA+zpnLeK2Ecj1mBod2rFe4ymd9eXiJkbyYwFh4Yrmck3DVB2SA@mail.gmail.com>
-In-Reply-To: <CA+zpnLeK2Ecj1mBod2rFe4ymd9eXiJkbyYwFh4Yrmck3DVB2SA@mail.gmail.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Wed, 26 Mar 2025 18:20:41 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wiBH8FBL+pnXui8O-FSdyoG-yX81mUF9bsZcC6rR5ZtgQ@mail.gmail.com>
-X-Gm-Features: AQ5f1JrMmGY1WBP2YbkNsM86xUUFOzf4O7ZMelOhzvZwerRqYfGCFS_CQ-gr9m8
-Message-ID: <CAHk-=wiBH8FBL+pnXui8O-FSdyoG-yX81mUF9bsZcC6rR5ZtgQ@mail.gmail.com>
+ <CAHk-=whwQhJtafHN4B1w-z2Gno__xLHS4NouKKHrYNTYa8kz3g@mail.gmail.com>
+ <CA+zpnLeK2Ecj1mBod2rFe4ymd9eXiJkbyYwFh4Yrmck3DVB2SA@mail.gmail.com> <CAHk-=wiBH8FBL+pnXui8O-FSdyoG-yX81mUF9bsZcC6rR5ZtgQ@mail.gmail.com>
+In-Reply-To: <CAHk-=wiBH8FBL+pnXui8O-FSdyoG-yX81mUF9bsZcC6rR5ZtgQ@mail.gmail.com>
+From: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Date: Thu, 27 Mar 2025 14:27:55 +1100
+X-Gm-Features: AQ5f1JrSrI1sSPE5BcoiSUfwnk9rwhlC2MDfagzcey65ot5pl-LSswhH_GbvS50
+Message-ID: <CA+zpnLe_AOpS_F1UBNOvN3YRswUSy_3=0jjUAy4GPxEHYumD0g@mail.gmail.com>
 Subject: Re: [GIT PULL] selinux/selinux-pr-20250323
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Paul Moore <paul@paul-moore.com>, "Cameron K. Williams" <ckwilliams.work@gmail.com>, 
 	"Kipp N. Davis" <kippndavis.work@gmx.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
 	selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
@@ -92,35 +82,22 @@ Cc: Paul Moore <paul@paul-moore.com>, "Cameron K. Williams" <ckwilliams.work@gma
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, 26 Mar 2025 at 18:06, Thi=C3=A9baud Weksteen <tweek@google.com> wro=
-te:
->
-> Taking one example from this merge request: kexec image loading.
+On Thu, Mar 27, 2025 at 12:21=E2=80=AFPM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+> [...]
+> the firmware loading is done by random processes.
 
-So this is the kind of "why" I was looking for.
+That is not quite right. If you look at commit 581dd6983034 [1], when
+a firmware is about to be loaded, the kernel credentials are used. It
+is therefore possible to grant this permission to the corresponding
+security context (in our policy that would be the "kernel" domain).
 
-> Currently, any process which has CAP_SYS_BOOT can use kexec to replace
-> the existing kernel. Android has 5 processes with CAP_SYS_BOOT, only 1
-> of which needs kexec functionality [1]. By using these new
-> permissions, we will ensure that this process is able to call kexec,
-> while prohibiting other processes. SELinux provides us strong, kernel
-> enforced guarantees which can be checked at policy compile time.
-> Extending on this, we will use this patchset to guarantee that kernels
-> and ramdisks executed by kexec come from known, good sources.
->
-> The other hooks are of similar value to Android.
+To be honest, I don't think this particular distinction applies to
+Android, but I can imagine IoT devices with smaller/stricter policies
+wishing to enforce this (e.g., device boot without a policy, loads its
+drivers and firmware, loads a policy that enforces no more firmware
+loading).
 
-Now explain to me how the firmware loading hook works, not some
-hand-wavy "similar value" thing.
+Thanks
 
-Because it seems entirely bogus. Exactly because the context of
-firmware loading is *not* something you can depend on. There is no
-"one special process" that has firmware loading capabilities.
-
-I'm looking at selinux_kernel_load_data() in particular, where you
-don't even pass it a file at all, so it's not like it could check for
-"is this file integrity-protected" or anything like that. It seems to
-literally say "can this process load firmware", and as I've explained,
-the firmware loading is done by random processes.
-
-               Linus
+[1] https://lore.kernel.org/all/20220502004952.3970800-1-tweek@google.com/
