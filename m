@@ -1,248 +1,189 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44C7A13B2A4;
-	Thu, 27 Mar 2025 21:13:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D70431BF58;
+	Fri, 28 Mar 2025 13:23:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743109997; cv=none; b=c2KdwSLXP9K3+OHn/USovQkhSLEy8Nm49StS2iFwje2rLqjC3BHjkAbnuA9qkE+hKOQDFs4cSAK7zLqlpA8d3aSgL+pFV0AGst5XELQ5aRGckmtXMrE+EAbgxHgjfTA9W1cCsDPyxUR00rPMSCkfr9AAb/7gnMEMUZAIMWdUCzU=
+	t=1743168237; cv=none; b=fu0IriQEEFoBNhdSonvzhWBMMG78+BH68q+AVjIkW0iNQlKJ+HxYjNSLtrM9BaDuJsg+C1g/AJkDMKnvRSZELkD5L3FFmuZUofVVSKiwKOSaIhgLzNxSLef9XRyW2LPe22DjQGuaAw6nt8gQAJFa2cnbeCQVSCduFY7SWAMrPOU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743109997; c=relaxed/simple;
-	bh=UMe20iZUuagLPcGXISw0+QA+ECxOrxToOggTG9tCl7c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oNOTV/cT/GY2aJ5Kjyacm2I8GB1Hly37RK6gSkMEcS+Cxtpdj7YJJjJG2y9jJ41pnea4cp5NNRTQAs4zBbd0DLDlLLIYNgNrKSuc8J5ynMPmJOvAORPtFq5uKF1XpqqSn5GVKOzS4oM5Y0VtZOL8An+pBG6tqVGYeV5xNbPCvvA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pjEZiBD8; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1743168237; c=relaxed/simple;
+	bh=Uet+GWywARYyeWIlgLQc7OwrGzmNpxl5Bvi7E5q5jYw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=S8cUJ6B64iIAeBpG6hoFanqU1vqc/JNC9B//GOQ8fE3bTllZjIVRZYgFGg9ZSg/WCB5yi9TJCNpZZrByGfLJe7VyP0F4cSMc/6VL2/z3BbogK97hBci2hSX9R7Whq2u7cc64Eeh4N/J3vx3IuuXFx7kyaFiEfQQrcE1+r+mIfew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LEDgoQTy; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pjEZiBD8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBC4EC4CEE8;
-	Thu, 27 Mar 2025 21:13:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1743109997;
-	bh=UMe20iZUuagLPcGXISw0+QA+ECxOrxToOggTG9tCl7c=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=pjEZiBD8e0ystDPIxq5rYB0BhzyFxROf/Ryj0zF5OUcIL6U1NSR+ohFVoWx75A5O1
-	 zUDoz9NmZeNhN/ml8TDozSK+FHArIgNzTxMJisrUKKp0QrJDSE/48Gm/7w9gYMhpsC
-	 0cjmF7vuhAtNHlUTYpDxoSTAP2NIVeQICKV+KIimhR/fvFSexTVvShIeniU2H9xu1t
-	 lHLCiQ6glh0GSWZ9t6y1BCD9rlFIlXjQRsKBMmV5eyX9HujEsmEI+WN4RIPfT1OqXc
-	 wkwp1dgNkF3j8gBSpRl+CYes246BZH+3WMNbFuFYx4I5178EjPlyXmTihrByrFKRp0
-	 bGdzAIry8bGnQ==
-Received: by pali.im (Postfix)
-	id 9561981B; Thu, 27 Mar 2025 22:13:01 +0100 (CET)
-Date: Thu, 27 Mar 2025 22:13:01 +0100
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
-To: Amir Goldstein <amir73il@gmail.com>
-Cc: Andrey Albershteyn <aalbersh@redhat.com>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Russell King <linux@armlinux.org.uk>,
-	Catalin Marinas <catalin.marinas@arm.com>,
-	Will Deacon <will@kernel.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Michal Simek <monstr@monstr.eu>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	Helge Deller <deller@gmx.de>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Yoshinori Sato <ysato@users.sourceforge.jp>,
-	Rich Felker <dalias@libc.org>,
-	John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-	"David S. Miller" <davem@davemloft.net>,
-	Andreas Larsson <andreas@gaisler.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
-	Max Filippov <jcmvbkbc@gmail.com>,
-	Alexander Viro <viro@zeniv.linux.org.uk>,
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
-	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
-	=?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>,
-	Arnd Bergmann <arnd@arndb.de>, Paul Moore <paul@paul-moore.com>,
-	James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>, linux-alpha@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org,
-	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org,
-	linux-arch@vger.kernel.org, selinux@vger.kernel.org,
-	Andrey Albershteyn <aalbersh@kernel.org>, linux-xfs@vger.kernel.org
-Subject: Re: [PATCH v4 0/3] fs: introduce getfsxattrat and setfsxattrat
- syscalls
-Message-ID: <20250327211301.kdsohqou3s242coa@pali>
-References: <20250321-xattrat-syscall-v4-0-3e82e6fb3264@kernel.org>
- <CAOQ4uxjQDUg8HFG+mSxMkR54zen7nC2jttzOKqh13Bx-uosh3Q@mail.gmail.com>
- <20250323103234.2mwhpsbigpwtiby4@pali>
- <CAOQ4uxiTKhGs1H-w1Hv-+MqY284m92Pvxfem0iWO+8THdzGvuA@mail.gmail.com>
- <20250327192629.ivnarhlkfbhbzjcl@pali>
- <CAOQ4uxhJ53h+1AjtF4B64onqvRfZsJ3n1OFikyJpXAPTyX45iQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LEDgoQTy"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-227aaa82fafso44685445ad.2;
+        Fri, 28 Mar 2025 06:23:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1743168235; x=1743773035; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Du9IDYa2GZWYJvMRihP6sOOgpgAOuTK/qdvMUJfxb6g=;
+        b=LEDgoQTyuY8dDD+PnKqtYgBmWXFweJLjZr2Tzsope3LoBvt40miDucsUceCaVBRLq8
+         ri6dO8SD4YkX0km1CTU+QY9OkRfYPCpOcxv3wB/rsoC7qsGxFke6rmwZZq3r/FANMM67
+         sHC4KhKxz7zWWBgQasd26jzSbyLUTPXMycO1dOrilhXYEoRMYIod7ZE7K08ccj7QPvPG
+         zUIwjmkiL4M7RF3vWp53ZojO7Qy4KFtdcjO6u7oARnkck2sAOemMXCNxDRcLixZhRoxp
+         iml/XyQk/O5o0EfNjuk+esIpszaYCr9GURZhrpR7Fo/COG44ZoLvuGIUu4S0KAXuihVh
+         mHrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1743168235; x=1743773035;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Du9IDYa2GZWYJvMRihP6sOOgpgAOuTK/qdvMUJfxb6g=;
+        b=VG2axgjIr/+BPlIAyEY7KuT3EBxKqJ20yTByvagLV8bSwUnCIkjlY3SZHqKnPgqrY6
+         k7SGYX38r55tium1yV4lI9BF8z0dJv6yFqbq9FfVd1Dikgq+ddWg1QFNuDMMA3jTBKlk
+         EX2TpSEkkTKNfTt+MqACjWBU5ZflkdGQAM+Tzv0lj4f7fLXrdNWvkScD06NGIzYIh1hx
+         PeKaiUuPE1gGRlBv/MZQhD7Dpq12s4zNIPI4cwP3mQCFVyKyr21R+aNfugiWF3i4L6iE
+         PO2+v3srx927n42BVN+AyrRfkXqEx+msKFNh1k4lzdTUG+hx8QM8DL8feFHcl6ik4Bnn
+         jCiA==
+X-Forwarded-Encrypted: i=1; AJvYcCUu5NUTfHgLINNcX0R+Cv3zffnzEu/rdrAJOcChJcvqsO1uUv91eD2T2wchujhAYz+6ksG1gfbQig==@vger.kernel.org, AJvYcCWxNVpc/o8mP1WVj5R8whACzlXulR6Ii1bZfXBVudvnS/bn73Pc+5U8BL0KEgcoY5Pp/TK0oimaReQE3ic=@vger.kernel.org, AJvYcCXT2VhY6MAbRjqu+eUABd/fFga+mDb2XfzhHAzBZl3Fw04+BKWDGvhdJ/yiMl/HQo0q+gZ2Z3T2Ur/Xie9F605eEG6nSnCn@vger.kernel.org
+X-Gm-Message-State: AOJu0YwgW+iVWqd4XeFzThL4NATMct1BKi2juWJF6OCa9AkldtDvZU69
+	nf5RvoMwaR3a/7okbXodR0rGXZCQ8j57H6B3mcojxyx42cHngf9nnzJHjgziNzlqKrDZPWDpjRZ
+	dOdqqrzLB2OMR/ZkpdkS3vXrIHiQ=
+X-Gm-Gg: ASbGncsCu0e44onj6J8JT1dtpX8SzAKl57CkNc4vFyVrxyawuaTPlIrlOEyg9iPOU/R
+	Sfx6Q8uLBkd6iCz28AZo4JtTXKSufZ9IrZ3eJ6iuWqVogfv/xN9S4tIy0aVSv97WIMWnWudl2cX
+	mgekj+z1/VwHu79CSV359a9XiJ4A==
+X-Google-Smtp-Source: AGHT+IHcGRrPX/M3XDaaLNv7mbE5m9pOG6+pPTmOreVs+NnQWoCGw2RLImoptzxi0Yb+fBy+gu/gNN1sazZYNceJFIs=
+X-Received: by 2002:a05:6a00:848:b0:736:ab48:3823 with SMTP id
+ d2e1a72fcca58-73960e0fb47mr9856883b3a.1.1743168234705; Fri, 28 Mar 2025
+ 06:23:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAOQ4uxhJ53h+1AjtF4B64onqvRfZsJ3n1OFikyJpXAPTyX45iQ@mail.gmail.com>
-User-Agent: NeoMutt/20180716
+References: <d0ade43454dee9c00689f03e8d9bd32a@paul-moore.com>
+ <CAHk-=wjbahY4JjLCXNT4o3xVq2cejqBG69z+MNfHsN9FQBnbOw@mail.gmail.com>
+ <CAHC9VhRExVqdhHqs0njs7NY6bFg0BfcE-gMpS30HW9O7MSDfWQ@mail.gmail.com>
+ <CAHk-=wi9m8-_3cywQCohJQEQtuQ+teS4gOtBkWZrhFWzNy-5_A@mail.gmail.com>
+ <CAHC9VhT3D7X=4SpO5xbYm=JUwJqTa7tn=J6QMDBV96c7VBUw4g@mail.gmail.com>
+ <CAHk-=wiH3hoPTxX3=xTRzRuCwktf3pNzFWP45-x6AwoVAjUsUQ@mail.gmail.com>
+ <CAHC9VhT5G6W7g9pB3VM6W7wCEJjWfYSUWNgWF+rRiQ4ZQbGMEQ@mail.gmail.com>
+ <CAHk-=whwQhJtafHN4B1w-z2Gno__xLHS4NouKKHrYNTYa8kz3g@mail.gmail.com>
+ <CA+zpnLeK2Ecj1mBod2rFe4ymd9eXiJkbyYwFh4Yrmck3DVB2SA@mail.gmail.com>
+ <CAHk-=wiBH8FBL+pnXui8O-FSdyoG-yX81mUF9bsZcC6rR5ZtgQ@mail.gmail.com>
+ <CA+zpnLe_AOpS_F1UBNOvN3YRswUSy_3=0jjUAy4GPxEHYumD0g@mail.gmail.com>
+ <CAHk-=wgJ0gzYJD+MghfVW-YeGLW6sLU5soFY13KWmPAxobk5Mw@mail.gmail.com>
+ <CABXk95AqgpqGtjzK2o=mxWJg5RUZG80dAEaKF9JdUT6n5eFENQ@mail.gmail.com>
+ <CAHk-=wh1refm6JkAB__TmC8OBJyNdH2DmNQAbvcL=tKepkHrYw@mail.gmail.com>
+ <CAEjxPJ6XnBmbzH44YVQxxv8WOyPN7N81fpj7OYonEOTB=rn6wg@mail.gmail.com>
+ <CAHk-=wguzgJu4p_khuEXKHmh-6abSN7xLJdCTuyVEfjsopY7iQ@mail.gmail.com>
+ <CAHk-=wh4H3j3TYWn6KSgznUsOXz8vfHMOfTNmFvjGr=hwULWsw@mail.gmail.com>
+ <CAEjxPJ4fzoONpiy3z8QOZ55w35=WfWQ+hiTg24LMEHPpnaC87Q@mail.gmail.com> <CAHk-=wjbSRL7LM7CvckB+goQdUokMa_6G-iirdbtxrFSFe3mfA@mail.gmail.com>
+In-Reply-To: <CAHk-=wjbSRL7LM7CvckB+goQdUokMa_6G-iirdbtxrFSFe3mfA@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 28 Mar 2025 09:23:43 -0400
+X-Gm-Features: AQ5f1JquBOHTXcz9ItopeaYBw31lCTQkjJWo5__13HnLiHPGNaajByJOsHyuu34
+Message-ID: <CAEjxPJ4Np-_LeSQOPxRQggZjWxpJRhZm++XuEwNbMyUkZCvYjw@mail.gmail.com>
+Subject: Re: [GIT PULL] selinux/selinux-pr-20250323
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jeffrey Vander Stoep <jeffv@google.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+	Paul Moore <paul@paul-moore.com>, "Cameron K. Williams" <ckwilliams.work@gmail.com>, 
+	"Kipp N. Davis" <kippndavis.work@gmx.com>, selinux@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Nick Kralevich <nnk@google.com>, Kees Cook <kees@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thursday 27 March 2025 21:57:34 Amir Goldstein wrote:
-> On Thu, Mar 27, 2025 at 8:26 PM Pali Rohár <pali@kernel.org> wrote:
+On Thu, Mar 27, 2025 at 3:40=E2=80=AFPM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+> On Thu, 27 Mar 2025 at 12:16, Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
 > >
-> > On Thursday 27 March 2025 12:47:02 Amir Goldstein wrote:
-> > > On Sun, Mar 23, 2025 at 11:32 AM Pali Rohár <pali@kernel.org> wrote:
-> > > >
-> > > > On Sunday 23 March 2025 09:45:06 Amir Goldstein wrote:
-> > > > > On Fri, Mar 21, 2025 at 8:50 PM Andrey Albershteyn <aalbersh@redhat.com> wrote:
-> > > > > >
-> > > > > > This patchset introduced two new syscalls getfsxattrat() and
-> > > > > > setfsxattrat(). These syscalls are similar to FS_IOC_FSSETXATTR ioctl()
-> > > > > > except they use *at() semantics. Therefore, there's no need to open the
-> > > > > > file to get an fd.
-> > > > > >
-> > > > > > These syscalls allow userspace to set filesystem inode attributes on
-> > > > > > special files. One of the usage examples is XFS quota projects.
-> > > > > >
-> > > > > > XFS has project quotas which could be attached to a directory. All
-> > > > > > new inodes in these directories inherit project ID set on parent
-> > > > > > directory.
-> > > > > >
-> > > > > > The project is created from userspace by opening and calling
-> > > > > > FS_IOC_FSSETXATTR on each inode. This is not possible for special
-> > > > > > files such as FIFO, SOCK, BLK etc. Therefore, some inodes are left
-> > > > > > with empty project ID. Those inodes then are not shown in the quota
-> > > > > > accounting but still exist in the directory. This is not critical but in
-> > > > > > the case when special files are created in the directory with already
-> > > > > > existing project quota, these new inodes inherit extended attributes.
-> > > > > > This creates a mix of special files with and without attributes.
-> > > > > > Moreover, special files with attributes don't have a possibility to
-> > > > > > become clear or change the attributes. This, in turn, prevents userspace
-> > > > > > from re-creating quota project on these existing files.
-> > > > > >
-> > > > > > Christian, if this get in some mergeable state, please don't merge it
-> > > > > > yet. Amir suggested these syscalls better to use updated struct fsxattr
-> > > > > > with masking from Pali Rohár patchset, so, let's see how it goes.
-> > > > >
-> > > > > Andrey,
-> > > > >
-> > > > > To be honest I don't think it would be fair to delay your syscalls more
-> > > > > than needed.
-> > > >
-> > > > I agree.
-> > > >
-> > > > > If Pali can follow through and post patches on top of your syscalls for
-> > > > > next merge window that would be great, but otherwise, I think the
-> > > > > minimum requirement is that the syscalls return EINVAL if fsx_pad
-> > > > > is not zero. we can take it from there later.
-> > > >
-> > > > IMHO SYS_getfsxattrat is fine in this form.
-> > > >
-> > > > For SYS_setfsxattrat I think there are needed some modifications
-> > > > otherwise we would have problem again with backward compatibility as
-> > > > is with ioctl if the syscall wants to be extended in future.
-> > > >
-> > > > I would suggest for following modifications for SYS_setfsxattrat:
-> > > >
-> > > > - return EINVAL if fsx_xflags contains some reserved or unsupported flag
-> > > >
-> > > > - add some flag to completely ignore fsx_extsize, fsx_projid, and
-> > > >   fsx_cowextsize fields, so SYS_setfsxattrat could be used just to
-> > > >   change fsx_xflags, and so could be used without the preceding
-> > > >   SYS_getfsxattrat call.
-> > > >
-> > > > What do you think about it?
-> > >
-> > > I think all Andrey needs to do now is return -EINVAL if fsx_pad is not zero.
-> > >
-> > > You can use this later to extend for the semantics of flags/fields mask
-> > > and we can have a long discussion later on what this semantics should be.
-> > >
-> > > Right?
-> > >
-> > > Amir.
-> >
-> > It is really enough?
-> 
-> I don't know. Let's see...
-> 
-> > All new extensions later would have to be added
-> > into fsx_pad fields, and currently unused bits in fsx_xflags would be
-> > unusable for extensions.
-> 
-> I am working under the assumption that the first extension would be
-> to support fsx_xflags_mask and from there, you could add filesystem
-> flags support checks and then new flags. Am I wrong?
-> 
-> Obviously, fsx_xflags_mask would be taken from fsx_pad space.
-> After that extension is implemented, calling SYS_setfsxattrat() with
-> a zero fsx_xflags_mask would be silly for programs that do not do
-> the legacy get+set.
-> 
-> So when we introduce  fsx_xflags_mask, we could say that a value
-> of zero means that the mask is not being checked at all and unknown
-> flags in set syscall are ignored (a.k.a legacy ioctl behavior).
-> 
-> Programs that actually want to try and set without get will have to set
-> a non zero fsx_xflags_mask to do something useful.
+> > Where could/would we cache that information so that it was accessible
+> > directly by the VFS layer?
+>
+> So the VFS layer already does this for various other things. For this
+> case, the natural thing to do would be to add another IOP_xyzzy flag
+> in inode->i_opflags.
+>
+> That's how we already say things like "this inode has no
+> filesystem-specific i_op->permission function" (IOP_FASTPERM), so that
+> we don't even have to follow the "inode->i_op->permission" pointer
+> chain to see a NULL pointer.
+>
+> Yes, the VFS layer is *heavily* optimized like that. It literally does
+> that IOP_FASTPERM to avoid chasing two pointers - not even the call,
+> just the "don't even bother to follow pointers to see if it's NULL".
+> See do_inode_permission().
+>
+> And we have 16 bits in that inode->i_opflags, and currently only use 7
+> of those bits. Adding one bit for a IOP_NO_SECURITY_LOOKUP kind of
+> logic (feel free to rename that - just throwing a random name out as a
+> suggestion) would be a complete no-brainer.
+>
+> NOTE! The rule for the i_opflags accesses is that *reading* them is
+> done with no locking at all, but changing them takes the inode
+> spinlock (and we should technically probably use WRITE_ONCE() and
+> READ_ONCE(), but we don't).
+>
+> And notice that the "no locking at all for reading" means that if you
+> *change* the bit - even though that involves locking - there may be
+> concurrent lookups in process that won't see the change, and would go
+> on as if the lookup still does not need any security layer call. No
+> serialization to readers at all (although you could wait for an RCU
+> period after changing if you really need to, and only use the bit in
+> the RCU lookup).
+>
+> That should be perfectly fine - I really don't think serialization is
+> even needed. If somebody is changing the policy rules, any file
+> lookups *concurrent* to that change might not see the new rules, but
+> that's the same as if it happened before the change.
+>
+> I just wanted to point out that the serialization is unbalanced: the
+> spinlock for changing the flag is literally just to make sure that two
+> bits being changed at the same time don't stomp on each other (because
+> it's a 16-bit non-atomic field, and we didn't want to use a "unsigned
+> long" and atomic bitops because the cache layout of the inode is also
+> a big issue).
+>
+> And you can take the IOP_FASTPERM thing as an example of how to do
+> this: it is left clear initially, and what happens is that during the
+> permission lookup, if it *isn't* set, we'll follow those
+> inode->i_io->permission pointers, and notice that we should set it:
+>
+>         if (unlikely(!(inode->i_opflags & IOP_FASTPERM))) {
+>                 if (likely(inode->i_op->permission))
+>                         return inode->i_op->permission(idmap, inode, mask=
+);
+>
+>                 /* This gets set once for the inode lifetime */
+>                 spin_lock(&inode->i_lock);
+>                 inode->i_opflags |=3D IOP_FASTPERM;
+>                 spin_unlock(&inode->i_lock);
+>         }
+>
+> and I think the security layer could take a very similar approach: not
+> setting that IOP_NO_SECURITY_LOOKUP initially, but *when* a
+> security_inode_permission() call is made with just MAY_NOT_BLOCK |
+> MAY_LOOKUP, and the security layer notices that "this inode has no
+> reason to care", it could set the bit so that *next* time around the
+> VFS layer won't bother to call into security_inode_permission()
+> unnecessarily.
+>
+> Does that clarify?
 
-Here we need to also solve the problem that without GET call we do not
-have valid values for fsx_extsize, fsx_projid, and fsx_cowextsize. So
-maybe we would need some flag in fsx_pad that fsx_extsize, fsx_projid,
-or fsx_cowextsize are ignored/masked.
-
-> I don't think this is great.
-> I would rather that the first version of syscalls will require the mask
-> and will always enforce filesystems supported flags.
-
-It is not great... But what about this? In a first step (part of this
-syscall patch series) would be just a check that fsx_pad is zero.
-Non-zero will return -EINVAL.
-
-In next changes would added fsx_filter bit field, which for each
-fsx_xflags and also for fsx_extsize, fsx_projid, and fsx_cowextsize
-fields would add a new bit flag which would say (when SET) that the
-particular thing has to be ignored.
-
-So when fsx_pad is all-zeros then fsx_filter (first field in fsx_pad)
-would say that nothing in fsx_xflags, fsx_extsize, fsx_projid, and
-fsx_cowextsize is ignored, and hence behave like before.
-
-And when something in fsx_pad/fsx_filter is set then it says which
-fields are ignored/filtered-out.
-
-> If you can get those patches (on top of current series) posted and
-> reviewed in time for the next merge window, including consensus
-> on the actual semantics, that would be the best IMO.
-
-I think that this starting to be more complicated to rebase my patches
-in a way that they do not affect IOCTL path but implement it properly
-for new syscall path. It does not sounds like a trivial thing which I
-would finish in merge window time and having proper review and consensus
-on this.
-
-> But I am just preparing a plan B in case you do not have time to
-> work on the patches or if consensus on the API extensions is not
-> reached on time.
-> 
-> I think that for plan B, the minimum is to verify zero pad field and
-> that is something that this syscall has to do anyway, because this
-> is the way that backward compact APIs work.
-> 
-> If you want the syscall to always return -EINVAL for setting xflags
-> that are currently undefined I agree that would be nice as well.
-> 
-> Thanks,
-> Amir.
+Yes, thank you. I think it would be easy enough to make that change to
+selinux_inode_permission() and to clear that inode flag on file
+relabels (e.g. in selinux_inode_post_setxattr() and
+inode_invalidate_secctx()). Not as sure about handling policy reloads
+/ boolean changes at runtime without also caching the policy sequence
+number in the inode too so that can be compared. Further, I'm unclear
+on how to implement this in a manner that works with the LSM stacking
+support, since some other module might disagree about whether we can
+skip these lookups. Normally I'd just add an extra boolean or flag
+argument to the underlying ->inode_permission() hook so each module
+can indicate its decision and
+security/security.c:security_inode_permission() could compose the
+result, but I guess that would require switching
+security_inode_permission() from using call_int_hook() to manually
+doing the lsm_for_each_hook() loop itself which may have an adverse
+impact on those calls in general.
