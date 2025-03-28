@@ -1,58 +1,67 @@
-Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87AA21BBBD4
-	for <selinux@vger.kernel.org>; Fri, 28 Mar 2025 15:06:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D748817A309
+	for <selinux@vger.kernel.org>; Fri, 28 Mar 2025 16:37:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743174414; cv=none; b=oIWYzvAtRPRJmAjoqmLbCqz3CrTl74HQoVY8wifruXs8euz+UGx8FAVQarusRqn52imE/ZVI74fnmLhZGPmjynDdt6QQyaIeu45qqYfeaH+dnUDHL6Qt02BXiOGFfOug6glj2R2EULiQZngW/XyacQ2vTEmmwTOMILO9ICssaiU=
+	t=1743179837; cv=none; b=TihKkb+Ery7RV5ylfAKLascbRpcmq7lvKWpo9/dsfvuX2kp/C3CgXraWXGUHuy6wtLf+qJh7GiCSudhl/+WWZpW0usxlPt6fRytgNBs2cBcfLy1HoJnsRtNkxKCfpRnAgGPwudOf//oiH6kSPtr9/IJnL1wmQWOSmJ2FEsQ4Hng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743174414; c=relaxed/simple;
-	bh=FxRwoIaRhHOWAtABieGIFYWFvwY2CLGMTi9i57XVP4w=;
+	s=arc-20240116; t=1743179837; c=relaxed/simple;
+	bh=ULl5UK3oFQ9q/cNxlRCfD7aZE+LrB+LLXHDwmSrUIFk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GCSc0q8tPWANcPvlW1MAiJcHuiSzicGfqCeKREH/etvBmJ4/cPo/miDrXfjecnTmaeBWg+NNJgpJgugunp1LmeN56+qboLYcJVK8531fMZQFwszb030PsqQKWQzHrnWxkjecy2h+dpEW6XiuNGNWaXTTaQTDADrrRdGv188WUVM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=HSo+YrXj; arc=none smtp.client-ip=209.85.219.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=XJbKiEcmcHa3xy3+pb3IDz+ycoKWChCo8o7rYlOetMGQNUYUuxKj4YilbpiQppGLpvgAJDYf8O+zMyteT585d9DnQRzSo6D1LDcB7W+JulHyT4+uUMSLdkQndLrbPSk8aJKwlBbr643dNkAYDHkDEhW1mruN/2bgrIp/WKgVrZI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org; spf=pass smtp.mailfrom=linuxfoundation.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=TMjd4RGt; arc=none smtp.client-ip=209.85.218.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linuxfoundation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="HSo+YrXj"
-Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-e60aef2711fso1605199276.2
-        for <selinux@vger.kernel.org>; Fri, 28 Mar 2025 08:06:52 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="TMjd4RGt"
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-aaee2c5ee6eso357867166b.1
+        for <selinux@vger.kernel.org>; Fri, 28 Mar 2025 09:37:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1743174411; x=1743779211; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HH8Qh2WxuZKl3SUB4Qk+dn0g0gZz1ge9pCJmoUUxBTU=;
-        b=HSo+YrXjzp2xftqYGjyrIMQHp4ebYNCLmHZpjyO7iPgRmgnoDUdVCzpK0LEkJAY1IF
-         ULHaDtyXNXzBi26Tc9Fy82Ql/R//qU4cCfCdLnnCkGUwMFWuJ/YbsSiclRWktjzqfZ94
-         qzeQ69JjoQGtShJ+h34aWBksvFKAmmS9PA45uMuikJInHnC+5xtmlQxS03KtbmRMlp1J
-         6p2zgsPTAuaBuY4tm0JHYLrgu0eI8aZfeuMaMXORqWahov7Q8fxml+WA0opPNbcX4bCO
-         Kri6ImpJRZqCOflJYmWyCMuy7j3PQ5EwgUwPwkB6zJk7TuGxDKpWiyQUsLQiWeLsPcDV
-         ktzg==
+        d=linux-foundation.org; s=google; t=1743179833; x=1743784633; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=hXVkC5ZKzdf5MGzGMM5XBmod+0oYx5WgsNgrWhdrxzo=;
+        b=TMjd4RGtwwS0vLaSfUvnbo8p3rbZ8ezbs0oGtl+dKn4QvqauSQcqboWhki2uhvqRhk
+         GIQhOflVQchTklwbtpEr3oXeIfyaMzQ1GKKH9ehjCInc5DxDMnYm53HrR7JFnkxQ+tpB
+         4+yLoPnCYy5FP/u5/kWbAubAAYoh+JDTDZRlE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743174411; x=1743779211;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HH8Qh2WxuZKl3SUB4Qk+dn0g0gZz1ge9pCJmoUUxBTU=;
-        b=vtK7uKYnD21FJ0POlO29J9xMvzmCuFNJaoaByONGTetjGTt4ZYbTE7XJkGPD2DBDso
-         3oAP1cfyf47LDMv2IL1WqYZ5WkdysFA/IyYUlYW4P33T2f0XF+hej3U1bVmZdsPy0lR2
-         KY1IGilQAwTvg+Crw10GqqWiRKc6Elu5B5mBviqNnkHPXK/5CrpYygOSkaXMavQhMtS7
-         N8q3roPZ3gIgutInQVwvQl+Y/4/JoG8WPMO99zm5aNC2vAc890m0gVcK6CPkrH0j5G+h
-         q4cfdSfnUJ0N5CreDqynN6Q9ywVUgtVFZtey6ewoxaIvXimOArOzvsnRBy6nb9zkr0Au
-         /KeA==
-X-Forwarded-Encrypted: i=1; AJvYcCVFBTIoMCKn9i27ImAltz/y1NaoRRzF/QSgf8gBeoMzkHKYo4LWTg/pAM2YUPsy3jAo4Phawk1q@vger.kernel.org
-X-Gm-Message-State: AOJu0YzxomNmDiFrf9fnimDA+b+Vkp6cQThiOOHmkcJVN1pz4mrOxo1C
-	zV7iQpRMYmY/lsCVCoEhit8xBc16jhAYK1inKIB2WvRD6ej/ztUXZ6lL9JjSTirKFlm6IM5ne4p
-	9XQKGZn6W4JEEw9k6Ot21AIDYnpD5FhCFEsDA
-X-Gm-Gg: ASbGnctRubNnfHmO1J1Ut5Jg5CdJbBwrYRQ3RdxQyaEOJWTg6hVCG8eekkTCrTDZLq/
-	MbiyO2JZAEvf3dZG990WMfF19VN/K8rHe/oiVMfiitTmyGcoVSBf4V3Eke4bIuH0J+iUIR7dWIn
-	3zyhyTa43KrFuRhnbNuNbVLJ/fKA==
-X-Google-Smtp-Source: AGHT+IHMw63BWStsGWC6XtBakdaJKBp5F0XF/WQXLeBeVCGw/7vjI2CUy7E2vvIjt7xIJuafaZ2suH9QogxDHXv+SGc=
-X-Received: by 2002:a05:6902:6c17:b0:e6b:7158:3772 with SMTP id
- 3f1490d57ef6-e6b71583be3mr4393588276.39.1743174411267; Fri, 28 Mar 2025
- 08:06:51 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1743179833; x=1743784633;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=hXVkC5ZKzdf5MGzGMM5XBmod+0oYx5WgsNgrWhdrxzo=;
+        b=aBSEYeOJyXz9k0TX01mssE8n+lZfGrCMjQL/TPtkEdWhsn77WQ1eKGgsH/6tqA2yoq
+         Em0W77PN1aF7UKNgIri9BnsrD6y3JFYJfHedRJINZ4eBP7BFnTxFdresgb/50nob7FYh
+         B6utetCzgBJTK+dHtRmzYSFUV9EXW5uu+pzwtdrSshGelk6zpO98YP2kLM5NxxCWDmai
+         fi+BQR/KMgREJp5fiWZTEYOI/AyA7nvLDbXV4SCFZTFGXKau/VRtZgrgJZ9KKYFh+hG2
+         CxaI20XENcMCsjbHz78Ars3O5deA2/lnPyIEWMGcW4UppeqWVpswqQ8xe2cXWrLYuuA8
+         /XSg==
+X-Forwarded-Encrypted: i=1; AJvYcCX28JR7WS1fnSCMvzTyiMLG60tL+vqOSVMkBAAFNJDpAg1YCxcm3fl4iYmk+9ZawJmioGKKK3o1@vger.kernel.org
+X-Gm-Message-State: AOJu0YzVxHBKFlpXrfyBLF7drg8o5DqXGlQQKYuv5UODlDSIVKY/Jzyw
+	WnHKNldMI6Y6aBXoyGJuV5q4lM4FTS2dsJomPu8Ivdlts2iSCV3BmV/13EjFvvMWVpMSB+wtujx
+	sCI8=
+X-Gm-Gg: ASbGncurCiJS2gJSoMusCJrGABnBSosTdjeTFw3YFyCbyVZ+OfT15IKDHPpAqVfyWFZ
+	E9u+loftwWZXDKTXbgnyxg4IpdOCFOpRB0zs5/2i8toa2ukXJH/ntzUfMfdC00z9OtMN3M6xXHm
+	Yye1TXRMgOrDG5PR5NRcgnyopBLH3NznXxxcu9aS6gfzQq05cCu3m0yp6npb/9NdItHdaMSpXlt
+	R796G3kJ5h4WVonGbHfHIKijHntZJDZo9UDT5crHtZUT1FLDlNdn642xwcqd4aQVNIcxR7G+pzf
+	ssvYS4LgWzRY+YCrF5ao7yD9PkXzZlpWQV/YdPRgzGsyLTCcb1nQIIh6EhLbejv6Qm0PufKsVzi
+	RGCbztBt6FcN0vTcqfbVkp39oRAMAnA==
+X-Google-Smtp-Source: AGHT+IE0zFCQQ73V8KjianvXRjD/lRp4nGrdR+8zNCTniYVLzs+pE12ptIjLWDzk9vNal7epCJ7Vlg==
+X-Received: by 2002:a17:907:1c22:b0:ac2:fd70:dda3 with SMTP id a640c23a62f3a-ac6fb100878mr674722566b.35.1743179832846;
+        Fri, 28 Mar 2025 09:37:12 -0700 (PDT)
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com. [209.85.218.51])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ac71922b975sm189052366b.18.2025.03.28.09.37.11
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 28 Mar 2025 09:37:11 -0700 (PDT)
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-aaee2c5ee6eso357861166b.1
+        for <selinux@vger.kernel.org>; Fri, 28 Mar 2025 09:37:11 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCWPclBHhzL1I0f+LVkXcjXCceqr25Nr+xrdCNo3cQOcRHmAPfzPGNy8GB4QpppcSGAYLiva7Z4S@vger.kernel.org
+X-Received: by 2002:a17:906:f5a4:b0:ac2:a089:f47c with SMTP id
+ a640c23a62f3a-ac6fb14f400mr900112466b.55.1743179831124; Fri, 28 Mar 2025
+ 09:37:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -79,123 +88,104 @@ References: <d0ade43454dee9c00689f03e8d9bd32a@paul-moore.com>
  <CAEjxPJ4fzoONpiy3z8QOZ55w35=WfWQ+hiTg24LMEHPpnaC87Q@mail.gmail.com>
  <CAHk-=wjbSRL7LM7CvckB+goQdUokMa_6G-iirdbtxrFSFe3mfA@mail.gmail.com> <CAEjxPJ4Np-_LeSQOPxRQggZjWxpJRhZm++XuEwNbMyUkZCvYjw@mail.gmail.com>
 In-Reply-To: <CAEjxPJ4Np-_LeSQOPxRQggZjWxpJRhZm++XuEwNbMyUkZCvYjw@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 28 Mar 2025 11:06:40 -0400
-X-Gm-Features: AQ5f1JpzIC4lZ-S-cK1A8GDPAgnrYWOFQvTvxXVIrri50BN34GjJB_uXefif8BE
-Message-ID: <CAHC9VhS9xYg5_EaX83hyNX4EMr=c4EaDZ7N=+opv6BA6iZo+mg@mail.gmail.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Fri, 28 Mar 2025 09:36:54 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whoXr5GCHZsarzUKELLMAtcw0Qpmz_i+nenCVtBY1iBig@mail.gmail.com>
+X-Gm-Features: AQ5f1JqbOiFjnRTugzf_SGU5_AiyByHDa4dcIekBVrd5UWSkoiVxUwvn-Twr2CY
+Message-ID: <CAHk-=whoXr5GCHZsarzUKELLMAtcw0Qpmz_i+nenCVtBY1iBig@mail.gmail.com>
 Subject: Re: [GIT PULL] selinux/selinux-pr-20250323
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Jeffrey Vander Stoep <jeffv@google.com>, 
-	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	"Cameron K. Williams" <ckwilliams.work@gmail.com>, "Kipp N. Davis" <kippndavis.work@gmx.com>, 
-	selinux@vger.kernel.org, linux-security-module@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Nick Kralevich <nnk@google.com>, Kees Cook <kees@kernel.org>
+Cc: Jeffrey Vander Stoep <jeffv@google.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+	Paul Moore <paul@paul-moore.com>, "Cameron K. Williams" <ckwilliams.work@gmail.com>, 
+	"Kipp N. Davis" <kippndavis.work@gmx.com>, selinux@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Nick Kralevich <nnk@google.com>, Kees Cook <kees@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 28, 2025 at 9:23=E2=80=AFAM Stephen Smalley
+On Fri, 28 Mar 2025 at 06:23, Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
-> On Thu, Mar 27, 2025 at 3:40=E2=80=AFPM Linus Torvalds
-> <torvalds@linux-foundation.org> wrote:
-> >
-> > On Thu, 27 Mar 2025 at 12:16, Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > Where could/would we cache that information so that it was accessible
-> > > directly by the VFS layer?
-> >
-> > So the VFS layer already does this for various other things. For this
-> > case, the natural thing to do would be to add another IOP_xyzzy flag
-> > in inode->i_opflags.
-> >
-> > That's how we already say things like "this inode has no
-> > filesystem-specific i_op->permission function" (IOP_FASTPERM), so that
-> > we don't even have to follow the "inode->i_op->permission" pointer
-> > chain to see a NULL pointer.
-> >
-> > Yes, the VFS layer is *heavily* optimized like that. It literally does
-> > that IOP_FASTPERM to avoid chasing two pointers - not even the call,
-> > just the "don't even bother to follow pointers to see if it's NULL".
-> > See do_inode_permission().
-> >
-> > And we have 16 bits in that inode->i_opflags, and currently only use 7
-> > of those bits. Adding one bit for a IOP_NO_SECURITY_LOOKUP kind of
-> > logic (feel free to rename that - just throwing a random name out as a
-> > suggestion) would be a complete no-brainer.
-> >
-> > NOTE! The rule for the i_opflags accesses is that *reading* them is
-> > done with no locking at all, but changing them takes the inode
-> > spinlock (and we should technically probably use WRITE_ONCE() and
-> > READ_ONCE(), but we don't).
-> >
-> > And notice that the "no locking at all for reading" means that if you
-> > *change* the bit - even though that involves locking - there may be
-> > concurrent lookups in process that won't see the change, and would go
-> > on as if the lookup still does not need any security layer call. No
-> > serialization to readers at all (although you could wait for an RCU
-> > period after changing if you really need to, and only use the bit in
-> > the RCU lookup).
-> >
-> > That should be perfectly fine - I really don't think serialization is
-> > even needed. If somebody is changing the policy rules, any file
-> > lookups *concurrent* to that change might not see the new rules, but
-> > that's the same as if it happened before the change.
-> >
-> > I just wanted to point out that the serialization is unbalanced: the
-> > spinlock for changing the flag is literally just to make sure that two
-> > bits being changed at the same time don't stomp on each other (because
-> > it's a 16-bit non-atomic field, and we didn't want to use a "unsigned
-> > long" and atomic bitops because the cache layout of the inode is also
-> > a big issue).
-> >
-> > And you can take the IOP_FASTPERM thing as an example of how to do
-> > this: it is left clear initially, and what happens is that during the
-> > permission lookup, if it *isn't* set, we'll follow those
-> > inode->i_io->permission pointers, and notice that we should set it:
-> >
-> >         if (unlikely(!(inode->i_opflags & IOP_FASTPERM))) {
-> >                 if (likely(inode->i_op->permission))
-> >                         return inode->i_op->permission(idmap, inode, ma=
-sk);
-> >
-> >                 /* This gets set once for the inode lifetime */
-> >                 spin_lock(&inode->i_lock);
-> >                 inode->i_opflags |=3D IOP_FASTPERM;
-> >                 spin_unlock(&inode->i_lock);
-> >         }
-> >
-> > and I think the security layer could take a very similar approach: not
-> > setting that IOP_NO_SECURITY_LOOKUP initially, but *when* a
-> > security_inode_permission() call is made with just MAY_NOT_BLOCK |
-> > MAY_LOOKUP, and the security layer notices that "this inode has no
-> > reason to care", it could set the bit so that *next* time around the
-> > VFS layer won't bother to call into security_inode_permission()
-> > unnecessarily.
-> >
-> > Does that clarify?
 >
 > Yes, thank you. I think it would be easy enough to make that change to
 > selinux_inode_permission() and to clear that inode flag on file
 > relabels (e.g. in selinux_inode_post_setxattr() and
-> inode_invalidate_secctx()). Not as sure about handling policy reloads
+> inode_invalidate_secctx()).
+
+So the thing that *really* made me go "I don't know how to do this in
+the security layer" is not so much the relabeling - that should be
+easy to handle by just clearing the bit, as you say.
+
+And I wasn't even so much worried about policy changes that would
+globally change meaning of existing labels:
+
+> Not as sure about handling policy reloads
 > / boolean changes at runtime without also caching the policy sequence
-> number in the inode too so that can be compared. Further, I'm unclear
+> number in the inode too so that can be compared.
+
+Yeah, a sequence number seems like an obvious solution, even if it
+might be a bit awkward to find a place to store it that doesn't
+pollute the cache. The reason it would be _so_ nice to not call the
+security hooks at all in this path is that I think we otherwise can do
+all the inode security lookups by just looking at the very beginning
+of the inode (that's why we do that IOP_FASTPERM thing - just to avoid
+touching other cachelines). But if it avoids the
+security_inode_permission() call, it would definitely be a win even
+with a cache miss.
+
+> Further, I'm unclear
 > on how to implement this in a manner that works with the LSM stacking
-> support, since some other module might disagree about whether we can
-> skip these lookups. Normally I'd just add an extra boolean or flag
-> argument to the underlying ->inode_permission() hook so each module
-> can indicate its decision and
-> security/security.c:security_inode_permission() could compose the
-> result, but I guess that would require switching
-> security_inode_permission() from using call_int_hook() to manually
-> doing the lsm_for_each_hook() loop itself which may have an adverse
-> impact on those calls in general.
+> support,
 
-I'm not sure the VFS flag approach is going to end up being practical
-due to various constraints, but I do have some other ideas that should
-allow us to drop the bulk of the SELinux AVC calls while doing path
-walks that I'm going to try today/soon.  I'll obviously report back if
-it works out.
+So *this* was what made me go "I don't know how to to this AT ALL",
+along with the fact that the rule for the bit would have to be that it
+would be true for *all* execution contexts.
 
---=20
-paul-moore.com
+IOW, it's a very different thing from the usual security hook calls,
+in that instead of saying "is this access ok for the current context",
+the bit setting would have to say "this lookup is ok for _all_ calling
+contexts for this inode for _all_ of the nested security things".
+
+The sequence number approach should take care of any races, so that
+part isn't a huge problem: just set the inode sequence number early,
+before doing any of the checks. And then only set the bit at the end
+if every stacked security layer says "yeah, this inode doesn't have
+extra lookup rules as far as I'm concerned". So if any of the rules
+changed in the meantime, the sequence number means that the bit won't
+take effect. So that part should be fine.
+
+But the "this inode doesn't have extra lookup rules" part is what
+needs low-level knowledge about how all the security models work. And
+it really would have to be true in all contexts - ie across different
+namespaces etc.
+
+(Note the "extra" part: the VFS layer deals with all the *normal* Unix
+rules, including ACL, of course. So it's literally just about "are
+there security hook rules that then limit things _beyond_ those
+standard permission rules")
+
+It might be worth noting that this call site is special for the VFS
+anyway: it *looks* like a normal security hook, but "may_lookup()" is
+literally *only* used for directories, and *only* used for "can I do
+name lookup in this".
+
+So if it helps the security layers, that case could be made into its
+own specialized hook entirely, even if it would require basically
+duplicating up "inode_permission()" that is currently used for both
+the lookup case and for "generic" inode permission checking.
+
+For example, I do know that SElinux turns the VFS layer permission
+mask (it things like "MAY_EXEC") into its own masks that are different
+for files and for directories (so MAY_EXEC becomes DIR__SEARCH for
+SElinux for directories, but FILE__EXECUTE for when doing 'execve()'
+on a file).
+
+And so that's an example of something we could short-circuit here,
+because *all* we care about is that DIR__SEARCH thing, and we know
+that statically.
+
+But I know selinux better than any other of the security models, so I
+don't know what *any* of the others do (and honestly, the selinux code
+I don't know that well - I've looked at it a lot, but I've really only
+ever looked at it in the "I'm looking at profiles, is there anything
+obvious I can do about this" sense).
+
+                 Linus
