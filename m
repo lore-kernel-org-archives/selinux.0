@@ -1,102 +1,136 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+Received: from mail-vk1-f176.google.com (mail-vk1-f176.google.com [209.85.221.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39C4712D1F1
-	for <selinux@vger.kernel.org>; Wed,  2 Apr 2025 01:01:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3108D537FF
+	for <selinux@vger.kernel.org>; Wed,  2 Apr 2025 19:43:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743555718; cv=none; b=Z2yZMP0/+xb/Lf8pznlC6ofa/eP/i2qXIOjfnD4OK+6Gq5d6484GL0dROlyeCTuAaueWU/JrghauTK7Bn9Xe+V5TLcj4Jn1kLRXnG0clV4JkAfvbXisaoOkJsroVs7p4j/DhsbZk3zJbsiZe7Z0IHR915J+aw3yhVXpg3vrfGCI=
+	t=1743623012; cv=none; b=pM/X4jr7cplHc2KwcisKHwWXwcpCF5AJlPZCs+Y8wq88dVyty5mDFravXeysqWciGzSoUXBshfEiWfp/dUVJ+ZZqObjYZp2+bUp20rK011LfvrWNxWo0S+RizfL3kAFqPn2HsBntAIOfWBn32Kk2WFxlXzc+FSEADx5AjIKt7p0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743555718; c=relaxed/simple;
-	bh=pf/Wxat+/NPfI37Zar4WQcMkZ4ZqokiWR/A9/aBhFHU=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=WCds1kraehhkJsGKQb61HT7XvrIiQ4+U89M59zTnXwcAOr33DmudOi9mwINxiT3cjllgzD6NNE544gCnFkXisIT0D4bHyb8huqNKILbo0/PGk5Sn7dkvBsx2qeQYOPxSuodlGESb9v0lLYWWp+Ru5KaTsh3SMFS/BlCfOi7V8BE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=jw0ctSdv; arc=none smtp.client-ip=209.85.216.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com
+	s=arc-20240116; t=1743623012; c=relaxed/simple;
+	bh=dFVRwEZzpfWizzH3lCuG1L27+zNoIr5g84h/iujGx6o=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=RcBkcNmWp1izqTNWIQASGvfd4iw6MNsTPxl/uFJkxf0m/FKb0K6TuTrkhK/eUpMjcVqy0aS6Y+Joyc8gxral/noS+lwkZ5n8lk9J+a+Eirllst2RRs1A0Fn3aDLWEjiL2KVOfvNVwYv0n/oT71DozeyPSTHFUriOoxcsAbC5MmA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ra8SLQFM; arc=none smtp.client-ip=209.85.221.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="jw0ctSdv"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-2ff62f96b10so581928a91.0
-        for <selinux@vger.kernel.org>; Tue, 01 Apr 2025 18:01:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ra8SLQFM"
+Received: by mail-vk1-f176.google.com with SMTP id 71dfb90a1353d-51eb1818d4fso228297e0c.1
+        for <selinux@vger.kernel.org>; Wed, 02 Apr 2025 12:43:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1743555716; x=1744160516; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=OR2fI1hDKABbNQD81/LlJ5p4DTr3sStjM1E4DIiHiUw=;
-        b=jw0ctSdvwYoObBysPn94zSSchHbmNKWZa2GI0TwnX/zqNJsEhsLkocxLOwY7b9jllk
-         amQ8XQxsZDbHBOhIfCrqCE1BsI97Un433jIpVHLWL+9uuGp0jwcj+fahvH4Wv/8KKs9H
-         o4DWF4TqFpfK8Cu6cSQigY2nhOVHO+ctMeAXulTft/i5H6spZyd3SFNhCgUi0r3HW6Gz
-         8t/KN2qy1Qwp3rS7q8JCClqG9ey3x0F3PUik8ODdmJOOx31D0XSu8OhIqpRYI+3mPrMF
-         63OVjtETBOdpFIlsVA47Q+AN+kAbwIZ9MJAoARflN4FuUZkV+D47RjdG66ANlcETsVyv
-         aPwQ==
+        d=gmail.com; s=20230601; t=1743623010; x=1744227810; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WLCr2vfUAn3k7u7MHohVOmphEoeFD/uvv7W6QCpQZ3E=;
+        b=Ra8SLQFMWS1WTkg1AI0zyb69SkxPd6mK8oznOoPg3OY+1yr9IotokPZ4r3gplXrXpa
+         sRhz/oUbJOZoPsGMCLgaoqS5tWAgzdSytVYzWxBpDLPBPfJbXJktMqKwBWuTpF8H49Y2
+         XAUVim9U+/9VNvsmm8NVVxWVBQSRkaPT9O3V6af1fJOleZMqhpB/eahyYhJ85Squ9TSA
+         1qkJwxdW4q+Qh/1nJ1suwef7kC7FAZpCMKAdHq4uVDTReetlPLo9u7HIn9Rz1jmWnOS6
+         9lBZl6n8BLDgMvRah4V4GT0lc+b87jmzYI4t6mrF3nkjH+QuNh0KIprwoXgsZCUcMNUx
+         PTOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1743555716; x=1744160516;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=OR2fI1hDKABbNQD81/LlJ5p4DTr3sStjM1E4DIiHiUw=;
-        b=MhtcaOfMPN/5yhIqm7YV6D25cjI5ZcrUPYHnKbpzqAYvQ+UbiqxwjoCqLSlKaYKfJT
-         Ls4M4FGhajlCl3CIXkE65CedP9KRtgFB4q6SPuC6aofLtB7TdaM4seq5nmgJUQ/+Tkt7
-         oxtOCYYmalm4wG98/dTWdatUraKWFuucqMVSVPTf9iyj4k0OWRW7aLoCBe0/XF+DiuiZ
-         /wiIIXUcE0AquCBRj+hAaU8tTIPTon9h11F8IRGfTf2vIyLMM/kE4dhB7dYDEQhMnzh7
-         xsAbmUfXjqeInIsF/SFBWesPhLHpCcaps5rikYpYkkTGPUR+HzpK9kfwi4Wlz26svwO/
-         kcRA==
-X-Gm-Message-State: AOJu0YzH1okR05pHsQL3AcSPg9BgJGx4yqf6gG7gP6zfKBlZnvdEV9H9
-	CwQAKb0mFyD6/3B1pGNqcPAcvKH3FU1yd0MGeRy+GJvnLt466Ag/Hwiziw9nWp2pqhf1Hf4poTk
-	5Y0ayT+oTnFowvU07aLu9kcfHTUIdumvbCka1hANHriVsd/mYwyH9owS7MtTtiGMNivEsskM48h
-	Qn1IiJCGeDRo7Zcfu9NaOjxgdHyJZ7HL9cPw==
-X-Google-Smtp-Source: AGHT+IFb+e8GhGJZVmkWGCKFMGfxCVyu/CXLP7MtEF7Ng3FjUAvK8dL2dhOafD3LIcLhoPoFckgZ1PznJ/w=
-X-Received: from pgbdp7.prod.google.com ([2002:a05:6a02:f07:b0:af1:6dd2:2c79])
- (user=inseob job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a20:2ea2:b0:1f3:1ba1:266a
- with SMTP id adf61e73a8af0-200e5d5d69dmr151904637.0.1743555716194; Tue, 01
- Apr 2025 18:01:56 -0700 (PDT)
-Date: Wed,  2 Apr 2025 10:01:46 +0900
+        d=1e100.net; s=20230601; t=1743623010; x=1744227810;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=WLCr2vfUAn3k7u7MHohVOmphEoeFD/uvv7W6QCpQZ3E=;
+        b=ptfpVc86fHuxy+TbBhtOtHObV74lhor10PsjJsKfxwIcy1eAXIvSvA1mYD6dZjnu/Y
+         +NdKnsghKWx2X3cJsMt0mOCmiD0+sTSV3sug7qQHDCmXtH0kGwmfsPau8Txc5jaWhGGb
+         7Hs3PusiAu1lpN7cOehYaLp8vrhldTrY8wPN1WEx/dgaVvp+INOuWXLJwprIx8SIaQYx
+         NTtVlc/G32MLo3LYiFZy5pkV0NWuNqpDEv+zXQdRovjlcYxwFHSE4983gxY7Xdag0usB
+         Vmkv8NaLKBVMYTBwW+GZfmqIoMPzwAMOMBaKJfcFx6LME540mBximu+q3USf4nsDJfbq
+         y42A==
+X-Gm-Message-State: AOJu0Yw+0Y2q4FHGNK2+vdpn5ZjrLEQBVbu62G5pi5IEDVK8vcmgmXka
+	Bwyd9XDHLUSt27AQDRwY6cdmawlddUkvMe8dA5TjhHeYwN/+nNJm2n3aeGqNinPfzFjrakUPN1z
+	bVPSknLaaSNHfV3J3X/So/XWyLZw=
+X-Gm-Gg: ASbGncvmerJSZlF5uHA1911d3C2n/an5grJIgPmbHZWzvaaFHP6rQwH41RJdbeok/Sh
+	VtjTZhqiVXhtxBThqkccbkUw0c5VKMhlzYqTHkgRZz9czOWeKirfktqEalAOr4jp5soMr6odlcs
+	y1hqCXhdeA9JvD3/02MKTZTNg=
+X-Google-Smtp-Source: AGHT+IH6U5oeY+8o6JWJYAAPg6gYYpZ1hew2/GmT7yyIjBU/hTixKL1qSmi8qNMVG5JOVKaaOXl39ktIDLtpbh9zzZQ=
+X-Received: by 2002:a05:6102:4403:b0:4c1:806a:3b44 with SMTP id
+ ada2fe7eead31-4c6d383aa8emr16013289137.2.1743623009870; Wed, 02 Apr 2025
+ 12:43:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.49.0.472.ge94155a9ec-goog
-Message-ID: <20250402010146.898864-1-inseob@google.com>
-Subject: [PATCH RESEND] libsepol: Print line markers also for allow rules
-From: Inseob Kim <inseob@google.com>
-To: selinux@vger.kernel.org
-Cc: tweek@google.com, jeffv@google.com, Inseob Kim <inseob@google.com>
+MIME-Version: 1.0
+References: <20250402010146.898864-1-inseob@google.com>
+In-Reply-To: <20250402010146.898864-1-inseob@google.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Wed, 2 Apr 2025 15:43:14 -0400
+X-Gm-Features: ATxdqUESQIYeaZQDFOpNqjGI2OohpiBdFtH-GW0MbVQmXWA9nHsxiUT81MAAPgk
+Message-ID: <CAP+JOzS-ickvHYEPokm3oTSqyEbJrbhZseHPR5N1Oda2po1btw@mail.gmail.com>
+Subject: Re: [PATCH RESEND] libsepol: Print line markers also for allow rules
+To: Inseob Kim <inseob@google.com>
+Cc: selinux@vger.kernel.org, tweek@google.com, jeffv@google.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Currently, only line markers for neverallow rules are printed. This
-makes people difficult to debug a neverallow failure with cil files
-generated by checkpolicy.
+On Tue, Apr 1, 2025 at 9:04=E2=80=AFPM Inseob Kim <inseob@google.com> wrote=
+:
+>
+> Currently, only line markers for neverallow rules are printed. This
+> makes people difficult to debug a neverallow failure with cil files
+> generated by checkpolicy.
+>
+> This change additionally prints line markers for allow and allowxperm
+> statements to make debugging easier.
+>
+> Signed-off-by: Inseob Kim <inseob@google.com>
+> ---
+>  libsepol/src/module_to_cil.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index ae9a2b5d..76fe4739 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -1196,7 +1196,7 @@ static int avrule_list_to_cil(int indent, struct po=
+licydb *pdb, struct avrule *a
+>         struct type_set *ts;
+>
+>         for (avrule =3D avrule_list; avrule !=3D NULL; avrule =3D avrule-=
+>next) {
+> -               if ((avrule->specified & (AVRULE_NEVERALLOW|AVRULE_XPERMS=
+_NEVERALLOW)) &&
+> +               if ((avrule->specified & (AVRULE_ALLOWED|AVRULE_XPERMS_AL=
+LOWED|AVRULE_NEVERALLOW|AVRULE_XPERMS_NEVERALLOW)) &&
+>                     avrule->source_filename) {
+>                         cil_println(0, ";;* lmx %lu %s\n",avrule->source_=
+line, avrule->source_filename);
+>                 }
 
-This change additionally prints line markers for allow and allowxperm
-statements to make debugging easier.
+The problem is that currently line marks (which are converted to
+<src_info> rules when parsed) cannot be in booleanif statements, but
+allow rules can be, so this can create cil files that will not
+compile.
+I suspect that that restriction was not intentional and can be
+relaxed, but I don't remember.
 
-Signed-off-by: Inseob Kim <inseob@google.com>
----
- libsepol/src/module_to_cil.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+The other issue is that this will produce a lot of line marks for any
+real policy. A lot of line marks. It would be nice if this behavior
+could be made optional.
 
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index ae9a2b5d..76fe4739 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -1196,7 +1196,7 @@ static int avrule_list_to_cil(int indent, struct policydb *pdb, struct avrule *a
- 	struct type_set *ts;
- 
- 	for (avrule = avrule_list; avrule != NULL; avrule = avrule->next) {
--		if ((avrule->specified & (AVRULE_NEVERALLOW|AVRULE_XPERMS_NEVERALLOW)) &&
-+		if ((avrule->specified & (AVRULE_ALLOWED|AVRULE_XPERMS_ALLOWED|AVRULE_NEVERALLOW|AVRULE_XPERMS_NEVERALLOW)) &&
- 		    avrule->source_filename) {
- 			cil_println(0, ";;* lmx %lu %s\n",avrule->source_line, avrule->source_filename);
- 		}
-@@ -1264,7 +1264,7 @@ static int avrule_list_to_cil(int indent, struct policydb *pdb, struct avrule *a
- 		names_destroy(&snames, &num_snames);
- 		names_destroy(&tnames, &num_tnames);
- 
--		if ((avrule->specified & (AVRULE_NEVERALLOW|AVRULE_XPERMS_NEVERALLOW)) &&
-+		if ((avrule->specified & (AVRULE_ALLOWED|AVRULE_XPERMS_ALLOWED|AVRULE_NEVERALLOW|AVRULE_XPERMS_NEVERALLOW)) &&
- 		    avrule->source_filename) {
- 			cil_println(0, ";;* lme\n");
- 		}
--- 
-2.49.0.rc1.451.g8f38331e32-goog
+Jim
 
+
+> @@ -1264,7 +1264,7 @@ static int avrule_list_to_cil(int indent, struct po=
+licydb *pdb, struct avrule *a
+>                 names_destroy(&snames, &num_snames);
+>                 names_destroy(&tnames, &num_tnames);
+>
+> -               if ((avrule->specified & (AVRULE_NEVERALLOW|AVRULE_XPERMS=
+_NEVERALLOW)) &&
+> +               if ((avrule->specified & (AVRULE_ALLOWED|AVRULE_XPERMS_AL=
+LOWED|AVRULE_NEVERALLOW|AVRULE_XPERMS_NEVERALLOW)) &&
+>                     avrule->source_filename) {
+>                         cil_println(0, ";;* lme\n");
+>                 }
+> --
+> 2.49.0.rc1.451.g8f38331e32-goog
+>
+>
