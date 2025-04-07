@@ -1,233 +1,116 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+Received: from mail-vk1-f171.google.com (mail-vk1-f171.google.com [209.85.221.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AA23179A7
-	for <selinux@vger.kernel.org>; Mon,  7 Apr 2025 18:07:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1776218C31
+	for <selinux@vger.kernel.org>; Mon,  7 Apr 2025 18:08:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744049269; cv=none; b=a1f4EB+fa5csvi2BSFpTt6vNhNDFJHm/u20kryMvcuEIylZ2ag3h9Xxnm3zDcHSbXKyrvz/RdgLP9xsb30GNHJXTGPTTYfoAsZ19tJekd5oJ3wVrzYPkDRUkr4MS+SKGjZ+cECf/VrRNFX6M71GFlCv9LYea9GW7vUtW+rHB1hA=
+	t=1744049322; cv=none; b=HcEmVr4KDfOytrWnTtLKQKGzHuyHTAhdO3Tn45BBSUXN3/u66Pu8i5PWUTN2gXJ9PoAKtjJ060S0hLtuQ43lbPoeZIywuOn6Naqqf6RWzyoB4/0kBmbNTC/vXNxLij9IKbOJ3R5GPr3/gYZpl7W/W3axxWs61BqOq+P/011DDSM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744049269; c=relaxed/simple;
-	bh=vGGJ0b1/7hv84frmhCrKxG+K+HIGpGYBg8Wh6q/AKZk=;
+	s=arc-20240116; t=1744049322; c=relaxed/simple;
+	bh=mvKYKmCQfLQmW9yWKFiRl6TyKxLpaMCuZWREe7ol9Oo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sCKEJ4MjqQI6gF0tslMYPzrnzPYrMEXKupoP1T0K2eoVf3v4/PSH+VGIpMPKCF3NjMHhjIqnpe+voAdH0isd8I551t/Y6O59TMKQkRVVT9LjdSq75ommNe/f2OelVZRwP6aUdYOMYhZFoGr7Aj/a4CBYB9UaE6uMawXIJ4nm+ho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IX/qaMNh; arc=none smtp.client-ip=209.85.222.172
+	 To:Cc:Content-Type; b=qnpSCDfITPuDh6kkIDpNsSLF6Iv8yDVIfLPFtDEtSed2KUvPnfUsMQ6rqKH2sSSLI6HdYQ3jpfJdSP70iMYmKWc7QlkWfBF0Nk0OC6BVclVZX4cflyWF7Ppy/3KsuIy+bVRUEg01+1jTDeHdO9ElRidzE56UTL+cBr52nN72VCw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LQEJc6jY; arc=none smtp.client-ip=209.85.221.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IX/qaMNh"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-7c58974ed57so492780185a.2
-        for <selinux@vger.kernel.org>; Mon, 07 Apr 2025 11:07:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LQEJc6jY"
+Received: by mail-vk1-f171.google.com with SMTP id 71dfb90a1353d-523f670ca99so2085074e0c.1
+        for <selinux@vger.kernel.org>; Mon, 07 Apr 2025 11:08:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744049267; x=1744654067; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1744049320; x=1744654120; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/DHeVfTfmJlG/gbsXkohE83oRZKcjyrlDFLKAUJx8Sk=;
-        b=IX/qaMNhXLmVWiW1Lf+0A4LsCpnvJZf7PS6TkBx+AbNkwHEm51qM6+Oe6xplnH3T1O
-         8r0T21FWQxcogs8rM/pGW0+rrQaF0Gc4lt4iKvhLlb73EM+mmZolda8KOEh+oa2rH5be
-         N3hR4TSwKrdiQfox0Dbl6FU9ptaUzdsy3119lKRBii0GpXugiUIpgB9kjjCnPZSBIugg
-         5AAFRVByltJgifaxs8ljQTy2pRw7wdEu5SCh8YiYqSxpOwVnxPYRkw5d0HoqyguC41w8
-         AZ+mhEaaJl0NA6ITvJHJxeYBUJKf/p+6hp3YPlALmtB74PNLD8d8utlo26gTXzo40rF0
-         0M5A==
+        bh=0Zvh5qYwsh2ARxwUxEIIYJ4WvYrRrT6jIJ8i9rI2y4I=;
+        b=LQEJc6jY8rx2RHLdTx/QoJFJiq4jq10qaGi3vFfHIkR3qes1mEQX/JRra23dJ+ctZX
+         Iysg5LO3o45OISApuTAf6gMkpPi7NW0V6WM0vo4j7nBY5bgMZS60Lg4WADDc6xzZDkGI
+         zsMqZ1dO9fVXE+GpJUUlNdUE0SeWpprIUvVQ8v72/CuHvvTQs16DUxtpnaxdytLPPTbG
+         M1/PNXfjWZhEOU8TEaCqmaQk4/tTC31VbQhb1hdwh36/QLL828Ofdh8gNpXlploX6+0Y
+         KtA64//B8+76coMcyfBNAtqsUNGrAvIxUjGgmTgnS0aywLlsMOLr777y/pGdnHHugap+
+         gwVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744049267; x=1744654067;
+        d=1e100.net; s=20230601; t=1744049320; x=1744654120;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/DHeVfTfmJlG/gbsXkohE83oRZKcjyrlDFLKAUJx8Sk=;
-        b=akD+lS9E1xMyr/KUncwqYTql7Yn2mPomY6IvRoxNrAkvX4+h3+NysxS4Iog86ucF4A
-         e6685KJhucuxZMHn9zO7kpkq/TdiVlKlwqViJQBsqbECF/Sibe+3liLI4pVWZgcBvZvO
-         NiXTmKakbL5XYTQJLzfoyRCJJBTbqDk6ignAZgLIK9PIy9DSsKONd8y07ZWGsqcyOGro
-         ZcVPQb46mR9e++8TtMa2VbjIlCq+n+FCCdjgG2494Lp5MDbSwFMXj4+UWjtEGLcQWhXS
-         Xu8y34PxgWgVwde1ByEsX9fYeiySMpbBLJeJgtn/EAV5Xz8K8ELXEkUMkt2PydwlewwU
-         2LMA==
-X-Gm-Message-State: AOJu0Yz00ZZn6wAtUlzEbTZFZ8vf/v6JskLijqXbqp0/toMzfKbpdhkz
-	me0ZdrpAIdlm1FNHcvkW8IarVlwBgBS0guyuuW7z87dvV8drYmDeX2dx3RxRuUu8KMkPLHwLHcV
-	UI9oafvNKsdsWboORzJZ4b+rrNdQ=
-X-Gm-Gg: ASbGncvWdD2e/L01SExkW0gGY49jknVkWZA6+iRbXnRNmzGfSAKG18nQNQ1TC+ZPBy3
-	dGjxNe4kK5lQySbS0XwAHjL6Ny1VQTsoDp7KKxLjFBXq3K6OBHZkFHSW8CTe+Z9YuOioTBRvVin
-	dH1aVDjH7Ku/4va0D8ZZQYOWs=
-X-Google-Smtp-Source: AGHT+IFOC+UlRGORPT3U3g9rtDJWX138PGCbaknIN7zSxpwusyTdrB4BPCRCSHv1Ihk+Gf+Q3usac/iXBg9w8FdokQQ=
-X-Received: by 2002:a05:620a:4486:b0:7c5:5585:6c8b with SMTP id
- af79cd13be357-7c774e4ae71mr1755773185a.50.1744049266875; Mon, 07 Apr 2025
- 11:07:46 -0700 (PDT)
+        bh=0Zvh5qYwsh2ARxwUxEIIYJ4WvYrRrT6jIJ8i9rI2y4I=;
+        b=C0egLirrM1pw1jgex71hhNuijV44TMndrd8DeEfhiJoqSmlLLhic/3S20XJkjP9wJe
+         pxmqQ5A8riNIsHQNave1UqqPy7KZ7N6b+owUXROFzabk7t+6+NBIJEdqTh8UnBRibvUX
+         lId0HUdIVgX9SGtLpL4NFPm/lqV840sqQt0yS4JLKMt0KVLnH52rKe3qkUf15bhWehP9
+         QA8C/QOgmsDhdX+Xt572SNqul7U9dOIJWOR1XTbAL3iRyjY0JkAhX4S46xXSN2Xl728q
+         t85oTsiN2m2UM8K6E0ggQCzKeUK7i/OCJ5lXQSoV9U1Xgw690DbSCGLf2uVIvHMdm0Pe
+         DOLA==
+X-Gm-Message-State: AOJu0YzS1KRaCIIRwktCxLRs4HEm8EQGlh+DeQ4gbCJr7SPsiplb6qhH
+	6sf0Ev5SK9t9yiXzeoCtPnvoRgR5NoydqikwDa1GKDFtsufhh/JMsFh1W8DGRi72OhnwcA/OVVk
+	iezApG/XRyFSGiZehxzed1T8KZRM=
+X-Gm-Gg: ASbGncvup7CbLn8Go5/3ofgUPdvx+nWxDvxNCSxPGl505lJVyDl3O55gTuxWZsm5LuE
+	x0AH0cOxWuW2wqXJ1K0UDGLMzvM+TIvS8ZJDV/JFPPRg/sKM1YiiQdOHuQNSjktn+YFeDg3zgk0
+	8eQQ3+xvrmCAFr0RpjZvEDFRI=
+X-Google-Smtp-Source: AGHT+IFV7vKtp5Aul7W1nuVoeH2CmwbRiCVQvjnajtHcIxOKoozq4yH5+7q5FrtAr/vgGR45XXNl5sp+dprmods+c5g=
+X-Received: by 2002:a05:6122:828f:b0:523:dd87:fe86 with SMTP id
+ 71dfb90a1353d-5276453c081mr10823856e0c.6.1744049319694; Mon, 07 Apr 2025
+ 11:08:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250222172631.18683-1-cgoettsche@seltendoof.de> <CAP+JOzQtx53dN7TNjpWddEQL-tUrjapOJ1Ex6j1HHfYbcPVQdA@mail.gmail.com>
-In-Reply-To: <CAP+JOzQtx53dN7TNjpWddEQL-tUrjapOJ1Ex6j1HHfYbcPVQdA@mail.gmail.com>
+References: <20250225143312.47755-1-cgoettsche@seltendoof.de>
+ <20250225143312.47755-3-cgoettsche@seltendoof.de> <CAP+JOzR0U7Hjo43R_TqpgS-OHE8T8ZV8nbmU9nhnXzSZH0E_PQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzR0U7Hjo43R_TqpgS-OHE8T8ZV8nbmU9nhnXzSZH0E_PQ@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Mon, 7 Apr 2025 14:07:35 -0400
-X-Gm-Features: ATxdqUH6qxrgJW3i3Cx8E0AO_cqhBzddpDW2o7yMH1uAmaf9e_m7w_mZdvPWz94
-Message-ID: <CAP+JOzRe+M2FDzQXD66tuQ=fF5D4snk97vHQr6NHXrYvaNGkdA@mail.gmail.com>
-Subject: Re: [PATCH] checkpolicy: rework cleanup in define_te_avtab_xperms_helper()
+Date: Mon, 7 Apr 2025 14:08:28 -0400
+X-Gm-Features: ATxdqUEFSDrY3pPSs2OAPZ-gd1t4Q5abpufoViaC2HMfLisx5UUtra4JsNC-6qM
+Message-ID: <CAP+JOzQZKkFxr7fbk4=Gxpxmbhx3j0xgCsBOPYec=dagh_Y-sQ@mail.gmail.com>
+Subject: Re: [PATCH 1/3] checkpolicy: free left hand conditional expression on error
 To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 20, 2025 at 12:40=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
-rote:
+On Mon, Mar 24, 2025 at 3:05=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+ote:
 >
-> On Sat, Feb 22, 2025 at 12:34=E2=80=AFPM Christian G=C3=B6ttsche
+> On Tue, Feb 25, 2025 at 9:37=E2=80=AFAM Christian G=C3=B6ttsche
 > <cgoettsche@seltendoof.de> wrote:
 > >
 > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > >
-> > Clean up the local avrule on error, since its ownership is not
-> > transferred. Also clean up the local ebitmap on error.
+> > On a failure during a binray conditional expression free the left hand
+> > side expression.
 > >
-> > Reported-by: oss-fuzz (issue 398356438)
+> > Reported-by: oss-fuzz (issue 398356455)
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
+> For these three patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-Merged.
+Merged  these three patches.
 Thanks,
 Jim
 
 > > ---
-> >  checkpolicy/policy_define.c | 29 ++++++++++++++---------------
-> >  1 file changed, 14 insertions(+), 15 deletions(-)
+> >  checkpolicy/policy_define.c | 1 +
+> >  1 file changed, 1 insertion(+)
 > >
 > > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> > index f19e9f6d..06068556 100644
+> > index f19e9f6d..18654d00 100644
 > > --- a/checkpolicy/policy_define.c
 > > +++ b/checkpolicy/policy_define.c
-> > @@ -1610,7 +1610,8 @@ struct val_to_name {
-> >
-> >  /* Adds a type, given by its textual name, to a typeset.  If *add is
-> >     0, then add the type to the negative set; otherwise if *add is 1
-> > -   then add it to the positive side. */
-> > +   then add it to the positive side.
-> > +   The identifier `id` is always consumed. */
-> >  static int set_types(type_set_t * set, char *id, int *add, char staral=
-lowed)
-> >  {
-> >         type_datum_t *t;
-> > @@ -2117,18 +2118,17 @@ static int define_te_avtab_xperms_helper(int wh=
-ich, avrule_t ** rule)
-> >  {
-> >         char *id;
-> >         class_perm_node_t *perms, *tail =3D NULL, *cur_perms =3D NULL;
-> > -       class_datum_t *cladatum;
-> > -       perm_datum_t *perdatum =3D NULL;
-> > +       const class_datum_t *cladatum;
-> > +       const perm_datum_t *perdatum;
-> >         ebitmap_t tclasses;
-> >         ebitmap_node_t *node;
-> >         avrule_t *avrule;
-> >         unsigned int i;
-> > -       int add =3D 1, ret =3D 0;
-> > +       int add =3D 1, ret;
-> >
-> >         avrule =3D (avrule_t *) malloc(sizeof(avrule_t));
-> >         if (!avrule) {
-> >                 yyerror("out of memory");
-> > -               ret =3D -1;
-> >                 goto out;
-> >         }
-> >         avrule_init(avrule);
-> > @@ -2139,14 +2139,13 @@ static int define_te_avtab_xperms_helper(int wh=
-ich, avrule_t ** rule)
-> >         avrule->xperms =3D NULL;
-> >         if (!avrule->source_filename) {
-> >                 yyerror("out of memory");
-> > -               return -1;
-> > +               goto out;
-> >         }
-> >
-> >         while ((id =3D queue_remove(id_queue))) {
-> >                 if (set_types
-> >                     (&avrule->stypes, id, &add,
-> >                      which =3D=3D AVRULE_XPERMS_NEVERALLOW ? 1 : 0)) {
-> > -                       ret =3D -1;
-> >                         goto out;
+> > @@ -4202,6 +4202,7 @@ cond_expr_t *define_cond_expr(uint32_t expr_type,=
+ void *arg1, void *arg2)
+> >                 if (!e1 || e1->next) {
+> >                         yyerror
+> >                             ("illegal right side of conditional binary =
+op expression");
+> > +                       cond_expr_destroy(arg1);
+> >                         free(expr);
+> >                         return NULL;
 > >                 }
-> >         }
-> > @@ -2156,13 +2155,11 @@ static int define_te_avtab_xperms_helper(int wh=
-ich, avrule_t ** rule)
-> >                         free(id);
-> >                         if (add =3D=3D 0 && which !=3D AVRULE_XPERMS_NE=
-VERALLOW) {
-> >                                 yyerror("-self is only supported in nev=
-erallow and neverallowxperm rules");
-> > -                               ret =3D -1;
-> >                                 goto out;
-> >                         }
-> >                         avrule->flags |=3D (add ? RULE_SELF : RULE_NOTS=
-ELF);
-> >                         if ((avrule->flags & RULE_SELF) && (avrule->fla=
-gs & RULE_NOTSELF)) {
-> >                                 yyerror("self and -self are mutual excl=
-usive");
-> > -                               ret =3D -1;
-> >                                 goto out;
-> >                         }
-> >                         continue;
-> > @@ -2170,7 +2167,6 @@ static int define_te_avtab_xperms_helper(int whic=
-h, avrule_t ** rule)
-> >                 if (set_types
-> >                     (&avrule->ttypes, id, &add,
-> >                      which =3D=3D AVRULE_XPERMS_NEVERALLOW ? 1 : 0)) {
-> > -                       ret =3D -1;
-> >                         goto out;
-> >                 }
-> >         }
-> > @@ -2178,7 +2174,6 @@ static int define_te_avtab_xperms_helper(int whic=
-h, avrule_t ** rule)
-> >         if ((avrule->ttypes.flags & TYPE_COMP)) {
-> >                 if (avrule->flags & RULE_NOTSELF) {
-> >                         yyerror("-self is not supported in complements"=
-);
-> > -                       ret =3D -1;
-> >                         goto out;
-> >                 }
-> >                 if (avrule->flags & RULE_SELF) {
-> > @@ -2190,7 +2185,7 @@ static int define_te_avtab_xperms_helper(int whic=
-h, avrule_t ** rule)
-> >         ebitmap_init(&tclasses);
-> >         ret =3D read_classes(&tclasses);
-> >         if (ret)
-> > -               goto out;
-> > +               goto out2;
-> >
-> >         perms =3D NULL;
-> >         id =3D queue_head(id_queue);
-> > @@ -2199,8 +2194,7 @@ static int define_te_avtab_xperms_helper(int whic=
-h, avrule_t ** rule)
-> >                     (class_perm_node_t *) malloc(sizeof(class_perm_node=
-_t));
-> >                 if (!cur_perms) {
-> >                         yyerror("out of memory");
-> > -                       ret =3D -1;
-> > -                       goto out;
-> > +                       goto out2;
-> >                 }
-> >                 class_perm_node_init(cur_perms);
-> >                 cur_perms->tclass =3D i + 1;
-> > @@ -2238,9 +2232,14 @@ static int define_te_avtab_xperms_helper(int whi=
-ch, avrule_t ** rule)
-> >
-> >         avrule->perms =3D perms;
-> >         *rule =3D avrule;
-> > +       return 0;
-> >
-> > +out2:
-> > +       ebitmap_destroy(&tclasses);
-> >  out:
-> > -       return ret;
-> > +       avrule_destroy(avrule);
-> > +       free(avrule);
-> > +       return -1;
-> >  }
-> >
-> >  /* index of the u32 containing the permission */
 > > --
 > > 2.47.2
 > >
