@@ -1,141 +1,132 @@
-Received: from mail-ua1-f51.google.com (mail-ua1-f51.google.com [209.85.222.51])
+Received: from mail-ua1-f54.google.com (mail-ua1-f54.google.com [209.85.222.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 019BB2620D1
-	for <selinux@vger.kernel.org>; Mon,  7 Apr 2025 18:13:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78DCA266B41
+	for <selinux@vger.kernel.org>; Mon,  7 Apr 2025 18:14:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744049632; cv=none; b=XIIn55uRdgToqTz9Kg70sET8GZJwOfQymZfj4dBvxetIiRZ1/i7GZIm7mLVJ/S5vP76uBp3mP2KWjmkiVrKHlTMMAJWhoPapvH90wS0Qds7d2h05ihe2NhH8ePr+/blHJltnJxe5WyVLycbcYGyOMwDAE3c2Teuy4oVJsO0O1Eo=
+	t=1744049676; cv=none; b=BV9dz4MoVYZfkATdQgaIrxYb+5eGoscLE53apbCu2ZY83lArecIqY++5SWDOvW3YbyF+Hu9F4M7rri7TPCGspGPPGSMsFMJgCuKzQP7eHOMJQDhKk1bzGAwBQQo1Ciifj1ZeICXjKsaAvqhe9VP+4xS9eJyg/17hj1RGU9vBQFg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744049632; c=relaxed/simple;
-	bh=jMl0LR5BxvRHo5ecAIxPegkxNtaodVZWO90hlLHKjvE=;
+	s=arc-20240116; t=1744049676; c=relaxed/simple;
+	bh=u78nVWH00dVnCyo2iMIkDFBvaqTgN3SgGNHxfyCKJLM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=B4ZnkMHM02bdKMhtMn1nKNoTt1cDz9Mh/HHnmjdZCe1cnhwdFQhENnfWy64Lr8KRkTxF8S9A8/p99Ia88Zgm0r5jv8BCI2dFCdCDtNbS/7QAGKFVMAB6ZZv0hqbntwBDEbERaPIq5HQD7qln3ff2gp+Ole3lGnGEUYYIi2ub/D8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=euVAs1CP; arc=none smtp.client-ip=209.85.222.51
+	 To:Cc:Content-Type; b=sb/pXQCWhvYHTperBIC9Pc6yctTcFdHjRDbyXxfB4gU8+kXPwLw8Vgki5k8JeMT9CJ6tq5bNOV2j0gbpcucSj4PIqxWm9GJx2J+LEk+zNE+NRhJ0YuB8aeXg6hA4ZCjrb3Jew3foA4ATE1iFGFXsGEIsv6/JvuPBbmoj62TdthY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GxdKSak9; arc=none smtp.client-ip=209.85.222.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="euVAs1CP"
-Received: by mail-ua1-f51.google.com with SMTP id a1e0cc1a2514c-86d6fd581f4so5142710241.1
-        for <selinux@vger.kernel.org>; Mon, 07 Apr 2025 11:13:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GxdKSak9"
+Received: by mail-ua1-f54.google.com with SMTP id a1e0cc1a2514c-86d42f08135so1999636241.0
+        for <selinux@vger.kernel.org>; Mon, 07 Apr 2025 11:14:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744049630; x=1744654430; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1744049673; x=1744654473; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Zk9Ak+h0uCEY2HAxTiGFhIxOtwE0hElp/vkGVUYShg8=;
-        b=euVAs1CPrabCz5T7epYa92J63SGXpULzTsPGb+hkUm+PPHQ/SpgTPLHrcck4SCk02B
-         FiNAxptNS2vyII7USdpnnM9GX51rohyek5/VRtDXv6M+Y9VItuxGp7rAUTKmRPJiWaNG
-         42imzyTK30kzl+tb7b2oZjAjQHg2TY6c+KvRaElYh+NYKOiNhIQmyf1PW0MU4JSxgIqC
-         oayXlwCCP0LoLEk/Cm1hX8FPx19br4lG0phSUxJMQzA0S1BGo2a+9HqXuaZ8uvT0I5MI
-         5YTvB+CozgoH9/KLYo79hbu5yFj66Jpjhk7/v/OUKkPoXGSrJ41NlTp+knHKGkylKSMM
-         XeKw==
+        bh=/BhC5QNTucHbHbjXM2ru+GMD/7U3eUOtg7pU2VNhezI=;
+        b=GxdKSak9lWHKsYYYqu+ANfi0AvzHa3vsE8obdUh8h5GRz7TDM6DKZLmotc0DKngVPO
+         8iXn7hY8n/gpSRNhQN8NDcYR+jvkNpijxp/8WTXp2P+EWGYJMpQAd6UD+fPtx/pRGjen
+         /02qwe384e5Z+eyYmKLd+HZS5JBUe+Xq6LKDgMIpt5ivLyPggJMO6LvrCOvGVAlLt8Pk
+         VFFZvWwobItDrkQjCeDB/ntWENVQfrWFjJlJvbQx9lSjHrhIpeJsrAmzVUe1R/Q6Ktf2
+         cIS6+b744omKeS7ZPgaaBoXrdEqWcG1d+A0bsOoWTIVkw6BsupNOGtjySqZLyUl1acn+
+         3KLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744049630; x=1744654430;
+        d=1e100.net; s=20230601; t=1744049673; x=1744654473;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Zk9Ak+h0uCEY2HAxTiGFhIxOtwE0hElp/vkGVUYShg8=;
-        b=IUhQv4ZSi/y6sCrkFkw7CX6fyQvd3JpIcraFzEnZoLfzux4VBGVZ2+zvW4xlLco5oA
-         mPREIS5oSBiYDw6RDQQoH8j6EhjsY94I5XpFZs7Kgck5qW9GV+uHGya7MuHeEuga55uF
-         jutnqoMgrvPlPJYn4wMuBXacSnzDi286ohYoz9ypM1ZzFISprSiQuzlp83PzM4ye630B
-         RvkLB4OOdkhGO9KCZgT+ojaJ6M3OPg2cIzovC1bMLC4oyDTjyI1mtd6h3W/3oOy1bKvM
-         uscIJW2qtVFpeXmF1c2x5+y9vE+JHS9qUL6jizrsZrf/A7Hzoswozz/Apk49FOpzOVGT
-         9CRg==
-X-Gm-Message-State: AOJu0Yx8qG5p2rMaoQUKRBvyoxYzzamixiyCTN75Bz+FKrpxF3Itg3bo
-	DXY2xVuezZJw8gxcVtNR4rY17j+SEcffc71SHtFO3whDHypNxqH25GZEzjYI7MetdgqGGH5f698
-	quXBtbC338X/9++L6A6yV7Hhro6Jy9A==
-X-Gm-Gg: ASbGncujEnej7hl/+ePX8l9QtjTPHMANI0zM5GWnJzde1dSvo5MXiwvM89QhwbfihZH
-	neXKFzG+JXbPfcJ6lG8jWlTsLRs2cmoShlR+xGvkn2Y7lBBSMHBsaFxMDD5HMxqfXs25lNYoRZA
-	7COREia1LRKjb+XU6BnF1UAbg=
-X-Google-Smtp-Source: AGHT+IGwhnWasDUKRyXm9UZVjSK8QWfnCVCOXpMZhg2UFzIj9qJLnWx4sEcRi4NSHG+zCyvbeJi3brmTlgw3wugNSyk=
-X-Received: by 2002:a05:6102:836:b0:4c1:8ded:2d66 with SMTP id
- ada2fe7eead31-4c9b3c04ecamr448307137.12.1744049629849; Mon, 07 Apr 2025
- 11:13:49 -0700 (PDT)
+        bh=/BhC5QNTucHbHbjXM2ru+GMD/7U3eUOtg7pU2VNhezI=;
+        b=uXHKqZJVAKf8wH0eKptN4FRi21NHXvgeLSAOLD2tlNLPZLxdAgZRRQa4aF1qZlCANI
+         2HixKyo1nzRTpqxGkXov41PY9WBTspAYvlWEpsNPDspi5W5VYmsC0hHb8jzbsrII35xQ
+         2OS/PWse6HUUASEotnyzGx2sS+AIC2q9VtTtXYnFyan5vfgzx49oyNmpObQC0j6dbU35
+         75q4nlWX/o2BbD5SdEa+oNowtIhZ2XCX5M4xsGQ71RYVeN5C6H8UdufqU8fzlp9kWabV
+         hxWXdBfh/beT+7LrmkqTEBRw8e+gHBOaxhgkjDPM2nEYbj6vgszw+UBt51crE/CAU3K9
+         UhRQ==
+X-Gm-Message-State: AOJu0YyFm3BJEyldge0/IcgvTDsYeWG6Edn9ywV90yRa5PWUPpbQRCmi
+	TZOi6ghyDjo0FgpgJm/frZuU+SmuNXPGQAVuro/trz2hhuPojxa75A9WGatmYF5hyNDqfluDlsf
+	QPM2de/d6OyJSP/THLNEAlgR9UsU=
+X-Gm-Gg: ASbGncutBC9bslnwo5aUVgKaDUQ96IrYRzHH2y0hTieyoQFLTScLhYEa1GX9yPvEKtD
+	QDsmGwKUU5rj24jd0IPm7RoI3o0uPJqetMsswz6Vqmuag3VCQTRbSXxauFT4fnFMTMDNMzdoQR3
+	3K5QNzLA5DNwEI52dykSiKmFE=
+X-Google-Smtp-Source: AGHT+IFrVb51Q0dSZSvC46f2ri6pH0VITuCmBE/eArmtaJw6H8O2YbPAJGq5BFWaAL3N2KwteGmVhcJhxT8u1In3CWg=
+X-Received: by 2002:a05:6102:158c:b0:4bb:9b46:3f87 with SMTP id
+ ada2fe7eead31-4c86365f46fmr6867842137.6.1744049673192; Mon, 07 Apr 2025
+ 11:14:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250314131751.28289-1-cgoettsche@seltendoof.de>
- <20250314131751.28289-4-cgoettsche@seltendoof.de> <CAP+JOzRSKsrx_Q+2GRGUvzaxUaQCZ2W1guwvg6z0NLtDb8+k1Q@mail.gmail.com>
-In-Reply-To: <CAP+JOzRSKsrx_Q+2GRGUvzaxUaQCZ2W1guwvg6z0NLtDb8+k1Q@mail.gmail.com>
+References: <20250314171355.27185-1-cgoettsche@seltendoof.de> <CAP+JOzRRbx6v4Rri717_QZfcPV_EpkVk7Z=riX+aiJ3vtd-8HA@mail.gmail.com>
+In-Reply-To: <CAP+JOzRRbx6v4Rri717_QZfcPV_EpkVk7Z=riX+aiJ3vtd-8HA@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Mon, 7 Apr 2025 14:13:38 -0400
-X-Gm-Features: ATxdqUECV_X3v2IAisRVECFaStd9YkgvSJOXIKR_aktB5UhOH_QWTGAeYBIh7fg
-Message-ID: <CAP+JOzQBLMVDen8zvmTAenZCoaLS1SDO7tXGH5TSR_cwKuyjNQ@mail.gmail.com>
-Subject: Re: [PATCH v3 1/4] libselinux: constify global strings
+Date: Mon, 7 Apr 2025 14:14:22 -0400
+X-Gm-Features: ATxdqUEtA5vuAAUeAYgn8XFDdIY3qeteMGCnSRm3GTanSCy0eqpXd35AXoL43W8
+Message-ID: <CAP+JOzQNzZt78JXu6GQsNnrk5cD5Yfz=09MPWyuqvn-OPwWRsg@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy: free ebitmap on error in define_compute_type_helper()
 To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 18, 2025 at 2:34=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+On Fri, Mar 28, 2025 at 3:08=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
-> On Fri, Mar 14, 2025 at 9:18=E2=80=AFAM Christian G=C3=B6ttsche
+> On Fri, Mar 14, 2025 at 1:14=E2=80=AFPM Christian G=C3=B6ttsche
 > <cgoettsche@seltendoof.de> wrote:
 > >
 > > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 > >
-> > Declare the read-only encode table const.
-> > Drop the only once used global variable selinux_rootpath.
+> > Free the local ebitmap for classes in define_compute_type_helper() on
+> > error.
 > >
+> > Reported-by: oss-fuzz (issue 403364352)
 > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> For these four patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-Merged these four patches.
+Merged.
 Thanks,
 Jim
 
 > > ---
-> >  libselinux/src/compute_create.c | 2 +-
-> >  libselinux/src/selinux_config.c | 3 +--
-> >  2 files changed, 2 insertions(+), 3 deletions(-)
+> >  checkpolicy/policy_define.c | 4 +++-
+> >  1 file changed, 3 insertions(+), 1 deletion(-)
 > >
-> > diff --git a/libselinux/src/compute_create.c b/libselinux/src/compute_c=
-reate.c
-> > index d19baa0b..ff8553bc 100644
-> > --- a/libselinux/src/compute_create.c
-> > +++ b/libselinux/src/compute_create.c
-> > @@ -33,7 +33,7 @@ static int object_name_encode(const char *objname, ch=
-ar *buffer, size_t buflen)
-> >                                 return -1;
-> >                         buffer[offset++] =3D '+';
-> >                 } else {
-> > -                       static const char *table =3D "0123456789ABCDEF"=
-;
-> > +                       static const char *const table =3D "0123456789A=
-BCDEF";
-> >                         int     l =3D (code & 0x0f);
-> >                         int     h =3D (code & 0xf0) >> 4;
+> > diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> > index f19e9f6d..cdd98cdb 100644
+> > --- a/checkpolicy/policy_define.c
+> > +++ b/checkpolicy/policy_define.c
+> > @@ -1699,6 +1699,8 @@ static int define_compute_type_helper(int which, =
+avrule_t ** rule)
+> >                 return -1;
+> >         }
 > >
-> > diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_c=
-onfig.c
-> > index 1d8cfb71..75db14ba 100644
-> > --- a/libselinux/src/selinux_config.c
-> > +++ b/libselinux/src/selinux_config.c
-> > @@ -153,7 +153,6 @@ static int setpolicytype(const char *type)
-> >  }
+> > +       ebitmap_init(&tclasses);
+> > +
+> >         while ((id =3D queue_remove(id_queue))) {
+> >                 if (set_types(&avrule->stypes, id, &add, 0))
+> >                         goto bad;
+> > @@ -1718,7 +1720,6 @@ static int define_compute_type_helper(int which, =
+avrule_t ** rule)
+> >                         goto bad;
+> >         }
 > >
-> >  static char *selinux_policyroot =3D NULL;
-> > -static const char *selinux_rootpath =3D SELINUXDIR;
+> > -       ebitmap_init(&tclasses);
+> >         if (read_classes(&tclasses))
+> >                 goto bad;
 > >
-> >  static void init_selinux_config(void)
-> >  {
-> > @@ -312,7 +311,7 @@ int selinux_set_policy_root(const char *path)
+> > @@ -1759,6 +1760,7 @@ static int define_compute_type_helper(int which, =
+avrule_t ** rule)
+> >         return 0;
 > >
-> >  const char *selinux_path(void)
-> >  {
-> > -       return selinux_rootpath;
-> > +       return SELINUXDIR;
-> >  }
-> >
-> >
+> >        bad:
+> > +       ebitmap_destroy(&tclasses);
+> >         avrule_destroy(avrule);
+> >         free(avrule);
+> >         return -1;
 > > --
 > > 2.47.2
 > >
