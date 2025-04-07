@@ -1,139 +1,428 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+Received: from mail-ua1-f46.google.com (mail-ua1-f46.google.com [209.85.222.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8504207679
-	for <selinux@vger.kernel.org>; Mon,  7 Apr 2025 16:14:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25270217F54
+	for <selinux@vger.kernel.org>; Mon,  7 Apr 2025 18:04:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744042454; cv=none; b=oAdxzii4QEm5HTpCjgIXE16gWz1fPE2dAUbX8vh9p3UbSPMJ2XNImXN/Ct8sWdulw2VSgATxdL537pja2rliivOTLeydffhfHofgRvZMS90v/9yhCh+xha6cyMQPl9slJTzKDi0U2kslNx0per1C9mAF9QOnqDzsfQ8IHxvbXrs=
+	t=1744049099; cv=none; b=TGXMFp+/NT/+19OjgsKsxddut6g7Re/y2s35kXEBN0Egpusx+L97pTXmkgANESa9K1wMqpmcFF27xI+fLS9pIGlECV4adQWfKQHoRHctkverq+WmgXybZYHBa3LDDnPEPLaKN92xp9JvHYHa6ZlWpxZow4MQB5Inngi5PHw/nyc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744042454; c=relaxed/simple;
-	bh=ba4cbq2g5wPFESyAlw1fnlwATywqt14hm75Tiz895w8=;
+	s=arc-20240116; t=1744049099; c=relaxed/simple;
+	bh=FRfDaXkIH3xOMw1NScF0kIcwDlAWPH4LGSTV5P0k+d0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KbHau7AJ6Aryy/4KTTQaY2DrZ4VlTc+rcjKjpXV3K3Fzx7cXsN2pNb86a/ToF99G6iKS+hbkl89cO3cLVVCdiZIehkP+J9aqOfeaZUJdNqCV79122/H8XyKWcJD8HBeP08If4nr+wG4ZhZe+Y9qodMCvHvETpIZPjgsfqAx6kiA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Db4TFfwS; arc=none smtp.client-ip=209.85.216.52
+	 To:Cc:Content-Type; b=Gvb8IZPsVTXeUwUZ2///MplQg9Xk62Alz7D4LTk/9u05/r5oQwNtjk4CgexFLFhvSDuzfCDQbP7GQX7mFio914A03qnZSREp3KQZYrYbFSja0PNqsS5RVPG67MvCypDcS3Gb6OdrJO2bJkp/yV29felaeEr2/5FJZ8bOYKG2QgA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bp93rKkL; arc=none smtp.client-ip=209.85.222.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Db4TFfwS"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-30384072398so3488119a91.0
-        for <selinux@vger.kernel.org>; Mon, 07 Apr 2025 09:14:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bp93rKkL"
+Received: by mail-ua1-f46.google.com with SMTP id a1e0cc1a2514c-873ac8037ecso721384241.3
+        for <selinux@vger.kernel.org>; Mon, 07 Apr 2025 11:04:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744042452; x=1744647252; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1744049096; x=1744653896; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wFaFA8RuUiGQa9opfinWxHWh0Nbk9Ov83Ahk5M+UKnc=;
-        b=Db4TFfwSszMWPJQoV/UFWa5Cf87JKy0wPFw0qhTER14HH8NZ8AQ++nz6srofX7jYHL
-         LxapyIdY1Lakklvy31DfQA3ATvWtuXagMwYtb+b8vM6ARuc76FPOEFr8+kmmGlnIdzvq
-         gGVTi6R3BK0mOpPOmF36TV+3vlmjfjy7j0QvijLNopr0OPx13iHJsBxZJiQiqJO6Axg1
-         f8tF6UzesyXFZriBKrgEaCVwxmSLWXQp86CoSj8JnVFi2gDjkol//roAaUQ2mNnUuxPQ
-         wDtgXORMc0zAWdIOk3tNPI4XRgjBkklqNlwseUvNxxecYIK8hi5im7HQqQZjhMUiuHKd
-         GGFA==
+        bh=kbljRotb4WidCnanKUTDN3hDenZA0TLu6KDun1NJcbE=;
+        b=bp93rKkL5XxSpr1eD7lg3Y607aaKuT0Szoa8E99oRmoTNO7JXbZoZV8MdaQ+s/a+F8
+         uVaoXxS/+hN6Ukq/RY+kSilLq/Rvh12E9u9NHex1sRDtLYEQLwv/XKC99DIHmCNnZuml
+         Nmp0bJtY8hDsAILSHEirvaiQq+73F7+RaET5OlEygaic9AXFCeDDg2clBMtJ8HGgyQSP
+         iguyh57uegyXpwh+jEbrZu9KLHMcuYukNtwHzwy7bRHQ1hHHcdrOhgrQ0YKYS2qWU8t9
+         3bqdzsjc6JTI9fOlX4t4G4P/z4JPLkXgqsKYhRpg1hENLOrX7drNsq/N3P1RcGLKKQt/
+         1ODA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744042452; x=1744647252;
+        d=1e100.net; s=20230601; t=1744049096; x=1744653896;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wFaFA8RuUiGQa9opfinWxHWh0Nbk9Ov83Ahk5M+UKnc=;
-        b=W68M9beY2s+ZlrTPyHZVfGH2Ryzbdn0sYxUFsrd1s7O0msg1z3xyV1oK8IMKKZS39G
-         VVirbjarzjGLvTLAE7+00B7dW9csywDtHmpYKND61CYAH7RgiKiK469CPkvSbzDtrCau
-         4LoG8aslfSQoT9OKtX0nvOgRYx6Knl/Erh2aOG2WVXyU4dqyfWP1AOfkksRHFOd/nQLR
-         eVFi/KFDnXsI9TYylhlNJDwJeVBfaPiNUbmfU5YexROgAk8WPaazDV8esy4WksA8b9jX
-         4aK2Lh4P5dHxzybhlRTSoiJQv3kUQow/alN27J5UVYrUXqDWDIr6o2bu3gdc3FQTz9Iv
-         omjg==
-X-Gm-Message-State: AOJu0YyXrtbTLE0JcY0tPpMJw/QOrXCyEw8kRaQMhf3aj1By5ANtqX7o
-	TPIYrGVExG5m8wj/bHyPYyJ+QpfX3SdPq+P4E5oT2SlgFkHf1z2a40jLlWmMdmSEPrc/2j1GiNp
-	BWKr7F699IkB2xPhFUxgFT7W5Dz13pQwy
-X-Gm-Gg: ASbGncur+b0WRKZSGwEm8iYJXyiV/50bW3oOGfkT7wiFaxGqxQGqC0RCm2O8BdCpXO4
-	SXOsj+h71oHvkk/RF1YLKFkluHcEAnRRhTLeJDRzrtUfNNs3eCwKq6VXmioJlQQG+VrzroyfrUA
-	dXXdOjkNNFJNPGcp7O7QII8b2N6A==
-X-Google-Smtp-Source: AGHT+IFPpJfocufkxvqaoI3pvVGMjo8NWg8InSxPhVVrTkHoXQFknt9UN9YlXWShC4Dch1odsfTiuseR4iXgrrk27oc=
-X-Received: by 2002:a17:90b:42:b0:2ff:7ad4:77af with SMTP id
- 98e67ed59e1d1-306af73c3e2mr11864609a91.20.1744042451924; Mon, 07 Apr 2025
- 09:14:11 -0700 (PDT)
+        bh=kbljRotb4WidCnanKUTDN3hDenZA0TLu6KDun1NJcbE=;
+        b=KOq+PyKh79TQ98Ad/UfPOk/LPBb2nvgoWegtL6DYlxgS1rr+MzvVv0SX9kvySAlTot
+         slDYeiHLf0ww3/DAos2CvgHB44p0cUVp8rrx3XIt7WGnB7iANgLcWvCgtaVBkK4CcScK
+         XoavoIqTqY/hbc1/kt4UC05Rx8m8iz8Q3EgQCtqFZp8xo91+LkaNpZ4qxBnkiI0Rjrmo
+         Ha09QPde2c7+a0tqA8k0TZt8V4IVzsVfdzwxS82F+X9OSuqNySPjLDJAa/ie6hutzrio
+         4KRb7g5YhK2X9RvSxw+VY463Llo6HBGpb6SAwXDW3R57MPPlCPY+ekJZhgb/en8h7VMq
+         5Zhw==
+X-Gm-Message-State: AOJu0YyWgRNxCBNIenZVGZXXudR7eLA34FPor1SWKLWG44MpJeSQfifH
+	cYIiBDJ9XqVSR2u5Xulwo07eMDtYBNVZD14iA5IFcDOiSwyIu03roD+3VBN5/Oht4lV0zO3ya8f
+	RWaX3Te5TPhJ0ne5FowtQ8Dtb2Lw9SQ==
+X-Gm-Gg: ASbGncuEMLaqBvtN7ydZ2zVNwbEUy3L9MWIPFml22teUM6koqHNCLP8bm1YHtczT9ws
+	z9HjWdyO3912bFCc5hZY3vLD3l0Tocq06hhXruaza+9TmjJYiGVeV+8ySPwqwIIEyVXPJ1CRDmp
+	aZ9N9CqG7hNIkyxy0u45/EXT4=
+X-Google-Smtp-Source: AGHT+IHXwdpsy1uzwB8ouFNfwtyXgLTNOGKvK90aEwNJjN4RrJ8LRNycfMH0KRmTBzqaMzXPnb4iNmLDjhdUK5CcL+A=
+X-Received: by 2002:a05:6102:3fa6:b0:4b2:adfb:4f91 with SMTP id
+ ada2fe7eead31-4c86377d228mr7315560137.21.1744049095635; Mon, 07 Apr 2025
+ 11:04:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <ed009068-754c-428f-8ef3-3b79dc9ec8b3@o1oo11oo.de>
-In-Reply-To: <ed009068-754c-428f-8ef3-3b79dc9ec8b3@o1oo11oo.de>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 7 Apr 2025 12:14:00 -0400
-X-Gm-Features: ATxdqUHeXecXFHtQZZt_1JFNw1myi6D0aEXopEq3B1BlwB1z71Wfb5UaE1TE46U
-Message-ID: <CAEjxPJ4333bqBye1iV90hopdqwzzXQ4Mn0rBP41qUocBSLPBfQ@mail.gmail.com>
-Subject: Re: AVC reclamation strategy questions
-To: Lukas Fischer <kernel@o1oo11oo.de>
-Cc: selinux@vger.kernel.org
+References: <20250211211651.1297357-3-hi@alyssa.is> <CAP+JOzRb1K9nKJTvKSFMrQMf_GzHLpoc98VxS-NKuN9zPgJ8fA@mail.gmail.com>
+In-Reply-To: <CAP+JOzRb1K9nKJTvKSFMrQMf_GzHLpoc98VxS-NKuN9zPgJ8fA@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Mon, 7 Apr 2025 14:04:44 -0400
+X-Gm-Features: ATxdqUFeIFVT1wwT6ETUts8BebT6tvdnO-WcXTJ9mIbwo69d7l-MEObzcRcPyO8
+Message-ID: <CAP+JOzTTWvMGuWtPC=KddnBHx0R7pmY5fegTtmngu-BqnOvuoA@mail.gmail.com>
+Subject: Re: [PATCH v3] Support static-only builds
+To: Alyssa Ross <hi@alyssa.is>
+Cc: selinux@vger.kernel.org, Nicolas Iooss <nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Apr 7, 2025 at 10:54=E2=80=AFAM Lukas Fischer <kernel@o1oo11oo.de> =
-wrote:
+On Mon, Mar 31, 2025 at 11:38=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+rote:
 >
-> Hello,
+> On Tue, Feb 11, 2025 at 4:20=E2=80=AFPM Alyssa Ross <hi@alyssa.is> wrote:
+> >
+> > Sometimes it's useful to have a static-only toolchain.  This can be
+> > due to targetting some weird embedded platform, or it can be because
+> > it ensures that no dynamic libraries are sneaking into a system that's
+> > supposed to be 100% static due to non-cooperative build systems.  Most
+> > build systems support static-only builds, e.g. autoconf provides a
+> > --disable-shared configure option.
+> >
+> > selinux's custom make-based build system did not support such an
+> > option, so here I've added one.  Apart from the obvious changes, I had
+> > to make the utilities that use external libraries link against them
+> > manually, because that can't be inferred from the static selinux
+> > libraries.  For downstream users of libselinux using pkg-config, this
+> > shouldn't be a problem, because libselinux.pc already includes the
+> > Requires.private line that specifies libpcre should be linked against
+> > as well.
+> >
+> > Signed-off-by: Alyssa Ross <hi@alyssa.is>
 >
-> I am currently trying to understand the AVC reclamation strategy.
+> Acked-by: James Carter <jwcart2@gmail.com>
 >
-> The code and old discussions and patches I found [1][2] seem to indicate =
-that
-> this used to be LRU-based, flagging recently used nodes when they were in=
-serted
-> and accessed, and clearing that during reclamation. The `lru_hint` for
-> reclamation is also still there.
->
-> To me it seems though, that the `lru_hint` is currently only used to cycl=
-e
-> through the buckets during reclamation, wrapping around at the end, as th=
-is is
-> the only time it is changed:
->
-> > for (try =3D 0, ecx =3D 0; try < AVC_CACHE_SLOTS; try++) {
-> >       hvalue =3D atomic_inc_return(&selinux_avc.avc_cache.lru_hint) &
-> >               (AVC_CACHE_SLOTS - 1);
-> >       head =3D &selinux_avc.avc_cache.slots[hvalue];
-> >       lock =3D &selinux_avc.avc_cache.slots_lock[hvalue];
->
-> Since insertion chooses a bucket only depending on the hash value (based =
-on
-> ssid, tsid and tclass) without considering or touching the `lru_hint`, I =
-don't
-> see how reclamation is still LRU-based. To me it seems like a more realis=
-tic
-> description would be that reclamation starts in the bucket least recently
-> reclaimed from (one after the one reclamation stopped in last time), whic=
-h might
-> still hit the most recently inserted items, if the hashing happened to pu=
-t them
-> into that bucket. This message [3] from last year though states:
->
-> > The current logic prunes the least recently used bucket
->
-> Which in my understanding only works if "used" means "reclaimed from".
->
-> Is this understanding correct or am I missing something? I tried to find
-> documentation for this, but the specific functionality like that of the A=
-VC
-> seems to not be included in the SELinux Notebook or easily available onli=
-ne, so
-> I turned to the source code and the mailing list archive.
 
-I think you are right. Apologies for mis-stating it in the previous email.
-Patches to improve upon it would certainly be considered.
+Merged.
+Thanks,
+Jim
 
->
-> Thanks,
-> Lukas
->
-> [1]:
-> https://lore.kernel.org/selinux/20090212195043.25599.80206.stgit@paris.rd=
-u.redhat.com/
-> [2]:
-> https://lore.kernel.org/selinux/1234534359.24702.22.camel@localhost.local=
-domain/
-> [3]:
-> https://lore.kernel.org/selinux/CAEjxPJ7QqEG+wyQfuPeDu0JqvjRCvbtVzZ6qtzwc=
--YwGz=3DmLjQ@mail.gmail.com/
->
+> > ---
+> > Changes since v3:
+> >
+> >  =E2=80=A2 Resolve conflicts.
+> >  =E2=80=A2 Add selabel_compare to PCRE_USERS.
+> >  =E2=80=A2 Use pkg-config for libselinux in policycoreutils, so PCRE is=
+ linked.
+> >
+> > v2: https://lore.kernel.org/selinux/20211113141616.361640-1-hi@alyssa.i=
+s
+> >
+> >  libselinux/src/Makefile              | 11 ++++++++---
+> >  libselinux/utils/Makefile            |  8 +++++++-
+> >  libsemanage/src/Makefile             |  9 +++++++--
+> >  libsepol/src/Makefile                | 11 ++++++++---
+> >  policycoreutils/Makefile             |  5 +++++
+> >  policycoreutils/load_policy/Makefile |  2 +-
+> >  policycoreutils/newrole/Makefile     |  2 +-
+> >  policycoreutils/run_init/Makefile    |  2 +-
+> >  policycoreutils/secon/Makefile       |  2 +-
+> >  policycoreutils/semodule/Makefile    |  3 ++-
+> >  policycoreutils/sestatus/Makefile    |  2 +-
+> >  policycoreutils/setfiles/Makefile    |  2 +-
+> >  policycoreutils/setsebool/Makefile   |  3 ++-
+> >  policycoreutils/unsetfiles/Makefile  |  2 +-
+> >  14 files changed, 46 insertions(+), 18 deletions(-)
+> >
+> > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> > index 213c7d34..261c22d4 100644
+> > --- a/libselinux/src/Makefile
+> > +++ b/libselinux/src/Makefile
+> > @@ -147,7 +147,10 @@ endif
+> >
+> >  SWIGRUBY =3D swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./ $(DISABLE_=
+FLAGS)
+> >
+> > -all: $(LIBA) $(LIBSO) $(LIBPC)
+> > +all: $(LIBA) $(LIBPC)
+> > +ifneq ($(DISABLE_SHARED),y)
+> > +all: $(LIBSO)
+> > +endif
+> >
+> >  pywrap: all selinuxswig_python_exception.i
+> >         CFLAGS=3D"$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) setup=
+.py build_ext
+> > @@ -186,11 +189,13 @@ $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+> >  install: all
+> >         test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LI=
+BDIR)
+> >         install -m 644 $(LIBA) $(DESTDIR)$(LIBDIR)
+> > -       test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(=
+SHLIBDIR)
+> > -       install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
+> >         test -d $(DESTDIR)$(LIBDIR)/pkgconfig || install -m 755 -d $(DE=
+STDIR)$(LIBDIR)/pkgconfig
+> >         install -m 644 $(LIBPC) $(DESTDIR)$(LIBDIR)/pkgconfig
+> > +ifneq ($(DISABLE_SHARED),y)
+> > +       test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(=
+SHLIBDIR)
+> > +       install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
+> >         ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LI=
+BDIR)/$(TARGET)
+> > +endif
+> >
+> >  install-pywrap: pywrap
+> >         CFLAGS=3D"$(CPPFLAGS) $(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) -m pi=
+p install --prefix=3D$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTD=
+IR) --ignore-installed --no-deps` $(PYTHON_SETUP_ARGS) .
+> > diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+> > index 0d7095b1..6b1dc7c9 100644
+> > --- a/libselinux/utils/Makefile
+> > +++ b/libselinux/utils/Makefile
+> > @@ -53,7 +53,13 @@ else
+> >  TARGETS=3D$(patsubst %.c,%,$(sort $(wildcard *.c)))
+> >  endif
+> >
+> > -sefcontext_compile: LDLIBS +=3D ../src/libselinux.a $(PCRE_LDLIBS) -ls=
+epol
+> > +sefcontext_compile: LDLIBS +=3D ../src/libselinux.a -lsepol
+> > +
+> > +PCRE_USERS =3D matchpathcon sefcontext_compile selabel_compare \
+> > +       selabel_digest selabel_get_digests_all_partial_matches \
+> > +       selabel_lookup selabel_lookup_best_match \
+> > +       selabel_partial_match
+> > +$(PCRE_USERS): LDLIBS +=3D $(PCRE_LDLIBS)
+> >
+> >  all: $(TARGETS)
+> >
+> > diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+> > index 8dfbd762..7d60b1e9 100644
+> > --- a/libsemanage/src/Makefile
+> > +++ b/libsemanage/src/Makefile
+> > @@ -67,7 +67,10 @@ SWIG =3D swig -Wall -python -o $(SWIGCOUT) -outdir .=
+/
+> >
+> >  SWIGRUBY =3D swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./
+> >
+> > -all: $(LIBA) $(LIBSO) $(LIBPC)
+> > +all: $(LIBA) $(LIBPC)
+> > +ifneq ($(DISABLE_SHARED),y)
+> > +all: $(LIBSO)
+> > +endif
+> >
+> >  pywrap: all $(SWIGSO)
+> >
+> > @@ -137,11 +140,13 @@ swigify: $(SWIGIF)
+> >  install: all
+> >         test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LI=
+BDIR)
+> >         install -m 644 $(LIBA) $(DESTDIR)$(LIBDIR)
+> > -       install -m 755 $(LIBSO) $(DESTDIR)$(LIBDIR)
+> >         test -d $(DESTDIR)$(LIBDIR)/pkgconfig || install -m 755 -d $(DE=
+STDIR)$(LIBDIR)/pkgconfig
+> >         install -m 644 $(LIBPC) $(DESTDIR)$(LIBDIR)/pkgconfig
+> >         test -f $(DESTDIR)$(DEFAULT_SEMANAGE_CONF_LOCATION) || install =
+-m 644 -D semanage.conf $(DESTDIR)$(DEFAULT_SEMANAGE_CONF_LOCATION)
+> > +ifneq ($(DISABLE_SHARED),y)
+> > +       install -m 755 $(LIBSO) $(DESTDIR)$(LIBDIR)
+> >         cd $(DESTDIR)$(LIBDIR) && ln -sf $(LIBSO) $(TARGET)
+> > +endif
+> >
+> >  install-pywrap: pywrap
+> >         test -d $(DESTDIR)$(PYTHONLIBDIR) || install -m 755 -d $(DESTDI=
+R)$(PYTHONLIBDIR)
+> > diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+> > index 71fa3ed7..a1aed072 100644
+> > --- a/libsepol/src/Makefile
+> > +++ b/libsepol/src/Makefile
+> > @@ -45,7 +45,10 @@ LDFLAGS +=3D -undefined dynamic_lookup
+> >  LN=3Dgln
+> >  endif
+> >
+> > -all: $(LIBA) $(LIBSO) $(LIBPC)
+> > +all: $(LIBA) $(LIBPC)
+> > +ifneq ($(DISABLE_SHARED),y)
+> > +all: $(LIBSO)
+> > +endif
+> >
+> >
+> >  $(LIBA):  $(OBJS)
+> > @@ -87,11 +90,13 @@ endif
+> >  install: all
+> >         test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LI=
+BDIR)
+> >         install -m 644 $(LIBA) $(DESTDIR)$(LIBDIR)
+> > -       test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(=
+SHLIBDIR)
+> > -       install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
+> >         test -d $(DESTDIR)$(LIBDIR)/pkgconfig || install -m 755 -d $(DE=
+STDIR)$(LIBDIR)/pkgconfig
+> >         install -m 644 $(LIBPC) $(DESTDIR)$(LIBDIR)/pkgconfig
+> > +ifneq ($(DISABLE_SHARED),y)
+> > +       test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(=
+SHLIBDIR)
+> > +       install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
+> >         $(LN) -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$=
+(LIBDIR)/$(TARGET)
+> > +endif
+> >
+> >  relabel:
+> >         /sbin/restorecon $(DESTDIR)$(SHLIBDIR)/$(LIBSO)
+> > diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
+> > index 32ad0201..7acd51dd 100644
+> > --- a/policycoreutils/Makefile
+> > +++ b/policycoreutils/Makefile
+> > @@ -1,5 +1,10 @@
+> >  SUBDIRS =3D setfiles load_policy newrole run_init secon sestatus semod=
+ule setsebool scripts po man hll unsetfiles
+> >
+> > +PKG_CONFIG ?=3D pkg-config
+> > +
+> > +LIBSELINUX_LDLIBS :=3D $(shell $(PKG_CONFIG) --libs libselinux)
+> > +export LIBSELINUX_LDLIBS
+> > +
+> >  all install relabel clean indent:
+> >         @for subdir in $(SUBDIRS); do \
+> >                 (cd $$subdir && $(MAKE) $@) || exit 1; \
+> > diff --git a/policycoreutils/load_policy/Makefile b/policycoreutils/loa=
+d_policy/Makefile
+> > index ad80d500..37c0111b 100644
+> > --- a/policycoreutils/load_policy/Makefile
+> > +++ b/policycoreutils/load_policy/Makefile
+> > @@ -7,7 +7,7 @@ LOCALEDIR ?=3D $(DESTDIR)$(PREFIX)/share/locale
+> >
+> >  CFLAGS ?=3D -Werror -Wall -W
+> >  override CFLAGS +=3D $(LDFLAGS) -DUSE_NLS -DLOCALEDIR=3D"\"$(LOCALEDIR=
+)\"" -DPACKAGE=3D"\"policycoreutils\""
+> > -override LDLIBS +=3D -lsepol -lselinux
+> > +override LDLIBS +=3D $(LIBSELINUX_LDLIBS) -lsepol
+> >
+> >  TARGETS=3D$(patsubst %.c,%,$(sort $(wildcard *.c)))
+> >
+> > diff --git a/policycoreutils/newrole/Makefile b/policycoreutils/newrole=
+/Makefile
+> > index 4b8145d3..6e95e79f 100644
+> > --- a/policycoreutils/newrole/Makefile
+> > +++ b/policycoreutils/newrole/Makefile
+> > @@ -25,7 +25,7 @@ VERSION =3D $(shell cat ../VERSION)
+> >  CFLAGS ?=3D -Werror -Wall -W
+> >  EXTRA_OBJS =3D
+> >  override CFLAGS +=3D -DVERSION=3D\"$(VERSION)\" -DUSE_NLS -DLOCALEDIR=
+=3D"\"$(LOCALEDIR)\"" -DPACKAGE=3D"\"policycoreutils\""
+> > -override LDLIBS +=3D -lselinux
+> > +override LDLIBS +=3D $(LIBSELINUX_LDLIBS)
+> >  ifeq ($(PAMH), y)
+> >         override CFLAGS +=3D -DUSE_PAM
+> >         EXTRA_OBJS +=3D hashtab.o
+> > diff --git a/policycoreutils/run_init/Makefile b/policycoreutils/run_in=
+it/Makefile
+> > index 619ebc1d..a5002587 100644
+> > --- a/policycoreutils/run_init/Makefile
+> > +++ b/policycoreutils/run_init/Makefile
+> > @@ -11,7 +11,7 @@ AUDITH ?=3D $(shell test -f /usr/include/libaudit.h &=
+& echo y)
+> >
+> >  CFLAGS ?=3D -Werror -Wall -W
+> >  override CFLAGS +=3D -DUSE_NLS -DLOCALEDIR=3D"\"$(LOCALEDIR)\"" -DPACK=
+AGE=3D"\"policycoreutils\""
+> > -override LDLIBS +=3D -lselinux
+> > +override LDLIBS +=3D $(LIBSELINUX_LDLIBS)
+> >  ifeq ($(PAMH), y)
+> >         override CFLAGS +=3D -DUSE_PAM
+> >         override LDLIBS +=3D -lpam -lpam_misc
+> > diff --git a/policycoreutils/secon/Makefile b/policycoreutils/secon/Mak=
+efile
+> > index 440503a1..daa3e10e 100644
+> > --- a/policycoreutils/secon/Makefile
+> > +++ b/policycoreutils/secon/Makefile
+> > @@ -8,7 +8,7 @@ WARNS=3D-Werror -W -Wall -Wundef -Wshadow -Wpointer-ari=
+th -Wbad-function-cast -Wca
+> >  VERSION =3D $(shell cat ../VERSION)
+> >  CFLAGS ?=3D $(WARNS) -O1
+> >  override CFLAGS +=3D -DVERSION=3D\"$(VERSION)\"
+> > -override LDLIBS +=3D -lselinux
+> > +override LDLIBS +=3D $(LIBSELINUX_LDLIBS)
+> >
+> >  all: secon
+> >
+> > diff --git a/policycoreutils/semodule/Makefile b/policycoreutils/semodu=
+le/Makefile
+> > index 9fbf99d6..3855f95e 100644
+> > --- a/policycoreutils/semodule/Makefile
+> > +++ b/policycoreutils/semodule/Makefile
+> > @@ -5,11 +5,12 @@ SBINDIR ?=3D $(PREFIX)/sbin
+> >  MANDIR =3D $(PREFIX)/share/man
+> >
+> >  CFLAGS ?=3D -Werror -Wall -W
+> > -override LDLIBS +=3D -lsepol -lselinux -lsemanage
+> > +override LDLIBS +=3D -lsemanage -lsepol $(LIBSELINUX_LDLIBS)
+> >  SEMODULE_OBJS =3D semodule.o
+> >
+> >  all: semodule genhomedircon
+> >
+> > +semodule: LDLIBS +=3D -laudit -lbz2
+> >  semodule: $(SEMODULE_OBJS)
+> >
+> >  genhomedircon:
+> > diff --git a/policycoreutils/sestatus/Makefile b/policycoreutils/sestat=
+us/Makefile
+> > index aebf050c..b0df6d28 100644
+> > --- a/policycoreutils/sestatus/Makefile
+> > +++ b/policycoreutils/sestatus/Makefile
+> > @@ -8,7 +8,7 @@ ETCDIR ?=3D /etc
+> >
+> >  CFLAGS ?=3D -Werror -Wall -W
+> >  override CFLAGS +=3D -D_FILE_OFFSET_BITS=3D64
+> > -override LDLIBS +=3D -lselinux
+> > +override LDLIBS +=3D $(LIBSELINUX_LDLIBS)
+> >
+> >  all: sestatus
+> >
+> > diff --git a/policycoreutils/setfiles/Makefile b/policycoreutils/setfil=
+es/Makefile
+> > index 84ffb08b..0b27e934 100644
+> > --- a/policycoreutils/setfiles/Makefile
+> > +++ b/policycoreutils/setfiles/Makefile
+> > @@ -6,7 +6,7 @@ MANDIR =3D $(PREFIX)/share/man
+> >  AUDITH ?=3D $(shell test -f /usr/include/libaudit.h && echo y)
+> >
+> >  CFLAGS ?=3D -g -Werror -Wall -W
+> > -override LDLIBS +=3D -lselinux -lsepol -lpthread
+> > +override LDLIBS +=3D $(LIBSELINUX_LDLIBS) -lsepol -lpthread
+> >
+> >  ifeq ($(AUDITH), y)
+> >         override CFLAGS +=3D -DUSE_AUDIT
+> > diff --git a/policycoreutils/setsebool/Makefile b/policycoreutils/setse=
+bool/Makefile
+> > index fc5b4ff6..12b6315d 100644
+> > --- a/policycoreutils/setsebool/Makefile
+> > +++ b/policycoreutils/setsebool/Makefile
+> > @@ -6,13 +6,14 @@ MANDIR =3D $(PREFIX)/share/man
+> >  BASHCOMPLETIONDIR ?=3D $(PREFIX)/share/bash-completion/completions
+> >
+> >  CFLAGS ?=3D -Werror -Wall -W
+> > -override LDLIBS +=3D -lselinux -lsemanage
+> > +override LDLIBS +=3D -lsemanage $(LIBSELINUX_LDLIBS)
+> >  SETSEBOOL_OBJS =3D setsebool.o
+> >
+> >  BASHCOMPLETIONS=3Dsetsebool-bash-completion.sh
+> >
+> >  all: setsebool
+> >
+> > +setsebool: LDLIBS +=3D -laudit -lbz2
+> >  setsebool: $(SETSEBOOL_OBJS)
+> >
+> >  install: all
+> > diff --git a/policycoreutils/unsetfiles/Makefile b/policycoreutils/unse=
+tfiles/Makefile
+> > index 9e5edc04..bdc1b9de 100644
+> > --- a/policycoreutils/unsetfiles/Makefile
+> > +++ b/policycoreutils/unsetfiles/Makefile
+> > @@ -3,7 +3,7 @@ SBINDIR ?=3D $(PREFIX)/sbin
+> >  MANDIR ?=3D $(PREFIX)/share/man
+> >
+> >  override CFLAGS +=3D -D_GNU_SOURCE
+> > -override LDLIBS +=3D -lselinux
+> > +override LDLIBS +=3D $(LIBSELINUX_LDLIBS)
+> >
+> >
+> >  all: unsetfiles
+> >
+> > base-commit: 71aec30d068789e856e7cc429b620ae1cfa890f1
+> > --
+> > 2.47.0
+> >
+> >
