@@ -1,173 +1,268 @@
-Received: from mail-ua1-f49.google.com (mail-ua1-f49.google.com [209.85.222.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A8CA1DB34B
-	for <selinux@vger.kernel.org>; Wed,  9 Apr 2025 19:36:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BC291EB18E;
+	Wed,  9 Apr 2025 21:16:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744227415; cv=none; b=Gfjuq167OR11+Y87RMq6JEIRHVil9YRtsTUlTxKSu9PxM+fFyE0DnR+IazbWvAMQyxjH8Dex+EoFEnzdGQIyDsiYrqPuHhXkdDOOdSRW9g2KJ3ucw4aEegzcf/DYZQeIi4vjhJu60o56ck/SliamqDLCDkNSIIIcfQu5gS7tqvE=
+	t=1744233403; cv=none; b=b8Le6qUrx8uedKkFLtBlcocOm82efjDmoBo6wAOPbzX0W6VWDO0z7hU+Cg1C4eINFArciA/fdy/SokmeuczUecehH+mx3pOJJ+Fw+CtmpMmzcVI8WkgezF9DLWZRCcJAcdp1zSxE1mhThkle15BVfh+O9UVHWOf7LwkUsFNbjn8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744227415; c=relaxed/simple;
-	bh=ylUDrX96PyxwIsahIN8dG0bixNLtopiXtFfiag7hklg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uiTdZJtPQSI6BcIdTh34PWSmubNoe1WTlvbNx0CaUyoEklK6VAwhQ3XgKqJXKPSftEqX75AsH5wpp74/ybxsHmxzNPdSD6UQUqolAF7HKaM61zVvYYYUBctSVn50Gfu9m+5qlZtZEz4IcsBapXwjwkpYaHUwIpqIVUkTswVxqtI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bq1WVlF0; arc=none smtp.client-ip=209.85.222.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1744233403; c=relaxed/simple;
+	bh=+mqY8nLH6ozGdqw3+Rz1yDdpQlH+FIoOnuqVmEWUUKg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JPKV++mFZTQAR7XYKKAEeosVzaEgnDkL3AjvWD2uBShaCIE2I10WrWd+s9u/bH9S4NsjIH3zkvp5VrQPCa7Jcefw/ze7YunTm1BQT/AdYPe0RTJstBbjMoHjQ1a+SMT38YuZk1cNC47EFcOHHL2QUFVsEzO2eTlu/3kuQfd7aFo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cmy2FGnt; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bq1WVlF0"
-Received: by mail-ua1-f49.google.com with SMTP id a1e0cc1a2514c-86b9d1f729eso3238298241.3
-        for <selinux@vger.kernel.org>; Wed, 09 Apr 2025 12:36:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744227412; x=1744832212; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8BGGo6LqijS6fqkZTyK4nBiwkhs7q5qFaJbRKCNSovw=;
-        b=bq1WVlF0l63nPDci8O7tb3+xd65k9p8hs3YVAVcLsrCdZVy0VLZSrn1hiujGR6p9XB
-         kRhvU/6Yilghp+sCviMp5Zu7vpaLCtJ8TIlQmNIvO6d7xwhjVyQGWmeV8CAkBrw/AFSx
-         t9z2hEV85gPYd8jIffJC0UpWm0S2RjKkUC+G/3mfcmcV77JoPd8Glz3dXgjGk3u5MunZ
-         A/Wx9PPPa8hgfVw7k7p8ACSUIO9wQEE8zWAJ7Kcbjm/ph1ewvoMTyy9wdEYZDE6ae6ti
-         SVVLTYKB2QWdwN6raPVyXZeLtLKP3IvCiPCVXm0vsNQ8GpwFthi1KXleoRsMUaA8efoX
-         vaBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744227412; x=1744832212;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8BGGo6LqijS6fqkZTyK4nBiwkhs7q5qFaJbRKCNSovw=;
-        b=NGQL2lryti4caG104KiGeqX/BbeAU46rlPIL6MOFAtlDbF7vWwKJb4Is6aVKcfBw02
-         PIc4NeffEa0tvwZOa07JMTxVqlnSIrr7MAmCkuMcWN46VK/wGHLw6RQ8jOe5dkXaNNGr
-         aX6PwvvxX6KpcxHJQ1/Pl6IA5elYzVcBinOG7jv27+77SB+wyWusVHul+Vx40qo5FjvX
-         ynnDOV+R3obkxVl0a1PtQTNv5te6RnUcnNis9GBjV9+6sa/ltpFnD158O7Q3y4CMs6Vc
-         9/J3ih7SuvSlKdpQLhDUhiJimtc6V/GxJO/YV5oOTyChCTP5Dj49mU17AnwLJnStv+pN
-         XjwQ==
-X-Gm-Message-State: AOJu0YwwvQ88E8C99qy80tAN5P4SEK4V8F3YWuIuilAvkiI4OXHX0KQ+
-	2eVigqevP+Q8HcZT/8ZInB0j44d1VuOZxMLzk+TPaF+Xvf72bFSlzffYlwjRyecfdiuLM1NRK44
-	4fkcNdmYOTVibcEBiT1m4GNzgQP4=
-X-Gm-Gg: ASbGncu1SFu+rBKp02zEPo1K1PMg99lWyuH+/GHW6nKV8nS636N/43i9dQ8E9aXxbeP
-	TysKfiWogBUhL7bQTMfdGE298zIajL66ltjHzv1Gi40q4kgx8CAToavjMm74+8iWp7LHpw6FQGI
-	G8c/JpxilvunRtRVGSTR8=
-X-Google-Smtp-Source: AGHT+IGkysI8TgccgThl7ANcb3PaORIpE3AVpfUkmC5f6Bajhm25MRA9acBgWzp8wBV4JzE6LJZmHY8iTkYd/CaKHu0=
-X-Received: by 2002:a05:6102:504b:b0:4bb:eb4a:fa03 with SMTP id
- ada2fe7eead31-4c9d3619c3cmr205150137.23.1744227412241; Wed, 09 Apr 2025
- 12:36:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cmy2FGnt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5676C4CEE2;
+	Wed,  9 Apr 2025 21:16:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1744233400;
+	bh=+mqY8nLH6ozGdqw3+Rz1yDdpQlH+FIoOnuqVmEWUUKg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=Cmy2FGnt6RKSBHp4nugrmO9gaL8uU4BZZ9jzoA4Q3c5pFLY7cH+FYbqi6JvwvynVw
+	 lKoldyDhh0N9qLdoOoCbirFU8fqGZOYT7l6kR1HfNHDuiVPjJoklen5ODet5DrXTjw
+	 5kCM5Ue770pRo4CmfWREuEyUIgXZaA+qN3opRyY9/Rz17VA2j0o+zUg7GCVwz7O7qZ
+	 2BCkielMJBleKdBy669h6JXRvmTDLu1uyvdBV4xW5KZNBh2nWCMSrG1W3qciPa146V
+	 McrRweZgLnrnaLHMpJPXyzdIB3qJV1pqo9AaMKp8l8dPzGmPI9lMJIT4zZXYAcz62Q
+	 2ochW06DTuLMA==
+Date: Wed, 9 Apr 2025 14:16:37 -0700
+From: Kees Cook <kees@kernel.org>
+To: Paul Moore <paul@paul-moore.com>
+Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
+	selinux@vger.kernel.org,
+	John Johansen <john.johansen@canonical.com>,
+	Mimi Zohar <zohar@linux.ibm.com>,
+	Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
+	=?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
+	=?iso-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
+	Micah Morton <mortonm@chromium.org>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: Re: [RFC PATCH 17/29] lsm: introduce an initcall mechanism into the
+ LSM framework
+Message-ID: <202504091406.0A86DE05@keescook>
+References: <20250409185019.238841-31-paul@paul-moore.com>
+ <20250409185019.238841-48-paul@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250404120824.4146584-1-inseob@google.com> <20250404120824.4146584-3-inseob@google.com>
-In-Reply-To: <20250404120824.4146584-3-inseob@google.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 9 Apr 2025 15:36:41 -0400
-X-Gm-Features: ATxdqUE-7429veXu3swjfsCUjtIQ0--N-9aixNy2UGDT0OjQH4QGGY2MRle4-mI
-Message-ID: <CAP+JOzTCsOz2W80BFdeATqc3cypJ7RSQ3BAkT+E6ow_-WdnUbQ@mail.gmail.com>
-Subject: Re: [PATCH 3/3] checkpolicy: Support line markers for allow rules
-To: Inseob Kim <inseob@google.com>
-Cc: selinux@vger.kernel.org, tweek@google.com, jeffv@google.com, 
-	nnk@google.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250409185019.238841-48-paul@paul-moore.com>
 
-On Fri, Apr 4, 2025 at 8:08=E2=80=AFAM Inseob Kim <inseob@google.com> wrote=
-:
->
-> Using line markers for allow rules helps debugging, especially
-> neverallow failure reports. But unconditionally printing them can bloat
-> output cil files, so this commit adds an option to do that.
->
-> Signed-off-by: Inseob Kim <inseob@google.com>
+On Wed, Apr 09, 2025 at 02:50:02PM -0400, Paul Moore wrote:
+> Currently the individual LSMs register their own initcalls, and while
+> this should be harmless, it can be wasteful in the case where a LSM
+> is disabled at boot as the initcall will still be executed.  This
+> patch introduces support for managing the initcalls in the LSM
+> framework, and future patches will convert the existing LSMs over to
+> this new mechanism.
+> 
+> Only initcall types which are used by the current in-tree LSMs are
+> supported, additional initcall types can easily be added in the future
+> if needed.
+> 
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 > ---
->  checkpolicy/checkpolicy.c | 17 +++++++++++++++--
->  1 file changed, 15 insertions(+), 2 deletions(-)
->
-> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-> index ede2b6ad..b808e4d0 100644
-> --- a/checkpolicy/checkpolicy.c
-> +++ b/checkpolicy/checkpolicy.c
-> @@ -107,7 +107,7 @@ static __attribute__((__noreturn__)) void usage(const=
- char *progname)
->         printf
->             ("usage:  %s [-b[F]] [-C] [-d] [-U handle_unknown (allow,deny=
-,reject)] [-M] "
->              "[-N] [-c policyvers (%d-%d)] [-o output_file|-] [-S] [-O] "
-> -            "[-t target_platform (selinux,xen)] [-E] [-V] [input_file]\n=
-",
-> +            "[-t target_platform (selinux,xen)] [-E] [-V] [-L] [input_fi=
-le]\n",
->              progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
->         exit(1);
->  }
-> @@ -390,6 +390,7 @@ int main(int argc, char **argv)
->         unsigned int i;
->         unsigned int protocol, port;
->         unsigned int binary =3D 0, debug =3D 0, sort =3D 0, cil =3D 0, co=
-nf =3D 0, optimize =3D 0, disable_neverallow =3D 0;
-> +       unsigned int line_marker_for_allow =3D 0;
->         struct val_to_name v;
->         int ret, ch, fd, target =3D SEPOL_TARGET_SELINUX;
->         unsigned int policyvers =3D 0;
-> @@ -418,11 +419,12 @@ int main(int argc, char **argv)
->                 {"sort", no_argument, NULL, 'S'},
->                 {"optimize", no_argument, NULL, 'O'},
->                 {"werror", no_argument, NULL, 'E'},
-> +               {"line-marker-for-allow", no_argument, NULL, 'L'},
->                 {"help", no_argument, NULL, 'h'},
->                 {NULL, 0, NULL, 0}
->         };
->
-> -       while ((ch =3D getopt_long(argc, argv, "o:t:dbU:MNCFSVc:OEh", lon=
-g_options, NULL)) !=3D -1) {
-> +       while ((ch =3D getopt_long(argc, argv, "o:t:dbU:MNCFSVc:OELh", lo=
-ng_options, NULL)) !=3D -1) {
->                 switch (ch) {
->                 case 'o':
->                         outfile =3D optarg;
-> @@ -506,6 +508,9 @@ int main(int argc, char **argv)
->                 case 'E':
->                          werror =3D 1;
->                          break;
-> +               case 'L':
-> +                       line_marker_for_allow =3D 1;
-> +                       break;
->                 case 'h':
->                 default:
->                         usage(argv[0]);
-> @@ -535,6 +540,11 @@ int main(int argc, char **argv)
->                 exit(1);
->         }
->
-> +       if (line_marker_for_allow && !cil) {
-> +               fprintf(stderr, "Must convert to CIL for line markers to =
-be printed\n");
-> +               exit(1);
-> +       }
+>  include/linux/lsm_hooks.h | 33 ++++++++++++---
+>  security/lsm_init.c       | 89 +++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 117 insertions(+), 5 deletions(-)
+> 
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index a7ecb0791a0f..0d2c2a017ffc 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -148,13 +148,36 @@ enum lsm_order {
+>  	LSM_ORDER_LAST = 1,	/* This is only for integrity. */
+>  };
+>  
+> +/**
+> + * struct lsm_info - Define an individual LSM for the LSM framework.
+> + * @id: LSM name/ID info
+> + * @order: ordering with respect to other LSMs, optional
+> + * @flags: descriptive flags, optional
+> + * @blobs: LSM blob sharing, optional
+> + * @enabled: controlled by CONFIG_LSM, optional
+> + * @init: LSM specific initialization routine
+> + * @initcall_pure: LSM callback for initcall_pure() setup, optional
+> + * @initcall_early: LSM callback for early_initcall setup, optional
+> + * @initcall_core: LSM callback for core_initcall() setup, optional
+> + * @initcall_subsys: LSM callback for subsys_initcall() setup, optional
+> + * @initcall_fs: LSM callback for fs_initcall setup, optional
+> + * @nitcall_device: LSM callback for device_initcall() setup, optional
+> + * @initcall_late: LSM callback for late_initcall() setup, optional
+> + */
+
+Yay! Proper kerndoc. :)
+
+>  struct lsm_info {
+>  	const struct lsm_id *id;
+> -	enum lsm_order order;	/* Optional: default is LSM_ORDER_MUTABLE */
+> -	unsigned long flags;	/* Optional: flags describing LSM */
+> -	int *enabled;		/* Optional: controlled by CONFIG_LSM */
+> -	int (*init)(void);	/* Required. */
+> -	struct lsm_blob_sizes *blobs; /* Optional: for blob sharing. */
+> +	enum lsm_order order;
+> +	unsigned long flags;
+> +	struct lsm_blob_sizes *blobs;
+> +	int *enabled;
+> +	int (*init)(void);
+> +	int (*initcall_pure)(void);
+> +	int (*initcall_early)(void);
+> +	int (*initcall_core)(void);
+> +	int (*initcall_subsys)(void);
+> +	int (*initcall_fs)(void);
+> +	int (*initcall_device)(void);
+> +	int (*initcall_late)(void);
+>  };
+>  
+>  #define DEFINE_LSM(lsm)							\
+> diff --git a/security/lsm_init.c b/security/lsm_init.c
+> index 8e00afeb84cf..75eb0cc82869 100644
+> --- a/security/lsm_init.c
+> +++ b/security/lsm_init.c
+> @@ -39,6 +39,27 @@ static __initdata struct lsm_info *lsm_order[MAX_LSM_COUNT + 1];
+>  	for ((iter) = __start_early_lsm_info;				\
+>  	     (iter) < __end_early_lsm_info; (iter)++)
+>  
+> +#define lsm_initcall(level)						\
+> +	({ 								\
+> +		int _r, _rc = 0;					\
+> +		struct lsm_info **_lp, *_l; 				\
+> +		lsm_order_for_each(_lp) { 				\
+> +			_l = *_lp; 					\
+> +			if (!_l->initcall_##level) 			\
+> +				continue;				\
+> +			lsm_pr_dbg("running %s %s initcall",		\
+> +				   _l->id->name, #level);		\
+> +			_r = _l->initcall_##level();			\
+> +			if (_r) {					\
+> +				pr_warn("failed LSM %s %s initcall with errno %d\n", \
+> +					_l->id->name, #level, _r);	\
+> +				if (!_rc)				\
+> +					_rc = _r;			\
+> +			}						\
+> +		}							\
+> +		_rc;							\
+> +	})
 > +
->         if (binary) {
->                 fd =3D open(file, O_RDONLY);
->                 if (fd < 0) {
-> @@ -690,6 +700,9 @@ int main(int argc, char **argv)
->                                 exit(1);
->                         }
->                 } else {
-> +                       if (line_marker_for_allow) {
-> +                               policydbp->line_marker_avrules |=3D AVRUL=
-E_ALLOWED | AVRULE_XPERMS_ALLOWED;
-> +                       }
->                         if (binary) {
->                                 ret =3D sepol_kernel_policydb_to_cil(outf=
-p, policydbp);
->                         } else {
-> --
-> 2.49.0.504.g3bcea36a83-goog
->
->
+>  /**
+>   * lsm_choose_security - Legacy "major" LSM selection
+>   * @str: kernel command line parameter
+> @@ -458,3 +479,71 @@ int __init security_init(void)
+>  
+>  	return 0;
+>  }
+> +
+> +/**
+> + * security_initcall_pure - Run the LSM pure initcalls
+> + */
+> +static int __init security_initcall_pure(void)
+> +{
+> +	return lsm_initcall(pure);
+> +}
+> +pure_initcall(security_initcall_pure);
+> +
+> +/**
+> + * security_initcall_early - Run the LSM early initcalls
+> + */
+> +static int __init security_initcall_early(void)
+> +{
+> +	return lsm_initcall(early);
+> +}
+> +early_initcall(security_initcall_early);
+> +
+> +/**
+> + * security_initcall_core - Run the LSM core initcalls
+> + */
+> +static int __init security_initcall_core(void)
+> +{
+> +	return lsm_initcall(core);
+> +}
+> +core_initcall(security_initcall_core);
+> +
+> +/**
+> + * security_initcall_subsys - Run the LSM subsys initcalls
+> + */
+> +static int __init security_initcall_subsys(void)
+> +{
+> +	return lsm_initcall(subsys);
+> +}
+> +subsys_initcall(security_initcall_subsys);
+> +
+> +/**
+> + * security_initcall_fs - Run the LSM fs initcalls
+> + */
+> +static int __init security_initcall_fs(void)
+> +{
+> +	return lsm_initcall(fs);
+> +}
+> +fs_initcall(security_initcall_fs);
+> +
+> +/**
+> + * security_initcall_device - Run the LSM device initcalls
+> + */
+> +static int __init security_initcall_device(void)
+> +{
+> +	return lsm_initcall(device);
+> +}
+> +device_initcall(security_initcall_device);
+> +
+> +/**
+> + * security_initcall_late - Run the LSM late initcalls
+> + */
+> +static int __init security_initcall_late(void)
+> +{
+> +	int rc;
+> +
+> +	rc = lsm_initcall(late);
+> +	lsm_pr_dbg("all enabled LSMs fully activated\n");
+> +
+> +	return rc;
+> +}
+> +late_initcall(security_initcall_late);
 
-The first two patches look good to me. The only thing here is I would
-like to see the same option for checkmodule and please update the man
-pages.
+You'd need a new place for the lsm_pr_dbg, but these are all just
+copy/paste. These could be macro-ified too?
 
-Thanks,
-Jim
+#define define_lsm_initcall(level)			\
+static int __init security_initcall_##level(void)	\
+{							\
+	return lsm_initcall(level);			\
+}							\
+level##_initcall(security_initcall_##level)
+
+define_lsm_initcall(pure);
+define_lsm_initcall(early);
+define_lsm_initcall(core);
+define_lsm_initcall(subsys);
+define_lsm_initcall(fs);
+define_lsm_initcall(device);
+define_lsm_initcall(late);
+
+I'm not sure exposing the kerndoc for them is worth open-coding them?
+
+And, actually, it's just a macro calling a macro. You could just combine
+them? i.e. turn lsm_initcall() into:
+
+#define define_lsm_initcall(level)				\
+static int __init security_initcall_##level(void)		\
+{	 							\
+	int _r, _rc = 0;					\
+	struct lsm_info **_lp, *_l; 				\
+	...
+	return _rc;						\
+}								\
+level##_initcall(security_initcall_##level)
+
+
+But, I like it either way.
+
+Reviewed-by: Kees Cook <kees@kernel.org>
+
+-- 
+Kees Cook
