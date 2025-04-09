@@ -1,88 +1,71 @@
-Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E534224FD
-	for <selinux@vger.kernel.org>; Wed,  9 Apr 2025 12:59:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDD95172767;
+	Wed,  9 Apr 2025 13:49:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744203590; cv=none; b=gdZ//Suw0Leug/V5vWsOG4QlOVAVMoUy9FyYajaGsg53H3qzlh38kp1irg1TVAas3DvvhO6Z1mQSYU1IdW6sM1hL7RclD66OsN3iDEpJOY5eUKGz46HhEa8MIC7iIlHhwOjl4SXHFBKo+665+h+SABY92P14BvGqgLuNw/AjLEU=
+	t=1744206592; cv=none; b=W0LERsmoTTw1d5HcQ2lI3ZmA9rmzYrk6WX7BIIxwQEA61+hSzxVRlSvlszhmGQVQsAJYGpU4P+TiLleMth5M4veWpLoS5lw5HN3HvetAOQAmvzU3uX5vd4MA/VYZt0sm5TlPd/G+Pua/0kqM3s/IC5ZEguTfshjEIwLFZ+KwoRQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744203590; c=relaxed/simple;
-	bh=VJRfn4XK4d2LZvpSerBaeDr4X9cybsDaJVOEblQ3YZo=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=a1/6iWkZFP3w3Q5ZFjz6BAnLznFU3CV0J0D7zai8q0to+54JmMWLwehaXwNNuZ6+6btu2L2SNoRrXdcHq3PEL3jVE14wD143Hle/VWsxwoYbQg2Vby08O2xBpir23mKY4OPOZk7jk70QVo3pKZ2OZC+g/TOVI4mJG8K728Ci4YQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e6tmAl8M; arc=none smtp.client-ip=209.85.210.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1744206592; c=relaxed/simple;
+	bh=OYf0UFBbqCo6CLjwr/J0wXSIXXNTgsDA387uekNdmbM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=QmT/2/CeGgyOk69sxdJ1qajyjbkVI5VhMG5xrZuKZm+5NuojkMz7nHN+0c2zOOAVboSwUkTgwvrV/NlrR0v71XbSKUdgmNjzKtTK2dZHggahUq5oyoVwM90YVkRJpXZFNJFmoEb5liwBZVGC6xxduoRfKfFBLCRG6Hs48iWMsl8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cVSQyr4B; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e6tmAl8M"
-Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-739be717eddso5227581b3a.2
-        for <selinux@vger.kernel.org>; Wed, 09 Apr 2025 05:59:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744203588; x=1744808388; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=VJRfn4XK4d2LZvpSerBaeDr4X9cybsDaJVOEblQ3YZo=;
-        b=e6tmAl8MKSOIanQpNBJOVWAbZtDbNPrm1rCcULt60Igw8Kp2At2n2sr1KGYlCrDZ+S
-         mTEMSwKpC3bXQ1dOsilUs8qWkl5KPLhkXlmLOcy45U5b4kDqGg6Voh2vzwbCJpWLIAo9
-         5fo/Ew9lGfd3RhvbA9FKlmBWmWCPS6/IySnz9VUtRd0Nwt+yF0fJrgA/B4ISS8oXd1WK
-         g7iquk16anL+XRUIpTYpDuaPRxXhLhngtg8gKj5wOKEa7Z4lNimTbl/6aenHfRWZ6GWn
-         nbkSZN83HcFwAoNw5mDgTnwFSwgLHce2+9NX/hGD8yYKXdoV++EwTqO+bJIBwuA1lx7r
-         aGpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744203588; x=1744808388;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=VJRfn4XK4d2LZvpSerBaeDr4X9cybsDaJVOEblQ3YZo=;
-        b=YRrTBqC2aN4D0jSlCXLkaGX6+uJpjel2069jwLgZn7qOUPx9NZA5391N5Wtg0Ey5C5
-         tSeRSKO05Z3QSV2GONZ/yDvQ0VEl241FA3vaoWKZjrozZY09Sy03PPuz/xuI2RI6j26p
-         OtRDg99bk3xHUIAgx5FxJsTMVLdnMikzKWRkQRbqJ40bqDJSXcznkgsZ6H+ODQKIu81B
-         2UbMwzWGSIFu9HFi6PkUg/FWCUEEMBsw0Xi4UL3ociwC17Rdf395JAiRz7bq+LvjDv3j
-         BiLEyyjaHSxzff4kWfs6gj1U7PCYIVLZ4Gyed5y42v/v6TsKT2B7iXW1FOTdhaYX6Vep
-         tIMg==
-X-Gm-Message-State: AOJu0YwA+F5c6yLIC7kpuopKUq61LT9HrsB8kLVGPO2r7Wcian4mfbGB
-	bvB3WMq34kfkt6VRQfoeR+/gMTg8GKCR4vRntUbQ6/MEVWB/9t3oR3IKGU/i0bYCaMGB94N5V7E
-	vCHkWlY5VLgsRdYlAYJ6UrW20yM5xnV45f3hoEQ==
-X-Gm-Gg: ASbGncvnxlQtG1Y8N2Bi6cOGMQQiy+eu/1HoniXLTq2lJ6m6kFHTi4lgmP9Vg+vZSzH
-	gE0Okn0B9jqtMzcPqt6RkU5dQdwLl4WWAghaReK1zFlOHj2bNxwWsdNYQNm+/QJ6MRLNXZLT45S
-	Vpk2Gk/nIgP5yaBWT4Z653
-X-Google-Smtp-Source: AGHT+IHscWwCaaHw0mvkrUSrL2QzlUg3mwD1Ls4tKgS0rt4KM1cElP6Y2nEgHE+5n8z8MABYED4ffWgHMCyEl2qEQ+0=
-X-Received: by 2002:a05:6a00:114f:b0:736:a540:c9ad with SMTP id
- d2e1a72fcca58-73bae550e20mr3656832b3a.20.1744203588007; Wed, 09 Apr 2025
- 05:59:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cVSQyr4B"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1401C4CEE2;
+	Wed,  9 Apr 2025 13:49:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1744206591;
+	bh=OYf0UFBbqCo6CLjwr/J0wXSIXXNTgsDA387uekNdmbM=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=cVSQyr4BdDbHE8rV74/CAaqbtv7GyM+/pVrJwUzI4IqJzZAF66B+gmUBYt8a3/RQM
+	 IiHpKUggEXL90TVqWcy9UBD9aSESTsdZ97ir4BhqBMa7fk3Tb18I4mVpNW1yx3bLLn
+	 HycTOI76+iw64G6yLcP3yjt7JiWUMftkKEw2UQhzG8dzMepKVIi+vTIarqnmeNCgpI
+	 JgxTG86DF/s3Nt1vxrAZKJ1ni2Kxk659yUbpBCCbJLBicWnSVNWjxIMhMA6H0uzrB6
+	 ZLvcaPo+Au4Z9pPM//ub6dnTbFrBB4FCOcIVzkM7CN2ZS8aQh+FSrRgqX10ca86KwZ
+	 xMpsL0zjQ17cQ==
+Date: Wed, 9 Apr 2025 06:49:49 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+ <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
+ <horms@kernel.org>, David Ahern <dsahern@kernel.org>, "Neal Cardwell"
+ <ncardwell@google.com>, Willem de Bruijn <willemb@google.com>, "Pablo Neira
+ Ayuso" <pablo@netfilter.org>, Jozsef Kadlecsik <kadlec@netfilter.org>, Paul
+ Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, "Serge E.
+ Hallyn" <serge@hallyn.com>, Casey Schaufler <casey@schaufler-ca.com>,
+ Kuniyuki Iwashima <kuni1840@gmail.com>, <netdev@vger.kernel.org>,
+ <selinux@vger.kernel.org>, <linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH v2 net-next 0/4] net: Retire DCCP socket.
+Message-ID: <20250409064949.6c992d15@kernel.org>
+In-Reply-To: <20250409003014.19697-1-kuniyu@amazon.com>
+References: <20250409003014.19697-1-kuniyu@amazon.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: geng sun <sun.gengeration.sun@gmail.com>
-Date: Wed, 9 Apr 2025 20:59:37 +0800
-X-Gm-Features: ATxdqUE0coIdvAsQZOt6CTDk6Hm5USKolN5UUsI3TiZpvcyaeTdJMTBuh5UWsg0
-Message-ID: <CAGraAqv-rRTqtosNDu_T+eZ-YDVB_V3FR=t63S9BzfRU2OHmSg@mail.gmail.com>
-Subject: context label has been changed problem
-To: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Dear SELinux developers,
+On Tue, 8 Apr 2025 17:29:07 -0700 Kuniyuki Iwashima wrote:
+> As announced by commit b144fcaf46d4 ("dccp: Print deprecation
+> notice."), it's time to remove DCCP socket.
+> 
+> The patch 2 removes net/dccp, LSM code, doc, and etc, leaving
+> DCCP netfilter modules.
+> 
+> The patch 3 unexports shared functions for DCCP, and the patch 4
+> renames tcp_or_dccp_get_hashinfo() to tcp_get_hashinfo().
+> 
+> We can do more cleanup; for example, remove IPPROTO_TCP checks in
+> __inet6?_check_established(), remove __module_get() for twsk,
+> remove timewait_sock_ops.twsk_destructor(), etc, but it will be
+> more of TCP stuff, so I'll defer to a later series.
 
-There is a problem in Android. When the system boots into the kernel,
-the symlink file device_info was initially labeled as:
-"u:object_r:sysfs_deviceinfo:s0 0 1970-04-09 06:12 device_info ->
-../../devices/virtual/deviceinfo/device_info"
-
-by the following rule:
-/sys/class/deviceinfo(/*)? u:object_r:sysfs_deviceinfo:s0
-
-However, after 10=E2=80=9320 minutes, we observed that the SELinux context =
-changed to:
-"u:object_r:sysfs:s0 0 1970-01-17 09:43 device_info ->
-../../devices/virtual/deviceinfo/device_info"
-
-Additionally, the parent directory was not changed:
-"u:object_r:sysfs_deviceinfo:s0 0 2025-03-24 08:26 /sys/class/deviceinfo"
-The GKI kernel tag we are using is android14-6.1-2024-12_r1.
-Do you have any ideas about this problem?
-
-Thanks.
+So it builds now but appears to break 1/3rd of the selftests :)
+-- 
+pw-bot: cr
