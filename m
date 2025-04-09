@@ -1,207 +1,88 @@
-Received: from smtp-fw-9106.amazon.com (smtp-fw-9106.amazon.com [207.171.188.206])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDC9126AF6;
-	Wed,  9 Apr 2025 00:32:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.171.188.206
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E534224FD
+	for <selinux@vger.kernel.org>; Wed,  9 Apr 2025 12:59:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744158751; cv=none; b=YVc78N47N43PliUF4lDWqphMml9kQbdCTJnI2g1xsffX1HwEsITKnjDOD66u9q9JZPd+SpjGBJAzFV5wQpzC4uKZ4ke5tTX2SWY+LWeyVnBHjM/RsMFZnRoUQ1M69iNLa8thUDncLdGsvXClUYuK/kD3kX80H6VZX5Xn4TmfSQc=
+	t=1744203590; cv=none; b=gdZ//Suw0Leug/V5vWsOG4QlOVAVMoUy9FyYajaGsg53H3qzlh38kp1irg1TVAas3DvvhO6Z1mQSYU1IdW6sM1hL7RclD66OsN3iDEpJOY5eUKGz46HhEa8MIC7iIlHhwOjl4SXHFBKo+665+h+SABY92P14BvGqgLuNw/AjLEU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744158751; c=relaxed/simple;
-	bh=Wjo7zaf/2eJQlNtPQf299lx7i2pW1ib1d6Jua15gID0=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=olTJ4a0bmvB4aBQgH700JJQoh2S2P0YQrOur6EdS8PVihzDdwROrcJLGf6/24j+r0by4jqHB6PiIpO5R14wh+SOjH5dDjaJ75XYuhPmiNi0HCIQJzbHvA1EWktgyIaIeooCg74v0dAg6h0ymRc7xQ5WgrpxnxjQauQTV8SlXS4s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=e7IbFliP; arc=none smtp.client-ip=207.171.188.206
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1744203590; c=relaxed/simple;
+	bh=VJRfn4XK4d2LZvpSerBaeDr4X9cybsDaJVOEblQ3YZo=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=a1/6iWkZFP3w3Q5ZFjz6BAnLznFU3CV0J0D7zai8q0to+54JmMWLwehaXwNNuZ6+6btu2L2SNoRrXdcHq3PEL3jVE14wD143Hle/VWsxwoYbQg2Vby08O2xBpir23mKY4OPOZk7jk70QVo3pKZ2OZC+g/TOVI4mJG8K728Ci4YQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e6tmAl8M; arc=none smtp.client-ip=209.85.210.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="e7IbFliP"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e6tmAl8M"
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-739be717eddso5227581b3a.2
+        for <selinux@vger.kernel.org>; Wed, 09 Apr 2025 05:59:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1744158750; x=1775694750;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=LBEMm5OooTEDmVd7oh39SDGI97foq73Nnmjcv8TLzPw=;
-  b=e7IbFliPFKWQpU69pLTd66teVcpCVXDx1g8b3WnkqvxeKfrtKt/R2a06
-   Q7eqWNKd0MZahLyGuF8tnaQ+MUfEmaLu75jUNF+knt5GVHAg2L2eH+bnt
-   ZwFWJvFyDAz0joJe11P8WgUQLUswiscvGcckVbiM9wzqKDJPGt3BaryJU
-   g=;
-X-IronPort-AV: E=Sophos;i="6.15,199,1739836800"; 
-   d="scan'208";a="814495650"
-Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.210])
-  by smtp-border-fw-9106.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Apr 2025 00:32:29 +0000
-Received: from EX19MTAUWB002.ant.amazon.com [10.0.7.35:11950]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.8.63:2525] with esmtp (Farcaster)
- id a0e848c7-fe84-4151-88d1-f988161098c3; Wed, 9 Apr 2025 00:32:28 +0000 (UTC)
-X-Farcaster-Flow-ID: a0e848c7-fe84-4151-88d1-f988161098c3
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWB002.ant.amazon.com (10.250.64.231) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Wed, 9 Apr 2025 00:32:26 +0000
-Received: from 6c7e67bfbae3.amazon.com (10.106.100.5) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Wed, 9 Apr 2025 00:32:21 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>
-CC: Simon Horman <horms@kernel.org>, David Ahern <dsahern@kernel.org>, "Neal
- Cardwell" <ncardwell@google.com>, Willem de Bruijn <willemb@google.com>,
-	"Pablo Neira Ayuso" <pablo@netfilter.org>, Jozsef Kadlecsik
-	<kadlec@netfilter.org>, Paul Moore <paul@paul-moore.com>, James Morris
-	<jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Casey Schaufler
-	<casey@schaufler-ca.com>, Kuniyuki Iwashima <kuniyu@amazon.com>, Kuniyuki
- Iwashima <kuni1840@gmail.com>, <netdev@vger.kernel.org>,
-	<selinux@vger.kernel.org>, <linux-security-module@vger.kernel.org>
-Subject: [PATCH v2 net-next 4/4] tcp: Rename tcp_or_dccp_get_hashinfo().
-Date: Tue, 8 Apr 2025 17:29:11 -0700
-Message-ID: <20250409003014.19697-5-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250409003014.19697-1-kuniyu@amazon.com>
-References: <20250409003014.19697-1-kuniyu@amazon.com>
+        d=gmail.com; s=20230601; t=1744203588; x=1744808388; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=VJRfn4XK4d2LZvpSerBaeDr4X9cybsDaJVOEblQ3YZo=;
+        b=e6tmAl8MKSOIanQpNBJOVWAbZtDbNPrm1rCcULt60Igw8Kp2At2n2sr1KGYlCrDZ+S
+         mTEMSwKpC3bXQ1dOsilUs8qWkl5KPLhkXlmLOcy45U5b4kDqGg6Voh2vzwbCJpWLIAo9
+         5fo/Ew9lGfd3RhvbA9FKlmBWmWCPS6/IySnz9VUtRd0Nwt+yF0fJrgA/B4ISS8oXd1WK
+         g7iquk16anL+XRUIpTYpDuaPRxXhLhngtg8gKj5wOKEa7Z4lNimTbl/6aenHfRWZ6GWn
+         nbkSZN83HcFwAoNw5mDgTnwFSwgLHce2+9NX/hGD8yYKXdoV++EwTqO+bJIBwuA1lx7r
+         aGpQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744203588; x=1744808388;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=VJRfn4XK4d2LZvpSerBaeDr4X9cybsDaJVOEblQ3YZo=;
+        b=YRrTBqC2aN4D0jSlCXLkaGX6+uJpjel2069jwLgZn7qOUPx9NZA5391N5Wtg0Ey5C5
+         tSeRSKO05Z3QSV2GONZ/yDvQ0VEl241FA3vaoWKZjrozZY09Sy03PPuz/xuI2RI6j26p
+         OtRDg99bk3xHUIAgx5FxJsTMVLdnMikzKWRkQRbqJ40bqDJSXcznkgsZ6H+ODQKIu81B
+         2UbMwzWGSIFu9HFi6PkUg/FWCUEEMBsw0Xi4UL3ociwC17Rdf395JAiRz7bq+LvjDv3j
+         BiLEyyjaHSxzff4kWfs6gj1U7PCYIVLZ4Gyed5y42v/v6TsKT2B7iXW1FOTdhaYX6Vep
+         tIMg==
+X-Gm-Message-State: AOJu0YwA+F5c6yLIC7kpuopKUq61LT9HrsB8kLVGPO2r7Wcian4mfbGB
+	bvB3WMq34kfkt6VRQfoeR+/gMTg8GKCR4vRntUbQ6/MEVWB/9t3oR3IKGU/i0bYCaMGB94N5V7E
+	vCHkWlY5VLgsRdYlAYJ6UrW20yM5xnV45f3hoEQ==
+X-Gm-Gg: ASbGncvnxlQtG1Y8N2Bi6cOGMQQiy+eu/1HoniXLTq2lJ6m6kFHTi4lgmP9Vg+vZSzH
+	gE0Okn0B9jqtMzcPqt6RkU5dQdwLl4WWAghaReK1zFlOHj2bNxwWsdNYQNm+/QJ6MRLNXZLT45S
+	Vpk2Gk/nIgP5yaBWT4Z653
+X-Google-Smtp-Source: AGHT+IHscWwCaaHw0mvkrUSrL2QzlUg3mwD1Ls4tKgS0rt4KM1cElP6Y2nEgHE+5n8z8MABYED4ffWgHMCyEl2qEQ+0=
+X-Received: by 2002:a05:6a00:114f:b0:736:a540:c9ad with SMTP id
+ d2e1a72fcca58-73bae550e20mr3656832b3a.20.1744203588007; Wed, 09 Apr 2025
+ 05:59:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D042UWA004.ant.amazon.com (10.13.139.16) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
+From: geng sun <sun.gengeration.sun@gmail.com>
+Date: Wed, 9 Apr 2025 20:59:37 +0800
+X-Gm-Features: ATxdqUE0coIdvAsQZOt6CTDk6Hm5USKolN5UUsI3TiZpvcyaeTdJMTBuh5UWsg0
+Message-ID: <CAGraAqv-rRTqtosNDu_T+eZ-YDVB_V3FR=t63S9BzfRU2OHmSg@mail.gmail.com>
+Subject: context label has been changed problem
+To: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-DCCP was removed, so tcp_or_dccp_get_hashinfo() should be renamed.
+Dear SELinux developers,
 
-Let's rename it to tcp_get_hashinfo().
+There is a problem in Android. When the system boots into the kernel,
+the symlink file device_info was initially labeled as:
+"u:object_r:sysfs_deviceinfo:s0 0 1970-04-09 06:12 device_info ->
+../../devices/virtual/deviceinfo/device_info"
 
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
----
- include/net/inet_hashtables.h   |  3 +--
- net/ipv4/inet_connection_sock.c |  9 +++++----
- net/ipv4/inet_hashtables.c      | 14 +++++++-------
- 3 files changed, 13 insertions(+), 13 deletions(-)
+by the following rule:
+/sys/class/deviceinfo(/*)? u:object_r:sysfs_deviceinfo:s0
 
-diff --git a/include/net/inet_hashtables.h b/include/net/inet_hashtables.h
-index d172b64a6320..4564b5d348b1 100644
---- a/include/net/inet_hashtables.h
-+++ b/include/net/inet_hashtables.h
-@@ -175,9 +175,8 @@ struct inet_hashinfo {
- 	bool				pernet;
- } ____cacheline_aligned_in_smp;
- 
--static inline struct inet_hashinfo *tcp_or_dccp_get_hashinfo(const struct sock *sk)
-+static inline struct inet_hashinfo *tcp_get_hashinfo(const struct sock *sk)
- {
--	/* TODO: rename function */
- 	return sock_net(sk)->ipv4.tcp_death_row.hashinfo;
- }
- 
-diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
-index a195203e7eef..20915895bdaa 100644
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -330,7 +330,7 @@ inet_csk_find_open_port(const struct sock *sk, struct inet_bind_bucket **tb_ret,
- 			struct inet_bind2_bucket **tb2_ret,
- 			struct inet_bind_hashbucket **head2_ret, int *port_ret)
- {
--	struct inet_hashinfo *hinfo = tcp_or_dccp_get_hashinfo(sk);
-+	struct inet_hashinfo *hinfo = tcp_get_hashinfo(sk);
- 	int i, low, high, attempt_half, port, l3mdev;
- 	struct inet_bind_hashbucket *head, *head2;
- 	struct net *net = sock_net(sk);
-@@ -512,10 +512,10 @@ void inet_csk_update_fastreuse(struct inet_bind_bucket *tb,
-  */
- int inet_csk_get_port(struct sock *sk, unsigned short snum)
- {
--	struct inet_hashinfo *hinfo = tcp_or_dccp_get_hashinfo(sk);
- 	bool reuse = sk->sk_reuse && sk->sk_state != TCP_LISTEN;
- 	bool found_port = false, check_bind_conflict = true;
- 	bool bhash_created = false, bhash2_created = false;
-+	struct inet_hashinfo *hinfo = tcp_get_hashinfo(sk);
- 	int ret = -EADDRINUSE, port = snum, l3mdev;
- 	struct inet_bind_hashbucket *head, *head2;
- 	struct inet_bind2_bucket *tb2 = NULL;
-@@ -1022,9 +1022,10 @@ static bool reqsk_queue_unlink(struct request_sock *req)
- 	bool found = false;
- 
- 	if (sk_hashed(sk)) {
--		struct inet_hashinfo *hashinfo = tcp_or_dccp_get_hashinfo(sk);
--		spinlock_t *lock = inet_ehash_lockp(hashinfo, req->rsk_hash);
-+		struct inet_hashinfo *hashinfo = tcp_get_hashinfo(sk);
-+		spinlock_t *lock;
- 
-+		lock = inet_ehash_lockp(hashinfo, req->rsk_hash);
- 		spin_lock(lock);
- 		found = __sk_nulls_del_node_init_rcu(sk);
- 		spin_unlock(lock);
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index d1960701a3b4..da85cc30e382 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -176,7 +176,7 @@ void inet_bind_hash(struct sock *sk, struct inet_bind_bucket *tb,
-  */
- static void __inet_put_port(struct sock *sk)
- {
--	struct inet_hashinfo *hashinfo = tcp_or_dccp_get_hashinfo(sk);
-+	struct inet_hashinfo *hashinfo = tcp_get_hashinfo(sk);
- 	struct inet_bind_hashbucket *head, *head2;
- 	struct net *net = sock_net(sk);
- 	struct inet_bind_bucket *tb;
-@@ -215,7 +215,7 @@ EXPORT_SYMBOL(inet_put_port);
- 
- int __inet_inherit_port(const struct sock *sk, struct sock *child)
- {
--	struct inet_hashinfo *table = tcp_or_dccp_get_hashinfo(sk);
-+	struct inet_hashinfo *table = tcp_get_hashinfo(sk);
- 	unsigned short port = inet_sk(child)->inet_num;
- 	struct inet_bind_hashbucket *head, *head2;
- 	bool created_inet_bind_bucket = false;
-@@ -668,7 +668,7 @@ static bool inet_ehash_lookup_by_sk(struct sock *sk,
-  */
- bool inet_ehash_insert(struct sock *sk, struct sock *osk, bool *found_dup_sk)
- {
--	struct inet_hashinfo *hashinfo = tcp_or_dccp_get_hashinfo(sk);
-+	struct inet_hashinfo *hashinfo = tcp_get_hashinfo(sk);
- 	struct inet_ehash_bucket *head;
- 	struct hlist_nulls_head *list;
- 	spinlock_t *lock;
-@@ -740,7 +740,7 @@ static int inet_reuseport_add_sock(struct sock *sk,
- 
- int __inet_hash(struct sock *sk, struct sock *osk)
- {
--	struct inet_hashinfo *hashinfo = tcp_or_dccp_get_hashinfo(sk);
-+	struct inet_hashinfo *hashinfo = tcp_get_hashinfo(sk);
- 	struct inet_listen_hashbucket *ilb2;
- 	int err = 0;
- 
-@@ -785,7 +785,7 @@ int inet_hash(struct sock *sk)
- 
- void inet_unhash(struct sock *sk)
- {
--	struct inet_hashinfo *hashinfo = tcp_or_dccp_get_hashinfo(sk);
-+	struct inet_hashinfo *hashinfo = tcp_get_hashinfo(sk);
- 
- 	if (sk_unhashed(sk))
- 		return;
-@@ -873,7 +873,7 @@ inet_bind2_bucket_find(const struct inet_bind_hashbucket *head, const struct net
- struct inet_bind_hashbucket *
- inet_bhash2_addr_any_hashbucket(const struct sock *sk, const struct net *net, int port)
- {
--	struct inet_hashinfo *hinfo = tcp_or_dccp_get_hashinfo(sk);
-+	struct inet_hashinfo *hinfo = tcp_get_hashinfo(sk);
- 	u32 hash;
- 
- #if IS_ENABLED(CONFIG_IPV6)
-@@ -901,7 +901,7 @@ static void inet_update_saddr(struct sock *sk, void *saddr, int family)
- 
- static int __inet_bhash2_update_saddr(struct sock *sk, void *saddr, int family, bool reset)
- {
--	struct inet_hashinfo *hinfo = tcp_or_dccp_get_hashinfo(sk);
-+	struct inet_hashinfo *hinfo = tcp_get_hashinfo(sk);
- 	struct inet_bind_hashbucket *head, *head2;
- 	struct inet_bind2_bucket *tb2, *new_tb2;
- 	int l3mdev = inet_sk_bound_l3mdev(sk);
--- 
-2.49.0
+However, after 10=E2=80=9320 minutes, we observed that the SELinux context =
+changed to:
+"u:object_r:sysfs:s0 0 1970-01-17 09:43 device_info ->
+../../devices/virtual/deviceinfo/device_info"
 
+Additionally, the parent directory was not changed:
+"u:object_r:sysfs_deviceinfo:s0 0 2025-03-24 08:26 /sys/class/deviceinfo"
+The GKI kernel tag we are using is android14-6.1-2024-12_r1.
+Do you have any ideas about this problem?
+
+Thanks.
