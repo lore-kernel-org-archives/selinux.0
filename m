@@ -1,144 +1,231 @@
-Received: from sonic307-15.consmr.mail.ne1.yahoo.com (sonic307-15.consmr.mail.ne1.yahoo.com [66.163.190.38])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-fw-9106.amazon.com (smtp-fw-9106.amazon.com [207.171.188.206])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A31E22ACE3
-	for <selinux@vger.kernel.org>; Tue,  8 Apr 2025 16:58:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.190.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1301FBE4E;
+	Wed,  9 Apr 2025 00:30:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.171.188.206
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744131516; cv=none; b=gLDL7KhUiBt9CmOnFwNxR3SXXVRJ3Ftdh4XgElWRMuWVwpH5yFeuEgPVliU9LoYBnRCKkM7Xi5YBAJ/p03GJyqL7+pn2bPLHr7iMZMZE85QfW+FFiBrDh0SsqA9VJwvRhYmvIzVAp2W8ofbTzWvF0n2OG/rJ1I0MdMB4YARApBY=
+	t=1744158647; cv=none; b=gC0qge3JgJMCkbcneGg7krP18MDRzPtqb4/8XY31y1LVAJz+K3IVvJCfONQzCEfqX93byqbIo1k8BCXfGoHeHs6jEtz9WGlf7Z/6P11wyAo/m7Yz9exHzryZkEC97j+3Egt5Mx9wtWS+JIotfz4bup2jcJiZ+NuFidFJfotaWi0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744131516; c=relaxed/simple;
-	bh=e3En4V92v80XJLKjWfPt/hAlZ4Q6SPESKtwDek/YWm8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TSJAazYujERIrjoeTkhIAiJti4TqL4MHTV3skSpaAxFai/fRvP4/45i4rPkvVFCulcMXfzO72ututBWWUIL5BijchHUHQROwrDUUZ3GeH4h5T0PByU4As94+uCpQCx/PCoVRirhu5zgUwC5kBdN2/suZKhIlsGL04Fq0DUA+Obw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=TDG/w3Uw; arc=none smtp.client-ip=66.163.190.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1744158647; c=relaxed/simple;
+	bh=Kkr41MKLfUV3nlYB7QaLWfvVfh+vxT9CsFdYykmr1R0=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=chmfjVraMlFy/1t13kKPYsYdti/7dqdXTyaViohXx9fOpu302GFdETIiGC31t07uW2VksVnahJp5KfjrjhiCqax7rj1g1HdPWDJglahTRLG84vVSS9fnsSPQq5Zam9y1FkmqnfkagZYicJyeO4MsGStCJTVEfFeIEUpJV+/W5WA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=cfsSPrz7; arc=none smtp.client-ip=207.171.188.206
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="TDG/w3Uw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1744131513; bh=e3En4V92v80XJLKjWfPt/hAlZ4Q6SPESKtwDek/YWm8=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=TDG/w3UwUkzCeUjjCeIHyfAIlfXI85LA6M2Z6c36HPhDCEwjUT2fpkBoE7aJLFzMYURVN0SPnAAUV7TrEC3nNfsvyogVcObimp/E3vPCD25/WxdgUW9n6KrWHMrPNt4moVt6iMJkRcwu4YPt0xscLaF38/W4DBbtJlTLZIBRqhcyoDE729O3wKzc5sw10LC2ybbCpsQAMN8PcOkpPUeAeyMh0H8LidqXy/4g8ASJ65yI0M49A504p1OqLQMgDhR5mtyLhdYhGjdSs+qrmQ4/7ju8EyoWb3qRMvCzYWZ4wptm5MuLRMKIC7Mco/zQ8SLNXCTtB2IzvWt/zouMNF/KTg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1744131513; bh=dw/8qBSlogJK/fWyvLijp36dL3j3qdtoe0N5zrxfj59=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=hT6MInJWG4KT5QhTYBlsg8W06ApRbFPXpdA9pVqWbgCp/Kq1l+EbXsJ7qa5LEzI7KXuVmaHyDaEjKmvjQlpBqq0gfN2bsMHeQ7kzb+ROprpsNdbs604rq7gr6XTSK17f7Y/URHq5p3M3R8FKAtdKCvEfe1o21QJtnOC5Zgiyrv7QoVAtogpCXN/rPCT8RjpyhtJP/bGc1sRwzLdlQcxiy4qege/jI+/OQOKUEwrKnZSIcJ3jnYqTx3vk0kMlgThRrnNKIZ0zOGnL7MbvrupkeIo/Dt8Nzn5jGLIL0UOXYdpPyHd4KsyRVg5K1/xncKwzIikm4QLEoN7SkO4v4Bd6RQ==
-X-YMail-OSG: ixmY0nEVM1kgvi8x1IuO13414Urb6wsNy8bLgywNWmYUHZUoz_muP3LWtR9bRu4
- NwgJ8Wfqm9.xTjpFXHXcoRs02JoGKuUT9tyZSawB8zc64cXDSeAHvpyQNdU4Vd3bfTIy7yPjtbR_
- TFkeLlqtBY5emk5mDcJom3ClGj7hJGN846MdmrE3v.Q_oTMZ7CU51B1mcXChASJ9SitlCY7OszjC
- MZFh395IRGOhAwZ8zAmmSOhh6KifA1qbU3faww27U7_9qeBDKTv4GQ_v8.Ry94SgT9nD1VlvT0mc
- nc.hyb51SxwVAyqgwn2z1AacPQd4O02n.QBTpJ0Qmz.B6jyzgQYFL9J0V.Zgqns0sG0WlB33avY9
- vq6mwM14mUvnITZ6TKZhnnG263UT3tOJT_Np6tSVkKfO7fXp_HsnRmPDpvv7LlUxXXxUDw4b_ZCp
- nUl9gQKXf0CammYmBbDdbfKsSQK.7_PGZDbNcAa06QwrpbFs8FCIBnYdwjf3ksJiaC46XRZX70ME
- Qlwe2.GIPz.uiEaJf5g2ImXU7bzlVwAFK_nE2dR4SvcTBUdeH4MUfhJe5UXKADip7oOshj49s5Hn
- 4x7LF.fkveqWzsnWPAKN2fWOvu4do0FaAGCXx4ezye3n4YWRgqWNhpkVHlkqKuYuHvUKoTLGp4qR
- CbZ5VUNI0aLpm2mHh8CWRdBddOEr1yDaURIdWqTOB12LHNJZRO89TzMK4AOIDU6.UJ4jPQWCsZb.
- 86aTNSc17U_cDX_t0jzoDDHpCNlGjQfN8rLOAW3m3wAZ7PwFTi.3X.7WaagWE487T.G45yOM1sPK
- XsEBfvNTP5CN149oiGNka6RH72pq8_ZnRhzhvwAsNLTLsAtSHj1Ih9vdtNbVomPxEVA4Zx86vk6x
- 7DGhbUpFdXuqVENlqoL.LUBmNdC6xKqb5rSi3yLO9NRhJYpZV7P2BB_A1T0_0rOLsT7egrtvzTcK
- p2Ga5f4b48aEK.1NaAw2C_l2IKPb1WA864c65Em_OrbW1UNEGl6tDBsBBUJxapd5InXn5axhYNLH
- crkPImYfUBwckFaFc2eJxIvwCPveoE8f_XYIpmrkeWfAhE0aYwZbNy6vcl98BmG3YTBHNVMUJHES
- wY.T6amt8MnG5PnhtlZQnc49jg69eor6VVjyQNx2DHlC8Wky_K6DyIMk14D5CjTWcJBQO6_A9MiA
- rdJ3kyi4E1qYKlfAsNb9R46lazbTtD0HmvXh_eZYF3gcFeCtH3TwpHJdKSgT9NJ.HpbK1KtsoD2W
- CIyLBMuj3vfTeqMjBuWkBIAui_5daXVfJgbxcNrylvmkNKwn13lV35QA5UT9u75xz2kI3g68gNF2
- YiZAuLCDvKs1tkAgmIwCcNwjrFowuAA_eCukFN1ZP7cQjszIApzg6SzLenIT4hN_FZYT_WWdY6uR
- BlYdpqiD3uDq6aLMMweHLmDptSlISYY4ijkLQ1YPG0qF54ID2vVKARPHAqaAihkmpDsFDgfFeA1p
- dSYM_XsGxxKUJl1DtKr53k5Vl7d9_pWKKwY54Fug3xG8rfvcMGiSdEgZvZ2nF40x0ygiLTZDhE7I
- j2rlzB8ZGjbzb84b6rkrT.gbc0lG380jhzBK.gw2vJB6_I2txzNpXr5G25dUsZmiC1dcfYUTs8aQ
- 0c66Dav7ftijW0U87V1ojl3ER3N2iwfjDrOkptfZ3NcwuLCKfXdaD980FY57ijdW6wPf8onfFhID
- j0Q5E0GrKHfXCQA9xjDAQdASioXYGLEx.qtBfdcb4YCGi5w040_Kr.e1SSqaBmvALQl4w.RSjYof
- tBW78hZz1ZkipepeivDzyqpROtOngK6_06XFGEFm2U1O1gDLIgc5E_9G7O.84a4sGhaZ7gr2._Fm
- f6cDhnZetbowiYcAe3gWyOTQTrY1WryDI4ljFhwoa11BtKwu2fXpGQ0A6DdohUvtZhAEwp2qC.Ty
- rgdHOTS1ZK0Acnlba1MUCOw_VuONtxfe7dJpBqJbXw2Byd7XiIWXUf0kpMTsBes_kDQvR6X1VxVI
- YhnuPcxYigHcQ0QqKBSp4MNkNtDFGVINnio6uHr2gvUN4i3a58L9Ixi9lTWe.Smhx_peoanb7HEl
- 1zp_EncgPtReNkJDxS1UioAZHV8FKfw8bxkAhNMiThvv702jmM5Y1bSWviSq.o9pq.YMmdhufmet
- NJC0t_CSwEW5Yq2k79tgugHUoBAc69SYHCJbm6sKiT.Fxq6MWYzxdFTj4XGTAoo0kTskxacuwXYi
- Mxs0Lbu5R9iEpjdiZ4dD.0JYTA0OmIM.3zwDfmk0Sv4yO5Jb5ilDRdeVaxGZCkKk1lJqJKoJM
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 11940aed-117c-4b6c-871a-02bc0bae110a
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Tue, 8 Apr 2025 16:58:33 +0000
-Received: by hermes--production-gq1-6f8bfcd964-fl6ms (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID b13ff0137a9481d56fe33a5f709f2762;
-          Tue, 08 Apr 2025 16:28:07 +0000 (UTC)
-Message-ID: <2a13a228-01fb-442f-924a-702342618b2e@schaufler-ca.com>
-Date: Tue, 8 Apr 2025 09:28:05 -0700
+	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="cfsSPrz7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1744158646; x=1775694646;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=MPbizvZgv6pYIN320m0zxORHuUWeMTbiHbel6cpEpeQ=;
+  b=cfsSPrz7LBpMwy6rqDEZOz52K3iuJPv7QJ0019m3v4ny4RobpzJNV6G/
+   /SunwJLDPl+mZAiRzvrZnpzahvXP6FLyqEDXVy/VD7fDRM6KT2CSUfWjm
+   TaMPfuZUjQWvwiYk1XzsyDVLwz5mYYsNKKJOP7bpd3vCvVmnCmXJV/w7Y
+   Q=;
+X-IronPort-AV: E=Sophos;i="6.15,199,1739836800"; 
+   d="scan'208";a="814495354"
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.25.36.210])
+  by smtp-border-fw-9106.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Apr 2025 00:30:39 +0000
+Received: from EX19MTAUWB001.ant.amazon.com [10.0.38.20:37776]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.21.195:2525] with esmtp (Farcaster)
+ id 7de501ce-3ae9-4104-a5af-6c298916525d; Wed, 9 Apr 2025 00:30:38 +0000 (UTC)
+X-Farcaster-Flow-ID: 7de501ce-3ae9-4104-a5af-6c298916525d
+Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
+ EX19MTAUWB001.ant.amazon.com (10.250.64.248) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
+ Wed, 9 Apr 2025 00:30:38 +0000
+Received: from 6c7e67bfbae3.amazon.com (10.106.100.5) by
+ EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
+ Wed, 9 Apr 2025 00:30:33 +0000
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
+To: "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>
+CC: Simon Horman <horms@kernel.org>, David Ahern <dsahern@kernel.org>, "Neal
+ Cardwell" <ncardwell@google.com>, Willem de Bruijn <willemb@google.com>,
+	"Pablo Neira Ayuso" <pablo@netfilter.org>, Jozsef Kadlecsik
+	<kadlec@netfilter.org>, Paul Moore <paul@paul-moore.com>, James Morris
+	<jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Casey Schaufler
+	<casey@schaufler-ca.com>, Kuniyuki Iwashima <kuniyu@amazon.com>, Kuniyuki
+ Iwashima <kuni1840@gmail.com>, <netdev@vger.kernel.org>,
+	<selinux@vger.kernel.org>, <linux-security-module@vger.kernel.org>
+Subject: [PATCH v2 net-next 0/4] net: Retire DCCP socket.
+Date: Tue, 8 Apr 2025 17:29:07 -0700
+Message-ID: <20250409003014.19697-1-kuniyu@amazon.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 net-next 2/4] net: Retire DCCP.
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
- Paul Moore <paul@paul-moore.com>
-Cc: Kuniyuki Iwashima <kuniyu@amazon.com>, selinux@vger.kernel.org,
- linux-security-module@vger.kernel.org, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, David Ahern <dsahern@kernel.org>,
- Neal Cardwell <ncardwell@google.com>, Willem de Bruijn <willemb@google.com>,
- Pablo Neira Ayuso <pablo@netfilter.org>,
- Jozsef Kadlecsik <kadlec@netfilter.org>, James Morris <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>, Kuniyuki Iwashima
- <kuni1840@gmail.com>, netdev@vger.kernel.org,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20250407231823.95927-1-kuniyu@amazon.com>
- <20250407231823.95927-3-kuniyu@amazon.com>
- <CAHC9VhQCS-TfSL4cMfBu2GszHS8DVE05Z6FH-zPXV=EiH4ZHdg@mail.gmail.com>
- <cd8c8f91-336d-4dd2-b997-4f7581202e64@googlemail.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <cd8c8f91-336d-4dd2-b997-4f7581202e64@googlemail.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.23590 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Type: text/plain
+X-ClientProxiedBy: EX19D037UWB003.ant.amazon.com (10.13.138.115) To
+ EX19D004ANA001.ant.amazon.com (10.37.240.138)
 
-On 4/7/2025 10:22 PM, Christian Göttsche wrote:
-> Apr 8, 2025 03:35:15 Paul Moore <paul@paul-moore.com>:
->
->> On Mon, Apr 7, 2025 at 7:19 PM Kuniyuki Iwashima <kuniyu@amazon.com> wrote:
->>> DCCP was orphaned in 2021 by commit 054c4610bd05 ("MAINTAINERS: dccp:
->>> move Gerrit Renker to CREDITS"), which noted that the last maintainer
->>> had been inactive for five years.
->>>
->>> In recent years, it has become a playground for syzbot, and most changes
->>> to DCCP have been odd bug fixes triggered by syzbot.  Apart from that,
->>> the only changes have been driven by treewide or networking API updates
->>> or adjustments related to TCP.
->>>
->>> Thus, in 2023, we announced we would remove DCCP in 2025 via commit
->>> b144fcaf46d4 ("dccp: Print deprecation notice.").
->>>
->>> Since then, only one individual has contacted the netdev mailing list. [0]
->>>
->>> There is ongoing research for Multipath DCCP.  The repository is hosted
->>> on GitHub [1], and development is not taking place through the upstream
->>> community.  While the repository is published under the GPLv2 license,
->>> the scheduling part remains proprietary, with a LICENSE file [2] stating:
->>>
->>>   "This is not Open Source software."
->>>
->>> The researcher mentioned a plan to address the licensing issue, upstream
->>> the patches, and step up as a maintainer, but there has been no further
->>> communication since then.
->>>
->>> Maintaining DCCP for a decade without any real users has become a burden.
->>>
->>> Therefore, it's time to remove it.
->>>
->>> Removing DCCP will also provide significant benefits to TCP.  It allows
->>> us to freely reorganize the layout of struct inet_connection_sock, which
->>> is currently shared with DCCP, and optimize it to reduce the number of
->>> cachelines accessed in the TCP fast path.
->>>
->>> Note that we leave uAPI headers alone for userspace programs.
->>>
->>> Link: https://lore.kernel.org/netdev/20230710182253.81446-1-kuniyu@amazon.com/T/#u #[0]
->>> Link: https://github.com/telekom/mp-dccp #[1]
->>> Link: https://github.com/telekom/mp-dccp/blob/mpdccp_v03_k5.10/net/dccp/non_gpl_scheduler/LICENSE #[2]
->>> Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
->> Adding the LSM and SELinux lists for obvious reasons, as well as Casey
->> directly since he maintains Smack and I don't see him on the To/CC
->> line.
+As announced by commit b144fcaf46d4 ("dccp: Print deprecation
+notice."), it's time to remove DCCP socket.
 
-It's annoying that I found out about this indirectly. No biscuit.
+The patch 2 removes net/dccp, LSM code, doc, and etc, leaving
+DCCP netfilter modules.
 
-Nonetheless, for the Smack bits:
+The patch 3 unexports shared functions for DCCP, and the patch 4
+renames tcp_or_dccp_get_hashinfo() to tcp_get_hashinfo().
 
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+We can do more cleanup; for example, remove IPPROTO_TCP checks in
+__inet6?_check_established(), remove __module_get() for twsk,
+remove timewait_sock_ops.twsk_destructor(), etc, but it will be
+more of TCP stuff, so I'll defer to a later series.
+
+
+Changes:
+  v2:
+    * Patch 2
+      * Drop netfilter changes
+    * Patch 3
+      * Leave inet_twsk_put() as is
+
+  v1: https://lore.kernel.org/netdev/20250407231823.95927-1-kuniyu@amazon.com/
+
+
+Kuniyuki Iwashima (4):
+  selftest: net: Remove DCCP bits.
+  net: Retire DCCP socket.
+  net: Unexport shared functions for DCCP.
+  tcp: Rename tcp_or_dccp_get_hashinfo().
+
+ Documentation/admin-guide/bug-hunting.rst     |    2 +-
+ Documentation/networking/dccp.rst             |  219 ---
+ Documentation/networking/index.rst            |    1 -
+ Documentation/networking/ip-sysctl.rst        |    4 +-
+ .../zh_CN/admin-guide/bug-hunting.rst         |    2 +-
+ .../zh_TW/admin-guide/bug-hunting.rst         |    2 +-
+ MAINTAINERS                                   |    9 -
+ arch/m68k/configs/amiga_defconfig             |    2 -
+ arch/m68k/configs/apollo_defconfig            |    2 -
+ arch/m68k/configs/atari_defconfig             |    2 -
+ arch/m68k/configs/bvme6000_defconfig          |    2 -
+ arch/m68k/configs/hp300_defconfig             |    2 -
+ arch/m68k/configs/mac_defconfig               |    2 -
+ arch/m68k/configs/multi_defconfig             |    2 -
+ arch/m68k/configs/mvme147_defconfig           |    2 -
+ arch/m68k/configs/mvme16x_defconfig           |    2 -
+ arch/m68k/configs/q40_defconfig               |    2 -
+ arch/m68k/configs/sun3_defconfig              |    2 -
+ arch/m68k/configs/sun3x_defconfig             |    2 -
+ arch/mips/configs/bigsur_defconfig            |    1 -
+ arch/mips/configs/gpr_defconfig               |    1 -
+ arch/mips/configs/mtx1_defconfig              |    1 -
+ arch/powerpc/configs/pmac32_defconfig         |    1 -
+ arch/powerpc/configs/ppc6xx_defconfig         |    1 -
+ include/linux/dccp.h                          |  289 ---
+ include/linux/tfrc.h                          |   51 -
+ include/net/inet_hashtables.h                 |    7 +-
+ include/net/rstreason.h                       |    2 +-
+ include/net/secure_seq.h                      |    4 -
+ include/net/sock.h                            |    1 -
+ include/trace/events/sock.h                   |    1 -
+ include/trace/events/sunrpc.h                 |    2 -
+ net/Kconfig                                   |    1 -
+ net/Makefile                                  |    1 -
+ net/core/secure_seq.c                         |   42 -
+ net/core/sock.c                               |   24 +-
+ net/core/sock_diag.c                          |    2 -
+ net/dccp/Kconfig                              |   46 -
+ net/dccp/Makefile                             |   30 -
+ net/dccp/ackvec.c                             |  403 -----
+ net/dccp/ackvec.h                             |  136 --
+ net/dccp/ccid.c                               |  219 ---
+ net/dccp/ccid.h                               |  262 ---
+ net/dccp/ccids/Kconfig                        |   55 -
+ net/dccp/ccids/ccid2.c                        |  794 ---------
+ net/dccp/ccids/ccid2.h                        |  121 --
+ net/dccp/ccids/ccid3.c                        |  866 ---------
+ net/dccp/ccids/ccid3.h                        |  148 --
+ net/dccp/ccids/lib/loss_interval.c            |  184 --
+ net/dccp/ccids/lib/loss_interval.h            |   69 -
+ net/dccp/ccids/lib/packet_history.c           |  439 -----
+ net/dccp/ccids/lib/packet_history.h           |  142 --
+ net/dccp/ccids/lib/tfrc.c                     |   46 -
+ net/dccp/ccids/lib/tfrc.h                     |   73 -
+ net/dccp/ccids/lib/tfrc_equation.c            |  702 --------
+ net/dccp/dccp.h                               |  483 -----
+ net/dccp/diag.c                               |   85 -
+ net/dccp/feat.c                               | 1581 -----------------
+ net/dccp/feat.h                               |  133 --
+ net/dccp/input.c                              |  739 --------
+ net/dccp/ipv4.c                               | 1101 ------------
+ net/dccp/ipv6.c                               | 1174 ------------
+ net/dccp/ipv6.h                               |   27 -
+ net/dccp/minisocks.c                          |  266 ---
+ net/dccp/options.c                            |  609 -------
+ net/dccp/output.c                             |  708 --------
+ net/dccp/proto.c                              | 1293 --------------
+ net/dccp/qpolicy.c                            |  136 --
+ net/dccp/sysctl.c                             |  107 --
+ net/dccp/timer.c                              |  272 ---
+ net/dccp/trace.h                              |   82 -
+ net/ipv4/Kconfig                              |    2 +-
+ net/ipv4/af_inet.c                            |    5 +-
+ net/ipv4/inet_connection_sock.c               |   23 +-
+ net/ipv4/inet_diag.c                          |    2 -
+ net/ipv4/inet_hashtables.c                    |   30 +-
+ net/ipv4/inet_timewait_sock.c                 |    4 -
+ net/ipv6/af_inet6.c                           |    1 -
+ net/ipv6/inet6_connection_sock.c              |    2 -
+ net/ipv6/ip6_output.c                         |    2 +-
+ samples/bpf/sockex2_kern.c                    |    1 -
+ scripts/checkpatch.pl                         |    2 +-
+ security/lsm_audit.c                          |   19 -
+ security/selinux/hooks.c                      |   41 +-
+ security/selinux/include/classmap.h           |    2 -
+ security/selinux/nlmsgtab.c                   |    1 -
+ security/smack/smack_lsm.c                    |    9 +-
+ tools/testing/selftests/net/config            |    1 -
+ .../selftests/net/reuseport_addr_any.c        |   36 +-
+ 89 files changed, 41 insertions(+), 14368 deletions(-)
+ delete mode 100644 Documentation/networking/dccp.rst
+ delete mode 100644 include/linux/tfrc.h
+ delete mode 100644 net/dccp/Kconfig
+ delete mode 100644 net/dccp/Makefile
+ delete mode 100644 net/dccp/ackvec.c
+ delete mode 100644 net/dccp/ackvec.h
+ delete mode 100644 net/dccp/ccid.c
+ delete mode 100644 net/dccp/ccid.h
+ delete mode 100644 net/dccp/ccids/Kconfig
+ delete mode 100644 net/dccp/ccids/ccid2.c
+ delete mode 100644 net/dccp/ccids/ccid2.h
+ delete mode 100644 net/dccp/ccids/ccid3.c
+ delete mode 100644 net/dccp/ccids/ccid3.h
+ delete mode 100644 net/dccp/ccids/lib/loss_interval.c
+ delete mode 100644 net/dccp/ccids/lib/loss_interval.h
+ delete mode 100644 net/dccp/ccids/lib/packet_history.c
+ delete mode 100644 net/dccp/ccids/lib/packet_history.h
+ delete mode 100644 net/dccp/ccids/lib/tfrc.c
+ delete mode 100644 net/dccp/ccids/lib/tfrc.h
+ delete mode 100644 net/dccp/ccids/lib/tfrc_equation.c
+ delete mode 100644 net/dccp/dccp.h
+ delete mode 100644 net/dccp/diag.c
+ delete mode 100644 net/dccp/feat.c
+ delete mode 100644 net/dccp/feat.h
+ delete mode 100644 net/dccp/input.c
+ delete mode 100644 net/dccp/ipv4.c
+ delete mode 100644 net/dccp/ipv6.c
+ delete mode 100644 net/dccp/ipv6.h
+ delete mode 100644 net/dccp/minisocks.c
+ delete mode 100644 net/dccp/options.c
+ delete mode 100644 net/dccp/output.c
+ delete mode 100644 net/dccp/proto.c
+ delete mode 100644 net/dccp/qpolicy.c
+ delete mode 100644 net/dccp/sysctl.c
+ delete mode 100644 net/dccp/timer.c
+ delete mode 100644 net/dccp/trace.h
+
+-- 
+2.49.0
 
