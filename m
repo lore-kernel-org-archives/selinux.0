@@ -1,137 +1,213 @@
-Received: from mail-vk1-f171.google.com (mail-vk1-f171.google.com [209.85.221.171])
+Received: from sonic311-30.consmr.mail.ne1.yahoo.com (sonic311-30.consmr.mail.ne1.yahoo.com [66.163.188.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CC4A1EFFAF
-	for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 16:55:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42C6020371D
+	for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 17:30:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.188.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744304110; cv=none; b=LEy7k3nTDzdMVJGsyL9sHvVEMctEZa/YGITarxeaonVQNfNT7/FDC3KdUar38KYzAfyopVA6rUBy1OchmpQRXOg+rhPxX4f6JP1t14x4KfiZk4WC/+QJi828zY/7WRRAmG9saQrSFK2ctJslYKjbMvMWQnVbkW+Ox70LVOb0Ovg=
+	t=1744306224; cv=none; b=pXfh/A7xOEKFbNIWmULNAcmmwIV7qxrhqDS9Y8NWuzrs7n91xoRuouEH3ye1qps5/mc9+n8BySlO4xkApuVgmcWjt4ajz0L7aCHqoKdhuT5gLAvAB5n6KshyugICyd1NYbkZfL9WV8iwKZv7epfdO8zuGd5VilJWuB+W2ES8SSk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744304110; c=relaxed/simple;
-	bh=dwVVyonShQ0SO1F4l9/HrSccOkjgaof6qUHDJVj+Myk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=M70aZUFn0OCjnYwJNQfp/LVaB04vY3uGCHm+zOvw029AML65Pik3Ors7Jgds8JorCdtLgzOxaMOiNGI68b2vnvaMezjOrYii3EY5flu+osYjIE22wCv4j6ojzqgBjBWmez3YuqGRan9iXtWclOqurDu46wusmlZDfQGvDw+Ym4k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f/o2t4XU; arc=none smtp.client-ip=209.85.221.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1744306224; c=relaxed/simple;
+	bh=oGPf0V15EOLKzDpHsUH6nfodog9PLqZphJqpkk/OP9s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=DXUMlYBWtZ3P/BDfusFmLCdGjyeDQDLyo0ciM+JVn3RkDZmc9e9pleKSIqQsw8VrQI3Ss5ErugoxK8THkdqJan+SkJrKrc7KDKME7O6pCup/TJR01l02H1cCmCNT52IGYM6L7BMzNnBJpBntbfspIuwZa5oKzoKys5/i1nFkhWw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=ZIpEii3v; arc=none smtp.client-ip=66.163.188.211
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f/o2t4XU"
-Received: by mail-vk1-f171.google.com with SMTP id 71dfb90a1353d-5240b014f47so486991e0c.1
-        for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 09:55:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744304108; x=1744908908; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JiS1l9KhedY590rEXvEh2lAVczkasQZrW2F5N8pU11o=;
-        b=f/o2t4XUC8X1J5tENgC+umsM6QJzESuPXaCDHAygWUURUaVVuyjmNNUV8vHLYfGIKG
-         hSkuYzFq6WQxU2b+GuPG9f+ug+H2qcn7M0f7CyzSPlOeJnxAlg3BacYPs3edNGpCSrT+
-         CIjYufOjESpfepixysS2EDCcTgolPuQVN80LGkYIRQHNOz9mEMn8dFerI4aTMNkygAwP
-         IdX7m2oM9EnaWqLPoPOY6N3cdTLNkFLnrBIeJYtHAAq6olC+ga5pKEnDHgpNkT8ec4iy
-         HJr/yyfQplfrHmG1lL9YiLTSfOgWC+MDWcsBuQEJ+PNR3b4R4DUShzrx964p3jSagAkq
-         jphQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744304108; x=1744908908;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JiS1l9KhedY590rEXvEh2lAVczkasQZrW2F5N8pU11o=;
-        b=AS/4y4fJPMwoUI489kmcznViuiP4RRiAEy6MT26f41NjClL8JfrFOtJJAZ3ejLtYVh
-         mArHhm7wOnQ/oDTZ30bww55f0pJcaku/Dww4i+DBIb+IXVyMxa0dDDM/oCK6IW6Gk1Eq
-         cKw4az4U8UemyDahabovGwCup5pa01BLranGVAwrBputfZShgnKxecLcM/HmPtUyN67Z
-         ztWNAPSoUEROCndgjkoROYo0YplaaNe03g0GpAbxbsiSKfEw9tmGK0GRMnUE9hgZmQq+
-         Bxto+3TPV3+wQwHbn3ew/sDV7JBA9Z5nOpbAvegSO47xlziEebf3gqYkzPEdwAzDySn6
-         kNNQ==
-X-Gm-Message-State: AOJu0Yw/sCHPGnfsMuOVvJN1T8/hraR//G90KW8grk2tN9BP84u25KSe
-	M1EcjsGnypTBUq7j3chVZnCMeRcQPSwivc1kzEe4k1phyXEQQbTJ0W4Lfld8MPST5k9V0sgeVHL
-	ZnwFL1ogJ9/yDiDFEM6rNktg2K6I=
-X-Gm-Gg: ASbGncvUwDjryagZQs8qb66QAXv061ldUtK26Kx2X6dBnI6QEq0imUSHu6RzqNUtLDS
-	Cb5GxDPAduJ+7HJWpbYa2IO8tbbllFSh2RhDWE/muVk4UUo0FVOsOpnYzp4nq9xPvz+4UPuPsHf
-	KyNcJQ4ReMElGN1LHTZwk=
-X-Google-Smtp-Source: AGHT+IGVaUGb92uf37hod6IenEkVO0UBZkDp0Gxw8RIins2WpLP1l10nm8IgTMwTxg5b0AbvzJqDVnmZ89n3UFT10ws=
-X-Received: by 2002:a05:6122:78c:b0:525:9ddc:381a with SMTP id
- 71dfb90a1353d-527b507ffd4mr3369822e0c.6.1744304107744; Thu, 10 Apr 2025
- 09:55:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ZIpEii3v"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1744306222; bh=uk4TTmTSQ0qbEOKqRjvg7bqOKso1/KavqiiaM4Tfz50=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=ZIpEii3v5hGMhtZ7W4efZ2/oUPEOieE/xQfrOvxg2sSUujxHY0bCXauxVjtXnTIZMqHRba1hW16nObQfZ1sFx4SrI0/GTWUEv0ll1QpJ8a/LcolBoJtcQx6DZhFxePzCp2d4nWDZQMtxLzXlIhYyNGYBXu+1Gj6sQkNKqp/kEDRAsuPIpMrhEa0EblZ1nhH226arRQ4dPBV2dwVyUX92sPWgT4+qhCgs9byN3iVtycG3miaWiZfRKTmT2DYgSgZjj0MBWJ0YGvZ9RDJtTqRZ7UWOoZ7cf0jOw+UwW2fU0wrUxdny3Hngau/OCBqIpA1JIWGKU2hhA8jB/56RyB+HLA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1744306222; bh=bI5xx8tgflOYwEVMuu0KTUdZoySYcv07Dpb015Zx+O2=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=XdZXh6WD4FiPaKB8Eb8OKEE/ahkvJcKFAUpCK+0bFjNHzWYzDFZTJGpuQj19v9qd/IrhwIxXIJCLqiQayExFP/XeCmWs1/x/HWlu6XGWrKP7SqimNYRUBUCtsqXcxOatPVnJtxHNxjjlcn9zbgcKIIcw1jeg0utzBdjzePNx20+iClsS/nC0HPBS00W4ip3p7MlIaxXaFO+tPZwg/vlhDy7Cmc+aInb998oSlXP9mPJTOmyhxXAsT8eTWy6p3nLJTEYBEnPN9NQrbvRN0aqZW5q9fn/M7c7ZwitThxfFFpdIyZnOdRnx8J5clX9+uDViI3GQIxo9XcMcXSGTJNE6Eg==
+X-YMail-OSG: x5nU2YIVM1lv2qNkLStparhBR9QF.sZHexEMGd7_v8cCFawhR.vuuFoO4ENhamS
+ _Jr.PxsLgvLfNPmp6XCzLfnwE0erC2oVkm3U617IhYp9jXdv8Hf8w0WuQ4Odalm0im6Jy5AO6ARE
+ qxcyz6FAsu8bysIr02ANH5.BdPW3jfvoVtk5WWhtyLAuvnG0WQPdRIAfSkdjNC6O_m1s4Ue4yiGV
+ KIhHWMJxH3kD0E0OFKKPUPyEBL3jX98mPJGo5zKiA7taHXB3ddeoBc88rdjshgXLgiIxYdDZ4mbr
+ pfJha1cAaqbQ2v4EFQa.BQEBgXn4CSJMTV_WDf7Z2yLBTclWlqh5V4XH6GtqKUcyfQMgTwCjZB4a
+ 8364.32uyzbY994iuMjHqlhkwMEPuP4hGLKt.6t9B5SvGJnMz61ojh2gdU6Pi0Fn8pLL2pN7zich
+ ojhr9akFtk98eRzPQV6lxeSCuPzA_svNk9RgEfcMBeAb7WkE3M_ChrkQv6.kVLM7I6d5u4g2LxvE
+ I.m0lGtaodXRCqwr.K6XoCf6iz5_8YWXSonkcZ2zAiQWY1lnZGOQ9a4HMoS2arc2Xy6vBweWWiia
+ DuCIVLKq0QHePYqFDEchwxx1q59E4iElBVX5RQRuaAvcT7_akwS.YtSCBfilg70SzffLpweQhKPe
+ pPI.tbhKInQiKXw9Nlj9Vn5Ex7X5dxpbddTTaJy05qHQRG5ejD2P1nPya6r74Sny4Fwm.7wLuIvn
+ kPrcQXLfiZc_DMyJr6PU5nsbYnIWCj35i4WW3eandIL9dMpfoZc0TXx4XNAiLs4o0SpUaFUAd94L
+ 21_xbYthzZjwYE5H2vAVAKNI4SNJLGsb7IltHoCaIB0NSHuk8ZoG7pf7HmQiLIBwd.pKkgkbh8EL
+ j_.pAzIrp4eZYT4io.niWzl8NLFRXTgxftZV9Rv.BLpAolSDwlKKX5.MkaCio_BQdSFugNz.Sr6Z
+ iy8S74rxlCc4tNgmHwvKLVjae1k5_F9krbvqQe4.34Wqv7jujiR2MNtJcZisWIA4zSDfB7ufIsOt
+ d6sFKg_8IBCFAX1aGFJqZLiHeO9KmrAfYd4Pk_rk1vM6_t3rmurCeqxgg81PgcWSt_ZAVd1Yg5Pp
+ _eWJj2pHwpUEAWK9MsvjYFOF99wiVkdWGx4k2syAJhYEZhvlJreHoKbbYpCKG2K35SFzagyOFUNN
+ 502bZbYtDLOvBJOfGb2UclIjTQCDdrZvbOlLmPot7Pn9yH5hMZ072zln96iT2Voxwe7mt4PG7xqz
+ VCQgDEGfB9e1qUQt0Pp4RuFxAg.SaE1Q0GgwYlDQ09z5D_Or67MFB7sFbpQj.vc2j9J_myS2aO5J
+ rzGza94OoSyZbS9yNT2ZU_ZG0Vilxh2U.lqwXQ.JRmJBd89Bs5E2vWWaVG_nLfdTV.tRgsZTeS7.
+ Gcwa97b6EL9GGmPEZut5ij7wI21lvWA3HdqeUgedKpgk9qtxO1Sfpm0u5Iu5HUv1oUiYVYU5vlkj
+ mqhUxnXl2KJJZj8OXRHjMrr6uP3Cow8r.OmcripgVK6d5bnaHplPwWJye6goO67SSrb25woIUC2_
+ aVtRwnFQB5lYyOpNwTiqkxh12py.T01MEZ36gxMaFg18vFNGnr1eVBu4SeeJabCApmAg4gGnTpzB
+ MQyMXG1nuiVjW90z7HALLIA6IkAi8zQxGukQlNyu.JE89yahQ4KOzPdtYWKR9Mjqi0o3qw_mP8JT
+ 8tynM6Mz.CuEJmQxXWaIXSock2iaBZI0iNri1ayhiSPKvcT8sRv303aAXlSJEfvZSFECZsjBYUh.
+ fnXay8VqBiowMKvPZLzE.J85Q1rw2iaZZyZqum53aYbAGq.2._s_S95aprmA7HFlvi7HsvhGIGzJ
+ 2gdHmaIf6vYtcm8IbKqH4OJbWT.tJBWEg_3jInb34rDDUn8yCB6ck2w8vrmAuslTmVZEMyyWgfLw
+ AWNiIf8LfBCE_1_0fU_j.bhKmm_pT5n79H_eY0RzFhNh9FSYIXrTcotWDQFSKNoIH64L1DN3HPDp
+ xnFxAFQkDGSQiXgFlHHKnYQ_E_KsAAz2Zh6CVFR.f8AtxQAKQY0YPSJhAnIOQCjH_1vXIrtkt0BS
+ XTNYDkVUYg0Q6E4YZWx2GBvM51mFx9ufFJl2vU3q.arzAy1Fm5NtiJRI0c6.aOiK6cgIemKe_QF9
+ 2YnOqJXynRHbRH0iH12E.XP9XgWV9bnq6eqi11qY_xZZfFxB0p0fdu5.sser7tIj2GJ.L09RkCrq
+ 1BnEx3UmwTOsZnlxYVY_zoQxDOTVj0RSBLVk4gmiwyptxXT2kttjOu1mxdHsIG7svkyAy1l1Ny7D
+ F0kHYsVLQRCsMzLP98POYRWEOctMwJvM-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: ceefb65d-14e4-4eac-a042-ba891eca9ca0
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Thu, 10 Apr 2025 17:30:22 +0000
+Received: by hermes--production-gq1-6f8bfcd964-2cf6n (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 3b583f272d13765c4b5d794aad6dce95;
+          Thu, 10 Apr 2025 17:30:16 +0000 (UTC)
+Message-ID: <d16f307c-349b-4409-a237-ae7092584576@schaufler-ca.com>
+Date: Thu, 10 Apr 2025 10:30:16 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250404113637.4131353-1-inseob@google.com>
-In-Reply-To: <20250404113637.4131353-1-inseob@google.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Thu, 10 Apr 2025 12:54:56 -0400
-X-Gm-Features: ATxdqUGjqDvytzSJXAvy5bnv6GfeRnjg7zX4ue0eC-y9FFOZTkvNNQwU36VAUIQ
-Message-ID: <CAP+JOzQ8_7Sg9PVRXf5Zfxmfg+qKOGthdQVG-o+HjAShiqaqgQ@mail.gmail.com>
-Subject: Re: [PATCH] checkpolicy: Allow lineno > 1 for source file line
-To: Inseob Kim <inseob@google.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 20/29] smack: move initcalls to the LSM framework
+To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
+ linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Cc: John Johansen <john.johansen@canonical.com>,
+ Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>,
+ Fan Wu <wufan@kernel.org>, =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?=
+ <mic@digikod.net>, =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
+ Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20250409185019.238841-31-paul@paul-moore.com>
+ <20250409185019.238841-51-paul@paul-moore.com>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20250409185019.238841-51-paul@paul-moore.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.23665 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On Fri, Apr 4, 2025 at 7:36=E2=80=AFAM Inseob Kim <inseob@google.com> wrote=
-:
+On 4/9/2025 11:50 AM, Paul Moore wrote:
+> As the LSM framework only supports one LSM initcall callback for each
+> initcall type, the init_smk_fs() and smack_nf_ip_init() functions were
+> wrapped with a new function, smack_initcall() that is registered with
+> the LSM framework.
 >
-> There are cases that the line number starts with a number greater than
-> one, if preprocessor skipped the very first line. This extends #line
-> syntax so any lineno is valid for lines with a source file path.
->
-> Signed-off-by: Inseob Kim <inseob@google.com>
-
-Acked-by: James Carter <jwcart2@gmail.com>
-
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 > ---
->  checkpolicy/policy_scan.l | 16 +++++++++++-----
->  1 file changed, 11 insertions(+), 5 deletions(-)
+>  security/smack/smack.h           |  6 ++++++
+>  security/smack/smack_lsm.c       | 16 ++++++++++++++++
+>  security/smack/smack_netfilter.c |  4 +---
+>  security/smack/smackfs.c         |  4 +---
+>  4 files changed, 24 insertions(+), 6 deletions(-)
 >
-> diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
-> index 5fb9ff37..c418a629 100644
-> --- a/checkpolicy/policy_scan.l
-> +++ b/checkpolicy/policy_scan.l
-> @@ -56,7 +56,7 @@ void yyfatal(const char *msg)
->  #define YY_FATAL_ERROR(msg) yyfatal(msg)
+> diff --git a/security/smack/smack.h b/security/smack/smack.h
+> index bf6a6ed3946c..709e0d6cd5e1 100644
+> --- a/security/smack/smack.h
+> +++ b/security/smack/smack.h
+> @@ -275,6 +275,12 @@ struct smk_audit_info {
 >  #endif
->
-> -void set_source_file(const char *name);
-> +void set_source_file(const char *line);
->
->  char source_file[PATH_MAX];
->  unsigned long source_lineno =3D 1;
-> @@ -297,7 +297,7 @@ GLBLUB                              { return(GLBLUB);=
- }
->  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR); }
->  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*"/"{digit}{1,3}        {=
- return(IPV6_CIDR); }
->  {digit}+(\.({alnum}|[_.])*)?    { return(VERSION_IDENTIFIER); }
-> -#line[ ]1[ ]\"[^\n]*\"         { set_source_file(yytext+9); }
-> +#line[ ]{digit}+[ ]\"[^\n]*\"  { set_source_file(yytext+6); }
->  #line[ ]{digit}+               {
->                                   errno =3D 0;
->                                   source_lineno =3D strtoul(yytext+6, NUL=
-L, 10) - 1;
-> @@ -387,10 +387,16 @@ int yywarn(const char *msg)
->         return 0;
+>  };
+>  
+> +/*
+> + * Initialization
+> + */
+> +int init_smk_fs(void);
+> +int smack_nf_ip_init(void);
+> +
+>  /*
+>   * These functions are in smack_access.c
+>   */
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index e09b33fed5f0..80b129a0c92c 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -5277,6 +5277,21 @@ static __init int smack_init(void)
+>  	return 0;
 >  }
->
-> -void set_source_file(const char *name)
-> +void set_source_file(const char *line)
+>  
+> +static int smack_initcall(void)
+> +{
+> +	int rc, rc_tmp;
+
+separate lines for the declarations please.
+
+> +
+> +	rc_tmp = init_smk_fs();
+> +	if (rc_tmp)
+> +		rc = rc_tmp;
+
+Replace these three lines with:
+
+ +	rc = init_smk_fs();
+
+> +
+> +	rc_tmp = smack_nf_ip_init();
+> +	if (!rc && rc_tmp)
+> +		rc = rc_tmp;
+
+Change this to
+
+ +	rc_tmp = smack_nf_ip_init();
+ +	return rc ? rc : rc_tmp;
+
+Also change rc_tmp to rc_nf and rc to rc_fs.
+
+> +
+> +	return rc;
+> +}
+> +
+
+Or:
+
+static int smack_initcall(void)
+{
+	int rc_fs = init_smk_fs();
+	int rc_nf = smack_nf_ip_init();
+
+	return rc_fs ? rc_fs : rc:nf;
+}
+
+>  /*
+>   * Smack requires early initialization in order to label
+>   * all processes and objects when they are created.
+> @@ -5286,4 +5301,5 @@ DEFINE_LSM(smack) = {
+>  	.flags = LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
+>  	.blobs = &smack_blob_sizes,
+>  	.init = smack_init,
+> +	.initcall_device = smack_initcall,
+>  };
+> diff --git a/security/smack/smack_netfilter.c b/security/smack/smack_netfilter.c
+> index 8fd747b3653a..17ba578b1308 100644
+> --- a/security/smack/smack_netfilter.c
+> +++ b/security/smack/smack_netfilter.c
+> @@ -68,7 +68,7 @@ static struct pernet_operations smack_net_ops = {
+>  	.exit = smack_nf_unregister,
+>  };
+>  
+> -static int __init smack_nf_ip_init(void)
+> +int __init smack_nf_ip_init(void)
 >  {
-> -       source_lineno =3D 1;
-> -       strncpy(source_file, name, sizeof(source_file)-1);
-> +       char *name;
-> +       errno =3D 0;
-> +       source_lineno =3D strtoul(line, &name, 10) - 1;
-> +       if (errno) {
-> +               yywarn("source line number too big");
-> +       }
-> +       name +=3D 2; /* skip a space and a quote */
-> +       strncpy(source_file, name, sizeof(source_file)-1);
->         source_file[sizeof(source_file)-1] =3D '\0';
->         if (strlen(source_file) && source_file[strlen(source_file)-1] =3D=
-=3D '"')
->                 source_file[strlen(source_file)-1] =3D '\0';
-> --
-> 2.49.0.504.g3bcea36a83-goog
->
->
+>  	if (smack_enabled == 0)
+>  		return 0;
+> @@ -76,5 +76,3 @@ static int __init smack_nf_ip_init(void)
+>  	printk(KERN_DEBUG "Smack: Registering netfilter hooks\n");
+>  	return register_pernet_subsys(&smack_net_ops);
+>  }
+> -
+> -__initcall(smack_nf_ip_init);
+> diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+> index 90a67e410808..d33dd0368807 100644
+> --- a/security/smack/smackfs.c
+> +++ b/security/smack/smackfs.c
+> @@ -2980,7 +2980,7 @@ static struct vfsmount *smackfs_mount;
+>   * Returns true if we were not chosen on boot or if
+>   * we were chosen and filesystem registration succeeded.
+>   */
+> -static int __init init_smk_fs(void)
+> +int __init init_smk_fs(void)
+>  {
+>  	int err;
+>  	int rc;
+> @@ -3023,5 +3023,3 @@ static int __init init_smk_fs(void)
+>  
+>  	return err;
+>  }
+> -
+> -__initcall(init_smk_fs);
