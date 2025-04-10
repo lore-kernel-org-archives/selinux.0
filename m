@@ -1,198 +1,137 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+Received: from mail-vk1-f171.google.com (mail-vk1-f171.google.com [209.85.221.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 845091E8323;
-	Thu, 10 Apr 2025 16:33:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CC4A1EFFAF
+	for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 16:55:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744302799; cv=none; b=J45OyrOMyIWvWFulX2XwzpKvxlMi3jVFr1TqgQE/wg5LzXkf9tlDq/K9NZvB0YDNmwT3AOkdJKvs0InaLTPC+hVMj6mqm+fFrcQpm9J6dv4dIqPn2i8RONTzeW3yRzXCFHFNR/2BlJZo6n0ay8XhkPDb81TGh9HpD34oZ50yC9k=
+	t=1744304110; cv=none; b=LEy7k3nTDzdMVJGsyL9sHvVEMctEZa/YGITarxeaonVQNfNT7/FDC3KdUar38KYzAfyopVA6rUBy1OchmpQRXOg+rhPxX4f6JP1t14x4KfiZk4WC/+QJi828zY/7WRRAmG9saQrSFK2ctJslYKjbMvMWQnVbkW+Ox70LVOb0Ovg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744302799; c=relaxed/simple;
-	bh=eoyCJgYzXs55oTDvNvlV65c/RZBE0TfItpeF8wlwoQM=;
+	s=arc-20240116; t=1744304110; c=relaxed/simple;
+	bh=dwVVyonShQ0SO1F4l9/HrSccOkjgaof6qUHDJVj+Myk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ScVt3aYPVoXI+D5++l6EmQjLTiCopkUNnXpBF6GBMAqeWk/D3O0SLCuYYq39h8mg4iYGj+AOrAMF8Xsb1V1K7lSRHTp2zgrcxWD6EckjwF5bRPhxqP2KF7bxQ5j/ePhXf2TMLO0MwDNkioqKXEMgWLfqoHLW9fpyXzh1fN/HT6E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OJIRTuHz; arc=none smtp.client-ip=209.85.216.41
+	 To:Cc:Content-Type; b=M70aZUFn0OCjnYwJNQfp/LVaB04vY3uGCHm+zOvw029AML65Pik3Ors7Jgds8JorCdtLgzOxaMOiNGI68b2vnvaMezjOrYii3EY5flu+osYjIE22wCv4j6ojzqgBjBWmez3YuqGRan9iXtWclOqurDu46wusmlZDfQGvDw+Ym4k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f/o2t4XU; arc=none smtp.client-ip=209.85.221.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OJIRTuHz"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-301302a328bso1038950a91.2;
-        Thu, 10 Apr 2025 09:33:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f/o2t4XU"
+Received: by mail-vk1-f171.google.com with SMTP id 71dfb90a1353d-5240b014f47so486991e0c.1
+        for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 09:55:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744302797; x=1744907597; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1744304108; x=1744908908; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=34F/kgXd/VopcAJElGms+ODL4mZ9pERk02sgiuSKvtI=;
-        b=OJIRTuHznHvP91hb8z3WXTKbvMfCTT/OkaBiAFryHMhniyINtU0cqp+XFuobwW2b1U
-         d5yWEz5VZRS1+n9npyitoLf6d8XsviWSBoDeRTyyCSbTglwJs0S03UTfsFIRjgRGMG0K
-         E/YxTBdRff7liZ9OYZ8cBmRdNFRu0nRJKycdX2F7D1Ga9xDP1SsDTLNQIo/9YfPLP4+J
-         jtis/6065K3GX1cNZ8mwGjwo76b3q7uN3t/sxcETISuO9sI06BWtp/nU/eeRtGxyBiCJ
-         cTV1hlfl+tZxQyBmiqJl1sG92fFO3SXaFP4FjqbZ4n41HDGt1u/Au/7vOLoQgcv1orOI
-         k9Xw==
+        bh=JiS1l9KhedY590rEXvEh2lAVczkasQZrW2F5N8pU11o=;
+        b=f/o2t4XUC8X1J5tENgC+umsM6QJzESuPXaCDHAygWUURUaVVuyjmNNUV8vHLYfGIKG
+         hSkuYzFq6WQxU2b+GuPG9f+ug+H2qcn7M0f7CyzSPlOeJnxAlg3BacYPs3edNGpCSrT+
+         CIjYufOjESpfepixysS2EDCcTgolPuQVN80LGkYIRQHNOz9mEMn8dFerI4aTMNkygAwP
+         IdX7m2oM9EnaWqLPoPOY6N3cdTLNkFLnrBIeJYtHAAq6olC+ga5pKEnDHgpNkT8ec4iy
+         HJr/yyfQplfrHmG1lL9YiLTSfOgWC+MDWcsBuQEJ+PNR3b4R4DUShzrx964p3jSagAkq
+         jphQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744302797; x=1744907597;
+        d=1e100.net; s=20230601; t=1744304108; x=1744908908;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=34F/kgXd/VopcAJElGms+ODL4mZ9pERk02sgiuSKvtI=;
-        b=AEBDgKlbQmghiupdgM2A9cbi/mlZFArWYb2eFkkZh2dO+39L4LxXArfN42L/vqaoc1
-         3TaKYTbSByASaDaoE37kTJ9B24Qb8cUP7QiSo4q0TxRHI4FGzjRfADj5dbKWKOuujMtB
-         IJWhgDMheHHQ8OzF0mJ1oy3ChpaeMoxZ74nkVzfeylVTtKJ8YuAlf67lwxhx5GPS4tSO
-         d6g8BHbo1Lp9rxio6acErzBk+b6MTh2v1oj+1dA79cF+PyYmpzP5hC/TsRA+GY2qdCjS
-         gSIpbDaBhPxlGQDTZBjcnikkKTq4bFYxWEz8u4TRsogAWt+Dyig1CbeF6rQGFMi/O08s
-         YSSA==
-X-Forwarded-Encrypted: i=1; AJvYcCVGgRqm46RCVGAxVqvfQ/toNFuK3KPCI0Ksjg6Qqkl99eMHFLDpjPDK7As5SZrykdUG99sKyAA2Ag==@vger.kernel.org, AJvYcCW1nmgcreTLpzQrLER29p8pZ2fvRGKJ8O9l3K3jZfuv4+QMylcyogj9MVVpyatwZwCbyw3AHOeJuOheySVdTPA=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyNyEqXdxv1bkyZKm4HD2ovTZUs+tJJNh8UDY+w8IMH8Y29VBeF
-	PNVXsDcscQvPMjsbNNzdFdeNVfIIkQKEvGQFY309LJK29lLHGa5QX4XykC/N5TIoHSX4oQ2XT6v
-	y1GIvK067ttyoRclpBCfZVd8w+BKNERpj
-X-Gm-Gg: ASbGncsZAMFSWj7PBRogsvjg0GqshjxhpcK4vDwl+1DLN5L+/2B3Z5JWFlPj8Rhd5FL
-	xB5vdrEgTEFUqW0zy8dEGEnOGLPAGwEBMrtcaFqEf/sfx22qMmYgxEWZy1umd4Aiv6VbR+47WzC
-	oYXrNXJl0AYuNIVjCSzLs/rE6Qd0rirR+x
-X-Google-Smtp-Source: AGHT+IHYTYQpiCYWMK4DrGiCOA7v1195t7O8LBzxl0z4v6ArS+MbrlheXmr7UYW4yKvKhIfo+88rmbBczXP88poKQ3g=
-X-Received: by 2002:a17:90b:2dc3:b0:2ff:69d4:6fe2 with SMTP id
- 98e67ed59e1d1-307e5997dcemr5622467a91.16.1744302796620; Thu, 10 Apr 2025
- 09:33:16 -0700 (PDT)
+        bh=JiS1l9KhedY590rEXvEh2lAVczkasQZrW2F5N8pU11o=;
+        b=AS/4y4fJPMwoUI489kmcznViuiP4RRiAEy6MT26f41NjClL8JfrFOtJJAZ3ejLtYVh
+         mArHhm7wOnQ/oDTZ30bww55f0pJcaku/Dww4i+DBIb+IXVyMxa0dDDM/oCK6IW6Gk1Eq
+         cKw4az4U8UemyDahabovGwCup5pa01BLranGVAwrBputfZShgnKxecLcM/HmPtUyN67Z
+         ztWNAPSoUEROCndgjkoROYo0YplaaNe03g0GpAbxbsiSKfEw9tmGK0GRMnUE9hgZmQq+
+         Bxto+3TPV3+wQwHbn3ew/sDV7JBA9Z5nOpbAvegSO47xlziEebf3gqYkzPEdwAzDySn6
+         kNNQ==
+X-Gm-Message-State: AOJu0Yw/sCHPGnfsMuOVvJN1T8/hraR//G90KW8grk2tN9BP84u25KSe
+	M1EcjsGnypTBUq7j3chVZnCMeRcQPSwivc1kzEe4k1phyXEQQbTJ0W4Lfld8MPST5k9V0sgeVHL
+	ZnwFL1ogJ9/yDiDFEM6rNktg2K6I=
+X-Gm-Gg: ASbGncvUwDjryagZQs8qb66QAXv061ldUtK26Kx2X6dBnI6QEq0imUSHu6RzqNUtLDS
+	Cb5GxDPAduJ+7HJWpbYa2IO8tbbllFSh2RhDWE/muVk4UUo0FVOsOpnYzp4nq9xPvz+4UPuPsHf
+	KyNcJQ4ReMElGN1LHTZwk=
+X-Google-Smtp-Source: AGHT+IGVaUGb92uf37hod6IenEkVO0UBZkDp0Gxw8RIins2WpLP1l10nm8IgTMwTxg5b0AbvzJqDVnmZ89n3UFT10ws=
+X-Received: by 2002:a05:6122:78c:b0:525:9ddc:381a with SMTP id
+ 71dfb90a1353d-527b507ffd4mr3369822e0c.6.1744304107744; Thu, 10 Apr 2025
+ 09:55:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250409185019.238841-31-paul@paul-moore.com> <20250409185019.238841-57-paul@paul-moore.com>
-In-Reply-To: <20250409185019.238841-57-paul@paul-moore.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 10 Apr 2025 12:33:05 -0400
-X-Gm-Features: ATxdqUGLKksXnfWLdkNxXvoOS2PL9wC28ArNVC-UWoB1nIM1nbkZYiIR5jZv6tU
-Message-ID: <CAEjxPJ6ZUXoMzKPE6iwQpvG-_SruVr+kxU-a+nQXU=ToVr8wgA@mail.gmail.com>
-Subject: Re: [RFC PATCH 26/29] selinux: move initcalls to the LSM framework
-To: Paul Moore <paul@paul-moore.com>
-Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
-	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
-	Fan Wu <wufan@kernel.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+References: <20250404113637.4131353-1-inseob@google.com>
+In-Reply-To: <20250404113637.4131353-1-inseob@google.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Thu, 10 Apr 2025 12:54:56 -0400
+X-Gm-Features: ATxdqUGjqDvytzSJXAvy5bnv6GfeRnjg7zX4ue0eC-y9FFOZTkvNNQwU36VAUIQ
+Message-ID: <CAP+JOzQ8_7Sg9PVRXf5Zfxmfg+qKOGthdQVG-o+HjAShiqaqgQ@mail.gmail.com>
+Subject: Re: [PATCH] checkpolicy: Allow lineno > 1 for source file line
+To: Inseob Kim <inseob@google.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 9, 2025 at 2:55=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
-te:
+On Fri, Apr 4, 2025 at 7:36=E2=80=AFAM Inseob Kim <inseob@google.com> wrote=
+:
 >
-> SELinux currently has a number of initcalls so we've created a new
-> function, selinux_initcall(), which wraps all of these initcalls so
-> that we have a single initcall function that can be registered with the
-> LSM framework.
+> There are cases that the line number starts with a number greater than
+> one, if preprocessor skipped the very first line. This extends #line
+> syntax so any lineno is valid for lines with a source file path.
 >
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> Signed-off-by: Inseob Kim <inseob@google.com>
+
+Acked-by: James Carter <jwcart2@gmail.com>
+
 > ---
-
-> diff --git a/security/selinux/include/audit.h b/security/selinux/include/=
-audit.h
-> index d5b0425055e4..5989f8dd1e86 100644
-> --- a/security/selinux/include/audit.h
-> +++ b/security/selinux/include/audit.h
-> @@ -15,6 +15,11 @@
->  #include <linux/audit.h>
->  #include <linux/types.h>
+>  checkpolicy/policy_scan.l | 16 +++++++++++-----
+>  1 file changed, 11 insertions(+), 5 deletions(-)
 >
-> +/**
-> + * XXX
-> + */
-
-Assuming this will be fixed before merge.
-
-> +int selinux_audit_rule_avc_callback(u32 event);
-> +
->  /**
->   * selinux_audit_rule_init - alloc/init an selinux audit rule structure.
->   * @field: the field this rule refers to
-> diff --git a/security/selinux/include/initcalls.h b/security/selinux/incl=
-ude/initcalls.h
-> new file mode 100644
-> index 000000000000..6674cf489473
-> --- /dev/null
-> +++ b/security/selinux/include/initcalls.h
-> @@ -0,0 +1,19 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * SELinux initcalls
-> + */
-> +
-> +#ifndef _SELINUX_INITCALLS_H
-> +#define _SELINUX_INITCALLS_H
-> +
-> +int init_sel_fs(void);
-> +int sel_netport_init(void);
-> +int sel_netnode_init(void);
-> +int sel_netif_init(void);
-> +int sel_netlink_init(void);
-> +int sel_ib_pkey_init(void);
-> +int selinux_nf_ip_init(void);
-
-The last two only exist if certain Kconfig options are set.
-
-> +
-> +int selinux_initcall(void);
-> +
-> +#endif
-> diff --git a/security/selinux/initcalls.c b/security/selinux/initcalls.c
-> new file mode 100644
-> index 000000000000..81f01f8ad215
-> --- /dev/null
-> +++ b/security/selinux/initcalls.c
-> @@ -0,0 +1,50 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * SELinux initcalls
-> + */
-> +
-> +#include <linux/init.h>
-> +
-> +#include "initcalls.h"
-> +
-> +/**
-> + * selinux_initcall - Perform the SELinux initcalls
-> + *
-> + * Used as a device initcall in the SELinux LSM definition.
-> + */
-> +int __init selinux_initcall(void)
-> +{
-> +       int rc =3D 0, rc_tmp =3D 0;
-> +
-> +       rc_tmp =3D init_sel_fs();
-> +       if (!rc && rc_tmp)
-> +               rc =3D rc_tmp;
-> +
-> +       rc_tmp =3D sel_netport_init();
-> +       if (!rc && rc_tmp)
-> +               rc =3D rc_tmp;
-> +
-> +       rc_tmp =3D sel_netnode_init();
-> +       if (!rc && rc_tmp)
-> +               rc =3D rc_tmp;
-> +
-> +       rc_tmp =3D sel_netif_init();
-> +       if (!rc && rc_tmp)
-> +               rc =3D rc_tmp;
-> +
-> +       rc_tmp =3D sel_netlink_init();
-> +       if (!rc && rc_tmp)
-> +               rc =3D rc_tmp;
-> +
-> +       rc_tmp =3D sel_ib_pkey_init();
-
-This one depends on CONFIG_SECURITY_INFINIBAND.
-
-> +       if (!rc && rc_tmp)
-> +               rc =3D rc_tmp;
-> +
-> +#if defined(CONFIG_NETFILTER)
-> +       rc_tmp =3D selinux_nf_ip_init();
-> +       if (!rc && rc_tmp)
-> +               rc =3D rc_tmp;
-> +#endif
-> +
-> +       return rc;
-> +}
+> diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+> index 5fb9ff37..c418a629 100644
+> --- a/checkpolicy/policy_scan.l
+> +++ b/checkpolicy/policy_scan.l
+> @@ -56,7 +56,7 @@ void yyfatal(const char *msg)
+>  #define YY_FATAL_ERROR(msg) yyfatal(msg)
+>  #endif
+>
+> -void set_source_file(const char *name);
+> +void set_source_file(const char *line);
+>
+>  char source_file[PATH_MAX];
+>  unsigned long source_lineno =3D 1;
+> @@ -297,7 +297,7 @@ GLBLUB                              { return(GLBLUB);=
+ }
+>  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR); }
+>  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*"/"{digit}{1,3}        {=
+ return(IPV6_CIDR); }
+>  {digit}+(\.({alnum}|[_.])*)?    { return(VERSION_IDENTIFIER); }
+> -#line[ ]1[ ]\"[^\n]*\"         { set_source_file(yytext+9); }
+> +#line[ ]{digit}+[ ]\"[^\n]*\"  { set_source_file(yytext+6); }
+>  #line[ ]{digit}+               {
+>                                   errno =3D 0;
+>                                   source_lineno =3D strtoul(yytext+6, NUL=
+L, 10) - 1;
+> @@ -387,10 +387,16 @@ int yywarn(const char *msg)
+>         return 0;
+>  }
+>
+> -void set_source_file(const char *name)
+> +void set_source_file(const char *line)
+>  {
+> -       source_lineno =3D 1;
+> -       strncpy(source_file, name, sizeof(source_file)-1);
+> +       char *name;
+> +       errno =3D 0;
+> +       source_lineno =3D strtoul(line, &name, 10) - 1;
+> +       if (errno) {
+> +               yywarn("source line number too big");
+> +       }
+> +       name +=3D 2; /* skip a space and a quote */
+> +       strncpy(source_file, name, sizeof(source_file)-1);
+>         source_file[sizeof(source_file)-1] =3D '\0';
+>         if (strlen(source_file) && source_file[strlen(source_file)-1] =3D=
+=3D '"')
+>                 source_file[strlen(source_file)-1] =3D '\0';
+> --
+> 2.49.0.504.g3bcea36a83-goog
+>
+>
