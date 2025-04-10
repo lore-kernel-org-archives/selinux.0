@@ -1,377 +1,129 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A90D4685;
-	Thu, 10 Apr 2025 00:11:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCC8E1624FE
+	for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 02:18:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744243900; cv=none; b=YpuwRHZbThXtLbNVx4AykbyRaCecdGvPPGBF6yzuKZtPLSiRI9wXSI0u8eckTQrEcfifhCiP0+QGEOHJTTWmUKqXPPYv/7oaq8+lKKo0sX+JpWpxRkLzVqfMJcTKJxrrX/NglyJkF4GTOVF79uWpjMXynbzjw65K8BiFYZM1Diw=
+	t=1744251509; cv=none; b=d7vnYYNBrZvM1YjQOz7EalO9lp4oHOYI1+xKuZMTnsImIxvdYMQgNmGV7eSQLWAoAYBXQqX1wYCZRYFAFMl4pvs2NuSJJjhL6JP/6t9Egoh3CbRPhVjj7qNxXSdPHkfHP5+4H3emPoDJlAdLmjuHYXJmJcdcpDNShUDR+0fy81M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744243900; c=relaxed/simple;
-	bh=l7u3G5FskDGTRZL8mw18xKij5qhLkRxc1bM1ncxHQVQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=deEHtijLm5Zakx23gUTniiwYKz81LKOayLzphbdHwzFTBwbnfCPlAtawy4iNA/AcxaidVFLfCwRnihp9RUApUsw+IyQ3cj4bS8Zuc17QAK459FxByql7Z3mwLeLfQh33VKVp28zvxuf4ng5GLmDITEMgCM8gQUdnFq7gkK+mrqQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NkzcUwbD; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1744251509; c=relaxed/simple;
+	bh=QUAkvd9W3lcORoAlYDSPZUH7qjA/t+wVsYinYRtwv3g=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=L8hQ0/WggW2EjBDIaXi0q7aUoqBhGAHNVQ/dFhA95n6EAOvSQqOnO2VN2FfMbv/NBbwRcKEs+OBHiCAkJ0+MfDg0gvn0QfWJG9Axca9a4rMAFixW+aZM4QlGYseenCxad52RCybR122cF9ytZx5F41mhdizIrh7c1dV9DMANpeI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=fqIhxg27; arc=none smtp.client-ip=209.85.216.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NkzcUwbD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10B09C4CEE2;
-	Thu, 10 Apr 2025 00:11:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744243900;
-	bh=l7u3G5FskDGTRZL8mw18xKij5qhLkRxc1bM1ncxHQVQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=NkzcUwbDhMi8ZeKCC8cFdZZw8LDHNEZl38b+8/Vxx6/RBkekZijQVl/qZZj5g/mwI
-	 wxmh52IYt0VP+cP3soze3dWDonk/XZAmDSXqpupqm6qGNfJ97lutuTx7Cy3qXcwsKE
-	 SRBe2lnA2i//uaSShU4YeUVGiJXgf9Glm0nEUxNxazFNDYKIhm0EA0tyYZ8AXwYCmd
-	 WpRMWdZVWMUQbHM6TfHRumurjShNjdpnep26bYMT/AHdNHPOix0Cnl1CZkt0Db3NZc
-	 awCQIbsl/A/CLLsEAxOBHiHqH8MKLqoC5UKjIYyy9Awj9DCidTID2pS9lqotZMmQIC
-	 O/6QafnleUbBw==
-Date: Wed, 9 Apr 2025 17:11:37 -0700
-From: Kees Cook <kees@kernel.org>
-To: Paul Moore <paul@paul-moore.com>
-Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
-	selinux@vger.kernel.org,
-	John Johansen <john.johansen@canonical.com>,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
-	=?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
-	=?iso-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
-	Micah Morton <mortonm@chromium.org>,
-	Casey Schaufler <casey@schaufler-ca.com>,
-	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Subject: Re: [RFC PATCH 09/29] lsm: cleanup and normalize the LSM enabled
- functions
-Message-ID: <202504091656.21EEF38DCA@keescook>
-References: <20250409185019.238841-31-paul@paul-moore.com>
- <20250409185019.238841-40-paul@paul-moore.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fqIhxg27"
+Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-30566e34290so342587a91.3
+        for <selinux@vger.kernel.org>; Wed, 09 Apr 2025 19:18:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1744251507; x=1744856307; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=YcVvdaoG+OB/0gRx93hrRCae0u3LGMiZjgNnt0p993I=;
+        b=fqIhxg27oPMTICLE2JDN3xyatGbL/wCweN0ZpQcBVi/5fuiRx+Wwv++bi4raNsUKSU
+         gGUdyiv0iPOJjzg+wlBZFHJ66AoRYz2vKlGD9HW/GXlaoeDl1k9X+/3pLYn45I/0exeT
+         ahFcbcSXgXTL9XDHA69N2z99t/w6tmth6cRjE+BFmMqJr1muUnxIOyw9CfUJaFo+fSAv
+         oT7wQMRsD774YJsBHPBchXeCpBga8EqQ0QZzkP89cGXxWiuViMitUyHut8K6PI+Mj4cM
+         zWF2faKsZkQPEOPB2MXUQHoJC8XPd7opbBXkYfn07bsIqb6Yg4uUMVP1Nc1gLu5WB67G
+         k3MQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744251507; x=1744856307;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=YcVvdaoG+OB/0gRx93hrRCae0u3LGMiZjgNnt0p993I=;
+        b=E5kii48d9Yp3R1qGpWlK4PtbreTUvRIFQ9/+OtRks13RoSCgNBQg69KnBIDVSbBa/r
+         C9+qGXN664UEPpAVuobX6yX34DRB9GsBqWTClb5CoGYKiz6YCole0nqCEhqiYU7XwPOp
+         zrKHeEk8DjRQvBnvGwPqLBV7gCvzX7HnpqsfA+3KNvrYCjjtF+j0bKgTNN3lGfPZMX93
+         /x0/nKEYRSNiTKJCIAp+0PU2mKjWz8/EEkQIL8ThYJOBEVceyRu7//ltG/octZ4rSud5
+         1tcs1QqtzQOxEvzolk5rtLc5PHQHJFjR1tzq/ixdddcUEdFhLRmFmaiov87BATjBqk6c
+         sI9g==
+X-Gm-Message-State: AOJu0YxG2JeI8QpoZYbIXiVa8lyxTgmVqhUJkc93kiP8fc0J7IiqDhLG
+	DD79DZBp/kdf6N/EjkOAV9KIflUI58Akrd8uD8gafsxVktJOPcG/SU0JLQ+0lhDi8LeMKwXW/QS
+	uChs8camcmH7JomgASqYcbsgizG05/+ZD2UWe9KcAl73VwaSoHZ728txlm8XHukq/ulmGt6JvqG
+	Vor2qAdO9MLi6iyksvNcmxuCEyJdIQWtIPHQ==
+X-Google-Smtp-Source: AGHT+IHzae+IUpTW0KikC+AeMmzAi663gTYU4AdsM1QqNOIUUjA3qVAfEePXtchxGySsDs0tA+zLM3+2l2k=
+X-Received: from pjn16.prod.google.com ([2002:a17:90b:5710:b0:2fc:e37d:85dc])
+ (user=inseob job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:2dd1:b0:303:75a7:26a4
+ with SMTP id 98e67ed59e1d1-30718b5376emr1825658a91.7.1744251507007; Wed, 09
+ Apr 2025 19:18:27 -0700 (PDT)
+Date: Thu, 10 Apr 2025 11:18:17 +0900
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250409185019.238841-40-paul@paul-moore.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.49.0.504.g3bcea36a83-goog
+Message-ID: <20250410021820.3874574-1-inseob@google.com>
+Subject: [PATCH v2 1/4] libsepol: Allow booleanif to have info nodes
+From: Inseob Kim <inseob@google.com>
+To: selinux@vger.kernel.org
+Cc: tweek@google.com, jeffv@google.com, Inseob Kim <inseob@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, Apr 09, 2025 at 02:49:54PM -0400, Paul Moore wrote:
-> One part of a larger effort to cleanup the LSM framework initialization
-> code.
-> 
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->  security/inode.c    |   9 ++--
->  security/lsm_init.c | 110 ++++++++++++++++++++++++--------------------
->  2 files changed, 63 insertions(+), 56 deletions(-)
-> 
-> diff --git a/security/inode.c b/security/inode.c
-> index 49bc3578bd23..f687e22e6809 100644
-> --- a/security/inode.c
-> +++ b/security/inode.c
-> @@ -351,18 +351,17 @@ static ssize_t lsm_read(struct file *filp, char __user *buf, size_t count,
->  
->  	for (i = 0; i < lsm_count; i++)
->  		/* the '+ 1' accounts for either a comma or a NUL terminator */
-> -		len += strlen(lsm_order[i]->id->name) + 1;
-> +		len += strlen(lsm_idlist[i]->name) + 1;
->  
->  	str = kmalloc(len, GFP_KERNEL);
->  	if (!str)
->  		return -ENOMEM;
->  	str[0] = '\0';
->  
-> -	i = 0;
-> -	while (i < lsm_count) {
-> -		strcat(str, lsm_order[i]->id->name);
-> -		if (++i < lsm_count)
-> +	for (i = 0; i < lsm_count; i++) {
-> +		if (i > 0)
->  			strcat(str, ",");
-> +		strcat(str, lsm_idlist[i]->name);
->  	}
->  
->  	rc = simple_read_from_buffer(buf, count, ppos, str, len);
+Allowing more info nodes helps debuggability, especially neverallow
+failure reports.
 
-This chunk needs to be folded into the lsm_names changing patch, I
-think. I missed this on the first pass, but lsm_order can never be used
-here because lsm_order is initdata -- it will be thrown away after init
-is done.
+Signed-off-by: Inseob Kim <inseob@google.com>
+---
+ libsepol/cil/src/cil_binary.c      | 1 +
+ libsepol/cil/src/cil_build_ast.c   | 1 +
+ libsepol/cil/src/cil_resolve_ast.c | 1 +
+ libsepol/cil/src/cil_verify.c      | 3 +++
+ 4 files changed, 6 insertions(+)
 
-> diff --git a/security/lsm_init.c b/security/lsm_init.c
-> index 978bb81b58fa..7f2bc8c22ce9 100644
-> --- a/security/lsm_init.c
-> +++ b/security/lsm_init.c
-> @@ -10,6 +10,10 @@
->  
->  #include "lsm.h"
->  
-> +/* LSM enabled constants. */
-> +int lsm_enabled_true = 1;
-> +int lsm_enabled_false = 0;
-
-Why are these losing static and __initdata? It looks like they're
-staying assigned to the __init-marked lsm_info instances.
-
-> +
->  /* Pointers to LSM sections defined in include/asm-generic/vmlinux.lds.h */
->  extern struct lsm_info __start_lsm_info[], __end_lsm_info[];
->  extern struct lsm_info __start_early_lsm_info[], __end_early_lsm_info[];
-> @@ -72,41 +76,42 @@ static int __init lsm_debug_enable(char *str)
->  }
->  __setup("lsm.debug", lsm_debug_enable);
->  
-> -/* Mark an LSM's enabled flag. */
-> -static int lsm_enabled_true __initdata = 1;
-> -static int lsm_enabled_false __initdata = 0;
-> -static void __init set_enabled(struct lsm_info *lsm, bool enabled)
-> +/**
-> + * lsm_enabled_set - Mark a LSM as enabled
-> + * @lsm: LSM definition
-> + * @enabled: enabled flag
-> + */
-> +static void __init lsm_enabled_set(struct lsm_info *lsm, bool enabled)
->  {
->  	/*
->  	 * When an LSM hasn't configured an enable variable, we can use
->  	 * a hard-coded location for storing the default enabled state.
->  	 */
-> -	if (!lsm->enabled) {
-> -		if (enabled)
-> -			lsm->enabled = &lsm_enabled_true;
-> -		else
-> -			lsm->enabled = &lsm_enabled_false;
-> -	} else if (lsm->enabled == &lsm_enabled_true) {
-> -		if (!enabled)
-> -			lsm->enabled = &lsm_enabled_false;
-> -	} else if (lsm->enabled == &lsm_enabled_false) {
-> -		if (enabled)
-> -			lsm->enabled = &lsm_enabled_true;
-> +	if (!lsm->enabled ||
-> +	    lsm->enabled == &lsm_enabled_true ||
-> +	    lsm->enabled == &lsm_enabled_false) {
-> +		lsm->enabled = enabled ? &lsm_enabled_true : &lsm_enabled_false;
->  	} else {
->  		*lsm->enabled = enabled;
->  	}
->  }
-
-Good logic folding.
-
->  
-> -static inline bool is_enabled(struct lsm_info *lsm)
-> +/**
-> + * lsm_is_enabled - Determine if a LSM is enabled
-> + * @lsm: LSM definition
-> + */
-> +static inline bool lsm_is_enabled(struct lsm_info *lsm)
->  {
->  	if (!lsm->enabled)
->  		return false;
-> -
->  	return *lsm->enabled;
->  }
-
-This could be one-lined, actually:
-
-	return lsm->enabled ? *lsm->enabled : false;
-
->  
-> -/* Is an LSM already listed in the ordered LSMs list? */
-> -static bool __init exists_ordered_lsm(struct lsm_info *lsm)
-> +/**
-> + * lsm_order_exists - Determine if a LSM exists in the ordered list
-> + * @lsm: LSM definition
-> + */
-> +static bool __init lsm_order_exists(struct lsm_info *lsm)
->  {
->  	struct lsm_info **check;
->  
-> @@ -118,25 +123,29 @@ static bool __init exists_ordered_lsm(struct lsm_info *lsm)
->  	return false;
->  }
->  
-> -/* Append an LSM to the list of ordered LSMs to initialize. */
-> -static int last_lsm __initdata;
-> -static void __init append_ordered_lsm(struct lsm_info *lsm, const char *from)
-> +/**
-> + * lsm_order_append - Append a LSM to the ordered list
-> + * @lsm: LSM definition
-> + * @src: source of the addition
-> + */
-> +static void __init lsm_order_append(struct lsm_info *lsm, const char *src)
->  {
->  	/* Ignore duplicate selections. */
-> -	if (exists_ordered_lsm(lsm))
-> +	if (lsm_order_exists(lsm))
->  		return;
->  
-> -	if (WARN(last_lsm == MAX_LSM_COUNT, "%s: out of LSM static calls!?\n", from))
-> -		return;
-> +	/* Skip explicitly disabled LSMs. */
-> +	if (lsm->enabled && !lsm_is_enabled(lsm)) {
-> +		if (WARN(lsm_count == MAX_LSM_COUNT,
-> +			 "%s: out of LSM static calls!?\n", src))
-> +			return;
-> +		lsm_enabled_set(lsm, true);
-> +		lsm_order[lsm_count] = lsm;
-> +		lsm_idlist[lsm_count++] = lsm->id;
-> +	}
->  
-> -	/* Enable this LSM, if it is not already set. */
-> -	if (!lsm->enabled)
-> -		lsm->enabled = &lsm_enabled_true;
-> -	lsm_order[last_lsm] = lsm;
-> -	lsm_idlist[last_lsm++] = lsm->id;
-
-I don't understand the logic change here. I may be missing something (it
-feels like a lot of logic changes mixed together again), but this logic:
-
-     /* Enable this LSM, if it is not already set. */
-     if (!lsm->enabled)
-             lsm->enabled = &lsm_enabled_true;
-
-seems like it has gone missing now? And I think the last_lsm/lsm_count
-changes need to be in the "lsm: rework lsm_active_cnt and lsm_idlist[]"
-patch? I'm really struggling to follow this patch, but maybe I am EOD.
-:P
-
-
-> -
-> -	init_debug("%s ordered: %s (%s)\n", from, lsm->id->name,
-> -		   is_enabled(lsm) ? "enabled" : "disabled");
-> +	init_debug("%s ordered: %s (%s)\n", src, lsm->id->name,
-> +		   lsm_is_enabled(lsm) ? "enabled" : "disabled");
->  }
->  
->  static void __init lsm_set_blob_size(int *need, int *lbs)
-> @@ -159,17 +168,17 @@ static void __init lsm_prep_single(struct lsm_info *lsm)
->  {
->  	struct lsm_blob_sizes *blobs;
->  
-> -	if (!is_enabled(lsm)) {
-> -		set_enabled(lsm, false);
-> +	if (!lsm_is_enabled(lsm)) {
-> +		lsm_enabled_set(lsm, false);
->  		return;
->  	} else if ((lsm->flags & LSM_FLAG_EXCLUSIVE) && lsm_exclusive) {
->  		init_debug("exclusive disabled: %s\n", lsm->id->name);
-> -		set_enabled(lsm, false);
-> +		lsm_enabled_set(lsm, false);
->  		return;
->  	}
->  
->  	/* Mark the LSM as enabled. */
-> -	set_enabled(lsm, true);
-> +	lsm_enabled_set(lsm, true);
->  	if ((lsm->flags & LSM_FLAG_EXCLUSIVE) && !lsm_exclusive) {
->  		init_debug("exclusive chosen:   %s\n", lsm->id->name);
->  		lsm_exclusive = lsm;
-> @@ -200,7 +209,7 @@ static void __init lsm_prep_single(struct lsm_info *lsm)
->  /* Initialize a given LSM, if it is enabled. */
->  static void __init initialize_lsm(struct lsm_info *lsm)
->  {
-> -	if (is_enabled(lsm)) {
-> +	if (lsm_is_enabled(lsm)) {
->  		int ret;
->  
->  		init_debug("initializing %s\n", lsm->id->name);
-> @@ -218,7 +227,7 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
->  	/* LSM_ORDER_FIRST is always first. */
->  	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
->  		if (lsm->order == LSM_ORDER_FIRST)
-> -			append_ordered_lsm(lsm, "  first");
-> +			lsm_order_append(lsm, "  first");
->  	}
->  
->  	/* Process "security=", if given. */
-> @@ -235,7 +244,7 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
->  		     major++) {
->  			if ((major->flags & LSM_FLAG_LEGACY_MAJOR) &&
->  			    strcmp(major->id->name, lsm_order_legacy) != 0) {
-> -				set_enabled(major, false);
-> +				lsm_enabled_set(major, false);
->  				init_debug("security=%s disabled: %s (only one legacy major LSM)\n",
->  					   lsm_order_legacy, major->id->name);
->  			}
-> @@ -251,7 +260,7 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
->  		for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
->  			if (strcmp(lsm->id->name, name) == 0) {
->  				if (lsm->order == LSM_ORDER_MUTABLE)
-> -					append_ordered_lsm(lsm, origin);
-> +					lsm_order_append(lsm, origin);
->  				found = true;
->  			}
->  		}
-> @@ -264,24 +273,24 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
->  	/* Process "security=", if given. */
->  	if (lsm_order_legacy) {
->  		for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
-> -			if (exists_ordered_lsm(lsm))
-> +			if (lsm_order_exists(lsm))
->  				continue;
->  			if (strcmp(lsm->id->name, lsm_order_legacy) == 0)
-> -				append_ordered_lsm(lsm, "security=");
-> +				lsm_order_append(lsm, "security=");
->  		}
->  	}
->  
->  	/* LSM_ORDER_LAST is always last. */
->  	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
->  		if (lsm->order == LSM_ORDER_LAST)
-> -			append_ordered_lsm(lsm, "   last");
-> +			lsm_order_append(lsm, "   last");
->  	}
->  
->  	/* Disable all LSMs not in the ordered list. */
->  	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
-> -		if (exists_ordered_lsm(lsm))
-> +		if (lsm_order_exists(lsm))
->  			continue;
-> -		set_enabled(lsm, false);
-> +		lsm_enabled_set(lsm, false);
->  		init_debug("%s skipped: %s (not in requested order)\n",
->  			   origin, lsm->id->name);
->  	}
-> @@ -313,13 +322,13 @@ static void __init lsm_init_ordered(void)
->  
->  	pr_info("initializing lsm=");
->  	lsm_early_for_each_raw(early) {
-> -		if (is_enabled(early))
-> +		if (lsm_is_enabled(early))
->  			pr_cont("%s%s",
->  				early == __start_early_lsm_info ? "" : ",",
->  				early->id->name);
->  	}
->  	lsm_order_for_each(lsm) {
-> -		if (is_enabled(*lsm))
-> +		if (lsm_is_enabled(*lsm))
->  			pr_cont("%s%s",
->  				lsm == lsm_order ? "" : ",", (*lsm)->id->name);
->  	}
-> @@ -404,8 +413,7 @@ int __init early_security_init(void)
->  	struct lsm_info *lsm;
->  
->  	lsm_early_for_each_raw(lsm) {
-> -		if (!lsm->enabled)
-> -			lsm->enabled = &lsm_enabled_true;
-> +		lsm_enabled_set(lsm, true);
->  		lsm_prep_single(lsm);
->  		initialize_lsm(lsm);
->  	}
-> @@ -432,7 +440,7 @@ int __init security_init(void)
->  	 */
->  	lsm_early_for_each_raw(lsm) {
->  		init_debug("  early started: %s (%s)\n", lsm->id->name,
-> -			   is_enabled(lsm) ? "enabled" : "disabled");
-> +			   lsm_is_enabled(lsm) ? "enabled" : "disabled");
->  	}
->  
->  	/* Load LSMs in specified order. */
-> -- 
-> 2.49.0
-
-The simple renamings looks fine, but would be nicer if they got split
-out.
-
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index e84188a0..b0befda3 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -2153,6 +2153,7 @@ static int __cil_cond_to_policydb_helper(struct cil_tree_node *node, __attribute
+ 
+ 	case CIL_CALL:
+ 	case CIL_TUNABLEIF:
++	case CIL_SRC_INFO:
+ 		break;
+ 	default:
+ 		cil_tree_log(node, CIL_ERR, "Invalid statement within booleanif");
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index 072d2622..fc11758d 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -6164,6 +6164,7 @@ static int check_for_illegal_statement(struct cil_tree_node *parse_current, stru
+ 			parse_current->data != CIL_KEY_AUDITALLOW &&
+ 			parse_current->data != CIL_KEY_TYPETRANSITION &&
+ 			parse_current->data != CIL_KEY_TYPECHANGE &&
++			parse_current->data != CIL_KEY_SRC_INFO &&
+ 			parse_current->data != CIL_KEY_TYPEMEMBER &&
+ 			((args->db->policy_version < POLICYDB_VERSION_COND_XPERMS) ||
+ 			  (parse_current->data != CIL_KEY_ALLOWX &&
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index a8fa89df..392f03c7 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -3849,6 +3849,7 @@ static int __cil_resolve_ast_node_helper(struct cil_tree_node *node, uint32_t *f
+ 			node->flavor != CIL_AVRULE &&
+ 			node->flavor != CIL_TYPE_RULE &&
+ 			node->flavor != CIL_NAMETYPETRANSITION &&
++			node->flavor != CIL_SRC_INFO &&
+ 			((args->db->policy_version < POLICYDB_VERSION_COND_XPERMS) ||
+ 			 (node->flavor != CIL_AVRULEX))) {
+ 			rc = SEPOL_ERR;
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index 550b4542..cde9dd41 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -1176,6 +1176,9 @@ static int __cil_verify_booleanif_helper(struct cil_tree_node *node, __attribute
+ 		   booleanif statements if they don't have "*" as the file. We
+ 		   can't check that here. Or at least we won't right now. */
+ 		break;
++	case CIL_SRC_INFO:
++		//Fall through
++		break;
+ 	default: {
+ 		const char * flavor = cil_node_to_string(node);
+ 		if (bif->preserved_tunable) {
 -- 
-Kees Cook
+2.49.0.504.g3bcea36a83-goog
+
