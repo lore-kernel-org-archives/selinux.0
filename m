@@ -1,255 +1,87 @@
-Received: from sonic307-15.consmr.mail.ne1.yahoo.com (sonic307-15.consmr.mail.ne1.yahoo.com [66.163.190.38])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4609281529
-	for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 14:23:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.190.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF9751EFF8E;
+	Thu, 10 Apr 2025 16:31:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744295010; cv=none; b=ciuP/xTOrWDe2J72F9pizJZvdFzltM8TVIjBL6HkoS7Khkwg+uZiLUUWvDjuM+kQgwDqNRWUJEn74Mt+CtZiXOnU+hZvDAEI2uUyklOXGz8O0rtyQVt2KCwN/CBkjNf0bR+sX/8bgEYHSpxgCIDmCirFRRW22ih6buj2vV/dcH0=
+	t=1744302673; cv=none; b=qMFsNvIJWsLPhzgTuH4BoKRvA2FZNbI4YvLf9351fhyoh2aPoVHAZyGLLzd/DPuwRw9G1vkOrkR55O5oW6JlUwd7fK2NnASh+iHSLzTV8ccAb+H7gdVQs+b2cZ1SMPx1iuS3UQ43k3Iibz8sru4Ny7wGiHF8+ma9jZoBcQYo0Jc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744295010; c=relaxed/simple;
-	bh=DlhBjDC589ymMPZwvNxVKrOMQcIGogUm/W7kQ61OZvs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=S8vWmq3fR0l79545j54hHJIz0I90Qs6IVeTqWXKI6YPm0M4ZDjUypMbmgFdRE82Sg5n64eJbUk7vnBZ2gGa2KvyYje7PWRclNhhEz39ioE7iC4WSL6RfJYo5XbT5VhNJyp4j9IR537OEBl0pkUzfIsTyK6UzHEW21U4unHBTFtk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=ZjxLfDJV; arc=none smtp.client-ip=66.163.190.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1744302673; c=relaxed/simple;
+	bh=bEIMva8Jfu96D/+FqV2I5HWsOSzlsPgVRupjZZcj+tk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WPR17hp4SCIHXC69Pxk0wqhrphYfk+aMldLp/gY3/JSmQIa65u2gLglkpv1zYjAC8sArVSfICYCTn1BBkHbZJImuA/76tfNdSmrWzzDRKYEu68dUaQFdYINXjlj7nQcvEYRm4p5f9ngeHTwZJjzNt4M4iRSkgV+JflulfwSv9Hk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sSFETOtG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ZjxLfDJV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1744295000; bh=bHL+4Fsshn+gJrmHLJBnHewFXwt2kD1aPUfieqqyVkg=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=ZjxLfDJVEPEEXtViKmcRCwLOGv5jtKL7RAL/lHcYhu2QIqOQtnl5wNcxdWuEstPii28Dqp4otIMvOuXBV3Q1Qi51AIZIGRvBDirD7BJJZVqFp/shRYVQ1s9z4ABHHG5ugG8ByO/gFVX3U01E3FI3mPRRay734fa4ah77rhINj75hxuGn4XyXU1gGOIAMKq7BlUugMvc2voyGDGRrOMCX6V0olqld0OklsMZG6UR93+4KmYHCGLlnZ5+UEehXQk0Z0P4anQ+aifgmRDlNkpCSkdrwzQh94BgFOGjHsYdNpBZb8vsQAXKLm/q2nnqC2aMhyYqL0H8JNwRzkcOho/pzCw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1744295000; bh=t30QW6WLUtW/fRrZHML/WrBMMRMK32a+JBNBD8nhJ49=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=Y0N3z9Kwk2gSgKYQQNIitYguDj6tehHG+MixUB138dPK7rl7dy5gIYewhMMu6YIVHhPMQM0BMsKtUAG43/nWuGAfcUeuFa4GZ98MLkpSoDk2hF/otuQvNse8cbu5b7alYjjBjS+6N2zxNIRrC5Ujj64hRjHmFclqgjjiZp4qR7bzo3QsjcqE94pSY5tVOKzCVGmCmW/11L5RC8CBza1GaWZT1j/RO+/2pxuV0i5WYLmmSar0corTdO6VR6PoAfGIOI7aem1mpXJ+BbmE2K3FsoRs2f5qvm/Wu1B0d/bLJECxvEIYJ/aAlK5mO3OYB0rFvfPu23rfo6+vgwuy2nHHoA==
-X-YMail-OSG: jF3N4MQVM1lAyrTcBqDkUTbH56uin0g36bVYWwtDfy3_hqqeRFQ7v9n.W.teM10
- Wy0Ia867G8Dw2EER73qHTtOu5cjlWixnHyjf6K5t3DC_STqzr.UrD45OtC7dv9SujlpWMsZajWA1
- _TxbMSVAxsu2Bsf9nId0b_ZLl8fLlc47JmqB2hSHcIcSprQ2dgpzNShsm5.Jw1kjmWI.CQLAOLgU
- yskQYu67JcfQp_Yg9lS4SYhdY9Ve68nEmpPg8re5zwEwIiU.BruzJVNBsgSHLo7UA9PKnnQVhC5i
- BcI8W2TiyKyaqq_8oo_b8xCxhwNSUEm78NhNwO5DZVlp9FmFbVK6cnoyS0lR8qMiAUbqnQ98V_.8
- hXFLXuhhp8br8HhXPaYrfsRYU_s1e7Z_FEsxLFIWqN6ByOsa3XBpDVHZtSp0LnCh5WRKvF57rNlj
- yESDv7VQzMjbt2xmcN4TIWvX6fkLUF09o02pKwfPDrKEj7pRqtIVu2Bs8Rjmcw959KPtuWOq7V_5
- kBaeWC5H6ILlyRZQbSjdTXCks_Jn1r_0gM039OLAXMzzpYw1rlcdI3lkgJl5qNetT5IghNo8D.ZZ
- lWk07bhPKgEgLIpqGRo04ISJ0MH837NzOxt2uh7SmZHl8B7xiswmlj2WLOdvtLg_5eoVKAtyJ8o8
- JaSEO6fbHZzZz2BH7Bd6uUMC9EqsvnlXb3YJTY6sKaIrT9y6zblGdfVqJ9TJPWdKARhNkarfFPuT
- WjnpDvO.SXv_3Q4jrDWL8cyVcCfYJAoApAa0kb3zPdT6AqNQvmTADiFGdHo6YnU7Ydlw2PRClxKZ
- NbWYbz_9UC.VqA57ws6chleRlwMNyd788hB.ickKqv4mBTtlYzm8p9Q35l0aL5RyyEHlDHEvMEas
- IE.TxgUKj5eSTuL7V_AZyHxwGAWDLwJpTm.9s0i8eFdpbWgykadySHey0pH1an2U8FIJqaIizWqX
- hsvGO6o3SBsJeg0eFg2MHO0vbch9n4DPQQO.4R8Xi8BGzTCC71LYHPE1C3mg3n_n3Vws6e6IUwGP
- 6jUlbjbpTSZxUgclO8lLxYhfl3NjSNPqcyir5CREhg7dVYI_qfJDFzhx029NApXDZDUHGQJt7wJk
- eMayyBBy4GqLskHJdWuqH33x89hDc1WcXpE.kARqpU5hdldAj8Jlvhg_beRXzglboYz9RH.r34ME
- 12YnFw_u9iUeDbkJjj3C3_.8_a8oU9lHz7NDtqIfQ3Jnqd9osTA8Z91y4kr9cl9UisIgR5hbIoCj
- Gb7KWU4yF5HsAOjuXSB.ZAGSPKY6npCh7_aiLJP0AXxJQmfY9f_Q1w2j0zyr6O_oq7au4mYEhgCJ
- l.N4g940yUFysQQPNQpmWomu6.67VHClS9eYIAi_4AgsOMt2s.qakEAe9d5d.ZjGLtqwm6J7hpq7
- XLU_Cj0ppVbzBjvfX8fRFDnPxrINEXMMU8YQdkgROQ4la4QpV.Z_IiaYD.qygkHsuZuvpR4xecIX
- vQSDdD3ifjH7xHNZVwQ.zUhAQWUaDjH3O.TbPQ6WiD8thBFm7rqt5v0crBv0UeuBeYvHBSE3U1CU
- TX1eOLk4q54z4fYZykxySgEF.047CvxuC1gmFf6Wq3GNJYWJ9_xcAMtki7HXzl.ODBxOeYOB.EiT
- ToUoVa1cujeU6SBTVeA0D6B5jN3mO80Vfl26gs.PyoC6jvE62ZLJhP.JDE1nZYBqelP5eBKTM9TD
- UVCQFkmkbMc09GSvAd2Ygf35jrmsfcLJu.HpMBYLxFPT7phly3oW.fxQPo.cBdYkA0.OxwwgpfE7
- D0yl5m1.jh6zyEdjavSWincm7IBGyy.gmDMcVsnJ6cith.7IvNO.Pz_lkXchlEfMHx7WFym6ANDS
- uiGiSLapo72g6FQust9TrnHwD7MZiLPzI5xxLyRrZ4f7H_MkTyNexNb_Mp9b6OAq1YIcdW6nQYmH
- GXfAAripwEWJhumUEKHnH4Pzbnb6zPQzYZBhsojVXV5qvV4RtdbLdVJdL6322PNvUn8JYzXAF6fB
- eS4sW4Dcm6mCq8ZapC6mszuowobBc5jISizs9VUPS07jWW2u1JbzrogzSFDYm75qkak49iM.uOhB
- CZVVo1fX_3MnemxFTOsJj1VvCA.xMYb7BoNboq03WkE570tjW9LcOfQMibwr9Pq0jEkAt6v3RNqf
- Z_sLoqnW6YsSwCNJPo8vhROEb8iaQiBB5sdajRi7wKfifsAjLUN6LvincxZMTQfY5f26Hjoj9Mnw
- RFJVStAiHKSwKbxsyCb7HX.ZttGwmBBNPshQbIYRK7ZtCH_5uy653.74yrqt6grtH2v9y3pfGLTl
- QBkQWVlWCagHLqfdTDXHJz0B4pawPUModug--
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 1ee793a3-13b3-4062-ac31-5d88ddecf6b5
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Thu, 10 Apr 2025 14:23:20 +0000
-Received: by hermes--production-gq1-6f8bfcd964-pbc56 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID ee5e9965a808f684b189ecfde41e6d54;
-          Thu, 10 Apr 2025 14:13:11 +0000 (UTC)
-Message-ID: <1c13537f-b088-464c-87ee-3e81fb909f92@schaufler-ca.com>
-Date: Thu, 10 Apr 2025 07:13:11 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sSFETOtG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 285ACC4CEDD;
+	Thu, 10 Apr 2025 16:31:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1744302673;
+	bh=bEIMva8Jfu96D/+FqV2I5HWsOSzlsPgVRupjZZcj+tk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=sSFETOtG+eTatr0XIRcTnqU187gO65vi/YNUcZmvNyV06WD8/FDtRkgsXNgf+Rn5m
+	 zXcoOIAucf56EazfgWb+gpWxJNon4mQ6oDqAU3mURY556zcs9D3qIiQrs+bB/BL4Ea
+	 Z9h1quwmSei4ygy8PUIoMMQNnvhOrGFX9T7XRmjUYBOW24Du9Y4Cvg9MfCl0dTPB6h
+	 /mGDzdVOcmQ6P5uIeF42cuFlcckv20aRo5gZuQA7jxjdjVLWWfrYv0CW3xEvPL72In
+	 wXruR3nFF77qhR9KM/FwyyG0Z/eSQ5WoPCAPIVq30b+yfYaCFFXdO/t4dxMUu/P92J
+	 dGI6ZsXW1G9Xw==
+Date: Thu, 10 Apr 2025 09:31:10 -0700
+From: Kees Cook <kees@kernel.org>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
+	linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+	John Johansen <john.johansen@canonical.com>,
+	Mimi Zohar <zohar@linux.ibm.com>,
+	Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
+	=?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
+	=?iso-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
+	Micah Morton <mortonm@chromium.org>,
+	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: Re: [RFC PATCH 0/29] Rework the LSM initialization
+Message-ID: <202504100923.42709A64@keescook>
+References: <20250409185019.238841-31-paul@paul-moore.com>
+ <1c13537f-b088-464c-87ee-3e81fb909f92@schaufler-ca.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 0/29] Rework the LSM initialization
-To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
- linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Cc: John Johansen <john.johansen@canonical.com>,
- Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>,
- Fan Wu <wufan@kernel.org>, =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?=
- <mic@digikod.net>, =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
- Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20250409185019.238841-31-paul@paul-moore.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20250409185019.238841-31-paul@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.23665 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1c13537f-b088-464c-87ee-3e81fb909f92@schaufler-ca.com>
 
-On 4/9/2025 11:49 AM, Paul Moore wrote:
-> This is one of those patchsets that started out small and then quickly
-> expanded to what you see here.  I will warn you that some of the
-> individual patches are a bit ugly to look at, but I believe the end
-> result is much cleaner than what we have now, fixes some odd/undesirable
-> behavior on boot, and enables some new functionality.
->
-> The most obvious changes are the extraction of the LSM notifier and
-> initialization code out of security/security.c and into their own files,
-> security/lsm_notifier.c and security/lsm_init.c.  While not strictly
-> necessary, I think we can all agree that security/security.c has grown
-> to be a bit of a mess, and these are two bits of functionality which
-> can be extracted out into their own files without too much fuss.  I
-> personally find this to be a nice quality-of-life improvement, and while
-> I'm open to keeping everything in security.c, the argument for doing so
-> is going to need to be *very* persuasive.
+On Thu, Apr 10, 2025 at 07:13:11AM -0700, Casey Schaufler wrote:
+> On 4/9/2025 11:49 AM, Paul Moore wrote:
+> > This is one of those patchsets that started out small and then quickly
+> > expanded to what you see here.  I will warn you that some of the
+> > individual patches are a bit ugly to look at, but I believe the end
+> > result is much cleaner than what we have now, fixes some odd/undesirable
+> > behavior on boot, and enables some new functionality.
+> >
+> > The most obvious changes are the extraction of the LSM notifier and
+> > initialization code out of security/security.c and into their own files,
+> > security/lsm_notifier.c and security/lsm_init.c.  While not strictly
+> > necessary, I think we can all agree that security/security.c has grown
+> > to be a bit of a mess, and these are two bits of functionality which
+> > can be extracted out into their own files without too much fuss.  I
+> > personally find this to be a nice quality-of-life improvement, and while
+> > I'm open to keeping everything in security.c, the argument for doing so
+> > is going to need to be *very* persuasive.
+> 
+> It's something I've considered doing as part of the stacking work,
+> but that I have eschewed in the spirit of churn reduction. I've no
+> problem with it.
 
-It's something I've considered doing as part of the stacking work,
-but that I have eschewed in the spirit of churn reduction. I've no
-problem with it.
+Yeah, to be clear, I'm a fan of these refactorings. :)
 
-> The other significant change is moving all of the LSM initcalls into the
-> LSM framework.  While I've always pushed to keep the LSM framework as
-> minimal as possible, there are some things that we really can't defer to
-> the individual LSMs and with the LSM framework responsible for enabling
-> or disabling the individual LSMs at boot, I believe management and
-> execution of the LSM initcalls needs to be handled in the framework as
-> well.  Not only does this move ensure that we aren't running initcalls
-> for LSMs which are disabled, it also provides us with a convenient spot
-> to signal when all of the LSMs have been actived (see the LSM_STARTED_ALL
-> patch towards the end of the patchset).  This is not a feature we
-> currently need, but I'm aware of some future work that does require this
-> so I thought it would be good to think about it now while doing this
-> work.
->
-> Related to the LSM_STARTED_ALL patch, the final patch in this series
-> adds support for LSMs to indicate if they provide lsm_prop values for
-> subjects and/or objects.  Casey needs this functionality for his recent
-> audit changes, and I personally find the counting approach presented
-> here to be ... less ugly I guess?
+> There's a lot of churn here due to unnecessary name changes. I can't
+> say they're unjustified, but the patch set is bigger than it needs to
+> be, and more disruptive.
 
-The flags approach works for me. I was going to propose adding a call
-audit_lsm_secctx() that LSMs would call to identify that a secctx was
-being supported, but I had considered the flag approach as well. As for
-ugly, I can't say one way or the other.
+If renamings are desired, sure, let's do it, but I'd love to see them
+very distinctly separated from logical changes.
 
-> This patchset is marked as a RFC for a number of reasons: additional
-> testing is required, the commit descriptions could benefit from some
-> extra attention, and I still have hopes that some of the individual
-> patches could be cleaned up a bit (I still like the end result, but how
-> we get there could be improved).  I would really appreciate if the
-> individual LSM maintainers could give this a quick look, especially
-> the individual LSM patches that move the initcalls into the LSM
-> framework as some of those are non-trivial.
-
-General comments:
-
-Adjacent patches with no more commit message than "cleanup" should
-be combined, as that message is telling me "these aren't the changes
-you're looking for".
-
-And about that. I believe that missing or uninformative commit messages
-are on your list of things that displease you. You will need to improve
-them to get them past yourself. :)
-
-There's a lot of churn here due to unnecessary name changes. I can't
-say they're unjustified, but the patch set is bigger than it needs to
-be, and more disruptive.
-
-I haven't tested it, but I don't see any substantial problems so far.
-
->   Mimi and Roberto, the
-> IMA/EVM work here was particularly "fun"; from what I've seen thus far
-> it appears to work correctly, but I have no idea if that code is good
-> or bad from you perspective.  It's perfectly okay if you want to
-> reject the approach taken in IMA/EVM, but we do need to move the
-> initcalls up to the LSM framework, so please suggest some code that
-> would allow us to do that for IMA/EVM.
->
-> --
-> Paul Moore (29):
->       lsm: split the notifier code out into lsm_notifier.c
->       lsm: split the init code out into lsm_init.c
->       lsm: simplify prepare_lsm() and rename to lsm_prep_single()
->       lsm: simplify ordered_lsm_init() and rename to lsm_init_ordered()
->       lsm: replace the name field with a pointer to the lsm_id struct
->       lsm: cleanup and normalize the LSM order symbols naming
->       lsm: rework lsm_active_cnt and lsm_idlist[]
->       lsm: get rid of the lsm_names list and do some cleanup
->       lsm: cleanup and normalize the LSM enabled functions
->       lsm: cleanup the LSM blob size code
->       lsm: cleanup initialize_lsm() and rename to lsm_init_single()
->       lsm: cleanup the LSM ordered parsing
->       lsm: fold lsm_init_ordered() into security_init()
->       lsm: add missing function header comment blocks in lsm_init.c
->       lsm: cleanup the debug and console output in lsm_init.c
->       lsm: output available LSMs when debugging
->       lsm: introduce an initcall mechanism into the LSM framework
->       loadpin: move initcalls to the LSM framework
->       ipe: move initcalls to the LSM framework
->       smack: move initcalls to the LSM framework
->       tomoyo: move initcalls to the LSM framework
->       safesetid: move initcalls to the LSM framework
->       apparmor: move initcalls to the LSM framework
->       lockdown: move initcalls to the LSM framework
->       ima,evm: move initcalls to the LSM framework
->       selinux: move initcalls to the LSM framework
->       lsm: consolidate all of the LSM framework initcalls
->       lsm: add a LSM_STARTED_ALL notification event
->       lsm: add support for counting lsm_prop support among LSMs
->
->  include/linux/lsm_hooks.h                            |   73 -
->  include/linux/security.h                             |    3 
->  security/Makefile                                    |    2 
->  security/apparmor/apparmorfs.c                       |    4 
->  security/apparmor/crypto.c                           |    4 
->  security/apparmor/include/apparmorfs.h               |    2 
->  security/apparmor/include/crypto.h                   |    1 
->  security/apparmor/lsm.c                              |   12 
->  security/bpf/hooks.c                                 |    3 
->  security/commoncap.c                                 |    3 
->  security/inode.c                                     |   29 
->  security/integrity/Makefile                          |    2 
->  security/integrity/evm/evm_main.c                    |   10 
->  security/integrity/iint.c                            |    4 
->  security/integrity/ima/ima_main.c                    |   10 
->  security/integrity/ima/ima_mok.c                     |    4 
->  security/integrity/initcalls.c                       |   97 +
->  security/integrity/initcalls.h                       |   23 
->  security/integrity/platform_certs/load_ipl_s390.c    |    4 
->  security/integrity/platform_certs/load_powerpc.c     |    4 
->  security/integrity/platform_certs/load_uefi.c        |    4 
->  security/integrity/platform_certs/machine_keyring.c  |    4 
->  security/integrity/platform_certs/platform_keyring.c |   14 
->  security/ipe/fs.c                                    |    4 
->  security/ipe/ipe.c                                   |    4 
->  security/ipe/ipe.h                                   |    2 
->  security/landlock/setup.c                            |    3 
->  security/loadpin/loadpin.c                           |   16 
->  security/lockdown/lockdown.c                         |    6 
->  security/lsm.h                                       |   46 
->  security/lsm_init.c                                  |  566 ++++++++++
->  security/lsm_notifier.c                              |   31 
->  security/lsm_syscalls.c                              |    8 
->  security/min_addr.c                                  |    5 
->  security/safesetid/lsm.c                             |    4 
->  security/safesetid/lsm.h                             |    2 
->  security/safesetid/securityfs.c                      |    3 
->  security/security.c                                  |  620 -----------
->  security/selinux/Makefile                            |    2 
->  security/selinux/hooks.c                             |   12 
->  security/selinux/ibpkey.c                            |    5 
->  security/selinux/include/audit.h                     |    5 
->  security/selinux/include/initcalls.h                 |   19 
->  security/selinux/initcalls.c                         |   50 
->  security/selinux/netif.c                             |    5 
->  security/selinux/netlink.c                           |    5 
->  security/selinux/netnode.c                           |    5 
->  security/selinux/netport.c                           |    5 
->  security/selinux/selinuxfs.c                         |    5 
->  security/selinux/ss/services.c                       |   26 
->  security/smack/smack.h                               |    6 
->  security/smack/smack_lsm.c                           |   19 
->  security/smack/smack_netfilter.c                     |    4 
->  security/smack/smackfs.c                             |    4 
->  security/tomoyo/common.h                             |    2 
->  security/tomoyo/securityfs_if.c                      |    4 
->  security/tomoyo/tomoyo.c                             |    4 
->  security/yama/yama_lsm.c                             |    3 
->  58 files changed, 1102 insertions(+), 724 deletions(-)
->
+-- 
+Kees Cook
