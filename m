@@ -1,125 +1,154 @@
-Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com [209.85.219.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 412E578F45
-	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 20:36:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DB7078F45
+	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 20:39:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744403796; cv=none; b=k9T/nyMwsILpJGvKSJmN9EJ0RaZJ/sN97fmOCcRQCsMKX6p4vQIRsYbo+T/208U25prwy1GtfT3doEGiMnWYXDnOzzFXbK0oOAFSjB/6m08I3KygFUNTixygpL0g8Bav9m/aa6MuFU/753hts5WIC8HwalIJjZAuElcF860O3r4=
+	t=1744403960; cv=none; b=lWwtcqf99VNmU7mGvEBc762/wYRmFB7joZRDomp+QNwdI2poQSbh/ZAY5ZmfJcP4BylUci8R5cXQ2JOXGksqtiAg6bUH5CZo4vRbpfSsuLlgF0O5DUm6A4//xT8olGWQNk/PfYrJ2kjiYzYodU9vV7pBt99KwmBZEmWohgWeQYo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744403796; c=relaxed/simple;
-	bh=vUrKpHj0arEW+TKo0c9ht0m99tjeU3Ry8atuR91mCQI=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=es/EoLYigOpY39CIV6uIWpGK9ZBypgPCqypV45VJnIC1Fg3DoIVoTBclbEyO3BrpHL941wkfIiWUlujdxZ14/g5iYlQjJDmTbyRbYNbgGfCczTOt6hvskKMuq0KgrzggeU5siLIAfqrIlkvQc5UOJWEgjdsF0vh1IMDEtDevn98=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=IdBhA6lM; arc=none smtp.client-ip=209.85.222.171
+	s=arc-20240116; t=1744403960; c=relaxed/simple;
+	bh=Dd21HafqvhL4LRmMHr6UG9JPN3gDkPg8ZPL81BYDCH0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hu7ysG9fi5FBaKUGmKBkrKl+XFpDno5T6PhL1o8v3LBqxVqKmMbuqj5/mGMqvFj21VlezYgUZSlzqPJRbNyqlxz6seDBMWMxZKsdPZo3AoMNJsI5tQiUpj2Qxy/af3w5OD157RD9W/uiiHm190VCRdJxJfL0dlwuZZHJp1P/9J0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=TPCGUJFP; arc=none smtp.client-ip=209.85.219.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="IdBhA6lM"
-Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-7c5aecec8f3so372758685a.1
-        for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 13:36:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="TPCGUJFP"
+Received: by mail-yb1-f180.google.com with SMTP id 3f1490d57ef6-e702cffe574so2005166276.3
+        for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 13:39:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1744403794; x=1745008594; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=C8SyV1M8v6IBd03ILhZh79/jYBeQz2umCIkkXwTNFfQ=;
-        b=IdBhA6lMZe1vcuz3O2non4stHouTbxN3QcW+VpObs0e5BouNZkwrpHCpj5B/XnwLaO
-         rcgrMjO+G9CGGOQJl1/yt5+LaC8sUfHX5jEgAogyYrEX9w8de86zf1xcSRW5HB/MTR/b
-         q9dTFQTRzy4w+v7LDucf6SVKQjVi5sE/Ndh8J/1NF5EgB7WBLdlPTtcVG/3Vm3xC/Rwp
-         AUzxqFc92Qz6T+CTUvBsaSfMBfgSYb692fB5lU17SzJYkNsAArTrru2PpDMjtcvTyfAM
-         i02WOQhDSksKfEK/rs659hLbcKuvuNRY3zk1t9fvBxl3KuKt6/x87OWClEYfS4GgkETf
-         onKQ==
+        d=paul-moore.com; s=google; t=1744403956; x=1745008756; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rqnWJXfJZynDBCqgWxl9HwCmqxFniyodhiMPOH67rZU=;
+        b=TPCGUJFPuTBeVgbBxbPNdyOG8+ExmujInxQqqLWHq4C13oes88QgqhFPx/lWASd9+E
+         sXwb0/zXyDG6W+yvFDPFmFYvBHlgfXv5Bh8Y7AiRb0wPYdtNEKxbVmuyAn8Ba3KqeGOp
+         G3ATbE96cOl2/33EHjZCmyiAB2mfbY1mkmciaBJ0/wdreIKlRmVm0UWiORNVX/Ht9Wxv
+         00EBHElERULvVrydy6WXRgG4R81oybCvfWF7SR9ek6/Iz9ue5nr4T0ItgzN0K2lp1Pqr
+         fvEimq3uCxOnOUDFbf00FZ9H9b8DumJipGLbNy7TfedZxdmpbx6wMb5+vUI0WlXmGaTL
+         pMpw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744403794; x=1745008594;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=C8SyV1M8v6IBd03ILhZh79/jYBeQz2umCIkkXwTNFfQ=;
-        b=JnDmy8E8Ycnl3/is/YVSgOAcQjs1v6ZNrFQGSY1VAaeu3U7ypx99kxtAMnS+Wnmiw8
-         JszmbIs64TwNFwtksXTeAeHA7ui4A65kGprkgXFGitKh0VZ5p+y82Zhmo8pErMaRWtur
-         BcEU+WnEMjiiUxNkGsuzRrgYRUJzLa2S8tNBsK/PdyzoOnXAdRf0OqmgqHzlirakeZ4h
-         n0SVsWdyu/Y9twJRDiXFlMK3z8L0tTaq/HPybNbnWbFXcLm+E/tH9/3m5N6qtp81889P
-         9Su9Dc1RkXMjumVXIaYdK0YZR0eg6jpaYMhq3VlqBu07wyuyDyAJOgw7xJltGokDCY8F
-         vSLQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUPmnPZ6cw+yV+W+8wjCpACXUlCXWPigzd0jlzmpRxqSc5wq7mocubLCBWq7o9sPPD50cFPDL2O@vger.kernel.org
-X-Gm-Message-State: AOJu0YxKyH77bma7piWZWUwhZLENihX/SdPHyis0cueVJ/MLyzlirRD8
-	nh34WE09COz3e7YKfDDJYQqJZl55E61uN80JZsF5yU8AKX1/oh8D3BKr96bX/Q==
-X-Gm-Gg: ASbGncsqjjhSVfwPDD1TRsmh3RB2Fxfn7EGAd4KGxLI5Jd3PPptFwyqDhsImnAsG5bx
-	SKxgobQhH1OVBDuJUwYeRw+KCs2kaJYYkTvFtkuP73BtRH8zIgdttTQuciMPi+YGHaeL/byEWO/
-	hRzf6sgeD5jT9ehJEkC0IbGMb4p0JVS3/oGBfl+QUOupNS8fajjbYBL6YPE2Fcy20Ga9vKfn1r4
-	kKVeSJ70mEcC3yfni3GFODzJY4sCEbKc1N1zFEwMi/FgeM3LImRNvEPcvQaOL+jyHpDJ8ATarkL
-	4j7vaZFU05x1+Er7Y2EfxafcLEZ3X8RgFqxrvRfvfg5j6G5EbVkT1UBKnyLHmzp7iH2mw/9zqkE
-	kUn+sj9+jb43Rnl2L9NAh
-X-Google-Smtp-Source: AGHT+IEMqoWLapD1DaCyeh+gK7JyPIUjwcHY/n56lKyGtuNCB7j5w+KUGs+5UYly8owiZHVqFD78Ag==
-X-Received: by 2002:a05:620a:44c6:b0:7c5:4a8e:b6b with SMTP id af79cd13be357-7c7af11f86bmr653043285a.46.1744403794212;
-        Fri, 11 Apr 2025 13:36:34 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-7c7a8969428sm309109685a.61.2025.04.11.13.36.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Apr 2025 13:36:33 -0700 (PDT)
-Date: Fri, 11 Apr 2025 16:36:33 -0400
-Message-ID: <9e2b3a966867586719e9757402ee3817@paul-moore.com>
+        d=1e100.net; s=20230601; t=1744403956; x=1745008756;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=rqnWJXfJZynDBCqgWxl9HwCmqxFniyodhiMPOH67rZU=;
+        b=XObQTiG+jR2m4lG2o0/dpPxNKcEAgVfwq8dKJa8+wb3eyNhylxeqGQlF9Xs6cUEkhk
+         AGN2ng2qsV7sDJ9gU4reOZ9HqHw8XLD72wtbBYBTMvJ018LgrOcYeZujHO1yIWP+q/gi
+         gNwC49wqsDwB+vEaGcpUIR8IDdG8KV1K7okWYByMcNMjRM1+Y8Jq0dxWG045vANJiai3
+         JWo5OE2g5UfXlmSEn9fOak3PK6mWNSdV88GjuT2q9zIATYcr5WU2V5+iOfh5S1Fx18v4
+         RgV0IHU+VivpHAUAubNdfNSkNlMs18Cjyfz15oaDeQF4Ou+BbDM+9LQf4BmOK4vpY1hy
+         JrUQ==
+X-Gm-Message-State: AOJu0YwO/annd2ahxGXsMmVg4Om8j6ksY9nFsBF8hO6awRwkr7ojsUKb
+	eGfssWqb8qrti32e9V+5p/wVKwaJrwcoAGyZc7lW+iFVT3uBAcQpVQQ6s/t/bWcNDpi3LjAGku1
+	QdGjJ2+wYzbEhnuztOpqUik/+njmLu7REFK3O
+X-Gm-Gg: ASbGncs93G+Pudky0onfOiWqL0c3fQG0PGE4At3qi9ze0EhMij/kwGwoPIqkb0XBE/u
+	MQZIPGtnMp0aF1ggFB0GsfDmzAocOkJLEhDabSCA6pa8sZFFsiA9qrNy/4EDKwKYo5iSPxrJs/p
+	3jYMlQhnuinC6Kd2IuEuGrRH2qpbWdbYUF
+X-Google-Smtp-Source: AGHT+IG+ivbzYDg7Yv8rMqkAPpM3eUX3zyW4y3sU5Qf5AdYqwiVa67YziIg7FB0f1ZB4OQCwHpVPSczbJI1218No19Y=
+X-Received: by 2002:a05:6902:1b04:b0:e6d:ec5e:b5ee with SMTP id
+ 3f1490d57ef6-e704dfff3acmr6346753276.30.1744403956343; Fri, 11 Apr 2025
+ 13:39:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20250411_1406/pstg-lib:20250411_1552/pstg-pwork:20250411_1406
+MIME-Version: 1.0
+References: <20250410192031.259180-2-paul@paul-moore.com> <CAEjxPJ4G6+f74EA4usHA+ZqW_tuVXCkft-2+3wApXVpRMtMNEg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4G6+f74EA4usHA+ZqW_tuVXCkft-2+3wApXVpRMtMNEg@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-To: Takaya Saeki <takayas@chromium.org>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>
-Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>, =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>, Nick Kralevich <nnk@google.com>, Jeffrey Vander Stoep <jeffv@google.com>, Junichi <uekawa@chromium.org>, Daniel Burgener <dburgener@linux.microsoft.com>, selinux@vger.kernel.org, Takaya Saeki <takayas@chromium.org>
-Subject: Re: [PATCH v3] selinux: support wildcard match in genfscon
-References: <20250318083139.1515253-1-takayas@chromium.org>
-In-Reply-To: <20250318083139.1515253-1-takayas@chromium.org>
+Date: Fri, 11 Apr 2025 16:39:05 -0400
+X-Gm-Features: ATxdqUHtj0GWX7zruQ-rUYchCdb0P3RD3r4XBJcgM1EMHFO_0JxpB5iFclG145E
+Message-ID: <CAHC9VhTuw-Loa0Yi1wB8s-q0=jUgghWXDUiSrU-vuf3fa3ncpA@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: reduce path walk overhead
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mar 18, 2025 Takaya Saeki <takayas@chromium.org> wrote:
-> 
-> Currently, genfscon only supports string prefix match to label files.
-> Thus, labeling numerous dynamic sysfs entries requires many specific
-> path rules. For example, labeling device paths such as
-> `/sys/devices/pci0000:00/0000:00:03.1/<...>/0000:04:00.1/wakeup`
-> requires listing all specific PCI paths, which is challenging to
-> maintain. While user-space restorecon can handle these paths with
-> regular expression rules, relabeling thousands of paths under sysfs
-> after it is mounted is inefficient compared to using genfscon.
-> 
-> This commit adds wildcard matching to genfscon to make rules more
-> efficient and expressive. This new behavior is enabled by
-> genfs_seclabel_wildcard capability. With this capability, genfscon does
-> wildcard matching instead of prefix matching. When multiple wildcard
-> rules match against a path, then the longest rule (determined by the
-> length of the rule string) will be applied. If multiple rules of the
-> same length match, the first matching rule encountered in the given
-> genfscon policy will be applied. Users are encouraged to write longer,
-> more explicit path rules to avoid relying on this behavior.
-> 
-> This change resulted in nice real-world performance improvements. For
-> example, boot times on test Android devices were reduced by 15%. This
-> improvement is due to the elimination of the "restorecon -R /sys" step
-> during boot, which takes more than two seconds in the worst case.
-> 
-> Signed-off-by: Takaya Saeki <takayas@chromium.org>
-> ---
-> Changelog between v3 and v2
-> - Cosmetic changes
-> - Mention the new capability in the commit message.
-> 
-> Changelog between v2 and v1
-> - Use given genfs rules by the userspace as is, instead of appending "*".
-> - Fix __security_genfs_sid hadn't checked caps of the given argument.
-> - Fix the wrong strncmp usage bug.
-> 
->  security/selinux/include/policycap.h       |  1 +
->  security/selinux/include/policycap_names.h |  1 +
->  security/selinux/ss/services.c             | 19 +++++++++++++++----
->  3 files changed, 17 insertions(+), 4 deletions(-)
+On Fri, Apr 11, 2025 at 9:15=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Thu, Apr 10, 2025 at 3:25=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
+> >
+> > Reduce the SELinux performance overhead during path walks through the
+> > use of a per-task directory access cache and some minor code
+> > optimizations.  The directory access cache is per-task because it allow=
+s
+> > for a lockless cache while also fitting well with a common application
+> > pattern of heavily accessing a relatively small number of SELinux
+> > directory labels.  The cache is inherited by child processes when the
+> > child runs with the same SELinux domain as the parent, and invalidated
+> > on changes to the task's SELinux domain or the loaded SELinux policy.
+> > A cache of four entries was chosen based on testing with the Fedora
+> > "targeted" policy, a SELinux Reference Policy variant, and
+> > 'make allmodconfig' on Linux v6.14.
+> >
+> > Code optimizations include better use of inline functions to reduce
+> > function calls in the common case, especially in the inode revalidation
+> > code paths, and elimination of redundant checks between the LSM and
+> > SELinux layers.
+> >
+> > As mentioned briefly above, aside from general use and regression
+> > testing with the selinux-testsuite, performance was measured using
+> > 'make allmodconfig' with Linux v6.14 as a base reference.  As expected,
+> > there were variations from one test run to another, but the measurement=
+s
+> > below are a good representation of the test results seen on my test
+> > system.
+> >
+> >  * Linux v6.14
+> >    REF
+> >      1.26%  [k] __d_lookup_rcu
+> >    SELINUX (1.31%)
+> >      0.58%  [k] selinux_inode_permission
+> >      0.29%  [k] avc_lookup
+> >      0.25%  [k] avc_has_perm_noaudit
+> >      0.19%  [k] __inode_security_revalidate
+> >
+> >  * Linux v6.14 + patch
+> >    REF
+> >      1.41%  [k] __d_lookup_rcu
+> >    SELINUX (0.89%)
+> >      0.65%  [k] selinux_inode_permission
+> >      0.15%  [k] avc_lookup
+> >      0.05%  [k] avc_has_perm_noaudit
+> >      0.04%  [k] avc_policy_seqno
+> >      X.XX%  [k] __inode_security_revalidate (now inline)
+> >
+> > In both cases the __d_lookup_rcu() function was used as a reference
+> > point to establish a context for the SELinux related functions.  On a
+> > unpatched Linux v6.14 system we see the time spent in the combined
+> > SELinux functions exceeded that of __d_lookup_rcu(), 1.31% compared to
+> > 1.26%.  However, with this patch applied the time spent in the combined
+> > SELinux functions dropped to roughly 65% of the time spent in
+> > __d_lookup_rcu(), 0.89% compared to 1.41%.  Aside from the significant
+> > decrease in time spent in the SELinux AVC, it appears that any addition=
+al
+> > time spent searching and updating the cache is offset by other code
+> > improvements, e.g. time spent in selinux_inode_permission() +
+> > __inode_security_revalidate() + avc_policy_seqno() is less on the
+> > patched kernel than the unpatched kernel.
+> >
+> > It is worth noting that in this patch the use of the per-task cache is
+> > limited to the security_inode_permission() LSM callback,
+> > selinux_inode_permission(), but future work could expand the cache into
+> > inode_has_perm(), likely through consolidation of the two functions.
+> > While this would likely have little to no impact on path walks, it
+> > may benefit other operations.
+> >
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+>
+> Thanks for doing this!
+>
+> Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Looks good to me, merged into selinux/dev.  Thanks for your hard work
-and patience!
+Thanks for the review and additional testing :)
 
---
+--=20
 paul-moore.com
