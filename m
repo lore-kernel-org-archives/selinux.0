@@ -1,98 +1,158 @@
-Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5443C2367A7
-	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 13:22:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 622BB224226
+	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 17:15:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744377741; cv=none; b=i1cDNX6Rfr2uCwnaDziRo0baBbPx/JSIDeAUULRRd6co3Y958kSyN+S2wOBodylFctPlOCIhErdnO01Ip90PhN6V9VRfXx8TC81FXjdYYgSph7h+CmxyU/4DgGVtOLAdIg8tzbVASWPDNTNYYu2bW8SJ8g205igJjtBhfAxHFjU=
+	t=1744391727; cv=none; b=kK8Bx6awo7BBE8HMfQJ2i8ExzXdHkuBX4y0uvmHg0yscZjHsTpmw6uXhdRpD9Jp+mPrgFuFKb3NrW8LaUV4yWFpgjEuSjvha03IR3AQmThTdD+3uEGQ2EuSIgkT8gQbnHJ6Pc2u8udsEy5+fhc8bq4bQPgjSDSjxbNFJltoftKw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744377741; c=relaxed/simple;
-	bh=S57NWAWD6jEEZByXV/oBbuCAZdaxRdZbuD7tFPL23fA=;
+	s=arc-20240116; t=1744391727; c=relaxed/simple;
+	bh=/iZJiCPY6H+K/vnlEHE5xyYCw7sx04biFBqNb7Pfu68=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=A5vn1PuT2Jp3CnTIAhKgdztnnIE1M80JIgUfbyRio6h41e6XWAl9NFzoF3fwUoDOR2JjNgikZfXv9n7AgH/dgzEmlkDqc8XT7W1WZjOfMCi11uKYR7xMLOukdRtY6Nt9nRJ3/ly695ciKUqtVdBZT6lYrHR4eFjOAmCLYWvy0D8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=E573frTk; arc=none smtp.client-ip=209.85.216.42
+	 To:Cc:Content-Type; b=qW5/S4Fbvhpr9yo73vDkj+TuVvzz54azBb85BHEEAQF4U8rmS7gR4Klfoyf6lVXtZfeP24j61wO658fAmq3XoOzROjHSgckW3iF36WjjhLozkzkGG+PWOtp0kQSDJbDTzQD8dxcwIR2NWARoOKyBd9YigJ4ulsYzq1zUS/HgEG4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=En2CFBHt; arc=none smtp.client-ip=209.85.222.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E573frTk"
-Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-3054ef26da3so1604813a91.3
-        for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 06:22:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="En2CFBHt"
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-7c592764e54so281576185a.3
+        for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 10:15:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744377739; x=1744982539; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1744391725; x=1744996525; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=S57NWAWD6jEEZByXV/oBbuCAZdaxRdZbuD7tFPL23fA=;
-        b=E573frTkuIm7VUusbi/fzolnvg0foP6xJFI+GtMoy4oGDwzxe+Sd9uBpS7BbSUoH17
-         2jOCnSNearIvKJUx0Ru9Z2X564do46QQAL98yfHnV4M9v2LyIXDXw5y4pfWDoEgOM9Dh
-         9ZZ4h3MZI+mY6NxreQlMLUjLTKLQoF3lZv08MkRu+YhXqq+s/e+dzXKpcXWsHpWjJ8RM
-         2FYXP8/xyyFh+0Q6u+wiQROW1RNgtQbQfg47V0pZHIdP3BZZZxFlNNJ7d579iF8jzrwe
-         KTblYy2uKlB/Z1HGlZEF/Xa9+P8aReA4PYUK/asMap61+ZUCtTBpP5lkWqt7ySuaszMU
-         eLpw==
+        bh=r4HdArXbbmevFDoPJUp4B28/caJgfXkCU3KY/NB3rHU=;
+        b=En2CFBHtUoQw7YeZZVI6IJUjFQXzHK/Pl+DGTvHx3UnwXsoAMmwpN91gk7rX6mpJN5
+         0VoM9UVx/Z203V5vcUcEYReeY7qhGWGLtsl5nWeGIvWWHmf6SStD2ip0Uc53SEOeCkd6
+         aAzmuaNM+Gbbke97+ZXhGASIayg4rvkAAzdVT/KznRPh6ShNH2XdlbvUo97RWZ1rtUwk
+         3RvidJ+3qMF9mDjuBD9uB7aLym7wdQe2QqnRJSw2DhqAtqHzKiYG/PhBSfAw+n36sb4h
+         9++LogpmC8CtWBfEZDz51L85NwjVNTOJCbbOKSCSNOCiKrvKz3v9y8YrXVVh4rqQWwZj
+         Cj7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744377739; x=1744982539;
+        d=1e100.net; s=20230601; t=1744391725; x=1744996525;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=S57NWAWD6jEEZByXV/oBbuCAZdaxRdZbuD7tFPL23fA=;
-        b=mtcfp9clZC4lU2sGj4G0EzJXJWGuPZkcZbWNewn0Jzq/3Kqi7X0JtFB9MoD5hf3bEc
-         F33Zy/nMRS7Exwc7zg3ctQFb9klNlKCvQjnaJjkBA/evIW0CBiYKC/3MPI04CKY5TVey
-         vk7CR0V6DJHOgeh5Geb2RiQ3OMAZZLcy0a1WSgRa78TFNEzwmLrD+PMVGMZ6o1TBu7Qg
-         JwdLOlE8BNaU0sNsHaqYC0m2NA5vBMC9kK8itE5HLIhO+O5tECQvoWVoq3MYLFqOEfNo
-         Qv0F6wEekdeB+ZdmlZg4zhzw8PYXdSB9/nXQ6rNK2vm5zmKUuJf/LxKUAR1J8Joi27Vg
-         GY3Q==
-X-Gm-Message-State: AOJu0Ywi62CR7vLmgEzdD9FeNJIe70wE0ZeXnrFlahyNdNBufEMl1jE+
-	ml8+G6XrI4tYMsym9mkD/IzwXp1XcFguS3NjNYqJzbk+JY1417tsnu8SQorHhNWQvQ5eVWr+7aW
-	IzTATAK9vyednv9OE45qyj7f8SnE=
-X-Gm-Gg: ASbGncsk6b7muN40qXw9yBfN3pgS9/9NMVmC3FM2vIPtz4OiwFS8oK06XMxVKK/+3D1
-	6TGhY+qbfQTzX6vIlMd91qV8eIHWMrm4KT4kczIg1UBwyvtOPkiq8g7s1n1SqoK+nzFrG+oEauF
-	QA726vYlVxuzTHVw8+jGEVNw==
-X-Google-Smtp-Source: AGHT+IFCaSXtreCZnJ0Jz+EjTJ57KYjE65XssfbPdf2ZXACoLs9YnPzl8KPpOOBbJ/8DZiG2uf7kX0lLAjosiySDpNI=
-X-Received: by 2002:a17:90b:524f:b0:305:5f32:d9f0 with SMTP id
- 98e67ed59e1d1-3082367e7b4mr4254331a91.19.1744377739458; Fri, 11 Apr 2025
- 06:22:19 -0700 (PDT)
+        bh=r4HdArXbbmevFDoPJUp4B28/caJgfXkCU3KY/NB3rHU=;
+        b=vF6lwXO5gh3lutMwaD3ogeclmBE8XYEVqecCo1AJICwFG/HK+RdePEUHRo3+cA/07Y
+         1LSU4mxdg/3p/Zz87GwAxbwUcIckZIxrqEMqY4FmP2wwzn1chnk+QbtGC3Hr4CotLwX/
+         ycG8WrzN7mDPButUObt4pK2pMr5DfxR2g/EtVuxAPuWI73wS4pZ0MnuMdKg1f/Xwm+Ms
+         w+TN0UK5QJJYPjqDQ2SpkocPRd1xLar6VqT5p38lv+KYkvSf3nqanwjSSdtel6A+IHVt
+         sDv34vpjHTmOOh6rGckF0Zi5W7uEgf/yyitzrIEnI8NlZW9A43FpCIYsed7ZoR6chNP7
+         nsog==
+X-Gm-Message-State: AOJu0YzFj3AkdWj4fD2udnpedHHp+rp3oBR/01T2YSRcgnKKXuzBzIDw
+	4+OYvwSOXGal1whXgZKfFTtHmQe7OfguYj3L2WFExgfNeAkKNHcnXK6uIqSOxmFfz0RWaBtpgke
+	I0/ZoUFnF7e9OttdTgZFDBJ9Pkb9PMdN3
+X-Gm-Gg: ASbGncs8sMrtjmW+9TaQFyd1EqCwZFZR1Rz2F9uoRada9L861bTQ9VB/slWsMSpqAS6
+	FqFYab3okyM8LKASePaO//76LqNWispH+sK1P2ayyQq2c1G6wx1VWesDEGcO8L+NRvxunednZzt
+	qHctnbsaIhfkVxcqgpZeQ=
+X-Google-Smtp-Source: AGHT+IGA/BF3ugm3e8ov3QmWwvs+kI921UPHS7/JVGsUtMniwFE/K7AZrpHvltrSvcIz5/orH7jvyBucv8u/yTGSzpw=
+X-Received: by 2002:a05:620a:31a5:b0:7c7:9aed:1f36 with SMTP id
+ af79cd13be357-7c7af1cab68mr563315285a.40.1744391725196; Fri, 11 Apr 2025
+ 10:15:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAGraAqv-rRTqtosNDu_T+eZ-YDVB_V3FR=t63S9BzfRU2OHmSg@mail.gmail.com>
-In-Reply-To: <CAGraAqv-rRTqtosNDu_T+eZ-YDVB_V3FR=t63S9BzfRU2OHmSg@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 11 Apr 2025 09:22:07 -0400
-X-Gm-Features: ATxdqUGvu-Ndph_a9zvjizNeV9W2fB4amkU1z5QcLTU8LbtRU7ke4YAnKKEPQKo
-Message-ID: <CAEjxPJ4u6MRZq-3BKbWeGBBjHVom-p_XwvwPpXMu=m5AbsJ8Ag@mail.gmail.com>
-Subject: Re: context label has been changed problem
-To: geng sun <sun.gengeration.sun@gmail.com>
-Cc: selinux@vger.kernel.org, Jeffrey Vander Stoep <jeffv@google.com>
+References: <20250411010549.1688614-1-inseob@google.com>
+In-Reply-To: <20250411010549.1688614-1-inseob@google.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Fri, 11 Apr 2025 13:15:14 -0400
+X-Gm-Features: ATxdqUE9HjBZyOp3BjTC4SGq1LUkGaFffktwy_VnfDfgkp-IFdPy6mY2ddBKJp8
+Message-ID: <CAP+JOzQ2aPJjodpMTHdtoY0N-fUCyAV8Rt5NA8tu1mNLadJUCQ@mail.gmail.com>
+Subject: Re: [PATCH v3 1/4] libsepol: Allow booleanif to have info nodes
+To: Inseob Kim <inseob@google.com>
+Cc: selinux@vger.kernel.org, tweek@google.com, jeffv@google.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 9, 2025 at 9:01=E2=80=AFAM geng sun <sun.gengeration.sun@gmail.=
-com> wrote:
+On Thu, Apr 10, 2025 at 9:06=E2=80=AFPM Inseob Kim <inseob@google.com> wrot=
+e:
 >
-> Dear SELinux developers,
+> Allowing more info nodes helps debuggability, especially neverallow
+> failure reports.
 >
-> There is a problem in Android. When the system boots into the kernel,
-> the symlink file device_info was initially labeled as:
-> "u:object_r:sysfs_deviceinfo:s0 0 1970-04-09 06:12 device_info ->
-> ../../devices/virtual/deviceinfo/device_info"
->
-> by the following rule:
-> /sys/class/deviceinfo(/*)? u:object_r:sysfs_deviceinfo:s0
->
-> However, after 10=E2=80=9320 minutes, we observed that the SELinux contex=
-t changed to:
-> "u:object_r:sysfs:s0 0 1970-01-17 09:43 device_info ->
-> ../../devices/virtual/deviceinfo/device_info"
->
-> Additionally, the parent directory was not changed:
-> "u:object_r:sysfs_deviceinfo:s0 0 2025-03-24 08:26 /sys/class/deviceinfo"
-> The GKI kernel tag we are using is android14-6.1-2024-12_r1.
-> Do you have any ideas about this problem?
->
-> Thanks.
+> Signed-off-by: Inseob Kim <inseob@google.com>
 
-Do you have a genfscon rule in the policy for this file?
+For these four patches:
+Acked-by: James Carter <jwcart2@gmail.com>
+
+> ---
+>  libsepol/cil/src/cil_binary.c      | 1 +
+>  libsepol/cil/src/cil_build_ast.c   | 1 +
+>  libsepol/cil/src/cil_resolve_ast.c | 1 +
+>  libsepol/cil/src/cil_verify.c      | 3 +++
+>  4 files changed, 6 insertions(+)
+>
+> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
+c
+> index e84188a0..b0befda3 100644
+> --- a/libsepol/cil/src/cil_binary.c
+> +++ b/libsepol/cil/src/cil_binary.c
+> @@ -2153,6 +2153,7 @@ static int __cil_cond_to_policydb_helper(struct cil=
+_tree_node *node, __attribute
+>
+>         case CIL_CALL:
+>         case CIL_TUNABLEIF:
+> +       case CIL_SRC_INFO:
+>                 break;
+>         default:
+>                 cil_tree_log(node, CIL_ERR, "Invalid statement within boo=
+leanif");
+> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_buil=
+d_ast.c
+> index 072d2622..fc11758d 100644
+> --- a/libsepol/cil/src/cil_build_ast.c
+> +++ b/libsepol/cil/src/cil_build_ast.c
+> @@ -6164,6 +6164,7 @@ static int check_for_illegal_statement(struct cil_t=
+ree_node *parse_current, stru
+>                         parse_current->data !=3D CIL_KEY_AUDITALLOW &&
+>                         parse_current->data !=3D CIL_KEY_TYPETRANSITION &=
+&
+>                         parse_current->data !=3D CIL_KEY_TYPECHANGE &&
+> +                       parse_current->data !=3D CIL_KEY_SRC_INFO &&
+>                         parse_current->data !=3D CIL_KEY_TYPEMEMBER &&
+>                         ((args->db->policy_version < POLICYDB_VERSION_CON=
+D_XPERMS) ||
+>                           (parse_current->data !=3D CIL_KEY_ALLOWX &&
+> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_re=
+solve_ast.c
+> index a8fa89df..392f03c7 100644
+> --- a/libsepol/cil/src/cil_resolve_ast.c
+> +++ b/libsepol/cil/src/cil_resolve_ast.c
+> @@ -3849,6 +3849,7 @@ static int __cil_resolve_ast_node_helper(struct cil=
+_tree_node *node, uint32_t *f
+>                         node->flavor !=3D CIL_AVRULE &&
+>                         node->flavor !=3D CIL_TYPE_RULE &&
+>                         node->flavor !=3D CIL_NAMETYPETRANSITION &&
+> +                       node->flavor !=3D CIL_SRC_INFO &&
+>                         ((args->db->policy_version < POLICYDB_VERSION_CON=
+D_XPERMS) ||
+>                          (node->flavor !=3D CIL_AVRULEX))) {
+>                         rc =3D SEPOL_ERR;
+> diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.=
+c
+> index 550b4542..cde9dd41 100644
+> --- a/libsepol/cil/src/cil_verify.c
+> +++ b/libsepol/cil/src/cil_verify.c
+> @@ -1176,6 +1176,9 @@ static int __cil_verify_booleanif_helper(struct cil=
+_tree_node *node, __attribute
+>                    booleanif statements if they don't have "*" as the fil=
+e. We
+>                    can't check that here. Or at least we won't right now.=
+ */
+>                 break;
+> +       case CIL_SRC_INFO:
+> +               //Fall through
+> +               break;
+>         default: {
+>                 const char * flavor =3D cil_node_to_string(node);
+>                 if (bif->preserved_tunable) {
+> --
+> 2.49.0.604.gff1f9ca942-goog
+>
+>
