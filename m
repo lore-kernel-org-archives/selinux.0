@@ -1,55 +1,55 @@
-Received: from mail-pf1-f202.google.com (mail-pf1-f202.google.com [209.85.210.202])
+Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 004FEA94F
-	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 01:06:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 004CDA94F
+	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 01:06:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744333570; cv=none; b=WQHVOz/5WJ3pnIZhsMGGfqJT4/AomaBe1OGC/IkutHLgS0yAXw+AkTUuL9T5ykqIxOde+nI1/OXpVK+lBlNESudX11bV06IE/LZb4U1TMPSFpqfprV+3A+zgDcLS7VY671cXYg072iZl/CwUauXHJ7NGRa4gRNte2fCtnNXHGYs=
+	t=1744333576; cv=none; b=IUFz8/zpecr8EIgruHTOEViMUg4ENLZV+JDcth0TfzRd9UHY4xnkFQrYISsK8rpF5+rjazRhnBGvBhqe1eSRgVPE/h0TKNeL83TP35Kf4Q7Bpa3JiP4xnDGHqpU/hlbaTR89Bkf8YTaD8HF/kKLLy6N3Y9nh/oOYZQxvuKTKkhA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744333570; c=relaxed/simple;
-	bh=hd4DpBP4H5TYqlZhitXyK1640PLAisSI4pPTT61en7w=;
+	s=arc-20240116; t=1744333576; c=relaxed/simple;
+	bh=GS0eLcT1+5UgLTEMtRMc+AlqupLCbSeqMDJWUdy7+RI=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=teabbqiuUDeFn8xSHHZOGo+9rbPqoz1ypD1L/pU3cWYvCwfOVZdf8JIoa+Mw9cKHJ9zz6xzhWUC0X64NCvCSuDLuHfOiX1lk9/jIFQGoBGY8iUlkOQXmucv2v3Oul/Bu3Esya16IEKxwftYGZR3hsYyHy1vKG9T9fzU25TZXWjE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=FVSkrT0x; arc=none smtp.client-ip=209.85.210.202
+	 To:Cc:Content-Type; b=HWEbkGiYXX/EHGUTnZ4ZgFgKwqQm2Fi22uUYyTAL9cLMUIrAEnS+8L6aHvaXyYqxxkuYXwDp13y7qxYpyR+ebZsOPHDcg+WMmWajotO3I/b/ICF2fFWgLctQmyCszyRJSEJpd7ioE98ZN6ExmPJD+wCDYZVlQqIqW0uvBzQlL98=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=nTqdjm6K; arc=none smtp.client-ip=209.85.214.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="FVSkrT0x"
-Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-739071bdf2eso1007902b3a.2
-        for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 18:06:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="nTqdjm6K"
+Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-229170fbe74so11667225ad.2
+        for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 18:06:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1744333568; x=1744938368; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1744333574; x=1744938374; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=PswqNYKH1j74KQN3m8UvB1W4DHI7EKmPlqsUrgU+5ww=;
-        b=FVSkrT0x/Howt1UxHWE38Cwvny5pQETXiizzOo4DOw965QhS/pqayk+DaO+EYO6xE1
-         0OydquT3c6YygxH2XQb1TSdHXqDMNwqXcxtTfsxMdWjHVdQfEVldTZgzaQBr4UCZTcZJ
-         qyPSMfCQ4trOO66oduJcaGfqTRgagc5cilju/Gozao/e3yOBcgYOXGGlq0MY5q6V6UOO
-         Xt6yoFEIq9zIPAbg7tpK2zp3431ZRp7wKLjY9SZ7M314R+JSQSMbVyUUfdh+uj4ZnTwk
-         6WcETcT++7SACWOuIa3e6wps1RvLRaOyhD+ex4ww9eedPnRrA5eZV70uIi7mPBIt0VZj
-         VSyQ==
+        bh=jWBap2CYxuuVMFczH1fCYX3Fy5qfUR9WhXNFMcCKRZc=;
+        b=nTqdjm6Kg1wTGCQrooHW2bVcEe6MhfZMglr0XHE816q/yqdhK6WXlWtq3+90c79ryu
+         96aRcCJLusbH9JWwquoErG4GtOo9sBQAiBAPfv07rtz4Rsfw8BBROh/X4AgAGLhPl4nx
+         frIetTecy9B2gYK/8+W7HfudT8fEQXin8j/Yl7lNAkKJvxcUdaR9ipNpBcPiTWBcFBab
+         4eaEFWZgI/LuyqSxWOZC879m45TefllmFZkVvMJYh+KNFPP3QfyOjvlTOB3a/iawkLO1
+         +C4nsUc/Db3MxGCOlB+BqM8YzrfWejDPm9T7MEnPx3w5pRK1F7HoxDCVch73AVnAvVzh
+         3+JA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744333568; x=1744938368;
+        d=1e100.net; s=20230601; t=1744333574; x=1744938374;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=PswqNYKH1j74KQN3m8UvB1W4DHI7EKmPlqsUrgU+5ww=;
-        b=U78Lc0QsHW3AeFcFr4Ux+n8GjaIsdaXiRa6PUxzH49PLsb0dEhYPtPdXhTDolGIlIX
-         NCxLC/vqs9fphFRJPMl2AqwrMMaomC8xTWreSffAOKZasl4lEmz0Z963RyVxNirNTWrW
-         41Wq6lOyan/nxXDIw+7YIn3UUEKAiv9/CNdZ51r8ejIWV/3js1t4pqX0PSsCB4S72aGi
-         byRoXje8PdsbU4am6ejPdB1mG6M2qiJ/HmlAi8JHu9MWj1bP8DlVAs/9IRm710aV+5YK
-         UoxNA2XYsX6iNWw9eX9TO66kKBIKp8S7oEyDuQaTZIeDOtSEIkM/WsxXpEVjZ+dpCh9D
-         O09A==
-X-Gm-Message-State: AOJu0Yzl6tJDtM+gefqLBmDnuBcwSafzIr0LUvPetSqOeuoTOkh+laUS
-	x5hj35GkYVsCNU4ff2AaU83OukDnaVcGUjrVScMgUPN+u7NqMjTEQg/xMOpXUE1sVy5e/mTg8qT
-	G24Qu/fCb3LOUnj9CaFR3niPxXfanjzWNnA3h07oOJtQ7oMXOl6IlHNG382brIO5x8pUnl+Z1QF
-	4/l8I/7Isj949YdLAmO0Yhw4LhBDUX1RoC9A==
-X-Google-Smtp-Source: AGHT+IHLGN31A9qAn5IyfVTxHn3M+Q6wl3Jjo0EWyxD7TsKKGgRkgaH3RPo3LvQ9fhvnMB5+1mdQZ3ssTPg=
-X-Received: from pfkq6.prod.google.com ([2002:a05:6a00:846:b0:737:6e43:8e34])
- (user=inseob job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:ace:b0:736:46b4:beef
- with SMTP id d2e1a72fcca58-73bd119ea08mr1538672b3a.3.1744333568029; Thu, 10
- Apr 2025 18:06:08 -0700 (PDT)
-Date: Fri, 11 Apr 2025 10:05:48 +0900
+        bh=jWBap2CYxuuVMFczH1fCYX3Fy5qfUR9WhXNFMcCKRZc=;
+        b=Qhw7PjjsuNLE4JJkjGqrnkvkrZurXyFG5eeP0J4NNlZyvhM8okMItrJRimIClPPSEC
+         nZTtRH6pjDaFkWd4zxccyZOuB31QQpeUuctlZhL8asl2WPzcmM0tyjsKaZuUJMEMkQz/
+         bUrBmvNRrFi0um5qBscd+FvP1yDvJwJdy2T7eoNAFw50FpjRWPxTTSOkkeWtRtGXisuD
+         miXz1HyBB6Coi/wD9KrRGrSkSc1SKRYaT+ZMu53AO2tgjitfgEIixvT63O+HjSCJAzUV
+         57QKdbdQH2iD2BfkTWPHNSggUjjoRxBsekN9MDLSK+HrsXefWpoiVZUVAmgugC+Bf1H0
+         dowQ==
+X-Gm-Message-State: AOJu0YyJJjqUjl/6lRPazou+n9eMTC+rCGZ5Wou0Ksa/Ii3JARJxknuZ
+	+wqntrnuwtisZhac2qYY5a04qy6Wm/se3pvg1ircaAXQyqf76BK++r0RUoQYptnYZjVHLMR6k3T
+	P/G2llQqNHBhOuFBx789BeBNmuQZNFdLLPSToM7uxlefN/wtshUE/LGF9o2c6XkLC8MgjcSMw+j
+	DjitatR9peJy8caRWyDQBLQal2TOYMgPWoAQ==
+X-Google-Smtp-Source: AGHT+IGJsmlnhLYd5RgcjNu9I36h9t3hAZbwCsNrL3iGiep5Sf4+2StPMf/QWrjINAXvuZ6BISwEdpmwSzw=
+X-Received: from pjcc13.prod.google.com ([2002:a17:90b:574d:b0:301:b354:8d63])
+ (user=inseob job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:904:b0:216:2bd7:1c2f
+ with SMTP id d9443c01a7336-22bea4b90b5mr10190175ad.18.1744333574052; Thu, 10
+ Apr 2025 18:06:14 -0700 (PDT)
+Date: Fri, 11 Apr 2025 10:05:49 +0900
 In-Reply-To: <20250411010549.1688614-1-inseob@google.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -59,8 +59,8 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 References: <20250411010549.1688614-1-inseob@google.com>
 X-Mailer: git-send-email 2.49.0.604.gff1f9ca942-goog
-Message-ID: <20250411010549.1688614-3-inseob@google.com>
-Subject: [PATCH v3 3/4] checkpolicy: Support line markers for allow rules
+Message-ID: <20250411010549.1688614-4-inseob@google.com>
+Subject: [PATCH v3 4/4] checkmodule: Support line markers for allow rules
 From: Inseob Kim <inseob@google.com>
 To: selinux@vger.kernel.org
 Cc: tweek@google.com, jeffv@google.com, Inseob Kim <inseob@google.com>
@@ -72,31 +72,28 @@ output cil files, so this commit adds an option to do that.
 
 Signed-off-by: Inseob Kim <inseob@google.com>
 
-Changes since v1:
-- Updated the checkpolicy.8 man page for the new flag
-
 Changes sinve v2:
 - "writing a CIL" instead of "writing CIL"
 - Updated the man page's SYNOPSIS
 ---
- checkpolicy/checkpolicy.8 |  7 ++++++-
- checkpolicy/checkpolicy.c | 17 +++++++++++++++--
- 2 files changed, 21 insertions(+), 3 deletions(-)
+ checkpolicy/checkmodule.8 |  7 ++++++-
+ checkpolicy/checkmodule.c | 18 ++++++++++++++++--
+ 2 files changed, 22 insertions(+), 3 deletions(-)
 
-diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
-index 81a3647d..caaaf675 100644
---- a/checkpolicy/checkpolicy.8
-+++ b/checkpolicy/checkpolicy.8
+diff --git a/checkpolicy/checkmodule.8 b/checkpolicy/checkmodule.8
+index 93c9b537..519d6c34 100644
+--- a/checkpolicy/checkmodule.8
++++ b/checkpolicy/checkmodule.8
 @@ -3,7 +3,7 @@
- checkpolicy \- SELinux policy compiler
+ checkmodule \- SELinux policy module compiler
  .SH SYNOPSIS
- .B checkpolicy
--.I "[\-b[F]] [\-C] [\-d] [\-U handle_unknown (allow,deny,reject)] [\-M] [\-N] [\-c policyvers] [\-o output_file|\-] [\-S] [\-t target_platform (selinux,xen)] [\-O] [\-E] [\-V] [input_file]"
-+.I "[\-b[F]] [\-C] [\-d] [\-U handle_unknown (allow,deny,reject)] [\-M] [\-N] [\-L] [\-c policyvers] [\-o output_file|\-] [\-S] [\-t target_platform (selinux,xen)] [\-O] [\-E] [\-V] [input_file]"
- .br
+ .B checkmodule
+-.I "[\-h] [\-b] [\-c policy_version] [\-C] [\-E] [\-m] [\-M] [\-N] [\-U handle_unknown] [\-V] [\-o output_file] [input_file]"
++.I "[\-h] [\-b] [\-c policy_version] [\-C] [\-E] [\-m] [\-M] [\-N] [\-L] [\-U handle_unknown] [\-V] [\-o output_file] [input_file]"
  .SH "DESCRIPTION"
  This manual page describes the
-@@ -41,6 +41,11 @@ Enable the MLS policy when checking and compiling the policy.
+ .BR checkmodule
+@@ -46,6 +46,11 @@ Enable the MLS/MCS support when checking and compiling the policy module.
  .B \-N,\-\-disable-neverallow
  Do not check neverallow rules.
  .TP
@@ -105,76 +102,85 @@ index 81a3647d..caaaf675 100644
 +of the output CIL policy file, but the additional line markers helps debugging, especially
 +neverallow failure reports. Can only be used when writing a CIL policy file.
 +.TP
- .B \-c policyvers
- Specify the policy version, defaults to the latest.
+ .B \-V,\-\-version
+ Show policy versions created by this program.
  .TP
-diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-index ede2b6ad..b808e4d0 100644
---- a/checkpolicy/checkpolicy.c
-+++ b/checkpolicy/checkpolicy.c
-@@ -107,7 +107,7 @@ static __attribute__((__noreturn__)) void usage(const char *progname)
- 	printf
- 	    ("usage:  %s [-b[F]] [-C] [-d] [-U handle_unknown (allow,deny,reject)] [-M] "
- 	     "[-N] [-c policyvers (%d-%d)] [-o output_file|-] [-S] [-O] "
--	     "[-t target_platform (selinux,xen)] [-E] [-V] [input_file]\n",
-+	     "[-t target_platform (selinux,xen)] [-E] [-V] [-L] [input_file]\n",
- 	     progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
- 	exit(1);
- }
-@@ -390,6 +390,7 @@ int main(int argc, char **argv)
- 	unsigned int i;
- 	unsigned int protocol, port;
- 	unsigned int binary = 0, debug = 0, sort = 0, cil = 0, conf = 0, optimize = 0, disable_neverallow = 0;
+diff --git a/checkpolicy/checkmodule.c b/checkpolicy/checkmodule.c
+index 2d6f2399..c9ff80cc 100644
+--- a/checkpolicy/checkmodule.c
++++ b/checkpolicy/checkmodule.c
+@@ -119,7 +119,7 @@ static int write_binary_policy(policydb_t * p, FILE *outfp, unsigned int policy_
+ 
+ static __attribute__((__noreturn__)) void usage(const char *progname)
+ {
+-	printf("usage:  %s [-h] [-V] [-b] [-C] [-E] [-U handle_unknown] [-m] [-M] [-N] [-o FILE] [-c VERSION] [INPUT]\n", progname);
++	printf("usage:  %s [-h] [-V] [-b] [-C] [-E] [-U handle_unknown] [-m] [-M] [-N] [-L] [-o FILE] [-c VERSION] [INPUT]\n", progname);
+ 	printf("Build base and policy modules.\n");
+ 	printf("Options:\n");
+ 	printf("  INPUT      build module from INPUT (else read from \"%s\")\n",
+@@ -136,6 +136,7 @@ static __attribute__((__noreturn__)) void usage(const char *progname)
+ 	printf("  -m         build a policy module instead of a base module\n");
+ 	printf("  -M         enable MLS policy\n");
+ 	printf("  -N         do not check neverallow rules\n");
++	printf("  -L         output line markers for allow rules\n");
+ 	printf("  -o FILE    write module to FILE (else just check syntax)\n");
+ 	printf("  -c VERSION build a policy module targeting a modular policy version (%d-%d)\n",
+ 	       MOD_POLICYDB_VERSION_MIN, MOD_POLICYDB_VERSION_MAX);
+@@ -146,6 +147,7 @@ int main(int argc, char **argv)
+ {
+ 	const char *file = txtfile, *outfile = NULL;
+ 	unsigned int binary = 0, cil = 0, disable_neverallow = 0;
 +	unsigned int line_marker_for_allow = 0;
- 	struct val_to_name v;
- 	int ret, ch, fd, target = SEPOL_TARGET_SELINUX;
- 	unsigned int policyvers = 0;
-@@ -418,11 +419,12 @@ int main(int argc, char **argv)
- 		{"sort", no_argument, NULL, 'S'},
- 		{"optimize", no_argument, NULL, 'O'},
- 		{"werror", no_argument, NULL, 'E'},
+ 	unsigned int policy_type = POLICY_BASE;
+ 	unsigned int policyvers = MOD_POLICYDB_VERSION_MAX;
+ 	int ch;
+@@ -159,12 +161,13 @@ int main(int argc, char **argv)
+ 		{"handle-unknown", required_argument, NULL, 'U'},
+ 		{"mls", no_argument, NULL, 'M'},
+ 		{"disable-neverallow", no_argument, NULL, 'N'},
 +		{"line-marker-for-allow", no_argument, NULL, 'L'},
- 		{"help", no_argument, NULL, 'h'},
+ 		{"cil", no_argument, NULL, 'C'},
+ 		{"werror", no_argument, NULL, 'E'},
  		{NULL, 0, NULL, 0}
  	};
  
--	while ((ch = getopt_long(argc, argv, "o:t:dbU:MNCFSVc:OEh", long_options, NULL)) != -1) {
-+	while ((ch = getopt_long(argc, argv, "o:t:dbU:MNCFSVc:OELh", long_options, NULL)) != -1) {
+-	while ((ch = getopt_long(argc, argv, "ho:bVEU:mMNCc:", long_options, NULL)) != -1) {
++	while ((ch = getopt_long(argc, argv, "ho:bVEU:mMNCc:L", long_options, NULL)) != -1) {
  		switch (ch) {
- 		case 'o':
- 			outfile = optarg;
-@@ -506,6 +508,9 @@ int main(int argc, char **argv)
- 		case 'E':
- 			 werror = 1;
- 			 break;
+ 		case 'h':
+ 			usage(argv[0]);
+@@ -231,6 +234,9 @@ int main(int argc, char **argv)
+ 			policyvers = n;
+ 			break;
+ 		}
 +		case 'L':
 +			line_marker_for_allow = 1;
 +			break;
- 		case 'h':
  		default:
  			usage(argv[0]);
-@@ -535,6 +540,11 @@ int main(int argc, char **argv)
+ 		}
+@@ -252,6 +258,11 @@ int main(int argc, char **argv)
  		exit(1);
  	}
  
 +	if (line_marker_for_allow && !cil) {
-+		fprintf(stderr, "Must convert to CIL for line markers to be printed\n");
++		fprintf(stderr, "%s:  -L must be used along with -C.\n", argv[0]);
 +		exit(1);
 +	}
 +
- 	if (binary) {
- 		fd = open(file, O_RDONLY);
- 		if (fd < 0) {
-@@ -690,6 +700,9 @@ int main(int argc, char **argv)
+ 	if (optind != argc) {
+ 		file = argv[optind++];
+ 		if (optind != argc)
+@@ -347,6 +358,9 @@ int main(int argc, char **argv)
  				exit(1);
  			}
  		} else {
 +			if (line_marker_for_allow) {
-+				policydbp->line_marker_avrules |= AVRULE_ALLOWED | AVRULE_XPERMS_ALLOWED;
++				modpolicydb.line_marker_avrules |= AVRULE_ALLOWED | AVRULE_XPERMS_ALLOWED;
 +			}
- 			if (binary) {
- 				ret = sepol_kernel_policydb_to_cil(outfp, policydbp);
- 			} else {
+ 			if (sepol_module_policydb_to_cil(outfp, &modpolicydb, 0) != 0) {
+ 				fprintf(stderr, "%s:  error writing %s\n", argv[0], outfile);
+ 				exit(1);
 -- 
 2.49.0.604.gff1f9ca942-goog
 
