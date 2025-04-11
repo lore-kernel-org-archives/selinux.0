@@ -1,106 +1,213 @@
-Received: from mail-yb1-f179.google.com (mail-yb1-f179.google.com [209.85.219.179])
+Received: from mail-yw1-f179.google.com (mail-yw1-f179.google.com [209.85.128.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E29C627BF8D
-	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 03:14:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EEFA1853
+	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 03:24:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744341261; cv=none; b=eH54ywVDU9ALtaQzfPUjTg1jKoJvqF1w7RMv7uRuGOX6csnrP9+IY6dPBOgYZOLjKBWZaNAB0ahBah52LsC7jqbNU6hYl6YcDujcc0s6+DC3pdqR2AoqQUovPKzJ6QKDFtSUMl2KENYfZ84Z3FKrT+PY4rN/cdQbLwIzqi/ZlWY=
+	t=1744341854; cv=none; b=p5hpAa2cvjHpkEsd++Pn8YyxK5JyiGwgnjIYJxYORSaPBMpAWnhJwvtmLBLkO9lDZinAXwenkqWzCJOIjyCrty8+dk9Y4sXT7iiQE/Airf8vYrr2qHfO85Mpx3gU/IWEAoz24uWLhraXXIyE+x8HduZU71OBMh4CiqrcDqH3NBA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744341261; c=relaxed/simple;
-	bh=LAC6z9o/IzSh6bnaiweC2in7QUXMIr1Ih43f0mU+IZI=;
+	s=arc-20240116; t=1744341854; c=relaxed/simple;
+	bh=ujs7jd1AcHTfjODGw4xMtcroralW80H1IoAIGv0b7W8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Cm3Y8gesK3EyD2YHXCaapSZwjdzmp2tXIjG7nmRHaufIEVVQnH7Y7fsEDJOiECXpIwE/FdZ+vnLlxcq22k8bKPI+sZIYEMI5Rf76dnitd7KQaBbUPC0TUYQCEA1OupyYXKlxq+GgpmD5/Qbm2rwgmpiNgpgaI1aFfYlGFUj61fU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=J+hBllSF; arc=none smtp.client-ip=209.85.219.179
+	 To:Cc:Content-Type; b=PCqa+6Wp3KDmBxptx/at1xUmaOjcJ2smMszHL8AJbEGwg3SOJqbuhX4QDK8i3Z1KTbDxmx3jh9tFmZYW9IfxfmQHu168L5ApY8ajnh+YoDBAB1cO7qlFEl84YIFU6+t3u6mjrt0X0mWi50ljZZ+DhBwdE7FKREehvVI8KgWAPLY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=a7GqLb5B; arc=none smtp.client-ip=209.85.128.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="J+hBllSF"
-Received: by mail-yb1-f179.google.com with SMTP id 3f1490d57ef6-e643f0933afso2237666276.1
-        for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 20:14:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="a7GqLb5B"
+Received: by mail-yw1-f179.google.com with SMTP id 00721157ae682-70433283ba7so15927337b3.2
+        for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 20:24:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1744341259; x=1744946059; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1744341851; x=1744946651; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=jdWQDh2sqX7+2UwchOD1bq0Gf8ttlkzCQiiE0SsYP50=;
-        b=J+hBllSF+JCDWhJ6Edd1JyDAeTuD8aHyjamYFl9bx0BTayy6YgdhfH/G1qBeFtH8f8
-         ENKtosVtUgkSovnNaBY1iI2DHz5hctaD9XtMaWqSFsh9QZQZqAd7bkN6TTGeb638tag2
-         1v/9DH6E2b6oXte7JjpXu3yAnpklroH/Uk64e43rro1Mq1KzF2b1XomY1RpTdd5jISCV
-         qC7oUmnFU3QUiuBBuUJo7EPbwI0wDyh08YMl55KfutNO9TzyHza3sIpqFu3/HAXvk3e+
-         7YbdxHdqRSWKcbEVMfa8dieDTgz1P51MDlgQFR1+cyunvnujabe/58OGv/DsJxKxaSff
-         YI6Q==
+        bh=0qN9mJppk9m3CDDb4tP7CpLpRZYM8/nU0T5H+EiAwgc=;
+        b=a7GqLb5Ba45B9r8uXU8jmbi8ce/vfMfcLQlLED0gnFcd0jMWIp/7vcVeoffIr41IJj
+         Gm3pH4Kr4P4ge2/1mXdvmjsRWb0J8fC1K1FrTAA/N7IBATGrjfBOsXbCpZ8f1lMALHzd
+         oEAK8kPLE6Oq+Mzwq8agucbDNY7M6qWl8O2VIuZ2Sg6gAdoXYYpKoEVS0lebQm/gpF0L
+         HGbqKz3awmZRq1c7sINae8TIj04d+dtrr1i2CopaBmezg3PjxYYeqlcOhFIZ+fQijTvV
+         B7ysSJxX4yPB/3WwHmHRv6Fs28s74sQPPzazixaH+O3JiMzvOvk4CJ3tjg4f9HK7ipmQ
+         1Feg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744341259; x=1744946059;
+        d=1e100.net; s=20230601; t=1744341851; x=1744946651;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jdWQDh2sqX7+2UwchOD1bq0Gf8ttlkzCQiiE0SsYP50=;
-        b=vyiqyzwGDdMPS28dkE/AHbiHDY3S7Ok/sITuLgYyAvtR39DUVPW5hTjq7nydc79hYX
-         S/c/404q4Ou+HzrwO0QLj9sO3XO4Y7HjDgZwKl4TgcNHKw3uwaV8vucqx7KYntea7xLt
-         la+94scqsRo7XvIk4qKmGB5O4YW6Uiipnz+aSicNcyBI59OjH8bvsq8yYE3tzVOyANvJ
-         L7+f49OWG/s+S5Wsc6y0xP6kexO23bU9qhoVrT4wF6W7LyKHLg1UwYRU3PIDVbNS+0IC
-         lxkpH9EELIuAXJRUCZF1KgV/zjyU5WIzIHYwt/XYf3a1JOLoPwB4z+1RLkR6JEF/EKCy
-         Z1nA==
-X-Forwarded-Encrypted: i=1; AJvYcCVp8xmIU1Z/2gQSBaVOZWP6AodUjCqUTyLoaie/EQcpqXQ5Ehh2upHKS1BEvAmJFMbtjhzdEeao@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyfz+MZoShFbNsGg2V6a9xhDVYG02wvn6lBozt1YdNMNwGvNSFE
-	XSobKW+jseTPPQjSfJKZvgwgq1FP91sn665UHVTaWHKTe2B1mlBoSZrKk6hv9CqyAYgq5+p5lnq
-	RuroArXoVDpjWfCJnD5K69MUnsaJAZUhbBHe6
-X-Gm-Gg: ASbGncvqsxLnLRvqD/W7AVckuBALeJdqYSGenODMeGhE+uiTeQ+BO/MqxUR0aX6ltiP
-	EC7CMxZhpGZHNXP77kx8bci8SKZnhiDMJNMZPs0zo4IkTdfcFGWg9pZdqygyBhOJ8p+RtvGwVgP
-	rMuzQdejjLt58oo3jJi2A3gw==
-X-Google-Smtp-Source: AGHT+IFgiOCucamXXWXD1vjG5nmQFl7xXT/iMquWwrzP5toeHuouZQJUuMbt7TfgOpCJSmAMc+xd+/M5cz/ZTYf6P/g=
-X-Received: by 2002:a05:6902:230b:b0:e6d:ee6d:664 with SMTP id
- 3f1490d57ef6-e704dffc069mr2238530276.21.1744341258911; Thu, 10 Apr 2025
- 20:14:18 -0700 (PDT)
+        bh=0qN9mJppk9m3CDDb4tP7CpLpRZYM8/nU0T5H+EiAwgc=;
+        b=N0+g/CS+kJNE8oHYPYJmVtnOM4wev82ZCf0+EJgYHstAmxSPiVEdsChCwc+75s80pT
+         rg0fR3b2iSTW4jNyXpVqbMCx9IZo2RQtg8Gr8HmPpQgXKYXUMxTYmUZ+NOKwPeAUsYig
+         EdDdO/VichrrgidMiRiLvxonBZ+uKJgXh/s0mYuf2Crd2/AMju9ylhotmIRQhzK8ByiM
+         1tN8lG8Rt8uQEmbvwLuM1qle27+pvn8cpmbNoJuTXw+pOMCauxP41Pe7rsPruNnOZQ0G
+         IC0ogMFiJnCLxHPclIWW3yv6xS5kGQ2BMlXx8j3kd6QQosCTQUM2PrAP36gXBGJ5MQ2h
+         xNHQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVftPwvVc5lBHQlI0JeJ+RqzdhU8jUkI7qnRVUaf0mTu9l9TfDLoOcVHW+RvNs6g9MdFMFvTtau@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzg9MSYjtU/rtCtVZUiSnOSrMGM+aW1oF65O/pS0tqTDM9ft+3i
+	2n6Rcy9mHW5LJeuw9ZhZh/sITrbkal34wNCb3WEArVr+wasBSPjlVPUg7i9o/et3zRdYJe4KsaD
+	yk/wjoJJXpnpRB2cxZhvcmMoyvrPwapgnS27s
+X-Gm-Gg: ASbGncuneN20v5nEG7OPlj8TlapyRNLZC8ydk2C7+3h3yFtRypgKK/zYIfeeFUP7HT7
+	9dCdyGx0RANRriev/lEmkqhyh8jRdaGy9Q5Nr318BRmmtizPy+Tb4s41D82gnjEgG2x/zvSiTMw
+	OkDj1RtVi5jDCjJ1XCGGpx/g==
+X-Google-Smtp-Source: AGHT+IE4fYUezw6IfzfviQ/ZZijnML8EU+to+wNGjCX+ZjeYAlCZVKFnQkajk0HElbRaL1B4IkdGQyNePl3S2Li/G9c=
+X-Received: by 2002:a05:690c:64c1:b0:6fb:5498:70fa with SMTP id
+ 00721157ae682-70559a011abmr23137967b3.18.1744341851125; Thu, 10 Apr 2025
+ 20:24:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250409185019.238841-31-paul@paul-moore.com> <20250409185019.238841-39-paul@paul-moore.com>
- <202504091607.0A394D5EF@keescook> <CAHC9VhS4nB2xV-zw+=eN2MYaetvCkParammXn1fPGsm-wuHtTw@mail.gmail.com>
- <202504101913.8F3B5D1@keescook>
-In-Reply-To: <202504101913.8F3B5D1@keescook>
+References: <20250409185019.238841-31-paul@paul-moore.com> <20250409185019.238841-57-paul@paul-moore.com>
+ <CAEjxPJ6ZUXoMzKPE6iwQpvG-_SruVr+kxU-a+nQXU=ToVr8wgA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6ZUXoMzKPE6iwQpvG-_SruVr+kxU-a+nQXU=ToVr8wgA@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 10 Apr 2025 23:14:08 -0400
-X-Gm-Features: ATxdqUFFTHGJFl3SLQgaT95pzdgTlxaOJYn4twmoIx55QzJ78L9lSfJEamHCFUQ
-Message-ID: <CAHC9VhSQWxpo-K96kqJSPJhtLudZL2pExgLq6oQ2H+7xYNTF5w@mail.gmail.com>
-Subject: Re: [RFC PATCH 08/29] lsm: get rid of the lsm_names list and do some cleanup
-To: Kees Cook <kees@kernel.org>
+Date: Thu, 10 Apr 2025 23:24:00 -0400
+X-Gm-Features: ATxdqUESEq9J-FHTX-je-b_2DfSVgzpAAFA4amiAciURoYmV2TsC7C4ox5Tyv-A
+Message-ID: <CAHC9VhTDrVMW8LLbNwQ=ApcpQmdoFWk5RLMEyMBJygQLFJNE2w@mail.gmail.com>
+Subject: Re: [RFC PATCH 26/29] selinux: move initcalls to the LSM framework
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
 	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
 	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
 	Fan Wu <wufan@kernel.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
 	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Micah Morton <mortonm@chromium.org>, Casey Schaufler <casey@schaufler-ca.com>, 
-	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Apr 10, 2025 at 10:15=E2=80=AFPM Kees Cook <kees@kernel.org> wrote:
-> On Thu, Apr 10, 2025 at 06:47:12PM -0400, Paul Moore wrote:
-> > On Wed, Apr 9, 2025 at 7:13=E2=80=AFPM Kees Cook <kees@kernel.org> wrot=
-e:
-> > > Better yet, do this whole thing in a initcall after LSMs are loaded, =
-and
-> > > both can gain __ro_after_init...
+On Thu, Apr 10, 2025 at 12:33=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Wed, Apr 9, 2025 at 2:55=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
+rote:
 > >
-> > I *really* disliked all the stuff we were having to do during boot,
-> > and all the redundant global state we were keeping around.  I'll go
-> > ahead and cache the lsm_read() result local to the function but that's
-> > probably all I'm going to accept at this point in time.
+> > SELinux currently has a number of initcalls so we've created a new
+> > function, selinux_initcall(), which wraps all of these initcalls so
+> > that we have a single initcall function that can be registered with the
+> > LSM framework.
+> >
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > ---
 >
-> Oh, for sure. I love that all that can get thrown away. I mean literally
-> copy/paste what you have in lsm_read() and stick it immediately before
-> the "lsms are done loading" notifier. Then it only needs to be done
-> once, it's impossible to race, etc.
+> > diff --git a/security/selinux/include/audit.h b/security/selinux/includ=
+e/audit.h
+> > index d5b0425055e4..5989f8dd1e86 100644
+> > --- a/security/selinux/include/audit.h
+> > +++ b/security/selinux/include/audit.h
+> > @@ -15,6 +15,11 @@
+> >  #include <linux/audit.h>
+> >  #include <linux/types.h>
+> >
+> > +/**
+> > + * XXX
+> > + */
+>
+> Assuming this will be fixed before merge.
 
-Maybe I'll change my mind at some point, but right now I'm feeling
-pretty strongly against generating the list string at boot.  I've
-added a basic cache protected by a dumb spinlock in lsm_read which
-should work.
+Yep, I noticed that very shortly after posting and added the comment block.
+
+> > +int selinux_audit_rule_avc_callback(u32 event);
+> > +
+> >  /**
+> >   * selinux_audit_rule_init - alloc/init an selinux audit rule structur=
+e.
+> >   * @field: the field this rule refers to
+> > diff --git a/security/selinux/include/initcalls.h b/security/selinux/in=
+clude/initcalls.h
+> > new file mode 100644
+> > index 000000000000..6674cf489473
+> > --- /dev/null
+> > +++ b/security/selinux/include/initcalls.h
+> > @@ -0,0 +1,19 @@
+> > +// SPDX-License-Identifier: GPL-2.0-only
+> > +/*
+> > + * SELinux initcalls
+> > + */
+> > +
+> > +#ifndef _SELINUX_INITCALLS_H
+> > +#define _SELINUX_INITCALLS_H
+> > +
+> > +int init_sel_fs(void);
+> > +int sel_netport_init(void);
+> > +int sel_netnode_init(void);
+> > +int sel_netif_init(void);
+> > +int sel_netlink_init(void);
+> > +int sel_ib_pkey_init(void);
+> > +int selinux_nf_ip_init(void);
+>
+> The last two only exist if certain Kconfig options are set.
+
+Good catch, thanks.  The use of the netfilter initcall is already
+conditional on CONFIG_NETFILTER in selinux_initcall(), but I forgot
+the InfiniBand inticall.
+
+Unless I'm mistaken, it should be harmless to have the function
+declaration regardless of if it is defined anywhere.
+
+> > diff --git a/security/selinux/initcalls.c b/security/selinux/initcalls.=
+c
+> > new file mode 100644
+> > index 000000000000..81f01f8ad215
+> > --- /dev/null
+> > +++ b/security/selinux/initcalls.c
+> > @@ -0,0 +1,50 @@
+> > +// SPDX-License-Identifier: GPL-2.0-only
+> > +/*
+> > + * SELinux initcalls
+> > + */
+> > +
+> > +#include <linux/init.h>
+> > +
+> > +#include "initcalls.h"
+> > +
+> > +/**
+> > + * selinux_initcall - Perform the SELinux initcalls
+> > + *
+> > + * Used as a device initcall in the SELinux LSM definition.
+> > + */
+> > +int __init selinux_initcall(void)
+> > +{
+> > +       int rc =3D 0, rc_tmp =3D 0;
+> > +
+> > +       rc_tmp =3D init_sel_fs();
+> > +       if (!rc && rc_tmp)
+> > +               rc =3D rc_tmp;
+> > +
+> > +       rc_tmp =3D sel_netport_init();
+> > +       if (!rc && rc_tmp)
+> > +               rc =3D rc_tmp;
+> > +
+> > +       rc_tmp =3D sel_netnode_init();
+> > +       if (!rc && rc_tmp)
+> > +               rc =3D rc_tmp;
+> > +
+> > +       rc_tmp =3D sel_netif_init();
+> > +       if (!rc && rc_tmp)
+> > +               rc =3D rc_tmp;
+> > +
+> > +       rc_tmp =3D sel_netlink_init();
+> > +       if (!rc && rc_tmp)
+> > +               rc =3D rc_tmp;
+> > +
+> > +       rc_tmp =3D sel_ib_pkey_init();
+>
+> This one depends on CONFIG_SECURITY_INFINIBAND.
+
+Fixed, thanks.
+
+> > +       if (!rc && rc_tmp)
+> > +               rc =3D rc_tmp;
+> > +
+> > +#if defined(CONFIG_NETFILTER)
+> > +       rc_tmp =3D selinux_nf_ip_init();
+> > +       if (!rc && rc_tmp)
+> > +               rc =3D rc_tmp;
+> > +#endif
+> > +
+> > +       return rc;
+> > +}
 
 --=20
 paul-moore.com
