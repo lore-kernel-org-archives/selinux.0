@@ -1,72 +1,73 @@
-Received: from mail-yb1-f173.google.com (mail-yb1-f173.google.com [209.85.219.173])
+Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com [209.85.219.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8BF91E515
-	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 02:31:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1847F279339
+	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 02:41:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744338668; cv=none; b=BHzDJWniWMlOgH9pTS+BHyeEaK3rDCeZupOK15yypW+RuIK4gZmSCBgW1huUTIDZ91G9FtJtXbypFii2mIZM7MrjpT5O+I9SDr5g4ycJlMWn0VsGV8LUfmcpi+9hFkaHgTYP2S4p+TTJB3vcTQ+DFdgrpZaGFUJYB7WRd3b2//w=
+	t=1744339305; cv=none; b=HJX9HFpAfTvoogexitD9sqAyaapBaYmFQYzDtZq98NRAtojGl9ceC24GEBHyBsDSNukw2mNKmpnsPogoVrHbCvxmnYX1QdJRnPQHBTZA39GCEtW2LCHPvXrTahvA46qAZ+LBfWUpW+tLVGsf/p5EUZFSyKsV8T80csSPRnPrWMo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744338668; c=relaxed/simple;
-	bh=cc5e2N+6H+tcjGaaKsPHIo72TMBB5vvw4D15hIgSMjY=;
+	s=arc-20240116; t=1744339305; c=relaxed/simple;
+	bh=as9kSQASNHOZEqVjFgkKcfcacxgPlIJuUo017aL6c5U=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nePJlHM66sfsTJnu5liNRly2PK4IKqJvtRS3AyHHK+gasBtH3BBz60MfWiVQR7eV/UJWB4iPiylDzWvOKUwoF23tQvxMyzMstYTphHAZDqbLVmobgAni0mpkU9Z0+UELiKU8BDlNbrhlVPlqaYxJxvvUlww+adjmxoxEyf7YCeM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=XMqmHjqE; arc=none smtp.client-ip=209.85.219.173
+	 To:Cc:Content-Type; b=gfQisxAWSmX5G8kXTq3kyufpIrEtnwh/FmBztAWMQr9b8i7Oq0gbZZq9whBJVeFwO0EFVQFJwW+rDKr7MbH//w3kIQOgBYjHTu4/9aEUImV/IyaoVDGglt0WkJTGSlBSGOdy0MUOC0zn658lYuhUZ08efOVea+9O1JecpiYnnMM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=S30PRnNR; arc=none smtp.client-ip=209.85.219.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="XMqmHjqE"
-Received: by mail-yb1-f173.google.com with SMTP id 3f1490d57ef6-e6dea30465aso1323614276.1
-        for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 19:31:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="S30PRnNR"
+Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e6405b5cd9bso1365642276.1
+        for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 19:41:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1744338665; x=1744943465; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1744339303; x=1744944103; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lNkKNP1Bw20PcmRVgsTkFbGsUkto8dq13qXkhzYeC/4=;
-        b=XMqmHjqE9jNbfNBmZiGBP4E1KgVEZoPdZRsjgQnNvlM3tP68j0vZTY9CeeG0TQMYtn
-         5mFsZka8dDK/A9OzrioKY/jCxyAuCyatWwHsZ3ThbJktpeYwwwPr+c3RsTWqWkmsj71+
-         6gBAyQRsZkiTbUFHcquoHLvBHFLRAabreijy9c/WiQrJoOtPrtyuu7PLx8koYERMe91T
-         fYFt3fqbn6GXUBfyM/ySKqeArxDt7/l289hCRVsD6e7y9JetyKYkVTRGy8KlnS3tSTmS
-         iQH5NvG2gl4zL0DHaf6WGMyw1uaS+Qu6Rn3giyUAbdKslQGo5bPy31qbiurG+rYnubDi
-         WejQ==
+        bh=3CwF+ie3M3uU4fIen1I6/2Rgy5lqyQhlFhFk+DF1se8=;
+        b=S30PRnNRSvuU9IMAkZaarLZMJWxHbN/EY4RbuvdLB3K7nc5n6hm115VtdZB0w3+wmF
+         jkkV9HMoSRNed09lrY3VysuoGz+5MzjdDbtdCcffu/vn4zlnZW68BLmkoCBAv+QB6CPG
+         xPhGuPYLyghjUCpKuhkLPIDxiJ6Ts6WMIGjkJIrRk6O//WAPRn0Jp8Ws3lGu4RNnQyjH
+         6sFj98j2H1QunBb6W5IsmaTihBXBO5/imtgeh5K8YRLCs4YRNRH6UzoHkmQG7zvBIf2r
+         1O1V0XDo3QtyeI0AaBnBzy5u37h20VEPTIRLSJt8nB3fu/oGHbDDcwOczPd722CH8tyK
+         s0JQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744338665; x=1744943465;
+        d=1e100.net; s=20230601; t=1744339303; x=1744944103;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lNkKNP1Bw20PcmRVgsTkFbGsUkto8dq13qXkhzYeC/4=;
-        b=KwYecxm+j/86JZWniVjpy36l2sJfsD6eEBtLMYqKiDUuxyiZvVIQQ9AACpwHi+jVLo
-         jLWfaPWSllix0UHVBd802LPUIjK+qhVwI7zeidDzrhM+SUcVtM+SbXMe/MnPaZIbCreK
-         NZ4WTTzjAfd72rTRKAGjOieJBeRX7zvPDwwXsNtPBZiQNNdwXcmqBVrEnzT9dAhNRyj4
-         OyU/ymn4jMX6ciR7AJy7/lb8yn7Fkc+DFNm0HDRuTqmRfciYeFdViQHyeftVQIa/QSWO
-         02GEFHdNFh6E0353Bskc7BIBKW9ZKQBivcvBzhKzV8cuAdFdMc+vR+LSn5ULzmlHa8co
-         tSNg==
-X-Forwarded-Encrypted: i=1; AJvYcCV3NKVr1ptId4mPd8Vspeg/pLX7lgrQpQqJZZ7vAJ5dLuU0fPaeaNXsNJlvxNfcIBKBvHttR4ij@vger.kernel.org
-X-Gm-Message-State: AOJu0YzoHDuhqkvohl4Icn7I0x+0Wz/SHqX1EPM026CqYTSvBBvMO5Pl
-	mer3Qb046GwlLQ3CQF9Yq+bm0L4WYuUKyQUORtXwz2GI466dgEqhssxomJdYezzxgQC8TY1k5Ou
-	3XzlzGhd/tQTT9skmQdRJyhmJHb4yTp9rOkub
-X-Gm-Gg: ASbGncsfel/QSL25msyY48p2vQk8fjTO55+60LzGelkWby+tGheHfRAfhzqhuiVQpo2
-	DajGpn1i49cSUAkwg5b1aLZ8mg2fYTmCe4dTV8BsMX3crMR54cJBEbvwmmvarLXvGGdzenH07Ah
-	fP1Xg1mYn5l0VvfsK60P3AEw==
-X-Google-Smtp-Source: AGHT+IGLmFFovthkCzz9zBGQUgYH6D8PODA4GkT138VS1bTfJxT4nmfLax5WnRDWztoeEsfK8XQd5OQOr2/L7Vnjktg=
-X-Received: by 2002:a05:6902:2849:b0:e6b:834d:f0f5 with SMTP id
- 3f1490d57ef6-e704dfff761mr1728571276.39.1744338664834; Thu, 10 Apr 2025
- 19:31:04 -0700 (PDT)
+        bh=3CwF+ie3M3uU4fIen1I6/2Rgy5lqyQhlFhFk+DF1se8=;
+        b=LFc11t2QpbN1xUtMcIuIn821ry2Jh6pey5ibwibz+D8As7To73YG7OGRZH0wVOEepq
+         dgeISQ0WjKK5yusf5f8RAyKxvHoFE3onOlB435ariRDk8toKYnb74gm956cOXnY9iTuk
+         yZScvwvyQXxZm8vSHsdJ1Bn9MUWtuvQ/cPr3V6r7cy/nifjf7dTdAUzteFv2mSjEbNve
+         FUUV/WYAypwzary3EMMHxG1yxpOH+eB6GdRHOvjIzlfo5WwulDqZI0QnE+S/J94X53dA
+         LmxR7GlljbSK9z4cnFK7ovaRbavjsWqsatWFxD/V+TWQl2qEt/duAP2OkD6jQMyHtEGf
+         RymQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVmPtFWEhHzD9Zc1F6OYx9WM1A2ByG4COT77SPXXToT5d4oNUHHGx1FnvIAtN2mxtH0Fv0t2zID@vger.kernel.org
+X-Gm-Message-State: AOJu0YyLmucHo6+jn5h1Dp1f79blusbgLQdrm95P65weJmPljCm+V7s7
+	1ccjzprthfJkFbnrKFjkV94b+CqHAMBQ4iodR6OGagYaDrJin7sRzJ3iS1PmoBHI/LgHe3VxX3P
+	FEnHB6O2W1NdVZXIwMvz25M9QBdI6dCZzIxQp66FitB1CUTQ=
+X-Gm-Gg: ASbGncv3syZCbHSHzXyyOxaHh0VoKgHkBVp3Zy86I9HD92gvS6yL3MhTjEvO8Ny3bBg
+	/gq7yak06CsCFBjobop0Wfy/sjLhgT0ArFxk/rawIY1ch4tMORonvETZO4fd8px9rRlHSikD5qk
+	+f/Fl6CEgJPkkDSaffwCMGRg==
+X-Google-Smtp-Source: AGHT+IFyF3fZnOWLhxV5JgbmPr2sTVJJVPls46hqxiiCUMkby6GAJYYZggmtKw46ptdM2VMxpFqKc+QvSJIG4R08H8I=
+X-Received: by 2002:a05:6902:1545:b0:e5d:f98f:6f33 with SMTP id
+ 3f1490d57ef6-e703e6de386mr8638189276.10.1744339303036; Thu, 10 Apr 2025
+ 19:41:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250409185019.238841-31-paul@paul-moore.com> <20250409185019.238841-51-paul@paul-moore.com>
- <202504091641.738FECED@keescook>
-In-Reply-To: <202504091641.738FECED@keescook>
+References: <20250409185019.238841-31-paul@paul-moore.com> <20250409185019.238841-49-paul@paul-moore.com>
+ <202504091639.A12E1A853E@keescook> <CAHC9VhTR=ee4SGuvDbFj-dtevVFN3Pm-tVhtMLpHsiYB24Xxcw@mail.gmail.com>
+ <202504101915.CA031AE@keescook>
+In-Reply-To: <202504101915.CA031AE@keescook>
 From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 10 Apr 2025 22:30:53 -0400
-X-Gm-Features: ATxdqUFcx8JbctC3F2mPuvKMKmLPfNyuoiYJRtlnAQbggL6SjsGiuCMVstB_u88
-Message-ID: <CAHC9VhRZqdrzkiy9CrK+a8GT+vToymU75kH64fP7XOnp=76nYQ@mail.gmail.com>
-Subject: Re: [RFC PATCH 20/29] smack: move initcalls to the LSM framework
+Date: Thu, 10 Apr 2025 22:41:32 -0400
+X-Gm-Features: ATxdqUEGP_uYjR2QUaCWVy9WoK8JP8pDyZNvieKfq707AQCl9JSsANJ7Avf5nhA
+Message-ID: <CAHC9VhRQ=854kmKnv=gRCUNOk0TK2=-ss8S220yAkwsUP+y-Wg@mail.gmail.com>
+Subject: Re: [RFC PATCH 18/29] loadpin: move initcalls to the LSM framework
 To: Kees Cook <kees@kernel.org>
 Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
 	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
@@ -78,54 +79,27 @@ Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 9, 2025 at 7:42=E2=80=AFPM Kees Cook <kees@kernel.org> wrote:
-> On Wed, Apr 09, 2025 at 02:50:05PM -0400, Paul Moore wrote:
-> > As the LSM framework only supports one LSM initcall callback for each
-> > initcall type, the init_smk_fs() and smack_nf_ip_init() functions were
-> > wrapped with a new function, smack_initcall() that is registered with
-> > the LSM framework.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> >  security/smack/smack.h           |  6 ++++++
-> >  security/smack/smack_lsm.c       | 16 ++++++++++++++++
-> >  security/smack/smack_netfilter.c |  4 +---
-> >  security/smack/smackfs.c         |  4 +---
-> >  4 files changed, 24 insertions(+), 6 deletions(-)
-
-...
-
-> > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> > index e09b33fed5f0..80b129a0c92c 100644
-> > --- a/security/smack/smack_lsm.c
-> > +++ b/security/smack/smack_lsm.c
-> > @@ -5277,6 +5277,21 @@ static __init int smack_init(void)
-> >       return 0;
-> >  }
-> >
-> > +static int smack_initcall(void)
-> > +{
-> > +     int rc, rc_tmp;
-> > +
-> > +     rc_tmp =3D init_smk_fs();
-> > +     if (rc_tmp)
-> > +             rc =3D rc_tmp;
-> > +
-> > +     rc_tmp =3D smack_nf_ip_init();
-> > +     if (!rc && rc_tmp)
-> > +             rc =3D rc_tmp;
-> > +
-> > +     return rc;
-> > +}
+On Thu, Apr 10, 2025 at 10:16=E2=80=AFPM Kees Cook <kees@kernel.org> wrote:
 >
-> This retains the existing behavior, but I think it'd be better to
-> evaluate if the init_smk_fs() call can be tied to the fs init hook
-> instead, yes? Then no new helper is needed, etc.
+> On Thu, Apr 10, 2025 at 09:15:47PM -0400, Paul Moore wrote:
+> > On Wed, Apr 9, 2025 at 7:39=E2=80=AFPM Kees Cook <kees@kernel.org> wrot=
+e:
+> > > On Wed, Apr 09, 2025 at 02:50:03PM -0400, Paul Moore wrote:
+> > > > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > >
+> > > Reviewed-by: Kees Cook <kees@kernel.org>
+> >
+> > Do you mind if I convert this into an Acked-by?  Generally speaking I
+> > put more weight behind a Reviewed-by tag, but in the case of Loadpin
+> > you are the maintainer and I'd much prefer an Acked-by.  While I'm
+> > always happy to get more reviews on a patch, the primary reason for
+> > CC'ing you directly was to get ACKs on the LSMs you maintain :)
+>
+> Acked-by: Kees Cook <kees@kernel.org>
+>
+> :)
 
-When doing this work I spotted a few LSMs where I think we could
-consolidate multiple initcall types into one (or two?), but there was
-enough in this patchset already I decided to leave that for another
-day.
+Thanks :)
 
 --=20
 paul-moore.com
