@@ -1,144 +1,129 @@
-Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
+Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53FF91D5ADE
-	for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 22:47:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4D33A94F
+	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 01:05:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744325247; cv=none; b=eK88P7n/EbhQUh6cb1fvyEzIDErby7Z+ZVOiu3u272vWGyN3RxhE6aXZpgPGK3UXEMcE4xaT0TiWSA4Imc2AjBKpS6GwxsDp3QziGU2glVef7VKfSSiX8rRXXtA5wodH/NGhswzyHAUAZCJUaybuZR1ATRjxKn7W8JUw6b9tQ/Y=
+	t=1744333558; cv=none; b=j5HB7sOs2pgr2mhMd1g18O3R3YiCa8vLpMLq03fuAnNw+mowvvXbxEsGOkoL7lvkmYkQaxSM6oa+627uuFx3N/uQb0bSFFZQILlr5XfjbB5P0rabSZJ5glpS6OY5gvGvw+GZUcr/pgf4zubeZrMSYffgw4hPOaQ78ZpSRwnDZFs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744325247; c=relaxed/simple;
-	bh=t0WHWF9UD1DRoY8s+UFJorlWHrn+kwq7FR9h9tDwLbs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=i81RivntL1GmxJV3/ISHdV0O/fRNSd6ooelp+q2R3jus0VcBr1G75alyIt2netHnicocDpSoN6F0wJn61AGvVKcgH51Upo1JZ//Wm73fLeIusTvY/9UW7HRBspMZ1HiEnlDvMBaVfEWMUmI9Arm3Iv7sYQNG7NzBCWqqkafqkrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=QBCRfGKZ; arc=none smtp.client-ip=209.85.128.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1744333558; c=relaxed/simple;
+	bh=eMQ42uaCVgoQW6UEJex7zBUEe/rqSGyq/LDG4aLsMcg=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=AG3MjUuj7wfHkIbXeRPvhKWSLOfjH71mWxr83g66SeFYEmWVGmAOUlTgMGbGTL7Qwr54W0H5R3Trtjc7aH5DjvllbX9sQ9C/RmFqOGwN8JOYR4WSf00+CcTHvyTD1IUz7RjAHVKrIwe2b7VPW4wHcFSo2f+u3Cyc6qNw6hhVz3M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=3fYnMnVt; arc=none smtp.client-ip=209.85.216.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--inseob.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="QBCRfGKZ"
-Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-6ef9b8b4f13so13088477b3.2
-        for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 15:47:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="3fYnMnVt"
+Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-2ff7cf599beso1437327a91.0
+        for <selinux@vger.kernel.org>; Thu, 10 Apr 2025 18:05:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1744325244; x=1744930044; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4baDOK+hOnqwwRvcq0Pn8YBJYVT7qAO9stCuIJlFccU=;
-        b=QBCRfGKZ8Q2nF6vILxn8gBd26JMRe5mdu0/0y0Y48tfKlRnJiwOJtrHkVGzCs8pU/q
-         7C6kQFy0tCYukxeP9HUJxQcCCsfK5LGdltmoH+fD68RoDUmEUUxphHkDnscPnnZXfJUV
-         6A6+2POZBCoZbW8qedT5rZqZVuvmUxWYIcZDl13fJ/AkGswNOAuKTLocx40E1yYz30Zw
-         9+YJJ4qK/Lwo/OFAjONG3cPRlGJT0GFtEYmntWiemRWohh9iykpCcH0V3u744fSZQoGl
-         KgqI8Wpw8yf1T089P1DKysTHn/4sYtDG+FktKz347q/Dpn8v+/3EHustnFwQS/XoqXrN
-         d9hw==
+        d=google.com; s=20230601; t=1744333556; x=1744938356; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=/tEtayjpNpg7l3rJrur7NWi3vgxYjam8ErRGY57K79A=;
+        b=3fYnMnVtTZm0ObbC6fO+WGwGUtYIC/Pq7sR346ZIIYpgYqv1OR/xSM7aQrK0ZZaeq/
+         jmEqapYXJ2NBiE8yHdwVwRjsyg8KkN7OhbH5sBcB0TTiiPVzVeI9kgX0ZCmSZxlTSiaW
+         0DxZrBOlLfrGM6Xzh+m96t99mUPlMuEW/fg4fRO/ODD8H8OAMJWY8VabmyJAWcQMBPGU
+         OLxR2m6/pNJ4LS3yPVOViTQaYZewgNNKIIKCdC5rPqHty1z+9XRJj96g5CTuAOioKYkJ
+         h3nKuKQnJSzkQRhqpM2/s+4Y9l9rvS0EAnKaYkT2snetbucTORfEsEz+sS9An4pvsngx
+         0Bag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744325244; x=1744930044;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4baDOK+hOnqwwRvcq0Pn8YBJYVT7qAO9stCuIJlFccU=;
-        b=SIDCuwv/zLBCN18u26UArlFfQiapjvFVlT8dGp5UORHkGNQItMvEWdnjFWuJ2O4kX0
-         8bJBSvSUkgKNGDO8XmrDpPArxfIZ98UKKZAoCmipTlxjFAkci8MwOD2I+MT1IDin+AbT
-         w6wjZEK9fa8Oolxd4CrEeI+8N/A7g3Sr5MMzeD2PgCov9QxcY/9y/XL3uK5b17EvcP9E
-         x/jrOX7JPgXNbsRD4YpWpijb2zFxArvQAs7NxAZEm87pUS7DKOC6fbfaPF6FwA/etC7D
-         dzmCle0xa+v+VqItQPG9h3Q5sOwPapUY8LIfN3sdQLls2wQyb3CWIFnNdcsoiUXiR1Q3
-         hyRw==
-X-Forwarded-Encrypted: i=1; AJvYcCUGymnLMr8wzXs4+KU1Pzot1ZXDewvRIS6j/D3u0aZtJLjjzN0fWGc92W/NLck9q+0+Ul4FqAn6@vger.kernel.org
-X-Gm-Message-State: AOJu0YwtlhNuC8hoc/Cx4/hH3I3c2OiFsU0Q/Rf4UeJx8seHupZ5xlNo
-	2cRszesgNU1sN/JGi5ywoM+VsQCbNCsla80FGNrvgnlIPAtGNbMumQGbt0ejvW5x089wW1KyJux
-	jpXZ8lDbwyVcpLWg5U2ZnKDkKi7Hb9JLg/I6z
-X-Gm-Gg: ASbGncvxGVoRHYfvqs+iJhqGcMFSUVf7FKfZ8yRrcNFWjtZlUlOZT/1ue0RE2jnYldh
-	gN5nWKqRFAtqegbg/w/wdLiQmWijbZl0hVtfcEnNjfphfH9GCDv3MYljayXgVCStDdnKGpI3at1
-	H0+NLGvV/6DIs0gHpS8KmGuCmhAOe7uKFY
-X-Google-Smtp-Source: AGHT+IFgcMp7/WMc+kqP4e3WnS6Fg1zzj4n+C0a8bspl4n4V7LCbv5x6jMxmdOvw76kxObafg2bPEM2ljqeu7CQkIjo=
-X-Received: by 2002:a05:690c:6aca:b0:702:4fd1:aff with SMTP id
- 00721157ae682-705599ea13dmr12334217b3.20.1744325244291; Thu, 10 Apr 2025
- 15:47:24 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1744333556; x=1744938356;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=/tEtayjpNpg7l3rJrur7NWi3vgxYjam8ErRGY57K79A=;
+        b=BSko2z/QQ+MlqCDQ8h2c1+mh2DW11F0SljseBNfA4bOT8ibiqKGfc0fSWIHm6zAQ1W
+         nYdHFCZxKFwdZUgUrqFKZg9LD9TfbVuyru9tdhggUlcxUtoCvzzW78CHpXRHoRvNUhPz
+         oibt4JANwHVca+c19F3iX0U5s/6ebqLcZAaAYfWfe2FfCz1XydK1a/T+tzkjDcGECdv4
+         dZPHhYV70NFuxpIOrxa00QrZgRgLhwvl7kPsWTkWbr0Ioq62iIsux4nkx0qB/42SZ3OB
+         B1jYg6FFs9DFL5Zbb7SanuuGnKmHWT5E/ZKfMXTZgwpqDslwO8iPxk6RWa04KtOeb8vv
+         AvBg==
+X-Gm-Message-State: AOJu0YzPn4pl1xJnxrI5lW1cqUk6jtEzRs7+oL1aN7YNa7sSjW23Kare
+	kJfofXe5X54BFVtGSmOv8llwet69x4iJ4GVZbKH4p7y0qF3ZnK+PsBP++QRFaXVtnj32mkbHaxT
+	3wYMNBbGrc0mZGnu8xdj1MxBu2LBGXsxRFiIoUH7vtDsDQuoIrR3bYA3eJBI91LUeBvdkc0xko4
+	oBFaWfIvgnfnxDj6ad9yzMPrQZTD6uwh7wdQ==
+X-Google-Smtp-Source: AGHT+IHShWJPsmzggxzVWjEe0vwkK/ITNLNfOwjk0G2XY3oPZuf/booo69dozfXgeNIVegjOl22rXvepg3o=
+X-Received: from pjbsh5.prod.google.com ([2002:a17:90b:5245:b0:2ea:5613:4d5d])
+ (user=inseob job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:2804:b0:2fc:a3b7:108e
+ with SMTP id 98e67ed59e1d1-30823675ea4mr1567037a91.4.1744333555962; Thu, 10
+ Apr 2025 18:05:55 -0700 (PDT)
+Date: Fri, 11 Apr 2025 10:05:46 +0900
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250409185019.238841-31-paul@paul-moore.com> <20250409185019.238841-39-paul@paul-moore.com>
- <202504091607.0A394D5EF@keescook>
-In-Reply-To: <202504091607.0A394D5EF@keescook>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 10 Apr 2025 18:47:12 -0400
-X-Gm-Features: ATxdqUEutKgeD2WmDngbQutC5jk-ZnYZE3BJM25bNgtT7teaIomg7a1L8VFk-FY
-Message-ID: <CAHC9VhS4nB2xV-zw+=eN2MYaetvCkParammXn1fPGsm-wuHtTw@mail.gmail.com>
-Subject: Re: [RFC PATCH 08/29] lsm: get rid of the lsm_names list and do some cleanup
-To: Kees Cook <kees@kernel.org>
-Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
-	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
-	Fan Wu <wufan@kernel.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Micah Morton <mortonm@chromium.org>, Casey Schaufler <casey@schaufler-ca.com>, 
-	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.49.0.604.gff1f9ca942-goog
+Message-ID: <20250411010549.1688614-1-inseob@google.com>
+Subject: [PATCH v3 1/4] libsepol: Allow booleanif to have info nodes
+From: Inseob Kim <inseob@google.com>
+To: selinux@vger.kernel.org
+Cc: tweek@google.com, jeffv@google.com, Inseob Kim <inseob@google.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 9, 2025 at 7:13=E2=80=AFPM Kees Cook <kees@kernel.org> wrote:
->
-> On Wed, Apr 09, 2025 at 02:49:53PM -0400, Paul Moore wrote:
-> > The LSM currently has a lot of code to maintain a list of the
-> > currently active LSMs in a human readable string, with the only
-> > user being the "/sys/kernel/security/lsm" code.  Let's drop all
-> > of that code and generate the string on an as-needed basis when
-> > userspace reads "/sys/kernel/security/lsm".
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> >  include/linux/lsm_hooks.h |  1 -
-> >  security/inode.c          | 27 +++++++++++++++++++--
-> >  security/lsm_init.c       | 49 ---------------------------------------
-> >  3 files changed, 25 insertions(+), 52 deletions(-)
+Allowing more info nodes helps debuggability, especially neverallow
+failure reports.
 
-...
+Signed-off-by: Inseob Kim <inseob@google.com>
+---
+ libsepol/cil/src/cil_binary.c      | 1 +
+ libsepol/cil/src/cil_build_ast.c   | 1 +
+ libsepol/cil/src/cil_resolve_ast.c | 1 +
+ libsepol/cil/src/cil_verify.c      | 3 +++
+ 4 files changed, 6 insertions(+)
 
-> > @@ -343,8 +345,29 @@ static struct dentry *lsm_dentry;
-> >  static ssize_t lsm_read(struct file *filp, char __user *buf, size_t co=
-unt,
-> >                       loff_t *ppos)
-> >  {
-> > -     return simple_read_from_buffer(buf, count, ppos, lsm_names,
-> > -             strlen(lsm_names));
-> > +     int i;
-> > +     char *str;
-> > +     ssize_t rc, len =3D 0;
-> > +
-> > +     for (i =3D 0; i < lsm_count; i++)
-> > +             /* the '+ 1' accounts for either a comma or a NUL termina=
-tor */
-> > +             len +=3D strlen(lsm_order[i]->id->name) + 1;
-> > +
-> > +     str =3D kmalloc(len, GFP_KERNEL);
-> > +     if (!str)
-> > +             return -ENOMEM;
-> > +     str[0] =3D '\0';
-> > +
-> > +     i =3D 0;
-> > +     while (i < lsm_count) {
-> > +             strcat(str, lsm_order[i]->id->name);
-> > +             if (++i < lsm_count)
-> > +                     strcat(str, ",");
-> > +     }
-> > +
-> > +     rc =3D simple_read_from_buffer(buf, count, ppos, str, len);
-> > +     kfree(str);
-> > +     return rc;
->
-> Hrm, at least cache it?
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index e84188a0..b0befda3 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -2153,6 +2153,7 @@ static int __cil_cond_to_policydb_helper(struct cil_tree_node *node, __attribute
+ 
+ 	case CIL_CALL:
+ 	case CIL_TUNABLEIF:
++	case CIL_SRC_INFO:
+ 		break;
+ 	default:
+ 		cil_tree_log(node, CIL_ERR, "Invalid statement within booleanif");
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index 072d2622..fc11758d 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -6164,6 +6164,7 @@ static int check_for_illegal_statement(struct cil_tree_node *parse_current, stru
+ 			parse_current->data != CIL_KEY_AUDITALLOW &&
+ 			parse_current->data != CIL_KEY_TYPETRANSITION &&
+ 			parse_current->data != CIL_KEY_TYPECHANGE &&
++			parse_current->data != CIL_KEY_SRC_INFO &&
+ 			parse_current->data != CIL_KEY_TYPEMEMBER &&
+ 			((args->db->policy_version < POLICYDB_VERSION_COND_XPERMS) ||
+ 			  (parse_current->data != CIL_KEY_ALLOWX &&
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index a8fa89df..392f03c7 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -3849,6 +3849,7 @@ static int __cil_resolve_ast_node_helper(struct cil_tree_node *node, uint32_t *f
+ 			node->flavor != CIL_AVRULE &&
+ 			node->flavor != CIL_TYPE_RULE &&
+ 			node->flavor != CIL_NAMETYPETRANSITION &&
++			node->flavor != CIL_SRC_INFO &&
+ 			((args->db->policy_version < POLICYDB_VERSION_COND_XPERMS) ||
+ 			 (node->flavor != CIL_AVRULEX))) {
+ 			rc = SEPOL_ERR;
+diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+index 550b4542..cde9dd41 100644
+--- a/libsepol/cil/src/cil_verify.c
++++ b/libsepol/cil/src/cil_verify.c
+@@ -1176,6 +1176,9 @@ static int __cil_verify_booleanif_helper(struct cil_tree_node *node, __attribute
+ 		   booleanif statements if they don't have "*" as the file. We
+ 		   can't check that here. Or at least we won't right now. */
+ 		break;
++	case CIL_SRC_INFO:
++		//Fall through
++		break;
+ 	default: {
+ 		const char * flavor = cil_node_to_string(node);
+ 		if (bif->preserved_tunable) {
+-- 
+2.49.0.604.gff1f9ca942-goog
 
-Are you aware of a performance critical use of this?
-
-> Better yet, do this whole thing in a initcall after LSMs are loaded, and
-> both can gain __ro_after_init...
-
-I *really* disliked all the stuff we were having to do during boot,
-and all the redundant global state we were keeping around.  I'll go
-ahead and cache the lsm_read() result local to the function but that's
-probably all I'm going to accept at this point in time.
-
---=20
-paul-moore.com
