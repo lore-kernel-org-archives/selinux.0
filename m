@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9372D18052;
-	Fri, 11 Apr 2025 02:15:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35A4818052;
+	Fri, 11 Apr 2025 02:16:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744337734; cv=none; b=EEyBrhSK0eyaqa5j0dQ3bmlYxdzZiXg9TL/KseL/fdtJHJpcrP/Yq8PUcsLBfYjqqqHPzZ8AJRfWsoQfAvjqZ0q1qoWEbiBP3rzEaT4Xv9BFAPWP3MNLbR3Omlg8IUEOJ0o23LW5AHHGq5caWh/mkbD5rZSssedJ+uRoj1xkdSw=
+	t=1744337765; cv=none; b=YDUARluOtfzvefyxQyYYlzcyzhzdjoaYQ/13nKkZ1YCaF16PITj63xowjHtLYl8X5X7h6K8Z/hOuMaAz4mZFaaUjK0+31tYX9G/erAEvFcPnJuDs6i3Aypk8ryfKW+1ug6cro53ZD9/L1ziyp5fZdix1mur5/c1/txG0u6Z/rdo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744337734; c=relaxed/simple;
-	bh=Q81vzCLD2na6hGY9543l1oTGYd0RgK1YOobU435O0Ck=;
+	s=arc-20240116; t=1744337765; c=relaxed/simple;
+	bh=vZvDy+kOrWAaKY3hM8qC9K+FqrF2jjmB07w+WO1ui3I=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IfOdNeaijH/3mMuge74gCpw4S+dZmoEzKf76Fd3N3GKqtkb/N1sMyxxUrJM4Y+3QdONcCqxl84mcDwATyQAnTeQMzgtaxEi+LBkctfFlCNQW5rRbkRfpmqpyEl9QsOQs77VJr3ZP/zqXlQwRs85U/EJvSC5jI32U4kzM/BEhuk4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tQ3+HfQ3; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=HFxewiRlZ998vRG7vLXSRYWnzF2YpRfQNHGRRSF4l0yVYDFRmH46j649wUMOP8yMUltzx+79ITcpV+tTfVbcgnj9Sw0KdISVQlkRnRpaDOmubXPGWmMI35KgJPggBMr064TrxnEHSgd+/dtV5MK32z0SHh31a2bCp4HKxgugwls=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mjdoRyRC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tQ3+HfQ3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07606C4CEDD;
-	Fri, 11 Apr 2025 02:15:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mjdoRyRC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93E91C4CEE3;
+	Fri, 11 Apr 2025 02:16:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744337734;
-	bh=Q81vzCLD2na6hGY9543l1oTGYd0RgK1YOobU435O0Ck=;
+	s=k20201202; t=1744337764;
+	bh=vZvDy+kOrWAaKY3hM8qC9K+FqrF2jjmB07w+WO1ui3I=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=tQ3+HfQ35TtgQjSR0KSA1a0kI49RQM4NInVatUJjNifswKUMA17c0xCld9BrQRorN
-	 uIorLslyjGK7I8E7H5rqB25kTAk28rrDHHpBbvtKqO7SVWBDA6uhXK5XjiKgTvGcA1
-	 +8DOXB34XwESxnOoH7YStVzJlFSdbfhthsxBX7CD6BJhzuEj5UVtXTZbVnwMwrEM8X
-	 C4MKxCxiAvT5zZ8ap40VngsAgPlkhetSrzbPh8ic0vylxZdO/H1WRGPaHCVs7JufCD
-	 q8UrYcU2B5vznukiikeiKgD7xB3QBYMCIekG684Chb5EeVjxUUZm88xl4SD6quswHJ
-	 +P7o1P4coeRSw==
-Date: Thu, 10 Apr 2025 19:15:31 -0700
+	b=mjdoRyRCRvdzLQhbw8W1FCfCoPDZqLOfyfAFWOe0ZnIMwewDB9pkyWnc8sPVUYm9A
+	 joQ61cMyrC4aBI6mpLIU95HYE+TPDhyagpQhifpsasc7t5BN9tVvNVbZEUDmzbjBSx
+	 utH1WfUjwZCmZinbKoOJCOdxRcaeeFEr2zNHGbvXljg498+mUY9MnY93VITB6XvP8i
+	 d/RhdGbXStKBSSpVAb08+b1yWoayYCzcQ4mVZzRcHeAi13bX0DrVcyQBgJXj60l/F2
+	 jOHShV4cGuIUHZ+lYIkWzU2Pw2bULgK9Qhi88pKxOnEYPEy13anrgKKj5dq173+Szy
+	 d7nRSgAbUP8KA==
+Date: Thu, 10 Apr 2025 19:16:01 -0700
 From: Kees Cook <kees@kernel.org>
 To: Paul Moore <paul@paul-moore.com>
 Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
@@ -39,13 +39,12 @@ Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
 	Micah Morton <mortonm@chromium.org>,
 	Casey Schaufler <casey@schaufler-ca.com>,
 	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Subject: Re: [RFC PATCH 08/29] lsm: get rid of the lsm_names list and do some
- cleanup
-Message-ID: <202504101913.8F3B5D1@keescook>
+Subject: Re: [RFC PATCH 18/29] loadpin: move initcalls to the LSM framework
+Message-ID: <202504101915.CA031AE@keescook>
 References: <20250409185019.238841-31-paul@paul-moore.com>
- <20250409185019.238841-39-paul@paul-moore.com>
- <202504091607.0A394D5EF@keescook>
- <CAHC9VhS4nB2xV-zw+=eN2MYaetvCkParammXn1fPGsm-wuHtTw@mail.gmail.com>
+ <20250409185019.238841-49-paul@paul-moore.com>
+ <202504091639.A12E1A853E@keescook>
+ <CAHC9VhTR=ee4SGuvDbFj-dtevVFN3Pm-tVhtMLpHsiYB24Xxcw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -55,22 +54,24 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHC9VhS4nB2xV-zw+=eN2MYaetvCkParammXn1fPGsm-wuHtTw@mail.gmail.com>
+In-Reply-To: <CAHC9VhTR=ee4SGuvDbFj-dtevVFN3Pm-tVhtMLpHsiYB24Xxcw@mail.gmail.com>
 
-On Thu, Apr 10, 2025 at 06:47:12PM -0400, Paul Moore wrote:
-> On Wed, Apr 9, 2025 at 7:13 PM Kees Cook <kees@kernel.org> wrote:
-> > Better yet, do this whole thing in a initcall after LSMs are loaded, and
-> > both can gain __ro_after_init...
-> 
-> I *really* disliked all the stuff we were having to do during boot,
-> and all the redundant global state we were keeping around.  I'll go
-> ahead and cache the lsm_read() result local to the function but that's
-> probably all I'm going to accept at this point in time.
+On Thu, Apr 10, 2025 at 09:15:47PM -0400, Paul Moore wrote:
+> On Wed, Apr 9, 2025 at 7:39 PM Kees Cook <kees@kernel.org> wrote:
+> > On Wed, Apr 09, 2025 at 02:50:03PM -0400, Paul Moore wrote:
+> > > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> >
+> > Reviewed-by: Kees Cook <kees@kernel.org>
+>
+> Do you mind if I convert this into an Acked-by?  Generally speaking I
+> put more weight behind a Reviewed-by tag, but in the case of Loadpin
+> you are the maintainer and I'd much prefer an Acked-by.  While I'm
+> always happy to get more reviews on a patch, the primary reason for
+> CC'ing you directly was to get ACKs on the LSMs you maintain :)
 
-Oh, for sure. I love that all that can get thrown away. I mean literally
-copy/paste what you have in lsm_read() and stick it immediately before
-the "lsms are done loading" notifier. Then it only needs to be done
-once, it's impossible to race, etc.
+Acked-by: Kees Cook <kees@kernel.org>
+
+:)
 
 -- 
 Kees Cook
