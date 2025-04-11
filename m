@@ -1,154 +1,155 @@
-Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com [209.85.219.180])
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DB7078F45
-	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 20:39:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 410C878F45
+	for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 20:41:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744403960; cv=none; b=lWwtcqf99VNmU7mGvEBc762/wYRmFB7joZRDomp+QNwdI2poQSbh/ZAY5ZmfJcP4BylUci8R5cXQ2JOXGksqtiAg6bUH5CZo4vRbpfSsuLlgF0O5DUm6A4//xT8olGWQNk/PfYrJ2kjiYzYodU9vV7pBt99KwmBZEmWohgWeQYo=
+	t=1744404093; cv=none; b=G3k7t4BvaKwjN4Yp4IZryEnqFdgqesd7aCKhRnp0AFZMFazdYRjzmVMgL2+bi2XcRRnYS8VDPAM/0uvqq1qTxQqcqglhIr+u/dJ/QMvNOzZFqWgEv1jDefiV6cUFhfUBQH/KnfRN8fAQV4yf4xTDrzfQTbftX4Pt7uOBxTJbWRk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744403960; c=relaxed/simple;
-	bh=Dd21HafqvhL4LRmMHr6UG9JPN3gDkPg8ZPL81BYDCH0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hu7ysG9fi5FBaKUGmKBkrKl+XFpDno5T6PhL1o8v3LBqxVqKmMbuqj5/mGMqvFj21VlezYgUZSlzqPJRbNyqlxz6seDBMWMxZKsdPZo3AoMNJsI5tQiUpj2Qxy/af3w5OD157RD9W/uiiHm190VCRdJxJfL0dlwuZZHJp1P/9J0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=TPCGUJFP; arc=none smtp.client-ip=209.85.219.180
+	s=arc-20240116; t=1744404093; c=relaxed/simple;
+	bh=/dgl9jVljVQyvrN/x4UstHoe5tBgYHTRdd0LuJbKEO8=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Subject:
+	 References:In-Reply-To; b=O62LKLvvIp1i1ZXnZrwka6EgI97zjCQux89DEqLHyX5ba4dlrnz9TSRqPitP8UJB+fs5qXZKl+IJVo1o+E0HGZl7PndkHkZGVjiWJ1oRenwRKnEGM7pxDyNrp2w+VBqHVHPgTXSyzmXS4w3RCjI788GykjLfgGjg/0Fkt6ZUWYI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=HYPlWH79; arc=none smtp.client-ip=209.85.222.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="TPCGUJFP"
-Received: by mail-yb1-f180.google.com with SMTP id 3f1490d57ef6-e702cffe574so2005166276.3
-        for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 13:39:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="HYPlWH79"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-7be49f6b331so276305385a.1
+        for <selinux@vger.kernel.org>; Fri, 11 Apr 2025 13:41:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1744403956; x=1745008756; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rqnWJXfJZynDBCqgWxl9HwCmqxFniyodhiMPOH67rZU=;
-        b=TPCGUJFPuTBeVgbBxbPNdyOG8+ExmujInxQqqLWHq4C13oes88QgqhFPx/lWASd9+E
-         sXwb0/zXyDG6W+yvFDPFmFYvBHlgfXv5Bh8Y7AiRb0wPYdtNEKxbVmuyAn8Ba3KqeGOp
-         G3ATbE96cOl2/33EHjZCmyiAB2mfbY1mkmciaBJ0/wdreIKlRmVm0UWiORNVX/Ht9Wxv
-         00EBHElERULvVrydy6WXRgG4R81oybCvfWF7SR9ek6/Iz9ue5nr4T0ItgzN0K2lp1Pqr
-         fvEimq3uCxOnOUDFbf00FZ9H9b8DumJipGLbNy7TfedZxdmpbx6wMb5+vUI0WlXmGaTL
-         pMpw==
+        d=paul-moore.com; s=google; t=1744404091; x=1745008891; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=eemIWGOQMNisEyM3YOBb6l7UfkDUY9gnvJnHEJXTT8o=;
+        b=HYPlWH790m2wmYiN/0YcKMO9/moVMpeydTssQ7CCnIn4QymKnSK3NfZR5ZHyfLlIXc
+         B5q3L2MlztuvmuNFZbBxaYf7pUiXFhkoix9QGPj+eJ3oV9+tCwmf3Ft3cj/7jBDrcwjT
+         75Os7Iuyxb4vGN6S2+9KdPc3n1dJlzL/KtckrowxJhkwgbTsoJiuC8gSniep2WbwQ0MO
+         +dPdJwZQGRYqdmqVJ7Q5d5Lw+bYMDXJO1U9fC3zQJspb6y1TdU9FJgaXSL1ZT/zMVzno
+         s3xoZvpGT2DnqNwYEJlK1boWC26jirill84OEmT/Vpcr5cIwI0ltm5vb5Aqsga6M/RxM
+         t6Kg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744403956; x=1745008756;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=rqnWJXfJZynDBCqgWxl9HwCmqxFniyodhiMPOH67rZU=;
-        b=XObQTiG+jR2m4lG2o0/dpPxNKcEAgVfwq8dKJa8+wb3eyNhylxeqGQlF9Xs6cUEkhk
-         AGN2ng2qsV7sDJ9gU4reOZ9HqHw8XLD72wtbBYBTMvJ018LgrOcYeZujHO1yIWP+q/gi
-         gNwC49wqsDwB+vEaGcpUIR8IDdG8KV1K7okWYByMcNMjRM1+Y8Jq0dxWG045vANJiai3
-         JWo5OE2g5UfXlmSEn9fOak3PK6mWNSdV88GjuT2q9zIATYcr5WU2V5+iOfh5S1Fx18v4
-         RgV0IHU+VivpHAUAubNdfNSkNlMs18Cjyfz15oaDeQF4Ou+BbDM+9LQf4BmOK4vpY1hy
-         JrUQ==
-X-Gm-Message-State: AOJu0YwO/annd2ahxGXsMmVg4Om8j6ksY9nFsBF8hO6awRwkr7ojsUKb
-	eGfssWqb8qrti32e9V+5p/wVKwaJrwcoAGyZc7lW+iFVT3uBAcQpVQQ6s/t/bWcNDpi3LjAGku1
-	QdGjJ2+wYzbEhnuztOpqUik/+njmLu7REFK3O
-X-Gm-Gg: ASbGncs93G+Pudky0onfOiWqL0c3fQG0PGE4At3qi9ze0EhMij/kwGwoPIqkb0XBE/u
-	MQZIPGtnMp0aF1ggFB0GsfDmzAocOkJLEhDabSCA6pa8sZFFsiA9qrNy/4EDKwKYo5iSPxrJs/p
-	3jYMlQhnuinC6Kd2IuEuGrRH2qpbWdbYUF
-X-Google-Smtp-Source: AGHT+IG+ivbzYDg7Yv8rMqkAPpM3eUX3zyW4y3sU5Qf5AdYqwiVa67YziIg7FB0f1ZB4OQCwHpVPSczbJI1218No19Y=
-X-Received: by 2002:a05:6902:1b04:b0:e6d:ec5e:b5ee with SMTP id
- 3f1490d57ef6-e704dfff3acmr6346753276.30.1744403956343; Fri, 11 Apr 2025
- 13:39:16 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1744404091; x=1745008891;
+        h=in-reply-to:references:subject:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=eemIWGOQMNisEyM3YOBb6l7UfkDUY9gnvJnHEJXTT8o=;
+        b=ciUuobrV+bCM5V/1F3bhMFNqJY4CDauN3s9QSKN0JWJ4L5iRRZfpGS5cG4wY9K1VeJ
+         ZOmPZNbfB1pJzP75TYrzjJ+rf85dUH90h+v9ldL7v/SkgXH7MsQGXNIQa+Q7mq5QD6bp
+         XRUDDxsZ1eRuQcneYP9ybG2s9emOxQu4bh5eHmSZ0xAcsBGJaA/zilst8L3TSMF5l5WD
+         qhaOuZkcr59331mhjpUeTM89zvsI+N4kX2rRLf93OQVLFM33XPcJbH5+xDkBijuj2maD
+         1WyIXg4lmYfL5DPGCTg69MbbOIuZi9XT0ZWDJqMxUK2gOMZsviwQoOhdzyxssRmn2LUh
+         /6MA==
+X-Gm-Message-State: AOJu0YyzeG9uYhXLpqn04WryVlVnYzZdcqlSz7bq/7MlRIWDuOlr+XgT
+	ntJR1cLoVyFEUb70dgilpIs86r9rQ4XPLZHGka8DiUzwulLD2y3SnYIXLIffLgX+jXx0zgAD5gE
+	=
+X-Gm-Gg: ASbGncu9GQNPYcU0WE2Mss/0CujR4H2R8GNJmUnP5z8w81+QvP7TNIOnhKy7W/dm31/
+	y99fGUXzS1O0eZWBqfW0Zam759LNfFUQ5xKewpvsQcggLONm2/9B6bPUor46jxKCPWfLAqbmcGq
+	1cciVrnvLeOvxNUabw22uF/e1lVuemX6frFA3Hm0SuxtaQDw7/xZY0I8beVxgybjP9jkXPYQMnn
+	/X4SWYCFQc5OiNvGGJw4kjzImcG/9EE926DE4b6Ae5xfOXjrZbwPebc2/VVKxjVCtYU8m5pPUAx
+	gXCuNTNFY7Rl5Ixvwk53wgwzLV3hWDplhzhPS836Rhj6O2/UaRbH5QH17c3GJXL03p3fcd+X/XE
+	zRaNJsaiUEQ==
+X-Google-Smtp-Source: AGHT+IHXZtlWUOFRnfVnUDoBSMwJFlVVi1VCUSHibHMLwMpSejJW7/2P09JpqK98nLOzC2DtgTR+rw==
+X-Received: by 2002:a05:620a:24c1:b0:7c5:9788:1762 with SMTP id af79cd13be357-7c7af115a88mr695605585a.45.1744404090943;
+        Fri, 11 Apr 2025 13:41:30 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id d75a77b69052e-4796ed9ccd0sm30797121cf.57.2025.04.11.13.41.30
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 11 Apr 2025 13:41:30 -0700 (PDT)
+Date: Fri, 11 Apr 2025 16:41:30 -0400
+Message-ID: <97208482c11a257821c7865bdd40c0de@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250410192031.259180-2-paul@paul-moore.com> <CAEjxPJ4G6+f74EA4usHA+ZqW_tuVXCkft-2+3wApXVpRMtMNEg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4G6+f74EA4usHA+ZqW_tuVXCkft-2+3wApXVpRMtMNEg@mail.gmail.com>
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20250411_1406/pstg-lib:20250411_1552/pstg-pwork:20250411_1406
 From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 11 Apr 2025 16:39:05 -0400
-X-Gm-Features: ATxdqUHtj0GWX7zruQ-rUYchCdb0P3RD3r4XBJcgM1EMHFO_0JxpB5iFclG145E
-Message-ID: <CAHC9VhTuw-Loa0Yi1wB8s-q0=jUgghWXDUiSrU-vuf3fa3ncpA@mail.gmail.com>
+To: selinux@vger.kernel.org
 Subject: Re: [PATCH v2] selinux: reduce path walk overhead
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+References: <20250410192031.259180-2-paul@paul-moore.com>
+In-Reply-To: <20250410192031.259180-2-paul@paul-moore.com>
 
-On Fri, Apr 11, 2025 at 9:15=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Thu, Apr 10, 2025 at 3:25=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> >
-> > Reduce the SELinux performance overhead during path walks through the
-> > use of a per-task directory access cache and some minor code
-> > optimizations.  The directory access cache is per-task because it allow=
-s
-> > for a lockless cache while also fitting well with a common application
-> > pattern of heavily accessing a relatively small number of SELinux
-> > directory labels.  The cache is inherited by child processes when the
-> > child runs with the same SELinux domain as the parent, and invalidated
-> > on changes to the task's SELinux domain or the loaded SELinux policy.
-> > A cache of four entries was chosen based on testing with the Fedora
-> > "targeted" policy, a SELinux Reference Policy variant, and
-> > 'make allmodconfig' on Linux v6.14.
-> >
-> > Code optimizations include better use of inline functions to reduce
-> > function calls in the common case, especially in the inode revalidation
-> > code paths, and elimination of redundant checks between the LSM and
-> > SELinux layers.
-> >
-> > As mentioned briefly above, aside from general use and regression
-> > testing with the selinux-testsuite, performance was measured using
-> > 'make allmodconfig' with Linux v6.14 as a base reference.  As expected,
-> > there were variations from one test run to another, but the measurement=
-s
-> > below are a good representation of the test results seen on my test
-> > system.
-> >
-> >  * Linux v6.14
-> >    REF
-> >      1.26%  [k] __d_lookup_rcu
-> >    SELINUX (1.31%)
-> >      0.58%  [k] selinux_inode_permission
-> >      0.29%  [k] avc_lookup
-> >      0.25%  [k] avc_has_perm_noaudit
-> >      0.19%  [k] __inode_security_revalidate
-> >
-> >  * Linux v6.14 + patch
-> >    REF
-> >      1.41%  [k] __d_lookup_rcu
-> >    SELINUX (0.89%)
-> >      0.65%  [k] selinux_inode_permission
-> >      0.15%  [k] avc_lookup
-> >      0.05%  [k] avc_has_perm_noaudit
-> >      0.04%  [k] avc_policy_seqno
-> >      X.XX%  [k] __inode_security_revalidate (now inline)
-> >
-> > In both cases the __d_lookup_rcu() function was used as a reference
-> > point to establish a context for the SELinux related functions.  On a
-> > unpatched Linux v6.14 system we see the time spent in the combined
-> > SELinux functions exceeded that of __d_lookup_rcu(), 1.31% compared to
-> > 1.26%.  However, with this patch applied the time spent in the combined
-> > SELinux functions dropped to roughly 65% of the time spent in
-> > __d_lookup_rcu(), 0.89% compared to 1.41%.  Aside from the significant
-> > decrease in time spent in the SELinux AVC, it appears that any addition=
-al
-> > time spent searching and updating the cache is offset by other code
-> > improvements, e.g. time spent in selinux_inode_permission() +
-> > __inode_security_revalidate() + avc_policy_seqno() is less on the
-> > patched kernel than the unpatched kernel.
-> >
-> > It is worth noting that in this patch the use of the per-task cache is
-> > limited to the security_inode_permission() LSM callback,
-> > selinux_inode_permission(), but future work could expand the cache into
-> > inode_has_perm(), likely through consolidation of the two functions.
-> > While this would likely have little to no impact on path walks, it
-> > may benefit other operations.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
->
-> Thanks for doing this!
->
+On Apr 10, 2025 Paul Moore <paul@paul-moore.com> wrote:
+> 
+> Reduce the SELinux performance overhead during path walks through the
+> use of a per-task directory access cache and some minor code
+> optimizations.  The directory access cache is per-task because it allows
+> for a lockless cache while also fitting well with a common application
+> pattern of heavily accessing a relatively small number of SELinux
+> directory labels.  The cache is inherited by child processes when the
+> child runs with the same SELinux domain as the parent, and invalidated
+> on changes to the task's SELinux domain or the loaded SELinux policy.
+> A cache of four entries was chosen based on testing with the Fedora
+> "targeted" policy, a SELinux Reference Policy variant, and
+> 'make allmodconfig' on Linux v6.14.
+> 
+> Code optimizations include better use of inline functions to reduce
+> function calls in the common case, especially in the inode revalidation
+> code paths, and elimination of redundant checks between the LSM and
+> SELinux layers.
+> 
+> As mentioned briefly above, aside from general use and regression
+> testing with the selinux-testsuite, performance was measured using
+> 'make allmodconfig' with Linux v6.14 as a base reference.  As expected,
+> there were variations from one test run to another, but the measurements
+> below are a good representation of the test results seen on my test
+> system.
+> 
+>  * Linux v6.14
+>    REF
+>      1.26%  [k] __d_lookup_rcu
+>    SELINUX (1.31%)
+>      0.58%  [k] selinux_inode_permission
+>      0.29%  [k] avc_lookup
+>      0.25%  [k] avc_has_perm_noaudit
+>      0.19%  [k] __inode_security_revalidate
+> 
+>  * Linux v6.14 + patch
+>    REF
+>      1.41%  [k] __d_lookup_rcu
+>    SELINUX (0.89%)
+>      0.65%  [k] selinux_inode_permission
+>      0.15%  [k] avc_lookup
+>      0.05%  [k] avc_has_perm_noaudit
+>      0.04%  [k] avc_policy_seqno
+>      X.XX%  [k] __inode_security_revalidate (now inline)
+> 
+> In both cases the __d_lookup_rcu() function was used as a reference
+> point to establish a context for the SELinux related functions.  On a
+> unpatched Linux v6.14 system we see the time spent in the combined
+> SELinux functions exceeded that of __d_lookup_rcu(), 1.31% compared to
+> 1.26%.  However, with this patch applied the time spent in the combined
+> SELinux functions dropped to roughly 65% of the time spent in
+> __d_lookup_rcu(), 0.89% compared to 1.41%.  Aside from the significant
+> decrease in time spent in the SELinux AVC, it appears that any additional
+> time spent searching and updating the cache is offset by other code
+> improvements, e.g. time spent in selinux_inode_permission() +
+> __inode_security_revalidate() + avc_policy_seqno() is less on the
+> patched kernel than the unpatched kernel.
+> 
+> It is worth noting that in this patch the use of the per-task cache is
+> limited to the security_inode_permission() LSM callback,
+> selinux_inode_permission(), but future work could expand the cache into
+> inode_has_perm(), likely through consolidation of the two functions.
+> While this would likely have little to no impact on path walks, it
+> may benefit other operations.
+> 
 > Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 > Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  security/selinux/hooks.c          | 225 +++++++++++++++++++++++-------
+>  security/selinux/include/objsec.h |  14 ++
+>  2 files changed, 185 insertions(+), 54 deletions(-)
 
-Thanks for the review and additional testing :)
+Merged into selinux/dev.
 
---=20
+--
 paul-moore.com
