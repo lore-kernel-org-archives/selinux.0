@@ -1,164 +1,218 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A982F4C96
-	for <selinux@vger.kernel.org>; Tue, 15 Apr 2025 09:22:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 616D72973D7;
+	Tue, 15 Apr 2025 12:15:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.120
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744708951; cv=none; b=QXuTXP6d7RH5XPtVnnp2UH1tGzpjfgcUvHmXSRBgjrWxr7Ftspbn6l2RCyQX6zHbU/XavjKlghOpD3GugS2pJyhwrAW34DNu/t2MTchDofNNKrnRuuNExuSw8Jtotsiyo4Pq/UamueH5tV4goN9PrQ52LKDmcT73IV3MYb3NObI=
+	t=1744719305; cv=none; b=nPJoH70C0RM5Z8yP1v0ZDDFd54qfhb8z4w2VcaYXPYOgN7NXE3bB4hT4WGWwtQ0ntDCltXmIQo9tvOKGUqFxp3F+AhoYsFKKMY4DDJCzheS9p3uno6r1FneoGlFMrUknPBv8rjnkpZbwH44qlMjp8yOtONtz68g99Bq+bHtAQVE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744708951; c=relaxed/simple;
-	bh=L2nWfw2F0tLGeLqEgrlZKJT4ce2TPKIFWvGneYycIcM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZmbsJI92SMCuTDLEIIK+D/O1Ik0wHSBb+dg2F6VjEXnU7fNq6YOjMQsgS/d+ugCdh8/Mzlf3kolMnHT+Phbj5z13Hxfom037qnzLesUwae5NWQpC5o3xarrGAx9BDrinMGiupZFi6H+NxPg7q4X298ICKFCoduUpajB6c5smvyI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FYann2vV; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1744719305; c=relaxed/simple;
+	bh=vdsvwCD3s4DY/WHfx6PSbZVy63COf/zosT7b77JmbfA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FVtGTkPzFhYCmQKVt+NY1mcJ+PgYbkKp7JnOXCdpfuI6eBlqxhPfMlE009GU2m+aDZ/5qKbWcLnQ9we531al/6PexkoSwpTxVhNl3EagnMRrQMrL7lrmA1+mNNHDc2SpM0LMRXr/dJJ07RIQjLTRtyYbLS8XSQAJYd9YnxvXFn4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=r1wO3wg4; arc=none smtp.client-ip=185.125.188.120
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FYann2vV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744708948;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=HwNS1SE90wwYANhRaW3iTs78GQICoY6XUxQmxD7SYsA=;
-	b=FYann2vVNQXueibHGv/igp04IkuKL9uKzrR5ZlvVbtFuc7xC9MiOFGU++SSl96x8DhjSYb
-	B5xOAuvE9guGfSE9m9ggOph0Ks1GuD4JtZQhjtfFrEwrE32Lmdt++slfOpT9g3X9XieCuA
-	yUUz65lF3GLqIyg43HkUghdnTS07EiA=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-154-exi1PKvfNpuSrsRCRjBJ-w-1; Tue, 15 Apr 2025 05:22:26 -0400
-X-MC-Unique: exi1PKvfNpuSrsRCRjBJ-w-1
-X-Mimecast-MFC-AGG-ID: exi1PKvfNpuSrsRCRjBJ-w_1744708945
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-2ff78dd28ecso6518830a91.1
-        for <selinux@vger.kernel.org>; Tue, 15 Apr 2025 02:22:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744708944; x=1745313744;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=HwNS1SE90wwYANhRaW3iTs78GQICoY6XUxQmxD7SYsA=;
-        b=S+Nqcj1z6h05KtQneib4JrJgnLMKD2/Lol2JrAbUd0+Yt+zku8hr4FtR4WfTbuX0iR
-         I3ua+RgZmV5MyaM4wQqnu3Zw5BxJd0Q53oo9iYOL8rAMAeRZKZ2Jm0CxcDzIqRvSq+5H
-         eAE7pO0Ru/voC4RdYjKpC4Q4Z6RugCIetjY+16ZVZPA5c6ZyuEGHpjxcgT6/PPscxgFZ
-         g8sLm33Xws1TVPRC3JybGcqlfrcs0puvUqsObMeiKXevER4yrGenTDPSW4qbBo0klVe8
-         MiD0bXf8Oy7h9zhNWdjtaDbX6DXsLr3Agkx0C3DzdLXEl3yMHB64+twnsAeErInxl3S1
-         LE6g==
-X-Gm-Message-State: AOJu0YymF0DTeQv5il6ReO+Jue2Xo1gPDdkC3zLqx7MJJlC3WC25oxTP
-	57LHbMarPHIuuYvD7q4cek3qAXCvZUzUT3SaRUIeCjXHO7TGqW0TxTIEdUyI33tENnkrOfLWW+z
-	sXk3Reiq7rgDv8VgRwy9Sruo4hzZLECkylYObb4O1NeNDjbDz4Y4ufmJCf+ADxib8IH7EG+Cw0g
-	ExZlMo+5wVyvDdXao46sy9t7DztDgddAy9+sOE5c2N
-X-Gm-Gg: ASbGncsR+iL3hLUqetxENVZfZvwEI/waGnLMmDxBuEr/JSLTDO9ZgPqC3MN7OOyitBY
-	WOTVVmblxOfz8soiLxcT8IErQlwiMSTmXEWHnOOm6Xp9mCf5SbvhWnLkdNuIIn4YViq8=
-X-Received: by 2002:a17:90b:2704:b0:2f9:cf97:56a6 with SMTP id 98e67ed59e1d1-30823646dfdmr26106701a91.14.1744708944346;
-        Tue, 15 Apr 2025 02:22:24 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IH1CAt76U8SavVKceq8kJnownH+pKS9Scm+WgQR62mshC+5trjXhyT/zpf1OeB3BzbjRRhoyhx28BBh1+FcoCE=
-X-Received: by 2002:a17:90b:2704:b0:2f9:cf97:56a6 with SMTP id
- 98e67ed59e1d1-30823646dfdmr26106666a91.14.1744708943950; Tue, 15 Apr 2025
- 02:22:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="r1wO3wg4"
+Received: from [192.168.192.85] (unknown [50.39.103.202])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 2D81F3F189;
+	Tue, 15 Apr 2025 12:14:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+	s=20210705; t=1744719294;
+	bh=2WHQwBU+Gw9HB563JW+6d3V4NOu1OiBPoTs+y31s0Xk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type;
+	b=r1wO3wg4EKbfH80qZ44/SV8Q5TZGsApj5kK+ZQLPWeqWKiVrwVP3tCIunhZqLLl8d
+	 abIDLPDomCmt6oTHjz1o3bsgbJnFvxP5eB3irQQaZItLvPZJ6RDY8BUGaIE7beKwKf
+	 3OAtI/5hel806I+f6HGs1L/ecH2MKE86BS17ORbSYjTSoW81Uc5oV8UVZLP7+hSYGn
+	 ijFzCWOD30nZDYZBJrdV1xNYTsKnm6zFwe+qQ+yXR9hArDQAABjWFLFfuun63fFeFV
+	 QKjvT8aJd5fE/UuiC5123X8g/Jm5nYW8+W1gXdTGX5vvBVZufwcrMR77jdmRfLFzLS
+	 G3lktbL3NJn0A==
+Message-ID: <4c2ff1fe-9ded-45ad-9289-320f6f8fd098@canonical.com>
+Date: Tue, 15 Apr 2025 05:14:48 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAFqZXNtqPBMGUL8kvYoW2VzdrmcY1cx1+NL+LmOs0oxjfG5csA@mail.gmail.com>
- <5ea1bdf0-677f-4187-a626-a08ccd2ae7e5@huawei.com>
-In-Reply-To: <5ea1bdf0-677f-4187-a626-a08ccd2ae7e5@huawei.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Tue, 15 Apr 2025 11:22:12 +0200
-X-Gm-Features: ATxdqUERFL4o6Oi2kLnJks5OQH5A0wbbTbsXqcyxtDAIb6yZQ1tnBZn6Pj1woq8
-Message-ID: <CAFqZXNtN_yv-KPfyrnaezX6QturnSbKGqgiY7ZBJmCg533u-+A@mail.gmail.com>
-Subject: Re: NFS/SELinux regression caused by commit fc2a169c56de ("sunrpc:
- clean cache_detail immediately when flush is written frequently")
-To: Li Lingfeng <lilingfeng3@huawei.com>
-Cc: SElinux list <selinux@vger.kernel.org>, linux-nfs <linux-nfs@vger.kernel.org>, 
-	Chuck Lever <chuck.lever@oracle.com>, yangerkun <yangerkun@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 01/29] lsm: split the notifier code out into
+ lsm_notifier.c
+To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
+ linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Cc: Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu
+ <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
+ =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
+ =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
+ Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
+ Casey Schaufler <casey@schaufler-ca.com>,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+References: <20250409185019.238841-31-paul@paul-moore.com>
+ <20250409185019.238841-32-paul@paul-moore.com>
+Content-Language: en-US
+From: John Johansen <john.johansen@canonical.com>
+Autocrypt: addr=john.johansen@canonical.com; keydata=
+ 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 lT9Q
+Organization: Canonical
+In-Reply-To: <20250409185019.238841-32-paul@paul-moore.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Apr 15, 2025 at 10:06=E2=80=AFAM Li Lingfeng <lilingfeng3@huawei.co=
-m> wrote:
->
-> Hi,
-> Thank you for reporting this issue and sharing the detailed reproducer.
-> Apologies for the gap in my knowledge regarding security_label.
-> Would need some time to study its implementation in the security subsyste=
-m.
->
-> To begin validating the problem, I attempted to run the reproducer on
-> Fedora 26(with kernel -- master 8ffd015db85f). However, I didn't observe
-> the reported mislabeling of the root directory.
+On 4/9/25 11:49, Paul Moore wrote:
+> In an effort to decompose security/security.c somewhat to make it less
+> twisted and unwieldy, pull out the LSM notifier code into a new file
+> as it is fairly well self-contained.
+> 
+> No code changes.
+> 
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 
-Hm... Fedora 26 is *very* outdated and not maintained any more - I'd
-recommend using 41, which is the current latest stable release. Hard
-to say if it affects the reproducibility of this bug, but it's always
-possible that userspace is also somehow involved.
+lgtm
 
->
-> The modifications introduced by commit fc2a169c56de specifically affect
-> scenarios where the /proc/net/rpc/xxx/flush interface is frequently
-> invoked within a 1-second window. During the reproducer execution, I
-> indeed observed repeated calls to this flush interface, though I'm
-> currently uncertain about its precise impact on the security_label
-> mechanism.
-> [  124.108016][ T2754] call write_flush
-> [  124.108878][ T2754] call write_flush
-> [  124.147886][ T2757] call write_flush
-> [  124.148604][ T2757] call write_flush
-> [  124.149258][ T2757] call write_flush
-> [  124.149911][ T2757] call write_flush
->
-> Once I have a solid understanding of the security_label mechanism, I will
-> conduct a more thorough analysis.
+Reviewed-by: John Johansen <john.johansen@canonical.com>
 
-I'm not sure how the two affect each other either... It almost looks
-like the last mount command somehow ends up mounting the "old" export
-without security_label in some cases, even though the exportfs
-commands that re-export the dir without security_label had completed
-successfully by that time.
-
-Thank you for looking into it!
-
->
-> Best regards,
-> Li Lingfeng
->
-> =E5=9C=A8 2025/4/14 18:53, Ondrej Mosnacek =E5=86=99=E9=81=93:
-> > Hello,
-> >
-> > I noticed that the selinux-testsuite
-> > (https://github.com/SELinuxProject/selinux-testsuite) nfs_filesystem
-> > test recently started to spuriously fail on latest mainline-based
-> > kernels (the root directory didn't have the expected SELinux label
-> > after a specific sequence of exports/unexports + mounts/unmounts).
-> >
-> > I bisected (and revert-tested) the regression to:
-> >
-> >      commit fc2a169c56de0860ea7599ea6f67ad5fc451bde1
-> >      Author: Li Lingfeng <lilingfeng3@huawei.com>
-> >      Date:   Fri Dec 27 16:33:53 2024 +0800
-> >
-> >         sunrpc: clean cache_detail immediately when flush is written fr=
-equently
-> >
-> > It's not immediately obvious to me what the bug is, so I'm posting
-> > this to relevant people/lists in the hope they can debug and fix this
-> > better than I could.
-> >
-> > I'm attaching a simplified reproducer. Note that it only tries 50
-> > iterations, but sometimes that's not enough to trigger the bug. It
-> > requires a system with SELinux enabled and probably a policy that is
-> > close enough to Fedora's. I tested it on Fedora Rawhide, but it should
-> > probably also work on other SELinux-enabled distros that use the
-> > upstream refpolicy.
-> >
->
-
---=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+> ---
+>   security/Makefile       |  2 +-
+>   security/lsm_notifier.c | 31 +++++++++++++++++++++++++++++++
+>   security/security.c     | 23 -----------------------
+>   3 files changed, 32 insertions(+), 24 deletions(-)
+>   create mode 100644 security/lsm_notifier.c
+> 
+> diff --git a/security/Makefile b/security/Makefile
+> index 22ff4c8bd8ce..14d87847bce8 100644
+> --- a/security/Makefile
+> +++ b/security/Makefile
+> @@ -11,7 +11,7 @@ obj-$(CONFIG_SECURITY) 			+= lsm_syscalls.o
+>   obj-$(CONFIG_MMU)			+= min_addr.o
+>   
+>   # Object file lists
+> -obj-$(CONFIG_SECURITY)			+= security.o
+> +obj-$(CONFIG_SECURITY)			+= security.o lsm_notifier.o
+>   obj-$(CONFIG_SECURITYFS)		+= inode.o
+>   obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/
+>   obj-$(CONFIG_SECURITY_SMACK)		+= smack/
+> diff --git a/security/lsm_notifier.c b/security/lsm_notifier.c
+> new file mode 100644
+> index 000000000000..c92fad5d57d4
+> --- /dev/null
+> +++ b/security/lsm_notifier.c
+> @@ -0,0 +1,31 @@
+> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +/*
+> + * LSM notifier functions
+> + *
+> + */
+> +
+> +#include <linux/notifier.h>
+> +#include <linux/security.h>
+> +
+> +static BLOCKING_NOTIFIER_HEAD(blocking_lsm_notifier_chain);
+> +
+> +int call_blocking_lsm_notifier(enum lsm_event event, void *data)
+> +{
+> +	return blocking_notifier_call_chain(&blocking_lsm_notifier_chain,
+> +					    event, data);
+> +}
+> +EXPORT_SYMBOL(call_blocking_lsm_notifier);
+> +
+> +int register_blocking_lsm_notifier(struct notifier_block *nb)
+> +{
+> +	return blocking_notifier_chain_register(&blocking_lsm_notifier_chain,
+> +						nb);
+> +}
+> +EXPORT_SYMBOL(register_blocking_lsm_notifier);
+> +
+> +int unregister_blocking_lsm_notifier(struct notifier_block *nb)
+> +{
+> +	return blocking_notifier_chain_unregister(&blocking_lsm_notifier_chain,
+> +						  nb);
+> +}
+> +EXPORT_SYMBOL(unregister_blocking_lsm_notifier);
+> diff --git a/security/security.c b/security/security.c
+> index fb57e8fddd91..477be0a17e3f 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -90,8 +90,6 @@ const char *const lockdown_reasons[LOCKDOWN_CONFIDENTIALITY_MAX + 1] = {
+>   	[LOCKDOWN_CONFIDENTIALITY_MAX] = "confidentiality",
+>   };
+>   
+> -static BLOCKING_NOTIFIER_HEAD(blocking_lsm_notifier_chain);
+> -
+>   static struct kmem_cache *lsm_file_cache;
+>   static struct kmem_cache *lsm_inode_cache;
+>   
+> @@ -643,27 +641,6 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
+>   	}
+>   }
+>   
+> -int call_blocking_lsm_notifier(enum lsm_event event, void *data)
+> -{
+> -	return blocking_notifier_call_chain(&blocking_lsm_notifier_chain,
+> -					    event, data);
+> -}
+> -EXPORT_SYMBOL(call_blocking_lsm_notifier);
+> -
+> -int register_blocking_lsm_notifier(struct notifier_block *nb)
+> -{
+> -	return blocking_notifier_chain_register(&blocking_lsm_notifier_chain,
+> -						nb);
+> -}
+> -EXPORT_SYMBOL(register_blocking_lsm_notifier);
+> -
+> -int unregister_blocking_lsm_notifier(struct notifier_block *nb)
+> -{
+> -	return blocking_notifier_chain_unregister(&blocking_lsm_notifier_chain,
+> -						  nb);
+> -}
+> -EXPORT_SYMBOL(unregister_blocking_lsm_notifier);
+> -
+>   /**
+>    * lsm_blob_alloc - allocate a composite blob
+>    * @dest: the destination for the blob
 
