@@ -1,60 +1,60 @@
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABB01274FFA
-	for <selinux@vger.kernel.org>; Tue, 15 Apr 2025 07:16:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 665F2155382
+	for <selinux@vger.kernel.org>; Tue, 15 Apr 2025 07:47:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744701379; cv=none; b=L3NSssaN90Hz2f2y3VISO2JzM4JXun9TRCv+KDWqvBlvbBXOcB9ypg0P4ED+KhfCBEewdF3rmEpXiQU8gohStgdTb0xURvm/9KQB+wnnTQQp5nWmMbwXSIVrGH9ouXsEeCgjvv/Zak/HOz8rxlRT/KPxEnus2sjBNFP5VKf0NCg=
+	t=1744703280; cv=none; b=F0UYa3NX1307O4zhbX/89cN/YBcHLNbcCQ113+T/IQazIhUdVjnbI25adO3AlAjQ4/oabeb60c1LUPMIc6hPddPl2OdU92jw2ykVi9f/H/61MIJWj6bWsJMfDcblUghlR/THSrdEzSGL4/Yx8DqYzkOLJ+JjTrShagRB9HsNw/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744701379; c=relaxed/simple;
-	bh=n9MhbkoCgjXiklx7Gu6dJsoCzFl44u+5C+qmS9u//9c=;
+	s=arc-20240116; t=1744703280; c=relaxed/simple;
+	bh=/+6RpGL3ITqXB4hemZJq4nHhaoWZM1Ddxrk3BtTz4ZM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kZAwBeSK7I00awWfwmLyZoYVOl80RClQISiHmLlHC9AWmjtcS1XnA1gcSLjvzHVS3P6pv1RKXViiAA2qycAr+d1/ZtGIoJiw9VaKUXkuVVsuwAXppbGBoF3SJHQqpj5s/8VDgKT+zUkLo/ytBBNdvTaQG7Oh3RUmAAA+sdfpGc0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=SHAnv5w7; arc=none smtp.client-ip=209.85.210.180
+	 MIME-Version; b=uOsd7nsE+3dKzfK3a/viq2QKYsArYm0GQwrC9O++SSd2kBWNwnAEBzfD3XOB+GQuWd6WENSNIj32qRO3oK0zAamrJCyFQSdH1f6NNFhr1lsVYEZoBzQGHYl44U+9JQpjzaYmc0XMv+Fsk/QVg3uoExUDWQGJfFMyaxtcquXodMI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=i+20vQtL; arc=none smtp.client-ip=209.85.214.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="SHAnv5w7"
-Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-7399a2dc13fso6887308b3a.2
-        for <selinux@vger.kernel.org>; Tue, 15 Apr 2025 00:16:17 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="i+20vQtL"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-223fd89d036so62795055ad.1
+        for <selinux@vger.kernel.org>; Tue, 15 Apr 2025 00:47:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1744701377; x=1745306177; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1744703277; x=1745308077; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=93Y/PcDLHLXdCrqLt2vpFN5+4uiBa0eKmnsl4Fbs4/I=;
-        b=SHAnv5w7qcmlaFX4st9RqUYGwVDmMhrl3lsYXFIAdRq2bnkxRUt0Og9KTbDoHqOlGP
-         dbZqb9NZo4BfHWd8itpqtMKoHKGsp+EGwDJ10Fr8qoKWSCY8qjorUxaNER2qmAVOfUcK
-         CxuySLDEXaJSlAoXdeOHXaVFSKK9cx5YhNyXI=
+        bh=Ci7iDGlFMRRzvR386dsOgKgNsV3msVqezxNxcA03HRs=;
+        b=i+20vQtLFYiqxCp2QCxJYkYOGrrnGIgprk/xk7WiXbTFrRw1FtnQ6BgTzs0SnCcSnq
+         b04KFeaqX1TO+wdQ5ke+5FLuZCmEucMGwK94JhdTWzPVg2m2R2TylS9bDuihkJ2wCm+O
+         K1SJmxDKrGB5A1mR7x9kXDji70KwsZKtaJYY8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744701377; x=1745306177;
+        d=1e100.net; s=20230601; t=1744703277; x=1745308077;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=93Y/PcDLHLXdCrqLt2vpFN5+4uiBa0eKmnsl4Fbs4/I=;
-        b=tbDl6XMHLujNQfwxFGzGZfYTrfn5wvhTH142Cu6MuekJmlts6SLsKb5u5z8HwLbomb
-         xAGniIU24IbESw6qAGcfqEPgIZoz9Kx+vWKJxG1Ox9m94q6F1zjgjuwNjVFCqWnzxpps
-         9QS56NAksFCIPIffCjAySV1cAEmzjdGp4M1oYUFnOEDchce7+F1sHRZWB8LEjWe5OalD
-         iWuuJ1apNLfzMdaGRwWfT8X8osmgKwOjxz6WlTE8A74f7bykySn1f3TZVSO9+Mhnod2e
-         uFq7MTl4fOXAQbVF1BQ2edLE3msWL9C6776L8I5TP3nWmgSffIMO//YCycQbT17JC4fu
-         ob6w==
-X-Forwarded-Encrypted: i=1; AJvYcCUC20gOa8eKfuRQNGwFROFMQTeZ50ErkYqElE0gccTeLbN1o4T+cLlZ2Y4DFvszrRYzcQzOtWpk@vger.kernel.org
-X-Gm-Message-State: AOJu0YxTAxYpjrO/EcybA7tWa0KBbGWZCKcOHkhlq+djcw7Jr8wsECVW
-	KbguW1BqB9soV/GXLPjfEbVWuorLh1ClzASACoSnEuTuog4dGPigtaAmK8NHZQ==
-X-Gm-Gg: ASbGncs7JqHCSvAEcBdDShA0TKIV2FRDOjT/jPhNzF5I2GmrZXoX8Z2WPxk0a9tVdJQ
-	QSVqHojxe29dWaJOqS2qvoAIEJZZta/1EOfRPdlvd4fp78y3DNmNSFboyc7zyZqv++oMVO8brIt
-	820ao50JCxEK3sXwM4Me62LXs4KHww0k+qz3vQsZtP+EB4/B7RTwXBYgnB8CS4xmko4vxE9+/4h
-	GWUqPIg7xfF/ulVecLtU1hj5db62Bv8r3+HphFCwKxeEyWfbsyKPlqDijDbuv/R5v7MIMEPDU5Y
-	QCO9mXG/JgscLxdHn+2N0pY1sz+Up9FOoSPVYWLCFkNBL4s1cTftENdNPCfGYfaW0x7CiBTRKDG
-	70kQ/SMOSqW/hdFBC5gWTHiU9jiniqzio
-X-Google-Smtp-Source: AGHT+IEnueGIDuiq6IcaSey4kNpHaHj/13Oxz+Lx1rzzUoF7NkVQtCgv5SQBZlA2Icu4kQi+ft0JDg==
-X-Received: by 2002:aa7:888d:0:b0:736:ab1d:7ed5 with SMTP id d2e1a72fcca58-73bd0e989eamr18172836b3a.0.1744701376729;
-        Tue, 15 Apr 2025 00:16:16 -0700 (PDT)
+        bh=Ci7iDGlFMRRzvR386dsOgKgNsV3msVqezxNxcA03HRs=;
+        b=HJi39W50YmoPouZXAU1eCbJ+Ew6jLo+gLCzcLAmGhEL3+VQzYWKINh18GwdA08MvkH
+         m1syZvoCtUmjX089I7zn7/sjZqbrYCydgGDdB5ysNBV88aLNXBjWWswjA3I0lMmV5Slr
+         VvAFkKlSU624av29m+x2TuDMW5a3r0T8EloCaTgvvdH1cAkZTdNeVItmPnq1Bl2m1BUB
+         vIoeuPuyzDQND5LGKkKajrv9Xl5c8yEUmV3ea53HjQ2pkKVYHolqZrMaXPbDQXzJ4IDT
+         AX71kUqHMahl8HGbYvIUOLFJsAsfqowZ9afgYsoNRab+B+eDu9BlotscgzuCX+qP2ym4
+         Lz5w==
+X-Forwarded-Encrypted: i=1; AJvYcCUn1nwbe8BCLck1vpxnEjYWmeC+3vcZiWHg0vECp7R2yK0DQAp3WVjRCKh9sm0TQ/gJv5+LcjUd@vger.kernel.org
+X-Gm-Message-State: AOJu0YwalnUmbEoorJncRcTQpHOb1bCOoEebl+3mDS5ZTu/DrUNXR7DZ
+	c4XcSCV7LCvthH9mzaFYqLgcpD/8hqsYxLNrMUEF+XdFgKVpPB+cjNRoxSZIHg==
+X-Gm-Gg: ASbGncvad7P/Z/ZmF1OPDd/sLTnUYDlGgMuo1tyJXrXi6w5BsQS2DnoLzCR0xxq4+v7
+	/jrlMnD/UjFz95qdx6SsUQPrIAnhGW0clP17SnMYXs/8CizGnJhXOzXAd+nWX5dy0pBtGzfY0pr
+	rHxWm9lKacP6Wt1494OzZFz4CArMNpbys71SSjPaeXPcEh1xgtvdw4KuH176jlgyZGlwkvDlUj5
+	0nnYmYHhgbgg/R3lSxNm2G6P5FrUXbr4dAHFybFfjiss59a+Gms43nrVuQSJqLivV7yBecEnO/Q
+	GHqZ+UF8f+iFd0Fb04TEBU3JR7hgwmma2HfpFyXC28j70m5YCqUHCriBT4BDnoiWLGpUNe+ewod
+	43Yd1TDN+EC+lbSwitG0WugHax9Yi6pk6
+X-Google-Smtp-Source: AGHT+IGeqClpUv+V7r1fn7IROf5BqLGBG3We1PhoEerRraJS+GWM+ME6cDUkxjqJjWXSmSui+1EXog==
+X-Received: by 2002:a17:903:1a0b:b0:216:6283:5a8c with SMTP id d9443c01a7336-22bea4f708amr228854855ad.39.1744703276628;
+        Tue, 15 Apr 2025 00:47:56 -0700 (PDT)
 Received: from li-cloudtop.c.googlers.com.com (132.197.125.34.bc.googleusercontent.com. [34.125.197.132])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73bd230dd17sm7737757b3a.129.2025.04.15.00.16.15
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-73bd21c2102sm7841550b3a.46.2025.04.15.00.47.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Apr 2025 00:16:16 -0700 (PDT)
+        Tue, 15 Apr 2025 00:47:56 -0700 (PDT)
 From: Li Li <dualli@chromium.org>
 To: dualli@google.com,
 	corbet@lwn.net,
@@ -83,17 +83,16 @@ To: dualli@google.com,
 	linux-doc@vger.kernel.org,
 	netdev@vger.kernel.org,
 	selinux@vger.kernel.org,
-	selinux-refpolicy@vger.kernel.org,
 	hridya@google.com
 Cc: smoreland@google.com,
 	ynaffit@google.com,
 	kernel-team@android.com
-Subject: [PATCH 1/2] policy,tests: add test for new permission binder:setup_report
-Date: Tue, 15 Apr 2025 00:16:06 -0700
-Message-ID: <20250415071606.3271807-1-dualli@chromium.org>
+Subject: [PATCH v2] policy,tests: add test for new permission binder:setup_report
+Date: Tue, 15 Apr 2025 00:47:46 -0700
+Message-ID: <20250415074746.3329673-1-dualli@chromium.org>
 X-Mailer: git-send-email 2.49.0.604.gff1f9ca942-goog
-In-Reply-To: <20250415071017.3261009-2-dualli@chromium.org>
-References: <20250415071017.3261009-2-dualli@chromium.org>
+In-Reply-To: <20250415071606.3271807-1-dualli@chromium.org>
+References: <20250415071606.3271807-1-dualli@chromium.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -132,8 +131,8 @@ Signed-off-by: Li Li <dualli@google.com>
  tests/binder/.gitignore     |   1 +
  tests/binder/Makefile       |   2 +-
  tests/binder/setup_report.c | 277 ++++++++++++++++++++++++++++++++++++
- tests/binder/test           |  35 +++++
- 5 files changed, 338 insertions(+), 1 deletion(-)
+ tests/binder/test           |  32 +++++
+ 5 files changed, 335 insertions(+), 1 deletion(-)
  create mode 100644 tests/binder/setup_report.c
 
 diff --git a/policy/test_binder.te b/policy/test_binder.te
@@ -474,7 +473,7 @@ index 0000000..0c1e651
 +	return 0;
 +}
 diff --git a/tests/binder/test b/tests/binder/test
-index 95af41a..8cba452 100755
+index 95af41a..bce5b82 100755
 --- a/tests/binder/test
 +++ b/tests/binder/test
 @@ -7,6 +7,7 @@ BEGIN {
@@ -485,7 +484,7 @@ index 95af41a..8cba452 100755
  
      # Allow binder info to be shown.
      $v = $ARGV[0];
-@@ -57,6 +58,19 @@ BEGIN {
+@@ -57,6 +58,16 @@ BEGIN {
          $test_binder_ctx = 1;
          $test_count += 8;
          $n = "-n";                   # Use /dev/binder-test
@@ -493,19 +492,16 @@ index 95af41a..8cba452 100755
 +        # Check transaction_report feature
 +        open my $fh, '<', '/dev/binderfs/features/transaction_report' or warn $!;
 +        chomp( my $feature = <$fh> );
-+        print "### my $feature\n";
 +        $test_binder_transaction_report = int($feature);
-+        print "### feature = $test_binder_transaction_report\n";
 +        if ( $test_binder_transaction_report eq 0 ) {
 +            print "Binder feature transaction report not supported\n";
 +        } else {
 +            $test_count += 3;
-+            print "### test count = $test_count\n";
 +        }
      }
      elsif ( $result >> 8 eq 3 ) {    # BINDER_VER_ERROR
          plan skip_all => "Binder kernel/userspace versions differ";
-@@ -176,6 +190,27 @@ if ($test_binder_ctx) {
+@@ -176,6 +187,27 @@ if ($test_binder_ctx) {
      service_end( "service_provider", $sp_pid );
      service_end( "manager",          $sm_pid );
  
