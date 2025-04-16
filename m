@@ -1,105 +1,168 @@
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C7DB1C1AB4
-	for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 16:00:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C5851547C0
+	for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 19:47:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744819252; cv=none; b=ZTbE+UjUsWdHK/oCr9MVy9cx1eE1AgbNvsTIVw9nyeNMfN6uW2N+OINlA2A+dWx3PM/o3Ur36aKMLjf6o+4pN+7TgAanhn+JYlgrpvLo4Bcy9/Wx615p2O/RSHLzzE7wZB01dfFvqvM6pKIASvJC15Bo2vtdq67EMA6E/BR3AjY=
+	t=1744832830; cv=none; b=Q7y9P3dHLrwcN67G/FOpXKGyUBSpABahgdT5Lm2u+RwozObj8m6p8hGmr3fXZvEQMp6NSsUJcjfXO4h0S2ZblRmIqNagJiTp6Fg4Rb2Sh0a0LD60HiGflLQcWcM7EdLPFJRSRPKeKPdKyDVvAedkNuUjOrABNFFBR5ZZzGjNEG0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744819252; c=relaxed/simple;
-	bh=OQ2LUVURG5ZBoCwWh5loGiUwdSTfHuVc1849YbckkqU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qbT2aLmdmDYzv0ZoLgIj3A2b63uzcb2M21l/DIvi/kzOSonTq4FL9oTdxPMNu6iNTkWSwyWIm+wv4Fhy5IuGgo+aT4dzIhHyMHLBpJFsMpERFYTlo3uh/0hxWCErNqTgqa4uawz4k64BUJj8FWztkLm4VF51rJWnqREziep8Vlc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=ceJY0ajc; arc=none smtp.client-ip=209.85.167.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1744832830; c=relaxed/simple;
+	bh=JPICmnEMGzUMMVLL1gquVHa9NPzKFUbs6F9eqhNHfvY=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=LJ7Qu54kDZFzFyyi9YeDLWUtaAPnAuh/8PsUvV3W5Ulfl/5iny8DBOIBaPuEvOZOXbrvhkkQreZlLUgGUBNidzAGkiQRnpAnl1ISNGzGkbqnHAKKNQl/v+pEOAH3NDZHAvODJIK7vHZT1Hq+swJR6Mt/ccyBuXYJ5HNLtQdmZwQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SiwrxKnz; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="ceJY0ajc"
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-549963b5551so8064894e87.2
-        for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 09:00:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1744819248; x=1745424048; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fBPmcg0bFH2XY3Hin8L4B6RZDr/nTgPQCfRGMZTM/dg=;
-        b=ceJY0ajcpp4Etwtg/oRJQk7GiAqywh6FqfWax9RM6aOqARUGEnt1SyS4osZjvEebcO
-         S3Uc/Vd7j2Ujy9gXs87Qer/GFW0/C7rdE/cLOsVyRIKcDSxwaeV0Ygqvlf2JrMOd59br
-         Q9da2Oq5TZXBUk2wENpmLSlwtySz5sEe5k3SI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744819248; x=1745424048;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fBPmcg0bFH2XY3Hin8L4B6RZDr/nTgPQCfRGMZTM/dg=;
-        b=T9xrfUYUIDrU+vGL5PWg7fNd03TWqfDxgpGxHGQX6HcHf70aDIGATDFk0joT/CycJU
-         g+1mkBRPM/EB+byL0B/s07LRlU/AMzgCi1+pLNGf5/3HSi/rnZxH+OrorMB4/+D2J/qL
-         BVGg2qzaXXd/0TStCn53yILR7ho5XOYdHggBCgPax7dkPNofh1k4dCLwtMR881K7pzV1
-         tBDS908yJeBE5CdSrPrpn7zDy9Wzpx6WCzcjl1kdrqANrrTzxISmcYs/CSk6li2uDgx/
-         naAGlQkxAYedXlr6Ytck7tN5zfLlQ0J3X1RI+XkNaSf0sZmf759vf0d4nokftCxFRZz/
-         fFxg==
-X-Forwarded-Encrypted: i=1; AJvYcCWPYVpfxcUszntHKt5SQ1WwQMoffErke6H4wLC4AjoKfzYeT3mXBp6T22w6/AmY56eTcPAOPJYh@vger.kernel.org
-X-Gm-Message-State: AOJu0YwCVqrzzUCHLCGCr4MkuvyI9TxTMVQrViyzLz54pg2qBD/FPGy1
-	7rQD1L65e9e7SJgQjyxAmlBkRBJ+yXEUEHa4kK4F7bDFlGjqqLll+IPFGbOrKDzun1GgMOvjESX
-	dN6mFCgz+lmbj7YhZ7ofSnxm8EhLgm6uuq0Y8
-X-Gm-Gg: ASbGncs8jZrnQ/ssLs5mfZq+0UUhamuklncC9TbTGKXCs50adije4rBVIII9O+dP6js
-	rsla74uWBiDt4BQH2dy4yxBMfP3aS6NbXRm5s/bePZPW66E2AkTQxaLGdNMVrF7w55LFPEeIk73
-	cReMSMPK9jWTFdUTO5iZkanAiSzJ177rGS
-X-Google-Smtp-Source: AGHT+IFlK7R096/+OAh92R+N0wIujqmp0uU3OFtKyNa2K1gFmEshtOax20fuvbKOa8HxCYGz77KZC4LpcqUinUZDXA8=
-X-Received: by 2002:a05:6512:1090:b0:549:912a:d051 with SMTP id
- 2adb3069b0e04-54d64798c06mr830233e87.0.1744819248030; Wed, 16 Apr 2025
- 09:00:48 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SiwrxKnz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1744832826;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=u/WL8yVLY2aK3Ls/v59X93XNO5vx7Q5xweOik5atxFI=;
+	b=SiwrxKnzAChi8ho1Y+2WduxTEHkHGqN9ZEThZI+IT5fuqxN7IsEPnAuISHX+rf0Tzix5pD
+	jY3AvhsbQX83hLDadS2ObIeTKTy0NwtVjhhCS0kYJPnp40It2aWnUZeODvl/8FCZ9OsSEj
+	ai9BA0JwKN61dFAbeQbq30YF7USc660=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-271-Z72IWLakN1Gq_JmhvmiVrw-1; Wed,
+ 16 Apr 2025 15:47:03 -0400
+X-MC-Unique: Z72IWLakN1Gq_JmhvmiVrw-1
+X-Mimecast-MFC-AGG-ID: Z72IWLakN1Gq_JmhvmiVrw_1744832822
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 75F29180048E;
+	Wed, 16 Apr 2025 19:47:01 +0000 (UTC)
+Received: from localhost (unknown [10.45.225.67])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id DB6DF180094C;
+	Wed, 16 Apr 2025 19:47:00 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: Tristan Ross <tristan.ross@midstall.com>, selinux@vger.kernel.org
+Cc: Tristan Ross <tristan.ross@midstall.com>
+Subject: Re: [PATCH 1/2] libsemanage: add semanage_handle_create_with_path
+In-Reply-To: <20250416045011.29923-2-tristan.ross@midstall.com>
+References: <CAJ2a_Df2p03otFfJ7wpGJ_izTw8SGAKr5vztFf0XxnnVypKFnw@mail.gmail.com>
+ <20250416045011.29923-2-tristan.ross@midstall.com>
+Date: Wed, 16 Apr 2025 21:46:59 +0200
+Message-ID: <87bjsvzy6k.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250415071017.3261009-1-dualli@chromium.org> <20250415071017.3261009-2-dualli@chromium.org>
- <69763528-bb00-44c5-a3ce-8c30530b29ee@schaufler-ca.com>
-In-Reply-To: <69763528-bb00-44c5-a3ce-8c30530b29ee@schaufler-ca.com>
-From: Li Li <dualli@chromium.org>
-Date: Wed, 16 Apr 2025 09:00:36 -0700
-X-Gm-Features: ATxdqUEvTcc4Mrcasz-DJMu04qcEN1mqV4hfHibSLmGFJSE6dIDY98ewYmt9cyM
-Message-ID: <CANBPYPgfW+3jeTPZmpHfkgr=hX8sRkMLgrEeLFYa6rOPftXeFg@mail.gmail.com>
-Subject: Re: [PATCH v17 1/3] lsm, selinux: Add setup_report permission to binder
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: dualli@google.com, corbet@lwn.net, davem@davemloft.net, 
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
-	donald.hunter@gmail.com, gregkh@linuxfoundation.org, arve@android.com, 
-	tkjos@android.com, maco@android.com, joel@joelfernandes.org, 
-	brauner@kernel.org, cmllamas@google.com, surenb@google.com, 
-	omosnace@redhat.com, shuah@kernel.org, arnd@arndb.de, masahiroy@kernel.org, 
-	bagasdotme@gmail.com, horms@kernel.org, tweek@google.com, paul@paul-moore.com, 
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, 
-	netdev@vger.kernel.org, selinux@vger.kernel.org, hridya@google.com, 
-	smoreland@google.com, ynaffit@google.com, kernel-team@android.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-Thank you Casey! I'll resend this specific patch to linux-security-module l=
-ist.
+Tristan Ross <tristan.ross@midstall.com> writes:
 
-Should I include the other 2 binder patches as well as they are using
-this new permission?
+> ---
+>  libsemanage/include/semanage/handle.h |  6 +++++-
+>  libsemanage/src/handle.c              | 26 +++++++++++++++++++-------
+>  libsemanage/src/libsemanage.map       |  4 ++++
+>  3 files changed, 28 insertions(+), 8 deletions(-)
+>
+> diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
+> index a5ea31de..601cd9ee 100644
+> --- a/libsemanage/include/semanage/handle.h
+> +++ b/libsemanage/include/semanage/handle.h
+> @@ -30,7 +30,11 @@
+>  struct semanage_handle;
+>  typedef struct semanage_handle semanage_handle_t;
+>  
+> -/* Create and return a semanage handle.
+> +/* Create and return a semanage handle with a specific config path.
+> +   The handle is initially in the disconnected state. */
+> +semanage_handle_t *semanage_handle_create_with_path(const char *conf_name);
+> +
+> +/* Create and return a semanage handle with the default config path.
+>     The handle is initially in the disconnected state. */
+>  extern semanage_handle_t *semanage_handle_create(void);
+>  
+> diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
+> index faea0606..ca57702a 100644
+> --- a/libsemanage/src/handle.c
+> +++ b/libsemanage/src/handle.c
+> @@ -59,19 +59,14 @@ const char * semanage_root(void)
+>  	return private_semanage_root;
+>  }
+>  
+> -
+> -semanage_handle_t *semanage_handle_create(void)
+> +semanage_handle_t *semanage_handle_create_with_path(const char *conf_name)
+>  {
+>  	semanage_handle_t *sh = NULL;
+> -	char *conf_name = NULL;
+>  
+>  	/* Allocate handle */
+>  	if ((sh = calloc(1, sizeof(semanage_handle_t))) == NULL)
+>  		goto err;
+>  
+> -	if ((conf_name = semanage_conf_path()) == NULL)
+> -		goto err;
+> -
+>  	if ((sh->conf = semanage_conf_parse(conf_name)) == NULL)
+>  		goto err;
+>  
+> @@ -106,13 +101,30 @@ semanage_handle_t *semanage_handle_create(void)
+>  	sh->msg_callback = semanage_msg_default_handler;
+>  	sh->msg_callback_arg = NULL;
+>  
+> +	return sh;
+> +
+> +      err:
+> +	semanage_handle_destroy(sh);
+> +	return NULL;
+> +}
+> +
+> +semanage_handle_t *semanage_handle_create(void)
+> +{
+> +	semanage_handle_t *sh = NULL;
+> +	char *conf_name = NULL;
+> +
+> +	if ((conf_name = semanage_conf_path()) == NULL)
+> +		goto err;
+> +
+> +	if ((sh = semanage_handle_create_with_path(conf_name)) == NULL)
+> +		goto err;
+> +
+>  	free(conf_name);
+>  
+>  	return sh;
+>  
+>        err:
+>  	free(conf_name);
+> -	semanage_handle_destroy(sh);
+>  	return NULL;
+>  }
+>  
+> diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
+> index c8214b26..5dab7bf7 100644
+> --- a/libsemanage/src/libsemanage.map
+> +++ b/libsemanage/src/libsemanage.map
+> @@ -350,3 +350,7 @@ LIBSEMANAGE_3.4 {
+>      semanage_module_compute_checksum;
+>      semanage_set_check_ext_changes;
+>  } LIBSEMANAGE_1.1;
+> +
+> +LIBSEMANAGE_3.5 {
+> +    semanage_handle_create_with_path;
+> +} LIBSEMANAGE_3.4;
+>
 
-On Tue, Apr 15, 2025 at 9:13=E2=80=AFAM Casey Schaufler <casey@schaufler-ca=
-.com> wrote:
->
-> On 4/15/2025 12:10 AM, Li Li wrote:
-> > From: Thi=C3=A9baud Weksteen <tweek@google.com>
-> >
-> > Introduce a new permission "setup_report" to the "binder" class.
-> > This persmission controls the ability to set up the binder generic
-> > netlink driver to report certain binder transactions.
-> >
-> > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-> > Signed-off-by: Li Li <dualli@google.com>
-> > ---
-> >  include/linux/lsm_hook_defs.h       |  1 +
-> >  include/linux/security.h            |  6 ++++++
-> >  security/security.c                 | 13 +++++++++++++
->
-> This patch needs to be sent to the linux-security-module list.
->
+It will be part of the next 3.9 release therefore this should be
+
++LIBSEMANAGE_3.9 {
++    semanage_handle_create_with_path;
++} LIBSEMANAGE_3.4;
+
+
+
+ -- 
+> 2.47.2
+
