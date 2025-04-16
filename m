@@ -1,195 +1,182 @@
-Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
+Received: from mail-ua1-f44.google.com (mail-ua1-f44.google.com [209.85.222.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC679C8FE
-	for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 15:31:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BB471DED77
+	for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 15:53:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744817522; cv=none; b=TWHJrj8p2jaqLtBy77G6mpC2kKHSZ8FRfZE6twDOoq0CwZOdaLDBJnVqikh5B7iL4ZevpaWyvQhi08yLjbuLGMYy0tlIm+MYI3lExBVypDIQ7pZKcOU1MGBbAgMvYK/F6Lyy2cpp8rs4BZFxcTnmVN1DOm5xUOcYTjUM+bqH2s8=
+	t=1744818827; cv=none; b=nh0l+JLcQrtpc8lvUxSCJMA159RMJT7POYuwrrVa2YDu/Ik3v8ynCA+fB/5o1GVsYBSNyKkgXnOZQ/NnGDQad4t0/3dpkR9ziQxgRG2awozYKDHnhXO6Co4piZsobhW6kDFrm6oUz5p6AtJ9niC4SWwY5pyVVlci4x4Fch0M0Tw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744817522; c=relaxed/simple;
-	bh=1Lhwt+q4Wyvcu7FTQllx+qDa9kHdaKEdrxQhmgTOwc8=;
+	s=arc-20240116; t=1744818827; c=relaxed/simple;
+	bh=emKBfV5hNwEmDam8Cj8+ScapDL407gqk4/4GJy9Z53M=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aiXcRkBHgvoHiGbv1sRfILa1myTwkaKWf58vphBeRvuYdlWnyME4EKGyT8101OzwmM64J+3nfBODClBiJEhxH7/bq52N6GLtlnIKs/i9oHE4LhScNrtayhHwHUHShQZTtPpYnoF9GVhllzfncuVQ0i/BFZZNTjEACNJwLKPSBmI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TINJit4Z; arc=none smtp.client-ip=209.85.222.176
+	 To:Cc:Content-Type; b=VIp4MZnN6MH1tTg6x+iafsEu1BdUhM4DmLKRuWseSqDlb9TlJcO+mBD2JL3WbNkXQjT0PYNh6+ttiYVqdKhpD1RstXoVq4mqFD4qIgT0liNTrK+rPG+cY5VFaezGL2C60wbG4h3uwWeb41qUrrwJgDWGISu/lEZk5xzZ9YEwx8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gaVa4cES; arc=none smtp.client-ip=209.85.222.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TINJit4Z"
-Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-7c5f720c717so90101785a.0
-        for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 08:31:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gaVa4cES"
+Received: by mail-ua1-f44.google.com with SMTP id a1e0cc1a2514c-86d42f08135so2484865241.0
+        for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 08:53:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744817519; x=1745422319; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1744818824; x=1745423624; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=H0uR+gkxVCettyfEtNU2w0DFu8JCelFmyc41LKNWcUI=;
-        b=TINJit4ZHPko8o8P3z5r8lGiSxaxOfaDKSHuAzQaGkN1ENdEjbtRLOwhAGBBNXpUoM
-         Im3FU72quxJ2LYrsT4zeb5P3vX0p5SsSBs8uuCdL/uO7VX+IktGKaCW0Ad6STv2HGRkw
-         ASFhXIocz2VPHs3RE6TA2+61AQbXjtStrpkyWIfMJU7D8/94nFDB1CfIEEa8Y1NWrDip
-         OQ5wLUauPnxUlH25IOyXA5DQPW2IkjtFGqk3WEKMjKp1c84IPT6DFG6TG9ztd0UyL8Mh
-         GYcyxLNPd4ejZvSmcup8UG/sh6o1zLtm1c62aMviN5lBvyitGJePGoXqpfyAs2ENB18m
-         swpQ==
+        bh=WUp3OtOuGMnZEC1zw4VUWloueIkACFymjJ3MDKEXyq4=;
+        b=gaVa4cESQ7hpqK/Ryfo1BNCH7JFh3UaeNQhUcvedbac2r8EZdD0E+gcfb81Il57t5M
+         FV1T+0fwKC/AJAx39ImqpnkI2iYaSwH3tdTxGMqeV4rXrx37HPLgHCEmmBJXOEOKPt4k
+         iLCDMXedijEZS/xflnSD9r484BFS5HAhBEYpEyob3OdAUEOtmWrK98atKzAghyCfEihc
+         DnqlDsNddGb4D0nJMk6toCoi1LfWhtDbCjw5W2Qe+KnAK7//rHABCUnvHdDupBB035aM
+         8K/Kv3Be0yaRcMqUjrf5EVNm4m0wgFJwtIMyUMt3njZzJDe2Ukk/L3QSHeqqXnn+ZeQX
+         l6/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744817519; x=1745422319;
+        d=1e100.net; s=20230601; t=1744818824; x=1745423624;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=H0uR+gkxVCettyfEtNU2w0DFu8JCelFmyc41LKNWcUI=;
-        b=EWHvxXdglqFRRusoy17rJKL6dBq3FXHlBQleQPvD2Ov+7bsjUp/zcq2NoJHixXcVt/
-         kJ2P/dS4EVItMKv1PDlJnanCEbbeC7akVCvBSfjLOv8EqWIxU9TZX9ZQQFlq3MifHOHD
-         LOG3d3MElEJpAw1s//5ByxpHaHJm13nXGiE7ve4aD7thOGivFRqJhbfs2hLjplsJ570h
-         PpgygMxzx2+ugzB0relM7bdSR2vLDTxLfo8qRhBmGbuFbOk+3PR/QSopch06ugjlrll4
-         lS2e5orxykGgnmjL+Xhjk1DQzx2PK/iwwwdg9gv/1WI063cCW51veJyAyYvIaJpEVMkX
-         0K4g==
-X-Gm-Message-State: AOJu0YxBKtSo7WtPniSoV9KdgayM1BKyQV//TJcD09n3Vgya8KKzGxwB
-	vKnDX86urOTDT6x9Np+M1hPV+TZJpl3kzLGSH1TxpTBE3UiopwJE5IhJ6/1D6KqG6RHSjMh85mK
-	njtY3azOTZVS8Wwr4VJmqx0RZSS71ww==
-X-Gm-Gg: ASbGncvMirznAWmI+nx4EtgBEZxjeHAdvO1IpcDZ4ufTRv8ZkPl2pd8UvVneQwVqU5G
-	/SFACRrwVNIlY9ZNekl9vS1rUeGriyG2GIgRMf27zDEAzbGibbfzKX8yti0njYinFHneM/GlzNL
-	p09W/kciPrHSHJZkdt8mI=
-X-Google-Smtp-Source: AGHT+IF/WGY2GKNE23DdIS++9Mldb4RtCxx/NeeXUnc5Nkq3SsRHqkqX0mFfCKA0HWyEGMstPRu9GQdY+qoFVZXVHno=
-X-Received: by 2002:a05:620a:17a9:b0:7c3:b7c2:acf6 with SMTP id
- af79cd13be357-7c9194c38cbmr341134685a.15.1744817518621; Wed, 16 Apr 2025
- 08:31:58 -0700 (PDT)
+        bh=WUp3OtOuGMnZEC1zw4VUWloueIkACFymjJ3MDKEXyq4=;
+        b=MMT/u95rfFMlMBv5fGcxBocds+r8ChpeGMhBvDdw+1DmZ6676DW90YBQmDABUpzbsk
+         d9ZMtftaxSim9ODikDbFEvY8cH88T2p7BdkFCmNB/5TO0peAxTRkYv8oIeF4st8vL5py
+         EeTO892fLnL/INX3SFaUbwMpQmMaEk6/cdBM4ei6QzrAaUJGdM+oFRuKddAYFHYYBrQQ
+         vwtystSnTOR6AjU1VN7h9BpbH1F/S4R/H8Uh8hIiP4VIQeRm2jr/6YjwvznSA0yrmNOR
+         99PkN2cUt4rGAGjmjf4yQdaHbpP0c0K/2DwBNXpQlvj2Ji/3jZF6WK9xyQxmP29/comd
+         L7fA==
+X-Gm-Message-State: AOJu0YyzU358nsBKuE752VmsaVYdo9di+RthwZBNpEyr8/+N5KWscjTz
+	8jrc8FoHSp/+ka3r6KSg8vjswlmN2B1VgrB5t984geywhK96cBdCbc7KWZLlH+Prdf8tAF7VwXx
+	Aw51t2ucOQHXwPFGDHt6rdabc38KRuQ==
+X-Gm-Gg: ASbGncuT3NJzDWnmUHVUBHAzRYgE+qggoo9pLLh49xVCqu/Mj+3bmmDTo9agY0hkQFk
+	o5WWNShw5TnqQSc2DCmDEY6V9kJQR96hHE/BfX5nMpFqZHvaGn9K3N4v/VayrGTJJC+NIJcLM8R
+	z2lXS6brOmX0SaKvbzGFw=
+X-Google-Smtp-Source: AGHT+IEEI6RBSipvSSK6nwdHawWM5joSN/Z1AJ3vb9kvlD8NP0OWneZvII6W/BFvArHl6M9H9EISEZmPaIA9eNaCWyw=
+X-Received: by 2002:a05:6102:53ce:b0:4c1:801e:deb2 with SMTP id
+ ada2fe7eead31-4cb591df1a9mr1273921137.7.1744818824151; Wed, 16 Apr 2025
+ 08:53:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAJ2a_DcSrGUFktCNhDBop_EtS-mO4Jgt8r6XMCq+DO-C4K_ZOA@mail.gmail.com>
- <20250416044501.28631-1-tristan.ross@midstall.com>
-In-Reply-To: <20250416044501.28631-1-tristan.ross@midstall.com>
+References: <CAJ2a_Df2p03otFfJ7wpGJ_izTw8SGAKr5vztFf0XxnnVypKFnw@mail.gmail.com>
+ <20250416045011.29923-2-tristan.ross@midstall.com>
+In-Reply-To: <20250416045011.29923-2-tristan.ross@midstall.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 16 Apr 2025 11:31:47 -0400
-X-Gm-Features: ATxdqUFlkeBSk4tyzOYT9MaQYs5seuV6UIdRryQtU7dcxGOkRRtNqVU-znJ6aUM
-Message-ID: <CAP+JOzQtrLx8bS6_jb7pRaFzm=PXr9hm=Quy15qCMTFyHd8j9w@mail.gmail.com>
-Subject: Re: [PATCH] libsemanage: add relabel_store config option
+Date: Wed, 16 Apr 2025 11:53:33 -0400
+X-Gm-Features: ATxdqUENlUJxUsEZIV1olivRWkSYvIR-Odhnvnx9H_8pJFX5ZrfNnbQesyAsflM
+Message-ID: <CAP+JOzQDSAtyN8WBFj6H87dHm5JoyjY9RcTxrJ_RHwzK0FnBYA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] libsemanage: add semanage_handle_create_with_path
 To: Tristan Ross <tristan.ross@midstall.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 16, 2025 at 12:47=E2=80=AFAM Tristan Ross <tristan.ross@midstal=
+On Wed, Apr 16, 2025 at 12:50=E2=80=AFAM Tristan Ross <tristan.ross@midstal=
 l.com> wrote:
 >
-> This flag allows for enabling or disabling automatic restorecon that
-> semodule invokes. By default, we have it enabled to produce the same
-> behavior as before. On NixOS, we need this as we're "baking" the module
-> installation into a squashfs image and we cannot run restorecon inside
-> the builder.
 
-The patch looks good, but I need a Signed-off-by.
-This goes for your other patches as well.
-
+Along with a "Signed-off-by" tag, both of these patches need a commit
+log that describes what they do and why they were created.
 Thanks,
 Jim
 
 > ---
->  libsemanage/src/conf-parse.y     | 15 ++++++++++++++-
->  libsemanage/src/conf-scan.l      |  1 +
->  libsemanage/src/semanage_conf.h  |  1 +
->  libsemanage/src/semanage_store.c |  7 +++++--
->  4 files changed, 21 insertions(+), 3 deletions(-)
+>  libsemanage/include/semanage/handle.h |  6 +++++-
+>  libsemanage/src/handle.c              | 26 +++++++++++++++++++-------
+>  libsemanage/src/libsemanage.map       |  4 ++++
+>  3 files changed, 28 insertions(+), 8 deletions(-)
 >
-> diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-> index e1fc9f4f..b69ac75b 100644
-> --- a/libsemanage/src/conf-parse.y
-> +++ b/libsemanage/src/conf-parse.y
-> @@ -63,7 +63,7 @@ static int parse_errors;
+> diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/=
+semanage/handle.h
+> index a5ea31de..601cd9ee 100644
+> --- a/libsemanage/include/semanage/handle.h
+> +++ b/libsemanage/include/semanage/handle.h
+> @@ -30,7 +30,11 @@
+>  struct semanage_handle;
+>  typedef struct semanage_handle semanage_handle_t;
 >
->  %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LI=
-NKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT OPTIMIZE_P=
-OLICY MULTIPLE_DECLS
->  %token LOAD_POLICY_START SETFILES_START SEFCONTEXT_COMPILE_START DISABLE=
-_GENHOMEDIRCON HANDLE_UNKNOWN USEPASSWD IGNOREDIRS
-> -%token BZIP_BLOCKSIZE BZIP_SMALL REMOVE_HLL
-> +%token BZIP_BLOCKSIZE BZIP_SMALL RELABEL_STORE REMOVE_HLL
->  %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_EN=
-D
->  %token PROG_PATH PROG_ARGS
->  %token <s> ARG
-> @@ -97,6 +97,7 @@ single_opt:     module_store
->         |       bzip_blocksize
->         |       bzip_small
->         |       remove_hll
-> +       |       relabel_store
->         |       optimize_policy
->         |       multiple_decls
->          ;
-> @@ -291,6 +292,17 @@ remove_hll:  REMOVE_HLL'=3D' ARG {
->         free($3);
+> -/* Create and return a semanage handle.
+> +/* Create and return a semanage handle with a specific config path.
+> +   The handle is initially in the disconnected state. */
+> +semanage_handle_t *semanage_handle_create_with_path(const char *conf_nam=
+e);
+> +
+> +/* Create and return a semanage handle with the default config path.
+>     The handle is initially in the disconnected state. */
+>  extern semanage_handle_t *semanage_handle_create(void);
+>
+> diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
+> index faea0606..ca57702a 100644
+> --- a/libsemanage/src/handle.c
+> +++ b/libsemanage/src/handle.c
+> @@ -59,19 +59,14 @@ const char * semanage_root(void)
+>         return private_semanage_root;
 >  }
 >
-> +relabel_store:  RELABEL_STORE'=3D' ARG {
-> +       if (strcasecmp($3, "false") =3D=3D 0) {
-> +               current_conf->relabel_store =3D 0;
-> +       } else if (strcasecmp($3, "true") =3D=3D 0) {
-> +               current_conf->relabel_store =3D 1;
-> +       } else {
-> +               yyerror("relabel_store can only be 'true' or 'false'");
-> +       }
-> +       free($3);
+> -
+> -semanage_handle_t *semanage_handle_create(void)
+> +semanage_handle_t *semanage_handle_create_with_path(const char *conf_nam=
+e)
+>  {
+>         semanage_handle_t *sh =3D NULL;
+> -       char *conf_name =3D NULL;
+>
+>         /* Allocate handle */
+>         if ((sh =3D calloc(1, sizeof(semanage_handle_t))) =3D=3D NULL)
+>                 goto err;
+>
+> -       if ((conf_name =3D semanage_conf_path()) =3D=3D NULL)
+> -               goto err;
+> -
+>         if ((sh->conf =3D semanage_conf_parse(conf_name)) =3D=3D NULL)
+>                 goto err;
+>
+> @@ -106,13 +101,30 @@ semanage_handle_t *semanage_handle_create(void)
+>         sh->msg_callback =3D semanage_msg_default_handler;
+>         sh->msg_callback_arg =3D NULL;
+>
+> +       return sh;
+> +
+> +      err:
+> +       semanage_handle_destroy(sh);
+> +       return NULL;
 > +}
 > +
->  optimize_policy:  OPTIMIZE_POLICY '=3D' ARG {
->         if (strcasecmp($3, "false") =3D=3D 0) {
->                 current_conf->optimize_policy =3D 0;
-> @@ -400,6 +412,7 @@ static int semanage_conf_init(semanage_conf_t * conf)
->         conf->bzip_small =3D 0;
->         conf->ignore_module_cache =3D 0;
->         conf->remove_hll =3D 0;
-> +       conf->relabel_store =3D 1;
->         conf->optimize_policy =3D 1;
->         conf->multiple_decls =3D 1;
->
-> diff --git a/libsemanage/src/conf-scan.l b/libsemanage/src/conf-scan.l
-> index 64433f7b..c592fb63 100644
-> --- a/libsemanage/src/conf-scan.l
-> +++ b/libsemanage/src/conf-scan.l
-> @@ -54,6 +54,7 @@ handle-unknown    return HANDLE_UNKNOWN;
->  bzip-blocksize return BZIP_BLOCKSIZE;
->  bzip-small     return BZIP_SMALL;
->  remove-hll     return REMOVE_HLL;
-> +relabel_store  return RELABEL_STORE;
->  optimize-policy return OPTIMIZE_POLICY;
->  multiple-decls return MULTIPLE_DECLS;
->  "[load_policy]"   return LOAD_POLICY_START;
-> diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_c=
-onf.h
-> index 5db08f0c..2388faad 100644
-> --- a/libsemanage/src/semanage_conf.h
-> +++ b/libsemanage/src/semanage_conf.h
-> @@ -49,6 +49,7 @@ typedef struct semanage_conf {
->         int ignore_module_cache;
->         int optimize_policy;
->         int multiple_decls;
-> +       int relabel_store;
->         char *ignoredirs;       /* ";" separated of list for genhomedirco=
-n to ignore */
->         struct external_prog *load_policy;
->         struct external_prog *setfiles;
-> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_=
-store.c
-> index 307f27f9..1731c5e8 100644
-> --- a/libsemanage/src/semanage_store.c
-> +++ b/libsemanage/src/semanage_store.c
-> @@ -1823,8 +1823,11 @@ static int semanage_commit_sandbox(semanage_handle=
-_t * sh)
->
->        cleanup:
->         semanage_release_active_lock(sh);
-> -       sehandle =3D selinux_restorecon_default_handle();
-> -       selinux_restorecon_set_sehandle(sehandle);
+> +semanage_handle_t *semanage_handle_create(void)
+> +{
+> +       semanage_handle_t *sh =3D NULL;
+> +       char *conf_name =3D NULL;
 > +
-> +       if (sh->conf->relabel_store) {
-> +               sehandle =3D selinux_restorecon_default_handle();
-> +               selinux_restorecon_set_sehandle(sehandle);
-> +       }
->         return retval;
+> +       if ((conf_name =3D semanage_conf_path()) =3D=3D NULL)
+> +               goto err;
+> +
+> +       if ((sh =3D semanage_handle_create_with_path(conf_name)) =3D=3D N=
+ULL)
+> +               goto err;
+> +
+>         free(conf_name);
+>
+>         return sh;
+>
+>        err:
+>         free(conf_name);
+> -       semanage_handle_destroy(sh);
+>         return NULL;
 >  }
 >
+> diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanag=
+e.map
+> index c8214b26..5dab7bf7 100644
+> --- a/libsemanage/src/libsemanage.map
+> +++ b/libsemanage/src/libsemanage.map
+> @@ -350,3 +350,7 @@ LIBSEMANAGE_3.4 {
+>      semanage_module_compute_checksum;
+>      semanage_set_check_ext_changes;
+>  } LIBSEMANAGE_1.1;
+> +
+> +LIBSEMANAGE_3.5 {
+> +    semanage_handle_create_with_path;
+> +} LIBSEMANAGE_3.4;
 > --
 > 2.47.2
 >
