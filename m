@@ -1,171 +1,160 @@
-Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
+Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C8C227A115;
-	Tue, 15 Apr 2025 23:04:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.120
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744758250; cv=none; b=gX7n6Pbdya1N29vakI0eCF2ObUKQpC4RSI9H2THlMd43+734K8ggkw98FQK/lFE6ZMuQswtGa+6ELbG7yzRQkt47SSZkcC+2NuyqYpmLM+U9D7m057vGbgZqKETSVnoZkv9pVJ8H9EkZSYfXdMrVChpC7z+o/b+iAtXb+0ELPtU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744758250; c=relaxed/simple;
-	bh=dpC2Hf2yu8CMaVP2YFhDjU2Z6KS6nwg+1ldLsPuSiQM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XcgTpxe9Hdb8G52HQ4yWAum2AehltfXdXM352kxVw3YBp59J0aHz4Pkcxzw9bjRfJ/elsYzwsHfftkHLF4/WhuaKR9utA/uOVpU2z/MSklsVqi8QEIU+ff7ieZDuD/7+Q4EL78/bGDY+YW81usWgoCsZhKLWfIjPAfJpFHyMwNk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=tkNdy2FA; arc=none smtp.client-ip=185.125.188.120
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AAA314B950
+	for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 04:45:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1744778719; cv=pass; b=GouedKz/8LU7C/g56O68FKe6Td84+5SH60mIG+ofjs316UORgl3gJi3BtjPlGVZer7RLf8q0MPtWTn8uJzqwKPODfKjkWrYNdv0oumGMr3cIqaotMWLJXQpC6ZEST8NlDnTkdL4PrJRweXnAhe8TGmGMH99be8zmZb7O6rVo8D4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1744778719; c=relaxed/simple;
+	bh=paS6vfyT4DHVNoue77GXzhRJvgjAR0vBbQ+HHAhbizI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=I6FaNYY+jnKOoZxHcd/D01eKPbBbN5xgFOvOSsjp3pZySovwkJT4ke+61ePpi+uTyyoZxDnMTbB1My/Xi/zNxMxAspBORnjKeBzI0zoUrprEmz+4n2VNpxXnX8/3dQWWzusdcHO85D77s3cn6kJMe6ACurGqZd6zoGPRvD+lg04=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=midstall.com; spf=pass smtp.mailfrom=midstall.com; dkim=pass (1024-bit key) header.d=midstall.com header.i=tristan.ross@midstall.com header.b=WY6/gYrl; arc=pass smtp.client-ip=136.143.188.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=midstall.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=midstall.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="tkNdy2FA"
-Received: from [192.168.192.85] (unknown [50.39.103.202])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 16BB13F1E0;
-	Tue, 15 Apr 2025 23:04:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1744758244;
-	bh=ieigLbIomHfCcXv9icCgIWrGxSwv8MnaqRdWasEag8w=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type;
-	b=tkNdy2FAnXjC8Zqf9ACR9BJjA/MEr/DWOI2J/1bcsysYTlcfwDovYoB/Gwtuebdf7
-	 lni175Jw3/dNUndkMyzlQcVv+BgeuaGmlZgFbjoOqxnfynB8AtYX2EOp0DVd6copWP
-	 77y8O2NxXpwxRhFg3o3SJGJsH9HY+Gi9smS2pYhXaoHSXsA1Szv3A7KA3ZXokZ4CB1
-	 N0ZS4fSaBgfINX5+mhfNeMD0OKGHdIvu7XHQ303WWL3JXkiHpNLaG05FiGe5fg3+Qa
-	 Xe6+w0vJPFRoq5F0QNxCvCBgBULBcUrevSGCUxj0vXWIjTkp1wBDNJR7Bw263/C47C
-	 KWKwSXYd21RMg==
-Message-ID: <49fb1e0c-4733-47c8-bb3f-94945f773858@canonical.com>
-Date: Tue, 15 Apr 2025 16:04:00 -0700
+	dkim=pass (1024-bit key) header.d=midstall.com header.i=tristan.ross@midstall.com header.b="WY6/gYrl"
+ARC-Seal: i=1; a=rsa-sha256; t=1744778714; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=UYy4RFuOAnmU594U9xxqLBAjK6osrGm5n3VOVmqNk/KhqRI/7Na0n5YkBnBu/hM5QFX/o4iORmHAQb54ex7oLQ0LfeEPYS6G8jmu1LZ1Ta5GShKT9hTQk7yVf4IPcVYe0OMVkpcONbB6FQjM/Ow+nynfWq2jBWcyGd7PA7hyVqA=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1744778714; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=/oQhvHriIfsuqW/L25GnO38iXI0f8OpCDU4cLBvfGWs=; 
+	b=fo5iUfM8dtK6CHBtYSGNLxrpC4yWlzc045MuU3Jw5MeJKazxRvDMiE5YJr5+Z40QT+koc/Cf4v8Gz2XEHnVtMQO68ZM2fELVoI9mAKa/EnwreV1ORBL64xm6eN/Ft33k/qjMyFTXvBYYMo54zOmso7qbaM4M+GVbEBbMHjXX/W8=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=midstall.com;
+	spf=pass  smtp.mailfrom=tristan.ross@midstall.com;
+	dmarc=pass header.from=<tristan.ross@midstall.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1744778714;
+	s=zmail; d=midstall.com; i=tristan.ross@midstall.com;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=/oQhvHriIfsuqW/L25GnO38iXI0f8OpCDU4cLBvfGWs=;
+	b=WY6/gYrlJ5Dbw4uxfsnot1LK+S0A/k5FQ15dWS10UDg9OdurwLdwd+N545SU4/JV
+	HMb4N4TI3NTHDyFkKmjooWZqQtRGXCZdgbjsBSCCCd3sKv6xBrc/EFEoaK7tua4w/Mu
+	ZHoK+Da7r6ivsQhatKiIFLbKbd+kT+bZ110ymlcQ=
+Received: by mx.zohomail.com with SMTPS id 1744778712976660.9847338723104;
+	Tue, 15 Apr 2025 21:45:12 -0700 (PDT)
+From: Tristan Ross <tristan.ross@midstall.com>
+To: selinux@vger.kernel.org
+Cc: Tristan Ross <tristan.ross@midstall.com>
+Subject: [PATCH] libsemanage: add relabel_store config option
+Date: Tue, 15 Apr 2025 21:45:01 -0700
+Message-ID: <20250416044501.28631-1-tristan.ross@midstall.com>
+X-Mailer: git-send-email 2.47.2
+In-Reply-To: <CAJ2a_DcSrGUFktCNhDBop_EtS-mO4Jgt8r6XMCq+DO-C4K_ZOA@mail.gmail.com>
+References: <CAJ2a_DcSrGUFktCNhDBop_EtS-mO4Jgt8r6XMCq+DO-C4K_ZOA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 11/29] lsm: cleanup initialize_lsm() and rename to
- lsm_init_single()
-To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
- linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Cc: Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu
- <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
- =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
- =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
- Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
- Casey Schaufler <casey@schaufler-ca.com>,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-References: <20250409185019.238841-31-paul@paul-moore.com>
- <20250409185019.238841-42-paul@paul-moore.com>
-Content-Language: en-US
-From: John Johansen <john.johansen@canonical.com>
-Autocrypt: addr=john.johansen@canonical.com; keydata=
- xsFNBE5mrPoBEADAk19PsgVgBKkImmR2isPQ6o7KJhTTKjJdwVbkWSnNn+o6Up5knKP1f49E
- BQlceWg1yp/NwbR8ad+eSEO/uma/K+PqWvBptKC9SWD97FG4uB4/caomLEU97sLQMtnvGWdx
- rxVRGM4anzWYMgzz5TZmIiVTZ43Ou5VpaS1Vz1ZSxP3h/xKNZr/TcW5WQai8u3PWVnbkjhSZ
- PHv1BghN69qxEPomrJBm1gmtx3ZiVmFXluwTmTgJOkpFol7nbJ0ilnYHrA7SX3CtR1upeUpM
- a/WIanVO96WdTjHHIa43fbhmQube4txS3FcQLOJVqQsx6lE9B7qAppm9hQ10qPWwdfPy/+0W
- 6AWtNu5ASiGVCInWzl2HBqYd/Zll93zUq+NIoCn8sDAM9iH+wtaGDcJywIGIn+edKNtK72AM
- gChTg/j1ZoWH6ZeWPjuUfubVzZto1FMoGJ/SF4MmdQG1iQNtf4sFZbEgXuy9cGi2bomF0zvy
- BJSANpxlKNBDYKzN6Kz09HUAkjlFMNgomL/cjqgABtAx59L+dVIZfaF281pIcUZzwvh5+JoG
- eOW5uBSMbE7L38nszooykIJ5XrAchkJxNfz7k+FnQeKEkNzEd2LWc3QF4BQZYRT6PHHga3Rg
- ykW5+1wTMqJILdmtaPbXrF3FvnV0LRPcv4xKx7B3fGm7ygdoowARAQABzStKb2huIEpvaGFu
- c2VuIDxqb2huLmpvaGFuc2VuQGNhbm9uaWNhbC5jb20+wsF3BBMBCgAhBQJOjRdaAhsDBQsJ
- CAcDBRUKCQgLBRYCAwEAAh4BAheAAAoJEAUvNnAY1cPYi0wP/2PJtzzt0zi4AeTrI0w3Rj8E
- Waa1NZWw4GGo6ehviLfwGsM7YLWFAI8JB7gsuzX/im16i9C3wHYXKs9WPCDuNlMc0rvivqUI
- JXHHfK7UHtT0+jhVORyyVVvX+qZa7HxdZw3jK+ROqUv4bGnImf31ll99clzo6HpOY59soa8y
- 66/lqtIgDckcUt/1ou9m0DWKwlSvulL1qmD25NQZSnvB9XRZPpPd4bea1RTa6nklXjznQvTm
- MdLq5aJ79j7J8k5uLKvE3/pmpbkaieEsGr+azNxXm8FPcENV7dG8Xpd0z06E+fX5jzXHnj69
- DXXc3yIvAXsYZrXhnIhUA1kPQjQeNG9raT9GohFPMrK48fmmSVwodU8QUyY7MxP4U6jE2O9L
- 7v7AbYowNgSYc+vU8kFlJl4fMrX219qU8ymkXGL6zJgtqA3SYHskdDBjtytS44OHJyrrRhXP
- W1oTKC7di/bb8jUQIYe8ocbrBz3SjjcL96UcQJecSHu0qmUNykgL44KYzEoeFHjr5dxm+DDg
- OBvtxrzd5BHcIbz0u9ClbYssoQQEOPuFmGQtuSQ9FmbfDwljjhrDxW2DFZ2dIQwIvEsg42Hq
- 5nv/8NhW1whowliR5tpm0Z0KnQiBRlvbj9V29kJhs7rYeT/dWjWdfAdQSzfoP+/VtPRFkWLr
- 0uCwJw5zHiBgzsFNBE5mrPoBEACirDqSQGFbIzV++BqYBWN5nqcoR+dFZuQL3gvUSwku6ndZ
- vZfQAE04dKRtIPikC4La0oX8QYG3kI/tB1UpEZxDMB3pvZzUh3L1EvDrDiCL6ef93U+bWSRi
- GRKLnNZoiDSblFBST4SXzOR/m1wT/U3Rnk4rYmGPAW7ltfRrSXhwUZZVARyJUwMpG3EyMS2T
- dLEVqWbpl1DamnbzbZyWerjNn2Za7V3bBrGLP5vkhrjB4NhrufjVRFwERRskCCeJwmQm0JPD
- IjEhbYqdXI6uO+RDMgG9o/QV0/a+9mg8x2UIjM6UiQ8uDETQha55Nd4EmE2zTWlvxsuqZMgy
- W7gu8EQsD+96JqOPmzzLnjYf9oex8F/gxBSEfE78FlXuHTopJR8hpjs6ACAq4Y0HdSJohRLn
- 5r2CcQ5AsPEpHL9rtDW/1L42/H7uPyIfeORAmHFPpkGFkZHHSCQfdP4XSc0Obk1olSxqzCAm
- uoVmRQZ3YyubWqcrBeIC3xIhwQ12rfdHQoopELzReDCPwmffS9ctIb407UYfRQxwDEzDL+m+
- TotTkkaNlHvcnlQtWEfgwtsOCAPeY9qIbz5+i1OslQ+qqGD2HJQQ+lgbuyq3vhefv34IRlyM
- sfPKXq8AUTZbSTGUu1C1RlQc7fpp8W/yoak7dmo++MFS5q1cXq29RALB/cfpcwARAQABwsFf
- BBgBCgAJBQJOZqz6AhsMAAoJEAUvNnAY1cPYP9cP/R10z/hqLVv5OXWPOcpqNfeQb4x4Rh4j
- h/jS9yjes4uudEYU5xvLJ9UXr0wp6mJ7g7CgjWNxNTQAN5ydtacM0emvRJzPEEyujduesuGy
- a+O6dNgi+ywFm0HhpUmO4sgs9SWeEWprt9tWrRlCNuJX+u3aMEQ12b2lslnoaOelghwBs8IJ
- r998vj9JBFJgdeiEaKJLjLmMFOYrmW197As7DTZ+R7Ef4gkWusYFcNKDqfZKDGef740Xfh9d
- yb2mJrDeYqwgKb7SF02Hhp8ZnohZXw8ba16ihUOnh1iKH77Ff9dLzMEJzU73DifOU/aArOWp
- JZuGJamJ9EkEVrha0B4lN1dh3fuP8EjhFZaGfLDtoA80aPffK0Yc1R/pGjb+O2Pi0XXL9AVe
- qMkb/AaOl21F9u1SOosciy98800mr/3nynvid0AKJ2VZIfOP46nboqlsWebA07SmyJSyeG8c
- XA87+8BuXdGxHn7RGj6G+zZwSZC6/2v9sOUJ+nOna3dwr6uHFSqKw7HwNl/PUGeRqgJEVu++
- +T7sv9+iY+e0Y+SolyJgTxMYeRnDWE6S77g6gzYYHmcQOWP7ZMX+MtD4SKlf0+Q8li/F9GUL
- p0rw8op9f0p1+YAhyAd+dXWNKf7zIfZ2ME+0qKpbQnr1oizLHuJX/Telo8KMmHter28DPJ03 lT9Q
-Organization: Canonical
-In-Reply-To: <20250409185019.238841-42-paul@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-On 4/9/25 11:49, Paul Moore wrote:
-> One part of a larger effort to cleanup the LSM framework initialization
-> code.
-> 
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+This flag allows for enabling or disabling automatic restorecon that
+semodule invokes. By default, we have it enabled to produce the same
+behavior as before. On NixOS, we need this as we're "baking" the module
+installation into a squashfs image and we cannot run restorecon inside
+the builder.
+---
+ libsemanage/src/conf-parse.y     | 15 ++++++++++++++-
+ libsemanage/src/conf-scan.l      |  1 +
+ libsemanage/src/semanage_conf.h  |  1 +
+ libsemanage/src/semanage_store.c |  7 +++++--
+ 4 files changed, 21 insertions(+), 3 deletions(-)
 
-
-Reviewed-by: John Johansen <john.johansen@canonical.com>
-
-> ---
->   security/lsm_init.c | 24 ++++++++++++++----------
->   1 file changed, 14 insertions(+), 10 deletions(-)
-> 
-> diff --git a/security/lsm_init.c b/security/lsm_init.c
-> index 9bb4b4fc9888..163fc2a1a952 100644
-> --- a/security/lsm_init.c
-> +++ b/security/lsm_init.c
-> @@ -214,16 +214,20 @@ static void __init lsm_prep_single(struct lsm_info *lsm)
->   	lsm_blob_size_update(&blobs->lbs_bdev, &blob_sizes.lbs_bdev);
->   }
->   
-> -/* Initialize a given LSM, if it is enabled. */
-> -static void __init initialize_lsm(struct lsm_info *lsm)
-> +/**
-> + * lsm_init_single - Initialize a given LSM
-> + * @lsm: LSM definition
-> + */
-> +static void __init lsm_init_single(struct lsm_info *lsm)
->   {
-> -	if (lsm_is_enabled(lsm)) {
-> -		int ret;
-> +	int ret;
->   
-> -		init_debug("initializing %s\n", lsm->id->name);
-> -		ret = lsm->init();
-> -		WARN(ret, "%s failed to initialize: %d\n", lsm->id->name, ret);
-> -	}
-> +	if (!lsm_is_enabled(lsm))
-> +		return;
-> +
-> +	init_debug("initializing %s\n", lsm->id->name);
-> +	ret = lsm->init();
-> +	WARN(ret, "%s failed to initialize: %d\n", lsm->id->name, ret);
->   }
->   
->   /* Populate ordered LSMs list from comma-separated LSM name list. */
-> @@ -374,7 +378,7 @@ static void __init lsm_init_ordered(void)
->   		panic("%s: early task alloc failed.\n", __func__);
->   
->   	lsm_order_for_each(lsm) {
-> -		initialize_lsm(*lsm);
-> +		lsm_init_single(*lsm);
->   	}
->   }
->   
-> @@ -423,7 +427,7 @@ int __init early_security_init(void)
->   	lsm_early_for_each_raw(lsm) {
->   		lsm_enabled_set(lsm, true);
->   		lsm_prep_single(lsm);
-> -		initialize_lsm(lsm);
-> +		lsm_init_single(lsm);
->   	}
->   
->   	return 0;
+diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
+index e1fc9f4f..b69ac75b 100644
+--- a/libsemanage/src/conf-parse.y
++++ b/libsemanage/src/conf-parse.y
+@@ -63,7 +63,7 @@ static int parse_errors;
+ 
+ %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT OPTIMIZE_POLICY MULTIPLE_DECLS
+ %token LOAD_POLICY_START SETFILES_START SEFCONTEXT_COMPILE_START DISABLE_GENHOMEDIRCON HANDLE_UNKNOWN USEPASSWD IGNOREDIRS
+-%token BZIP_BLOCKSIZE BZIP_SMALL REMOVE_HLL
++%token BZIP_BLOCKSIZE BZIP_SMALL RELABEL_STORE REMOVE_HLL
+ %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
+ %token PROG_PATH PROG_ARGS
+ %token <s> ARG
+@@ -97,6 +97,7 @@ single_opt:     module_store
+ 	|	bzip_blocksize
+ 	|	bzip_small
+ 	|	remove_hll
++	|	relabel_store
+ 	|	optimize_policy
+ 	|	multiple_decls
+         ;
+@@ -291,6 +292,17 @@ remove_hll:  REMOVE_HLL'=' ARG {
+ 	free($3);
+ }
+ 
++relabel_store:  RELABEL_STORE'=' ARG {
++	if (strcasecmp($3, "false") == 0) {
++		current_conf->relabel_store = 0;
++	} else if (strcasecmp($3, "true") == 0) {
++		current_conf->relabel_store = 1;
++	} else {
++		yyerror("relabel_store can only be 'true' or 'false'");
++	}
++	free($3);
++}
++
+ optimize_policy:  OPTIMIZE_POLICY '=' ARG {
+ 	if (strcasecmp($3, "false") == 0) {
+ 		current_conf->optimize_policy = 0;
+@@ -400,6 +412,7 @@ static int semanage_conf_init(semanage_conf_t * conf)
+ 	conf->bzip_small = 0;
+ 	conf->ignore_module_cache = 0;
+ 	conf->remove_hll = 0;
++	conf->relabel_store = 1;
+ 	conf->optimize_policy = 1;
+ 	conf->multiple_decls = 1;
+ 
+diff --git a/libsemanage/src/conf-scan.l b/libsemanage/src/conf-scan.l
+index 64433f7b..c592fb63 100644
+--- a/libsemanage/src/conf-scan.l
++++ b/libsemanage/src/conf-scan.l
+@@ -54,6 +54,7 @@ handle-unknown    return HANDLE_UNKNOWN;
+ bzip-blocksize	return BZIP_BLOCKSIZE;
+ bzip-small	return BZIP_SMALL;
+ remove-hll	return REMOVE_HLL;
++relabel_store	return RELABEL_STORE;
+ optimize-policy return OPTIMIZE_POLICY;
+ multiple-decls return MULTIPLE_DECLS;
+ "[load_policy]"   return LOAD_POLICY_START;
+diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_conf.h
+index 5db08f0c..2388faad 100644
+--- a/libsemanage/src/semanage_conf.h
++++ b/libsemanage/src/semanage_conf.h
+@@ -49,6 +49,7 @@ typedef struct semanage_conf {
+ 	int ignore_module_cache;
+ 	int optimize_policy;
+ 	int multiple_decls;
++	int relabel_store;
+ 	char *ignoredirs;	/* ";" separated of list for genhomedircon to ignore */
+ 	struct external_prog *load_policy;
+ 	struct external_prog *setfiles;
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 307f27f9..1731c5e8 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -1823,8 +1823,11 @@ static int semanage_commit_sandbox(semanage_handle_t * sh)
+ 
+       cleanup:
+ 	semanage_release_active_lock(sh);
+-	sehandle = selinux_restorecon_default_handle();
+-	selinux_restorecon_set_sehandle(sehandle);
++
++	if (sh->conf->relabel_store) {
++		sehandle = selinux_restorecon_default_handle();
++		selinux_restorecon_set_sehandle(sehandle);
++	}
+ 	return retval;
+ }
+ 
+-- 
+2.47.2
 
