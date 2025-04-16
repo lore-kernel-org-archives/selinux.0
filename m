@@ -1,55 +1,50 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C5851547C0
-	for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 19:47:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C13433FD
+	for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 20:01:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744832830; cv=none; b=Q7y9P3dHLrwcN67G/FOpXKGyUBSpABahgdT5Lm2u+RwozObj8m6p8hGmr3fXZvEQMp6NSsUJcjfXO4h0S2ZblRmIqNagJiTp6Fg4Rb2Sh0a0LD60HiGflLQcWcM7EdLPFJRSRPKeKPdKyDVvAedkNuUjOrABNFFBR5ZZzGjNEG0=
+	t=1744833706; cv=none; b=jU/+9f7CT5qSWfuQ1xpXe9GvHvUScyNAHYt3B3Jg8gYmB1UODEp5IJ8j2N2XM5B+QS1z4dWePrOrOtWd8wgi1lUlSk9GiLebhnqvUe5vS6+caulivqLXq2SCZmyIplgn7Fj+DAse2hwY5L6ys08eFH+vzsvKfNoKo9S3WyaabOs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744832830; c=relaxed/simple;
-	bh=JPICmnEMGzUMMVLL1gquVHa9NPzKFUbs6F9eqhNHfvY=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=LJ7Qu54kDZFzFyyi9YeDLWUtaAPnAuh/8PsUvV3W5Ulfl/5iny8DBOIBaPuEvOZOXbrvhkkQreZlLUgGUBNidzAGkiQRnpAnl1ISNGzGkbqnHAKKNQl/v+pEOAH3NDZHAvODJIK7vHZT1Hq+swJR6Mt/ccyBuXYJ5HNLtQdmZwQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SiwrxKnz; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1744833706; c=relaxed/simple;
+	bh=UeIp39lnGGy3PM0neyjy6EPxnHWQ5iprmq5BpUHrKlk=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VGQqm1WlD1n6Kmqq7rx4rSpjK3Ts0R/imRLHJCILrhkOOUFdBepp5b3EhtSNsR1gOr29Ncs/1D5tUy/A434G774Bvt6i6T/ii9kaK+ouMs9fCaYNvhjB5wFQOBGrmGF1gEFtyHtCwkAVL4RJHnovviYHU5mhMiY47SSltKZUfeg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F0wh+G5g; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SiwrxKnz"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F0wh+G5g"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1744832826;
+	s=mimecast20190719; t=1744833703;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=u/WL8yVLY2aK3Ls/v59X93XNO5vx7Q5xweOik5atxFI=;
-	b=SiwrxKnzAChi8ho1Y+2WduxTEHkHGqN9ZEThZI+IT5fuqxN7IsEPnAuISHX+rf0Tzix5pD
-	jY3AvhsbQX83hLDadS2ObIeTKTy0NwtVjhhCS0kYJPnp40It2aWnUZeODvl/8FCZ9OsSEj
-	ai9BA0JwKN61dFAbeQbq30YF7USc660=
+	 to:to:cc:mime-version:mime-version:content-type:content-type;
+	bh=Tji+YUIAV1W20PjNlT05QaXrVH2JLrjRzrm+ST7ewrE=;
+	b=F0wh+G5gC1Gp923r+lNRVleKBHf1qmocwE/jBMWIV11BhVUesrmOBU7pJXvdVqEqs2tHGy
+	mgnP5t8zkvvPmcJXUKKqaa4Id3HlUKAEFA4Ml/gRRuSIdM4cXYRERWtE8C+3vSWB62LACY
+	TPJoOLuBD35cEIkDVUvwGUp3rkSZfAU=
 Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-271-Z72IWLakN1Gq_JmhvmiVrw-1; Wed,
- 16 Apr 2025 15:47:03 -0400
-X-MC-Unique: Z72IWLakN1Gq_JmhvmiVrw-1
-X-Mimecast-MFC-AGG-ID: Z72IWLakN1Gq_JmhvmiVrw_1744832822
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-629-UAVB_jbSNryplhCgAuCxlw-1; Wed,
+ 16 Apr 2025 16:01:39 -0400
+X-MC-Unique: UAVB_jbSNryplhCgAuCxlw-1
+X-Mimecast-MFC-AGG-ID: UAVB_jbSNryplhCgAuCxlw_1744833698
 Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 75F29180048E;
-	Wed, 16 Apr 2025 19:47:01 +0000 (UTC)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C37B41800ECC;
+	Wed, 16 Apr 2025 20:01:37 +0000 (UTC)
 Received: from localhost (unknown [10.45.225.67])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id DB6DF180094C;
-	Wed, 16 Apr 2025 19:47:00 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 369F318001D7;
+	Wed, 16 Apr 2025 20:01:36 +0000 (UTC)
 From: Petr Lautrbach <lautrbach@redhat.com>
-To: Tristan Ross <tristan.ross@midstall.com>, selinux@vger.kernel.org
-Cc: Tristan Ross <tristan.ross@midstall.com>
-Subject: Re: [PATCH 1/2] libsemanage: add semanage_handle_create_with_path
-In-Reply-To: <20250416045011.29923-2-tristan.ross@midstall.com>
-References: <CAJ2a_Df2p03otFfJ7wpGJ_izTw8SGAKr5vztFf0XxnnVypKFnw@mail.gmail.com>
- <20250416045011.29923-2-tristan.ross@midstall.com>
-Date: Wed, 16 Apr 2025 21:46:59 +0200
-Message-ID: <87bjsvzy6k.fsf@redhat.com>
+To: selinux@vger.kernel.org, Christian =?utf-8?Q?G=C3=B6ttsche?=
+ <cgzones@googlemail.com>
+Subject: Regression in selabel_lookup after "rework selabel_file database"
+Date: Wed, 16 Apr 2025 22:01:35 +0200
+Message-ID: <878qnzzxi8.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -59,110 +54,29 @@ MIME-Version: 1.0
 Content-Type: text/plain
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-Tristan Ross <tristan.ross@midstall.com> writes:
+Hi,
 
-> ---
->  libsemanage/include/semanage/handle.h |  6 +++++-
->  libsemanage/src/handle.c              | 26 +++++++++++++++++++-------
->  libsemanage/src/libsemanage.map       |  4 ++++
->  3 files changed, 28 insertions(+), 8 deletions(-)
->
-> diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
-> index a5ea31de..601cd9ee 100644
-> --- a/libsemanage/include/semanage/handle.h
-> +++ b/libsemanage/include/semanage/handle.h
-> @@ -30,7 +30,11 @@
->  struct semanage_handle;
->  typedef struct semanage_handle semanage_handle_t;
->  
-> -/* Create and return a semanage handle.
-> +/* Create and return a semanage handle with a specific config path.
-> +   The handle is initially in the disconnected state. */
-> +semanage_handle_t *semanage_handle_create_with_path(const char *conf_name);
-> +
-> +/* Create and return a semanage handle with the default config path.
->     The handle is initially in the disconnected state. */
->  extern semanage_handle_t *semanage_handle_create(void);
->  
-> diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-> index faea0606..ca57702a 100644
-> --- a/libsemanage/src/handle.c
-> +++ b/libsemanage/src/handle.c
-> @@ -59,19 +59,14 @@ const char * semanage_root(void)
->  	return private_semanage_root;
->  }
->  
-> -
-> -semanage_handle_t *semanage_handle_create(void)
-> +semanage_handle_t *semanage_handle_create_with_path(const char *conf_name)
->  {
->  	semanage_handle_t *sh = NULL;
-> -	char *conf_name = NULL;
->  
->  	/* Allocate handle */
->  	if ((sh = calloc(1, sizeof(semanage_handle_t))) == NULL)
->  		goto err;
->  
-> -	if ((conf_name = semanage_conf_path()) == NULL)
-> -		goto err;
-> -
->  	if ((sh->conf = semanage_conf_parse(conf_name)) == NULL)
->  		goto err;
->  
-> @@ -106,13 +101,30 @@ semanage_handle_t *semanage_handle_create(void)
->  	sh->msg_callback = semanage_msg_default_handler;
->  	sh->msg_callback_arg = NULL;
->  
-> +	return sh;
-> +
-> +      err:
-> +	semanage_handle_destroy(sh);
-> +	return NULL;
-> +}
-> +
-> +semanage_handle_t *semanage_handle_create(void)
-> +{
-> +	semanage_handle_t *sh = NULL;
-> +	char *conf_name = NULL;
-> +
-> +	if ((conf_name = semanage_conf_path()) == NULL)
-> +		goto err;
-> +
-> +	if ((sh = semanage_handle_create_with_path(conf_name)) == NULL)
-> +		goto err;
-> +
->  	free(conf_name);
->  
->  	return sh;
->  
->        err:
->  	free(conf_name);
-> -	semanage_handle_destroy(sh);
->  	return NULL;
->  }
->  
-> diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
-> index c8214b26..5dab7bf7 100644
-> --- a/libsemanage/src/libsemanage.map
-> +++ b/libsemanage/src/libsemanage.map
-> @@ -350,3 +350,7 @@ LIBSEMANAGE_3.4 {
->      semanage_module_compute_checksum;
->      semanage_set_check_ext_changes;
->  } LIBSEMANAGE_1.1;
-> +
-> +LIBSEMANAGE_3.5 {
-> +    semanage_handle_create_with_path;
-> +} LIBSEMANAGE_3.4;
->
+we have a report [1] that in specific cases local fcontext modifications
+are not considered or correctly resolved in `selabel_lookup`:
 
-It will be part of the next 3.9 release therefore this should be
-
-+LIBSEMANAGE_3.9 {
-+    semanage_handle_create_with_path;
-+} LIBSEMANAGE_3.4;
+    [root@default-0 selinux]# matchpathcon /usr/bin/cloud-init
+    /usr/bin/cloud-init     system_u:object_r:cloud_init_exec_t:s0
+    [root@default-0 selinux]# semanage fcontext -a -t bin_t /usr/bin/cloud-init
+    [root@default-0 selinux]# semanage fcontext -l -C
+    SELinux fcontext                                   type               Context
+    
+    /usr/bin/cloud-init                                all files          system_u:object_r:bin_t:s0 
+    [root@default-0 selinux]# matchpathcon /usr/bin/cloud-init
+    /usr/bin/cloud-init     system_u:object_r:cloud_init_exec_t:s0
 
 
+The bad commit seems to be 92306daf5219e73f6 ("libselinux: rework selabel_file(5) database")
 
- -- 
-> 2.47.2
+Please take a look.
+
+[1] https://bugzilla.redhat.com/show_bug.cgi?id=2360183
+
+Thanks,
+
+Petr
 
