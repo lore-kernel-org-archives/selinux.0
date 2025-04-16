@@ -1,69 +1,70 @@
-Received: from mail-lj1-f175.google.com (mail-lj1-f175.google.com [209.85.208.175])
+Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24056179A7
-	for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 15:57:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C7DB1C1AB4
+	for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 16:00:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744819074; cv=none; b=QNDNva1/MVcv+iCs3tviniaas8Nmyw6vfMsiNqL8JIontqdC4CzUCXkTtP+z46ZattBBRWChJ2sE/LoMUFrKX7Fvh4CVqf+nIivAD0YCIjnU24gz3AdXbuqsCjZhM6tppqlpUGycSzhoz+APWeBwtfMsJAFjkkbMjz5+bLa2Qec=
+	t=1744819252; cv=none; b=ZTbE+UjUsWdHK/oCr9MVy9cx1eE1AgbNvsTIVw9nyeNMfN6uW2N+OINlA2A+dWx3PM/o3Ur36aKMLjf6o+4pN+7TgAanhn+JYlgrpvLo4Bcy9/Wx615p2O/RSHLzzE7wZB01dfFvqvM6pKIASvJC15Bo2vtdq67EMA6E/BR3AjY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744819074; c=relaxed/simple;
-	bh=9S9IuFbsgs8KZPqreq3yn+4w+RhvRFo/Q0Nt6UptlW0=;
+	s=arc-20240116; t=1744819252; c=relaxed/simple;
+	bh=OQ2LUVURG5ZBoCwWh5loGiUwdSTfHuVc1849YbckkqU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hvYW6mJ1w2uQ4MMO24SkEDMmde3vuBYXttUVv+CHcZBPr/3GBR0QtqFl+qx9OHEoGzxOMpIutzBHh+UPYyTvsKWx6F1+YifhUvtG6PhuZ4JnydTOdDPedLdVqy1oCYNshltYmUqWV5ZCo9Hh2qFfoKX1ZmOj8FyG9EE/8fFCYm4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=jkQzE7U/; arc=none smtp.client-ip=209.85.208.175
+	 To:Cc:Content-Type; b=qbT2aLmdmDYzv0ZoLgIj3A2b63uzcb2M21l/DIvi/kzOSonTq4FL9oTdxPMNu6iNTkWSwyWIm+wv4Fhy5IuGgo+aT4dzIhHyMHLBpJFsMpERFYTlo3uh/0hxWCErNqTgqa4uawz4k64BUJj8FWztkLm4VF51rJWnqREziep8Vlc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=ceJY0ajc; arc=none smtp.client-ip=209.85.167.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="jkQzE7U/"
-Received: by mail-lj1-f175.google.com with SMTP id 38308e7fff4ca-30bfed67e08so69955651fa.2
-        for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 08:57:51 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="ceJY0ajc"
+Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-549963b5551so8064894e87.2
+        for <selinux@vger.kernel.org>; Wed, 16 Apr 2025 09:00:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1744819070; x=1745423870; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1744819248; x=1745424048; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=v2BFadUaPx4kPrKzKiLqKhxksx9GWm7szNOqnwDCFb4=;
-        b=jkQzE7U/SkQdrgS7BuGx1yqJXQ0Dpotuq+K90khWRQPmwjAYgP2mm4MV/ATcqPRfJM
-         4c2xdHIqxnwfbdRKR5m7jGQg/7DKdX7tYa8VpSUaoDS3uM8Eosm+sjOkBsTzUzTpOabh
-         6bkVk5xjfhNq2bBVZqGdfOdxSh4yu7cCdcrRg=
+        bh=fBPmcg0bFH2XY3Hin8L4B6RZDr/nTgPQCfRGMZTM/dg=;
+        b=ceJY0ajcpp4Etwtg/oRJQk7GiAqywh6FqfWax9RM6aOqARUGEnt1SyS4osZjvEebcO
+         S3Uc/Vd7j2Ujy9gXs87Qer/GFW0/C7rdE/cLOsVyRIKcDSxwaeV0Ygqvlf2JrMOd59br
+         Q9da2Oq5TZXBUk2wENpmLSlwtySz5sEe5k3SI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744819070; x=1745423870;
+        d=1e100.net; s=20230601; t=1744819248; x=1745424048;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=v2BFadUaPx4kPrKzKiLqKhxksx9GWm7szNOqnwDCFb4=;
-        b=XVPl64mvufWHENKEcbrfz2ovFHHoQWjVJcVCcrvA9TH/GFGwfYWL//R2uVUXLZY5O3
-         RI4YMs2+ELUn2f5sGxETvvXhc3YAmQ+uHBBKGCpB9wnN++jUkZSVIDkEpDTFop/Yj8cb
-         9iOPdrX0q3sXL1UFBaL682ZcCVJGAhSpoLc/jvv4pJBeRc0/8NhABJVNlelDnF5XWmAs
-         WNcWkhlTeWki/xGdjRJwcdhj13PCDJFVt96VS/6WGmTteT7Rhiv91MEViVR0YcNR/8lr
-         ecpF3JoxhzcQKz+2VJsT4T5Ks1F4aIJhzTAC+6kBL4daImZn9D6rctroM++gTJFeclwO
-         cPXg==
-X-Forwarded-Encrypted: i=1; AJvYcCXzFuHrO/3MbxlHtgBwI1A3EwVDktPRe4/AdIpD/r6YD1kZ/OXbLlfXJfCl4FK6wJ9Z5Ua8OgIZ@vger.kernel.org
-X-Gm-Message-State: AOJu0YzpHzMXjkYPTTA2UbUB/tlkVlJcBhXy0YCFL3d1FBeG4ZCpoqvH
-	lIx/HyRL4BgeU57bkKk8cajZGFgpy4Iy3XLpok3pqUjK4I0lF7Duerp1Lt+yAR4BNisHy6ztGnP
-	uitNPYZoNLqlWqn+w0EpUhd/qOlErmWjz0t/F
-X-Gm-Gg: ASbGncvZ70hm7WmCfN4EQ6mzk4MBW+cy6svkYlGYA944+ZvQ89gWMcQQqcANHPxQWoh
-	aWapE8pq1R3gSlTHZ5gNkHbdEiSWlU42JwLHWKbjhHiO5jSrCLAV67Ha9NVzriB5SzoV3YuZ9pB
-	yiFgb+o3iQgswSqEvuJzfxqQ==
-X-Google-Smtp-Source: AGHT+IHyX2q78FUMNwSUtQNeLkKZnzrpbKb8UGxVAo8YlAdq1btqxp+4vSCrcPd3BvL8dB+hWa8FRAjO0gtIQ1kP39w=
-X-Received: by 2002:a2e:a591:0:b0:30d:e104:a497 with SMTP id
- 38308e7fff4ca-3107f74ed34mr8515131fa.41.1744819070153; Wed, 16 Apr 2025
- 08:57:50 -0700 (PDT)
+        bh=fBPmcg0bFH2XY3Hin8L4B6RZDr/nTgPQCfRGMZTM/dg=;
+        b=T9xrfUYUIDrU+vGL5PWg7fNd03TWqfDxgpGxHGQX6HcHf70aDIGATDFk0joT/CycJU
+         g+1mkBRPM/EB+byL0B/s07LRlU/AMzgCi1+pLNGf5/3HSi/rnZxH+OrorMB4/+D2J/qL
+         BVGg2qzaXXd/0TStCn53yILR7ho5XOYdHggBCgPax7dkPNofh1k4dCLwtMR881K7pzV1
+         tBDS908yJeBE5CdSrPrpn7zDy9Wzpx6WCzcjl1kdrqANrrTzxISmcYs/CSk6li2uDgx/
+         naAGlQkxAYedXlr6Ytck7tN5zfLlQ0J3X1RI+XkNaSf0sZmf759vf0d4nokftCxFRZz/
+         fFxg==
+X-Forwarded-Encrypted: i=1; AJvYcCWPYVpfxcUszntHKt5SQ1WwQMoffErke6H4wLC4AjoKfzYeT3mXBp6T22w6/AmY56eTcPAOPJYh@vger.kernel.org
+X-Gm-Message-State: AOJu0YwCVqrzzUCHLCGCr4MkuvyI9TxTMVQrViyzLz54pg2qBD/FPGy1
+	7rQD1L65e9e7SJgQjyxAmlBkRBJ+yXEUEHa4kK4F7bDFlGjqqLll+IPFGbOrKDzun1GgMOvjESX
+	dN6mFCgz+lmbj7YhZ7ofSnxm8EhLgm6uuq0Y8
+X-Gm-Gg: ASbGncs8jZrnQ/ssLs5mfZq+0UUhamuklncC9TbTGKXCs50adije4rBVIII9O+dP6js
+	rsla74uWBiDt4BQH2dy4yxBMfP3aS6NbXRm5s/bePZPW66E2AkTQxaLGdNMVrF7w55LFPEeIk73
+	cReMSMPK9jWTFdUTO5iZkanAiSzJ177rGS
+X-Google-Smtp-Source: AGHT+IFlK7R096/+OAh92R+N0wIujqmp0uU3OFtKyNa2K1gFmEshtOax20fuvbKOa8HxCYGz77KZC4LpcqUinUZDXA8=
+X-Received: by 2002:a05:6512:1090:b0:549:912a:d051 with SMTP id
+ 2adb3069b0e04-54d64798c06mr830233e87.0.1744819248030; Wed, 16 Apr 2025
+ 09:00:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250415071017.3261009-1-dualli@chromium.org> <Z_-Jcv-GN68zILvH@google.com>
-In-Reply-To: <Z_-Jcv-GN68zILvH@google.com>
+References: <20250415071017.3261009-1-dualli@chromium.org> <20250415071017.3261009-2-dualli@chromium.org>
+ <69763528-bb00-44c5-a3ce-8c30530b29ee@schaufler-ca.com>
+In-Reply-To: <69763528-bb00-44c5-a3ce-8c30530b29ee@schaufler-ca.com>
 From: Li Li <dualli@chromium.org>
-Date: Wed, 16 Apr 2025 08:57:39 -0700
-X-Gm-Features: ATxdqUFa_5SkPDOk0cZck1S6bx5-8MPV9OEIKtgrjCQi4siAjFbS1rlqXflwhYk
-Message-ID: <CANBPYPgN5bu-cXaQO_B1-Dk=nxBZxg7vzH-A76w2fhndTaag9g@mail.gmail.com>
-Subject: Re: [PATCH v17 0/3] binder: report txn errors via generic netlink
-To: Alice Ryhl <aliceryhl@google.com>
+Date: Wed, 16 Apr 2025 09:00:36 -0700
+X-Gm-Features: ATxdqUEvTcc4Mrcasz-DJMu04qcEN1mqV4hfHibSLmGFJSE6dIDY98ewYmt9cyM
+Message-ID: <CANBPYPgfW+3jeTPZmpHfkgr=hX8sRkMLgrEeLFYa6rOPftXeFg@mail.gmail.com>
+Subject: Re: [PATCH v17 1/3] lsm, selinux: Add setup_report permission to binder
+To: Casey Schaufler <casey@schaufler-ca.com>
 Cc: dualli@google.com, corbet@lwn.net, davem@davemloft.net, 
 	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
 	donald.hunter@gmail.com, gregkh@linuxfoundation.org, arve@android.com, 
@@ -77,60 +78,28 @@ Cc: dualli@google.com, corbet@lwn.net, davem@davemloft.net,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 16, 2025 at 3:41=E2=80=AFAM Alice Ryhl <aliceryhl@google.com> w=
-rote:
+Thank you Casey! I'll resend this specific patch to linux-security-module l=
+ist.
+
+Should I include the other 2 binder patches as well as they are using
+this new permission?
+
+On Tue, Apr 15, 2025 at 9:13=E2=80=AFAM Casey Schaufler <casey@schaufler-ca=
+.com> wrote:
 >
-> On Tue, Apr 15, 2025 at 12:10:14AM -0700, Li Li wrote:
-> > From: Li Li <dualli@google.com>
+> On 4/15/2025 12:10 AM, Li Li wrote:
+> > From: Thi=C3=A9baud Weksteen <tweek@google.com>
 > >
-> > It's a known issue that neither the frozen processes nor the system
-> > administration process of the OS can correctly deal with failed binder
-> > transactions. The reason is that there's no reliable way for the user
-> > space administration process to fetch the binder errors from the kernel
-> > binder driver.
+> > Introduce a new permission "setup_report" to the "binder" class.
+> > This persmission controls the ability to set up the binder generic
+> > netlink driver to report certain binder transactions.
 > >
-> > Android is such an OS suffering from this issue. Since cgroup freezer
-> > was used to freeze user applications to save battery, innocent frozen
-> > apps have to be killed when they receive sync binder transactions or
-> > when their async binder buffer is running out.
-> >
-> > This patch introduces the Linux generic netlink messages into the binde=
-r
-> > driver so that the Linux/Android system administration process can
-> > listen to important events and take corresponding actions, like stoppin=
-g
-> > a broken app from attacking the OS by sending huge amount of spamming
-> > binder transactiions.
+> > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> > Signed-off-by: Li Li <dualli@google.com>
+> > ---
+> >  include/linux/lsm_hook_defs.h       |  1 +
+> >  include/linux/security.h            |  6 ++++++
+> >  security/security.c                 | 13 +++++++++++++
 >
-> I'm a bit confused about this series. Why is [PATCH] binder: add
-> setup_report permission a reply to [PATCH v17 1/3] lsm, selinux: Add
-> setup_report permission to binder? Which patches are supposed to be
-> included and in which order?
+> This patch needs to be sent to the linux-security-module list.
 >
-
-"[PATCH] binder: add setup_report permission" isn't a Linux kernel patch
-so it's not part of this kernel patchset.
-
-Paul was asking for a test case of selinux-testsuite in v16. I added
-it in v17, which is
-"[PATCH v2] policy,tests: add test for new permission binder:setup_report".
-The test depends on the patch you mentioned. So I linked both of them to
-the kernel patchset for your convenience. Sorry for the confusion.
-
-In short, the kernel patchset includes 3 patches:
-2025-04-15  7:10 [PATCH v17 0/3] binder: report txn errors via generic netl=
-ink
-2025-04-15  7:10 ` [PATCH v17 1/3] lsm, selinux: Add setup_report
-permission to binder Li Li
-2025-04-15  7:10 ` [PATCH v17 2/3] binder: report txn errors via
-generic netlink Li Li
-2025-04-15  7:10 ` [PATCH v17 3/3] binder: transaction report
-binder_features flag Li Li
-
-The corresponding test (for https://github.com/SELinuxProject/selinux-tests=
-uite)
-and its dependency (for https://github.com/SELinuxProject/refpolicy):
-
-2025-04-15  7:13   ` [PATCH] binder: add setup_report permission Li Li
-2025-04-15  7:47   ` [PATCH v2] policy,tests: add test for new
-permission binder:setup_report Li Li
