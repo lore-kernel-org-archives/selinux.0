@@ -1,28 +1,28 @@
-Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
+Received: from sender3-op-o15.zoho.com (sender3-op-o15.zoho.com [136.143.184.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3940810E4
-	for <selinux@vger.kernel.org>; Thu, 17 Apr 2025 02:16:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B3D5320F
+	for <selinux@vger.kernel.org>; Thu, 17 Apr 2025 02:16:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.184.15
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744856191; cv=pass; b=pNAbtPPlwVCoVL5qhmWpZPPX03p83d++EXS5xo1cdxyy5iHAsk56Y95cNmjDsrnVPBHTBL/GYyfEClwZ0eB/kqJB8sLdOYkNjSn0MY0ZDniKeqQtj2UKQ26ntO6IPlcv5+bWLF+vQkIhtjdbPzYEgAwNCdQfahOhTkYwR67HrCY=
+	t=1744856192; cv=pass; b=Z+YUJPA1zMKuyX3a6vBNu/tCQ9RcUpwWGEKJ8CJw7xQt4YvC7jkpZy9QMNa3GNz5z0CWyEbVJeQ8MggaE2kW5qf2FYSLQm1WXV23r/Nl4uCMEjT+yhATVPpmqj73blJjd8F5JmCnC37wX+nRt3cwiljQMCukcnq7/NgG9+bNKS0=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744856191; c=relaxed/simple;
-	bh=Ej/y/eZUtKyTuYugSM1lArEr1CzE8v7JHwkaSMRaHy8=;
+	s=arc-20240116; t=1744856192; c=relaxed/simple;
+	bh=qoYLJR3Iwg9PiNoqK09Fxk7sDkVSKhKRmLIT9BWQBR0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HiRU66LmzyK2ea541nifBT0duQAAUn+fu9rEQB2/kIFpNU/nwsvMiPtl7I4tklfYtCE8v/9LWkyTnrDj6AeI36uR1QNJiM4KjfsZKCzL/Aa4tDg/zaCDAnFFraBfRVgVBbX+xVhoclt5pzJM+nDd5pyT78hvMb109hSd4qvdjLc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=midstall.com; spf=pass smtp.mailfrom=midstall.com; dkim=pass (1024-bit key) header.d=midstall.com header.i=tristan.ross@midstall.com header.b=RBFtczuB; arc=pass smtp.client-ip=136.143.188.15
+	 MIME-Version; b=QoY5miB3RJHF7lbCdoIvlqTDiT2zFgxbhzVjQu/livzprr1+QTURxY3uUqb44mz9cfhs2cStnPPcSZcFx0UoWulzl1f8n5DcahNodHR3B7/2jTm3ewEiFxL6zJfAs+J9oOunopEz4WjIsGMj2EjpGdtAJJwMI1sqExq2sAexw0I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=midstall.com; spf=pass smtp.mailfrom=midstall.com; dkim=pass (1024-bit key) header.d=midstall.com header.i=tristan.ross@midstall.com header.b=daItqhDy; arc=pass smtp.client-ip=136.143.184.15
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=midstall.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=midstall.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=midstall.com header.i=tristan.ross@midstall.com header.b="RBFtczuB"
+	dkim=pass (1024-bit key) header.d=midstall.com header.i=tristan.ross@midstall.com header.b="daItqhDy"
 ARC-Seal: i=1; a=rsa-sha256; t=1744856187; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=U+zCNGPObkWgF7DUwJ2Wi3xnVrJ5z/u3stkKDT2U5cw79hxpr1XMHJyBg8fRHIulJgh95NGjzy9gzVQ+9cb2bw7e5z5f1V6BbOODIRyqu9l+PcVg+eCk5CNSCBNzLCt9b6jOHZKvwVhT5qeZdEooeF+iGWt1jHn877U6XZWM7/4=
+	b=LgIu7DWSFgFZBana8o753mtSNDeG2EH81JpGjsCofsi0WQ7XF+txNkqeV6rj2T6und/BQL5AUvgKyrxtdTXR4yR2+9V3P9NvwGrB4SV5JXjFG22KSMlJASK633/Zn8eUEod0L2wIuTS7vHXXOCkj4m4muVp3Zb7PmHKZxNgUnm4=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
 	t=1744856187; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=J5nFYYTK0O5U59tSJv6ZKf5maQFmQjV4zwiBNuRbC2A=; 
-	b=Ab0k57nkf71rz4Mj3P+xuGv3JC+0I9U1wFuK7Ss2nV3sNZaI2QVlFlX2OSSdlUp0PB2mE6M1vuZDv3MAjw1ehLQOgmwp8Zi7pv9qcSDaHufgXgLWriY86bS7OnDg/ZwQ9yyQYJnZzJnXA/Y0ftgFvujEcS104ZS844gaZ36zge8=
+	bh=3RPwDCJRqjPCkMfABwfetgWryaChCnrlWaPXbD+E0v0=; 
+	b=Yzj58EDfa1Q2LFsNDy4PAS8JUF5EccU5M94KsqHuY5vK/0wDtISTB2zKp3CWg7m7Mms6scrrrer9H0EfUgu8Wf/oi2F0jwaVzK0n1hW481JvZ4bpKXmIDuDxXg7mzXt0mQlXNNI6RvqGibOT7Q8h5n43TAg1+HK74jj1sQ4vk5w=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=midstall.com;
 	spf=pass  smtp.mailfrom=tristan.ross@midstall.com;
@@ -30,21 +30,22 @@ ARC-Authentication-Results: i=1; mx.zohomail.com;
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1744856187;
 	s=zmail; d=midstall.com; i=tristan.ross@midstall.com;
 	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=J5nFYYTK0O5U59tSJv6ZKf5maQFmQjV4zwiBNuRbC2A=;
-	b=RBFtczuBfUAbrYfrhYaHt5xXe/PJDiIapz5qZXinNuKQIi0gItWxrOJ5ktoHRxBV
-	z/GPe2qaE+MqRoQBoioupa/n0prNUJZWhU+CEFVGu+v5oZrIveCrsbT81bpjNlf98LF
-	CdXkVeWXSfk+To41DQyrd4M2iJtC2j9WJ2akx6xc=
-Received: by mx.zohomail.com with SMTPS id 1744856184714521.5490781232393;
-	Wed, 16 Apr 2025 19:16:24 -0700 (PDT)
+	bh=3RPwDCJRqjPCkMfABwfetgWryaChCnrlWaPXbD+E0v0=;
+	b=daItqhDyKu9WlmeEBQVFKZR3HR0ZHwhH3vTURn/QnwVlMa/n6JCXY1ezx4+o7Rs8
+	HM/cWL3NhEhcbfHJwmD6Gc+MsL6NMNWy8COBOYZbfga0rdpOU/FbvduN1t5fzmw88fE
+	CHj0pjHtTvMs5FfFRVC8+YMhACK4qWBWiMstW1yM=
+Received: by mx.zohomail.com with SMTPS id 1744856185325917.5306441993464;
+	Wed, 16 Apr 2025 19:16:25 -0700 (PDT)
 From: Tristan Ross <tristan.ross@midstall.com>
 To: selinux@vger.kernel.org
 Cc: Tristan Ross <tristan.ross@midstall.com>
-Subject: [PATCH 1/2] libsemanage: add semanage_handle_create_with_path
-Date: Wed, 16 Apr 2025 19:16:10 -0700
-Message-ID: <20250417021611.45594-1-tristan.ross@midstall.com>
+Subject: [PATCH 2/2] semodule: add config argument
+Date: Wed, 16 Apr 2025 19:16:11 -0700
+Message-ID: <20250417021611.45594-2-tristan.ross@midstall.com>
 X-Mailer: git-send-email 2.47.2
-In-Reply-To: <87bjsvzy6k.fsf@redhat.com>
+In-Reply-To: <20250417021611.45594-1-tristan.ross@midstall.com>
 References: <87bjsvzy6k.fsf@redhat.com>
+ <20250417021611.45594-1-tristan.ross@midstall.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -54,103 +55,76 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-ZohoMailClient: External
 
-Adds "semanage_handle_create_with_path" to create an semanage handle
-with a config file from a specific path. This is useful for baking
-SELinux policy generation into a Nix derivation.
+Use "semanage_handle_create_with_path" and implement a new flag for
+handling semanage config files at specific paths.
 
 Signed-off-by: Tristan Ross <tristan.ross@midstall.com>
 ---
- libsemanage/include/semanage/handle.h |  6 +++++-
- libsemanage/src/handle.c              | 26 +++++++++++++++++++-------
- libsemanage/src/libsemanage.map       |  4 ++++
- 3 files changed, 28 insertions(+), 8 deletions(-)
+ policycoreutils/semodule/semodule.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
-index a5ea31de..601cd9ee 100644
---- a/libsemanage/include/semanage/handle.h
-+++ b/libsemanage/include/semanage/handle.h
-@@ -30,7 +30,11 @@
- struct semanage_handle;
- typedef struct semanage_handle semanage_handle_t;
+diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
+index ebe062bf..80fd0451 100644
+--- a/policycoreutils/semodule/semodule.c
++++ b/policycoreutils/semodule/semodule.c
+@@ -145,6 +145,7 @@ static void usage(char *progname)
+ 	printf("  -v,--verbose     be verbose\n");
+ 	printf("  -P,--preserve_tunables	Preserve tunables in policy\n");
+ 	printf("  -C,--ignore-module-cache	Rebuild CIL modules compiled from HLL files\n");
++	printf("  -o,--config=PATH use an alternate path for the semanage config\n");
+ 	printf("  -p,--path        use an alternate path for the policy root\n");
+ 	printf("  -S,--store-path  use an alternate path for the policy store root\n");
+ 	printf("  -c, --cil extract module as cil. This only affects module extraction.\n");
+@@ -210,6 +211,7 @@ static void parse_command_line(int argc, char **argv)
+ 		{"enable", required_argument, NULL, 'e'},
+ 		{"disable", required_argument, NULL, 'd'},
+ 		{"path", required_argument, NULL, 'p'},
++		{"config", required_argument, NULL, 'o'},
+ 		{"store-path", required_argument, NULL, 'S'},
+ 		{"checksum", 0, NULL, 'm'},
+ 		{NULL, 0, NULL, 0}
+@@ -223,7 +225,7 @@ static void parse_command_line(int argc, char **argv)
+ 	check_ext_changes = 0;
+ 	priority = 400;
+ 	while ((i =
+-		getopt_long(argc, argv, "s:b:hi:l::vr:u:RnNBDCPX:e:d:p:S:E:cHm",
++		getopt_long(argc, argv, "s:b:hi:l::vr:u:RnNBDCPX:e:d:p:o:S:E:cHm",
+ 			    opts, &longind)) != -1) {
+ 		switch (i) {
+ 		case '\0':
+@@ -304,6 +306,14 @@ static void parse_command_line(int argc, char **argv)
+ 		case 'C':
+ 			ignore_module_cache = 1;
+ 			break;
++		case 'o':
++			sh = semanage_handle_create_with_path(optarg);
++			if (!sh) {
++				fprintf(stderr, "%s:  Could not create semanage handle\n",
++					argv[0]);
++				exit(1);
++			}
++			break;
+ 		case 'X':
+ 			set_mode(PRIORITY_M, optarg);
+ 			break;
+@@ -421,11 +431,13 @@ int main(int argc, char *argv[])
+ 	if (build || check_ext_changes)
+ 		commit = 1;
  
--/* Create and return a semanage handle.
-+/* Create and return a semanage handle with a specific config path.
-+   The handle is initially in the disconnected state. */
-+semanage_handle_t *semanage_handle_create_with_path(const char *conf_name);
-+
-+/* Create and return a semanage handle with the default config path.
-    The handle is initially in the disconnected state. */
- extern semanage_handle_t *semanage_handle_create(void);
+-	sh = semanage_handle_create();
+ 	if (!sh) {
+-		fprintf(stderr, "%s:  Could not create semanage handle\n",
+-			argv[0]);
+-		goto cleanup_nohandle;
++		sh = semanage_handle_create();
++		if (!sh) {
++			fprintf(stderr, "%s:  Could not create semanage handle\n",
++				argv[0]);
++			goto cleanup_nohandle;
++		}
+ 	}
  
-diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-index faea0606..ca57702a 100644
---- a/libsemanage/src/handle.c
-+++ b/libsemanage/src/handle.c
-@@ -59,19 +59,14 @@ const char * semanage_root(void)
- 	return private_semanage_root;
- }
- 
--
--semanage_handle_t *semanage_handle_create(void)
-+semanage_handle_t *semanage_handle_create_with_path(const char *conf_name)
- {
- 	semanage_handle_t *sh = NULL;
--	char *conf_name = NULL;
- 
- 	/* Allocate handle */
- 	if ((sh = calloc(1, sizeof(semanage_handle_t))) == NULL)
- 		goto err;
- 
--	if ((conf_name = semanage_conf_path()) == NULL)
--		goto err;
--
- 	if ((sh->conf = semanage_conf_parse(conf_name)) == NULL)
- 		goto err;
- 
-@@ -106,13 +101,30 @@ semanage_handle_t *semanage_handle_create(void)
- 	sh->msg_callback = semanage_msg_default_handler;
- 	sh->msg_callback_arg = NULL;
- 
-+	return sh;
-+
-+      err:
-+	semanage_handle_destroy(sh);
-+	return NULL;
-+}
-+
-+semanage_handle_t *semanage_handle_create(void)
-+{
-+	semanage_handle_t *sh = NULL;
-+	char *conf_name = NULL;
-+
-+	if ((conf_name = semanage_conf_path()) == NULL)
-+		goto err;
-+
-+	if ((sh = semanage_handle_create_with_path(conf_name)) == NULL)
-+		goto err;
-+
- 	free(conf_name);
- 
- 	return sh;
- 
-       err:
- 	free(conf_name);
--	semanage_handle_destroy(sh);
- 	return NULL;
- }
- 
-diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
-index c8214b26..5dab7bf7 100644
---- a/libsemanage/src/libsemanage.map
-+++ b/libsemanage/src/libsemanage.map
-@@ -350,3 +350,7 @@ LIBSEMANAGE_3.4 {
-     semanage_module_compute_checksum;
-     semanage_set_check_ext_changes;
- } LIBSEMANAGE_1.1;
-+
-+LIBSEMANAGE_3.5 {
-+    semanage_handle_create_with_path;
-+} LIBSEMANAGE_3.4;
+ 	if (store) {
 -- 
 2.47.2
 
