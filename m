@@ -1,194 +1,138 @@
-Received: from mail-oi1-f182.google.com (mail-oi1-f182.google.com [209.85.167.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B17DC23F405
-	for <selinux@vger.kernel.org>; Thu, 17 Apr 2025 14:06:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B4B7A926
+	for <selinux@vger.kernel.org>; Thu, 17 Apr 2025 19:18:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744898810; cv=none; b=BlGbnVaDCrBOzda8qDZWkL1xkoLxmPGv3kQJowazGB+cKIB0yxelWgcvnZBkeydS1iGYSroaynkR1SuwLyfZaJ32oqxj+cQi5n6/LkRyrXBeGVOEaVcl6kxR0I7QqbbZmh6hskFLPHITjxmcOZrjVOVIKIRbalYYzMtn4XaIgwY=
+	t=1744917492; cv=none; b=UnuYMTSouwBjGn/DYkIB3N4z4ITnRV2Y+wLkuKYg9HJ8IW/AQ20omMm9+UeyZ9as/PPM/NzsGRc7QgvkiNX7AP0WkbpAOKs3Gpls5SAIMeXgI55T+0ue1KGNLeTd6j93zwsmxIyEzr3QAcDw87NdTQ425fyKLae5JCYZabDT760=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744898810; c=relaxed/simple;
-	bh=iyp25FhwIWizb+TTR/9LynC43f0cEMlQ0pzWM7539Tc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gq+/77tpi95GzFJ2z0+lBZ89Z2TOnQXhIwbi7c7Krij6qC9EMm1OVOA55vizRGIIdqu04blL0j7lR8LerQGU2orTWWLPECUs6scpDrPosVpL8H3NnWikO98cbb1vxRZEi9zEhAiTAQQSpWOFiTKwjP9ZaZPJPkzChtYo3p2glV4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OkG8BHl+; arc=none smtp.client-ip=209.85.167.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1744917492; c=relaxed/simple;
+	bh=yhCc1OGwRM/niDMffMHW0jxxuXwdPC0LKYNt4/DY2kg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=bkLjZM0lQ5n7naHOo9S+NNgrcd/JWmtmi+Q8LswECkVRKeLfQAUlBeD2aFGpm/zpHAWUgBDnQYgR3ePHti8awBwiSjYV3NoIrKGmNnkr0Q5ZUc16Qa/GY8kZAzFS9hBqRu2X8XZ+SIGGlwt8GDeh7szOUwGrg5IiqVXHnr1OlTU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=V6qG1ofz; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OkG8BHl+"
-Received: by mail-oi1-f182.google.com with SMTP id 5614622812f47-400b64ac5fcso381115b6e.0
-        for <selinux@vger.kernel.org>; Thu, 17 Apr 2025 07:06:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744898808; x=1745503608; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+rj0R5fbtFQaBSL38aoGzBpwv9Ap3Q7Vpi3DpeTQgAM=;
-        b=OkG8BHl+rt00qgjSQtADFOs4eZ/srOseFRnDzws0Zgusx6Kkozxcn3ye9oVVd9V8zk
-         NEK354MRKMONj1K/LDEqeHptoU2g0pdKw3XnAACiQjWEQkBEYehSQFxWo7w4KOVIWIzp
-         LZlCphDFZCBDyea6hbmc6HCu+26hEMErjUxOVSzU71LfdCLq7wVtUh2CypyNU5FlWF/d
-         CiDhdPM0cfVn3VT/WAl4iHVRvf/PaK6U1c6/+Z53+79QwEHSaUNgOajBN5L8jc5feuAg
-         8++OQZS8d+Gn2QMmGqjHM72t5u3SvaMrWEAtW/4GJpGOGjTXwxFeVQmMDNqxpKURME4q
-         9fZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744898808; x=1745503608;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+rj0R5fbtFQaBSL38aoGzBpwv9Ap3Q7Vpi3DpeTQgAM=;
-        b=FjicDIRlTPKW1dKUHRpTMNgFWGvU4lUR4Auxxh/prkqgyj1CGnCzUiPoqvH4zoPWmf
-         A/40+1Xc0l3p1S/TWWvBsfwg375MFxaX4jEzGgMCngptG/EptI6DTuJQOZ+F9tyBUlgl
-         Pe9oPvcxBuabpnE689vJAe4Xnp+Q5ABduCJ11luq4fYZ6SmFllgM5NSUpZ9zPdsOMqOe
-         CGQflVuvtLNGEHGGipdglST6H5HKDoAduY6OzQYvdlKFvLev/f9sMAbu/U9nBvuDeSyB
-         yD3joqyy/bBPWd7x599lM2u7xMNn/j82iKTZk1671anQF8US3Xavl+LdLjO46R3ORefJ
-         QY3w==
-X-Gm-Message-State: AOJu0YzXmgLV/t7AqCSOxwd+yV3JSNHPZDWZeGVN8lhGygpI8EjtWFPS
-	ACI8rhd4CUhOODvrwmkcIj8+5MMPxZxO+7bE+Va9kB7rlFX5+DTWDUvdrf2GPg+CbSHLwTMWb3R
-	4fBew9zDkfvbGyC3E6skUMEYCj7oBKZCl
-X-Gm-Gg: ASbGnctJr/QzipOHIRKb4L7gkrHxo0F67OiCVWSAQUQkd4ZGFFAiNqzev8N9XifIZNs
-	vjyii5b2Sr+kHzoiWjpfIVxvf3xYgCnXazIrBBWJCWY2Hr6uoIAZNLs6odb8AkpZlgKzKIZbPTQ
-	HI+prlanx3uFw/tKte2gc=
-X-Google-Smtp-Source: AGHT+IHQHE8GPNjTL9LSpDL4dFNMZlSXlOXoQRUAHUWO4WS3KF90g4BoGyGtjd//ypzt6jFzEE3P/WVmsPwekJFADf0=
-X-Received: by 2002:a05:6808:201f:b0:3f6:729c:810 with SMTP id
- 5614622812f47-400b01bfb42mr3463529b6e.4.1744898807738; Thu, 17 Apr 2025
- 07:06:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="V6qG1ofz"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1744916896;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
+	bh=S9C5sM6anUhm8JiGdOCB0uB2YvzRwsjhkW8Q/FUyZCw=;
+	b=V6qG1ofz/X4WVBgg9/WI1W1FT5lgq1uC/5EnrfqQY+necD/+vB/Juc0WZN4qsVVTp1nndL
+	6+R6hbsIsXx6kyS1Z/p4hHtX7Iccp9W7GmkDhs7x5L2XZLsOQAM1Ws/ad42+ohEmKym20Z
+	qjZeiHnJ+jxq7Ue0NU9AR22wdZcdhvsEsJTDrPZifmnBaDuWUJ5qOIHT418pkiSGDul8hz
+	nXGn0jZpG1T2J2fkgEGP5fI11KnYnTEEsL/0Xu48mEw/7hvnaAXXahuOnu1NuzjQKrz8DO
+	QUCVo3weJu1aiFO45xnbmF3YEIulwTGmEIIL735o46tZxVjwbUe0ta+I3bCz3Q==
+To: selinux@vger.kernel.org
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH] libselinux: prioritize local literal fcontext definitions
+Date: Thu, 17 Apr 2025 21:08:11 +0200
+Message-ID: <20250417190812.41263-1-cgoettsche@seltendoof.de>
+Reply-To: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAP+JOzQtrLx8bS6_jb7pRaFzm=PXr9hm=Quy15qCMTFyHd8j9w@mail.gmail.com>
- <20250417020959.43450-2-tristan.ross@midstall.com>
-In-Reply-To: <20250417020959.43450-2-tristan.ross@midstall.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Thu, 17 Apr 2025 10:06:36 -0400
-X-Gm-Features: ATxdqUFn1w19cTTpZz5-s5dNp3yumkBZtmxJM4y7iGcV4c5JYxdtpAEJn9YSLOc
-Message-ID: <CAP+JOzRJp=tZr-_aa9Gr1+2ZZa+rYiK1G3GzOmz6TpRunettew@mail.gmail.com>
-Subject: Re: [PATCH] libsemanage: add relabel_store config option
-To: Tristan Ross <tristan.ross@midstall.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, Apr 16, 2025 at 10:10=E2=80=AFPM Tristan Ross <tristan.ross@midstal=
-l.com> wrote:
->
-> This flag allows for enabling or disabling automatic restorecon that
-> semodule invokes. By default, we have it enabled to produce the same
-> behavior as before. On NixOS, we need this as we're "baking" the module
-> installation into a squashfs image and we cannot run restorecon inside
-> the builder.
->
-> Signed-off-by: Tristan Ross <tristan.ross@midstall.com>
+From: Christian Göttsche <cgzones@googlemail.com>
 
-Acked-by: James Carter <jwcart2@gmail.com>
+For literal file context definitions respect overrides from homedirs or
+local configurations by ordering them first.
 
-> ---
->  libsemanage/src/conf-parse.y     | 15 ++++++++++++++-
->  libsemanage/src/conf-scan.l      |  1 +
->  libsemanage/src/semanage_conf.h  |  1 +
->  libsemanage/src/semanage_store.c |  7 +++++--
->  4 files changed, 21 insertions(+), 3 deletions(-)
->
-> diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-> index e1fc9f4f..b69ac75b 100644
-> --- a/libsemanage/src/conf-parse.y
-> +++ b/libsemanage/src/conf-parse.y
-> @@ -63,7 +63,7 @@ static int parse_errors;
->
->  %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LI=
-NKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT OPTIMIZE_P=
-OLICY MULTIPLE_DECLS
->  %token LOAD_POLICY_START SETFILES_START SEFCONTEXT_COMPILE_START DISABLE=
-_GENHOMEDIRCON HANDLE_UNKNOWN USEPASSWD IGNOREDIRS
-> -%token BZIP_BLOCKSIZE BZIP_SMALL REMOVE_HLL
-> +%token BZIP_BLOCKSIZE BZIP_SMALL RELABEL_STORE REMOVE_HLL
->  %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_EN=
-D
->  %token PROG_PATH PROG_ARGS
->  %token <s> ARG
-> @@ -97,6 +97,7 @@ single_opt:     module_store
->         |       bzip_blocksize
->         |       bzip_small
->         |       remove_hll
-> +       |       relabel_store
->         |       optimize_policy
->         |       multiple_decls
->          ;
-> @@ -291,6 +292,17 @@ remove_hll:  REMOVE_HLL'=3D' ARG {
->         free($3);
->  }
->
-> +relabel_store:  RELABEL_STORE'=3D' ARG {
-> +       if (strcasecmp($3, "false") =3D=3D 0) {
-> +               current_conf->relabel_store =3D 0;
-> +       } else if (strcasecmp($3, "true") =3D=3D 0) {
-> +               current_conf->relabel_store =3D 1;
-> +       } else {
-> +               yyerror("relabel_store can only be 'true' or 'false'");
-> +       }
-> +       free($3);
-> +}
-> +
->  optimize_policy:  OPTIMIZE_POLICY '=3D' ARG {
->         if (strcasecmp($3, "false") =3D=3D 0) {
->                 current_conf->optimize_policy =3D 0;
-> @@ -400,6 +412,7 @@ static int semanage_conf_init(semanage_conf_t * conf)
->         conf->bzip_small =3D 0;
->         conf->ignore_module_cache =3D 0;
->         conf->remove_hll =3D 0;
-> +       conf->relabel_store =3D 1;
->         conf->optimize_policy =3D 1;
->         conf->multiple_decls =3D 1;
->
-> diff --git a/libsemanage/src/conf-scan.l b/libsemanage/src/conf-scan.l
-> index 64433f7b..c592fb63 100644
-> --- a/libsemanage/src/conf-scan.l
-> +++ b/libsemanage/src/conf-scan.l
-> @@ -54,6 +54,7 @@ handle-unknown    return HANDLE_UNKNOWN;
->  bzip-blocksize return BZIP_BLOCKSIZE;
->  bzip-small     return BZIP_SMALL;
->  remove-hll     return REMOVE_HLL;
-> +relabel_store  return RELABEL_STORE;
->  optimize-policy return OPTIMIZE_POLICY;
->  multiple-decls return MULTIPLE_DECLS;
->  "[load_policy]"   return LOAD_POLICY_START;
-> diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_c=
-onf.h
-> index 5db08f0c..2388faad 100644
-> --- a/libsemanage/src/semanage_conf.h
-> +++ b/libsemanage/src/semanage_conf.h
-> @@ -49,6 +49,7 @@ typedef struct semanage_conf {
->         int ignore_module_cache;
->         int optimize_policy;
->         int multiple_decls;
-> +       int relabel_store;
->         char *ignoredirs;       /* ";" separated of list for genhomedirco=
-n to ignore */
->         struct external_prog *load_policy;
->         struct external_prog *setfiles;
-> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_=
-store.c
-> index 307f27f9..1731c5e8 100644
-> --- a/libsemanage/src/semanage_store.c
-> +++ b/libsemanage/src/semanage_store.c
-> @@ -1823,8 +1823,11 @@ static int semanage_commit_sandbox(semanage_handle=
-_t * sh)
->
->        cleanup:
->         semanage_release_active_lock(sh);
-> -       sehandle =3D selinux_restorecon_default_handle();
-> -       selinux_restorecon_set_sehandle(sehandle);
-> +
-> +       if (sh->conf->relabel_store) {
-> +               sehandle =3D selinux_restorecon_default_handle();
-> +               selinux_restorecon_set_sehandle(sehandle);
-> +       }
->         return retval;
->  }
->
-> --
-> 2.47.2
->
->
+Fixes: 92306daf ("libselinux: rework selabel_file(5) database")
+Reported-by: Paul Holzinger
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2360183
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libselinux/src/label_file.c       |  5 +++--
+ libselinux/src/label_file.h       | 10 +++++++++-
+ libselinux/src/selinux_internal.h |  2 ++
+ 3 files changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 5d73fb84..61a9ddb6 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -480,7 +480,7 @@ static int load_mmap_ctxarray(struct mmap_area *mmap_area, const char *path, str
+ 	return 0;
+ }
+ 
+-static int load_mmap_literal_spec(struct mmap_area *mmap_area, bool validating,
++static int load_mmap_literal_spec(struct mmap_area *mmap_area, bool validating, uint8_t inputno,
+ 				  struct literal_spec *lspec, const struct context_array *ctx_array)
+ {
+ 	uint32_t data_u32, ctx_id;
+@@ -489,6 +489,7 @@ static int load_mmap_literal_spec(struct mmap_area *mmap_area, bool validating,
+ 	int rc;
+ 
+ 	lspec->from_mmap = true;
++	lspec->inputno = inputno;
+ 
+ 
+ 	/*
+@@ -742,7 +743,7 @@ static int load_mmap_spec_node(struct mmap_area *mmap_area, const char *path, bo
+ 		node->literal_specs_alloc = lspec_num;
+ 
+ 		for (uint32_t i = 0; i < lspec_num; i++) {
+-			rc = load_mmap_literal_spec(mmap_area, validating, &node->literal_specs[i], ctx_array);
++			rc = load_mmap_literal_spec(mmap_area, validating, inputno, &node->literal_specs[i], ctx_array);
+ 			if (rc)
+ 				return -1;
+ 		}
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index 67db78e5..b7aed0bc 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -96,6 +96,7 @@ struct literal_spec {
+ 	char *regex_str;			/* original regular expression string for diagnostics */
+ 	char *literal_match;			/* simplified string from regular expression */
+ 	uint16_t prefix_len;			/* length of fixed path prefix, i.e. length of the literal match */
++	uint8_t inputno;			/* Input number of source file */
+ 	uint8_t file_kind;			/* file type */
+ 	bool any_matches;			/* whether any pathname match */
+ 	bool from_mmap;				/* whether this spec is from an mmap of the data */
+@@ -368,7 +369,13 @@ static inline int compare_literal_spec(const void *p1, const void *p2)
+ 		return ret;
+ 
+ 	/* Order wildcard mode (0) last */
+-	return (l1->file_kind < l2->file_kind) - (l1->file_kind > l2->file_kind);
++	ret = spaceship_cmp(l1->file_kind, l2->file_kind);
++	if (ret)
++		return -ret;
++
++	/* Order by input number (higher number means added later, means higher priority) */
++	ret = spaceship_cmp(l1->inputno, l2->inputno);
++	return -ret;
+ }
+ 
+ static inline int compare_spec_node(const void *p1, const void *p2)
+@@ -754,6 +761,7 @@ static int insert_spec(const struct selabel_handle *rec, struct saved_data *data
+ 			.regex_str = regex,
+ 			.prefix_len = prefix_len,
+ 			.literal_match = literal_regex,
++			.inputno = inputno,
+ 			.file_kind = file_kind,
+ 			.any_matches = false,
+ 			.lr.ctx_raw = context,
+diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+index 964b8418..3fe7d4c3 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -150,4 +150,6 @@ static inline void fclose_errno_safe(FILE *stream)
+ # define unlikely(x)			(x)
+ #endif /* __GNUC__ */
+ 
++#define spaceship_cmp(a, b)		(((a) > (b)) - ((a) < (b)))
++
+ #endif /* SELINUX_INTERNAL_H_ */
+-- 
+2.49.0
+
