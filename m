@@ -1,130 +1,128 @@
-Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 965E822331B
-	for <selinux@vger.kernel.org>; Fri, 18 Apr 2025 18:13:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744999988; cv=pass; b=Wr6I010XxYTVUgvL/LXWzsbnQi5wczRsvD/ujTcwDG0WM/Z3D3dx/wEgeXz2WahqoFMwbIOYNX4D8NI2SHbMnkNYeN+xmGiBnkK2P6cmJIPyHGhZs/ApAedHlojx7Qz07WpsN1uzaT6AGQl6+lWxtHiEKX4KsxPQVKpbuUja8ds=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744999988; c=relaxed/simple;
-	bh=qoYLJR3Iwg9PiNoqK09Fxk7sDkVSKhKRmLIT9BWQBR0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kYuE5YdQW6Oaq9kBLyFkj3WUm7MAqFHKPr/Q8jvbz1z7qbhsiYMNiRQ6PF3G6ePFLbxO1RS1gXN6fHCi+jZ/Y40iLHh6xKEYYehTwxWPLBgom2IXxgox5llni/HweduRL6zoY9KLcsUZf/SFvbYRskeKFce6Skj7+jGC74lBB1I=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=midstall.com; spf=pass smtp.mailfrom=midstall.com; dkim=pass (1024-bit key) header.d=midstall.com header.i=tristan.ross@midstall.com header.b=KLo4RmlJ; arc=pass smtp.client-ip=136.143.188.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=midstall.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=midstall.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D722F208A7
+	for <selinux@vger.kernel.org>; Fri, 18 Apr 2025 19:05:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1745003137; cv=none; b=fOOAMGCalJUYSallrFcuYjtJxiR0SJ9gQwfbchLOjyPpxxdSsczsUW+yKQbImuPd/6fdCt3RDWaMjLT/SJoPiU4heSuL2JodxXMAkV9h03ACbkX4i/8Z5VaQNWpMKmazNWbftLVLSqVX042GX677yWEU2lR5P+0PS027baOTET0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1745003137; c=relaxed/simple;
+	bh=SGVaIaioD63LiIubYgHndhQdnCbmBS1yrLmgcdsKziY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=eBQak6e/BprK1PiVx3NQZW/6ltIdNEaup6Corq8p1Su3iLFCJXzkOjTfb4VcObnpOOSX7qRq2DZbjQMUVRX6wa18aAWLH2mTcKO7tF6GybjxTUnjbykeM0g5KQyD+S17EAGffivTYOjd1XADA/0o8W/sEVPvFDMM7yniUyL+v4w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DtyBcsTI; arc=none smtp.client-ip=209.85.222.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=midstall.com header.i=tristan.ross@midstall.com header.b="KLo4RmlJ"
-ARC-Seal: i=1; a=rsa-sha256; t=1744999983; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=K8xVlKx/h6tb84sYotYHrvqzfNiIqV5SplX+LeRdnWocOo7RaJShvgeHsE24xY7VDZAT0q/6Nspo9BcTzxVYnu8hvQHG3RlJN6V0lAehCkh9mlPHWT5n9zMa1Ao3a2+/2AM4Bm9V6N+ZEFq038X3xiQluYbenL3a35IjE6oBRIY=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1744999983; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=3RPwDCJRqjPCkMfABwfetgWryaChCnrlWaPXbD+E0v0=; 
-	b=NIVcCRC1eVXTXuF2/RjaZ4kTwvbVmyQfETVwNwQanRZWOL0iI+P80LL7bgVCqhvNb0AIHCLVcO8usFOhAo1geDIq0QBSwkgDuNGKkwpc5ES1K8NdVhYf5WvizvdLqPgBIj2ipZz+AXd9z797cZ/IWGGaLoex7jjAJe+GP8m3Zgs=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=midstall.com;
-	spf=pass  smtp.mailfrom=tristan.ross@midstall.com;
-	dmarc=pass header.from=<tristan.ross@midstall.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1744999982;
-	s=zmail; d=midstall.com; i=tristan.ross@midstall.com;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=3RPwDCJRqjPCkMfABwfetgWryaChCnrlWaPXbD+E0v0=;
-	b=KLo4RmlJhUjZLR2INwx04jvRKvP4CYVzkXF7Gk9n1tDCeQUD0lKBF2RW/O65sr86
-	OiRIHxIR800m9dkged3kowrXHlHeW0Q+qcvlXpM4oJx12r7ofuTrNlfIWcCdBLpwyVG
-	lFfyvp6cAlZFviSzlXvZXBwknVAYNADRhbr90tHY=
-Received: by mx.zohomail.com with SMTPS id 1744999980869764.6774290015588;
-	Fri, 18 Apr 2025 11:13:00 -0700 (PDT)
-From: Tristan Ross <tristan.ross@midstall.com>
-To: selinux@vger.kernel.org
-Cc: Tristan Ross <tristan.ross@midstall.com>
-Subject: [PATCH 2/2] semodule: add config argument
-Date: Fri, 18 Apr 2025 11:12:56 -0700
-Message-ID: <20250418181256.98701-2-tristan.ross@midstall.com>
-X-Mailer: git-send-email 2.47.2
-In-Reply-To: <20250418181256.98701-1-tristan.ross@midstall.com>
-References: <87bjsvzy6k.fsf@redhat.com>
- <20250418181256.98701-1-tristan.ross@midstall.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DtyBcsTI"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-7c5a88b34a6so205932885a.3
+        for <selinux@vger.kernel.org>; Fri, 18 Apr 2025 12:05:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1745003135; x=1745607935; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=sj43Ih/12D+a+qWanbRJfTqhv9lsAkpvQb/ZAzZC7rU=;
+        b=DtyBcsTI54duASKihIWsAa4afXewfGWqctjHIZ9k3XXCHLauQmK+5mVQEmSd9oAViN
+         MVTuaBMBDv7lYKzux3dQbQzJe/Qlo9OO0OWxP0LVRh0vov1Ck3r6qEnMSF+CXCXxp1vS
+         mZDMg0rQjoHm/rMrbJqaIkC5wHaGAkBI5IoWtNYyrFKeay3DDr8nRjoLSXRnVIkL1erd
+         978Jwb/fJkjtZvZYZxGX5bdZT5ldhZrwJuG9KmwoympeQ19sdqw9BkrwhEqqVcx2xLOV
+         lHDQAAxHrwlehAEqeZX6/IJ7tIkIf+FspIzOFrktiUZCyMKmF/DZkE/OUyIBWaHXzhx4
+         20EQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745003135; x=1745607935;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sj43Ih/12D+a+qWanbRJfTqhv9lsAkpvQb/ZAzZC7rU=;
+        b=enqa3+ykIOnw/AqjKsZ5BM8JKzKGeS9P+OXM/6CNWdOZ7UGyoJYzH/4JTELSagqKt5
+         Bl79tlPG17W4GNYZSKfB7kSrCaFNt45U0hGcSu+KIDGHtbLUOjHc8AinIyFiDLpN6sla
+         bfy8bJ0LIvnoYJTepUwFBJKAWZgPZQJk8vdIxwJCGJUb53GWInjWC6Iavpg7eY/R4i3r
+         9tTWzFsk6tn8OkAqdeBWIHInNDVtSNhXs665k9RpvMw2awl8K9C75pH38NTVA3/2Uu9M
+         ue3Ep4vLF9uMWK8wMLKaDWYVQXZGxHXw8ZIyTPVRIDcsVhZrX2ouQgqKC4LbmhBrejnc
+         GfkA==
+X-Forwarded-Encrypted: i=1; AJvYcCWDh0WKFXWJ9msOPXYHLWn6iec81m3cMu5KonFNt9V/gFs+cBJ7xisfjqPLd8ZdULm9qGCzg7MQ@vger.kernel.org
+X-Gm-Message-State: AOJu0YzLG4woMYYe5E0zyFHec4rJCsdloH+c1rkIrHZefE1rr7KK9xC5
+	ExS8UujeO38FgmXLLEKeIIspz0SiOm0HK9BOhVYj4XVcRFYO1KnYmErr4nONA17fSHLD+UdZaZ2
+	hQ+JXqJafAtcZdufP9tiXjml4fPM=
+X-Gm-Gg: ASbGncvOlDCF77i2BblsoUsmFtUW4MaX0zMCnzyr+nSyBUQdd549NUp1heUW0tE/oxo
+	qZ+F6BZ262WfIqga7OFuGij6m4zUClr6XJwVTpOdrLRX1P2uEfzqmyffsoG1QuTiq0MdyKb0XDH
+	Kt7lWKWlS4U4kHMxOSKNs=
+X-Google-Smtp-Source: AGHT+IGlAt+66rg7ozrj8oZpfsPPDFS8hZ+IjTFcwD23BB+XDhCpuf1uaWjigLEqkadaK3q0eUZhk9r/pnEh0rzsvhY=
+X-Received: by 2002:a05:620a:4711:b0:7c5:7a1f:4d89 with SMTP id
+ af79cd13be357-7c92804d553mr716204885a.54.1745003134647; Fri, 18 Apr 2025
+ 12:05:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+References: <878qnzzxi8.fsf@redhat.com> <CAJ2a_Dd0zcqbGT7K=G=8zNkatKKWsegEkEjvadgJcqudNgdxDg@mail.gmail.com>
+In-Reply-To: <CAJ2a_Dd0zcqbGT7K=G=8zNkatKKWsegEkEjvadgJcqudNgdxDg@mail.gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Fri, 18 Apr 2025 15:05:23 -0400
+X-Gm-Features: ATxdqUHoW0WYaLA2aZm02QmMVywllJxtLwfzjKrtJu6nTQJ4SXrRKzjt7HtUqtw
+Message-ID: <CAP+JOzQt9EEomdaZbZcah0S9bUYrhpbEv0ioXSVUa0bg55382Q@mail.gmail.com>
+Subject: Re: Regression in selabel_lookup after "rework selabel_file database"
+To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc: Petr Lautrbach <lautrbach@redhat.com>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Use "semanage_handle_create_with_path" and implement a new flag for
-handling semanage config files at specific paths.
+On Thu, Apr 17, 2025 at 3:36=E2=80=AFPM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> On Wed, 16 Apr 2025 at 22:01, Petr Lautrbach <lautrbach@redhat.com> wrote=
+:
+> >
+> > Hi,
+> >
+> > we have a report [1] that in specific cases local fcontext modification=
+s
+> > are not considered or correctly resolved in `selabel_lookup`:
+> >
+> >     [root@default-0 selinux]# matchpathcon /usr/bin/cloud-init
+> >     /usr/bin/cloud-init     system_u:object_r:cloud_init_exec_t:s0
+> >     [root@default-0 selinux]# semanage fcontext -a -t bin_t /usr/bin/cl=
+oud-init
+> >     [root@default-0 selinux]# semanage fcontext -l -C
+> >     SELinux fcontext                                   type            =
+   Context
+> >
+> >     /usr/bin/cloud-init                                all files       =
+   system_u:object_r:bin_t:s0
+> >     [root@default-0 selinux]# matchpathcon /usr/bin/cloud-init
+> >     /usr/bin/cloud-init     system_u:object_r:cloud_init_exec_t:s0
+> >
+> >
+> > The bad commit seems to be 92306daf5219e73f6 ("libselinux: rework selab=
+el_file(5) database")
+>
+> Should be resolved by
+> https://lore.kernel.org/selinux/20250417190812.41263-1-cgoettsche@seltend=
+oof.de/T/#u
+>
+> Note that depending on the original file context defintion in order to
+> take priority one might need to specify the file type (i.e. add the
+> semanage arguments `-f f`).
+>
 
-Signed-off-by: Tristan Ross <tristan.ross@midstall.com>
----
- policycoreutils/semodule/semodule.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+No, it should work like it did before.
 
-diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
-index ebe062bf..80fd0451 100644
---- a/policycoreutils/semodule/semodule.c
-+++ b/policycoreutils/semodule/semodule.c
-@@ -145,6 +145,7 @@ static void usage(char *progname)
- 	printf("  -v,--verbose     be verbose\n");
- 	printf("  -P,--preserve_tunables	Preserve tunables in policy\n");
- 	printf("  -C,--ignore-module-cache	Rebuild CIL modules compiled from HLL files\n");
-+	printf("  -o,--config=PATH use an alternate path for the semanage config\n");
- 	printf("  -p,--path        use an alternate path for the policy root\n");
- 	printf("  -S,--store-path  use an alternate path for the policy store root\n");
- 	printf("  -c, --cil extract module as cil. This only affects module extraction.\n");
-@@ -210,6 +211,7 @@ static void parse_command_line(int argc, char **argv)
- 		{"enable", required_argument, NULL, 'e'},
- 		{"disable", required_argument, NULL, 'd'},
- 		{"path", required_argument, NULL, 'p'},
-+		{"config", required_argument, NULL, 'o'},
- 		{"store-path", required_argument, NULL, 'S'},
- 		{"checksum", 0, NULL, 'm'},
- 		{NULL, 0, NULL, 0}
-@@ -223,7 +225,7 @@ static void parse_command_line(int argc, char **argv)
- 	check_ext_changes = 0;
- 	priority = 400;
- 	while ((i =
--		getopt_long(argc, argv, "s:b:hi:l::vr:u:RnNBDCPX:e:d:p:S:E:cHm",
-+		getopt_long(argc, argv, "s:b:hi:l::vr:u:RnNBDCPX:e:d:p:o:S:E:cHm",
- 			    opts, &longind)) != -1) {
- 		switch (i) {
- 		case '\0':
-@@ -304,6 +306,14 @@ static void parse_command_line(int argc, char **argv)
- 		case 'C':
- 			ignore_module_cache = 1;
- 			break;
-+		case 'o':
-+			sh = semanage_handle_create_with_path(optarg);
-+			if (!sh) {
-+				fprintf(stderr, "%s:  Could not create semanage handle\n",
-+					argv[0]);
-+				exit(1);
-+			}
-+			break;
- 		case 'X':
- 			set_mode(PRIORITY_M, optarg);
- 			break;
-@@ -421,11 +431,13 @@ int main(int argc, char *argv[])
- 	if (build || check_ext_changes)
- 		commit = 1;
- 
--	sh = semanage_handle_create();
- 	if (!sh) {
--		fprintf(stderr, "%s:  Could not create semanage handle\n",
--			argv[0]);
--		goto cleanup_nohandle;
-+		sh = semanage_handle_create();
-+		if (!sh) {
-+			fprintf(stderr, "%s:  Could not create semanage handle\n",
-+				argv[0]);
-+			goto cleanup_nohandle;
-+		}
- 	}
- 
- 	if (store) {
--- 
-2.47.2
+After testing, it seems like the bug only occurs when neither the path
+in the policy nor the path in the fcontext has a regex in it. If
+either, or both do, then it works as expected.
 
+Jim
+
+> > Please take a look.
+> >
+> > [1] https://bugzilla.redhat.com/show_bug.cgi?id=3D2360183
+> >
+> > Thanks,
+> >
+> > Petr
+> >
+>
