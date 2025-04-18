@@ -1,128 +1,203 @@
-Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+Received: from mail-vk1-f172.google.com (mail-vk1-f172.google.com [209.85.221.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D722F208A7
-	for <selinux@vger.kernel.org>; Fri, 18 Apr 2025 19:05:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31C4D224AE8
+	for <selinux@vger.kernel.org>; Fri, 18 Apr 2025 19:13:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745003137; cv=none; b=fOOAMGCalJUYSallrFcuYjtJxiR0SJ9gQwfbchLOjyPpxxdSsczsUW+yKQbImuPd/6fdCt3RDWaMjLT/SJoPiU4heSuL2JodxXMAkV9h03ACbkX4i/8Z5VaQNWpMKmazNWbftLVLSqVX042GX677yWEU2lR5P+0PS027baOTET0=
+	t=1745003601; cv=none; b=KMbOPZ62pRildocEfEhuiXn+JQrj5d5ZsH+s9K2NZSZshl+uNaQHv0QhZKDgf23cbt2MVq3L3LEA2BvMXkRkipa5ZX7j/q1GEimV3PuLkTwD5tSlK3pp5ErhpAsFgXlrmmhwuYnIRpZG7LxAyFtikaPS7GEz2e5havdwA7akEgY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745003137; c=relaxed/simple;
-	bh=SGVaIaioD63LiIubYgHndhQdnCbmBS1yrLmgcdsKziY=;
+	s=arc-20240116; t=1745003601; c=relaxed/simple;
+	bh=Me92RTMDGgSkjW4sOsqoqxZK7UO8cOatsfcuQ5RXiwE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=eBQak6e/BprK1PiVx3NQZW/6ltIdNEaup6Corq8p1Su3iLFCJXzkOjTfb4VcObnpOOSX7qRq2DZbjQMUVRX6wa18aAWLH2mTcKO7tF6GybjxTUnjbykeM0g5KQyD+S17EAGffivTYOjd1XADA/0o8W/sEVPvFDMM7yniUyL+v4w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DtyBcsTI; arc=none smtp.client-ip=209.85.222.179
+	 To:Cc:Content-Type; b=qZMfou8QIazlpKsJ90R58bCrB+HQybUEWHOVSTla/eFzfIBiV15ZdhDpmtBANJX/cn3ShqBcMjdd0YOfrrWScm/yfoB4HqkzXFEaMna6IU83tGOeatswAlYEAGCY5LAHvH+Vfw8vBYJV8++11cIn7n48k8ZN+feaPdffCeKVhrY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F5ksXcXc; arc=none smtp.client-ip=209.85.221.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DtyBcsTI"
-Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-7c5a88b34a6so205932885a.3
-        for <selinux@vger.kernel.org>; Fri, 18 Apr 2025 12:05:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F5ksXcXc"
+Received: by mail-vk1-f172.google.com with SMTP id 71dfb90a1353d-523d8c024dfso825199e0c.3
+        for <selinux@vger.kernel.org>; Fri, 18 Apr 2025 12:13:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745003135; x=1745607935; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1745003598; x=1745608398; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=sj43Ih/12D+a+qWanbRJfTqhv9lsAkpvQb/ZAzZC7rU=;
-        b=DtyBcsTI54duASKihIWsAa4afXewfGWqctjHIZ9k3XXCHLauQmK+5mVQEmSd9oAViN
-         MVTuaBMBDv7lYKzux3dQbQzJe/Qlo9OO0OWxP0LVRh0vov1Ck3r6qEnMSF+CXCXxp1vS
-         mZDMg0rQjoHm/rMrbJqaIkC5wHaGAkBI5IoWtNYyrFKeay3DDr8nRjoLSXRnVIkL1erd
-         978Jwb/fJkjtZvZYZxGX5bdZT5ldhZrwJuG9KmwoympeQ19sdqw9BkrwhEqqVcx2xLOV
-         lHDQAAxHrwlehAEqeZX6/IJ7tIkIf+FspIzOFrktiUZCyMKmF/DZkE/OUyIBWaHXzhx4
-         20EQ==
+        bh=/q61/tgvNQZmaIxt5UnXPrOh+eBBtZALhDFYLujVt9I=;
+        b=F5ksXcXcm40im1iJWWnejN37xsIcDGSTgZoR2fctkEzubOrBldVt5xqZaC+j9O7FOl
+         +0T0RdC4D6Z33pUFHYViPDvG/spBVd5vMmp+kOnL4JtSiOmxKJpk0hv4hxdBDOaTAOF3
+         pXLWuHxhHRs72h2hRMxiQ2NGxppYjusthtjDytbJ92sz17lxQc4hmx3o/plD8HtJzS8h
+         5A/YfGz+KGHRkhm0sdOKS9iB8WYPENPwHJCHwKcxJEUJWh/sg/ZHL3BIr3eb6kNYW1fk
+         IKact+brfaRtNORdAG7zaljN8MDTY+lPI7mwuyjQg0xqDfb+yYdS3ZEWTunt//VprS3j
+         TRag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745003135; x=1745607935;
+        d=1e100.net; s=20230601; t=1745003598; x=1745608398;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=sj43Ih/12D+a+qWanbRJfTqhv9lsAkpvQb/ZAzZC7rU=;
-        b=enqa3+ykIOnw/AqjKsZ5BM8JKzKGeS9P+OXM/6CNWdOZ7UGyoJYzH/4JTELSagqKt5
-         Bl79tlPG17W4GNYZSKfB7kSrCaFNt45U0hGcSu+KIDGHtbLUOjHc8AinIyFiDLpN6sla
-         bfy8bJ0LIvnoYJTepUwFBJKAWZgPZQJk8vdIxwJCGJUb53GWInjWC6Iavpg7eY/R4i3r
-         9tTWzFsk6tn8OkAqdeBWIHInNDVtSNhXs665k9RpvMw2awl8K9C75pH38NTVA3/2Uu9M
-         ue3Ep4vLF9uMWK8wMLKaDWYVQXZGxHXw8ZIyTPVRIDcsVhZrX2ouQgqKC4LbmhBrejnc
-         GfkA==
-X-Forwarded-Encrypted: i=1; AJvYcCWDh0WKFXWJ9msOPXYHLWn6iec81m3cMu5KonFNt9V/gFs+cBJ7xisfjqPLd8ZdULm9qGCzg7MQ@vger.kernel.org
-X-Gm-Message-State: AOJu0YzLG4woMYYe5E0zyFHec4rJCsdloH+c1rkIrHZefE1rr7KK9xC5
-	ExS8UujeO38FgmXLLEKeIIspz0SiOm0HK9BOhVYj4XVcRFYO1KnYmErr4nONA17fSHLD+UdZaZ2
-	hQ+JXqJafAtcZdufP9tiXjml4fPM=
-X-Gm-Gg: ASbGncvOlDCF77i2BblsoUsmFtUW4MaX0zMCnzyr+nSyBUQdd549NUp1heUW0tE/oxo
-	qZ+F6BZ262WfIqga7OFuGij6m4zUClr6XJwVTpOdrLRX1P2uEfzqmyffsoG1QuTiq0MdyKb0XDH
-	Kt7lWKWlS4U4kHMxOSKNs=
-X-Google-Smtp-Source: AGHT+IGlAt+66rg7ozrj8oZpfsPPDFS8hZ+IjTFcwD23BB+XDhCpuf1uaWjigLEqkadaK3q0eUZhk9r/pnEh0rzsvhY=
-X-Received: by 2002:a05:620a:4711:b0:7c5:7a1f:4d89 with SMTP id
- af79cd13be357-7c92804d553mr716204885a.54.1745003134647; Fri, 18 Apr 2025
- 12:05:34 -0700 (PDT)
+        bh=/q61/tgvNQZmaIxt5UnXPrOh+eBBtZALhDFYLujVt9I=;
+        b=GfPs/qi7VnBQB+3pjZwLoWhOM1l/m7OIzJ34TdO0TVrGO7DcuTkA5QEZCZaROqf2R8
+         YQehj2ydwPHikH20E65G4ITV7Au6WeuuFg1/dxwXBVdAOCm3Loa4HXNiG2PTKr/85+Nh
+         h/TYSHpEe9J8x9SVevBObj3zU34Ptk6C48Da7NsZKt4DizLhu/MUi/PUXzgHErwRK8d4
+         /WDJzOZjUzqL6eATxj4B+Zf26DK2QVrK4LxAP3biarvc5DJNAv5yRzWrXjUJalpig6ph
+         wcd3Dair+08/zLrC2FAoKUsRPt5XN4mfGj6r7eFsv2iCQXNCIGHA4chnjZrkqG7DsCHA
+         nouA==
+X-Gm-Message-State: AOJu0Yyp/MsjE4MnypjkgNHoAWRV/V8rIAd/X3uqx/BvZkoRdVdhAG98
+	mK6YPTKO5bus0gd8fR/cPRpEU53g8MQv7BVHB7L0EkIi4JyJhfHunfqYkFoN81R+fwCfOYn6jvc
+	R3Y8HiSXUNxQOK6xet+FCdMr5Czs=
+X-Gm-Gg: ASbGncuETawc7lPdoGVLfRmz8K6rvDfUlx9ui93PvtMm/fa3T+nMTpPfFQn+VE0blQO
+	n1I74svNc1PpUU5snUxH7y5xDz5zluLkXWXwncio42YH7TPrv6EIc7SmDpeGst94KULK3HH1Thg
+	7fgySdYEVp6p8IRcSQeys=
+X-Google-Smtp-Source: AGHT+IFFvpYTkyufAsOtUEJva/6tPRrPJTrPXVQPsdNC44puIrMZvVBG6wuh2iu7xZjl/xZKQ0HHLRZ5sae/oznt2Cs=
+X-Received: by 2002:a05:6122:8c29:b0:525:9ddc:381a with SMTP id
+ 71dfb90a1353d-5292549d35dmr3467730e0c.6.1745003597704; Fri, 18 Apr 2025
+ 12:13:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <878qnzzxi8.fsf@redhat.com> <CAJ2a_Dd0zcqbGT7K=G=8zNkatKKWsegEkEjvadgJcqudNgdxDg@mail.gmail.com>
-In-Reply-To: <CAJ2a_Dd0zcqbGT7K=G=8zNkatKKWsegEkEjvadgJcqudNgdxDg@mail.gmail.com>
+References: <20250417190812.41263-1-cgoettsche@seltendoof.de>
+In-Reply-To: <20250417190812.41263-1-cgoettsche@seltendoof.de>
 From: James Carter <jwcart2@gmail.com>
-Date: Fri, 18 Apr 2025 15:05:23 -0400
-X-Gm-Features: ATxdqUHoW0WYaLA2aZm02QmMVywllJxtLwfzjKrtJu6nTQJ4SXrRKzjt7HtUqtw
-Message-ID: <CAP+JOzQt9EEomdaZbZcah0S9bUYrhpbEv0ioXSVUa0bg55382Q@mail.gmail.com>
-Subject: Re: Regression in selabel_lookup after "rework selabel_file database"
+Date: Fri, 18 Apr 2025 15:13:06 -0400
+X-Gm-Features: ATxdqUEsHTw-14v-_RoUQafgf6r4Yp52OmzEkMLeXFKVzazGwHbCsypyryYrk9Y
+Message-ID: <CAP+JOzQT6z8osFtrK9PTfG8dXnuwwo7vNyMxT_83OBUEwERKtg@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: prioritize local literal fcontext definitions
 To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: Petr Lautrbach <lautrbach@redhat.com>, selinux@vger.kernel.org
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Apr 17, 2025 at 3:36=E2=80=AFPM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Thu, Apr 17, 2025 at 3:18=E2=80=AFPM Christian G=C3=B6ttsche
+<cgoettsche@seltendoof.de> wrote:
 >
-> On Wed, 16 Apr 2025 at 22:01, Petr Lautrbach <lautrbach@redhat.com> wrote=
-:
-> >
-> > Hi,
-> >
-> > we have a report [1] that in specific cases local fcontext modification=
-s
-> > are not considered or correctly resolved in `selabel_lookup`:
-> >
-> >     [root@default-0 selinux]# matchpathcon /usr/bin/cloud-init
-> >     /usr/bin/cloud-init     system_u:object_r:cloud_init_exec_t:s0
-> >     [root@default-0 selinux]# semanage fcontext -a -t bin_t /usr/bin/cl=
-oud-init
-> >     [root@default-0 selinux]# semanage fcontext -l -C
-> >     SELinux fcontext                                   type            =
-   Context
-> >
-> >     /usr/bin/cloud-init                                all files       =
-   system_u:object_r:bin_t:s0
-> >     [root@default-0 selinux]# matchpathcon /usr/bin/cloud-init
-> >     /usr/bin/cloud-init     system_u:object_r:cloud_init_exec_t:s0
-> >
-> >
-> > The bad commit seems to be 92306daf5219e73f6 ("libselinux: rework selab=
-el_file(5) database")
+> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Should be resolved by
-> https://lore.kernel.org/selinux/20250417190812.41263-1-cgoettsche@seltend=
-oof.de/T/#u
+> For literal file context definitions respect overrides from homedirs or
+> local configurations by ordering them first.
 >
-> Note that depending on the original file context defintion in order to
-> take priority one might need to specify the file type (i.e. add the
-> semanage arguments `-f f`).
+> Fixes: 92306daf ("libselinux: rework selabel_file(5) database")
+> Reported-by: Paul Holzinger
+> Link: https://bugzilla.redhat.com/show_bug.cgi?id=3D2360183
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  libselinux/src/label_file.c       |  5 +++--
+>  libselinux/src/label_file.h       | 10 +++++++++-
+>  libselinux/src/selinux_internal.h |  2 ++
+>  3 files changed, 14 insertions(+), 3 deletions(-)
 >
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index 5d73fb84..61a9ddb6 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -480,7 +480,7 @@ static int load_mmap_ctxarray(struct mmap_area *mmap_=
+area, const char *path, str
+>         return 0;
+>  }
+>
+> -static int load_mmap_literal_spec(struct mmap_area *mmap_area, bool vali=
+dating,
+> +static int load_mmap_literal_spec(struct mmap_area *mmap_area, bool vali=
+dating, uint8_t inputno,
+>                                   struct literal_spec *lspec, const struc=
+t context_array *ctx_array)
+>  {
+>         uint32_t data_u32, ctx_id;
+> @@ -489,6 +489,7 @@ static int load_mmap_literal_spec(struct mmap_area *m=
+map_area, bool validating,
+>         int rc;
+>
+>         lspec->from_mmap =3D true;
+> +       lspec->inputno =3D inputno;
+>
+>
+>         /*
+> @@ -742,7 +743,7 @@ static int load_mmap_spec_node(struct mmap_area *mmap=
+_area, const char *path, bo
+>                 node->literal_specs_alloc =3D lspec_num;
+>
+>                 for (uint32_t i =3D 0; i < lspec_num; i++) {
+> -                       rc =3D load_mmap_literal_spec(mmap_area, validati=
+ng, &node->literal_specs[i], ctx_array);
+> +                       rc =3D load_mmap_literal_spec(mmap_area, validati=
+ng, inputno, &node->literal_specs[i], ctx_array);
+>                         if (rc)
+>                                 return -1;
+>                 }
+> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+> index 67db78e5..b7aed0bc 100644
+> --- a/libselinux/src/label_file.h
+> +++ b/libselinux/src/label_file.h
+> @@ -96,6 +96,7 @@ struct literal_spec {
+>         char *regex_str;                        /* original regular expre=
+ssion string for diagnostics */
+>         char *literal_match;                    /* simplified string from=
+ regular expression */
+>         uint16_t prefix_len;                    /* length of fixed path p=
+refix, i.e. length of the literal match */
+> +       uint8_t inputno;                        /* Input number of source=
+ file */
+>         uint8_t file_kind;                      /* file type */
+>         bool any_matches;                       /* whether any pathname m=
+atch */
+>         bool from_mmap;                         /* whether this spec is f=
+rom an mmap of the data */
+> @@ -368,7 +369,13 @@ static inline int compare_literal_spec(const void *p=
+1, const void *p2)
+>                 return ret;
+>
+>         /* Order wildcard mode (0) last */
+> -       return (l1->file_kind < l2->file_kind) - (l1->file_kind > l2->fil=
+e_kind);
+> +       ret =3D spaceship_cmp(l1->file_kind, l2->file_kind);
+> +       if (ret)
+> +               return -ret;
+> +
+These four lines should be removed. It makes sense to consider the
+wildcard mode as less specific and give priority to a rule that is not
+using a wildcard, but that is not how it was done in the past and that
+is not (from my testing) what is being done if a regex is involved. So
+for both consistency and in keeping with past practice, we should not
+use the file kind to sort here.
 
-No, it should work like it did before.
+By my testing, everything works as expected with those lines removed.
 
-After testing, it seems like the bug only occurs when neither the path
-in the policy nor the path in the fcontext has a regex in it. If
-either, or both do, then it works as expected.
+The rest of the patch looks good to me.
 
+Thanks,
 Jim
 
-> > Please take a look.
-> >
-> > [1] https://bugzilla.redhat.com/show_bug.cgi?id=3D2360183
-> >
-> > Thanks,
-> >
-> > Petr
-> >
+> +       /* Order by input number (higher number means added later, means =
+higher priority) */
+> +       ret =3D spaceship_cmp(l1->inputno, l2->inputno);
+> +       return -ret;
+>  }
+>
+>  static inline int compare_spec_node(const void *p1, const void *p2)
+> @@ -754,6 +761,7 @@ static int insert_spec(const struct selabel_handle *r=
+ec, struct saved_data *data
+>                         .regex_str =3D regex,
+>                         .prefix_len =3D prefix_len,
+>                         .literal_match =3D literal_regex,
+> +                       .inputno =3D inputno,
+>                         .file_kind =3D file_kind,
+>                         .any_matches =3D false,
+>                         .lr.ctx_raw =3D context,
+> diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_i=
+nternal.h
+> index 964b8418..3fe7d4c3 100644
+> --- a/libselinux/src/selinux_internal.h
+> +++ b/libselinux/src/selinux_internal.h
+> @@ -150,4 +150,6 @@ static inline void fclose_errno_safe(FILE *stream)
+>  # define unlikely(x)                   (x)
+>  #endif /* __GNUC__ */
+>
+> +#define spaceship_cmp(a, b)            (((a) > (b)) - ((a) < (b)))
+> +
+>  #endif /* SELINUX_INTERNAL_H_ */
+> --
+> 2.49.0
+>
 >
