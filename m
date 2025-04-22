@@ -1,105 +1,94 @@
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+Received: from mail-ej1-f51.google.com (mail-ej1-f51.google.com [209.85.218.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92E401EE031
-	for <selinux@vger.kernel.org>; Tue, 22 Apr 2025 07:52:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B34384A35
+	for <selinux@vger.kernel.org>; Tue, 22 Apr 2025 16:31:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745308356; cv=none; b=eyy+uc3El80QVqd2Z/xo/w85AwQsgrSrvuediTAm35VNIhXoGUeb1Em0j4s+i6JyLRvoi0twaAE3idyRxcRvgSFBvZ+VDiFa+1ckxPub9lX0snDs7HSKqEvE3Iw4GLCFjFmpErpP0vtqw3WRPjVF55icc084FAvf3TF5vih7Ptg=
+	t=1745339486; cv=none; b=MbCYIyrwi/Pq/Fiihi2DLwOQTX5J6odKkRZnqoqkT6PViz5GFMqZ+Ic8eD0B5MvVehsrzWg+iYTrtU625azlF7xvh8VLWxyDCgqUGyA4nuJ8tBqJi2Zt8/9AgIpBLzn8n4bELMoiM9W9VgrnYrZqQ5WGPHs4bSzNBJ7ZW8ny/h4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745308356; c=relaxed/simple;
-	bh=mdja1zPwi11rl3j2lP+FosY/etFHJecqSbnzsbEbdzg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QrUK2DLHem4pj7Z2Ai5V7LpxKULjdd/HEop8FTnuDWdmNL7zYpZPXNnuYwlovQe/6T6et3JIYWspEkB8pKpXfPRjo4vb2evssULHhLf1dXu3h/ZZt3j3QQIDIMywcI+RtejzCbT2+Jz9cuBadwGr6ky98yd3JCUnxy/ezDJBw20=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=YrW6QqHY; arc=none smtp.client-ip=209.85.167.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1745339486; c=relaxed/simple;
+	bh=O352kntcGuSDonvgWfa/5L3Uj6mKr16QzAvVMMfZC8c=;
+	h=Mime-Version:Content-Type:Date:Message-Id:To:Cc:Subject:From:
+	 In-Reply-To; b=EdLP9p2hknh1rxaq/KX5KUwg4g105E90sY2rkAW0BiOole+gBPtZ9/T2HmIG+jctKcQH7Qp2qB6F0g0wu+a5UoMybmD7Q628pkGLHvTxpVxALQwc7KNJvk2NYMoOYMSmy4xvWZ4/lCCtp4fKnL66Gxcb1czeaiy7qA4R7UNIBis=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ej6KiYbq; arc=none smtp.client-ip=209.85.218.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="YrW6QqHY"
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-54b10594812so4917795e87.1
-        for <selinux@vger.kernel.org>; Tue, 22 Apr 2025 00:52:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ej6KiYbq"
+Received: by mail-ej1-f51.google.com with SMTP id a640c23a62f3a-ac339f53df9so919993066b.1
+        for <selinux@vger.kernel.org>; Tue, 22 Apr 2025 09:31:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1745308352; x=1745913152; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1745339482; x=1745944282; darn=vger.kernel.org;
+        h=in-reply-to:from:subject:cc:to:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Wr8zkHOcjJp8JH/D5R9zZ1N0PkwxRBvn2f61DwoqQx4=;
-        b=YrW6QqHYMSXMXFG4BFWLnIMOusSnNpuwDIwYfVs7Q1qTT/7KAmFWl9i4XO2EOJjXoQ
-         yBHSxtTxYr1wTtZB5oJBGG7eh38na1b+0fegCbUX/MLNxhTBwZFcHZFzRh+gAShkeyHX
-         cKWwOkktdQh4qMuafKJhk0l2wXP+rv0AY+26A=
+        bh=O352kntcGuSDonvgWfa/5L3Uj6mKr16QzAvVMMfZC8c=;
+        b=Ej6KiYbqgU1rrDixDj8o+sMfn5ZVWXwJPpERCFJRr09LICtMpzyJP5GBIOIE+viQZk
+         /joakxfFt148bNagNg1I3dZ8Eu0vukfYlfbygvOBfEBgvgvmIDcViBPFWREzDJZVBAWZ
+         OsCDo2nvZo1I6N676HDlFWLbjh8a9MoyecBt91kOzgbzvVAxIcXe/QayWL4YVIklLKY4
+         62PJuO4s/mhUpy1A3IfDFi1x4WcZpTfih0xGVftbQsqr9/9d6k6dfHuhsiZcW3rIYmTr
+         H3T6bumOnJ+19AkH4oB6yeLKrlxD8vXwe4tAtuFpWhvHIQgR9CJf3GoJBeZyTDiQWIus
+         pzmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745308352; x=1745913152;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Wr8zkHOcjJp8JH/D5R9zZ1N0PkwxRBvn2f61DwoqQx4=;
-        b=EXVe6zJRU7hynkklMGuQKGv8j+8CpmjPrWjjKVp/WizINS3w9kNbtmdl/bGxbYSqqL
-         diPn7ozH4A9JlNUZ1LvJZopI5KpoGusW3KHda+Q/Gd/q1/f32VS0d54Y6ROjQ9rqsgPz
-         kg/ni7p9K+4nJOVk5neEl9554ZwIvE1IqmpOMyR/jGCbC6xmqxMEnDYrTYL1hEfdW3HP
-         AybhqaEYeB2Do7n6TmtnolLULG08l485O25QIRXeNzXRRlW0fXT+69ypSjlA0QMi1N7r
-         SzWlyGsL+zTQ4RB5bVc3+4+5O7zcNQ4t2mxXsZCdurgIyTgW7VpEhp+mO3jwu01jVYF3
-         lIjA==
-X-Forwarded-Encrypted: i=1; AJvYcCVlqSVUofb4WAR/tGVZLhc4+WgiqrBDlM2aA0nZm2ZvwglyZdgKDFhN8lA4Bn5uf/rlojtKPDDR@vger.kernel.org
-X-Gm-Message-State: AOJu0YzZdgBshGwPRXhG1VdAaaZPxnc5aAHrqQhnS+xeO85tuP4vtIaT
-	xtVMnFoR6+KJSynuRmWZKAXxqC0Xk3N8AjP54edNT08uw6YEhDUeDGfPtyuKmCEvFdW1Z4EgNQ6
-	ck5MjmqpXLFvrM7J3v+lC99PiJentp+0Nc2Ma
-X-Gm-Gg: ASbGncuCSlN0q3Skt3lw2SalGEEK0xY46uRIp5M3SsoIx4C6CCzBxhsacE55BixpaHJ
-	7tXwwl9Kthej56E03M8ZJ3rGowcWLz/DIeVdnNKfkEAAgLdJmh2488YoQ1CRjRyRyypPF+vLhPO
-	TxItLE568K8QfRoxCf/sP2CA==
-X-Google-Smtp-Source: AGHT+IFJ6lcJHhs4les/hHMElmGqx/Gs/phTM805DYAJAK3V4MGWnxBI1/ZYxVFXtSykbjyfqSGPHxrZlSGhtLEvNSA=
-X-Received: by 2002:a05:6512:398a:b0:54d:6989:919d with SMTP id
- 2adb3069b0e04-54d6e66c955mr3838846e87.54.1745308351721; Tue, 22 Apr 2025
- 00:52:31 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1745339482; x=1745944282;
+        h=in-reply-to:from:subject:cc:to:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=O352kntcGuSDonvgWfa/5L3Uj6mKr16QzAvVMMfZC8c=;
+        b=Ipv+EzUOd4V+SQy5S4Cd0pXhKGQYh6bghnrdu+z5zmpTsv3zhNMVylfbIzR/b0DY73
+         +GowBE/rvc5B4ddoyiHfzJYentSqO9MtCv3g/OyYnTo0BVMuswF4lZTPbuUQvEPC8TpL
+         Jme2EHYACeTLcnzZZzezbeQRyb7UBox3dH1iYNNYMXqjoTl5THpDihSFJa1HDsn5rx2g
+         6alXRrtpSL4c7W7EfQ106A2fh+Ein/E35rn5AMZQ9zydGV3B1ZRxx3dCUYfCN2zXfUx+
+         BblwQqxBAHA47HMQGs6EfhMgNeweX85R+6W04BTcysbbQo0LNTl31JkFrz5g3tkZ73dV
+         epVw==
+X-Forwarded-Encrypted: i=1; AJvYcCVMETD1V4/+n52iyJItG4Tx78lhYdN08UnKv0xuWE/Q90rBGY9y0/KPHJ/IexSCXOfsdpov6VZj@vger.kernel.org
+X-Gm-Message-State: AOJu0YyTIahhpCc6sbCQ6kvCm+TdnCB/9DhibIWQEZ5tuWCGZeH5bwSM
+	gV7HAm4kQHmW2qrLYCt8LEpG3at2wFY7WMkBMykv9Modkgcsopub
+X-Gm-Gg: ASbGncseDVP9T3qvLc3p7xyEXbJrXk4RFBV04Fz00+WaeWv3MEyPXZQu5hb345yakPQ
+	HsPKaFB0DML9WBYYnr3asF6zC0nqOKSxXMw8lNqb5t+79IQix2bV3h/r7Xve9PH/I2onRlyQVQ3
+	pzABb1f9cN9I+QsY1jGksNaXkwydIOofF0L+TbbA43DGj3hLmlAFAnlNAi4Mgx/9AHSzsimcqa6
+	JhvyP3tRGFeju6NFjjnXWf0b6BcZKNgiMqhwWJbeASvH+pg0vHB2xtCmtA+/PvVTOBMdPzuUeeu
+	pjbflbJ4xqyfiuenFMp8onH+OqUSnmU=
+X-Google-Smtp-Source: AGHT+IFbx1FlSiM/CMs5OAIyvrgZPHVa1WF1Qvn/bTSOIK8TEuHRnTWGg4Z90SRpy+Lk+zFopGWPnw==
+X-Received: by 2002:a17:907:7f88:b0:acb:5f9a:72f4 with SMTP id a640c23a62f3a-acb74b8368dmr1309033266b.30.1745339482322;
+        Tue, 22 Apr 2025 09:31:22 -0700 (PDT)
+Received: from localhost ([81.79.13.113])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-acb6eefc722sm677587466b.99.2025.04.22.09.31.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 22 Apr 2025 09:31:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250417002005.2306284-1-dualli@chromium.org> <20250417002005.2306284-2-dualli@chromium.org>
- <20250421151807.GQ2789685@horms.kernel.org>
-In-Reply-To: <20250421151807.GQ2789685@horms.kernel.org>
-From: Li Li <dualli@chromium.org>
-Date: Tue, 22 Apr 2025 00:52:20 -0700
-X-Gm-Features: ATxdqUGEbodkKiKzPD66g6rMQ0PQiXs-yAUyfR5qae67BGBgscO6cW8-1gvL2Ck
-Message-ID: <CANBPYPi9+JvWOAPgOZLxq9dM9PX3-7Tz+_GnUR_xOKbtjdu8yQ@mail.gmail.com>
-Subject: Re: [PATCH RESEND v17 1/3] lsm, selinux: Add setup_report permission
- to binder
-To: Simon Horman <horms@kernel.org>
-Cc: dualli@google.com, corbet@lwn.net, davem@davemloft.net, 
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
-	donald.hunter@gmail.com, gregkh@linuxfoundation.org, arve@android.com, 
-	tkjos@android.com, maco@android.com, joel@joelfernandes.org, 
-	brauner@kernel.org, cmllamas@google.com, surenb@google.com, 
-	omosnace@redhat.com, shuah@kernel.org, arnd@arndb.de, masahiroy@kernel.org, 
-	bagasdotme@gmail.com, tweek@google.com, paul@paul-moore.com, 
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, 
-	netdev@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, hridya@google.com, 
-	smoreland@google.com, ynaffit@google.com, kernel-team@android.com
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 22 Apr 2025 17:31:21 +0100
+Message-Id: <D9DB7KSD01JE.1LSPBCYV65C6Y@gmail.com>
+To: <paul@paul-moore.com>
+Cc: <omosnace@redhat.com>, <selinux@vger.kernel.org>,
+ <stephen.smalley.work@gmail.com>
+Subject: Re: ls from coreutils 9.6 doesn't show labels of some files
+From: "Rahul Sandhu" <nvraxn@gmail.com>
+X-Mailer: aerc 0.20.1
+In-Reply-To: <CAHC9VhRj4CWBbSCEiznjNh_WaHr2vEGB-_Xem=VqRyptR=MtGw@mail.gmail.com>
 
-On Mon, Apr 21, 2025 at 8:18=E2=80=AFAM Simon Horman <horms@kernel.org> wro=
-te:
->
-> On Wed, Apr 16, 2025 at 05:20:02PM -0700, Li Li wrote:
-> > From: Thi=C3=A9baud Weksteen <tweek@google.com>
-> >
-> > Introduce a new permission "setup_report" to the "binder" class.
-> > This persmission controls the ability to set up the binder generic
->
-> nit: permission
->
->     Flagged by checkpatch.pl --codespell
->
+Hey,
 
-Would fix this typo along with other changes in the next version.
-Thank you for catching this!
+> I can't think of a good reason why we would ever want the *listxattr()
+> syscalls to not provide security.selinux, if there is an individual
+> filesystem that is different/broken in this regard it should be
+> treated as a BUG and fixed.
 
-> > netlink driver to report certain binder transactions.
-> >
-> > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-> > Signed-off-by: Li Li <dualli@google.com>
->
-> ...
+I've spoken to coreutils upstream[1], and they also seem to see this as
+something which should be fixed in the kernel too[2][3], and appear to
+want a soloution in the kernel rather than working around it in ls(1).
+
+Thanks,
+Rahul
+
+[1] https://lists.gnu.org/archive/html/bug-coreutils/2025-04/msg00011.html
+[2] https://lists.gnu.org/archive/html/bug-coreutils/2025-04/msg00025.html
+[3] https://lists.gnu.org/archive/html/bug-coreutils/2025-04/msg00031.html
