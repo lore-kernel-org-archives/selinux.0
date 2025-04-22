@@ -1,168 +1,322 @@
-Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com [209.85.222.41])
+Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CD8D1E7660
-	for <selinux@vger.kernel.org>; Mon, 21 Apr 2025 19:38:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5895C1EE7A5
+	for <selinux@vger.kernel.org>; Tue, 22 Apr 2025 07:50:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745264340; cv=none; b=mop4ywIon5xkxOc8W/lWdxqRKOCode5dyiOYHHn4L5CGme/cJB9WCfKiA4TYsQx0TjQ471sfSAVIMZivDGiRy74QkZjkrrU9ij03kIu/X6u5o2Z/HUUC9rzzvUCDEHoINPpxUhHhxdxIsKlLjsWCx9MObOSmHyT1dMz2vIRH84Q=
+	t=1745308261; cv=none; b=I177hbWxTT4PiW7XaxDpfu/6v9is0rb4lNcQ5+tIrQq3gYsMx7a0MtoFwbScLUEUC/bosJ21lDeArH/taMB+WuyN2hYqQS33QCWp4bhiqi26ht0DAvBZ70GFXdaqu6VsQ6goo2eja5MYbhEdIBbXS6Xb6CK7Ejvq10PnpQZFG5M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745264340; c=relaxed/simple;
-	bh=hHANdwYAd1WrOUX0UX8ii/gmZG/1ncSQjlMNBRj3qag=;
+	s=arc-20240116; t=1745308261; c=relaxed/simple;
+	bh=K5TlSpgCezwrkhpJYXKHq+tO3s/fMaFlpuKCXnES4pw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=n0Lz3CieDJAsyI3blzK8UOXfyXjf3cecftnqWUs2bS9O2N9YzoGoLRX5hdooFF6vqLfaxvkuq5PCuy7zpdGq4pSU9e+ORBrqaRm2zUnKJnJ5e9ua+A98Gbo0kw0NIwcc+w/AJ1me8iMZKAEaxB7Ph2AnWIJhRkZLjHLPdksyRfs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cj7+p8cN; arc=none smtp.client-ip=209.85.222.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=FHrTmUHHpvNETPhl3dM7HkPNJe3PfbnJVXNf6es6sbhTETsiFxjqFzqcF6NCJoe5oL25afL6IWcwyKtjh9uWDXSiiCYDUXufrSwjZFImFsVWw9vMxISeDzvdtgWCtc6JrPGK5n4HPYCo01UsphA/FF2kIQXndTeiawZ5jt+ML8A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=CDcQcU9f; arc=none smtp.client-ip=209.85.208.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cj7+p8cN"
-Received: by mail-ua1-f41.google.com with SMTP id a1e0cc1a2514c-86dde90e7a3so1455269241.1
-        for <selinux@vger.kernel.org>; Mon, 21 Apr 2025 12:38:57 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="CDcQcU9f"
+Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-31062172698so50422451fa.0
+        for <selinux@vger.kernel.org>; Tue, 22 Apr 2025 00:50:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745264337; x=1745869137; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1745308257; x=1745913057; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=i/wtKPALI59HlhcQ+2GgFXPHlO5BlvL8Ie8t42MqvzU=;
-        b=cj7+p8cNF811mmEQqMJsU/eYuhTu4GIHkj9T4B26/cLYShjDJJxuL33pWMs79wh925
-         EKXWYsdUfGdqrrvVRBb39KNm21akoEoW1SprzrSwvNzAEPekgLjQ/5v6kLpUQCnTHscs
-         L+SRFGMrS9dIvhJVlu27L4eiMKaTqHzRtqUGtkhBTdqc7Rz8xjgDDOMDrjhpJUyhVIlT
-         sEgL4k+2DlyENn+wMsvybpLjmT8eHUY4h9/eQE00mAlt0b1wjL2d7mtqeu3wUO3pDFAo
-         01yQnxir0gqvxzwLRcMZHQfAAVbQlXPqfx5LbTyw9csCMkjC8YX0pokOORK8zJGceBQu
-         co+Q==
+        bh=aVtxQ5LUW5yEW/YQ3syV6ferQWM3qh8TOAVJvyrjx5U=;
+        b=CDcQcU9fqw5CUPbHmPgbNNiWawKd9plqa7buFGHuQ4J4PAw6ElZfNDnvGh33n0xJ6w
+         vkpA1Q/3H05b78eAl3bDqCi7l0SVw08M4Ukbz3qU2BSDNiuIypa3KH7s9J7qBHGycIMu
+         O77yGkNh2gji3JXQ9IuwjRajJsqRSXtW8g108=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745264337; x=1745869137;
+        d=1e100.net; s=20230601; t=1745308257; x=1745913057;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=i/wtKPALI59HlhcQ+2GgFXPHlO5BlvL8Ie8t42MqvzU=;
-        b=n8cUjChooZ14tPbGU8b6Aku8IhpeId5/Al+eRb3GGhg6wV0cQPnl0UbP8OgnjI3mqO
-         QPkOMEunLVr+JfoviLcOGZIyuJxi6Qou2N8U90LttynzwnLX1g3IJr8JRVX1LtACJsmF
-         AFD7AVeR7kZ5dVJYEOQdwTFbmik54jw8+99xK33ujKl3ODBxL/SqwM9GyYoM2ZLu15Uo
-         QB2i04xA9CnAMsgfU35x7APTlLaKbrbdNQqBAsG4W3Rn3uKPiIPTmjtNUeCwXYUh90Ix
-         YPtfzkS9L4ekWxDf8q9Kj77yWxjIzp2RupWfWQ4A+PggNQSrIPYEG8LWcR3nn4KhV2TU
-         0zcA==
-X-Gm-Message-State: AOJu0YwR6uS+f0G2QEfYmUludaZcNTgouPzOh3Uw2aI+TpJZIR1yx8g1
-	KhSCmUwkr10LiJ0PZICjr39tNuo4Wa1eY/9N3CZsLxuBQozzq26YzLqDpBf+SEAZlTxlRwOAyur
-	/EkPmJ5JZO/dKrC78Iywmq2f/syKZqntW
-X-Gm-Gg: ASbGncuMd3R3oXB0fBmWRPcRShnDNrS7XfFqzUbtVK9xxXtBIFu+bl2H3lTLcct0x5A
-	cRUhIpsnDBiwCPs7bHeCjgBWfVXkNgccSAdu3GrXiZ3DM3a6/MIAJpCXKkbO44fQr/umh6nyhB3
-	arqE98qfu3FerQ2/I5Iio=
-X-Google-Smtp-Source: AGHT+IEIxiWCG24KvI0eXZ2ZLSBh3crtHgVRArPOzyhcU7EKbcNH+jUEU7FIjps3HMO9fGBW3H6yyLw8VE9bUzn1K+Q=
-X-Received: by 2002:a05:6102:53c4:b0:4b6:d108:cac1 with SMTP id
- ada2fe7eead31-4cb801222aamr7293692137.9.1745264336887; Mon, 21 Apr 2025
- 12:38:56 -0700 (PDT)
+        bh=aVtxQ5LUW5yEW/YQ3syV6ferQWM3qh8TOAVJvyrjx5U=;
+        b=tukL0xE55d9Cal5Kn/96lEKQGp9CvWw8QQeDt+FzHlTc/g5XmgnmXTQA2tMc/cHiI2
+         DPkwD5rNwKqPOd3cf6gWdx2U8uIj8pPVs1toNLy2Clu4jBGxxOlzcHuLrLGd4vcb97NR
+         n4n7LyZCttHnCbugyC73dxer5td7PUcsjvVisY8jr2GeXZN36jxgByPaxeHldFUwK3KZ
+         e4PwAKuoGTvxM7Uu9Tzh1QUYF9bhSA8AZdrJHNiJ/PxvEn1eKwznTY2n8fZEIWQ+wvbr
+         5DVvSqANV1kYhtw04Hu8I59oxRE3cwim5QcoWS3EQ+VvG2rc5ti8nyOBEP9HE73Ae/m1
+         0VjA==
+X-Forwarded-Encrypted: i=1; AJvYcCWH25k1LoEwkjxf2e0LTIWYVXpwvTY2rtT8BtOm2i66OrQAxcxSna8BL/m8I0v1Q14N3JfdxbVZ@vger.kernel.org
+X-Gm-Message-State: AOJu0YzhX+TIXzC2B+wIX8BAQIJcnGGYIq+zKcvSz2xNeB3xeH7gQzcK
+	OSDIUTEdnrcv9kzWv9gwmhefwyp0Vsug3sSIKBzLDTyaN6DKaCokcAmxCPeZvQ97wapGMwwdP89
+	f4vzZ22+vQjs5Iep0ofAQGOUMO4CdW0DaD4UM
+X-Gm-Gg: ASbGnctk3BtIyCQhfWCoXrm8/K/U//XDdZdha3KfjK6rJY1LvOMGlMmf8oX4iLNGwLU
+	tCp5rXWbwVlUsstrUZUIxarWae9nD8qPHtt2zx75EjyZ9/ATo42sfFQbTcd1cI2bWClLv15D1eq
+	IzL/zP5JV/r/X72ltEs4kHXg==
+X-Google-Smtp-Source: AGHT+IFPA4dv+dbrXeIzAKpqrKSn5BCK2fHkI/VLTpZHnfC+Xq7droe2PGrPiys1O9W8TcXVW9eFgX7YcqOBoAKvJPM=
+X-Received: by 2002:a05:651c:1549:b0:30b:b7c3:ea4d with SMTP id
+ 38308e7fff4ca-310904d5e02mr40566621fa.12.1745308257345; Tue, 22 Apr 2025
+ 00:50:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cpbjftpok3lt54s6t7qmhzwbhl47vsz3efrxs45t5os7ztp3zg@tarta.nabijaczleweli.xyz>
- <jxjamggy4xaie53uyfuvriryqj4mtdc7gqr4gmjveyhwoukrxm@tarta.nabijaczleweli.xyz>
-In-Reply-To: <jxjamggy4xaie53uyfuvriryqj4mtdc7gqr4gmjveyhwoukrxm@tarta.nabijaczleweli.xyz>
-From: James Carter <jwcart2@gmail.com>
-Date: Mon, 21 Apr 2025 15:38:45 -0400
-X-Gm-Features: ATxdqUGm_43v8YDGKhjtKRkwKX7W-MPQ9VFNGjzDX6BIGiR8Zinbfbnflug_HK8
-Message-ID: <CAP+JOzRK1h5haxZCXY5b5X771jyeeM504-m89aPFN2zRCzHkyg@mail.gmail.com>
-Subject: Re: [PATCH v3] Inject matchpathcon_filespec_add64() if
- !defined(__INO_T_MATCHES_INO64_T) instead of using __BITS_PER_LONG < 64 as proxy
-To: =?UTF-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>
-Cc: selinux@vger.kernel.org, Alba Mendez <me@alba.sh>
+References: <20250417002005.2306284-1-dualli@chromium.org> <20250417002005.2306284-3-dualli@chromium.org>
+ <20250421151713.GP2789685@horms.kernel.org>
+In-Reply-To: <20250421151713.GP2789685@horms.kernel.org>
+From: Li Li <dualli@chromium.org>
+Date: Tue, 22 Apr 2025 00:50:46 -0700
+X-Gm-Features: ATxdqUEmRjx_0GfVjTB3Oy_Zp0rhgonSUtQpFQWgKnZpJ6xpRZ9C4PjIWcwSQOE
+Message-ID: <CANBPYPhbzDqijP2verfDTFpSp3aKFY59pJzXk9FnALM=0U_yjw@mail.gmail.com>
+Subject: Re: [PATCH RESEND v17 2/3] binder: report txn errors via generic netlink
+To: Simon Horman <horms@kernel.org>
+Cc: dualli@google.com, corbet@lwn.net, davem@davemloft.net, 
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	donald.hunter@gmail.com, gregkh@linuxfoundation.org, arve@android.com, 
+	tkjos@android.com, maco@android.com, joel@joelfernandes.org, 
+	brauner@kernel.org, cmllamas@google.com, surenb@google.com, 
+	omosnace@redhat.com, shuah@kernel.org, arnd@arndb.de, masahiroy@kernel.org, 
+	bagasdotme@gmail.com, tweek@google.com, paul@paul-moore.com, 
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, 
+	netdev@vger.kernel.org, selinux@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, hridya@google.com, 
+	smoreland@google.com, ynaffit@google.com, kernel-team@android.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 20, 2025 at 11:56=E2=80=AFAM =D0=BD=D0=B0=D0=B1 <nabijaczleweli=
-@nabijaczleweli.xyz> wrote:
+On Mon, Apr 21, 2025 at 8:17=E2=80=AFAM Simon Horman <horms@kernel.org> wro=
+te:
 >
-> The __INO_T_MATCHES_INO64_T is defined
-> if ino_t would be the same size as ino64_t
-> if -D_FILE_OFFSET_BITS=3D64 were not defined.
+> On Wed, Apr 16, 2025 at 05:20:03PM -0700, Li Li wrote:
+> > From: Li Li <dualli@google.com>
+> >
+> > Introduce generic netlink messages into the binder driver so that the
+> > Linux/Android system administration processes can listen to important
+> > events and take corresponding actions, like stopping a broken app from
+> > attacking the OS by sending huge amount of spamming binder transactions=
+.
+> >
+> > The binder netlink sources and headers are automatically generated from
+> > the corresponding binder netlink YAML spec. Don't modify them directly.
+> >
+> > Signed-off-by: Li Li <dualli@google.com>
 >
-> This is /exactly/ what
->   /* ABI backwards-compatible shim for non-LFS 32-bit systems */
->   #if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && __BITS=
-_PER_LONG < 64
-> is trying to get at, but currently fails because x32/RV32 are "LFS"
-> with 32-bit longs and 64-bit time_ts natively.
+> Hi Li Li,
 >
-> Thus, the
->   static_assert(sizeof(unsigned long) =3D=3D sizeof(__ino_t), "inode size=
- mismatch");
-> assertion fails (__ino_t is the "kernel ino_t" type,
-> which generally corresponds to the kernel's ulong, which is u64 on x32).
+> > diff --git a/drivers/android/binder.c b/drivers/android/binder.c
 >
-> glibc headers allow us to check the condition we care about directly.
+> ...
 >
-> Fixes: commit 9395cc0322 ("Always build for LFS mode on 32-bit archs.")
-> Closes: #463
-> Closes: Debian#1098481
-> Signed-off-by: =D0=BD=D0=B0=D0=B1 <nabijaczleweli@nabijaczleweli.xyz>
-> Cc: Alba Mendez <me@alba.sh>
+> >  static void binder_transaction(struct binder_proc *proc,
+> >                              struct binder_thread *thread,
+> >                              struct binder_transaction_data *tr, int re=
+ply,
+> > @@ -3683,10 +3764,14 @@ static void binder_transaction(struct binder_pr=
+oc *proc,
+> >               return_error_line =3D __LINE__;
+> >               goto err_copy_data_failed;
+> >       }
+> > -     if (t->buffer->oneway_spam_suspect)
+> > +     if (t->buffer->oneway_spam_suspect) {
+> >               tcomplete->type =3D BINDER_WORK_TRANSACTION_ONEWAY_SPAM_S=
+USPECT;
+> > -     else
+> > +             if (binder_netlink_enabled(proc, BINDER_FLAG_SPAM))
+> > +                     binder_netlink_report(context, BR_ONEWAY_SPAM_SUS=
+PECT,
+> > +                                           reply, t);
+> > +     } else {
+> >               tcomplete->type =3D BINDER_WORK_TRANSACTION_COMPLETE;
+> > +     }
+> >       t->work.type =3D BINDER_WORK_TRANSACTION;
+> >
+> >       if (reply) {
+> > @@ -3736,8 +3821,12 @@ static void binder_transaction(struct binder_pro=
+c *proc,
+> >                * process and is put in a pending queue, waiting for the=
+ target
+> >                * process to be unfrozen.
+> >                */
+> > -             if (return_error =3D=3D BR_TRANSACTION_PENDING_FROZEN)
+> > +             if (return_error =3D=3D BR_TRANSACTION_PENDING_FROZEN) {
+> >                       tcomplete->type =3D BINDER_WORK_TRANSACTION_PENDI=
+NG;
+> > +                     if (binder_netlink_enabled(proc, BINDER_FLAG_ASYN=
+C_FROZEN))
+> > +                             binder_netlink_report(context, return_err=
+or,
+> > +                                                   reply, t);
+> > +             }
+> >               binder_enqueue_thread_work(thread, tcomplete);
+> >               if (return_error &&
+> >                   return_error !=3D BR_TRANSACTION_PENDING_FROZEN)
+> > @@ -3799,6 +3888,10 @@ static void binder_transaction(struct binder_pro=
+c *proc,
+>
+> The code preceding this hunk looks like this:
+>
+> err_alloc_tcomplete_failed:
+>         if (trace_binder_txn_latency_free_enabled())
+>                 binder_txn_latency_free(t);
+>         kfree(t);
+>         binder_stats_deleted(BINDER_STAT_TRANSACTION);
+> err_alloc_t_failed:
+> err_bad_todo_list:
+> err_bad_call_stack:
+> err_empty_call_stack:
+> err_dead_binder:
+> err_invalid_target_handle:
+>         if (target_node) {
+>                 binder_dec_node(target_node, 1, 0);
+>                 binder_dec_node_tmpref(target_node);
+>         }
+>
+> 1. The labels err_bad_todo_list, err_bad_call_stack,
+>    err_empty_call_stack, and err_invalid_target_handle may
+>    be jumped to before t is initialised.
+>
+> 2. In the err_alloc_tcomplete_failed label t is kfree'd.
+>
+> However, the call to binder_netlink_report below will dereference t.
+>
+> Flagged by Smatch.
+>
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Thank you for flagging this! Let me double check the lifecycle of t.
 
-> ---
-> Changes from v2: fix build with USE_LFS=3Dn on non-LFS ILP32 systems (i38=
-6)
+> >               binder_dec_node_tmpref(target_node);
+> >       }
+> >
+> > +     if (binder_netlink_enabled(proc, BINDER_FLAG_FAILED))
+> > +             binder_netlink_report(context, return_error,
+> > +                                   reply, t);
+> > +
+> >       binder_debug(BINDER_DEBUG_FAILED_TRANSACTION,
+> >                    "%d:%d transaction %s to %d:%d failed %d/%d/%d, code=
+ %u size %lld-%lld line %d\n",
+> >                    proc->pid, thread->pid, reply ? "reply" :
 >
->  libselinux/include/selinux/selinux.h | 2 +-
->  libselinux/src/matchpathcon.c        | 8 ++++++--
->  2 files changed, 7 insertions(+), 3 deletions(-)
+> ...
 >
-> diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/se=
-linux/selinux.h
-> index f3cf5a20..f64896b7 100644
-> --- a/libselinux/include/selinux/selinux.h
-> +++ b/libselinux/include/selinux/selinux.h
-> @@ -537,7 +537,7 @@ extern int matchpathcon_index(const char *path,
->     with the same inode (e.g. due to multiple hard links).  If so, then
->     use the latter of the two specifications based on their order in the
->     file contexts configuration.  Return the used specification index. */
-> -#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && __BITS_=
-PER_LONG < 64
-> +#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && !define=
-d(__INO_T_MATCHES_INO64_T)
->  #define matchpathcon_filespec_add matchpathcon_filespec_add64
->  #endif
->  extern int matchpathcon_filespec_add(ino_t ino, int specind, const char =
-*file);
-> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.=
-c
-> index 51f0e4ff..a4f65045 100644
-> --- a/libselinux/src/matchpathcon.c
-> +++ b/libselinux/src/matchpathcon.c
-> @@ -261,7 +261,7 @@ int matchpathcon_filespec_add(ino_t ino, int specind,=
- const char *file)
->         return -1;
->  }
+> > +/**
+> > + * binder_nl_report_setup_doit() - netlink .doit handler
+> > + * @skb:     the metadata struct passed from netlink driver
+> > + * @info:    the generic netlink struct passed from netlink driver
+> > + *
+> > + * Implements the .doit function to process binder netlink commands.
+> > + */
+> > +int binder_nl_report_setup_doit(struct sk_buff *skb, struct genl_info =
+*info)
+> > +{
+> > +     struct binder_context *context =3D NULL;
+> > +     struct binder_device *device;
+> > +     struct binder_proc *proc;
+> > +     u32 flags, pid;
+> > +     bool found;
+> > +     void *hdr;
+> > +     int ret;
+> > +
+> > +     ret =3D security_binder_setup_report(current_cred());
+> > +     if (ret < 0) {
+> > +             NL_SET_ERR_MSG(info->extack, "Permission denied");
+> > +             return ret;
+> > +     }
+> > +
+> > +     if (nla_len(info->attrs[BINDER_A_CMD_CONTEXT])) {
+> > +             /* Search the specified binder context */
+> > +             hlist_for_each_entry(device, &binder_devices, hlist) {
+> > +                     if (!nla_strcmp(info->attrs[BINDER_A_CMD_CONTEXT]=
+,
+> > +                                     device->context.name)) {
+> > +                             context =3D &device->context;
+> > +                             break;
+> > +                     }
+> > +             }
+> > +
+> > +             if (!context) {
+> > +                     NL_SET_ERR_MSG(info->extack, "Invalid binder cont=
+ext");
+> > +                     return -EINVAL;
+> > +             }
+> > +     }
+> > +
+> > +     pid =3D nla_get_u32(info->attrs[BINDER_A_CMD_PID]);
+> > +     flags =3D nla_get_u32(info->attrs[BINDER_A_CMD_FLAGS]);
+> > +
+> > +     if (!pid) {
+> > +             if (!context) {
+> > +                     NL_SET_ERR_MSG(info->extack,
+> > +                                    "Invalid binder context and pid");
+> > +                     return -EINVAL;
+> > +             }
+> > +
+> > +             /* Set the global flags for the whole binder context */
+> > +             context->report_flags =3D flags;
+> > +     } else {
+> > +             /* Set the per-process flags */
+> > +             found =3D false;
+> > +             mutex_lock(&binder_procs_lock);
+> > +             hlist_for_each_entry(proc, &binder_procs, proc_node) {
+> > +                     if (proc->pid =3D=3D pid
+> > +                         && (proc->context =3D=3D context || !context)=
+) {
+> > +                             proc->report_flags =3D flags;
+> > +                             found =3D true;
+> > +                     }
+> > +             }
+> > +             mutex_unlock(&binder_procs_lock);
+> > +
+> > +             if (!found) {
+> > +                     NL_SET_ERR_MSG_FMT(info->extack,
+> > +                                        "Invalid binder report pid %u"=
+,
+> > +                                        pid);
+> > +                     return -EINVAL;
+> > +             }
+> > +     }
 >
-> -#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && __BITS_=
-PER_LONG < 64
-> +#if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) && !defi=
-ned(__INO_T_MATCHES_INO64_T)
->  /* alias defined in the public header but we undefine it here */
->  #undef matchpathcon_filespec_add
+> Within the above conditions it is assumed that context may be NULL.
 >
-> @@ -280,9 +280,13 @@ int matchpathcon_filespec_add(unsigned long ino, int=
- specind,
->  {
->         return matchpathcon_filespec_add64(ino, specind, file);
->  }
-> +#elif (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) || def=
-ined(__INO_T_MATCHES_INO64_T)
-> +
-> +static_assert(sizeof(uint64_t) =3D=3D sizeof(ino_t), "inode size mismatc=
-h");
-> +
->  #else
+> > +
+> > +     skb =3D genlmsg_new(GENLMSG_DEFAULT_SIZE, GFP_KERNEL);
+> > +     if (!skb) {
+> > +             pr_err("Failed to alloc binder netlink reply message\n");
+> > +             return -ENOMEM;
+> > +     }
+> > +
+> > +     hdr =3D genlmsg_iput(skb, info);
+> > +     if (!hdr)
+> > +             goto free_skb;
+> > +
+> > +     if (nla_put_string(skb, BINDER_A_CMD_CONTEXT, context->name) ||
 >
-> -static_assert(sizeof(unsigned long) =3D=3D sizeof(ino_t), "inode size mi=
-smatch");
-> +static_assert(sizeof(uint32_t) =3D=3D sizeof(ino_t), "inode size mismatc=
-h");
+> But here context is dereferenced unconditionally.
+> This does not seem consistent.
 >
->  #endif
+> Flagged by Smatch.
 >
-> --
-> 2.42.0
+
+Indeed, I should use proc->context->name here.
+
+
+> > +         nla_put_u32(skb, BINDER_A_CMD_PID, pid) ||
+> > +         nla_put_u32(skb, BINDER_A_CMD_FLAGS, flags))
+> > +             goto cancel_skb;
+> > +
+> > +     genlmsg_end(skb, hdr);
+> > +
+> > +     if (genlmsg_reply(skb, info)) {
+> > +             pr_err("Failed to send binder netlink reply message\n");
+> > +             return -EFAULT;
+> > +     }
+> > +
+> > +     return 0;
+> > +
+> > +cancel_skb:
+> > +     pr_err("Failed to add reply attributes to binder netlink message\=
+n");
+> > +     genlmsg_cancel(skb, hdr);
+> > +free_skb:
+> > +     pr_err("Free binder netlink reply message on error\n");
+> > +     nlmsg_free(skb);
+> > +     ret =3D -EMSGSIZE;
+> > +
+> > +     return ret;
+> > +}
+>
+> ...
