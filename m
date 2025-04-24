@@ -1,131 +1,195 @@
-Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com [209.85.219.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 177571E32D5
-	for <selinux@vger.kernel.org>; Wed, 23 Apr 2025 22:37:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56A0F1FECBA
+	for <selinux@vger.kernel.org>; Thu, 24 Apr 2025 08:31:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745447841; cv=none; b=hVfagYFM8a22cgcmnipgHSZ+CdhwKD8eaU5pEnjDuqyQ+ZQRIFB41BdkWLII7Reu9Y0bFgkCez2Q/2GSLN+bDzuf3g+53oUoOIv8R270rf58BAxee/VFeA9VHcx4ylfuL6Q19KIkZfTdqRXLTNI+kmry9qp5urW4+IWqx34gaEA=
+	t=1745483495; cv=none; b=MPQYjYdTIeYrZtU6MMD8XUeGiWnnBJUgjRoHTEKDzHt8lgv1vM+K6NDsfneu32Y+tpz2XR8FmDNG4CoyC+broDp8h+NYHYU/dUqKeiENwOg4GdQ4Ct6e6iX24IToQWnihoJ/WC5jJIh6lEG0lEORJyIGoavTjvjUkyHfEAa/Xz4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745447841; c=relaxed/simple;
-	bh=avtUqeBmY5B3skqwdkmCu6mdcQHoN1VWs8TnxC010nI=;
+	s=arc-20240116; t=1745483495; c=relaxed/simple;
+	bh=4ozhKsoUuuDuD9qn+wh5JI1ABC5Lxm7tGXJ0CaulFFU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aH/3OE4Jki8EOpP9KkfK7b2jmrsoQZHFIBdMlTCi1AyZIsfYlHQ0ufyVzJVVKf4E187UcimH7vLN0IH6J6JfO07cEQU20TAwEC3k0yMn4jmy8pw4g8FneFnev1Ds1w2c31EXP/zTOY/+aFE9NYYKgzBcaakYO7m9FFNWnQhfMQM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=WYCim+GQ; arc=none smtp.client-ip=209.85.219.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=r/mwrl/0yp2s1UTY0Ggm9BJehcyyMjSaNyfNa6vzlq8tyyeqVnypoAGtDPGatwYMsPAxLNlY9AIbwi4IDXcKQxU8XS/5sPhuJnRk9ReghCxUTRbioafaqapfo0/PXD7dxFyJuR1PtTc8nS5qSA7kOVWelLTjfqIOgliW91kQD3U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZNdBcB8N; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="WYCim+GQ"
-Received: by mail-yb1-f172.google.com with SMTP id 3f1490d57ef6-e6df4507690so350232276.0
-        for <selinux@vger.kernel.org>; Wed, 23 Apr 2025 15:37:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1745447839; x=1746052639; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2uQGDRvOs7kS2meHW1UGgn4K/w+HgRMl9V4mIgw6iMA=;
-        b=WYCim+GQ48VqwDYCxIBcd+Zmnu2w+Yn8KE2YgmHpvQJBLY9f3rsBZImk6RPGIDKxs9
-         xhjC5j7kG9FVj8REHQ1oADuD7HFF0jw/QwZ7Ahz8jlhBE8IlUd9xrx7eUYbTqngDfgAI
-         XEP5RWPHid6FU/UoptvIUP+Nac2RUW0VsEdb3O+DigNgYYC3KvZoQ8BPplr/oMoSrI3W
-         kpDdXBx6E+1ZO9Cxnuw+8gLNhfTZTVZl99Keog59ZPrhPYDv1g8lt/EPCqo9LOHf90yF
-         iQCBbzp6lxvKoYy0dkhokYypXosC/FYBRzkmXRWVlB8GX3vRqUE4BTAxQeEd2j/eBlUM
-         TzcQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZNdBcB8N"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1745483492;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Ezulh7H93TruHkxDVgBGBVzQ8blA4YXlyPIcOVG3ii8=;
+	b=ZNdBcB8NxZ3ze3JepT8FmrX8eLoGMdotDqL8Kjh3FkYy1WSkC255fBUNV/W6VhacIp3tUc
+	dpbejgH1o4lM7sVHcpxAFaBHm4ozcXjobzY5LMWdNj2iOJOcVz2vtDCNTzMGqTMo8Uk3wt
+	KMFPmYHtVZ6vy77NwZpYDBtkf3oE1Ao=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-681-6incVQwCPnSeEeSf28J37Q-1; Thu, 24 Apr 2025 04:31:30 -0400
+X-MC-Unique: 6incVQwCPnSeEeSf28J37Q-1
+X-Mimecast-MFC-AGG-ID: 6incVQwCPnSeEeSf28J37Q_1745483490
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-2ff854a2541so781800a91.0
+        for <selinux@vger.kernel.org>; Thu, 24 Apr 2025 01:31:30 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745447839; x=1746052639;
+        d=1e100.net; s=20230601; t=1745483489; x=1746088289;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=2uQGDRvOs7kS2meHW1UGgn4K/w+HgRMl9V4mIgw6iMA=;
-        b=T565rN7fWwEw1nQSu1Q3gNRjpdAd6BZaK05q4+Dq9oK2VXDujt6EJUh82TFs1Qd0xR
-         jEN6pd8TPVpnd2H9y8i9C0BEQrdA4S1P225je3+TGMgPzwxRsLOGmy41wEv7H1jps1Rr
-         1wOKMlq15T/cUXzASkb+7i/A4J8erc21E05r4ZDrxxoYmhO4Pl9dAgXJhWMJ/0ohp389
-         QQh+d1OHBa6zEYI827IEgO0srTm0cvY4j8/q19CgyCNjSIgGA5SPUbjR0tWmjOz3659o
-         zw+oFB/nUdL2aGdoIpffei4tQMh/HB0+CFHO5uBs91o3d9nWLw17QpN4xHT3zUI/j3VW
-         VU/A==
-X-Forwarded-Encrypted: i=1; AJvYcCUNkcv55DQVk1y7tztGVZUtbJ9plRZ36lEntv7aD0TKeeMuHMK/LJF1ZXytyHs/eLfZWVy1uFA4@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx35mlhU/hQ77Y7qcqdpsKjI2wM1ucCnXD8+yWKz1iNhDJpxU3z
-	X8CFwymCCjoynnQMAGMJoSMOGFzUG6C6i8A2a4j5iNu2T7G43HPrhzsJ2cq/SBjJu/8MoB0MRQ6
-	PTThl+KZWLITlqSxYBjNuNRSTD6LUkSpQ/FsONgzle8CQKEc=
-X-Gm-Gg: ASbGncu8E9HeMnGwJWDDbeybwHJqIcIeodLZyxh8W5J30t3GJvOocWp/tG3ensDDPtb
-	2XkjT+ocF+YZn2wCBxi9oMnDDP6YDaJZIuBsAOPTknPSUD/pIhMd8oMF8FDrhJU0uRwKGTbCoaQ
-	zo+Ruom8DB+zYt2Jg+8Th7FQ==
-X-Google-Smtp-Source: AGHT+IEYPphP/GjGtUQdGVsgnpITGNVwg9SNmBgcEQxsTr53pRzJWzJ7q2ivYR6poOsXyj9RWdYjfkIpYuRFjJCdf/0=
-X-Received: by 2002:a05:6902:1a45:b0:e60:9cf6:ad89 with SMTP id
- 3f1490d57ef6-e73052240famr124195276.20.1745447839018; Wed, 23 Apr 2025
- 15:37:19 -0700 (PDT)
+        bh=Ezulh7H93TruHkxDVgBGBVzQ8blA4YXlyPIcOVG3ii8=;
+        b=Zdts1VMvum3AKOwjPrqbhZgCE+mq4+D9nvBRWd5juhgGheywZfZDDOdn88wGWtLmBi
+         PtInz+05xkF6v6zfaCxYQ51QD2MD9DsTmi5cOfzJ8m1t5mRQI7l4oiHkeyJQGBYSsj5f
+         lC9Pn/29mWLUKOaMWV/JSmP7RKml6oEKgk6wYzgfaMZjfmDzyFlmlk6Hu1rB4GjlZK8P
+         f0e7OhDTPvdn4SilIC4OM446JvjDSqWTIKPb+dbNw1QlOJBIvRiqX3o/oUAApo1lhON9
+         qm8F879VNllnHYT6pAlnZpLcnq3sp6a8tvZ7pf37yRHlwymdq7ZsfyCN2lIjKd2JD6Bk
+         y0eQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWf5YQNqCJLzajx6WYzfevHSzJRm9znKDE4cxUlGO1e/CriJI8d+unR1YRFsWMxOu3+brKavziq@vger.kernel.org
+X-Gm-Message-State: AOJu0YzwEXwk5Kp5lYx9XzuEvBLteTRa0QHpuORU+gTNAGPkhOYVcjni
+	FYl+fek1jtfhy7BLHONojZ7Pm3zdMmxtkf2bS3coF9Ow3ayYhqdxAr1IDFIPzmKJaQGgbG+zOo1
+	S0rFVhdowpge4pNgnNgsni5svDptAOQnOv9fBkXxXoYyNJRNa/65OMGJjc+XOuOpAF0NXaPyhAC
+	BA6Zg3eJz6X1ay6LJUcG9I2a+6LMoCBQ==
+X-Gm-Gg: ASbGncvmzAIFCLzVNMfJBLKNnBdFuY+9kUuVpHVX0f9I9WoGfVwVL6RO2aO+dRB4Nl7
+	N+KcQtmks3wzWHzMFgWbUtMG2pe992Tc0/XiOPOeAwgMzRoK6RJvOYc22W/PPW8IEw7U=
+X-Received: by 2002:a17:90a:d64e:b0:2ee:aa28:79aa with SMTP id 98e67ed59e1d1-309ed24bc48mr2686015a91.6.1745483489411;
+        Thu, 24 Apr 2025 01:31:29 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGkCxukb1OePENhPTRG85WH0Mq2GlaOhU1VIEfP4idetHgT/gLlry3+D+w2lfle+VCQ+Upcy8KLJ2sQtOTMRPQ=
+X-Received: by 2002:a17:90a:d64e:b0:2ee:aa28:79aa with SMTP id
+ 98e67ed59e1d1-309ed24bc48mr2685990a91.6.1745483488987; Thu, 24 Apr 2025
+ 01:31:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAFqZXNtqPBMGUL8kvYoW2VzdrmcY1cx1+NL+LmOs0oxjfG5csA@mail.gmail.com>
- <5ea1bdf0-677f-4187-a626-a08ccd2ae7e5@huawei.com> <CAFqZXNtN_yv-KPfyrnaezX6QturnSbKGqgiY7ZBJmCg533u-+A@mail.gmail.com>
-In-Reply-To: <CAFqZXNtN_yv-KPfyrnaezX6QturnSbKGqgiY7ZBJmCg533u-+A@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 23 Apr 2025 18:37:08 -0400
-X-Gm-Features: ATxdqUGKbiLeWnXDTEO_j0C8Cq43E25eLHb3LpReaRyeWUtSGVz5buJp9FHUbSw
-Message-ID: <CAHC9VhTMc0kJo3Fh-CPPMz9WghANRGB6NpZARgvN-srDJeeXFQ@mail.gmail.com>
-Subject: Re: NFS/SELinux regression caused by commit fc2a169c56de ("sunrpc:
- clean cache_detail immediately when flush is written frequently")
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Li Lingfeng <lilingfeng3@huawei.com>, SElinux list <selinux@vger.kernel.org>, 
-	linux-nfs <linux-nfs@vger.kernel.org>, Chuck Lever <chuck.lever@oracle.com>, 
-	yangerkun <yangerkun@huawei.com>
+References: <20250423175728.3185-2-stephen.smalley.work@gmail.com> <CAHC9VhR6gjRpR5-DDiSrnrSOa66Cjr7XyKRJSnsuLcNHi9UD2A@mail.gmail.com>
+In-Reply-To: <CAHC9VhR6gjRpR5-DDiSrnrSOa66Cjr7XyKRJSnsuLcNHi9UD2A@mail.gmail.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Thu, 24 Apr 2025 10:31:18 +0200
+X-Gm-Features: ATxdqUEFY_H0EE7L2Xfm8LEAk1ti0DudEdoOHpTek-KUhVBbJHR3EAh4A4zw6HI
+Message-ID: <CAFqZXNu8H8YQOtJ--V7q5HS=moCGaEfEQXERB13A3vrB5BZPgw@mail.gmail.com>
+Subject: Re: [RFC PATCH] shmem: fix listxattr to include security.* xattrs
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org, 
+	nvraxn@gmail.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 15, 2025 at 5:22=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.co=
-m> wrote:
-> On Tue, Apr 15, 2025 at 10:06=E2=80=AFAM Li Lingfeng <lilingfeng3@huawei.=
-com> wrote:
-> >
-> > Hi,
-> > Thank you for reporting this issue and sharing the detailed reproducer.
-> > Apologies for the gap in my knowledge regarding security_label.
-> > Would need some time to study its implementation in the security subsys=
-tem.
-> >
-> > To begin validating the problem, I attempted to run the reproducer on
-> > Fedora 26(with kernel -- master 8ffd015db85f). However, I didn't observ=
-e
-> > the reported mislabeling of the root directory.
+On Thu, Apr 24, 2025 at 12:32=E2=80=AFAM Paul Moore <paul@paul-moore.com> w=
+rote:
 >
-> Hm... Fedora 26 is *very* outdated and not maintained any more - I'd
-> recommend using 41, which is the current latest stable release. Hard
-> to say if it affects the reproducibility of this bug, but it's always
-> possible that userspace is also somehow involved.
->
+> On Wed, Apr 23, 2025 at 2:00=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
 > >
-> > The modifications introduced by commit fc2a169c56de specifically affect
-> > scenarios where the /proc/net/rpc/xxx/flush interface is frequently
-> > invoked within a 1-second window. During the reproducer execution, I
-> > indeed observed repeated calls to this flush interface, though I'm
-> > currently uncertain about its precise impact on the security_label
-> > mechanism.
-> > [  124.108016][ T2754] call write_flush
-> > [  124.108878][ T2754] call write_flush
-> > [  124.147886][ T2757] call write_flush
-> > [  124.148604][ T2757] call write_flush
-> > [  124.149258][ T2757] call write_flush
-> > [  124.149911][ T2757] call write_flush
+> > The vfs has a fallback to obtain the security.* xattrs from the
+> > LSM when the filesystem does not implement its own listxattr, but
+> > shmem/tmpfs has its own handlers. Consequently, it fails to include
+> > the security.* xattr unless explicitly set by userspace, which confuses
+> > ls from coreutils.
 > >
-> > Once I have a solid understanding of the security_label mechanism, I wi=
-ll
-> > conduct a more thorough analysis.
+> > Before:
+> > $ getfattr -m.* /run/initramfs
+> > <no output>
+> >
+> > After:
+> > $ getfattr -m.* /run/initramfs
+> > security.selinux
+> >
+> > Link: https://lore.kernel.org/selinux/CAFqZXNtF8wDyQajPCdGn=3DiOawX4y77=
+ph0EcfcqcUUj+T87FKyA@mail.gmail.com/
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+> > NB This only handles shmem/tmpfs inodes, not sysfs or others.
 >
-> I'm not sure how the two affect each other either... It almost looks
-> like the last mount command somehow ends up mounting the "old" export
-> without security_label in some cases, even though the exportfs
-> commands that re-export the dir without security_label had completed
-> successfully by that time.
+> I believe applying a similar change to kernfs_iop_listxattr() should
+> solve the problem for sysfs as well as a few others.
 >
-> Thank you for looking into it!
+> We could also look at moving the security_inode_listsecurity() call
+> into simple_xattr_list(), but I'm not sure what other implications
+> that may have.
+>
+> FWIW, if we need to modify security_inode_listsecurity() it shouldn't
+> be that hard, only SELinux and Smack provide callbacks and both are
+> trivial.  In fact, there might be some value in adjusting the LSM hook
+> to better match xattr_list_one() (even if the LSM supplies multiple
+> xattrs), and then leverage xattr_list_one() (multiple times if
+> necessary for a LSM) inside the LSM's callback.  That doesn't solve
+> our problem, but it simplifies the LSM code and moves the buffer
+> manipulation back into the VFS code.
+>
+> > It also doesn't handle the case where some xattrs are set on the inode
+> > but not the security.* xattrs. Not sure if that's possible currently.
+>
+> Good question, I'm not certain either, but my guess is that if the
+> filesystem has implemented its own listxattr code and omitted the
+> security.* xattr listing, it makes use of xattrs for something other
+> than SELinux/LSM.
 
-I just wanted to check and see how things were progressing?  I haven't
-noticed any failures lately on my Fedora Rawhide + patches kernel
-builds, but I wasn't sure if the problem had been fixed or if I've
-just been really lucky :)
+Of course it does. At the very least user.* attrs are supported:
+# touch /tmp/test
+# stat -f -c %T /tmp/test
+tmpfs
+# setfattr -n user.test -v hello /tmp/test
+# getfattr -d /tmp/test
+getfattr: Removing leading '/' from absolute path names
+# file: tmp/test
+user.test=3D"hello"
+
+We need to make sure that the correct size is returned from
+listxattr(..., NULL, 0) regardless of what xattrs are stored in the
+inode.
+
+> > It would be problematic not to mention ugly to check for the presence
+> > of a security.* in the buffer after the simple_xattr_list() call
+> > since the buffer/size can be NULL/0 to just query for the buffer size.
+>
+> Sigh.  Yeah.
+>
+> If we know the filesystem is not persistent and we don't have to worry
+> about other system boots, offline edits, etc. it might almost be
+> easier to have simple_xattr_list() skip security.* xattrs (it already
+> does this for trusted.* xattrs) and rely on
+> security_inode_listsecurity() to supply the security.* xattr names.
+
+We should preserve the ability to see and read/modify these xattrs
+even when the corresponding LSM is disabled, so the skipping should be
+conditional on security_ismaclabel() or similar. But yes, this looks
+like the only viable way to go to me.
+
+> > diff --git a/mm/shmem.c b/mm/shmem.c
+> > index 99327c30507c4..49256ca11400c 100644
+> > --- a/mm/shmem.c
+> > +++ b/mm/shmem.c
+> > @@ -4372,7 +4372,11 @@ static const struct xattr_handler * const shmem_=
+xattr_handlers[] =3D {
+> >  static ssize_t shmem_listxattr(struct dentry *dentry, char *buffer, si=
+ze_t size)
+> >  {
+> >         struct shmem_inode_info *info =3D SHMEM_I(d_inode(dentry));
+> > -       return simple_xattr_list(d_inode(dentry), &info->xattrs, buffer=
+, size);
+> > +       ssize_t sz =3D simple_xattr_list(d_inode(dentry), &info->xattrs=
+, buffer,
+> > +                               size);
+> > +       if (sz =3D=3D 0)
+> > +               sz =3D security_inode_listsecurity(d_inode(dentry), buf=
+fer, size);
+> > +       return sz;
+> >  }
+> >  #endif /* CONFIG_TMPFS_XATTR */
+> >
+> > --
+> > 2.47.1
+>
+> --
+> paul-moore.com
+>
 
 --=20
-paul-moore.com
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
