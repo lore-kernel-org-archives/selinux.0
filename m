@@ -1,65 +1,65 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BAA7221F00
-	for <selinux@vger.kernel.org>; Thu, 24 Apr 2025 22:18:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66FB128935D
+	for <selinux@vger.kernel.org>; Thu, 24 Apr 2025 22:18:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745533117; cv=none; b=BHsgnE1h005BMykWehC3y5vFMBe4VaYQFUMUTt6KLvqNXBRHhfgsgUxDfGXWMga83logQkcpAhATaXAczO1TvzkxD9N2gxWegzLqz7kiKq2VVht4MVdkI/sEvplF0gyTezeR2zyBeJlX6MiyFXbPtvduIFnb5yEKohOgN7SpWK4=
+	t=1745533117; cv=none; b=YV26O+HCZTjAmiEosrMwwIRqm1u5IuWeRYyF5/1UKZdP5403cT7n0hxUvmDoxsm9j2TFySvvhbPXmULTt6ThEXLVROVmnhGbwXB680Y08L8fN4j0unBYl3z8F38X5GHgrkNSXNqX9RcLjg8cIXQIDRjo9hktKoiWkHMbyJeSDK8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1745533117; c=relaxed/simple;
-	bh=OVX18VdLNgmU4K/lJQHocIp3fvdOXLQtT7CpJrwusDk=;
+	bh=h7bS8t6pLBwRLFNubDUutpACHo61OxsUV8u730LTnig=;
 	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=dBP0C4TB7yHa/RJe770RBck45S329fMxmnOyDXjlgoOahUIPYCQCLS+sNTp5QQaKkfahhhMBgJ+TuZP50BAkGDqEDfDC8kfs4VYQp6cZVi5CdtWkRq3wLJwQmjkR6CZACbSJIdST+ml7pOVx0QaAyrTlC+Jya/ZARRzyw/MS3oM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=MVLckdlg; arc=none smtp.client-ip=209.85.160.173
+	 References:In-Reply-To; b=MtZLfMVy7Bg1H1CpGrWl0KEdkl3Sru/TcfRffp+9LE28xy0hQwQxzhyVWpWCDwoSdWl5m9ClUWCi1uXogN5sq/SCZneGvHx/u5FEewetNLXq5D8zt1BZ9gcmGZjgxWowj5/Uj1/SUvYy6vEtv7WIceQbzaQoXiJyTisCasmi+8Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=WuL+ZVmF; arc=none smtp.client-ip=209.85.219.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="MVLckdlg"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-47692b9d059so25046531cf.3
-        for <selinux@vger.kernel.org>; Thu, 24 Apr 2025 15:18:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="WuL+ZVmF"
+Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-6e8efefec89so16049366d6.3
+        for <selinux@vger.kernel.org>; Thu, 24 Apr 2025 15:18:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1745533113; x=1746137913; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1745533114; x=1746137914; darn=vger.kernel.org;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=qoHfSMxzs7rssuXAPH06Bk0hTUV/lLQabDLhD+4R0Lk=;
-        b=MVLckdlg7wZg7mWQj9+p+nw987fC60D411OuPDKDpp7g/QTi35AoD0Au7I+iMm5gpC
-         M/26pKcehJWLCkwIiiSh+HYDuL7gk1YebMYBQRpOmFgrM8GeH7Ln1Lc+56XlJOUx1YW7
-         E9QU5i7NwYKN2oTPIaJ/YkkpmKcoOwJ1buJBkfAqmHBdZEfDMA2veGSO17egf6V1K0kV
-         hjfL6U5NjKIxPw6nKzyhkXPiCz2YfVKzsJXRFDdyNa705xXLKbbov3atmzbFL6rn+T1l
-         xHmo48pSP4RcCMFL/0ZK8S3PkGKqMGWpyovCbztwgKv7zRBmxgGxjIT4ffQViAMY31JQ
-         OdfA==
+        bh=hAjyXB+CyDav4k4P6PubMcZjSZyXZYM+TboJS0Fnb7s=;
+        b=WuL+ZVmFB3eGhyW1vpV1hiagAKqGRt34rxaY37woXQl6y2AJJQ42uty6YuYkOQdhuR
+         TYSvY5oo1bmaP3V4aXdl8wCoZhs08vDnw46tqTm1Znm+Y860XC+UFXmaVZRtjKKk9Dqo
+         8LOpa7w/tVe4teV//GfSpzdriWNK91pKHsDph6e9JgNub3lRWWyrUDDiOZL5NK81NnRr
+         On0wCjVpf1NkFUexqskbDEmEM2Yg7TjfTjvgPQkdWPJE8pF4auz/0ajEPZD8IAWRn6kL
+         UJ6+w0uOVCk7xbyY/tsRv7jbVscQ5xtbpN1RRowvKH13sbFToTzmwWTfd2aVLmzknJrW
+         C/uQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745533113; x=1746137913;
+        d=1e100.net; s=20230601; t=1745533114; x=1746137914;
         h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
          :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=qoHfSMxzs7rssuXAPH06Bk0hTUV/lLQabDLhD+4R0Lk=;
-        b=RYNNYjy+Veju2IaSbqB9UldEnemeGb+WscEK816WMDcDWwrCqu0fibSO0LiICD3/Zb
-         vYnVaDQR65nYhAqZbZnYy5E03XjTq1rveXw96VWWHDe5h7m0IQ73fQUWfg9PA/NRGTTE
-         KfdDHujMRcEr7Iv2h0Nq5fL2lp9IDfH3CuU1ZWepvSJQYyalwaVkoZdDu782SX6BxNm0
-         rbqZ5kuHp5i0StdVxOq8qXJfVqTjnscuq18mNTaZVBjJ+p0eRwT977qiH47SPgbyf35k
-         aQcE0x9aoY4jANvu7XBTyFnCG2RzwHxEI5Hsaa5o3WCq1HAXcdkf+dWQHobu3Wsss4YI
-         NSCA==
-X-Forwarded-Encrypted: i=1; AJvYcCU5fdoNwBPUqQ1RDtRsBl+Y/FPXAPoXvCIQYYYfFR+dBujgEUt+5qx/LA+UqaHWztRTTjR03C+Q@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz6yGI1fsc5eD1PtteN/IfyUbMmB5/2Z73ynv7W7o+UeLhGQnaD
-	P2FgsBm0DdHXmmwxEo0mcOIdwnU1XzrfyhDtiSK8iTNbwPQ3WR/2aRonoxlrkg==
-X-Gm-Gg: ASbGncurhTlPgqAOK+tnKbqxdmCjvFfnkNfU70CotXSe6vhreal+lJM/t0cbY5KVziZ
-	Coy7pON1SuWahQC/oFWt4wAauvohGUJAo/HlWUy0Jqf0k8L1oHtxVVsgsz1/rpkv22FBeH0HldH
-	/rda3tz3/6vdngeNf4aqAlp0zLFPN6TGnRZIdS1J/LIUEKi79DM8HnKgxjx/N/SgYTR7ZFj2dFR
-	I0HofzdnzTbV3I6Et+DctCh5334v8gknqTOpcvcL5y7OrfXBGaxcvuESB4Ldqpb7MKbUaf7PlCm
-	oWX5uFo+fVJPWtmtjVoiEo0eOPG8aEWMus5uF0a0WX+cROnnMcbkPZYSte/SdkV07r7J2TRgZyh
-	RxapRVgwXSQ==
-X-Google-Smtp-Source: AGHT+IFEWJdceLias5GrSe1DAaiC0Ems36cBhBGoLLAUzyCcUBGba2Uy3uq/KTnIAAA2klH+GMKqlw==
-X-Received: by 2002:a05:622a:15c3:b0:47a:e6e1:c04f with SMTP id d75a77b69052e-4801eadd081mr2029341cf.46.1745533113073;
-        Thu, 24 Apr 2025 15:18:33 -0700 (PDT)
+        bh=hAjyXB+CyDav4k4P6PubMcZjSZyXZYM+TboJS0Fnb7s=;
+        b=SgAkt9AlZuxPqs1PxLU0NwMGXOSH+vRRepXA1bNrjT+Lo5vuyjRCniNrYK4a1sKylE
+         H3RXpROLvetEbTB1WpkFw7O2RDtl8CtpKfs+HiK/YDg9rNS/kBR/eyw9dW7X9Uox2i1V
+         ppZLVXpDGpkqYX4ktvFXUTGyzvr0gSgj7IQwALB5mUgsA771m6FZW1uw5xmpW6xsIt5a
+         pywXPmrfnoelC3vRBUD6MaEPdVKllx0DYcZw83S2Ye0oRbdg4MTZbn4U/DuZC0PsBA2G
+         EfJ0wwqh5Ma4N5udOUlBsK6jox7gRSovmkcfKpb9hWEqDVTuPtXI3dSSTOQL467xTo+i
+         qZzQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU+CI57yLM00hXFLLCrSzTIJokKFD38cRZ9Ac5uv0M7fMe0/0CU6twD4xJi3yqT2SOfML08GQJE@vger.kernel.org
+X-Gm-Message-State: AOJu0YylhJhDLoPjOyfn+vTj/0mcj8KHQDyvM/yRB1Jd7pySzDmbkYKI
+	61xxRB4qS6ZJy5LcepahBc2Kvc8GFEYY1EfaPhrfqh/CL+p7NJ7PwzTMVXGwlQ==
+X-Gm-Gg: ASbGncupKE1ySgeQvqA4BRHaVcHW1T9KaPbTBEsAcqq3ukBFIX2xRoT/OrdX67bLy2e
+	uz8nLa9LwQsxt829o0hfnzw8J3a39a7Y27S0Xkj29o2N8m6ypV3/KQ2+FWRaHPV8p/LOz63zWcE
+	PP18MSMv0jNLFebacSBBY+G9PuVk7Jb8YEy68jR2l6J5BKEIn6Qc/QG9oOA2S2ybPmemsxdA7Ty
+	3Uepv0dPOj+d64j2z94D3tzogiX9iKPMOZZcl5Bwgw4lNGCBACgvrmiwxwMfhk2VNFUVVr3Wt9O
+	SJ8LdTmNUy78o2sxVBdLP4lKvEEBGMLNhkdX2j5pZqD1kZuHRBEZXFpQFTXS2nIPD2q7ZjZ0Id+
+	83dEzM4HwMQ==
+X-Google-Smtp-Source: AGHT+IGXqCgssDpLUT5Km+2/uYfoayGN7KEZy1Sw7rm2oXTApNyBMkE2ly+T0vaDsF3ffw6xOmoIag==
+X-Received: by 2002:a05:6214:242d:b0:6d8:ada3:26c9 with SMTP id 6a1803df08f44-6f4cbcb37femr1511986d6.10.1745533114161;
+        Thu, 24 Apr 2025 15:18:34 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id d75a77b69052e-47ea1b9e860sm17171111cf.66.2025.04.24.15.18.32
+        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-6f4c0a7433bsm14465726d6.93.2025.04.24.15.18.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Apr 2025 15:18:32 -0700 (PDT)
-Date: Thu, 24 Apr 2025 18:18:32 -0400
-Message-ID: <4895afcecf518a0744b964cfa4c16e3a@paul-moore.com>
+        Thu, 24 Apr 2025 15:18:33 -0700 (PDT)
+Date: Thu, 24 Apr 2025 18:18:33 -0400
+Message-ID: <0211e4c6561bf2eabbad2bf75a760e03@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -72,182 +72,25 @@ X-Mailer: pstg-pwork:20250424_1707/pstg-lib:20250424_1742/pstg-pwork:20250424_17
 From: Paul Moore <paul@paul-moore.com>
 To: Casey Schaufler <casey@schaufler-ca.com>, casey@schaufler-ca.com, eparis@redhat.com, linux-security-module@vger.kernel.org, audit@vger.kernel.org
 Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v3 3/5] Audit: Add record for multiple task security  contexts
-References: <20250319222744.17576-4-casey@schaufler-ca.com>
-In-Reply-To: <20250319222744.17576-4-casey@schaufler-ca.com>
+Subject: Re: [PATCH v3 4/5] Audit: multiple subject lsm values for netlabel
+References: <20250319222744.17576-5-casey@schaufler-ca.com>
+In-Reply-To: <20250319222744.17576-5-casey@schaufler-ca.com>
 
 On Mar 19, 2025 Casey Schaufler <casey@schaufler-ca.com> wrote:
 > 
-> Replace the single skb pointer in an audit_buffer with a list of
-> skb pointers. Add the audit_stamp information to the audit_buffer as
-> there's no guarantee that there will be an audit_context containing
-> the stamp associated with the event. At audit_log_end() time create
-> auxiliary records (none are currently defined) as have been added to the
-> list. Functions are created to manage the skb list in the audit_buffer.
+> Refactor audit_log_task_context(), creating a new audit_log_subj_ctx().
+> This is used in netlabel auditing to provide multiple subject security
+> contexts as necessary.
 > 
-> Create a new audit record AUDIT_MAC_TASK_CONTEXTS.
-> An example of the MAC_TASK_CONTEXTS (1423) record is:
-> 
->     type=MAC_TASK_CONTEXTS[1423]
->     msg=audit(1600880931.832:113)
->     subj_apparmor=unconfined
->     subj_smack=_
-> 
-> When an audit event includes a AUDIT_MAC_TASK_CONTEXTS record the
-> "subj=" field in other records in the event will be "subj=?".
-> An AUDIT_MAC_TASK_CONTEXTS record is supplied when the system has
-> multiple security modules that may make access decisions based on a
-> subject security context.
-> 
-> Suggested-by: Paul Moore <paul@paul-moore.com>
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 > ---
->  include/linux/audit.h      |   6 ++
->  include/uapi/linux/audit.h |   1 +
->  kernel/audit.c             | 171 ++++++++++++++++++++++++++++++-------
->  security/apparmor/lsm.c    |   3 +
->  security/selinux/hooks.c   |   3 +
->  security/smack/smack_lsm.c |   3 +
->  6 files changed, 158 insertions(+), 29 deletions(-)
-> 
-> diff --git a/include/linux/audit.h b/include/linux/audit.h
-> index 0050ef288ab3..b493ca5976cf 100644
-> --- a/include/linux/audit.h
-> +++ b/include/linux/audit.h
-> @@ -37,6 +37,7 @@ struct audit_watch;
->  struct audit_tree;
->  struct sk_buff;
->  struct kern_ipc_perm;
-> +struct lsm_id;
->  
->  struct audit_krule {
->  	u32			pflags;
-> @@ -210,6 +211,8 @@ extern u32 audit_enabled;
->  
->  extern int audit_signal_info(int sig, struct task_struct *t);
->  
-> +extern void audit_lsm_secctx(const struct lsm_id *lsmid);
-> +
->  #else /* CONFIG_AUDIT */
->  static inline __printf(4, 5)
->  void audit_log(struct audit_context *ctx, gfp_t gfp_mask, int type,
-> @@ -269,6 +272,9 @@ static inline int audit_signal_info(int sig, struct task_struct *t)
->  	return 0;
->  }
->  
-> +static inline void audit_lsm_secctx(const struct lsm_id *lsmid)
-> +{ }
-> +
->  #endif /* CONFIG_AUDIT */
->  
->  #ifdef CONFIG_AUDIT_COMPAT_GENERIC
-> diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
-> index d9a069b4a775..5ebb5d80363d 100644
-> --- a/include/uapi/linux/audit.h
-> +++ b/include/uapi/linux/audit.h
-> @@ -146,6 +146,7 @@
->  #define AUDIT_IPE_ACCESS	1420	/* IPE denial or grant */
->  #define AUDIT_IPE_CONFIG_CHANGE	1421	/* IPE config change */
->  #define AUDIT_IPE_POLICY_LOAD	1422	/* IPE policy load */
-> +#define AUDIT_MAC_TASK_CONTEXTS	1423	/* Multiple LSM task contexts */
->  
->  #define AUDIT_FIRST_KERN_ANOM_MSG   1700
->  #define AUDIT_LAST_KERN_ANOM_MSG    1799
-> diff --git a/kernel/audit.c b/kernel/audit.c
-> index 6bbadb605ca3..7ec3919ae925 100644
-> --- a/kernel/audit.c
-> +++ b/kernel/audit.c
-> @@ -54,6 +54,7 @@
->  #include <net/netlink.h>
->  #include <linux/skbuff.h>
->  #include <linux/security.h>
-> +#include <linux/lsm_hooks.h>
->  #include <linux/freezer.h>
->  #include <linux/pid_namespace.h>
->  #include <net/netns/generic.h>
-> @@ -81,6 +82,11 @@ static u32	audit_failure = AUDIT_FAIL_PRINTK;
->  /* private audit network namespace index */
->  static unsigned int audit_net_id;
->  
-> +/* Number of modules that provide a security context.
-> +   List of lsms that provide a security context */
-> +static u32 audit_secctx_cnt = 0;
-> +static const struct lsm_id *audit_lsms[MAX_LSM_COUNT];
+>  include/linux/audit.h        |  7 +++++++
+>  kernel/audit.c               | 28 +++++++++++++++++++++-------
+>  net/netlabel/netlabel_user.c |  9 +--------
+>  3 files changed, 29 insertions(+), 15 deletions(-)
 
-We've already talked about this in other threads, offline, etc., but
-for the sake of others, this should be adjusted to use the counts
-provided in the LSM initialization code rework.
-
-https://lore.kernel.org/linux-security-module/20250409185019.238841-31-paul@paul-moore.com/
-
-> @@ -2412,26 +2517,14 @@ int audit_signal_info(int sig, struct task_struct *t)
->  }
->  
->  /**
-> - * audit_log_end - end one audit record
-> - * @ab: the audit_buffer
-> - *
-> - * We can not do a netlink send inside an irq context because it blocks (last
-> - * arg, flags, is not set to MSG_DONTWAIT), so the audit buffer is placed on a
-> - * queue and a kthread is scheduled to remove them from the queue outside the
-> - * irq context.  May be called in any context.
-> + * __audit_log_end - enqueue one audit record
-> + * @skb: the buffer to send
->   */
-> -void audit_log_end(struct audit_buffer *ab)
-> +static void __audit_log_end(struct sk_buff *skb)
->  {
-> -	struct sk_buff *skb;
->  	struct nlmsghdr *nlh;
->  
-> -	if (!ab)
-> -		return;
-> -
->  	if (audit_rate_check()) {
-> -		skb = ab->skb;
-> -		ab->skb = NULL;
-> -
->  		/* setup the netlink header, see the comments in
->  		 * kauditd_send_multicast_skb() for length quirks */
->  		nlh = nlmsg_hdr(skb);
-> @@ -2442,6 +2535,26 @@ void audit_log_end(struct audit_buffer *ab)
->  		wake_up_interruptible(&kauditd_wait);
->  	} else
->  		audit_log_lost("rate limit exceeded");
-> +}
-
-Okay, this is twice now in one patchset ... as I mentioned in the v2
-review:
-
- "We should probably move the kauditd thread wake into
-  audit_log_end() so we don't end up poking the scheduler
-  multiple times."
-
-https://lore.kernel.org/audit/69ee16ce82a564e09b2060d46fa2be0d@paul-moore.com/
-
-> +/**
-> + * audit_log_end - end one audit record
-> + * @ab: the audit_buffer
-> + *
-> + * We can not do a netlink send inside an irq context because it blocks (last
-> + * arg, flags, is not set to MSG_DONTWAIT), so the audit buffer is placed on a
-> + * queue and a kthread is scheduled to remove them from the queue outside the
-> + * irq context.  May be called in any context.
-> + */
-> +void audit_log_end(struct audit_buffer *ab)
-> +{
-> +	struct sk_buff *skb;
-> +
-> +	if (!ab)
-> +		return;
-> +
-> +	while ((skb = skb_dequeue(&ab->skb_list)))
-> +		__audit_log_end(skb);
-
-The wakeup should go here.
-
->  	audit_buffer_free(ab);
->  }
+Other than moving to the subject count supplied by the LSM
+initialization patchset previously mentioned, this looks fine to me.
 
 --
 paul-moore.com
