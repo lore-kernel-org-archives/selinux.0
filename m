@@ -1,47 +1,47 @@
-Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
+Received: from sender3-op-o15.zoho.com (sender3-op-o15.zoho.com [136.143.184.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89E9F1A2545
-	for <selinux@vger.kernel.org>; Fri, 25 Apr 2025 18:07:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB52D1A2545
+	for <selinux@vger.kernel.org>; Fri, 25 Apr 2025 18:09:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.184.15
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745604426; cv=pass; b=u8JyTD/QZ5knYWcSxstGnlG/Gppudd12Z6BP1d+nGSQ5FJEW9Ao2veSxdTPTIsw10a2dAuyJtLVFvZ3O2/sxF/bBS+9ZUem2IMWF6EdNU9Qzk1oQeBBuMjNyb/K3hxTtW+HVGLdna6Zi41wunNdTEhCBpMxdZfRSt3a19m11NfA=
+	t=1745604584; cv=pass; b=RdMxhWg7hXn8zZwh1+HtnBX3lQ2aSZHieBmCyM2u/N1NOLCKeMhDCHAu1Rtqo+F+Xfe2i5/S4E0Q+qVVZWG7mGwIoMy7llrg/XbgaY5J/qYcXlKkyvK03lkOjSKa46hmD/k55EA/QNjeVlAZRoruiJQ2ml/y3pjvfHaCoUmYmFM=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745604426; c=relaxed/simple;
+	s=arc-20240116; t=1745604584; c=relaxed/simple;
 	bh=EkDBxr4fvxZ1f9gplJjkK1Sf4PXC1m5jvz19H2j9ZHA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=K/v05eilFdg/DQJ9ihonFN+220HHBJT1XPdzKShdyv3quLNWy/mg+WxrgmLAotBXiXaFk2BclW59CyMYTUh8iME3t/YeN6WO0CdMkBpdLpFzLZoSigKmV9gIXpaLmuQLzy1WC0KdZ3t7v1C1rm7Czy0jOm+cBz/W7zeVSYhCx0Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=midstall.com; spf=pass smtp.mailfrom=midstall.com; dkim=pass (1024-bit key) header.d=midstall.com header.i=tristan.ross@midstall.com header.b=Z5W7yUQN; arc=pass smtp.client-ip=136.143.188.15
+	 MIME-Version; b=MeHu9cwaNRGZqcUCVGBoqQyhYixvo1f6kASlfJnSUlh9oMXTOsnkJU3FU2CRNCR/446HroXnAmz3K2dIQfnFwE8Yix9WMYzmE7gwE2Yl3WwZx7Kwe5Lr5zqxXPwn36BPAiipfXRuG42CEl3r9sHn3tuWvM1fwsT27rmu4SeL5lY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=midstall.com; spf=pass smtp.mailfrom=midstall.com; dkim=pass (1024-bit key) header.d=midstall.com header.i=tristan.ross@midstall.com header.b=XTrb6zL+; arc=pass smtp.client-ip=136.143.184.15
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=midstall.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=midstall.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=midstall.com header.i=tristan.ross@midstall.com header.b="Z5W7yUQN"
-ARC-Seal: i=1; a=rsa-sha256; t=1745604421; cv=none; 
+	dkim=pass (1024-bit key) header.d=midstall.com header.i=tristan.ross@midstall.com header.b="XTrb6zL+"
+ARC-Seal: i=1; a=rsa-sha256; t=1745604579; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=hmhy0NHhA6hcCJTULttPhOrSVaa/L6AoI0p9YB1KIwVFa97NfPduydmtJRxHzNlckO4WxXfz8SrdqnrBoWWfUQjX3osl2gjF5QkUMe5zCQZJnfp2+IYOOHUSkAxSJkY7c6gooitbHIFXfyoUhxt4ODYKg6bpCd/NArwscorVi4w=
+	b=HByPavzare0tnSHxibpJ0HHgjtUpWExY3xjJ8lsoHuV+qbuo4DaZdgU6zvtsVa+nky1rBikEDmhxxhTdjgImnYVd7zsKCDszbR5wONGA0VBIVb6cQu1tOZ2z4wB3bdQBjLbPj1GUhnLj1SUCLDvGK8e5Lx9DAZLps0X3FRhHlak=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1745604421; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	t=1745604579; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
 	bh=DbcM0g2kWR1zPdQ1Rcatpgp9NhNK9AYoFX8TkX5STEY=; 
-	b=UQ1QNC5GftxoD79SVhAv/Q1e+jhdW42nU2qWkrhjzHsKcULw6lsMJPAeacFcbiaUguFAxs+SobYnvEgrFrzDciKw08JL8xsW22ZaZwwurkk5XPOxTXwksai6HU1sVVI1XAq5aiIC1AS5KzN8d83FMeIfpSz0DlpRV0qz2t0qjbI=
+	b=mT2uCHtqx6cWZFuoT8SW4tq7yJwmyMUftA/jrko+S5mUgicFgJ3Ey9EXuh5XULQxu/GmyFlM2NCeYH0cwM+oblgJ0mOc9ojxcq94JiHmRilSukNmhSiAxxFD5woKhi16nRVl62gclYoS9qscYs5nNhtCuWReN7pg6EoR+d8I4g8=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=midstall.com;
 	spf=pass  smtp.mailfrom=tristan.ross@midstall.com;
 	dmarc=pass header.from=<tristan.ross@midstall.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1745604421;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1745604579;
 	s=zmail; d=midstall.com; i=tristan.ross@midstall.com;
 	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
 	bh=DbcM0g2kWR1zPdQ1Rcatpgp9NhNK9AYoFX8TkX5STEY=;
-	b=Z5W7yUQNLN3QNscWgh4GQZWuoTIkLH3QACocwutpJGXVYS6HbX5Z8WRWwhieBjtV
-	NcM7f3JVlYuWlLtTAXfTzoJIvDe/y8xgiYXyu1jB39kiVUU0BHLFLzfSjs+LqP68cQK
-	jalNo9m6e9jrqpbWfQpDiZlQfItYllEHVP0v8ySs=
-Received: by mx.zohomail.com with SMTPS id 1745604418301632.033777291164;
-	Fri, 25 Apr 2025 11:06:58 -0700 (PDT)
+	b=XTrb6zL+XaxEeDArVBA5KklxQDylBnSgjUzRP4S3nFjCztMPgvn38KG3zyJzzkt6
+	TsQYkToIAboTlHmL9nVJB8Y2vgD5hhXrFnL25tmUFNWaYRjZ8NuNtGhxHTFBLsq+Yvn
+	oVVXRk5AzceewxQaWSy5DhvbI0aM4dx8j791zT8w=
+Received: by mx.zohomail.com with SMTPS id 1745604576562730.9874477783948;
+	Fri, 25 Apr 2025 11:09:36 -0700 (PDT)
 From: Tristan Ross <tristan.ross@midstall.com>
 To: selinux@vger.kernel.org
 Cc: Tristan Ross <tristan.ross@midstall.com>
 Subject: [PATCH 1/2] libsemanage: add semanage_handle_create_with_path
-Date: Fri, 25 Apr 2025 11:06:44 -0700
-Message-ID: <20250425180646.240485-1-tristan.ross@midstall.com>
+Date: Fri, 25 Apr 2025 11:09:24 -0700
+Message-ID: <20250425180925.241079-1-tristan.ross@midstall.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <CAP+JOzSG74saeVmTz5kdX_Lj3B+5BO-5MbKtxU7VLBOhp-h8Vw@mail.gmail.com>
 References: <CAP+JOzSG74saeVmTz5kdX_Lj3B+5BO-5MbKtxU7VLBOhp-h8Vw@mail.gmail.com>
