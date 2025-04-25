@@ -1,108 +1,155 @@
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28451288C93
-	for <selinux@vger.kernel.org>; Thu, 24 Apr 2025 22:18:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CB94235C1E;
+	Fri, 25 Apr 2025 09:20:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745533119; cv=none; b=HPSpYVuN3KRxREI/THKtw4Iam8o612slmJYehUxriZZa8mOl9GTm4qGoObJya7TO2HLfh9bkzsTyMMMHkL/9YwDmoNM6Fbzqf23gh3t7gpAyxjhlZWRR40ujys0eEcq9NteRSm4RiV1+FbyydUOxyU7/ayuSmmIXoU7vExF2sI8=
+	t=1745572825; cv=none; b=lEGZirk6ULS3ahbrevliQ3fllVQ+fYwhwtcmqBr3HHsg0CHORtLF9CXuzj14tAZIQjlOUqX6Ia3s37KgLy/TeXCxhY/GtvBmM1PRDqwoe2Ev2VcMxaqFDf6jCRLk5W3RGc/vsAJM1Y6vnihN7yX8lp4Y3iTbWavXkinbWc37s5c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745533119; c=relaxed/simple;
-	bh=X4h7FN0K3AFnFkrK7uikaQMdM0fvE4Ke805Jw4zseXE=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=YxsMKDphze856/Mm/ihp/XM3DSGrqZ4H0DKELcu+cJSKC0hMfo+UU4p4Zp7vzfXtBx1UUYD5+EE0GGrre4y+v+3YpdgZIM+WWBOr/WyJ9oPWFs/wRHDCaGc+amri+5CiU0p7OrXrKo/mRm/xlNY+/u/xyQVng1JrdXrWM1b39NE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Hja4uQdI; arc=none smtp.client-ip=209.85.219.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1745572825; c=relaxed/simple;
+	bh=H670AXytogW3BrNyI3zj2dCfgNBrgFaCF3Zvvd9T9Rg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ML44JXnk9xI+rR0J+jLPtyK1NR+aErYLvYiDFh0QevYd6qHiVUPEqfZ3NWOgAxHmwg7ihJqxV2zv0xEK1z1AM9y53b11EyL+quJzUHLNjUPt6vMlhN5oXOYTHFQAmjMVlz6zd+wBi9e/udZVe27ORNeVHDyys7pU1o5KFoBjxV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gs9eIrkz; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Hja4uQdI"
-Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-6e8f43c1fa0so20890416d6.3
-        for <selinux@vger.kernel.org>; Thu, 24 Apr 2025 15:18:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1745533115; x=1746137915; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=k0NabyRe0e3LwNpls9HOHadDr3ssMH+3gnQlYlzw91o=;
-        b=Hja4uQdITa+eenQfjoIj1V61UqOroOW29mbhUUy3OBZMMna4CmLimvZ2NhvVs+Ahs2
-         fE5x9kGpaNfHR2vgPJa5iM6UV5a/6HQX6hX98J4OqRSFGXII31L1gtMvVU/hMRSIvNAq
-         f+18NsnPBUfpO0Nn1Of3m6laMZzb3k03ufDZAjTHULm66aG7UTRFPp6N2BDrxEh5H9VN
-         u7W0taaQLswlPgTjaR5UTR+mkJqY3r5xp9WfECpMHtqvIjEc28E3HaYeXvVOtQNTwDtp
-         ifq4JOxKJmvTmALR2UauDs7AGcF6unUcaYk/v41bXYdjJ+ubNbrFu8lcSe0ynD18cmne
-         wFSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745533115; x=1746137915;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=k0NabyRe0e3LwNpls9HOHadDr3ssMH+3gnQlYlzw91o=;
-        b=ky5QgImpWuKtyT4rCGMrApO7cQ+6ZRM76OlIOeEA1W9MFsX7NTktJXizb6lr3i4e9+
-         m3rW4OH7L7WyU1adxpQWeKoXrBGYOSIcyCsjgMUSIS0FtMCV4A4vKzlWhg3DnNnSeyTp
-         BIWiLumGnSdxcRXQ4UFS013clObkAxo2Gdlpy9IvBaUnDfPPcrLgPf5FaIJzeEPM+C3V
-         eyNyqDN00+0s21CQh0ooPW/q7p5gGaXZIfEP1oVVxNaHeT6IecCT3SaeeSkaY5NNlcSJ
-         xupml9ujDi/3SYlYdZaxFBLXxosBZMugH11n/qolPTq0pZ7SsMar0vVeU62ZgZhFL/sO
-         0Tkw==
-X-Forwarded-Encrypted: i=1; AJvYcCVY5LX2hl8LplN0GSAI6MGA1Wz1875S2/tuPs6fnUSGPkEbXiS8lW4lDNlAaPnX0z5JVgWp75fE@vger.kernel.org
-X-Gm-Message-State: AOJu0YweqK9vQDm3OM7jWGmnjp7TUk2OqIFZ/5V048ACpxuCGCEIfMIk
-	jqF0IMhXkvm7gxSsUMqJJMP7E7nNzIyPqa6VYndUHneb5IeOUu+fubwBjIhcYg==
-X-Gm-Gg: ASbGncu6R/G/CUeZSovzJfN7WUZtN3X8BB0bTFRGsxEOocUvyLfCjTFWYjKv161/PJF
-	IkX2uh0LF/wseNMZJ0bxmHWFsLGtSE5Nby3QXAqCTsB+3EA+MC9/tFcpdy0ARoaJOSDEkulW02W
-	4WEUNPOsmWNDRtnnNRm/Fs7AYXkLjDnUTmAA4fUyMmMX9meHPlb8VFt4w1SP1uattxdSxIGJsuS
-	iPjaPWwbWPyfphh+xUjp+5TJzK1Nal7dKrSjcbNoXQnpXOBVgY0xmCiCVjMEtWJgATasSIwkrf3
-	qvaeYObNS/VHIa5oByOt5NL/j5vZibQdGM1KbG5Q8tNLecy5sKIIhAaYdVRWWr5KdDX0EjoCte3
-	drpZyfEXnTMZJCKIqTu7m
-X-Google-Smtp-Source: AGHT+IFXv+GKneGs4dyxpna32Ck391ho+kWorlrs9AQeZAzriLk2fUEknpnAV+uKlCt4qAUgszKdaA==
-X-Received: by 2002:a05:6214:490:b0:6e8:98a1:3694 with SMTP id 6a1803df08f44-6f4cb9b43cfmr3210286d6.8.1745533115060;
-        Thu, 24 Apr 2025 15:18:35 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-6f4c0969657sm14659426d6.65.2025.04.24.15.18.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Apr 2025 15:18:34 -0700 (PDT)
-Date: Thu, 24 Apr 2025 18:18:34 -0400
-Message-ID: <5e95e5d8b2b262548220382f14fcb3e4@paul-moore.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gs9eIrkz"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BD95C4CEEB;
+	Fri, 25 Apr 2025 09:20:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1745572824;
+	bh=H670AXytogW3BrNyI3zj2dCfgNBrgFaCF3Zvvd9T9Rg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=gs9eIrkz4k1iKTdXlkm8+x4io+XHkGrz39eiAB8zgKKW1IcN+/sEpBguKrN+pvYQS
+	 d6peSzBGxQP6nHQtrpzgzRIyIRbWPcGymtfMTHUyqob2mvPLTtHh9QUoemrHUYjUpD
+	 iD2B/AH4cSEcfcPCNvWOiHf+7FrTKNfArQI1QzfNk0v/aIW7st+PFsBFaKYwoT8fpv
+	 0uNOxuvMv632mVT77r25PlYvFsbkq2Vq0UzTRjn6MdlRfRhAv04PglUZoiWocs7IHF
+	 qLLMdgcmqFo+9jmIDHFHwPbY8/+Qx0fs384QESF6HANCf8XRLeCkWtqBjQj1RfThHF
+	 uAt0+XCj873oQ==
+Date: Fri, 25 Apr 2025 11:20:19 +0200
+From: Christian Brauner <brauner@kernel.org>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: paul@paul-moore.com, omosnace@redhat.com, selinux@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fs/xattr.c: fix simple_xattr_list to always include
+ security.* xattrs
+Message-ID: <20250425-einspannen-wertarbeit-3f0c939525dc@brauner>
+References: <20250424152822.2719-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20250424_1707/pstg-lib:20250424_1742/pstg-pwork:20250424_1707
-From: Paul Moore <paul@paul-moore.com>
-To: Casey Schaufler <casey@schaufler-ca.com>, casey@schaufler-ca.com, eparis@redhat.com, linux-security-module@vger.kernel.org, audit@vger.kernel.org
-Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v3 5/5] Audit: Add record for multiple object contexts
-References: <20250319222744.17576-6-casey@schaufler-ca.com>
-In-Reply-To: <20250319222744.17576-6-casey@schaufler-ca.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20250424152822.2719-1-stephen.smalley.work@gmail.com>
 
-On Mar 19, 2025 Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Thu, Apr 24, 2025 at 11:28:20AM -0400, Stephen Smalley wrote:
+> The vfs has long had a fallback to obtain the security.* xattrs from the
+> LSM when the filesystem does not implement its own listxattr, but
+> shmem/tmpfs and kernfs later gained their own xattr handlers to support
+> other xattrs. Unfortunately, as a side effect, tmpfs and kernfs-based
+
+This change is from 2011. So no living soul has ever cared at all for
+at least 14 years. Surprising that this is an issue now.
+
+> filesystems like sysfs no longer return the synthetic security.* xattr
+> names via listxattr unless they are explicitly set by userspace or
+> initially set upon inode creation after policy load. coreutils has
+> recently switched from unconditionally invoking getxattr for security.*
+> for ls -Z via libselinux to only doing so if listxattr returns the xattr
+> name, breaking ls -Z of such inodes.
+
+So no xattrs have been set on a given inode and we lie to userspace by
+listing them anyway. Well ok then.
+
+> Before:
+> $ getfattr -m.* /run/initramfs
+> <no output>
+> $ getfattr -m.* /sys/kernel/fscaps
+> <no output>
+> $ setfattr -n user.foo /run/initramfs
+> $ getfattr -m.* /run/initramfs
+> user.foo
 > 
-> Create a new audit record AUDIT_MAC_OBJ_CONTEXTS.
-> An example of the MAC_OBJ_CONTEXTS (1424) record is:
+> After:
+> $ getfattr -m.* /run/initramfs
+> security.selinux
+> $ getfattr -m.* /sys/kernel/fscaps
+> security.selinux
+> $ setfattr -n user.foo /run/initramfs
+> $ getfattr -m.* /run/initramfs
+> security.selinux
+> user.foo
 > 
->     type=MAC_OBJ_CONTEXTS[1424]
->     msg=audit(1601152467.009:1050):
->     obj_selinux=unconfined_u:object_r:user_home_t:s0
-> 
-> When an audit event includes a AUDIT_MAC_OBJ_CONTEXTS record
-> the "obj=" field in other records in the event will be "obj=?".
-> An AUDIT_MAC_OBJ_CONTEXTS record is supplied when the system has
-> multiple security modules that may make access decisions based
-> on an object security context.
-> 
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> Link: https://lore.kernel.org/selinux/CAFqZXNtF8wDyQajPCdGn=iOawX4y77ph0EcfcqcUUj+T87FKyA@mail.gmail.com/
+> Link: https://lore.kernel.org/selinux/20250423175728.3185-2-stephen.smalley.work@gmail.com/
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 > ---
->  include/linux/audit.h      |  6 +++++
->  include/uapi/linux/audit.h |  1 +
->  kernel/audit.c             | 51 +++++++++++++++++++++++++++++++++++++-
->  kernel/auditsc.c           | 45 ++++++++-------------------------
->  4 files changed, 68 insertions(+), 35 deletions(-)
+>  fs/xattr.c | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
+> 
+> diff --git a/fs/xattr.c b/fs/xattr.c
+> index 02bee149ad96..2fc314b27120 100644
+> --- a/fs/xattr.c
+> +++ b/fs/xattr.c
+> @@ -1428,6 +1428,15 @@ static bool xattr_is_trusted(const char *name)
+>  	return !strncmp(name, XATTR_TRUSTED_PREFIX, XATTR_TRUSTED_PREFIX_LEN);
+>  }
+>  
+> +static bool xattr_is_maclabel(const char *name)
+> +{
+> +	const char *suffix = name + XATTR_SECURITY_PREFIX_LEN;
+> +
+> +	return !strncmp(name, XATTR_SECURITY_PREFIX,
+> +			XATTR_SECURITY_PREFIX_LEN) &&
+> +		security_ismaclabel(suffix);
+> +}
+> +
+>  /**
+>   * simple_xattr_list - list all xattr objects
+>   * @inode: inode from which to get the xattrs
+> @@ -1460,6 +1469,17 @@ ssize_t simple_xattr_list(struct inode *inode, struct simple_xattrs *xattrs,
+>  	if (err)
+>  		return err;
+>  
+> +	err = security_inode_listsecurity(inode, buffer, remaining_size);
 
-Similar to patch 4/5, this looks fine modulo the obj count changes.
+Is that supposed to work with multiple LSMs?
+Afaict, bpf is always active and has a hook for this.
+So the LSMs trample over each other filling the buffer?
 
-Related, you changed to a single subj/obj count in v3, is it no longer
-important to distinguish between the two?
+> +	if (err < 0)
+> +		return err;
+> +
+> +	if (buffer) {
+> +		if (remaining_size < err)
+> +			return -ERANGE;
+> +		buffer += err;
+> +	}
+> +	remaining_size -= err;
 
---
-paul-moore.com
+Really unpleasant code duplication in here. We have xattr_list_one() for
+that. security_inode_listxattr() should probably receive a pointer to
+&remaining_size?
+
+> +
+>  	read_lock(&xattrs->lock);
+>  	for (rbp = rb_first(&xattrs->rb_root); rbp; rbp = rb_next(rbp)) {
+>  		xattr = rb_entry(rbp, struct simple_xattr, rb_node);
+> @@ -1468,6 +1488,10 @@ ssize_t simple_xattr_list(struct inode *inode, struct simple_xattrs *xattrs,
+>  		if (!trusted && xattr_is_trusted(xattr->name))
+>  			continue;
+>  
+> +		/* skip MAC labels; these are provided by LSM above */
+> +		if (xattr_is_maclabel(xattr->name))
+> +			continue;
+> +
+>  		err = xattr_list_one(&buffer, &remaining_size, xattr->name);
+>  		if (err)
+>  			break;
+> -- 
+> 2.49.0
+> 
