@@ -1,166 +1,121 @@
-Received: from mail-ua1-f50.google.com (mail-ua1-f50.google.com [209.85.222.50])
+Received: from mail-ua1-f52.google.com (mail-ua1-f52.google.com [209.85.222.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D32491922D3
-	for <selinux@vger.kernel.org>; Fri, 25 Apr 2025 17:25:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34FB91F8AC5
+	for <selinux@vger.kernel.org>; Fri, 25 Apr 2025 17:26:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745601955; cv=none; b=PSLQq5kgxKSCZUY/5dpLqwGEgQKCSNBONXps6Aef2b6E+gcJBE8M0UVso4C2+wbd+RuK2prWpqHVcH6xOdT7Wo9msQnX7/H3SNDka8suavkAXPeDsp9ZfskLtRxJjHxNMZtLNXiIFB3qwJ+oD726RPNH1dIWkGdJGGf99nK5TmE=
+	t=1745602002; cv=none; b=RTvOUwss+ibOB5FznsKY3Yc2prN6YQemL3UKsWra/XUwizpwgjEFoS9/gWdU+0OxF8f/bzKiSDVo2TXVOab/nX7wT4jDqiM7M/1f0jxuI9Ltdt6Xi54OKecjlNg62dWOQ/wM9pR3WKOaSj8PaiRiLatc7qsOQ6prbqhQ0OCSD7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745601955; c=relaxed/simple;
-	bh=gGhzBroK6s2vkKkmlSNiMAmHp8FAIAUr35F0w4M+oL0=;
+	s=arc-20240116; t=1745602002; c=relaxed/simple;
+	bh=+fBuGQky9lIeVO3DqUSTHKQe1t26CJYoA4F2eh1PErs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mJghCP2ofF2olcj+UiKoynGYeZ+/fwBVaZuepX3IfcOvcbCm/qpVCP4+8MeJLWGMcQHV7859ks8f3X8ic0QFJmqpNy5D97SdTe82GWyIoSPhMmv1WYp16/pvxl3q1mVVdLfCdMTylYD63/nD0hcVEgmKXPxnGgEAhkkJfimMkTI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jlVgaCtb; arc=none smtp.client-ip=209.85.222.50
+	 To:Cc:Content-Type; b=bArZdq5GBvVd0F9XBn7OBPlrTb0U5T2riHoYOkAvAQv5nOtdvFCmwEsQsV54JaHC3Y88GysOU1XImTagLQdTghV3rAQ5ESQ+tZVcSPX4M5ct7EIiMX/DTmzc/g6Q5J+s8XE1Bvt8SOFKAqUgoqOh1/7KtowqTqpKS0AR6oZH/jU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=b1EwCzJK; arc=none smtp.client-ip=209.85.222.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jlVgaCtb"
-Received: by mail-ua1-f50.google.com with SMTP id a1e0cc1a2514c-877c497dc23so55618241.2
-        for <selinux@vger.kernel.org>; Fri, 25 Apr 2025 10:25:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b1EwCzJK"
+Received: by mail-ua1-f52.google.com with SMTP id a1e0cc1a2514c-86dddba7e0eso1055390241.1
+        for <selinux@vger.kernel.org>; Fri, 25 Apr 2025 10:26:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1745601953; x=1746206753; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1745602000; x=1746206800; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=7fNRJto5FwOTT5usSK5436hUhDLMkI6qyW7axOlHDoY=;
-        b=jlVgaCtbwCDHVCE24Zc+vPgkPIuSBnyhrnaU4rT3ZuzQ6MmDKzeGtwYJYOmMfI1UDi
-         OkJFmG1wdgbzI4EvgaHJQAY/pQogZnwSVkJRaXS8dsFt2YNLPqzg19fL8nY5SPahT/mh
-         8Snr031T0Xouk0ORa/rkpiqe3e+4prafWEbFJWlUQKRCjZNhkRJ7stajvnq71PhqYgyY
-         ouYMZ7R+CW/3aeUY+nqceU8QsDHvOewlB4kNpUO81JJCPMvLkqWbfIwAooThBJRnh4Cm
-         xlT+fVgLED2oMUOqgPoIC/OFWm5/DpZm/6+Ad+xVtYNfm72b/A1DCgFg2wuNNxiW66fG
-         1efA==
+        bh=t0Rw5frwkX//kv+jm005rqz15sGE+DFnK2/9QTDlTAI=;
+        b=b1EwCzJKDC2maYnByXEDwvGO0YEHIbuHG27RRdJYJYA1ESP4a3o8aGjNwIQcB6PhTQ
+         Bws3KMT8qn1uXlQn1sLOOZEpJbq/O7DbLiE5ook2VZiMVfW/5nEsaGt4hjDRmmqW2Gc0
+         hXkk8FARU3MPJOrOqkQwU2I87YaAgXJY0EMhN19pbhxnqIHvreHEmDNUVR533F9eA8nG
+         5rBsHkFuF+YLZ3QZYgjGLYH6Ldt5vTs41XdAKP7ytFE97sVmjcJlnw3ywPYQtAkznk2R
+         RUQBhOGhVXnF1E0D2WXOR5fX93O/LfI2XLxHzZvZNQHmmjegO6SI0NUk4G+bgP5vVZwn
+         TpJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1745601953; x=1746206753;
+        d=1e100.net; s=20230601; t=1745602000; x=1746206800;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=7fNRJto5FwOTT5usSK5436hUhDLMkI6qyW7axOlHDoY=;
-        b=TE5TGeb6NAJJpNh/07hr3FwI5F5ru4KDSAMsqS9k20AW1ahDDpNeIwgo2RCvdGIzs+
-         G30aTwrq9gNcAFLCydhha+aa2KQYRBCbMbc9Ww/O2ZYZ/xHtWK0rgzAclsSXGGMjtdtD
-         JZ0PH3yq8UwhdBNd5u1ez1JshWy7tyQjAnIucERntkPSk2ZP3ChjYOhon/xokuEKDzvK
-         DyKQnRwMPumgv5o9k2DWLutEHYEvj+TMsbDLYBIZtzahz2da4LDK9eAEGme04Xn87Y9x
-         p6dz679ly82/AUooBtMd2qQAolKot29EQEYaPfBrtZL/8Uz8PRZEQX+oc6K/l/bGQKAk
-         at8Q==
-X-Gm-Message-State: AOJu0Yza9WsUYJ1h4lGuKtQeXUNbQ3ggHaBt6ysig51Nn9JHzv5gqc9B
-	qhYqeqbSx31qkee1pm74Yegflkt2k58NKFqxhkhKEjqajvk0i72kH18y09OfCMywokKJVGbAIuw
-	vxRIp3HmEC/q80PhAYlM74fYPJuTdHQ==
-X-Gm-Gg: ASbGncus/2P4EWqjo+K4CAIRt/JOEzvboTHoJu1Eadp+/fw20l3seUeXYulMHuAnfLA
-	jETQv2nINfiQiI33oroLmLZWRB/vl4txe2ZfU6Bm3VnimJ4BPyD5VPGB2R69GdatYiPdD30ywC1
-	a2xMlYZ35w6IpVYYYvgqLWlxw9kycj0w==
-X-Google-Smtp-Source: AGHT+IGmxq0gHjsUWCGtQrFZnFXfm75WpiOdYG1CYamecfxopLeUJiNLPJzZdwTko1Jskc3GY/gLr5T5oktr+Ab0Edg=
-X-Received: by 2002:a05:6102:4688:b0:4c6:d008:7349 with SMTP id
- ada2fe7eead31-4d54574b608mr1779821137.21.1745601952546; Fri, 25 Apr 2025
- 10:25:52 -0700 (PDT)
+        bh=t0Rw5frwkX//kv+jm005rqz15sGE+DFnK2/9QTDlTAI=;
+        b=qpUFGY7QTm7fAZoYMku7qwuWWbF8XLvxacztgotm8ayupdATrS4fkoZp2kfdA1CUR4
+         /N8Qzx65EvL+m2SZ8NXiHhwU9VHqeTBtvKndxfX+zJZcv8+wdoi4qjdHCAzZnvgfSd0x
+         xWbxULKBrsWQM0k1ECofdzQsxWTLmYB1ozWR77Ww079Ul0OYAgw/HC/nxKRadPhr9/Yy
+         lkQLgxA0eKZLU+UGKzfNwJb2XmLkdtBNX3NxoYjeEpyM8bVOrX6nJ5e/MTBG1nV56172
+         9ks76WAvblfYRTolP+EWPpvbfEsKw8tX4Ww6X7ewJlNvM/N682cOFz8jnSMd7lAJq6d+
+         UmXQ==
+X-Gm-Message-State: AOJu0YyEj3hiOMyrz2i6vnJ6/DqnBxu4cO6vllneUILtcXmIqTUiUajr
+	K9nDH5sjy5GwK/XVBWGfvavS8FXpc+4a3ivErr1UkOQfE/pe9zneep8gA3mbNx/pYNMPGossm1O
+	XPtWcSStVROJZebEHQNWzB081DHlgRw==
+X-Gm-Gg: ASbGnctagBscmh6Un4CRzsmKKp4sMCpQ8BwG+lyqXWU8NbU6dy1D3HGrfsi3LuvgXly
+	EbpZYaxbNuQ0ZSnoegf9s41ZRqPSc6NTHTW+nqf7gLoM2lEVddB56VklWE9WnOKA12dK3ofpArY
+	SdTTkBnK5H9XSNujJZtEE=
+X-Google-Smtp-Source: AGHT+IFkyFQT8MPfxCYpxZ1MIwchcuKerXL56BOI6+pSL0EO3ykLfSn5yJeWBnRyQUVFCvr0+l7DnALwJaYg8arTnVc=
+X-Received: by 2002:a05:6102:80a1:b0:4bd:22d5:fbd7 with SMTP id
+ ada2fe7eead31-4d543eb9348mr2436404137.11.1745601999922; Fri, 25 Apr 2025
+ 10:26:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250411010549.1688614-1-inseob@google.com> <CAP+JOzQ2aPJjodpMTHdtoY0N-fUCyAV8Rt5NA8tu1mNLadJUCQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzQ2aPJjodpMTHdtoY0N-fUCyAV8Rt5NA8tu1mNLadJUCQ@mail.gmail.com>
+References: <20250407023757.2183935-1-inseob@google.com> <CAP+JOzS4fo+GNVz7qE=6wbCkLANrkpn9-Vj=wU0s9kSdOZJc1A@mail.gmail.com>
+In-Reply-To: <CAP+JOzS4fo+GNVz7qE=6wbCkLANrkpn9-Vj=wU0s9kSdOZJc1A@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Fri, 25 Apr 2025 13:25:41 -0400
-X-Gm-Features: ATxdqUHPRh2W3RBDFqgcRG_wJ6sgLOaT2ke4rkk8Qw0FReVwq8XO6sQMRns0ymA
-Message-ID: <CAP+JOzRrk_YRBodoUwPL_CuuMgSMfMKefjmoZzvt8+Ge4a7khQ@mail.gmail.com>
-Subject: Re: [PATCH v3 1/4] libsepol: Allow booleanif to have info nodes
+Date: Fri, 25 Apr 2025 13:26:29 -0400
+X-Gm-Features: ATxdqUFt29QmGQUkOOX_ysObNiQlJ3xZOvrVIqMXjV9C8Lq3sXpP4BRwZdLdXHY
+Message-ID: <CAP+JOzTFipTE_C7wLbrZHmv7-bNcQ6z41i9Ez7JKTdJ4P1dK0A@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Fix markers for info nodes w/o children
 To: Inseob Kim <inseob@google.com>
 Cc: selinux@vger.kernel.org, tweek@google.com, jeffv@google.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 11, 2025 at 1:15=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
+On Thu, Apr 10, 2025 at 2:29=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
 ote:
 >
-> On Thu, Apr 10, 2025 at 9:06=E2=80=AFPM Inseob Kim <inseob@google.com> wr=
+> On Sun, Apr 6, 2025 at 10:38=E2=80=AFPM Inseob Kim <inseob@google.com> wr=
 ote:
 > >
-> > Allowing more info nodes helps debuggability, especially neverallow
-> > failure reports.
+> > cil_write_src_info_node has been called with
+> > __write_cil_ast_node_helper, but that may break the result CIL file in
+> > case there are no children for the info node, because the "lme" marker
+> > is printed with __write_cil_ast_last_child_helper.
+> >
+> > This change manually prints the "lme" marker in
+> > __write_cil_ast_node_helper in case there are no children, so opening
+> > markers and closing markers always match regardless of children.
 > >
 > > Signed-off-by: Inseob Kim <inseob@google.com>
 >
-> For these four patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-These four patches have been merged.
+Merged.
 Thanks,
 Jim
 
 > > ---
-> >  libsepol/cil/src/cil_binary.c      | 1 +
-> >  libsepol/cil/src/cil_build_ast.c   | 1 +
-> >  libsepol/cil/src/cil_resolve_ast.c | 1 +
-> >  libsepol/cil/src/cil_verify.c      | 3 +++
-> >  4 files changed, 6 insertions(+)
+> >  libsepol/cil/src/cil_write_ast.c | 4 ++++
+> >  1 file changed, 4 insertions(+)
 > >
-> > diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binar=
-y.c
-> > index e84188a0..b0befda3 100644
-> > --- a/libsepol/cil/src/cil_binary.c
-> > +++ b/libsepol/cil/src/cil_binary.c
-> > @@ -2153,6 +2153,7 @@ static int __cil_cond_to_policydb_helper(struct c=
-il_tree_node *node, __attribute
+> > diff --git a/libsepol/cil/src/cil_write_ast.c b/libsepol/cil/src/cil_wr=
+ite_ast.c
+> > index 15d8bbaf..f9edadba 100644
+> > --- a/libsepol/cil/src/cil_write_ast.c
+> > +++ b/libsepol/cil/src/cil_write_ast.c
+> > @@ -1624,6 +1624,10 @@ static int __write_cil_ast_node_helper(struct ci=
+l_tree_node *node, uint32_t *fin
 > >
-> >         case CIL_CALL:
-> >         case CIL_TUNABLEIF:
-> > +       case CIL_SRC_INFO:
-> >                 break;
-> >         default:
-> >                 cil_tree_log(node, CIL_ERR, "Invalid statement within b=
-ooleanif");
-> > diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_bu=
-ild_ast.c
-> > index 072d2622..fc11758d 100644
-> > --- a/libsepol/cil/src/cil_build_ast.c
-> > +++ b/libsepol/cil/src/cil_build_ast.c
-> > @@ -6164,6 +6164,7 @@ static int check_for_illegal_statement(struct cil=
-_tree_node *parse_current, stru
-> >                         parse_current->data !=3D CIL_KEY_AUDITALLOW &&
-> >                         parse_current->data !=3D CIL_KEY_TYPETRANSITION=
- &&
-> >                         parse_current->data !=3D CIL_KEY_TYPECHANGE &&
-> > +                       parse_current->data !=3D CIL_KEY_SRC_INFO &&
-> >                         parse_current->data !=3D CIL_KEY_TYPEMEMBER &&
-> >                         ((args->db->policy_version < POLICYDB_VERSION_C=
-OND_XPERMS) ||
-> >                           (parse_current->data !=3D CIL_KEY_ALLOWX &&
-> > diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_=
-resolve_ast.c
-> > index a8fa89df..392f03c7 100644
-> > --- a/libsepol/cil/src/cil_resolve_ast.c
-> > +++ b/libsepol/cil/src/cil_resolve_ast.c
-> > @@ -3849,6 +3849,7 @@ static int __cil_resolve_ast_node_helper(struct c=
-il_tree_node *node, uint32_t *f
-> >                         node->flavor !=3D CIL_AVRULE &&
-> >                         node->flavor !=3D CIL_TYPE_RULE &&
-> >                         node->flavor !=3D CIL_NAMETYPETRANSITION &&
-> > +                       node->flavor !=3D CIL_SRC_INFO &&
-> >                         ((args->db->policy_version < POLICYDB_VERSION_C=
-OND_XPERMS) ||
-> >                          (node->flavor !=3D CIL_AVRULEX))) {
-> >                         rc =3D SEPOL_ERR;
-> > diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verif=
-y.c
-> > index 550b4542..cde9dd41 100644
-> > --- a/libsepol/cil/src/cil_verify.c
-> > +++ b/libsepol/cil/src/cil_verify.c
-> > @@ -1176,6 +1176,9 @@ static int __cil_verify_booleanif_helper(struct c=
-il_tree_node *node, __attribute
-> >                    booleanif statements if they don't have "*" as the f=
-ile. We
-> >                    can't check that here. Or at least we won't right no=
-w. */
-> >                 break;
-> > +       case CIL_SRC_INFO:
-> > +               //Fall through
-> > +               break;
-> >         default: {
-> >                 const char * flavor =3D cil_node_to_string(node);
-> >                 if (bif->preserved_tunable) {
+> >         if (node->flavor =3D=3D CIL_SRC_INFO) {
+> >                 cil_write_src_info_node(args->out, node);
+> > +
+> > +               if (node->cl_head =3D=3D NULL) {
+> > +                       fprintf(args->out, ";;* lme\n");
+> > +               }
+> >                 return SEPOL_OK;
+> >         }
+> >
 > > --
-> > 2.49.0.604.gff1f9ca942-goog
+> > 2.49.0.504.g3bcea36a83-goog
 > >
 > >
