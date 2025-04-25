@@ -1,83 +1,73 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE86B2500DF
-	for <selinux@vger.kernel.org>; Fri, 25 Apr 2025 12:51:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81BA21607AC
+	for <selinux@vger.kernel.org>; Fri, 25 Apr 2025 14:48:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745585474; cv=none; b=n+Apo3M9Ka/VT8e9qGcl91ptXk7I1KXcr796PQcv1FZWbVeSvW3XXfuPmuOseQORXxYNi5Z9VyNNzQU1lX30lVvcepW3AhR7iSjQ0ohJ1wTmdNOcxvBjd4ZitifPp+fTUgUZ1qt+lCtZDGYj7xJ+7Hvd6yIdxsAoeBs2qd3bHyA=
+	t=1745592509; cv=none; b=fzO94T7Pc71Wbq9ndSyTGcI5ZU80+PQL3a5bQdkYwwSYUTnajSxtsrwMx8XinnaQXCvyczbOKmVa/3QdBbnalr9pZgkJ6J/a3+UWLwUtGHuT4nxUdw+4/ZReMxjKRE7ljbceW1+S/+hhlJkWZaiZPiFPsh6nNCow3gVX4oKvKIs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745585474; c=relaxed/simple;
-	bh=f2/JCQQqUFXRVdB7C+TWWxdvLN4Yr97Axw1If1xE/Sc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kft26YS9VBgdwrbjocdvgYDoPbzf62XJ+Kgt2FWx4g7kwuveA6apirT2G9CWty2MO4n2vXlGM/AUZ7kDMw3rwzmMOQ2qz5XrkjW33ENXuTq7IqS4kOM4bWT5OQ32lSL37YH4Xuh/cpHLv+dBznNYXbvccRSNiOKMRlA7fFFfmeQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=boZMPiaA; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=wV1wWgS2; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=GrCk+eQG; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=rTlNnZIH; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1745592509; c=relaxed/simple;
+	bh=ysfQ4kzDYsp1J0RVrakm6D0hjV2km//kqG/X0JhYpb4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=bwjXaFRhBAmdCRM/Vi5dyw/PXJjhGjRxrI/fTWwzWmgjN5TmFpbTxF5ZnmZrVod4L9A55JoKI2zFLq8Bkl+jAFy4HmfTZc3wnqryzd2Em+HRw+JprOAU7RUTUuPI04mqo/udiZvr1whoWeU+CkbG04YAP2HAz/GQ7imIFEz0He4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cWhyvSek; arc=none smtp.client-ip=209.85.219.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="boZMPiaA";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="wV1wWgS2";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="GrCk+eQG";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="rTlNnZIH"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id F208421166;
-	Fri, 25 Apr 2025 12:51:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1745585470; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=IHYZLewIjoN9AVHdydol59j4Xl0Q5xSSfEm3kpeUAp8=;
-	b=boZMPiaAVWLLQJzkxOMscuUgVy3S5rEhpUjEX4w8731r8RaFYxdMAjkEH7vB4ASGkiKx05
-	LRUxmLFtHB8sPAnPPkf/BZfHRP7t5k0TjLJdbPvS4I2JwG2HM/qvtgaPDHNJOJbCVAqvrV
-	nPGyTZ6O7418QwD99G7TPXvV7iOO+Fk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1745585470;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=IHYZLewIjoN9AVHdydol59j4Xl0Q5xSSfEm3kpeUAp8=;
-	b=wV1wWgS27FHLxlV5xXpQwFihJLo5AHtHxtc4p4YnVLnGBZLkYrjb0n2X8P/WPX7ye3KIHw
-	QfyQQ/cmb+pY0oBg==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=GrCk+eQG;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=rTlNnZIH
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1745585469; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=IHYZLewIjoN9AVHdydol59j4Xl0Q5xSSfEm3kpeUAp8=;
-	b=GrCk+eQGuVX2berEZ+AQwds2LMUZPH5INeUfLLkmPaqbqTHXKJijPC7Iw2SamxbjS6g/P9
-	nQuu5I6Gal48Q5ebfjaG8jZS+rlfOpsTUZdOA1zmVbr7/KvDw3f38YXnvrGJulds9lz1iW
-	tooBFMr6OztAqKPz1PqmyH1M4ci5Cdc=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1745585469;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=IHYZLewIjoN9AVHdydol59j4Xl0Q5xSSfEm3kpeUAp8=;
-	b=rTlNnZIHvGfDm3bni670CmTBIARaaemnmnJUCG8hNTZG05ixd5YCTRXoD4fhSF1+HjCnU5
-	1YAk8QkL8p8oRQCw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id A9B391388F;
-	Fri, 25 Apr 2025 12:51:08 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id nNuXJzyFC2gISgAAD6G6ig
-	(envelope-from <pvorel@suse.cz>); Fri, 25 Apr 2025 12:51:08 +0000
-From: Petr Vorel <pvorel@suse.cz>
-To: ltp@lists.linux.it
-Cc: Petr Vorel <pvorel@suse.cz>,
-	Mimi Zohar <zohar@linux.ibm.com>,
-	Paul Moore <paul@paul-moore.com>,
-	linux-integrity@vger.kernel.org,
-	selinux@vger.kernel.org,
-	Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cWhyvSek"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-6f2c45ecaffso24341416d6.2
+        for <selinux@vger.kernel.org>; Fri, 25 Apr 2025 07:48:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1745592506; x=1746197306; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lfbCQZHJAE2c9HfkmSP4ENjdUkSnwhoiheGTz09BW2o=;
+        b=cWhyvSekBO5oQ2M100/E98mgWdMM2mNWEfthCCsCX5BzSYKcgJ/8XlUFZXNp28qVGP
+         MboVrWKD8SBLJoD1XeAmfGUQCjaY/x9bsuzAAs0mENaJXvR1gljX/S2OWncz/9W2a3pM
+         UuTLK5S3logvToDFyhPgtwArkZIWxmXFXMTYdV/U4VjsHRhSN0Cii7UOdlhGkUBRMS0g
+         0wmcmGouiXBYYRqNquyrvl3Qh7r3XORdw2R4Zdf7usrDjj29uLe+Rx4r1tEQfziI28E4
+         X4r+UT2tXslKuBqbiV5t1efwX2/M6BARc7XkbIW6TOf49F8LR0XD4i9mrgeYn0JmmxzX
+         +Z5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745592506; x=1746197306;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=lfbCQZHJAE2c9HfkmSP4ENjdUkSnwhoiheGTz09BW2o=;
+        b=X/E4hqWtbAqftbGUCX3BLUUi/PGKyvsUf32JJdzZxfHdb8lO4lfM0CzHc76ErPRvSW
+         ZJhQGbQtfpOtFci8QWKjHN6+wklvWWrjDrhFn/SfJL3H2y1vFyU0sGEP8bHrDGp28sS0
+         q6CMfPy8lW8Bt5e5nLm8gKz0UAhTGUDH22qXN+AqIlGRGdQU/XNCxj4eGrVgOiZk+05b
+         jZ9ZweUc57+8ubcxwHcsI7e1t5lk1+o+0KYtl3IOz7I5L38dn9on+2L8SWTTwWk8Qm4Z
+         zccN6QvbLyStvZZEu5ssZMdoFhkUGyL7UZWETHnPJZMciy/ae1a9A4aEBizKRE6G5wU0
+         ANwg==
+X-Gm-Message-State: AOJu0YxAaAPAFWpNNzB5HETXXfEcQxvmzqtqPW21rikVY6/5MW9yR4Bs
+	hHjq4S1Si3lIw0ORMpAAnZsx74V7pm4Jb6SHmKQ4+vVQC8CWGQ784Qkgn9cl
+X-Gm-Gg: ASbGncsgloPWlCNtn3YuViDmwSEFCOFDm2ss64pR6WWDE5RWZkCJtTpL0GuTmZfuCTG
+	axSggJZkoM6DVl6BMDKaY9+9yeeFqTknmaZ9bL4xgUkCFa2NXzjJhjgjGonl7kQZ/28GxdUxBTL
+	eGoeOqpafKjQ+vA6IBd9LWm41wBLBJ3L03vWdQ+/Qi256w7A7Aff/w8goS697YXOok0saJC185d
+	DMazf079+EsLL+7Z6uRn0KqQUesz9kEa/IOgW0M7vCH+5+vLk/tn+jvx62Bdz3LW7Llm+pebzP0
+	JLnd6YcIrGVIp1/1TWmzsfmTqbr/BCbnw+3IkDXAd2V3EIr2rgNePZaeKHJjXBLoqFfQ/cK7WIL
+	CVZf1jmr8m/kMtf1yZXBcor1oTmVDSFsL5syhlzbh95ZjTTaYgJRV4dOsx8YN0Z4ppXYZ
+X-Google-Smtp-Source: AGHT+IFWwlNjvrt3QszfxpmefVylyGZ1sh2lD09TEmyj8geU4G8cukSKFkwPcWay9VHx6YfrYTq9Cg==
+X-Received: by 2002:a05:6214:76c:b0:6eb:28e4:8518 with SMTP id 6a1803df08f44-6f4cba46035mr44936456d6.34.1745592506102;
+        Fri, 25 Apr 2025 07:48:26 -0700 (PDT)
+Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6f4c093437dsm22781936d6.39.2025.04.25.07.48.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 25 Apr 2025 07:48:25 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] tst_security.sh: Use the same value for checkreqprot
-Date: Fri, 25 Apr 2025 14:50:57 +0200
-Message-ID: <20250425125057.38992-1-pvorel@suse.cz>
+Subject: [RFC PATCH 2/2] selinux: optimize selinux_inode_permission() for unconfined tasks
+Date: Fri, 25 Apr 2025 10:47:09 -0400
+Message-ID: <20250425144708.14504-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250425123719.5984-2-stephen.smalley.work@gmail.com>
+References: <20250425123719.5984-2-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -85,89 +75,61 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: F208421166
-X-Spam-Level: 
-X-Spamd-Result: default: False [-1.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FUZZY_BLOCKED(0.00)[rspamd.com];
-	FREEMAIL_CC(0.00)[suse.cz,linux.ibm.com,paul-moore.com,vger.kernel.org,linux.microsoft.com,gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCPT_COUNT_SEVEN(0.00)[8];
-	TAGGED_RCPT(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	DKIM_TRACE(0.00)[suse.cz:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Rspamd-Action: no action
-X-Spam-Score: -1.51
-X-Spam-Flag: NO
 
-kernel commit e9c38f9fc2cc ("Documentation,selinux: deprecate setting
-checkreqprot to 1") from v5.10-rc1 deprecated checkreqprot value 1
-(emit warning in dmesg). Code is used only in ima_selinux.sh
-which requires 5.12. Touching /sys/fs/selinux/checkreqprot is required
-to trigger the measurement via selinux_ima_measure_state().
+Extend the task avdcache to also cache whether the task SID
+unconfined aka permissive|neveraudit and if so, optimize
+selinux_inode_permission(). The same approach could be applied
+to all of the hook functions.
 
-Using the same value (0 by default) works on recent 6.14, it should be
-safe changing to use the same value. This way misleading warning is
-avoided and hopefully kept working in the future.
-
-Also, this way it does not modify SUT setting (don't influence other
-tests), which is always better.
-
-Fixes: 36c695e497 ("tst_security.sh: Add helper tst_update_selinux_state()")
-Signed-off-by: Petr Vorel <pvorel@suse.cz>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
-@SELinux developers: FYI tst_security.sh is used in LTP test in
-ima_selinux.sh [1] test.
+This change demonstrates how the previous patch could be leveraged
+to optimize selinux_inode_permission().
 
-Kind regards,
-Petr
+ security/selinux/hooks.c          | 7 ++++++-
+ security/selinux/include/objsec.h | 1 +
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-[1] https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
-
- testcases/lib/tst_security.sh | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
-
-diff --git a/testcases/lib/tst_security.sh b/testcases/lib/tst_security.sh
-index 4e2d34ca98..820736c723 100644
---- a/testcases/lib/tst_security.sh
-+++ b/testcases/lib/tst_security.sh
-@@ -142,11 +142,10 @@ tst_get_enforce()
- 
- tst_update_selinux_state()
- {
--	local cur_val new_val
-+	local val
- 	local dir=$(tst_get_selinux_dir)
- 	[ -n "$dir" ] || return 1
- 
--	cur_val=$(cat $dir/checkreqprot)
--	[ $cur_val = 1 ] && new_val=0 || new_val=1
--	echo $new_val > $dir/checkreqprot
-+	val=$(cat $dir/checkreqprot)
-+	echo $val > $dir/checkreqprot
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index b8115df536ab..2e7eb0864bfd 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3184,6 +3184,7 @@ static inline void task_avdcache_update(struct task_security_struct *tsec,
+ 	tsec->avdcache.dir[spot].audited = audited;
+ 	tsec->avdcache.dir[spot].allowed = avd->allowed;
+ 	tsec->avdcache.dir[spot].permissive = avd->flags & AVD_FLAGS_PERMISSIVE;
++	tsec->avdcache.unconfined = (avd->flags == (AVD_FLAGS_PERMISSIVE|AVD_FLAGS_NEVERAUDIT));
  }
+ 
+ /**
+@@ -3210,10 +3211,14 @@ static int selinux_inode_permission(struct inode *inode, int requested)
+ 	if (!mask)
+ 		return 0;
+ 
++	tsec = selinux_cred(current_cred());
++	if (tsec->avdcache.unconfined && tsec->sid == tsec->avdcache.sid &&
++		tsec->avdcache.seqno == avc_policy_seqno())
++		return 0;
++
+ 	isec = inode_security_rcu(inode, requested & MAY_NOT_BLOCK);
+ 	if (IS_ERR(isec))
+ 		return PTR_ERR(isec);
+-	tsec = selinux_cred(current_cred());
+ 	perms = file_mask_to_av(inode->i_mode, mask);
+ 
+ 	rc = task_avdcache_search(tsec, isec, &avdc);
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 6ee7dc4dfd6e..c659dafbee60 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -49,6 +49,7 @@ struct task_security_struct {
+ 		u32 seqno; /* AVC sequence number */
+ 		unsigned int dir_spot; /* dir cache index to check first */
+ 		struct avdc_entry dir[TSEC_AVDC_DIR_SIZE]; /* dir entries */
++		bool unconfined; /* unconfined */
+ 	} avdcache;
+ } __randomize_layout;
+ 
 -- 
 2.49.0
 
