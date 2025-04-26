@@ -1,83 +1,83 @@
-Received: from fout-b6-smtp.messagingengine.com (fout-b6-smtp.messagingengine.com [202.12.124.149])
+Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B626622098
-	for <selinux@vger.kernel.org>; Sat, 26 Apr 2025 13:18:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.149
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33F71A31
+	for <selinux@vger.kernel.org>; Sat, 26 Apr 2025 15:15:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745673514; cv=none; b=Epi8YZu89dqsp2F/sgrAkXoYN3p8pdyBVGU3bdKsM7r9OKyryB3zpnfq+U2XR++hnc4yo4wGySLyFaFtEQl18j+Zl+ZFtk/TZP7Rx+3/aZ8/AuHakn1DCY+b8CZnsFnhC89MwYsTt/ec+2w4OsgZ76tEmauCIeQ23aQvvPDkdfA=
+	t=1745680559; cv=none; b=Pq1cEfDSDJ0fkBMv6QVCQI8UUqLnYGihmK9UeuLduv0kwLuwpvD6WOxM/TSLMRIywjgR8gd2c853qlcX7DDrHAnyddbljBfUmT7TClUWm+eES9n51wREeMkgpjwZEvuOCVXfWzMNnBJNztbAVx+10PtGeluwXSHG1odCX/NjgQI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745673514; c=relaxed/simple;
-	bh=0FX1Gi1GajV5/QOVOL0jQXsvN71OQ4O3Wj9yXn5JPTk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=fQ6+5Py5lImBYH1dlRoBk1WSorU0TmmELFf8akcNT0Iis6we/7kq8NWrU2f9vAET5XFa7jDF9PQZuX37d3ppWgHGrqgWFFD01ijiKvtP3k88VB8uPRJVWN7WIRA1yqNXsR5s70GaTwW0aqNDsA34k6TTauWf2UgRu/xTEZLsmWA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=Oi4D4MM3; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=ml0JCFEX; arc=none smtp.client-ip=202.12.124.149
+	s=arc-20240116; t=1745680559; c=relaxed/simple;
+	bh=pJMDSW9OyFQkw5+mTn23RDQ0ioaHtTd6I+0qBZvmwP4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VY6d+x8V7xkeJ2uh/a5R7YERgjbG4KKpSH0LL+z/D5ebQqDoQYyVyuQAhANwGBuFP81lunmLcZc2wMIkhtTTIzrFJyVwMsKJnPT2vLUBI6Um9ow9ZAwrpU3bMzV3KjnKaTZMGAZ87fAstIzB5jJaPIF2rhU9NiBHjpTAn5ofXYo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=sVvu9/jU; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Oe16/9D7; arc=none smtp.client-ip=202.12.124.158
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alyssa.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="Oi4D4MM3";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ml0JCFEX"
-Received: from phl-compute-07.internal (phl-compute-07.phl.internal [10.202.2.47])
-	by mailfout.stl.internal (Postfix) with ESMTP id 54F2011401B2;
-	Sat, 26 Apr 2025 09:18:29 -0400 (EDT)
-Received: from phl-mailfrontend-01 ([10.202.2.162])
-  by phl-compute-07.internal (MEProxy); Sat, 26 Apr 2025 09:18:29 -0400
+	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="sVvu9/jU";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Oe16/9D7"
+Received: from phl-compute-02.internal (phl-compute-02.phl.internal [10.202.2.42])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id ED5B02540205;
+	Sat, 26 Apr 2025 11:15:53 -0400 (EDT)
+Received: from phl-mailfrontend-02 ([10.202.2.163])
+  by phl-compute-02.internal (MEProxy); Sat, 26 Apr 2025 11:15:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
 	:cc:content-transfer-encoding:content-type:content-type:date
 	:date:from:from:in-reply-to:message-id:mime-version:reply-to
-	:subject:subject:to:to; s=fm2; t=1745673509; x=1745759909; bh=H9
-	+HroaFG0QIDvK5hi3sUShu20wyYyB/Rlw+RvZOYo4=; b=Oi4D4MM3TL/nL8G7kS
-	/AOftlY9l4fgMz4Cdy6+qKdb612El8TrsNDwYmlrXroa7JNiOCC035iQYLWpELoM
-	GLnUwVq0o+tZmvQGSBBI/W5z6jQIDm+BEQh3D+cp/N5DEPnO7cwcL9tXT4+crYwK
-	8xlbKZe3xWdvZmPpGD0OOGZYTP0S7xrxOOJQmXasTO5O1T+zjmWlkOT+pIImElzq
-	BxyeQL4lPMIol/5xoUD2uc9Av86PCnfqd8VWKLsdQSUl9+MQIiiXGZ5xI+5gEkhX
-	l7QObKr0HdRpvXR5o8bSzBtRI4q8pJQCLiqLBz/HMOLOGUl7htky3EknXVxuXBxz
-	vDeA==
+	:subject:subject:to:to; s=fm2; t=1745680553; x=1745766953; bh=rW
+	uOFM2rzwdFfxgV2+EnHMjhI780MNjU9R+9eFq8dvg=; b=sVvu9/jU9LemQ6RFQI
+	DtSKhUj2+dsfX0he1Ov1CofCaTdNc+esuMzB8dGEgQnIY6sfB7FHrPAuDDQaCTEb
+	Qb0MW0FQNzuTyNO94P8IXvcPEN7XWpcH1UKkWyohOsX/DRQYs8YP/oyrZB7gy8h+
+	LPbqcyracjmJriUdC8aesJ3FKHmyQiXY8ka08VFQyiVrksvEwfM7tleNW0mQVrVG
+	VpHxDigwP71zXB3gHl0ogks6VloaqH0f3EKo1nT19xuzWGcMPKtBrs3jHJFSgy8X
+	9+jY/qFSAq6OvItkKnwXf08McbuKVuPnYZrrsVgx3NZFcaCo+tklqEvWJUJCPxnz
+	BfXw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	messagingengine.com; h=cc:cc:content-transfer-encoding
 	:content-type:content-type:date:date:feedback-id:feedback-id
 	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
 	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm3; t=1745673509; x=1745759909; bh=H9+HroaFG0QIDvK5hi3sUShu20wy
-	YyB/Rlw+RvZOYo4=; b=ml0JCFEXcO994WK6TCyM+o3lLDPoMmWW7LiXicIAxLrq
-	X9KyOC7r0mqRU3HkGNVDMAq+7Apa9azGJEkAG7dqPgfD40zRhyA+67Kg+ImV/8VH
-	To81aEuDHhQoTLVRbVoBGsJW/Ewt7M+M1rTKKj1UwnHH/2NEgyS24GZfbgr5oMhB
-	YA+gk1Yz34lzzwFNGrMUYTFRUROOUo/LTlhOLXfO/psDD0wNRcMjqSz0f3VrWiTN
-	JyZEzNpR8g79Y9vm24fjMR8QbTsBJKH1eZ+UuQmXdZQOTjWj0lsBnDihpZYQmzO6
-	j9rQjTkyllnVw0wrAIVdI1s/CATRCz177qwMeZmGXw==
-X-ME-Sender: <xms:JN0MaOCflyIO33iHZiu3dOur98Yn7Lqc8v9WcrrV8QwOMoT4IlWSYQ>
-    <xme:JN0MaIhuqN5OaNN9dKnd9VJ3lMZSw_GfUUmRt6wEnuot4DdU9cNeYSsKlmeYuitcz
-    BAzoQHm_92t0EGOhg>
-X-ME-Received: <xmr:JN0MaBmYxe1IRVoes8heqkv3DoyoW_zuQ0zZUZsf-ZLPFBveKdhN_zeDHR_xuWRf>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvheehfedtucetufdoteggodetrf
+	fm3; t=1745680553; x=1745766953; bh=rWuOFM2rzwdFfxgV2+EnHMjhI780
+	MNjU9R+9eFq8dvg=; b=Oe16/9D7/7d67cUSyAPHmj+rekiHlxK3tMneIFP/5hTG
+	MlpQlyg5QLsVRSUxfGn/OjX1vvg5VrpRpeGYaxJyNU/oPy2jFBSwUmB1lR7/W4Lz
+	M4NYele9Nufotym19hpJylkMpOi266PNIqG1lT4OfK7d+ZEJSoZygq/tnsgE08ql
+	2AFSMbYbTQC6YM8sk+9tk2ypCjb7W1NouIshFQ33J7LNniu67KJDcPtH3VqfkG6q
+	RYkGhc21tTZl/e9EQ6m8Z4c6yWk8kDqozOBI0lOh6GrhAaDEj1+/2v0DF7OAcqwG
+	KhqGnYTkH2Qj8pshvMSctbOWckywkqxX+fREJWN9Gw==
+X-ME-Sender: <xms:qfgMaJE8VrzV69Ds-EsG48fFI5UaqMSYVinivYKJ4ML0p0Qd_UDicQ>
+    <xme:qfgMaOUrxIYKlodKAw1Xg57c4yZT6ZBIwMc_Jxf2xmsgkKIf3HHUkRikoeiSWWlvF
+    2vLA9kyO05KG8VGKQ>
+X-ME-Received: <xmr:qfgMaLLGcqX6upspD9CqnV5CuWYyVoe7dkYN-ilEpG08JiM1cEurmgjMsOzEj6QU>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvheehheefucetufdoteggodetrf
     dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
     pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpih
     gvnhhtshculddquddttddmnecujfgurhephffvvefufffkofggtgfgsehtkeertdertdej
     necuhfhrohhmpeetlhihshhsrgcutfhoshhsuceohhhisegrlhihshhsrgdrihhsqeenuc
-    ggtffrrghtthgvrhhnpeejfeehffehjeejgfdtffetkedtgfefgfefjeegffekjeejgedt
-    veejleehleelhfenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfh
-    hrohhmpehhihesrghlhihsshgrrdhishdpnhgspghrtghpthhtohepgedpmhhouggvpehs
-    mhhtphhouhhtpdhrtghpthhtohepmhgvsegrlhgsrgdrshhhpdhrtghpthhtohepjhiftg
-    grrhhtvdesghhmrghilhdrtghomhdprhgtphhtthhopehnrggsihhjrggtiihlvgifvghl
-    ihesnhgrsghijhgrtgiilhgvfigvlhhirdighiiipdhrtghpthhtohepshgvlhhinhhugi
-    esvhhgvghrrdhkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:JN0MaMykt-2KoZsIZLZR7_OWp1hWLkok37YY45mL6EAo0oJ87Iyzbg>
-    <xmx:JN0MaDQ3lEWpvGNL8roR1svc7GFdyews6clZZqXUCSAgAumwN1WUyA>
-    <xmx:JN0MaHbVikawRhIv7yD___PScOtQz_S2ngHLgL5VA_QvXaO0xFZRiA>
-    <xmx:JN0MaMR4SlT3j9Q0OuXSL2GFbm0QdHPBLdWX6eHudQtoGSj7GPii6g>
-    <xmx:Jd0MaBeyzSIG8nccWctFdl0m2w9dJCrdiWgmWl2lWwATTZSB8PzjRROp>
+    ggtffrrghtthgvrhhnpeevieegveegkeefieekffeuuddtuefhtdfhgfdvfeeugfffvdeh
+    tdekveeufedtjeenucffohhmrghinhepghhithhhuhgsrdgtohhmnecuvehluhhsthgvrh
+    fuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhephhhisegrlhihshhsrgdrihhs
+    pdhnsggprhgtphhtthhopeegpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehmvg
+    esrghlsggrrdhshhdprhgtphhtthhopehjfigtrghrthdvsehgmhgrihhlrdgtohhmpdhr
+    tghpthhtohepnhgrsghijhgrtgiilhgvfigvlhhisehnrggsihhjrggtiihlvgifvghlih
+    drgiihiidprhgtphhtthhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:qfgMaPHxXV0etoyRJkgcYPe-u5lQsB6cvXgoxiMYU6OgH09vt9RJJA>
+    <xmx:qfgMaPVNzmzj8XlzIEYZvhuhOvK7xCeHS_NHGryjhfN_xqE-mmaCSA>
+    <xmx:qfgMaKPro4JgdEKJ3LZ0e1t9yipSpo-CqpVMe_Xg9n4ohUp0rhtvEw>
+    <xmx:qfgMaO1XYewudNFS8g1h7cOv-f3pWJTH7mubtCGLTV6fyEUJfKdQJQ>
+    <xmx:qfgMaPC5FGWuV_5Cknij04lvxGSeCOFW3wA8lCW6fChGDgA8HzuEfqKb>
 Feedback-ID: i12284293:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 26 Apr 2025 09:18:27 -0400 (EDT)
+ 26 Apr 2025 11:15:52 -0400 (EDT)
 Received: by mbp.qyliss.net (Postfix, from userid 1000)
-	id AC06311733; Sat, 26 Apr 2025 15:18:16 +0200 (CEST)
+	id E07A2117F8; Sat, 26 Apr 2025 17:15:46 +0200 (CEST)
 From: Alyssa Ross <hi@alyssa.is>
 To: selinux@vger.kernel.org
 Cc: =?UTF-8?q?=D0=BD=D0=B0=D0=B1?= <nabijaczleweli@nabijaczleweli.xyz>,
 	James Carter <jwcart2@gmail.com>,
 	Alba Mendez <me@alba.sh>
-Subject: [PATCH] libselinux: be careful with non-portable LFS macro
-Date: Sat, 26 Apr 2025 15:18:07 +0200
-Message-ID: <20250426131807.2812891-1-hi@alyssa.is>
+Subject: [PATCH v2] libselinux: be careful with non-portable LFS macro
+Date: Sat, 26 Apr 2025 17:13:57 +0200
+Message-ID: <20250426151356.7116-2-hi@alyssa.is>
 X-Mailer: git-send-email 2.47.2
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -100,9 +100,28 @@ are missing, that probably just means there is no ino64_t.
 Fixes: 5c3fcbd9 ("Inject matchpathcon_filespec_add64() if !defined(__INO_T_MATCHES_INO64_T) instead of using __BITS_PER_LONG < 64 as proxy")
 Signed-off-by: Alyssa Ross <hi@alyssa.is>
 ---
- libselinux/src/matchpathcon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+v2: Made the same change to the condition in the header, as suggested
+    in a GitHub comment.  The omission didn't seem to break anything,
+    but it makes sense to change it there too.
+    https://github.com/NixOS/nixpkgs/pull/391728#issuecomment-2832282846
 
+ libselinux/include/selinux/selinux.h | 2 +-
+ libselinux/src/matchpathcon.c        | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+index f64896b7..b1431e5d 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -537,7 +537,7 @@ extern int matchpathcon_index(const char *path,
+    with the same inode (e.g. due to multiple hard links).  If so, then
+    use the latter of the two specifications based on their order in the 
+    file contexts configuration.  Return the used specification index. */
+-#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64 && !defined(__INO_T_MATCHES_INO64_T)
++#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64 && defined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
+ #define matchpathcon_filespec_add matchpathcon_filespec_add64
+ #endif
+ extern int matchpathcon_filespec_add(ino_t ino, int specind, const char *file);
 diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
 index a4f65045..240c9fa7 100644
 --- a/libselinux/src/matchpathcon.c
