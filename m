@@ -1,142 +1,115 @@
-Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com [209.85.219.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33F71A31
-	for <selinux@vger.kernel.org>; Sat, 26 Apr 2025 15:15:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5BFA2D78A
+	for <selinux@vger.kernel.org>; Sat, 26 Apr 2025 16:56:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745680559; cv=none; b=Pq1cEfDSDJ0fkBMv6QVCQI8UUqLnYGihmK9UeuLduv0kwLuwpvD6WOxM/TSLMRIywjgR8gd2c853qlcX7DDrHAnyddbljBfUmT7TClUWm+eES9n51wREeMkgpjwZEvuOCVXfWzMNnBJNztbAVx+10PtGeluwXSHG1odCX/NjgQI=
+	t=1745686615; cv=none; b=WjDc860+yGKuYBdDzr2UOchKCg5ZebBMbKmET5bXI5o3h+hJdNOKC12ddV1GK78E+lG5Vcp0gWytyk7yXWqgXzIyqWbnzpTEhJVyJvuf/+4DX8T6qV436WKg6cBnqHZ+N3HGU/xiHJt8YuuI/iwIowfbqnVSpwk0tkW2HDs6ZpY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745680559; c=relaxed/simple;
-	bh=pJMDSW9OyFQkw5+mTn23RDQ0ioaHtTd6I+0qBZvmwP4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VY6d+x8V7xkeJ2uh/a5R7YERgjbG4KKpSH0LL+z/D5ebQqDoQYyVyuQAhANwGBuFP81lunmLcZc2wMIkhtTTIzrFJyVwMsKJnPT2vLUBI6Um9ow9ZAwrpU3bMzV3KjnKaTZMGAZ87fAstIzB5jJaPIF2rhU9NiBHjpTAn5ofXYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=sVvu9/jU; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Oe16/9D7; arc=none smtp.client-ip=202.12.124.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alyssa.is
+	s=arc-20240116; t=1745686615; c=relaxed/simple;
+	bh=hVc53GkaWp8guAZtyjJGkUTbCiqvI//qAfPqEmrP2x4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YyIK+D3ejIsRYRFYN3BFll+Q1Pb1iMj4gSrp+YZNDEXMXMN0om3NCMd19xPUDeKJhQUysdNVdYPlPQVKcCxVyFCKyDEEWPvxL7FE6jHkHXMScRe3h3UE/XZnpGWrjCyCXUdM+KX4zPuZPceox+2iEAUcANmjhhbm3UOSF7Wj4Mo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Bo5B4yek; arc=none smtp.client-ip=209.85.219.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="sVvu9/jU";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Oe16/9D7"
-Received: from phl-compute-02.internal (phl-compute-02.phl.internal [10.202.2.42])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id ED5B02540205;
-	Sat, 26 Apr 2025 11:15:53 -0400 (EDT)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-02.internal (MEProxy); Sat, 26 Apr 2025 11:15:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:message-id:mime-version:reply-to
-	:subject:subject:to:to; s=fm2; t=1745680553; x=1745766953; bh=rW
-	uOFM2rzwdFfxgV2+EnHMjhI780MNjU9R+9eFq8dvg=; b=sVvu9/jU9LemQ6RFQI
-	DtSKhUj2+dsfX0he1Ov1CofCaTdNc+esuMzB8dGEgQnIY6sfB7FHrPAuDDQaCTEb
-	Qb0MW0FQNzuTyNO94P8IXvcPEN7XWpcH1UKkWyohOsX/DRQYs8YP/oyrZB7gy8h+
-	LPbqcyracjmJriUdC8aesJ3FKHmyQiXY8ka08VFQyiVrksvEwfM7tleNW0mQVrVG
-	VpHxDigwP71zXB3gHl0ogks6VloaqH0f3EKo1nT19xuzWGcMPKtBrs3jHJFSgy8X
-	9+jY/qFSAq6OvItkKnwXf08McbuKVuPnYZrrsVgx3NZFcaCo+tklqEvWJUJCPxnz
-	BfXw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
-	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm3; t=1745680553; x=1745766953; bh=rWuOFM2rzwdFfxgV2+EnHMjhI780
-	MNjU9R+9eFq8dvg=; b=Oe16/9D7/7d67cUSyAPHmj+rekiHlxK3tMneIFP/5hTG
-	MlpQlyg5QLsVRSUxfGn/OjX1vvg5VrpRpeGYaxJyNU/oPy2jFBSwUmB1lR7/W4Lz
-	M4NYele9Nufotym19hpJylkMpOi266PNIqG1lT4OfK7d+ZEJSoZygq/tnsgE08ql
-	2AFSMbYbTQC6YM8sk+9tk2ypCjb7W1NouIshFQ33J7LNniu67KJDcPtH3VqfkG6q
-	RYkGhc21tTZl/e9EQ6m8Z4c6yWk8kDqozOBI0lOh6GrhAaDEj1+/2v0DF7OAcqwG
-	KhqGnYTkH2Qj8pshvMSctbOWckywkqxX+fREJWN9Gw==
-X-ME-Sender: <xms:qfgMaJE8VrzV69Ds-EsG48fFI5UaqMSYVinivYKJ4ML0p0Qd_UDicQ>
-    <xme:qfgMaOUrxIYKlodKAw1Xg57c4yZT6ZBIwMc_Jxf2xmsgkKIf3HHUkRikoeiSWWlvF
-    2vLA9kyO05KG8VGKQ>
-X-ME-Received: <xmr:qfgMaLLGcqX6upspD9CqnV5CuWYyVoe7dkYN-ilEpG08JiM1cEurmgjMsOzEj6QU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvheehheefucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
-    pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpih
-    gvnhhtshculddquddttddmnecujfgurhephffvvefufffkofggtgfgsehtkeertdertdej
-    necuhfhrohhmpeetlhihshhsrgcutfhoshhsuceohhhisegrlhihshhsrgdrihhsqeenuc
-    ggtffrrghtthgvrhhnpeevieegveegkeefieekffeuuddtuefhtdfhgfdvfeeugfffvdeh
-    tdekveeufedtjeenucffohhmrghinhepghhithhhuhgsrdgtohhmnecuvehluhhsthgvrh
-    fuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhephhhisegrlhihshhsrgdrihhs
-    pdhnsggprhgtphhtthhopeegpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehmvg
-    esrghlsggrrdhshhdprhgtphhtthhopehjfigtrghrthdvsehgmhgrihhlrdgtohhmpdhr
-    tghpthhtohepnhgrsghijhgrtgiilhgvfigvlhhisehnrggsihhjrggtiihlvgifvghlih
-    drgiihiidprhgtphhtthhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:qfgMaPHxXV0etoyRJkgcYPe-u5lQsB6cvXgoxiMYU6OgH09vt9RJJA>
-    <xmx:qfgMaPVNzmzj8XlzIEYZvhuhOvK7xCeHS_NHGryjhfN_xqE-mmaCSA>
-    <xmx:qfgMaKPro4JgdEKJ3LZ0e1t9yipSpo-CqpVMe_Xg9n4ohUp0rhtvEw>
-    <xmx:qfgMaO1XYewudNFS8g1h7cOv-f3pWJTH7mubtCGLTV6fyEUJfKdQJQ>
-    <xmx:qfgMaPC5FGWuV_5Cknij04lvxGSeCOFW3wA8lCW6fChGDgA8HzuEfqKb>
-Feedback-ID: i12284293:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 26 Apr 2025 11:15:52 -0400 (EDT)
-Received: by mbp.qyliss.net (Postfix, from userid 1000)
-	id E07A2117F8; Sat, 26 Apr 2025 17:15:46 +0200 (CEST)
-From: Alyssa Ross <hi@alyssa.is>
-To: selinux@vger.kernel.org
-Cc: =?UTF-8?q?=D0=BD=D0=B0=D0=B1?= <nabijaczleweli@nabijaczleweli.xyz>,
-	James Carter <jwcart2@gmail.com>,
-	Alba Mendez <me@alba.sh>
-Subject: [PATCH v2] libselinux: be careful with non-portable LFS macro
-Date: Sat, 26 Apr 2025 17:13:57 +0200
-Message-ID: <20250426151356.7116-2-hi@alyssa.is>
-X-Mailer: git-send-email 2.47.2
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Bo5B4yek"
+Received: by mail-yb1-f174.google.com with SMTP id 3f1490d57ef6-e6dd991a0e6so2505742276.1
+        for <selinux@vger.kernel.org>; Sat, 26 Apr 2025 09:56:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1745686612; x=1746291412; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9Qvcm4ZlifMLzpCFaQIQMUnlx9IKvnlCR33o+043/5o=;
+        b=Bo5B4yekCk2tcK4dOxf/+wg4A4VOd4gaCE6gzZg6xNL6XwJrKJAUe7In9CT3jd/ByK
+         3mFiuKQ/kBqhhfXMD4x1XS89NAVFslk3eiJjrNO5SNQGPOmhi7stVQ+2jKWMWr8Tpb0N
+         D8AVkZNls/GntEL9tX3TvVRNRu4i/zKQnIHOOvkP2ytxZvRHb4oFNuOgrowplqyyXhYh
+         0E+RjuYs5HoEZkajw0Mnwq2Be1g5Iz7q/CpydrErAQM4PmWkd0a1wnbgsiqhmbj568qN
+         TgXEbSeF9r6buPQkCIGL0TSuHfNOlH4yG1PYfAFPoqs/JD3l2rSjulgY2+k1of0+xAPo
+         hWNw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745686612; x=1746291412;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9Qvcm4ZlifMLzpCFaQIQMUnlx9IKvnlCR33o+043/5o=;
+        b=E2pnLvRUWsNPWCuaaURLVqqZZV58BDTifCMIb1gdaF3iC/8se9zO6KAzkUOXhOuHpr
+         xZEl21Pi+VYzb5jMi4Quyoc6y7zHOdIokXjuc5JrgcGpI/kdq/XIotLqcl691qjoP/q5
+         ofOf/CvK7GTHBrh0BtBthGW9C+6+Eh5TQaUmVzMBObsw+2GaeQ65s3b+88LnOj5/2gLA
+         +LK91vSzgLTorSO6uQgPURgMY8Ym+Z/ZtbLBLCG2gZN8Yq7JrVnINn2cK1LDsCuvBg11
+         +9lUZKTEDOiyblJh2sbBUxSi9PFw/5v8M4vfKVcNkPHONO8Sswf8L8hSHPwrrYOUG9Oz
+         Uo7g==
+X-Forwarded-Encrypted: i=1; AJvYcCV7K11D2ynMFGB5IGY/dokubuZAQGxWN7ViG6h3Oxa/U47o8ZHnrpabsa8jLVi8Zl8N7Njb1+76@vger.kernel.org
+X-Gm-Message-State: AOJu0YxaHXJBXL4Kl5BusA8x5aCg3DpCBSVqqoaWTnuw/GMFZAetUQFe
+	0s2Gmq2sMS0miLR0UlCfETpIx8lsUAEQdNVqVdxhuVAPPql+vnouViO1HKNXfKy3WVdAJR01tWl
+	T99Y756nUJagkqCgbt3sILdapY6wMgWMnppaW
+X-Gm-Gg: ASbGnct3TJMBDBOM7uyiPR5xrfM5oI2w2W3qCRmiXab8ZCNyPjaD0Uy4r+44DFpgImY
+	kKtZqo32+JgipTxWBmXIEXXiIWaQQxA6i0xtbQu7pnRPtXLwrv37hSl7AhVeraFdSz3e7uV4dnb
+	LjzRH5a4ZvgNG/EnU3lGucCQ==
+X-Google-Smtp-Source: AGHT+IE+1k4f+bo/fo02wyG4A49rhL7JuhfWYS6qNllUowtLP4beqhuLJsS4Vr/rE1m1d3RlfWQDKcP50bIe7h2CUvI=
+X-Received: by 2002:a05:6902:158c:b0:e63:efca:6692 with SMTP id
+ 3f1490d57ef6-e732334565bmr4790627276.6.1745686612561; Sat, 26 Apr 2025
+ 09:56:52 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20250424152822.2719-1-stephen.smalley.work@gmail.com>
+ <20250425-einspannen-wertarbeit-3f0c939525dc@brauner> <CAEjxPJ4vntQ5cCo_=KN0d+5FDPRwStjXUimE4iHXJkz9oeuVCw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4vntQ5cCo_=KN0d+5FDPRwStjXUimE4iHXJkz9oeuVCw@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Sat, 26 Apr 2025 12:56:41 -0400
+X-Gm-Features: ATxdqUEbSGq7jI0-7V0Nbdw0096xjbVILUivTxTYtxScdYz_SrmH_Xrk5Jt5Gbk
+Message-ID: <CAHC9VhSOqvKm5wNPp_7O+cayMf3gopeLu=uDoP5kmfvqtp40WQ@mail.gmail.com>
+Subject: Re: [PATCH] fs/xattr.c: fix simple_xattr_list to always include
+ security.* xattrs
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Christian Brauner <brauner@kernel.org>, omosnace@redhat.com, selinux@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-musl does not provide the obsolete LFS64 APIs (like ino64_t) — ino_t
-has always been 64-bit on all platforms there.  That means there's
-also no __INO_T_MATCHES_INO64_T macro, meaning the check would pass
-and reach the static asserts for the shim, which would fail due to
-there being no ino64_t to check the size of.  Fix this by only
-assuming the absense of __INO_T_MATCHES_INO64_t is meaningful when
-another non-portable Glibc macro, __INO64_T_TYPE, is defined.  If both
-are missing, that probably just means there is no ino64_t.
+On Fri, Apr 25, 2025 at 11:14=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Fri, Apr 25, 2025 at 5:20=E2=80=AFAM Christian Brauner <brauner@kernel=
+.org> wrote:
+> > On Thu, Apr 24, 2025 at 11:28:20AM -0400, Stephen Smalley wrote:
 
-Fixes: 5c3fcbd9 ("Inject matchpathcon_filespec_add64() if !defined(__INO_T_MATCHES_INO64_T) instead of using __BITS_PER_LONG < 64 as proxy")
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
----
-v2: Made the same change to the condition in the header, as suggested
-    in a GitHub comment.  The omission didn't seem to break anything,
-    but it makes sense to change it there too.
-    https://github.com/NixOS/nixpkgs/pull/391728#issuecomment-2832282846
+...
 
- libselinux/include/selinux/selinux.h | 2 +-
- libselinux/src/matchpathcon.c        | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+> > > +     if (err < 0)
+> > > +             return err;
+> > > +
+> > > +     if (buffer) {
+> > > +             if (remaining_size < err)
+> > > +                     return -ERANGE;
+> > > +             buffer +=3D err;
+> > > +     }
+> > > +     remaining_size -=3D err;
+> >
+> > Really unpleasant code duplication in here. We have xattr_list_one() fo=
+r
+> > that. security_inode_listxattr() should probably receive a pointer to
+> > &remaining_size?
+>
+> Not sure how to avoid the duplication, but willing to take it inside
+> of security_inode_listsecurity() and change its hook interface if
+> desired.
 
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index f64896b7..b1431e5d 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -537,7 +537,7 @@ extern int matchpathcon_index(const char *path,
-    with the same inode (e.g. due to multiple hard links).  If so, then
-    use the latter of the two specifications based on their order in the 
-    file contexts configuration.  Return the used specification index. */
--#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64 && !defined(__INO_T_MATCHES_INO64_T)
-+#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64 && defined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
- #define matchpathcon_filespec_add matchpathcon_filespec_add64
- #endif
- extern int matchpathcon_filespec_add(ino_t ino, int specind, const char *file);
-diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-index a4f65045..240c9fa7 100644
---- a/libselinux/src/matchpathcon.c
-+++ b/libselinux/src/matchpathcon.c
-@@ -261,7 +261,7 @@ int matchpathcon_filespec_add(ino_t ino, int specind, const char *file)
- 	return -1;
- }
- 
--#if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64) && !defined(__INO_T_MATCHES_INO64_T)
-+#if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS == 64) && defined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
- /* alias defined in the public header but we undefine it here */
- #undef matchpathcon_filespec_add
- 
+We talked about moving to xattr_list_one() in the other RFC thread
+earlier this week and as previously mentioned I think it's the right
+thing to do.  However, considering the issue with the new coreutils
+release, I think it's best to keep this patch limited to the fixes
+necessary to restore the desired behavior with the recent coreutils;
+this should make life easier for distro and stable backports.  We can
+address the LSM hook cleanup/rework in a second patch{set} afterwards.
 
-base-commit: 2647cc0fdca326b81ee3c08718cbe19b7866b53a
--- 
-2.47.2
-
+--
+paul-moore.com
