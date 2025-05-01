@@ -1,101 +1,113 @@
-Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com [209.85.219.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19204236445
-	for <selinux@vger.kernel.org>; Thu,  1 May 2025 19:59:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E088B21420F
+	for <selinux@vger.kernel.org>; Thu,  1 May 2025 21:41:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746129562; cv=none; b=UOaSiEg60bNYXcbHXaTwnOiS4icg2BCTXJ+eFvBC8OfDUOLVCU5aLxr0tLzsf4khBjOGKpxNR+ydi/6x3g2iE2j+OCu8KYNXCZCbaqpCoH61YFiK6RenOwYHd/Z6bOcmsaUSHZjI9ivrITTfZ9UovawFAPfaavjtpKhbtsR8pKQ=
+	t=1746135699; cv=none; b=TZ8rHsBQB5DMbQ0MxUp64NyqH3F6XmXSh7AMY/Nc2cknjVYNKWqw+FGHphNhn8MJ253nhxvFDrFfefMMcAEHeqOWLrSOZDXPPiP+Fc3HUZcAFA7qkofI4gqZFKqUjhBm7d8TzEUXqzHB1OLmsLcCiwMEt93xEFHJDuoEyS61BgA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746129562; c=relaxed/simple;
-	bh=Bvvy+fPyUodjy6qFHD+HgSYu3rmtFmqyXq/DzV+52S4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=irCpzUqxeKBAs7UcArnnYJEtE/O20s2QwyyTBqmK5UF+wW+PDN0pnAcUbwf/Ino98m8IR4J5jnLZ+9XcaK/8AOP0BLfuT5Bd/2L331OsnpINMmmK5MnbOARdEvw8TrA1AFt0nkTPfZ5zbb6xbMKkTkC9xOiFt6Tnda5XrukLP3M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Nz/QaT9a; arc=none smtp.client-ip=209.85.218.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1746135699; c=relaxed/simple;
+	bh=+DI/FVL6yjZ4eh78JOb2h08Ujui571ArayEi95LXWIQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=tgpLZgzdWebKjlW1sMadqnXpuQVBK9MHV2fBN+vvC6fBIIprz+JhqccY4e8viDvqh+pJ7ZtiyXbMVsJ8FFYp9qZycaEtKQDR3/gPzuaGlEYhSd+HybIFfNTP+O0dvFhD9TUwOoUcqFv8oIlscTe9PVuAL8Oao8EaPnr4eWbWTwA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=K9eyipcW; arc=none smtp.client-ip=209.85.219.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Nz/QaT9a"
-Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-ac2aeada833so254996666b.0
-        for <selinux@vger.kernel.org>; Thu, 01 May 2025 12:59:20 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="K9eyipcW"
+Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e6582542952so1067876276.3
+        for <selinux@vger.kernel.org>; Thu, 01 May 2025 14:41:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1746129559; x=1746734359; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=wsDTbdeg/4BWddCTwdV20bTHrmKNAaqrLk9VIcVQaYA=;
-        b=Nz/QaT9a9bhl2/bBEnKboulMeB3sc1B9ifO6Se6T8vG9NQMnEs+Hl3b8ecFWoCcOgA
-         dOMNQlbQLG/vb/HgDoEnEg2SsS527ENII51bgNPxn3q3u2ffNVbWVigUCDPvlKTa5V4m
-         PkxQ19Xuh0dhWW9Q4mf67o2j3g2xkDdoyEAq8/WsXLTsbrQ3e75b8A44tfU+dj9WXbBe
-         oGhMwibmwZGx5PmJZBllxXJrjIgvIoxRiC6hv3AjKfgDt+HNyZ6cvk/RR8fA64M70RQZ
-         +i6i9R7cCsuWlS5ZR+pMkyYYnV8n8RKL2nLQSGJaQgJ9jB6Lx60I1rj3GvR/eL2LbOay
-         +qNg==
+        d=paul-moore.com; s=google; t=1746135696; x=1746740496; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QctMbeE70hxXYOJicDt/r41Nghzd4xOqWrBlkNoECTo=;
+        b=K9eyipcWxHL5i1ggj9hI4gZ68heZVuJz3B3cIBHeScFqiIeqi5YQ+VnhzVu9ZZgJzm
+         ckB6IS5n8WA0s7eQ56FLK+UpW3WLjYZmtpDUEfQUKmhpj/NyZk4RwhV5cusp0n21D7iT
+         A03QxyMV24tdpxFfBseBeAEbjiXsTupTcJ7gW0WNmvPovu/VKeYTrkZNuWTZjsLmiXcd
+         CifbOcsn+DrrZqlBZGAH+8sYPxIrOVSK0XMEi3VzUzu+GqfDGLZ6NKDMwjL9sqmPxJtQ
+         GUlNOn0LRsCHC5ujEalK+AtAPq5aa3wansb4m7k99lYhS8jmGXcu2nDC+4Icw2fEROns
+         vTpA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746129559; x=1746734359;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=wsDTbdeg/4BWddCTwdV20bTHrmKNAaqrLk9VIcVQaYA=;
-        b=r90fXUyWb31GFNey0Kgwy9i0tVRqLjqApxS+ve3H6+zkjARkoleGQjTvG4AAKNZXzG
-         dkBoSscAxZH5JmoPYuY9P49SUaQcvnmS6gwgf0BTT4ZRJFyPKPtRnDAjFOVm2BlaMVnH
-         I4iRLAt+t4vLp2C+dMCbokQ6cEWZNWbdeMMRLJOGIkaN7cR4IL1hHbImz+9YTb2Qw/K3
-         Qf1qaCNwp7n5BEu8DyaRRMPIL+HvDcadObMkSsqAhAwcpOUYRbJArpvE+UZ2OkgzbGCx
-         Eg5fSBS6k0AHL8sYF4cMg/WhxHyANiHDAWpXhPGnw7+DrTDRPcNZuRXw5Dpbtu+IEnNe
-         giRA==
-X-Gm-Message-State: AOJu0Yz9MeL0B/gTsrV3PtA5mtlBbodiE64O+DiiX56tv0G2sXuMwTz3
-	4g1G/At817tB93+oRIu+HfHjsoZ1bVMWGdXRbck6PfrpHaxgcR+wxRqXDN7I
-X-Gm-Gg: ASbGnctdotvJ1cW0db2mHLL2PUbEN1d5DIRksVOS+T/xUQ55paT+pvCB7JTTmC2nv2i
-	sVfdxcqPNYhojf7od7fYB+nMzpkxWQJmL+uQVIvw1GLtLxR6zWAEkIO+w2fqnInbPxE3I/yijkG
-	tahMTJNqIf9VzVRwbvmLq9rjHxzcAC0qKvIgAWbycg+FeguSgpD55BkR7GiVqpc3KMyCRchvDm+
-	pMl82nDGF5cj2tiP1A0Hm+URJhtIw49M6m2S3PzP0pOz7Yd1HfUpDblwdLCqGUFMMBZZyjKAmPK
-	dyy1wdiQwPs2xImbjwA0JMETe9IsuOW9/H56IOkPjrYjPFhVgln+AfWaCdvIzwHD8R49CYVnXg=
-	=
-X-Google-Smtp-Source: AGHT+IGMXgWp2sCsK0h3sYT+DVPaT3Z/C1xVptZe95gUhf0YKZsXFukVbFHwXn70XbmbC4dIYVXZTA==
-X-Received: by 2002:a17:906:c111:b0:acb:2050:c105 with SMTP id a640c23a62f3a-aceff023d58mr302216866b.21.1746129558486;
-        Thu, 01 May 2025 12:59:18 -0700 (PDT)
-Received: from fedora.. (cpe-188-129-44-228.dynamic.amis.hr. [188.129.44.228])
-        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-ad0c70d4b18sm88412366b.12.2025.05.01.12.59.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 01 May 2025 12:59:17 -0700 (PDT)
-From: Robert Marko <robimarko@gmail.com>
-To: selinux@vger.kernel.org
-Cc: Robert Marko <robimarko@gmail.com>
-Subject: [PATCH] policycoreutils: run_init: define _GNU_SOURCE
-Date: Thu,  1 May 2025 21:59:13 +0200
-Message-ID: <20250501195915.820343-1-robimarko@gmail.com>
-X-Mailer: git-send-email 2.49.0
+        d=1e100.net; s=20230601; t=1746135696; x=1746740496;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QctMbeE70hxXYOJicDt/r41Nghzd4xOqWrBlkNoECTo=;
+        b=JIVkPVJ0jFhjwl7jfoQb15caKZZC1HJo0XGx2qEH1Enwa3yoEJp6XZ4qZTLaTumFxV
+         KaHYvSBSbcaPq7bDCmq/7JT2RB/CAco64VabXhJH81CXscqYmbZ7kaIqC8vg2UMtXPJn
+         LCC/63PI5BIjrF0ofjGFVDeAHJuucC7/UYVjolDWfSOQE5QL8I03iO+Omua2V4er9NLU
+         pt/HgVQ8AUP5Odm2F7urPsKVPRsdfJ6vUwcBHLGrlgfiCb2BiYfmX8RiVFND0G88HYH2
+         V8bCn8MZCfHokODAzzgW5yq5zdbr0kvyeFX1OYA16tAEM3rizhH5Uw3sWAZar4uB8z+k
+         iGvw==
+X-Gm-Message-State: AOJu0YyNmRFSNfKeg3giXfe2G5Lo5NpHNNFu7NtQo0KVSuWOZA6xC8BU
+	4VXmHbgviPnOKoTn3mFjGXCLHf+RLeYNvj0R7Xp2oY1EEJFzMgS85YnbkIqq71A5egIY12BItKp
+	8SCic5yyp2yyQLY9oRJHDPs6IrArpUl9zA0k/
+X-Gm-Gg: ASbGncvu0Q423rnbxvqx9yqmAUkrdmLwqasy8FvBHAUdq8aFo8iO/Hd9C+hsN8HKiBR
+	qHhTVl9w7eNcYkM3mENVE+uVZ+G8MLgHGtSaUmX3ygoBV22aNOesQA1jWCbP1tpd/XdceSgEejA
+	2v0vJ/lF/HUF2ktq3H7BBKIQ==
+X-Google-Smtp-Source: AGHT+IFbXd27PKiWhg/8g10pNE2jmugdi2QO1bx1sJGSEmtd19+ShVcKM/OSCrRUI93wBPmovixiBGmvY2M+lI34UOs=
+X-Received: by 2002:a05:6902:18c2:b0:e75:36bd:c097 with SMTP id
+ 3f1490d57ef6-e75655a57fbmr970939276.28.1746135696616; Thu, 01 May 2025
+ 14:41:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250425123719.5984-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20250425123719.5984-2-stephen.smalley.work@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 1 May 2025 17:41:25 -0400
+X-Gm-Features: ATxdqUFIrN4YtJMuISpfnSQi9Td7XN6Bsml4iSVSguGlxnESgMniMZTFLD0tO5M
+Message-ID: <CAHC9VhQE6gEwpN5Y=TDQZQ6sZF3u81iqUa8oH9NvLUy3sc1xRw@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: introduce neveraudit types
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, omosnace@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Trying to compile run_init with musl will fail with:
-run_init.c: In function 'authenticate_via_shadow_passwd':
-run_init.c:206:40: error: implicit declaration of function 'getpass' [-Wimplicit-function-declaration]
-  206 |         if (!(unencrypted_password_s = getpass(PASSWORD_PROMPT))) {
+On Fri, Apr 25, 2025 at 8:38=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> Introduce neveraudit types i.e. types that should never trigger
+> audit messages. This allows the AVC to skip all audit-related
+> processing for such types. Note that neveraudit differs from
+> dontaudit not only wrt being applied for all checks with a given
+> source type but also in that it disables all auditing, not just
+> permission denials.
+>
+> When a type is both a permissive type and a neveraudit type,
+> the security server can short-circuit the security_compute_av()
+> logic, rendering the type equivalent to an unconfined type.
+>
+> This change just introduces the basic support but does not yet
+> further optimize the AVC or hook function logic when a type
+> is both a permissive type and a dontaudit type.
+>
+> Link: https://lore.kernel.org/selinux/20250424200310.2409-2-stephen.small=
+ey.work@gmail.com/
+>
+> Suggested-by: Paul Moore <paul@paul-moore.com>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+> If this seems viable/preferable to the unconfined types patch, then
+> I will update the userspace patches, but it would just be a global
+> renaming from unconfined to neveraudit.
 
-This is because getpass in musl is guarded only for _GNU_SOURCE, so
-define _GNU_SOURCE for run_init.
+Without going over this patch very closely, generally speaking yes, I
+believe the permissive|neveraudit approach is more desirable than an
+unconfined approach for the reasons mentioned in the other thread.
 
-Signed-off-by: Robert Marko <robimarko@gmail.com>
----
- policycoreutils/run_init/run_init.c | 2 ++
- 1 file changed, 2 insertions(+)
+>  security/selinux/include/avc.h      |  4 ++++
+>  security/selinux/include/security.h |  4 +++-
+>  security/selinux/ss/policydb.c      | 19 +++++++++++++++++++
+>  security/selinux/ss/policydb.h      |  2 ++
+>  security/selinux/ss/services.c      | 20 ++++++++++++++++++++
+>  5 files changed, 48 insertions(+), 1 deletion(-)
 
-diff --git a/policycoreutils/run_init/run_init.c b/policycoreutils/run_init/run_init.c
-index ce499781..4531a8ba 100644
---- a/policycoreutils/run_init/run_init.c
-+++ b/policycoreutils/run_init/run_init.c
-@@ -37,6 +37,8 @@
-  *
-  *************************************************************************/
- 
-+#define _GNU_SOURCE
-+
- #include <stdio.h>
- #include <stdlib.h>		/* for malloc(), realloc(), free() */
- #include <pwd.h>		/* for getpwuid() */
--- 
-2.49.0
-
+--=20
+paul-moore.com
