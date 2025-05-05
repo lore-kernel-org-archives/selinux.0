@@ -1,311 +1,659 @@
-Received: from smtp-fw-52002.amazon.com (smtp-fw-52002.amazon.com [52.119.213.150])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3439F129A78;
-	Mon,  5 May 2025 22:00:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.119.213.150
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2798E29A30A;
+	Mon,  5 May 2025 22:38:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746482437; cv=none; b=IKkJi5p4807hHpHlLsXOh6axz/O427eYxT8YQitD0ZFyhKhwZEcyDWgBfqOtiafh3uaY1FhuJhS8Xj+grS87suNHrIHpFaCRFXV+8c9YTRusTaqofwburAZP38SynUCi3fs1CDH4IMlB7fIG3FtXaRVbidcsbDjbEMge1Q5dd7g=
+	t=1746484739; cv=none; b=nDEGwAiiTcT/YPGHA5cFgsjHsNHXPfXKGg6mKBC0vOpeR4VjKjDosjnfoyjhHkutOrs87OnEH0hZ8UIDKotzvGrov+raridTgaC5GhyY4d+OkFDpCSvJK5HCZVwp+KV58up8WCpcvPdc/vQzP7vPziKZpAxKBcNZje/drS3bRaQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746482437; c=relaxed/simple;
-	bh=ZtzVn3vhfHHrZyvMML07cCet17koomvjLqult12hZfQ=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=P8qO8/6A6c1xKat2LpblLoBFr1AePHCQrbphASSCzwhXQg4j7vtd0mtNcP7OHqafkElnloSFM50ZgFDhZPS1p9JsaYMCIGcr8UsgFZ+iTwrJadWyH+O/x1l4z+keWzopL7CExng1FiOPw29IDRjGQ1I/Hrmg4YrA+0X+G6JzVug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=ABdbB6Cs; arc=none smtp.client-ip=52.119.213.150
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1746484739; c=relaxed/simple;
+	bh=tAeZqUmhHVfL64vJ6firG8O4T+D3u14MnFgPZMStqt4=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=Hqprp4xaYGpHllyfwA8GhCXGQfp39UQ4tby75Hs6Cqvc01q1TSMf3VIkBEkIOGBmoM0U6kFyk8imZulsFfoUobEKxmBcf3kABCsQVuXjGcKz82VKv0mUUc/WB+PSBdK3mg2Tva0onuKHRsb0twRi6/+2FHuvJifGYgKEorlCLvA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AKBxZOFm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="ABdbB6Cs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1746482435; x=1778018435;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=EXF8Pa46OdfY42qSofeY7OfevWcwLJJFEHFJJRca7Jk=;
-  b=ABdbB6Cs+6GXHbLPNCGqrqKRf4ceO3UjFKDpVYU83/3pcAISpqs3vTgN
-   OCw665fyXlbm5hzLAzWwAZy5ReyrzAiptQvvn07EEjT5BWwg3ZxOSrDpG
-   GUhZHb3SQyx7ZijAKly/7iBTwYc2YCgZR3LHKsZJUSmtNvkhCQU8iz7Mj
-   Q=;
-X-IronPort-AV: E=Sophos;i="6.15,264,1739836800"; 
-   d="scan'208";a="719980326"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.43.8.6])
-  by smtp-border-fw-52002.iad7.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 May 2025 22:00:32 +0000
-Received: from EX19MTAUWA002.ant.amazon.com [10.0.38.20:20457]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.38.92:2525] with esmtp (Farcaster)
- id cb57f3a2-fd3a-446b-92da-422b317c23d6; Mon, 5 May 2025 22:00:31 +0000 (UTC)
-X-Farcaster-Flow-ID: cb57f3a2-fd3a-446b-92da-422b317c23d6
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Mon, 5 May 2025 22:00:29 +0000
-Received: from 6c7e67bfbae3.amazon.com (10.187.170.18) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Mon, 5 May 2025 22:00:24 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: Martin KaFai Lau <martin.lau@linux.dev>, Daniel Borkmann
-	<daniel@iogearbox.net>, John Fastabend <john.fastabend@gmail.com>, "Alexei
- Starovoitov" <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>
-CC: Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
-	"Yonghong Song" <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>,
-	"Stanislav Fomichev" <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri
- Olsa <jolsa@kernel.org>, =?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?=
-	<mic@digikod.net>, =?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>, Paul
- Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, "Serge E.
- Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>,
-	"Ondrej Mosnacek" <omosnace@redhat.com>, Casey Schaufler
-	<casey@schaufler-ca.com>, Christian Brauner <brauner@kernel.org>, Kuniyuki
- Iwashima <kuniyu@amazon.com>, Kuniyuki Iwashima <kuni1840@gmail.com>,
-	<bpf@vger.kernel.org>, <netdev@vger.kernel.org>,
-	<linux-security-module@vger.kernel.org>, <selinux@vger.kernel.org>
-Subject: [PATCH v1 bpf-next 5/5] selftest: bpf: Add test for bpf_unix_scrub_fds().
-Date: Mon, 5 May 2025 14:56:50 -0700
-Message-ID: <20250505215802.48449-6-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250505215802.48449-1-kuniyu@amazon.com>
-References: <20250505215802.48449-1-kuniyu@amazon.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AKBxZOFm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF151C4CEE4;
+	Mon,  5 May 2025 22:38:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1746484739;
+	bh=tAeZqUmhHVfL64vJ6firG8O4T+D3u14MnFgPZMStqt4=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=AKBxZOFmGu0yVyWukQH2NPpRYOsDmGbWg5S6ZtaFdjZ10mPYaX6Tl3d6qinxwMtay
+	 HEa6jowpP3TZlvKqq8Y73acqb1z+Pt4EEkq5ucpFnPZs595v9PHrdPKCK9ImgBqVHA
+	 jUj+HyPv/qGGXZwyaH0oipKc2BZfQHS9kUBDTbYlQ0snSUT+iHexF1r3xz3LdyH4p1
+	 7bQnYz1geM+qOaDVBEhsvy+TAHCeTgJynkPwNAGSCgyVqSYacGOUiT42VOICO9AyUh
+	 DxE7bI2b0CzfXLIEK0Ww9h1UurI+Xw7dIx/oJwqbKQKR51m/pl2BzvItpzsQyNiJz8
+	 fY7JVWdcu7cHQ==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Tejun Heo <tj@kernel.org>,
+	syzbot+6ea37e2e6ffccf41a7e6@syzkaller.appspotmail.com,
+	Hillf Danton <hdanton@sina.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Sasha Levin <sashal@kernel.org>,
+	reinette.chatre@intel.com,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	dave.hansen@linux.intel.com,
+	x86@kernel.org,
+	rafael@kernel.org,
+	dakr@kernel.org,
+	paul@paul-moore.com,
+	stephen.smalley.work@gmail.com,
+	clrkwllms@kernel.org,
+	rostedt@goodmis.org,
+	selinux@vger.kernel.org,
+	linux-rt-devel@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.14 634/642] kernfs: Use RCU to access kernfs_node::name.
+Date: Mon,  5 May 2025 18:14:10 -0400
+Message-Id: <20250505221419.2672473-634-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.5
+In-Reply-To: <20250505221419.2672473-1-sashal@kernel.org>
+References: <20250505221419.2672473-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.14.5
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: EX19D042UWB004.ant.amazon.com (10.13.139.150) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
 
-This test performs the following for all AF_UNIX socket types
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-  1. Create a socket pair (sender and receiver)
-  2. Send the receiver's fd from the sender to the receiver
-  3. Receive the fd
-  4. Attach a BPF LSM prog that scrubs SCM_RIGHTS fds
-  5. Send the receiver's fd from the sender to the receiver
-  6. Check if the fd was scrubbed
-  7. Detach the LSM prog
+[ Upstream commit 741c10b096bc4dd79cd9f215b6ef173bb953e75c ]
 
-How to run:
+Using RCU lifetime rules to access kernfs_node::name can avoid the
+trouble with kernfs_rename_lock in kernfs_name() and kernfs_path_from_node()
+if the fs was created with KERNFS_ROOT_INVARIANT_PARENT. This is usefull
+as it allows to implement kernfs_path_from_node() only with RCU
+protection and avoiding kernfs_rename_lock. The lock is only required if
+the __parent node can be changed and the function requires an unchanged
+hierarchy while it iterates from the node to its parent.
+The change is needed to allow the lookup of the node's path
+(kernfs_path_from_node()) from context which runs always with disabled
+preemption and or interrutps even on PREEMPT_RT. The problem is that
+kernfs_rename_lock becomes a sleeping lock on PREEMPT_RT.
 
-  # make -C tools/testing/selftests/bpf/
-  # ./tools/testing/selftests/bpf/test_progs -t lsm_unix_may_send
-  ...
-  #175/1   lsm_unix_may_send/SOCK_STREAM:OK
-  #175/2   lsm_unix_may_send/SOCK_DGRAM:OK
-  #175/3   lsm_unix_may_send/SOCK_SEQPACKET:OK
-  #175     lsm_unix_may_send:OK
-  Summary: 1/3 PASSED, 0 SKIPPED, 0 FAILED
+I went through all ::name users and added the required access for the lookup
+with a few extensions:
+- rdtgroup_pseudo_lock_create() drops all locks and then uses the name
+  later on. resctrl supports rename with different parents. Here I made
+  a temporal copy of the name while it is used outside of the lock.
 
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+- kernfs_rename_ns() accepts NULL as new_parent. This simplifies
+  sysfs_move_dir_ns() where it can set NULL in order to reuse the current
+  name.
+
+- kernfs_rename_ns() is only using kernfs_rename_lock if the parents are
+  different. All users use either kernfs_rwsem (for stable path view) or
+  just RCU for the lookup. The ::name uses always RCU free.
+
+Use RCU lifetime guarantees to access kernfs_node::name.
+
+Suggested-by: Tejun Heo <tj@kernel.org>
+Acked-by: Tejun Heo <tj@kernel.org>
+Reported-by: syzbot+6ea37e2e6ffccf41a7e6@syzkaller.appspotmail.com
+Closes: https://lore.kernel.org/lkml/67251dc6.050a0220.529b6.015e.GAE@google.com/
+Reported-by: Hillf Danton <hdanton@sina.com>
+Closes: https://lore.kernel.org/20241102001224.2789-1-hdanton@sina.com
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Link: https://lore.kernel.org/r/20250213145023.2820193-7-bigeasy@linutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: 6ef5b6fae304 ("kernfs: Drop kernfs_rwsem while invoking lookup_positive_unlocked().")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../bpf/prog_tests/lsm_unix_may_send.c        | 160 ++++++++++++++++++
- .../selftests/bpf/progs/lsm_unix_may_send.c   |  30 ++++
- 2 files changed, 190 insertions(+)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/lsm_unix_may_send.c
- create mode 100644 tools/testing/selftests/bpf/progs/lsm_unix_may_send.c
+ arch/x86/kernel/cpu/resctrl/internal.h    |   5 +
+ arch/x86/kernel/cpu/resctrl/pseudo_lock.c |  14 ++-
+ arch/x86/kernel/cpu/resctrl/rdtgroup.c    |  10 +-
+ fs/kernfs/dir.c                           | 113 ++++++++++++----------
+ fs/kernfs/file.c                          |   4 +-
+ fs/kernfs/kernfs-internal.h               |   5 +
+ fs/kernfs/mount.c                         |   5 +-
+ fs/kernfs/symlink.c                       |   7 +-
+ fs/sysfs/dir.c                            |   2 +-
+ include/linux/kernfs.h                    |   4 +-
+ security/selinux/hooks.c                  |   7 +-
+ 11 files changed, 105 insertions(+), 71 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/lsm_unix_may_send.c b/tools/testing/selftests/bpf/prog_tests/lsm_unix_may_send.c
-new file mode 100644
-index 000000000000..50b2547e63cf
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/lsm_unix_may_send.c
-@@ -0,0 +1,160 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/* Copyright Amazon.com Inc. or its affiliates. */
-+
-+#include "test_progs.h"
-+#include "lsm_unix_may_send.skel.h"
-+
-+#define MSG_HELLO "Hello"
-+#define MSG_WORLD "World"
-+#define MSG_LEN 5
-+
-+struct scm_rights {
-+	struct cmsghdr cmsghdr;
-+	int fd;
-+};
-+
-+static int send_fd(int sender_fd, int receiver_fd)
+diff --git a/arch/x86/kernel/cpu/resctrl/internal.h b/arch/x86/kernel/cpu/resctrl/internal.h
+index 20c898f09b7e7..dd5d6b4bfcc22 100644
+--- a/arch/x86/kernel/cpu/resctrl/internal.h
++++ b/arch/x86/kernel/cpu/resctrl/internal.h
+@@ -507,6 +507,11 @@ int parse_bw(struct rdt_parse_data *data, struct resctrl_schema *s,
+ 
+ extern struct mutex rdtgroup_mutex;
+ 
++static inline const char *rdt_kn_name(const struct kernfs_node *kn)
 +{
-+	struct scm_rights cmsg = {};
-+	struct msghdr msg = {};
-+	struct iovec iov = {};
-+	int ret;
-+
-+	msg.msg_iov = &iov;
-+	msg.msg_iovlen = 1;
-+	msg.msg_control = &cmsg;
-+	msg.msg_controllen = CMSG_SPACE(sizeof(cmsg.fd));
-+
-+	iov.iov_base = MSG_HELLO;
-+	iov.iov_len = MSG_LEN;
-+
-+	cmsg.cmsghdr.cmsg_len = CMSG_LEN(sizeof(cmsg.fd));
-+	cmsg.cmsghdr.cmsg_level = SOL_SOCKET;
-+	cmsg.cmsghdr.cmsg_type = SCM_RIGHTS;
-+	cmsg.fd = receiver_fd;
-+
-+	ret = sendmsg(sender_fd, &msg, 0);
-+	if (!ASSERT_EQ(ret, MSG_LEN, "sendmsg(Hello)"))
-+		return -EINVAL;
-+
-+	ret = send(sender_fd, MSG_WORLD, MSG_LEN, 0);
-+	if (!ASSERT_EQ(ret, MSG_LEN, "sendmsg(World)"))
-+		return -EINVAL;
-+
-+	return 0;
++	return rcu_dereference_check(kn->name, lockdep_is_held(&rdtgroup_mutex));
 +}
 +
-+static int recv_fd(int receiver_fd, bool lsm_attached)
-+{
-+	struct scm_rights cmsg = {};
-+	struct msghdr msg = {};
-+	char buf[MSG_LEN] = {};
-+	struct iovec iov = {};
-+	int ret;
-+
-+	msg.msg_iov = &iov;
-+	msg.msg_iovlen = 1;
-+	msg.msg_control = &cmsg;
-+	msg.msg_controllen = CMSG_SPACE(sizeof(cmsg.fd));
-+
-+	iov.iov_base = buf;
-+	iov.iov_len = sizeof(buf);
-+
-+	ret = recvmsg(receiver_fd, &msg, 0);
-+	if (!ASSERT_EQ(ret, MSG_LEN, "recvmsg(Hello) length") ||
-+	    !ASSERT_STRNEQ(buf, MSG_HELLO, MSG_LEN, "recvmsg(Hello) data"))
-+		return -EINVAL;
-+
-+	if (lsm_attached) {
-+		if (!ASSERT_ERR_PTR(CMSG_FIRSTHDR(&msg), "cmsg filtered"))
-+			return -EINVAL;
-+	} else {
-+		if (!ASSERT_OK_PTR(CMSG_FIRSTHDR(&msg), "cmsg sent") ||
-+		    !ASSERT_EQ(cmsg.cmsghdr.cmsg_len, CMSG_LEN(sizeof(cmsg.fd)), "cmsg_len") ||
-+		    !ASSERT_EQ(cmsg.cmsghdr.cmsg_level, SOL_SOCKET, "cmsg_level") ||
-+		    !ASSERT_EQ(cmsg.cmsghdr.cmsg_type, SCM_RIGHTS, "cmsg_type"))
-+			return -EINVAL;
-+
-+		receiver_fd = cmsg.fd;
+ extern struct rdt_hw_resource rdt_resources_all[];
+ extern struct rdtgroup rdtgroup_default;
+ extern struct dentry *debugfs_resctrl;
+diff --git a/arch/x86/kernel/cpu/resctrl/pseudo_lock.c b/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
+index 42cc162f7fc91..7a2db7fa41083 100644
+--- a/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
++++ b/arch/x86/kernel/cpu/resctrl/pseudo_lock.c
+@@ -52,7 +52,8 @@ static char *pseudo_lock_devnode(const struct device *dev, umode_t *mode)
+ 	rdtgrp = dev_get_drvdata(dev);
+ 	if (mode)
+ 		*mode = 0600;
+-	return kasprintf(GFP_KERNEL, "pseudo_lock/%s", rdtgrp->kn->name);
++	guard(mutex)(&rdtgroup_mutex);
++	return kasprintf(GFP_KERNEL, "pseudo_lock/%s", rdt_kn_name(rdtgrp->kn));
+ }
+ 
+ static const struct class pseudo_lock_class = {
+@@ -1293,6 +1294,7 @@ int rdtgroup_pseudo_lock_create(struct rdtgroup *rdtgrp)
+ 	struct task_struct *thread;
+ 	unsigned int new_minor;
+ 	struct device *dev;
++	char *kn_name __free(kfree) = NULL;
+ 	int ret;
+ 
+ 	ret = pseudo_lock_region_alloc(plr);
+@@ -1304,6 +1306,11 @@ int rdtgroup_pseudo_lock_create(struct rdtgroup *rdtgrp)
+ 		ret = -EINVAL;
+ 		goto out_region;
+ 	}
++	kn_name = kstrdup(rdt_kn_name(rdtgrp->kn), GFP_KERNEL);
++	if (!kn_name) {
++		ret = -ENOMEM;
++		goto out_cstates;
 +	}
+ 
+ 	plr->thread_done = 0;
+ 
+@@ -1348,8 +1355,7 @@ int rdtgroup_pseudo_lock_create(struct rdtgroup *rdtgrp)
+ 	mutex_unlock(&rdtgroup_mutex);
+ 
+ 	if (!IS_ERR_OR_NULL(debugfs_resctrl)) {
+-		plr->debugfs_dir = debugfs_create_dir(rdtgrp->kn->name,
+-						      debugfs_resctrl);
++		plr->debugfs_dir = debugfs_create_dir(kn_name, debugfs_resctrl);
+ 		if (!IS_ERR_OR_NULL(plr->debugfs_dir))
+ 			debugfs_create_file("pseudo_lock_measure", 0200,
+ 					    plr->debugfs_dir, rdtgrp,
+@@ -1358,7 +1364,7 @@ int rdtgroup_pseudo_lock_create(struct rdtgroup *rdtgrp)
+ 
+ 	dev = device_create(&pseudo_lock_class, NULL,
+ 			    MKDEV(pseudo_lock_major, new_minor),
+-			    rdtgrp, "%s", rdtgrp->kn->name);
++			    rdtgrp, "%s", kn_name);
+ 
+ 	mutex_lock(&rdtgroup_mutex);
+ 
+diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+index 3d2a850ea737d..1f769d819a864 100644
+--- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
++++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
+@@ -917,14 +917,14 @@ int proc_resctrl_show(struct seq_file *s, struct pid_namespace *ns,
+ 			continue;
+ 
+ 		seq_printf(s, "res:%s%s\n", (rdtg == &rdtgroup_default) ? "/" : "",
+-			   rdtg->kn->name);
++			   rdt_kn_name(rdtg->kn));
+ 		seq_puts(s, "mon:");
+ 		list_for_each_entry(crg, &rdtg->mon.crdtgrp_list,
+ 				    mon.crdtgrp_list) {
+ 			if (!resctrl_arch_match_rmid(tsk, crg->mon.parent->closid,
+ 						     crg->mon.rmid))
+ 				continue;
+-			seq_printf(s, "%s", crg->kn->name);
++			seq_printf(s, "%s", rdt_kn_name(crg->kn));
+ 			break;
+ 		}
+ 		seq_putc(s, '\n');
+@@ -3676,7 +3676,7 @@ static int rdtgroup_mkdir_ctrl_mon(struct kernfs_node *parent_kn,
+  */
+ static bool is_mon_groups(struct kernfs_node *kn, const char *name)
+ {
+-	return (!strcmp(kn->name, "mon_groups") &&
++	return (!strcmp(rdt_kn_name(kn), "mon_groups") &&
+ 		strcmp(name, "mon_groups"));
+ }
+ 
+@@ -3825,7 +3825,7 @@ static int rdtgroup_rmdir(struct kernfs_node *kn)
+ 			ret = rdtgroup_rmdir_ctrl(rdtgrp, tmpmask);
+ 		}
+ 	} else if (rdtgrp->type == RDTMON_GROUP &&
+-		 is_mon_groups(parent_kn, kn->name)) {
++		 is_mon_groups(parent_kn, rdt_kn_name(kn))) {
+ 		ret = rdtgroup_rmdir_mon(rdtgrp, tmpmask);
+ 	} else {
+ 		ret = -EPERM;
+@@ -3913,7 +3913,7 @@ static int rdtgroup_rename(struct kernfs_node *kn,
+ 
+ 	kn_parent = rdt_kn_parent(kn);
+ 	if (rdtgrp->type != RDTMON_GROUP || !kn_parent ||
+-	    !is_mon_groups(kn_parent, kn->name)) {
++	    !is_mon_groups(kn_parent, rdt_kn_name(kn))) {
+ 		rdt_last_cmd_puts("Source must be a MON group\n");
+ 		ret = -EPERM;
+ 		goto out;
+diff --git a/fs/kernfs/dir.c b/fs/kernfs/dir.c
+index 1d370c497e8a3..c5a578c46759a 100644
+--- a/fs/kernfs/dir.c
++++ b/fs/kernfs/dir.c
+@@ -51,14 +51,6 @@ static bool kernfs_lockdep(struct kernfs_node *kn)
+ #endif
+ }
+ 
+-static int kernfs_name_locked(struct kernfs_node *kn, char *buf, size_t buflen)
+-{
+-	if (!kn)
+-		return strscpy(buf, "(null)", buflen);
+-
+-	return strscpy(buf, rcu_access_pointer(kn->__parent) ? kn->name : "/", buflen);
+-}
+-
+ /* kernfs_node_depth - compute depth from @from to @to */
+ static size_t kernfs_depth(struct kernfs_node *from, struct kernfs_node *to)
+ {
+@@ -168,11 +160,13 @@ static int kernfs_path_from_node_locked(struct kernfs_node *kn_to,
+ 
+ 	/* Calculate how many bytes we need for the rest */
+ 	for (i = depth_to - 1; i >= 0; i--) {
++		const char *name;
+ 
+ 		for (kn = kn_to, j = 0; j < i; j++)
+ 			kn = rcu_dereference(kn->__parent);
+ 
+-		len += scnprintf(buf + len, buflen - len, "/%s", kn->name);
++		name = rcu_dereference(kn->name);
++		len += scnprintf(buf + len, buflen - len, "/%s", name);
+ 	}
+ 
+ 	return len;
+@@ -196,13 +190,18 @@ static int kernfs_path_from_node_locked(struct kernfs_node *kn_to,
+  */
+ int kernfs_name(struct kernfs_node *kn, char *buf, size_t buflen)
+ {
+-	unsigned long flags;
+-	int ret;
++	struct kernfs_node *kn_parent;
+ 
+-	read_lock_irqsave(&kernfs_rename_lock, flags);
+-	ret = kernfs_name_locked(kn, buf, buflen);
+-	read_unlock_irqrestore(&kernfs_rename_lock, flags);
+-	return ret;
++	if (!kn)
++		return strscpy(buf, "(null)", buflen);
 +
-+	memset(buf, 0, sizeof(buf));
-+
-+	ret = recv(receiver_fd, buf, sizeof(buf), 0);
-+	if (!ASSERT_EQ(ret, MSG_LEN, "recvmsg(World) length") ||
-+	    !ASSERT_STRNEQ(buf, MSG_WORLD, MSG_LEN, "recvmsg(World) data"))
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+static void test_scm_rights(struct lsm_unix_may_send *skel, int type)
++	guard(rcu)();
++	/*
++	 * KERNFS_ROOT_INVARIANT_PARENT is ignored here. The name is RCU freed and
++	 * the parent is either existing or not.
++	 */
++	kn_parent = rcu_dereference(kn->__parent);
++	return strscpy(buf, kn_parent ? rcu_dereference(kn->name) : "/", buflen);
+ }
+ 
+ /**
+@@ -224,14 +223,17 @@ int kernfs_name(struct kernfs_node *kn, char *buf, size_t buflen)
+ int kernfs_path_from_node(struct kernfs_node *to, struct kernfs_node *from,
+ 			  char *buf, size_t buflen)
+ {
+-	unsigned long flags;
+-	int ret;
++	struct kernfs_root *root;
+ 
+ 	guard(rcu)();
+-	read_lock_irqsave(&kernfs_rename_lock, flags);
+-	ret = kernfs_path_from_node_locked(to, from, buf, buflen);
+-	read_unlock_irqrestore(&kernfs_rename_lock, flags);
+-	return ret;
++	if (to) {
++		root = kernfs_root(to);
++		if (!(root->flags & KERNFS_ROOT_INVARIANT_PARENT)) {
++			guard(read_lock_irqsave)(&kernfs_rename_lock);
++			return kernfs_path_from_node_locked(to, from, buf, buflen);
++		}
++	}
++	return kernfs_path_from_node_locked(to, from, buf, buflen);
+ }
+ EXPORT_SYMBOL_GPL(kernfs_path_from_node);
+ 
+@@ -338,13 +340,13 @@ static int kernfs_name_compare(unsigned int hash, const char *name,
+ 		return -1;
+ 	if (ns > kn->ns)
+ 		return 1;
+-	return strcmp(name, kn->name);
++	return strcmp(name, kernfs_rcu_name(kn));
+ }
+ 
+ static int kernfs_sd_compare(const struct kernfs_node *left,
+ 			     const struct kernfs_node *right)
+ {
+-	return kernfs_name_compare(left->hash, left->name, left->ns, right);
++	return kernfs_name_compare(left->hash, kernfs_rcu_name(left), left->ns, right);
+ }
+ 
+ /**
+@@ -542,7 +544,8 @@ static void kernfs_free_rcu(struct rcu_head *rcu)
+ {
+ 	struct kernfs_node *kn = container_of(rcu, struct kernfs_node, rcu);
+ 
+-	kfree_const(kn->name);
++	/* If the whole node goes away, then name can't be used outside */
++	kfree_const(rcu_access_pointer(kn->name));
+ 
+ 	if (kn->iattr) {
+ 		simple_xattrs_free(&kn->iattr->xattrs, NULL);
+@@ -575,7 +578,8 @@ void kernfs_put(struct kernfs_node *kn)
+ 
+ 	WARN_ONCE(atomic_read(&kn->active) != KN_DEACTIVATED_BIAS,
+ 		  "kernfs_put: %s/%s: released with incorrect active_ref %d\n",
+-		  parent ? parent->name : "", kn->name, atomic_read(&kn->active));
++		  parent ? rcu_dereference(parent->name) : "",
++		  rcu_dereference(kn->name), atomic_read(&kn->active));
+ 
+ 	if (kernfs_type(kn) == KERNFS_LINK)
+ 		kernfs_put(kn->symlink.target_kn);
+@@ -652,7 +656,7 @@ static struct kernfs_node *__kernfs_new_node(struct kernfs_root *root,
+ 	atomic_set(&kn->active, KN_DEACTIVATED_BIAS);
+ 	RB_CLEAR_NODE(&kn->rb);
+ 
+-	kn->name = name;
++	rcu_assign_pointer(kn->name, name);
+ 	kn->mode = mode;
+ 	kn->flags = flags;
+ 
+@@ -790,7 +794,8 @@ int kernfs_add_one(struct kernfs_node *kn)
+ 	ret = -EINVAL;
+ 	has_ns = kernfs_ns_enabled(parent);
+ 	if (WARN(has_ns != (bool)kn->ns, KERN_WARNING "kernfs: ns %s in '%s' for '%s'\n",
+-		 has_ns ? "required" : "invalid", parent->name, kn->name))
++		 has_ns ? "required" : "invalid",
++		 kernfs_rcu_name(parent), kernfs_rcu_name(kn)))
+ 		goto out_unlock;
+ 
+ 	if (kernfs_type(parent) != KERNFS_DIR)
+@@ -800,7 +805,7 @@ int kernfs_add_one(struct kernfs_node *kn)
+ 	if (parent->flags & (KERNFS_REMOVING | KERNFS_EMPTY_DIR))
+ 		goto out_unlock;
+ 
+-	kn->hash = kernfs_name_hash(kn->name, kn->ns);
++	kn->hash = kernfs_name_hash(kernfs_rcu_name(kn), kn->ns);
+ 
+ 	ret = kernfs_link_sibling(kn);
+ 	if (ret)
+@@ -856,7 +861,7 @@ static struct kernfs_node *kernfs_find_ns(struct kernfs_node *parent,
+ 
+ 	if (has_ns != (bool)ns) {
+ 		WARN(1, KERN_WARNING "kernfs: ns %s in '%s' for '%s'\n",
+-		     has_ns ? "required" : "invalid", parent->name, name);
++		     has_ns ? "required" : "invalid", kernfs_rcu_name(parent), name);
+ 		return NULL;
+ 	}
+ 
+@@ -1135,8 +1140,6 @@ static int kernfs_dop_revalidate(struct inode *dir, const struct qstr *name,
+ 
+ 	/* Negative hashed dentry? */
+ 	if (d_really_is_negative(dentry)) {
+-		struct kernfs_node *parent;
+-
+ 		/* If the kernfs parent node has changed discard and
+ 		 * proceed to ->lookup.
+ 		 *
+@@ -1184,7 +1187,7 @@ static int kernfs_dop_revalidate(struct inode *dir, const struct qstr *name,
+ 		goto out_bad;
+ 
+ 	/* The kernfs node has been renamed */
+-	if (strcmp(dentry->d_name.name, kn->name) != 0)
++	if (strcmp(dentry->d_name.name, kernfs_rcu_name(kn)) != 0)
+ 		goto out_bad;
+ 
+ 	/* The kernfs node has been moved to a different namespace */
+@@ -1478,7 +1481,7 @@ static void __kernfs_remove(struct kernfs_node *kn)
+ 	if (kernfs_parent(kn) && RB_EMPTY_NODE(&kn->rb))
+ 		return;
+ 
+-	pr_debug("kernfs %s: removing\n", kn->name);
++	pr_debug("kernfs %s: removing\n", kernfs_rcu_name(kn));
+ 
+ 	/* prevent new usage by marking all nodes removing and deactivating */
+ 	pos = NULL;
+@@ -1734,7 +1737,7 @@ int kernfs_rename_ns(struct kernfs_node *kn, struct kernfs_node *new_parent,
+ {
+ 	struct kernfs_node *old_parent;
+ 	struct kernfs_root *root;
+-	const char *old_name = NULL;
++	const char *old_name;
+ 	int error;
+ 
+ 	/* can't move or rename root */
+@@ -1757,8 +1760,11 @@ int kernfs_rename_ns(struct kernfs_node *kn, struct kernfs_node *new_parent,
+ 	}
+ 
+ 	error = 0;
++	old_name = kernfs_rcu_name(kn);
++	if (!new_name)
++		new_name = old_name;
+ 	if ((old_parent == new_parent) && (kn->ns == new_ns) &&
+-	    (strcmp(kn->name, new_name) == 0))
++	    (strcmp(old_name, new_name) == 0))
+ 		goto out;	/* nothing to rename */
+ 
+ 	error = -EEXIST;
+@@ -1766,7 +1772,7 @@ int kernfs_rename_ns(struct kernfs_node *kn, struct kernfs_node *new_parent,
+ 		goto out;
+ 
+ 	/* rename kernfs_node */
+-	if (strcmp(kn->name, new_name) != 0) {
++	if (strcmp(old_name, new_name) != 0) {
+ 		error = -ENOMEM;
+ 		new_name = kstrdup_const(new_name, GFP_KERNEL);
+ 		if (!new_name)
+@@ -1779,27 +1785,32 @@ int kernfs_rename_ns(struct kernfs_node *kn, struct kernfs_node *new_parent,
+ 	 * Move to the appropriate place in the appropriate directories rbtree.
+ 	 */
+ 	kernfs_unlink_sibling(kn);
+-	kernfs_get(new_parent);
+ 
+-	/* rename_lock protects ->parent and ->name accessors */
+-	write_lock_irq(&kernfs_rename_lock);
++	/* rename_lock protects ->parent accessors */
++	if (old_parent != new_parent) {
++		kernfs_get(new_parent);
++		write_lock_irq(&kernfs_rename_lock);
+ 
+-	old_parent = kernfs_parent(kn);
+-	rcu_assign_pointer(kn->__parent, new_parent);
++		rcu_assign_pointer(kn->__parent, new_parent);
+ 
+-	kn->ns = new_ns;
+-	if (new_name) {
+-		old_name = kn->name;
+-		kn->name = new_name;
+-	}
++		kn->ns = new_ns;
++		if (new_name)
++			rcu_assign_pointer(kn->name, new_name);
+ 
+-	write_unlock_irq(&kernfs_rename_lock);
++		write_unlock_irq(&kernfs_rename_lock);
++		kernfs_put(old_parent);
++	} else {
++		/* name assignment is RCU protected, parent is the same */
++		kn->ns = new_ns;
++		if (new_name)
++			rcu_assign_pointer(kn->name, new_name);
++	}
+ 
+-	kn->hash = kernfs_name_hash(kn->name, kn->ns);
++	kn->hash = kernfs_name_hash(new_name ?: old_name, kn->ns);
+ 	kernfs_link_sibling(kn);
+ 
+-	kernfs_put(old_parent);
+-	kfree_const(old_name);
++	if (new_name && !is_kernel_rodata((unsigned long)old_name))
++		kfree_rcu_mightsleep(old_name);
+ 
+ 	error = 0;
+  out:
+@@ -1884,7 +1895,7 @@ static int kernfs_fop_readdir(struct file *file, struct dir_context *ctx)
+ 	for (pos = kernfs_dir_pos(ns, parent, ctx->pos, pos);
+ 	     pos;
+ 	     pos = kernfs_dir_next_pos(ns, parent, ctx->pos, pos)) {
+-		const char *name = pos->name;
++		const char *name = kernfs_rcu_name(pos);
+ 		unsigned int type = fs_umode_to_dtype(pos->mode);
+ 		int len = strlen(name);
+ 		ino_t ino = kernfs_ino(pos);
+diff --git a/fs/kernfs/file.c b/fs/kernfs/file.c
+index c4ffa8dc89ebc..66fe8fe41f060 100644
+--- a/fs/kernfs/file.c
++++ b/fs/kernfs/file.c
+@@ -915,6 +915,7 @@ static void kernfs_notify_workfn(struct work_struct *work)
+ 	list_for_each_entry(info, &kernfs_root(kn)->supers, node) {
+ 		struct kernfs_node *parent;
+ 		struct inode *p_inode = NULL;
++		const char *kn_name;
+ 		struct inode *inode;
+ 		struct qstr name;
+ 
+@@ -928,7 +929,8 @@ static void kernfs_notify_workfn(struct work_struct *work)
+ 		if (!inode)
+ 			continue;
+ 
+-		name = QSTR(kn->name);
++		kn_name = kernfs_rcu_name(kn);
++		name = QSTR(kn_name);
+ 		parent = kernfs_get_parent(kn);
+ 		if (parent) {
+ 			p_inode = ilookup(info->sb, kernfs_ino(parent));
+diff --git a/fs/kernfs/kernfs-internal.h b/fs/kernfs/kernfs-internal.h
+index c43bee18b79f7..40a2a9cd819d0 100644
+--- a/fs/kernfs/kernfs-internal.h
++++ b/fs/kernfs/kernfs-internal.h
+@@ -107,6 +107,11 @@ static inline bool kernfs_root_is_locked(const struct kernfs_node *kn)
+ 	return lockdep_is_held(&kernfs_root(kn)->kernfs_rwsem);
+ }
+ 
++static inline const char *kernfs_rcu_name(const struct kernfs_node *kn)
 +{
-+	struct bpf_link *link;
-+	int socket_fds[2];
-+	int err;
-+
-+	err = socketpair(AF_UNIX, type, 0, socket_fds);
-+	if (!ASSERT_EQ(err, 0, "socketpair"))
-+		return;
-+
-+	err = send_fd(socket_fds[0], socket_fds[1]);
-+	if (err)
-+		goto close;
-+
-+	err = recv_fd(socket_fds[1], false);
-+	if (err)
-+		goto close;
-+
-+	link = bpf_program__attach_lsm(skel->progs.unix_scrub_scm_rights);
-+	if (!ASSERT_OK_PTR(link, "attach lsm"))
-+		goto close;
-+
-+	err = send_fd(socket_fds[0], socket_fds[1]);
-+	if (err)
-+		goto close;
-+
-+	err = recv_fd(socket_fds[1], true);
-+	if (err)
-+		goto close;
-+
-+	err = bpf_link__destroy(link);
-+	ASSERT_EQ(err, 0, "destroy lsm");
-+close:
-+	close(socket_fds[0]);
-+	close(socket_fds[1]);
++	return rcu_dereference_check(kn->name, kernfs_root_is_locked(kn));
 +}
 +
-+struct sk_type {
-+	char name[16];
-+	int type;
-+} sk_types[] = {
-+	{
-+		.name = "SOCK_STREAM",
-+		.type = SOCK_STREAM,
-+	},
-+	{
-+		.name = "SOCK_DGRAM",
-+		.type = SOCK_DGRAM,
-+	},
-+	{
-+		.name = "SOCK_SEQPACKET",
-+		.type = SOCK_SEQPACKET,
-+	},
-+};
-+
-+void test_lsm_unix_may_send(void)
-+{
-+	struct lsm_unix_may_send *skel;
-+	int i;
-+
-+	skel = lsm_unix_may_send__open_and_load();
-+	if (!ASSERT_OK_PTR(skel, "load skel"))
-+		return;
-+
-+	for (i = 0; i < ARRAY_SIZE(sk_types); i++)
-+		if (test__start_subtest(sk_types[i].name))
-+			test_scm_rights(skel, sk_types[i].type);
-+
-+	lsm_unix_may_send__destroy(skel);
-+}
-diff --git a/tools/testing/selftests/bpf/progs/lsm_unix_may_send.c b/tools/testing/selftests/bpf/progs/lsm_unix_may_send.c
-new file mode 100644
-index 000000000000..c2459ba2c33d
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/lsm_unix_may_send.c
-@@ -0,0 +1,30 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/* Copyright Amazon.com Inc. or its affiliates. */
-+
-+#include "vmlinux.h"
-+#include <bpf/bpf_tracing.h>
-+
-+#ifndef EPERM
-+#define EPERM 1
-+#endif
-+
-+SEC("lsm/unix_may_send")
-+int BPF_PROG(unix_scrub_scm_rights,
-+	     struct socket *sock, struct socket *other, struct sk_buff *skb)
-+{
-+	struct unix_skb_parms *cb;
-+
-+	if (!skb)
-+		return 0;
-+
-+	cb = (struct unix_skb_parms *)skb->cb;
-+	if (!cb->fp)
-+		return 0;
-+
-+	if (bpf_unix_scrub_fds(skb))
-+		return -EPERM;
-+
-+	return 0;
-+}
-+
-+char _license[] SEC("license") = "GPL";
+ static inline struct kernfs_node *kernfs_parent(const struct kernfs_node *kn)
+ {
+ 	/*
+diff --git a/fs/kernfs/mount.c b/fs/kernfs/mount.c
+index 2252b16e6ef0b..d1f512b7bf867 100644
+--- a/fs/kernfs/mount.c
++++ b/fs/kernfs/mount.c
+@@ -231,6 +231,7 @@ struct dentry *kernfs_node_dentry(struct kernfs_node *kn,
+ 	do {
+ 		struct dentry *dtmp;
+ 		struct kernfs_node *kntmp;
++		const char *name;
+ 
+ 		if (kn == knparent)
+ 			return dentry;
+@@ -239,8 +240,8 @@ struct dentry *kernfs_node_dentry(struct kernfs_node *kn,
+ 			dput(dentry);
+ 			return ERR_PTR(-EINVAL);
+ 		}
+-		dtmp = lookup_positive_unlocked(kntmp->name, dentry,
+-					       strlen(kntmp->name));
++		name = rcu_dereference(kntmp->name);
++		dtmp = lookup_positive_unlocked(name, dentry, strlen(name));
+ 		dput(dentry);
+ 		if (IS_ERR(dtmp))
+ 			return dtmp;
+diff --git a/fs/kernfs/symlink.c b/fs/kernfs/symlink.c
+index 05c62ca93c53d..0bd8a2143723d 100644
+--- a/fs/kernfs/symlink.c
++++ b/fs/kernfs/symlink.c
+@@ -81,7 +81,7 @@ static int kernfs_get_target_path(struct kernfs_node *parent,
+ 	/* determine end of target string for reverse fillup */
+ 	kn = target;
+ 	while (kernfs_parent(kn) && kn != base) {
+-		len += strlen(kn->name) + 1;
++		len += strlen(kernfs_rcu_name(kn)) + 1;
+ 		kn = kernfs_parent(kn);
+ 	}
+ 
+@@ -95,10 +95,11 @@ static int kernfs_get_target_path(struct kernfs_node *parent,
+ 	/* reverse fillup of target string from target to base */
+ 	kn = target;
+ 	while (kernfs_parent(kn) && kn != base) {
+-		int slen = strlen(kn->name);
++		const char *name = kernfs_rcu_name(kn);
++		int slen = strlen(name);
+ 
+ 		len -= slen;
+-		memcpy(s + len, kn->name, slen);
++		memcpy(s + len, name, slen);
+ 		if (len)
+ 			s[--len] = '/';
+ 
+diff --git a/fs/sysfs/dir.c b/fs/sysfs/dir.c
+index 4df2afa551dc6..94e12efd92f21 100644
+--- a/fs/sysfs/dir.c
++++ b/fs/sysfs/dir.c
+@@ -123,7 +123,7 @@ int sysfs_move_dir_ns(struct kobject *kobj, struct kobject *new_parent_kobj,
+ 	new_parent = new_parent_kobj && new_parent_kobj->sd ?
+ 		new_parent_kobj->sd : sysfs_root_kn;
+ 
+-	return kernfs_rename_ns(kn, new_parent, kn->name, new_ns);
++	return kernfs_rename_ns(kn, new_parent, NULL, new_ns);
+ }
+ 
+ /**
+diff --git a/include/linux/kernfs.h b/include/linux/kernfs.h
+index 5dda9a268e44c..b5a5f32fdfd1a 100644
+--- a/include/linux/kernfs.h
++++ b/include/linux/kernfs.h
+@@ -204,8 +204,8 @@ struct kernfs_node {
+ 	 * never moved to a different parent, it is safe to access the
+ 	 * parent directly.
+ 	 */
+-	const char		*name;
+ 	struct kernfs_node	__rcu *__parent;
++	const char		__rcu *name;
+ 
+ 	struct rb_node		rb;
+ 
+@@ -400,7 +400,7 @@ static inline bool kernfs_ns_enabled(struct kernfs_node *kn)
+ }
+ 
+ int kernfs_name(struct kernfs_node *kn, char *buf, size_t buflen);
+-int kernfs_path_from_node(struct kernfs_node *root_kn, struct kernfs_node *kn,
++int kernfs_path_from_node(struct kernfs_node *kn_to, struct kernfs_node *kn_from,
+ 			  char *buf, size_t buflen);
+ void pr_cont_kernfs_name(struct kernfs_node *kn);
+ void pr_cont_kernfs_path(struct kernfs_node *kn);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7b867dfec88ba..7dee9616147d2 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3584,10 +3584,13 @@ static int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
+ 		newsid = tsec->create_sid;
+ 	} else {
+ 		u16 secclass = inode_mode_to_security_class(kn->mode);
++		const char *kn_name;
+ 		struct qstr q;
+ 
+-		q.name = kn->name;
+-		q.hash_len = hashlen_string(kn_dir, kn->name);
++		/* kn is fresh, can't be renamed, name goes not away */
++		kn_name = rcu_dereference_check(kn->name, true);
++		q.name = kn_name;
++		q.hash_len = hashlen_string(kn_dir, kn_name);
+ 
+ 		rc = security_transition_sid(tsec->sid,
+ 					     parent_sid, secclass, &q,
 -- 
-2.49.0
+2.39.5
 
