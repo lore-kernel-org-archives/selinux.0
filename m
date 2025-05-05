@@ -1,58 +1,57 @@
-Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
+Received: from mail-ed1-f67.google.com (mail-ed1-f67.google.com [209.85.208.67])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D09F13B7A95
-	for <selinux@vger.kernel.org>; Mon,  5 May 2025 23:21:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B1D0278143;
+	Mon,  5 May 2025 22:49:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.67
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746487301; cv=none; b=ccn0pfc4aDe+NCMilGiiAcfUD0S5rNE9iB797YqRc3n12dykLjgso/SszhAyHx7hP8H4Bg+IfBNEziaYFxp+Tw1NFv4IVhPoxi/pOMq1fCV/B6B0dKY16sTUug9CO0uS0soGI0m4vWR/DX1XyheypjA8MLf0AsCC/43NcSrkC9g=
+	t=1746485393; cv=none; b=hD5FZfj98mNniZ4BnkeNq8Nspals2jl4Ok7kOVOC6OWrnNpCWlwxlntM7uDygPTf9ANMJqe/tH33KgH3rh1Lm0KjC5J/Tar8SgGoUnCR9wim3awV1cdza1w+EXUWDM5dLbGSyEI3iUziewE/KwLuVvI7adcPv1wyDtCIpsGn6x0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746487301; c=relaxed/simple;
-	bh=M1rNvi5IBqtAIocwGPm1o4C7y6mmduk4IFovIptv03Q=;
+	s=arc-20240116; t=1746485393; c=relaxed/simple;
+	bh=Jb32TIgImYtyTkDhQA+NiUfj4Vwhynv6jJRm4300tUM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=T8S/EHYEpHbqQFiK5LHji8yRGgSAxnp2tKsAvPCSM5WtVzsM0lSD+82Wge0UG59TcKb2aQ6MFEKSCgzM9KSbBiVN4XIlwMfxI4M9q9Ja3m5zXDkfT6G1n1s2VtIKyOVI/sEUPbhb3PAi+7K05rDxDpgKOrxricDSALMGaRhd9Gk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=IPdAXIgp; arc=none smtp.client-ip=209.85.128.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=h0BkofFVOQqwdkL7SHEOXhH5SN2TJUEtIONuxCJ/HPDcntL2wbFquroU2ByG/41zFJI0vZTLGxGkA7Q+kJA//zOOCTY+XwLecJJ8lv0stQnNhwMvgTR+MIS6nYQx9bPYdyXBfYAI2bZP++Rk1ZuSJACdgHnzAlzsF79hHCCZp/4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VKFhJfPL; arc=none smtp.client-ip=209.85.208.67
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="IPdAXIgp"
-Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-70907505121so13870597b3.0
-        for <selinux@vger.kernel.org>; Mon, 05 May 2025 16:21:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VKFhJfPL"
+Received: by mail-ed1-f67.google.com with SMTP id 4fb4d7f45d1cf-5fb7717b02dso373859a12.2;
+        Mon, 05 May 2025 15:49:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1746487297; x=1747092097; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0G1FbKrQzDvE2zFQ4OGF86gQA4uigjBt52shV4GCsH4=;
-        b=IPdAXIgpIXOjwIi3qpyJiZvobbi/B5lZPls4T3SyZ349IT5rBlGbgLYfIyNKAQOIbB
-         dpPvH6aFkaFpqvI8V+oEZF1JHKytlcg5Jz6KlStGpOc5O27vhH24y/ie/DxO131N/MPs
-         zjeQ/YajlNY6R8WDHsuyZ3tfgNTVh99MYqbgROy/P486E3UcrK7/wW0dwp6vG0jCmoRR
-         zzR6j+4G8WY/Wju41FpOn16XoVqGBZ31w6fEf/SDhZkbRXHDCXI6X+RRGIL0W2VR5WPo
-         ob3GTLJ9l0jJbvz52FSGM6/0DCfm17YasWvsr4ykhHZF3J0+G3Wx0uwoejjFExnLCLYQ
-         y4ZQ==
+        d=gmail.com; s=20230601; t=1746485389; x=1747090189; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=VyV0B285sp2Hjp/CoWJ5CaFH+EWiecTO5yXbRw+SsDY=;
+        b=VKFhJfPLqEq28rcHjsPX+/0xeoUG/N6u3CtSg3Wsv+v+owDMA08OXzFa0owKFuF74o
+         c4/cOS7BIrUeehA+PcV/UJOIM8VEqb9DJhMXDp6G/uLj73NCcOzSKykFcAXQoA0P56zq
+         3mdaqCd/VWeCFnFdji0m5+SUncVuHr458kMDBII9tnnoP0MaeWngu9PBP8amBt8Ehqtl
+         OsQpIqtmekZlD+WxGMkUimrErhKpDGCHJs7rpFD34Qn/+o9yHiFx5mx85ERJakEdgVrp
+         Uuk8Z3jSEOqqM5nYsoa06mRuVIjebEWDewFYvlmfGTxuEfUjRa6+SjFb2Rw6ygOxF5vZ
+         V6pQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746487297; x=1747092097;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=0G1FbKrQzDvE2zFQ4OGF86gQA4uigjBt52shV4GCsH4=;
-        b=uZVsWEj3FjJ3PQc4bX9EkJd04NwShSSHL5vLE0RjlX3XovygPKlx1h+tRojYR7S6FS
-         6ax8lkELYJy2wxhFEJ+Kq19IijOdQCTssB333fCwYTDZw45rhBFUHf7QHmbhaTPhB0wE
-         ATWamarciph0rw36KgTZaqYi1z2OVH5vpeeHdu8ZrrkPmVWvbBQwS7nUekMxPwXnQH19
-         kc5jveSKAThFGLcV1otBLDEHllGY8xfKY806Sh51M5JP6h9grBl5ICrqZn0sl4AVjnQ3
-         nQyPaRu976st6rkq3VilD1GpKZDTUtFicEIo//9XtoLxlTZPbQPV6XJ4gcQ6T/mhChcw
-         5wKw==
-X-Forwarded-Encrypted: i=1; AJvYcCXn271tA6GeCvupC3hq/U8c9W5spY+Eo7jboBdsdda2lcjvdwznk0evyU/uFcy5YRD4vxRmkU1L@vger.kernel.org
-X-Gm-Message-State: AOJu0YxabzrrH0s91myuwBW3cdV1XNrAKdsn20bkHEccQ5di8+YzZMcJ
-	0N1V5DtDEAMmf9epx1eTvDpUyqNCT/Lsf7VpmIyL2RYmc7xw7LB1BFWcp6J/OEXJDhXXBii2WN0
-	bUfZreDuw9aHsO0IrRr1w5nocPPadIys6Ekp5
-X-Gm-Gg: ASbGncvZsHLgoM0WoBJkdNU6gKQbg08lqdAvcnV1vS/bHmQ3Tjkdg+lkpJ1eNEIJZ3T
-	5P3DIgTAbmKjULiqVLmMlG+5wrOcd0n/OxjqriBy8E2TdHQe3dvzFjM12+95q5Hl+7kHjUoFCej
-	Nv6jRgMA2Y1h3e/Bb9vI/WXQ==
-X-Google-Smtp-Source: AGHT+IHLXLx91/FbEJt5yJ1gpflouu1LHjSpq+W5xEkf3fbXAPgGT1qcMH0TY3xngEgXpN4NAVmxqiTFxj/qTbkAJSQ=
-X-Received: by 2002:a05:690c:600b:b0:708:cc77:8c31 with SMTP id
- 00721157ae682-709197c6e00mr17569947b3.10.1746487296655; Mon, 05 May 2025
- 16:21:36 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1746485389; x=1747090189;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=VyV0B285sp2Hjp/CoWJ5CaFH+EWiecTO5yXbRw+SsDY=;
+        b=B52YGyJvanM1k9DhOMKZkyXng3kYiYTxDNd6hW1O7LEuICwjyyULTLW14ep/UZQleq
+         fZm4xvUONsyEvfum13xlF2MytYEM4DwfJpKegF79jmRv8fQCP90fHFBIAI4iomYcjYkX
+         1B3Pxs733jW4nfEZBrKTAdAP7GHB3FnzU+jJeGOIsGJwUaDmc1uf/PcgBggrr0F5nXcx
+         u3BMKv7t318t+LEUEo8FWAWwXp9/wg91XZS+m9Ttp7L0J+L98Sxv6tqg6M2rj2JhSv9x
+         E7DULc3epUcxB7BA8lNTTeSiZf403ThGvZ8+vLrCXC3MGWOpx4WDrTWjVVSqC498C+ch
+         Tp1Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUQwK8zrZGtu2zBf/joBrlKskSLJUfw9bmaZrWxlh6LYtKA5u97UyrUW9blowTMwSPjkmsL3tQ455/vPd4Eo60dm2oWZid1@vger.kernel.org, AJvYcCUiDulTpPwclIOA0K3Q4xa7k+0QUYgSEo99f/6nuw1tDvOkXwZXYgGVCgkZVMyIzf12dnDrqBu1Tw==@vger.kernel.org, AJvYcCW0L/2KOgfVAOH3NuC82kPkacp+0jiKiuoXuKVorWy/eJZGsH+t0XVtBNWvjZ+vdqxSmD4=@vger.kernel.org, AJvYcCXA3oTXdoV9Zu0WlKkbh6CCy1UXOq01V+Hk+z/r1CVB0wrjWjZoVgKHIZtVp3gQA9rDv42QzY65@vger.kernel.org
+X-Gm-Message-State: AOJu0YwjzrUa/YpddpcIjvw25WlU/NaPgpO9yFJ6s/dyzI3OKVU8QVjt
+	Jo3//d7oEyKG4oxWFTjIH4mZkkkBqcxrzbvq/aCi0j729AJoWNT2YYAI/CFWZMJbkEkGHNVyB/l
+	E7QcoWb+EIWJF+rlbf1G5xeX1518=
+X-Gm-Gg: ASbGncuOaS4NorDbsIXu+Lw9nWlU42JTPMELdc6kAJgeNP4issPA9b5vimZLr9/TT8U
+	EYWm8AA5kpaUeKzX5VeLvc6aISXn4BMTRt3QMqGMt7ykDvKzZwyoUPZ3Aw6mkBqkQgZgjf36g2V
+	2cWrU1CUOMu9E9HN6qyuMnMiolizyNc+qo7eBHBrZNll9jnXmFFvQAwIfK
+X-Google-Smtp-Source: AGHT+IGsHegAHfsKUMsUJ65jENYoIdxTNE0BZj8vVp6rezv8Hy03obq1kM4DL3MhojS18Ul7cyFuTWl+ANmhHwHYvrE=
+X-Received: by 2002:a17:906:99cc:b0:ac7:391a:e158 with SMTP id
+ a640c23a62f3a-ad1d355ab91mr97084966b.59.1746485388395; Mon, 05 May 2025
+ 15:49:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -61,10 +60,10 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20250505215802.48449-1-kuniyu@amazon.com>
 In-Reply-To: <20250505215802.48449-1-kuniyu@amazon.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 5 May 2025 19:21:25 -0400
-X-Gm-Features: ATxdqUHN1aQ5sN5xgMfe_tU3NdrBy8rWAl_E8NdG3Ln9Hdp4hd4BbKVFegZ9Jhs
-Message-ID: <CAHC9VhSWS2L3qwu_r_1Fr3eLp-9KRz3_20EPwy=FFu7_eSiN7g@mail.gmail.com>
+From: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Date: Tue, 6 May 2025 00:49:11 +0200
+X-Gm-Features: ATxdqUG1rAv1CbCQ4YaC1iKTSjKWgD4kvy1BCT18Aj0ih1HaL6mkE7Nn2MUOpxE
+Message-ID: <CAP01T77STmncrPt=BsFfEY6SX1+oYNXhPeZ1HC9J=S2jhOwQoQ@mail.gmail.com>
 Subject: Re: [PATCH v1 bpf-next 0/5] af_unix: Allow BPF LSM to scrub
  SCM_RIGHTS at sendmsg().
 To: Kuniyuki Iwashima <kuniyu@amazon.com>
@@ -75,16 +74,15 @@ Cc: Martin KaFai Lau <martin.lau@linux.dev>, Daniel Borkmann <daniel@iogearbox.n
 	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
 	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
 	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Christian Brauner <brauner@kernel.org>, 
-	Kuniyuki Iwashima <kuni1840@gmail.com>, bpf@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Casey Schaufler <casey@schaufler-ca.com>, 
+	Christian Brauner <brauner@kernel.org>, Kuniyuki Iwashima <kuni1840@gmail.com>, bpf@vger.kernel.org, 
+	netdev@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 5, 2025 at 5:58=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon.com=
-> wrote:
+On Mon, 5 May 2025 at 23:58, Kuniyuki Iwashima <kuniyu@amazon.com> wrote:
 >
 > As long as recvmsg() or recvmmsg() is used with cmsg, it is not
 > possible to avoid receiving file descriptors via SCM_RIGHTS.
@@ -110,50 +108,35 @@ On Mon, May 5, 2025 at 5:58=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon.com=
 >
 > This series allows BPF LSM to inspect skb at sendmsg() and scrub
 > SCM_RIGHTS fds by kfunc.
+>
+> Link: https://uapi-group.org/kernel-features/#disabling-reception-of-scm_rights-for-af_unix-sockets #[0]
+> Link: https://github.com/systemd/systemd/blob/v257.5/src/basic/fd-util.c#L612-L628 #[1]
+>
 
-I'll take a closer look later this week, but generally speaking LSM
-hooks are intended for observability and access control, not data
-modification, which means what you are trying to accomplish may not be
-a good fit for a LSM hook.  Have you considered simply inspecting the
-skb at sendmsg() and rejecting the send in the LSM hook if a
-SCM_RIGHTS cmsg is present that doesn't fit within the security policy
-implemented in your BPF program?
+This sounds pretty useful!
 
-> Link: https://uapi-group.org/kernel-features/#disabling-reception-of-scm_=
-rights-for-af_unix-sockets #[0]
-> Link: https://github.com/systemd/systemd/blob/v257.5/src/basic/fd-util.c#=
-L612-L628 #[1]
->
->
-> Kuniyuki Iwashima (5):
->   af_unix: Call security_unix_may_send() in sendmsg() for all socket
->     types
->   af_unix: Pass skb to security_unix_may_send().
->   af_unix: Remove redundant scm->fp check in __scm_destroy().
->   bpf: Add kfunc to scrub SCM_RIGHTS at security_unix_may_send().
->   selftest: bpf: Add test for bpf_unix_scrub_fds().
->
->  include/linux/lsm_hook_defs.h                 |   3 +-
->  include/linux/security.h                      |   5 +-
->  include/net/af_unix.h                         |   1 +
->  include/net/scm.h                             |   5 +-
->  net/compat.c                                  |   2 +-
->  net/core/filter.c                             |  19 ++-
->  net/core/scm.c                                |  19 +--
->  net/unix/af_unix.c                            |  48 ++++--
->  security/landlock/task.c                      |   6 +-
->  security/security.c                           |   5 +-
->  security/selinux/hooks.c                      |   6 +-
->  security/smack/smack_lsm.c                    |   6 +-
->  .../bpf/prog_tests/lsm_unix_may_send.c        | 160 ++++++++++++++++++
->  .../selftests/bpf/progs/lsm_unix_may_send.c   |  30 ++++
->  14 files changed, 282 insertions(+), 33 deletions(-)
->  create mode 100644 tools/testing/selftests/bpf/prog_tests/lsm_unix_may_s=
-end.c
->  create mode 100644 tools/testing/selftests/bpf/progs/lsm_unix_may_send.c
->
-> --
-> 2.49.0
+I think you should mention the cases of possible DoS on close() or
+flooding, e.g. with FUSE controlled fd/NFS hangs in the commit log
+itself.
+I think it's been an open problem for a while now with no good solution.
+Currently systemd's FDSTORE=1 for PID 1 is susceptible to the same
+problem, even if the underlying service isn't root.
 
---
-paul-moore.com
+I think it is also useful for restricting what individual file
+descriptors can be passed around by a process.
+Say restricting usage of an fd to a process and its children, but not
+allowing it to be shared with others.
+Send side hook is the right point to enforce it.
+
+Therefore exercising scm_fp_list would be a good idea.
+We should provide some more examples of the filtering policy in the selftests.
+Maybe a simple example, e.g. only memfd or a pipe fd can be passed,
+and nothing else.
+It would require checking file->f_ops.
+I don't think "scrub all file descriptors" is the only possible usage scenario.
+In the case of FDSTORE=1, it might be "everything except fuse or NFS fds" etc.
+
+Eventually if file local storage happens, more interesting policies
+may be possible.
+
+> [...]
