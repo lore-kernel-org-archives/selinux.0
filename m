@@ -1,56 +1,52 @@
-Received: from smtp-bc09.mail.infomaniak.ch (smtp-bc09.mail.infomaniak.ch [45.157.188.9])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59C2422C328
-	for <selinux@vger.kernel.org>; Tue,  6 May 2025 08:25:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.157.188.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6149F216399;
+	Tue,  6 May 2025 08:56:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746519920; cv=none; b=cM7cG9qxsSoDgW/8koU6HWLvcHl7KDgyivdixfH82A179GQHE7lxl+Pupbf177zh8q2XsRCJsYi1Bs3hKrusZgUB0UW8fUD6Wkxo6Ejsj59VUAFjzDtj3iUCEiZVQd9euW+B929WLutX8B6jS4pvaUrGfVeNeliarxudpsUAfd0=
+	t=1746521792; cv=none; b=UFh7H8BMPjcjdWbret/ZpW1C6nnA/dzDW2S24Hf/6NRLZzfEOpawKzutT9SlCPCDnXHMzoS/NSPZZ71WpAWKdoitTaF5U4qm54eKhqpwJPggrVyD8E9yO75eT7f33sw5paDcU+0w4eH6ExfLR7Q99SE4zskUumqH2cD5jEQYPws=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746519920; c=relaxed/simple;
-	bh=YSWl+QfwkOnRfAH90XS1/0eMYPBj00WkhiTyiofpPcU=;
+	s=arc-20240116; t=1746521792; c=relaxed/simple;
+	bh=qVZHyp88JCrxll1HUvVH3F1uXrcyk8ebeewT3tzyUyA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Wz0Duq7IPdGOBywEO2OVfnmnpazUNx9ofi9MAnB2yHBiy4FEQ0kFCGYV+ANLcr/UdkZSbUzQ5cHDzVKxJNyFVpM0uR9aW6DplLSQpUkQLVkjRSyBEUXUYjbkgrFPyNT8DuX5G/fPuZmIp3otDcBpYoJO3bSa0SaqBnrxZJKTv+I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net; spf=pass smtp.mailfrom=digikod.net; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=phs/DWbu; arc=none smtp.client-ip=45.157.188.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
+	 Content-Type:Content-Disposition:In-Reply-To; b=qzsUOMEf0+NQmpBBy1FdwExzaYMaBrIUtQrma1ph9g6EBqvXDDrFGQMOr6kuITWbY6vht5B+/LRTufSXL8rFHLHKQ2immyR73JCX9U+4WPfVUEYchCUg0PQLVLBvN/aBt/pi+UR7RlMfl9S2Q6ak6AvG2UShJsmnPH9KbomU5n4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XgSh9qd7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="phs/DWbu"
-Received: from smtp-4-0001.mail.infomaniak.ch (smtp-4-0001.mail.infomaniak.ch [10.7.10.108])
-	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4ZsBKP0tKlzxvW;
-	Tue,  6 May 2025 10:25:13 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
-	s=20191114; t=1746519913;
-	bh=i4kB+dqu3Gkr/hdwa8JkKng9U1uVnoBQB3MDCaMXOP0=;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XgSh9qd7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 942C1C4CEE4;
+	Tue,  6 May 2025 08:56:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1746521792;
+	bh=qVZHyp88JCrxll1HUvVH3F1uXrcyk8ebeewT3tzyUyA=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=phs/DWbuE3BjYaFDGc4kP6Y06gZrB3iNk0R3hNh9ysHb0gtRc8uz9Dkm5ND/BnUK6
-	 xJAMq5cUXkfBNSxP0SEL/Ym0gUDuX5jsHjqfHAv7JyXCKKE2weLd0jQP4lQasVdp4m
-	 ty90N4LjlRdoOdU7l1TMBH9ZgDdF/PmQkyttd7/o=
-Received: from unknown by smtp-4-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4ZsBKL3wtjz4m9;
-	Tue,  6 May 2025 10:25:10 +0200 (CEST)
-Date: Tue, 6 May 2025 10:25:09 +0200
-From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
+	b=XgSh9qd7o2kNDeo3OZ+KzR2Pj1P3AWvczzbjaZsNdGHLLQEY7U0W7rlgoxK1ZB3cl
+	 maLmSuhUMRUwgN4Qxu4xYtL4lj3YOPUREkn9rWTYOA0zPoChgB+pWtVT2Rxnqgf1rD
+	 5+P31LzmokYMJaeO5REpDL5haNaV2ElYHtFBsU2JJn4A7S37KDnyrijUBnWJx/s8Rf
+	 xMYF1INca9XnqdgE5lRtrWXCGogfSnS3D3DDVMQXZXYiqoxVymjVAHIaQdI/oDibKt
+	 hojwZ6N+t0bqNv2Am+ZI0xYhw3VmScrEO0jI6L51qlcNZH/kO94OzqY6lQc8SxXc5y
+	 O2/MxKpKkKw3A==
+Date: Tue, 6 May 2025 10:56:23 +0200
+From: Christian Brauner <brauner@kernel.org>
 To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
 Cc: Kuniyuki Iwashima <kuniyu@amazon.com>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Daniel Borkmann <daniel@iogearbox.net>, 
-	John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
-	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
-	=?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Christian Brauner <brauner@kernel.org>, 
-	Kuniyuki Iwashima <kuni1840@gmail.com>, bpf <bpf@vger.kernel.org>, 
-	Network Development <netdev@vger.kernel.org>, LSM List <linux-security-module@vger.kernel.org>, 
-	selinux@vger.kernel.org, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, 
-	linux-api@vger.kernel.org
+	Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, bpf <bpf@vger.kernel.org>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Eduard <eddyz87@gmail.com>, =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, 
+	Hao Luo <haoluo@google.com>, James Morris <jmorris@namei.org>, 
+	John Fastabend <john.fastabend@gmail.com>, Jiri Olsa <jolsa@kernel.org>, KP Singh <kpsingh@kernel.org>, 
+	Kuniyuki Iwashima <kuni1840@gmail.com>, LSM List <linux-security-module@vger.kernel.org>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, 
+	Network Development <netdev@vger.kernel.org>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Paul Moore <paul@paul-moore.com>, Stanislav Fomichev <sdf@fomichev.me>, selinux@vger.kernel.org, 
+	"Serge E . Hallyn" <serge@hallyn.com>, Song Liu <song@kernel.org>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Yonghong Song <yonghong.song@linux.dev>
 Subject: Re: [PATCH v1 bpf-next 4/5] bpf: Add kfunc to scrub SCM_RIGHTS at
  security_unix_may_send().
-Message-ID: <20250506.ahjae2Beemuo@digikod.net>
-References: <20250505215802.48449-1-kuniyu@amazon.com>
- <20250505215802.48449-5-kuniyu@amazon.com>
- <CAADnVQK1t3ZqERODdHJM_HaZDMm+JH4OFvwTsLNqZG0=4SQQcA@mail.gmail.com>
+Message-ID: <20250506-gehirn-festplatten-6ee995a756b7@brauner>
+References: <CAADnVQK1t3ZqERODdHJM_HaZDMm+JH4OFvwTsLNqZG0=4SQQcA@mail.gmail.com.txt>
+ <20250506004550.67917-1-kuniyu@amazon.com>
+ <CAADnVQ+bk8Qt=Zo4S2MZxB+O4G4q_EXB4P0BtJ3LjgbJuY_9_w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -60,72 +56,64 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAADnVQK1t3ZqERODdHJM_HaZDMm+JH4OFvwTsLNqZG0=4SQQcA@mail.gmail.com>
-X-Infomaniak-Routing: alpha
+In-Reply-To: <CAADnVQ+bk8Qt=Zo4S2MZxB+O4G4q_EXB4P0BtJ3LjgbJuY_9_w@mail.gmail.com>
 
-On Mon, May 05, 2025 at 05:13:32PM -0700, Alexei Starovoitov wrote:
-> On Mon, May 5, 2025 at 3:00 PM Kuniyuki Iwashima <kuniyu@amazon.com> wrote:
+On Mon, May 05, 2025 at 05:56:49PM -0700, Alexei Starovoitov wrote:
+> On Mon, May 5, 2025 at 5:46 PM Kuniyuki Iwashima <kuniyu@amazon.com> wrote:
 > >
-> > As Christian Brauner said [0], systemd calls cmsg_close_all() [1] after
-> > each recvmsg() to close() unwanted file descriptors sent via SCM_RIGHTS.
+> > From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+> > Date: Mon, 5 May 2025 17:13:32 -0700
+> > > On Mon, May 5, 2025 at 3:00 PM Kuniyuki Iwashima <kuniyu@amazon.com> wrote:
+> > > >
+> > > > As Christian Brauner said [0], systemd calls cmsg_close_all() [1] after
+> > > > each recvmsg() to close() unwanted file descriptors sent via SCM_RIGHTS.
+> > > >
+> > > > However, this cannot work around the issue that close() for unwanted file
+> > > > descriptors could block longer because the last fput() could occur on
+> > > > the receiver side once sendmsg() with SCM_RIGHTS succeeds.
+> > > >
+> > > > Also, even filtering by LSM at recvmsg() does not work for the same reason.
+> > > >
+> > > > Thus, we need a better way to filter SCM_RIGHTS on the sender side.
+> > > >
+> > > > Let's add a new kfunc to scrub all file descriptors from skb in
+> > > > sendmsg().
+> > > >
+> > > > This allows the receiver to keep recv()ing the bare data and disallows
+> > > > the sender to impose the potential slowness of the last fput().
+> > > >
+> > > > If necessary, we can add more granular filtering per file descriptor
+> > > > after refactoring GC code and adding some fd-to-file helpers for BPF.
+> > > >
+> > > > Sample:
+> > > >
+> > > > SEC("lsm/unix_may_send")
+> > > > int BPF_PROG(unix_scrub_scm_rights,
+> > > >              struct socket *sock, struct socket *other, struct sk_buff *skb)
+> > > > {
+> > > >         struct unix_skb_parms *cb;
+> > > >
+> > > >         if (skb && bpf_unix_scrub_fds(skb))
+> > > >                 return -EPERM;
+> > > >
+> > > >         return 0;
+> > > > }
+> > >
+> > > Any other programmability do you need there?
 > >
-> > However, this cannot work around the issue that close() for unwanted file
-> > descriptors could block longer because the last fput() could occur on
-> > the receiver side once sendmsg() with SCM_RIGHTS succeeds.
+> > This is kind of PoC, and as Kumar mentioned, per-fd scrubbing
+> > is ideal to cover the real use cases.
 > >
-> > Also, even filtering by LSM at recvmsg() does not work for the same reason.
+> > https://lore.kernel.org/netdev/CAP01T77STmncrPt=BsFfEY6SX1+oYNXhPeZ1HC9J=S2jhOwQoQ@mail.gmail.com/
 > >
-> > Thus, we need a better way to filter SCM_RIGHTS on the sender side.
-> >
-> > Let's add a new kfunc to scrub all file descriptors from skb in
-> > sendmsg().
-> >
-> > This allows the receiver to keep recv()ing the bare data and disallows
-> > the sender to impose the potential slowness of the last fput().
-> >
-> > If necessary, we can add more granular filtering per file descriptor
-> > after refactoring GC code and adding some fd-to-file helpers for BPF.
-> >
-> > Sample:
-> >
-> > SEC("lsm/unix_may_send")
-> > int BPF_PROG(unix_scrub_scm_rights,
-> >              struct socket *sock, struct socket *other, struct sk_buff *skb)
-> > {
-> >         struct unix_skb_parms *cb;
-> >
-> >         if (skb && bpf_unix_scrub_fds(skb))
-> >                 return -EPERM;
-> >
-> >         return 0;
-> > }
+> > for example:
+> > https://uapi-group.org/kernel-features/#filtering-on-received-file-descriptors
 > 
-> Any other programmability do you need there?
-> 
-> If not and above is all that is needed then what Jann proposed
-> sounds like better path to me:
-> "
-> I think the thorough fix would probably be to introduce a socket
-> option (controlled via setsockopt()) that already blocks the peer's
-> sendmsg().
-> "
-> 
-> Easier to operate and upriv process can use such setsockopt() too.
+> Fair enough.
+> Would be great to have them as selftests to make sure that advanced
+> use cases are actually working.
 
-Adding a flag with setsockopt() will enable any program to protect
-themselves instead of requiring the capability to load an eBPF program.
-For the systemd use case, I think a flag would be enough, and it would
-benefit more than only/mainly systemd.
-
-Another thing is that we should have a consistent user space error code
-if passing file descriptors is denied, to avoid confusing senders, to
-not silently ignore dropped file descriptors, and to let the sender know
-that it can send again but without passed file descriptors or maybe with
-a maximum number of file descriptors.  The ENFILE errno (file table
-overflow) looks like a good candidate.
-
-I guess both approaches are valuable, but this series should add this
-new flag as well, and specify the expected error handling.
-
-If we want to be able to handle legacy software not using this new flag,
-we can leverage seccomp unotify.
+I think we should do both a socket option and the bpf fd filtering. They
+can compliment each other. We should not force the use of bpf for this.
+This is a very basic security guarantee we want that shouldn't require
+the involvement of any LSM whatsoever.
