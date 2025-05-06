@@ -1,143 +1,149 @@
-Received: from smtp-fw-6002.amazon.com (smtp-fw-6002.amazon.com [52.95.49.90])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8B87347357;
-	Tue,  6 May 2025 00:46:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.95.49.90
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB719350156;
+	Tue,  6 May 2025 00:57:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746492374; cv=none; b=lylfz8bjvnCNLsbCUiyRjcMfumOsqxSpsw+EhkoM/8YSqui77IDLLBu5bvF7gWZikOlMHOVQCcP2nkr3ARxr9334G5HuC2N/MWiJyR+YryuQ3uTsMW0cU1331st0WEkeRjnsGw70BKrNRaXpJl46FXo0yjHwRemmmOJfgyQdPtU=
+	t=1746493024; cv=none; b=ClXDU069teHgpXzffefqYCX8IMPHXldQ0QNTG9PatTC917fW24yDrElDlu/R9cv45VD7JWmti0IL/u4LXw9aK1lojVKs72166Npa8rfMiiOUineIDcDtYJQhv2Fih+T0MpG9YzD3QOtNZRb0Thz9OJucfChZ7P8u4hu/mfklx/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746492374; c=relaxed/simple;
-	bh=K7YCRWUV0AHkeSy9BuUH5yxL7FnYdu26K+6m2SqhOJU=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=uJ4udoCciWdDmZoczZ2vG02+A+3bVKwUdH0HoX69olDmr0u1R1gaSE0ibC5JhZGGUGh220gvVAZcLHp1aTCG7CJM2uwIDZdpfT8cJHY7oBM0KIIWHeiU/R0pRsXkX9BS5yXJKUWaeNPZqUcQdwJqywrUzqYfNUBsntgKUwJLjJM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.co.jp; dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b=m0N4EUYC; arc=none smtp.client-ip=52.95.49.90
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.co.jp
+	s=arc-20240116; t=1746493024; c=relaxed/simple;
+	bh=WJ5N3hpgmYKXtAvoAQtuBt6dpWd9vR5puNnmvUo5hIA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=lA9OVbxUiKdHGusdK5dL3PUHnnWuDh2a3F8J4syFAGDDSzdR31c2W6EFjWSXJuIlCWmOEBAxQysOQsywXMrFlezOsNM6v8GFNfCPd6tE8W3CwX8iCA03KBybZqx8iCGsFTsmmOPpudZ9OzIYgHrMZ9tNJDzkmM1/EoFZj2LnCnw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NWPsFDxv; arc=none smtp.client-ip=209.85.221.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amazon.com header.i=@amazon.com header.b="m0N4EUYC"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NWPsFDxv"
+Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-39bf44be22fso3389146f8f.0;
+        Mon, 05 May 2025 17:57:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1746492370; x=1778028370;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=RSYOunfmEVpq0TlU48zdEU3dFvnuc8YiW73w9xJwoHY=;
-  b=m0N4EUYC9P3oVS01PjtkeTnwsSF7J3GaKkZROqA/ovgP/R2APfL1yUNB
-   h5DqRJ5LvprUA3lwVJcZE14GaYoT7Z21h7Zjw3b34uT0sG5pz3xJ0HQtI
-   hfnil6QMcyJ8fTWsEMGWeDIOmx3fBL5z4hNhwJNj2soXzSLsznGnyIZGM
-   w=;
-X-IronPort-AV: E=Sophos;i="6.15,265,1739836800"; 
-   d="scan'208";a="495784027"
-Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO smtpout.prod.us-west-2.prod.farcaster.email.amazon.dev) ([10.43.8.6])
-  by smtp-border-fw-6002.iad6.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 May 2025 00:46:04 +0000
-Received: from EX19MTAUWC002.ant.amazon.com [10.0.7.35:29537]
- by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.38.92:2525] with esmtp (Farcaster)
- id 33fef85d-7f2b-40d4-8855-07d747e2fb6e; Tue, 6 May 2025 00:46:03 +0000 (UTC)
-X-Farcaster-Flow-ID: 33fef85d-7f2b-40d4-8855-07d747e2fb6e
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX19MTAUWC002.ant.amazon.com (10.250.64.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Tue, 6 May 2025 00:46:03 +0000
-Received: from 6c7e67bfbae3.amazon.com (10.187.170.18) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1544.14;
- Tue, 6 May 2025 00:45:58 +0000
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
-To: <ast@kernel.org>
-CC: <andrii@kernel.org>, <bpf@vger.kernel.org>, <brauner@kernel.org>,
-	<casey@schaufler-ca.com>, <daniel@iogearbox.net>, <eddyz87@gmail.com>,
-	<gnoack@google.com>, <haoluo@google.com>, <jmorris@namei.org>,
-	<john.fastabend@gmail.com>, <jolsa@kernel.org>, <kpsingh@kernel.org>,
-	<kuni1840@gmail.com>, <kuniyu@amazon.com>,
-	<linux-security-module@vger.kernel.org>, <martin.lau@linux.dev>,
-	<mic@digikod.net>, <netdev@vger.kernel.org>, <omosnace@redhat.com>,
-	<paul@paul-moore.com>, <sdf@fomichev.me>, <selinux@vger.kernel.org>,
-	<serge@hallyn.com>, <song@kernel.org>, <stephen.smalley.work@gmail.com>,
-	<yonghong.song@linux.dev>
-Subject: Re: [PATCH v1 bpf-next 4/5] bpf: Add kfunc to scrub SCM_RIGHTS at security_unix_may_send().
-Date: Mon, 5 May 2025 17:44:13 -0700
-Message-ID: <20250506004550.67917-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <CAADnVQK1t3ZqERODdHJM_HaZDMm+JH4OFvwTsLNqZG0=4SQQcA@mail.gmail.com.txt>
-References: <CAADnVQK1t3ZqERODdHJM_HaZDMm+JH4OFvwTsLNqZG0=4SQQcA@mail.gmail.com.txt>
+        d=gmail.com; s=20230601; t=1746493020; x=1747097820; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NG56sgydZqZDSI93ssWFt8es69R/8NDv+wgZ7H1Zg5M=;
+        b=NWPsFDxvwAAbihX7mz9EpN5XcLam1G2od3qcy2QZS9vdDgaQ+Y78UvcyWg/hBYjt0q
+         gIcqyTxQ9FeNucPcagNVXHBV+rc8AM5sZ0b+kpc7AG4sov4FeZPoPJnFiVKP/NAHGFdA
+         FB/H0Zf7UfoJuE3cu0nS6jhEzXjq54BE3t6J/xvFDzIv7E2SYqfwH7qRgbvvlTy+sB4k
+         Lwt8AiEZ1+RY8TmDa966crOHew617mt5vOsI8dui7dNIYAQyjdaHVZD+xNDwMmn78F26
+         6EbKYSDi6q6uZbIItsNiwbGhiIwk0JPh+GLF1fAbVz4N5uRk57aWadBOaoSq/DTHuov9
+         0gWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1746493020; x=1747097820;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=NG56sgydZqZDSI93ssWFt8es69R/8NDv+wgZ7H1Zg5M=;
+        b=WIdjygJ8gPQO8WxeOFahqkFDd6aCME0VOgxdzRuo5p7FQTwMEhH/ZW1DlyrtYX2s2/
+         CXkoCYV7bVgnCRXkxR0l5yyhw32jLnI1ge9qnQgLVy5qC5Q9LhxV7EOMPCjCAYkIW1PJ
+         +zch4K7VYfm5WltxwHHABIY/cPpHuYSo/gGMysnhbFKeSMJbPL32zw58+LfLCTfVnkYY
+         3H4XsD9x62V/YOb7OlEbk6toD4kNdTqIjhqLT56VXdaiiSuk6Ad4yh7YAKbn9UDnsS7r
+         LTAKgKv4PYs56vP5Xlq01I7OGJXYgROmaqKLGyebjdw8qhB3VMaypMlvY0YOlX/WXkT7
+         syTw==
+X-Forwarded-Encrypted: i=1; AJvYcCVMaL4CAZp0gDTJVo8pOJYx7BTMTFsW3ABWfpLVpD5ksnhccHDiohlpN+wUX4T9m3gPTD5C1tRnCA==@vger.kernel.org, AJvYcCWJhZYUTzxPiS9e7oOeUrsAe0mhGt2YSw5UP3LxAnVKHGYByX8BABZPcnBSzSYgy+aSFvw=@vger.kernel.org, AJvYcCXjh61v2fcrjhYaimWg0iruAngTV1uIAgmHKg3Vhmwsn8Iuf0Nlxt9iZnCGX3rmuuO3uO6syZPS@vger.kernel.org, AJvYcCXlorQzWl74yOvMjyfxIkWtAccmU+htrkgz/P9zYV8mZHRSLhrTMYZ9JHBQvffCimsBvieXyloKG/vOLzgjq/jZEeOO1Jp7@vger.kernel.org
+X-Gm-Message-State: AOJu0YxfpF007L7xBDWrTBAtn0ovSFwxfAw+U8hmRtBNZ3wfwy8maVWn
+	TlXsdTYflyhHFt/zIeIE5qy+bMCvhIHMmTo4PHxJQ5sTa9sPGdG8lwsAghKdhUUfbT4MrpaF7Tt
+	ow/DO77UEbvpHLBb1rzX+ScIkdu8=
+X-Gm-Gg: ASbGnctTXiu/ErsJKHU5OWThKfRjytp9OHK/e/oNt2W4BuBodpoTfxIpiflDJACwfWQ
+	X1ZcAHxbfWEvScuRADiRADp3rk903S/3exDgNVfV39m8hYmLKz851lFvHdH0Sk5/ojfSoAbHUDM
+	we9iKHfveUVtLdI7su0MAgY8cqb5kI5YPDxeNmFDkpujyPlsVijU8Q+kF29Pq1
+X-Google-Smtp-Source: AGHT+IFmq92gXDyJ4tG7YRwzhLFbPsIymRx1JYkBfkuzkB8bzfB0NsMIXg9vTiXFzK0daiHD2Viir2BOAVh6NAVWprM=
+X-Received: by 2002:a05:6000:18af:b0:39c:30f9:339c with SMTP id
+ ffacd0b85a97d-3a0ac0ec442mr710518f8f.28.1746493019898; Mon, 05 May 2025
+ 17:56:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: EX19D032UWB003.ant.amazon.com (10.13.139.165) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
-
+References: <CAADnVQK1t3ZqERODdHJM_HaZDMm+JH4OFvwTsLNqZG0=4SQQcA@mail.gmail.com.txt>
+ <20250506004550.67917-1-kuniyu@amazon.com>
+In-Reply-To: <20250506004550.67917-1-kuniyu@amazon.com>
 From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date: Mon, 5 May 2025 17:13:32 -0700
-> On Mon, May 5, 2025 at 3:00 PM Kuniyuki Iwashima <kuniyu@amazon.com> wrote:
-> >
-> > As Christian Brauner said [0], systemd calls cmsg_close_all() [1] after
-> > each recvmsg() to close() unwanted file descriptors sent via SCM_RIGHTS.
-> >
-> > However, this cannot work around the issue that close() for unwanted file
-> > descriptors could block longer because the last fput() could occur on
-> > the receiver side once sendmsg() with SCM_RIGHTS succeeds.
-> >
-> > Also, even filtering by LSM at recvmsg() does not work for the same reason.
-> >
-> > Thus, we need a better way to filter SCM_RIGHTS on the sender side.
-> >
-> > Let's add a new kfunc to scrub all file descriptors from skb in
-> > sendmsg().
-> >
-> > This allows the receiver to keep recv()ing the bare data and disallows
-> > the sender to impose the potential slowness of the last fput().
-> >
-> > If necessary, we can add more granular filtering per file descriptor
-> > after refactoring GC code and adding some fd-to-file helpers for BPF.
-> >
-> > Sample:
-> >
-> > SEC("lsm/unix_may_send")
-> > int BPF_PROG(unix_scrub_scm_rights,
-> >              struct socket *sock, struct socket *other, struct sk_buff *skb)
-> > {
-> >         struct unix_skb_parms *cb;
-> >
-> >         if (skb && bpf_unix_scrub_fds(skb))
-> >                 return -EPERM;
-> >
-> >         return 0;
-> > }
-> 
-> Any other programmability do you need there?
+Date: Mon, 5 May 2025 17:56:49 -0700
+X-Gm-Features: ATxdqUE--sGACWHpoTDfN6Z19YjKVfIMpJPMpn9rpWA5hJnc1H25_PoxJfzy7Ls
+Message-ID: <CAADnVQ+bk8Qt=Zo4S2MZxB+O4G4q_EXB4P0BtJ3LjgbJuY_9_w@mail.gmail.com>
+Subject: Re: [PATCH v1 bpf-next 4/5] bpf: Add kfunc to scrub SCM_RIGHTS at security_unix_may_send().
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, bpf <bpf@vger.kernel.org>, 
+	Christian Brauner <brauner@kernel.org>, Casey Schaufler <casey@schaufler-ca.com>, 
+	Daniel Borkmann <daniel@iogearbox.net>, Eduard <eddyz87@gmail.com>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Hao Luo <haoluo@google.com>, James Morris <jmorris@namei.org>, 
+	John Fastabend <john.fastabend@gmail.com>, Jiri Olsa <jolsa@kernel.org>, 
+	KP Singh <kpsingh@kernel.org>, Kuniyuki Iwashima <kuni1840@gmail.com>, 
+	LSM List <linux-security-module@vger.kernel.org>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	Network Development <netdev@vger.kernel.org>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Paul Moore <paul@paul-moore.com>, Stanislav Fomichev <sdf@fomichev.me>, selinux@vger.kernel.org, 
+	"Serge E . Hallyn" <serge@hallyn.com>, Song Liu <song@kernel.org>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Yonghong Song <yonghong.song@linux.dev>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This is kind of PoC, and as Kumar mentioned, per-fd scrubbing
-is ideal to cover the real use cases.
+On Mon, May 5, 2025 at 5:46=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon.com=
+> wrote:
+>
+> From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+> Date: Mon, 5 May 2025 17:13:32 -0700
+> > On Mon, May 5, 2025 at 3:00=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon=
+.com> wrote:
+> > >
+> > > As Christian Brauner said [0], systemd calls cmsg_close_all() [1] aft=
+er
+> > > each recvmsg() to close() unwanted file descriptors sent via SCM_RIGH=
+TS.
+> > >
+> > > However, this cannot work around the issue that close() for unwanted =
+file
+> > > descriptors could block longer because the last fput() could occur on
+> > > the receiver side once sendmsg() with SCM_RIGHTS succeeds.
+> > >
+> > > Also, even filtering by LSM at recvmsg() does not work for the same r=
+eason.
+> > >
+> > > Thus, we need a better way to filter SCM_RIGHTS on the sender side.
+> > >
+> > > Let's add a new kfunc to scrub all file descriptors from skb in
+> > > sendmsg().
+> > >
+> > > This allows the receiver to keep recv()ing the bare data and disallow=
+s
+> > > the sender to impose the potential slowness of the last fput().
+> > >
+> > > If necessary, we can add more granular filtering per file descriptor
+> > > after refactoring GC code and adding some fd-to-file helpers for BPF.
+> > >
+> > > Sample:
+> > >
+> > > SEC("lsm/unix_may_send")
+> > > int BPF_PROG(unix_scrub_scm_rights,
+> > >              struct socket *sock, struct socket *other, struct sk_buf=
+f *skb)
+> > > {
+> > >         struct unix_skb_parms *cb;
+> > >
+> > >         if (skb && bpf_unix_scrub_fds(skb))
+> > >                 return -EPERM;
+> > >
+> > >         return 0;
+> > > }
+> >
+> > Any other programmability do you need there?
+>
+> This is kind of PoC, and as Kumar mentioned, per-fd scrubbing
+> is ideal to cover the real use cases.
+>
+> https://lore.kernel.org/netdev/CAP01T77STmncrPt=3DBsFfEY6SX1+oYNXhPeZ1HC9=
+J=3DS2jhOwQoQ@mail.gmail.com/
+>
+> for example:
+> https://uapi-group.org/kernel-features/#filtering-on-received-file-descri=
+ptors
 
-https://lore.kernel.org/netdev/CAP01T77STmncrPt=BsFfEY6SX1+oYNXhPeZ1HC9J=S2jhOwQoQ@mail.gmail.com/
-
-for example:
-https://uapi-group.org/kernel-features/#filtering-on-received-file-descriptors
-
-"""
-An alternative to the previous item could be if some form of filtering
-could be enforced on the file descriptors suitable for enqueuing on the
-AF_UNIX socket. i.e. allow filtering by superblock type or similar, so
-that policies such as “only memfds are OK to be received” may be
-expressed. (BPF?).
-"""
-
-I think Christian can add more scenarios if needed.
-
-
-
-> 
-> If not and above is all that is needed then what Jann proposed
-> sounds like better path to me:
-> "
-> I think the thorough fix would probably be to introduce a socket
-> option (controlled via setsockopt()) that already blocks the peer's
-> sendmsg().
-> "
-> 
-> Easier to operate and upriv process can use such setsockopt() too.
+Fair enough.
+Would be great to have them as selftests to make sure that advanced
+use cases are actually working.
