@@ -1,65 +1,112 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from gardel.0pointer.net (gardel.0pointer.net [85.214.157.71])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E98121DDE9
-	for <selinux@vger.kernel.org>; Tue,  6 May 2025 12:18:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DF1627FD5F;
+	Tue,  6 May 2025 12:27:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.157.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746533902; cv=none; b=ocEPZf7Tfhp9CifA51mk8qVUwKkHlqRqU9G+ikMe6T+AvAcpUQK0BWM+EJBAxcuG0G7yHelL6JARyAV43JR80oIA6h3TSXvq/5rZz+hQA+tMcsZUObB4zubFvfVMOQ4ClIrcErXcQ1ziYA/luqBrmhzfftIG5oSVRjwzNCwjtdQ=
+	t=1746534445; cv=none; b=otfILYGVeFoffVvrLywbXBSeRtj8pCovM2JZbrQh1ViU2phPKnfjUW5Ehu1bIzuv+ypuFWxoxDQoyz0lOtfqiYaMOYq8eSs2bIWhALOE82kWoH1xPFkr9+WWJVQUjD4brkayo3e4A1SS1LjjxNvZm8i+MmZkDRXCCqyuLN4hQCs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746533902; c=relaxed/simple;
-	bh=v4rVuA5hj2FbFmWd851pt/te0fH2cp1ZbWfzvWih8Bk=;
-	h=From:To:Subject:References:Date:Message-ID:MIME-Version:
-	 Content-Type; b=bsMQrXcPkt8Vu+W9rIEFOqqjovQ500drex/HRxDNQi+psu8Vd61vQPkhzopIAeAthW+kag7ssZuzKqga/P/Z6uKA0dVeRXVEIBhg/rb5okg0rqwO+uHOSSZs3V+7QgufaTW99UsOguwJVhR+UFVNL4FaDBnr8oBcy2KNb+M/RH8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Vs955ARl; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Vs955ARl"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1746533898;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 references:references; bh=v4rVuA5hj2FbFmWd851pt/te0fH2cp1ZbWfzvWih8Bk=;
-	b=Vs955ARl6o22e+/vSAnpgBOwDw2GF8zMSm0W6Kt2qo8yQQvjFXpG9t85cQsdjhz16/RWYT
-	cjZ6928rkUqr+fFzCSgQaSWN6TstSsMWfZi/MLUWaFjBYHmO9zq68zsN4tPlVivbim5UiB
-	XE7W2qgKkp3KmQ2TZqrTTZvZG3YaYG0=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-551-4GIlQsQINYWM1EX_kLMGwg-1; Tue,
- 06 May 2025 08:18:17 -0400
-X-MC-Unique: 4GIlQsQINYWM1EX_kLMGwg-1
-X-Mimecast-MFC-AGG-ID: 4GIlQsQINYWM1EX_kLMGwg_1746533896
-Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	s=arc-20240116; t=1746534445; c=relaxed/simple;
+	bh=m7SBsfQfLVW4xNj3QrIhN2V3ELt1ceEG+cP+bc5hvNs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=nh5Wo4Zb7U0gSlVNWxuGiR/qV1HW1wRYwcm0OBUo3v2wC8smutP2WJ38N5VPWr0rb6k475ow3FtNk34kvcUfk2GDUwMT4zJ7t48c2aWfgzL0GOGmocgCa2/yvJGDJwjOLIBu3GcIP/qtYKsEyaIMKiJu3VdIE4onFO0mXyQgpno=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=poettering.net; spf=pass smtp.mailfrom=poettering.net; arc=none smtp.client-ip=85.214.157.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=poettering.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=poettering.net
+Received: from zeta (p200300ea6f02a700ee7fde6810ab8036.dip0.t-ipconnect.de [IPv6:2003:ea:6f02:a700:ee7f:de68:10ab:8036])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AD39A1955D63
-	for <selinux@vger.kernel.org>; Tue,  6 May 2025 12:18:16 +0000 (UTC)
-Received: from localhost (unknown [10.45.226.13])
-	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2791E30001A2
-	for <selinux@vger.kernel.org>; Tue,  6 May 2025 12:18:15 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [SELinuxProject/selinux] The SIGBUS signal is triggered because the
- status page is incorrectly written. (Issue #475)
-References: <SELinuxProject/selinux/issues/475@github.com>
-Date: Tue, 06 May 2025 14:18:14 +0200
-Message-ID: <87bjs60w6x.fsf@redhat.com>
+	by gardel.0pointer.net (Postfix) with ESMTPSA id 89EC9E802CC;
+	Tue,  6 May 2025 14:17:24 +0200 (CEST)
+Date: Tue, 6 May 2025 14:17:22 +0200
+From: Lennart Poettering <lennart@poettering.net>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: Martin KaFai Lau <martin.lau@linux.dev>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
+	Yonghong Song <yonghong.song@linux.dev>,
+	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
+	Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+	=?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
+	=?iso-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Christian Brauner <brauner@kernel.org>,
+	Kuniyuki Iwashima <kuni1840@gmail.com>, bpf@vger.kernel.org,
+	netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: Re: [PATCH v1 bpf-next 0/5] af_unix: Allow BPF LSM to scrub
+ SCM_RIGHTS at sendmsg().
+Message-ID: <aBn90vJ49ymBT3LW@zeta>
+References: <20250505215802.48449-1-kuniyu@amazon.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250505215802.48449-1-kuniyu@amazon.com>
 
+On Mo, 05.05.25 14:56, Kuniyuki Iwashima (kuniyu@amazon.com) wrote:
 
-biubiuzy created an issue (SELinuxProject/selinux#475) - https://github.com/SELinuxProject/selinux/issues/475
+> As long as recvmsg() or recvmmsg() is used with cmsg, it is not
+> possible to avoid receiving file descriptors via SCM_RIGHTS.
+>
+> This behaviour has occasionally been flagged as problematic.
+>
+> For instance, as noted on the uAPI Group page [0], an untrusted peer
+> could send a file descriptor pointing to a hung NFS mount and then
+> close it.  Once the receiver calls recvmsg() with msg_control, the
+> descriptor is automatically installed, and then the responsibility
+> for the final close() now falls on the receiver, which may result
+> in blocking the process for a long time.
+>
+> systemd calls cmsg_close_all() [1] after each recvmsg() to close()
+> unwanted file descriptors sent via SCM_RIGHTS.
+>
+> However, this cannot work around the issue because the last fput()
+> could occur on the receiver side once sendmsg() with SCM_RIGHTS
+> succeeds.  Also, even filtering by LSM at recvmsg() does not work
+> for the same reason.
+>
+> Thus, we need a better way to filter SCM_RIGHTS on the sender side.
+>
+> This series allows BPF LSM to inspect skb at sendmsg() and scrub
+> SCM_RIGHTS fds by kfunc.
 
-selinux_status_open() open the kernel status page and mmap it with
-read-only mode, If the file is truncated(i.e echo 1 > /sys/fs/selinux/status), this causes subsequent calls to selinux_status_* interfaces to trigger the sigbus signal.
-See also https://github.com/systemd/systemd/issues/37349
+Frankly, this sounds like a bad idea to me. The number and order of
+the fds passed matters, and if you magically make some fds disappear
+everything becomes a complete mess for most protocols. Hence, making
+fds disappear from a messasge mid-flight is really not a realistic
+option, already for compat. Not for systemd, and not for other tools
+either I am sure.
 
+I also think it's pointless to enforce this on the receiving side,
+because the deed is done by then. i.e. it doesn't matter if we have to
+close the fd via bpf or in userspace, we still have to wait for it to
+be closed on the receiving side, hence we have to pay. i.e. focus must
+be to refuse the fds on the sender side, instead of allowing this to
+go to the receiver side.
+
+From my perspective this must be enforced on sender side. And more
+importantly, for systemd's usecase it would be a lot more relevant to
+have a simple, dumb boolean per socket instead of the full bpf
+machinery. I mean, as much as I like the lsm-bpf concept it's not
+clear to me that this is the right place to make use of it. I
+personally would really like to see a SO_PASSRIGHTS sockopt, that is
+modelled after SO_PASSCREDS and SO_PASSSEC.
+
+Lennart
+
+--
+Lennart Poettering, Berlin
