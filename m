@@ -1,166 +1,131 @@
-Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-bc09.mail.infomaniak.ch (smtp-bc09.mail.infomaniak.ch [45.157.188.9])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CEA34B1E5F;
-	Tue,  6 May 2025 08:14:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 59C2422C328
+	for <selinux@vger.kernel.org>; Tue,  6 May 2025 08:25:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.157.188.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746519252; cv=none; b=VvVa71OsOPMKHgDFy03odPnQVY/8PE6pGZQBysA1N/98P/CtTnSTuF2Kbo4KYFyghhgcyWPSKSmb+AgollkFbr4oY8+lr7WPQQNfOuyCdC/78Z80vFyxoiCPo3Q+8DDZdTpy+YH+R3Duiyv0zwaRCR2gsUJo1Fgr6mkFfIDoNzA=
+	t=1746519920; cv=none; b=cM7cG9qxsSoDgW/8koU6HWLvcHl7KDgyivdixfH82A179GQHE7lxl+Pupbf177zh8q2XsRCJsYi1Bs3hKrusZgUB0UW8fUD6Wkxo6Ejsj59VUAFjzDtj3iUCEiZVQd9euW+B929WLutX8B6jS4pvaUrGfVeNeliarxudpsUAfd0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746519252; c=relaxed/simple;
-	bh=9VDTTW822ddqXQnhchXn05RJH6uPsrULAA8DFWaEdSs=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type; b=sFIll3Ifb1xTBILBdt8KSlnd7ZYMdqq6wT+eu1kY7BM/J4uUY/3svzSAmJKslPig0tGt27RxBusVAHKBYhvwxmpmyIFLLh4mImpiLDmaweq+pDyg6Jjy5BMuBGtw/oQIUk2fFIy5kRPHxfrVLLqDxUCP9ik6N0wFVU6J7kKuYE0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com; spf=pass smtp.mailfrom=googlemail.com; dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b=Unlaod59; arc=none smtp.client-ip=209.85.208.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=googlemail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=googlemail.com
+	s=arc-20240116; t=1746519920; c=relaxed/simple;
+	bh=YSWl+QfwkOnRfAH90XS1/0eMYPBj00WkhiTyiofpPcU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Wz0Duq7IPdGOBywEO2OVfnmnpazUNx9ofi9MAnB2yHBiy4FEQ0kFCGYV+ANLcr/UdkZSbUzQ5cHDzVKxJNyFVpM0uR9aW6DplLSQpUkQLVkjRSyBEUXUYjbkgrFPyNT8DuX5G/fPuZmIp3otDcBpYoJO3bSa0SaqBnrxZJKTv+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net; spf=pass smtp.mailfrom=digikod.net; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=phs/DWbu; arc=none smtp.client-ip=45.157.188.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="Unlaod59"
-Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-5e5e0caa151so9448397a12.0;
-        Tue, 06 May 2025 01:14:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20230601; t=1746519249; x=1747124049; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9VDTTW822ddqXQnhchXn05RJH6uPsrULAA8DFWaEdSs=;
-        b=Unlaod59Zto3805bxIKh8WSKQBFllw/UNkcUrXjruLdhdbZ2oWcB8UKTTTOKfF61uR
-         G3n0Bo8okxIY2APHKDYtf/IXh6ewJqQ6tZg/asRsdEpyFGlc9aoEKYCrxsZKyTz3r59Q
-         bIZfy/mDgcB6TvmpoQLFUfAyAYSzmNXuFCnsXMZ0lsxbMzsntBYltbXEIQY/39aa0r4j
-         B4E4NnDkrBiBEJXieDeWtdMDhpnIeg0kEz65MlFGMyMObPfEGGeecEq5i9Ts6ceIVaRO
-         bMGJcNpSXPMJ3mtVXd0+dhB4/v2cNjNgy8YtHRg8gtHS0+uyTl2+lZdpz/n6B/SwHmBc
-         yVfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746519249; x=1747124049;
-        h=content-transfer-encoding:mime-version:subject:references
-         :in-reply-to:message-id:cc:to:from:date:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=9VDTTW822ddqXQnhchXn05RJH6uPsrULAA8DFWaEdSs=;
-        b=w4djffjYzPeCwQMcKUCKMSFtHY/RblM3z/NRdFihevMb0YZ8HXK4JOYFedic+R3m/R
-         xf+r1X2YR1ivWeFgcyPk8Vgio29M1DCTeohkrHefdg1GhRP1iULO2GyGuuCcGRUgYiiT
-         BEfya2OynofzqJ5OgIhZN45T0yU5Cp5YIRDBJzZ6ekCZxd5ndQ5ccBIsvkb4JNECAS7W
-         5snFrEDS2a2xFJaqpBuoojWRK8LOBUVdevQGEskABu+daJjpUhAHGWRtEc/lU4vaPrTJ
-         16cE2zbFx3kdaN0qVgZlDu0JI3DSCd3glMDPklamXrYjkFs68yy6s+fc1tCC5Q8feqWU
-         QSQQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXIy+qI/SjYx/7M8/36PnjgcQhMGXXqYYjrSComxn8Z9oMD+dae2ZfIoh31QNoBH0lDIVl285MU@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywitas6UNCCQ0vPqxMk20nPueu7dHW8CLxo4Ri2tnvTz9YistA0
-	OvWWI9eLzEsyaV49Xkqm3/vKbR0KYPSNw/B/AJ6YK76PHGcE5LBZ
-X-Gm-Gg: ASbGncuraJG3epMqONOG7gs74lfuiSDDvw6Kj5S3BuHLsANue5XE/jScLeDKpfv6NTm
-	De9KIBAf9t3LqsLkk/9hF9Z4kxvDGuaCYnZe0GADEnkWVJCWC+7DRux4lYIiKLweDkHJQL/ppu7
-	Ueu1mVQpEL/ya/vfVYnI8RlwPtLLKCp/YQwOj1T6LeuVX7XS5KjTCobjY2vcDL0IELBLxfMfkHE
-	LLqfa9gpRJSUcZeTiGKMkeXI7RBAtQ6EpziFlHoHToMqdxesegpDFEi150KDJbRvIgNCwPJN9cj
-	jhrd/KrGEEatcW4T3tUHlJtTjrqxHaiZteJbOXiC95g=
-X-Google-Smtp-Source: AGHT+IGQdXpJBjcPOLR63YHW98s3vo7dMV1dYz43H+cLr4vB3aPDjuAnn/kOQZjKDFoJQVBD1KsgiQ==
-X-Received: by 2002:a05:6402:2803:b0:5fb:1cbb:9390 with SMTP id 4fb4d7f45d1cf-5fb1cbb9429mr5189943a12.33.1746519248544;
-        Tue, 06 May 2025 01:14:08 -0700 (PDT)
-Received: from [127.0.0.1] ([90.187.240.197])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5fa77b9047esm7014914a12.59.2025.05.06.01.14.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 06 May 2025 01:14:08 -0700 (PDT)
-Date: Tue, 6 May 2025 10:14:06 +0200 (GMT+02:00)
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-To: Cai Xinchen <caixinchen1@huawei.com>
-Cc: linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
-	paul@paul-moore.com, stephen.smalley.work@gmail.com,
-	omosnace@redhat.com, ericsu@linux.microsoft.com
-Message-ID: <6f9de6c4-a2e0-4423-b581-dc15822fc641@googlemail.com>
-In-Reply-To: <20250506031833.6107-1-caixinchen1@huawei.com>
-References: <20250506031833.6107-1-caixinchen1@huawei.com>
-Subject: Re: [PATCH] SELinux: Add check for the user data passed to kcalloc
- in hashtab_init
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="phs/DWbu"
+Received: from smtp-4-0001.mail.infomaniak.ch (smtp-4-0001.mail.infomaniak.ch [10.7.10.108])
+	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4ZsBKP0tKlzxvW;
+	Tue,  6 May 2025 10:25:13 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
+	s=20191114; t=1746519913;
+	bh=i4kB+dqu3Gkr/hdwa8JkKng9U1uVnoBQB3MDCaMXOP0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=phs/DWbuE3BjYaFDGc4kP6Y06gZrB3iNk0R3hNh9ysHb0gtRc8uz9Dkm5ND/BnUK6
+	 xJAMq5cUXkfBNSxP0SEL/Ym0gUDuX5jsHjqfHAv7JyXCKKE2weLd0jQP4lQasVdp4m
+	 ty90N4LjlRdoOdU7l1TMBH9ZgDdF/PmQkyttd7/o=
+Received: from unknown by smtp-4-0001.mail.infomaniak.ch (Postfix) with ESMTPA id 4ZsBKL3wtjz4m9;
+	Tue,  6 May 2025 10:25:10 +0200 (CEST)
+Date: Tue, 6 May 2025 10:25:09 +0200
+From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
+To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc: Kuniyuki Iwashima <kuniyu@amazon.com>, 
+	Martin KaFai Lau <martin.lau@linux.dev>, Daniel Borkmann <daniel@iogearbox.net>, 
+	John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>, 
+	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
+	Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
+	=?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Christian Brauner <brauner@kernel.org>, 
+	Kuniyuki Iwashima <kuni1840@gmail.com>, bpf <bpf@vger.kernel.org>, 
+	Network Development <netdev@vger.kernel.org>, LSM List <linux-security-module@vger.kernel.org>, 
+	selinux@vger.kernel.org, Kees Cook <keescook@chromium.org>, Jann Horn <jannh@google.com>, 
+	linux-api@vger.kernel.org
+Subject: Re: [PATCH v1 bpf-next 4/5] bpf: Add kfunc to scrub SCM_RIGHTS at
+ security_unix_may_send().
+Message-ID: <20250506.ahjae2Beemuo@digikod.net>
+References: <20250505215802.48449-1-kuniyu@amazon.com>
+ <20250505215802.48449-5-kuniyu@amazon.com>
+ <CAADnVQK1t3ZqERODdHJM_HaZDMm+JH4OFvwTsLNqZG0=4SQQcA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Correlation-ID: <6f9de6c4-a2e0-4423-b581-dc15822fc641@googlemail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAADnVQK1t3ZqERODdHJM_HaZDMm+JH4OFvwTsLNqZG0=4SQQcA@mail.gmail.com>
+X-Infomaniak-Routing: alpha
 
-May 6, 2025 09:20:51 Cai Xinchen <caixinchen1@huawei.com>:
+On Mon, May 05, 2025 at 05:13:32PM -0700, Alexei Starovoitov wrote:
+> On Mon, May 5, 2025 at 3:00 PM Kuniyuki Iwashima <kuniyu@amazon.com> wrote:
+> >
+> > As Christian Brauner said [0], systemd calls cmsg_close_all() [1] after
+> > each recvmsg() to close() unwanted file descriptors sent via SCM_RIGHTS.
+> >
+> > However, this cannot work around the issue that close() for unwanted file
+> > descriptors could block longer because the last fput() could occur on
+> > the receiver side once sendmsg() with SCM_RIGHTS succeeds.
+> >
+> > Also, even filtering by LSM at recvmsg() does not work for the same reason.
+> >
+> > Thus, we need a better way to filter SCM_RIGHTS on the sender side.
+> >
+> > Let's add a new kfunc to scrub all file descriptors from skb in
+> > sendmsg().
+> >
+> > This allows the receiver to keep recv()ing the bare data and disallows
+> > the sender to impose the potential slowness of the last fput().
+> >
+> > If necessary, we can add more granular filtering per file descriptor
+> > after refactoring GC code and adding some fd-to-file helpers for BPF.
+> >
+> > Sample:
+> >
+> > SEC("lsm/unix_may_send")
+> > int BPF_PROG(unix_scrub_scm_rights,
+> >              struct socket *sock, struct socket *other, struct sk_buff *skb)
+> > {
+> >         struct unix_skb_parms *cb;
+> >
+> >         if (skb && bpf_unix_scrub_fds(skb))
+> >                 return -EPERM;
+> >
+> >         return 0;
+> > }
+> 
+> Any other programmability do you need there?
+> 
+> If not and above is all that is needed then what Jann proposed
+> sounds like better path to me:
+> "
+> I think the thorough fix would probably be to introduce a socket
+> option (controlled via setsockopt()) that already blocks the peer's
+> sendmsg().
+> "
+> 
+> Easier to operate and upriv process can use such setsockopt() too.
 
-> When the user writes some data to the file /sys/fs/selinux/policy,
-> there is no check for the user buf passed to kcalloc. Syzkaller shows
-> this warning:
-> WARNING: CPU: 1 PID: 6642 at mm/page_alloc.c
->
-> __alloc_pages_noprof
-> ___kmalloc_large_node
-> __kmalloc_large_node_noprof
-> __kmalloc_noprof
-> hashtab_init
-> common_read
-> policydb_read
-> security_load_policy
-> sel_write_load
-> vfs_write
-> ksys_write
-> do_syscall_64
->
-> This warning can be reproduced by writing this content to
-> /sys/fs/selinux/policy
-> 8cff7cf9 08000000 5345204c 696e7578 15000000 e0ff962a 08000000 07000000
-> 4cf523cd 7eec2688 6d70a6b7 c78b496f 1a0a192c ea34ff41 70581a74 3ff0cfb9
-> 7ea0f0d1 70d1fe14 41c2f7c8 ea1c78dd 17a19249 35210081 a83c30ec 4171450b
-> fc1de12c fe1ff342 a887
->
-> Add check to prevent the size passed to kcalloc larger than MAX_PAGE_ORDE=
-R
-> after get_order.
+Adding a flag with setsockopt() will enable any program to protect
+themselves instead of requiring the capability to load an eBPF program.
+For the systemd use case, I think a flag would be enough, and it would
+benefit more than only/mainly systemd.
 
+Another thing is that we should have a consistent user space error code
+if passing file descriptors is denied, to avoid confusing senders, to
+not silently ignore dropped file descriptors, and to let the sender know
+that it can send again but without passed file descriptors or maybe with
+a maximum number of file descriptors.  The ENFILE errno (file table
+overflow) looks like a good candidate.
 
-This might be similar to https://lore.kernel.org/selinux/20241216164055.962=
-67-12-cgoettsche@seltendoof.de/
+I guess both approaches are valuable, but this series should add this
+new flag as well, and specify the expected error handling.
 
-I'll try to respin that patch set in time.
-
-> Signed-off-by: Cai Xinchen <caixinchen1@huawei.com>
-> ---
-> security/selinux/ss/hashtab.c | 18 ++++++++++++++++++
-> 1 file changed, 18 insertions(+)
->
-> diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.=
-c
-> index 383fd2d70878..18bcf3978c9e 100644
-> --- a/security/selinux/ss/hashtab.c
-> +++ b/security/selinux/ss/hashtab.c
-> @@ -30,6 +30,21 @@ static u32 hashtab_compute_size(u32 nel)
-> =C2=A0=C2=A0=C2=A0 return nel =3D=3D 0 ? 0 : roundup_pow_of_two(nel);
-> }
->
-> +static bool is_order_out_of_range(u32 size, struct hashtab *h)
-> +{
-> +=C2=A0=C2=A0 size_t bytes;
-> +=C2=A0=C2=A0 u32 order;
-> +
-> +=C2=A0=C2=A0 if (unlikely(check_mul_overflow(size, sizeof(*h->htable), &=
-bytes)))
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return true;
-> +
-> +=C2=A0=C2=A0 order =3D get_order(bytes);
-> +=C2=A0=C2=A0 if (order > MAX_PAGE_ORDER)
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return true;
-> +
-> +=C2=A0=C2=A0 return false;
-> +}
-> +
-> int hashtab_init(struct hashtab *h, u32 nel_hint)
-> {
-> =C2=A0=C2=A0=C2=A0 u32 size =3D hashtab_compute_size(nel_hint);
-> @@ -40,6 +55,9 @@ int hashtab_init(struct hashtab *h, u32 nel_hint)
-> =C2=A0=C2=A0=C2=A0 h->htable =3D NULL;
->
-> =C2=A0=C2=A0=C2=A0 if (size) {
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (is_order_out_of_range(size, h))
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return -ENO=
-MEM;
-> +
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 h->htable =3D kcalloc(size, si=
-zeof(*h->htable), GFP_KERNEL);
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (!h->htable)
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 return=
- -ENOMEM;
-> --
-> 2.34.1
-
+If we want to be able to handle legacy software not using this new flag,
+we can leverage seccomp unotify.
