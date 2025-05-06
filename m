@@ -1,112 +1,143 @@
-Received: from gardel.0pointer.net (gardel.0pointer.net [85.214.157.71])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DF1627FD5F;
-	Tue,  6 May 2025 12:27:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.157.71
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 394D02836A7
+	for <selinux@vger.kernel.org>; Tue,  6 May 2025 14:57:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746534445; cv=none; b=otfILYGVeFoffVvrLywbXBSeRtj8pCovM2JZbrQh1ViU2phPKnfjUW5Ehu1bIzuv+ypuFWxoxDQoyz0lOtfqiYaMOYq8eSs2bIWhALOE82kWoH1xPFkr9+WWJVQUjD4brkayo3e4A1SS1LjjxNvZm8i+MmZkDRXCCqyuLN4hQCs=
+	t=1746543440; cv=none; b=FDgqkxVEL6+/jP2SabGkQ2OkZ/02QX72uErPdM/DnAZ5hRru0G2JR1UoPkg7aGF4Y70xUycLJCgW1ttFPSICgIEBYbnGuVoe2Ql2CvnDkxhQ+eEHC+r7wJnUN8OUHoq8/LyNvhaktymyByLg5G07sxcb9BvbOSEpOpPYZOJNmPg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746534445; c=relaxed/simple;
-	bh=m7SBsfQfLVW4xNj3QrIhN2V3ELt1ceEG+cP+bc5hvNs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nh5Wo4Zb7U0gSlVNWxuGiR/qV1HW1wRYwcm0OBUo3v2wC8smutP2WJ38N5VPWr0rb6k475ow3FtNk34kvcUfk2GDUwMT4zJ7t48c2aWfgzL0GOGmocgCa2/yvJGDJwjOLIBu3GcIP/qtYKsEyaIMKiJu3VdIE4onFO0mXyQgpno=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=poettering.net; spf=pass smtp.mailfrom=poettering.net; arc=none smtp.client-ip=85.214.157.71
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=poettering.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=poettering.net
-Received: from zeta (p200300ea6f02a700ee7fde6810ab8036.dip0.t-ipconnect.de [IPv6:2003:ea:6f02:a700:ee7f:de68:10ab:8036])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by gardel.0pointer.net (Postfix) with ESMTPSA id 89EC9E802CC;
-	Tue,  6 May 2025 14:17:24 +0200 (CEST)
-Date: Tue, 6 May 2025 14:17:22 +0200
-From: Lennart Poettering <lennart@poettering.net>
-To: Kuniyuki Iwashima <kuniyu@amazon.com>
-Cc: Martin KaFai Lau <martin.lau@linux.dev>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
-	Yonghong Song <yonghong.song@linux.dev>,
-	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
-	Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-	=?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
-	=?iso-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Casey Schaufler <casey@schaufler-ca.com>,
-	Christian Brauner <brauner@kernel.org>,
-	Kuniyuki Iwashima <kuni1840@gmail.com>, bpf@vger.kernel.org,
-	netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
-	selinux@vger.kernel.org
-Subject: Re: [PATCH v1 bpf-next 0/5] af_unix: Allow BPF LSM to scrub
- SCM_RIGHTS at sendmsg().
-Message-ID: <aBn90vJ49ymBT3LW@zeta>
-References: <20250505215802.48449-1-kuniyu@amazon.com>
+	s=arc-20240116; t=1746543440; c=relaxed/simple;
+	bh=YplBmVb1Delb5mL7pEaZiodrLvZ2IOKYjJp7SEdrmfQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Iu9XYp9RKwcmZWcIY5WjYwYigVilr2J8TpxfMJA5K4ybsAAjoWBtDM7z8R2AAbapm9ojWtk8f17t4mDduzm1YdvNpDfMsozOlU8W1PEnRocc9aYgLFqk6Pp/xwDjahbFV0U1YrWkE00IA2BnFD5+lX4dH4yhVHGE7IV+gIbUnoc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=b2bQIJ1i; arc=none smtp.client-ip=209.85.128.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="b2bQIJ1i"
+Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-70825de932bso60895507b3.0
+        for <selinux@vger.kernel.org>; Tue, 06 May 2025 07:57:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1746543437; x=1747148237; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DLs31GAnh8meNVNPFC4TC/kBV0263rRQzZRQGkUn8Pg=;
+        b=b2bQIJ1i/6RT4w5NB75jWAYY0pv/gZyPMltOhgawg8yI43HVENnU48ZKzorNXENPAE
+         qeo2wOneaOrHxn0e8AY+nzLSpA8T/jqEwAVMvIo86QHC2nhxkMd9SLI0hvtUTRC522U/
+         p1dQMPhhMQUQz3KBt+u7Crzr2C1BQyb/O0nNR/BDA5DzEX2f2BK536n3cKKhT3bqiFwT
+         j1IZ0avNvCqrNyByyk/j0EwbQJxi20j8PQgfdXetpSbbJX42xpb0J3azYgM1VqbLvg9N
+         704wEZMKLaS2CGS8Hbk0rj1Lfmq8q2RgorzrEucdpzoMyE9K6Qhx/UNJofrqLlHpn14G
+         0Okg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1746543437; x=1747148237;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=DLs31GAnh8meNVNPFC4TC/kBV0263rRQzZRQGkUn8Pg=;
+        b=Z6LlbcMZ3F/CdNLNFGe2Mv5uxb8GL9NoersFIQZ84mqWw+ijIXyuM2m5PWB5itVirc
+         VHaCwyh5Hdd+32rMbYP7Z/synSnK6RQsrqiaAxl8yKZiR9GCzLiYASRX1EEc1sKxrDPP
+         iz0oeP13Psajjih9yz4T3JrbYMF0fRQkdCrNGG+hMRPJGN+hW+4wXtpw3kXxolQXwlug
+         7mY5DaeXpWMg01v6LhwUHi9nKA7JHPlN0A/H0YYF+JZghmk5eckaNka6JyQNhTXRmX6d
+         sSAbS5dGXr5fWh7FhpY6Y7rAfxSN9f9ZWRFsusvq1UlSvRROVNKFZEsocNlgNAoEvSXm
+         riPw==
+X-Forwarded-Encrypted: i=1; AJvYcCWBFbNhEFTjoUQV0nbuP1oecd9CXytRBco88mDc3gawQKIgg3sSvuWHNt0lxfZP7qUmlKHtufTH@vger.kernel.org
+X-Gm-Message-State: AOJu0YwQrVLAmAug5ps9wJUSXdt0dAGmgx7lPuWPqJgJvKTlPjJyJQrn
+	XTMSbFCUnUQpTtuctnI+346v0WnY8Rb6YLtPNsntMlA4DdWB3qVbY4MuEonxmnXrXnG/701WDvW
+	7yg5Uc6GA6R4xd6PLPS3rRozx880OkrMWoW3E
+X-Gm-Gg: ASbGncvStWgQLxCWVmrw2jlt2FDAIxpTkQPn0XVXrl5HVRuQ7YRE/N388lg8rJ+kGmG
+	E4t4mLoKi+RmXC1i3ZQFhNZhwvM7oa8RhybFoJ1kl5Ydr8Q6GAVNJDaPh/dh4FJFUBnQFDpPmZ+
+	E949CD1DUMWmw3Q3YvUdoO2Q==
+X-Google-Smtp-Source: AGHT+IG6xFvMic0ADEs29IQoHHk8yx7S2z5OPPSGG9x1jnr6FqkiMMaTePQc4L33m2RS4aoEj/y9I9lZh5J1KZwGRg8=
+X-Received: by 2002:a05:690c:74c8:b0:6fb:9474:7b4f with SMTP id
+ 00721157ae682-70a1c9d951emr1476887b3.6.1746543437066; Tue, 06 May 2025
+ 07:57:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250505215802.48449-1-kuniyu@amazon.com>
+References: <CAHC9VhSWS2L3qwu_r_1Fr3eLp-9KRz3_20EPwy=FFu7_eSiN7g@mail.gmail.com>
+ <20250506003514.66821-1-kuniyu@amazon.com>
+In-Reply-To: <20250506003514.66821-1-kuniyu@amazon.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 6 May 2025 10:57:06 -0400
+X-Gm-Features: ATxdqUE9hUHlsLlxH60gL-ZM58XVaHc4ms5YTdwWD4KTgo3dCqcbQ5j61SIFQWQ
+Message-ID: <CAHC9VhRhW=QT9O6qLaVfJd9XMV1se6EooVmYKb76+iATyG2vAA@mail.gmail.com>
+Subject: Re: [PATCH v1 bpf-next 0/5] af_unix: Allow BPF LSM to scrub
+ SCM_RIGHTS at sendmsg().
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: andrii@kernel.org, ast@kernel.org, bpf@vger.kernel.org, brauner@kernel.org, 
+	casey@schaufler-ca.com, daniel@iogearbox.net, eddyz87@gmail.com, 
+	gnoack@google.com, haoluo@google.com, jmorris@namei.org, 
+	john.fastabend@gmail.com, jolsa@kernel.org, kpsingh@kernel.org, 
+	kuni1840@gmail.com, linux-security-module@vger.kernel.org, 
+	martin.lau@linux.dev, mic@digikod.net, netdev@vger.kernel.org, 
+	omosnace@redhat.com, sdf@fomichev.me, selinux@vger.kernel.org, 
+	serge@hallyn.com, song@kernel.org, stephen.smalley.work@gmail.com, 
+	yonghong.song@linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mo, 05.05.25 14:56, Kuniyuki Iwashima (kuniyu@amazon.com) wrote:
-
-> As long as recvmsg() or recvmmsg() is used with cmsg, it is not
-> possible to avoid receiving file descriptors via SCM_RIGHTS.
+On Mon, May 5, 2025 at 8:35=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon.com=
+> wrote:
+> From: Paul Moore <paul@paul-moore.com>
+> Date: Mon, 5 May 2025 19:21:25 -0400
+> > On Mon, May 5, 2025 at 5:58=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon=
+.com> wrote:
+> > >
+> > > As long as recvmsg() or recvmmsg() is used with cmsg, it is not
+> > > possible to avoid receiving file descriptors via SCM_RIGHTS.
+> > >
+> > > This behaviour has occasionally been flagged as problematic.
+> > >
+> > > For instance, as noted on the uAPI Group page [0], an untrusted peer
+> > > could send a file descriptor pointing to a hung NFS mount and then
+> > > close it.  Once the receiver calls recvmsg() with msg_control, the
+> > > descriptor is automatically installed, and then the responsibility
+> > > for the final close() now falls on the receiver, which may result
+> > > in blocking the process for a long time.
+> > >
+> > > systemd calls cmsg_close_all() [1] after each recvmsg() to close()
+> > > unwanted file descriptors sent via SCM_RIGHTS.
+> > >
+> > > However, this cannot work around the issue because the last fput()
+> > > could occur on the receiver side once sendmsg() with SCM_RIGHTS
+> > > succeeds.  Also, even filtering by LSM at recvmsg() does not work
+> > > for the same reason.
+> > >
+> > > Thus, we need a better way to filter SCM_RIGHTS on the sender side.
+> > >
+> > > This series allows BPF LSM to inspect skb at sendmsg() and scrub
+> > > SCM_RIGHTS fds by kfunc.
+> >
+> > I'll take a closer look later this week, but generally speaking LSM
+> > hooks are intended for observability and access control, not data
+> > modification, which means what you are trying to accomplish may not be
+> > a good fit for a LSM hook.  Have you considered simply inspecting the
+> > skb at sendmsg() and rejecting the send in the LSM hook if a
+> > SCM_RIGHTS cmsg is present that doesn't fit within the security policy
+> > implemented in your BPF program?
 >
-> This behaviour has occasionally been flagged as problematic.
+> I think the simple inspection (accept all or deny) does not cover
+> a real use case and is not that helpful.
 >
-> For instance, as noted on the uAPI Group page [0], an untrusted peer
-> could send a file descriptor pointing to a hung NFS mount and then
-> close it.  Once the receiver calls recvmsg() with msg_control, the
-> descriptor is automatically installed, and then the responsibility
-> for the final close() now falls on the receiver, which may result
-> in blocking the process for a long time.
->
-> systemd calls cmsg_close_all() [1] after each recvmsg() to close()
-> unwanted file descriptors sent via SCM_RIGHTS.
->
-> However, this cannot work around the issue because the last fput()
-> could occur on the receiver side once sendmsg() with SCM_RIGHTS
-> succeeds.  Also, even filtering by LSM at recvmsg() does not work
-> for the same reason.
->
-> Thus, we need a better way to filter SCM_RIGHTS on the sender side.
->
-> This series allows BPF LSM to inspect skb at sendmsg() and scrub
-> SCM_RIGHTS fds by kfunc.
+> I don't like to add another hook point in AF_UNIX code just because
+> of it and rather want to reuse the exisiting hook as we have a nice
+> place.
 
-Frankly, this sounds like a bad idea to me. The number and order of
-the fds passed matters, and if you magically make some fds disappear
-everything becomes a complete mess for most protocols. Hence, making
-fds disappear from a messasge mid-flight is really not a realistic
-option, already for compat. Not for systemd, and not for other tools
-either I am sure.
+Reading quickly through the other replies, I'm guessing you are going
+to be moving away from the LSM scrubbing proposed here (which I
+believe is a good idea), so I won't bother you with more feedback
+here.  However, if for some reason you still decide that you want to
+pursue the LSM scrubbing approach please let me know so we can discuss
+this further (on-list).
 
-I also think it's pointless to enforce this on the receiving side,
-because the deed is done by then. i.e. it doesn't matter if we have to
-close the fd via bpf or in userspace, we still have to wait for it to
-be closed on the receiving side, hence we have to pay. i.e. focus must
-be to refuse the fds on the sender side, instead of allowing this to
-go to the receiver side.
+> Also, passing skb makes it possible to build much more flexible
+> policy as it allows bpf prog to inspect the skb payload with
+> existing bpf helpers.
 
-From my perspective this must be enforced on sender side. And more
-importantly, for systemd's usecase it would be a lot more relevant to
-have a simple, dumb boolean per socket instead of the full bpf
-machinery. I mean, as much as I like the lsm-bpf concept it's not
-clear to me that this is the right place to make use of it. I
-personally would really like to see a SO_PASSRIGHTS sockopt, that is
-modelled after SO_PASSCREDS and SO_PASSSEC.
-
-Lennart
-
---
-Lennart Poettering, Berlin
+--=20
+paul-moore.com
