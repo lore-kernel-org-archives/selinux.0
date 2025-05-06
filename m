@@ -1,123 +1,65 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0179812BF24;
-	Tue,  6 May 2025 09:15:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E98121DDE9
+	for <selinux@vger.kernel.org>; Tue,  6 May 2025 12:18:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746522954; cv=none; b=sVmglijb2vbk9zQrbtLOCIVm3CfFEN3vSyEyjQMvBvM7H4hTIjI4HFN1518+EF9JW7kkdzTXQ+CUgx5EycxkrstrKdSlbDu99KCxx1muqowrRCxp0WftY1ug2N+DhrIXU8yJLHUX/o5IDMgnuhlCpZEx1lSAyopnzzD2wdlimhY=
+	t=1746533902; cv=none; b=ocEPZf7Tfhp9CifA51mk8qVUwKkHlqRqU9G+ikMe6T+AvAcpUQK0BWM+EJBAxcuG0G7yHelL6JARyAV43JR80oIA6h3TSXvq/5rZz+hQA+tMcsZUObB4zubFvfVMOQ4ClIrcErXcQ1ziYA/luqBrmhzfftIG5oSVRjwzNCwjtdQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746522954; c=relaxed/simple;
-	bh=1Y97fGZ2pcgpkQySDAiBpuDx1JxFWgJKA6h5L7yFJN0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=V2hRSj6BPAEqdvW7F14r9yLFaOg75s4I9+9VU+ZVXgnnlyCLqoyf19cKBvc/Py/oSQyaTIe43Ofcy0tMN6RRAPtATbUHN+gwTE51Spq+bm9yptKXQEGlq1zO3AReVTQmgRuOPoih+i7g1C1gFrAr2eVk76oGThYnxbueGJdgEHk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V91zxqsE; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1746533902; c=relaxed/simple;
+	bh=v4rVuA5hj2FbFmWd851pt/te0fH2cp1ZbWfzvWih8Bk=;
+	h=From:To:Subject:References:Date:Message-ID:MIME-Version:
+	 Content-Type; b=bsMQrXcPkt8Vu+W9rIEFOqqjovQ500drex/HRxDNQi+psu8Vd61vQPkhzopIAeAthW+kag7ssZuzKqga/P/Z6uKA0dVeRXVEIBhg/rb5okg0rqwO+uHOSSZs3V+7QgufaTW99UsOguwJVhR+UFVNL4FaDBnr8oBcy2KNb+M/RH8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Vs955ARl; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V91zxqsE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84159C4CEE4;
-	Tue,  6 May 2025 09:15:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746522953;
-	bh=1Y97fGZ2pcgpkQySDAiBpuDx1JxFWgJKA6h5L7yFJN0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=V91zxqsEGgxeKAXgbJuN86woyLZknZxRnTFXGUwXFeZw61HnjHLekUic9XBe9Mo6J
-	 mmKx+Rf2GInYAGaTvmSUbOkPNc5UX4qM9h0NIJOp+zg797K+OAMXY9ifb/00VhHzBa
-	 oszvGl7rWiHfNWpKdwA1UWgbCAb/j9+KWxjGtDpcXwQpGVdbo2lFQlmkam54qERIap
-	 5TqtI4YSbhwJoo1kOnYvDTvMFj9PsTLXQ5fgH8T+okj02eM+DzrdpVBbwFjjlq/cCb
-	 xG44f/jJ5nn1mD9I4lq04yvGzb6+EV8MwVv9GTuWHFD/wLKFYqdXhWfcaXwbJTcWYy
-	 wbqyNstTd5/SA==
-Date: Tue, 6 May 2025 11:15:42 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Cc: Kuniyuki Iwashima <kuniyu@amazon.com>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, Daniel Borkmann <daniel@iogearbox.net>, 
-	John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Andrii Nakryiko <andrii@kernel.org>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>, 
-	Yonghong Song <yonghong.song@linux.dev>, KP Singh <kpsingh@kernel.org>, 
-	Stanislav Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>, 
-	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, 
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Casey Schaufler <casey@schaufler-ca.com>, 
-	Kuniyuki Iwashima <kuni1840@gmail.com>, bpf@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: [PATCH v1 bpf-next 0/5] af_unix: Allow BPF LSM to scrub
- SCM_RIGHTS at sendmsg().
-Message-ID: <20250506-eitel-gerede-7c8b5e556a2c@brauner>
-References: <20250505215802.48449-1-kuniyu@amazon.com>
- <CAP01T77STmncrPt=BsFfEY6SX1+oYNXhPeZ1HC9J=S2jhOwQoQ@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Vs955ARl"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1746533898;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 references:references; bh=v4rVuA5hj2FbFmWd851pt/te0fH2cp1ZbWfzvWih8Bk=;
+	b=Vs955ARl6o22e+/vSAnpgBOwDw2GF8zMSm0W6Kt2qo8yQQvjFXpG9t85cQsdjhz16/RWYT
+	cjZ6928rkUqr+fFzCSgQaSWN6TstSsMWfZi/MLUWaFjBYHmO9zq68zsN4tPlVivbim5UiB
+	XE7W2qgKkp3KmQ2TZqrTTZvZG3YaYG0=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-551-4GIlQsQINYWM1EX_kLMGwg-1; Tue,
+ 06 May 2025 08:18:17 -0400
+X-MC-Unique: 4GIlQsQINYWM1EX_kLMGwg-1
+X-Mimecast-MFC-AGG-ID: 4GIlQsQINYWM1EX_kLMGwg_1746533896
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AD39A1955D63
+	for <selinux@vger.kernel.org>; Tue,  6 May 2025 12:18:16 +0000 (UTC)
+Received: from localhost (unknown [10.45.226.13])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2791E30001A2
+	for <selinux@vger.kernel.org>; Tue,  6 May 2025 12:18:15 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [SELinuxProject/selinux] The SIGBUS signal is triggered because the
+ status page is incorrectly written. (Issue #475)
+References: <SELinuxProject/selinux/issues/475@github.com>
+Date: Tue, 06 May 2025 14:18:14 +0200
+Message-ID: <87bjs60w6x.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAP01T77STmncrPt=BsFfEY6SX1+oYNXhPeZ1HC9J=S2jhOwQoQ@mail.gmail.com>
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-On Tue, May 06, 2025 at 12:49:11AM +0200, Kumar Kartikeya Dwivedi wrote:
-> On Mon, 5 May 2025 at 23:58, Kuniyuki Iwashima <kuniyu@amazon.com> wrote:
-> >
-> > As long as recvmsg() or recvmmsg() is used with cmsg, it is not
-> > possible to avoid receiving file descriptors via SCM_RIGHTS.
-> >
-> > This behaviour has occasionally been flagged as problematic.
-> >
-> > For instance, as noted on the uAPI Group page [0], an untrusted peer
-> > could send a file descriptor pointing to a hung NFS mount and then
-> > close it.  Once the receiver calls recvmsg() with msg_control, the
-> > descriptor is automatically installed, and then the responsibility
-> > for the final close() now falls on the receiver, which may result
-> > in blocking the process for a long time.
-> >
-> > systemd calls cmsg_close_all() [1] after each recvmsg() to close()
-> > unwanted file descriptors sent via SCM_RIGHTS.
-> >
-> > However, this cannot work around the issue because the last fput()
-> > could occur on the receiver side once sendmsg() with SCM_RIGHTS
-> > succeeds.  Also, even filtering by LSM at recvmsg() does not work
-> > for the same reason.
-> >
-> > Thus, we need a better way to filter SCM_RIGHTS on the sender side.
-> >
-> > This series allows BPF LSM to inspect skb at sendmsg() and scrub
-> > SCM_RIGHTS fds by kfunc.
-> >
-> > Link: https://uapi-group.org/kernel-features/#disabling-reception-of-scm_rights-for-af_unix-sockets #[0]
-> > Link: https://github.com/systemd/systemd/blob/v257.5/src/basic/fd-util.c#L612-L628 #[1]
-> >
-> 
-> This sounds pretty useful!
-> 
-> I think you should mention the cases of possible DoS on close() or
-> flooding, e.g. with FUSE controlled fd/NFS hangs in the commit log
-> itself.
-> I think it's been an open problem for a while now with no good solution.
-> Currently systemd's FDSTORE=1 for PID 1 is susceptible to the same
-> problem, even if the underlying service isn't root.
-> 
-> I think it is also useful for restricting what individual file
-> descriptors can be passed around by a process.
-> Say restricting usage of an fd to a process and its children, but not
-> allowing it to be shared with others.
-> Send side hook is the right point to enforce it.
-> 
-> Therefore exercising scm_fp_list would be a good idea.
 
-No, that's a terrible idea. If the receiver expects 10 file descriptors
-and suddenly some magically disappear or the order gets messed up that's
-terrible for security. It's either close all or nothing.
+biubiuzy created an issue (SELinuxProject/selinux#475) - https://github.com/SELinuxProject/selinux/issues/475
 
-> We should provide some more examples of the filtering policy in the selftests.
-> Maybe a simple example, e.g. only memfd or a pipe fd can be passed,
-> and nothing else.
-> It would require checking file->f_ops.
+selinux_status_open() open the kernel status page and mmap it with
+read-only mode, If the file is truncated(i.e echo 1 > /sys/fs/selinux/status), this causes subsequent calls to selinux_status_* interfaces to trigger the sigbus signal.
+See also https://github.com/systemd/systemd/issues/37349
 
-There's not going to be poking around in file->f_ops for this.
-
-Really, what I asked for was a simple way to set a socket option without
-any bpf or lsm involvement so even really dumb userspace can simply
-block receiving any file descriptors. How that spiraled into "let's
-apply arbitrary filters on SCM_RIGHTS and make files disappear on the
-way" is beyond me.
