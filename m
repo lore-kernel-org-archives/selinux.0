@@ -1,194 +1,152 @@
-Received: from mail-vs1-f53.google.com (mail-vs1-f53.google.com [209.85.217.53])
+Received: from mail-vs1-f44.google.com (mail-vs1-f44.google.com [209.85.217.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 378A94B1E5C
-	for <selinux@vger.kernel.org>; Tue,  6 May 2025 19:33:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ECB24B1E5C
+	for <selinux@vger.kernel.org>; Tue,  6 May 2025 19:33:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746560005; cv=none; b=OM0PCmtezxYTDEqPjxug+P7MrjYjgoAV5976YdCoXyTd19UzEynLUhUNuhjLsI0+JccQIkljNv6XnXQzJKIiq/VzwlOka2I7w76hWppZQpKAZZQbHV69FlMEPC4YoBu7BzpSwdUFYqRcQ5gqC44r5FPoLA/CtbQNCYyab0BCxB0=
+	t=1746560030; cv=none; b=dA2C6YFqtdrW/MRh4SxrKoSa07KOnwefeolcnt/Y3hpq7FAA2E78tyODQ9EyIiAcZue/30WLpIxw87FdsA1XAPdpWyi7uLka/QuPbce++FCaSWzdaB9QEfOcMmHp41I8x8m1UDgLNHHSGhIN3TQR85vO7LgwLZqWiFdQsqv29jQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746560005; c=relaxed/simple;
-	bh=ZhYii3plCOQZc5ILLMdQv5JgR9SuDI+RR/pYnoDgYzs=;
+	s=arc-20240116; t=1746560030; c=relaxed/simple;
+	bh=qmDYaSaLDiauNBmX8hifsVgEItBCatvxUqtLk7uzoz4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BJWWisMiZVcEEGunLKQt7pfqJi02BAaYSD7lmuxUNltLZeQQHac2ouzOpPrQh28oIl4+t9uZQHHOQ7gT+S7v+Xg11sho1RetTJRQaHS8H5UM++SaReJnNt0lJmEIBqAnsHgbdNZpdDe0ZHlzB+6O1WR5F6Lm7/zj9PeyO9xwSw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VEpw6pRS; arc=none smtp.client-ip=209.85.217.53
+	 To:Cc:Content-Type; b=Lrrr9AtVTNRRhcQlfT4P/G39aZBkx7waoQozDyYj1hJPtvgWvmhDOegsef4kuwDGLhKXquOFKRRYYuTVXehpcUbEg0eL6HuAqx/HP3n+NX7hHGbYUZF+El2hkeP9ehz0GfW+yFfPMGu2M24xNNv/0uqmBnXAtW474VGoGsKvfeo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IgItPibb; arc=none smtp.client-ip=209.85.217.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VEpw6pRS"
-Received: by mail-vs1-f53.google.com with SMTP id ada2fe7eead31-4c326617e6cso1619420137.1
-        for <selinux@vger.kernel.org>; Tue, 06 May 2025 12:33:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IgItPibb"
+Received: by mail-vs1-f44.google.com with SMTP id ada2fe7eead31-4c36071916dso1790690137.2
+        for <selinux@vger.kernel.org>; Tue, 06 May 2025 12:33:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1746560003; x=1747164803; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1746560027; x=1747164827; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vhy31NZH7IXq1bU3vVrMtNpmpVMe7K2//Q8yC97zDPA=;
-        b=VEpw6pRSyJ96nltkaBD0scWGGuI+1PY5upqixyl7dBgCWnWyYNNAAdz/ilN9InhrNb
-         ul7YbHeb5gnD+JvvQ3w8MfSjjsyIhPrFxaBrmV/NUkBCRtfvIkgKgkKdxLjLdiqd1/x/
-         dxqBorbI7FE4VMu9K/hz6n9ttEcHG6xhqCM3gO4Jf1V7pxKty1t0nxn47hqZ/sqVzQhI
-         ywdMhyLFKCegOtTPI3Dfj8gF/3NNmSnA40xUDaNkUAC52FKiq6aM0Tdi+7HNsY5UQGJy
-         nqQTpBAdExJKXZ540AF6xSm83WaxI0CSSeHrVRlhEsJ0Xvuu72W4epvxPi2opoN+Yq5Q
-         ttug==
+        bh=6MzBat54xbZDZ3h9m+VwXYhshLSDMt8bGVoUeHnRaJY=;
+        b=IgItPibbTch1qltnPxf7/m343UQGKX3H3mN/YDsUy/JkZbL1CbwfHF29FJSEkCSaIG
+         kiqbpYfKYN+uUW5qN4Eqa/0yaBo5dFrhsqzd9HfvnwBthX0CurxpNWO2HLvg5UCd0rXM
+         nfU+gvpRuwpfNeXYEYDlfyjQrKJUXNg+u2m+fzfSWNhMuMx8YPh9JB05mGN/Zv+CIgHx
+         8nrMeC64dfoCxveOOctRLsRbjAUANeDkwMW/F/QcIYVr/AlOQJuzrzgXGXgt0xE2jWe7
+         ry2pun/rQG+GX+e86cMOT+lJ9KYF1HWHDxPtZFH0Y5RAkgAI+Ol+En2JCllrbMrd5ziD
+         GxBQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746560003; x=1747164803;
+        d=1e100.net; s=20230601; t=1746560027; x=1747164827;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vhy31NZH7IXq1bU3vVrMtNpmpVMe7K2//Q8yC97zDPA=;
-        b=gpXoKJYpS4RgfrSLMNDocWiCTotlLM6QX7MbvXS3u5uEEnm+7Jnbw5jceYOTggGaFf
-         eH/NPeoM/flUQ4XfXw6kLNftQhvYtsvsOl90zPXsgvedBKuPBcipZU/kZkzd//wWgvXt
-         p29IiEJ2FsDImcUmIL04tqtz06GVZN1us6OpKyei+hCoQ/DvwWZ78JGbo93x48iuMnd0
-         PCzdDs5dxiEcM1aWY7dds+Din9qa7yCEyPLORUvW3sBDsOAPmGx/ol1UhRVXveEownWr
-         XJx9N9gyhM2Jwedj/uFxmKCPL0qYTxvBEpUHo2ieo35voc6QGJohaI7fTIIg/8QeGhgq
-         eJeg==
-X-Gm-Message-State: AOJu0YxyHiOJ1V5JzBvHAXCOXdUyoT7m43AMwBYKWESmSDrpipDl+Q9t
-	MAf6bU+jJ++O78eAb3x4VcgADKv8GuBdRtS3/VQ150R7ic6S/sRGOy36S4qE9Xe+dSXSgyN0zm5
-	cKTXzCoTgzfuv4zEY3jjhOYX6J189ew==
-X-Gm-Gg: ASbGncv0FBhdQXWSoZMcvbFE44gIsqNVt5MkbDa3Qz3Q0W826JTKXwKaDdz++m/GNDR
-	Mec15rHWYX5J3QdOJt0jtgbLWeuwtHPubWoRZcD4iR9PyAyjucCSseAc8w5pRJESH5LjKo2vrxd
-	MGhJlZUZHN0ocvjG9Hcq0=
-X-Google-Smtp-Source: AGHT+IHuWGLB1VRH0WYRcDK2ea7NiSnBeV7M7UkwpGjRVJO3lpY1TFSXWF9eLjp+3BjBy+f3G+lwaaVlZV78pgAC8Rs=
-X-Received: by 2002:a05:6102:80a2:b0:4c1:9780:3830 with SMTP id
- ada2fe7eead31-4dc738d3f53mr773021137.23.1746560002950; Tue, 06 May 2025
- 12:33:22 -0700 (PDT)
+        bh=6MzBat54xbZDZ3h9m+VwXYhshLSDMt8bGVoUeHnRaJY=;
+        b=VYAlVCSw0W7z6URaowPH0wWk0nT65SPZY6rKKUdShrJWuyUiZraqT6atWqtfcpB9Jc
+         hQK7QMczWPrt31oJUwyaEoJjOOg/Wo0PUOg4Nuto+rhIPLB0ZAXrSXRSwtx0JA57M9Pl
+         HMScKr4RTEHokHGJu+/nr7hGmt+MfUDO/5j4EtI42ag8ajgQJSZ/vIEaBRZik8C2mZZh
+         HL/kB++cyOgjsSElosiZARKubWTkB7LiHfTBvqn3qACMLIzrSQeotSGDjViEcmtHj0vc
+         sWZJWk85IvlqW270nAKx0bYVUrkzKb0BkJPYYrQpbNCJ4H3d/Xdp/3F3Y/DHR9RebImN
+         Dzcg==
+X-Gm-Message-State: AOJu0YyFEAOOvrp+uNphNbw5Ik6E+/9rHmzKiC89+KNjgDStbPqp1NRK
+	Sh2Gds03GLNNJ1ANFEV5qkPtYIZ/Hv/YqrD92RfKpCpXD35zWgdffJG6FLLnhLWv7RZRg/Zzjfq
+	m/nhTgrEB7ikyfjo4ptMaJ0KiinVTmA==
+X-Gm-Gg: ASbGncsPN9QrS4KT2j5Epfxc2BOsrPCDn90pz9EGAOJ3CPNbC3hGOi+pRnMH42GB3aG
+	0EiHRVNnPVVs/Tl67+JC5WEvei5jlZklzr6Tq65kvGtqsr04W08R7Pd7zK5Qf8qHT4cGm751cxn
+	yyEREpXSpYj8MWNHDXIgg=
+X-Google-Smtp-Source: AGHT+IF6pY6CRLVk06YK39qTp3FJ0Ksa63H+q2w70sJfsoYjLjW9cXc+rtjhBETsLnYFYetBTHdNlF7zftmeuNkyZvY=
+X-Received: by 2002:a05:6102:568d:b0:4c3:221:8f47 with SMTP id
+ ada2fe7eead31-4dc737fc793mr711912137.13.1746560027481; Tue, 06 May 2025
+ 12:33:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAP+JOzSG74saeVmTz5kdX_Lj3B+5BO-5MbKtxU7VLBOhp-h8Vw@mail.gmail.com>
- <20250425180925.241079-1-tristan.ross@midstall.com> <CAP+JOzSsZu-bepCMh1iqO9o4YJhLfevN28Bf2sLuCjOgjf4_UA@mail.gmail.com>
-In-Reply-To: <CAP+JOzSsZu-bepCMh1iqO9o4YJhLfevN28Bf2sLuCjOgjf4_UA@mail.gmail.com>
+References: <20250426151356.7116-2-hi@alyssa.is> <CAP+JOzQBaGv=74tNgczpjZVGpzZo93kxnHXO0isL+TzmOc4byg@mail.gmail.com>
+In-Reply-To: <CAP+JOzQBaGv=74tNgczpjZVGpzZo93kxnHXO0isL+TzmOc4byg@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Tue, 6 May 2025 15:33:10 -0400
-X-Gm-Features: ATxdqUE_ewG9Wjy7l6bWEjo-3sMqEpYevT1Qx4x_4vldsU8KN75adBuJWMu1frY
-Message-ID: <CAP+JOzTYBhCGR9cB1efCK3a4A7xa5L_zjY=z0CX3Bp_7h0fS1g@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libsemanage: add semanage_handle_create_with_path
-To: Tristan Ross <tristan.ross@midstall.com>
-Cc: selinux@vger.kernel.org
+Date: Tue, 6 May 2025 15:33:36 -0400
+X-Gm-Features: ATxdqUEU3Pg9D-NTTdG8JAT4EEirQN_l6cDA2lCNJIjCdhQ0pEDSSXb6RTUU9Tw
+Message-ID: <CAP+JOzQA9xgQfS2KUU5kHRTo86iKCNs_6=Mzd5knkiVdr99LjA@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: be careful with non-portable LFS macro
+To: Alyssa Ross <hi@alyssa.is>
+Cc: selinux@vger.kernel.org, =?UTF-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>, 
+	Alba Mendez <me@alba.sh>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 29, 2025 at 11:18=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+On Tue, Apr 29, 2025 at 11:21=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
 rote:
 >
-> On Fri, Apr 25, 2025 at 2:09=E2=80=AFPM Tristan Ross <tristan.ross@midsta=
-ll.com> wrote:
+> On Sat, Apr 26, 2025 at 11:15=E2=80=AFAM Alyssa Ross <hi@alyssa.is> wrote=
+:
 > >
-> > Adds "semanage_handle_create_with_path" to create an semanage handle
-> > with a config file from a specific path. This is useful for baking
-> > SELinux policy generation into a Nix derivation.
+> > musl does not provide the obsolete LFS64 APIs (like ino64_t) =E2=80=94 =
+ino_t
+> > has always been 64-bit on all platforms there.  That means there's
+> > also no __INO_T_MATCHES_INO64_T macro, meaning the check would pass
+> > and reach the static asserts for the shim, which would fail due to
+> > there being no ino64_t to check the size of.  Fix this by only
+> > assuming the absense of __INO_T_MATCHES_INO64_t is meaningful when
+> > another non-portable Glibc macro, __INO64_T_TYPE, is defined.  If both
+> > are missing, that probably just means there is no ino64_t.
 > >
-> > Signed-off-by: Tristan Ross <tristan.ross@midstall.com>
+> > Fixes: 5c3fcbd9 ("Inject matchpathcon_filespec_add64() if !defined(__IN=
+O_T_MATCHES_INO64_T) instead of using __BITS_PER_LONG < 64 as proxy")
+> > Signed-off-by: Alyssa Ross <hi@alyssa.is>
 >
-> For these two patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-These two patches have been merged.
+Merged.
 Thanks,
 Jim
 
 > > ---
-> >  libsemanage/include/semanage/handle.h |  6 +++++-
-> >  libsemanage/src/handle.c              | 26 +++++++++++++++++++-------
-> >  libsemanage/src/libsemanage.map       |  4 ++++
-> >  3 files changed, 28 insertions(+), 8 deletions(-)
+> > v2: Made the same change to the condition in the header, as suggested
+> >     in a GitHub comment.  The omission didn't seem to break anything,
+> >     but it makes sense to change it there too.
+> >     https://github.com/NixOS/nixpkgs/pull/391728#issuecomment-283228284=
+6
 > >
-> > diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/includ=
-e/semanage/handle.h
-> > index a5ea31de..601cd9ee 100644
-> > --- a/libsemanage/include/semanage/handle.h
-> > +++ b/libsemanage/include/semanage/handle.h
-> > @@ -30,7 +30,11 @@
-> >  struct semanage_handle;
-> >  typedef struct semanage_handle semanage_handle_t;
+> >  libselinux/include/selinux/selinux.h | 2 +-
+> >  libselinux/src/matchpathcon.c        | 2 +-
+> >  2 files changed, 2 insertions(+), 2 deletions(-)
 > >
-> > -/* Create and return a semanage handle.
-> > +/* Create and return a semanage handle with a specific config path.
-> > +   The handle is initially in the disconnected state. */
-> > +semanage_handle_t *semanage_handle_create_with_path(const char *conf_n=
-ame);
-> > +
-> > +/* Create and return a semanage handle with the default config path.
-> >     The handle is initially in the disconnected state. */
-> >  extern semanage_handle_t *semanage_handle_create(void);
-> >
-> > diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-> > index faea0606..ca57702a 100644
-> > --- a/libsemanage/src/handle.c
-> > +++ b/libsemanage/src/handle.c
-> > @@ -59,19 +59,14 @@ const char * semanage_root(void)
-> >         return private_semanage_root;
+> > diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/=
+selinux/selinux.h
+> > index f64896b7..b1431e5d 100644
+> > --- a/libselinux/include/selinux/selinux.h
+> > +++ b/libselinux/include/selinux/selinux.h
+> > @@ -537,7 +537,7 @@ extern int matchpathcon_index(const char *path,
+> >     with the same inode (e.g. due to multiple hard links).  If so, then
+> >     use the latter of the two specifications based on their order in th=
+e
+> >     file contexts configuration.  Return the used specification index. =
+*/
+> > -#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && !defi=
+ned(__INO_T_MATCHES_INO64_T)
+> > +#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && defin=
+ed(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
+> >  #define matchpathcon_filespec_add matchpathcon_filespec_add64
+> >  #endif
+> >  extern int matchpathcon_filespec_add(ino_t ino, int specind, const cha=
+r *file);
+> > diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathco=
+n.c
+> > index a4f65045..240c9fa7 100644
+> > --- a/libselinux/src/matchpathcon.c
+> > +++ b/libselinux/src/matchpathcon.c
+> > @@ -261,7 +261,7 @@ int matchpathcon_filespec_add(ino_t ino, int specin=
+d, const char *file)
+> >         return -1;
 > >  }
 > >
-> > -
-> > -semanage_handle_t *semanage_handle_create(void)
-> > +semanage_handle_t *semanage_handle_create_with_path(const char *conf_n=
-ame)
-> >  {
-> >         semanage_handle_t *sh =3D NULL;
-> > -       char *conf_name =3D NULL;
+> > -#if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) && !de=
+fined(__INO_T_MATCHES_INO64_T)
+> > +#if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) && def=
+ined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
+> >  /* alias defined in the public header but we undefine it here */
+> >  #undef matchpathcon_filespec_add
 > >
-> >         /* Allocate handle */
-> >         if ((sh =3D calloc(1, sizeof(semanage_handle_t))) =3D=3D NULL)
-> >                 goto err;
 > >
-> > -       if ((conf_name =3D semanage_conf_path()) =3D=3D NULL)
-> > -               goto err;
-> > -
-> >         if ((sh->conf =3D semanage_conf_parse(conf_name)) =3D=3D NULL)
-> >                 goto err;
-> >
-> > @@ -106,13 +101,30 @@ semanage_handle_t *semanage_handle_create(void)
-> >         sh->msg_callback =3D semanage_msg_default_handler;
-> >         sh->msg_callback_arg =3D NULL;
-> >
-> > +       return sh;
-> > +
-> > +      err:
-> > +       semanage_handle_destroy(sh);
-> > +       return NULL;
-> > +}
-> > +
-> > +semanage_handle_t *semanage_handle_create(void)
-> > +{
-> > +       semanage_handle_t *sh =3D NULL;
-> > +       char *conf_name =3D NULL;
-> > +
-> > +       if ((conf_name =3D semanage_conf_path()) =3D=3D NULL)
-> > +               goto err;
-> > +
-> > +       if ((sh =3D semanage_handle_create_with_path(conf_name)) =3D=3D=
- NULL)
-> > +               goto err;
-> > +
-> >         free(conf_name);
-> >
-> >         return sh;
-> >
-> >        err:
-> >         free(conf_name);
-> > -       semanage_handle_destroy(sh);
-> >         return NULL;
-> >  }
-> >
-> > diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libseman=
-age.map
-> > index c8214b26..8d7d8b05 100644
-> > --- a/libsemanage/src/libsemanage.map
-> > +++ b/libsemanage/src/libsemanage.map
-> > @@ -350,3 +350,7 @@ LIBSEMANAGE_3.4 {
-> >      semanage_module_compute_checksum;
-> >      semanage_set_check_ext_changes;
-> >  } LIBSEMANAGE_1.1;
-> > +
-> > +LIBSEMANAGE_3.9 {
-> > +    semanage_handle_create_with_path;
-> > +} LIBSEMANAGE_3.4;
+> > base-commit: 2647cc0fdca326b81ee3c08718cbe19b7866b53a
 > > --
 > > 2.47.2
-> >
 > >
