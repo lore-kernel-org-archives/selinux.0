@@ -1,87 +1,92 @@
-Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
+Received: from mail-ua1-f49.google.com (mail-ua1-f49.google.com [209.85.222.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80D201B9831
-	for <selinux@vger.kernel.org>; Tue,  6 May 2025 19:34:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E7F81C84B8
+	for <selinux@vger.kernel.org>; Tue,  6 May 2025 19:34:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746560054; cv=none; b=TCyhyz2fGS9bQM/fBDNClEZGfMZ9pm0PD17FJuVecFA6BVryfb4OwECw9rVgZEqbAiadWNmM5ZH1BTkCffbX6LaBtrhWYRNPOpxBn2qZG79YKpyew2vQpMBiZEkOou9K/DZBLhRcMRblqX54Ugrkfh9lnNn2PlfroKj/8CBGOb8=
+	t=1746560081; cv=none; b=tj9NagR9RZ2iTEVGqXnL2QRWPETBWnGtZf0qZol1yMIaxdF9Q9+pUImvMc2ry955JEoObIFARfdqVdiw6AwEj0W0vFhR3E10pR4y/j3x9AIvMoA3XrL+4Oq11wvzPPiTNxf1SPBV6kqfK7cH4D6jS9IgNn3AFhStyOrghhraMak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746560054; c=relaxed/simple;
-	bh=D/mxaM9LL+mcrfnRPmiZMGSDrxQhs0/+SRIjbkS2N9s=;
+	s=arc-20240116; t=1746560081; c=relaxed/simple;
+	bh=XWZQQUfj10YH3I3hZwzwrkKZPNR6mlXeHwJzDHYND2c=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aRUvZe3WjxOOJlNnYOXabP1DFvwVRnWtnwfqhOueh1NJlUHs69Mb+Sahlsa/yrRQycLUA+cipQyMS2yHt36Q7xdqCsTsPmR1vT7bPpZaD3AnJHtPKU4fyV3BmQSL8sIdmJ+jYKVgx2SIpwjB6d2iYQvLh790HGKs2OGuXDRVMz4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Sozxl25r; arc=none smtp.client-ip=209.85.217.47
+	 To:Cc:Content-Type; b=WV8Emy69Q9GQg0S8YOIlDyTORSp5cHKYtKbvSsy7FSizUXqcDVi8dUgpwC0f1Z1mjrsoLwt4ECHasoDoFZTrKa8ly6FB275rYl0cP3tq7xFJ9VT0hg53gjSnZvO0eBfb7Fy0jWKbY4QF8dxmGsIZ20gr/j+E2Ejgsqfkoh0ZthU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Uch8C1DI; arc=none smtp.client-ip=209.85.222.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Sozxl25r"
-Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-4c5574f04easo1881071137.3
-        for <selinux@vger.kernel.org>; Tue, 06 May 2025 12:34:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Uch8C1DI"
+Received: by mail-ua1-f49.google.com with SMTP id a1e0cc1a2514c-86feb84877aso1437317241.3
+        for <selinux@vger.kernel.org>; Tue, 06 May 2025 12:34:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1746560051; x=1747164851; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1746560078; x=1747164878; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xi5Q3clJmX6Va9FIxLH2oqGnn35Y8oCOc83ZQZBcvUI=;
-        b=Sozxl25rD63z1BtiBr4FTzA9bnR9L2h5LrxLv4p2A963AaGQhj4vgmWlTAiJFP+PBq
-         LOR+76Ep3WycfRzIjCJsy8OUgl7bwL9fIoiZHXnVcrvMaiwjwofX7ndgLeEm84jwPzdc
-         nzniq654pgSb5FNyXsTfIsLQ8adVFR0h2EvpK7Fb0/r4Fa/sdOoqyLnUE2asBwh/2+Vc
-         7tzY3J6/+gG2Y5zeNmZJPeXF1Z2ymBSfZ7W10vwwC2nB1pG2c38b7QhiZOL1g+5+wFoZ
-         7HqHQoedOxjcH47MY0LJGVITalXZKuziIBdxxwaZHmO9H49K6dogROm+ZfLG5kEuPOok
-         ZKAA==
+        bh=ftVrbM3FT18CLYZt1ry5Tzh/naN9/6uBeyj6OEbzONA=;
+        b=Uch8C1DIiHpiS8jT44lg++8q8qJZX3I5rnQVzf5c/jzC7oXK9TfHiiT7k/wCUj6Php
+         iHwTWzjy+6mTmAl7KEYTqfJzgDeL/gOKUBYMVCHyGqeRG+FRtxX3U/d2faG3rzafqDaE
+         OH1A48wc7VOzDpRp/CopI3VsR/p8Q0jksIGjdO7iiIftKa96CUCRf6lU9zJyGIsF7q9h
+         J++RzhnBsCtVMEKu0I4NClb7iTOxHTrePWOmBV2mnp0+9129lPjZs2WlvrpyR8S1G2zO
+         pJ28BrwqmZnsl8IORvlCMOs3EseQ473S+kR3cxObO7xMr/1m6gMBDSpT5hFR9l4nIVMk
+         aa1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746560051; x=1747164851;
+        d=1e100.net; s=20230601; t=1746560078; x=1747164878;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=xi5Q3clJmX6Va9FIxLH2oqGnn35Y8oCOc83ZQZBcvUI=;
-        b=URotQ5ZCg7qOH+K/rxT/7LMY1YwIiw9OH8cW1yf/a7Ef4e6BYBUbkEgkTFJvsjnV5U
-         kGDF3tf1WEk2uJlKT5CgAVRfq1XxxZXjJeoH8NO1E0+NpO5Cdg3HVU+5MTyc8nju2Z3I
-         LyrBTgECPKXo5hsU1LbW4jM103iw4As0LJ7YhV5GYYxP9UKqwkKUqcH6KKalbvptHg9N
-         qh2z2R5z+T4oev4lsZVXGKmUmDI8OEwBBrnW7lmRh9uxGM2O0jUP8/jE4ecnzOwUDXac
-         Eyl3yhUr8PuoY2cttWwxahOuiot1aqKckren0l19s7kgGuMuufcI2Iza7v82PLSXGoIw
-         Hprg==
-X-Gm-Message-State: AOJu0YzhNquKSoap/WlRxTfGdopVyQ0B091xoR8BxlD/TNWul+D0pr28
-	S09xhNd04KD1d3/J6POy0LuiEt7IzRo91M/RQMkS8pB2uua1YzaUef9FlCNhLuFVHk0C4yQQa1N
-	Vooi3Xe1HQPW45kAZ0Jt4QWeaucE=
-X-Gm-Gg: ASbGnctwfKvFTtZ+l8CrdJAq7xBaA9OStCK/8Is9E0Yat2zKPGYpZgO8vcJyEu0VZkb
-	z8eyho2jGcU7Rq8iLZ9B43D/BqWhs/rGi7gSc6BAcHZUrR9b1RhjS4lVvAzsD0bqUwYIf39+Sjv
-	lx7C3pzKEgMxUV1FDBgdY=
-X-Google-Smtp-Source: AGHT+IGp2HCgEfQm+MMirQnG7jA2qrF+OTSL++LrfDIssoFPNyQaG/DQ1K/dKYJNBXaV0x8HDvt6rxNiAjHM+Qo0zv8=
-X-Received: by 2002:a05:6102:3e03:b0:4da:e71a:17db with SMTP id
- ada2fe7eead31-4dc737fd624mr864575137.13.1746560050995; Tue, 06 May 2025
- 12:34:10 -0700 (PDT)
+        bh=ftVrbM3FT18CLYZt1ry5Tzh/naN9/6uBeyj6OEbzONA=;
+        b=Ss0cSyMp61vXFlRev8v6AIPA+i6LCzgwPMTbwsWm6FjQQphbgyJr2w43sMEJvKIXss
+         0ksS2QCwCLQdsatTiaCwF9xZ2OX2e1WbFa5yhGAAyFY4AFzCKex8tWQ4AXntOnT7cwC2
+         lViJWMQ8d1K2a1qA9SuIYZJrfAAGunX7QKIPkui7wQhJ1LuF4Gid2NDmNRN76eC+WlVx
+         7ZhTWCQf86XgNfdlf8k5yMud5qdz0WXAds1Nnou54STWZzA8YoD/Lmsei58Yc3m91gEQ
+         vK7x7HqTjoEZ8phRkK1I0xUSUxpWF12Lt7CDhRzUdtVS55HJ4YwqkAMNtmDO6YPHZzE1
+         Iacw==
+X-Gm-Message-State: AOJu0YwRrNR4tyIzAyWpdqMq1hQ0GZOH5AKk/EPpC+GlXQy96sxF/OgO
+	na32+fNP/JuXmT+8yRIFv0AeTBTYc99XtXVdQxc4193CPthDiTFQkfKTmpgl9Zu8xFMkEzIYl5T
+	M27hMXrZLKzzF11NRm/tqZC5w8ko=
+X-Gm-Gg: ASbGncu/wm+jhdWZ9BlXUaF7nevtbr3BHfgQ+Zf54HRW04vdpp/PB7F5ZOL6DrjRV8X
+	BAkxrLLwaVIT0BTl2nmdn94hWNECilwE+eAJ5oiAFRCZg6vkFtLOHxpYVgfgQPo7W1t2Cnd+eFe
+	Uy1UpYxBK/SZpV9IK4krM=
+X-Google-Smtp-Source: AGHT+IF2pctsJ2xKBRT9Ib5/xq1x6voX93EYm41TiBEqoWirQAXdelMH1rvWMBb5wbyqQJ1z6L3K94wsIS7nsv4KdU8=
+X-Received: by 2002:a05:6102:3ca8:b0:4c4:dead:59a3 with SMTP id
+ ada2fe7eead31-4dc73797a19mr827067137.2.1746560078257; Tue, 06 May 2025
+ 12:34:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250430085757.2622178-1-inseob@google.com> <CAP+JOzTuwcZFpAEurkjiazcMXAQqzTc4=JQEswOwb+9KR=82mw@mail.gmail.com>
-In-Reply-To: <CAP+JOzTuwcZFpAEurkjiazcMXAQqzTc4=JQEswOwb+9KR=82mw@mail.gmail.com>
+References: <20250501195915.820343-1-robimarko@gmail.com> <CAP+JOzS-ThMWqJfTLAvSc0xG7XB--FT0G5-evpMm14h2hPFpoA@mail.gmail.com>
+In-Reply-To: <CAP+JOzS-ThMWqJfTLAvSc0xG7XB--FT0G5-evpMm14h2hPFpoA@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Tue, 6 May 2025 15:34:00 -0400
-X-Gm-Features: ATxdqUEn9DqMo0HAKSZ_4Hq5T1hbraKSnS0eOJZAM44RbtVn3DSP7CQ_WswsjwQ
-Message-ID: <CAP+JOzR923MYF0tRyWwHZvcijJx-zLUWarr15uuxwSB7LLznig@mail.gmail.com>
-Subject: Re: [PATCH v2] checkpolicy: Allow lineno > 1 for source file line
-To: Inseob Kim <inseob@google.com>
+Date: Tue, 6 May 2025 15:34:26 -0400
+X-Gm-Features: ATxdqUEnKcC2dB0RP-ASnuwJzfinT6slwzIMyI0mInoB2-bxr75rvcqSYMAteLk
+Message-ID: <CAP+JOzS_h46CxVFf6ZUjTu8ZgiX06ZipcfpVdkO9yJjhVAb0+g@mail.gmail.com>
+Subject: Re: [PATCH] policycoreutils: run_init: define _GNU_SOURCE
+To: Robert Marko <robimarko@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 30, 2025 at 12:00=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
-rote:
+On Mon, May 5, 2025 at 3:29=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
+te:
 >
-> On Wed, Apr 30, 2025 at 4:58=E2=80=AFAM Inseob Kim <inseob@google.com> wr=
-ote:
+> On Thu, May 1, 2025 at 3:59=E2=80=AFPM Robert Marko <robimarko@gmail.com>=
+ wrote:
 > >
-> > There are cases that the line number starts with a number greater than
-> > one, if preprocessor skipped the very first line. This extends #line
-> > syntax so any lineno is valid for lines with a source file path.
+> > Trying to compile run_init with musl will fail with:
+> > run_init.c: In function 'authenticate_via_shadow_passwd':
+> > run_init.c:206:40: error: implicit declaration of function 'getpass' [-=
+Wimplicit-function-declaration]
+> >   206 |         if (!(unencrypted_password_s =3D getpass(PASSWORD_PROMP=
+T))) {
 > >
-> > Signed-off-by: Inseob Kim <inseob@google.com>
+> > This is because getpass in musl is guarded only for _GNU_SOURCE, so
+> > define _GNU_SOURCE for run_init.
 > >
+> > Signed-off-by: Robert Marko <robimarko@gmail.com>
 >
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
@@ -90,61 +95,26 @@ Merged.
 Thanks,
 Jim
 
-> > Changes since v1:
-> > - Leave set_source_file as-is to prevent regressions
 > > ---
-> >  checkpolicy/policy_scan.l | 21 ++++++++++++++++++++-
-> >  1 file changed, 20 insertions(+), 1 deletion(-)
+> >  policycoreutils/run_init/run_init.c | 2 ++
+> >  1 file changed, 2 insertions(+)
 > >
-> > diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
-> > index 5fb9ff37..7bdea427 100644
-> > --- a/checkpolicy/policy_scan.l
-> > +++ b/checkpolicy/policy_scan.l
-> > @@ -57,6 +57,7 @@ void yyfatal(const char *msg)
-> >  #endif
+> > diff --git a/policycoreutils/run_init/run_init.c b/policycoreutils/run_=
+init/run_init.c
+> > index ce499781..4531a8ba 100644
+> > --- a/policycoreutils/run_init/run_init.c
+> > +++ b/policycoreutils/run_init/run_init.c
+> > @@ -37,6 +37,8 @@
+> >   *
+> >   *********************************************************************=
+****/
 > >
-> >  void set_source_file(const char *name);
-> > +static void set_source_line_and_file(const char *line);
-> >
-> >  char source_file[PATH_MAX];
-> >  unsigned long source_lineno =3D 1;
-> > @@ -297,7 +298,7 @@ GLBLUB                              { return(GLBLUB=
-); }
-> >  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR);=
- }
-> >  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*"/"{digit}{1,3}       =
- { return(IPV6_CIDR); }
-> >  {digit}+(\.({alnum}|[_.])*)?    { return(VERSION_IDENTIFIER); }
-> > -#line[ ]1[ ]\"[^\n]*\"         { set_source_file(yytext+9); }
-> > +#line[ ]{digit}+[ ]\"[^\n]*\"  { set_source_line_and_file(yytext+6); }
-> >  #line[ ]{digit}+               {
-> >                                   errno =3D 0;
-> >                                   source_lineno =3D strtoul(yytext+6, N=
-ULL, 10) - 1;
-> > @@ -395,3 +396,21 @@ void set_source_file(const char *name)
-> >         if (strlen(source_file) && source_file[strlen(source_file)-1] =
-=3D=3D '"')
-> >                 source_file[strlen(source_file)-1] =3D '\0';
-> >  }
+> > +#define _GNU_SOURCE
 > > +
-> > +void set_source_line_and_file(const char *line)
-> > +{
-> > +       char *name;
-> > +       unsigned long lineno;
-> > +       errno =3D 0;
-> > +       lineno =3D strtoul(line, &name, 10) - 1;
-> > +       if (errno) {
-> > +               yywarn("source line number too big");
-> > +       }
-> > +       set_source_file(name + 2 /* skip a space and a quote */ );
-> > +
-> > +       /*
-> > +        * set_source_file sets source_lineno to 1.
-> > +        * Assign source_lineno after calling set_source_file.
-> > +        */
-> > +       source_lineno =3D lineno;
-> > +}
+> >  #include <stdio.h>
+> >  #include <stdlib.h>            /* for malloc(), realloc(), free() */
+> >  #include <pwd.h>               /* for getpwuid() */
 > > --
-> > 2.49.0.901.g37484f566f-goog
+> > 2.49.0
 > >
 > >
