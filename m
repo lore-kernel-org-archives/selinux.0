@@ -1,149 +1,120 @@
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB719350156;
-	Tue,  6 May 2025 00:57:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0792121CC46;
+	Tue,  6 May 2025 03:30:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746493024; cv=none; b=ClXDU069teHgpXzffefqYCX8IMPHXldQ0QNTG9PatTC917fW24yDrElDlu/R9cv45VD7JWmti0IL/u4LXw9aK1lojVKs72166Npa8rfMiiOUineIDcDtYJQhv2Fih+T0MpG9YzD3QOtNZRb0Thz9OJucfChZ7P8u4hu/mfklx/M=
+	t=1746502259; cv=none; b=lqC2mUcPAodwuR5s81WDJgHg9Mz/ITNjso0vC2tJG7aLUYB2XUZIZs0x9nn1T/qPS98MkvlbXqf757I4nRWg3SOXDJ2q25ZK06n6L80G+oVuXXmmN8yYynuEJ+TaKHIf5faWNTDcxqq0GolwQ6CC9OvgPMIlHEOgDWMLzPdQOt8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746493024; c=relaxed/simple;
-	bh=WJ5N3hpgmYKXtAvoAQtuBt6dpWd9vR5puNnmvUo5hIA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lA9OVbxUiKdHGusdK5dL3PUHnnWuDh2a3F8J4syFAGDDSzdR31c2W6EFjWSXJuIlCWmOEBAxQysOQsywXMrFlezOsNM6v8GFNfCPd6tE8W3CwX8iCA03KBybZqx8iCGsFTsmmOPpudZ9OzIYgHrMZ9tNJDzkmM1/EoFZj2LnCnw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NWPsFDxv; arc=none smtp.client-ip=209.85.221.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NWPsFDxv"
-Received: by mail-wr1-f51.google.com with SMTP id ffacd0b85a97d-39bf44be22fso3389146f8f.0;
-        Mon, 05 May 2025 17:57:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1746493020; x=1747097820; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NG56sgydZqZDSI93ssWFt8es69R/8NDv+wgZ7H1Zg5M=;
-        b=NWPsFDxvwAAbihX7mz9EpN5XcLam1G2od3qcy2QZS9vdDgaQ+Y78UvcyWg/hBYjt0q
-         gIcqyTxQ9FeNucPcagNVXHBV+rc8AM5sZ0b+kpc7AG4sov4FeZPoPJnFiVKP/NAHGFdA
-         FB/H0Zf7UfoJuE3cu0nS6jhEzXjq54BE3t6J/xvFDzIv7E2SYqfwH7qRgbvvlTy+sB4k
-         Lwt8AiEZ1+RY8TmDa966crOHew617mt5vOsI8dui7dNIYAQyjdaHVZD+xNDwMmn78F26
-         6EbKYSDi6q6uZbIItsNiwbGhiIwk0JPh+GLF1fAbVz4N5uRk57aWadBOaoSq/DTHuov9
-         0gWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746493020; x=1747097820;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NG56sgydZqZDSI93ssWFt8es69R/8NDv+wgZ7H1Zg5M=;
-        b=WIdjygJ8gPQO8WxeOFahqkFDd6aCME0VOgxdzRuo5p7FQTwMEhH/ZW1DlyrtYX2s2/
-         CXkoCYV7bVgnCRXkxR0l5yyhw32jLnI1ge9qnQgLVy5qC5Q9LhxV7EOMPCjCAYkIW1PJ
-         +zch4K7VYfm5WltxwHHABIY/cPpHuYSo/gGMysnhbFKeSMJbPL32zw58+LfLCTfVnkYY
-         3H4XsD9x62V/YOb7OlEbk6toD4kNdTqIjhqLT56VXdaiiSuk6Ad4yh7YAKbn9UDnsS7r
-         LTAKgKv4PYs56vP5Xlq01I7OGJXYgROmaqKLGyebjdw8qhB3VMaypMlvY0YOlX/WXkT7
-         syTw==
-X-Forwarded-Encrypted: i=1; AJvYcCVMaL4CAZp0gDTJVo8pOJYx7BTMTFsW3ABWfpLVpD5ksnhccHDiohlpN+wUX4T9m3gPTD5C1tRnCA==@vger.kernel.org, AJvYcCWJhZYUTzxPiS9e7oOeUrsAe0mhGt2YSw5UP3LxAnVKHGYByX8BABZPcnBSzSYgy+aSFvw=@vger.kernel.org, AJvYcCXjh61v2fcrjhYaimWg0iruAngTV1uIAgmHKg3Vhmwsn8Iuf0Nlxt9iZnCGX3rmuuO3uO6syZPS@vger.kernel.org, AJvYcCXlorQzWl74yOvMjyfxIkWtAccmU+htrkgz/P9zYV8mZHRSLhrTMYZ9JHBQvffCimsBvieXyloKG/vOLzgjq/jZEeOO1Jp7@vger.kernel.org
-X-Gm-Message-State: AOJu0YxfpF007L7xBDWrTBAtn0ovSFwxfAw+U8hmRtBNZ3wfwy8maVWn
-	TlXsdTYflyhHFt/zIeIE5qy+bMCvhIHMmTo4PHxJQ5sTa9sPGdG8lwsAghKdhUUfbT4MrpaF7Tt
-	ow/DO77UEbvpHLBb1rzX+ScIkdu8=
-X-Gm-Gg: ASbGnctTXiu/ErsJKHU5OWThKfRjytp9OHK/e/oNt2W4BuBodpoTfxIpiflDJACwfWQ
-	X1ZcAHxbfWEvScuRADiRADp3rk903S/3exDgNVfV39m8hYmLKz851lFvHdH0Sk5/ojfSoAbHUDM
-	we9iKHfveUVtLdI7su0MAgY8cqb5kI5YPDxeNmFDkpujyPlsVijU8Q+kF29Pq1
-X-Google-Smtp-Source: AGHT+IFmq92gXDyJ4tG7YRwzhLFbPsIymRx1JYkBfkuzkB8bzfB0NsMIXg9vTiXFzK0daiHD2Viir2BOAVh6NAVWprM=
-X-Received: by 2002:a05:6000:18af:b0:39c:30f9:339c with SMTP id
- ffacd0b85a97d-3a0ac0ec442mr710518f8f.28.1746493019898; Mon, 05 May 2025
- 17:56:59 -0700 (PDT)
+	s=arc-20240116; t=1746502259; c=relaxed/simple;
+	bh=FQeEv8mzsne1Ekkhh4vm4/236JXt/QQUApEcOzWKQHI=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=TuJp/5WlTbd86bPtbVZyt2Kw9DLl9hP8Aq1yZhn1UUd78FMRZ+wGj1gdQRuQFCy3JjWYJjhWVXMLJPcz2ipLofleDKU4JAFrLABM+me/14ostUeyr1ycp/MRUcMiesI7h8eNJkkmYiLQTgbD/o6qG82+asQW0jtGMCKLEengCqg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.19.163.44])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4Zs3n816cFz2TSDR;
+	Tue,  6 May 2025 11:30:20 +0800 (CST)
+Received: from dggemv706-chm.china.huawei.com (unknown [10.3.19.33])
+	by mail.maildlp.com (Postfix) with ESMTPS id 01CE81402CA;
+	Tue,  6 May 2025 11:30:53 +0800 (CST)
+Received: from kwepemq200017.china.huawei.com (7.202.195.228) by
+ dggemv706-chm.china.huawei.com (10.3.19.33) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Tue, 6 May 2025 11:30:52 +0800
+Received: from hulk-vt.huawei.com (10.67.174.72) by
+ kwepemq200017.china.huawei.com (7.202.195.228) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Tue, 6 May 2025 11:30:52 +0800
+From: Cai Xinchen <caixinchen1@huawei.com>
+To: <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>
+CC: <paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
+	<omosnace@redhat.com>, <ericsu@linux.microsoft.com>, <caixinchen1@huawei.com>
+Subject: [PATCH] SELinux: Add check for the user data passed to kcalloc in hashtab_init
+Date: Tue, 6 May 2025 03:18:33 +0000
+Message-ID: <20250506031833.6107-1-caixinchen1@huawei.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAADnVQK1t3ZqERODdHJM_HaZDMm+JH4OFvwTsLNqZG0=4SQQcA@mail.gmail.com.txt>
- <20250506004550.67917-1-kuniyu@amazon.com>
-In-Reply-To: <20250506004550.67917-1-kuniyu@amazon.com>
-From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date: Mon, 5 May 2025 17:56:49 -0700
-X-Gm-Features: ATxdqUE--sGACWHpoTDfN6Z19YjKVfIMpJPMpn9rpWA5hJnc1H25_PoxJfzy7Ls
-Message-ID: <CAADnVQ+bk8Qt=Zo4S2MZxB+O4G4q_EXB4P0BtJ3LjgbJuY_9_w@mail.gmail.com>
-Subject: Re: [PATCH v1 bpf-next 4/5] bpf: Add kfunc to scrub SCM_RIGHTS at security_unix_may_send().
-To: Kuniyuki Iwashima <kuniyu@amazon.com>
-Cc: Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>, bpf <bpf@vger.kernel.org>, 
-	Christian Brauner <brauner@kernel.org>, Casey Schaufler <casey@schaufler-ca.com>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Eduard <eddyz87@gmail.com>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Hao Luo <haoluo@google.com>, James Morris <jmorris@namei.org>, 
-	John Fastabend <john.fastabend@gmail.com>, Jiri Olsa <jolsa@kernel.org>, 
-	KP Singh <kpsingh@kernel.org>, Kuniyuki Iwashima <kuni1840@gmail.com>, 
-	LSM List <linux-security-module@vger.kernel.org>, 
-	Martin KaFai Lau <martin.lau@linux.dev>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	Network Development <netdev@vger.kernel.org>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	Paul Moore <paul@paul-moore.com>, Stanislav Fomichev <sdf@fomichev.me>, selinux@vger.kernel.org, 
-	"Serge E . Hallyn" <serge@hallyn.com>, Song Liu <song@kernel.org>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Yonghong Song <yonghong.song@linux.dev>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ kwepemq200017.china.huawei.com (7.202.195.228)
 
-On Mon, May 5, 2025 at 5:46=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon.com=
-> wrote:
->
-> From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-> Date: Mon, 5 May 2025 17:13:32 -0700
-> > On Mon, May 5, 2025 at 3:00=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon=
-.com> wrote:
-> > >
-> > > As Christian Brauner said [0], systemd calls cmsg_close_all() [1] aft=
-er
-> > > each recvmsg() to close() unwanted file descriptors sent via SCM_RIGH=
-TS.
-> > >
-> > > However, this cannot work around the issue that close() for unwanted =
-file
-> > > descriptors could block longer because the last fput() could occur on
-> > > the receiver side once sendmsg() with SCM_RIGHTS succeeds.
-> > >
-> > > Also, even filtering by LSM at recvmsg() does not work for the same r=
-eason.
-> > >
-> > > Thus, we need a better way to filter SCM_RIGHTS on the sender side.
-> > >
-> > > Let's add a new kfunc to scrub all file descriptors from skb in
-> > > sendmsg().
-> > >
-> > > This allows the receiver to keep recv()ing the bare data and disallow=
-s
-> > > the sender to impose the potential slowness of the last fput().
-> > >
-> > > If necessary, we can add more granular filtering per file descriptor
-> > > after refactoring GC code and adding some fd-to-file helpers for BPF.
-> > >
-> > > Sample:
-> > >
-> > > SEC("lsm/unix_may_send")
-> > > int BPF_PROG(unix_scrub_scm_rights,
-> > >              struct socket *sock, struct socket *other, struct sk_buf=
-f *skb)
-> > > {
-> > >         struct unix_skb_parms *cb;
-> > >
-> > >         if (skb && bpf_unix_scrub_fds(skb))
-> > >                 return -EPERM;
-> > >
-> > >         return 0;
-> > > }
-> >
-> > Any other programmability do you need there?
->
-> This is kind of PoC, and as Kumar mentioned, per-fd scrubbing
-> is ideal to cover the real use cases.
->
-> https://lore.kernel.org/netdev/CAP01T77STmncrPt=3DBsFfEY6SX1+oYNXhPeZ1HC9=
-J=3DS2jhOwQoQ@mail.gmail.com/
->
-> for example:
-> https://uapi-group.org/kernel-features/#filtering-on-received-file-descri=
-ptors
+When the user writes some data to the file /sys/fs/selinux/policy,
+there is no check for the user buf passed to kcalloc. Syzkaller shows
+ this warning:
+WARNING: CPU: 1 PID: 6642 at mm/page_alloc.c
 
-Fair enough.
-Would be great to have them as selftests to make sure that advanced
-use cases are actually working.
+__alloc_pages_noprof
+___kmalloc_large_node
+__kmalloc_large_node_noprof
+__kmalloc_noprof
+hashtab_init
+common_read
+policydb_read
+security_load_policy
+sel_write_load
+vfs_write
+ksys_write
+do_syscall_64
+
+This warning can be reproduced by writing this content to
+/sys/fs/selinux/policy
+8cff7cf9 08000000 5345204c 696e7578 15000000 e0ff962a 08000000 07000000
+4cf523cd 7eec2688 6d70a6b7 c78b496f 1a0a192c ea34ff41 70581a74 3ff0cfb9
+7ea0f0d1 70d1fe14 41c2f7c8 ea1c78dd 17a19249 35210081 a83c30ec 4171450b
+fc1de12c fe1ff342 a887
+
+Add check to prevent the size passed to kcalloc larger than MAX_PAGE_ORDER
+after get_order.
+
+Signed-off-by: Cai Xinchen <caixinchen1@huawei.com>
+---
+ security/selinux/ss/hashtab.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.c
+index 383fd2d70878..18bcf3978c9e 100644
+--- a/security/selinux/ss/hashtab.c
++++ b/security/selinux/ss/hashtab.c
+@@ -30,6 +30,21 @@ static u32 hashtab_compute_size(u32 nel)
+ 	return nel == 0 ? 0 : roundup_pow_of_two(nel);
+ }
+ 
++static bool is_order_out_of_range(u32 size, struct hashtab *h)
++{
++	size_t bytes;
++	u32 order;
++
++	if (unlikely(check_mul_overflow(size, sizeof(*h->htable), &bytes)))
++		return true;
++
++	order = get_order(bytes);
++	if (order > MAX_PAGE_ORDER)
++		return true;
++
++	return false;
++}
++
+ int hashtab_init(struct hashtab *h, u32 nel_hint)
+ {
+ 	u32 size = hashtab_compute_size(nel_hint);
+@@ -40,6 +55,9 @@ int hashtab_init(struct hashtab *h, u32 nel_hint)
+ 	h->htable = NULL;
+ 
+ 	if (size) {
++		if (is_order_out_of_range(size, h))
++			return -ENOMEM;
++
+ 		h->htable = kcalloc(size, sizeof(*h->htable), GFP_KERNEL);
+ 		if (!h->htable)
+ 			return -ENOMEM;
+-- 
+2.34.1
+
