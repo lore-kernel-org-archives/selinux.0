@@ -1,95 +1,87 @@
-Received: from mail-vs1-f44.google.com (mail-vs1-f44.google.com [209.85.217.44])
+Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ECB24B1E5C
-	for <selinux@vger.kernel.org>; Tue,  6 May 2025 19:33:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80D201B9831
+	for <selinux@vger.kernel.org>; Tue,  6 May 2025 19:34:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746560030; cv=none; b=dA2C6YFqtdrW/MRh4SxrKoSa07KOnwefeolcnt/Y3hpq7FAA2E78tyODQ9EyIiAcZue/30WLpIxw87FdsA1XAPdpWyi7uLka/QuPbce++FCaSWzdaB9QEfOcMmHp41I8x8m1UDgLNHHSGhIN3TQR85vO7LgwLZqWiFdQsqv29jQ=
+	t=1746560054; cv=none; b=TCyhyz2fGS9bQM/fBDNClEZGfMZ9pm0PD17FJuVecFA6BVryfb4OwECw9rVgZEqbAiadWNmM5ZH1BTkCffbX6LaBtrhWYRNPOpxBn2qZG79YKpyew2vQpMBiZEkOou9K/DZBLhRcMRblqX54Ugrkfh9lnNn2PlfroKj/8CBGOb8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746560030; c=relaxed/simple;
-	bh=qmDYaSaLDiauNBmX8hifsVgEItBCatvxUqtLk7uzoz4=;
+	s=arc-20240116; t=1746560054; c=relaxed/simple;
+	bh=D/mxaM9LL+mcrfnRPmiZMGSDrxQhs0/+SRIjbkS2N9s=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Lrrr9AtVTNRRhcQlfT4P/G39aZBkx7waoQozDyYj1hJPtvgWvmhDOegsef4kuwDGLhKXquOFKRRYYuTVXehpcUbEg0eL6HuAqx/HP3n+NX7hHGbYUZF+El2hkeP9ehz0GfW+yFfPMGu2M24xNNv/0uqmBnXAtW474VGoGsKvfeo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IgItPibb; arc=none smtp.client-ip=209.85.217.44
+	 To:Cc:Content-Type; b=aRUvZe3WjxOOJlNnYOXabP1DFvwVRnWtnwfqhOueh1NJlUHs69Mb+Sahlsa/yrRQycLUA+cipQyMS2yHt36Q7xdqCsTsPmR1vT7bPpZaD3AnJHtPKU4fyV3BmQSL8sIdmJ+jYKVgx2SIpwjB6d2iYQvLh790HGKs2OGuXDRVMz4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Sozxl25r; arc=none smtp.client-ip=209.85.217.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IgItPibb"
-Received: by mail-vs1-f44.google.com with SMTP id ada2fe7eead31-4c36071916dso1790690137.2
-        for <selinux@vger.kernel.org>; Tue, 06 May 2025 12:33:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Sozxl25r"
+Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-4c5574f04easo1881071137.3
+        for <selinux@vger.kernel.org>; Tue, 06 May 2025 12:34:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1746560027; x=1747164827; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1746560051; x=1747164851; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6MzBat54xbZDZ3h9m+VwXYhshLSDMt8bGVoUeHnRaJY=;
-        b=IgItPibbTch1qltnPxf7/m343UQGKX3H3mN/YDsUy/JkZbL1CbwfHF29FJSEkCSaIG
-         kiqbpYfKYN+uUW5qN4Eqa/0yaBo5dFrhsqzd9HfvnwBthX0CurxpNWO2HLvg5UCd0rXM
-         nfU+gvpRuwpfNeXYEYDlfyjQrKJUXNg+u2m+fzfSWNhMuMx8YPh9JB05mGN/Zv+CIgHx
-         8nrMeC64dfoCxveOOctRLsRbjAUANeDkwMW/F/QcIYVr/AlOQJuzrzgXGXgt0xE2jWe7
-         ry2pun/rQG+GX+e86cMOT+lJ9KYF1HWHDxPtZFH0Y5RAkgAI+Ol+En2JCllrbMrd5ziD
-         GxBQ==
+        bh=xi5Q3clJmX6Va9FIxLH2oqGnn35Y8oCOc83ZQZBcvUI=;
+        b=Sozxl25rD63z1BtiBr4FTzA9bnR9L2h5LrxLv4p2A963AaGQhj4vgmWlTAiJFP+PBq
+         LOR+76Ep3WycfRzIjCJsy8OUgl7bwL9fIoiZHXnVcrvMaiwjwofX7ndgLeEm84jwPzdc
+         nzniq654pgSb5FNyXsTfIsLQ8adVFR0h2EvpK7Fb0/r4Fa/sdOoqyLnUE2asBwh/2+Vc
+         7tzY3J6/+gG2Y5zeNmZJPeXF1Z2ymBSfZ7W10vwwC2nB1pG2c38b7QhiZOL1g+5+wFoZ
+         7HqHQoedOxjcH47MY0LJGVITalXZKuziIBdxxwaZHmO9H49K6dogROm+ZfLG5kEuPOok
+         ZKAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746560027; x=1747164827;
+        d=1e100.net; s=20230601; t=1746560051; x=1747164851;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=6MzBat54xbZDZ3h9m+VwXYhshLSDMt8bGVoUeHnRaJY=;
-        b=VYAlVCSw0W7z6URaowPH0wWk0nT65SPZY6rKKUdShrJWuyUiZraqT6atWqtfcpB9Jc
-         hQK7QMczWPrt31oJUwyaEoJjOOg/Wo0PUOg4Nuto+rhIPLB0ZAXrSXRSwtx0JA57M9Pl
-         HMScKr4RTEHokHGJu+/nr7hGmt+MfUDO/5j4EtI42ag8ajgQJSZ/vIEaBRZik8C2mZZh
-         HL/kB++cyOgjsSElosiZARKubWTkB7LiHfTBvqn3qACMLIzrSQeotSGDjViEcmtHj0vc
-         sWZJWk85IvlqW270nAKx0bYVUrkzKb0BkJPYYrQpbNCJ4H3d/Xdp/3F3Y/DHR9RebImN
-         Dzcg==
-X-Gm-Message-State: AOJu0YyFEAOOvrp+uNphNbw5Ik6E+/9rHmzKiC89+KNjgDStbPqp1NRK
-	Sh2Gds03GLNNJ1ANFEV5qkPtYIZ/Hv/YqrD92RfKpCpXD35zWgdffJG6FLLnhLWv7RZRg/Zzjfq
-	m/nhTgrEB7ikyfjo4ptMaJ0KiinVTmA==
-X-Gm-Gg: ASbGncsPN9QrS4KT2j5Epfxc2BOsrPCDn90pz9EGAOJ3CPNbC3hGOi+pRnMH42GB3aG
-	0EiHRVNnPVVs/Tl67+JC5WEvei5jlZklzr6Tq65kvGtqsr04W08R7Pd7zK5Qf8qHT4cGm751cxn
-	yyEREpXSpYj8MWNHDXIgg=
-X-Google-Smtp-Source: AGHT+IF6pY6CRLVk06YK39qTp3FJ0Ksa63H+q2w70sJfsoYjLjW9cXc+rtjhBETsLnYFYetBTHdNlF7zftmeuNkyZvY=
-X-Received: by 2002:a05:6102:568d:b0:4c3:221:8f47 with SMTP id
- ada2fe7eead31-4dc737fc793mr711912137.13.1746560027481; Tue, 06 May 2025
- 12:33:47 -0700 (PDT)
+        bh=xi5Q3clJmX6Va9FIxLH2oqGnn35Y8oCOc83ZQZBcvUI=;
+        b=URotQ5ZCg7qOH+K/rxT/7LMY1YwIiw9OH8cW1yf/a7Ef4e6BYBUbkEgkTFJvsjnV5U
+         kGDF3tf1WEk2uJlKT5CgAVRfq1XxxZXjJeoH8NO1E0+NpO5Cdg3HVU+5MTyc8nju2Z3I
+         LyrBTgECPKXo5hsU1LbW4jM103iw4As0LJ7YhV5GYYxP9UKqwkKUqcH6KKalbvptHg9N
+         qh2z2R5z+T4oev4lsZVXGKmUmDI8OEwBBrnW7lmRh9uxGM2O0jUP8/jE4ecnzOwUDXac
+         Eyl3yhUr8PuoY2cttWwxahOuiot1aqKckren0l19s7kgGuMuufcI2Iza7v82PLSXGoIw
+         Hprg==
+X-Gm-Message-State: AOJu0YzhNquKSoap/WlRxTfGdopVyQ0B091xoR8BxlD/TNWul+D0pr28
+	S09xhNd04KD1d3/J6POy0LuiEt7IzRo91M/RQMkS8pB2uua1YzaUef9FlCNhLuFVHk0C4yQQa1N
+	Vooi3Xe1HQPW45kAZ0Jt4QWeaucE=
+X-Gm-Gg: ASbGnctwfKvFTtZ+l8CrdJAq7xBaA9OStCK/8Is9E0Yat2zKPGYpZgO8vcJyEu0VZkb
+	z8eyho2jGcU7Rq8iLZ9B43D/BqWhs/rGi7gSc6BAcHZUrR9b1RhjS4lVvAzsD0bqUwYIf39+Sjv
+	lx7C3pzKEgMxUV1FDBgdY=
+X-Google-Smtp-Source: AGHT+IGp2HCgEfQm+MMirQnG7jA2qrF+OTSL++LrfDIssoFPNyQaG/DQ1K/dKYJNBXaV0x8HDvt6rxNiAjHM+Qo0zv8=
+X-Received: by 2002:a05:6102:3e03:b0:4da:e71a:17db with SMTP id
+ ada2fe7eead31-4dc737fd624mr864575137.13.1746560050995; Tue, 06 May 2025
+ 12:34:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250426151356.7116-2-hi@alyssa.is> <CAP+JOzQBaGv=74tNgczpjZVGpzZo93kxnHXO0isL+TzmOc4byg@mail.gmail.com>
-In-Reply-To: <CAP+JOzQBaGv=74tNgczpjZVGpzZo93kxnHXO0isL+TzmOc4byg@mail.gmail.com>
+References: <20250430085757.2622178-1-inseob@google.com> <CAP+JOzTuwcZFpAEurkjiazcMXAQqzTc4=JQEswOwb+9KR=82mw@mail.gmail.com>
+In-Reply-To: <CAP+JOzTuwcZFpAEurkjiazcMXAQqzTc4=JQEswOwb+9KR=82mw@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Tue, 6 May 2025 15:33:36 -0400
-X-Gm-Features: ATxdqUEU3Pg9D-NTTdG8JAT4EEirQN_l6cDA2lCNJIjCdhQ0pEDSSXb6RTUU9Tw
-Message-ID: <CAP+JOzQA9xgQfS2KUU5kHRTo86iKCNs_6=Mzd5knkiVdr99LjA@mail.gmail.com>
-Subject: Re: [PATCH v2] libselinux: be careful with non-portable LFS macro
-To: Alyssa Ross <hi@alyssa.is>
-Cc: selinux@vger.kernel.org, =?UTF-8?B?0L3QsNCx?= <nabijaczleweli@nabijaczleweli.xyz>, 
-	Alba Mendez <me@alba.sh>
+Date: Tue, 6 May 2025 15:34:00 -0400
+X-Gm-Features: ATxdqUEn9DqMo0HAKSZ_4Hq5T1hbraKSnS0eOJZAM44RbtVn3DSP7CQ_WswsjwQ
+Message-ID: <CAP+JOzR923MYF0tRyWwHZvcijJx-zLUWarr15uuxwSB7LLznig@mail.gmail.com>
+Subject: Re: [PATCH v2] checkpolicy: Allow lineno > 1 for source file line
+To: Inseob Kim <inseob@google.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 29, 2025 at 11:21=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+On Wed, Apr 30, 2025 at 12:00=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
 rote:
 >
-> On Sat, Apr 26, 2025 at 11:15=E2=80=AFAM Alyssa Ross <hi@alyssa.is> wrote=
-:
+> On Wed, Apr 30, 2025 at 4:58=E2=80=AFAM Inseob Kim <inseob@google.com> wr=
+ote:
 > >
-> > musl does not provide the obsolete LFS64 APIs (like ino64_t) =E2=80=94 =
-ino_t
-> > has always been 64-bit on all platforms there.  That means there's
-> > also no __INO_T_MATCHES_INO64_T macro, meaning the check would pass
-> > and reach the static asserts for the shim, which would fail due to
-> > there being no ino64_t to check the size of.  Fix this by only
-> > assuming the absense of __INO_T_MATCHES_INO64_t is meaningful when
-> > another non-portable Glibc macro, __INO64_T_TYPE, is defined.  If both
-> > are missing, that probably just means there is no ino64_t.
+> > There are cases that the line number starts with a number greater than
+> > one, if preprocessor skipped the very first line. This extends #line
+> > syntax so any lineno is valid for lines with a source file path.
 > >
-> > Fixes: 5c3fcbd9 ("Inject matchpathcon_filespec_add64() if !defined(__IN=
-O_T_MATCHES_INO64_T) instead of using __BITS_PER_LONG < 64 as proxy")
-> > Signed-off-by: Alyssa Ross <hi@alyssa.is>
+> > Signed-off-by: Inseob Kim <inseob@google.com>
+> >
 >
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
@@ -98,55 +90,61 @@ Merged.
 Thanks,
 Jim
 
+> > Changes since v1:
+> > - Leave set_source_file as-is to prevent regressions
 > > ---
-> > v2: Made the same change to the condition in the header, as suggested
-> >     in a GitHub comment.  The omission didn't seem to break anything,
-> >     but it makes sense to change it there too.
-> >     https://github.com/NixOS/nixpkgs/pull/391728#issuecomment-283228284=
-6
+> >  checkpolicy/policy_scan.l | 21 ++++++++++++++++++++-
+> >  1 file changed, 20 insertions(+), 1 deletion(-)
 > >
-> >  libselinux/include/selinux/selinux.h | 2 +-
-> >  libselinux/src/matchpathcon.c        | 2 +-
-> >  2 files changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/=
-selinux/selinux.h
-> > index f64896b7..b1431e5d 100644
-> > --- a/libselinux/include/selinux/selinux.h
-> > +++ b/libselinux/include/selinux/selinux.h
-> > @@ -537,7 +537,7 @@ extern int matchpathcon_index(const char *path,
-> >     with the same inode (e.g. due to multiple hard links).  If so, then
-> >     use the latter of the two specifications based on their order in th=
-e
-> >     file contexts configuration.  Return the used specification index. =
-*/
-> > -#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && !defi=
-ned(__INO_T_MATCHES_INO64_T)
-> > +#if defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64 && defin=
-ed(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
-> >  #define matchpathcon_filespec_add matchpathcon_filespec_add64
+> > diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+> > index 5fb9ff37..7bdea427 100644
+> > --- a/checkpolicy/policy_scan.l
+> > +++ b/checkpolicy/policy_scan.l
+> > @@ -57,6 +57,7 @@ void yyfatal(const char *msg)
 > >  #endif
-> >  extern int matchpathcon_filespec_add(ino_t ino, int specind, const cha=
-r *file);
-> > diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathco=
-n.c
-> > index a4f65045..240c9fa7 100644
-> > --- a/libselinux/src/matchpathcon.c
-> > +++ b/libselinux/src/matchpathcon.c
-> > @@ -261,7 +261,7 @@ int matchpathcon_filespec_add(ino_t ino, int specin=
-d, const char *file)
-> >         return -1;
+> >
+> >  void set_source_file(const char *name);
+> > +static void set_source_line_and_file(const char *line);
+> >
+> >  char source_file[PATH_MAX];
+> >  unsigned long source_lineno =3D 1;
+> > @@ -297,7 +298,7 @@ GLBLUB                              { return(GLBLUB=
+); }
+> >  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*  { return(IPV6_ADDR);=
+ }
+> >  {hexval}{0,4}":"{hexval}{0,4}":"({hexval}|[:.])*"/"{digit}{1,3}       =
+ { return(IPV6_CIDR); }
+> >  {digit}+(\.({alnum}|[_.])*)?    { return(VERSION_IDENTIFIER); }
+> > -#line[ ]1[ ]\"[^\n]*\"         { set_source_file(yytext+9); }
+> > +#line[ ]{digit}+[ ]\"[^\n]*\"  { set_source_line_and_file(yytext+6); }
+> >  #line[ ]{digit}+               {
+> >                                   errno =3D 0;
+> >                                   source_lineno =3D strtoul(yytext+6, N=
+ULL, 10) - 1;
+> > @@ -395,3 +396,21 @@ void set_source_file(const char *name)
+> >         if (strlen(source_file) && source_file[strlen(source_file)-1] =
+=3D=3D '"')
+> >                 source_file[strlen(source_file)-1] =3D '\0';
 > >  }
-> >
-> > -#if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) && !de=
-fined(__INO_T_MATCHES_INO64_T)
-> > +#if (defined(_FILE_OFFSET_BITS) && _FILE_OFFSET_BITS =3D=3D 64) && def=
-ined(__INO64_T_TYPE) && !defined(__INO_T_MATCHES_INO64_T)
-> >  /* alias defined in the public header but we undefine it here */
-> >  #undef matchpathcon_filespec_add
-> >
-> >
-> > base-commit: 2647cc0fdca326b81ee3c08718cbe19b7866b53a
+> > +
+> > +void set_source_line_and_file(const char *line)
+> > +{
+> > +       char *name;
+> > +       unsigned long lineno;
+> > +       errno =3D 0;
+> > +       lineno =3D strtoul(line, &name, 10) - 1;
+> > +       if (errno) {
+> > +               yywarn("source line number too big");
+> > +       }
+> > +       set_source_file(name + 2 /* skip a space and a quote */ );
+> > +
+> > +       /*
+> > +        * set_source_file sets source_lineno to 1.
+> > +        * Assign source_lineno after calling set_source_file.
+> > +        */
+> > +       source_lineno =3D lineno;
+> > +}
 > > --
-> > 2.47.2
+> > 2.49.0.901.g37484f566f-goog
+> >
 > >
