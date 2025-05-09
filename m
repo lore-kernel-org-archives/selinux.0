@@ -1,53 +1,53 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 890572957C4;
-	Fri,  9 May 2025 14:13:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78A80234973;
+	Fri,  9 May 2025 15:06:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746800010; cv=none; b=M0m8PRjn+tS0rkH8FapOsYtaipM7dDXxXhA2qUVExfUelO7jv46cG3BObE5ndXfJ00TaszGhwiuHm5xIH6UvTLHV5pPLLTc1D6JZskXHR3mQaBkLfz601YamjYuCRg/qUCRol2VLAQAKRlQqtwbiL68q9k0K2WVkI694fKMruZU=
+	t=1746803193; cv=none; b=K7mG4OQ/VJnJ3fCZeD9wsWY+OhX5Nleyua6WMtwHBgIvDYoBI6ubeFC0lRsj3UlVBGqdA+LVF45iQg4vneAFxG8CKECy3o/6wCSSxBJ/9fsAvIU4vEl2AFxfjOBCXkG2vt/t6WNesHXx/N8JEernzY4n0kaHv/JbV7WFFj+Diz4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746800010; c=relaxed/simple;
-	bh=w1jQYPE2Doi+HHs3NZANXjINKX3NsvtO8bwrPT1Ogwo=;
+	s=arc-20240116; t=1746803193; c=relaxed/simple;
+	bh=JoIDgD0S6T2e9q3bDT8bPLgLZ5T/mqW0t2TfhJCE0Wc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iof5POOZm8SPNQIpwOf7wii5RjmM//lS7tJp1qARIOvs17vjAo3RBAU4D9KAg2wp7wnouswcbVCcUyI8QWyXr8EobRI2YUcIHij7SC2bxWkMjZRbts/B5FuWLpAF9mnjukMwTabZLJJNwXJrWXXMecY4C+F8e93w8USZN6annx8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=IaxgZiqX; arc=none smtp.client-ip=192.198.163.15
+	 Content-Type:Content-Disposition:In-Reply-To; b=L8r2TZFQ07nxaIiVR3K/IJ5txUCwOLkSyZEkHYRGS/rSeAZTL2yJ1J67HdwYEcB5zvY4r9lCNGK9gMa4nuVsGeXJNMzgmXnjk+VKh+lfJMbzlwNB9NC+wLaJ76SEnUxWp1eB5s7oc1lTG7v6jCzEyJ8canyyE+XEnxxmIggIFI4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JBgTtqHK; arc=none smtp.client-ip=192.198.163.13
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="IaxgZiqX"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JBgTtqHK"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1746800009; x=1778336009;
+  t=1746803191; x=1778339191;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=w1jQYPE2Doi+HHs3NZANXjINKX3NsvtO8bwrPT1Ogwo=;
-  b=IaxgZiqXtczP6oa1xAMwFafTDs9ceLBgDpkyC8Lc80oe0flODb+kZojm
-   6PrsVFHhwKJ7tKW3nxv4gJagXZSvEQSffDHhNZVGfsqAH+faLKiwpyrWx
-   nOWMdllsQL8v1bchT09LN1lGaesL5PqFa1Qcv+FXmjcMu2s6Hf5W0aFiN
-   XBlAsIt+GxObaLu+ndqZOSGawWknprUMY6e0Gm+3KMqkui5MbQXX/9Xds
-   i4v5pqXP3M4FOm3RDDMRf9i7TYkmhJrkJKGzCkP9W1nyL3loWq01KDj+M
-   BEH+5jm5PuyYnzurzEmN9YpvXRjWAixSjfE0IFi6I6K9oiCPftt0pSPbM
-   w==;
-X-CSE-ConnectionGUID: 5tWshLTSR4ezUMFPgI5/Fw==
-X-CSE-MsgGUID: B1/Si58qT7awUICXkT64Tg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11427"; a="48782042"
+  bh=JoIDgD0S6T2e9q3bDT8bPLgLZ5T/mqW0t2TfhJCE0Wc=;
+  b=JBgTtqHKQTKUXflXvdf/3nhIY0gVCmzLSA4ECQy1hna6RhuTIxfLkbBf
+   r29JtLLPNVfEOa9cRN3K8Wg9pWQSVtFh/uSFoVwFaM7oyc2M4t+5xZu6l
+   2wj9dkwZjKQ2qAslWj2skLVJxFoT0Jsxz2t0SAifJRWyRXdStjJzh8G75
+   dIPduklsXwAS05ZMOlSg/deebEmjLYsEH3MNPOB8IjiJfE6x0TyDtqP+B
+   x4KWkWpxBtVP3v+LYs3VH3oO7bK7c97f8X54dxubJ5C19Sm+Jyb1vVztf
+   euNiMxh5aTwDasCFVH+6iwd00fi2NNi7yUeG8XcLNXXQG30Yw4oQfhTQC
+   g==;
+X-CSE-ConnectionGUID: y7WuqohDRBuOmZtPH3yKnA==
+X-CSE-MsgGUID: 4Z9qCb6eTsO5hGxvd3Vl0A==
+X-IronPort-AV: E=McAfee;i="6700,10204,11427"; a="51291235"
 X-IronPort-AV: E=Sophos;i="6.15,275,1739865600"; 
-   d="scan'208";a="48782042"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2025 07:13:28 -0700
-X-CSE-ConnectionGUID: +RFxhdCnQSasT+lMFMYEAg==
-X-CSE-MsgGUID: a91sjI53QdSfDx+i2iJY1g==
+   d="scan'208";a="51291235"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2025 08:06:30 -0700
+X-CSE-ConnectionGUID: ns9eJFUzTKWrtL7EE7VCMQ==
+X-CSE-MsgGUID: NMUKjx8hR/6TW9MLj0M2ZA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.15,275,1739865600"; 
-   d="scan'208";a="141580846"
+   d="scan'208";a="140703319"
 Received: from lkp-server01.sh.intel.com (HELO 1992f890471c) ([10.239.97.150])
-  by orviesa004.jf.intel.com with ESMTP; 09 May 2025 07:13:22 -0700
+  by fmviesa003.fm.intel.com with ESMTP; 09 May 2025 08:06:25 -0700
 Received: from kbuild by 1992f890471c with local (Exim 4.96)
 	(envelope-from <lkp@intel.com>)
-	id 1uDOTW-000C9L-2i;
-	Fri, 09 May 2025 14:13:18 +0000
-Date: Fri, 9 May 2025 22:13:05 +0800
+	id 1uDPIs-000CBX-33;
+	Fri, 09 May 2025 15:06:22 +0000
+Date: Fri, 9 May 2025 23:06:01 +0800
 From: kernel test robot <lkp@intel.com>
 To: Kuniyuki Iwashima <kuniyu@amazon.com>,
 	Martin KaFai Lau <martin.lau@linux.dev>,
@@ -70,10 +70,10 @@ Cc: oe-kbuild-all@lists.linux.dev, Eduard Zingerman <eddyz87@gmail.com>,
 	Kuniyuki Iwashima <kuniyu@amazon.com>, bpf@vger.kernel.org,
 	netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
 	selinux@vger.kernel.org
-Subject: Re: [PATCH v1 bpf-next 3/5] af_unix: Remove redundant scm->fp check
- in __scm_destroy().
-Message-ID: <202505092103.UWs7ZtbF-lkp@intel.com>
-References: <20250505215802.48449-4-kuniyu@amazon.com>
+Subject: Re: [PATCH v1 bpf-next 4/5] bpf: Add kfunc to scrub SCM_RIGHTS at
+ security_unix_may_send().
+Message-ID: <202505092221.8wrWSFI7-lkp@intel.com>
+References: <20250505215802.48449-5-kuniyu@amazon.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -82,7 +82,7 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250505215802.48449-4-kuniyu@amazon.com>
+In-Reply-To: <20250505215802.48449-5-kuniyu@amazon.com>
 
 Hi Kuniyuki,
 
@@ -92,20 +92,23 @@ kernel test robot noticed the following build errors:
 
 url:    https://github.com/intel-lab-lkp/linux/commits/Kuniyuki-Iwashima/af_unix-Call-security_unix_may_send-in-sendmsg-for-all-socket-types/20250506-060219
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git master
-patch link:    https://lore.kernel.org/r/20250505215802.48449-4-kuniyu%40amazon.com
-patch subject: [PATCH v1 bpf-next 3/5] af_unix: Remove redundant scm->fp check in __scm_destroy().
-config: i386-randconfig-054-20250509 (https://download.01.org/0day-ci/archive/20250509/202505092103.UWs7ZtbF-lkp@intel.com/config)
-compiler: gcc-11 (Debian 11.3.0-12) 11.3.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250509/202505092103.UWs7ZtbF-lkp@intel.com/reproduce)
+patch link:    https://lore.kernel.org/r/20250505215802.48449-5-kuniyu%40amazon.com
+patch subject: [PATCH v1 bpf-next 4/5] bpf: Add kfunc to scrub SCM_RIGHTS at security_unix_may_send().
+config: csky-randconfig-001-20250509 (https://download.01.org/0day-ci/archive/20250509/202505092221.8wrWSFI7-lkp@intel.com/config)
+compiler: csky-linux-gcc (GCC) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250509/202505092221.8wrWSFI7-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202505092103.UWs7ZtbF-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202505092221.8wrWSFI7-lkp@intel.com/
 
-All errors (new ones prefixed by >>, old ones prefixed by <<):
+All errors (new ones prefixed by >>):
 
->> ERROR: modpost: "scm_fp_destroy" [net/bluetooth/bluetooth.ko] undefined!
+   csky-linux-ld: net/core/filter.o: in function `bpf_unix_scrub_fds':
+>> filter.c:(.text+0xc796): undefined reference to `unix_scrub_fds'
+   csky-linux-ld: net/core/filter.o: in function `bpf_sock_destroy':
+   filter.c:(.text+0xc7dc): undefined reference to `unix_scrub_fds'
 
 -- 
 0-DAY CI Kernel Test Service
