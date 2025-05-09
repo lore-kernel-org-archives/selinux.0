@@ -1,93 +1,112 @@
-Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D653622FDFF
-	for <selinux@vger.kernel.org>; Fri,  9 May 2025 02:50:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 890572957C4;
+	Fri,  9 May 2025 14:13:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746759057; cv=none; b=ed+hH4bSiPuCciwEmJGk8YhCtyuQrgtXikw6AaJyRIxRhgrDYytcgYMoCfYCMGRNZC+/3WRccaUT03WarZwJXOkbKdEcvM3K493kh+SynP2fkD1oB97JGEY8aOFN3cBT2FXK1x1JAQPN/NjIzugrL+K6U4Xg7AU0N2ahOCQ/nCk=
+	t=1746800010; cv=none; b=M0m8PRjn+tS0rkH8FapOsYtaipM7dDXxXhA2qUVExfUelO7jv46cG3BObE5ndXfJ00TaszGhwiuHm5xIH6UvTLHV5pPLLTc1D6JZskXHR3mQaBkLfz601YamjYuCRg/qUCRol2VLAQAKRlQqtwbiL68q9k0K2WVkI694fKMruZU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746759057; c=relaxed/simple;
-	bh=LkLoXwkIRewUueKKzD0OHSqc8OpBK2itN5DTIO8M6fo=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=FGi/7mQUDIHNBEwiM3uRRJ7YejfqRIMiObyPikcTpfSgTLPAAUYBrBmCZEgS4YvuKP6G1lL0dX0wfrb9TBltTLtdPUIDYS1PgI96OXogvkYvyG2rtywuPLSudAMHEiR4bEymrnSPnfBY4mi+9dbkPhEt4R3B2J0QXBwU7/n9NDw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=jEuxJplo; arc=none smtp.client-ip=209.85.167.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1746800010; c=relaxed/simple;
+	bh=w1jQYPE2Doi+HHs3NZANXjINKX3NsvtO8bwrPT1Ogwo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iof5POOZm8SPNQIpwOf7wii5RjmM//lS7tJp1qARIOvs17vjAo3RBAU4D9KAg2wp7wnouswcbVCcUyI8QWyXr8EobRI2YUcIHij7SC2bxWkMjZRbts/B5FuWLpAF9mnjukMwTabZLJJNwXJrWXXMecY4C+F8e93w8USZN6annx8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=IaxgZiqX; arc=none smtp.client-ip=192.198.163.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="jEuxJplo"
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-54993c68ba0so2288000e87.2
-        for <selinux@vger.kernel.org>; Thu, 08 May 2025 19:50:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1746759054; x=1747363854; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=LkLoXwkIRewUueKKzD0OHSqc8OpBK2itN5DTIO8M6fo=;
-        b=jEuxJplonj6BSPB3pC2aJeD5W6mYJS++aTw2vXHiQgSwHqktPQYiz2JpCo0HAhkup+
-         CgW5IhoLxPWneW9rdbKyNkfrHIt2mOn5aCUhfRMLRMplIvC2I/AhBUxtfjRDemRf8PzI
-         VRVqGnOZFY5IIMUiUoOXnuqUBVbraRheLS4xM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746759054; x=1747363854;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=LkLoXwkIRewUueKKzD0OHSqc8OpBK2itN5DTIO8M6fo=;
-        b=M4j+aMcT5JHu63fmkc9spdo6V9uSoYJ7NwamKQQRwZPIbu3PK3unNsPkArClGBzHHR
-         IfZkGCeNEtB/k10nHpYQvvp1au+u4uwEiAkRqm3Myn0lVXN8vBgKcb8XJFqEASBSHQor
-         Js0pCcdkkZOgC1NeOXsogV+cS543A/QohcqBNKo0RFeRtkjlpyUGyYPER6gjG2wgP6rB
-         V7VOlseOCczOoS2oUE2ZvOoIjo3LD4saeVG1VVFeWbPqek74VCziIzxxingfcmK1kKnG
-         WNHSMHPK+OulJIk1qC/dcLB16m4lsuWyev/u5WOmilXeqY436Iz6dHrqpDV+BBtoBVkS
-         1pmA==
-X-Gm-Message-State: AOJu0Yxi1YbkkstzhC0sy0rwOXZt3mwJMW95qgIaxEZDyaC9vPYyQid7
-	XIcQRCrYPgD475nKb3zbnH5EqUERY2Lc18brna5BVA6K+HWYv/jQlBoi2YCb5h0ZCLNmqTdBNY3
-	wz0zFKk3gXLK3cAoFcVwQacthKg0w2Yc585c=
-X-Gm-Gg: ASbGncsLPWrW0Pyi2qmnsz2LBPyS+Y7g5rLByrcGgN2Y+TuyIyT4BmYBX3bwPoggRLa
-	8xhjjetW1Srqxct2Z15qIiiY6OVRlsjQlSta3qR83VdAuDbCXVmuhe7CcrszQI9CWmr0HNU59JY
-	D288hGXz/mEppxF3fnvTuVa93W2uuknGyKftkj6zELpcAr9O5qonev
-X-Google-Smtp-Source: AGHT+IHDG88eN6zI7x7iNivlK1raucEP7JI0EBcxXzIM4efSnrK/unJ5dmTAOEpaWnQpSlTR5NV9CLhSZbrdakTeBsY=
-X-Received: by 2002:a05:6512:4408:b0:54d:6a89:8448 with SMTP id
- 2adb3069b0e04-54fc67aff3bmr490125e87.10.1746759053718; Thu, 08 May 2025
- 19:50:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="IaxgZiqX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1746800009; x=1778336009;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=w1jQYPE2Doi+HHs3NZANXjINKX3NsvtO8bwrPT1Ogwo=;
+  b=IaxgZiqXtczP6oa1xAMwFafTDs9ceLBgDpkyC8Lc80oe0flODb+kZojm
+   6PrsVFHhwKJ7tKW3nxv4gJagXZSvEQSffDHhNZVGfsqAH+faLKiwpyrWx
+   nOWMdllsQL8v1bchT09LN1lGaesL5PqFa1Qcv+FXmjcMu2s6Hf5W0aFiN
+   XBlAsIt+GxObaLu+ndqZOSGawWknprUMY6e0Gm+3KMqkui5MbQXX/9Xds
+   i4v5pqXP3M4FOm3RDDMRf9i7TYkmhJrkJKGzCkP9W1nyL3loWq01KDj+M
+   BEH+5jm5PuyYnzurzEmN9YpvXRjWAixSjfE0IFi6I6K9oiCPftt0pSPbM
+   w==;
+X-CSE-ConnectionGUID: 5tWshLTSR4ezUMFPgI5/Fw==
+X-CSE-MsgGUID: B1/Si58qT7awUICXkT64Tg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11427"; a="48782042"
+X-IronPort-AV: E=Sophos;i="6.15,275,1739865600"; 
+   d="scan'208";a="48782042"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2025 07:13:28 -0700
+X-CSE-ConnectionGUID: +RFxhdCnQSasT+lMFMYEAg==
+X-CSE-MsgGUID: a91sjI53QdSfDx+i2iJY1g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,275,1739865600"; 
+   d="scan'208";a="141580846"
+Received: from lkp-server01.sh.intel.com (HELO 1992f890471c) ([10.239.97.150])
+  by orviesa004.jf.intel.com with ESMTP; 09 May 2025 07:13:22 -0700
+Received: from kbuild by 1992f890471c with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1uDOTW-000C9L-2i;
+	Fri, 09 May 2025 14:13:18 +0000
+Date: Fri, 9 May 2025 22:13:05 +0800
+From: kernel test robot <lkp@intel.com>
+To: Kuniyuki Iwashima <kuniyu@amazon.com>,
+	Martin KaFai Lau <martin.lau@linux.dev>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Andrii Nakryiko <andrii@kernel.org>
+Cc: oe-kbuild-all@lists.linux.dev, Eduard Zingerman <eddyz87@gmail.com>,
+	Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>,
+	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
+	Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+	=?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
+	=?iso-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Christian Brauner <brauner@kernel.org>,
+	Kuniyuki Iwashima <kuniyu@amazon.com>, bpf@vger.kernel.org,
+	netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: Re: [PATCH v1 bpf-next 3/5] af_unix: Remove redundant scm->fp check
+ in __scm_destroy().
+Message-ID: <202505092103.UWs7ZtbF-lkp@intel.com>
+References: <20250505215802.48449-4-kuniyu@amazon.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Takaya Saeki <takayas@chromium.org>
-Date: Fri, 9 May 2025 11:50:42 +0900
-X-Gm-Features: ATxdqUG5xok-iqV_86qt3NSmavrOSuI7N_bB36oL7esY-CvsEa5Zq6f30T0uEAA
-Message-ID: <CAH9xa6eFqcLh=NSz+vFPr05yZjmn2ScDvVeFzib3DhY67SrP0A@mail.gmail.com>
-Subject: [RFC] selinux: Keep genfscon prefix match semantics in userspace for wildcard
-To: Stephen Smalley <stephen.smalley.work@gmail.com>, Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Inseob Kim <inseob@google.com>, Daniel Burgener <dburgener@linux.microsoft.com>, 
-	Junichi Uekawa <uekawa@chromium.org>, Tatsuyuki Ishi <ishitatsuyuki@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250505215802.48449-4-kuniyu@amazon.com>
 
-Hello Stephen, Paul, and all libselinux maintainers.
+Hi Kuniyuki,
 
-I'd like to ask your opinions about an idea to keep the semantics of genfs in
-the userspace, before sending a patch to expose the new genfs_seclabel_wildcard
-kernel capability to libselinux users in polcaps.h as
-POLICYDB_CAP_GENFS_SECLABEL_WILDCARD.
+kernel test robot noticed the following build errors:
 
-As a background, we introduced the genfs wildcard feature to the kernel selinux
-in https://lore.kernel.org/selinux/20250318083139.1515253-1-takayas@chromium.org/
-(Thank you for your help and reviews!)
-That enabled libselinux to use wildcards in genfs rules. There we changed the
-semantics of genfs with the capability enabled in the kernel space from prefix
-match to exact match with wildcards for kernel implementation simplicity.
+[auto build test ERROR on bpf-next/master]
 
-I'm wondering whether we can keep the user-facing semantics of (genfscon ...)
-statements in CIL files in the following way.
+url:    https://github.com/intel-lab-lkp/linux/commits/Kuniyuki-Iwashima/af_unix-Call-security_unix_may_send-in-sendmsg-for-all-socket-types/20250506-060219
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git master
+patch link:    https://lore.kernel.org/r/20250505215802.48449-4-kuniyu%40amazon.com
+patch subject: [PATCH v1 bpf-next 3/5] af_unix: Remove redundant scm->fp check in __scm_destroy().
+config: i386-randconfig-054-20250509 (https://download.01.org/0day-ci/archive/20250509/202505092103.UWs7ZtbF-lkp@intel.com/config)
+compiler: gcc-11 (Debian 11.3.0-12) 11.3.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250509/202505092103.UWs7ZtbF-lkp@intel.com/reproduce)
 
-When secilc compiles a (genfscon ...) statement to the kernel binary format, it
-adds a following `*` to the compiled kernel genfscon statement if the input has
-(policycap genfs_seclabel_wildcard). If the input doesn't have one, secilc does
-not add any following `*`. That keeps the behavior of (genfscon ...) in CIL
-from the user perspective with and without the new wildcard capability. This is
-similar to what our first kernel patch did, but done in the userspace by secilc
-this time. So, the (genfscon ...) keeps the backward compatibility of prefix
-match for libselinux users, while keeping the kernel implementation simple.
-That would allow users to keep existing rules without modification.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202505092103.UWs7ZtbF-lkp@intel.com/
 
-I'd like to hear your opinions.
+All errors (new ones prefixed by >>, old ones prefixed by <<):
+
+>> ERROR: modpost: "scm_fp_destroy" [net/bluetooth/bluetooth.ko] undefined!
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
