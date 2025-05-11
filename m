@@ -1,136 +1,247 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from server02.seltendoof.de (server02.seltendoof.de [168.119.48.163])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EA34239E94
-	for <selinux@vger.kernel.org>; Fri,  9 May 2025 18:23:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA91F1FC3;
+	Sun, 11 May 2025 17:31:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=168.119.48.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746815013; cv=none; b=PUQ1UFd+lvHaBb1lz3ThZgUMfp5spPo5BMglFgIyWx6CB+eoVRY05PT2X8fjwtSrT0GQ6cN+UGObYUWTmR2xniDuww0pcnSX2K67kBinQbcpfpK/6EMwyRLOwKggtv1ArVSDS7ENpmbYR3V8N06qRQO5GsEHYOn3vvNfD5tyjGo=
+	t=1746984679; cv=none; b=gReYyhpggf1BIt8ziovOtOY6hitAIjHtoxFDJbuqPKB6eyQZDF50oZmP2FfUPXxMcjO4pA+eSK/UT+xiBK/lGJMoCQaY9HwYEvVd170YiVFhrb4AdlLYElhyuH71+lpESOA7FT9RjV2UPPgydwBCgteIuy7enZUsC1PLfXyYXEM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746815013; c=relaxed/simple;
-	bh=27QszuN/uHw7LYDCSP3ulUqy4wDRgv7+6ejhxAaBzjM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P0TaZd6bsxfBzqbwmKk2dXy724Dh2TyaqqID6qfWXZpZ3FYrpEWnr8o9N8Y/wvtJUlXox5ogLC1vE2qDt/b+vGmo917rouchf25d8CO7wkFZQMZHgS6xlfJhLuy1RWtApWczzd2vBPlNfQcADfgl1ZWsMqmNLFzMiUkkXFGt6Jg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OwfdT17T; arc=none smtp.client-ip=209.85.216.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1746984679; c=relaxed/simple;
+	bh=Ebko4lUn1X4XnO2jLm4yUAUj0afvAzRfzlTsrGcxWSg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=jTxC5yzPtUU1HP8jKY/1AcM0uer+A1Kc3fHZuv4uNgWkON8vw03JdeGbeUayqCMOZOb2dohksOxgYgWAoP8lTz62nik3Ne+qGLAAJ64b4SlaDhDiRbNWP+cXcxXOon1hE8owtAJpX+JC9IcI9mAr/xY+N5Ziq/l58qioNeFqvwA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de; spf=pass smtp.mailfrom=seltendoof.de; dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b=CNko3Qyv; arc=none smtp.client-ip=168.119.48.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=seltendoof.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=seltendoof.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OwfdT17T"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-30820167b47so2174320a91.0
-        for <selinux@vger.kernel.org>; Fri, 09 May 2025 11:23:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1746815010; x=1747419810; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=27QszuN/uHw7LYDCSP3ulUqy4wDRgv7+6ejhxAaBzjM=;
-        b=OwfdT17TTWdoB48zhtHXWidetvHSPcv2vkXvrhGPMAPygjLCgzrGDihqHTopYTv9e5
-         TkTCdDM15ROOipVvP2PEZfz+MchRYAlRGJd8rHQbpd8RdG0jkHXwUKsVC6vU4G8Av+j8
-         pZ846f/wRw+voHNLo+fGJDU/LWpk97kCZlZRz3pT4M/RQ/Mie2vNOHQakS3oY5wXoG8m
-         90Dr8R0rSEs7uWNVuKaZHRJL05hQchZ23VwYimX+iV3GSrkhv+ynbT5jF30Hf8+hrpL8
-         4BdzDE3Y9ccf+Z1IWu1gQCbib5dfAhTMxCFj/9vcAspg9qp9u1SMNG88n974N++AY9NH
-         fh7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1746815010; x=1747419810;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=27QszuN/uHw7LYDCSP3ulUqy4wDRgv7+6ejhxAaBzjM=;
-        b=JyMfGenpCGpyeGyFf5qTwCM9hGHtUBWSjGMuiKq0HQv4Yhz4AXsm5RfpvNYlyBBaL6
-         BgBUZVIol2CmdghZn7ic8XxbGZltUrfnwnDmQjxGrRDOMRe5e7IEUXigTUW1Y+GySaB1
-         9OA2993I2Dc7cXDCcg8WeFVw+F68FCSDHwmAnTg3Azu53/z3H9a/oEjvmMNK3pq3J+pF
-         dUymplrIE8vhNseYLYc0u1vx1MqgK0I0chIEYE1KmZn3CeRBNZ2XS66l0QERJ+IvxQOI
-         3YfkFsiha333V8rOH49/ilQJ8FE1Y+gGdFRUKa7QFtcTxqvhN/I0Gaq2GNyJG6+5HKiV
-         3BiQ==
-X-Forwarded-Encrypted: i=1; AJvYcCU+LEJ97p54UYaDhcU+GOh06vDdXdU3IJgj0qAkaJTEzv6gfurO/ap8N4iLmXRr//FnbPkefVKW@vger.kernel.org
-X-Gm-Message-State: AOJu0YyE+lxSfKgzcN02Dh7FERxpBWAneDt9aV+0p1nPjpLrKeFoqCdx
-	OQXK2qVSd6xYL92vrWaOsdJ/DM/U1QOJvAvRdfFrm07dBsO+icK8acR6zpphDM6+3Vscq7WnzBx
-	7Z811YqdWNPg95fhPff1moUXXKbY=
-X-Gm-Gg: ASbGncsSoHzqywvPDyM0kRC9LENjZtp+3ZSBvMGNh8NLQgqmTFgRSI+1Ak+Qxl76KWM
-	HfnnlANHRSB+Gg0SYnJJYGhjTQAU+LUbEj8QYY55JPHVcb9F/7JcUK0Crc3gCIpwkDkCmnbM0TQ
-	dqz2pRo7TkFTtwSC5Fd4mcZKV5YiW/f8kM
-X-Google-Smtp-Source: AGHT+IH1m8uSkunT7ePfvR8SzyH+X4zL9cR741uSpLA3fNgOPN7h8PXyknr570+EePKFAkPhxGrG7ej6C2M9+i2b/ls=
-X-Received: by 2002:a17:90b:3f86:b0:2fa:2133:bc87 with SMTP id
- 98e67ed59e1d1-30adbf1150cmr12406675a91.6.1746815010327; Fri, 09 May 2025
- 11:23:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=seltendoof.de header.i=@seltendoof.de header.b="CNko3Qyv"
+From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgoettsche@seltendoof.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=seltendoof.de;
+	s=2023072701; t=1746984672;
+	h=from:from:reply-to:reply-to:subject:subject:date:date:
+	 message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+	 content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=GsBcaq3JdFc1mzUcdZeS0p8QtzqKL0+oK7CcRUdGdns=;
+	b=CNko3Qyv8X1aGrwz2L5Qc851kouLo6IwMDn9dWy+kWQOuu2Srg61z1ayDAEf7hJOXKd3vZ
+	cKCxzLXleBhmnoWobNNM1EsEebFRYI6VMiSLTG7tJ+VzOk2zg4WZTn/j3Eu8Kq9GW8o92x
+	lQ3k5jXIeqbPh1S65/XZdg/dDpF3+KHYSoXU1xbW7q1l7uSecafy4b+ViGJzatnByI2zZX
+	1BkZFDXcofpV77AXCTOPSKjZm5DiIGWIP/3Z2iDtgv/Ht0P22rlHoPfw+xGIdWfGQS+a1E
+	VJjMaxCv6CVtox/EzDrGepMslKEmnY+SQrKYvrSQwH/xRDPiZiNsvOGok+Fdjg==
+To: selinux@vger.kernel.org
+Cc: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>,
+	Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Eric Suen <ericsu@linux.microsoft.com>
+Subject: [PATCH v3 04/14] selinux: check length fields in policies
+Date: Sun, 11 May 2025 19:30:04 +0200
+Message-ID: <20250511173055.406906-4-cgoettsche@seltendoof.de>
+In-Reply-To: <20250511173055.406906-1-cgoettsche@seltendoof.de>
+References: <20250511173055.406906-1-cgoettsche@seltendoof.de>
+Reply-To: cgzones@googlemail.com
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAH9xa6eFqcLh=NSz+vFPr05yZjmn2ScDvVeFzib3DhY67SrP0A@mail.gmail.com>
-In-Reply-To: <CAH9xa6eFqcLh=NSz+vFPr05yZjmn2ScDvVeFzib3DhY67SrP0A@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 9 May 2025 14:23:19 -0400
-X-Gm-Features: ATxdqUE9qwdSPUd09eCrGSRojgeofu9ytOsc-H69Relk1UVrs7kfKKW3BcOfMOA
-Message-ID: <CAEjxPJ7KWhJEkWB7s+kLyT+-yXE9vyNzYgfGUS_i1jF7FzujOQ@mail.gmail.com>
-Subject: Re: [RFC] selinux: Keep genfscon prefix match semantics in userspace
- for wildcard
-To: Takaya Saeki <takayas@chromium.org>
-Cc: Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org, 
-	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Inseob Kim <inseob@google.com>, Daniel Burgener <dburgener@linux.microsoft.com>, 
-	Junichi Uekawa <uekawa@chromium.org>, Tatsuyuki Ishi <ishitatsuyuki@google.com>, 
-	James Carter <jwcart2@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Thu, May 8, 2025 at 10:50=E2=80=AFPM Takaya Saeki <takayas@chromium.org>=
- wrote:
->
-> Hello Stephen, Paul, and all libselinux maintainers.
->
-> I'd like to ask your opinions about an idea to keep the semantics of genf=
-s in
-> the userspace, before sending a patch to expose the new genfs_seclabel_wi=
-ldcard
-> kernel capability to libselinux users in polcaps.h as
-> POLICYDB_CAP_GENFS_SECLABEL_WILDCARD.
->
-> As a background, we introduced the genfs wildcard feature to the kernel s=
-elinux
-> in https://lore.kernel.org/selinux/20250318083139.1515253-1-takayas@chrom=
-ium.org/
-> (Thank you for your help and reviews!)
-> That enabled libselinux to use wildcards in genfs rules. There we changed=
- the
-> semantics of genfs with the capability enabled in the kernel space from p=
-refix
-> match to exact match with wildcards for kernel implementation simplicity.
->
-> I'm wondering whether we can keep the user-facing semantics of (genfscon =
-...)
-> statements in CIL files in the following way.
->
-> When secilc compiles a (genfscon ...) statement to the kernel binary form=
-at, it
-> adds a following `*` to the compiled kernel genfscon statement if the inp=
-ut has
-> (policycap genfs_seclabel_wildcard). If the input doesn't have one, secil=
-c does
-> not add any following `*`. That keeps the behavior of (genfscon ...) in C=
-IL
-> from the user perspective with and without the new wildcard capability. T=
-his is
-> similar to what our first kernel patch did, but done in the userspace by =
-secilc
-> this time. So, the (genfscon ...) keeps the backward compatibility of pre=
-fix
-> match for libselinux users, while keeping the kernel implementation simpl=
-e.
-> That would allow users to keep existing rules without modification.
->
-> I'd like to hear your opinions.
+From: Christian Göttsche <cgzones@googlemail.com>
 
-(added James to cc for the secilc question)
+In multiple places the binary policy announces how many items of some
+kind are to be expected next.  Before reading them the kernel already
+allocates enough memory for that announced size.  Validate that the
+remaining input size can actually fit the announced items, to avoid OOM
+issues on malformed binary policies.
 
-I'm assuming you mean libsepol rather than libselinux. I could be
-wrong, but I believe that in general policy capabilities are only
-declared once in the policy and typically in the base module, and
-those settings are then applied globally to all policy modules. While
-you can put one in a non-base module, it still has a global effect on
-the final policy. Putting a policycap statement into every CIL module
-that wants this behavior would possibly trigger an error (not sure
-how/if libsepol/secilc handles duplicate policycap statements) and
-regardless would enable it for the entire policy.
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v3:
+  - fix error branch by returning directly instead of jumping to goto
+    label, see
+      https://lore.kernel.org/all/202412241405.LK8YTZqp-lkp@intel.com/
+  - rename to size_check()
+  - add comments for magic values
+---
+ security/selinux/ss/avtab.c       |  5 +++++
+ security/selinux/ss/conditional.c | 17 ++++++++++++++++
+ security/selinux/ss/policydb.c    | 32 +++++++++++++++++++++++++++++++
+ security/selinux/ss/policydb.h    | 13 +++++++++++++
+ 4 files changed, 67 insertions(+)
+
+diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+index 33556922f15e..50df8b69de2b 100644
+--- a/security/selinux/ss/avtab.c
++++ b/security/selinux/ss/avtab.c
+@@ -548,6 +548,11 @@ int avtab_read(struct avtab *a, struct policy_file *fp, struct policydb *pol)
+ 		goto bad;
+ 	}
+ 
++	/* avtab_read_item() reads at least 96 bytes for any valid entry */
++	rc = size_check(3 * sizeof(u32), nel, fp);
++	if (rc)
++		goto bad;
++
+ 	rc = avtab_alloc(a, nel);
+ 	if (rc)
+ 		goto bad;
+diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+index db30462ed6a3..92ed4f23a217 100644
+--- a/security/selinux/ss/conditional.c
++++ b/security/selinux/ss/conditional.c
+@@ -12,6 +12,7 @@
+ 
+ #include "security.h"
+ #include "conditional.h"
++#include "policydb.h"
+ #include "services.h"
+ 
+ /*
+@@ -329,6 +330,11 @@ static int cond_read_av_list(struct policydb *p, struct policy_file *fp,
+ 	if (len == 0)
+ 		return 0;
+ 
++	/* avtab_read_item() reads at least 96 bytes for any valid entry */
++	rc = size_check(3 * sizeof(u32), len, fp);
++	if (rc)
++		return rc;
++
+ 	list->nodes = kcalloc(len, sizeof(*list->nodes), GFP_KERNEL);
+ 	if (!list->nodes)
+ 		return -ENOMEM;
+@@ -379,6 +385,12 @@ static int cond_read_node(struct policydb *p, struct cond_node *node, struct pol
+ 
+ 	/* expr */
+ 	len = le32_to_cpu(buf[1]);
++
++	/* we will read 64 bytes per node */
++	rc = size_check(2 * sizeof(u32), len, fp);
++	if (rc)
++		return rc;
++
+ 	node->expr.nodes = kcalloc(len, sizeof(*node->expr.nodes), GFP_KERNEL);
+ 	if (!node->expr.nodes)
+ 		return -ENOMEM;
+@@ -417,6 +429,11 @@ int cond_read_list(struct policydb *p, struct policy_file *fp)
+ 
+ 	len = le32_to_cpu(buf[0]);
+ 
++	/* cond_read_node() reads at least 128 bytes for any valid node */
++	rc = size_check(4 * sizeof(u32), len, fp);
++	if (rc)
++		return rc;
++
+ 	p->cond_list = kcalloc(len, sizeof(*p->cond_list), GFP_KERNEL);
+ 	if (!p->cond_list)
+ 		return -ENOMEM;
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 3e4a28a2928b..46c010afd44f 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -1100,6 +1100,9 @@ int str_read(char **strp, gfp_t flags, struct policy_file *fp, u32 len)
+ 	if ((len == 0) || (len == (u32)-1))
+ 		return -EINVAL;
+ 
++	if (size_check(sizeof(char), len, fp))
++		return -EINVAL;
++
+ 	str = kmalloc(len + 1, flags | __GFP_NOWARN);
+ 	if (!str)
+ 		return -ENOMEM;
+@@ -1174,6 +1177,11 @@ static int common_read(struct policydb *p, struct symtab *s, struct policy_file
+ 	if (nel > SEL_VEC_MAX)
+ 		goto bad;
+ 
++	/* perm_read() reads at least 64 bytes for any valid permission */
++	rc = size_check(2 * sizeof(u32), nel, fp);
++	if (rc)
++		goto bad;
++
+ 	rc = symtab_init(&comdatum->permissions, nel);
+ 	if (rc)
+ 		goto bad;
+@@ -1348,6 +1356,11 @@ static int class_read(struct policydb *p, struct symtab *s, struct policy_file *
+ 		goto bad;
+ 	cladatum->value = val;
+ 
++	/* perm_read() reads at least 64 bytes for any valid permission */
++	rc = size_check(2 * sizeof(u32), nel, fp);
++	if (rc)
++		goto bad;
++
+ 	rc = symtab_init(&cladatum->permissions, nel);
+ 	if (rc)
+ 		goto bad;
+@@ -1921,6 +1934,13 @@ static int range_read(struct policydb *p, struct policy_file *fp)
+ 
+ 	nel = le32_to_cpu(buf[0]);
+ 
++	/* we read at least 64 bytes and mls_read_range_helper() 32 bytes
++	 * for any valid range-transition
++	 */
++	rc = size_check(3 * sizeof(u32), nel, fp);
++	if (rc)
++		return rc;
++
+ 	rc = hashtab_init(&p->range_tr, nel);
+ 	if (rc)
+ 		return rc;
+@@ -2689,6 +2709,13 @@ int policydb_read(struct policydb *p, struct policy_file *fp)
+ 		nprim = le32_to_cpu(buf[0]);
+ 		nel = le32_to_cpu(buf[1]);
+ 
++		/* every read_f() implementation reads at least 128 bytes
++		 * for any valid entry
++		 */
++		rc = size_check(4 * sizeof(u32), nel, fp);
++		if (rc)
++			goto out;
++
+ 		rc = symtab_init(&p->symtab[i], nel);
+ 		if (rc)
+ 			goto out;
+@@ -2730,6 +2757,11 @@ int policydb_read(struct policydb *p, struct policy_file *fp)
+ 		goto bad;
+ 	nel = le32_to_cpu(buf[0]);
+ 
++	/* we read at least 96 bytes for any valid role-transition */
++	rc = size_check(3 * sizeof(u32), nel, fp);
++	if (rc)
++		goto bad;
++
+ 	rc = hashtab_init(&p->role_tr, nel);
+ 	if (rc)
+ 		goto bad;
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index 9b3cc393a979..bb96a6cb6101 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -353,6 +353,19 @@ struct policy_data {
+ 	struct policy_file *fp;
+ };
+ 
++static inline int size_check(size_t bytes, size_t num, const struct policy_file *fp)
++{
++	size_t len;
++
++	if (unlikely(check_mul_overflow(bytes, num, &len)))
++		return -EINVAL;
++
++	if (unlikely(len > fp->len))
++		return -EINVAL;
++
++	return 0;
++}
++
+ static inline int next_entry(void *buf, struct policy_file *fp, size_t bytes)
+ {
+ 	if (bytes > fp->len)
+-- 
+2.49.0
+
