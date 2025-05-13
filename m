@@ -1,198 +1,136 @@
-Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4073F13A86C;
-	Tue, 13 May 2025 19:44:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B89091F3B87
+	for <selinux@vger.kernel.org>; Tue, 13 May 2025 20:23:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747165463; cv=none; b=J8EBRNyo7SbW8xeokGq5cDxnO7FdNSOeE3cKV6NKWAxuFsEXRnOAKV7d5yENT7o9YAeWmGGZ4mst3HcDVSTdbwJaE+RfGICgWsyCZqa47I2rCXAMwICHLGFxF9y3vJPQRb5rFJ8I9K185X18kj4ax5vZ8bclnGZDUZBnMMw5gZM=
+	t=1747167822; cv=none; b=WrrXNkXUXvR6pmztkIucBGOXAUAja8HeEqVNrzsZZZvfPlowQKXLbAqN1+ZLgtCdVADha1KplcECpPXWaIFYKm/y+swclCq5QguGj9VqsHAfC9z/pR7QdmcyEHaRWX/zzbUNQQQ4qxP4KRrqK3WR9DpP/RSGB+bCcPCbBS3T4h8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747165463; c=relaxed/simple;
-	bh=vKtLiWGwbn7nAe8oULmHJnBmom4HrX+li/knhuYgyY4=;
+	s=arc-20240116; t=1747167822; c=relaxed/simple;
+	bh=0DWhoiiGjt4cEmztHGaRcxM7LEQhF04hQ+Li3wBs71U=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=E09T6gIrBFh/FMxh59N6p9EyMfxyQc5ZL0kXrDu3xytWWsy/X3T4W5q4CFK+/x5w/n0w7oGXvjX6ciTucq/n0Vrb6JXZKwJLfJ+L3Dt8vvtTxkeYwkCtJPABTrKS/RzclrooM2CJVnGXmWwfixJnW0VqKrZ2HlJY5B23WHLXkwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZjZwiG9C; arc=none smtp.client-ip=209.85.215.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=CYaWFiFRCm4oRU3BxJKBIotbgbaMxvmthRfXkxdk51MLayPbHbjf4dtQI8S1kvfLrd4A05uo/nY/IhqfJ3O3AEUpeZ063DqizKuIQ04Dqx9YbJa78Wl4MTZNtmDF8phK7JFjnfBh2NuBNjxNGShPCBnAZbfyhVsGNgvejN08uVI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=O1V0x0e8; arc=none smtp.client-ip=209.85.128.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZjZwiG9C"
-Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-879d2e419b9so5544185a12.2;
-        Tue, 13 May 2025 12:44:21 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="O1V0x0e8"
+Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-7082ce1e47cso59061057b3.2
+        for <selinux@vger.kernel.org>; Tue, 13 May 2025 13:23:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747165461; x=1747770261; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1747167819; x=1747772619; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=MIOYTgks3VbF5UfnN+oirtX9UEo6L6jkp4e7idlKx8g=;
-        b=ZjZwiG9Cb1v6gKjrVy8sSYHyECdM+VXn/wqloVCe+++niXzwFyW4RQXUa5ZA5kZtwV
-         y7QtjuCQM8zvlcG52VkbBrhJOoQRrGVuk+dd3nzy/EBGHvzJlb2rOsWk043c20QfrXGU
-         jFf8vy0KBZIib8rSsnqP0RIqmQDFRQ0VtZDexoUu2VctsEv+XEn/OW6yPCzBX4ioheqT
-         EGbEHe1E/p381ldDcaXRi6eRaiPqiH9TESnrbIDRuT3DhTq2hIpdXDuuaRAZUh1QfC+K
-         L3NXBldHTSk4Oh92anyO/SO3RxTppMbUQihD7Z95c5U4XlP+eL3Sd04auDv18E9wT7SW
-         z54Q==
+        bh=AIQU/NXe9ILd4+pIUnQ5aBv1djsj2ZIPCNccu5ShGRY=;
+        b=O1V0x0e8pyWEW8mTNMKRsvM1P1F/o4pUP+CYoBUGVKlpI6GOvFxwgxciHWwcuynCx2
+         VkK1kBHsoK0Bg6p2sVGA4PqPXyLwyJdnJu8+2fO1J7bLgq+5LlEBY6pIRs97vanBbpG+
+         2iP6w0QeusWENB50BYxQGLa8f4245sxRVe1trXsT/GxtqDDZhQk0WgMaLERuYDqoffoi
+         SMD5wdjNti9GiWLKe5F6wMsxFz7AHn3FFRZHfDfEslCdppav7qkDXmohblSXQRW7zFM2
+         q3Ki189JRsQZABJQg0xAjhfvxVjeo4kfDqFy5Si0LiI0ERABOEZWDbtn6G9IFK307bPX
+         XG9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747165461; x=1747770261;
+        d=1e100.net; s=20230601; t=1747167819; x=1747772619;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=MIOYTgks3VbF5UfnN+oirtX9UEo6L6jkp4e7idlKx8g=;
-        b=NUpiuHhh8wStcEHVOVgT2g0i/B5D5Cgv08lA2zwzEVC8sJr+H8Py5mpW2+Gh4BORdm
-         //rPYLPexuv1JTF6v72IlNC0g3rYeb11u7/ZYpZRdx+lgnWNtmxgBAHf9AyfOXCgFhEG
-         iJlW/4OnnQKs351azlkw0gxlgngZuh3Su0NWbaAez8eYuTTccoAA+8e1hcrbVfEsq2yh
-         gXBnARxFFNZaP2ToZqRQhu12wRjXftxqqqbHGfbhih6ncOsofpQGIqTAKUd/xZ/SsnmU
-         HR8MbfX+IKIsuLStyj8I8aKoOq7s51N7QB0NGLplMmVEAtv6jBvGn+xGx4OkgXfEQnZB
-         0e6g==
-X-Forwarded-Encrypted: i=1; AJvYcCUaqgbAklnGOA5IjNIX/zaEUMc31L435OIMLQgalOPzhmjsxDoh82x8LVmsu2kZWa55DmKey/bLbvrXZ7s=@vger.kernel.org
-X-Gm-Message-State: AOJu0YznvNNPmDOG7cL5q9Sr3BbHSsA69icKDVLGVpHMXQvd6nex8Rei
-	qU9Ef29MvtfEPGA5IXnjvcMaPumAPwUBEi1olIgKOWKJ4UGyXcTTBpz4FXmIoeAfaUw0r/i2ZIY
-	D0CdK2JQ7KI0fl73hhC4GIeX5scAY7pCL
-X-Gm-Gg: ASbGncsO5mwMJmJ2qocs44rl9R2MfOiE0NCHPdmo6c/GksGBX0Ut5v1ZyZAJLvsNL1w
-	9Y6+18e7z/D42jl//mP7ehc5k0PwQ61b39Px1AceHQ2b73J5/ojKxsKzpWmPlNxTdZR7MaaRNQL
-	0ha6L+BTOWI90xQC0Ix5hT+uNFuH3WvK0+
-X-Google-Smtp-Source: AGHT+IH21RQJnid/OTRVYXrIiH4NFpH3LFB629RPNgqariPIkRCoOdKe7vkXf8d6fEkoM51/1aX1VV+BrOrPNZYgUIg=
-X-Received: by 2002:a17:90b:180b:b0:2fe:8902:9ecd with SMTP id
- 98e67ed59e1d1-30e2e5d6393mr1007359a91.1.1747165461341; Tue, 13 May 2025
- 12:44:21 -0700 (PDT)
+        bh=AIQU/NXe9ILd4+pIUnQ5aBv1djsj2ZIPCNccu5ShGRY=;
+        b=CzfPMnMBXk1s+DkZmqbioVrObWTtybNFFtiwmiTHaSYR0E97tP0aAfjL1OODP3nwCs
+         lfAAQX4pxzEITtiBrnnEnobX1Mz7kcoOSCV3trJ4VdRwNBbI6SHG24MndTZLY2+F6Vc3
+         +RwgVT274dgyODlMj41+9pHuk4fKBXHsxXC2wdNTD8rxynJIid7SYOnWNNomA3LRia38
+         bsIJfuf6lNJPsk13uwtytmnWaWBzyobnczSAdsFWvkmf1oAWm68Bstp6y5NzstCmh3/p
+         WA/vvHGNQEjeEWA5ZQeTWX1sDkpcU2ReqFzPxpAdeWhSTiuwrmffDDwXyz388C9Ef+J9
+         OB+w==
+X-Forwarded-Encrypted: i=1; AJvYcCVmFo4ovl10M8lQE+y17wnJm/qbkVVX+3oh/lgRAsVcXzvE8/KRXIzvgVOyyd0Loxsa+p1IVARr@vger.kernel.org
+X-Gm-Message-State: AOJu0YxSChPVjAe2awJc5ju1IUQ/1hPK/YhuHsS4TBlQHkX+gnsh3IWC
+	3tKqxrNJizcGVF3hwBgz1rMjpkgVjkd9Q0n5g3wbAeDF2xZtbZz72zE8uioRBH+5AoCTYCgMomh
+	3VcIS9qR+CUXBJ/8TmbgTxh8dK2sCpikc68c2
+X-Gm-Gg: ASbGncvmdQlR0SSDEKsjyrqvTCbMdvuIoOTYYOgvMvxlKGc3Si/umZEHyR9t7jtKs6C
+	8KdhGQWGtrrRtBKaPIDSbWZxtXzKk7KkhX8iq7eihpTIRxoAlKIPupjpcfrc8e4Mi1+3j0KYt50
+	Us+6dxL6pufloFFMGrJy0IJDE29t081aH7Ez9uDw/LVlc=
+X-Google-Smtp-Source: AGHT+IGu7ZC+8RLKMNHM8plULPDrisp0DJLXbvTpcBWmGjCYCIjahQPMq5yl9BfPO3JpLi7liq4enj3+g8NvQjd+7u0=
+X-Received: by 2002:a25:d016:0:b0:e7b:33d1:3bf6 with SMTP id
+ 3f1490d57ef6-e7b3d5d570emr740981276.34.1747167819570; Tue, 13 May 2025
+ 13:23:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250511173055.406906-1-cgoettsche@seltendoof.de> <20250511173055.406906-2-cgoettsche@seltendoof.de>
-In-Reply-To: <20250511173055.406906-2-cgoettsche@seltendoof.de>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 13 May 2025 15:44:09 -0400
-X-Gm-Features: AX0GCFsxfH4iQ0hD3_IlX7RqjSqRhHISleqe25AfqTPeEFqaXKTKW6XJ3Ce8htI
-Message-ID: <CAEjxPJ59T-cpTcBjqSj_POtXFcxiMP1UQE+1eejTkAN6FMWGsg@mail.gmail.com>
-Subject: Re: [PATCH v3 02/14] selinux: use u16 for security classes
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org, 
-	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Canfeng Guo <guocanfeng@uniontech.com>, 
-	Takaya Saeki <takayas@chromium.org>
+References: <20250409185019.238841-31-paul@paul-moore.com> <20250409185019.238841-60-paul@paul-moore.com>
+ <81106a29-90ce-4439-9b4c-60bb2962fe04@schaufler-ca.com>
+In-Reply-To: <81106a29-90ce-4439-9b4c-60bb2962fe04@schaufler-ca.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 13 May 2025 16:23:28 -0400
+X-Gm-Features: AX0GCFvRVrYvZ-PQXUB54yV2bYzKcz9N97bT_M-AxzEvX8EdbeG8EddltVHS7O4
+Message-ID: <CAHC9VhRUr+sXhLzDSjiG9bEVbzZd2u632dLMVpcCe6By_d_H4w@mail.gmail.com>
+Subject: Re: [RFC PATCH 29/29] lsm: add support for counting lsm_prop support
+ among LSMs
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
+	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
+	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
+	Fan Wu <wufan@kernel.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
+	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, May 11, 2025 at 1:31=E2=80=AFPM Christian G=C3=B6ttsche
-<cgoettsche@seltendoof.de> wrote:
->
-> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> Security class identifiers are limited to 2^16, thus use the appropriate
-> type u16 consistently.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+On Tue, May 13, 2025 at 12:39=E2=80=AFPM Casey Schaufler <casey@schaufler-c=
+a.com> wrote:
+> On 4/9/2025 11:50 AM, Paul Moore wrote:
+> > Add two new variables, lsm_count_prop_subj and lsm_count_prop_obj, to
+> > count the number of lsm_prop entries for subjects and objects across al=
+l
+> > of the enabled LSMs.  Future patches will use this to continue the
+> > conversion towards the lsm_prop struct.
+> >
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > ---
+> >  include/linux/lsm_hooks.h         | 6 ++++++
+> >  security/apparmor/lsm.c           | 1 +
+> >  security/bpf/hooks.c              | 1 +
+> >  security/commoncap.c              | 1 +
+> >  security/integrity/evm/evm_main.c | 1 +
+> >  security/integrity/ima/ima_main.c | 1 +
+> >  security/ipe/ipe.c                | 1 +
+> >  security/landlock/setup.c         | 1 +
+> >  security/loadpin/loadpin.c        | 1 +
+> >  security/lockdown/lockdown.c      | 1 +
+> >  security/lsm.h                    | 4 ++++
+> >  security/lsm_init.c               | 6 ++++++
+> >  security/safesetid/lsm.c          | 1 +
+> >  security/security.c               | 3 +++
+> >  security/selinux/hooks.c          | 1 +
+> >  security/smack/smack_lsm.c        | 1 +
+> >  security/tomoyo/tomoyo.c          | 1 +
+> >  security/yama/yama_lsm.c          | 1 +
+> >  18 files changed, 33 insertions(+)
 
-Historical footnote: originally security classes were _not_ limited to
-2^16 but a later memory optimization of the avtab rendered them so.
+...
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > diff --git a/security/bpf/hooks.c b/security/bpf/hooks.c
+> > index 40efde233f3a..c72df6ff69f7 100644
+> > --- a/security/bpf/hooks.c
+> > +++ b/security/bpf/hooks.c
+> > @@ -18,6 +18,7 @@ static struct security_hook_list bpf_lsm_hooks[] __ro=
+_after_init =3D {
+> >  static const struct lsm_id bpf_lsmid =3D {
+> >       .name =3D "bpf",
+> >       .id =3D LSM_ID_BPF,
+> > +     .flags =3D LSM_ID_FLG_PROP_SUBJ | LSM_ID_FLG_PROP_OBJ,
+>
+> There's a problem here. BPF can have properties, but usually does not.
+> Unless there's a bpf program loaded that provides them it is incorrect
+> to use these flags. You can't know that at initialization.
+>
+> I have an alternative that will address this that I will propose
+> shortly.
 
-> ---
-> v3: only change type, move the validation (> U16_MAX) to the subsequent
->     patch
-> ---
->  security/selinux/ss/policydb.c |  5 +++--
->  security/selinux/ss/policydb.h | 10 +++++-----
->  security/selinux/ss/services.c |  2 +-
->  3 files changed, 9 insertions(+), 8 deletions(-)
->
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policyd=
-b.c
-> index dc701a7f8652..f490556ddb5c 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -927,7 +927,7 @@ int policydb_load_isids(struct policydb *p, struct si=
-dtab *s)
->         return 0;
->  }
->
-> -int policydb_class_isvalid(struct policydb *p, unsigned int class)
-> +int policydb_class_isvalid(struct policydb *p, u16 class)
->  {
->         if (!class || class > p->p_classes.nprim)
->                 return 0;
-> @@ -2003,7 +2003,8 @@ static int filename_trans_read_helper(struct policy=
-db *p, struct policy_file *fp
->         struct filename_trans_key *ft =3D NULL;
->         struct filename_trans_datum **dst, *datum, *first =3D NULL;
->         char *name =3D NULL;
-> -       u32 len, ttype, tclass, ndatum, i;
-> +       u32 len, ttype, ndatum, i;
-> +       u16 tclass;
->         __le32 buf[3];
->         int rc;
->
-> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policyd=
-b.h
-> index 25650224b6e7..0c423ad77fd9 100644
-> --- a/security/selinux/ss/policydb.h
-> +++ b/security/selinux/ss/policydb.h
-> @@ -48,7 +48,7 @@ struct common_datum {
->
->  /* Class attributes */
->  struct class_datum {
-> -       u32 value; /* class value */
-> +       u16 value; /* class value */
->         char *comkey; /* common name */
->         struct common_datum *comdatum; /* common datum */
->         struct symtab permissions; /* class-specific permission symbol ta=
-ble */
-> @@ -82,7 +82,7 @@ struct role_datum {
->  struct role_trans_key {
->         u32 role; /* current role */
->         u32 type; /* program executable type, or new object type */
-> -       u32 tclass; /* process class, or new object class */
-> +       u16 tclass; /* process class, or new object class */
->  };
->
->  struct role_trans_datum {
-> @@ -139,7 +139,7 @@ struct cat_datum {
->  struct range_trans {
->         u32 source_type;
->         u32 target_type;
-> -       u32 target_class;
-> +       u16 target_class;
->  };
->
->  /* Boolean data type */
-> @@ -195,7 +195,7 @@ struct ocontext {
->                 } ibendport;
->         } u;
->         union {
-> -               u32 sclass; /* security class for genfs */
-> +               u16 sclass; /* security class for genfs */
->                 u32 behavior; /* labeling behavior for fs_use */
->         } v;
->         struct context context[2]; /* security context(s) */
-> @@ -320,7 +320,7 @@ struct policy_file {
->  extern void policydb_destroy(struct policydb *p);
->  extern int policydb_load_isids(struct policydb *p, struct sidtab *s);
->  extern int policydb_context_isvalid(struct policydb *p, struct context *=
-c);
-> -extern int policydb_class_isvalid(struct policydb *p, unsigned int class=
-);
-> +extern int policydb_class_isvalid(struct policydb *p, u16 class);
->  extern int policydb_type_isvalid(struct policydb *p, unsigned int type);
->  extern int policydb_role_isvalid(struct policydb *p, unsigned int role);
->  extern int policydb_read(struct policydb *p, struct policy_file *fp);
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/service=
-s.c
-> index 7becf3808818..a2dd42e750fe 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -3387,7 +3387,7 @@ static int get_classes_callback(void *k, void *d, v=
-oid *args)
->  {
->         struct class_datum *datum =3D d;
->         char *name =3D k, **classes =3D args;
-> -       u32 value =3D datum->value - 1;
-> +       u16 value =3D datum->value - 1;
->
->         classes[value] =3D kstrdup(name, GFP_ATOMIC);
->         if (!classes[value])
-> --
-> 2.49.0
->
+Okay, thanks.
+
+--=20
+paul-moore.com
