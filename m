@@ -1,186 +1,170 @@
-Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from sonic307-15.consmr.mail.ne1.yahoo.com (sonic307-15.consmr.mail.ne1.yahoo.com [66.163.190.38])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2FA02EB1D;
-	Tue, 13 May 2025 16:16:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=166.70.13.231
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0DD9AD24
+	for <selinux@vger.kernel.org>; Tue, 13 May 2025 16:49:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.190.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747153000; cv=none; b=gweGf6yj/xQOyQRohtm5bHA+gRkVhH8A5bT/vKIXQ6x12Wumc+VvFuj4Cnw2qUqlFtjpAIZFaGR72G1aZ0CxK6ifX6NrAj7tfMy+g947DQLAd9uJWGfztiJhVu/YqGJSozsHhg/y164U9P6ZDpZ1b6/AicKp+oiweQPRwhZJbIo=
+	t=1747154981; cv=none; b=fXr3VK4O9TBah4hUWc0izd28zK60CnXsZ58XBFpgCTewLU+MXMNFeuwZC+RJiLBM+RC+JL/YK5TznM/Wdu6We7U1P4+ioFtaT3eyecH+C/BljehW3x6FPQVxPEqSLF16ta/J5/akj2/+CdepgznVjab66+1/y9NDaH6rvjgQbsY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747153000; c=relaxed/simple;
-	bh=zV40bY8h3kW0Hy4xgRE4IG3svvmYOVPxkHpIL4ByJ/M=;
-	h=From:To:Cc:In-Reply-To:References:Date:Message-ID:MIME-Version:
-	 Content-Type:Subject; b=PAkTnORWSUEbaJ2hD2euZEPa9ZvZ/TJqV6W+loQRZ+q8pbySWpl5WrSw7KQkwb53JngDtHEIIuKN1Nr3kJAvhyFg5FPB3GsjvvlaIzuXEFRYRocd7ufFwoQFo6xYuTA3mVw1c1PTJRBZhFk2sBOnJuWEhJyd1LE2U1DvqVqRGYw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=xmission.com; spf=pass smtp.mailfrom=xmission.com; arc=none smtp.client-ip=166.70.13.231
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=xmission.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xmission.com
-Received: from in02.mta.xmission.com ([166.70.13.52]:58534)
-	by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.93)
-	(envelope-from <ebiederm@xmission.com>)
-	id 1uEraV-0057bO-9O; Tue, 13 May 2025 09:30:35 -0600
-Received: from ip72-198-198-28.om.om.cox.net ([72.198.198.28]:59502 helo=email.froward.int.ebiederm.org.xmission.com)
-	by in02.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.93)
-	(envelope-from <ebiederm@xmission.com>)
-	id 1uEraS-00FteB-TR; Tue, 13 May 2025 09:30:34 -0600
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: Mateusz Guzik <mjguzik@gmail.com>
-Cc: Kees Cook <keescook@chromium.org>,  Jann Horn <jannh@google.com>,
-  Christian Brauner <brauner@kernel.org>,  Jorge Merlino
- <jorge.merlino@canonical.com>,  Alexander Viro <viro@zeniv.linux.org.uk>,
-  Thomas Gleixner <tglx@linutronix.de>,  Andy Lutomirski <luto@kernel.org>,
-  Sebastian Andrzej Siewior <bigeasy@linutronix.de>,  Andrew Morton
- <akpm@linux-foundation.org>,  linux-mm@kvack.org,
-  linux-fsdevel@vger.kernel.org,  John Johansen
- <john.johansen@canonical.com>,  Paul Moore <paul@paul-moore.com>,  James
- Morris <jmorris@namei.org>,  "Serge E. Hallyn" <serge@hallyn.com>,
-  Stephen Smalley <stephen.smalley.work@gmail.com>,  Eric Paris
- <eparis@parisplace.org>,  Richard Haines
- <richard_c_haines@btinternet.com>,  Casey Schaufler
- <casey@schaufler-ca.com>,  Xin Long <lucien.xin@gmail.com>,  "David S.
- Miller" <davem@davemloft.net>,  Todd Kjos <tkjos@google.com>,  Ondrej
- Mosnacek <omosnace@redhat.com>,  Prashanth Prahlad <pprahlad@redhat.com>,
-  Micah Morton <mortonm@chromium.org>,  Fenghua Yu <fenghua.yu@intel.com>,
-  Andrei Vagin <avagin@gmail.com>,  linux-kernel@vger.kernel.org,
-  apparmor@lists.ubuntu.com,  linux-security-module@vger.kernel.org,
-  selinux@vger.kernel.org,  linux-hardening@vger.kernel.org,
-  oleg@redhat.com
-In-Reply-To: <h65sagivix3zbrppthcobnysgnlrnql5shiu65xyg7ust6mc54@cliutza66zve>
-	(Mateusz Guzik's message of "Tue, 13 May 2025 15:05:45 +0200")
-References: <20221006082735.1321612-1-keescook@chromium.org>
-	<20221006082735.1321612-2-keescook@chromium.org>
-	<20221006090506.paqjf537cox7lqrq@wittgenstein>
-	<CAG48ez0sEkmaez9tYqgMXrkREmXZgxC9fdQD3mzF9cGo_=Tfyg@mail.gmail.com>
-	<86CE201B-5632-4BB7-BCF6-7CB2C2895409@chromium.org>
-	<h65sagivix3zbrppthcobnysgnlrnql5shiu65xyg7ust6mc54@cliutza66zve>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.2 (gnu/linux)
-Date: Tue, 13 May 2025 10:29:47 -0500
-Message-ID: <87o6vw1qc4.fsf@email.froward.int.ebiederm.org>
+	s=arc-20240116; t=1747154981; c=relaxed/simple;
+	bh=FmXOKeRvhaBUvobsSpue9vREcq0xQ12PTTClIWMriE4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=LSVL/2OAWxnrDeJeHxSyUAsMGoSm0GmSMGjV0KHI8hqZCi9T/2cFQrW4INVwN3kV6TYUPTz314T5mquRaIknvhpF1m5f+eKs7IZcSUe/l37TeRgyCnWOVO/UwzDTQoYUpRiYpMqwyCWfHVk5UqmxvbMTk0Ls2wLx9BbSJYOsxkA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=fmu2FfpA; arc=none smtp.client-ip=66.163.190.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="fmu2FfpA"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1747154973; bh=f7yEnpGDfIxqCLkdBSc+JOa9oHhXZWC5oycNI7ZFiLs=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=fmu2FfpA5rfRPJ+1lgwraGiWu9hmy8n+ZCClHPAe+j+9iXqtcVBeK//HcZBaa/K/RYzRlDHZVGoEVXqQSIAT3JUSjLC2AD2D+vObzz+QnitBT8yPZHuiZPzbxmPVqBXPpz/PqU0lvaNvcp/NWv5Ku6cftAS3EAni/5EpUcO65OouZXTvu1J7m2T+4Dm4daYbkMcyFcyfzdZMArpCqFRJNrr04tvXdXqX2EdAslxNVoIkKqK2PKI+WjOlj1VKXjrQqqyFtsTXQQJkvIBX/JOJ7wVzoDVy7L2t09BOVeABvvOj0URiQOFt4OFe9Ankw4kKEpPcVMCm7j7B7HMA750REA==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1747154973; bh=nY3XoYkZVNSXtUchoyTJaGCqs9OvftIlcRym+Ivze99=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=WE9a66fvfCC56hY4g72KpED3hgr4NyvXgnoC4uBaISh1Clmu8C36wXgslkYQsK4rCwS5Gg1tt6WlgL76h/YaHb1rjyQ5f1+4ox8v9e3q6lhfG5ox2D0Inmdaz9gKXYiRXRCIhFHbvOHwQYP6trjmwpQSrERivSZOluQgrXPuvShX7Z6USpBjC9ZHHP7LKWF4tYhsitg1ysa1LQzqJF5eCYbuCeYnCVLhE1sJ0uoH9TUEtMGm34ii3MsHvR/fPWz3y4XtUK91pa8J/aNFs3JlrHfkbUeUyo2OsDBcx8bK50zwqPiaOviJhaLAlRXE9Aj8gONjYEw9q2Hw6vVH9G1iTQ==
+X-YMail-OSG: FMon.voVM1lE2_fOVQIHST4jtaTTSK3.vOMT2cmJQeUWW_QW4Pcw39cN2dJ8Plp
+ eHV3tvIglFKdnKxaUI8K._kYbqAotVWQQivhIh37CsTCISiu5QgWcs8u_H4ibSGzI9bmoQuEBnV5
+ sZLeFqz6Welu4L1KRzL_uYbnzo.9AYqRP8mVcpQfF_zlFeaQJ0zNjLXGMKiwAG4uY2FfgSOxymKb
+ kV6qqZdfYbZ0m.l47n_t3hvOy3UJyj1lMKPPKwp_BJZYYN3AU89WInFiU.dKxfrgVI.0yI.UZcRU
+ 7iKsD09WtaR.OVzjqO398E9OMURbaAkkCC.WbJ.YAQVc85TbZtLA1y5lZbSkETsqGjIZolORgvWD
+ Yxw4nxz4sBro9mTFT4jRX7CkeY3Q5VgZ2D0E68KfZWaVpcqLG7naJ1vyIlnafD8587fyuSXbakHq
+ Kv7xdDIesG5uyS4hW0JQFO3Wwx5V8TLdeqHsVEdkEQaHcBvHzHSmiV.3McTZ1vKsCjrk78RHP9pv
+ VQih8vos5O49A8GsgJqpnUr3G5BSGULXmF7X50hP0Qjugr73JJpoMJo.pM4L6g3ILrqzvIhBfNV7
+ VynGmDFKXsJD55HIERGWEfkp6VIMaagQPBE0EYOlZfKpnTJAZ8kl.cs49vsMQaIHAmLzc_4umuTY
+ apiAyYsG3K8sYlS11FWx2CbhRxbl574ZyRHPw5HF7KsrnPtXtqnUOenvefHQRHyQts20o44f1T07
+ VAFRGkhJfjTJQDGgLz3.Zuf21JS.WxeaKk8BNof3XG1asl.k98gBEBWp6e_s5_q2zOtrLABI1iom
+ t3PmANtmhxiGldy9hFx3ij1mJpgIRK3mpTpoAhEvCLwiN3Oxwop_zjQ3JiQmwF3A2KF62R6g0XVO
+ efTGNary1o8LFm8nhwQJTN.Pb9AqkeY8q5vW8lKwxqQCM.P9f4nYQgNnxMgo3j5Y1IAJxJu7RwFm
+ Tb7HZs79jbh6lEbOFpUxL6PgAEh24IxK67ufuwv76naapQ46JtcmXF52ONW2RqVwq70OsyWL3LyK
+ yLyxxXHDCsbJwYRLOawcYDVgS8aA7PqT6lqkIfRLW9PZN1cxgj5yOEBr1wGDbSxAAncSwyqH8Y.N
+ .GTAhbfAWqDfJJbzmcsexey34s0eSPvqLYGi8FvPRGNjtrGq6eiAck_aV3uhI6dkL3aRA8l8R3KF
+ 1nWhsCC5bJcnexzgI9yyUcf_dBhW4VrcORZuBh3GDNkJMY5YONuLi.McSTZoss6AKtipDi1MEchP
+ HMQ5UPeON36fLjX8g7cH.yBnkhXXtyZQK0yfxmyAsRvJDuZHYOzQs7MbKq9g6xgMTeOiE4yz_vMJ
+ svk2c6w9wb0wSlOUpRDU5nYVbTVgDjoaIaPawrLUlFnDsFJbyVNEn.ApGoa5bX_1nXhofc4iE.bz
+ z.tF6X6Po5SuHhwRSlcxe84FH_r0rfdUXkeG.fbXO2XrilGlfdUzCSWJyY.xrwLyJxXnDR111nva
+ KSuQJvhp3.VExEuBUIdMBBVkTkcr1017FzzQ7bC1Hl4nczq0_eIh6Q9moQjT4kNHl6DItW8MLRV_
+ cvxb1uC4K7i3qdsBCFECaza.WBhsHAVeU0ng9Wmm9ytSjC8RCqYD2C49zHOX1AgpIHdcI.CEvqHS
+ sKM.YAOWecZ9qCzHIpIDYy5ti7zRsnPW2r6OL27qFs_pU.NsUeXKstYUiq1uQDGtFv4JQYLOh_Bd
+ 5qYCuZyK7fMUBYVey.j7J7sPt_Jn6C__QMRDkqTKF8NZqofUXdzv63QgMTABMkVdUNpWHNFGfCl1
+ e9wrxJthNOtQQl4D7hDlYCohbE14nlkOg7A1pN69HaADWev1VbySS.Jwi161zrUyoYktQsjciD4V
+ 933QxDoSTVrG6dxfEwMz0Kzltm32HrNwtSjhKK1K_y8.UJJYVe8Of2LiHCWYX53A8kZ98qL..uQt
+ o5JxlI6ASY9m0A5SvS7Ay7YfW5sgl94piPZQZoWofS4JV73ayjmRP7Qx5ldppZaHZEQcJPb3yUhl
+ uetZ1t7kVlRB5xYiGwxwEE3G3H0BxwYirj1MEru_QOIlm1FqPf6BG.mZGTL6gAEO96JK9NLm.XgC
+ taC7LPq0tt3OoO3vAph63quAlGfSEBeoNpPr5w08bAWg0PbMPRunTtGL4cr06ZqLr_e_rMeSqgSX
+ PlgJG2t5ozrO2BMv6WL1bs4FNIN79dNrdrLZvpzn1D1nKw0mblnLL9DLr5caflpcQEAg2mBIww5K
+ JpPJRGG_k2au41d0EEyaG.3G87udWkrHhOiShARvzti4_qNGZm7._UrjRvviOpZLFDsVE5QEgkuh
+ Fnt4zYHlFWeRjHuBlq758qKgQJLw-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: f6e365a8-e464-4168-b4a0-b1340ad380b9
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Tue, 13 May 2025 16:49:33 +0000
+Received: by hermes--production-gq1-74d64bb7d7-cmxx8 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 2dfd3e28f93fb691722b31ec1d2e481b;
+          Tue, 13 May 2025 16:39:22 +0000 (UTC)
+Message-ID: <81106a29-90ce-4439-9b4c-60bb2962fe04@schaufler-ca.com>
+Date: Tue, 13 May 2025 09:39:21 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1uEraS-00FteB-TR;;;mid=<87o6vw1qc4.fsf@email.froward.int.ebiederm.org>;;;hst=in02.mta.xmission.com;;;ip=72.198.198.28;;;frm=ebiederm@xmission.com;;;spf=pass
-X-XM-AID: U2FsdGVkX1+f5aQcvtD7cJuBfQzEABOE535sdGOGPWo=
-X-Spam-Level: ****
-X-Spam-Report: 
-	* -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
-	*  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-	*      [score: 0.4970]
-	*  1.5 XMNoVowels Alpha-numberic number with no vowels
-	*  0.7 XMSubLong Long Subject
-	*  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
-	* -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
-	*      [sa07 1397; Body=1 Fuz1=1 Fuz2=1]
-	*  1.0 XMGenDplmaNmb Diploma spam phrases+possible phone number
-	*  0.2 XM_B_SpammyWords One or more commonly used spammy words
-	*  1.0 XM_B_Phish_Phrases Commonly used Phishing Phrases
-	*  0.0 T_TooManySym_01 4+ unique symbols in subject
-X-Spam-DCC: XMission; sa07 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ****;Mateusz Guzik <mjguzik@gmail.com>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 787 ms - load_scoreonly_sql: 0.04 (0.0%),
-	signal_user_changed: 11 (1.4%), b_tie_ro: 10 (1.2%), parse: 1.65
-	(0.2%), extract_message_metadata: 21 (2.6%), get_uri_detail_list: 4.8
-	(0.6%), tests_pri_-2000: 13 (1.6%), tests_pri_-1000: 6 (0.7%),
-	tests_pri_-950: 1.33 (0.2%), tests_pri_-900: 1.08 (0.1%),
-	tests_pri_-90: 143 (18.2%), check_bayes: 139 (17.7%), b_tokenize: 15
-	(1.9%), b_tok_get_all: 14 (1.8%), b_comp_prob: 7 (0.8%),
-	b_tok_touch_all: 99 (12.6%), b_finish: 0.93 (0.1%), tests_pri_0: 574
-	(72.9%), check_dkim_signature: 0.63 (0.1%), check_dkim_adsp: 2.5
-	(0.3%), poll_dns_idle: 0.46 (0.1%), tests_pri_10: 2.3 (0.3%),
-	tests_pri_500: 10 (1.2%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: [PATCH 1/2] fs/exec: Explicitly unshare fs_struct on exec
-X-SA-Exim-Connect-IP: 166.70.13.52
-X-SA-Exim-Rcpt-To: too long (recipient list exceeded maximum allowed size of 512 bytes)
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-X-SA-Exim-Scanned: No (on out01.mta.xmission.com); SAEximRunCond expanded to false
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 29/29] lsm: add support for counting lsm_prop support
+ among LSMs
+To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
+ linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Cc: John Johansen <john.johansen@canonical.com>,
+ Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>,
+ Fan Wu <wufan@kernel.org>, =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?=
+ <mic@digikod.net>, =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
+ Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20250409185019.238841-31-paul@paul-moore.com>
+ <20250409185019.238841-60-paul@paul-moore.com>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20250409185019.238841-60-paul@paul-moore.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.23772 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-Mateusz Guzik <mjguzik@gmail.com> writes:
+On 4/9/2025 11:50 AM, Paul Moore wrote:
+> Add two new variables, lsm_count_prop_subj and lsm_count_prop_obj, to
+> count the number of lsm_prop entries for subjects and objects across all
+> of the enabled LSMs.  Future patches will use this to continue the
+> conversion towards the lsm_prop struct.
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  include/linux/lsm_hooks.h         | 6 ++++++
+>  security/apparmor/lsm.c           | 1 +
+>  security/bpf/hooks.c              | 1 +
+>  security/commoncap.c              | 1 +
+>  security/integrity/evm/evm_main.c | 1 +
+>  security/integrity/ima/ima_main.c | 1 +
+>  security/ipe/ipe.c                | 1 +
+>  security/landlock/setup.c         | 1 +
+>  security/loadpin/loadpin.c        | 1 +
+>  security/lockdown/lockdown.c      | 1 +
+>  security/lsm.h                    | 4 ++++
+>  security/lsm_init.c               | 6 ++++++
+>  security/safesetid/lsm.c          | 1 +
+>  security/security.c               | 3 +++
+>  security/selinux/hooks.c          | 1 +
+>  security/smack/smack_lsm.c        | 1 +
+>  security/tomoyo/tomoyo.c          | 1 +
+>  security/yama/yama_lsm.c          | 1 +
+>  18 files changed, 33 insertions(+)
+>
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index 0d2c2a017ffc..5bc144c5f685 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -71,16 +71,22 @@ struct lsm_static_calls_table {
+>  	#undef LSM_HOOK
+>  } __packed __randomize_layout;
+>  
+> +#define LSM_ID_FLG_NONE			0x00000000
+> +#define LSM_ID_FLG_PROP_SUBJ		0x00000001
+> +#define LSM_ID_FLG_PROP_OBJ		0x00000002
+> +
+>  /**
+>   * struct lsm_id - Identify a Linux Security Module.
+>   * @lsm: name of the LSM, must be approved by the LSM maintainers
+>   * @id: LSM ID number from uapi/linux/lsm.h
+> + * @flags: LSM flags, see LSM_ID_FLG_XXX
+>   *
+>   * Contains the information that identifies the LSM.
+>   */
+>  struct lsm_id {
+>  	const char *name;
+>  	u64 id;
+> +	u32 flags;
+>  };
+>  
+>  /*
+> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+> index 2fefaab6349f..db8592bed189 100644
+> --- a/security/apparmor/lsm.c
+> +++ b/security/apparmor/lsm.c
+> @@ -1428,6 +1428,7 @@ struct lsm_blob_sizes apparmor_blob_sizes __ro_after_init = {
+>  static const struct lsm_id apparmor_lsmid = {
+>  	.name = "apparmor",
+>  	.id = LSM_ID_APPARMOR,
+> +	.flags = LSM_ID_FLG_PROP_SUBJ,
+>  };
+>  
+>  static struct security_hook_list apparmor_hooks[] __ro_after_init = {
+> diff --git a/security/bpf/hooks.c b/security/bpf/hooks.c
+> index 40efde233f3a..c72df6ff69f7 100644
+> --- a/security/bpf/hooks.c
+> +++ b/security/bpf/hooks.c
+> @@ -18,6 +18,7 @@ static struct security_hook_list bpf_lsm_hooks[] __ro_after_init = {
+>  static const struct lsm_id bpf_lsmid = {
+>  	.name = "bpf",
+>  	.id = LSM_ID_BPF,
+> +	.flags = LSM_ID_FLG_PROP_SUBJ | LSM_ID_FLG_PROP_OBJ,
 
-> On Thu, Oct 06, 2022 at 08:25:01AM -0700, Kees Cook wrote:
->> On October 6, 2022 7:13:37 AM PDT, Jann Horn <jannh@google.com> wrote:
->> >On Thu, Oct 6, 2022 at 11:05 AM Christian Brauner <brauner@kernel.org> wrote:
->> >> On Thu, Oct 06, 2022 at 01:27:34AM -0700, Kees Cook wrote:
->> >> > The check_unsafe_exec() counting of n_fs would not add up under a heavily
->> >> > threaded process trying to perform a suid exec, causing the suid portion
->> >> > to fail. This counting error appears to be unneeded, but to catch any
->> >> > possible conditions, explicitly unshare fs_struct on exec, if it ends up
->> >>
->> >> Isn't this a potential uapi break? Afaict, before this change a call to
->> >> clone{3}(CLONE_FS) followed by an exec in the child would have the
->> >> parent and child share fs information. So if the child e.g., changes the
->> >> working directory post exec it would also affect the parent. But after
->> >> this change here this would no longer be true. So a child changing a
->> >> workding directoro would not affect the parent anymore. IOW, an exec is
->> >> accompanied by an unshare(CLONE_FS). Might still be worth trying ofc but
->> >> it seems like a non-trivial uapi change but there might be few users
->> >> that do clone{3}(CLONE_FS) followed by an exec.
->> >
->> >I believe the following code in Chromium explicitly relies on this
->> >behavior, but I'm not sure whether this code is in active use anymore:
->> >
->> >https://source.chromium.org/chromium/chromium/src/+/main:sandbox/linux/suid/sandbox.c;l=101?q=CLONE_FS&sq=&ss=chromium
->> 
->> Oh yes. I think I had tried to forget this existed. Ugh. Okay, so back to the drawing board, I guess. The counting will need to be fixed...
->> 
->> It's possible we can move the counting after dethread -- it seems the early count was just to avoid setting flags after the point of no return, but it's not an error condition...
->> 
->
-> I landed here from git blame.
->
-> I was looking at sanitizing shared fs vs suid handling, but the entire
-> ordeal is so convoluted I'm confident the best way forward is to whack
-> the problem to begin with.
->
-> Per the above link, the notion of a shared fs struct across different
-> processes is depended on so merely unsharing is a no-go.
->
-> However, the shared state is only a problem for suid/sgid.
->
-> Here is my proposal: *deny* exec of suid/sgid binaries if fs_struct is
-> shared. This will have to be checked for after the execing proc becomes
-> single-threaded ofc.
->
-> While technically speaking this does introduce a change in behavior,
-> there is precedent for doing it and seeing if anyone yells.
->
-> With this in place there is no point maintainig ->in_exec or checking
-> the flag.
->
-> There is the known example of depending on shared fs_struct across exec.
-> Hopefully there is no example of depending on execing a suid/sgid binary
-> in such a setting -- it would be quite a weird setup given that for
-> security reasons the perms must not be changed.
->
-> The upshot of this method is that any breakage will be immediately
-> visible in the form of a failed exec.
->
-> Another route would be to do the mandatory unshare but only for
-> suid/sgid, except that would have a hidden failure (if you will).
->
-> Comments?
+There's a problem here. BPF can have properties, but usually does not.
+Unless there's a bpf program loaded that provides them it is incorrect
+to use these flags. You can't know that at initialization.
 
-What is the problem that is trying to be fixed?
-
-A uapi change to not allow sharing a fs_struct for processes that change
-their cred on exec seems possible.
-
-I said changing cred instead of suid/sgid because there are capabilities
-and LSM labels that we probably want this to apply to as well.
-
-I think such a limitation can be justified based upon having a shared
-fs_struct is likely to allow confuse suid executables.
-
-
-Earlier in the thread there was talk about the refcount for fs_struct.
-I don't see that problem at the moment, and I don't see how dealing with
-suid+sgid exectuables will have any bearing on how the refcount works.
-
-Eric
-
+I have an alternative that will address this that I will propose
+shortly.
 
