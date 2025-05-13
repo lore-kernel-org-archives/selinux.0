@@ -1,136 +1,139 @@
-Received: from mail-yw1-f178.google.com (mail-yw1-f178.google.com [209.85.128.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B89091F3B87
-	for <selinux@vger.kernel.org>; Tue, 13 May 2025 20:23:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D743F19D89B;
+	Tue, 13 May 2025 20:57:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747167822; cv=none; b=WrrXNkXUXvR6pmztkIucBGOXAUAja8HeEqVNrzsZZZvfPlowQKXLbAqN1+ZLgtCdVADha1KplcECpPXWaIFYKm/y+swclCq5QguGj9VqsHAfC9z/pR7QdmcyEHaRWX/zzbUNQQQ4qxP4KRrqK3WR9DpP/RSGB+bCcPCbBS3T4h8=
+	t=1747169853; cv=none; b=dkeDbJiggo9s0/Giik3QMyPF7FiMOQ6QvB133xtPrvm8exFN6Ldzo/u8SBgpEmX/SpILCyg9JkKHQ+zJLjxtLsGxNtTs2U6XA/v//6s4ITLiaqNZIfZVsQoccWv7v2XGJoRmcGz3bgmPzC/gW79xHKfijIr8eDl3SqPcm6tyG60=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747167822; c=relaxed/simple;
-	bh=0DWhoiiGjt4cEmztHGaRcxM7LEQhF04hQ+Li3wBs71U=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CYaWFiFRCm4oRU3BxJKBIotbgbaMxvmthRfXkxdk51MLayPbHbjf4dtQI8S1kvfLrd4A05uo/nY/IhqfJ3O3AEUpeZ063DqizKuIQ04Dqx9YbJa78Wl4MTZNtmDF8phK7JFjnfBh2NuBNjxNGShPCBnAZbfyhVsGNgvejN08uVI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=O1V0x0e8; arc=none smtp.client-ip=209.85.128.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1747169853; c=relaxed/simple;
+	bh=akamBwTU3WG++dvibVKWhKy32yGTG7zt7oKLcQaK63E=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=QNYNN5SSD2YoqHK3Ir04JxnYVLZ3l6rIn7i6wNB7gnCvXLYiHn7M6lXrZo2pfWPbyCvMcWah0j0pjP2hZr9yH++wBY/zM7FjFEXGRFaNZSN7Po73jWYVtOKMw20AGrja25Uyxi2AkS6b11AafGSITG4mgD42WYSs4cAC21qFUCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SgH/4gl5; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="O1V0x0e8"
-Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-7082ce1e47cso59061057b3.2
-        for <selinux@vger.kernel.org>; Tue, 13 May 2025 13:23:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1747167819; x=1747772619; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=AIQU/NXe9ILd4+pIUnQ5aBv1djsj2ZIPCNccu5ShGRY=;
-        b=O1V0x0e8pyWEW8mTNMKRsvM1P1F/o4pUP+CYoBUGVKlpI6GOvFxwgxciHWwcuynCx2
-         VkK1kBHsoK0Bg6p2sVGA4PqPXyLwyJdnJu8+2fO1J7bLgq+5LlEBY6pIRs97vanBbpG+
-         2iP6w0QeusWENB50BYxQGLa8f4245sxRVe1trXsT/GxtqDDZhQk0WgMaLERuYDqoffoi
-         SMD5wdjNti9GiWLKe5F6wMsxFz7AHn3FFRZHfDfEslCdppav7qkDXmohblSXQRW7zFM2
-         q3Ki189JRsQZABJQg0xAjhfvxVjeo4kfDqFy5Si0LiI0ERABOEZWDbtn6G9IFK307bPX
-         XG9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747167819; x=1747772619;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=AIQU/NXe9ILd4+pIUnQ5aBv1djsj2ZIPCNccu5ShGRY=;
-        b=CzfPMnMBXk1s+DkZmqbioVrObWTtybNFFtiwmiTHaSYR0E97tP0aAfjL1OODP3nwCs
-         lfAAQX4pxzEITtiBrnnEnobX1Mz7kcoOSCV3trJ4VdRwNBbI6SHG24MndTZLY2+F6Vc3
-         +RwgVT274dgyODlMj41+9pHuk4fKBXHsxXC2wdNTD8rxynJIid7SYOnWNNomA3LRia38
-         bsIJfuf6lNJPsk13uwtytmnWaWBzyobnczSAdsFWvkmf1oAWm68Bstp6y5NzstCmh3/p
-         WA/vvHGNQEjeEWA5ZQeTWX1sDkpcU2ReqFzPxpAdeWhSTiuwrmffDDwXyz388C9Ef+J9
-         OB+w==
-X-Forwarded-Encrypted: i=1; AJvYcCVmFo4ovl10M8lQE+y17wnJm/qbkVVX+3oh/lgRAsVcXzvE8/KRXIzvgVOyyd0Loxsa+p1IVARr@vger.kernel.org
-X-Gm-Message-State: AOJu0YxSChPVjAe2awJc5ju1IUQ/1hPK/YhuHsS4TBlQHkX+gnsh3IWC
-	3tKqxrNJizcGVF3hwBgz1rMjpkgVjkd9Q0n5g3wbAeDF2xZtbZz72zE8uioRBH+5AoCTYCgMomh
-	3VcIS9qR+CUXBJ/8TmbgTxh8dK2sCpikc68c2
-X-Gm-Gg: ASbGncvmdQlR0SSDEKsjyrqvTCbMdvuIoOTYYOgvMvxlKGc3Si/umZEHyR9t7jtKs6C
-	8KdhGQWGtrrRtBKaPIDSbWZxtXzKk7KkhX8iq7eihpTIRxoAlKIPupjpcfrc8e4Mi1+3j0KYt50
-	Us+6dxL6pufloFFMGrJy0IJDE29t081aH7Ez9uDw/LVlc=
-X-Google-Smtp-Source: AGHT+IGu7ZC+8RLKMNHM8plULPDrisp0DJLXbvTpcBWmGjCYCIjahQPMq5yl9BfPO3JpLi7liq4enj3+g8NvQjd+7u0=
-X-Received: by 2002:a25:d016:0:b0:e7b:33d1:3bf6 with SMTP id
- 3f1490d57ef6-e7b3d5d570emr740981276.34.1747167819570; Tue, 13 May 2025
- 13:23:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SgH/4gl5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33023C4CEE4;
+	Tue, 13 May 2025 20:57:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1747169852;
+	bh=akamBwTU3WG++dvibVKWhKy32yGTG7zt7oKLcQaK63E=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=SgH/4gl5OHphQmUDNL/pWDatdwfs97NYq4vBGIHYCV1RvttcW6YwgZrwDS/BBJqpv
+	 GxxjbhiQf2kzZX6kW5hRqhFp5CZUucN8Y26fopof8yuKNket+02GQZGZr/GyJTFaN9
+	 9d0V1ooL84iYvFPn1PYorReXf+64c7nBbcnoqdFuJrJ2d8uNiV6C0NeA5w4Tzb81sa
+	 WREaq8S6HvKA69TRynzVoxOUYiIKAjQVsCsENZfv95ieQj8Er4/GqlTsED4dcF55VR
+	 E3f3Gw7C4JJLkhY1BQguq7h8y3xZC+QW8gjLygt7qo49KqU17uamGcq9be4XHAKck5
+	 FFu/InBeR2S6w==
+Date: Tue, 13 May 2025 13:57:27 -0700
+From: Kees Cook <kees@kernel.org>
+To: Mateusz Guzik <mjguzik@gmail.com>, Kees Cook <keescook@chromium.org>
+CC: Jann Horn <jannh@google.com>, Christian Brauner <brauner@kernel.org>,
+ Eric Biederman <ebiederm@xmission.com>,
+ Jorge Merlino <jorge.merlino@canonical.com>,
+ Alexander Viro <viro@zeniv.linux.org.uk>,
+ Thomas Gleixner <tglx@linutronix.de>, Andy Lutomirski <luto@kernel.org>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+ linux-fsdevel@vger.kernel.org, John Johansen <john.johansen@canonical.com>,
+ Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Eric Paris <eparis@parisplace.org>,
+ Richard Haines <richard_c_haines@btinternet.com>,
+ Casey Schaufler <casey@schaufler-ca.com>, Xin Long <lucien.xin@gmail.com>,
+ "David S. Miller" <davem@davemloft.net>, Todd Kjos <tkjos@google.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>,
+ Prashanth Prahlad <pprahlad@redhat.com>, Micah Morton <mortonm@chromium.org>,
+ Fenghua Yu <fenghua.yu@intel.com>, Andrei Vagin <avagin@gmail.com>,
+ linux-kernel@vger.kernel.org, apparmor@lists.ubuntu.com,
+ linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+ linux-hardening@vger.kernel.org, oleg@redhat.com
+Subject: Re: [PATCH 1/2] fs/exec: Explicitly unshare fs_struct on exec
+User-Agent: K-9 Mail for Android
+In-Reply-To: <h65sagivix3zbrppthcobnysgnlrnql5shiu65xyg7ust6mc54@cliutza66zve>
+References: <20221006082735.1321612-1-keescook@chromium.org> <20221006082735.1321612-2-keescook@chromium.org> <20221006090506.paqjf537cox7lqrq@wittgenstein> <CAG48ez0sEkmaez9tYqgMXrkREmXZgxC9fdQD3mzF9cGo_=Tfyg@mail.gmail.com> <86CE201B-5632-4BB7-BCF6-7CB2C2895409@chromium.org> <h65sagivix3zbrppthcobnysgnlrnql5shiu65xyg7ust6mc54@cliutza66zve>
+Message-ID: <D03AE210-6874-43B6-B917-80CD259AE2AC@kernel.org>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250409185019.238841-31-paul@paul-moore.com> <20250409185019.238841-60-paul@paul-moore.com>
- <81106a29-90ce-4439-9b4c-60bb2962fe04@schaufler-ca.com>
-In-Reply-To: <81106a29-90ce-4439-9b4c-60bb2962fe04@schaufler-ca.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 13 May 2025 16:23:28 -0400
-X-Gm-Features: AX0GCFvRVrYvZ-PQXUB54yV2bYzKcz9N97bT_M-AxzEvX8EdbeG8EddltVHS7O4
-Message-ID: <CAHC9VhRUr+sXhLzDSjiG9bEVbzZd2u632dLMVpcCe6By_d_H4w@mail.gmail.com>
-Subject: Re: [RFC PATCH 29/29] lsm: add support for counting lsm_prop support
- among LSMs
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
-	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
-	Fan Wu <wufan@kernel.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
-	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain;
+ charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 13, 2025 at 12:39=E2=80=AFPM Casey Schaufler <casey@schaufler-c=
-a.com> wrote:
-> On 4/9/2025 11:50 AM, Paul Moore wrote:
-> > Add two new variables, lsm_count_prop_subj and lsm_count_prop_obj, to
-> > count the number of lsm_prop entries for subjects and objects across al=
-l
-> > of the enabled LSMs.  Future patches will use this to continue the
-> > conversion towards the lsm_prop struct.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> >  include/linux/lsm_hooks.h         | 6 ++++++
-> >  security/apparmor/lsm.c           | 1 +
-> >  security/bpf/hooks.c              | 1 +
-> >  security/commoncap.c              | 1 +
-> >  security/integrity/evm/evm_main.c | 1 +
-> >  security/integrity/ima/ima_main.c | 1 +
-> >  security/ipe/ipe.c                | 1 +
-> >  security/landlock/setup.c         | 1 +
-> >  security/loadpin/loadpin.c        | 1 +
-> >  security/lockdown/lockdown.c      | 1 +
-> >  security/lsm.h                    | 4 ++++
-> >  security/lsm_init.c               | 6 ++++++
-> >  security/safesetid/lsm.c          | 1 +
-> >  security/security.c               | 3 +++
-> >  security/selinux/hooks.c          | 1 +
-> >  security/smack/smack_lsm.c        | 1 +
-> >  security/tomoyo/tomoyo.c          | 1 +
-> >  security/yama/yama_lsm.c          | 1 +
-> >  18 files changed, 33 insertions(+)
 
-...
 
-> > diff --git a/security/bpf/hooks.c b/security/bpf/hooks.c
-> > index 40efde233f3a..c72df6ff69f7 100644
-> > --- a/security/bpf/hooks.c
-> > +++ b/security/bpf/hooks.c
-> > @@ -18,6 +18,7 @@ static struct security_hook_list bpf_lsm_hooks[] __ro=
-_after_init =3D {
-> >  static const struct lsm_id bpf_lsmid =3D {
-> >       .name =3D "bpf",
-> >       .id =3D LSM_ID_BPF,
-> > +     .flags =3D LSM_ID_FLG_PROP_SUBJ | LSM_ID_FLG_PROP_OBJ,
+On May 13, 2025 6:05:45 AM PDT, Mateusz Guzik <mjguzik@gmail=2Ecom> wrote:
+>On Thu, Oct 06, 2022 at 08:25:01AM -0700, Kees Cook wrote:
+>> On October 6, 2022 7:13:37 AM PDT, Jann Horn <jannh@google=2Ecom> wrote=
+:
+>> >On Thu, Oct 6, 2022 at 11:05 AM Christian Brauner <brauner@kernel=2Eor=
+g> wrote:
+>> >> On Thu, Oct 06, 2022 at 01:27:34AM -0700, Kees Cook wrote:
+>> >> > The check_unsafe_exec() counting of n_fs would not add up under a =
+heavily
+>> >> > threaded process trying to perform a suid exec, causing the suid p=
+ortion
+>> >> > to fail=2E This counting error appears to be unneeded, but to catc=
+h any
+>> >> > possible conditions, explicitly unshare fs_struct on exec, if it e=
+nds up
+>> >>
+>> >> Isn't this a potential uapi break? Afaict, before this change a call=
+ to
+>> >> clone{3}(CLONE_FS) followed by an exec in the child would have the
+>> >> parent and child share fs information=2E So if the child e=2Eg=2E, c=
+hanges the
+>> >> working directory post exec it would also affect the parent=2E But a=
+fter
+>> >> this change here this would no longer be true=2E So a child changing=
+ a
+>> >> workding directoro would not affect the parent anymore=2E IOW, an ex=
+ec is
+>> >> accompanied by an unshare(CLONE_FS)=2E Might still be worth trying o=
+fc but
+>> >> it seems like a non-trivial uapi change but there might be few users
+>> >> that do clone{3}(CLONE_FS) followed by an exec=2E
+>> >
+>> >I believe the following code in Chromium explicitly relies on this
+>> >behavior, but I'm not sure whether this code is in active use anymore:
+>> >
+>> >https://source=2Echromium=2Eorg/chromium/chromium/src/+/main:sandbox/l=
+inux/suid/sandbox=2Ec;l=3D101?q=3DCLONE_FS&sq=3D&ss=3Dchromium
+>>=20
+>> Oh yes=2E I think I had tried to forget this existed=2E Ugh=2E Okay, so=
+ back to the drawing board, I guess=2E The counting will need to be fixed=
+=2E=2E=2E
+>>=20
+>> It's possible we can move the counting after dethread -- it seems the e=
+arly count was just to avoid setting flags after the point of no return, bu=
+t it's not an error condition=2E=2E=2E
+>>=20
 >
-> There's a problem here. BPF can have properties, but usually does not.
-> Unless there's a bpf program loaded that provides them it is incorrect
-> to use these flags. You can't know that at initialization.
+>I landed here from git blame=2E
 >
-> I have an alternative that will address this that I will propose
-> shortly.
+>I was looking at sanitizing shared fs vs suid handling, but the entire
+>ordeal is so convoluted I'm confident the best way forward is to whack
+>the problem to begin with=2E
+>
+>Per the above link, the notion of a shared fs struct across different
+>processes is depended on so merely unsharing is a no-go=2E
+>
+>However, the shared state is only a problem for suid/sgid=2E
+>
+>Here is my proposal: *deny* exec of suid/sgid binaries if fs_struct is
+>shared=2E This will have to be checked for after the execing proc becomes
+>single-threaded ofc=2E
 
-Okay, thanks.
+Unfortunately the above Chrome helper is setuid and uses CLONE_FS=2E
+
+But to echo what Eric asked: what problem are you trying to solve?
+
+-Kees
 
 --=20
-paul-moore.com
+Kees Cook
