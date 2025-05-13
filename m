@@ -1,216 +1,174 @@
-Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fout-a6-smtp.messagingengine.com (fout-a6-smtp.messagingengine.com [103.168.172.149])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30F0621CA0F
-	for <selinux@vger.kernel.org>; Tue, 13 May 2025 09:34:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E84AE21D3FB;
+	Tue, 13 May 2025 09:53:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.149
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747128844; cv=none; b=J9Ic+ToXA3XZDoBcPlpESmDPyGcVzM5+44EjYiMtZcJAFNXtxEIt051DZQQo8I8sqa+dSk2X8ShmuYz2mELkaFE0rxFeQXHYD3V0Fsla+0JtmL5WQ0E7NCyuHNDCg1Tjxn6lM6m69w/Ph1+TTfxEv297pIVuDtWJu2ckcKUCe3o=
+	t=1747130029; cv=none; b=k8oFOqXsyIj9wOb7h6Gkfudh8MH+bC5zXa1UmDt3r3FftKVw725SvFoEiG/flFykF8RIw2eY9y859NPb0WZZ43DHBVE1zgemfTfeBQPfF+2z+UuMH9LzUeM71HXUBhy4mHVq1hBTvP0YGsrRLIZMI8rU4/MVrzPp0isZMTAI08I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747128844; c=relaxed/simple;
-	bh=PDKMcVj5zBhTbfPoKm/BsQn4NtXActcaangB8P8bbaY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jVylz6B/TizxYiJ9T3VfFn0yjnvthwpGUkVmc9CilAcwNc+f6SMLRzy+YOjQ3+0e4Wajw2Sc9R9k6UmAkKPdMYxfhQ310caKnn49N1KhFEI5TyUEvy5uTfFcwSlIIu2yr47zcqHdv+0/ic9urAeQGvI3U0aEYTzukOHfi+CSyAM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=luLD/JG9; arc=none smtp.client-ip=209.85.167.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1747130029; c=relaxed/simple;
+	bh=0hdsBjSp459tutLJ6ljFU38BGGSJAYEDerkzM9gXgMY=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=AnQvackthfmXo2NuQcBKSDja7SlU3olVZ6HOfdedNivFKj47sAF7i+UC0aptYj/VbH4i14K+HUvU5P0+ezEJuAIqg8dbIvt6VGcjRoQo8dzeU8Nyas+ybTFimua6AUWcT1Oa8WeTfM2hMokz0YtTLMkCdHADl2U8OhuVikHU83c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=C3c8Raon; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=vsLFxk/O; arc=none smtp.client-ip=103.168.172.149
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="luLD/JG9"
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-54e8e5d2cf0so5657054e87.2
-        for <selinux@vger.kernel.org>; Tue, 13 May 2025 02:34:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1747128840; x=1747733640; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PDKMcVj5zBhTbfPoKm/BsQn4NtXActcaangB8P8bbaY=;
-        b=luLD/JG996nBZVs8y1MxCWtZENAhZMl/TAqO6PBv1K8C0atupEI+TRCj/I2ca44/Me
-         OJ1HorQVlo9NGf6LrtWpVlCZItf8+TjdW1JROcRluXEAYs86DvE3asW8xrrtUIoUXgNG
-         3ZspOT3+eQkPRz26H7/VgSDkTbcA6MICmj7Rw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747128840; x=1747733640;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=PDKMcVj5zBhTbfPoKm/BsQn4NtXActcaangB8P8bbaY=;
-        b=uLL+bu6aIYgsIUU8xclQgkRxg4qT3OJxLVE23oIztjwS//zjO2BSvI+p8XYRpU+nIh
-         N89EEUfQJnJqBAv4lRVOj4k+22jpoAyzUMhPG8tQzXNOdnHqkLdPhv2KdVdt0Y5WqqJo
-         C34VF1z6kNkcuhGAxZ9Yo6UkBTu54soiJSc1LGKL0DcSwrP4MqRq16vluWbN7tuhsx8j
-         zhM8K3b6imXyUwdTGFtGI8Jo46g1TedVJc25rOcJU2Cn2dLuW0ajDr37BIhfbMdjHm/i
-         hJWlViC/2JSVYTmLHzOhv6ws0vbb3COC8p61acFTaZwHx4i5FOiomlK8ncxN7EyJnPKt
-         CKdQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWw3hCbkhTgnj1BcIpFm/j43egGKzZs3Bmw9lf5aTJyHIhh+kjLdRIDrEJaMlm3yhjoZU7sKHZ9@vger.kernel.org
-X-Gm-Message-State: AOJu0YyA9/WKF4vdyDraIPiFk2By409BS/p2K903FeKFKweg4waAaFU7
-	C/Wdj7+5SCUSqrF+uO3g81+yExdIymKmpJjlLRV6bRYIQaKeTSuuCQ+bCPyPfobfiup01xKBNom
-	TEUkblOxMZJxyq+ML4dFjaPNG1iW3TUdDEZ4=
-X-Gm-Gg: ASbGncsjqQ8J816254dN+UQI0ycs8RPeS532rn/fsHpL3PlgzK7AOE0poiGic0aTGAV
-	/ymZjvx1+9WtnLlBXF3ThlcmQf2WF2LVayFJJrur9MlmpFw4Thmq/OeANbIzi0twoLcQ2Ok09ea
-	2wp4ruIt/j/KkO18651whQ0GulPY8j8zZFlnlAjEuxxwTNZlz5hDZXu/K4n4/f
-X-Google-Smtp-Source: AGHT+IHstSrInjO69VpbjgPx3OdBFjBoWbLCideZ6zAld/2dwIl022/FFuR0Fxyk2DBrHCw5z7xywlm51SXhi1PQmdQ=
-X-Received: by 2002:a05:6512:1406:b0:54f:c6b0:4b67 with SMTP id
- 2adb3069b0e04-54fc6b04b6bmr4674358e87.4.1747128840161; Tue, 13 May 2025
- 02:34:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="C3c8Raon";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="vsLFxk/O"
+Received: from phl-compute-05.internal (phl-compute-05.phl.internal [10.202.2.45])
+	by mailfout.phl.internal (Postfix) with ESMTP id 9B48B138023E;
+	Tue, 13 May 2025 05:53:44 -0400 (EDT)
+Received: from phl-imap-12 ([10.202.2.86])
+  by phl-compute-05.internal (MEProxy); Tue, 13 May 2025 05:53:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1747130024;
+	 x=1747216424; bh=2stkMgjnTvYjnZGlIOEgk4TUXFdwLQsjjGMrGxJEng4=; b=
+	C3c8Raon10jNbSWEDJYORU4gm8U567TulRzRqYXvVTZbjR0aq+aByBE2v3CJN1FQ
+	KGfe3mZpGMvm3sTTdA/bD4xqfr9/qt+FvJkO3rqB79Pg31A2o/9QmuHNpYiP6YRx
+	5Oqhmp7U5spBkf8ZI7vbBVSijXCPkocSiEYxOZC/Onni9aY5io5LzGgT4Pq9viV0
+	FxR/+TYDSmfB7orizqIWsWleYCSTadigZVUPKWWu8SAUOAVMNjnmKn0AtzGJWmfW
+	n6nzNwgrlX6EoM4p1CSnCJ3VeumN0iyyMXY2jOP60W0IV6bI3CT9OzvBzAkFsxl7
+	4cHaLnU9wP0qw8PBRP4/xg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1747130024; x=
+	1747216424; bh=2stkMgjnTvYjnZGlIOEgk4TUXFdwLQsjjGMrGxJEng4=; b=v
+	sLFxk/OONbe9qUFpU+vGJs0rbHoUFetAr/fxOXK42jpmXJb5nTIJ7LEBIUPf4M6G
+	eTcNYjLTfujnNkmPPXXpyky+qMRxwL3zEmGUVPEH+t0k7GujubIRtLl9rINOsfnn
+	X9/Eb5yNN0qQjRVMa37hSc7AaOUvH4JCwUlDvsafU5OLxU9eTZImOa8ptmwo/l2T
+	bs233RN+PmjcxkgMgNR7itS59Aeg1pud04SM0rQP9DoVg/4xL7xZnREOVygJrpgd
+	OrsLj5e/vgBNPgMcoc68G2ELnrcX8nncMoC0tQ94aIH7VLf5TW0EdedJwnB5PPnu
+	dwaxyu40sGpRl3lCZi9tw==
+X-ME-Sender: <xms:pxYjaLwrXpLW4klVSCheAqTm4C9UgyAlohVgQXdRm433wH8zPhDjBA>
+    <xme:pxYjaDSjqY5BDk9WwQ-tsi8xw0LA5Yl0VTNcBFLnEBSVW1kIb3TJOTrQtdapEL-kV
+    LNoh_S6Uafh70HHh0A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdeftdefkeduucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggv
+    pdfurfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpih
+    gvnhhtshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtjeertder
+    tddtnecuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnug
+    gsrdguvgeqnecuggftrfgrthhtvghrnhephfdthfdvtdefhedukeetgefggffhjeeggeet
+    fefggfevudegudevledvkefhvdeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrg
+    hmpehmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohep
+    udekpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopegvtghrhihpthhfshesvhhgvg
+    hrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdgrlhhphhgrsehvghgv
+    rhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqrghpihesvhhgvghrrd
+    hkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdgrrhgthhesvhhgvghrrdhk
+    vghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhfshguvghvvghlsehvghgvrh
+    drkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgv
+    rhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqmhhiphhssehvghgvrh
+    drkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqphgrrhhishgtsehvghgv
+    rhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqshefledtsehvghgvrh
+    drkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:pxYjaFWNK6qckU9EAkTTPdmuJ2Lc16lm1lQT8t8gINUyJNodOnPGtg>
+    <xmx:qBYjaFj3xNq2z69AdTzdxc9uPqiUSHC7_M62mldtwCjqQlCRnhM-Rg>
+    <xmx:qBYjaNAkeq0jmyphK4SpsmNDd9k5fP5xmTQPYh_D3Yac2-YckRFBnw>
+    <xmx:qBYjaOIou2p5qtZVJS3F0ZNvV9JGB-543tS1-c1g0WeW8aICtRJVyQ>
+    <xmx:qBYjaEnPm2YINp4LCyG4AbGwBe-DC4jdTt3KydIVybuQOabro6nth3RD>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id D7A291C20068; Tue, 13 May 2025 05:53:43 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAH9xa6eFqcLh=NSz+vFPr05yZjmn2ScDvVeFzib3DhY67SrP0A@mail.gmail.com>
- <CAEjxPJ7KWhJEkWB7s+kLyT+-yXE9vyNzYgfGUS_i1jF7FzujOQ@mail.gmail.com>
- <CAP+JOzR-UyYGwizSBnHjmJj8ERweZdiJi2cWExi64W9BGa+nNg@mail.gmail.com>
- <CAEjxPJ6XxLoN5ECTOxADAQAFLYpjL1ieN6bLQ1NKTtUkRpWziQ@mail.gmail.com>
- <CAP+JOzR24JyOWeKHDhi6+tYbd70V2Unkw5ppDkhrb7EK2A14=A@mail.gmail.com> <CA+QFDK=o3_xTWnEyLm6kTKzcGrz+mMKXy1kQLNqeqiBUBHBBvw@mail.gmail.com>
-In-Reply-To: <CA+QFDK=o3_xTWnEyLm6kTKzcGrz+mMKXy1kQLNqeqiBUBHBBvw@mail.gmail.com>
-From: Takaya Saeki <takayas@chromium.org>
-Date: Tue, 13 May 2025 18:33:48 +0900
-X-Gm-Features: AX0GCFvftQwQWpkwj0alt3uZNkdQFp-fF8--d37KOym4hZhJmxkdwboh7fGcSCk
-Message-ID: <CAH9xa6cSNsiDx5Wq+nhZQwkkAPxh3bcy5mpBBbYTbaGnoZ3smg@mail.gmail.com>
-Subject: Re: [RFC] selinux: Keep genfscon prefix match semantics in userspace
- for wildcard
-To: Inseob Kim <inseob@google.com>
-Cc: James Carter <jwcart2@gmail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org, 
-	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	Daniel Burgener <dburgener@linux.microsoft.com>, Junichi Uekawa <uekawa@chromium.org>, 
-	Tatsuyuki Ishi <ishitatsuyuki@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-ThreadId: Tdb8541d917685bac
+Date: Tue, 13 May 2025 11:53:23 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Andrey Albershteyn" <aalbersh@redhat.com>,
+ "Richard Henderson" <richard.henderson@linaro.org>,
+ "Matt Turner" <mattst88@gmail.com>,
+ "Russell King" <linux@armlinux.org.uk>,
+ "Catalin Marinas" <catalin.marinas@arm.com>,
+ "Will Deacon" <will@kernel.org>,
+ "Geert Uytterhoeven" <geert@linux-m68k.org>,
+ "Michal Simek" <monstr@monstr.eu>,
+ "Thomas Bogendoerfer" <tsbogend@alpha.franken.de>,
+ "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+ "Helge Deller" <deller@gmx.de>,
+ "Madhavan Srinivasan" <maddy@linux.ibm.com>,
+ "Michael Ellerman" <mpe@ellerman.id.au>,
+ "Nicholas Piggin" <npiggin@gmail.com>,
+ "Christophe Leroy" <christophe.leroy@csgroup.eu>,
+ "Naveen N Rao" <naveen@kernel.org>, "Heiko Carstens" <hca@linux.ibm.com>,
+ "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>,
+ "Christian Borntraeger" <borntraeger@linux.ibm.com>,
+ "Sven Schnelle" <svens@linux.ibm.com>,
+ "Yoshinori Sato" <ysato@users.sourceforge.jp>,
+ "Rich Felker" <dalias@libc.org>,
+ "John Paul Adrian Glaubitz" <glaubitz@physik.fu-berlin.de>,
+ "David S . Miller" <davem@davemloft.net>,
+ "Andreas Larsson" <andreas@gaisler.com>,
+ "Andy Lutomirski" <luto@kernel.org>,
+ "Thomas Gleixner" <tglx@linutronix.de>, "Ingo Molnar" <mingo@redhat.com>,
+ "Borislav Petkov" <bp@alien8.de>,
+ "Dave Hansen" <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, "Chris Zankel" <chris@zankel.net>,
+ "Max Filippov" <jcmvbkbc@gmail.com>,
+ "Alexander Viro" <viro@zeniv.linux.org.uk>,
+ "Christian Brauner" <brauner@kernel.org>, "Jan Kara" <jack@suse.cz>,
+ =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
+ =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
+ =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>,
+ "Paul Moore" <paul@paul-moore.com>, "James Morris" <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ "Stephen Smalley" <stephen.smalley.work@gmail.com>,
+ "Ondrej Mosnacek" <omosnace@redhat.com>,
+ "Tyler Hicks" <code@tyhicks.com>, "Miklos Szeredi" <miklos@szeredi.hu>,
+ "Amir Goldstein" <amir73il@gmail.com>
+Cc: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-m68k@lists.linux-m68k.org,
+ linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ linux-api@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
+ selinux@vger.kernel.org, ecryptfs@vger.kernel.org,
+ linux-unionfs@vger.kernel.org, linux-xfs@vger.kernel.org,
+ "Andrey Albershteyn" <aalbersh@kernel.org>
+Message-Id: <399fdabb-74d3-4dd6-9eee-7884a986dab1@app.fastmail.com>
+In-Reply-To: <20250513-xattrat-syscall-v5-0-22bb9c6c767f@kernel.org>
+References: <20250513-xattrat-syscall-v5-0-22bb9c6c767f@kernel.org>
+Subject: Re: [PATCH v5 0/7] fs: introduce file_getattr and file_setattr syscalls
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On Tue, May 13, 2025 at 5:44=E2=80=AFPM Inseob Kim <inseob@google.com> wrot=
-e:
->
-> On Tue, May 13, 2025 at 1:57=E2=80=AFAM James Carter <jwcart2@gmail.com> =
-wrote:
-> >
-> > On Mon, May 12, 2025 at 10:47=E2=80=AFAM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Mon, May 12, 2025 at 10:31=E2=80=AFAM James Carter <jwcart2@gmail.=
-com> wrote:
-> > > >
-> > > > On Fri, May 9, 2025 at 2:23=E2=80=AFPM Stephen Smalley
-> > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > >
-> > > > > On Thu, May 8, 2025 at 10:50=E2=80=AFPM Takaya Saeki <takayas@chr=
-omium.org> wrote:
-> > > > > >
-> > > > > > Hello Stephen, Paul, and all libselinux maintainers.
-> > > > > >
-> > > > > > I'd like to ask your opinions about an idea to keep the semanti=
-cs of genfs in
-> > > > > > the userspace, before sending a patch to expose the new genfs_s=
-eclabel_wildcard
-> > > > > > kernel capability to libselinux users in polcaps.h as
-> > > > > > POLICYDB_CAP_GENFS_SECLABEL_WILDCARD.
-> > > > > >
-> > > > > > As a background, we introduced the genfs wildcard feature to th=
-e kernel selinux
-> > > > > > in https://lore.kernel.org/selinux/20250318083139.1515253-1-tak=
-ayas@chromium.org/
-> > > > > > (Thank you for your help and reviews!)
-> > > > > > That enabled libselinux to use wildcards in genfs rules. There =
-we changed the
-> > > > > > semantics of genfs with the capability enabled in the kernel sp=
-ace from prefix
-> > > > > > match to exact match with wildcards for kernel implementation s=
-implicity.
-> > > > > >
-> > > > > > I'm wondering whether we can keep the user-facing semantics of =
-(genfscon ...)
-> > > > > > statements in CIL files in the following way.
-> > > > > >
-> > > > > > When secilc compiles a (genfscon ...) statement to the kernel b=
-inary format, it
-> > > > > > adds a following `*` to the compiled kernel genfscon statement =
-if the input has
-> > > > > > (policycap genfs_seclabel_wildcard). If the input doesn't have =
-one, secilc does
-> > > > > > not add any following `*`. That keeps the behavior of (genfscon=
- ...) in CIL
-> > > > > > from the user perspective with and without the new wildcard cap=
-ability. This is
-> > > > > > similar to what our first kernel patch did, but done in the use=
-rspace by secilc
-> > > > > > this time. So, the (genfscon ...) keeps the backward compatibil=
-ity of prefix
-> > > > > > match for libselinux users, while keeping the kernel implementa=
-tion simple.
-> > > > > > That would allow users to keep existing rules without modificat=
-ion.
-> > > > > >
-> > > > > > I'd like to hear your opinions.
-> > > > >
-> > > >
-> > > > I agree with this approach. It should only be adding it when writin=
-g
-> > > > the kernel binary policy.
-> > > >
-> > > > > (added James to cc for the secilc question)
-> > > > >
-> > > > > I'm assuming you mean libsepol rather than libselinux. I could be
+On Tue, May 13, 2025, at 11:17, Andrey Albershteyn wrote:
 
-Yes, thanks for the correction.
+>
+> 	long syscall(SYS_file_getattr, int dirfd, const char *pathname,
+> 		struct fsxattr *fsx, size_t size, unsigned int at_flags);
+> 	long syscall(SYS_file_setattr, int dirfd, const char *pathname,
+> 		struct fsxattr *fsx, size_t size, unsigned int at_flags);
 
-> > > > > wrong, but I believe that in general policy capabilities are only
-> > > > > declared once in the policy and typically in the base module, and
-> > > > > those settings are then applied globally to all policy modules. W=
-hile
-> > > > > you can put one in a non-base module, it still has a global effec=
-t on
-> > > > > the final policy. Putting a policycap statement into every CIL mo=
-dule
-> > > > > that wants this behavior would possibly trigger an error (not sur=
-e
-> > > > > how/if libsepol/secilc handles duplicate policycap statements) an=
-d
-> > > > > regardless would enable it for the entire policy.
->
-> We keep backward compatibility of (genfscon ...) so they'll always be
-> prefix-matched. For example, (policycap genfs_seclabel_wildcard) in
-> ./vendor/etc/selinux/vendor_sepolicy.cil won't affect how genfscon
-> statements in /system/etc/selinux/plat_sepolicy.cil work.
->
-> > > >
-> > > > The policy capability can only be declared once. It will give an er=
-ror
-> > > > if there is a duplicate.
-> > > >
-> > > > But since the CIL modules are not compiled individually, it doesn't
-> > > > matter where the policy capability is declared. CIL doesn't have th=
-e
-> > > > concept of a base module, all modules are equal. Since Refpolicy
-> > > > modules are converted to CIL in the policy infrastructure, there is=
- a
-> > > > base module, but that is because Refpolicy has the concept of a bas=
-e
-> > > > module, not because CIL does.
-> > >
-> > > I think the problem is that there are multiple CIL modules shipped in
-> > > Android (e.g. vendor, platform, oem, ...) and more than one of them
-> > > might contain this policycap statement to indicate that its genfscon
-> > > statements should be interpreted in this manner. So the final combine=
-d
-> > > policy that is fed to secilc could end up with duplicates unless they
-> > > filter them out, or secilc is modified to ignore dups.
-> >
-> > I don't think it would be a problem to ignore duplicate policycap
-> > statements. It should be a fairly small patch.
-> > Jim
->
-> So, simply supporting this (allowing duplicated policycap statements)
-> will be enough even for the Android case.
->
-> --
-> Inseob Kim | Software Engineer | inseob@google.com
+I don't think we can have both the "struct fsxattr" from the uapi
+headers, and a variable size as an additional argument. I would
+still prefer not having the extensible structure at all and just
+use fsxattr, but if you want to make it extensible in this way,
+it should use a different structure (name). Otherwise adding
+fields after fsx_pad[] would break the ioctl interface.
 
-Thank you all, so I think the idea seems acceptable from both perspectives =
-of
-Refpolicy and Android. I'd like to ask whether we have any path to generate=
- a
-kernel binary policy that does not involve .cil intermediates and secilc in
-practical environments. Is patching secilc (libsepol, to be precise)
-sufficient? We know it's enough for Android, but is also true for Refpolicy
-environments? There are a lot of se.* tools and I'm not sure if secilc alwa=
-ys
-plays the role.
+I also find the bit confusing where the argument contains both
+"ignored but assumed zero" flags, and "required to be zero"
+flags depending on whether it's in the fsx_pad[] field or
+after it. This would be fine if it was better documented.
+
+
+> 		fsx.fsx_xflags |= FS_XFLAG_NODUMP;
+> 		error = syscall(468, dfd, "./foo", &fsx, 0);
+
+The example still uses the calling conventions from a previous
+version.
+
+       Arnd
