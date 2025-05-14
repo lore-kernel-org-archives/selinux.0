@@ -1,164 +1,133 @@
-Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zytor.com (terminus.zytor.com [198.137.202.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AA4314AA9;
-	Wed, 14 May 2025 14:25:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E113D1C6FF9;
+	Wed, 14 May 2025 15:19:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.137.202.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747232719; cv=none; b=esQehsC979m3UQoqoB/REaBMadRMU2lBMB5Wud/9Wzx1veOeGx9fVs0IWGSWA6c1N4Odv6ZUDRaJq5hZTh5W439+TIXyo5MT9wK1prJpV2YWfLTo1JwZUPRcE41PtvpUj2ugILu211AzR6NgW2KD48hFxJZPasdmhZ/9NmMx7xc=
+	t=1747235965; cv=none; b=Qx3BFUgIVgkaZ5If0QV3XsoS/saEl4R+eqvJLuTJwtDA4FkRMssREWgwUz3INlDeqjW2mSIJtFW/YQF+W2NGFKCsEh5uEOKU5ZA6Ocl1jtAbVotth0W9enRy5xkgWHc5t3fB2P9Jo+yrm0umwXMjr/KjWEBRsmiOwUF1ZGFs2ZA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747232719; c=relaxed/simple;
-	bh=vN+fpwKSl41pqu9wRt03Wjfrb+jb619he3vmdlO6Itw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Z10tdKZ69dIkFmyCb5IFJQlBZCt1Ft/of4S9VzDAL1g/bXn+CVhlD0WE1fEqTHfWNpXounjjMd/zslbHr1O7PbDw0zbHyNuC3jXuu4HyK+X61l/F7dMGHhuGqRVmmWb6kKY48noaLhC9Z5/ft031rSYnzG4nQpYacaGtqcru2QI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ho/vw0MO; arc=none smtp.client-ip=209.85.215.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1747235965; c=relaxed/simple;
+	bh=fbDxkuzpwYjrGZLFi5VIbeGvuh+o5LtR/w6gApnTSJQ=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
+	 MIME-Version:Content-Type; b=PBbTx9Xys+AZ94m1F3tzBRKbIbtL7Ym3EcA5WHTc9GgRWCe4onHEXII/pIuvuwwezilFekuO5M6WdtIhTV9hfS72jrHG6RK4LYu4jZqLqJoliaxK7lpDewsYJXXdrVsIdKMCVm6AR1KMywBBFzdUUJa9gVcpQHaXEtsb9Rj7JOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com; spf=pass smtp.mailfrom=zytor.com; dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b=djZFgxiA; arc=none smtp.client-ip=198.137.202.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=zytor.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zytor.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ho/vw0MO"
-Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-7fd581c2bf4so5971526a12.3;
-        Wed, 14 May 2025 07:25:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747232716; x=1747837516; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ptcvgW3+mwB58Hx6gjpxzMgi6+3PoMSTmnbrlBuO2tw=;
-        b=Ho/vw0MOSuaqxjo9lkkdo6fhzwL+EccuuolO9K6Z829LN5aseAGo9hEu55NPyJQkfL
-         fdOF2vTYnhmxvsoffJhNyHM+d3bqI75Dq1un8iEdVYs0bKxn17oeWt5g0vU9zwve3fvU
-         YoZmBcYyxzlv2QiEAL6ofwcK+H58FfRz+bRHq70Hw2Nq/J9Lmk9+nSxne354XiRX/K7M
-         OH6Y7Y8FRRxeBPFBHtyp2RX2ab7IWIoDSLHQoDbc9xGGxUMoDzY93q4f0h/21jb9xXmW
-         eEH+R5fGnRzTPrgk5Xx0Y95cU7tSF2d5oOt3eo1UEiHNd3NjsFfiPkrqJ+5XITmX9WWA
-         SrVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747232716; x=1747837516;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ptcvgW3+mwB58Hx6gjpxzMgi6+3PoMSTmnbrlBuO2tw=;
-        b=VW4AuAdHzPniTll7Z5XyC/5PSYRwDkmwSHiORHMPa1CjLU2lBAKV3+pzWGgmoAJTRt
-         xgdoOMhUZ1cq7lmMbVIWe00P19QADjDC9za52x6Lua4bWWNU1KZVvQrOckqajhD+E7jH
-         c86gZdbqjM7v/OdsI6HY1tS+Q0T7txWOL8Jcj0+NteJOfuM+gzke0rf8PYkYOzmhiyEw
-         nUdLTZeAWme6HF3Z7ywOIvpdkEH7Tpa7r/x/9/cIVynIuSMr9HxeWmio6xKRoJKRmmAr
-         o+zzTJm7Ncp8sFMRRV/Ycpe0C8OhM6VPSWvCL1XaRVnSp5YT5uXC3IIZKf+QdOGOwjk5
-         dvog==
-X-Forwarded-Encrypted: i=1; AJvYcCWQGcw0eRcjaw/qtkOVi/XBUI64Cwek6SGCVgm55lhGeWaxEpx91BAJxm0OmWk9Ob1Hi8wMODcrWayNHw8=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxK6f9x+/ZHqfCf2MdZMSZ9tWxGx31lXHbr3ZLcnL3I5NAev8HX
-	oboJx5FHrjMBLCXYtLrkk36u+dp5N9+E5bVNChN1700vxRd6Qjxvhtp/i6VbJ1nRdsw8KmbO4a9
-	pvIMGMmJ24g7SwCzONvSPii9sUqA=
-X-Gm-Gg: ASbGnct6wh3M5AgAIyZZJ8G2D0kam+ywkLqy5BH3FthwQ+m/oarKCiJFPt5ybBtxxfU
-	brG/1gvsr5+aJ8omdPYhkcNzo0Bxp+wNQo7J2MusJsFroTUZCeY0gHOm8VBIRQR2UuVL7ZWGh23
-	OQwbK2K3ynhnoSCUare/dVdGltjAnUir6H
-X-Google-Smtp-Source: AGHT+IGce9wuRwhkUtZbC/bkWhZl38M3GUwqmBpbZ1s1ISducfr2XH2vOQrS98kpW3I/pj2e12WRWCx6mMF4biRUzrg=
-X-Received: by 2002:a17:90b:6c6:b0:30c:540b:9ba with SMTP id
- 98e67ed59e1d1-30e2e5b947emr6163792a91.10.1747232715615; Wed, 14 May 2025
- 07:25:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=zytor.com header.i=@zytor.com header.b="djZFgxiA"
+Received: from [127.0.0.1] ([76.133.66.138])
+	(authenticated bits=0)
+	by mail.zytor.com (8.18.1/8.17.1) with ESMTPSA id 54EFAEbT3012887
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NO);
+	Wed, 14 May 2025 08:10:15 -0700
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.zytor.com 54EFAEbT3012887
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
+	s=2025042001; t=1747235422;
+	bh=yapZ2s67BLNwus6ibHABzXGBCoZzVlVupFJe/q2qy/U=;
+	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
+	b=djZFgxiAUJE7iFHA0Wd/yFppU4TGqi4fxmoBT1mvTgxRmRiu+8QH1zl3CND+QbbP4
+	 97UVxN+J8QD8iz78UlxzP16emoOIxJpWaoO9qxu1Ec5we80T+FOOb4RfHy40YAODf4
+	 27XX25rvc06YcNMTsxppaOiXgVXhowu2DQa6R8gC1Tcuq8Oq9GVQp3swa9CciK5Vg/
+	 jv/tWyK4JR8CJyAVAYMpVNTUaE0Ax5AVAQfxExqancQ8ZpUjlh9FBEWFvjm5PCVbut
+	 6qwwqWO9GyDweGO8bFsU0TsmuX3ejxdQaqkTWk3Ymh6Yue7onjRsMrCGmrkfplN9Ef
+	 P/Ifsp+Ororjw==
+Date: Wed, 14 May 2025 08:10:12 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: Arnd Bergmann <arnd@arndb.de>, Andrey Albershteyn <aalbersh@redhat.com>,
+        Richard Henderson <richard.henderson@linaro.org>,
+        Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Michal Simek <monstr@monstr.eu>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        "James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>,
+        Helge Deller <deller@gmx.de>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.osdn.me>, Rich Felker <dalias@libc.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Andreas Larsson <andreas@gaisler.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+        =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
+        =?ISO-8859-1?Q?G=FCnther_Noack?= <gnoack@google.com>,
+        =?ISO-8859-1?Q?Pali_Roh=E1r?= <pali@kernel.org>,
+        Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>, Tyler Hicks <code@tyhicks.com>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        Amir Goldstein <amir73il@gmail.com>
+CC: linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-m68k@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+        linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-api@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
+        selinux@vger.kernel.org, ecryptfs@vger.kernel.org,
+        linux-unionfs@vger.kernel.org, linux-xfs@vger.kernel.org,
+        Andrey Albershteyn <aalbersh@kernel.org>
+Subject: =?US-ASCII?Q?Re=3A_=5BPATCH_v5_0/7=5D_fs=3A_introduce_fi?=
+ =?US-ASCII?Q?le=5Fgetattr_and_file=5Fsetattr_syscalls?=
+User-Agent: K-9 Mail for Android
+In-Reply-To: <399fdabb-74d3-4dd6-9eee-7884a986dab1@app.fastmail.com>
+References: <20250513-xattrat-syscall-v5-0-22bb9c6c767f@kernel.org> <399fdabb-74d3-4dd6-9eee-7884a986dab1@app.fastmail.com>
+Message-ID: <B17E8366-DB80-45E6-90D6-294824C40FD9@zytor.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250511173055.406906-1-cgoettsche@seltendoof.de>
- <20250511173055.406906-3-cgoettsche@seltendoof.de> <CAEjxPJ5y70ncKXw-_noNumz=miCB0U+3c3KnXFwrV=eQ1gwhKQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5y70ncKXw-_noNumz=miCB0U+3c3KnXFwrV=eQ1gwhKQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 14 May 2025 10:25:03 -0400
-X-Gm-Features: AX0GCFvR4Ns48Tx_M0OPsq_wdB0MG6gPKe7BKKvKPcOhCD4vsSdf5Hc4MpFypXw
-Message-ID: <CAEjxPJ6F-=oYosd6JQ_emPeE8C_K1RCnu4d+MTr--XJDNef8Jg@mail.gmail.com>
-Subject: Re: [PATCH v3 03/14] selinux: more strict policy parsing
-To: cgzones@googlemail.com
-Cc: selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org, 
-	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
-	=?UTF-8?Q?Bram_Bonn=C3=A9?= <brambonne@google.com>, 
-	Eric Suen <ericsu@linux.microsoft.com>, Casey Schaufler <casey@schaufler-ca.com>, 
-	Canfeng Guo <guocanfeng@uniontech.com>, Takaya Saeki <takayas@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain;
+ charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 14, 2025 at 10:15=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On May 13, 2025 2:53:23 AM PDT, Arnd Bergmann <arnd@arndb=2Ede> wrote:
+>On Tue, May 13, 2025, at 11:17, Andrey Albershteyn wrote:
 >
-> On Sun, May 11, 2025 at 1:31=E2=80=AFPM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
-> >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > Be more strict during parsing of policies and reject invalid values.
-> >
-> > Add some error messages in the case of policy parse failures, to
-> > enhance debugging, either on a malformed policy or a too strict check.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>>
+>> 	long syscall(SYS_file_getattr, int dirfd, const char *pathname,
+>> 		struct fsxattr *fsx, size_t size, unsigned int at_flags);
+>> 	long syscall(SYS_file_setattr, int dirfd, const char *pathname,
+>> 		struct fsxattr *fsx, size_t size, unsigned int at_flags);
 >
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>I don't think we can have both the "struct fsxattr" from the uapi
+>headers, and a variable size as an additional argument=2E I would
+>still prefer not having the extensible structure at all and just
+>use fsxattr, but if you want to make it extensible in this way,
+>it should use a different structure (name)=2E Otherwise adding
+>fields after fsx_pad[] would break the ioctl interface=2E
 >
-> > ---
-> > v3:
-> >   - incorporate the overflow checks on security classes from the
-> >     previous patch, and permit U16_MAX as class ID
-> >   - minimize the usage of magic values, by using macros or trivial
-> >     helper functions
-> > v2:
-> >   accept unknown xperm specifiers to support backwards compatibility fo=
-r
-> >   future ones, suggested by Thi=C3=A9baud
-> > ---
-> >  security/selinux/include/security.h |   1 +
-> >  security/selinux/ss/avtab.c         |  35 ++++-
-> >  security/selinux/ss/avtab.h         |  13 ++
-> >  security/selinux/ss/conditional.c   |  18 +--
-> >  security/selinux/ss/constraint.h    |   1 +
-> >  security/selinux/ss/policydb.c      | 196 +++++++++++++++++++++++-----
-> >  security/selinux/ss/policydb.h      |  23 +++-
-> >  security/selinux/ss/services.c      |   6 +-
-> >  8 files changed, 233 insertions(+), 60 deletions(-)
-> >
+>I also find the bit confusing where the argument contains both
+>"ignored but assumed zero" flags, and "required to be zero"
+>flags depending on whether it's in the fsx_pad[] field or
+>after it=2E This would be fine if it was better documented=2E
 >
-> > diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/polic=
-ydb.h
-> > index 0c423ad77fd9..9b3cc393a979 100644
-> > --- a/security/selinux/ss/policydb.h
-> > +++ b/security/selinux/ss/policydb.h
-> > @@ -386,9 +387,23 @@ static inline char *sym_name(struct policydb *p, u=
-nsigned int sym_num,
-> >         return p->sym_val_to_name[sym_num][element_nr];
-> >  }
-> >
-> > +static inline bool val_is_boolean(u32 value)
-> > +{
-> > +       return value =3D=3D 0 || value =3D=3D 1;
-> > +}
-> > +
-> >  extern int str_read(char **strp, gfp_t flags, struct policy_file *fp, =
-u32 len);
-> >
-> >  extern u16 string_to_security_class(struct policydb *p, const char *na=
-me);
-> >  extern u32 string_to_av_perm(struct policydb *p, u16 tclass, const cha=
-r *name);
-> >
-> > +#define pr_warn_once_policyload(policy, fmt, ...)                     =
-   \
-> > +       do {                                                           =
-  \
-> > +               static const void *prev_policy__;                      =
-  \
-> > +               if (prev_policy__ !=3D policy) {                       =
-    \
-> > +                       printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__)=
-; \
-> > +                       prev_policy__ =3D policy;                      =
-    \
-> > +               }                                                      =
-  \
-> > +       } while (0)
-> > +
-> >  #endif /* _SS_POLICYDB_H_ */
+>
+>> 		fsx=2Efsx_xflags |=3D FS_XFLAG_NODUMP;
+>> 		error =3D syscall(468, dfd, "=2E/foo", &fsx, 0);
+>
+>The example still uses the calling conventions from a previous
+>version=2E
+>
+>       Arnd
 
-checkpatch.pl warning:
-WARNING: Prefer [subsystem eg: netdev]_warn([subsystem]dev, ... then
-dev_warn(dev, ... then pr_warn(...  to printk(KERN_WARNING ...
-#718: FILE: security/selinux/ss/policydb.h:404:
-+ printk(KERN_WARNING pr_fmt(fmt), ##__VA_ARGS__); \
+Well, ioctls carry the structure size in the ioctl number, so changing the=
+ structure size would change the ioctl number with it=2E
