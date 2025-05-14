@@ -1,730 +1,1282 @@
-Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com [209.85.219.170])
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3581419D09C;
-	Wed, 14 May 2025 20:02:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2892D28C5D3
+	for <selinux@vger.kernel.org>; Wed, 14 May 2025 20:04:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747252966; cv=none; b=Ctd5Ry3vU0Apwph8WLQeWEYXLy6+H8RNESM/t4NeW9d6HCiNjoSSn7bcxGBG+FlSpP48smMqk9OCO36cqEdKh/MYCzWubAFU6xoqw6mTPh6rJ1o2HPWNDa4PRjdWAEveiR8u2A8OfDYnNzktbd2FwSy8hMnPUIJcjib0PbyX7F0=
+	t=1747253055; cv=none; b=T9y/x7WGOGL/0oOwVk82LGQ7Or8sWsnnwXA0K+FPRxtOBUCr0hC6UhbDt83gZZfTlG6a3GLQRb9R9wxSTVF/lt3qz/Grx3U3qRswYQ6I/nOcjkp742Q3/GRPexZp9ipqpoHoCTNEjYnQUQTJnu8koW8zvMOAQivABj9E2M1gBYE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747252966; c=relaxed/simple;
-	bh=fXHcUp09W84b6ceO80Yhp9okuehpvbmdscf/TJrB1OY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ODldYzOlXZFjYHHY+zUMa70p4zMTpWoz8RBZyyOPa955+fCckHTOHQDbV9PF4aoCqZSAGGzzWT90UM1Di72LCS2agHQbAmxKK19shlnH9kVqinYfN3+TF0BheoNf6r2uvHW8LKI2jIZPxeSz3UJEXWBzgx5GRkqI9So3+BwI3QI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fhtGJ9gW; arc=none smtp.client-ip=209.85.219.170
+	s=arc-20240116; t=1747253055; c=relaxed/simple;
+	bh=Nr7zC5rEI7qIQ/c18jOoi6YJxHA+Z6XFF681DsVS5eo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Joa55OzGhKEFThKRYaWm5u2EUlMFfHjTd7v+mYZAOjKamY1sdOVEDUfm2Xy8oUKSoDNV7l8W4CmSu3DZ/yKZs9KeRFScx7L+efXJN+oN+jZQlMz8ZBN6L4d2/S8nTR0F6gUJ1mf4IP03wf+WoF/KaTbpG19hHvh0p8hDSjUyQqM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MRvASuJS; arc=none smtp.client-ip=209.85.222.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fhtGJ9gW"
-Received: by mail-yb1-f170.google.com with SMTP id 3f1490d57ef6-e7ab544d798so193151276.3;
-        Wed, 14 May 2025 13:02:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MRvASuJS"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-7c5568355ffso15467185a.0
+        for <selinux@vger.kernel.org>; Wed, 14 May 2025 13:04:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747252962; x=1747857762; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tkePA2YsWyCSvYxW13lqhUBuetBEVgart/4PozXQs7A=;
-        b=fhtGJ9gWZ+8eH2mHfSl05pZTtaMtrXdJkTAxmGFtc5folI1bVE6+UJIXpZ3n1nxOz6
-         SCsYuyNHWDuiLs7Zkr8oa6cstRUOYOm7YhgZkNIF5+w0lhcjOh7AyyaZ8hUPiujG0gA0
-         6vmRtb+NIm0aaa1ks7TFVz46BgUGEj2eva8AaZIc7Y3DQHDQ1kuU248UQUGYKOhsRqfc
-         5RQ2kSJ+ZgZ+V1RJhlY2YRURkJW+OEaofeFFMBCphInGklj3oCr9uioW6eF/Q4MBrrP5
-         vpwDOUJmMZn8t2a+ZDwsqgP4GWLJsR84TW+vEALtezowyO1YXaeWfjUOGsyPqfL1N4IK
-         FzFg==
+        d=gmail.com; s=20230601; t=1747253051; x=1747857851; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=2R6nqIjATPScKGaXncN4DECLU70WY5mEcq/nzI3Vl+4=;
+        b=MRvASuJS3YMx8WzMWyDQ/4wnk4wOoi3RS+o6waLiRzTr4G1uFKSqD+FkJz0lySHnTI
+         CAwskgHO73IZopC4ZOuXGfbhBiNGHz1XZnX5jHxZ3FU7MMTsGF/Y6wAweUQ2B3aJ45cr
+         oDEZYXCUOdHNffGosFN0vxjNdl5RReaHl7KlyxIRQRIpXPF+fiv4X9zJKV+DsjZ1CJs9
+         0VAFxW63TjMGUI5lp7+k7koqhVxBQf/5jwOOchEYyCJ5F/vnoWpJp4vuu0VTlvYTQRVP
+         Ft4rUgjnVYI5O2SSu9mwX9y64blU+8jXks2OIXvoBlDA4HxUPmlVFT9F4x87trZPY5Kv
+         CktA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747252962; x=1747857762;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tkePA2YsWyCSvYxW13lqhUBuetBEVgart/4PozXQs7A=;
-        b=EaZ2oque9Fi/XvSlnsq6HtqV6m6cRUVK/MpMKvYRgaCXIq/dhEXHsWdf8Vmu0hQ3X9
-         dK8wLrHLBeMLEks8Doow3kqcY493BRmZnyK0zabf1TSilzBMjjv/4FQBa/lYpbbDgxqU
-         Fjds8XsmK9FQlvvJQGuTkiutduZMTE0b3zdiLqVwBQdMa9RKeV1hon0VkCEXYd20BGmq
-         TxrIx1gHhW6J+MS9ULvssZ3++/4zFxlb1CYcSZNMZbykJiWGgk3LsTb9dbJwFYQklkzg
-         tWuC3Th9D0pRk+oWf3Y3mC3vAPVRmr/9UdOIyvvSbOwe5aINoB59Gu2SUWOlxmst6yqQ
-         89Xw==
-X-Forwarded-Encrypted: i=1; AJvYcCUPkBx5/j4uuDwcP0XSVg4gNCq6fXJAh52lrYMA6w8l8dngPlES88aS2Xt5x+5H6W1z+6jR9aY3mg==@vger.kernel.org, AJvYcCVJvWdnPUvqbLvuhvUf8AwLIHriDbmvS0ur1Qn6HD9odYNTHXqchXvXW9nmOGTu07mLDSkb0dyG6VPMd4g=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzqglAoGt5lxH/8kcyOfWNgX0t9qoD2X+KoO6GpAk7Mpyh64iNP
-	Bm099u+SBi367vdrnBIW6xNwdlu/iJW3ywhOUczoOAcGccJ8EFUZ97tnUwzyLF+186MALYfi7P8
-	S+lepxh++tX5IOHUKX6zlUxubVvZ5Iw==
-X-Gm-Gg: ASbGnct51d9kEQzBSGzq1w0LsRb/X6eUBg0ci6pBGICjJ/jFtVp/2VArY3G3wsDzp3N
-	DwfZsDCFfuw8ZyjwF1B5WH4TjZcKwIHak8SqNsXn7vo8ZDhFoJehXaLbcKxbvNdqQInjRnCSOMf
-	3n+nRDpTjoXAWJCImgXq519UE0GRNy0B4V
-X-Google-Smtp-Source: AGHT+IFQN2Rr2Entm7FhQ8KLKw4t9yyCAyfxbmePA6VyEPH1amYXj1dJbieW064c+QhbKjRkMZWR8lwR36wYG78QMLs=
-X-Received: by 2002:a05:6102:8082:b0:4c1:93df:e838 with SMTP id
- ada2fe7eead31-4df7ddef336mr4725124137.23.1747252951175; Wed, 14 May 2025
- 13:02:31 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1747253051; x=1747857851;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=2R6nqIjATPScKGaXncN4DECLU70WY5mEcq/nzI3Vl+4=;
+        b=LJ5mnQyay5hammDxqLwjurKC7NMxUpqIqir3VI47VTo5iyabYg0zGu+yulTH5N/HCt
+         aaX59oh4R4uh9qo1yy+3PB9k8yUiULqrvCbjCAvM7C7IaxDYce4jDaHEFZrgItRJ7dhj
+         xcYEmXSYytJRcrfJx3HwNP5ouar1nIdxcJcy+0S2jw7RUkXJ4BJ0y4Lt/C2aXb9mxmXy
+         H7FFuUfgADNSrO9Oo1Lxo6aVDbFt1xdBIKvoZEkWndcZMeblU0+Ir8E0dSLuMGzTKLi0
+         yzb6LfXL45vjzkxTWD0l+fL8h+6R/le1hjsu3t2ItrTUvT8C8YjXv0u+MbKmtXC7CBbM
+         lpLA==
+X-Gm-Message-State: AOJu0Yx67ilg7mUs0sptaVLex2m032Qcdnx+yNcwVyVZ6/yk1KHOc4EN
+	bdWFlwIxi0c934PHnJxXrUouSe+xRxem4TNQyoO5PM4DHfhazmh7XFX13Q==
+X-Gm-Gg: ASbGncvx2tu5XLm7jcK7Gx1U8xokrPNJWLbNgjEBNhHGyL5taBuTQ0vRG+eIZV56FLV
+	pmR91P0I0aqq1Fpp3DLga2xp4BPfPQvxopjqGvSe80dj6ZK1fEBrshGK3i+MKYAIue3RvJx2lCM
+	8bx7EKYvkQZMOPfHuSqrixYF6nbaJtBP9WAKsv2ThJP0ZldLnVkooqhBNfoozUm4Dq7put7lMy8
+	voJ+QQZIJhvF8DUsDaVW02U0yoCQ7k+hqgKZqU23F1r1wbdn71nPx3Lv9eRl7D/GgupxTT4EAPb
+	jCHtnE8mVUtct2OsUMyvz1cF5ZkRmKpqydsnjBKo0h7AyokRmghNbL2dR+eAIiPL0OP9nnlGyeG
+	/eLRM/01p5I6SaqKGpLxjf7oejTxMbEgSBzFhJj+b6TO3kmeIXs2Ak6W4YriCkT/LucqC2dsjIq
+	FDcRg=
+X-Google-Smtp-Source: AGHT+IG4iQbM4hMXPpLTWeHKb5Woh+yrtoxP9BXwKmmWFrwhmaguxPBqKryGEVn7cZjtT4jg5b+PLg==
+X-Received: by 2002:a05:620a:c44:b0:7cc:58e5:17a6 with SMTP id af79cd13be357-7cd287c01b1mr705597985a.8.1747253050125;
+        Wed, 14 May 2025 13:04:10 -0700 (PDT)
+Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7cd00f63810sm893401985a.35.2025.05.14.13.04.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 May 2025 13:04:09 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v2] libsepol,checkpolicy: introduce neveraudit types
+Date: Wed, 14 May 2025 15:59:29 -0400
+Message-ID: <20250514195928.33737-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250511173055.406906-1-cgoettsche@seltendoof.de>
- <20250511173055.406906-13-cgoettsche@seltendoof.de> <CAEjxPJ6PbCy6u1+3fnqXkxmEPtY3XadAT-csk-+eTmjLnfNFVg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6PbCy6u1+3fnqXkxmEPtY3XadAT-csk-+eTmjLnfNFVg@mail.gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 14 May 2025 16:02:19 -0400
-X-Gm-Features: AX0GCFuT2_-Fc1ONsaXgNq0rSBhNCBwozgnvQOJOsJd_3h7gZTVWyOZsivCru2Y
-Message-ID: <CAP+JOzQpWav+a-DmA3Sh22JAPHmX0U9HMvNqpW-LU9sGj-9dbA@mail.gmail.com>
-Subject: Re: [PATCH v3 13/14] selinux: restrict policy strings
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: cgzones@googlemail.com, selinux@vger.kernel.org, 
-	Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, May 14, 2025 at 3:40=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Sun, May 11, 2025 at 1:31=E2=80=AFPM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
-> >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > Validate the characters and the lengths of strings parsed from binary
-> > policies.
-> >
-> >   * Disallow control characters
-> >   * Limit characters of identifiers to alphanumeric, underscore, dash,
-> >     and dot
-> >   * Limit identifiers in length to 64, expect types to 1024,
-> >     sensitivities to 32 and categories to 16, characters
-> >     (excluding NUL-terminator)
->
-> (added James Carter to explicit cc for comparison with any
-> userspace-imposed restrictions)
->
-> I think we could easily go lower than 1024 characters for type names.
->
+Introduce neveraudit types i.e. types that should never trigger
+audit messages. This allows the AVC to skip all audit-related
+processing for such types. Note that neveraudit differs from
+dontaudit not only wrt being applied for all checks with a given
+source type but also in that it disables all auditing, not just
+permission denials.
 
-CIL has a limit of 2,048 for identifiers. Checkpolicy has a limit of 8,192.
-We definitely could have lower limits. I think that I would rather
-have one limit rather than a bunch of different limits, but it
-wouldn't be too hard to do different limits if there is a good reason
-to do that.
-Even a limit of 256 would seem to be sufficient (at least until AI takes ov=
-er).
-Jim
+When a type is both a permissive type and a neveraudit type,
+the security server can short-circuit the security_compute_av()
+logic, rendering the type equivalent to an unconfined type.
 
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> > v3:
-> >   - introduce a central limits.h header
-> >   - add limits for all kinds of string: filesystem names, filetrans
-> >     keys, genfs paths, infiniband device names
-> > v2:
-> >   - add wrappers for str_read() to minimize the usage of magic numbers
-> >   - limit sensitivities to a length of 32, to match categories,
-> >     suggested by Daniel
-> > ---
-> >  security/selinux/include/limits.h | 90 +++++++++++++++++++++++++++++++
-> >  security/selinux/ss/conditional.c |  5 +-
-> >  security/selinux/ss/conditional.h |  2 -
-> >  security/selinux/ss/constraint.h  |  2 -
-> >  security/selinux/ss/policydb.c    | 78 ++++++++++++++++++---------
-> >  security/selinux/ss/policydb.h    | 51 +++++++++++++++++-
-> >  6 files changed, 196 insertions(+), 32 deletions(-)
-> >  create mode 100644 security/selinux/include/limits.h
-> >
-> > diff --git a/security/selinux/include/limits.h b/security/selinux/inclu=
-de/limits.h
-> > new file mode 100644
-> > index 000000000000..d267c0c64f49
-> > --- /dev/null
-> > +++ b/security/selinux/include/limits.h
-> > @@ -0,0 +1,90 @@
-> > +/* SPDX-License-Identifier: GPL-2.0-only */
-> > +/*
-> > + * Limits for various policy database elements.
-> > + */
-> > +
-> > +/*
-> > + * Maximum supported depth of conditional expressions.
-> > + */
-> > +#define COND_EXPR_MAXDEPTH 10
-> > +
-> > +/*
-> > + * Maximum supported depth for constraint expressions.
-> > + */
-> > +#define CEXPR_MAXDEPTH 5
-> > +
-> > +/*
-> > + * Maximum supported identifier value.
-> > + *
-> > + * Reasoning: The most used symbols are types and they need to fit int=
-o
-> > + *            an u16 for the avtab entries. Keep U16_MAX as special va=
-lue
-> > + *            and U16_MAX-1 to avoid accidental overflows into U16_MAX=
-.
->
-> This seems rather arbitrary and unnecessary to me? Unless userspace
-> does the same?
->
-> > + */
-> > +#define IDENTIFIER_MAXVALUE (U16_MAX - 2)
-> > +
-> > +/*
-> > + * Maximum supported length of security context strings.
-> > + *
-> > + * Reasoning: The string must fir into a PAGE_SIZE.
->
-> s/fir/fit/
-> s/into a/under/
->
-> > + */
-> > +#define CONTEXT_MAXLENGTH 4000
->
-> Any particular reason to not just make it PAGE_SIZE then?
->
-> > +
-> > +/*
-> > + * Maximum supported boolean name length.
-> > + */
-> > +#define BOOLEAN_NAME_MAXLENGTH 64
-> > +
-> > +/*
-> > + * Maximum supported security class and common class name length.
-> > + */
-> > +#define CLASS_NAME_MAXLENGTH 64
-> > +
-> > +/*
-> > + * Maximum supported permission name length.
-> > + */
-> > +#define PERMISSION_NAME_MAXLENGTH 64
-> > +
-> > +/*
-> > + * Maximum supported user name length.
-> > + */
-> > +#define USER_NAME_MAXLENGTH 64
-> > +
-> > +/*
-> > + * Maximum supported role name length.
-> > + */
-> > +#define ROLE_NAME_MAXLENGTH 64
-> > +
-> > +/*
-> > + * Maximum supported type name length.
-> > + */
-> > +#define TYPE_NAME_MAXLENGTH 1024
->
-> Would advocate for a lower limit unless we know of a policy that would
-> exceed it.
->
-> > +
-> > +/*
-> > + * Maximum supported sensitivity name length.
-> > + */
-> > +#define SENSITIVITY_NAME_MAXLENGTH 32
-> > +
-> > +/*
-> > + * Maximum supported category name length.
-> > + */
-> > +#define CATEGORY_NAME_MAXLENGTH 16
-> > +
-> > +/*
-> > + * Maximum supported path name length for keys in filename transitions=
-.
-> > + */
-> > +#define FILETRANSKEY_NAME_MAXLENGTH 1024
->
-> These are component names only, right, not multi-component pathnames?
-> In that case open to lower limit or using something defined by fs layer.
->
-> > +
-> > +/*
-> > + * Maximum supported filesystem name length.
->
-> s/filesystem/filesystem type/
->
-> > + */
-> > +#define FILESYSTEM_NAME_MAXLENGTH 128
->
-> If we can find a limit imposed by the kernel elsewhere for fstype
-> names, we should just reuse that.
->
-> > +
-> > +/*
-> > + * Maximum supported path prefix length for genfs statements.
-> > + */
-> > +#define GENFS_PATH_MAXLENGTH 1024
->
-> Should just use PATH_MAX or similar definition from elsewhere.
->
-> > +
-> > +/*
-> > + * Maximum supported Infiniband device name length.
-> > + */
-> > +#define INFINIBAND_DEVNAME_MAXLENGTH 256
->
-> Would use a limit from infiniband subsystem if one exists.
->
-> > diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/co=
-nditional.c
-> > index ce0281cce739..c0a2814dafdb 100644
-> > --- a/security/selinux/ss/conditional.c
-> > +++ b/security/selinux/ss/conditional.c
-> > @@ -245,7 +245,8 @@ int cond_index_bool(void *key, void *datum, void *d=
-atap)
-> >         booldatum =3D datum;
-> >         p =3D datap;
-> >
-> > -       if (!booldatum->value || booldatum->value > p->p_bools.nprim)
-> > +       if (!booldatum->value || booldatum->value > p->p_bools.nprim ||
-> > +           booldatum->value > IDENTIFIER_MAXVALUE)
-> >                 return -EINVAL;
-> >
-> >         p->sym_val_to_name[SYM_BOOLS][booldatum->value - 1] =3D key;
-> > @@ -280,7 +281,7 @@ int cond_read_bool(struct policydb *p, struct symta=
-b *s, struct policy_file *fp)
-> >
-> >         len =3D le32_to_cpu(buf[2]);
-> >
-> > -       rc =3D str_read(&key, GFP_KERNEL, fp, len);
-> > +       rc =3D str_read_bool(&key, GFP_KERNEL, fp, len);
-> >         if (rc)
-> >                 goto err;
-> >
-> > diff --git a/security/selinux/ss/conditional.h b/security/selinux/ss/co=
-nditional.h
-> > index 468e98ad3ea1..d5aefcbaa1eb 100644
-> > --- a/security/selinux/ss/conditional.h
-> > +++ b/security/selinux/ss/conditional.h
-> > @@ -12,8 +12,6 @@
-> >  #include "policydb.h"
-> >  #include "../include/conditional.h"
-> >
-> > -#define COND_EXPR_MAXDEPTH 10
-> > -
-> >  /*
-> >   * A conditional expression is a list of operators and operands
-> >   * in reverse polish notation.
-> > diff --git a/security/selinux/ss/constraint.h b/security/selinux/ss/con=
-straint.h
-> > index 1d75a8a044df..f986156de856 100644
-> > --- a/security/selinux/ss/constraint.h
-> > +++ b/security/selinux/ss/constraint.h
-> > @@ -19,8 +19,6 @@
-> >
-> >  #include "ebitmap.h"
-> >
-> > -#define CEXPR_MAXDEPTH 5
-> > -
-> >  struct constraint_expr {
-> >  #define CEXPR_NOT   1 /* not expr */
-> >  #define CEXPR_AND   2 /* expr and expr */
-> > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/polic=
-ydb.c
-> > index 2b098d9abf17..e64254985762 100644
-> > --- a/security/selinux/ss/policydb.c
-> > +++ b/security/selinux/ss/policydb.c
-> > @@ -552,7 +552,8 @@ static int common_index(void *key, void *datum, voi=
-d *datap)
-> >
-> >         comdatum =3D datum;
-> >         p =3D datap;
-> > -       if (!comdatum->value || comdatum->value > p->p_commons.nprim)
-> > +       if (!comdatum->value || comdatum->value > p->p_commons.nprim ||
-> > +           comdatum->value > IDENTIFIER_MAXVALUE)
-> >                 return -EINVAL;
-> >
-> >         p->sym_val_to_name[SYM_COMMONS][comdatum->value - 1] =3D key;
-> > @@ -567,7 +568,8 @@ static int class_index(void *key, void *datum, void=
- *datap)
-> >
-> >         cladatum =3D datum;
-> >         p =3D datap;
-> > -       if (!cladatum->value || cladatum->value > p->p_classes.nprim)
-> > +       if (!cladatum->value || cladatum->value > p->p_classes.nprim ||
-> > +           cladatum->value > IDENTIFIER_MAXVALUE)
-> >                 return -EINVAL;
-> >
-> >         p->sym_val_to_name[SYM_CLASSES][cladatum->value - 1] =3D key;
-> > @@ -583,6 +585,7 @@ static int role_index(void *key, void *datum, void =
-*datap)
-> >         role =3D datum;
-> >         p =3D datap;
-> >         if (!role->value || role->value > p->p_roles.nprim ||
-> > +           role->value > IDENTIFIER_MAXVALUE ||
-> >             role->bounds > p->p_roles.nprim)
-> >                 return -EINVAL;
-> >
-> > @@ -601,6 +604,7 @@ static int type_index(void *key, void *datum, void =
-*datap)
-> >
-> >         if (typdatum->primary) {
-> >                 if (!typdatum->value || typdatum->value > p->p_types.np=
-rim ||
-> > +                   typdatum->value > IDENTIFIER_MAXVALUE ||
-> >                     typdatum->bounds > p->p_types.nprim)
-> >                         return -EINVAL;
-> >                 p->sym_val_to_name[SYM_TYPES][typdatum->value - 1] =3D =
-key;
-> > @@ -618,6 +622,7 @@ static int user_index(void *key, void *datum, void =
-*datap)
-> >         usrdatum =3D datum;
-> >         p =3D datap;
-> >         if (!usrdatum->value || usrdatum->value > p->p_users.nprim ||
-> > +           usrdatum->value > IDENTIFIER_MAXVALUE ||
-> >             usrdatum->bounds > p->p_users.nprim)
-> >                 return -EINVAL;
-> >
-> > @@ -634,7 +639,8 @@ static int sens_index(void *key, void *datum, void =
-*datap)
-> >         levdatum =3D datum;
-> >         p =3D datap;
-> >
-> > -       if (!levdatum->level.sens || levdatum->level.sens > p->p_levels=
-.nprim)
-> > +       if (!levdatum->level.sens || levdatum->level.sens > p->p_levels=
-.nprim ||
-> > +           levdatum->level.sens > IDENTIFIER_MAXVALUE)
-> >                 return -EINVAL;
-> >
-> >         if (!levdatum->isalias)
-> > @@ -651,7 +657,8 @@ static int cat_index(void *key, void *datum, void *=
-datap)
-> >         catdatum =3D datum;
-> >         p =3D datap;
-> >
-> > -       if (!catdatum->value || catdatum->value > p->p_cats.nprim)
-> > +       if (!catdatum->value || catdatum->value > p->p_cats.nprim ||
-> > +           catdatum->value > IDENTIFIER_MAXVALUE)
-> >                 return -EINVAL;
-> >
-> >         if (!catdatum->isalias)
-> > @@ -1226,8 +1233,9 @@ static int context_read_and_validate(struct conte=
-xt *c, struct policydb *p,
-> >   * binary representation file.
-> >   */
-> >
-> > -int str_read(char **strp, gfp_t flags, struct policy_file *fp, u32 len=
-)
-> > +int str_read(char **strp, gfp_t flags, struct policy_file *fp, u32 len=
-, int kind, u32 max_len)
-> >  {
-> > +       u32 i;
-> >         int rc;
-> >         char *str;
-> >
-> > @@ -1237,19 +1245,35 @@ int str_read(char **strp, gfp_t flags, struct p=
-olicy_file *fp, u32 len)
-> >         if (size_check(sizeof(char), len, fp))
-> >                 return -EINVAL;
-> >
-> > +       if (len > max_len)
-> > +               return -EINVAL;
-> > +
-> >         str =3D kmalloc(len + 1, flags | __GFP_NOWARN);
-> >         if (!str)
-> >                 return -ENOMEM;
-> >
-> >         rc =3D next_entry(str, fp, len);
-> > -       if (rc) {
-> > -               kfree(str);
-> > -               return rc;
-> > +       if (rc)
-> > +               goto bad_str;
-> > +
-> > +       rc =3D -EINVAL;
-> > +       for (i =3D 0; i < len; i++) {
-> > +               if (iscntrl(str[i]))
-> > +                       goto bad_str;
-> > +
-> > +               if (kind =3D=3D STR_IDENTIFIER &&
-> > +                   !(isalnum(str[i]) || str[i] =3D=3D '_' || str[i] =
-=3D=3D '-' || str[i] =3D=3D '.'))
-> > +                       goto bad_str;
-> > +
-> >         }
-> >
-> >         str[len] =3D '\0';
-> >         *strp =3D str;
-> >         return 0;
-> > +
-> > +bad_str:
-> > +       kfree(str);
-> > +       return rc;
-> >  }
-> >
-> >  static int perm_read(struct policydb *p, struct symtab *s, struct poli=
-cy_file *fp)
-> > @@ -1274,7 +1298,7 @@ static int perm_read(struct policydb *p, struct s=
-ymtab *s, struct policy_file *f
-> >         if (perdatum->value < 1 || perdatum->value > SEL_VEC_MAX)
-> >                 goto bad;
-> >
-> > -       rc =3D str_read(&key, GFP_KERNEL, fp, len);
-> > +       rc =3D str_read_perm(&key, GFP_KERNEL, fp, len);
-> >         if (rc)
-> >                 goto bad;
-> >
-> > @@ -1321,7 +1345,7 @@ static int common_read(struct policydb *p, struct=
- symtab *s, struct policy_file
-> >                 goto bad;
-> >         comdatum->permissions.nprim =3D le32_to_cpu(buf[2]);
-> >
-> > -       rc =3D str_read(&key, GFP_KERNEL, fp, len);
-> > +       rc =3D str_read_class(&key, GFP_KERNEL, fp, len);
-> >         if (rc)
-> >                 goto bad;
-> >
-> > @@ -1559,12 +1583,12 @@ static int class_read(struct policydb *p, struc=
-t symtab *s, struct policy_file *
-> >
-> >         ncons =3D le32_to_cpu(buf[5]);
-> >
-> > -       rc =3D str_read(&key, GFP_KERNEL, fp, len);
-> > +       rc =3D str_read_class(&key, GFP_KERNEL, fp, len);
-> >         if (rc)
-> >                 goto bad;
-> >
-> >         if (len2) {
-> > -               rc =3D str_read(&cladatum->comkey, GFP_KERNEL, fp, len2=
-);
-> > +               rc =3D str_read_class(&cladatum->comkey, GFP_KERNEL, fp=
-, len2);
-> >                 if (rc)
-> >                         goto bad;
-> >
-> > @@ -1698,7 +1722,7 @@ static int role_read(struct policydb *p, struct s=
-ymtab *s, struct policy_file *f
-> >         if (p->policyvers >=3D POLICYDB_VERSION_BOUNDARY)
-> >                 role->bounds =3D le32_to_cpu(buf[2]);
-> >
-> > -       rc =3D str_read(&key, GFP_KERNEL, fp, len);
-> > +       rc =3D str_read_role(&key, GFP_KERNEL, fp, len);
-> >         if (rc)
-> >                 goto bad;
-> >
-> > @@ -1765,7 +1789,7 @@ static int type_read(struct policydb *p, struct s=
-ymtab *s, struct policy_file *f
-> >                 typdatum->primary =3D le32_to_cpu(buf[2]);
-> >         }
-> >
-> > -       rc =3D str_read(&key, GFP_KERNEL, fp, len);
-> > +       rc =3D str_read_type(&key, GFP_KERNEL, fp, len);
-> >         if (rc)
-> >                 goto bad;
-> >
-> > @@ -1829,7 +1853,7 @@ static int user_read(struct policydb *p, struct s=
-ymtab *s, struct policy_file *f
-> >         if (p->policyvers >=3D POLICYDB_VERSION_BOUNDARY)
-> >                 usrdatum->bounds =3D le32_to_cpu(buf[2]);
-> >
-> > -       rc =3D str_read(&key, GFP_KERNEL, fp, len);
-> > +       rc =3D str_read_user(&key, GFP_KERNEL, fp, len);
-> >         if (rc)
-> >                 goto bad;
-> >
-> > @@ -1878,7 +1902,7 @@ static int sens_read(struct policydb *p, struct s=
-ymtab *s, struct policy_file *f
-> >                 goto bad;
-> >         levdatum->isalias =3D val;
-> >
-> > -       rc =3D str_read(&key, GFP_KERNEL, fp, len);
-> > +       rc =3D str_read_sens(&key, GFP_KERNEL, fp, len);
-> >         if (rc)
-> >                 goto bad;
-> >
-> > @@ -1921,7 +1945,7 @@ static int cat_read(struct policydb *p, struct sy=
-mtab *s, struct policy_file *fp
-> >                 goto bad;
-> >         catdatum->isalias =3D val;
-> >
-> > -       rc =3D str_read(&key, GFP_KERNEL, fp, len);
-> > +       rc =3D str_read_cat(&key, GFP_KERNEL, fp, len);
-> >         if (rc)
-> >                 goto bad;
-> >
-> > @@ -2230,7 +2254,7 @@ static int filename_trans_read_helper_compat(stru=
-ct policydb *p, struct policy_f
-> >         len =3D le32_to_cpu(buf[0]);
-> >
-> >         /* path component string */
-> > -       rc =3D str_read(&name, GFP_KERNEL, fp, len);
-> > +       rc =3D str_read(&name, GFP_KERNEL, fp, len, STR_UNCONSTRAINT, F=
-ILETRANSKEY_NAME_MAXLENGTH);
-> >         if (rc)
-> >                 return rc;
-> >
-> > @@ -2329,7 +2353,7 @@ static int filename_trans_read_helper(struct poli=
-cydb *p, struct policy_file *fp
-> >         len =3D le32_to_cpu(buf[0]);
-> >
-> >         /* path component string */
-> > -       rc =3D str_read(&name, GFP_KERNEL, fp, len);
-> > +       rc =3D str_read(&name, GFP_KERNEL, fp, len, STR_UNCONSTRAINT, F=
-ILETRANSKEY_NAME_MAXLENGTH);
-> >         if (rc)
-> >                 return rc;
-> >
-> > @@ -2483,7 +2507,7 @@ static int genfs_read(struct policydb *p, struct =
-policy_file *fp)
-> >                 if (!newgenfs)
-> >                         goto out;
-> >
-> > -               rc =3D str_read(&newgenfs->fstype, GFP_KERNEL, fp, len)=
-;
-> > +               rc =3D str_read_fsname(&newgenfs->fstype, GFP_KERNEL, f=
-p, len);
-> >                 if (rc)
-> >                         goto out;
-> >
-> > @@ -2522,7 +2546,8 @@ static int genfs_read(struct policydb *p, struct =
-policy_file *fp)
-> >                         if (!newc)
-> >                                 goto out;
-> >
-> > -                       rc =3D str_read(&newc->u.name, GFP_KERNEL, fp, =
-len);
-> > +                       rc =3D str_read(&newc->u.name, GFP_KERNEL, fp, =
-len,
-> > +                                     STR_UNCONSTRAINT, GENFS_PATH_MAXL=
-ENGTH);
-> >                         if (rc)
-> >                                 goto out;
-> >
-> > @@ -2625,7 +2650,7 @@ static int ocontext_read(struct policydb *p,
-> >                                         goto out;
-> >                                 len =3D le32_to_cpu(buf[0]);
-> >
-> > -                               rc =3D str_read(&c->u.name, GFP_KERNEL,=
- fp, len);
-> > +                               rc =3D str_read_fsname(&c->u.name, GFP_=
-KERNEL, fp, len);
-> >                                 if (rc)
-> >                                         goto out;
-> >
-> > @@ -2693,7 +2718,7 @@ static int ocontext_read(struct policydb *p,
-> >                                         goto out;
-> >
-> >                                 len =3D le32_to_cpu(buf[1]);
-> > -                               rc =3D str_read(&c->u.name, GFP_KERNEL,=
- fp, len);
-> > +                               rc =3D str_read_fsname(&c->u.name, GFP_=
-KERNEL, fp, len);
-> >                                 if (rc)
-> >                                         goto out;
-> >
-> > @@ -2759,7 +2784,9 @@ static int ocontext_read(struct policydb *p,
-> >                                 len =3D le32_to_cpu(buf[0]);
-> >
-> >                                 rc =3D str_read(&c->u.ibendport.dev_nam=
-e,
-> > -                                             GFP_KERNEL, fp, len);
-> > +                                             GFP_KERNEL, fp, len,
-> > +                                             STR_UNCONSTRAINT,
-> > +                                             INFINIBAND_DEVNAME_MAXLEN=
-GTH);
-> >                                 if (rc)
-> >                                         goto out;
-> >
-> > @@ -2827,7 +2854,8 @@ int policydb_read(struct policydb *p, struct poli=
-cy_file *fp)
-> >                 goto bad;
-> >         }
-> >
-> > -       rc =3D str_read(&policydb_str, GFP_KERNEL, fp, len);
-> > +       rc =3D str_read(&policydb_str, GFP_KERNEL, fp, len,
-> > +                     STR_UNCONSTRAINT, strlen(POLICYDB_STRING));
-> >         if (rc) {
-> >                 if (rc =3D=3D -ENOMEM) {
-> >                         pr_err("SELinux:  unable to allocate memory for=
- policydb string of length %d\n",
-> > diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/polic=
-ydb.h
-> > index b4f0c1a754cf..e901ec648cbf 100644
-> > --- a/security/selinux/ss/policydb.h
-> > +++ b/security/selinux/ss/policydb.h
-> > @@ -27,6 +27,7 @@
-> >  #include "mls_types.h"
-> >  #include "context.h"
-> >  #include "constraint.h"
-> > +#include "limits.h"
-> >
-> >  /*
-> >   * A datum type is defined for each kind of symbol
-> > @@ -408,7 +409,55 @@ static inline bool val_is_boolean(u32 value)
-> >         return value =3D=3D 0 || value =3D=3D 1;
-> >  }
-> >
-> > -extern int str_read(char **strp, gfp_t flags, struct policy_file *fp, =
-u32 len);
-> > +#define STR_UNCONSTRAINT 0
-> > +#define STR_IDENTIFIER 1
-> > +extern int str_read(char **strp, gfp_t flags, struct policy_file *fp, =
-u32 len,
-> > +                   int kind, u32 max_len);
-> > +
-> > +static inline int str_read_bool(char **strp, gfp_t flags, struct polic=
-y_file *fp, u32 len)
-> > +{
-> > +       return str_read(strp, flags, fp, len, STR_IDENTIFIER, BOOLEAN_N=
-AME_MAXLENGTH);
-> > +}
-> > +
-> > +static inline int str_read_cat(char **strp, gfp_t flags, struct policy=
-_file *fp, u32 len)
-> > +{
-> > +       return str_read(strp, flags, fp, len, STR_IDENTIFIER, CATEGORY_=
-NAME_MAXLENGTH);
-> > +}
-> > +
-> > +static inline int str_read_class(char **strp, gfp_t flags, struct poli=
-cy_file *fp, u32 len)
-> > +{
-> > +       return str_read(strp, flags, fp, len, STR_IDENTIFIER, CLASS_NAM=
-E_MAXLENGTH);
-> > +}
-> > +
-> > +static inline int str_read_perm(char **strp, gfp_t flags, struct polic=
-y_file *fp, u32 len)
-> > +{
-> > +       return str_read(strp, flags, fp, len, STR_IDENTIFIER, PERMISSIO=
-N_NAME_MAXLENGTH);
-> > +}
-> > +
-> > +static inline int str_read_role(char **strp, gfp_t flags, struct polic=
-y_file *fp, u32 len)
-> > +{
-> > +       return str_read(strp, flags, fp, len, STR_IDENTIFIER, ROLE_NAME=
-_MAXLENGTH);
-> > +}
-> > +
-> > +static inline int str_read_sens(char **strp, gfp_t flags, struct polic=
-y_file *fp, u32 len)
-> > +{
-> > +       return str_read(strp, flags, fp, len, STR_IDENTIFIER, SENSITIVI=
-TY_NAME_MAXLENGTH);
-> > +}
-> > +
-> > +static inline int str_read_type(char **strp, gfp_t flags, struct polic=
-y_file *fp, u32 len)
-> > +{
-> > +       return str_read(strp, flags, fp, len, STR_IDENTIFIER, TYPE_NAME=
-_MAXLENGTH);
-> > +}
-> > +
-> > +static inline int str_read_user(char **strp, gfp_t flags, struct polic=
-y_file *fp, u32 len)
-> > +{
-> > +       return str_read(strp, flags, fp, len, STR_IDENTIFIER, USER_NAME=
-_MAXLENGTH);
-> > +}
-> > +
-> > +static inline int str_read_fsname(char **strp, gfp_t flags, struct pol=
-icy_file *fp, u32 len)
-> > +{
-> > +       return str_read(strp, flags, fp, len, STR_IDENTIFIER, FILESYSTE=
-M_NAME_MAXLENGTH);
-> > +}
-> >
-> >  extern u16 string_to_security_class(struct policydb *p, const char *na=
-me);
-> >  extern u32 string_to_av_perm(struct policydb *p, u16 tclass, const cha=
-r *name);
-> > --
-> > 2.49.0
-> >
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+v2 adds trivial round-trip tests of the neveraudit policy.conf
+and typeneveraudit CIL statements, updates the secilc docs,
+and fixes an accidental removal of an ebitmap_destroy() call.
+
+ checkpolicy/policy_define.c                   | 43 +++++++++++++++++
+ checkpolicy/policy_define.h                   |  1 +
+ checkpolicy/policy_parse.y                    |  4 ++
+ checkpolicy/policy_scan.l                     |  2 +
+ checkpolicy/tests/policy_allonce.conf         |  1 +
+ .../tests/policy_allonce.expected.conf        |  1 +
+ .../tests/policy_allonce.expected_opt.conf    |  1 +
+ checkpolicy/tests/policy_allonce_mls.conf     |  1 +
+ .../tests/policy_allonce_mls.expected.conf    |  1 +
+ .../policy_allonce_mls.expected_opt.conf      |  1 +
+ libsepol/cil/src/cil.c                        | 15 ++++++
+ libsepol/cil/src/cil_binary.c                 | 24 ++++++++++
+ libsepol/cil/src/cil_binary.h                 | 12 +++++
+ libsepol/cil/src/cil_build_ast.c              | 46 ++++++++++++++++++
+ libsepol/cil/src/cil_build_ast.h              |  2 +
+ libsepol/cil/src/cil_copy_ast.c               | 17 +++++++
+ libsepol/cil/src/cil_copy_ast.h               |  1 +
+ libsepol/cil/src/cil_flavor.h                 |  1 +
+ libsepol/cil/src/cil_internal.h               |  7 +++
+ libsepol/cil/src/cil_policy.c                 | 14 ++++++
+ libsepol/cil/src/cil_resolve_ast.c            | 31 ++++++++++++
+ libsepol/cil/src/cil_resolve_ast.h            |  1 +
+ libsepol/cil/src/cil_write_ast.c              |  7 +++
+ .../test/integration_testing/mls_policy.cil   |  1 +
+ .../cil/test/integration_testing/nonmls.cil   |  1 +
+ libsepol/include/sepol/policydb/policydb.h    | 11 ++++-
+ libsepol/src/expand.c                         | 12 +++++
+ libsepol/src/kernel_to_cil.c                  | 47 +++++++++++++++++++
+ libsepol/src/kernel_to_conf.c                 | 47 +++++++++++++++++++
+ libsepol/src/module_to_cil.c                  |  4 ++
+ libsepol/src/policydb.c                       | 33 +++++++++++++
+ libsepol/src/policydb_validate.c              | 22 +++++++++
+ libsepol/src/write.c                          | 44 ++++++++++++++---
+ secilc/docs/README.md                         |  1 +
+ secilc/docs/cil_type_statements.md            | 38 +++++++++++++++
+ secilc/docs/secil.xml                         |  1 +
+ secilc/test/integration.cil                   |  3 +-
+ secilc/test/policy.cil                        |  3 +-
+ 38 files changed, 492 insertions(+), 10 deletions(-)
+
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 78adbec0..4e0ddcc6 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -257,6 +257,49 @@ out:
+ 	return rc;
+ }
+ 
++int define_neveraudit(void)
++{
++	char *type = NULL;
++	struct type_datum *t;
++	int rc = 0;
++
++	type = queue_remove(id_queue);
++
++	if (!type) {
++		yyerror2("forgot to include type in neveraudit definition?");
++		rc = -1;
++		goto out;
++	}
++
++	if (pass == 1)
++		goto out;
++
++	if (!is_id_in_scope(SYM_TYPES, type)) {
++		yyerror2("type %s is not within scope", type);
++		rc = -1;
++		goto out;
++	}
++
++	t = hashtab_search(policydbp->p_types.table, type);
++	if (!t) {
++		yyerror2("type is not defined: %s", type);
++		rc = -1;
++		goto out;
++	}
++
++	if (t->flavor == TYPE_ATTRIB) {
++		yyerror2("attributes may not be neveraudit: %s", type);
++		rc = -1;
++		goto out;
++	}
++
++	t->flags |= TYPE_FLAGS_NEVERAUDIT;
++
++out:
++	free(type);
++	return rc;
++}
++
+ int define_polcap(void)
+ {
+ 	char *id = 0;
+diff --git a/checkpolicy/policy_define.h b/checkpolicy/policy_define.h
+index 216da3ad..59a19169 100644
+--- a/checkpolicy/policy_define.h
++++ b/checkpolicy/policy_define.h
+@@ -45,6 +45,7 @@ int define_ipv6_cidr_node_context(void);
+ int define_level(void);
+ int define_netif_context(void);
+ int define_permissive(void);
++int define_neveraudit(void);
+ int define_polcap(void);
+ int define_ibpkey_context(unsigned int low, unsigned int high);
+ int define_ibendport_context(unsigned int port);
+diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+index 7e117222..a88a6a7f 100644
+--- a/checkpolicy/policy_parse.y
++++ b/checkpolicy/policy_parse.y
+@@ -152,6 +152,7 @@ typedef int (* require_func_t)(int pass);
+ %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
+ %token POLICYCAP
+ %token PERMISSIVE
++%token NEVERAUDIT
+ %token FILESYSTEM
+ %token DEFAULT_USER DEFAULT_ROLE DEFAULT_TYPE DEFAULT_RANGE
+ %token LOW_HIGH LOW HIGH GLBLUB
+@@ -330,6 +331,7 @@ te_decl			: attribute_def
+                         | range_trans_def
+                         | te_avtab_def
+ 			| permissive_def
++			| neveraudit_def
+ 			;
+ attribute_def           : ATTRIBUTE identifier ';'
+                         { if (define_attrib()) YYABORT;}
+@@ -934,6 +936,8 @@ policycap_def		: POLICYCAP identifier ';'
+ 			;
+ permissive_def		: PERMISSIVE identifier ';'
+ 			{if (define_permissive()) YYABORT;}
++neveraudit_def		: NEVERAUDIT identifier ';'
++			{if (define_neveraudit()) YYABORT;}
+ 
+ /*********** module grammar below ***********/
+ 
+diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+index 5fb9ff37..1658830c 100644
+--- a/checkpolicy/policy_scan.l
++++ b/checkpolicy/policy_scan.l
+@@ -270,6 +270,8 @@ policycap |
+ POLICYCAP			{ return(POLICYCAP); }
+ permissive |
+ PERMISSIVE			{ return(PERMISSIVE); }
++neveraudit |
++NEVERAUDIT			{ return(NEVERAUDIT); }
+ default_user |
+ DEFAULT_USER			{ return(DEFAULT_USER); }
+ default_role |
+diff --git a/checkpolicy/tests/policy_allonce.conf b/checkpolicy/tests/policy_allonce.conf
+index 95a0f265..6565703c 100644
+--- a/checkpolicy/tests/policy_allonce.conf
++++ b/checkpolicy/tests/policy_allonce.conf
+@@ -45,6 +45,7 @@ auditallowxperm TYPE1 TYPE2 : CLASS1 ioctl 0x2;
+ dontauditxperm TYPE1 TYPE2 : CLASS1 ioctl 0x3;
+ neverallowxperm TYPE1 TYPE2 : CLASS1 ioctl 0x4;
+ permissive TYPE1;
++neveraudit TYPE1;
+ attribute_role ROLE_ATTR1;
+ role ROLE1;
+ role ROLE3;
+diff --git a/checkpolicy/tests/policy_allonce.expected.conf b/checkpolicy/tests/policy_allonce.expected.conf
+index 79d62319..5697bb6e 100644
+--- a/checkpolicy/tests/policy_allonce.expected.conf
++++ b/checkpolicy/tests/policy_allonce.expected.conf
+@@ -31,6 +31,7 @@ typealias TYPE4 alias TYPEALIAS4;
+ typebounds TYPE4 TYPE3;
+ typeattribute TYPE4 ATTR2;
+ permissive TYPE1;
++neveraudit TYPE1;
+ allow TYPE1 self:CLASS1 { PERM1 };
+ allow TYPE1 self:CLASS2 { CPERM1 };
+ auditallow TYPE1 TYPE3:CLASS1 { PERM1 };
+diff --git a/checkpolicy/tests/policy_allonce.expected_opt.conf b/checkpolicy/tests/policy_allonce.expected_opt.conf
+index fa4e319b..478d1db8 100644
+--- a/checkpolicy/tests/policy_allonce.expected_opt.conf
++++ b/checkpolicy/tests/policy_allonce.expected_opt.conf
+@@ -31,6 +31,7 @@ typealias TYPE4 alias TYPEALIAS4;
+ typebounds TYPE4 TYPE3;
+ typeattribute TYPE4 ATTR2;
+ permissive TYPE1;
++neveraudit TYPE1;
+ allow TYPE1 self:CLASS1 { PERM1 };
+ allow TYPE1 self:CLASS2 { CPERM1 };
+ auditallow TYPE1 TYPE3:CLASS1 { PERM1 };
+diff --git a/checkpolicy/tests/policy_allonce_mls.conf b/checkpolicy/tests/policy_allonce_mls.conf
+index c88616b3..fa182906 100644
+--- a/checkpolicy/tests/policy_allonce_mls.conf
++++ b/checkpolicy/tests/policy_allonce_mls.conf
+@@ -53,6 +53,7 @@ auditallowxperm TYPE1 TYPE2 : CLASS1 ioctl 0x2;
+ dontauditxperm TYPE1 TYPE2 : CLASS1 ioctl 0x3;
+ neverallowxperm TYPE1 TYPE2 : CLASS1 ioctl 0x4;
+ permissive TYPE1;
++neveraudit TYPE1;
+ attribute_role ROLE_ATTR1;
+ role ROLE1;
+ role ROLE3;
+diff --git a/checkpolicy/tests/policy_allonce_mls.expected.conf b/checkpolicy/tests/policy_allonce_mls.expected.conf
+index 87c36f92..693a5b7f 100644
+--- a/checkpolicy/tests/policy_allonce_mls.expected.conf
++++ b/checkpolicy/tests/policy_allonce_mls.expected.conf
+@@ -39,6 +39,7 @@ typealias TYPE4 alias TYPEALIAS4;
+ typebounds TYPE4 TYPE3;
+ typeattribute TYPE4 ATTR2;
+ permissive TYPE1;
++neveraudit TYPE1;
+ allow TYPE1 self:CLASS1 { PERM1 };
+ allow TYPE1 self:CLASS2 { CPERM1 };
+ auditallow TYPE1 TYPE3:CLASS1 { PERM1 };
+diff --git a/checkpolicy/tests/policy_allonce_mls.expected_opt.conf b/checkpolicy/tests/policy_allonce_mls.expected_opt.conf
+index 38176166..b738f12b 100644
+--- a/checkpolicy/tests/policy_allonce_mls.expected_opt.conf
++++ b/checkpolicy/tests/policy_allonce_mls.expected_opt.conf
+@@ -39,6 +39,7 @@ typealias TYPE4 alias TYPEALIAS4;
+ typebounds TYPE4 TYPE3;
+ typeattribute TYPE4 ATTR2;
+ permissive TYPE1;
++neveraudit TYPE1;
+ allow TYPE1 self:CLASS1 { PERM1 };
+ allow TYPE1 self:CLASS2 { CPERM1 };
+ auditallow TYPE1 TYPE3:CLASS1 { PERM1 };
+diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+index 5521c7ea..9662cf45 100644
+--- a/libsepol/cil/src/cil.c
++++ b/libsepol/cil/src/cil.c
+@@ -171,6 +171,7 @@ char *CIL_KEY_TYPEALIAS;
+ char *CIL_KEY_TYPEALIASACTUAL;
+ char *CIL_KEY_TYPEBOUNDS;
+ char *CIL_KEY_TYPEPERMISSIVE;
++char *CIL_KEY_TYPENEVERAUDIT;
+ char *CIL_KEY_RANGETRANSITION;
+ char *CIL_KEY_USERROLE;
+ char *CIL_KEY_ROLETYPE;
+@@ -320,6 +321,7 @@ static void cil_init_keys(void)
+ 	CIL_KEY_TYPEALIASACTUAL = cil_strpool_add("typealiasactual");
+ 	CIL_KEY_TYPEBOUNDS = cil_strpool_add("typebounds");
+ 	CIL_KEY_TYPEPERMISSIVE = cil_strpool_add("typepermissive");
++	CIL_KEY_TYPENEVERAUDIT = cil_strpool_add("typeneveraudit");
+ 	CIL_KEY_RANGETRANSITION = cil_strpool_add("rangetransition");
+ 	CIL_KEY_USERROLE = cil_strpool_add("userrole");
+ 	CIL_KEY_ROLETYPE = cil_strpool_add("roletype");
+@@ -939,6 +941,9 @@ void cil_destroy_data(void **data, enum cil_flavor flavor)
+ 	case CIL_TYPEPERMISSIVE:
+ 		cil_destroy_typepermissive(*data);
+ 		break;
++	case CIL_TYPENEVERAUDIT:
++		cil_destroy_typeneveraudit(*data);
++		break;
+ 	case CIL_SENS:
+ 		cil_destroy_sensitivity(*data);
+ 		break;
+@@ -1310,6 +1315,8 @@ const char * cil_node_to_string(struct cil_tree_node *node)
+ 		return CIL_KEY_TYPEBOUNDS;
+ 	case CIL_TYPEPERMISSIVE:
+ 		return CIL_KEY_TYPEPERMISSIVE;
++	case CIL_TYPENEVERAUDIT:
++		return CIL_KEY_TYPENEVERAUDIT;
+ 	case CIL_SENS:
+ 		return CIL_KEY_SENSITIVITY;
+ 	case CIL_SENSALIAS:
+@@ -2451,6 +2458,14 @@ void cil_typepermissive_init(struct cil_typepermissive **typeperm)
+ 	(*typeperm)->type = NULL;
+ }
+ 
++void cil_typeneveraudit_init(struct cil_typeneveraudit **typeperm)
++{
++	*typeperm = cil_malloc(sizeof(**typeperm));
++
++	(*typeperm)->type_str = NULL;
++	(*typeperm)->type = NULL;
++}
++
+ void cil_nametypetransition_init(struct cil_nametypetransition **nametypetrans)
+ {
+ 	*nametypetrans = cil_malloc(sizeof(**nametypetrans));
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index e84188a0..a8770aa5 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -564,6 +564,27 @@ exit:
+ 
+ }
+ 
++int cil_typeneveraudit_to_policydb(policydb_t *pdb, struct cil_typeneveraudit *cil_typeperm)
++{
++	int rc = SEPOL_ERR;
++	type_datum_t *sepol_type = NULL;
++
++	rc = __cil_get_sepol_type_datum(pdb, DATUM(cil_typeperm->type), &sepol_type);
++	if (rc != SEPOL_OK) goto exit;
++
++	if (ebitmap_set_bit(&pdb->neveraudit_map, sepol_type->s.value, 1)) {
++		goto exit;
++	}
++
++	return SEPOL_OK;
++
++exit:
++	type_datum_destroy(sepol_type);
++	free(sepol_type);
++	return rc;
++
++}
++
+ int cil_typeattribute_to_policydb(policydb_t *pdb, struct cil_typeattribute *cil_attr, void *type_value_to_cil[])
+ {
+ 	int rc = SEPOL_ERR;
+@@ -4101,6 +4122,9 @@ static int __cil_node_to_policydb(struct cil_tree_node *node, void *extra_args)
+ 		case CIL_TYPEPERMISSIVE:
+ 			rc = cil_typepermissive_to_policydb(pdb, node->data);
+ 			break;
++		case CIL_TYPENEVERAUDIT:
++			rc = cil_typeneveraudit_to_policydb(pdb, node->data);
++			break;
+ 		case CIL_TYPEATTRIBUTE:
+ 			rc = cil_typeattribute_to_bitmap(pdb, db, node->data);
+ 			break;
+diff --git a/libsepol/cil/src/cil_binary.h b/libsepol/cil/src/cil_binary.h
+index 0b6e3b79..e6826221 100644
+--- a/libsepol/cil/src/cil_binary.h
++++ b/libsepol/cil/src/cil_binary.h
+@@ -136,6 +136,18 @@ int cil_typealias_to_policydb(policydb_t *pdb, struct cil_alias *cil_alias);
+  */
+ int cil_typepermissive_to_policydb(policydb_t *pdb, struct cil_typepermissive *cil_typeperm);
+ 
++/**
++ * Insert cil typeneveraudit structure into sepol policydb.
++ * The function looks up the previously inserted type and flips the bit
++ * in the neveraudit types bitmap that corresponds to that type's value.
++ *
++ * @param[in] pdb The policy database to insert the typeneveraudit into.
++ * @param[in] datum The cil_typeneveraudit datum.
++ *
++ * @return SEPOL_OK upon success or an error otherwise.
++ */
++int cil_typeneveraudit_to_policydb(policydb_t *pdb, struct cil_typeneveraudit *cil_typeperm);
++
+ /**
+  * Insert cil attribute structure into sepol policydb.
+  *
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index 072d2622..af6b96c3 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -3374,6 +3374,50 @@ void cil_destroy_typepermissive(struct cil_typepermissive *typeperm)
+ 	free(typeperm);
+ }
+ 
++int cil_gen_typeneveraudit(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node)
++{
++	enum cil_syntax syntax[] = {
++		CIL_SYN_STRING,
++		CIL_SYN_STRING,
++		CIL_SYN_END
++	};
++	size_t syntax_len = sizeof(syntax)/sizeof(*syntax);
++	struct cil_typeneveraudit *typeperm = NULL;
++	int rc = SEPOL_ERR;
++
++	if (db == NULL || parse_current == NULL || ast_node == NULL) {
++		goto exit;
++	}
++
++	rc = __cil_verify_syntax(parse_current, syntax, syntax_len);
++	if (rc != SEPOL_OK) {
++		goto exit;
++	}
++
++	cil_typeneveraudit_init(&typeperm);
++
++	typeperm->type_str = parse_current->next->data;
++
++	ast_node->data = typeperm;
++	ast_node->flavor = CIL_TYPENEVERAUDIT;
++
++	return SEPOL_OK;
++
++exit:
++	cil_tree_log(parse_current, CIL_ERR, "Bad typeneveraudit declaration");
++	cil_destroy_typeneveraudit(typeperm);
++	return rc;
++}
++
++void cil_destroy_typeneveraudit(struct cil_typeneveraudit *typeperm)
++{
++	if (typeperm == NULL) {
++		return;
++	}
++
++	free(typeperm);
++}
++
+ int cil_gen_typetransition(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node)
+ {
+ 	int rc = SEPOL_ERR;
+@@ -6255,6 +6299,8 @@ static struct cil_tree_node * parse_statement(struct cil_db *db, struct cil_tree
+ 		rc = cil_gen_bounds(db, parse_current, new_ast_node, CIL_TYPE);
+ 	} else if (parse_current->data == CIL_KEY_TYPEPERMISSIVE) {
+ 		rc = cil_gen_typepermissive(db, parse_current, new_ast_node);
++	} else if (parse_current->data == CIL_KEY_TYPENEVERAUDIT) {
++		rc = cil_gen_typeneveraudit(db, parse_current, new_ast_node);
+ 	} else if (parse_current->data == CIL_KEY_RANGETRANSITION) {
+ 		rc = cil_gen_rangetransition(db, parse_current, new_ast_node);
+ 	} else if (parse_current->data == CIL_KEY_ROLE) {
+diff --git a/libsepol/cil/src/cil_build_ast.h b/libsepol/cil/src/cil_build_ast.h
+index 7fa4299c..96be0116 100644
+--- a/libsepol/cil/src/cil_build_ast.h
++++ b/libsepol/cil/src/cil_build_ast.h
+@@ -146,7 +146,9 @@ int cil_gen_expandtypeattribute(struct cil_db *db, struct cil_tree_node *parse_c
+ void cil_destroy_expandtypeattribute(struct cil_expandtypeattribute *expandattr);
+ int cil_gen_typebounds(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node);
+ int cil_gen_typepermissive(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node);
++int cil_gen_typeneveraudit(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node);
+ void cil_destroy_typepermissive(struct cil_typepermissive *typeperm);
++void cil_destroy_typeneveraudit(struct cil_typeneveraudit *typeperm);
+ int cil_gen_typetransition(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node);
+ void cil_destroy_typetransition(struct cil_nametypetransition *nametypetrans);
+ int cil_gen_rangetransition(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node);
+diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
+index 1507edb4..2911523e 100644
+--- a/libsepol/cil/src/cil_copy_ast.c
++++ b/libsepol/cil/src/cil_copy_ast.c
+@@ -608,6 +608,20 @@ int cil_copy_typepermissive(__attribute__((unused)) struct cil_db *db, void *dat
+ 	return SEPOL_OK;
+ }
+ 
++int cil_copy_typeneveraudit(__attribute__((unused)) struct cil_db *db, void *data, void **copy, __attribute__((unused)) symtab_t *symtab)
++{
++	struct cil_typeneveraudit *orig = data;
++	struct cil_typeneveraudit *new = NULL;
++
++	cil_typeneveraudit_init(&new);
++
++	new->type_str = orig->type_str;
++
++	*copy = new;
++
++	return SEPOL_OK;
++}
++
+ int cil_copy_typeattribute(__attribute__((unused)) struct cil_db *db, __attribute__((unused)) void *data, void **copy, __attribute__((unused)) symtab_t *symtab)
+ {
+ 	struct cil_typeattribute *new;
+@@ -1807,6 +1821,9 @@ static int __cil_copy_node_helper(struct cil_tree_node *orig, uint32_t *finished
+ 	case CIL_TYPEPERMISSIVE:
+ 		copy_func = cil_copy_typepermissive;
+ 		break;
++	case CIL_TYPENEVERAUDIT:
++		copy_func = cil_copy_typeneveraudit;
++		break;
+ 	case CIL_TYPEATTRIBUTE:
+ 		copy_func = &cil_copy_typeattribute;
+ 		break;
+diff --git a/libsepol/cil/src/cil_copy_ast.h b/libsepol/cil/src/cil_copy_ast.h
+index 9e6be5ac..be33d99e 100644
+--- a/libsepol/cil/src/cil_copy_ast.h
++++ b/libsepol/cil/src/cil_copy_ast.h
+@@ -72,6 +72,7 @@ int cil_copy_roleallow(struct cil_db *db, void *data, void **copy, symtab_t *sym
+ int cil_copy_type(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
+ int cil_copy_typebounds(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
+ int cil_copy_typepermissive(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
++int cil_copy_typeneveraudit(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
+ int cil_copy_typeattribute(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
+ int cil_copy_typeattributeset(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
+ int cil_copy_typealias(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
+diff --git a/libsepol/cil/src/cil_flavor.h b/libsepol/cil/src/cil_flavor.h
+index 155d7c80..c5a472e7 100644
+--- a/libsepol/cil/src/cil_flavor.h
++++ b/libsepol/cil/src/cil_flavor.h
+@@ -77,6 +77,7 @@ enum cil_flavor {
+ 	CIL_TYPEALIASACTUAL,
+ 	CIL_TYPEBOUNDS,
+ 	CIL_TYPEPERMISSIVE,
++	CIL_TYPENEVERAUDIT,
+ 	CIL_SENSALIASACTUAL,
+ 	CIL_SENSITIVITYORDER,
+ 	CIL_SENSCAT,
+diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
+index 959b31e3..ae3ab824 100644
+--- a/libsepol/cil/src/cil_internal.h
++++ b/libsepol/cil/src/cil_internal.h
+@@ -188,6 +188,7 @@ extern char *CIL_KEY_TYPEALIAS;
+ extern char *CIL_KEY_TYPEALIASACTUAL;
+ extern char *CIL_KEY_TYPEBOUNDS;
+ extern char *CIL_KEY_TYPEPERMISSIVE;
++extern char *CIL_KEY_TYPENEVERAUDIT;
+ extern char *CIL_KEY_RANGETRANSITION;
+ extern char *CIL_KEY_USERROLE;
+ extern char *CIL_KEY_ROLETYPE;
+@@ -580,6 +581,11 @@ struct cil_typepermissive {
+ 	void *type; /* type or alias */
+ };
+ 
++struct cil_typeneveraudit {
++	char *type_str;
++	void *type; /* type or alias */
++};
++
+ struct cil_nametypetransition {
+ 	char *src_str;
+ 	void *src; /* type, alias, or attribute */
+@@ -1045,6 +1051,7 @@ void cil_expandtypeattribute_init(struct cil_expandtypeattribute **expandattr);
+ void cil_alias_init(struct cil_alias **alias);
+ void cil_aliasactual_init(struct cil_aliasactual **aliasactual);
+ void cil_typepermissive_init(struct cil_typepermissive **typeperm);
++void cil_typeneveraudit_init(struct cil_typeneveraudit **typeperm);
+ void cil_nametypetransition_init(struct cil_nametypetransition **nametypetrans);
+ void cil_rangetransition_init(struct cil_rangetransition **rangetrans);
+ void cil_bool_init(struct cil_bool **cilbool);
+diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.c
+index c497c8ab..ca73bd28 100644
+--- a/libsepol/cil/src/cil_policy.c
++++ b/libsepol/cil/src/cil_policy.c
+@@ -1297,6 +1297,11 @@ static void cil_typepermissive_to_policy(FILE *out, struct cil_typepermissive *r
+ 	fprintf(out, "permissive %s;\n", DATUM(rule->type)->fqn);
+ }
+ 
++static void cil_typeneveraudit_to_policy(FILE *out, struct cil_typeneveraudit *rule)
++{
++	fprintf(out, "neveraudit %s;\n", DATUM(rule->type)->fqn);
++}
++
+ struct block_te_rules_extra {
+ 	FILE *out;
+ 	enum cil_flavor flavor;
+@@ -1359,6 +1364,11 @@ static int __cil_block_te_rules_to_policy_helper(struct cil_tree_node *node, uin
+ 			cil_typepermissive_to_policy(args->out, node->data);
+ 		}
+ 		break;
++	case CIL_TYPENEVERAUDIT:
++		if (args->flavor == node->flavor) {
++			cil_typeneveraudit_to_policy(args->out, node->data);
++		}
++		break;
+ 	default:
+ 		break;
+ 	}
+@@ -1376,6 +1386,10 @@ static void cil_block_te_rules_to_policy(FILE *out, struct cil_tree_node *start,
+ 	args.rule_kind = 0;
+ 	cil_tree_walk(start, __cil_block_te_rules_to_policy_helper, NULL, NULL, &args);
+ 
++	args.flavor = CIL_TYPENEVERAUDIT;
++	args.rule_kind = 0;
++	cil_tree_walk(start, __cil_block_te_rules_to_policy_helper, NULL, NULL, &args);
++
+ 	args.flavor = CIL_AVRULE;
+ 	args.rule_kind = CIL_AVRULE_ALLOWED;
+ 	cil_tree_walk(start, __cil_block_te_rules_to_policy_helper, NULL, NULL, &args);
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index a8fa89df..30a571d8 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -624,6 +624,34 @@ exit:
+ 	return rc;
+ }
+ 
++int cil_resolve_typeneveraudit(struct cil_tree_node *current, struct cil_db *db)
++{
++	struct cil_typeneveraudit *typeperm = current->data;
++	struct cil_symtab_datum *type_datum = NULL;
++	struct cil_tree_node *type_node = NULL;
++	int rc = SEPOL_ERR;
++
++	rc = cil_resolve_name(current, typeperm->type_str, CIL_SYM_TYPES, db, &type_datum);
++	if (rc != SEPOL_OK) {
++		goto exit;
++	}
++
++	type_node = NODE(type_datum);
++
++	if (type_node->flavor != CIL_TYPE && type_node->flavor != CIL_TYPEALIAS) {
++		cil_log(CIL_ERR, "Typeneveraudit must be a type or type alias\n");
++		rc = SEPOL_ERR;
++		goto exit;
++	}
++
++	typeperm->type = type_datum;
++
++	return SEPOL_OK;
++
++exit:
++	return rc;
++}
++
+ int cil_resolve_nametypetransition(struct cil_tree_node *current, struct cil_db *db)
+ {
+ 	struct cil_nametypetransition *nametypetrans = current->data;
+@@ -3652,6 +3680,9 @@ static int __cil_resolve_ast_node(struct cil_tree_node *node, struct cil_args_re
+ 		case CIL_TYPEPERMISSIVE:
+ 			rc = cil_resolve_typepermissive(node, db);
+ 			break;
++		case CIL_TYPENEVERAUDIT:
++			rc = cil_resolve_typeneveraudit(node, db);
++			break;
+ 		case CIL_NAMETYPETRANSITION:
+ 			rc = cil_resolve_nametypetransition(node, db);
+ 			break;
+diff --git a/libsepol/cil/src/cil_resolve_ast.h b/libsepol/cil/src/cil_resolve_ast.h
+index 2f6b7e86..074fc4a4 100644
+--- a/libsepol/cil/src/cil_resolve_ast.h
++++ b/libsepol/cil/src/cil_resolve_ast.h
+@@ -46,6 +46,7 @@ int cil_resolve_typeattributeset(struct cil_tree_node *current, struct cil_db *d
+ int cil_resolve_typealias(struct cil_tree_node *current, struct cil_db *db);
+ int cil_resolve_typebounds(struct cil_tree_node *current, struct cil_db *db);
+ int cil_resolve_typepermissive(struct cil_tree_node *current, struct cil_db *db);
++int cil_resolve_typeneveraudit(struct cil_tree_node *current, struct cil_db *db);
+ int cil_resolve_nametypetransition(struct cil_tree_node *current, struct cil_db *db);
+ int cil_resolve_rangetransition(struct cil_tree_node *current, struct cil_db *db);
+ int cil_resolve_classcommon(struct cil_tree_node *current, struct cil_db *db);
+diff --git a/libsepol/cil/src/cil_write_ast.c b/libsepol/cil/src/cil_write_ast.c
+index 15d8bbaf..a3c3aef8 100644
+--- a/libsepol/cil/src/cil_write_ast.c
++++ b/libsepol/cil/src/cil_write_ast.c
+@@ -1125,6 +1125,13 @@ void cil_write_ast_node(FILE *out, struct cil_tree_node *node)
+ 		fprintf(out, ")\n");
+ 		break;
+ 	}
++	case CIL_TYPENEVERAUDIT: {
++		struct cil_typeneveraudit *tp = node->data;
++		fprintf(out, "(typeneveraudit ");
++		fprintf(out, "%s", datum_or_str(DATUM(tp->type), tp->type_str));
++		fprintf(out, ")\n");
++		break;
++	}
+ 	case CIL_TYPEBOUNDS: {
+ 		struct cil_bounds *bounds = node->data;
+ 		fprintf(out, "(typebounds ");
+diff --git a/libsepol/cil/test/integration_testing/mls_policy.cil b/libsepol/cil/test/integration_testing/mls_policy.cil
+index 535ac110..206f3612 100644
+--- a/libsepol/cil/test/integration_testing/mls_policy.cil
++++ b/libsepol/cil/test/integration_testing/mls_policy.cil
+@@ -88,6 +88,7 @@
+ (nametypetransition string typea_t typeb_t fooclass foo_t)
+ 
+ (typepermissive foo_t)
++(typeneveraudit foo_t)
+ 
+ (typebounds typea_t typeb_t)
+ 
+diff --git a/libsepol/cil/test/integration_testing/nonmls.cil b/libsepol/cil/test/integration_testing/nonmls.cil
+index 382b95db..dfdba292 100644
+--- a/libsepol/cil/test/integration_testing/nonmls.cil
++++ b/libsepol/cil/test/integration_testing/nonmls.cil
+@@ -59,6 +59,7 @@
+ (nametypetransition string typea_t typeb_t fooclass foo_t)
+ 
+ (typepermissive foo_t)
++(typeneveraudit foo_t)
+ 
+ (typebounds typea_t typeb_t)
+ 
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index f833354b..f1c4edac 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -188,6 +188,7 @@ typedef struct type_datum {
+ #define TYPE_FLAGS_EXPAND_ATTR_FALSE	(1 << 2)
+ #define TYPE_FLAGS_EXPAND_ATTR (TYPE_FLAGS_EXPAND_ATTR_TRUE | \
+ 				TYPE_FLAGS_EXPAND_ATTR_FALSE)
++#define TYPE_FLAGS_NEVERAUDIT		(1 << 3)
+ 	uint32_t flags;
+ 	uint32_t bounds;	/* bounds type, if exist */
+ } type_datum_t;
+@@ -200,6 +201,7 @@ typedef struct type_datum {
+ #define TYPEDATUM_PROPERTY_ATTRIBUTE	0x0002
+ #define TYPEDATUM_PROPERTY_ALIAS	0x0004	/* userspace only */
+ #define TYPEDATUM_PROPERTY_PERMISSIVE	0x0008	/* userspace only */
++#define TYPEDATUM_PROPERTY_NEVERAUDIT	0x0010	/* userspace only */
+ 
+ /* User attributes */
+ typedef struct user_datum {
+@@ -607,6 +609,9 @@ typedef struct policydb {
+ 	   bitmaps.  Someday the 0 bit may be used for global permissive */
+ 	ebitmap_t permissive_map;
+ 
++	/* ditto */
++	ebitmap_t neveraudit_map;
++
+ 	unsigned policyvers;
+ 
+ 	unsigned handle_unknown;
+@@ -760,10 +765,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ #define POLICYDB_VERSION_GLBLUB		32
+ #define POLICYDB_VERSION_COMP_FTRANS	33 /* compressed filename transitions */
+ #define POLICYDB_VERSION_COND_XPERMS	34 /* extended permissions in conditional policies */
++#define POLICYDB_VERSION_NEVERAUDIT	35 /* neveraudit domains */
+ 
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_COND_XPERMS
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_NEVERAUDIT
+ 
+ /* Module versions and specific changes*/
+ #define MOD_POLICYDB_VERSION_BASE		4
+@@ -787,9 +793,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ #define MOD_POLICYDB_VERSION_GLBLUB		20
+ #define MOD_POLICYDB_VERSION_SELF_TYPETRANS	21
+ #define MOD_POLICYDB_VERSION_COND_XPERMS	22
++#define MOD_POLICYDB_VERSION_NEVERAUDIT		23
+ 
+ #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
+-#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_COND_XPERMS
++#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_NEVERAUDIT
+ 
+ #define POLICYDB_CONFIG_MLS    1
+ 
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 7032a83f..8695540c 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -170,6 +170,12 @@ static int type_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 			return -1;
+ 		}
+ 
++	if (new_type->flags & TYPE_FLAGS_NEVERAUDIT)
++		if (ebitmap_set_bit(&state->out->neveraudit_map, new_type->s.value, 1)) {
++			ERR(state->handle, "Out of memory!");
++			return -1;
++		}
++
+ 	return 0;
+ }
+ 
+@@ -732,6 +738,12 @@ static int alias_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
+ 			return -1;
+ 		}
+ 
++	if (new_alias->flags & TYPE_FLAGS_NEVERAUDIT)
++		if (ebitmap_set_bit(&state->out->neveraudit_map, new_alias->s.value, 1)) {
++			ERR(state->handle, "Out of memory!");
++			return -1;
++		}
++
+ 	return 0;
+ }
+ 
+diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+index ddca2b62..6fea2c6f 100644
+--- a/libsepol/src/kernel_to_cil.c
++++ b/libsepol/src/kernel_to_cil.c
+@@ -1637,6 +1637,48 @@ exit:
+ 	return rc;
+ }
+ 
++static int write_type_neveraudit_rules_to_cil(FILE *out, struct policydb *pdb)
++{
++	struct strs *strs;
++	char *name;
++	struct ebitmap_node *node;
++	unsigned i, num;
++	int rc = 0;
++
++	rc = strs_init(&strs, pdb->p_types.nprim);
++	if (rc != 0) {
++		goto exit;
++	}
++
++	ebitmap_for_each_positive_bit(&pdb->neveraudit_map, node, i) {
++		rc = strs_add(strs, pdb->p_type_val_to_name[i-1]);
++		if (rc != 0) {
++			goto exit;
++		}
++	}
++
++	strs_sort(strs);
++
++	num = strs_num_items(strs);
++	for (i=0; i<num; i++) {
++		name = strs_read_at_index(strs, i);
++		if (!name) {
++			rc = -1;
++			goto exit;
++		}
++		sepol_printf(out, "(typeneveraudit %s)\n", name);
++	}
++
++exit:
++	strs_destroy(&strs);
++
++	if (rc != 0) {
++		ERR(NULL, "Error writing typeneveraudit rules to CIL");
++	}
++
++	return rc;
++}
++
+ #define next_bit_in_range(i, p) (((i) + 1 < sizeof(p)*8) && xperm_test(((i) + 1), p))
+ 
+ static char *xperms_to_str(const avtab_extended_perms_t *xperms)
+@@ -3362,6 +3404,11 @@ int sepol_kernel_policydb_to_cil(FILE *out, struct policydb *pdb)
+ 		goto exit;
+ 	}
+ 
++	rc = write_type_neveraudit_rules_to_cil(out, pdb);
++	if (rc != 0) {
++		goto exit;
++	}
++
+ 	rc = write_avtab_to_cil(out, pdb, 0);
+ 	if (rc != 0) {
+ 		goto exit;
+diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+index 661546af..b3b0f224 100644
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -1690,6 +1690,48 @@ exit:
+ 	return rc;
+ }
+ 
++static int write_type_neveraudit_rules_to_conf(FILE *out, struct policydb *pdb)
++{
++	struct strs *strs;
++	char *name;
++	struct ebitmap_node *node;
++	unsigned i, num;
++	int rc = 0;
++
++	rc = strs_init(&strs, pdb->p_types.nprim);
++	if (rc != 0) {
++		goto exit;
++	}
++
++	ebitmap_for_each_positive_bit(&pdb->neveraudit_map, node, i) {
++		rc = strs_add(strs, pdb->p_type_val_to_name[i-1]);
++		if (rc != 0) {
++			goto exit;
++		}
++	}
++
++	strs_sort(strs);
++
++	num = strs_num_items(strs);
++	for (i=0; i<num; i++) {
++		name = strs_read_at_index(strs, i);
++		if (!name) {
++			rc = -1;
++			goto exit;
++		}
++		sepol_printf(out, "neveraudit %s;\n", name);
++	}
++
++exit:
++	strs_destroy(&strs);
++
++	if (rc != 0) {
++		ERR(NULL, "Error writing typeneveraudit rules to policy.conf");
++	}
++
++	return rc;
++}
++
+ static char *avtab_node_to_str(struct policydb *pdb, avtab_key_t *key, avtab_datum_t *datum)
+ {
+ 	uint32_t data = datum->data;
+@@ -3217,6 +3259,11 @@ int sepol_kernel_policydb_to_conf(FILE *out, struct policydb *pdb)
+ 		goto exit;
+ 	}
+ 
++	rc = write_type_neveraudit_rules_to_conf(out, pdb);
++	if (rc != 0) {
++		goto exit;
++	}
++
+ 	rc = write_avtab_to_conf(out, pdb, 0);
+ 	if (rc != 0) {
+ 		goto exit;
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index ae9a2b5d..a85d947b 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -2277,6 +2277,10 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
+ 			cil_println(indent, "(typepermissive %s)", key);
+ 		}
+ 
++		if (type->flags & TYPE_FLAGS_NEVERAUDIT) {
++			cil_println(indent, "(typeneveraudit %s)", key);
++		}
++
+ 		if (type->bounds > 0) {
+ 			cil_println(indent, "(typebounds %s %s)", pdb->p_type_val_to_name[type->bounds - 1], key);
+ 		}
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 8443380b..1f86c912 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -215,6 +215,13 @@ static const struct policydb_compat_info policydb_compat[] = {
+ 	 .ocon_num = OCON_IBENDPORT + 1,
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
++	{
++	 .type = POLICY_KERN,
++	 .version = POLICYDB_VERSION_NEVERAUDIT,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_IBENDPORT + 1,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
+ 	{
+ 	 .type = POLICY_BASE,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+@@ -348,6 +355,13 @@ static const struct policydb_compat_info policydb_compat[] = {
+ 	 .ocon_num = OCON_IBENDPORT + 1,
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
++	{
++	 .type = POLICY_BASE,
++	 .version = MOD_POLICYDB_VERSION_NEVERAUDIT,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_IBENDPORT + 1,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
+ 	{
+ 	 .type = POLICY_MOD,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+@@ -481,6 +495,13 @@ static const struct policydb_compat_info policydb_compat[] = {
+ 	 .ocon_num = 0,
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
++	{
++	 .type = POLICY_MOD,
++	 .version = MOD_POLICYDB_VERSION_NEVERAUDIT,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = 0,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
+ };
+ 
+ #if 0
+@@ -944,6 +965,7 @@ int policydb_init(policydb_t * p)
+ 
+ 	ebitmap_init(&p->policycaps);
+ 	ebitmap_init(&p->permissive_map);
++	ebitmap_init(&p->neveraudit_map);
+ 
+ 	return 0;
+ err:
+@@ -1522,6 +1544,8 @@ void policydb_destroy(policydb_t * p)
+ 
+ 	ebitmap_destroy(&p->permissive_map);
+ 
++	ebitmap_destroy(&p->neveraudit_map);
++
+ 	symtabs_destroy(p->symtab);
+ 
+ 	for (i = 0; i < SYM_NUM; i++) {
+@@ -2483,6 +2507,9 @@ static int type_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+ 		if (properties & TYPEDATUM_PROPERTY_PERMISSIVE
+ 		    && p->policy_type != POLICY_KERN)
+ 			typdatum->flags |= TYPE_FLAGS_PERMISSIVE;
++		if (properties & TYPEDATUM_PROPERTY_NEVERAUDIT
++		    && p->policy_type != POLICY_KERN)
++			typdatum->flags |= TYPE_FLAGS_NEVERAUDIT;
+ 
+ 		typdatum->bounds = le32_to_cpu(buf[++pos]);
+ 	} else {
+@@ -4337,6 +4364,12 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+ 			goto bad;
+ 	}
+ 
++	if (p->policyvers >= POLICYDB_VERSION_NEVERAUDIT &&
++	    p->policy_type == POLICY_KERN) {
++		if (ebitmap_read(&p->neveraudit_map, fp))
++			goto bad;
++	}
++
+ 	for (i = 0; i < info->sym_num; i++) {
+ 		rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
+ 		if (rc < 0)
+diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
+index 9ee4b948..d441526e 100644
+--- a/libsepol/src/policydb_validate.c
++++ b/libsepol/src/policydb_validate.c
+@@ -593,7 +593,9 @@ static int validate_type_datum(sepol_handle_t *handle, const type_datum_t *type,
+ 
+ 	switch (type->flags) {
+ 	case 0:
++	case TYPE_FLAGS_NEVERAUDIT:
+ 	case TYPE_FLAGS_PERMISSIVE:
++	case TYPE_FLAGS_NEVERAUDIT|TYPE_FLAGS_PERMISSIVE:
+ 	case TYPE_FLAGS_EXPAND_ATTR_TRUE:
+ 	case TYPE_FLAGS_EXPAND_ATTR_FALSE:
+ 	case TYPE_FLAGS_EXPAND_ATTR:
+@@ -1600,6 +1602,23 @@ bad:
+ 	return -1;
+ }
+ 
++static int validate_neveraudit(sepol_handle_t *handle, const policydb_t *p, validate_t flavors[])
++{
++	ebitmap_node_t *node;
++	uint32_t i;
++
++	ebitmap_for_each_positive_bit(&p->neveraudit_map, node, i) {
++		if (validate_simpletype(i, p, flavors))
++			goto bad;
++	}
++
++	return 0;
++
++bad:
++	ERR(handle, "Invalid neveraudit type");
++	return -1;
++}
++
+ static int validate_range_transition(hashtab_key_t key, hashtab_datum_t data, void *args)
+ {
+ 	const range_trans_t *rt = (const range_trans_t *)key;
+@@ -1805,6 +1824,9 @@ int policydb_validate(sepol_handle_t *handle, const policydb_t *p)
+ 	if (validate_permissives(handle, p, flavors))
+ 		goto bad;
+ 
++	if (validate_neveraudit(handle, p, flavors))
++		goto bad;
++
+ 	if (validate_range_transitions(handle, p, flavors))
+ 		goto bad;
+ 
+diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+index 89c80e7e..04dea4bd 100644
+--- a/libsepol/src/write.c
++++ b/libsepol/src/write.c
+@@ -1261,6 +1261,10 @@ static int type_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+ 		    && p->policy_type != POLICY_KERN)
+ 			properties |= TYPEDATUM_PROPERTY_PERMISSIVE;
+ 
++		if (typdatum->flags & TYPE_FLAGS_NEVERAUDIT
++		    && p->policy_type != POLICY_KERN)
++			properties |= TYPEDATUM_PROPERTY_NEVERAUDIT;
++
+ 		buf[items++] = cpu_to_le32(properties);
+ 		buf[items++] = cpu_to_le32(typdatum->bounds);
+ 	} else {
+@@ -1269,13 +1273,23 @@ static int type_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+ 		if (p->policy_type != POLICY_KERN) {
+ 			buf[items++] = cpu_to_le32(typdatum->flavor);
+ 
+-			if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
++			if (p->policyvers >= MOD_POLICYDB_VERSION_NEVERAUDIT)
+ 				buf[items++] = cpu_to_le32(typdatum->flags);
+-			else if (typdatum->flags & TYPE_FLAGS_PERMISSIVE)
+-				WARN(fp->handle, "Warning! Module policy "
+-				     "version %d cannot support permissive "
+-				     "types, but one was defined",
+-				     p->policyvers);
++			else {
++				if (typdatum->flags & TYPE_FLAGS_NEVERAUDIT)
++					WARN(fp->handle, "Warning! Module policy "
++						"version %d cannot support neveraudit "
++						"types, but one was defined",
++						p->policyvers);
++
++				if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
++					buf[items++] = cpu_to_le32(typdatum->flags & TYPE_FLAGS_NEVERAUDIT);
++				else if (typdatum->flags & TYPE_FLAGS_PERMISSIVE)
++					WARN(fp->handle, "Warning! Module policy "
++						"version %d cannot support permissive "
++						"types, but one was defined",
++						p->policyvers);
++			}
+ 		}
+ 	}
+ 	items2 = put_entry(buf, sizeof(uint32_t), items, fp);
+@@ -2332,12 +2346,30 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
+ 		}
+ 	}
+ 
++	if (p->policyvers < POLICYDB_VERSION_NEVERAUDIT &&
++	    p->policy_type == POLICY_KERN) {
++		ebitmap_node_t *tnode;
++
++		ebitmap_for_each_positive_bit(&p->neveraudit_map, tnode, i) {
++			WARN(fp->handle, "Warning! Policy version %d cannot "
++			     "support neveraudit types, but some were defined",
++			     p->policyvers);
++			break;
++		}
++	}
++
+ 	if (p->policyvers >= POLICYDB_VERSION_PERMISSIVE &&
+ 	    p->policy_type == POLICY_KERN) {
+ 		if (ebitmap_write(&p->permissive_map, fp) == -1)
+ 			return POLICYDB_ERROR;
+ 	}
+ 
++	if (p->policyvers >= POLICYDB_VERSION_NEVERAUDIT &&
++	    p->policy_type == POLICY_KERN) {
++		if (ebitmap_write(&p->neveraudit_map, fp) == -1)
++			return POLICYDB_ERROR;
++	}
++
+ 	num_syms = info->sym_num;
+ 	for (i = 0; i < num_syms; i++) {
+ 		buf[0] = cpu_to_le32(p->symtab[i].nprim);
+diff --git a/secilc/docs/README.md b/secilc/docs/README.md
+index 5e00fc3b..4d1762cb 100644
+--- a/secilc/docs/README.md
++++ b/secilc/docs/README.md
+@@ -131,6 +131,7 @@ CIL (Common Intermediate Language)
+   * [typemember](cil_type_statements.md#typemember)
+   * [typetransition](cil_type_statements.md#typetransition)
+   * [typepermissive](cil_type_statements.md#typepermissive)
++  * [typeneveraudit](cil_type_statements.md#typeneveraudit)
+ 
+ * [User Statements](cil_user_statements.md#user-statements)
+   * [user](cil_user_statements.md#user)
+diff --git a/secilc/docs/cil_type_statements.md b/secilc/docs/cil_type_statements.md
+index 19438417..541b9be1 100644
+--- a/secilc/docs/cil_type_statements.md
++++ b/secilc/docs/cil_type_statements.md
+@@ -601,3 +601,41 @@ This example will allow SELinux to run the `healthd.process` domain in permissiv
+         (allow ...)
+     )
+ ```
++
++typeneveraudit
++--------------
++
++Policy database version 35 introduced the neveraudit statement to suppress all AVC auditing on the named domain. This rules silences both permission denied and permission granted AVC audit messages irrespective of any auditallow, auditdeny, or dontaudit AV rules.
++
++**Statement definition:**
++
++```secil
++    (typeneveraudit source_type_id)
++```
++
++**Where:**
++
++<table>
++<colgroup>
++<col width="25%" />
++<col width="75%" />
++</colgroup>
++<tbody>
++<tr class="odd">
++<td align="left"><p><code>typeneveraudit</code></p></td>
++<td align="left"><p>The <code>typeneveraudit</code> keyword.</p></td>
++</tr>
++<tr class="even">
++<td align="left"><p><code>source_type_id</code></p></td>
++<td align="left"><p>A single previously declared <code>type</code> or <code>typealias</code> identifier.</p></td>
++</tr>
++</tbody>
++</table>
++
++**Example:**
++
++This example will silence SELinux AVC audit messages for the `unconfined_t` domain:
++
++```secil
++    (typeneveraudit unconfined_t)
++```
+diff --git a/secilc/docs/secil.xml b/secilc/docs/secil.xml
+index 60314e9a..0f60bcfa 100644
+--- a/secilc/docs/secil.xml
++++ b/secilc/docs/secil.xml
+@@ -96,6 +96,7 @@
+             <item>typechange</item>
+             <item>typemember</item>
+             <item>typepermissive</item>
++            <item>typeneveraudit</item>
+             <item>typetransition</item>
+             <item>unordered</item>
+             <item>user</item>
+diff --git a/secilc/test/integration.cil b/secilc/test/integration.cil
+index 2d3ac968..69c9ffd0 100644
+--- a/secilc/test/integration.cil
++++ b/secilc/test/integration.cil
+@@ -74,7 +74,8 @@
+ (typeattributeset bar_type (xor exec_type foo_type))
+ (typeattributeset baz_type (not bin_t))
+ (typealias bin_t sbin_t)
+-(typepermissive device_t) 
++(typepermissive device_t)
++(typeneveraudit device_t)
+ (typebounds device_t bin_t)
+ (typemember device_t bin_t file exec_t)
+ (typetransition device_t console_t file console_device_t)
+diff --git a/secilc/test/policy.cil b/secilc/test/policy.cil
+index d0d52d0d..d405a0ef 100644
+--- a/secilc/test/policy.cil
++++ b/secilc/test/policy.cil
+@@ -128,7 +128,8 @@
+ 	(typeattributeset not_bad_type (not bad_t))
+ 	(typealias sbin_t)
+ 	(typealiasactual sbin_t bin_t)
+-	(typepermissive device_t) 
++	(typepermissive device_t)
++	(typeneveraudit device_t)
+ 	(typemember device_t bin_t file exec_t)
+ 	(typemember exec_type self file exec_t)
+ 	(typetransition device_t console_t files console_device_t)
+-- 
+2.49.0
+
