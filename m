@@ -1,141 +1,171 @@
-Received: from smtp-relay-canonical-1.canonical.com (smtp-relay-canonical-1.canonical.com [185.125.188.121])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E83DB26FD97;
-	Wed, 14 May 2025 10:11:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.121
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0363A20E33A
+	for <selinux@vger.kernel.org>; Wed, 14 May 2025 11:02:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747217468; cv=none; b=EhjfCW4PmCP8R3o53GPlfRxFF0zFqU7xj1LOx5SIBhxSoNLjMF6+Abag/K1j16FtCwjaBUYl5DRNSqMTXsAgKZYaZjJZVFWtter/m2MMhe0pcHiZ9hmPZm18LOncQ9RGHMc8xysIuXToqewD+36ecIk1gpc3kETm0GgYHjp/hhE=
+	t=1747220557; cv=none; b=LtllBGC1Rgvg3STO3+jNj1TffZrpVZMCE7pJ01we20bUGcg27oKMY6V1sjti/0ZmXjuyAf/R2Kzn+wmxzJMceDSEnwjhO8QWezrVnc0/aB9hF3JVVj35tG9+GbanUtj/8O5lPMzZ2ClMdarUmHR4b25VYPNuZkvcMLUcpJ8SvY8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747217468; c=relaxed/simple;
-	bh=qsfmq5C+IITYJ5EKzEiGDgvTbGMITLd6vqS1//lC/+4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OB/guirZXfSjRo0KSDTDC9kvsMaAmwueJ7Z+t+xBwicwop24Gcd5GA5lnECYj694Zk/By88x/l1Si76T5V2rPz4EzmwE5KpeRCK8TuaieJbB6lLYJw8n7Hst5VrrYS8sQSfUFyWDNj+cDd3RtJrpgloZDAbxlGVkj2Qg360AqDU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=J+2uuoZo; arc=none smtp.client-ip=185.125.188.121
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
+	s=arc-20240116; t=1747220557; c=relaxed/simple;
+	bh=g6FsWqajrTcVSIHknD3zeLY9flfbWnzSw3aQFZLECpw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mmvCRlTGyrjdmDdQ9R216hwIjWsfsUXqPdqh8P6jWyqSPC1E5//vuy+7U2bq+hDd2yDGi1U/O3lc+KdIeMD+hPe7wdNFHRj+QzXy1bTTPrm10+Tf4CwI5o8ZYyRO3xLwyuUbUmXj95hXtxalKV5f93AaEPBgprXaIq7eqVDrlOw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=I15Wzgb4; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="J+2uuoZo"
-Received: from [10.101.3.110] (unknown [213.157.19.150])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id 671723FF22;
-	Wed, 14 May 2025 10:10:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1747217457;
-	bh=qgHA9TR2H+dywhDU/QwLravQ1/Fu0xjHWuAIXiaWK00=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type;
-	b=J+2uuoZou3BA+t7i+EbV5Wdi/B1QMC7RmEedrJ3LV9UCrK7bgt5RYOrSmK0HJp0hW
-	 PMlM+lOMc/DE/vIYqN5ZE0Enfv3JoMAIms2fEzTYjkAKACLWqXCXT294cYJzaHYcL0
-	 ibCNMnkPkMXtzgaA8NalwMuJeihvJ658SHf3H73aUHaLNSE2WJMre2q0zL6ZGYwk5B
-	 yCnreIEfEM2BPLSPfrcmxhE5qWTrT+rMMYd0iitOrg5wXsLKke/J6OcsZwLw+4Sjoc
-	 xG5EfQaJaH3OZGHxPwnO/b4fpn1aBDKvdxtkUkLBRy0pYlo8AWhd1370PMCprbm3h4
-	 /y39Il765n91g==
-Message-ID: <5782ad8e-e4c3-47aa-b6a2-6f9079f6ee23@canonical.com>
-Date: Wed, 14 May 2025 03:10:56 -0700
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I15Wzgb4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1747220554;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Cav3Z4NY5VTBc23C/qTtaVoA8kEGEB5wAcjksldNIvE=;
+	b=I15Wzgb4KH+oyoPc6ukXT/0Rwdg5uNuvsAl9IB61zrfdLL64n3zJsde/cQlpOL63vmRgqh
+	eIv0oGHsyLYob1U9Fx4UGZG6Ey1R5cIe9TH/vN63/4zQN/PjxsRIT1AnWpkbjir82ox2zz
+	gOhrSEgIy0Z5w8YIy6dkuIs0UXJ1P4g=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-412-TIAxSnKeMa6nU_HFv87eog-1; Wed, 14 May 2025 07:02:32 -0400
+X-MC-Unique: TIAxSnKeMa6nU_HFv87eog-1
+X-Mimecast-MFC-AGG-ID: TIAxSnKeMa6nU_HFv87eog_1747220551
+Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-5fbeee46e51so6846725a12.2
+        for <selinux@vger.kernel.org>; Wed, 14 May 2025 04:02:32 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747220551; x=1747825351;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Cav3Z4NY5VTBc23C/qTtaVoA8kEGEB5wAcjksldNIvE=;
+        b=sHToPm86X2D7My5IpLEV3mQv2HtfYRrXzWnMGE9BbYtt18+gtHcm7qx8ywQYt4HDls
+         CPiSXm7F3DK/zdMu5iBCzoe6xHCdfxuxZjPeQlNYhTC6rUHlvYrsL64rVK3Sk6RD8I46
+         sifHJOq8Sqwgkg8yQXX8Fq1QHrptOzsjj3qsCx5YQLWt39Gm3eIf3jA2CN3i2vgwOQup
+         4mD8F4xTVlViYFyacXasdfVEuPIVRxy3f/An6/DYEVF/Ux0Qzh0dzSUcaGYtlC19dMCW
+         NXh5WJZTf+paKRyw2IiUov2XcH0pFy0MRsSWJ1MtsflKitdgr9yagWn703FquHKgXXGT
+         Pa5A==
+X-Forwarded-Encrypted: i=1; AJvYcCXfXkF9InznyhHtu6z4clqmakOqMY12scX9WXgG7WWFmSaXjBVCewA1XXC9ZmwPgWl6v/Y8+Uyq@vger.kernel.org
+X-Gm-Message-State: AOJu0YwuWorgUZKg3evdGZ10BMAN3cXACQOi3Gjt5m4oqI/SjgISUhu0
+	FFRCDTubWQRNqP/2aoie7mQbJ+fHCktsZ8GsWbgbmK8KM5ctL1O3VXsiIyLTyx1f8CfwWZh4R+M
+	3AKwd/WR1YTWuzEEfvNJ7ysdBue6o2Rf9EKF/b/D59d4eYaZZaRqiig==
+X-Gm-Gg: ASbGncsomi71i7Mf9Yh1ebpeBQzjR91XBmZ5bCoGMbHJHnAYRrLo+QLek19ixvv8pNx
+	JL7UtRk8OHaAZ1/Y94gvq1L7+1hBOfI/3fMaoh66o9XhQ69bg6isQ/2m0APvE3mkX4ZIOmNw23w
+	8bAd+wxxyhfYVsq6Y62ki27XjYsHIrdNePMlq6EdyRRhi/s9STnVJQkf2HLG+xIoAKGE9UQKMMs
+	qI3sTg6rQ9qMRzOMV1kmGwM5uYcgCIrtVXxoNfiOSXMw2bQIu1Aa1SlGPFnst2dc2lCFKiVQS+Y
+	eg==
+X-Received: by 2002:a05:6402:234d:b0:5f4:ade4:88c5 with SMTP id 4fb4d7f45d1cf-5ff988dd135mr2082968a12.34.1747220551030;
+        Wed, 14 May 2025 04:02:31 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEs3ORoNcv9GW9V4gupozuqWmYmwSxEEUINo5zQzLXzCm36ngPWceLYKaaZhwPfqmrqY5iYdA==
+X-Received: by 2002:a05:6402:234d:b0:5f4:ade4:88c5 with SMTP id 4fb4d7f45d1cf-5ff988dd135mr2082854a12.34.1747220550339;
+        Wed, 14 May 2025 04:02:30 -0700 (PDT)
+Received: from thinky ([2a0e:fd87:a051:1:e664:4a86:4c01:c774])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5fe43357d45sm4879817a12.54.2025.05.14.04.02.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 May 2025 04:02:29 -0700 (PDT)
+Date: Wed, 14 May 2025 13:02:13 +0200
+From: Andrey Albershteyn <aalbersh@redhat.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Richard Henderson <richard.henderson@linaro.org>, 
+	Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, 
+	Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+	Christophe Leroy <christophe.leroy@csgroup.eu>, Naveen N Rao <naveen@kernel.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
+	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
+	"David S. Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
+	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, 
+	Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
+	=?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>, =?utf-8?Q?G=C3=BCnther?= Noack <gnoack@google.com>, 
+	Arnd Bergmann <arnd@arndb.de>, Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>, 
+	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, Tyler Hicks <code@tyhicks.com>, 
+	Miklos Szeredi <miklos@szeredi.hu>, Amir Goldstein <amir73il@gmail.com>, linux-alpha@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
+	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org, 
+	selinux@vger.kernel.org, ecryptfs@vger.kernel.org, linux-unionfs@vger.kernel.org, 
+	linux-xfs@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
+Subject: Re: [PATCH v5 2/7] lsm: introduce new hooks for setting/getting
+ inode fsxattr
+Message-ID: <kgl5h2iruqnhmad65sonlvneu6mdj6jl3sd4aoc3us3lvrgviy@imce27t4nk2e>
+References: <20250512-xattrat-syscall-v5-0-4cd6821e8ff7@kernel.org>
+ <20250512-xattrat-syscall-v5-2-4cd6821e8ff7@kernel.org>
+ <f700845d-f332-4336-a441-08f98cd7f075@schaufler-ca.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 14/29] lsm: add missing function header comment blocks
- in lsm_init.c
-To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
- linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Cc: Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu
- <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
- =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
- =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
- Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
- Casey Schaufler <casey@schaufler-ca.com>,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-References: <20250409185019.238841-31-paul@paul-moore.com>
- <20250409185019.238841-45-paul@paul-moore.com>
-Content-Language: en-US
-From: John Johansen <john.johansen@canonical.com>
-Autocrypt: addr=john.johansen@canonical.com; keydata=
- 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 lT9Q
-Organization: Canonical
-In-Reply-To: <20250409185019.238841-45-paul@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f700845d-f332-4336-a441-08f98cd7f075@schaufler-ca.com>
 
-On 4/9/25 11:49, Paul Moore wrote:
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-
-Reviewed-by: John Johansen <john.johansen@canonical.com>
-
-> ---
->   security/lsm_init.c | 7 +++++++
->   1 file changed, 7 insertions(+)
+On 2025-05-12 08:43:32, Casey Schaufler wrote:
+> On 5/12/2025 6:25 AM, Andrey Albershteyn wrote:
+> > Introduce new hooks for setting and getting filesystem extended
+> > attributes on inode (FS_IOC_FSGETXATTR).
+> >
+> > Cc: selinux@vger.kernel.org
+> > Cc: Paul Moore <paul@paul-moore.com>
+> >
+> > Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
+> > ---
+> >  fs/file_attr.c                | 19 ++++++++++++++++---
+> >  include/linux/lsm_hook_defs.h |  2 ++
+> >  include/linux/security.h      | 16 ++++++++++++++++
+> >  security/security.c           | 30 ++++++++++++++++++++++++++++++
+> >  4 files changed, 64 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/fs/file_attr.c b/fs/file_attr.c
+> > index 2910b7047721..be62d97cc444 100644
+> > --- a/fs/file_attr.c
+> > +++ b/fs/file_attr.c
+> > @@ -76,10 +76,15 @@ EXPORT_SYMBOL(fileattr_fill_flags);
+> >  int vfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
+> >  {
+> >  	struct inode *inode = d_inode(dentry);
+> > +	int error;
+> >  
+> >  	if (!inode->i_op->fileattr_get)
+> >  		return -ENOIOCTLCMD;
+> >  
+> > +	error = security_inode_file_getattr(dentry, fa);
+> > +	if (error)
+> > +		return error;
+> > +
 > 
-> diff --git a/security/lsm_init.c b/security/lsm_init.c
-> index 55b3fa82db76..04b1f5e760b1 100644
-> --- a/security/lsm_init.c
-> +++ b/security/lsm_init.c
-> @@ -313,6 +313,10 @@ static void __init lsm_init_single(struct lsm_info *lsm)
->   	WARN(ret, "%s failed to initialize: %d\n", lsm->id->name, ret);
->   }
->   
-> +/**
-> + * lsm_static_call_init - Initialize a LSM's static calls
-> + * @hl: LSM hook list
-> + */
->   static void __init lsm_static_call_init(struct security_hook_list *hl)
->   {
->   	struct lsm_static_call *scall = hl->scalls;
-> @@ -351,6 +355,9 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
->   	}
->   }
->   
-> +/**
-> + * early_security_init - Initialize the early LSMs
-> + */
->   int __init early_security_init(void)
->   {
->   	struct lsm_info *lsm;
+> If you're changing VFS behavior to depend on LSMs supporting the new
+> hooks I'm concerned about the impact it will have on the LSMs that you
+> haven't supplied hooks for. Have you tested these changes with anything
+> besides SELinux?
+
+Sorry, this thread is incomplete, I've resent full patchset again.
+If you have any further comments please comment in that thread [1]
+
+I haven't tested with anything except SELinux, but I suppose if
+module won't register any hooks, then security_inode_file_*() will
+return 0. Reverting SELinux implementation of the hooks doesn't
+cause any errors.
+
+I'm not that familiar with LSMs/selinux and its codebase, if you can
+recommend what need to be tested while adding new hooks, I will try
+to do that for next revision.
+
+[1]: https://lore.kernel.org/linux-fsdevel/CAOQ4uxgOAxg7N1OUJfb1KMp7oWOfN=KV9Lzz6ZrX0=XRGOQrEQ@mail.gmail.com/T/#t
+
+-- 
+- Andrey
 
