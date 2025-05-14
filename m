@@ -1,252 +1,243 @@
-Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
+Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2C9C19A;
-	Wed, 14 May 2025 00:03:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C76C68F6E
+	for <selinux@vger.kernel.org>; Wed, 14 May 2025 01:56:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747181027; cv=none; b=QiPA11YcsUz8FKUKnJF/pAWmpmccHd5NWYbS+KoCR4Z7Z2Bu95nuocLRGNxj7/sYuIz+a+5itIyV7/afg4h6AfMIZVfWtC8ABFn1gBBDRglShKsHEEBpNw3L/b3rK5JVtrQtqN9/0qQaNmqU3dnSbP7wGyDqPu7RIiy1h/Vw5FE=
+	t=1747187765; cv=none; b=SE6Usx1M9DeUoT6xY4ObMumdCXwnk4szCEJ5mEmEJTEX7XU1ZiuFz2g9AWUv7lvnTAZ2/T8cLwwvqSDCYB8d9cXpHOX3DZ1/MCEzwdSiAUA2+PT/1JQYXjsZoBUBZcUhLvXDIEb0iXsLPSfbt6tGrvOpxNx1NRTl4ReMP2K8nZc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747181027; c=relaxed/simple;
-	bh=NzvvLdmlFhPXase6EuO/2IrU2MZi+iI7evphEgCmIx4=;
+	s=arc-20240116; t=1747187765; c=relaxed/simple;
+	bh=xYoeRX9F5aX2RLXSN2xjCx5PuCrxlo1Q+3ikIWJmDXA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tds1gpBmYtSj6wqY9H8bWvOfeVFNjPzg2QvMGiwezJzscGpEKVkFmz3amNsDAZAOsAvYMpdPYB7mOzzRHwS7QR64qN9df2pWtzSkBJnzEiK0ZJKdpfgzN2zqJbXU2xrOGr1nqnVnTZpuvJXktgHnoOEfxLupUYm990EqG18ICyk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DATdbPta; arc=none smtp.client-ip=209.85.208.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=O7MF+6DwNWdxbNNdOy+oTwEe7OXktX1kFbaBWqeRNa7Vr4fWcVbMQhmPtZ5dv0bWxhtmQjVz5C2CwfPMv4NwaNhYbzJ9DbV9CyR4JeDPADebi01eF+uzmFyKFXQ3hVZf4Su4EklEFmkaMRvIn4P7YVqaDYNBEcEJRy5TS05pDao=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=HOUDuOTb; arc=none smtp.client-ip=209.85.167.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DATdbPta"
-Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-5f6fb95f431so677756a12.0;
-        Tue, 13 May 2025 17:03:45 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="HOUDuOTb"
+Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-54d98aa5981so10050116e87.0
+        for <selinux@vger.kernel.org>; Tue, 13 May 2025 18:56:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747181024; x=1747785824; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1747187762; x=1747792562; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6lqSoGgVBEs4e77J4dvCBv01iW/I9gHcChJC6DVoY/E=;
-        b=DATdbPta+VU+UKSs3fFENFrI/+k6Ai/8IxAe+ZcSfss8rtB/4ItrFqxos5X3Cv4qHW
-         WeK6eM7qDkl9Su22Cvk/QJ8rulDuH5FE3dwLyiFShqG/5XFCeXrHm9nxw7X9YyTFYhJm
-         FomSv+xQ6Qvg858NSfaj/RXCTGhM41MLoPDTD760KV0lMiUFm2I6G+ClOnRjmpMXOACw
-         5UOBr6/GMtgSZtJxnKExlpEo5+8nh7gyEL7aI+uIcuVo569UcNHuPWPOPWPZ6pCdvqmP
-         BF3drQ5mSXN9c+Ua0Lt396vc+fp7OReEioDDw3ODAlaOmdIKsD7YQcIanvkATP9GCSGx
-         H40g==
+        bh=xYoeRX9F5aX2RLXSN2xjCx5PuCrxlo1Q+3ikIWJmDXA=;
+        b=HOUDuOTb/l9XGViVSDVRSweBycExzjAoWf5LBcaW2ufApn0bTZ+41WHHa5awh8/dgN
+         1ihfAfnArpcXm8w4CZdXWGn9Q+/T54v6OHnqdfgiuJZwsgYxUXtwLc6ZywHhlSIrClpy
+         ygyGEq7NExUWhNnCtgehGZf3zprRsvp0yfQaY=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747181024; x=1747785824;
+        d=1e100.net; s=20230601; t=1747187762; x=1747792562;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=6lqSoGgVBEs4e77J4dvCBv01iW/I9gHcChJC6DVoY/E=;
-        b=jHjfceY25z4nI8A6B51aVOSSsqPqtRtT+VNtUCaq7VqsphdpgIF+gh4mhcT9mWLach
-         t307iRLhLzwzUqNZAh78I9cKoPQVN7iZVzH/8I742q98wfbenxxfiHK8D+gNa/p5siK3
-         AFWgCBfxMqnyiQhJbkug8eSUMKIoCiZ0wWBssBITHGCQiK2utCVMibxh9/W+evQexd+c
-         nKxf2V7LRbK4lvEJikQC4yOeMcupnKpgcVUdoEIg2rnt/XBv7R2Ub34xN7znObFkZZhQ
-         Ec5RSId0bBVbRODp42CqsUdZ2N9ezRUUU109YAUDmQAJdXYleEc53I3gPkLbCBjsp6BR
-         HdMg==
-X-Forwarded-Encrypted: i=1; AJvYcCUNZx54SZST5HaG2/6nMRJM108MuqFP7RkQhCdJa2sS0gW1Wdso0NdsfZxvMyTvEOsjXzwqSMzoaILouPpLM0KjYwvccvqu@vger.kernel.org, AJvYcCVO0fVCMPYjcnkS+kjRLhvUQ8yj5YDl7aE4f5o5T9Tfp/gks8W6aKdCaMPVHWblFESPMOTdQxzaDoBUzd8F@vger.kernel.org, AJvYcCWIlQWi2DqdKv6bnF730l6eIdGUMWE+ImZaZzFN7JvBzUwY1Ex3UOVff/DdETAJbpXK2wlwgYb61Q==@vger.kernel.org, AJvYcCWgq0g96/cAmnhUZHlRWR/IHk5ts7PKDtYiAOTbW+zHOOSCHolIRwsrydkee3Om+au1QRt0CvZiXuB9b2ao@vger.kernel.org, AJvYcCXMiI4HUJ9VUxc8ClmYimnE9nBH0ZpeKSePDtjEshwIo08xwTVJ2QWHf9pIY8brL1sVy74gxc6ZXP3Reyw3cMMa@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw2OHnsJyH/hb3xlWWAZtJ6oslkFDU46wI4C6Q2M1TytU+QboQc
-	Sd11GsSEuZ7KrR6bPSKcIMLvtWwonZcDgu2mjr4hP6gbOJE08qJCAngfXjolkz2Ur0Ir0JMHZ01
-	sDu0AwI2c3FEgABk9QJWSntb78vk=
-X-Gm-Gg: ASbGncuGJsv7az8tlDNNvI+wBZQs9Fw7pS0R3IqxUuBsxyE3gX/o/eCRrJLMDM4Lmkl
-	L41w36BaPKvaa6+JRR8dqYT29/mxg+0qP4y8lPLRL2VOHAJw0xcSyTiyJuF3lDyM8fc8F0UbR13
-	PboiK+C8wEICf4Ew5JucSIu/9GO4tE73adUfD/ejes2w==
-X-Google-Smtp-Source: AGHT+IGRlSkJ0UH4AJ6sv5ErNW8p3B/IKPPQ+Oz8ZXhFjDVyTM4z7WXblF2mhP+ITGzr1p9iVxs23uJFZScuNAmdKVU=
-X-Received: by 2002:a17:907:1785:b0:ad2:cce:8d5e with SMTP id
- a640c23a62f3a-ad4f71dc930mr154641766b.7.1747181023932; Tue, 13 May 2025
- 17:03:43 -0700 (PDT)
+        bh=xYoeRX9F5aX2RLXSN2xjCx5PuCrxlo1Q+3ikIWJmDXA=;
+        b=HVjMoKM/t/xQ75HfS5XWajJMIDFiezlQncfjK+vBYhSBWs1tSce1aDy8OIBatbuUO6
+         Q076Sc76YLnl9QK0dmfBRtClUNNnjpieBenYvAJ5eo6vVfa5U8d52PGcfPXlaqL8eAym
+         ixnwf86Yqi7+xt53S7W30SMrS9sMSHBpMIFpsLdeUvHuSiW51lOyf0Q81Dgh47SrvxlB
+         G3AhDYlbt3CBjgO2sA0Jw4/vMkRJ+lxE0vrrRpeyCwbZ88rCVbWIPMPaa61Jr2JSAEb4
+         x0oIbaig+YQTwV6G8rr6SUk/XVHKtZNSXggoH8Nb9/x4MP7AtBQlsf7s64VJigvT5WOV
+         5Isw==
+X-Forwarded-Encrypted: i=1; AJvYcCUkAvruI/G46dxMhnzLEJsItdBPfDqdkjpWSo7rX1fmpcoMZBQ3gEBWJ+avxyuz9AyCvoQuybxt@vger.kernel.org
+X-Gm-Message-State: AOJu0YxST7vJLdI6nYaqiHEEM1s9mPiUMUFFvSYFNRh5chVYkK759ljL
+	tYIqa3EwnU+8bc9Flfs4ZLqzoqHm4/1dyPcZi91oLOcbQy11fHFJjReEuaJRLin1YWZXfI+Bwaw
+	52KA/HzOrV80/Cw0ug0qe3X/ziI9/h9hvRFk=
+X-Gm-Gg: ASbGncuFSXWSdpdhCfY/SCHa+LMmlgitjnpYURIP/ecFpoWke9wUNb5skRhWazmcELi
+	gKYC0ha9nayt54uzd/FGscQew6vMGUwDpA/DNDI0wUk5mCx0rrsLrybXaaBVaNojxyVwhcKSmT2
+	eatApzcC3WFZ5z58pC6mQaPcpX1rbeceJ2wNSse18gTjJyda4vT5El6vjq6fXKMA==
+X-Google-Smtp-Source: AGHT+IG1Cwv9Pc/0XvrIpEisCgoHCruJWmXryckXlmk2rgH8zvf7jUgMpfqFJofX6vsKm3FjsjoHmYdu5S7VMET4U+c=
+X-Received: by 2002:a05:6512:660b:b0:54e:8194:9a72 with SMTP id
+ 2adb3069b0e04-550d5fb891fmr427996e87.28.1747187761806; Tue, 13 May 2025
+ 18:56:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20221006082735.1321612-1-keescook@chromium.org>
- <20221006082735.1321612-2-keescook@chromium.org> <20221006090506.paqjf537cox7lqrq@wittgenstein>
- <CAG48ez0sEkmaez9tYqgMXrkREmXZgxC9fdQD3mzF9cGo_=Tfyg@mail.gmail.com>
- <86CE201B-5632-4BB7-BCF6-7CB2C2895409@chromium.org> <h65sagivix3zbrppthcobnysgnlrnql5shiu65xyg7ust6mc54@cliutza66zve>
- <D03AE210-6874-43B6-B917-80CD259AE2AC@kernel.org> <CAG48ez0aP8LaGppy6Yon7xcFbQa1=CM-HXSZChvXYV2VJZ8y7g@mail.gmail.com>
- <871pss17hq.fsf@email.froward.int.ebiederm.org>
-In-Reply-To: <871pss17hq.fsf@email.froward.int.ebiederm.org>
-From: Mateusz Guzik <mjguzik@gmail.com>
-Date: Wed, 14 May 2025 02:03:31 +0200
-X-Gm-Features: AX0GCFst7wU9kVixjwdrqiox0NLTh4DbO3zQ5nACeNFmn77IHwc5Pm1sBQG733I
-Message-ID: <CAGudoHH-Jn5_4qnLV3qwzjTi2ZgfmfaO0qVSWW5gqdqkvchnDQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] fs/exec: Explicitly unshare fs_struct on exec
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Jann Horn <jannh@google.com>, Kees Cook <kees@kernel.org>, Kees Cook <keescook@chromium.org>, 
-	Christian Brauner <brauner@kernel.org>, Jorge Merlino <jorge.merlino@canonical.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Thomas Gleixner <tglx@linutronix.de>, 
-	Andy Lutomirski <luto@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
-	Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, 
-	linux-fsdevel@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Eric Paris <eparis@parisplace.org>, Richard Haines <richard_c_haines@btinternet.com>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Xin Long <lucien.xin@gmail.com>, 
-	"David S. Miller" <davem@davemloft.net>, Todd Kjos <tkjos@google.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Prashanth Prahlad <pprahlad@redhat.com>, 
-	Micah Morton <mortonm@chromium.org>, Fenghua Yu <fenghua.yu@intel.com>, 
-	Andrei Vagin <avagin@gmail.com>, linux-kernel@vger.kernel.org, apparmor@lists.ubuntu.com, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-hardening@vger.kernel.org, oleg@redhat.com
+References: <CAH9xa6eFqcLh=NSz+vFPr05yZjmn2ScDvVeFzib3DhY67SrP0A@mail.gmail.com>
+ <CAEjxPJ7KWhJEkWB7s+kLyT+-yXE9vyNzYgfGUS_i1jF7FzujOQ@mail.gmail.com>
+ <CAP+JOzR-UyYGwizSBnHjmJj8ERweZdiJi2cWExi64W9BGa+nNg@mail.gmail.com>
+ <CAEjxPJ6XxLoN5ECTOxADAQAFLYpjL1ieN6bLQ1NKTtUkRpWziQ@mail.gmail.com>
+ <CAP+JOzR24JyOWeKHDhi6+tYbd70V2Unkw5ppDkhrb7EK2A14=A@mail.gmail.com>
+ <CA+QFDK=o3_xTWnEyLm6kTKzcGrz+mMKXy1kQLNqeqiBUBHBBvw@mail.gmail.com>
+ <CAH9xa6cSNsiDx5Wq+nhZQwkkAPxh3bcy5mpBBbYTbaGnoZ3smg@mail.gmail.com> <CAP+JOzSPjmdigKyA6T+2Wibj6v=SPdsEJ7i59jpNoS08GYYpYw@mail.gmail.com>
+In-Reply-To: <CAP+JOzSPjmdigKyA6T+2Wibj6v=SPdsEJ7i59jpNoS08GYYpYw@mail.gmail.com>
+From: Takaya Saeki <takayas@chromium.org>
+Date: Wed, 14 May 2025 10:55:50 +0900
+X-Gm-Features: AX0GCFt5NKPRTtau8cI_M5EqSF32Al1cvFTSXbGBVVLaZ1b5rWmk6EmrLxnKMzk
+Message-ID: <CAH9xa6eKP6w55B33HMKJU8HbVso7sm-1mTvQ_9QjGnfcA7=rCw@mail.gmail.com>
+Subject: Re: [RFC] selinux: Keep genfscon prefix match semantics in userspace
+ for wildcard
+To: James Carter <jwcart2@gmail.com>
+Cc: Inseob Kim <inseob@google.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org, 
+	=?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+	Daniel Burgener <dburgener@linux.microsoft.com>, Junichi Uekawa <uekawa@chromium.org>, 
+	Tatsuyuki Ishi <ishitatsuyuki@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 14, 2025 at 12:17=E2=80=AFAM Eric W. Biederman
-<ebiederm@xmission.com> wrote:
+On Tue, May 13, 2025 at 10:08=E2=80=AFPM James Carter <jwcart2@gmail.com> w=
+rote:
 >
-> Jann Horn <jannh@google.com> writes:
->
-> > On Tue, May 13, 2025 at 10:57=E2=80=AFPM Kees Cook <kees@kernel.org> wr=
-ote:
-> >> On May 13, 2025 6:05:45 AM PDT, Mateusz Guzik <mjguzik@gmail.com> wrot=
-e:
-> >> >Here is my proposal: *deny* exec of suid/sgid binaries if fs_struct i=
-s
-> >> >shared. This will have to be checked for after the execing proc becom=
-es
-> >> >single-threaded ofc.
-> >>
-> >> Unfortunately the above Chrome helper is setuid and uses CLONE_FS.
+> On Tue, May 13, 2025 at 5:34=E2=80=AFAM Takaya Saeki <takayas@chromium.or=
+g> wrote:
 > >
-> > Chrome first launches a setuid helper, and then the setuid helper does
-> > CLONE_FS. Mateusz's proposal would not impact this usecase.
+> > On Tue, May 13, 2025 at 5:44=E2=80=AFPM Inseob Kim <inseob@google.com> =
+wrote:
+> > >
+> > > On Tue, May 13, 2025 at 1:57=E2=80=AFAM James Carter <jwcart2@gmail.c=
+om> wrote:
+> > > >
+> > > > On Mon, May 12, 2025 at 10:47=E2=80=AFAM Stephen Smalley
+> > > > <stephen.smalley.work@gmail.com> wrote:
+> > > > >
+> > > > > On Mon, May 12, 2025 at 10:31=E2=80=AFAM James Carter <jwcart2@gm=
+ail.com> wrote:
+> > > > > >
+> > > > > > On Fri, May 9, 2025 at 2:23=E2=80=AFPM Stephen Smalley
+> > > > > > <stephen.smalley.work@gmail.com> wrote:
+> > > > > > >
+> > > > > > > On Thu, May 8, 2025 at 10:50=E2=80=AFPM Takaya Saeki <takayas=
+@chromium.org> wrote:
+> > > > > > > >
+> > > > > > > > Hello Stephen, Paul, and all libselinux maintainers.
+> > > > > > > >
+> > > > > > > > I'd like to ask your opinions about an idea to keep the sem=
+antics of genfs in
+> > > > > > > > the userspace, before sending a patch to expose the new gen=
+fs_seclabel_wildcard
+> > > > > > > > kernel capability to libselinux users in polcaps.h as
+> > > > > > > > POLICYDB_CAP_GENFS_SECLABEL_WILDCARD.
+> > > > > > > >
+> > > > > > > > As a background, we introduced the genfs wildcard feature t=
+o the kernel selinux
+> > > > > > > > in https://lore.kernel.org/selinux/20250318083139.1515253-1=
+-takayas@chromium.org/
+> > > > > > > > (Thank you for your help and reviews!)
+> > > > > > > > That enabled libselinux to use wildcards in genfs rules. Th=
+ere we changed the
+> > > > > > > > semantics of genfs with the capability enabled in the kerne=
+l space from prefix
+> > > > > > > > match to exact match with wildcards for kernel implementati=
+on simplicity.
+> > > > > > > >
+> > > > > > > > I'm wondering whether we can keep the user-facing semantics=
+ of (genfscon ...)
+> > > > > > > > statements in CIL files in the following way.
+> > > > > > > >
+> > > > > > > > When secilc compiles a (genfscon ...) statement to the kern=
+el binary format, it
+> > > > > > > > adds a following `*` to the compiled kernel genfscon statem=
+ent if the input has
+> > > > > > > > (policycap genfs_seclabel_wildcard). If the input doesn't h=
+ave one, secilc does
+> > > > > > > > not add any following `*`. That keeps the behavior of (genf=
+scon ...) in CIL
+> > > > > > > > from the user perspective with and without the new wildcard=
+ capability. This is
+> > > > > > > > similar to what our first kernel patch did, but done in the=
+ userspace by secilc
+> > > > > > > > this time. So, the (genfscon ...) keeps the backward compat=
+ibility of prefix
+> > > > > > > > match for libselinux users, while keeping the kernel implem=
+entation simple.
+> > > > > > > > That would allow users to keep existing rules without modif=
+ication.
+> > > > > > > >
+> > > > > > > > I'd like to hear your opinions.
+> > > > > > >
+> > > > > >
+> > > > > > I agree with this approach. It should only be adding it when wr=
+iting
+> > > > > > the kernel binary policy.
+> > > > > >
+> > > > > > > (added James to cc for the secilc question)
+> > > > > > >
+> > > > > > > I'm assuming you mean libsepol rather than libselinux. I coul=
+d be
 > >
-> > Mateusz is proposing to block the case where a process first does
-> > CLONE_FS, and *then* one of the processes sharing the fs_struct does a
-> > setuid execve(). Linux already downgrades such an execve() to be
-> > non-setuid, which probably means anyone trying to do this will get
-> > hard-to-understand problems. Mateusz' proposal would just turn this
-> > hard-to-debug edgecase, which already doesn't really work, into a
-> > clean error; I think that is a nice improvement even just from the
-> > UAPI standpoint.
+> > Yes, thanks for the correction.
 > >
-> > If this change makes it possible to clean up the kernel code a bit, eve=
-n better.
->
-> What has brought this to everyone's attention just now?  This is
-> the second mention of this code path I have seen this week.
->
-
-There is a syzkaller report concerning ->in_exec handling, for example:
-https://lore.kernel.org/all/67dc67f0.050a0220.25ae54.001f.GAE@google.com/#t
-
-> AKA: security/commoncap.c:cap_bprm_creds_from_file(...)
-> > ...
-> >       /* Don't let someone trace a set[ug]id/setpcap binary with the re=
-vised
-> >        * credentials unless they have the appropriate permit.
-> >        *
-> >        * In addition, if NO_NEW_PRIVS, then ensure we get no new privs.
-> >        */
-> >       is_setid =3D __is_setuid(new, old) || __is_setgid(new, old);
+> > > > > > > wrong, but I believe that in general policy capabilities are =
+only
+> > > > > > > declared once in the policy and typically in the base module,=
+ and
+> > > > > > > those settings are then applied globally to all policy module=
+s. While
+> > > > > > > you can put one in a non-base module, it still has a global e=
+ffect on
+> > > > > > > the final policy. Putting a policycap statement into every CI=
+L module
+> > > > > > > that wants this behavior would possibly trigger an error (not=
+ sure
+> > > > > > > how/if libsepol/secilc handles duplicate policycap statements=
+) and
+> > > > > > > regardless would enable it for the entire policy.
+> > >
+> > > We keep backward compatibility of (genfscon ...) so they'll always be
+> > > prefix-matched. For example, (policycap genfs_seclabel_wildcard) in
+> > > ./vendor/etc/selinux/vendor_sepolicy.cil won't affect how genfscon
+> > > statements in /system/etc/selinux/plat_sepolicy.cil work.
+> > >
+> > > > > >
+> > > > > > The policy capability can only be declared once. It will give a=
+n error
+> > > > > > if there is a duplicate.
+> > > > > >
+> > > > > > But since the CIL modules are not compiled individually, it doe=
+sn't
+> > > > > > matter where the policy capability is declared. CIL doesn't hav=
+e the
+> > > > > > concept of a base module, all modules are equal. Since Refpolic=
+y
+> > > > > > modules are converted to CIL in the policy infrastructure, ther=
+e is a
+> > > > > > base module, but that is because Refpolicy has the concept of a=
+ base
+> > > > > > module, not because CIL does.
+> > > > >
+> > > > > I think the problem is that there are multiple CIL modules shippe=
+d in
+> > > > > Android (e.g. vendor, platform, oem, ...) and more than one of th=
+em
+> > > > > might contain this policycap statement to indicate that its genfs=
+con
+> > > > > statements should be interpreted in this manner. So the final com=
+bined
+> > > > > policy that is fed to secilc could end up with duplicates unless =
+they
+> > > > > filter them out, or secilc is modified to ignore dups.
+> > > >
+> > > > I don't think it would be a problem to ignore duplicate policycap
+> > > > statements. It should be a fairly small patch.
+> > > > Jim
+> > >
+> > > So, simply supporting this (allowing duplicated policycap statements)
+> > > will be enough even for the Android case.
+> > >
+> > > --
+> > > Inseob Kim | Software Engineer | inseob@google.com
 > >
-> >       if ((is_setid || __cap_gained(permitted, new, old)) &&
-> >           ((bprm->unsafe & ~LSM_UNSAFE_PTRACE) ||
-> >            !ptracer_capable(current, new->user_ns))) {
-> >               /* downgrade; they get no more than they had, and maybe l=
-ess */
-> >               if (!ns_capable(new->user_ns, CAP_SETUID) ||
-> >                   (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS)) {
-> >                       new->euid =3D new->uid;
-> >                       new->egid =3D new->gid;
-> >               }
-> >               new->cap_permitted =3D cap_intersect(new->cap_permitted,
-> >                                                  old->cap_permitted);
-> >       }
+> > Thank you all, so I think the idea seems acceptable from both perspecti=
+ves of
+> > Refpolicy and Android. I'd like to ask whether we have any path to gene=
+rate a
+> > kernel binary policy that does not involve .cil intermediates and secil=
+c in
+> > practical environments. Is patching secilc (libsepol, to be precise)
+> > sufficient? We know it's enough for Android, but is also true for Refpo=
+licy
+> > environments? There are a lot of se.* tools and I'm not sure if secilc =
+always
+> > plays the role.
 >
-> The actual downgrade is because a ptrace'd executable also takes
-> this path.
->
-> I have seen it argued rather forcefully that continuing rather than
-> simply failing seems better in the ptrace case.
->
-> In general I think it can be said this policy is "safe".  AKA we don't
-> let a shared fs struct confuse privileged applications.  So nothing
-> to panic about.
->
-> It looks like most of the lsm's also test bprm->unsafe.
->
-> So I imagine someone could very carefully separate the non-ptrace case
-> from the ptrace case but *shrug*.
->
-> Perhaps:
->
->         if ((is_setid || __cap_gained(permitted, new_old)) &&
->             ((bprm->unsafe & ~LSM_UNSAFE_PTRACE) ||
->              !ptracer_capable(current, new->user_ns))) {
-> +               if (!(bprm->unsafe & LSM_UNSAFE_PTRACE)) {
-> +                       return -EPERM;
-> +               }
->                 /* downgrade; they get no more than they had, and maybe l=
-ess */
->                 if (!ns_capable(new->user_ns, CAP_SETUID) ||
->                     (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS)) {
->                         new->euid =3D new->uid;
->                         new->egid =3D new->gid;
->                 }
->                 new->cap_permitted =3D cap_intersect(new->cap_permitted,
->                                                    old->cap_permitted);
->          }
->
-> If that is what you want that doesn't look to scary.  I don't think
-> it simplifies anything about fs->in_exec.  As fs->in_exec is set when
-> the processing calling exec is the only process that owns the fs_struct.
-> With fs->in_exec just being a flag that doesn't allow another thread
-> to call fork and start sharing the fs_struct during exec.
->
-> *Shrug*
->
-> I don't see why anyone would care.  It is just a very silly corner case.
+> checkpolicy is the other way to generate a kernel binary policy, but
+> if you patch libsepol (specifically, genfs_write() in write.c) you'll
+> take care of both at the same time.
+> Jim
 
-Well I don't see how ptrace factors into any of this, apart from being
-a different case of ignoring suid/sgid.
-
-I can agree the suid/sgid situation vs CLONE_FS is a silly corner
-case, but one which needs to be handled for security reasons and which
-currently has weirdly convoluted code to do it.
-
-The intent behind my proposal is very much to get the crapper out of
-the way in a future-proof and simple manner.
-
-In check_unsafe_exec() you can find a nasty loop over threads in the
-group to find out if the fs struct is used by anyone outside of said
-group. Since fs struct users are not explicitly tracked and any of
-them can have different creds than the current thread, the kernel opts
-to ignore suid/sgid if there are extra users found (for security
-reasons). The loop depends on no new threads showing up as the list is
-being walked, to that end copy_fs() can transiently return an error if
-it spots ->in_exec.
-
-The >in_exec field is used as a boolean/flag, but parallel execs using
-the same fs struct from different thread groups don't look serialized.
-This is supposed to be fine as in this case ->in_exec is not getting
-set to begin with, but it gets unconditionally unset on all execs.
-
-And so on. It's all weird af.
-
-Initially I was thinking about serializing all execs using a given
-fs_struct to bypass majority of the fuckery, but that's some churn to
-add and it still leaves possible breakage down the road -- should this
-unsafe sharing detection ever become racing nobody will find out until
-the bad guys have their turn with it.
-
-While unconditional unsharing turns out to be a no-go because of
-chrome, one can still do postpone detection until after the caller is
-single-threaded. By that time, if this is only the that thread and
-fs_struct has ->users =3D=3D 1, we know there is nobody sharing the struct
-or racing to add a ref to it. This allows treating ->users as a
-regular refcount, removes the weird loop over threads and removes the
-(at best misleading) ->in_exec field.
-
-With this in place it becomes trivial to also *deny* suid/sgid exec
-instead of trying to placate it. If you are sharing fs and are execing
-a binary in the first place, things are a little fishy. But if you are
-execing a suid/sgid, the kernel has to ignore the bit so either you
-are doing something wrong or are trying to exploit a bug. In order to
-sort this crapper out, I think one can start with a runtime tunable
-and a once-per-boot printk stating it denied such an exec (and stating
-how to bring it back). To be removed some time after hitting LTS
-perhaps.
-
---=20
-Mateusz Guzik <mjguzik gmail.com>
+Great, then we will send actual patches soon. Thank you all for your
+valuable input!
