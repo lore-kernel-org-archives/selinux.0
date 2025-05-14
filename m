@@ -1,74 +1,75 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 859E6194A44;
-	Wed, 14 May 2025 17:55:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 577271F76A8;
+	Wed, 14 May 2025 18:15:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747245339; cv=none; b=VTa0NuzcXQ+PaO1VrjmmoceErgjJ2TTIryNyUviuCTBz4lIrI1B0nKBjnOMfrHlWi5SJIgPPRY8jShz3VrXrOzoQKIjT6kzbxEOTXBLm3BqwXSMUfo3VNqq2YkYRdSvpJL2YmWCkbO5EzglEmW7kaZJZPdmtF36yZ8tYOUv19NM=
+	t=1747246561; cv=none; b=XGXaGWgE/FgtBpH6sFFxv1dh25NQhlod3h6THT4B/qpYaDX5yRGtMqiS1UpBDyuIs8hczC1CllP40urEPze5BlRyKVPZgcHtCQEJAVwMdOkKuOdNMTOpFfWAEj4/bQhtKvGu8QFCuXChOEW4Cg53CgbVWuDZ9y2EUnneGZojL/8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747245339; c=relaxed/simple;
-	bh=Nb9soRPWW/Bkmf9bNl5lKFfsL7TR7HDW08E3O55Lx1E=;
+	s=arc-20240116; t=1747246561; c=relaxed/simple;
+	bh=S7s8gyB+LxdrzjPZwmAEQBK/PjRLNUJW31jjKnw/QVI=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ENSymUpmdtHfqAAottTwc8EueLYH4QN5bUnmUjNnMyYXNWGRDdJAMRcR9FlcEjduTg4d3DcLjUlYxGtCprjgRH6Ga9k93TC63JQZxKuNIko73bDFyl8LbIQtN4KpxNa+YS6U0WFhtXFaZu5mppx8ahLBT8T8w4S1GNimHTLhOao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bHVjI9O0; arc=none smtp.client-ip=209.85.216.50
+	 To:Cc:Content-Type; b=ag+uqKnOwsXTdMltA5g9LLdOE/LFrx+GUPeG+W840OQ5X0GHmp8IHpAaqafPHP2hZz6Zu5ou+00Fewu6SJFImHGLj3CHwM/kiK9EbjChYTp0VbKSA7hF7Bp3iGDWrma5/tFLJbBdD45C6HtBSu5EHVXwzX74IALyodnrpB+8zf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lFH7TiAh; arc=none smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bHVjI9O0"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-30dfd9e7fa8so193390a91.2;
-        Wed, 14 May 2025 10:55:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lFH7TiAh"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-30c47918d84so166637a91.3;
+        Wed, 14 May 2025 11:15:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747245337; x=1747850137; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1747246558; x=1747851358; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HinAnEqnVncicm1J5/rWSAfFai4NtUO8ZqhXp4ch57g=;
-        b=bHVjI9O0QBp7CjJg8Hm9sNHBjCXDjRlj05A1CNT3YKZj5ibkXkFT2lq6jBKyAwl5MV
-         r437cBb4v/97/QtJjibUrvH1puSPPfz+HkTtBpk60sLMCetBNNRbumMIaYy4fIyK938c
-         6WsYv4OhBOtATo7RZoUtsO4DdXCvNY7nZBcNSHXJoUtiXnKnQSchs1/ewtvEaF/B9ded
-         q1gDTnQ3ZhLkYA/a5tmz8F+6tihbRKaX+21Lu32SvS6QqAD8GEMJY0Z9VONFs7sMp4xH
-         bSaWvEKkvsZFbCqHzGq3iLBE0Yo/9v2AKo14JOpaOpT78/Xjzd6ixnl61NXyPWw66VOI
-         iKBg==
+        bh=ks2e3ghqHLXQQkdmaQokVVmeEBA0ZdlTacN0FP7jAkc=;
+        b=lFH7TiAh7XYVd94Em2s3jeqXA43a/ch3p8KYYqB/P6CUhQRQ+1Y6xfUP/wBIg4RVuJ
+         GhTBM1cWXZKO820UWmlzmtR9Dz1pOLw3yKsxD60m8duPzRC82CL6YbhpnCcJUNjeskg0
+         bbC6KQo5vfHavrrRlrMMk4blbUhQjI9rYrfCDsHVygaCcdiKK5R8f68U9Yos09rxXLMi
+         IpT4/C5KLmNOFM6QKggbUdhYB4fEkyAUJOFntAPjefbSc2NFhL/8qXDimIUjkA2nR4dd
+         z+lZF/yxFeawTWOQdkM68IzfOmrS6ArX7HND1Sy6bCCI6tpqrPgabykwfnBCRlUOBJ0b
+         C+kg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747245337; x=1747850137;
+        d=1e100.net; s=20230601; t=1747246558; x=1747851358;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=HinAnEqnVncicm1J5/rWSAfFai4NtUO8ZqhXp4ch57g=;
-        b=QtEea/ckRfkVwd35objpnxPjAm4F7pXRU5qzGO89V6Ctl9NgKjSBvoJN6j1EsNgcZ5
-         YcK6G+isEOGQ+9uC+26nECq9eWLPLC/ICIdPu3A0muqgbsdH7WdyW2S4icJe3XIDGiuf
-         bgPxnFjZBSustc7haPNCxJBKOcy6KuWKyQG07ncN1W1uKdzu+zy/H0MEP4uE+lyV/l+/
-         29l2m2joOmqbrM1iSQYHJB46S2eILirXzgOpC/Q931LASXdu4DmLKX868NzfNGYu8bCd
-         cIgyfGn0t2aIq4CIfjsdt8HDcVkluy5+dmBB19uahgPkSgZzVJpHJ8U8WYVfrajiwrOr
-         tSmA==
-X-Forwarded-Encrypted: i=1; AJvYcCWqJOjA4PP42EbQo40d4FfD/WDYY2o46z/X9h2c5Wux9IRJtv8H29Q3lnQ7OeX7emG8y5OIETRkz7kdq68=@vger.kernel.org
-X-Gm-Message-State: AOJu0YweO0KTsC256rh9UC28hxxEGMDq2uXPPb44Tei0apQeqriRs5t6
-	E7aGMIrsWfve6M3MUETLelgJZLft64WiPGGKeyd6wIfqExno38MAGRnKrwdsXxU2tP0VW8Xe/OJ
-	V613kqKz5UyBrI2XfYf21sPUNZPk=
-X-Gm-Gg: ASbGncuJlWz94JyDCb+j5uB+Ismuhlwak5eDWqHnaPumux5xnmtcNmjztNVYFKp2HmU
-	BgKfI85G1nV4Oys2OFp2GwwCvsHE8/FtJ1a6DStlZYynT+DB+dUfs44Uy5WfHslyZDmCRPkrrqr
-	ISGOdyqDSFVVn7dz/j7CVxs3u3wq5l5WUw8z8vCVa9NsM=
-X-Google-Smtp-Source: AGHT+IFfKXnDMG167efnn7uspsFJXow32kMeNYgLNSBSl4xo0UFrvl+FPK6B9CNVcOeIOfWSExXKk7t/Dv0amZQzHxM=
-X-Received: by 2002:a17:90b:2e8e:b0:2ee:9e06:7db0 with SMTP id
- 98e67ed59e1d1-30e2e5c322dmr6722075a91.11.1747245336642; Wed, 14 May 2025
- 10:55:36 -0700 (PDT)
+        bh=ks2e3ghqHLXQQkdmaQokVVmeEBA0ZdlTacN0FP7jAkc=;
+        b=qnqM+u3WHQ2E3P6eVuDgk4CQJzsnmEwDjG10xtTOaA7aW9jOWXbJHbIPQaWZ71BCf2
+         m0OaisAvMNG7rdzDrno9V8vuHuzqTcJZGBw9hm0zJ4OIS7n9+eb4p2TUPy1GolfOggJ3
+         57T5GItgQgl4ZMKzRuCl2VZKfla69rtEIYaNSNz1MgsVHL8wl9Z/V/QvcGisuFOR+RDp
+         IBA5fgpiWUYt666RRPwpoJEKoFuEfZbnZ6YnjmYVDPoOWb3AIZpM9C4/LxHOOTw+eLfQ
+         MsqoX9iTvGEKfaMe9FIKfiGuUIkBlYeug8eC7ZMkFFr/siSoMU2p5JMW7kmrm1esdkLv
+         lSHQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX0vllzd8+tfevAnYtNsshP23YUe5PE818eG9kn2XUsBL6U9lXRPoCp/1g02ldzjxn4hFATaV79KS4uEl8=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy7ars7+VW+8jaO+IbFOzwrBeUpcThNmVGuhZlnM+kaTCC3WuWJ
+	xpRm/UnM2lGMZc6yKbCx/NBm1Ymuk+iP7sUhE2LSKW3p2Yq0xykwVX7AJU9NsKCOcQAo5ZKAJ4k
+	APEJLT/gJx3YPMHd5+cIiXa5i/Sk=
+X-Gm-Gg: ASbGncvremAkJxpmpThak/lh+mJ5TolZp8jqFLV9B4ztcJNasSriWcHEsC1BOntLQj/
+	4crhepU3DCVntM158La0z9dlhe1btY8/z1D072Sa0/eoTVSMUXJtCLqpKZzDuT0Tm/Fv+PstYq9
+	6aDzsVQVVi2NOtMutKrAncKM/kybIuS6SD
+X-Google-Smtp-Source: AGHT+IGxCJKg/pkOQyap434EC4iAHQqIV2wczjYn10oi46YgFZxe/KF8s1Ax+jTiPn2uwFMZfmiqjSib0U7g6gj2Mxk=
+X-Received: by 2002:a17:90b:2e52:b0:2ff:4f04:4266 with SMTP id
+ 98e67ed59e1d1-30e2e62a703mr5725096a91.23.1747246557848; Wed, 14 May 2025
+ 11:15:57 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250511173055.406906-1-cgoettsche@seltendoof.de> <20250511173055.406906-6-cgoettsche@seltendoof.de>
-In-Reply-To: <20250511173055.406906-6-cgoettsche@seltendoof.de>
+References: <20250511173055.406906-1-cgoettsche@seltendoof.de> <20250511173055.406906-7-cgoettsche@seltendoof.de>
+In-Reply-To: <20250511173055.406906-7-cgoettsche@seltendoof.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 14 May 2025 13:55:25 -0400
-X-Gm-Features: AX0GCFvnnjhU6Cuj2FW8Ym85eUsePyT2qlqzPuNPB8ZTlgVlRyyWgy6K-lhKJ5A
-Message-ID: <CAEjxPJ7kg1xB2xy0uhzgpyN+0cpqoTyXSy_FYFx3Ases79FTXQ@mail.gmail.com>
-Subject: Re: [PATCH v3 06/14] selinux: pre-validate conditional expressions
+Date: Wed, 14 May 2025 14:15:46 -0400
+X-Gm-Features: AX0GCFuY7KSaYvvPpUqSnV13wlvbHU8Cx7hV9W-p8TaAIzwW51hfE-FCjq20_pM
+Message-ID: <CAEjxPJ4G_0m8gM5QyJ7UZmmRut6p46O0qAihDbsJ3U-N5dDKqA@mail.gmail.com>
+Subject: Re: [PATCH v3 07/14] selinux: check type attr map overflows
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org
+	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org, 
+	Eric Suen <ericsu@linux.microsoft.com>, Canfeng Guo <guocanfeng@uniontech.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
@@ -77,259 +78,93 @@ On Sun, May 11, 2025 at 1:31=E2=80=AFPM Christian G=C3=B6ttsche
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Validate conditional expressions while reading the policy, to avoid
-> unexpected access decisions on malformed policies.
+> Validate that no types with an invalid too high ID are present in the
+> attribute map.  Gaps are still not checked.
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+But see my commentary below.
+
 > ---
->  security/selinux/ss/conditional.c | 116 ++++++++++++++++++++----------
->  security/selinux/ss/policydb.c    |   7 ++
->  security/selinux/ss/policydb.h    |   1 +
->  3 files changed, 88 insertions(+), 36 deletions(-)
+> v3: squash with previous patch ("selinux: introduce
+>     ebitmap_highest_set_bit()")
+> ---
+>  security/selinux/ss/ebitmap.c  | 27 +++++++++++++++++++++++++++
+>  security/selinux/ss/ebitmap.h  |  1 +
+>  security/selinux/ss/policydb.c |  5 +++++
+>  3 files changed, 33 insertions(+)
 >
-> diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/cond=
-itional.c
-> index 92ed4f23a217..ce0281cce739 100644
-> --- a/security/selinux/ss/conditional.c
-> +++ b/security/selinux/ss/conditional.c
-> @@ -21,65 +21,119 @@
->   * or undefined (-1). Undefined occurs when the expression
->   * exceeds the stack depth of COND_EXPR_MAXDEPTH.
->   */
-> -static int cond_evaluate_expr(struct policydb *p, struct cond_expr *expr=
-)
-> +static int cond_evaluate_expr(const struct policydb *p, const struct con=
-d_expr *expr)
->  {
->         u32 i;
->         int s[COND_EXPR_MAXDEPTH];
->         int sp =3D -1;
->
-> -       if (expr->len =3D=3D 0)
-> -               return -1;
-> +       if (unlikely(expr->len =3D=3D 0))
-> +               goto invalid;
-
-If this is not possible at runtime due to load-time checking, drop it
-please. Same applies later. Split the evaluator checking between
-load-time and runtime so we don't do it twice.
-
->
->         for (i =3D 0; i < expr->len; i++) {
-> -               struct cond_expr_node *node =3D &expr->nodes[i];
-> +               const struct cond_expr_node *node =3D &expr->nodes[i];
->
->                 switch (node->expr_type) {
->                 case COND_BOOL:
-> -                       if (sp =3D=3D (COND_EXPR_MAXDEPTH - 1))
-> -                               return -1;
-> +                       if (unlikely(sp >=3D (COND_EXPR_MAXDEPTH - 1)))
-> +                               goto invalid;
->                         sp++;
->                         s[sp] =3D p->bool_val_to_struct[node->boolean - 1=
-]->state;
->                         break;
->                 case COND_NOT:
-> -                       if (sp < 0)
-> -                               return -1;
-> +                       if (unlikely(sp < 0))
-> +                               goto invalid;
->                         s[sp] =3D !s[sp];
->                         break;
->                 case COND_OR:
-> -                       if (sp < 1)
-> -                               return -1;
-> +                       if (unlikely(sp < 1))
-> +                               goto invalid;
->                         sp--;
->                         s[sp] |=3D s[sp + 1];
->                         break;
->                 case COND_AND:
-> -                       if (sp < 1)
-> -                               return -1;
-> +                       if (unlikely(sp < 1))
-> +                               goto invalid;
->                         sp--;
->                         s[sp] &=3D s[sp + 1];
->                         break;
->                 case COND_XOR:
-> -                       if (sp < 1)
-> -                               return -1;
-> +                       if (unlikely(sp < 1))
-> +                               goto invalid;
->                         sp--;
->                         s[sp] ^=3D s[sp + 1];
->                         break;
->                 case COND_EQ:
-> -                       if (sp < 1)
-> -                               return -1;
-> +                       if (unlikely(sp < 1))
-> +                               goto invalid;
->                         sp--;
->                         s[sp] =3D (s[sp] =3D=3D s[sp + 1]);
->                         break;
->                 case COND_NEQ:
-> -                       if (sp < 1)
-> -                               return -1;
-> +                       if (unlikely(sp < 1))
-> +                               goto invalid;
->                         sp--;
->                         s[sp] =3D (s[sp] !=3D s[sp + 1]);
->                         break;
->                 default:
-> -                       return -1;
-> +                       goto invalid;
->                 }
->         }
-> +
-> +       if (unlikely(sp !=3D 0))
-> +               goto invalid;
-> +
->         return s[0];
-> +
-> +invalid:
-> +       /* Should *never* be reached, cause malformed expressions should
-> +        * have been filtered by cond_validate_expr().
-> +        */
-> +       WARN_ONCE(true, "SELinux: invalid conditional expression passed v=
-alidation\n");
-> +       return -1;
-> +}
-> +
-> +static int cond_validate_expr(const struct policydb *p, const struct con=
-d_expr *expr)
-> +{
-> +       u32 i;
-> +       int depth =3D -1;
-> +
-> +       if (expr->len =3D=3D 0)
-> +               return -EINVAL;
-> +
-> +       for (i =3D 0; i < expr->len; i++) {
-> +               const struct cond_expr_node *node =3D &expr->nodes[i];
-> +
-> +               switch (node->expr_type) {
-> +               case COND_BOOL:
-> +                       if (depth >=3D (COND_EXPR_MAXDEPTH - 1))
-> +                               return -EINVAL;
-> +                       depth++;
-> +                       if (!policydb_boolean_isvalid(p, node->boolean))
-> +                               return -EINVAL;
-> +                       break;
-> +               case COND_NOT:
-> +                       if (depth < 0)
-> +                               return -EINVAL;
-> +                       break;
-> +               case COND_OR:
-> +               case COND_AND:
-> +               case COND_XOR:
-> +               case COND_EQ:
-> +               case COND_NEQ:
-> +                       if (depth < 1)
-> +                               return -EINVAL;
-> +                       depth--;
-> +                       break;
-> +               default:
-> +                       return -EINVAL;
-> +               }
-> +       }
-> +
-> +       if (depth !=3D 0)
-> +               return -EINVAL;
-> +
-> +       return 0;
->  }
->
->  /*
-> @@ -356,21 +410,6 @@ static int cond_read_av_list(struct policydb *p, str=
-uct policy_file *fp,
->         return 0;
->  }
->
-> -static int expr_node_isvalid(struct policydb *p, struct cond_expr_node *=
-expr)
-> -{
-> -       if (expr->expr_type <=3D 0 || expr->expr_type > COND_LAST) {
-> -               pr_err("SELinux: conditional expressions uses unknown ope=
-rator.\n");
-> -               return 0;
-> -       }
-> -
-> -       if (expr->expr_type =3D=3D COND_BOOL &&
-> -           (expr->boolean =3D=3D 0 || expr->boolean > p->p_bools.nprim))=
- {
-> -               pr_err("SELinux: conditional expressions uses unknown boo=
-l.\n");
-> -               return 0;
-> -       }
-> -       return 1;
-> -}
-> -
->  static int cond_read_node(struct policydb *p, struct cond_node *node, st=
-ruct policy_file *fp)
->  {
->         __le32 buf[2];
-> @@ -385,6 +424,8 @@ static int cond_read_node(struct policydb *p, struct =
-cond_node *node, struct pol
->
->         /* expr */
->         len =3D le32_to_cpu(buf[1]);
-> +       if (len =3D=3D 0)
-> +               return -EINVAL;
->
->         /* we will read 64 bytes per node */
->         rc =3D size_check(2 * sizeof(u32), len, fp);
-> @@ -406,9 +447,12 @@ static int cond_read_node(struct policydb *p, struct=
- cond_node *node, struct pol
->
->                 expr->expr_type =3D le32_to_cpu(buf[0]);
->                 expr->boolean =3D le32_to_cpu(buf[1]);
-> +       }
->
-> -               if (!expr_node_isvalid(p, expr))
-> -                       return -EINVAL;
-> +       rc =3D cond_validate_expr(p, &node->expr);
-> +       if (rc) {
-> +               pr_err("SELinux: invalid conditional expression\n");
-> +               return rc;
->         }
->
->         rc =3D cond_read_av_list(p, fp, &node->true_list, NULL);
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policyd=
-b.c
-> index a8397ed66109..8969f7c8637c 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -945,6 +945,13 @@ int policydb_type_isvalid(struct policydb *p, unsign=
-ed int type)
+> diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.=
+c
+> index 43bc19e21960..5d6b5b72b3e5 100644
+> --- a/security/selinux/ss/ebitmap.c
+> +++ b/security/selinux/ss/ebitmap.c
+> @@ -257,6 +257,33 @@ int ebitmap_contains(const struct ebitmap *e1, const=
+ struct ebitmap *e2,
 >         return 1;
 >  }
 >
-> +int policydb_boolean_isvalid(const struct policydb *p, u32 boolean)
+> +u32 ebitmap_highest_set_bit(const struct ebitmap *e)
 > +{
-> +       if (!boolean || boolean > p->p_bools.nprim)
-> +               return 0;
-> +       return 1;
-> +}
+> +       const struct ebitmap_node *n;
+> +       unsigned long unit;
+> +       u32 pos =3D 0;
 > +
->  /*
->   * Return 1 if the fields in the security context
->   * structure `c' are valid.  Return 0 otherwise.
-> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policyd=
-b.h
-> index bb96a6cb6101..42117adb2ca0 100644
-> --- a/security/selinux/ss/policydb.h
-> +++ b/security/selinux/ss/policydb.h
-> @@ -324,6 +324,7 @@ extern int policydb_context_isvalid(struct policydb *=
-p, struct context *c);
->  extern int policydb_class_isvalid(struct policydb *p, u16 class);
->  extern int policydb_type_isvalid(struct policydb *p, unsigned int type);
->  extern int policydb_role_isvalid(struct policydb *p, unsigned int role);
-> +extern int policydb_boolean_isvalid(const struct policydb *p, u32 boolea=
-n);
->  extern int policydb_read(struct policydb *p, struct policy_file *fp);
->  extern int policydb_write(struct policydb *p, struct policy_file *fp);
->
+> +       n =3D e->node;
+> +       if (!n)
+> +               return 0;
+> +
+> +       while (n->next)
+> +               n =3D n->next;
+> +
+> +       for (unsigned int i =3D EBITMAP_UNIT_NUMS; i > 0; i--) {
+> +               unit =3D n->maps[i - 1];
+> +               if (unit =3D=3D 0)
+> +                       continue;
+> +
+> +               pos =3D (i - 1) * EBITMAP_UNIT_SIZE;
+> +               while (unit >>=3D 1)
+> +                       pos++;
+> +               break;
+> +       }
+> +
+> +       return n->startbit + pos;
+> +}
+
+Always fun to see new extensions to the ebitmap code that dates back
+at least to 1996 in the original Flask code base. It's changed a lot
+since then. That said, if we ever want to compute this frequently
+we'll likely want to cache it in the ebitmap struct itself but this
+seems fine for this usage. On a different but related note, I saw a
+lot of time spent spinning through all-bits-set category set ebitmaps
+in child SELinux namespaces due to the global SID mapping needing to
+map contexts to each namespace. I solved that by introducing a cache
+for the global SID mapping but was wondering if we ought to have a
+more compressed representation of the all-bits-set ebitmap and more
+efficient iterators for it. Just noting for future, not a request to
+change this.
+
+
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policyd=
+b.c
+> index 8969f7c8637c..27f6809b562a 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -2955,6 +2955,11 @@ int policydb_read(struct policydb *p, struct polic=
+y_file *fp)
+>                         if (rc)
+>                                 goto bad;
+>                 }
+> +
+> +               rc =3D -EINVAL;
+> +               if (ebitmap_highest_set_bit(e) >=3D p->p_types.nprim)
+> +                       goto bad;
+> +
+>                 /* add the type itself as the degenerate case */
+>                 rc =3D ebitmap_set_bit(e, i, 1);
+>                 if (rc)
 > --
 > 2.49.0
 >
