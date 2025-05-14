@@ -1,76 +1,76 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9C052868A4;
-	Wed, 14 May 2025 19:06:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D98928D845;
+	Wed, 14 May 2025 19:12:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747249581; cv=none; b=M1UQYd1tuUIyY8MsmFPXSTREF3BOcbqaOs50Yeys7jiEmhVBpBuQUbyzNHoghLkEwXoQnUH+oSV3szGmTet3GoX4em8Vz+yXv4RzQqUWhzhFLSHheVoUoZCAkuQZBb5lZ1n0fOION+zm+XcX4lCe3u47LSM7umiR81lGc8wYMkg=
+	t=1747249932; cv=none; b=ijFTn1p+4kGlP7gbbbzOeZKd5eT92yC2NKcCVED77mUjIZiMOh9ALDWJAPNXgkhtRPaizrDn9/052jJao+Gbx5IYWm1vUvDq5YhtrCKGkWZadqqW8gfixKm9hhdPyhfBpW6GoFbxvpYv3CGO/DIq+/vy9u5bfpjQXiLk7A/8Q/U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747249581; c=relaxed/simple;
-	bh=pkPGLWmnxyL2lTg/4/v2SuPNj8kowqjrvrA9NC7P7yE=;
+	s=arc-20240116; t=1747249932; c=relaxed/simple;
+	bh=x6hp/nwbDhMCy76zMJE6YsIV48Iou3QqK2ehxXyhniQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YUIbzStTvf5xUXB8Om53WUtxt5MeCaWoJ6/bzFyWXdPI3zuVhp6uSt/BIxeVIPjgE6DyF0TI9AEy39ykq8cRrTSfLrXepqLXtt/rTP2VI6SufKauzOojBav+xDsE8TkVW234L3b4euXX4chLcmNEvmtbQkHiNSee2nRxdDRaNsQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jqxFTff0; arc=none smtp.client-ip=209.85.216.46
+	 To:Cc:Content-Type; b=JkgddegrN4aNCJQ6oMpZVHQQ/K0q+7wxn95d6QvE356U2u6WTqlifcnUl9PGGHlcl5nxSgsITibvh2JoQ9GZeCn2bwD3PWmdOfZpbxkGbHxZFpuXxF25ASr0FmB0gb1vcD/8ZOqYas3w7/BVCTOdapkwnKMxDFIos2nw2TtQis0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gwcDmqvL; arc=none smtp.client-ip=209.85.216.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jqxFTff0"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-30a8c9906e5so223502a91.1;
-        Wed, 14 May 2025 12:06:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gwcDmqvL"
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-30820167b47so218143a91.0;
+        Wed, 14 May 2025 12:12:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747249579; x=1747854379; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1747249929; x=1747854729; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=u1pMypX06ZzS76nW/kI23orBa+jzmujGeNficFMCZFk=;
-        b=jqxFTff0IB2FdM5Me89pj16hnpVBYqBhyvoz2SkP3vhot/BECG988VyUG765+uCSdK
-         yvIMwhCHwb/qSIitN3gFEtQsMUZeNNv4WEQNnw1EFjO7Gvpmy3rT1DyFPDluV1i8aN7f
-         uAcmJqkoL7lNKJ+FRMBSCI1QDjlsobMLUGqBNGYBiz7t4Ebmpat7E/Iqx97QVHrlYqrX
-         qsHcTVvEs1sZ7katONhV+IcQmRWRLCT+9jh8d1gEsUZq5+tEiFTGKTD/5W1MLeSdYUU/
-         6m8bA0vWCjzvcajcm/RXZ1Nqge+ol180sCMskqqxgDFGCTTj0Rdx+jQl9lQ71gKK2Y0o
-         af5g==
+        bh=1JTblm+Vm6knlIU7Mus2muRFYHdRIST7xjUu2xbNQuM=;
+        b=gwcDmqvLz6WIMla0HWv6xFnnRs5ZtR5i++qO8uTvazf1Mx8dYryMhNOaaVY4xfqWbL
+         OeyoM0ifuVTkhnr/BLF58jfLOHxV4Zj+V8EqkZbDaodAudvJyyH/v/nj2i/dMWQz/EOf
+         rwLksLopBhkfhaWu7e+r74moVgsEE3xxQYHNh6/7wZFEkF9Lw9tv8K0OMO1CoHipBcW4
+         XockmdU47ztHUGhZsMcHlQNqV/nWvXeYQSgn4gaOBCaqaYu792VpIzAEDGDPMA0K9f9u
+         DsGYb4aKhkJ6PdsVUNo8npKPNaxXayi7zNIxVAQFrr4cILpVhPKiPMOs7HPyJE8HySkD
+         pJ8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747249579; x=1747854379;
+        d=1e100.net; s=20230601; t=1747249929; x=1747854729;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=u1pMypX06ZzS76nW/kI23orBa+jzmujGeNficFMCZFk=;
-        b=LvjunBFByNInXwYrDTBxmgIGmXacgm2mEZzgIfcca5LjVvt+laaSdDcduOCJyNhFmB
-         21U6f4EVdcJ6iuiLR7XChFwFG2te24zdMKr/cNXrLWX+0/N6cOn+6oIHUrG/vefYBuHb
-         WVAXw1YqxM7Vi2Qc9XcpKKyDLzyJmb/TVZPS+JlY5AdLRsM+kX0P1Gkw0IlVzG1McBVS
-         6IOKekcO3XWr8M3KtqS7Ex5oRLqJafhe0iYOZMbq5GkL2mKCb0DnyAP/dJmxR5mTcInC
-         wT3MIi2EBkd6G4/fxhdwIpajLOZq/POfCudJIzSS05DflJH2cBuRsxOR6jLJ0QGAMtgG
-         SCVg==
-X-Forwarded-Encrypted: i=1; AJvYcCXKPenp1Ovhe80iaMJgaresMCzsPMSYHJfy5MKwkIBK+wvPz6WVKegn4lv95dusq9Yf9nbhtyimfbYI+FM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyUWH4bgP9EoVP7JHAs1KhvzXZse5QN16+0FvTDZg9KxPg3tsAp
-	3hw4ErrzdhJtaT9wXPIunjhtlYUcHWg4YSIdqvYQigkIb3gcB6LtDn3MjKS/PvcEQP19MOBF06U
-	ZMSCBYWQZsSawF5sQepyVhVa+PiU=
-X-Gm-Gg: ASbGnctn23h6exofXOxTNjxA5pQ6RxBWcHTkdeEuW7ii1LaOtL3+f93Jsz+JMJv6RkT
-	yV82JYRyPjiaZaqHy41cIsgbl5aEeGntCyagQeVIlaKijCBMFJsPA41ZF+tzkWixeLqbvK1gnR5
-	JFEb4C115Tlk8MIsjP7K1JlUcLsAKOkOgo
-X-Google-Smtp-Source: AGHT+IH8NXPz6aovZauT3wvH+Rgd/TCbj/Lng8D8ng36OU4Fiej4pyWd4kw8wz7C3NDdXUq/AopoZdFg+12wLyaC3sU=
-X-Received: by 2002:a17:90a:e188:b0:2ee:8427:4b02 with SMTP id
- 98e67ed59e1d1-30e2e620774mr7584187a91.28.1747249578867; Wed, 14 May 2025
- 12:06:18 -0700 (PDT)
+        bh=1JTblm+Vm6knlIU7Mus2muRFYHdRIST7xjUu2xbNQuM=;
+        b=IYAkugngtbdTd/RKBIMqwANroxSEaatpj7RlM/s+tXr57s6rioxMES8Rv2IVPr+fyu
+         9Ct9/RwSrlB48JXFWrwE59JC2SKzG4LsXBxdFBUR+T5+XLiQdULZN/oXVgARot2kcIsz
+         fDYz4o/ShnKmGc3QlreqKJ2caon7AyEAMBLRzcgWPW4EuiEXCRYSL4rOk8xF5PI1f74Z
+         IMOlbg+vSRUem3TMcLJ96GF3vPQcPBstqZq98zE5pzMcitR79Rkb2Ep5BoLUW1WcClo1
+         eF7kmMZzpX+RQARW9VXQ39MMi0qVsT/Gfkmqq3VVDYjcdEH1o9iqTkvT9dk/++C7cgnR
+         MccA==
+X-Forwarded-Encrypted: i=1; AJvYcCUg1a2jKn8kxxn2hej/rA62GbcsVb8XACJROq7tQBgm0h0mzMDOB+Q9G9WINld5BVsutbKq5MW+IfmkDr4=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwodUy9rCHJFHrBaHK9nK1l6IA9P7TlX70emrp1cIzUzcJGY5hW
+	CIMlMq2j32z53mXMQvdiNcku4WSgjlTyf5QmXE7H/nd8nt91EYbMkrM2VGUP5a0NCSbM/bLiF/Z
+	5+AS3W83yboebQgnStB8I0ZzDGccySdZAJw==
+X-Gm-Gg: ASbGncsMIg7Q+4qfOPk7duDO6yW8GkkQuGv6fQsifGoWGmRRL0oFacb/4xS6LT+sDbO
+	0TVh9LiBn3ou1U7aTYuOI62tZTlnPmc4GLFMAZFFOZDLAX04R6C5ISDzPryBf9Ykg4f/VLoameu
+	/kW5twlssEbwXT5UrKpcZDsoBTdItW/F5Q
+X-Google-Smtp-Source: AGHT+IGSyZX7yN7Iw4juAVnQ6B08qG4jVmuBycJu7xv3LHeVMj9ijUR/Pydudamc0dCiCZZT1Ajv47p4ngL5wd+yWOE=
+X-Received: by 2002:a17:90b:5628:b0:2fa:603e:905c with SMTP id
+ 98e67ed59e1d1-30e4dac971cmr1180049a91.2.1747249929295; Wed, 14 May 2025
+ 12:12:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250511173055.406906-1-cgoettsche@seltendoof.de> <20250511173055.406906-10-cgoettsche@seltendoof.de>
-In-Reply-To: <20250511173055.406906-10-cgoettsche@seltendoof.de>
+References: <20250511173055.406906-1-cgoettsche@seltendoof.de> <20250511173055.406906-11-cgoettsche@seltendoof.de>
+In-Reply-To: <20250511173055.406906-11-cgoettsche@seltendoof.de>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 14 May 2025 15:06:07 -0400
-X-Gm-Features: AX0GCFu-o75HyZ3-ihQ9FQt_qlf08mGXT9ZKkWOIPPXXR0HMdCtsCTXkz4QkX5w
-Message-ID: <CAEjxPJ5NVZ4HzSm4doEpTG5pLFD-F7A3MZnrM_noxHh4b-mJAQ@mail.gmail.com>
-Subject: Re: [PATCH v3 10/14] selinux: validate symbols
+Date: Wed, 14 May 2025 15:11:57 -0400
+X-Gm-Features: AX0GCFufs5BrK4qnKn-gzCevR1bWug2XlTeYEFvpMzw1RUPTW0hLCGpRbon-vhc
+Message-ID: <CAEjxPJ6p_JPqUyvcQJL1=Vfa+5C_zt-oB7yvpkBYLCBLfxi55w@mail.gmail.com>
+Subject: Re: [PATCH v3 11/14] selinux: more strict bounds check
 To: cgzones@googlemail.com
 Cc: selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>, 
 	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org, 
-	Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, 
-	Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, llvm@lists.linux.dev
+	Casey Schaufler <casey@schaufler-ca.com>, =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>, 
+	Canfeng Guo <guocanfeng@uniontech.com>, Takaya Saeki <takayas@chromium.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
@@ -79,154 +79,121 @@ On Sun, May 11, 2025 at 1:31=E2=80=AFPM Christian G=C3=B6ttsche
 >
 > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> Some symbol tables need to be validated after indexing, since during
-> indexing their referenced entries might not yet have been indexed.
+> Validate the types used in bounds checks.
+> Replace the usage of BUG(), to avoid halting the system on malformed
+> polices.
 >
 > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-NB role dominance is already gone in checkpolicy and never supported by sec=
-ilc.
-At some point likely should drop corresponding kernel and libsepol support =
-too.
-
 > ---
->  security/selinux/ss/policydb.c | 94 ++++++++++++++++++++++++++++++++++
->  1 file changed, 94 insertions(+)
+>  security/selinux/ss/policydb.c | 29 +++++++++++++++++++++++++++--
+>  security/selinux/ss/policydb.h |  1 +
+>  security/selinux/ss/services.c |  3 +++
+>  3 files changed, 31 insertions(+), 2 deletions(-)
 >
 > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policyd=
 b.c
-> index f8d6e993ce89..4559c8918134 100644
+> index 4559c8918134..7774f6da2ebe 100644
 > --- a/security/selinux/ss/policydb.c
 > +++ b/security/selinux/ss/policydb.c
-> @@ -673,6 +673,84 @@ static int (*const index_f[SYM_NUM])(void *key, void=
- *datum, void *datap) =3D {
->  };
->  /* clang-format on */
+> @@ -1020,6 +1020,15 @@ bool policydb_class_isvalid(const struct policydb =
+*p, u16 class)
+>         return true;
+>  }
 >
-> +static int role_validate(void *key, void *datum, void *datap)
+> +bool policydb_user_isvalid(const struct policydb *p, u32 user)
 > +{
-> +       const struct policydb *p =3D datap;
-> +       const struct role_datum *role =3D datum;
-> +       struct ebitmap_node *node;
-> +       u32 i;
-> +
-> +       ebitmap_for_each_positive_bit(&role->dominates, node, i) {
-> +               if (!policydb_role_isvalid(p, i))
-> +                       goto bad;
-> +       }
-> +
-> +       ebitmap_for_each_positive_bit(&role->types, node, i) {
-> +               if (!policydb_type_isvalid(p, i + 1))
-> +                       goto bad;
-> +       }
-> +
-> +       return 0;
-> +
-> +bad:
-> +       pr_err("SELinux:  invalid role %s\n", sym_name(p, SYM_ROLES, role=
-->value - 1));
-> +       return -EINVAL;
+> +       if (!user || user > p->p_roles.nprim)
+> +               return false;
+> +       if (!p->sym_val_to_name[SYM_USERS][user - 1])
+> +               return false;
+> +       return true;
 > +}
 > +
-> +static int user_validate(void *key, void *datum, void *datap)
-> +{
-> +       const struct policydb *p =3D datap;
-> +       const struct user_datum *usrdatum =3D datum;
-> +       struct ebitmap_node *node;
-> +       u32 i;
-> +
-> +       ebitmap_for_each_positive_bit(&usrdatum->roles, node, i) {
-> +               if (!policydb_role_isvalid(p, i))
-> +                       goto bad;
-> +       }
-> +
-> +       if (!mls_range_isvalid(p, &usrdatum->range))
-> +               goto bad;
-> +
-> +       if (!mls_level_isvalid(p, &usrdatum->dfltlevel))
-> +               goto bad;
-> +
-> +       return 0;
-> +
-> +bad:
-> +       pr_err("SELinux:  invalid user %s\n", sym_name(p, SYM_USERS, usrd=
-atum->value - 1));
-> +       return -EINVAL;
-> +}
-> +
-> +static int sens_validate(void *key, void *datum, void *datap)
-> +{
-> +       const struct policydb *p =3D datap;
-> +       const struct level_datum *levdatum =3D datum;
-> +
-> +       if (!mls_level_isvalid(p, &levdatum->level))
-> +               goto bad;
-> +
-> +       return 0;
-> +
-> +bad:
-> +       pr_err("SELinux:  invalid sensitivity\n");
-> +       return -EINVAL;
-> +}
-> +
-> +
-> +/* clang-format off */
-> +static int (*const validate_f[SYM_NUM])(void *key, void *datum, void *da=
-tap) =3D {
-> +       NULL, /* Everything validated in common_read() and common_index()=
- */
-> +       NULL, /* Everything validated in class_read() and class_index() *=
-/
-> +       role_validate,
-> +       NULL, /* Everything validated in type_read(), type_index() and ty=
-pe_bounds_sanity_check() */
-> +       user_validate,
-> +       NULL, /* Everything validated in cond_read_bool() and cond_index_=
-bool() */
-> +       sens_validate,
-> +       NULL, /* Everything validated in cat_read() and cat_index() */
-> +};
-> +/* clang-format on */
-> +
->  #ifdef CONFIG_SECURITY_SELINUX_DEBUG
->  static void hash_eval(struct hashtab *h, const char *hash_name,
->                       const char *hash_details)
-> @@ -765,6 +843,16 @@ static int policydb_index(struct policydb *p)
->                 if (rc)
->                         goto out;
->         }
-> +
-> +       for (i =3D 0; i < SYM_NUM; i++) {
-> +               if (!validate_f[i])
-> +                       continue;
-> +
-> +               rc =3D hashtab_map(&p->symtab[i].table, validate_f[i], p)=
-;
-> +               if (rc)
-> +                       goto out;
-> +       }
-> +
->         rc =3D 0;
->  out:
->         return rc;
-> @@ -1087,6 +1175,12 @@ static int context_read_and_validate(struct contex=
-t *c, struct policydb *p,
->                         pr_err("SELinux: error reading MLS range of conte=
-xt\n");
->                         goto out;
+>  bool policydb_role_isvalid(const struct policydb *p, u32 role)
+>  {
+>         if (!role || role > p->p_roles.nprim)
+> @@ -1942,6 +1951,12 @@ static int user_bounds_sanity_check(void *key, voi=
+d *datum, void *datap)
+>                         return -EINVAL;
 >                 }
-> +
-> +               rc =3D -EINVAL;
-> +               if (!mls_range_isvalid(p, &c->range)) {
-> +                       pr_warn("SELinux: invalid range in security conte=
-xt\n");
-> +                       goto out;
-> +               }
->         }
 >
->         rc =3D -EINVAL;
+> +               if (!policydb_user_isvalid(p, upper->bounds)) {
+> +                       pr_err("SELinux: user %s: invalid boundary id %d\=
+n",
+> +                              (char *) key, upper->bounds);
+> +                       return -EINVAL;
+> +               }
+> +
+>                 upper =3D p->user_val_to_struct[upper->bounds - 1];
+>                 ebitmap_for_each_positive_bit(&user->roles, node, bit)
+>                 {
+> @@ -1979,6 +1994,12 @@ static int role_bounds_sanity_check(void *key, voi=
+d *datum, void *datap)
+>                         return -EINVAL;
+>                 }
+>
+> +               if (!policydb_role_isvalid(p, upper->bounds)) {
+> +                       pr_err("SELinux: role %s: invalid boundary id %d\=
+n",
+> +                              (char *) key, upper->bounds);
+> +                       return -EINVAL;
+> +               }
+> +
+>                 upper =3D p->role_val_to_struct[upper->bounds - 1];
+>                 ebitmap_for_each_positive_bit(&role->types, node, bit)
+>                 {
+> @@ -2013,9 +2034,13 @@ static int type_bounds_sanity_check(void *key, voi=
+d *datum, void *datap)
+>                         return -EINVAL;
+>                 }
+>
+> -               upper =3D p->type_val_to_struct[upper->bounds - 1];
+> -               BUG_ON(!upper);
+> +               if (!policydb_type_isvalid(p, upper->bounds)) {
+> +                       pr_err("SELinux: type %s: invalid boundary id %d\=
+n",
+> +                              (char *) key, upper->bounds);
+> +                       return -EINVAL;
+> +               }
+>
+> +               upper =3D p->type_val_to_struct[upper->bounds - 1];
+>                 if (upper->attribute) {
+>                         pr_err("SELinux: type %s: "
+>                                "bounded by attribute %s\n",
+> diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policyd=
+b.h
+> index 1367387beaa7..04acf414fffa 100644
+> --- a/security/selinux/ss/policydb.h
+> +++ b/security/selinux/ss/policydb.h
+> @@ -324,6 +324,7 @@ extern bool policydb_context_isvalid(const struct pol=
+icydb *p, const struct cont
+>  extern bool policydb_class_isvalid(const struct policydb *p, u16 class);
+>  extern bool policydb_type_isvalid(const struct policydb *p, u32 type);
+>  extern bool policydb_role_isvalid(const struct policydb *p, u32 role);
+> +extern bool policydb_user_isvalid(const struct policydb *p, u32 user);
+>  extern bool policydb_boolean_isvalid(const struct policydb *p, u32 boole=
+an);
+>  extern int policydb_read(struct policydb *p, struct policy_file *fp);
+>  extern int policydb_write(struct policydb *p, struct policy_file *fp);
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/service=
+s.c
+> index 5b1d0e80d975..464a4663c993 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -718,6 +718,9 @@ static void context_struct_compute_av(struct policydb=
+ *policydb,
+>          * If the given source and target types have boundary
+>          * constraint, lazy checks have to mask any violated
+>          * permission and notice it to userspace via audit.
+> +        *
+> +        * Infinite recursion is avoided via a depth pre-check in
+> +        * type_bounds_sanity_check().
+>          */
+>         type_attribute_bounds_av(policydb, scontext, tcontext,
+>                                  tclass, avd);
 > --
 > 2.49.0
 >
