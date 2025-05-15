@@ -1,70 +1,70 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E7BD29A310
-	for <selinux@vger.kernel.org>; Thu, 15 May 2025 13:10:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CAFE29A310
+	for <selinux@vger.kernel.org>; Thu, 15 May 2025 13:11:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747314659; cv=none; b=H6UBC7ixhg9PwZ1Txowdfyd+GY4AaRXmMH/WE7yL/sHyGeffpFtmLzgzNPcEhpjfuHgfjf+WhrgOM5ou6p+/dxWnOJx2GzYkaxale5E3VtzcvAqKr4BjGtugzRjhPRwF31+VvLvgtBWIFfqY3CoWLQbdAtF7xheC61peo68Pbv4=
+	t=1747314662; cv=none; b=rkEkEIinJL1QK4Ciib9aVvhMYrGPg5OaPbUIq19lcd9qM9RS6GtL2uj4rKdsSvVkz2r1wqAyrpWYjRM41O6J7YPLypTofvNWmPki5a4kM0UBono8v6q9B5uRIYhuAr3nJ3mDsDpTpOcn8mmh5LU9r3PvjxCUE9EZjj/SPur3VKA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747314659; c=relaxed/simple;
-	bh=RpMua+HLwt+MHGpELXZF1msSBn6vtDU/mOYxhqljUcI=;
+	s=arc-20240116; t=1747314662; c=relaxed/simple;
+	bh=3ts407Aad6q6vC9S0fiyrIW7EwOWaRXTi75ae+wIAzk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WP+DSdmC2442+RHqiQRZVYjjoSDNNA6krWNkTJYCty4cZAQBN8uvDzsCmUrmxZ3s2ftnlJCVdtXjao3hy6QC4/VJzq+3ALfio4M8CeYT1HIy93Y2wZXVamX2VDnDBpqQ9KmOEqKKXZV0qEk6vBlr6e0uCHz/tawBh31DOO3yKOU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i7RI+aNY; arc=none smtp.client-ip=209.85.210.176
+	 MIME-Version; b=hjLWqZrFEzv5hNc2ovCUmSo8bxw3N3ivnZ9t0guHJXy28iKmcupSvLeAl0YZ4pxA7WHbaQhNYX5S2ORXqmByM7Jex7AuwQXoN+MTbBRZ2HzfY63+6U0HxAP423Ck5mDT8y0G/KE3hsYMXMIZWPuwY2vNFILj2UImAgEuGujOjTY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y0bbcNrk; arc=none smtp.client-ip=209.85.160.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i7RI+aNY"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-7424c24f88bso1208525b3a.1
-        for <selinux@vger.kernel.org>; Thu, 15 May 2025 06:10:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y0bbcNrk"
+Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-47692b9d059so14051001cf.3
+        for <selinux@vger.kernel.org>; Thu, 15 May 2025 06:11:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747314657; x=1747919457; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1747314660; x=1747919460; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=d1UHAL2dK7QDdMHKpips53kmiglfcYGkQfuMEuBbJUM=;
-        b=i7RI+aNYKp3dv6PdioxbyS9v99c8mPYvM5rjk9WCUrNiJ9LlrC1T101tupxFjKAGCy
-         sQyrVlkZAEB/dR4+s2cfXq0LAF2SVPWzmzL8PlmjPWfO4TQ43GNd9T3Mm/k9fwMs7zoh
-         Q4lr6JpBc2m92CNsAGRDfMPGp4MnA63AcpOln1sEyqvu6D1JHaC2/h0eLAiAnk5/TPGo
-         wVyFsavVAaG3TYVsuIHTDBt74uhTZbpJtI4yTY8K5WTCX7Q+fNr1SVKJQj6TFdUAOeh7
-         no7wVa2mVDPZ0WmZ+IXp2j3XtiXwvoO9RadK6+TtNpaFFhHzmVISQ3x9RfpZS8xBjpCt
-         dJiw==
+        bh=f75zUXlL6H/GM23zYqJlj7sRTcInCPMeupfXE1c/ZAQ=;
+        b=Y0bbcNrkuH2ZdR0/wbLRbi8A9MsWgyMmoxLSbV+XG3V4Qz6ZBDvduymXWSxxN6XR4s
+         x2m8yxoDwFuiZIJ+0HMFNlbMO2lt8hUsstuXcBgzNj2UZIBc7gxVOdVrCT7IVeGvAF5o
+         4qGzkPX4bpeu19KrGyW0fIDRiZ8qaVQ9QPzlgF6iBgB6qwe2bIHMytuir9g2WncZsuJK
+         BNIbyBFt66Zt89LHj7Oz0jIewZu1QY4/yjNDnJ/enF0MoE84+UatDRv+X0iKtd0zDCpO
+         k2WzbimMz4pkSlxUtJUINdLm6Q3xxt2n3ALOavdzthU55xC3ExG4kJKvlG/b4/duZ4OJ
+         mRBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747314657; x=1747919457;
+        d=1e100.net; s=20230601; t=1747314660; x=1747919460;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=d1UHAL2dK7QDdMHKpips53kmiglfcYGkQfuMEuBbJUM=;
-        b=aFYx8XYuA0yZIWCSWUUMgj/fZBpeEoJj0Cz/NBY8zhdHq0Wr7uktrqH+2neWTrEngM
-         BxzGf0UKgG9plDeRxeEtCr3WHrM45DdFnbvVAKv76d8WiU3xcshYukfQs/w5bvUuqsw2
-         Z0IU1pfub4ZXNkuBnH6/Uewi8yBELFo2Cgyyp+PGaYCfEvuVzV7wLaz61kgPHUBicJp2
-         spd0K0cVW9FVDWwXQHQj/A3JWsJLDBvkO/6RTBI18ib6rGtfMP9Rzp8rg9VFq9p6CwtA
-         XoZ2qJbA/loY5lhVVcJAFSLeAlCUtPmIuoq6IASbIWle3ckX8qiJq0Lxy6aO02GQXX46
-         yVLg==
-X-Gm-Message-State: AOJu0Yw4EhX+ybsflPGSlAyi9bN3nA71Nh6TsYDUjKPSGXyOYACc5duH
-	erTyEFTqE2z0k7fdiPMZfmPyp7ut4cJ/pUQp7/AYOY+uXO6pPcC7ljiRWg==
-X-Gm-Gg: ASbGncu4LZPkMPVd0ZQGmdHb5YUq0M5GeKjUVfJ9sNPz4qZsJQsWr5cKK9snhqOEv3i
-	eEE5tK6dC01i82cPlj+WLd+EUYwCi7m38YceJv1ZeU2l07XIIfGLCgEedN0yTLTy5qWe5zuNESH
-	G6WkzUT0iG4ua90sQeONNdMkWER0+gQ9LBb39hRWrcIprr1VqiNWuAPdxp09itnaYvRJPjZnWV5
-	NpyS1FDDBUcWimc29ftz/eSizaaVgZx4r8RKJ3aLsBUKfUcUFLAocfnAl5/qK1lYRyRpGe4rUuA
-	8d3abfbKUA1zDkl1PEgPA1mcs7ZWttCwpb+f8mbQcQjrpZ5qkb28+LjIA99ikwA5NeUJoewWBiX
-	CAz9ZGgSeewOkINnpB1UZfWrwRRTyMS+7YLO5SW3UdQX/XpqHDQbvcbNl8I2EKcxi
-X-Google-Smtp-Source: AGHT+IGxZ/2PBKk1eK81xnPyzetuHiHAr4zhe/8y5Nb1bDWxlLPvpFQZMW6+qEFqMvTH3zqTv4gGgA==
-X-Received: by 2002:a05:622a:4a0b:b0:476:91f1:9e5 with SMTP id d75a77b69052e-494a3674080mr50607811cf.50.1747314647176;
-        Thu, 15 May 2025 06:10:47 -0700 (PDT)
+        bh=f75zUXlL6H/GM23zYqJlj7sRTcInCPMeupfXE1c/ZAQ=;
+        b=XaxZmwTQDFL08y8SVVxGjLQqqeLc4keSjGTXO7W9rI9Uff0Sa8jMJd4pDFg4biwIaK
+         Ep16865Az6TwJGhjCoDvYM3PkUJwkLoHhOmbOsD9casgaxVBalL6Fz3SYyx80gfuNASd
+         fIXS9tImgR0ZZGql9RlCsFFBDdGBsegnycktQK+ZOGWm7LHN8OkBLmgwHCEfsA/Kz4Sc
+         /r/3Tt5X9ybFLfpPzHwHZRo6KPRPVbkjXXihiyxOJUZv++UlXZwR1HVqXO2B7dIw5Tjl
+         naJLHx5vFfUslu4rEioRAFPP/1HSOu0tW4c2qm3xEJDVHorM2ViCIH0QrILwP7NnPBwq
+         kGWg==
+X-Gm-Message-State: AOJu0Ywwjeaov68vpTOIiojWViUXe1982Myp5AsjakzH8rkY5izEtz2r
+	bg4aDrjz46CfaWfqzbmDGJIj4xIrkce0gjlasKwzFKKiauSM/wBUuFQXrQ==
+X-Gm-Gg: ASbGnculxE2+FCpC7TdGpT3hgDNe0gCT4qW3YhCGIDoKSWfnIWSSbAY53ZmVmYW98V+
+	jZivRdU6Q6TISNjcWaowIuB6sVVuqB7w9Xt6CxNi6kFy57CUD7b0BcJwL178yLz9WGDcTwCj3Zm
+	awcKnb9NbSJE+c+q99BL4PSXd8d1y7E0uR+PEYwa60RwdogGYze3Ox8/O94goQBbwp51E5ut3Tl
+	ffCN1wu+G2wLatL3GrtOv1X2ehDq+WmF00lEyeLkgAWlJ4pq8b9k38jfVbaJgJKriRF9Tf75swo
+	8LqnwBlEulyti12jrSJ9sM6y4E93EJABL575fUiSwkeiEtj7aU1C40JZUV7ssbWLLgQmR5rMmBG
+	gI6Leaoxw7L1SsQFgGRcCrjQzY7pbrm6kJxCnYv/Q/jSEXTXxz6BzGA==
+X-Google-Smtp-Source: AGHT+IEsMZRfyNxy+68QHMa2/XU4wqHMqgNjua8WcOL81NVAWui8+uzpAZFxXRqkOvaMxkZi7xg43g==
+X-Received: by 2002:ac8:51c4:0:b0:494:7bfd:fca8 with SMTP id d75a77b69052e-494a346aebamr35431141cf.46.1747314649122;
+        Thu, 15 May 2025 06:10:49 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-49452583e88sm91723891cf.63.2025.05.15.06.10.46
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-49452583e88sm91723891cf.63.2025.05.15.06.10.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 May 2025 06:10:46 -0700 (PDT)
+        Thu, 15 May 2025 06:10:48 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 38/49] selinux: convert nlmsg_sock_has_extended_perms() to namespace-aware
-Date: Thu, 15 May 2025 09:09:36 -0400
-Message-ID: <20250515130947.52806-39-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 41/49] selinux: exempt creation of init SELinux namespace from limits
+Date: Thu, 15 May 2025 09:09:39 -0400
+Message-ID: <20250515130947.52806-42-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250515130947.52806-1-stephen.smalley.work@gmail.com>
 References: <20250515130947.52806-1-stephen.smalley.work@gmail.com>
@@ -76,31 +76,31 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Convert nlmsg_sock_has_extended_perms() to use the
-cred_has_extended_perms() helper for namespace-aware checking.
+Exempt the creation of the init SELinux namespace from the
+maxns limit. It was already exempted from the maxnsdepth
+limit by virtue of only applying that check when there
+is a parent namespace. Otherwise, if one were to set
+CONFIG_SECURITY_SELINUX_MAXNS to 0, the creation of the
+init SELinux namespace would fail.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/hooks.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ security/selinux/hooks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index b9d1600b6340..a0e0d86e2992 100644
+index 5ac5c3e34729..66882d7f678d 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -6291,9 +6291,9 @@ static int nlmsg_sock_has_extended_perms(struct sock *sk, u32 perms, u16 nlmsg_t
- 	driver = nlmsg_type >> 8;
- 	xperm = nlmsg_type & 0xff;
+@@ -7835,7 +7835,7 @@ int selinux_state_create(const struct cred *cred)
+ 	struct selinux_state *newstate;
+ 	int rc;
  
--	return avc_has_extended_perms(current_selinux_state, current_sid(),
--				      sksec->sid, sksec->sclass, perms,
--				      driver, AVC_EXT_NLMSG, xperm, &ad);
-+	return cred_has_extended_perms(current_cred(), sksec->sid,
-+				       sksec->sclass, perms, driver,
-+				       AVC_EXT_NLMSG, xperm, &ad);
- }
+-	if (atomic_read(&selinux_nsnum) >= selinux_maxns)
++	if (parent && atomic_read(&selinux_nsnum) >= selinux_maxns)
+ 		return -ENOSPC;
  
- static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
+ 	if (parent && parent->depth >= selinux_maxnsdepth)
 -- 
 2.49.0
 
