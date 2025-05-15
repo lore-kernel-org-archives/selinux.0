@@ -1,70 +1,70 @@
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+Received: from mail-vs1-f41.google.com (mail-vs1-f41.google.com [209.85.217.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CAFE29A310
-	for <selinux@vger.kernel.org>; Thu, 15 May 2025 13:11:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B3C729A310
+	for <selinux@vger.kernel.org>; Thu, 15 May 2025 13:11:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747314662; cv=none; b=rkEkEIinJL1QK4Ciib9aVvhMYrGPg5OaPbUIq19lcd9qM9RS6GtL2uj4rKdsSvVkz2r1wqAyrpWYjRM41O6J7YPLypTofvNWmPki5a4kM0UBono8v6q9B5uRIYhuAr3nJ3mDsDpTpOcn8mmh5LU9r3PvjxCUE9EZjj/SPur3VKA=
+	t=1747314665; cv=none; b=ZqPnB5fHJCeMtaXTOIzbPcKLD1ryvA6C4CGojYLvxE7Cv3vlpela/QUeaN1vAh3fr1vvbTploqDEZp2hfsAHaYaUH4FVR3U4HGpgSRQldB20LzdrxWPPOncFTeboVwaTDRhsf1328ZGCLy/fks5YVIIRwOnfsz41Vvh197fJqKA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747314662; c=relaxed/simple;
-	bh=3ts407Aad6q6vC9S0fiyrIW7EwOWaRXTi75ae+wIAzk=;
+	s=arc-20240116; t=1747314665; c=relaxed/simple;
+	bh=MZikWshpkzszeHKMwrOX7MWr/ZNlkMGey2Hv0N7+5zc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hjLWqZrFEzv5hNc2ovCUmSo8bxw3N3ivnZ9t0guHJXy28iKmcupSvLeAl0YZ4pxA7WHbaQhNYX5S2ORXqmByM7Jex7AuwQXoN+MTbBRZ2HzfY63+6U0HxAP423Ck5mDT8y0G/KE3hsYMXMIZWPuwY2vNFILj2UImAgEuGujOjTY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y0bbcNrk; arc=none smtp.client-ip=209.85.160.180
+	 MIME-Version; b=NHbO9P3ZWLyeE4/oXKrQQ3e8D2Wo0O/JAeHkdDvy0UzShyorutxHvnF7x5pWJ+d5pvazaE4ypcppl7HcIzSUlybzK8r+ihTxxrGhcwuaGjLCEX/U1QaCtbOKb2Muf+gihWX+14xpqZA6+RNKZfCVBU/telpMe3gE0u4bWmf0iEY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZolfgFHs; arc=none smtp.client-ip=209.85.217.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y0bbcNrk"
-Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-47692b9d059so14051001cf.3
-        for <selinux@vger.kernel.org>; Thu, 15 May 2025 06:11:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZolfgFHs"
+Received: by mail-vs1-f41.google.com with SMTP id ada2fe7eead31-4ddb9d80bffso640112137.0
+        for <selinux@vger.kernel.org>; Thu, 15 May 2025 06:11:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747314660; x=1747919460; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1747314663; x=1747919463; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=f75zUXlL6H/GM23zYqJlj7sRTcInCPMeupfXE1c/ZAQ=;
-        b=Y0bbcNrkuH2ZdR0/wbLRbi8A9MsWgyMmoxLSbV+XG3V4Qz6ZBDvduymXWSxxN6XR4s
-         x2m8yxoDwFuiZIJ+0HMFNlbMO2lt8hUsstuXcBgzNj2UZIBc7gxVOdVrCT7IVeGvAF5o
-         4qGzkPX4bpeu19KrGyW0fIDRiZ8qaVQ9QPzlgF6iBgB6qwe2bIHMytuir9g2WncZsuJK
-         BNIbyBFt66Zt89LHj7Oz0jIewZu1QY4/yjNDnJ/enF0MoE84+UatDRv+X0iKtd0zDCpO
-         k2WzbimMz4pkSlxUtJUINdLm6Q3xxt2n3ALOavdzthU55xC3ExG4kJKvlG/b4/duZ4OJ
-         mRBw==
+        bh=CQykNmSfG4kUMJ1LRpZp5PW+TIpoPyIWLRG4xoNzP9Q=;
+        b=ZolfgFHsOly3YQdV0SXq3nN06fJUyvwwlrMHrK0yT94vSZEGyJgFPjoM5Wpyx3DXq+
+         xBMkFHEztcHu3SVugsDww2/4ao9x6+dbV9Jj6KJZLpYZe2Qw0HwZV5iwkLpRVpO3ZPn/
+         yaXSPJXK/KcoO1qFwOA8UKA0HZW62EEt9H7Eh/4pW7am6xW0o3DRNK+R0SlK83XsIm8b
+         jaP61ei+EfpnuTmPRoU7NCPKdlzAHdvJxFNzLxXDPZi1Fjp4dhQk6HpzszF9QAkQiPZq
+         lAHE2PbKaVt5YhngXbEgJpFqUH6xYEnVf4xR0BS1FjtO5wbQWxA5stwWrvGsuJMgk73P
+         /5iQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747314660; x=1747919460;
+        d=1e100.net; s=20230601; t=1747314663; x=1747919463;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=f75zUXlL6H/GM23zYqJlj7sRTcInCPMeupfXE1c/ZAQ=;
-        b=XaxZmwTQDFL08y8SVVxGjLQqqeLc4keSjGTXO7W9rI9Uff0Sa8jMJd4pDFg4biwIaK
-         Ep16865Az6TwJGhjCoDvYM3PkUJwkLoHhOmbOsD9casgaxVBalL6Fz3SYyx80gfuNASd
-         fIXS9tImgR0ZZGql9RlCsFFBDdGBsegnycktQK+ZOGWm7LHN8OkBLmgwHCEfsA/Kz4Sc
-         /r/3Tt5X9ybFLfpPzHwHZRo6KPRPVbkjXXihiyxOJUZv++UlXZwR1HVqXO2B7dIw5Tjl
-         naJLHx5vFfUslu4rEioRAFPP/1HSOu0tW4c2qm3xEJDVHorM2ViCIH0QrILwP7NnPBwq
-         kGWg==
-X-Gm-Message-State: AOJu0Ywwjeaov68vpTOIiojWViUXe1982Myp5AsjakzH8rkY5izEtz2r
-	bg4aDrjz46CfaWfqzbmDGJIj4xIrkce0gjlasKwzFKKiauSM/wBUuFQXrQ==
-X-Gm-Gg: ASbGnculxE2+FCpC7TdGpT3hgDNe0gCT4qW3YhCGIDoKSWfnIWSSbAY53ZmVmYW98V+
-	jZivRdU6Q6TISNjcWaowIuB6sVVuqB7w9Xt6CxNi6kFy57CUD7b0BcJwL178yLz9WGDcTwCj3Zm
-	awcKnb9NbSJE+c+q99BL4PSXd8d1y7E0uR+PEYwa60RwdogGYze3Ox8/O94goQBbwp51E5ut3Tl
-	ffCN1wu+G2wLatL3GrtOv1X2ehDq+WmF00lEyeLkgAWlJ4pq8b9k38jfVbaJgJKriRF9Tf75swo
-	8LqnwBlEulyti12jrSJ9sM6y4E93EJABL575fUiSwkeiEtj7aU1C40JZUV7ssbWLLgQmR5rMmBG
-	gI6Leaoxw7L1SsQFgGRcCrjQzY7pbrm6kJxCnYv/Q/jSEXTXxz6BzGA==
-X-Google-Smtp-Source: AGHT+IEsMZRfyNxy+68QHMa2/XU4wqHMqgNjua8WcOL81NVAWui8+uzpAZFxXRqkOvaMxkZi7xg43g==
-X-Received: by 2002:ac8:51c4:0:b0:494:7bfd:fca8 with SMTP id d75a77b69052e-494a346aebamr35431141cf.46.1747314649122;
-        Thu, 15 May 2025 06:10:49 -0700 (PDT)
+        bh=CQykNmSfG4kUMJ1LRpZp5PW+TIpoPyIWLRG4xoNzP9Q=;
+        b=PY8azSY1IFyDp9dNobswigbbz1nR5lJmlvEq2M7x6cAG37R5f8Ap4DR1OQBgY7Ltcg
+         xhlRmoLOsLQ5xb8MbB6ulEvUEs9x7ncBw+jasv9XBPJvgtjC1YV1BbannmXk3JLe47xw
+         mfPI/r0lheNTfuMcpYm6bc1kqdMPHOI260iFt28fpLhqw9FtVFn0PL9MRgdNY1UvcCo0
+         V/wKwEdniqf25gID8mIPlQ9KqmnV5i+RsvEzPS/umccKsfQedQ8MVaqTqaxI4GFHEmzN
+         fdoJBUlDe8WiiqK/YIMA3fQ++ZFbkQSTi1E/yATcsJL+l92H5bDOQm5GcluMyTlIK8J6
+         jLbQ==
+X-Gm-Message-State: AOJu0Yz+l4VHdMxU0XERE0UsAh1vUTIOCkfz6Hr0ve6Qiu13na/ysB8i
+	OVDRWM7434kN1XdHq6X6sCnKv+B1h1HGeBOl2cBECDzzKosp9H08ul1T1Twmfw==
+X-Gm-Gg: ASbGncvpmGJAUDHpABcRrJ0fv/ucZa75Axzd+s2XxeIUEx3az8e5PUPoQka8iNkM+nl
+	MkvmpLMipsk62JErZKhreaP8wumnHgd8dz2Pa+RwOLfWVe9L5YhtsXbpAGD3506HVmiRNiSl5kv
+	jc+Pp7WHdyEZXw3nGMZwls9lKlk9kbtsViiWQ65IzbeN6mXo9Let0seXYsFW24Vmx6ctVCUKCLa
+	cz6+RA8bwG+CnRemzi/OhqWg6Ix9j4emhvWXMg1067x0r9e61n3oMEmhM51vSZCGXslgXE5CF15
+	Xu+MEI9kSBf1B1Hk+Y1R9py0sO/5D8/Q6fDnFHfuenr2qUeLwVJIohc4dEjGPO92cc5OlYGc58z
+	IGty8up1jCIxOeymNZSWl9DbiohZSfvAo6Qe52QqK+vnsikT4O7GVCA==
+X-Google-Smtp-Source: AGHT+IGpZHKEbdJHO1976w7An1D0jTWYgUwJo3zzeNkGq5Zb0BxPFcjQ29MCvaN7WVZ/51mrbeCxoQ==
+X-Received: by 2002:a05:6214:acb:b0:6f5:1064:edcc with SMTP id 6a1803df08f44-6f8a3210c45mr55200456d6.18.1747314652747;
+        Thu, 15 May 2025 06:10:52 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-49452583e88sm91723891cf.63.2025.05.15.06.10.48
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-49452583e88sm91723891cf.63.2025.05.15.06.10.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 15 May 2025 06:10:48 -0700 (PDT)
+        Thu, 15 May 2025 06:10:52 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 41/49] selinux: exempt creation of init SELinux namespace from limits
-Date: Thu, 15 May 2025 09:09:39 -0400
-Message-ID: <20250515130947.52806-42-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 46/49] selinux: acquire/release SELinux state properly in socket hooks
+Date: Thu, 15 May 2025 09:09:44 -0400
+Message-ID: <20250515130947.52806-47-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250515130947.52806-1-stephen.smalley.work@gmail.com>
 References: <20250515130947.52806-1-stephen.smalley.work@gmail.com>
@@ -76,31 +76,55 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Exempt the creation of the init SELinux namespace from the
-maxns limit. It was already exempted from the maxnsdepth
-limit by virtue of only applying that check when there
-is a parent namespace. Otherwise, if one were to set
-CONFIG_SECURITY_SELINUX_MAXNS to 0, the creation of the
-init SELinux namespace would fail.
+Several SELinux socket hook functions were not properly accounting
+for the release of any previously set SELinux state and acquiring
+the reference to the new SELinux state if the state differed.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/hooks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/hooks.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 5ac5c3e34729..66882d7f678d 100644
+index 113242c4cb87..a9b5879cdd62 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -7835,7 +7835,7 @@ int selinux_state_create(const struct cred *cred)
- 	struct selinux_state *newstate;
- 	int rc;
+@@ -5606,7 +5606,10 @@ static void selinux_sk_clone_security(const struct sock *sk, struct sock *newsk)
+ 	newsksec->sid = sksec->sid;
+ 	newsksec->peer_sid = sksec->peer_sid;
+ 	newsksec->sclass = sksec->sclass;
+-	newsksec->state = get_selinux_state(sksec->state);
++	if (newsksec->state != sksec->state) {
++		put_selinux_state(newsksec->state);
++		newsksec->state = get_selinux_state(sksec->state);
++	}
  
--	if (atomic_read(&selinux_nsnum) >= selinux_maxns)
-+	if (parent && atomic_read(&selinux_nsnum) >= selinux_maxns)
- 		return -ENOSPC;
+ 	selinux_netlbl_sk_security_reset(newsksec);
+ }
+@@ -5845,7 +5848,10 @@ static void selinux_sctp_sk_clone(struct sctp_association *asoc, struct sock *sk
+ 	newsksec->sid = asoc->secid;
+ 	newsksec->peer_sid = asoc->peer_secid;
+ 	newsksec->sclass = sksec->sclass;
+-	newsksec->state = sksec->state;
++	if (newsksec->state != sksec->state) {
++		put_selinux_state(newsksec->state);
++		newsksec->state = get_selinux_state(sksec->state);
++	}
+ 	selinux_netlbl_sctp_sk_clone(sk, newsk);
+ }
  
- 	if (parent && parent->depth >= selinux_maxnsdepth)
+@@ -5856,7 +5862,10 @@ static int selinux_mptcp_add_subflow(struct sock *sk, struct sock *ssk)
+ 
+ 	ssksec->sclass = sksec->sclass;
+ 	ssksec->sid = sksec->sid;
+-	ssksec->state = sksec->state;
++	if (ssksec->state != sksec->state) {
++		put_selinux_state(ssksec->state);
++		ssksec->state = get_selinux_state(sksec->state);
++	}
+ 
+ 	/* replace the existing subflow label deleting the existing one
+ 	 * and re-recreating a new label using the updated context
 -- 
 2.49.0
 
