@@ -1,262 +1,162 @@
-Received: from out01.mta.xmission.com (out01.mta.xmission.com [166.70.13.231])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yb1-f177.google.com (mail-yb1-f177.google.com [209.85.219.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A5BE72638;
-	Thu, 15 May 2025 16:48:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=166.70.13.231
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55799282E1
+	for <selinux@vger.kernel.org>; Thu, 15 May 2025 18:14:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747327702; cv=none; b=Qoe2eK7r3rcknE+ZhneTEcKOxjlqA52y94dk0Iqi0Q7tmh/HOBu3pnfKOfiuKbIk3NNoo9Q8jU3jViYZDVpbZTuhaL4RsbyW/RoUgFfrsO8pdMH2R5P7GjkApZvFm1MmXfhXYTpY/4NPU8xNSWrrjd0voY9eylEFIf2+ZsHlKAs=
+	t=1747332847; cv=none; b=KtCOJ35K8aQhMkqqH/SAyUoJZBKWAs6Y7KOU7OYrWND/vFhkPFX6Bnbo0vl30/hMPMiP6r7gbhnmFXwBrtNa5CjV1lcFGXpIjPppdO3vYWrhR/vQs5iB9ul5j7Jfkr/4F2PjPCzgYYj6T/TziCfAwClEsExWX3h51TJ8rw8t0FU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747327702; c=relaxed/simple;
-	bh=ajLCurLFo3eANTDUWWiiZgG4NaMGIOdM5yB4dSWeAs0=;
-	h=From:To:Cc:References:Date:In-Reply-To:Message-ID:MIME-Version:
-	 Content-Type:Subject; b=ah5HHWDxxCpMtGFpXK13HxEqriMEX07NTJCf5ak/MPMrmgWAN8tWl7taVSjqCSAbd4frv/3UEWnufGCN3kjKiz24iyf7obE60e8s+mUMyPULiKD1QBEfAsxHw3XkqvkQd/0+MJ7juiu/vNh7MWVsc7EqNpqdiwoNV2pMhV+iTiY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=xmission.com; spf=pass smtp.mailfrom=xmission.com; arc=none smtp.client-ip=166.70.13.231
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=xmission.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=xmission.com
-Received: from in01.mta.xmission.com ([166.70.13.51]:52516)
-	by out01.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.93)
-	(envelope-from <ebiederm@xmission.com>)
-	id 1uFbko-008tj4-0n; Thu, 15 May 2025 10:48:18 -0600
-Received: from ip72-198-198-28.om.om.cox.net ([72.198.198.28]:60030 helo=email.froward.int.ebiederm.org.xmission.com)
-	by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.93)
-	(envelope-from <ebiederm@xmission.com>)
-	id 1uFbkm-008mIa-JT; Thu, 15 May 2025 10:48:17 -0600
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: Kees Cook <kees@kernel.org>
-Cc: Mateusz Guzik <mjguzik@gmail.com>,  Jann Horn <jannh@google.com>,
-  Christian Brauner <brauner@kernel.org>,  Jorge Merlino
- <jorge.merlino@canonical.com>,  Alexander Viro <viro@zeniv.linux.org.uk>,
-  Thomas Gleixner <tglx@linutronix.de>,  Andy Lutomirski <luto@kernel.org>,
-  Sebastian Andrzej Siewior <bigeasy@linutronix.de>,  Andrew Morton
- <akpm@linux-foundation.org>,  linux-mm@kvack.org,
-  linux-fsdevel@vger.kernel.org,  John Johansen
- <john.johansen@canonical.com>,  Paul Moore <paul@paul-moore.com>,  James
- Morris <jmorris@namei.org>,  "Serge E. Hallyn" <serge@hallyn.com>,
-  Stephen Smalley <stephen.smalley.work@gmail.com>,  Eric Paris
- <eparis@parisplace.org>,  Richard Haines
- <richard_c_haines@btinternet.com>,  Casey Schaufler
- <casey@schaufler-ca.com>,  Xin Long <lucien.xin@gmail.com>,  "David S.
- Miller" <davem@davemloft.net>,  Todd Kjos <tkjos@google.com>,  Ondrej
- Mosnacek <omosnace@redhat.com>,  Prashanth Prahlad <pprahlad@redhat.com>,
-  Micah Morton <mortonm@chromium.org>,  Fenghua Yu <fenghua.yu@intel.com>,
-  Andrei Vagin <avagin@gmail.com>,  linux-kernel@vger.kernel.org,
-  apparmor@lists.ubuntu.com,  linux-security-module@vger.kernel.org,
-  selinux@vger.kernel.org,  linux-hardening@vger.kernel.org,
-  oleg@redhat.com
-References: <20221006082735.1321612-1-keescook@chromium.org>
-	<20221006082735.1321612-2-keescook@chromium.org>
-	<20221006090506.paqjf537cox7lqrq@wittgenstein>
-	<CAG48ez0sEkmaez9tYqgMXrkREmXZgxC9fdQD3mzF9cGo_=Tfyg@mail.gmail.com>
-	<86CE201B-5632-4BB7-BCF6-7CB2C2895409@chromium.org>
-	<h65sagivix3zbrppthcobnysgnlrnql5shiu65xyg7ust6mc54@cliutza66zve>
-	<D03AE210-6874-43B6-B917-80CD259AE2AC@kernel.org>
-	<CAG48ez0aP8LaGppy6Yon7xcFbQa1=CM-HXSZChvXYV2VJZ8y7g@mail.gmail.com>
-	<871pss17hq.fsf@email.froward.int.ebiederm.org>
-	<CAGudoHH-Jn5_4qnLV3qwzjTi2ZgfmfaO0qVSWW5gqdqkvchnDQ@mail.gmail.com>
-	<202505140822.6AB755B6@keescook>
-Date: Thu, 15 May 2025 11:48:07 -0500
-In-Reply-To: <202505140822.6AB755B6@keescook> (Kees Cook's message of "Wed, 14
-	May 2025 08:42:22 -0700")
-Message-ID: <87bjrtrfaw.fsf@email.froward.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.2 (gnu/linux)
+	s=arc-20240116; t=1747332847; c=relaxed/simple;
+	bh=clcjMFwjzq1K/HoDraAXYcNw0jxFnXWgfH8D6iM8jDE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ab53EH6zaY7bTNdJhelvOileOXnpjjRsIKJAgwV9loSjvvghjCioDxaXdF1ar8Pf1uZnsqck9Fe3PlyjYskQneL870sEvKOj6tV6452yarCmDSU3I/mB5NVa4UN8ORxLBTuPd7VwcPkIPw74v1zwokZWKN7lLkd18WiB8kViUwI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ACl7Wdk0; arc=none smtp.client-ip=209.85.219.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ACl7Wdk0"
+Received: by mail-yb1-f177.google.com with SMTP id 3f1490d57ef6-e7b3410e122so1292819276.2
+        for <selinux@vger.kernel.org>; Thu, 15 May 2025 11:14:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1747332844; x=1747937644; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qmhE0ZyXFIMq1ejroEpNwIAE09HwUrQ/oEQO4pBE8KQ=;
+        b=ACl7Wdk0W5e2KTIuqHvYvU0CYvoNsGWGS2YMhVzQnqtcIQeoRpf8+reVgvdeYZokai
+         qMuTFFQSocgOpVo1pQVQMr6/fBJqDEW2XnSHnMwJpqsH+LaDclsPSBUFYRmZWzI/SfeZ
+         c8z5HxNGuIWNx3nfxTSX7b32HqTEvB/4/B4fpICUd4Tj77jAehuX48RMGhCE7LT0+n2S
+         W6Z8PRhAruZ+fFgfOsPWU5iXKa0zmrsk+OwbpWww5G8DyHmxpx10J2cqzQc1Iqu/aZx9
+         qqWReAqNItf2TlbU1hUn1aYwFK0VNEM8NFBQwXnODIWj2yaRNG79MnwuB9RJ1OnB4nXR
+         eVnQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747332844; x=1747937644;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=qmhE0ZyXFIMq1ejroEpNwIAE09HwUrQ/oEQO4pBE8KQ=;
+        b=GEsqJ9MhBiwtYBrqDTEzuvIkRPfG/STJmFhMZYgE+oTeEIQGPfIHUa3wMkjZhLPfjT
+         +8ljXzBgcPYC0CZLO/0HS0yBg4bDkCh8LvHbipsrLEKdF64L5/ly/XsDwIwdEOiMRHgL
+         cgd6nX+iaKR//4RajO+oSV7wPwEGrdea/T+LarM280ZhVZFLgy9i8ovM9Soaa+xb2CiV
+         Q+q9vOcidkL2cpf6ALiU1vT+FUMYmx0kJVS6XQe1i5ihNBWIjGKbT1ujIc+lxu7ZxZPo
+         UwZJosUZEROnfE2ekmsGIl5aVxgn1wJ8YOJuft/T58ORi2FonPFLSWJWf0uPNvLAoaO4
+         PUsw==
+X-Forwarded-Encrypted: i=1; AJvYcCXbylhrPDjw+JfwiVuSVfrCR97S3HW3gPWfCOviYJEtihRC2P28BvzK2wjQYLngiITI5KbUZx9c@vger.kernel.org
+X-Gm-Message-State: AOJu0YyA17PBPIVYPZcvvLD3+ryKqzLPKaaXFJk/TYii7zOyyxNgX7to
+	IBDO9ra1Kt+/02R8u97OlF6s28tiSJ02hMqW6PpGgzNc6FlOMBp7Qg4NOO3G08eiaS0SQVfhMsk
+	K7D6xWjVf/feMzAssCfGLBlJlIpAbYiCBpNhhEB86
+X-Gm-Gg: ASbGncskVafQNqw0Du2nQXeiY9kvOp1tNIQVN1BPRuQH43VtYNTgqb1XrD5dWN+wUVP
+	YRwzCVjceKp04d3L2W4yjv8bEwgYypudKSOQv4nzhK4xboSEqdM9H2huRvHisAiuLublKDfbz+s
+	eHfJ0was3u6wkT9DBDP/jbj7B1e8E7j6SUmqH2WK56/LY=
+X-Google-Smtp-Source: AGHT+IFy670LlAegjCytZhdLu7KK8GCvgi4jANvaDLaVu1jBwnv38qWvqDWmYrWEdt4vIjmJKbKAIG64bXyYibiNH+M=
+X-Received: by 2002:a05:6902:e0a:b0:e7b:6499:c9a9 with SMTP id
+ 3f1490d57ef6-e7b6a0a9ccbmr843090276.26.1747332844169; Thu, 15 May 2025
+ 11:14:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20250409185019.238841-31-paul@paul-moore.com> <20250409185019.238841-60-paul@paul-moore.com>
+ <81106a29-90ce-4439-9b4c-60bb2962fe04@schaufler-ca.com> <CAHC9VhRUr+sXhLzDSjiG9bEVbzZd2u632dLMVpcCe6By_d_H4w@mail.gmail.com>
+ <3d884912-6225-485b-a7dd-2aa4073265f2@schaufler-ca.com> <CAHC9VhR5OFDvJNJLy9jKMsB4ZVx=phm6k6iebT6VuXD96kNEEA@mail.gmail.com>
+ <c5b81e66-7e73-41cb-a626-9f18f6074e53@schaufler-ca.com> <CAHC9VhSiGc16g36gtZvWKYdtdx-3WG7HbWWhNXvPSBRfA7uphQ@mail.gmail.com>
+ <5df7b895-888e-4aa0-a21f-0a8264158bfa@schaufler-ca.com>
+In-Reply-To: <5df7b895-888e-4aa0-a21f-0a8264158bfa@schaufler-ca.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 15 May 2025 14:13:53 -0400
+X-Gm-Features: AX0GCFv1XixYnJIYpriKgewGWoFqrzG1K0YAkWW4-n7gSHnWYpH7UfxE82NSNaE
+Message-ID: <CAHC9VhScu-AsvOAJ+4VoQB_QTmhuFGwVXmQF2PpgH+D-qLi7=w@mail.gmail.com>
+Subject: Re: [RFC PATCH 29/29] lsm: add support for counting lsm_prop support
+ among LSMs
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
+	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
+	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
+	Fan Wu <wufan@kernel.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
+	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-XM-SPF: eid=1uFbkm-008mIa-JT;;;mid=<87bjrtrfaw.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=72.198.198.28;;;frm=ebiederm@xmission.com;;;spf=pass
-X-XM-AID: U2FsdGVkX1/dsw9mCdXAA3N8gGK7mkVPwWeN8eQaLZ4=
-X-Spam-Level: ***
-X-Spam-Report: 
-	* -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
-	*  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-	*      [score: 0.5000]
-	*  1.5 XMNoVowels Alpha-numberic number with no vowels
-	*  0.7 XMSubLong Long Subject
-	*  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
-	*  0.0 XM_B_Unicode BODY: Testing for specific types of unicode
-	* -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
-	*      [sa06 1397; Body=1 Fuz1=1 Fuz2=1]
-	*  1.0 XMGenDplmaNmb Diploma spam phrases+possible phone number
-	*  0.0 T_TooManySym_01 4+ unique symbols in subject
-X-Spam-DCC: XMission; sa06 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ***;Kees Cook <kees@kernel.org>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 883 ms - load_scoreonly_sql: 0.04 (0.0%),
-	signal_user_changed: 8 (1.0%), b_tie_ro: 7 (0.8%), parse: 1.28 (0.1%),
-	extract_message_metadata: 15 (1.7%), get_uri_detail_list: 3.6 (0.4%),
-	tests_pri_-2000: 27 (3.1%), tests_pri_-1000: 7 (0.8%), tests_pri_-950:
-	1.59 (0.2%), tests_pri_-900: 1.27 (0.1%), tests_pri_-90: 93 (10.6%),
-	check_bayes: 91 (10.3%), b_tokenize: 22 (2.5%), b_tok_get_all: 14
-	(1.6%), b_comp_prob: 8 (0.9%), b_tok_touch_all: 40 (4.5%), b_finish:
-	1.39 (0.2%), tests_pri_0: 667 (75.5%), check_dkim_signature: 0.85
-	(0.1%), check_dkim_adsp: 3.6 (0.4%), poll_dns_idle: 1.32 (0.1%),
-	tests_pri_10: 2.4 (0.3%), tests_pri_500: 56 (6.3%), rewrite_mail: 0.00
-	(0.0%)
-Subject: Re: [PATCH 1/2] fs/exec: Explicitly unshare fs_struct on exec
-X-SA-Exim-Connect-IP: 166.70.13.51
-X-SA-Exim-Rcpt-To: too long (recipient list exceeded maximum allowed size of 512 bytes)
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-X-SA-Exim-Scanned: No (on out01.mta.xmission.com); SAEximRunCond expanded to false
 
-Kees Cook <kees@kernel.org> writes:
-
-> On Wed, May 14, 2025 at 02:03:31AM +0200, Mateusz Guzik wrote:
->> On Wed, May 14, 2025 at 12:17=E2=80=AFAM Eric W. Biederman
->> <ebiederm@xmission.com> wrote:
->> >
->> > Jann Horn <jannh@google.com> writes:
->> >
->> > > On Tue, May 13, 2025 at 10:57=E2=80=AFPM Kees Cook <kees@kernel.org>=
- wrote:
->> > >> On May 13, 2025 6:05:45 AM PDT, Mateusz Guzik <mjguzik@gmail.com> w=
-rote:
->> > >> >Here is my proposal: *deny* exec of suid/sgid binaries if fs_struc=
-t is
->> > >> >shared. This will have to be checked for after the execing proc be=
-comes
->> > >> >single-threaded ofc.
->> > >>
->> > >> Unfortunately the above Chrome helper is setuid and uses CLONE_FS.
->> > >
->> > > Chrome first launches a setuid helper, and then the setuid helper do=
-es
->> > > CLONE_FS. Mateusz's proposal would not impact this usecase.
->> > >
->> > > Mateusz is proposing to block the case where a process first does
->> > > CLONE_FS, and *then* one of the processes sharing the fs_struct does=
- a
->> > > setuid execve(). Linux already downgrades such an execve() to be
->> > > non-setuid, which probably means anyone trying to do this will get
->> > > hard-to-understand problems. Mateusz' proposal would just turn this
->> > > hard-to-debug edgecase, which already doesn't really work, into a
->> > > clean error; I think that is a nice improvement even just from the
->> > > UAPI standpoint.
->> > >
->> > > If this change makes it possible to clean up the kernel code a bit, =
-even better.
->> >
->> > What has brought this to everyone's attention just now?  This is
->> > the second mention of this code path I have seen this week.
->> >
->>=20
->> There is a syzkaller report concerning ->in_exec handling, for example:
->> https://lore.kernel.org/all/67dc67f0.050a0220.25ae54.001f.GAE@google.com=
-/#t
->>
->> [...]
->> > It looks like most of the lsm's also test bprm->unsafe.
->> >
->> > So I imagine someone could very carefully separate the non-ptrace case
->> > from the ptrace case but *shrug*.
->> >
->> > Perhaps:
->> >
->> >         if ((is_setid || __cap_gained(permitted, new_old)) &&
->> >             ((bprm->unsafe & ~LSM_UNSAFE_PTRACE) ||
->> >              !ptracer_capable(current, new->user_ns))) {
->> > +               if (!(bprm->unsafe & LSM_UNSAFE_PTRACE)) {
->> > +                       return -EPERM;
->> > +               }
->> >                 /* downgrade; they get no more than they had, and mayb=
-e less */
->> >                 if (!ns_capable(new->user_ns, CAP_SETUID) ||
->> >                     (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS)) {
->> >                         new->euid =3D new->uid;
->> >                         new->egid =3D new->gid;
->> >                 }
->> >                 new->cap_permitted =3D cap_intersect(new->cap_permitte=
-d,
->> >                                                    old->cap_permitted);
->> >          }
->> >
->> > If that is what you want that doesn't look to scary.  I don't think
->> > it simplifies anything about fs->in_exec.  As fs->in_exec is set when
->> > the processing calling exec is the only process that owns the fs_struc=
-t.
->> > With fs->in_exec just being a flag that doesn't allow another thread
->> > to call fork and start sharing the fs_struct during exec.
->> >
->> > *Shrug*
->> >
->> > I don't see why anyone would care.  It is just a very silly corner cas=
-e.
->>=20
->> Well I don't see how ptrace factors into any of this, apart from being
->> a different case of ignoring suid/sgid.
+On Thu, May 15, 2025 at 10:12=E2=80=AFAM Casey Schaufler <casey@schaufler-c=
+a.com> wrote:
 >
-> I actually think we might want to expand the above bit of logic to use
-> an explicit tests of each LSM_UNSAFE case -- the merged
-> logic is very difficult to read currently. Totally untested expansion,
-> if I'm reading everything correctly:
+> On 5/14/2025 3:11 PM, Paul Moore wrote:
+> > On Wed, May 14, 2025 at 5:16=E2=80=AFPM Casey Schaufler <casey@schaufle=
+r-ca.com> wrote:
+> >> On 5/14/2025 1:57 PM, Paul Moore wrote:
+> >>> On Wed, May 14, 2025 at 3:30=E2=80=AFPM Casey Schaufler <casey@schauf=
+ler-ca.com> wrote:
+> >>>> On 5/13/2025 1:23 PM, Paul Moore wrote:
+> >>>>> On Tue, May 13, 2025 at 12:39=E2=80=AFPM Casey Schaufler <casey@sch=
+aufler-ca.com> wrote:
+> >>>>>> On 4/9/2025 11:50 AM, Paul Moore wrote:
+> > ..
+> >
+> >>>> In my coming audit patch I changed where the counts of properties ar=
+e
+> >>>> maintained from the LSM infrastructure to the audit subsystem, where=
+ they are
+> >>>> actually used. Instead of the LSM init code counting the property us=
+ers, the
+> >>>> individual LSM init functions call an audit function that keeps trac=
+k. BPF
+> >>>> could call that audit function if it loads a program that uses conte=
+xts. That
+> >>>> could happen after init, and the audit system would handle it proper=
+ly.
+> >>>> Unloading the bpf program would be problematic. I honestly don't kno=
+w whether
+> >>>> that's permitted.
+> >>> BPF programs can definitely go away, so that is something that would
+> >>> need to be accounted for in any solution.  My understanding is that
+> >>> once all references to a BPF program are gone, the BPF program is
+> >>> unloaded from the kernel.
+> >>>
+> >>> Perhaps the answer is that whenever the BPF LSM is enabled at boot,
+> >>> the audit subsystem always queries for subj/obj labels from the BPF
+> >>> LSM and instead of using the normal audit placeholder for missing
+> >>> values, "?", we simply don't log the BPF subj/obj fields.  I dislike
+> >>> the special case nature of the solution, but the reality is that the
+> >>> BPF is a bit "special" and we are going to need to have some special
+> >>> code to deal with it.
+> >> If BPF never calls audit_lsm_secctx() everything is fine, and the BPF
+> >> context(s) never result in an aux record. If BPF does call audit_lsm_s=
+ecctx()
+> >> and there is another LSM that uses contexts you get the aux record, ev=
+en
+> >> if the BPF program goes away. You will get an aux record with only one=
+ context.
+> >> This is not ideal, but provides the correct information. This all assu=
+mes that
+> >> BPF programs can call into the audit system, and that they deal with m=
+ultiple
+> >> contexts within BPF. There could be a flag to audit_lsm_secctx() to de=
+lete the
+> >> entry, but that seems potentially dangerous.
+> > I think the answer to "can BPF programs call into the audit subsystem"
+> > is dependent on if they have the proper BPF kfuncs for the audit API.
+> > I don't recall seeing them post anything to the audit list about that,
+> > but it's also possible they did it without telling anyone (ala move
+> > fast, break things).  I don't think we would want to prevent BPF
+> > programs from calling into the normal audit API that other subsystems
+> > use, but we would need to look at that as it comes up.
 >
-> 	if (bprm->unsafe &&
-> 	    (is_setid || __cap_gained(permitted, new_old))) {
-> 		bool limit_caps =3D false;
-> 		bool strip_eid =3D false;
-> 		unsigned int unsafe =3D bprm->unsafe;
-> 		/* Check each bit */
->
-> 		if (unsafe & LSM_UNSAFE_PTRACE) {
-> 			if (!ptracer_capable(current, new->user_ns))
-> 				limit_caps =3D true;
-                                strip_eid  =3D true;
-You missed the euid stripping there.
-> 			unsafe &=3D ~LSM_UNSAFE_PTRACE;
-> 		}
-> 		if (unsafe & LSM_UNSAFE_SHARE) {
-> 			limit_caps =3D true;
-> 			if (!ns_capable(new->user_ns, CAP_SETUID))
-> 				strip_eid =3D true;
-> 			unsafe &=3D ~LSM_UNSAFE_SHARE;
-> 		}
-> 		if (unsafe & LSM_UNSAFE_NO_NEW_PRIVS) {
-> 			limit_caps =3D true;
-> 			if (!ns_capable(new->user_ns, CAP_SETUID))
-> 				strip_eid =3D true;
-> 			unsafe &=3D ~LSM_UNSAFE_NO_NEW_PRIVS;
-> 		}
->
-> 		if (WARN(unsafe, "Unhandled LSM_UNSAFE flag: %u?!\n", unsafe))
-> 			return -EINVAL;
->
-> 		if (limit_caps) {
-> 			new->cap_permitted =3D cap_intersect(new->cap_permitted,
-> 							   old->cap_permitted);
-> 		}
-> 		if (strip_eid) {
-> 			new->euid =3D new->uid;
-> 			new->egid =3D new->gid;
-> 		}
-> 	}
+> I suggest that until the "BPF auditing doesn't work!!!" crisis hits
+> there's not a lot of point in going to heroic efforts to ensure all
+> the bases are covered. I'll move forward assuming that an LSM could
+> dynamically decide to call audit_lsm_secctx(), and that once it does
+> it will always show up in the aux record, even if that means subj_bpf=3D?
+> shows up every time.
 
+My only concern is that I suspect most/all of the major distro enable
+the BPF LSM by default which means that suddenly a lot of users/admins
+are going to start seeing the multi-subj/obj labeling scheme only to
+have an empty field logged.
 
-I think I would simplify this all to:
-
-	if ((id_changed || __cap_gained(permitted, new, old)) &&
-            !ptracer_capable(current->new_user_ns)) {
-        	if (!ns_capable(new->user_ns, CAP_SETUID)) {
-                	new->euid =3D old->euid;
-                        new->egid =3D old->egid;
-                }
-                new->cap_permitted =3D cap_intersect(new->cap_permitted,
-                				   old->cap_permitted);
-        }
-        if ((id_changed || __cap_gained(permitted, new, old)) &&
-            (bprm->unsafe & ~LSM_UNSAFE_PTRACE)) {
-        	return -EPERM;
-        }
-
-The code of no_new_privs doesn't prevent capset so ignoring the results
-of ns_capable when NO_NEW_PRIVS is set doesn't make sense.
-
-If we are going to do anything please let's find ways to understand
-what is happening and simplify this code, not add to it's complexity.
-
-Eric
+--=20
+paul-moore.com
