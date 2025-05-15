@@ -1,212 +1,209 @@
-Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15B582980DB;
-	Thu, 15 May 2025 10:33:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73341297A47
+	for <selinux@vger.kernel.org>; Thu, 15 May 2025 12:21:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747305229; cv=none; b=bz7a7XcZS3t1tQj+10vlX/dG6bX7fzicGFyJrQICvS0CQLjV3vMIxmRyXq6dzLWWRZygP07AQ/HRy/coOszmdkFf0qVDfWPkIywxoLG0c06z5Bpo2A0tsUt/UYII0fs1wkX2BLOScPeVhoqAwrYtJDEAJG425vAqeMe4FbjaQGo=
+	t=1747311663; cv=none; b=a0pND4ypPkzZIIF0P7lNXoUC6NTxFX7iXFNmFcGtJYNGoy8TwDS8SzENKChlgImZB4ENf7oZXQZNe2HyY6IAp1dMA6XXw6aD4s1iF8T6XqV55Tae5HmA0IJhe5DUwIsSWdxQWEdY8/WFnYSo+hcUkk7F9kmSOcE0shCRhMH19v8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747305229; c=relaxed/simple;
-	bh=0Ca4GoXXMXx6cHQk8bHNd0lNmpQHYfAdXnzIxwgHL3k=;
+	s=arc-20240116; t=1747311663; c=relaxed/simple;
+	bh=shlnFKO/vnsQfgu/bcrpHx3A/MBkPdDG5j540MMbUT4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=c+nFs+e+8CatHm1vNJsGCo9zbaC8oui+kdPu4zQjXRq0FiXLjmcpCSWa/D2IBa3pIW9DVK53RAbYZ56or7gWTWadHro9t6eZ5p++3Sni1xX8ITx9nqcLxJyVjWUuIYUyPgCc6M/kmxzJUJRbM3I3W5baK2PD0yW7DTQyxBrMVeY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dNFFvB7+; arc=none smtp.client-ip=209.85.218.43
+	 To:Cc:Content-Type; b=YQUKZWWarPswc/qzTHFc9GJDt4hTgzNJkFeMHhNCNGNJJT2JBJ8kcYqwr2wRJZOuzfaaJ7MpOwrwskjgDz1QZMAPHEWQzOzQFFyGDAAQNHfVSwidT6NGnyvglWQC9lbODmgNiHN1+QmdGNKGHfIJmChX5uw/uSF14IkREN+GHBc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dnw+NS4A; arc=none smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dNFFvB7+"
-Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-ad228552355so145728266b.3;
-        Thu, 15 May 2025 03:33:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dnw+NS4A"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-30c35ac35dfso719583a91.1
+        for <selinux@vger.kernel.org>; Thu, 15 May 2025 05:21:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747305224; x=1747910024; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1747311660; x=1747916460; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ix0mN7yylNXsLKVIXpa3RC7XyXUMorhAJgZhoj08KZI=;
-        b=dNFFvB7+F4bQnqRGDE2+4A7yMNRNci41ukf9sM1SpKoP5h6okqXiIXRFAcqooe9hEw
-         kaUx/tV81EFC+u0mn6Le+CyrNFLvbaOH4AXXbD96ikKi9eBWkXm6lXyTTVx9+F+WvxCu
-         QCLbC65KNrv3b1DAyGVaQLBS/5VUvLZa8GdDj9+o7gsJWgRA2NbkaPUIEMKDfrnrXuBQ
-         aMvr2s7eu23v2L952PmkdrtcWQYLg5s3TlFFyLZ66piMmmNg7QbAgTREsF+8BDzzEj++
-         3/6IIvVKq4OoaPc3OmCt1SGq3n8VlTJFyCc2nT6YvaJt6JmzAHI1yEJTRH0PRwdkOLPn
-         YAiw==
+        bh=o19lanGjbSboZ1V5E7yRoesGsNg4TuDUzm3fJqxGHo8=;
+        b=Dnw+NS4A1LNECFyqEKJ1O0YGmDFQ7YNl0159QnbpN/aTwJvqidPurAFeJpkEJdq0qt
+         KfM6RwaIacCftGg1G4EwxaH4+4uGLAZSMdV58UucJW+zn3pwGaiMN9dbFHL8+0hzB2f8
+         BqgQZlYemqDHv46DV8KbyJ+JvB4Na/mVLk1zfc67i8iYcUHEI+vId3D6HXwMLV5rK3wE
+         rPl5fGsqmrhfG8qzbkaV2ZteLPmD9koIA5+gq+ElwOWyxs7rsuxBH0fjA/kyNDuSja9T
+         +jup5xXwH9KcYuwYIohF6cYDBvyFVDzDz3hsMsKHtvYrbU7saV9sSbo4m6ts1EUjut/J
+         SOGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747305224; x=1747910024;
+        d=1e100.net; s=20230601; t=1747311660; x=1747916460;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ix0mN7yylNXsLKVIXpa3RC7XyXUMorhAJgZhoj08KZI=;
-        b=tHazuhTolEjm0AwedGQNaIwGVTICJQraA9S1nB7s9UJfjJtJcYpG2vEh+UxLGyWuw7
-         rAJMoSlIvp9HJt9U1OUSjs5O7myGMotXVYUpvoy/nP9zhogP140G7SZh2kaBZVb9lJKf
-         XzY6W0GPzKciXy3YHpttbxKMSovd4Gmh8Bxu8ogetrTGwWLS5J+yFKc2e2MH3AD9Qj4y
-         MCCFSqOWPxhwQkIVNFAeZJ+zvXeF9e/hhMyBR0YVh8KaOjKbZSB3l4c/iQsIm0yZZzUb
-         f1SHf5CH/Lde4hO8rArc7eIf2kCCXNM2bUCG90l+ySxIDMbaDQyA71MIwTYJuA6/xjKV
-         XlSg==
-X-Forwarded-Encrypted: i=1; AJvYcCUFnl18yK4fF8ZN2ucDTSkBtzfngOZ4W/Zb+AtLsGqpz4K3M7veduiKInDo13KpvYiJXoHkcDXTeh90xRC3YQ==@vger.kernel.org, AJvYcCUw/v0IOYfEKGhI5+PaJVUhjKZ7tN2HyFQ0iyjDsYmm6oiwhN1OoRkPrGGYwfDshbHCMvomAustbIVKq9ybvmOHfBImhqxZ@vger.kernel.org, AJvYcCV9z144RUR25t3aFg1JFeKuxmt3naFBbyv3tFPUNz3ve32dI/QuVr+k82PQL32ALdaUPURR4FJC3d5vpQ==@vger.kernel.org, AJvYcCVTr+YXfhfhWbVErezEaAdibon47HFbxkBSwd0L7a7b+ksE7LdIUWBlwMeYlLWA7YEU0QjsSlUWli9R0fAC@vger.kernel.org, AJvYcCVek3fQdptbsYZYs2oTWrZX8O/3F/GUbA9UVDvn0xntkcIuCgAgsgL4NsDuYQKBwWsq5LssXIC2X69I@vger.kernel.org, AJvYcCVps06mw7zk4bPdVN9Yv0+Ojg5M7awKR+XyXkPrZsyIDdXNnUGoLjCq5YOW4BmkxLpPtlBACTeKHLUaOiHn@vger.kernel.org, AJvYcCVsMxP8v6PDjt17331Nq8v25vO5ZRD2nB8rOnxTKEZlRI4NVSB/oBu6lmtH8OG/1ZKEBCDgIVhAz5ldcA==@vger.kernel.org, AJvYcCVv8csgEV2RJWy4XYXB0ZMv00S/ClXPdRJB8I80WrnXQCuhvexd6DQsUhYnVPePww51QU75xzVgRnA=@vger.kernel.org, AJvYcCW0F1JF43hz5eSJTXNoegIXA+RVMAgnJIiQXbTipAexlxh4iNhjELEC2iXqnyXmRdQR/4QXnMcSwh39XB2sBA==@vger.kernel.org, AJvYcCW18UDiAGv/4LOj3FNHdH3GSZNyBcI+jPZ4NVz6NORooYjdCOj2SChcjPvfjFyb8fgkjTQc4ZynhSI3AQ==@vger.kernel.org, AJvYcCW5jRkhGpM9gTLCfchk227w/7h2IKaZ0puV91k5iVX3Btl5kae+ywOqejl7MEoxxCZsrBf72PxbEg==@vger.kernel.org, AJvYcCWBoIgk+CVxvl2GSIdNKDKaBKfqA9ZlYws3gueo/jWH5ZXkzxQCbcu147xz1MNz3709XASbHT59EA==@vger.kernel.org, AJvYcCWUrm8XEOKGZJy3WAofc8WaI8Pk+8+JfgKsTXAw5huAhOLpPYobdqp15LMARaxNEbYwPdssmelvyJgNADM=@vger.kernel.org, AJvYcCWgu3aDI8Fl1QgcZi/LKLhCchAO1ENL1XEKHya4jDvdFC+3yRchmE2pcuxiEM0ts9LmbyPxYchwVMh+@vger.kernel.org, AJvYcCXDdGMbqYtbvTkGvKFJ9OZRQ1Dfqh5BWlwKfnXMpyIkBoS78woO5K1w8mWyL2pbNtc0AbI9uyh19XGGVQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzAhg0fRi2y/4LqaTxIBOyX0h6jMOVDsV+qkOx8Y33cZHfUOxq1
-	xrRJJD+6a7oNRV0phyM/DJAUrxtFsomp7aFlMZfNKdzUU3uAZpywkR1lSGQ47Hs7pl13vEi2gYb
-	yQVDVOloSRrg4NGi1eSonwE9w9RY=
-X-Gm-Gg: ASbGncvgp+pMrYhwTDQZSDhHzNtbh29X5xDM/VKsLFbS/BaFNH5zYfxYT/k7bHjMq83
-	xb5QRifdRF59rQNAS0SxCj3zrGWRbACLTsYNaMnzhA9bBhoC5QDF6ylCS11E4PVEDQvY7IPyhZ8
-	aBRX+yXuYhY1uhDFh/H8D47JGosgkkMN1J
-X-Google-Smtp-Source: AGHT+IH/YFjWiUa7Oe6APhoaMiAXM+TxOKXzzX9IOWrtv4bcH+n6gSWZSohhovEJvJss7Wr0el1TN6Dn7PUuhUUlRKw=
-X-Received: by 2002:a17:907:72c1:b0:ad2:e683:a76c with SMTP id
- a640c23a62f3a-ad515d79f17mr198604066b.7.1747305223832; Thu, 15 May 2025
- 03:33:43 -0700 (PDT)
+        bh=o19lanGjbSboZ1V5E7yRoesGsNg4TuDUzm3fJqxGHo8=;
+        b=dkcuZukEZ+hXjxBLFZxb6XG+Gv+V5b2f5rpYuzOpl/justReMi+A1J+P2H5SeDvB7V
+         6Sy2APRQLB76YgIMvbJ+Kt5L8uUDfu/AaGlIp8yoVODBWdJgYbZ7P97vRzwPyPbecW/z
+         iXAfeaew/DDGOAOcXAhCCSb3LMs7Rx4z4MZKiOAeJOcaqRHpPZgRB2I1/gBADxo77wKn
+         6Nza4+hhYlUhDOJcf/GdfmyyvfMqxHNPvlBN00SAZahM0cVVv6VdsgyL0Yw2b7pNBhrA
+         CBoFBqdTmcIXk6uLl8JC8UBqMEuv/FUVIhDi5cgzeDSzQdrVkPSfWsJl9TJs9gh6PksE
+         PjHg==
+X-Gm-Message-State: AOJu0YxDWC5uFIhsQxvLRvZ102oaaCWP+eCXXhSZtlfGbk8fpCJiEYNp
+	NMCEk15RTxQLFDPlqpdul7vOjyg2+z2TkAcMp8HpGAfAjP38pz22pi2KoiTLaGeP7Wh0JKSgzho
+	8XzRElPUjdygXK8PxUuKxb+La6W8wwpv1
+X-Gm-Gg: ASbGncujLva64jN8T5pUAytPYz6w6O5mv4FacoEUWr4ll6MEUPEHFqWAX9LG2tJPyHX
+	fvoT0BT8fxoYcovGLYlu3t0ZFxRbkHEN4pgQ/bqAVnryG1en69QcwRIe52JhSlh3Ywc1EYmpPOB
+	Zk/oVzJi8+d29fW7I4zEevQ7KuUcXXdH8m
+X-Google-Smtp-Source: AGHT+IEAiNyG0QxiDJmthCWhjkpNIcNgBQjhoVK5JXEhf6h4oFaGp+0nqKGR/K0qK8B/tFDEQXgIKKqCW0imUd1V5Hs=
+X-Received: by 2002:a17:90b:58ce:b0:30c:4a09:d1c0 with SMTP id
+ 98e67ed59e1d1-30e2e687a99mr12947561a91.33.1747311660242; Thu, 15 May 2025
+ 05:21:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250513-xattrat-syscall-v5-0-22bb9c6c767f@kernel.org>
- <399fdabb-74d3-4dd6-9eee-7884a986dab1@app.fastmail.com> <20250515-bedarf-absagen-464773be3e72@brauner>
-In-Reply-To: <20250515-bedarf-absagen-464773be3e72@brauner>
-From: Amir Goldstein <amir73il@gmail.com>
-Date: Thu, 15 May 2025 12:33:31 +0200
-X-Gm-Features: AX0GCFv6VzJTt0PbxjVfcfLF_B5PjKPMcuhdvqJqoMNLfQeCg9Kk1MZMyM5NBko
-Message-ID: <CAOQ4uxicuEkOas2UR4mqfus9Q2RAeKKYTwbE2XrkcE_zp8oScQ@mail.gmail.com>
-Subject: Re: [PATCH v5 0/7] fs: introduce file_getattr and file_setattr syscalls
-To: Christian Brauner <brauner@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Andrey Albershteyn <aalbersh@redhat.com>, 
-	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
-	Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, 
-	Will Deacon <will@kernel.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, 
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
-	"James E . J . Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, Christophe Leroy <christophe.leroy@csgroup.eu>, 
-	Naveen N Rao <naveen@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
-	Sven Schnelle <svens@linux.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, 
-	Rich Felker <dalias@libc.org>, John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>, 
-	"David S . Miller" <davem@davemloft.net>, Andreas Larsson <andreas@gaisler.com>, 
-	Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>, 
-	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	=?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>, Tyler Hicks <code@tyhicks.com>, 
-	Miklos Szeredi <miklos@szeredi.hu>, linux-alpha@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, 
-	linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, 
-	sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, linux-api@vger.kernel.org, 
-	Linux-Arch <linux-arch@vger.kernel.org>, selinux@vger.kernel.org, 
-	ecryptfs@vger.kernel.org, linux-unionfs@vger.kernel.org, 
-	linux-xfs@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
+References: <20250502170450.27160-2-stephen.smalley.work@gmail.com> <20250502170450.27160-3-stephen.smalley.work@gmail.com>
+In-Reply-To: <20250502170450.27160-3-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 15 May 2025 08:20:49 -0400
+X-Gm-Features: AX0GCFsoj6qTeOBGasd_Z1bJ3vvM713UHEf5EsNjtm_4S0uJulLjvs3uVxVeXHY
+Message-ID: <CAEjxPJ6B9COCXeM5xaWQC4aY8iB3TQwm57VRSK-c6k3Or-K3gQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] selinux: optimize selinux_inode_getattr/permission()
+ based on neveraudit|permissive
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 15, 2025 at 11:02=E2=80=AFAM Christian Brauner <brauner@kernel.=
-org> wrote:
+On Fri, May 2, 2025 at 1:05=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Tue, May 13, 2025 at 11:53:23AM +0200, Arnd Bergmann wrote:
-> > On Tue, May 13, 2025, at 11:17, Andrey Albershteyn wrote:
-> >
-> > >
-> > >     long syscall(SYS_file_getattr, int dirfd, const char *pathname,
-> > >             struct fsxattr *fsx, size_t size, unsigned int at_flags);
-> > >     long syscall(SYS_file_setattr, int dirfd, const char *pathname,
-> > >             struct fsxattr *fsx, size_t size, unsigned int at_flags);
-> >
-> > I don't think we can have both the "struct fsxattr" from the uapi
-> > headers, and a variable size as an additional argument. I would
-> > still prefer not having the extensible structure at all and just
+> Extend the task avdcache to also cache whether the task SID is both
+> permissive and neveraudit, and return immediately if so in both
+> selinux_inode_getattr() and selinux_inode_permission().
 >
-> We're not going to add new interfaces that are fixed size unless for the
-> very basic cases. I don't care if we're doing that somewhere else in the
-> kernel but we're not doing that for vfs apis.
+> The same approach could be applied to many of the hook functions
+> although the avdcache would need to be updated for more than directory
+> search checks in order for this optimization to be beneficial for checks
+> on objects other than directories.
 >
-> > use fsxattr, but if you want to make it extensible in this way,
-> > it should use a different structure (name). Otherwise adding
-> > fields after fsx_pad[] would break the ioctl interface.
+> To test, apply https://github.com/SELinuxProject/selinux/pull/473 to
+> your selinux userspace, build and install libsepol and secilc, and use
+> the following CIL policy module:
+> $ cat neverauditpermissive.cil
+> (typeneveraudit unconfined_t)
+> (typepermissive unconfined_t)
 >
-> Would that really be a problem? Just along the syscall simply add
-> something like:
+> Without this module inserted, running the following commands:
+>    perf record make -jN # on an already built allmodconfig tree
+>    perf report --sort=3Dsymbol,dso
+> yields the following percentages (only showing __d_lookup_rcu for
+> reference and only showing relevant SELinux functions):
+>    1.65%  [k] __d_lookup_rcu
+>    0.53%  [k] selinux_inode_permission
+>    0.40%  [k] selinux_inode_getattr
+>    0.15%  [k] avc_lookup
+>    0.05%  [k] avc_has_perm
+>    0.05%  [k] avc_has_perm_noaudit
+>    0.02%  [k] avc_policy_seqno
+>    0.02%  [k] selinux_file_permission
+>    0.01%  [k] selinux_inode_alloc_security
+>    0.01%  [k] selinux_file_alloc_security
+> for a total of 1.24% for SELinux compared to 1.65% for
+> __d_lookup_rcu().
 >
-> diff --git a/fs/ioctl.c b/fs/ioctl.c
-> index c91fd2b46a77..d3943805c4be 100644
-> --- a/fs/ioctl.c
-> +++ b/fs/ioctl.c
-> @@ -868,12 +868,6 @@ static int do_vfs_ioctl(struct file *filp, unsigned =
-int fd,
->         case FS_IOC_SETFLAGS:
->                 return ioctl_setflags(filp, argp);
+> After running the following command to insert this module:
+>    semodule -i neverauditpermissive.cil
+> and then re-running the same perf commands from above yields
+> the following non-zero percentages:
+>    1.74%  [k] __d_lookup_rcu
+>    0.31%  [k] selinux_inode_permission
+>    0.03%  [k] selinux_inode_getattr
+>    0.03%  [k] avc_policy_seqno
+>    0.01%  [k] avc_lookup
+>    0.01%  [k] selinux_file_permission
+>    0.01%  [k] selinux_file_open
+> for a total of 0.40% for SELinux compared to 1.74% for
+> __d_lookup_rcu().
 >
-> -       case FS_IOC_FSGETXATTR:
-> -               return ioctl_fsgetxattr(filp, argp);
-> -
-> -       case FS_IOC_FSSETXATTR:
-> -               return ioctl_fssetxattr(filp, argp);
-> -
->         case FS_IOC_GETFSUUID:
->                 return ioctl_getfsuuid(filp, argp);
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+
+FYI, I posted a revised version of the userspace patch to support this
+extension here:
+https://lore.kernel.org/selinux/20250514195928.33737-2-stephen.smalley.work=
+@gmail.com/
+
+No change required to the kernel patches.
+Would appreciate any feedback.
+
+>  security/selinux/hooks.c          | 18 +++++++++++++++++-
+>  security/selinux/include/objsec.h |  1 +
+>  2 files changed, 18 insertions(+), 1 deletion(-)
 >
-> @@ -886,6 +880,20 @@ static int do_vfs_ioctl(struct file *filp, unsigned =
-int fd,
->                 break;
->         }
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index b8115df536ab..1a3806fdf3d6 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3184,6 +3184,8 @@ static inline void task_avdcache_update(struct task=
+_security_struct *tsec,
+>         tsec->avdcache.dir[spot].audited =3D audited;
+>         tsec->avdcache.dir[spot].allowed =3D avd->allowed;
+>         tsec->avdcache.dir[spot].permissive =3D avd->flags & AVD_FLAGS_PE=
+RMISSIVE;
+> +       tsec->avdcache.permissive_neveraudit =3D
+> +               (avd->flags =3D=3D (AVD_FLAGS_PERMISSIVE|AVD_FLAGS_NEVERA=
+UDIT));
+>  }
 >
-> +       switch (_IOC_NR(cmd)) {
-> +       case _IOC_NR(FS_IOC_FSGETXATTR):
-> +               if (WARN_ON_ONCE(_IOC_TYPE(cmd) !=3D _IOC_TYPE(FS_IOC_FSG=
-ETXATTR)))
-> +                       return SOMETHING_SOMETHING;
-> +               /* Only handle original size. */
-> +               return ioctl_fsgetxattr(filp, argp);
+>  /**
+> @@ -3210,10 +3212,15 @@ static int selinux_inode_permission(struct inode =
+*inode, int requested)
+>         if (!mask)
+>                 return 0;
+>
+> +       tsec =3D selinux_cred(current_cred());
+> +       if (tsec->avdcache.permissive_neveraudit &&
+> +               tsec->sid =3D=3D tsec->avdcache.sid &&
+> +               tsec->avdcache.seqno =3D=3D avc_policy_seqno())
+> +               return 0;
 > +
-> +       case _IOC_NR(FFS_IOC_FSSETXATTR):
-> +               if (WARN_ON_ONCE(_IOC_TYPE(cmd) !=3D _IOC_TYPE(FFS_IOC_FS=
-SETXATTR)))
-> +                       return SOMETHING_SOMETHING;
-> +               /* Only handle original size. */
-> +               return ioctl_fssetxattr(filp, argp);
-> +       }
+>         isec =3D inode_security_rcu(inode, requested & MAY_NOT_BLOCK);
+>         if (IS_ERR(isec))
+>                 return PTR_ERR(isec);
+> -       tsec =3D selinux_cred(current_cred());
+>         perms =3D file_mask_to_av(inode->i_mode, mask);
+>
+>         rc =3D task_avdcache_search(tsec, isec, &avdc);
+> @@ -3277,6 +3284,15 @@ static int selinux_inode_setattr(struct mnt_idmap =
+*idmap, struct dentry *dentry,
+>
+>  static int selinux_inode_getattr(const struct path *path)
+>  {
+> +       struct task_security_struct *tsec;
 > +
-
-I think what Arnd means is that we will not be able to change struct
-sfxattr in uapi
-going forward, because we are not going to deprecate the ioctls and
-certainly not
-the XFS specific ioctl XFS_IOC_FSGETXATTRA.
-
-This struct is part of XFS uapi:
-https://man7.org/linux/man-pages/man2/ioctl_xfs_fsgetxattr.2.html
-
-Should we will need to depart from this struct definition and we might
-as well do it for the initial release of the syscall rather than later on, =
-e.g.:
-
---- a/include/uapi/linux/fs.h
-+++ b/include/uapi/linux/fs.h
-@@ -148,6 +148,17 @@ struct fsxattr {
-        unsigned char   fsx_pad[8];
- };
-
-+/*
-+ * Variable size structure for file_[sg]et_attr().
-+ */
-+struct fsx_fileattr {
-+       __u32           fsx_xflags;     /* xflags field value (get/set) */
-+       __u32           fsx_extsize;    /* extsize field value (get/set)*/
-+       __u32           fsx_nextents;   /* nextents field value (get)   */
-+       __u32           fsx_projid;     /* project identifier (get/set) */
-+       __u32           fsx_cowextsize; /* CoW extsize field value (get/set=
-)*/
-+};
-+
-+#define FSXATTR_SIZE_VER0 20
-+#define FSXATTR_SIZE_LATEST FSXATTR_SIZE_VER0
-+
-
-Right?
-
-Thanks,
-Amir.
+> +       tsec =3D selinux_cred(current_cred());
+> +
+> +       if (tsec->avdcache.permissive_neveraudit &&
+> +               tsec->sid =3D=3D tsec->avdcache.sid &&
+> +               tsec->avdcache.seqno =3D=3D avc_policy_seqno())
+> +               return 0;
+> +
+>         return path_has_perm(current_cred(), path, FILE__GETATTR);
+>  }
+>
+> diff --git a/security/selinux/include/objsec.h b/security/selinux/include=
+/objsec.h
+> index 6ee7dc4dfd6e..51a42b1a61a9 100644
+> --- a/security/selinux/include/objsec.h
+> +++ b/security/selinux/include/objsec.h
+> @@ -49,6 +49,7 @@ struct task_security_struct {
+>                 u32 seqno; /* AVC sequence number */
+>                 unsigned int dir_spot; /* dir cache index to check first =
+*/
+>                 struct avdc_entry dir[TSEC_AVDC_DIR_SIZE]; /* dir entries=
+ */
+> +               bool permissive_neveraudit; /* permissive and neveraudit =
+*/
+>         } avdcache;
+>  } __randomize_layout;
+>
+> --
+> 2.49.0
+>
