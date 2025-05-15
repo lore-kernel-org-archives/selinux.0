@@ -1,60 +1,60 @@
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A012A299AAB
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D53D2989BA
 	for <selinux@vger.kernel.org>; Thu, 15 May 2025 13:10:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747314655; cv=none; b=f9HopNW7jmYgiuQ4KMjg2Y/5D5Zd3AAN057vRC0crPidqgv0d+i5nHuO+ki+yaUx8utMe/gazDCkzR25SjG1S86kIMf4z5QOu4nGQWe0mYxy8RdQMrVclqMBYVNp7SQc66Z1DMH4Y78oBqsBnJCPcYp3UQdWG6X6D0Oum8hq0Ac=
+	t=1747314655; cv=none; b=pohJ2jiBfz7uOwPJIj0nCxc85Gur898SfcDtUVj7VoxX+f7KaRH1INeD1TT7uHMO8hJ6S2yQDny/sJbiCw5pMXqlLWx47GqB//0R7AahS1pahG0OHmEd0EvbsF0LVQPgMQIuXuWLpc6EvtRMtDzlX2D6Qoj2tmCfhrYst1oWUL0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1747314655; c=relaxed/simple;
-	bh=G1itJxs0C7Xsmy7qSH7fq6q4gCfWMA2H+0s+SbIddIY=;
+	bh=dakd/vK+j/mzeWLU8490DUQkverbVANz2cyST8l/gYU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nRRt+t2smogYv0UmuRnAUjZRwA1Sh3fzJ3mSfxcdwVQtG66VnrCjXBSRqsknnGwCdUL0aamsGASZB4cWhdd68qCRI6GBb+GGItxvedFCp4A4vBwQPfCKu9LrUiZwCB28HHL/db/qHaO3jKLQbf/+4l3+OMcCsdgZGxTI9t1kERU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SdmyioTp; arc=none smtp.client-ip=209.85.219.41
+	 MIME-Version; b=h8CrtMFnZWw/SjcR89bZio0TCvWx7Jq9AAJhkU9U1NmA9P0gL0XAsSKnla1XpPoqGIrRIlibmicv2MFeSNUInKlq0U1cxhj7fAcjjOCnXIrmGvkJChOXTeuFCkohQYnNieotGD0/NT36YVXl6fcW7kiKIxoSwrYTNtlrJls5euY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jrQSD9ai; arc=none smtp.client-ip=209.85.160.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SdmyioTp"
-Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-6f54079e54bso8223896d6.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jrQSD9ai"
+Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-4811fca8658so10074131cf.3
         for <selinux@vger.kernel.org>; Thu, 15 May 2025 06:10:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20230601; t=1747314652; x=1747919452; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=7R9UOAjmiJ4D2mz7IJ6UaAdqWhjplQ8GTQXHOfrwUno=;
-        b=SdmyioTpAWOq+r9UouZer2jKSNrl1qHGGJJhSeOpq/Lvz8T99439h1ILf5OneRmQ+Q
-         1Zop3gRHF7Rigj2G69qMjogOUVQGA6vxxrnse7f3LJNa6xEJnga4N0QjcTOFRau9fkGn
-         lSCINDlac9qMk3kMqFF4O4C78yBhsa9GC7PMq1ERH/UiGfy+yuozEwKf+UGFQxlW+Jmk
-         UXB02wv/23SiUXGfFzzfaJy/wgjClrUUwHzFIl8FDcqyNBDKdcA5OPezqCWkWayw+HMm
-         BQn2DuUvUv/XEc9OO0mLGvfkvCF6vaipUUwjC+CORx+gLgZhFNDZ6dfgaw/2wEqrP1il
-         MLFg==
+        bh=CHYmDlxnVdDmHEPgXxzWk4xTB9nXLNIolBVraE2qvDo=;
+        b=jrQSD9aiZQfSh45eIwbbuIdvvWQKueXkJKdlzhwn3NEKpx/4roYTKCBYndJrSee0As
+         D78OX+skRGXC26RFOJ6oK9VTA4zH8k5f3mjaS0JXelXmcsOsWZDyXEFMoq4HkkiJfZUn
+         WyIMsXgOiFc5e7rjJfSQn2tvAWVCPQAnura0Ny99eX7gYVW9ZO2O/sNDcIbgSn8FF93e
+         Ed1snftm8rkSDPOfQ1e9Kwi5bQz0d8HfdN2YSV569+uzxfPVcYyw2NVXzwLIQNxNPUdH
+         jT16KKoJwSUGhUWcXW15H8rPLxEhVD3U3zDul1tpqhFK1br5YmxeH4/DdFlFxmlHQ1Nv
+         eOeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1747314652; x=1747919452;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=7R9UOAjmiJ4D2mz7IJ6UaAdqWhjplQ8GTQXHOfrwUno=;
-        b=CrGzxyveVcllf2HQxnO1YscupvkNZF6TYrvqrgIx2+095Y4eykvcPhossKl34XYxk/
-         qlF6kEnmzRgTXZM7B+X1rpZnaM1lFSDJnCE4iVtVQyYS6HyVT4byykljAr4QIC44PmyL
-         hHK8fQW0oRJxqQ4VeMj/DOJSREAgoXkrxyAhhW0NgCB7HJI4DxIXssXPVm6+5ARjYzji
-         6hvMaJwpcvz1pBU0fYMFxQ8ZSHuEIgj3b15Icgeo4yVaItq0t5NNJ+mb9u08TSrfFZGW
-         MI25zOBTEkGDj1JOo1npQaXdYl7mucboFU9rafeXIcozJrDpUSQfPKs5dQexdh7eYKwB
-         MCwQ==
-X-Gm-Message-State: AOJu0YxhoNp0s8LHUZNTr4D2GW5LzVrq14Zm75XTzJrIrATJGAMxcWuy
-	A0jS0dLoU4jj3GDSHQP4yzqeOyKiA4YFzsh9yqdNT21P06bEeR8wIBe/Ig==
-X-Gm-Gg: ASbGnct0qziSnOJn1SW0CxXjYYveJd5yVgS3UHWku7mLeXnwJqpbA2E23+JGoKX3ilH
-	P20R9y6kl8sGYa+iyVOEyOptg20jt6/x4jN8hoXm+EBhd6sA02b8B+Zkw0Ozj3w72CUW7q+n+Qk
-	0B8bZ5C1Ytjs627vXVpJKYBLrVNQ7V2USLDOtXz1KCkEp0pSqGxOkgf0v2PyR1SLIHHINt+Hwxy
-	jXTJ12RUjOfEEIE3MflKLQf5W21fW6HgHjgNgSFJr9AJOp9ZcfAGo/juU6/rAmijItT8Ks2TJmO
-	ikGjM1kFA/gQG/BxrhlqsT9pKYgCqlSVCp4D3HNFufbykERieENLbLzfX6s7fivfGoC64h6OWFQ
-	4qbY5VgGPieUXeKNq0qbmBUDifJ6sJk0BVDixQtiwNAgN//xaLMB9UukhSithlL20
-X-Google-Smtp-Source: AGHT+IFfrj10QmQ/qfDa/v3tf//q00kya5vLazEC7FIJ0J970SKavs3QDj159HoM85NaZZcAcZxzHw==
-X-Received: by 2002:a05:622a:229d:b0:476:b02d:2b4a with SMTP id d75a77b69052e-49495ce6194mr134335051cf.27.1747314652093;
-        Thu, 15 May 2025 06:10:52 -0700 (PDT)
+        bh=CHYmDlxnVdDmHEPgXxzWk4xTB9nXLNIolBVraE2qvDo=;
+        b=VxtjafDDFdiEavN62hefA29IvhQxNdwsu7a9KGYjRTjRpkgHGVPxPoTE0BEFoIl6c9
+         9zn7znErFDvTnBk+MwuCROAXIz2cqjFS/zQwQWAKgUu+J3xEcwfUd9aDgGwGvx1QxYPv
+         fYaVDgeaE8BnXbbzuoEeduETzzCzdwEPsrpOIdgNGs9zQBIC2otLP41+qHpLOuAcJ8BK
+         vta3YDICjr1RMuxRToJRfGDMpnD5JvCwnaSqlCFTOaYWdIe+ziNQM7JH+Ie//aZZki3F
+         Ezs5M+llNKEBzf5M49cxgcFQLq+x1dI8+O4cQJjdp75Wj1M0fYCiNf0OFh8MyV85Pb8o
+         eHMg==
+X-Gm-Message-State: AOJu0YzjorytjPQPSreQnwiijs+OjOY1RuHQ7zygn17X3dLAr1QvZbFL
+	tm77szonN+m6qApDyeBa7bIseqf76icW4tDKRz+kLt/qmTAfr3ujJED/vA==
+X-Gm-Gg: ASbGncsks3mA/W6RCmWIxycQZ2xT0E29fteIA97YznBIoQ4hW2sWy1yYZeTviijk2oL
+	e9fpuUllPrWvQPMeXVJz1rKccdsvRoLmdCyDHEtSslAGWfY8lbr82AuPbq30cN0pp60MTKrpVK2
+	j5+GoGgPmxPVO73sboKu66Hz2RxYc0ZKp0I2Tg7b5yfKgkjydiymgQbg+yAW3GYI/p6IsuIDmvH
+	bas1ekwkRwmMWWZuwSQlaiSqq+WZ2iaBvzI1/kbK5Jmgf4tM0VNhu7PQPsloUYJuK18YjfEbatd
+	+vEkV3WzC7zJOdL9+/nJlLUQKF/d0hb+Uv4s4jMCoGaHwAjqEiwoXfppv2QEJo5WiPE8v7Mbeze
+	voZPDvctP2vjOC5V1+sktE+Y+86bPBoon/8IE1+d4No8Dr7kZ7NWzfg==
+X-Google-Smtp-Source: AGHT+IE5wY4tGUz/HOU0g+LrG+ZIdinxNs38F261s4jjDNARPlup6hmj56XJ6tAqAoLdsC8xTdPpPQ==
+X-Received: by 2002:a05:622a:1c0a:b0:476:8d14:6e7 with SMTP id d75a77b69052e-49495d20029mr124822811cf.33.1747314651451;
+        Thu, 15 May 2025 06:10:51 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-49452583e88sm91723891cf.63.2025.05.15.06.10.51
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-49452583e88sm91723891cf.63.2025.05.15.06.10.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Thu, 15 May 2025 06:10:51 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
@@ -62,9 +62,9 @@ To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 45/49] selinux: change /sys/fs/selinux/unshare to check current process state
-Date: Thu, 15 May 2025 09:09:43 -0400
-Message-ID: <20250515130947.52806-46-stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 44/49] selinux: maintain a small cache in the global SID table
+Date: Thu, 15 May 2025 09:09:42 -0400
+Message-ID: <20250515130947.52806-45-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250515130947.52806-1-stephen.smalley.work@gmail.com>
 References: <20250515130947.52806-1-stephen.smalley.work@gmail.com>
@@ -76,34 +76,306 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Previously reads of /sys/fs/selinux/unshare would return "1" if the
-selinuxfs instance was associated with a non-init SELinux namespace,
-which could be confusing for userspace prior to unmounting the old
-selinuxfs and mounting the new one. Instead return "1" if the current
-process has a non-init SELinux namespace.
+Maintain a small cache in the global SID table to avoid needing
+to map the context string each time we use a given SID in a different
+namespace than the original one.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/selinuxfs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ security/selinux/Kconfig                 | 11 +++
+ security/selinux/global_sidtab.c         | 58 ++++++++++++++++
+ security/selinux/hooks.c                 |  1 +
+ security/selinux/include/global_sidtab.h |  7 ++
+ security/selinux/include/sidtab.h        | 29 +++++++-
+ security/selinux/ss/sidtab.c             | 85 ++++++++++++++++++++++++
+ 6 files changed, 189 insertions(+), 2 deletions(-)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 2ddcaea0394c..d165379271f9 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -335,10 +335,10 @@ static const struct file_operations sel_disable_ops = {
- static ssize_t sel_read_unshare(struct file *filp, char __user *buf,
- 				size_t count, loff_t *ppos)
- {
--	struct selinux_fs_info *fsi = file_inode(filp)->i_sb->s_fs_info;
-+	const struct task_security_struct *tsec = selinux_cred(current_cred());
- 	char tmpbuf[1];
+diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
+index aa25da389c46..f7bd54aa136c 100644
+--- a/security/selinux/Kconfig
++++ b/security/selinux/Kconfig
+@@ -141,3 +141,14 @@ config SECURITY_SELINUX_MAXNSDEPTH
+ 	help
+ 	  This option sets the default maximum depth of SELinux namespaces.
+ 	  The value may be viewed or modified via /sys/fs/selinux/maxnsdepth.
++
++config SECURITY_SELINUX_SS_SID_CACHE_SIZE
++	int "Global SID to security server SID translation cache size"
++	depends on SECURITY_SELINUX_NS
++	default 4
++	help
++	  This option defines the size of the global SID -> security server
++	  SID cache, which improves the performance of mapping global SIDs.
++	  Setting this option to 0 disables the cache completely.
++
++	  If unsure, keep the default value.
+diff --git a/security/selinux/global_sidtab.c b/security/selinux/global_sidtab.c
+index 423e902e3b88..396efd98e064 100644
+--- a/security/selinux/global_sidtab.c
++++ b/security/selinux/global_sidtab.c
+@@ -119,6 +119,11 @@ static int map_global_sid_to_ss(struct selinux_state *state, u32 sid,
+ 	int rc;
+ 	char *scontext;
+ 	u32 scontext_len;
++#if CONFIG_SECURITY_SELINUX_SS_SID_CACHE_SIZE > 0
++	struct sidtab_ss_sid_cache *cache;
++	unsigned long flags;
++	int i, first, last;
++#endif
  
--	if (fsi->state == init_selinux_state)
-+	if (tsec->state == init_selinux_state)
- 		tmpbuf[0] = '0';
- 	else
- 		tmpbuf[0] = '1';
+ 	if (sid <= SECINITSID_NUM) {
+ 		*ss_sid = sid;
+@@ -136,6 +141,16 @@ static int map_global_sid_to_ss(struct selinux_state *state, u32 sid,
+ 		rcu_read_unlock();
+ 		return 0;
+ 	}
++#if CONFIG_SECURITY_SELINUX_SS_SID_CACHE_SIZE > 0
++	cache = &entry->ss_sid_cache;
++	for (i = cache->first; i >= 0 && i <= cache->last; i++) {
++		if (cache->state[i] == state && cache->ss_sid[i]) {
++			*ss_sid = cache->ss_sid[i];
++			rcu_read_unlock();
++			return 0;
++		}
++	}
++#endif
+ 	rcu_read_unlock();
+ 
+ 	rc = global_sid_to_context(sid, &scontext, &scontext_len);
+@@ -144,10 +159,53 @@ static int map_global_sid_to_ss(struct selinux_state *state, u32 sid,
+ 
+ 	rc = selinux_ss_context_to_sid_force(state, scontext,
+ 					     scontext_len, ss_sid, gfp);
++#if CONFIG_SECURITY_SELINUX_SS_SID_CACHE_SIZE > 0
++	if (rc == 0) {
++		spin_lock_irqsave(&global_sidtab.lock, flags);
++		entry = sidtab_search_entry_force(&global_sidtab, sid);
++		if (!entry) {
++			spin_unlock_irqrestore(&global_sidtab.lock, flags);
++			return -EINVAL;
++		}
++		cache = &entry->ss_sid_cache;
++		first = cache->first;
++		last = cache->last;
++		for (i = 0; i < ARRAY_SIZE(cache->ss_sid) && cache->ss_sid[i];
++		     i++)
++			;
++		if (i < ARRAY_SIZE(cache->ss_sid)) {
++			WRITE_ONCE(cache->ss_sid[i], *ss_sid);
++			/* ensure that the SID is written before the state */
++			smp_wmb();
++			WRITE_ONCE(cache->state[i], state);
++		} else {
++			if (first == -1)
++				i = 0;
++			else
++				i = first;
++			WRITE_ONCE(cache->ss_sid[i], *ss_sid);
++			/* ensure that the SID is written before the state */
++			smp_wmb();
++			WRITE_ONCE(cache->state[i], state);
++		}
++		/* ensure that state is updated before indices */
++		smp_wmb();
++		if (first == -1 || i < first)
++			WRITE_ONCE(cache->first, i);
++		if (last == -1 || i > last)
++			WRITE_ONCE(cache->last, i);
++		spin_unlock_irqrestore(&global_sidtab.lock, flags);
++	}
++#endif
+ 	kfree(scontext);
+ 	return rc;
+ }
+ 
++void global_sidtab_invalidate_state(struct selinux_state *state)
++{
++	sidtab_invalidate_state(&global_sidtab, state);
++}
++
+ static int map_ss_sid_to_global(struct selinux_state *state, u32 ss_sid,
+ 				u32 *out_sid, gfp_t gfp)
+ {
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 710815e79a81..113242c4cb87 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7909,6 +7909,7 @@ static void selinux_state_free(struct work_struct *work)
+ 
+ 	do {
+ 		parent = state->parent;
++		global_sidtab_invalidate_state(state);
+ 		if (state->status_page)
+ 			__free_page(state->status_page);
+ 		selinux_policy_free(state->policy);
+diff --git a/security/selinux/include/global_sidtab.h b/security/selinux/include/global_sidtab.h
+index 2e06bb865326..bf450d775b66 100644
+--- a/security/selinux/include/global_sidtab.h
++++ b/security/selinux/include/global_sidtab.h
+@@ -9,11 +9,18 @@
+ 
+ #ifdef CONFIG_SECURITY_SELINUX_NS
+ extern int global_sidtab_init(void);
++
++struct selinux_state;
++void global_sidtab_invalidate_state(struct selinux_state *state);
+ #else
+ static inline int global_sidtab_init(void)
+ {
+ 	return 0;
+ }
++
++static inline void global_sidtab_invalidate_state(struct selinux_state *state)
++{
++}
+ #endif /* CONFIG_SECURITY_SELINUX_NS */
+ 
+ #endif /* _GLOBAL_SIDTAB_H_ */
+diff --git a/security/selinux/include/sidtab.h b/security/selinux/include/sidtab.h
+index 61389c588775..2df3ac0df935 100644
+--- a/security/selinux/include/sidtab.h
++++ b/security/selinux/include/sidtab.h
+@@ -18,6 +18,16 @@
+ 
+ #include "context.h"
+ 
++#ifdef CONFIG_SECURITY_SELINUX_NS
++#if CONFIG_SECURITY_SELINUX_SS_SID_CACHE_SIZE > 0
++struct sidtab_ss_sid_cache {
++	u32 ss_sid[CONFIG_SECURITY_SELINUX_SS_SID_CACHE_SIZE];
++	struct selinux_state *state[CONFIG_SECURITY_SELINUX_SS_SID_CACHE_SIZE];
++	int first, last;
++};
++#endif
++#endif
++
+ struct sidtab_entry {
+ 	u32 sid;
+ 	u32 hash;
+@@ -27,8 +37,11 @@ struct sidtab_entry {
+ #endif
+ 	struct hlist_node list;
+ #ifdef CONFIG_SECURITY_SELINUX_NS
+-	u32 ss_sid; // global SID table only
+-	struct selinux_state *state; // global SID table only
++	u32 ss_sid;
++	struct selinux_state *state;
++#if CONFIG_SECURITY_SELINUX_SS_SID_CACHE_SIZE > 0
++	struct sidtab_ss_sid_cache ss_sid_cache;
++#endif
+ #endif
+ };
+ 
+@@ -166,4 +179,16 @@ static inline int sidtab_sid2str_get(struct sidtab *s,
+ }
+ #endif /* CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0 */
+ 
++#ifdef CONFIG_SECURITY_SELINUX_NS
++#if CONFIG_SECURITY_SELINUX_SS_SID_CACHE_SIZE > 0
++extern void sidtab_invalidate_state(struct sidtab *s,
++				    struct selinux_state *state);
++#else
++static inline void sidtab_invalidate_state(struct sidtab *s,
++					   struct selinux_state *state)
++{
++}
++#endif /* CONFIG_SECURITY_SELINUX_SS_SID_CACHE_SIZE > 0 */
++#endif /* CONFIG_SECURITY_SELINUX_NS */
++
+ #endif /* _SS_SIDTAB_H_ */
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index 19991f01cd20..eea37f78bec9 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -648,3 +648,88 @@ int sidtab_sid2str_get(struct sidtab *s, struct sidtab_entry *entry, char **out,
+ }
+ 
+ #endif /* CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0 */
++
++#ifdef CONFIG_SECURITY_SELINUX_NS
++#if CONFIG_SECURITY_SELINUX_SS_SID_CACHE_SIZE > 0
++static void sidtab_invalidate_state_entry(struct sidtab_entry *entry,
++					  struct selinux_state *state)
++{
++	struct sidtab_ss_sid_cache *cache;
++	int i, first, last;
++
++	cache = &entry->ss_sid_cache;
++	first = cache->first;
++	last = cache->last;
++	for (i = first; i >= 0 && i <= last; i++) {
++		if (cache->state[i] == state) {
++			WRITE_ONCE(cache->ss_sid[i], 0);
++			WRITE_ONCE(cache->state[i], NULL);
++			if (first == i) {
++				for (first = i + 1; first <= last &&
++					     !cache->ss_sid[first]; first++)
++					;
++				if (first == (i+1))
++					first = -1;
++				WRITE_ONCE(cache->first, first);
++			}
++			if (last == i) {
++				for (last = i - 1; last >= first &&
++					     last >= 0 &&
++					     !cache->ss_sid[last]; last--)
++					;
++				if (last == (i-1))
++					last = -1;
++				WRITE_ONCE(cache->last, last);
++			}
++			return;
++		}
++	}
++}
++
++static void sidtab_invalidate_state_tree(union sidtab_entry_inner entry,
++					 u32 level,
++					 struct selinux_state *state)
++{
++	u32 i;
++
++	if (level != 0) {
++		struct sidtab_node_inner *node = entry.ptr_inner;
++
++		if (!node)
++			return;
++
++		for (i = 0; i < SIDTAB_INNER_ENTRIES; i++)
++			sidtab_invalidate_state_tree(node->entries[i],
++						     level - 1, state);
++	} else {
++		struct sidtab_node_leaf *node = entry.ptr_leaf;
++
++		if (!node)
++			return;
++
++		for (i = 0; i < SIDTAB_LEAF_ENTRIES; i++)
++			sidtab_invalidate_state_entry(&node->entries[i], state);
++	}
++}
++
++void sidtab_invalidate_state(struct sidtab *s, struct selinux_state *state)
++{
++	u32 i, level;
++	unsigned long flags;
++
++	spin_lock_irqsave(&s->lock, flags);
++
++	for (i = 0; i < SECINITSID_NUM; i++)
++		if (s->isids[i].set)
++			sidtab_invalidate_state_entry(&s->isids[i].entry, state);
++
++	level = SIDTAB_MAX_LEVEL;
++	while (level && !s->roots[level].ptr_inner)
++		--level;
++
++	sidtab_invalidate_state_tree(s->roots[level], level, state);
++
++	spin_unlock_irqrestore(&s->lock, flags);
++}
++#endif /* CONFIG_SECURITY_SELINUX_SS_SID_CACHE_SIZE > 0 */
++#endif /* CONFIG_SECURITY_SELINUX_NS */
 -- 
 2.49.0
 
