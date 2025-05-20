@@ -1,123 +1,155 @@
-Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com [209.85.219.178])
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A577F2528FD
-	for <selinux@vger.kernel.org>; Tue, 20 May 2025 21:31:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF03D213E76
+	for <selinux@vger.kernel.org>; Tue, 20 May 2025 23:38:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747776692; cv=none; b=BHz0mNl+a64GIqFsJyLGFmHZ/BaX3mPXwfR8kPfVjH33E8xXBa5tHDtH7CHo5kNfvr1btJBn571VUe6KrrRnjnpZl7spcyhfiT0uh5v6vJpaI3WhKBp2k8YSwz2Hy07Ri/L4aSSmIGX338+GYxCNpA4ESsBhpP0VegoAKmldRbE=
+	t=1747784287; cv=none; b=gs73tkU6w8SCbheWWWNonGJ+Z7BU/Ng5t0vNyhN9+OMOmhe+yKQuF9C53Z1XydnK6AiWfcKxPMtDZqG9IO/hyY2o63gBr0LkFLirDGuvI9YVu2pXBPbTWm/65lxd/csCl+6T6c0hibM8j51l2gjwAVnsPleqiCMKKGy4DXm63Xo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747776692; c=relaxed/simple;
-	bh=Rp/sSKtoxvD0xDJUL1ax9jsR8XaN1Db+UrRlq03guhc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mGocT9lbFV1VdVpPtjC38xJ5YTu4J9MJyxzYbStUM3d5cF7FrTaNi9DHrX5mkezVa836DjO/wf0YvOxrjXf4KOyz1snzsPC2slvKiTIjJaFKqzWw1Ue2zYFy5ZjKOhYyKBGkYKtTyJH2dr0QMwHEpOJiDH7x+IZFQstrX20mDGs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=S8qv0ptS; arc=none smtp.client-ip=209.85.219.178
+	s=arc-20240116; t=1747784287; c=relaxed/simple;
+	bh=WJ+GbwrZ/Ldj1Ij2WEMgCJYCLrOojxh5ipIsWNFHfhw=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=hJOHD7b6aVn4EHUu9pNJEOFLTC4tS4IzwYhgQy5ztxrt40pdfkWuj0KHCmhg2QqnVMWnQLQ1YsFZyV24vVWQ7cisT0yp1A87zbDLPtUSRsuOEiVSSf+uL6GtC/OZ8FXLDC35cWOhbeXrTrkQzYC5e6wtanHGgLyd4nHgEMBqeag=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=P3hyUvh6; arc=none smtp.client-ip=209.85.222.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="S8qv0ptS"
-Received: by mail-yb1-f178.google.com with SMTP id 3f1490d57ef6-e7b8673ff36so3703517276.2
-        for <selinux@vger.kernel.org>; Tue, 20 May 2025 14:31:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="P3hyUvh6"
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-7c54a9d3fcaso700455885a.2
+        for <selinux@vger.kernel.org>; Tue, 20 May 2025 16:38:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1747776688; x=1748381488; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YexwMppYcbZe/m8aCqtTjf6L6bo5b6rZLX60EXLxJJM=;
-        b=S8qv0ptS+qog4CXjQizT49B9eBq/MmCkIY1IMNxSyXdIxqlk0sxQVA1BqhkK/bwIgK
-         O4S/DVWObFNCdXo44Bq1/CGkjk8OijwXVuD71UnHg36INVS81QBRvD/ZjEaOiupFg/0b
-         m9VEwcA/yZzDm0AeC0g6qXNG/ZUYMSA4kAR8xObmtuWeljORdLY7BciHMBc8AoOZ9n35
-         E4LRowUaRBt4Vlq7fJ6/5elJpHdlvDK0r2Rq4rdWbmkFlov2umkXFENBrWg3kSculIXX
-         rPZKLrW+I17nJ8OqOlj1uxiRMcPg4k15n9QuFRfLxHNbl2PVnyIJYoH7kfZvyF5W2Mfr
-         HrGg==
+        d=paul-moore.com; s=google; t=1747784284; x=1748389084; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=62U7Q0d69MZQQhMsOgtCAUKGD6TsHKE2/Y7fYLmAfds=;
+        b=P3hyUvh6w1YbIX6ge+XsyhEYnl/nyl12H8qImJXg9pYX0DAZPPZvPt/6uMlXldQdWN
+         t+i5svt0+4fLCVUmQ1/1/oPJzQtHy2YVd10BUbVWcYpXsULMsZ70wBWr/GlOXeA0JQ3m
+         bXduSlQ4N3Mliu02g0gOFZehRjiotHHLmqi+hMbyNrFVM2kjmOR/baKWy5VthLrvOR1y
+         yi13uwjUbnyQ79Yh8uJoh44YbxHWlvhtIYKHsVepZvvZhcl1ZfPOGf7GpR9Gr7fEDMWU
+         q4AfhXCEQONyKaO+QqpOyW8QoUinHLZRXlpZH1G1euPd/jXn78jtB9ryhAYGdUkJZ7Rz
+         E/4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747776688; x=1748381488;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=YexwMppYcbZe/m8aCqtTjf6L6bo5b6rZLX60EXLxJJM=;
-        b=JbsGrDfnWTbqSx3pYcp2dJhOvx7jC1z81TVIsvsDkE+GCNKF+xzotpH7OjKI/1FQYo
-         HHfLoiC0ROxeoyAhTQMytMYmpWixC/VwcBiTxlu6yNPCoVpJn595dEdGYdDAKymqX3aD
-         52VCkq4kTulwTqmM1Ei3AWcBlfpYhmNuJlCu4+Yt7KL2hV6h8iSjmwBEEWMNxJcs94gl
-         HDqsI3n6QhcB4mRN72+sQ4zSvdeOkMP+0rUvB2rLYqdFj6zEbUzACuE4mXEmP3PhDkKC
-         gjWlnLZy+XWMW0lRNP/L7giWWOnnG2h9UK/JlrGmW5KIQqLHcw5PPRFWqyGMaEz668M0
-         Gmrw==
-X-Forwarded-Encrypted: i=1; AJvYcCUQw3IlTyVTVVqeyZN2XqTkp3yPd7EH9HLqiwRh0a0MT1mPZuSMilhYQLTMeVPz7NOqxwNb8IV/@vger.kernel.org
-X-Gm-Message-State: AOJu0YyHVn3IZv17J+arTSMkv03bDnUhxJaghGbcvJPBdTE1VTRNthzM
-	oRMkd/VY6uYvx/w6ycoqctY+BrCLgapLTLRTLK1V3JXvM7hUzKZ1c5RW9M6cCisnUCNinmdoQ20
-	3R5Q09I54bDHURdqp9avPXVTvULRE06Z3hx+21Iq2
-X-Gm-Gg: ASbGncsa4meIOY+jAlu+Ct+6NCCKaOeXDAhGP+JUje3u7l9yf0mXjMup9hDLBpOW6sd
-	v4WYMINJWi3ggEZIn21K6iQZcxK8SFkMyUm25xrhsdm/KVR4410NXD/wUKHC0TL1xUcNPvdqVA+
-	rWL/LWVeuDtRuZMFQablck3a7hROP4tk4V
-X-Google-Smtp-Source: AGHT+IGZ/rtogvtb9mmq771rmbik+el6dyUZ8s9kwWv9ZNx2CrYoN2T0d4tY5zplAYSZmSb/J7/BxKaHsq01XwQ2/QQ=
-X-Received: by 2002:a05:6902:6c12:b0:e7d:585d:6aac with SMTP id
- 3f1490d57ef6-e7d585d6f25mr2740629276.39.1747776688624; Tue, 20 May 2025
- 14:31:28 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1747784284; x=1748389084;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=62U7Q0d69MZQQhMsOgtCAUKGD6TsHKE2/Y7fYLmAfds=;
+        b=Mxi1DO3oiWqK6Qv9E+nQIEUq3mzkC0hUmeAz78Mno7sP1XTxsGGuu7Woch8FKz2uIe
+         AuSH0Ffxqw41B+Gn0pPCrMKqgGOvVoNTrQdO0GRDDUvLk7MSORTra/9O6IG9pO2ISEl9
+         bi64kiBI/mKck2S0LlC0TV/uPXxxHhl4C0eNcqqB3mAO8mWRJuGbv+3ahhoyJjLx4Ux0
+         /70QOqcizLbDL9s+IUUPHbzhnNXcXjJ77fNrjOupyl59y0u7rZc3XX4S0naQkSFdV8fL
+         pwCngt9Iz8svzWwZZouwZhCcukX6mSuD8CZ36mbqld7rmAhxGyx4n0GbqIRjqh76z6/i
+         qLeg==
+X-Forwarded-Encrypted: i=1; AJvYcCXrLEUiOR53GDrQcIDww8MbUq18GRsZ0ihRXufVkqCQzBZUlijHD8Yt+zuoHRsWvXCk2JQk3Xgz@vger.kernel.org
+X-Gm-Message-State: AOJu0YyFYzxggR0JkYtZrqcRSYQE7RDUfuGmNYNLNP/igRvMOf4TWhQC
+	xL4iG2mD9sDk6pY1Dd4QaP+cIcKP5yQhyS1KeIgIZHptfiFtUI3Q6QW9XhzpyTvchQ==
+X-Gm-Gg: ASbGnctp9ew5lKDXjs+EvLJbnd1+Wh7CK7atSnjkcs9l53Rh/58NhWavuuhnqv4L7GC
+	ibUmyZM2eLHanj/KO2RL8x4+nm4spbNKc3CYjUEKfjLPcD8u32JGa2ZtcqC9okY/T5mFPBrJnk7
+	ocBm1kg1w4O2vvVcznTGpoUaBAE/WzW4xnr56kK7kYCQkfEA1g75YF6rMrkJmOubxHqQghyaqWa
+	bt8o+ZRZPlldOQmTtiBt8Xt5G5qoVRCH3G0Fuu+J/hpVUEiBSmHtv/SBEQsj8QmBL8IhAWj8qfm
+	XskKTieYtaHrPzAwSVU5svIsXm8b+vYA3hKxAGVayKR8fQ9YxVW8KpRy/TtKhnEWFSjdHS8lnWc
+	tYi25ur91PV2Whf3hszvN
+X-Google-Smtp-Source: AGHT+IFZhkgZNdxEVCbm/DP1KoGQ4FPNeQ4wQW/z/losg8dqUUq2fj+6Br6bD5lv8xm2Gp/isg1IPA==
+X-Received: by 2002:a05:620a:3197:b0:7c5:4d2e:4d2d with SMTP id af79cd13be357-7cd467c1316mr3128290385a.50.1747784284428;
+        Tue, 20 May 2025 16:38:04 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-7cd467be470sm798404585a.13.2025.05.20.16.38.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 May 2025 16:38:04 -0700 (PDT)
+Date: Tue, 20 May 2025 19:38:03 -0400
+Message-ID: <8c2770270a9d4a217e22102ddf91327e@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250428195022.24587-2-stephen.smalley.work@gmail.com> <CAHC9VhQfrMe7EY3_bvW6PcLdaW7tPMgv6WZuePxd1RrbhyZv-g@mail.gmail.com>
-In-Reply-To: <CAHC9VhQfrMe7EY3_bvW6PcLdaW7tPMgv6WZuePxd1RrbhyZv-g@mail.gmail.com>
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20250520_1533/pstg-lib:20250520_1521/pstg-pwork:20250520_1533
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 20 May 2025 17:31:17 -0400
-X-Gm-Features: AX0GCFsKbQqPlLe-FjaU6xxZxNkDN5cHZfC1VDbTRZv-QCv_QCmlg4xFRTHqelQ
-Message-ID: <CAHC9VhQyDX+NgWipgm5DGMewfVTBe3DkLbe_AANRiuAj40bA1w@mail.gmail.com>
-Subject: Re: [PATCH v2] security,fs,nfs,net: update security_inode_listsecurity()
- interface
-To: Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Casey Schaufler <casey@schaufler-ca.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Eric Dumazet <edumazet@google.com>, 
-	Kuniyuki Iwashima <kuniyu@amazon.com>, Paolo Abeni <pabeni@redhat.com>, 
-	Willem de Bruijn <willemb@google.com>, "David S. Miller" <davem@davemloft.net>, 
-	Simon Horman <horms@kernel.org>, Ondrej Mosnacek <omosnace@redhat.com>, linux-nfs@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, netdev@vger.kernel.org, 
-	selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
+Cc: omosnace@redhat.com, Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: Re: [PATCH 1/2] selinux: introduce neveraudit types
+References: <20250502170450.27160-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20250502170450.27160-2-stephen.smalley.work@gmail.com>
 
-On Tue, Apr 29, 2025 at 7:34=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
-> On Mon, Apr 28, 2025 at 4:15=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > Update the security_inode_listsecurity() interface to allow
-> > use of the xattr_list_one() helper and update the hook
-> > implementations.
-> >
-> > Link: https://lore.kernel.org/selinux/20250424152822.2719-1-stephen.sma=
-lley.work@gmail.com/
-> >
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > ---
-> > This patch is relative to the one linked above, which in theory is on
-> > vfs.fixes but doesn't appear to have been pushed when I looked.
-> >
-> >  fs/nfs/nfs4proc.c             | 10 ++++++----
-> >  fs/xattr.c                    | 19 +++++++------------
-> >  include/linux/lsm_hook_defs.h |  4 ++--
-> >  include/linux/security.h      |  5 +++--
-> >  net/socket.c                  | 17 +++++++----------
-> >  security/security.c           | 16 ++++++++--------
-> >  security/selinux/hooks.c      | 10 +++-------
-> >  security/smack/smack_lsm.c    | 13 ++++---------
-> >  8 files changed, 40 insertions(+), 54 deletions(-)
->
-> Thanks Stephen.  Once we get ACKs from the NFS, netdev, and Smack
-> folks I can pull this into the LSM tree.
+On May  2, 2025 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
+> 
+> Introduce neveraudit types i.e. types that should never trigger
+> audit messages. This allows the AVC to skip all audit-related
+> processing for such types. Note that neveraudit differs from
+> dontaudit not only wrt being applied for all checks with a given
+> source type but also in that it disables all auditing, not just
+> permission denials.
+> 
+> When a type is both a permissive type and a neveraudit type,
+> the security server can short-circuit the security_compute_av()
+> logic, rendering the type equivalent to an unconfined type.
 
-Gentle ping for Trond, Anna, Jakub, and Casey ... can I get some ACKs
-on this patch?  It's a little late for the upcoming merge window, but
-I'd like to merge this via the LSM tree after the merge window closes.
+I really don't want to see the word "unconfined" in this patchset.
+Talking about optimizations that can be done when the permissive and
+neveraudit flags are combined on a single type is a good thing to do
+but I don't want people talking about how this is an unconfined type
+because it is not, it simply mimics that behavior.
 
-Link to the patch if you can't find it in your inbox:
-https://lore.kernel.org/linux-security-module/20250428195022.24587-2-stephe=
-n.smalley.work@gmail.com/
+You are welcome to criticize that stance, but understand I believe
+this is an important distinction and it *is* a hill I'm willing to
+die on.
+
+> This change just introduces the basic support but does not yet
+> further optimize the AVC or hook function logic when a type
+> is both a permissive type and a dontaudit type.
+> 
+> Suggested-by: Paul Moore <paul@paul-moore.com>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  security/selinux/include/avc.h      |  4 ++++
+>  security/selinux/include/security.h |  4 +++-
+>  security/selinux/ss/policydb.c      | 19 +++++++++++++++++++
+>  security/selinux/ss/policydb.h      |  2 ++
+>  security/selinux/ss/services.c      | 20 ++++++++++++++++++++
+>  5 files changed, 48 insertions(+), 1 deletion(-)
+
+...
+
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 7becf3808818..1c9b38c016e2 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -1153,6 +1153,14 @@ void security_compute_av(u32 ssid,
+>  	if (ebitmap_get_bit(&policydb->permissive_map, scontext->type))
+>  		avd->flags |= AVD_FLAGS_PERMISSIVE;
+>  
+> +	/* neveraudit domain? */
+> +	if (ebitmap_get_bit(&policydb->neveraudit_map, scontext->type))
+> +		avd->flags |= AVD_FLAGS_NEVERAUDIT;
+> +
+> +	/* both permissive and neveraudit => unconfined */
+
+Nope.
+
+> +	if (avd->flags == (AVD_FLAGS_PERMISSIVE|AVD_FLAGS_NEVERAUDIT))
+> +		goto allow;
+
+...
+
+> @@ -1208,6 +1218,14 @@ void security_compute_av_user(u32 ssid,
+>  	if (ebitmap_get_bit(&policydb->permissive_map, scontext->type))
+>  		avd->flags |= AVD_FLAGS_PERMISSIVE;
+>  
+> +	/* neveraudit domain? */
+> +	if (ebitmap_get_bit(&policydb->neveraudit_map, scontext->type))
+> +		avd->flags |= AVD_FLAGS_NEVERAUDIT;
+> +
+> +	/* both permissive and neveraudit => unconfined */
+
+More nope.
+
+> +	if (avd->flags == (AVD_FLAGS_PERMISSIVE|AVD_FLAGS_NEVERAUDIT))
+> +		goto allow;
 
 --
 paul-moore.com
