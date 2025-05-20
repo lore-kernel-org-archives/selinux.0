@@ -1,72 +1,72 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+Received: from mail-oo1-f51.google.com (mail-oo1-f51.google.com [209.85.161.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69637287505;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D792F280019;
 	Tue, 20 May 2025 12:01:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747742505; cv=none; b=JTy80hkxas44Vpn6Zokew0Vt8j6vPUHKtk81C/MSFn5sHng/FG6jqkxJX3KdpMbCvZCpYXli0R5MOZxNwgtKzTMFtxmgcRhywP6az+W8A/LuZXgft7Nr6qFP0mQixxW4sdrDveNvA3gYLILSDLxkBzxIDlqTSlIXtHjdrktNJ8I=
+	t=1747742505; cv=none; b=aMn2PhnxEr1oIJeSbdq3G8uFuccoJ6fN1hLkRsWkv+5h6nxDrlgjBleS8a3lCrAZoq0Sg1PwWMRJnfHlKaLO6Lw97AGuDlDYSfRSrwqQpbJ/HrPnGwSx78Qp9YC+T2f+pSUMkWYTywLsdj1EfUtYdVcj9x5qx53JunLAMFCZqrk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1747742505; c=relaxed/simple;
-	bh=l1Gsx8s/mFR+N16ugIxt220yd0xgYZ4lg59Qqnfj2ak=;
+	bh=4cWwNwYX509FXWtw57tbtI5ppx7c5l2/AQOQbHmLN2g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pDG7UwmPLN4va+PyWR96B70TW/IXaIyIW7e1cSvGmG64HKhWMny9xCxF0PewZVkG4/6nn9KFpGmzJw9dp8i6x4fCWCPZSM3LSRogLXh0gCiyQvjonGtqJn2MqhGJq50rPm11+tAaErvTez/azbD0nKjVAUHvsmFQxpZ+ObrykT0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hwLsoCrh; arc=none smtp.client-ip=209.85.222.172
+	 MIME-Version; b=I+j6xT45CE1ZWj3d4vyAd0+86K9VUEL2CrcTXGlhLhhEY0rXXidWDzecOtkQL79c5CM2lpLE07FPQrrqan+Fl7yOm3RzSSZobVgNXkujNzNjZJC20AicrhDFywjPbOE4QcYoCrv4wDNX+9YbXJ3x1ubTddcM+czPBUFKDPMwrWg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CKEFzmrI; arc=none smtp.client-ip=209.85.161.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hwLsoCrh"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-7caea4bc9e9so901672885a.1;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CKEFzmrI"
+Received: by mail-oo1-f51.google.com with SMTP id 006d021491bc7-6060200710bso3097492eaf.3;
         Tue, 20 May 2025 05:01:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20230601; t=1747742502; x=1748347302; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gPhLOQJtk3OHKIPwPtPojvJhdEU7fxREThByJqpUXPs=;
-        b=hwLsoCrhrlzVaBHw+UpOfElal48STt4tz9tGngZ33HuodxpjFsw4P9cO6dAhdpNzhi
-         4rqBDq97e9UfRrAGRldj0LUPMpR8XX+W/Vn3KBwCLt98VsXSBrLWXGHm6jOk3RGrdjka
-         fY8zNYiFwnN0Xpg3bhG4fHA3GopRtqXOR2W+JlU+vDG94e4Jg90DkJXm7dZ7AZptEMfE
-         Qqv9TgOk/0Gb1QsiC4HddibTTCB7qAGE3JoMug0MNBUBofnhBw+YaibmFgrwxSm6FApU
-         luM/Llm/6q+HJA6Ey1Np1Q2zz99LQtCRNIZ8bBwaBTC0xsHC+022ZjFCrTz3LtKnWMp1
-         bvxg==
+        bh=3E2BZbwVLRyBjMY4aF4EXSVftTL+KAQDO29tYCugh+k=;
+        b=CKEFzmrI4Bpv19xPgNeIjq3B5fWIaGhscSQhxGh83JiqEqKfxrr0/W77YBU6nIFn7L
+         CRtF13pqbhWJ1g6YJYXTD34cqbvjxMPuhLdSJDs5v8b76ysH2kx+dRPm0Lordn+3e2AN
+         GxwLerPMPRQP5KOpCeOKhMeDnYEVlrl/L3sHO8/aEceqyH1u+EedgmZSJ8HRvtGC4qFM
+         Wg7jAaOLaDkSDacAR6Mb//1sWUTker8r8fM6rUDNkDM31NHhSsNyimqAq2P0t228a9Gj
+         rWQwl8jdhFWv65jbRQWLdGu0RADe29/8/PowD+NJWs/Yg842DJ9v763ojO3Rknls+VSr
+         XrmQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1747742502; x=1748347302;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=gPhLOQJtk3OHKIPwPtPojvJhdEU7fxREThByJqpUXPs=;
-        b=k5zdVOU2SQd2rh6CdMdNqV9Y13LuK4vIiRt1y7in+1DjKIvx8WJY8lNCDruczSPXzu
-         IyBaRis8gMTanzWX2D+FudTTIa7yutO22NCHpXxvnFCCo8YeHKYzJwgeVAgObc8dk5US
-         SU8JriI0B2YunZiBcdnPiccjddy+TiwMUCrKK1W6RA0I0lRSS1UvBJolmawCJ84eBQat
-         FeeXE7BulEzLQ8kxZyHOEu5TeIELk9CN97GNg8D1t3qvpx6AoFdPyZotiQXyN5FuVRMK
-         EUo2Oh6sKyWsfoghhKCZ/8PY3cTQN5KgUSEJWH7NNuMOUiM3pqTbDETuSfdTxReGud0H
-         qMow==
-X-Forwarded-Encrypted: i=1; AJvYcCVHNmnzw1od5UYSAaiuJzCmHEe91X1AlXGQNcB1/XNgcnyIQKx6LaiET4FO1PcngoTsRDeUxVQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwkYV0Z8SPdTbWssRjXa3oazMlYBeUSi2+voaHviuTLnuEnqgeS
-	MnPZAUeQYPOQTZ+Odh1xr8BYIwIV/aoB/UnpuDUXLLm+72KH2GbeJiRoXO9VBw==
-X-Gm-Gg: ASbGncvrJy2M0l8ae24ekzvat9o+JgETE+b84JHpDqcufowjRA0Fl4UOLQ/7DJFnhvX
-	CwQzvwv7Io50BhoN0mAKs+eGnCCYicwZW73LebX3QDrblSbcdZ6KeCjTPaGyv84gKmo23PuzmAA
-	ExNJiLEaz5C1d9MF7MGf2nJULgWkfSvJczCN5dkb7/FKx5bl4uZt2nNQ9sEMvAYToYFfjL9zzh2
-	fRflgxSW565V8F7E2pbi2Rw5pKQP9swNuryE+UM16Oq5270Vs9IMtINbnWLahDHQ3cHhVc28IcR
-	qZ3LnzOEnZ6RxIao2H4+vxV+QVSP0VsElbw3OPu4/RyUKH/C7vTH4TiYq1mOV91eKLhkdSXpMES
-	H47AfRBJPDiWQWFeGCGhdNSsthh6rm1gxoRH/TSqiCIJuqRwhU3TdeJ5CSInnCO4k
-X-Google-Smtp-Source: AGHT+IGsWxCHBOd6HQ7Sj2H4NmDczIfO/AW/9h52yafCtyASsaoyGU3szK3+UyCeMcD2OmKLJaPtfw==
-X-Received: by 2002:a05:620a:394b:b0:7c5:6a66:5c1e with SMTP id af79cd13be357-7cd47fda7f9mr2137708185a.58.1747742501712;
-        Tue, 20 May 2025 05:01:41 -0700 (PDT)
+        bh=3E2BZbwVLRyBjMY4aF4EXSVftTL+KAQDO29tYCugh+k=;
+        b=dEqM+0FqsiC2Jb2w1UJ1g1UYboIf3TC5XQRU6TLS86kLqGlNVy8pU0KMrBIe7WlZtM
+         6wH6jp8/c0zeiOGg8J84nay+x0YyRPA00DeUCG95X0FW4ufjLGD5jHFgDG+yi0rZJwZ5
+         sWRtaVVOPJFHQqAccd/oqY5rKqjO4OILR0zasxc5eeoCnvMBqMaBNssoo4rYx1FDFqlm
+         Vj7RBLcEVY5h6PDnrdaMlZFMOMMytNdqCKsMmWcDHHx59Yt7pd3WLJJKh/KFumoE277Z
+         eJ0Bdw2ohdGzgAVz2fn6hkEbJAFY6WAW23Ug1RlPymBwfYvComukOcGER1LvkslOMGWQ
+         X4ag==
+X-Forwarded-Encrypted: i=1; AJvYcCVwIdZDDIHWRxq9iMEcozwXM6DELbUq/HYyDgFaJu3r+jkNpNJsacg+k//QQThnCbaz0ye2p0Q=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzs+6C5bsaMFp3BeG1MtQRt1R6eU/itQfJUxOYIPhj+E90zDWG7
+	t3HYiXHWfOOq29ZNNKd+ZgBsv5l/7yy4edYqUvXQbkbeIeYi/Ba/+oxcqsHQ5g==
+X-Gm-Gg: ASbGncsdOczRr/bEp5zZ40uclKSPpoPLNkzqkLxi5o6YZfqxU8HeRYxQQKgvwW2+u7A
+	VMhVwhtNxDIr4vpQ7hSN199wF4VXxYz/0GWPuEZWcOG/O+aNJQt+1LsgIEK8dR2GOujLY17JE9X
+	rM2roZ66cQqWmoqIklJnJryyFCKJ6FUbeVmql62OstrCoz7ETdi7Ouzo5NjyXdwBkTSOLa28yn1
+	p4xfUfjczAqWVKezc0Dlx+HgkfqJ4kwTDHLlXR525O0/QMOPS8QxT1x3HwIt1H96rb7i4tg+kUv
+	TdiJrLBAa/DqFrcUzqcEvSMF3QZmvWfKthzcCi2FOGxusud+9e8fjdW6bJsZMOwmHsCyAsWnwrX
+	YtOZGvha5yoVabEjrUZmZcnwxYrLkctXAu4+/y+4eEueBTPGQR9PF7Q==
+X-Google-Smtp-Source: AGHT+IHI7bdH0BELlDGmxWMGPsFSV4YikFc+FHFb8NJ99xbGkkZCeZW0ugA8c0pPuyXmj+6DUSt1yQ==
+X-Received: by 2002:a05:6870:b314:b0:2c1:7289:d62a with SMTP id 586e51a60fabf-2e3c1f62599mr9979508fac.36.1747742491814;
+        Tue, 20 May 2025 05:01:31 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7cd468b6e52sm728409985a.77.2025.05.20.05.01.40
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7cd468b6e52sm728409985a.77.2025.05.20.05.01.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 May 2025 05:01:41 -0700 (PDT)
+        Tue, 20 May 2025 05:01:31 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	netdev@vger.kernel.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v3 34/42] selinux: annotate selinuxfs permission checks
-Date: Tue, 20 May 2025 07:59:32 -0400
-Message-ID: <20250520120000.25501-36-stephen.smalley.work@gmail.com>
+Subject: [PATCH v3 25/42] selinux: introduce cred_ssid_has_perm() and cred_other_has_perm()
+Date: Tue, 20 May 2025 07:59:23 -0400
+Message-ID: <20250520120000.25501-27-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250520120000.25501-2-stephen.smalley.work@gmail.com>
 References: <20250520120000.25501-2-stephen.smalley.work@gmail.com>
@@ -78,201 +78,257 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Annotate the selinuxfs permission checks with comments
-explaining why we only check permissions against the
-current SELinux namespace (because these operations only
-read or modify the state of the current SELinux namespace).
-If we were instead to check permissions against ancestor
-namespaces, we would need to be allowed by the ancestor
-policies to perform the same operation in those namespaces,
-which would be undesirable.
+Introduce cred_ssid_has_perm() for checking permissions between
+a fixed (source SID, target SID) pair against the current SELinux
+namespace and all ancestors. This helper is appropriate for
+checks between two object SIDs, but should NOT be used
+when dealing with task/cred objects.
+
+Introduce cred_other_has_perm() for checking permissions between
+two creds against the current SELinux namespace and all
+ancestors.
+
+Convert permission checks of these two forms in the hook functions
+to use these new namespace-aware helpers.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/selinuxfs.c | 65 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 65 insertions(+)
+ security/selinux/avc.c         | 62 ++++++++++++++++++++++++++++++++++
+ security/selinux/hooks.c       | 61 +++++++++++++--------------------
+ security/selinux/include/avc.h |  7 ++++
+ 3 files changed, 93 insertions(+), 37 deletions(-)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 1651354dfa23..8dde8f865dda 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -175,6 +175,10 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 1d1a6fdafa7d..9385dcd84eee 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -1417,6 +1417,68 @@ int cred_has_perm_noaudit(const struct cred *cred, u32 tsid, u16 tclass,
+ 	return 0;
+ }
  
- 	old_value = enforcing_enabled(state);
- 	if (new_value != old_value) {
-+		/*
-+		 * Only check against the current namespace because
-+		 * this operation only affects it and no others.
-+		 */
- 		length = avc_has_perm(current_selinux_state,
- 				      current_sid(), SECINITSID_SECURITY,
- 				      SECCLASS_SECURITY, SECURITY__SETENFORCE,
-@@ -362,6 +366,10 @@ static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
- 	if (*ppos != 0)
- 		return -EINVAL;
- 
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	rc = avc_has_perm(current_selinux_state, current_sid(),
- 			  SECINITSID_SECURITY, SECCLASS_SECURITY,
- 			  SECURITY__UNSHARE, NULL);
-@@ -592,6 +600,10 @@ static int sel_open_policy(struct inode *inode, struct file *filp)
- 
- 	mutex_lock(&fsi->state->policy_mutex);
- 
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	rc = avc_has_perm(current_selinux_state,
- 			  current_sid(), SECINITSID_SECURITY,
- 			  SECCLASS_SECURITY, SECURITY__READ_POLICY, NULL);
-@@ -654,6 +666,10 @@ static ssize_t sel_read_policy(struct file *filp, char __user *buf,
- 	struct policy_load_memory *plm = filp->private_data;
- 	int ret;
- 
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	ret = avc_has_perm(current_selinux_state,
- 			   current_sid(), SECINITSID_SECURITY,
- 			   SECCLASS_SECURITY, SECURITY__READ_POLICY, NULL);
-@@ -811,6 +827,11 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
- 		return -EPERM;
- 
- 	mutex_lock(&fsi->state->policy_mutex);
++int cred_ssid_has_perm(const struct cred *cred, u32 ssid, u32 tsid, u16 tclass,
++		       u32 requested, struct common_audit_data *ad)
++{
++	struct task_security_struct *tsec;
++	struct selinux_state *state;
++	int rc;
 +
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	length = avc_has_perm(current_selinux_state,
- 			      current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__LOAD_POLICY, NULL);
-@@ -866,6 +887,10 @@ static ssize_t sel_write_context(struct file *file, char *buf, size_t size)
- 	u32 sid, len;
- 	ssize_t length;
++	do {
++		tsec = selinux_cred(cred);
++		state = tsec->state;
++		rc = avc_has_perm(state, ssid, tsid, tclass, requested, ad);
++		if (rc)
++			return rc;
++
++		cred = tsec->parent_cred;
++	} while (cred);
++
++	return 0;
++}
++
++static u32 cred_sid_for_state(const struct cred *cred,
++			      const struct selinux_state *state)
++{
++	const struct task_security_struct *tsec;
++	u32 sid;
++
++	tsec = selinux_cred(cred);
++	while (tsec->state != state && tsec->parent_cred)
++		tsec = selinux_cred(tsec->parent_cred);
++	if (tsec->state == state)
++		sid = tsec->sid;
++	else
++		sid = SECINITSID_UNLABELED;
++	return sid;
++}
++
++int cred_other_has_perm(const struct cred *cred, const struct cred *other,
++			u16 tclass, u32 requested,
++			struct common_audit_data *ad)
++{
++	struct task_security_struct *tsec;
++	struct selinux_state *state;
++	u32 ssid;
++	u32 tsid;
++	int rc;
++
++	do {
++		tsec = selinux_cred(cred);
++		ssid = tsec->sid;
++		state = tsec->state;
++		tsid = cred_sid_for_state(other, state);
++
++		rc = avc_has_perm(state, ssid, tsid, tclass, requested, ad);
++		if (rc)
++			return rc;
++
++		cred = tsec->parent_cred;
++	} while (cred);
++
++	return 0;
++}
++
+ u32 avc_policy_seqno(struct selinux_state *state)
+ {
+ 	return state->avc->avc_cache.latest_notif;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 600a5f1e2b2d..dc0f95c3547e 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -470,9 +470,8 @@ static int may_context_mount_inode_relabel(u32 sid,
+ 	if (rc)
+ 		return rc;
  
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	length = avc_has_perm(current_selinux_state,
- 			      current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__CHECK_CONTEXT, NULL);
-@@ -917,6 +942,10 @@ static ssize_t sel_write_checkreqprot(struct file *file, const char __user *buf,
- 	if (fsi->state != current_selinux_state)
- 		return -EPERM;
+-	return avc_has_perm(cred_selinux_state(cred),
+-			    sid, sbsec->sid, SECCLASS_FILESYSTEM,
+-			    FILESYSTEM__ASSOCIATE, NULL);
++	return cred_ssid_has_perm(cred, sid, sbsec->sid, SECCLASS_FILESYSTEM,
++				  FILESYSTEM__ASSOCIATE, NULL);
+ }
  
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	length = avc_has_perm(current_selinux_state,
- 			      current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__SETCHECKREQPROT,
-@@ -976,6 +1005,10 @@ static ssize_t sel_write_validatetrans(struct file *file,
- 	if (state != current_selinux_state)
- 		return -EPERM;
+ static int selinux_is_genfs_special_handling(struct super_block *sb)
+@@ -1852,10 +1851,9 @@ static int may_create(struct inode *dir,
+ 	if (rc)
+ 		return rc;
  
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	rc = avc_has_perm(current_selinux_state,
- 			  current_sid(), SECINITSID_SECURITY,
- 			  SECCLASS_SECURITY, SECURITY__VALIDATE_TRANS, NULL);
-@@ -1109,6 +1142,10 @@ static ssize_t sel_write_access(struct file *file, char *buf, size_t size)
- 	struct av_decision avd;
- 	ssize_t length;
+-	return avc_has_perm(current_selinux_state,
+-			    newsid, sbsec->sid,
+-			    SECCLASS_FILESYSTEM,
+-			    FILESYSTEM__ASSOCIATE, &ad);
++	return cred_ssid_has_perm(cred, newsid, sbsec->sid,
++				  SECCLASS_FILESYSTEM, FILESYSTEM__ASSOCIATE,
++				  &ad);
+ }
  
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	length = avc_has_perm(current_selinux_state,
- 			      current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__COMPUTE_AV, NULL);
-@@ -1163,6 +1200,10 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
- 	u32 len;
- 	int nargs;
+ #define MAY_LINK	0
+@@ -2044,9 +2042,8 @@ static inline u32 open_file_to_av(struct file *file)
  
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	length = avc_has_perm(current_selinux_state,
- 			      current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__COMPUTE_CREATE,
-@@ -1265,6 +1306,10 @@ static ssize_t sel_write_relabel(struct file *file, char *buf, size_t size)
- 	char *newcon = NULL;
- 	u32 len;
+ static int selinux_binder_set_context_mgr(const struct cred *mgr)
+ {
+-	return avc_has_perm(current_selinux_state,
+-			    current_sid(), cred_sid(mgr), SECCLASS_BINDER,
+-			    BINDER__SET_CONTEXT_MGR, NULL);
++	return cred_other_has_perm(current_cred(), mgr, SECCLASS_BINDER,
++				   BINDER__SET_CONTEXT_MGR, NULL);
+ }
  
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	length = avc_has_perm(current_selinux_state,
- 			      current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__COMPUTE_RELABEL,
-@@ -1330,6 +1375,10 @@ static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
- 		" This will not be supported in the future; please update your"
- 		" userspace.\n", current->comm, current->pid);
+ static int selinux_binder_transaction(const struct cred *from,
+@@ -2054,28 +2051,25 @@ static int selinux_binder_transaction(const struct cred *from,
+ {
+ 	u32 mysid = current_sid();
+ 	u32 fromsid = cred_sid(from);
+-	u32 tosid = cred_sid(to);
+ 	int rc;
  
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	length = avc_has_perm(current_selinux_state,
- 			      current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__COMPUTE_USER,
-@@ -1395,6 +1444,10 @@ static ssize_t sel_write_member(struct file *file, char *buf, size_t size)
- 	char *newcon = NULL;
- 	u32 len;
+ 	if (mysid != fromsid) {
+-		rc = avc_has_perm(cred_selinux_state(from),
+-				  mysid, fromsid, SECCLASS_BINDER,
+-				  BINDER__IMPERSONATE, NULL);
++		rc = cred_other_has_perm(current_cred(), from,
++					 SECCLASS_BINDER,
++					 BINDER__IMPERSONATE, NULL);
+ 		if (rc)
+ 			return rc;
+ 	}
  
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	length = avc_has_perm(current_selinux_state,
- 			      current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__COMPUTE_MEMBER,
-@@ -1526,6 +1579,10 @@ static ssize_t sel_write_bool(struct file *filep, const char __user *buf,
+-	return avc_has_perm(cred_selinux_state(from), fromsid, tosid,
+-			    SECCLASS_BINDER, BINDER__CALL, NULL);
++	return cred_other_has_perm(from, to, SECCLASS_BINDER, BINDER__CALL,
++				   NULL);
+ }
  
- 	mutex_lock(&fsi->state->policy_mutex);
+ static int selinux_binder_transfer_binder(const struct cred *from,
+ 					  const struct cred *to)
+ {
+-	return avc_has_perm(current_selinux_state,
+-			    cred_sid(from), cred_sid(to),
+-			    SECCLASS_BINDER, BINDER__TRANSFER,
+-			    NULL);
++	return cred_other_has_perm(from, to, SECCLASS_BINDER,
++				   BINDER__TRANSFER, NULL);
+ }
  
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	length = avc_has_perm(current_selinux_state,
- 			      current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__SETBOOL,
-@@ -1585,6 +1642,10 @@ static ssize_t sel_commit_bools_write(struct file *filep,
+ static int selinux_binder_transfer_file(const struct cred *from,
+@@ -2143,9 +2137,8 @@ static int selinux_capset(struct cred *new, const struct cred *old,
+ 			  const kernel_cap_t *inheritable,
+ 			  const kernel_cap_t *permitted)
+ {
+-	return avc_has_perm(cred_selinux_state(old),
+-			    cred_sid(old), cred_sid(new), SECCLASS_PROCESS,
+-			    PROCESS__SETCAP, NULL);
++	return cred_other_has_perm(old, new, SECCLASS_PROCESS,
++				   PROCESS__SETCAP, NULL);
+ }
  
- 	mutex_lock(&fsi->state->policy_mutex);
+ /*
+@@ -3406,12 +3399,9 @@ static int selinux_inode_setxattr(struct mnt_idmap *idmap,
+ 	if (rc)
+ 		return rc;
  
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	length = avc_has_perm(current_selinux_state,
- 			      current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__SETBOOL,
-@@ -1706,6 +1767,10 @@ static ssize_t sel_write_avc_cache_threshold(struct file *file,
- 	if (state != current_selinux_state)
- 		return -EPERM;
+-	return avc_has_perm(current_selinux_state,
+-			    newsid,
+-			    sbsec->sid,
+-			    SECCLASS_FILESYSTEM,
+-			    FILESYSTEM__ASSOCIATE,
+-			    &ad);
++	return cred_ssid_has_perm(cred, newsid, sbsec->sid,
++				  SECCLASS_FILESYSTEM,
++				  FILESYSTEM__ASSOCIATE, &ad);
+ }
  
-+	/*
-+	 * Only check against the current namespace because
-+	 * this operation only affects it and no others.
-+	 */
- 	ret = avc_has_perm(current_selinux_state,
- 			   current_sid(), SECINITSID_SECURITY,
- 			   SECCLASS_SECURITY, SECURITY__SETSECPARAM,
+ static int selinux_inode_set_acl(struct mnt_idmap *idmap,
+@@ -4422,9 +4412,7 @@ static int selinux_task_prlimit(const struct cred *cred, const struct cred *tcre
+ 		av |= PROCESS__SETRLIMIT;
+ 	if (flags & LSM_PRLIMIT_READ)
+ 		av |= PROCESS__GETRLIMIT;
+-	return avc_has_perm(cred_selinux_state(cred),
+-			    cred_sid(cred), cred_sid(tcred),
+-			    SECCLASS_PROCESS, av, NULL);
++	return cred_other_has_perm(cred, tcred, SECCLASS_PROCESS, av, NULL);
+ }
+ 
+ static int selinux_task_setrlimit(struct task_struct *p, unsigned int resource,
+@@ -6392,9 +6380,8 @@ static int selinux_msg_queue_msgsnd(struct kern_ipc_perm *msq, struct msg_msg *m
+ 				   &ad);
+ 	if (!rc)
+ 		/* Can the message be put in the queue? */
+-		rc = avc_has_perm(current_selinux_state,
+-				  msec->sid, isec->sid, SECCLASS_MSGQ,
+-				  MSGQ__ENQUEUE, &ad);
++		rc = cred_ssid_has_perm(cred, msec->sid, isec->sid,
++					SECCLASS_MSGQ, MSGQ__ENQUEUE, &ad);
+ 
+ 	return rc;
+ }
+@@ -7349,8 +7336,8 @@ static int selinux_perf_event_write(struct perf_event *event)
+  */
+ static int selinux_uring_override_creds(const struct cred *new)
+ {
+-	return avc_has_perm(current_selinux_state, current_sid(), cred_sid(new),
+-			    SECCLASS_IO_URING, IO_URING__OVERRIDE_CREDS, NULL);
++	return cred_other_has_perm(current_cred(), new, SECCLASS_IO_URING,
++				   IO_URING__OVERRIDE_CREDS, NULL);
+ }
+ 
+ /**
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index 106c511db114..1631f6cdbefd 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -166,6 +166,13 @@ int cred_has_perm(const struct cred *cred, u32 tsid, u16 tclass, u32 requested,
+ int cred_has_perm_noaudit(const struct cred *cred, u32 tsid, u16 tclass,
+ 			  u32 requested, struct av_decision *avd);
+ 
++int cred_ssid_has_perm(const struct cred *cred, u32 ssid, u32 tsid, u16 tclass,
++		       u32 requested, struct common_audit_data *ad);
++
++int cred_other_has_perm(const struct cred *cred, const struct cred *other,
++			u16 tclass, u32 requested,
++			struct common_audit_data *ad);
++
+ u32 avc_policy_seqno(struct selinux_state *state);
+ 
+ #define AVC_CALLBACK_GRANT		1
 -- 
 2.49.0
 
