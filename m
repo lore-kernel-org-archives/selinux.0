@@ -1,103 +1,98 @@
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD3874B1E7B
-	for <selinux@vger.kernel.org>; Tue, 20 May 2025 21:16:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0868725D55D
+	for <selinux@vger.kernel.org>; Tue, 20 May 2025 21:23:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747775763; cv=none; b=oEp2IAMda+PIbizQHyLAj4akCh+krMfXLMn1uYLNKdZdmsDFqdIxluVRmQ0RYvDeY0vtiHf4nu4nDI+7872SCNbNNtV5dzviuegtb/Q8XjFO4bgZDYeh03vIdaDqChDjflc96mGOfN5oLEsr92Gi92+eAeOtp8v97TIlXi+u3D8=
+	t=1747776192; cv=none; b=Lypv5GysUcgCrtf/IG0Ke3EPpQ/z7GFcVWtzYyeg/TUzwSNUJkRqpfq/LvA8zQdDPbXV+2cjciA+JSxjiAdzklsKlJYsoMVdJYPSW5ua9cGQxmHScrmxFjLfdqu/VOodBtQ2ntaObPssDL/kTFtQqpXKJuewRArGW0y1XcIiJEw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747775763; c=relaxed/simple;
-	bh=PokIbil+4vzb3IM+d56Xpj4Mvgib+ySxP9q4ulJxR48=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=f0xGbDxtfrpYdCzVgUJI3ohxAYhAnXigee0ywa8nQQsd/o9WIVEqFmvB4NRPphNKOBOIRlXDHuOJzzDnSanNucgcVYsOz//5Z776f2pVMNqyPIzxQlMqqpRh/nt9kyuMBaHFZW7rwnkLYGt6942ivAip1B+u94qNnmYcdPEIhjM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=SATGsQUV; arc=none smtp.client-ip=209.85.219.49
+	s=arc-20240116; t=1747776192; c=relaxed/simple;
+	bh=Mwae0CfT3VtYHLh/i0+Hb2wG0hjHZi9ThFgdFrXq/ZM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=sTE200CxIYCWqobKzqwGVFI5V1umFJS6E66h8oTV9mw0MxdTlnYYClNXVIN+ZLGGo92vmLa9q6er1pN1qZq11ljS1gs7Q+BcAgNNYlSPBng94USX4+g76LElsjN+HL0wewSYs9ldkrRb34b3Ae2ALYUrwI3CgEz7Zjfaspaahdw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=U87eKNyT; arc=none smtp.client-ip=209.85.128.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="SATGsQUV"
-Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-6f8c0c8da93so63438526d6.0
-        for <selinux@vger.kernel.org>; Tue, 20 May 2025 14:16:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="U87eKNyT"
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-70dec158cbcso8387457b3.2
+        for <selinux@vger.kernel.org>; Tue, 20 May 2025 14:23:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1747775760; x=1748380560; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=0Vcim2IrvThidRodNsg/OfOdq2fd5gLucgy52LkkAJU=;
-        b=SATGsQUVNCcWA5EQ2sN31YQi0KcO0OMgg67xcYs16ITaMOe6Op0u1D+gq7ILTSB/DL
-         FQdpiltkvmAEgWIanzWiNeydwbuD0aYpWwjtKgHSWO2+a1IMCM/L2d/EDsMDVqiR/t2A
-         Dr4vo7CV/Fw3dsrFiU//gjBLuMSUaBhq8lVdNQAtdZY1PTDlbLXocFdQ0S6bxFniWug3
-         JssnaOmXDTxnsZ7//pEfNyN7VOKN1Tmeke8pl+mCHHEZ5Qa9IcHIRRtY9bPIi/qbv8Zm
-         XyXzgURy4XykbyrKYNDGCVpAz3iq+XNE3u0910/h/s0G2OWeoqOMatHPvm/cFMZvW8ps
-         LJIg==
+        d=paul-moore.com; s=google; t=1747776189; x=1748380989; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0KLkiotveVnnRkJIbJRmr0cn3+/DEWjDCsoq58Yo/qY=;
+        b=U87eKNyTjxO0a3q8AmfsZVxNeT4JA3C8toeczJpgCxGNl8rF2abJDphf7X4QVQJwwv
+         I9/ipRtMvHvhdy+wOHHWnvt2q4ac0I4wY4qtBexA4PE75IwWYkjCJbZ/VC0Pa1XfOP06
+         8LJjn6KO3/Vbl1KaUcbaFLqlkNvTgX7uAs5zBKAyqBGYApKgK8hUdf6YBg1oJLWXlzHp
+         2/gcdKU748/5Q4/wY5vYIRdRZ07ScudZOtYMDaU7B1C/wOxRs2vZYit/RCCheQaTlud9
+         L2AXsgMgopQo2LAIxBdHpXb/KuFRKC2osraekrjV/XMZGGb4ly/QU7p9Ro/e7y/hPJwf
+         cgNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747775760; x=1748380560;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=0Vcim2IrvThidRodNsg/OfOdq2fd5gLucgy52LkkAJU=;
-        b=fJSFKf2VRZ2M9Nc8NbvIJ00S90mHEtYS3uK53qHCETyYnk11Ewknt6M1nsd9AXd8It
-         qbjRzeqLMtSPDhSMpec0+0ZE5IJvU9QAa3HJI2pGhWKGHCCDkvRsWThGf6/7BrWwQL/w
-         /F7McDi43rS7gp5bflTGXQmthkbO0SWORxItDVXUYU3gmPW88NXL2MwSVeiSknnkidR/
-         1GaJ8gQbbVSvMY1kROO4gJ/ncxi/+oeUlLLFsgvxl33qt2zxNV5kk3tiTTIcNkoV7nCS
-         a+1pgKAcsBqXwo8AFQVHlheZX9jZg2UymZjsletcia5rD8kgkIO7a8mV/8gmOroFhiBO
-         Xx7A==
-X-Forwarded-Encrypted: i=1; AJvYcCUZG1M9RzZ3lpacZdRIXscoYEWjCH6G4fU9BckmVt180ERhCkuqXJZhuhmySU79v+5ivPsNX19l@vger.kernel.org
-X-Gm-Message-State: AOJu0YzmRpqPZvp5cqHTwAuwHO+mx3b2kyL86qnDE8iMVob0qZ0OV3+u
-	ARvEBd4M+q6kufCO5eFEjzlshrXH2x9/7n42+tp8WIbf0LTY5s/HYjCND+P5jP0dGQ==
-X-Gm-Gg: ASbGncsaKU6WXy0YEYEfw/sGPKsyOt6+1icOGfne3CSEHDOcH6VrIuvmPH8Izurhzm+
-	5o2Z2s6CcAi1BKeU76798nEzjHMjU3KaI1zrXUMHJAPIpI74Xv52G6Vv1/8U4rGmsXfTpVEQA+X
-	GQLaSwv3/3qDg2VDlAmlDofZEHPAzGTAFoKXWfWM0o6rBZ8jSua5u6YoLAYexrtIJH1gAtE+fTt
-	hfEuHM4Rm7AFws0S62ZHGU+gUqYZ7vVRlDZo9VJzY4CPORGX0PreqP0prCpq3CJ/O+tDKDpPD+W
-	oJBEc16nSYXTMYd7jR3WwSNp17uANUREnKMWrHWlQN3vpzjHvFnRVprL6VMZIWWfa7sm+qK1nM0
-	tU/qx90Ydcj1SDP7n/z0HXLFs049AzkY=
-X-Google-Smtp-Source: AGHT+IGXRcWfO4AHv0ErYu9MQe8pxWB5OkTwD4jggVmmRyicMFT0cpUlaxE7iaZV/7atuSeHLh1gYg==
-X-Received: by 2002:ad4:5e8f:0:b0:6d8:a8e1:b57b with SMTP id 6a1803df08f44-6f8b0873ba6mr330435226d6.36.1747775760552;
-        Tue, 20 May 2025 14:16:00 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-6f8b0883b93sm76456226d6.14.2025.05.20.14.15.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 May 2025 14:15:59 -0700 (PDT)
-Date: Tue, 20 May 2025 17:15:59 -0400
-Message-ID: <eb68761b5a2d53702f4d6b80fe2a6457@paul-moore.com>
+        d=1e100.net; s=20230601; t=1747776189; x=1748380989;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=0KLkiotveVnnRkJIbJRmr0cn3+/DEWjDCsoq58Yo/qY=;
+        b=A/7u14SXStVDYoiT8JkGiEGwce7vSog2dr6YL5t4i2XnTkFA2k6Nx5lHdqwOoRTbjS
+         RiRnny5a3/OyfIougfbYXMv2BwgFRHO97P2Hhi3D/XXgIq3GJn8RHphE+HmO2gc5xJbL
+         HTrTlgl3o7NorhbFVwpgXseXaIXycv5/A3Q4ThQi2r20363lD28cdGB0VANy9A3koAYR
+         8Gy4//bPxZ8PLsoBVNyDVuZ7VfGFj1PLRTCFOm9gh8a5Y2kJP+NqWwmWj0iLTQPkd9Zr
+         IEoJZLvxnTxlR8+abHvRN78WyK2nCVnW8PL8AQmRLa9qZj+uyXgaObflTbujlit0lwB5
+         +nkA==
+X-Gm-Message-State: AOJu0Yxzy8sDsCaZFERGPtCep21IriIsNqfZNTt/bLcL70VRsEVhGAO3
+	qcyVjeCKKN9ZyjM/ab8/AjiVK06i4L88gzYQJ/dopUr+mJwDC4P18jitT4TKwi5ZgHzzHz1B0DC
+	IgOPCne97VKxG3fvuCYUHatJOx7w//ulolnncmAKBni8eRu1d+fI8/A==
+X-Gm-Gg: ASbGncvwcp9lz71WFDyPKrEMOo0w6Q3ZJTpMgwwOik23djSmOwWyHV0nbWncshY8Qmd
+	bHG0piCZp7yn1qWRJ7ti1F3XOg7x/65A7mVwX2QFC4gsBKuOjzgJQdfqS6nBIJYCjdHt4/0hZ17
+	oI+5/kaPol7tVediuTlcVHcSXA+IbNGWIN
+X-Google-Smtp-Source: AGHT+IG2vNRxTWgfrENc5pBRwD+LB9rk3EwkF7lIuDcvb9R8uzYeN7f7FhO2nEvqxtSS6wrCroszuevAmgsm2p0u+TA=
+X-Received: by 2002:a05:690c:4b8a:b0:70c:9e2e:bb85 with SMTP id
+ 00721157ae682-70cab0bb47bmr252781957b3.29.1747776189695; Tue, 20 May 2025
+ 14:23:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20250520_1533/pstg-lib:20250520_1521/pstg-pwork:20250520_1533
+MIME-Version: 1.0
+References: <20250501192347.189307-2-paul@paul-moore.com>
+In-Reply-To: <20250501192347.189307-2-paul@paul-moore.com>
 From: Paul Moore <paul@paul-moore.com>
-To: Li Li <dualli@chromium.org>, dualli@google.com, corbet@lwn.net, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, donald.hunter@gmail.com, gregkh@linuxfoundation.org, arve@android.com, tkjos@android.com, maco@android.com, joel@joelfernandes.org, brauner@kernel.org, cmllamas@google.com, surenb@google.com, omosnace@redhat.com, shuah@kernel.org, arnd@arndb.de, masahiroy@kernel.org, bagasdotme@gmail.com, horms@kernel.org, tweek@google.com, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, netdev@vger.kernel.org, selinux@vger.kernel.org, linux-security-module@vger.kernel.org, hridya@google.com
-Cc: smoreland@google.com, ynaffit@google.com, kernel-team@android.com
-Subject: Re: [PATCH v17 1/3] lsm, selinux: Add setup_report permission to  binder
-References: <20250417002005.2306284-2-dualli@chromium.org>
-In-Reply-To: <20250417002005.2306284-2-dualli@chromium.org>
+Date: Tue, 20 May 2025 17:22:57 -0400
+X-Gm-Features: AX0GCFug9D5TeyJsLNWipMT4tsA74UvKXzvA-yLMeHtX7SrX-lVjDsq8l8eGhgo
+Message-ID: <CAHC9VhTD6Yw4dbHdmUfj+2muDMG9pdbW864m2SH8yH558kkE=g@mail.gmail.com>
+Subject: Re: [PATCH] selinux: add a 5 second sleep to /sys/fs/selinux/user
+To: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Apr 16, 2025 Li Li <dualli@chromium.org> wrote:
-> 
-> Introduce a new permission "setup_report" to the "binder" class.
-> This persmission controls the ability to set up the binder generic
-> netlink driver to report certain binder transactions.
-> 
-> Signed-off-by: Thiébaud Weksteen <tweek@google.com>
-> Signed-off-by: Li Li <dualli@google.com>
+On Thu, May 1, 2025 at 3:24=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
+te:
+>
+> Commit d7b6918e22c7 ("selinux: Deprecate /sys/fs/selinux/user") started
+> the deprecation process for /sys/fs/selinux/user:
+>
+>   The selinuxfs "user" node allows userspace to request a list
+>   of security contexts that can be reached for a given SELinux
+>   user from a given starting context. This was used by libselinux
+>   when various login-style programs requested contexts for
+>   users, but libselinux stopped using it in 2020.
+>   Kernel support will be removed no sooner than Dec 2025.
+>
+> A pr_warn() message has been in place since Linux v6.13, this patch
+> adds a five second sleep to /sys/fs/selinux/user to help make the
+> deprecation and upcoming removal more noticeable.
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 > ---
->  include/linux/lsm_hook_defs.h       |  1 +
->  include/linux/security.h            |  6 ++++++
->  security/security.c                 | 13 +++++++++++++
->  security/selinux/hooks.c            |  7 +++++++
->  security/selinux/include/classmap.h |  3 ++-
->  5 files changed, 29 insertions(+), 1 deletion(-)
+>  security/selinux/selinuxfs.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-When possible, it is helpful to include at least one caller in the patch
-which adds a new LSM hook as it helps put the hook in context.  With that
-in mind, I think it would be best to reorder this patchset so that patch
-2/3 comes first and this patch comes second, with this patch including
-the change to binder_nl_report_setup_doit() which adds the call to the
-new LSM hook.
+Merged into selinux/dev-staging with the expectation of moving this to
+selinux/dev after the upcoming merge window.
 
---
+--=20
 paul-moore.com
