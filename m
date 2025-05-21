@@ -1,68 +1,68 @@
-Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
+Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA3BF1E0E00
-	for <selinux@vger.kernel.org>; Wed, 21 May 2025 17:43:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D40D19F42F
+	for <selinux@vger.kernel.org>; Wed, 21 May 2025 17:47:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747849436; cv=none; b=HRsaaZzQRDVffS4ODDPSBpxGbPbW+1+IuS2mbKpTiMhEDD06qCWSsolOn6Jtr0mRNsMRqwI57ry2T4j2MF6lUxHcmmTkC5gzAWugBUu/wQtVx6IDSVLMW4mrS9Sk2+e2bjLJPf3neMyJtofk4yU+vIfr+ni9eq1LiKCNIV85m0E=
+	t=1747849635; cv=none; b=FXYsUXSs6VLgkTJIXo4jBJoqT7LVj6E8/bLuVIxsjjzHO33tS1z1CWQFOktrzDOqekW2MfvKH1YlUzf0NVaAhrq5PciETZnwQoG8diDl0hK8q/S4hjMa6UkEOCrDe19nkimN28O1peI/c6SlDRyBnHDaG7NloWP8GTfsbfzRd14=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747849436; c=relaxed/simple;
-	bh=Cl456smE+2ef+Hj8LTocVtEshP6bobAXBdnNJ3Xd7xM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kMFQNnqa9cbQwjgSiK+DT3dRwrrwz+1pK7LmQGZotZU9VFu8hTCfUnJEwiCcIC0ItEz/xzD81J7W/zTpshn0kmFqiX+sl5iHLAeNdjvYOQsDbKf5WwgeHlFISa4okidQygiztJX70Z67F0kPUfdzKddmxhLuSHAvUC9M1lPaITA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cm8Kg7hW; arc=none smtp.client-ip=209.85.219.42
+	s=arc-20240116; t=1747849635; c=relaxed/simple;
+	bh=rMt/JdxjZTtfVhCtX4Czm5BdOn+Uy6dh9Xdc5GY8o30=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nVkPJO0mZPsjGZjC6f6n5rkDUIFRKehU1kDQqA7mQxZXX7KWTfj4ZW1IhBQAYLT7y0KIlRQd2Mph38aBSzeovNIxwdxfgGg95NqY3M0y9mV4bh0zcZ9437Jq84+kBysUqELbln7pvqnRdzFlqcsksVRkggk3I27u2K6VImgFoVc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jSFOlma7; arc=none smtp.client-ip=209.85.222.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cm8Kg7hW"
-Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-6f0cfbe2042so71099826d6.1
-        for <selinux@vger.kernel.org>; Wed, 21 May 2025 10:43:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jSFOlma7"
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-7cadd46eb07so757695985a.3
+        for <selinux@vger.kernel.org>; Wed, 21 May 2025 10:47:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747849432; x=1748454232; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1747849630; x=1748454430; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=gxu022N5cF/4A1ej27/W7iHoU7wcC6nxZ++8iyLVpDo=;
-        b=cm8Kg7hWRamRNLbO2KjHZdl3bcowLMoEsHu33s8r+qU56St0J0f3pxNiXXhINQTOPD
-         YsINiQRuVLK57Z+ApQn2qhS/2WBdWOA6mNg7bGXTpmYhIN+pQvO31l5cLRte9as5nxoX
-         3ADv2G0YYAvK9KIV+cDel3UT4gP4QquFMbMHwVNO9ohQ6zSPN8p/336Ne7r60dS6RsF5
-         uokgKHZLw+0Kb+IMOXNyMFP0c2i2ap8WTU2NGX7zTGD6CXsn4vnrNcIYkXY+jfUqYa5/
-         TY4C3MRIO40PbUqGGioVBwZttpsMYjJJ4CusdwlnRQtwA36/xRa6QuyndNjuwvjn/V/n
-         lHtg==
+        bh=ik6O4xc/iAnSbVm9h/2nRyvyy2QhqSzBTByQZDUv9/k=;
+        b=jSFOlma7tO8fLRTeB4Jf4PVNlx6U/kSSiBssWV7sdSOn+WvxHiJ+qCyBQ6KpapEVIC
+         kf/fW/0xPCTKFyBv6JsJ2b3vMKc2JguTSEuKkbDvL6BviL8PsmS+4r2Va2dXzKHJNBjT
+         psaYuCuaqtJhPPcrJUTQ3dXui2Y7GvORugemrx2nNemq95g7yEzpVVE5b/oLmBB1k5e+
+         t92HgN3k8DzT0LSaKtuPILtVgzotA4Dpug2sLROOICWNPHH66HQgEPhd7S0TNr+3ECND
+         ca9eez99836ZkJqjWX30ZeDKo4VskVJzlmYF6Jp0DDmT/cdu1S1O31OvrkElKJ2NC7NW
+         bfEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747849432; x=1748454232;
+        d=1e100.net; s=20230601; t=1747849630; x=1748454430;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=gxu022N5cF/4A1ej27/W7iHoU7wcC6nxZ++8iyLVpDo=;
-        b=VZdOzuQeJir6slkm3d9Cu/n27uazxeTuYyhz1+e7kDrVxm/7xkis/vIoLJ3uhLYuS1
-         kCm5cSgqwj2qK0pDBkmYjC2eGvslBbbI4CbUEgWRdkMatbN5Ggs1OK6wKERmd73Mkacg
-         99ODg8FyGqvaypp9oi1NmjA9VsxEOIKjyTfmoGlC7UOZq/H2LR3wGAJluf2myWmzu+Cu
-         EFENe7eKahlMEUSyM7v1cIPNTlrPI0saRf4aICFBsT1UWXYMXEY0j/uDpAbLCoVWwHGp
-         dfP4xKKXBOviyN5BGbPgp+sU8FcZ9pkWOT95ETEJSWMzIG+3TqxgNx3mkYnYg+wH7hNA
-         VYRg==
-X-Gm-Message-State: AOJu0YxX7g6DBqGJZHchAaaHYg1Tl9tHUi09X0CoxGNj2Fx0HFVpjlYx
-	rkyB2tuwKFi3t9pGXU9gxnbphyToCXS6S0puShb6jexCPXoy6IK2JuXkhZLz8A==
-X-Gm-Gg: ASbGncse2oBQGw4L4gb3bZgYTIGLcVfvzd/JmmvRkVFiEdbt9yXjm/oPXodxIH35L/n
-	WEWy9lRnf3trioqy+ZWC8MTXoMKOCbk8wCeBrkIcFGGYmEIlalz9fmFLQtA81kUffiJPlKLiMtq
-	tAcfz8LU234nTLW7SHhxjBriYVaQQDNkSUBfXFgSFbM+zRTK+HugoW8O5Pu8Y0gW6qQjN7eYzlD
-	UaETGrp2Wm5V0w4PsydOU17n0N/3QzUyPuny5xPE8OBs7rzihpLVMPQgM6ATZWdWnsE0QMghSAB
-	kFPzC16wsT9IpJu3IRttsR09UIJCnmRMftWTGxiMOFD4d9HqJOE1O6mKXVRN/CLl/k5gyifaN1t
-	NlOjUwfy8jVXq83gglR/UWEWfz8btPEDIYjPxMRfIp6sKPOk4G2ZqQg==
-X-Google-Smtp-Source: AGHT+IGFgYAek52crU6DdCa91/eWenAHPmTsql4hr1UY0jzhnzeFany6ChWGlPAgvukdnq5n3WXgyg==
-X-Received: by 2002:a05:6214:c41:b0:6e2:485d:fddd with SMTP id 6a1803df08f44-6f8b123bd8dmr324164406d6.1.1747849432059;
-        Wed, 21 May 2025 10:43:52 -0700 (PDT)
+        bh=ik6O4xc/iAnSbVm9h/2nRyvyy2QhqSzBTByQZDUv9/k=;
+        b=sFZr+SlbCZ3aan12KzK7eC/0i6wCMZlvIZonxULNMEJDv1a7TD4yCwV4emrGoVC43T
+         G5XOutk/qx7iMkNYeWJRBsNewnHcB+RoMcZ7TzyDEV2uw5COk7uuOY6qvIJeubxxPLsg
+         7T0aqga2L+plmYuZM97zwquK5TlOsxNw1o8RTF3gvLrp+QKTracwl6p3khcCebxRvPzM
+         SAKoWtz3y45HASqEh6HF+/96FIji2m+sky3a0DWIb7bSViFY4JKOOBDQQjNqwgeGdP6J
+         XMOm12PRe1rzkqAUCRpsqW6CMPmhjVeXnf5lJn23IPC4m29PLU2/VGJG3JZENaMIxGvF
+         bXqg==
+X-Gm-Message-State: AOJu0YziZ+T6ygDnW6tjAR8KAkte25Z9bOiAU8juzgC95+SFUKJ8NN06
+	186JCBivtjfBxpr0U7M2DP+fYCKkJS2nl6tVRDkyYj68zPUwDe0aY6qTLVLDgA==
+X-Gm-Gg: ASbGncukVk57mMpWtH5OzGaFrwAy+JyeV79QGaByQNkNF/FwLkJOCay+IcIr4O2QgU4
+	JWJriK1KoLl4gN6WBT1MkXSLNgGpMMTUJOl1KZE42TSpzAqUXIUnxATGqD75VxPsxr1CPzx5biS
+	M2lvgS+R1HWqkbdxoaqjpRNIpUypDPCK1zqB8koUmEoVXfQKeTBJ6Khac6uFA/7NW5PEIvEYmdJ
+	jNjfBzUOnWzse16NfFiM4436PwNrUHzBYDhfhLkSaQCWOYv6MmGRSyZ9FixAaoFAGOTGSABBIYY
+	Tlq1IXYQ+EZwY5n2l0nFehrw7qubOVoq2YJkx6BrG20qcjA0AJ+8qWuFnjPZUzML8DWfvYlcL0M
+	TjQ+AkO0LVfgSFAe+Lgpue47oVuEQjtECNXTpoiYfp888XoVtvq6zxA==
+X-Google-Smtp-Source: AGHT+IEPt+UVHfSw5Hf4TnK9jEMqbEukZ+gCi/CHjVr1AnfDtg9tRlzFmH/T7hVMuHEhyFFBg+el1g==
+X-Received: by 2002:a05:620a:2994:b0:7c5:3c0a:ab7e with SMTP id af79cd13be357-7cd46707c65mr2891732885a.5.1747849629673;
+        Wed, 21 May 2025 10:47:09 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6f8b08be133sm87813126d6.53.2025.05.21.10.43.51
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7cd467ef019sm905588085a.63.2025.05.21.10.47.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 May 2025 10:43:51 -0700 (PDT)
+        Wed, 21 May 2025 10:47:09 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: jwcart2@gmail.com,
 	paul@paul-moore.com,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v3] libsepol,checkpolicy: introduce neveraudit types
-Date: Wed, 21 May 2025 13:42:27 -0400
-Message-ID: <20250521174226.204349-2-stephen.smalley.work@gmail.com>
+Subject: [PATCH v4] libsepol,checkpolicy: introduce neveraudit types
+Date: Wed, 21 May 2025 13:46:40 -0400
+Message-ID: <20250521174639.204737-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -85,8 +85,7 @@ logic, allowing all permissions and not auditing any permissions.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
-v3 updates the patch description to drop references to unconfined,
-and addresses reviewer comments.
+v4 re-bases on selinux/main
 
  checkpolicy/policy_define.c                   | 43 +++++++++++++++++
  checkpolicy/policy_define.h                   |  1 +
@@ -224,10 +223,10 @@ index 7e117222..a88a6a7f 100644
  /*********** module grammar below ***********/
  
 diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
-index 5fb9ff37..1658830c 100644
+index 7bdea427..3ab5c2c7 100644
 --- a/checkpolicy/policy_scan.l
 +++ b/checkpolicy/policy_scan.l
-@@ -270,6 +270,8 @@ policycap |
+@@ -271,6 +271,8 @@ policycap |
  POLICYCAP			{ return(POLICYCAP); }
  permissive |
  PERMISSIVE			{ return(PERMISSIVE); }
@@ -363,7 +362,7 @@ index 5521c7ea..9662cf45 100644
  {
  	*nametypetrans = cil_malloc(sizeof(**nametypetrans));
 diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index e84188a0..a8770aa5 100644
+index b0befda3..6b17e7f4 100644
 --- a/libsepol/cil/src/cil_binary.c
 +++ b/libsepol/cil/src/cil_binary.c
 @@ -564,6 +564,27 @@ exit:
@@ -394,7 +393,7 @@ index e84188a0..a8770aa5 100644
  int cil_typeattribute_to_policydb(policydb_t *pdb, struct cil_typeattribute *cil_attr, void *type_value_to_cil[])
  {
  	int rc = SEPOL_ERR;
-@@ -4101,6 +4122,9 @@ static int __cil_node_to_policydb(struct cil_tree_node *node, void *extra_args)
+@@ -4102,6 +4123,9 @@ static int __cil_node_to_policydb(struct cil_tree_node *node, void *extra_args)
  		case CIL_TYPEPERMISSIVE:
  			rc = cil_typepermissive_to_policydb(pdb, node->data);
  			break;
@@ -428,7 +427,7 @@ index 0b6e3b79..e6826221 100644
   * Insert cil attribute structure into sepol policydb.
   *
 diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index 072d2622..af6b96c3 100644
+index fc11758d..b1f151e9 100644
 --- a/libsepol/cil/src/cil_build_ast.c
 +++ b/libsepol/cil/src/cil_build_ast.c
 @@ -3374,6 +3374,50 @@ void cil_destroy_typepermissive(struct cil_typepermissive *typeperm)
@@ -482,7 +481,7 @@ index 072d2622..af6b96c3 100644
  int cil_gen_typetransition(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node)
  {
  	int rc = SEPOL_ERR;
-@@ -6255,6 +6299,8 @@ static struct cil_tree_node * parse_statement(struct cil_db *db, struct cil_tree
+@@ -6256,6 +6300,8 @@ static struct cil_tree_node * parse_statement(struct cil_db *db, struct cil_tree
  		rc = cil_gen_bounds(db, parse_current, new_ast_node, CIL_TYPE);
  	} else if (parse_current->data == CIL_KEY_TYPEPERMISSIVE) {
  		rc = cil_gen_typepermissive(db, parse_current, new_ast_node);
@@ -635,7 +634,7 @@ index c497c8ab..ca73bd28 100644
  	args.rule_kind = CIL_AVRULE_ALLOWED;
  	cil_tree_walk(start, __cil_block_te_rules_to_policy_helper, NULL, NULL, &args);
 diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index a8fa89df..30a571d8 100644
+index 392f03c7..bcac4026 100644
 --- a/libsepol/cil/src/cil_resolve_ast.c
 +++ b/libsepol/cil/src/cil_resolve_ast.c
 @@ -624,6 +624,34 @@ exit:
@@ -696,7 +695,7 @@ index 2f6b7e86..074fc4a4 100644
  int cil_resolve_rangetransition(struct cil_tree_node *current, struct cil_db *db);
  int cil_resolve_classcommon(struct cil_tree_node *current, struct cil_db *db);
 diff --git a/libsepol/cil/src/cil_write_ast.c b/libsepol/cil/src/cil_write_ast.c
-index 15d8bbaf..a3c3aef8 100644
+index f9edadba..89dfd565 100644
 --- a/libsepol/cil/src/cil_write_ast.c
 +++ b/libsepol/cil/src/cil_write_ast.c
 @@ -1125,6 +1125,13 @@ void cil_write_ast_node(FILE *out, struct cil_tree_node *node)
@@ -738,7 +737,7 @@ index 382b95db..dfdba292 100644
  (typebounds typea_t typeb_t)
  
 diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index f833354b..5c8f77dd 100644
+index ab4b1a12..9875255c 100644
 --- a/libsepol/include/sepol/policydb/policydb.h
 +++ b/libsepol/include/sepol/policydb/policydb.h
 @@ -188,6 +188,7 @@ typedef struct type_datum {
@@ -771,7 +770,7 @@ index f833354b..5c8f77dd 100644
  	unsigned policyvers;
  
  	unsigned handle_unknown;
-@@ -760,10 +769,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+@@ -764,10 +773,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
  #define POLICYDB_VERSION_GLBLUB		32
  #define POLICYDB_VERSION_COMP_FTRANS	33 /* compressed filename transitions */
  #define POLICYDB_VERSION_COND_XPERMS	34 /* extended permissions in conditional policies */
@@ -784,7 +783,7 @@ index f833354b..5c8f77dd 100644
  
  /* Module versions and specific changes*/
  #define MOD_POLICYDB_VERSION_BASE		4
-@@ -787,9 +797,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+@@ -791,9 +801,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
  #define MOD_POLICYDB_VERSION_GLBLUB		20
  #define MOD_POLICYDB_VERSION_SELF_TYPETRANS	21
  #define MOD_POLICYDB_VERSION_COND_XPERMS	22
@@ -957,10 +956,10 @@ index 661546af..b3b0f224 100644
  	if (rc != 0) {
  		goto exit;
 diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index ae9a2b5d..a85d947b 100644
+index 63c800e9..b4439b27 100644
 --- a/libsepol/src/module_to_cil.c
 +++ b/libsepol/src/module_to_cil.c
-@@ -2277,6 +2277,10 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
+@@ -2275,6 +2275,10 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
  			cil_println(indent, "(typepermissive %s)", key);
  		}
  
@@ -972,7 +971,7 @@ index ae9a2b5d..a85d947b 100644
  			cil_println(indent, "(typebounds %s %s)", pdb->p_type_val_to_name[type->bounds - 1], key);
  		}
 diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 8443380b..1f86c912 100644
+index 53d57d81..8a81687d 100644
 --- a/libsepol/src/policydb.c
 +++ b/libsepol/src/policydb.c
 @@ -215,6 +215,13 @@ static const struct policydb_compat_info policydb_compat[] = {
@@ -1023,9 +1022,9 @@ index 8443380b..1f86c912 100644
  	ebitmap_init(&p->permissive_map);
 +	ebitmap_init(&p->neveraudit_map);
  
- 	return 0;
- err:
-@@ -1522,6 +1544,8 @@ void policydb_destroy(policydb_t * p)
+ 	p->line_marker_avrules = AVRULE_NEVERALLOW|AVRULE_XPERMS_NEVERALLOW;
+ 
+@@ -1524,6 +1546,8 @@ void policydb_destroy(policydb_t * p)
  
  	ebitmap_destroy(&p->permissive_map);
  
@@ -1034,7 +1033,7 @@ index 8443380b..1f86c912 100644
  	symtabs_destroy(p->symtab);
  
  	for (i = 0; i < SYM_NUM; i++) {
-@@ -2483,6 +2507,9 @@ static int type_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+@@ -2485,6 +2509,9 @@ static int type_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
  		if (properties & TYPEDATUM_PROPERTY_PERMISSIVE
  		    && p->policy_type != POLICY_KERN)
  			typdatum->flags |= TYPE_FLAGS_PERMISSIVE;
@@ -1044,7 +1043,7 @@ index 8443380b..1f86c912 100644
  
  		typdatum->bounds = le32_to_cpu(buf[++pos]);
  	} else {
-@@ -4337,6 +4364,12 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+@@ -4339,6 +4366,12 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
  			goto bad;
  	}
  
