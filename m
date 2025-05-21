@@ -1,243 +1,267 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7BC5263F25
-	for <selinux@vger.kernel.org>; Wed, 21 May 2025 11:52:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52A5E143C69
+	for <selinux@vger.kernel.org>; Wed, 21 May 2025 14:42:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747828370; cv=none; b=oCwKv4xBWWGUGWLg62mseMq18cuza9FUPXxC8J4K7oouI2llW91dESz7oa46X05tBiWWTxHfCT9XL2gjoY64eSct0K9gS5wZE9Qci8NsacDPMY2M9r5pLO29T8E1jf5o4bNZlaq6yfMAOPjmBcA4qXlsV+x6BLOHNP3Mwyi1vfI=
+	t=1747838559; cv=none; b=JGawukxpQ+J0pdLPbKfd5knjHiriZxlA8FvkwxT+bCdTDunQMFgmVBYjr9r7g2L0GZNSfhIL19ORTmfrYJe62cGXak1uq+0RPRhiViGkx5v8s7HYt6nupnVKVK7l+hiEV1xSfpksjaNXX6m1wBz6G93KTXH2ue4tMxzASD5IgQ4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747828370; c=relaxed/simple;
-	bh=86AeC0N78GgtztjzGHNFTpbYWEsSMhMIVRb1dwy5xYk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OCl/f6Gj7VLLcHcqdxTnIRkYke3qPMkV4hHEohYHKWVVmBgcXEd/OHnp7Cxo9VOFFPGNQfpJypQOfKI8rRmUjt+WB8z5IjBky9CvnjpB5GFiwvxaCAiPFuNoHHuvWWQlJguy3GhCBubqJQ7WC0RkneeLbuXZ7Lve/eMCy80ilUA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ll7h4OK1; arc=none smtp.client-ip=209.85.216.53
+	s=arc-20240116; t=1747838559; c=relaxed/simple;
+	bh=Zoa574i6oHKg3whz40fQdn8DViKj/1gZTSt8JbcBLMU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hKn3ddkV7dnk31hHWOgyr3cBqPuGeRoQUHAYSj/+bg2cmOI9UYpPSvJ9nkQpz7oljVwxl/vcAVcA95duD8E9HHQeDJnEOB/3ADyZRJYruwiNW2xdQsXMnwrb8rui+jWvta70VvUQXwiZ6ZCrUEOb68CCw81J1n8zQ/Ts+S58JoA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Um0xnFqQ; arc=none smtp.client-ip=209.85.219.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ll7h4OK1"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-30e57a373c9so6643326a91.2
-        for <selinux@vger.kernel.org>; Wed, 21 May 2025 04:52:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Um0xnFqQ"
+Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-6f8b10b807fso74308296d6.1
+        for <selinux@vger.kernel.org>; Wed, 21 May 2025 07:42:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747828368; x=1748433168; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=bFms1NdA+0rl2y6s/W6dDPOON+DzvXdo5k+cx4IcKzU=;
-        b=Ll7h4OK1omu9zQCB/dPLzaRAd6dvz53hzrHWP+Ionq84hKrO9M+KvzkSxnWDQ1DSRY
-         qbDI3Q9fSHNC2shghQR+FJxI3LgpaVJKLO25OhiY/PkmKZEsMHoG7Mk7K2RNkWqOQgE9
-         E+JyjeVX2wVtGzl2wFl5dfjXeN5T9iQZnvH3bL77rFMJfohfcWIj+7s+FcJXoEN27LUc
-         nRVynaSRM4E7xv1ytMAQhPm+5QtMfQ/TgVbydP72ErUbT2Lgtpi1Hff30N4s/D4Tr6LV
-         CEQh6dAp2dTbSTnjbZcd9ZOEOfl5JH8MrDuZq9xOHUabSk32nIPe6LiSXGVqW/c2W8Da
-         YiGQ==
+        d=gmail.com; s=20230601; t=1747838556; x=1748443356; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=K7jpHQ0Fhcmm+lzs8uaf9PO+pEmUFzuK4+CfIBX6mOo=;
+        b=Um0xnFqQpx3Re7KTH/PkxyDAjkKkUWO+RAFIg9wDvGb5DWRwZCQYWCAlGXZ4COeywG
+         bFO5IpdfBwjAIgaHvvL0J96cAAbXEfS1vnyDDG2WUwS5wkswmh3sF0p2MgifubXxlNtV
+         nvmPPKBGsV92NsIivqF2sHEnfJzh2SmP5eR7Rcwfdfb5D8qGcBs8LU2I+8VsqED5c/Ae
+         SsNMy4Do1Z7B4vzRy4FGGwQMLU1FrlV5+T16uYLyHD9A+lHcL7sKxMVtm/ZpX80NbsgC
+         20E8KZaotM8FU+Aol73OK6/y/Gbd805Ml2d4jnPdgUP5mnZDz8Gh82Je4Dzc/OOD9zzs
+         0ENg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747828368; x=1748433168;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=bFms1NdA+0rl2y6s/W6dDPOON+DzvXdo5k+cx4IcKzU=;
-        b=bvWZdcvOEW+8/Tb0TQtBQRZwgJkXD3p1ck61yyNhTMEeSM79hAGtEFcvBIXffIyYj/
-         wuysIiHJytsKtJPfkjlpgGUX4GwF4mHTzwOptEws9dltNDJPxuEyocK57jNJh++u8pdM
-         9mKmq7SjdTmnbcw8oGZbpMvGB7okHaneV4ISeWo9gz9tV4tCN57qxdMF/QydJ5/x9ha/
-         wXfL9p1wRFZylxdJBxs99XdVKutz+riBy2IlqcP22x9d0u2lYByJvLEokyK0HGVvi9cB
-         fuCZI8iHqSKskmaoxvHKOQOg2V5L1Zuil1W280EDvCCCsEA74h9ufKkur30KkkInRYuM
-         ah5g==
-X-Gm-Message-State: AOJu0YycBXV+qAhyE9hRzvEN5/o9VgkFU+chJHUvm0dEdq9UOCT3h9l+
-	5dg2CJxM3Bvdt5cRhtOxL/jGT5iytTST584T6SGljqzNHi/G/QWah2bZOtvBuDxRTQXETk6LBEF
-	axxHuXcKGDAUcwIZ74pOWOTj8Yeraob8=
-X-Gm-Gg: ASbGncukzVMJyqm3jgFX23K3M18WHZ+VccFoCLYyy9nEWBplVKxHHF+XyJlHg0d0OeS
-	R4stjNLuFsWbJJnxDV2oOmQS9spqFhRTg2T+/jLTiShWjRjz+5k3WukPhDGhKMapMlBR9yG0b5W
-	KNoDR3Ev1UwX7tXzgKQAQsuLXlPqw9gg/G7NYBpxAUwMU=
-X-Google-Smtp-Source: AGHT+IHoHaQyLgYYXmlw8GA96G5/SAeNqBHtVqA6I6q+jk5clNa29c+9go/XDpTDt9qP5JLaVlsH02Xm3Q3zAfBjItk=
-X-Received: by 2002:a17:90b:58e4:b0:30c:4b1d:330 with SMTP id
- 98e67ed59e1d1-30e7d5acb3bmr31735133a91.27.1747828368007; Wed, 21 May 2025
- 04:52:48 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1747838556; x=1748443356;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=K7jpHQ0Fhcmm+lzs8uaf9PO+pEmUFzuK4+CfIBX6mOo=;
+        b=ejcCm5U57hlNoh5U3XGzmBro5QLASALb5kcp53Pl0t+9lELYtW7Oq5HNOoza9dEz/P
+         ZeDbLO92sr+51DNG+yJ8p5hdro3R7KJ42iUDU7NJ7ZbxKYri3/ywnvn21gzo6gQqp3tg
+         f2jWpv+odc8eJtqaRtEpgbtYS4QnCNlqMy+p/tiGUlf/gGPIZnHTl4s2OUlsZ13ZE0iD
+         7nKcHb1PHwS6y8MpqDkbz71LUWGTcGtDuZzV09Syg4ikG0RCNW3149j4mbhlLG22KYVg
+         6uMXM5j0Elbd9CpSP7LAm8n5XP58QtWtf07bixhwaORO7atYL6Z4wIfP4I4x9ODkzCYE
+         VPkQ==
+X-Gm-Message-State: AOJu0YygGe0fQZlyG0bMYZwPzXYa++LmvHNtX7EKv5wOjo8gvOmEZrXZ
+	mQB+PeVtspFZDMwdtf55h2wD3imUn94b4ky/4MQx8sb84hLPY1U88JY2MFtJGA==
+X-Gm-Gg: ASbGncsUNwl4NUA+cgfGRHOyhQfl19pHgtaKdUKHUtQ0xEFZ5IJTLR6Fp3RTLddPzX8
+	IhiB80KPSO7C13ZBqL2boDHGVlsXAgFrORKUuN0IEEHW1QmrMYEDhTAwE+JOd7PRcS95ZrQUL4e
+	v83YQKAZPpyeaPC6Lmyq/hh186c4RhCk4uZrcTHeUHuczNqfHiHZ04eZ4mLVq8Wcv1w6gs4OZQG
+	dEJ51OC0AiUz09MsX/JchfZBNhSOyi01x3hnQBuauv72V/ZJnuiPRi2Qro82P04Xhuw8Y8BvuyT
+	OxTeTfR9S16zU1f19MuuKr5QYW6vrbayjOEzvoA+EBKqHZewBejGUI1BVCmXtPk6jwBI3R4kHG2
+	GhrCsfDfw6sIK1H5YxfJHvNtN/Ric/H6GjM5tqIVPPfu5Y0cmFxse8A==
+X-Google-Smtp-Source: AGHT+IGpDg4bu2Iz0Qo32x07eObTPKOYfZnChzMEHLRQM5E+EdXoU8CALzYzrpjiCUz8iiKhrByPJQ==
+X-Received: by 2002:a05:6214:14ec:b0:6f8:c23c:5257 with SMTP id 6a1803df08f44-6f8c23c82b2mr203272536d6.11.1747838555771;
+        Wed, 21 May 2025 07:42:35 -0700 (PDT)
+Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6f8b0987570sm86275176d6.121.2025.05.21.07.42.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 May 2025 07:42:35 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 1/2] selinux: introduce neveraudit types
+Date: Wed, 21 May 2025 10:41:23 -0400
+Message-ID: <20250521144123.199370-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250502170450.27160-3-stephen.smalley.work@gmail.com> <a0842c097e2b73c93954e2a414b3fad2@paul-moore.com>
-In-Reply-To: <a0842c097e2b73c93954e2a414b3fad2@paul-moore.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 21 May 2025 07:52:37 -0400
-X-Gm-Features: AX0GCFvJd6jYhZ_sIogFYiuKF4PeyKfCLeRBYWhMcoweGw_4G8tFGb7rHFbCfO0
-Message-ID: <CAEjxPJ6jp1Y9uSB2fg6ODufuzvwu-Z3VFz-ER+xMh6escKAyHQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] selinux: optimize selinux_inode_getattr/permission()
- based on neveraudit|permissive
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org, omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, May 20, 2025 at 7:38=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
->
-> On May  2, 2025 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
-> >
-> > Extend the task avdcache to also cache whether the task SID is both
-> > permissive and neveraudit, and return immediately if so in both
-> > selinux_inode_getattr() and selinux_inode_permission().
-> >
-> > The same approach could be applied to many of the hook functions
-> > although the avdcache would need to be updated for more than directory
-> > search checks in order for this optimization to be beneficial for check=
-s
-> > on objects other than directories.
-> >
-> > To test, apply https://github.com/SELinuxProject/selinux/pull/473 to
-> > your selinux userspace, build and install libsepol and secilc, and use
-> > the following CIL policy module:
-> > $ cat neverauditpermissive.cil
-> > (typeneveraudit unconfined_t)
-> > (typepermissive unconfined_t)
-> >
-> > Without this module inserted, running the following commands:
-> >    perf record make -jN # on an already built allmodconfig tree
-> >    perf report --sort=3Dsymbol,dso
-> > yields the following percentages (only showing __d_lookup_rcu for
-> > reference and only showing relevant SELinux functions):
-> >    1.65%  [k] __d_lookup_rcu
-> >    0.53%  [k] selinux_inode_permission
-> >    0.40%  [k] selinux_inode_getattr
-> >    0.15%  [k] avc_lookup
-> >    0.05%  [k] avc_has_perm
-> >    0.05%  [k] avc_has_perm_noaudit
-> >    0.02%  [k] avc_policy_seqno
-> >    0.02%  [k] selinux_file_permission
-> >    0.01%  [k] selinux_inode_alloc_security
-> >    0.01%  [k] selinux_file_alloc_security
-> > for a total of 1.24% for SELinux compared to 1.65% for
-> > __d_lookup_rcu().
-> >
-> > After running the following command to insert this module:
-> >    semodule -i neverauditpermissive.cil
-> > and then re-running the same perf commands from above yields
-> > the following non-zero percentages:
-> >    1.74%  [k] __d_lookup_rcu
-> >    0.31%  [k] selinux_inode_permission
-> >    0.03%  [k] selinux_inode_getattr
-> >    0.03%  [k] avc_policy_seqno
-> >    0.01%  [k] avc_lookup
-> >    0.01%  [k] selinux_file_permission
-> >    0.01%  [k] selinux_file_open
-> > for a total of 0.40% for SELinux compared to 1.74% for
-> > __d_lookup_rcu().
->
-> I still don't like the hacky nature of the approach, but it's hard to
-> ignore the performance improvement.
->
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > ---
-> >  security/selinux/hooks.c          | 18 +++++++++++++++++-
-> >  security/selinux/include/objsec.h |  1 +
-> >  2 files changed, 18 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index b8115df536ab..1a3806fdf3d6 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -3184,6 +3184,8 @@ static inline void task_avdcache_update(struct ta=
-sk_security_struct *tsec,
-> >       tsec->avdcache.dir[spot].audited =3D audited;
-> >       tsec->avdcache.dir[spot].allowed =3D avd->allowed;
-> >       tsec->avdcache.dir[spot].permissive =3D avd->flags & AVD_FLAGS_PE=
-RMISSIVE;
->
-> This obviously has nothing to do with your patch, but looking at this
-> code has me wondering what my thinking was putting the permissive field
-> in the avdc_entry struct instead of task_security_struct::avdcache.  We
-> should probably move that ...
+Introduce neveraudit types i.e. types that should never trigger
+audit messages. This allows the AVC to skip all audit-related
+processing for such types. Note that neveraudit differs from
+dontaudit not only wrt being applied for all checks with a given
+source type but also in that it disables all auditing, not just
+permission denials.
 
-Well, it does exist as a per-avd flag so it was consistent with that.
-Certainly willing to coalesce.
+When a type is both a permissive type and a neveraudit type,
+the security server can short-circuit the security_compute_av()
+logic, allowing all permissions and not auditing any permissions.
 
->
-> > +     tsec->avdcache.permissive_neveraudit =3D
-> > +             (avd->flags =3D=3D (AVD_FLAGS_PERMISSIVE|AVD_FLAGS_NEVERA=
-UDIT));
-> >  }
-> >
-> >  /**
-> > @@ -3210,10 +3212,15 @@ static int selinux_inode_permission(struct inod=
-e *inode, int requested)
-> >       if (!mask)
-> >               return 0;
-> >
-> > +     tsec =3D selinux_cred(current_cred());
-> > +     if (tsec->avdcache.permissive_neveraudit &&
-> > +             tsec->sid =3D=3D tsec->avdcache.sid &&
-> > +             tsec->avdcache.seqno =3D=3D avc_policy_seqno())
-> > +             return 0;
->
-> Two things come to mind.  The first is that we should probably reorder
-> the conditional to reduce the comparisons we need to do when we don't
-> have a match.  We always need to check the SID and AVC seqno, so put
-> those first:
->
->   if (tsec->sid =3D=3D tsec->avdcache.sid &&
->       tsec->avdcache.seqno =3D=3D avc_policy_seqno() &&
->       tsec->avdcache.permissive_neveraudit)
->     return 0;
+This change just introduces the basic support but does not yet
+further optimize the AVC or hook function logic when a type
+is both a permissive type and a dontaudit type.
 
-No, the order was intentional to minimize the overhead imposed by this
-logic for all cases:
-1. If tsec->avdcache.permissive_neveraudit =3D=3D false, then we can
-short-circuit the rest of the logic and thus minimize the overhead
-imposed on non-(permissive+neveraudit) domains. In particular we don't
-want to have to call avc_policy_seqno() unnecessarily.
-2. If tsec->avdcache.permissive_neveraudit =3D=3D true, then we do need to
-compare the SIDs and, if those are the same, we do need to call
-avc_policy_seqno(), so again we minimize the overhead to only what is
-needed.
-Of the three conditions being tested, it is the permissive_neveraudit
-bool that is most likely to evaluate to false (for all
-non-(permissive+neveraudit) domains), whereas the other two conditions
-will rarely be false (only upon a task SID change or policy reload,
-neither of which is frequent).
+Suggested-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+v2 eliminates all references to "unconfined".
 
->
-> The second thing is that since we have this logic in at least one other
-> place there may be some value in encapsulting it in a static inline:
->
->   static inline bool task_avdcache_permnoaudit(tsec)
->   {
->     if (tsec->sid =3D=3D tsec->avdcache.sid &&
->         tsec->avdcache.seqno =3D=3D avc_policy_seqno() &&
->         tsec->avdcache.permissive_neveraudit)
->       return true;
->     return false;
->   }
+ security/selinux/include/avc.h      |  4 ++++
+ security/selinux/include/security.h |  4 +++-
+ security/selinux/ss/policydb.c      | 19 +++++++++++++++++++
+ security/selinux/ss/policydb.h      |  2 ++
+ security/selinux/ss/services.c      | 20 ++++++++++++++++++++
+ 5 files changed, 48 insertions(+), 1 deletion(-)
 
-That's fine but will retain the original order for the reasons above.
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index 281f40103663..01b5167fee1a 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -65,6 +65,10 @@ static inline u32 avc_audit_required(u32 requested, struct av_decision *avd,
+ 				     int result, u32 auditdeny, u32 *deniedp)
+ {
+ 	u32 denied, audited;
++
++	if (avd->flags & AVD_FLAGS_NEVERAUDIT)
++		return 0;
++
+ 	denied = requested & ~avd->allowed;
+ 	if (unlikely(denied)) {
+ 		audited = denied & avd->auditdeny;
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 278c144c22d6..8201e6a3ac0f 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -47,10 +47,11 @@
+ #define POLICYDB_VERSION_GLBLUB		     32
+ #define POLICYDB_VERSION_COMP_FTRANS	     33 /* compressed filename transitions */
+ #define POLICYDB_VERSION_COND_XPERMS	     34 /* extended permissions in conditional policies */
++#define POLICYDB_VERSION_NEVERAUDIT	     35 /* neveraudit types */
+ 
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN POLICYDB_VERSION_BASE
+-#define POLICYDB_VERSION_MAX POLICYDB_VERSION_COND_XPERMS
++#define POLICYDB_VERSION_MAX POLICYDB_VERSION_NEVERAUDIT
+ 
+ /* Mask for just the mount related flags */
+ #define SE_MNTMASK 0x0f
+@@ -260,6 +261,7 @@ struct extended_perms {
+ 
+ /* definitions of av_decision.flags */
+ #define AVD_FLAGS_PERMISSIVE 0x0001
++#define AVD_FLAGS_NEVERAUDIT  0x0002
+ 
+ void security_compute_av(u32 ssid, u32 tsid, u16 tclass,
+ 			 struct av_decision *avd,
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 9ea971943713..91df3db6a88c 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -160,6 +160,11 @@ static const struct policydb_compat_info policydb_compat[] = {
+ 		.sym_num = SYM_NUM,
+ 		.ocon_num = OCON_NUM,
+ 	},
++	{
++		.version = POLICYDB_VERSION_NEVERAUDIT,
++		.sym_num = SYM_NUM,
++		.ocon_num = OCON_NUM,
++	},
+ };
+ 
+ static const struct policydb_compat_info *
+@@ -531,6 +536,7 @@ static void policydb_init(struct policydb *p)
+ 	ebitmap_init(&p->filename_trans_ttypes);
+ 	ebitmap_init(&p->policycaps);
+ 	ebitmap_init(&p->permissive_map);
++	ebitmap_init(&p->neveraudit_map);
+ }
+ 
+ /*
+@@ -852,6 +858,7 @@ void policydb_destroy(struct policydb *p)
+ 	ebitmap_destroy(&p->filename_trans_ttypes);
+ 	ebitmap_destroy(&p->policycaps);
+ 	ebitmap_destroy(&p->permissive_map);
++	ebitmap_destroy(&p->neveraudit_map);
+ }
+ 
+ /*
+@@ -2538,6 +2545,12 @@ int policydb_read(struct policydb *p, struct policy_file *fp)
+ 			goto bad;
+ 	}
+ 
++	if (p->policyvers >= POLICYDB_VERSION_NEVERAUDIT) {
++		rc = ebitmap_read(&p->neveraudit_map, fp);
++		if (rc)
++			goto bad;
++	}
++
+ 	rc = -EINVAL;
+ 	info = policydb_lookup_compat(p->policyvers);
+ 	if (!info) {
+@@ -3723,6 +3736,12 @@ int policydb_write(struct policydb *p, struct policy_file *fp)
+ 			return rc;
+ 	}
+ 
++	if (p->policyvers >= POLICYDB_VERSION_NEVERAUDIT) {
++		rc = ebitmap_write(&p->neveraudit_map, fp);
++		if (rc)
++			return rc;
++	}
++
+ 	num_syms = info->sym_num;
+ 	for (i = 0; i < num_syms; i++) {
+ 		struct policy_data pd;
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index 25650224b6e7..89a180b1742f 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -300,6 +300,8 @@ struct policydb {
+ 
+ 	struct ebitmap permissive_map;
+ 
++	struct ebitmap neveraudit_map;
++
+ 	/* length of this policy when it was loaded */
+ 	size_t len;
+ 
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 7becf3808818..9b3b64ea6790 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1153,6 +1153,14 @@ void security_compute_av(u32 ssid,
+ 	if (ebitmap_get_bit(&policydb->permissive_map, scontext->type))
+ 		avd->flags |= AVD_FLAGS_PERMISSIVE;
+ 
++	/* neveraudit domain? */
++	if (ebitmap_get_bit(&policydb->neveraudit_map, scontext->type))
++		avd->flags |= AVD_FLAGS_NEVERAUDIT;
++
++	/* both permissive and neveraudit => allow */
++	if (avd->flags == (AVD_FLAGS_PERMISSIVE|AVD_FLAGS_NEVERAUDIT))
++		goto allow;
++
+ 	tcontext = sidtab_search(sidtab, tsid);
+ 	if (!tcontext) {
+ 		pr_err("SELinux: %s:  unrecognized SID %d\n",
+@@ -1172,6 +1180,8 @@ void security_compute_av(u32 ssid,
+ 		     policydb->allow_unknown);
+ out:
+ 	rcu_read_unlock();
++	if (avd->flags & AVD_FLAGS_NEVERAUDIT)
++		avd->auditallow = avd->auditdeny = 0;
+ 	return;
+ allow:
+ 	avd->allowed = 0xffffffff;
+@@ -1208,6 +1218,14 @@ void security_compute_av_user(u32 ssid,
+ 	if (ebitmap_get_bit(&policydb->permissive_map, scontext->type))
+ 		avd->flags |= AVD_FLAGS_PERMISSIVE;
+ 
++	/* neveraudit domain? */
++	if (ebitmap_get_bit(&policydb->neveraudit_map, scontext->type))
++		avd->flags |= AVD_FLAGS_NEVERAUDIT;
++
++	/* both permissive and neveraudit => allow */
++	if (avd->flags == (AVD_FLAGS_PERMISSIVE|AVD_FLAGS_NEVERAUDIT))
++		goto allow;
++
+ 	tcontext = sidtab_search(sidtab, tsid);
+ 	if (!tcontext) {
+ 		pr_err("SELinux: %s:  unrecognized SID %d\n",
+@@ -1225,6 +1243,8 @@ void security_compute_av_user(u32 ssid,
+ 				  NULL);
+  out:
+ 	rcu_read_unlock();
++	if (avd->flags & AVD_FLAGS_NEVERAUDIT)
++		avd->auditallow = avd->auditdeny = 0;
+ 	return;
+ allow:
+ 	avd->allowed = 0xffffffff;
+-- 
+2.49.0
 
->
-> >       isec =3D inode_security_rcu(inode, requested & MAY_NOT_BLOCK);
-> >       if (IS_ERR(isec))
-> >               return PTR_ERR(isec);
-> > -     tsec =3D selinux_cred(current_cred());
-> >       perms =3D file_mask_to_av(inode->i_mode, mask);
-> >
-> >       rc =3D task_avdcache_search(tsec, isec, &avdc);
-> > @@ -3277,6 +3284,15 @@ static int selinux_inode_setattr(struct mnt_idma=
-p *idmap, struct dentry *dentry,
-> >
-> >  static int selinux_inode_getattr(const struct path *path)
-> >  {
-> > +     struct task_security_struct *tsec;
-> > +
-> > +     tsec =3D selinux_cred(current_cred());
-> > +
-> > +     if (tsec->avdcache.permissive_neveraudit &&
-> > +             tsec->sid =3D=3D tsec->avdcache.sid &&
-> > +             tsec->avdcache.seqno =3D=3D avc_policy_seqno())
-> > +             return 0;
->
-> See above.
->
-> >       return path_has_perm(current_cred(), path, FILE__GETATTR);
-> >  }
->
-> --
-> paul-moore.com
