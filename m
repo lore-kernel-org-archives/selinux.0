@@ -1,1294 +1,241 @@
-Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
+Received: from sonic303-28.consmr.mail.ne1.yahoo.com (sonic303-28.consmr.mail.ne1.yahoo.com [66.163.188.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4203B286425
-	for <selinux@vger.kernel.org>; Thu, 22 May 2025 19:27:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA2F42566EB
+	for <selinux@vger.kernel.org>; Thu, 22 May 2025 21:36:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.188.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747942035; cv=none; b=qRbUPOwtQ6C4R+3TkI2Fvvb+cqGsG4fnaZmaaCiFSoDuaAuJu0DJ+mXArgNaKNStsFP0kggZ2VxSiC68PHaag/PiBs70316qVIEWdGQSOyMM36bYv0VF894wuA3kp6kYjwJy3k/RSfJkw8XYGJkGmCMtLERGQtMjQ3VanFNzaLE=
+	t=1747949804; cv=none; b=tLsSwxAiIQVqROsRlKikaFe2AfMoNHBj1ykIjabyGK5W8lT2J+pBbPjbmrKQuCxZUgL0MpauFh1kh7dGwjoT+8T+/r5xR5WxOKSorVIS7Ox1UgejMv33oDjQI03ORp+DtREuP4rEbY8I8wFgvAIfuWFx4s03zHlTjmzaYN7PHJw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747942035; c=relaxed/simple;
-	bh=CNz5wLRmXhtkvZ8apBjJ5yrFCAEl+F5F/1M1JseRq7M=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MaPqjOaKrebt0y730Ydje3brTQxl43oQ75fZP5+9LwPIr1q4pbo83ktSIww47xqnVwayJaC0loZ2+lyilO4YFW0wHDAcyYSMzV0AwpTEtlcvxWaZiuN8fBvThJ/P+laSYSW0S34oDY9lcolt65jqIS+opt1gGYucpX1CKHTK0KE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EmrNgmir; arc=none smtp.client-ip=209.85.219.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1747949804; c=relaxed/simple;
+	bh=p0XtKa4G3Os7sLtY7r/MCEt1W8df4n6nks5yo8d5ArQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sSQh/eH42uxddhhYkMTdNvS0lDWdXi6aZgMIM6oLA3gWGQs0f8E0iwAGMQs/7lbeprL2VLchQQlyS/GpXr9EHlSCL4HMwUkq80DQ6RVBtJOUifHrw7+dCKz2D5qUNc+WARbRhfuZk/nMBB41iBYGuZJZXUKfLZe84eqRrMXIZJ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=qSi232lm; arc=none smtp.client-ip=66.163.188.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EmrNgmir"
-Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-6f8ae08e38dso85968546d6.2
-        for <selinux@vger.kernel.org>; Thu, 22 May 2025 12:27:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1747942031; x=1748546831; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=nW8hyPpMaihYqUI00zfFP3mXrCjtQE0chp4RTXK8Dvk=;
-        b=EmrNgmirZc9jKuDBVC8cLiBeC3639x32FOohyFA0N9nV1E0eZHct5Cxam8/5ePysj5
-         BNBFThFn2GsZzWCMdPCQPVW8n3p8H5Hqteggn2WXwc3gmnwa53LulkvQrY5Cagq8RyNI
-         vyjGhNZ4Joit+3BYSiwANX7A0RcPUMoFScP9+sOWidG9IOgbjqETXFGjbZxraH3/1coG
-         GhPqwbd/S9jeVqpfJPHuCLJPhAU3eulFxZIiq9yc8Y6B4aEsY8pynrRiadKS6v9AoUcG
-         H6vdJE5C4ULv19xaby/KRAKB94LIfW2eLfxE3msq9o3tfF8e3MTpYdR++92eq+RKnIeA
-         obBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747942031; x=1748546831;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=nW8hyPpMaihYqUI00zfFP3mXrCjtQE0chp4RTXK8Dvk=;
-        b=UqiBMl/6AE0liVaq+JMWpcRlgLBgXVqB91xQ+ejI0mioXpGEvRivShml09xCbuQBGu
-         z7r7RvCMcxHWccT54rWxMAsmyT/qKDfy76jXnbyVeIHdmmTU88QdtBIYB+uZbY99ydwn
-         IXDelAZk7D34Nog4FqcRS9Sh/rOSHRTWHeQ3BZhJqnNHS4t2lGbdh+uPTnnJEvbrxYwj
-         5uiPRTxLXGb7mklhgJCncyZxOEbsbdFdEHQ2B66fIlzvw7U2CF2mP6jMs84c9nu98tsr
-         huTuG6rFqq1A1GvyK1bBbcrUX2GUWJdTcpnBWpESa95RtH+Xm5KcPqw4TwuYG9Yjhrfa
-         ItzA==
-X-Gm-Message-State: AOJu0YxL7i/9iegYy0Qfg6P1cCvd+oUG79BWjZ/sC/YtXuGmPi0ugEvp
-	xbynSSfx7FoybF539W2m21uA38IzNYblUCLgZAPWMduPqtFe53A8PyydD+4mZQ==
-X-Gm-Gg: ASbGncvU1y72D25QGC4gFEeIQ0updhMU9IIBlEHW8iRLpoRPtgdHI/JTTs4XMjT9bO+
-	rjn0cVPwCpq64hm8b+lNyJsdZ6rIR+RDQCtsOtXeT3I3qSEZYl9M413Z72dUOsiRPMKbQuH0d3K
-	6y67lHbHVFf9DQ5u3ueMhj9HFXr8zQEdpv/vrSmYFvDPQxkYBpP5QUxn6FC0n/f8bWoAEG8H4QN
-	AWAe65Epne7kHeuYgIEVmZAlkaAF+clIjnPflI0BOqcR4j9TbtlbyQZ0US+vLOS6HcOEEKPZC6k
-	SOVd+dR8b46btP0QKUh9zAqY5eoyh3D3lG4EIlPAxjGZLnd7AITvflfmK7dt7R3mrWQ/XZtzQXX
-	j7NS4rWofryzdtYmT5FaK8jZ0cymXqB+CW00cxFiQK7PVszOANZVBTnXVRlAlm3TqSGrE3fNoys
-	4gt2jdgk3wJPQqcA==
-X-Google-Smtp-Source: AGHT+IH1xE/5SGhEbyRL5UgsMpuNIS0FA8siyLi+rnTp0JswaFgEnR4ij3r7P/SVETijzU/wjbvb8w==
-X-Received: by 2002:a05:6214:2405:b0:6f8:997d:fc75 with SMTP id 6a1803df08f44-6f8b088f52amr357651026d6.26.1747942030384;
-        Thu, 22 May 2025 12:27:10 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6f8b0883b6esm103010856d6.10.2025.05.22.12.27.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 May 2025 12:27:09 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	paul@paul-moore.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v5] libsepol,checkpolicy: introduce neveraudit types
-Date: Thu, 22 May 2025 15:26:23 -0400
-Message-ID: <20250522192622.65715-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.49.0
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="qSi232lm"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1747949795; bh=d3NLFw1TTHGD7vlrnR29VaX5fVGtaKRIi+SZUrP6hnA=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=qSi232lmuJELn5qm3iMll4Y7iXn5d2a2f8J4vUbeDkrR+3J614Mjkt9j1lLMmbQGH0LjqGpD7jZxQkRVHwF+hVQAmJ7ngSH+WZFaNN3yWJEe3217sAdD1IR4NyesmE9ayxBxhy7T+MVr2tR/uduCJR++YEuaNlDnwaTG1wtWaD+rX63JyEakMzKjKLtp60w60A6DmPLDoPmeNqrTYkLAw22o/i9+E5VOF8iinGI1PFzvx13AeLlNtmHq5baAMvnPnrMsOtzdWOFQIIUz/0wIdVEv2YeO97xWnqFbpb9BIBrmouzAQkBIh6xN+WY7M/LuZ0BpvhZQasdnpVmjvF+bJQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1747949795; bh=db+nl+wpjsDUHDc/3lb01Lp3r9xeWcHDWVKeY3rzwj1=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=BZURqWrWb3a3NLAVXrODL03zQIWq7/bPkcvfwDo4cKtOjS234PL60g2pF/FxsmbtbypnrlnOqYu9IDs/yXvJtVQY7GuivQ8oMJMRhMHKD5BVFOuaIB15PCsWSZkxblhEodZehsD0wtyrDGSJDYH1EsgLPN621VlkfuPqehxDITt/FZlfnMMS5UPekDQrIz8ZI6gTRWYwOVWT1T4BY/1z3U8AP+2K+l6TRYl100t+5DBxwiNwKQ8mKgPnWu2hriPQvBo3sPEwCX1Tv0IfbMbVlHKHn27KpzDaX9bM1suUPtjJ0O+23FzeSbmrWns6XWmOTP1Sa6zQ/XI3NPqTIPzFhA==
+X-YMail-OSG: iTUA45AVM1mGA7O45zmNOTrUusVBFkbHmVe3EJ0Xdpn4bHLOwUx4C._N7iErJjK
+ rWJc8.nHTHuy.dVBLgYxGcF39u.qAH1hUpcB1QaP.3EHI3rUTIMQkCDKTFQpDC9NffBXto5lTIcr
+ QAISwFMwgJKaa0dYJ88iQqIJVpKT_X07zAMeP2suSVoCb2VLzDTehCMz7GG1WGthpqStRK3BOCLa
+ Us3ACL0puKqtUtyNUOWMa1KuIuy8ZOU6qWvSlxK4YCHnmKvebPPE1jvn7G5uUR1vIOCxgb8bXXqI
+ vhqpwHxdokF2GMhqKC5fGB8ZxpwBnKYbfQbp82shtuY2ArGt.dvelPGULcIykTn5VMxklywmri2j
+ tpUIYjXlZWLrHUUDUVbZhhE0MxE8CryNrheBaJO0S4s6rLYrRnpxZyfkQ1_FA6kW7dnQeVc7nB9C
+ 6xmoZCUc.26k40vryH03kGIm3HIX.elUt.kvRzn38T591x1uSKa3G3hwRFVM515Cr.f_b3QjU55K
+ SyuWg0ksSH51N52aGWXSii3hUZNQDtlVzfN1A8eQKYvljzbzlZC_B0YnfM8oi6YpQwbHCtwd93NQ
+ ryNNUMbfgBw0Ui_GYx2N75mDHF7NeNb_HGPlvMu9TpeSkE0yV5YWCj9_FRJFmLNl7Mw0Ao902FWM
+ srWATXaAtxq9mjdRSVGifBFRqShcT_PW3o2PlPACcBqtQmZF_xX94NjhmpRldBJ7MtrOhAPIc5MU
+ qEAzF6ZoexYtsX9wHBoQRttdT3LAPS_Uz43MF0WcTy3sd8_dtB6RqlXm7jgI2FmtXrJ.7e4A8cwE
+ 4i99MUfCow.RV8Q77MoFLip8TwVWbN5k.r1dQG0s18QsvBzglMPMQSForKHfBTUkvqIKJXwLLJqI
+ zEbwsKX7b4pg6bxqgAx86sclXaBiHUlnZJBeZyD2F08KoYUnVzPbDSVqx70oDySiBlRx.oZ9CYnb
+ MKnf31tdDbxSNBZ65Ax4JDPjWygTNd3VfFqohtPkUtHAQMiNqVxrRypohhhZzoDcW_0k0Dso9tcu
+ ZUAVxTBlhYx19W2xQHsXZh7qekmy1AG_knioOPV2yXIbVsuouoQhisUjDCPEZrFcbL9YXuDWTfLW
+ uDKgoxUOH8tQZr.EOrrj4ff6xvmNXtsWQhkbYNkkJwTPAXD2zg8nwlMMqr39CmvsZ9fxYyd6EjY5
+ 4jCW8JyKHD1_SJ8S_N3su_Dp5EEgvA0wXcdu62hdHNxpFp0i.okhSeX2sObG6sFucc35MBSDUTZn
+ eNZNl2shHMhNcR_hzUNiMIcMJ_CtWAqVzen42BX1Aoye9RnTYbeQC0uPyf2nLq3goACoXY0c1h_h
+ Dct3gz_43UFpz06As4ZQSv_A0rCzUKWu.3U0mZ0jN.as2WChfLgppQSgxzc94Cta7eB7K9p05fyM
+ iboHzEl6iVBeq94LdLGuZnKPLd7wuffaFn913EcKhBtwy4Yo5x3vEMoqFg_zgB52aVqjEB6RDjN_
+ mKRFB5pZrRb5L8Mha0I3DZUTtl_phdWyFt1uIBK7vB2MPCNk3OxexZdv5UAMAqAVN9uB3ZUYEyPS
+ 9TuK1hLTS73duuZ9DX_vlROOqyRlsikM60qQZrLCXgVR9rUPYNBb3vMFGzQl.Ncp2ul1NcCom_fr
+ OpKf2WTtykmbz_Vo0uiESTKhVNu_Xv_5gXihedOz_dzOSswgUzY2uBIp.T02nsns6Wl.03iNYB14
+ oIF0728JfD7GsuNsjtGd6HAxzS5BCTzR.jHKSjIU6.UV2lPlUPF_MzOWPWcx_YHyLR.rxMRlZsNt
+ 4mI28yMJ.JfZRae5eQQ0VbAjp8cN68l8f2jaTI_hLzcPe1E6WfKNdQorpYucfLfllPvZ_vrmzfIf
+ QoCrPiRm6lvDB_2n_anqKChDaLTg7sP1bgG0TBRKIozr4kS50lZ5HniBO4nDX356.TrWVPoXKQGQ
+ 5CpD3OOHWVPIqJDgvw5UcDmq6.15qZ_nTBOaYURa2WJJODQqXcyxkqAwm4lxSMMpGX3gCg_jXAGH
+ bL_UwRmO2DQDOwBLECUbSlOFhxatMva9r9TY9gQ5L6jX0v3ANiZxwx4AvsYkmmBC6NmuqFH9LZ4a
+ PLlsjGt2h5hYA3B2PUJTaPajlVB_pQ2GVXQf8MDSvzQVIiHZf9MGEBlgOB8L66kPpekJa6SPRFFr
+ PsY0iobQ1tCaATQbNWDPRkSpV316mWIc_bwqdWcjibHTvd9TnBLvf0Of55cak6K11nl6JnI__knz
+ uy0VTetySAFlwBdjWJDaeg_cM_HwfwdoHxnsrlKDUPQ9Eax7CXx_ZumL.FArpp628dCZKiUrgyOp
+ 5ExNHm5H7VlyjPgDeJ3aXyxNG
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 116fc614-cbcd-4d6e-a3f1-8482a3048b63
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Thu, 22 May 2025 21:36:35 +0000
+Received: by hermes--production-gq1-74d64bb7d7-6nlps (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID b10af0932dc8e225430908a16a0d3a50;
+          Thu, 22 May 2025 21:26:24 +0000 (UTC)
+Message-ID: <8bb003b3-8026-462c-ae9e-fd79fdb47ad5@schaufler-ca.com>
+Date: Thu, 22 May 2025 14:26:22 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH 08/29] lsm: get rid of the lsm_names list and do some
+ cleanup
+To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
+ linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Cc: John Johansen <john.johansen@canonical.com>,
+ Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>,
+ Fan Wu <wufan@kernel.org>, =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?=
+ <mic@digikod.net>, =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
+ Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20250409185019.238841-31-paul@paul-moore.com>
+ <20250409185019.238841-39-paul@paul-moore.com>
+Content-Language: en-US
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20250409185019.238841-39-paul@paul-moore.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.23884 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-Introduce neveraudit types i.e. types that should never trigger
-audit messages. This allows the AVC to skip all audit-related
-processing for such types. Note that neveraudit differs from
-dontaudit not only wrt being applied for all checks with a given
-source type but also in that it disables all auditing, not just
-permission denials.
+On 4/9/2025 11:49 AM, Paul Moore wrote:
+> The LSM currently has a lot of code to maintain a list of the
+> currently active LSMs in a human readable string, with the only
+> user being the "/sys/kernel/security/lsm" code.  Let's drop all
+> of that code and generate the string on an as-needed basis when
+> userspace reads "/sys/kernel/security/lsm".
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  include/linux/lsm_hooks.h |  1 -
+>  security/inode.c          | 27 +++++++++++++++++++--
+>  security/lsm_init.c       | 49 ---------------------------------------
+>  3 files changed, 25 insertions(+), 52 deletions(-)
+>
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index 4cd17c9a229f..bc477fb20d02 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -169,7 +169,6 @@ struct lsm_info {
+>  
+>  
+>  /* DO NOT tamper with these variables outside of the LSM framework */
+> -extern char *lsm_names;
+>  extern struct lsm_static_calls_table static_calls_table __ro_after_init;
+>  
+>  /**
+> diff --git a/security/inode.c b/security/inode.c
+> index da3ab44c8e57..49bc3578bd23 100644
+> --- a/security/inode.c
+> +++ b/security/inode.c
+> @@ -22,6 +22,8 @@
+>  #include <linux/lsm_hooks.h>
+>  #include <linux/magic.h>
+>  
+> +#include "lsm.h"
+> +
+>  static struct vfsmount *mount;
+>  static int mount_count;
+>  
+> @@ -343,8 +345,29 @@ static struct dentry *lsm_dentry;
+>  static ssize_t lsm_read(struct file *filp, char __user *buf, size_t count,
+>  			loff_t *ppos)
+>  {
+> -	return simple_read_from_buffer(buf, count, ppos, lsm_names,
+> -		strlen(lsm_names));
+> +	int i;
+> +	char *str;
+> +	ssize_t rc, len = 0;
+> +
+> +	for (i = 0; i < lsm_count; i++)
+> +		/* the '+ 1' accounts for either a comma or a NUL terminator */
+> +		len += strlen(lsm_order[i]->id->name) + 1;
+> +
+> +	str = kmalloc(len, GFP_KERNEL);
+> +	if (!str)
+> +		return -ENOMEM;
+> +	str[0] = '\0';
+> +
+> +	i = 0;
+> +	while (i < lsm_count) {
+> +		strcat(str, lsm_order[i]->id->name);
+> +		if (++i < lsm_count)
+> +			strcat(str, ",");
+> +	}
+> +
+> +	rc = simple_read_from_buffer(buf, count, ppos, str, len);
 
-When a type is both a permissive type and a neveraudit type,
-the security server can short-circuit the security_compute_av()
-logic, allowing all permissions and not auditing any permissions.
+This results in a trailing nul byte at the end of the string.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-v5 fixes reviewer comments on v4. If at first you don't succeed,
-try try again.
-
- checkpolicy/policy_define.c                   | 43 ++++++++++++++++
- checkpolicy/policy_define.h                   |  1 +
- checkpolicy/policy_parse.y                    |  4 ++
- checkpolicy/policy_scan.l                     |  2 +
- checkpolicy/tests/policy_allonce.conf         |  1 +
- .../tests/policy_allonce.expected.conf        |  1 +
- .../tests/policy_allonce.expected_opt.conf    |  1 +
- checkpolicy/tests/policy_allonce_mls.conf     |  1 +
- .../tests/policy_allonce_mls.expected.conf    |  1 +
- .../policy_allonce_mls.expected_opt.conf      |  1 +
- libsepol/cil/src/cil.c                        | 15 ++++++
- libsepol/cil/src/cil_binary.c                 | 24 +++++++++
- libsepol/cil/src/cil_binary.h                 | 12 +++++
- libsepol/cil/src/cil_build_ast.c              | 46 +++++++++++++++++
- libsepol/cil/src/cil_build_ast.h              |  2 +
- libsepol/cil/src/cil_copy_ast.c               | 17 +++++++
- libsepol/cil/src/cil_copy_ast.h               |  1 +
- libsepol/cil/src/cil_flavor.h                 |  1 +
- libsepol/cil/src/cil_internal.h               |  7 +++
- libsepol/cil/src/cil_policy.c                 | 14 +++++
- libsepol/cil/src/cil_resolve_ast.c            | 31 +++++++++++
- libsepol/cil/src/cil_resolve_ast.h            |  1 +
- libsepol/cil/src/cil_write_ast.c              |  7 +++
- .../test/integration_testing/mls_policy.cil   |  1 +
- .../cil/test/integration_testing/nonmls.cil   |  1 +
- libsepol/include/sepol/policydb/policydb.h    | 15 +++++-
- libsepol/src/expand.c                         | 12 +++++
- libsepol/src/kernel_to_cil.c                  | 47 +++++++++++++++++
- libsepol/src/kernel_to_conf.c                 | 47 +++++++++++++++++
- libsepol/src/module_to_cil.c                  |  4 ++
- libsepol/src/policydb.c                       | 33 ++++++++++++
- libsepol/src/policydb_validate.c              | 22 ++++++++
- libsepol/src/write.c                          | 51 ++++++++++++++-----
- secilc/docs/README.md                         |  1 +
- secilc/docs/cil_type_statements.md            | 38 ++++++++++++++
- secilc/docs/secil.xml                         |  1 +
- secilc/test/integration.cil                   |  3 +-
- secilc/test/policy.cil                        |  3 +-
- 38 files changed, 495 insertions(+), 18 deletions(-)
-
-diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-index 78adbec0..4e0ddcc6 100644
---- a/checkpolicy/policy_define.c
-+++ b/checkpolicy/policy_define.c
-@@ -257,6 +257,49 @@ out:
- 	return rc;
- }
- 
-+int define_neveraudit(void)
-+{
-+	char *type = NULL;
-+	struct type_datum *t;
-+	int rc = 0;
-+
-+	type = queue_remove(id_queue);
-+
-+	if (!type) {
-+		yyerror2("forgot to include type in neveraudit definition?");
-+		rc = -1;
-+		goto out;
-+	}
-+
-+	if (pass == 1)
-+		goto out;
-+
-+	if (!is_id_in_scope(SYM_TYPES, type)) {
-+		yyerror2("type %s is not within scope", type);
-+		rc = -1;
-+		goto out;
-+	}
-+
-+	t = hashtab_search(policydbp->p_types.table, type);
-+	if (!t) {
-+		yyerror2("type is not defined: %s", type);
-+		rc = -1;
-+		goto out;
-+	}
-+
-+	if (t->flavor == TYPE_ATTRIB) {
-+		yyerror2("attributes may not be neveraudit: %s", type);
-+		rc = -1;
-+		goto out;
-+	}
-+
-+	t->flags |= TYPE_FLAGS_NEVERAUDIT;
-+
-+out:
-+	free(type);
-+	return rc;
-+}
-+
- int define_polcap(void)
- {
- 	char *id = 0;
-diff --git a/checkpolicy/policy_define.h b/checkpolicy/policy_define.h
-index 216da3ad..59a19169 100644
---- a/checkpolicy/policy_define.h
-+++ b/checkpolicy/policy_define.h
-@@ -45,6 +45,7 @@ int define_ipv6_cidr_node_context(void);
- int define_level(void);
- int define_netif_context(void);
- int define_permissive(void);
-+int define_neveraudit(void);
- int define_polcap(void);
- int define_ibpkey_context(unsigned int low, unsigned int high);
- int define_ibendport_context(unsigned int port);
-diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
-index 7e117222..a88a6a7f 100644
---- a/checkpolicy/policy_parse.y
-+++ b/checkpolicy/policy_parse.y
-@@ -152,6 +152,7 @@ typedef int (* require_func_t)(int pass);
- %token MODULE VERSION_IDENTIFIER REQUIRE OPTIONAL
- %token POLICYCAP
- %token PERMISSIVE
-+%token NEVERAUDIT
- %token FILESYSTEM
- %token DEFAULT_USER DEFAULT_ROLE DEFAULT_TYPE DEFAULT_RANGE
- %token LOW_HIGH LOW HIGH GLBLUB
-@@ -330,6 +331,7 @@ te_decl			: attribute_def
-                         | range_trans_def
-                         | te_avtab_def
- 			| permissive_def
-+			| neveraudit_def
- 			;
- attribute_def           : ATTRIBUTE identifier ';'
-                         { if (define_attrib()) YYABORT;}
-@@ -934,6 +936,8 @@ policycap_def		: POLICYCAP identifier ';'
- 			;
- permissive_def		: PERMISSIVE identifier ';'
- 			{if (define_permissive()) YYABORT;}
-+neveraudit_def		: NEVERAUDIT identifier ';'
-+			{if (define_neveraudit()) YYABORT;}
- 
- /*********** module grammar below ***********/
- 
-diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
-index 7bdea427..3ab5c2c7 100644
---- a/checkpolicy/policy_scan.l
-+++ b/checkpolicy/policy_scan.l
-@@ -271,6 +271,8 @@ policycap |
- POLICYCAP			{ return(POLICYCAP); }
- permissive |
- PERMISSIVE			{ return(PERMISSIVE); }
-+neveraudit |
-+NEVERAUDIT			{ return(NEVERAUDIT); }
- default_user |
- DEFAULT_USER			{ return(DEFAULT_USER); }
- default_role |
-diff --git a/checkpolicy/tests/policy_allonce.conf b/checkpolicy/tests/policy_allonce.conf
-index 95a0f265..6565703c 100644
---- a/checkpolicy/tests/policy_allonce.conf
-+++ b/checkpolicy/tests/policy_allonce.conf
-@@ -45,6 +45,7 @@ auditallowxperm TYPE1 TYPE2 : CLASS1 ioctl 0x2;
- dontauditxperm TYPE1 TYPE2 : CLASS1 ioctl 0x3;
- neverallowxperm TYPE1 TYPE2 : CLASS1 ioctl 0x4;
- permissive TYPE1;
-+neveraudit TYPE1;
- attribute_role ROLE_ATTR1;
- role ROLE1;
- role ROLE3;
-diff --git a/checkpolicy/tests/policy_allonce.expected.conf b/checkpolicy/tests/policy_allonce.expected.conf
-index 79d62319..5697bb6e 100644
---- a/checkpolicy/tests/policy_allonce.expected.conf
-+++ b/checkpolicy/tests/policy_allonce.expected.conf
-@@ -31,6 +31,7 @@ typealias TYPE4 alias TYPEALIAS4;
- typebounds TYPE4 TYPE3;
- typeattribute TYPE4 ATTR2;
- permissive TYPE1;
-+neveraudit TYPE1;
- allow TYPE1 self:CLASS1 { PERM1 };
- allow TYPE1 self:CLASS2 { CPERM1 };
- auditallow TYPE1 TYPE3:CLASS1 { PERM1 };
-diff --git a/checkpolicy/tests/policy_allonce.expected_opt.conf b/checkpolicy/tests/policy_allonce.expected_opt.conf
-index fa4e319b..478d1db8 100644
---- a/checkpolicy/tests/policy_allonce.expected_opt.conf
-+++ b/checkpolicy/tests/policy_allonce.expected_opt.conf
-@@ -31,6 +31,7 @@ typealias TYPE4 alias TYPEALIAS4;
- typebounds TYPE4 TYPE3;
- typeattribute TYPE4 ATTR2;
- permissive TYPE1;
-+neveraudit TYPE1;
- allow TYPE1 self:CLASS1 { PERM1 };
- allow TYPE1 self:CLASS2 { CPERM1 };
- auditallow TYPE1 TYPE3:CLASS1 { PERM1 };
-diff --git a/checkpolicy/tests/policy_allonce_mls.conf b/checkpolicy/tests/policy_allonce_mls.conf
-index c88616b3..fa182906 100644
---- a/checkpolicy/tests/policy_allonce_mls.conf
-+++ b/checkpolicy/tests/policy_allonce_mls.conf
-@@ -53,6 +53,7 @@ auditallowxperm TYPE1 TYPE2 : CLASS1 ioctl 0x2;
- dontauditxperm TYPE1 TYPE2 : CLASS1 ioctl 0x3;
- neverallowxperm TYPE1 TYPE2 : CLASS1 ioctl 0x4;
- permissive TYPE1;
-+neveraudit TYPE1;
- attribute_role ROLE_ATTR1;
- role ROLE1;
- role ROLE3;
-diff --git a/checkpolicy/tests/policy_allonce_mls.expected.conf b/checkpolicy/tests/policy_allonce_mls.expected.conf
-index 87c36f92..693a5b7f 100644
---- a/checkpolicy/tests/policy_allonce_mls.expected.conf
-+++ b/checkpolicy/tests/policy_allonce_mls.expected.conf
-@@ -39,6 +39,7 @@ typealias TYPE4 alias TYPEALIAS4;
- typebounds TYPE4 TYPE3;
- typeattribute TYPE4 ATTR2;
- permissive TYPE1;
-+neveraudit TYPE1;
- allow TYPE1 self:CLASS1 { PERM1 };
- allow TYPE1 self:CLASS2 { CPERM1 };
- auditallow TYPE1 TYPE3:CLASS1 { PERM1 };
-diff --git a/checkpolicy/tests/policy_allonce_mls.expected_opt.conf b/checkpolicy/tests/policy_allonce_mls.expected_opt.conf
-index 38176166..b738f12b 100644
---- a/checkpolicy/tests/policy_allonce_mls.expected_opt.conf
-+++ b/checkpolicy/tests/policy_allonce_mls.expected_opt.conf
-@@ -39,6 +39,7 @@ typealias TYPE4 alias TYPEALIAS4;
- typebounds TYPE4 TYPE3;
- typeattribute TYPE4 ATTR2;
- permissive TYPE1;
-+neveraudit TYPE1;
- allow TYPE1 self:CLASS1 { PERM1 };
- allow TYPE1 self:CLASS2 { CPERM1 };
- auditallow TYPE1 TYPE3:CLASS1 { PERM1 };
-diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-index 5521c7ea..9662cf45 100644
---- a/libsepol/cil/src/cil.c
-+++ b/libsepol/cil/src/cil.c
-@@ -171,6 +171,7 @@ char *CIL_KEY_TYPEALIAS;
- char *CIL_KEY_TYPEALIASACTUAL;
- char *CIL_KEY_TYPEBOUNDS;
- char *CIL_KEY_TYPEPERMISSIVE;
-+char *CIL_KEY_TYPENEVERAUDIT;
- char *CIL_KEY_RANGETRANSITION;
- char *CIL_KEY_USERROLE;
- char *CIL_KEY_ROLETYPE;
-@@ -320,6 +321,7 @@ static void cil_init_keys(void)
- 	CIL_KEY_TYPEALIASACTUAL = cil_strpool_add("typealiasactual");
- 	CIL_KEY_TYPEBOUNDS = cil_strpool_add("typebounds");
- 	CIL_KEY_TYPEPERMISSIVE = cil_strpool_add("typepermissive");
-+	CIL_KEY_TYPENEVERAUDIT = cil_strpool_add("typeneveraudit");
- 	CIL_KEY_RANGETRANSITION = cil_strpool_add("rangetransition");
- 	CIL_KEY_USERROLE = cil_strpool_add("userrole");
- 	CIL_KEY_ROLETYPE = cil_strpool_add("roletype");
-@@ -939,6 +941,9 @@ void cil_destroy_data(void **data, enum cil_flavor flavor)
- 	case CIL_TYPEPERMISSIVE:
- 		cil_destroy_typepermissive(*data);
- 		break;
-+	case CIL_TYPENEVERAUDIT:
-+		cil_destroy_typeneveraudit(*data);
-+		break;
- 	case CIL_SENS:
- 		cil_destroy_sensitivity(*data);
- 		break;
-@@ -1310,6 +1315,8 @@ const char * cil_node_to_string(struct cil_tree_node *node)
- 		return CIL_KEY_TYPEBOUNDS;
- 	case CIL_TYPEPERMISSIVE:
- 		return CIL_KEY_TYPEPERMISSIVE;
-+	case CIL_TYPENEVERAUDIT:
-+		return CIL_KEY_TYPENEVERAUDIT;
- 	case CIL_SENS:
- 		return CIL_KEY_SENSITIVITY;
- 	case CIL_SENSALIAS:
-@@ -2451,6 +2458,14 @@ void cil_typepermissive_init(struct cil_typepermissive **typeperm)
- 	(*typeperm)->type = NULL;
- }
- 
-+void cil_typeneveraudit_init(struct cil_typeneveraudit **typeperm)
-+{
-+	*typeperm = cil_malloc(sizeof(**typeperm));
-+
-+	(*typeperm)->type_str = NULL;
-+	(*typeperm)->type = NULL;
-+}
-+
- void cil_nametypetransition_init(struct cil_nametypetransition **nametypetrans)
- {
- 	*nametypetrans = cil_malloc(sizeof(**nametypetrans));
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index b0befda3..6b17e7f4 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -564,6 +564,27 @@ exit:
- 
- }
- 
-+int cil_typeneveraudit_to_policydb(policydb_t *pdb, struct cil_typeneveraudit *cil_typeperm)
-+{
-+	int rc = SEPOL_ERR;
-+	type_datum_t *sepol_type = NULL;
-+
-+	rc = __cil_get_sepol_type_datum(pdb, DATUM(cil_typeperm->type), &sepol_type);
-+	if (rc != SEPOL_OK) goto exit;
-+
-+	if (ebitmap_set_bit(&pdb->neveraudit_map, sepol_type->s.value, 1)) {
-+		goto exit;
-+	}
-+
-+	return SEPOL_OK;
-+
-+exit:
-+	type_datum_destroy(sepol_type);
-+	free(sepol_type);
-+	return rc;
-+
-+}
-+
- int cil_typeattribute_to_policydb(policydb_t *pdb, struct cil_typeattribute *cil_attr, void *type_value_to_cil[])
- {
- 	int rc = SEPOL_ERR;
-@@ -4102,6 +4123,9 @@ static int __cil_node_to_policydb(struct cil_tree_node *node, void *extra_args)
- 		case CIL_TYPEPERMISSIVE:
- 			rc = cil_typepermissive_to_policydb(pdb, node->data);
- 			break;
-+		case CIL_TYPENEVERAUDIT:
-+			rc = cil_typeneveraudit_to_policydb(pdb, node->data);
-+			break;
- 		case CIL_TYPEATTRIBUTE:
- 			rc = cil_typeattribute_to_bitmap(pdb, db, node->data);
- 			break;
-diff --git a/libsepol/cil/src/cil_binary.h b/libsepol/cil/src/cil_binary.h
-index 0b6e3b79..e6826221 100644
---- a/libsepol/cil/src/cil_binary.h
-+++ b/libsepol/cil/src/cil_binary.h
-@@ -136,6 +136,18 @@ int cil_typealias_to_policydb(policydb_t *pdb, struct cil_alias *cil_alias);
-  */
- int cil_typepermissive_to_policydb(policydb_t *pdb, struct cil_typepermissive *cil_typeperm);
- 
-+/**
-+ * Insert cil typeneveraudit structure into sepol policydb.
-+ * The function looks up the previously inserted type and flips the bit
-+ * in the neveraudit types bitmap that corresponds to that type's value.
-+ *
-+ * @param[in] pdb The policy database to insert the typeneveraudit into.
-+ * @param[in] datum The cil_typeneveraudit datum.
-+ *
-+ * @return SEPOL_OK upon success or an error otherwise.
-+ */
-+int cil_typeneveraudit_to_policydb(policydb_t *pdb, struct cil_typeneveraudit *cil_typeperm);
-+
- /**
-  * Insert cil attribute structure into sepol policydb.
-  *
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index fc11758d..b1f151e9 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -3374,6 +3374,50 @@ void cil_destroy_typepermissive(struct cil_typepermissive *typeperm)
- 	free(typeperm);
- }
- 
-+int cil_gen_typeneveraudit(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node)
-+{
-+	enum cil_syntax syntax[] = {
-+		CIL_SYN_STRING,
-+		CIL_SYN_STRING,
-+		CIL_SYN_END
-+	};
-+	size_t syntax_len = sizeof(syntax)/sizeof(*syntax);
-+	struct cil_typeneveraudit *typeperm = NULL;
-+	int rc = SEPOL_ERR;
-+
-+	if (db == NULL || parse_current == NULL || ast_node == NULL) {
-+		goto exit;
-+	}
-+
-+	rc = __cil_verify_syntax(parse_current, syntax, syntax_len);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
-+
-+	cil_typeneveraudit_init(&typeperm);
-+
-+	typeperm->type_str = parse_current->next->data;
-+
-+	ast_node->data = typeperm;
-+	ast_node->flavor = CIL_TYPENEVERAUDIT;
-+
-+	return SEPOL_OK;
-+
-+exit:
-+	cil_tree_log(parse_current, CIL_ERR, "Bad typeneveraudit declaration");
-+	cil_destroy_typeneveraudit(typeperm);
-+	return rc;
-+}
-+
-+void cil_destroy_typeneveraudit(struct cil_typeneveraudit *typeperm)
-+{
-+	if (typeperm == NULL) {
-+		return;
-+	}
-+
-+	free(typeperm);
-+}
-+
- int cil_gen_typetransition(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node)
- {
- 	int rc = SEPOL_ERR;
-@@ -6256,6 +6300,8 @@ static struct cil_tree_node * parse_statement(struct cil_db *db, struct cil_tree
- 		rc = cil_gen_bounds(db, parse_current, new_ast_node, CIL_TYPE);
- 	} else if (parse_current->data == CIL_KEY_TYPEPERMISSIVE) {
- 		rc = cil_gen_typepermissive(db, parse_current, new_ast_node);
-+	} else if (parse_current->data == CIL_KEY_TYPENEVERAUDIT) {
-+		rc = cil_gen_typeneveraudit(db, parse_current, new_ast_node);
- 	} else if (parse_current->data == CIL_KEY_RANGETRANSITION) {
- 		rc = cil_gen_rangetransition(db, parse_current, new_ast_node);
- 	} else if (parse_current->data == CIL_KEY_ROLE) {
-diff --git a/libsepol/cil/src/cil_build_ast.h b/libsepol/cil/src/cil_build_ast.h
-index 7fa4299c..6f29c971 100644
---- a/libsepol/cil/src/cil_build_ast.h
-+++ b/libsepol/cil/src/cil_build_ast.h
-@@ -147,6 +147,8 @@ void cil_destroy_expandtypeattribute(struct cil_expandtypeattribute *expandattr)
- int cil_gen_typebounds(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node);
- int cil_gen_typepermissive(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node);
- void cil_destroy_typepermissive(struct cil_typepermissive *typeperm);
-+int cil_gen_typeneveraudit(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node);
-+void cil_destroy_typeneveraudit(struct cil_typeneveraudit *typeperm);
- int cil_gen_typetransition(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node);
- void cil_destroy_typetransition(struct cil_nametypetransition *nametypetrans);
- int cil_gen_rangetransition(struct cil_db *db, struct cil_tree_node *parse_current, struct cil_tree_node *ast_node);
-diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
-index 1507edb4..2911523e 100644
---- a/libsepol/cil/src/cil_copy_ast.c
-+++ b/libsepol/cil/src/cil_copy_ast.c
-@@ -608,6 +608,20 @@ int cil_copy_typepermissive(__attribute__((unused)) struct cil_db *db, void *dat
- 	return SEPOL_OK;
- }
- 
-+int cil_copy_typeneveraudit(__attribute__((unused)) struct cil_db *db, void *data, void **copy, __attribute__((unused)) symtab_t *symtab)
-+{
-+	struct cil_typeneveraudit *orig = data;
-+	struct cil_typeneveraudit *new = NULL;
-+
-+	cil_typeneveraudit_init(&new);
-+
-+	new->type_str = orig->type_str;
-+
-+	*copy = new;
-+
-+	return SEPOL_OK;
-+}
-+
- int cil_copy_typeattribute(__attribute__((unused)) struct cil_db *db, __attribute__((unused)) void *data, void **copy, __attribute__((unused)) symtab_t *symtab)
- {
- 	struct cil_typeattribute *new;
-@@ -1807,6 +1821,9 @@ static int __cil_copy_node_helper(struct cil_tree_node *orig, uint32_t *finished
- 	case CIL_TYPEPERMISSIVE:
- 		copy_func = cil_copy_typepermissive;
- 		break;
-+	case CIL_TYPENEVERAUDIT:
-+		copy_func = cil_copy_typeneveraudit;
-+		break;
- 	case CIL_TYPEATTRIBUTE:
- 		copy_func = &cil_copy_typeattribute;
- 		break;
-diff --git a/libsepol/cil/src/cil_copy_ast.h b/libsepol/cil/src/cil_copy_ast.h
-index 9e6be5ac..be33d99e 100644
---- a/libsepol/cil/src/cil_copy_ast.h
-+++ b/libsepol/cil/src/cil_copy_ast.h
-@@ -72,6 +72,7 @@ int cil_copy_roleallow(struct cil_db *db, void *data, void **copy, symtab_t *sym
- int cil_copy_type(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
- int cil_copy_typebounds(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
- int cil_copy_typepermissive(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
-+int cil_copy_typeneveraudit(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
- int cil_copy_typeattribute(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
- int cil_copy_typeattributeset(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
- int cil_copy_typealias(struct cil_db *db, void *data, void **copy, symtab_t *symtab);
-diff --git a/libsepol/cil/src/cil_flavor.h b/libsepol/cil/src/cil_flavor.h
-index 155d7c80..c5a472e7 100644
---- a/libsepol/cil/src/cil_flavor.h
-+++ b/libsepol/cil/src/cil_flavor.h
-@@ -77,6 +77,7 @@ enum cil_flavor {
- 	CIL_TYPEALIASACTUAL,
- 	CIL_TYPEBOUNDS,
- 	CIL_TYPEPERMISSIVE,
-+	CIL_TYPENEVERAUDIT,
- 	CIL_SENSALIASACTUAL,
- 	CIL_SENSITIVITYORDER,
- 	CIL_SENSCAT,
-diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
-index 959b31e3..ae3ab824 100644
---- a/libsepol/cil/src/cil_internal.h
-+++ b/libsepol/cil/src/cil_internal.h
-@@ -188,6 +188,7 @@ extern char *CIL_KEY_TYPEALIAS;
- extern char *CIL_KEY_TYPEALIASACTUAL;
- extern char *CIL_KEY_TYPEBOUNDS;
- extern char *CIL_KEY_TYPEPERMISSIVE;
-+extern char *CIL_KEY_TYPENEVERAUDIT;
- extern char *CIL_KEY_RANGETRANSITION;
- extern char *CIL_KEY_USERROLE;
- extern char *CIL_KEY_ROLETYPE;
-@@ -580,6 +581,11 @@ struct cil_typepermissive {
- 	void *type; /* type or alias */
- };
- 
-+struct cil_typeneveraudit {
-+	char *type_str;
-+	void *type; /* type or alias */
-+};
-+
- struct cil_nametypetransition {
- 	char *src_str;
- 	void *src; /* type, alias, or attribute */
-@@ -1045,6 +1051,7 @@ void cil_expandtypeattribute_init(struct cil_expandtypeattribute **expandattr);
- void cil_alias_init(struct cil_alias **alias);
- void cil_aliasactual_init(struct cil_aliasactual **aliasactual);
- void cil_typepermissive_init(struct cil_typepermissive **typeperm);
-+void cil_typeneveraudit_init(struct cil_typeneveraudit **typeperm);
- void cil_nametypetransition_init(struct cil_nametypetransition **nametypetrans);
- void cil_rangetransition_init(struct cil_rangetransition **rangetrans);
- void cil_bool_init(struct cil_bool **cilbool);
-diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.c
-index c497c8ab..ca73bd28 100644
---- a/libsepol/cil/src/cil_policy.c
-+++ b/libsepol/cil/src/cil_policy.c
-@@ -1297,6 +1297,11 @@ static void cil_typepermissive_to_policy(FILE *out, struct cil_typepermissive *r
- 	fprintf(out, "permissive %s;\n", DATUM(rule->type)->fqn);
- }
- 
-+static void cil_typeneveraudit_to_policy(FILE *out, struct cil_typeneveraudit *rule)
-+{
-+	fprintf(out, "neveraudit %s;\n", DATUM(rule->type)->fqn);
-+}
-+
- struct block_te_rules_extra {
- 	FILE *out;
- 	enum cil_flavor flavor;
-@@ -1359,6 +1364,11 @@ static int __cil_block_te_rules_to_policy_helper(struct cil_tree_node *node, uin
- 			cil_typepermissive_to_policy(args->out, node->data);
- 		}
- 		break;
-+	case CIL_TYPENEVERAUDIT:
-+		if (args->flavor == node->flavor) {
-+			cil_typeneveraudit_to_policy(args->out, node->data);
-+		}
-+		break;
- 	default:
- 		break;
- 	}
-@@ -1376,6 +1386,10 @@ static void cil_block_te_rules_to_policy(FILE *out, struct cil_tree_node *start,
- 	args.rule_kind = 0;
- 	cil_tree_walk(start, __cil_block_te_rules_to_policy_helper, NULL, NULL, &args);
- 
-+	args.flavor = CIL_TYPENEVERAUDIT;
-+	args.rule_kind = 0;
-+	cil_tree_walk(start, __cil_block_te_rules_to_policy_helper, NULL, NULL, &args);
-+
- 	args.flavor = CIL_AVRULE;
- 	args.rule_kind = CIL_AVRULE_ALLOWED;
- 	cil_tree_walk(start, __cil_block_te_rules_to_policy_helper, NULL, NULL, &args);
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index 392f03c7..bcac4026 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -624,6 +624,34 @@ exit:
- 	return rc;
- }
- 
-+int cil_resolve_typeneveraudit(struct cil_tree_node *current, struct cil_db *db)
-+{
-+	struct cil_typeneveraudit *typeperm = current->data;
-+	struct cil_symtab_datum *type_datum = NULL;
-+	struct cil_tree_node *type_node = NULL;
-+	int rc = SEPOL_ERR;
-+
-+	rc = cil_resolve_name(current, typeperm->type_str, CIL_SYM_TYPES, db, &type_datum);
-+	if (rc != SEPOL_OK) {
-+		goto exit;
-+	}
-+
-+	type_node = NODE(type_datum);
-+
-+	if (type_node->flavor != CIL_TYPE && type_node->flavor != CIL_TYPEALIAS) {
-+		cil_log(CIL_ERR, "Typeneveraudit must be a type or type alias\n");
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+
-+	typeperm->type = type_datum;
-+
-+	return SEPOL_OK;
-+
-+exit:
-+	return rc;
-+}
-+
- int cil_resolve_nametypetransition(struct cil_tree_node *current, struct cil_db *db)
- {
- 	struct cil_nametypetransition *nametypetrans = current->data;
-@@ -3652,6 +3680,9 @@ static int __cil_resolve_ast_node(struct cil_tree_node *node, struct cil_args_re
- 		case CIL_TYPEPERMISSIVE:
- 			rc = cil_resolve_typepermissive(node, db);
- 			break;
-+		case CIL_TYPENEVERAUDIT:
-+			rc = cil_resolve_typeneveraudit(node, db);
-+			break;
- 		case CIL_NAMETYPETRANSITION:
- 			rc = cil_resolve_nametypetransition(node, db);
- 			break;
-diff --git a/libsepol/cil/src/cil_resolve_ast.h b/libsepol/cil/src/cil_resolve_ast.h
-index 2f6b7e86..074fc4a4 100644
---- a/libsepol/cil/src/cil_resolve_ast.h
-+++ b/libsepol/cil/src/cil_resolve_ast.h
-@@ -46,6 +46,7 @@ int cil_resolve_typeattributeset(struct cil_tree_node *current, struct cil_db *d
- int cil_resolve_typealias(struct cil_tree_node *current, struct cil_db *db);
- int cil_resolve_typebounds(struct cil_tree_node *current, struct cil_db *db);
- int cil_resolve_typepermissive(struct cil_tree_node *current, struct cil_db *db);
-+int cil_resolve_typeneveraudit(struct cil_tree_node *current, struct cil_db *db);
- int cil_resolve_nametypetransition(struct cil_tree_node *current, struct cil_db *db);
- int cil_resolve_rangetransition(struct cil_tree_node *current, struct cil_db *db);
- int cil_resolve_classcommon(struct cil_tree_node *current, struct cil_db *db);
-diff --git a/libsepol/cil/src/cil_write_ast.c b/libsepol/cil/src/cil_write_ast.c
-index f9edadba..89dfd565 100644
---- a/libsepol/cil/src/cil_write_ast.c
-+++ b/libsepol/cil/src/cil_write_ast.c
-@@ -1125,6 +1125,13 @@ void cil_write_ast_node(FILE *out, struct cil_tree_node *node)
- 		fprintf(out, ")\n");
- 		break;
- 	}
-+	case CIL_TYPENEVERAUDIT: {
-+		struct cil_typeneveraudit *tp = node->data;
-+		fprintf(out, "(typeneveraudit ");
-+		fprintf(out, "%s", datum_or_str(DATUM(tp->type), tp->type_str));
-+		fprintf(out, ")\n");
-+		break;
-+	}
- 	case CIL_TYPEBOUNDS: {
- 		struct cil_bounds *bounds = node->data;
- 		fprintf(out, "(typebounds ");
-diff --git a/libsepol/cil/test/integration_testing/mls_policy.cil b/libsepol/cil/test/integration_testing/mls_policy.cil
-index 535ac110..206f3612 100644
---- a/libsepol/cil/test/integration_testing/mls_policy.cil
-+++ b/libsepol/cil/test/integration_testing/mls_policy.cil
-@@ -88,6 +88,7 @@
- (nametypetransition string typea_t typeb_t fooclass foo_t)
- 
- (typepermissive foo_t)
-+(typeneveraudit foo_t)
- 
- (typebounds typea_t typeb_t)
- 
-diff --git a/libsepol/cil/test/integration_testing/nonmls.cil b/libsepol/cil/test/integration_testing/nonmls.cil
-index 382b95db..dfdba292 100644
---- a/libsepol/cil/test/integration_testing/nonmls.cil
-+++ b/libsepol/cil/test/integration_testing/nonmls.cil
-@@ -59,6 +59,7 @@
- (nametypetransition string typea_t typeb_t fooclass foo_t)
- 
- (typepermissive foo_t)
-+(typeneveraudit foo_t)
- 
- (typebounds typea_t typeb_t)
- 
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index ab4b1a12..9875255c 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -188,6 +188,7 @@ typedef struct type_datum {
- #define TYPE_FLAGS_EXPAND_ATTR_FALSE	(1 << 2)
- #define TYPE_FLAGS_EXPAND_ATTR (TYPE_FLAGS_EXPAND_ATTR_TRUE | \
- 				TYPE_FLAGS_EXPAND_ATTR_FALSE)
-+#define TYPE_FLAGS_NEVERAUDIT		(1 << 3)
- 	uint32_t flags;
- 	uint32_t bounds;	/* bounds type, if exist */
- } type_datum_t;
-@@ -200,6 +201,7 @@ typedef struct type_datum {
- #define TYPEDATUM_PROPERTY_ATTRIBUTE	0x0002
- #define TYPEDATUM_PROPERTY_ALIAS	0x0004	/* userspace only */
- #define TYPEDATUM_PROPERTY_PERMISSIVE	0x0008	/* userspace only */
-+#define TYPEDATUM_PROPERTY_NEVERAUDIT	0x0010	/* userspace only */
- 
- /* User attributes */
- typedef struct user_datum {
-@@ -607,6 +609,13 @@ typedef struct policydb {
- 	   bitmaps.  Someday the 0 bit may be used for global permissive */
- 	ebitmap_t permissive_map;
- 
-+	/*
-+	 * This bitmap is referenced by type NOT the typical type-1 used in
-+	 * other bitmaps.  Someday the 0 bit may be used for global
-+	 * neveraudit.
-+	 */
-+	ebitmap_t neveraudit_map;
-+
- 	unsigned policyvers;
- 
- 	unsigned handle_unknown;
-@@ -764,10 +773,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
- #define POLICYDB_VERSION_GLBLUB		32
- #define POLICYDB_VERSION_COMP_FTRANS	33 /* compressed filename transitions */
- #define POLICYDB_VERSION_COND_XPERMS	34 /* extended permissions in conditional policies */
-+#define POLICYDB_VERSION_NEVERAUDIT	35 /* neveraudit domains */
- 
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_COND_XPERMS
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_NEVERAUDIT
- 
- /* Module versions and specific changes*/
- #define MOD_POLICYDB_VERSION_BASE		4
-@@ -791,9 +801,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
- #define MOD_POLICYDB_VERSION_GLBLUB		20
- #define MOD_POLICYDB_VERSION_SELF_TYPETRANS	21
- #define MOD_POLICYDB_VERSION_COND_XPERMS	22
-+#define MOD_POLICYDB_VERSION_NEVERAUDIT		23
- 
- #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
--#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_COND_XPERMS
-+#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_NEVERAUDIT
- 
- #define POLICYDB_CONFIG_MLS    1
- 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 7032a83f..8695540c 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -170,6 +170,12 @@ static int type_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 			return -1;
- 		}
- 
-+	if (new_type->flags & TYPE_FLAGS_NEVERAUDIT)
-+		if (ebitmap_set_bit(&state->out->neveraudit_map, new_type->s.value, 1)) {
-+			ERR(state->handle, "Out of memory!");
-+			return -1;
-+		}
-+
- 	return 0;
- }
- 
-@@ -732,6 +738,12 @@ static int alias_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 			return -1;
- 		}
- 
-+	if (new_alias->flags & TYPE_FLAGS_NEVERAUDIT)
-+		if (ebitmap_set_bit(&state->out->neveraudit_map, new_alias->s.value, 1)) {
-+			ERR(state->handle, "Out of memory!");
-+			return -1;
-+		}
-+
- 	return 0;
- }
- 
-diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-index ddca2b62..6fea2c6f 100644
---- a/libsepol/src/kernel_to_cil.c
-+++ b/libsepol/src/kernel_to_cil.c
-@@ -1637,6 +1637,48 @@ exit:
- 	return rc;
- }
- 
-+static int write_type_neveraudit_rules_to_cil(FILE *out, struct policydb *pdb)
-+{
-+	struct strs *strs;
-+	char *name;
-+	struct ebitmap_node *node;
-+	unsigned i, num;
-+	int rc = 0;
-+
-+	rc = strs_init(&strs, pdb->p_types.nprim);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
-+	ebitmap_for_each_positive_bit(&pdb->neveraudit_map, node, i) {
-+		rc = strs_add(strs, pdb->p_type_val_to_name[i-1]);
-+		if (rc != 0) {
-+			goto exit;
-+		}
-+	}
-+
-+	strs_sort(strs);
-+
-+	num = strs_num_items(strs);
-+	for (i=0; i<num; i++) {
-+		name = strs_read_at_index(strs, i);
-+		if (!name) {
-+			rc = -1;
-+			goto exit;
-+		}
-+		sepol_printf(out, "(typeneveraudit %s)\n", name);
-+	}
-+
-+exit:
-+	strs_destroy(&strs);
-+
-+	if (rc != 0) {
-+		ERR(NULL, "Error writing typeneveraudit rules to CIL");
-+	}
-+
-+	return rc;
-+}
-+
- #define next_bit_in_range(i, p) (((i) + 1 < sizeof(p)*8) && xperm_test(((i) + 1), p))
- 
- static char *xperms_to_str(const avtab_extended_perms_t *xperms)
-@@ -3362,6 +3404,11 @@ int sepol_kernel_policydb_to_cil(FILE *out, struct policydb *pdb)
- 		goto exit;
- 	}
- 
-+	rc = write_type_neveraudit_rules_to_cil(out, pdb);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
- 	rc = write_avtab_to_cil(out, pdb, 0);
- 	if (rc != 0) {
- 		goto exit;
-diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
-index 661546af..b3b0f224 100644
---- a/libsepol/src/kernel_to_conf.c
-+++ b/libsepol/src/kernel_to_conf.c
-@@ -1690,6 +1690,48 @@ exit:
- 	return rc;
- }
- 
-+static int write_type_neveraudit_rules_to_conf(FILE *out, struct policydb *pdb)
-+{
-+	struct strs *strs;
-+	char *name;
-+	struct ebitmap_node *node;
-+	unsigned i, num;
-+	int rc = 0;
-+
-+	rc = strs_init(&strs, pdb->p_types.nprim);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
-+	ebitmap_for_each_positive_bit(&pdb->neveraudit_map, node, i) {
-+		rc = strs_add(strs, pdb->p_type_val_to_name[i-1]);
-+		if (rc != 0) {
-+			goto exit;
-+		}
-+	}
-+
-+	strs_sort(strs);
-+
-+	num = strs_num_items(strs);
-+	for (i=0; i<num; i++) {
-+		name = strs_read_at_index(strs, i);
-+		if (!name) {
-+			rc = -1;
-+			goto exit;
-+		}
-+		sepol_printf(out, "neveraudit %s;\n", name);
-+	}
-+
-+exit:
-+	strs_destroy(&strs);
-+
-+	if (rc != 0) {
-+		ERR(NULL, "Error writing typeneveraudit rules to policy.conf");
-+	}
-+
-+	return rc;
-+}
-+
- static char *avtab_node_to_str(struct policydb *pdb, avtab_key_t *key, avtab_datum_t *datum)
- {
- 	uint32_t data = datum->data;
-@@ -3217,6 +3259,11 @@ int sepol_kernel_policydb_to_conf(FILE *out, struct policydb *pdb)
- 		goto exit;
- 	}
- 
-+	rc = write_type_neveraudit_rules_to_conf(out, pdb);
-+	if (rc != 0) {
-+		goto exit;
-+	}
-+
- 	rc = write_avtab_to_conf(out, pdb, 0);
- 	if (rc != 0) {
- 		goto exit;
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 63c800e9..b4439b27 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -2275,6 +2275,10 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
- 			cil_println(indent, "(typepermissive %s)", key);
- 		}
- 
-+		if (type->flags & TYPE_FLAGS_NEVERAUDIT) {
-+			cil_println(indent, "(typeneveraudit %s)", key);
-+		}
-+
- 		if (type->bounds > 0) {
- 			cil_println(indent, "(typebounds %s %s)", pdb->p_type_val_to_name[type->bounds - 1], key);
- 		}
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 53d57d81..8a81687d 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -215,6 +215,13 @@ static const struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = OCON_IBENDPORT + 1,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
-+	{
-+	 .type = POLICY_KERN,
-+	 .version = POLICYDB_VERSION_NEVERAUDIT,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_IBENDPORT + 1,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
- 	{
- 	 .type = POLICY_BASE,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
-@@ -348,6 +355,13 @@ static const struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = OCON_IBENDPORT + 1,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
-+	{
-+	 .type = POLICY_BASE,
-+	 .version = MOD_POLICYDB_VERSION_NEVERAUDIT,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_IBENDPORT + 1,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
- 	{
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
-@@ -481,6 +495,13 @@ static const struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = 0,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
-+	{
-+	 .type = POLICY_MOD,
-+	 .version = MOD_POLICYDB_VERSION_NEVERAUDIT,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = 0,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
- };
- 
- #if 0
-@@ -944,6 +965,7 @@ int policydb_init(policydb_t * p)
- 
- 	ebitmap_init(&p->policycaps);
- 	ebitmap_init(&p->permissive_map);
-+	ebitmap_init(&p->neveraudit_map);
- 
- 	p->line_marker_avrules = AVRULE_NEVERALLOW|AVRULE_XPERMS_NEVERALLOW;
- 
-@@ -1524,6 +1546,8 @@ void policydb_destroy(policydb_t * p)
- 
- 	ebitmap_destroy(&p->permissive_map);
- 
-+	ebitmap_destroy(&p->neveraudit_map);
-+
- 	symtabs_destroy(p->symtab);
- 
- 	for (i = 0; i < SYM_NUM; i++) {
-@@ -2485,6 +2509,9 @@ static int type_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
- 		if (properties & TYPEDATUM_PROPERTY_PERMISSIVE
- 		    && p->policy_type != POLICY_KERN)
- 			typdatum->flags |= TYPE_FLAGS_PERMISSIVE;
-+		if (properties & TYPEDATUM_PROPERTY_NEVERAUDIT
-+		    && p->policy_type != POLICY_KERN)
-+			typdatum->flags |= TYPE_FLAGS_NEVERAUDIT;
- 
- 		typdatum->bounds = le32_to_cpu(buf[++pos]);
- 	} else {
-@@ -4339,6 +4366,12 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
- 			goto bad;
- 	}
- 
-+	if (p->policyvers >= POLICYDB_VERSION_NEVERAUDIT &&
-+	    p->policy_type == POLICY_KERN) {
-+		if (ebitmap_read(&p->neveraudit_map, fp))
-+			goto bad;
-+	}
-+
- 	for (i = 0; i < info->sym_num; i++) {
- 		rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
- 		if (rc < 0)
-diff --git a/libsepol/src/policydb_validate.c b/libsepol/src/policydb_validate.c
-index 9ee4b948..d441526e 100644
---- a/libsepol/src/policydb_validate.c
-+++ b/libsepol/src/policydb_validate.c
-@@ -593,7 +593,9 @@ static int validate_type_datum(sepol_handle_t *handle, const type_datum_t *type,
- 
- 	switch (type->flags) {
- 	case 0:
-+	case TYPE_FLAGS_NEVERAUDIT:
- 	case TYPE_FLAGS_PERMISSIVE:
-+	case TYPE_FLAGS_NEVERAUDIT|TYPE_FLAGS_PERMISSIVE:
- 	case TYPE_FLAGS_EXPAND_ATTR_TRUE:
- 	case TYPE_FLAGS_EXPAND_ATTR_FALSE:
- 	case TYPE_FLAGS_EXPAND_ATTR:
-@@ -1600,6 +1602,23 @@ bad:
- 	return -1;
- }
- 
-+static int validate_neveraudit(sepol_handle_t *handle, const policydb_t *p, validate_t flavors[])
-+{
-+	ebitmap_node_t *node;
-+	uint32_t i;
-+
-+	ebitmap_for_each_positive_bit(&p->neveraudit_map, node, i) {
-+		if (validate_simpletype(i, p, flavors))
-+			goto bad;
-+	}
-+
-+	return 0;
-+
-+bad:
-+	ERR(handle, "Invalid neveraudit type");
-+	return -1;
-+}
-+
- static int validate_range_transition(hashtab_key_t key, hashtab_datum_t data, void *args)
- {
- 	const range_trans_t *rt = (const range_trans_t *)key;
-@@ -1805,6 +1824,9 @@ int policydb_validate(sepol_handle_t *handle, const policydb_t *p)
- 	if (validate_permissives(handle, p, flavors))
- 		goto bad;
- 
-+	if (validate_neveraudit(handle, p, flavors))
-+		goto bad;
-+
- 	if (validate_range_transitions(handle, p, flavors))
- 		goto bad;
- 
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index 89c80e7e..6c3e4a6a 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -1240,6 +1240,16 @@ static int type_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 	items = 0;
- 	buf[items++] = cpu_to_le32(len);
- 	buf[items++] = cpu_to_le32(typdatum->s.value);
-+
-+
-+	if (p->policy_type != POLICY_KERN
-+	    && p->policyvers < MOD_POLICYDB_VERSION_NEVERAUDIT
-+	    && typdatum->flags & TYPE_FLAGS_NEVERAUDIT)
-+		WARN(fp->handle, "Warning! Module policy "
-+			"version %d cannot support neveraudit "
-+			"types, but one was defined",
-+			p->policyvers);
-+
- 	if (policydb_has_boundary_feature(p)) {
- 		uint32_t properties = 0;
- 
-@@ -1261,6 +1271,11 @@ static int type_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 		    && p->policy_type != POLICY_KERN)
- 			properties |= TYPEDATUM_PROPERTY_PERMISSIVE;
- 
-+		if (typdatum->flags & TYPE_FLAGS_NEVERAUDIT
-+		    && p->policy_type != POLICY_KERN
-+		    && p->policyvers >= MOD_POLICYDB_VERSION_NEVERAUDIT)
-+			properties |= TYPEDATUM_PROPERTY_NEVERAUDIT;
-+
- 		buf[items++] = cpu_to_le32(properties);
- 		buf[items++] = cpu_to_le32(typdatum->bounds);
- 	} else {
-@@ -1270,7 +1285,7 @@ static int type_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 			buf[items++] = cpu_to_le32(typdatum->flavor);
- 
- 			if (p->policyvers >= MOD_POLICYDB_VERSION_PERMISSIVE)
--				buf[items++] = cpu_to_le32(typdatum->flags);
-+				buf[items++] = cpu_to_le32(typdatum->flags & ~TYPE_FLAGS_NEVERAUDIT);
- 			else if (typdatum->flags & TYPE_FLAGS_PERMISSIVE)
- 				WARN(fp->handle, "Warning! Module policy "
- 				     "version %d cannot support permissive "
-@@ -2320,21 +2335,29 @@ int policydb_write(policydb_t * p, struct policy_file *fp)
- 			return POLICYDB_ERROR;
- 	}
- 
--	if (p->policyvers < POLICYDB_VERSION_PERMISSIVE &&
--	    p->policy_type == POLICY_KERN) {
--		ebitmap_node_t *tnode;
-+	if (p->policy_type == POLICY_KERN) {
-+		if (p->policyvers < POLICYDB_VERSION_PERMISSIVE) {
-+			ebitmap_node_t *tnode;
- 
--		ebitmap_for_each_positive_bit(&p->permissive_map, tnode, i) {
--			WARN(fp->handle, "Warning! Policy version %d cannot "
--			     "support permissive types, but some were defined",
--			     p->policyvers);
--			break;
--		}
--	}
-+			ebitmap_for_each_positive_bit(&p->permissive_map, tnode, i) {
-+				WARN(fp->handle, "Warning! Policy version %d cannot "
-+					"support permissive types, but some were defined",
-+					p->policyvers);
-+				break;
-+			}
-+		} else if (ebitmap_write(&p->permissive_map, fp) == -1)
-+			return POLICYDB_ERROR;
- 
--	if (p->policyvers >= POLICYDB_VERSION_PERMISSIVE &&
--	    p->policy_type == POLICY_KERN) {
--		if (ebitmap_write(&p->permissive_map, fp) == -1)
-+		if (p->policyvers < POLICYDB_VERSION_NEVERAUDIT) {
-+			ebitmap_node_t *tnode;
-+
-+			ebitmap_for_each_positive_bit(&p->neveraudit_map, tnode, i) {
-+				WARN(fp->handle, "Warning! Policy version %d cannot "
-+					"support neveraudit types, but some were defined",
-+					p->policyvers);
-+				break;
-+			}
-+		} else if (ebitmap_write(&p->neveraudit_map, fp) == -1)
- 			return POLICYDB_ERROR;
- 	}
- 
-diff --git a/secilc/docs/README.md b/secilc/docs/README.md
-index 5e00fc3b..4d1762cb 100644
---- a/secilc/docs/README.md
-+++ b/secilc/docs/README.md
-@@ -131,6 +131,7 @@ CIL (Common Intermediate Language)
-   * [typemember](cil_type_statements.md#typemember)
-   * [typetransition](cil_type_statements.md#typetransition)
-   * [typepermissive](cil_type_statements.md#typepermissive)
-+  * [typeneveraudit](cil_type_statements.md#typeneveraudit)
- 
- * [User Statements](cil_user_statements.md#user-statements)
-   * [user](cil_user_statements.md#user)
-diff --git a/secilc/docs/cil_type_statements.md b/secilc/docs/cil_type_statements.md
-index 19438417..541b9be1 100644
---- a/secilc/docs/cil_type_statements.md
-+++ b/secilc/docs/cil_type_statements.md
-@@ -601,3 +601,41 @@ This example will allow SELinux to run the `healthd.process` domain in permissiv
-         (allow ...)
-     )
- ```
-+
-+typeneveraudit
-+--------------
-+
-+Policy database version 35 introduced the neveraudit statement to suppress all AVC auditing on the named domain. This rules silences both permission denied and permission granted AVC audit messages irrespective of any auditallow, auditdeny, or dontaudit AV rules.
-+
-+**Statement definition:**
-+
-+```secil
-+    (typeneveraudit source_type_id)
-+```
-+
-+**Where:**
-+
-+<table>
-+<colgroup>
-+<col width="25%" />
-+<col width="75%" />
-+</colgroup>
-+<tbody>
-+<tr class="odd">
-+<td align="left"><p><code>typeneveraudit</code></p></td>
-+<td align="left"><p>The <code>typeneveraudit</code> keyword.</p></td>
-+</tr>
-+<tr class="even">
-+<td align="left"><p><code>source_type_id</code></p></td>
-+<td align="left"><p>A single previously declared <code>type</code> or <code>typealias</code> identifier.</p></td>
-+</tr>
-+</tbody>
-+</table>
-+
-+**Example:**
-+
-+This example will silence SELinux AVC audit messages for the `unconfined_t` domain:
-+
-+```secil
-+    (typeneveraudit unconfined_t)
-+```
-diff --git a/secilc/docs/secil.xml b/secilc/docs/secil.xml
-index 60314e9a..0f60bcfa 100644
---- a/secilc/docs/secil.xml
-+++ b/secilc/docs/secil.xml
-@@ -96,6 +96,7 @@
-             <item>typechange</item>
-             <item>typemember</item>
-             <item>typepermissive</item>
-+            <item>typeneveraudit</item>
-             <item>typetransition</item>
-             <item>unordered</item>
-             <item>user</item>
-diff --git a/secilc/test/integration.cil b/secilc/test/integration.cil
-index 2d3ac968..69c9ffd0 100644
---- a/secilc/test/integration.cil
-+++ b/secilc/test/integration.cil
-@@ -74,7 +74,8 @@
- (typeattributeset bar_type (xor exec_type foo_type))
- (typeattributeset baz_type (not bin_t))
- (typealias bin_t sbin_t)
--(typepermissive device_t) 
-+(typepermissive device_t)
-+(typeneveraudit device_t)
- (typebounds device_t bin_t)
- (typemember device_t bin_t file exec_t)
- (typetransition device_t console_t file console_device_t)
-diff --git a/secilc/test/policy.cil b/secilc/test/policy.cil
-index d0d52d0d..d405a0ef 100644
---- a/secilc/test/policy.cil
-+++ b/secilc/test/policy.cil
-@@ -128,7 +128,8 @@
- 	(typeattributeset not_bad_type (not bad_t))
- 	(typealias sbin_t)
- 	(typealiasactual sbin_t bin_t)
--	(typepermissive device_t) 
-+	(typepermissive device_t)
-+	(typeneveraudit device_t)
- 	(typemember device_t bin_t file exec_t)
- 	(typemember exec_type self file exec_t)
- 	(typetransition device_t console_t files console_device_t)
--- 
-2.49.0
-
+> +	kfree(str);
+> +	return rc;
+>  }
+>  
+>  static const struct file_operations lsm_ops = {
+> diff --git a/security/lsm_init.c b/security/lsm_init.c
+> index 981ddb20f48e..978bb81b58fa 100644
+> --- a/security/lsm_init.c
+> +++ b/security/lsm_init.c
+> @@ -10,8 +10,6 @@
+>  
+>  #include "lsm.h"
+>  
+> -char *lsm_names;
+> -
+>  /* Pointers to LSM sections defined in include/asm-generic/vmlinux.lds.h */
+>  extern struct lsm_info __start_lsm_info[], __end_lsm_info[];
+>  extern struct lsm_info __start_early_lsm_info[], __end_early_lsm_info[];
+> @@ -363,42 +361,6 @@ static void __init lsm_init_ordered(void)
+>  	}
+>  }
+>  
+> -static bool match_last_lsm(const char *list, const char *lsm)
+> -{
+> -	const char *last;
+> -
+> -	if (WARN_ON(!list || !lsm))
+> -		return false;
+> -	last = strrchr(list, ',');
+> -	if (last)
+> -		/* Pass the comma, strcmp() will check for '\0' */
+> -		last++;
+> -	else
+> -		last = list;
+> -	return !strcmp(last, lsm);
+> -}
+> -
+> -static int lsm_append(const char *new, char **result)
+> -{
+> -	char *cp;
+> -
+> -	if (*result == NULL) {
+> -		*result = kstrdup(new, GFP_KERNEL);
+> -		if (*result == NULL)
+> -			return -ENOMEM;
+> -	} else {
+> -		/* Check if it is the last registered name */
+> -		if (match_last_lsm(*result, new))
+> -			return 0;
+> -		cp = kasprintf(GFP_KERNEL, "%s,%s", *result, new);
+> -		if (cp == NULL)
+> -			return -ENOMEM;
+> -		kfree(*result);
+> -		*result = cp;
+> -	}
+> -	return 0;
+> -}
+> -
+>  static void __init lsm_static_call_init(struct security_hook_list *hl)
+>  {
+>  	struct lsm_static_call *scall = hl->scalls;
+> @@ -435,15 +397,6 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
+>  		hooks[i].lsmid = lsmid;
+>  		lsm_static_call_init(&hooks[i]);
+>  	}
+> -
+> -	/*
+> -	 * Don't try to append during early_security_init(), we'll come back
+> -	 * and fix this up afterwards.
+> -	 */
+> -	if (slab_is_available()) {
+> -		if (lsm_append(lsmid->name, &lsm_names) < 0)
+> -			panic("%s - Cannot get early memory.\n", __func__);
+> -	}
+>  }
+>  
+>  int __init early_security_init(void)
+> @@ -480,8 +433,6 @@ int __init security_init(void)
+>  	lsm_early_for_each_raw(lsm) {
+>  		init_debug("  early started: %s (%s)\n", lsm->id->name,
+>  			   is_enabled(lsm) ? "enabled" : "disabled");
+> -		if (lsm->enabled)
+> -			lsm_append(lsm->id->name, &lsm_names);
+>  	}
+>  
+>  	/* Load LSMs in specified order. */
