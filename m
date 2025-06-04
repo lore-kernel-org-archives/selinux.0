@@ -1,89 +1,259 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com [209.85.219.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BD1F7485
-	for <selinux@vger.kernel.org>; Mon,  2 Jun 2025 12:22:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01E6020C016
+	for <selinux@vger.kernel.org>; Wed,  4 Jun 2025 21:13:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1748866929; cv=none; b=NnOOqjyURRefeNKSkNeza6K027eQ+POyRCrlWW0xdp9bBLtDJ94904D2ZNiJ/4Ppbv0ecwsFSbSG594X+y4aXNcAnr8FWczuv5JcxkmuIzG2XNjOPzvQhqo9T7zzbp9ja/AglA0tMwVo6huoUtlgGBBCqyuZ6hWeUovPz+elXec=
+	t=1749071629; cv=none; b=HrCyF2ooYhALEsmWGy7WD69x4jfJTj+QMJ6vESkGdbLHmyC4fPw6dA6Ne4nLwAHBNjPZb5EY+Fp82/zBs01nsniDgE/YKAYuPy3VC1FaznnpddjyavbSG+2AwrCnHtT2UGcflea+CgMTG6XVL3fmP7OKSKQhbcZvmDVG20nh6sc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1748866929; c=relaxed/simple;
-	bh=vf9TguqNZ1Sh9W0g0k/OZnEGDF9w7y2GNgv+GzGq2+k=;
+	s=arc-20240116; t=1749071629; c=relaxed/simple;
+	bh=sWOJA7v7Ov16Q2lLF9qoja13SWcCS3EU3H+3Y0lbZz8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=klOBD+ksPZC6epTYUg2Rxl04+yEYyISS91wF8UY1stvavCXi/MLoCL0AJliw1altK0SPcUhuLC0Xt37uJEI0jsFeM0Nl8o348t125X5drv/hG1Jtqh+4wgE6HZ9cwwwvgfIehyHgsBPM/7rT9zy2zKw/AVQ1KOxnntBPwRpnat8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=W2SjpDfr; arc=none smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=J/EnzMbrU9PTrHMY+7D2m1V24z5oEISroJOqheTSAZ2ANdQOVc49oW/j5U9rPiMWIXKPOl4rPV1ZsSjEJyysRtLA7e6sUzuJJudNSZctpjTXaIxVGNMFij1ZPDjAsil9z4djlR/Xe7hEYmgYqtuf1gvmFeKlxBgSthDGEeY50AA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=J48ZOjUs; arc=none smtp.client-ip=209.85.219.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W2SjpDfr"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-311e46d38ddso3310033a91.0
-        for <selinux@vger.kernel.org>; Mon, 02 Jun 2025 05:22:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="J48ZOjUs"
+Received: by mail-yb1-f170.google.com with SMTP id 3f1490d57ef6-e818a57287eso67676276.3
+        for <selinux@vger.kernel.org>; Wed, 04 Jun 2025 14:13:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1748866927; x=1749471727; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1749071627; x=1749676427; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vf9TguqNZ1Sh9W0g0k/OZnEGDF9w7y2GNgv+GzGq2+k=;
-        b=W2SjpDfrAIKQHET9t9Mqx93eaL3+9o3iiRB/IsTshr0CO+Wpx8BOCMJYix/R/TiBvO
-         gAxtmTtMhlPEPm1/ko4W6YcnsPWQ3eDsenamxSPZPENbAN1GYYMIGTXsUy835Ciaa95y
-         F0ZZrPxB3YtAOG4r29nasN0RZgiuZ7teUSWwt4XS/ugG9g5ky/vmnshAE7AOR9ZvzMA9
-         +YM3kqJCm8MzH0TBEuzO1uwvFhBBUDFpm8OGbzrBp3P+C84KeKfN9aNjterK2Xbv3JMz
-         gxmbaL0NvDu51MW9BM+kaHj0Q6lq4SDUd9uJDc3OsPSuWKgoynoYFXe0ux3xcLdsBpkL
-         YqXA==
+        bh=RFILvALIoE88+amXnoIecD1FsclDUOa9FdnGICXctS8=;
+        b=J48ZOjUs0gsj1gujKn+DBWQnSptDO5yRJ16jdvn4uPtU3S3UZPfZwMAVcfgXv+j/f/
+         ALk6LRWyNA+CakxXcVJx2dlmjB41IXZmSRtRRrIdt3oXwPdBWmiebEfcywF6GyZLUdyp
+         D2SmzhGHh/zSxeHGLDqdnLJCzGsLrPDfXfrF76pF5ZoyWFO2htuTzJqDCILONYKufjdS
+         eXY28de8CiPJiT8ola9UaGLNnJqtpY5M9y/qWPutXkIVXpBjW7s3jNnyc5tAsOw5zY0b
+         DN7NeSufe1nUM2cXLlW8koJwvxtNMGRKTJj8hash7GuvLSPcsAYEvd+3a0c8ApvrZegy
+         E7lA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1748866927; x=1749471727;
+        d=1e100.net; s=20230601; t=1749071627; x=1749676427;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vf9TguqNZ1Sh9W0g0k/OZnEGDF9w7y2GNgv+GzGq2+k=;
-        b=PyRnWpMpQsQY7MgFTa6caelSyPT/0V2Us65iXusgqmk8EmCFNjSyhpAa8tpexZr4Dk
-         R4swpB61Cu2Y5VuuRBOh/HDaHxrleWRDSqkQbFu18lF4Uup4ZbIT1j4Knx3Z1J2DJluO
-         1GJve1/8YxwrciqidN7OP/2piNxYFa9w/NzirNQ3U+pdD6jdsOW6fdubeWJXW808nOSR
-         GmcknovB2WifALAhWpPiijAJu4gxiIQflpia9gR8BjGBdO24254jgN+aFFpSUtWHB4R6
-         CwSHwn4z2AtGSIzZpf1SBikb7MygIhUuA1D8DEi7OVgUvTzcTX1S6bxIYw+V5uF7ZxN1
-         bLfA==
-X-Gm-Message-State: AOJu0Yx5ZawZFjwTf5wJm1rTQo7/E/hGmrEp283NWgmsAxmQthc4J900
-	KzJwKWi2ZygUNJ5w4xGCToCZBeVIap2ZNhPNxtffiWrTgChb6o2DKvpvDh4Sb3S1tFtOw+Tyk5p
-	J6xdwtbrkYtV49JxLBnXcaUGtRD99dMZ3IwcZ
-X-Gm-Gg: ASbGnctUxUTTpb3B6ByD40K0pQEskIz53m6sJy8jwOOZSls87YMR+BP76Jlsc/CzHPu
-	pFT02pZNTdTpZH1LTm8eIThtfA2KZEP53dsnwsyrgm0zXnYFLt8Mq5uW4aOGjzTdlyoJaUahmdm
-	ISi9fbC0PC8w6Fp++dudi1Fs1EO3xNIea/
-X-Google-Smtp-Source: AGHT+IEcpOH8Cn7+PCnkB/Con1//Axwn5CNhcHQ1GQ9EuZy3CUQbfHHbXrha/8SK52UpPRKr1yqa6p+7npXfLLnwJxg=
-X-Received: by 2002:a17:90b:3d83:b0:311:ab20:1589 with SMTP id
- 98e67ed59e1d1-31241532a05mr23672596a91.12.1748866926547; Mon, 02 Jun 2025
- 05:22:06 -0700 (PDT)
+        bh=RFILvALIoE88+amXnoIecD1FsclDUOa9FdnGICXctS8=;
+        b=Lo/BTvNbvJbOLRURWmNLQmjpblmU+DAkoq45sckoyD61qmlxIh223vqCMtrMaxAO5u
+         193KIDfEnaBQnIxqREKzdtJCZCQr/QSXLXr3qIJs1OJb9FW9ClfJGFCua4pv7DtgGLoB
+         hAHiA7LoGO9tHHXgQJWkJkC71T3KFWD8iwjdegjlqGE5KBrO0xyZCMpZ2S2DFmKQTK90
+         Y6dAdYuf7wRaEayFG637FiBCbC/7fILiHJ8olIUZc3AS1UOiKfxcv+pQkE2BzKQUDdVd
+         /T9LCspdxcWQ0+5QVwKduX5qE7ZUlbUwQuvJb4jfMVnAa1oJaTeI0tWqf9zXlc5MX0HM
+         +8Qw==
+X-Forwarded-Encrypted: i=1; AJvYcCWF4DCCPfIJwMLdAO8g+DBbB5R99s6Xmi4dLWidLZql3RYQfeEBd3chHec8zBSOyLbDekvYr43z@vger.kernel.org
+X-Gm-Message-State: AOJu0YwNw2rJfRRVefq4H31eSphuJLHq9a6qap/h3rGmryEcxuCVWIVv
+	z4RwniUTP2wWqF6EVLCRbttF8XGpptxLDZFZh/+NVf93RLFSzjyQrDWvGxtfTgS5/a2CvdDfPV5
+	/m1ThZPwxX4tkQ1P/zp5GY2oTAPQz+3g7U75ophXN
+X-Gm-Gg: ASbGncsgFQqGPEfUQhjMUSH8XBV03QJ3YxxpAc4ilH+M85+SfmNYoZoasXqLjea/i1j
+	C6y781s4mDad7tKBQPp0uoO25p06B1HEpPHSBxmAhbDHEd8am7pM8hA1DnjQH4OryBIW929fo0B
+	2XZbLUSt+2nzAfkJZhAiWmNVsyxqfGCfw29I0cFk9BGbU=
+X-Google-Smtp-Source: AGHT+IEzd3OT8v9HoRUzTyFAkQerHkAukxjDsy8RjmPaJTovfL79YwQkPcrXXduheAqGSFN+2XKJ11JKw/rxJLleniI=
+X-Received: by 2002:a05:6902:100c:b0:e7f:7352:bb31 with SMTP id
+ 3f1490d57ef6-e8179d82fc0mr6218584276.39.1749071626412; Wed, 04 Jun 2025
+ 14:13:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <2a34cb17-3290-416f-bea8-bd743e18ff3b@suse.de> <CAEjxPJ621C3V3wiPwaYvUVUMs--590iGjE5Q=ZScy3wYuZtXQQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ621C3V3wiPwaYvUVUMs--590iGjE5Q=ZScy3wYuZtXQQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 2 Jun 2025 08:21:54 -0400
-X-Gm-Features: AX0GCFuxlx3T79tz6u_Nq90GIml7PAqrnVEVty4Y_nFjCT4W0SwKy8Sg3tUBVFI
-Message-ID: <CAEjxPJ6Yin+JiSz9ZHjgtOewEy6xacpKw9KDd=mEfFYnv4JuNQ@mail.gmail.com>
-Subject: Re: selinuxproject.org down?
-To: Cathy Hu <cahu@suse.de>
-Cc: selinux@vger.kernel.org
+References: <cover.1748890962.git.ackerleytng@google.com> <c03fbe18c3ae90fb3fa7c71dc0ee164e6cc12103.1748890962.git.ackerleytng@google.com>
+ <aD_8z4pd7JcFkAwX@kernel.org>
+In-Reply-To: <aD_8z4pd7JcFkAwX@kernel.org>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 4 Jun 2025 17:13:35 -0400
+X-Gm-Features: AX0GCFtyTLCLuG24EDdI8wKdQSrU3K8jUJ6RM6t9O342c2DffUvgfnmfuwj20Jg
+Message-ID: <CAHC9VhQczhrVx4YEGbXbAS8FLi0jaV1RB0kb8e4rPsUOXYLqtA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] fs: Provide function that allocates a secure
+ anonymous inode
+To: Mike Rapoport <rppt@kernel.org>, Ackerley Tng <ackerleytng@google.com>
+Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	kvm@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
+	x86@kernel.org, linux-fsdevel@vger.kernel.org, aik@amd.com, 
+	ajones@ventanamicro.com, akpm@linux-foundation.org, amoorthy@google.com, 
+	anthony.yznaga@oracle.com, anup@brainfault.org, aou@eecs.berkeley.edu, 
+	bfoster@redhat.com, binbin.wu@linux.intel.com, brauner@kernel.org, 
+	catalin.marinas@arm.com, chao.p.peng@intel.com, chenhuacai@kernel.org, 
+	dave.hansen@intel.com, david@redhat.com, dmatlack@google.com, 
+	dwmw@amazon.co.uk, erdemaktas@google.com, fan.du@intel.com, fvdl@google.com, 
+	graf@amazon.com, haibo1.xu@intel.com, hch@infradead.org, hughd@google.com, 
+	ira.weiny@intel.com, isaku.yamahata@intel.com, jack@suse.cz, 
+	james.morse@arm.com, jarkko@kernel.org, jgg@ziepe.ca, jgowans@amazon.com, 
+	jhubbard@nvidia.com, jroedel@suse.de, jthoughton@google.com, 
+	jun.miao@intel.com, kai.huang@intel.com, keirf@google.com, 
+	kent.overstreet@linux.dev, kirill.shutemov@intel.com, liam.merwick@oracle.com, 
+	maciej.wieczor-retman@intel.com, mail@maciej.szmigiero.name, maz@kernel.org, 
+	mic@digikod.net, michael.roth@amd.com, mpe@ellerman.id.au, 
+	muchun.song@linux.dev, nikunj@amd.com, nsaenz@amazon.es, 
+	oliver.upton@linux.dev, palmer@dabbelt.com, pankaj.gupta@amd.com, 
+	paul.walmsley@sifive.com, pbonzini@redhat.com, pdurrant@amazon.co.uk, 
+	peterx@redhat.com, pgonda@google.com, pvorel@suse.cz, qperret@google.com, 
+	quic_cvanscha@quicinc.com, quic_eberman@quicinc.com, 
+	quic_mnalajal@quicinc.com, quic_pderrin@quicinc.com, quic_pheragu@quicinc.com, 
+	quic_svaddagi@quicinc.com, quic_tsoni@quicinc.com, richard.weiyang@gmail.com, 
+	rick.p.edgecombe@intel.com, rientjes@google.com, roypat@amazon.co.uk, 
+	seanjc@google.com, shuah@kernel.org, steven.price@arm.com, 
+	steven.sistare@oracle.com, suzuki.poulose@arm.com, tabba@google.com, 
+	thomas.lendacky@amd.com, vannapurve@google.com, vbabka@suse.cz, 
+	viro@zeniv.linux.org.uk, vkuznets@redhat.com, wei.w.wang@intel.com, 
+	will@kernel.org, willy@infradead.org, xiaoyao.li@intel.com, 
+	yan.y.zhao@intel.com, yilun.xu@intel.com, yuzenghui@huawei.com, 
+	zhiquan1.li@intel.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 21, 2025 at 3:30=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Wed, Jun 4, 2025 at 3:59=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wrot=
+e:
 >
-> On Wed, May 21, 2025 at 7:39=E2=80=AFAM Cathy Hu <cahu@suse.de> wrote:
-> >
-> > Hi,
-> >
-> > I might have missed something, but selinuxproject.org is down.
-> > Is this intentional?
->
-> That site has been mostly unmaintained and archival only for a while
-> now. If there is anything there you are relying on, I would recommend
-> copying to the github.com/selinuxproject/selinux/wiki and updating any
-> links.
+> (added Paul Moore for selinux bits)
 
-Also, you may find the content available at
-https://github.com/SELinuxProject/selinux-kernel/wiki to be helpful.
+Thanks Mike.
+
+I'm adding the LSM and SELinux lists too since there are others that
+will be interested as well.
+
+> On Mon, Jun 02, 2025 at 12:17:54PM -0700, Ackerley Tng wrote:
+> > The new function, alloc_anon_secure_inode(), returns an inode after
+> > running checks in security_inode_init_security_anon().
+> >
+> > Also refactor secretmem's file creation process to use the new
+> > function.
+> >
+> > Suggested-by: David Hildenbrand <david@redhat.com>
+> > Signed-off-by: Ackerley Tng <ackerleytng@google.com>
+> > ---
+> >  fs/anon_inodes.c   | 22 ++++++++++++++++------
+> >  include/linux/fs.h |  1 +
+> >  mm/secretmem.c     |  9 +--------
+> >  3 files changed, 18 insertions(+), 14 deletions(-)
+> >
+> > diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+> > index 583ac81669c2..4c3110378647 100644
+> > --- a/fs/anon_inodes.c
+> > +++ b/fs/anon_inodes.c
+> > @@ -55,17 +55,20 @@ static struct file_system_type anon_inode_fs_type =
+=3D {
+> >       .kill_sb        =3D kill_anon_super,
+> >  };
+> >
+> > -static struct inode *anon_inode_make_secure_inode(
+> > -     const char *name,
+> > -     const struct inode *context_inode)
+> > +static struct inode *anon_inode_make_secure_inode(struct super_block *=
+s,
+> > +             const char *name, const struct inode *context_inode,
+> > +             bool fs_internal)
+> >  {
+> >       struct inode *inode;
+> >       int error;
+> >
+> > -     inode =3D alloc_anon_inode(anon_inode_mnt->mnt_sb);
+> > +     inode =3D alloc_anon_inode(s);
+> >       if (IS_ERR(inode))
+> >               return inode;
+> > -     inode->i_flags &=3D ~S_PRIVATE;
+> > +
+> > +     if (!fs_internal)
+> > +             inode->i_flags &=3D ~S_PRIVATE;
+> > +
+> >       error =3D security_inode_init_security_anon(inode, &QSTR(name),
+> >                                                 context_inode);
+> >       if (error) {
+> > @@ -75,6 +78,12 @@ static struct inode *anon_inode_make_secure_inode(
+> >       return inode;
+> >  }
+> >
+> > +struct inode *alloc_anon_secure_inode(struct super_block *s, const cha=
+r *name)
+> > +{
+> > +     return anon_inode_make_secure_inode(s, name, NULL, true);
+> > +}
+> > +EXPORT_SYMBOL_GPL(alloc_anon_secure_inode);
+> > +
+> >  static struct file *__anon_inode_getfile(const char *name,
+> >                                        const struct file_operations *fo=
+ps,
+> >                                        void *priv, int flags,
+> > @@ -88,7 +97,8 @@ static struct file *__anon_inode_getfile(const char *=
+name,
+> >               return ERR_PTR(-ENOENT);
+> >
+> >       if (make_inode) {
+> > -             inode =3D anon_inode_make_secure_inode(name, context_inod=
+e);
+> > +             inode =3D anon_inode_make_secure_inode(anon_inode_mnt->mn=
+t_sb,
+> > +                                                  name, context_inode,=
+ false);
+> >               if (IS_ERR(inode)) {
+> >                       file =3D ERR_CAST(inode);
+> >                       goto err;
+> > diff --git a/include/linux/fs.h b/include/linux/fs.h
+> > index 016b0fe1536e..0fded2e3c661 100644
+> > --- a/include/linux/fs.h
+> > +++ b/include/linux/fs.h
+> > @@ -3550,6 +3550,7 @@ extern int simple_write_begin(struct file *file, =
+struct address_space *mapping,
+> >  extern const struct address_space_operations ram_aops;
+> >  extern int always_delete_dentry(const struct dentry *);
+> >  extern struct inode *alloc_anon_inode(struct super_block *);
+> > +extern struct inode *alloc_anon_secure_inode(struct super_block *, con=
+st char *);
+> >  extern int simple_nosetlease(struct file *, int, struct file_lease **,=
+ void **);
+> >  extern const struct dentry_operations simple_dentry_operations;
+> >
+> > diff --git a/mm/secretmem.c b/mm/secretmem.c
+> > index 1b0a214ee558..c0e459e58cb6 100644
+> > --- a/mm/secretmem.c
+> > +++ b/mm/secretmem.c
+> > @@ -195,18 +195,11 @@ static struct file *secretmem_file_create(unsigne=
+d long flags)
+> >       struct file *file;
+> >       struct inode *inode;
+> >       const char *anon_name =3D "[secretmem]";
+> > -     int err;
+> >
+> > -     inode =3D alloc_anon_inode(secretmem_mnt->mnt_sb);
+> > +     inode =3D alloc_anon_secure_inode(secretmem_mnt->mnt_sb, anon_nam=
+e);
+> >       if (IS_ERR(inode))
+> >               return ERR_CAST(inode);
+>
+> I don't think we should not hide secretmem and guest_memfd inodes from
+> selinux, so clearing S_PRIVATE for them is not needed and you can just dr=
+op
+> fs_internal parameter in anon_inode_make_secure_inode()
+
+It's especially odd since I don't see any comments or descriptions
+about why this is being done.  The secretmem change is concerning as
+this is user accessible and marking the inode with S_PRIVATE will
+bypass a number of LSM/SELinux access controls, possibly resulting in
+a security regression (one would need to dig a bit deeper to see what
+is possible with secretmem and which LSM/SELinux code paths would be
+affected).
+
+I'm less familiar with guest_memfd, but generally speaking if
+userspace can act on the inode/fd then we likely don't want the
+S_PRIVATE flag stripped from the anon_inode.
+
+Ackerley can you provide an explanation about why the change in
+S_PRIVATE was necessary?
+
+> > -     err =3D security_inode_init_security_anon(inode, &QSTR(anon_name)=
+, NULL);
+> > -     if (err) {
+> > -             file =3D ERR_PTR(err);
+> > -             goto err_free_inode;
+> > -     }
+> > -
+> >       file =3D alloc_file_pseudo(inode, secretmem_mnt, "secretmem",
+> >                                O_RDWR, &secretmem_fops);
+> >       if (IS_ERR(file))
+> > --
+> > 2.49.0.1204.g71687c7c1d-goog
+
+--=20
+paul-moore.com
