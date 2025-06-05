@@ -1,79 +1,93 @@
-Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8693418C06
-	for <selinux@vger.kernel.org>; Thu,  5 Jun 2025 19:03:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCD3F18C06
+	for <selinux@vger.kernel.org>; Thu,  5 Jun 2025 19:05:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749150209; cv=none; b=ShE+vaim1UqAhSnAiZDG97LvpbM5ruGq2Z+4iLLwIGi7IB4qgHxjU3kiho3OpRUR4bb/j2SgKMCvEphnPLaTkp+64AymEiTvsfQ7DUusiNo8Bw3VH66JDimwFP6veh1FrgYmRlWro8FipXPkYeHTPbko71q1WBUPccoIk3mieks=
+	t=1749150318; cv=none; b=YEv3smGtrFVicgt9hxLSkq/duTcUJvOLnF8bTBverPcl+5iB7RkCfKFCFz7dv7NQUFbIlKOKpV6BSjcHtaznT5Rrp9Ynuaf3pWddMqBrosg9HzBh9eZtISlaraMgkTu6dGFay1wlrbBpcMIpYER1A1mJxYx2l0jqv9e4lgZwYI4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749150209; c=relaxed/simple;
-	bh=jF2GxeDfCmtOKwk0s6YQuGOlAbmau0ufchEO5co6sq8=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=u2NENtx6Jyu2OIAa/jGnOtgSD5mhlFSfwoalot5ie110iIqzAUwk+UFKh54syjWoPuTqomdX00wVBJ10Na9KRW/MHerIxPKUtuDFwGxlL9zI41qpfjCcu5t2+XfjH5EPY3woTciFvP7wegNU3SN/8atDHDrRoO2yJmZawxzutQg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Wqn1peSg; arc=none smtp.client-ip=209.85.210.179
+	s=arc-20240116; t=1749150318; c=relaxed/simple;
+	bh=FIkQOoxO8pjALBDWGu2RzM6BwHFdTioaLOoM2vcEnnQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=ePio48yedvAowWip54IViBZ6DXVCRh+/bpiSkvusemCp4icbS4qrthBes8dBlv5jUJwyGbCW94A4+CDKGgccyGgcjnqrHaOObaRt1b8EwE6MWW0MIcU3m5vkCWP1NMdwhRD5f9beiBqpF4sx0GPvAlWGjK34Do31g/iAtgwW3AY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SZSToYxW; arc=none smtp.client-ip=209.85.215.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Wqn1peSg"
-Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-747e41d5469so1573307b3a.3
-        for <selinux@vger.kernel.org>; Thu, 05 Jun 2025 12:03:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SZSToYxW"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-b2f0faeb994so1367197a12.0
+        for <selinux@vger.kernel.org>; Thu, 05 Jun 2025 12:05:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749150207; x=1749755007; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=jF2GxeDfCmtOKwk0s6YQuGOlAbmau0ufchEO5co6sq8=;
-        b=Wqn1peSgYLqywgHh977yCV8kcmHYA48hTg1QG+xuAN1pDhegsyze7dYopXKFJsVl6Y
-         x4DmfRMpQboyP6vh1zKBrK2ACHOCT2urla7ln43VJad0roe6yAfeArOysjYwIur4U7f+
-         biKgvA+f1zf1i56DvP4mMV8/iRPWWu3krS4Pk5F7P0Qh3LiaVkh1R/BxPPgozmKD/eCT
-         pr0Wd78rjx9rmXjjwj8PWWpChjCoj+lYBY0rk+v5Dj7heUUFD3jQlNY4msDwTEi+2WSS
-         buduQa4xPEWo6lAviN1DdOsymNimy5q91qYUttcSPk4nCs42casNZJTx9qM7FPaEhQ0y
-         /nzg==
+        d=gmail.com; s=20230601; t=1749150314; x=1749755114; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FIkQOoxO8pjALBDWGu2RzM6BwHFdTioaLOoM2vcEnnQ=;
+        b=SZSToYxW6wrSA5ZfbslbvZTuyYT5vVDcEMjXlzhKP64mu37dDP2LSP+v/pT1d/VNA+
+         HJR4RbOz1mUp816e2fpJ2f851rexQ9nrlvqHHkqxIE0EH4tM4I/odx+Hs+EiSVxazM2w
+         ZYdFMbEF31xSBGQzVW0UI/s7rl4fO2ERp9B2RtC6qmFfMYs8qVWSdotFDsY7durQ+pjS
+         d+S5P5pL4BlcFLeEbmuYOfo6PVRgLGm20u3UNgNLSsKWEpKTNN2a+Eg0CGAc1MBb2nYm
+         SloKCTmLl11Xc2mZOkB772IFJYsAn3I3mmbAwhdveZ4fE+XeBzYOkPv6anuWg6pN1ebM
+         bIVw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749150207; x=1749755007;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=jF2GxeDfCmtOKwk0s6YQuGOlAbmau0ufchEO5co6sq8=;
-        b=ECNS9n8gCl3NicQFZ7o5SB4lSxZL8p8bOurTSTNlFHoPYOKh3/6XUby02PD/stq7Ze
-         89u7yDcoflX/wOcQvZxg6QPsEfb3OUOZnG78S4UCdfy6I87PQMYB0igD1da0nz53kvvX
-         koVh7ezY9wSD5POQDt6Z3MBnHKmo4TwlMwVr6zdU551f+939HeuGULG2nwdgiWycfe7w
-         ewBWQa71xql1HUlX02B9uMFyZNli/X2RTaSiO2x3JWkCJdjaBmliIigW83ohofZvPjak
-         2W9PvXEVtUOAPJoH/ssLDZt5T++wTPGwg3/tVfnovme1Ig4grzD21NBodr9lf3epj0ut
-         MrwQ==
-X-Gm-Message-State: AOJu0YzCOs1hi+t0a8o6wqCKhATpk/Uti7qYDjNx1hwwW2Ry9fkEXRJu
-	SLq4J5a63bUU4qa0vGh20a8okK2+W9Rtz0oRDeJhcXBOgIsghs3QRouEKX0dzqPPmcQ1+Mo6EXX
-	j2C5sCVFRFiC8Zks/fmRw345eGGhPxCK4Zw==
-X-Gm-Gg: ASbGnctfLn0K1jx4LKn8e/LHWlI1PGqmHR9D3m+vt1WKpn1EYQ9GKt/7G5IQQHXfncI
-	htlysF4kk9mTzAaqNZerwPsZvv55XesjqlyUODKdxpNmOnqpt+3NbJAivvuuUzjBzPhRdhgiyjv
-	r36WyBCfCAi2PsTm8F2LnRw2XxUltbMQZWeyx/LYWD/b4=
-X-Google-Smtp-Source: AGHT+IHPcBa20SkbKdMDbVWWqWo5bMsM3OhVJNPilxgOUcF3MrXIeqGTHL53GiYGMzJyqlU40GpmF9hmvuo8uFFQRZ0=
-X-Received: by 2002:a05:6a00:4f82:b0:740:6fa3:e429 with SMTP id
- d2e1a72fcca58-74827e9cbc2mr1030779b3a.11.1749150207530; Thu, 05 Jun 2025
- 12:03:27 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1749150314; x=1749755114;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FIkQOoxO8pjALBDWGu2RzM6BwHFdTioaLOoM2vcEnnQ=;
+        b=d5W76WsWshFbETJKWuQBP0h+gZVupzYZaz+2p2uMWUYbGshKrL1rF8w0N/jAHWJZGU
+         S5iL2gsSReHol/fu084XJpSGKqzrhr4AQjQSB7ul7voTCUvLRKQAMJ1V+PFCWh+WVmpI
+         UUti49tNy7FgqrboU8gv+Gq0S9pnJvyxABNcwCkL0Ne74/TQUGiQCUoD+904xruMG9zS
+         v8PHJ1BaTsWUAM52h/7Eiu+mTPu+eAmEMd2SWDqZub0Eq0Wwo/7QtPWhl+EWwL5UoLEN
+         l78NQi6ROyy8ubpoCbdnX9sABAt/m4aQG7L6hxaU7HrSI9KFjNRl6jeXQa3dF7KDI6Pn
+         ieGw==
+X-Gm-Message-State: AOJu0YwMmq5lVD3mdkR3y+RzbcZyI5VS+IKHclzJITY1eIabgNAZrNJt
+	NG5WmONbjhG9UWEssKF2eme+N6Wy9TYbu2/7744tGMxD0x9DGIWxOpD5fQCWzFpCAKLN6L9XCRB
+	/4dsxwau9u1YN3vbC4tIv8RwtD+gtYjrSon4x
+X-Gm-Gg: ASbGncu36IJqZm1qHAEWYaIla/BuTElhDzWMRApJv8m8rNetaBSO4Lg1De7Wlc5MfLl
+	YurLz5NW71zYsrMd0IqwtlrNEUm7tJjkkrXSo0QxatyjblkOaZBs2kQDaRkZF5SE3aK0grJrFpt
+	knel8zyt0tm/GHAFBZCivsdh3EumnC3EY3duDDU+gfkrBje+zpivas1A==
+X-Google-Smtp-Source: AGHT+IG+SOV5zGwirNBHmsaQ3k9bg009XyBvpnV6rUuuBSJ4li111FK/sfc1831VbjnAssrAwe2q2hLHXTiPudvl/cI=
+X-Received: by 2002:a17:90b:510e:b0:30e:8c5d:8e4 with SMTP id
+ 98e67ed59e1d1-31347405a40mr1317507a91.16.1749150313698; Thu, 05 Jun 2025
+ 12:05:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+References: <CAEjxPJ6P6oH4nUMwhFs=ctDekm3CHVtGgp+gx0QCjxZz5d4TCA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6P6oH4nUMwhFs=ctDekm3CHVtGgp+gx0QCjxZz5d4TCA@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 5 Jun 2025 15:03:15 -0400
-X-Gm-Features: AX0GCFvaVTI_MsbPi1cX_AdwWr7q7Z87Ms6beqZeQX6pmKg7H5XKMtNGL8ho0bo
-Message-ID: <CAEjxPJ6P6oH4nUMwhFs=ctDekm3CHVtGgp+gx0QCjxZz5d4TCA@mail.gmail.com>
-Subject: selinux userspace wiki
+Date: Thu, 5 Jun 2025 15:05:02 -0400
+X-Gm-Features: AX0GCFtGDw8D8XsYELGMC-rr7BWDg6CYk1Y9euSeZm0bU5gI6TMcU3deYwVjREc
+Message-ID: <CAEjxPJ7RbPCdJsO=CeRSisa+1=eLNOSkVWByGb2sdF1VUCLCCw@mail.gmail.com>
+Subject: Re: selinux userspace wiki
 To: SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Since I created a Getting Started guide under the selinux-kernel wiki
-[1], I also did some refreshing of the selinux userspace wiki [2],
-moved the Presentations and Papers sections from the kernel wiki to
-the latter, and cross-linked them for easy discovery. However, I had a
-few questions about the selinux userspace wiki:
+On Thu, Jun 5, 2025 at 3:03=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> Since I created a Getting Started guide under the selinux-kernel wiki
+> [1], I also did some refreshing of the selinux userspace wiki [2],
+> moved the Presentations and Papers sections from the kernel wiki to
+> the latter, and cross-linked them for easy discovery. However, I had a
+> few questions about the selinux userspace wiki:
+>
+> 1. The Home page and the Userspace Packages page are at least partly
+> redundant in their content, and the actual list of userspace packages
+> modified for SELinux was very out of date (I added a note to that
+> effect and how to query for a more current/accurate set). Should we
+> drop one or the other or somehow combine them?
+>
+> 2. The Tools page is likewise quite out of date. Do we want to refresh
+> it (and if so, does anyone want to do so), or drop it?
 
-1. The Home page and the Userspace Packages page are at least partly
-redundant in their content, and the actual list of userspace packages
-modified for SELinux was very out of date (I added a note to that
-effect and how to query for a more current/accurate set). Should we
-drop one or the other or somehow combine them?
+Sorry, forgot to include the links:
 
-2. The Tools page is likewise quite out of date. Do we want to refresh
-it (and if so, does anyone want to do so), or drop it?
+[1] https://github.com/selinuxproject/selinux-kernel/wiki
+[2] https://github.com/SELinuxProject/selinux/wiki
