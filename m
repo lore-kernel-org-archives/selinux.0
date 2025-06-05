@@ -1,259 +1,214 @@
-Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com [209.85.219.170])
+Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01E6020C016
-	for <selinux@vger.kernel.org>; Wed,  4 Jun 2025 21:13:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 368B5136E;
+	Thu,  5 Jun 2025 04:03:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749071629; cv=none; b=HrCyF2ooYhALEsmWGy7WD69x4jfJTj+QMJ6vESkGdbLHmyC4fPw6dA6Ne4nLwAHBNjPZb5EY+Fp82/zBs01nsniDgE/YKAYuPy3VC1FaznnpddjyavbSG+2AwrCnHtT2UGcflea+CgMTG6XVL3fmP7OKSKQhbcZvmDVG20nh6sc=
+	t=1749096221; cv=none; b=SVmZnFR21H9HXqd2MD0xAR89fpU8aonNs/sY+snHJVT3ZFsehAKbpnzy+TaowQeWBPHE238axLE4j5vyPAXx4dPhqmXs8EFkkZ1/J6QfTcX9OQVshOsm1wGGA0v1xAAa6yysFwplo8hED0pUMXxL1xNmjJRxTJ0d8MXE0mp8AFo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749071629; c=relaxed/simple;
-	bh=sWOJA7v7Ov16Q2lLF9qoja13SWcCS3EU3H+3Y0lbZz8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=J/EnzMbrU9PTrHMY+7D2m1V24z5oEISroJOqheTSAZ2ANdQOVc49oW/j5U9rPiMWIXKPOl4rPV1ZsSjEJyysRtLA7e6sUzuJJudNSZctpjTXaIxVGNMFij1ZPDjAsil9z4djlR/Xe7hEYmgYqtuf1gvmFeKlxBgSthDGEeY50AA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=J48ZOjUs; arc=none smtp.client-ip=209.85.219.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1749096221; c=relaxed/simple;
+	bh=fI8J9rG7JbSFo7ZW/8CY8BUJMXza+StESHTX68eOZkI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=WGoW1KwpPQxLHbf/CoZrB4VtPA04gIUWqUllY1omMUFVQTOdiWstYW+ZKjOrpoycSZEkrp9PZWSG3XrRX2IZ5w/5udKuP+5xmj72jHZD4hVr2t1qjRa+7uzThp0jzgrFeeu6SlAbgaoxHvqIiIjZW+MoIbF6iy2wZZ72Eyf+bxA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YP1uoV6T; arc=none smtp.client-ip=209.85.215.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="J48ZOjUs"
-Received: by mail-yb1-f170.google.com with SMTP id 3f1490d57ef6-e818a57287eso67676276.3
-        for <selinux@vger.kernel.org>; Wed, 04 Jun 2025 14:13:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YP1uoV6T"
+Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-b2c4331c50eso440136a12.3;
+        Wed, 04 Jun 2025 21:03:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1749071627; x=1749676427; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=RFILvALIoE88+amXnoIecD1FsclDUOa9FdnGICXctS8=;
-        b=J48ZOjUs0gsj1gujKn+DBWQnSptDO5yRJ16jdvn4uPtU3S3UZPfZwMAVcfgXv+j/f/
-         ALk6LRWyNA+CakxXcVJx2dlmjB41IXZmSRtRRrIdt3oXwPdBWmiebEfcywF6GyZLUdyp
-         D2SmzhGHh/zSxeHGLDqdnLJCzGsLrPDfXfrF76pF5ZoyWFO2htuTzJqDCILONYKufjdS
-         eXY28de8CiPJiT8ola9UaGLNnJqtpY5M9y/qWPutXkIVXpBjW7s3jNnyc5tAsOw5zY0b
-         DN7NeSufe1nUM2cXLlW8koJwvxtNMGRKTJj8hash7GuvLSPcsAYEvd+3a0c8ApvrZegy
-         E7lA==
+        d=gmail.com; s=20230601; t=1749096219; x=1749701019; darn=vger.kernel.org;
+        h=mime-version:user-agent:message-id:date:subject:cc:to:from:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=n8Cus5seLSLQKzB+xZDhAecKeXWVYO5YCmHd7YT8TtE=;
+        b=YP1uoV6TYAfRTdYqISgjTYVzHjfE34tzFCrmL6DPrxrrSW7kNIWVrM+u1EPsh5BOa3
+         XuiTmzlIY08zFxHQ39lQzJy6mTLt5OxiKT7ujgw6mTH/ltxCojOdG5YxjS0IUhq6A6YK
+         RodOt/I218HVXBd8IdQf7tKscUpLWAcmp93pN5FHy3kH+Tq2/Juk3LeFE3WAERviVjnV
+         mLWVboP3iQ4AIEZ8B9UhQrfQ1jW4Nq3s8qIwQP1OYK8Co6F0c9WkdabfVt4sMN+gKh6a
+         +6OYUcWbRGXom+A/1gzqsSJzediTfbLiepudF5GtrzN5Tf91J7zcVsjwMRqRgDpQa43k
+         wHhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749071627; x=1749676427;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RFILvALIoE88+amXnoIecD1FsclDUOa9FdnGICXctS8=;
-        b=Lo/BTvNbvJbOLRURWmNLQmjpblmU+DAkoq45sckoyD61qmlxIh223vqCMtrMaxAO5u
-         193KIDfEnaBQnIxqREKzdtJCZCQr/QSXLXr3qIJs1OJb9FW9ClfJGFCua4pv7DtgGLoB
-         hAHiA7LoGO9tHHXgQJWkJkC71T3KFWD8iwjdegjlqGE5KBrO0xyZCMpZ2S2DFmKQTK90
-         Y6dAdYuf7wRaEayFG637FiBCbC/7fILiHJ8olIUZc3AS1UOiKfxcv+pQkE2BzKQUDdVd
-         /T9LCspdxcWQ0+5QVwKduX5qE7ZUlbUwQuvJb4jfMVnAa1oJaTeI0tWqf9zXlc5MX0HM
-         +8Qw==
-X-Forwarded-Encrypted: i=1; AJvYcCWF4DCCPfIJwMLdAO8g+DBbB5R99s6Xmi4dLWidLZql3RYQfeEBd3chHec8zBSOyLbDekvYr43z@vger.kernel.org
-X-Gm-Message-State: AOJu0YwNw2rJfRRVefq4H31eSphuJLHq9a6qap/h3rGmryEcxuCVWIVv
-	z4RwniUTP2wWqF6EVLCRbttF8XGpptxLDZFZh/+NVf93RLFSzjyQrDWvGxtfTgS5/a2CvdDfPV5
-	/m1ThZPwxX4tkQ1P/zp5GY2oTAPQz+3g7U75ophXN
-X-Gm-Gg: ASbGncsgFQqGPEfUQhjMUSH8XBV03QJ3YxxpAc4ilH+M85+SfmNYoZoasXqLjea/i1j
-	C6y781s4mDad7tKBQPp0uoO25p06B1HEpPHSBxmAhbDHEd8am7pM8hA1DnjQH4OryBIW929fo0B
-	2XZbLUSt+2nzAfkJZhAiWmNVsyxqfGCfw29I0cFk9BGbU=
-X-Google-Smtp-Source: AGHT+IEzd3OT8v9HoRUzTyFAkQerHkAukxjDsy8RjmPaJTovfL79YwQkPcrXXduheAqGSFN+2XKJ11JKw/rxJLleniI=
-X-Received: by 2002:a05:6902:100c:b0:e7f:7352:bb31 with SMTP id
- 3f1490d57ef6-e8179d82fc0mr6218584276.39.1749071626412; Wed, 04 Jun 2025
- 14:13:46 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1749096219; x=1749701019;
+        h=mime-version:user-agent:message-id:date:subject:cc:to:from
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=n8Cus5seLSLQKzB+xZDhAecKeXWVYO5YCmHd7YT8TtE=;
+        b=Q57hqznM7castmZAVusQHte2ets0/Krmlh8+hHx9uKx/QVwRQlbNyvKlLpDTs/u5ry
+         HBbyj2pnGzxO7dUkQhHINkw0JFxHrB4GOhOuFwEdvFc1qKqlXtbYUNLYmYwSZOimgzuR
+         khV8ArdtCQoz0eAZ+htvK1EAqXXvYVBgMf+t3lK4NaQfYHaPqMOcG5wOdvJLxmyrFacL
+         JqhrwGFRSbydH6W//b+zas9ToRWzClJHnAatoFz4ds4ev+CVuD+1I7THzOeaCU4IplTT
+         J9G6p1XekppJe13FOBSHve7G/lgOOpV8wGBRs/YYkYmLdPuXcegmY5iU1IJeY9rg71T4
+         iqGw==
+X-Forwarded-Encrypted: i=1; AJvYcCVQQA/+/xx2Nyr8TU8JgSc5fwuPlUl5d6/PzNhOxhDn9md9No4fDLCjsfqfW5vhvB71tc1PfR5HPvI6xB4=@vger.kernel.org, AJvYcCWztBBkKG1g3qao3DyZ7zt5X2E2Die2FKAc0TpgEW4nCf6ImcQFv1G1q/DEss54HgsWCR9y4kgBHA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxUD7xVubMRLO02PZP1hWb4OalsXQxGUrmy6X1wz/AA3g5pQtJV
+	Z4MmfkaevVVwd+3yfxuQ3nqFb3uvmT6CzYDYO1uGjXb1SELLwtmRUvJr
+X-Gm-Gg: ASbGncv1Jmcvrnvas6TOM2tbcPy2WK5arb4blfEsyXQ9cEAM6j0jn0DUePH9rfhdbZb
+	hQnShQyqMlhgN2yC+8COU3HYUWR0nLOuKsUCAXqGtNHuR2uFsO/AxwB16av9B5j6USHrKzVbOrG
+	x39YHmqv9/S893i5D/q5v7Qdjsj5vC0kBTJk08LdDdPBxnWAtc2KsHeb4q3U3aAeV2DLfBNRolj
+	l1sYLKagR0FhsH7hBy05oQVpVMshnthoAQTixKMHq2SgWWLKVK+mB9FmeOMMt/OV9vq+3WIBSul
+	MqfSsJiduMHmFBVSjp6Okezt3K0wGJGB5YLnX1A8Yw==
+X-Google-Smtp-Source: AGHT+IFleYWpeplnyvLnUHsWZ/C1wgFh8kYYty+VwdGXtjDE7p3YQ3/FXG72/ONc4f5yHBGAVqT9CQ==
+X-Received: by 2002:a17:90b:1b42:b0:312:ec3b:82c0 with SMTP id 98e67ed59e1d1-3130ce8a426mr7886836a91.29.1749096219250;
+        Wed, 04 Jun 2025 21:03:39 -0700 (PDT)
+Received: from fedora ([2601:646:8081:3770::9eb])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3132bff65c0sm493926a91.6.2025.06.04.21.03.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 Jun 2025 21:03:38 -0700 (PDT)
+From: Collin Funk <collin.funk1@gmail.com>
+To: bug-gnulib@gnu.org
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+ selinux@vger.kernel.org, Christian Brauner <brauner@kernel.org>, Stephen
+ Smalley <stephen.smalley.work@gmail.com>
+Subject: Recent Linux kernel commit breaks Gnulib test suite.
+Date: Wed, 04 Jun 2025 21:03:37 -0700
+Message-ID: <8734ceal7q.fsf@gmail.com>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1748890962.git.ackerleytng@google.com> <c03fbe18c3ae90fb3fa7c71dc0ee164e6cc12103.1748890962.git.ackerleytng@google.com>
- <aD_8z4pd7JcFkAwX@kernel.org>
-In-Reply-To: <aD_8z4pd7JcFkAwX@kernel.org>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 4 Jun 2025 17:13:35 -0400
-X-Gm-Features: AX0GCFtyTLCLuG24EDdI8wKdQSrU3K8jUJ6RM6t9O342c2DffUvgfnmfuwj20Jg
-Message-ID: <CAHC9VhQczhrVx4YEGbXbAS8FLi0jaV1RB0kb8e4rPsUOXYLqtA@mail.gmail.com>
-Subject: Re: [PATCH 1/2] fs: Provide function that allocates a secure
- anonymous inode
-To: Mike Rapoport <rppt@kernel.org>, Ackerley Tng <ackerleytng@google.com>
-Cc: linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	kvm@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
-	x86@kernel.org, linux-fsdevel@vger.kernel.org, aik@amd.com, 
-	ajones@ventanamicro.com, akpm@linux-foundation.org, amoorthy@google.com, 
-	anthony.yznaga@oracle.com, anup@brainfault.org, aou@eecs.berkeley.edu, 
-	bfoster@redhat.com, binbin.wu@linux.intel.com, brauner@kernel.org, 
-	catalin.marinas@arm.com, chao.p.peng@intel.com, chenhuacai@kernel.org, 
-	dave.hansen@intel.com, david@redhat.com, dmatlack@google.com, 
-	dwmw@amazon.co.uk, erdemaktas@google.com, fan.du@intel.com, fvdl@google.com, 
-	graf@amazon.com, haibo1.xu@intel.com, hch@infradead.org, hughd@google.com, 
-	ira.weiny@intel.com, isaku.yamahata@intel.com, jack@suse.cz, 
-	james.morse@arm.com, jarkko@kernel.org, jgg@ziepe.ca, jgowans@amazon.com, 
-	jhubbard@nvidia.com, jroedel@suse.de, jthoughton@google.com, 
-	jun.miao@intel.com, kai.huang@intel.com, keirf@google.com, 
-	kent.overstreet@linux.dev, kirill.shutemov@intel.com, liam.merwick@oracle.com, 
-	maciej.wieczor-retman@intel.com, mail@maciej.szmigiero.name, maz@kernel.org, 
-	mic@digikod.net, michael.roth@amd.com, mpe@ellerman.id.au, 
-	muchun.song@linux.dev, nikunj@amd.com, nsaenz@amazon.es, 
-	oliver.upton@linux.dev, palmer@dabbelt.com, pankaj.gupta@amd.com, 
-	paul.walmsley@sifive.com, pbonzini@redhat.com, pdurrant@amazon.co.uk, 
-	peterx@redhat.com, pgonda@google.com, pvorel@suse.cz, qperret@google.com, 
-	quic_cvanscha@quicinc.com, quic_eberman@quicinc.com, 
-	quic_mnalajal@quicinc.com, quic_pderrin@quicinc.com, quic_pheragu@quicinc.com, 
-	quic_svaddagi@quicinc.com, quic_tsoni@quicinc.com, richard.weiyang@gmail.com, 
-	rick.p.edgecombe@intel.com, rientjes@google.com, roypat@amazon.co.uk, 
-	seanjc@google.com, shuah@kernel.org, steven.price@arm.com, 
-	steven.sistare@oracle.com, suzuki.poulose@arm.com, tabba@google.com, 
-	thomas.lendacky@amd.com, vannapurve@google.com, vbabka@suse.cz, 
-	viro@zeniv.linux.org.uk, vkuznets@redhat.com, wei.w.wang@intel.com, 
-	will@kernel.org, willy@infradead.org, xiaoyao.li@intel.com, 
-	yan.y.zhao@intel.com, yilun.xu@intel.com, yuzenghui@huawei.com, 
-	zhiquan1.li@intel.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 
-On Wed, Jun 4, 2025 at 3:59=E2=80=AFAM Mike Rapoport <rppt@kernel.org> wrot=
-e:
->
-> (added Paul Moore for selinux bits)
+Hi,
 
-Thanks Mike.
+Using the following testdir:
 
-I'm adding the LSM and SELinux lists too since there are others that
-will be interested as well.
+    $ git clone https://git.savannah.gnu.org/git/gnulib.git && cd gnulib
+    $ ./gnulib-tool --create-testdir --dir testdir1 --single-configure `./gnulib-tool --list | grep acl`
 
-> On Mon, Jun 02, 2025 at 12:17:54PM -0700, Ackerley Tng wrote:
-> > The new function, alloc_anon_secure_inode(), returns an inode after
-> > running checks in security_inode_init_security_anon().
-> >
-> > Also refactor secretmem's file creation process to use the new
-> > function.
-> >
-> > Suggested-by: David Hildenbrand <david@redhat.com>
-> > Signed-off-by: Ackerley Tng <ackerleytng@google.com>
-> > ---
-> >  fs/anon_inodes.c   | 22 ++++++++++++++++------
-> >  include/linux/fs.h |  1 +
-> >  mm/secretmem.c     |  9 +--------
-> >  3 files changed, 18 insertions(+), 14 deletions(-)
-> >
-> > diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
-> > index 583ac81669c2..4c3110378647 100644
-> > --- a/fs/anon_inodes.c
-> > +++ b/fs/anon_inodes.c
-> > @@ -55,17 +55,20 @@ static struct file_system_type anon_inode_fs_type =
-=3D {
-> >       .kill_sb        =3D kill_anon_super,
-> >  };
-> >
-> > -static struct inode *anon_inode_make_secure_inode(
-> > -     const char *name,
-> > -     const struct inode *context_inode)
-> > +static struct inode *anon_inode_make_secure_inode(struct super_block *=
-s,
-> > +             const char *name, const struct inode *context_inode,
-> > +             bool fs_internal)
-> >  {
-> >       struct inode *inode;
-> >       int error;
-> >
-> > -     inode =3D alloc_anon_inode(anon_inode_mnt->mnt_sb);
-> > +     inode =3D alloc_anon_inode(s);
-> >       if (IS_ERR(inode))
-> >               return inode;
-> > -     inode->i_flags &=3D ~S_PRIVATE;
-> > +
-> > +     if (!fs_internal)
-> > +             inode->i_flags &=3D ~S_PRIVATE;
-> > +
-> >       error =3D security_inode_init_security_anon(inode, &QSTR(name),
-> >                                                 context_inode);
-> >       if (error) {
-> > @@ -75,6 +78,12 @@ static struct inode *anon_inode_make_secure_inode(
-> >       return inode;
-> >  }
-> >
-> > +struct inode *alloc_anon_secure_inode(struct super_block *s, const cha=
-r *name)
-> > +{
-> > +     return anon_inode_make_secure_inode(s, name, NULL, true);
-> > +}
-> > +EXPORT_SYMBOL_GPL(alloc_anon_secure_inode);
-> > +
-> >  static struct file *__anon_inode_getfile(const char *name,
-> >                                        const struct file_operations *fo=
-ps,
-> >                                        void *priv, int flags,
-> > @@ -88,7 +97,8 @@ static struct file *__anon_inode_getfile(const char *=
-name,
-> >               return ERR_PTR(-ENOENT);
-> >
-> >       if (make_inode) {
-> > -             inode =3D anon_inode_make_secure_inode(name, context_inod=
-e);
-> > +             inode =3D anon_inode_make_secure_inode(anon_inode_mnt->mn=
-t_sb,
-> > +                                                  name, context_inode,=
- false);
-> >               if (IS_ERR(inode)) {
-> >                       file =3D ERR_CAST(inode);
-> >                       goto err;
-> > diff --git a/include/linux/fs.h b/include/linux/fs.h
-> > index 016b0fe1536e..0fded2e3c661 100644
-> > --- a/include/linux/fs.h
-> > +++ b/include/linux/fs.h
-> > @@ -3550,6 +3550,7 @@ extern int simple_write_begin(struct file *file, =
-struct address_space *mapping,
-> >  extern const struct address_space_operations ram_aops;
-> >  extern int always_delete_dentry(const struct dentry *);
-> >  extern struct inode *alloc_anon_inode(struct super_block *);
-> > +extern struct inode *alloc_anon_secure_inode(struct super_block *, con=
-st char *);
-> >  extern int simple_nosetlease(struct file *, int, struct file_lease **,=
- void **);
-> >  extern const struct dentry_operations simple_dentry_operations;
-> >
-> > diff --git a/mm/secretmem.c b/mm/secretmem.c
-> > index 1b0a214ee558..c0e459e58cb6 100644
-> > --- a/mm/secretmem.c
-> > +++ b/mm/secretmem.c
-> > @@ -195,18 +195,11 @@ static struct file *secretmem_file_create(unsigne=
-d long flags)
-> >       struct file *file;
-> >       struct inode *inode;
-> >       const char *anon_name =3D "[secretmem]";
-> > -     int err;
-> >
-> > -     inode =3D alloc_anon_inode(secretmem_mnt->mnt_sb);
-> > +     inode =3D alloc_anon_secure_inode(secretmem_mnt->mnt_sb, anon_nam=
-e);
-> >       if (IS_ERR(inode))
-> >               return ERR_CAST(inode);
->
-> I don't think we should not hide secretmem and guest_memfd inodes from
-> selinux, so clearing S_PRIVATE for them is not needed and you can just dr=
-op
-> fs_internal parameter in anon_inode_make_secure_inode()
+I see the following result:
 
-It's especially odd since I don't see any comments or descriptions
-about why this is being done.  The secretmem change is concerning as
-this is user accessible and marking the inode with S_PRIVATE will
-bypass a number of LSM/SELinux access controls, possibly resulting in
-a security regression (one would need to dig a bit deeper to see what
-is possible with secretmem and which LSM/SELinux code paths would be
-affected).
+    $ cd testdir1 && ./configure && make check
+    [...]
+    FAIL: test-copy-acl.sh
+    [...]
+    FAIL: test-file-has-acl.sh
 
-I'm less familiar with guest_memfd, but generally speaking if
-userspace can act on the inode/fd then we likely don't want the
-S_PRIVATE flag stripped from the anon_inode.
+This occurs with these two kernels:
 
-Ackerley can you provide an explanation about why the change in
-S_PRIVATE was necessary?
+    $ uname -r
+    6.14.9-300.fc42.x86_64
+    $ uname -r
+    6.14.8-300.fc42.x86_64
 
-> > -     err =3D security_inode_init_security_anon(inode, &QSTR(anon_name)=
-, NULL);
-> > -     if (err) {
-> > -             file =3D ERR_PTR(err);
-> > -             goto err_free_inode;
-> > -     }
-> > -
-> >       file =3D alloc_file_pseudo(inode, secretmem_mnt, "secretmem",
-> >                                O_RDWR, &secretmem_fops);
-> >       if (IS_ERR(file))
-> > --
-> > 2.49.0.1204.g71687c7c1d-goog
+But with this kernel:
 
---=20
-paul-moore.com
+    $ uname -r
+    6.14.6-300.fc42.x86_64
+
+The result is:
+
+    $ cd testdir1 && ./configure && make check
+    [...]
+    PASS: test-copy-acl.sh
+    [...]
+    PASS: test-file-has-acl.sh
+
+Here is the test-suite.log from 6.14.9-300.fc42.x86_64:
+
+    FAIL: test-copy-acl.sh
+    ======================
+    
+    /home/collin/.local/src/gnulib/testdir1/gltests/test-copy-acl: preserving permissions for 'tmpfile2': Numerical result out of range
+    FAIL test-copy-acl.sh (exit status: 1)
+    
+    FAIL: test-file-has-acl.sh
+    ==========================
+    
+    file_has_acl("tmpfile0") returned no, expected yes
+    FAIL test-file-has-acl.sh (exit status: 1)
+
+To investigate further, I created the testdir again after applying the
+following diff:
+
+    diff --git a/tests/test-copy-acl.sh b/tests/test-copy-acl.sh
+    index 061755f124..f9457e884f 100755
+    --- a/tests/test-copy-acl.sh
+    +++ b/tests/test-copy-acl.sh
+    @@ -209,7 +209,7 @@ cd "$builddir" ||
+       {
+         echo "Simple contents" > "$2"
+         chmod 600 "$2"
+    -    ${CHECKER} "$builddir"/test-copy-acl${EXEEXT} "$1" "$2" || exit 1
+    +    ${CHECKER} strace "$builddir"/test-copy-acl${EXEEXT} "$1" "$2" || exit 1
+         ${CHECKER} "$builddir"/test-sameacls${EXEEXT} "$1" "$2" || exit 1
+         func_test_same_acls                           "$1" "$2" || exit 1
+       }
+
+Then running the test from inside testdir1/gltests:
+
+    $ ./test-copy-acl.sh
+    [...]
+    access("/etc/selinux/config", F_OK)     = 0
+    openat(AT_FDCWD, "tmpfile0", O_RDONLY)  = 3
+    fstat(3, {st_mode=S_IFREG|0610, st_size=16, ...}) = 0
+    openat(AT_FDCWD, "tmpfile2", O_WRONLY)  = 4
+    fchmod(4, 0610)                         = 0
+    flistxattr(3, NULL, 0)                  = 17
+    flistxattr(3, 0x7ffda3f6c900, 17)       = -1 ERANGE (Numerical result out of range)
+    write(2, "/home/collin/.local/src/gnulib/t"..., 63/home/collin/.local/src/gnulib/testdir1/gltests/test-copy-acl: ) = 63
+    write(2, "preserving permissions for 'tmpf"..., 37preserving permissions for 'tmpfile2') = 37
+    write(2, ": Numerical result out of range", 31: Numerical result out of range) = 31
+    write(2, "\n", 1
+    )                       = 1
+    exit_group(1)                           = ?
+    +++ exited with 1 +++
+
+So, we get the buffer size from 'flistxattr(3, NULL, 0)' and then call
+it again after allocating it 'flistxattr(3, 0x7ffda3f6c900, 17)'. This
+shouldn't fail with ERANGE then.
+
+To confirm, I replaced 'strace' with 'gdb --args'. Here is the result:
+
+    (gdb) b qcopy_acl 
+    Breakpoint 1 at 0x400a10: file qcopy-acl.c, line 84.
+    (gdb) run
+    Starting program: /home/collin/.local/src/gnulib/testdir1/gltests/test-copy-acl tmpfile0 tmpfile2
+    [Thread debugging using libthread_db enabled]
+    Using host libthread_db library "/lib64/libthread_db.so.1".
+    
+    Breakpoint 1, qcopy_acl (src_name=src_name@entry=0x7fffffffd7c3 "tmpfile0", source_desc=source_desc@entry=3, 
+        dst_name=dst_name@entry=0x7fffffffd7cc "tmpfile2", dest_desc=dest_desc@entry=4, mode=mode@entry=392) at qcopy-acl.c:84
+    84	  ret = chmod_or_fchmod (dst_name, dest_desc, mode);
+    (gdb) n
+    90	  if (ret == 0)
+    (gdb) n
+    92	      ret = source_desc <= 0 || dest_desc <= 0
+    (gdb) s
+    attr_copy_fd (src_path=src_path@entry=0x7fffffffd7c3 "tmpfile0", src_fd=src_fd@entry=3, dst_path=dst_path@entry=0x7fffffffd7cc "tmpfile2", 
+        dst_fd=dst_fd@entry=4, check=check@entry=0x4009b0 <is_attr_permissions>, ctx=ctx@entry=0x0) at libattr/attr_copy_fd.c:73
+    73		if (check == NULL)
+    (gdb) n
+    76		size = flistxattr (src_fd, NULL, 0);
+    (gdb) n
+    77		if (size < 0) {
+    (gdb) print size
+    $1 = 17
+    (gdb) n
+    86		names = (char *) my_alloc (size+1);
+    (gdb) n
+    92		size = flistxattr (src_fd, names, size);
+    (gdb) print errno
+    $2 = 0
+    (gdb) n
+    93		if (size < 0) {
+    (gdb) print size
+    $3 = -1
+    (gdb) print errno
+    $4 = 34
+
+After confirming with the Fedora Kernel tags [1], I am fairly confident
+that it was caused by this commit [2].
+
+But I am not familiar enough with ACLs, SELinux, or the Kernel to know
+the fix.
+
+Adding the lists where this was discussed and some of the signers to CC,
+since they will know better than me.
+
+Collin
+
+[1] https://gitlab.com/cki-project/kernel-ark
+[2] https://github.com/torvalds/linux/commit/8b0ba61df5a1c44e2b3cf683831a4fc5e24ea99d
