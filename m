@@ -1,124 +1,95 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 325112AD0C
-	for <selinux@vger.kernel.org>; Thu,  5 Jun 2025 12:46:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1D81254B17
+	for <selinux@vger.kernel.org>; Thu,  5 Jun 2025 13:34:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749127568; cv=none; b=B21cH9huISn3Db4mMouhYY9OU9MBeQ6Clt2m3J8cps39aHp6U8SqEjUJiC+XTnJ7YVqkVl4VlPD+SceSWHNje0mEMuDjxYNvoVNKWL8RqFqFv2lNA5kQ1ih72BmuPhah8GipD+nw/6552SRg0mT/2Bfvlmf3eZW/ZgpEJNInlYI=
+	t=1749130467; cv=none; b=qziZ+HwSeCOJOc0tCyGSyI4nsab+yYX/s76IfByu2jxqYKgkoE6qMPbkRBd7npWi+Emmxm8r1MkRca4ovpdL2F0v+LmVsR3/YD6JIx2E78qWrhHcyrDcoQxh1t5aoMWmhFWwQV8VPkcODL2FiFbP/kgJoktsIW5AJktkdWdVlb4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749127568; c=relaxed/simple;
-	bh=3naUmURdAhGtJTCFCksdJU1C7vp0CYOOR/ZlLunETME=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kN9IfKbxTbQZWfr/cgSuwMMNXyf8pnH/pHI1txJB4b0FrWgpRN0S4DTkPBQK2WWyxF6sscDhR2zkIJA9R8eHBoOdXj+lDMEk57So6+s2cSWWuCrSdlb21XRrTDM+PtNlBucNgaNfuCGs5dX9RtY49i/drmhFTGt5wIKOEdEOp9E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GJo657DM; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1749130467; c=relaxed/simple;
+	bh=k3ObBbyX2n2un1z8uiiywXjWpiz3YBPQBnzWw8x4y/I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-type; b=ivSrjLIHU3dHwdp+RxVemLCSPDdHcO39Ai2qvz8qYJj+fMnU2E/Jn2OF/xeAjq4ssihJi8ALiyOxZ9jq1KSd6Xqm6rbhldpN4dAzg+xb0GFfABNiwQ1L0b9hwBKolU6QNBhHyqvYvHmOHYimGGKRIetPndDZQvElu+uuL9IiiYM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JHW2NPlB; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GJo657DM"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JHW2NPlB"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749127566;
+	s=mimecast20190719; t=1749130464;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=dL3tEa4NUL/2XAjFqfNtlWaq+37EHnochldxIJyV3dY=;
-	b=GJo657DMvEwEoEDzLXVKrqFoT7dBFRMoZwagWUcnCkh9N9VJw3ypvgBZooa2cfkgMm5ZWR
-	akPx6sXENshrZ7YNyneW/QzH5RWoaMuzvNCWxmIsd4wrtuE0iS6ZcT0sS0k8jSpcaRZ4+7
-	kkAZ+JMqLbeBh2tyxYcScxJlTdep++M=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-596-YkS7IKlqMgCkE_1ZPmpl0w-1; Thu, 05 Jun 2025 08:46:05 -0400
-X-MC-Unique: YkS7IKlqMgCkE_1ZPmpl0w-1
-X-Mimecast-MFC-AGG-ID: YkS7IKlqMgCkE_1ZPmpl0w_1749127564
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-311e7337f26so823531a91.3
-        for <selinux@vger.kernel.org>; Thu, 05 Jun 2025 05:46:04 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749127563; x=1749732363;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=dL3tEa4NUL/2XAjFqfNtlWaq+37EHnochldxIJyV3dY=;
-        b=OLhtgyonaA971evR42l2WOjYa1H5RKgPjIt8ay7G9trvqkqCeGUQcfSLCDnzxtnNic
-         n/uA5Pa5cfo+Hd6okuUsdNVbiBeNSr5tH0aX/3k0PjfH8VBJJHbvOnsh+CgBlomZDOhe
-         3JHn3Dj+yfhbVnlptxZHGUBCnjfR7XI2t/3RS3cwA8Doy6HlQcqybWKWX6uN/NHXQNI5
-         N996sqeHlQMs6HhgISCTVfOaexL+fFhpj6Ykv6hVJXkD5MGC016pVGnDOBpMc4IwcAlM
-         oA9R7xzddIsrZQ4tM4XxUB8dkXrc1phYEWlvpVN1MmTHGjkIyLkUdteQvRmW6aZdVV1E
-         M/vA==
-X-Gm-Message-State: AOJu0Yy0LoMVtetR9l0+SMT6Ijw/JFz8VBaC2lVlw2oeNsMD5tIE7hfR
-	mFzEOI+c7EWtVLcwSZTACIIgphmxATgKUjGeY9ktg4MRH14XSGKdVZPtBOq35ocAfpYvuTOoa0J
-	362utVgsJYpi2rQDw6AmYYlwvFjWo2Myl2xLPE9nGUbUsYSJ9lZ9OWx4fmTrJ2pLEq0NqCkW4v6
-	Ias9MgGKSuKNpM12rUzVZzcfOTSKj6qKe0jG/zVDxSt/ff
-X-Gm-Gg: ASbGncsOt+WIq3SczOgrfoy9vZZfv7CED/xH4J5s02AvZDdzIHjkJEA4PBl1Y9/0yyM
-	JwQ8UL9JWj2Cu7cSj0d5ZrUYoN/G4PQs2f8o8OKpPhbv6a2/TyJ8JwnzeIRaZ3wl/QbY21JURFg
-	SXG1/ksPaTHf17hfS77HGpy4YvFw==
-X-Received: by 2002:a17:90b:4ccf:b0:311:b0d3:865 with SMTP id 98e67ed59e1d1-3130ce9b496mr8820833a91.32.1749127563377;
-        Thu, 05 Jun 2025 05:46:03 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IFtuKUoDrFByc2fqGNyrrjf9UpLoNGAU5wx9A0ZKiifjUfx26ADwmg09QgzyG9ADuWx9AKRs5rSkLBDk4z2AqE=
-X-Received: by 2002:a17:90b:4ccf:b0:311:b0d3:865 with SMTP id
- 98e67ed59e1d1-3130ce9b496mr8820796a91.32.1749127562911; Thu, 05 Jun 2025
- 05:46:02 -0700 (PDT)
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=lI/g/Myu80zrdFoIWg2YHL+dQ86CxBnFQBnk1V4q2cs=;
+	b=JHW2NPlB+ZxPYK+6e8bTgCy4BEYezOyPwCRq5qf77yzkCTj4jT+nzNOMEiCm7sHL+pJKXW
+	KJwt/yiULTuyfKC4AcsCAped6J51Gwu3/hVDuCzPaU9uGiQzTEEkq0bi3bdkfHOuDiWQUN
+	/Lc23sfkGdizm48+2u0fTtA0I9bHx0U=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-135-7Dd9-YroPyybj-Oqzxf-mg-1; Thu,
+ 05 Jun 2025 09:34:23 -0400
+X-MC-Unique: 7Dd9-YroPyybj-Oqzxf-mg-1
+X-Mimecast-MFC-AGG-ID: 7Dd9-YroPyybj-Oqzxf-mg_1749130462
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A15521956080
+	for <selinux@vger.kernel.org>; Thu,  5 Jun 2025 13:34:22 +0000 (UTC)
+Received: from p16v.redhat.com (unknown [10.45.226.60])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 5F6CF18002B3;
+	Thu,  5 Jun 2025 13:34:21 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Cc: Petr Lautrbach <lautrbach@redhat.com>
+Subject: [PATCH selinux-testsuite 1/2] userns_child_exec: Propagate child exit value
+Date: Thu,  5 Jun 2025 15:34:00 +0200
+Message-ID: <20250605133414.939461-1-lautrbach@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <1748100564.11369.2.camel@trentalancia.com>
-In-Reply-To: <1748100564.11369.2.camel@trentalancia.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Thu, 5 Jun 2025 14:45:51 +0200
-X-Gm-Features: AX0GCFu_Q9YFQ3GIJ4jbQRvX2h-gY6CK38Z4Gp8lbyGISkZQ6wLRppp0GOjNgAY
-Message-ID: <CAFqZXNufHFEA8304qvTi8znWUmrznqyywWMDJYgBASN+VbvLSA@mail.gmail.com>
-Subject: Re: [PATCH] Only set the initial SID for early-boot userspace tasks
- if the policy supports the new capability
-To: Guido Trentalancia <guido@trentalancia.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Sat, May 24, 2025 at 5:32=E2=80=AFPM Guido Trentalancia
-<guido@trentalancia.com> wrote:
->
-> Before the policy is loaded, only set the initial SID
-> for early-boot userspace tasks if the policy supports
-> such capability.
->
-> Check for POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT,
-> otherwise preserve the old behavior of using the
-> SECINITSID_KERNEL label for early-boot userspace
-> processes.
->
-> Fixes: ae254858ce07 ("selinux: introduce an initial SID for early boot pr=
-ocesses")
-> Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
-> ---
->  security/selinux/hooks.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> --- a/security/selinux/hooks.c  2025-05-24 14:37:45.499997561 +0200
-> +++ b/security/selinux/hooks.c  2025-05-24 14:36:58.453997848 +0200
-> @@ -2319,7 +2319,7 @@ static int selinux_bprm_creds_for_exec(s
->          * early boot end up with a label different from SECINITSID_KERNE=
-L
->          * (if the policy chooses to set SECINITSID_INIT !=3D SECINITSID_=
-KERNEL).
->          */
-> -       if (!selinux_initialized()) {
-> +       if (!selinux_initialized() && selinux_policycap_userspace_initial=
-_context()) {
->                 new_tsec->sid =3D SECINITSID_INIT;
->                 /* also clear the exec_sid just in case */
->                 new_tsec->exec_sid =3D 0;
->
+Sometimes it's useful to know how a child ended.
 
-This doesn't make sense - obviously you can't check what capabilities
-the policy supports when it's not loaded yet... Does the current
-behavior break something for you?
+Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+---
+ tests/cap_userns/userns_child_exec.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+diff --git a/tests/cap_userns/userns_child_exec.c b/tests/cap_userns/userns_child_exec.c
+index cdbf1205a717..2ee831a3ba7e 100644
+--- a/tests/cap_userns/userns_child_exec.c
++++ b/tests/cap_userns/userns_child_exec.c
+@@ -198,7 +198,7 @@ static char child_stack[STACK_SIZE];    /* Space for child's stack */
+ int
+ main(int argc, char *argv[])
+ {
+-	int flags, opt, map_zero, test_clone = 0;
++	int flags, opt, map_zero, test_clone = 0, wstatus;
+ 	pid_t child_pid;
+ 	struct child_args args;
+ 	char *uid_map, *gid_map;
+@@ -332,11 +332,11 @@ main(int argc, char *argv[])
+ 
+ 	close(args.pipe_fd[1]);
+ 
+-	if (waitpid(child_pid, NULL, 0) == -1)      /* Wait for child */
++	if (waitpid(child_pid, &wstatus, 0) == -1)      /* Wait for child */
+ 		errExit("waitpid");
+ 
+ 	if (verbose)
+ 		printf("%s: terminating\n", argv[0]);
+ 
+-	exit(EXIT_SUCCESS);
++	exit(WEXITSTATUS(wstatus));
+ }
+-- 
+2.49.0
 
