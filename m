@@ -1,169 +1,88 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx.swemel.ru (mx.swemel.ru [95.143.211.150])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 243F723BD06
-	for <selinux@vger.kernel.org>; Fri,  6 Jun 2025 12:36:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B31B27FD5A;
+	Fri,  6 Jun 2025 13:38:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.143.211.150
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749213388; cv=none; b=paFc4KFQDQ0U7FPJvdktMYS7K8unYbm7kDC05AgroIeieQAXw/kmWuQCBw2x9tqpj0Y0JL21AuIQl78AavHR3nEW+36AIMAegkzKlxee9nOnZjHuPobNbOVbvNANqsou97P98DjSgWUSWrFapxHcS7i6ThG8jhnqmVvE9RjzbWc=
+	t=1749217141; cv=none; b=okuciEbyt+5K/FBlIVIEBYYXbASJBdEqGUhsK7NbY3wuxOqo7rqfRytZb5plKVOvwzpErsoFeFxDBeh04+5rIxjqi6NtSyczCR34njOUMz21QplDc/bhgzORWQTiSthWzqd1ASc34Cm4k9Er97UckU/k2DAg668KNWLNQw9VwRw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749213388; c=relaxed/simple;
-	bh=yE/Hpe7sBkmdYFplQqtlxD4neSEedgiW/iUp+p1ijKM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-type; b=CwJ0c9agS8fdz+YYB3URdSy+lXpPyMiIfQGr9QZlgOekXPJ+8SXGbQE2BuhhkdcCkW3QmY8DqKAyxTwMbeBUeZndzm74Jr6KG1/bnMDhLfCUek1SblYSsnx8oJozcBKWD/aKlVrBdMN4mRaE19sAYW/DqQrGZ5LTYglB4Ddou3E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jQjPAcPO; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1749217141; c=relaxed/simple;
+	bh=mdgDgqmHWYRMiJBeD5MRWizVMkY2pth50iG8rwuBYOo=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=ol+VIMfRd+hXq9/5imDAvGpzAh4wM39XuE3xhJcLHzt0slQ9qDYZMyTxsxm0nNC4edK7Pk2NPRE7z8B0X979OwnHQNZEte3NW1m7Ezr4WJqvhJkbMIhLRNd4MBVhVB4V2llDPlVJguraTOcK1B/xj035R4JdP8ogXNxgauVRiHg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=swemel.ru; spf=pass smtp.mailfrom=swemel.ru; dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b=kX2stUGY; arc=none smtp.client-ip=95.143.211.150
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=swemel.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=swemel.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jQjPAcPO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749213386;
+	dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b="kX2stUGY"
+Message-ID: <49730b18-605f-4194-8f93-86f832f4b8f8@swemel.ru>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=swemel.ru; s=mail;
+	t=1749217127;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=9lSGwIYcuPnO26RW/YoSrP9lRCv0zzg0w7pCuSetKt4=;
-	b=jQjPAcPOj2UGZFMHo1zEBxWR6nW8wyk8wmzubw2Sbe2g7w3KG32E846Vq39hGKehjcKduv
-	q7t5GEk098EPAIcG9S9FCPwOZrOIGc2D9zSY9YwBdf6pg1KBYVKtHJivDBg6jrPJx39H6y
-	OROkULnDu++E1KnXzFxpXVm89n19iMQ=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-359-V1dFOrnqPiyBWrHoJR6FSg-1; Fri,
- 06 Jun 2025 08:36:24 -0400
-X-MC-Unique: V1dFOrnqPiyBWrHoJR6FSg-1
-X-Mimecast-MFC-AGG-ID: V1dFOrnqPiyBWrHoJR6FSg_1749213384
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 0F64919560A2
-	for <selinux@vger.kernel.org>; Fri,  6 Jun 2025 12:36:24 +0000 (UTC)
-Received: from p16v.redhat.com (unknown [10.44.33.43])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 0981319560B2;
-	Fri,  6 Jun 2025 12:36:22 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: selinux@vger.kernel.org
-Cc: Petr Lautrbach <lautrbach@redhat.com>
-Subject: [PATCH selinux-testsuite v3 2/2] Add tests for checkpoint_restore in cap2_userns
-Date: Fri,  6 Jun 2025 14:35:34 +0200
-Message-ID: <20250606123615.1029847-2-lautrbach@redhat.com>
-In-Reply-To: <20250606123615.1029847-1-lautrbach@redhat.com>
-References: <20250606123615.1029847-1-lautrbach@redhat.com>
+	bh=1jhQpF+R0Z64uKurrBCjq0j+He4F0llIw3IZaku5tJQ=;
+	b=kX2stUGY573U2qg5ZI0N4pwIUvvKTudDnhgBPWBxxBfNPRZa04Z6CrkvK4PuxDlhqJ3LoC
+	Q9GTAM36hxbyZMg72yzNobP8Sz4rBd1z+kE8wvjSZxuCkBw/uDfwb0YIORVzLfgvb+Ogqq
+	q5AIMWU8zyzj/qGt9DJNU/u3whTPNEM=
+Date: Fri, 6 Jun 2025 16:39:45 +0300
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
+From: Konstantin Andreev <andreev@swemel.ru>
+Subject: Re: [PATCH v2] security,fs,nfs,net: update
+ security_inode_listsecurity() interface
+To: linux-security-module@vger.kernel.org
+Cc: linux-nfs@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, netdev@vger.kernel.org,
+ selinux@vger.kernel.org, Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Christian Brauner <brauner@kernel.org>,
+ Casey Schaufler <casey@schaufler-ca.com>, Paul Moore <paul@paul-moore.com>
+References: <20250428195022.24587-2-stephen.smalley.work@gmail.com>
+Content-Language: en-US
+In-Reply-To: <20250428195022.24587-2-stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Jun 2025 13:38:46.0205 (UTC) FILETIME=[53AB3ED0:01DBD6E8]
 
-According to pid_namespaces(7) CAP_CHECK_RESTORE is required to write to
-/proc/sys/kernel/ns_last_pid
-Check whether a process in user and pid namespace is able to write there
-when it has cap2_userns checkpoint_restore allowed.
+Stephen Smalley, 28/04/2025:
+> Update the security_inode_listsecurity() interface to allow
+> use of the xattr_list_one() helper and update the hook
+> implementations.
+> 
+> Link: https://lore.kernel.org/selinux/20250424152822.2719-1-stephen.smalley.work@gmail.com/
 
-Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
----
+Sorry for being late to the party.
 
-v3 - redirect stderr to stdout
+Your approach assumes that every fs-specific xattr lister
+called like
 
- policy/test_cap_userns.te | 15 +++++++++++++++
- tests/cap_userns/test     | 36 +++++++++++++++++++++++++++++++++---
- 2 files changed, 48 insertions(+), 3 deletions(-)
+| vfs_listxattr() {
+|    if (inode->i_op->listxattr)
+|        error = inode->i_op->listxattr(dentry, list, size)
+|   ...
 
-diff --git a/policy/test_cap_userns.te b/policy/test_cap_userns.te
-index 6f444871bcf0..402675b2eb7e 100644
---- a/policy/test_cap_userns.te
-+++ b/policy/test_cap_userns.te
-@@ -4,6 +4,7 @@
- #
- 
- attribute capusernsdomain;
-+attribute cap2usernsdomain;
- 
- # Domain for process that is allowed non-init userns capabilities
- type test_cap_userns_t;
-@@ -22,3 +23,17 @@ typeattribute test_no_cap_userns_t capusernsdomain;
- allow_userns_create(capusernsdomain)
- # linux >= v5.12 needs setfcap to map UID 0
- allow capusernsdomain self:capability setfcap;
-+
-+# Domain for process that is allowed to use cap_checkpoint_restore
-+type test_cap2_userns_t;
-+testsuite_domain_type(test_cap2_userns_t)
-+typeattribute test_cap2_userns_t cap2usernsdomain;
-+allow test_cap2_userns_t self:cap2_userns checkpoint_restore;
-+
-+# Domain for process that is not to use cap_checkpoint_restore
-+type test_no_cap2_userns_t;
-+testsuite_domain_type(test_no_cap2_userns_t)
-+typeattribute test_no_cap2_userns_t cap2usernsdomain;
-+
-+# Rules common to both domains.
-+kernel_rw_kernel_ns_lastpid_sysctl(cap2usernsdomain)
-diff --git a/tests/cap_userns/test b/tests/cap_userns/test
-index 917da00e4805..ba7b089435be 100755
---- a/tests/cap_userns/test
-+++ b/tests/cap_userns/test
-@@ -6,15 +6,28 @@ BEGIN {
-     $basedir = $0;
-     $basedir =~ s|(.*)/[^/]*|$1|;
- 
-+    $test_checkpoint = 0;
-+
-     if ( -e '/proc/sys/kernel/unprivileged_userns_clone' ) {
-         system(
-             "echo 1 > /proc/sys/kernel/unprivileged_userns_clone 2> /dev/null");
-     }
--    if ( system("$basedir/userns_child_exec -t -U > /dev/null 2>&1") == 0 ) {
--        plan tests => 2;
-+    if ( system("$basedir/userns_child_exec -t -U > /dev/null 2>&1") != 0 ) {
-+        plan skip_all => "CLONE_NEWUSER not supported";
-     }
-     else {
--        plan skip_all => "CLONE_NEWUSER not supported";
-+        $test_count = 2;
-+
-+        # CAP_CHECKPOINT_RESTORE is supported since 5.9
-+        $kvercur = `uname -r`;
-+        chomp($kvercur);
-+
-+        if ( `$basedir/../kvercmp $kvercur 5.9` > 0 ) {
-+            $test_checkpoint = 1;
-+            $test_count += 2;
-+        }
-+
-+        plan tests => $test_count;
-     }
- }
- 
-@@ -32,6 +45,23 @@ $result = system(
- );
- ok($result);
- 
-+if ($test_checkpoint) {
-+
-+    # Verify that test_cap2_userns_t can use cap_checkpoint_restore
-+
-+    $result = system(
-+"$basedir/userns_child_exec -p -U -M '0 0 1' -G '0 0 1' -- runcon -t test_cap2_userns_t -- sh -c 'echo 1000 > /proc/sys/kernel/ns_last_pid' 2>&1"
-+    );
-+    ok( $result eq 0 );
-+
-+    # Verify that test_no_cap_userns_t cannot use cap_checkpoint_restore
-+
-+    $result = system(
-+"$basedir/userns_child_exec -p -U -M '0 0 1' -G '0 0 1' -- runcon -t test_no_cap2_userns_t -- sh -c 'echo 1000 > /proc/sys/kernel/ns_last_pid' 2>&1"
-+    );
-+    ok($result);
-+}
-+
- if ( -e '/proc/sys/kernel/unprivileged_userns_clone' ) {
-     system("echo 0 > /proc/sys/kernel/unprivileged_userns_clone 2> /dev/null");
- }
--- 
-2.49.0
+must call LSM to integrate LSM's xattr(s) into fs-specific list.
+You did this for tmpfs:
 
+| simple_xattr_list() {
+|   security_inode_listsecurity()
+|   // iterate real xatts list
+
+
+Well, but what about other filesystems in the linux kernel?
+Should all of them also modify their xattr listers?
+
+To me, taking care of security xattrs is improper responsibility
+for filesystem code.
+
+May it be better to merge LSM xattrs
+and fs-backed xattrs at the vfs level (vfs_listxattr)?
+
+--
+Konstantin Andreev
