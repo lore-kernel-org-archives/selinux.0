@@ -1,99 +1,254 @@
-Received: from markus.defensec.nl (markus.defensec.nl [45.80.168.93])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from sonic303-28.consmr.mail.ne1.yahoo.com (sonic303-28.consmr.mail.ne1.yahoo.com [66.163.188.154])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B562216E24
-	for <selinux@vger.kernel.org>; Fri,  6 Jun 2025 20:13:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.80.168.93
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEB0118C31
+	for <selinux@vger.kernel.org>; Sat,  7 Jun 2025 00:51:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.188.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749240816; cv=none; b=j2+LQ5ix8QsSA+yS8hb78p7xSK5H4d6NkGC4a23X6uyxsIX6RZ6UiZ7iixvHz32edHx9ARinK/NBjapmYy9OYnih4c03SHq633+qRNXIFBegaNRnyChAwMqzqwx0NZAU4seYaEJ2qDjxooOcmSc+SgU6Vi6FKdZ9689Ywy3Jm9o=
+	t=1749257508; cv=none; b=cAsUQfwcg8M+JELYWyviAdVVjnT6Fu4eyMHxN8wu0vkjQuv37Ed7McRrkBhSgLRP9NJ/Cpe7O32qdWLfQXR858auHUTlFEdshBYu7HQMddO6mmbHFgdd4tkG00+R5L5P6YKGRYcs3XjcM/6agKLrSwnSWJ19KiNG4SkfND6DBKQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749240816; c=relaxed/simple;
-	bh=okprkF+Ur51kysKutyKEfwtJqG4bghjbjWxibnKrkg8=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=o12uJCdaFQ2bxbyTy2GRqhPR9B76mLVeDV3EZfodOsPoZwALrm3UiXVMdX/jr5tj4mEBsrr8HZAMUIsgSxrvgqSS+U1m6iysZtqA354pQPVdpcoNQFUZzM0nAV/sBOmnVi1MGlHFOPn3RxEDBiyE3PUW/8Bux3x2twt/Dai5pB4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl; spf=pass smtp.mailfrom=defensec.nl; dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b=id0buRWD; arc=none smtp.client-ip=45.80.168.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=defensec.nl
+	s=arc-20240116; t=1749257508; c=relaxed/simple;
+	bh=2pOezyS2qZSc5TQVN6o92sO38Z6T9iIfdEifdZOn8G4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=rLNuGhb6TBbnx1sO8KBod2uHiy8bkc02sXS0WVWfw5SijgH4r3CO9vWPkogcxJyo3svePlWEX1ZWzIqgc0p2jnTlKSqMyvzzYQuNbogi6/LFmmpOukSO5sjH5vlpw7vnaf1OI3mAifCNvMfNmfFYwrlkMCSC/LjNSGVPxkFnbO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=Gx23wNyv; arc=none smtp.client-ip=66.163.188.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="id0buRWD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
-	s=default; t=1749240584;
-	bh=okprkF+Ur51kysKutyKEfwtJqG4bghjbjWxibnKrkg8=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=id0buRWDaFh8nhoxcRsjIj4qYHhNHTCatw78WzcXTLUpTVcNb4PneAb7adKcjxFdr
-	 F+drseX9Mx1bjfWJGHrRLqMb3UykElockYUWD0l/fFoYQ9TjWfIf5pfnsBVeIUzbkm
-	 4g99RKpTYpGcWRSABPbjkskgRThICtgx2XTutWEg=
-Received: from nimbus (nimbus.lan [IPv6:2a10:3781:2099::514])
-	by markus.defensec.nl (Postfix) with ESMTPSA id DC8391A0DE2;
-	Fri, 06 Jun 2025 22:09:44 +0200 (CEST)
-From: Dominick Grift <dominick.grift@defensec.nl>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: SElinux list <selinux@vger.kernel.org>
-Subject: Re: selinux userspace wiki
-In-Reply-To: <CAEjxPJ5PHAU-_ru9=zN_iuvLGEGDxL_T50-fW4XecnZ6p2ww8A@mail.gmail.com>
-	(Stephen Smalley's message of "Fri, 6 Jun 2025 15:39:21 -0400")
-References: <CAEjxPJ6P6oH4nUMwhFs=ctDekm3CHVtGgp+gx0QCjxZz5d4TCA@mail.gmail.com>
-	<CAEjxPJ7RbPCdJsO=CeRSisa+1=eLNOSkVWByGb2sdF1VUCLCCw@mail.gmail.com>
-	<CAEjxPJ5PHAU-_ru9=zN_iuvLGEGDxL_T50-fW4XecnZ6p2ww8A@mail.gmail.com>
-Date: Fri, 06 Jun 2025 22:09:44 +0200
-Message-ID: <87zfeky6lz.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Gx23wNyv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1749257505; bh=ztbvXsukeivLvQbhQeIQBI0l9DOjlssE9T9GW9VTq1o=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=Gx23wNyvhnqsrqyNKoThrUa09uWArZTFjGFx+OzGiAuwGqIxsM7/HTW87E9eRNk4BhEd07rEutF7s9QazbJ5e49o5ZT7/SO6LhbaW/wnWpxSr4lA0zbHQlo313AeNsPBJ/RI2QKdFRQS8srmcwiyveKVYwazE7lqJl6XBNYo3WovxhYawrgkR9Hc76GKPFCCbZ+UZQ1Yaw0InUS4TJpl6Y754r86nl2uXdo1MqRPoUD2bq9qVpnKYBZ3Yoi9lWY/BBnzi1Plw77A6J/YpYOB89abTxGEABtFxd4qhZMCz3L/MMA2MWQnB6OsuNXyq3aNlFsaxmQdXvROfLTnRQox2A==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1749257505; bh=CZt7aJZlmfbjhZZ+sB+H1ocFquYWVoehBvoESd9kWeC=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=DX7rsuSGa5+GBHWOFkDcSXOXA8csdHuP8ocOF3F8xbCoMTYIrWF95aCfOdN+mIiMActrJ22ICilp2mmK9/QttHJ/CG7NAswz09T4CFM0jRw9DGHLfcD5a7PZ4f+O2REsQvwg9VAt9Ui9gPiUO0wnHyDSlHVE2Ti8dxpyz7i6+tF0BYE++c7RwOiFbkD1S/czRgCbE/pPwWlIQn2RgZvOGLHe3Z7O6td88bks4D/AzJqYdhWk0o4dIlUswMy8f9o0ax+XJeW09WtfkZ+JbmczEhoDz8sj28kPUiV1qRjU7t0ckD0at6EtaEaAg9OZshO8O+vCk5DWgCTNUfdzvxLGkw==
+X-YMail-OSG: p9HGJPIVM1k.yY8zVrgLB8q2oDhvJ.E7YrXSQvM4IYJ9_Ou6mFFfzbv2d9pBCP2
+ AcVEWwCJXmKQBs9yS1N5c9m2rOLqbwQrtcthxHnXI.AfpzaOjoUmL9iZXO_yL5r4b6xLnFo8LUkO
+ 3qO9KM6zLQe0nwzWmMAA_qSVgQ_1iUd9VPzamvjIkWSqYMZ2i2itr2d6cN27v07ASm5kYUnHa1wq
+ JeAKulMtkAnDVNNbZ9pfIpxeOoSO_we.CVTUUgd9h_YzkwjOjxTQq0qHY4gKqz3sbrQKrK4ZY8UB
+ 1N94qu1lgQBs6sGWtnzA.y.KfWe6zvdsllkB6T2T0e2bjzTjPdu2iZPfQ1vMe5MH0udvfVM5YGZq
+ nvPPoj6rHOYB2s5uouIzB02h0HL184BjsxC.N33_eHJGVkB06k5pfXImubmgqPvaN0CUqX4Uww9t
+ Lsck_aOqMk1teqXHK5eRSpjsmvk2.gtyy23W876zV8rPIJZoejwjtNmqlFixKYxfs_Wix4Jedxbr
+ 9P5YbQXPyhK9kBV8dSIV4hx.OWITamPP_BzRMzGMvZupiPRY1Ur3GjmOkAosqxMSkplmHWtrdkon
+ Nt4XCpa0pqF85UDbd.sPpQvnOUQVWmH7i82FzrsiydMa_.MWk280gqDS6CbGWnLwIYxeafq58_yY
+ Cm1L88_jij8Tqz8zEKvaAvbNdRQlXw1IySPF5wuNgAmoKIFV9DCG29PQHVOOqP4XUVJqCKSS3Nww
+ cvzCbvlk6g1DmC9rjTCfiFen7aDSFT0sWPK2hS1F7m9ypPrIu.MnwAIQ0HroNE.GgNLvw_cdn4Qx
+ MpFRHlUz5IHAJeHazgmMF6ptWyEigtFlwAJVnMqHnfzBO.iOA.BCewDaZ3mCET11Q_JFFxa6A42X
+ txQo2UFSKv96rN2BWOpR6AkyvkCZI1ZqPl.jW9o.cJkDJWVg5EwM1GMvNXFw5LzABlT8KHs7J3aq
+ 0tfehKsQA9N578S6oP8zQy3UGxB98CRdZEHB7ZOO4O_Pjev8LqWqQv0UgbOGOnY6PUTDC0VYmGpB
+ ycJth7UNByejyJ9W9F8LOjE.cYPQ2K4BIdxWZfB9PCnQgeLOCCEbMH4_ba6LOd7AnyasseE6pwbo
+ rgZTxojRGYbtVZ86ElBN_RhafGnc80V7DroTAuDFW7Mh718Rs8rBmxruc2jDZSmMSEfqzEI_F0iR
+ q2VxEz7PNzGnXZDlnxquP00h5woQ4FTkHzoRDCOKPAgabLYT_jeQeSVxQtS32cInOGf6eJgGJQZp
+ 3d.c3bILshXC4Ciw0dS8ETy8aCD_EWmj13WEIEBNY6ZWfI9edITLtTFGyrTK2kk0VWiu6wdSmjna
+ SlbLTfF0CyqWw_9s_6U8j_WmWnUT3d8Nr8igCTSId982ljBP7XNHUD8u6T8AB9t6smrLwUsFuf2O
+ xi3pGFnlZQF8IKTzR1S57JXQq9FhUoPF3xaLLjlvWZ9DtYsruZQIS2ro2NhqGhxyMFs3inwHTeI3
+ kUed.TPAt.VXA0fLzcZtqfCk_e.gkvwbvYq4J68rnbCv4E.o0WN.WhUeQ.LR33khJxGEd7VQuoJ5
+ .OvpdjyEn_fjMUTAH3xhQVZyidq_3o1TCfeLXtVyk1P9kyCLgG35RhFMD9HVjkBFCbbee4dJd.8D
+ ztTrAcHR9PcIozMEklyhXfIc4J.7iTFxqph5lNQdGpg3xHO8U9bksPGyM7sgydUO6e8kGxXEPCjU
+ mybGifjqpka889u_8pRbVbIPARrSBotUCouAqinplRjflRmlQShH9CdvB1kFkGMx71uEGJAQPL8_
+ ZDej_tmTBAAMOQiyDBMaRc8NrWE0xM.NN2hy7v.soOYiQYvQgZFuweoTowZ5m3jlGhZ3LaxNWgKq
+ 9gXV4EevI6FnCNTd0.uq0FpuKvdkxXRWeeHmb8jVDjh0OZMb1aGu.x_EGzdTlR_y9NXA2m4K2nbL
+ Bz9bJ5YnWYtCeM6josv9kt9S9VQATe6iR45rky9Lz1kxVFjykLFD_9QM9Jl5ZpiJvuNFlkV5BDhG
+ 5.8rxpkH0JJy7akymbr1tTH7UTuLEjs06yBS2GseAd7UBqbosaoLxPvS4C7LgiJ2f3bEIPfUcd7u
+ pKEnKlKbVa.Fq5j8eoWmNTpOYcFGKbSmPJgTQqkLjS4kCUCBRCHWYjEmWOyJteVSlUjh7Ae3UbJi
+ ETAYHRRTqthj5fNhWgwuXeiVKMObBzKICjNwNkE5zVKDcMKsBRhbF1U9a9qkQN1DWRvw_fNlORbb
+ bjf.RrfnaGHuMAgQYYmQexdyM6NvwxfCgXzHANUR1iWG.gag.85p7PPq7WkDWtDr5JVL7UsMukOP
+ rXPfhNNdnNEGaFzGCtXUqDfR6ukE-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 95528723-bf9e-4362-aebe-92442b848819
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Sat, 7 Jun 2025 00:51:45 +0000
+Received: by hermes--production-gq1-74d64bb7d7-5qmwx (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 7461f2feac0d1a8decd03521522bae75;
+          Sat, 07 Jun 2025 00:51:39 +0000 (UTC)
+From: Casey Schaufler <casey@schaufler-ca.com>
+To: casey@schaufler-ca.com,
+	paul@paul-moore.com,
+	eparis@redhat.com,
+	linux-security-module@vger.kernel.org,
+	audit@vger.kernel.org
+Cc: jmorris@namei.org,
+	serge@hallyn.com,
+	keescook@chromium.org,
+	john.johansen@canonical.com,
+	penguin-kernel@i-love.sakura.ne.jp,
+	stephen.smalley.work@gmail.com,
+	linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: [PATCH v4 1/4] Audit: Create audit_stamp structure
+Date: Fri,  6 Jun 2025 17:51:31 -0700
+Message-ID: <20250607005134.10488-2-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.47.0
+In-Reply-To: <20250607005134.10488-1-casey@schaufler-ca.com>
+References: <20250607005134.10488-1-casey@schaufler-ca.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+Replace the timestamp and serial number pair used in audit records
+with a structure containing the two elements.
 
-> On Thu, Jun 5, 2025 at 3:05=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
->>
->> On Thu, Jun 5, 2025 at 3:03=E2=80=AFPM Stephen Smalley
->> <stephen.smalley.work@gmail.com> wrote:
->> >
->> > Since I created a Getting Started guide under the selinux-kernel wiki
->> > [1], I also did some refreshing of the selinux userspace wiki [2],
->> > moved the Presentations and Papers sections from the kernel wiki to
->> > the latter, and cross-linked them for easy discovery. However, I had a
->> > few questions about the selinux userspace wiki:
->> >
->> > 1. The Home page and the Userspace Packages page are at least partly
->> > redundant in their content, and the actual list of userspace packages
->> > modified for SELinux was very out of date (I added a note to that
->> > effect and how to query for a more current/accurate set). Should we
->> > drop one or the other or somehow combine them?
->> >
->> > 2. The Tools page is likewise quite out of date. Do we want to refresh
->> > it (and if so, does anyone want to do so), or drop it?
->>
->> Sorry, forgot to include the links:
->>
->> [1] https://github.com/selinuxproject/selinux-kernel/wiki
->> [2] https://github.com/SELinuxProject/selinux/wiki
->
-> I refreshed the Tools page, deleted the custom sidebar that was
-> (presumably unintentionally) hiding several child pages, and moved the
-> Other Resources section to its own sub-page,
-> https://github.com/SELinuxProject/selinux/wiki/Other-Resources
-> and made further additions to the Presentations and Papers sub-page,
-> https://github.com/SELinuxProject/selinux/wiki/Presentations-and-Papers
->
-> Feel free to suggest others that should be added or if you are a
-> maintainer, to add them yourself.
->
-> Another question about the old content: the Contributing page lists an
-> IRC channel. Is it still correct and used by maintainers? If not,
-> should remove or update appropriately.
->
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+---
+ kernel/audit.c   | 17 +++++++++--------
+ kernel/audit.h   | 13 +++++++++----
+ kernel/auditsc.c | 22 +++++++++-------------
+ 3 files changed, 27 insertions(+), 25 deletions(-)
 
-Yes #selinux on libera.chat is still correct and used by maintainers.
+diff --git a/kernel/audit.c b/kernel/audit.c
+index 5f5bf85bcc90..2a567f667528 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -1833,11 +1833,11 @@ unsigned int audit_serial(void)
+ }
+ 
+ static inline void audit_get_stamp(struct audit_context *ctx,
+-				   struct timespec64 *t, unsigned int *serial)
++				   struct audit_stamp *stamp)
+ {
+-	if (!ctx || !auditsc_get_stamp(ctx, t, serial)) {
+-		ktime_get_coarse_real_ts64(t);
+-		*serial = audit_serial();
++	if (!ctx || !auditsc_get_stamp(ctx, stamp)) {
++		ktime_get_coarse_real_ts64(&stamp->ctime);
++		stamp->serial = audit_serial();
+ 	}
+ }
+ 
+@@ -1860,8 +1860,7 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
+ 				     int type)
+ {
+ 	struct audit_buffer *ab;
+-	struct timespec64 t;
+-	unsigned int serial;
++	struct audit_stamp stamp;
+ 
+ 	if (audit_initialized != AUDIT_INITIALIZED)
+ 		return NULL;
+@@ -1916,12 +1915,14 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
+ 		return NULL;
+ 	}
+ 
+-	audit_get_stamp(ab->ctx, &t, &serial);
++	audit_get_stamp(ab->ctx, &stamp);
+ 	/* cancel dummy context to enable supporting records */
+ 	if (ctx)
+ 		ctx->dummy = 0;
+ 	audit_log_format(ab, "audit(%llu.%03lu:%u): ",
+-			 (unsigned long long)t.tv_sec, t.tv_nsec/1000000, serial);
++			 (unsigned long long)stamp.ctime.tv_sec,
++			 stamp.ctime.tv_nsec/1000000,
++			 stamp.serial);
+ 
+ 	return ab;
+ }
+diff --git a/kernel/audit.h b/kernel/audit.h
+index 0211cb307d30..4d6dd2588f9b 100644
+--- a/kernel/audit.h
++++ b/kernel/audit.h
+@@ -99,6 +99,12 @@ struct audit_proctitle {
+ 	char	*value;	/* the cmdline field */
+ };
+ 
++/* A timestamp/serial pair to identify an event */
++struct audit_stamp {
++	struct timespec64	ctime;	/* time of syscall entry */
++	unsigned int		serial;	/* serial number for record */
++};
++
+ /* The per-task audit context. */
+ struct audit_context {
+ 	int		    dummy;	/* must be the first element */
+@@ -108,10 +114,9 @@ struct audit_context {
+ 		AUDIT_CTX_URING,	/* in use by io_uring */
+ 	} context;
+ 	enum audit_state    state, current_state;
+-	unsigned int	    serial;     /* serial number for record */
++	struct audit_stamp  stamp;	/* event identifier */
+ 	int		    major;      /* syscall number */
+ 	int		    uring_op;   /* uring operation */
+-	struct timespec64   ctime;      /* time of syscall entry */
+ 	unsigned long	    argv[4];    /* syscall arguments */
+ 	long		    return_code;/* syscall return code */
+ 	u64		    prio;
+@@ -263,7 +268,7 @@ extern void audit_put_tty(struct tty_struct *tty);
+ extern unsigned int audit_serial(void);
+ #ifdef CONFIG_AUDITSYSCALL
+ extern int auditsc_get_stamp(struct audit_context *ctx,
+-			      struct timespec64 *t, unsigned int *serial);
++			     struct audit_stamp *stamp);
+ 
+ extern void audit_put_watch(struct audit_watch *watch);
+ extern void audit_get_watch(struct audit_watch *watch);
+@@ -304,7 +309,7 @@ extern void audit_filter_inodes(struct task_struct *tsk,
+ 				struct audit_context *ctx);
+ extern struct list_head *audit_killed_trees(void);
+ #else /* CONFIG_AUDITSYSCALL */
+-#define auditsc_get_stamp(c, t, s) 0
++#define auditsc_get_stamp(c, s) 0
+ #define audit_put_watch(w) do { } while (0)
+ #define audit_get_watch(w) do { } while (0)
+ #define audit_to_watch(k, p, l, o) (-EINVAL)
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index 78fd876a5473..528b6d2f5cb0 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -994,10 +994,10 @@ static void audit_reset_context(struct audit_context *ctx)
+ 	 */
+ 
+ 	ctx->current_state = ctx->state;
+-	ctx->serial = 0;
++	ctx->stamp.serial = 0;
++	ctx->stamp.ctime = (struct timespec64){ .tv_sec = 0, .tv_nsec = 0 };
+ 	ctx->major = 0;
+ 	ctx->uring_op = 0;
+-	ctx->ctime = (struct timespec64){ .tv_sec = 0, .tv_nsec = 0 };
+ 	memset(ctx->argv, 0, sizeof(ctx->argv));
+ 	ctx->return_code = 0;
+ 	ctx->prio = (ctx->state == AUDIT_STATE_RECORD ? ~0ULL : 0);
+@@ -1917,7 +1917,7 @@ void __audit_uring_entry(u8 op)
+ 
+ 	ctx->context = AUDIT_CTX_URING;
+ 	ctx->current_state = ctx->state;
+-	ktime_get_coarse_real_ts64(&ctx->ctime);
++	ktime_get_coarse_real_ts64(&ctx->stamp.ctime);
+ }
+ 
+ /**
+@@ -2039,7 +2039,7 @@ void __audit_syscall_entry(int major, unsigned long a1, unsigned long a2,
+ 	context->argv[3]    = a4;
+ 	context->context = AUDIT_CTX_SYSCALL;
+ 	context->current_state  = state;
+-	ktime_get_coarse_real_ts64(&context->ctime);
++	ktime_get_coarse_real_ts64(&context->stamp.ctime);
+ }
+ 
+ /**
+@@ -2508,21 +2508,17 @@ EXPORT_SYMBOL_GPL(__audit_inode_child);
+ /**
+  * auditsc_get_stamp - get local copies of audit_context values
+  * @ctx: audit_context for the task
+- * @t: timespec64 to store time recorded in the audit_context
+- * @serial: serial value that is recorded in the audit_context
++ * @stamp: timestamp to record
+  *
+  * Also sets the context as auditable.
+  */
+-int auditsc_get_stamp(struct audit_context *ctx,
+-		       struct timespec64 *t, unsigned int *serial)
++int auditsc_get_stamp(struct audit_context *ctx, struct audit_stamp *stamp)
+ {
+ 	if (ctx->context == AUDIT_CTX_UNUSED)
+ 		return 0;
+-	if (!ctx->serial)
+-		ctx->serial = audit_serial();
+-	t->tv_sec  = ctx->ctime.tv_sec;
+-	t->tv_nsec = ctx->ctime.tv_nsec;
+-	*serial    = ctx->serial;
++	if (!ctx->stamp.serial)
++		ctx->stamp.serial = audit_serial();
++	*stamp = ctx->stamp;
+ 	if (!ctx->prio) {
+ 		ctx->prio = 1;
+ 		ctx->current_state = AUDIT_STATE_RECORD;
+-- 
+2.47.0
 
---=20
-gpg --locate-keys dominick.grift@defensec.nl (wkd)
-Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
-Mastodon: @kcinimod@defensec.nl
