@@ -1,172 +1,102 @@
-Received: from smtpweb146.aruba.it (smtpweb146.aruba.it [62.149.158.146])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 442332566FD
-	for <selinux@vger.kernel.org>; Mon,  9 Jun 2025 14:36:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.149.158.146
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE60A2940D
+	for <selinux@vger.kernel.org>; Mon,  9 Jun 2025 22:13:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749479822; cv=none; b=LfMuCg0tUOy7frJHIY1SudeXA6k3bkvPYeElD09sqnyudrn45ECETub30kp159wSDY33Hi4GvADr2hMJ0az2w0DtCyiEogQBTFaEoYBP5ur+7I9q+o8ia1vB8a/of4vrxoxNnYatbTrsHs56WjCumYYh2m24VctIO19AkisjZl0=
+	t=1749507216; cv=none; b=prlbQp9oEecis2cFhUB/T3rRqhwr7/h32RvvRs3XJbNvqt8j+bZmxvC1nHblopzLLNQyuyawDTs4mf51WvRCCNzr9KHz2N56yqd2NY1CEGjI6TzmbdPkR6RflK4i7qKDfg5mr6gh+JPv5xe1oyHHnt84+l3yQeXN6qS5gV+etaA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749479822; c=relaxed/simple;
-	bh=9LjzWFPwea1QfglyCCABc5cgf9CPWVMyflkPlP2ENdg=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:Mime-Version; b=u/kh2QkeMAbn3bHOufdBaqYy/H5jSzz+TSvgk+q6kRm4vecvgI2fR/mRh6TDNVS+JJSQDDDlFnUWjKBt2H2M1CLeLJj7jRmj3a/6CrqORNIPyUUEmCJMV93Ak5+vc+fSbn93I+Gu9BvMkbo97iDTtqwBcvDyTI6JVzc44pOeIrU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com; spf=pass smtp.mailfrom=trentalancia.com; dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b=CeJX1RfR; arc=none smtp.client-ip=62.149.158.146
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=trentalancia.com
+	s=arc-20240116; t=1749507216; c=relaxed/simple;
+	bh=gZkcKnTZzTK5dRAMql+V4IkTMWc/eE7gjPQHElVNbaI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=TL5ipJNPifQyLZW2LMmk784mc/E1lzX0lMCa5NeekM+u2DmVwpNjIQnwL72mu5+o7/kZeUlXzQ7tRevXZAarW0Qv1BiA0xlXfUYBEZoryUojYsZn+0V+TBXdQajll6PryE1TauwGVYc9LLbW4T/r9VRYQcAI0C3zOR7qY/ZHzK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ZY8QTrUI; arc=none smtp.client-ip=209.85.128.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b="CeJX1RfR"
-Received: from [192.168.43.2] ([109.54.140.89])
-	by Aruba SMTP with ESMTPSA
-	id OdZOuD7Ej2QPuOdZPuafkQ; Mon, 09 Jun 2025 16:33:51 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
-	t=1749479631; bh=9LjzWFPwea1QfglyCCABc5cgf9CPWVMyflkPlP2ENdg=;
-	h=Subject:From:To:Date:Content-Type:Mime-Version;
-	b=CeJX1RfRr5VtDO6O6xVnQUbx/kPfFX/ArG2A8DWBNqcbYwZdRzCo692DhAvwEfRFV
-	 vD13MYetDKy3jaBvyJaHFBG+JDGU46VZWt1cYfzm6Tt7S/Avmqg6GBUHLVFGO5Kpkn
-	 lh1EVpji5tJ9vU0ed/23p2P7Ou9Z0Z+IuRM0ihTGgRumRXG1DgmaC5dNZJivS1o9LN
-	 +ytXjFBHCxgRu3Y/D4RneZ0yyrMbJ3rm4hLFxPCUyS2L3rbCnAd9WJxGltPGaRYMb2
-	 lsQUCSYoUa5k87sseKUD+nPHexbsSo167ibBX/QhhWcxriw7So+OWSnIMWKALQYoTP
-	 l8R8TrdeLR2mA==
-Message-ID: <1749479630.6137.1.camel@trentalancia.com>
-Subject: Re: [PATCH v2] Only set the initial SID for early-boot userspace
- tasks if the policy supports the new capability
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Ondrej Mosnacek <omosnace@redhat.com>, stephen.smalley.work@gmail.com, 
-	paul@paul-moore.com
-Cc: selinux@vger.kernel.org
-Date: Mon, 09 Jun 2025 16:33:50 +0200
-In-Reply-To: <CAFqZXNufHFEA8304qvTi8znWUmrznqyywWMDJYgBASN+VbvLSA@mail.gmail.com>
-References: <1748100564.11369.2.camel@trentalancia.com>
-	 <CAFqZXNufHFEA8304qvTi8znWUmrznqyywWMDJYgBASN+VbvLSA@mail.gmail.com>
-X-Priority: 1
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.26.6 
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ZY8QTrUI"
+Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-70e447507a0so38318567b3.0
+        for <selinux@vger.kernel.org>; Mon, 09 Jun 2025 15:13:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1749507213; x=1750112013; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rtRWGjdkVmRl+DqjlcUaDM4d966mGKRqnyveJTKh9Kc=;
+        b=ZY8QTrUInL48pnK0C3HrFMoU9crUWTcnWGdsyVsHpwX5qF5MfJJM77DpbOfzi4X1Nd
+         RLN18i9UfKLykjC0rV4TBtDEDigEEHLnBFPyQQuwaSJergGs0y11rU5Lw9UkDGijcWYH
+         NGh3cYfabvR16472KPpqV/NWqtgJ2PFar/eBaDblOgz9KYyNRLD9jQFeWqWSQBGRvfI7
+         f8TDQJUCV4q4s6DjhBhhXo+fpR2Cf/HydgHSGGtZ1adsJ7zB/O5IwB5GdmYqjZ1F6COH
+         3wqb3cwIgURlv2RVqYeqS9VZqYAbLm/zGMuGJIVNlTSqwJX2jz90KkCD/3r2SQfVEx3d
+         Gu3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749507213; x=1750112013;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=rtRWGjdkVmRl+DqjlcUaDM4d966mGKRqnyveJTKh9Kc=;
+        b=EtGlCKYaAYemNZ8yHuN6igkr+xe9uRa+JKlpAK9tW07kFyctb3GOa+3lVw3SiH75Z8
+         iqR5JAfxBQw/PSPNpZ5dHRYvacb4DsSqfNcip794aONbm/3gLKM4GerihbjwEEsLaTmg
+         tc3fHj20lDo2LUL0etsvOLESrb9GVVh5VF0wsxLwunxb/nuJ+2nefpEgfjPYNzwnn2Gj
+         Y8CRIEJAC4A77W7+0sy5SmOh61Iz7aMblsiXptv4E3FqBFuIB07ffJUr0i5hpOUlHKX4
+         NLB/h2shUxkr+1zF+9koUwPVAu3T7z+g2wdiXXS74x3DAKAhEk91wN7Q22uLn8We5ejO
+         HXEA==
+X-Gm-Message-State: AOJu0YxkTaV8JbDESnPuvFTswgqHKUFWr+5iEqFL1CstKEgOcm5FBzV4
+	biwZb4GetBzO1ob3lx+6P3AOuiu8kLjrrvKS7lbq70Ejbw3Fsjh1/svNI+qrE2deK8WqycOSYMT
+	YU2Mwd6wEIbLgLbq/IQqz/HUPjJqKGmqy9AejSY4iELfzaEJnH0o=
+X-Gm-Gg: ASbGncv82x8S7dr7aVMp58cVaGPeUvzqt/sre+S5DgBNkqJ+A5WscAj0wk+w+gf3PhS
+	p/DU/WfkY1rc+gOH3TsN1RraTMpUOscd8g7OoPclGWZ4/IrxjB1T4BfWsF/JzKWlIMO9i1uol3h
+	P5yG56LVl9dbJN6CLbZLZ4rtBSZKB4/sCwZuFYTnvXVy4=
+X-Google-Smtp-Source: AGHT+IHxKU3vNZL/nWup4eH5rbMHQ+sn6smCvaXMtcv1VDedG55+A+40joWgHmq1IaJW8O8PZuLUXs1Bg8pa+53blU4=
+X-Received: by 2002:a05:690c:7241:b0:70e:16a3:ce96 with SMTP id
+ 00721157ae682-710f76ffff3mr224273627b3.26.1749507213585; Mon, 09 Jun 2025
+ 15:13:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CMAE-Envelope: MS4xfH5bQbsxh98vzItywqUFWq8IRlTG9cIkvKqyhsz0xAL8oVMKzWmzeh7z2n0Gj72a08zoRS9zlSPUn68tSJGCH0FhfJcGPp0pWADFtfvGKlUWamX2OI39
- 0ejNiAkZZILpO5cjVqnY1awJIqSqgs72ligQmvunNIWg7XCO3Zjr2zA7s19D2OIdiuro7IK4do/rN6tGlNYwFjWr3VaSo8eoZpX2Rq7im4/jDSx/KtTKBwPt
- o8z52YIykB0eO100IV11UjjNnf63ux0e0oVcwTN/KzYTx/eNa10UgDzm2CF9OeKEhAOLX0F3bjB14CH2YZW3xg==
+MIME-Version: 1.0
+References: <20250501192347.189307-2-paul@paul-moore.com> <CAHC9VhTD6Yw4dbHdmUfj+2muDMG9pdbW864m2SH8yH558kkE=g@mail.gmail.com>
+In-Reply-To: <CAHC9VhTD6Yw4dbHdmUfj+2muDMG9pdbW864m2SH8yH558kkE=g@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 9 Jun 2025 18:13:22 -0400
+X-Gm-Features: AX0GCFtN08dayfLej26ScaBLheDSFsLTalzwFeZXC2VM-hCHg81pgwp-JawjJMU
+Message-ID: <CAHC9VhRTQkMrzJEeOPZ1yVi8jUzVeN=W+f-DMZnkc3j663fx2Q@mail.gmail.com>
+Subject: Re: [PATCH] selinux: add a 5 second sleep to /sys/fs/selinux/user
+To: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Can you please check if this v2 patch sorts out the issue ? It does
-sort things for me...
-
-Before the policy is loaded, only set the initial SID
-for early-boot userspace tasks if the policy supports
-such capability.
-
-We cannot actually check if the policy supports the new
-POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT capability, so
-we perform a speculative call to security_transition_sid()
-with SECINITSID_INIT as the SID parameter and check
-if it returns SECINITSID_INIT and no transition is
-defined.
-
-See: https://github.com/dracut-ng/dracut-ng/issues/377
-
-Fixes: ae254858ce07 ("selinux: introduce an initial SID for early boot processes")
-Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
----
- security/selinux/hooks.c |   30 ++++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
-
---- a/security/selinux/hooks.c	2025-06-09 15:25:21.999585231 +0200
-+++ b/security/selinux/hooks.c	2025-06-09 16:18:09.470999478 +0200
-@@ -2295,6 +2295,7 @@ static int selinux_bprm_creds_for_exec(s
- 	struct inode_security_struct *isec;
- 	struct common_audit_data ad;
- 	struct inode *inode = file_inode(bprm->file);
-+	u32 saved_sid;
- 	int rc;
- 
- 	/* SELinux context only depends on initial program or script and not
-@@ -2314,16 +2315,29 @@ static int selinux_bprm_creds_for_exec(s
- 	new_tsec->sockcreate_sid = 0;
- 
- 	/*
--	 * Before policy is loaded, label any task outside kernel space
--	 * as SECINITSID_INIT, so that any userspace tasks surviving from
--	 * early boot end up with a label different from SECINITSID_KERNEL
--	 * (if the policy chooses to set SECINITSID_INIT != SECINITSID_KERNEL).
-+	 * Before policy is loaded, label any task outside kernel space as
-+	 * SECINITSID_INIT, so that any userspace task surviving from early
-+	 * boot ends up with a label different from SECINITSID_KERNEL: this
-+	 * is needed to support the new POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT
-+	 * capability.
-+	 *
-+	 * Because the policy is not loaded yet, we cannot check whether such
-+	 * capability is enabled in the policy, hence we check if a call to
-+	 * security_transition_sid() returns SECINITSID_INIT when called with
-+	 * SECINITSID_INIT and there is no transition defined.
- 	 */
- 	if (!selinux_initialized()) {
--		new_tsec->sid = SECINITSID_INIT;
--		/* also clear the exec_sid just in case */
--		new_tsec->exec_sid = 0;
--		return 0;
-+		saved_sid = current_sid();
-+		rc = security_transition_sid(SECINITSID_INIT, SECINITSID_INIT,
-+					     SECCLASS_PROCESS, NULL,
-+					     &new_tsec->sid);
-+		if (rc && new_tsec->sid == SECINITSID_INIT) {
-+			/* also clear the exec_sid just in case */
-+			new_tsec->exec_sid = 0;
-+			return 0;
-+		} else {
-+			new_tsec->sid = saved_sid;
-+		}
- 	}
- 
- 	if (old_tsec->exec_sid) {
-
-On Thu, 05/06/2025 at 14.45 +0200, Ondrej Mosnacek wrote:
-> On Sat, May 24, 2025 at 5:32 PM Guido Trentalancia
-> <guido@trentalancia.com> wrote:
-> > 
-> > Before the policy is loaded, only set the initial SID
-> > for early-boot userspace tasks if the policy supports
-> > such capability.
-> > 
-> > Check for POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT,
-> > otherwise preserve the old behavior of using the
-> > SECINITSID_KERNEL label for early-boot userspace
-> > processes.
-> > 
-> > Fixes: ae254858ce07 ("selinux: introduce an initial SID for early
-> > boot processes")
-> > Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
+On Tue, May 20, 2025 at 5:22=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
+> On Thu, May 1, 2025 at 3:24=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
+rote:
+> >
+> > Commit d7b6918e22c7 ("selinux: Deprecate /sys/fs/selinux/user") started
+> > the deprecation process for /sys/fs/selinux/user:
+> >
+> >   The selinuxfs "user" node allows userspace to request a list
+> >   of security contexts that can be reached for a given SELinux
+> >   user from a given starting context. This was used by libselinux
+> >   when various login-style programs requested contexts for
+> >   users, but libselinux stopped using it in 2020.
+> >   Kernel support will be removed no sooner than Dec 2025.
+> >
+> > A pr_warn() message has been in place since Linux v6.13, this patch
+> > adds a five second sleep to /sys/fs/selinux/user to help make the
+> > deprecation and upcoming removal more noticeable.
+> >
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
 > > ---
-> >  security/selinux/hooks.c |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > --- a/security/selinux/hooks.c  2025-05-24 14:37:45.499997561 +0200
-> > +++ b/security/selinux/hooks.c  2025-05-24 14:36:58.453997848 +0200
-> > @@ -2319,7 +2319,7 @@ static int selinux_bprm_creds_for_exec(s
-> >          * early boot end up with a label different from
-> > SECINITSID_KERNEL
-> >          * (if the policy chooses to set SECINITSID_INIT !=
-> > SECINITSID_KERNEL).
-> >          */
-> > -       if (!selinux_initialized()) {
-> > +       if (!selinux_initialized() &&
-> > selinux_policycap_userspace_initial_context()) {
-> >                 new_tsec->sid = SECINITSID_INIT;
-> >                 /* also clear the exec_sid just in case */
-> >                 new_tsec->exec_sid = 0;
-> > 
-> 
-> This doesn't make sense - obviously you can't check what capabilities
-> the policy supports when it's not loaded yet... Does the current
-> behavior break something for you?
-> 
-> --
-> Ondrej Mosnacek
-> Senior Software Engineer, Linux Security - SELinux kernel
-> Red Hat, Inc.
-> 
-> 
+> >  security/selinux/selinuxfs.c | 1 +
+> >  1 file changed, 1 insertion(+)
+>
+> Merged into selinux/dev-staging with the expectation of moving this to
+> selinux/dev after the upcoming merge window.
+
+This is now in selinux/dev.
+
+--=20
+paul-moore.com
