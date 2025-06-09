@@ -1,43 +1,44 @@
 Received: from smtpweb146.aruba.it (smtpweb146.aruba.it [62.149.158.146])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1D412F37
-	for <selinux@vger.kernel.org>; Mon,  9 Jun 2025 14:36:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 442332566FD
+	for <selinux@vger.kernel.org>; Mon,  9 Jun 2025 14:36:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.149.158.146
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749479801; cv=none; b=hCG3KMdSG6As1xjMunLJDtRAb6iBdZUB85aISWT5mQvrfCzYjJGCp+nyBObTt9Y8Rcj9jGNRjy7x3wV12mHgt0m82zyL1OPc9RjQ9nRXFyd3LZbWMtSsTk4sDOxohiJQ8ssKhLM8WcN+42Szc4P5oQtR22ljynozYVUS/Royyek=
+	t=1749479822; cv=none; b=LfMuCg0tUOy7frJHIY1SudeXA6k3bkvPYeElD09sqnyudrn45ECETub30kp159wSDY33Hi4GvADr2hMJ0az2w0DtCyiEogQBTFaEoYBP5ur+7I9q+o8ia1vB8a/of4vrxoxNnYatbTrsHs56WjCumYYh2m24VctIO19AkisjZl0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749479801; c=relaxed/simple;
-	bh=7grurnE0qTjPAouCK8AxwhVUtkrNyD7X8y6Wi1g1A0Q=;
+	s=arc-20240116; t=1749479822; c=relaxed/simple;
+	bh=9LjzWFPwea1QfglyCCABc5cgf9CPWVMyflkPlP2ENdg=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:Mime-Version; b=Axnn2iXNRXsDoiQ4ktNYL4iY2QMXoy82Gb9OvEd9OCv429KDRZqneZ5Y92CYxgEx+xG2A1YN8TrXhfQdzShBVq0Y6+JBW29UII/i+IBhU4FHZw5YpWpLyNjXn5qb5Ta9p6a2QjlbOwJexfiJT6jDF6GdI4fs6UGvjfsJeNcoFaY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com; spf=pass smtp.mailfrom=trentalancia.com; dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b=X2jU0fxp; arc=none smtp.client-ip=62.149.158.146
+	 Content-Type:Mime-Version; b=u/kh2QkeMAbn3bHOufdBaqYy/H5jSzz+TSvgk+q6kRm4vecvgI2fR/mRh6TDNVS+JJSQDDDlFnUWjKBt2H2M1CLeLJj7jRmj3a/6CrqORNIPyUUEmCJMV93Ak5+vc+fSbn93I+Gu9BvMkbo97iDTtqwBcvDyTI6JVzc44pOeIrU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com; spf=pass smtp.mailfrom=trentalancia.com; dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b=CeJX1RfR; arc=none smtp.client-ip=62.149.158.146
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=trentalancia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b="X2jU0fxp"
+	dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b="CeJX1RfR"
 Received: from [192.168.43.2] ([109.54.140.89])
 	by Aruba SMTP with ESMTPSA
-	id Odc2uD9wf2QPuOdc3uahkO; Mon, 09 Jun 2025 16:36:35 +0200
+	id OdZOuD7Ej2QPuOdZPuafkQ; Mon, 09 Jun 2025 16:33:51 +0200
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
-	t=1749479795; bh=7grurnE0qTjPAouCK8AxwhVUtkrNyD7X8y6Wi1g1A0Q=;
+	t=1749479631; bh=9LjzWFPwea1QfglyCCABc5cgf9CPWVMyflkPlP2ENdg=;
 	h=Subject:From:To:Date:Content-Type:Mime-Version;
-	b=X2jU0fxpdYWuVuUXq4QdygXYZsYVO0187HgjUScPuK9k0FJkJnM556zgHktsuh1R6
-	 Z2+x5EwsKMdaJgJLtQBmdGrTPrp/D/9Gfp3m2MTTxXHAk8g/p5573C4GnHbw6oZLi9
-	 TF45bOv4Atg+Bh0kwvNz4VOQbBYBEOJKpfdb1z2xFZLDs2oFiJfiUz55945Rx/wH0S
-	 7nw+RyvU4VmOZ3F7g/5BKuCPU9USs+Q3pXeIZ7id76s+Kdw8r9iqe+87u3U2x27igR
-	 aqSbcZsXBXLvjMH9n2P3BYVMmkzS/Jpp7lTMZIClNE9cGTyDLblpWZgHF2G0ahTxbk
-	 iDO2eo4G+xqAw==
-Message-ID: <1749479794.6137.4.camel@trentalancia.com>
-Subject: Re: [PATCH] selinux: fix security context comparison on execve(2)
+	b=CeJX1RfRr5VtDO6O6xVnQUbx/kPfFX/ArG2A8DWBNqcbYwZdRzCo692DhAvwEfRFV
+	 vD13MYetDKy3jaBvyJaHFBG+JDGU46VZWt1cYfzm6Tt7S/Avmqg6GBUHLVFGO5Kpkn
+	 lh1EVpji5tJ9vU0ed/23p2P7Ou9Z0Z+IuRM0ihTGgRumRXG1DgmaC5dNZJivS1o9LN
+	 +ytXjFBHCxgRu3Y/D4RneZ0yyrMbJ3rm4hLFxPCUyS2L3rbCnAd9WJxGltPGaRYMb2
+	 lsQUCSYoUa5k87sseKUD+nPHexbsSo167ibBX/QhhWcxriw7So+OWSnIMWKALQYoTP
+	 l8R8TrdeLR2mA==
+Message-ID: <1749479630.6137.1.camel@trentalancia.com>
+Subject: Re: [PATCH v2] Only set the initial SID for early-boot userspace
+ tasks if the policy supports the new capability
 From: Guido Trentalancia <guido@trentalancia.com>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek
-	 <omosnace@redhat.com>
-Cc: Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
-Date: Mon, 09 Jun 2025 16:36:34 +0200
-In-Reply-To: <CAEjxPJ4YiUQpFNwxhAix3CZnXF9Vkbn5Vbs8_Kp7zDxCoevouQ@mail.gmail.com>
-References: <20250609065841.1164578-1-omosnace@redhat.com>
-	 <CAEjxPJ4YiUQpFNwxhAix3CZnXF9Vkbn5Vbs8_Kp7zDxCoevouQ@mail.gmail.com>
+To: Ondrej Mosnacek <omosnace@redhat.com>, stephen.smalley.work@gmail.com, 
+	paul@paul-moore.com
+Cc: selinux@vger.kernel.org
+Date: Mon, 09 Jun 2025 16:33:50 +0200
+In-Reply-To: <CAFqZXNufHFEA8304qvTi8znWUmrznqyywWMDJYgBASN+VbvLSA@mail.gmail.com>
+References: <1748100564.11369.2.camel@trentalancia.com>
+	 <CAFqZXNufHFEA8304qvTi8znWUmrznqyywWMDJYgBASN+VbvLSA@mail.gmail.com>
 X-Priority: 1
 Content-Type: text/plain; charset="UTF-8"
 X-Mailer: Evolution 3.26.6 
@@ -48,163 +49,124 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CMAE-Envelope: MS4xfPGBcXKisEMhM3geyeVqLdHte9jxUO0kStQO1XWhIa1RTczIsRhOH1gT3nq/xTx1lmmljKbdd7VY1Of6dUUmpduTDD4GujdHzqLl9tPb0VKdcw+vNgAR
- hmUYioAcFpLFcGt//nUp49a3t3Ix8JUgJVKNf6gIBI4abmLydLLulBbGHFm09fzCPnObrv1JW+lyh1H64MepZrDuSb/ZLuMsRXqUBWuMu5ub14Zyc62Sx44P
- ZlpQxAaO4Ir5tjTnzfLRP91sHRM+iZBGRsuPIt4VPlphuEexzHKocL0LjMSS1FQuCdp0dgFUczbgaX4UGVQJGA==
+X-CMAE-Envelope: MS4xfH5bQbsxh98vzItywqUFWq8IRlTG9cIkvKqyhsz0xAL8oVMKzWmzeh7z2n0Gj72a08zoRS9zlSPUn68tSJGCH0FhfJcGPp0pWADFtfvGKlUWamX2OI39
+ 0ejNiAkZZILpO5cjVqnY1awJIqSqgs72ligQmvunNIWg7XCO3Zjr2zA7s19D2OIdiuro7IK4do/rN6tGlNYwFjWr3VaSo8eoZpX2Rq7im4/jDSx/KtTKBwPt
+ o8z52YIykB0eO100IV11UjjNnf63ux0e0oVcwTN/KzYTx/eNa10UgDzm2CF9OeKEhAOLX0F3bjB14CH2YZW3xg==
 
-I have created a v2 patch following Stephen's advice. It keeps the boot
-process successful on sysvinit with the dracut selinux module enabled.
+Can you please check if this v2 patch sorts out the issue ? It does
+sort things for me...
 
-Can you please check if it also works on other setups ?
+Before the policy is loaded, only set the initial SID
+for early-boot userspace tasks if the policy supports
+such capability.
 
-The patch has been posted with its original subject + v2 tag added.
+We cannot actually check if the policy supports the new
+POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT capability, so
+we perform a speculative call to security_transition_sid()
+with SECINITSID_INIT as the SID parameter and check
+if it returns SECINITSID_INIT and no transition is
+defined.
 
-[PATCH v2] Only set the initial SID for early-boot userspace tasks if
-the policy supports the new capability
+See: https://github.com/dracut-ng/dracut-ng/issues/377
 
-Thanks,
+Fixes: ae254858ce07 ("selinux: introduce an initial SID for early boot processes")
+Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
+---
+ security/selinux/hooks.c |   30 ++++++++++++++++++++++--------
+ 1 file changed, 22 insertions(+), 8 deletions(-)
 
-Guido
+--- a/security/selinux/hooks.c	2025-06-09 15:25:21.999585231 +0200
++++ b/security/selinux/hooks.c	2025-06-09 16:18:09.470999478 +0200
+@@ -2295,6 +2295,7 @@ static int selinux_bprm_creds_for_exec(s
+ 	struct inode_security_struct *isec;
+ 	struct common_audit_data ad;
+ 	struct inode *inode = file_inode(bprm->file);
++	u32 saved_sid;
+ 	int rc;
+ 
+ 	/* SELinux context only depends on initial program or script and not
+@@ -2314,16 +2315,29 @@ static int selinux_bprm_creds_for_exec(s
+ 	new_tsec->sockcreate_sid = 0;
+ 
+ 	/*
+-	 * Before policy is loaded, label any task outside kernel space
+-	 * as SECINITSID_INIT, so that any userspace tasks surviving from
+-	 * early boot end up with a label different from SECINITSID_KERNEL
+-	 * (if the policy chooses to set SECINITSID_INIT != SECINITSID_KERNEL).
++	 * Before policy is loaded, label any task outside kernel space as
++	 * SECINITSID_INIT, so that any userspace task surviving from early
++	 * boot ends up with a label different from SECINITSID_KERNEL: this
++	 * is needed to support the new POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT
++	 * capability.
++	 *
++	 * Because the policy is not loaded yet, we cannot check whether such
++	 * capability is enabled in the policy, hence we check if a call to
++	 * security_transition_sid() returns SECINITSID_INIT when called with
++	 * SECINITSID_INIT and there is no transition defined.
+ 	 */
+ 	if (!selinux_initialized()) {
+-		new_tsec->sid = SECINITSID_INIT;
+-		/* also clear the exec_sid just in case */
+-		new_tsec->exec_sid = 0;
+-		return 0;
++		saved_sid = current_sid();
++		rc = security_transition_sid(SECINITSID_INIT, SECINITSID_INIT,
++					     SECCLASS_PROCESS, NULL,
++					     &new_tsec->sid);
++		if (rc && new_tsec->sid == SECINITSID_INIT) {
++			/* also clear the exec_sid just in case */
++			new_tsec->exec_sid = 0;
++			return 0;
++		} else {
++			new_tsec->sid = saved_sid;
++		}
+ 	}
+ 
+ 	if (old_tsec->exec_sid) {
 
-On Mon, 09/06/2025 at 08.45 -0400, Stephen Smalley wrote:
-> On Mon, Jun 9, 2025 at 2:58 AM Ondrej Mosnacek <omosnace@redhat.com>
-> wrote:
+On Thu, 05/06/2025 at 14.45 +0200, Ondrej Mosnacek wrote:
+> On Sat, May 24, 2025 at 5:32 PM Guido Trentalancia
+> <guido@trentalancia.com> wrote:
 > > 
-> > selinux_bprm_creds_for_exec() needs to compare the old and new SIDs
-> > to
-> > determine if the execve(2) operation is transitioning into a new
-> > context
-> > (where process { transition } and file { entrypoint } permissions
-> > would
-> > be checked) or not (file { execute_no_trans } would be checked). It
-> > does
-> > so by just comparing their numeric values.
+> > Before the policy is loaded, only set the initial SID
+> > for early-boot userspace tasks if the policy supports
+> > such capability.
 > > 
-> > However, after ae254858ce07 ("selinux: introduce an initial SID for
-> > early boot processes"), we can now easily get into a situation
-> > where the
-> > SID numbers differ, but the context is the same for both.
-> > Specifically
-> > when the policy assigns the same context for SECINITSID_KERNEL and
-> > SECINITSID_INIT - in this case when a process labeled with
-> > SECINITSID_INIT does execve(2) without a transition,
-> > security_transition_sid() will translate the unchanged context to
-> > the
-> > first matching SID number, which is SECINITSID_KERNEL, not
-> > SECINITSID_INIT. Thus the kernel thinks that a transition has
-> > happened
-> > and unexpectedly tests for the file { entrypoint } permission.
+> > Check for POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT,
+> > otherwise preserve the old behavior of using the
+> > SECINITSID_KERNEL label for early-boot userspace
+> > processes.
 > > 
-> > Fix this by checking the SID equality more carefully, trying
-> > context_equal() on the underlying contexts when it is necessary -
-> > in the
-> > rare case that the SIDs differ, but both are "initial" SIDs.
-> 
-> We check for SID equality elsewhere as well, e.g. file_has_perm() and
-> selinux_binder_transfer_file(), ioctl_has_perm(), and
-> selinux_kernel_load_from_file() to decide whether to check fd use
-> permission, selinux_file_permission() to decide whether we need to
-> revalidate permissions, selinux_binder_transaction() to decide
-> whether
-> to check binder impersonate permission, task_avdcache_search() to
-> decide whether we can use the avdcache. I'm wondering if we wouldn't
-> be better off just ensuring that security_transition_sid() returns
-> SECINITSID_INIT when called with SECINITSID_INIT and there is no
-> transition defined.
-> 
-> > 
-> > Reported-by: Guido Trentalancia <guido@trentalancia.com>
 > > Fixes: ae254858ce07 ("selinux: introduce an initial SID for early
 > > boot processes")
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
 > > ---
-> >  security/selinux/hooks.c            |  2 +-
-> >  security/selinux/include/security.h |  2 ++
-> >  security/selinux/ss/services.c      | 35
-> > +++++++++++++++++++++++++++++
-> >  3 files changed, 38 insertions(+), 1 deletion(-)
+> >  security/selinux/hooks.c |    2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
 > > 
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index b8115df536abd..be95e6e83f1d0 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -2369,7 +2369,7 @@ static int selinux_bprm_creds_for_exec(struct
-> > linux_binprm *bprm)
-> >         ad.type = LSM_AUDIT_DATA_FILE;
-> >         ad.u.file = bprm->file;
+> > --- a/security/selinux/hooks.c  2025-05-24 14:37:45.499997561 +0200
+> > +++ b/security/selinux/hooks.c  2025-05-24 14:36:58.453997848 +0200
+> > @@ -2319,7 +2319,7 @@ static int selinux_bprm_creds_for_exec(s
+> >          * early boot end up with a label different from
+> > SECINITSID_KERNEL
+> >          * (if the policy chooses to set SECINITSID_INIT !=
+> > SECINITSID_KERNEL).
+> >          */
+> > -       if (!selinux_initialized()) {
+> > +       if (!selinux_initialized() &&
+> > selinux_policycap_userspace_initial_context()) {
+> >                 new_tsec->sid = SECINITSID_INIT;
+> >                 /* also clear the exec_sid just in case */
+> >                 new_tsec->exec_sid = 0;
 > > 
-> > -       if (new_tsec->sid == old_tsec->sid) {
-> > +       if (security_sids_equal(new_tsec->sid, old_tsec->sid)) {
-> >                 rc = avc_has_perm(old_tsec->sid, isec->sid,
-> >                                   SECCLASS_FILE,
-> > FILE__EXECUTE_NO_TRANS, &ad);
-> >                 if (rc)
-> > diff --git a/security/selinux/include/security.h
-> > b/security/selinux/include/security.h
-> > index 278c144c22d60..c3ed350718d1d 100644
-> > --- a/security/selinux/include/security.h
-> > +++ b/security/selinux/include/security.h
-> > @@ -299,6 +299,8 @@ int security_context_to_sid_default(const char
-> > *scontext, u32 scontext_len,
-> >  int security_context_to_sid_force(const char *scontext, u32
-> > scontext_len,
-> >                                   u32 *sid);
-> > 
-> > +bool security_sids_equal(u32 sid1, u32 sid2);
-> > +
-> >  int security_get_user_sids(u32 fromsid, const char *username, u32
-> > **sids, u32 *nel);
-> > 
-> >  int security_port_sid(u8 protocol, u16 port, u32 *out_sid);
-> > diff --git a/security/selinux/ss/services.c
-> > b/security/selinux/ss/services.c
-> > index 7becf3808818a..297317763f6d4 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -1448,6 +1448,41 @@ int security_sid_to_context_inval(u32 sid,
-> >                                             scontext_len, 1, 1);
-> >  }
-> > 
-> > +/**
-> > + * security_sids_equal - Determine if two SIDs map to the same
-> > context.
-> > + * @sid1: first SID
-> > + * @sid2: second SID
-> > + */
-> > +bool security_sids_equal(u32 sid1, u32 sid2)
-> > +{
-> > +       struct context *c1, *c2;
-> > +       struct selinux_policy *policy;
-> > +       struct sidtab *sidtab;
-> > +       bool res;
-> > +
-> > +       if (!selinux_initialized())
-> > +               return sid1 == sid2;
-> > +
-> > +       if (sid1 == sid2)
-> > +               return true;
-> > +
-> > +       if (sid1 > SECINITSID_NUM || sid2 > SECINITSID_NUM)
-> > +               return false;
-> > +
-> > +       /* Initial SIDs may map to the same context, so do a full
-> > comparison */
-> > +       rcu_read_lock();
-> > +       policy = rcu_dereference(selinux_state.policy);
-> > +       sidtab = policy->sidtab;
-> > +       c1 = sidtab_search(sidtab, sid1);
-> > +       c2 = sidtab_search(sidtab, sid2);
-> > +       if (!c1 || !c2)
-> > +               res = false;
-> > +       else
-> > +               res = context_equal(c1, c2);
-> > +       rcu_read_unlock();
-> > +       return res;
-> > +}
-> > +
-> >  /*
-> >   * Caveat:  Mutates scontext.
-> >   */
-> > --
-> > 2.49.0
-> > 
+> 
+> This doesn't make sense - obviously you can't check what capabilities
+> the policy supports when it's not loaded yet... Does the current
+> behavior break something for you?
+> 
+> --
+> Ondrej Mosnacek
+> Senior Software Engineer, Linux Security - SELinux kernel
+> Red Hat, Inc.
+> 
+> 
