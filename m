@@ -1,119 +1,134 @@
-Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+Received: from mail-ua1-f54.google.com (mail-ua1-f54.google.com [209.85.222.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99FFE24676A;
-	Tue, 10 Jun 2025 17:23:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDA5F24887D
+	for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 17:59:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749576217; cv=none; b=Ce5bvQQglibuEVp3xj8rFkKymgEO8hEDAaZmBD+fQlgUu1/rTfPssCB1zoB9/FX5j+WSq/m+6ngJ/bp6uBM7nOEn0gqynl1xbkdB6IwmaC/95Rb4es1gLAKQ8WS/wQ/zo0R+Oo/6p8OhEC4KRyuKOuGJr1zq3y16ZGsBOPPDLpA=
+	t=1749578346; cv=none; b=cydeZJto/ymKlzZsbjDV4lHMLarE85J/Vq8imYzQoFRP5rDvK22hsFnt4P+G2lyA9dov0XgkTb49fRCErxEm34Pd32wRE64+1DFdEN1gzFgMGCiAKwwDyYkBJBZnyQ6FO98IEhLAnZspMgGRkgW0fwNkOrxgzfl7pRRG5YqD/SA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749576217; c=relaxed/simple;
-	bh=mOGDX97J7oPydwa9mkxx5aqzgviCKBjwnGibx9EpZBQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ez754gOH9990JnRAjfhFfTEGm5/HQ6yej1Bc9pYWYOXnMl4xibfa/uq0hgwLI8nKCvZQTZno2DC4SV7NlSxjT/ZVqQGFH26m+3tSt0BPW0wLN7Zqn/hALrAshrZReI/0qTZPAgmLqpI0/cSJa536HRxHjIiLlGgXSxdidzbW6aw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lU8U68Yb; arc=none smtp.client-ip=209.85.222.171
+	s=arc-20240116; t=1749578346; c=relaxed/simple;
+	bh=l7dA3JXoBHsGI2AXVfBjSiuqjfn+XlHE3Id393Rj6iw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=B/ck45GP20By8lDl/G4Ih+aHb/+KzZU1n4BrW06uTiGD+29mBW0xhrdyR68OyOnSXatgV5+rj19RD/gWvE8Zcvl9LELXzLqmgSYocovMRD2fviKywXXQv9Hy1EpDxggt9jKsxIqu02IcJ3fbGgbfnJMN3o+kNZ+v56esERW9/D4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e1Ua7Y4y; arc=none smtp.client-ip=209.85.222.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lU8U68Yb"
-Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-7d098f7bd77so8881685a.0;
-        Tue, 10 Jun 2025 10:23:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e1Ua7Y4y"
+Received: by mail-ua1-f54.google.com with SMTP id a1e0cc1a2514c-87ec80fc3b4so1973543241.3
+        for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 10:59:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749576214; x=1750181014; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1749578344; x=1750183144; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=U7wrybr/Y1YisaCMiTrrVEfWzHGSHRhP8j7GfbuEVjM=;
-        b=lU8U68YbbyFR7oFyWu0OH92JmBN8YIR+plT9HfT34AywvurGGUKnwVulzSZA9zLPCl
-         YGmntEKUqQkDplfLjz3NcSX2+1obnkqynzVMVxxaZXwlT7MR58Aiq/XIseCDoWwaYxg0
-         LieWElIbzEZW0L8fIzy2pJJKFS1qynWq8gUfBhiOLyu2E2HbX0yfie3Zgz+LiUlI1pet
-         mHDmD6dLJnLmA8R4HBM1lgl5Mi2LegkW82CsjgvqYBwvqhwrLbOoG/rTvHyazkQMSyjw
-         mUOG2E+ETKNvFL0yvcjzed4f8uFcm9qJHb6l6yaku/9JGQAoM/HoXzfxX5ir8l/fB29J
-         Qz1g==
+        bh=D45mii3ZRgygef+/V5sWths0PhNX0QahUhKImPgsUQQ=;
+        b=e1Ua7Y4yAo5yRMrCXfrCL3ObWz+O3jo9HdYnuljN78RwCtCJyWaXTVuTsRRNp2eP/e
+         LhgNmO3ptMeezKo8bsFeDIlqWE/TKF5uZfupY70XWJS9/jBtatQD77lD3d9fcHEik7DE
+         gnRvh+XVpBfXhUYrBYVLjbb5LE0uRGG5fz9B+09YO+qASeEoijud5YMId5P6qKfJnaPe
+         cWu81J4G/V1U9qt5YPMfq07jffWZ91LL9xgpv3+wF3GHBj8TiZHIFq9o665C5O0+uJMe
+         ffW/VibRCwY8VifcxT1DHX3HVXbVDAGW7+dWmNMKy/w1N9zEdcOQNnxJfLfvVqrfINwq
+         rnfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749576214; x=1750181014;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1749578344; x=1750183144;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=U7wrybr/Y1YisaCMiTrrVEfWzHGSHRhP8j7GfbuEVjM=;
-        b=KGZHymj7qGXtJnkDRXeXZUddjBRcwAfPiOttOVawcDyPucVOB7ROiD3btVDpQLZ3XN
-         Ci/Y2eQldb3rZPcM6KKYxosAzemrzVm836UI3coHaHh5/lyZOkI99H1QVnJeing6M+bQ
-         pu9aiqOerudi5ZWLlOGjXXcQA5ISjIuzMW1Fj/BoGI19tFwcQEaf4pjGAISa8lLDSfLs
-         EJ23lKYXpkDMfU84+3Oo8Zd8sycDLBUxCHhszo04Q6zq657XjWQ1EQ0mNGqg7ENrlhkx
-         8XxU+RJc9HB/tOC6evzU8Gt7tm53nrp0xKq4mGkruGUbBIONjw+0AIcE5ci/FkdVM6Va
-         vMJw==
-X-Forwarded-Encrypted: i=1; AJvYcCWQOgRViZB4yucHsMdiRonaOcZjTN0/YuUAbUiTI5VfYmwH8sfpQt7iuWD9Ry9YfWptT2izkzY=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwXi1gF0KVWS9UC8J4PwerPbIHh27Orr0t+4meiVl1aZ6xfFnKu
-	ggtHubVpE4UhiOeO4VGfTn7ihaczFhDuLTqt5JTYDNdZssWvVTOMS6+twwy2EA==
-X-Gm-Gg: ASbGncuj478yjclhTbn1hMmZAh0Ycip9i82obiuU1ypRJRE5MiMBtK6q8g1dpuS2MKI
-	j+e2IW2aUx0phpDP7LdqDcpaNKHr9b6btBRBLQnyHwnJrU1XEp49fb6oAenPmSbZDOIJOsAv4v/
-	e9y2YVYeZdAyqW7LEfNmbHNp6hhfibNhwO7slNygEbwjt3SNWOmIek3DfQUki0s4qSmIzFBM3XB
-	4B7RkFoE6NB89JceYK+ZjO05JN4jejOv27V70P0bdYnN+HVAGF/BOppi8F2ZUDsaiGTQMxlyxxQ
-	d2ToKGxhUXgZ/vUnhXTWLOXLhbrvMmczoKs8gY32MOogO3/warAqz2LOGRzBXBiwJz+mFjy2ayF
-	7AngqsbKhpHcPTHL0A1fASawJ06cmx9Y6G/EXySK0HzF0ioXUAcY2Cjl3b9Qv/aLRwA==
-X-Google-Smtp-Source: AGHT+IHDNECZri4tkAdl1JoSbHVeOblOX2/+Ta6DfZC8XwrAxV9NrssDmo7UfjOjH9dbnBpHrRLAyQ==
-X-Received: by 2002:a05:620a:294a:b0:7d0:9a99:1bb1 with SMTP id af79cd13be357-7d3a8919680mr25693085a.25.1749576214168;
-        Tue, 10 Jun 2025 10:23:34 -0700 (PDT)
-Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d25a608d19sm716491185a.63.2025.06.10.10.23.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Jun 2025 10:23:33 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	netdev@vger.kernel.org,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v4 42/42] selinux: disallow writes to /sys/fs/selinux/user in non-init namespaces
-Date: Tue, 10 Jun 2025 13:22:13 -0400
-Message-ID: <20250610172226.1470741-43-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250610172226.1470741-1-stephen.smalley.work@gmail.com>
-References: <20250610172226.1470741-1-stephen.smalley.work@gmail.com>
+        bh=D45mii3ZRgygef+/V5sWths0PhNX0QahUhKImPgsUQQ=;
+        b=OUgG7esXOFdZ9xs0/FX8CJ/PqinZRF124Yhz0Zy3TVjgfjj3lr6z4TYyhRAHVd933F
+         FF811fcZykW2P+ib1Z/oS35rIZmgrCb/k/3PEimnVFnt8ajh36bWLmIGBBFKNOGZynDx
+         vEGON4BYRNAIiL1EcaakdZaqJ/KxWEgtb8P/abMXok8u6FCXQUc0fBl4sUGpv7gyImbo
+         SYZWZe1K/EDVdnS38pQAp0UEA0rSyRryQRLN+qYu7lsG0U89C9VfLprYC04drLByZCgv
+         P44TnJSFY5px8rdvwImRxet0/PYea8kTb63J4lB3+Pp3SbAPItr/86lQDlzRrdnu4kyC
+         CYTg==
+X-Gm-Message-State: AOJu0Yzf/kRmDZr9uiyI/IuZNKlGdQ7+YMlK1aw0RVbIkSAXQ6d3HyzN
+	kZfIrapOv9Ni5wnLZfFn74m+lnyddC6Y5H3naTJX4PRdTZsDdy7uXNgVPcepxqsCj20g6mslfTf
+	WL/wlJ4sAEQyeeHG/pCuquhd46I9ddfQPBQ==
+X-Gm-Gg: ASbGncu+IRFgX89QdYhwriedUJg9nyrRnO5RBDlad8n/9At6l/bj5dX6pwooHsQ0bSu
+	4JWVGjET5LY8w6n/ReVhPNxCr3KtrJKZ66/MGRu/ltpcPDnBMeb2Z/qsYjdtTZqxRsdbhBv7fRb
+	Nd0uJzfRWmSV55n+tVbuSzIXX8t9Nt9RAu5o6TnOp+qJ8=
+X-Google-Smtp-Source: AGHT+IGYfTlxlzABB+1jXIjLww+zb7/zVyoHMvGYd9OYvLUItZUfTp5D9lrbZb+baerIBOx3F6p8TZ3IbpiAzyU1esI=
+X-Received: by 2002:a05:6102:2ad1:b0:4e6:245b:cf57 with SMTP id
+ ada2fe7eead31-4e7baff535cmr158324137.24.1749578343677; Tue, 10 Jun 2025
+ 10:59:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250530051322.1678251-1-inseob@google.com>
+In-Reply-To: <20250530051322.1678251-1-inseob@google.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Tue, 10 Jun 2025 13:58:52 -0400
+X-Gm-Features: AX0GCFsKBHwPakDCT1p_tdrLMaH4eJRSX32fK58F3pZ7B70wCzvBTTBikGOmVBk
+Message-ID: <CAP+JOzRCJYUyDZnUeN6VxrX71GBsWunNHxjFS+U-RKtJhFHb8w@mail.gmail.com>
+Subject: Re: [PATCH v2 1/3] libsepol: support wildcard network interface names
+To: Inseob Kim <inseob@google.com>
+Cc: selinux@vger.kernel.org, takayas@google.com, tweek@google.com, 
+	stephen.smalley.work@gmail.com, cgzones@googlemail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Disallow writes to /sys/fs/selinux/user in non-init SELinux namespaces.
+On Fri, May 30, 2025 at 1:14=E2=80=AFAM Inseob Kim <inseob@google.com> wrot=
+e:
+>
+> Add support for wildcard matching of network interface names.  This is
+> useful for auto-generated interfaces, for example podman creates network
+> interfaces for containers with the naming scheme podman0, podman1,
+> podman2, ...
+>
+> To maintain backward compatibility guard this feature with a new policy
+> capability 'netif_wildcard'.
+>
+> Netifcon definitions are compared against in the order given by the
+> policy, so userspace tools should sort them in a reasonable order.
+>
+> Signed-off-by: Inseob Kim <inseob@google.com>
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- security/selinux/selinuxfs.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+This patch won't be needed now since Christian has posted the netif
+wildcard patches. (Of course, you didn't know he was going to post
+them when you sent this.)
+Thanks,
+Jim
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index c7825db4e06f..7450ab7c92d0 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1371,10 +1371,20 @@ static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
- 	int rc;
- 	u32 i, len, nsids;
- 
--	pr_warn_ratelimited("SELinux: %s (%d) wrote to /sys/fs/selinux/user!"
--		" This will not be supported in the future; please update your"
--		" userspace.\n", current->comm, current->pid);
--	ssleep(5);
-+	if (state == init_selinux_state) {
-+		pr_warn_ratelimited("SELinux: %s (%d) wrote to"
-+				" /sys/fs/selinux/user! This will not be"
-+				" supported in the future; please update your"
-+				" userspace.\n", current->comm, current->pid);
-+		ssleep(5);
-+	} else {
-+		pr_warn_ratelimited("SELinux: %s (%d) tried to write to"
-+				" /sys/fs/selinux/user! This is not supported"
-+				" in non-init SELinux namespaces; please"
-+				" update your userspace.\n", current->comm,
-+				current->pid);
-+		return -EPERM;
-+	}
- 
- 	/*
- 	 * Only check against the current namespace because
--- 
-2.49.0
-
+> ---
+>  libsepol/include/sepol/policydb/polcaps.h | 1 +
+>  libsepol/src/polcaps.c                    | 1 +
+>  2 files changed, 2 insertions(+)
+>
+> diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include=
+/sepol/policydb/polcaps.h
+> index 1aa9b30a..7bebe4da 100644
+> --- a/libsepol/include/sepol/policydb/polcaps.h
+> +++ b/libsepol/include/sepol/policydb/polcaps.h
+> @@ -17,6 +17,7 @@ enum {
+>         POLICYDB_CAP_IOCTL_SKIP_CLOEXEC,
+>         POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT,
+>         POLICYDB_CAP_NETLINK_XPERM,
+> +       POLICYDB_CAP_NETIF_WILDCARD,
+>         __POLICYDB_CAP_MAX
+>  };
+>  #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
+> diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
+> index 6b28c84e..ec6c902d 100644
+> --- a/libsepol/src/polcaps.c
+> +++ b/libsepol/src/polcaps.c
+> @@ -16,6 +16,7 @@ static const char * const polcap_names[POLICYDB_CAP_MAX=
+ + 1] =3D {
+>         [POLICYDB_CAP_IOCTL_SKIP_CLOEXEC]               =3D "ioctl_skip_c=
+loexec",
+>         [POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT]        =3D "userspace_in=
+itial_context",
+>         [POLICYDB_CAP_NETLINK_XPERM]                    =3D "netlink_xper=
+m",
+> +       [POLICYDB_CAP_NETIF_WILDCARD]                   =3D "netif_wildca=
+rd",
+>  };
+>
+>  int sepol_polcap_getnum(const char *name)
+> --
+> 2.49.0.1238.gf8c92423fb-goog
+>
+>
