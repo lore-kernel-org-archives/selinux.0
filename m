@@ -1,102 +1,155 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE60A2940D
-	for <selinux@vger.kernel.org>; Mon,  9 Jun 2025 22:13:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD20163B9
+	for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 07:30:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749507216; cv=none; b=prlbQp9oEecis2cFhUB/T3rRqhwr7/h32RvvRs3XJbNvqt8j+bZmxvC1nHblopzLLNQyuyawDTs4mf51WvRCCNzr9KHz2N56yqd2NY1CEGjI6TzmbdPkR6RflK4i7qKDfg5mr6gh+JPv5xe1oyHHnt84+l3yQeXN6qS5gV+etaA=
+	t=1749540608; cv=none; b=b4jR5NKTIP0/MGBAAkJenrNDYFCrwdXZQIzlr73TrDhw8hm8pPiKBvjocCtdnrqirVSVHY/coeh/j+4iFraaF60o5R/F2ulfhZdO1OyFoNTb6gVpviEuSgVmn6YqXUTUNiWeW7qRNwPFIQ8h48q7CuNeCo1hSU7UPr0nnEISw5U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749507216; c=relaxed/simple;
-	bh=gZkcKnTZzTK5dRAMql+V4IkTMWc/eE7gjPQHElVNbaI=;
+	s=arc-20240116; t=1749540608; c=relaxed/simple;
+	bh=Rr/7q1BnQMWlqFiVjKMr2/ypSnDjlhWM11/TTeMoox4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=TL5ipJNPifQyLZW2LMmk784mc/E1lzX0lMCa5NeekM+u2DmVwpNjIQnwL72mu5+o7/kZeUlXzQ7tRevXZAarW0Qv1BiA0xlXfUYBEZoryUojYsZn+0V+TBXdQajll6PryE1TauwGVYc9LLbW4T/r9VRYQcAI0C3zOR7qY/ZHzK8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ZY8QTrUI; arc=none smtp.client-ip=209.85.128.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=BLiFYZ7/bAEU+s6KVuCG3ur6Ap7cJefdSKjD5yGLJ3mO55iNIyMXvPSrrnL2NKLXlE1vBtF6bETN0BZ2fT7mDzsEaRzKny1tCdX5yd5SBhTuhMp1/TQmnygZ0NMgADIRJVpM9l/90vQKdxfs+oJeTonW+7c1IEGSd2nedPWur5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IRXYWgP6; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ZY8QTrUI"
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-70e447507a0so38318567b3.0
-        for <selinux@vger.kernel.org>; Mon, 09 Jun 2025 15:13:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1749507213; x=1750112013; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rtRWGjdkVmRl+DqjlcUaDM4d966mGKRqnyveJTKh9Kc=;
-        b=ZY8QTrUInL48pnK0C3HrFMoU9crUWTcnWGdsyVsHpwX5qF5MfJJM77DpbOfzi4X1Nd
-         RLN18i9UfKLykjC0rV4TBtDEDigEEHLnBFPyQQuwaSJergGs0y11rU5Lw9UkDGijcWYH
-         NGh3cYfabvR16472KPpqV/NWqtgJ2PFar/eBaDblOgz9KYyNRLD9jQFeWqWSQBGRvfI7
-         f8TDQJUCV4q4s6DjhBhhXo+fpR2Cf/HydgHSGGtZ1adsJ7zB/O5IwB5GdmYqjZ1F6COH
-         3wqb3cwIgURlv2RVqYeqS9VZqYAbLm/zGMuGJIVNlTSqwJX2jz90KkCD/3r2SQfVEx3d
-         Gu3A==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IRXYWgP6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1749540604;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Rr/7q1BnQMWlqFiVjKMr2/ypSnDjlhWM11/TTeMoox4=;
+	b=IRXYWgP62bIloODGLFopyhGsveW3PUX3pZIMXx6sYby28I93onuSw6zLaeWN8WFfbtWfAu
+	h92PMgoxHS3Ega7rMB6r2LkGZJSQewzTDVb5Fl0YZJHiHcJN+SEl6Z6i2wd4Tf9wK5lgXt
+	90Mmd9UDEXEMYQ3JKS8rY6UhAEu8sWc=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-455-yf2EkenHNXuU1TQdjmAP1g-1; Tue, 10 Jun 2025 03:30:03 -0400
+X-MC-Unique: yf2EkenHNXuU1TQdjmAP1g-1
+X-Mimecast-MFC-AGG-ID: yf2EkenHNXuU1TQdjmAP1g_1749540602
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-31332dc2b59so4670602a91.0
+        for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 00:30:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749507213; x=1750112013;
-        h=content-transfer-encoding:to:subject:message-id:date:from
+        d=1e100.net; s=20230601; t=1749540602; x=1750145402;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rtRWGjdkVmRl+DqjlcUaDM4d966mGKRqnyveJTKh9Kc=;
-        b=EtGlCKYaAYemNZ8yHuN6igkr+xe9uRa+JKlpAK9tW07kFyctb3GOa+3lVw3SiH75Z8
-         iqR5JAfxBQw/PSPNpZ5dHRYvacb4DsSqfNcip794aONbm/3gLKM4GerihbjwEEsLaTmg
-         tc3fHj20lDo2LUL0etsvOLESrb9GVVh5VF0wsxLwunxb/nuJ+2nefpEgfjPYNzwnn2Gj
-         Y8CRIEJAC4A77W7+0sy5SmOh61Iz7aMblsiXptv4E3FqBFuIB07ffJUr0i5hpOUlHKX4
-         NLB/h2shUxkr+1zF+9koUwPVAu3T7z+g2wdiXXS74x3DAKAhEk91wN7Q22uLn8We5ejO
-         HXEA==
-X-Gm-Message-State: AOJu0YxkTaV8JbDESnPuvFTswgqHKUFWr+5iEqFL1CstKEgOcm5FBzV4
-	biwZb4GetBzO1ob3lx+6P3AOuiu8kLjrrvKS7lbq70Ejbw3Fsjh1/svNI+qrE2deK8WqycOSYMT
-	YU2Mwd6wEIbLgLbq/IQqz/HUPjJqKGmqy9AejSY4iELfzaEJnH0o=
-X-Gm-Gg: ASbGncv82x8S7dr7aVMp58cVaGPeUvzqt/sre+S5DgBNkqJ+A5WscAj0wk+w+gf3PhS
-	p/DU/WfkY1rc+gOH3TsN1RraTMpUOscd8g7OoPclGWZ4/IrxjB1T4BfWsF/JzKWlIMO9i1uol3h
-	P5yG56LVl9dbJN6CLbZLZ4rtBSZKB4/sCwZuFYTnvXVy4=
-X-Google-Smtp-Source: AGHT+IHxKU3vNZL/nWup4eH5rbMHQ+sn6smCvaXMtcv1VDedG55+A+40joWgHmq1IaJW8O8PZuLUXs1Bg8pa+53blU4=
-X-Received: by 2002:a05:690c:7241:b0:70e:16a3:ce96 with SMTP id
- 00721157ae682-710f76ffff3mr224273627b3.26.1749507213585; Mon, 09 Jun 2025
- 15:13:33 -0700 (PDT)
+        bh=Rr/7q1BnQMWlqFiVjKMr2/ypSnDjlhWM11/TTeMoox4=;
+        b=XCphc5prhwLsMX5/VHLkVrVCS4QP6d7alvPB8OMwjYOXtv8DD8Jgijs0mAd5UwMAnu
+         89/JyZ5UEb8wHoORp1sPf2DKjyfzrlppRsAjz5HdSD+g+zNkMYb0vsw8B4LEmkafgVxU
+         itznd6/VHAhasVJRiu+CpMb4shEFVlNAFx+6EeQIp1cq7IG1FNj3WHdzLGVRdYGZZy1b
+         HlL8HLrjm96dZb/0SwTib+s5quuqRR+8g3YD+QF80UMWR+Nddm0Ae62aDaeWfLnAAj2Q
+         9nn2CD74GHJg2vPe2rNRZxQ4K2MfKDmuW9Dqe2EV4XzEupseyJ+C8iCYXOFoLxN2W3cO
+         tjZg==
+X-Forwarded-Encrypted: i=1; AJvYcCWTkP3MR2Zo/ZtyRHWoZLExcctZ86hWcYT3fcRe2OVEDFWuLl1qhMUJRLi1d20sYcwkxf6Ljn6T@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx9iXRs+X0pLCuxhcQdZ2VrGwNG/KpqN8FCRAGZ30EjxWkT3rH6
+	beskRlGd8jX76Tux1SX+QNrBvvki0BnVdPRERE1O9rS4e6MdM5FmyBtYPZg9j9V7I21dErra7NW
+	T4m2+nuJKIWxfZd6vMWGVdUsQtiIBj7WEN6zDBSHEoW5jTYzsd6sjymmakkedEKxdqTUrTlNmSJ
+	sTJo14PFOXTsQVRvzJfSJnFa4EqBksXRPBfXFVkvdDSCiY
+X-Gm-Gg: ASbGncudrvTom7NseoZijWTX0SiSUwOxTswPaF0TNeyN1arWnwBy6WPjEatE/AhK592
+	hxKhmbONVWsHxv3QR0JCfCFissburfF5opKQUy0O8G2s5D5VHRaq4wwOiLiRN8CwhqP8nENWyV6
+	8guA==
+X-Received: by 2002:a17:90b:28cc:b0:311:fde5:e225 with SMTP id 98e67ed59e1d1-313a157cf8bmr2499335a91.14.1749540601770;
+        Tue, 10 Jun 2025 00:30:01 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFlY6bK7jq9/vCPiagg3W/MG4nsQcMihcu6PFMOjgUqJbzUpRzxwz+vyQaIVovgwoGA36KxHfA8PkzI3bUWQPQ=
+X-Received: by 2002:a17:90b:28cc:b0:311:fde5:e225 with SMTP id
+ 98e67ed59e1d1-313a157cf8bmr2499305a91.14.1749540601223; Tue, 10 Jun 2025
+ 00:30:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250501192347.189307-2-paul@paul-moore.com> <CAHC9VhTD6Yw4dbHdmUfj+2muDMG9pdbW864m2SH8yH558kkE=g@mail.gmail.com>
-In-Reply-To: <CAHC9VhTD6Yw4dbHdmUfj+2muDMG9pdbW864m2SH8yH558kkE=g@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 9 Jun 2025 18:13:22 -0400
-X-Gm-Features: AX0GCFtN08dayfLej26ScaBLheDSFsLTalzwFeZXC2VM-hCHg81pgwp-JawjJMU
-Message-ID: <CAHC9VhRTQkMrzJEeOPZ1yVi8jUzVeN=W+f-DMZnkc3j663fx2Q@mail.gmail.com>
-Subject: Re: [PATCH] selinux: add a 5 second sleep to /sys/fs/selinux/user
-To: selinux@vger.kernel.org
+References: <20250609065841.1164578-1-omosnace@redhat.com> <CAEjxPJ4YiUQpFNwxhAix3CZnXF9Vkbn5Vbs8_Kp7zDxCoevouQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4YiUQpFNwxhAix3CZnXF9Vkbn5Vbs8_Kp7zDxCoevouQ@mail.gmail.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
+Date: Tue, 10 Jun 2025 09:29:49 +0200
+X-Gm-Features: AX0GCFuRHz5e2qH22hzrbkyGb5hIrmCxpUOuQopF46rUSrnCR2QqIZFlnME1x_g
+Message-ID: <CAFqZXNsHdK68Cv2peBUk+iP0=b99VduMOpwNSxXoYmft3PoSDQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix security context comparison on execve(2)
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org, 
+	Guido Trentalancia <guido@trentalancia.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 20, 2025 at 5:22=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
-> On Thu, May 1, 2025 at 3:24=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
-rote:
-> >
-> > Commit d7b6918e22c7 ("selinux: Deprecate /sys/fs/selinux/user") started
-> > the deprecation process for /sys/fs/selinux/user:
-> >
-> >   The selinuxfs "user" node allows userspace to request a list
-> >   of security contexts that can be reached for a given SELinux
-> >   user from a given starting context. This was used by libselinux
-> >   when various login-style programs requested contexts for
-> >   users, but libselinux stopped using it in 2020.
-> >   Kernel support will be removed no sooner than Dec 2025.
-> >
-> > A pr_warn() message has been in place since Linux v6.13, this patch
-> > adds a five second sleep to /sys/fs/selinux/user to help make the
-> > deprecation and upcoming removal more noticeable.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> >  security/selinux/selinuxfs.c | 1 +
-> >  1 file changed, 1 insertion(+)
+On Mon, Jun 9, 2025 at 2:45=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Merged into selinux/dev-staging with the expectation of moving this to
-> selinux/dev after the upcoming merge window.
+> On Mon, Jun 9, 2025 at 2:58=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.c=
+om> wrote:
+> >
+> > selinux_bprm_creds_for_exec() needs to compare the old and new SIDs to
+> > determine if the execve(2) operation is transitioning into a new contex=
+t
+> > (where process { transition } and file { entrypoint } permissions would
+> > be checked) or not (file { execute_no_trans } would be checked). It doe=
+s
+> > so by just comparing their numeric values.
+> >
+> > However, after ae254858ce07 ("selinux: introduce an initial SID for
+> > early boot processes"), we can now easily get into a situation where th=
+e
+> > SID numbers differ, but the context is the same for both. Specifically
+> > when the policy assigns the same context for SECINITSID_KERNEL and
+> > SECINITSID_INIT - in this case when a process labeled with
+> > SECINITSID_INIT does execve(2) without a transition,
+> > security_transition_sid() will translate the unchanged context to the
+> > first matching SID number, which is SECINITSID_KERNEL, not
+> > SECINITSID_INIT. Thus the kernel thinks that a transition has happened
+> > and unexpectedly tests for the file { entrypoint } permission.
+> >
+> > Fix this by checking the SID equality more carefully, trying
+> > context_equal() on the underlying contexts when it is necessary - in th=
+e
+> > rare case that the SIDs differ, but both are "initial" SIDs.
+>
+> We check for SID equality elsewhere as well, e.g. file_has_perm() and
+> selinux_binder_transfer_file(), ioctl_has_perm(), and
+> selinux_kernel_load_from_file() to decide whether to check fd use
+> permission,
 
-This is now in selinux/dev.
+BTW, this case already has quite a tricky behavior, because if e.g.
+only the MLS part of the context differs, you suddenly need to have
+the something_t self:fd { use } permission allowed for the fd to get
+passed, even though policies don't seem to have that commonly allowed
+(at least Fedora's one doesn't, based on a quick sesearch). OTOH, we
+can't simplify it to just comparing the types, because the other
+fields can affect the decision as well...
 
---=20
-paul-moore.com
+And actually with the entrypoint permission it's even trickier,
+because you are forced to allow entrypoint to any type pair that can
+wind up in an MLS-only transition and then it becomes possible to
+enter the domain through that executable type even from other domains.
+
+> selinux_file_permission() to decide whether we need to
+> revalidate permissions, selinux_binder_transaction() to decide whether
+> to check binder impersonate permission, task_avdcache_search() to
+> decide whether we can use the avdcache.
+
+AFAICT, except for selinux_binder_transaction(), here the implication
+is just that a slower path might be taken unnecessarily, so not a big
+deal. selinux_binder_transaction() is then a similar case as the fd
+use permission.
+
+> I'm wondering if we wouldn't
+> be better off just ensuring that security_transition_sid() returns
+> SECINITSID_INIT when called with SECINITSID_INIT and there is no
+> transition defined.
+
+Not sure if that can be (easily) done, since security_compute_sid()
+has tons of logic to recompute all the different fields (user, role,
+type, mls) independently. We would need to carefully track if anything
+actually changed and that could be prone to errors.
+
+--
+Ondrej Mosnacek
+Senior Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
