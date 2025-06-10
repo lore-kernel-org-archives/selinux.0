@@ -1,198 +1,118 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01F1515C0
-	for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 18:09:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FAA9625
+	for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 18:14:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749578970; cv=none; b=umVwJmfIkhk8tX4wgYfciKCx4/s+mxzyjD5cDqqZwH/aN68rTYQosiDXEJsBUz8wsoTI0q0gUiWg5UFoLnNwuHwHufawpj3Z+JXGB7G9sAFHdIPReDm8JOrNa9YrMTPe06jKRXM+q5KIvhT6DvQCIOlntBJwT0/iWjlhqY20NfQ=
+	t=1749579285; cv=none; b=MO9xS0Nv78BBoff3GKHUz26OuxYCBEoXKH6IT9PjkaODB34Fndd+xoOUgDxLu1bXPY43rBWziyGkjHx+TD3hPUQ7jUrAuet5yUy73zkpdPmGs4y2RFj9JtheUreurJIQMTZCLO5vaVskY4VURHTOiuzxv4z4xSShwJU9xiHC5OE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749578970; c=relaxed/simple;
-	bh=6btZeTBFsJsylENk35Vf/oXkmFosi2sRnMpXLw1PoJ0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rrIY6Ly/LFiSa4Nn1FOBHP642wHyYpCxN4FDSi8S89Z8WmxQlxHqIKlvME1auMVISBBnaKR2MS8kOT6bGVts6aMnUsLRE11NY6zb0YJESx7PR6LYK0I8rCJok/o83oc7HODqtIYLoT9ayYVSaPON8X13WYF+lC028LHTr6S40Xo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZWFO+QM7; arc=none smtp.client-ip=209.85.222.172
+	s=arc-20240116; t=1749579285; c=relaxed/simple;
+	bh=RyXCgdZoYrsYoddFKKQt+s/0vcg+lvQ2fYtYgKlFABA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Zung1HlmbHAAxVy1inRwqUtE7KxqyToUblQXOnk5tM93TPZpHH7fmQaxUZ4HMftaaXm7H4cBt9XFRCskhqIwixMknvzBqzA21ti2L5avlBTTlifxSTQJLodaxsIZFX1zrafkOU4SzH3RReYxcI0eQgU4I7wldXVt49P1qRsAIf0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jOQGuaLY; arc=none smtp.client-ip=209.85.222.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZWFO+QM7"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-7d0a0bcd3f3so13074985a.1
-        for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 11:09:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jOQGuaLY"
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-7d21f21baf7so532428885a.0
+        for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 11:14:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749578968; x=1750183768; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=X7ON4ACspMh3kTYlX3qUDvOqdnrVvgEI+gPgcTT7CR4=;
-        b=ZWFO+QM77+6WBjyOVsXcahfQz7lK3mzTeOPuDWiJJ8gQ3uFnVRZlIRBOsx46snB3Zj
-         T1gaJnwuJR8P1hf8h5HxbjSkZy4HjRqCsfEFt//qC1/iPCu5Gj5gDMLHNkyhLPMlI3VS
-         wcB+VLQBxWozUyEd+hTKwJoQB1PRERNk3SKHd3khqWy6NokIgNZzhuD1PzBpYc7L417P
-         s8SnJ0xApppyfnz2gjy3VrkM4rSIUHVVb96RmxkkEOOpdy5s0B7Wg2Eyr7yo0Q8ClQXt
-         oDr9KiYqOxKjt2EFi7caUI9P2Ha6slmGekKUMF3aTPhJfTjRYOLs3GDRFwQg8SOGOsXH
-         d7yw==
+        d=gmail.com; s=20230601; t=1749579283; x=1750184083; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=aUxHv/i5/Ve91A5uJAn4akIy2kUEAGfA5pi7XCidOYM=;
+        b=jOQGuaLYLyIy7gsnvrugsfEB3V1o9QpUf3JWjAPHVNHZ4bR6Ztvwy6Kp/TrixCPOKl
+         GPK5ZHiUiefI5/Zs5DvZpmpnc22OzR1316Y/nI2+Vvc0NczcxLiu9+6ODfMCZBZIMPLm
+         VVxEFZzfAMCkptBGjL+CFnzAYGzfCUNpsrQPlNweZqIVCuEu8PxUV3/tn9lQZ4Q3SsUl
+         gCkChkrQO6Tq5vsFUvMnIN31P+SRwSzO2lTnPRkDJk+P6Sk+jSvjOrM/C+NW9rrqsxld
+         go6J/U+EoJe9B5MKmifQlhyMR3FUImQgTEMUqc4pdBPWWkc4f09yrYoDZJvCfaLHAqWI
+         /M8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749578968; x=1750183768;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=X7ON4ACspMh3kTYlX3qUDvOqdnrVvgEI+gPgcTT7CR4=;
-        b=dFs4n06ULzfl90SuIaX8Jy0xGD+v2BfOgyWe9RmdetwYf7sMVVL/jVa2DFKBJzMbnN
-         fqTQn6RC72ap8DepWUacXQRl0EUm21/EpwQPpfEbin+HoQIxZPnvvPU8KzoPO9dstGYQ
-         oZuSbxn5kJ3KKqylCAIVLBQhuhlN/7IaBh3R2WOVYg3dXlgVe9fWU23nhtikXNx83vwy
-         8AD00KOpHKtHD5NufoHQcoZ749W2sEayNvHzhk4fzSXGgLAFjJlQxswCymttbkXaqvvX
-         iQ3DpoTn3mJ4HuerqSUc3k/jLt1i6sGcZ2kj2ahyANJQ1anF8qveVcmwNrDTRhEdcIo3
-         qkdg==
-X-Forwarded-Encrypted: i=1; AJvYcCUsO/Zckp0VVYuvPKHxDBjR3NqODH86IyO7NBy9+2GW+O92Mi/ftt+Lts7fi1fVkc7QcgGMfKjD@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx2ztO0XvEm11ugLqVF/t+t8jCruDWfPtKN+C1Qj/zw57QYuVGI
-	ZMVIvafDkyGZS95hrg25/LPUMQJIGtLTxO0Ao9HjOQdAGmOC0fv5CgS1tM2oy0rKkMt/Bo2HqRE
-	Mx2tvT8c58RsiQcY5lsvivUdsmrem/94=
-X-Gm-Gg: ASbGncuAVYjx7AiXTarVfxS6kM0Y5HNn5Z/TLnOKkvF6XYRUEvxPJ43k5RtfjLzL2Yy
-	2ME09tt0TxJgJLRB2DLrd4xqejLsVdhjOSNDZrUy6OSYmHpqu3eeNDjfmklKWVZU27Mfis8wMx2
-	euBuw7GSwBj3jU8jC1hCFaJttxEkiwNNj2jJSyEEZhMlY=
-X-Google-Smtp-Source: AGHT+IFWCOYMWJ+ZRET+tZi/rc+o8VEF+IXwa6P4qaAN7NhvLtIHeI70ATJeTcQL6+9gtQLDFHhaHiobTYLMLBaKeP8=
-X-Received: by 2002:a05:620a:4446:b0:7d2:1351:bf24 with SMTP id
- af79cd13be357-7d3a88088e0mr53704585a.11.1749578967661; Tue, 10 Jun 2025
- 11:09:27 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1749579283; x=1750184083;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=aUxHv/i5/Ve91A5uJAn4akIy2kUEAGfA5pi7XCidOYM=;
+        b=ABPwquz9fMi1NJulXUqlUAGeo28Aph91+0fIYLkBgwC+btDAwa7U9WtIPCUZ8ZH5xM
+         67gGHL7sJCLlGdvNxqLdhZCPGse0BwLnnQF9gZQTyx0/Ojv2XWVUuBc/W9oXox9VTBdW
+         tbAWj4rswlvIHQAYEH4KcXksMrOME8bgJFj/ZzAAoSBs52OOAIzBtF2JJ1bwU14ZqXP1
+         T1aLBk5axvgFgNTqfl7JAdHFXVOHhHqdcNmMFY58bDmjYct59nooG29UQ1QyFpjnC+RA
+         qMxP2x4AKdVDbk3yny8oeXA6DSRvZf9MZmk9OyJpkolnhExH5eR/kBrP20pfQwsHdRbd
+         YT7w==
+X-Gm-Message-State: AOJu0YyasYKv72wBIg6JZb960mNPbjA6rZDhlw0h7L/UBoG2jd2EgkNO
+	Hgrb8yP1j9MXRyh9GP9OpBrqUKKNYujMQY+0ucSc/MhsVeHp2eDYKSFZEuiWbg==
+X-Gm-Gg: ASbGnct2495ZJ0o1PSFVPJrUf1YjLZ4cu2n45/d+byIIKlaiRqdZTOYkFR8rk79eW3d
+	VvMUyMtRNJqVGIOUyb6AkAXPnXdMKLZmB+SB5GBknfUoE5UZMqF8ONZkmtxiLLbRtw0khT70Kdt
+	pkQyU4GU9fvd2/UE2ofQZ0Kq1+AhftTjmyIsECtktW/OkW63oBeiwZHxiAoZInnRUaSESrMrYJM
+	bswi/KhhI6towbDPDDJvx59i+kJnJMg4BixLVIxLcaCC9yixo/B/8dBYLlcJewUPd+lGLCEWGY1
+	v8exi6GbULImBCU5huDw06q2/DJIeK5br25PS/pHJ+GoAZwIKCuiZfxPb/yD0TfHK6TVCZnRW3z
+	t9vH0+Vj6IK7HQOAoSMDOVs10CAg5VCf9UojsCM6adblzlfZsCs0nHYD9xsjELXIDWaJ3ny1hle
+	DAfEFjXz+xk2o7h0U=
+X-Google-Smtp-Source: AGHT+IGAJvQUwHsvVTkpqHxMlm6M02Il/M9bbu9+cB8I2R5JE3G9Sa6t4oK4Izpo2gg3uXHnP1QBCw==
+X-Received: by 2002:a05:620a:1b9a:b0:7d3:8f55:8195 with SMTP id af79cd13be357-7d3a88e434fmr49714085a.28.1749579282664;
+        Tue, 10 Jun 2025 11:14:42 -0700 (PDT)
+Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d3917fe608sm380793185a.40.2025.06.10.11.14.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Jun 2025 11:14:42 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Guido Trentalancia <guido@trentalancia.com>
+Subject: [PATCH] selinux: change security_compute_sid to return the ssid or tsid on match
+Date: Tue, 10 Jun 2025 14:14:13 -0400
+Message-ID: <20250610181413.30851-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250530123048.53419-1-cgoettsche@seltendoof.de>
- <20250530123048.53419-2-cgoettsche@seltendoof.de> <87plfbetzh.fsf@redhat.com> <871prrlttc.fsf@defensec.nl>
-In-Reply-To: <871prrlttc.fsf@defensec.nl>
-From: James Carter <jwcart2@gmail.com>
-Date: Tue, 10 Jun 2025 14:09:16 -0400
-X-Gm-Features: AX0GCFt0VQ58wTOlDZcWKiJ3gJpK8UJRLNDd7mFRKug_aAn2iNZvbKzmWO2TeqA
-Message-ID: <CAP+JOzT+W+fiEQdw4c4MkX_h8A=sp4fCnBfA5kGgN9Xcd9=7UA@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] libselinux: retain LIFO order for path substitutions
-To: Dominick Grift <dominick.grift@defensec.nl>
-Cc: Petr Lautrbach <lautrbach@redhat.com>, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgoettsche@seltendoof.de>, 
-	selinux@vger.kernel.org, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jun 10, 2025 at 7:28=E2=80=AFAM Dominick Grift
-<dominick.grift@defensec.nl> wrote:
->
-> Petr Lautrbach <lautrbach@redhat.com> writes:
->
-> > Christian G=C3=B6ttsche <cgoettsche@seltendoof.de> writes:
-> >
-> >> From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >>
-> >> Store the path substitutions in LIFO order as in previous versions.
-> >>
-> >> Fixes: 4d436e4b ("libselinux: use vector instead of linked list for su=
-bstitutions")
-> >> Reported-by: Dominick Grift <dominick.grift@defensec.nl>
-> >> Link: https://lore.kernel.org/selinux/87ldqftsxd.fsf@defensec.nl/
-> >> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >> ---
-> >> v2: add patch
-> >> ---
-> >>  libselinux/src/label_file.c | 9 +++++++++
-> >>  1 file changed, 9 insertions(+)
-> >>
-> >> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> >> index 61a9ddb6..b785eab6 100644
-> >> --- a/libselinux/src/label_file.c
-> >> +++ b/libselinux/src/label_file.c
-> >> @@ -1350,6 +1350,15 @@ static int selabel_subs_init(const char *path, =
-struct selabel_digest *digest,
-> >>      if (digest_add_specfile(digest, cfg, NULL, sb.st_size, path) < 0)
-> >>              goto err;
-> >>
-> >> +    /* LIFO order for backward compatibility */
-> >> +    for (uint32_t i =3D 0; i < tmp_num/2; i++) {
-> >> +            struct selabel_sub swap;
-> >> +
-> >> +            swap =3D tmp[i];
-> >> +            tmp[i] =3D tmp[tmp_num - i - 1];
-> >> +            tmp[tmp_num - i - 1] =3D swap;
-> >> +    }
-> >> +
-> >>      *out_subs =3D tmp;
-> >>      *out_num =3D tmp_num;
-> >>      *out_alloc =3D tmp_alloc;
-> >> -- rc =3D cil_gen_node(db, ast_node, (struct cil_symtab_datum*)role, (=
-hashtab_key_t)key, CIL_SYM_ROLES, CIL_ROLE);
-if (rc !=3D SEPOL_OK) {
-if (rc =3D=3D SEPOL_EEXIST) {
-cil_destroy_role(role);
-role =3D NULL;
-} else {
-goto exit;
-}
-}
-> >> 2.49.0
-> >
-> > It fixes the original reproducer:
-> >
-> > root@fedora:/# cat /etc/selinux/fedora-selinux/contexts/files/file_cont=
-exts.subs
-> > /new_root /
-> > /new_root/foo /usr/bin
-> > root@fedora:/# matchpathcon /new_root /new_root/foo
-> > /new_root       system_u:object_r:root_t:s0
-> > /new_root/foo   system_u:object_r:bin_t:s0
-> >
-> > but it's important to say it depends on the order of entries in .subst:
-> >
-> > root@fedora:/# cat /etc/selinux/fedora-selinux/contexts/files/file_cont=
-exts.subs
-> > /new_root/foo /usr/bin
-> > /new_root /
-> > root@fedora:/# matchpathcon /new_root /new_root/foo
-> > /new_root       system_u:object_r:root_t:s0
-> > /new_root/foo   system_u:object_r:etc_runtime_t:s0
-> >
-> >
-> > it looks like it was like that even before with 3.8:
-> >
-> > [root@fedora-41 /]# cat /etc/selinux/targeted/contexts/files/file_conte=
-xts.subs
-> > /new_root /
-> > /new_root/foo /usr/bin
-> > [root@fedora-41 /]# matchpathcon /new_root /new_root/foo
-> > /new_root       system_u:object_r:root_t:s0
-> > /new_root/foo   system_u:object_r:bin_t:s0
-> >
-> > [root@fedora-41 /]# cat /etc/selinux/targeted/contexts/files/file_conte=
-xts.subs
-> > /new_root/foo /usr/bin
-> > /new_root /
-> > [root@fedora-41 /]# matchpathcon /new_root /new_root/foo
-> > /new_root       system_u:object_r:root_t:s0
-> > /new_root/foo   system_u:object_r:etc_runtime_t:s0
-> >
-> > It would be great to have this behavior documented, but it's a differen=
-t
-> > issue.
-> >
-> > If there's no other objection I'll merge tomorrow before 3.9-rc1.
-> >
-> > Acked-by: Petr Lautrbach <lautrbach@redhat.com>
-> >
->
-> I applied this patch and it addresses my issue (restores compatiblity).
-> I can also confirm that ordering the specs indeed also addresses the
-> issue at least in a simple test I did.
->
-> I do prefer that ordering shouldnt matter.
->
-> Thanks!
->
+If the end result of a security_compute_sid() computation matches the
+ssid or tsid, return that SID rather than looking it up again. This
+avoids the problem of multiple initial SIDs that map to the same
+context.
 
-If it fixes Dominick's issues, then I have no objection. I had planned
-on verifying that it had fixed his problem, but now I don't have to.
-Thanks everyone,
-Jim
+Reported-by: Guido Trentalancia <guido@trentalancia.com>
+Fixes: ae254858ce07 ("selinux: introduce an initial SID for early boot processes")
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ security/selinux/ss/services.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-> --
-> gpg --locate-keys dominick.grift@defensec.nl (wkd)
-> Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-> Dominick Grift
-> Mastodon: @kcinimod@defensec.nl
->
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 7becf3808818..8a8a3fe9a33c 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1909,11 +1909,17 @@ static int security_compute_sid(u32 ssid,
+ 			goto out_unlock;
+ 	}
+ 	/* Obtain the sid for the context. */
+-	rc = sidtab_context_to_sid(sidtab, &newcontext, out_sid);
+-	if (rc == -ESTALE) {
+-		rcu_read_unlock();
+-		context_destroy(&newcontext);
+-		goto retry;
++	if (context_equal(scontext, newcontext))
++		*out_sid = ssid;
++	else if (context_equal(tcontext, newcontext))
++		*out_sid = tsid;
++	else {
++		rc = sidtab_context_to_sid(sidtab, &newcontext, out_sid);
++		if (rc == -ESTALE) {
++			rcu_read_unlock();
++			context_destroy(&newcontext);
++			goto retry;
++		}
+ 	}
+ out_unlock:
+ 	rcu_read_unlock();
+-- 
+2.49.0
+
