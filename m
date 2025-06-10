@@ -1,120 +1,125 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com [209.85.219.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5A40263F4E
-	for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 19:49:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 580C0284B39
+	for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 23:50:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749584950; cv=none; b=sh76kZLo0l9TRIrix4Inxtlsk4gJXo1ojgC261CO7hbPwAGO7C43vbTjYZ6p2/43+HvxRpGYEVGAyuvv81+eDYduy/LeZIV0L1WXl2P+kJM9D4TMVppzNIR1Dj62DqctzNSfAXdO7T4gcUc3aZ+7FySkTWgcL79fXCDFhRikLQw=
+	t=1749599424; cv=none; b=Y6TQlLnUjx3xUJtR/qyxP0yTXLDlujWOUqsO+GzDsj+PfGhW9+co1jkDVoeG/oszN7y4M2d/f+ysdvRSslXjUX5B4QwpwrC5AEacsBHJl0h3/jRmMPn2UCr9Ijcwc+xASqPnglsJZIPX0xtHpdPDFOYKpcGctATQ0DdPkqj1DAU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749584950; c=relaxed/simple;
-	bh=w3t2neTRZ59Zvio5Ysv+4+AAg4hXeCwgYVkMe+fiPgQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=X7XvybB8UPE+X4jSJr/mecoH2vwOIJqHCE+Ed0gxf6o0jORhWN7UJ42HYkG/dnQeySFAP/e7jLa4nDvDHnD5IFRn+f2lyOHzW0BKzf91hoMsRw/qHnHl1jz3Zz6AiEaa/aIS0hAf2zzPjaPKBHt3mcKvt6xEoTxxaXrYndnSAI4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y9VzP5lA; arc=none smtp.client-ip=209.85.222.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1749599424; c=relaxed/simple;
+	bh=5zpmeUIFplYcd16FCJTHwlcr+3eWOrvix0typRp9sog=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XNCGL0ZpvXNYA+RFsL+AYzelxnVJRIG5Hgno+xTUc8PrePxQpQihMAeX9P9JHS5cPmoiJ2an7OmduCTjmsjkFPmd+9V8mYRw2tRb4yOu9CE1YcLxwBgN4XO5xEYYAMgKhULlK/NZEBEDSLLInGUjr/fUsOGTGVfNUIRbKs13ROU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=FTOoNxL+; arc=none smtp.client-ip=209.85.219.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y9VzP5lA"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-7cadd46eb07so612330785a.3
-        for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 12:49:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="FTOoNxL+"
+Received: by mail-yb1-f174.google.com with SMTP id 3f1490d57ef6-e7311e66a8eso5456815276.2
+        for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 16:50:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749584947; x=1750189747; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=8BfI9eu6SPXq+XCyf6zPjWz8NpRdISF+w/eIgG6OzUk=;
-        b=Y9VzP5lAEWM/4hDAIB/W6tyPOWTQEpnz1Hfx7NjDARsuxuTexzOuZfiEwmXEJvCyGJ
-         hQg5UQ5/9z/v+Oe5/ukU95SjivfClPx8bFQ7IEEOsTwTslXf7sF6JP+mNfDVXPmOeGIE
-         9LEKL8f2a8HaTzDaRfbixvhvVUA3D9hW71x6F4Jc45pjORbYuRLUkN0Vu5ZFPJ8SAnVR
-         cLty39s4E6x2FTYN9w5zSZS6DV4tVMrEVTCPeiT0iqRlpEHWuMqwkAnll3oUZY/uFnl+
-         RPEg5aWk3vr1T0eeqnL2lPdx0OKFoiB2b4gjJSj+9Vo4NiRAmXyhZjzr0GyoK0Pk3wnl
-         +b8A==
+        d=paul-moore.com; s=google; t=1749599421; x=1750204221; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=p9Qgp5oHl/0P+qqYYVFIyIBvDmKn+BX8RyiafClKsvk=;
+        b=FTOoNxL+0vvlydxtSO2mI5yc5X1tjb179p+F0GAsrKx4xgmGahTCldcYS00Z3ViLIJ
+         g0Y+/KMfpS/uwp//Kk5giFqvVPes7d1RHKOvnGNhAKNQiS3Zpi9aLKZH+WVdKR9v8pKk
+         iP5Z/yMT64NpQZtKsEeF5dYsY2c6BfyLExb/jp4KkKkflgeqNk1ulDEGmNpOoruuNh4s
+         PtB57wiRRix46OR4HDub/HRfv7VXBDVTzTgHgEUHk37pBFwzZgSUSmbqOJ07T2rAAUcd
+         xlogZ+m14/YVu0Kq+f3U9z98WdBd48fUqjtkqASQPHLX2xgeTDAgHqdH3SrkzUdOpVeY
+         eY6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749584947; x=1750189747;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=8BfI9eu6SPXq+XCyf6zPjWz8NpRdISF+w/eIgG6OzUk=;
-        b=QxGMtV+vnwxkz7OJPoUuflSMoXTTWrUTAP9OI650HWvKiSaC40Zmh2qrzZNgY5+uPG
-         0LIxdReM/mzYivya6k/gDjTD1rIf4rgFMRxugdoHCYYQWARsCUtZfRCiVyR5ZjTKYGhk
-         I6ttrfoiILcSm87lxFwm6jmd49TGzY/M1hPGEmU/Jp8aTxyzSo49tsviW9VsEMH63DgX
-         u82gssodtOwfuTQC5VNlR74+ktbH7UwWKfhACJvTY8Yejv5mEX7x/UXCudbm0ZL+5fDt
-         ocBPvBmz13OsMq9zW/+4ivpQBCe6uGF6CQ4JabMs9KmvPsXtK1zKDnIP7sQwFowDBt8d
-         BZTw==
-X-Gm-Message-State: AOJu0Yw91UjuH44GvVOtFNH9rxj9udzjJ1Vs34n3WcX12eCWDeNyINsa
-	iZfq2+nFi6iOZCE6C6qtJVFOx0WndPxYZQuolhdD3S2uVbnXgHeg19kYJPDZhA==
-X-Gm-Gg: ASbGncu9Dz1ELl66nuo7CCLGfmPe/fVHqt/zzd45M8Yuswysu92cYQX2zyyFKT5simm
-	7mandK3IvaCg55XK9Lg+H5dtgs60GYWDXTfmblEZmB26GicWVmcn6I4objx6wwNAdUV+458i/lk
-	lYYYmvJBHWVMU5Q3moJZ4YnJZH/FNh5FugfqpAfeY/2M05gcp4IqXZRLC0ZkqPmgczDkhn/55Tg
-	T0B2n5iIpYlDL3v8+WYk0XXimO/erCN/EfC3oKazkztROGSj9ev+WMTQg+1bAUNbrcHMhfurRMY
-	lCypGrYZTm5QaOU5CYdof8486twR4+8YQYRWYtDuL98ouQyI1+LJad1JSaK3g+lG+yy6IRWNsn1
-	fK2ohPBEkySF38vE1OaWfs2xfVnE+VLnlB1CxD0dFd5I9aceCFZPG5uWYYnvcPykpBac7jq8IiJ
-	uSxmJEcAKR++S7d2o=
-X-Google-Smtp-Source: AGHT+IHdhI6PMcqPxSaBsVFmXwynG129SjdqKspB25ySBmcW3yxgslqDSm6VRdKkIMfUyanOFj1bpQ==
-X-Received: by 2002:a05:620a:c50:b0:7ce:e010:88bb with SMTP id af79cd13be357-7d3a883450amr102574585a.22.1749584947476;
-        Tue, 10 Jun 2025 12:49:07 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d25a60a14csm739961385a.53.2025.06.10.12.49.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Jun 2025 12:49:07 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Guido Trentalancia <guido@trentalancia.com>
-Subject: [PATCH v2] selinux: change security_compute_sid to return the ssid or tsid on match
-Date: Tue, 10 Jun 2025 15:48:27 -0400
-Message-ID: <20250610194826.80606-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.49.0
+        d=1e100.net; s=20230601; t=1749599421; x=1750204221;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=p9Qgp5oHl/0P+qqYYVFIyIBvDmKn+BX8RyiafClKsvk=;
+        b=HpM6rHW0+GU1F5zi5J80AY+1v9S5SQt2hD3avZaQj3dLhYD2B3joI0nFGnMuA4ixDH
+         NRUBhOk43ZM7KxERd8o8rcXQLRL/H3vS4fdHBGVN+c34t3JsDjZ9A8ciYPcp1ayd3HHe
+         6HXCRpQfJEtBAwmOZPeKJl4Vk0m8pHK76GYfRiXZnf5+PUO5/oMuqgBhRn55bYV8/8G5
+         zCJufvx1PiLu+QwQYEnvjYKF56xekf+kDKlC0cBGTNyk67uwJRbOzxJ5wDbsulQgXL4k
+         k6aIK0AaKMJ0ZyiVnag68QeMK1QApbUBRQG+XpHqR86JbW4apJo9M8GpsfRF3kCBgK+z
+         qG+w==
+X-Forwarded-Encrypted: i=1; AJvYcCXTEAAr4i5muGvjD6WnzQppEztQqCcZCLkygs1sy2E+AEgP5Kb6kQiTPGHRW0Q4i7D550ODE3qC@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy6KQDCeWRhT+QxKzeGc8ywjxEufMOVVOB8gr+h25lQqrv34ep7
+	T5flq0ikc+Ciy8WBqQK7nY38PFyujSi2/SspJ5Hvn8WLRtvlaWcg6N5vIfSiX375IjvYIKFe2Vi
+	0S/X9a1I0idIVqlKeYi+tSr7wkeAzlzTHPGRQgrCs
+X-Gm-Gg: ASbGncuZRPZw0U3lwrM4bCYBpIqkWhgCWqPfaSPtwG0mvRPj7nY+4lmjbYwJNy2kRzb
+	LELOkY4CQCJDJ91DiHk2QL6g8UqnlJxnP7q4tJ5vJycYc3UsJWBNc56gKmmdLUKWK7pQ7E/Tlwv
+	OoVCqcm9KSoz1zScpo1fWmROdvq7eFLV4JBcCtEbbmmLE=
+X-Google-Smtp-Source: AGHT+IEvtteku/P1uiXxT4gbHUj7G2QQ+RMoFTyCSCZ3iBdan2K1TBvoDyo+Adyk8sCdrfVIToKGxMKUgGG3OtxF/+0=
+X-Received: by 2002:a05:6902:72e:b0:e81:78f7:5521 with SMTP id
+ 3f1490d57ef6-e81fd92a3f2mr2148616276.6.1749599421291; Tue, 10 Jun 2025
+ 16:50:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250605164852.2016-1-stephen.smalley.work@gmail.com>
+ <CAHC9VhQ-f-n+0g29MpBB3_om-e=vDqSC3h+Vn_XzpK2zpqamdQ@mail.gmail.com>
+ <CAHC9VhRUqpubkuFFVCfiMN4jDiEhXQvJ91vHjrM5d9e4bEopaw@mail.gmail.com> <87plfhsa2r.fsf@gmail.com>
+In-Reply-To: <87plfhsa2r.fsf@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 10 Jun 2025 19:50:10 -0400
+X-Gm-Features: AX0GCFt95pxw11ngH9ypXcXXgINCY4mIRN7SWpVrAA3u5KTm4VBIfux35kFrlG4
+Message-ID: <CAHC9VhRSAaENMnEYXrPTY4Z4sPO_s4fSXF=rEUFuEEUg6Lz21Q@mail.gmail.com>
+Subject: Re: [PATCH] fs/xattr.c: fix simple_xattr_list()
+To: linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	brauner@kernel.org
+Cc: Collin Funk <collin.funk1@gmail.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, linux-kernel@vger.kernel.org, 
+	selinux@vger.kernel.org, eggert@cs.ucla.edu, bug-gnulib@gnu.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-If the end result of a security_compute_sid() computation matches the
-ssid or tsid, return that SID rather than looking it up again. This
-avoids the problem of multiple initial SIDs that map to the same
-context.
+On Fri, Jun 6, 2025 at 1:39=E2=80=AFAM Collin Funk <collin.funk1@gmail.com>=
+ wrote:
+> Paul Moore <paul@paul-moore.com> writes:
+> >> <stephen.smalley.work@gmail.com> wrote:
+> >> >
+> >> > commit 8b0ba61df5a1 ("fs/xattr.c: fix simple_xattr_list to always
+> >> > include security.* xattrs") failed to reset err after the call to
+> >> > security_inode_listsecurity(), which returns the length of the
+> >> > returned xattr name. This results in simple_xattr_list() incorrectly
+> >> > returning this length even if a POSIX acl is also set on the inode.
+> >> >
+> >> > Reported-by: Collin Funk <collin.funk1@gmail.com>
+> >> > Closes: https://lore.kernel.org/selinux/8734ceal7q.fsf@gmail.com/
+> >> > Reported-by: Paul Eggert <eggert@cs.ucla.edu>
+> >> > Closes: https://bugzilla.redhat.com/show_bug.cgi?id=3D2369561
+> >> > Fixes: 8b0ba61df5a1 ("fs/xattr.c: fix simple_xattr_list to always in=
+clude security.* xattrs")
+> >> >
+> >> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> >> > ---
+> >> >  fs/xattr.c | 1 +
+> >> >  1 file changed, 1 insertion(+)
+> >>
+> >> Reviewed-by: Paul Moore <paul@paul-moore.com>
+> >
+> > Resending this as it appears that Stephen's original posting had a
+> > typo in the VFS mailing list.  The original post can be found in the
+> > SELinux archives:
+> >
+> > https://lore.kernel.org/selinux/20250605164852.2016-1-stephen.smalley.w=
+ork@gmail.com/
+>
+> Hi, responding to this message since it has the correct lists.
+>
+> I just booted into a kernel with this patch applied and confirm that it
+> fixes the Gnulib tests that were failing.
+>
+> Reviewed-by: Collin Funk <collin.funk1@gmail.com>
+> Tested-by: Collin Funk <collin.funk1@gmail.com>
+>
+> Thanks for the fix.
 
-Reported-by: Guido Trentalancia <guido@trentalancia.com>
-Fixes: ae254858ce07 ("selinux: introduce an initial SID for early boot processes")
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-v2 fixes a compiler error.
+Al, Christian, are either of you going to pick up this fix to send to
+Linus?  If not, any objection if I send this up?
 
- security/selinux/ss/services.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
-
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 7becf3808818..d185754c2786 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1909,11 +1909,17 @@ static int security_compute_sid(u32 ssid,
- 			goto out_unlock;
- 	}
- 	/* Obtain the sid for the context. */
--	rc = sidtab_context_to_sid(sidtab, &newcontext, out_sid);
--	if (rc == -ESTALE) {
--		rcu_read_unlock();
--		context_destroy(&newcontext);
--		goto retry;
-+	if (context_equal(scontext, &newcontext))
-+		*out_sid = ssid;
-+	else if (context_equal(tcontext, &newcontext))
-+		*out_sid = tsid;
-+	else {
-+		rc = sidtab_context_to_sid(sidtab, &newcontext, out_sid);
-+		if (rc == -ESTALE) {
-+			rcu_read_unlock();
-+			context_destroy(&newcontext);
-+			goto retry;
-+		}
- 	}
- out_unlock:
- 	rcu_read_unlock();
--- 
-2.49.0
-
+--=20
+paul-moore.com
