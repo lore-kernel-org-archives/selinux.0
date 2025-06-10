@@ -1,241 +1,139 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+Received: from mail-qk1-f176.google.com (mail-qk1-f176.google.com [209.85.222.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5465C242D70;
-	Tue, 10 Jun 2025 17:22:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BFB124469A;
+	Tue, 10 Jun 2025 17:23:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749576179; cv=none; b=kyhe694e6hGQZHART408IJ4VYwM5QJTjLwFjvarJOLe8ODUUXvJbKn3DP1CRnkUqaWQyPoKeiVHSfWqBgA1rgucHmSFTQ2S+oXZwalrQIqTr1iiDG1IkeR1nSwe2l6NhI2fL89sVYRbqIRpGoJSJfILwKP3Wky5GqH74bPQQlSw=
+	t=1749576187; cv=none; b=uujWagY8ai/6NMrDqwwOj+cT+j7sd7rrOxaXGyJxH9HPMfa61362Pn5Ur8vTXuhTrqKLSDS86BQG3Edb/vXsVwKi9d4lsUwEJMQhVguLBjfRz352cmvlkszFfXPk2VLY3WfQGp0CB7IoGriwE+/6X/0p8u/+Yf//+fe8KpqMxnk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749576179; c=relaxed/simple;
-	bh=JjL3GdCIgR9i+DjoJupAZlvWtDSUebRlRKwHgCObpho=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=tmqh4UB5WNXWtkncRsy4TT5tM4m5bnf01ZcS3sbGzKvo8xBeUvP9J51ZkFQ4OU4Xd/QIwGZTSedRzvwDUkwSr9Fxt2EZr2U+wS9/OPfBL9Xw157mXckdNh58Y7R9gsWP/czpfi9iF/Nc3us0H84bPhAXV8uM8ccUFPXPfuCWSYI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ncmf2I6t; arc=none smtp.client-ip=209.85.222.181
+	s=arc-20240116; t=1749576187; c=relaxed/simple;
+	bh=Vgdd62kQtHZhUV1xPbHRIBzBOV3HyEzrAFAVC6EVcdY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=srLRtOas+bL52STSj/wF4U8hnW/F0Lwq1epHC8fTVSF/odBHYjdIHa9wAotfJXShOqygKiD+Xvv73EPqaCSC9GLtZsY37LA4jSSSPWGGCvYv+00L71ykl8GWoEkbxTThzZh69tlMnqdy30HXRmbp9a/1CCBonIlz1PSXCvowlEI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Fg2QDMp8; arc=none smtp.client-ip=209.85.222.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ncmf2I6t"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-7d0a0bcd3f3so7690785a.1;
-        Tue, 10 Jun 2025 10:22:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Fg2QDMp8"
+Received: by mail-qk1-f176.google.com with SMTP id af79cd13be357-7c59e7039eeso814168885a.2;
+        Tue, 10 Jun 2025 10:23:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749576176; x=1750180976; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=kHNAnc+9j39p/QxNnqxx6s73FLJX9zuc3KzK4qBXMC8=;
-        b=Ncmf2I6tc6snvzrfhWEKwAdD88AI11NVH5Q/lpBgatBI7JhH+L/3AZcSaA9Q2cd+2r
-         SV/992GocFBu8DQD+JSFoVdrW/336ZHCPDwimzxvpnwCROwYdlevrDKCJibUnYnt2SWH
-         dPyX+gWKhMSycPQ7FBRF7yDQNaHshNXDRZKyfe31YdSlsvwNZaaQOsgFjU9mx5v0LZyv
-         QgSYsa8hD/qjqbQMLeZvMNgf8JPbVdx/36Qqg2T3Y328DvBt2pXpwILdDLPZclj/dkaU
-         yKVEZjkoB8L24FwrjgW0LlBQYcEls6jIM3CXMSrY05TVKNz+tW/1BYs8WAhyW1xONtFS
-         uUgA==
+        d=gmail.com; s=20230601; t=1749576184; x=1750180984; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=iVnpAGVQ9IOljiZmwmCLJUNC1q/ixoo+OOZwgCeJjgc=;
+        b=Fg2QDMp8mX3h4b+9Q5oyE6m/ffcyhTdTLngV64JPL/GyUXGY7e1AwCpqYstUAcLdXB
+         jQ+nN7ycSpq8icgaSI2iSagNNoThNDLbE3Tg/wiB7h34YWTqSclz2zstvY4WS+RAfSXB
+         RbsrWGPtzj1Mfp6JvOriQzjIjrmON+SXX4j2z0hJXo+DI0PQl+xJn0DUJb+TnJ1K0wr8
+         OMRDuuqa1Y7r1hzifJvYyVGGBGAlPiP0OWE3NC45Fy27ayW35ImelsnGoiOT7YQcBxIy
+         PVSrClaxFWIdgY274DIyFOw9wuUs+o2qrNnbX5hZK8WI+i49armkgeT38TaMc/lQlYSU
+         24Uw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749576176; x=1750180976;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=kHNAnc+9j39p/QxNnqxx6s73FLJX9zuc3KzK4qBXMC8=;
-        b=KZSBp56YvLTJmI7y0z0cQB+QLSn++kRJwZq3tqRcTHD1skXwCL6lOBvdnViA9Z6Nfv
-         jX0ppLUJNwNFGv7TMTEBF6G4XnC+ypCAsJ3iyYe6NfgQ3Le6G54Bhd3TncXPQZNkmktG
-         evq2ezck8Z26nOuAC7bHX60CWNjwhbPlRE16Yxnrk9rNp8WaLhNxR/TbKra5xUMoHL+z
-         Rl26kJEwHjPug8pWbvHYe4ScUzKqkYcP3tMjg/yhkZbHh2OJy9zPYQPHZqP/thuaaeNc
-         +IwceDkZG1IUqWt9z4ejWv5yzSbJcqAP6vRX0R9Ug2Qkj7LLDl8KE6rv6Nqob/AHobMz
-         vY7g==
-X-Forwarded-Encrypted: i=1; AJvYcCXBt7vRZPjyXOz8tQ6EnZia5GzdUT9eH8NgPjyJKShljbKExD/70rkZPC1OSk4zx0CCyN7v398=@vger.kernel.org
-X-Gm-Message-State: AOJu0YycQYa5qttlopTiWJizLt8tn6ELpB72N7oXhql0hu1BxBY2n83c
-	EeIiZa3yver3NssWEv6glYbRMQJoe3GcX1/SIwrsk4GwTWPop8Vtvaesk8WNzg==
-X-Gm-Gg: ASbGnctNxyTOZVC5nH3sBodCnJOsBwy0mifscJzEf9tuzXy+Kdop1bzYbNnFYqbHNNe
-	0WW23eEO8Q2nFuCTFkKfsaIiDXHHrHNtxnqITusQgnY15+VKfYVOKoXZJcdr8kAHmQjLkab8BlW
-	7/yOwRQdwcDWve/tIvn705iSeBBlY5savrPxz82cO9nbk16l5wjFUH8X0pJj5Fiw6wHSlYshuRT
-	F08BSwXp0vHwLKduO6MtSYbFd2qwNM6Iwx41sCAtQlz611+w2OhlzvoltySohUB2TyZBI0bJpWk
-	SM0i/KjuDylrUVbePNhd0rVumXMFXVVsmKV1fzzLFUOoyOGjshhGxSBfVyH4p0wkaqKqC0A0mSL
-	Jtcr9IFXw2lFFbWQNI2nnKwKNwFhormYcFXzfpt/LW1+O0zdoBfDoNdWeddKuxl6QUQ==
-X-Google-Smtp-Source: AGHT+IGk1ZntF/kL2IG3ZioM58MAz4HMBoGP5536pwPARs7cvLI+6s+syjK++VCPkk7+jF3PnsjXOQ==
-X-Received: by 2002:a05:620a:248a:b0:7d3:89c7:684d with SMTP id af79cd13be357-7d3a88cfac6mr27171285a.20.1749576175728;
-        Tue, 10 Jun 2025 10:22:55 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1749576184; x=1750180984;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=iVnpAGVQ9IOljiZmwmCLJUNC1q/ixoo+OOZwgCeJjgc=;
+        b=OsWcdQW3br+onMdpnJuG7bTpU7Hrq+FhQQI1B6EXgBeFM0tX9TFCkV6/RR5Tmz7Irj
+         jQcJquZxh3sKvW6L0xW0Ig1EGxVMLahAsc8mbufuSGCYoAaDynYys8ytlzqFi6T3JS2W
+         hb6T5wb1qRz+m99S4xqjlQHGQpWRSJJ67lJVXWdAVtfhQXi8nJPPfwBxiY70nXvPmRBb
+         2tht/hJUUAAd7ihxnojRoEjtMZgG3zTbCGqAeRjBvmBeenhyY8nfTqKI1sy3VbZDtIcp
+         HvinpzJxmzvXvKjNFw9rFhU/oTYdWT8w3EJQUekHYeniaHV3EdquN7bLmpvmYolmF3vc
+         A+nw==
+X-Forwarded-Encrypted: i=1; AJvYcCU6C4f/UPkywc76p6DOHf/pZcCTfq1d7fFVgzGLxkSmls7FR1AeSOKdWgrByl1vR6WuDGqJ08Q=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxnGBn10iWcDDOEOwKG+sZbpvbsupEmDCoTSe096WGqjwyjOUG+
+	w4X7kXS92WPSnqkjqpwKPexbWiSLLnMmZFI0wr45d5XCOtQMprHY+Z7etBm5Ow==
+X-Gm-Gg: ASbGncsxNi599KoJz7aCI4wG4pxNrwFFA/L6Z4m9p0m3f7R2raLvxBTV4yHGpLB1jWu
+	nN6PG0O2+4KBeY4BqNiUYhL6O0SPntsoB3tUwj0KkHC6YK21J9ynKJycTR06mITrpKP+OZE5M/H
+	rpMTUEs90xp1R4KBk58hI5FN78Li5gkarz6/WvQJeJJELNFodr5L0Y8bN1z8gzu1ZHZL5stThR2
+	e9byApKz4d+KFnXC2Xqb8kDoa1hUTgNVuyMAJQeAHaZHiOAaSk1JAUv8hmRzptBFTcTedmNfdmj
+	VKBCnx4Mpeo3eHupdSkzyLaYn8Uem6NpQl2ducLTUenx7tlReKvk5arMfb2Sw1ig5svX3WjTaqO
+	fh6+oBIterfpgQEwBZaPddJYXFyUr+2B0lNuULgX6/ilp2rZRA1ugX2aQnxSja/T4lbAdF/10o7
+	jL
+X-Google-Smtp-Source: AGHT+IEo1tUM0uAyCjOD7wfccSKmGlaqYpuQuBJNb1uaD83q42/Pfh0SAHSPBp6M7inNba1lUywZFg==
+X-Received: by 2002:a05:620a:46a7:b0:7d2:1891:eef8 with SMTP id af79cd13be357-7d3a87fb71emr36339085a.25.1749576184047;
+        Tue, 10 Jun 2025 10:23:04 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d25a608d19sm716491185a.63.2025.06.10.10.22.55
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d25a608d19sm716491185a.63.2025.06.10.10.23.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Jun 2025 10:22:55 -0700 (PDT)
+        Tue, 10 Jun 2025 10:23:03 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	netdev@vger.kernel.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v4 00/42] SELinux namespace support
-Date: Tue, 10 Jun 2025 13:21:31 -0400
-Message-ID: <20250610172226.1470741-1-stephen.smalley.work@gmail.com>
+Subject: [PATCH v4 03/42] selinux: support multiple selinuxfs instances
+Date: Tue, 10 Jun 2025 13:21:34 -0400
+Message-ID: <20250610172226.1470741-4-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250610172226.1470741-1-stephen.smalley.work@gmail.com>
+References: <20250610172226.1470741-1-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-This series introduces support for SELinux namespaces, i.e. the ability to
-create multiple SELinux namespaces each with its own policy, AVC, and
-enforcing mode. This support can be leveraged by Linux container runtimes
-to establish a private SELinux namespace for each container, enabling the
-container to load and enforce its own policy while still remaining bound by
-the host OS policy (if any). Documentation and open issues can be found at
-https://github.com/stephensmalley/selinuxns.
+Support multiple selinuxfs instances, one per selinux namespace.
 
-Performance data:
+The expected usage would be to unshare the SELinux namespace and
+the mount namespace, and then mount a new selinuxfs instance.  The
+new instance would then provide an interface for viewing and manipulating
+the state of the new SELinux namespace and would not affect the parent
+namespace in any manner.
 
-Baseline = v6.16-rc1
-No NS = v6.16-rc1+this patch series with SECURITY_SELINUX_NS=n
-Init NS = Same but with SECURITY_SELINUX_NS=y from init SELinux namespace
-Child NS = Same but from a child SELinux namespace
+This change by itself should have no effect on SELinux behavior or
+APIs (userspace or LSM).
 
-kcbench (automated kernel compilation benchmark packaged by Fedora,
-run with 'kcbench -s 6.13' for 10 runs, computing average and standard
-deviation):
-|CPUs|Baseline (sec)|StdDev|No NS (sec)|Init NS (sec)|Child NS (sec)|
-| 16 | 123.88       | 0.24 | 121.85    | 121.67      | 121.93       |
-| 19 | 125.33       | 0.43 | 123.06    | 123.03      | 122.73       |
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ security/selinux/selinuxfs.c | 26 +++++++++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
 
-'perf record make –jN' on a fully built allmodconfig kernel tree,
-followed by 'perf report --sort=symbol,dso' yields the following
-percentages (only showing __d_lookup_rcu for reference and only
-showing relevant SELinux functions):
-|Function                  |Baseline|NoNS  |InitNS|ChildNS|
-| __d_lookup_rcu           | 1.74%  | 1.72%| 1.72%| 1.82% |
-| selinux_inode_permission | 0.71%  | 0.55%| 0.58%| 0.56% |
-| selinux_inode_getattr    | 0.40%  | 0.41%| 0.42%| 0.42% |
-| avc_lookup               | 0.14%  | 0.07%| 0.11%| 0.21% |
-| avc_has_perm/_noaudit (*)| 0.08%  | 0.05%| 0.05%| 0.09% |
-| avc_policy_seqno         | 0.02%  | 0.17%| 0.16%| 0.16% |
-| cred_tsid_has_perm       | N/A    | 0.07%| 0.07%| 0.10% |
-| Total SELinux            | 1.35%  | 1.32%| 1.39%| 1.54% |
-| SELinux/d_lookup_rcu     | 0.776  | 0.767| 0.808| 0.846 |
-(*) Sum of avc_has_perm + avc_has_perm_noaudit percentages.
-
-NB perf record was done _without_ the separate
-neveraudit|permissive types optimization [1], which would
-significantly reduce the SELinux percentages for such types
-both with and without the SELinux namespace patches.
-
-ApacheBench (run with 'ab –n 100000 –c 1000 http://localhost/' for
-ten runs, computing average and stddev):
-|Metric                  |Baseline|Std Dev|No NS  |Init NS |Child NS|
-|Time taken (sec)        |  6.8071| 0.6764| 7.0198|  7.1344|  7.8451|
-|Reqs / sec              | 14823.1| 1339.6|14353.2| 14163.3| 12858.4|
-|Time per req (ms)       | 68.0721| 6.7646|70.1978| 71.3438| 78.4525|
-|Transfer rate (KB/sec)  |  126691|  11499| 122675|  121052|  109899|
-|Connect time median (ms)|    27.8|    4.3|     27|    25.8|    30.5|
-|Total time median (ms)  |    62.6|    9.3|   67.6|    68.0|    77.0|
-
-[1] https://lore.kernel.org/selinux/20250521144123.199370-4-stephen.smalley.work@gmail.com/
-
-Stephen Smalley (42):
-  selinux: restore passing of selinux_state
-  selinux: introduce current_selinux_state
-  selinux: support multiple selinuxfs instances
-  selinux: dynamically allocate selinux namespace
-  netstate,selinux: create the selinux netlink socket per network
-    namespace
-  selinux: limit selinux netlink notifications to init namespace
-  selinux: support per-task/cred selinux namespace
-  selinux: introduce cred_selinux_state() and use it
-  selinux: init inode from nearest initialized namespace
-  selinux: add a selinuxfs interface to unshare selinux namespace
-  selinux: add limits for SELinux namespaces
-  selinux: exempt creation of init SELinux namespace from limits
-  selinux: refactor selinux_state_create()
-  selinux: allow userspace to detect non-init SELinux namespace
-  selinuxfs: restrict write operations to the same selinux namespace
-  selinux: introduce a global SID table
-  selinux: wrap security server interfaces to use the global SID table
-  selinux: introduce a Kconfig option for SELinux namespaces
-  selinux: eliminate global SID table if !CONFIG_SECURITY_SELINUX_NS
-  selinux: maintain a small cache in the global SID table
-  selinux: update hook functions to use correct selinux namespace
-  selinux: introduce cred_task_has_perm()
-  selinux: introduce cred_has_extended_perms()
-  selinux: introduce cred_self_has_perm()
-  selinux: introduce cred_has_perm()
-  selinux: introduce cred_ssid_has_perm() and cred_other_has_perm()
-  selinux: introduce task_obj_perm()
-  selinux: update bprm hooks for selinux namespaces
-  selinux: add kerneldoc to new permission checking functions
-  selinux: convert selinux_file_send_sigiotask() to namespace-aware
-    helper
-  selinux: rename cred_has_perm*() to cred_tsid_has_perm*()
-  selinux: update cred_tsid_has_perm_noaudit() to return the combined
-    avd
-  selinux: convert additional checks to cred_ssid_has_perm()
-  selinux: introduce selinux_state_has_perm()
-  selinux: annotate selinuxfs permission checks
-  selinux: annotate process transition permission checks
-  selinux: convert xfrm and netlabel permission checks
-  selinux: switch selinux_lsm_setattr() checks to current namespace
-  selinux: make open_perms namespace-aware
-  selinux: split cred_ssid_has_perm() into two cases
-  selinux: convert nlmsg_sock_has_extended_perms() to namespace-aware
-  selinux: disallow writes to /sys/fs/selinux/user in non-init
-    namespaces
-
- include/net/net_namespace.h                   |    3 +
- security/selinux/Kconfig                      |   65 +
- security/selinux/Makefile                     |    1 +
- security/selinux/avc.c                        |  782 ++++++++--
- security/selinux/global_sidtab.c              |  810 ++++++++++
- security/selinux/hooks.c                      | 1339 +++++++++++------
- security/selinux/ibpkey.c                     |    2 +-
- security/selinux/ima.c                        |   37 +-
- security/selinux/include/audit.h              |    8 +
- security/selinux/include/avc.h                |   76 +-
- security/selinux/include/avc_ss.h             |    3 +-
- security/selinux/{ss => include}/avtab.h      |    0
- security/selinux/include/classmap.h           |    2 +-
- security/selinux/include/conditional.h        |    4 +-
- security/selinux/{ss => include}/constraint.h |    0
- security/selinux/{ss => include}/context.h    |    0
- security/selinux/{ss => include}/ebitmap.h    |    0
- security/selinux/include/global_sidtab.h      |   26 +
- security/selinux/{ss => include}/hashtab.h    |    0
- security/selinux/include/ima.h                |   11 +-
- security/selinux/{ss => include}/mls.h        |    0
- security/selinux/{ss => include}/mls_types.h  |    0
- security/selinux/include/netif.h              |    4 +-
- security/selinux/include/netlabel.h           |   14 +-
- security/selinux/include/netnode.h            |    4 +-
- security/selinux/include/objsec.h             |   43 +-
- security/selinux/{ss => include}/policydb.h   |    0
- security/selinux/include/security.h           |  473 +++++-
- security/selinux/include/selinux_ss.h         |  119 ++
- security/selinux/{ss => include}/sidtab.h     |   34 +
- security/selinux/{ss => include}/symtab.h     |    0
- security/selinux/include/xfrm.h               |    8 +-
- security/selinux/netif.c                      |   31 +-
- security/selinux/netlabel.c                   |   32 +-
- security/selinux/netlink.c                    |   42 +-
- security/selinux/netnode.c                    |   26 +-
- security/selinux/netport.c                    |    2 +-
- security/selinux/selinuxfs.c                  |  553 ++++++-
- security/selinux/ss/services.c                |  453 +++---
- security/selinux/ss/services.h                |    1 +
- security/selinux/ss/sidtab.c                  |  105 +-
- security/selinux/status.c                     |   44 +-
- security/selinux/xfrm.c                       |   47 +-
- 43 files changed, 4071 insertions(+), 1133 deletions(-)
- create mode 100644 security/selinux/global_sidtab.c
- rename security/selinux/{ss => include}/avtab.h (100%)
- rename security/selinux/{ss => include}/constraint.h (100%)
- rename security/selinux/{ss => include}/context.h (100%)
- rename security/selinux/{ss => include}/ebitmap.h (100%)
- create mode 100644 security/selinux/include/global_sidtab.h
- rename security/selinux/{ss => include}/hashtab.h (100%)
- rename security/selinux/{ss => include}/mls.h (100%)
- rename security/selinux/{ss => include}/mls_types.h (100%)
- rename security/selinux/{ss => include}/policydb.h (100%)
- create mode 100644 security/selinux/include/selinux_ss.h
- rename security/selinux/{ss => include}/sidtab.h (81%)
- rename security/selinux/{ss => include}/symtab.h (100%)
-
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 8340a53c6171..fd03ceb6c8de 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -2153,9 +2153,33 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
+ 	return ret;
+ }
+ 
++static int selinuxfs_compare(struct super_block *sb, struct fs_context *fc)
++{
++	struct selinux_fs_info *fsi = sb->s_fs_info;
++
++	return (current_selinux_state == fsi->state);
++}
++
+ static int sel_get_tree(struct fs_context *fc)
+ {
+-	return get_tree_single(fc, sel_fill_super);
++	struct super_block *sb;
++	int err;
++
++	sb = sget_fc(fc, selinuxfs_compare, set_anon_super_fc);
++	if (IS_ERR(sb))
++		return PTR_ERR(sb);
++
++	if (!sb->s_root) {
++		err = sel_fill_super(sb, fc);
++		if (err) {
++			deactivate_locked_super(sb);
++			return err;
++		}
++		sb->s_flags |= SB_ACTIVE;
++	}
++
++	fc->root = dget(sb->s_root);
++	return 0;
+ }
+ 
+ static const struct fs_context_operations sel_context_ops = {
 -- 
 2.49.0
 
