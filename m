@@ -1,59 +1,60 @@
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
+Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19B9E24DD14;
-	Tue, 10 Jun 2025 17:23:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A5D524EA90;
+	Tue, 10 Jun 2025 17:23:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749576208; cv=none; b=BJqp2iYLbc4S9F2K1F7kLIyWdOnkHmkVWiGpPSZqhtTNuvYYEOgjBvMGEaJAjx10HTJB5lArHbL6e+KR5KDVm3NEUboPfLoe1yYIC6NtgPUF+fgMAValS21YQJRWWS1NUpVS1eyK0Axbz9u5uX6MGxs+QWMeaThB1WP69ICPJow=
+	t=1749576208; cv=none; b=NtRuyPiUhd3oSWweqjIAF7DqLEtl8NKtMoWzjlrYx+qngUD9S5XAdzRj3dU42l6YPGYXB1nhejl/4xBToOJzp04WF6vDPav2GxLuEBGIFH/8wMlHMOCEQ1itEQfGu6VoAS2JVDlj78uZjRO6VwOTg9W6tIkvlWWE4Y/WrQqSLvY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1749576208; c=relaxed/simple;
-	bh=66bqjtasfdXKyKG0u2lvO6sl7MjdmrwFZAlb8dvax3w=;
+	bh=uox2P2Hl96WYhrLMSzZDCSsJx2tfsaUYkp50lXrN5KI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=m4XH7vge2JnRo0E+svcYXKwhukLqo508Jlj9d5qbpcCpW1YJKbA32TWg9bbe0qkhXmUTEVj1zBx4WREDvRkczqPhwjTL3eR3YsE+yJ1tJWqxHkgANe+97jy6M45jM2nNpZv70wFn0xUKFA5iXNO9t7mnLsiHw6KO1rw0ota99gA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CXaqQwgD; arc=none smtp.client-ip=209.85.160.170
+	 MIME-Version; b=idd2zHY47rbIDdTHc7HY4KtYkVLgfiSgXwLS0ooAXNJDy9KTereZagdDntb06wWMMtcq9nd+IF4Up6r2O5dnfsF/1WVtNqD+6rb24N9uFEwktdEz5GES4UxAdZA4ZFcphgiTA753MYJcSnBsQhZJZIoh+M5s8egyJZq0qTAQj7Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KqaVSie/; arc=none smtp.client-ip=209.85.160.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CXaqQwgD"
-Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-4a585dc5f4aso78901101cf.2;
-        Tue, 10 Jun 2025 10:23:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KqaVSie/"
+Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-4772f48f516so700201cf.1;
+        Tue, 10 Jun 2025 10:23:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20230601; t=1749576205; x=1750181005; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ejXLpQct5D9tTvSh18gMbbHqYE/VgKFj5LdB9X4o9gA=;
-        b=CXaqQwgDatJof/wK+36aduKk190I3XKSzoTZq2iQTvKsd8TlhBWdtwL6xOJD7GrpND
-         19pr+lmuOaibMi7gJ3Oj/ib4tuZxHgmyCEmpU3e/PhqQRD2wFZPs70Ka3J1YpWTo8S16
-         TR4DOgB+OkfpS+LLbzoObq12OEaj3HXltkCANahxdF/XpzPB2asdEgRk1Hh7Rwu/2N2h
-         d7rM97jbRpb67ekqmVWnJlgjlB8hDmqhu3CRHudIp1jNW3wzg8Twi8U1uneXUkvMMFl4
-         mygdEcdL1m73TiPTXmHxsVOpEeT29j5bSfY/3nYGsjEhBJUDkASL/bG/T6BsdiRLZtR2
-         plzQ==
+        bh=bkqGtM3F0SZsf67PmjPNDYUpiKec4HiM/s9NZaoYi/I=;
+        b=KqaVSie/DZjfQeS/lq85JSlHgjVafNDGZ87izsgYiDmcaguBmL1xhkhPpdOhanOF/z
+         OpHbuan5fdDIjBagmup1Z9HTPxlMvNNhdlJHKF3fqXQNmvSJHeB1SY9QVaFK379Rvzwz
+         VWmfteyEm01yZr4whXHLJXUvVg3I+Puuee1iulHHwO57h/6GF1iNkjXpbNvjNf9Q8we4
+         dj57+LZXAVWC5s1lUku/vUUi/VvY9Iincm0jVZAOmR7l2Vn6Qbtn/zPyHDBeZog3MMoA
+         DoteEv9/waDrFg3P2RTXY4SrgPT2F4ySSpK/7h0d2Ha1UhlGI3+Ez6NJTrVrxrdMq90V
+         dVxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20230601; t=1749576205; x=1750181005;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ejXLpQct5D9tTvSh18gMbbHqYE/VgKFj5LdB9X4o9gA=;
-        b=RdiJUnPFJmaHMmbxv5TNu3Y0+NRN176hDm1rzdO6bUFq3o/JzNBu97MCRLosmfnQKN
-         +ZIJuuHAZyXRJW4mFbSsKGhOBJavVPDMkRIZuMg1LG3Ogx05ZxzyI4WLdKYFNSSOf0wP
-         pwEpwHjgQoYVSuHhfg0Vg6Ze4nuPa0taQe/nTHXRHlYOcxNaNNh0DQeAETt2ER7fGF02
-         LCwmljWlVmq7wNaJOWDkyDJabkBlwkX190+YzW+Z1Yhv1fTQLir4J06FcOOtEYnjFwVx
-         QHa+gELPaskbejX9DMMn2gubPoUfa1Jn+chjYsb6Ca9p6/YwJ70EqlXjO9fKzYu1cnI/
-         d4gg==
-X-Forwarded-Encrypted: i=1; AJvYcCVxKtnE2ZRCqL6TSiRPrcIi53MJPlZ7JTJj8wwKPn7xPamrwIpzt9fgtxCQCfvvUVdZsN32dIs=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwlcvNRoqaWCOhRXfH6WHaxB8+mmGOQWRGCO+Weq/2zQU1O779t
-	GFpTrTXZ1SFmoTwdYzeYeQ9Mdw6RY8Gdt7FeNopoM4iScdXM951nY6GMIQ4RRg==
-X-Gm-Gg: ASbGncvWORXedz+VppecwZCl4E1QATuytd4H+L6CsoyxIH1GDNwPdPExAnvMrnCRMnp
-	4I2uC2Zsm6YHHqfacfHGpTemwwkEBm8hvtTR1DxEk8VB9hLbGMlW/l2srZ6xI5rpJobLBOz6RJx
-	ZPdEusbGk3DU07yCphgMTrM8pWoKOemV5DZM3AONEOrcommzjmIDg76kO6BY3irXwwR0/cezXEy
-	39TmIh/bIxX3C7OMwsgXGTvpOUPbxzgKy04RUPjwKOpj2+LsILB1vBnavDIhHkOVhO2gWH+LZPE
-	x1LQBz4m0gbHnDErUlcmyBAEow0e7TawWI8QXNLknnIoIWRQ7Y1pPLUtCC0+fewPpQxTZLSsUrk
-	JsZuHUMqdu4mZIU8garAK9qtiLWslRmIjUG0qZNq+oKTalvRuB2ftvBvjyKE/WV8xwQ==
-X-Google-Smtp-Source: AGHT+IGOW2MdJiuAqFifYz2eY+UpDZjE4V7MTPl2fV3hqIG+v+vECbAZGzfTdC1KFM5rNRKNTMjeCA==
-X-Received: by 2002:a05:622a:1f11:b0:476:8288:9558 with SMTP id d75a77b69052e-4a713c667e8mr4580091cf.46.1749576204566;
-        Tue, 10 Jun 2025 10:23:24 -0700 (PDT)
+        bh=bkqGtM3F0SZsf67PmjPNDYUpiKec4HiM/s9NZaoYi/I=;
+        b=wu1gvXpIMoVKFpsvPuKfOH8U0rssXuYfqPO/OyzkYMJCr01D3b0fCWtxBS5E0ZVTQB
+         lKJV+yy/KW0W5VHF+1uPmDJgv4lLaY/6lBpTOkljWhJKq6iGd1KUXQcieVdUxCu0SPn1
+         RwxRTk8bo1K9Kt6AJVPlSz/3X5vcd5BL/QSMgCRnlyHW0doC/bipbINMn8djj4iUyOdX
+         OaZiA/gaJvxdeHrcbAcgUmeozxha4OaKg+iQ7/lGkZT9puim25nRHQ5uDAmdT/Zzdbuc
+         /yWoekSdczYSJEczg96wrL358QZ17Htxfs2xxFMUF4ejENmoMz6yd0u6hYMjw9tFbZNH
+         VUIg==
+X-Forwarded-Encrypted: i=1; AJvYcCUCel2Z7a3fkMPeoYkXv2oLtjbVBosCxXNNFHNmVAQoIoKhd1WJF5r5PLGGLS901g/t792uawQ=@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywwxph2HAfIT3BQk8pRcRwYhDaw06ePHuWFnzhcb74VnmJF6r2k
+	pb+HhneiYuFxV4jgnTAgS2ey1ltInr96LcfLBLcjuG7SDgrGLl7tFGnjh8zT8Q==
+X-Gm-Gg: ASbGncugMKuzzvfVdurXqwDaB/lIONZPB/iWwiL0agaLLTCF1j96zTS11gS93OFa9eF
+	OK7Wcwp2SmP8eZJ1IdVIVrONFxpIxhCumbiZWtxuoPK7aYWjtlJ9iEvjppfbsKmdaO0daueKsmO
+	0yezxsV+JCe9Nb+Yd5s838LKcWuVJNMU0X9RRKtdtXF+Mi06rOqZHt2YeA7Th/lyb31Gm1G0lC7
+	ayoN4thmPIoibjnh5Q6B7ksDXxgyKaRRVPfOVqrWNvpImNUqAJGQU3rLzYHpV5TrAbuP2FmZNVM
+	By/Ewshdvuzoj96ZUAdCLiDHAcBel8/tBC92gpp7HyGZQbPgIB8aoqJhL0vXx0j5KVBF7hb9DzX
+	ZaIrcZKj8LNvk/T33QbfWvMpvxa3C8DW+qodWdJl5j8ONAkQU7cabPPxkYkPeFgYqXzPEm0f1Yg
+	x5
+X-Google-Smtp-Source: AGHT+IF1cNOnHCH1zhUqRWaEE0Ao2/TY7ZeEpkALfa2x2yfYX5QLF1JaKtr2kKEkOcODgnQKJzYCnw==
+X-Received: by 2002:a05:622a:4a89:b0:4a7:896:743c with SMTP id d75a77b69052e-4a713af085fmr5608781cf.0.1749576205162;
+        Tue, 10 Jun 2025 10:23:25 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
         by smtp.gmail.com with ESMTPSA id af79cd13be357-7d25a608d19sm716491185a.63.2025.06.10.10.23.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
@@ -64,9 +65,9 @@ Cc: paul@paul-moore.com,
 	omosnace@redhat.com,
 	netdev@vger.kernel.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v4 29/42] selinux: add kerneldoc to new permission checking functions
-Date: Tue, 10 Jun 2025 13:22:00 -0400
-Message-ID: <20250610172226.1470741-30-stephen.smalley.work@gmail.com>
+Subject: [PATCH v4 30/42] selinux: convert selinux_file_send_sigiotask() to namespace-aware helper
+Date: Tue, 10 Jun 2025 13:22:01 -0400
+Message-ID: <20250610172226.1470741-31-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250610172226.1470741-1-stephen.smalley.work@gmail.com>
 References: <20250610172226.1470741-1-stephen.smalley.work@gmail.com>
@@ -78,241 +79,88 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add kerneldoc to new namespace-aware permission checking
-functions.
+Convert selinux_file_send_sigiotask() to use the cred_task_has_perm()
+namespace-aware permission checking helper. This required saving the
+file owner cred in the file security blob for later use in this hook
+function. Since the cred already includes the cred/task security blob
+which has the task SID and the SELinux state/namespace, we can drop
+those separate fields from the file_security_struct at the same time.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/avc.c         | 145 ++++++++++++++++++++++++++++++++-
- security/selinux/include/avc.h |   3 +-
- 2 files changed, 145 insertions(+), 3 deletions(-)
+ security/selinux/hooks.c          | 15 ++++++---------
+ security/selinux/include/objsec.h |  3 +--
+ 2 files changed, 7 insertions(+), 11 deletions(-)
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 07cd1b037ed1..fc40e840a143 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -1265,6 +1265,21 @@ static u32 task_sid_obj_for_state(const struct task_struct *p,
- 	return sid;
- }
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 2e2aa80b76af..25f7b9dd77d4 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3825,8 +3825,7 @@ static int selinux_file_alloc_security(struct file *file)
+ 	u32 sid = current_sid();
  
-+/**
-+ * cred_task_has_perm - Check and audit permissions on a (cred, task) pair
-+ * @cred: subject credentials
-+ * @p: target task
-+ * @tclass: target security class
-+ * @requested: requested permissions, interpreted based on @tclass
-+ * @ad: auxiliary audit data
-+ *
-+ * Check permissions between a cred @cred and a task @p for @cred's namespace
-+ * and all ancestors to determine whether the @requested permissions are
-+ * granted.
-+ * Audit the granting or denial of permissions in accordance with the policy.
-+ * Return %0 if all @requested permissions are granted, -%EACCES if any
-+ * permissions are denied, or another -errno upon other errors.
-+ */
- int cred_task_has_perm(const struct cred *cred, const struct task_struct *p,
- 		       u16 tclass, u32 requested,
- 		       struct common_audit_data *ad)
-@@ -1304,6 +1319,22 @@ static const struct task_security_struct *task_security(
- 	return tsec;
- }
+ 	fsec->sid = sid;
+-	fsec->fown_sid = sid;
+-	fsec->state = get_selinux_state(current_selinux_state);
++	fsec->cred = get_cred(current_cred());
  
-+/**
-+ * task_obj_has_perm - Check and audit permissions on a (task, other-task) pair
-+ * @s: source task
-+ * @t: target task
-+ * @tclass: target security class
-+ * @requested: requested permissions, interpreted based on @tclass
-+ * @ad: auxiliary audit data
-+ *
-+ * Check permissions between a task @s and a task @t for the current namespace
-+ * and all ancestors to determine whether the @requested permissions are
-+ * granted.
-+ * Audit the granting or denial of permissions in accordance with the policy.
-+ * Return %0 if all @requested permissions are granted, -%EACCES if any
-+ * permissions are denied, or another -errno upon other errors.
-+ * DO NOT USE when @s is current; use cred_task_has_perm() instead.
-+ */
- int task_obj_has_perm(const struct task_struct *s,
- 		      const struct task_struct *t,
- 		      u16 tclass, u32 requested,
-@@ -1346,7 +1377,25 @@ int task_obj_has_perm(const struct task_struct *s,
  	return 0;
  }
- 
--
-+/**
-+ * cred_has_extended_perms - Check and audit extended permissions on a (cred, tsid) pair
-+ * @cred: subject credentials
-+ * @tsid: target security identifier
-+ * @tclass: target security class
-+ * @requested: requested permissions, interpreted based on @tclass
-+ * @driver: driver value
-+ * @base_perm: the base permission associated with the extended permission
-+ * @xperm: extended permission value
-+ * @ad: auxiliary audit data
-+ *
-+ * Check extended permissions between a cred @cred and a target
-+ * security identifier @tsid for @cred's namespace and all ancestors
-+ * to determine whether the @requested permissions are granted for the
-+ * specified (@driver, @xperm) pair.
-+ * Audit the granting or denial of permissions in accordance with the policy.
-+ * Return %0 if the @requested permissions are granted, -%EACCES if any
-+ * permissions are denied, or another -errno upon other errors.
-+ */
- int cred_has_extended_perms(const struct cred *cred, u32 tsid, u16 tclass,
- 			    u32 requested, u8 driver, u8 base_perm, u8 xperm,
- 			    struct common_audit_data *ad)
-@@ -1373,6 +1422,20 @@ int cred_has_extended_perms(const struct cred *cred, u32 tsid, u16 tclass,
- 	return 0;
- }
- 
-+/**
-+ * cred_self_has_perm - Check and audit permissions on a (cred, self) pair
-+ * @cred: subject credentials
-+ * @tclass: target security class
-+ * @requested: requested permissions, interpreted based on @tclass
-+ * @ad: auxiliary audit data
-+ *
-+ * Check permissions between a cred @cred and itself for @cred's namespace
-+ * and all ancestors to determine whether the @requested permissions are
-+ * granted.
-+ * Audit the granting or denial of permissions in accordance with the policy.
-+ * Return %0 if all @requested permissions are granted, -%EACCES if any
-+ * permissions are denied, or another -errno upon other errors.
-+ */
- int cred_self_has_perm(const struct cred *cred, u16 tclass, u32 requested,
- 		       struct common_audit_data *ad)
+@@ -3835,8 +3834,7 @@ static void selinux_file_free_security(struct file *file)
  {
-@@ -1395,6 +1458,18 @@ int cred_self_has_perm(const struct cred *cred, u16 tclass, u32 requested,
- 	return 0;
+ 	struct file_security_struct *fsec = selinux_file(file);
+ 
+-	put_selinux_state(fsec->state);
+-	fsec->state = NULL;
++	put_cred(fsec->cred);
  }
  
-+/**
-+ * cred_self_has_perm_noaudit - Check permissions on a (cred, self) pair, no audit
-+ * @cred: subject credentials
-+ * @tclass: target security class
-+ * @requested: requested permissions, interpreted based on @tclass
-+ *
-+ * Check permissions between a cred @cred and itself for @cred's namespace
-+ * and all ancestors to determine whether the @requested permissions are
-+ * granted.
-+ * Return %0 if all @requested permissions are granted, -%EACCES if any
-+ * permissions are denied, or another -errno upon other errors.
-+ */
- int cred_self_has_perm_noaudit(const struct cred *cred, u16 tclass,
- 			       u32 requested)
+ /*
+@@ -4119,14 +4117,14 @@ static void selinux_file_set_fowner(struct file *file)
+ 	struct file_security_struct *fsec;
+ 
+ 	fsec = selinux_file(file);
+-	fsec->fown_sid = current_sid();
++	put_cred(fsec->cred);
++	fsec->cred = get_cred(current_cred());
+ }
+ 
+ static int selinux_file_send_sigiotask(struct task_struct *tsk,
+ 				       struct fown_struct *fown, int signum)
  {
-@@ -1420,6 +1495,25 @@ int cred_self_has_perm_noaudit(const struct cred *cred, u16 tclass,
- 	return 0;
+ 	struct file *file;
+-	u32 sid = task_sid_obj(tsk);
+ 	u32 perm;
+ 	struct file_security_struct *fsec;
+ 
+@@ -4140,9 +4138,8 @@ static int selinux_file_send_sigiotask(struct task_struct *tsk,
+ 	else
+ 		perm = signal_to_av(signum);
+ 
+-	return avc_has_perm(fsec->state,
+-			    fsec->fown_sid, sid,
+-			    SECCLASS_PROCESS, perm, NULL);
++	return cred_task_has_perm(fsec->cred, tsk, SECCLASS_PROCESS, perm,
++				  NULL);
  }
  
-+
-+/**
-+ * cred_has_perm - Check and audit permissions on a (cred, tsid) pair
-+ * @cred: subject credentials
-+ * @tsid: target security identifier
-+ * @tclass: target security class
-+ * @requested: requested permissions, interpreted based on @tclass
-+ * @ad: auxiliary audit data
-+ *
-+ * Check permissions between a cred @cred and a target SID @tsid for
-+ * @cred's namespace and all ancestors to determine whether the
-+ * @requested permissions are granted, interpreting the permissions based
-+ * on @tclass.
-+ * Audit the granting or denial of permissions in accordance with the policy.
-+ * Return %0 if all @requested permissions are granted, -%EACCES if any
-+ * permissions are denied, or another -errno upon other errors.
-+ * DO NOT USE when checking permissions between two creds (or tasks);
-+ * use cred_other_has_perm() or cred_task_has_perm() instead.
-+ */
- int cred_has_perm(const struct cred *cred, u32 tsid, u16 tclass,
- 		  u32 requested, struct common_audit_data *ad)
- {
-@@ -1442,6 +1536,22 @@ int cred_has_perm(const struct cred *cred, u32 tsid, u16 tclass,
- 	return 0;
- }
+ static int selinux_file_receive(struct file *file)
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 18736dd23441..65c529ae7f75 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -48,10 +48,9 @@ struct inode_security_struct {
  
-+/**
-+ * cred_has_perm_noaudit - Check permissions on a (cred, tsid) pair, no audit
-+ * @cred: subject credentials
-+ * @tsid: target security identifier
-+ * @tclass: target security class
-+ * @requested: requested permissions, interpreted based on @tclass
-+ * @avd: access vector decisions
-+ *
-+ * Check permissions between a cred @cred and a target SID @tsid for
-+ * @cred's namespace and all ancestors to determine whether the
-+ * @requested permissions are granted.
-+ * Return %0 if all @requested permissions are granted, -%EACCES if any
-+ * permissions are denied, or another -errno upon other errors.
-+ * DO NOT USE when checking permissions between two creds (or tasks);
-+ * use cred_other_has_perm() or cred_task_has_perm() instead.
-+ */
- int cred_has_perm_noaudit(const struct cred *cred, u32 tsid, u16 tclass,
- 			  u32 requested, struct av_decision *avd)
- {
-@@ -1473,6 +1583,24 @@ int cred_has_perm_noaudit(const struct cred *cred, u32 tsid, u16 tclass,
- 	return 0;
- }
+ struct file_security_struct {
+ 	u32 sid; /* SID of open file description */
+-	u32 fown_sid; /* SID of file owner (for SIGIO) */
+ 	u32 isid; /* SID of inode at the time of file open */
+ 	u32 pseqno; /* Policy seqno at the time of file open */
+-	struct selinux_state *state; /* SELinux state */
++	const struct cred *cred; /* cred for file owner (for SIGIO) */
+ };
  
-+/**
-+ * cred_ssid_has_perm - Check and audit permissions on a (ssid, tsid) pair
-+ * @cred: subject credentials
-+ * @ssid: source security identifier
-+ * @tsid: target security identifier
-+ * @tclass: target security class
-+ * @requested: requested permissions, interpreted based on @tclass
-+ * @ad: auxiliary audit data
-+ *
-+ * Check permissions between a source SID @ssid and a target SID @tsid for
-+ * @cred's namespace and all ancestors to determine whether the
-+ * @requested permissions are granted.
-+ * Audit the granting or denial of permissions in accordance with the policy.
-+ * Return %0 if all @requested permissions are granted, -%EACCES if any
-+ * permissions are denied, or another -errno upon other errors.
-+ * DO NOT USE when checking permissions involving cred/task SIDs; this
-+ * helper is only for object-to-object checks.
-+ */
- int cred_ssid_has_perm(const struct cred *cred, u32 ssid, u32 tsid, u16 tclass,
- 		       u32 requested, struct common_audit_data *ad)
- {
-@@ -1509,6 +1637,21 @@ static u32 cred_sid_for_state(const struct cred *cred,
- 	return sid;
- }
- 
-+/**
-+ * cred_other_has_perm - Check and audit permissions on a (cred, other-cred) pair
-+ * @cred: subject credentials
-+ * @other: other credentials
-+ * @tclass: target security class
-+ * @requested: requested permissions, interpreted based on @tclass
-+ * @ad: auxiliary audit data
-+ *
-+ * Check permissions between a cred @cred and a task @p for @cred's namespace
-+ * and all ancestors to determine whether the @requested permissions are
-+ * granted.
-+ * Audit the granting or denial of permissions in accordance with the policy.
-+ * Return %0 if all @requested permissions are granted, -%EACCES if any
-+ * permissions are denied, or another -errno upon other errors.
-+ */
- int cred_other_has_perm(const struct cred *cred, const struct cred *other,
- 			u16 tclass, u32 requested,
- 			struct common_audit_data *ad)
-diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-index 2c2268249b44..9def47812034 100644
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -147,8 +147,7 @@ int avc_has_extended_perms(struct selinux_state *state, u32 ssid, u32 tsid,
- 			   u8 perm, struct common_audit_data *ad);
- 
- int cred_task_has_perm(const struct cred *cred, const struct task_struct *p,
--		       u16 tclass, u32 requested,
--		       struct common_audit_data *auditdata);
-+		       u16 tclass, u32 requested, struct common_audit_data *ad);
- 
- int cred_has_extended_perms(const struct cred *cred, u32 tsid, u16 tclass,
- 			    u32 requested, u8 driver, u8 base_perm, u8 xperm,
+ struct superblock_security_struct {
 -- 
 2.49.0
 
