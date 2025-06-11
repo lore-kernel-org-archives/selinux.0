@@ -1,127 +1,244 @@
-Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com [209.85.219.170])
+Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AD232367BC
-	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 20:27:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81D282206BE
+	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 20:43:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749673638; cv=none; b=sdPGY9l3gs9wES6IdAPF5RfZMpfNvI6LSiCvd8tQwjCRXOUv4fvhx5BJqkc+Q+gGcjCtrihlqUbETLPbs9QJn+3jgBjx6qw+H84En/9a1GRTe3gC7Q8NRbrwOgsrUrWPZ+OcHggKxFuJHNFd3gHDttCullBw3BLO1hGBF+Xwd3M=
+	t=1749674624; cv=none; b=uBeLakxH3hg2/EtDQn8u/DiAa28YA8P2ieaEqqOdjL2zrp76k888BB2ZCQfXOQ5Lj0U5gnxPjbL2KWiRx79W3OMyTJrAGnZPSaxyj4hVDVJ84dxEWFnL4QxOSF8hpviGLKwhDyb+IMl/VHredIXT4iINPvwtVQNST4pFvLPoUrg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749673638; c=relaxed/simple;
-	bh=b462XvDCSfMevaIQxn3sYyGpMaL7uBHahet9/QOpJHw=;
+	s=arc-20240116; t=1749674624; c=relaxed/simple;
+	bh=+0wMSJz7inwLLZx693m9IBiYzP5K1IHeAQ0LVfJSIMU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LWM/ca88THHoSO0AXDumjZnoHVeKBPgLezQ2EGn9XBVj988Q7BKKgyW+PYGXrqgq+cW8sa+dEK2+hAH2eqeHV9UfMxaxRc0oKgWpJak4z0QrXR0MJBXoW/1cjMmr6G6XSO4RauGnSpu6l+pHr7mZ2RzEsI9X0M0MHLKGIsmzvwg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=eLn/4Us8; arc=none smtp.client-ip=209.85.219.170
+	 To:Cc:Content-Type; b=ZlVVyh8pIGe8ogLwnK6uJQEHAgBDIDvkbmxWOxf2t8GrCDzTIGIoZrha98Ido28Fg1Lx6pAYT93n6yexHGKwkjViaqnjTbyubqllaxtrAtMGGk9+vsWuBNMU0ieEhUBO7zbXVwzX/cWsXkW+jkczE+wRhaqYtq2mlnn5rrK0JBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=KsmJlfn0; arc=none smtp.client-ip=209.85.219.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="eLn/4Us8"
-Received: by mail-yb1-f170.google.com with SMTP id 3f1490d57ef6-e7569ccf04cso211433276.0
-        for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 13:27:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="KsmJlfn0"
+Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-e7d925ff60bso182652276.2
+        for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 13:43:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1749673636; x=1750278436; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1749674620; x=1750279420; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=A3H1uAtO+gZJCXVOFgln/U+eNFJCAoQXkaNwNc9tito=;
-        b=eLn/4Us8K6pgDk1K37yxhLgGDY/R4sI3hM6xguaNs6VXi9CZy6IS7RdfW8Tg0J3mR7
-         X0G3ijtJngWy5hdPSq7ARs94PS86Xq9Ix92Pm9X2Q1kVkIKaqHMwflTzpb1phnfi4md7
-         Iwbm7h1bhQuRtbAT1eLOdxYLM9GycF272IjYpnjx/98DK4pd9JARNUHp/7IjVLyrWzqH
-         iLpJf5YRVXU1pLb5J+uOW3q+S8Jb9MyypZ/554NCMz1coCtNEuVnxbjYTMUSyPR4EDxM
-         Dogv+t5JtOLT0nO+kLANyAsVQYAkarVnn2Z/PrBFlApv3tCQ5n4TgsX9hw3aWRSGgulb
-         8XLA==
+        bh=SajPFdhYrOQbyrr2a2aIidAt78Sx9ZRj6KKonEs77T0=;
+        b=KsmJlfn0fs0BEanukIhHYToxb1k0TCqIxMh57jaLvJD/SpVCeMQR00xPk/CL07w0tX
+         A55WHRmuohzx9YModVvJF/E4ddksVTr1NImUjmYx4aH08+gDpULQkTy2RTMP16Ol1MZQ
+         6tPGeHwBZXxl0WTBzDHuu+O2sN7DKiWyAEIH9TLHArEFRRdl0v0hPtQqaYFQjKB1J6Vu
+         OThxCktPc7lLRSexka579eGcIvpzezAq1gfjt3QQmeyM3NpJV8iWqACNl+5HHWPZmLBU
+         sXWlD/IYgOHllBSEi9CNhFgd+OLtOjMxvREjLeezELrSof1KvivbrtVJtQi8FyzCWTug
+         mLcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749673636; x=1750278436;
+        d=1e100.net; s=20230601; t=1749674620; x=1750279420;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=A3H1uAtO+gZJCXVOFgln/U+eNFJCAoQXkaNwNc9tito=;
-        b=GfiKF/1tFVHD5LGXm06cMVxjT5FWsvApY+hvVk1iove+wORO8bFyIyPDauSGC45Cc+
-         4P1IZ8pn3YNxLRzoPsejB7COS9qUpF4H/7LVdZ3ryaOErK64ArRZO3XPpda8LseApMAE
-         Z3wi2pI8CguyklxeF5w70ljR24m4DL3OSEnHJWjTGNJDfD4pULbpw8EUluBV1cVE3C/r
-         97tIlDox37hE7oKLAd3jMOu74JcOTnQC6B6sYmGhOaLoN+hQWwx34+AT0U85mZXw406m
-         bcJ1Sx0P/wGOE8NEF7U4W+1n4AS5JpqvaQTiUP2fwnYiMRhakRp1m0n0nj2S4obEneR9
-         9z/A==
-X-Forwarded-Encrypted: i=1; AJvYcCX/+bq7zQ5pULqya1rBg/RlGBre7MhazZDKCsE53vxVvQx0gE1qRuOpwUkzXHt8ph/awRCygju4@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw02R1IM4j/sMRHUPGRnNPaxNikbqkU0G+NFcQbOXGV9tIzCnS0
-	+ckVoKdc/xkqNq2AzDhXfoQpMESheZy5hM2G5IslG7OVoRPmEFUH8ZnHRMo2+bhikaPk8/ktjmT
-	E3Fs/vaTJMbS+BOdaqBPd2hqN8BfaSYOQHmGosZYw
-X-Gm-Gg: ASbGnct22VfccZYaSN1b2cMLPPzncCn6RWhR2mUrNdVfWnJV3Shi0FVLhclYiBC69us
-	VpV/bmrMMv5filrFopIp+HL5iURVdfexGH06n4Nd7jMxbnuCHHk76S7Y2y81ard2EbKR2eMXT53
-	oKgixWRzJFyTm4RIqsRFeCJSorwf9z1JTzG36bggDPuWU=
-X-Google-Smtp-Source: AGHT+IEVVLEbhs1siAlIrgblMXiy7/1GYb0zZZID5dw2ruoClMFtAoDqtrQDzTOvm/A3WlpYxkgeMG1oUpdy8wiHzZ0=
-X-Received: by 2002:a05:6902:2408:b0:e81:e0b4:1bc2 with SMTP id
- 3f1490d57ef6-e820c7d6b2dmr752984276.10.1749673636310; Wed, 11 Jun 2025
- 13:27:16 -0700 (PDT)
+        bh=SajPFdhYrOQbyrr2a2aIidAt78Sx9ZRj6KKonEs77T0=;
+        b=lDmsmp0ca1iBV/Um6URI/+VInNkWyuDr2jfNX2aqdyKxzNU5rjr6lv690vwV9tMhYH
+         4tE7fYMbIF0c/bKLtIU7g21J4PT/E3fAsaSogu/siE06MwKrZK+u/MFB5prJjmIdHALN
+         uI42qS/iYOkTnkIHWfNhMZa21iscOSMV4bfFaPG8fQYfVnUU1p+2J4kwRarZ4qxNdU97
+         OGlJUUhh7lp9MmMRpaB6Mmeu7q7UBkZNJpTDwVciU0UH81135NNzGkk1/vpDtQx+KhpW
+         Luvgh6NYJxRf2qA6t7lWhW4X5ex1JMjX0coW1X0+dXCxMh1alkeB5EwP+SO2KgiQbxph
+         04ng==
+X-Gm-Message-State: AOJu0YzzHb/kqS/tOgbh3WwxnBoNcttSmGi2jgvBUv7dATOR34CvzWgp
+	ks+86iyeoSkQvOj4u/P9BHDj40FHW8SG0TVqUIXKbP64y1ktfMfCyumYsxQZ7ngizxrf3yfo7B4
+	oEB7SEzUIAd/2F0yabKUHbc4PFZ5I8wxS5ER7l8aAJUh/0AMTmZ6hWg==
+X-Gm-Gg: ASbGnct3qAp6PJSpQ9bvBCckIEpdUJiJIYU0RbDEyiEaNwraidUDzTMdvrUiH3UEM/G
+	SMknk6Ih5oV25PWFSzC4I+ApiPGKwHLoNyz0rPhFTr4I8aTrhAzyutr8MfwOR9askaDzMYLIEgT
+	5R4HWyGnArll4Kle1PaquGh6Cj5rzM5YzKtcszxl4sQ3U=
+X-Google-Smtp-Source: AGHT+IEKPu82Zei0ChQ7A5M4zz5aNaAQFiPEElsYslHhoUid49Q/asuNn+g7DkTA3B9DRq17xB0D2Qk3whfOuCNGv/U=
+X-Received: by 2002:a05:6902:a87:b0:e81:32c9:f9c5 with SMTP id
+ 3f1490d57ef6-e820b70bf48mr1405833276.30.1749674620459; Wed, 11 Jun 2025
+ 13:43:40 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250409185019.238841-31-paul@paul-moore.com> <20250409185019.238841-56-paul@paul-moore.com>
- <12d9ea5981f5a2c33a01798311543db2e9bd4ee3.camel@linux.ibm.com>
-In-Reply-To: <12d9ea5981f5a2c33a01798311543db2e9bd4ee3.camel@linux.ibm.com>
+References: <20250611183234.10255-2-stephen.smalley.work@gmail.com>
+ <CAHC9VhR5CZSHKo41C4PdXbeJ3OuZUQ3ue1cbk9kjkHA6thjH6A@mail.gmail.com>
+ <CAEjxPJ7JAJ2aypxVyjw4KKAvGBvUVK6eCzbXF3Wd8huTSPiSFw@mail.gmail.com> <CAEjxPJ7YixhZOmHVq92EBVoXO5ZO9__YXhhyD7iAWMkQNV-xsA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7YixhZOmHVq92EBVoXO5ZO9__YXhhyD7iAWMkQNV-xsA@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 11 Jun 2025 16:27:05 -0400
-X-Gm-Features: AX0GCFtB1BfHO9UnqaP7qiGZ525Kvp-h6Jc_bADxlaJPbPrl5km3UWt0_EFnhUw
-Message-ID: <CAHC9VhTfNQeu3gcWii7kUrGY+fVygXs6j4UhybodPqjuSzA-pQ@mail.gmail.com>
-Subject: Re: [RFC PATCH 25/29] ima,evm: move initcalls to the LSM framework
-To: Mimi Zohar <zohar@linux.ibm.com>
-Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>, 
-	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Date: Wed, 11 Jun 2025 16:43:29 -0400
+X-Gm-Features: AX0GCFvqsSscI0-kh0yP0yVBRQGwlHm7BDwtib5_qC8AvRyQ4X73OXhsNbbJ8SI
+Message-ID: <CAHC9VhTunOdxp2v=27sAxTjQc558nwnQCT=86WR5TNP3ihSdfQ@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests/inet_socket: invoke ip{6}tables-legacy
+ when appropriate
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 30, 2025 at 6:04=E2=80=AFPM Mimi Zohar <zohar@linux.ibm.com> wr=
-ote:
-> On Wed, 2025-04-09 at 14:50 -0400, Paul Moore wrote:
-> > This patch converts IMA and EVM to use the LSM frameworks's initcall
-> > mechanism.  There were two challenges to doing this conversion: the
-> > first simply being the number of initcalls across IMA and EVM, and the
-> > second was the number of resources shared between the two related,
-> > yet independent LSMs.
+On Wed, Jun 11, 2025 at 3:34=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Wed, Jun 11, 2025 at 3:25=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Wed, Jun 11, 2025 at 3:23=E2=80=AFPM Paul Moore <paul@paul-moore.com=
+> wrote:
+> > >
+> > > On Wed, Jun 11, 2025 at 2:34=E2=80=AFPM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > >
+> > > > On F42, iptables and ip6tables are no longer provided; check
+> > > > to see if iptables-legacy and ip6tables-legacy exist and use
+> > > > those instead if so.
+> > > >
+> > > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > > ---
+> > > >  tests/inet_socket/iptables-flush | 20 +++++++++---
+> > > >  tests/inet_socket/iptables-load  | 52 ++++++++++++++++++++--------=
+----
+> > > >  2 files changed, 48 insertions(+), 24 deletions(-)
+> > >
+> > > It's been a while since I hit, and worked around, this on my Rawhide
+> > > systems, but if I recall correctly, fixing the problem was a matter o=
+f
+> > > installing the iptables-legacy package and perhaps ensuring that the
+> > > "alternatives" config was set to point to the iptables-nft
+> > > implementation:
+> > >
+> > >   %  rpm -q iptables-legacy
+> > >   iptables-legacy-1.8.11-10.fc43.x86_64
+> > >   % alternatives --display iptables
+> > >   iptables - status is auto.
+> > >   link currently points to /usr/bin/iptables-nft
+> > >   ...
+> > >
+> > > FWIW, I think there is value in testing with the iptables-nft
+> > > implementation simply so we can test the new code paths.
+> >
+> > Ok, I had iptables-legacy but not alternatives set. We might want to
+> > note this in the README.md file.
 >
-> There are a number of the initcalls under integrity/platform/, which load=
- arch
-> specific keys onto the platform and machine keyrings, which shouldn't be
-> included in this patch.
+> Actually, I had alternatives set to iptables-legacy but no
+> /usr/sbin/iptables or /usr/sbin/ip6tables symlinks for some reason.
 
-I don't want to assume too much from your reply, but if the cert/key
-loading under integrity/platform shouldn't be subject to the LSM
-initcall rework, that implies that the integrity/platform cert/key
-loading is independent of IMA/EVM and should perhaps live somewhere
-else, e.g. security/keys?
+It's been too long since I fixed this, maybe I setup the symlinks manually?
 
-Or am I misunderstanding something?
+%  ls -l /usr/sbin/ip*tables
+... /usr/sbin/ip6tables -> /etc/alternatives/ip6tables
+... /usr/sbin/iptables -> /etc/alternatives/iptables
 
-> > The first problem was resolved by the creation of two new functions,
-> > integrity_device_init() and integrity_late_init(), with each focused on
-> > calling all of the various IMA/EVM initcalls for a single initcall type=
-.
-> > The second problem was resolved by registering both of these new
-> > functions as initcalls for each LSM and including code in each
-> > registered initcall to ensure it only executes once.
->
-> With the above change, there obviously will be a lot fewer initcalls, but=
- it
-> might still make sense to keep the common ima/evm function.
+> Switching alternatives to iptables-nft causes failures during the
+> tests due to "Extension SECMARK revision 0 not supported", so I think
+> it has to use iptables-legacy?
 
-I'm not sure I understand, what do you mean by "common ima/evm
-function"?  This patch doesn't remove any IMA/EVM functions, it adds
-the integrity_device_init() and integrity_late_init() functions to
-setup and populate some keyrings.
+I just ran the selinux-testsuite again on my Rawhide system and didn't
+see any failures in the inet_socket tests ...
 
-It's also worth mentioning that the goal of this patchset is not
-necessarily to reduce initcalls, but rather to ensure that LSM
-initcalls are only executed when the LSM is enabled, and to provide a
-mechanism to notify kernel users when all of the LSMs have initialized
-themselves.
+% make test
+...
+Running as user root with context unconfined_u:unconfined_r:unconfined_t
+
+domain_trans/test ........... ok
+entrypoint/test ............. ok
+execshare/test .............. ok
+exectrace/test .............. ok
+execute_no_trans/test ....... ok
+fdreceive/test .............. ok
+inherit/test ................ ok
+link/test ................... ok
+mkdir/test .................. ok
+msg/test .................... ok
+open/test ................... ok
+ptrace/test ................. ok
+readlink/test ............... ok
+relabel/test ................ ok
+rename/test ................. ok
+rxdir/test .................. ok
+sem/test .................... ok
+setattr/test ................ ok
+setnice/test ................ ok
+shm/test .................... ok
+sigkill/test ................ ok
+stat/test ................... ok
+sysctl/test ................. ok
+task_create/test ............ ok
+task_setnice/test ........... ok
+task_setscheduler/test ...... ok
+task_getscheduler/test ...... ok
+task_getsid/test ............ ok
+task_getpgid/test ........... ok
+task_setpgid/test ........... ok
+file/test ................... ok
+ioctl/test .................. ok
+capable_file/test ........... ok
+capable_net/test ............ ok
+capable_sys/test ............ ok
+dyntrans/test ............... ok
+dyntrace/test ............... ok
+bounds/test ................. ok
+nnp_nosuid/test ............. ok
+mmap/test ................... ok
+unix_socket/test ............ ok
+inet_socket/tcp/test ........ ok
+inet_socket/udp/test ........ ok
+overlay/test ................ ok
+checkreqprot/test ........... ok
+mqueue/test ................. ok
+mac_admin/test .............. ok
+atsecure/test ............... ok
+infiniband_endport/test ..... skipped: test not configured
+infiniband_pkey/test ........ skipped: test not configured
+cap_userns/test ............. ok
+extended_socket_class/test .. ok
+sctp/test ................... ok
+netlink_socket/test ......... ok
+prlimit/test ................ ok
+binder/test ................. ok
+bpf/test .................... ok
+keys/test ................... ok
+key_socket/test ............. ok
+glblub/test ................. ok
+cgroupfs_label/test ......... ok
+notify/test ................. ok
+module_load/test ............ ok
+tun_tap/test ................ ok
+perf_event/test ............. ok
+filesystem/ext4/test ........ ok
+filesystem/xfs/test ......... ok
+filesystem/jfs/test ......... ok
+filesystem/vfat/test ........ ok
+fs_filesystem/ext4/test ..... ok
+fs_filesystem/xfs/test ...... ok
+fs_filesystem/jfs/test ...... ok
+fs_filesystem/vfat/test ..... ok
+watchkey/test ............... ok
+userfaultfd/test ............ ok
+vsock_socket/test ........... ok
+secretmem/test .............. ok
+inet_socket/mptcp/test ...... ok
+All tests successful.
+Files=3D78, Tests=3D1427, 241 wallclock secs ( 0.35 usr  0.11 sys +  5.90 c=
+usr 17.75
+csys =3D 24.11 CPU)
+Result: PASS
+
+The kernel-secnext testing doesn't show any failures either, although
+I likely applied the same fix to that test VM as well.
+
+https://groups.google.com/g/kernel-secnext/c/w-oPYY1-HLo
+
+> On a different but related note, wondering how long we even want to
+> retain these tests and the corresponding config options in the
+> testsuite defconfig fragment. Ditto for some other config options
+> there that aren't commonly enabled anymore or may be blocked before
+> too long e.g. SHA1.
+
+As long as the upstream kernel supports the functionality we should
+retain the tests.  Some tests we might even want to retain longer in a
+dedicated branch for those doing distro testing, or we just leave that
+as an exercise for the distro.
+
+I'm more concerned about the new things that are coming up which we
+may not be adequately testing in the current selinux-testsuite.  A
+perfect example is nft; we're using iptables-nft, but should we also
+have a dedicated set of nft tests?
 
 --=20
 paul-moore.com
