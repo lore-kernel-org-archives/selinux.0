@@ -1,128 +1,120 @@
-Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AEE02750ED
-	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:05:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F8A41E5207
+	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:10:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749668754; cv=none; b=DV5GIkr+jyeEjFau33za/Xu+r6GgLFEzytlgEhVxkh0YQhKMMR00yedgczRQUuElHK72/IWOLv0OHEwnH09e1NHOGvzhguKWRMIRB6DiZBlXkG5vcI6REYERo34O1ur0dqAUHKczHgHwNhdQuCjVaYiR39f89X058BH1JW7m48U=
+	t=1749669012; cv=none; b=WaNObuhpvxrKGGjn/9HU+v5cY6DtiWi9NnLsRmq8PUzBFitOUvx3ioJ25B9LQ1vFOZC3ziqPeJxg+ZHPmWn+1iFoj40H7Lh1pOjd8Jb3ytxIQ3wxLHU5AFrZgGXpSiamHFWIm5Phd4UItahB26mgO9KOstvRZWN7ZNXJcgixsq0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749668754; c=relaxed/simple;
-	bh=NYXxZTZyTmzTg2t2PUZscl5DYp3j0TMEa51/b2Xf3KI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=V+R8telHRLUOF4ipfm2cOPlHVobiaMgBMNj+Apy6iAQa2kLVoqsKAlYbA6uHb/cp5PZxLQp1Dzf7vgx2UUYzhZXErE/+58X/sXrmLWD+SPSW1HjHHQyRyqtVwdxIwIFphH051WWyjBRFyy9LlNcBGnxKozgi9KRZ5frcvsGeAEA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nXmTyYYN; arc=none smtp.client-ip=209.85.219.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1749669012; c=relaxed/simple;
+	bh=U0sHkNdzvzXrsT9CHkVj2QBaaYOF4q1+Sqftx0BzIu0=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=A6pMRMlKUccojyldDRRRCp9ixLz4J3J++3esx79XqUMHl2loAooEC8ai9BA5DeAQzzIMvGb516xX/2N/c8R7f0pPHv/RB9VIVyduwAih/91niUCBhduHFmqVbGWfdEgbHLu+MWwQDniYRS+Bf9KZW4VhgzpHOomqJiYJiVVr7HM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g9/Y5oRT; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nXmTyYYN"
-Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-6fafdd322d3so2622806d6.3
-        for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 12:05:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749668752; x=1750273552; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=B2ACJ6IAfElGizc0AzCkLv4DEwWyP2X1hy67tYo/wUs=;
-        b=nXmTyYYNg61webJE5/RAkBa3AznYP8JFXqntZD7DEjAlikcyF1EJCJwGm89ZWFSQOl
-         Hv+SRFe7b7PbkLe6E5akUKZI9GU58QvzF78eAcOQtlRzdqshVGXIzYxEFEqNU55LuMzO
-         We4e+2EfxzVFNAAN6LHZ2zQFEfTOLIWW0wlfp+lGwYqdGqKsnNmE2DNYlfzuJOxrIKGb
-         JFKFQZCxSFJgEV+OVQmbDqTtvfXiPyGiY+Sf31OJfTTVfV7ILq07/1TN1LBoNER6JTlj
-         dt35W3vYurpPm3gCQO3u7dLZfZ2hnw+CxAjgel4Wo1dT5hF0OKPdXHTY1lrlmXrvOWQw
-         8/9w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749668752; x=1750273552;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=B2ACJ6IAfElGizc0AzCkLv4DEwWyP2X1hy67tYo/wUs=;
-        b=X3A2mcDMrKzWwP7UtICHlELt6niGH2FsEcya/ILS1I+swInAImL430tuQMLXOm7cB1
-         88tErsFAN/bkiWpDy44jXkFKt8eCOZRNPUiILcY7LnTwfyc2ReR0Rx63N0Ioc5jfPGkR
-         rQInhwdIPGnAxD753kDIOR6mE9C1Dm1BhpPMo9ule3+0H4pahP8hKVV+KvX6RB/iau45
-         hMES6RvvKRzwiMY3VNH995ROR5a6Y2e2tieqGbR9O+Z+mjaCE/LnS56+QXTSobwW5z54
-         9C26wamfrYShRZeydhJ0BCLnnn4YwfZqQ835mVwLIYg4xXiGSanuy0ko/i6MKhTPz7Sa
-         5ozA==
-X-Gm-Message-State: AOJu0YxD7V0cEm2KLRT/Tosouly937sBo4wMXjeOySaQ5eVpx18l1GHU
-	etALO9T4OSGbHsqtJ1xKp+qIOG5k5do0z24YuPqzza4yCsLs7piUvXIoNX3kGg==
-X-Gm-Gg: ASbGnctv9YP3CoFXggmXDG9/fE9fLUvWnx63CrY5DYlNMky9TeyfZtz/g0Hsyuc0Dzl
-	rrdWPpK01ki2Fo2zXqRBj7oKCrSpQYCMbqg3j2OEd4bS0w0ChYdd9OX/a4aJ1TJrAQCbj6XDKFD
-	oeXjVcX87BDbbcJMjfX7bczRAUi5gzrO8YEsgSU84P8Nds7AI7ZfLLDKFXP9goxrh9i67HdcjE0
-	guHbpqbtbQ7jQ5+8uedUc6/czx7FmbqXjOU1pSSDE6PzzrfSBcotz9V/urwPhC1YKokHxKxJGWt
-	SAfcWQNScTwNMQcG0aHl2xtCIy8UYsnr/JstLVu2FFjQpswrPFP8ZcZ6ccuvqs+1FRuMbAiJkAs
-	kfEERvoYNv4v1HH61FQ+S6ukvF8zyczufLkvFqsLTfQG6s0gm3Aq8NACZSHPpE8Npx5qwJodPn9
-	lkdPskGPknZ7rWYuE=
-X-Google-Smtp-Source: AGHT+IFuvfoyhxBiLMBHk4aF4rE+keG0pZWlszewJZDdQyPAUuH+jEWd42ixKjJg+eswgwxfp/GdtQ==
-X-Received: by 2002:a05:6214:21ee:b0:6fa:faf7:7545 with SMTP id 6a1803df08f44-6fb34ea055emr6086926d6.31.1749668751966;
-        Wed, 11 Jun 2025 12:05:51 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6fb09b36647sm85337456d6.113.2025.06.11.12.05.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Jun 2025 12:05:51 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH testsuite] tests/mac_admin: disable test of getting undefined label on nfs
-Date: Wed, 11 Jun 2025 15:05:12 -0400
-Message-ID: <20250611190512.23743-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.49.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g9/Y5oRT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1749669009;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=KSZd1i4M0P5Slt4trGYeKMstiIxph9nRdj3zDaofH84=;
+	b=g9/Y5oRTctqwS4VyU7lsU6WMDTKErQgrofwpmqzfNaVIkA5WIXd+ppfNBjf/7ucu1adixE
+	Fv0VlX4NYmk4AfgtFWLgfR69ZJf0mg7vnCNCKVkfR4tZgwdYxlVPMjEc+Z/StEc4eAMayt
+	D994yJpz1fi94WfKmqxXbb/cXm6BC40=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-202-5AyhqjzdPUSKFBWNmkRoEA-1; Wed,
+ 11 Jun 2025 15:10:05 -0400
+X-MC-Unique: 5AyhqjzdPUSKFBWNmkRoEA-1
+X-Mimecast-MFC-AGG-ID: 5AyhqjzdPUSKFBWNmkRoEA_1749669005
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D91631800284;
+	Wed, 11 Jun 2025 19:10:04 +0000 (UTC)
+Received: from localhost (unknown [10.44.32.71])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 5C757180045C;
+	Wed, 11 Jun 2025 19:10:04 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, James Carter
+ <jwcart2@gmail.com>
+Cc: selinux@vger.kernel.org
+Subject: Re: [PATCH] libselinux: Do not inline compile_regex()
+In-Reply-To: <CAEjxPJ6g+=N3p83hUXRndvET+4T-+OShvMHipLg0h7fo89iPfw@mail.gmail.com>
+References: <20250611182846.236298-1-jwcart2@gmail.com>
+ <CAEjxPJ6g+=N3p83hUXRndvET+4T-+OShvMHipLg0h7fo89iPfw@mail.gmail.com>
+Date: Wed, 11 Jun 2025 21:10:02 +0200
+Message-ID: <87ldpydrhx.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-We already had a workaround in the test script to expect a different
-result on NFS to the unique aspects of labeled NFS, but this
-workaround won't work when/if SELinux namespaces are enabled
-(due to the introduction of the global SID table and its
-correct preservation of the original context value) and was
-really only papering over the lack of support. Just disable
-this particular test when run on NFS filesystems.
+Stephen Smalley <stephen.smalley.work@gmail.com> writes:
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- tests/mac_admin/test | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+> On Wed, Jun 11, 2025 at 2:29=E2=80=AFPM James Carter <jwcart2@gmail.com> =
+wrote:
+>>
+>> Since commit bdcbbf89b9548afd452449835e58e84105a71a9a (libselinux:
+>> limit fcontext regex path length), an error would be given if
+>> libselinux was compiled directly. (Though, building the whole SELinux
+>> userspace still worked.) This is because the flag "-Winline" is used
+>> when building libselinux directly, but not when building the whole
+>> userspace.
+>>
+>> Remove "inline" from the function compile_regex() in label_file.h
+>> to allow libselinux to be built directly.
+>>
+>> There are four functions defined in label_file.h that are not inlined:
+>> regex_has_meta_chars(), regex_simplify(), compile_regex(), and
+>> insert_spec(). The first three functions are called by insert_spec()
+>> which is called by the inlined function process_line(). This last
+>> function is called by utils/sefcontext_compile.c which prevents
+>> relocating the non-inlined functions to label_file.c.
+>>
+>> Signed-off-by: James Carter <jwcart2@gmail.com>
+>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
 
-diff --git a/tests/mac_admin/test b/tests/mac_admin/test
-index 32161f3..8390d06 100755
---- a/tests/mac_admin/test
-+++ b/tests/mac_admin/test
-@@ -7,8 +7,11 @@ BEGIN {
-     $basedir =~ s|(.*)/[^/]*|$1|;
- 
-     $isnfs = `stat -f --print %T $basedir`;
--
--    plan tests => 8;
-+    if ( $isnfs ne "nfs" ) {
-+	plan tests => 8;
-+    } else {
-+	plan tests => 7;
-+    }
- }
- 
- # Verify that test_mac_admin_t can relabel a file to an undefined context.
-@@ -38,14 +41,11 @@ $result = system(
- );
- ok( $result, 0 );    # we expect this to succeed.
- 
--# Verify that test_mac_admin_t sees the undefined label value.
--$result = `runcon -t test_mac_admin_t -- secon -t -f $basedir/test_dir 2>&1`;
--chomp($result);
- if ( $isnfs ne "nfs" ) {
--    ok( $result, "UNDEFINED" );
--}
--else {
--    ok( $result, "unlabeled_t" );
-+	# Verify that test_mac_admin_t sees the undefined label value.
-+	$result = `runcon -t test_mac_admin_t -- secon -t -f $basedir/test_dir 2>&1`;
-+	chomp($result);
-+        ok( $result, "UNDEFINED" );
- }
- 
- # Verify that test_no_mac_admin_t sees the unlabeled context.
--- 
-2.49.0
+I'm going to postpone 3.9-rc1 to tomorrow so this change can land there.
+
+Ok?
+
+>> ---
+>>  libselinux/src/label_file.h | 2 +-
+>>  1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+>> index d1a0713a..8fcf74e3 100644
+>> --- a/libselinux/src/label_file.h
+>> +++ b/libselinux/src/label_file.h
+>> @@ -390,7 +390,7 @@ static inline void sort_specs(struct saved_data *dat=
+a)
+>>         sort_spec_node(data->root, NULL);
+>>  }
+>>
+>> -static inline int compile_regex(struct regex_spec *spec, char *errbuf, =
+size_t errbuf_size)
+>> +static int compile_regex(struct regex_spec *spec, char *errbuf, size_t =
+errbuf_size)
+>>  {
+>>         const char *reg_buf;
+>>         char *anchored_regex, *cp;
+>> --
+>> 2.49.0
+>>
+>>
 
