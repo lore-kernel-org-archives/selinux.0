@@ -1,104 +1,107 @@
-Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com [209.85.219.176])
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5497E1DD889
-	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:23:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7616129AB0E
+	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:25:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749669799; cv=none; b=dKnRbPVkyxqAJXMfn35pzfshuf05ytr8iwIdg13/VWXV717OM5GGrafQPV9HkYoG9QHPB+aAOe2EWq/waW+d+sO6vMzMqSQrwtawGeCJL65+MoVGoZt+D3Nd8M6Kz4dP4HKygUW3VU0ef6KCHHAewpMSKIkMIFlowE5Y242e1SQ=
+	t=1749669935; cv=none; b=pJMeEe4Kw7ePG3wFL+8QKh/BQo5wnvRcJzsnaO/VTkGSnu5iv/cmilWs+Gdj7lQBzawJTutGsHB8tAF2LW2plILCsApfXTrYv5tkYdrSkzveb7ddRs0tNm6Slmq0AVtsp4XTZ1UIapUYQRqy6KyZWZq7Dil+02GHVd8ZSjs1bJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749669799; c=relaxed/simple;
-	bh=4HoR4j5jnQ4jdFPc0ILo1cpoQbbh6shRA/NSDbibN+o=;
+	s=arc-20240116; t=1749669935; c=relaxed/simple;
+	bh=tr9mASpupy5yy8mi5W6xiQKk9ZWBooM46imd7IaeIpM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dEb3bVR6+Wl/mt8OgYRNS7EmcUVvsasOra1Gcyx1YAuKTUrpSlzZGU0ButMEDsDY6RLf5PmIKlaK17ODyNPpOrnYCNedHEjjgmd/5q7SejJQoLgpXC0gGpPFN/GC+SEg0IBePo3SHnwLtPL0pcSXg3iLfz6Y+o6ygtvXtOsapxo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=M1ad8YZp; arc=none smtp.client-ip=209.85.219.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=BYLJ6cY8bEZ6W7wfBmAFtGCUUOrwEIy/z0P/DxR0aeAuh+S8c0C9+KWxgi6B66ubR/tv3/IaakMVcVH+GEb/0ZBL5Jg9A75d0e9DKjhP/+e4/3VP4v6mwzKPy6ZtTkM1reyd09jM33LMTXe5IPWX707DZKYEsxljJTOBSOuFczg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NvVZUNrf; arc=none smtp.client-ip=209.85.216.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="M1ad8YZp"
-Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e819aa98e7aso149073276.2
-        for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 12:23:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NvVZUNrf"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-3134c67a173so311720a91.1
+        for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 12:25:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1749669796; x=1750274596; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1749669934; x=1750274734; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=28SBSuDiOzPi7mQIh4g9DUjq5Xr4xFxL8PnZ5lHpaXM=;
-        b=M1ad8YZpv5UZaEDDcQt67NB+qo/o2WySq3TzgEkyyoZOeW8OfqmpqCK3tu7PA/tNja
-         Ltr9HrT6hOZBq1wMMghIs6aIOBQ2uIQKGbxTtlyFOzSEtQZRbxx6MnxCwfu0VMxwxq3G
-         Se59qb6MQWpjST5bDSjgYJqXt6/J1xg1tbucPakGa71Htg2nrOtA8GYLzuotB67is0f8
-         qDlStqhvmIpNbpWWy35AGTMLkR8FcMYs+enicOZ13htJZia+B+aCQauiZsD3YlxZLJgv
-         kimFAdBYZXcM/IGWFKovVwMI50X/nxpFXemprFoUMWfkILrKqZ00Q2oG13ezNVz8ov+Q
-         jFFA==
+        bh=zo4b/dvJCSpI4R9RNyhVB2E3cabiE3nb/TAsA7GII0U=;
+        b=NvVZUNrfSYZSnI6wVI2zukBHYJA/z3nuJS/wqmnohojStK7xnnXbOUrrCp4i7Rq+sW
+         yj1NW9ARwmBSttKbfBrCpgnQ3cB5qJzDlEt13LyAQg8HCc1sKrOthEXAVta8gV9nSLZH
+         SKd/b2tsR0vRFXp8JDuhSq9Us+wxe/i+ZnfPYyE8kDbTFwkVjJTw9JDRHvAzxu93cJ1L
+         8JCrA050B39/oPgD+m8oRimRnpHcgyZeMq2U+vWsUE21zV6j3U+dI3WUvsFysWHZPm14
+         Hbe7f1r7hGvAkEEaRqE+3KO5bRDXcwALWAM6uq5chj5IAwBZwugl9gh6DPEmYmTBBrBO
+         IxWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749669796; x=1750274596;
+        d=1e100.net; s=20230601; t=1749669934; x=1750274734;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=28SBSuDiOzPi7mQIh4g9DUjq5Xr4xFxL8PnZ5lHpaXM=;
-        b=cYpSOz/s/Mz04xhY4NPpOX5yVgTNlboXBDZ/2ToydvLKoljtUKJdqiXD6JQ2m4RBSA
-         6Z5Qa+ID0se5IezfabMse8Lhe6qKwUqCbb7IIX2wOcbXzBErVZg3xiD/YTzp7P/OoHKi
-         Euz0gYt6VSVjir4tajlE/8HoBRzEtCfBth2MRErKUFnTJawkAv1uynZkInIFDfc8BbG3
-         6EWe3kmNtpuAHj27/bCcgdfT7N7Tthv4xovsOcRUsYXewESl6tU2AaDvNAtXf+1f6m+t
-         6Y+vTJldPmTRAhmOznJEtbFbCO+9U+ZI0QBqc6XoIJdknlltltj/UtjdiBlGMEnWl9TI
-         FcZw==
-X-Gm-Message-State: AOJu0YwXfPgr0pSXv9Lgi9zvpA4cqu9tKW9z0cavplHHT8DhIoKPWsXy
-	oyp6G8etWyFYJ140ysTB9UzZ784005LkFMfPgGzO+G0g1y8db1ft6GB8DNCi3xbzQaC6FmErKAF
-	sWsx5oypUcmqSAAnntvTa/4CeBsGvjq2Lu86u5uR+
-X-Gm-Gg: ASbGncuoAhHUs8ipE03aGN72s3via/BTuprQiinm/uiUV/MN4IYFZklDVwet0VHDCH7
-	9wvrizKL5BTFTwdeHlfH57Jag8kmia5QYvLfXvwVBz2cAEj1fGfKuN1l3+RWtNggoBaMgLfbjTg
-	Puty5FcRVp5/ojxKA80Ok/qPCCthEfZn14oR7T8z4m7rDewbkzIhRiPA==
-X-Google-Smtp-Source: AGHT+IGDcPg+0ixVjd9OzcjI8pmay5Pj8sUGBtedV8o4awtw+ZH8NnmJuMh5OWM+CN/SpHFb5PoYGJm4y9COYmpapYQ=
-X-Received: by 2002:a05:6902:2502:b0:e81:2740:2d96 with SMTP id
- 3f1490d57ef6-e81fd9cfcabmr6947303276.17.1749669796236; Wed, 11 Jun 2025
- 12:23:16 -0700 (PDT)
+        bh=zo4b/dvJCSpI4R9RNyhVB2E3cabiE3nb/TAsA7GII0U=;
+        b=fAMgpWn0uEgIT4K8Vs/CKAYmN/Tpl9i+9Q0Kr8Zfzl9HsPBlG8T+PM0ekC8KU3/jIb
+         qINdIEx76DT46xn3v4+CuI5QJdQbwOGXC/tjmodSFCInC+GnreXjf0JFccOsvSX9QNRK
+         0tIBHdH0EVAOkXOqp4sieeA9nIgfAITR1GGvTO9N/eqvz3P8FOqTvYZWF1SlYyvpN4oh
+         QITXoWz85Jk8JVkHUgTz+PFGHYyIt9xLVkCLfL/7hembVA2HPS+8XVyXkYVizQM/VZWq
+         K/118z+JbKWLeSl4tYZjF2631rWPRro7zKC5pyDad5D8vfnVW5lb/lEdPr5CX2gqE23e
+         UqDA==
+X-Gm-Message-State: AOJu0Yw0e5QFLVK77c18UXSRkNNzDIGjO7oPhPKhZdjz7bCLtzpS27hS
+	uFZGDRrc6w68n2GOIcxyo7aJXkdz0VX4hM58FDJGFPzWwi0fd3QFggdHzrHu5GEkaCVLDIC+Pcp
+	rzjF4eoVjtu3Zmt8vpvipLouDHJ61ZMk=
+X-Gm-Gg: ASbGnctjPf4E9z0bcgQwRsvVO8W79lCecRO2zPbv5YUCOgiZVYVJ69VaB95rhCnLrtq
+	a94p0dEFbmar1y6Kn0mKKLK85jdPqEL99FC0O+UPUXCzCp9qXtYSrK9vMVSC5Z55z6mWAlEoNiB
+	vRUxAMTMlGkzee4Pp8H3HdEeeo5vU4qnSHzPmHJRrPYJI=
+X-Google-Smtp-Source: AGHT+IHzEdSrBJDRiLp27vEI4qI7zdhQv7y7l253DG9XZFKV51F649v5KFpGBr1xNLQHhTe8Iz0HGLwPD8m50U8cFJk=
+X-Received: by 2002:a17:90b:1e4b:b0:312:ea46:3e66 with SMTP id
+ 98e67ed59e1d1-313bfbf52d4mr819813a91.21.1749669933669; Wed, 11 Jun 2025
+ 12:25:33 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250611183234.10255-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20250611183234.10255-2-stephen.smalley.work@gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 11 Jun 2025 15:23:05 -0400
-X-Gm-Features: AX0GCFvTrinNYan_LFb2WYqJrRbiQdVHz4c5CyXMDPZiJREDB5n6MOk3fBXforI
-Message-ID: <CAHC9VhR5CZSHKo41C4PdXbeJ3OuZUQ3ue1cbk9kjkHA6thjH6A@mail.gmail.com>
+References: <20250611183234.10255-2-stephen.smalley.work@gmail.com> <CAHC9VhR5CZSHKo41C4PdXbeJ3OuZUQ3ue1cbk9kjkHA6thjH6A@mail.gmail.com>
+In-Reply-To: <CAHC9VhR5CZSHKo41C4PdXbeJ3OuZUQ3ue1cbk9kjkHA6thjH6A@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 11 Jun 2025 15:25:21 -0400
+X-Gm-Features: AX0GCFv1gamWmo_kniEGbEzBe-RPTeZJLVb1vaB31yiWAUHaGynnweLDjy43Sls
+Message-ID: <CAEjxPJ7JAJ2aypxVyjw4KKAvGBvUVK6eCzbXF3Wd8huTSPiSFw@mail.gmail.com>
 Subject: Re: [PATCH testsuite] tests/inet_socket: invoke ip{6}tables-legacy
  when appropriate
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: Paul Moore <paul@paul-moore.com>
 Cc: selinux@vger.kernel.org, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 11, 2025 at 2:34=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Wed, Jun 11, 2025 at 3:23=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
 >
-> On F42, iptables and ip6tables are no longer provided; check
-> to see if iptables-legacy and ip6tables-legacy exist and use
-> those instead if so.
+> On Wed, Jun 11, 2025 at 2:34=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On F42, iptables and ip6tables are no longer provided; check
+> > to see if iptables-legacy and ip6tables-legacy exist and use
+> > those instead if so.
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+> >  tests/inet_socket/iptables-flush | 20 +++++++++---
+> >  tests/inet_socket/iptables-load  | 52 ++++++++++++++++++++------------
+> >  2 files changed, 48 insertions(+), 24 deletions(-)
 >
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  tests/inet_socket/iptables-flush | 20 +++++++++---
->  tests/inet_socket/iptables-load  | 52 ++++++++++++++++++++------------
->  2 files changed, 48 insertions(+), 24 deletions(-)
+> It's been a while since I hit, and worked around, this on my Rawhide
+> systems, but if I recall correctly, fixing the problem was a matter of
+> installing the iptables-legacy package and perhaps ensuring that the
+> "alternatives" config was set to point to the iptables-nft
+> implementation:
+>
+>   %  rpm -q iptables-legacy
+>   iptables-legacy-1.8.11-10.fc43.x86_64
+>   % alternatives --display iptables
+>   iptables - status is auto.
+>   link currently points to /usr/bin/iptables-nft
+>   ...
+>
+> FWIW, I think there is value in testing with the iptables-nft
+> implementation simply so we can test the new code paths.
 
-It's been a while since I hit, and worked around, this on my Rawhide
-systems, but if I recall correctly, fixing the problem was a matter of
-installing the iptables-legacy package and perhaps ensuring that the
-"alternatives" config was set to point to the iptables-nft
-implementation:
-
-  %  rpm -q iptables-legacy
-  iptables-legacy-1.8.11-10.fc43.x86_64
-  % alternatives --display iptables
-  iptables - status is auto.
-  link currently points to /usr/bin/iptables-nft
-  ...
-
-FWIW, I think there is value in testing with the iptables-nft
-implementation simply so we can test the new code paths.
-
---=20
-paul-moore.com
+Ok, I had iptables-legacy but not alternatives set. We might want to
+note this in the README.md file.
