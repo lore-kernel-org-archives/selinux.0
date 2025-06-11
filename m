@@ -1,321 +1,145 @@
-Received: from mail-ua1-f48.google.com (mail-ua1-f48.google.com [209.85.222.48])
+Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com [209.85.219.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5889A10A3E
-	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 15:30:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F4451993A3
+	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 15:45:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749655841; cv=none; b=haumeqiJIcEJTxp/ApyJB6Lvh4n3RSgkopQDdG+3uwgpCzoiBwFgEQDuZ1cooFZzgzQP86gAjhhce6XDi3vyAt1KYyuKZozSYx57O2mjxk1sE69SWwNIRVS/RH5uBN5Oo2hRS6xwkzvVUgSNd2GDqSTk+sXE24J+ONqs0ver8bQ=
+	t=1749656718; cv=none; b=eXcCVMUEAqBbppzLyrPiEDCQdiZHkUoYmQxnUzv34hnoszTPZLBQZ9SpPgJrX/x0eR4sEjHRQNPTS0T1WfBdI1zz+VRj02CVvPY1/g8B7Sdi5ISjxcw+TywlIuA/RZH7+Bf3G92ncs2sv2zjwiOcb3iLnPFbRh5vkoZ0cncnTCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749655841; c=relaxed/simple;
-	bh=pNJOXdi3l7fwO1gxfAHI0a1ONlcK5NB1mWw2wwmTOzE=;
+	s=arc-20240116; t=1749656718; c=relaxed/simple;
+	bh=nn3Frlo9C3N7jmQAsLP5JRdKgVr952KuKSlZfqPB0mk=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=H+y3JWYlM5+nBbDhSZMp9e5RtNoHcstKyyRebAk0VEBJLLMeQ/7feN2djjMQ08QF03bLqTjz6AgCtDG/N0Ig2G0on8bt6imdN721MGI7TsrZs5UjMrk/xsQ0wsN5ZZ9gdbjgMMl/u9YLyJEM1BRRUfsN9+xQ3ERbO+8MCif9AQo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a+N/ZqQA; arc=none smtp.client-ip=209.85.222.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=SGhs9mNWbvtKlgo0ubQUm3OUXMJxy3oM99o5XNMDaOEoBMwFs0HmcGccO34uyfu/Sr8MS6fheKvMjMWbzWphnqsAveyMYV+ww2YgLkNgbXBS2Y4jG9o/Wk0ngGv0+CtMNEBJgMaeVGa9alhRPqvAjhQYrmlhqEgE8HhDp9U6Yq8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=A++2K2G0; arc=none smtp.client-ip=209.85.219.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a+N/ZqQA"
-Received: by mail-ua1-f48.google.com with SMTP id a1e0cc1a2514c-87ecca2dc48so1165575241.1
-        for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 08:30:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="A++2K2G0"
+Received: by mail-yb1-f174.google.com with SMTP id 3f1490d57ef6-e81877c1ed6so1067218276.0
+        for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 08:45:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749655838; x=1750260638; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1749656715; x=1750261515; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yFdp4V30xJ6F5RrkLVo4NP/VPl9qtELLZ4lTRTNvz6M=;
-        b=a+N/ZqQA1sxJPLx2PHzpte83lDHAWfM02glKe/tXBnU7KQo6frBXGgDmO/J9E/1kWz
-         vwemjhZ278T46vN7h5NCnCpcctWqnrI0uKLz4b/ZXuODUuVFcqGnvy723K8Ipki+NZr4
-         7khS/QNusGej6PdQrKrMWeQ9Y24IPrOVPGR/yrXHXTr9cUqWqClYczHlswhMk5wM3pY8
-         n66+l/Jl0NanBWGmBbrddb511x83viQilzsD++bX+ceUUbhKOF3PKDOjWHvnwXTMLMDs
-         Sft538tAXyIonowPA4ug/IRLnL1nP3j3/69bX5UeRhO3+gX9qhRI0XZIG9dp23vHLpAl
-         uUvw==
+        bh=Rr8HzynHF02QsFY9FAMsE2al9WZZ1v5BFhMIQ9+R0eA=;
+        b=A++2K2G0e0qQd4AaYnQewF9mODgcF0M4y8fV30qLNBqa2evO8czeOX63yGvlJ7/r9w
+         7vaEVVSAx2U6QFUThhuV+v6u47XNDwnghEnZQ2hDp6GBEUiIsIQSBdFhy36BcPOricBa
+         57hkxhHZayQ6mZTIhICNjNl3BvMOeUI7XRXT0c8lJS/7QwM5KKUj8e9EU5T9/msjzhpB
+         tiS1ZQmx9GhauC0RZiqFAcaN33VD2vedAWiSQWZhVCQebBTbxOztRGnkJ0w6ieyhIxJe
+         769w1CyeDW3r3dOj1lEcSe0kvnhFtPf43w/DAl6inVePhP1U/gf4W+aIK2cIcxN8yZOj
+         AC+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749655838; x=1750260638;
+        d=1e100.net; s=20230601; t=1749656715; x=1750261515;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=yFdp4V30xJ6F5RrkLVo4NP/VPl9qtELLZ4lTRTNvz6M=;
-        b=vvPCYDUo9FPq8pBFDSP7S5/sTGkWtIh1H/pEBEu5PHRz/uroj/Q7llxTw656dsVqxm
-         39nekNWrYuaglOdTYszUWPBw0i53pnEmrpsLBHdGPdCR3nQJIrvKOLk36mKgJCcg6Lfa
-         kRy+jbNgU2csHqeVyf2sYT1VKqiIwHfsDYjVoEJNlFKntSOVCShTzylioWlbtsLAAXFk
-         c6baZIhg6IJyR8LXIZfaai5ya/LfH6UJNT6f/9f0Ia5f/fNpjvsU5iB/jpDFz58vWhqD
-         5edHxic1awdwAbtqqPmtA2nRkR7O4sOSKyqr8PxHLZTWK6ztH7piYPGyObi2povW62II
-         bryw==
-X-Gm-Message-State: AOJu0YzGvUBtIs15VJVtlXfK5JdgTaiMVcckgfoYoPLJfi3uAIflQRsc
-	/zv7P2w9nDlqn/JyrThZJKl0bBbysrMGg1y/6WC98M3oO6X6hgCCf4lAGl3Yf8rA5Si0UoYjLeU
-	Nyeup2p4lSIdwsLILS7M6wG+CkDlFPo0=
-X-Gm-Gg: ASbGncuxEm+f+P33q/MNuqo9+2c6jtvFMLCeDVPDceytCajKhRu56D9nE9KJeXSJq5F
-	grMr5od6xp1lstrVT9PwXob8hit60+L3D1o6OcTb1binchnQQ3JsjsRYazJ55hqq4yjM96JixX2
-	v9M6uqJvWZA6A9y2YjXU8+U7T0HN5kL+qCgx0rqwzeLVA=
-X-Google-Smtp-Source: AGHT+IFiqP+KJK2BY8E1ALPIM91kEtcFtEHEsMUMO8/Jw/z82suwfXl13eP+btwLvHtd+YZbbaoxQsLi63XR2Tb6dZ8=
-X-Received: by 2002:a05:6102:94d:b0:4e5:ac0f:582c with SMTP id
- ada2fe7eead31-4e7ccd123a3mr217502137.13.1749655837853; Wed, 11 Jun 2025
- 08:30:37 -0700 (PDT)
+        bh=Rr8HzynHF02QsFY9FAMsE2al9WZZ1v5BFhMIQ9+R0eA=;
+        b=VT0m3ENxAgfaC55iAyu/1YpsA6C5vCgK4Vzqx2oTaejRQQvtYxplq4r1r8zKC8is8a
+         Quu16BcatK1tfrdJCiKQAmHZzi+twcM0knqfSwn3xoTsg4zFWVJs7kyWrGBH+CxpjtlS
+         d6XCBj4WaBuJffmg9ehtLYA3BKMIQR3HCJjMSEMJzyHriVWv8964DGyDpqZBZ+szpAgT
+         2mLdofwkHkGuC9CPFfxmzE5xhTtbILUuiUgEyeKyLIII5LlmjGbuNQ3WDOuzg/TWbcjw
+         Jm1Mg47EPCz1C+7QPLKv0RoMHSgqMdrD/RKFhfCZlj0yYcJp8i2+OE7UMretm3HGpZpO
+         ttrw==
+X-Forwarded-Encrypted: i=1; AJvYcCUyt0k4QDTqJR6rC6xo13daCZzMFt5C6//vUqc9li24m8yUbFr+vMkDxWaduTySktL27RLI3Opq@vger.kernel.org
+X-Gm-Message-State: AOJu0YzSCqRcv3GR6JESXCTenJscjG7DQP6vytkqYGatyo0gRpBK+HID
+	CgrZ5N+HIcHhnw/F/oA+J409nzxoqILqOiktyDfLdQsALgZNgqjjY9KH3WrSKJQwetcthXeKMqf
+	+v9LGxOJJ2WBMG5mrrYFr7xzmhLnZvhaBPC/O8TMi
+X-Gm-Gg: ASbGncu3Na5OQMXKwGooIxcT5l7HV9GOJ/isNa7QvV0xBX4eeRn3y02JGf32M2EgZRV
+	SArOUnKGh6DHQmkIlfvo9DcUZu0S3S81fx5GccD2dX8kvw0WGUX6/+xbdW7ZnVBhUiZS/JE0HdH
+	8+KRYEyi3YweU/bgqcuYbnqDUMW+fbMtthKbrwtGKJbDZY6E29/xC9tw==
+X-Google-Smtp-Source: AGHT+IF0x91wO7ieY1VBV4TKEAQMxfl7pCnbajI3YzlN5rzvSMdIo54/z2z0PcKudWn5ds5l8R7jWbi2/H1BT15q+gI=
+X-Received: by 2002:a05:6902:2313:b0:e81:eb1c:1a1e with SMTP id
+ 3f1490d57ef6-e81fe899e1emr5351273276.3.1749656715190; Wed, 11 Jun 2025
+ 08:45:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250530051322.1678251-1-inseob@google.com> <20250530051322.1678251-3-inseob@google.com>
-In-Reply-To: <20250530051322.1678251-3-inseob@google.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 11 Jun 2025 11:30:25 -0400
-X-Gm-Features: AX0GCFvXG0psMorFoBoaRfm6bLYG6MUO7vrZzlTe0ubJL9qAFXPQIHZQO-EVbu4
-Message-ID: <CAP+JOzTSS=hY0SpCAJ=+o6=i8kbsqTSyx_OTmRghZRUC6yi9ow@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] libsepol: Support genfs_seclabel_wildcard
-To: Inseob Kim <inseob@google.com>
-Cc: selinux@vger.kernel.org, takayas@google.com, tweek@google.com, 
-	stephen.smalley.work@gmail.com, cgzones@googlemail.com
+References: <20250605164852.2016-1-stephen.smalley.work@gmail.com>
+ <CAHC9VhQ-f-n+0g29MpBB3_om-e=vDqSC3h+Vn_XzpK2zpqamdQ@mail.gmail.com>
+ <CAHC9VhRUqpubkuFFVCfiMN4jDiEhXQvJ91vHjrM5d9e4bEopaw@mail.gmail.com>
+ <87plfhsa2r.fsf@gmail.com> <CAHC9VhRSAaENMnEYXrPTY4Z4sPO_s4fSXF=rEUFuEEUg6Lz21Q@mail.gmail.com>
+ <20250611-gepunktet-umkurven-5482b6f39958@brauner>
+In-Reply-To: <20250611-gepunktet-umkurven-5482b6f39958@brauner>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 11 Jun 2025 11:45:03 -0400
+X-Gm-Features: AX0GCFtYjHydo7psPZIcgWJNd2HocnI9KUxU0OYaer59jF3FYBEgwxmKF0Cei-Y
+Message-ID: <CAHC9VhQYi2k3eamrn+kPkooZQpQ4cdsjs=nvntRVbz4=wz1rzA@mail.gmail.com>
+Subject: Re: [PATCH] fs/xattr.c: fix simple_xattr_list()
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Collin Funk <collin.funk1@gmail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, eggert@cs.ucla.edu, 
+	bug-gnulib@gnu.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 30, 2025 at 1:14=E2=80=AFAM Inseob Kim <inseob@google.com> wrot=
-e:
+On Wed, Jun 11, 2025 at 6:05=E2=80=AFAM Christian Brauner <brauner@kernel.o=
+rg> wrote:
 >
-> This adds genfs_seclabel_wildcard support to libsepol, which makes genfs
-> paths wildcard-matched. To support backward compatibility and to keep
-> semantics of genfscon statements, an asterisk '*' is added to paths of
-> genfscon statements when compiling CIL/conf files having policycap
-> genfs_seclabel_wildcard.
+> On Tue, Jun 10, 2025 at 07:50:10PM -0400, Paul Moore wrote:
+> > On Fri, Jun 6, 2025 at 1:39=E2=80=AFAM Collin Funk <collin.funk1@gmail.=
+com> wrote:
+> > > Paul Moore <paul@paul-moore.com> writes:
+> > > >> <stephen.smalley.work@gmail.com> wrote:
+> > > >> >
+> > > >> > commit 8b0ba61df5a1 ("fs/xattr.c: fix simple_xattr_list to alway=
+s
+> > > >> > include security.* xattrs") failed to reset err after the call t=
+o
+> > > >> > security_inode_listsecurity(), which returns the length of the
+> > > >> > returned xattr name. This results in simple_xattr_list() incorre=
+ctly
+> > > >> > returning this length even if a POSIX acl is also set on the ino=
+de.
+> > > >> >
+> > > >> > Reported-by: Collin Funk <collin.funk1@gmail.com>
+> > > >> > Closes: https://lore.kernel.org/selinux/8734ceal7q.fsf@gmail.com=
+/
+> > > >> > Reported-by: Paul Eggert <eggert@cs.ucla.edu>
+> > > >> > Closes: https://bugzilla.redhat.com/show_bug.cgi?id=3D2369561
+> > > >> > Fixes: 8b0ba61df5a1 ("fs/xattr.c: fix simple_xattr_list to alway=
+s include security.* xattrs")
+> > > >> >
+> > > >> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > >> > ---
+> > > >> >  fs/xattr.c | 1 +
+> > > >> >  1 file changed, 1 insertion(+)
+> > > >>
+> > > >> Reviewed-by: Paul Moore <paul@paul-moore.com>
+> > > >
+> > > > Resending this as it appears that Stephen's original posting had a
+> > > > typo in the VFS mailing list.  The original post can be found in th=
+e
+> > > > SELinux archives:
+> > > >
+> > > > https://lore.kernel.org/selinux/20250605164852.2016-1-stephen.small=
+ey.work@gmail.com/
+> > >
+> > > Hi, responding to this message since it has the correct lists.
+> > >
+> > > I just booted into a kernel with this patch applied and confirm that =
+it
+> > > fixes the Gnulib tests that were failing.
+> > >
+> > > Reviewed-by: Collin Funk <collin.funk1@gmail.com>
+> > > Tested-by: Collin Funk <collin.funk1@gmail.com>
+> > >
+> > > Thanks for the fix.
+> >
+> > Al, Christian, are either of you going to pick up this fix to send to
+> > Linus?  If not, any objection if I send this up?
 >
-> Signed-off-by: Inseob Kim <inseob@google.com>
->
-> Changes since v1:
-> - Sync the order of polcaps with the kernel
-> - Cast to int for printf precision arguments
-> ---
->  checkpolicy/policy_define.c               | 14 ++++++++++++++
->  libsepol/cil/src/cil_binary.c             | 15 ++++++++++++++-
->  libsepol/include/sepol/policydb/polcaps.h |  1 +
->  libsepol/src/kernel_to_cil.c              | 20 ++++++++++++++++----
->  libsepol/src/kernel_to_conf.c             | 20 ++++++++++++++++----
->  libsepol/src/polcaps.c                    |  1 +
->  6 files changed, 62 insertions(+), 9 deletions(-)
->
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index 78adbec0..868b8214 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -5967,6 +5967,7 @@ static int define_genfs_context_helper(char *fstype=
-, int has_type)
->         char *type =3D NULL;
->         const char *sclass;
->         size_t len, len2;
-> +       int wildcard =3D ebitmap_get_bit(&policydbp->policycaps, POLICYDB=
-_CAP_GENFS_SECLABEL_WILDCARD);
->
->         if (policydbp->target_platform !=3D SEPOL_TARGET_SELINUX) {
->                 yyerror("genfs not supported for target");
-> @@ -6017,6 +6018,19 @@ static int define_genfs_context_helper(char *fstyp=
-e, int has_type)
->         newc->u.name =3D (char *)queue_remove(id_queue);
->         if (!newc->u.name)
->                 goto fail;
-> +
-> +       if (wildcard) {
-> +               size_t name_len =3D strlen(newc->u.name);
-> +               newc->u.name =3D realloc(newc->u.name, name_len + 2);
-> +               if (newc->u.name =3D=3D NULL) {
-> +                       yyerror("out of memory");
-> +                       return -1;
-> +               }
-> +
-> +               newc->u.name[name_len] =3D '*';
-> +               newc->u.name[name_len + 1] =3D '\0';
-> +       }
-> +
->         if (has_type) {
->                 type =3D (char *)queue_remove(id_queue);
->                 if (!type)
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.=
-c
-> index b0befda3..b2c940f9 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -3749,6 +3749,7 @@ int cil_genfscon_to_policydb(policydb_t *pdb, struc=
-t cil_sort *genfscons)
->         uint32_t i =3D 0;
->         genfs_t *genfs_tail =3D NULL;
->         ocontext_t *ocon_tail =3D NULL;
-> +       int wildcard =3D ebitmap_get_bit(&pdb->policycaps, POLICYDB_CAP_G=
-ENFS_SECLABEL_WILDCARD);
->
->         for (i =3D 0; i < genfscons->count; i++) {
->                 struct cil_genfscon *cil_genfscon =3D genfscons->array[i]=
-;
-> @@ -3773,7 +3774,19 @@ int cil_genfscon_to_policydb(policydb_t *pdb, stru=
-ct cil_sort *genfscons)
->
->                 ocon_tail =3D new_ocon;
->
-> -               new_ocon->u.name =3D cil_strdup(cil_genfscon->path_str);
-> +               if (wildcard) {
-> +                       size_t name_len =3D strlen(cil_genfscon->path_str=
-);
-> +                       new_ocon->u.name =3D malloc(name_len + 2);
-> +                       if (new_ocon->u.name =3D=3D NULL) {
-> +                               cil_log(CIL_ERR, "Failed to allocate memo=
-ry\n");
-> +                               exit(1);
-> +                       }
+> It's been in vfs.fixes for some time already and it'll go out with the
+> first round of post -rc1 fixes this week.
 
-You should use cil_malloc() here. It will take care of checking for
-NULL and exiting with an error message for you.
-Everything else looks good to me.
-Thanks,
-Jim
+Great, thanks.  I didn't see any replies on-list indicating that the
+patch had been picked up, so I just wanted to make sure someone was
+sending this up to Linus.
 
-> +                       memcpy(new_ocon->u.name, cil_genfscon->path_str, =
-name_len);
-> +                       new_ocon->u.name[name_len] =3D '*';
-> +                       new_ocon->u.name[name_len + 1] =3D '\0';
-> +               } else {
-> +                       new_ocon->u.name =3D cil_strdup(cil_genfscon->pat=
-h_str);
-> +               }
->
->                 if (cil_genfscon->file_type !=3D CIL_FILECON_ANY) {
->                         class_datum_t *class_datum;
-> diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include=
-/sepol/policydb/polcaps.h
-> index 7bebe4da..0835ea21 100644
-> --- a/libsepol/include/sepol/policydb/polcaps.h
-> +++ b/libsepol/include/sepol/policydb/polcaps.h
-> @@ -18,6 +18,7 @@ enum {
->         POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT,
->         POLICYDB_CAP_NETLINK_XPERM,
->         POLICYDB_CAP_NETIF_WILDCARD,
-> +       POLICYDB_CAP_GENFS_SECLABEL_WILDCARD,
->         __POLICYDB_CAP_MAX
->  };
->  #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
-> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-> index ddca2b62..e69e1663 100644
-> --- a/libsepol/src/kernel_to_cil.c
-> +++ b/libsepol/src/kernel_to_cil.c
-> @@ -2708,6 +2708,8 @@ static int write_genfscon_rules_to_cil(FILE *out, s=
-truct policydb *pdb)
->         uint32_t sclass;
->         const char *file_type;
->         int rc;
-> +       int wildcard =3D ebitmap_get_bit(&pdb->policycaps, POLICYDB_CAP_G=
-ENFS_SECLABEL_WILDCARD);
-> +       size_t name_len;
->
->         rc =3D strs_init(&strs, 32);
->         if (rc !=3D 0) {
-> @@ -2749,12 +2751,22 @@ static int write_genfscon_rules_to_cil(FILE *out,=
- struct policydb *pdb)
->                                 goto exit;
->                         }
->
-> +                       name_len =3D strlen(name);
-> +                       if (wildcard) {
-> +                               if (name_len =3D=3D 0 || name[name_len - =
-1] !=3D '*') {
-> +                                       ERR(NULL, "genfscon path must end=
- with '*' when genfs_seclabel_wildcard");
-> +                                       rc =3D -1;
-> +                                       goto exit;
-> +                               }
-> +                               --name_len;
-> +                       }
-> +
->                         if (file_type) {
-> -                               rc =3D strs_create_and_add(strs, "(genfsc=
-on %s \"%s\" %s %s)",
-> -                                                                        =
-        fstype, name, file_type, ctx);
-> +                               rc =3D strs_create_and_add(strs, "(genfsc=
-on %s \"%.*s\" %s %s)",
-> +                                                        fstype, (int)nam=
-e_len, name, file_type, ctx);
->                         } else {
-> -                               rc =3D strs_create_and_add(strs, "(genfsc=
-on %s \"%s\" %s)",
-> -                                                                        =
-        fstype, name, ctx);
-> +                               rc =3D strs_create_and_add(strs, "(genfsc=
-on %s \"%.*s\" %s)",
-> +                                                        fstype, (int)nam=
-e_len, name, ctx);
->                         }
->                         free(ctx);
->                         if (rc !=3D 0) {
-> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
-c
-> index 661546af..a7160997 100644
-> --- a/libsepol/src/kernel_to_conf.c
-> +++ b/libsepol/src/kernel_to_conf.c
-> @@ -2556,6 +2556,8 @@ static int write_genfscon_rules_to_conf(FILE *out, =
-struct policydb *pdb)
->         uint32_t sclass;
->         const char *file_type;
->         int rc;
-> +       int wildcard =3D ebitmap_get_bit(&pdb->policycaps, POLICYDB_CAP_G=
-ENFS_SECLABEL_WILDCARD);
-> +       size_t name_len;
->
->         rc =3D strs_init(&strs, 32);
->         if (rc !=3D 0) {
-> @@ -2597,12 +2599,22 @@ static int write_genfscon_rules_to_conf(FILE *out=
-, struct policydb *pdb)
->                                 goto exit;
->                         }
->
-> +                       name_len =3D strlen(name);
-> +                       if (wildcard) {
-> +                               if (name_len =3D=3D 0 || name[name_len - =
-1] !=3D '*') {
-> +                                       ERR(NULL, "genfscon path must end=
- with '*' when genfs_seclabel_wildcard");
-> +                                       rc =3D -1;
-> +                                       goto exit;
-> +                               }
-> +                               --name_len;
-> +                       }
-> +
->                         if (file_type) {
-> -                               rc =3D strs_create_and_add(strs, "genfsco=
-n %s \"%s\" %s %s",
-> -                                                                        =
-        fstype, name, file_type, ctx);
-> +                               rc =3D strs_create_and_add(strs, "genfsco=
-n %s \"%.*s\" %s %s",
-> +                                                        fstype, (int)nam=
-e_len, name, file_type, ctx);
->                         } else {
-> -                               rc =3D strs_create_and_add(strs, "genfsco=
-n %s \"%s\" %s",
-> -                                                                        =
-        fstype, name, ctx);
-> +                               rc =3D strs_create_and_add(strs, "genfsco=
-n %s \"%.*s\" %s",
-> +                                                        fstype, (int)nam=
-e_len, name, ctx);
->                         }
->                         free(ctx);
->                         if (rc !=3D 0) {
-> diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
-> index ec6c902d..7ac0ae7c 100644
-> --- a/libsepol/src/polcaps.c
-> +++ b/libsepol/src/polcaps.c
-> @@ -17,6 +17,7 @@ static const char * const polcap_names[POLICYDB_CAP_MAX=
- + 1] =3D {
->         [POLICYDB_CAP_USERSPACE_INITIAL_CONTEXT]        =3D "userspace_in=
-itial_context",
->         [POLICYDB_CAP_NETLINK_XPERM]                    =3D "netlink_xper=
-m",
->         [POLICYDB_CAP_NETIF_WILDCARD]                   =3D "netif_wildca=
-rd",
-> +       [POLICYDB_CAP_GENFS_SECLABEL_WILDCARD]          =3D "genfs_seclab=
-el_wildcard",
->  };
->
->  int sepol_polcap_getnum(const char *name)
-> --
-> 2.49.0.1238.gf8c92423fb-goog
->
->
+--=20
+paul-moore.com
