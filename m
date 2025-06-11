@@ -1,161 +1,163 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtpdh18-1.aruba.it (smtpdh18-1.aruba.it [62.149.155.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD7EC6FBF
-	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:35:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F9FF6FBF
+	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:36:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.149.155.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749670513; cv=none; b=YtXzJUT87AXpKhtasUmRscbpL96nqlzWh2ySHXg6tobkmF2XDbqYcv/R057qdYywNAXnH42uwADOhBCQGM/3Yn/djsk40j2EvzqfqOS0L6g/CiajrTt3eU9ugn35Y9WA3gQ++b765rfXAffDk9QEOap/Y22vtZMfcmcWJr45eUo=
+	t=1749670604; cv=none; b=cEFMhccKXDgsmDvd7rfSydwHuANryc0GtCxisUzDYsOgm5ZPd5Wp/Nfezbis1TdtXo3XFdKt8uqnkIu33b6m7kS1MziPTguXNY4nSFt4DL46q/jR5YTIN8d2HqnIt0Kue3/LdvO7BD8o3I3QJDgE4F2uDOgXUJfCuNP16qeJqtk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749670513; c=relaxed/simple;
-	bh=gCXXVj0CQu/bLJBAPjTs0ra1iowVgf/e+BHC7xVpr1k=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=lWsuAc6N69Ky4DQ1W7oLS85URrwFppXZai78ETRKvu3pLhX3T4zW1g/ardJSS31PANy9BQErNEWc7wExmCDvYSr+3zPwRNi3o2E0jIZGZya//8yNsnuopL8gLOrnOzxjs5TyWF0E9+NCVtLhSsZX+q1P63dlI5RG69fDHB62ULU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Vsfhdu6D; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1749670604; c=relaxed/simple;
+	bh=dVE24NE1uA5NF/Cn8soO6fKoZvkiA0BQHNcV+tLb7x8=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:Mime-Version; b=p7T0Ycyd7TKbrRlNL8Kp3J9FBmdYz71LtYSJB8jzn0beVx2+++Xnad6DvGkvy3A9ratzPJu1tIPJWuFsWrzKW75v1OU1ngLkonlMWWPUjNzy+DRrpIWuvuw3xE0+GYj1A1VOuZ55QhywVS7TCAlMe8IRfhyJrOoGyM8NqJM5+hg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com; spf=pass smtp.mailfrom=trentalancia.com; dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b=RPqpyO/z; arc=none smtp.client-ip=62.149.155.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=trentalancia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Vsfhdu6D"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1749670509;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=ZCtVR2Fu5jNWKBMsiM9ZbA7DP9t6XnUF36PTv3Smrtg=;
-	b=Vsfhdu6DyBPT8ckz6+949yPSMc6JIliuRZFdlQtWzDLexAW4K4AybLJhVf1W/GJalOSml5
-	XFMC01I42XvyVQkOr2CWGQjuUxQlosv2J0sgZPrdlcthzJ5YH1eBK/dmvH4EBoxysP41zC
-	XXtpD8TwEv/8HrA2shcVNpDyBiYzmgQ=
-Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-509-1xxymqkCOCGYPod_Or5Vgw-1; Wed,
- 11 Jun 2025 15:35:08 -0400
-X-MC-Unique: 1xxymqkCOCGYPod_Or5Vgw-1
-X-Mimecast-MFC-AGG-ID: 1xxymqkCOCGYPod_Or5Vgw_1749670507
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 657C01809C80
-	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:35:07 +0000 (UTC)
-Received: from localhost (unknown [10.44.32.71])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id DDB9E180045C
-	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:35:06 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: selinux@vger.kernel.org
-Subject: ANN: SELinux userspace 3.9-rc1 release
-Date: Wed, 11 Jun 2025 21:35:05 +0200
-Message-ID: <87frg6dqc6.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b="RPqpyO/z"
+Received: from [192.168.43.2] ([109.54.119.20])
+	by Aruba SMTP with ESMTPSA
+	id PRCSu1SnAWAxHPRCTugYpI; Wed, 11 Jun 2025 21:33:30 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
+	t=1749670410; bh=dVE24NE1uA5NF/Cn8soO6fKoZvkiA0BQHNcV+tLb7x8=;
+	h=Subject:From:To:Date:Content-Type:Mime-Version;
+	b=RPqpyO/zAYDkMl8WmGXT9f1g9Q7dHMObWa7rv9JfI0/0+7+d0xRPLdIitFVH4AIoU
+	 zkD2wdSloz9VW04bPbh1ungvZsBPgnsNplmhSPaw5lVcIoKsHvjk7TJjdBiUzwf4lg
+	 o+j1WfHS6bMHIlgJK7+B4YJmr0vD5PltRclqecHR8ZJOeHmbM4SlGsLNhepcKIShAx
+	 d8Ld9XCJ3uoYBTtRn0ABQfs/sKyCvMBWacFp6feUdMtb6Hz5pVJIseKuqP4D8PDBJg
+	 J2+2FGg+sH9tSINKDyUwlGlBjfJy1QiR5hQo2JR+5fsoLES4fyp4pZ56N/HaA5rXKV
+	 cB8GdIwQgGtwA==
+Message-ID: <1749670408.6186.15.camel@trentalancia.com>
+Subject: Re: [PATCH v2] selinux: change security_compute_sid to return the
+ ssid or tsid on match
+From: Guido Trentalancia <guido@trentalancia.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
+ selinux@vger.kernel.org,  omosnace@redhat.com
+Date: Wed, 11 Jun 2025 21:33:28 +0200
+In-Reply-To: <CAHC9VhTjwOcwzKdiq5m=QyWo8=-a6E-2bW4gKJoDtij7kEmxeA@mail.gmail.com>
+References: <20250610194826.80606-2-stephen.smalley.work@gmail.com>
+	 <1749647531.6091.5.camel@trentalancia.com>
+	 <CAHC9VhTjwOcwzKdiq5m=QyWo8=-a6E-2bW4gKJoDtij7kEmxeA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.26.6 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CMAE-Envelope: MS4xfE78RZxHF7aWv25je5q0yQQ+HHzYV9MjocDbcYnjtw1V9PdWGR6Nkt2kjzASJct5cjZ5ly5kUCX4EaxjcZdk8M3gf6919BpVyRIbPSJKoywRH2C1fueE
+ hVmmx+b1clvRKEDBmiIrk+2qu0SVeCOzR3PrJQVgutjFpun0h570oZkt0+78bnlQInTPAiM541lNRbTqrsujXv/lICeIt14Gl9o3FsaTFxJpXL7JIK9PKbsJ
+ cHemhHy3J0mQweGjo6lIBIjWqitylxQqirvaMtUEd1IWNRD+5s7gK84I/yBr2a0Pu98VD2/oNhM0i8qTkU5lbA==
 
-Hello!
+I have very little time to look at the underlying problem and, as
+already explained, I have only tested that it solves dracut-ng issue
+377.
 
-The 3.9-rc1 release for the SELinux userspace is now available at:
+This change has widened the scope considerably compared to the other
+proposed patch, I cannot so easily certify that it does not introduce
+regressions or problems in other scenarios.
 
-https://github.com/SELinuxProject/selinux/releases/tag/3.9-rc1
-https://github.com/SELinuxProject/selinux/wiki/Releases
+The main point is that the offending code in ae254858ce07 is only
+executed when the policy has not been loaded yet (and it sets the SID
+to SECINITSID_INIT).
 
-I signed all tarballs using my gpg key, see .asc files.
-You can download the public key from
-https://github.com/bachradsusi.gpg
+On the other hand, when the policy is not loaded security_compute_sid()
+is reduced to:
 
-Thanks to all the contributors, reviewers, testers and reporters!
+switch (orig_tclass) {
+                case SECCLASS_PROCESS: /* kernel value */
+                        *out_sid = ssid;
+                        break;
+                goto out;
+return rc;
 
-If you miss something important not mentioned bellow, please let me
-know.
+In other words, when the policy has not been loaded yet (which is when
+the problem is introduced), the code in this change is not reached and
+security_compute_sid() simply returns ssid (when called with
+SECCLASS_PROCESS). So, the mechanism of action of this change on the
+problem appears to be indirect in some way.
 
-User-visible changes
---------------------
+Moreover, security_compute_sid() is called by several other functions
+rather than simply by security_transition_sid(), so without proper
+extensive testing in multiple use cases (read multiple code paths) it's
+very difficult to say the change is fully tested...
 
-* Support static-only builds with DISABLE_SHARED=3Dy
+I would recommend more extensive testing.
 
-* Add restore option to modify user and role portions
+Guido
 
-* setfiles: Add -U option to modify user and role portions
-
-* semanage.conf: Add relabel_store config option
-
-* semodule: Add [-g PATH |--config=3DPATH] for an alternate path for the se=
-manage config
-
-* libselinux: Fix local literal fcontext definitions priority
-
-* libselinux: Fix order for path substitutions
-
-* Bug fixes
-
-
-Shortlog of the changes since 3.8.1 release
--------------------------------------------
-Alyssa Ross (2):
-      Support static-only builds
-      libselinux: be careful with non-portable LFS macro
-
-Christian G=C3=B6ttsche (18):
-      checkpolicy: rework cleanup in define_te_avtab_xperms_helper()
-      checkpolicy: free left hand conditional expression on error
-      checkpolicy: abort on mismatched declarations
-      checkpolicy: perform cleanup on error in define_filename_trans()
-      libselinux: add restore option to modify user and role portions
-      setfiles: add option to modify user and role portions
-      libselinux: introduce context_to_str(3)
-      mcstrans: make use of context_to_str(3)
-      libselinux: constify global strings
-      libselinux: use local instead of global error buffer
-      libselinux: initialize regex arch string in a thread safe way
-      libselinux: limit fcontext regex path length
-      checkpolicy: free ebitmap on error in define_compute_type_helper()
-      libselinux: limit node depth while parsing compiled fcontexts
-      libsemanage: fix handling errors during child execution
-      semanage: improve -e documentation and fix delete operation
-      libselinux: prioritize local literal fcontext definitions
-      libselinux: retain LIFO order for path substitutions
-
-Daniel Burgener (1):
-      Switch from bison name-prefix to api.prefix
-
-Inseob Kim (6):
-      libsepol: Fix markers for info nodes w/o children
-      libsepol: Allow booleanif to have info nodes
-      libsepol: Make line markers of rules configurable
-      checkpolicy: Support line markers for allow rules
-      checkmodule: Support line markers for allow rules
-      checkpolicy: Allow lineno > 1 for source file line
-
-James Carter (1):
-      libselinux: Do not inline compile_regex()
-
-Petr Lautrbach (2):
-      README: update subscribe information
-      Update VERSIONs to 3.9-rc1 for release.
-
-Rahul Sandhu (1):
-      libsemanage: create semanage_basename to ensure posix compliance
-
-Robert Marko (1):
-      policycoreutils: run_init: define _GNU_SOURCE
-
-Stephen Smalley (1):
-      libsepol,checkpolicy: introduce neveraudit types
-
-Thi=C3=A9baud Weksteen (1):
-      libselinux: warn on identical duplicate properties
-
-Tristan Ross (3):
-      libsemanage: add relabel_store config option
-      libsemanage: add semanage_handle_create_with_path
-      semodule: add config argument
-
-=D0=BD=D0=B0=D0=B1 (2):
-      Insert -I../../libselinux/include and -L../../libselinux/src into sub=
-programs where needed
-      Inject matchpathcon_filespec_add64() if !defined(__INO_T_MATCHES_INO6=
-4_T) instead of using __BITS_PER_LONG < 64 as proxy
-
+On Wed, 11/06/2025 at 12.27 -0400, Paul Moore wrote:
+> On Wed, Jun 11, 2025 at 9:12 AM Guido Trentalancia
+> <guido@trentalancia.com> wrote:
+> > 
+> > Hello,
+> > 
+> > I have just tested Stephen's patch and it solves the problem as an
+> > alternative to the dracut patch and other patches posted here along
+> > with the issue description:
+> > 
+> > https://github.com/dracut-ng/dracut-ng/issues/377
+> > 
+> > Please note that I have only tested the success of the boot process
+> > with sysvinit and not other aspects of the system functionality,
+> > other
+> > init daemons or regressions that might be caused as a result of
+> > applying this patch.
+> 
+> Understood, thanks for the testing you've done.
+> 
+> Would you be okay if I added your "Tested-by:" tag to the patch?
+> 
+> > On Tue, 10/06/2025 at 15.48 -0400, Stephen Smalley wrote:
+> > > If the end result of a security_compute_sid() computation matches
+> > > the
+> > > ssid or tsid, return that SID rather than looking it up again.
+> > > This
+> > > avoids the problem of multiple initial SIDs that map to the same
+> > > context.
+> > > 
+> > > Reported-by: Guido Trentalancia <guido@trentalancia.com>
+> > > Fixes: ae254858ce07 ("selinux: introduce an initial SID for early
+> > > boot processes")
+> > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > ---
+> > > v2 fixes a compiler error.
+> > > 
+> > >  security/selinux/ss/services.c | 16 +++++++++++-----
+> > >  1 file changed, 11 insertions(+), 5 deletions(-)
+> > > 
+> > > diff --git a/security/selinux/ss/services.c
+> > > b/security/selinux/ss/services.c
+> > > index 7becf3808818..d185754c2786 100644
+> > > --- a/security/selinux/ss/services.c
+> > > +++ b/security/selinux/ss/services.c
+> > > @@ -1909,11 +1909,17 @@ static int security_compute_sid(u32 ssid,
+> > >                       goto out_unlock;
+> > >       }
+> > >       /* Obtain the sid for the context. */
+> > > -     rc = sidtab_context_to_sid(sidtab, &newcontext, out_sid);
+> > > -     if (rc == -ESTALE) {
+> > > -             rcu_read_unlock();
+> > > -             context_destroy(&newcontext);
+> > > -             goto retry;
+> > > +     if (context_equal(scontext, &newcontext))
+> > > +             *out_sid = ssid;
+> > > +     else if (context_equal(tcontext, &newcontext))
+> > > +             *out_sid = tsid;
+> > > +     else {
+> > > +             rc = sidtab_context_to_sid(sidtab, &newcontext,
+> > > out_sid);
+> > > +             if (rc == -ESTALE) {
+> > > +                     rcu_read_unlock();
+> > > +                     context_destroy(&newcontext);
+> > > +                     goto retry;
+> > > +             }
+> > >       }
+> > >  out_unlock:
+> > >       rcu_read_unlock();
+> 
+> 
