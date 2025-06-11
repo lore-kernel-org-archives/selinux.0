@@ -1,231 +1,128 @@
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3B46C8FE
-	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 18:51:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AEE02750ED
+	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:05:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749667909; cv=none; b=XiqbDCTV9GTlwOJ3CRfCvaTqEuj6H8itzqFzROrFs9FuPiuzMyF1rINfDsp3MzIS9wfK9GRYug1zGS8uwkk8Og8cIl49vtHGXKa7FSTqqzgj+yCNPuOaU4adryvnVbsJfYWD6hb8IxDyc/7i8td08CHwiUgTqimpAMc+KY9nP5Y=
+	t=1749668754; cv=none; b=DV5GIkr+jyeEjFau33za/Xu+r6GgLFEzytlgEhVxkh0YQhKMMR00yedgczRQUuElHK72/IWOLv0OHEwnH09e1NHOGvzhguKWRMIRB6DiZBlXkG5vcI6REYERo34O1ur0dqAUHKczHgHwNhdQuCjVaYiR39f89X058BH1JW7m48U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749667909; c=relaxed/simple;
-	bh=ny8OvdtP/Fu2V37SS6SYK6o/ecV2ffim7ma7Z9fu9qg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Bdos8akc6PFxMLu5Bf5Y17Nnvd68g1FayuCLJpAkNHSecttXlDb777At7tpj88oHQIdH1Qs8KNopR/OKr1GD6enIbxV9spmTo4vLGjLFYR3n/mq7GCNC24fus2C55l+4fWub7PfqztDjPbgWiB65q7Hm1lJlJ1nQDDl0ZZ8HsIk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eq8xW48Z; arc=none smtp.client-ip=209.85.215.172
+	s=arc-20240116; t=1749668754; c=relaxed/simple;
+	bh=NYXxZTZyTmzTg2t2PUZscl5DYp3j0TMEa51/b2Xf3KI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=V+R8telHRLUOF4ipfm2cOPlHVobiaMgBMNj+Apy6iAQa2kLVoqsKAlYbA6uHb/cp5PZxLQp1Dzf7vgx2UUYzhZXErE/+58X/sXrmLWD+SPSW1HjHHQyRyqtVwdxIwIFphH051WWyjBRFyy9LlNcBGnxKozgi9KRZ5frcvsGeAEA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nXmTyYYN; arc=none smtp.client-ip=209.85.219.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eq8xW48Z"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-b2c4e46a89fso60728a12.2
-        for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 11:51:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nXmTyYYN"
+Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-6fafdd322d3so2622806d6.3
+        for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 12:05:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749667907; x=1750272707; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=zUPAbRPiUzqY1oNeAlTQO4uXXLPO8eAmtegaTiyZxtQ=;
-        b=eq8xW48Z5FTbV/llQqjOsujcSITDRLYG8+LVpTM0CgdwEAxqzGGVZCbQOsr8bzdRUW
-         +LHpBHvjn1SDvKCKv4InbONOlf6fGG7cAf0dSG/KdHbAe+a8Fx+WDhPnpLnefPWFkNAi
-         eOLrimsAUlT9Uv8lYlr+sieitJ9UyBmKGSqWE//wW5mRtUYP9vrZrxmDTlm1oM9lhmzH
-         kz88CwDLNLGXPpG66KI4kwGlyT1B7kJc+klN627kZnhsj4DuCxZ6CJ6BkbEqlvYLljIo
-         vOJ2Zq8rsR69i5jyjByVYr2Qv/72pqh1UzfYVM1bSXoit3zWmAtDBkwsGvN9rq4WaEvv
-         mZ+Q==
+        d=gmail.com; s=20230601; t=1749668752; x=1750273552; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=B2ACJ6IAfElGizc0AzCkLv4DEwWyP2X1hy67tYo/wUs=;
+        b=nXmTyYYNg61webJE5/RAkBa3AznYP8JFXqntZD7DEjAlikcyF1EJCJwGm89ZWFSQOl
+         Hv+SRFe7b7PbkLe6E5akUKZI9GU58QvzF78eAcOQtlRzdqshVGXIzYxEFEqNU55LuMzO
+         We4e+2EfxzVFNAAN6LHZ2zQFEfTOLIWW0wlfp+lGwYqdGqKsnNmE2DNYlfzuJOxrIKGb
+         JFKFQZCxSFJgEV+OVQmbDqTtvfXiPyGiY+Sf31OJfTTVfV7ILq07/1TN1LBoNER6JTlj
+         dt35W3vYurpPm3gCQO3u7dLZfZ2hnw+CxAjgel4Wo1dT5hF0OKPdXHTY1lrlmXrvOWQw
+         8/9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749667907; x=1750272707;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=zUPAbRPiUzqY1oNeAlTQO4uXXLPO8eAmtegaTiyZxtQ=;
-        b=MrvSG83U10bL0UOr6qjPX8cESetx2mZi78EBlqroreCBHWIiFvWQkACQ9dtsitPPuK
-         fdHKO4KzdgulDwSlpP08ivQNMG5W58xF/pyNVhdgXIWoz7OV6pzwGjZOi30MWiA0jzII
-         Bk19S4RbxZ7h2O8Pp51H+fJSt7n27Jw8KRl1ZjZ5CQJ5r/WLqTX6me7ua9xdiPX1CY+v
-         fSfzPM5qxTDZWwY2cEaPezIni3waaWhyFoqzDLvGMXrw+NVQ38YW/dL8dZy/WKKuVoZl
-         Qar+LlPMSbDKHFwANrNESH4qHdJ6KGEMmvh4i/My/ufo4zcxqOLGX0q39Ia0yDgE51i8
-         yOjg==
-X-Gm-Message-State: AOJu0YyjFLR36bPw0GAfDNk+Yi4IkG1CqMikuwQOZVCOYyjq1nXR9tYI
-	Snzd3TpZaq99l+IV5a6oMGJOkkiOr2SK2hvclX/okctyXAzRR41i9gLtll6A9P6i3OovH+YiGFP
-	yduUovaLELhaoA3HYfBUCMX4jCflS/mnjlw==
-X-Gm-Gg: ASbGnct8rPNeB0Gj1OyPZ78YW9ea7aig5jQ1IwEzM2fc+vGNMzx7xBXipkLd3fAm6g3
-	jPNDrBxxoBd7FjISh6HMR9MB+GArNIESZ9rE/J/hkBexTccHKJCDnGyOngl9r+OwIeNhrj1E4V5
-	O8n7qkQPzUx1+fGbJqxs9fBq9Saa0zNCrjl/UibfBlKb4=
-X-Google-Smtp-Source: AGHT+IHUu+ucUwLdlhpm6NiA/ETO0QMzSZO4BKLfEZlgYXHZyiDwE/8RVRF5gPk0aN9RWQcd91nBVK0k4XHz8EckWeE=
-X-Received: by 2002:a17:90b:5866:b0:311:fde5:c4be with SMTP id
- 98e67ed59e1d1-313bfc2687dmr871675a91.35.1749667906579; Wed, 11 Jun 2025
- 11:51:46 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1749668752; x=1750273552;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=B2ACJ6IAfElGizc0AzCkLv4DEwWyP2X1hy67tYo/wUs=;
+        b=X3A2mcDMrKzWwP7UtICHlELt6niGH2FsEcya/ILS1I+swInAImL430tuQMLXOm7cB1
+         88tErsFAN/bkiWpDy44jXkFKt8eCOZRNPUiILcY7LnTwfyc2ReR0Rx63N0Ioc5jfPGkR
+         rQInhwdIPGnAxD753kDIOR6mE9C1Dm1BhpPMo9ule3+0H4pahP8hKVV+KvX6RB/iau45
+         hMES6RvvKRzwiMY3VNH995ROR5a6Y2e2tieqGbR9O+Z+mjaCE/LnS56+QXTSobwW5z54
+         9C26wamfrYShRZeydhJ0BCLnnn4YwfZqQ835mVwLIYg4xXiGSanuy0ko/i6MKhTPz7Sa
+         5ozA==
+X-Gm-Message-State: AOJu0YxD7V0cEm2KLRT/Tosouly937sBo4wMXjeOySaQ5eVpx18l1GHU
+	etALO9T4OSGbHsqtJ1xKp+qIOG5k5do0z24YuPqzza4yCsLs7piUvXIoNX3kGg==
+X-Gm-Gg: ASbGnctv9YP3CoFXggmXDG9/fE9fLUvWnx63CrY5DYlNMky9TeyfZtz/g0Hsyuc0Dzl
+	rrdWPpK01ki2Fo2zXqRBj7oKCrSpQYCMbqg3j2OEd4bS0w0ChYdd9OX/a4aJ1TJrAQCbj6XDKFD
+	oeXjVcX87BDbbcJMjfX7bczRAUi5gzrO8YEsgSU84P8Nds7AI7ZfLLDKFXP9goxrh9i67HdcjE0
+	guHbpqbtbQ7jQ5+8uedUc6/czx7FmbqXjOU1pSSDE6PzzrfSBcotz9V/urwPhC1YKokHxKxJGWt
+	SAfcWQNScTwNMQcG0aHl2xtCIy8UYsnr/JstLVu2FFjQpswrPFP8ZcZ6ccuvqs+1FRuMbAiJkAs
+	kfEERvoYNv4v1HH61FQ+S6ukvF8zyczufLkvFqsLTfQG6s0gm3Aq8NACZSHPpE8Npx5qwJodPn9
+	lkdPskGPknZ7rWYuE=
+X-Google-Smtp-Source: AGHT+IFuvfoyhxBiLMBHk4aF4rE+keG0pZWlszewJZDdQyPAUuH+jEWd42ixKjJg+eswgwxfp/GdtQ==
+X-Received: by 2002:a05:6214:21ee:b0:6fa:faf7:7545 with SMTP id 6a1803df08f44-6fb34ea055emr6086926d6.31.1749668751966;
+        Wed, 11 Jun 2025 12:05:51 -0700 (PDT)
+Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6fb09b36647sm85337456d6.113.2025.06.11.12.05.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Jun 2025 12:05:51 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH testsuite] tests/mac_admin: disable test of getting undefined label on nfs
+Date: Wed, 11 Jun 2025 15:05:12 -0400
+Message-ID: <20250611190512.23743-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250611183234.10255-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20250611183234.10255-2-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 11 Jun 2025 14:51:35 -0400
-X-Gm-Features: AX0GCFsuWslai5TMvxkpWesHIqBQb3Ec8ADA_4Drasj7SJr_-dUMGmGM-TvH7DQ
-Message-ID: <CAEjxPJ7gJJX+PvorLd5tHYZV1vhUFdnY3TevC-bAMR+5Ua1JYQ@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/inet_socket: invoke ip{6}tables-legacy
- when appropriate
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com, omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 11, 2025 at 2:34=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On F42, iptables and ip6tables are no longer provided; check
-> to see if iptables-legacy and ip6tables-legacy exist and use
-> those instead if so.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  tests/inet_socket/iptables-flush | 20 +++++++++---
->  tests/inet_socket/iptables-load  | 52 ++++++++++++++++++++------------
->  2 files changed, 48 insertions(+), 24 deletions(-)
+We already had a workaround in the test script to expect a different
+result on NFS to the unique aspects of labeled NFS, but this
+workaround won't work when/if SELinux namespaces are enabled
+(due to the introduction of the global SID table and its
+correct preservation of the original context value) and was
+really only papering over the lack of support. Just disable
+this particular test when run on NFS filesystems.
 
-Similar changes are needed to the tests/sctp/iptables-{load,flush} scripts.
-Thought I'd wait to see if this approach is how we want to address this.
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ tests/mac_admin/test | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
->
-> diff --git a/tests/inet_socket/iptables-flush b/tests/inet_socket/iptable=
-s-flush
-> index c168d89..a8cbe04 100644
-> --- a/tests/inet_socket/iptables-flush
-> +++ b/tests/inet_socket/iptables-flush
-> @@ -1,6 +1,18 @@
->  #!/bin/sh
->  # Flush the security table.
-> -iptables -t security -F
-> -iptables -t security -X NEWCONN
-> -ip6tables -t security -F
-> -ip6tables -t security -X NEWCONN
-> +if [ -f /usr/sbin/iptables-legacy ]; then
-> +    IPTABLES=3Diptables-legacy
-> +else
-> +    IPTABLES=3Diptables
-> +fi
-> +
-> +if [ -f /usr/sbin/ip6tables-legacy ]; then
-> +    IP6TABLES=3Dip6tables-legacy
-> +else
-> +    IP6TABLES=3Dip6tables
-> +fi
-> +
-> +$IPTABLES -t security -F
-> +$IPTABLES -t security -X NEWCONN
-> +$IP6TABLES -t security -F
-> +$IP6TABLES -t security -X NEWCONN
-> diff --git a/tests/inet_socket/iptables-load b/tests/inet_socket/iptables=
--load
-> index 5be94f4..83ca966 100644
-> --- a/tests/inet_socket/iptables-load
-> +++ b/tests/inet_socket/iptables-load
-> @@ -8,42 +8,54 @@
->  # - Specified the interface since the tests are only performed over loop=
-back.
->  # - Set the port number and context to the values used by the test scrip=
-t and policy.
->
-> +if [ -f /usr/sbin/iptables-legacy ]; then
-> +    IPTABLES=3Diptables-legacy
-> +else
-> +    IPTABLES=3Diptables
-> +fi
-> +
-> +if [ -f /usr/sbin/ip6tables-legacy ]; then
-> +    IP6TABLES=3Dip6tables-legacy
-> +else
-> +    IP6TABLES=3Dip6tables
-> +fi
-> +
->  # Flush the security table.
-> -iptables -t security -F
-> +$IPTABLES -t security -F
->
->  # Create a chain for new connection marking.
-> -iptables -t security -N NEWCONN
-> +$IPTABLES -t security -N NEWCONN
->
->  # Accept incoming connections, label SYN packets, and copy labels to con=
-nections.
-> -iptables -t security -A INPUT -i lo -p tcp --dport 65535 -m state --stat=
-e NEW -j NEWCONN
-> -iptables -t security -A NEWCONN -j SECMARK --selctx system_u:object_r:te=
-st_server_packet_t:s0
-> -iptables -t security -A NEWCONN -j CONNSECMARK --save
-> -iptables -t security -A NEWCONN -j ACCEPT
-> +$IPTABLES -t security -A INPUT -i lo -p tcp --dport 65535 -m state --sta=
-te NEW -j NEWCONN
-> +$IPTABLES -t security -A NEWCONN -j SECMARK --selctx system_u:object_r:t=
-est_server_packet_t:s0
-> +$IPTABLES -t security -A NEWCONN -j CONNSECMARK --save
-> +$IPTABLES -t security -A NEWCONN -j ACCEPT
->
->  # Common rules which copy connection labels to established and related p=
-ackets.
-> -iptables -t security -A INPUT -m state --state ESTABLISHED,RELATED -j CO=
-NNSECMARK --restore
-> -iptables -t security -A OUTPUT -m state --state ESTABLISHED,RELATED -j C=
-ONNSECMARK --restore
-> +$IPTABLES -t security -A INPUT -m state --state ESTABLISHED,RELATED -j C=
-ONNSECMARK --restore
-> +$IPTABLES -t security -A OUTPUT -m state --state ESTABLISHED,RELATED -j =
-CONNSECMARK --restore
->
->  # Label UDP packets similarly.
-> -iptables -t security -A INPUT -i lo -p udp --dport 65535 -j SECMARK --se=
-lctx system_u:object_r:test_server_packet_t:s0
-> -iptables -t security -A OUTPUT -o lo -p udp --sport 65535 -j SECMARK --s=
-elctx system_u:object_r:test_server_packet_t:s0
-> +$IPTABLES -t security -A INPUT -i lo -p udp --dport 65535 -j SECMARK --s=
-elctx system_u:object_r:test_server_packet_t:s0
-> +$IPTABLES -t security -A OUTPUT -o lo -p udp --sport 65535 -j SECMARK --=
-selctx system_u:object_r:test_server_packet_t:s0
->
->  ##### IPv6 entries
-> -ip6tables -t security -F
-> +$IP6TABLES -t security -F
->
->  # Create a chain for new connection marking.
-> -ip6tables -t security -N NEWCONN
-> +$IP6TABLES -t security -N NEWCONN
->
->  # Accept incoming connections, label SYN packets, and copy labels to con=
-nections.
-> -ip6tables -t security -A INPUT -i lo -p tcp --dport 65535 -m state --sta=
-te NEW -j NEWCONN
-> -ip6tables -t security -A NEWCONN -j SECMARK --selctx system_u:object_r:t=
-est_server_packet_t:s0
-> -ip6tables -t security -A NEWCONN -j CONNSECMARK --save
-> -ip6tables -t security -A NEWCONN -j ACCEPT
-> +$IP6TABLES -t security -A INPUT -i lo -p tcp --dport 65535 -m state --st=
-ate NEW -j NEWCONN
-> +$IP6TABLES -t security -A NEWCONN -j SECMARK --selctx system_u:object_r:=
-test_server_packet_t:s0
-> +$IP6TABLES -t security -A NEWCONN -j CONNSECMARK --save
-> +$IP6TABLES -t security -A NEWCONN -j ACCEPT
->
->  # Common rules which copy connection labels to established and related p=
-ackets.
-> -ip6tables -t security -A INPUT -m state --state ESTABLISHED,RELATED -j C=
-ONNSECMARK --restore
-> -ip6tables -t security -A OUTPUT -m state --state ESTABLISHED,RELATED -j =
-CONNSECMARK --restore
-> +$IP6TABLES -t security -A INPUT -m state --state ESTABLISHED,RELATED -j =
-CONNSECMARK --restore
-> +$IP6TABLES -t security -A OUTPUT -m state --state ESTABLISHED,RELATED -j=
- CONNSECMARK --restore
->
->  # Label UDP packets similarly.
-> -ip6tables -t security -A INPUT -i lo -p udp --dport 65535 -j SECMARK --s=
-elctx system_u:object_r:test_server_packet_t:s0
-> -ip6tables -t security -A OUTPUT -o lo -p udp --sport 65535 -j SECMARK --=
-selctx system_u:object_r:test_server_packet_t:s0
-> +$IP6TABLES -t security -A INPUT -i lo -p udp --dport 65535 -j SECMARK --=
-selctx system_u:object_r:test_server_packet_t:s0
-> +$IP6TABLES -t security -A OUTPUT -o lo -p udp --sport 65535 -j SECMARK -=
--selctx system_u:object_r:test_server_packet_t:s0
-> --
-> 2.49.0
->
+diff --git a/tests/mac_admin/test b/tests/mac_admin/test
+index 32161f3..8390d06 100755
+--- a/tests/mac_admin/test
++++ b/tests/mac_admin/test
+@@ -7,8 +7,11 @@ BEGIN {
+     $basedir =~ s|(.*)/[^/]*|$1|;
+ 
+     $isnfs = `stat -f --print %T $basedir`;
+-
+-    plan tests => 8;
++    if ( $isnfs ne "nfs" ) {
++	plan tests => 8;
++    } else {
++	plan tests => 7;
++    }
+ }
+ 
+ # Verify that test_mac_admin_t can relabel a file to an undefined context.
+@@ -38,14 +41,11 @@ $result = system(
+ );
+ ok( $result, 0 );    # we expect this to succeed.
+ 
+-# Verify that test_mac_admin_t sees the undefined label value.
+-$result = `runcon -t test_mac_admin_t -- secon -t -f $basedir/test_dir 2>&1`;
+-chomp($result);
+ if ( $isnfs ne "nfs" ) {
+-    ok( $result, "UNDEFINED" );
+-}
+-else {
+-    ok( $result, "unlabeled_t" );
++	# Verify that test_mac_admin_t sees the undefined label value.
++	$result = `runcon -t test_mac_admin_t -- secon -t -f $basedir/test_dir 2>&1`;
++	chomp($result);
++        ok( $result, "UNDEFINED" );
+ }
+ 
+ # Verify that test_no_mac_admin_t sees the unlabeled context.
+-- 
+2.49.0
+
