@@ -1,124 +1,161 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28A106FBF
-	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:34:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD7EC6FBF
+	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:35:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749670491; cv=none; b=JMV9ZHqXq8pgyG5/+A1RRM5lkdABntVJIxJr0Jr7DMRgsNiZyuwyYQXdFDXkOK5nWNzJdc+ZfOexK8obHsaJnk6SLapKkQj9fK1DXpVx18CyJq9Ev9yvOs1DJrqkS1d9OVDQqkTHPYUjhu5rZ8X/0pq0knPktSRgfdNwQBRYVYc=
+	t=1749670513; cv=none; b=YtXzJUT87AXpKhtasUmRscbpL96nqlzWh2ySHXg6tobkmF2XDbqYcv/R057qdYywNAXnH42uwADOhBCQGM/3Yn/djsk40j2EvzqfqOS0L6g/CiajrTt3eU9ugn35Y9WA3gQ++b765rfXAffDk9QEOap/Y22vtZMfcmcWJr45eUo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749670491; c=relaxed/simple;
-	bh=i9ZW3w4wayvWL+j4pgsPJuvR+al9MJ0z83Qmfhu6Uu4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BD1Dy3JzZmsYIR8TV4DnCxFqxX+sYJhZ9iDENwzlzMl4w1QDsHSeGhkThcNhCmB0nfFMopFzPzVrjUaFaJiPsMmb4t0/NKp4dUiatDJHdr6l1Pu2BWE2/3mFtMAeRiR9U29b6n50vIY+RbrdUiWQSgCWfDe2Zdnd8QP/9YPE6cw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ls5JhQYx; arc=none smtp.client-ip=209.85.215.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1749670513; c=relaxed/simple;
+	bh=gCXXVj0CQu/bLJBAPjTs0ra1iowVgf/e+BHC7xVpr1k=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=lWsuAc6N69Ky4DQ1W7oLS85URrwFppXZai78ETRKvu3pLhX3T4zW1g/ardJSS31PANy9BQErNEWc7wExmCDvYSr+3zPwRNi3o2E0jIZGZya//8yNsnuopL8gLOrnOzxjs5TyWF0E9+NCVtLhSsZX+q1P63dlI5RG69fDHB62ULU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Vsfhdu6D; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ls5JhQYx"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-b271f3ae786so92609a12.3
-        for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 12:34:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749670489; x=1750275289; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=mU7kHo9eyrLxmCSxsGIkgOLPvs5DRGochFwLI7ZFMOY=;
-        b=Ls5JhQYxjr/W13cK8v0fvJsSBW5T82ZhGP046ClwiUArsku8phVZj07kc5E7Dl/jAX
-         MSF6hWxoVjjpsVfn0boWndwbhwucxNH580PzhOS76PBjJmj8iC40AUuTGW2xuSVxt4OC
-         i9pEvndAYrV9oRz1+v4ipYTjcL8x+jgjUZqvhjMr3pfCKGxMU0w53jfbccfEl9YlLEIB
-         LljHr5KuI5DpKHXDe4uQtuEgH+DT2PsdXO6c2LrP+s1U7UISBaq3yN6v6Hq+8Gz9v5td
-         R0nLWN+8jO80Q4527QOPcdIoRjaS4JCHocfRWYxSwXyXfyvTyin9EJfWmWqiSTRbbVsG
-         A5zA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749670489; x=1750275289;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=mU7kHo9eyrLxmCSxsGIkgOLPvs5DRGochFwLI7ZFMOY=;
-        b=BZL3PEM6gipJTUBVAfoJfQn5d3SY0Xd8E2aKsWanacKaKedSLZvbR5EJgrSZ8FXr+5
-         c1Z3ah79d7kRZORWK5eC+7tICOWJ8hs7kY0bKktrWvQUvSkzh8CPjTTCji31FEY+t9Ml
-         L/9Xs9mryQFhpsNdQKT9lDCWAfa5bL/Wgt8DVofH+4De3BX+Ki/apsqV/lwQVRszk7qj
-         xZBU658ENKYqLsLK0+VQEwrn0/251oIzA9HwS3Fry6r0GpWHuhkw7sNVA3W2k5vyZ6Rg
-         sH3MMpBDiLqjCJ1IPsC1bRQbnlshM/0kJ0UizpAYYmwk3MT3fCGSRGc95XMqPSD32i/a
-         A1kw==
-X-Gm-Message-State: AOJu0YzN2P8bLJybW9AlJqsoZ9aaqczRv+vKg7l7lnhqlTP+JGTOjR0X
-	9x+mY0wNOsYXIchv2aTQilhBhOM4sTTfJipu/abDMrnXi2ljLQcM5iJMabaaCmenwkRpISGF5qm
-	9d7rQic8ahCrUISpLisFFOY0WyKpAEj1Mcw==
-X-Gm-Gg: ASbGncsmPQ07HE9yHZr7UzIwZg7s4lV43SLTqqeW2jFc92g0f012Go3uekhKHH4azLh
-	M0liAsl6gPdFUetj2j3Szu2JIW3NavjAoSwAOLqVbai/GEkh5B3V446tp2GJts+fgNmRAfjTpin
-	qo6vir/ecBRrl8ZC62NZdDN1pJHNdQTyqWvv05ubewt8U=
-X-Google-Smtp-Source: AGHT+IE6sfBL4ZdE5oOnegtWJCaAf+2hs2euvS6kVgGIceDEVqSZ5//H+GKlXw0GZisz4saMdedmfnBqnh7akaOW6rs=
-X-Received: by 2002:a17:90b:4a50:b0:313:220c:b63b with SMTP id
- 98e67ed59e1d1-313af22d4eamr5874007a91.35.1749670489468; Wed, 11 Jun 2025
- 12:34:49 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Vsfhdu6D"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1749670509;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=ZCtVR2Fu5jNWKBMsiM9ZbA7DP9t6XnUF36PTv3Smrtg=;
+	b=Vsfhdu6DyBPT8ckz6+949yPSMc6JIliuRZFdlQtWzDLexAW4K4AybLJhVf1W/GJalOSml5
+	XFMC01I42XvyVQkOr2CWGQjuUxQlosv2J0sgZPrdlcthzJ5YH1eBK/dmvH4EBoxysP41zC
+	XXtpD8TwEv/8HrA2shcVNpDyBiYzmgQ=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-509-1xxymqkCOCGYPod_Or5Vgw-1; Wed,
+ 11 Jun 2025 15:35:08 -0400
+X-MC-Unique: 1xxymqkCOCGYPod_Or5Vgw-1
+X-Mimecast-MFC-AGG-ID: 1xxymqkCOCGYPod_Or5Vgw_1749670507
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 657C01809C80
+	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:35:07 +0000 (UTC)
+Received: from localhost (unknown [10.44.32.71])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id DDB9E180045C
+	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 19:35:06 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Subject: ANN: SELinux userspace 3.9-rc1 release
+Date: Wed, 11 Jun 2025 21:35:05 +0200
+Message-ID: <87frg6dqc6.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250611183234.10255-2-stephen.smalley.work@gmail.com>
- <CAHC9VhR5CZSHKo41C4PdXbeJ3OuZUQ3ue1cbk9kjkHA6thjH6A@mail.gmail.com> <CAEjxPJ7JAJ2aypxVyjw4KKAvGBvUVK6eCzbXF3Wd8huTSPiSFw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7JAJ2aypxVyjw4KKAvGBvUVK6eCzbXF3Wd8huTSPiSFw@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Wed, 11 Jun 2025 15:34:38 -0400
-X-Gm-Features: AX0GCFsIwGV68bp6hNn6nZAXMaZOXRC2-bfGZSajC3DNKm2VBFdnr-T4SdFYxE8
-Message-ID: <CAEjxPJ7YixhZOmHVq92EBVoXO5ZO9__YXhhyD7iAWMkQNV-xsA@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/inet_socket: invoke ip{6}tables-legacy
- when appropriate
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org, omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-On Wed, Jun 11, 2025 at 3:25=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Jun 11, 2025 at 3:23=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> >
-> > On Wed, Jun 11, 2025 at 2:34=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On F42, iptables and ip6tables are no longer provided; check
-> > > to see if iptables-legacy and ip6tables-legacy exist and use
-> > > those instead if so.
-> > >
-> > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > ---
-> > >  tests/inet_socket/iptables-flush | 20 +++++++++---
-> > >  tests/inet_socket/iptables-load  | 52 ++++++++++++++++++++----------=
---
-> > >  2 files changed, 48 insertions(+), 24 deletions(-)
-> >
-> > It's been a while since I hit, and worked around, this on my Rawhide
-> > systems, but if I recall correctly, fixing the problem was a matter of
-> > installing the iptables-legacy package and perhaps ensuring that the
-> > "alternatives" config was set to point to the iptables-nft
-> > implementation:
-> >
-> >   %  rpm -q iptables-legacy
-> >   iptables-legacy-1.8.11-10.fc43.x86_64
-> >   % alternatives --display iptables
-> >   iptables - status is auto.
-> >   link currently points to /usr/bin/iptables-nft
-> >   ...
-> >
-> > FWIW, I think there is value in testing with the iptables-nft
-> > implementation simply so we can test the new code paths.
->
-> Ok, I had iptables-legacy but not alternatives set. We might want to
-> note this in the README.md file.
+Hello!
 
-Actually, I had alternatives set to iptables-legacy but no
-/usr/sbin/iptables or /usr/sbin/ip6tables symlinks for some reason.
-Switching alternatives to iptables-nft causes failures during the
-tests due to "Extension SECMARK revision 0 not supported", so I think
-it has to use iptables-legacy?
+The 3.9-rc1 release for the SELinux userspace is now available at:
 
-On a different but related note, wondering how long we even want to
-retain these tests and the corresponding config options in the
-testsuite defconfig fragment. Ditto for some other config options
-there that aren't commonly enabled anymore or may be blocked before
-too long e.g. SHA1.
+https://github.com/SELinuxProject/selinux/releases/tag/3.9-rc1
+https://github.com/SELinuxProject/selinux/wiki/Releases
+
+I signed all tarballs using my gpg key, see .asc files.
+You can download the public key from
+https://github.com/bachradsusi.gpg
+
+Thanks to all the contributors, reviewers, testers and reporters!
+
+If you miss something important not mentioned bellow, please let me
+know.
+
+User-visible changes
+--------------------
+
+* Support static-only builds with DISABLE_SHARED=3Dy
+
+* Add restore option to modify user and role portions
+
+* setfiles: Add -U option to modify user and role portions
+
+* semanage.conf: Add relabel_store config option
+
+* semodule: Add [-g PATH |--config=3DPATH] for an alternate path for the se=
+manage config
+
+* libselinux: Fix local literal fcontext definitions priority
+
+* libselinux: Fix order for path substitutions
+
+* Bug fixes
+
+
+Shortlog of the changes since 3.8.1 release
+-------------------------------------------
+Alyssa Ross (2):
+      Support static-only builds
+      libselinux: be careful with non-portable LFS macro
+
+Christian G=C3=B6ttsche (18):
+      checkpolicy: rework cleanup in define_te_avtab_xperms_helper()
+      checkpolicy: free left hand conditional expression on error
+      checkpolicy: abort on mismatched declarations
+      checkpolicy: perform cleanup on error in define_filename_trans()
+      libselinux: add restore option to modify user and role portions
+      setfiles: add option to modify user and role portions
+      libselinux: introduce context_to_str(3)
+      mcstrans: make use of context_to_str(3)
+      libselinux: constify global strings
+      libselinux: use local instead of global error buffer
+      libselinux: initialize regex arch string in a thread safe way
+      libselinux: limit fcontext regex path length
+      checkpolicy: free ebitmap on error in define_compute_type_helper()
+      libselinux: limit node depth while parsing compiled fcontexts
+      libsemanage: fix handling errors during child execution
+      semanage: improve -e documentation and fix delete operation
+      libselinux: prioritize local literal fcontext definitions
+      libselinux: retain LIFO order for path substitutions
+
+Daniel Burgener (1):
+      Switch from bison name-prefix to api.prefix
+
+Inseob Kim (6):
+      libsepol: Fix markers for info nodes w/o children
+      libsepol: Allow booleanif to have info nodes
+      libsepol: Make line markers of rules configurable
+      checkpolicy: Support line markers for allow rules
+      checkmodule: Support line markers for allow rules
+      checkpolicy: Allow lineno > 1 for source file line
+
+James Carter (1):
+      libselinux: Do not inline compile_regex()
+
+Petr Lautrbach (2):
+      README: update subscribe information
+      Update VERSIONs to 3.9-rc1 for release.
+
+Rahul Sandhu (1):
+      libsemanage: create semanage_basename to ensure posix compliance
+
+Robert Marko (1):
+      policycoreutils: run_init: define _GNU_SOURCE
+
+Stephen Smalley (1):
+      libsepol,checkpolicy: introduce neveraudit types
+
+Thi=C3=A9baud Weksteen (1):
+      libselinux: warn on identical duplicate properties
+
+Tristan Ross (3):
+      libsemanage: add relabel_store config option
+      libsemanage: add semanage_handle_create_with_path
+      semodule: add config argument
+
+=D0=BD=D0=B0=D0=B1 (2):
+      Insert -I../../libselinux/include and -L../../libselinux/src into sub=
+programs where needed
+      Inject matchpathcon_filespec_add64() if !defined(__INO_T_MATCHES_INO6=
+4_T) instead of using __BITS_PER_LONG < 64 as proxy
+
