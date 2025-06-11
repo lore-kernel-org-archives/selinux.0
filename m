@@ -1,129 +1,107 @@
-Received: from mail-yb1-f171.google.com (mail-yb1-f171.google.com [209.85.219.171])
+Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com [209.85.219.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5470226057E
-	for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 23:53:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFD4A2576
+	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 00:00:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749599606; cv=none; b=nwscG9UAsC/ZadcgxfD8yY3EdFEZDY7yeBTHRK1+EOfOrdfAsEo7ehc3VXU7zDOJsqeBs+EsqZFpFs+xz4/0b8RmlYeeH0hZsZ+hv8oyYD7WDEBWq/NRqAGsEehVoR1cX0YF1+pN88FJ4ikER1doYzUHjVF927BBPj9TMxFeZW4=
+	t=1749600047; cv=none; b=nNeszHekPkmfJ2fYnfZXaA+e77w+uO6SpcEg99mODrRgCMn0btW0EPM+vsWLLHy1BXN1RJp3NeFt13PP4uT2C44c8Re3MjsGRcQWLYpOsWOtdhLLEGnfmtHvQRHEZcXulJP2se2ZJDxPJK7nu5EYH1OaFUhveeQnwHK9rnIWeFs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749599606; c=relaxed/simple;
-	bh=sxWXA5uGPNOakSmmsXJxqvZ1AfSHsirhjr+o/Q6qAFM=;
+	s=arc-20240116; t=1749600047; c=relaxed/simple;
+	bh=6pliUWjNyTVV6apbGcNUgGCujGDQwVKN7InjdC0k1GM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ibyBNiaIGlvvJLVavth8os4LIbWpAMuUkvD/oyBKvG73sPnzLfJnmuT7/Fvt9Fg+7I1jID0UsAAhFcXh5M8vkmEk6dhbyqrlJJHLCd5KpcPt6bFD+C0NjDGB8geVCf2pRrVvDpZ+5zuf4ro18PE1FvU9Ar+Ffvto+QbRFxmtrDM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=HHAIRY21; arc=none smtp.client-ip=209.85.219.171
+	 To:Cc:Content-Type; b=bkXHwv/E1Ot+MOyFZyGBpw5eeEE2IC9ji6igXonXcBMHSJKDzWQ8OG8aqjf83/Bn5jji1La8xm4b0PId2bmwRuhlQc4MPal42f9Gbl1EJ/fS7leFB6lJhwnB/R9lasskUWRNk8kfywpmm0NBLRa2X5meoJhQriG7geqCn6y2bjs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=TeJEVOrr; arc=none smtp.client-ip=209.85.219.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="HHAIRY21"
-Received: by mail-yb1-f171.google.com with SMTP id 3f1490d57ef6-e7b3410e122so5575715276.2
-        for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 16:53:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="TeJEVOrr"
+Received: by mail-yb1-f172.google.com with SMTP id 3f1490d57ef6-e81ec95d944so352156276.1
+        for <selinux@vger.kernel.org>; Tue, 10 Jun 2025 17:00:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1749599604; x=1750204404; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1749600043; x=1750204843; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/v4Wb5GMuxS4FHeL1ScHmZve27WdU2EnRkCwUrcQK9o=;
-        b=HHAIRY21riO/VoEzK/TgeeeNZN8vv47ZRSN58nKYos2sSMUKveQEiVKcworJx7cu1S
-         wnGg3v/YgjVejUl5twUYb6IkMviOgZU2uUH6mnwhWcFqJNnDeJf+04LmAka7mQlzGwaz
-         RPbaHZ0+Y+nRIC8dx2wH+3zDyddOqFI/7VtajMpkqnCcisDQ9AfUDiEFNY44ImYoPdie
-         am3VQZ9GZyMoa4Vs2Yr0Waf/5da+QjlBlpe046NN/cjm11aUA1dWmsmzlapkk+5+HFKk
-         5O7LlHbFBY4WZYUQUTR5OUH11wrfwHtl54bQ6s2DhwoiEs8Zm3lSnoIPaQ3OLqBGelui
-         q89w==
+        bh=cnfDXmORkn8VgWLIsiFV4Nh55Ki5yFsNDh+Q2DpXTt8=;
+        b=TeJEVOrrrYx0W6qIvxuS46gZzngfWT8rmwvKZTqtoz4vyCVNnQF2zaoQQAkF6o+LVB
+         GRH6BIHfSHZ9XPyKaVB7H+5XE9Kb+L5f53wHdSkAe3oFr5zzYcTJryeXf9vZk2jF1ygc
+         wVfK2A6AOAZET47Tjexn/e1rANPEw0PeXNGt43awtFxKyAkIRLLZ+siqXlBsP7cQQOtq
+         PD+OnoRY2TKLmv71THgSDj+IqdKPv3z60V0Xb5ky3dAYpguwqVnYOQwSNBsPw3NpAkF0
+         YcWMn2DD7ysPwntgMA2ysYwuX1itAIC0FBbQbVj5mD/vifIBRJ6m1Lr5A0BHbE8F3/FA
+         uSfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749599604; x=1750204404;
+        d=1e100.net; s=20230601; t=1749600043; x=1750204843;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/v4Wb5GMuxS4FHeL1ScHmZve27WdU2EnRkCwUrcQK9o=;
-        b=P4c5VWLj2+RV/VSLdtT7fLSiKS7DAN0sq/sFP9pAoguceYnC9M3TYFUgocI5eJxhe7
-         fIN73N1uD0mItbP83YYuzUL3cuk8ERjRtSqp8qSNbl37tTkadoSAo9U/pHNCNShGnfzg
-         b3dKZV8Oy4DZx4lNqTXXnaux6gsPI1gMvmoxY8yQEQdBGBYcV5sCsIv7cwIDX35ed/Gg
-         UA9BHm1vGj/DSwDUVoRnYxmq6JaNtYSjlNdozRBLJjrqYae0tW1yhUGyP46j3zzI/Re2
-         qzfAT9GxQm7UabVrjHWjRf/Ol0oq1haUHL0sJSqOwiXxV6f+bLvyMCEBy3CLr16WOyHn
-         xNdQ==
-X-Gm-Message-State: AOJu0YwseZH8p8pteWE4lv9alRZkI5xrmx1t/NFmPRMcNH/kjH1GMWkL
-	mXyHvqCy2eQdOzUvlEiahdnMDpUgNqBNHCIZVFJ1wj1cfNYXS/FEUT3J17dr6FyGVbX3MjJOiRV
-	CHmomVjSeL0AGbzhDtDSNEWuO/lvjM16FZnaPBeGh0vngsIKUKEI=
-X-Gm-Gg: ASbGnctjEzlDg2WG/8AAWAfe8Nb6/DdnHEmyDDihDCnvK6CM/AnUaK7P80kKBezuHKf
-	x5fwepoKv+TPRr5sQSzMV+c7MU72eaT3glh7nkcleBg3cxU6ocimanypfhtlyhYlo1pvYkSNGMv
-	vk/U3cnUEBbhd3YrWZBq5aSE7uVRKbvdQt0j5dEukxT9o=
-X-Google-Smtp-Source: AGHT+IEnq9+6Hn6NbplG0mbC+8eQQQBZJ3jkOCjiZI1YeONNSUb3Aq8vv1fbgmCwmE5pBBujlPIjNH8nCqfNpQAGPFM=
-X-Received: by 2002:a05:6902:2682:b0:e81:891e:9628 with SMTP id
- 3f1490d57ef6-e81fd9ae73bmr2280722276.10.1749599604230; Tue, 10 Jun 2025
- 16:53:24 -0700 (PDT)
+        bh=cnfDXmORkn8VgWLIsiFV4Nh55Ki5yFsNDh+Q2DpXTt8=;
+        b=LRZUt2rtex+CczYexzRbQoUcHgbIkvDT+BjNcqvwf9x/AT3HFUlT6FKLpGZOIhFQWh
+         SYYnwX0L60f39nIFIEH8dmggcOEa0G10SFSRAziGp599ZyQ/QZrmXwTWJeAqJKibeSSy
+         gRHUR1TMFpjuJ1mnz8ImvxEq345YoEMV8RlmoqS6EYKe8Km7/j8VFcBVyTSXjeEsD7zA
+         coWF3bR7WeDX7+dv3bXYxoNhti3rceOoN3UFn9EVY+lE8GZ/pcMuVlMn+2cZ2j2xcV3L
+         HUGtpYf26TRPC/NJGauKEAkhZwgSKJcL+AGQ8LAqBomeZzKeLPo+SMdr9Jg5aMqD9780
+         IayA==
+X-Gm-Message-State: AOJu0YwbZqwoCwmZRbBjJ/9JC3b08wq5ROAi6ZLqXjpAI/Gj39mjA9ha
+	k6ZUhZTi1V24HJIYhyUHbtS0bRZoBJkBCZf2b4uVq2XxIB0Qtj992so/zdQ5BAiibZWusXZ92Tp
+	4goDcFunHmZx8SGlqJEWvkLsR8251lOKLJ7in4lTcs0CquQ3SXlk=
+X-Gm-Gg: ASbGncu/eFA1ukiXXACjenF5unVVKRg2k86bOZxK2kGmgdCvPW3OQYRWcgqw3cyjr58
+	UL/0zPE014jmqRX0Fu+TWsFWrMKTiUnnHxXci5PpeClLZ72GM0J5wOhj5LXcott6MPGryhh0M11
+	/CPxJnW4dx0kw+riP8dAAHfaDmHBQ19o8xsyQXNNm9XoU=
+X-Google-Smtp-Source: AGHT+IGjT+7bzMeeWNn8I44G8BcAkhc3Rhr/xgqjaXK9FTbCySR+EKgIl/zRyO6NJ9iSz3tN3CljHTgtAFV9P5aRu10=
+X-Received: by 2002:a05:6902:2313:b0:e81:eb1c:1a1e with SMTP id
+ 3f1490d57ef6-e81fe899e1emr2136064276.3.1749600042545; Tue, 10 Jun 2025
+ 17:00:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250610194826.80606-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20250610194826.80606-2-stephen.smalley.work@gmail.com>
+References: <20250515092606.14760-1-kalevi@kolttonen.fi>
+In-Reply-To: <20250515092606.14760-1-kalevi@kolttonen.fi>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 10 Jun 2025 19:53:13 -0400
-X-Gm-Features: AX0GCFsdALQSNVyq8q0YMUf0o7F_VHKd6e3H0NKu_Gs81EjFSirK-KPTThgXulE
-Message-ID: <CAHC9VhRcSO3sJrc8LVHNNsiEGhe0jhJMAfOVu=wP9MPrAPCx7g@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: change security_compute_sid to return the
- ssid or tsid on match
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, omosnace@redhat.com, 
-	Guido Trentalancia <guido@trentalancia.com>
+Date: Tue, 10 Jun 2025 20:00:31 -0400
+X-Gm-Features: AX0GCFvizDIR2SDlM2tP8jVThvdZ9UIv92reLeOD7DAqnWIMINZ-ZaJGHR8Np5c
+Message-ID: <CAHC9VhSMfn=en3z5Ue17B3gmozXLcajgzsvyM82v9Ec8F8fC9Q@mail.gmail.com>
+Subject: Re: [PATCH] A trivial simplification to shorten the code a bit
+To: Kalevi Kolttonen <kalevi@kolttonen.fi>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 10, 2025 at 3:49=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Thu, May 15, 2025 at 5:26=E2=80=AFAM Kalevi Kolttonen <kalevi@kolttonen.=
+fi> wrote:
 >
-> If the end result of a security_compute_sid() computation matches the
-> ssid or tsid, return that SID rather than looking it up again. This
-> avoids the problem of multiple initial SIDs that map to the same
-> context.
->
-> Reported-by: Guido Trentalancia <guido@trentalancia.com>
-> Fixes: ae254858ce07 ("selinux: introduce an initial SID for early boot pr=
-ocesses")
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Signed-off-by: Kalevi Kolttonen <kalevi@kolttonen.fi>
 > ---
-> v2 fixes a compiler error.
+>  security/selinux/hooks.c | 8 ++------
+>  1 file changed, 2 insertions(+), 6 deletions(-)
 >
->  security/selinux/ss/services.c | 16 +++++++++++-----
->  1 file changed, 11 insertions(+), 5 deletions(-)
-
-Assuming we can get a tested-by from Guido, I believe I like this
-approach the best.
-
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/service=
-s.c
-> index 7becf3808818..d185754c2786 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1909,11 +1909,17 @@ static int security_compute_sid(u32 ssid,
->                         goto out_unlock;
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index e7a7dcab81db..337951fb81e0 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -6693,14 +6693,10 @@ static int selinux_secid_to_secctx(u32 secid, str=
+uct lsm_context *cp)
+>         if (cp) {
+>                 cp->id =3D LSM_ID_SELINUX;
+>                 ret =3D security_sid_to_context(secid, &cp->context, &cp-=
+>len);
+> -               if (ret < 0)
+> -                       return ret;
+> -               return cp->len;
+> +               return (ret < 0) ? ret : cp->len;
 >         }
->         /* Obtain the sid for the context. */
-> -       rc =3D sidtab_context_to_sid(sidtab, &newcontext, out_sid);
-> -       if (rc =3D=3D -ESTALE) {
-> -               rcu_read_unlock();
-> -               context_destroy(&newcontext);
-> -               goto retry;
-> +       if (context_equal(scontext, &newcontext))
-> +               *out_sid =3D ssid;
-> +       else if (context_equal(tcontext, &newcontext))
-> +               *out_sid =3D tsid;
-> +       else {
-> +               rc =3D sidtab_context_to_sid(sidtab, &newcontext, out_sid=
-);
-> +               if (rc =3D=3D -ESTALE) {
-> +                       rcu_read_unlock();
-> +                       context_destroy(&newcontext);
-> +                       goto retry;
-> +               }
->         }
->  out_unlock:
->         rcu_read_unlock();
-> --
-> 2.49.0
+>         ret =3D security_sid_to_context(secid, NULL, &seclen);
+> -       if (ret < 0)
+> -               return ret;
+> -       return seclen;
+> +       return (ret < 0) ? ret : seclen;
+>  }
+
+I'm not sure we gain much with this patch, other than some undesirable
+code churn.
 
 --=20
 paul-moore.com
