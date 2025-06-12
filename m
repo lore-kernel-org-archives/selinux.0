@@ -1,244 +1,105 @@
-Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81D282206BE
-	for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 20:43:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2CC718DB2A
+	for <selinux@vger.kernel.org>; Thu, 12 Jun 2025 08:12:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749674624; cv=none; b=uBeLakxH3hg2/EtDQn8u/DiAa28YA8P2ieaEqqOdjL2zrp76k888BB2ZCQfXOQ5Lj0U5gnxPjbL2KWiRx79W3OMyTJrAGnZPSaxyj4hVDVJ84dxEWFnL4QxOSF8hpviGLKwhDyb+IMl/VHredIXT4iINPvwtVQNST4pFvLPoUrg=
+	t=1749715938; cv=none; b=Esvo2/UE9OaaoqeAmB/JcjeA3rSxGh2cv9ArheW46QL650CXd+Y/4ttofHISKt+7n4SlOeZcitKW7cYDFO0tmoXqm3LigM/Yab1GIFu7jLb10KEpdaTFuv6DGB28J4MY1ZQbhmauZl2B9GeLnXCUHWVPGW9kL4IZu9q6CPnEanE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749674624; c=relaxed/simple;
-	bh=+0wMSJz7inwLLZx693m9IBiYzP5K1IHeAQ0LVfJSIMU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZlVVyh8pIGe8ogLwnK6uJQEHAgBDIDvkbmxWOxf2t8GrCDzTIGIoZrha98Ido28Fg1Lx6pAYT93n6yexHGKwkjViaqnjTbyubqllaxtrAtMGGk9+vsWuBNMU0ieEhUBO7zbXVwzX/cWsXkW+jkczE+wRhaqYtq2mlnn5rrK0JBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=KsmJlfn0; arc=none smtp.client-ip=209.85.219.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1749715938; c=relaxed/simple;
+	bh=1U9uObgbCLzgD2iKs2kAWoDTy9tWAkpvl9dfuf2J/6Q=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=LW/dD8ZbMwJX7G1HIKUPTgLPZuuppCvqh+4PoHOX1lWXu8A5MtjrLnXoxamulu4vHVOOMfxSwJ9zdNusnC7g+Yq2AOsvkpvnknkYSpltRf1jGKAEt4cdihMcgw0D3RIpZfqu4GM3vYPDxYB9oLbTqjlCfR7DjO9fqIfrSkbO0Q8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hGzXpA+W; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="KsmJlfn0"
-Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-e7d925ff60bso182652276.2
-        for <selinux@vger.kernel.org>; Wed, 11 Jun 2025 13:43:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1749674620; x=1750279420; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SajPFdhYrOQbyrr2a2aIidAt78Sx9ZRj6KKonEs77T0=;
-        b=KsmJlfn0fs0BEanukIhHYToxb1k0TCqIxMh57jaLvJD/SpVCeMQR00xPk/CL07w0tX
-         A55WHRmuohzx9YModVvJF/E4ddksVTr1NImUjmYx4aH08+gDpULQkTy2RTMP16Ol1MZQ
-         6tPGeHwBZXxl0WTBzDHuu+O2sN7DKiWyAEIH9TLHArEFRRdl0v0hPtQqaYFQjKB1J6Vu
-         OThxCktPc7lLRSexka579eGcIvpzezAq1gfjt3QQmeyM3NpJV8iWqACNl+5HHWPZmLBU
-         sXWlD/IYgOHllBSEi9CNhFgd+OLtOjMxvREjLeezELrSof1KvivbrtVJtQi8FyzCWTug
-         mLcw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hGzXpA+W"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1749715934;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=JYgqLzbMkeAtQC2XdY93uk9vZNKaKsCEM6/4cjK/1AU=;
+	b=hGzXpA+Wa3OHg7LRgWwRXJqztoCimK7DpG2YkUjBM18EYW3p7/3OWRrLc4omxI1m/6m/AE
+	Ar3+oAYLtGfENT1/ubh51kuXQso4iZZk1gXI2043Ob2ePKK5T37hh3uDHuF52tEUUFknWn
+	3DB6bVdRdIDI02VU7n3gon9W77E4SC4=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-255-3PKo17RCOCiLOMUzcCPVJw-1; Thu, 12 Jun 2025 04:12:13 -0400
+X-MC-Unique: 3PKo17RCOCiLOMUzcCPVJw-1
+X-Mimecast-MFC-AGG-ID: 3PKo17RCOCiLOMUzcCPVJw_1749715932
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-addd0146baeso58012066b.0
+        for <selinux@vger.kernel.org>; Thu, 12 Jun 2025 01:12:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749674620; x=1750279420;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=SajPFdhYrOQbyrr2a2aIidAt78Sx9ZRj6KKonEs77T0=;
-        b=lDmsmp0ca1iBV/Um6URI/+VInNkWyuDr2jfNX2aqdyKxzNU5rjr6lv690vwV9tMhYH
-         4tE7fYMbIF0c/bKLtIU7g21J4PT/E3fAsaSogu/siE06MwKrZK+u/MFB5prJjmIdHALN
-         uI42qS/iYOkTnkIHWfNhMZa21iscOSMV4bfFaPG8fQYfVnUU1p+2J4kwRarZ4qxNdU97
-         OGlJUUhh7lp9MmMRpaB6Mmeu7q7UBkZNJpTDwVciU0UH81135NNzGkk1/vpDtQx+KhpW
-         Luvgh6NYJxRf2qA6t7lWhW4X5ex1JMjX0coW1X0+dXCxMh1alkeB5EwP+SO2KgiQbxph
-         04ng==
-X-Gm-Message-State: AOJu0YzzHb/kqS/tOgbh3WwxnBoNcttSmGi2jgvBUv7dATOR34CvzWgp
-	ks+86iyeoSkQvOj4u/P9BHDj40FHW8SG0TVqUIXKbP64y1ktfMfCyumYsxQZ7ngizxrf3yfo7B4
-	oEB7SEzUIAd/2F0yabKUHbc4PFZ5I8wxS5ER7l8aAJUh/0AMTmZ6hWg==
-X-Gm-Gg: ASbGnct3qAp6PJSpQ9bvBCckIEpdUJiJIYU0RbDEyiEaNwraidUDzTMdvrUiH3UEM/G
-	SMknk6Ih5oV25PWFSzC4I+ApiPGKwHLoNyz0rPhFTr4I8aTrhAzyutr8MfwOR9askaDzMYLIEgT
-	5R4HWyGnArll4Kle1PaquGh6Cj5rzM5YzKtcszxl4sQ3U=
-X-Google-Smtp-Source: AGHT+IEKPu82Zei0ChQ7A5M4zz5aNaAQFiPEElsYslHhoUid49Q/asuNn+g7DkTA3B9DRq17xB0D2Qk3whfOuCNGv/U=
-X-Received: by 2002:a05:6902:a87:b0:e81:32c9:f9c5 with SMTP id
- 3f1490d57ef6-e820b70bf48mr1405833276.30.1749674620459; Wed, 11 Jun 2025
- 13:43:40 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1749715931; x=1750320731;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=JYgqLzbMkeAtQC2XdY93uk9vZNKaKsCEM6/4cjK/1AU=;
+        b=Lv5txgKVY7Dbz+v2llA0vcy74mj/EBB/S/cE7sqYmI/d1dzGIkI07GGZKUdh4GQZUF
+         65aSWOGI/KUr/0J8N/d9fI2KSTRTqTdZb4Ag7NbDivCJWgOG5suwFrj+edw5VNwvrfT7
+         vWS90paAcpdA0msEI4Q6ErBBjQSDHaQxyeDevfFiFc1u9vVlKXMnnQH0w/XSOcFbzFLT
+         Uo3hDJlFlHwDC58bHfni3Y/fq+3DF1tPlmOJ/BQdPy/RQ2AJxrOPmnlTV7jQgU90Op2S
+         gR6H8Ewe7e7In8qa9pOE8jrfOsgEmx+nBtjuzLUUUeivH2UZPt0ZmxPqjNmtFqLOlT+T
+         A/gw==
+X-Gm-Message-State: AOJu0YxXYwxANNy13fEVxtD6DV5CAmjdirrbnRdKOwsz0e8T0Gza12hQ
+	ZcM/dBIjVf4rra66HhH8ljEMzqGVb9DYcIQpohln0Zh+dgaVzgKbVFdrDVn+b9szQwCAkCWPGup
+	7TK+3I/KZqA0ZXu4kXE5diKpIG99FPkf+Esns4LmH1z0W0YWZawPE3TWiY9SEkr8BPU6WVqf8o0
+	pDZIT+WlURM3NWTIu8+x4z4nTPNqG/HtTXMOzOsuz8byWPEA==
+X-Gm-Gg: ASbGncsw61G9Wm/ZWysPl5+ZhOFefKCTZX6LDQ6Fz2FVQbJDpn6C3+B1E0ahVDWe/TQ
+	psi1xHTTl5P/x9cHSUF/+Rxm3lu9sWicXYco1/LXV3PebPP1OxeJRAsJ+XkSi4k104ufiW5YXQ0
+	+EYkEadDk2DArls31rDowJYMpCRZRFcolOTP5EyRsX7VdFVu5YAZyDJ0XUR1Gq17/SgGbItjPrs
+	XVE+8gvYYgylFyv4H2Hg/u/pOlWXN0qJ70zTsASXMNhLGZ7R9O3S1LHIeVLJOgQ9ypBlY1NKNg3
+	HSHpy7JodIIXy/GBskuquH2lGVx2877SxQ==
+X-Received: by 2002:a17:906:f595:b0:ad8:a41a:3cc5 with SMTP id a640c23a62f3a-adea8d36614mr208200666b.6.1749715931310;
+        Thu, 12 Jun 2025 01:12:11 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFS6yVy5LsMwY4U/zfsR1B9RHYpG98ZxPTkA4KJk1N3fZgE1gYxrBTLUXh+SBAXTglStFq5OQ==
+X-Received: by 2002:a17:906:f595:b0:ad8:a41a:3cc5 with SMTP id a640c23a62f3a-adea8d36614mr208197966b.6.1749715930830;
+        Thu, 12 Jun 2025 01:12:10 -0700 (PDT)
+Received: from localhost.localdomain ([147.229.117.1])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-adeadb22d47sm91065066b.86.2025.06.12.01.12.09
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Jun 2025 01:12:10 -0700 (PDT)
+From: Ondrej Mosnacek <omosnace@redhat.com>
+To: selinux@vger.kernel.org
+Subject: [PATCH testsuite] tests/inet_socket: properly detect IPSEC support
+Date: Thu, 12 Jun 2025 10:12:08 +0200
+Message-ID: <20250612081208.1721183-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250611183234.10255-2-stephen.smalley.work@gmail.com>
- <CAHC9VhR5CZSHKo41C4PdXbeJ3OuZUQ3ue1cbk9kjkHA6thjH6A@mail.gmail.com>
- <CAEjxPJ7JAJ2aypxVyjw4KKAvGBvUVK6eCzbXF3Wd8huTSPiSFw@mail.gmail.com> <CAEjxPJ7YixhZOmHVq92EBVoXO5ZO9__YXhhyD7iAWMkQNV-xsA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7YixhZOmHVq92EBVoXO5ZO9__YXhhyD7iAWMkQNV-xsA@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 11 Jun 2025 16:43:29 -0400
-X-Gm-Features: AX0GCFvqsSscI0-kh0yP0yVBRQGwlHm7BDwtib5_qC8AvRyQ4X73OXhsNbbJ8SI
-Message-ID: <CAHC9VhTunOdxp2v=27sAxTjQc558nwnQCT=86WR5TNP3ihSdfQ@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/inet_socket: invoke ip{6}tables-legacy
- when appropriate
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, omosnace@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 11, 2025 at 3:34=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Jun 11, 2025 at 3:25=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Wed, Jun 11, 2025 at 3:23=E2=80=AFPM Paul Moore <paul@paul-moore.com=
-> wrote:
-> > >
-> > > On Wed, Jun 11, 2025 at 2:34=E2=80=AFPM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > >
-> > > > On F42, iptables and ip6tables are no longer provided; check
-> > > > to see if iptables-legacy and ip6tables-legacy exist and use
-> > > > those instead if so.
-> > > >
-> > > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > > ---
-> > > >  tests/inet_socket/iptables-flush | 20 +++++++++---
-> > > >  tests/inet_socket/iptables-load  | 52 ++++++++++++++++++++--------=
-----
-> > > >  2 files changed, 48 insertions(+), 24 deletions(-)
-> > >
-> > > It's been a while since I hit, and worked around, this on my Rawhide
-> > > systems, but if I recall correctly, fixing the problem was a matter o=
-f
-> > > installing the iptables-legacy package and perhaps ensuring that the
-> > > "alternatives" config was set to point to the iptables-nft
-> > > implementation:
-> > >
-> > >   %  rpm -q iptables-legacy
-> > >   iptables-legacy-1.8.11-10.fc43.x86_64
-> > >   % alternatives --display iptables
-> > >   iptables - status is auto.
-> > >   link currently points to /usr/bin/iptables-nft
-> > >   ...
-> > >
-> > > FWIW, I think there is value in testing with the iptables-nft
-> > > implementation simply so we can test the new code paths.
-> >
-> > Ok, I had iptables-legacy but not alternatives set. We might want to
-> > note this in the README.md file.
->
-> Actually, I had alternatives set to iptables-legacy but no
-> /usr/sbin/iptables or /usr/sbin/ip6tables symlinks for some reason.
+Check if XFRM itself is supported by the kernel when deciding whether to
+run the IPSEC tests, so that the testsuite can be run on kernels with
+CONFIG_XFRM_USER unset, too.
 
-It's been too long since I fixed this, maybe I setup the symlinks manually?
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ tests/inet_socket/test | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-%  ls -l /usr/sbin/ip*tables
-... /usr/sbin/ip6tables -> /etc/alternatives/ip6tables
-... /usr/sbin/iptables -> /etc/alternatives/iptables
+diff --git a/tests/inet_socket/test b/tests/inet_socket/test
+index ae06ae7..4cc3852 100755
+--- a/tests/inet_socket/test
++++ b/tests/inet_socket/test
+@@ -25,7 +25,9 @@ BEGIN {
+     }
+ 
+     $test_ipsec = 0;
+-    if ( system("ip xfrm policy help 2>&1 | grep -q ctx") eq 0 ) {
++    if (    system("ip xfrm policy help 2>&1 | grep -q ctx") eq 0
++        and system("ip xfrm policy list &>/dev/null") eq 0 )
++    {
+         $test_count += 4;
+         $test_ipsec = 1;
+     }
+-- 
+2.49.0
 
-> Switching alternatives to iptables-nft causes failures during the
-> tests due to "Extension SECMARK revision 0 not supported", so I think
-> it has to use iptables-legacy?
-
-I just ran the selinux-testsuite again on my Rawhide system and didn't
-see any failures in the inet_socket tests ...
-
-% make test
-...
-Running as user root with context unconfined_u:unconfined_r:unconfined_t
-
-domain_trans/test ........... ok
-entrypoint/test ............. ok
-execshare/test .............. ok
-exectrace/test .............. ok
-execute_no_trans/test ....... ok
-fdreceive/test .............. ok
-inherit/test ................ ok
-link/test ................... ok
-mkdir/test .................. ok
-msg/test .................... ok
-open/test ................... ok
-ptrace/test ................. ok
-readlink/test ............... ok
-relabel/test ................ ok
-rename/test ................. ok
-rxdir/test .................. ok
-sem/test .................... ok
-setattr/test ................ ok
-setnice/test ................ ok
-shm/test .................... ok
-sigkill/test ................ ok
-stat/test ................... ok
-sysctl/test ................. ok
-task_create/test ............ ok
-task_setnice/test ........... ok
-task_setscheduler/test ...... ok
-task_getscheduler/test ...... ok
-task_getsid/test ............ ok
-task_getpgid/test ........... ok
-task_setpgid/test ........... ok
-file/test ................... ok
-ioctl/test .................. ok
-capable_file/test ........... ok
-capable_net/test ............ ok
-capable_sys/test ............ ok
-dyntrans/test ............... ok
-dyntrace/test ............... ok
-bounds/test ................. ok
-nnp_nosuid/test ............. ok
-mmap/test ................... ok
-unix_socket/test ............ ok
-inet_socket/tcp/test ........ ok
-inet_socket/udp/test ........ ok
-overlay/test ................ ok
-checkreqprot/test ........... ok
-mqueue/test ................. ok
-mac_admin/test .............. ok
-atsecure/test ............... ok
-infiniband_endport/test ..... skipped: test not configured
-infiniband_pkey/test ........ skipped: test not configured
-cap_userns/test ............. ok
-extended_socket_class/test .. ok
-sctp/test ................... ok
-netlink_socket/test ......... ok
-prlimit/test ................ ok
-binder/test ................. ok
-bpf/test .................... ok
-keys/test ................... ok
-key_socket/test ............. ok
-glblub/test ................. ok
-cgroupfs_label/test ......... ok
-notify/test ................. ok
-module_load/test ............ ok
-tun_tap/test ................ ok
-perf_event/test ............. ok
-filesystem/ext4/test ........ ok
-filesystem/xfs/test ......... ok
-filesystem/jfs/test ......... ok
-filesystem/vfat/test ........ ok
-fs_filesystem/ext4/test ..... ok
-fs_filesystem/xfs/test ...... ok
-fs_filesystem/jfs/test ...... ok
-fs_filesystem/vfat/test ..... ok
-watchkey/test ............... ok
-userfaultfd/test ............ ok
-vsock_socket/test ........... ok
-secretmem/test .............. ok
-inet_socket/mptcp/test ...... ok
-All tests successful.
-Files=3D78, Tests=3D1427, 241 wallclock secs ( 0.35 usr  0.11 sys +  5.90 c=
-usr 17.75
-csys =3D 24.11 CPU)
-Result: PASS
-
-The kernel-secnext testing doesn't show any failures either, although
-I likely applied the same fix to that test VM as well.
-
-https://groups.google.com/g/kernel-secnext/c/w-oPYY1-HLo
-
-> On a different but related note, wondering how long we even want to
-> retain these tests and the corresponding config options in the
-> testsuite defconfig fragment. Ditto for some other config options
-> there that aren't commonly enabled anymore or may be blocked before
-> too long e.g. SHA1.
-
-As long as the upstream kernel supports the functionality we should
-retain the tests.  Some tests we might even want to retain longer in a
-dedicated branch for those doing distro testing, or we just leave that
-as an exercise for the distro.
-
-I'm more concerned about the new things that are coming up which we
-may not be adequately testing in the current selinux-testsuite.  A
-perfect example is nft; we're using iptables-nft, but should we also
-have a dedicated set of nft tests?
-
---=20
-paul-moore.com
