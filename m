@@ -1,40 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2ADE42E11A5;
-	Fri, 13 Jun 2025 14:14:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D6F9191F8C;
+	Fri, 13 Jun 2025 14:15:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749824091; cv=none; b=EX9688C3jMop1q9od45ls1amiMLc4Psvi5mbvXnbFqZ+y/KYtOvx/Huag/zSnsMwlHlXp8cexT6F7m5ecOyNpuMVYtp9Yv0a8Rz9ZU4c9loVPfCsdMuYgkg+ZUbnXPzhRtpmd/nNBU84esuqprIyzpTI6m+pof1Cz/pUx67m4Wk=
+	t=1749824129; cv=none; b=IDG1KWHvq71/r1qaqUOGO2JdDodWnJ9mtAmpm1gYSk1PHF2ajsWBJgfVtpSf8atRBwNxfyMJmWpdl9WQbOdFAbZO9NRQIoOYu9UtRcTaD5gJYt+ET2lR/jpE07j3JdPezBkSts1q2YwZoxgPERVJsyaj9MBpGyICGplq4t6lsRk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749824091; c=relaxed/simple;
-	bh=SQC6l8juYuyTcXEXMU0Sulm1SxoD5s3wGXltdA/8dPE=;
+	s=arc-20240116; t=1749824129; c=relaxed/simple;
+	bh=v/xoININJFp/RvAJxPK6UdCzG11l+2Z2W/DSk4lYLco=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s7Ip9bOzJLWjqbl+dAAcRHIgC7ASVPyKWTKaxICft+Ynj8ythk3NZk1ZjXPpMCgidppeeo3c6g33grileYXYXmYtaQ8kPwTN1yalivTXAY2RZL/vJkZ1aWYfjO9RfmmEhkYRtoiSNBL85Fk/ekhGBseFmh4o0qeYxJqlem/i+Z0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BCYxfM+C; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=R2h0+vvWGk0tizs5N8y9crsH9r7AVXXihpaHbd0UQWtc/vPNePX1/ikozXSP2dMG0kJLvIAgAvvl8tDokrYWTosWyphRPVj0qebiQw4xStoPDMfKgibWQKl4TpmYcnAhy/h6NJb0HHJDYjta1x2OpyDsj4A/0QeJC9v1pQ3bJao=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rupWDzGK; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BCYxfM+C"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90D31C4CEE3;
-	Fri, 13 Jun 2025 14:14:49 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rupWDzGK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABE50C4CEE3;
+	Fri, 13 Jun 2025 14:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749824090;
-	bh=SQC6l8juYuyTcXEXMU0Sulm1SxoD5s3wGXltdA/8dPE=;
+	s=k20201202; t=1749824128;
+	bh=v/xoININJFp/RvAJxPK6UdCzG11l+2Z2W/DSk4lYLco=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=BCYxfM+C6xPeCd+2maLKWqgqtqHJnpC1A9T0XdCGcue5xUNLO13gpd8HCDjTmpz81
-	 ULfvyr97J612RwPRjtqq5kCfmOcZ/yWq7igKbcNVttNPCOD4/WkVSEAFWpCoqXuNGd
-	 R9p1FnCtvFkd9Gszqs0izW9CxSn0Ps4EY08ZWaGJuTgzxPhAZ5OidNwFIsos3ncCqt
-	 k5yGq6I3/HHOzh5onqhfS/JxzDRQicrOpsNKZwNmVJmfcdRC6rp7upkMxMrW8LgxDm
-	 QR3PHJ6xw6GzVpAtVOyqgYKHW3gRo2Tw6ZPV8uU3Kr274czIv0OyQuJYiLBhOQa5zg
-	 G5hVPhLrAHSDA==
-Date: Fri, 13 Jun 2025 15:14:47 +0100
+	b=rupWDzGKqAcn8gsaE8FvV5MlLv1j3oaYAqzHsimUmHTvOOUZLLX5nQz5CVSbrr4d4
+	 V5wWWiEZZfMsKZ1Gal8y+jNNR53pXIKncmzI72ErwKQZnYKQPiMbVSs/OT8Ab1+MpG
+	 4J3xpNlXRSRI0fNPb7N0Mp1uIG4inf0AZhLzDri9tENTypvykI8Rjp2itKG/CdbtMG
+	 6uIokmTxRE1wXKK9VHdPA2tY8Bxnnkyv8mIduikLrM2ErRU3xZaZy5YKDM42kZiqxL
+	 Pr3jXj9gHsH/UIyk2QjnS04nTl5//Z5pl3Zrp9glX3djf9BwKzGN4+iQJ4zfI1jKEm
+	 1BXJN+bb6xogQ==
+Date: Fri, 13 Jun 2025 15:15:25 +0100
 From: Simon Horman <horms@kernel.org>
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com,
 	netdev@vger.kernel.org
-Subject: Re: [PATCH v4 04/42] selinux: dynamically allocate selinux namespace
-Message-ID: <20250613141447.GF414686@horms.kernel.org>
+Subject: Re: [PATCH v4 27/42] selinux: introduce task_obj_perm()
+Message-ID: <20250613141525.GG414686@horms.kernel.org>
 References: <20250610172226.1470741-1-stephen.smalley.work@gmail.com>
- <20250610172226.1470741-5-stephen.smalley.work@gmail.com>
+ <20250610172226.1470741-28-stephen.smalley.work@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -43,53 +43,71 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250610172226.1470741-5-stephen.smalley.work@gmail.com>
+In-Reply-To: <20250610172226.1470741-28-stephen.smalley.work@gmail.com>
 
-On Tue, Jun 10, 2025 at 01:21:35PM -0400, Stephen Smalley wrote:
-> Move from static allocation of a single selinux namespace to
-> dynamic allocation.  Include necessary support for lifecycle management
-> of the selinux namespace, modeled after the user namespace support.
+On Tue, Jun 10, 2025 at 01:21:58PM -0400, Stephen Smalley wrote:
+> Introduce task_obj_perm() for namespace-aware permission checking
+> between two tasks using the objective SID for both tasks and
+> without assuming that either task is current.
+> 
+> Convert the permission checks of this form in the hook functions
+> to use this new helper.
 > 
 > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 ...
 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 112edf9b2106..c67965cbfcba 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -2202,7 +2202,7 @@ static void security_load_policycaps(struct selinux_state *state,
->  static int security_preserve_bools(struct selinux_policy *oldpolicy,
->  				struct selinux_policy *newpolicy);
->  
-> -static void selinux_policy_free(struct selinux_policy *policy)
-> +void selinux_policy_free(struct selinux_policy __rcu *policy)
+> +int task_obj_has_perm(const struct task_struct *s,
+> +		      const struct task_struct *t,
+> +		      u16 tclass, u32 requested,
+> +		      struct common_audit_data *ad)
+> +{
+> +	const struct cred *cred;
+> +	const struct task_security_struct *tsec;
+> +	struct selinux_state *state;
+> +	u32 ssid;
+> +	u32 tsid;
+> +	int rc;
+> +
+> +	state = current_selinux_state;
+> +	rcu_read_lock();
+> +	tsec = task_security(s);
+> +	if (tsec)
+> +		ssid = tsec->sid;
+> +	else
+> +		ssid = SECINITSID_UNLABELED;
 
 Hi Stephen,
 
-It looks like this __rcu annotation is insufficient, and further updates
-are needed. I didn't look further, but Sparse says:
+Above it is assumed that tsec may be NULL...
 
-  .../services.c:2212:27: warning: incorrect type in argument 1 (different address spaces)
-  .../services.c:2212:27:    expected struct policydb *p
-  .../services.c:2212:27:    got struct policydb [noderef] __rcu *
-  .../services.c:2214:15: warning: incorrect type in argument 1 (different address spaces)
-  .../services.c:2214:15:    expected void const *objp
-  .../services.c:2214:15:    got struct selinux_policy [noderef] __rcu *policy
-  .../services.c:2232:39: warning: incorrect type in argument 1 (different address spaces)
-  .../services.c:2232:39:    expected struct selinux_policy [noderef] __rcu *policy
-  .../services.c:2232:39:    got struct selinux_policy *policy
-  .../services.c:2297:29: warning: incorrect type in argument 1 (different address spaces)
-  .../services.c:2297:29:    expected struct selinux_policy [noderef] __rcu *policy
-  .../services.c:2297:29:    got struct selinux_policy *[assigned] oldpolicy
-  .../services.c:2210:24: warning: dereference of noderef expression
-  .../services.c:2211:15: warning: dereference of noderef expression
-  .../services.c:2213:15: warning: dereference of noderef expression
+> +	rcu_read_unlock();
+> +
+> +	do {
+> +		tsid = task_sid_obj_for_state(t, state);
+> +
+> +		rc = avc_has_perm(state, ssid, tsid, tclass, requested, ad);
+> +		if (rc)
+> +			return rc;
+> +
+> +		cred = tsec->parent_cred;
 
+... but here tsec is dereferenced without explicitly checking if it is not
+NULL. I'm wondering if this is safe, e.g. due to the call to avc_has_perm().
 
+Flagged by Smatch.
 
->  {
->  	if (!policy)
->  		return;
+> +		if (!cred)
+> +			break;
+> +
+> +		rcu_read_lock();
+> +		tsec = selinux_cred(cred);
+> +		ssid = tsec->sid;
+> +		state = tsec->state;
+> +		rcu_read_unlock();
+> +	} while (cred);
+> +
+> +	return 0;
+> +}
 
 ...
