@@ -1,58 +1,58 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C46191BEF8C;
-	Fri, 13 Jun 2025 18:17:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C7211BEF8C;
+	Fri, 13 Jun 2025 18:19:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749838655; cv=none; b=LaSHvJjOx0fJ92lBtZttE37G0zkSZ7Fq+blpaAkJ4fA2Gw0eMU+NczFKy03STKHyeJHLeVm3NNzjc/JbQRcagJi7RSaIrJ8uqYYz722D6vy/Qkcf3TGuUaSwpyWK75t6P6kGhEJmcEXFjXY19QceKDpjx5PF8d+5Q0ZaXgswph8=
+	t=1749838748; cv=none; b=PEDxHg4zQMUF3cYej8B7BvNTYrFGCmzcU+32uWTIE1gLQiHeQFZwjtquxWQX+lJbtGrMP4bYytkiAFXicvIdc0iPxfuT+B6RJkexpqH/kYY6EO3w2IqtWo091W2VHcI0r4vcDGd5mmzkYe2g2lfo8oA+Y3IVNP2xNUVWjj3EP7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749838655; c=relaxed/simple;
-	bh=0KNFfV7fownHanKtx8R1SlNU8ay1zo8lxKLpV/jp8m8=;
+	s=arc-20240116; t=1749838748; c=relaxed/simple;
+	bh=ZeQcBbGTeFDIAQPmT+9xTxaEnvVae+Mt7VSBZoiYyuM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Y5Uf54yUFnFyZ2ZivBYCyyDCe4P/TjCJ1bhtdz2xGlAWqDA2B6pfQdEfmPX1yvHMZTNYHbovcW5nX6YOvItvtg3oZ5pEkXe2x1v4Ai6eJ8FB8pddatpYHawlXAoTaIBZ34Sbi6aaf0wQtn/A213Z8kq4uh1A6akqgKucbPoPyAY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UP4xH+Y1; arc=none smtp.client-ip=209.85.216.53
+	 To:Cc:Content-Type; b=eqZJ7hwwm3Xhp5Goqtn9xp3ux/Q9wek8MSOSBAlM6Y+0tCop+qfayrkiIQLPTN8ByP5NdnvffuLhm6fg4sj5YG2m4gcklDgqYcTPhcfcNQXUt1QJpoLQiNHbgupEJQgXJ5208lfrB5aLEneRic39eLpI8dFvLZZYLP4ydUlgVaw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ca42t5v3; arc=none smtp.client-ip=209.85.214.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UP4xH+Y1"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-311a6236effso2160119a91.2;
-        Fri, 13 Jun 2025 11:17:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ca42t5v3"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-235e1d710d8so31212855ad.1;
+        Fri, 13 Jun 2025 11:19:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749838653; x=1750443453; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1749838746; x=1750443546; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lj2XCdyseFAs5Xtxg2sKE50AyX6wcQu4qy75UBvv3Iw=;
-        b=UP4xH+Y187Thk7ah9avSmIHT0ZHlnOOmWG7aypCeBItjKzrM306KmmEcErAsMgTapN
-         T4q4R7e93EMeHNKfxGf8UCPnZdaKFTWd0qDY7dFfHXZNuX/I+sBlf9xQvOTkjDVENVl7
-         0RnJY4XlGT8ElKlF3JrsqJ5UefosSs5I2led7daw4SEbDjGeAfYJTW0oTWk+gYUylso7
-         GsU5+EUtFtvQVbu2dspuJqOmOxy7zul3yitkupzmgzJAygiDvuhH7kI2feR47MaQr0jx
-         maNN9Y3Emi1Bk5HjnwZHl4XnB8GpbCNylwhWcb6ooikq5rt/7zcBJxk0XKQd7DBIwg+/
-         SLLQ==
+        bh=Y7tkrgz83yLxxWDVBammUj3el4Pcyp+zXqZfIY/vHZ4=;
+        b=Ca42t5v3jPSwIchEvoVMnqAA4rAxKgguO8Vl0o0fFmJYwKv7+vO06o8WH4Zwj84mI7
+         ZPdQy9VJ6pijTInnNiQyonkXl2EX8hqsGT07yZjbzNuuY3YJa4y4VDMf0YpUPHAazcG3
+         M5sjhCU6dqJiCElaUR1q70tLyJpwC70LWBUstp7tf0oI328msDCBgfYKlOclRCHL6Lid
+         ZkAN7ZHEGXkyTLKTCLN8cg37ppEYObNkzYWrO9WQRTs3VORs4TSJnb9bjnDiUss2KADJ
+         bPwhmaV3zHV9hjIWAn1XEBJWnJ8MiWdkWU3eB6BmNmOG0M48ZcHWRzOg0cWf0fhoqNH5
+         NxVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749838653; x=1750443453;
+        d=1e100.net; s=20230601; t=1749838746; x=1750443546;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lj2XCdyseFAs5Xtxg2sKE50AyX6wcQu4qy75UBvv3Iw=;
-        b=X3KIF2D0MgKQFnTS0am5xmUbAM9VAj6ZDQ5p5Fonay328J3ZwibdwcZ+uEsm15be4r
-         lidGLucCVTkge74yLS24fpOvV7kptPH4HIm7YPoDjm/esX/UzLQzi3XP1LXRiHobpXWJ
-         dJcbDfI9xpYPc2/oPLFCQ1bIWSnjsTVjqB+bxc6BIY7rcG+xuwfDXt3rAKHhwT1u2aKI
-         NEQof4dwJYumv+vTR9WyBzyr+VLK5msQ0r95pLomB1ZEVwI1yUMeA3OfVT13RCjM1SIH
-         rW7nHu2ClN1QLUU7HoOqDG3LbKM8gY81A1ZKq3knq/ppnrSGOWqQZHW1ExX8LjDH1F7Z
-         CCsA==
-X-Forwarded-Encrypted: i=1; AJvYcCXEZx5YVRESNdTGfqrsZdxCshohBqsaVeJUl/h0mS+mXBWMHVBssI9EeJ7t/fm1edausBmtAkU=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz1BD7WvZvQ2y654fcSkhkTzyfRBz7mhvfB7OFh6iihQWVRYbyy
-	wML4e4rQ+ePz4f9BQOs5OJ2dBM14OhG2glbHIEfwXORfVFKOA5RZnS7nYBU93HA641I+HJqAX8L
-	GCw4jruMyUN568BuCJf4XG6sPeL9EyqISmOVs
-X-Gm-Gg: ASbGncsyaOdqFfGbz+y2jVY04ZRvYw1mt4kTcljPZ5oRWjxm04gLlP/FRzCJ6is92Bo
-	kDXqGbEH6kALiQLIPoOQkdP14vejDH8yR+sYutzU0xbQKwsHtJhJHk59eycQIUDbEUkQWuuSZ/l
-	ayc+VY+oBCKPDQMWQ67My5LmUfX8vMNq0En/6v0VpbN/g=
-X-Google-Smtp-Source: AGHT+IGJdlProWwJLnEBtaN88nEOVeFAIbu9b07U+OTg3ZGmbz5sClL9jcB0J4MyuTo0cY21DWZkSm4ervUuXXMnOeo=
-X-Received: by 2002:a17:90b:3dd0:b0:311:ff02:3fcb with SMTP id
- 98e67ed59e1d1-313f1dee9c6mr919334a91.28.1749838652912; Fri, 13 Jun 2025
- 11:17:32 -0700 (PDT)
+        bh=Y7tkrgz83yLxxWDVBammUj3el4Pcyp+zXqZfIY/vHZ4=;
+        b=mwRI6s6y54+qYXJrJeGBjDuAmv4GFEU1ixD8AHMJKb3KSCuVHe+3aGd5jnVT+fjMtT
+         l0Lj+sptAYkaKmmyeY3ewI7GLzfWTkGU4VqNqHmpBosfA3QUeCB47Tw/jzI/UTI/alY5
+         HbktzQ7y95j+dBefrSChag6N5GHZHVIPlYK0WOJownd9I2ULzKxHwUpy4HvZmA7tt+Cp
+         5n/7ktHX2HlELPfsBQAf21V6e8uOYPUT3xI1XFp9WLEKGq5eosI0HkNkQ4xsZH35jCWe
+         CsXgWRcNN1glEF3xSZDkjxRZSxnTF04QSMkql3H60rdhGBCdg4tRka6zeYtfn24H3JUr
+         hUmw==
+X-Forwarded-Encrypted: i=1; AJvYcCV3x2iAqzbImxlsu1W8B/TexCKUHZL+cA/oNtzDd+vO5IacjnxOHKYQH4qo+34DzwVMvOPFwYY=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx3wy7SePYW/HuiIjGoi2PTkUDsDYolvhEsp1zZLrz99/nrH2Gu
+	YiKr4O6K6j1DyOD+C+eoKzxn/5mKNoD2HqhHKuCUfzk7zq9MZDq00cSqP+EN9FH3zt8lLw1ebuZ
+	gXd2aXsuI2wAMOEZfHb4XbLWxh57HZTiU+FxZ
+X-Gm-Gg: ASbGnctp+mhWAAO205rqnZ6d9P1Urb+wt0A9wKlriYqAnHnum4xNV7o0L3XVTb9jFXn
+	Tf6Ub7sffJkvcAzx/8TF8HFE7uF9XxBbVFenof0RdxJv5ey3H+Pb45OvvXRp+65Lf+/MoosdFuR
+	hFRJeUxC1FBjLuJHk4/fWIEmrS3vO5nfLPO9bxy5DVI3Y=
+X-Google-Smtp-Source: AGHT+IG1iqj4pzgcoJGopWthu7HG5sxsfF+GXWIyCZwRa2DfMSLMzI0p5bnC+CeHVz0lg5RrCvxiZLjwsYsi686yD9I=
+X-Received: by 2002:a17:902:fc4f:b0:235:f459:69c7 with SMTP id
+ d9443c01a7336-2366b40b7ddmr6349005ad.52.1749838746323; Fri, 13 Jun 2025
+ 11:19:06 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -60,83 +60,94 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20250610172226.1470741-1-stephen.smalley.work@gmail.com>
- <20250610172226.1470741-5-stephen.smalley.work@gmail.com> <20250613141447.GF414686@horms.kernel.org>
-In-Reply-To: <20250613141447.GF414686@horms.kernel.org>
+ <20250610172226.1470741-28-stephen.smalley.work@gmail.com> <20250613141525.GG414686@horms.kernel.org>
+In-Reply-To: <20250613141525.GG414686@horms.kernel.org>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 13 Jun 2025 14:17:21 -0400
-X-Gm-Features: AX0GCFu1s6IIViKOqH_mdcKU485uUsEO_UsJ8ZCY7oT9tFC3tGq0RhVEzYQd0bo
-Message-ID: <CAEjxPJ5vWnRCMd85F2ycKNrkyJUPoumkugEJo1sq7rRuMKw2SQ@mail.gmail.com>
-Subject: Re: [PATCH v4 04/42] selinux: dynamically allocate selinux namespace
+Date: Fri, 13 Jun 2025 14:18:54 -0400
+X-Gm-Features: AX0GCFtU9Bqi-dgV9nr1_lSZ9Eb2ka_01arQqBDbHwkdU7QtouYZvFVVodljpLo
+Message-ID: <CAEjxPJ5cZB1zz3dCUz7ix-WW4P6Q7QaeE02TjcU6zg+SOg8KLA@mail.gmail.com>
+Subject: Re: [PATCH v4 27/42] selinux: introduce task_obj_perm()
 To: Simon Horman <horms@kernel.org>
 Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com, 
 	netdev@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 13, 2025 at 10:14=E2=80=AFAM Simon Horman <horms@kernel.org> wr=
+On Fri, Jun 13, 2025 at 10:15=E2=80=AFAM Simon Horman <horms@kernel.org> wr=
 ote:
 >
-> On Tue, Jun 10, 2025 at 01:21:35PM -0400, Stephen Smalley wrote:
-> > Move from static allocation of a single selinux namespace to
-> > dynamic allocation.  Include necessary support for lifecycle management
-> > of the selinux namespace, modeled after the user namespace support.
+> On Tue, Jun 10, 2025 at 01:21:58PM -0400, Stephen Smalley wrote:
+> > Introduce task_obj_perm() for namespace-aware permission checking
+> > between two tasks using the objective SID for both tasks and
+> > without assuming that either task is current.
+> >
+> > Convert the permission checks of this form in the hook functions
+> > to use this new helper.
 > >
 > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 >
 > ...
 >
-> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/servi=
-ces.c
-> > index 112edf9b2106..c67965cbfcba 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -2202,7 +2202,7 @@ static void security_load_policycaps(struct selin=
-ux_state *state,
-> >  static int security_preserve_bools(struct selinux_policy *oldpolicy,
-> >                               struct selinux_policy *newpolicy);
-> >
-> > -static void selinux_policy_free(struct selinux_policy *policy)
-> > +void selinux_policy_free(struct selinux_policy __rcu *policy)
+> > +int task_obj_has_perm(const struct task_struct *s,
+> > +                   const struct task_struct *t,
+> > +                   u16 tclass, u32 requested,
+> > +                   struct common_audit_data *ad)
+> > +{
+> > +     const struct cred *cred;
+> > +     const struct task_security_struct *tsec;
+> > +     struct selinux_state *state;
+> > +     u32 ssid;
+> > +     u32 tsid;
+> > +     int rc;
+> > +
+> > +     state =3D current_selinux_state;
+> > +     rcu_read_lock();
+> > +     tsec =3D task_security(s);
+> > +     if (tsec)
+> > +             ssid =3D tsec->sid;
+> > +     else
+> > +             ssid =3D SECINITSID_UNLABELED;
 >
 > Hi Stephen,
 >
-> It looks like this __rcu annotation is insufficient, and further updates
-> are needed. I didn't look further, but Sparse says:
+> Above it is assumed that tsec may be NULL...
 >
->   .../services.c:2212:27: warning: incorrect type in argument 1 (differen=
-t address spaces)
->   .../services.c:2212:27:    expected struct policydb *p
->   .../services.c:2212:27:    got struct policydb [noderef] __rcu *
->   .../services.c:2214:15: warning: incorrect type in argument 1 (differen=
-t address spaces)
->   .../services.c:2214:15:    expected void const *objp
->   .../services.c:2214:15:    got struct selinux_policy [noderef] __rcu *p=
-olicy
->   .../services.c:2232:39: warning: incorrect type in argument 1 (differen=
-t address spaces)
->   .../services.c:2232:39:    expected struct selinux_policy [noderef] __r=
-cu *policy
->   .../services.c:2232:39:    got struct selinux_policy *policy
->   .../services.c:2297:29: warning: incorrect type in argument 1 (differen=
-t address spaces)
->   .../services.c:2297:29:    expected struct selinux_policy [noderef] __r=
-cu *policy
->   .../services.c:2297:29:    got struct selinux_policy *[assigned] oldpol=
-icy
->   .../services.c:2210:24: warning: dereference of noderef expression
->   .../services.c:2211:15: warning: dereference of noderef expression
->   .../services.c:2213:15: warning: dereference of noderef expression
+> > +     rcu_read_unlock();
+> > +
+> > +     do {
+> > +             tsid =3D task_sid_obj_for_state(t, state);
+> > +
+> > +             rc =3D avc_has_perm(state, ssid, tsid, tclass, requested,=
+ ad);
+> > +             if (rc)
+> > +                     return rc;
+> > +
+> > +             cred =3D tsec->parent_cred;
+>
+> ... but here tsec is dereferenced without explicitly checking if it is no=
+t
+> NULL. I'm wondering if this is safe, e.g. due to the call to avc_has_perm=
+().
 
-Thank you, fixed via
-https://github.com/stephensmalley/selinux-kernel/commit/66c448df995fb8d6c5c=
-9a4875efc0ab56a5dd21d
-and will likely squash into this patch for next submission.
+No, you are correct - this is a bug. Thank you, fixed via
+https://github.com/stephensmalley/selinux-kernel/commit/85e72ed549d01a2da40=
+7feef6493cbdeca324f82
+and will likely squash into this patch on next submission.
 
 >
+> Flagged by Smatch.
 >
->
-> >  {
-> >       if (!policy)
-> >               return;
+> > +             if (!cred)
+> > +                     break;
+> > +
+> > +             rcu_read_lock();
+> > +             tsec =3D selinux_cred(cred);
+> > +             ssid =3D tsec->sid;
+> > +             state =3D tsec->state;
+> > +             rcu_read_unlock();
+> > +     } while (cred);
+> > +
+> > +     return 0;
+> > +}
 >
 > ...
