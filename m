@@ -1,169 +1,183 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DCCB3FE7
-	for <selinux@vger.kernel.org>; Fri, 13 Jun 2025 19:38:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E761825A333;
+	Fri, 13 Jun 2025 20:35:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749843521; cv=none; b=ShArO5q3+CXZHZHWAO7GV/bISm/5LPJYHgf8ZRTd5rt6/N9HRWQUVVy51WAZ65kdabDoxmWRwk5SDgi3s8FEjUcqIs3zIC4q8QpnyGOszLKYCBydL/8Js8X/yANIfazVbufWhevJJcJ5p++31OIajJyY8XtX3sD0UUR8iZ5RSuk=
+	t=1749846928; cv=none; b=OAuCU6O/xOjPiVeBqSrxxRXu7OdxhUXgDFIO0xyytl8OjZ9SRLIzAHzUm+MnJUpiLXYTeID4/IgAsVwsdoWkVozJlEt0YMUnEqkwKh+LM56CROKwIREtKNcvVj2KtY2bCTQKDDHT27cEhagsV3bpplnveMTGgHqaJTmpvfURn0o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749843521; c=relaxed/simple;
-	bh=8USoHdZGZDQR6j3eP+vbIY9gXAT7ZcukFU9B6LKf+gc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pbGf9Z51bWBKA/8HOPzeWoYuPvkNww/RL5dPIzeVIaa5KxN48Jwil7QE4scfzETRW8+linLUsnqGX9PuNpZRclr39JguCho+2rOaVLlcI0gUiR0GYYUROFBQF+AU6269jGQ2vYsOXIuNgzpOKSd5k2y/n3ZmSMw6bh5EjopjfAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YAB2mkQF; arc=none smtp.client-ip=209.85.210.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1749846928; c=relaxed/simple;
+	bh=V1jCsXngTtJvAEzXv7vsil4xncAYb7+S++eg7D17lMw=;
+	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
+	 Date:MIME-Version; b=K9oqe7GvO9tOuregbV1sKAEtN7X5j7UMu8Oxe6iNaPMfSAhEDt3t1Nr+Rgcnykr+O+Tp9bq4upd9xLdFgRl+8QErkEoDIWAhcby/C68ph4bXWGu8+68lfcb4Aa6XHRqNcIpgFSyVkzgA9JaDm2SapBW992xXV73hRykMrSaAM3s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EVdLv17X; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YAB2mkQF"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-7486ca9d396so1777490b3a.1
-        for <selinux@vger.kernel.org>; Fri, 13 Jun 2025 12:38:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749843519; x=1750448319; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BXSn66rVo6/j60KSlltH3KiqXPbpB7l6SyCN2tnUm9g=;
-        b=YAB2mkQFC3yPhbUjjli6ge1s8nr0H/fj6zPtpuOhK21p7rfJ/AXiSSvJmkt5EldlSG
-         XEnHmAjt5ZgN6G4o5zi13DIVCV04XX6R0NgJrG2gKRcMaDy15b/ZrkZx25eCM41qtkA5
-         ZF09LRwORQOSirVCrSRpyAzJOlbDrVfVEDsqYwgzhSXe7dORebcEEQRkA2LMjc/7hfVb
-         smtL9aiKrl3LDtDW75RAYhqxzvos/F4H1IKNXMR9Cf4kylCu7OuQbAgYG4a7ifa47Z0c
-         IDM7et6d3nccb0GFZCjQwVeRQdz0iz6M2EUsl7mjxwuo0nR6o7w3D8NAE+1A91EdTKUr
-         7Gpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749843519; x=1750448319;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=BXSn66rVo6/j60KSlltH3KiqXPbpB7l6SyCN2tnUm9g=;
-        b=YDmKvn68lEaNeRJER5D8PFXOs8qKDMNkPlaYrCwV+8R5Cos/SO7hlbD3IhMuhkdZY4
-         hFfva74WffUs501BZtHPHz9mOZRM43XoSpHS+jO+kRBYcxabHeY8toZWQeC6+HmbuYz4
-         l1ho9FVbQtDqqtvcUBsS5VycZ0S+V+oEKg9mqCnKIiaSs+o01Fn5danqJapfkH2v4Eix
-         ro5i1IWzlKtONgGibfa93ypg6m2kzTrDvgiYFMrQGT2lPTHIi0UhEq1C1uDcUegP7smW
-         2tmFze6GLM0qpJiq+R84c5/nVABRHnPn+hwU/LJFtTQ+sD4ZGzdQ2+HEGlMIKwq2967X
-         AN0Q==
-X-Forwarded-Encrypted: i=1; AJvYcCWe0X1T1xVwnlXn2jQivQa/YBH5HsAZnd4OjXPk5k4Qn0A/CWLY+A0UtoCOcaxJ2Le4gwhJDwa4@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywx3F4/JWoQTi7KpzljZTd5McDicOdOeaawUAJmWJLScxARp6nt
-	+EH2KeVCOItTs02w7arcokrmwvxmkRKG98011Zf4Yg97J4xj68BtLyvsoX+lxOfiZWwN/Uxt7z0
-	dv/rr2R4IIzyKdheibyXGcjjM3ZPOYJc=
-X-Gm-Gg: ASbGncvaFedZoo1aj12S5T8+IoOw8wHgjRXbxPev5lvoOQxMgx3IGSEeO9K3T9t9/Oy
-	V1MeUp5KuvSPwhWR2G6BIud5SNNu9KgH36CnfhqyWDlVp+Ur49OOeTH1jWBRGr/MpFgaguXdUVW
-	yT9JovINNlGudePjhyijajMro4kuIvMKachjs7mhpUssoH64c0QFV+sQ==
-X-Google-Smtp-Source: AGHT+IHBjKnu+0Obwbk/vBXyfbBxev9X3pT+M56usP+/iYS8TRMmzJvYru4+VEmTCyAMGpL/R06IBH7IjRh1L872pC8=
-X-Received: by 2002:a05:6a00:148a:b0:736:b101:aed3 with SMTP id
- d2e1a72fcca58-7489cdeef7emr814163b3a.1.1749843518935; Fri, 13 Jun 2025
- 12:38:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EVdLv17X"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55DJAq3Y030944;
+	Fri, 13 Jun 2025 20:35:01 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=gpIonl
+	jNp8yCoYn7R8AlY5k7J5ldvAlDebUGV7HIwnI=; b=EVdLv17XbXtgsn68lI+K5w
+	qKgg3mD4aFUYHMiQuTxW9VixlC+ZjgyBsyj8G6uHzInyGQqeh3h+ltNxqE/7jtJm
+	uNDXJWqeLNtz41QuBzqm7tO48oYudLRI7FEQQzKPNeY8NyUBm9c0uTORejk4UKCw
+	N20a9cO7Xdi/8piShdDSLhEz5OPWMP9krSjziE4rAV9wP485PfyyWW+lqknDOjNQ
+	DlMFmrUeVHjReFbGkIEhTIudMPB1biNbOj15nZEA3Jk8JkPANp5s9HQ6M/kQrK/P
+	v+8Qb9fsNa0UPKWtvNOaBnJ5myD4Hl/huetrtfLpSOAcsR0lruVVT2PHdu1YgyWQ
+	==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474dv838wd-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 13 Jun 2025 20:35:01 +0000 (GMT)
+Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55DKW43S015685;
+	Fri, 13 Jun 2025 20:35:00 GMT
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474dv838wa-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 13 Jun 2025 20:35:00 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55DHkYOo022352;
+	Fri, 13 Jun 2025 20:34:59 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 475050bwp4-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 13 Jun 2025 20:34:59 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55DKYs6j20382328
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 13 Jun 2025 20:34:54 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A114F5803F;
+	Fri, 13 Jun 2025 20:34:58 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id C47E458056;
+	Fri, 13 Jun 2025 20:34:57 +0000 (GMT)
+Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.101.213])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 13 Jun 2025 20:34:57 +0000 (GMT)
+Message-ID: <ae5e62722e238f55315b7ce523f7d2eb3af5e063.camel@linux.ibm.com>
+Subject: Re: [RFC PATCH 25/29] ima,evm: move initcalls to the LSM framework
+From: Mimi Zohar <zohar@linux.ibm.com>
+To: Paul Moore <paul@paul-moore.com>, David Howells <dhowells@redhat.com>
+Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
+        =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?=	 <mic@digikod.net>,
+        =?ISO-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
+        Kees Cook
+ <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
+        Casey Schaufler	
+ <casey@schaufler-ca.com>,
+        Tetsuo Handa
+ <penguin-kernel@i-love.sakura.ne.jp>,
+        Eric Snowberg
+ <eric.snowberg@oracle.com>
+In-Reply-To: <CAHC9VhTfNQeu3gcWii7kUrGY+fVygXs6j4UhybodPqjuSzA-pQ@mail.gmail.com>
+References: <20250409185019.238841-31-paul@paul-moore.com>
+	 <20250409185019.238841-56-paul@paul-moore.com>
+	 <12d9ea5981f5a2c33a01798311543db2e9bd4ee3.camel@linux.ibm.com>
+	 <CAHC9VhTfNQeu3gcWii7kUrGY+fVygXs6j4UhybodPqjuSzA-pQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Date: Fri, 13 Jun 2025 16:34:57 -0400
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ5veb_psQc_j=8c7Jz3H46twvnmZKy=8E8Bzq7pCinK7Q@mail.gmail.com>
- <CAEjxPJ6tA5+LxsGfOJokzdPeRomBHjKLBVR6zbrg+_w3ZZbM3A@mail.gmail.com>
- <CAEjxPJ799ZQkuqf79vDCq9guHE5BP2VwQDBNx6yeopNkU+rULQ@mail.gmail.com>
- <ac908c36-8967-45bd-b230-035fea9fe2fa@googlemail.com> <CAEjxPJ6sGGuG8ZZBkqjvjg4EKhPmpiiSottHVT6y0GOy9RLt+g@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6sGGuG8ZZBkqjvjg4EKhPmpiiSottHVT6y0GOy9RLt+g@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 13 Jun 2025 15:38:27 -0400
-X-Gm-Features: AX0GCFtsYspL7cYfbeDP0vHwxKMu75_zlI_lZjEkRme8aGDMlT2i6Z7ZLY82vHw
-Message-ID: <CAEjxPJ5ofF9xGNfi5kZhFcZQNJb-7HNLoeO3Kbidfgg4+-khBA@mail.gmail.com>
-Subject: Re: UBSAN warning during selinux-testsuite inet_socket xfrm tests
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: iNIJM6qMf0-2b67n-QsfZZ9QIGJKK6O-
+X-Proofpoint-GUID: SnEw9RzY2I7Vv3ptpdqioiYgQPsQFJ6v
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjEzMDE0MiBTYWx0ZWRfXwULc2+xj45Bz QuzPQoXsEHRZ3Z137rOwZA14dbt7mx7wCMnTA6AW+vJBg5ELaniJ2pVsGv2Eqw9Kh5SyKNeB1xU WzupmwElTJDnRSSg25qrO6GMgHoFC/14JYAZ6Lhm8nrinSDzrgVvCxbMusyq9Uyt0fSxzl3QKcT
+ h8MDj4N/Mskq/NvpTJxpD4DjYtnKe7GuABa4qyOoQXcUa2ok2qJ6zIiSWc2QrT/oRWzkhWYcncL zaImdNgVmjr3OLVJfrw9YPmcLaqiYAII3oOzKKzERaFT6/PObTDQYBC6SVH7FUzqt9+1cT3UHUx WZDfyxauXLj7jTa2i895LkuefbCFo2eQSQqcVadgZg5dctIHP3RaF5CPhmqzQYWffzrXkXH8QX2
+ tbMmlMfc75iR67UQ/aakt27L4OhX5xdc21ucCCTnr7qihiFqBbaizHtBf/FoMzQzZ35zdjPN
+X-Authority-Analysis: v=2.4 cv=CfMI5Krl c=1 sm=1 tr=0 ts=684c8b75 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=VwQbUJbxAAAA:8 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8 a=tiGqyuVAyrAc4NrlPAYA:9
+ a=QEXdDO2ut3YA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
+ definitions=2025-06-13_03,2025-06-13_01,2025-03-28_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ phishscore=0 priorityscore=1501 clxscore=1015 impostorscore=0 mlxscore=0
+ suspectscore=0 mlxlogscore=999 adultscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
+ definitions=main-2506130142
 
-On Fri, Jun 13, 2025 at 12:34=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Jun 13, 2025 at 12:00=E2=80=AFPM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > Jun 13, 2025 17:04:31 Stephen Smalley <stephen.smalley.work@gmail.com>:
-> >
-> > > On Fri, Jun 13, 2025 at 8:27=E2=80=AFAM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > >>
-> > >> Still need to confirm that I can reproduce on a stock kernel without
-> > >> SELinux namespace patches, but FYI...
-> > >
-> > > Ok, confirmed that this is reproducible with 6.16.0-rc1. Updated UBSA=
-N
-> > > output below.
-> > >
-> > > [  388.060446] ------------[ cut here ]------------
-> > > [  388.061112] UBSAN: array-index-out-of-bounds in security/selinux/x=
-frm.c:99:14
-> >
-> > ctx->ctx_str[str_len] =3D '\0';
-> >
-> > The struct member ctx_str is annotated with __counted_by(str_len) so ac=
-cessing it at str_len might trigger UBSAN (the field is allocated with a le=
-ngth of str_len+1, so there is no actual out-of-bounds read).
->
-> Hmm...tried adding one to ->str_len but didn't seem to silence the warnin=
-g?
+On Wed, 2025-06-11 at 16:27 -0400, Paul Moore wrote:
+> On Fri, May 30, 2025 at 6:04=E2=80=AFPM Mimi Zohar <zohar@linux.ibm.com> =
+wrote:
+> > On Wed, 2025-04-09 at 14:50 -0400, Paul Moore wrote:
+> > > This patch converts IMA and EVM to use the LSM frameworks's initcall
+> > > mechanism.  There were two challenges to doing this conversion: the
+> > > first simply being the number of initcalls across IMA and EVM, and th=
+e
+> > > second was the number of resources shared between the two related,
+> > > yet independent LSMs.
+> >=20
+> > There are a number of the initcalls under integrity/platform/, which lo=
+ad arch
+> > specific keys onto the platform and machine keyrings, which shouldn't b=
+e
+> > included in this patch.
+>=20
+> I don't want to assume too much from your reply, but if the cert/key
+> loading under integrity/platform shouldn't be subject to the LSM
+> initcall rework, that implies that the integrity/platform cert/key
+> loading is independent of IMA/EVM and should perhaps live somewhere
+> else, e.g. security/keys?
+>=20
+> Or am I misunderstanding something?
 
-Figured it out, patch posted.
+When the .platform keyring was upstreamed it was upstreamed for a very spec=
+ific
+purpose so that IMA could verify the kexec kernel image.  Afterwareds it wa=
+s
+immediately used to verify the pesigned kexec image.  Now it is being (ab)u=
+sed
+by other subsystems - ipe and dm-verity - and is being proposed by the "[PA=
+TCH
+RFC 0/1] module: Optionally use .platform keyring for signatures verificati=
+on".
+From an integrity perspective this is definitely not a good idea.  The
+discussion, which I'm sure you're aware of, is here:
+https://lore.kernel.org/linux-integrity/20250602132535.897944-1-vkuznets@re=
+dhat.com/
 
->
-> >
-> > > [  388.061138] index 60 is out of range for type 'char [*]'
-> > > [  388.061158] CPU: 3 UID: 0 PID: 5043 Comm: ip Not tainted 6.16.0-rc=
-1
-> > > #393 PREEMPT(lazy)
-> > > [  388.061162] Call Trace:
-> > > [  388.061163]  <TASK>
-> > > [  388.061167]  dump_stack_lvl+0x6e/0xa0
-> > > [  388.061175]  ubsan_epilogue+0x5/0x2b
-> > > [  388.061180]  __ubsan_handle_out_of_bounds.cold+0x54/0x59
-> > > [  388.061186]  selinux_xfrm_alloc_user+0x145/0x150
-> > > [  388.061194]  security_xfrm_state_alloc+0x3c/0x100
-> > > [  388.061199]  xfrm_state_construct+0x251/0x3b0
-> > > [  388.061208]  xfrm_add_sa+0x87/0x1f0
-> > > [  388.061215]  xfrm_user_rcv_msg+0x1a9/0x3a0
-> > > [  388.061218]  ? arch_stack_walk+0xb7/0x100
-> > > [  388.061248]  ? __pfx_xfrm_user_rcv_msg+0x10/0x10
-> > > [  388.061281]  netlink_rcv_skb+0x5c/0x110
-> > > [  388.061296]  xfrm_netlink_rcv+0x38/0x50
-> > > [  388.061299]  netlink_unicast+0x1e3/0x2c0
-> > > [  388.061308]  netlink_sendmsg+0x222/0x460
-> > > [  388.061318]  ____sys_sendmsg+0x3a2/0x3d0
-> > > [  388.061321]  ? import_iovec+0x1b/0x30
-> > > [  388.061331]  ___sys_sendmsg+0x99/0xe0
-> > > [  388.061356]  __sys_sendmsg+0x8a/0xf0
-> > > [  388.061368]  do_syscall_64+0x94/0x370
-> > > [  388.061376]  ? audit_reset_context+0x298/0x300
-> > > [  388.061382]  ? syscall_exit_work+0x195/0x1d0
-> > > [  388.061387]  ? do_syscall_64+0x158/0x370
-> > > [  388.061389]  ? find_held_lock+0x2b/0x80
-> > > [  388.061395]  ? __lock_release.isra.0+0x59/0x170
-> > > [  388.061397]  ? handle_mm_fault+0x2c6/0x450
-> > > [  388.061404]  ? lock_release.part.0+0x1c/0x50
-> > > [  388.061406]  ? do_user_addr_fault+0x375/0x6b0
-> > > [  388.061414]  ? clear_bhb_loop+0x50/0xa0
-> > > [  388.061417]  ? clear_bhb_loop+0x50/0xa0
-> > > [  388.061421]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
-> > > [  388.061422] RIP: 0033:0x7feb13c1fa06
-> > > [  388.061433] Code: 5d e8 41 8b 93 08 03 00 00 59 5e 48 83 f8 fc 75
-> > > 19 83 e2 39 83 fa 08 75 11 e8 26 ff ff ff 66 0f 1f 44 00 00 48 8b 45
-> > > 10 0f 05 <48> 8b 5d f8 c9 c3 0f 1f 40 00 f3 0f 1e fa 55 48 89 e5 48 8=
-3
-> > > ec 08
-> > > [  388.061434] RSP: 002b:00007ffc60961230 EFLAGS: 00000202 ORIG_RAX:
-> > > 000000000000002e
-> > > [  388.061436] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007=
-feb13c1fa06
-> > > [  388.061438] RDX: 0000000000000000 RSI: 00007ffc60961300 RDI: 00000=
-00000000004
-> > > [  388.061439] RBP: 00007ffc60961250 R08: 0000000000000000 R09: 00000=
-00000000000
-> > > [  388.061440] R10: 0000000000000000 R11: 0000000000000202 R12: 00000=
-00060962400
-> > > [  388.061441] R13: 00000000684c3c09 R14: 00007ffc60961480 R15: 00007=
-ffc60964264
-> > > [  388.061454]  </TASK>
-> > > [  388.072240] ---[ end trace ]---
-> >
+It does not make any sense to move the code for the platform and machine
+keyrings to security/keys.  If they need to move anywhere, it would be to t=
+he
+certs/ directory.
+
+>=20
+> > > The first problem was resolved by the creation of two new functions,
+> > > integrity_device_init() and integrity_late_init(), with each focused =
+on
+> > > calling all of the various IMA/EVM initcalls for a single initcall ty=
+pe.
+> > > The second problem was resolved by registering both of these new
+> > > functions as initcalls for each LSM and including code in each
+> > > registered initcall to ensure it only executes once.
+> >=20
+> > With the above change, there obviously will be a lot fewer initcalls, b=
+ut it
+> > might still make sense to keep the common ima/evm function.
+>=20
+> I'm not sure I understand, what do you mean by "common ima/evm
+> function"?  This patch doesn't remove any IMA/EVM functions, it adds
+> the integrity_device_init() and integrity_late_init() functions to
+> setup and populate some keyrings.
+
+"The above change" refers to not including the platform and the arch specif=
+ic
+calls or machine keyring initcalls.  By not including them, there are a lot
+fewer initcalls in this ima,evm patch.
+
+Mimi
+
