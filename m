@@ -1,140 +1,103 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54329149DE8
-	for <selinux@vger.kernel.org>; Fri, 13 Jun 2025 15:04:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EA701E51F6
+	for <selinux@vger.kernel.org>; Fri, 13 Jun 2025 15:22:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749827057; cv=none; b=noKTVBxz8SA6jEb6Jzq+vzneZGZp5B4nNau20Ulm4TCb73NQTXrUka9r/Z5qLqvXUzMJlWIy98MRC3zV7uHkfyqYUfyiOupIbP4174FCDPqp2jn5YJ2ToCH109BpAuw1QX/0o5LX4JDRjh/GyGHktQTJxPwSSoMN9yWGvXhlqqE=
+	t=1749828171; cv=none; b=VEdyE+W1joa22oE8COXcJ16wogHZgslWWuWN9GE+yWLW6mZucMZq3Wcm1ag14sCd6BkKczE7ToJliEX5dsms9PM7nG1BZnJae03AZbGHiRZ+iCarSwy2jNALz0ShtYFs+Xp7Ps5JtDS61cgTbeGXw2d7EAOUkdlA3Q979uMV4FA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749827057; c=relaxed/simple;
-	bh=bD1en0JtQx9b+wTbBY5bioqchwbzyAlq2komS/BShb8=;
+	s=arc-20240116; t=1749828171; c=relaxed/simple;
+	bh=DxWOhHNOUn+QAruIrYVUGgMzF4+IGh0zdQPzdb72yz0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=QxoGW1fa12Jy2oIZU/9KYbpvRmqk4hSL3yms6M+Z9xI95mmGWgvOI4AMD63MZj0pBiVnhbzfi6w67pOu7QGmPDWGpnlNdC8+sMpgGQn21LDzFInpA/pEmO1bZUNvRk/gLe+Q5rGpJA1E+bfQYtgescgw5W40kbOiMW3iKPEk4NI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HGe8kK/H; arc=none smtp.client-ip=209.85.210.169
+	 To:Cc:Content-Type; b=dl6SUG5KdgDKiq9oY9dbtR6a9Ift5pIXThlMn8vC2kiOZlDnZno4b1ElJGJQ/iJZvfkvb8g3cyVpLtH9ZjmWKxsRrp/6ZH/dByaQDBJ9EyFG1ZKeVgKGSxoUpw9Gwu4AHL+c6TjyhvmABBpqk8AWLRb7iCkxS0NRuegd3kWRYtw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vp4eSsMt; arc=none smtp.client-ip=209.85.215.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HGe8kK/H"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-742c035f2afso1638804b3a.2
-        for <selinux@vger.kernel.org>; Fri, 13 Jun 2025 08:04:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vp4eSsMt"
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-b2c4331c50eso1864228a12.3
+        for <selinux@vger.kernel.org>; Fri, 13 Jun 2025 08:22:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1749827054; x=1750431854; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
+        d=gmail.com; s=20230601; t=1749828169; x=1750432969; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=VxWo+49vZwXf1RJBaxyNLjSvZBNcqUBlhLPUO5YvbIg=;
-        b=HGe8kK/HBg8y2Vcn4GfrIxCuZYYtTxUAK7X5BglsKsE2ijU/YEM4+ePd/fJf9dPM+V
-         K1Bp/7BQmdRl/rMNCbVQ54qbmGLGS9IZiJjhYUs2Fja/DX/jdbDejwNzZeiC587wQs4v
-         6mqVvgmsr2OMTHOBLv2GoMXDbqWRfY67dcgAzyPkgZGaLy49bY8loYBli0itP51xzDVS
-         rXut6DCylxEiZ0ll0OW/avD8As+AsGJPc75PLC0dDeP2WThxFzfqDiy0ECmWmidTT8+C
-         gKNOEXhVFL4yzlPMTGO5n/V+uDHNGsstSeToA/4jlUCqLjN1R+g897PR6kIxS7uoec+r
-         N91Q==
+        bh=DxWOhHNOUn+QAruIrYVUGgMzF4+IGh0zdQPzdb72yz0=;
+        b=Vp4eSsMtSOJZGhDEGWBbbhclsSJaZsTnIswM5NTr/pXpVMYhZ0S/aT37yGgN+zMRrL
+         j6pH2mt5Rq6cig8jHHTGSQU4BBTiPmsds0b8Aofe51fuA33Vy0Ed6UtWHw+hP/1VPgIt
+         HhjscUwaJcdUblE2kT2aH3ed3N4COuPza26FsK48yFpUu9MVPCS1ipjqf95/6L5vNf7r
+         wkDoNP0rz+WEhTnbnj7erSy56+GqSeM6Qun9sKCgXv+8zLypX9xJxgy1d7MLYeapgwzz
+         9ZRyA6w6llrQV0LY1nxKPXEiZCwz0QVhhs/u2S5jXVS3bBr52tZe3OcNulOhYFTn/7iX
+         5MuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749827054; x=1750431854;
-        h=content-transfer-encoding:to:subject:message-id:date:from
+        d=1e100.net; s=20230601; t=1749828169; x=1750432969;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=VxWo+49vZwXf1RJBaxyNLjSvZBNcqUBlhLPUO5YvbIg=;
-        b=gBriLNHHwu/DV2KehUPLboaWfgsE9HfISq+yTOJ6bIsh9jSLBKH9gZ9HPFN+JzV2tV
-         1hmeXTBQkP1dvjnYJEXWPYLjdkiB1AaEhblB0ktfCmz5ZKEVGa04rzJEpCvor2DKL9eC
-         Wvx2o9G9h9UZkRyjdotsDW1Vvh8yxGXrQznpJYCHOEVXPX/pLQEsW2gPSy9UcMB4lf50
-         UNWoAzaqnc+UWrXI7c4SR10kdvJTyRWbojkeOvEHbh6idKngWvqdZbh7gd4pxKS+kFUE
-         63VIYgf0nU2bPJEf9f15B6Ui+KH2QomgXelxQtbShvjO68PuVfCHxfzXDriGOJ8PYHDI
-         Ec2g==
-X-Forwarded-Encrypted: i=1; AJvYcCUCL+W6+stDktzuYMYspnG/5iryzfvd6HT412UDR2vdDcuIoGNELIbKr29rqOCEeP7LDzYfNk2F@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzm9edNIgQrMfQMOWA5kt3pSTJU6klPsLD6lIgJ3RniAdZKsPVd
-	AHXiGUlGmoPQceSyzkfnoz5+WOPQeM4YhV9pLEwqXZDx2Ofj3dUelGqq+/V+IkaSAG0LLRtQgdA
-	zpMqCakDFW+2Lijbls7IF+aTSVhSPLgU=
-X-Gm-Gg: ASbGncuL/rNBvtbN2StX4XNswxrYfrTNAA2cff7CRRDVksZ7vhN7Rr9Xo5ima+n3SOx
-	y1/rlXf8OoDAAGGaND5YZi0uhqrra7svyPGZmcPpQgrxq3/iLpsNbtJ3n/F/6i0CiDIP88r22pW
-	BiTGrzCLbiwBXGXaj4kTS3jgvpwYer4ZLNM7TLvmBOALM=
-X-Google-Smtp-Source: AGHT+IHrlUAlXvjObykcwoz6pfjCP7pyBKiWUfxWNpBNsk6LQ3QJy3f/L8ve77wnpN2XlRp1HSI3U6Pfr8PTvRIIS1Q=
-X-Received: by 2002:a05:6a00:3928:b0:746:1b45:57a8 with SMTP id
- d2e1a72fcca58-7488f746778mr4237432b3a.22.1749827054284; Fri, 13 Jun 2025
- 08:04:14 -0700 (PDT)
+        bh=DxWOhHNOUn+QAruIrYVUGgMzF4+IGh0zdQPzdb72yz0=;
+        b=kDx89ubrTJW6jCqxeQ7mUsPbizoe8f7uT2OcwwA/PjgXmmJS/X/n1P7P9MqVWxxviV
+         SxQZfxGN2VTQ5HoWBgM4716Ad9hiQjDY6aBwXnBZZ9UUinnsQxDeb0OLTYCElYRzhNrg
+         cvNa2MhQ4/K4b6jRJqBOD3RS63ICAXnH8oDhncU3bVRn1hhP6PMCi4cKMoWFC6zAKtMU
+         Yk12LcSkgfh6lQ0Ae84MwuwHe/Mt1iMuozg6xanLWxdGuRoqCKv1pHLQTA8HLd5YRveu
+         dDX1Omlyxy/IDbL6MtFRpZZgHk/UkLbvnrESilkG/B1HzGVjNYXdZRF0zb4ojK1iDyvr
+         FT0A==
+X-Forwarded-Encrypted: i=1; AJvYcCXnhdQ9ves4erXaflRxhBGCqiiFtVbmZRO7sKBCnAwS5Yb3935PSaYUbAHu39nvEXB4V3db0w2S@vger.kernel.org
+X-Gm-Message-State: AOJu0YxgXxW7WEuWv+dk9GlWdA3cwVkMhL3EZaFjOayV4FGDO/YGn/hR
+	JUyX94mkRobGK/C9MfctKLqVqm/OR2wUKWXqk4eVQdAdm2T+c+/HyOb88p5Vvpzu7GjZhmK8wj9
+	DsTHx85V5Q66d/lhIiUABzIEuJDWTeZk=
+X-Gm-Gg: ASbGncvRIdM3U1bbUKGS+qsgGvqtW5tF0N2mfyqgdQV5HpijbXh+sUkdZnlp+JYxO7Y
+	PNtiAVMTPvSLasZ1NdpouldduWpQ5Nk4dhNYpbuAQVJu1p6JBB3RMHZtDmwXTwInlwluUPHH0v6
+	UZrWo0LI/kJqMbMCuoBRDoDSRcQJKYQwXeJ4yJHUnz81k=
+X-Google-Smtp-Source: AGHT+IEocoqUU5MsJ+J+nIjomiU2B0juuxF5Rga4if4CXpsYDNxxwmKi1ehPg2c5qP/raoPa/U8tAe30xaSOZka7Jlc=
+X-Received: by 2002:a05:6a20:7fa4:b0:1f5:6b36:f574 with SMTP id
+ adf61e73a8af0-21fad0d39ebmr4735654637.38.1749828169457; Fri, 13 Jun 2025
+ 08:22:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ5veb_psQc_j=8c7Jz3H46twvnmZKy=8E8Bzq7pCinK7Q@mail.gmail.com>
- <CAEjxPJ6tA5+LxsGfOJokzdPeRomBHjKLBVR6zbrg+_w3ZZbM3A@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6tA5+LxsGfOJokzdPeRomBHjKLBVR6zbrg+_w3ZZbM3A@mail.gmail.com>
+References: <20250611183234.10255-2-stephen.smalley.work@gmail.com>
+ <CAHC9VhR5CZSHKo41C4PdXbeJ3OuZUQ3ue1cbk9kjkHA6thjH6A@mail.gmail.com>
+ <CAEjxPJ7JAJ2aypxVyjw4KKAvGBvUVK6eCzbXF3Wd8huTSPiSFw@mail.gmail.com>
+ <CAEjxPJ7YixhZOmHVq92EBVoXO5ZO9__YXhhyD7iAWMkQNV-xsA@mail.gmail.com>
+ <CAHC9VhTunOdxp2v=27sAxTjQc558nwnQCT=86WR5TNP3ihSdfQ@mail.gmail.com>
+ <CAEjxPJ4MS4S+O3vj+mMuKkCVx53hnt91=2ZNPiP4eY9fKDyO8Q@mail.gmail.com>
+ <CAFqZXNtrNCHcybw4mEJZ6AZHGzTjtrf4LnBM6wZNVdpjqec-pw@mail.gmail.com> <CAEjxPJ4ErTOs5wRPA455cUAha22pCpvAD8joS5fZTtYaGitDZA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4ErTOs5wRPA455cUAha22pCpvAD8joS5fZTtYaGitDZA@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 13 Jun 2025 11:04:03 -0400
-X-Gm-Features: AX0GCFtzqVMiSZUSG5pmtH1U1DfqwL--e-uj-XB_25Wpw4Xq0n_57VzVL9JyTwY
-Message-ID: <CAEjxPJ799ZQkuqf79vDCq9guHE5BP2VwQDBNx6yeopNkU+rULQ@mail.gmail.com>
-Subject: Re: UBSAN warning during selinux-testsuite inet_socket xfrm tests
-To: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	SElinux list <selinux@vger.kernel.org>
+Date: Fri, 13 Jun 2025 11:22:38 -0400
+X-Gm-Features: AX0GCFt4IOPR8U6Qqa0KyMj_f0_a9MOPDpqrZ3joD8xOVZE_2ZREw2PtfDamia8
+Message-ID: <CAEjxPJ5O9diTHkewEJeB_9mA6TskGU9BSRyhbMA0YEUyq_8zMg@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests/inet_socket: invoke ip{6}tables-legacy
+ when appropriate
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 13, 2025 at 8:27=E2=80=AFAM Stephen Smalley
+On Fri, Jun 13, 2025 at 9:03=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> Still need to confirm that I can reproduce on a stock kernel without
-> SELinux namespace patches, but FYI...
+> On Fri, Jun 13, 2025 at 7:29=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.=
+com> wrote:
+> > On my end, the testsuite passes with both iptables-legacy and
+> > iptables-nft on Rawhide (with stock Fedora kernel). Also the
+> > alternatives symlinks are created automatically on package
+> > installation. It looks like you had some weird issue with the symlinks
+> > and perhaps some missing config options in the kernel.
+>
+> Ok, so I was able to pass the tests after uninstalling iptables-legacy
+> (reverting alternatives to iptables-nft) and using the provided kernel
+> config. Will need to see if I can figure out what if any relevant
+> differences there are in the config since I was using the testsuite
+> defconfig, which is intended to enable all _required_ options for the
+> tests.
 
-Ok, confirmed that this is reproducible with 6.16.0-rc1. Updated UBSAN
-output below.
-
-[  388.060446] ------------[ cut here ]------------
-[  388.061112] UBSAN: array-index-out-of-bounds in security/selinux/xfrm.c:=
-99:14
-[  388.061138] index 60 is out of range for type 'char [*]'
-[  388.061158] CPU: 3 UID: 0 PID: 5043 Comm: ip Not tainted 6.16.0-rc1
-#393 PREEMPT(lazy)
-[  388.061162] Call Trace:
-[  388.061163]  <TASK>
-[  388.061167]  dump_stack_lvl+0x6e/0xa0
-[  388.061175]  ubsan_epilogue+0x5/0x2b
-[  388.061180]  __ubsan_handle_out_of_bounds.cold+0x54/0x59
-[  388.061186]  selinux_xfrm_alloc_user+0x145/0x150
-[  388.061194]  security_xfrm_state_alloc+0x3c/0x100
-[  388.061199]  xfrm_state_construct+0x251/0x3b0
-[  388.061208]  xfrm_add_sa+0x87/0x1f0
-[  388.061215]  xfrm_user_rcv_msg+0x1a9/0x3a0
-[  388.061218]  ? arch_stack_walk+0xb7/0x100
-[  388.061248]  ? __pfx_xfrm_user_rcv_msg+0x10/0x10
-[  388.061281]  netlink_rcv_skb+0x5c/0x110
-[  388.061296]  xfrm_netlink_rcv+0x38/0x50
-[  388.061299]  netlink_unicast+0x1e3/0x2c0
-[  388.061308]  netlink_sendmsg+0x222/0x460
-[  388.061318]  ____sys_sendmsg+0x3a2/0x3d0
-[  388.061321]  ? import_iovec+0x1b/0x30
-[  388.061331]  ___sys_sendmsg+0x99/0xe0
-[  388.061356]  __sys_sendmsg+0x8a/0xf0
-[  388.061368]  do_syscall_64+0x94/0x370
-[  388.061376]  ? audit_reset_context+0x298/0x300
-[  388.061382]  ? syscall_exit_work+0x195/0x1d0
-[  388.061387]  ? do_syscall_64+0x158/0x370
-[  388.061389]  ? find_held_lock+0x2b/0x80
-[  388.061395]  ? __lock_release.isra.0+0x59/0x170
-[  388.061397]  ? handle_mm_fault+0x2c6/0x450
-[  388.061404]  ? lock_release.part.0+0x1c/0x50
-[  388.061406]  ? do_user_addr_fault+0x375/0x6b0
-[  388.061414]  ? clear_bhb_loop+0x50/0xa0
-[  388.061417]  ? clear_bhb_loop+0x50/0xa0
-[  388.061421]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
-[  388.061422] RIP: 0033:0x7feb13c1fa06
-[  388.061433] Code: 5d e8 41 8b 93 08 03 00 00 59 5e 48 83 f8 fc 75
-19 83 e2 39 83 fa 08 75 11 e8 26 ff ff ff 66 0f 1f 44 00 00 48 8b 45
-10 0f 05 <48> 8b 5d f8 c9 c3 0f 1f 40 00 f3 0f 1e fa 55 48 89 e5 48 83
-ec 08
-[  388.061434] RSP: 002b:00007ffc60961230 EFLAGS: 00000202 ORIG_RAX:
-000000000000002e
-[  388.061436] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007feb13c=
-1fa06
-[  388.061438] RDX: 0000000000000000 RSI: 00007ffc60961300 RDI: 00000000000=
-00004
-[  388.061439] RBP: 00007ffc60961250 R08: 0000000000000000 R09: 00000000000=
-00000
-[  388.061440] R10: 0000000000000000 R11: 0000000000000202 R12: 00000000609=
-62400
-[  388.061441] R13: 00000000684c3c09 R14: 00007ffc60961480 R15: 00007ffc609=
-64264
-[  388.061454]  </TASK>
-[  388.072240] ---[ end trace ]---
+I am seemingly unable to reproduce the problem now that I only have
+iptables-nft installed, so I guess it is fine now that my symlink
+issues are sorted (possibly a problem due to upgrading from F41->F42).
+Should we update the README.md to stipulate iptables-nft instead of
+just iptables?
