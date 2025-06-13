@@ -1,183 +1,135 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E761825A333;
-	Fri, 13 Jun 2025 20:35:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C78B2223DD1;
+	Fri, 13 Jun 2025 22:24:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749846928; cv=none; b=OAuCU6O/xOjPiVeBqSrxxRXu7OdxhUXgDFIO0xyytl8OjZ9SRLIzAHzUm+MnJUpiLXYTeID4/IgAsVwsdoWkVozJlEt0YMUnEqkwKh+LM56CROKwIREtKNcvVj2KtY2bCTQKDDHT27cEhagsV3bpplnveMTGgHqaJTmpvfURn0o=
+	t=1749853457; cv=none; b=YTcVjgYj6Qqg3aCFY7KA2TA675n7N2YIgXAc2idWDR6ePwUG5MjSW4hxOsOJZ9onz9YEJiBNBYHAJn/rL77GHCJLfiHqa4R656BDp/t1ixlzmHJYdrCDpfIx83sCaOmPIDj3KBEzkw7gIkI5PDQX9mNtd8YiDD9thJN3RPVC8d0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749846928; c=relaxed/simple;
-	bh=V1jCsXngTtJvAEzXv7vsil4xncAYb7+S++eg7D17lMw=;
-	h=Message-ID:Subject:From:To:Cc:In-Reply-To:References:Content-Type:
-	 Date:MIME-Version; b=K9oqe7GvO9tOuregbV1sKAEtN7X5j7UMu8Oxe6iNaPMfSAhEDt3t1Nr+Rgcnykr+O+Tp9bq4upd9xLdFgRl+8QErkEoDIWAhcby/C68ph4bXWGu8+68lfcb4Aa6XHRqNcIpgFSyVkzgA9JaDm2SapBW992xXV73hRykMrSaAM3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=EVdLv17X; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1749853457; c=relaxed/simple;
+	bh=bNdwETcqpIfwYNdS7suhS0ZcjU3owd6t5QykQLqOVvY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h4o5vKpAgyFnAY/Juw2xUWYFJ7zZ90+GdH4UXrSuyEdaavCb500pmMb3DruwyqHATJJLYEYWnX/QLLhj6uLIwP0Qek5CHRxtbuGpYjfozBkPkdp6EFNhVQCWb+Xeyh4N1GpKIHkFjDpq/pNIvpgnMs6txCePtg1x00SgbFMeshk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G95iBrRN; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="EVdLv17X"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55DJAq3Y030944;
-	Fri, 13 Jun 2025 20:35:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=gpIonl
-	jNp8yCoYn7R8AlY5k7J5ldvAlDebUGV7HIwnI=; b=EVdLv17XbXtgsn68lI+K5w
-	qKgg3mD4aFUYHMiQuTxW9VixlC+ZjgyBsyj8G6uHzInyGQqeh3h+ltNxqE/7jtJm
-	uNDXJWqeLNtz41QuBzqm7tO48oYudLRI7FEQQzKPNeY8NyUBm9c0uTORejk4UKCw
-	N20a9cO7Xdi/8piShdDSLhEz5OPWMP9krSjziE4rAV9wP485PfyyWW+lqknDOjNQ
-	DlMFmrUeVHjReFbGkIEhTIudMPB1biNbOj15nZEA3Jk8JkPANp5s9HQ6M/kQrK/P
-	v+8Qb9fsNa0UPKWtvNOaBnJ5myD4Hl/huetrtfLpSOAcsR0lruVVT2PHdu1YgyWQ
-	==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474dv838wd-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Jun 2025 20:35:01 +0000 (GMT)
-Received: from m0353729.ppops.net (m0353729.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 55DKW43S015685;
-	Fri, 13 Jun 2025 20:35:00 GMT
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 474dv838wa-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Jun 2025 20:35:00 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 55DHkYOo022352;
-	Fri, 13 Jun 2025 20:34:59 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 475050bwp4-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 13 Jun 2025 20:34:59 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 55DKYs6j20382328
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 13 Jun 2025 20:34:54 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A114F5803F;
-	Fri, 13 Jun 2025 20:34:58 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id C47E458056;
-	Fri, 13 Jun 2025 20:34:57 +0000 (GMT)
-Received: from li-43857255-d5e6-4659-90f1-fc5cee4750ad.ibm.com (unknown [9.61.101.213])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 13 Jun 2025 20:34:57 +0000 (GMT)
-Message-ID: <ae5e62722e238f55315b7ce523f7d2eb3af5e063.camel@linux.ibm.com>
-Subject: Re: [RFC PATCH 25/29] ima,evm: move initcalls to the LSM framework
-From: Mimi Zohar <zohar@linux.ibm.com>
-To: Paul Moore <paul@paul-moore.com>, David Howells <dhowells@redhat.com>
-Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
-        =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?=	 <mic@digikod.net>,
-        =?ISO-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
-        Kees Cook
- <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
-        Casey Schaufler	
- <casey@schaufler-ca.com>,
-        Tetsuo Handa
- <penguin-kernel@i-love.sakura.ne.jp>,
-        Eric Snowberg
- <eric.snowberg@oracle.com>
-In-Reply-To: <CAHC9VhTfNQeu3gcWii7kUrGY+fVygXs6j4UhybodPqjuSzA-pQ@mail.gmail.com>
-References: <20250409185019.238841-31-paul@paul-moore.com>
-	 <20250409185019.238841-56-paul@paul-moore.com>
-	 <12d9ea5981f5a2c33a01798311543db2e9bd4ee3.camel@linux.ibm.com>
-	 <CAHC9VhTfNQeu3gcWii7kUrGY+fVygXs6j4UhybodPqjuSzA-pQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Date: Fri, 13 Jun 2025 16:34:57 -0400
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G95iBrRN"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-235ef62066eso36559825ad.3;
+        Fri, 13 Jun 2025 15:24:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1749853455; x=1750458255; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=gq5VKt9XQUETe4teH1wFT9y9yXrZ3gXfIAVVgBJvQTg=;
+        b=G95iBrRNWwWb1n5aXu35wMnsY5wKmywYvFAV9nvbCVoGK04OilQNsEAxYcmzh0yO7e
+         64TZPqDPCK1tgLlwHZHeDjrALjU34d5au8jI0Hn/a5PG7XVhBvzGQbxoWjrqkyT5ebZI
+         fAtVyj46u8cjsSjxa8vsGP5Yu9JJIwN3+LQ77mIcaSO7KKQBKdApLnItthNFy1HxD5Nn
+         z/xffEdtIHvRchcPzk1Qzvu9UQlJF8DImcahNDuYzay4IdMipXF3zSeD0nEh0UmQr+VM
+         KjNLW1TyrGtonARMpTMpPTzMNgsFblev1QvvG6ir860hsB7qprrrlYElRora1ybPvZkE
+         66CQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749853455; x=1750458255;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=gq5VKt9XQUETe4teH1wFT9y9yXrZ3gXfIAVVgBJvQTg=;
+        b=HMHKqBjYJCY0wSvCKIC5X0vNrXOZPQlkCrWxNRjZsQKriO0J5u0iNDE8skZgjgjef4
+         7DzIYByU07/OFf/BrOHcQAt8GcPAj/Lb7joBFQQqhUha+xljloNpOAOskLCyk7T0cq7B
+         6P/+ww6/XFMO1JPdnTr1BAvmb9wXJ65NOJ+vHlN7s8337nX6EJPLJlt/dRBg/t+V3KRd
+         fcV4uDxudIXtUx0BZ98lnZ/kzkbASGbJVK/wN4/odUvVso2LSxPIx9gnU27bbbpmlszk
+         xvJtYVNzv11uzXOh1ex7ch9IeSDmvyEHHQnRqeaRp9cRd5IctCybAk3UxivhpOaYz9Mu
+         g9hw==
+X-Forwarded-Encrypted: i=1; AJvYcCVVFWrQMEiVpupvc2Oreio0oWDGR76lBLMxJS7t7mo0oqz3wIFtyW/MMXAGbgm4kzIG3wLJzkHq@vger.kernel.org, AJvYcCWqtXCb4rbW2FLexLTLWrlF2mkcLfXEbRuGdHjo8hK9iuOHKtl9kgS1ESMiUzCeBy+OP/8=@vger.kernel.org, AJvYcCX2nETv7WJbXWvTPhyRPkGlCWjDCtxMaKLa1BcQ8Up1TuCQXA6pYf+r3DgJkKEA4RXfTwFuGXKHMFZ3ObJgy0g1RwN91gDv@vger.kernel.org, AJvYcCXx4MJYl1MF64B0ZnYubbn385U0vAta0LkpVkHhr2p9xBH7p49QXpV/uQee3m9KC/PG+UgWjytDsA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzEg+JoERKj9aWn367D9AZTgxi9IeNfJL4hMtQ/0KM4GmD1OvFb
+	phHTizpJAUlyon1IXx0n9D6QszM+yRcov8+FqiJME+1bsPU7J88FiVA=
+X-Gm-Gg: ASbGncuve7AMuZO875ms7V7bainzeCEfbLXNVUyuWPY4LkoPQAb9wsyh6g1skmccEeE
+	iMit9SP6InQJKEdEM+0dBKNP5akSgK8esQyrlx+pIADeTg6nGGer7ESk2jSHjk55v8VGe9AUr6L
+	7ZT9lZa9En7LmQi/h6upgUZUkcY+Z1SRdn6/7VDl7cxjtlA2StgBWBoNgWLjPLJ0lRJgzaV+M6s
+	BFtZTlj6E1rXWgsflkM+ERH1A5DCY4K6tnY3iW7erz4Z6NozcaKuzKmnvX920t00FENiaYJc5U2
+	AoyynanFnu8CEogXmOScIUUk/95P1TwwBNb+DTg=
+X-Google-Smtp-Source: AGHT+IFKqOsIF5o2ATOddrVQR907k/h/rIQbIbX/Zwqp6dzJMu6Rk3B4uBoE6XABiEFQpVNqbfpVcQ==
+X-Received: by 2002:a17:902:ce89:b0:220:c164:6ee1 with SMTP id d9443c01a7336-2366b3dd319mr15926205ad.32.1749853455000;
+        Fri, 13 Jun 2025 15:24:15 -0700 (PDT)
+Received: from fedora.. ([2601:647:6700:3390::c8d1])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2365dfdb9a0sm19840615ad.239.2025.06.13.15.24.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Jun 2025 15:24:14 -0700 (PDT)
+From: Kuniyuki Iwashima <kuni1840@gmail.com>
+To: Martin KaFai Lau <martin.lau@linux.dev>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Andrii Nakryiko <andrii@kernel.org>
+Cc: Eduard Zingerman <eddyz87@gmail.com>,
+	Song Liu <song@kernel.org>,
+	Yonghong Song <yonghong.song@linux.dev>,
+	KP Singh <kpsingh@kernel.org>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Hao Luo <haoluo@google.com>,
+	Jiri Olsa <jolsa@kernel.org>,
+	Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+	Paul Moore <paul@paul-moore.com>,
+	James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	=?UTF-8?q?Micka=C3=ABl=20Sala=C3=BCn?= <mic@digikod.net>,
+	=?UTF-8?q?G=C3=BCnther=20Noack?= <gnoack@google.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Kuniyuki Iwashima <kuniyu@google.com>,
+	Kuniyuki Iwashima <kuni1840@gmail.com>,
+	bpf@vger.kernel.org,
+	linux-security-module@vger.kernel.org,
+	selinux@vger.kernel.org,
+	netdev@vger.kernel.org
+Subject: [PATCH v2 bpf-next 0/4] af_unix: Allow BPF LSM to filter SCM_RIGHTS at sendmsg().
+Date: Fri, 13 Jun 2025 15:22:12 -0700
+Message-ID: <20250613222411.1216170-1-kuni1840@gmail.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Evolution 3.54.3 (3.54.3-1.fc41) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: iNIJM6qMf0-2b67n-QsfZZ9QIGJKK6O-
-X-Proofpoint-GUID: SnEw9RzY2I7Vv3ptpdqioiYgQPsQFJ6v
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwNjEzMDE0MiBTYWx0ZWRfXwULc2+xj45Bz QuzPQoXsEHRZ3Z137rOwZA14dbt7mx7wCMnTA6AW+vJBg5ELaniJ2pVsGv2Eqw9Kh5SyKNeB1xU WzupmwElTJDnRSSg25qrO6GMgHoFC/14JYAZ6Lhm8nrinSDzrgVvCxbMusyq9Uyt0fSxzl3QKcT
- h8MDj4N/Mskq/NvpTJxpD4DjYtnKe7GuABa4qyOoQXcUa2ok2qJ6zIiSWc2QrT/oRWzkhWYcncL zaImdNgVmjr3OLVJfrw9YPmcLaqiYAII3oOzKKzERaFT6/PObTDQYBC6SVH7FUzqt9+1cT3UHUx WZDfyxauXLj7jTa2i895LkuefbCFo2eQSQqcVadgZg5dctIHP3RaF5CPhmqzQYWffzrXkXH8QX2
- tbMmlMfc75iR67UQ/aakt27L4OhX5xdc21ucCCTnr7qihiFqBbaizHtBf/FoMzQzZ35zdjPN
-X-Authority-Analysis: v=2.4 cv=CfMI5Krl c=1 sm=1 tr=0 ts=684c8b75 cx=c_pps a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17 a=IkcTkHD0fZMA:10 a=6IFa9wvqVegA:10 a=VwQbUJbxAAAA:8 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8 a=tiGqyuVAyrAc4NrlPAYA:9
- a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.0.736,FMLib:17.12.80.40
- definitions=2025-06-13_03,2025-06-13_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
- phishscore=0 priorityscore=1501 clxscore=1015 impostorscore=0 mlxscore=0
- suspectscore=0 mlxlogscore=999 adultscore=0 malwarescore=0
- lowpriorityscore=0 classifier=spam authscore=0 authtc=n/a authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2505280000
- definitions=main-2506130142
+Content-Transfer-Encoding: 8bit
 
-On Wed, 2025-06-11 at 16:27 -0400, Paul Moore wrote:
-> On Fri, May 30, 2025 at 6:04=E2=80=AFPM Mimi Zohar <zohar@linux.ibm.com> =
-wrote:
-> > On Wed, 2025-04-09 at 14:50 -0400, Paul Moore wrote:
-> > > This patch converts IMA and EVM to use the LSM frameworks's initcall
-> > > mechanism.  There were two challenges to doing this conversion: the
-> > > first simply being the number of initcalls across IMA and EVM, and th=
-e
-> > > second was the number of resources shared between the two related,
-> > > yet independent LSMs.
-> >=20
-> > There are a number of the initcalls under integrity/platform/, which lo=
-ad arch
-> > specific keys onto the platform and machine keyrings, which shouldn't b=
-e
-> > included in this patch.
->=20
-> I don't want to assume too much from your reply, but if the cert/key
-> loading under integrity/platform shouldn't be subject to the LSM
-> initcall rework, that implies that the integrity/platform cert/key
-> loading is independent of IMA/EVM and should perhaps live somewhere
-> else, e.g. security/keys?
->=20
-> Or am I misunderstanding something?
+From: Kuniyuki Iwashima <kuniyu@google.com>
 
-When the .platform keyring was upstreamed it was upstreamed for a very spec=
-ific
-purpose so that IMA could verify the kexec kernel image.  Afterwareds it wa=
-s
-immediately used to verify the pesigned kexec image.  Now it is being (ab)u=
-sed
-by other subsystems - ipe and dm-verity - and is being proposed by the "[PA=
-TCH
-RFC 0/1] module: Optionally use .platform keyring for signatures verificati=
-on".
-From an integrity perspective this is definitely not a good idea.  The
-discussion, which I'm sure you're aware of, is here:
-https://lore.kernel.org/linux-integrity/20250602132535.897944-1-vkuznets@re=
-dhat.com/
+Since commit 77cbe1a6d873 ("af_unix: Introduce SO_PASSRIGHTS."),
+we can disable SCM_RIGHTS per socket, but it's not flexible.
 
-It does not make any sense to move the code for the platform and machine
-keyrings to security/keys.  If they need to move anywhere, it would be to t=
-he
-certs/ directory.
+This series allows us to implement more fine-grained filtering for
+SCM_RIGHTS with BPF LSM.
 
->=20
-> > > The first problem was resolved by the creation of two new functions,
-> > > integrity_device_init() and integrity_late_init(), with each focused =
-on
-> > > calling all of the various IMA/EVM initcalls for a single initcall ty=
-pe.
-> > > The second problem was resolved by registering both of these new
-> > > functions as initcalls for each LSM and including code in each
-> > > registered initcall to ensure it only executes once.
-> >=20
-> > With the above change, there obviously will be a lot fewer initcalls, b=
-ut it
-> > might still make sense to keep the common ima/evm function.
->=20
-> I'm not sure I understand, what do you mean by "common ima/evm
-> function"?  This patch doesn't remove any IMA/EVM functions, it adds
-> the integrity_device_init() and integrity_late_init() functions to
-> setup and populate some keyrings.
 
-"The above change" refers to not including the platform and the arch specif=
-ic
-calls or machine keyring initcalls.  By not including them, there are a lot
-fewer initcalls in this ima,evm patch.
+Changes:
+  v2: Remove SCM_RIGHTS fd scrubbing functionality
 
-Mimi
+  v1: https://lore.kernel.org/bpf/20250505215802.48449-1-kuniyu@amazon.com/
+
+
+Kuniyuki Iwashima (4):
+  af_unix: Don't pass struct socket to security_unix_may_send().
+  af_unix: Call security_unix_may_send() in sendmsg() for all socket
+    types
+  af_unix: Pass skb to security_unix_may_send().
+  selftest: bpf: Add test for BPF LSM on unix_may_send().
+
+ include/linux/lsm_hook_defs.h                 |   3 +-
+ include/linux/security.h                      |   7 +-
+ net/unix/af_unix.c                            |  32 ++--
+ security/landlock/task.c                      |  16 +-
+ security/security.c                           |   5 +-
+ security/selinux/hooks.c                      |  14 +-
+ security/smack/smack_lsm.c                    |  12 +-
+ .../bpf/prog_tests/lsm_unix_may_send.c        | 168 ++++++++++++++++++
+ .../selftests/bpf/progs/lsm_unix_may_send.c   |  83 +++++++++
+ 9 files changed, 309 insertions(+), 31 deletions(-)
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/lsm_unix_may_send.c
+ create mode 100644 tools/testing/selftests/bpf/progs/lsm_unix_may_send.c
+
+-- 
+2.49.0
 
