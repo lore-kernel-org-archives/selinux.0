@@ -1,113 +1,140 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D6F9191F8C;
-	Fri, 13 Jun 2025 14:15:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54329149DE8
+	for <selinux@vger.kernel.org>; Fri, 13 Jun 2025 15:04:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749824129; cv=none; b=IDG1KWHvq71/r1qaqUOGO2JdDodWnJ9mtAmpm1gYSk1PHF2ajsWBJgfVtpSf8atRBwNxfyMJmWpdl9WQbOdFAbZO9NRQIoOYu9UtRcTaD5gJYt+ET2lR/jpE07j3JdPezBkSts1q2YwZoxgPERVJsyaj9MBpGyICGplq4t6lsRk=
+	t=1749827057; cv=none; b=noKTVBxz8SA6jEb6Jzq+vzneZGZp5B4nNau20Ulm4TCb73NQTXrUka9r/Z5qLqvXUzMJlWIy98MRC3zV7uHkfyqYUfyiOupIbP4174FCDPqp2jn5YJ2ToCH109BpAuw1QX/0o5LX4JDRjh/GyGHktQTJxPwSSoMN9yWGvXhlqqE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749824129; c=relaxed/simple;
-	bh=v/xoININJFp/RvAJxPK6UdCzG11l+2Z2W/DSk4lYLco=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=R2h0+vvWGk0tizs5N8y9crsH9r7AVXXihpaHbd0UQWtc/vPNePX1/ikozXSP2dMG0kJLvIAgAvvl8tDokrYWTosWyphRPVj0qebiQw4xStoPDMfKgibWQKl4TpmYcnAhy/h6NJb0HHJDYjta1x2OpyDsj4A/0QeJC9v1pQ3bJao=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rupWDzGK; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1749827057; c=relaxed/simple;
+	bh=bD1en0JtQx9b+wTbBY5bioqchwbzyAlq2komS/BShb8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=QxoGW1fa12Jy2oIZU/9KYbpvRmqk4hSL3yms6M+Z9xI95mmGWgvOI4AMD63MZj0pBiVnhbzfi6w67pOu7QGmPDWGpnlNdC8+sMpgGQn21LDzFInpA/pEmO1bZUNvRk/gLe+Q5rGpJA1E+bfQYtgescgw5W40kbOiMW3iKPEk4NI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HGe8kK/H; arc=none smtp.client-ip=209.85.210.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rupWDzGK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABE50C4CEE3;
-	Fri, 13 Jun 2025 14:15:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749824128;
-	bh=v/xoININJFp/RvAJxPK6UdCzG11l+2Z2W/DSk4lYLco=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=rupWDzGKqAcn8gsaE8FvV5MlLv1j3oaYAqzHsimUmHTvOOUZLLX5nQz5CVSbrr4d4
-	 V5wWWiEZZfMsKZ1Gal8y+jNNR53pXIKncmzI72ErwKQZnYKQPiMbVSs/OT8Ab1+MpG
-	 4J3xpNlXRSRI0fNPb7N0Mp1uIG4inf0AZhLzDri9tENTypvykI8Rjp2itKG/CdbtMG
-	 6uIokmTxRE1wXKK9VHdPA2tY8Bxnnkyv8mIduikLrM2ErRU3xZaZy5YKDM42kZiqxL
-	 Pr3jXj9gHsH/UIyk2QjnS04nTl5//Z5pl3Zrp9glX3djf9BwKzGN4+iQJ4zfI1jKEm
-	 1BXJN+bb6xogQ==
-Date: Fri, 13 Jun 2025 15:15:25 +0100
-From: Simon Horman <horms@kernel.org>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com,
-	netdev@vger.kernel.org
-Subject: Re: [PATCH v4 27/42] selinux: introduce task_obj_perm()
-Message-ID: <20250613141525.GG414686@horms.kernel.org>
-References: <20250610172226.1470741-1-stephen.smalley.work@gmail.com>
- <20250610172226.1470741-28-stephen.smalley.work@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HGe8kK/H"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-742c035f2afso1638804b3a.2
+        for <selinux@vger.kernel.org>; Fri, 13 Jun 2025 08:04:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1749827054; x=1750431854; darn=vger.kernel.org;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VxWo+49vZwXf1RJBaxyNLjSvZBNcqUBlhLPUO5YvbIg=;
+        b=HGe8kK/HBg8y2Vcn4GfrIxCuZYYtTxUAK7X5BglsKsE2ijU/YEM4+ePd/fJf9dPM+V
+         K1Bp/7BQmdRl/rMNCbVQ54qbmGLGS9IZiJjhYUs2Fja/DX/jdbDejwNzZeiC587wQs4v
+         6mqVvgmsr2OMTHOBLv2GoMXDbqWRfY67dcgAzyPkgZGaLy49bY8loYBli0itP51xzDVS
+         rXut6DCylxEiZ0ll0OW/avD8As+AsGJPc75PLC0dDeP2WThxFzfqDiy0ECmWmidTT8+C
+         gKNOEXhVFL4yzlPMTGO5n/V+uDHNGsstSeToA/4jlUCqLjN1R+g897PR6kIxS7uoec+r
+         N91Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749827054; x=1750431854;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=VxWo+49vZwXf1RJBaxyNLjSvZBNcqUBlhLPUO5YvbIg=;
+        b=gBriLNHHwu/DV2KehUPLboaWfgsE9HfISq+yTOJ6bIsh9jSLBKH9gZ9HPFN+JzV2tV
+         1hmeXTBQkP1dvjnYJEXWPYLjdkiB1AaEhblB0ktfCmz5ZKEVGa04rzJEpCvor2DKL9eC
+         Wvx2o9G9h9UZkRyjdotsDW1Vvh8yxGXrQznpJYCHOEVXPX/pLQEsW2gPSy9UcMB4lf50
+         UNWoAzaqnc+UWrXI7c4SR10kdvJTyRWbojkeOvEHbh6idKngWvqdZbh7gd4pxKS+kFUE
+         63VIYgf0nU2bPJEf9f15B6Ui+KH2QomgXelxQtbShvjO68PuVfCHxfzXDriGOJ8PYHDI
+         Ec2g==
+X-Forwarded-Encrypted: i=1; AJvYcCUCL+W6+stDktzuYMYspnG/5iryzfvd6HT412UDR2vdDcuIoGNELIbKr29rqOCEeP7LDzYfNk2F@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzm9edNIgQrMfQMOWA5kt3pSTJU6klPsLD6lIgJ3RniAdZKsPVd
+	AHXiGUlGmoPQceSyzkfnoz5+WOPQeM4YhV9pLEwqXZDx2Ofj3dUelGqq+/V+IkaSAG0LLRtQgdA
+	zpMqCakDFW+2Lijbls7IF+aTSVhSPLgU=
+X-Gm-Gg: ASbGncuL/rNBvtbN2StX4XNswxrYfrTNAA2cff7CRRDVksZ7vhN7Rr9Xo5ima+n3SOx
+	y1/rlXf8OoDAAGGaND5YZi0uhqrra7svyPGZmcPpQgrxq3/iLpsNbtJ3n/F/6i0CiDIP88r22pW
+	BiTGrzCLbiwBXGXaj4kTS3jgvpwYer4ZLNM7TLvmBOALM=
+X-Google-Smtp-Source: AGHT+IHrlUAlXvjObykcwoz6pfjCP7pyBKiWUfxWNpBNsk6LQ3QJy3f/L8ve77wnpN2XlRp1HSI3U6Pfr8PTvRIIS1Q=
+X-Received: by 2002:a05:6a00:3928:b0:746:1b45:57a8 with SMTP id
+ d2e1a72fcca58-7488f746778mr4237432b3a.22.1749827054284; Fri, 13 Jun 2025
+ 08:04:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250610172226.1470741-28-stephen.smalley.work@gmail.com>
+References: <CAEjxPJ5veb_psQc_j=8c7Jz3H46twvnmZKy=8E8Bzq7pCinK7Q@mail.gmail.com>
+ <CAEjxPJ6tA5+LxsGfOJokzdPeRomBHjKLBVR6zbrg+_w3ZZbM3A@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6tA5+LxsGfOJokzdPeRomBHjKLBVR6zbrg+_w3ZZbM3A@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 13 Jun 2025 11:04:03 -0400
+X-Gm-Features: AX0GCFtzqVMiSZUSG5pmtH1U1DfqwL--e-uj-XB_25Wpw4Xq0n_57VzVL9JyTwY
+Message-ID: <CAEjxPJ799ZQkuqf79vDCq9guHE5BP2VwQDBNx6yeopNkU+rULQ@mail.gmail.com>
+Subject: Re: UBSAN warning during selinux-testsuite inet_socket xfrm tests
+To: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 10, 2025 at 01:21:58PM -0400, Stephen Smalley wrote:
-> Introduce task_obj_perm() for namespace-aware permission checking
-> between two tasks using the objective SID for both tasks and
-> without assuming that either task is current.
-> 
-> Convert the permission checks of this form in the hook functions
-> to use this new helper.
-> 
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+On Fri, Jun 13, 2025 at 8:27=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> Still need to confirm that I can reproduce on a stock kernel without
+> SELinux namespace patches, but FYI...
 
-...
+Ok, confirmed that this is reproducible with 6.16.0-rc1. Updated UBSAN
+output below.
 
-> +int task_obj_has_perm(const struct task_struct *s,
-> +		      const struct task_struct *t,
-> +		      u16 tclass, u32 requested,
-> +		      struct common_audit_data *ad)
-> +{
-> +	const struct cred *cred;
-> +	const struct task_security_struct *tsec;
-> +	struct selinux_state *state;
-> +	u32 ssid;
-> +	u32 tsid;
-> +	int rc;
-> +
-> +	state = current_selinux_state;
-> +	rcu_read_lock();
-> +	tsec = task_security(s);
-> +	if (tsec)
-> +		ssid = tsec->sid;
-> +	else
-> +		ssid = SECINITSID_UNLABELED;
-
-Hi Stephen,
-
-Above it is assumed that tsec may be NULL...
-
-> +	rcu_read_unlock();
-> +
-> +	do {
-> +		tsid = task_sid_obj_for_state(t, state);
-> +
-> +		rc = avc_has_perm(state, ssid, tsid, tclass, requested, ad);
-> +		if (rc)
-> +			return rc;
-> +
-> +		cred = tsec->parent_cred;
-
-... but here tsec is dereferenced without explicitly checking if it is not
-NULL. I'm wondering if this is safe, e.g. due to the call to avc_has_perm().
-
-Flagged by Smatch.
-
-> +		if (!cred)
-> +			break;
-> +
-> +		rcu_read_lock();
-> +		tsec = selinux_cred(cred);
-> +		ssid = tsec->sid;
-> +		state = tsec->state;
-> +		rcu_read_unlock();
-> +	} while (cred);
-> +
-> +	return 0;
-> +}
-
-...
+[  388.060446] ------------[ cut here ]------------
+[  388.061112] UBSAN: array-index-out-of-bounds in security/selinux/xfrm.c:=
+99:14
+[  388.061138] index 60 is out of range for type 'char [*]'
+[  388.061158] CPU: 3 UID: 0 PID: 5043 Comm: ip Not tainted 6.16.0-rc1
+#393 PREEMPT(lazy)
+[  388.061162] Call Trace:
+[  388.061163]  <TASK>
+[  388.061167]  dump_stack_lvl+0x6e/0xa0
+[  388.061175]  ubsan_epilogue+0x5/0x2b
+[  388.061180]  __ubsan_handle_out_of_bounds.cold+0x54/0x59
+[  388.061186]  selinux_xfrm_alloc_user+0x145/0x150
+[  388.061194]  security_xfrm_state_alloc+0x3c/0x100
+[  388.061199]  xfrm_state_construct+0x251/0x3b0
+[  388.061208]  xfrm_add_sa+0x87/0x1f0
+[  388.061215]  xfrm_user_rcv_msg+0x1a9/0x3a0
+[  388.061218]  ? arch_stack_walk+0xb7/0x100
+[  388.061248]  ? __pfx_xfrm_user_rcv_msg+0x10/0x10
+[  388.061281]  netlink_rcv_skb+0x5c/0x110
+[  388.061296]  xfrm_netlink_rcv+0x38/0x50
+[  388.061299]  netlink_unicast+0x1e3/0x2c0
+[  388.061308]  netlink_sendmsg+0x222/0x460
+[  388.061318]  ____sys_sendmsg+0x3a2/0x3d0
+[  388.061321]  ? import_iovec+0x1b/0x30
+[  388.061331]  ___sys_sendmsg+0x99/0xe0
+[  388.061356]  __sys_sendmsg+0x8a/0xf0
+[  388.061368]  do_syscall_64+0x94/0x370
+[  388.061376]  ? audit_reset_context+0x298/0x300
+[  388.061382]  ? syscall_exit_work+0x195/0x1d0
+[  388.061387]  ? do_syscall_64+0x158/0x370
+[  388.061389]  ? find_held_lock+0x2b/0x80
+[  388.061395]  ? __lock_release.isra.0+0x59/0x170
+[  388.061397]  ? handle_mm_fault+0x2c6/0x450
+[  388.061404]  ? lock_release.part.0+0x1c/0x50
+[  388.061406]  ? do_user_addr_fault+0x375/0x6b0
+[  388.061414]  ? clear_bhb_loop+0x50/0xa0
+[  388.061417]  ? clear_bhb_loop+0x50/0xa0
+[  388.061421]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+[  388.061422] RIP: 0033:0x7feb13c1fa06
+[  388.061433] Code: 5d e8 41 8b 93 08 03 00 00 59 5e 48 83 f8 fc 75
+19 83 e2 39 83 fa 08 75 11 e8 26 ff ff ff 66 0f 1f 44 00 00 48 8b 45
+10 0f 05 <48> 8b 5d f8 c9 c3 0f 1f 40 00 f3 0f 1e fa 55 48 89 e5 48 83
+ec 08
+[  388.061434] RSP: 002b:00007ffc60961230 EFLAGS: 00000202 ORIG_RAX:
+000000000000002e
+[  388.061436] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007feb13c=
+1fa06
+[  388.061438] RDX: 0000000000000000 RSI: 00007ffc60961300 RDI: 00000000000=
+00004
+[  388.061439] RBP: 00007ffc60961250 R08: 0000000000000000 R09: 00000000000=
+00000
+[  388.061440] R10: 0000000000000000 R11: 0000000000000202 R12: 00000000609=
+62400
+[  388.061441] R13: 00000000684c3c09 R14: 00007ffc60961480 R15: 00007ffc609=
+64264
+[  388.061454]  </TASK>
+[  388.072240] ---[ end trace ]---
