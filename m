@@ -1,113 +1,138 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F0C51C6FF3;
-	Sat, 14 Jun 2025 17:33:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 543BA78F2B;
+	Sat, 14 Jun 2025 20:40:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749922400; cv=none; b=pnjsnBaphJzExbtA3HEPMtojCVpbuNpG3cgLtl9N8lMGQ7DQkufrlkdhCeNS2u1mxOUEvIO1gJjdHLLh9Ue2mopGVPfHSjDrRvMJemH4SoCI7siNDLIZ1BRJDaiWS5IcA9Twb7uEEkj2ka9jGj9Kqa5Ht6Kyo/Cikgig5HlmGHY=
+	t=1749933649; cv=none; b=ci5sNp1VU6ontIX2KHYJ5kaZuaqNRBuvf3av6dL8n4ogIJY2dVrQ/70l/IudPfVdcnFC9Ee3CRes+vRTPGa0+xoSnNyZh+BWZal9M+8f7Pgq1rZQ55ZkSVD9XIlGqCj2WunGEOQLdMF4f3MuiNDSmdB4/KnMyeYMXbK5fP8BC8M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749922400; c=relaxed/simple;
-	bh=sYzhyuOMJlxaNLvwtjvQFPSqgL1EZJfEM0k8Hyk2zmE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HL4pN8WQ067L7Q0vF+74LoVPkb1U8NAetSoPPB2NzkNrWe1vE+ax25n8WsenkFfmJIkL3R15D4Ywv/KYkg3fX2mvRzQ+BPIyGAz/mDmEqeznN+xc1GYBaMRgPqF+4WTf6lwDS4TzUR+rudAUTaNq6Z8Mrdx9a3+v2G2mbQRDPRI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=du/NcX7b; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1749933649; c=relaxed/simple;
+	bh=Ax85jcqZ/jyVchftvff81IQk1pa6W4aIgegRl2Cn004=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=nB1ecVKB6Yb13EzgFC8Bqza6g3POPMYyHbx8XoI9TYM+uO2DBiZ4Q48Kjis+svSD1uA9TjShxKx6moOahRN80T9LUA3Fqt5pphdC8inXvRfrT1tyYnGXOlDm9gMiN4kV3bTlwHDt8GA6xg4vSjv0fysDLzcPF8VZyUkHTzNnqUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Iz+CjjiL; arc=none smtp.client-ip=209.85.210.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="du/NcX7b"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1749922399; x=1781458399;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=sYzhyuOMJlxaNLvwtjvQFPSqgL1EZJfEM0k8Hyk2zmE=;
-  b=du/NcX7bkNCz0oZ88U/JQ1x8ykVt0wktUtoNKlqz0PmRahCnToC7jXog
-   TNc+nctyKq3CJBqvPyjgRygDmbQegbiCDCcsRhJofNWrwA9Kz1K11zh+F
-   Iw9Ej1gwBcFrpCKQCQX97aewktbArK8GNLZ2/T4jtdnLE8nIYR0VnuqjJ
-   n5SdHcS9WS1M/I0OfV6jX+CoG83N45+vBpBtcW40Tu2Z02/qOnm0zKZwB
-   IbspEFcpM9mirUrwJeHxp2ReLeJBsrE0Gn65ytOka3jubU7XI3oUjBQXL
-   qjart1mEqd3SW9apSUftGci6vxAqN4FNKovbP4IwtUbt8RfYUtrNiXEER
-   g==;
-X-CSE-ConnectionGUID: JnxcsrzgS3W9XcsCqpRKBg==
-X-CSE-MsgGUID: +eLu2qJsSEO155J5jDAMMA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11464"; a="77510505"
-X-IronPort-AV: E=Sophos;i="6.16,237,1744095600"; 
-   d="scan'208";a="77510505"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jun 2025 10:33:18 -0700
-X-CSE-ConnectionGUID: nRDaa7ccShCXOkP3q+4CNw==
-X-CSE-MsgGUID: nIM2ZCBoSemDGezcKbJKPg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.16,237,1744095600"; 
-   d="scan'208";a="147953425"
-Received: from lkp-server01.sh.intel.com (HELO e8142ee1dce2) ([10.239.97.150])
-  by fmviesa006.fm.intel.com with ESMTP; 14 Jun 2025 10:33:12 -0700
-Received: from kbuild by e8142ee1dce2 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1uQUkg-000Dj2-1v;
-	Sat, 14 Jun 2025 17:33:10 +0000
-Date: Sun, 15 Jun 2025 01:32:53 +0800
-From: kernel test robot <lkp@intel.com>
-To: Kuniyuki Iwashima <kuni1840@gmail.com>,
-	Martin KaFai Lau <martin.lau@linux.dev>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Andrii Nakryiko <andrii@kernel.org>
-Cc: oe-kbuild-all@lists.linux.dev, Eduard Zingerman <eddyz87@gmail.com>,
-	Song Liu <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>,
-	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
-	Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-	Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-	Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
-	"Serge E. Hallyn" <serge@hallyn.com>,
-	=?iso-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>,
-	=?iso-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>,
-	Casey Schaufler <casey@schaufler-ca.com>,
-	Kuniyuki Iwashima <kuniyu@google.com>, bpf@vger.kernel.org,
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-	netdev@vger.kernel.org
-Subject: Re: [PATCH v2 bpf-next 1/4] af_unix: Don't pass struct socket to
- security_unix_may_send().
-Message-ID: <202506150111.BYSccpdo-lkp@intel.com>
-References: <20250613222411.1216170-2-kuni1840@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Iz+CjjiL"
+Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-748764d8540so2930322b3a.0;
+        Sat, 14 Jun 2025 13:40:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1749933647; x=1750538447; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nTlkYKHNNbkrNpkDfXuKI7LdPcN9fZ6NGt2sNIKi0Tk=;
+        b=Iz+CjjiL9J/lfWNWOFO7tvSrzoqdByoueOoLoAA1U5c5J4QbzX4fzUXxnaA6dslxxS
+         odCfMYD6lzBjQrnToCrFYtzDFeuTpAmoc2oJJNH/lPtogozpnoi6RTQ5pYP7tRpZe5Ab
+         RkPXm1EV0u0GLyHIw+XguDHd26RtkWSDuCAcJ4lxOI9tTiNkkzO3jpxtxXUQCNJAjhZT
+         zWQ7KGQDt3UpR0J9GpMaSn9GljYZOlaNq0cP0lUfUFFp+7Zlgl8HwP45D5wx1gI98Xuu
+         avHl4vAqMuykFem3zhYTSr8ame66KaTUnof4/j/3tMCHL43Czy05Gvg7IQpmH6oF3DGO
+         4VYg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749933647; x=1750538447;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=nTlkYKHNNbkrNpkDfXuKI7LdPcN9fZ6NGt2sNIKi0Tk=;
+        b=Rm244H7EgEQty7kIyc/6x8M9lwu2YXqZCAGi8zIrOg0ClW1CRatOOBcEMRYxubzyqf
+         mHJLnt+hcU9x+g15WRL7e8jZA38IREWYNlEmPzaTiF1rvGj31LPpP3bhEjeq7/jtfgIB
+         NQOan1+YAvuOH4lTK0mU3RWqin0/n1E634cUKKOgQ+yVaA+l9yHLIiHAvNqQs1wlsBR3
+         ea2qqcxXGVE99ilNMH/W8RUHGqnFaoHGq1rc7FJOXO2MUikgENH74d+Ct06GkndsTcmD
+         tEKvNm3Vz5sF8ivivGjKRyHn+L8K/ykqBU+ewNZiN7luk/YWO0daUhNfPfi+ioC2U4U/
+         UUfQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW3j5S43VBiAKVp98XGIDYSSjtWTR5jp+KGk1xdlTH+1OJCoMPgjNIG3s+oEhD43g5uI9Qvi/z/sg==@vger.kernel.org, AJvYcCWXoHaCH9swxKcTM97IRPRhZbnpHH13CqwWHAJCm3PImBpka6GNDb9kd4Kx3KUXX2KjyF8wwn66@vger.kernel.org, AJvYcCWvJTnY/uc04FiziWdQjYqj4j85fAP1OhsLF4rtVVNsnIca66YPdE+CbprEOOSCL6I8DpSrzTW8Ib2YNdS7//srpOzVOcS6@vger.kernel.org, AJvYcCXVENSLB0iAQk/teQHuM2UxFTQNWAFR0bdbjiyok0H+rJg4+amiSXpYXiGoquxHuI9X0KY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzLpUVlF1pcHtGnYD7YTR5B0J2OfbCfObWH8/E+x+INv63sBzGT
+	e6ckmlP7qjmxW6Wc3v5muyB1RUPD6U05yQqdZLxPidoAFzoaai5CmFc=
+X-Gm-Gg: ASbGncth94XsdDIhRXlOgtPnmNwMlfKTCZN0S8+QGgZu9oqr/ASPM8I+FzUaAeen8V+
+	R5siB0ODk/VP2ZDPS40kLcgwcpAX2Lge1SOWL5zH5xVSjsy4IXhO3HKLg9dl129DOUmgq1Btstm
+	7U5U0A+a2qyLk1PFeUnPp5sA5/fo0xRTZuPm2q4RRZQj4HvPqpUAFvCgqaIn+jrBsNF/fGXhqQn
+	UJoMwQRmt/t2A+fkr7F+kTQGAMX5u45B3+Y8vUzCn4DSfkEFDBAhmG27xE/QrKUwECIFkA24VK0
+	WOlgRuKl2YJ9iCuD16MiodSo/E3FqsIRlYg1Iy0=
+X-Google-Smtp-Source: AGHT+IEEfYBkfMvnd2ejMHCgcqw1lGIeuzdai2oQkNeRPlhWZdHmPJQTYFVmN/54ormHyqsjTnDGoQ==
+X-Received: by 2002:a05:6a00:2e11:b0:746:3040:4da2 with SMTP id d2e1a72fcca58-7489cf726c8mr6670373b3a.8.1749933647448;
+        Sat, 14 Jun 2025 13:40:47 -0700 (PDT)
+Received: from fedora.. ([2601:647:6700:3390::c8d1])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-74890083fafsm3744908b3a.76.2025.06.14.13.40.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 14 Jun 2025 13:40:46 -0700 (PDT)
+From: Kuniyuki Iwashima <kuni1840@gmail.com>
+To: paul@paul-moore.com
+Cc: andrii@kernel.org,
+	ast@kernel.org,
+	bpf@vger.kernel.org,
+	casey@schaufler-ca.com,
+	daniel@iogearbox.net,
+	eddyz87@gmail.com,
+	gnoack@google.com,
+	haoluo@google.com,
+	jmorris@namei.org,
+	john.fastabend@gmail.com,
+	jolsa@kernel.org,
+	kpsingh@kernel.org,
+	kuni1840@gmail.com,
+	kuniyu@google.com,
+	linux-security-module@vger.kernel.org,
+	martin.lau@linux.dev,
+	memxor@gmail.com,
+	mic@digikod.net,
+	netdev@vger.kernel.org,
+	omosnace@redhat.com,
+	sdf@fomichev.me,
+	selinux@vger.kernel.org,
+	serge@hallyn.com,
+	song@kernel.org,
+	stephen.smalley.work@gmail.com,
+	yonghong.song@linux.dev
+Subject: Re: [PATCH v2 bpf-next 0/4] af_unix: Allow BPF LSM to filter SCM_RIGHTS at sendmsg().
+Date: Sat, 14 Jun 2025 13:40:04 -0700
+Message-ID: <20250614204044.2190213-1-kuni1840@gmail.com>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <1976e40bd50.28a7.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+References: <1976e40bd50.28a7.85c95baa4474aabc7814e68940a78392@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250613222411.1216170-2-kuni1840@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Kuniyuki,
+From: Paul Moore <paul@paul-moore.com>
+Date: Sat, 14 Jun 2025 07:43:46 -0400
+> On June 13, 2025 6:24:15 PM Kuniyuki Iwashima <kuni1840@gmail.com> wrote:
+> > From: Kuniyuki Iwashima <kuniyu@google.com>
+> >
+> > Since commit 77cbe1a6d873 ("af_unix: Introduce SO_PASSRIGHTS."),
+> > we can disable SCM_RIGHTS per socket, but it's not flexible.
+> >
+> > This series allows us to implement more fine-grained filtering for
+> > SCM_RIGHTS with BPF LSM.
+> 
+> My ability to review this over the weekend is limited due to device and 
+> network access, but I'll take a look next week.
+> 
+> That said, it would be good if you could clarify the "filtering" aspect of 
+> your comments; it may be obvious when I'm able to look at the full patchset
 
-kernel test robot noticed the following build warnings:
+I meant to mention that just below the quoted part :)
 
-[auto build test WARNING on bpf-next/master]
+---8<---
+Changes:
+  v2: Remove SCM_RIGHTS fd scrubbing functionality
+---8<---
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Kuniyuki-Iwashima/af_unix-Don-t-pass-struct-socket-to-security_unix_may_send/20250614-062956
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git master
-patch link:    https://lore.kernel.org/r/20250613222411.1216170-2-kuni1840%40gmail.com
-patch subject: [PATCH v2 bpf-next 1/4] af_unix: Don't pass struct socket to security_unix_may_send().
-config: arm-randconfig-001-20250614 (https://download.01.org/0day-ci/archive/20250615/202506150111.BYSccpdo-lkp@intel.com/config)
-compiler: arm-linux-gnueabi-gcc (GCC) 8.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250615/202506150111.BYSccpdo-lkp@intel.com/reproduce)
+> in context, but the commit descriptions worry me that perhaps you are still 
+> intending on using the LSM framework to cut SCM_RIGHTS payloads from 
+> individual messages?  Blocking messages at send time if they contain 
+> SCM_RIGHTS is likely okay (pending proper implementation review), but 
+> modifying packets in flight in the LSM framework is not.
+> 
+> Also, a quick administrative note, I see you have marked this as 
+> "bpf-next", however given the diffstat of the proposed changes this 
+> patchset should go to Linus via the LSM tree and not the BPF tree.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202506150111.BYSccpdo-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> Warning: security/smack/smack_lsm.c:3892 function parameter 'sk' not described in 'smack_unix_may_send'
->> Warning: security/smack/smack_lsm.c:3892 Excess function parameter 'sock' description in 'smack_unix_may_send'
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+This was to kick the BPF CI for the selftest patch, and the __nullable
+arg suffix in patch 3 is BPF specific stuff, but I don't have preference
+here and whichever is fine to me.
