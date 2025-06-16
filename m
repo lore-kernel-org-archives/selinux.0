@@ -1,172 +1,143 @@
-Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+Received: from mail-yb1-f182.google.com (mail-yb1-f182.google.com [209.85.219.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D7B01865EE
-	for <selinux@vger.kernel.org>; Mon, 16 Jun 2025 13:45:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8B9D35972
+	for <selinux@vger.kernel.org>; Mon, 16 Jun 2025 14:04:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750081531; cv=none; b=qWemzROxx6Bel9ohp7/6d9FZ7rG29SkFr8kw/MswoccULet53ChMZeoPS4osSQ/orVCsMnhyhu+B2tBu39f9bKC+MuPqtKuDqTA3lmiAQQnvcIv43UVSWz1GCujZQC6lUbXeheqWoetaNLTI6ImlVNi0oiwme3bsvyeucoaCFKY=
+	t=1750082648; cv=none; b=p5+LZtxFf0i+P+MgTfC2qCVHq0Wv95TYfwoai/P0WXcGglhaIUDSFh1d+nzwOZgSpVr5F/iyfMSrFmhPy7rQtErfM/Fs7T4NSvj4mGrqVQtYF0yV3g01x4bxkAcQG9Nu5HW6ma4NWbRuHtvOpXzlNNytV67vPLytiGcN8S0PlJs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750081531; c=relaxed/simple;
-	bh=aGIcoBIgdDuqXZibpH4vhfglAM7ximi8SWcOKtPRgFc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h7qIQex4s6PDDZ1yLK/LILNuGvCkxsMi9+CoGHmahKoyGQHqhpgCiSkj7s56a/K6B/4ub6fZMfSmdAlOB7Bc8tskbMSBSGNobgVYY+JosUSXibLSYMScz/XuJ2V/AKwFxOvMa1C5zARhU1meIkVXQwOdkvpfCHvej3LbPwtNmqI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QUlnq16E; arc=none smtp.client-ip=209.85.219.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1750082648; c=relaxed/simple;
+	bh=cd/1vdRHQJYLjFS4gtG9R3aSxRwOTrVzGKk7oI2wz+I=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=o0jqdbW0xudIrULAj6jPHxK2xHdAw00UjFrHgVNk4syqTSP4GmwPrNWHNC48eKZY0mrkFWAsx+I4orcKoEAkIi7bjT4dPjAsphGFWix+kf+QV3zJ0yysRMkcEXJkkDOpyUnq8F5/vGRv4Vq5jivGb/Ld72An0A7VftEncowp8Ig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ITzJg/Fi; arc=none smtp.client-ip=209.85.219.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QUlnq16E"
-Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-6fae04a3795so48284156d6.3
-        for <selinux@vger.kernel.org>; Mon, 16 Jun 2025 06:45:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ITzJg/Fi"
+Received: by mail-yb1-f182.google.com with SMTP id 3f1490d57ef6-e812fc35985so4028799276.0
+        for <selinux@vger.kernel.org>; Mon, 16 Jun 2025 07:04:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750081528; x=1750686328; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=/SkgnrGS1NAIYogpSBmH8OZNlduSeoHvRZL7uVWMG7E=;
-        b=QUlnq16E5TWXjnu4eKCb1Q3u6eUFgff1XESp99w28unXr5AvxQQJM0oBwcIShgTrBD
-         Xczp6pj8MsTm0Kttwsv6ZWsnamH6InxE/nHej4W/c83BwJnWaSmJBPG4pqB496f8vrUR
-         928biYLwj1DHVQcslS1LPAN5Ic6niaptTR9UZaXgzF1XspWoD+6YcZZl8BoID+O0MjOu
-         FuRqKy4Z4/4XGb3eocBPfnDl23tuNj8RfvCdP/pJcpcMIzhCKDQKm4yPti9Zd8QqF5S2
-         515epa7Xbi0E9v469Edi8tIS3yiXX/7qHuQBESi3jSTvmkb8rdKEv1t4HcC6zp6szkU+
-         b3+g==
+        d=paul-moore.com; s=google; t=1750082644; x=1750687444; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7AlgErA+6FwDIPpCfYm0ZK7PwLNuiNga29BtB+gMnus=;
+        b=ITzJg/FilF+o9umsjW4Aj1MdD4Pk9mQNKosy9j9qXll8qvF0As1XcjzyNBh9qTGY9S
+         FUXQw5VFJVQ4yz8+XVmvz8iIqSEBU5LJnSN5hnfGUcDUVbEkbApiWrYiBl7+7TQ+Jej6
+         FF2JBpCnpeJAqS5/MPFgxEfC9/IixCywWdTX7NETI4cpIWIA159bKOw96ezfjTHIeL5D
+         NeohaA2C7IW422kYWTpYkkSMRKddoMWrEAtLycTaRPTFJ6m8fRQX1UTLET2QitUmHqHN
+         D+731VvgIa7xzINW53bNB9r3DX7hlc69InZxGh/xYrIPEN7F37m1ydjCmmE7KJRmiXh+
+         GxAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750081528; x=1750686328;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=/SkgnrGS1NAIYogpSBmH8OZNlduSeoHvRZL7uVWMG7E=;
-        b=mEYAA+7+CC7JtAsQ3YUlzAP6e4juec60qIbzw5wMXjfzv69+hsZOcOBT22cQPH6bJD
-         KdPXNwUVWEvC3v4NAJq0hViqeawu8IMjmWGd/e/pwY2NiayZNDF6LXPfKxAiAFnzIdS1
-         haKYWxXo3S3Kcc+548vge2xdgEHMia1JgCmniX1ge/uUBO68V0JJRLw9h4DL77ZyIAnH
-         6giqNUqkSwPa9AlptGabkHlafkjr2kIdDTQ+O7W3O/NfdGQg89hnlfkxDfEUBlasvxZx
-         qG1hlpgl4AnfLa+dPSaxygKd6QNwkgfP3fFSpiXz9IynNSjruHxlqJpVko2rY0AIA1Da
-         GLeA==
-X-Gm-Message-State: AOJu0Yy5NeRioMeWlhCzjLyotHv9sPnwwD+5w5383RU303+rAHj//+BZ
-	oPzwUhSsU76Pi3rMwY+bdJv8TeqpsYGm+muCcFgGdC4mrh+V5TmQxSC15IXnvw==
-X-Gm-Gg: ASbGnctEaF+Tpvtmuo7Y9Nm9RzRR04ss7e11p7xw/LsV17TF1hfQUxyyj5QDdaibXH2
-	+QA6nD5PFynMEXrFUgyqB5s2O4o4J8a4HB0vSpRsu9QqoETR9dafWcMaUFklTJHPL2BydlNpHOv
-	+y89dLUqvNAZtppk85iSrQtO1XhBVpVt6Kv8cy81EIBrjymoNgi07Nhn2TFSVOR3E9959fwHL3A
-	ejcAvnx62FeGN8RFxpdVM/lgO7r7pWgZC0vscZUbq5bwkPJyv1h91a31T3Vf+tmDcpxPOuUn3PW
-	Q/mdxBiuJ/T8ETZKX2QEcSYZe7b0dxCY47/N6clXHCvdDXG+qBVBjKP+XYxZkb+vZb9+9L/t0JA
-	Ca3l354kVjSdB+7Wz8Kk9Dq6QeLC0pPqXziBARNMd7gAhZOYS7SAPxi2uLCmbVWeWTyZE+f5uyx
-	WXfb4IBjNvIUokF40=
-X-Google-Smtp-Source: AGHT+IFuHxWl9Ve9bA50pTtbpIQpVr5bjKxh9EV/RiP2MYONAebfHJDyloTJJc+I4nJjsw+qHToz/Q==
-X-Received: by 2002:a0c:f205:0:b0:6fa:9d4b:fa10 with SMTP id 6a1803df08f44-6fb4724ac41mr146585496d6.0.1750081528433;
-        Mon, 16 Jun 2025 06:45:28 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6fb4e432100sm21585176d6.116.2025.06.16.06.45.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Jun 2025 06:45:28 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: jwcart2@gmail.com,
-	lautrbach@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2] userspace: replace all links to selinuxproject.org
-Date: Mon, 16 Jun 2025 09:44:33 -0400
-Message-ID: <20250616134433.23953-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.49.0
+        d=1e100.net; s=20230601; t=1750082644; x=1750687444;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7AlgErA+6FwDIPpCfYm0ZK7PwLNuiNga29BtB+gMnus=;
+        b=LeGnQb5v/4OWMoC0A08eN/9fIuSbbQ11WyqHWZ7mibwYevz7/60nVMAaFRF9kwCJfj
+         zrpehoaR+CcB0lry0tLvmrpSbWyjok4Cnpi7dCXi2GKXbFMV6xbnkh7j/GpWR3cPJGXU
+         oJoVGz6aKAcwXQzpK8sCnVZsbWpihohaDddPLhyZ3YJepempDOie9/rzbvQ+QYk7M7CT
+         XfKsbf+iMCImwnQOHbX1oU3MCp7TCqUQWLAewRzVWi0MmQEg7MZVlUA2WjDq5NhbmoQo
+         vJPI2As/9ZoJl2GLX83mHfwuBgwr5od1k81iXiz1Aw65y51rIy5Uu94WRkyXZKYLLLC0
+         ccpQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUGwWHcGHWH4cjn3EE/3Tuiggma9koQF+cVPNzfcNOcuyWWaex3DOyxQaI4z0rW7oxv/2LMjZBT@vger.kernel.org
+X-Gm-Message-State: AOJu0YwdFum0wK9CcLaHV1IAfhvGJXx8seS0/IrwQOBpNQ1AAPXCMZTk
+	SR+BW4EyYsG8ImQwfRid/WlXW3waed391ubJekxjXFmADgPZvdzL6TAtqHRocq1Lw0nWQXofN13
+	wvotTrqx0QT9SM4ZnHQSyEuUA9UaS8AtXRDQDZkH8
+X-Gm-Gg: ASbGnctpVPvamikAK7rxWbBEcgPTuYMjEC0oSzpts/lD+XaZ1LulOjPykpyraeI+x+x
+	RcnS8sNcweO+jSXiSZFvYSDvV0KRq5AXNx+0+b2EyQvX0X91RUrQTFuYz+gcXoKB90cLyFuNU7z
+	qrWcXjRX7x4ZrVHu5JND1wAXsu70VxgwROz6iTOCsbgNgxAGXCltZHMg==
+X-Google-Smtp-Source: AGHT+IG6MEVOuSVXk6qFi4vb3Qu0hAnZomNNZ8O7DydwFFAo4eO3mag7yPTcNw5TSJolwTumNWcDm4fltR6zpijXBuA=
+X-Received: by 2002:a05:690c:d1f:b0:710:ea78:8ff with SMTP id
+ 00721157ae682-7117544c85fmr128441827b3.23.1750082643585; Mon, 16 Jun 2025
+ 07:04:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250605164852.2016-1-stephen.smalley.work@gmail.com>
+ <CAHC9VhQ-f-n+0g29MpBB3_om-e=vDqSC3h+Vn_XzpK2zpqamdQ@mail.gmail.com>
+ <CAHC9VhRUqpubkuFFVCfiMN4jDiEhXQvJ91vHjrM5d9e4bEopaw@mail.gmail.com>
+ <87plfhsa2r.fsf@gmail.com> <CAHC9VhRSAaENMnEYXrPTY4Z4sPO_s4fSXF=rEUFuEEUg6Lz21Q@mail.gmail.com>
+ <20250611-gepunktet-umkurven-5482b6f39958@brauner>
+In-Reply-To: <20250611-gepunktet-umkurven-5482b6f39958@brauner>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 16 Jun 2025 10:03:52 -0400
+X-Gm-Features: AX0GCFutf2IknDGBAYa5W13CzhJZ3TOjubm4voGGY8iOl_MS1QuvnClSmk8QN7Q
+Message-ID: <CAHC9VhTWEWq_rzZnjbYrS6MCb5_gSBDAjUoYQY4htQ5MaY2o_w@mail.gmail.com>
+Subject: Re: [PATCH] fs/xattr.c: fix simple_xattr_list()
+To: Christian Brauner <brauner@kernel.org>
+Cc: linux-fsdevel@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
+	Collin Funk <collin.funk1@gmail.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	linux-kernel@vger.kernel.org, selinux@vger.kernel.org, eggert@cs.ucla.edu, 
+	bug-gnulib@gnu.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Replace all links to selinuxproject.org with links to the
-SELinux userspace wiki or the SELinux notebook as appropriate.
+On Wed, Jun 11, 2025 at 6:05=E2=80=AFAM Christian Brauner <brauner@kernel.o=
+rg> wrote:
+> On Tue, Jun 10, 2025 at 07:50:10PM -0400, Paul Moore wrote:
+> > On Fri, Jun 6, 2025 at 1:39=E2=80=AFAM Collin Funk <collin.funk1@gmail.=
+com> wrote:
+> > > Paul Moore <paul@paul-moore.com> writes:
+> > > >> <stephen.smalley.work@gmail.com> wrote:
+> > > >> >
+> > > >> > commit 8b0ba61df5a1 ("fs/xattr.c: fix simple_xattr_list to alway=
+s
+> > > >> > include security.* xattrs") failed to reset err after the call t=
+o
+> > > >> > security_inode_listsecurity(), which returns the length of the
+> > > >> > returned xattr name. This results in simple_xattr_list() incorre=
+ctly
+> > > >> > returning this length even if a POSIX acl is also set on the ino=
+de.
+> > > >> >
+> > > >> > Reported-by: Collin Funk <collin.funk1@gmail.com>
+> > > >> > Closes: https://lore.kernel.org/selinux/8734ceal7q.fsf@gmail.com=
+/
+> > > >> > Reported-by: Paul Eggert <eggert@cs.ucla.edu>
+> > > >> > Closes: https://bugzilla.redhat.com/show_bug.cgi?id=3D2369561
+> > > >> > Fixes: 8b0ba61df5a1 ("fs/xattr.c: fix simple_xattr_list to alway=
+s include security.* xattrs")
+> > > >> >
+> > > >> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > >> > ---
+> > > >> >  fs/xattr.c | 1 +
+> > > >> >  1 file changed, 1 insertion(+)
+> > > >>
+> > > >> Reviewed-by: Paul Moore <paul@paul-moore.com>
+> > > >
+> > > > Resending this as it appears that Stephen's original posting had a
+> > > > typo in the VFS mailing list.  The original post can be found in th=
+e
+> > > > SELinux archives:
+> > > >
+> > > > https://lore.kernel.org/selinux/20250605164852.2016-1-stephen.small=
+ey.work@gmail.com/
+> > >
+> > > Hi, responding to this message since it has the correct lists.
+> > >
+> > > I just booted into a kernel with this patch applied and confirm that =
+it
+> > > fixes the Gnulib tests that were failing.
+> > >
+> > > Reviewed-by: Collin Funk <collin.funk1@gmail.com>
+> > > Tested-by: Collin Funk <collin.funk1@gmail.com>
+> > >
+> > > Thanks for the fix.
+> >
+> > Al, Christian, are either of you going to pick up this fix to send to
+> > Linus?  If not, any objection if I send this up?
+>
+> It's been in vfs.fixes for some time already and it'll go out with the
+> first round of post -rc1 fixes this week.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-v2 uses https rather than http.
+Checking on the status of this patch as we are at -rc2 and I don't see
+it in Linus' tree?
 
- CONTRIBUTING.md                    | 4 ++--
- libselinux/src/libselinux.pc.in    | 2 +-
- libsemanage/src/libsemanage.pc.in  | 2 +-
- libsepol/src/libsepol.pc.in        | 2 +-
- scripts/make-update                | 2 +-
- secilc/docs/cil_user_statements.md | 2 +-
- 6 files changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
-index e6a677a0..575410bf 100644
---- a/CONTRIBUTING.md
-+++ b/CONTRIBUTING.md
-@@ -8,8 +8,8 @@ You can find a list of open issues where you might contribute to the SELinux ker
- https://github.com/SELinuxProject/selinux-kernel/issues or to the SELinux userspace code at
- https://github.com/SELinuxProject/selinux/issues.
- 
--See the selinuxproject.org [user resources
--page](http://selinuxproject.org/page/User_Resources) for more
-+See the SELinux userspace
-+[wiki page](https://github.com/selinuxproject/selinux/wiki) for more
- information on mailing lists, documentation, and other resources.
- 
- ## Reporting Bugs
-diff --git a/libselinux/src/libselinux.pc.in b/libselinux/src/libselinux.pc.in
-index 7c66b1fa..cca4753b 100644
---- a/libselinux/src/libselinux.pc.in
-+++ b/libselinux/src/libselinux.pc.in
-@@ -6,7 +6,7 @@ includedir=@includedir@
- Name: libselinux
- Description: SELinux utility library
- Version: @VERSION@
--URL: http://userspace.selinuxproject.org/
-+URL: https://github.com/selinuxproject/selinux/wiki/Releases
- Requires.private: libsepol @PCRE_MODULE@
- Libs: -L${libdir} -lselinux
- Cflags: -I${includedir}
-diff --git a/libsemanage/src/libsemanage.pc.in b/libsemanage/src/libsemanage.pc.in
-index 43681ddb..303f8069 100644
---- a/libsemanage/src/libsemanage.pc.in
-+++ b/libsemanage/src/libsemanage.pc.in
-@@ -6,7 +6,7 @@ includedir=@includedir@
- Name: libsemanage
- Description: SELinux management library
- Version: @VERSION@
--URL: http://userspace.selinuxproject.org/
-+URL: https://github.com/selinuxproject/selinux/wiki/Releases
- Requires.private: libselinux libsepol
- Libs: -L${libdir} -lsemanage
- Libs.private: -lbz2
-diff --git a/libsepol/src/libsepol.pc.in b/libsepol/src/libsepol.pc.in
-index f807fec6..b5361404 100644
---- a/libsepol/src/libsepol.pc.in
-+++ b/libsepol/src/libsepol.pc.in
-@@ -6,6 +6,6 @@ includedir=@includedir@
- Name: libsepol
- Description: SELinux policy library
- Version: @VERSION@
--URL: http://userspace.selinuxproject.org/
-+URL: https://github.com/selinuxproject/selinux/wiki/Releases
- Libs: -L${libdir} -lsepol
- Cflags: -I${includedir}
-diff --git a/scripts/make-update b/scripts/make-update
-index 4c940e1b..d83e1772 100755
---- a/scripts/make-update
-+++ b/scripts/make-update
-@@ -30,7 +30,7 @@ echo "Copy $ARCHIVE from $DEST to the server and update its download link and ch
- 
- echo ""
- 
--echo "[http://userspace.selinuxproject.org/releases/$TAG/$ARCHIVE $ARCHIVE]"
-+echo "[https://github.com/selinuxproject/selinux/releases/download/$TAG/$ARCHIVE $ARCHIVE]"
- echo ""
- echo "`sha256sum $ARCHIVE`"
- echo ""
-diff --git a/secilc/docs/cil_user_statements.md b/secilc/docs/cil_user_statements.md
-index d5674f12..dad88ef6 100644
---- a/secilc/docs/cil_user_statements.md
-+++ b/secilc/docs/cil_user_statements.md
-@@ -358,7 +358,7 @@ The user `test` cannot have greater privileges than `unconfined.user`:
- userprefix
- ----------
- 
--Declare a user prefix that will be replaced by the file labeling utilities described at [http://selinuxproject.org/page/PolicyStoreConfigurationFiles](http://selinuxproject.org/page/PolicyStoreConfigurationFiles#file_contexts.template_File) that details the `file_contexts` entries.
-+Declare a user prefix that will be replaced by the file labeling utilities described at [https://github.com/SELinuxProject/selinux-notebook/blob/main/src/policy_store_config_files.md](https://github.com/SELinuxProject/selinux-notebook/blob/main/src/policy_store_config_files.md#building-the-file-labeling-support-files) that details the `file_contexts` entries.
- 
- **Statement definition:**
- 
--- 
-2.49.0
-
+--=20
+paul-moore.com
