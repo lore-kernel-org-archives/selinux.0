@@ -1,63 +1,63 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
+Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AD4F2E2EF4;
-	Tue, 17 Jun 2025 14:06:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 842892E427C;
+	Tue, 17 Jun 2025 14:06:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750169178; cv=none; b=PkCRzsemFqtdk8hHA8IuRlxp5KFHGbQpUlb6VLx7lEi0PXnO5Cnt/TrarDgreX8ADCPfXiGmf6eTDZAW8tmVEW8X2ZXvzjXv75s0LPq0V98JbFZ+PVF+IFrNCgt2O7qS4bjD4x1hLSR+nmXf+S/Z6ZuPjUOQ7dFZprqVlGddBuw=
+	t=1750169180; cv=none; b=beCgcjZwCdWoZXkrr9WdTSw1VyVUpP7uKDI4LLEQYZy6YOvezVDvLNE7YKGuVV1Mkl1viiUN+wZZCAxCBBs8S94OfnRAUMZ6sWdZdu47OSEW5CKbqdzTHeYeTzR0mnY5LQEGCPrrmxie9Tl246OeRudtLBsHL14P8KDVrich1bM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750169178; c=relaxed/simple;
-	bh=/XGnO9II/eCb35MtP+PPQ81O78oC1MdT+GVgu1Pfm/8=;
+	s=arc-20240116; t=1750169180; c=relaxed/simple;
+	bh=eiU1hBXvPX9LHhzBCwKOi+zJi9qnSjSQ0av0UiQLz1Q=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ID+dKxbGC1spBPaJloscnl5jEmJm+csW0SRnH1rsV6pwJ5Bt/s/plGo+czj48vogWPOK+8qYg5Y1F2VyD00YrJYNTlv6vUQpXMJjcS2/PdffaBFchIH+IGx59hdX+0TEN5YJ6wbU2gucsOs/g/AamnHNdDygtraBuYzGi2a5d6Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LJPPU81a; arc=none smtp.client-ip=209.85.222.174
+	 MIME-Version; b=HYxSBPV43LpOKrDwUmt8+wCvGnXSR262hcX2Fyya3smIbyVpd2m5HtQdyqxN+y6P+yRw93fLN5YVt5iFsZc8wXh6KnhRNsO12b6fBQlyHL0pv4DCu3DLB0WkjES8MgGE9pup/T6BeJfLIhWocuXpfElEI6AWDruVvquRoEK8qX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ec84FMye; arc=none smtp.client-ip=209.85.222.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LJPPU81a"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-7d0a47f6692so636537985a.1;
-        Tue, 17 Jun 2025 07:06:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ec84FMye"
+Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-7d09a032914so505654285a.3;
+        Tue, 17 Jun 2025 07:06:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750169175; x=1750773975; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1750169177; x=1750773977; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=d84YIezmcW+s28bLNWbROGBVUR/PHNPOuni/8UPB8mo=;
-        b=LJPPU81aoxKt3l/0lqYFlUmm+AOGJ4ReSHSamNhlTR4gHFNZPwD7dKrHhFGdAXobP3
-         ws6NmhtxeQ2g08IaJPS2rZ9Oavy0mD9DvVuCGA2FoCeUEQYHCjGTOwuCpfV59gaPLAjX
-         EHQ2OHZQZ2sfjggA8CQiCkkazSBTAkkj5K2Gw7lFG9Oi/bbxBR8nVKZN44L2zPZuzg+Y
-         JO7C4qr38YV/k5CtrQ+4wMM1EA4b19YXLILKr/vguNE/PtOwYYetlIDsjf9sGOuyDTGu
-         rbh1wBmuEouB7jYUQ/lnQiYMenbFiEskOMrDgXuAGtxY209Qambd85YMIT/+UWsdCP3B
-         MLug==
+        bh=S6/309NkatcbnNgqBqvDNj3NXNvLLODoDO28oSj0E58=;
+        b=Ec84FMyep3xU3ImQ2mdO/f39hTGE/FzUrS+d2SxYUST2eBo4EP4hez4YrDPeG54LsT
+         S/1IuI+K5Bf5bVpcHvTDf2L877TlWUEj4Yki2K3tLRt53DXeHtxUH336LVkZa6TMu/rF
+         eH3+vFnUp7AmrTQMy7Eu8JCho+zhEJ1IZT1e7VZB1966WDoR5iYZs1GDNjqbnm+WaU4u
+         v1Ev6swiyf6M0LSDvcAdJO7jYn3Y2HQIBdzMBPX2BlIp60LG5QgnArTYNUwTO+gI0MDb
+         WWyTSrSocvu3FJq2RU3YdDFs0C9Sf/yz5mwQ2UrYq8gAfnkpTZxoMtOKqD7znNTWkZq9
+         4tsA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750169175; x=1750773975;
+        d=1e100.net; s=20230601; t=1750169177; x=1750773977;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=d84YIezmcW+s28bLNWbROGBVUR/PHNPOuni/8UPB8mo=;
-        b=Upkjg8AGZ/H0k0I26CLxhr4CIl+OjpJYwSv12LSoUIPMbZR6TghIr5xGVqQY8mdpOU
-         4OKKewukvk90nK11p9tQn+inHR2gLKgmy7KRB+fIalLx+MapKeRpPuVs2dINI1L84SpW
-         mKK2twujiR9U3cwaVRvBdZXXv5xGFU1DtQ6AQr+bklCcpW89fkQ5cGiKG/E82WhdtMCP
-         azqNC9c2P0aVIGAvLtT5VAfA8tu9pSPLGRevGIWtSeN5XxNfqonquKPU5j9lkYlxwZE9
-         WOQn5yW1hGjPykL653OMrGlxJiAHSmL5ppbxq4qn5su7KjdMj8NWUB4fx084RQsMpeUY
-         yKOQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXpgomQvoJ16M0WoKo/B8MzdoMbw5SmrBeP0i52OtkTtaL6RVagbiATI6pqOwIAZkqgho20R0U=@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywc5Bj7gwp5HPwN1p1YhDXdAK5wz0Vd9myMQgf7kqbHFN/oYQpO
-	jMvHQqb74DyW+k5BZE+f8lm3d4z+ozfOeyCXwFvX9jH/1xdVnogTBXbSvfFZLg==
-X-Gm-Gg: ASbGncsmPJcgOWxjj+HHcH4Y/vCOdFom+RHyl6B4CPOR8NiL+EE37PxUYaWqC84SGJM
-	qtJiuEpk450xnZsDbXKbwXzeTWN7+EpofjuEVnsWVML2I4ik4PHRWBcI0y/U6Mk+vvR3DIK4bD1
-	/wbgPuTW2St8+vfl3fiMhJJ/TPRaUrSoe+p3UBZUkxXpPi8yTki+mrZjMelVBplcPLva7tdywFE
-	AzYM/vrnEnHgWcRv+Q2aaHVLnbyPIjZMfol4rpJpL0uANxGOSvaGDB4G9ELTqCdj8h7k8qPUat1
-	lZkDOxm3YViKJ4ASyfAvm6NnqYhCPiLYOvf3rsJsGvJVZ1w07LCzsMGoROBjkbQ0SwdYnq+qVIZ
-	dQspEL+LpdZhQloxIJUoZKnyPxBVF28c71o2vPY1Id5Kr01GH6qkat9EAua+kYpVIgA==
-X-Google-Smtp-Source: AGHT+IH98aG/RBANATzGLp67qftqeLUDh+eqyq/0XCmhTvAWOSsw0Z0P9NhFYtu45IOmHT6LUujjZg==
-X-Received: by 2002:a05:620a:2990:b0:7d3:9109:4472 with SMTP id af79cd13be357-7d3c6cda074mr2332771985a.37.1750169175074;
-        Tue, 17 Jun 2025 07:06:15 -0700 (PDT)
+        bh=S6/309NkatcbnNgqBqvDNj3NXNvLLODoDO28oSj0E58=;
+        b=mFM/Kw2HPP1uFB81yi93WLYlBLGSjMX9cGYxOEc9THTfvFrIZP4bvmOBVePsT/oBL8
+         EGC4WxWV9U85DBTy1GG8wwbpZkkDM/r8e5uN1ZmaB4Z3mKpZK+CpB4NrEBXNHNoLvIdn
+         Q7veWHbjDR9pbym6fDuaKAxHlKMmIBd2Z3IqLsIslhqlWgq9AUug68lXtNX8PdbN0GQj
+         9SNTtitTXuPsFZc7bW4XjjzMqIMhSWUMgkS2kpJ7aYX8XN2rM992yVCOd9KSVI5JPxIJ
+         Rp1LZ4tNjBjuIgoAxd7iRvaVoC2q5lffMHDLI6kWURIIy9I+XM6M4Uc0fVLSsBSs09pe
+         vLAw==
+X-Forwarded-Encrypted: i=1; AJvYcCVNThLMYgc9ItAQsU+HvjaB/8L5uhLuS0HzHiPcgbOUkflFoQzVuDkRb5GNU6mgIQMdZQ3JDHk=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyi8D22tcb4LxGa/IC/GV1ran1Ty8IUQI0iSagwB5akb/1sWcG6
+	NuVXCZMYDZBpKJUewl5IgLAPtf9uyDZ8VsQ21Crwi8bHVlDCygI5YXctELxhkg==
+X-Gm-Gg: ASbGncuBdVRp83dbQpket6ZCaVjcBUXai3+3KlKK8S0xDyov0itizq4BDyL+UhrJUh1
+	F/1Yd8v4P+bwJRk1hNpjSQuWvksyzICkbR88ZlezJi9HU/tpKFlZ0BlPd/YadeP31Omwn9PC0pF
+	rqIJlP3WtQrbvqoJdozxD1IfgomvL22kQWym/xc8WSFW7dvZjCjfjdmxVZ3tbqGr59awwKDLEZm
+	+i0SyMyBLjvQxUjctSrm/0PnZ2kEMvW9e6hlpH+agT1JEGIJm9fG+0E31WaapPFhYRqyQStjRm5
+	i1CeaTx9e/OP4y9zIEmOt8j8Yka7dg73QK2AX4PPVkUdBxwCpjz/vZkAqbWD4XeTs+C4dB3+8Eh
+	AG1OWz2tCgLxaAsRWEI18FhEi16RlS+UaTkzaDlIXiIcf1mLZhbHwdU6OFf2aFTlqbA==
+X-Google-Smtp-Source: AGHT+IFTak8/HlJoEfkjMutrDK4zvepXVbyrdrKlsIZ6am//7aO0R94NAYjt55xnU69CnTLQqtx5mQ==
+X-Received: by 2002:a05:620a:1aa1:b0:7cc:c07d:e3d4 with SMTP id af79cd13be357-7d3c6cda212mr2078751685a.35.1750169176885;
+        Tue, 17 Jun 2025 07:06:16 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d3b8edbe29sm651079585a.91.2025.06.17.07.06.13
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d3b8edbe29sm651079585a.91.2025.06.17.07.06.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Jun 2025 07:06:14 -0700 (PDT)
+        Tue, 17 Jun 2025 07:06:15 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
@@ -65,9 +65,9 @@ Cc: paul@paul-moore.com,
 	netdev@vger.kernel.org,
 	horms@kernel.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v5 09/42] selinux: init inode from nearest initialized namespace
-Date: Tue, 17 Jun 2025 10:04:56 -0400
-Message-ID: <20250617140531.2036-10-stephen.smalley.work@gmail.com>
+Subject: [PATCH v5 10/42] selinux: add a selinuxfs interface to unshare selinux namespace
+Date: Tue, 17 Jun 2025 10:04:57 -0400
+Message-ID: <20250617140531.2036-11-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250617140531.2036-1-stephen.smalley.work@gmail.com>
 References: <20250617140531.2036-1-stephen.smalley.work@gmail.com>
@@ -79,171 +79,143 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Previously inode_doinit_with_dentry() was only checking sbsec->flags
-to see if it should defer the inode security blob initialization,
-which was fine when there was only a single SELinux state/namespace
-since that could only be set if the state was initialized. However,
-with the introduction of SELinux namespaces, the superblock could be
-initialized in the parent (or other ancestor) namespace but the
-current namespace may not yet be initialized (i.e. the namespace was
-unshared but no policy has yet been loaded into it). Check for this
-case, and if uninitialized, find the nearest ancestor SELinux
-namespace that is initialized and use it instead. In the case where
-the init SELinux namespace was never initialized (i.e. no policy
-loaded on the host), then defer initialization of the inode.
+Provide a userspace API to unshare the selinux namespace.
+Currently implemented via a selinuxfs node. This could be
+coupled with unsharing of other namespaces (e.g.  mount namespace,
+network namespace) that will always be needed or left independent.
+Don't get hung up on the interface itself, it is just to allow
+experimentation and testing.
+
+Sample usage:
+sudo bash
+echo 1 > /sys/fs/selinux/unshare # unshare SELinux namespace
+unshare -m -n # unshare mount and network namespaces
+umount /sys/fs/selinux # unmount parent selinuxns
+mount -t selinuxfs none /sys/fs/selinux # mount child selinuxns
+id # view initial SID in child namespace, now kernel/init
+load_policy # load a policy into child namespace
+id # view context in child namespace after policy load
+getenforce # check enforcing status of child namespace
+
+The above will show that the process now views itself as running in the
+kernel/init domain in permissive mode, as would be the case at boot.
+From a different shell on the host system, running ps -eZ or
+cat /proc/<pid>/attr/current will show that the process that
+unshared its selinux namespace is still running in its original
+context in the initial namespace, and getenforce will show the
+the initial namespace remains enforcing.  Enforcing mode or policy
+changes in the child will not affect the parent.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/hooks.c            | 45 +++++++++++++++++------------
- security/selinux/include/security.h |  6 ++--
- 2 files changed, 30 insertions(+), 21 deletions(-)
+ security/selinux/include/classmap.h |  2 +-
+ security/selinux/selinuxfs.c        | 66 +++++++++++++++++++++++++++++
+ 2 files changed, 67 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 22f7e7dc92a9..db427790b8e4 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1347,10 +1347,9 @@ static inline u16 socket_type_to_security_class(int family, int type, int protoc
- 	return SECCLASS_SOCKET;
- }
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 5665aa5e7853..55903f68e285 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -50,7 +50,7 @@ const struct security_class_mapping secclass_map[] = {
+ 	  { "compute_av", "compute_create", "compute_member", "check_context",
+ 	    "load_policy", "compute_relabel", "compute_user", "setenforce",
+ 	    "setbool", "setsecparam", "setcheckreqprot", "read_policy",
+-	    "validate_trans", NULL } },
++	    "validate_trans", "unshare", NULL } },
+ 	{ "process",
+ 	  { "fork",	    "transition",    "sigchld",	    "sigkill",
+ 	    "sigstop",	    "signull",	     "signal",	    "ptrace",
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 6e67b7a9f3e5..d279f072a91f 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -64,6 +64,7 @@ enum sel_inos {
+ 	SEL_STATUS,	/* export current status using mmap() */
+ 	SEL_POLICY,	/* allow userspace to read the in kernel policy */
+ 	SEL_VALIDATE_TRANS, /* compute validatetrans decision */
++	SEL_UNSHARE,	    /* unshare selinux namespace */
+ 	SEL_INO_NEXT,	/* The next inode number to use */
+ };
  
--static int selinux_genfs_get_sid(struct dentry *dentry,
--				 u16 tclass,
--				 u16 flags,
--				 u32 *sid)
-+static int selinux_genfs_get_sid(struct selinux_state *state,
-+				 struct dentry *dentry, u16 tclass,
-+				 u16 flags, u32 *sid)
- {
- 	int rc;
- 	struct super_block *sb = dentry->d_sb;
-@@ -1373,8 +1372,8 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
- 				path++;
- 			}
- 		}
--		rc = security_genfs_sid(current_selinux_state, sb->s_type->name,
--					path, tclass, sid);
-+		rc = security_genfs_sid(state, sb->s_type->name, path,
-+					tclass, sid);
- 		if (rc == -ENOENT) {
- 			/* No match in policy, mark as unlabeled. */
- 			*sid = SECINITSID_UNLABELED;
-@@ -1385,7 +1384,9 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
- 	return rc;
- }
+@@ -318,6 +319,70 @@ static const struct file_operations sel_disable_ops = {
+ 	.llseek		= generic_file_llseek,
+ };
  
--static int inode_doinit_use_xattr(struct inode *inode, struct dentry *dentry,
-+static int inode_doinit_use_xattr(struct selinux_state *state,
-+				  struct inode *inode,
-+				  struct dentry *dentry,
- 				  u32 def_sid, u32 *sid)
- {
- #define INITCONTEXTLEN 255
-@@ -1428,8 +1429,8 @@ static int inode_doinit_use_xattr(struct inode *inode, struct dentry *dentry,
- 		return 0;
- 	}
- 
--	rc = security_context_to_sid_default(current_selinux_state, context, rc,
--					     sid, def_sid, GFP_NOFS);
-+	rc = security_context_to_sid_default(state, context, rc, sid,
-+					     def_sid, GFP_NOFS);
- 	if (rc) {
- 		char *dev = inode->i_sb->s_id;
- 		unsigned long ino = inode->i_ino;
-@@ -1449,6 +1450,7 @@ static int inode_doinit_use_xattr(struct inode *inode, struct dentry *dentry,
- /* The inode's security attributes must be initialized before first use. */
- static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry)
- {
-+	struct selinux_state *state = current_selinux_state;
- 	struct superblock_security_struct *sbsec = NULL;
- 	struct inode_security_struct *isec = selinux_inode(inode);
- 	u32 task_sid, sid = 0;
-@@ -1466,8 +1468,14 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 	if (isec->sclass == SECCLASS_FILE)
- 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 
-+	/*
-+	 * Find an initialized state to use.
-+	 */
-+	while (state && !selinux_initialized(state))
-+		state = state->parent;
++static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
++				 size_t count, loff_t *ppos)
 +
- 	sbsec = selinux_superblock(inode->i_sb);
--	if (!(sbsec->flags & SE_SBINITIALIZED)) {
-+	if (!state || !(sbsec->flags & SE_SBINITIALIZED)) {
- 		/* Defer initialization until selinux_complete_init,
- 		   after the initial policy is loaded and the security
- 		   server is ready to handle calls. */
-@@ -1524,8 +1532,8 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			goto out_invalid;
- 		}
- 
--		rc = inode_doinit_use_xattr(inode, dentry, sbsec->def_sid,
--					    &sid);
-+		rc = inode_doinit_use_xattr(state, inode, dentry,
-+					    sbsec->def_sid, &sid);
- 		dput(dentry);
- 		if (rc)
- 			goto out;
-@@ -1538,8 +1546,8 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 		sid = sbsec->sid;
- 
- 		/* Try to obtain a transition SID. */
--		rc = security_transition_sid(current_selinux_state, task_sid, sid,
--					     sclass, NULL, &sid);
-+		rc = security_transition_sid(state, task_sid, sid, sclass,
-+					     NULL, &sid);
- 		if (rc)
- 			goto out;
- 		break;
-@@ -1552,7 +1560,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 
- 		if ((sbsec->flags & SE_SBGENFS) &&
- 		     (!S_ISLNK(inode->i_mode) ||
--		      selinux_policycap_genfs_seclabel_symlinks())) {
-+		      selinux_policycap_genfs_seclabel_symlinks(state))) {
- 			/* We must have a dentry to determine the label on
- 			 * procfs inodes */
- 			if (opt_dentry) {
-@@ -1579,7 +1587,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 			 */
- 			if (!dentry)
- 				goto out_invalid;
--			rc = selinux_genfs_get_sid(dentry, sclass,
-+			rc = selinux_genfs_get_sid(state, dentry, sclass,
- 						   sbsec->flags, &sid);
- 			if (rc) {
- 				dput(dentry);
-@@ -1588,8 +1596,9 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
- 
- 			if ((sbsec->flags & SE_SBGENFS_XATTR) &&
- 			    (inode->i_opflags & IOP_XATTR)) {
--				rc = inode_doinit_use_xattr(inode, dentry,
--							    sid, &sid);
-+				rc = inode_doinit_use_xattr(state, inode,
-+							    dentry, sid,
-+							    &sid);
- 				if (rc) {
- 					dput(dentry);
- 					goto out;
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index d4e1f9e088c1..3f36ab9e0315 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -259,11 +259,11 @@ static inline bool selinux_policycap_nnp_nosuid_transition(void)
- 			->policycap[POLICYDB_CAP_NNP_NOSUID_TRANSITION]);
- }
- 
--static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
-+static inline bool
-+selinux_policycap_genfs_seclabel_symlinks(struct selinux_state *state)
++{
++	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
++	struct selinux_state *state = fsi->state;
++	char *page;
++	ssize_t length;
++	bool set;
++	int rc;
++
++	if (count >= PAGE_SIZE)
++		return -ENOMEM;
++
++	/* No partial writes. */
++	if (*ppos != 0)
++		return -EINVAL;
++
++	rc = avc_has_perm(current_selinux_state, current_sid(),
++			  SECINITSID_SECURITY, SECCLASS_SECURITY,
++			  SECURITY__UNSHARE, NULL);
++	if (rc)
++		return rc;
++
++	page = memdup_user_nul(buf, count);
++	if (IS_ERR(page))
++		return PTR_ERR(page);
++
++	length = -EINVAL;
++	if (kstrtobool(page, &set))
++		goto out;
++
++	if (set) {
++		struct cred *cred = prepare_creds();
++		struct task_security_struct *tsec;
++
++		if (!cred) {
++			length = -ENOMEM;
++			goto out;
++		}
++		tsec = selinux_cred(cred);
++		if (selinux_state_create(state, &tsec->state)) {
++			abort_creds(cred);
++			length = -ENOMEM;
++			goto out;
++		}
++		tsec->osid = tsec->sid = SECINITSID_INIT;
++		tsec->exec_sid = tsec->create_sid = tsec->keycreate_sid =
++			tsec->sockcreate_sid = SECSID_NULL;
++		tsec->parent_cred = get_current_cred();
++		commit_creds(cred);
++	}
++
++	length = count;
++out:
++	kfree(page);
++	return length;
++}
++
++static const struct file_operations sel_unshare_ops = {
++	.write		= sel_write_unshare,
++	.llseek		= generic_file_llseek,
++};
++
+ static ssize_t sel_read_policyvers(struct file *filp, char __user *buf,
+ 				   size_t count, loff_t *ppos)
  {
- 	return READ_ONCE(
--		current_selinux_state
--			->policycap[POLICYDB_CAP_GENFS_SECLABEL_SYMLINKS]);
-+		state->policycap[POLICYDB_CAP_GENFS_SECLABEL_SYMLINKS]);
- }
+@@ -2053,6 +2118,7 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
+ 		[SEL_POLICY] = {"policy", &sel_policy_ops, S_IRUGO},
+ 		[SEL_VALIDATE_TRANS] = {"validatetrans", &sel_transition_ops,
+ 					S_IWUGO},
++		[SEL_UNSHARE] = {"unshare", &sel_unshare_ops, 0200},
+ 		/* last one */ {"", NULL, 0}
+ 	};
  
- static inline bool selinux_policycap_ioctl_skip_cloexec(void)
 -- 
 2.49.0
 
