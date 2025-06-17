@@ -1,63 +1,63 @@
 Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F345C2E7180;
-	Tue, 17 Jun 2025 14:06:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7BBD215787;
+	Tue, 17 Jun 2025 14:06:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750169171; cv=none; b=fHsqkpe3UTaYGHExWeo9n58BF+2Ax2PqF3TDmQ4j0/goC+7P6gIRFugGSINFuBAarFzOKuOhpfYH21O6LugAd7IHoaKCQJsIIv7uLPUxJTa+qwth0MJ0hE389qHPSiFF2g5h6AY5MMWS/HNJB9i/1zZPNNsToLb6f2SJhd+eezg=
+	t=1750169173; cv=none; b=cy2purtT5zcr5lpwJaMmG5aVRJKV1bdB7Zz/GGTVvhG1qbXvn+MJgQ1+oMLh8Io5mwLX6B/bVV+2nA7MjZrkbr9lRGOlE2B+P6vtotVw3tk1OQePEwIsjqF66oMYQiD6LuOBvM050b7x9JBZeNHWW4ZVDeoHxeyphQG2zrupe2M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750169171; c=relaxed/simple;
-	bh=Vgdd62kQtHZhUV1xPbHRIBzBOV3HyEzrAFAVC6EVcdY=;
+	s=arc-20240116; t=1750169173; c=relaxed/simple;
+	bh=MjSRQf4W1COv4FWfijrfdQ8AL637aTSDUMMuxPmDEX4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Qdr2tV6d1wWsmcmeu8CvgntiWvoodpe2hVca95WXWQzTsYahs8J+uu25ufXFqXbRBNr//36Mov7tGRtJDt0Yo+WseFkHMB1DRvFZK54cR3D+Tsu/UZCxDj5dGCWFBVlqOtc1+emfzW6VLD2+PASelHp2GY8qEkcsMCGx1b9xeSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kS+15SFu; arc=none smtp.client-ip=209.85.222.178
+	 MIME-Version; b=t9Dau2loIyVnlKNOhRkkvvM0qXPbuMOubfMCaP+VWJ+qKWxNz8GPq9feJRlMfeE5+pnYG/4uTOS98t57Wg03wsXVZ8c18umtOHL50hPnQ76PifbN6nlx5Ybrzh9ReUTrQ4xYAZI6WPpAtiLtgPyNKeMsTToxxks9CcXSSRSJn5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EHh7FBfQ; arc=none smtp.client-ip=209.85.222.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kS+15SFu"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-7d219896edeso640433585a.1;
-        Tue, 17 Jun 2025 07:06:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EHh7FBfQ"
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-7d3cc0017fdso344434785a.3;
+        Tue, 17 Jun 2025 07:06:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750169168; x=1750773968; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1750169170; x=1750773970; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=iVnpAGVQ9IOljiZmwmCLJUNC1q/ixoo+OOZwgCeJjgc=;
-        b=kS+15SFu2ZLf4DVpb+KWO+wc3MsMn68whuKtX6HKyH5BQqZ+/fYGAla9atMSSDqhc+
-         XG7vVdzo5XDPov09M/AmiGsAzXNATQx15bQPe2xcb2mZhpX88h6zRcC2lTUPSW+skqdP
-         qwS+t2JSda1S6AyfYoptKwu4EwqXF6tr8SYVXajFhxtpiplnQUFya7S80wdy0ddTvtkR
-         laUqB6/EzwEuw3qrg2Ktt7Xc+ogs2CpAMNep2pZFYib7SeDgizTD4ldhrAvQgfVA0xdh
-         wzChi5+IQu5CYl73cbVfdTU/troz/JWsBSdY4mCcMW0wAxdp9614PWat1kbVek9P9YDR
-         FV3g==
+        bh=9jmk+ZAlQ1vOFCxkryPYE4KraaL64/vcDKofTARFzz4=;
+        b=EHh7FBfQomOFYPTFYorlOqxId9w95KGtJ9oB4ceQrH3ouLp8mHRSS+03aWqYzM9SeI
+         8criTBmwRRnQ0ZO5CYGMfpEXkN8x3iHpfOF5g6T64KYYCMdr3BTh3WwcJ66gg2T2SDot
+         khHBkucKPEnxAnoDxG0v/qDN11WzhQ4qdGt9bLkJSACN0eUZEVnTXVmh7wYXS3iTsoqV
+         NURYacfu6RTVwgtYUkzG4BBNycMjcudoLpUvKWBwF1/gyy/YLeD/8Aw93KkOFKEiU6mM
+         RiRoiQLrRX9PautQeZ4ge60HAOfgh3emoE7FdEck+gbTGRplLtFSYYdAyK79wWLhKi+3
+         Outw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750169168; x=1750773968;
+        d=1e100.net; s=20230601; t=1750169170; x=1750773970;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=iVnpAGVQ9IOljiZmwmCLJUNC1q/ixoo+OOZwgCeJjgc=;
-        b=vPuINFCgniYq+EpZUHlFRzJE/MKVgQdxMxxpRyBu2OVPRxneh7mPmVsuQlPoqqSZvG
-         jJ1uvwMHEhmTSFquLMjCtspLcQViTSHf+BFpJxMFLqu9m1wEu7mgyrPEM6Hej2lcgkk1
-         9zlJ6HUYDkms2QmII1OnoG4xfRwlBb8OSCErAD7K5rB5i+d2iTqNzCfvlKjNVVs57LyO
-         Lugpw7r8H8S65rb3o2710Z0tOz1phS3Et46IAHyP1xz3gEBOudtUYTEkZV8UiUMBLD43
-         jHHpfiYIWssxgNH3Ez3PqjSfbLLA3YjAt5Nl/aYfMEyPfHgt9oC4wBK4muFJHekYIWfy
-         NrEg==
-X-Forwarded-Encrypted: i=1; AJvYcCWkPlnd8zRuM3cFtbHCJnFYs3eLpvjo0ouRCioiqQavEyt1OUcxTtMUizNhS1plsHH6nT9Z8Jo=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz6u3kXzStvWLZbtOFHNTAOXSTEWRoi61FQme3kDHQVLreZH14J
-	eUS9NfKNZ6lmW5zmWbuumKb6RhedY2egs0wpDnNwExp7ULKQ/0hHIAJoxLlx0Q==
-X-Gm-Gg: ASbGncsTT2a8Gp9H5Yd6B6X5G+V8adoX0V2z1oBkOE50V8BKK00giHFFmvsnRRpDj7l
-	u1OEqgYC71Cy8MQkz6gba22gXts1T/zujXuGaJzEqF8aMXyt5i5CcSoxFw0s5gfZu8YYzm/vFsJ
-	7LwNzVcCteOJJOQKTU4jg+HX4842Fh15szRkcnRyyLpZcs0hiymhPBGEPnEOLjdMZREQbXZj9Nh
-	wvymokJ4d6mt8O7+/AAQQJp36msrRn/P9LkI2LgsqHH4LtV9Wun7+lKpD4RynY7VPDU3EgheTqy
-	NzECEUfexMDDMt6njTfJOUjvtmA4OhpivZp+7dq4KAyAiC8xkoFlLquXIzocvrH/baVal5rGY6x
-	JuHdueRneLSHtCTcu6mjo4Yute128zdK9wsLVVqFoP3BI9dVTyYNhO1rnOxZPxXWBBQ==
-X-Google-Smtp-Source: AGHT+IGTgP99j+uqTs5pHjlHnlg0Xu0z4WkpMUKSp1OYPj7J4oObxhZnUk+GDZaOuAvh2heTYkQpBg==
-X-Received: by 2002:a05:620a:4414:b0:7d3:b093:b600 with SMTP id af79cd13be357-7d3c6cf5303mr2222533085a.43.1750169168437;
-        Tue, 17 Jun 2025 07:06:08 -0700 (PDT)
+        bh=9jmk+ZAlQ1vOFCxkryPYE4KraaL64/vcDKofTARFzz4=;
+        b=wq+U24Me1DiHE4tg+HwfThkec+yHHkmZpM8UG5yAuugtuw2jCq38VIFChcKf+5sTlV
+         UZrUyjJT09hB8Us4zV4xBNccHXy7a9ZhKE7jwCK3lTncqyRkvaob2IbAaNTQeZtMuzx8
+         X++QpA3qDmsl2VaJjaGHRM/X6MixHCnIqI/HvB5ZXMB2lc5k1MjMR/cOMrmmcjOpmonf
+         i5uQpD2/qG8GYtZ1a1Za3qA3k0kPnfw27NFxotf6vMy3sHYO87rS+V0iU7SXmv8U4kcb
+         Xi3Fnp5MxWfqui1CPOwHqVBvYg+L8iSh3421umCOGxp+d9EilQ7kpNzpoLBh5Oy0DSCY
+         MTUw==
+X-Forwarded-Encrypted: i=1; AJvYcCUzxlVYixi4idioMamXhwx6n+DkHkifVYoUkBqeFyzuorgSZ09XiYRgSP1ikrwhwPRqZ7nvVH0=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzGfw0vI5/TyMY1rriGgHZUbBwVCQBCUoxI6jhqocUxN9jAMLBK
+	jR43ur+u84q0S92IKw4aRmf1qURMtKxUDnfjCjfEcACgmSBhMGour8JwJ47aKQ==
+X-Gm-Gg: ASbGncthcZQUpkwlI/vWpNbREIOPT/hsvPs/OHpPvjzZi482ZD35Hdy7B2YHCLB1VZj
+	9l0/agxVK5csUFrQVm9xKmcXQj7oqaz6nJPIFY438z553EJOyRiqpKKaBIRSOwf9yUjZbBbUIos
+	qvffKc33iQbOPhzWIHSo5ntEi07juzcHah33EJEUBxIWJp2KgFPRHgwc4TXydftnICow182ITB1
+	V+HAR0wLWU/Nh+Jr0im61k+CHx/8MZrxVJcYyouv7Wh0mfyUq55qBq7ncuamzKi7DPnjgTZ2uKu
+	mlusF4WKwGcpE+8tIGfTGJavvQ7nbs2qAGO9GqABDl38vu0F0HZCREF3dxGhAx5cImZ0gskEWWO
+	Ew1FrPTTxulp8OQPaax+A6gIIfI+5LXEIuxxXKSWplt2afG6zF5bHES2yBM+ZO/hLHQ==
+X-Google-Smtp-Source: AGHT+IGy1z8bqymna9kQgiF8QDFQg1du3Q4vIQnXUvlUbWNwXWlJQFXOKh3SOtXPzBc41+RWV0lT5A==
+X-Received: by 2002:a05:620a:40cb:b0:7d3:9203:206c with SMTP id af79cd13be357-7d3c6c0c77emr1905888485a.9.1750169170348;
+        Tue, 17 Jun 2025 07:06:10 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d3b8edbe29sm651079585a.91.2025.06.17.07.06.07
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d3b8edbe29sm651079585a.91.2025.06.17.07.06.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Jun 2025 07:06:08 -0700 (PDT)
+        Tue, 17 Jun 2025 07:06:09 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
@@ -65,9 +65,9 @@ Cc: paul@paul-moore.com,
 	netdev@vger.kernel.org,
 	horms@kernel.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v5 03/42] selinux: support multiple selinuxfs instances
-Date: Tue, 17 Jun 2025 10:04:50 -0400
-Message-ID: <20250617140531.2036-4-stephen.smalley.work@gmail.com>
+Subject: [PATCH v5 05/42] netstate,selinux: create the selinux netlink socket per network namespace
+Date: Tue, 17 Jun 2025 10:04:52 -0400
+Message-ID: <20250617140531.2036-6-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250617140531.2036-1-stephen.smalley.work@gmail.com>
 References: <20250617140531.2036-1-stephen.smalley.work@gmail.com>
@@ -79,61 +79,113 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Support multiple selinuxfs instances, one per selinux namespace.
+The selinux netlink socket is used to notify userspace of changes to
+the enforcing mode and policy reloads.  At present, these notifications
+are always sent to the initial network namespace.  In order to support
+multiple selinux namespaces, each with its own enforcing mode and
+policy, we need to create and use a separate selinux netlink socket
+for each network namespace.
 
-The expected usage would be to unshare the SELinux namespace and
-the mount namespace, and then mount a new selinuxfs instance.  The
-new instance would then provide an interface for viewing and manipulating
-the state of the new SELinux namespace and would not affect the parent
-namespace in any manner.
+Without this change, a policy reload in a child selinux namespace
+causes a notification to be sent to processes in the init namespace
+with a sequence number that may be higher than the policy sequence
+number for that namespace.  As a result, userspace AVC instances in
+the init namespace will then end up rejecting any further access
+vector results from its own security server instance due to the
+policy sequence number appearing to regress, which in turn causes
+all subsequent uncached access checks to fail.  Similarly,
+without this change, changing enforcing mode in the child selinux
+namespace triggers a notification to all userspace AVC instances
+in the init namespace that will switch their enforcing modes.
 
-This change by itself should have no effect on SELinux behavior or
-APIs (userspace or LSM).
+This change does alter SELinux behavior, since previously reloading
+policy or changing enforcing mode in a non-init network namespace would
+trigger a notification to processes in the init network namespace.
+However, this behavior is not being relied upon by existing userspace
+AFAICT and is arguably wrong regardless.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/selinuxfs.c | 26 +++++++++++++++++++++++++-
- 1 file changed, 25 insertions(+), 1 deletion(-)
+ include/net/net_namespace.h |  3 +++
+ security/selinux/netlink.c  | 31 +++++++++++++++++++++++++------
+ 2 files changed, 28 insertions(+), 6 deletions(-)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 8340a53c6171..fd03ceb6c8de 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -2153,9 +2153,33 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
- 	return ret;
+diff --git a/include/net/net_namespace.h b/include/net/net_namespace.h
+index 025a7574b275..06f2501ad9a9 100644
+--- a/include/net/net_namespace.h
++++ b/include/net/net_namespace.h
+@@ -196,6 +196,9 @@ struct net {
+ 	/* Move to a better place when the config guard is removed. */
+ 	struct mutex		rtnl_mutex;
+ #endif
++#if IS_ENABLED(CONFIG_SECURITY_SELINUX)
++	struct sock		*selnl;
++#endif
+ } __randomize_layout;
+ 
+ #include <linux/seq_file_net.h>
+diff --git a/security/selinux/netlink.c b/security/selinux/netlink.c
+index 1760aee712fd..03678a76f4bb 100644
+--- a/security/selinux/netlink.c
++++ b/security/selinux/netlink.c
+@@ -19,8 +19,6 @@
+ 
+ #include "security.h"
+ 
+-static struct sock *selnl __ro_after_init;
+-
+ static int selnl_msglen(int msgtype)
+ {
+ 	int ret = 0;
+@@ -66,6 +64,7 @@ static void selnl_add_payload(struct nlmsghdr *nlh, int len, int msgtype, void *
+ 
+ static void selnl_notify(int msgtype, void *data)
+ {
++	struct sock *selnl = current->nsproxy->net_ns->selnl;
+ 	int len;
+ 	sk_buff_data_t tmp;
+ 	struct sk_buff *skb;
+@@ -105,16 +104,36 @@ void selnl_notify_policyload(u32 seqno)
+ 	selnl_notify(SELNL_MSG_POLICYLOAD, &seqno);
  }
  
-+static int selinuxfs_compare(struct super_block *sb, struct fs_context *fc)
-+{
-+	struct selinux_fs_info *fsi = sb->s_fs_info;
-+
-+	return (current_selinux_state == fsi->state);
+-static int __init selnl_init(void)
++static int __net_init selnl_net_init(struct net *net)
+ {
++	struct sock *sk;
+ 	struct netlink_kernel_cfg cfg = {
+ 		.groups	= SELNLGRP_MAX,
+ 		.flags	= NL_CFG_F_NONROOT_RECV,
+ 	};
+ 
+-	selnl = netlink_kernel_create(&init_net, NETLINK_SELINUX, &cfg);
+-	if (selnl == NULL)
+-		panic("SELinux:  Cannot create netlink socket.");
++	sk = netlink_kernel_create(net, NETLINK_SELINUX, &cfg);
++	if (!sk)
++		return -ENOMEM;
++	net->selnl = sk;
++	return 0;
 +}
 +
- static int sel_get_tree(struct fs_context *fc)
- {
--	return get_tree_single(fc, sel_fill_super);
-+	struct super_block *sb;
-+	int err;
++static void __net_exit selnl_net_exit(struct net *net)
++{
++	netlink_kernel_release(net->selnl);
++	net->selnl = NULL;
++}
 +
-+	sb = sget_fc(fc, selinuxfs_compare, set_anon_super_fc);
-+	if (IS_ERR(sb))
-+		return PTR_ERR(sb);
++static struct pernet_operations selnl_net_ops = {
++	.init = selnl_net_init,
++	.exit = selnl_net_exit,
++};
 +
-+	if (!sb->s_root) {
-+		err = sel_fill_super(sb, fc);
-+		if (err) {
-+			deactivate_locked_super(sb);
-+			return err;
-+		}
-+		sb->s_flags |= SB_ACTIVE;
-+	}
-+
-+	fc->root = dget(sb->s_root);
-+	return 0;
++static int __init selnl_init(void)
++{
++	if (register_pernet_subsys(&selnl_net_ops))
++		panic("Could not register selinux netlink operations\n");
+ 	return 0;
  }
  
- static const struct fs_context_operations sel_context_ops = {
 -- 
 2.49.0
 
