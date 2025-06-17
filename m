@@ -1,63 +1,63 @@
-Received: from mail-qk1-f181.google.com (mail-qk1-f181.google.com [209.85.222.181])
+Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29A7E2E92CD;
-	Tue, 17 Jun 2025 14:06:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4949F2E972C;
+	Tue, 17 Jun 2025 14:06:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750169185; cv=none; b=RICy79BEFiRlR0WQ882jyQq3I7LozGEP1xvjVA0VJFgUchNsj/WG04xJY++2v020a7JTItpjYh7lPgCk2eP9snJn6IIi9DqM6Qd/uBYRfP76Mkv1Ciy5o92CHdEzOUY+XIa4fP5nDhL7ELescIRajNngCvVJKvnZvdsKgn81Qw8=
+	t=1750169185; cv=none; b=k1Gt84hq7DSRbn5S8IUJ+NOsx8gm9rH4kbDTXwLAUajmU/YmV5lSz5i/28GQyhIkt6JSWvlmU8yH58gI//41UzB1pZIxoWblDALcpoRo3oEoDindU5sS8GM/NBeEn99rZ3FHHWOXlRpmMc6k52o7grbqUr7dsW/tns4ovfYEB+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1750169185; c=relaxed/simple;
-	bh=VpxgWwIAIs7EsZLJduwFUo6IQsJGAQHfxAe/mMkV1nc=;
+	bh=izuz55jNu4ZgmiUnswDtuQ+1y8m1i190LxHqmgggGYA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=E+tuZTI8hZqyRSssWDtwDSb/aKdnAWOF1kWfRWpUBLa98KQZbyKsS6U5G7OmModb7U1Jk9SAMaONtET1liGBfYL4oTM7HiEu+sTGmTInxUoIDzkf2HY4IPzpDyUdS7pF45hrn1GGqVBQ1PO0W+27s1/wFLEN9m5qYBiupoXcuFU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HQkQkMSm; arc=none smtp.client-ip=209.85.222.181
+	 MIME-Version; b=cYn4qPCyeQnjzgOTLBqMwrRIAOAUwQDSk8RBQuOuyFhEI5yYcI6Vj4kRYmN5wAan9uYVAUafvvXzG5CRH55Rc4SJxFHWIB//TNrfVfk8ZDvj/eyCzuUAuEmFMDql8sxcUO6OBIhE9/01OjYJcgg8ZQ2wbSQf1+fQWCnTUK34db8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NxwiuMwd; arc=none smtp.client-ip=209.85.222.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HQkQkMSm"
-Received: by mail-qk1-f181.google.com with SMTP id af79cd13be357-7d38d562a55so752308585a.2;
-        Tue, 17 Jun 2025 07:06:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NxwiuMwd"
+Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-7c5b8d13f73so634570185a.0;
+        Tue, 17 Jun 2025 07:06:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750169182; x=1750773982; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1750169183; x=1750773983; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5npYhRtphx4UKteTGS3QbUwnAGdBuLmcFZewcnEGxAQ=;
-        b=HQkQkMSmWq8L4O8YmnSyjAk9fCOTQe51BqzUWX/NI7S8mLIlAhfRu/O4XZIgKlR8z9
-         JGXNySM3BhoZLz4QrpBj8xk+vloghbuPeBBa7xPvyYpCPVJzdwSBM55zUuGK9E2dg5iP
-         EYdgO74LqFnpDlxybne4tZNAeUrGtfjcQBZhOu5qYWntWiGtz39KdqlIz1LiNW2R7HUU
-         U9RcYT+GtJFktZ3CSaxGORnTRTHNbmExR8bMQTR6T7pSkAv4A8OtFEHpFPyjdbm5HcdK
-         /Xv7yDzPmCTlTT5htfzg5RAHOeS2/xsdUOABIFxWs037EaRolYYCf47xXgXjdIO4juRy
-         JhuA==
+        bh=XBme/MlItLgUu1volHIZk4vJAqhDoCryTZitGwn1JwI=;
+        b=NxwiuMwdYftP3BQBegKztdbn99jGaKVx1o4sNv+vaBHA2W2Vx0Q6zd4Pmg3gaQN9KG
+         ByMyysdgRpulIVH2kKCo+mI1dNuqLIDmAlzfbd7Mpd8ScDNlXxNMXwuIE4pBNBJAdnO5
+         wBw1+xD8mmxYbHKuDlrMEk+7CRTkeZr4HPjH+7xT02JM8ENv70QRyDTaOSwP1iShGovW
+         RmKm9gAaeUIFUGetzNKVTTfHUasxP0GILwOcWkhf6xbKyHTBWVblwvEmtq6D0IgE9i+W
+         yv+WobFTWovrD5OVwB3Jia2g7xfttw+wn8lLWv5XSr6/UHWAJTLm9TCWsM/f8/XTYYLn
+         JQjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750169182; x=1750773982;
+        d=1e100.net; s=20230601; t=1750169183; x=1750773983;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=5npYhRtphx4UKteTGS3QbUwnAGdBuLmcFZewcnEGxAQ=;
-        b=RxlSYJyY8RCeKJJ4CRTLdbZT5mB9y2yrPnCnvoTvBoIQ5BgybDe89IhPnMwXRo7zTw
-         iUnmZRoiR1A2uE3i9xDlmxV5mUyLBcE8KdpvQwdQBg1Q65P8qiK0UKzFfSYClas5OjUg
-         ur+GD74Q2JbYYLsWFH/K4gFohJ3sSb9Nw7r8fYH1cB2ysnMko7KUdiTniWDHVkQ2UrlG
-         jlI1ws4FOg598VDnH0mx6bqgUFSs5l4vCeVfiS7cLxZXaJC5/qx45vvuwtwGesk4cLak
-         A3f+QggO/bePZDlBqhuD9QqVhFOdfxnoXD9pbODTwC3dyYsnq9aOqa8GqA2Hvd3ukLJ7
-         Pyzg==
-X-Forwarded-Encrypted: i=1; AJvYcCVkDokSMRe1s49cpOZqthM4lgsL27gqxQESbTlMlAuVN1FR4ezjnHpcYUoZw8pe7ibGOuPjqP0=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyP2mPqObYPHUIjZQWF+D7FAdgwo+tZB8m7gUd+S7TJ/xZAeK1/
-	srvsFW1W6WoZZOMt88gf5TeXHtBQPK08ywSXz64x8L0aLQvyhsFeRpN7EioFKw==
-X-Gm-Gg: ASbGncukf5Kwgsz2lTdP8vHslaFXJ54VCNK3rM+MbqnGxZh26Wiq0ADqQo7Tc5BMWeN
-	kUafxsVljPqG4vXWwrr7+ov9WSZnbA3WJ4lwtAsmhLJIdRjd1IFavBi8ViqfA9rp86uRP3TLUWu
-	CXoNX9o5IjkTBe51YKczsHXKR/e6srbGJ+ZvJbEzR3XVNaUbv2PNY/2EoLlrqQU2yvo6hGWsNrm
-	OebqAWzyUiVOr6w2UdahtvMw9AjLV7TJhSWu4lP2mg56LI+NfcmT5N/6b3dwQ7TIMQco785Uldr
-	Nn3Wxls165d+UFZ5BBAJykV0Wj3/Pl0joeDy5UkmqgYNJpF74CKSMvQsdoPgqDKlI8hDdk7VEdR
-	uDuC83n+eGZUHlymFbOd+YG8vytCUDv5R3kM+AG8blfIAsRsbKtEZuE5Qzg/w1m8tFg==
-X-Google-Smtp-Source: AGHT+IHtjzR9+c0PO3Y/7clWqBt/lMVDk1koZlfhcWoOr6kzXdcOD1wNEW8Yd8E5irHj1yg5KzikBQ==
-X-Received: by 2002:a05:620a:19a2:b0:7d2:1458:964e with SMTP id af79cd13be357-7d3c6cd9dcfmr1733790385a.28.1750169181587;
-        Tue, 17 Jun 2025 07:06:21 -0700 (PDT)
+        bh=XBme/MlItLgUu1volHIZk4vJAqhDoCryTZitGwn1JwI=;
+        b=BOmnqfAKbFmsFkbnFxfZlXnPAUBWtIfGCTQFsUlXPNQ16mGrxkaXyn1aZ/K4y7ie9O
+         hSOo6LLHGK6IET4WoM5j262P8OgRt3NmFm6pGqvQozHXImzhuy2JLhreuWesmjB/OM13
+         b+eI2EG1zZkJrbhVRPRoTM/bVuIewdTc7BOXGG7v6sK/E7fxAxmFvWDGdQ2Ul8ygcR5s
+         VXoNKYM10gnVvqo/qN+jRKvDtgGTwEOwI8GHF6NxlUT1sfoF3gdjP6hgL5Gu9jXPBMdH
+         s4hcWWi4J9ITCZCXYihgMEHKZRP5IK1O8+F7d1NlUk4aH6bGss8ziaDQdDtJ3iFscxKx
+         7pvg==
+X-Forwarded-Encrypted: i=1; AJvYcCUxU1I5hh5Jitbo9X6Cd/Nzk8vMM6x7r0Ektg0yY6WrYteGVcEnJWRKpq2jLnKNlREC6JDdUf4=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy3POmV1oSidoB5kD7VxklDHkxHgJ3RthEZX9o1oma75F7CzJc/
+	IzG3LjwUXACJ+fGkvWPRZbpGu/rOMOHMRpSPDhVtKzOlfq91pNbibWwhPpb+Yg==
+X-Gm-Gg: ASbGncuGR92YdJ8nny2/xiNNej4Wk6zq4gs0AR+dw59cec9JoyT/DeR3pE22ygBdYvd
+	wRKuqpnYkFdt6LQWpo11QJvlPtQz7242unlOIVpfdRW84QaNgio+6DXVYjQvAq0tU9xynDmJ84D
+	9q3L/dODDWx6pHWPxY9dDxNckKt4DLBqcJiq1J/mlYSUEZkg632KVDq7Mo04J44LFUDsVU0G6Xe
+	0Cm0gjw19JC8gC2h1lxpN++BZtx1QM8qrVUDqlSijp1J+8A4tMXFiaw245Rxt9F87Pkz78wpLlF
+	f5LzfLyVgbmEry2VIcPrZEcgD8mC6gkPlffNqGhPPIYM8oo3MFEEbIwzU3pAtyjofoG+TLRaJwu
+	0DZ4wPoIjcmBgWbw5feZLNg5jgzeKd7HY0O2nwdaCfP7zH+z3Dr3Q0DAg8Ovd+bgreA==
+X-Google-Smtp-Source: AGHT+IGnOAw312Zdy5WXEaUdfR9kzTOar2bk9sxtncgizZNd6EadXtdVZDsXTb09AnjRPQ+Gucxwfw==
+X-Received: by 2002:a05:620a:f0e:b0:7ca:f3f7:e617 with SMTP id af79cd13be357-7d3c6c0e546mr1860840285a.1.1750169182715;
+        Tue, 17 Jun 2025 07:06:22 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d3b8edbe29sm651079585a.91.2025.06.17.07.06.20
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d3b8edbe29sm651079585a.91.2025.06.17.07.06.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Jun 2025 07:06:20 -0700 (PDT)
+        Tue, 17 Jun 2025 07:06:21 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
@@ -65,9 +65,9 @@ Cc: paul@paul-moore.com,
 	netdev@vger.kernel.org,
 	horms@kernel.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v5 13/42] selinux: refactor selinux_state_create()
-Date: Tue, 17 Jun 2025 10:05:00 -0400
-Message-ID: <20250617140531.2036-14-stephen.smalley.work@gmail.com>
+Subject: [PATCH v5 14/42] selinux: allow userspace to detect non-init SELinux namespace
+Date: Tue, 17 Jun 2025 10:05:01 -0400
+Message-ID: <20250617140531.2036-15-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250617140531.2036-1-stephen.smalley.work@gmail.com>
 References: <20250617140531.2036-1-stephen.smalley.work@gmail.com>
@@ -79,194 +79,58 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Refactor selinux_state_create() to be more like create_user_ns()
-after which it was originally modeled. In particular, pass in
-a single cred argument and update the cred SELinux blob with
-the new state. This makes the reference counting situation
-clearer with regard to the old state / parent reference and
-simplifies the callers.
+Enable reading of /sys/fs/selinux/unshare as a way to detect
+whether a process is in a non-init SELinux namespace. This is
+to allow the selinux-testsuite to adapt based on whether it is
+run within a child SELinux namespace. Whether or not we want
+to retain this as a userspace API is an open question.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/hooks.c            | 79 ++++++++++++++++++++---------
- security/selinux/include/security.h |  3 +-
- security/selinux/selinuxfs.c        | 10 +---
- 3 files changed, 57 insertions(+), 35 deletions(-)
+ security/selinux/selinuxfs.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 746ef41b959c..da737e0abb76 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -203,22 +203,6 @@ static int selinux_lsm_notifier_avc_callback(u32 event)
- 	return 0;
- }
- 
--struct selinux_state *init_selinux_state;
--
--/*
-- * initialise the security for the init task
-- */
--static void cred_init_security(void)
--{
--	struct task_security_struct *tsec;
--
--	/* NOTE: the lsm framework zeros out the buffer on allocation */
--
--	tsec = selinux_cred(unrcu_pointer(current->real_cred));
--	tsec->osid = tsec->sid = tsec->avdcache.sid = SECINITSID_KERNEL;
--	tsec->state = get_selinux_state(init_selinux_state);
--}
--
- /*
-  * get the security ID of a set of credentials
-  */
-@@ -7781,9 +7765,10 @@ unsigned int selinux_maxnsdepth = CONFIG_SECURITY_SELINUX_MAXNSDEPTH;
- 
- static atomic_t selinux_nsnum = ATOMIC_INIT(0);
- 
--int selinux_state_create(struct selinux_state *parent,
--			 struct selinux_state **state)
-+int selinux_state_create(const struct cred *cred)
- {
-+	struct task_security_struct *tsec = selinux_cred(cred);
-+	struct selinux_state *parent = tsec->state;
- 	struct selinux_state *newstate;
- 	int rc;
- 
-@@ -7808,13 +7793,40 @@ int selinux_state_create(struct selinux_state *parent,
- 		goto err;
- 
- 	if (parent) {
--		newstate->parent = get_selinux_state(parent);
-+		/*
-+		 * The reference to the new state replaces the reference
-+		 * to the old state (parent) in the cred security blob;
-+		 * hence, we do not need to use get_selinux_state() below
-+		 * to increment the parent reference count.
-+		 */
-+		newstate->parent = parent;
- 		newstate->depth = parent->depth + 1;
- 	}
- 
- 	atomic_inc(&selinux_nsnum);
- 
--	*state = newstate;
-+	/*
-+	 * Set the new namespace.
-+	 * The reference count was initialized to 1 and
-+	 * this is that reference.
-+	 */
-+	tsec->state = newstate;
-+
-+	/* Reset the SIDs for the new namespace. */
-+	if (parent)
-+		tsec->osid = tsec->sid = tsec->avdcache.sid = SECINITSID_INIT;
-+	tsec->exec_sid = tsec->create_sid = tsec->keycreate_sid =
-+		tsec->sockcreate_sid = SECSID_NULL;
-+
-+	/*
-+	 * Save the credential in the parent namespace
-+	 * for later use in checks in that namespace.
-+	 */
-+	if (parent) {
-+		put_cred(tsec->parent_cred);
-+		tsec->parent_cred = get_current_cred();
-+	}
-+
- 	return 0;
- err:
- 	kfree(newstate);
-@@ -7843,16 +7855,35 @@ void __put_selinux_state(struct selinux_state *state)
- 	schedule_work(&state->work);
- }
- 
-+struct selinux_state *init_selinux_state;
-+
- static __init int selinux_init(void)
- {
-+	const struct cred *cred = unrcu_pointer(current->real_cred);
-+	struct task_security_struct *tsec = selinux_cred(cred);
-+
- 	pr_info("SELinux:  Initializing.\n");
- 
--	if (selinux_state_create(NULL, &init_selinux_state))
-+	/*
-+	 * Initialize the first cred with the kernel SID and
-+	 * NULL state since selinux_state_create() expects
-+	 * these two fields to be set. The rest is handled by
-+	 * selinux_state_create(), which will update the state
-+	 * field to refer to the new state and set the parent
-+	 * pointer to the old state value (NULL).
-+	 */
-+	tsec->osid = tsec->sid = tsec->avdcache.sid = SECINITSID_KERNEL;
-+	tsec->state = NULL;
-+	if (selinux_state_create(cred))
- 		panic("SELinux: Could not create initial namespace\n");
--	enforcing_set(init_selinux_state, selinux_enforcing_boot);
- 
--	/* Set the security state for the initial task. */
--	cred_init_security();
-+	/*
-+	 * Save a reference to the initial SELinux namespace
-+	 * for use in various other functions.
-+	 */
-+	init_selinux_state = get_selinux_state(tsec->state);
-+
-+	enforcing_set(init_selinux_state, selinux_enforcing_boot);
- 
- 	default_noexec = !(VM_DATA_DEFAULT_FLAGS & VM_EXEC);
- 	if (!default_noexec)
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index ca025586e9e7..fa0551593b4b 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -116,8 +116,7 @@ struct selinux_state {
- extern struct selinux_state *init_selinux_state;
- 
- extern unsigned int selinux_maxns, selinux_maxnsdepth;
--int selinux_state_create(struct selinux_state *parent,
--			 struct selinux_state **state);
-+int selinux_state_create(const struct cred *cred);
- void __put_selinux_state(struct selinux_state *state);
- 
- void selinux_policy_free(struct selinux_policy *policy);
 diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 1ff044d17805..0508ad18eb73 100644
+index 0508ad18eb73..39a60d221143 100644
 --- a/security/selinux/selinuxfs.c
 +++ b/security/selinux/selinuxfs.c
-@@ -325,8 +325,6 @@ static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
+@@ -321,6 +321,19 @@ static const struct file_operations sel_disable_ops = {
+ 	.llseek		= generic_file_llseek,
+ };
+ 
++static ssize_t sel_read_unshare(struct file *filp, char __user *buf,
++				size_t count, loff_t *ppos)
++{
++	const struct task_security_struct *tsec = selinux_cred(current_cred());
++	char tmpbuf[1];
++
++	if (tsec->state == init_selinux_state)
++		tmpbuf[0] = '0';
++	else
++		tmpbuf[0] = '1';
++	return simple_read_from_buffer(buf, count, ppos, tmpbuf, 1);
++}
++
+ static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
  				 size_t count, loff_t *ppos)
  
- {
--	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
--	struct selinux_state *state = fsi->state;
- 	char *page;
- 	ssize_t length;
- 	bool set;
-@@ -355,22 +353,16 @@ static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
+@@ -373,6 +386,7 @@ static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
+ }
  
- 	if (set) {
- 		struct cred *cred = prepare_creds();
--		struct task_security_struct *tsec;
- 
- 		if (!cred) {
- 			length = -ENOMEM;
- 			goto out;
- 		}
--		tsec = selinux_cred(cred);
--		if (selinux_state_create(state, &tsec->state)) {
-+		if (selinux_state_create(cred)) {
- 			abort_creds(cred);
- 			length = -ENOMEM;
- 			goto out;
- 		}
--		tsec->osid = tsec->sid = SECINITSID_INIT;
--		tsec->exec_sid = tsec->create_sid = tsec->keycreate_sid =
--			tsec->sockcreate_sid = SECSID_NULL;
--		tsec->parent_cred = get_current_cred();
- 		commit_creds(cred);
- 	}
- 
+ static const struct file_operations sel_unshare_ops = {
++	.read		= sel_read_unshare,
+ 	.write		= sel_write_unshare,
+ 	.llseek		= generic_file_llseek,
+ };
+@@ -2237,7 +2251,7 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
+ 		[SEL_POLICY] = {"policy", &sel_policy_ops, S_IRUGO},
+ 		[SEL_VALIDATE_TRANS] = {"validatetrans", &sel_transition_ops,
+ 					S_IWUGO},
+-		[SEL_UNSHARE] = {"unshare", &sel_unshare_ops, 0200},
++		[SEL_UNSHARE] = {"unshare", &sel_unshare_ops, 0600},
+ 		[SEL_MAXNS] = {"maxns", &sel_maxns_ops, 0600},
+ 		[SEL_MAXNSDEPTH] = {"maxnsdepth", &sel_maxnsdepth_ops, 0600},
+ 		/* last one */ {"", NULL, 0}
 -- 
 2.49.0
 
