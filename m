@@ -1,64 +1,64 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E36FD2ECEB4;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3065F2ECEB6;
 	Tue, 17 Jun 2025 14:06:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750169210; cv=none; b=mPAKJv0sNLiJ1BSNIQWuJTYNTzowOvV66IbIKUe89zcmYaslkj2TiUZ6m+TNWRCjKVDAamjB63SLC0hNtOz0umndfvgxt0f4oaLWSAxvRqrIlwo43xah2NoH4s/folB91hOr4GfWbDnyZqGE2VVt2IgkjONjIPIeFGNWkp9t/M0=
+	t=1750169210; cv=none; b=s5g83w/BoTAFoEE5EH3CjHjHsBvg2aDXsaONAv9DiF9LUxxCz/zzP/t1rLNckEkBd2f+uikb5zfb+6GRvDHRrwJ4b9/KrayQ/YsGGnE5oDIZCG3vokhK3d811ZY6BGe9RQrhxgaynHCVeQlLdNu3A6BQopyEIV/AFjawmuihI1Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1750169210; c=relaxed/simple;
-	bh=LZzSLDvYrS2hFKI7AllSW+kKN4Yg+F903SIMcN44L6c=;
+	bh=O9NR5xFDFJ8EhTXrbHp7LJCP0HFWFTKKVmYJbDfrhnM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=j5pKXzPxfavBpQQhXagjxwuRWp+WBB4Kw1RcuPAb3uzIlJuEI7YIB6HQrWylV0qOxOvLSg7LGH03zZ2HEKQhO0BXSGe85gk2oeTFLkEjcrE/lrhXM8UBfz3MHDTt8TAy0FX46NQyY0kQREZMl9fOyNhnmeCmLqXE+UWRbBNTC9U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OG25gI9x; arc=none smtp.client-ip=209.85.222.173
+	 MIME-Version; b=PI+VRvmu622VKkikl2/Qnl0XoHyWDC4bg3EdMc5uKIH3mXk3aBTmDT9WgIlASR8qdYhCsMhZccOlwOHFgaHz0mhcthwPqYA3hp36L63M8iUz1WkFW9/ApH0tDF8WyFb+pxM9e0Rq+15tSLRcwtf2x6wxLgEtDkxdbPQ0+spWF1Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Yk++F8Kg; arc=none smtp.client-ip=209.85.222.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OG25gI9x"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-7c5f720c717so722447385a.0;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Yk++F8Kg"
+Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-7d3939ecb7dso598408785a.3;
         Tue, 17 Jun 2025 07:06:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750169207; x=1750774007; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1750169208; x=1750774008; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/RkL0KI0NRw6aWE26zoj9IucYtjpO3syaN0f9CNWg9Q=;
-        b=OG25gI9xa1DUgeXf+DovpBSKBhV9G3COXxn2CcW27eJO6ugHCQ4RBXhrqp2o8Cn0ao
-         nhqrHbzP7ZE4cqlvBRWBxuNCKv0+8DGkGpzhKljF31LlNe8A4hmCvn9scBfFWXjsPdQm
-         OVn7BE3IxR6FXg6AcIkOnVFp8pe5REe3uuv6lDiaMPUlCUMaz+LfsUfkrRGvu1jPKZCP
-         F3yruSsnYNPxoOLeqmSPeoc4K7SbQC7+YgcIrrFTGwJ8yOpaAkFNj++F4Bj89e21a+fU
-         2zAFF6UQY2t+o25U4pHeycqCKr097NMp7ghMRNxEJDkd+mrKPqsy0Ive8rKjjnlJzEc2
-         3OPQ==
+        bh=fQDqI/GPdq+jEBhqLZbfBSlM3E5Zxx5nLl38nTqsDP8=;
+        b=Yk++F8KgR6bWioAOSK6IqcuHGKRNYLRr1DTp0yujTZpGEhdnSaw4skQzzj3KSwL0mh
+         kwO16C2uc307vU490SieCvw8pH3HVhFs4nVp59ZoZ9gsdCErq59GZlJBG5tUA+0QUolC
+         IDVreYJE4RVKqiqOVSA7IR0obw94SoYj5j8/PL4Lf4bin5mElLUtAIz5AeacZgWYf6m9
+         iT88rDrIw7wz8nnYdlN2IE1dOSA70fNwlHRdgkVfJpLF43nvjZo+VJ/RLbqjZZw/Glk+
+         zMw/PBafqFZPFQsmeHPBebXSkR6NGUpCWhpbgPKVLXyNjv4oAXh7C0VuVgsXjOUk9waR
+         W5IA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750169207; x=1750774007;
+        d=1e100.net; s=20230601; t=1750169208; x=1750774008;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/RkL0KI0NRw6aWE26zoj9IucYtjpO3syaN0f9CNWg9Q=;
-        b=H2pKE6Z+/XgvNGEwSte2zuxc08mPUGosRXn8we9DH6P74ZV7blr7tAhIig13P7Cy9h
-         0OqzD1g6j64nV6NolTdnU8dEfEinQ/jBKeDysL/qxHOEUhY6Tpze5S8vQHNNP0iphHO7
-         L13FSG53agV6/hk+yJL//UzU0qWeZON00q01pBgrBKSnx+4XU8WKPlte8X25mtXfD9w9
-         h5uaVYS+XU2rYCYpJA6oGz2g+mCudDwFEAx99GmeWz+LL0pSsajgvSkMscLKbdIuDn4R
-         9+Y3vxLN+5JpUSZPdPP6aHIWsekaAL8h8kmPfD+arz17VFWPE45ewxbwc9luSue9H3mk
-         nS8w==
-X-Forwarded-Encrypted: i=1; AJvYcCV+xmDX+LH9LmFmCVXrADQETYICq3KsQ9K63AIKNI4iIRhzgdQQK9PdwVRAonglsKhcZ0+0PMQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyTsUiIP+WKBJXpgwrhrNujnOmbcJW0GBsSTX4Sdwdgd0zAEukT
-	AiPk+PruYEzlDTu3qGVUSx0y9PAYxJ8SfSVcivxgGlKmWpxizMy/9XEeuvYMMg==
-X-Gm-Gg: ASbGncsAvng1PMVc38ADpzEbbYZvcCdRIT6f1lDx32HFtlboiRJrRUB5eO+CLSV/VjA
-	nLbd8JZMN+xXmTtzgeXwt/WFWhOiTg1AvUK0i/DaC2WIXhLyZNhr5sXWQybg1EecS9767sKa0pl
-	wDhtJrAlWO4sYkQJkWhQDZtT0agSjLVIrEwF7R332Ww9Op0PowflY/otujGQ1vBKiz3VIAlw+In
-	ffxmLuONE80PBNxbJoHQW2017E8pfXpY9usWo+ukZVTkMTBYZU9DnwFuDN2mmRoJx4JrZfTZP0V
-	6I8rxWlh4Lo0XwuqQeClrmUz/MGNjC5N3E8BJp5xKztEX6lhfZAqYQlXVHIuRYyq8ghOKIUggVg
-	kA1qo2FOqJzjD0Rc3W42VdQDpEEgayfJ1q65w6cUbr5W9FkV7rASE6ZUgDWbZdtHYjBczF0Fuu4
-	Ei
-X-Google-Smtp-Source: AGHT+IHGWj3dzT/H+0+I1PbQSoOf5YcJP1VSdEomfYLK1g0IhQbjyZHb2veJlHi9Rr2JktOK92m/Gw==
-X-Received: by 2002:a05:620a:2412:b0:7cd:45ec:aac6 with SMTP id af79cd13be357-7d3c68563b4mr1813755885a.24.1750169207097;
+        bh=fQDqI/GPdq+jEBhqLZbfBSlM3E5Zxx5nLl38nTqsDP8=;
+        b=VC05IHbr5+wMR+PEfp6Rkk9pWnPZGs0sXZjVSGn7Au3bpaVL+KVyvptTqyzCvBWNJS
+         UY/uqt2lswVm70HbuGxAKQRpcuHzID1arBmEDrdYE+v2hOLIQvIGYr6Be0YTjY9bFiLn
+         Mpq0HNBMx669Cc00pAQu89G57AREWJRmoUFAx9k11psfibnvfi/h5DNWRD58TRmt1Qnl
+         lb1TUxiog0Ztysh3dgHwFm/GhyTaInRV99wY+hRlwpQtzsxTFXchUhH7x2a1njk9S+/T
+         ulw7ClaYmd95CLbuz0yV0+fcwl3ZrqWxsgjPVJvb7YAKNl4Ldgq/bL0jwaZGvMzUQsMk
+         ZsZw==
+X-Forwarded-Encrypted: i=1; AJvYcCWqdOxiLqDIV4stnF2gVLMQ7uF/RM+v/lKq8UPLWoPY5TUs2bLAjitpK9iDMyeQ0/oYqKK0Il0=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyYXgakWvNqgswrr3cOi3l4lvIAa8bHrvA8dEFEYFkO2jJt6KwX
+	aASl4f9hiF1iF3smkS5kdOPwytnRKz5zuZGRiFUBYsRCQaZ9Su69ngqk0qz7xA==
+X-Gm-Gg: ASbGncvMCryD+50UdezKaXUaWJnb47MXUTOYhawDULp+7oJkG1sUSMt3RdIeqN3XiWE
+	Rj6hQD1sWqH6MJzMGqhjrEOXV31vXXoldDoN522GOVRWvz5e6O5/1B5bow9UZnn9k8tWGL8ctJA
+	O2uy5x1jmtHoFqMSaGuIXjDR0NfppOYQr7C3Nd1K/RGYacs5ALHvktSWMTUZ8TPfCL10z2NLyLl
+	NVx8LvmBqQ1Yhr6S+SX1opSYvfEpPO/JJCgQateiBVZE5NKhqHmagjaegHE/Cy1RT1m7B9kgHgb
+	AZMd4MkINS4MySk4vTg1FfbXpNd2lXNniGq+KMXjX2rotUgEnuWm4tiuvgYM+NZ3mN9yknG4P2g
+	BimYzB7u3KvKf1I2BSJdd7FjOd4E4gKssrJ+QAmu/d1WMd4Evxkra5MryAfwIEtz2kTu2z8EzZx
+	hC
+X-Google-Smtp-Source: AGHT+IEDW2igc7/zmbsq+cc8AkCDgQkNR2XjNTSpqMqytcNV2rfLVhRe2L718eHZgMPcI0rXusDfcw==
+X-Received: by 2002:a05:620a:2456:b0:7d0:96e8:4791 with SMTP id af79cd13be357-7d3c6ce1498mr1606024585a.28.1750169207752;
         Tue, 17 Jun 2025 07:06:47 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d3b8edbe29sm651079585a.91.2025.06.17.07.06.46
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7d3b8edbe29sm651079585a.91.2025.06.17.07.06.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 Jun 2025 07:06:46 -0700 (PDT)
+        Tue, 17 Jun 2025 07:06:47 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
@@ -66,9 +66,9 @@ Cc: paul@paul-moore.com,
 	netdev@vger.kernel.org,
 	horms@kernel.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v5 34/42] selinux: introduce selinux_state_has_perm()
-Date: Tue, 17 Jun 2025 10:05:21 -0400
-Message-ID: <20250617140531.2036-35-stephen.smalley.work@gmail.com>
+Subject: [PATCH v5 35/42] selinux: annotate selinuxfs permission checks
+Date: Tue, 17 Jun 2025 10:05:22 -0400
+Message-ID: <20250617140531.2036-36-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250617140531.2036-1-stephen.smalley.work@gmail.com>
 References: <20250617140531.2036-1-stephen.smalley.work@gmail.com>
@@ -80,277 +80,201 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Introduce selinux_state_has_perm() for checking permissions on a
-(ssid, tsid) pair for a namespace and its ancestors when there
-is no cred available, e.g. for the networking checks.
-
-To support selinux_state_has_perm(), introduce a creator SID field
-in the selinux_state structure to save the SID of the process
-that created the namespace, or SECINITSID_KERNEL for the initial
-namespace. This SID is used as the subject SID for checks in the
-parent namespace.
-
-Some of the checks previously converted to using cred_ssid_has_perm()
-may be candidates for switching to this new helper even though a cred
-was available in those hooks.
+Annotate the selinuxfs permission checks with comments
+explaining why we only check permissions against the
+current SELinux namespace (because these operations only
+read or modify the state of the current SELinux namespace).
+If we were instead to check permissions against ancestor
+namespaces, we would need to be allowed by the ancestor
+policies to perform the same operation in those namespaces,
+which would be undesirable.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/avc.c              | 37 ++++++++++++++++
- security/selinux/hooks.c            | 69 ++++++++++++++++-------------
- security/selinux/include/avc.h      |  4 ++
- security/selinux/include/security.h |  1 +
- 4 files changed, 80 insertions(+), 31 deletions(-)
+ security/selinux/selinuxfs.c | 65 ++++++++++++++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 61716e17538d..5b690194b86a 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -1689,6 +1689,43 @@ int cred_other_has_perm(const struct cred *cred, const struct cred *other,
- 	return 0;
- }
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 158994a1dcb3..c7825db4e06f 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -175,6 +175,10 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
  
-+/**
-+ * selinux_state_has_perm - Check and audit permissions on a (ssid, tsid) pair
-+ * @state: SELinux state
-+ * @ssid: source security identifier
-+ * @tsid: target security identifier
-+ * @tclass: target security class
-+ * @requested: requested permissions, interpreted based on @tclass
-+ * @ad: auxiliary audit data
-+ *
-+ * Check permissions between a source SID @ssid and a target SID @tsid for
-+ * @state and all ancestors to determine whether the @requested permissions
-+ * are granted, interpreting the permissions based on @tclass.
-+ * For the ancestor checks, use the SID of the creator of the namespace
-+ * as the source SID of the check.
-+ * Audit the granting or denial of permissions in accordance with the policy.
-+ * Return %0 if all @requested permissions are granted, -%EACCES if any
-+ * permissions are denied, or another -errno upon other errors.
-+ * DO NOT USE when a cred is available; use cred_*_has_perm() instead.
-+ */
-+int selinux_state_has_perm(struct selinux_state *state, u32 ssid, u32 tsid,
-+			   u16 tclass, u32 requested,
-+			   struct common_audit_data *ad)
-+{
-+	int rc;
+ 	old_value = enforcing_enabled(state);
+ 	if (new_value != old_value) {
++		/*
++		 * Only check against the current namespace because
++		 * this operation only affects it and no others.
++		 */
+ 		length = avc_has_perm(current_selinux_state,
+ 				      current_sid(), SECINITSID_SECURITY,
+ 				      SECCLASS_SECURITY, SECURITY__SETENFORCE,
+@@ -362,6 +366,10 @@ static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
+ 	if (*ppos != 0)
+ 		return -EINVAL;
+ 
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	rc = avc_has_perm(current_selinux_state, current_sid(),
+ 			  SECINITSID_SECURITY, SECCLASS_SECURITY,
+ 			  SECURITY__UNSHARE, NULL);
+@@ -592,6 +600,10 @@ static int sel_open_policy(struct inode *inode, struct file *filp)
+ 
+ 	mutex_lock(&fsi->state->policy_mutex);
+ 
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	rc = avc_has_perm(current_selinux_state,
+ 			  current_sid(), SECINITSID_SECURITY,
+ 			  SECCLASS_SECURITY, SECURITY__READ_POLICY, NULL);
+@@ -654,6 +666,10 @@ static ssize_t sel_read_policy(struct file *filp, char __user *buf,
+ 	struct policy_load_memory *plm = filp->private_data;
+ 	int ret;
+ 
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	ret = avc_has_perm(current_selinux_state,
+ 			   current_sid(), SECINITSID_SECURITY,
+ 			   SECCLASS_SECURITY, SECURITY__READ_POLICY, NULL);
+@@ -811,6 +827,11 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
+ 		return -EPERM;
+ 
+ 	mutex_lock(&fsi->state->policy_mutex);
 +
-+	do {
-+		rc = avc_has_perm(state, ssid, tsid, tclass, requested, ad);
-+		if (rc)
-+			return rc;
-+
-+		ssid = state->creator_sid;
-+		state = state->parent;
-+	} while (state);
-+
-+	return 0;
-+}
-+
- u32 avc_policy_seqno(struct selinux_state *state)
- {
- 	return state->avc->avc_cache.latest_notif;
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 8ea1402bd84f..1513eb6efb64 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5286,16 +5286,16 @@ static int selinux_inet_sys_rcv_skb(struct selinux_state *state,
- 	err = sel_netif_sid(state, ns, ifindex, &if_sid);
- 	if (err)
- 		return err;
--	err = avc_has_perm(state, peer_sid, if_sid,
--			   SECCLASS_NETIF, NETIF__INGRESS, ad);
-+	err = selinux_state_has_perm(state, peer_sid, if_sid,
-+				     SECCLASS_NETIF, NETIF__INGRESS, ad);
- 	if (err)
- 		return err;
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	length = avc_has_perm(current_selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+ 			      SECCLASS_SECURITY, SECURITY__LOAD_POLICY, NULL);
+@@ -866,6 +887,10 @@ static ssize_t sel_write_context(struct file *file, char *buf, size_t size)
+ 	u32 sid, len;
+ 	ssize_t length;
  
- 	err = sel_netnode_sid(state, addrp, family, &node_sid);
- 	if (err)
- 		return err;
--	return avc_has_perm(state, peer_sid, node_sid, SECCLASS_NODE,
--			    NODE__RECVFROM, ad);
-+	return selinux_state_has_perm(state, peer_sid, node_sid, SECCLASS_NODE,
-+				      NODE__RECVFROM, ad);
- }
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	length = avc_has_perm(current_selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+ 			      SECCLASS_SECURITY, SECURITY__CHECK_CONTEXT, NULL);
+@@ -917,6 +942,10 @@ static ssize_t sel_write_checkreqprot(struct file *file, const char __user *buf,
+ 	if (fsi->state != current_selinux_state)
+ 		return -EPERM;
  
- static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
-@@ -5315,8 +5315,9 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
- 		return err;
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	length = avc_has_perm(current_selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+ 			      SECCLASS_SECURITY, SECURITY__SETCHECKREQPROT,
+@@ -976,6 +1005,10 @@ static ssize_t sel_write_validatetrans(struct file *file,
+ 	if (state != current_selinux_state)
+ 		return -EPERM;
  
- 	if (selinux_secmark_enabled()) {
--		err = avc_has_perm(state, sk_sid, skb->secmark, SECCLASS_PACKET,
--				   PACKET__RECV, &ad);
-+		err = selinux_state_has_perm(state, sk_sid, skb->secmark,
-+					     SECCLASS_PACKET, PACKET__RECV,
-+					     &ad);
- 		if (err)
- 			return err;
- 	}
-@@ -5376,8 +5377,8 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 			selinux_netlbl_err(skb, family, err, 0);
- 			return err;
- 		}
--		err = avc_has_perm(state, sk_sid, peer_sid, SECCLASS_PEER,
--				   PEER__RECV, &ad);
-+		err = selinux_state_has_perm(state, sk_sid, peer_sid,
-+					     SECCLASS_PEER, PEER__RECV, &ad);
- 		if (err) {
- 			selinux_netlbl_err(skb, family, err, 0);
- 			return err;
-@@ -5385,8 +5386,9 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 	}
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	rc = avc_has_perm(current_selinux_state,
+ 			  current_sid(), SECINITSID_SECURITY,
+ 			  SECCLASS_SECURITY, SECURITY__VALIDATE_TRANS, NULL);
+@@ -1109,6 +1142,10 @@ static ssize_t sel_write_access(struct file *file, char *buf, size_t size)
+ 	struct av_decision avd;
+ 	ssize_t length;
  
- 	if (secmark_active) {
--		err = avc_has_perm(state, sk_sid, skb->secmark, SECCLASS_PACKET,
--				   PACKET__RECV, &ad);
-+		err = selinux_state_has_perm(state, sk_sid, skb->secmark,
-+					     SECCLASS_PACKET, PACKET__RECV,
-+					     &ad);
- 		if (err)
- 			return err;
- 	}
-@@ -5570,9 +5572,9 @@ static int selinux_sctp_process_new_assoc(struct sctp_association *asoc,
- 		 * consistency among the peer SIDs.
- 		 */
- 		ad_net_init_from_sk(&ad, &net, asoc->base.sk);
--		err = avc_has_perm(state, sksec->peer_sid, asoc->peer_secid,
--				   sksec->sclass, SCTP_SOCKET__ASSOCIATION,
--				   &ad);
-+		err = selinux_state_has_perm(state, sksec->peer_sid,
-+					     asoc->peer_secid, sksec->sclass,
-+					     SCTP_SOCKET__ASSOCIATION, &ad);
- 		if (err)
- 			return err;
- 	}
-@@ -5940,8 +5942,9 @@ static unsigned int selinux_ip_forward(void *priv, struct sk_buff *skb,
- 	}
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	length = avc_has_perm(current_selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+ 			      SECCLASS_SECURITY, SECURITY__COMPUTE_AV, NULL);
+@@ -1163,6 +1200,10 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+ 	u32 len;
+ 	int nargs;
  
- 	if (secmark_active)
--		if (avc_has_perm(se_state, peer_sid, skb->secmark,
--				 SECCLASS_PACKET, PACKET__FORWARD_IN, &ad))
-+		if (selinux_state_has_perm(se_state, peer_sid, skb->secmark,
-+					   SECCLASS_PACKET,
-+					   PACKET__FORWARD_IN, &ad))
- 			return NF_DROP;
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	length = avc_has_perm(current_selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+ 			      SECCLASS_SECURITY, SECURITY__COMPUTE_CREATE,
+@@ -1265,6 +1306,10 @@ static ssize_t sel_write_relabel(struct file *file, char *buf, size_t size)
+ 	char *newcon = NULL;
+ 	u32 len;
  
- 	if (netlbl_enabled())
-@@ -6022,8 +6025,9 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
- 		return NF_DROP;
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	length = avc_has_perm(current_selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+ 			      SECCLASS_SECURITY, SECURITY__COMPUTE_RELABEL,
+@@ -1331,6 +1376,10 @@ static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
+ 		" userspace.\n", current->comm, current->pid);
+ 	ssleep(5);
  
- 	if (selinux_secmark_enabled())
--		if (avc_has_perm(sksec->state, sksec->sid, skb->secmark,
--				 SECCLASS_PACKET, PACKET__SEND, &ad))
-+		if (selinux_state_has_perm(sksec->state, sksec->sid,
-+					   skb->secmark, SECCLASS_PACKET,
-+					   PACKET__SEND, &ad))
- 			return NF_DROP_ERR(-ECONNREFUSED);
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	length = avc_has_perm(current_selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+ 			      SECCLASS_SECURITY, SECURITY__COMPUTE_USER,
+@@ -1396,6 +1445,10 @@ static ssize_t sel_write_member(struct file *file, char *buf, size_t size)
+ 	char *newcon = NULL;
+ 	u32 len;
  
- 	if (selinux_xfrm_postroute_last(sksec->sid, skb, sksec->state, &ad,
-@@ -6149,8 +6153,8 @@ static unsigned int selinux_ip_postroute(void *priv,
- 		return NF_DROP;
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	length = avc_has_perm(current_selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+ 			      SECCLASS_SECURITY, SECURITY__COMPUTE_MEMBER,
+@@ -1527,6 +1580,10 @@ static ssize_t sel_write_bool(struct file *filep, const char __user *buf,
  
- 	if (secmark_active)
--		if (avc_has_perm(se_state, peer_sid, skb->secmark,
--				 SECCLASS_PACKET, secmark_perm, &ad))
-+		if (selinux_state_has_perm(se_state, peer_sid, skb->secmark,
-+					   SECCLASS_PACKET, secmark_perm, &ad))
- 			return NF_DROP_ERR(-ECONNREFUSED);
+ 	mutex_lock(&fsi->state->policy_mutex);
  
- 	if (peerlbl_active) {
-@@ -6159,14 +6163,14 @@ static unsigned int selinux_ip_postroute(void *priv,
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	length = avc_has_perm(current_selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+ 			      SECCLASS_SECURITY, SECURITY__SETBOOL,
+@@ -1586,6 +1643,10 @@ static ssize_t sel_commit_bools_write(struct file *filep,
  
- 		if (sel_netif_sid(se_state, state->net, ifindex, &if_sid))
- 			return NF_DROP;
--		if (avc_has_perm(se_state, peer_sid, if_sid,
--				 SECCLASS_NETIF, NETIF__EGRESS, &ad))
-+		if (selinux_state_has_perm(se_state, peer_sid, if_sid,
-+					   SECCLASS_NETIF, NETIF__EGRESS, &ad))
- 			return NF_DROP_ERR(-ECONNREFUSED);
+ 	mutex_lock(&fsi->state->policy_mutex);
  
- 		if (sel_netnode_sid(se_state, addrp, family, &node_sid))
- 			return NF_DROP;
--		if (avc_has_perm(se_state, peer_sid, node_sid,
--				 SECCLASS_NODE, NODE__SENDTO, &ad))
-+		if (selinux_state_has_perm(se_state, peer_sid, node_sid,
-+					   SECCLASS_NODE, NODE__SENDTO, &ad))
- 			return NF_DROP_ERR(-ECONNREFUSED);
- 	}
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	length = avc_has_perm(current_selinux_state,
+ 			      current_sid(), SECINITSID_SECURITY,
+ 			      SECCLASS_SECURITY, SECURITY__SETBOOL,
+@@ -1707,6 +1768,10 @@ static ssize_t sel_write_avc_cache_threshold(struct file *file,
+ 	if (state != current_selinux_state)
+ 		return -EPERM;
  
-@@ -7069,10 +7073,10 @@ static int selinux_ib_pkey_access(void *ib_sec, u64 subnet_prefix, u16 pkey_val)
- 	ibpkey.subnet_prefix = subnet_prefix;
- 	ibpkey.pkey = pkey_val;
- 	ad.u.ibpkey = &ibpkey;
--	return avc_has_perm(current_selinux_state,
--			    sec->sid, sid,
--			    SECCLASS_INFINIBAND_PKEY,
--			    INFINIBAND_PKEY__ACCESS, &ad);
-+	return selinux_state_has_perm(current_selinux_state,
-+				      sec->sid, sid,
-+				      SECCLASS_INFINIBAND_PKEY,
-+				      INFINIBAND_PKEY__ACCESS, &ad);
- }
- 
- static int selinux_ib_endport_manage_subnet(void *ib_sec, const char *dev_name,
-@@ -7094,10 +7098,10 @@ static int selinux_ib_endport_manage_subnet(void *ib_sec, const char *dev_name,
- 	ibendport.dev_name = dev_name;
- 	ibendport.port = port_num;
- 	ad.u.ibendport = &ibendport;
--	return avc_has_perm(current_selinux_state,
--			    sec->sid, sid,
--			    SECCLASS_INFINIBAND_ENDPORT,
--			    INFINIBAND_ENDPORT__MANAGE_SUBNET, &ad);
-+	return selinux_state_has_perm(current_selinux_state,
-+				      sec->sid, sid,
-+				      SECCLASS_INFINIBAND_ENDPORT,
-+				      INFINIBAND_ENDPORT__MANAGE_SUBNET, &ad);
- }
- 
- static int selinux_ib_alloc_security(void *ib_sec)
-@@ -7709,6 +7713,7 @@ int selinux_state_create(const struct cred *cred)
- {
- 	struct task_security_struct *tsec = selinux_cred(cred);
- 	struct selinux_state *parent = tsec->state;
-+	u32 creator_sid = tsec->sid;
- 	struct selinux_state *newstate;
- 	int rc;
- 
-@@ -7724,6 +7729,8 @@ int selinux_state_create(const struct cred *cred)
- 	if (!newstate)
- 		return -ENOMEM;
- 
-+	newstate->creator_sid = creator_sid;
-+
- 	refcount_set(&newstate->count, 1);
- 	INIT_WORK(&newstate->work, selinux_state_free);
- 
-diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-index 1916ee418aa3..ffb8946dfeda 100644
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -175,6 +175,10 @@ int cred_other_has_perm(const struct cred *cred, const struct cred *other,
- int task_obj_has_perm(const struct task_struct *s, const struct task_struct *t,
- 		      u16 tclass, u32 requested, struct common_audit_data *ad);
- 
-+int selinux_state_has_perm(struct selinux_state *state, u32 ssid, u32 tsid,
-+			   u16 tclass, u32 requested,
-+			   struct common_audit_data *ad);
-+
- u32 avc_policy_seqno(struct selinux_state *state);
- 
- #define AVC_CALLBACK_GRANT		1
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index ac3f818675d1..5cd49ca2e2b2 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -110,6 +110,7 @@ struct selinux_state {
- 
- 	refcount_t count;
- 	struct work_struct work;
-+	u32 creator_sid; /* SID of namespace creator */
- 	unsigned short depth;
- } __randomize_layout;
- 
++	/*
++	 * Only check against the current namespace because
++	 * this operation only affects it and no others.
++	 */
+ 	ret = avc_has_perm(current_selinux_state,
+ 			   current_sid(), SECINITSID_SECURITY,
+ 			   SECCLASS_SECURITY, SECURITY__SETSECPARAM,
 -- 
 2.49.0
 
