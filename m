@@ -1,73 +1,117 @@
-Received: from mail-io1-f70.google.com (mail-io1-f70.google.com [209.85.166.70])
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E56A2EE5EC
-	for <selinux@vger.kernel.org>; Wed, 18 Jun 2025 15:07:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE0032EAB62
+	for <selinux@vger.kernel.org>; Wed, 18 Jun 2025 15:26:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750259224; cv=none; b=cGYj3mUek7Eaf/Hfjhx/e0sT/ZmceD+D9ChHqErBQIdQNqKo4AMyOOCS0YhmtFa69iHn+g3oBavzDGXB+iyXxfiPVZ89kASZQeI+4LiO0MDHNglEo6kORllk4GLVZzw5KaGF83FUl2cZFqR+ZtV8zyYot7l3uWZ2ixVhwdCpnVs=
+	t=1750260419; cv=none; b=ZzjkydksHPKdjuPu86nyI/dMr7U/5oHtU3r6Q36t3JFEztsD9yix1zfPXEa4XzKWjMYIdtUEtmVElOVmnPLvBXA1Ll/4vGmTIR04BkZx7aqgM1SjZjax1wMIZ/uCvJgv1ZKnxE0jmBjVcqkTHDtzvBz7Y53v14OqM1HwEhpZ7qE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750259224; c=relaxed/simple;
-	bh=P2aimRirNcgIL6Ho4sklZIhHf933e7dpe4IoyiMRGJE=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=sXB3PAYObSWHg6P2OIZZld6r9KQ4clFxrpOnsuZz35BoOseo1OHWW+1EDlau4mymFQRud+UKYuL06r3wcNV0ey8bFgQaBe64S7b2d5Eflg9gv5DBe49Y+d0lot2azGSUJiiA6WtP+gAkJb/gImuKeAgoO9z/Rtv3qCzae/eMugc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f70.google.com with SMTP id ca18e2360f4ac-875b64cccd6so1222297439f.3
-        for <selinux@vger.kernel.org>; Wed, 18 Jun 2025 08:07:02 -0700 (PDT)
+	s=arc-20240116; t=1750260419; c=relaxed/simple;
+	bh=TsCR5oDDlZqG5afm7jH9wdrmUpldRbbmWnky3NFFbIU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=bPjXUa2v1n9Qm0euW+o8nYnrYP2HxiUxh/QJC9cvET2102jxUci9FcQ2sb8BGiH9pfpctYwDKVQ4XT1v0OPQlYEiTZth3diyjE9GjuNicFICtUFzuOQNzsA8TCfHO64cqb+9HiYkahlr32SYScHwyJkLaih7IAdZhVYWFxSdEpM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EORtIwyf; arc=none smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EORtIwyf"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-237311f5a54so12317015ad.2
+        for <selinux@vger.kernel.org>; Wed, 18 Jun 2025 08:26:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1750260417; x=1750865217; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Q86emBzn0pmzBMm+tTYJWMTUKLSDRXoR+ohwg+EgRmA=;
+        b=EORtIwyfw+BAppN/Oj8Jzv3xzzfS0dyjqPAz7jpXp8hQh4uMy7BDyNhjQ5M5v231At
+         /bDy+2lTUqbCp/5gP5u6UMxEht0y+vquXEOBbhGZStVTxMSysha3+URaBWknvg9nqM0I
+         IiuXuovPBPCfbUMdhV1ABzDRaUr2yHFUQzNbyjHQsk8rxO9crQjkWu2zLNAuebQJPoM9
+         plgrV6e5xRjdpl0YYhWpJx9ow2wG7qE5WblmYTxLI7J/D0e/OyUBTl9tnKCPBHaEuQ/R
+         q27R093Xdqex8m4Id4F1ae0raBsTYEunqvCdloX1g/IuItN+HPfeNjUVNRwWdRUEW7ac
+         cuOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750259222; x=1750864022;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=kRDX5ia9y5BcNG/nL+CpwW3JfRIhx3CRudfoJpIg/QI=;
-        b=eE6ZmpDEmO7dfrgm0o7SnkoDJvgtz8ITXNJzsXTCO6Hen4g85SPCF3OtUYKuzn/eXk
-         Dd4E1N7xuACyqz7xkWhDJaVmXFUyHabxnkp9BDe0yd/EhwxQS2+yzfaCXxfeCyK55DAD
-         3B0rm1aMmX30l9MtqOrMIoCdhCCfCcuzSKgKZEShcaQGog8QqlKiDjhhRCiCyi1kbP4f
-         QaDNV8nfV9cFcc0ruXtbtrWAbRYWlaMpDlzOYFuof1CkZ08sAtcqC8mssA2sa+JGqd/G
-         YystbqA55Q5F62SOjEJYbV2CXaGhP5TaNP/wGnCHqz+URbdjI3sulJzspTuc5ylBRtoV
-         zotg==
-X-Forwarded-Encrypted: i=1; AJvYcCXxItKqXx5GIUdM4hynPPVhbZ6eLwYXY81Bi0wY/f6GbWNQCBaK1OcFaV0UlSpaGCVn7Q2EWFlg@vger.kernel.org
-X-Gm-Message-State: AOJu0YzglBrfoIGB7ts+SP+8HNX9sNfGZxI5H+iMV+AsxdhNYaOf9Hhh
-	kD44MARbCn4XPHT+dyRRFhV6Z8J8TxEnVNxjF5g51WSIJRWB9rmjw0rvddvibMDK559ZR/CK4NR
-	5JlXf7FJg7u9bvPj5dpLuqcFdwfRB4lcACb/Fcl8wuUHOT1i/B3u2Q4+4qJE=
-X-Google-Smtp-Source: AGHT+IHjXn3z3fSMZiexZ80ASZh54Qm/tzj6n0SQkNdUimZYgXkTCowp4ZCtavAKe7hwD4q2foS8MwsS9SnisA2kYg4iupOBfc/n
+        d=1e100.net; s=20230601; t=1750260417; x=1750865217;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Q86emBzn0pmzBMm+tTYJWMTUKLSDRXoR+ohwg+EgRmA=;
+        b=BcvtJuF7Qy3o6KLgFlGLdG1FBG5apBz3RjInsviJD6AGq5Mm0N9V5VtzzD0fnz1cxt
+         WI5Y/fEW3MJu5fhwMYaowGln6k6XFUmZYgkGlTW1tErXRnj6l2+11GkXQaiEHmpfWENf
+         SJMylGFzvycODqSAA0/UAJyAS7i7uyDXCXSDgcI8SYNoMWkXz6YcQMIHRotacRksjtxd
+         ZebcRbmPBJ2uzzixvOEEPzfNz9d89NrN2cEO0a7B5Li6gdMlqiqSoCZTCmCkNU2QE+f8
+         9bFSmk3SzyXg59xUfZc7dCOkXRZ5VB8b6dL7FIloPKAxDbnunvxBtEpZqj1wfQXPOWMm
+         odZg==
+X-Gm-Message-State: AOJu0Yyi8XXN9JYMbzAWLvokH/uGcJ/PaPr6/2ZVP/zJAvfMM+YfkXzp
+	epaRk6pJGtLijP+hqZyqv3ep94I6qsJNJzEhKEwA5zdeWS3Ns5oa/5n0DOxWoX76wMw5qVaF6p5
+	pFa0DZ6keXtXWRNlpXV8M7lUkh/nx3xtq5g==
+X-Gm-Gg: ASbGncuWAlAO+DxZ4WzdmZRg+/W+/9pExEhxuvsudjzo9hGMoWIR32Vwi2Ur9EFvmn+
+	rplUzgvB7iaBRYfVTPFLZnT67WCnyEX+5j3cY1rLTD2N+sD5sK+Xu3H2L9OayZad0Cdwo1BMBIk
+	yUbkUmNtHlH7L5re9F/MxqHNDXvG8BWH/mdtVCb2wav7M=
+X-Google-Smtp-Source: AGHT+IHjTcN/B1NyubYf2n6tNOqHXAD5pM+SU2m9eHu1TSecejoMBa2Tt4ZU+a/ZijOcApz+PLF97ke4mvVHjnm3gMg=
+X-Received: by 2002:a17:90b:2fc3:b0:311:a314:c2d1 with SMTP id
+ 98e67ed59e1d1-313f1c6f665mr25622701a91.6.1750260416684; Wed, 18 Jun 2025
+ 08:26:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:b22:b0:3db:6fb2:4b95 with SMTP id
- e9e14a558f8ab-3de07cd17b8mr225886715ab.18.1750259222238; Wed, 18 Jun 2025
- 08:07:02 -0700 (PDT)
-Date: Wed, 18 Jun 2025 08:07:02 -0700
-In-Reply-To: <CAHC9VhQkpNAsxy4rDf=qjwBrtCx5sXc74w5A=NU4R+8=FPa3Sw@mail.gmail.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6852d616.050a0220.216029.0027.GAE@google.com>
-Subject: Re: [syzbot] [selinux?] WARNING in hashtab_init
-From: syzbot <syzbot+bc2c99c2929c3d219fb3@syzkaller.appspotmail.com>
-To: linux-kernel@vger.kernel.org, omosnace@redhat.com, paul@paul-moore.com, 
-	selinux@vger.kernel.org, stephen.smalley.work@gmail.com, 
-	syzkaller-bugs@googlegroups.com
+References: <20250613154343.25702-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20250613154343.25702-2-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 18 Jun 2025 11:26:45 -0400
+X-Gm-Features: AX0GCFtId_KZ8VvzfEi2dQ7Dv_briba128ucBNaA97_Jyu93CkLgMlHblqEA6cU
+Message-ID: <CAEjxPJ6cdw6K+YDhBz8z+DvD6KS4rexoOik=9Dh13eX30-0i4Q@mail.gmail.com>
+Subject: Re: [PATCH testsuite] README.md: update dependency from iptables to iptables-nft
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello,
+On Fri, Jun 13, 2025 at 11:44=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> Going forward, testers should install iptables-nft rather than iptables
+> when running the testsuite.
+>
+> Link: https://lore.kernel.org/selinux/20250611183234.10255-2-stephen.smal=
+ley.work@gmail.com/
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-syzbot has tested the proposed patch and the reproducer did not trigger any issue:
+This is now applied.
 
-Reported-by: syzbot+bc2c99c2929c3d219fb3@syzkaller.appspotmail.com
-Tested-by: syzbot+bc2c99c2929c3d219fb3@syzkaller.appspotmail.com
-
-Tested on:
-
-commit:         52da431b Merge tag 'libnvdimm-fixes-6.16-rc3' of git:/..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=1206050c580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=4130f4d8a06c3e71
-dashboard link: https://syzkaller.appspot.com/bug?extid=bc2c99c2929c3d219fb3
-compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
-patch:          https://syzkaller.appspot.com/x/patch.diff?x=12163e82580000
-
-Note: testing is done by a robot and is best-effort only.
+> ---
+>  README.md | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/README.md b/README.md
+> index d24a3cc..f067eeb 100644
+> --- a/README.md
+> +++ b/README.md
+> @@ -51,7 +51,7 @@ similar dependencies):
+>  * libselinux-devel _(to build some of the test programs)_
+>  * net-tools _(for `ifconfig`, used by `capable_net/test`)_
+>  * netlabel\_tools _(to load NetLabel configuration during `inet_socket` =
+tests)_
+> -* iptables _(to load the `iptables SECMARK` rules during `inet_socket` t=
+ests)_
+> +* iptables-nft _(to load the `iptables SECMARK` rules during `inet_socke=
+t` tests)_
+>  * lksctp-tools-devel _(to build the SCTP test programs)_
+>  * attr _(tools used by the overlayfs tests)_
+>  * libbpf-devel _(tools used by the bpf tests)_
+> @@ -78,7 +78,7 @@ following command (NOTE: On Fedora 32 and below you nee=
+d to remove
+>                 net-tools \
+>                 netlabel_tools \
+>                 nftables \
+> -               iptables \
+> +               iptables-nft \
+>                 lksctp-tools-devel \
+>                 attr \
+>                 libbpf-devel \
+> --
+> 2.49.0
+>
