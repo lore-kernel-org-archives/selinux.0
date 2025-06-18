@@ -1,103 +1,170 @@
-Received: from mail-yw1-f177.google.com (mail-yw1-f177.google.com [209.85.128.177])
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF3182ED844
-	for <selinux@vger.kernel.org>; Wed, 18 Jun 2025 14:50:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 289222EE28F
+	for <selinux@vger.kernel.org>; Wed, 18 Jun 2025 14:51:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750258248; cv=none; b=BWrLtoEVF8cMMq0xUk8GRXPWI09TYz35APqwAf9RAm5yO6ycNfTNdIbrTPP7bg+PO+zYsEqm3MXtp5c8ld/wvC8+t1lXSQZNyJRDtxihMp38thSX87XANrV5aeVXosjrrHGlDEBuu76HI8RS54bpKG0xvmTNJw7NqWBdZYNM9tw=
+	t=1750258306; cv=none; b=OgCzhh6C1LwK1EhqKSrmaIrqBV8Ph45e+OSSyQ3NNQPFp9NsL+f+bJjLNl3OCHt8dddVwylIRnebcwKJgjtYgz9V7y5PDVPirMNrSgK8SsYpt+IjqQoBL3mfwT7BDHpBcfLyAWTctOY4mcavdzqBB/0FNZlhiaVnQI1Rnlfl72Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750258248; c=relaxed/simple;
-	bh=tcTafZ3pqbFQwHEMwHmIlzRj6Rk2Evf2Co3CGbo1eGQ=;
+	s=arc-20240116; t=1750258306; c=relaxed/simple;
+	bh=MWQyBAVeEaMLmaKlH6HRKxP3YrIOsWR9TQZ7RtafGrA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bp8HR+hoL+z0vBIZMb/KCHwaspu4shRaomNIOMtwVnElD9aElJpdSeBwm34f23P3YtHj+c1uSPGIvWnAVD/ODqTttUsXpVTNmAW2Kor3SEW370VSXp3fUsncgLl1IAkOL4z2aXmlPouuNRjjZheHHjyKVeDgPi3H1jlRy0PhL7o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=RzIClQZN; arc=none smtp.client-ip=209.85.128.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=KecrOameJp+jDoOayAPe98/EACWIgi7mqvor26Zo0st2Hh3MqhU6YR2x0ac3jmid3Jv/ukgipOkj/4UvIVLgwdDIftok5rM0sHbC2WYTi3nNQh16Y/oRH9Sk7ObUwoYOZ+0jz8qZjvUnq9GvPQs1hE/jrmxbMYAHh5YjH4lwLTs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=alF8Vvwi; arc=none smtp.client-ip=209.85.210.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="RzIClQZN"
-Received: by mail-yw1-f177.google.com with SMTP id 00721157ae682-70f94fe1e40so10006987b3.1
-        for <selinux@vger.kernel.org>; Wed, 18 Jun 2025 07:50:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="alF8Vvwi"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-742caef5896so5870970b3a.3
+        for <selinux@vger.kernel.org>; Wed, 18 Jun 2025 07:51:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1750258245; x=1750863045; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1750258304; x=1750863104; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tcTafZ3pqbFQwHEMwHmIlzRj6Rk2Evf2Co3CGbo1eGQ=;
-        b=RzIClQZNdBiiPgLajkLwcm85+LOWXVmomAVcpZJfl0PvWaR40wOx7ZtGe81shKzYq6
-         HcNE4hs5jxbE8jPjgTmjrMrdIuaf0Ptzfu5+g+CERRPJyMkwzTokbqL2YZhkE8xpO9j/
-         VcPVdS2sQcGTeHZcGOF8rM5ujWD9lcGvBQ00UNFMAImycVBYfL8Lx7Jw6EpAUyJdxaPU
-         3auSElGwff1sjkZd+Vp1KSL3ZP3/gEsYdZhEf+jD6oCpK+YRmhVzLPvH5JfKgxnpMo9e
-         j3zrQ7waNMdQXu0pgZbJXNfae9yD1t+SKd0Bi+v04sntsSuitQpAlfCn+LHH9fH7zS7E
-         t+Wg==
+        bh=mztyeiW1lMtQgZXefvVE3n8KqKA1HsVmQ2pB5kRgtYY=;
+        b=alF8VvwiIzPdnSsvT2KUjDPDtPVM72PUEIT7TRS2x8m890PhFraEJUFk56JvkohF0W
+         R6yGuK1KdFjvJSul53+iT+NxVBI7URA4cvQDNqNxghJIHUlq0IDrQcJysRr64+qRZzNI
+         40JEtxxLGaO+2efWId2ET4w4mzrqAG1niDE/NtlUF2yU1gFGeTnmKAcUYZVyI+gSkUaN
+         Url0LBZIfecNSBQSWQFOsXeD5eP8/vew9ga1qTIQUIFQzrDjOy4BqwZQzrOfyaBMZD7I
+         FXGfFzselbSNJohwmks2uOhtjVIw4WVBBoRgO4LnqTQcI3jWzyBSPpsuuyD3JHbMRbaq
+         2vYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750258245; x=1750863045;
+        d=1e100.net; s=20230601; t=1750258304; x=1750863104;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=tcTafZ3pqbFQwHEMwHmIlzRj6Rk2Evf2Co3CGbo1eGQ=;
-        b=b0dq8lQZAUGc0mAV3RvgcEqVp4D1VLKeba3N0/r9u4k6H+/neQq8tAu86u5kfLhv0m
-         3EZLvvSkZvW0gkQMlhSV2qqmHwHZqzs75mMPhRsAs6+3O9K7YAy43jEESErJNVY7b0C3
-         inOgaAdM0YDIcBQpa5cukQ9RduwmLyv7C+u52CQXLl4xyRqpFBb5ZZ0V2441QgVNVQgp
-         5I1j0crzU4wAqnRyI34x2DDvB+casrfZiinMBhs/c5N/JHC/MUsBauDMBe2FNU3vDnnz
-         QMl5RZhu0ENDwCKjYuZtK8jDZSW63moB12mKohQIo719fopWs6WnyXcwP8GYk0CNUURR
-         cSjg==
-X-Forwarded-Encrypted: i=1; AJvYcCUrjwkiAnj/p/oM0NI+D09sQWTWl/TqZoSmfPkON9pY0XMC7hBasLkACwW8OaKDCev0JaeodD1q@vger.kernel.org
-X-Gm-Message-State: AOJu0YxBH30onCuv2AHucWgtho6WSZ5i/EnNBSQ149xmB0hrSWptWL07
-	6WLB1jD/WTqlkEEj+zADHQqw7TaQZra/lGEqFkA59leR2Z+fxKbym8197rkal47S8F+8ONztCFQ
-	px7+A3V/E1w9LdKtvwgEE2NYani0+oGdegnCd6TFwhXZXW0Q24AM=
-X-Gm-Gg: ASbGncvSV1k9n+n/q9hYepFroetROpXjD0uDhVl2GGyScuwlXJmOnlfkr2K1jufAwoM
-	S8daFyR8BBNnc65oAPQYteugH1A+bn1z0CWx64e41C7MDKzf0+8eCaa9PlKxdSWmp8MdSR7sYo0
-	CbP0CCDhTHDuzkQgo5noC1wYneiN798MmMmBr9g/037PA=
-X-Google-Smtp-Source: AGHT+IFxMMslCgutKgMMRr/XtvErMuhkeY2Dtk/a5qksBpvugGo9mDhEDAZWKxo29PokHwMFIDlgfKWSlx/u0dTouNg=
-X-Received: by 2002:a05:690c:61c9:b0:710:e81e:1364 with SMTP id
- 00721157ae682-712a6c2a5d7mr38544947b3.6.1750258245679; Wed, 18 Jun 2025
- 07:50:45 -0700 (PDT)
+        bh=mztyeiW1lMtQgZXefvVE3n8KqKA1HsVmQ2pB5kRgtYY=;
+        b=e/Um0LZ100pyS8PEIXWG/jsRZglVP+L/MHWLfxp5488FWWjIdYL6jWhSceeJalcuTu
+         Sj4wMMPI8WyzT98g7piFAK5BRLN6ODqgoTdY8tlGulnQ6wzqdpeIGpmd2sSCqIb4ibF+
+         Rxb3fNDqwusT1ilSHKn2xJy87ULR+t46d0Pf1L4L1qgnSBRBqiGOKJ02hhef05RHFr1l
+         VjkzZZWJS/I9kQ78BoSgVAiEgXEnwG7iDF5GO6iP2fXAErEh2v85zWeUNAck1akAa/0W
+         gwMg2rgZi35gmGfyyXD6sXEkoNHEfZ/B2Jx0Zche8QT3MdksR9Z9fRC46Z8Dx7vhtUsD
+         RpIg==
+X-Gm-Message-State: AOJu0Yw2JrIXNFdRi442tOiL377duUQL66RqOdg8r0PNaboMhJvlo6uK
+	LQDrEAj+PO7+4fstxRvsC5DjJ58lFNNAebu498lMwgJPDu1Ey+qSESUA+k+a8SF4Yy8RnJDrDrW
+	fKcXcNfT0MIkS3i1Q6W1poRzMAAJKxrI=
+X-Gm-Gg: ASbGncseQE3BeN/Rkb/h2ATt5n6vHhq6ALHvSuWOLPYG6hjK1yRmnHsqEtFM4zgQENK
+	w/t/f7zNHMZUQh89GRlPtQ7efZH+c5dQmDZxejH9PnqD4ocZKv8MqGVyWT95wV0g+IcyTDUHJmm
+	sdvIZgHrEEwy0uTnB6n9oqhtMaIR2B3lOaVJkOoIgDzEA=
+X-Google-Smtp-Source: AGHT+IGiVfge5+gPenU7BpbEuSe6m6WrFK3SRN2HSSXBf147gYEgnppU1nz7jsN41233q4ET1d2SOP8OKhjEs6pqldw=
+X-Received: by 2002:a05:6a00:1989:b0:736:4e67:d631 with SMTP id
+ d2e1a72fcca58-7489cfddacdmr23506314b3a.23.1750258304417; Wed, 18 Jun 2025
+ 07:51:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250612081208.1721183-1-omosnace@redhat.com> <CAEjxPJ43XpL49FZmb6Ds7CD71mZffNMKSiOfpesh2Lgw1eah4Q@mail.gmail.com>
- <CAEjxPJ6+xbt9oKTJbGdJJ_seB=ZFRzeT2KHoEHM9ay1FY4_9Qg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6+xbt9oKTJbGdJJ_seB=ZFRzeT2KHoEHM9ay1FY4_9Qg@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 18 Jun 2025 10:50:34 -0400
-X-Gm-Features: Ac12FXxhgtfssdFK2Z87faSxiI7je2iBryftddAgSB9qKUeiPO27NB4F9DIsdss
-Message-ID: <CAHC9VhQpg82NGaQ0Y=2RoYvGmZVDPFYBOSyZf2YphV3-4bGDZw@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/inet_socket: properly detect IPSEC support
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+References: <20250618000423.779510-1-lakarri@microsoft.com>
+In-Reply-To: <20250618000423.779510-1-lakarri@microsoft.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 18 Jun 2025 10:51:32 -0400
+X-Gm-Features: AX0GCFsq95YO8YLRhEtLVNHYiafhI6tufClrNS8avkjwIpeL3EoMjz1iF4uB0m8
+Message-ID: <CAEjxPJ4z+9yEHiq0nRODqFSErDZnqtBxAOQwMzxgH7=BKTvsNA@mail.gmail.com>
+Subject: Re: [PATCH] Expect Key error for module_load test in lockdown mode
+To: Sindhu Karri <klsssindhu@gmail.com>
+Cc: selinux@vger.kernel.org, Sindhu Karri <lakarri@microsoft.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 18, 2025 at 10:03=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Thu, Jun 12, 2025 at 12:18=E2=80=AFPM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Thu, Jun 12, 2025 at 4:12=E2=80=AFAM Ondrej Mosnacek <omosnace@redha=
-t.com> wrote:
-> > >
-> > > Check if XFRM itself is supported by the kernel when deciding whether=
- to
-> > > run the IPSEC tests, so that the testsuite can be run on kernels with
-> > > CONFIG_XFRM_USER unset, too.
-> > >
-> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> >
-> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> >
-> > Feel free to merge it yourself. BTW would appreciate your input on the
-> > patch/discussion for inet_socket iptables-legacy vs nft issue.
+On Tue, Jun 17, 2025 at 8:04=E2=80=AFPM Sindhu Karri <klsssindhu@gmail.com>=
+ wrote:
 >
-> I went ahead and merged your patch since it has been a few days.
-> Also, if there are no objections, I plan to merge my recent
-> selinux-testsuite patches for the README.md iptables-nft change and
-> the nfs undefined label change soon.
+> From: Sindhu Karri <klsssindhu@gmail.com>
 
-No objections from me, thanks Stephen.
+Move your subject line here to the patch description, replace your
+subject line with something like:
+[PATCH testsuite] tests/module_load/test: handle kernel lockdown correctly
 
---=20
-paul-moore.com
+> Signed-off-by: Sindhu Karri <lakarri@microsoft.com>
+> ---
+>  tests/module_load/test | 38 ++++++++++++++++++++++++++++++++++----
+>  1 file changed, 34 insertions(+), 4 deletions(-)
+>
+> diff --git a/tests/module_load/test b/tests/module_load/test
+> index 98c5946..de3812b 100755
+> --- a/tests/module_load/test
+> +++ b/tests/module_load/test
+> @@ -25,10 +25,40 @@ BEGIN {
+>      plan tests =3D> 17;
+>  }
+>
+> +# Read current lockdown mode
+> +my $lockdown_mode;
+> +if (open(my $fh, '<', '/sys/kernel/security/lockdown')) {
+> +    my $line =3D <$fh>;
+> +    close($fh);
+> +
+> +    if ($line =3D~ /\[([^\]]+)\]/) {
+> +        $lockdown_mode =3D $1;
+> +    } else {
+> +        warn "Warning: Could not determine active lockdown mode, assumin=
+g lockdown mode is 'none'.";
+> +        $lockdown_mode =3D "none";
+> +    }
+> +} else {
+> +    warn "Warning: Cannot read /sys/kernel/security/lockdown, assuming l=
+ockdown mode is 'none'.";
+> +    $lockdown_mode =3D "none";
+> +}
+> +
+> +print "Current lockdown mode: $lockdown_mode\n";
+
+Would remove this debugging output.
+
+> +
+> +# In cases 1 and 5,
+> +# In lockdown integrity mode, the expected error code is 129 i.e. Key is=
+ rejected by the service error
+> +# In lockdown none mode, no error is expected.
+> +$expected_pass =3D ($lockdown_mode eq 'none') ? 0 : 129;
+> +
+> +# In cases 4 and 8,
+> +# In lockdown integrity mode, the expected error code is 129 i.e. Key is=
+ rejected by the service error
+> +# In lockdown none mode, the error expected is 13 i.e.  EACCES
+> +$expected_fail =3D ($lockdown_mode eq 'none') ? 13 : 129;
+> +
+> +
+>  print "Test finit_module(2)\n";
+>  $result =3D system
+>  "runcon -t test_kmodule_t $basedir/finit_load $v $basedir setest_module_=
+request";
+> -ok( $result eq 0 );
+> +ok( $result >> 8 eq $expected_pass );
+>
+>  # Deny capability { sys_module } - EPERM
+>  $result =3D system
+> @@ -43,12 +73,12 @@ ok( $result >> 8 eq 13 );
+>  # Deny system { module_request } - EACCES
+>  $result =3D system
+>  "runcon -t test_kmodule_deny_module_request_t $basedir/finit_load $v $ba=
+sedir setest_module_request 2>&1";
+> -ok( $result >> 8 eq 13 );
+> +ok( $result >> 8 eq $expected_fail );
+>
+>  print "Test init_module(2)\n";
+>  $result =3D system
+>  "runcon -t test_kmodule_t $basedir/init_load $v $basedir setest_module_r=
+equest";
+> -ok( $result eq 0 );
+> +ok( $result >> 8 eq $expected_pass );
+>
+>  # Deny capability { sys_module } - EPERM
+>  $result =3D system
+> @@ -63,7 +93,7 @@ ok( $result >> 8 eq 13 );
+>  # Deny system { module_request } - EACCES
+>  $result =3D system
+>  "runcon -t test_kmodule_deny_module_request_t $basedir/init_load $v $bas=
+edir setest_module_request 2>&1";
+> -ok( $result >> 8 eq 13 );
+> +ok( $result >> 8 eq $expected_fail );
+>
+>  SKIP: {
+>      skip(
+> --
+> 2.33.8
+>
