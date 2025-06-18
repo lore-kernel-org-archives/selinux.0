@@ -1,95 +1,132 @@
-Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CC5523DE
-	for <selinux@vger.kernel.org>; Wed, 18 Jun 2025 18:30:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 625FD19E96D
+	for <selinux@vger.kernel.org>; Wed, 18 Jun 2025 19:12:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750271434; cv=none; b=jxpSAJlcmEXCpG/9aWKs7X3xLMy5qvdeDgKDfEhkq45bfEIq67EWDWxBH3PJGcVLPacsKS9C4K4LenNZJ9yj/uRgUPnu2uyXSJc71QN69+lTDQOI4JDyxPT5z3c4CXHjeGBZfZfZB0qWcUHWNSM/NgSxdrlqxLHrj5rPUrNLi5s=
+	t=1750273977; cv=none; b=kiCxWh56qVkNhuow6noDBo+qfnkHfqnKQcVx6+XSBY5YPU7XHXp7LFYetiMhqjynDZt9u19i6iAO+IDdsME/XiLkfbsL95Zqfj5Bh6AQLcmZX5vr46azGj+Fi3S7WKSlwiMxCr2MWceUSHJSFmNhRgY9o3MBdSh8fJYqkuceKdI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750271434; c=relaxed/simple;
-	bh=O89J9H4rRKomTI72BHU7e4gP9WvH5tJDzaqOg9xtGcg=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Content-Type; b=KPbcYxVMjS8OYwF0pw5Vku5bZA/0boMLkT72S6UbExrAKpA0/y+lU35PCbCTieE95Rfm3ObUdP6lEw3XjmyfnwgPyTNdli3HeJAQggMzztS3oVs++ZQQKTdMPMVYuzirnFTa1w89/c4kP9axFtuIOj1vqxYucLd4lSrG5Mzl9a0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ieee.org; spf=pass smtp.mailfrom=ieee.org; dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b=fdY4WrEO; arc=none smtp.client-ip=209.85.219.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ieee.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ieee.org
+	s=arc-20240116; t=1750273977; c=relaxed/simple;
+	bh=1GAoAaNne5FvAg4pogL/baWLUU/ER1tHGtrWd1I/U/A=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=ZPG/4t4PB6kObuMtfXam1A4wbYl+HLM4ZTL4JYuqnQRKu6aI98+dTSIkVb5JPy2njA+1vAYanMCQvtQ1sdSoS8YkZmqupiy+k3bu2U9Oq9GQYUzbAa4Q/0gqf/eAC/SW9uNF2T2I9DvPFJk0YqiWf0o605QfJ2MpfgtAQ7u1gTQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Y7E7ZnC3; arc=none smtp.client-ip=209.85.160.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="fdY4WrEO"
-Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-6facc3b9559so105204736d6.0
-        for <selinux@vger.kernel.org>; Wed, 18 Jun 2025 11:30:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Y7E7ZnC3"
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-4a4bb155edeso85787301cf.2
+        for <selinux@vger.kernel.org>; Wed, 18 Jun 2025 12:12:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ieee.org; s=google; t=1750271429; x=1750876229; darn=vger.kernel.org;
-        h=content-transfer-encoding:content-language:to:subject:from
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yuUEe6gCFjiWNM1z1GOgV/5fVk90tEK6DnkDu36oOVI=;
-        b=fdY4WrEOWO6PnDhnOUIuoIry7MlefS/2BeAR6Rvue1wDetXl+HP/LwJwo83zJTbdfq
-         kFrJqnOSJyw9IIQX/NYa+2Uv9ByK+DBlTo5XJOuk+G0feGpd19iw+5JeJSJnr54UAUjj
-         yQvMMydm1mfOEWmoD0o/y8SBfDjxUuthC+I7A=
+        d=paul-moore.com; s=google; t=1750273974; x=1750878774; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=KxfuwYQybzRWeyHM6BPbsiw9nivRgN4Rxo+D4xB9ylc=;
+        b=Y7E7ZnC3yy4gHVBdX/mqeFg2Pu/MHx9NuLn5aStVNGn24JUFn5kY8avRhA0M1WEVo/
+         E3xMEYjQcmJxmqkM925iFhAOWDTDTgmB86fh0mdlin6D4Pp05QsyTSa2KWtaA7gE4wsL
+         yJ5dpSORewi2uzSwtJwi79WXKqxbeOyKWadu39TRIrXG7zDY4XZ757asGvL+tvT+RDuz
+         XQAZ4/Z41UB9VhqQ4JIbyIYyRwukuILytBTBFq2xV35Vttr5Aj4HgPuydCVspOlD0GM1
+         kESbmJf2g5FngKBbmFAEeZEo+rNlD3j6BasYaxxBVrI3FArXsYvF23NpneuEHrlCsEzg
+         ca+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750271429; x=1750876229;
-        h=content-transfer-encoding:content-language:to:subject:from
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=yuUEe6gCFjiWNM1z1GOgV/5fVk90tEK6DnkDu36oOVI=;
-        b=shWMxBxIh9rL/GInRMRbA87jzmBLCeksdWMqkjjIAV2xOoDo1EBJrPG/9WeSH6DA7v
-         cE8b5eJ0vjayksibJ3NYiwW87spl6RIzgXQF0S73mffFqGULgC/Wh2JbbGDwFhawzh05
-         Cemvq5Dq8gMzK+efob/sSun7B8QIQhLPsit29kPhK4JQ3dSQcgkJ9l9/ztzFkYlbLDgn
-         oJRSiWN7DMrg2XPJ59Oe/Zm3O6QptqGHfRz3FLhGinLNBNGZ5OJ0xNyuWhg+KlI777tb
-         VApXf1L4WXQA7S6pM5D1D0+cofkqN2iBzuCF/DrXQX3r62VvjHhVw2FIX0tvSyOEwFPF
-         +jDg==
-X-Gm-Message-State: AOJu0YyKM4DVlmwYcp0SIM/5uh85ZaBbqxDQ+lvSzw9nlbhPjIQh0SMZ
-	eYxFOWb3/4MIm1Q39q+tiPy5tdSxcN06ze3smAjpd16oCXNATksiCXBPyQgCfmzR6NCjfPuwAky
-	m7RxUF/05AFxdtTttv2+4ZY68Z09gtlFohdcwysYwdOp+1s2hF3+1Q0rTfvEbTxdQ6vTh93JEeT
-	QpkMFbEvriRnRm3lkE0nUj2P6KbfzTEEl9imRC
-X-Gm-Gg: ASbGncucAPK696Vy+/sp7LWRj7GVfLSTfh2dMJulgUv4fDdHqDsfInD5JnbVSMggiXG
-	pRWQHtHD17ElxoVGcQdR/ilkFK66O2IcVG7aV4v+IJjjLpuFyFaFwY2H+RY289NH2bRmHuQg2pp
-	ejKsYLlxLxVA16+wL4OhwilNeFTsVsKmQTOhNeNJzgZNLdO1lb7ggMiJXBZRqQYPsSnCTeUj52e
-	L3fca/Q/xwwY/QNH9Dsd/NXzJUJR2ZA2n4KAN0VCrSZ7yIsmEd8+njLTI928OGrziJMZoK5Mpq3
-	C8Rf7VvERW+YabPj3UcGagVA3EgcMXdxF/BTRZ5WFCKSEDcCH1wyvSEb8wR0qBBF9lYZokZNst7
-	uoOzrdIqot1K/GWeG52003nVwiya6SMjO4D/K
-X-Google-Smtp-Source: AGHT+IFc3x77JCPpppN1YJ06suXm3ER6hxqMJ4up28orCZYtW+PUTDVHjVq8Qsvz/TSIqyB49mx5tA==
-X-Received: by 2002:a05:6214:2243:b0:6fb:5559:b3d1 with SMTP id 6a1803df08f44-6fb5559b3f2mr206878566d6.1.1750271429339;
-        Wed, 18 Jun 2025 11:30:29 -0700 (PDT)
-Received: from ?IPV6:2601:145:c200:2c70:89ae:8cba:b38c:db3c? ([2601:145:c200:2c70:89ae:8cba:b38c:db3c])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6fb35c31604sm75617506d6.75.2025.06.18.11.30.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 18 Jun 2025 11:30:28 -0700 (PDT)
-Message-ID: <3fbd1d89-3c6d-4159-b412-5f91348cc0ab@ieee.org>
-Date: Wed, 18 Jun 2025 14:30:21 -0400
+        d=1e100.net; s=20230601; t=1750273974; x=1750878774;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=KxfuwYQybzRWeyHM6BPbsiw9nivRgN4Rxo+D4xB9ylc=;
+        b=JLD93cwUrlAHdKqpIcuEJhhCjuYFyo199yUd0kdFE0CIcnogr0LyulO+7W1IR1uD38
+         4jBNwmt6g7e1qsV+F0GztQp0l6zrwDpjVxHAKY3+EbF3qTh5L031USeW+cjUWhNDCsXs
+         twpnJ1lA6lRqsZyTKGVGogeSk43ndeXStEv6Lb959jtuWm3Bjj3k3yxmVYXx0SL23hUF
+         6TTPc+3LWt1RITjRJQ9Sng2HX3p9CqIbpK05mGIZHCVJdhkerKzHBs2L47QBH8ew4/UC
+         /xTC400JZSVLhar/POJ3AZ9c3ezqExw/DmlEVknDwqx9hlSt+8l86/9JVC6jdCm3exxh
+         h6Qw==
+X-Forwarded-Encrypted: i=1; AJvYcCUvFWQpJuYmEbP/cCeY2OVQyI0XnP6Xfh6mm1LqxFYgLWGFkUI+rWKzSFJCHf6Cm6TxfV/rpnul@vger.kernel.org
+X-Gm-Message-State: AOJu0YxaUh3a7SxL2vfjZgtl1Jo4iVIms9rtRjiXulT/tj51eI2Bj2Jm
+	Ou3Z/o8V6QE8wz97r6A9orQ01UAicdGU3z9FXI9BFhO15gCFO1vTzgroBV8R15cOYw==
+X-Gm-Gg: ASbGncvIsg3qebmP8aIipDtJyxOg+T5cVnZpFNBh674WYr6C3v0IsnmzMcr6nJlEnOd
+	xfuASowuQbwux6WEr7V/xeWTchVaLEeqx20h6Wze6LDMXHa3PgeBPP0D8fv/WnHi/fyXrx4iirs
+	2VaDaDIyQ2rmO4CUtHb8GLJkUJ7Htkby2eLLn5LoYZZPhc/e3NCfoXCa68gbQ2A1O9/JdmRDgdG
+	uLXLklRBxcKLTpHTtRTI8vgCtkpUcQNXRdjfK41O9siB1npZ8Y8mkqj398gxoxwmm+ioyKesfTe
+	TNFg+/Bjy2w50mN+Os99XH/qy9zQuj2kVR6+s7MtTCyqE/ef2I3jpVPbTMa791Q0cdATw9H/uzm
+	MMTZNtft3Y4iWY82Y5it+H7zYCHK+Ba4=
+X-Google-Smtp-Source: AGHT+IFMy6D8qPgdxp1eCl8IeQKsCoFbPgynP8xBLR/NH3dDorM4TX24f2Kz8lwzGrE03P27oyAxMA==
+X-Received: by 2002:a05:622a:8a:b0:490:8cc3:d111 with SMTP id d75a77b69052e-4a73c5fc8eamr319622181cf.27.1750273974062;
+        Wed, 18 Jun 2025 12:12:54 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-7d3b8eabea0sm794852285a.55.2025.06.18.12.12.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 Jun 2025 12:12:53 -0700 (PDT)
+Date: Wed, 18 Jun 2025 15:12:53 -0400
+Message-ID: <2de6d4fbc8b5eae256c4dd3a718b08bc@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Chris PeBenito <pebenito@ieee.org>
-Subject: ANN: Reference Policy 2.20250618
-To: SElinux mailing list <selinux@vger.kernel.org>,
- SELinux Reference Policy mailing list <selinux-refpolicy@vger.kernel.org>
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20250618_1506/pstg-lib:20250617_1648/pstg-pwork:20250618_1506
+From: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
+Cc: omosnace@redhat.com, Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: Re: [PATCH v2] Documentation/admin-guide/LSM/SELinux.rst: add links to  resources
+References: <20250617143906.22706-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20250617143906.22706-2-stephen.smalley.work@gmail.com>
 
-A new release of SELinux Reference Policy is available:
+On Jun 17, 2025 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
+> 
+> Add links to the SELinux kernel subsystem README.md file, the
+> SELinux kernel wiki, and the SELinux userspace wiki to the
+> SELinux guide.
+> 
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+> v2 adds a link to the SELinux userspace wiki as well.
+> 
+>  Documentation/admin-guide/LSM/SELinux.rst | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
 
-https://github.com/SELinuxProject/refpolicy/releases/tag/RELEASE_2_20250618
+I'm going to merge this into selinux/dev, but I applied some tweaks
+as there were some odd inconsistencies in the patch, more below.
 
-Notable Changes
-* Updates to support screen 5.0.
-* Add labeling for bcachefs.
-* Various systemd updates and fixes.
+> diff --git a/Documentation/admin-guide/LSM/SELinux.rst b/Documentation/admin-guide/LSM/SELinux.rst
+> index 520a1c2c6fd2..22b9f91b220d 100644
+> --- a/Documentation/admin-guide/LSM/SELinux.rst
+> +++ b/Documentation/admin-guide/LSM/SELinux.rst
+> @@ -2,6 +2,17 @@
+>  SELinux
+>  =======
+>  
+> +Information about the SELinux kernel subsystem can be found at the
+> +following links:
+> +
+> +	  https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/tree/README.md
+> +
+> +	  https://github.com/selinuxproject/selinux-kernel/wiki
+> +
+> +Information about the SELinux userspace can be found at
 
-New Modules
-* feedbackd
-* ipmitool
-* fwupd
-* needrestart
+I added a colon to the end of the line above, "... found at:", to match
+the style used previously in the file.
 
-Full Changelog:
-https://github.com/SELinuxProject/refpolicy/compare/RELEASE_2_20250213...RELEASE_2_20250618
+> +
+> +	    https://github.com/SELinuxProject/selinux/wiki
+> +
 
--- 
-Chris PeBenito
+I'm not sure if you were using an odd editor, but the horizontal white
+space before the URLs was odd, including a varying combination of tabs
+and spaces.  I changed the whitespace to just a single tab to match the
+rest of the file, but if your spacing was intentional please let me know
+and I'll back out my changes.
 
+>  If you want to use SELinux, chances are you will want
+>  to use the distro-provided policies, or install the
+>  latest reference policy release from
+> -- 
+> 2.49.0
+
+--
+paul-moore.com
