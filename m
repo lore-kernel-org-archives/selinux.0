@@ -1,65 +1,66 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 575912206B7
-	for <selinux@vger.kernel.org>; Thu, 19 Jun 2025 21:23:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B66F21FF3B
+	for <selinux@vger.kernel.org>; Thu, 19 Jun 2025 21:24:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750368186; cv=none; b=tsVXYQ274Wh4H6ybvW2BgApJyU0XP51b0fib+xaVdrQnfilwG8tAFWeXNSPePGPB30JHdBrLTTJny63paMJimoVxWUrSOH4kMGL9iwyhsyXv0+0nawAhnPPX+Rg+1E/5Km3rRBcydTMWjsG8XpewGOyYRIe6btzunDUfW1GqENA=
+	t=1750368299; cv=none; b=TH8JJ66dVgVz3fu8J3ko0AwfTIRWLezE9emvPkrvf2fXIeOkcfnBE2AzbbWnP/OpKzLYGvNPpWh85Mf/JjhUoEJOuMSLs0M8R5q1t3yChVlxUB9TJKRH8pNXcOE3vIFSfXkDB/JkEpbt1R5p6Ylrd420wccADEUDlcpEJACSYNQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750368186; c=relaxed/simple;
-	bh=yD6bAV8aFY7IcqMfUqlGW5p97MpW2tF44tmreXCONn8=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=Fn8pt2mMtxEDWzmy2QFcd2T/TFHGuho0E4EYJDesfvjpzW91jBwoh/+dN2zgHSklc5NvsINvUDShJXph/r9QaqpUkRM8oAB9/0Si3ku1GUzocha7PRU4QbMNz25qxjSZXJTa45+VhLX7Gu1VmQLglssxLgY8E8AuculZiaXX9Go=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=E03QV7ul; arc=none smtp.client-ip=209.85.219.44
+	s=arc-20240116; t=1750368299; c=relaxed/simple;
+	bh=z//LwiVtRs6AC4JPZRiu3+IGY8nJaB0pxdC4y3o00l8=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Subject:
+	 References:In-Reply-To; b=E/PEVYQFycv5/V/XZPM6zj/JYdiis9NtuXtSozlFuOj6eLCFgw7o3TPil/neVwaT3Dp/8QDuXYL5sKHdqKpYWaDjvND7WmU6qA01ac2IHkByhib8monh6W2MstK/6n3g6SZGN+Pmh1j2mg0ptTFyVWOUqkmk5wFsmv4LIEgZeQc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Nabnu1IR; arc=none smtp.client-ip=209.85.219.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="E03QV7ul"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-6facf4d8e9eso13707396d6.1
-        for <selinux@vger.kernel.org>; Thu, 19 Jun 2025 14:23:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Nabnu1IR"
+Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-6fad4a1dc33so12396056d6.1
+        for <selinux@vger.kernel.org>; Thu, 19 Jun 2025 14:24:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1750368184; x=1750972984; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+        d=paul-moore.com; s=google; t=1750368297; x=1750973097; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:to:from:content-transfer-encoding
          :mime-version:message-id:date:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=m7vxAjpjJMuKiLo+dSQ/1t+nkICZiy96IvMV7PxyXD0=;
-        b=E03QV7ul/QhOH1eH2ljKhnrGjMgnbCaRPM1Yk7p4J9+G6C9MC4e7iYSfw3FXK70xle
-         QR0tal8yK1iObOmET1OgOJ8sx8pwCYKKrl/bjPZhLV97EbRi9fL3hTsHPFWldbweBzB6
-         NEGAEytTYr1pbzKFmqz6D00hPmuQS3bRGCIV+OD8IUQs+eo7HmWxezv537Ldg9Anb+Z9
-         PwX9d3IpdWFHa9T+VfYTzjA5XW9kKN5pqDgHCjBAXyaU85vac/jbJOINoOEaSC30U31K
-         GfAEzz4ES+3hpXR7wZLFGK/XgBEGFgB63T02ZgxTK8JKgrnIN8eeWGuIr2NXhhBmImSf
-         qAxQ==
+        bh=tUy1QgZz130ReVsfFqR/tESg8IrFsMkryxS0CVlucMA=;
+        b=Nabnu1IRPvNBwd6zLXIh5poKUl7DbZm2qpo08tHiMtpKrjh6cGwI03tCPyIG3ZnqD0
+         w80odoZfEnPpXHCpvnwaI+vaOScp2UE71bU8lGnt1v4VTWYOnE5/QmTRo26u+hPxn40F
+         J8bg6m7Rt1Nm/sq3zWC0NCdRtN8xlZ/yg91KFAbMLwvhYKzvKzyZjrAh2F6qp82FPjrx
+         mwjnUp8N8l2mbu7gQOk/OhB0VH2pLSNwANrrPUcbj7QrO3p+3ehO3NwmIlQrzeRL91hz
+         HTQ4Ucjre7ArN+EZqgFvVWhRwbdmHkQmKLihl6qDSwwMCknUkFaB6oSOa5fLvhJmOUId
+         Id2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750368184; x=1750972984;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+        d=1e100.net; s=20230601; t=1750368297; x=1750973097;
+        h=in-reply-to:references:subject:to:from:content-transfer-encoding
          :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=m7vxAjpjJMuKiLo+dSQ/1t+nkICZiy96IvMV7PxyXD0=;
-        b=dIuXI2xIcojAJWd8h6ebgG3+DVjDk2dlRITJVeJXR/npGQW9CTLSyIEgZXwzAeey2x
-         NCwXHGM5pg3zkVrQ97KWw9IXl2mRunzVWTbcxJFexYN7789yQLS5wzMYRbMce1ddtCUb
-         URDjfMdbqzdpeyTLw6kYLpvd2M6YqhfOglXrxM0EdIH4llHiZf0122BPFSzf7sciGaQX
-         FUrOkVssF2li9r6B6PZp0tCY1UvD62mJAJyXS5i3VFJbqsHOR0mFOujzfj/i1issxnF7
-         O05eOfkCg7bAijt1vHTbORcy+u5FEXxDMWywFHvK4q/oQiDyqHtwT4futtlFyYOJXuYj
-         Uz3g==
-X-Forwarded-Encrypted: i=1; AJvYcCWe60ajUJiGUjvsuZ8d0QXwqgmCjsBjtN1QGQ+a0Je3YCqjApXsNpfhRnTxkX5XcFDi+v0v4E+x@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw/T9gLQgMIW0RRcUGbR8CpZJ1hz+0J7NA8ZH0bVnyuhfbNzbrV
-	WGvADcpKWcIc/LZNiKCtDtz8Vxf1+/fAHzEEFdkZ9edg3491SbVjLxY+ml2ud4DNsg==
-X-Gm-Gg: ASbGnctKdpUjWAah93wKGjoNZiX4B9Q0JvSbstLqFOYIfIOJ0vb3YHEOUxwLmoVDw90
-	NRr1GAHgocUCTjbVXUuY3jKcIdS44g2gIHJtbzldSXaaUuF8APw66fRa7XP2dptmdynzzrAfxSG
-	sMeuTFrPrV8bLY/cOdu3WpMzA5t3x83Kmv3NVjwZj8mge67/DvUf4OSwEYniJc6gpXIqjhm0DAu
-	DnHH++yd+xWMvkQy9i8k6Wgyvo4mt3LsvC3Kc8aymZpuI6mS/f0Nv6M5PyntD8QmHTwzY+GDsCz
-	DepcX0v3WyOdtafMIr5QCM7nLeO7L0FrCRRDEwXDbt31LUrf17BP6HWL/ZGwcE2BroxQozKUbrW
-	ahu1humK/MF0vek8kpIAJ1BPegoyk+X0=
-X-Google-Smtp-Source: AGHT+IECcjQI1aOIsoDV6g0dcIRIq+l45Xwd/mi9/iNQcu8DO4crJUSQf4F7yztxPHwFNX63JmM1Sw==
-X-Received: by 2002:a05:6214:328e:b0:6fa:fc22:52eb with SMTP id 6a1803df08f44-6fd0a5e3476mr11211386d6.37.1750368184167;
-        Thu, 19 Jun 2025 14:23:04 -0700 (PDT)
+        bh=tUy1QgZz130ReVsfFqR/tESg8IrFsMkryxS0CVlucMA=;
+        b=OR+KkqAsjGCKVjRVgGs4d6lWw5sQcDzA1J4TUnJX+Rt2bIYnT+9KLbR2D7BfPUoYXx
+         rERA402v+m4wJo0avcni+UoRpob86NewOkVeNUUFssPdfgiqKKUR68Zy4jO/4ap1WWFp
+         tMfQTvEw4eSijORPzKJNSPTORItx0g/0IbJp9te6WBG1Vg9s+CNeEsmZTGsvZ16RkB+Z
+         nrbEtQs+msZHsH6FPUs2vpxMUE+Lr+73e7htdVkg5OkalF3QBspXn2UFv32paReEus/i
+         fTWr5lIo5fElHbhd7ZLqaDnBaitP2P+2o5e1e0Yq9Bvums5GzC1Iof63+4pPluNRUmmd
+         nV0w==
+X-Gm-Message-State: AOJu0YwIrCw2FobVlVWlsQIVvRVnAMxaUvnpaL0x2PKjwdGf/VAXXWTH
+	ypb+fNhVBh/w9EcLE2Z61sfZLevsORPE05YdzGgKo+mIMYvxMfFnyH6uzq493YjP22lmY+fzpdd
+	24XY=
+X-Gm-Gg: ASbGnctsFySOU7w1y+T+v07Gceq3mO6N045kos33KUrrWi/RrdoNu2PgqWsPzLoVwgo
+	mH1fOYX6UsbKeo+SNHvmTr/EDbwKG+BkmVf9ltux+DxQj52mJwfmg67bg83BzISEK2llyAV7TV2
+	4/t4xogXV6ifqUOSyfjeS8DuviscU0Sl33NXetLyeNb1vKfA7CJFUhJqpF5BWuKEPrMVBoCvmrN
+	8fKpXF9ZC5iE74VP5emjxzLu5Ux611WI9lFde26d8Jxazu48g5CYL8IqoN/LUNulSchmC8NJILQ
+	/u5bpOzO5PwFM8WFZx6JlMsM4Eyc3igKHPY+SpBcFwgNTjBPuR86hqlJva7JYnzjkhxU0XhjxXQ
+	lqDMTN9FB38Xa/2fyy6Ew/vLOUpl/wrM=
+X-Google-Smtp-Source: AGHT+IH8a5Xw51d7QmjndJY6MIY2z3saeog5gZgWnkGlub1aelX/sEPl3COOX6leySTGlkPGgLwrhg==
+X-Received: by 2002:a05:6214:cc1:b0:6f8:997d:fc84 with SMTP id 6a1803df08f44-6fd0a4ceea2mr13603136d6.19.1750368297395;
+        Thu, 19 Jun 2025 14:24:57 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-6fd095c7fe4sm4314486d6.121.2025.06.19.14.23.03
+        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-6fd093de9b9sm4493326d6.1.2025.06.19.14.24.56
+        for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Jun 2025 14:23:03 -0700 (PDT)
-Date: Thu, 19 Jun 2025 17:23:03 -0400
-Message-ID: <b670321e362092044b87d8899dc9e9de@paul-moore.com>
+        Thu, 19 Jun 2025 14:24:57 -0700 (PDT)
+Date: Thu, 19 Jun 2025 17:24:56 -0400
+Message-ID: <de574241d5ea2ccaf7795e5e0d1ef6b2@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -70,71 +71,28 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit 
 X-Mailer: pstg-pwork:20250619_1608/pstg-lib:20250618_2237/pstg-pwork:20250619_1608
 From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
-Cc: omosnace@redhat.com, Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH v2 2/2] selinux: optimize  selinux_inode_getattr/permission() based on neveraudit|permissive
-References: <20250521144123.199370-4-stephen.smalley.work@gmail.com>
-In-Reply-To: <20250521144123.199370-4-stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Subject: Re: [PATCH] selinux: add __GFP_NOWARN to hashtab_init() allocations
+References: <20250618161732.140904-2-paul@paul-moore.com>
+In-Reply-To: <20250618161732.140904-2-paul@paul-moore.com>
 
-On May 21, 2025 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
+On Jun 18, 2025 Paul Moore <paul@paul-moore.com> wrote:
 > 
-> Extend the task avdcache to also cache whether the task SID is both
-> permissive and neveraudit, and return immediately if so in both
-> selinux_inode_getattr() and selinux_inode_permission().
+> As reported by syzbot, hashtab_init() can be affected by abnormally
+> large policy loads which would cause the kernel's allocator to emit
+> a warning in some configurations.  Since the SELinux hashtab_init()
+> code handles the case where the allocation fails, due to a large
+> request or some other reason, we can safely add the __GFP_NOWARN flag
+> to squelch these abnormally large allocation warnings.
 > 
-> The same approach could be applied to many of the hook functions
-> although the avdcache would need to be updated for more than directory
-> search checks in order for this optimization to be beneficial for checks
-> on objects other than directories.
-> 
-> To test, apply https://github.com/SELinuxProject/selinux/pull/473 to
-> your selinux userspace, build and install libsepol, and use the following
-> CIL policy module:
-> $ cat neverauditpermissive.cil
-> (typeneveraudit unconfined_t)
-> (typepermissive unconfined_t)
-> 
-> Without this module inserted, running the following commands:
->    perf record make -jN # on an already built allmodconfig tree
->    perf report --sort=symbol,dso
-> yields the following percentages (only showing __d_lookup_rcu for
-> reference and only showing relevant SELinux functions):
->    1.65%  [k] __d_lookup_rcu
->    0.53%  [k] selinux_inode_permission
->    0.40%  [k] selinux_inode_getattr
->    0.15%  [k] avc_lookup
->    0.05%  [k] avc_has_perm
->    0.05%  [k] avc_has_perm_noaudit
->    0.02%  [k] avc_policy_seqno
->    0.02%  [k] selinux_file_permission
->    0.01%  [k] selinux_inode_alloc_security
->    0.01%  [k] selinux_file_alloc_security
-> for a total of 1.24% for SELinux compared to 1.65% for
-> __d_lookup_rcu().
-> 
-> After running the following command to insert this module:
->    semodule -i neverauditpermissive.cil
-> and then re-running the same perf commands from above yields
-> the following non-zero percentages:
->    1.74%  [k] __d_lookup_rcu
->    0.31%  [k] selinux_inode_permission
->    0.03%  [k] selinux_inode_getattr
->    0.03%  [k] avc_policy_seqno
->    0.01%  [k] avc_lookup
->    0.01%  [k] selinux_file_permission
->    0.01%  [k] selinux_file_open
-> for a total of 0.40% for SELinux compared to 1.74% for
-> __d_lookup_rcu().
-> 
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Reported-by: syzbot+bc2c99c2929c3d219fb3@syzkaller.appspotmail.com
+> Tested-by: syzbot+bc2c99c2929c3d219fb3@syzkaller.appspotmail.com
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 > ---
-> v2 introduces a task_avdcache_permnoaudit() static inline function.
-> 
->  security/selinux/hooks.c          | 14 +++++++++++++-
->  security/selinux/include/objsec.h |  8 ++++++++
->  2 files changed, 21 insertions(+), 1 deletion(-)
+>  security/selinux/ss/hashtab.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 
-Merged into selinux/dev, thanks.
+Merged into selinux/dev, thanks me.
 
 --
 paul-moore.com
