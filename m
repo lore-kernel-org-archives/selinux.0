@@ -1,101 +1,119 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com [209.85.128.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00D4A246BCA
-	for <selinux@vger.kernel.org>; Thu, 19 Jun 2025 20:13:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6742225C83D
+	for <selinux@vger.kernel.org>; Thu, 19 Jun 2025 21:04:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750363998; cv=none; b=I/gyncn/VOIVhCghPil0zi4JLq8/AtHR6CvFRDcVrN7qf7SY5qfQCnDxUji6/hrW9jsFkkmUPjdLXAb7qSY63dROw3E4WkYJoNJq2gnZkKhtqH8tUwIRskQ2tizZogU+UJFmQEAGMj1WlGJ+HQcjA50BMU/bfXyZ4LdXf6ZpdZs=
+	t=1750367060; cv=none; b=BOuuDPV2QsDCHFsYfna+WOGPVghDKig1R2wFrFDKQWGgXo4oKMjoRlF/2+eXgYIJPwjpyQlfEBpVw7yQAtl6xUbkLiMHPPDnJq2BvR9/STjP+z7yVl+tdwaTxXpSyKCvHmKp9oEqi0dgvk8SmO0T28/wwEHTg0ZiJ0SJbw2x3JU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750363998; c=relaxed/simple;
-	bh=jMbbnaerEHkPda/g+sZi/+TTUduIL94TQTjRU02tcqM=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=Ojq5JN8QCLwrfYZMG843s/KBYPE8XkgCJCqgVxpj967t81SsE5GMNFDLJE8ev+idpnP59a2IxuLAOYIM0X+4t0DkQ1Sp6jtnUC6C439P4WQjL5bKygoxnpBFvpXEYKAif3NZttCdUfNF5yOq4yQo7gl5s+jYmWOkZiU5JlxaRWo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=c2bZC8Vf; arc=none smtp.client-ip=209.85.222.177
+	s=arc-20240116; t=1750367060; c=relaxed/simple;
+	bh=f38j4Iqo8acxnIhtuXkeD3cynLv4OcZQ7P8GpdgZm4k=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=l53w65UcvgGiUD7nHnAKcdPamOoRuIao5YrS+74i0u1Ieq2wfLcm2heqkr45aZhwA3Hj9jd2P6VQMxIcPGFhhB9rC3LWIShrh46AcDxYOvevp9qKeaLzXgGB8oZQegNNNuEMO7cU62rXGdoPixBylRcYklxI1KP0AK0aIEaZZXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=cW6D1BRd; arc=none smtp.client-ip=209.85.128.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="c2bZC8Vf"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-7d0a0bcd3f3so128665485a.1
-        for <selinux@vger.kernel.org>; Thu, 19 Jun 2025 13:13:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="cW6D1BRd"
+Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-71173646662so12744157b3.2
+        for <selinux@vger.kernel.org>; Thu, 19 Jun 2025 14:04:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1750363996; x=1750968796; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5BNQiXM3IKCIJZz0RPXvHlifpx1IfFaw1zLl9Xrunb8=;
-        b=c2bZC8Vf2R+FlLwySverQrwc2j05UIKTUNj2PlWbw22qxTYIS/8avyO7+c6eHuj5gW
-         uPvVe4bs0KW1+KwSy87tR8dmfhYziMIL++ho+frHUsDEya6QJecZk5wt0o733NIjn9NN
-         gSi9jl8uEs6myQiwlk+ot5JZJeVCf8Yh13CPA2yQYpjflorf/pqkQ6mfwQXxPaiHVYyh
-         xezEFpxqS0SbaE3oMk3Bvv9cQyISRXA4+0YAkA26SilNDYrrr4pRrRqOFxrs9rkWw3sQ
-         co/tZDrTlOeURVmdXdv1igOYW4MQsFcc/mndJpPU4FE2FSfQNoJEZw52GiPwtWKcbHXI
-         REzg==
+        d=paul-moore.com; s=google; t=1750367057; x=1750971857; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lumfk+fpW+/5RKyXlyleHS+MaP2GOeXbKZfOKNMMyIc=;
+        b=cW6D1BRdeBH/yBYWcL/wW3xI9TIZwqjiAhDhf9YbmcTVJdcRUbCyG1arPgo+Yy6/aT
+         Oaj4L9eF5s//T1+B/suXBN/LTab7Wt8VosVtYC6wWA4gLN0WbwvP46YDVaxLguhLFu1S
+         S0WufY4MjC0O4LwZcgY2FgQ8PL4jmfMAJ8fvtoA30rBXnt8C+NtpkIOcLAmwFxoeWr8Y
+         V14/jcyLgFMOTcpl3YCy6yyouurTHPnH+kId/uokOJ0Fr3WSjxbZzHpXDgLwuz3+/XbQ
+         FURBQqIQpG5Uqg3omXXvKTbMUq2QmjOcLG75sn/DNq+9wrvGnaKN9dEl+ysaV2nHAr03
+         yYFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750363996; x=1750968796;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=5BNQiXM3IKCIJZz0RPXvHlifpx1IfFaw1zLl9Xrunb8=;
-        b=TTyUwau+f0vTU6HYVw2R2xibqyYTu2lhkMMSdYlFRG1/dbMM7gknJ1oXQo4jEW/1Fb
-         /LcKSWoPmfchFfkCKbH0i+ZGdbSub0MoZl290lOBymRyNj8tF53Cb50tU0MmbGI2Hk/E
-         weXCiD9HNevP3J1OqpTtUPZbLOFh42uf8ZI6s16g+KY/ufb1X9P5Y2EKJ0r0fRlK33NM
-         axghyraqGzLeSc/r5EP7UGlwpJMDRqjl/4E4lswv2j3MoiNadC77YMq7msi+YVlwo6Q0
-         UVK7TstkHCtyTNHQexntVDVC6mxUyZrZiqclFzHGCCAUNesSZM+X4zvOW2p5Fpd0sleo
-         jVPw==
-X-Forwarded-Encrypted: i=1; AJvYcCU41gCR6cQERd046JuHRMyY7cZSSvA7b+yyV3BGuV6DBJvPaAw+WnFjCTs6NiT2E+9UO0TrbwG5@vger.kernel.org
-X-Gm-Message-State: AOJu0YyLqAAZjDaoxv6aNYEkvEmHd0zrNr4jAFUNBq4htwszbXAJ7Jlm
-	ZnuH+ukGW4vcyIxA/OKkQqEAPthTY1aHlzuPukAFlRwT1Y6S7he/aBC8C6k8/00uDg==
-X-Gm-Gg: ASbGncsTbXu2MSXaiki1Mb7WJwPwSKuFhIuNJjmqjKoai5G6mATSuYzH8KQUQEe1l2H
-	blRYlEnZ6i20FfVtBbad7cxbIUtCUMfT1rdymdcoiol/21O3FpuCKigFkgAF61a8bPRaR0iPSU8
-	WVnGxnP+mXoCLnEJx8A/XJZ7SF6o8fp0uXCbLEzQ9FJ2HggvuYR2dXK+tq0tRVEiWg1RiIgJaLd
-	ITc4PaYqFinY5KhOCBo58ljnZNSNpVhpENEFtzYm1QVXlXX0f9DTTlgriJEvf0LmJBITiCq0+K/
-	rw8yTf+ualY0cEP9+o9QvhXRhHSIxspStRUAyar4TCrG4O1ProolBren7OX4dpknZHJuHgXgc9y
-	AU8XTSjQNPL9LiD57Nmh5HN4XHn8tfyg=
-X-Google-Smtp-Source: AGHT+IFBFBiLAqRlxVvp10FTPiFe4NVFqWmU8+IGdeaqHveWdBEglulbijBMHIKDvRCU0pg0LLoNBQ==
-X-Received: by 2002:a05:620a:1a0e:b0:7c5:9480:7cb4 with SMTP id af79cd13be357-7d3f9c1158emr48615585a.9.1750363995668;
-        Thu, 19 Jun 2025 13:13:15 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-7d3f99eec8dsm14864585a.55.2025.06.19.13.13.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Jun 2025 13:13:15 -0700 (PDT)
-Date: Thu, 19 Jun 2025 16:13:14 -0400
-Message-ID: <1a537a78504b326a2da4c26df314470a@paul-moore.com>
+        d=1e100.net; s=20230601; t=1750367057; x=1750971857;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=lumfk+fpW+/5RKyXlyleHS+MaP2GOeXbKZfOKNMMyIc=;
+        b=W6/o6WHKhAaagfiZapUdHb7kDXf8YMjWDFbaTIp6pWHRP+ds84TeqiBubH88TSylXx
+         eWz9cQAXnl04dnn3OdXDldlB/sd9Qhp1o+g5jr6/R07jzdV+edSozgXUs46RNbjT0hd8
+         0vxXzfR4bHOrPG44sMuMPeD3mh2inBpNlMFYsTEhI2AMg9HVNpoVAcUD5WelpVuftEyF
+         rNO1rtw2utQcQ1YeTHOXJtQmY7VaA2YQprHEuhwlR/uSA5M9NFQJga6leptFPJYgLx0N
+         YuT93fo66mo1muCgg3J0gbJ4MaCWuBMBwA/kpZRFLHe2/PAT7rYJKXKb7er5ccWfuhQh
+         Aubw==
+X-Forwarded-Encrypted: i=1; AJvYcCXxzUt5ycctMRLVBrkUBBFtaq1Pqsjtvc+lJw1GqXP6Aa5oCj7KsA7mMx5I43Fy2NnUABPj/zEX@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy/zI3OPtA1cbFXMDRGMLisqUmmSa8kRKrTEn4M3e9fYrURlKMR
+	GRh6/19z9HaszwJLguLgqVYTOnFlXUZiqpVNXczV5rz+BUnR3g5fXOYK+f/HGvutpLkRLnFILJ1
+	QfsRmIzBkIcm6bwbNJ0pixwx9OSpKwavsrZylRZj0
+X-Gm-Gg: ASbGncvak74BjjxSBhDseg0jAm3ulHsMlcOmdSlMFCMzgrcvmTfcHGeEFxo672GCSwC
+	h6aqJfabgAeSvoQvYHG5CIYWh63cSKEsl8BetHABtV54ZTCELijWLOSIfzn0n2IejaDPNSaj5DM
+	80JJhOGYJEDBToj8oPAokd1fG2jXOPgCiDYk2DwWBctyvWW+ynCi80wg==
+X-Google-Smtp-Source: AGHT+IHTFe77unrYK9C7+eJbf2IZV6JzFgf/SfY74D8DPdljUvrt1WKcgPBYC5tSk0+mGANvgDk4AqDQw6/LqYvuk2Y=
+X-Received: by 2002:a05:690c:350f:b0:705:750e:37b7 with SMTP id
+ 00721157ae682-712c639d784mr9888287b3.5.1750367057365; Thu, 19 Jun 2025
+ 14:04:17 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20250619_1608/pstg-lib:20250618_2237/pstg-pwork:20250619_1608
+MIME-Version: 1.0
+References: <20250428195022.24587-2-stephen.smalley.work@gmail.com> <20250521003211.8847-1-kuniyu@amazon.com>
+In-Reply-To: <20250521003211.8847-1-kuniyu@amazon.com>
 From: Paul Moore <paul@paul-moore.com>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>, selinux@vger.kernel.org
-Cc: omosnace@redhat.com, Stephen Smalley <stephen.smalley.work@gmail.com>, Guido Trentalancia <guido@trentalancia.com>
-Subject: Re: [PATCH v2] selinux: change security_compute_sid to return the ssid  or tsid on match
-References: <20250610194826.80606-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20250610194826.80606-2-stephen.smalley.work@gmail.com>
+Date: Thu, 19 Jun 2025 17:04:06 -0400
+X-Gm-Features: AX0GCFuvQDcj0Q4-T6mYoDn82kX6DVurSN3n5y6exOy2D1H3OZ7Mt_ie8lnZOc8
+Message-ID: <CAHC9VhT71e7r6eS-j3o+ruciG1jyrBJ8zvrvQgaf3r+6CkgSuw@mail.gmail.com>
+Subject: Re: [PATCH v2] security,fs,nfs,net: update security_inode_listsecurity()
+ interface
+To: Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc: stephen.smalley.work@gmail.com, anna@kernel.org, brauner@kernel.org, 
+	casey@schaufler-ca.com, davem@davemloft.net, edumazet@google.com, 
+	horms@kernel.org, jack@suse.cz, jmorris@namei.org, kuba@kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org, 
+	netdev@vger.kernel.org, omosnace@redhat.com, pabeni@redhat.com, 
+	selinux@vger.kernel.org, serge@hallyn.com, trondmy@kernel.org, 
+	viro@zeniv.linux.org.uk, willemb@google.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Jun 10, 2025 Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
-> 
-> If the end result of a security_compute_sid() computation matches the
-> ssid or tsid, return that SID rather than looking it up again. This
-> avoids the problem of multiple initial SIDs that map to the same
-> context.
-> 
-> Reported-by: Guido Trentalancia <guido@trentalancia.com>
-> Fixes: ae254858ce07 ("selinux: introduce an initial SID for early boot processes")
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
-> v2 fixes a compiler error.
-> 
->  security/selinux/ss/services.c | 16 +++++++++++-----
->  1 file changed, 11 insertions(+), 5 deletions(-)
+On Tue, May 20, 2025 at 8:32=E2=80=AFPM Kuniyuki Iwashima <kuniyu@amazon.co=
+m> wrote:
+> From: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Date: Mon, 28 Apr 2025 15:50:19 -0400
+> > Update the security_inode_listsecurity() interface to allow
+> > use of the xattr_list_one() helper and update the hook
+> > implementations.
+> >
+> > Link: https://lore.kernel.org/selinux/20250424152822.2719-1-stephen.sma=
+lley.work@gmail.com/
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> [...]
+> > diff --git a/net/socket.c b/net/socket.c
+> > index 9a0e720f0859..bbcaa3371fcd 100644
+> > --- a/net/socket.c
+> > +++ b/net/socket.c
+> > @@ -560,17 +560,14 @@ static ssize_t sockfs_listxattr(struct dentry *de=
+ntry, char *buffer,
+> >                               size_t size)
+> >  {
+> >       ssize_t len;
+> > -     ssize_t used =3D 0;
+> > +     ssize_t used, remaining;
+> > +     int err;
+>
+> Paul: Could you sort this in the reverse xmas tree order before merging ?
+> https://docs.kernel.org/process/maintainer-netdev.html#local-variable-ord=
+ering-reverse-xmas-tree-rcs
 
-Added Guido's 'Tested-by' tag, marked for stable, and merged into
-selinux/stable-6.16 with the plan of sending this up to Linus next week.
+Done, thanks for reviewing the patch.
 
-Thanks everyone!
+> otherwise the socket part looks good to me:
+>
+> Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 
---
+--=20
 paul-moore.com
