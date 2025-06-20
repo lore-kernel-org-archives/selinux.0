@@ -1,120 +1,152 @@
-Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
+Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5049C2F273E;
-	Fri, 20 Jun 2025 17:45:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5996A1FBEA6
+	for <selinux@vger.kernel.org>; Fri, 20 Jun 2025 18:48:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750441554; cv=none; b=c4pApPnC7hlQKyDK4/SUhj8Amgc/aF+tsE44ZGJkKZhGBg9b87LWt386erTrjCTBg6doYoWsRd/cLU+pg8HbLHprgdVU+qhCR6NwO5q5ZbBrx+lIJb0evT2Kau1OnjKF4XzhP3GBwinCBzrzQgLPKQiDan4QuXTSfLHEMjZRhKw=
+	t=1750445311; cv=none; b=hvTN7zG38ib59z5PItniNLm2xgcsjY1Ysn0oStAgyeHFQrDVYDDOxy/6MaOfIGF/TOfsri0Dm0V6Tfy1M9rX8zTKpu3a/DslZHl96jsmQaxO9IIiMne+UgVroD4vUWMSxVvYJGkRdNYnLErB1/8S8IYpO4l4yzhpxDpu7+p7Bf0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750441554; c=relaxed/simple;
-	bh=mOGDX97J7oPydwa9mkxx5aqzgviCKBjwnGibx9EpZBQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WoVo+3G3A3VzhrsQ5OGFD7JxhBy3mVQZ+HEDQ05z2FrJL5s1Sjfn1W/KoL9xTi2AcXNB9SZ6KZ7SpkNo/gUNWlSTGCHGhK3+8GRCV0mg14KsOD3K/VChl/v2tOin6qqwKmequubxMKO9Tb31rUq9agU2MKLV+MgpB6w+oxQhtZ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SQ3Wn6Xb; arc=none smtp.client-ip=209.85.219.54
+	s=arc-20240116; t=1750445311; c=relaxed/simple;
+	bh=UgAGfEg6mWnQnX8gl4ifHKcdRw6iSUc8PBTq/HOCf4s=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=OBO0xpy91004OnHS5Q6uwiyoL1lVtAj6p/yxrt/DSNmAgs6fN0DOW+PLiTzDnyJTTKdugoM0KlBLEy4Azn5kPyrKz2DBTOYCgXrWm2HGclyqIVO4tkXNypLK7/VFyTQlisdZKzTujrp8cbvf3UrC2kXTHI5e9uu7hXOH5ZhxR8w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jvNMh8U5; arc=none smtp.client-ip=209.85.216.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SQ3Wn6Xb"
-Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-6faff792f9bso19493106d6.1;
-        Fri, 20 Jun 2025 10:45:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jvNMh8U5"
+Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-3137c20213cso2148461a91.3
+        for <selinux@vger.kernel.org>; Fri, 20 Jun 2025 11:48:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750441552; x=1751046352; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1750445309; x=1751050109; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=U7wrybr/Y1YisaCMiTrrVEfWzHGSHRhP8j7GfbuEVjM=;
-        b=SQ3Wn6XbDORvNd0kDEADubmuc//Ij4KiUTpnj95au1tePycK0I2GmY8Gt6WfC9xOOn
-         tf9T0fznBXlKeW20MiHC6ooFmiBFtzapbVGAvU1XtL46f6s2v3LncWIBLsSNjcPkXt4k
-         j8Sk5GZjb/USh5awM3DOFY7r3uORFW+GtFKnXU4ysD/ZWliSW+ZEL0aHbZqLK17cWhTP
-         mNjHRyWz7pvH2ACMTtTRj2f9qLZ3O3S/+e30M6xAYx4GlGtKcEV8/0Vvi3tvhjVBCfcA
-         8r11Lky7wHmQ9AdDgtc4S67KSR0OmP8t8ebkNm90NZNQOhUXkrNbA5FhfMdbXYZT8V29
-         HXVA==
+        bh=UgAGfEg6mWnQnX8gl4ifHKcdRw6iSUc8PBTq/HOCf4s=;
+        b=jvNMh8U5Ra8qhsXFweozMOR3mPETXw5fGF9nqKE4SYsLA1R4xv9ST20mAoTqb6W+Fa
+         3mo5xgliv3D5G3SvGgwuno4d3JUoFKQVMpVkglEqH7kE7mKan7hRfIAzaDZFK/0vKTre
+         QsMi6Tx/bDWfLL809yWT3jn+hXh6wulHyK5wuTV+/MRssdwXdEWbnugm0bgw6XnrFICr
+         UKqhpNFwliFoWeYvAXND9tSb5sUQvXcsMSnq/VYtufqM6S3dzfoU9obtd336pzUqm5f0
+         57KGKmPn9oBCzPjTUux1ohZ0T0EsG3JPl0w8vMExqEKATlYqn7s0PmtKOsrnR3oNenp0
+         UWjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750441552; x=1751046352;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1750445309; x=1751050109;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=U7wrybr/Y1YisaCMiTrrVEfWzHGSHRhP8j7GfbuEVjM=;
-        b=DiT7VyKtF+WhFJXROcYR1QUIr7dqFpbwOnIAaHiw+f+RBml0Qc92AmISqsFCstP77Y
-         izhEoG1bniOSmp1mbSpyKdjWOll8abjDwlJ16RsSFYWYiDDu+cKM49l9sp80jxjy0VG1
-         i5NFIJ547Tav9Z9ZtJKxDbtatLrldUsmqHpISEdUc1tlbuqvbr+I4Uzo6xjXChtbvJaC
-         5/ZbEDSQMFWnHHW4m6VT7li+XgA0UYpjdZ266Wye8kXN+3b/NQejxpc1NxO+Lp24VWOG
-         GMVdFlOVqHdjnGddKigz1E/Yw2t/8Mh9s0O5P855+/4f7f4UCDsyDObix/eW/Or9Omet
-         7/gg==
-X-Forwarded-Encrypted: i=1; AJvYcCUHpn96xQGeuPV2Rv87bhmyTTfqMdmz/XU2KWH4lMBhhmEQ6WdOyokdBlYGf7fwwYhEtevNsDg=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwDjHrt1EaO+gOzKk+8nBjn9+JRx3jicjAhiDe+EPuYMp3hj/7/
-	rdiesfkPopLFNDHN47HuqhbUfzcZRmb+sY81WIk/Yrm2gNG2ZORFgTDUEtGK5w==
-X-Gm-Gg: ASbGncuGDnmtSNunqKl27bZKZKWTjtXv91P7O8cPzs6KayJXMJ+uXRrD5MW5fGR1O96
-	HW5i8D+BoSZ8XWizEBwr7eRamIHkfB3yvSR6Ekfm1+N5uAE9rDMrA3xnmHfgweYhvM8lDDYouWF
-	lHnfZBU6zAMw0UmG7HzOSxNxvnqjWshlsOWFoE19ZCdLmSuuXwqGGyuwtHR1k2sbdHpq+6xC8zY
-	zFb332PsalSrPhzKp/fHEbXVjS22W3dO3vSQ6a3X6ZydkWh00tVeiRWMyLJSReaAL+PWG4PUCQn
-	Nw5JZOqt/kR9QQSyinohOH/s+Hiw3GUw4l8SpGLqw35i4sM0j6AqYGjY0QKB3OgCjdV+vifLpAD
-	0Wyb5xC+6TqtJSCmyJWtIp3hhoIWDl+Z65nXBEBmzZhCK1V8DNwIQvIJD0yTozLCMKQ==
-X-Google-Smtp-Source: AGHT+IEi8eD3gYKqqgW+Ca0ra3IpoNdamaNWvf2HzKjnq+4Q1kFqlJbcxlzx8qXtBVykn/UYOlon+g==
-X-Received: by 2002:a05:6214:540c:b0:6fb:4e46:7f3a with SMTP id 6a1803df08f44-6fd0a4d68f5mr73293946d6.16.1750441552081;
-        Fri, 20 Jun 2025 10:45:52 -0700 (PDT)
-Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6fd093decf0sm14580976d6.16.2025.06.20.10.45.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Jun 2025 10:45:51 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	netdev@vger.kernel.org,
-	horms@kernel.org,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v6 42/42] selinux: disallow writes to /sys/fs/selinux/user in non-init namespaces
-Date: Fri, 20 Jun 2025 13:44:54 -0400
-Message-ID: <20250620174502.1838-43-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250620174502.1838-1-stephen.smalley.work@gmail.com>
-References: <20250620174502.1838-1-stephen.smalley.work@gmail.com>
+        bh=UgAGfEg6mWnQnX8gl4ifHKcdRw6iSUc8PBTq/HOCf4s=;
+        b=wKy8T6eHT6AqWsF0greMetkmxx2OMYJ54kg6dCOScq/qBAVfdsH61cOW/gvr/OC09K
+         Zho+fu5ju3mm1GsS6OdCdIM5wwLjEW7vliYtuJu+UDUhYYhl6O3N2DOngTbVkpK7yA/p
+         0LvJsxwViHPOlGFg0FcH964iNoOPFkCwZUKv2q4sjHO2ZoHLn75C5rczDbzUj4d6m192
+         SH3tTkK5K89PGBdp5TNzCW4snsm8+7sdx3Nrg+uEQRY5IWOlPPxH7VscM5+gabRg0VxG
+         Ro6PG+/Xl0IcmnwYX84OAEek8EGl18PC2ZEtkPGI3zhmyfFO4pr3Zjse5mMGbZ99V3rK
+         cHAg==
+X-Forwarded-Encrypted: i=1; AJvYcCUmv970RUxg5ILoyoUU1uPe9gYSIhGpknSYZWeVJ7TQE+8OQj8eWgibJ7VFFGaO6QSHfALpAWjC@vger.kernel.org
+X-Gm-Message-State: AOJu0YztooPJxGozcf42x5L9QRw5lxm4XTWdYZD1VpZ+EaTgvsFHrOQQ
+	389pxMj3Wf5XQ2L5jwoG5Qd4Lqd8AeSOyTbyBD/Hxsxa49gHpHU720Er0uY/u0SJNs1vedOil5X
+	k+K6X4Df2F8kmVoM0fCZy0C479tdheMtTIw==
+X-Gm-Gg: ASbGncuPbD4pGKYrD76IlGRq1B2F9AxwsAC32KzaU3z+XA6KJ/qP8WuZ+ZeWR9gvklL
+	gWH3Vq12kp4JzZBKf7PRZD1FJTqAFsHweziHFqcwCVjsY5ZoPCLxFFu9YVKHPy3j0JHipVdteHf
+	K943a9g7qNwUeBp9VfzC9JwiCE3CEHrvuMlxwMhUL92jI=
+X-Google-Smtp-Source: AGHT+IH8BrrX43L4DkqShVL5xW+haQpXSuyGlFhEwn776AAxrYIGwcy/YXJg1X0HbIzseoMflNUhux4xUzwuUIQcOJU=
+X-Received: by 2002:a17:90b:3d50:b0:311:a314:c2cf with SMTP id
+ 98e67ed59e1d1-3159d8f7de2mr6022386a91.30.1750445309556; Fri, 20 Jun 2025
+ 11:48:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAEjxPJ6P6oH4nUMwhFs=ctDekm3CHVtGgp+gx0QCjxZz5d4TCA@mail.gmail.com>
+ <CAEjxPJ7RbPCdJsO=CeRSisa+1=eLNOSkVWByGb2sdF1VUCLCCw@mail.gmail.com>
+ <CAEjxPJ5PHAU-_ru9=zN_iuvLGEGDxL_T50-fW4XecnZ6p2ww8A@mail.gmail.com>
+ <87zfeky6lz.fsf@defensec.nl> <CAHC9VhT-e8=TrjVcMYW8um_DrA1V1u6m+qrH1JCQ_3fxJY__Ww@mail.gmail.com>
+ <87v7p8xc40.fsf@defensec.nl>
+In-Reply-To: <87v7p8xc40.fsf@defensec.nl>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 20 Jun 2025 14:48:17 -0400
+X-Gm-Features: AX0GCFsHNZXaG3RKln2WNICnMvW45EfTy9QpTCvFPqzHWMval4UttMC6ff2IIKk
+Message-ID: <CAEjxPJ7aV6foQWrRU0+TJ81Dgco0BnMpBzeLDqYiO2CxxXuQ8w@mail.gmail.com>
+Subject: Re: selinux userspace wiki
+To: Dominick Grift <dominick.grift@defensec.nl>
+Cc: Paul Moore <paul@paul-moore.com>, SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Disallow writes to /sys/fs/selinux/user in non-init SELinux namespaces.
+On Sat, Jun 7, 2025 at 3:08=E2=80=AFAM Dominick Grift
+<dominick.grift@defensec.nl> wrote:
+>
+> Paul Moore <paul@paul-moore.com> writes:
+>
+> > On Fri, Jun 6, 2025 at 4:13=E2=80=AFPM Dominick Grift
+> > <dominick.grift@defensec.nl> wrote:
+> >> Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+> >>
+> >> > On Thu, Jun 5, 2025 at 3:05=E2=80=AFPM Stephen Smalley
+> >> > <stephen.smalley.work@gmail.com> wrote:
+> >> >>
+> >> >> On Thu, Jun 5, 2025 at 3:03=E2=80=AFPM Stephen Smalley
+> >> >> <stephen.smalley.work@gmail.com> wrote:
+> >> >> >
+> >> >> > Since I created a Getting Started guide under the selinux-kernel =
+wiki
+> >> >> > [1], I also did some refreshing of the selinux userspace wiki [2]=
+,
+> >> >> > moved the Presentations and Papers sections from the kernel wiki =
+to
+> >> >> > the latter, and cross-linked them for easy discovery. However, I =
+had a
+> >> >> > few questions about the selinux userspace wiki:
+> >> >> >
+> >> >> > 1. The Home page and the Userspace Packages page are at least par=
+tly
+> >> >> > redundant in their content, and the actual list of userspace pack=
+ages
+> >> >> > modified for SELinux was very out of date (I added a note to that
+> >> >> > effect and how to query for a more current/accurate set). Should =
+we
+> >> >> > drop one or the other or somehow combine them?
+> >> >> >
+> >> >> > 2. The Tools page is likewise quite out of date. Do we want to re=
+fresh
+> >> >> > it (and if so, does anyone want to do so), or drop it?
+> >> >>
+> >> >> Sorry, forgot to include the links:
+> >> >>
+> >> >> [1] https://github.com/selinuxproject/selinux-kernel/wiki
+> >> >> [2] https://github.com/SELinuxProject/selinux/wiki
+> >> >
+> >> > I refreshed the Tools page, deleted the custom sidebar that was
+> >> > (presumably unintentionally) hiding several child pages, and moved t=
+he
+> >> > Other Resources section to its own sub-page,
+> >> > https://github.com/SELinuxProject/selinux/wiki/Other-Resources
+> >> > and made further additions to the Presentations and Papers sub-page,
+> >> > https://github.com/SELinuxProject/selinux/wiki/Presentations-and-Pap=
+ers
+> >> >
+> >> > Feel free to suggest others that should be added or if you are a
+> >> > maintainer, to add them yourself.
+> >> >
+> >> > Another question about the old content: the Contributing page lists =
+an
+> >> > IRC channel. Is it still correct and used by maintainers? If not,
+> >> > should remove or update appropriately.
+> >> >
+> >>
+> >> Yes #selinux on libera.chat is still correct and used by maintainers.
+> >
+> > ... and I'll add that Dominick has been doing a tremendous job, over
+> > many years, providing help and support over the IRC channel too!
+>
+> Thanks for that acknowledgement. I enjoy talking about this matter and
+> IRC too because its easy to hop onto a channel and start the conversation=
+.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- security/selinux/selinuxfs.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
-
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index c7825db4e06f..7450ab7c92d0 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1371,10 +1371,20 @@ static ssize_t sel_write_user(struct file *file, char *buf, size_t size)
- 	int rc;
- 	u32 i, len, nsids;
- 
--	pr_warn_ratelimited("SELinux: %s (%d) wrote to /sys/fs/selinux/user!"
--		" This will not be supported in the future; please update your"
--		" userspace.\n", current->comm, current->pid);
--	ssleep(5);
-+	if (state == init_selinux_state) {
-+		pr_warn_ratelimited("SELinux: %s (%d) wrote to"
-+				" /sys/fs/selinux/user! This will not be"
-+				" supported in the future; please update your"
-+				" userspace.\n", current->comm, current->pid);
-+		ssleep(5);
-+	} else {
-+		pr_warn_ratelimited("SELinux: %s (%d) tried to write to"
-+				" /sys/fs/selinux/user! This is not supported"
-+				" in non-init SELinux namespaces; please"
-+				" update your userspace.\n", current->comm,
-+				current->pid);
-+		return -EPERM;
-+	}
- 
- 	/*
- 	 * Only check against the current namespace because
--- 
-2.49.0
-
+Yes, thank you for doing so. For anyone else following this thread, I
+have made further updates to the SELinux userspace wiki, including
+making a complete pass through the Tools and Userspace Packages pages.
+Any SELinux maintainers are welcome to make further updates directly
+and happy to take suggestions from others.
