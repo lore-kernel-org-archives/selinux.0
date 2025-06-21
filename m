@@ -1,168 +1,273 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtpcmd04131.aruba.it (smtpcmd04131.aruba.it [62.149.158.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE0DC42AB4
-	for <selinux@vger.kernel.org>; Sat, 21 Jun 2025 06:08:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EB821624E1
+	for <selinux@vger.kernel.org>; Sat, 21 Jun 2025 16:55:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.149.158.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750486141; cv=none; b=hIWFqNFbs6mYr80DiDHnyV0oev5jaScA2Ijv4jh7wc0kVGYocUot4dkFN7orBseKAeLQpVo7BEY3MsUt0wiLmc+MSez8e8LtsNUL8E9a/FJJCrlIeuOR6a39MOvIXOo8CE+GUmAPkxj84NJo0vdzjKNR/VpxAMbiEdJM3nN8kKs=
+	t=1750524919; cv=none; b=TxgIjI+QyGHefekSD5CepAklUtdZhF/o5Rm8Rx6XwW93CW7SS7MyQwG96IfEFURm58N0mDUCiu+sT+UMlsiBR1Hws/vJr7tMf/4TmyBU2GAugRcUbrO0nTnNeeItXA71Od6UK5SfftjiOyx0U0EvowzyUA58iQbSGF5BIm5mxY8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750486141; c=relaxed/simple;
-	bh=H5TZ2/yxYZP3oSZxiSV6KJv3Y+I2Wa2DX/w3wTurgGc=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Content-Type; b=Ae7BsMaeqFJKEGdlXNthR3G7qTPfAC8tIOlHPWWAyzk/OnHRSb4o/2CtwAu+BVZWcpD+U12UARrOWwqzrhDhTeKNsdxL60N0JfYx3JtKS/8cCG+ec4B01qHnwA+QNCW8nla5nPhlY8sAyV6MLhH+JSkZZoP13EeKzWXfgqf61cw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=I7/XDbAK; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1750524919; c=relaxed/simple;
+	bh=K07gyY0bzfx+8wEB67rNS3idUiEiox9c+fqZAFnr/Uw=;
+	h=Message-ID:Subject:From:To:Date:In-Reply-To:References:
+	 Content-Type:Mime-Version; b=KZDfnQAQidXdxrHdC+0tf202YL2xsnALEXV6+Wgg7DA29nyV2XxUyai/xHlstrzXm9npGVNO/4Vv55JPcbrKRdLIigCZUm9vMDuuMzheyqoqfOfk3QGoDY3CF3iVfTLrMA4p/wRssSHiX+aa2U3K3alceru+SWllBFa3uGzwd/Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com; spf=pass smtp.mailfrom=trentalancia.com; dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b=QOiK3z6C; arc=none smtp.client-ip=62.149.158.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=trentalancia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="I7/XDbAK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750486137;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type;
-	bh=K52vtEFucQLGuMYKPj05GF3xHKKk00K2SQIo3fmgfSg=;
-	b=I7/XDbAK8uYeAaroEGcozP8YVyaYeXgrj65x5rJ+HY0DVENwgAfbKRsQziSlXGxwe0gMTF
-	8KaEpx7pi7o39bDzJor74SjGsLPkd+yM4k0JWFAk3oJjCcsjXTFVhIj9UOCLwS4exHTaUR
-	Nckm+zqGMeg44OI/Wo8CTEvqDEKwYys=
-Received: from mail-vs1-f71.google.com (mail-vs1-f71.google.com
- [209.85.217.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-226-3HhxqgikN7W3AyXxPHT0MA-1; Sat, 21 Jun 2025 02:08:56 -0400
-X-MC-Unique: 3HhxqgikN7W3AyXxPHT0MA-1
-X-Mimecast-MFC-AGG-ID: 3HhxqgikN7W3AyXxPHT0MA_1750486136
-Received: by mail-vs1-f71.google.com with SMTP id ada2fe7eead31-4e7fa155aa4so348639137.3
-        for <selinux@vger.kernel.org>; Fri, 20 Jun 2025 23:08:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750486136; x=1751090936;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=K52vtEFucQLGuMYKPj05GF3xHKKk00K2SQIo3fmgfSg=;
-        b=pQIGIWDz64aVyKcyqDMi2jUNxyWwwaOg/A3h4cfUMQmCxJSfdp8x4PLyLVP0SmxFRw
-         g8NKvPCqN6T3md3bTnqRkmfs4Dx2xBElVhkMudWpA/4evoqljzNbMbr7n4Uneig8JJaN
-         i9wQ3QHtX5/P9P6zR4WzhhHv0txnry9eFrYWjJtDOT3OqQjXX02UYZY9GDTTHp+9bISc
-         ShvthZPfU2WybBKawtUFy+hb3WfL++kQNV4YR9UQCW2lPi5lFrUvDCZNT1SzaB3uPe0g
-         6QfGCvtTpcvtd7EkDzgax3NeBFcHV0gP+H+zCJ8bXQVVa2O2Stlx1RQ4MZCoMYC3C5ET
-         XdlA==
-X-Forwarded-Encrypted: i=1; AJvYcCXgvBL+H6pJuS4X+DqnxPAc1m37XqaGGhDoBUUP+7WLAYPBliw9QHgq2CKH89lQYsdwyjmRwokL@vger.kernel.org
-X-Gm-Message-State: AOJu0YyVQ4wwU3IjfUN1gvph2y+Uzk2QVMBuVNjDGpJVaZqdIVlvv1GR
-	r3YwjXDp8fM7QuweOYSrEJQ73MDVGoKGP2WcIYrTU/GBfsvmkanUbxk/4lRUMWNrkWK/NcDEJbR
-	IXKiVBFoBo3j3uQjkL+wB7HNbOflhg02s0srEiWBo7ThbY0HQ3k1yzonnQjsMc9CnLq4qN1tt2k
-	ohgYRqge+d3SGvwdYAuHsmGuzz+Ys5VXs9/Q==
-X-Gm-Gg: ASbGncuPRe4VNw/P/B88aIzKqlWBtAd5YKy9UpvlXKGvRtNbP1ROmz3xMGFECQci3VK
-	IX+RGvfDW69vINevAHyB5GSetiB/3f1yX7FY83nywH4Xi38J28xBdLkuUe4wdf1km5sZgEHhjsr
-	/bKObW
-X-Received: by 2002:a05:6122:ca8:b0:530:7e05:3839 with SMTP id 71dfb90a1353d-531ad7b2082mr3595216e0c.11.1750486135684;
-        Fri, 20 Jun 2025 23:08:55 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEsHUaRWc2NcM9Iqj58DIfeKtW/k58h/kPWizo7tsvDaVv46Vjv8vidCt+94KkPp1WvqaYnP6K+S0vIDIN99aE=
-X-Received: by 2002:a05:6122:ca8:b0:530:7e05:3839 with SMTP id
- 71dfb90a1353d-531ad7b2082mr3595208e0c.11.1750486135330; Fri, 20 Jun 2025
- 23:08:55 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b="QOiK3z6C"
+Received: from [192.168.43.2] ([109.54.112.128])
+	by Aruba SMTP with ESMTPSA
+	id T1RmuboPYNbHHT1RmuIsOG; Sat, 21 Jun 2025 18:52:06 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
+	t=1750524726; bh=K07gyY0bzfx+8wEB67rNS3idUiEiox9c+fqZAFnr/Uw=;
+	h=Subject:From:To:Date:Content-Type:Mime-Version;
+	b=QOiK3z6CEC7hqVRvptIBdPC1ck/L9SJ9mrvVptq9IkV6aWaba0skeu0FPDckX+hiF
+	 SFio8OzKqAD9S6mK+3Nlyoh9lBji1qYKQ60uVouPMDnHb8X4BTo+o8eHkDDFKsB5d7
+	 bDB7sRLz+cvYmRjY36PQuFFzC0E55BE7gXYkOHswByzSoSya1gRhyIE1azrkmMSgJ6
+	 t/xmG+GaKXpXatCO2XxK0K+XeGp904uMIs/WKnrisRwQhBm/KYec4vP84rGop++HHm
+	 0sWdMUMymWAt61iKNsNHB8FT0Muf1hjtNb3s6WtbggcCicnro1Ee399M3T0dSUu4LS
+	 scwkfSJ0x29VA==
+Message-ID: <1750524725.6235.9.camel@trentalancia.com>
+Subject: [PATCH 1/2] selinux: prevent potential comparison mismatches when
+ computing the SID (was [PATCH v2] selinux: change security_compute_sid to
+ return the ssid or tsid on match)
+From: Guido Trentalancia <guido@trentalancia.com>
+To: Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
+Date: Sat, 21 Jun 2025 18:52:05 +0200
+In-Reply-To: <CAHC9VhTFww3khVjjd1Tci6Qx+MnM+v9_u7vANWNqE0vwTW=Ftw@mail.gmail.com>
+References: <20250610194826.80606-2-stephen.smalley.work@gmail.com>
+	 <1749647531.6091.5.camel@trentalancia.com>
+	 <CAHC9VhTjwOcwzKdiq5m=QyWo8=-a6E-2bW4gKJoDtij7kEmxeA@mail.gmail.com>
+	 <1749670408.6186.15.camel@trentalancia.com>
+	 <CAEjxPJ58ZSqhYaXr+fOLwbN=bBb7+WGRQf59vv9c-UWDBnyZMQ@mail.gmail.com>
+	 <1749671000.6186.18.camel@trentalancia.com>
+	 <CAHC9VhTFww3khVjjd1Tci6Qx+MnM+v9_u7vANWNqE0vwTW=Ftw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.26.6 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-From: Ming Lei <ming.lei@redhat.com>
-Date: Sat, 21 Jun 2025 14:08:44 +0800
-X-Gm-Features: Ac12FXwu1_xOHn-k9ps5wWmOA0_RKeWo_S7_wOTUx3GDXOQVZ2GLfnGfNFK8GQM
-Message-ID: <CAFj5m9KOjqYmUOYM4EgDBrJ-rQxEgOhm+pokmdAE6w+bCGrhSg@mail.gmail.com>
-Subject: [v6.16-rc2+ Bug] panic in inode_doinit_with_dentry during booting
-To: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org, 
-	Christian Brauner <brauner@kernel.org>, selinux@vger.kernel.org, 
-	Paul Moore <paul@paul-moore.com>
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CMAE-Envelope: MS4xfHQZCYwLB3lAuUpU0sa2a9Cz5zS2GApa7fV6mJpQ9ZlVto7EcjuqDoNEZDEAROe+2ya1ZZKiLFQNneFhf+mOES0QVkQUQxBbgc+87X+LAl1/grh/axE7
+ Fze3Y3j/TrFzq2+fCTvOwMiWpRjM8uPjEDTiaE/5iwOGOruDxirTg1EhKgSGXCo4aauFmv1M2hUetMlnzPMeWlZRCk5ib3qr4DjN6q7dv6SNtXj5utPp9Yyp
 
-Hello Guys,
+Yes Paul, I found more time to look at it and it should be merged into
+stable.
 
-The latest v6.16-rc2+ kernel panics during booting, commit
-3f75bfff44be ("Merge tag 'mtd/fixes-for-6.16-rc3' of
-git://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux"):
+However, I thought the following two patches might help giving the
+whole updated security_compute_sid() function more stability.
 
+I have not fully tested them through the testsuite, so this is open to
+discussion and more extensive testing...
 
-[  OK  ] Finished systemd-modules-load.service - Load Kernel Modules.
-         Starting systemd-sysctl.service - Apply Kernel Variables...
-         Starting systemd-sysusers.service - Create System Users...
-[  OK  ] Finished systemd-sysctl.service - Apply Kernel Variables.
-[    1.851473] Oops: general protection fault, probably for
-non-canonical address 0x8cbad568292ed62c: 0000 [#1] SMP NOPTI
-[    1.853362] CPU: 9 UID: 0 PID: 269 Comm: systemd-sysuser Not
-tainted 6.16.0-rc2+ #328 PREEMPT(full)
-[    1.854923] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
-BIOS 1.16.3-1.fc39 04/01/2014
-[    1.856374] RIP: 0010:__list_add_valid_or_report+0x1e/0xa0
-[    1.857366] Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa
-53 48 83 ec 08 48 85 f6 0f 84 76 2f 76 ff 48 89 d3 48 85 d2 0f 84 5c
-2f9
-[    1.860338] RSP: 0018:ffffd152c0de3a10 EFLAGS: 00010286
-[    1.861244] RAX: ffff8aa5414d38d8 RBX: 8cbad568292ed624 RCX: 0000000000000000
-[    1.862439] RDX: 8cbad568292ed624 RSI: ffff8aa5401f40f0 RDI: ffff8aa5414d38d8
-[    1.863622] RBP: ffff8aa5414d38f4 R08: ffffd152c0de3a7c R09: ffffd152c0de3a20
-[    1.864810] R10: ffff8aa5401f40c0 R11: 0000000000000007 R12: ffff8aa5414d38d8
-[    1.864813] R13: ffff8aa5401f40c0 R14: ffff8aa5401f40f0 R15: ffff8aa5414d38d0
-[    1.864814] FS:  00007feebef42bc0(0000) GS:ffff8aa9ed02f000(0000)
-knlGS:0000000000000000
-[    1.864816] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.864818] CR2: 00007feebfb58180 CR3: 0000000117f4d004 CR4: 0000000000770ef0
-[    1.870018] PKRU: 55555554
-[    1.870020] Call Trace:
-[    1.870029]  <TASK>
-[    1.870031]  inode_doinit_with_dentry+0x42d/0x520
-[    1.870035]  security_d_instantiate+0x93/0xb0
-[    1.870038]  d_instantiate+0x2e/0x60
-[    1.870043]  ramfs_mknod+0x58/0xb0
-[    1.870047]  path_openat+0xf53/0x1200
-[    1.870050]  do_filp_open+0xd7/0x190
-[    1.870053]  ? _raw_spin_unlock+0xe/0x30
-[    1.870055]  do_sys_openat2+0x8a/0xe0
-[    1.870058]  __x64_sys_openat+0x54/0xa0
-[    1.870060]  do_syscall_64+0x84/0x2c0
-[    1.870063]  ? __x64_sys_openat+0x54/0xa0
-[    1.870064]  ? do_syscall_64+0x84/0x2c0
-[    1.870066]  ? do_sys_openat2+0xa4/0xe0
-[    1.870068]  ? __x64_sys_openat+0x54/0xa0
-[    1.870069]  ? do_syscall_64+0x84/0x2c0
-[    1.870070]  ? handle_mm_fault+0x1d7/0x2e0
-[    1.870074]  ? do_user_addr_fault+0x211/0x680
-[    1.870077]  ? clear_bhb_loop+0x50/0xa0
-[    1.870079]  ? clear_bhb_loop+0x50/0xa0
-[    1.870080]  entry_SYSCALL_64_after_hwframe+0x76/0x7e
-[    1.870082] RIP: 0033:0x7feebf965e63
-[    1.870084] Code: 83 e2 40 75 52 89 f0 f7 d0 a9 00 00 41 00 74 47
-80 3d 50 22 0e 00 00 74 62 89 da 4c 89 e6 bf 9c ff ff ff b8 01 01 00
-008
-[    1.870085] RSP: 002b:00007ffd85a4c5d0 EFLAGS: 00000202 ORIG_RAX:
-0000000000000101
-[    1.870087] RAX: ffffffffffffffda RBX: 00000000000a0141 RCX: 00007feebf965e63
-[    1.870088] RDX: 00000000000a0141 RSI: 000055ed496c4f10 RDI: 00000000ffffff9c
-[    1.870089] RBP: 00007ffd85a4c640 R08: 00000000ffffff9c R09: 00007ffd85a4c4f0
-[    1.870090] R10: 0000000000000180 R11: 0000000000000202 R12: 000055ed496c4f10
-[    1.870091] R13: 0000000000000000 R14: 00007ffd85a4c6c0 R15: 000055ed29c98940
-[    1.870092]  </TASK>
-[    1.870093] Modules linked in: scsi_dh_rdac scsi_dh_emc
-scsi_dh_alua ip6_tables ip_tables fuse dm_multipath qemu_fw_cfg
-[    1.870121] ---[ end trace 0000000000000000 ]---
-[    1.870123] RIP: 0010:__list_add_valid_or_report+0x1e/0xa0
-[    1.870127] Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa
-53 48 83 ec 08 48 85 f6 0f 84 76 2f 76 ff 48 89 d3 48 85 d2 0f 84 5c
-2f9
-[    1.870127] RSP: 0018:ffffd152c0de3a10 EFLAGS: 00010286
-[    1.870129] RAX: ffff8aa5414d38d8 RBX: 8cbad568292ed624 RCX: 0000000000000000
-[    1.870130] RDX: 8cbad568292ed624 RSI: ffff8aa5401f40f0 RDI: ffff8aa5414d38d8
-[    1.870130] RBP: ffff8aa5414d38f4 R08: ffffd152c0de3a7c R09: ffffd152c0de3a20
-[    1.870131] R10: ffff8aa5401f40c0 R11: 0000000000000007 R12: ffff8aa5414d38d8
-[    1.870132] R13: ffff8aa5401f40c0 R14: ffff8aa5401f40f0 R15: ffff8aa5414d38d0
-[    1.870133] FS:  00007feebef42bc0(0000) GS:ffff8aa9ed02f000(0000)
-knlGS:0000000000000000
-[    1.870134] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    1.870135] CR2: 00007feebfb58180 CR3: 0000000117f4d004 CR4: 0000000000770ef0
-[    1.870137] PKRU: 55555554
-[    1.870138] Kernel panic - not syncing: Fatal exception
-[    1.870365] Kernel Offset: 0x3a000000 from 0xffffffff81000000
-(relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-[    1.898219] ---[ end Kernel panic - not syncing: Fatal exception ]---
+The context computed internally by security_compute_sid()
+is now used to compute the output SID directly by context
+comparison (fix for ae254858ce07).
 
+In order to prevent potential comparison mismatches between
+the source and target contexts, the role that is computed
+internally is determined more accurately by applying the
+same criteria that is used for the user and for the type
+of the internally computed context in the case of sockets
+and process class.
 
+Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
+---
+ security/selinux/ss/services.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
+--- a/security/selinux/ss/services.c	2025-06-21 14:50:05.168301991 +0200
++++ b/security/selinux/ss/services.c	2025-06-21 14:53:21.196300795 +0200
+@@ -1826,10 +1826,13 @@ retry:
+ 	} else if (cladatum && cladatum->default_role == DEFAULT_TARGET) {
+ 		newcontext.role = tcontext->role;
+ 	} else {
+-		if ((tclass == policydb->process_class) || sock)
++		if ((tclass == policydb->process_class) || sock) {
++			/* Use the role of process. */
+ 			newcontext.role = scontext->role;
+-		else
+-			newcontext.role = OBJECT_R_VAL;
++		} else {
++			/* Use the role of the related object. */
++			newcontext.role = tcontext->role;
++		}
+ 	}
+ 
+ 	/* Set the type.
 
-Thanks,
-
+On Wed, 18/06/2025 at 17.56 -0400, Paul Moore wrote:
+> On Wed, Jun 11, 2025 at 3:43 PM Guido Trentalancia
+> <guido@trentalancia.com> wrote:
+> > 
+> > Ok then, as long as it passes the testsuite it should be
+> > sufficiently
+> > tested for most purposes, I suppose.
+> > 
+> > You can add the Tested-by line, if you like...
+> 
+> Thanks Guido.
+> 
+> I'm thinking this might be a good candidate for stable, what do
+> others think?
+> 
+> > On Wed, 11/06/2025 at 15.37 -0400, Stephen Smalley wrote:
+> > > On Wed, Jun 11, 2025 at 3:33 PM Guido Trentalancia
+> > > <guido@trentalancia.com> wrote:
+> > > > 
+> > > > I have very little time to look at the underlying problem and,
+> > > > as
+> > > > already explained, I have only tested that it solves dracut-ng
+> > > > issue
+> > > > 377.
+> > > > 
+> > > > This change has widened the scope considerably compared to the
+> > > > other
+> > > > proposed patch, I cannot so easily certify that it does not
+> > > > introduce
+> > > > regressions or problems in other scenarios.
+> > > > 
+> > > > The main point is that the offending code in ae254858ce07 is
+> > > > only
+> > > > executed when the policy has not been loaded yet (and it sets
+> > > > the
+> > > > SID
+> > > > to SECINITSID_INIT).
+> > > > 
+> > > > On the other hand, when the policy is not loaded
+> > > > security_compute_sid()
+> > > > is reduced to:
+> > > > 
+> > > > switch (orig_tclass) {
+> > > >                 case SECCLASS_PROCESS: /* kernel value */
+> > > >                         *out_sid = ssid;
+> > > >                         break;
+> > > >                 goto out;
+> > > > return rc;
+> > > > 
+> > > > In other words, when the policy has not been loaded yet (which
+> > > > is
+> > > > when
+> > > > the problem is introduced), the code in this change is not
+> > > > reached
+> > > > and
+> > > > security_compute_sid() simply returns ssid (when called with
+> > > > SECCLASS_PROCESS). So, the mechanism of action of this change
+> > > > on
+> > > > the
+> > > > problem appears to be indirect in some way.
+> > > > 
+> > > > Moreover, security_compute_sid() is called by several other
+> > > > functions
+> > > > rather than simply by security_transition_sid(), so without
+> > > > proper
+> > > > extensive testing in multiple use cases (read multiple code
+> > > > paths)
+> > > > it's
+> > > > very difficult to say the change is fully tested...
+> > > > 
+> > > > I would recommend more extensive testing.
+> > > 
+> > > It passes the selinux-testsuite without any problems, FWIW.
+> > > 
+> > > > 
+> > > > Guido
+> > > > 
+> > > > On Wed, 11/06/2025 at 12.27 -0400, Paul Moore wrote:
+> > > > > On Wed, Jun 11, 2025 at 9:12 AM Guido Trentalancia
+> > > > > <guido@trentalancia.com> wrote:
+> > > > > > 
+> > > > > > Hello,
+> > > > > > 
+> > > > > > I have just tested Stephen's patch and it solves the
+> > > > > > problem as
+> > > > > > an
+> > > > > > alternative to the dracut patch and other patches posted
+> > > > > > here
+> > > > > > along
+> > > > > > with the issue description:
+> > > > > > 
+> > > > > > https://github.com/dracut-ng/dracut-ng/issues/377
+> > > > > > 
+> > > > > > Please note that I have only tested the success of the boot
+> > > > > > process
+> > > > > > with sysvinit and not other aspects of the system
+> > > > > > functionality,
+> > > > > > other
+> > > > > > init daemons or regressions that might be caused as a
+> > > > > > result of
+> > > > > > applying this patch.
+> > > > > 
+> > > > > Understood, thanks for the testing you've done.
+> > > > > 
+> > > > > Would you be okay if I added your "Tested-by:" tag to the
+> > > > > patch?
+> > > > > 
+> > > > > > On Tue, 10/06/2025 at 15.48 -0400, Stephen Smalley wrote:
+> > > > > > > If the end result of a security_compute_sid() computation
+> > > > > > > matches
+> > > > > > > the
+> > > > > > > ssid or tsid, return that SID rather than looking it up
+> > > > > > > again.
+> > > > > > > This
+> > > > > > > avoids the problem of multiple initial SIDs that map to
+> > > > > > > the
+> > > > > > > same
+> > > > > > > context.
+> > > > > > > 
+> > > > > > > Reported-by: Guido Trentalancia <guido@trentalancia.com>
+> > > > > > > Fixes: ae254858ce07 ("selinux: introduce an initial SID
+> > > > > > > for
+> > > > > > > early
+> > > > > > > boot processes")
+> > > > > > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmai
+> > > > > > > l.co
+> > > > > > > m>
+> > > > > > > ---
+> > > > > > > v2 fixes a compiler error.
+> > > > > > > 
+> > > > > > >  security/selinux/ss/services.c | 16 +++++++++++-----
+> > > > > > >  1 file changed, 11 insertions(+), 5 deletions(-)
+> > > > > > > 
+> > > > > > > diff --git a/security/selinux/ss/services.c
+> > > > > > > b/security/selinux/ss/services.c
+> > > > > > > index 7becf3808818..d185754c2786 100644
+> > > > > > > --- a/security/selinux/ss/services.c
+> > > > > > > +++ b/security/selinux/ss/services.c
+> > > > > > > @@ -1909,11 +1909,17 @@ static int
+> > > > > > > security_compute_sid(u32
+> > > > > > > ssid,
+> > > > > > >                       goto out_unlock;
+> > > > > > >       }
+> > > > > > >       /* Obtain the sid for the context. */
+> > > > > > > -     rc = sidtab_context_to_sid(sidtab, &newcontext,
+> > > > > > > out_sid);
+> > > > > > > -     if (rc == -ESTALE) {
+> > > > > > > -             rcu_read_unlock();
+> > > > > > > -             context_destroy(&newcontext);
+> > > > > > > -             goto retry;
+> > > > > > > +     if (context_equal(scontext, &newcontext))
+> > > > > > > +             *out_sid = ssid;
+> > > > > > > +     else if (context_equal(tcontext, &newcontext))
+> > > > > > > +             *out_sid = tsid;
+> > > > > > > +     else {
+> > > > > > > +             rc = sidtab_context_to_sid(sidtab,
+> > > > > > > &newcontext,
+> > > > > > > out_sid);
+> > > > > > > +             if (rc == -ESTALE) {
+> > > > > > > +                     rcu_read_unlock();
+> > > > > > > +                     context_destroy(&newcontext);
+> > > > > > > +                     goto retry;
+> > > > > > > +             }
+> > > > > > >       }
+> > > > > > >  out_unlock:
+> > > > > > >       rcu_read_unlock();
+> > > > > 
+> > > > > 
+> 
+> 
+> 
