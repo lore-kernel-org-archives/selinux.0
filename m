@@ -1,60 +1,60 @@
-Received: from sonic306-27.consmr.mail.ne1.yahoo.com (sonic306-27.consmr.mail.ne1.yahoo.com [66.163.189.89])
+Received: from sonic307-15.consmr.mail.ne1.yahoo.com (sonic307-15.consmr.mail.ne1.yahoo.com [66.163.190.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D27F4254AFF
-	for <selinux@vger.kernel.org>; Sat, 21 Jun 2025 17:22:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.189.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B50D22586FE
+	for <selinux@vger.kernel.org>; Sat, 21 Jun 2025 17:22:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.190.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750526541; cv=none; b=QukJT57Kdl4H98br0ci2C7Ijp3w3yomJmbGUOkhDEBZNDe+3EXYvvhNuVYMWJ/WM3cCMIaH6rJsg12K4Asa2rA9XUyqVr3p3ZkANGVWouI6gBZOn29sGrknfUsLrao8ALjD0ySSzu5UwJG+joZezZwFeWuAOSiQf/IKTRaQStzY=
+	t=1750526541; cv=none; b=axP+oLZ/cRNQ6/tY+pQK36VXqU3LJyzWvZPJ60yH7fQK7x9dEPVhFwftM77yblQOoCc+DsORY++gbPQLRDIshxdX7SSsRoMWiN/nh4MM8f8/Q0rzLO+BcyFpAaIWbM++n4KEdOjrQX9r1LBpNMe2hQIth4VtzMHqx/POosq9Rn0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1750526541; c=relaxed/simple;
-	bh=cXiQebxgLX00fT/tSH95ainL+DuArcuKLJT9NWIis24=;
+	bh=J7uUJzI+DyUy/0s3Dwtgp4wm8Zo3tkjGbsf/RH4nq4s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kLXx5EFGZ9v8y2ViX3SBewDtK0TpBG3G4TbECSF1NiMl0mLAl4LhGCzaPQiHLLJG4hLT4RYntOowb2DwPTXgHtSUoRpAO1D/wBJ0bAvPbBO8XYD0m1Oivt+EjYxW+s6KTQkKTXuggnDUB6S9NLEAyhg4N+2dDQopJijk7n4WkwE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=Mx9YMRUr; arc=none smtp.client-ip=66.163.189.89
+	 MIME-Version; b=uOvT/HgzvGDLlVNzJ4RC4xO59fd1BHMpGBXoKRm0kAy39rmXOS5sjDKn7FyK0Xp8jxZkWfOC9vOUxuAl3EJxjC3h09XhOn8QU9VXmkpd1ts6mS+uoAgwTyspX1Nq+isWvKGfQ/KAkofl9Gy5cWRP1KIPUarsNOchrnfW30yO60g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=l8KyckIP; arc=none smtp.client-ip=66.163.190.38
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Mx9YMRUr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526538; bh=rabLJkQuOMiYX35FNRjwZiFevYSDVzgMqoGPRpzLUwg=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=Mx9YMRUr9cv9oXwRTjvF2wllIhjBfqP3y0HtjSaaHzxIR1Qw5tYPOoeyZ41mGqc60pOKKCM8nwOQpOG01O5o0Clv1Q/y1O6DRVAE+jwsmhwT8r4kV0UEI0SHY5cfZxw+BnpXNSfDfOs5ZuqzQBk4UmBC80nYN9RWF1GuUP+8bkt4lnFMRkgG31tcydD541dPURku9FULWlHAiag/0WQYKV62rz0bQ192jWlrgwO20JJ8q28WB3WeSvoioU1sOGLul1dYRb1dlseicu/v4/UXVkiou7SXrKLB+iY16qosUfXb7VOOlsRaZ7iYx6M5XpvUMDsLYfzuzyMjt/0dEWPBQg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526538; bh=TPRHdfcg3c9hvB4bdbvELaIMfGbtH/TwK3fKgCCl3mr=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=e7Qf5MT6NMYV4TqQyiwrQ46/KQswsTFdev9J5f79CE+4CHeuCU4929lUFLEr2PRHGS2NdGfrc9uVo5yUBFcadAhQ2DJpyo9WgdbUQoa0NI/TzfM8Ks5CXvc23qKVyLVrLdAzwEgVO6cLoiqe+asX5LyGV1y9lMUdiDm30FLEyyXe5KDEI+TK0X8oI3+YZSzMeEh1daDifXwoPFz/9du3Xk+xXrCaxV9Jq/KKrl6OM9C2ZZHkaEBEm5M9fSstxdc1kLbWpk5SF4JDr3OJ1FualQU7UuD1pqC3WIZfJJdaKy8dXpVuikp5OZbkQv5mLErHMlD58FLYD2Dgk/fKABCN9A==
-X-YMail-OSG: _HJuy2AVM1k14Uw3UABYidswokWmfNEAS1ytmRt2BfMnYMIX6qpizcvLO.TKgQE
- UjPRmtipwjEZ2R5FLcvK43XoOTBDxsyyg0jLdMZC1iDQFOmuqUUb5NEG5ZdCZW_5xhEK756FCiBg
- oQ5Urb4UQsFTxpVEknf6D.TCOxda1OPXkkMcTWq1zR0SblAV0yVWoooTXSnNtJxNdoM6qzIoO_VN
- Dg4vf16lIWOaksj13bu9oYvK44GpIN3cY1z0IPiEV7Ace3jKIcod5dIc433HdxxyOngRv9eTq8_d
- z62hFW.jDRfG3RIpcDMfZPKnvn3qH73OjYbXJT3zJVpcm2fLo_SVqWyc7Q4K2YZC1XXTyXpaYW9f
- w1WtxdQH12sO2TEf0rIdwz4eUFTJX0nQW1zCEf_IlY3ysETKkD3J2K8AnyWFgG8ANSJEZ6Tyb1PX
- DdExZZBBrGa0zk8pGAqjwiR5WIswbgnw_P.kJWnL5n97KOGlxNtp7avDxoEOsgwxHTqTLhqXnOzf
- PFYdYCMjKUtDfbW6iEd.nEPpRJ26pxkpORG9Qmol0VrFDkw7pCCReckqXAqESrzXqq8CGippXsUG
- 9eiax0mKnsFHmkp0rGlUwktCYD2xPTN4I0_24SRCMHINA_5MsHHriDyEJvJsnbHANI.sHMbP_z51
- AWy6.VNOQmf8hOzQ6lCQGdteACZdLaQuX.s_BROV7vzr3CovpjYu24ZlgWBxRlVTpk0D1AG6YeuK
- uG3yymS5vv.TwL5asa8FdvIGKN3Sj7WcyPCS9CeZcjSnfqDXVQ4VYyykRyMeZMOgGCuob9CGOzlt
- ctX23Dxyw71oXZ9PvoB3RyJ3cUmCgU8XKG25Tpx_7Ge7uXy4xRJ005tgfsGsvnBfLiKyEp8eC0eV
- ozJnob_Lft.jd0kRZKpc8epp9oRetjOIX46MXxEes3KtJNuYaOSeq0aD4TaHew2YVt0uPvyNX2lN
- nlMHCI2cqQzuFGzFsgIQQZ.EMpI.FsFzK0fBLclT.9rkZfOe3HTbZ71W.qdDQUTf.FwhR61u3x7.
- RKZGrTwCePLeFvlrZElkHijIQnsFjTqquaOxnqIxibsw5tS3OwG_xlhvGAhubQ3PvhhJ0hhUu27m
- 40ywYwCAZmJuvydyqgoJjShxpG2Rs1e_076J3DZkYMCXOZ19FoYzd1uO.SCwq1iqHTAirq2_nu3j
- SOacJ5OOBeH16wsfCPsyK0MNoVyq9Jc2imKK9QlFUms_4OJlGQn3GT9qhVOv5kN.9_spXPbeNypV
- WJ5O0aGp9Rcy1J0AXKuUWsG.qV3VMPPfVTaqau2ggufsXW4ZHe2IKtAthrnY09isA13uGXVbl_VD
- FOLGTXgzrFBcH4H1slk9sn1zE48t.TWkGwAb49g.01Mrufrfj64CTwUXMhIh0YFSwyJof5Wfebot
- 9Hm5n2k21SompOy2iz_ncnUMdPn3J3azRyoa7Guup7.uFr8CLTiqjwz8u1K2ia9FZApgxOCbIygo
- iI5qV0DAHrN6l0TRP.2zACMzHl3a5tA7bK.F00Z4gtP2g5eVfFqGtdinYQ6fWasCsABunwzcZq6m
- RtP3hPoP107UjR5n68ttHSp5MUoDl7vSms3vDwPth7AnHWR5h0G4SKildOyhWXMit4jJexvTQUpc
- yxSI6CWOroLTn82CJZCD86lk1URPmr4w3oO1rJ4eoF7wMcDxEd_rFdkYtK09o48iUmtiEU1j.iyE
- hDXLXuIEX1Lw0yMKYfP27c4u0E35iZvjMIW6RPy4ZAJ8qMLxW2RSsXBub.QSVj1m9skb53E8c8Q7
- 3bZSOe.HtB9QKDuYBEUa3cHxtiWylFeu4QwxgLyFyd0gWiNB_br2guO4iXyBIAG0u70qcmMG7jm2
- 0mzUKIcjXNk4m4ujGAJ_X0zy0Q.REIA1aNsSGYhUtaHAABuvdBStSs76gY.YRF4oXsY8U6wiNyzH
- KWvTNsTG248b7jWEWyWsA_JxrqOIWPVljSVDCuyRbwnE_ikWHpG7bxV3S0XObj9iyzg7kIvBCtJy
- VXoNT0WqaJbNiqH5da3J4XImCtMq0htu2_GdZIjkUYrpKP7rZ6B_3wY69m1i1xjvwfPQQwvIOMmc
- WGhoLu_Xt_Tmi55g36Ogtc4hMcT9Fj9r6g2i.j1rlGX_fbJ7LTT9161tkpnyhOdlNTFKSd0xq756
- qmwKcipn5G2zi.48wQZOYuWwnyMAJOrNqSrh3FZnjAN8lNSyAZ1zQvu_V4DZJjXxcu.dFE__wD3J
- 9swQUXF7FTk9G88hqAZyjLVu6L8NeaX198.7K0I9BdjeYwd0sbVM974HnhHs5HnW4EzMEzH8a8dm
- N4I7CRRZaD0_Bcg3y9BBAf.KJ
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="l8KyckIP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526539; bh=Y1MBhcJxNgXqSKEpTzfE0odcwfmPXmVNep1TIM/mV+A=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=l8KyckIPwN3lSwqkkMwUVSuUQVmpFYPgbNH3OEaCHhkU/bF/feBWtaeIUroTsjdt+O9Q4dnH+AMO4fiv8NANqTsAwJQ48ta2GZEJ1SjZkM1ueTujLDza+QymY89mo2EDvP3mcjFGGJK174mfLHh4v+xJIpR0D6HRgeARcF4ykfEAzcb1JN8Kewv6UpYRjug7Tx6pX2bt/E2SlJCiDEipnGhfGVFe/hDzlxpmTnDbIkPSPGXKvspwtrQSCVapHSVItZSrketk01Ier+vtjN4Bs1c6pl/LJSWBU47ALruQ/Tghmj2pSsRB6iJm+KuuVD1cTdjhDFO/ihrdRBi167Oogg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526539; bh=SdNviW33BgwdNqMIRz2/oJb4GnfVq5bRDheKk/X8w1Y=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=TF9ZosF8oeyj3loyBIE8nRoiGkhad8g3d0GU5Olb57BTRnwKcOst7YcMDkauT7VDPwPnMHlYX3tD/z1fYVEaexXvQejjATEd2jKLGzzSQJRHMjoK6gKdyVFyPqwEDfV2Vpumd1KlsR3QWEEEs/Kkd/4WXTeRHfW+lp1fwVT2rBiOnEMtbOLn5UiaeDtR1NgaRxmQBejjButJC19RoVMma5Y77yhb93qCYJ69Zj+ehhI41GFkKx9myW7e3u6cjjzzn1aZgtHZ2x9bsn+fniu8jmoxGus0AN0LYOwrgEUR/lpfq/hjcstcZ3HsrZhEDAkO8bT5dqptxbrIC2mlk1VZ0Q==
+X-YMail-OSG: LzGsyu4VM1nmlNCBDsMlbzaFQO3f4.Ip5J5llpfsbw8P3CI64Myyy950WLOJitU
+ heYuJ60dZho3NUDuGrdzcBLuXuZ32pfnH.w66NN25R1YqAHntedzuTAz0SeDxGAUfNupYQQ_OA7d
+ Ib6qvjUjj9jhXSWgoayVmHZE.m7GuBZ7hStuXb9Lk_BElRg1X3JuylffS4e4STbZLpZiJM6OElp.
+ 9LkbICq5ux4__mctAJQWnTkT3w6RdwRdwuaZbbLHv.QVdQm8VyANXrCl5.2u_GL7k2EqftKF0j1T
+ qIp5bfTkWwnKqWojLPxsKVSRpTfhD21McXnXrrZDOTpTN8EkVdnE8L2p.Z7.rMR7LUGTr2NBxsYw
+ ol7pvOri4JF5BkSMES7RqkNDax1b5UZm6S2bfzDXMYQ4aCdQEMouRsinfgsLDgdP7pt4Welw6h2j
+ gJNeR1Q..tjWJqRRO6F2IUmMRFaIlXLrcDyGudxYwqTQ_IE5VrjJDb3dCvycmp2vhR13sbzOdXYS
+ _P5i9lDu2015f3w7WlRBcvmq8WGr1dpZNnt3dy9ryX0C8bP9Yl.7XR9OZv1Es.yb2Z2jM15NUkeD
+ Vp9DcUkzljqJtbHq54xEqH4PzWDDEMkNnXzSyvhR0sflsb_5OSSBBQUkvQBc5x4aGxOrtzgJOGtJ
+ 6VM1pZnCU5oC2EcZhhiZ_zpX6_pt0_uqJXiQSrkNNx7D2844RzzGOBrk1bxp1VRgoEjVWjRuV0es
+ 0ppEVvdxH57DYS22PCdEP4JRbkisbHpTjCoCH.OrAU7dYhRGE5BRt4hlcStEmt829vbtJ_1qUjXd
+ e_TtHp3oCwyXOMY.S62FOUnrmApX7a1i3u.yGFBvrSZ0NS7CqUN9sJi.O7ynY_NV.3cVvImpl41r
+ hM7sBucJ1h0kENeDRpr4n1vft8Pe2xJP3zNPTWiLOg44tQ_hZjbfgNsNv6mfYyvJZo9seTHYKiMz
+ DO30n5eQHUsnQnTIMdKdmvTupDaqBBNNzJJCPgL0xrDlb4whOPYgzdCiSy8lpb.Ixz2Z67_awZev
+ eJ.gfNX9cm0h6VoQaTCE9hpXE.yhR6rFuAKnrliec5J3a2ozR_L1Vr0RfBvMufE6Z4xA9hhlLdBg
+ UukwSOBQKkIcQtNF3_xE4fpc2kPETaYsv9YUBBW_BWz89WFM5SEa.6hmSFTjD0lqaeQxfuLyQI8B
+ 1zG2X6GS0QBPHmragRKsO4J6I8T7vcvzZH7EtDJK1QA3ibmZLuZrrxdZybbwrWgY8SI3DBYDjSeM
+ tSoVNAUh1loAJJvUp6adnbETa42XRfwKcvRSTrYgobrGqbt7AVudmT6gxfkpCit7k41Z9Ekz6N.P
+ gcEInAcD4psbOpxEsQo9MdMuVROLpggfXVGI_tiLfkVMVKfuC.AW4Ge8l7CzktH9TotwfK.5DMat
+ G3.7WzrvdLW21VlpV9erngBkNm8JW0gvx4BVNdWDulLs46ABm1NPXS7HnXYzYobT3ed_CLm7ispb
+ pBGFjQhqrbgD7mvX0i.0aCu6p3AM3P7K5bQMXAV22KHc8hLvBmfC.Hsu2WNgALYobjZSFMY9Gvcl
+ kdtz5_uQLgPEb.7yEIUdlgdtjy41UGGsDQmNd4kuAasvT2Cnnifi0vW2FtCdt8UPJ9.g3kcAXZlp
+ DwX0YP3jR6117tvKl6r_V.7cuvv_swL8xtp1oEldKa1M_fYf0vBfl_T9RvLkGfwEfa.l02IA_U6I
+ eXJPLCvmSCld3chBfbLX7BZypcv250OqYIbXVBWhXvTEZzDAFG_vPpdbQlCWJozs0m41eo2fqCDE
+ eVjrcuoPdlAh7SuvyUYGFXNoo2pe4TIXjVpKZw7Ux8aCqJrRb20l4kWKdztaN67WZQ72bfErJxqB
+ Ns75jkkSRcfpk1R7Dz_woGnWbDMN65a2Q2QMeTFnlwj4pa86tSZeJlpiSx4HQeKAsWA2FKXvRIVG
+ vmf.j9WIRnlXea0B3pGCs88fR0Q5wyl9aTAYq_Ku1DM20YuOhW.qQnM7olfODIF_7amte51.I0Rd
+ tWU2Us6e1MYkZyR2LdCcOOGvQvVNwR3paTXJne0I0wc.XgJf0AMdeq_CcI8LlB8UhYqVRZJ_gx32
+ Tx2SDZaRZ7Kw2J30nRzYa6owo4yziiZJI3knVUBivfvPVIgWy0jzHSLX1Hg7webvLSzfYkXIInts
+ lRJ9bk591OURFqDF4a8cDhhT.VjuqTf47a9n3UL9InjiMQOke094QVWO4avJPLpzCLmH.9kjgB5u
+ I_A4bn_Fhgoavyblf5W9dS4HyhuZRqiq5ryAG2bd4i3e1ifTNejvSyNNUDKUN36WHDtabmYeNXTe
+ dl7TYZUvScv8vTL.lxZxlrYhfeT1JvbsxGSeO
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 295b33d7-51bf-4ad8-9a32-de7877d31889
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Sat, 21 Jun 2025 17:22:18 +0000
+X-Sonic-ID: bf334de0-969f-47e6-b08c-372df8d94efb
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Sat, 21 Jun 2025 17:22:19 +0000
 Received: by hermes--production-gq1-74d64bb7d7-dp9cd (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID be755b04d481595739dfcf42be1b4c68;
-          Sat, 21 Jun 2025 17:22:13 +0000 (UTC)
+          Sat, 21 Jun 2025 17:22:15 +0000 (UTC)
 From: Casey Schaufler <casey@schaufler-ca.com>
 To: casey@schaufler-ca.com,
 	paul@paul-moore.com,
@@ -69,9 +69,9 @@ Cc: jmorris@namei.org,
 	stephen.smalley.work@gmail.com,
 	linux-kernel@vger.kernel.org,
 	selinux@vger.kernel.org
-Subject: [RFC PATCH 08/15] AppArmor: Remove the exclusive flag
-Date: Sat, 21 Jun 2025 10:18:43 -0700
-Message-ID: <20250621171851.5869-9-casey@schaufler-ca.com>
+Subject: [RFC PATCH 10/15] LSM: allocate mnt_opts blobs instead of module specific data
+Date: Sat, 21 Jun 2025 10:18:45 -0700
+Message-ID: <20250621171851.5869-11-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.47.0
 In-Reply-To: <20250621171851.5869-1-casey@schaufler-ca.com>
 References: <20250621171851.5869-1-casey@schaufler-ca.com>
@@ -83,28 +83,100 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-With the preceeding audit changes AppArmor no longer needs
-to be treated as an "exclusive" security module. Remove the
-flag that indicates it is exclusive.
+Replace allocations of LSM specific mount data with the
+shared mnt_opts blob.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/apparmor/lsm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/lsm_hooks.h  |  1 +
+ security/security.c        | 12 ++++++++++++
+ security/selinux/hooks.c   | 10 +++++++---
+ security/smack/smack_lsm.c |  4 ++--
+ 4 files changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 255d2e40386f..ac38864d9bce 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -2278,7 +2278,7 @@ static int __init apparmor_init(void)
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 2e3b1559714c..38f89762c0df 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -220,4 +220,5 @@ static inline struct xattr *lsm_get_xattr_slot(struct xattr *xattrs,
+ 	return &xattrs[(*xattr_count)++];
+ }
  
- DEFINE_LSM(apparmor) = {
- 	.id = &apparmor_lsmid,
--	.flags = LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
-+	.flags = LSM_FLAG_LEGACY_MAJOR,
- 	.enabled = &apparmor_enabled,
- 	.blobs = &apparmor_blob_sizes,
- 	.init = apparmor_init,
++extern void *lsm_mnt_opts_alloc(gfp_t priority);
+ #endif /* ! __LINUX_LSM_HOOKS_H */
+diff --git a/security/security.c b/security/security.c
+index 93d4ac39fe9f..98a80078b2df 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -901,6 +901,18 @@ void security_sb_free(struct super_block *sb)
+ 	sb->s_security = NULL;
+ }
+ 
++/**
++ * lsm_mnt_opts_alloc - allocate a mnt_opts blob
++ * @priority: memory allocation priority
++ *
++ * Returns a newly allocated mnt_opts blob or NULL if
++ * memory isn't available.
++ */
++void *lsm_mnt_opts_alloc(gfp_t priority)
++{
++	return kzalloc(blob_sizes.lbs_mnt_opts, priority);
++}
++
+ /**
+  * security_free_mnt_opts() - Free memory associated with mount options
+  * @mnt_opts: LSM processed mount options
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index c86b430f34c3..8e0671920e3a 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2809,7 +2809,7 @@ static int selinux_fs_context_submount(struct fs_context *fc,
+ 	if (!(sbsec->flags & (FSCONTEXT_MNT|CONTEXT_MNT|DEFCONTEXT_MNT)))
+ 		return 0;
+ 
+-	opts = kzalloc(sizeof(*opts), GFP_KERNEL);
++	opts = lsm_mnt_opts_alloc(GFP_KERNEL);
+ 	if (!opts)
+ 		return -ENOMEM;
+ 
+@@ -2831,8 +2831,12 @@ static int selinux_fs_context_dup(struct fs_context *fc,
+ 	if (!src)
+ 		return 0;
+ 
+-	fc->security = kmemdup(src, sizeof(*src), GFP_KERNEL);
+-	return fc->security ? 0 : -ENOMEM;
++	fc->security = lsm_mnt_opts_alloc(GFP_KERNEL);
++	if (!fc->security)
++		return -ENOMEM;
++
++	memcpy(fc->security, src, sizeof(*src));
++	return 0;
+ }
+ 
+ static const struct fs_parameter_spec selinux_fs_parameters[] = {
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 956dce6b1e97..0cc24b57bb52 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -622,7 +622,7 @@ static int smack_fs_context_submount(struct fs_context *fc,
+ 	struct smack_mnt_opts *ctx;
+ 	struct inode_smack *isp;
+ 
+-	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
++	ctx = lsm_mnt_opts_alloc(GFP_KERNEL);
+ 	if (!ctx)
+ 		return -ENOMEM;
+ 	fc->security = ctx;
+@@ -673,7 +673,7 @@ static int smack_fs_context_dup(struct fs_context *fc,
+ 	if (!src)
+ 		return 0;
+ 
+-	fc->security = kzalloc(sizeof(struct smack_mnt_opts), GFP_KERNEL);
++	fc->security = lsm_mnt_opts_alloc(GFP_KERNEL);
+ 	if (!fc->security)
+ 		return -ENOMEM;
+ 
 -- 
 2.47.0
 
