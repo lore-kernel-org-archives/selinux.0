@@ -1,60 +1,60 @@
-Received: from sonic307-15.consmr.mail.ne1.yahoo.com (sonic307-15.consmr.mail.ne1.yahoo.com [66.163.190.38])
+Received: from sonic303-27.consmr.mail.ne1.yahoo.com (sonic303-27.consmr.mail.ne1.yahoo.com [66.163.188.153])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B50D22586FE
-	for <selinux@vger.kernel.org>; Sat, 21 Jun 2025 17:22:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.190.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9435925743D
+	for <selinux@vger.kernel.org>; Sat, 21 Jun 2025 17:22:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.188.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750526541; cv=none; b=axP+oLZ/cRNQ6/tY+pQK36VXqU3LJyzWvZPJ60yH7fQK7x9dEPVhFwftM77yblQOoCc+DsORY++gbPQLRDIshxdX7SSsRoMWiN/nh4MM8f8/Q0rzLO+BcyFpAaIWbM++n4KEdOjrQX9r1LBpNMe2hQIth4VtzMHqx/POosq9Rn0=
+	t=1750526544; cv=none; b=Bt0ajhImLYXdq1xuF2JFF5TajkvXyfFLjRhL57RZgKZVF/MOpJs+C2QgVI0XOfYl38uEs0R695wfNi4XXxvc6NOQx0j4/sQ3uwYvukt8RCAePH4qjaLE6UxdLhQR0Pu6HsFX20+CurHIOLiq+5FuQOV9+MCE19Vqjo43Hf3wlRw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750526541; c=relaxed/simple;
-	bh=J7uUJzI+DyUy/0s3Dwtgp4wm8Zo3tkjGbsf/RH4nq4s=;
+	s=arc-20240116; t=1750526544; c=relaxed/simple;
+	bh=cYB7wVZ7Rhr0i64ao9TJQTDSRAlaZ0hBe6NBzmfr/nQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uOvT/HgzvGDLlVNzJ4RC4xO59fd1BHMpGBXoKRm0kAy39rmXOS5sjDKn7FyK0Xp8jxZkWfOC9vOUxuAl3EJxjC3h09XhOn8QU9VXmkpd1ts6mS+uoAgwTyspX1Nq+isWvKGfQ/KAkofl9Gy5cWRP1KIPUarsNOchrnfW30yO60g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=l8KyckIP; arc=none smtp.client-ip=66.163.190.38
+	 MIME-Version; b=CnAo5iC7HfCwb534F99QJz8xnvw4qDYSRqV7eDq9VHzWfA9bgglU+MdB/Ki61Es7jb9MHCa1EATrwPpvwP6L710ADQjMzUd/e8KI8GM88BXiB29bKWEKMdnNUKwbE75iF9cBDO3svovd7to9GzmQL4yqiNF8M2E7/+8P8OFUbWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=LmAdzeyt; arc=none smtp.client-ip=66.163.188.153
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="l8KyckIP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526539; bh=Y1MBhcJxNgXqSKEpTzfE0odcwfmPXmVNep1TIM/mV+A=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=l8KyckIPwN3lSwqkkMwUVSuUQVmpFYPgbNH3OEaCHhkU/bF/feBWtaeIUroTsjdt+O9Q4dnH+AMO4fiv8NANqTsAwJQ48ta2GZEJ1SjZkM1ueTujLDza+QymY89mo2EDvP3mcjFGGJK174mfLHh4v+xJIpR0D6HRgeARcF4ykfEAzcb1JN8Kewv6UpYRjug7Tx6pX2bt/E2SlJCiDEipnGhfGVFe/hDzlxpmTnDbIkPSPGXKvspwtrQSCVapHSVItZSrketk01Ier+vtjN4Bs1c6pl/LJSWBU47ALruQ/Tghmj2pSsRB6iJm+KuuVD1cTdjhDFO/ihrdRBi167Oogg==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526539; bh=SdNviW33BgwdNqMIRz2/oJb4GnfVq5bRDheKk/X8w1Y=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=TF9ZosF8oeyj3loyBIE8nRoiGkhad8g3d0GU5Olb57BTRnwKcOst7YcMDkauT7VDPwPnMHlYX3tD/z1fYVEaexXvQejjATEd2jKLGzzSQJRHMjoK6gKdyVFyPqwEDfV2Vpumd1KlsR3QWEEEs/Kkd/4WXTeRHfW+lp1fwVT2rBiOnEMtbOLn5UiaeDtR1NgaRxmQBejjButJC19RoVMma5Y77yhb93qCYJ69Zj+ehhI41GFkKx9myW7e3u6cjjzzn1aZgtHZ2x9bsn+fniu8jmoxGus0AN0LYOwrgEUR/lpfq/hjcstcZ3HsrZhEDAkO8bT5dqptxbrIC2mlk1VZ0Q==
-X-YMail-OSG: LzGsyu4VM1nmlNCBDsMlbzaFQO3f4.Ip5J5llpfsbw8P3CI64Myyy950WLOJitU
- heYuJ60dZho3NUDuGrdzcBLuXuZ32pfnH.w66NN25R1YqAHntedzuTAz0SeDxGAUfNupYQQ_OA7d
- Ib6qvjUjj9jhXSWgoayVmHZE.m7GuBZ7hStuXb9Lk_BElRg1X3JuylffS4e4STbZLpZiJM6OElp.
- 9LkbICq5ux4__mctAJQWnTkT3w6RdwRdwuaZbbLHv.QVdQm8VyANXrCl5.2u_GL7k2EqftKF0j1T
- qIp5bfTkWwnKqWojLPxsKVSRpTfhD21McXnXrrZDOTpTN8EkVdnE8L2p.Z7.rMR7LUGTr2NBxsYw
- ol7pvOri4JF5BkSMES7RqkNDax1b5UZm6S2bfzDXMYQ4aCdQEMouRsinfgsLDgdP7pt4Welw6h2j
- gJNeR1Q..tjWJqRRO6F2IUmMRFaIlXLrcDyGudxYwqTQ_IE5VrjJDb3dCvycmp2vhR13sbzOdXYS
- _P5i9lDu2015f3w7WlRBcvmq8WGr1dpZNnt3dy9ryX0C8bP9Yl.7XR9OZv1Es.yb2Z2jM15NUkeD
- Vp9DcUkzljqJtbHq54xEqH4PzWDDEMkNnXzSyvhR0sflsb_5OSSBBQUkvQBc5x4aGxOrtzgJOGtJ
- 6VM1pZnCU5oC2EcZhhiZ_zpX6_pt0_uqJXiQSrkNNx7D2844RzzGOBrk1bxp1VRgoEjVWjRuV0es
- 0ppEVvdxH57DYS22PCdEP4JRbkisbHpTjCoCH.OrAU7dYhRGE5BRt4hlcStEmt829vbtJ_1qUjXd
- e_TtHp3oCwyXOMY.S62FOUnrmApX7a1i3u.yGFBvrSZ0NS7CqUN9sJi.O7ynY_NV.3cVvImpl41r
- hM7sBucJ1h0kENeDRpr4n1vft8Pe2xJP3zNPTWiLOg44tQ_hZjbfgNsNv6mfYyvJZo9seTHYKiMz
- DO30n5eQHUsnQnTIMdKdmvTupDaqBBNNzJJCPgL0xrDlb4whOPYgzdCiSy8lpb.Ixz2Z67_awZev
- eJ.gfNX9cm0h6VoQaTCE9hpXE.yhR6rFuAKnrliec5J3a2ozR_L1Vr0RfBvMufE6Z4xA9hhlLdBg
- UukwSOBQKkIcQtNF3_xE4fpc2kPETaYsv9YUBBW_BWz89WFM5SEa.6hmSFTjD0lqaeQxfuLyQI8B
- 1zG2X6GS0QBPHmragRKsO4J6I8T7vcvzZH7EtDJK1QA3ibmZLuZrrxdZybbwrWgY8SI3DBYDjSeM
- tSoVNAUh1loAJJvUp6adnbETa42XRfwKcvRSTrYgobrGqbt7AVudmT6gxfkpCit7k41Z9Ekz6N.P
- gcEInAcD4psbOpxEsQo9MdMuVROLpggfXVGI_tiLfkVMVKfuC.AW4Ge8l7CzktH9TotwfK.5DMat
- G3.7WzrvdLW21VlpV9erngBkNm8JW0gvx4BVNdWDulLs46ABm1NPXS7HnXYzYobT3ed_CLm7ispb
- pBGFjQhqrbgD7mvX0i.0aCu6p3AM3P7K5bQMXAV22KHc8hLvBmfC.Hsu2WNgALYobjZSFMY9Gvcl
- kdtz5_uQLgPEb.7yEIUdlgdtjy41UGGsDQmNd4kuAasvT2Cnnifi0vW2FtCdt8UPJ9.g3kcAXZlp
- DwX0YP3jR6117tvKl6r_V.7cuvv_swL8xtp1oEldKa1M_fYf0vBfl_T9RvLkGfwEfa.l02IA_U6I
- eXJPLCvmSCld3chBfbLX7BZypcv250OqYIbXVBWhXvTEZzDAFG_vPpdbQlCWJozs0m41eo2fqCDE
- eVjrcuoPdlAh7SuvyUYGFXNoo2pe4TIXjVpKZw7Ux8aCqJrRb20l4kWKdztaN67WZQ72bfErJxqB
- Ns75jkkSRcfpk1R7Dz_woGnWbDMN65a2Q2QMeTFnlwj4pa86tSZeJlpiSx4HQeKAsWA2FKXvRIVG
- vmf.j9WIRnlXea0B3pGCs88fR0Q5wyl9aTAYq_Ku1DM20YuOhW.qQnM7olfODIF_7amte51.I0Rd
- tWU2Us6e1MYkZyR2LdCcOOGvQvVNwR3paTXJne0I0wc.XgJf0AMdeq_CcI8LlB8UhYqVRZJ_gx32
- Tx2SDZaRZ7Kw2J30nRzYa6owo4yziiZJI3knVUBivfvPVIgWy0jzHSLX1Hg7webvLSzfYkXIInts
- lRJ9bk591OURFqDF4a8cDhhT.VjuqTf47a9n3UL9InjiMQOke094QVWO4avJPLpzCLmH.9kjgB5u
- I_A4bn_Fhgoavyblf5W9dS4HyhuZRqiq5ryAG2bd4i3e1ifTNejvSyNNUDKUN36WHDtabmYeNXTe
- dl7TYZUvScv8vTL.lxZxlrYhfeT1JvbsxGSeO
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="LmAdzeyt"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526540; bh=qmscUqqpqbD9PhRRSa/P0IgR16WK+5vFh/M6mGzBnp8=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=LmAdzeytP9Bd0uV6zeBb3HwDT+dPpEM/vrX0uLgSzbuuK+3X1v/YX+cWV0RGkBIv//HB0MRLJ+NRgZIC9G1GamWqQQz3GuYhMiMpj137uLLVXUq1rqf5eWxW/80QNaG3Vw8nccxfBzdjzbXUzZAJcsW6oEgAMUZ8JfcA7RekA9npULbiRUMM/WC87MIZ53o+p7Lozy3R73G+t955PdDMgNdB4T4UNqE+y+7JvgTDAPdOuwj3Ddt1vLxy/Xk+v4954IOiq59j1o+77VI9oFgj1K5bDDXy11zTQXotI28RGU0LPNgi3QmJxZNOWEophEWcNoXxduoEw1ZTaXqJ7ymBcw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526540; bh=EY/jM/UtR3Ra1RVoatia/ADf/xTXtWeufeSjTuTRVs0=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=OeUmEfcE5ZFDo50qEr4buITUXXB9SNwTmLpX3M7Qv84+agWN0cqZKB/qD4GAFSpweO1BKXnDe166bAyS//SBVaPvwXG17w8PvGN3x5Z3djp1zLycKQqf2ALZq9PT7gOF25phob+7WrzAZkCrVDJ/qRi4lreExBvtSbGtuifr3NjhTAC90KtXnI8h9skfGuOXrgOZKzle3QxAImxU1gZ6xnw4vRwaI6DfXwSBOOafnp6Ww00ysd7w1akx4+C5/tV+ayCiKZcoGWWaqwOK6JqGruRXQJ0ixnsYU6M7E5v6eNfj4qMQoZ4tco36HatReyktN6CW19VDQvM1IiPDHunH3Q==
+X-YMail-OSG: b8yVeyQVM1kG.LqQKsBrA9bQMJgZq_l3mq85RbcsACjdg2jXOg1QnPQv2A4Tf1j
+ 4BWcXA3b2KzFKf_et10T2akybc.RmhoJxKtf78j2_Tsx0eFHV73K4b7tDURJRPX8UqeY3nHCquzN
+ GNZQsCGfjwjWxt3tOAQLiBUBe352QNRz6BDgDoWkP7fc4nYZI_F_nXbfwr0YUFaZMheFNffpCGeC
+ tC2E.JZkNY7y.gqQqkDWsIvPnnri7EB.bDKxTfBo4M8MzYhYB2ugxXzoZcUkgemqvr5qS8DJIUuu
+ qQoNEsgU3qBbqMnea9qa8QFAiAAeyz6kqt63QvPR2EdeoNyL9wu4MipzH3ehtHgV4Xvspzwqxyad
+ NJ3pehr51WvLwScY0tfgDkPrdBoVn0GE6JZLNJsXNh9znOFnMomf9snmZzTvqj7aUW8xf_n5ahW7
+ bKedsMNRp_H_08jiXC4mv_bwZ4T6n4jvtuWjQXj46slZiZcFuxPYC8FZ_rdaKBkMfVwyZM15.PYv
+ RjRQE5IA4nLyf4B_BhW51jrYKLEqckStWUH9qsezqj1RlfD3gyPVntp6KTpneThL..Ok2kftfr3Q
+ ucBS31vfiizcFakMqfX5w9V5kxV.ZgW_H_uIqlZUWn89.1xqMwj1ReBjvLZpGhpG7Zx96ylHqDL7
+ VQpVoqoSnUNRisPLS99zdmBGAHmTYlGJlHDEHGFXjAMR7gTLylA_1b_QwulYEXPQ2vXHvrcuuvY3
+ RR7hZB3diFxp3bCm2o896Ono5Th5nxp.xy0AGerLx0JgNbBaCJm2GUtq7JWvGRDOT.rWeFCala.O
+ B5mwlTd2Hg3w1.sO1l_71G3HmV_ylH8bRlJaF4VrTkUl7pgeUs6.jyH_PnElqMPX75h4_yEgB0_V
+ rvA19y0RlLz64t2gJF9TdKCBf61wNXYFHTUZtxdXllndVcIq2N3Mus4fttH3PgR3oiU7N9h6Am7k
+ AYUY8rkIR.icWZejcr6iYOc1G4mMUkmRBDwsYcD4_YT_UaNebT4npboPeIZQsAbi4w2UkMYEWPxb
+ gnEGYU.qsPFg91ka5nc5g8h..iKZEknt8fbrVcQv31SmESUhDqmktL5XhGdeWu59lWT9ugucYm5j
+ FqAXS8p6tpDlFuflkPmyhX5LDbpwDkcRnzWjDZZgHnSamH2XPx97Dnyfaff9DBmFR0WvjUTjzu0f
+ qbsB4D9dqvW8P3ojF.ztwMgza.959_Fq6FRx9umE80mgx9tqxmOze6tnhtXKeGnH8JRPk7rPUisr
+ _7eNyOmsxjJ3yLYFplluWQborPK26if28sxKrKyrRP3jAUcKV6vbxRos1JW8NbPk30o.fb_phrwR
+ 9y4OE13wcshyg9pT05BFXPSCur.TT_5blekphrpCc3pNSuLTYhmYt080b_TyL9_Dla6Bl_4rM3tp
+ PVEqKYvjnXap5veyxelH7KNw8oPFQqkwc_9Q7HdUhfFD_3t3wIlt7hnualMPQ5UiXA7YOD3HQdD5
+ XzQBYQUGZE7IKDH3iEJxk53OohM6MziJWdGIE_xKpISyy5c8HHK594tr7zGlpmFWNq2Ut4kmBZCW
+ 59VPKKNoRwpwEN7gIHMa_wtVr0q0utuNSyVlTlZvnMnBrvx71RgN8abxN5pX1Nlz0UwyXWQdzQsi
+ jcpJkoKPn2dUfbfxab8.WcAnO8J50V9Rar9HLaf.evgR2p2eIUKaLN4LxoQ_Ko8T5hUmess5hL9J
+ CwVBCzR.__yZGrhCvwv_IVWZZ0DJJr8DVxsFdtBdAulxIz96l5aXaTXcDD3FK4YBVylcD5_XqLTe
+ J6blzlutuOUgbPfUpVM_SFxZZu6hQma5oYaOPqwl2uX22D9jgYV9p1Ap2cG1XCmtikB9dDfy_4_3
+ ls8hW9kxoFJ8n1GaMzeCwdg7J8f7rTc6LrAHzYUj1SkszcdXuEip9liyx58XMHncKmyWv4VnFQOx
+ xh0lMiVjsJvgNh9L6EmKJP41l16XeAdG40Mi6suJjE8ZOaKgiIE1rlWTFPyBmXKdUEn72WJwu0no
+ u_RnW1pn68NRu6L.oUwirzWDk0UyzGlzf_IIEVf.taT5ZZtfV3IdZ3ZGLdYdLkgQvPBGaWu4Q8uD
+ x8PMkyuzOqGzoc0Wf1KkqRbthPqhXt5BvbxCdYT26hMzZ1GUFABE2PRNwQHrvKoNe3P72H7d7r7t
+ JdZ5SKEEWuEoZ1dHYJmagTTvcfQ8rBXdEYKZChHRv8YnOPSTZ4_Rl6.GId6x_aKHMZpRjuJIXY1w
+ uf0KY.p.7uwHvhirg1_wHLVx98vsvHRWvq6fKRn2Ttps_y4vWRuZY41qgKJE33KGAdV1T0SGs8.t
+ nl_.lisPHb_Xa7dkUMOPtASaJtMMHzyhBJuzZWx4-
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: bf334de0-969f-47e6-b08c-372df8d94efb
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Sat, 21 Jun 2025 17:22:19 +0000
+X-Sonic-ID: c05b0629-db5a-49bb-a3d9-feda2a22aef3
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Sat, 21 Jun 2025 17:22:20 +0000
 Received: by hermes--production-gq1-74d64bb7d7-dp9cd (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID be755b04d481595739dfcf42be1b4c68;
-          Sat, 21 Jun 2025 17:22:15 +0000 (UTC)
+          Sat, 21 Jun 2025 17:22:17 +0000 (UTC)
 From: Casey Schaufler <casey@schaufler-ca.com>
 To: casey@schaufler-ca.com,
 	paul@paul-moore.com,
@@ -69,9 +69,9 @@ Cc: jmorris@namei.org,
 	stephen.smalley.work@gmail.com,
 	linux-kernel@vger.kernel.org,
 	selinux@vger.kernel.org
-Subject: [RFC PATCH 10/15] LSM: allocate mnt_opts blobs instead of module specific data
-Date: Sat, 21 Jun 2025 10:18:45 -0700
-Message-ID: <20250621171851.5869-11-casey@schaufler-ca.com>
+Subject: [RFC PATCH 11/15] LSM: Infrastructure management of the mnt_opts security blob
+Date: Sat, 21 Jun 2025 10:18:46 -0700
+Message-ID: <20250621171851.5869-12-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.47.0
 In-Reply-To: <20250621171851.5869-1-casey@schaufler-ca.com>
 References: <20250621171851.5869-1-casey@schaufler-ca.com>
@@ -83,100 +83,362 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Replace allocations of LSM specific mount data with the
-shared mnt_opts blob.
+Move management of the mnt_opts->security blob out of the
+individual security modules and into the security
+infrastructure. Blobs are still allocated within the modules
+as they are only required when mount options are present.
+The modules tell the infrastructure how much space is required,
+and the space is allocated if needed. Modules can no longer
+count on the presence of a blob implying that mount options
+specific to that module are present, so flags are added
+to the module specific blobs to indicate that this module
+has options.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/lsm_hooks.h  |  1 +
- security/security.c        | 12 ++++++++++++
- security/selinux/hooks.c   | 10 +++++++---
- security/smack/smack_lsm.c |  4 ++--
- 4 files changed, 22 insertions(+), 5 deletions(-)
+ security/security.c        | 14 ++++-----
+ security/selinux/hooks.c   | 58 +++++++++++++++++++++++-------------
+ security/smack/smack_lsm.c | 61 ++++++++++++++++++++++++++------------
+ 3 files changed, 85 insertions(+), 48 deletions(-)
 
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 2e3b1559714c..38f89762c0df 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -220,4 +220,5 @@ static inline struct xattr *lsm_get_xattr_slot(struct xattr *xattrs,
- 	return &xattrs[(*xattr_count)++];
- }
- 
-+extern void *lsm_mnt_opts_alloc(gfp_t priority);
- #endif /* ! __LINUX_LSM_HOOKS_H */
 diff --git a/security/security.c b/security/security.c
-index 93d4ac39fe9f..98a80078b2df 100644
+index 98a80078b2df..dd167a872248 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -901,6 +901,18 @@ void security_sb_free(struct super_block *sb)
- 	sb->s_security = NULL;
+@@ -840,17 +840,14 @@ int security_fs_context_parse_param(struct fs_context *fc,
+ 				    struct fs_parameter *param)
+ {
+ 	struct lsm_static_call *scall;
+-	int trc;
+-	int rc = -ENOPARAM;
++	int rc;
+ 
+ 	lsm_for_each_hook(scall, fs_context_parse_param) {
+-		trc = scall->hl->hook.fs_context_parse_param(fc, param);
+-		if (trc == 0)
+-			rc = 0;
+-		else if (trc != -ENOPARAM)
+-			return trc;
++		rc = scall->hl->hook.fs_context_parse_param(fc, param);
++		if (rc != -ENOPARAM)
++			return rc;
+ 	}
+-	return rc;
++	return -ENOPARAM;
  }
  
-+/**
-+ * lsm_mnt_opts_alloc - allocate a mnt_opts blob
-+ * @priority: memory allocation priority
-+ *
-+ * Returns a newly allocated mnt_opts blob or NULL if
-+ * memory isn't available.
-+ */
-+void *lsm_mnt_opts_alloc(gfp_t priority)
-+{
-+	return kzalloc(blob_sizes.lbs_mnt_opts, priority);
-+}
-+
  /**
-  * security_free_mnt_opts() - Free memory associated with mount options
-  * @mnt_opts: LSM processed mount options
+@@ -924,6 +921,7 @@ void security_free_mnt_opts(void **mnt_opts)
+ 	if (!*mnt_opts)
+ 		return;
+ 	call_void_hook(sb_free_mnt_opts, *mnt_opts);
++	kfree(*mnt_opts);
+ 	*mnt_opts = NULL;
+ }
+ EXPORT_SYMBOL(security_free_mnt_opts);
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index c86b430f34c3..8e0671920e3a 100644
+index 8e0671920e3a..636a38449253 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -2809,7 +2809,7 @@ static int selinux_fs_context_submount(struct fs_context *fc,
+@@ -379,15 +379,28 @@ static void inode_free_security(struct inode *inode)
+ }
+ 
+ struct selinux_mnt_opts {
++	bool initialized;
+ 	u32 fscontext_sid;
+ 	u32 context_sid;
+ 	u32 rootcontext_sid;
+ 	u32 defcontext_sid;
+ };
+ 
++static inline struct selinux_mnt_opts *selinux_mnt_opts(void *mnt_opts)
++{
++	if (mnt_opts)
++		return mnt_opts + selinux_blob_sizes.lbs_mnt_opts;
++	return NULL;
++}
++
+ static void selinux_free_mnt_opts(void *mnt_opts)
+ {
+-	kfree(mnt_opts);
++	struct selinux_mnt_opts *opts;
++
++	if (mnt_opts) {
++		opts = selinux_mnt_opts(mnt_opts);
++		opts->initialized = false;
++	}
+ }
+ 
+ enum {
+@@ -642,7 +655,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	const struct cred *cred = current_cred();
+ 	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 	struct dentry *root = sb->s_root;
+-	struct selinux_mnt_opts *opts = mnt_opts;
++	struct selinux_mnt_opts *opts = selinux_mnt_opts(mnt_opts);
+ 	struct inode_security_struct *root_isec;
+ 	u32 fscontext_sid = 0, context_sid = 0, rootcontext_sid = 0;
+ 	u32 defcontext_sid = 0;
+@@ -658,7 +671,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	mutex_lock(&sbsec->lock);
+ 
+ 	if (!selinux_initialized()) {
+-		if (!opts) {
++		if (!opts || !opts->initialized) {
+ 			/* Defer initialization until selinux_complete_init,
+ 			   after the initial policy is loaded and the security
+ 			   server is ready to handle calls. */
+@@ -696,7 +709,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	 * also check if someone is trying to mount the same sb more
+ 	 * than once with different security options.
+ 	 */
+-	if (opts) {
++	if (opts && opts->initialized) {
+ 		if (opts->fscontext_sid) {
+ 			fscontext_sid = opts->fscontext_sid;
+ 			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid,
+@@ -1005,7 +1018,7 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+  */
+ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ {
+-	struct selinux_mnt_opts *opts = *mnt_opts;
++	struct selinux_mnt_opts *opts;
+ 	u32 *dst_sid;
+ 	int rc;
+ 
+@@ -1020,12 +1033,12 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ 		return -EINVAL;
+ 	}
+ 
+-	if (!opts) {
+-		opts = kzalloc(sizeof(*opts), GFP_KERNEL);
+-		if (!opts)
++	if (!*mnt_opts) {
++		*mnt_opts = lsm_mnt_opts_alloc(GFP_KERNEL);
++		if (!*mnt_opts)
+ 			return -ENOMEM;
+-		*mnt_opts = opts;
+ 	}
++	opts = selinux_mnt_opts(*mnt_opts);
+ 
+ 	switch (token) {
+ 	case Opt_context:
+@@ -1052,6 +1065,7 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ 		WARN_ON(1);
+ 		return -EINVAL;
+ 	}
++	opts->initialized = true;
+ 	rc = security_context_str_to_sid(s, dst_sid, GFP_KERNEL);
+ 	if (rc)
+ 		pr_warn("SELinux: security_context_str_to_sid (%s) failed with errno=%d\n",
+@@ -2651,10 +2665,7 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+ 	return 0;
+ 
+ free_opt:
+-	if (*mnt_opts) {
+-		selinux_free_mnt_opts(*mnt_opts);
+-		*mnt_opts = NULL;
+-	}
++	selinux_free_mnt_opts(*mnt_opts);
+ 	return rc;
+ }
+ 
+@@ -2705,13 +2716,13 @@ static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts)
+ 
+ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
+ {
+-	struct selinux_mnt_opts *opts = mnt_opts;
++	struct selinux_mnt_opts *opts = selinux_mnt_opts(mnt_opts);
+ 	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 
+ 	if (!(sbsec->flags & SE_SBINITIALIZED))
+ 		return 0;
+ 
+-	if (!opts)
++	if (!opts || !opts->initialized)
+ 		return 0;
+ 
+ 	if (opts->fscontext_sid) {
+@@ -2809,9 +2820,13 @@ static int selinux_fs_context_submount(struct fs_context *fc,
  	if (!(sbsec->flags & (FSCONTEXT_MNT|CONTEXT_MNT|DEFCONTEXT_MNT)))
  		return 0;
  
--	opts = kzalloc(sizeof(*opts), GFP_KERNEL);
-+	opts = lsm_mnt_opts_alloc(GFP_KERNEL);
- 	if (!opts)
- 		return -ENOMEM;
+-	opts = lsm_mnt_opts_alloc(GFP_KERNEL);
+-	if (!opts)
+-		return -ENOMEM;
++	if (!fc->security) {
++		fc->security = lsm_mnt_opts_alloc(GFP_KERNEL);
++		if (!fc->security)
++			return -ENOMEM;
++	}
++	opts = selinux_mnt_opts(fc->security);
++	opts->initialized = true;
  
-@@ -2831,8 +2831,12 @@ static int selinux_fs_context_dup(struct fs_context *fc,
- 	if (!src)
- 		return 0;
- 
--	fc->security = kmemdup(src, sizeof(*src), GFP_KERNEL);
--	return fc->security ? 0 : -ENOMEM;
-+	fc->security = lsm_mnt_opts_alloc(GFP_KERNEL);
-+	if (!fc->security)
-+		return -ENOMEM;
-+
-+	memcpy(fc->security, src, sizeof(*src));
-+	return 0;
+ 	if (sbsec->flags & FSCONTEXT_MNT)
+ 		opts->fscontext_sid = sbsec->sid;
+@@ -2819,14 +2834,14 @@ static int selinux_fs_context_submount(struct fs_context *fc,
+ 		opts->context_sid = sbsec->mntpoint_sid;
+ 	if (sbsec->flags & DEFCONTEXT_MNT)
+ 		opts->defcontext_sid = sbsec->def_sid;
+-	fc->security = opts;
+ 	return 0;
  }
  
- static const struct fs_parameter_spec selinux_fs_parameters[] = {
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 956dce6b1e97..0cc24b57bb52 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -622,7 +622,7 @@ static int smack_fs_context_submount(struct fs_context *fc,
- 	struct smack_mnt_opts *ctx;
- 	struct inode_smack *isp;
+ static int selinux_fs_context_dup(struct fs_context *fc,
+ 				  struct fs_context *src_fc)
+ {
+-	const struct selinux_mnt_opts *src = src_fc->security;
++	const struct selinux_mnt_opts *src = selinux_mnt_opts(src_fc->security);
++	struct selinux_mnt_opts *dst;
  
--	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
-+	ctx = lsm_mnt_opts_alloc(GFP_KERNEL);
- 	if (!ctx)
- 		return -ENOMEM;
- 	fc->security = ctx;
-@@ -673,7 +673,7 @@ static int smack_fs_context_dup(struct fs_context *fc,
  	if (!src)
  		return 0;
- 
--	fc->security = kzalloc(sizeof(struct smack_mnt_opts), GFP_KERNEL);
-+	fc->security = lsm_mnt_opts_alloc(GFP_KERNEL);
+@@ -2835,7 +2850,8 @@ static int selinux_fs_context_dup(struct fs_context *fc,
  	if (!fc->security)
  		return -ENOMEM;
  
+-	memcpy(fc->security, src, sizeof(*src));
++	dst = selinux_mnt_opts(fc->security);
++	memcpy(dst, src, sizeof(*src));
+ 	return 0;
+ }
+ 
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 0cc24b57bb52..ced66130fb7d 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -544,6 +544,7 @@ static int smack_sb_alloc_security(struct super_block *sb)
+ }
+ 
+ struct smack_mnt_opts {
++	bool initialized;
+ 	const char *fsdefault;
+ 	const char *fsfloor;
+ 	const char *fshat;
+@@ -551,24 +552,37 @@ struct smack_mnt_opts {
+ 	const char *fstransmute;
+ };
+ 
++static inline struct smack_mnt_opts *smack_mnt_opts(void *mnt_opts)
++{
++	if (mnt_opts)
++		return mnt_opts + smack_blob_sizes.lbs_mnt_opts;
++	return NULL;
++}
++
+ static void smack_free_mnt_opts(void *mnt_opts)
+ {
+-	kfree(mnt_opts);
++	struct smack_mnt_opts *opts;
++
++	if (mnt_opts) {
++		opts = smack_mnt_opts(mnt_opts);
++		opts->initialized = false;
++	}
+ }
+ 
+ static int smack_add_opt(int token, const char *s, void **mnt_opts)
+ {
+-	struct smack_mnt_opts *opts = *mnt_opts;
++	struct smack_mnt_opts *opts;
+ 	struct smack_known *skp;
+ 
+-	if (!opts) {
+-		opts = kzalloc(sizeof(struct smack_mnt_opts), GFP_KERNEL);
+-		if (!opts)
++	if (!s)
++		return -EINVAL;
++
++	if (!*mnt_opts) {
++		*mnt_opts = lsm_mnt_opts_alloc(GFP_KERNEL);
++		if (!*mnt_opts)
+ 			return -ENOMEM;
+-		*mnt_opts = opts;
+ 	}
+-	if (!s)
+-		return -ENOMEM;
++	opts = smack_mnt_opts(*mnt_opts);
+ 
+ 	skp = smk_import_entry(s, 0);
+ 	if (IS_ERR(skp))
+@@ -601,6 +615,7 @@ static int smack_add_opt(int token, const char *s, void **mnt_opts)
+ 		opts->fstransmute = skp->smk_known;
+ 		break;
+ 	}
++	opts->initialized = true;
+ 	return 0;
+ 
+ out_opt_err:
+@@ -622,10 +637,12 @@ static int smack_fs_context_submount(struct fs_context *fc,
+ 	struct smack_mnt_opts *ctx;
+ 	struct inode_smack *isp;
+ 
+-	ctx = lsm_mnt_opts_alloc(GFP_KERNEL);
+-	if (!ctx)
+-		return -ENOMEM;
+-	fc->security = ctx;
++	if (!fc->security) {
++		fc->security = lsm_mnt_opts_alloc(GFP_KERNEL);
++		if (!fc->security)
++			return -ENOMEM;
++	}
++	ctx = smack_mnt_opts(fc->security);
+ 
+ 	sbsp = smack_superblock(reference);
+ 	isp = smack_inode(reference->s_root->d_inode);
+@@ -655,6 +672,7 @@ static int smack_fs_context_submount(struct fs_context *fc,
+ 				return -ENOMEM;
+ 		}
+ 	}
++	ctx->initialized = true;
+ 	return 0;
+ }
+ 
+@@ -668,16 +686,21 @@ static int smack_fs_context_submount(struct fs_context *fc,
+ static int smack_fs_context_dup(struct fs_context *fc,
+ 				struct fs_context *src_fc)
+ {
+-	struct smack_mnt_opts *dst, *src = src_fc->security;
++	struct smack_mnt_opts *src;
++	struct smack_mnt_opts *dst;
+ 
++	src = smack_mnt_opts(src_fc->security);
+ 	if (!src)
+ 		return 0;
+ 
+-	fc->security = lsm_mnt_opts_alloc(GFP_KERNEL);
+-	if (!fc->security)
+-		return -ENOMEM;
++	if (!fc->security) {
++		fc->security = lsm_mnt_opts_alloc(GFP_KERNEL);
++		if (!fc->security)
++			return -ENOMEM;
++	}
+ 
+-	dst = fc->security;
++	dst = smack_mnt_opts(fc->security);
++	dst->initialized = src->initialized;
+ 	dst->fsdefault = src->fsdefault;
+ 	dst->fsfloor = src->fsfloor;
+ 	dst->fshat = src->fshat;
+@@ -787,7 +810,7 @@ static int smack_set_mnt_opts(struct super_block *sb,
+ 	struct superblock_smack *sp = smack_superblock(sb);
+ 	struct inode_smack *isp;
+ 	struct smack_known *skp;
+-	struct smack_mnt_opts *opts = mnt_opts;
++	struct smack_mnt_opts *opts = smack_mnt_opts(mnt_opts);
+ 	bool transmute = false;
+ 
+ 	if (sp->smk_flags & SMK_SB_INITIALIZED)
+@@ -820,7 +843,7 @@ static int smack_set_mnt_opts(struct super_block *sb,
+ 
+ 	sp->smk_flags |= SMK_SB_INITIALIZED;
+ 
+-	if (opts) {
++	if (opts && opts->initialized) {
+ 		if (opts->fsdefault) {
+ 			skp = smk_import_entry(opts->fsdefault, 0);
+ 			if (IS_ERR(skp))
 -- 
 2.47.0
 
