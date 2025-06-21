@@ -1,40 +1,40 @@
-Received: from smtpcmd04131.aruba.it (smtpcmd04131.aruba.it [62.149.158.131])
+Received: from smtpweb146.aruba.it (smtpweb146.aruba.it [62.149.158.146])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0EB821624E1
-	for <selinux@vger.kernel.org>; Sat, 21 Jun 2025 16:55:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.149.158.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B2B14207A
+	for <selinux@vger.kernel.org>; Sat, 21 Jun 2025 17:01:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.149.158.146
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750524919; cv=none; b=TxgIjI+QyGHefekSD5CepAklUtdZhF/o5Rm8Rx6XwW93CW7SS7MyQwG96IfEFURm58N0mDUCiu+sT+UMlsiBR1Hws/vJr7tMf/4TmyBU2GAugRcUbrO0nTnNeeItXA71Od6UK5SfftjiOyx0U0EvowzyUA58iQbSGF5BIm5mxY8=
+	t=1750525279; cv=none; b=G1Bhsh5qWZAIV1ReFYsPZJUAr6wiD6JDI/Jbg9+T6ihg7YITcwZc7R4r56x8P/6MgbDOTCVOex1vThCH/8zGiDIoN8+sWg3M+XZajxnm3XdG95ac2/BuJ1Qbi5nONhNPzkcBIH2dPEGtB+TgwCG5wlg9pdMTLjQskMXDzNQHvb8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750524919; c=relaxed/simple;
-	bh=K07gyY0bzfx+8wEB67rNS3idUiEiox9c+fqZAFnr/Uw=;
+	s=arc-20240116; t=1750525279; c=relaxed/simple;
+	bh=JXVaNDf6SKSSYzkWaqfbzmmsUuAu04juoMTbGtVTdPQ=;
 	h=Message-ID:Subject:From:To:Date:In-Reply-To:References:
-	 Content-Type:Mime-Version; b=KZDfnQAQidXdxrHdC+0tf202YL2xsnALEXV6+Wgg7DA29nyV2XxUyai/xHlstrzXm9npGVNO/4Vv55JPcbrKRdLIigCZUm9vMDuuMzheyqoqfOfk3QGoDY3CF3iVfTLrMA4p/wRssSHiX+aa2U3K3alceru+SWllBFa3uGzwd/Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com; spf=pass smtp.mailfrom=trentalancia.com; dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b=QOiK3z6C; arc=none smtp.client-ip=62.149.158.131
+	 Content-Type:Mime-Version; b=tpbs8PNjIR1ich9xAv2p4WOJL36pNsU9+mVvCDrCm+BIy54jOE7mqeyIOB2vjrvIjlBnkbZHWnaHS5b5AK2F0UmZGmuXewzVWX4l/5wUreOdc/4WH4FO3KJ1WDVbds62in/a/Vpau2m5n6dr2onELhYBaTJiB4JKO5VPiEyFcuE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com; spf=pass smtp.mailfrom=trentalancia.com; dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b=b7Mn62e1; arc=none smtp.client-ip=62.149.158.146
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=trentalancia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b="QOiK3z6C"
+	dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b="b7Mn62e1"
 Received: from [192.168.43.2] ([109.54.112.128])
 	by Aruba SMTP with ESMTPSA
-	id T1RmuboPYNbHHT1RmuIsOG; Sat, 21 Jun 2025 18:52:06 +0200
+	id T1XZu4sRS2QPuT1XZuDcN1; Sat, 21 Jun 2025 18:58:05 +0200
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
-	t=1750524726; bh=K07gyY0bzfx+8wEB67rNS3idUiEiox9c+fqZAFnr/Uw=;
+	t=1750525085; bh=JXVaNDf6SKSSYzkWaqfbzmmsUuAu04juoMTbGtVTdPQ=;
 	h=Subject:From:To:Date:Content-Type:Mime-Version;
-	b=QOiK3z6CEC7hqVRvptIBdPC1ck/L9SJ9mrvVptq9IkV6aWaba0skeu0FPDckX+hiF
-	 SFio8OzKqAD9S6mK+3Nlyoh9lBji1qYKQ60uVouPMDnHb8X4BTo+o8eHkDDFKsB5d7
-	 bDB7sRLz+cvYmRjY36PQuFFzC0E55BE7gXYkOHswByzSoSya1gRhyIE1azrkmMSgJ6
-	 t/xmG+GaKXpXatCO2XxK0K+XeGp904uMIs/WKnrisRwQhBm/KYec4vP84rGop++HHm
-	 0sWdMUMymWAt61iKNsNHB8FT0Muf1hjtNb3s6WtbggcCicnro1Ee399M3T0dSUu4LS
-	 scwkfSJ0x29VA==
-Message-ID: <1750524725.6235.9.camel@trentalancia.com>
-Subject: [PATCH 1/2] selinux: prevent potential comparison mismatches when
- computing the SID (was [PATCH v2] selinux: change security_compute_sid to
- return the ssid or tsid on match)
+	b=b7Mn62e1v9dRKoq+JyAS4rk+YD0EZ0+P8GAdZBfCA7bTsjJZtcnnVthU5N02HvDR0
+	 klAMAl9x8q+JUM43sApNyj3B3TuRAYXSXasHAe6nlI4EK51oTZ3eUqYQMA1yGQqjoN
+	 A/gyraY6CPFrZTmB/zIVdVZkI+KkEZIMUVsBJNgF6sSLdrSho81sGE0mXm/fqFmscs
+	 Gl1gVyi36UUCrdxGFshZhLDKs5YVi5XdfVcadatXgKTctfGPeiuB66Li0DnNjmEVCL
+	 CLTv0+QyJXbZpVJq3lxJrUUeuG8qjopMIe6QxoEO5o6caK92V3tZYkmUPyZ5OBdGRa
+	 X3fZUg0T6tJng==
+Message-ID: <1750525084.6235.11.camel@trentalancia.com>
+Subject: [PATCH 2/2] selinux: when computing the SID before policy load take
+ into account the socket class case (was [PATCH v2] selinux: change
+ security_compute_sid to return the ssid or tsid on match)
 From: Guido Trentalancia <guido@trentalancia.com>
 To: Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
-Date: Sat, 21 Jun 2025 18:52:05 +0200
+Date: Sat, 21 Jun 2025 18:58:04 +0200
 In-Reply-To: <CAHC9VhTFww3khVjjd1Tci6Qx+MnM+v9_u7vANWNqE0vwTW=Ftw@mail.gmail.com>
 References: <20250610194826.80606-2-stephen.smalley.work@gmail.com>
 	 <1749647531.6091.5.camel@trentalancia.com>
@@ -52,53 +52,33 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CMAE-Envelope: MS4xfHQZCYwLB3lAuUpU0sa2a9Cz5zS2GApa7fV6mJpQ9ZlVto7EcjuqDoNEZDEAROe+2ya1ZZKiLFQNneFhf+mOES0QVkQUQxBbgc+87X+LAl1/grh/axE7
- Fze3Y3j/TrFzq2+fCTvOwMiWpRjM8uPjEDTiaE/5iwOGOruDxirTg1EhKgSGXCo4aauFmv1M2hUetMlnzPMeWlZRCk5ib3qr4DjN6q7dv6SNtXj5utPp9Yyp
+X-CMAE-Envelope: MS4xfGOPgm30JdB5YSuG7N0qByOBfyNdP4TwBj/8Gri0TGcfgW9PMshBmKI2N8M8p//wR1YQrLF7pNd3iYLjFyP1YRE9c48kZq4geac9tmYe2bCVCSKXk5Nk
+ Ei/NbrwBGgWVWVN5HGinwgTNO36PVObyWCw9d1/Itha+8ccySX0ajo9ZQB5vKslavuSO+mw+dwcEtLhGssu+m0qEVpp7FXa45gW+6Ts1DRzVqHouucKo86B3
 
-Yes Paul, I found more time to look at it and it should be merged into
-stable.
-
-However, I thought the following two patches might help giving the
-whole updated security_compute_sid() function more stability.
-
-I have not fully tested them through the testsuite, so this is open to
-discussion and more extensive testing...
-
-The context computed internally by security_compute_sid()
-is now used to compute the output SID directly by context
-comparison (fix for ae254858ce07).
-
-In order to prevent potential comparison mismatches between
-the source and target contexts, the role that is computed
-internally is determined more accurately by applying the
-same criteria that is used for the user and for the type
-of the internally computed context in the case of sockets
-and process class.
+When computing the SID before the policy is loaded,
+take into account not only the case of the process
+class, but also the case of sockets classes.
 
 Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
 ---
- security/selinux/ss/services.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ security/selinux/ss/services.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
 --- a/security/selinux/ss/services.c	2025-06-21 14:50:05.168301991 +0200
-+++ b/security/selinux/ss/services.c	2025-06-21 14:53:21.196300795 +0200
-@@ -1826,10 +1826,13 @@ retry:
- 	} else if (cladatum && cladatum->default_role == DEFAULT_TARGET) {
- 		newcontext.role = tcontext->role;
- 	} else {
--		if ((tclass == policydb->process_class) || sock)
-+		if ((tclass == policydb->process_class) || sock) {
-+			/* Use the role of process. */
- 			newcontext.role = scontext->role;
--		else
--			newcontext.role = OBJECT_R_VAL;
-+		} else {
-+			/* Use the role of the related object. */
-+			newcontext.role = tcontext->role;
-+		}
- 	}
++++ b/security/selinux/ss/services.c	2025-06-21 15:12:52.656293645 +0200
+@@ -1750,6 +1750,12 @@ static int security_compute_sid(u32 ssid
+ 	bool sock;
  
- 	/* Set the type.
+ 	if (!selinux_initialized()) {
++		sock = security_is_socket_class(orig_tclass);
++		if (sock) {
++			*out_sid = ssid;
++			goto out;
++		}
++
+ 		switch (orig_tclass) {
+ 		case SECCLASS_PROCESS: /* kernel value */
+ 			*out_sid = ssid;
 
 On Wed, 18/06/2025 at 17.56 -0400, Paul Moore wrote:
 > On Wed, Jun 11, 2025 at 3:43 PM Guido Trentalancia
