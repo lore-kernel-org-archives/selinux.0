@@ -1,60 +1,60 @@
-Received: from sonic303-27.consmr.mail.ne1.yahoo.com (sonic303-27.consmr.mail.ne1.yahoo.com [66.163.188.153])
+Received: from sonic310-30.consmr.mail.ne1.yahoo.com (sonic310-30.consmr.mail.ne1.yahoo.com [66.163.186.211])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9435925743D
-	for <selinux@vger.kernel.org>; Sat, 21 Jun 2025 17:22:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.188.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 417082459D1
+	for <selinux@vger.kernel.org>; Sat, 21 Jun 2025 17:23:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.186.211
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750526544; cv=none; b=Bt0ajhImLYXdq1xuF2JFF5TajkvXyfFLjRhL57RZgKZVF/MOpJs+C2QgVI0XOfYl38uEs0R695wfNi4XXxvc6NOQx0j4/sQ3uwYvukt8RCAePH4qjaLE6UxdLhQR0Pu6HsFX20+CurHIOLiq+5FuQOV9+MCE19Vqjo43Hf3wlRw=
+	t=1750526640; cv=none; b=nfu5QkG/cdbi2tLCTAp+HDdXttDk//l0FthePJBww164QyTOel8AJMcCn5Yp2pzFPW5wBcrVPeAoenY1zWNFbqkq65vO/HSrPglw6pJgS9AOk+Ip2GzolAd2fVJkb1cisUiSo1dNWnidyO0hX6l60HLg8yziQCdD/uv8JF/dEWc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750526544; c=relaxed/simple;
-	bh=cYB7wVZ7Rhr0i64ao9TJQTDSRAlaZ0hBe6NBzmfr/nQ=;
+	s=arc-20240116; t=1750526640; c=relaxed/simple;
+	bh=WCex6USUjchIBX3agUhZ21r2drcQgrb/zwis2EoHBsE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CnAo5iC7HfCwb534F99QJz8xnvw4qDYSRqV7eDq9VHzWfA9bgglU+MdB/Ki61Es7jb9MHCa1EATrwPpvwP6L710ADQjMzUd/e8KI8GM88BXiB29bKWEKMdnNUKwbE75iF9cBDO3svovd7to9GzmQL4yqiNF8M2E7/+8P8OFUbWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=LmAdzeyt; arc=none smtp.client-ip=66.163.188.153
+	 MIME-Version; b=PapBojKJ1nsWXM9QMzfZibaDSi2/XEryVjClwRxreNAQL95geVYI9KTpStF5pz03KYnKJ7D2VIN5GHDC1T3liU+Btj2++aLWsCieJqfvBpPEkhDPYCtSpSyBbWsYO8cGM3ZBObzSRT0i9denl32fN6RwLdVEbTBvbfa/iVfRYRg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=BavUeyvv; arc=none smtp.client-ip=66.163.186.211
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="LmAdzeyt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526540; bh=qmscUqqpqbD9PhRRSa/P0IgR16WK+5vFh/M6mGzBnp8=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=LmAdzeytP9Bd0uV6zeBb3HwDT+dPpEM/vrX0uLgSzbuuK+3X1v/YX+cWV0RGkBIv//HB0MRLJ+NRgZIC9G1GamWqQQz3GuYhMiMpj137uLLVXUq1rqf5eWxW/80QNaG3Vw8nccxfBzdjzbXUzZAJcsW6oEgAMUZ8JfcA7RekA9npULbiRUMM/WC87MIZ53o+p7Lozy3R73G+t955PdDMgNdB4T4UNqE+y+7JvgTDAPdOuwj3Ddt1vLxy/Xk+v4954IOiq59j1o+77VI9oFgj1K5bDDXy11zTQXotI28RGU0LPNgi3QmJxZNOWEophEWcNoXxduoEw1ZTaXqJ7ymBcw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526540; bh=EY/jM/UtR3Ra1RVoatia/ADf/xTXtWeufeSjTuTRVs0=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=OeUmEfcE5ZFDo50qEr4buITUXXB9SNwTmLpX3M7Qv84+agWN0cqZKB/qD4GAFSpweO1BKXnDe166bAyS//SBVaPvwXG17w8PvGN3x5Z3djp1zLycKQqf2ALZq9PT7gOF25phob+7WrzAZkCrVDJ/qRi4lreExBvtSbGtuifr3NjhTAC90KtXnI8h9skfGuOXrgOZKzle3QxAImxU1gZ6xnw4vRwaI6DfXwSBOOafnp6Ww00ysd7w1akx4+C5/tV+ayCiKZcoGWWaqwOK6JqGruRXQJ0ixnsYU6M7E5v6eNfj4qMQoZ4tco36HatReyktN6CW19VDQvM1IiPDHunH3Q==
-X-YMail-OSG: b8yVeyQVM1kG.LqQKsBrA9bQMJgZq_l3mq85RbcsACjdg2jXOg1QnPQv2A4Tf1j
- 4BWcXA3b2KzFKf_et10T2akybc.RmhoJxKtf78j2_Tsx0eFHV73K4b7tDURJRPX8UqeY3nHCquzN
- GNZQsCGfjwjWxt3tOAQLiBUBe352QNRz6BDgDoWkP7fc4nYZI_F_nXbfwr0YUFaZMheFNffpCGeC
- tC2E.JZkNY7y.gqQqkDWsIvPnnri7EB.bDKxTfBo4M8MzYhYB2ugxXzoZcUkgemqvr5qS8DJIUuu
- qQoNEsgU3qBbqMnea9qa8QFAiAAeyz6kqt63QvPR2EdeoNyL9wu4MipzH3ehtHgV4Xvspzwqxyad
- NJ3pehr51WvLwScY0tfgDkPrdBoVn0GE6JZLNJsXNh9znOFnMomf9snmZzTvqj7aUW8xf_n5ahW7
- bKedsMNRp_H_08jiXC4mv_bwZ4T6n4jvtuWjQXj46slZiZcFuxPYC8FZ_rdaKBkMfVwyZM15.PYv
- RjRQE5IA4nLyf4B_BhW51jrYKLEqckStWUH9qsezqj1RlfD3gyPVntp6KTpneThL..Ok2kftfr3Q
- ucBS31vfiizcFakMqfX5w9V5kxV.ZgW_H_uIqlZUWn89.1xqMwj1ReBjvLZpGhpG7Zx96ylHqDL7
- VQpVoqoSnUNRisPLS99zdmBGAHmTYlGJlHDEHGFXjAMR7gTLylA_1b_QwulYEXPQ2vXHvrcuuvY3
- RR7hZB3diFxp3bCm2o896Ono5Th5nxp.xy0AGerLx0JgNbBaCJm2GUtq7JWvGRDOT.rWeFCala.O
- B5mwlTd2Hg3w1.sO1l_71G3HmV_ylH8bRlJaF4VrTkUl7pgeUs6.jyH_PnElqMPX75h4_yEgB0_V
- rvA19y0RlLz64t2gJF9TdKCBf61wNXYFHTUZtxdXllndVcIq2N3Mus4fttH3PgR3oiU7N9h6Am7k
- AYUY8rkIR.icWZejcr6iYOc1G4mMUkmRBDwsYcD4_YT_UaNebT4npboPeIZQsAbi4w2UkMYEWPxb
- gnEGYU.qsPFg91ka5nc5g8h..iKZEknt8fbrVcQv31SmESUhDqmktL5XhGdeWu59lWT9ugucYm5j
- FqAXS8p6tpDlFuflkPmyhX5LDbpwDkcRnzWjDZZgHnSamH2XPx97Dnyfaff9DBmFR0WvjUTjzu0f
- qbsB4D9dqvW8P3ojF.ztwMgza.959_Fq6FRx9umE80mgx9tqxmOze6tnhtXKeGnH8JRPk7rPUisr
- _7eNyOmsxjJ3yLYFplluWQborPK26if28sxKrKyrRP3jAUcKV6vbxRos1JW8NbPk30o.fb_phrwR
- 9y4OE13wcshyg9pT05BFXPSCur.TT_5blekphrpCc3pNSuLTYhmYt080b_TyL9_Dla6Bl_4rM3tp
- PVEqKYvjnXap5veyxelH7KNw8oPFQqkwc_9Q7HdUhfFD_3t3wIlt7hnualMPQ5UiXA7YOD3HQdD5
- XzQBYQUGZE7IKDH3iEJxk53OohM6MziJWdGIE_xKpISyy5c8HHK594tr7zGlpmFWNq2Ut4kmBZCW
- 59VPKKNoRwpwEN7gIHMa_wtVr0q0utuNSyVlTlZvnMnBrvx71RgN8abxN5pX1Nlz0UwyXWQdzQsi
- jcpJkoKPn2dUfbfxab8.WcAnO8J50V9Rar9HLaf.evgR2p2eIUKaLN4LxoQ_Ko8T5hUmess5hL9J
- CwVBCzR.__yZGrhCvwv_IVWZZ0DJJr8DVxsFdtBdAulxIz96l5aXaTXcDD3FK4YBVylcD5_XqLTe
- J6blzlutuOUgbPfUpVM_SFxZZu6hQma5oYaOPqwl2uX22D9jgYV9p1Ap2cG1XCmtikB9dDfy_4_3
- ls8hW9kxoFJ8n1GaMzeCwdg7J8f7rTc6LrAHzYUj1SkszcdXuEip9liyx58XMHncKmyWv4VnFQOx
- xh0lMiVjsJvgNh9L6EmKJP41l16XeAdG40Mi6suJjE8ZOaKgiIE1rlWTFPyBmXKdUEn72WJwu0no
- u_RnW1pn68NRu6L.oUwirzWDk0UyzGlzf_IIEVf.taT5ZZtfV3IdZ3ZGLdYdLkgQvPBGaWu4Q8uD
- x8PMkyuzOqGzoc0Wf1KkqRbthPqhXt5BvbxCdYT26hMzZ1GUFABE2PRNwQHrvKoNe3P72H7d7r7t
- JdZ5SKEEWuEoZ1dHYJmagTTvcfQ8rBXdEYKZChHRv8YnOPSTZ4_Rl6.GId6x_aKHMZpRjuJIXY1w
- uf0KY.p.7uwHvhirg1_wHLVx98vsvHRWvq6fKRn2Ttps_y4vWRuZY41qgKJE33KGAdV1T0SGs8.t
- nl_.lisPHb_Xa7dkUMOPtASaJtMMHzyhBJuzZWx4-
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="BavUeyvv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526637; bh=/X9aAotKwhvZSj8lCSMa1mezz/JdY5QwcNE+kbuMXz0=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=BavUeyvvKetASYW+Ks78y/wpBjdMesLCEdxtpnbHcW/8crwEV7+GfUSrwgFOwuGuBQExoYsSK3dNt5oWzMRkFwiG1p7PGF9GvpIbAjRNWA8zl/OpCjo7uv705WN+ULx3+jA8A1HqmDT5CefazI0kkrRysDI84wSDq2HGiIqBz0bxA1jm/arQkRpps/kn2bL1c3NH2z1u/nyOhpzgwZUug8CDPmNJPncKIB1YXJ83p9tU8jO+TeVFhK6idSCtQ9zpMxw3/0qJjhams4KwSC611BCTQP/uv9v+Jyki4dsJLsdthKm4SBd4HTZDpMJ1170PTRD3eh7N0YLGIGDEeV6Klg==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526637; bh=gsUloo5tYjuY1bMON3q4xynOB2TMU483/jAQmtCEmhn=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=HszgQfES8M4keViwjQrf3mOiCZuDFey/XH+XH9WcfKQu4Sa3j4EEHV2k4ObgW/zulaqZKrb1q70J9AG4KUnEVcDZH5K2l6XS3TSCBGHKoyRDzoq6lpkw9+3FdsFKEFtkhIxEzb6sm9T7eHVoc/c10TjiuhmdrGuEjz33G37BzqwKlYl/wix725rnsvPnfBR6iG/fDhQn6zPK5aBjwlRqRSGUFolFB85P0/KQ2TU3Qc+vNVugG2M5eNF6ilC2YwpJPMhkF5Q9dZ8l0KjLpJfNc1bmBBFzI9lxeRXUfzky00HtT2SPB71foqMBzoTaZ450LTGnOBigaqwQChd4QdGnUA==
+X-YMail-OSG: s43fKssVM1mSEWJVNIFZDWhrYBYzWkiC_5fhmz_1pBxKCNbsh.tehhqnkGuwEN.
+ u0G5kBoVGcCZGi7dfptupHdElrlWhQVogvgXLOyhNB2CUDCRSKNLAtKswhXvbX4LNU0JgGU0vTZz
+ CmvWqtcgU6NIYvtD4LLB7KBgbVDAthiOz.dVs4dtUc.FGFgo4RIXOciu2pw7Gv6Cr_OxlhrgNkF5
+ 345K_ZH_a7qY1HuCuFMv4Jas5RM5HU10qCOnGr1fCuGMcB.wlHC26L0tbwG.lZS43rmEmIjwblnw
+ aeE.paRS_PCAdECMwJG0uFAvp3avJ.SAU9ps_DiN83yQMdrYwaOPleKEEQXe.huuKjkQzDtUXcyS
+ CTYKPetz4Ti1o487ctV1802w2tVdlHithDI1w8IbXl_.3gPlaH1hqvpFvrbWA58oALpw5SLb3Usw
+ d_IwnarLD6NjncSf7Gwgv5RlPwkj94SC.i5DXorsy.YDTEC7HxFBpJm7mOmMtFLS9Hm74lzPK9vA
+ rYi2CE4AoNerqi7EriHG62VqvgpSHaNtrcBU8Ux4ZRzwyGDe.pJh2nub5Fz9BJt9GuJjNJQqH8EQ
+ E4ICvcRLsjzCy1YDoTRCZmZrPSM.vlp0NHlyT2aMGaZq6TCkH3PaD2KJy_7Sbm_2fHcXeTShc88v
+ 1P.0dju_F2QbEhmXg7mKpI4X7J7VmpGH_bSsJDKxoyFgQvQj5G_JbJdl_nYXynoRv0qWSdFTIUsy
+ ZkgkZwrcn152yLXaeX1HD_U6XzgZQKPTUNL8ADeiqQIxtpwqUcoMJIsQa7HSCX923uiqUM59e28R
+ F9MnYchERY1tzF93ty4Wh3.0SMkBHXVrxQH6BvVWBgBkW3q0JfWEORh8YSj.n131Ble7GM1F6QWP
+ yI0WiPxvEXbR7Df8sldMQ6X6s3_n.3.9Vb5hr1jrVc0HESfF5XWey02ITNdKZS0wSme0V4i6.zTt
+ nOQjnJTD6n_uPY1Edw54gOFhqjUVypKLiINrE7nvI5hSvBTKBFuaGv6l9AHTohxXd8IprHFVrr..
+ qepqS1BuGShJf9.gkzG_nWk7ZueJ0SOFEp50ZUqLKLtnnZ7X1.dWQ22c9CJ5cBkcn9BCitNAbRYV
+ VQMvEh0eeV6OJrEzc0hFG6z8k6cdAHe1upWHyHjy_XqFxOfwG4VuK5_rRiim1vqiWl1JqVKxKXL6
+ t4pAzWgnQCVSsjv6DK7XbuEZo5KK.MIuagPr0Ad5N9EP5NC30a68_OtFjXgza8J1EJM3VlXJ_g4A
+ a5ZlNcuS82m36b9wdDcnwXRNyun2uN.nrSICBJgWrOxgZ.Heiv7vg3Hm8opCRiB3JcWmekcHhqSh
+ EcpsjCfVM7Uq5mPVIbT7FzQ9okabxA665R3jy6CJH8y4OUNfniyq4HwSaS0RimMDol_5.VmbgSs0
+ T5XybRetKqgE7UHhaWOx34tdYZh45jfpX3F.ytCH93ZqQ0HnGqa94vEkn8wDQKdUmlUcQ.m.2g2p
+ TTgtzbCKEnKMTikn0_a5VXI.Thm4uvaqMkehSFfp2gL3iq9jPs1ta4mWiex_GPWhgKnZFwV4SPJ5
+ IzTOCBm11loI2pueKvQLLgp0biw3Q8CB1CdvtodNy__zhOdCXdxbyk3BEItiU9hxQIQJtp4hXSqe
+ 5719BO982auhtaQcg3zP9KmU8numQw6MjNnx_37hokgcFP2FaAswIXjxVUjKpRaPliQYEyhurpv5
+ MJyMPaKM_eHx29LO7g8h5c8Cjr5MO5Du5IBRd6897NE9EwfC1q0K64ZuH9IZL2fHTE6H6JNPz2II
+ SjFrwQkZG_BYj38UH9CEtbk3AdPB25bSaLqtk40A_x96hjIaS9pn2E62BToaUhpn5KO9otjeuyNI
+ 7ltDnIgc7PdFxmwuUpkTTpJ14sknQTa5HUEFKhSdr4MaXDoZdvZcTg3HtAcKK0RJ4QgpKfB.nC_.
+ lrc9gYY3d.gmZVWavjejZiTGETXUIez1njZfdjUqOdv3M74yt4VtYIvHfpcs2GTCIKRLsbFhZ3nS
+ .pT4pAQajS25ro_SCVTbIQx66acAXSZbnDs7WvBa1tmLYccz92ykviHauZdjGaXJwDZ.OhIAj5OC
+ zm4nscSL0kBiW_5V4snD3Q_4A..ctsYcfHGAPjhImMzgQVSLiCfTlE68Ymili4ob9apuisvX5OQC
+ gYjoV1.3sr5Umf1nVW2z3cVFjlFXuW4xmjPvRJkffuyxe22Rggn_thfyBeLo76BsDtr75gvDg_HK
+ dwcwAYyTw_FrpAtWsuwxVj1w9a5VF9_5LqtgbHWnCz7._adG69rM3j0tOo.0YRNHWvQF8VjfPiza
+ iUuTZ1XxiDOG4nn6IRIuJZVT_3.VDYgi78GtJfg--
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: c05b0629-db5a-49bb-a3d9-feda2a22aef3
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Sat, 21 Jun 2025 17:22:20 +0000
-Received: by hermes--production-gq1-74d64bb7d7-dp9cd (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID be755b04d481595739dfcf42be1b4c68;
-          Sat, 21 Jun 2025 17:22:17 +0000 (UTC)
+X-Sonic-ID: f3d2ab60-019c-4839-b765-23bd0792f2de
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Sat, 21 Jun 2025 17:23:57 +0000
+Received: by hermes--production-gq1-74d64bb7d7-dp9cd (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 5256f3ef263223dbc5f852ba156c094e;
+          Sat, 21 Jun 2025 17:23:51 +0000 (UTC)
 From: Casey Schaufler <casey@schaufler-ca.com>
 To: casey@schaufler-ca.com,
 	paul@paul-moore.com,
@@ -69,9 +69,9 @@ Cc: jmorris@namei.org,
 	stephen.smalley.work@gmail.com,
 	linux-kernel@vger.kernel.org,
 	selinux@vger.kernel.org
-Subject: [RFC PATCH 11/15] LSM: Infrastructure management of the mnt_opts security blob
-Date: Sat, 21 Jun 2025 10:18:46 -0700
-Message-ID: <20250621171851.5869-12-casey@schaufler-ca.com>
+Subject: [RFC PATCH 12/15] LSM: Allow reservation of netlabel
+Date: Sat, 21 Jun 2025 10:18:47 -0700
+Message-ID: <20250621171851.5869-13-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.47.0
 In-Reply-To: <20250621171851.5869-1-casey@schaufler-ca.com>
 References: <20250621171851.5869-1-casey@schaufler-ca.com>
@@ -83,362 +83,348 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Move management of the mnt_opts->security blob out of the
-individual security modules and into the security
-infrastructure. Blobs are still allocated within the modules
-as they are only required when mount options are present.
-The modules tell the infrastructure how much space is required,
-and the space is allocated if needed. Modules can no longer
-count on the presence of a blob implying that mount options
-specific to that module are present, so flags are added
-to the module specific blobs to indicate that this module
-has options.
+Allow LSMs to request exclusive access to the netlabel facility.
+Provide mechanism for LSMs to determine if they have access to
+netlabel. Update the current users of netlabel, SELinux and Smack,
+to use and respect the exclusive use of netlabel.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/security.c        | 14 ++++-----
- security/selinux/hooks.c   | 58 +++++++++++++++++++++++-------------
- security/smack/smack_lsm.c | 61 ++++++++++++++++++++++++++------------
- 3 files changed, 85 insertions(+), 48 deletions(-)
+ include/linux/lsm_hooks.h           |  1 +
+ security/lsm_init.c                 |  6 +++++
+ security/selinux/hooks.c            |  7 +++---
+ security/selinux/include/netlabel.h |  5 ++++
+ security/selinux/netlabel.c         |  4 ++--
+ security/smack/smack.h              |  5 ++++
+ security/smack/smack_lsm.c          | 36 +++++++++++++++++++++--------
+ security/smack/smackfs.c            | 20 +++++++++++++++-
+ 8 files changed, 69 insertions(+), 15 deletions(-)
 
-diff --git a/security/security.c b/security/security.c
-index 98a80078b2df..dd167a872248 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -840,17 +840,14 @@ int security_fs_context_parse_param(struct fs_context *fc,
- 				    struct fs_parameter *param)
- {
- 	struct lsm_static_call *scall;
--	int trc;
--	int rc = -ENOPARAM;
-+	int rc;
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 38f89762c0df..06e840fd4b63 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -124,6 +124,7 @@ struct lsm_blob_sizes {
+ 	unsigned int lbs_bdev;
+ 	unsigned int lbs_mnt_opts;
+ 	bool lbs_secmark; /* expressed desire for secmark use */
++	bool lbs_netlabel; /* expressed desire for netlabel use */
+ };
  
- 	lsm_for_each_hook(scall, fs_context_parse_param) {
--		trc = scall->hl->hook.fs_context_parse_param(fc, param);
--		if (trc == 0)
--			rc = 0;
--		else if (trc != -ENOPARAM)
--			return trc;
-+		rc = scall->hl->hook.fs_context_parse_param(fc, param);
-+		if (rc != -ENOPARAM)
-+			return rc;
+ /*
+diff --git a/security/lsm_init.c b/security/lsm_init.c
+index d27a457627ed..784f8296966f 100644
+--- a/security/lsm_init.c
++++ b/security/lsm_init.c
+@@ -320,6 +320,12 @@ static void __init lsm_prep_single(struct lsm_info *lsm)
+ 		else
+ 			blob_sizes.lbs_secmark = true;
  	}
--	return rc;
-+	return -ENOPARAM;
++	if (blobs->lbs_netlabel) {
++		if (blob_sizes.lbs_netlabel)
++			blobs->lbs_netlabel = false;
++		else
++			blob_sizes.lbs_netlabel = true;
++	}
  }
  
  /**
-@@ -924,6 +921,7 @@ void security_free_mnt_opts(void **mnt_opts)
- 	if (!*mnt_opts)
- 		return;
- 	call_void_hook(sb_free_mnt_opts, *mnt_opts);
-+	kfree(*mnt_opts);
- 	*mnt_opts = NULL;
- }
- EXPORT_SYMBOL(security_free_mnt_opts);
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 8e0671920e3a..636a38449253 100644
+index 636a38449253..9578b63bbd2a 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -379,15 +379,28 @@ static void inode_free_security(struct inode *inode)
+@@ -183,7 +183,7 @@ static int selinux_secmark_enabled(void)
+ static int selinux_peerlbl_enabled(void)
+ {
+ 	return (selinux_policycap_alwaysnetwork() ||
+-		netlbl_enabled() || selinux_xfrm_enabled());
++		selinux_netlbl_enabled() || selinux_xfrm_enabled());
  }
  
- struct selinux_mnt_opts {
-+	bool initialized;
- 	u32 fscontext_sid;
- 	u32 context_sid;
- 	u32 rootcontext_sid;
- 	u32 defcontext_sid;
+ static int selinux_netcache_avc_callback(u32 event)
+@@ -5860,7 +5860,7 @@ static unsigned int selinux_ip_forward(void *priv, struct sk_buff *skb,
+ 				 SECCLASS_PACKET, PACKET__FORWARD_IN, &ad))
+ 			return NF_DROP;
+ 
+-	if (netlbl_enabled())
++	if (selinux_netlbl_enabled())
+ 		/* we do this in the FORWARD path and not the POST_ROUTING
+ 		 * path because we want to make sure we apply the necessary
+ 		 * labeling before IPsec is applied so we can leverage AH
+@@ -5877,7 +5877,7 @@ static unsigned int selinux_ip_output(void *priv, struct sk_buff *skb,
+ 	struct sock *sk;
+ 	u32 sid;
+ 
+-	if (!netlbl_enabled())
++	if (!selinux_netlbl_enabled())
+ 		return NF_ACCEPT;
+ 
+ 	/* we do this in the LOCAL_OUT path and not the POST_ROUTING path
+@@ -7183,6 +7183,7 @@ struct lsm_blob_sizes selinux_blob_sizes __ro_after_init = {
+ 	.lbs_ib = sizeof(struct ib_security_struct),
+ 	.lbs_mnt_opts = sizeof(struct selinux_mnt_opts),
+ 	.lbs_secmark = true,
++	.lbs_netlabel = true,
  };
  
-+static inline struct selinux_mnt_opts *selinux_mnt_opts(void *mnt_opts)
+ #ifdef CONFIG_PERF_EVENTS
+diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
+index 5731c0dcd3e8..5be82aa8e7ca 100644
+--- a/security/selinux/include/netlabel.h
++++ b/security/selinux/include/netlabel.h
+@@ -134,4 +134,9 @@ static inline int selinux_netlbl_socket_connect_locked(struct sock *sk,
+ }
+ #endif /* CONFIG_NETLABEL */
+ 
++static inline bool selinux_netlbl_enabled(void)
 +{
-+	if (mnt_opts)
-+		return mnt_opts + selinux_blob_sizes.lbs_mnt_opts;
-+	return NULL;
++	return selinux_blob_sizes.lbs_netlabel && netlbl_enabled();
 +}
 +
- static void selinux_free_mnt_opts(void *mnt_opts)
- {
--	kfree(mnt_opts);
-+	struct selinux_mnt_opts *opts;
-+
-+	if (mnt_opts) {
-+		opts = selinux_mnt_opts(mnt_opts);
-+		opts->initialized = false;
-+	}
- }
- 
- enum {
-@@ -642,7 +655,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	const struct cred *cred = current_cred();
- 	struct superblock_security_struct *sbsec = selinux_superblock(sb);
- 	struct dentry *root = sb->s_root;
--	struct selinux_mnt_opts *opts = mnt_opts;
-+	struct selinux_mnt_opts *opts = selinux_mnt_opts(mnt_opts);
- 	struct inode_security_struct *root_isec;
- 	u32 fscontext_sid = 0, context_sid = 0, rootcontext_sid = 0;
- 	u32 defcontext_sid = 0;
-@@ -658,7 +671,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	mutex_lock(&sbsec->lock);
- 
- 	if (!selinux_initialized()) {
--		if (!opts) {
-+		if (!opts || !opts->initialized) {
- 			/* Defer initialization until selinux_complete_init,
- 			   after the initial policy is loaded and the security
- 			   server is ready to handle calls. */
-@@ -696,7 +709,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 	 * also check if someone is trying to mount the same sb more
- 	 * than once with different security options.
- 	 */
--	if (opts) {
-+	if (opts && opts->initialized) {
- 		if (opts->fscontext_sid) {
- 			fscontext_sid = opts->fscontext_sid;
- 			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid,
-@@ -1005,7 +1018,7 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
-  */
- static int selinux_add_opt(int token, const char *s, void **mnt_opts)
- {
--	struct selinux_mnt_opts *opts = *mnt_opts;
-+	struct selinux_mnt_opts *opts;
- 	u32 *dst_sid;
+ #endif
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index d51dfe892312..a6c58b8e7bfd 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -199,7 +199,7 @@ int selinux_netlbl_skbuff_getsid(struct sk_buff *skb,
  	int rc;
+ 	struct netlbl_lsm_secattr secattr;
  
-@@ -1020,12 +1033,12 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
- 		return -EINVAL;
- 	}
+-	if (!netlbl_enabled()) {
++	if (!selinux_netlbl_enabled()) {
+ 		*type = NETLBL_NLTYPE_NONE;
+ 		*sid = SECSID_NULL;
+ 		return 0;
+@@ -444,7 +444,7 @@ int selinux_netlbl_sock_rcv_skb(struct sk_security_struct *sksec,
+ 	u32 perm;
+ 	struct netlbl_lsm_secattr secattr;
  
--	if (!opts) {
--		opts = kzalloc(sizeof(*opts), GFP_KERNEL);
--		if (!opts)
-+	if (!*mnt_opts) {
-+		*mnt_opts = lsm_mnt_opts_alloc(GFP_KERNEL);
-+		if (!*mnt_opts)
- 			return -ENOMEM;
--		*mnt_opts = opts;
- 	}
-+	opts = selinux_mnt_opts(*mnt_opts);
+-	if (!netlbl_enabled())
++	if (!selinux_netlbl_enabled())
+ 		return 0;
  
- 	switch (token) {
- 	case Opt_context:
-@@ -1052,6 +1065,7 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
- 		WARN_ON(1);
- 		return -EINVAL;
- 	}
-+	opts->initialized = true;
- 	rc = security_context_str_to_sid(s, dst_sid, GFP_KERNEL);
- 	if (rc)
- 		pr_warn("SELinux: security_context_str_to_sid (%s) failed with errno=%d\n",
-@@ -2651,10 +2665,7 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
- 	return 0;
- 
- free_opt:
--	if (*mnt_opts) {
--		selinux_free_mnt_opts(*mnt_opts);
--		*mnt_opts = NULL;
--	}
-+	selinux_free_mnt_opts(*mnt_opts);
- 	return rc;
+ 	netlbl_secattr_init(&secattr);
+diff --git a/security/smack/smack.h b/security/smack/smack.h
+index 2f7b8d79b69f..de707d481e39 100644
+--- a/security/smack/smack.h
++++ b/security/smack/smack.h
+@@ -380,6 +380,11 @@ static inline struct smack_known **smack_key(const struct key *key)
  }
+ #endif /* CONFIG_KEYS */
  
-@@ -2705,13 +2716,13 @@ static int selinux_sb_mnt_opts_compat(struct super_block *sb, void *mnt_opts)
- 
- static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
- {
--	struct selinux_mnt_opts *opts = mnt_opts;
-+	struct selinux_mnt_opts *opts = selinux_mnt_opts(mnt_opts);
- 	struct superblock_security_struct *sbsec = selinux_superblock(sb);
- 
- 	if (!(sbsec->flags & SE_SBINITIALIZED))
- 		return 0;
- 
--	if (!opts)
-+	if (!opts || !opts->initialized)
- 		return 0;
- 
- 	if (opts->fscontext_sid) {
-@@ -2809,9 +2820,13 @@ static int selinux_fs_context_submount(struct fs_context *fc,
- 	if (!(sbsec->flags & (FSCONTEXT_MNT|CONTEXT_MNT|DEFCONTEXT_MNT)))
- 		return 0;
- 
--	opts = lsm_mnt_opts_alloc(GFP_KERNEL);
--	if (!opts)
--		return -ENOMEM;
-+	if (!fc->security) {
-+		fc->security = lsm_mnt_opts_alloc(GFP_KERNEL);
-+		if (!fc->security)
-+			return -ENOMEM;
-+	}
-+	opts = selinux_mnt_opts(fc->security);
-+	opts->initialized = true;
- 
- 	if (sbsec->flags & FSCONTEXT_MNT)
- 		opts->fscontext_sid = sbsec->sid;
-@@ -2819,14 +2834,14 @@ static int selinux_fs_context_submount(struct fs_context *fc,
- 		opts->context_sid = sbsec->mntpoint_sid;
- 	if (sbsec->flags & DEFCONTEXT_MNT)
- 		opts->defcontext_sid = sbsec->def_sid;
--	fc->security = opts;
- 	return 0;
- }
- 
- static int selinux_fs_context_dup(struct fs_context *fc,
- 				  struct fs_context *src_fc)
- {
--	const struct selinux_mnt_opts *src = src_fc->security;
-+	const struct selinux_mnt_opts *src = selinux_mnt_opts(src_fc->security);
-+	struct selinux_mnt_opts *dst;
- 
- 	if (!src)
- 		return 0;
-@@ -2835,7 +2850,8 @@ static int selinux_fs_context_dup(struct fs_context *fc,
- 	if (!fc->security)
- 		return -ENOMEM;
- 
--	memcpy(fc->security, src, sizeof(*src));
-+	dst = selinux_mnt_opts(fc->security);
-+	memcpy(dst, src, sizeof(*src));
- 	return 0;
- }
- 
++static inline bool smack_netlabel(void)
++{
++	return smack_blob_sizes.lbs_netlabel;
++}
++
+ /*
+  * Is the directory transmuting?
+  */
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 0cc24b57bb52..ced66130fb7d 100644
+index ced66130fb7d..650f2700160f 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -544,6 +544,7 @@ static int smack_sb_alloc_security(struct super_block *sb)
- }
+@@ -2598,6 +2598,9 @@ static int smack_netlbl_add(struct sock *sk)
+ 	struct smack_known *skp = ssp->smk_out;
+ 	int rc;
  
- struct smack_mnt_opts {
-+	bool initialized;
- 	const char *fsdefault;
- 	const char *fsfloor;
- 	const char *fshat;
-@@ -551,24 +552,37 @@ struct smack_mnt_opts {
- 	const char *fstransmute;
++	if (!smack_netlabel())
++		return 0;
++
+ 	local_bh_disable();
+ 	bh_lock_sock_nested(sk);
+ 
+@@ -2629,6 +2632,9 @@ static void smack_netlbl_delete(struct sock *sk)
+ {
+ 	struct socket_smack *ssp = smack_sock(sk);
+ 
++	if (!smack_netlabel())
++		return;
++
+ 	/*
+ 	 * Take the label off the socket if one is set.
+ 	 */
+@@ -2679,7 +2685,7 @@ static int smk_ipv4_check(struct sock *sk, struct sockaddr_in *sap)
+ 		/*
+ 		 * Clear the socket netlabel if it's set.
+ 		 */
+-		if (!rc)
++		if (!rc && smack_netlabel())
+ 			smack_netlbl_delete(sk);
+ 	}
+ 	rcu_read_unlock();
+@@ -4005,6 +4011,8 @@ static struct smack_known *smack_from_secattr(struct netlbl_lsm_secattr *sap,
+ 	int acat;
+ 	int kcat;
+ 
++	if (!smack_netlabel())
++		return smack_net_ambient;
+ 	/*
+ 	 * Netlabel found it in the cache.
+ 	 */
+@@ -4155,6 +4163,9 @@ static struct smack_known *smack_from_netlbl(const struct sock *sk, u16 family,
+ 	struct socket_smack *ssp = NULL;
+ 	struct smack_known *skp = NULL;
+ 
++	if (!smack_netlabel())
++		return NULL;
++
+ 	netlbl_secattr_init(&secattr);
+ 
+ 	if (sk)
+@@ -4225,7 +4236,7 @@ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 		rc = smk_access(skp, ssp->smk_in, MAY_WRITE, &ad);
+ 		rc = smk_bu_note("IPv4 delivery", skp, ssp->smk_in,
+ 					MAY_WRITE, rc);
+-		if (rc != 0)
++		if (rc != 0 && smack_netlabel())
+ 			netlbl_skbuff_err(skb, family, rc, 0);
+ 		break;
+ #if IS_ENABLED(CONFIG_IPV6)
+@@ -4413,7 +4424,7 @@ static int smack_inet_conn_request(const struct sock *sk, struct sk_buff *skb,
+ 	if (skp == NULL) {
+ 		skp = smack_from_netlbl(sk, family, skb);
+ 		if (skp == NULL)
+-			skp = &smack_known_huh;
++			skp = smack_net_ambient;
+ 	}
+ 
+ #ifdef CONFIG_AUDIT
+@@ -4434,8 +4445,11 @@ static int smack_inet_conn_request(const struct sock *sk, struct sk_buff *skb,
+ 	/*
+ 	 * Save the peer's label in the request_sock so we can later setup
+ 	 * smk_packet in the child socket so that SO_PEERCRED can report it.
++	 *
++	 * Only do this if Smack is using netlabel.
+ 	 */
+-	req->peer_secid = skp->smk_secid;
++	if (smack_netlabel())
++		req->peer_secid = skp->smk_secid;
+ 
+ 	/*
+ 	 * We need to decide if we want to label the incoming connection here
+@@ -4448,10 +4462,13 @@ static int smack_inet_conn_request(const struct sock *sk, struct sk_buff *skb,
+ 	hskp = smack_ipv4host_label(&addr);
+ 	rcu_read_unlock();
+ 
+-	if (hskp == NULL)
+-		rc = netlbl_req_setattr(req, &ssp->smk_out->smk_netlabel);
+-	else
+-		netlbl_req_delattr(req);
++	if (smack_netlabel()) {
++		if (hskp == NULL)
++			rc = netlbl_req_setattr(req,
++						&ssp->smk_out->smk_netlabel);
++		else
++			netlbl_req_delattr(req);
++	}
+ 
+ 	return rc;
+ }
+@@ -4469,7 +4486,7 @@ static void smack_inet_csk_clone(struct sock *sk,
+ 	struct socket_smack *ssp = smack_sock(sk);
+ 	struct smack_known *skp;
+ 
+-	if (req->peer_secid != 0) {
++	if (smack_netlabel() && req->peer_secid != 0) {
+ 		skp = smack_from_secid(req->peer_secid);
+ 		ssp->smk_packet = skp;
+ 	} else
+@@ -5055,6 +5072,7 @@ struct lsm_blob_sizes smack_blob_sizes __ro_after_init = {
+ 	.lbs_xattr_count = SMACK_INODE_INIT_XATTRS,
+ 	.lbs_mnt_opts = sizeof(struct smack_mnt_opts),
+ 	.lbs_secmark = true,
++	.lbs_netlabel = true,
  };
  
-+static inline struct smack_mnt_opts *smack_mnt_opts(void *mnt_opts)
-+{
-+	if (mnt_opts)
-+		return mnt_opts + smack_blob_sizes.lbs_mnt_opts;
-+	return NULL;
-+}
-+
- static void smack_free_mnt_opts(void *mnt_opts)
- {
--	kfree(mnt_opts);
-+	struct smack_mnt_opts *opts;
-+
-+	if (mnt_opts) {
-+		opts = smack_mnt_opts(mnt_opts);
-+		opts->initialized = false;
-+	}
- }
+ static const struct lsm_id smack_lsmid = {
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 405ace6db109..2e43e9670265 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -79,7 +79,7 @@ static DEFINE_MUTEX(smk_net6addr_lock);
+  * If it isn't somehow marked, use this.
+  * It can be reset via smackfs/ambient
+  */
+-struct smack_known *smack_net_ambient;
++struct smack_known *smack_net_ambient = &smack_known_floor;
  
- static int smack_add_opt(int token, const char *s, void **mnt_opts)
- {
--	struct smack_mnt_opts *opts = *mnt_opts;
-+	struct smack_mnt_opts *opts;
- 	struct smack_known *skp;
+ /*
+  * This is the level in a CIPSO header that indicates a
+@@ -671,6 +671,9 @@ static void smk_cipso_doi(void)
+ 	struct cipso_v4_doi *doip;
+ 	struct netlbl_audit nai;
  
--	if (!opts) {
--		opts = kzalloc(sizeof(struct smack_mnt_opts), GFP_KERNEL);
--		if (!opts)
-+	if (!s)
++	if (!smack_netlabel())
++		return;
++
+ 	smk_netlabel_audit_set(&nai);
+ 
+ 	rc = netlbl_cfg_map_del(NULL, PF_INET, NULL, NULL, &nai);
+@@ -711,6 +714,9 @@ static void smk_unlbl_ambient(char *oldambient)
+ 	int rc;
+ 	struct netlbl_audit nai;
+ 
++	if (!smack_netlabel())
++		return;
++
+ 	smk_netlabel_audit_set(&nai);
+ 
+ 	if (oldambient != NULL) {
+@@ -834,6 +840,8 @@ static ssize_t smk_set_cipso(struct file *file, const char __user *buf,
+ 	 */
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
++	if (!smack_netlabel())
 +		return -EINVAL;
-+
-+	if (!*mnt_opts) {
-+		*mnt_opts = lsm_mnt_opts_alloc(GFP_KERNEL);
-+		if (!*mnt_opts)
- 			return -ENOMEM;
--		*mnt_opts = opts;
- 	}
--	if (!s)
--		return -ENOMEM;
-+	opts = smack_mnt_opts(*mnt_opts);
+ 	if (*ppos != 0)
+ 		return -EINVAL;
+ 	if (format == SMK_FIXED24_FMT &&
+@@ -1156,6 +1164,8 @@ static ssize_t smk_write_net4addr(struct file *file, const char __user *buf,
+ 	 */
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
++	if (!smack_netlabel())
++		return -EINVAL;
+ 	if (*ppos != 0)
+ 		return -EINVAL;
+ 	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
+@@ -1414,6 +1424,8 @@ static ssize_t smk_write_net6addr(struct file *file, const char __user *buf,
+ 	 */
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
++	if (!smack_netlabel())
++		return -EINVAL;
+ 	if (*ppos != 0)
+ 		return -EINVAL;
+ 	if (count < SMK_NETLBLADDRMIN || count > PAGE_SIZE - 1)
+@@ -1585,6 +1597,8 @@ static ssize_t smk_write_doi(struct file *file, const char __user *buf,
  
- 	skp = smk_import_entry(s, 0);
- 	if (IS_ERR(skp))
-@@ -601,6 +615,7 @@ static int smack_add_opt(int token, const char *s, void **mnt_opts)
- 		opts->fstransmute = skp->smk_known;
- 		break;
- 	}
-+	opts->initialized = true;
- 	return 0;
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
++	if (!smack_netlabel())
++		return -EINVAL;
  
- out_opt_err:
-@@ -622,10 +637,12 @@ static int smack_fs_context_submount(struct fs_context *fc,
- 	struct smack_mnt_opts *ctx;
- 	struct inode_smack *isp;
+ 	if (count >= sizeof(temp) || count == 0)
+ 		return -EINVAL;
+@@ -1652,6 +1666,8 @@ static ssize_t smk_write_direct(struct file *file, const char __user *buf,
  
--	ctx = lsm_mnt_opts_alloc(GFP_KERNEL);
--	if (!ctx)
--		return -ENOMEM;
--	fc->security = ctx;
-+	if (!fc->security) {
-+		fc->security = lsm_mnt_opts_alloc(GFP_KERNEL);
-+		if (!fc->security)
-+			return -ENOMEM;
-+	}
-+	ctx = smack_mnt_opts(fc->security);
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
++	if (!smack_netlabel())
++		return -EINVAL;
  
- 	sbsp = smack_superblock(reference);
- 	isp = smack_inode(reference->s_root->d_inode);
-@@ -655,6 +672,7 @@ static int smack_fs_context_submount(struct fs_context *fc,
- 				return -ENOMEM;
- 		}
- 	}
-+	ctx->initialized = true;
- 	return 0;
- }
+ 	if (count >= sizeof(temp) || count == 0)
+ 		return -EINVAL;
+@@ -1730,6 +1746,8 @@ static ssize_t smk_write_mapped(struct file *file, const char __user *buf,
  
-@@ -668,16 +686,21 @@ static int smack_fs_context_submount(struct fs_context *fc,
- static int smack_fs_context_dup(struct fs_context *fc,
- 				struct fs_context *src_fc)
- {
--	struct smack_mnt_opts *dst, *src = src_fc->security;
-+	struct smack_mnt_opts *src;
-+	struct smack_mnt_opts *dst;
+ 	if (!smack_privileged(CAP_MAC_ADMIN))
+ 		return -EPERM;
++	if (!smack_netlabel())
++		return -EINVAL;
  
-+	src = smack_mnt_opts(src_fc->security);
- 	if (!src)
- 		return 0;
- 
--	fc->security = lsm_mnt_opts_alloc(GFP_KERNEL);
--	if (!fc->security)
--		return -ENOMEM;
-+	if (!fc->security) {
-+		fc->security = lsm_mnt_opts_alloc(GFP_KERNEL);
-+		if (!fc->security)
-+			return -ENOMEM;
-+	}
- 
--	dst = fc->security;
-+	dst = smack_mnt_opts(fc->security);
-+	dst->initialized = src->initialized;
- 	dst->fsdefault = src->fsdefault;
- 	dst->fsfloor = src->fsfloor;
- 	dst->fshat = src->fshat;
-@@ -787,7 +810,7 @@ static int smack_set_mnt_opts(struct super_block *sb,
- 	struct superblock_smack *sp = smack_superblock(sb);
- 	struct inode_smack *isp;
- 	struct smack_known *skp;
--	struct smack_mnt_opts *opts = mnt_opts;
-+	struct smack_mnt_opts *opts = smack_mnt_opts(mnt_opts);
- 	bool transmute = false;
- 
- 	if (sp->smk_flags & SMK_SB_INITIALIZED)
-@@ -820,7 +843,7 @@ static int smack_set_mnt_opts(struct super_block *sb,
- 
- 	sp->smk_flags |= SMK_SB_INITIALIZED;
- 
--	if (opts) {
-+	if (opts && opts->initialized) {
- 		if (opts->fsdefault) {
- 			skp = smk_import_entry(opts->fsdefault, 0);
- 			if (IS_ERR(skp))
+ 	if (count >= sizeof(temp) || count == 0)
+ 		return -EINVAL;
 -- 
 2.47.0
 
