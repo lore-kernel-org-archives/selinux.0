@@ -1,253 +1,253 @@
-Received: from smtpweb146.aruba.it (smtpweb146.aruba.it [62.149.158.146])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from sonic307-15.consmr.mail.ne1.yahoo.com (sonic307-15.consmr.mail.ne1.yahoo.com [66.163.190.38])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B2B14207A
-	for <selinux@vger.kernel.org>; Sat, 21 Jun 2025 17:01:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.149.158.146
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D326E1990C7
+	for <selinux@vger.kernel.org>; Sat, 21 Jun 2025 17:19:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.190.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750525279; cv=none; b=G1Bhsh5qWZAIV1ReFYsPZJUAr6wiD6JDI/Jbg9+T6ihg7YITcwZc7R4r56x8P/6MgbDOTCVOex1vThCH/8zGiDIoN8+sWg3M+XZajxnm3XdG95ac2/BuJ1Qbi5nONhNPzkcBIH2dPEGtB+TgwCG5wlg9pdMTLjQskMXDzNQHvb8=
+	t=1750526346; cv=none; b=p5HW6YYH8Z3qKXv2wgloLa1xFQh9M57NtdM3lHYNn5GCmPJlOik7VpIKYiQZwWC/v3x6uzQEPOhH4ToYYdp1ZbrGf6hz1Q3FmffM2vjXrRf3oQcEFoyqesxJczKaLSK7GPggoBz5VIXaJNQzf6WFuwfWRSreINDq0qp9HJRPI1Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750525279; c=relaxed/simple;
-	bh=JXVaNDf6SKSSYzkWaqfbzmmsUuAu04juoMTbGtVTdPQ=;
-	h=Message-ID:Subject:From:To:Date:In-Reply-To:References:
-	 Content-Type:Mime-Version; b=tpbs8PNjIR1ich9xAv2p4WOJL36pNsU9+mVvCDrCm+BIy54jOE7mqeyIOB2vjrvIjlBnkbZHWnaHS5b5AK2F0UmZGmuXewzVWX4l/5wUreOdc/4WH4FO3KJ1WDVbds62in/a/Vpau2m5n6dr2onELhYBaTJiB4JKO5VPiEyFcuE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com; spf=pass smtp.mailfrom=trentalancia.com; dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b=b7Mn62e1; arc=none smtp.client-ip=62.149.158.146
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trentalancia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=trentalancia.com
+	s=arc-20240116; t=1750526346; c=relaxed/simple;
+	bh=foLWTmSFbq1rceU6d97FGgq+vU1w14xbqY+Q6ZfnhYU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=VtUS6rcK4ROVL86lGLghvZ+KPrKHuwlr5eXh147b4cGSsxBIL7uPXU0M7cYXWTdkJo7XNXnThJkUVXYfj0cZzwc/E9ml+/AqKO//CtMkxR0VwZo0FuCW4cu3BurTolvUZaTjHWXK84590VkEhZLyY+njugTPROEm1btXWI922Uc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=ES57MrqN; arc=none smtp.client-ip=66.163.190.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b="b7Mn62e1"
-Received: from [192.168.43.2] ([109.54.112.128])
-	by Aruba SMTP with ESMTPSA
-	id T1XZu4sRS2QPuT1XZuDcN1; Sat, 21 Jun 2025 18:58:05 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
-	t=1750525085; bh=JXVaNDf6SKSSYzkWaqfbzmmsUuAu04juoMTbGtVTdPQ=;
-	h=Subject:From:To:Date:Content-Type:Mime-Version;
-	b=b7Mn62e1v9dRKoq+JyAS4rk+YD0EZ0+P8GAdZBfCA7bTsjJZtcnnVthU5N02HvDR0
-	 klAMAl9x8q+JUM43sApNyj3B3TuRAYXSXasHAe6nlI4EK51oTZ3eUqYQMA1yGQqjoN
-	 A/gyraY6CPFrZTmB/zIVdVZkI+KkEZIMUVsBJNgF6sSLdrSho81sGE0mXm/fqFmscs
-	 Gl1gVyi36UUCrdxGFshZhLDKs5YVi5XdfVcadatXgKTctfGPeiuB66Li0DnNjmEVCL
-	 CLTv0+QyJXbZpVJq3lxJrUUeuG8qjopMIe6QxoEO5o6caK92V3tZYkmUPyZ5OBdGRa
-	 X3fZUg0T6tJng==
-Message-ID: <1750525084.6235.11.camel@trentalancia.com>
-Subject: [PATCH 2/2] selinux: when computing the SID before policy load take
- into account the socket class case (was [PATCH v2] selinux: change
- security_compute_sid to return the ssid or tsid on match)
-From: Guido Trentalancia <guido@trentalancia.com>
-To: Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
-Date: Sat, 21 Jun 2025 18:58:04 +0200
-In-Reply-To: <CAHC9VhTFww3khVjjd1Tci6Qx+MnM+v9_u7vANWNqE0vwTW=Ftw@mail.gmail.com>
-References: <20250610194826.80606-2-stephen.smalley.work@gmail.com>
-	 <1749647531.6091.5.camel@trentalancia.com>
-	 <CAHC9VhTjwOcwzKdiq5m=QyWo8=-a6E-2bW4gKJoDtij7kEmxeA@mail.gmail.com>
-	 <1749670408.6186.15.camel@trentalancia.com>
-	 <CAEjxPJ58ZSqhYaXr+fOLwbN=bBb7+WGRQf59vv9c-UWDBnyZMQ@mail.gmail.com>
-	 <1749671000.6186.18.camel@trentalancia.com>
-	 <CAHC9VhTFww3khVjjd1Tci6Qx+MnM+v9_u7vANWNqE0vwTW=Ftw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.26.6 
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ES57MrqN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526338; bh=T735gLFSu6sJJ+AgJymFISZ7osZRKKZtK3bncmGvTo8=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=ES57MrqNxnoLffIN1pBgiFojjR7QYomvo50gAFLpq208rMqBq0y8aiQ2XrFJ6wM/E3WuoGDW4r2ZtuOaI//1LdCiAA3x2z2tV3xAo/WW0xcJrKuJC8KulUpJyapz8ydUENK/HBonUTmvgWOgCP3FoEnn4a0C7V3/wYaum8nE93WQI0Umlbg5REm5NrZVpjwnuGL70cuC9sqdc2nHvoNeUdrk9McrknaWPNRmn98F8WI2tUxZxJqplRCaN17J5szuXVDTIo3v8oEOcciCnPIr3rrE4ECjriuh47E0E6MN26SC9ZwvFS9aVvPEO632vig+9Ux6pJBkFP17wJhdWxYRYQ==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1750526338; bh=uV1apujUxPf8zIpPvkxccpYmCVi+UCf+UegtfPdhbJg=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=ZgyosvMYGyjjoZlnTvvIobfht10cZFGdP0z1+pcpYLMGf3ZSZ4eGwfoIimFPB/KRyA4OchgFghV1g7eYRA89oT4XoIoSiZ/zllYxeRMO8tmjcgdM9cDoRUzoUBrEDuOjkrA/Ba5Yr+S3VXN9QrZTlhxS1GNXBmUAEi7IrJ+PGfwvrLEcgUkiw8rgmn9ytolGn/1J2kTdju8kc+A4tJadQyWmUmKmD1Ka032+BkJKAGZ6JyXWfbwfxYUFcs3H1cXC4hsl+V/uhVDoQrEb3OW3i1/85o17Jk9AVta2JEHGkkW5Wm/Nrvf+waUS7RaYG1WfQN8aNGQaJqeR/EGVYGjIOg==
+X-YMail-OSG: liHcFTEVM1kmcFAJD40iGPX1rr25whu5qcuEX4rvVl4n7i5tBfU8fW5Zwjmys_q
+ tlzP6Nsibzb72PE.dwJRUqBKrZElIHLqf.VfXxGe8hsInizleOBQQFDWw0MoD1mf5V1BHTUBsNX5
+ tfm7A1FyDdv6lQwLTfonm21BOol1ITu.BR81uiz7u1R_dFneGQzVyKhOA98KiS3pKuGUxnhTlyWM
+ R69WSUvN944PG8WV.NKkJfGl46wu4pKjjYWiLLp7R7x9Kyjozx.MrmwOnID_RpL6hs1CsTzYoBPv
+ plFK.Z8AjwzKbfgenHx3aBVyxuQaeuGOpTjls6xgEYoQhodK0GsrEDHIondj_Wk5qPSMUvyw2PsI
+ GOtSKBDp70YoIck.t0QpIOleJmKA04gfl2.UQBoo80SJRz0yTU_q1KvZ0FhFyvBs9DsntI70Xhj7
+ nCM6fYsCLwP5kTY1PZXF_F7AuF97DHrogzR8EzcJOvingUOB4JZurzscBFkq0IuCHIDxe4Gpu_4L
+ 4O.KDDrEHfxlEO3K4teDe_frXJpgEwvj3_UZ4YJYr_9s17oYPI4xJ_fLxK7QOjxGPbCHGCSQSNh1
+ LjNkCHk4nrDhLWGZSf1v8L0MHJqgBfhrlvU1Ze4dPCIyh.Uzr_Xn_uQ9wj5n_pvn8EQggsj5.osX
+ 6TCZj5roFGdF7IWaZCyIWp5qnNgMgQG9rdY9LyTxpBKipLjDN6KVaI3tWO6_ELxvWtC4zvl6THxy
+ WHtRk_pSmZ4Ly7HO5IQY2VGYlZHUyY1vW9hpSRCJTCfaRfiV90BjwghPaQTLG6gSMeR90cRxAJ_l
+ 5iChnY.DFPRH_PIm9phX0thLFSz4Dk4D9Typ7JAQcM5P_neZRb3gCsmm3r5Ld4ffjAR.I4JgjJpM
+ zoLQ1BrSClaFLfDXUMWVc_FXARCUAzdtFOHRXCVmOzaZEM.CMASx6J8ngiM6TccDi.sQDBY_aJvn
+ hQhLMW9j.bmA96Qb1Cf.viRCEHs0v_wLAk.B67f3DaxmjQaL2RKbPSCzK2lrGlWuARxNjGBp64u1
+ sXODzl72757sRqEifcXidKKjR_GK8wJ6SzHq3SAvbYJaFM6RaeYm1I1AK61ypiPng_hCoX3beKTn
+ osL64ClNOX4NmeGc4rYYmzrRmOrVV0_OJrZs4rZgGbYjQj1f_Qpi0.cB3YL6zR1Q0_2rbnPXRgjZ
+ LXYtf0VLMxvx3mlJ6vIkM30zTLV3RAkkGYVkDTrq3tKr7cf0JeF.suy7rO7aH3fjZ5JQChfKVXUR
+ qgFmJOPucmN6AjQxNR.mvNYqu0SsIwqxOvAsF8hIxbGTZ2xZMjiou_sUL5JtkBboGej1D7pqI8jq
+ yp3b.TtBpoFW8wv1wvld7ap.Y0Mc4F9H.KG1tvcMZxMM8zr6dYuckOinyqavLGxmqEKJYM_Taru_
+ jHdZhVCE9tYBvKANWAFZXZ6tr43LnAp3.iUkWNLsKvkkf3wouS.uwl.2RmNDc.doAbREGDnR2k4a
+ mUVVqcuS4VS6ZH9Qaw6BNOxKUFfu3bHrZSfkVX2Mirl2uXjcRklKqz3znHb_ekUAAV9PzvZ82MBt
+ FUgEs8ZIJARY5kRBZ5e.03opBuVw9aRfbY2n2b84GrsamYrFGc4..k9aj2u2eLEUXZSCd7yBsyx8
+ vP8JsL2yZEiaxe4dKTzV4DzuviBDkwypbVe5DnVX1QdnT6qnmo_IczIMbMBCmfY17HcACvT4y79X
+ _cOw6hBcz4uMaV3N1nzr9C3kBI.s6O1aSF0WEqseXyqqEznTi7DPZGNp1SuPPcurMD0aowgAZO6p
+ y4UIH.hDW.uTc7vG6bP_aXT1X5rBx0hTBQpBJXMpZveHsTVb7jIieZ9DNmhfzahKfZEUbboBF8SR
+ ruDMBacgDwcjCBEgvQgtkkAJwpnAd0Sg_LRNJUgr9TaehWNPDMhQhkNfuKcSj_oafgP3T0.DxpyV
+ feA0n3XSwk37zYIAOFlnRbJK9hNcaluZptLnsZ8VpIuVi1MsEufGflvpk0hTcBNrMaIqampdRYhV
+ 9y4Hwum9Tlj8Trao4Q_LR0UvFCPqFXqoCTtaFgohjqVYJ9wgvlJv8K70w6YrBpg2vfpxtfQ1nJ1C
+ J32NwONX0DQhbYRy_zQygMOHbvXklnzEOMsBtpeyFOxGXnCDoPQIe01t72zITv8R3CvSmv9iAbON
+ WuUdYIomT1EoyI4KEWsqhSZ5TVVDdYMvYZFiK3dhyBnKXNfisSkvmXTu_mvECMa1rFjZF49CSWpZ
+ RN6.90SBoBqBhO3woigdfi8DQso7sULHSByXboGjFCUlb0waB44U-
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: b4fda604-d86e-4f1f-aa37-c93c0e6ea58e
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Sat, 21 Jun 2025 17:18:58 +0000
+Received: by hermes--production-gq1-74d64bb7d7-fddgg (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 250c349a2671887e65e0396b7ea9bbf4;
+          Sat, 21 Jun 2025 17:18:55 +0000 (UTC)
+From: Casey Schaufler <casey@schaufler-ca.com>
+To: casey@schaufler-ca.com,
+	paul@paul-moore.com,
+	eparis@redhat.com,
+	linux-security-module@vger.kernel.org,
+	audit@vger.kernel.org
+Cc: jmorris@namei.org,
+	serge@hallyn.com,
+	keescook@chromium.org,
+	john.johansen@canonical.com,
+	penguin-kernel@i-love.sakura.ne.jp,
+	stephen.smalley.work@gmail.com,
+	linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org
+Subject: [RFC PATCH 01/15] Audit: Create audit_stamp structure
+Date: Sat, 21 Jun 2025 10:18:36 -0700
+Message-ID: <20250621171851.5869-2-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.47.0
+In-Reply-To: <20250621171851.5869-1-casey@schaufler-ca.com>
+References: <20250621171851.5869-1-casey@schaufler-ca.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CMAE-Envelope: MS4xfGOPgm30JdB5YSuG7N0qByOBfyNdP4TwBj/8Gri0TGcfgW9PMshBmKI2N8M8p//wR1YQrLF7pNd3iYLjFyP1YRE9c48kZq4geac9tmYe2bCVCSKXk5Nk
- Ei/NbrwBGgWVWVN5HGinwgTNO36PVObyWCw9d1/Itha+8ccySX0ajo9ZQB5vKslavuSO+mw+dwcEtLhGssu+m0qEVpp7FXa45gW+6Ts1DRzVqHouucKo86B3
 
-When computing the SID before the policy is loaded,
-take into account not only the case of the process
-class, but also the case of sockets classes.
+Replace the timestamp and serial number pair used in audit records
+with a structure containing the two elements.
 
-Signed-off-by: Guido Trentalancia <guido@trentalancia.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/selinux/ss/services.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/audit.c   | 17 +++++++++--------
+ kernel/audit.h   | 13 +++++++++----
+ kernel/auditsc.c | 22 +++++++++-------------
+ 3 files changed, 27 insertions(+), 25 deletions(-)
 
---- a/security/selinux/ss/services.c	2025-06-21 14:50:05.168301991 +0200
-+++ b/security/selinux/ss/services.c	2025-06-21 15:12:52.656293645 +0200
-@@ -1750,6 +1750,12 @@ static int security_compute_sid(u32 ssid
- 	bool sock;
+diff --git a/kernel/audit.c b/kernel/audit.c
+index 61b5744d0bb6..547967cb4266 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -1833,11 +1833,11 @@ unsigned int audit_serial(void)
+ }
  
- 	if (!selinux_initialized()) {
-+		sock = security_is_socket_class(orig_tclass);
-+		if (sock) {
-+			*out_sid = ssid;
-+			goto out;
-+		}
+ static inline void audit_get_stamp(struct audit_context *ctx,
+-				   struct timespec64 *t, unsigned int *serial)
++				   struct audit_stamp *stamp)
+ {
+-	if (!ctx || !auditsc_get_stamp(ctx, t, serial)) {
+-		ktime_get_coarse_real_ts64(t);
+-		*serial = audit_serial();
++	if (!ctx || !auditsc_get_stamp(ctx, stamp)) {
++		ktime_get_coarse_real_ts64(&stamp->ctime);
++		stamp->serial = audit_serial();
+ 	}
+ }
+ 
+@@ -1860,8 +1860,7 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
+ 				     int type)
+ {
+ 	struct audit_buffer *ab;
+-	struct timespec64 t;
+-	unsigned int serial;
++	struct audit_stamp stamp;
+ 
+ 	if (audit_initialized != AUDIT_INITIALIZED)
+ 		return NULL;
+@@ -1916,12 +1915,14 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
+ 		return NULL;
+ 	}
+ 
+-	audit_get_stamp(ab->ctx, &t, &serial);
++	audit_get_stamp(ab->ctx, &stamp);
+ 	/* cancel dummy context to enable supporting records */
+ 	if (ctx)
+ 		ctx->dummy = 0;
+ 	audit_log_format(ab, "audit(%llu.%03lu:%u): ",
+-			 (unsigned long long)t.tv_sec, t.tv_nsec/1000000, serial);
++			 (unsigned long long)stamp.ctime.tv_sec,
++			 stamp.ctime.tv_nsec/1000000,
++			 stamp.serial);
+ 
+ 	return ab;
+ }
+diff --git a/kernel/audit.h b/kernel/audit.h
+index 0211cb307d30..4d6dd2588f9b 100644
+--- a/kernel/audit.h
++++ b/kernel/audit.h
+@@ -99,6 +99,12 @@ struct audit_proctitle {
+ 	char	*value;	/* the cmdline field */
+ };
+ 
++/* A timestamp/serial pair to identify an event */
++struct audit_stamp {
++	struct timespec64	ctime;	/* time of syscall entry */
++	unsigned int		serial;	/* serial number for record */
++};
 +
- 		switch (orig_tclass) {
- 		case SECCLASS_PROCESS: /* kernel value */
- 			*out_sid = ssid;
+ /* The per-task audit context. */
+ struct audit_context {
+ 	int		    dummy;	/* must be the first element */
+@@ -108,10 +114,9 @@ struct audit_context {
+ 		AUDIT_CTX_URING,	/* in use by io_uring */
+ 	} context;
+ 	enum audit_state    state, current_state;
+-	unsigned int	    serial;     /* serial number for record */
++	struct audit_stamp  stamp;	/* event identifier */
+ 	int		    major;      /* syscall number */
+ 	int		    uring_op;   /* uring operation */
+-	struct timespec64   ctime;      /* time of syscall entry */
+ 	unsigned long	    argv[4];    /* syscall arguments */
+ 	long		    return_code;/* syscall return code */
+ 	u64		    prio;
+@@ -263,7 +268,7 @@ extern void audit_put_tty(struct tty_struct *tty);
+ extern unsigned int audit_serial(void);
+ #ifdef CONFIG_AUDITSYSCALL
+ extern int auditsc_get_stamp(struct audit_context *ctx,
+-			      struct timespec64 *t, unsigned int *serial);
++			     struct audit_stamp *stamp);
+ 
+ extern void audit_put_watch(struct audit_watch *watch);
+ extern void audit_get_watch(struct audit_watch *watch);
+@@ -304,7 +309,7 @@ extern void audit_filter_inodes(struct task_struct *tsk,
+ 				struct audit_context *ctx);
+ extern struct list_head *audit_killed_trees(void);
+ #else /* CONFIG_AUDITSYSCALL */
+-#define auditsc_get_stamp(c, t, s) 0
++#define auditsc_get_stamp(c, s) 0
+ #define audit_put_watch(w) do { } while (0)
+ #define audit_get_watch(w) do { } while (0)
+ #define audit_to_watch(k, p, l, o) (-EINVAL)
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index 78fd876a5473..528b6d2f5cb0 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -994,10 +994,10 @@ static void audit_reset_context(struct audit_context *ctx)
+ 	 */
+ 
+ 	ctx->current_state = ctx->state;
+-	ctx->serial = 0;
++	ctx->stamp.serial = 0;
++	ctx->stamp.ctime = (struct timespec64){ .tv_sec = 0, .tv_nsec = 0 };
+ 	ctx->major = 0;
+ 	ctx->uring_op = 0;
+-	ctx->ctime = (struct timespec64){ .tv_sec = 0, .tv_nsec = 0 };
+ 	memset(ctx->argv, 0, sizeof(ctx->argv));
+ 	ctx->return_code = 0;
+ 	ctx->prio = (ctx->state == AUDIT_STATE_RECORD ? ~0ULL : 0);
+@@ -1917,7 +1917,7 @@ void __audit_uring_entry(u8 op)
+ 
+ 	ctx->context = AUDIT_CTX_URING;
+ 	ctx->current_state = ctx->state;
+-	ktime_get_coarse_real_ts64(&ctx->ctime);
++	ktime_get_coarse_real_ts64(&ctx->stamp.ctime);
+ }
+ 
+ /**
+@@ -2039,7 +2039,7 @@ void __audit_syscall_entry(int major, unsigned long a1, unsigned long a2,
+ 	context->argv[3]    = a4;
+ 	context->context = AUDIT_CTX_SYSCALL;
+ 	context->current_state  = state;
+-	ktime_get_coarse_real_ts64(&context->ctime);
++	ktime_get_coarse_real_ts64(&context->stamp.ctime);
+ }
+ 
+ /**
+@@ -2508,21 +2508,17 @@ EXPORT_SYMBOL_GPL(__audit_inode_child);
+ /**
+  * auditsc_get_stamp - get local copies of audit_context values
+  * @ctx: audit_context for the task
+- * @t: timespec64 to store time recorded in the audit_context
+- * @serial: serial value that is recorded in the audit_context
++ * @stamp: timestamp to record
+  *
+  * Also sets the context as auditable.
+  */
+-int auditsc_get_stamp(struct audit_context *ctx,
+-		       struct timespec64 *t, unsigned int *serial)
++int auditsc_get_stamp(struct audit_context *ctx, struct audit_stamp *stamp)
+ {
+ 	if (ctx->context == AUDIT_CTX_UNUSED)
+ 		return 0;
+-	if (!ctx->serial)
+-		ctx->serial = audit_serial();
+-	t->tv_sec  = ctx->ctime.tv_sec;
+-	t->tv_nsec = ctx->ctime.tv_nsec;
+-	*serial    = ctx->serial;
++	if (!ctx->stamp.serial)
++		ctx->stamp.serial = audit_serial();
++	*stamp = ctx->stamp;
+ 	if (!ctx->prio) {
+ 		ctx->prio = 1;
+ 		ctx->current_state = AUDIT_STATE_RECORD;
+-- 
+2.47.0
 
-On Wed, 18/06/2025 at 17.56 -0400, Paul Moore wrote:
-> On Wed, Jun 11, 2025 at 3:43 PM Guido Trentalancia
-> <guido@trentalancia.com> wrote:
-> > 
-> > Ok then, as long as it passes the testsuite it should be
-> > sufficiently
-> > tested for most purposes, I suppose.
-> > 
-> > You can add the Tested-by line, if you like...
-> 
-> Thanks Guido.
-> 
-> I'm thinking this might be a good candidate for stable, what do
-> others think?
-> 
-> > On Wed, 11/06/2025 at 15.37 -0400, Stephen Smalley wrote:
-> > > On Wed, Jun 11, 2025 at 3:33 PM Guido Trentalancia
-> > > <guido@trentalancia.com> wrote:
-> > > > 
-> > > > I have very little time to look at the underlying problem and,
-> > > > as
-> > > > already explained, I have only tested that it solves dracut-ng
-> > > > issue
-> > > > 377.
-> > > > 
-> > > > This change has widened the scope considerably compared to the
-> > > > other
-> > > > proposed patch, I cannot so easily certify that it does not
-> > > > introduce
-> > > > regressions or problems in other scenarios.
-> > > > 
-> > > > The main point is that the offending code in ae254858ce07 is
-> > > > only
-> > > > executed when the policy has not been loaded yet (and it sets
-> > > > the
-> > > > SID
-> > > > to SECINITSID_INIT).
-> > > > 
-> > > > On the other hand, when the policy is not loaded
-> > > > security_compute_sid()
-> > > > is reduced to:
-> > > > 
-> > > > switch (orig_tclass) {
-> > > >                 case SECCLASS_PROCESS: /* kernel value */
-> > > >                         *out_sid = ssid;
-> > > >                         break;
-> > > >                 goto out;
-> > > > return rc;
-> > > > 
-> > > > In other words, when the policy has not been loaded yet (which
-> > > > is
-> > > > when
-> > > > the problem is introduced), the code in this change is not
-> > > > reached
-> > > > and
-> > > > security_compute_sid() simply returns ssid (when called with
-> > > > SECCLASS_PROCESS). So, the mechanism of action of this change
-> > > > on
-> > > > the
-> > > > problem appears to be indirect in some way.
-> > > > 
-> > > > Moreover, security_compute_sid() is called by several other
-> > > > functions
-> > > > rather than simply by security_transition_sid(), so without
-> > > > proper
-> > > > extensive testing in multiple use cases (read multiple code
-> > > > paths)
-> > > > it's
-> > > > very difficult to say the change is fully tested...
-> > > > 
-> > > > I would recommend more extensive testing.
-> > > 
-> > > It passes the selinux-testsuite without any problems, FWIW.
-> > > 
-> > > > 
-> > > > Guido
-> > > > 
-> > > > On Wed, 11/06/2025 at 12.27 -0400, Paul Moore wrote:
-> > > > > On Wed, Jun 11, 2025 at 9:12 AM Guido Trentalancia
-> > > > > <guido@trentalancia.com> wrote:
-> > > > > > 
-> > > > > > Hello,
-> > > > > > 
-> > > > > > I have just tested Stephen's patch and it solves the
-> > > > > > problem as
-> > > > > > an
-> > > > > > alternative to the dracut patch and other patches posted
-> > > > > > here
-> > > > > > along
-> > > > > > with the issue description:
-> > > > > > 
-> > > > > > https://github.com/dracut-ng/dracut-ng/issues/377
-> > > > > > 
-> > > > > > Please note that I have only tested the success of the boot
-> > > > > > process
-> > > > > > with sysvinit and not other aspects of the system
-> > > > > > functionality,
-> > > > > > other
-> > > > > > init daemons or regressions that might be caused as a
-> > > > > > result of
-> > > > > > applying this patch.
-> > > > > 
-> > > > > Understood, thanks for the testing you've done.
-> > > > > 
-> > > > > Would you be okay if I added your "Tested-by:" tag to the
-> > > > > patch?
-> > > > > 
-> > > > > > On Tue, 10/06/2025 at 15.48 -0400, Stephen Smalley wrote:
-> > > > > > > If the end result of a security_compute_sid() computation
-> > > > > > > matches
-> > > > > > > the
-> > > > > > > ssid or tsid, return that SID rather than looking it up
-> > > > > > > again.
-> > > > > > > This
-> > > > > > > avoids the problem of multiple initial SIDs that map to
-> > > > > > > the
-> > > > > > > same
-> > > > > > > context.
-> > > > > > > 
-> > > > > > > Reported-by: Guido Trentalancia <guido@trentalancia.com>
-> > > > > > > Fixes: ae254858ce07 ("selinux: introduce an initial SID
-> > > > > > > for
-> > > > > > > early
-> > > > > > > boot processes")
-> > > > > > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmai
-> > > > > > > l.co
-> > > > > > > m>
-> > > > > > > ---
-> > > > > > > v2 fixes a compiler error.
-> > > > > > > 
-> > > > > > >  security/selinux/ss/services.c | 16 +++++++++++-----
-> > > > > > >  1 file changed, 11 insertions(+), 5 deletions(-)
-> > > > > > > 
-> > > > > > > diff --git a/security/selinux/ss/services.c
-> > > > > > > b/security/selinux/ss/services.c
-> > > > > > > index 7becf3808818..d185754c2786 100644
-> > > > > > > --- a/security/selinux/ss/services.c
-> > > > > > > +++ b/security/selinux/ss/services.c
-> > > > > > > @@ -1909,11 +1909,17 @@ static int
-> > > > > > > security_compute_sid(u32
-> > > > > > > ssid,
-> > > > > > >                       goto out_unlock;
-> > > > > > >       }
-> > > > > > >       /* Obtain the sid for the context. */
-> > > > > > > -     rc = sidtab_context_to_sid(sidtab, &newcontext,
-> > > > > > > out_sid);
-> > > > > > > -     if (rc == -ESTALE) {
-> > > > > > > -             rcu_read_unlock();
-> > > > > > > -             context_destroy(&newcontext);
-> > > > > > > -             goto retry;
-> > > > > > > +     if (context_equal(scontext, &newcontext))
-> > > > > > > +             *out_sid = ssid;
-> > > > > > > +     else if (context_equal(tcontext, &newcontext))
-> > > > > > > +             *out_sid = tsid;
-> > > > > > > +     else {
-> > > > > > > +             rc = sidtab_context_to_sid(sidtab,
-> > > > > > > &newcontext,
-> > > > > > > out_sid);
-> > > > > > > +             if (rc == -ESTALE) {
-> > > > > > > +                     rcu_read_unlock();
-> > > > > > > +                     context_destroy(&newcontext);
-> > > > > > > +                     goto retry;
-> > > > > > > +             }
-> > > > > > >       }
-> > > > > > >  out_unlock:
-> > > > > > >       rcu_read_unlock();
-> > > > > 
-> > > > > 
-> 
-> 
-> 
