@@ -1,140 +1,191 @@
-Received: from mail-yb1-f182.google.com (mail-yb1-f182.google.com [209.85.219.182])
+Received: from mail-vs1-f48.google.com (mail-vs1-f48.google.com [209.85.217.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4264286D46
-	for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 15:23:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E94841C84D2
+	for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 17:19:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750692201; cv=none; b=YobvIYOrZg7yw9JzRp+gqWYjsxQoTuRpTR7aQK3za8J4GW8AJZlNGK54qGvYbBcYvUmNw68OBh/LXN4jm58z+fWWHl4xdc50B67MShQ7zLqvIcpnmpEtFv2GbIstk5meOt1XLNSbgXoAuYQ8mMIOyUkEV37pbCferFOmJNwAFkk=
+	t=1750699190; cv=none; b=GEEOJ/3SpV0jnGEOnQ7CCUKe2CwVranz0jdxETfdUziLiLHldCNkc0LeW82lMDTgt/XSyUAs+CxkQJ0FDDFtAaD2eHZO3IfYpKqldTGwlX+y0LDH0XuhBbyt9GEALa1tL/SkdCsrRJrgLEe250ISmKsb8sETl2mv4OtEbm+cVy4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750692201; c=relaxed/simple;
-	bh=lGS+0f0d2TPqmr39/urKxDV5nS75hlwL5bSZDFpp3aI=;
+	s=arc-20240116; t=1750699190; c=relaxed/simple;
+	bh=4UgWIU49keumbZUBEKJuVderrwcZNGBmaY5yGQH52s4=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=vAAquUEjmxLaCneXnHA9/2Bm5CvpJjkUCAeXA7epCVW/Cv9j/s96ySl5zbVfLpc/ABpNwjFlSC8YRfzDpuvV7nXnXfIfDrzXr5MNRLdWcGZTy5xU3kEtkut1y55pvU2WT7OBAA6A6GoEXFWVPLED+7JQlJEi4CiBYqY6huoq9lM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=KK3z2ZZa; arc=none smtp.client-ip=209.85.219.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=Pt1+TSsyZIiQu2l0CJDmurSE7L3fHtk3mf8bxKU4D1SwesQyzSkRRb/hzZD2Zb/vqhRT4N37w/4hRjQE+ewOKr32E0P3kS2sJTo8zyNadncWDtqKkvQIeAhh7/j+inYvWAG3FhI8UeMPY6Mr1PjDXJ+BIJXcVchZ3qNuRj8BRak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WmSC4rAQ; arc=none smtp.client-ip=209.85.217.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="KK3z2ZZa"
-Received: by mail-yb1-f182.google.com with SMTP id 3f1490d57ef6-e7387d4a336so3249686276.2
-        for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 08:23:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WmSC4rAQ"
+Received: by mail-vs1-f48.google.com with SMTP id ada2fe7eead31-4c9cea30173so1139522137.3
+        for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 10:19:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1750692196; x=1751296996; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1750699188; x=1751303988; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5C+Macx0w6ywU+A/VvTC8HUBWMBBqnb8N7PQsKLlGDs=;
-        b=KK3z2ZZa3naySG4UBYRrXHNJN/sqjzJpgXzbYb0hEdHli+tdbUhGQTl5KoG8t/KN7t
-         D214XNVYjV6nLye/i29wogBvV29DVSPI9KOaiDb+YMNaztf8aTUC/k7xJScXA9Km3mTf
-         vdm3tYLqIDaS+EqE9dmNSp5O/zvxlpiSz9SyMB2insFUqY1fHSSazu1jp2AbgLgXYtqM
-         yYK4m5WPyl4ieQ6Yk+A/xmRBReFHox5fh8w2gzIRqovUMJz8f93AjdSK/kAZj/L0ur/x
-         kBWqgEEEAY5RwKz/oAxUA4neebUJU0B9f5mx4RHm8tUqDmIZbsyKfM5b3aKa1fvm5Uso
-         PdWQ==
+        bh=yG78cuIPa0MVrczl1iQsJ62GIyLqxF7QbZeG+UIyF5Q=;
+        b=WmSC4rAQkTa6NXdEahYT96KDqTj82IzYJDn0MCAc3PV8WLBXOW/K64TMKOV0a72w0V
+         YqbqTUYVKB7tyrsdefHjSTjuwPsUWKsTp0rNcGCjmgba4swFiDSkcbawnNbPlMJjs6Ff
+         Fk9E8xQ+teUqbxGwjicpORXqE8MPNes3TC6eW1tTU50/ND09jjiZKcUlcl9bWHN6sL3Q
+         p4Rp+b9h6OK09kskJZ7L3bubSvricEu1ppANLbiV41zojqKle4veYiImOULmgSUR77ex
+         tZ/+QDQ9yTo8noKAhHvnCKGyUTdSP22wrjitlJtS/Ja/IqIr38IbCkS1tiwBA3hymEcE
+         od6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750692196; x=1751296996;
+        d=1e100.net; s=20230601; t=1750699188; x=1751303988;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=5C+Macx0w6ywU+A/VvTC8HUBWMBBqnb8N7PQsKLlGDs=;
-        b=lts2/LRCnY7a5C29KKdGzuQ+Rw9VUwCAZzUXpw9+TvegX71QWN3xNoFCG6HAyQIwG0
-         5pgdwZfG99fb1djxaqGhAs73Ec6s9LnFr8hpkEDz/AVEJere3TzPsYuTk7XbvbL10ztO
-         VD3sycAI+y80D/n2csiU99lL3YGfDRJ1HaqDD5yVBaol80fC4XiCl2ZZ2UzRj07lXloC
-         K7Nob6ijjYxdxZKGlQ64hSqGGJ7pr4MxGcUPSI1/FepeVcJ5bvVTUNtxq1rD1JE7mEyO
-         M3LcslOzHqIqg8nsnCZN7sa6kGUg89HquUoTzLKW6l9L2WKB9OMnnwSp1e60MiGrTRDg
-         pdxw==
-X-Forwarded-Encrypted: i=1; AJvYcCVgIuxNq01EfpBmaY5apHPqaVJwWGPj2CU2QMP3WjYeuS8otLuhmZwtzyiO7CC4VhsYhGO5Ip4/@vger.kernel.org
-X-Gm-Message-State: AOJu0YwPN/oRYPgxNxURXqtf4tBEKKFpiD29qfBBwgfe/Of2v+LzrHyD
-	njC2PVv2VzkZdxRKPQssbsWagS1BsAqm9+zXZpOYxJl7x8BDzZI1GqXhm8PrfgY/1tuffkC2eMY
-	f0Wtf14C0WQzJDkIz/L3294hGzgngAkJDzt+g40Eh
-X-Gm-Gg: ASbGnctkbLtttr8aAKo9PtTXtBABWKJLpD1zJk2IAZVvlIplBGTSSyXzAiRc8c+k9Vz
-	rEmhfa7PzVgI3xADzW5Zdl35xIOwQW8a08PcNMcxKtdEomEApl/tg8bjh/80j+FHwjuFb9iCa6u
-	K/XospBjFLE8bdNEBAYBkt9PI42pg8FQYqUZV26Y49aDM=
-X-Google-Smtp-Source: AGHT+IFDWmvezTtn24M48J2+gCwvEZrGp1xjw9YXsal4m8rI9IlwaC+CRLf7Nu9lLnMcBNv3Itll1k7csRHQcl6+zOM=
-X-Received: by 2002:a05:690c:4a06:b0:70c:a854:8384 with SMTP id
- 00721157ae682-712c63f3440mr197154127b3.11.1750692196000; Mon, 23 Jun 2025
- 08:23:16 -0700 (PDT)
+        bh=yG78cuIPa0MVrczl1iQsJ62GIyLqxF7QbZeG+UIyF5Q=;
+        b=CZoXaAxo9btly2h9tfA7EeAGLM9qV01b1mwfnQyXphUFjgGCGoGm/ieVM4SiwwniFl
+         tMmXUkNhadelN7sk/0qw6KECvg9a62nHFkKisg9mzwBMeoJol2jYrt+7+G41xsnZqlzb
+         MA55+C5/fLiu1X+TqvphxED7fLbJK8AEzoRtlrN+NW/zOlEAIHiieuRdpGIYiJRkql66
+         VZoccAAmZJuFaCOqWLCBn4vEIAeu1zEHY0WqwUOdicPwq+9k2Pn+J2hJEhjMOmK8QOAg
+         XCpuZ5O0ibLdqyNZVDs5/gjc4m0hC15QDdrpovJxRcnjJfcQxLs/npayEXHzyitTcNQK
+         uKQg==
+X-Gm-Message-State: AOJu0YznMcKuSsi25Yg9fjrpmgvjWipChYEvUyI6S2iH/paxadU9kNP9
+	cGDenl7NR8qhWfjqNYkzIbqdmwWUsml8DtlcSSjYajfN0Ve1XEXr4MwWzjplbSpiH6KCz+tY2Lj
+	Rsp2cEC8IEATAtCdmBI39RbNodEHwSvYk98bx
+X-Gm-Gg: ASbGncuCLa6je23TsRuTOZN25UrS3UrjoFQ3JVvYt7KNemc4Vxdy3vcAloddaD5Shwb
+	YyW7/RpD1llyz9bhJwpAjlz0dKtmBuaXbGauiFXiCCHZ7XgGrViEse5xUpPA7dtGkSiKRu4eiPb
+	X32ykkuirkTvFq7LzR13js+2Wuw3Afn0wc5WaPk9ptBwoXkjnStSA=
+X-Google-Smtp-Source: AGHT+IFanBoMbz8lchiOFi8zYeBr4jdNdJB/naO3U7GFWoYGnKA+cUAd0clLZ3Qoyuc3BdJFXsL/ZLNk9SH61hCUWAc=
+X-Received: by 2002:a05:6102:38d4:b0:4bb:eb4a:f9ec with SMTP id
+ ada2fe7eead31-4e9c29b97a0mr7273983137.16.1750699187693; Mon, 23 Jun 2025
+ 10:19:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAFj5m9KOjqYmUOYM4EgDBrJ-rQxEgOhm+pokmdAE6w+bCGrhSg@mail.gmail.com>
- <CAHC9VhQ0dyqsjsNt98yiPCGsiuUXep3T7T24LWWRHy8V8xjV4Q@mail.gmail.com> <aFiwMxE4OlcFp7Ox@fedora>
-In-Reply-To: <aFiwMxE4OlcFp7Ox@fedora>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 23 Jun 2025 11:23:03 -0400
-X-Gm-Features: Ac12FXzfEPBnZct18t2NRX4DFqCH556EcUr1vJpCOtWVUEWdAIFOvsXhC2LL9A8
-Message-ID: <CAHC9VhQjF3L0B0GiZq-yWBMKjBMZ_qtnuG0Dn9g=bzjkFMYJig@mail.gmail.com>
-Subject: Re: [v6.16-rc2+ Bug] panic in inode_doinit_with_dentry during booting
-To: Ming Lei <ming.lei@redhat.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org, 
-	Christian Brauner <brauner@kernel.org>, selinux@vger.kernel.org
+References: <20250616134433.23953-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20250616134433.23953-2-stephen.smalley.work@gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Mon, 23 Jun 2025 13:19:36 -0400
+X-Gm-Features: Ac12FXwiFQcCUIBU-L-jJz94OogR5ICWNic-32YNkqDH7ewkHqlKRql8XOR-i28
+Message-ID: <CAP+JOzR-zYnQr8qq52iZ-_Tp5dnxeJWcB9gtF0itdgni=mNScg@mail.gmail.com>
+Subject: Re: [PATCH v2] userspace: replace all links to selinuxproject.org
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, lautrbach@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jun 22, 2025 at 9:39=E2=80=AFPM Ming Lei <ming.lei@redhat.com> wrot=
-e:
-> On Sat, Jun 21, 2025 at 02:40:41PM -0400, Paul Moore wrote:
-> > On Sat, Jun 21, 2025 at 2:08=E2=80=AFAM Ming Lei <ming.lei@redhat.com> =
-wrote:
-> > >
-> > > Hello Guys,
-> > >
-> > > The latest v6.16-rc2+ kernel panics during booting, commit
-> > > 3f75bfff44be ("Merge tag 'mtd/fixes-for-6.16-rc3' of
-> > > git://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux"):
-> > >
-> > >
-> > > [  OK  ] Finished systemd-modules-load.service - Load Kernel Modules.
-> > >          Starting systemd-sysctl.service - Apply Kernel Variables...
-> > >          Starting systemd-sysusers.service - Create System Users...
-> > > [  OK  ] Finished systemd-sysctl.service - Apply Kernel Variables.
-> > > [    1.851473] Oops: general protection fault, probably for
-> > > non-canonical address 0x8cbad568292ed62c: 0000 [#1] SMP NOPTI
-> > > [    1.853362] CPU: 9 UID: 0 PID: 269 Comm: systemd-sysuser Not
-> > > tainted 6.16.0-rc2+ #328 PREEMPT(full)
-> > > [    1.854923] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
-> > > BIOS 1.16.3-1.fc39 04/01/2014
-> > > [    1.856374] RIP: 0010:__list_add_valid_or_report+0x1e/0xa0
-> > > [    1.857366] Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa
-> > > 53 48 83 ec 08 48 85 f6 0f 84 76 2f 76 ff 48 89 d3 48 85 d2 0f 84 5c
-> > > 2f9
-> > > [    1.860338] RSP: 0018:ffffd152c0de3a10 EFLAGS: 00010286
-> > > [    1.861244] RAX: ffff8aa5414d38d8 RBX: 8cbad568292ed624 RCX: 00000=
-00000000000
-> > > [    1.862439] RDX: 8cbad568292ed624 RSI: ffff8aa5401f40f0 RDI: ffff8=
-aa5414d38d8
-> > > [    1.863622] RBP: ffff8aa5414d38f4 R08: ffffd152c0de3a7c R09: ffffd=
-152c0de3a20
-> > > [    1.864810] R10: ffff8aa5401f40c0 R11: 0000000000000007 R12: ffff8=
-aa5414d38d8
-> > > [    1.864813] R13: ffff8aa5401f40c0 R14: ffff8aa5401f40f0 R15: ffff8=
-aa5414d38d0
-> > > [    1.864814] FS:  00007feebef42bc0(0000) GS:ffff8aa9ed02f000(0000)
-> > > knlGS:0000000000000000
-> > > [    1.864816] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > [    1.864818] CR2: 00007feebfb58180 CR3: 0000000117f4d004 CR4: 00000=
-00000770ef0
-> > > [    1.870018] PKRU: 55555554
-> > > [    1.870020] Call Trace:
-> > > [    1.870029]  <TASK>
-> > > [    1.870031]  inode_doinit_with_dentry+0x42d/0x520
-> >
-> > Thanks for the report.  I'm assuming you didn't see this with
-> > v6.16-rc1, or earlier?
+On Mon, Jun 16, 2025 at 9:45=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> It isn't observed on -rc2.
+> Replace all links to selinuxproject.org with links to the
+> SELinux userspace wiki or the SELinux notebook as appropriate.
 >
-> >
-> > Do you have any line number information you could share?  Also, based
-> > on the RIP in __list_add_valid_or_report(), can you confirm that this
-> > is either happening in an initrd/initramfs or on a system where a
-> > SELinux policy is not being loaded?
->
-> Looks the issue can't be reproduced any more with -rc3.
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Thanks for the update.  If you see this again, please let us know.
+Acked-by: James Carter <jwcart2@gmail.com>
 
---=20
-paul-moore.com
+> ---
+> v2 uses https rather than http.
+>
+>  CONTRIBUTING.md                    | 4 ++--
+>  libselinux/src/libselinux.pc.in    | 2 +-
+>  libsemanage/src/libsemanage.pc.in  | 2 +-
+>  libsepol/src/libsepol.pc.in        | 2 +-
+>  scripts/make-update                | 2 +-
+>  secilc/docs/cil_user_statements.md | 2 +-
+>  6 files changed, 7 insertions(+), 7 deletions(-)
+>
+> diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+> index e6a677a0..575410bf 100644
+> --- a/CONTRIBUTING.md
+> +++ b/CONTRIBUTING.md
+> @@ -8,8 +8,8 @@ You can find a list of open issues where you might contri=
+bute to the SELinux ker
+>  https://github.com/SELinuxProject/selinux-kernel/issues or to the SELinu=
+x userspace code at
+>  https://github.com/SELinuxProject/selinux/issues.
+>
+> -See the selinuxproject.org [user resources
+> -page](http://selinuxproject.org/page/User_Resources) for more
+> +See the SELinux userspace
+> +[wiki page](https://github.com/selinuxproject/selinux/wiki) for more
+>  information on mailing lists, documentation, and other resources.
+>
+>  ## Reporting Bugs
+> diff --git a/libselinux/src/libselinux.pc.in b/libselinux/src/libselinux.=
+pc.in
+> index 7c66b1fa..cca4753b 100644
+> --- a/libselinux/src/libselinux.pc.in
+> +++ b/libselinux/src/libselinux.pc.in
+> @@ -6,7 +6,7 @@ includedir=3D@includedir@
+>  Name: libselinux
+>  Description: SELinux utility library
+>  Version: @VERSION@
+> -URL: http://userspace.selinuxproject.org/
+> +URL: https://github.com/selinuxproject/selinux/wiki/Releases
+>  Requires.private: libsepol @PCRE_MODULE@
+>  Libs: -L${libdir} -lselinux
+>  Cflags: -I${includedir}
+> diff --git a/libsemanage/src/libsemanage.pc.in b/libsemanage/src/libseman=
+age.pc.in
+> index 43681ddb..303f8069 100644
+> --- a/libsemanage/src/libsemanage.pc.in
+> +++ b/libsemanage/src/libsemanage.pc.in
+> @@ -6,7 +6,7 @@ includedir=3D@includedir@
+>  Name: libsemanage
+>  Description: SELinux management library
+>  Version: @VERSION@
+> -URL: http://userspace.selinuxproject.org/
+> +URL: https://github.com/selinuxproject/selinux/wiki/Releases
+>  Requires.private: libselinux libsepol
+>  Libs: -L${libdir} -lsemanage
+>  Libs.private: -lbz2
+> diff --git a/libsepol/src/libsepol.pc.in b/libsepol/src/libsepol.pc.in
+> index f807fec6..b5361404 100644
+> --- a/libsepol/src/libsepol.pc.in
+> +++ b/libsepol/src/libsepol.pc.in
+> @@ -6,6 +6,6 @@ includedir=3D@includedir@
+>  Name: libsepol
+>  Description: SELinux policy library
+>  Version: @VERSION@
+> -URL: http://userspace.selinuxproject.org/
+> +URL: https://github.com/selinuxproject/selinux/wiki/Releases
+>  Libs: -L${libdir} -lsepol
+>  Cflags: -I${includedir}
+> diff --git a/scripts/make-update b/scripts/make-update
+> index 4c940e1b..d83e1772 100755
+> --- a/scripts/make-update
+> +++ b/scripts/make-update
+> @@ -30,7 +30,7 @@ echo "Copy $ARCHIVE from $DEST to the server and update=
+ its download link and ch
+>
+>  echo ""
+>
+> -echo "[http://userspace.selinuxproject.org/releases/$TAG/$ARCHIVE $ARCHI=
+VE]"
+> +echo "[https://github.com/selinuxproject/selinux/releases/download/$TAG/=
+$ARCHIVE $ARCHIVE]"
+>  echo ""
+>  echo "`sha256sum $ARCHIVE`"
+>  echo ""
+> diff --git a/secilc/docs/cil_user_statements.md b/secilc/docs/cil_user_st=
+atements.md
+> index d5674f12..dad88ef6 100644
+> --- a/secilc/docs/cil_user_statements.md
+> +++ b/secilc/docs/cil_user_statements.md
+> @@ -358,7 +358,7 @@ The user `test` cannot have greater privileges than `=
+unconfined.user`:
+>  userprefix
+>  ----------
+>
+> -Declare a user prefix that will be replaced by the file labeling utiliti=
+es described at [http://selinuxproject.org/page/PolicyStoreConfigurationFil=
+es](http://selinuxproject.org/page/PolicyStoreConfigurationFiles#file_conte=
+xts.template_File) that details the `file_contexts` entries.
+> +Declare a user prefix that will be replaced by the file labeling utiliti=
+es described at [https://github.com/SELinuxProject/selinux-notebook/blob/ma=
+in/src/policy_store_config_files.md](https://github.com/SELinuxProject/seli=
+nux-notebook/blob/main/src/policy_store_config_files.md#building-the-file-l=
+abeling-support-files) that details the `file_contexts` entries.
+>
+>  **Statement definition:**
+>
+> --
+> 2.49.0
+>
