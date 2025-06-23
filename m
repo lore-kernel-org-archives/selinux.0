@@ -1,123 +1,180 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBDDC1E519
-	for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 01:39:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C98911804A;
+	Mon, 23 Jun 2025 01:41:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750642755; cv=none; b=LaYrUJhwZZacTZn4J9VJEd+8TOGnoIe5v3W4uHkWIQD58OUuLIhQUa3hsrVuJKuSKJIaKpWWdgzeakOn0dh/hUrJg0lIEsSHkrUZ5qzFfx5wkWsMAbNowqlRwy3DztOz2PWJB4tFhLZrEYhxhHHEIfcqajxWubPyBGaS3CxoCKA=
+	t=1750642872; cv=none; b=JPhYCoSDb+zZVv44hhDDdbCbqFoU3xjWDORJihP81Ea1B7P+obJ/Vh6tdM4Q+8PHGz6pykTVWsMJ+tBKVxIZKBovkWrABezAZnWTlpGcAuf43Fv3G+3TLUflZTh5cAxlNBSgUBBricnSU+JjRiIZfTKKpnV4eU6DuogZGqa5Ukk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750642755; c=relaxed/simple;
-	bh=mOMZmDtg7UpragCui3/1ieWMRXj97ofX5z4uaqmbxc0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QXK36e+wvu+xLZLLWx+0VL73Ii2ZIDnkXH4XH4j3fE2vrUkQuc3R5/nFR24ONzrLXeJn7Y4NApa7vWtBcWrgC2GlvZf0lhLqtaOAuLonPmWK9T8R/a1f+XyOIJzaz6zJdH+EJXyHWUJFIEaxCYc2qzV7/6ERYU+EoxcRVJ+cczE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iHstmvHy; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1750642872; c=relaxed/simple;
+	bh=buJJLb5Q6cm8TshrP4dLEkTBplTMymNnBjPBccRp1EE=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=B34fc1xqZWuV5xUXn/fzHexyYFPvBNB5nHOOUOeb8apQ2NWN1iD7XjEZtlGQu90KoaTqtYMmt5SFhh6SnApbmdde0sHkGhUF9JYgcqsfzWSQV6Ieyzw5or24fMFn2CpPmG179oTOxBgXlOoTVu2w0GILFobIOJ0KD2457kSSZgc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dNwbfIcL; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iHstmvHy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750642752;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=yexjD/xwmxHkcuPr5ND041umEuakLm6g0ZCZufHMl+c=;
-	b=iHstmvHy08fsoD+YsCuhn4pw7D6naV+qzBeUnnFw750rjElSH/VU5CYBUBe7meaXXd7Qn/
-	AH/dG7ETQhzv7zDy1m1Ixw6fkg0GvngITPoleQ33Pa8x7jwiUuvZIuU7i8C72QN1PA3bKT
-	qHYnLF0zrnd15LNh4t+24VMBOTvwHwE=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-556-nXpEzMJ8Ot-i-eeU0V48nQ-1; Sun,
- 22 Jun 2025 21:39:09 -0400
-X-MC-Unique: nXpEzMJ8Ot-i-eeU0V48nQ-1
-X-Mimecast-MFC-AGG-ID: nXpEzMJ8Ot-i-eeU0V48nQ_1750642748
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 2976719560AA;
-	Mon, 23 Jun 2025 01:39:08 +0000 (UTC)
-Received: from fedora (unknown [10.72.116.88])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7F4CB180045B;
-	Mon, 23 Jun 2025 01:39:04 +0000 (UTC)
-Date: Mon, 23 Jun 2025 09:38:59 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-	linux-fsdevel@vger.kernel.org,
-	Christian Brauner <brauner@kernel.org>, selinux@vger.kernel.org
-Subject: Re: [v6.16-rc2+ Bug] panic in inode_doinit_with_dentry during booting
-Message-ID: <aFiwMxE4OlcFp7Ox@fedora>
-References: <CAFj5m9KOjqYmUOYM4EgDBrJ-rQxEgOhm+pokmdAE6w+bCGrhSg@mail.gmail.com>
- <CAHC9VhQ0dyqsjsNt98yiPCGsiuUXep3T7T24LWWRHy8V8xjV4Q@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dNwbfIcL"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 95FE5C4CEE3;
+	Mon, 23 Jun 2025 01:41:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1750642872;
+	bh=buJJLb5Q6cm8TshrP4dLEkTBplTMymNnBjPBccRp1EE=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=dNwbfIcLBaAP2cbzPSjwjp8w9p8l7TGTyQV/XDKUigMNQDxun3JgyZ8jz4LZurybr
+	 qJrt/2wUVCqLuwnsEMWU5sQaXch7k9Vq/DjJRAPI820OvO63W04ssKBcsxGxLW/v6P
+	 UTjVrpCDOV9yOb19DqSGZzJYwOI3w17NYArmjGAPnHkflfaBo+qU54iQhRucoU344T
+	 iG6NZ4taD63Kzobs1o6hNdV02QHaleUkQaijWiS+MTQ1JVboRANT4WXtJ3/TFLvq5Y
+	 TKfsAorhE1N82p2HU+0K8SmhVrVrMb7db7qXcxvpGyS0wCx4rvmvLs4Dqm/S21Emwc
+	 Dv4b42URflJJw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A369C7115C;
+	Mon, 23 Jun 2025 01:41:12 +0000 (UTC)
+From: Abhinav Saxena via B4 Relay <devnull+xandfury.gmail.com@kernel.org>
+Subject: [PATCH 0/2] Possible TTY privilege escalation in TIOCSTI ioctl
+Date: Sun, 22 Jun 2025 19:41:06 -0600
+Message-Id: <20250622-toicsti-bug-v1-0-f374373b04b2@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHC9VhQ0dyqsjsNt98yiPCGsiuUXep3T7T24LWWRHy8V8xjV4Q@mail.gmail.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIALKwWGgC/1XMQQ6CMBCF4auQWVvTDiLgynsYFm0ZYRKhpK1EQ
+ 3p3K4kLl/9L3rdBIM8U4FJs4GnlwG7OoQ4F2FHPAwnucwNKrORZNSI6tiGyMM9B1A2iaag96RI
+ hPxZPd37t2q3LPXKIzr93fFXf9ee0f86qhBQk0dalripj++swaX4crZugSyl9ACfzuGKmAAAA
+To: Shuah Khan <shuah@kernel.org>, Nathan Chancellor <nathan@kernel.org>, 
+ Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, 
+ Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, 
+ Paul Moore <paul@paul-moore.com>, 
+ Stephen Smalley <stephen.smalley.work@gmail.com>, 
+ Ondrej Mosnacek <omosnace@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org, 
+ llvm@lists.linux.dev, selinux@vger.kernel.org, 
+ Abhinav Saxena <xandfury@gmail.com>, kees@kernel.org, 
+ linux-hardening@vger.kernel.org
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1750642871; l=4278;
+ i=xandfury@gmail.com; s=20250614; h=from:subject:message-id;
+ bh=buJJLb5Q6cm8TshrP4dLEkTBplTMymNnBjPBccRp1EE=;
+ b=WiOBZMIPV8q1Q0IRgB3MwpCfgV8UbYqwBRlogLksBbO+sZ645oPaUbC0oWxeL6ssfQFHOIVbZ
+ P0gzf64q/5jCSQhD8yRf16oMX8M59Kpt/R2QDRhVY4rxyYsn23l8wcf
+X-Developer-Key: i=xandfury@gmail.com; a=ed25519;
+ pk=YN6w7WNet8skqvMWxhG5BlAmtd1SQmo8If6Mofh4k44=
+X-Endpoint-Received: by B4 Relay for xandfury@gmail.com/20250614 with
+ auth_id=436
+X-Original-From: Abhinav Saxena <xandfury@gmail.com>
+Reply-To: xandfury@gmail.com
 
-On Sat, Jun 21, 2025 at 02:40:41PM -0400, Paul Moore wrote:
-> On Sat, Jun 21, 2025 at 2:08 AM Ming Lei <ming.lei@redhat.com> wrote:
-> >
-> > Hello Guys,
-> >
-> > The latest v6.16-rc2+ kernel panics during booting, commit
-> > 3f75bfff44be ("Merge tag 'mtd/fixes-for-6.16-rc3' of
-> > git://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux"):
-> >
-> >
-> > [  OK  ] Finished systemd-modules-load.service - Load Kernel Modules.
-> >          Starting systemd-sysctl.service - Apply Kernel Variables...
-> >          Starting systemd-sysusers.service - Create System Users...
-> > [  OK  ] Finished systemd-sysctl.service - Apply Kernel Variables.
-> > [    1.851473] Oops: general protection fault, probably for
-> > non-canonical address 0x8cbad568292ed62c: 0000 [#1] SMP NOPTI
-> > [    1.853362] CPU: 9 UID: 0 PID: 269 Comm: systemd-sysuser Not
-> > tainted 6.16.0-rc2+ #328 PREEMPT(full)
-> > [    1.854923] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
-> > BIOS 1.16.3-1.fc39 04/01/2014
-> > [    1.856374] RIP: 0010:__list_add_valid_or_report+0x1e/0xa0
-> > [    1.857366] Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa
-> > 53 48 83 ec 08 48 85 f6 0f 84 76 2f 76 ff 48 89 d3 48 85 d2 0f 84 5c
-> > 2f9
-> > [    1.860338] RSP: 0018:ffffd152c0de3a10 EFLAGS: 00010286
-> > [    1.861244] RAX: ffff8aa5414d38d8 RBX: 8cbad568292ed624 RCX: 0000000000000000
-> > [    1.862439] RDX: 8cbad568292ed624 RSI: ffff8aa5401f40f0 RDI: ffff8aa5414d38d8
-> > [    1.863622] RBP: ffff8aa5414d38f4 R08: ffffd152c0de3a7c R09: ffffd152c0de3a20
-> > [    1.864810] R10: ffff8aa5401f40c0 R11: 0000000000000007 R12: ffff8aa5414d38d8
-> > [    1.864813] R13: ffff8aa5401f40c0 R14: ffff8aa5401f40f0 R15: ffff8aa5414d38d0
-> > [    1.864814] FS:  00007feebef42bc0(0000) GS:ffff8aa9ed02f000(0000)
-> > knlGS:0000000000000000
-> > [    1.864816] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > [    1.864818] CR2: 00007feebfb58180 CR3: 0000000117f4d004 CR4: 0000000000770ef0
-> > [    1.870018] PKRU: 55555554
-> > [    1.870020] Call Trace:
-> > [    1.870029]  <TASK>
-> > [    1.870031]  inode_doinit_with_dentry+0x42d/0x520
-> 
-> Thanks for the report.  I'm assuming you didn't see this with
-> v6.16-rc1, or earlier?
+This patch series was initially sent to security@k.o; resending it in
+public. I might follow-up with a tests series which addresses similar 
+issues with TIOCLINUX.
 
-It isn't observed on -rc2.
+===============
 
-> 
-> Do you have any line number information you could share?  Also, based
-> on the RIP in __list_add_valid_or_report(), can you confirm that this
-> is either happening in an initrd/initramfs or on a system where a
-> SELinux policy is not being loaded?
+The TIOCSTI ioctl uses capable(CAP_SYS_ADMIN) for access control, which 
+checks the current process's credentials. However, it doesn't validate 
+against the file opener's credentials stored in file->f_cred.
 
-Looks the issue can't be reproduced any more with -rc3.
+This creates a potential security issue where an unprivileged process 
+can open a TTY fd and pass it to a privileged process via SCM_RIGHTS. 
+The privileged process may then inadvertently grant access based on its 
+elevated privileges rather than the original opener's credentials.
 
+Background
+==========
 
+As noted in previous discussion, while CONFIG_LEGACY_TIOCSTI can restrict 
+TIOCSTI usage, it is enabled by default in most distributions. Even when 
+CONFIG_LEGACY_TIOCSTI=n, processes with CAP_SYS_ADMIN can still use TIOCSTI 
+according to the Kconfig documentation.
 
-thanks,
-Ming
+Additionally, CONFIG_LEGACY_TIOCSTI controls the default value for the 
+dev.tty.legacy_tiocsti sysctl, which remains runtime-configurable. This 
+means the described attack vector could work on systems even with 
+CONFIG_LEGACY_TIOCSTI=n, particularly on Ubuntu 24.04 where it's "restricted" 
+but still functional.
+
+Solution Approach
+=================
+
+This series addresses the issue through SELinux LSM integration rather 
+than modifying core TTY credential checking to avoid potential compatibility 
+issues with existing userspace.
+
+The enhancement adds proper current task and file credential capability 
+validation in SELinux's selinux_file_ioctl() hook specifically for 
+TIOCSTI operations.
+
+Testing
+=======
+
+All patches have been validated using:
+- scripts/checkpatch.pl --strict (0 errors, 0 warnings)
+- Functional testing on kernel v6.16-rc2
+- File descriptor passing security test scenarios
+- SELinux policy enforcement testing
+
+The fd_passing_security test demonstrates the security concern.
+To verify, disable legacy TIOCSTI and run the test:
+
+$ echo "0" | sudo tee /proc/sys/dev/tty/legacy_tiocsti
+$ sudo ./tools/testing/selftests/tty/tty_tiocsti_test -t fd_passing_security
+
+Patch Overview
+==============
+
+PATCH 1/2: selftests/tty: add TIOCSTI test suite
+Comprehensive test suite demonstrating the issue and fix validation
+
+PATCH 2/2: selinux: add capability checks for TIOCSTI ioctl
+Core security enhancement via SELinux LSM hook
+
+References
+==========
+
+- tty_ioctl(4) - documents TIOCSTI ioctl and capability requirements
+- commit 83efeeeb3d04 ("tty: Allow TIOCSTI to be disabled")
+- Documentation/security/credentials.rst
+- https://github.com/KSPP/linux/issues/156
+- https://lore.kernel.org/linux-hardening/Y0m9l52AKmw6Yxi1@hostpad/
+- drivers/tty/Kconfig
+
+Configuration References:
+[1] - https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/tty/Kconfig#n149
+[2] - https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/tty/Kconfig#n162
+[3] - https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/tty/Kconfig#n188
+
+To: Shuah Khan <shuah@kernel.org>
+To: Nathan Chancellor <nathan@kernel.org>
+To: Nick Desaulniers <nick.desaulniers+lkml@gmail.com>
+To: Bill Wendling <morbo@google.com>
+To: Justin Stitt <justinstitt@google.com>
+To: Paul Moore <paul@paul-moore.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-kselftest@vger.kernel.org
+Cc: llvm@lists.linux.dev
+Cc: selinux@vger.kernel.org
+
+Signed-off-by: Abhinav Saxena <xandfury@gmail.com>
+---
+Abhinav Saxena (2):
+      selftests/tty: add TIOCSTI test suite
+      selinux: add capability checks for TIOCSTI ioctl
+
+ security/selinux/hooks.c                       |   6 +
+ tools/testing/selftests/tty/Makefile           |   6 +-
+ tools/testing/selftests/tty/config             |   1 +
+ tools/testing/selftests/tty/tty_tiocsti_test.c | 421 +++++++++++++++++++++++++
+ 4 files changed, 433 insertions(+), 1 deletion(-)
+---
+base-commit: 5adb635077d1b4bd65b183022775a59a378a9c00
+change-id: 20250618-toicsti-bug-7822b8e94a32
+
+Best regards,
+-- 
+Abhinav Saxena <xandfury@gmail.com>
+
 
