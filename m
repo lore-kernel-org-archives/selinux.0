@@ -1,206 +1,139 @@
-Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com [209.85.222.47])
+Received: from mail-ua1-f51.google.com (mail-ua1-f51.google.com [209.85.222.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60F6A3C30
-	for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 18:45:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 215D646BF
+	for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 18:47:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750704345; cv=none; b=HhWYq4W9pepmx1/dkNmxBjnjbkI2qat08cQXdhu4mkME3bmTnta6nEGgjyrR5Yjl7a8auULIDDP2eraInO6etb0RkJF6aOmeiY0UqX355L5n1XZDwtxHCS1B8QVPUXrnYDcD0DnqMvc5oAYHihpXara+OFoq336IxinfFpHJgyI=
+	t=1750704448; cv=none; b=edM0xe5j3F0/o2CSFB3t8aW6Bb4IkQtcsAtMsmI2rHD6qlZFpbb3NkcW4QG7jTmWCqwNrqty7NORnCFFgnC8uhJ0YlopTyIZXoS8B2u7+vbV/6M68/CJVyH4f0DGQ6dTIz/yBmXZfSRRfQMm6Hm5ApuBAqd0X7REKD9+/MzRJVo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750704345; c=relaxed/simple;
-	bh=G8O1nc69Vlec+XER8NvmTt3pV7Ysgn3Z4YYl3+xmA4c=;
+	s=arc-20240116; t=1750704448; c=relaxed/simple;
+	bh=601easXTeglc7Ylmdd9vwwfB7o/Golm3j4LTNEKE7kc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IEIKUjSzaUdOurnfx1rmTk8bgjG8OIwveQOgZ5V6KFJceyR1MebGcCTronZDSr2HZhXGnR3g0BumwWAkRUTa9hhuswu6tRuwuR5D50Q7n1mKQTgryvW9cX93PolHEzz6J8/MLBwO/fEriW/8+C2wR4KQtUZvWUAhg5q1WdQ3KkY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ILb7TD+B; arc=none smtp.client-ip=209.85.222.47
+	 To:Cc:Content-Type; b=hVz7uPUToJXfOqR+K6w1uxTKH7ljVVv6Lvw08fhV6bl7EIf0RjC+pgLbYyV8tjTedUR5p3nkW/cbe+OWWdvvFjXoUcdgiLD+kLZNG/9CePrZC87GXg2aBcP+1Neis0xCXVMovmxYcJFfluyLnHUZ8QtuQlQhGHk2WWUVZiijHfk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HWEcijND; arc=none smtp.client-ip=209.85.222.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ILb7TD+B"
-Received: by mail-ua1-f47.google.com with SMTP id a1e0cc1a2514c-87f74a28a86so3048853241.2
-        for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 11:45:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HWEcijND"
+Received: by mail-ua1-f51.google.com with SMTP id a1e0cc1a2514c-87f2adec2b7so1475892241.0
+        for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 11:47:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750704342; x=1751309142; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1750704446; x=1751309246; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tTm41+51KeO434RakEIw/bSUu0x62lcNruDAS/qctQY=;
-        b=ILb7TD+BSo5HDpAgCT73F3oTaXJjBIUZ+4eEKzCMFQCDJiDqDpYXEEpih87pO4Nl5t
-         0ebdV4YJCU1F+R6jroIm4YB90SfEtEr37pQgNRYKR1qcXypeufZiFG0u2d1L9dPHMh4e
-         3u7KjKqydFl8AOb52ygCW2bHj+1pim8pwH0HkQa+h14I3VGI824TwTYm2qBPmHwSwcmg
-         Y8Va0NFSsE781j7aOBJy2fEcsbxTZ0d1YNWL6vd3AAT09+1JqHpbrId3TELD8rsc1iy+
-         vwUX93hwF681DgHpxvP2naCJ1R4VphgsMgJ706/hhmkypeIaMVbDeGkLrDEnGz9c0iyZ
-         Hfmw==
+        bh=hqKBJlGtQxpuGFZy+rmBHNcmqyutJWhx31Nqv3L5YF8=;
+        b=HWEcijNDyvtaT7Q+TfzeMz0yBE+ehEJ0iwz2kTVXT9xaN4Nfiu/gEUPEUtloyX5vOv
+         7NcCITHedZpdOzebeIUoTa9CQn9jr/7GMBAAdtMnJrIjbMpoJ8CZRbgUCZ2LM3D1pvUe
+         th6dnuCly7t9xsR+TFWasw5SL2vGXjCOO+YJ60ytQnYz2A+tgwmV3WK2olMnXHGLi+nc
+         MnO7qxpCix5Z7M+bThDGtdmF4vrjUFf+qD6m+kXTQ5eDZyMc3/e1FObjSIyySj6qspBa
+         Vtt9J7FWx82JaNn3uS6aknPR+42SHiz0UIEHFJlUfBNV8isdoH/pToYcSC1zRYjdSTzv
+         fO8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750704342; x=1751309142;
+        d=1e100.net; s=20230601; t=1750704446; x=1751309246;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=tTm41+51KeO434RakEIw/bSUu0x62lcNruDAS/qctQY=;
-        b=jriHoXUW59fMkzhV/Qqk84vWNsS3MMmfBoEt56UbWZaaockcI2huvdBkbwbSJ2ztlk
-         g+qjsKWILjjSUR7L7IEq/H6Hd+cK8OZQC7l6zGiuVonSkKb3u9eTnXniwvJiZ5zpbgh7
-         4YVur5DI7MVzDI+m6PZLxEg96eh/5ZPXWhp94I/hyBUzwipDP3xpxSnTUFy8eb2E63p9
-         A0Fvx8DHmHbCSDwioEfBgHYxOjTBJWznL9vINpL6ORY+pd1NyvJbAozINDnEEFo0SlUB
-         W20huorX65wLwCfQf2RC2x/uAbG9eXWebAAz64OuJ98CQp+KUj0F8hJcaPRBiAl039GB
-         g09Q==
-X-Gm-Message-State: AOJu0Ywn+Oj9XrjPOt9SSgYdBnJonw0YXoWZyiwwTO4Bm88wmiGxNs1K
-	jPNljt/Sn2Y+qIdNPqNvxFNTXlydJBWv8kWEpjrfqOBpYJzRqNn54em77U0jyAuPpFQkwZWCOzD
-	YmwEN4RjsE1KVdSPayPYtt33AxTqhZ/0=
-X-Gm-Gg: ASbGncuGIy3UpbJszerzsiTiFdx404Jj6Mbhguz+cqJUGnVvQOCd3Uk1umwiwK4o3dZ
-	RbSYfka5VOeleFzo2q+2uH5ltwiehOregiP3Eky+rRzJQjoKFclzLPlDPi6VSuTXshuC7iFoR5j
-	C1i99Ocul+7EWHshMxTZvyO734NyZpNnR1+XM+o8kH
-X-Google-Smtp-Source: AGHT+IF4Y/ooqWC5VnngXTAefOM7r/K/bW2pQLbCMrqXcDesUGux/AcNS31tWI48N+8XQbR5Byf/y/pN54IK8LJEYSc=
-X-Received: by 2002:a05:6102:41c9:b0:4e9:d951:1433 with SMTP id
- ada2fe7eead31-4e9d9515564mr3449334137.12.1750704342136; Mon, 23 Jun 2025
- 11:45:42 -0700 (PDT)
+        bh=hqKBJlGtQxpuGFZy+rmBHNcmqyutJWhx31Nqv3L5YF8=;
+        b=DNJSw8dsosI+9aP1J9iBFe2iAftLDUb7CtRI52gGtvEldQNn7oiwuhD04uBABFEjy2
+         hnIfjF0aMy+/cB6EWg+Mfb9xkwCkH4IJkMBIUUlFofCIcnl5cq9XqLlH7JdFye+n57he
+         DpHbJjR7h1GJ0XezP3whYpd95QNYrHIsgR0pF2/Cs7QY4HdG/Hn5Z2iFpgKGDjZzdpRg
+         djHJgvJivxmP4T8UQGD70aUTOodQmged/Ilu9qKpBHZUO9u489GS2OAF+sOaghl1GE1F
+         zDrwlIpP38wLHfYp+Ije69EZBK3Tdx8Zcad+GQmEoRtptv/I5NBflASTSJGbK4wpL42u
+         eqKA==
+X-Gm-Message-State: AOJu0YzthQ2SYY3MlgUwGyxOwemWGYviO6Gcv93LSFJUxMhzyotMmgEr
+	tjNDh+cJzKlhAcYcVspx9ybg+D2hwjcxfAFnD4y8NPr4tCnZ0vkgFaapYmNAOdYWZqu3HaikuPb
+	Tac/bV5ZoviGE9ZqaGcOS+dD+U1Pjq2E=
+X-Gm-Gg: ASbGncuwtYVPE2dkISJ75/IJZaAA+CUjdWQR+zne0G921F9eIRzILAy+1hZbcCS6ow0
+	47GskSK0Ws33Rh2z6Y/ccbpaL8irREyqWze0wluyXywWcaCAHZP2fQH3fzc5xPuC61JD/fy0zjc
+	T4n+DjuBqdIwPVbhBJLtrdX8OiIptuU2QQx6seagCU
+X-Google-Smtp-Source: AGHT+IEExAJavkv/9oZBXVXMhdYLqO17n8SctC9O6oYtTWd7o9ycyDjWQpLTo05Jk8Z9a9azLQpar6GyBdnbClohvLU=
+X-Received: by 2002:a05:6102:8016:b0:4df:9e8b:8cad with SMTP id
+ ada2fe7eead31-4e9c2c6dcb7mr8198418137.22.1750704445927; Mon, 23 Jun 2025
+ 11:47:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250616152534.26053-1-cgoettsche@seltendoof.de>
- <20250616152534.26053-5-cgoettsche@seltendoof.de> <CAP+JOzSJXKnNu3bHBuo4DRNFiVYauzjtfZw1xBu0CxEOsn_TZA@mail.gmail.com>
-In-Reply-To: <CAP+JOzSJXKnNu3bHBuo4DRNFiVYauzjtfZw1xBu0CxEOsn_TZA@mail.gmail.com>
+References: <20250613042737.485384-1-inseob@google.com> <CAP+JOzTVfGWMhvCCQHp7QXKN=Scq1N8-BeBHVvi4DceAK5aaQg@mail.gmail.com>
+In-Reply-To: <CAP+JOzTVfGWMhvCCQHp7QXKN=Scq1N8-BeBHVvi4DceAK5aaQg@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Mon, 23 Jun 2025 14:45:31 -0400
-X-Gm-Features: Ac12FXzLJHskDOHyPrKcAAwyNxqEOCqCjwkQOSXwhj2A3ZaTT8gWE5LJzBayZYc
-Message-ID: <CAP+JOzQVv7NJDksXmP_P3XjOmE8O5J5HMvZ8ThWqnpXVNRBumA@mail.gmail.com>
-Subject: Re: [PATCH v3 1/5] libsepol: update sort order for netifcon definitions
-To: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc: selinux@vger.kernel.org
+Date: Mon, 23 Jun 2025 14:47:14 -0400
+X-Gm-Features: Ac12FXzrhijm3QwtemVCXZg6-m6887VMUTsYIxAVPtH_JAeqL3F8fWYXDE8WskQ
+Message-ID: <CAP+JOzQWD5LggvxKunExGr-aK65kiR5dqi7ost1u24r9H1WPHA@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] libsepol: Allow multiple policycap statements
+To: Inseob Kim <inseob@google.com>
+Cc: selinux@vger.kernel.org, takayas@google.com, tweek@google.com, 
+	stephen.smalley.work@gmail.com, cgzones@googlemail.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 23, 2025 at 11:04=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
+On Mon, Jun 23, 2025 at 11:05=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
 rote:
 >
-> On Mon, Jun 16, 2025 at 11:33=E2=80=AFAM Christian G=C3=B6ttsche
-> <cgoettsche@seltendoof.de> wrote:
+> On Fri, Jun 13, 2025 at 12:28=E2=80=AFAM Inseob Kim <inseob@google.com> w=
+rote:
 > >
-> > From: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > Same policycap statements don't conflict each other, so it's fine to
+> > allow multiple policycap statements to exist.
 > >
-> > Order netifcon definitions with a wildcard interface name last in objec=
-t
-> > contexts, so the kernel tries to match literal names first.
+> > Signed-off-by: Inseob Kim <inseob@google.com>
 > >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> For these five patches.
+> For these two patches:
 > Acked-by: James Carter <jwcart2@gmail.com>
 >
 
-These five patches have been merged.
+These two patches have been merged.
 Thanks,
 Jim
 
+> > Change since v2:
+> > - Remove the parent patch adding NETIF_WILDCARD
+> > - Follow the pattern of SEPOL_EEXIST check and destroy
 > > ---
-> >  libsepol/cil/src/cil_post.c     | 36 ++++++++++++++++++++++++++++++---
-> >  libsepol/src/kernel_to_common.c | 36 ++++++++++++++++++++++++++++++---
-> >  2 files changed, 66 insertions(+), 6 deletions(-)
+> >  libsepol/cil/src/cil_build_ast.c | 13 +++++++++++--
+> >  1 file changed, 11 insertions(+), 2 deletions(-)
 > >
-> > diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-> > index d63a5496..70e5b734 100644
-> > --- a/libsepol/cil/src/cil_post.c
-> > +++ b/libsepol/cil/src/cil_post.c
-> > @@ -316,10 +316,40 @@ int cil_post_genfscon_compare(const void *a, cons=
-t void *b)
+> > diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_bu=
+ild_ast.c
+> > index b1f151e9..53f825ad 100644
+> > --- a/libsepol/cil/src/cil_build_ast.c
+> > +++ b/libsepol/cil/src/cil_build_ast.c
+> > @@ -145,6 +145,9 @@ static int cil_allow_multiple_decls(struct cil_db *=
+db, enum cil_flavor f_new, en
+> >         case CIL_OPTIONAL:
+> >                 return CIL_TRUE;
+> >                 break;
+> > +       case CIL_POLICYCAP:
+> > +               return CIL_TRUE;
+> > +               break;
+> >         default:
+> >                 break;
+> >         }
+> > @@ -5559,8 +5562,14 @@ int cil_gen_policycap(struct cil_db *db, struct =
+cil_tree_node *parse_current, st
+> >         key =3D parse_current->next->data;
 > >
-> >  int cil_post_netifcon_compare(const void *a, const void *b)
-> >  {
-> > -       struct cil_netifcon *anetifcon =3D *(struct cil_netifcon**)a;
-> > -       struct cil_netifcon *bnetifcon =3D *(struct cil_netifcon**)b;
-> > +       /* keep in sync with kernel_to_common.c:netif_data_cmp() */
-> > +       const struct cil_netifcon *anetifcon =3D *(struct cil_netifcon*=
-*)a;
-> > +       const struct cil_netifcon *bnetifcon =3D *(struct cil_netifcon*=
-*)b;
-> > +       const char *a_name =3D anetifcon->interface_str;
-> > +       const char *b_name =3D bnetifcon->interface_str;
-> > +       size_t a_stem =3D strcspn(a_name, "*?");
-> > +       size_t b_stem =3D strcspn(b_name, "*?");
-> > +       size_t a_len =3D strlen(a_name);
-> > +       size_t b_len =3D strlen(b_name);
-> > +       int a_iswildcard =3D a_stem !=3D a_len;
-> > +       int b_iswildcard =3D b_stem !=3D b_len;
-> > +       int rc;
-> > +
-> > +       /* order non-wildcards first */
-> > +       rc =3D spaceship_cmp(a_iswildcard, b_iswildcard);
-> > +       if (rc)
-> > +               return rc;
-> > +
-> > +       /* order non-wildcards alphabetically */
-> > +       if (!a_iswildcard)
-> > +               return strcmp(a_name, b_name);
-> > +
-> > +       /* order by decreasing stem length */
-> > +       rc =3D spaceship_cmp(a_stem, b_stem);
-> > +       if (rc)
-> > +               return -rc;
-> > +
-> > +       /* order '?' (0x3f) before '*' (0x2A) */
-> > +       rc =3D spaceship_cmp(a_name[a_stem], b_name[b_stem]);
-> > +       if (rc)
-> > +               return -rc;
+> >         rc =3D cil_gen_node(db, ast_node, (struct cil_symtab_datum*)pol=
+cap, (hashtab_key_t)key, CIL_SYM_POLICYCAPS, CIL_POLICYCAP);
+> > -       if (rc !=3D SEPOL_OK)
+> > -               goto exit;
+> > +       if (rc !=3D SEPOL_OK) {
+> > +               if (rc =3D=3D SEPOL_EEXIST) {
+> > +                       cil_destroy_policycap(polcap);
+> > +                       polcap =3D NULL;
+> > +               } else {
+> > +                       goto exit;
+> > +               }
+> > +       }
 > >
-> > -       return  strcmp(anetifcon->interface_str, bnetifcon->interface_s=
-tr);
-> > +       /* order alphabetically */
-> > +       return strcmp(a_name, b_name);
-> >  }
+> >         return SEPOL_OK;
 > >
-> >  int cil_post_ibendportcon_compare(const void *a, const void *b)
-> > diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_c=
-ommon.c
-> > index 44f0be23..e4338ec6 100644
-> > --- a/libsepol/src/kernel_to_common.c
-> > +++ b/libsepol/src/kernel_to_common.c
-> > @@ -441,10 +441,40 @@ static int portcon_data_cmp(const void *a, const =
-void *b)
-> >
-> >  static int netif_data_cmp(const void *a, const void *b)
-> >  {
-> > -       struct ocontext *const *aa =3D a;
-> > -       struct ocontext *const *bb =3D b;
-> > +       /* keep in sync with cil_post.c:cil_post_netifcon_compare() */
-> > +       const struct ocontext *const *aa =3D a;
-> > +       const struct ocontext *const *bb =3D b;
-> > +       const char *a_name =3D (*aa)->u.name;
-> > +       const char *b_name =3D (*bb)->u.name;
-> > +       size_t a_stem =3D strcspn(a_name, "*?");
-> > +       size_t b_stem =3D strcspn(b_name, "*?");
-> > +       size_t a_len =3D strlen(a_name);
-> > +       size_t b_len =3D strlen(b_name);
-> > +       int a_iswildcard =3D a_stem !=3D a_len;
-> > +       int b_iswildcard =3D b_stem !=3D b_len;
-> > +       int rc;
-> >
-> > -       return strcmp((*aa)->u.name, (*bb)->u.name);
-> > +       /* order non-wildcards first */
-> > +       rc =3D spaceship_cmp(a_iswildcard, b_iswildcard);
-> > +       if (rc)
-> > +               return rc;
-> > +
-> > +       /* order non-wildcards alphabetically */
-> > +       if (!a_iswildcard)
-> > +               return strcmp(a_name, b_name);
-> > +
-> > +       /* order by decreasing stem length */
-> > +       rc =3D spaceship_cmp(a_stem, b_stem);
-> > +       if (rc)
-> > +               return -rc;
-> > +
-> > +       /* order '?' (0x3f) before '*' (0x2A) */
-> > +       rc =3D spaceship_cmp(a_name[a_stem], b_name[b_stem]);
-> > +       if (rc)
-> > +               return -rc;
-> > +
-> > +       /* order alphabetically */
-> > +       return strcmp(a_name, b_name);
-> >  }
-> >
-> >  static int node_data_cmp(const void *a, const void *b)
 > > --
-> > 2.49.0
+> > 2.50.0.rc2.692.g299adb8693-goog
 > >
 > >
