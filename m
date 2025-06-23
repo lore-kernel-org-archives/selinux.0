@@ -1,247 +1,209 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FCC424BC0A
-	for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 12:34:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14C001DF728;
+	Mon, 23 Jun 2025 12:35:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750682080; cv=none; b=UpSDmcp5lUupGbvmG+994JMHs/ZmORCNrhDSK9cqG+bk7YM4sYUZ7tElIhRRwrPhAEEvCKS33SqDsTzwmKumSB0NqwaS5KIQek6kSxYPU7akCixLxdZN701aIVjXmv5TVzthfIIhcCKIyuaMWhwXeRjPOvdnddeIhvYd3n8283M=
+	t=1750682137; cv=none; b=Eu785+KqhKlSorT1SNO0t2urJT6Y1hGG3ENCiSRGv0edPxghURrHG3eSfDK5GM+bZQGn/JAi75J/dtbHcBPxCYhjdpCd5piz193jmZo9dKtVVXgd0LsOcvypAVgXknn5I4cR/bBoRCFosS64tfDrejRibbztDqWAEdB5maxZoNE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750682080; c=relaxed/simple;
-	bh=d7CWSC5UgGiqPKaaf3BbZx3sdpUOArELtiMhaocdaTQ=;
-	h=From:To:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=h61tnhEhGpbkMrSEXmzNmQCKbjVsAqX7rYCXYDFTYxC5e1jDHmj9ZxTKv5VmWDeZHX/CS+p+reUnVi7Vi66BI78CUWjvJrqhn7tPFmCo47fn13C+Om0H8yYrRgF3XpF4h/gRdcFBT3734/Ey+hUZDD7bnXxpWn+pABGasqKaZAs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NxH54E5B; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1750682137; c=relaxed/simple;
+	bh=Fw8H1bJz3s55X12OstVPkl/Ss/KPoSsjGMv4XIofF3Y=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=JBF2+a+PTkBhRyA9swwvXIdyNihTCvgu9K4dr2+yy3Kc/fXxOr7e6q0iB6DeRRUJhpj/NWWhBfUvGb8EH4Pc0Kp4ci6DC5RlDoAzSFa+FVHqXsMyNi1QLccRnLLhnZt41AxURTxYW75xcxTKzvU2n5rD4Ntw1ASqU6wsC0fx9Ks=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B3yQUiSa; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NxH54E5B"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750682077;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=gK6gKafP8TJYDhS1NEkveAJVO1gWMTzmHLRnGmMUtmo=;
-	b=NxH54E5Bvy8E1FbUT/r9OFHg0Ors/19kOERvrRpEZz448KsApt00X0fatwiHseVgOrl39u
-	ZRhAbfrAHza8nksQ64f9aoypSsajEmI0leaKDa0F9TLwgjhcTB3LLK0v9apYSBm/RVgDXw
-	0e0B0YhL33gU9IR9h6GLRGSv+HVRW4Y=
-Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-554-gk-7fETSMHuXLnfpRv5RQQ-1; Mon,
- 23 Jun 2025 08:34:34 -0400
-X-MC-Unique: gk-7fETSMHuXLnfpRv5RQQ-1
-X-Mimecast-MFC-AGG-ID: gk-7fETSMHuXLnfpRv5RQQ_1750682071
-Received: from mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.40])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8C5DC1800290;
-	Mon, 23 Jun 2025 12:34:31 +0000 (UTC)
-Received: from localhost (unknown [10.45.224.182])
-	by mx-prod-int-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 06FC719560AB;
-	Mon, 23 Jun 2025 12:34:30 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: Alyssa Ross <hi@alyssa.is>, selinux@vger.kernel.org
-Subject: Re: [PATCH v3] Support static-only builds - unconditional `-laudit
- -lbz2` in non-static policycoreutils build
-In-Reply-To: <20250211211651.1297357-3-hi@alyssa.is>
-References: <20250211211651.1297357-3-hi@alyssa.is>
-Date: Mon, 23 Jun 2025 14:34:29 +0200
-Message-ID: <87bjqebpre.fsf@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B3yQUiSa"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-312e747d2d8so3205345a91.0;
+        Mon, 23 Jun 2025 05:35:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1750682135; x=1751286935; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=O7qhLKSaZBJUrIQxrexkwHh16gMLen9lREkpVcdbEtQ=;
+        b=B3yQUiSa7l3Ph10YCNdYqsld90RF15RqUG3arqhBT3Ym/fgxggwleqexhl1gNvxEVG
+         3b3om6XIvKaYc2POshekmDqoB2YElD42NQqUL+eMCpSOPoIPVYJVGAXwMC5UkUoDel4q
+         hcIWDBWUeqoqIjTTWgfcxcrI2Xnn68N7Y+aCzuXrLjmBmp7+4HTysSqUIC/yPAtM6yRc
+         Lvu9mzg2aVy2Fwhk13gyGE14AKP1ZMDanz87gLBJmPgwHI+ujRMqLeuqKva0l1UMDmvm
+         ttPw2TPU6TMwB+BxeevYHxT7ttbaxy2dseVyNiePJoawyS2WmCNs/3MUhSZLUSx/+OE7
+         9IGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1750682135; x=1751286935;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=O7qhLKSaZBJUrIQxrexkwHh16gMLen9lREkpVcdbEtQ=;
+        b=HmwonrBC8yEqGeks13dwCAPbiwTpSD6W5QdM1riggl9BFfubMKRyXwBQK5cBvqNHx7
+         I0ZB9kKlw0v8FXR4oBtusZHhmBkCnMoLJTrYiMbTY2s/wcd92LTo72e7ieoVHU6qHMk5
+         V22xglT/XFYcppK0HIT8XHJckEMhe77RUIs2+Q524zNQoVz80z7bfHWPJKphX9wxuu8O
+         FDLDF/qAFa2YBeLKw/7hHCjlDXk4IURpZfFmUL6Nh29yJ3nVgf1U8yLdGaryUliffdjh
+         KO+6M2ISmJcUbUxFDT/WjXaramzP3GZ+h6NhTT9yd0JCPJF/YHP/mCWcOsAl7jNMVjKV
+         VG0w==
+X-Forwarded-Encrypted: i=1; AJvYcCV+uWKliNGpZcnykMPNPkDOZy2zo3vujhvCOsO2O0+AwEVvLuz2WmAnX8eS0d66CSp/nwYziMngg4TNd3xCmjD0@vger.kernel.org, AJvYcCWmgmX4XyUJN/NtxVnUvk7fOCfEluXr9fl38AT2pb/ri7V9lDDBjP0uNF70XrwYR+fserIVjYoJzHFTh9LY2dw=@vger.kernel.org, AJvYcCX22DHYN9a+ZjjokXuwrXZ+Qiz+dSaFt9k6PQoFx4OU7UqSDZkPwNK1ZLFAI7PswCFx0E2Ltm8wQQ==@vger.kernel.org, AJvYcCXF6qNlICpwF87LD9gUwlZYk08IPgZaw0lhJU0hM0x2yrGSWR3wCD1j1tFAfkbCfz+ixS9DFbdjUsgocyz/@vger.kernel.org
+X-Gm-Message-State: AOJu0YyLHS2S1tokvSFCJZ5nTpclWIFjJFpTMPlEdyz795ziqQhEXwNJ
+	ftm2JyjE3kToc1FGo5VngpqGdYMS1cKtRrkGh9JEOOta0EDjjeXInUqfxcuo8aHh4uQOEDR7mxL
+	YFHaEqw2yek7BaTWxzHxlWdWQqzFwURU=
+X-Gm-Gg: ASbGncsP3llbvsoteKz9sDPZ9sezWXaxNuZBM/JFGOZAAOSC1fhpiEo1KV7Fmx0FzN3
+	f6oRjXE3qgPNpAk2vlHb4zXxBd6Xpkgoivg/Jxx6hFFM1ftZhTokyCe167gn8BhwpiQ33cL07tI
+	eIsW4TeO5Np4124gP2RBRnXXYqnnn3Ah9YeUOU2/bYkcMYjxywgjRZ5g==
+X-Google-Smtp-Source: AGHT+IFgLQuZoeX9b3aKKJtmdXKrWNO2mg86tL81LoOCWkqAY8Cl6nMZugpAgQtX1P3C6+d9ero2JdkR6FprooZDhVc=
+X-Received: by 2002:a17:90b:4c50:b0:30e:6a9d:d78b with SMTP id
+ 98e67ed59e1d1-3159f50379bmr16763807a91.12.1750682135242; Mon, 23 Jun 2025
+ 05:35:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.40
+References: <20250622-toicsti-bug-v1-0-f374373b04b2@gmail.com>
+In-Reply-To: <20250622-toicsti-bug-v1-0-f374373b04b2@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 23 Jun 2025 08:35:23 -0400
+X-Gm-Features: AX0GCFuLnTJxzf2okVc0glfm3bX5AeBW2XJ6g5gUFYldkEA9RJmWnCx-TMi6png
+Message-ID: <CAEjxPJ4bru=J=XZGSFXoxkQJZHQX_iJaxdCwpY8PAcaNv0F2fA@mail.gmail.com>
+Subject: Re: [PATCH 0/2] Possible TTY privilege escalation in TIOCSTI ioctl
+To: xandfury@gmail.com
+Cc: Shuah Khan <shuah@kernel.org>, Nathan Chancellor <nathan@kernel.org>, 
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, Bill Wendling <morbo@google.com>, 
+	Justin Stitt <justinstitt@google.com>, Paul Moore <paul@paul-moore.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, llvm@lists.linux.dev, 
+	selinux@vger.kernel.org, kees@kernel.org, linux-hardening@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Alyssa Ross <hi@alyssa.is> writes:
+On Sun, Jun 22, 2025 at 9:41=E2=80=AFPM Abhinav Saxena via B4 Relay
+<devnull+xandfury.gmail.com@kernel.org> wrote:
+>
+> This patch series was initially sent to security@k.o; resending it in
+> public. I might follow-up with a tests series which addresses similar
+> issues with TIOCLINUX.
+>
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> The TIOCSTI ioctl uses capable(CAP_SYS_ADMIN) for access control, which
+> checks the current process's credentials. However, it doesn't validate
+> against the file opener's credentials stored in file->f_cred.
+>
+> This creates a potential security issue where an unprivileged process
+> can open a TTY fd and pass it to a privileged process via SCM_RIGHTS.
+> The privileged process may then inadvertently grant access based on its
+> elevated privileges rather than the original opener's credentials.
+>
+> Background
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> As noted in previous discussion, while CONFIG_LEGACY_TIOCSTI can restrict
+> TIOCSTI usage, it is enabled by default in most distributions. Even when
+> CONFIG_LEGACY_TIOCSTI=3Dn, processes with CAP_SYS_ADMIN can still use TIO=
+CSTI
+> according to the Kconfig documentation.
+>
+> Additionally, CONFIG_LEGACY_TIOCSTI controls the default value for the
+> dev.tty.legacy_tiocsti sysctl, which remains runtime-configurable. This
+> means the described attack vector could work on systems even with
+> CONFIG_LEGACY_TIOCSTI=3Dn, particularly on Ubuntu 24.04 where it's "restr=
+icted"
+> but still functional.
+>
+> Solution Approach
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> This series addresses the issue through SELinux LSM integration rather
+> than modifying core TTY credential checking to avoid potential compatibil=
+ity
+> issues with existing userspace.
 
-> Sometimes it's useful to have a static-only toolchain.  This can be
-> due to targetting some weird embedded platform, or it can be because
-> it ensures that no dynamic libraries are sneaking into a system that's
-> supposed to be 100% static due to non-cooperative build systems.  Most
-> build systems support static-only builds, e.g. autoconf provides a
-> --disable-shared configure option.
+So I'm unconvinced that fixing bugs in core kernel permission checks
+by adding new checks to SELinux is the right way to go.
+Also, SELinux already provides a way to control ioctl, although it too
+uses the current cred, but the granularity of the
+process labels and the ability to distinguish individual ioctl cmds
+may mitigate this issue in practice.
+
 >
-> selinux's custom make-based build system did not support such an
-> option, so here I've added one.  Apart from the obvious changes, I had
-> to make the utilities that use external libraries link against them
-> manually, because that can't be inferred from the static selinux
-> libraries.  For downstream users of libselinux using pkg-config, this
-> shouldn't be a problem, because libselinux.pc already includes the
-> Requires.private line that specifies libpcre should be linked against
-> as well.
+> The enhancement adds proper current task and file credential capability
+> validation in SELinux's selinux_file_ioctl() hook specifically for
+> TIOCSTI operations.
 >
-> Signed-off-by: Alyssa Ross <hi@alyssa.is>
+> Testing
+> =3D=3D=3D=3D=3D=3D=3D
+>
+> All patches have been validated using:
+> - scripts/checkpatch.pl --strict (0 errors, 0 warnings)
+> - Functional testing on kernel v6.16-rc2
+> - File descriptor passing security test scenarios
+> - SELinux policy enforcement testing
+>
+> The fd_passing_security test demonstrates the security concern.
+> To verify, disable legacy TIOCSTI and run the test:
+>
+> $ echo "0" | sudo tee /proc/sys/dev/tty/legacy_tiocsti
+> $ sudo ./tools/testing/selftests/tty/tty_tiocsti_test -t fd_passing_secur=
+ity
+>
+> Patch Overview
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> PATCH 1/2: selftests/tty: add TIOCSTI test suite
+> Comprehensive test suite demonstrating the issue and fix validation
+>
+> PATCH 2/2: selinux: add capability checks for TIOCSTI ioctl
+> Core security enhancement via SELinux LSM hook
+>
+> References
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>
+> - tty_ioctl(4) - documents TIOCSTI ioctl and capability requirements
+> - commit 83efeeeb3d04 ("tty: Allow TIOCSTI to be disabled")
+> - Documentation/security/credentials.rst
+> - https://github.com/KSPP/linux/issues/156
+> - https://lore.kernel.org/linux-hardening/Y0m9l52AKmw6Yxi1@hostpad/
+> - drivers/tty/Kconfig
+>
+> Configuration References:
+> [1] - https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/=
+tree/drivers/tty/Kconfig#n149
+> [2] - https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/=
+tree/drivers/tty/Kconfig#n162
+> [3] - https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/=
+tree/drivers/tty/Kconfig#n188
+>
+> To: Shuah Khan <shuah@kernel.org>
+> To: Nathan Chancellor <nathan@kernel.org>
+> To: Nick Desaulniers <nick.desaulniers+lkml@gmail.com>
+> To: Bill Wendling <morbo@google.com>
+> To: Justin Stitt <justinstitt@google.com>
+> To: Paul Moore <paul@paul-moore.com>
+> To: Stephen Smalley <stephen.smalley.work@gmail.com>
+> To: Ondrej Mosnacek <omosnace@redhat.com>
+> Cc: linux-kernel@vger.kernel.org
+> Cc: linux-kselftest@vger.kernel.org
+> Cc: llvm@lists.linux.dev
+> Cc: selinux@vger.kernel.org
+>
+> Signed-off-by: Abhinav Saxena <xandfury@gmail.com>
 > ---
-> diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
-> index 32ad0201..7acd51dd 100644
-> --- a/policycoreutils/Makefile
-> +++ b/policycoreutils/Makefile
-> @@ -1,5 +1,10 @@
->  SUBDIRS = setfiles load_policy newrole run_init secon sestatus semodule setsebool scripts po man hll unsetfiles
->  
-> +PKG_CONFIG ?= pkg-config
-> +
-> +LIBSELINUX_LDLIBS := $(shell $(PKG_CONFIG) --libs libselinux)
-> +export LIBSELINUX_LDLIBS
-> +
->  all install relabel clean indent:
->  	@for subdir in $(SUBDIRS); do \
->  		(cd $$subdir && $(MAKE) $@) || exit 1; \
-> diff --git a/policycoreutils/load_policy/Makefile b/policycoreutils/load_policy/Makefile
-> index ad80d500..37c0111b 100644
-> --- a/policycoreutils/load_policy/Makefile
-> +++ b/policycoreutils/load_policy/Makefile
-> @@ -7,7 +7,7 @@ LOCALEDIR ?= $(DESTDIR)$(PREFIX)/share/locale
->  
->  CFLAGS ?= -Werror -Wall -W
->  override CFLAGS += $(LDFLAGS) -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
-> -override LDLIBS += -lsepol -lselinux
-> +override LDLIBS += $(LIBSELINUX_LDLIBS) -lsepol
->  
->  TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
->  
-> diff --git a/policycoreutils/newrole/Makefile b/policycoreutils/newrole/Makefile
-> index 4b8145d3..6e95e79f 100644
-> --- a/policycoreutils/newrole/Makefile
-> +++ b/policycoreutils/newrole/Makefile
-> @@ -25,7 +25,7 @@ VERSION = $(shell cat ../VERSION)
->  CFLAGS ?= -Werror -Wall -W
->  EXTRA_OBJS =
->  override CFLAGS += -DVERSION=\"$(VERSION)\" -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
-> -override LDLIBS += -lselinux
-> +override LDLIBS += $(LIBSELINUX_LDLIBS)
->  ifeq ($(PAMH), y)
->  	override CFLAGS += -DUSE_PAM
->  	EXTRA_OBJS += hashtab.o
-> diff --git a/policycoreutils/run_init/Makefile b/policycoreutils/run_init/Makefile
-> index 619ebc1d..a5002587 100644
-> --- a/policycoreutils/run_init/Makefile
-> +++ b/policycoreutils/run_init/Makefile
-> @@ -11,7 +11,7 @@ AUDITH ?= $(shell test -f /usr/include/libaudit.h && echo y)
->  
->  CFLAGS ?= -Werror -Wall -W
->  override CFLAGS += -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
-> -override LDLIBS += -lselinux
-> +override LDLIBS += $(LIBSELINUX_LDLIBS)
->  ifeq ($(PAMH), y)
->  	override CFLAGS += -DUSE_PAM
->  	override LDLIBS += -lpam -lpam_misc
-> diff --git a/policycoreutils/secon/Makefile b/policycoreutils/secon/Makefile
-> index 440503a1..daa3e10e 100644
-> --- a/policycoreutils/secon/Makefile
-> +++ b/policycoreutils/secon/Makefile
-> @@ -8,7 +8,7 @@ WARNS=-Werror -W -Wall -Wundef -Wshadow -Wpointer-arith -Wbad-function-cast -Wca
->  VERSION = $(shell cat ../VERSION)
->  CFLAGS ?= $(WARNS) -O1
->  override CFLAGS += -DVERSION=\"$(VERSION)\"
-> -override LDLIBS += -lselinux
-> +override LDLIBS += $(LIBSELINUX_LDLIBS)
->  
->  all: secon
->  
-> diff --git a/policycoreutils/semodule/Makefile b/policycoreutils/semodule/Makefile
-> index 9fbf99d6..3855f95e 100644
-> --- a/policycoreutils/semodule/Makefile
-> +++ b/policycoreutils/semodule/Makefile
-> @@ -5,11 +5,12 @@ SBINDIR ?= $(PREFIX)/sbin
->  MANDIR = $(PREFIX)/share/man
->  
->  CFLAGS ?= -Werror -Wall -W
-> -override LDLIBS += -lsepol -lselinux -lsemanage
-> +override LDLIBS += -lsemanage -lsepol $(LIBSELINUX_LDLIBS)
->  SEMODULE_OBJS = semodule.o
->  
->  all: semodule genhomedircon
->  
-> +semodule: LDLIBS += -laudit -lbz2
-
-This change requires libaudit.so and and libbz2.so to be installed
-during policycoreutils build. This had not been necessary before this
-change.
-
-While it can be changed in build system, e.g. in Fedora use
-BuildRequires in policycoreutils.spec, neither semodule nor setseboot
-does not use those 2 libraries directly.
-
-I have not tested it yet but the following check could fix it:
-
-
-ifneq ($(DISABLE_SHARED),y)
-      semodule: LDLIBS += -laudit -lbz2
-endif
-
-
-
->  semodule: $(SEMODULE_OBJS)
->  
->  genhomedircon:
-> diff --git a/policycoreutils/sestatus/Makefile b/policycoreutils/sestatus/Makefile
-> index aebf050c..b0df6d28 100644
-> --- a/policycoreutils/sestatus/Makefile
-> +++ b/policycoreutils/sestatus/Makefile
-> @@ -8,7 +8,7 @@ ETCDIR ?= /etc
->  
->  CFLAGS ?= -Werror -Wall -W
->  override CFLAGS += -D_FILE_OFFSET_BITS=64
-> -override LDLIBS += -lselinux
-> +override LDLIBS += $(LIBSELINUX_LDLIBS)
->  
->  all: sestatus
->  
-> diff --git a/policycoreutils/setfiles/Makefile b/policycoreutils/setfiles/Makefile
-> index 84ffb08b..0b27e934 100644
-> --- a/policycoreutils/setfiles/Makefile
-> +++ b/policycoreutils/setfiles/Makefile
-> @@ -6,7 +6,7 @@ MANDIR = $(PREFIX)/share/man
->  AUDITH ?= $(shell test -f /usr/include/libaudit.h && echo y)
->  
->  CFLAGS ?= -g -Werror -Wall -W
-> -override LDLIBS += -lselinux -lsepol -lpthread
-> +override LDLIBS += $(LIBSELINUX_LDLIBS) -lsepol -lpthread
->  
->  ifeq ($(AUDITH), y)
->  	override CFLAGS += -DUSE_AUDIT
-> diff --git a/policycoreutils/setsebool/Makefile b/policycoreutils/setsebool/Makefile
-> index fc5b4ff6..12b6315d 100644
-> --- a/policycoreutils/setsebool/Makefile
-> +++ b/policycoreutils/setsebool/Makefile
-> @@ -6,13 +6,14 @@ MANDIR = $(PREFIX)/share/man
->  BASHCOMPLETIONDIR ?= $(PREFIX)/share/bash-completion/completions
->  
->  CFLAGS ?= -Werror -Wall -W
-> -override LDLIBS += -lselinux -lsemanage
-> +override LDLIBS += -lsemanage $(LIBSELINUX_LDLIBS)
->  SETSEBOOL_OBJS = setsebool.o
->  
->  BASHCOMPLETIONS=setsebool-bash-completion.sh 
->  
->  all: setsebool
->  
-> +setsebool: LDLIBS += -laudit -lbz2
->  setsebool: $(SETSEBOOL_OBJS)
->  
->  install: all
-> diff --git a/policycoreutils/unsetfiles/Makefile b/policycoreutils/unsetfiles/Makefile
-> index 9e5edc04..bdc1b9de 100644
-> --- a/policycoreutils/unsetfiles/Makefile
-> +++ b/policycoreutils/unsetfiles/Makefile
-> @@ -3,7 +3,7 @@ SBINDIR ?= $(PREFIX)/sbin
->  MANDIR ?= $(PREFIX)/share/man
->  
->  override CFLAGS += -D_GNU_SOURCE
-> -override LDLIBS += -lselinux
-> +override LDLIBS += $(LIBSELINUX_LDLIBS)
->  
->  
->  all: unsetfiles
+> Abhinav Saxena (2):
+>       selftests/tty: add TIOCSTI test suite
+>       selinux: add capability checks for TIOCSTI ioctl
 >
-> base-commit: 71aec30d068789e856e7cc429b620ae1cfa890f1
-> -- 
-> 2.47.0
-
+>  security/selinux/hooks.c                       |   6 +
+>  tools/testing/selftests/tty/Makefile           |   6 +-
+>  tools/testing/selftests/tty/config             |   1 +
+>  tools/testing/selftests/tty/tty_tiocsti_test.c | 421 +++++++++++++++++++=
+++++++
+>  4 files changed, 433 insertions(+), 1 deletion(-)
+> ---
+> base-commit: 5adb635077d1b4bd65b183022775a59a378a9c00
+> change-id: 20250618-toicsti-bug-7822b8e94a32
+>
+> Best regards,
+> --
+> Abhinav Saxena <xandfury@gmail.com>
+>
+>
