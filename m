@@ -1,91 +1,135 @@
-Received: from mail-yw1-f176.google.com (mail-yw1-f176.google.com [209.85.128.176])
+Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com [209.85.219.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72881275B15
-	for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 15:10:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EAB5298CD7
+	for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 15:15:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750691408; cv=none; b=dLYBMhBaEw4lWHukdE0xTAWpWLROExDFX000Mgq0aizFl3ETpAFJVPlsqS9U5YIj+/iG1mEstMTrmtQFhOzK5RULeDMaqwUo7GLFd23HB9bcBpHHBXlTW5/IFFzzjDg5C4nWWPAjvJqeDkpVCBPTwc7HJ4CNq9dcsaLf7JNt55E=
+	t=1750691754; cv=none; b=Tqcw/eHS+P4Es1CaWnqAhtNswc25u366SV1tr+TX2qIe3h/XVwWpsqr4JYInSi6JrY68YApV3tIjD6jVhCChKpAjDleWyZly4R2VjzainciqSL2rsbuEuXjYFUGQglbUG9voCwctotcSEBpHVAtGj4o42cZpuwqd09AXod6eiJg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750691408; c=relaxed/simple;
-	bh=HazBlh0XsmNByu/vRFFqgQQjJDyRrVYjdvZbtfH6brY=;
+	s=arc-20240116; t=1750691754; c=relaxed/simple;
+	bh=bqmkafwxydyORUt50Ur58Kwuhlign7ZQjhD916NZCSY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kMw/eHYmlKKUWRw8vvUqOMCO/TLYDQktAtY/I/SI7KAg34DW5rGoJvxeH5yhlcit0aS0GbYmuaAILPKBNTrO8SKsxRcxSs+NBvOR7og/iOS9lKDj27Hnrg0Q5qdE11R+IF7hzULbsc30JlkoPZCCurdIsGBv52BTQD8v18d69oM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=EZF5gDsl; arc=none smtp.client-ip=209.85.128.176
+	 To:Cc:Content-Type; b=R98uE6XAbCSXxbQvoSwOfjy3qyf/vtGIVhCYr6e8O5+4hv1TQvIpG8JnLnUmnbTRIg9b4h1NoAYz2/HVtRQ/dGBow2BiyoLFiICRlCHm5ws+WlMYCYxI5Dkh9pdWqHjHeeTlgUEFD+1ljhtPmr/hCHiAj9x9D+01eWfqxIWieZE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=EKYe+ogk; arc=none smtp.client-ip=209.85.219.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="EZF5gDsl"
-Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-7086dcab64bso35909677b3.1
-        for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 08:10:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="EKYe+ogk"
+Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e81ec95d944so3475831276.1
+        for <selinux@vger.kernel.org>; Mon, 23 Jun 2025 08:15:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1750691404; x=1751296204; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1750691751; x=1751296551; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HHbyqPz74VkWcZYrWw/x7PtaErCdXAYfKar2DqwwJgs=;
-        b=EZF5gDsl6DzJtkrRYyuNOsz2NAHmRsSsWJV1RlMF+JD5NNi++GZpWOUOMntz94xYAN
-         egLQ8Te1jpgHoBhiXYrdlmq0y65Vf3d8V/YuIlHzJvzv2rCUtq9iSufxO055fSM2FgM/
-         Dk4j6o3iH/XqRF2l4/sHteKt1kLyek20rI8avrUS8F5ujiN9p3UFaTjziwMlfgKAL9Zy
-         pdixXvJNoxKIrgMnWULn+bvKgzsPKVj2fv4owHAQQyctM6NeLTkk24jX/ltjKqkuBfuT
-         1oeyRuVVOawMHQUO/3w013VB+kIKjHaqFIVuqScfr4Opynfzy2pyezfaHS0/KQmvJcrI
-         uc+A==
+        bh=/cEM3zQRxkyeF8QlajSb8sKwoIOz06mgwPF6H5WCdJ0=;
+        b=EKYe+ogkX/OG1HhZRLqatx3ccfj/tYIE4kgYG87jUjQcRjccTjocq1jB1lMNhHPGRq
+         HVvhKW2AzCeUA37+5GN9cy7gNkL304wcUDb4vveYgRHcavzhBj0zzTNsPzVgzkN9w/Qr
+         9rP7KeS5zvw3CcE/F3eFpK2ztzdW9dtH1C5wQqIBGxvtEY16BLCU7Hd4xNH1G4sF/UDP
+         Nd4/trrkWCsA1EDmITaNhWWuu7U9kcyNbL0Fa1157ez8R0mLwRXlQo3mxf650uauZowL
+         X2mE0QhSiFnr2geIFqOLp1ReIMqydYNmSEM01NEihxVhk4uHmjOEzwe2dFYzOT8gT/KD
+         Ex2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750691404; x=1751296204;
+        d=1e100.net; s=20230601; t=1750691751; x=1751296551;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=HHbyqPz74VkWcZYrWw/x7PtaErCdXAYfKar2DqwwJgs=;
-        b=ls26K+BDCGB/5ClbnKq7C0fMy1T6B7AGGGffKyRp/8Qf9zbN1JGOlt5CwnUZTtrInC
-         1iEvjrGXfnuP0fOmi4Fb/C/vF2n+bWDwrKdmf4mnJ7GHEBq3Eit+lq4APMO3Zooc/Juv
-         URD0GRH0c6BLg7yHV0OQJ45BiB31rsPJZJwS37OKga3Pvluvg6vC8/rXgLh7/WOuZwEn
-         6RP+6abKuL6Ol16Pg9+JDDVlbyAv0ljgHAoeZfwG0bAa4tJcBv8Ye1CiwxHvLjdZW454
-         O2wF3jmX8U/TFeNlQdsEDH6M0y1E2TS84siBfYkzmH9mrBZcZRVXcydw3zGJ4DdQud9K
-         LJ2g==
-X-Gm-Message-State: AOJu0YxoVGRQoF6k+c2H3YqQkQtTLALFHk0qWOontQIk4cVW12LoEL+x
-	4y/WqByRa2OvvvYcv2NdwJFiAW/NfIRg+SpQSTeziwGw6jCyq4SopOcJ7NRQfNh1VztDJDus9AO
-	oIfmMRWhQHcSdn6DwznTanwmGyzbQm3PljY3CXh2f
-X-Gm-Gg: ASbGnctvPAZ/kZ9GFnlJysoPBEdKpBBm5ZsXmL4nxJMQFzN3UuCu/eaVdLdVNJL/ttA
-	/dVUFQsgl+JldrlK1b6dgE5PGXM1lp4UCNwjocBHg4vJ4nuact0mhO40b0f7iIog5dGQu40LZ2j
-	dD0Ey2elipn6kut3xfTCc8iKiUa06Rnw3f1AIfVJd/IPU=
-X-Google-Smtp-Source: AGHT+IHeZ6j01nWJ4CsvoEYlMin5fNE7aixGG2M3og7LgG0oCTt+CcTRVRTYvM3OosQYJ+qW/O1wHueTILme1NmmVj0=
-X-Received: by 2002:a05:690c:708d:b0:70e:7882:ea97 with SMTP id
- 00721157ae682-712c63afd4emr186229987b3.10.1750691404371; Mon, 23 Jun 2025
- 08:10:04 -0700 (PDT)
+        bh=/cEM3zQRxkyeF8QlajSb8sKwoIOz06mgwPF6H5WCdJ0=;
+        b=txwY4RMHfo1ejyMM0COw5bo4VgStn4N/TrwnV0E/kj2RujmtDBmnkVhm7b57u0XbBs
+         Mgm6Jne6IpIWisYjJ0utUIZc5k/LaEYWMOAVXhB7QMbboN3V/EQNdTFjsbwDqIJDoob8
+         +566hWxyvmaTLccSWhxebykHMai3P6SkkYNM7MkB6PCzExb+znqJFMKUTDng53Qhnwmi
+         HRpGxVpgU3UcUaGn9/J/FQ3eNQy4+7ygvwexYaHhbdLUXQTR0Uu0ymxcYvgjJKPG/6e5
+         VMhnGJHoAfh89Awh0DptXT+mqXZpmmjIn3E70MNJYU82riEKu32IOXUr4CE3MWTOP9PJ
+         cieQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVSh7piWjcc6Tx47RDq4FJvPSKQPEx8GNsC6OSHrMQRMhvZo65065PsP+ep0bVVurg+3c18z65m@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy5nrUU/F6ZRaO32b4msQlIa7JmC7OmaSM+jTendPPJ6pJ3aO4a
+	dl54JPhollz+9ETgUXiGUe5a9415a3ladudd3D57sQ/Qlc4NZ77OlV7Q1PiGLQNBAu0n2RBpBjh
+	Rf4OvxdUQIlYT/oONxdCCajgfHc0EZzDaVIy11iFA
+X-Gm-Gg: ASbGncvmyHGV/ckiLhYcibW7IpZWYWmpXYXGs7JhEPCuxc4WwE7lzWnjd739+2the3e
+	YszG/M1iaozQGO3ZrHLR446O31H18pazAd6WyQ3r0z4K9PcEBbv8aBnjBOX22iihpr2tGCewokR
+	G/AOzm/heDS72dQPD3S6mQmD0NiqWDBXTzbVyuOg1yWMw=
+X-Google-Smtp-Source: AGHT+IFZQzn3+JMIyejKC2+W29AQd1WwouaHlQDxuqJsYDQVdOYz9u2SoStqSDrpqsqEky4EPBlD56TODEPQ9GFR58M=
+X-Received: by 2002:a05:690c:9683:b0:6f9:4c00:53ae with SMTP id
+ 00721157ae682-712ca356122mr174541157b3.8.1750691751048; Mon, 23 Jun 2025
+ 08:15:51 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250616132724.22406-1-stephen.smalley.work@gmail.com> <CAEjxPJ5bn6NJwAWsjcfuPhUHuhULjxwxiK3DdY-KHJjBQjxX0A@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5bn6NJwAWsjcfuPhUHuhULjxwxiK3DdY-KHJjBQjxX0A@mail.gmail.com>
+References: <20250622-toicsti-bug-v1-0-f374373b04b2@gmail.com>
+ <20250622-toicsti-bug-v1-2-f374373b04b2@gmail.com> <CAEjxPJ6v12nLFx-x4-=esuPMp7L8UBvTzoj1kkTPcD2mDKKW8w@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6v12nLFx-x4-=esuPMp7L8UBvTzoj1kkTPcD2mDKKW8w@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 23 Jun 2025 11:09:53 -0400
-X-Gm-Features: Ac12FXxRhbK6obElF2IazkRfZNyM0j6GFBBw_3SVQWHrLNeEYKmZ5YElYSfnKIs
-Message-ID: <CAHC9VhRfFUYiMjZZV4CG4L1UwcfWLYjk0gTVb9Ndqvu7RWmmHg@mail.gmail.com>
-Subject: Re: [PATCH] userspace: replace all links to selinuxproject.org
+Date: Mon, 23 Jun 2025 11:15:39 -0400
+X-Gm-Features: Ac12FXw75VZJClzZmRv1umOqFnfnvmDMNU_jKRuRdLW4QXd6DpSXCOL2kXN21Os
+Message-ID: <CAHC9VhS8gPQwgesV_0VbUuqxGrADm5uDofM3m=wZuAEgkWi5Hw@mail.gmail.com>
+Subject: Re: [PATCH 2/2] selinux: add capability checks for TIOCSTI ioctl
 To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, jwcart2@gmail.com, lautrbach@redhat.com
+Cc: xandfury@gmail.com, Shuah Khan <shuah@kernel.org>, 
+	Nathan Chancellor <nathan@kernel.org>, Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, 
+	Bill Wendling <morbo@google.com>, Justin Stitt <justinstitt@google.com>, 
+	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, llvm@lists.linux.dev, 
+	selinux@vger.kernel.org, kees@kernel.org, linux-hardening@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 23, 2025 at 9:37=E2=80=AFAM Stephen Smalley
+On Mon, Jun 23, 2025 at 8:39=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
-> On Mon, Jun 16, 2025 at 9:27=E2=80=AFAM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
+> On Sun, Jun 22, 2025 at 9:41=E2=80=AFPM Abhinav Saxena via B4 Relay
+> <devnull+xandfury.gmail.com@kernel.org> wrote:
 > >
-> > Replace all links to selinuxproject.org with links to the
-> > SELinux userspace wiki or the SELinux notebook as appropriate.
+> > From: Abhinav Saxena <xandfury@gmail.com>
 > >
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > The TIOCSTI ioctl currently only checks the current process's
+> > credentials, creating a TOCTOU vulnerability where an unprivileged
+> > process can open a TTY fd and pass it to a privileged process via
+> > SCM_RIGHTS.
+> >
+> > Fix by requiring BOTH the file opener (file->f_cred) AND the current
+> > process to have CAP_SYS_ADMIN. This prevents privilege escalation
+> > while ensuring legitimate use cases continue to work.
+> >
+> > Link: https://github.com/KSPP/linux/issues/156
+> >
+> > Signed-off-by: Abhinav Saxena <xandfury@gmail.com>
+> > ---
+> >  security/selinux/hooks.c | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> >
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 595ceb314aeb..a628551873ab 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -3847,6 +3847,12 @@ static int selinux_file_ioctl(struct file *file,=
+ unsigned int cmd,
+> >                                             CAP_OPT_NONE, true);
+> >                 break;
+> >
+> > +       case TIOCSTI:
+> > +               if (!file_ns_capable(file, &init_user_ns, CAP_SYS_ADMIN=
+) ||
+> > +                   !capable(CAP_SYS_ADMIN))
+> > +                       error =3D -EPERM;
+> > +               break;
+> > +
 >
-> Any objections to merging this since selinuxproject.org is dead and I
-> believe I have replicated all of the relevant content over to the
-> SELinux userspace wiki?
+> So, aside from what I said previously, this also will break any
+> existing policies currently controlling TIOCSTI
+> via the selinux ioctl checking in the default case, so at the very
+> least, this would need to be gated by a new
+> SELinux policy capability for compatibility purposes. But I'm still
+> unconvinced that this is the right approach.
 
-No objections here, I think it's a good idea.  Thanks for doing the
-work to update the docs.
+I want to add my voice to the other comments that adding these
+capability checks to the SELinux code and not the main TIOCSTI kernel
+code is not an approach we want to support.  Beyond that, as others
+have already pointed out, I think some additional inspection and
+testing is needed to ensure that the additional capability checks do
+not break existing, valid use cases.
 
 --=20
 paul-moore.com
