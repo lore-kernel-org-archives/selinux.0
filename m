@@ -1,177 +1,142 @@
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6AF2291C1A
-	for <selinux@vger.kernel.org>; Tue, 24 Jun 2025 17:33:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8A5821771B;
+	Tue, 24 Jun 2025 20:58:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750786440; cv=none; b=uXzPzd4Fwi3kpuDRt1l7SnKsMK/0jwowCCADnOXy9SqHBPhiM78Q6vJ2RbnphJMJlRZxtND8ISEKvaz6itHMAPwW2DV15YXHMNizULJY8AHmUVZ8J5Cf03oCkarz67yaqSamhLYYeWCSCX93CkWCdTsHL5lzzUUOttbdrWUHB68=
+	t=1750798707; cv=none; b=gYncc8rY3F16uMeRHKSP7lSPDlm1Q5dyBbgKsPTnthdmmb58tg4dGbUMI3K/XJC+knBHv/4yQLr9zWv/Zzit/wovE3EAKi4bL+M/lL5HcFCVNYd5cCrW7Mdkc7IS0QlGC9difkC5ilSB5/xohSuyhPbdmKF7QBx0tZjtclJ97uE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750786440; c=relaxed/simple;
-	bh=oGdwJdNJE1bVk1jyNZq/szX/7xgXffrQF5YTJzk/FUA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=I3K2W2zc9TJhR6LwjCEuGr9itRA/ttHzB7gu+45Zs+QVdgh+UzdxUI61wO/WzeQkluwaExXRpc6HfbcbGnkDFFfJ8Z6e9VKP4fmi0bLzaUIG0vXLR0EJUZzvQw8anl2ltT3XHNgHLH9hUq0TI57kN6Pp6nj/WCmcgc5NyBUoaSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Uk6IYfWy; arc=none smtp.client-ip=209.85.160.180
+	s=arc-20240116; t=1750798707; c=relaxed/simple;
+	bh=ku7s8J7NNaVRw7IojtWRiPUGuS8pNyYSGsxT4vIfzIU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Edc6fZIUATTqhn1xcCkG/t54LKYUoLZZst1/fN/PBdnbyJTYXrPFPAW21oA1kK6c2ZVTymwcxkCpOaQjDuleU2v0EgSo9+SNQw9/1wkVvzUd7vahixRrBSqbw4gcP3OhofJ59cIPJ9v08s0S21FIyRZD5cf/lHC4xGNx062mtf8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ITJ2ydib; arc=none smtp.client-ip=209.85.221.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Uk6IYfWy"
-Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-4a58f79d6e9so9491871cf.2
-        for <selinux@vger.kernel.org>; Tue, 24 Jun 2025 10:33:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ITJ2ydib"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-3a582e09144so3569289f8f.1;
+        Tue, 24 Jun 2025 13:58:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750786437; x=1751391237; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=v4djXgYxQ6uc7ZeAiM68SawfWVJktv+O/yGeqaRTock=;
-        b=Uk6IYfWyI6qMe7ejztCZ3qMRk2LQZbmXFipdMyJvOU3o6IuaFXRnCB8M+XvyUatZOL
-         XzJMA9H2qToN4eC7wV4n4yg3zJyVYU0vEMt42OfDV/kfEuwmpEhV87T0goNmWQ6uI7UF
-         DxeqjhJ01PzCyWVRXEfF0qGu01TET6/aiiun1QW4b0V68WyKIlR9Ukm/mWnRH5vlz1qB
-         zbobu8yo5bGzkH6bpzLcspdyQ7Gn0TgRYKDeRGADxlyTHETCWJgUGI+HdOS9znsJEvZ7
-         yFDjraQCmNEj6klKVLLmEaGa1v5Dhtpl+t19hfZc/EumbP+bYyLIXYyicfOs1GKQzzqk
-         1wbQ==
+        d=gmail.com; s=20230601; t=1750798704; x=1751403504; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Zz2ubMDTUSZ3CzP5tOdKSgALba7wz8T19kE34wyz8os=;
+        b=ITJ2ydibI91f29bZD2LzT56abHD05SEaXsz33VlT2Y6WTu+CwoRbJ8nWQawB6BC/Tk
+         /cklgGhG/m+krTbAokh5fwvkarWAKcttu3x4cObu6OaCZK17GkeWBo1mTb4JILrwFnhy
+         0hlbAce/iEfD9OyxAxFFwoF4C6TiCtwst5wGTjuPZ4x8yq9GUPXc4dxuvd970peVpMkn
+         uO6VVm3aCqisonsWRsGlPKpJeENMHaKIgNyBbnrt+coanv0d2VlxPFbhyemytjB1VzeT
+         OvDwBn77dJ3Evlvj1voda0cx6jYfDdWhEWgYHVUpPQ6tWsTOLCix9VBle/usS7WTmA23
+         rigw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750786437; x=1751391237;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=v4djXgYxQ6uc7ZeAiM68SawfWVJktv+O/yGeqaRTock=;
-        b=Zr7vfcCmJrZ0V4xVcXZUW2G6boWYgq17By+iYBKctmYfCCDalJr+nYOcDufxLRdEhM
-         NI1f16jdB9S7oNUd+UpvK0WC6YzypcOqdMUFGZtOk8n7bSdChf6K24zs1Bb1uZDHbwz5
-         Na91YIwbDPMdsdrgS7ze1v9yJ0glQDJnttXMgZKXlez6AQVZ6lrfASZRvOscRqq9yZO8
-         a+5V0eWkiaifrDJzr9zuIazS2Ojmgbn55O3REjyBwSitKKsYyCGSq6eqyA2mILEkLO85
-         OW91IEeKLlImpaku7yOs3vGUBeNPqgQcyQmIM710AHTcQSr33HYuCA5GEOkBiYaKe/fL
-         wR3g==
-X-Gm-Message-State: AOJu0Yy3juhHBNnp9/f5C72ccaoUkD31QG0a39sNDnLEAvvyB2Qmwzxl
-	hgJ6sXrcPeZbiWcDRoTfWyPUsSC/QLC3WA5bpem6n2XYua7dkBrS9tZqx9kf2A==
-X-Gm-Gg: ASbGncvLUvQLfvcQ0u08x8RL7ytAgY74vMDZV9iNEHSyK7UyQTygW4Grn2bl49dMom/
-	Zd7hJYGeuHMwR3whd3Etnmh8iM4r8NFyy6crFdSB0rXA+dPRLgnRiYVLcUJfr5M9mbDHjge1Svc
-	1KExJjn6FX0Gxyr91qaNgBtCHKHMMIQJiGNa5Xnv9JdXI2yAmO31zhH/CNG7lzgzYejICXXY1ca
-	Sa5gNtF8/a0DZ0mTk/5lhXxLCngmBvtk1e3aFdi5GjmHqmKRwuktxt2927KJjEzuZCPOTSGYbrf
-	EigSZBVH9k5sVxEuIcRO0adjaAy0RPR4Dq/YBFklvX8IydLB96vGcrAM0g4vqHo5eLjlLL4Rsde
-	TsVhBMfiA3DtW1OvqcFoU3Gj4B3GxzSHSPx+yXHhUhCHiHkdo8TmTgGPshXhH5qdqRUj28M65bF
-	nElPk8ty9Fk144/A==
-X-Google-Smtp-Source: AGHT+IHBUQheJhI4lS8Z/76xhev/cK8hPWajkxL+W+w8xOPZxKj/p+NVUqm8vGjN3TXXbHs4x/90hw==
-X-Received: by 2002:a05:622a:1f94:b0:4a7:64cf:f092 with SMTP id d75a77b69052e-4a7c0af6de3mr1289631cf.17.1750786437152;
-        Tue, 24 Jun 2025 10:33:57 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4a779d6ce47sm51956441cf.22.2025.06.24.10.33.56
+        d=1e100.net; s=20230601; t=1750798704; x=1751403504;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Zz2ubMDTUSZ3CzP5tOdKSgALba7wz8T19kE34wyz8os=;
+        b=XbxTgJEtSg08+ozwcOrZUia7Us/h5W3F0aSFdPbXqbTImYBQb8cjWiozmoIlbfrAf5
+         91GQeIoPMPZbgEfaS8P8hmZJ6ivQtjgnKcfrr4nNKOF/PbTgqSDxPXPz5Eg77Rr7xM72
+         UYhDBnDzPfCPf0Rw/TixL23xwlhB0nz72mc4m175zRV1j7Tk4wf/RV/3sNMbgjaxYkC8
+         cc3EfjwVGE+QbOwdxDc/FwOVZlkCZDU4gj6tntyeeUgPh7aVFd/fkOlaeypj9687LwUI
+         BvlKSH30JsqstinTnmmsu6Fb16oAfgSH0HMRsKJF7dIyeHXSXtEPgMwfxzqpt746RcCo
+         rhKw==
+X-Forwarded-Encrypted: i=1; AJvYcCU/I30jxsUQcwtIMdgW7OIS9MLXgcV7WwvY8H6KB5qFfeBd7Epu/t8YkEX5fMHYS+VdShSPG0lXff5kt2cUbqYi@vger.kernel.org, AJvYcCVmaRFfRkmlbO1746GOXsM445tI643Jlermd1emkbqmEvMmz20HQYvIlOOIg20PgkWkLcvG8sCttA==@vger.kernel.org, AJvYcCVubb+g4dX2iYIERGldCz3ClciwagGGybV1QqhVWJRG8iwGWpT5audPTvqrwecUxjvuggD43DKoTusXIQt62Dg=@vger.kernel.org, AJvYcCVwdAc8NZoIE2J/zk2K4a2sJOhoHAt+QmC4pddsN/GOcVEkOrgrh1F9iEuacyRQnq0S7DAhd6k2a0PXj0YL@vger.kernel.org
+X-Gm-Message-State: AOJu0YxtugN8UxHf/C359l/OCHFqgBymRSndy7yMpcybAtGRNnNLaycw
+	chp/aLjHff7yZSSv5JVVPBdlWtbGj3nqzRkFCZ61WMXGbEgT/ODoJV1Q
+X-Gm-Gg: ASbGncud6H1dasuR44xebu1EYRl7umxuiEL0YAOTcyD+IDYFjVrhMM0tdGOTy9uAlDo
+	UnMRToSop7hTcCuPf2bJafHF4XVt4A2RPXzCG7o7HJIA3d/ccHeqKtlMTcJauf+L43JtBtL1zVv
+	GGI4jjLu2Sk7bFw7/nKpVHHiKEXqFwcFGMvaAk/SbvKeoI3qNXYq2Sp71P7HjmaYss+g6WCPFQ/
+	1ISJJQdvlPEvMmCO6x2e1sZXVg/XxpjZ0LVLtIni+UU8H5k7KJbJJLS9MGi11H/u4xSofSkxj3f
+	/Hiynoag/UYgp7S5AoNdD3sIoMEArPFjw+MbYU1VstqOY8SGHVK1hworxg==
+X-Google-Smtp-Source: AGHT+IGvRDON52aC7F32xyTsDzrric4VeeMtyvVJzhPR2+fqKMhg0dkJITxDSB426QL/PeWs4NeQFw==
+X-Received: by 2002:a5d:5c13:0:b0:3a4:eda1:6c39 with SMTP id ffacd0b85a97d-3a6ed6259e5mr149097f8f.13.1750798703771;
+        Tue, 24 Jun 2025 13:58:23 -0700 (PDT)
+Received: from localhost ([2a02:168:59f0:1:6ea:56ff:fe21:bea7])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-45382373c6esm76865e9.34.2025.06.24.13.58.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Jun 2025 10:33:56 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH testsuite] tests/mac_admin: skip all tests on NFS
-Date: Tue, 24 Jun 2025 13:33:20 -0400
-Message-ID: <20250624173319.23880-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.49.0
+        Tue, 24 Jun 2025 13:58:23 -0700 (PDT)
+Date: Tue, 24 Jun 2025 22:58:18 +0200
+From: =?iso-8859-1?Q?G=FCnther?= Noack <gnoack3000@gmail.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, xandfury@gmail.com,
+	Shuah Khan <shuah@kernel.org>,
+	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+	Bill Wendling <morbo@google.com>,
+	Justin Stitt <justinstitt@google.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org,
+	linux-kselftest@vger.kernel.org, llvm@lists.linux.dev,
+	selinux@vger.kernel.org, kees@kernel.org,
+	linux-hardening@vger.kernel.org
+Subject: Re: [PATCH 2/2] selinux: add capability checks for TIOCSTI ioctl
+Message-ID: <20250624.3bb75890f0b0@gnoack.org>
+References: <20250622-toicsti-bug-v1-0-f374373b04b2@gmail.com>
+ <20250622-toicsti-bug-v1-2-f374373b04b2@gmail.com>
+ <CAEjxPJ6v12nLFx-x4-=esuPMp7L8UBvTzoj1kkTPcD2mDKKW8w@mail.gmail.com>
+ <CAHC9VhS8gPQwgesV_0VbUuqxGrADm5uDofM3m=wZuAEgkWi5Hw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHC9VhS8gPQwgesV_0VbUuqxGrADm5uDofM3m=wZuAEgkWi5Hw@mail.gmail.com>
 
-NFS does not truly support setting / getting of undefined
-contexts. While some of the tests currently pass,
-they trigger kernel error messages like the ones below:
+On Mon, Jun 23, 2025 at 11:15:39AM -0400, Paul Moore wrote:
+> On Mon, Jun 23, 2025 at 8:39 AM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > On Sun, Jun 22, 2025 at 9:41 PM Abhinav Saxena via B4 Relay
+> > <devnull+xandfury.gmail.com@kernel.org> wrote:
+> > > --- a/security/selinux/hooks.c
+> > > +++ b/security/selinux/hooks.c
+> > > @@ -3847,6 +3847,12 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
+> > >                                             CAP_OPT_NONE, true);
+> > >                 break;
+> > >
+> > > +       case TIOCSTI:
+> > > +               if (!file_ns_capable(file, &init_user_ns, CAP_SYS_ADMIN) ||
+> > > +                   !capable(CAP_SYS_ADMIN))
+> > > +                       error = -EPERM;
+> > > +               break;
+> > > +
+> >
+> > So, aside from what I said previously, this also will break any
+> > existing policies currently controlling TIOCSTI
+> > via the selinux ioctl checking in the default case, so at the very
+> > least, this would need to be gated by a new
+> > SELinux policy capability for compatibility purposes. But I'm still
+> > unconvinced that this is the right approach.
+> 
+> I want to add my voice to the other comments that adding these
+> capability checks to the SELinux code and not the main TIOCSTI kernel
+> code is not an approach we want to support.  Beyond that, as others
+> have already pointed out, I think some additional inspection and
+> testing is needed to ensure that the additional capability checks do
+> not break existing, valid use cases.
 
-nfs_setsecurity() system_u:object_r:UNDEFINED:s0 31 security_inode_notifysecctx() -22
-nfs_setsecurity() system_u:object_r:UNDEFINED:s0 31 security_inode_notifysecctx() -22
-nfs_setsecurity() unconfined_u:object_r:UNDEFINED:s0 35 security_inode_notifysecctx() -22
++1 from me as well.
 
-If we wanted this to work over NFS, we would need further changes to
-the kernel. For now, skip all the mac_admin tests to avoid log spam.
-This is similar to handling in other test scripts like
-tests/capable_file/test.
+If the perceived problem is in core TTY logic, but the proposed fix is
+in SELinux, it only addresses a fraction of the install base, as not
+all machines use SELinux.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- tests/mac_admin/test | 38 +++++++++++++++++---------------------
- 1 file changed, 17 insertions(+), 21 deletions(-)
+Also, it's not clear to me why the perceived problem of FD-passsing
+with SCM_RIGHTS is a problem at all.  If a CAP_SYS_ADMIN process
+accepts FDs over SCM_RIGHTS, it is the responsibility of that process
+not to do unjustified privileged operations with these FDs, on behalf
+of other, less privileged, processes.
 
-diff --git a/tests/mac_admin/test b/tests/mac_admin/test
-index 8ecb48b..973fac3 100755
---- a/tests/mac_admin/test
-+++ b/tests/mac_admin/test
-@@ -1,17 +1,18 @@
- #!/usr/bin/perl
- 
--use Test;
-+use Test::More;
- 
- BEGIN {
-     $basedir = $0;
-     $basedir =~ s|(.*)/[^/]*|$1|;
- 
-     $isnfs = `stat -f --print %T $basedir`;
--    if ( $isnfs ne "nfs" ) {
--        plan tests => 8;
-+
-+    if ( $isnfs eq "nfs" ) {
-+        plan skip_all => "undefined contexts not supported over NFS";
-     }
-     else {
--        plan tests => 6;
-+        plan tests => 8;
-     }
- }
- 
-@@ -19,18 +20,18 @@ BEGIN {
- system("rm -f $basedir/test_file; touch $basedir/test_file");
- $result = system(
-     "runcon -t test_mac_admin_t -- chcon -t UNDEFINED $basedir/test_file 2>&1");
--ok( $result, 0 );    # we expect this to succeed.
-+ok( $result eq 0 );    # we expect this to succeed.
- 
- # Verify that test_mac_admin_t sees the undefined context.
- $result = `runcon -t test_mac_admin_t -- secon -t -f $basedir/test_file 2>&1`;
- chomp($result);
--ok( $result, "UNDEFINED" );
-+ok( $result eq "UNDEFINED" );
- 
- # Verify that test_no_mac_admin_t sees the unlabeled context
- $result =
-   `runcon -t test_no_mac_admin_t -- secon -t -f $basedir/test_file 2>&1`;
- chomp($result);
--ok( $result, "unlabeled_t" );
-+ok( $result eq "unlabeled_t" );
- 
- # Delete the test file.
- system("rm -f $basedir/test_file");
-@@ -40,22 +41,17 @@ system("rm -rf $basedir/test_dir");
- $result = system(
- "runcon -t test_mac_admin_t -- mkdir --context=system_u:object_r:UNDEFINED:s0 $basedir/test_dir 2>&1"
- );
--ok( $result, 0 );    # we expect this to succeed.
--
--if ( $isnfs ne "nfs" ) {
-+ok( $result eq 0 );    # we expect this to succeed.
- 
--    # Verify that test_mac_admin_t sees the undefined label value.
--    $result =
--      `runcon -t test_mac_admin_t -- secon -t -f $basedir/test_dir 2>&1`;
--    chomp($result);
--    ok( $result, "UNDEFINED" );
-+# Verify that test_mac_admin_t sees the undefined label value.
-+$result = `runcon -t test_mac_admin_t -- secon -t -f $basedir/test_dir 2>&1`;
-+chomp($result);
-+ok( $result eq "UNDEFINED" );
- 
--    # Verify that test_no_mac_admin_t sees the unlabeled context.
--    $result =
--      `runcon -t test_no_mac_admin_t -- secon -t -f $basedir/test_dir 2>&1`;
--    chomp($result);
--    ok( $result, "unlabeled_t" );
--}
-+# Verify that test_no_mac_admin_t sees the unlabeled context.
-+$result = `runcon -t test_no_mac_admin_t -- secon -t -f $basedir/test_dir 2>&1`;
-+chomp($result);
-+ok( $result eq "unlabeled_t" );
- 
- # Delete the test directory
- system("rm -rf $basedir/test_dir");
+In the more classic attack scenarios (as described in a series of CVEs
+[1]) the process who had the FD first is normally the more privileged
+one, for for those ones, the existing CAP_SYS_ADMIN check seems fine.
+
+—Günther
+
+[1] https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=TIOCSTI
+
 -- 
-2.49.0
-
