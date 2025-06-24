@@ -1,173 +1,147 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
+Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DED22BFC70
-	for <selinux@vger.kernel.org>; Tue, 24 Jun 2025 13:04:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A38C828E607
+	for <selinux@vger.kernel.org>; Tue, 24 Jun 2025 15:10:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750770264; cv=none; b=HJbL/MdEMVazsIcUEhJIjjLOTHERRdOVndf3FxpZVDKIwKNKiryThUoVi2yugLUVzsEXv7/FiHbnWEUsQ1gtkVdzgjOey1Enr05mgjhSDMO8YlRDu4D1xncyne25Kpu5p8G4YjADJM80jp6abnvxdwxBkjQKc9anpNjeo/P67oE=
+	t=1750777829; cv=none; b=R0z0BdTpF3oaD6m0Hl1WuzZvcomjS1pVSIDTeKTbevV1l6bkGmQI35bbnA76kELeMfPoYXjemoLx7Rkuym6P3TkXnBonalcogpwhO15hB/H2x4znPgLnZt17M5m88w/uOOIcRNmC/o7jU+qBFvAhaTqPHYH7fpZuFltM18O5nY4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750770264; c=relaxed/simple;
-	bh=mXruKnHr7lgjoXVfaY7bkNvtq3DDI+BHuMpRk0gSwJo=;
+	s=arc-20240116; t=1750777829; c=relaxed/simple;
+	bh=QHVT2HV9be9dt/brYmFwEDkRHBFdJOFm0jsWMimVtLw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RCmXzRX4jWUtHp3xuq9q0plPj+uUqk6RRin3YoEJvDe+sCs5RHhJhEFRaPM3F5xJbx+FHYw+ditGSdTmrSbRUDG1ONcg8FuW0qpFqAEiuzvkhyoxLCIIHdVMeIISQJ/WB+/Sg9loZ/KOkKgcMDkprTcwV72usCzXzWMvVjsT0fI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rm5prYSl; arc=none smtp.client-ip=209.85.216.53
+	 To:Cc:Content-Type; b=D7dCSZPDLRdFJ2tyw004OihTsV6h41aahIEjzUQ5JD8AFIJNuof674qLrRZy3Bvz3j5AwvIplNgJaUnLvhd5e2Xp38a/Iw2VvkQgI9EYqjcxfVGsTfnu0T63H5WcJI2/Pk62kdXjj4BIeARKst9x4jwMSjgkYXPZ1YCp5CX1mVY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BFYBLl5B; arc=none smtp.client-ip=209.85.160.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rm5prYSl"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-31332cff2d5so359159a91.1
-        for <selinux@vger.kernel.org>; Tue, 24 Jun 2025 06:04:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BFYBLl5B"
+Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-4a76ea97cefso59844921cf.2
+        for <selinux@vger.kernel.org>; Tue, 24 Jun 2025 08:10:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750770262; x=1751375062; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1750777826; x=1751382626; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=f9n3Aw4wPFm4oeIftPG6IOT1Em4BTOsD881sEIex7ng=;
-        b=Rm5prYSljVe7inerqEH8MEWJHDUQ9Abv25pMA1JZ0b8i1SBvOg0x78rLMVwXmi26y+
-         daU9SvpIsO0ahQyh6xqbgy3CmXZkvW0E3Tnmx07QpCGtR/tk24YFOvaxqX//dJBnXkfC
-         naAvLjRTcTIiOdvwDPQ8GQwngHUhF4CFPht1PURMhZmbMtVbU31/AYZhYQ/1D029NNI1
-         3CxU+iTW62TeLo5xPwGvTa25xHY15eM76/KkBnmme9y1oYYLYsIaAgDcQ/0kFVVDMzGO
-         QFXmRDLGn67Ksf6gKmtM3ysXVopXjapLR9fZXhF+XqoB0jQtiT/p4eN/nqUXI2yUd1wU
-         m1yQ==
+        bh=alQF5DGLh67CMz7tHRjQe1AUpL2L6/hoC1Wkzr5ozdk=;
+        b=BFYBLl5B/3ltGhLT0mlqE+WjjIgW01NvCI3Pt+ELjxjgR5lk9XaAhObvHZBOnBMkSr
+         9vL8bsAC8xnrQtCwt4Po7QXzaxHKPr/56Q7f8YXc2OgeOX7AB1m8C1U+enMZot4jct64
+         Q9yNFXZMZbK4sk74ORFluLpE8EiOBStu6Fpwn8ky9dyEwVhPrAzJJ7KBlbZ4LVQzfW8x
+         El/gCmXiuM7y8Yq5ZkELHf0ZDzd1kTF4GQ1acfoKDxfCE11G+NbqJqLkbEC5U+WGSzUl
+         P4OPpV+LtPVKVy6+aji+9z2PWDl/wQ2Q/u2CqRs7jbU5Ld5Jt+a2q9g5ZHMOTVZGGQ4D
+         rqyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750770262; x=1751375062;
+        d=1e100.net; s=20230601; t=1750777826; x=1751382626;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=f9n3Aw4wPFm4oeIftPG6IOT1Em4BTOsD881sEIex7ng=;
-        b=QYkf0B/URqCkclXgHnkb+XP5Xj4G0FZGECwT6++pXjRJFoTWU8limUuJhVSxez8FSM
-         t3BYvnBpY66ijtVmFOEh2pKQA7uwYVDWJsimvz6sU4GQybgcicObzuSJftSoH4x2MRNg
-         +3FYVXqMUCNh7gULpyIT8PWE2kJqXRmAQzuMbUxFigqJKFi0SeiNHAFXpRjSgGNhUPG8
-         ul7Q7U8Sb1Ah43zeRPlkfEJgcPea/2gZXbJIaHMlNJn3jSp/0G1CuvG9ogjvemDU8xLD
-         72cGUduEun7C4MmA98dNcSzovLSxoX2zyic87o2LMvUIwoK6Uk+gy4TZ41eCiE1keVqX
-         FpGw==
-X-Gm-Message-State: AOJu0Yy70YhZ1A0Qf8TEVaLj941oHUNlNkJlpw4vXYSrlOeGRjpkv517
-	PcoJ5CJrt4cAKsv0Gb2iN42N9JSsuF4r2Xi4PMOuwwhrzqmoUi+4heraMN/dHGq2zVuSltamrlA
-	ywnrq6KTW+1Ug9mh9FOojNV1Bg/OjMh0=
-X-Gm-Gg: ASbGnctlybIpvpIR+csn5A1wARcM8QfCEYVElTm5yt/hp40oV7b+kwCQ4tk/f71Cxi1
-	uJrw/yPV4cGTlVmdYZaWrZM/ZPQ+U09f/QmvtjbqQHe4teA3pZZF9sXdKx7RQFqxXEdzfUJ46U8
-	Em0jTSWI39BBakDNQwwsCDtUXy7vKlMeT2HMoDSWGfBXc=
-X-Google-Smtp-Source: AGHT+IHEzYqu2GEBZXYci+o8EGhREMrtP2A8h4yEFsKqX9kH0Nmv+bQnrLZ85wiigjvKkI7jVoQacopYcVW3yJAlnI0=
-X-Received: by 2002:a17:90b:2dcd:b0:312:1508:fb4d with SMTP id
- 98e67ed59e1d1-3159d8fd1c0mr27469149a91.33.1750770261768; Tue, 24 Jun 2025
- 06:04:21 -0700 (PDT)
+        bh=alQF5DGLh67CMz7tHRjQe1AUpL2L6/hoC1Wkzr5ozdk=;
+        b=TisNqgPXuZg3JXgddoQZPoVIdswXKZ8Oin6piuxw6TLZUoSMwf80Szo/pYTlko/R8q
+         dKm1u/gmFO1zyY6gcYggSprkeE/YK7bSsdcbohZkAlnG6VMIKMi+voRCy6xRaRIgWZL5
+         UIoZGynP7Kuo+PEEDourTVmPY1x4XtQrtxNJFBRlCPBbJc0zxbXTpUrmytsh5/25aaSU
+         Mxj0NjwP361oCf+PSbRbOQ9Sv//79c1MnLYF8KD0Js3PJkb2Ru70IeYWJPuJnG7Y32R9
+         QNU+pjP94dJMjXZyWP3/3N/r4KaSvNdKah7AHauwNt02AGCSPThr04vZoRGmkBhfESe7
+         NKvA==
+X-Forwarded-Encrypted: i=1; AJvYcCWvBVMJ3JrkNauenbvS0p0ei6oOd8tGjp3gjtTEvBZb4a4sYb3w1uxwWm06+fj40e2ila76s9bU@vger.kernel.org
+X-Gm-Message-State: AOJu0YwzELZkXaFdEzAJ6p+CKZOy/ov40Kcg4waytXrTlNwCyauirmtX
+	qL7IhX1LofErS6WrdNaDrJd6QqDboa8m5gaD+D7Lu096FwoLm8mI1gyori6Em/PDm8zlw+tnAza
+	/BvPtzgTP1AGTB92k1x9PPaRbbxdcwXM=
+X-Gm-Gg: ASbGncvVPUu/JCrNOcAmPPiP7/GgGBSZ11CfC00WyyJCvpBwjiNokPJgnLSlnV43bWd
+	X1NycPNqt0Yg58DDUCub5fC7CSD+pSLaqwbTJua7epA5CX+ppOLQjg/u7UZqNRNRw/ib7muQPHx
+	uDCU8asGcNWQMh2fPBFxoz33y7zFBZ4yAuDZsiFOSS
+X-Google-Smtp-Source: AGHT+IHXyhWWgmGGDB4/+chKYIECQAwdjtToyfvejcaXF5u/JX5Ke/kh4w3aJy6jK5xthL39LbLwD48VgTpAmFKKEbI=
+X-Received: by 2002:a05:620a:269b:b0:7c5:4738:8a0f with SMTP id
+ af79cd13be357-7d3f98dfdc9mr2130836585a.15.1750777826280; Tue, 24 Jun 2025
+ 08:10:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <io56y7r63uyeduqe7ukx3wcjvhzfnnsxle2go5raxqy76lrn3n@edx4doao3gv3>
- <CAEjxPJ5cGzHDrsUGKCOxOUZm-0d8shoPahbZB7zVFTivujRNsw@mail.gmail.com>
- <kakoxc3dfli7fjjistybeqhf34abzqovkmq2gs4fg5sv7nviam@w36m2srscmbu> <CAEjxPJ5rD7Fq_t5EDoy8EYHzMhgntR+KK=3OZAAuA0V047yKWQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5rD7Fq_t5EDoy8EYHzMhgntR+KK=3OZAAuA0V047yKWQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 24 Jun 2025 09:04:10 -0400
-X-Gm-Features: AX0GCFvOZ-MQK5VLrTjCYiSRKb3FPlcI7p3J0PXd7l617qGPU_VbQmuQzj1fFwA
-Message-ID: <CAEjxPJ744wutA3FZmA88OMyay__P0qVAYTB6RRnh=v+LiPyxJQ@mail.gmail.com>
-Subject: Re: SELinux Namespace work
-To: =?UTF-8?Q?Martin_Erts=C3=A5s?= <mertsas@cisco.com>
-Cc: selinux@vger.kernel.org
+References: <20250611070248.2669186-1-tweek@google.com>
+In-Reply-To: <20250611070248.2669186-1-tweek@google.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Tue, 24 Jun 2025 11:10:13 -0400
+X-Gm-Features: Ac12FXzfMrFPhIBWJe9FUKBQTXxEbpmnkT7gx8CpRCZUDABowcoXzFX2CA26IAA
+Message-ID: <CAP+JOzQbrL94Cow5L+SaUhCJNAA_eUu_pkO=VkP1vUfuUQs+ew@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: Document thread caveat for security_compute_av.3
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Paul Moore <paul@paul-moore.com>, 
+	Seth Moore <sethmo@google.com>, selinux@vger.kernel.org, 
+	Jeffrey Vander Stoep <jeffv@google.com>, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 24, 2025 at 8:43=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Wed, Jun 11, 2025 at 3:04=E2=80=AFAM Thi=C3=A9baud Weksteen <tweek@googl=
+e.com> wrote:
 >
-> On Tue, Jun 24, 2025 at 1:44=E2=80=AFAM Martin Erts=C3=A5s <mertsas@cisco=
-.com> wrote:
-> >
-> > On Mon, Jun 23, 2025 at 08:09:34AM -0400, Stephen Smalley wrote:
-> > > On Mon, Jun 23, 2025 at 7:37=E2=80=AFAM Martin Erts=C3=A5s <mertsas@c=
-isco.com> wrote:
-> > > >
-> > > > Good day.
-> > > >
-> > > > I have been looking a bit on your SELinux Namespace work, as we hav=
-e a
-> > > > usecase for it where it will be necessary. Basically we're running
-> > > > Android in a lxc container.
-> > > >
-> > > > Currently we just have a single label for everything happening insi=
-de
-> > > > the container, and disabled every SELinux handling from the Android=
- side,
-> > > > as that doesn't work.
-> > > >
-> > > > So we're looking into if your namespace patches will allow us to le=
-t
-> > > > Android do its own SELinux handling, and it seems very promising, s=
-o
-> > > > thanks a lot.
-> > > >
-> > > > My question is about user namespaces and the selinux namespace. I s=
-ee
-> > > > you very consciously have not linked the two, and I was wondering i=
-f
-> > > > the problem I'm seeing might be due to that?
-> > > >
-> > > > What I try to do is, as root in the init usernamespace:
-> > > >
-> > > > ```
-> > > > # unshare -m -n -U --map-root-user
-> > > > # mount --make-rprivate /
-> > > > # echo 1 > /sys/fs/selinux/unshare
-> > > > # umount /sys/fs/selinux
-> > > > # mount -t selinuxfs selinux /sys/fs/selinux
-> > > > ```
-> > > >
-> > > > The problem is in the umount step, it returns with:
-> > > >
-> > > > `umount: /sys/fs/selinux: not mounted.`
-> > > >
-> > > > Do you know if there's a way I can make this work? Or is this a
-> > > > limitation of the current implementation? Seems like the flow today=
- has
-> > > > to be to first unshare and remount the selinuxfs, and then enter th=
-e
-> > > > user namespace.
-> > >
-> > > So, first, unless your email contains proprietary information, I woul=
-d
-> > > recommend cc'ing the selinux mailing list.
-> > > Then, with regard to your question, the above doesn't appear to be du=
-e
-> > > to anything in SELinux itself, as the same
-> > > behavior occurs even if I don't unshare the SELinux namespace and eve=
-n
-> > > if SELinux is permissive.
-> > > I would have to look further into what unshare -m -n -U
-> > > --map-root-user and mount --make-rprivate / does that is causing this
-> > > behavior but it doesn't seem like it is something in SELinux itself.
-> >
-> > Thank you for the reply.
-> >
-> > You're correct. I was assuming it was due to the SELinux namespace, but
-> > testing without the patches at all shows the same behaviour. I'll dig
-> > into that and see what I can find then. Thank you.
+> Move a similar paragraph for selinux_status_open.3 to a CAVEATS section.
 >
-> On further thought, I think that you aren't allowed to unmount or
-> otherwise modify a mount for a filesystem that was mounted by a
-> different user namespace, so when you unshare the user namespace, you
-> can no longer unmount the old selinuxfs mount. Hence, it does appear
-> that you would need to unshare the SELinux namespace first, then the
-> user namespace.
+> See discussion at https://github.com/SELinuxProject/selinux/issues/287
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 
-Looks like you also cannot mount selinuxfs from the child user
-namespace; again, this occurs even if SELinux is permissive, so it
-appears to be a DAC and/or capabilities restriction imposed on user
-namespaces. So the sequence would have to be along the lines of:
-# echo 1 > /sys/fs/selinux/unshare # unshare SELinux namespace
-# unshare -m # unshare mount namespace so we can unmount old selinuxfs
-# umount /sys/fs/selinux # unmount old selinuxfs
-# mount -t selinuxfs none /sys/fs/selinux # mount new selinuxfs for
-child namespace
-#  unshare -m -n -U --map-root-user # unshare user namespace
+Acked-by: James Carter <jwcart2@gmail.com>
 
-And then it is possible to load policy into the child namespace (or
-you could do it before, either way).
-
-Note that we have a helper on my selinuxns branch of libselinux that
-handles the first 3 steps for you, leaving the rest to be done by
-systemd or whatever.
+> ---
+>  libselinux/man/man3/security_compute_av.3 | 5 +++++
+>  libselinux/man/man3/selinux_status_open.3 | 9 +++++----
+>  2 files changed, 10 insertions(+), 4 deletions(-)
+>
+> diff --git a/libselinux/man/man3/security_compute_av.3 b/libselinux/man/m=
+an3/security_compute_av.3
+> index 6c82eca5..af8797b5 100644
+> --- a/libselinux/man/man3/security_compute_av.3
+> +++ b/libselinux/man/man3/security_compute_av.3
+> @@ -181,6 +181,11 @@ function.
+>  .SH "RETURN VALUE"
+>  Returns zero on success or \-1 on error.
+>  .
+> +.SH "CAVEATS"
+> +.sp
+> +These functions are not thread-safe, you have to protect them from
+> +concurrent calls using exclusive locks when multiple threads are executi=
+ng.
+> +.
+>  .SH "SEE ALSO"
+>  .BR string_to_security_class (3),
+>  .BR string_to_av_perm (3),
+> diff --git a/libselinux/man/man3/selinux_status_open.3 b/libselinux/man/m=
+an3/selinux_status_open.3
+> index 5c9da2f6..5592487f 100644
+> --- a/libselinux/man/man3/selinux_status_open.3
+> +++ b/libselinux/man/man3/selinux_status_open.3
+> @@ -82,10 +82,6 @@ Thus, don't use this value to know actual times of pol=
+icy reloaded.
+>  .BR selinux_status_deny_unknown ()
+>  returns 0 if SELinux treats policy queries on undefined object classes o=
+r
+>  permissions as being allowed, 1 if such queries are denied, or \-1 on er=
+ror.
+> -.sp
+> -Also note that these interfaces are not thread-safe, so you have to prot=
+ect
+> -them from concurrent calls using exclusive locks when multiple threads a=
+re
+> -performing.
+>  .
+>  .SH "RETURN VALUE"
+>  .BR selinux_status_open ()
+> @@ -96,6 +92,11 @@ On error, \-1 shall be returned.
+>  Any other functions with a return value shall return its characteristic
+>  value as described above, or \-1 on errors.
+>  .
+> +.SH "CAVEATS"
+> +.sp
+> +These functions are not thread-safe, you have to protect them from
+> +concurrent calls using exclusive locks when multiple threads are executi=
+ng.
+> +.
+>  .SH "SEE ALSO"
+>  .ad l
+>  .nh
+> --
+> 2.50.0.rc0.642.g800a2b2222-goog
+>
+>
