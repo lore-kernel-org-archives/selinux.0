@@ -1,142 +1,105 @@
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8A5821771B;
-	Tue, 24 Jun 2025 20:58:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BCCE3FD1
+	for <selinux@vger.kernel.org>; Wed, 25 Jun 2025 00:10:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750798707; cv=none; b=gYncc8rY3F16uMeRHKSP7lSPDlm1Q5dyBbgKsPTnthdmmb58tg4dGbUMI3K/XJC+knBHv/4yQLr9zWv/Zzit/wovE3EAKi4bL+M/lL5HcFCVNYd5cCrW7Mdkc7IS0QlGC9difkC5ilSB5/xohSuyhPbdmKF7QBx0tZjtclJ97uE=
+	t=1750810255; cv=none; b=NOHEOgjbXK2I3GApL3BNFD4ScnZIbjesIWDmrxA0ohiBLopC0ZwpR0aXPQTEtiu5hJZbuDAd+31HsPOubelsPgaUDxCmzUgwae7n+6aLkj3/7RmF9mDh6adEWt/K2AJACFoTjrwmv4mpOTFYq/yU1Uk6PXLUtvUBegxA5CF0Fw4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750798707; c=relaxed/simple;
-	bh=ku7s8J7NNaVRw7IojtWRiPUGuS8pNyYSGsxT4vIfzIU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Edc6fZIUATTqhn1xcCkG/t54LKYUoLZZst1/fN/PBdnbyJTYXrPFPAW21oA1kK6c2ZVTymwcxkCpOaQjDuleU2v0EgSo9+SNQw9/1wkVvzUd7vahixRrBSqbw4gcP3OhofJ59cIPJ9v08s0S21FIyRZD5cf/lHC4xGNx062mtf8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ITJ2ydib; arc=none smtp.client-ip=209.85.221.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1750810255; c=relaxed/simple;
+	bh=9ivD5AaMhRDnIDnklljlK+k1JVxliQvvRwvsCgoM9ck=;
+	h=Date:Message-ID:From:To:Cc:Subject; b=jAQkNUJvT43xcL5OoRiAMmx88A4N3TBLfn6/5ZUP1j6zKtowgF4joEEvpTuq5zkgiJ4zO70Nju/qRJnW+YYdL0l4nc6GvhCsyIybnySgp72iWRi7CV91DVnKOdbvGIGR2Z3683byCQteZhnnAox/iSSX6dXUySB6oc4iYbW8q7I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=TqG2G9Tm; arc=none smtp.client-ip=209.85.222.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ITJ2ydib"
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-3a582e09144so3569289f8f.1;
-        Tue, 24 Jun 2025 13:58:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="TqG2G9Tm"
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-7d38ddc198eso654939685a.1
+        for <selinux@vger.kernel.org>; Tue, 24 Jun 2025 17:10:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750798704; x=1751403504; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=Zz2ubMDTUSZ3CzP5tOdKSgALba7wz8T19kE34wyz8os=;
-        b=ITJ2ydibI91f29bZD2LzT56abHD05SEaXsz33VlT2Y6WTu+CwoRbJ8nWQawB6BC/Tk
-         /cklgGhG/m+krTbAokh5fwvkarWAKcttu3x4cObu6OaCZK17GkeWBo1mTb4JILrwFnhy
-         0hlbAce/iEfD9OyxAxFFwoF4C6TiCtwst5wGTjuPZ4x8yq9GUPXc4dxuvd970peVpMkn
-         uO6VVm3aCqisonsWRsGlPKpJeENMHaKIgNyBbnrt+coanv0d2VlxPFbhyemytjB1VzeT
-         OvDwBn77dJ3Evlvj1voda0cx6jYfDdWhEWgYHVUpPQ6tWsTOLCix9VBle/usS7WTmA23
-         rigw==
+        d=paul-moore.com; s=google; t=1750810252; x=1751415052; darn=vger.kernel.org;
+        h=subject:cc:to:from:message-id:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zL28Tc4w5+Q9+lcS6siAOTOvpsM1FGjQwIS4zdqxK/Y=;
+        b=TqG2G9TmsT9W73nwV065TYKqyDZr540bCvd78cgAbDNcyt+VkmQidpBM/aXHlkUBrw
+         BScrnBJktJj9q64n0RnxMRJkv2hSA9z3kB31gGbnB7APCpyfm9p5qf20U0rgkvhzkVqe
+         2X7fzK1fIIRhuNH70P08WDm8LLWxDlNRjVAjqVNkzlKf/4043NFgeU9djry35qQFxEta
+         QG675alk+W2bSgqK3JYCSPytVS+rfuUE6HmE7Imi6yHzRpAJcQOEKFvpnlvIGpUPdn0y
+         pcCf2WppCQRpHA7uAidxYgHSuKoUjp9Y9JBkfr+AoCi8sALC6AbOf1Usyk9+v602464T
+         3xaQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750798704; x=1751403504;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Zz2ubMDTUSZ3CzP5tOdKSgALba7wz8T19kE34wyz8os=;
-        b=XbxTgJEtSg08+ozwcOrZUia7Us/h5W3F0aSFdPbXqbTImYBQb8cjWiozmoIlbfrAf5
-         91GQeIoPMPZbgEfaS8P8hmZJ6ivQtjgnKcfrr4nNKOF/PbTgqSDxPXPz5Eg77Rr7xM72
-         UYhDBnDzPfCPf0Rw/TixL23xwlhB0nz72mc4m175zRV1j7Tk4wf/RV/3sNMbgjaxYkC8
-         cc3EfjwVGE+QbOwdxDc/FwOVZlkCZDU4gj6tntyeeUgPh7aVFd/fkOlaeypj9687LwUI
-         BvlKSH30JsqstinTnmmsu6Fb16oAfgSH0HMRsKJF7dIyeHXSXtEPgMwfxzqpt746RcCo
-         rhKw==
-X-Forwarded-Encrypted: i=1; AJvYcCU/I30jxsUQcwtIMdgW7OIS9MLXgcV7WwvY8H6KB5qFfeBd7Epu/t8YkEX5fMHYS+VdShSPG0lXff5kt2cUbqYi@vger.kernel.org, AJvYcCVmaRFfRkmlbO1746GOXsM445tI643Jlermd1emkbqmEvMmz20HQYvIlOOIg20PgkWkLcvG8sCttA==@vger.kernel.org, AJvYcCVubb+g4dX2iYIERGldCz3ClciwagGGybV1QqhVWJRG8iwGWpT5audPTvqrwecUxjvuggD43DKoTusXIQt62Dg=@vger.kernel.org, AJvYcCVwdAc8NZoIE2J/zk2K4a2sJOhoHAt+QmC4pddsN/GOcVEkOrgrh1F9iEuacyRQnq0S7DAhd6k2a0PXj0YL@vger.kernel.org
-X-Gm-Message-State: AOJu0YxtugN8UxHf/C359l/OCHFqgBymRSndy7yMpcybAtGRNnNLaycw
-	chp/aLjHff7yZSSv5JVVPBdlWtbGj3nqzRkFCZ61WMXGbEgT/ODoJV1Q
-X-Gm-Gg: ASbGncud6H1dasuR44xebu1EYRl7umxuiEL0YAOTcyD+IDYFjVrhMM0tdGOTy9uAlDo
-	UnMRToSop7hTcCuPf2bJafHF4XVt4A2RPXzCG7o7HJIA3d/ccHeqKtlMTcJauf+L43JtBtL1zVv
-	GGI4jjLu2Sk7bFw7/nKpVHHiKEXqFwcFGMvaAk/SbvKeoI3qNXYq2Sp71P7HjmaYss+g6WCPFQ/
-	1ISJJQdvlPEvMmCO6x2e1sZXVg/XxpjZ0LVLtIni+UU8H5k7KJbJJLS9MGi11H/u4xSofSkxj3f
-	/Hiynoag/UYgp7S5AoNdD3sIoMEArPFjw+MbYU1VstqOY8SGHVK1hworxg==
-X-Google-Smtp-Source: AGHT+IGvRDON52aC7F32xyTsDzrric4VeeMtyvVJzhPR2+fqKMhg0dkJITxDSB426QL/PeWs4NeQFw==
-X-Received: by 2002:a5d:5c13:0:b0:3a4:eda1:6c39 with SMTP id ffacd0b85a97d-3a6ed6259e5mr149097f8f.13.1750798703771;
-        Tue, 24 Jun 2025 13:58:23 -0700 (PDT)
-Received: from localhost ([2a02:168:59f0:1:6ea:56ff:fe21:bea7])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-45382373c6esm76865e9.34.2025.06.24.13.58.23
+        d=1e100.net; s=20230601; t=1750810252; x=1751415052;
+        h=subject:cc:to:from:message-id:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zL28Tc4w5+Q9+lcS6siAOTOvpsM1FGjQwIS4zdqxK/Y=;
+        b=UK6WLhq3GuF/dCLoj30h3MOcIgmWU1S1an3+srqsQxqWMPB8cIvoPq0jlgRYs8sR/P
+         29p5gPhihcwQkc8JRsvVXTVAZ31dBhyhOz+GPgiXP0J5sW1HNOR4aID0cKmyPTlYHDj4
+         /P2wTbO2TYoALdNf34/OeWb0Y+MKja2m+50IzSdon0kAoTMoghw0iqUwdBwydiCyIPWr
+         w3uiGVETVcAJhs2iTPjdzrVNOg0n0GS5GtsugJifjvr2GVf/kwaAR907PY0ROCNrc9Th
+         0cTYbAKkp7IF1J4m0CTfTOCnEYImrH7TdkpEn5Vp8nbRyLawHYhC9WVjCe7uTgPQ1KIV
+         h/jg==
+X-Gm-Message-State: AOJu0YwPmsb5wiuAEJNe9PuUerFXuU5lg4FB6oD8hr9U3LHiGO8Ln3AE
+	bMwoC6toNd/dPEZ5OTjABNnaGyeqp++wpjmZWawlaKR8Z6wCH+rfEeYEm1UkhBakFw==
+X-Gm-Gg: ASbGncutHFFN9HpOP4p86efVjrsEcGj9aGWWB5ivFkLvlb6yCsjshlB2UAIH7lPJueB
+	Fbn/JK7WxzcBQZ0jhwzmVAIZh+BxlYQHJh00IFXvS2KvxuhCUcDlYHHYCH9KTuS0LJ+gtLgKVY4
+	8DlNVuizKcIandH5mCVmV6eFly8RPcpcwTrqcOp6fbt0Ciyrgiz5qJiN0g2cg4GUeX0DDjV+OIw
+	no0IB/8OleD1Qwz8klx3ZMKyhBrMdUAOV8WbMnovuv4763u/I2bP1Bqot0GuLA1JZH/eBqAghrj
+	NqEUkmDcNe2gTOB7pPgZ7i+74bpfRLPFzN+kJUwuSfGDV0uiB/SOlx6bNDCbTkn+2MU6tygKiAV
+	OaRyI8FujBcLsYsiUwUKY3ovIiijMHfg=
+X-Google-Smtp-Source: AGHT+IFL+HjknXTXoFRm3XUtKW87TK5WTKCaVLsRbT3brEr6WmdayurdNBDLXUWYy5PXbZrC8PQy/g==
+X-Received: by 2002:a05:620a:370c:b0:7d2:18a1:ce0 with SMTP id af79cd13be357-7d42974ba31mr151411285a.49.1750810251876;
+        Tue, 24 Jun 2025 17:10:51 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-6fd09442d14sm62087126d6.34.2025.06.24.17.10.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Jun 2025 13:58:23 -0700 (PDT)
-Date: Tue, 24 Jun 2025 22:58:18 +0200
-From: =?iso-8859-1?Q?G=FCnther?= Noack <gnoack3000@gmail.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, xandfury@gmail.com,
-	Shuah Khan <shuah@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-kselftest@vger.kernel.org, llvm@lists.linux.dev,
-	selinux@vger.kernel.org, kees@kernel.org,
-	linux-hardening@vger.kernel.org
-Subject: Re: [PATCH 2/2] selinux: add capability checks for TIOCSTI ioctl
-Message-ID: <20250624.3bb75890f0b0@gnoack.org>
-References: <20250622-toicsti-bug-v1-0-f374373b04b2@gmail.com>
- <20250622-toicsti-bug-v1-2-f374373b04b2@gmail.com>
- <CAEjxPJ6v12nLFx-x4-=esuPMp7L8UBvTzoj1kkTPcD2mDKKW8w@mail.gmail.com>
- <CAHC9VhS8gPQwgesV_0VbUuqxGrADm5uDofM3m=wZuAEgkWi5Hw@mail.gmail.com>
+        Tue, 24 Jun 2025 17:10:51 -0700 (PDT)
+Date: Tue, 24 Jun 2025 20:10:50 -0400
+Message-ID: <190ee36309adb0efa27e3b39a1a93de3@paul-moore.com>
+From: Paul Moore <paul@paul-moore.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [GIT PULL] selinux/selinux-pr-20250624
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHC9VhS8gPQwgesV_0VbUuqxGrADm5uDofM3m=wZuAEgkWi5Hw@mail.gmail.com>
 
-On Mon, Jun 23, 2025 at 11:15:39AM -0400, Paul Moore wrote:
-> On Mon, Jun 23, 2025 at 8:39 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Sun, Jun 22, 2025 at 9:41 PM Abhinav Saxena via B4 Relay
-> > <devnull+xandfury.gmail.com@kernel.org> wrote:
-> > > --- a/security/selinux/hooks.c
-> > > +++ b/security/selinux/hooks.c
-> > > @@ -3847,6 +3847,12 @@ static int selinux_file_ioctl(struct file *file, unsigned int cmd,
-> > >                                             CAP_OPT_NONE, true);
-> > >                 break;
-> > >
-> > > +       case TIOCSTI:
-> > > +               if (!file_ns_capable(file, &init_user_ns, CAP_SYS_ADMIN) ||
-> > > +                   !capable(CAP_SYS_ADMIN))
-> > > +                       error = -EPERM;
-> > > +               break;
-> > > +
-> >
-> > So, aside from what I said previously, this also will break any
-> > existing policies currently controlling TIOCSTI
-> > via the selinux ioctl checking in the default case, so at the very
-> > least, this would need to be gated by a new
-> > SELinux policy capability for compatibility purposes. But I'm still
-> > unconvinced that this is the right approach.
-> 
-> I want to add my voice to the other comments that adding these
-> capability checks to the SELinux code and not the main TIOCSTI kernel
-> code is not an approach we want to support.  Beyond that, as others
-> have already pointed out, I think some additional inspection and
-> testing is needed to ensure that the additional capability checks do
-> not break existing, valid use cases.
+Linus,
 
-+1 from me as well.
+Another small SELinux patch to fix a problem seen by the dracut-ng folks
+during early boot when SELinux is enabled, but the policy has yet to be
+loaded.
 
-If the perceived problem is in core TTY logic, but the proposed fix is
-in SELinux, it only addresses a fraction of the install base, as not
-all machines use SELinux.
+-Paul
 
-Also, it's not clear to me why the perceived problem of FD-passsing
-with SCM_RIGHTS is a problem at all.  If a CAP_SYS_ADMIN process
-accepts FDs over SCM_RIGHTS, it is the responsibility of that process
-not to do unjustified privileged operations with these FDs, on behalf
-of other, less privileged, processes.
+--
+The following changes since commit 86c8db86af43f52f682e53a0f2f0828683be1e52:
 
-In the more classic attack scenarios (as described in a series of CVEs
-[1]) the process who had the FD first is normally the more privileged
-one, for for those ones, the existing CAP_SYS_ADMIN check seems fine.
+  selinux: fix selinux_xfrm_alloc_user() to set correct ctx_len
+    (2025-06-16 19:02:22 -0400)
 
-—Günther
+are available in the Git repository at:
 
-[1] https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=TIOCSTI
+  https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+    tags/selinux-pr-20250624
 
--- 
+for you to fetch changes up to fde46f60f6c5138ee422087addbc5bf5b4968bf1:
+
+  selinux: change security_compute_sid to return the ssid or tsid on match
+    (2025-06-19 16:13:16 -0400)
+
+----------------------------------------------------------------
+selinux/stable-6.16 PR 20250624
+----------------------------------------------------------------
+
+Stephen Smalley (1):
+      selinux: change security_compute_sid to return the ssid or tsid on
+         match
+
+ security/selinux/ss/services.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+--
+paul-moore.com
