@@ -1,205 +1,125 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from fout-b5-smtp.messagingengine.com (fout-b5-smtp.messagingengine.com [202.12.124.148])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F27F38F4A
-	for <selinux@vger.kernel.org>; Wed, 25 Jun 2025 07:23:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 961902BEC39
+	for <selinux@vger.kernel.org>; Wed, 25 Jun 2025 10:41:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.148
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750836235; cv=none; b=lpFZ00Lsnmcqqe62+A3r8VXIqH9kLumAlQpQto0WvFOw1qE/fUdmJELYI/4jFsUw1UMAw5BDkUVgQdQOqjhz7KSxXeQaWSs1RoynHbK/rvpAs8GTz3St+9UXMoIDftcUAofTnWTVt9Vg2lSSkQq4oVG1EGpRfRQux+BAcskDkuc=
+	t=1750848095; cv=none; b=nxdNtbgG48GnuZV/FUX+K0Y2G0PE6IcKcrwIlIFeg4XJjS+AI0T2D5Hh0+1DGaPx717Ney4sKESDrXjh+9/xICMCPzigosEFv6y0chzU3PdyJbSL190/nTVgmDFFXVTMa5f8vaGE5QcCIUZJwFNyX6MBZ94YVF7+nroGKIiK/7k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750836235; c=relaxed/simple;
-	bh=Map/X6qcjNdzWpVj6xyRE9M8e3e+QNSi7b66Evo7gg0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jSUK4pt/PwVdEUX5MNX3ZsIQ0r8SyWhufXEjgHTL/TbiVo5Z5qxBsu6vufqlCzHKPk5lxr28z9mhrAZsPrC9DyERRckGw21dMzRPTUDLtmWHL76n61E42iMUBlnpSmaIJPtd/KiNW6/sXUipaIRtUvVU6iy1jZMi3Eu50h5U+Qc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PRBz7Zwx; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1750848095; c=relaxed/simple;
+	bh=zZ/dkROIv61VX7T3lUfkGB+7lotqUFJ+9BFI8lP50Rk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=c2PFA1ch4N73IMb7RIZLXrofmuR6NFNo8HYcuedxVOPwQPBl+lwcvGilIQ4aHDX7ij4VZWYigH6P9duoPUE43xGVUXwkR3qErZwp4Y0xIKqW94LmjNBJDY/jX6mqDg4kEuBxnNs1CGWgOOtFU2RgHozX8CC92wR/JAczrISmBvs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=H0Uu3Qf4; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=gStZB7gO; arc=none smtp.client-ip=202.12.124.148
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alyssa.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PRBz7Zwx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1750836233;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=sBwOQ616ZvfnqVoVfyhhRP4zvvwrJ28fFUG2nlNIVLY=;
-	b=PRBz7ZwxEzSm+e4bZAeLbI/fZVu9fX5BakBoC/ZE0K+HknVrjPkm1x29obc3ix+AQMA0Z4
-	9nKxbP2VEqdbsvjjWq3u0Uvop3YiEU05dZB+mu4DXfgszTQdWdwim8Y95Cz3zKihZksP4X
-	o3yYD5Vjo/IsjxCSU0m8iefNJmzXumk=
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
- [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-664-EWJNBIuiPdaZHtDjmtziNw-1; Wed, 25 Jun 2025 03:23:51 -0400
-X-MC-Unique: EWJNBIuiPdaZHtDjmtziNw-1
-X-Mimecast-MFC-AGG-ID: EWJNBIuiPdaZHtDjmtziNw_1750836230
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2356ce66d7cso82239855ad.1
-        for <selinux@vger.kernel.org>; Wed, 25 Jun 2025 00:23:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750836230; x=1751441030;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=sBwOQ616ZvfnqVoVfyhhRP4zvvwrJ28fFUG2nlNIVLY=;
-        b=qglLSB0IOc2L/RkWVtCK74M584uIJbQu88DSJZt/Hpm7nrXOmsiOFuVOmTCURgSPYE
-         g9z0M43okMdRTQPla/AdmFMnXMGiUEhj9KAddI6VTpPt//XXwUYMyBdt0LHwEEVoOMjb
-         w6pG4/Q9PSkN3/3SaMyq4l1Q+n3DgXBlOQhTrCYzNCVD5nD5Bk7anGJYj1sZRKY0qVxx
-         3OiRVkua0YltJB8xLMcCYqBRtizZweMDe1OmT4RVN5eOeWG2RIRdMIfrvA+DWochNJOr
-         WYSHownxFEf7gx5x8nI+EPnOCWTph748PNIWcJuA8AQ1L1qIEgotWm1YCYPewOUgFMGW
-         /b9Q==
-X-Gm-Message-State: AOJu0YxbyzeLLIvDnCZxDF23ajVaz1zlEM0hDHosgbt4DWOC3OX7kg3Z
-	2PYNlzPtXGo+bBJJoHpl/FS58T+xfqIFHJJ9WTjQlvePLUrsSSmxKwST+qXUXo1iitGtb8qMPAi
-	wP8sghhc/kL0yIviQSrlDg42Lhmilv5yUTg096WmVaGKZZYW8Hp5Nb5ggSsyRmxipp207jJOz1Y
-	R+Ylg11/Dl+UCIod3OsAwGO79ZTZsHmDPt/61QwA0+70fP
-X-Gm-Gg: ASbGnctsVWM0Y5IsdGSQAwsHFLklXAQXqimWhf4mo9obDsEf5+48bpUkTAHVk4/rLYL
-	Oa2lQMi154iz4P2txgL9iVn1/u2GdXS2W9otqVlR3Oqsev7qqILYYHzhuFl5uSbP8vrn63YN8d8
-	jWVg==
-X-Received: by 2002:a17:903:2292:b0:237:ed38:a5b3 with SMTP id d9443c01a7336-23823f98035mr27433475ad.8.1750836229755;
-        Wed, 25 Jun 2025 00:23:49 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEnzdxl5nnFV7ylDZQYMr1X3ZKdW6LzTnlFvn8LYp4CSksto5q1uUCO9E84EKHO82Z5Lvq+W/0r3kZt9xyuRbg=
-X-Received: by 2002:a17:903:2292:b0:237:ed38:a5b3 with SMTP id
- d9443c01a7336-23823f98035mr27433405ad.8.1750836229432; Wed, 25 Jun 2025
- 00:23:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="H0Uu3Qf4";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="gStZB7gO"
+Received: from phl-compute-01.internal (phl-compute-01.phl.internal [10.202.2.41])
+	by mailfout.stl.internal (Postfix) with ESMTP id 5386E1D000C0;
+	Wed, 25 Jun 2025 06:41:31 -0400 (EDT)
+Received: from phl-mailfrontend-01 ([10.202.2.162])
+  by phl-compute-01.internal (MEProxy); Wed, 25 Jun 2025 06:41:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
+	:cc:content-transfer-encoding:content-type:date:date:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm1; t=1750848091; x=
+	1750934491; bh=M8AukqUXAj0c0fdbESEUPCRC/1cW/snATDoICE66OoI=; b=H
+	0Uu3Qf4250wrmz6ECjj11z4vudiZ0nHFEZCi/o+zU/3JoYj+1vJ4sYbUrelmyDRp
+	dVjhobJgBYtBXIP5eLoOFuuKYQzNWOBZSBTnjin/Y0aHyG+ZPhzi6Fo++f3OXuFZ
+	AUpb91hhdHXgSPay2w3Mk9oUx7uWoGhukvBTi1FdaI1p2iIaLL6xg2brKjcvF5g8
+	TvbCnHuqCYO8IQuNXzu9MApo/OR2/4O5yX/ehd4uhD8yewLmSUTHus+q3jjCdp/z
+	JyKiX1uL9suirapPgg2s8l0Drvocpp3ylPQcoxKDkKu9O6rK3oZS/C4eVQqpWb6D
+	D9id6YXxUKDC3S0isHsUw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:date:date:feedback-id:feedback-id:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to:x-me-proxy:x-me-sender
+	:x-me-sender:x-sasl-enc; s=fm2; t=1750848091; x=1750934491; bh=M
+	8AukqUXAj0c0fdbESEUPCRC/1cW/snATDoICE66OoI=; b=gStZB7gO/QdbvrmKf
+	rkZPwrAgngsCwbyeon3albTwZ28+mKv12gil/dzn0lEfClcqU7cp5Klf/VQ/ETKz
+	E8JJvosssXZWJ6lwR8FgYhnpHs+2FlAZsfs+bSZdJ9tnSe7oTHxjJQDGQz2gdpEd
+	KdWsaJVROhVCzi5A9bpS82UHbLqTsL10KMtgvCewP+KMSZ636BsuK3yc2URxAX3X
+	JK0vMgZe3C4JYmPRLBrS4GPO6LRnQgxUGgRDJpJrTAgPg5mrPznNZKgCxAnuqq+f
+	zyC32rjkXl/UCeMAqOgsR/rol3eYPfAGaVoLl90jQWpkMExIOPsPmHJUAKKiXLpq
+	aC86g==
+X-ME-Sender: <xms:WtJbaDGF6l2xaHEmugGdl7sO4Mcc83_o7JPkxYU4xcwCY7wIc2uNxw>
+    <xme:WtJbaAXYpj85ax9a6YiDiBVPGpFrIcTPRQLbrPIZkxJRivLRN508hNvL4p-rvaUpH
+    YKb9ksD8GoZ_LhanQ>
+X-ME-Received: <xmr:WtJbaFLQGnL7D20m3MddJJstoSEu0qFE3fUPjPXzJPywcUqulSkS5EI8Pn0ruYB1qMNZfccpCZAb>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtddvgddvvdehiecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeetlhihshhsrgcu
+    tfhoshhsuceohhhisegrlhihshhsrgdrihhsqeenucggtffrrghtthgvrhhnpedugeefte
+    ehudejteeukeettdelgeduleekfeefieeggfduhefhueffudfgudeiveenucffohhmrghi
+    nhepphgtrdhinhdpghhithhhuhgsrdgtohhmnecuvehluhhsthgvrhfuihiivgeptdenuc
+    frrghrrghmpehmrghilhhfrhhomhephhhisegrlhihshhsrgdrihhspdhnsggprhgtphht
+    thhopeekpdhmohguvgepshhmthhpohhuthdprhgtphhtthhopehjfigtrghrthdvsehgmh
+    grihhlrdgtohhmpdhrtghpthhtohepuggsuhhrghgvnhgvrheslhhinhhugidrmhhitghr
+    ohhsohhfthdrtghomhdprhgtphhtthhopehnihgtohhlrghsrdhiohhoshhssehmgeigrd
+    horhhgpdhrtghpthhtohepugifrghlshhhsehrvgguhhgrthdrtghomhdprhgtphhtthho
+    pegvphgrrhhishesrhgvughhrghtrdgtohhmpdhrtghpthhtoheplhgruhhtrhgsrggthh
+    esrhgvughhrghtrdgtohhmpdhrtghpthhtohepshgushesthihtghhohdrnhhsrgdrghho
+    vhdprhgtphhtthhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:WtJbaBHLDxmTbBlIjo-tHSGNna7dbw1k-69w6Gg_POWUM1WPVvRUgw>
+    <xmx:WtJbaJWAGgoVDFu0CFVDQxlLB6AfSr3zemTttwXHgvCe7WIEU9VttA>
+    <xmx:WtJbaMM5EV1gHhIzbP3TPyZgacqSyUVIeJLMGoRuWt6k9p9ve53moA>
+    <xmx:WtJbaI1bnOa25AJdvmdPVdqTDC6hTg5F4RH78j_5s5hMR3x_2qqBMg>
+    <xmx:W9JbaCsDHsdBJ6N-WLsB9iVbVirM4neDbf1mFxGcr2JFjotAhEoy0bCn>
+Feedback-ID: i12284293:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 25 Jun 2025 06:41:30 -0400 (EDT)
+Received: by mbp.qyliss.net (Postfix, from userid 1000)
+	id DFC1DB95192; Wed, 25 Jun 2025 12:41:28 +0200 (CEST)
+From: Alyssa Ross <hi@alyssa.is>
+To: selinux@vger.kernel.org
+Cc: Petr Lautrbach <lautrbach@redhat.com>,
+	Nicolas Iooss <nicolas.iooss@m4x.org>,
+	James Carter <jwcart2@gmail.com>,
+	Daniel Burgener <dburgener@linux.microsoft.com>,
+	Dan Walsh <dwalsh@redhat.com>,
+	Stephen Smalley <sds@tycho.nsa.gov>,
+	eparis@redhat.com
+Subject: [PATCH 1/2] libsemanage: add missing libaudit private library
+Date: Wed, 25 Jun 2025 12:41:02 +0200
+Message-ID: <20250625104103.140498-1-hi@alyssa.is>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <87bjqebpre.fsf@redhat.com>
+References: <87bjqebpre.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250624173319.23880-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20250624173319.23880-2-stephen.smalley.work@gmail.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Wed, 25 Jun 2025 09:23:38 +0200
-X-Gm-Features: AX0GCFtavcKRkgXPBdBSKlYXSoyWXAXuZlsG_qU8JUCwEs1iGdfww5j05TkwC60
-Message-ID: <CAFqZXNswEP1sGhc2O3D7GaL_wZ94RHeHMDZS2W2+mV2Cj+-GMg@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/mac_admin: skip all tests on NFS
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, paul@paul-moore.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jun 24, 2025 at 7:34=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> NFS does not truly support setting / getting of undefined
-> contexts. While some of the tests currently pass,
-> they trigger kernel error messages like the ones below:
->
-> nfs_setsecurity() system_u:object_r:UNDEFINED:s0 31 security_inode_notify=
-secctx() -22
-> nfs_setsecurity() system_u:object_r:UNDEFINED:s0 31 security_inode_notify=
-secctx() -22
-> nfs_setsecurity() unconfined_u:object_r:UNDEFINED:s0 35 security_inode_no=
-tifysecctx() -22
->
-> If we wanted this to work over NFS, we would need further changes to
-> the kernel. For now, skip all the mac_admin tests to avoid log spam.
-> This is similar to handling in other test scripts like
-> tests/capable_file/test.
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  tests/mac_admin/test | 38 +++++++++++++++++---------------------
->  1 file changed, 17 insertions(+), 21 deletions(-)
->
-> diff --git a/tests/mac_admin/test b/tests/mac_admin/test
-> index 8ecb48b..973fac3 100755
-> --- a/tests/mac_admin/test
-> +++ b/tests/mac_admin/test
-> @@ -1,17 +1,18 @@
->  #!/usr/bin/perl
->
-> -use Test;
-> +use Test::More;
->
->  BEGIN {
->      $basedir =3D $0;
->      $basedir =3D~ s|(.*)/[^/]*|$1|;
->
->      $isnfs =3D `stat -f --print %T $basedir`;
-> -    if ( $isnfs ne "nfs" ) {
-> -        plan tests =3D> 8;
-> +
-> +    if ( $isnfs eq "nfs" ) {
-> +        plan skip_all =3D> "undefined contexts not supported over NFS";
->      }
->      else {
-> -        plan tests =3D> 6;
-> +        plan tests =3D> 8;
->      }
->  }
->
-> @@ -19,18 +20,18 @@ BEGIN {
->  system("rm -f $basedir/test_file; touch $basedir/test_file");
->  $result =3D system(
->      "runcon -t test_mac_admin_t -- chcon -t UNDEFINED $basedir/test_file=
- 2>&1");
-> -ok( $result, 0 );    # we expect this to succeed.
-> +ok( $result eq 0 );    # we expect this to succeed.
->
->  # Verify that test_mac_admin_t sees the undefined context.
->  $result =3D `runcon -t test_mac_admin_t -- secon -t -f $basedir/test_fil=
-e 2>&1`;
->  chomp($result);
-> -ok( $result, "UNDEFINED" );
-> +ok( $result eq "UNDEFINED" );
->
->  # Verify that test_no_mac_admin_t sees the unlabeled context
->  $result =3D
->    `runcon -t test_no_mac_admin_t -- secon -t -f $basedir/test_file 2>&1`=
-;
->  chomp($result);
-> -ok( $result, "unlabeled_t" );
-> +ok( $result eq "unlabeled_t" );
->
->  # Delete the test file.
->  system("rm -f $basedir/test_file");
-> @@ -40,22 +41,17 @@ system("rm -rf $basedir/test_dir");
->  $result =3D system(
->  "runcon -t test_mac_admin_t -- mkdir --context=3Dsystem_u:object_r:UNDEF=
-INED:s0 $basedir/test_dir 2>&1"
->  );
-> -ok( $result, 0 );    # we expect this to succeed.
-> -
-> -if ( $isnfs ne "nfs" ) {
-> +ok( $result eq 0 );    # we expect this to succeed.
->
-> -    # Verify that test_mac_admin_t sees the undefined label value.
-> -    $result =3D
-> -      `runcon -t test_mac_admin_t -- secon -t -f $basedir/test_dir 2>&1`=
-;
-> -    chomp($result);
-> -    ok( $result, "UNDEFINED" );
-> +# Verify that test_mac_admin_t sees the undefined label value.
-> +$result =3D `runcon -t test_mac_admin_t -- secon -t -f $basedir/test_dir=
- 2>&1`;
-> +chomp($result);
-> +ok( $result eq "UNDEFINED" );
->
-> -    # Verify that test_no_mac_admin_t sees the unlabeled context.
-> -    $result =3D
-> -      `runcon -t test_no_mac_admin_t -- secon -t -f $basedir/test_dir 2>=
-&1`;
-> -    chomp($result);
-> -    ok( $result, "unlabeled_t" );
-> -}
-> +# Verify that test_no_mac_admin_t sees the unlabeled context.
-> +$result =3D `runcon -t test_no_mac_admin_t -- secon -t -f $basedir/test_=
-dir 2>&1`;
-> +chomp($result);
-> +ok( $result eq "unlabeled_t" );
->
->  # Delete the test directory
->  system("rm -rf $basedir/test_dir");
-> --
-> 2.49.0
->
+libsemanage always uses libaudit functions, so we need to make sure
+that consumers of libsemanage.a know to link against libaudit too.
 
-Thanks, applied:
-https://github.com/SELinuxProject/selinux-testsuite/commit/a69e30e244e32aba=
-ff26472324767039311d703b
+Fixes: 56d9d20a ("Pull auditing into libsemanage.")
+Signed-off-by: Alyssa Ross <hi@alyssa.is>
+---
+ libsemanage/src/libsemanage.pc.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+diff --git a/libsemanage/src/libsemanage.pc.in b/libsemanage/src/libsemanage.pc.in
+index 303f8069..8b7c55a9 100644
+--- a/libsemanage/src/libsemanage.pc.in
++++ b/libsemanage/src/libsemanage.pc.in
+@@ -9,5 +9,5 @@ Version: @VERSION@
+ URL: https://github.com/selinuxproject/selinux/wiki/Releases
+ Requires.private: libselinux libsepol
+ Libs: -L${libdir} -lsemanage
+-Libs.private: -lbz2
++Libs.private: -laudit -lbz2
+ Cflags: -I${includedir}
+
+base-commit: 2304becd8154eeab084a7ef31b29048c0a780e84
+-- 
+2.49.0
 
