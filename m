@@ -1,171 +1,110 @@
-Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B7C72BEFE4
-	for <selinux@vger.kernel.org>; Wed, 25 Jun 2025 10:41:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54F752D5C8B
+	for <selinux@vger.kernel.org>; Wed, 25 Jun 2025 17:49:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750848096; cv=none; b=gevWhvvcUqtGsmKvZXJBZA+f6O5pCqZbcFRubXrB/LJQl+JI3DsPkjqDAVJ8XBc5dhNeDav4PFuZt4H8Np/h4TmZeqE5eupPSD2L+OjUjTGYyPMbIjnghf+30bcSBLkwCVBZEF/WtbkQPhm1H+znBUGFjaZOxKtTDd92iZcf20c=
+	t=1750873784; cv=none; b=gdnDdM3S4KZduTQMtyUsSkQmrCjxyDqKPrBflFWky+lMRnkI/wDYWMnB+sznyWqig3+cRDHWKEOsB+0w0vfszJLkl2gRqMOBnPK9HTdvPHxY2tp3wMt+De9taDuszi1Ul37NOxvEV3psY/MsnWMO5DLfVXoXon5fwvefm8TDcAw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750848096; c=relaxed/simple;
-	bh=pYL/Bvst8eoVcKFhNLAE3Hhwd8Vezw4iXk9ZCZMk0n0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gcTIsznD07eHVJ/wx9huMkuPFII8WSk5J1jK+0oATR4Kkf4JuAejqPM5Cr3KxpG67WO9xkMcNxGOwMSarwvBZyLKQ8WyVO1pZVYVKbgyTaDZkcSSLzg844vyOAnZNH8dZ95/pWVtFp/rHL/6dpYyD59dlhX3KCcm6v6cAbZffRA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=FbJi/3ka; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=mh1xPHdT; arc=none smtp.client-ip=202.12.124.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alyssa.is
+	s=arc-20240116; t=1750873784; c=relaxed/simple;
+	bh=6VFOAE6N/t96aGlmCJK3p+TMUkJA0aw8XyHcM2NW/8o=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=UTRfb3tW3HSF55dcwxUETNEU98q4i2GJIzbmXhOebEe7kvxq6Gz30FlqZxscsAsdUbbaa+PTRINdqMAUWMtGTlTXZLG0YJJRt7C393yWfvMiKt3QKKFq1ooXAV3FB2Rm7PXTC62VmOuA0Uq4VVb2xWb3L1vDlnyLxkJpb6rINr8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=J0nWyU1G; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="FbJi/3ka";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="mh1xPHdT"
-Received: from phl-compute-12.internal (phl-compute-12.phl.internal [10.202.2.52])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 4075B7A0181;
-	Wed, 25 Jun 2025 06:41:31 -0400 (EDT)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-12.internal (MEProxy); Wed, 25 Jun 2025 06:41:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
-	:cc:content-transfer-encoding:content-type:date:date:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to; s=fm1; t=1750848091; x=
-	1750934491; bh=KalR6zpeb4jjqukrlADcA/tYCOtlfAEuuNJSmrs2LuA=; b=F
-	bJi/3kaRGdPc09hlIvsiiuU0hUEDTFL5PyIEAcbknBftDzImksh7eTR7AEWr4gPC
-	w1LP+9Yu03PwOVM1jf2mDftPkLpCXRuibLQeOwefj/2Xy7lde06ZWoa/BhEYZtms
-	ZelMEnYgMfMAuRyiFuldclyOkduzHgb02mNU1pj8iMiIfBpDxIHAABHPmjmAthVB
-	yL8xZ5cjznFW4WFbKjSiEeGFnWuflqJxYd2tiUKEJfhTpVqEQaVSSfG2yMh7d4Rs
-	28uyXlZjsBfIBxtAukXmIym23hVMLOPYS38520Vr/AecIgNMYndBnsYvlz0rtEK/
-	wydRDU18/hA5Ap6YYWzCg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:date:date:feedback-id:feedback-id:from:from
-	:in-reply-to:in-reply-to:message-id:mime-version:references
-	:reply-to:subject:subject:to:to:x-me-proxy:x-me-sender
-	:x-me-sender:x-sasl-enc; s=fm2; t=1750848091; x=1750934491; bh=K
-	alR6zpeb4jjqukrlADcA/tYCOtlfAEuuNJSmrs2LuA=; b=mh1xPHdTr5V0EwUnl
-	bvQUItgI1xNF/A2Rp1yBMbm33eSnQ93nmZ3sb9HoBvlVEv8+PGXHMOipc8YnbfLo
-	kkFUuf+XscBjMD6lNSOCtgKvZbdKsJfsPIoS89RJjfLkBmBvAIe6HTFtU6uu/Zsj
-	des0pCjPaN+PeHGyP/GvQnUluNhaK9kPHEAIl+OEXCjT/OxUpJs/dm/2l+WI4Tcg
-	eMbhLbIGY5vx+1nrYBFdQKvA5WIPp0wTe/hF+zPjYsUKPEIy42b7E4TWI/7Wu8gQ
-	dM9cAUNLKL05nOKRcJ8Bc1YMkaK6ZqqS/nGI6vUGhrfE9Y58AYVSvMHsHs0opEuy
-	fVAZQ==
-X-ME-Sender: <xms:WtJbaPtcDSUbB1uUfXNePMXPv3C8Fb2M8kyLGaePIALUXtKV40APMw>
-    <xme:WtJbaAc1lHFnuxVQ7Dnh-uw26v8PqU4cG_MBEmz1xTD52xxb2wfj3QUhvOTlOjEym
-    2RB8MlPFyu6C5YXIQ>
-X-ME-Received: <xmr:WtJbaCw2k2_qC5tFlqvae25MTD7jXVFoJd5ylMJOLcbt1icmnOoOc9iJRXrm0DaIxKknKMIsropU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtddvgddvvdehhecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeetlhihshhsrgcu
-    tfhoshhsuceohhhisegrlhihshhsrgdrihhsqeenucggtffrrghtthgvrhhnpeevjeetff
-    dtleegffevhfehfeekfeeuveejgfejvdetleejfeekvdetffdtveduueenucffohhmrghi
-    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhephhhisegrlhihshhsrgdrihhspdhnsggprhgtphhtthhopeekpdhm
-    ohguvgepshhmthhpohhuthdprhgtphhtthhopehjfigtrghrthdvsehgmhgrihhlrdgtoh
-    hmpdhrtghpthhtohepuggsuhhrghgvnhgvrheslhhinhhugidrmhhitghrohhsohhfthdr
-    tghomhdprhgtphhtthhopehnihgtohhlrghsrdhiohhoshhssehmgeigrdhorhhgpdhrtg
-    hpthhtohepugifrghlshhhsehrvgguhhgrthdrtghomhdprhgtphhtthhopegvphgrrhhi
-    shesrhgvughhrghtrdgtohhmpdhrtghpthhtoheplhgruhhtrhgsrggthhesrhgvughhrg
-    htrdgtohhmpdhrtghpthhtohepshgushesthihtghhohdrnhhsrgdrghhovhdprhgtphht
-    thhopehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:WtJbaOMEzSEDbWVR9voMqx9igXqKscxZP1Mo4IeHa12fJZp4trXL3A>
-    <xmx:WtJbaP_KNi622O-hwHRDTzdJNpvGaEhbAJbfH5k-DQyZ5Z4stjMTLA>
-    <xmx:WtJbaOUksK0U76PiDqs64LP8wrkpxeJI22bW_lUzXtf9zXLQvZfKRQ>
-    <xmx:WtJbaAcF30AsSoAGimUfqq99e-ewvcIfVJgqCXSekANOtk5V9zYRcg>
-    <xmx:W9JbaDWxavf5ArXPMn_aFeVi-iH-1d94rtJ0qAE6x4Go4hN5-dEiTjn7>
-Feedback-ID: i12284293:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 25 Jun 2025 06:41:30 -0400 (EDT)
-Received: by mbp.qyliss.net (Postfix, from userid 1000)
-	id E523EB95194; Wed, 25 Jun 2025 12:41:28 +0200 (CEST)
-From: Alyssa Ross <hi@alyssa.is>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J0nWyU1G"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1750873781;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=Jxc30St764kIqmR/5UwCSVVOqQIhnV0g8uL23A4vKi0=;
+	b=J0nWyU1G5sk6C0jfF9tq5jAglmMg9vUTlQg2h2npIFtbwUDtosKA6h9mNM9u74S1l3Mv16
+	uOztlne5YES+HoZW5Smea+OI7nMS5jtLAx/LpSkotQZPdR6wDUAq6+qF19RD6L8gtvTroG
+	5nO3K4YC9GBsLfIJsnoYXwW74b07Dp0=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-313-i_MLFmt0NcqODwtd2lNLvw-1; Wed,
+ 25 Jun 2025 13:49:39 -0400
+X-MC-Unique: i_MLFmt0NcqODwtd2lNLvw-1
+X-Mimecast-MFC-AGG-ID: i_MLFmt0NcqODwtd2lNLvw_1750873778
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 965111801210
+	for <selinux@vger.kernel.org>; Wed, 25 Jun 2025 17:49:38 +0000 (UTC)
+Received: from localhost (unknown [10.45.224.186])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 2445230001A1
+	for <selinux@vger.kernel.org>; Wed, 25 Jun 2025 17:49:37 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
 To: selinux@vger.kernel.org
-Cc: Petr Lautrbach <lautrbach@redhat.com>,
-	Nicolas Iooss <nicolas.iooss@m4x.org>,
-	James Carter <jwcart2@gmail.com>,
-	Daniel Burgener <dburgener@linux.microsoft.com>,
-	Dan Walsh <dwalsh@redhat.com>,
-	Stephen Smalley <sds@tycho.nsa.gov>,
-	eparis@redhat.com
-Subject: [PATCH 2/2] policycoreutils: use pkg-config for libsemanage
-Date: Wed, 25 Jun 2025 12:41:03 +0200
-Message-ID: <20250625104103.140498-2-hi@alyssa.is>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250625104103.140498-1-hi@alyssa.is>
-References: <87bjqebpre.fsf@redhat.com>
- <20250625104103.140498-1-hi@alyssa.is>
+Subject: ANN: SELinux userspace 3.9-rc2 release
+Date: Wed, 25 Jun 2025 19:49:36 +0200
+Message-ID: <87wm8ziudr.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
 
-libaudit and libbz2 are only required to be in the linker path for
-static builds.  For dynamic builds, they'll be discovered through ELF
-metadata.  pkg-config knows how to do the right thing in both cases,
-so just use it rather than listing libsemanage's dependencies
-manually.
+Hello!
 
-Fixes: da6cd3d8 ("Support static-only builds")
-Closes: https://lore.kernel.org/r/87bjqebpre.fsf@redhat.com
-Signed-off-by: Alyssa Ross <hi@alyssa.is>
----
- policycoreutils/Makefile           | 3 ++-
- policycoreutils/semodule/Makefile  | 3 +--
- policycoreutils/setsebool/Makefile | 3 +--
- 3 files changed, 4 insertions(+), 5 deletions(-)
+The 3.9-rc2 release for the SELinux userspace is now available at:
 
-diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
-index 7acd51dd..0f3d62f2 100644
---- a/policycoreutils/Makefile
-+++ b/policycoreutils/Makefile
-@@ -3,7 +3,8 @@ SUBDIRS = setfiles load_policy newrole run_init secon sestatus semodule setseboo
- PKG_CONFIG ?= pkg-config
- 
- LIBSELINUX_LDLIBS := $(shell $(PKG_CONFIG) --libs libselinux)
--export LIBSELINUX_LDLIBS
-+LIBSEMANAGE_LDLIBS := $(shell $(PKG_CONFIG) --libs libsemanage)
-+export LIBSELINUX_LDLIBS LIBSEMANAGE_LDLIBS
- 
- all install relabel clean indent:
- 	@for subdir in $(SUBDIRS); do \
-diff --git a/policycoreutils/semodule/Makefile b/policycoreutils/semodule/Makefile
-index 7c45831f..018ee2ca 100644
---- a/policycoreutils/semodule/Makefile
-+++ b/policycoreutils/semodule/Makefile
-@@ -7,12 +7,11 @@ MANDIR = $(PREFIX)/share/man
- CFLAGS ?= -Werror -Wall -W
- override CFLAGS += -I../../libselinux/include -I../../libsemanage/include
- override LDFLAGS+= -L../../libselinux/src     -L../../libsemanage/src
--override LDLIBS += -lsemanage -lsepol $(LIBSELINUX_LDLIBS)
-+override LDLIBS += $(LIBSEMANAGE_LDLIBS) -lsepol $(LIBSELINUX_LDLIBS)
- SEMODULE_OBJS = semodule.o
- 
- all: semodule genhomedircon
- 
--semodule: LDLIBS += -laudit -lbz2
- semodule: $(SEMODULE_OBJS)
- 
- genhomedircon:
-diff --git a/policycoreutils/setsebool/Makefile b/policycoreutils/setsebool/Makefile
-index 1d514846..87494c55 100644
---- a/policycoreutils/setsebool/Makefile
-+++ b/policycoreutils/setsebool/Makefile
-@@ -8,14 +8,13 @@ BASHCOMPLETIONDIR ?= $(PREFIX)/share/bash-completion/completions
- CFLAGS ?= -Werror -Wall -W
- override CFLAGS += -I../../libselinux/include -I../../libsemanage/include
- override LDFLAGS+= -L../../libselinux/src     -L../../libsemanage/src
--override LDLIBS += -lsemanage $(LIBSELINUX_LDLIBS)
-+override LDLIBS += $(LIBSEMANAGE_LDLIBS) $(LIBSELINUX_LDLIBS)
- SETSEBOOL_OBJS = setsebool.o
- 
- BASHCOMPLETIONS=setsebool-bash-completion.sh 
- 
- all: setsebool
- 
--setsebool: LDLIBS += -laudit -lbz2
- setsebool: $(SETSEBOOL_OBJS)
- 
- install: all
--- 
-2.49.0
+https://github.com/SELinuxProject/selinux/releases/tag/3.9-rc2
+https://github.com/SELinuxProject/selinux/wiki/Releases
+
+I signed all tarballs using my gpg key, see .asc files.
+You can download the public key from
+https://github.com/bachradsusi.gpg
+
+Thanks to all the contributors, reviewers, testers and reporters!
+
+If you miss something important not mentioned bellow, please let me
+know.
+
+User-visible changes
+--------------------
+
+* libsepol: Add new 'netif_wildcard' policy capability
+
+* checkpolicy: Add support for wildcard netifcon names
+
+* libsepol: Allow multiple policycap statements
+
+* libsepol: Support genfs_seclabel_wildcard
+
+* Replace all links to selinuxproject.org
+
+* Bug fixes
+
+Shortlog of the changes since 3.9-rc1 release
+---------------------------------------------
+Christian G=C3=B6ttsche (5):
+      libsepol: update sort order for netifcon definitions
+      libsepol: add netif_wildcard polcap
+      checkpolicy: add support for wildcard netifcon names
+      secilc/test: add test for wildcard netifcon statement
+      libsepol/cil: reject wildcard only network interface names
+
+Inseob Kim (2):
+      libsepol: Allow multiple policycap statements
+      libsepol: Support genfs_seclabel_wildcard
+
+James Carter (1):
+      libsemanage: Ignore missing field initializers in swig generated code
+
+Petr Lautrbach (1):
+      Update VERSIONs to 3.9-rc2 for release.
+
+Stephen Smalley (1):
+      userspace: replace all links to selinuxproject.org
 
