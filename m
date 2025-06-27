@@ -1,113 +1,121 @@
-Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 536C62ECEB9
-	for <selinux@vger.kernel.org>; Thu, 26 Jun 2025 20:34:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8E702D3207
+	for <selinux@vger.kernel.org>; Fri, 27 Jun 2025 12:13:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750970095; cv=none; b=udmpiPROAXggSdR5d89Cc1A2rMzzfLMb8H1pMDKUECwaXvEYCFSFzAVwzyEbxMuuOwpVLGZfGLS930U8SHsA+FwjjzPGaKLmxjni+SJqKOMHJ7sQz9kWm4gIeEgM8TKfFe2Yd3bUaz32PCoD0DK3HY3F0HAF1CS0pkWJ169CJ/Q=
+	t=1751026393; cv=none; b=WgAyH1GdEwtgPbfMtC+sDIiuhLGv9mv0OesHrOvlxvzoyfeEv0mle9v/axnIaMuwsJdtRnz5HQBog6tVufVmauR+a+Jkh9tLNd4JOsJEMPEkj/9nqiRNF47C98YWVqFjM9e6h3Cfpnx3u5r4D8iOXGV8gEcePrbZQh6HOby5kd8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1750970095; c=relaxed/simple;
-	bh=5Sei9lyUWSOLhlYdKRw6PW2wVc1AbAWeD9H0Czpu0rI=;
+	s=arc-20240116; t=1751026393; c=relaxed/simple;
+	bh=I0IydMOqWjoy6gJVO3ssyVrUT/32yleJypqy1TClcPY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OOCwc9gdYE8eKS+V/I/9jKMq66BD+h0hJ9cel60z9EbdLn62GMr8uUr2RWbwcLTsLhH+DUsXFvwyCGAF8uCvfzhFaHs7ZaN57PESJwMDYqO0YpqpAR7TYdLvljIZHxEwwDYT1g1CPPYIQ6jjCzdhExXxh/Ho+DVU7HvyjkCwXig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Pca3ldvv; arc=none smtp.client-ip=209.85.128.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	 To:Cc:Content-Type; b=SWxx+iipy6TDqqTFFQzv7OMmsKcx4QOITcA0YIyqqMYnFcUQ1tlWaCm1bpjkhKhxv63yHz57S5DNRUTRa+bxzEaM+LjvDafUJa2iRUdJKAJcdHrw1g65zcHSJ1k29zwdLzfH7sSLkRSgGSx/I5/Si2sniWISsR/lUpDSOUrlT3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UzDQUnbL; arc=none smtp.client-ip=209.85.216.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Pca3ldvv"
-Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-70e4b1acf41so12468257b3.3
-        for <selinux@vger.kernel.org>; Thu, 26 Jun 2025 13:34:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UzDQUnbL"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-31332cff2d5so1892363a91.1
+        for <selinux@vger.kernel.org>; Fri, 27 Jun 2025 05:13:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1750970092; x=1751574892; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1751026390; x=1751631190; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rpKARRHV0GlXown+jCeEHukDG3Xhdv37C5V3FKJqbJc=;
-        b=Pca3ldvvZJ1etzYTFj4jM4ToRIfFcnx80WymTNAnsBLKLee3mQpjIErqq77ZhfpXO2
-         30AmWyttKeHIGsQj0Fy461tYgBlxxMBPQUJH8Q5iIjuVnAZqvEXQnG+hqA/9z3qpU8UT
-         jySP/Gz4O4y3Nr9Iidge2L2ELH9bzY+G3i+Ni5i4VhHmq3+GmjJ2tkSmqvcV74ETyLk8
-         YGxPud6TbP2Dzb6o+mGqnk04ghS9jyqm8+1N3yimo4TtkkByfM0MVNaiiLm+p0+n/3xe
-         xIVlksYJfZPFVGJvjBAvQ2w14YRYIr4hGItHYvGf+6IzLKpdEv912AUfLlum/FMajWIV
-         Y0TQ==
+        bh=cn36ghHUWnf8O4bsX+u4V9ld6ziC1PIrwDC9BEFYAA4=;
+        b=UzDQUnbLD6aJ1tWi0NEp+sscIrOh2IM61R5ZEp6YcBGnPCO6a8w1ENvJ6jrX0alLa9
+         vx7zDrlrhuwbPZ8DhcJwBNlXBTd4dLL8tFdLAcgMNOv2v5gW43G/2/HhRSSnLOe6QlcP
+         WrLZ7cmBMd0nv0grPM6looYUKARhlJoHxAZ5Xkvakfw/Vq1g/BHbcwyy8Bjf8B46dR5g
+         L5AmVUOnUfi7jJlsaKLtoUulWjDIYrP8wG4SLJk0f2poaJELGoj8ZEX5jMyzWJ5p1VCp
+         KnUbxNd9kgwjWcwqJ0kSDgR2n1gS5E7I1moLnP1J+jZ8TmW394xRd9ePa0uOXRQKJUkQ
+         OQEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750970092; x=1751574892;
+        d=1e100.net; s=20230601; t=1751026390; x=1751631190;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rpKARRHV0GlXown+jCeEHukDG3Xhdv37C5V3FKJqbJc=;
-        b=T9D243XzIbB2kTPYnEn4VzO5VvveuKBVx9/lSRyAp99fo/4ASj44cx2l9Sb6A5Td0Q
-         OgXjuOnzksTquNHFRN8SrdyeZ1fW8xOERc4EZasb8ulujkDvyj0m92XHePNjs7mA1nAh
-         6HzjdT57iiEs60XmBy409FBV9pSerfmaSHcs4qIh0Zy2AV0m9djb5iSvVLmBgxZGvd65
-         c/zbGczQ3BDDBKwYU2N3R/pPv2K3MjaBIxD/QkxLFLQEYN7ImRXOJU3Y2FVbDytZxZQf
-         nWYv1NYqmx5DwPCOEvfqq4mbOdPu8VyQ0mMLxZ0chZtT5ROvDvuEev83mzanIhRi/veC
-         6vpw==
-X-Gm-Message-State: AOJu0Yy97qd/OB1LRJDhY6wn2WdGADEcT7Qsal/MOJQbJf+bO/9ptz06
-	UOBWFc7tYHvpMpNx8W4MUXXdkfjPLRJf2gt57X0yhiGa8ecmzhPKmvi8ZfPjbjnTeQuqkCIQjmA
-	5Eg/PZr8oJ+rKdbXJq1k3Z0QD2zEbc17VhfkM72bW
-X-Gm-Gg: ASbGncub1zMx37PHtSNswttTOPOpM9kxGEN4Gbz4CuVV+eKuFAjqcIjI4XaIqnUQ1SG
-	XNkW3aMHz7cPrlCDMcFVn/REhc70NHw8dnYKQXMTORFoqdpgCUNMEO9p4VnNbzVMYNVymRlQ8sB
-	J0lyo6mXbjDlEZ5KzIHqOhFRlNn7fICsHwPiDAp62DKvo=
-X-Google-Smtp-Source: AGHT+IHK6VrXQfdfID3SjOhyl6IPk72MiKVK27mNqNBczZWqiASKyULPsr+tAuUGH9hU7iw48NR0JSPXXG0U4bQCVTQ=
-X-Received: by 2002:a05:690c:490c:b0:708:21e9:a20d with SMTP id
- 00721157ae682-71517150ef9mr13469587b3.16.1750970092045; Thu, 26 Jun 2025
- 13:34:52 -0700 (PDT)
+        bh=cn36ghHUWnf8O4bsX+u4V9ld6ziC1PIrwDC9BEFYAA4=;
+        b=Pwi54nOqWb+SyDTpvF5Wl6Yt8Ur//ZbdYzBp2YaaqAlsOj0RxBJtd0+sMk/5mVmogK
+         U/ItvP1D/RbOdXjRe1d9x8lM0R52t0QN8re7N3mPnyWkTEeXCaaMeBQVzggGqFC3BsM3
+         ZddZE0NzKyfvng8NcLjgrvNsoBxqxeufwwmh+PkzoPRK7ezTokBLW0Q+jgUVG8NQU/4h
+         WJtMx+BghXF9jzgvebxwkBB2vHEkBQmcTsjOsoZEvj+/F24KOE6lQVMLxVd/+r1eW4I4
+         fnszhlGtlqH5BL1odqCaxUNz1Jx5F5LmfF/qHsnVkZVTa6StR0fW3Nd9aKsuSXf/PIvR
+         cQqw==
+X-Gm-Message-State: AOJu0YzbO8LVmlfHrsIAH+khwHOmk5a/RoqgiRchOtjPUZdi+1FDFx4W
+	LedUy7OB6JnzMTpDX64WM0M2OnVXftBscgqD/8rn5y5HyrogkcDVYmRfWPV6qU9z3Db8Vjpx9lJ
+	EpYidVecdUKRXMCXymhpCAKAhpDohypQ=
+X-Gm-Gg: ASbGncuhMkZ/Q+OWboswWY6+KIDnwRrmDYd2uReQxSS7eUqc2A9jw5ZS0sT9mo4zDXo
+	WuEkN9UwntdAkmKOdDNUEPJ9udIMu3Ci0RmjZ0uViScYFh3pVxKfiEqNvW6fZNCX6XXBQUGNt/z
+	AMhjnEOf/I/xVamid/FmdfpTbt2ouiOkumzwn49AqpUDk=
+X-Google-Smtp-Source: AGHT+IFfDobKXi1kXtHt7jPjyMrI3bzFPQ1sg4TE/JMxLmrzDnFsJQU9rjlQGBvOxBUSXDRzJBqSs6y+fPZjLFWZQak=
+X-Received: by 2002:a17:90b:2c83:b0:312:1508:fb4d with SMTP id
+ 98e67ed59e1d1-318c931997emr5162586a91.33.1751026390026; Fri, 27 Jun 2025
+ 05:13:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250626155755.21075-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20250626155755.21075-2-stephen.smalley.work@gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 26 Jun 2025 16:34:41 -0400
-X-Gm-Features: Ac12FXz_mZxWuwijRdHKTeuO_d15FWDGmK4mlJCNU4L6OWArd1G631v-_4JZPTA
-Message-ID: <CAHC9VhSMC1Kvj4RtNXUB-Yc87Vdifb-G1009LDhmy55hkW9Udw@mail.gmail.com>
+References: <20250626155755.21075-2-stephen.smalley.work@gmail.com> <CAHC9VhSMC1Kvj4RtNXUB-Yc87Vdifb-G1009LDhmy55hkW9Udw@mail.gmail.com>
+In-Reply-To: <CAHC9VhSMC1Kvj4RtNXUB-Yc87Vdifb-G1009LDhmy55hkW9Udw@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 27 Jun 2025 08:12:58 -0400
+X-Gm-Features: Ac12FXzxA4kDy02usqEMxKNGmSIC8Y1nKIMmk9V2XSs0NcBLkUdnSyaoJZagX0s
+Message-ID: <CAEjxPJ7V+HtHCX0dot7ZNKD+tC0a86OXuCezk6yMo4PvNRccSA@mail.gmail.com>
 Subject: Re: [PATCH] SECURITY.md: add my email address and GPG key fingerprint
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: Paul Moore <paul@paul-moore.com>
 Cc: selinux@vger.kernel.org, jwcart2@gmail.com, lautrbach@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 26, 2025 at 11:58=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Thu, Jun 26, 2025 at 4:34=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
+ote:
 >
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
-> No hurry on this so feel free to wait until after final release if you li=
-ke.
+> On Thu, Jun 26, 2025 at 11:58=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+> > No hurry on this so feel free to wait until after final release if you =
+like.
+> >
+> >  SECURITY.md | 2 ++
+> >  1 file changed, 2 insertions(+)
+> >
+> > diff --git a/SECURITY.md b/SECURITY.md
+> > index 4f624f5d..2fee4927 100644
+> > --- a/SECURITY.md
+> > +++ b/SECURITY.md
+> > @@ -33,6 +33,8 @@ the issue as quickly as possible and shorten the disc=
+losure window.
+> >    *  (GPG fingerprint) 4568 1128 449B 65F8 80C6  1797 3A84 A946 B4BA 6=
+2AE
+> >  * Paul Moore, paul@paul-moore.com
+> >    *  (GPG fingerprint) 7100 AADF AE6E 6E94 0D2E  0AD6 55E4 5A5A E8CA 7=
+C8A
+> > +* Stephen Smalley, stephen.smalley.work@gmail.com
+> > +  *  (GPG fingerprint) 5073 3D29 EB3D 5CF7 17AB  32FE 100E 57E3 3B8B 5=
+4F2
 >
->  SECURITY.md | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/SECURITY.md b/SECURITY.md
-> index 4f624f5d..2fee4927 100644
-> --- a/SECURITY.md
-> +++ b/SECURITY.md
-> @@ -33,6 +33,8 @@ the issue as quickly as possible and shorten the disclo=
-sure window.
->    *  (GPG fingerprint) 4568 1128 449B 65F8 80C6  1797 3A84 A946 B4BA 62A=
-E
->  * Paul Moore, paul@paul-moore.com
->    *  (GPG fingerprint) 7100 AADF AE6E 6E94 0D2E  0AD6 55E4 5A5A E8CA 7C8=
-A
-> +* Stephen Smalley, stephen.smalley.work@gmail.com
-> +  *  (GPG fingerprint) 5073 3D29 EB3D 5CF7 17AB  32FE 100E 57E3 3B8B 54F=
-2
+> I'm not in front of my system with my full GPG setup so I can't verify
+> this, but we should verify this key to ensure that it has been signed
+> by others that are trusted by the SELinux project.  We want to make
+> sure that Stephen's shenanigans are actually his and not some other
+> Stephen ;)
 
-I'm not in front of my system with my full GPG setup so I can't verify
-this, but we should verify this key to ensure that it has been signed
-by others that are trusted by the SELinux project.  We want to make
-sure that Stephen's shenanigans are actually his and not some other
-Stephen ;)
+Happy to confirm this in some out-of-band way, maybe at our next
+project meeting. Unfortunately couldn't do it in person at LSS-NA this
+year ;(
 
->  * Jason Zaman, perfinion@gentoo.org
->    *  (GPG fingerprint) 6319 1CE9 4183 0986 89CA  B8DB 7EF1 37EC 935B 0EA=
-F
->  * Steve Lawrence, slawrence@tresys.com
+>
+> >  * Jason Zaman, perfinion@gentoo.org
+> >    *  (GPG fingerprint) 6319 1CE9 4183 0986 89CA  B8DB 7EF1 37EC 935B 0=
+EAF
+> >  * Steve Lawrence, slawrence@tresys.com
+> > --
+> > 2.49.0
+>
 > --
-> 2.49.0
-
---=20
-paul-moore.com
+> paul-moore.com
