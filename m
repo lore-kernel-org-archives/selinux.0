@@ -1,181 +1,118 @@
-Received: from fout-b5-smtp.messagingengine.com (fout-b5-smtp.messagingengine.com [202.12.124.148])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f173.google.com (mail-yw1-f173.google.com [209.85.128.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11B951B78F3
-	for <selinux@vger.kernel.org>; Fri, 27 Jun 2025 15:04:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.148
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4BB22EA17A
+	for <selinux@vger.kernel.org>; Fri, 27 Jun 2025 16:30:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751036700; cv=none; b=b80GZjjWfN8fqoqsVDw3XgbuV9n8EitZyONwleglrTO/gTaxjqz96DgIM7G+yIp/XIhNfBzBicTN1DuSo8YMFVK8dpLoZD1+/gXmIy4a2PU9bMa+mF/ADqrakp0GEZtlFvZiuq+VZCNO9SI3vPR5dYPnkfZKtK1rL7OQVbHaYWA=
+	t=1751041823; cv=none; b=n82Ts/su6b+IkmdbwJ6aHYe1R6g/WFaOJD0CXARIBs/5CSmYQTC+sVy3J3N9zap1I9jaFgU5ACr6iypqM1/dT00FiTLSTuzXV6FwQXxV3M96cUjVA3f514RLAmg90dZTVoLtwE7AIuMXaD0kzeCKNvDuwvO4Dh3Z2ApxPtD4MeA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751036700; c=relaxed/simple;
-	bh=h1d6aWlfVrtf9thY1rmU5H+dW9ZumUai7h19Oh8EIP8=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=BlyWGlbQmQ4tIEXduK6YSnEQKqBtEgLKn86fKVx8JPOvpus/AM3j35AsIMmhgu71/zQoiPTeb6AjzyR+0Ka7xFcy5pffS2ewnK9L0f5j+CNDvp1eNdXGCATldI6GhWNsVb3iIB68s8ju6alICqIR9kc27gUkFjxim7B4pv7I1p8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=ndAE2veD; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=CEtvVG5P; arc=none smtp.client-ip=202.12.124.148
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alyssa.is
+	s=arc-20240116; t=1751041823; c=relaxed/simple;
+	bh=zZ2ocUfploeBdnT0B6Ztkruhb6oXav9WsXFPkTvn4Bo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=rAFIAqDTaDSLRHVKU0Pr5Wos6KbbuuFpb89O6oYHSL7T0/aY06p2lwvwS36kSwDi3EafytLQmA8hL7ELm7BSjV4coikTjoJgT1JAkPiGN332vb28RlxTbNHZJPtw/LApGvhiVNXDUxtpmt6Ii9L4Y/sq1VyB0NpUTScgcv37PFA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=H9S+TjHr; arc=none smtp.client-ip=209.85.128.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="ndAE2veD";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="CEtvVG5P"
-Received: from phl-compute-04.internal (phl-compute-04.phl.internal [10.202.2.44])
-	by mailfout.stl.internal (Postfix) with ESMTP id E39571D001B1;
-	Fri, 27 Jun 2025 11:04:55 -0400 (EDT)
-Received: from phl-mailfrontend-02 ([10.202.2.163])
-  by phl-compute-04.internal (MEProxy); Fri, 27 Jun 2025 11:04:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm1; t=1751036695; x=1751123095; bh=s8UKFs0tWL
-	bzf7d68XsOZFUAZcngbQO6E5TH5hROxw8=; b=ndAE2veDmNd37Q5ewa1VNW8S+f
-	dR/dw3IqImwsYQmyanbtpe3LLq3Cw2WFhXehQsj5PRybfHHnkSekovFfL8AYFAiG
-	Aull1Zpzz/+esZ6p+aiTIWxz1qX8dPhGcNln501pD0vgnvi1eKNej/7fMSCTfrlq
-	KmN12JSJ3yZJRvyLaz0jAlrnmW561B/luVNAgF8sAb24OAn1yUByt7UV5kjxxkCO
-	NXWhsBYem1yR5wuHSybp19pvw78OLgX2KSaNyAS0zJEo7q/uh5eMecA5u48uWn75
-	QOC9D09rfmlWtl7wJR3LrUxJrlG9OwijtcAdTg1PeimrsgZ96CdHmIw++0Lw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-	1751036695; x=1751123095; bh=s8UKFs0tWLbzf7d68XsOZFUAZcngbQO6E5T
-	H5hROxw8=; b=CEtvVG5P7HPmrBRiFmZIpxB9ejunA4/UxcuFx6ZA4eyv/cpy4w3
-	EHduD/5v4JGvgkS+urlxHm7VxGQnFI0KbXw33KqSFhG2050ReuP81fGwhUbRG/H/
-	x6wklBmeshEnq0Efr2kXba6M5oQaU+LDmKygPKRmj+1e1t2tmVrAK9f0RD6jPRt8
-	xpSYdhDIIXh5YGFmWM0prO5cW7O+uLiVuQISXnsj5V/sNXJhFjPfVOlT2Aoi3naL
-	2cNgAp5FzI3vZEOdg37RN6g76tjZ9UIGdczsMDsFeg/TIiJZJnpR6oidp3r06Nt2
-	WUqzYeiBl7/hQSqAap12nh7Q8mnk+G0WKHA==
-X-ME-Sender: <xms:F7NeaBOFVUUKlMkwLgQWJzh8H5TmOW0ZivcVwbiW0KwiKJx3J0jdXw>
-    <xme:F7NeaD_XcsoP7BHdC20MUESLnm9xnBgsx5HRSxKR_DEVTmI8v7p2XddypEFab8kqA
-    Fn_rWxfdT7KvHwrLw>
-X-ME-Received: <xmr:F7NeaASYvGchGzIQpeg_WtYQAZy9NjxiLwi3-jm35xjy3llK0CT2hiVO76wer2F_Mmrqw6tcxyo>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeffedrtdefgdeffeekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceurghi
-    lhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurh
-    ephffvvefujghffffkgggtsehgtderredttdejnecuhfhrohhmpeetlhihshhsrgcutfho
-    shhsuceohhhisegrlhihshhsrgdrihhsqeenucggtffrrghtthgvrhhnpedtkedvfedvvd
-    etheehueeifeelieeggeefgedtvefgvdfhvdethedvkedtheevvdenucffohhmrghinhep
-    khgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhephhhisegrlhihshhsrgdrihhspdhnsggprhgtphhtthhopeejpdhmohgu
-    vgepshhmthhpohhuthdprhgtphhtthhopehjfigtrghrthdvsehgmhgrihhlrdgtohhmpd
-    hrtghpthhtohepuggsuhhrghgvnhgvrheslhhinhhugidrmhhitghrohhsohhfthdrtgho
-    mhdprhgtphhtthhopehnihgtohhlrghsrdhiohhoshhssehmgeigrdhorhhgpdhrtghpth
-    htohepugifrghlshhhsehrvgguhhgrthdrtghomhdprhgtphhtthhopegvphgrrhhishes
-    rhgvughhrghtrdgtohhmpdhrtghpthhtoheplhgruhhtrhgsrggthhesrhgvughhrghtrd
-    gtohhmpdhrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:F7NeaNu9c3z-4mOTWT5JWyVsbuEjrAr29d6EUDjPE05HIzkPJylqMA>
-    <xmx:F7NeaJdcAibrRNGUcJk7lnGJbGAmYTw89O8KyPx9SzYM97zERrofdA>
-    <xmx:F7NeaJ2ySxwQbY2Ehl-T7FktzoMeFkNdCk8bGjccBP4F0w3olZYFTg>
-    <xmx:F7NeaF-sDVA4itAk9Snzezban8TEyVFZ0WCpz8OLFcgid0ekgBGF9Q>
-    <xmx:F7NeaBFR8cC9_iipVrGjSqUKT2X-5mmlQfPjqgCUkfznJ6qq6GYQlUUq>
-Feedback-ID: i12284293:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
- 27 Jun 2025 11:04:54 -0400 (EDT)
-Received: by sf.qyliss.net (Postfix, from userid 1000)
-	id A4F35261C1A01; Fri, 27 Jun 2025 17:04:53 +0200 (CEST)
-From: Alyssa Ross <hi@alyssa.is>
-To: James Carter <jwcart2@gmail.com>
-Cc: selinux@vger.kernel.org, Petr Lautrbach <lautrbach@redhat.com>, Nicolas
- Iooss <nicolas.iooss@m4x.org>, Daniel Burgener
- <dburgener@linux.microsoft.com>, Dan Walsh <dwalsh@redhat.com>,
- eparis@redhat.com
-Subject: Re: [PATCH 2/2] policycoreutils: use pkg-config for libsemanage
-In-Reply-To: <CAP+JOzTCEYA0x11_XP+8=O4Yixh7UgpO+JhRPRz_jutfL_-GMQ@mail.gmail.com>
-References: <87bjqebpre.fsf@redhat.com>
- <20250625104103.140498-1-hi@alyssa.is>
- <20250625104103.140498-2-hi@alyssa.is>
- <CAP+JOzTCEYA0x11_XP+8=O4Yixh7UgpO+JhRPRz_jutfL_-GMQ@mail.gmail.com>
-Date: Fri, 27 Jun 2025 17:04:51 +0200
-Message-ID: <877c0xfcoc.fsf@alyssa.is>
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="H9S+TjHr"
+Received: by mail-yw1-f173.google.com with SMTP id 00721157ae682-71173646662so442747b3.2
+        for <selinux@vger.kernel.org>; Fri, 27 Jun 2025 09:30:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1751041821; x=1751646621; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=N1PCb69vAIiy0/zs5HYXzkT97zTgqrGSfem3r+DCJ+g=;
+        b=H9S+TjHrSv8ZCo0WRFVGDMt89hgbbxXHGQmBc0XEpDKxuWhEHosCdoWQY7kKMQG7IL
+         JzTDRUnXCI4V/KV0cDrrhKeq1rPHoxaY/gVb46y7zU4HEHl7E9CjUU49aWdSKxF0qMzT
+         aaNecSrg4cSf0e7xtxIJiMPvDnczcCjJxYBV00QqsN6jIMSzEYdKRhsijtbSfjyBGDFP
+         MNTNdvR5PfeYcieYoBUDFUEwL/ejMKuK/ceKpCgCk7WDE4+PPHQOpSKX1mkJZLBfhlBu
+         ga5OS5bVTXv7k9cxnzTHbo4RPLiZtD5xR55zou+uh4hgOffd5BM/JtCr7flt2EBqFh72
+         pQMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1751041821; x=1751646621;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=N1PCb69vAIiy0/zs5HYXzkT97zTgqrGSfem3r+DCJ+g=;
+        b=iUt64TKqjyqIU7nAcUOuEkU7qhaYrzg5W4p7aahVecQXayNWwEfT1qh6Ynklx0uQyx
+         K++MjLh6PfVamKwTovylZ7qafmgtBBS7XBsNVO/5H+LmSBCItdndAYXjob2DQBtLcwCU
+         6Ld2/KiChIeGRjyiPlKDFfuUgCihpez41uFuxc9dSbxisHnuIPZW9bZrcYzelcy9znug
+         NISjDKX82/8bW7ZTIdnxG9aVjJBk4ovFwiNNSUAwk6XHhPhqSJ2iomAOaIOSuw8zbGh+
+         fNER4yC5D1Ivh059G8pOYUWXx0jKMGKTnQ/BIFQPIyyCtYUSciur52Q10gs4jK/gLJix
+         xrew==
+X-Gm-Message-State: AOJu0YybYlW9bREy5g3CRgtP+j95gRcRxwzFRvmpb+AKEFoP5m5+uEea
+	Ts6gDH7s8cq5GfAuWLtIfAnZ6UsLFD0uTHp5nu0Mswbyveuiuse/PqzDwrZJPp9B/BpqRC4koxu
+	01iYRGBoKz4o5Pv1hGWw/SZBqle2eDao7RepDkQ2PzBf7pYJWsNs=
+X-Gm-Gg: ASbGnctsOJVT37aKKotQU49zU2H3+vKGesOb0QmSlVQk9443FIjHxpvsUYpwT3MMREs
+	vOV6fs43sG/C5DWbQpgiejPhc8p2K0qKYj/BQ4JOwLV133Na1AlYRA3Jt4YxVHXNA+rbyoYaCgq
+	4gPPQMKK+66nclJtsvr5f7oTW5+XM44I+Q/XHpPR8yREs4NFZVIoiTpA==
+X-Google-Smtp-Source: AGHT+IFJnNtbEWP7bf6kiwRqrYiOzSAv1aMS9koRXyxcOfLBtORr1sAFW0d7ogDY2L2aFIeeZqm+olGZ92NC3g0WeGU=
+X-Received: by 2002:a05:690c:7343:b0:712:c325:2965 with SMTP id
+ 00721157ae682-71517196203mr61434297b3.20.1751041820717; Fri, 27 Jun 2025
+ 09:30:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha512; protocol="application/pgp-signature"
-
---=-=-=
-Content-Type: text/plain; charset=utf-8
+References: <20250626155755.21075-2-stephen.smalley.work@gmail.com>
+ <CAHC9VhSMC1Kvj4RtNXUB-Yc87Vdifb-G1009LDhmy55hkW9Udw@mail.gmail.com> <CAEjxPJ7V+HtHCX0dot7ZNKD+tC0a86OXuCezk6yMo4PvNRccSA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7V+HtHCX0dot7ZNKD+tC0a86OXuCezk6yMo4PvNRccSA@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 27 Jun 2025 12:30:09 -0400
+X-Gm-Features: Ac12FXyQE74Ox5WASz-MroAuOkQoIOg_UKvg0H4BgeZYLv_Itx4k_hB2AogBKSM
+Message-ID: <CAHC9VhSXFDE+QvbKKPCm8ibPfsRELvuSHvt1jG1CXp0v-+qd3w@mail.gmail.com>
+Subject: Re: [PATCH] SECURITY.md: add my email address and GPG key fingerprint
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, jwcart2@gmail.com, lautrbach@redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-James Carter <jwcart2@gmail.com> writes:
-
-> On Wed, Jun 25, 2025 at 6:41=E2=80=AFAM Alyssa Ross <hi@alyssa.is> wrote:
->>
->> libaudit and libbz2 are only required to be in the linker path for
->> static builds.  For dynamic builds, they'll be discovered through ELF
->> metadata.  pkg-config knows how to do the right thing in both cases,
->> so just use it rather than listing libsemanage's dependencies
->> manually.
->>
->> Fixes: da6cd3d8 ("Support static-only builds")
->> Closes: https://lore.kernel.org/r/87bjqebpre.fsf@redhat.com
->> Signed-off-by: Alyssa Ross <hi@alyssa.is>
->> ---
->>  policycoreutils/Makefile           | 3 ++-
->>  policycoreutils/semodule/Makefile  | 3 +--
->>  policycoreutils/setsebool/Makefile | 3 +--
->>  3 files changed, 4 insertions(+), 5 deletions(-)
->>
->> diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
->> index 7acd51dd..0f3d62f2 100644
->> --- a/policycoreutils/Makefile
->> +++ b/policycoreutils/Makefile
->> @@ -3,7 +3,8 @@ SUBDIRS =3D setfiles load_policy newrole run_init secon =
-sestatus semodule setseboo
->>  PKG_CONFIG ?=3D pkg-config
->>
->>  LIBSELINUX_LDLIBS :=3D $(shell $(PKG_CONFIG) --libs libselinux)
->> -export LIBSELINUX_LDLIBS
->> +LIBSEMANAGE_LDLIBS :=3D $(shell $(PKG_CONFIG) --libs libsemanage)
->> +export LIBSELINUX_LDLIBS LIBSEMANAGE_LDLIBS
->>
+On Fri, Jun 27, 2025 at 8:13=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Thu, Jun 26, 2025 at 4:34=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
+wrote:
+> > On Thu, Jun 26, 2025 at 11:58=E2=80=AFAM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > >
+> > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > ---
+> > > No hurry on this so feel free to wait until after final release if yo=
+u like.
+> > >
+> > >  SECURITY.md | 2 ++
+> > >  1 file changed, 2 insertions(+)
+> > >
+> > > diff --git a/SECURITY.md b/SECURITY.md
+> > > index 4f624f5d..2fee4927 100644
+> > > --- a/SECURITY.md
+> > > +++ b/SECURITY.md
+> > > @@ -33,6 +33,8 @@ the issue as quickly as possible and shorten the di=
+sclosure window.
+> > >    *  (GPG fingerprint) 4568 1128 449B 65F8 80C6  1797 3A84 A946 B4BA=
+ 62AE
+> > >  * Paul Moore, paul@paul-moore.com
+> > >    *  (GPG fingerprint) 7100 AADF AE6E 6E94 0D2E  0AD6 55E4 5A5A E8CA=
+ 7C8A
+> > > +* Stephen Smalley, stephen.smalley.work@gmail.com
+> > > +  *  (GPG fingerprint) 5073 3D29 EB3D 5CF7 17AB  32FE 100E 57E3 3B8B=
+ 54F2
+> >
+> > I'm not in front of my system with my full GPG setup so I can't verify
+> > this, but we should verify this key to ensure that it has been signed
+> > by others that are trusted by the SELinux project.  We want to make
+> > sure that Stephen's shenanigans are actually his and not some other
+> > Stephen ;)
 >
-> I think that we actually want something like:
-> ifeq ($(DISABLE_SHARED),y)
->     LIBSELINUX_LDLIBS :=3D $(shell PKG_CONFIG_PATH=3D../libselinux/src
-> $(PKG_CONFIG) --libs libselinux --static)
->     LIBSEMANAGE_LDLIBS :=3D $(shell PKG_CONFIG_PATH=3D../libsemanage/src
-> $(PKG_CONFIG) --libs libsemanage --static)
-> else
->     LIBSELINUX_LDLIBS :=3D $(shell PKG_CONFIG_PATH=3D../libselinux/src
-> $(PKG_CONFIG) --libs libselinux)
->     LIBSEMANAGE_LDLIBS :=3D $(shell PKG_CONFIG_PATH=3D../libsemanage/src
-> $(PKG_CONFIG) --libs libsemanage)
-> endif
+> Happy to confirm this in some out-of-band way, maybe at our next
+> project meeting. Unfortunately couldn't do it in person at LSS-NA this
+> year ;(
 
-> As originally written, it is going to find the installed libselinux.pc
-> and libsemanage.pc files which are not going to reflect any changes
-> made to these files in the current build (I noticed this because your
-> patch does make changes).
+In the past we've handled this for other SELinux devs through a key
+signing "party", we can follow up off-list.
 
-I see.  It hadn't occurred to me that selinux userspace supported being
-built all at once like this; I'd only seen all the components built
-individually, which is evidently also what Petr is doing.  Your proposed
-solution wouldn't be compatible with different components being
-installed to different prefixes, which is how we do it in Nixpkgs, where
-every package is installed to a unique prefix.
-
-> Also, I believe that "--static" is needed to generate the right libs
-> for a static build.
-
-I /think/ it's generally expected that if you want static builds you set
-e.g. PKG_CONFIG=3D"pkg-config --static".  For example, a quick look at the
-pkg-config autoconf macros tells me that they don't try to detect
-whether to pass it or not, and in Nixpkgs we inject --static for static
-builds.  Your proposal would also be a change in the meaning of
-DISABLE_SHARED, which until now hasn't changed how anything is built,
-just disabled things.
-
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEARYKAB0WIQRV/neXydHjZma5XLJbRZGEIw/wogUCaF6zEwAKCRBbRZGEIw/w
-ons+AQDO4/HOA8fj4pfuuyYXgznBq3gL0eyxqR6ip+XwzoeGDwD+Oa+aM2c4REKX
-09NHz7hTtHDkRDfPvckSGoVKTVByZQo=
-=SHlB
------END PGP SIGNATURE-----
---=-=-=--
+--=20
+paul-moore.com
