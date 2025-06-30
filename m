@@ -1,73 +1,73 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17186292906
-	for <selinux@vger.kernel.org>; Mon, 30 Jun 2025 16:20:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32CFF292B3F
+	for <selinux@vger.kernel.org>; Mon, 30 Jun 2025 16:20:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751300441; cv=none; b=AkfilJptRPXC6sScDs8c45Ah0JL7Mg6ZaHPsIVvNEt2uRxteoGX11ptTWC5gsXp3b50yt1TwZRePzSqKLwTzLx9zAMsicj8qrxmB1xRi6TFJG/K06hmMOUS7tyfCBlxZG/BP704dxK+I44rVPPhZ7NyIGpuZADfYzwNUkZjV4k4=
+	t=1751300442; cv=none; b=CQWS/XYvrvnpgP3B0CkQ267d4NwHLaw9ZDEgfnk3RRHVCHyL1CtOogfVRZuGPFlTzF0cz27HUC9A6q+W2gBt3a4ng18tdmMlE1Fyz9DHg0m4x2OvJpZaRSWYar2cbGJMlYKzjYj39M931z05Nx3UkJFLca4CZ9Pq51SQ5pn6l2U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751300441; c=relaxed/simple;
-	bh=IwADuJENyczf/bwBuYPIR4rrw/CJ1prOrfW5cqesY5Q=;
+	s=arc-20240116; t=1751300442; c=relaxed/simple;
+	bh=foooJvFPpaD5U1NIc0z1whyvvGUcJuzLkZ/bh7+WhsI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=a8AE4MpAU2MtKN9Pye7Lewsj1NtjwEXxVtHKxsGHJW5X3SbbU+riSRZa4UbvkSdMGgOawe5JAW7bcSUd0Rb+sFAGhwVyACrfj8OEHQy/IXmSwjcRF3MUaSXeLYUW0piSvZ0x80vs+VyNNVTpVdhwjCRXdR5TYJLvAJ0Acke2Pzk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BSDXf2Bx; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:To:Cc; b=m9qAdAl0M4OT5dtIWfetGWpNdmoDIpqzmPLECijrksRzzwQAhjAgmo1s9GzEcINnXiaARN8sv3lQ32wytl8J64Snmrr16Vga6Cie/MEBsrPzCSyhXpjYXxGc9tlrrpB/N1sYIDz69N8WsE3NyYMdgff3qubgsFdnH1ObsxM6tDk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YHNEn+uX; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BSDXf2Bx"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YHNEn+uX"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1751300438;
+	s=mimecast20190719; t=1751300439;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=GlL+qFUOPnhKYJXl/arb34Hj2cUvdXFZcSDvCm6FshI=;
-	b=BSDXf2BxDmQcbc7xit41eQGOXn+fKGfe+EPxnfMGAN3VnHL8atv13HOCdyoT7/X2QShq/3
-	U0jLnmAawfv48Myg3gbz+WrAaoQQ6HqlNdK/f8X0mbWL1EssBpLmaIS37L+Ti5JRdZL3yJ
-	OZhNxfobSIG12/gStkZBD5lYdx3U0Qc=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=DdCDc+5wwhrTWZmiggiHt07OVS9wseyBUBrB0c0lZSY=;
+	b=YHNEn+uXzVBzU/XwxZMw0/d3gYAWzStdYNp7808Xf182VgyNHjsLFfd0rfJZP9kymnNeZx
+	v3VjZ/Sd8k4prAq5sRilREDE9fb5j1kUNP2UL6CJBXV56Urf6brBzk0Zwz9RHYRwGE+50q
+	ylcqF6xEfztZE7DpDX7etb+b1wPWsHs=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-600-e7XAWb0jNdWM-FB72qmqHw-1; Mon, 30 Jun 2025 12:20:36 -0400
-X-MC-Unique: e7XAWb0jNdWM-FB72qmqHw-1
-X-Mimecast-MFC-AGG-ID: e7XAWb0jNdWM-FB72qmqHw_1751300435
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-450eaae2934so16813495e9.2
-        for <selinux@vger.kernel.org>; Mon, 30 Jun 2025 09:20:36 -0700 (PDT)
+ us-mta-517-erIf0jwyOdiIVPm-YHqZOg-1; Mon, 30 Jun 2025 12:20:37 -0400
+X-MC-Unique: erIf0jwyOdiIVPm-YHqZOg-1
+X-Mimecast-MFC-AGG-ID: erIf0jwyOdiIVPm-YHqZOg_1751300437
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4535ee06160so17608795e9.3
+        for <selinux@vger.kernel.org>; Mon, 30 Jun 2025 09:20:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751300435; x=1751905235;
+        d=1e100.net; s=20230601; t=1751300437; x=1751905237;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=GlL+qFUOPnhKYJXl/arb34Hj2cUvdXFZcSDvCm6FshI=;
-        b=wOW227GCP6E25JvEeAhcCVEeZOMKX1BBvWOc2xaQyr6PjUt24aoZG8jneYNAPCClHg
-         Iz0MvpKWZGeKKxwWHZC23tLuBzLQe4IcApExmBypqjL8VdzqrAMow2KMWeSjOeOKfCSJ
-         5UsZPW/lLvmcFQ7dt/uCpYMZMkOcTwYbDbsVYYakdd0kKWrZrkJs9GKHaNTJVYxAOOXR
-         864C0J7I/53sBLvVK79G4NCDwcJdGN4i+80HPOvHvTXiJWreQnVkWHzAFPR2BskRVlaG
-         y4BdZA0+mmS4ycYclb6FRr09/VIQtbmkmRw8E30rXef7eL5x7FHQJNMi4M4zfC60joIy
-         /nSA==
-X-Forwarded-Encrypted: i=1; AJvYcCVGtXw/E8ATMdrwyqDJzRv4+ltYwI2pNFZA5ay5pim/VsjHwpSBuJT87bROX9M2czx+VxT+hnwO@vger.kernel.org
-X-Gm-Message-State: AOJu0YxdFE38y8ycq+N93ZD2Ta19EPOXLOKphz7LXNGXyjp+6mcGtMUC
-	mge40dnv2Y3w2pV3SSrLsGUTc/rtRCV+XblI9hynypCebb3hIYyGUKxo/4XW5nDdibY6t1ODW7V
-	HVHUyZwdkjGRw/iNYDhg9FSW1kbHkWsQn7sHQp8P19kz07wnfYtrMVcUcqw==
-X-Gm-Gg: ASbGncuY4puDHPo9bO8vykgmavKv6DcfD2NRTLIGZJWZnFTmq5XM8jpTPKO9YwzSFGn
-	fuHJevh8YERXVbyZlJ1NL76lrjwZWdjdhO7Za0VJYVFQzi8Fo0li3ljeAcVJMX72Y0ZP/jVS0xw
-	07pZWRkD4sz48iLK3fjUbybexiUA6UcIN/9Tq96jVX9Mwbh1LwwpkRVSp4CxWUTArpPe9ac7ca7
-	bQK2wLsxKrT5qkCHzaXqbScczjgPVkODHvK4gDfxsZA35vAElsOEwDvz/WzyZSXBc7Cirxi9c4o
-	OA/EhT/qP1ODJkLxwMkzGNHGd2x8
-X-Received: by 2002:a05:600c:4ed3:b0:43d:45a:8fc1 with SMTP id 5b1f17b1804b1-4538f244121mr145675645e9.4.1751300434966;
-        Mon, 30 Jun 2025 09:20:34 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IE0mlgM2WuBIj0NGAO7JpYDWypMZ7nhIDOKUHExDDi9JTWtN36FkNXEpiG/WFqMOZqsmfA9XA==
-X-Received: by 2002:a05:600c:4ed3:b0:43d:45a:8fc1 with SMTP id 5b1f17b1804b1-4538f244121mr145675185e9.4.1751300434446;
-        Mon, 30 Jun 2025 09:20:34 -0700 (PDT)
+        bh=DdCDc+5wwhrTWZmiggiHt07OVS9wseyBUBrB0c0lZSY=;
+        b=dK9CwOzl4gjeDHPQ/lB/VXGN9531ZALHt3+8unKOX67L7JvjyDBFl/ZsOrdoMJOsAt
+         Z+FDe1nPqOZSmLarH1MMegR87jLyTG0/ey/pCkdkZ6N94fhW5JZ+ZKVqf6Uer65h7lO8
+         E2c81jJqN1J+NDioARhm9Xb6slBeQn9NaRjcPrI+g90RPYKokwIBRsDHWsJnx1CRWD6l
+         0lSSQX+ihcMYRHfGLlOuH6CKhE0yW8yQag7G3gxSn3qomCP2a0F7O9UPuGi4q/aDz7ww
+         0Zn2r0Yel/5ly0o88Z9h7m8NJ26iEqGqP4oLBFcJ4CwFusKftrAuh84qXxg5XTRMSq3S
+         omkQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWjePdBEsG546NwxeRYU/xFwR2iw/efmUHy1xDYTj9MIIzQ35N2MRy4vD08bZE+nq/OzLJ5NDwk@vger.kernel.org
+X-Gm-Message-State: AOJu0YwUIBqvBpU0umt8d+JVCnOwZYHqIW8EhugkSQR8u9badw/uqfqm
+	NfzeOgnlIRBTWUPO6F5TrtCa3bmPgNM0GW+iNWihZchfe4VqX4V8lV1nGNBriRW53XO6vQtXRUg
+	7wkDDwO2fEmobre8xJqUpf76PAEdQixr0GHnY8C/zctydJEEtCYvz85USBg==
+X-Gm-Gg: ASbGnctK1XbtGr6hCuExufIipOWwVjl4yma/8Qkjtd7941M2EM+yUQk8rtXy5ipkmcx
+	ikQ8bh1zKKatlhtiOkJZ72KOzgSYxQoZSkt1c39PxzYuFM7DIJ9vhtGiRS0dLw9nWUVrjVUlhXl
+	v7E/r3oMLt4UBM8E6y/nzNulW46qpJ9ZQjVFck+WIr8hKHbHUPWMLHgN8tT4BDRaLXH2VgpKt2j
+	NmaxIrQtnT2lo8SR2w5cLDxzJ+fSpvltlu9vemdMt5GxB6xLYlPJLFoGRxlwM9Wdd3O94pTATWi
+	YNva4oYtTcd0Z8D/F1m0hh6+tJie
+X-Received: by 2002:a05:600c:83c6:b0:453:aca:4d05 with SMTP id 5b1f17b1804b1-453a7264638mr5226365e9.31.1751300436476;
+        Mon, 30 Jun 2025 09:20:36 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFBcIwNOVZbbeCVmBSm0GSwp6bviZIHyE1JnfXVzq6+huhRLCuA9yHQd2Lb4OcWzcyg0+4Wrw==
+X-Received: by 2002:a05:600c:83c6:b0:453:aca:4d05 with SMTP id 5b1f17b1804b1-453a7264638mr5226125e9.31.1751300436014;
+        Mon, 30 Jun 2025 09:20:36 -0700 (PDT)
 Received: from [127.0.0.2] (ip-217-030-074-039.aim-net.cz. [217.30.74.39])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4538233c1easm168769245e9.3.2025.06.30.09.20.33
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4538233c1easm168769245e9.3.2025.06.30.09.20.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 Jun 2025 09:20:33 -0700 (PDT)
+        Mon, 30 Jun 2025 09:20:34 -0700 (PDT)
 From: Andrey Albershteyn <aalbersh@redhat.com>
 X-Google-Original-From: Andrey Albershteyn <aalbersh@kernel.org>
-Date: Mon, 30 Jun 2025 18:20:14 +0200
-Subject: [PATCH v6 4/6] fs: make vfs_fileattr_[get|set] return -EOPNOSUPP
+Date: Mon, 30 Jun 2025 18:20:15 +0200
+Subject: [PATCH v6 5/6] fs: prepare for extending file_get/setattr()
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -75,8 +75,8 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250630-xattrat-syscall-v6-4-c4e3bc35227b@kernel.org>
+Content-Transfer-Encoding: 8bit
+Message-Id: <20250630-xattrat-syscall-v6-5-c4e3bc35227b@kernel.org>
 References: <20250630-xattrat-syscall-v6-0-c4e3bc35227b@kernel.org>
 In-Reply-To: <20250630-xattrat-syscall-v6-0-c4e3bc35227b@kernel.org>
 To: Amir Goldstein <amir73il@gmail.com>, Arnd Bergmann <arnd@arndb.de>, 
@@ -86,122 +86,106 @@ To: Amir Goldstein <amir73il@gmail.com>, Arnd Bergmann <arnd@arndb.de>,
  Paul Moore <paul@paul-moore.com>
 Cc: linux-api@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
  linux-kernel@vger.kernel.org, linux-xfs@vger.kernel.org, 
- selinux@vger.kernel.org, Andrey Albershteyn <aalbersh@kernel.org>
+ selinux@vger.kernel.org, Andrey Albershteyn <aalbersh@redhat.com>, 
+ Andrey Albershteyn <aalbersh@kernel.org>
 X-Mailer: b4 0.15-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3358; i=aalbersh@kernel.org;
- h=from:subject:message-id; bh=IwADuJENyczf/bwBuYPIR4rrw/CJ1prOrfW5cqesY5Q=;
- b=owJ4nJvAy8zAJea2/JXEGuOHHIyn1ZIYMpJ2en+qD5NXqUucEMbfvf3H22r17tAf/0/fjdsaf
- U5u8crGl5s6SlkYxLgYZMUUWdZJa01NKpLKP2JQIw8zh5UJZAgDF6cATORUFiPD6u3Sewp/NG2b
- tVPL4QNj7k2l1J5t+vvM4lviFD/6OvFoMTLcKsnetPxBseFWzV/7Vhf92JD/dMKHlSE7FWuMv/1
- eZT2DHwBb9Uul
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3056; i=aalbersh@kernel.org;
+ h=from:subject:message-id; bh=IIV2cRquSoQDpyjj3fxxhkDYmgsYRlcj84QBPmOyXno=;
+ b=owJ4nJvAy8zAJea2/JXEGuOHHIyn1ZIYMpJ2epvKL1KqqgkNvm3IsfeBdK/GQ7Vj5kGz+g/JP
+ HzuvPaEY2JHKQuDGBeDrJgiyzppralJRVL5Rwxq5GHmsDKBDGHg4hSAiTw8zvCHM/bZTbHepcd0
+ TPsaqyd8c9JX2aGyiV17oUCzhl/651W7GRlu3/i+kvuc0IKOb351FTMWH2dpPJxivOQ0xzIFl6o
+ LPLncAL7sRno=
 X-Developer-Key: i=aalbersh@kernel.org; a=openpgp;
  fpr=AE1B2A9562721A6FC4307C1F46A7EA18AC33E108
 
-Future patches will add new syscalls which use these functions. As
-this interface won't be used for ioctls only, the EOPNOSUPP is more
-appropriate return code.
+From: Amir Goldstein <amir73il@gmail.com>
 
-This patch converts return code from ENOIOCTLCMD to EOPNOSUPP for
-vfs_fileattr_get and vfs_fileattr_set. To save old behavior translate
-EOPNOSUPP back for current users - overlayfs, encryptfs and fs/ioctl.c.
+We intend to add support for more xflags to selective filesystems and
+We cannot rely on copy_struct_from_user() to detect this extension.
 
+In preparation of extending the API, do not allow setting xflags unknown
+by this kernel version.
+
+Also do not pass the read-only flags and read-only field fsx_nextents to
+filesystem.
+
+These changes should not affect existing chattr programs that use the
+ioctl to get fsxattr before setting the new values.
+
+Link: https://lore.kernel.org/linux-fsdevel/20250216164029.20673-4-pali@kernel.org/
+Cc: Pali Rohár <pali@kernel.org>
+Cc: Andrey Albershteyn <aalbersh@redhat.com>
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Andrey Albershteyn <aalbersh@kernel.org>
 ---
- fs/ecryptfs/inode.c  |  8 +++++++-
- fs/file_attr.c       | 12 ++++++++++--
- fs/overlayfs/inode.c |  2 +-
- 3 files changed, 18 insertions(+), 4 deletions(-)
+ fs/file_attr.c           |  8 +++++++-
+ include/linux/fileattr.h | 20 ++++++++++++++++++++
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ecryptfs/inode.c b/fs/ecryptfs/inode.c
-index 493d7f194956..a55c1375127f 100644
---- a/fs/ecryptfs/inode.c
-+++ b/fs/ecryptfs/inode.c
-@@ -1126,7 +1126,13 @@ static int ecryptfs_removexattr(struct dentry *dentry, struct inode *inode,
- 
- static int ecryptfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
- {
--	return vfs_fileattr_get(ecryptfs_dentry_to_lower(dentry), fa);
-+	int rc;
-+
-+	rc = vfs_fileattr_get(ecryptfs_dentry_to_lower(dentry), fa);
-+	if (rc == -EOPNOTSUPP)
-+		rc = -ENOIOCTLCMD;
-+
-+	return rc;
- }
- 
- static int ecryptfs_fileattr_set(struct mnt_idmap *idmap,
 diff --git a/fs/file_attr.c b/fs/file_attr.c
-index be62d97cc444..4e85fa00c092 100644
+index 4e85fa00c092..62f08872d4ad 100644
 --- a/fs/file_attr.c
 +++ b/fs/file_attr.c
-@@ -79,7 +79,7 @@ int vfs_fileattr_get(struct dentry *dentry, struct fileattr *fa)
- 	int error;
+@@ -99,9 +99,10 @@ EXPORT_SYMBOL(vfs_fileattr_get);
+ int copy_fsxattr_to_user(const struct fileattr *fa, struct fsxattr __user *ufa)
+ {
+ 	struct fsxattr xfa;
++	__u32 mask = FS_XFLAGS_MASK;
  
- 	if (!inode->i_op->fileattr_get)
--		return -ENOIOCTLCMD;
-+		return -EOPNOTSUPP;
+ 	memset(&xfa, 0, sizeof(xfa));
+-	xfa.fsx_xflags = fa->fsx_xflags;
++	xfa.fsx_xflags = fa->fsx_xflags & mask;
+ 	xfa.fsx_extsize = fa->fsx_extsize;
+ 	xfa.fsx_nextents = fa->fsx_nextents;
+ 	xfa.fsx_projid = fa->fsx_projid;
+@@ -118,11 +119,16 @@ static int copy_fsxattr_from_user(struct fileattr *fa,
+ 				  struct fsxattr __user *ufa)
+ {
+ 	struct fsxattr xfa;
++	__u32 mask = FS_XFLAGS_MASK;
  
- 	error = security_inode_file_getattr(dentry, fa);
- 	if (error)
-@@ -229,7 +229,7 @@ int vfs_fileattr_set(struct mnt_idmap *idmap, struct dentry *dentry,
- 	int err;
+ 	if (copy_from_user(&xfa, ufa, sizeof(xfa)))
+ 		return -EFAULT;
  
- 	if (!inode->i_op->fileattr_set)
--		return -ENOIOCTLCMD;
-+		return -EOPNOTSUPP;
++	if (xfa.fsx_xflags & ~mask)
++		return -EINVAL;
++
+ 	fileattr_fill_xflags(fa, xfa.fsx_xflags);
++	fa->fsx_xflags &= ~FS_XFLAG_RDONLY_MASK;
+ 	fa->fsx_extsize = xfa.fsx_extsize;
+ 	fa->fsx_nextents = xfa.fsx_nextents;
+ 	fa->fsx_projid = xfa.fsx_projid;
+diff --git a/include/linux/fileattr.h b/include/linux/fileattr.h
+index 6030d0bf7ad3..e2a2f4ae242d 100644
+--- a/include/linux/fileattr.h
++++ b/include/linux/fileattr.h
+@@ -14,6 +14,26 @@
+ 	 FS_XFLAG_NODUMP | FS_XFLAG_NOATIME | FS_XFLAG_DAX | \
+ 	 FS_XFLAG_PROJINHERIT)
  
- 	if (!inode_owner_or_capable(idmap, inode))
- 		return -EPERM;
-@@ -271,6 +271,8 @@ int ioctl_getflags(struct file *file, unsigned int __user *argp)
- 	int err;
- 
- 	err = vfs_fileattr_get(file->f_path.dentry, &fa);
-+	if (err == -EOPNOTSUPP)
-+		err = -ENOIOCTLCMD;
- 	if (!err)
- 		err = put_user(fa.flags, argp);
- 	return err;
-@@ -292,6 +294,8 @@ int ioctl_setflags(struct file *file, unsigned int __user *argp)
- 			fileattr_fill_flags(&fa, flags);
- 			err = vfs_fileattr_set(idmap, dentry, &fa);
- 			mnt_drop_write_file(file);
-+			if (err == -EOPNOTSUPP)
-+				err = -ENOIOCTLCMD;
- 		}
- 	}
- 	return err;
-@@ -304,6 +308,8 @@ int ioctl_fsgetxattr(struct file *file, void __user *argp)
- 	int err;
- 
- 	err = vfs_fileattr_get(file->f_path.dentry, &fa);
-+	if (err == -EOPNOTSUPP)
-+		err = -ENOIOCTLCMD;
- 	if (!err)
- 		err = copy_fsxattr_to_user(&fa, argp);
- 
-@@ -324,6 +330,8 @@ int ioctl_fssetxattr(struct file *file, void __user *argp)
- 		if (!err) {
- 			err = vfs_fileattr_set(idmap, dentry, &fa);
- 			mnt_drop_write_file(file);
-+			if (err == -EOPNOTSUPP)
-+				err = -ENOIOCTLCMD;
- 		}
- 	}
- 	return err;
-diff --git a/fs/overlayfs/inode.c b/fs/overlayfs/inode.c
-index 6f0e15f86c21..096d44712bb1 100644
---- a/fs/overlayfs/inode.c
-+++ b/fs/overlayfs/inode.c
-@@ -721,7 +721,7 @@ int ovl_real_fileattr_get(const struct path *realpath, struct fileattr *fa)
- 		return err;
- 
- 	err = vfs_fileattr_get(realpath->dentry, fa);
--	if (err == -ENOIOCTLCMD)
-+	if (err == -EOPNOTSUPP)
- 		err = -ENOTTY;
- 	return err;
- }
++/* Read-only inode flags */
++#define FS_XFLAG_RDONLY_MASK \
++	(FS_XFLAG_PREALLOC | FS_XFLAG_HASATTR)
++
++/* Flags to indicate valid value of fsx_ fields */
++#define FS_XFLAG_VALUES_MASK \
++	(FS_XFLAG_EXTSIZE | FS_XFLAG_COWEXTSIZE)
++
++/* Flags for directories */
++#define FS_XFLAG_DIRONLY_MASK \
++	(FS_XFLAG_RTINHERIT | FS_XFLAG_NOSYMLINKS | FS_XFLAG_EXTSZINHERIT)
++
++/* Misc settable flags */
++#define FS_XFLAG_MISC_MASK \
++	(FS_XFLAG_REALTIME | FS_XFLAG_NODEFRAG | FS_XFLAG_FILESTREAM)
++
++#define FS_XFLAGS_MASK \
++	(FS_XFLAG_COMMON | FS_XFLAG_RDONLY_MASK | FS_XFLAG_VALUES_MASK | \
++	 FS_XFLAG_DIRONLY_MASK | FS_XFLAG_MISC_MASK)
++
+ /*
+  * Merged interface for miscellaneous file attributes.  'flags' originates from
+  * ext* and 'fsx_flags' from xfs.  There's some overlap between the two, which
 
 -- 
 2.47.2
