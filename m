@@ -1,138 +1,141 @@
-Received: from mail-oi1-f176.google.com (mail-oi1-f176.google.com [209.85.167.176])
+Received: from mail-vs1-f54.google.com (mail-vs1-f54.google.com [209.85.217.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83CF81CFBC
-	for <selinux@vger.kernel.org>; Tue,  1 Jul 2025 15:16:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF0093596B
+	for <selinux@vger.kernel.org>; Tue,  1 Jul 2025 17:42:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751382971; cv=none; b=OBrMNltj1oeksel+FTIhlZdq9vbc1D0p+cq76bqX09nUEPKDqZrRBClyCm5O45qvF4loxzU/Og6xw7azomNGk7+d6RNGP1D8irbIT/vmfGWAnXLA/4JlqdgKgiGzHNg4t89Yqk5i2PV7SjIQnTOjs+Vw54B/VCMOmzCA8fKpqfY=
+	t=1751391751; cv=none; b=ENYx6HIHLwkK/+D6+O2xUunWn+PQ3Vd0xF49piULffX/q2Wvx674oajvVe4TqIVv8iBZyqHrKFFznf+VuGXPlpk8YCYapQfyo9/zzFr1eUbZCTA5S0hZsUFMYpziJl/r557ziSaLjjL7SBQYHRiYbjyAHbM5jHQMeMne5WNBFro=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751382971; c=relaxed/simple;
-	bh=I1h3JnHmOEXwM92kDbvgE0yhNqOxB/I1WN47BPY3abY=;
+	s=arc-20240116; t=1751391751; c=relaxed/simple;
+	bh=2JWX0Z44McGA1svitRt02QuU+MD2pnM6viIANRcRFQU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GGs14J6t+vGb7PA2BkpdQo+gug8xVRkDFo8YK7QY90DMOfWJQW/aRKM6+ZClEOZXoIRm3b2ulIb9z/QYP5osSdY5NA1y9FHQo9bv+dtqhFnii0lyWZvrrMu1bRVoJsUZbWCcfgkILLXRabUWlXDFo5ct6fEYKgFxUXuhlM34DGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=J95ngTmc; arc=none smtp.client-ip=209.85.167.176
+	 To:Cc:Content-Type; b=mowKluD+fO4ZTpJDv4hoDWkqoE/SUP79scefZ5EQULYxLCpNo2d3KWYaHEWy3qNfabfhD8c8NDOJQRYgxyYuWb50tn9RaQE5vFdW3U0CeLSXCSH3fW1EIw0+qpLS3KP40Dsdvx+INPkLDtWfqEKqUc+RAJhxErjztQjrJoXBt1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HJJ6NSH+; arc=none smtp.client-ip=209.85.217.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J95ngTmc"
-Received: by mail-oi1-f176.google.com with SMTP id 5614622812f47-40b859461easo136125b6e.1
-        for <selinux@vger.kernel.org>; Tue, 01 Jul 2025 08:16:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HJJ6NSH+"
+Received: by mail-vs1-f54.google.com with SMTP id ada2fe7eead31-4e7f4adaedaso973596137.3
+        for <selinux@vger.kernel.org>; Tue, 01 Jul 2025 10:42:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751382968; x=1751987768; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1751391748; x=1751996548; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=EG5Re7YJgPWSTkjRd6En4ZOa1RhV8QH3i74P7T4+Wq8=;
-        b=J95ngTmcMbkkCuCX5uC8GLMAMH33hYdr/VSuXvyaT+DF57dp/5ViR+e4ANruv4yGm2
-         KaZEPKlwUf7wOmNh2Ef2VwMyzfA2zuU8+NccX51tBCvhh+auNOqFFWhZfPNhAbkxykzk
-         G9gK5HFLyLC2n4Lp9CtCnDxabwywqhDaru6y9szRGsTerFUk7TqT53242ItO+mnr7rdT
-         ptyZXEV9TifZ3Y8Ib6lxDuP/DAhl6gabfEqpVPlVz7z6ovgGFdpFHVOMMt2FPeI65g05
-         u3xZdOHabUwFJBBJYqQC4YX/qqpEDyAVtky7coFrDolrmbO/3O6hevLzerrAhbEzMosN
-         cKMQ==
+        bh=d8S8wpfO9ytiQ6heQ+KYuubld4T9cSsf61VDBpSH2Lc=;
+        b=HJJ6NSH+1nPmZK+u3rbRfq9KWfP9hmroDk6Y4ZuSujpsHXq+rzxrldM41pM0m8QgUp
+         SzPuMEzhm/9YHiykAPGPZv368DzGF4avGCl38WNZduNn9+UBsa7Lg7gbXiUB89gU2VRK
+         tU4zodZF3n3VOmn3pa3iuPvtV6VHniIeDJsefUG/vd04mWqIBxMdoxqz51SqJF/aqTra
+         tQ9hS1MxiM+1P4hfrejlt6j9d0q1Dp8GuBcjfxlsbIVMDQXCp9cK1/mTaAJwk9Y6Y0E4
+         RSSqTdMJ4kbVDI9hJtwx7vxoOtPE0f5PwEaTGaj4D2C2Zc95617rUO4ol64E3HJncWQg
+         SweA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751382968; x=1751987768;
+        d=1e100.net; s=20230601; t=1751391748; x=1751996548;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=EG5Re7YJgPWSTkjRd6En4ZOa1RhV8QH3i74P7T4+Wq8=;
-        b=QWyS5OZlmRunq6KxleMROpZjxfi7LDJ88wJkbKoSimF2ODfCiYMpEQyYAn38eFoFIV
-         ZGYvR6A7AEFIfZAapmrncXmAWp3uHGPfhFlSiE7SkZD+acqMPsC91++VLX8pPmLoXUfF
-         pxTvgnSen07C6cgaWne+PwdtSBELPrUFyfc13Ck8gwov/6A/OE/qZ3G8f0XrFrmFJl0Z
-         zAqGDxQWgQZ7UGoqHRsgeq+NJ2dLmNTt+l5HKbzL6W8f+13PxHLbVzOYGACjPQW3Ug3m
-         sX4I9DqfHJsilVEanLd5wj3bDQf0E5Bm5J7a3fhDoFmalU4PFqmWVqBT74vy1FbuAa3Q
-         diNQ==
-X-Gm-Message-State: AOJu0YwyyUhAaNo1NB2T1V1vAyAI53FNpJVoH8+/WNStQr7YsXqczlJ6
-	0Q3LKihcXTVjqbGgBtR7DLvd3IblkxEmfSmuAFar1q9g6GhvnW7F0AXwQ0gCXuS6SqCsaBG47DC
-	SpF7QMS92OFR6sOUf1aUNBkXNVftaQ5M=
-X-Gm-Gg: ASbGncviMHzTdpH3KhIlCvZ8MBBymTEXVjsE0vb8UA/Hdkj7BmF4q9pv4xV1S0b7Uzm
-	kFiea4TTh/MkhuqpZFb7jIMHis01NABp1RYrI+JEgym4Wa4N6ETA0temfxfv3iTMKZRgugAmonq
-	BgRClx6GB55VxQLuoeK1rJFBhfVRTtC1rAwDdZb9dK
-X-Google-Smtp-Source: AGHT+IFEksKCSVfT3VNNoWls9a4uGZxalk4yLSxijknqcQaDRF/DtLitkwzyagCSYz6BbLZ05ZjMxCRbl7t2sCdbxWM=
-X-Received: by 2002:a05:6808:23d2:b0:401:e6f0:a8d4 with SMTP id
- 5614622812f47-40b33c60e48mr11810998b6e.5.1751382968460; Tue, 01 Jul 2025
- 08:16:08 -0700 (PDT)
+        bh=d8S8wpfO9ytiQ6heQ+KYuubld4T9cSsf61VDBpSH2Lc=;
+        b=KBIkW6FKa8NLw9cZ9ob2WsojguznabKnBB16dg/NrsbXC89B0sPK925Ba7Tq6MBh4R
+         mZlk5lOowd8SCCfFFqQy0ya8KT+MBlkcPSlwJ9SuqA1qquDfJAzLeWu7mLiNI2lGWP4I
+         Tadpz+7rzPVYFLlm1T7cTpITn8b59kVZoJp/wAEZ72yy+1P5rZlZ4Rttq30wAU7firuz
+         z0uODPwMpilSNzrTYNlOGePh/TzN03/mlZTX80tjqA+Ww0AyW9MPdZ8IwSah/9iHLiEj
+         b51ujb61XfvPfCWSGEN2yE3k29fSzHIVEboIKx+UcDkp/WGlDfW8icqC3tTComb4+RT5
+         jyGw==
+X-Gm-Message-State: AOJu0YxXnOwogibkQx5gP30f3NyCcA5j3aDIEMa8Cy+bnTva8WBcMne/
+	KH4xMZFHtv7JkuP0M3xIlpwalI516owBU2B8tl4yl4exw2I2k3tCy4rvs1v0pA5bN8yY0tTiJbV
+	IPtSYWewUOwffWCla3SbyOj5gxKGHfnc=
+X-Gm-Gg: ASbGnctJiJOGdeYnwEhvCLGIBD4L9z5CrW7VhWOsZsEGQ0ls6Uo7B6W5Nv4mTCcVP+l
+	aemdZNn/XKlLFyOfMBHVxEvktmlAXar+lx7kI5d6sZqYEiudAOzbtL9XA9MYTs3HNJHXWMKOmYx
+	sTBrLspWLQWLaSFrn8ohUW6ZcFa+PvmCvLcd3u3+SQ
+X-Google-Smtp-Source: AGHT+IE1IdVUs6bWpE1ZydZPU/Fmtl+qonBIt4ORBmRcHjwAfoNiZx6Gt11eowo9JrWhJf62oMAsGG9VbcgwTDuJ9eU=
+X-Received: by 2002:a05:6102:4a84:b0:4e5:9323:d2b9 with SMTP id
+ ada2fe7eead31-4ee4f4cf9cemr12918441137.2.1751391748456; Tue, 01 Jul 2025
+ 10:42:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250623180645.232680-1-lautrbach@redhat.com> <CAP+JOzRhp_bZXDZLnbS3DbYeJYpq0dsVzfchZQ8rCjDkGy-HGQ@mail.gmail.com>
-In-Reply-To: <CAP+JOzRhp_bZXDZLnbS3DbYeJYpq0dsVzfchZQ8rCjDkGy-HGQ@mail.gmail.com>
+References: <20250630092117.21728-1-lautrbach@redhat.com>
+In-Reply-To: <20250630092117.21728-1-lautrbach@redhat.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Tue, 1 Jul 2025 11:15:56 -0400
-X-Gm-Features: Ac12FXyUnA0VwQwPw6oQbYejX6TwvVQdAaBX9P4S3IxZHik-jDQu0aU8N02-xS0
-Message-ID: <CAP+JOzSoaJP7Dqt7G9bKKW9U_4Z-qQkyg3nZNfRtwpzSm_RGBQ@mail.gmail.com>
-Subject: Re: [PATCH v2] policycoreutils: make `-laudit -lbz2` conditional
+Date: Tue, 1 Jul 2025 13:42:17 -0400
+X-Gm-Features: Ac12FXxf5SZQGbhn6_yy309G9gVByRth9PoeDBzDfmYsrXT9WhWdD7lHLyS4iXU
+Message-ID: <CAP+JOzQ4AGEmm-rF5NA+2MdkKK-M-wLOZUJF4tZTSLn39eLaUg@mail.gmail.com>
+Subject: Re: [PATCH] sepolicy: use multiprocessing 'fork' method
 To: Petr Lautrbach <lautrbach@redhat.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 23, 2025 at 2:08=E2=80=AFPM James Carter <jwcart2@gmail.com> wr=
-ote:
+On Mon, Jun 30, 2025 at 5:34=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.co=
+m> wrote:
 >
-> On Mon, Jun 23, 2025 at 2:07=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.=
-com> wrote:
-> >
-> > Commit da6cd3d8d7600 ("Support static-only builds") introduced possibil=
-ity
-> > to build static-only toolchain. For static builds of `semodule` and
-> > `setsebool` seems to be necessary to use `-laudit -lbz2`. As an side
-> > effect, when policycoreutils is built without other components, the
-> > buildroot requires libaudit.so and libbz2.so to be available. For share=
-d
-> > builds this is not necessary and had not been required before.
-> >
-> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+> 'fork' was the default starting method in Python before 3.14 and it's
+> necessary for this code to work correctly
 >
-> Acked-by: James Carter <jwcart2@gmail.com>
+> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=3D2374569
 >
+>     sh-5.2# sepolicy manpage -a -p /builddir/build/BUILD/selinux-policy-4=
+1.43-build/BUILDROOT/usr/share/man/man8/ -w -r /builddir/build/BUILD/selinu=
+x-policy-41.43-build/BUILDROOT
+>     ValueError: No SELinux Policy installed
+>     Exception ignored while calling deallocator <function Pool.__del__ at=
+ 0x7f36f9d333d0>:
+>     Traceback (most recent call last):
+>       File "/usr/lib64/python3.14/multiprocessing/pool.py", line 271, in =
+__del__
+>         self._change_notifier.put(None)
+>       File "/usr/lib64/python3.14/multiprocessing/queues.py", line 397, i=
+n put
+>         self._writer.send_bytes(obj)
+>       File "/usr/lib64/python3.14/multiprocessing/connection.py", line 20=
+6, in send_bytes
+>         self._send_bytes(m[offset:offset + size])
+>       File "/usr/lib64/python3.14/multiprocessing/connection.py", line 44=
+4, in _send_bytes
+>         self._send(header + buf)
+>       File "/usr/lib64/python3.14/multiprocessing/connection.py", line 40=
+0, in _send
+>         n =3D write(self._handle, buf)
+>     BrokenPipeError: [Errno 32] Broken pipe
+>
+> Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 
-I think this has been superseded by Alyssa's and my patches.
-Correct?
-Jim
+Acked-by: James Carter <jwcart2@gmail.com>
 
-> > ---
-> >
-> > v2: fixed indentation, I was inspired by the wrong file :/
-> >
-> >  policycoreutils/semodule/Makefile  | 2 ++
-> >  policycoreutils/setsebool/Makefile | 2 ++
-> >  2 files changed, 4 insertions(+)
-> >
-> > diff --git a/policycoreutils/semodule/Makefile b/policycoreutils/semodu=
-le/Makefile
-> > index 7c45831fcd4e..52a68dfcac10 100644
-> > --- a/policycoreutils/semodule/Makefile
-> > +++ b/policycoreutils/semodule/Makefile
-> > @@ -12,7 +12,9 @@ SEMODULE_OBJS =3D semodule.o
-> >
-> >  all: semodule genhomedircon
-> >
-> > +ifeq ($(DISABLE_SHARED),y)
-> >  semodule: LDLIBS +=3D -laudit -lbz2
-> > +endif
-> >  semodule: $(SEMODULE_OBJS)
-> >
-> >  genhomedircon:
-> > diff --git a/policycoreutils/setsebool/Makefile b/policycoreutils/setse=
-bool/Makefile
-> > index 1d5148469f01..f68440f90df7 100644
-> > --- a/policycoreutils/setsebool/Makefile
-> > +++ b/policycoreutils/setsebool/Makefile
-> > @@ -15,7 +15,9 @@ BASHCOMPLETIONS=3Dsetsebool-bash-completion.sh
-> >
-> >  all: setsebool
-> >
-> > +ifeq ($(DISABLE_SHARED),y)
-> >  setsebool: LDLIBS +=3D -laudit -lbz2
-> > +endif
-> >  setsebool: $(SETSEBOOL_OBJS)
-> >
-> >  install: all
-> > --
-> > 2.49.0
-> >
-> >
+> ---
+>  python/sepolicy/sepolicy.py | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
+> index 82ff6af2bc2d..febb2fc103ed 100755
+> --- a/python/sepolicy/sepolicy.py
+> +++ b/python/sepolicy/sepolicy.py
+> @@ -25,7 +25,7 @@ import os
+>  import sys
+>  import selinux
+>  import sepolicy
+> -from multiprocessing import Pool
+> +import multiprocessing
+>  from sepolicy import get_os_version, get_conditionals, get_conditionals_=
+format_text
+>  import argparse
+>  PROGNAME =3D "selinux-python"
+> @@ -350,7 +350,8 @@ def manpage(args):
+>
+>      manpage_domains =3D set()
+>      manpage_roles =3D set()
+> -    p =3D Pool()
+> +    multiprocessing.set_start_method('fork')
+> +    p =3D multiprocessing.Pool()
+>      async_results =3D []
+>      for domain in test_domains:
+>          async_results.append(p.apply_async(manpage_work, [domain, path, =
+args.root, args.source_files, args.web]))
+> --
+> 2.50.0
+>
+>
