@@ -1,115 +1,108 @@
-Received: from mail-ua1-f42.google.com (mail-ua1-f42.google.com [209.85.222.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B9FF2F50B2
-	for <selinux@vger.kernel.org>; Wed,  2 Jul 2025 17:35:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2D442E4992;
+	Wed,  2 Jul 2025 18:37:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751477745; cv=none; b=tbIe/Pv37rJ3W5xIslvJ/Xy3RS+nvuiQjQXa7GTBimnzZ4Im4LVqHV3UuYt2FmLvBAyH2/omMfbCeLvC5YdaL9eYJNbB3T/hsNtH5P1mELiaMZSz8zAByjHHdY34oqU7h4Ugl0Zno/x9eMcCuVGwCXtXFH3EiCdF/2fU4oW+EL4=
+	t=1751481471; cv=none; b=h5yDM6B8x17TSDAnSGaABQg+eunpKcHZZg+8PkZ6a+oRhNnEPXFJg9ckDsjpsEZwgqfOG+daGlN2agySuaH8C/dFL+66GVv9hYPABSHu4zOHVjFynKWxo0QCplW30PkeZfMgR6o9fGTLHoxUk1BKV6K/HU/5hAsVfV+smJPdy94=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751477745; c=relaxed/simple;
-	bh=fRK0STm8/zlk8griGpsCzrQ/LVF6AprlyMaH1rL33io=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=WovyPpv3WHb+FF9G9yDsnk6nMm1tnUrF9un3bhSKwOUxSHhOqQ9JHtLXWEpmBcy63I+aJgL6DgSrmQ1in5ChQRlVd01drEvTR1tpom/VZv49MAdFry1Fe4eWOyfee0hGlvfi9jMGvBZIdOo/6ug+jJzk4etM4nr2thj6+ynaukM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k88dxJ7d; arc=none smtp.client-ip=209.85.222.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1751481471; c=relaxed/simple;
+	bh=nW2vHO9QQCcm4Z1QN6Img2usutOZCb4Epl3Ntbf/DTQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JCx5ondSluWjDfFZ/mzJFoVaVnpPt9LO0wyxVzdBpo8XBOsDa4LrHEFbEhCWLKAzgk0tyPdB/7cffKmTIvGIk7nxMN6qQ4teGky0vXheqt0NoMKtd9oCW/azvpUpMAGM+wRG/5Ega2G4wLT+fm26hD75ipMD8H5B8+f6LHG/soc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=enuDigA1; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k88dxJ7d"
-Received: by mail-ua1-f42.google.com with SMTP id a1e0cc1a2514c-88131f0badcso2781585241.2
-        for <selinux@vger.kernel.org>; Wed, 02 Jul 2025 10:35:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751477743; x=1752082543; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8S+LR5T2KLNH6Czxo+xClYrQ5D+VnactA+yqe7PgJZI=;
-        b=k88dxJ7dlHKV5hVqJB50TtTW8nXELW89BYLNzeyO5+EC7sd7KyQ4EtbaX2YCrJwzNj
-         0P6D4UbDzdnRQ7nruBh0kDw0eM/s9OK9DcEYc89tKqgjJoFayGoGusBlkcQxzk3A3Q9D
-         U8zj9qN+L9qYiXkj54srvlo5rUlZtwI2M+aEm9Ly9bZkTnsi+3tNTTwpk/4leW9whDAp
-         798vaqY7N+eoB7mSaqTgkWpDEcC01vBGB97uKeGkNHa4VwGyGk8f3t32kAViFH8N/eUN
-         qa7yB6FYNsQfBfQ1Bmo2NvE3+2NtOs7wHINxSXKl/od+CP6Tgb6PuWIQCr8958SbT6px
-         pJHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751477743; x=1752082543;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8S+LR5T2KLNH6Czxo+xClYrQ5D+VnactA+yqe7PgJZI=;
-        b=LZ7P6D8dQnNhQ8G+C+OMTr3RMPXfs/n8zPgpCfPBVnhq20qZld4P9smnWvHAbrxeVk
-         gC1w4OEE8d6othYgxKCD0Tq8h8EDhxUoU0uSbTNyJYPigfRfv3rjBwHZwQiVzPpXQUK2
-         0IN+FJOI3pBbtSdR53FTJtv/aBAwPsNj+fPtJFA5n2hOBvJzOb0ijviR2u3HpcOhnjaH
-         F/MXKsIdCaaASd0VH6ZHyFnNgpGgnv6wh/DdbQJb0H/8DrsJoh8zTkJamwNvBDB1fPu0
-         JM0j7QDSuqoWIi6RJ6wZmvjP1JpSTDQQhK/Pyb5XgGP2Suqk+P7IlJsUBJ/QJqB/0o9+
-         JahQ==
-X-Gm-Message-State: AOJu0YyIh1fu5cnijvWsAl/L3XPUTTXledT5yv2s8W8rog/79rDJuH/H
-	OANCuY7RSyF7qff+XhwUOxGttpMecnPORzFN+0hvHmklJhd54xTz7qONWVtGWB+ujeEOvtPShzF
-	lMNKYkohlR9gd7VwBMUKNfyWUvB1zgStrvQ==
-X-Gm-Gg: ASbGncshqyv+dj+7lNoLxhS28N4vGnnrLMtanYENuvsbSjNUpkjASDMNqzEvUe0KqlW
-	kWJ980Hu3umJkHqfxAaOG1EFKP3mCr0NEdvrByLQ+wSjvBZ4piDcrn4jonf1pqrldnZuv78WLhd
-	ODr/SmekITa+Aa+4vNHyUfchM0SPIBfGipI+ngZXL+vmijis6Mq+w=
-X-Google-Smtp-Source: AGHT+IHGbAiXSokMRnDBQh/fC4tQt5tC4Xhd7hN74nI3GeOzrutN1Cg9Jl1j0buUYCpVY3gxFtCzOJMoFQ+KKZ2Quqo=
-X-Received: by 2002:a05:6122:6169:b0:531:2906:752e with SMTP id
- 71dfb90a1353d-53458103c69mr3298031e0c.5.1751477743111; Wed, 02 Jul 2025
- 10:35:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="enuDigA1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF803C4CEE7;
+	Wed,  2 Jul 2025 18:37:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1751481470;
+	bh=nW2vHO9QQCcm4Z1QN6Img2usutOZCb4Epl3Ntbf/DTQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=enuDigA1H4yfVcmL85Sf42DWqCl5EwKedbw4LRHZ2VolbMFgbMQwu9pRDLto8Z7bO
+	 7RlZuCrLMrTG0XPISeGGqMgXoO4pBIDABRCkleRvH4yqV08V2RhdceDotEsEsnEYNB
+	 JQd/BdAZ406Tol+twzmYxnSwzRUXhYKRpgcT7UFqbkZXO6d/GlGDb90wEfAlTSj0w1
+	 GYGmoylrr+EGvB3agTFd8zAESEDEtotgYR+VhoKexOtVbU4e5CMV/mi4qBNsbhiupE
+	 abVxV9CyrIlm/czXAZ9RWCt8TZQwTohd2FxZqa8wzAMwpxwqZX3jLLwga8sI3G1S8c
+	 XjIWj4oMOzlNw==
+Date: Wed, 2 Jul 2025 11:37:50 -0700
+From: "Darrick J. Wong" <djwong@kernel.org>
+To: Amir Goldstein <amir73il@gmail.com>
+Cc: Christian Brauner <brauner@kernel.org>,
+	Andrey Albershteyn <aalbersh@redhat.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Casey Schaufler <casey@schaufler-ca.com>, Jan Kara <jack@suse.cz>,
+	Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
+	Paul Moore <paul@paul-moore.com>, linux-api@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-xfs@vger.kernel.org, selinux@vger.kernel.org,
+	Andrey Albershteyn <aalbersh@kernel.org>
+Subject: Re: [PATCH v6 6/6] fs: introduce file_getattr and file_setattr
+ syscalls
+Message-ID: <20250702183750.GW10009@frogsfrogsfrogs>
+References: <20250630-xattrat-syscall-v6-0-c4e3bc35227b@kernel.org>
+ <20250630-xattrat-syscall-v6-6-c4e3bc35227b@kernel.org>
+ <20250701184317.GQ10009@frogsfrogsfrogs>
+ <20250702-stagnation-dackel-294bb4cd9f3d@brauner>
+ <CAOQ4uximwjYabeO=-ktMtnzMsx6KXBs=pUsgNno=_qgpQnpHCA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250701130309.260015-1-jwcart2@gmail.com>
-In-Reply-To: <20250701130309.260015-1-jwcart2@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Wed, 2 Jul 2025 13:35:32 -0400
-X-Gm-Features: Ac12FXxCUsMZHa01tlkfsWUWyZB3iwUnUN2W-V0EwXcNvS5D80LVsB3OyEm0YIk
-Message-ID: <CAP+JOzT-CyXg8Bf4OTiY3G9xpOUNYr7U5AztJ59h8Z3MmX0cMg@mail.gmail.com>
-Subject: Re: [PATCH] Policycoreutils: Make pkg-config work for more types of builds
-To: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAOQ4uximwjYabeO=-ktMtnzMsx6KXBs=pUsgNno=_qgpQnpHCA@mail.gmail.com>
 
-On Tue, Jul 1, 2025 at 11:10=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
-ote:
->
-> To support static builds, pkg-config is used to add the libraries
-> needed for libselinux and libsemanage during the build. Unforunately,
-> pkg-config will always use the installed pc files for libselinux and
-> libsemanage.
->
-> Instead set PKG_CONFIG_PATH when invoking pkg-config so that
-> it searches in order:
-> 1) The directory specified by PKG_CONFIG_PATH, if already set.
-> 2) The local src directories of libselinux and libsemaange.
-> 3) The default directories specified by the system.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+On Wed, Jul 02, 2025 at 03:43:28PM +0200, Amir Goldstein wrote:
+> On Wed, Jul 2, 2025 at 2:40 PM Christian Brauner <brauner@kernel.org> wrote:
+> >
+> > > Er... "fsx_fileattr" is the struct that the system call uses?
+> > >
+> > > That's a little confusing considering that xfs already has a
+> > > xfs_fill_fsxattr function that actually fills a struct fileattr.
+> > > That could be renamed xfs_fill_fileattr.
+> > >
+> > > I dunno.  There's a part of me that would really rather that the
+> > > file_getattr and file_setattr syscalls operate on a struct file_attr.
+> >
+> > Agreed, I'm pretty sure I suggested this during an earlier review. Fits
+> > in line with struct mount_attr and others. Fwiw, struct fileattr (the
+> > kernel internal thing) should've really been struct file_kattr or struct
+> > kernel_file_attr. This is a common pattern now:
+> >
+> > struct mount_attr vs struct mount_kattr
+> >
+> > struct clone_args vs struct kernel_clone_kargs
+> >
+> > etc.
+> >file_attr
+> 
+> I can see the allure, but we have a long history here with fsxattr,
+> so I think it serves the users better to reference this history with
+> fsxattr64.
 
-It seems like there are no objections, so I have merged this.
-Jim
+<shrug> XFS has a long history with 'struct fsxattr' (the structure you
+passed to XFS_IOC_FSGETXATTR) but the rest of the kernel needn't be so
+fixated upon the historical name.  ext4/f2fs/overlay afaict are just
+going along for the ride.
 
-> ---
->  policycoreutils/Makefile | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/policycoreutils/Makefile b/policycoreutils/Makefile
-> index 0f3d62f2..7c9706e3 100644
-> --- a/policycoreutils/Makefile
-> +++ b/policycoreutils/Makefile
-> @@ -2,8 +2,8 @@ SUBDIRS =3D setfiles load_policy newrole run_init secon s=
-estatus semodule setseboo
->
->  PKG_CONFIG ?=3D pkg-config
->
-> -LIBSELINUX_LDLIBS :=3D $(shell $(PKG_CONFIG) --libs libselinux)
-> -LIBSEMANAGE_LDLIBS :=3D $(shell $(PKG_CONFIG) --libs libsemanage)
-> +LIBSELINUX_LDLIBS :=3D $(shell PKG_CONFIG_PATH=3D"$(PKG_CONFIG_PATH):../=
-libselinux/src" $(PKG_CONFIG) --libs libselinux)
-> +LIBSEMANAGE_LDLIBS :=3D $(shell PKG_CONFIG_PATH=3D"$(PKG_CONFIG_PATH):..=
-/libsemanage/src" $(PKG_CONFIG) --libs libsemanage)
->  export LIBSELINUX_LDLIBS LIBSEMANAGE_LDLIBS
->
->  all install relabel clean indent:
-> --
-> 2.50.0
->
+IOWs I like brauner's struct file_attr and struct file_kattr
+suggestions.
+
+> That, and also, avoid the churn of s/fileattr/file_kattr/
+> If you want to do this renaming, please do it in the same PR
+> because I don't like the idea of having both file_attr and fileattr
+> in the tree for an unknown period.
+
+But yeah, that ought to be a treewide change done at the same time.
+
+--D
+
+> 
+> Thanks,
+> Amir.
+> 
