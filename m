@@ -1,116 +1,141 @@
-Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA78D210FB;
-	Wed,  2 Jul 2025 13:43:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB0BD2FF488
+	for <selinux@vger.kernel.org>; Wed,  2 Jul 2025 17:14:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751463823; cv=none; b=JkHJ7UoCEBs/271fGK1sJ6l8bM1vSSF9D4gilD2Yyi1s1VWZlPIDf6apku5xh/4D/IIsBo1FmyH2AZOrmdOAfg03dTQ0JQjDEtCCW4PCnrlEGcfWXiIBtXa/yQrr4FNsjsgnjBrdpd1HV1og0odA8DT/VXsepdzX/o1Ly05HIF0=
+	t=1751476486; cv=none; b=RPNuMZhPd/twjykOMEibXVz2rz/mPoRdGS8px8Njfr9dPzapOMnT8ELIDa8YPkuQg/sm73au8sgjIuholl3xS+XwEX8V2ROtqNyPvzgOs4G5g20QHVUe+RORrdh7qyhx3LAkzJfUAeG9MqQKw9hmYFOYIn7Z0ak66fMyWr+wjj4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751463823; c=relaxed/simple;
-	bh=1sxzDC5zf3UuhHKDufGOR1abNbNpZjrzvWoD6tTHOSg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=o1Ffhdh+yPWGfI2nmzYABBBfhuPte52Df9phVO5yRpp33zJgiW/knhfhk1fAp1qRKvhpa6qNTvHs+kruQMpI07AINrFQAVoEbMYkmJlpAts/R+fyhM8499kMVGo7kXDhN9nWjg9sr7Mpzmccj1Dm374Qhuqsb0JpOwy80bJVAlE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mke0nmCj; arc=none smtp.client-ip=209.85.218.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1751476486; c=relaxed/simple;
+	bh=vJG1BmcxbcpP2XntYMHec4ENZ7wl0v+sPSRHMz4g62o=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=suz/Dk9wU78/yVtqCbv69ChT70ed+JCE0TuCY0Suc1u80BAmIWO++g++jF/i4PkC4TwZX+74qnXZbCVRf3pLjkdA0cRsn/xqQRXxFZDBiLDMJg9X+hi8AqZaMgJjo8XSrkod9GNrCQPLuJCiAoLPnJzd+tHTJyK4nOE3e7YehA8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=X1WtywzR; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mke0nmCj"
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-ae360b6249fso895828766b.1;
-        Wed, 02 Jul 2025 06:43:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751463820; x=1752068620; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UwIDCZCusW6djd9Ye3kiK32Dnzf8SQVyvqtNWdIs4aA=;
-        b=mke0nmCjT67d3SNVWwFFFCFv9qH2cwkheJ5n9PLjnOkMqaP7GCJpqvuRbH1qipyzM5
-         3s57ro02sfj0ohRhXHfy6zo+RFzVRxXpNAP7imEtw6yXrZ842vpFYM+sLWSxNWsrqLma
-         GKOmhcqG2x9b8vmSWdomyqAEt4/h50KkyjCrstf6t/d0jdIS+BqIjslFEuSCLS9OZXOD
-         3od2hvu5JOxVu4r7drmnayUju58WjVFae1B4f6VR70t0c677wu3pXzgyRnS7bSAl2mqy
-         x3G3NUWp8cjNC5jsOX4bxd6yEd+L8KyOwekEuXBqmH5FOASmQPlSBZt3XQMtgZkfXOC0
-         mqCw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751463820; x=1752068620;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=UwIDCZCusW6djd9Ye3kiK32Dnzf8SQVyvqtNWdIs4aA=;
-        b=o4x8QErHvBfRvSvGdzI/mSYk1NB/kDbRqUcQrOO8BZeyBAgAaJygsW603mGs7W7jdP
-         bpyQCRRTg5tf2tzGe/iEyu2SB73yJEd75ZGS6HrjUsHA7JdJSx3UOT9Lud6mkLe/pq3h
-         rBmf9j2PiT+IehuaYk4fi7OfzV2RUFKLd61i5wVhwCpYRhuytENBZdRfETfGYDkiXmdo
-         0K3Geydh6tpLBu8v0dBsy/2JqQRzVasYFH1upZfEApNaprjRd9gd1R7KHQJOnRadT51F
-         3uOuO0QqkYE9fBWRsAaz2ihtjkPktPV+WtiMFUJnbireTYqgEFSOG3gDXQcLX+nyhK5h
-         QNoQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVzAhtAAXXS8+XKnbNlztPFihB48vVwTHqPx1LMVzcMX3dlj+CCY/C581embZFz69RqG6gN/Rv75fzHfMFV7Q==@vger.kernel.org, AJvYcCW2dlUy73DnHfsPasdQ33rFCCE7UWpq8s9xAfZ+yh+E+v64OiiUq9Ng1YPKfKxiyAmw12JTM36gXuLVG9d5@vger.kernel.org, AJvYcCX+6QnJ8jqYUvLHPdfnOq+7QayqVkuQboYYegPZGAEkz7tnqW8k8FDhJd+J44zw/ztAoPySduXZVA==@vger.kernel.org, AJvYcCXCxcaX3/icHivWXcf1x0qIzgDi5nDcHIfwlOgCvJvaEjrY15B6Twzm2AbUS93VuFE+FecnBXD8RX8=@vger.kernel.org, AJvYcCXky29fUalaaEnj7n7nkQXBnutH245fOm2TDAKO0fbFp2qTsUdE+kjnyC2w4erSPxHPXH5DXSj0CzdQ@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw5lv6YQmTqNSd3Z1VguwxnXOtng2YUz+95z7taR7Bh96W89LLU
-	NWr/ZeDIxU+mJfwjH47RxOcQLlOrLcRmZ5Dr+Zl+59S3pbOEQrOJeRMw0RkrSg4/I963RDnVx9/
-	Bf4MNFHW8S42NlKdzQKqO2xrbWa6N9G8=
-X-Gm-Gg: ASbGncsHjsX8einJNq5rxCjzuBfFNfqNy462ToNP1iclW8ZAmTvWyDuJfhICuVZqxCx
-	0amc3vnwJZF5bz2ZRmUGXv9+h9NvNIGfetcCnJlqC/pR0qdlbM/RXV5lULSKZhpqjrcGr0Yegb0
-	fSmzD2sutmqU95jATonzV/04iLrqRg3xmygJY7LUINIuZzD9Km7eGYRA==
-X-Google-Smtp-Source: AGHT+IEJPX6UR9g84WoexbzzHUEQq6h3wPdSNSsyqViJdHMEb+94B4bmHAHCPHuJ0zmK7ftG43fN0Hd7MLLMLWsWtBg=
-X-Received: by 2002:a17:906:6a09:b0:ae3:8c9b:bd64 with SMTP id
- a640c23a62f3a-ae3c2ce7628mr342266566b.29.1751463819440; Wed, 02 Jul 2025
- 06:43:39 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="X1WtywzR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1751476483;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=5aa5J0o0VMA+KBnMtxrf+ZDAmuqZtZx7q123/LhlMV8=;
+	b=X1WtywzRh8aMqaS9cQvGnCnQKBA2EI11CkJvhTC07IMIlXj82GrEydkVjxorX8gP6f/IZz
+	lBAg8B2FJJaVwuHtAcqRaQcvgghkHwDH5iMlGxk5m3ohkHLv5+kkXX8mgm3JMDcCdivMBR
+	/SPwNNP5mZkPnCw0uc1cXXepj615AfM=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-563-7Tiof7POMBu2No6MPGU3Dw-1; Wed,
+ 02 Jul 2025 13:14:40 -0400
+X-MC-Unique: 7Tiof7POMBu2No6MPGU3Dw-1
+X-Mimecast-MFC-AGG-ID: 7Tiof7POMBu2No6MPGU3Dw_1751476479
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 00D9118089B6;
+	Wed,  2 Jul 2025 17:14:39 +0000 (UTC)
+Received: from localhost (unknown [10.44.33.158])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 775091800285;
+	Wed,  2 Jul 2025 17:14:38 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org, James Carter <jwcart2@gmail.com>
+Cc: 
+Subject: Re: [PATCH v2] policycoreutils: make `-laudit -lbz2` conditional
+In-Reply-To: <CAP+JOzSoaJP7Dqt7G9bKKW9U_4Z-qQkyg3nZNfRtwpzSm_RGBQ@mail.gmail.com>
+References: <20250623180645.232680-1-lautrbach@redhat.com>
+ <CAP+JOzRhp_bZXDZLnbS3DbYeJYpq0dsVzfchZQ8rCjDkGy-HGQ@mail.gmail.com>
+ <CAP+JOzSoaJP7Dqt7G9bKKW9U_4Z-qQkyg3nZNfRtwpzSm_RGBQ@mail.gmail.com>
+Date: Wed, 02 Jul 2025 19:14:37 +0200
+Message-ID: <877c0q1pmq.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250630-xattrat-syscall-v6-0-c4e3bc35227b@kernel.org>
- <20250630-xattrat-syscall-v6-6-c4e3bc35227b@kernel.org> <20250701184317.GQ10009@frogsfrogsfrogs>
- <20250702-stagnation-dackel-294bb4cd9f3d@brauner>
-In-Reply-To: <20250702-stagnation-dackel-294bb4cd9f3d@brauner>
-From: Amir Goldstein <amir73il@gmail.com>
-Date: Wed, 2 Jul 2025 15:43:28 +0200
-X-Gm-Features: Ac12FXw1I6BqbNe0ftFra8l5z14QYm57oMc5TjvDPGU72Dw-9sfBMZjzC6un8jM
-Message-ID: <CAOQ4uximwjYabeO=-ktMtnzMsx6KXBs=pUsgNno=_qgpQnpHCA@mail.gmail.com>
-Subject: Re: [PATCH v6 6/6] fs: introduce file_getattr and file_setattr syscalls
-To: Christian Brauner <brauner@kernel.org>
-Cc: "Darrick J. Wong" <djwong@kernel.org>, Andrey Albershteyn <aalbersh@redhat.com>, 
-	Arnd Bergmann <arnd@arndb.de>, Casey Schaufler <casey@schaufler-ca.com>, Jan Kara <jack@suse.cz>, 
-	=?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>, 
-	Paul Moore <paul@paul-moore.com>, linux-api@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-xfs@vger.kernel.org, selinux@vger.kernel.org, 
-	Andrey Albershteyn <aalbersh@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Wed, Jul 2, 2025 at 2:40=E2=80=AFPM Christian Brauner <brauner@kernel.or=
-g> wrote:
->
-> > Er... "fsx_fileattr" is the struct that the system call uses?
-> >
-> > That's a little confusing considering that xfs already has a
-> > xfs_fill_fsxattr function that actually fills a struct fileattr.
-> > That could be renamed xfs_fill_fileattr.
-> >
-> > I dunno.  There's a part of me that would really rather that the
-> > file_getattr and file_setattr syscalls operate on a struct file_attr.
->
-> Agreed, I'm pretty sure I suggested this during an earlier review. Fits
-> in line with struct mount_attr and others. Fwiw, struct fileattr (the
-> kernel internal thing) should've really been struct file_kattr or struct
-> kernel_file_attr. This is a common pattern now:
->
-> struct mount_attr vs struct mount_kattr
->
-> struct clone_args vs struct kernel_clone_kargs
->
-> etc.
->file_attr
+James Carter <jwcart2@gmail.com> writes:
 
-I can see the allure, but we have a long history here with fsxattr,
-so I think it serves the users better to reference this history with
-fsxattr64.
+> On Mon, Jun 23, 2025 at 2:08=E2=80=AFPM James Carter <jwcart2@gmail.com> =
+wrote:
+>>
+>> On Mon, Jun 23, 2025 at 2:07=E2=80=AFPM Petr Lautrbach <lautrbach@redhat=
+.com> wrote:
+>> >
+>> > Commit da6cd3d8d7600 ("Support static-only builds") introduced possibi=
+lity
+>> > to build static-only toolchain. For static builds of `semodule` and
+>> > `setsebool` seems to be necessary to use `-laudit -lbz2`. As an side
+>> > effect, when policycoreutils is built without other components, the
+>> > buildroot requires libaudit.so and libbz2.so to be available. For shar=
+ed
+>> > builds this is not necessary and had not been required before.
+>> >
+>> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+>>
+>> Acked-by: James Carter <jwcart2@gmail.com>
+>>
+>
+> I think this has been superseded by Alyssa's and my patches.
+> Correct?
+> Jim
 
-That, and also, avoid the churn of s/fileattr/file_kattr/
-If you want to do this renaming, please do it in the same PR
-because I don't like the idea of having both file_attr and fileattr
-in the tree for an unknown period.
+Correct.
 
-Thanks,
-Amir.
+I'm able to build policycoreutils with Alyssa's and my patches and
+without this patch.
+
+Thanks!.
+
+>
+>> > ---
+>> >
+>> > v2: fixed indentation, I was inspired by the wrong file :/
+>> >
+>> >  policycoreutils/semodule/Makefile  | 2 ++
+>> >  policycoreutils/setsebool/Makefile | 2 ++
+>> >  2 files changed, 4 insertions(+)
+>> >
+>> > diff --git a/policycoreutils/semodule/Makefile b/policycoreutils/semod=
+ule/Makefile
+>> > index 7c45831fcd4e..52a68dfcac10 100644
+>> > --- a/policycoreutils/semodule/Makefile
+>> > +++ b/policycoreutils/semodule/Makefile
+>> > @@ -12,7 +12,9 @@ SEMODULE_OBJS =3D semodule.o
+>> >
+>> >  all: semodule genhomedircon
+>> >
+>> > +ifeq ($(DISABLE_SHARED),y)
+>> >  semodule: LDLIBS +=3D -laudit -lbz2
+>> > +endif
+>> >  semodule: $(SEMODULE_OBJS)
+>> >
+>> >  genhomedircon:
+>> > diff --git a/policycoreutils/setsebool/Makefile b/policycoreutils/sets=
+ebool/Makefile
+>> > index 1d5148469f01..f68440f90df7 100644
+>> > --- a/policycoreutils/setsebool/Makefile
+>> > +++ b/policycoreutils/setsebool/Makefile
+>> > @@ -15,7 +15,9 @@ BASHCOMPLETIONS=3Dsetsebool-bash-completion.sh
+>> >
+>> >  all: setsebool
+>> >
+>> > +ifeq ($(DISABLE_SHARED),y)
+>> >  setsebool: LDLIBS +=3D -laudit -lbz2
+>> > +endif
+>> >  setsebool: $(SETSEBOOL_OBJS)
+>> >
+>> >  install: all
+>> > --
+>> > 2.49.0
+>> >
+>> >
+
