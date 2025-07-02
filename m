@@ -1,113 +1,149 @@
-Received: from mail-vk1-f180.google.com (mail-vk1-f180.google.com [209.85.221.180])
+Received: from mail-vk1-f181.google.com (mail-vk1-f181.google.com [209.85.221.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F3602F50B2
-	for <selinux@vger.kernel.org>; Wed,  2 Jul 2025 17:34:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 155E42F50B2
+	for <selinux@vger.kernel.org>; Wed,  2 Jul 2025 17:34:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751477670; cv=none; b=Oly7JlT7riQAqBV0ZS/aqksqVvJ/uQGNLQkzOuykXce5j578AewEAhC7jh7OxGuUrMsbnjsYbjKL6vF7WlEQq7a9XIkrlgjk34+F14sjRdnKP0qhxzYtP2HqycdxMvH45X5Ci2MOjbqTD2xicqNPHRwsmkCk/yfYy/68msC2Cis=
+	t=1751477701; cv=none; b=njIYRmitqKOVLVdwQGAuc4g0HyVuwfO+C3hFi0O3IDEK3D7gnjl/jiBjlua9Dm73MbEp4/wvzwGIeUVs4Wj3k+x5LuSLMv9tGGDqgtghQO/nF5rU+/v3vooL8jgKlfWzQonWZMCzhrYenA5ABC2/i/g4hOFoq0D0ac9h7jOXoZU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751477670; c=relaxed/simple;
-	bh=6WQseCeuU8zZitsRp0ptMAYaqODme5j0DPh4DFMZov0=;
+	s=arc-20240116; t=1751477701; c=relaxed/simple;
+	bh=ArOzVkiXw1pFjZy4SfBDjPPBjx8KUkusPolzZAARclY=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CSpudvDCnvoWK3dxqlM5lW6T4XOGishH81xXRh/+OUEW/4WDa+S6CZSzJeLsH7m15zS50NRTx3pym6UFD3ENERce9Jj8pbAcIzsHlWLe01riTfeZy+a7Y+BDcne/0QuM6NnzNtYj2cbILZ6U05ZsPX3pse3vHBLBM57uh4XLM0A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MO2Vt2su; arc=none smtp.client-ip=209.85.221.180
+	 To:Cc:Content-Type; b=tIxxXFmHZYM4AhYM8tcBFK2e+TuwM6ESwlhbXfXNn2iA9rZj3PvtC9o9KhaMa5uk+JVdZ1e9kkpV9ZiWOBWrSaqZo3+AB87pcpfbNlKOdrClLs6GH5/FKtni/aUHjn66XCbKEEZbRWcVoJMA+ez1thHVsLu5v4oOn0i2VgzsUYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PoO+EX0X; arc=none smtp.client-ip=209.85.221.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MO2Vt2su"
-Received: by mail-vk1-f180.google.com with SMTP id 71dfb90a1353d-5290be1aedcso73951e0c.1
-        for <selinux@vger.kernel.org>; Wed, 02 Jul 2025 10:34:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PoO+EX0X"
+Received: by mail-vk1-f181.google.com with SMTP id 71dfb90a1353d-5314d78e74fso1312686e0c.3
+        for <selinux@vger.kernel.org>; Wed, 02 Jul 2025 10:34:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751477668; x=1752082468; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1751477697; x=1752082497; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BYzUSbHeWM3StHYhLSgmUVgp81mZQkJ4YHtsfLfpovk=;
-        b=MO2Vt2suU5Zfjf4m2NcR7Hk7HOAModVtbTpXYqEOLlxtCchWNpC1MkMxUHQFNf4ZhF
-         3BPtPRN8KsiOhmT05CLBLNLRP9Qhh4P5R/iTakEf4lEXilo83u1zK9EWhSecHmD9jO+W
-         0c9RP2ENctO8TDcSd2KE9XNlhBbaM4gFQdb6HAhpM5Qe0vbDhhTVDG5n3spbDWCITxUe
-         E1x1+6KGfWLjQlI335pVCSSDvfaq9eERd9mkCwSQlPbUGC6fIe0XgnotzRQ1oHLY3ubg
-         AbPKQBbAJLg75tWLS5ZNZx9n8vD4eoCUH9u1tyExnhS3UHtL9NG9CtZRC6pBjaqAFb02
-         Q69g==
+        bh=dAH0O84KUg8UedTTXtuJ3aIvsLed894PWgteRSrBVac=;
+        b=PoO+EX0XLt2+Bsau4MzbFvpvefIu2lE3no8riuJ7jSsESyRMjB5XdmWEGjxzMyFy7E
+         H28Q/gAui7V0J868Lg2CLNvI5H+ECj8r1PMUC5Ncj5Ge/N3hIYB9BabTtmFV23QKPJb/
+         t1mBXkBsRsyMyxLH6SgaTPvq+mnGOUiz4qJQysJG7mHIVafWEFkX+cK6QQjBqNJBtBQY
+         M/e25ogJ6ESnr1C6WuiEn+KxiIBRnwQ63M93KvnKRdgsdq4PAU5FmraDTiDjfhosYk6l
+         f7Q/rq7OU/ViVJcd0nQIrkoZ3nBSm6HHyQ9tBeQyquNFCTP+UUuuQ1HB0zKRVeYBa/yG
+         iGew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751477668; x=1752082468;
+        d=1e100.net; s=20230601; t=1751477697; x=1752082497;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=BYzUSbHeWM3StHYhLSgmUVgp81mZQkJ4YHtsfLfpovk=;
-        b=QcZNgQ80WbCYlz8CWmll9EvOY0KPtpHl4XYB+UcejA3ddrNmmt+y3hGg2NrZd4tOX2
-         Xz58QqGgsjQ2iD0NdBQVGUtY+ert2w+Yiv3pCZ5U1dQAvAftwmi/eKJOvOtcFT9x2yI/
-         SA41opoat3Mxg1DIHVUj3VnsRpZyAL3RQr+MNpsAGOKskgcu3m2FKDkWS5qFJsky3hvS
-         5Tns7ci0Dzs3UzVnTZQ8ekSzTzqOD2fuQitAMABIXr3yOHywC720dGZEbmuchTL71HH1
-         ene4LChSdOOLnfzaeOjNnfZ5edn69ue26ELegjwx+wUcsittThtwH+0tppevZ1YgS4Bg
-         GqXw==
-X-Gm-Message-State: AOJu0YxzbMTUdmWLpWLuHizfOthxa1gqnZEqnxz2g5OIAlmNZ9IHRvhA
-	04px2muQv/qlNtGIxzRPHcvnjmSqAuxTEtTIEDorshv1apNye94Qaf/ccsXz0K7FR640rZUjpCF
-	QlXj9lsPLsezElp44SbFo7KlBkloVJrUKZg==
-X-Gm-Gg: ASbGncuzTPf/TwuME18u9H8Fzkp79nN49Vux0KBTKh/jOx3A8N0SliYWQBAR25wYOWz
-	TwQqBQMebaDmoP6qmIyaX7V5LzXAkCKCxdsoXLsZ3mdd2Ns0Knpu85Q7i62GaMleRjfleq8TqoX
-	v95QTW2rPm0n8Mq2m3AF0yWEtSxdh1bRh4Q7MVAyqn
-X-Google-Smtp-Source: AGHT+IH0fUJda6A+esQhb6T/0v7dNASID99WUqEXbLf9f+kUOoD7NtmomXs5teyZlm6sZ5eSmfIu5aoByu1HZlwTS1M=
-X-Received: by 2002:a05:6122:3289:b0:531:873b:dbb5 with SMTP id
- 71dfb90a1353d-53465fd253emr530826e0c.3.1751477667978; Wed, 02 Jul 2025
- 10:34:27 -0700 (PDT)
+        bh=dAH0O84KUg8UedTTXtuJ3aIvsLed894PWgteRSrBVac=;
+        b=qBsjSolrBKFlwQN6CsiAoX6BzwdBZjKt/z2v6NDyVGFnwrXueS1HqM/ZZGWSV6oNst
+         /cPlxfz7eKM+FtVDm7hdhHpgGFeFl0ob04/PMn081xOFSBe1/5cbYrWuF2px88KcAKEE
+         ID8fpv6ZwrkgQ6PrilAPrgNwoamBVW6n5IsUDIrToYbYpGGUkjGWDWNZCPc1SQ8NSLDF
+         wefQM0VDvdbCw97pNqtFaafThNFf+BxDH2h7B5cJ5BP2F7O+SXFEeVI6L/QK1qqO7IQm
+         uK25YLeddNVuFdNrHJzLXpklabWk0wAZffgKh6Vw9bEqs5Zw6MBxN4Xa7rtCs0ssy65K
+         0jIg==
+X-Gm-Message-State: AOJu0Yzz+46oN4uEulzBWVHao+Xw6TZoSvqtnubB7X74rHCLleU+V70I
+	OswFmxX9ckW/NNDg7i+lRP/jAbnXkCvNT2ebsxrb1orUsyc+mE9zCk8sEfZC0w2PhyP0KBAHrsA
+	TL55kWlqGqfPK3Y0dc3XI09EsNeiWBYw=
+X-Gm-Gg: ASbGncvjc6KA81T1m7WzLwV48lhwFztoirAFr45wKtn4HhwuvdeAoaQAlquDkCVTbo8
+	l1n6gRdjVGDQwAoSY6XpEow9EgFe2cdNvfQlvnJdeQ09znseI+d+zso+k2qyF/Ov6Y5tvwFiqo5
+	adxZAstD1u61KEQse2IOhsBZdhBVgA2+Wb4Daf0kcn
+X-Google-Smtp-Source: AGHT+IG1ezDrPWukiSqlAaH5a1tThBIvdk6x/Yav3XggMlWGFOUgRDHIml3MbYI/xnpkbzDPWjyOueINlL/7YIGXChc=
+X-Received: by 2002:a05:6122:2390:b0:531:2afc:462a with SMTP id
+ 71dfb90a1353d-534580afb84mr3393145e0c.3.1751477696960; Wed, 02 Jul 2025
+ 10:34:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <87bjqebpre.fsf@redhat.com> <20250625104103.140498-1-hi@alyssa.is> <CAP+JOzSRTvywkO4jXHy6U1xhSC6wtbXSZWqWQoB379vKA4M79g@mail.gmail.com>
-In-Reply-To: <CAP+JOzSRTvywkO4jXHy6U1xhSC6wtbXSZWqWQoB379vKA4M79g@mail.gmail.com>
+References: <20250630092117.21728-1-lautrbach@redhat.com> <CAP+JOzQ4AGEmm-rF5NA+2MdkKK-M-wLOZUJF4tZTSLn39eLaUg@mail.gmail.com>
+In-Reply-To: <CAP+JOzQ4AGEmm-rF5NA+2MdkKK-M-wLOZUJF4tZTSLn39eLaUg@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 2 Jul 2025 13:34:16 -0400
-X-Gm-Features: Ac12FXzBFrZMW18M7KIgeyxSDB2t8VuXBxWxnXOL__MVdwsQ_zHgJn9iNIQ7Jag
-Message-ID: <CAP+JOzQKQgQSe5z-FLyqs66+VLxMrW1Yir6JiyvJJsqf70ZRXQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] libsemanage: add missing libaudit private library
-To: Alyssa Ross <hi@alyssa.is>
-Cc: selinux@vger.kernel.org, Petr Lautrbach <lautrbach@redhat.com>, 
-	Nicolas Iooss <nicolas.iooss@m4x.org>, Daniel Burgener <dburgener@linux.microsoft.com>, 
-	Dan Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>, eparis@redhat.com
+Date: Wed, 2 Jul 2025 13:34:45 -0400
+X-Gm-Features: Ac12FXzODV8awlg_Rs-p7074R-4Weg52XX10omZNAVk6Q0_G69OxgYGZCGjpb-M
+Message-ID: <CAP+JOzQCMM1o==P=fknUj7p7QoSAcBmhLo-XT=2OG_tpLuLWvA@mail.gmail.com>
+Subject: Re: [PATCH] sepolicy: use multiprocessing 'fork' method
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 1, 2025 at 11:12=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
-ote:
+On Tue, Jul 1, 2025 at 1:42=E2=80=AFPM James Carter <jwcart2@gmail.com> wro=
+te:
 >
-> On Wed, Jun 25, 2025 at 6:41=E2=80=AFAM Alyssa Ross <hi@alyssa.is> wrote:
+> On Mon, Jun 30, 2025 at 5:34=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.=
+com> wrote:
 > >
-> > libsemanage always uses libaudit functions, so we need to make sure
-> > that consumers of libsemanage.a know to link against libaudit too.
+> > 'fork' was the default starting method in Python before 3.14 and it's
+> > necessary for this code to work correctly
 > >
-> > Fixes: 56d9d20a ("Pull auditing into libsemanage.")
-> > Signed-off-by: Alyssa Ross <hi@alyssa.is>
+> > Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=3D2374569
+> >
+> >     sh-5.2# sepolicy manpage -a -p /builddir/build/BUILD/selinux-policy=
+-41.43-build/BUILDROOT/usr/share/man/man8/ -w -r /builddir/build/BUILD/seli=
+nux-policy-41.43-build/BUILDROOT
+> >     ValueError: No SELinux Policy installed
+> >     Exception ignored while calling deallocator <function Pool.__del__ =
+at 0x7f36f9d333d0>:
+> >     Traceback (most recent call last):
+> >       File "/usr/lib64/python3.14/multiprocessing/pool.py", line 271, i=
+n __del__
+> >         self._change_notifier.put(None)
+> >       File "/usr/lib64/python3.14/multiprocessing/queues.py", line 397,=
+ in put
+> >         self._writer.send_bytes(obj)
+> >       File "/usr/lib64/python3.14/multiprocessing/connection.py", line =
+206, in send_bytes
+> >         self._send_bytes(m[offset:offset + size])
+> >       File "/usr/lib64/python3.14/multiprocessing/connection.py", line =
+444, in _send_bytes
+> >         self._send(header + buf)
+> >       File "/usr/lib64/python3.14/multiprocessing/connection.py", line =
+400, in _send
+> >         n =3D write(self._handle, buf)
+> >     BrokenPipeError: [Errno 32] Broken pipe
+> >
+> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 >
 > Acked-by: James Carter <jwcart2@gmail.com>
+>
 
-These two patches have been merged.
+Merged.
 Thanks,
 Jim
 
->
 > > ---
-> >  libsemanage/src/libsemanage.pc.in | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >  python/sepolicy/sepolicy.py | 5 +++--
+> >  1 file changed, 3 insertions(+), 2 deletions(-)
 > >
-> > diff --git a/libsemanage/src/libsemanage.pc.in b/libsemanage/src/libsem=
-anage.pc.in
-> > index 303f8069..8b7c55a9 100644
-> > --- a/libsemanage/src/libsemanage.pc.in
-> > +++ b/libsemanage/src/libsemanage.pc.in
-> > @@ -9,5 +9,5 @@ Version: @VERSION@
-> >  URL: https://github.com/selinuxproject/selinux/wiki/Releases
-> >  Requires.private: libselinux libsepol
-> >  Libs: -L${libdir} -lsemanage
-> > -Libs.private: -lbz2
-> > +Libs.private: -laudit -lbz2
-> >  Cflags: -I${includedir}
+> > diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
+> > index 82ff6af2bc2d..febb2fc103ed 100755
+> > --- a/python/sepolicy/sepolicy.py
+> > +++ b/python/sepolicy/sepolicy.py
+> > @@ -25,7 +25,7 @@ import os
+> >  import sys
+> >  import selinux
+> >  import sepolicy
+> > -from multiprocessing import Pool
+> > +import multiprocessing
+> >  from sepolicy import get_os_version, get_conditionals, get_conditional=
+s_format_text
+> >  import argparse
+> >  PROGNAME =3D "selinux-python"
+> > @@ -350,7 +350,8 @@ def manpage(args):
 > >
-> > base-commit: 2304becd8154eeab084a7ef31b29048c0a780e84
+> >      manpage_domains =3D set()
+> >      manpage_roles =3D set()
+> > -    p =3D Pool()
+> > +    multiprocessing.set_start_method('fork')
+> > +    p =3D multiprocessing.Pool()
+> >      async_results =3D []
+> >      for domain in test_domains:
+> >          async_results.append(p.apply_async(manpage_work, [domain, path=
+, args.root, args.source_files, args.web]))
 > > --
-> > 2.49.0
+> > 2.50.0
+> >
 > >
