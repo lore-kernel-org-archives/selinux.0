@@ -1,157 +1,113 @@
-Received: from mail-vs1-f46.google.com (mail-vs1-f46.google.com [209.85.217.46])
+Received: from mail-vk1-f180.google.com (mail-vk1-f180.google.com [209.85.221.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F38D21D3EC
-	for <selinux@vger.kernel.org>; Wed,  2 Jul 2025 17:33:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F3602F50B2
+	for <selinux@vger.kernel.org>; Wed,  2 Jul 2025 17:34:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751477638; cv=none; b=iBcvMngafsXXmPi/UDGZ6WfbOUHbXmO3DPLZ+oRuPSoLQU7FUaR3D5Ayqvlw49l08rnHWWim8CgJtcT+N9/aMVlFlcXD6cqdyrEgnhumOg4iTn5usTiYjeEOkhCQb/X9X8aiTgPSWkBIBsTFFQYIpEEd/tDXZmQaQrmu19NnfNA=
+	t=1751477670; cv=none; b=Oly7JlT7riQAqBV0ZS/aqksqVvJ/uQGNLQkzOuykXce5j578AewEAhC7jh7OxGuUrMsbnjsYbjKL6vF7WlEQq7a9XIkrlgjk34+F14sjRdnKP0qhxzYtP2HqycdxMvH45X5Ci2MOjbqTD2xicqNPHRwsmkCk/yfYy/68msC2Cis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751477638; c=relaxed/simple;
-	bh=Q7gzidql0CCWHDurQnYS+fdObl1ecxJOxr9/ZwsD6fI=;
+	s=arc-20240116; t=1751477670; c=relaxed/simple;
+	bh=6WQseCeuU8zZitsRp0ptMAYaqODme5j0DPh4DFMZov0=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=f2+lxZjetaH3RjDWJQI3tz4cgMK4f+siJsoy4ibsMB+OOAt5mvZOfXwfGqZcwG3Dj4PqNkTXZEE9DoWwZUoUopg6MAGqIUp0ITPgq9HaubeRLt1wBWdpoGGOGDb0mXhZBJ0V3fpIM9OfYXePnAtkNF8+kUR1O/9nbRKhfBLcQOk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DuiI8HhC; arc=none smtp.client-ip=209.85.217.46
+	 To:Cc:Content-Type; b=CSpudvDCnvoWK3dxqlM5lW6T4XOGishH81xXRh/+OUEW/4WDa+S6CZSzJeLsH7m15zS50NRTx3pym6UFD3ENERce9Jj8pbAcIzsHlWLe01riTfeZy+a7Y+BDcne/0QuM6NnzNtYj2cbILZ6U05ZsPX3pse3vHBLBM57uh4XLM0A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MO2Vt2su; arc=none smtp.client-ip=209.85.221.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DuiI8HhC"
-Received: by mail-vs1-f46.google.com with SMTP id ada2fe7eead31-4e7fc3309f2so1725207137.2
-        for <selinux@vger.kernel.org>; Wed, 02 Jul 2025 10:33:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MO2Vt2su"
+Received: by mail-vk1-f180.google.com with SMTP id 71dfb90a1353d-5290be1aedcso73951e0c.1
+        for <selinux@vger.kernel.org>; Wed, 02 Jul 2025 10:34:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751477633; x=1752082433; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1751477668; x=1752082468; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=evDrdmlxeV5kfYJK5Fdv79rMwD9uWA92b7RLIiGI9N0=;
-        b=DuiI8HhCNgO5b/UrV5qtLeLIKOh/EXYjlLSgBZbrfaEOew69srOZncrSgH33lSDg3b
-         xkwMghJYLsXtXFA2hQZUijf+YS8rj+cKk9QabypRp1+M7QgoHpVx8MO9VqeBdmuA0B/V
-         VBXJFpMJWUnqpTGIYa6BryP3FdTOAvhfvs750O9hgEwt0EHZ6jE3tvqbDUnkvBNKeme8
-         Axskr0pTJq17pYtsn258de6VpjiQklGvR0DmCuV1ZKNNWGY/Y9jM7arPEsfB/WuuaNby
-         g2eXBV+Chu/7kAwuChsT6MQOTUp26Bh0kUwNNzDnXLbDzbZBKp6t4eEE6xvS0YxGSX8b
-         Rzew==
+        bh=BYzUSbHeWM3StHYhLSgmUVgp81mZQkJ4YHtsfLfpovk=;
+        b=MO2Vt2suU5Zfjf4m2NcR7Hk7HOAModVtbTpXYqEOLlxtCchWNpC1MkMxUHQFNf4ZhF
+         3BPtPRN8KsiOhmT05CLBLNLRP9Qhh4P5R/iTakEf4lEXilo83u1zK9EWhSecHmD9jO+W
+         0c9RP2ENctO8TDcSd2KE9XNlhBbaM4gFQdb6HAhpM5Qe0vbDhhTVDG5n3spbDWCITxUe
+         E1x1+6KGfWLjQlI335pVCSSDvfaq9eERd9mkCwSQlPbUGC6fIe0XgnotzRQ1oHLY3ubg
+         AbPKQBbAJLg75tWLS5ZNZx9n8vD4eoCUH9u1tyExnhS3UHtL9NG9CtZRC6pBjaqAFb02
+         Q69g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751477633; x=1752082433;
+        d=1e100.net; s=20230601; t=1751477668; x=1752082468;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=evDrdmlxeV5kfYJK5Fdv79rMwD9uWA92b7RLIiGI9N0=;
-        b=MYKrPpUa0AAV6BT0nAXJqrjifI7fhHl4c7Udw2Em3thLkHCxtoiH9OwsnTa2EGRm7u
-         I/b2vMjNo1FLoMPwcHbS+IDCRzlJGxmRBUUBCd+MybdRjqPbn0m+jSrJ3elkxqcGlkoZ
-         V451IeU63L3zoOF5M+/eaI6fP0I9EHQVgpfGz/9uNQehdoR8LJq/N8Xqqfh5MwhD7Ysg
-         D6Yh0nT9S1t9p+U8/mvhfGZmMcVys5tUEWvWmPh6A/052NpchQSM9UQun5vtLnQ/Ow7O
-         wigYkc1uxj0hfIBtc5NLMmCPvKgbSLvWqgRr6mPsMVUkf+E2hvG+3KTe8Bn+ou7EEt6D
-         1KZw==
-X-Forwarded-Encrypted: i=1; AJvYcCVyId/ySdWQNsRU6plHKiwyI8EY8RNYNDukRPtF7JiGPtfadrFOZ4v6L12UrVa2m4yjOG8wbsKM@vger.kernel.org
-X-Gm-Message-State: AOJu0YwCUHMO+/mxBOI7yUTfrC1cZfSqlWnzN/CR0oNy+JSUEd50Mnnn
-	rfSPFZYl/QcLYrRQZMun95aMIsc+SWm5lJxLp40Y10RlMDpjOrhDpIgRrJ5lHFsTJd5JR62sIZO
-	EYMb+632SrPix/GF45E6DORAADTaD1Ac=
-X-Gm-Gg: ASbGncuG70zF0qCM1X/w9Goux7kapZciwE6sHnzm5aZGv1hEfp5rcd2U/laxcmkNiiB
-	+Vrz1Xnet+nfAWAnBjXbIWYleZxQUcBGb+o/pczIAga+AIjC7ri8bEtzKMmQypkv6g/1fvIKLRn
-	nqlFwWUUVVptDybX2SGlKdccSYogeqt1uDVfU6+4vG
-X-Google-Smtp-Source: AGHT+IFGpTj4RZMTMyjHz1A3dIhMzhyn1wL4amZCTewjgAl+7UXhzYypUOQz0KatFO84hAp89xacL4qalffSKXi9oXA=
-X-Received: by 2002:a05:6102:3051:b0:4bb:eb4a:f9ec with SMTP id
- ada2fe7eead31-4f1612add72mr2369437137.16.1751477633322; Wed, 02 Jul 2025
- 10:33:53 -0700 (PDT)
+        bh=BYzUSbHeWM3StHYhLSgmUVgp81mZQkJ4YHtsfLfpovk=;
+        b=QcZNgQ80WbCYlz8CWmll9EvOY0KPtpHl4XYB+UcejA3ddrNmmt+y3hGg2NrZd4tOX2
+         Xz58QqGgsjQ2iD0NdBQVGUtY+ert2w+Yiv3pCZ5U1dQAvAftwmi/eKJOvOtcFT9x2yI/
+         SA41opoat3Mxg1DIHVUj3VnsRpZyAL3RQr+MNpsAGOKskgcu3m2FKDkWS5qFJsky3hvS
+         5Tns7ci0Dzs3UzVnTZQ8ekSzTzqOD2fuQitAMABIXr3yOHywC720dGZEbmuchTL71HH1
+         ene4LChSdOOLnfzaeOjNnfZ5edn69ue26ELegjwx+wUcsittThtwH+0tppevZ1YgS4Bg
+         GqXw==
+X-Gm-Message-State: AOJu0YxzbMTUdmWLpWLuHizfOthxa1gqnZEqnxz2g5OIAlmNZ9IHRvhA
+	04px2muQv/qlNtGIxzRPHcvnjmSqAuxTEtTIEDorshv1apNye94Qaf/ccsXz0K7FR640rZUjpCF
+	QlXj9lsPLsezElp44SbFo7KlBkloVJrUKZg==
+X-Gm-Gg: ASbGncuzTPf/TwuME18u9H8Fzkp79nN49Vux0KBTKh/jOx3A8N0SliYWQBAR25wYOWz
+	TwQqBQMebaDmoP6qmIyaX7V5LzXAkCKCxdsoXLsZ3mdd2Ns0Knpu85Q7i62GaMleRjfleq8TqoX
+	v95QTW2rPm0n8Mq2m3AF0yWEtSxdh1bRh4Q7MVAyqn
+X-Google-Smtp-Source: AGHT+IH0fUJda6A+esQhb6T/0v7dNASID99WUqEXbLf9f+kUOoD7NtmomXs5teyZlm6sZ5eSmfIu5aoByu1HZlwTS1M=
+X-Received: by 2002:a05:6122:3289:b0:531:873b:dbb5 with SMTP id
+ 71dfb90a1353d-53465fd253emr530826e0c.3.1751477667978; Wed, 02 Jul 2025
+ 10:34:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250611070248.2669186-1-tweek@google.com> <CAP+JOzQbrL94Cow5L+SaUhCJNAA_eUu_pkO=VkP1vUfuUQs+ew@mail.gmail.com>
-In-Reply-To: <CAP+JOzQbrL94Cow5L+SaUhCJNAA_eUu_pkO=VkP1vUfuUQs+ew@mail.gmail.com>
+References: <87bjqebpre.fsf@redhat.com> <20250625104103.140498-1-hi@alyssa.is> <CAP+JOzSRTvywkO4jXHy6U1xhSC6wtbXSZWqWQoB379vKA4M79g@mail.gmail.com>
+In-Reply-To: <CAP+JOzSRTvywkO4jXHy6U1xhSC6wtbXSZWqWQoB379vKA4M79g@mail.gmail.com>
 From: James Carter <jwcart2@gmail.com>
-Date: Wed, 2 Jul 2025 13:33:42 -0400
-X-Gm-Features: Ac12FXxch0L42f2ovpc0lVb31f1zDhvfO2FV5lfF9_VHcOf1Iy_dFxLWCO8fJuI
-Message-ID: <CAP+JOzSUL0J-BtPnLGU5ZSYwBdYj9AZmsOKEQw+LeDmtB3fZBA@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: Document thread caveat for security_compute_av.3
-To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Paul Moore <paul@paul-moore.com>, 
-	Seth Moore <sethmo@google.com>, selinux@vger.kernel.org, 
-	Jeffrey Vander Stoep <jeffv@google.com>, =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Wed, 2 Jul 2025 13:34:16 -0400
+X-Gm-Features: Ac12FXzBFrZMW18M7KIgeyxSDB2t8VuXBxWxnXOL__MVdwsQ_zHgJn9iNIQ7Jag
+Message-ID: <CAP+JOzQKQgQSe5z-FLyqs66+VLxMrW1Yir6JiyvJJsqf70ZRXQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] libsemanage: add missing libaudit private library
+To: Alyssa Ross <hi@alyssa.is>
+Cc: selinux@vger.kernel.org, Petr Lautrbach <lautrbach@redhat.com>, 
+	Nicolas Iooss <nicolas.iooss@m4x.org>, Daniel Burgener <dburgener@linux.microsoft.com>, 
+	Dan Walsh <dwalsh@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>, eparis@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jun 24, 2025 at 11:10=E2=80=AFAM James Carter <jwcart2@gmail.com> w=
-rote:
+On Tue, Jul 1, 2025 at 11:12=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
+ote:
 >
-> On Wed, Jun 11, 2025 at 3:04=E2=80=AFAM Thi=C3=A9baud Weksteen <tweek@goo=
-gle.com> wrote:
+> On Wed, Jun 25, 2025 at 6:41=E2=80=AFAM Alyssa Ross <hi@alyssa.is> wrote:
 > >
-> > Move a similar paragraph for selinux_status_open.3 to a CAVEATS section=
-.
+> > libsemanage always uses libaudit functions, so we need to make sure
+> > that consumers of libsemanage.a know to link against libaudit too.
 > >
-> > See discussion at https://github.com/SELinuxProject/selinux/issues/287
-> >
-> > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> > Fixes: 56d9d20a ("Pull auditing into libsemanage.")
+> > Signed-off-by: Alyssa Ross <hi@alyssa.is>
 >
 > Acked-by: James Carter <jwcart2@gmail.com>
 
-Merged.
+These two patches have been merged.
 Thanks,
 Jim
 
 >
 > > ---
-> >  libselinux/man/man3/security_compute_av.3 | 5 +++++
-> >  libselinux/man/man3/selinux_status_open.3 | 9 +++++----
-> >  2 files changed, 10 insertions(+), 4 deletions(-)
+> >  libsemanage/src/libsemanage.pc.in | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
 > >
-> > diff --git a/libselinux/man/man3/security_compute_av.3 b/libselinux/man=
-/man3/security_compute_av.3
-> > index 6c82eca5..af8797b5 100644
-> > --- a/libselinux/man/man3/security_compute_av.3
-> > +++ b/libselinux/man/man3/security_compute_av.3
-> > @@ -181,6 +181,11 @@ function.
-> >  .SH "RETURN VALUE"
-> >  Returns zero on success or \-1 on error.
-> >  .
-> > +.SH "CAVEATS"
-> > +.sp
-> > +These functions are not thread-safe, you have to protect them from
-> > +concurrent calls using exclusive locks when multiple threads are execu=
-ting.
-> > +.
-> >  .SH "SEE ALSO"
-> >  .BR string_to_security_class (3),
-> >  .BR string_to_av_perm (3),
-> > diff --git a/libselinux/man/man3/selinux_status_open.3 b/libselinux/man=
-/man3/selinux_status_open.3
-> > index 5c9da2f6..5592487f 100644
-> > --- a/libselinux/man/man3/selinux_status_open.3
-> > +++ b/libselinux/man/man3/selinux_status_open.3
-> > @@ -82,10 +82,6 @@ Thus, don't use this value to know actual times of p=
-olicy reloaded.
-> >  .BR selinux_status_deny_unknown ()
-> >  returns 0 if SELinux treats policy queries on undefined object classes=
- or
-> >  permissions as being allowed, 1 if such queries are denied, or \-1 on =
-error.
-> > -.sp
-> > -Also note that these interfaces are not thread-safe, so you have to pr=
-otect
-> > -them from concurrent calls using exclusive locks when multiple threads=
- are
-> > -performing.
-> >  .
-> >  .SH "RETURN VALUE"
-> >  .BR selinux_status_open ()
-> > @@ -96,6 +92,11 @@ On error, \-1 shall be returned.
-> >  Any other functions with a return value shall return its characteristi=
-c
-> >  value as described above, or \-1 on errors.
-> >  .
-> > +.SH "CAVEATS"
-> > +.sp
-> > +These functions are not thread-safe, you have to protect them from
-> > +concurrent calls using exclusive locks when multiple threads are execu=
-ting.
-> > +.
-> >  .SH "SEE ALSO"
-> >  .ad l
-> >  .nh
+> > diff --git a/libsemanage/src/libsemanage.pc.in b/libsemanage/src/libsem=
+anage.pc.in
+> > index 303f8069..8b7c55a9 100644
+> > --- a/libsemanage/src/libsemanage.pc.in
+> > +++ b/libsemanage/src/libsemanage.pc.in
+> > @@ -9,5 +9,5 @@ Version: @VERSION@
+> >  URL: https://github.com/selinuxproject/selinux/wiki/Releases
+> >  Requires.private: libselinux libsepol
+> >  Libs: -L${libdir} -lsemanage
+> > -Libs.private: -lbz2
+> > +Libs.private: -laudit -lbz2
+> >  Cflags: -I${includedir}
+> >
+> > base-commit: 2304becd8154eeab084a7ef31b29048c0a780e84
 > > --
-> > 2.50.0.rc0.642.g800a2b2222-goog
-> >
+> > 2.49.0
 > >
