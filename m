@@ -1,112 +1,129 @@
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 658862E7BBE
-	for <selinux@vger.kernel.org>; Thu,  3 Jul 2025 14:36:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66709239E6B;
+	Thu,  3 Jul 2025 22:35:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751553361; cv=none; b=MdrWuBQQ9H6yVCXKOii9NuhJbPbkFZ8UbqzB+g5qX7v6/wLSjZs4AOZQ7AjHVblTXlsqS406+ELiP6q/1TcIUKku081xpg5gHhL0BLSg7yR9iXOlJOZ6A/liyG/ZkfoS+vR63NYQ6iFWZk3xgLnGyJGXZp2QhbzjHY3YgRP6gow=
+	t=1751582150; cv=none; b=otcSxaGVtAQZj+Mfl7zjNLsIqmVBn416EUXTQmlee7EgoTsNvsZfHR96L/zfwBguHq8Yx85SASgF5obdbxs4poTkNGbG7ypfw6zBAfLvktlJyXKLlhhQMfckf3pRvz7Mut4PSTIs8TVwI4WApGyxC1JG/BRdp1iCAQoCt9orj8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751553361; c=relaxed/simple;
-	bh=EpLuuakZ8l/T8DilPuITsFryqEd57MFOu9vbGX1LxMk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=eAY0Pse3cQukHcLwQ71sUKCKf42UeoW8WXyme2FMPgtx5XWdhRI2nEUSvCxAi0/WXE1ZwAo4PY5aFEMnXInMQdyEbQjptTkL3OCB8DLo0o1VDHDeDXf+UfFem/JMtYBja6gUirFiGwn6QHQRHyEzD1tJDp/q2RAf6Acwy0hT+yc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=W25ntPiK; arc=none smtp.client-ip=209.85.219.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1751582150; c=relaxed/simple;
+	bh=AlJk2xQunl62/+VSHOBeCHmjXQob70EjT8VDdy6SYyU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=U4aWMsPsuGkDfCwYF3CJHE+O0bbnpyiXRnY0IgKPLP2qfeIcx4vcvD2JtiPnYrFHrzbhew2sdOIVqyu8PGq96PU55U9vmkt7/wPLWVAE3vQKL11cmEMc+J7PqxJshxo9VP4DnUgeLPJjKSHODyY684B+XwJCD+Ye4Q2zhmNmz/w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oeaLb3kn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W25ntPiK"
-Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-6ecf99dd567so78431366d6.0
-        for <selinux@vger.kernel.org>; Thu, 03 Jul 2025 07:36:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751553359; x=1752158159; darn=vger.kernel.org;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JtUcqUqlMxdRFmCIwA0SYFvvOLYalLhDKFAoHv85RgY=;
-        b=W25ntPiKeAvPUsrJaUOxq/Ev/hjlBKrPFZtZveiFkUYt87Ola9l5mzIVZnyVjv3kvC
-         DVdvczuBK8dr5lIoVDC9vPzIRbpeLcmMFqslnTgt3mfAV11G5tc0CDjMdLM+nk3oSNu5
-         lzDH3dIgTE3PLKHkKQfmHl3xtLRcshQejaOYXiYT7oOamcVD2Kn6egzOLAXnjEKhz3yz
-         K+i3KgFaYg1jdkBDHoizjSIlhmcn926Q5NEMJXiBA4AuQqILMzxRzivvHDhXjRLBiEN4
-         FGgxnYw3k2ByzGdh78G8RQIgsPpiFBC9V3NAb0GG6nAn0bcuY95xvZAV/0u8pbpaz+qF
-         EfSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751553359; x=1752158159;
-        h=content-transfer-encoding:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JtUcqUqlMxdRFmCIwA0SYFvvOLYalLhDKFAoHv85RgY=;
-        b=SZs7ychhG2U1Yqs7XQu91rmOANhDEkIr0KmMXUzFY2eQadPkB+aHLrMBi6LfjSKsGv
-         tlFjfhKIkgcp4//XBfL0G3QAlgjTtpPM4Xa9frJ00JJYcRaG6mYN/1c3DL2/AbnaqasX
-         RJVvNMFwueP1Zwi/ZqYh5E6Jin6LAp5PYM9576mQKwV5mdTNgFX6NXgPEn2FyvYh6HCs
-         Vss/CrJWYlNwwpPv+tr6cBwQcXkNt66cTRE6Z/jrR2Xqx76ahi5O82S7fPuNmGQASkBh
-         pnLniPMBPUhowX7nu2bR1GcJud/R+cwWsImawBEn5NzhNAyCd1/xkTvfo3AKBEJfDrbI
-         VQ0Q==
-X-Gm-Message-State: AOJu0Yza6w3P9x8suIbloAPOkHyvgKY3cmcO7Jnk88guTPGEvnWAa+iM
-	9TlbK7iaW71QvJGBNoH0oTHp6SWXKG3LHDIHvIjp1ycEJ2UNkUM7Z/JauBCpyz6cozdW9hfqHuM
-	IXyCTN4ozRCukRim0FJMdJCWeETslbJIfmA==
-X-Gm-Gg: ASbGncuOR24q+9MwIC7fLN5iAK3IHU3v+6evF4ksCpiA1VJgoC6YQcIF6mNdZo+EXfO
-	C1U5PAstu6lDebNtxcUAqm5+PU+9ZDj1dXOjRd8MZuXRgUdKVDVuZgMH2GPo6Oovtoyk+wBPIRu
-	MNTc58k7Je0A5t9LFDOWV4m7WBxNpYKIxziiNzLFHN
-X-Google-Smtp-Source: AGHT+IH3WQXoaVoL+kkwz2+aOhSVBNXjw8175k6NkXMCFMUBWRe8VW6j5ld7Mw4v5AUnk9p0v3Y0licTFA/y7b1opwk=
-X-Received: by 2002:a05:620a:1d0a:b0:7d4:3bb4:3335 with SMTP id
- af79cd13be357-7d5c470f99amr843343985a.11.1751553359136; Thu, 03 Jul 2025
- 07:35:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oeaLb3kn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D785C4CEE3;
+	Thu,  3 Jul 2025 22:35:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1751582150;
+	bh=AlJk2xQunl62/+VSHOBeCHmjXQob70EjT8VDdy6SYyU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=oeaLb3kn+WHfZRnrdLxOLSD/6uJyDJUkSuZRSJF7uUrUz5MYOOBey3B4sAhmUx8YU
+	 FvNvLp8hpODDXoDg2TbNgdW95pg+nerBvKl3JujNgWn/sE4k8xXAjBmLvPeMmEX6cL
+	 /vNlU4yKBhkzzsCroEDOH0poaKFGjVDlBSIz36866iQ5UEN/d+Ojgd52WBsgP6EJR0
+	 v8/KhooaC1xWsWo1rooyhDokq5+Y4VbZSlZWdpS9lrWnquXLElQp1W9RAhNP5zY7qn
+	 wR3sOHGJ8eEfH5yoPRC8YZSUN/rg8LZSSGJ19zLhfASR5X/r7+6ZDR12gzUZcgj4pR
+	 XDERRPCfKGoBA==
+Date: Thu, 3 Jul 2025 15:35:49 -0700
+From: "Darrick J. Wong" <djwong@kernel.org>
+To: Christian Brauner <brauner@kernel.org>
+Cc: Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>,
+	Andrey Albershteyn <aalbersh@redhat.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Casey Schaufler <casey@schaufler-ca.com>,
+	Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
+	Paul Moore <paul@paul-moore.com>, linux-api@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-xfs@vger.kernel.org, selinux@vger.kernel.org,
+	Andrey Albershteyn <aalbersh@kernel.org>
+Subject: Re: [PATCH v6 6/6] fs: introduce file_getattr and file_setattr
+ syscalls
+Message-ID: <20250703223549.GA2672029@frogsfrogsfrogs>
+References: <20250630-xattrat-syscall-v6-0-c4e3bc35227b@kernel.org>
+ <20250630-xattrat-syscall-v6-6-c4e3bc35227b@kernel.org>
+ <20250701184317.GQ10009@frogsfrogsfrogs>
+ <20250702-stagnation-dackel-294bb4cd9f3d@brauner>
+ <CAOQ4uximwjYabeO=-ktMtnzMsx6KXBs=pUsgNno=_qgpQnpHCA@mail.gmail.com>
+ <20250702183750.GW10009@frogsfrogsfrogs>
+ <20250703-restlaufzeit-baurecht-9ed44552b481@brauner>
+ <CAOQ4uxjouOA+RkiVQ8H11nNVcsi24qOujruqKgfajOCKP1SMpQ@mail.gmail.com>
+ <20250703-haufen-problemlos-c2569d208bd8@brauner>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250701121353.259016-1-jwcart2@gmail.com>
-In-Reply-To: <20250701121353.259016-1-jwcart2@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Thu, 3 Jul 2025 10:35:48 -0400
-X-Gm-Features: Ac12FXxo2tTSvgsESkC6fBMbUHQpa5Q56JZ-n0MXzGdaFX4yMW8P0qdFHeeXCfI
-Message-ID: <CAP+JOzS-2CCwzm8WLB6S4ZOot_xnpCuw31E_qDz=P5E6vrYG5g@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Expand class-permissions in deny rules
-To: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250703-haufen-problemlos-c2569d208bd8@brauner>
 
-On Tue, Jul 1, 2025 at 10:20=E2=80=AFAM James Carter <jwcart2@gmail.com> wr=
-ote:
->
-> The classperms list of deny rules is not being expanded. This causes
-> an invalid read if "all" is used in the permissions.
->
-> Evaluate the classperms list of deny rules.
->
-> Reported-by: oss-fuzz (issue 398075935)
-> Signed-off-by: James Carter <jwcart2@gmail.com>
+On Thu, Jul 03, 2025 at 10:46:30AM +0200, Christian Brauner wrote:
+> On Thu, Jul 03, 2025 at 10:42:27AM +0200, Amir Goldstein wrote:
+> > On Thu, Jul 3, 2025 at 10:28 AM Christian Brauner <brauner@kernel.org> wrote:
+> > >
+> > > On Wed, Jul 02, 2025 at 11:37:50AM -0700, Darrick J. Wong wrote:
+> > > > On Wed, Jul 02, 2025 at 03:43:28PM +0200, Amir Goldstein wrote:
+> > > > > On Wed, Jul 2, 2025 at 2:40 PM Christian Brauner <brauner@kernel.org> wrote:
+> > > > > >
+> > > > > > > Er... "fsx_fileattr" is the struct that the system call uses?
+> > > > > > >
+> > > > > > > That's a little confusing considering that xfs already has a
+> > > > > > > xfs_fill_fsxattr function that actually fills a struct fileattr.
+> > > > > > > That could be renamed xfs_fill_fileattr.
+> > > > > > >
+> > > > > > > I dunno.  There's a part of me that would really rather that the
+> > > > > > > file_getattr and file_setattr syscalls operate on a struct file_attr.
+> > > > > >
+> > > > > > Agreed, I'm pretty sure I suggested this during an earlier review. Fits
+> > > > > > in line with struct mount_attr and others. Fwiw, struct fileattr (the
+> > > > > > kernel internal thing) should've really been struct file_kattr or struct
+> > > > > > kernel_file_attr. This is a common pattern now:
+> > > > > >
+> > > > > > struct mount_attr vs struct mount_kattr
+> > > > > >
+> > > > > > struct clone_args vs struct kernel_clone_kargs
+> > > > > >
+> > > > > > etc.
+> > > > > >file_attr
+> > > > >
+> > > > > I can see the allure, but we have a long history here with fsxattr,
+> > > > > so I think it serves the users better to reference this history with
+> > > > > fsxattr64.
+> > > >
+> > > > <shrug> XFS has a long history with 'struct fsxattr' (the structure you
+> > > > passed to XFS_IOC_FSGETXATTR) but the rest of the kernel needn't be so
+> > > > fixated upon the historical name.  ext4/f2fs/overlay afaict are just
+> > > > going along for the ride.
+> > > >
+> > > > IOWs I like brauner's struct file_attr and struct file_kattr
+> > > > suggestions.
+> > > >
+> > > > > That, and also, avoid the churn of s/fileattr/file_kattr/
+> > > > > If you want to do this renaming, please do it in the same PR
+> > > > > because I don't like the idea of having both file_attr and fileattr
+> > > > > in the tree for an unknown period.
+> > > >
+> > > > But yeah, that ought to be a treewide change done at the same time.
+> > >
+> > > Why do you all hate me? ;)
+> > > See the appended patch.
+> > 
+> > This looks obviously fine, but I wonder how much conflicts that would
+> > cause in linux-next?
+> > It may just be small enough to get by.
+> 
+> With such changes that's always a possibility but really I'll just
+> provide a branch with the resolutions for Linus to pull.
 
-Seeing no objections, I have merged this.
-Jim
+<nod> That looks good to me. :)
 
-> ---
->  libsepol/cil/src/cil_post.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
->
-> diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-> index 70e5b734..2b6dad73 100644
-> --- a/libsepol/cil/src/cil_post.c
-> +++ b/libsepol/cil/src/cil_post.c
-> @@ -2265,6 +2265,14 @@ static int __cil_post_db_classperms_helper(struct =
-cil_tree_node *node, uint32_t
->                 }
->                 break;
->         }
-> +       case CIL_DENY_RULE: {
-> +               struct cil_deny_rule *deny =3D node->data;
-> +               rc =3D __evaluate_classperms_list(deny->classperms, db);
-> +               if (rc !=3D SEPOL_OK) {
-> +                       goto exit;
-> +               }
-> +               break;
-> +       }
->         case CIL_CONSTRAIN:
->         case CIL_MLSCONSTRAIN: {
->                 struct cil_constrain *constrain =3D node->data;
-> --
-> 2.50.0
->
+At worst you can always ask Linus "Hey I want to do a treewide name
+change of $X to $Y, can I stuff that in at the very end of the merge
+window?" and IME he'll let you do that.  Even better if someone keeps
+him supplied with fresh change patches.
+
+--D
