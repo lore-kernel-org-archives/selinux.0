@@ -1,191 +1,112 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC5413214
-	for <selinux@vger.kernel.org>; Mon,  7 Jul 2025 16:40:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CD0D3214
+	for <selinux@vger.kernel.org>; Mon,  7 Jul 2025 16:41:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751906456; cv=none; b=H9dexyVgKzHw0xpQdhKzxqmL9MflQOTyu8z1QRlCcuAmbE+bidI11L833ISiBp1xR2nACJ+jVqFn8SeZmF2of24SZdQE+Mnh7pMeZ85VKOo3g1qUpFKIOWEnYEHvxtZ9cyvGmpm0OW/kCptQmi4ERHo+pWlfa9VZN3nHq2HXalk=
+	t=1751906505; cv=none; b=igTGOb8SlHfubDN74isoO6fhnZZSas6UBQ1gkHCCV4fykU5Ljxib9yZx1y+N6DuGKY1+S4Wn875lf6LRLnyQGXRBXuDrrKDYDba/M8J7+3upraWUGZAiz6YPQXd2Jdh58sZ6IYD2zFyIYEhHumfEhaIC4g2aK6isWtvX0vvXF/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751906456; c=relaxed/simple;
-	bh=OXSkbx0Q52JylQbUKJIpzk0wHJgdj1gJLoKAdmmIQ7s=;
+	s=arc-20240116; t=1751906505; c=relaxed/simple;
+	bh=PAdUzfWH63hmXlvvvadvUzrx/s3QN/Oar8ZIRvxnw7g=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CdbcdiqLvknczrrL9WFWOnEJ/fjE61M7aJOgoqt5SmoVv/n/iHK5yzcw4CDk54mVNEgUoN82/sDZVfSRKAk8kaoOIoIpfIiiHYGDGWdhODZopFpP/fa3bMMK0UNzKua67+VZtjRQWSPXLteIUKNKSOyJOTmWTDz3qAKhGTalBgk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OXJEKPBQ; arc=none smtp.client-ip=209.85.216.44
+	 To:Cc:Content-Type; b=GNdKd1BsJYmbtFUuOYy1kkX4d6auGa7R2N5c33oWZKxos19UW6Ftv6HRxKP/l0iIt94QjBhUnzyyq0TP5ixAImN+XjuplAksYwHy7P0JyUtSIorylMJwEPhc2e39ZqeMmtYugmf5kYZONWQZjX+hl8wFlGL9mM06bc27TwrVhM0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YeUTl9iF; arc=none smtp.client-ip=209.85.210.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OXJEKPBQ"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-313a001d781so2741071a91.3
-        for <selinux@vger.kernel.org>; Mon, 07 Jul 2025 09:40:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YeUTl9iF"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-748d982e97cso3069557b3a.1
+        for <selinux@vger.kernel.org>; Mon, 07 Jul 2025 09:41:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1751906454; x=1752511254; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1751906503; x=1752511303; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=fZ1nVspLzJGTVpIFbfrvE6bgiLLtU5bDt//S4QESNp0=;
-        b=OXJEKPBQyUcjq/x9KQ8S/4dnnj5BSRW4E0+Q8puM61R2MYqOAV7/wBhBClPDqVw/p9
-         uB9a/JBkYLof6G79VrL0AqFDIzELvg4BcgVk9vQ5ISy/5DGE7W6b/QWPOcefGCDCYqs3
-         mfIfYMWJ4TgaLWTr26GD7qovNHkF/q3gzCoQVuRRjSxWKO5XZqjaCmjclwvOwmecRlbB
-         ChjXr0m05UAf633wAZVYCpmpWYQEl/pXmEDVOWZC2DBllvfPft3+UWrGotLJsLGnUmKQ
-         J5x94YcmfQIAS3y38D3895udmvmOjl2S4Cla55PqkHk+fuwU9V9Jzl8pI4WdFrj4Whnr
-         Ur9Q==
+        bh=AuB++z/FMm4sFCesTK/WVVNHfEEgdYDM4tPby9Mg+Gc=;
+        b=YeUTl9iFiYq4un0YF61X2UxqsLxZ2rLY9VlkY7DrG3CGT4D6MUnzjb9O0kh0jc254K
+         4o377YyzyGv0ndwVOeYr2gVFspz2w5/+o8ZkgXARBGFH3UZXCQOh2bO8pfE65FgP9Rm8
+         fWHDMsdydKmmcquMLA8sR1UvWZKgqOK+xlB+RW19u5nbNc8hOeqeOwNrvQlA7GoRsnRP
+         2tBhJ9gtvY42SxvNrFDWmzJOo8nxy69xk16po894DAUwpR+vXZqhAFDfiDWr9rze5qba
+         lU+duKzD8F3dhW1ywp1gbLm/mt9QM9prgG3Ip5azWkB5j4AZ8SOrJG8bZcYnYes0Mq7r
+         xQ7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1751906454; x=1752511254;
+        d=1e100.net; s=20230601; t=1751906503; x=1752511303;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=fZ1nVspLzJGTVpIFbfrvE6bgiLLtU5bDt//S4QESNp0=;
-        b=ZLxt/2yhrT0ZVTL6sx5M+k///x4M0YTVRlTYmroMcjjf5ZIilqt0YGjPUSfmTRtMgw
-         eDQnm+2kTHp508js4mjZ0EV5kPhQDmbo99EZdFNpGKXNxA/lCPbDki9oINb7531FqoPz
-         6FdlsgrWeYrJcUxJ+WKONS/SgU6FJEZWhRrWnCgkZrArxe97TurJbFNriJax0cjHhSOl
-         B1wz5L4ruIiyvhF6YEo3ohcmam0XrIR8i+LN50WgHOJmOjCkM2KXpaw5JJdgwOcZ/kOJ
-         eIUIxmhoK40jI1bjzCaBQljBRZo4UOfkYgUjtMDrSrRQdwOai7uz9fFV24FH0a+M3kqM
-         b78w==
-X-Gm-Message-State: AOJu0Yy70N3G0N7OBgahYQU33lJMyks2zKlJntYZhSQMG6U1KrdoqWYF
-	QZ/GWGdfzBh0BIo1jwDqviDWNYQPcV5Mwsga/c5Mly+9JukB7YAS5YePfMuSL+0xQluOE78W+Qb
-	XiBgFnIAlQ8qL25lKIVqto8MmglwSsvq/N+Qe
-X-Gm-Gg: ASbGncuoymvg199IuahfaO8HRIKx1pdGVgcimyXXp9+1T0gxFZ3yhjpDlngirb852lm
-	7I3Pp4gv6Wt1HGNV5TUExgt6NYBHqRlGz6+TwURMOA6rvwF/HNUZfjvnxbccqc8K+whggtZLIWN
-	edtflxZMeOK9hPFsoNR085qyu8Kv8L2HSAbGrK3jTUk4k=
-X-Google-Smtp-Source: AGHT+IHNDNCBayrS/IUqjngB4yEnQN16pY+Ddi81QNUZiPaWi2gaZ5W/IsoMIYD2zz0fHp9eFtZFqhyrb6byFPBW/as=
-X-Received: by 2002:a17:90b:5488:b0:311:2f5:6b1 with SMTP id
- 98e67ed59e1d1-31aac4b9fd4mr14597631a91.22.1751906453972; Mon, 07 Jul 2025
- 09:40:53 -0700 (PDT)
+        bh=AuB++z/FMm4sFCesTK/WVVNHfEEgdYDM4tPby9Mg+Gc=;
+        b=I/UVWhqaUUXUJGhhwOqpZeetEi77MvmO13aq4Z4+edSy1T4Kz/e8ukD7r+ZYhXVQug
+         9/VZIMZAb1jgxK9rGfJa6hhrQbt2oT/kW/HnefVONZfYK7WOVd/vLtGYOMjpI4jSiNjt
+         FB7k+Iw6U15F6Qz54qIZkOomRK+pNvl6DIHUgw3Pl4PiB3zoTL1FSvauo1pRE5Umw/8J
+         EYHChhO7Wv9zOgsrV/Tx9QgJVN3rhdhxLfOWZKn/Rp8zW5Cu+ojoFiBSbydjLeGP0f52
+         09pnwACnax43DUnmHXZHssXQkyyvTdEkfvBYZBzzBKkhe3aizhBYNH8qpLpEOqGJZOFX
+         CFdw==
+X-Gm-Message-State: AOJu0YwzzqfonurM5JHWdb4GToMwgrm0/Pl51syb5koeHRybPlLKcg5U
+	3d5n4CqMbGHVmWdV0KuswKkq0XoQS2I6ylP7iCrePZzThDSGc25jm8uga7zXyH58trNFO0n3dDz
+	tFRzLNHKon16Cy2yP5xuEtYcdrLCjbIW+vW0/
+X-Gm-Gg: ASbGnctbg82kw4STgctpPWptqmdavfDyePwl/QSlywpIG7KcUd2rWWSIRQTIgPdkJB1
+	SMAzjPhEXSe6vnzxyX8UKIVvA1BikOHyf+kPBGQJ1KJr4Qxu3X/ddWw4yGAmFRXkhMZFW7LIaE2
+	8UQh6UfpPFzQ2eSxUeAkbXJ2VhxJ9IcsvXkuycIsS0bx4=
+X-Google-Smtp-Source: AGHT+IFw/kMlwmGT06yyiCv1j3yzUJI7YSTVCLEXI/QSyfQ8+np2m7nMydSBLE8fkzJ+BrLQGve6pBq8NwMH6WTg50Y=
+X-Received: by 2002:a05:6a00:218b:b0:747:bd28:1ca1 with SMTP id
+ d2e1a72fcca58-74ce658a5d9mr23000687b3a.3.1751906502663; Mon, 07 Jul 2025
+ 09:41:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250705121424.1221268-1-omosnace@redhat.com> <20250705121424.1221268-4-omosnace@redhat.com>
-In-Reply-To: <20250705121424.1221268-4-omosnace@redhat.com>
+References: <20250705121424.1221268-1-omosnace@redhat.com> <20250705121424.1221268-5-omosnace@redhat.com>
+In-Reply-To: <20250705121424.1221268-5-omosnace@redhat.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 7 Jul 2025 12:40:41 -0400
-X-Gm-Features: Ac12FXxhL1gwEfmTNM-O6ctEd6XHC_SZ0rPxbHKnyDiqx1q7jSvN_R4WVM8JcAg
-Message-ID: <CAEjxPJ7KwOXYV=Od3a9BE1VRSs3t=05Pwr4d2YUqXobvVSQ75Q@mail.gmail.com>
-Subject: Re: [PATCH testsuite 3/6] policy/test_file_load.te: adjust to kexec
- behavior on aarch64
+Date: Mon, 7 Jul 2025 12:41:31 -0400
+X-Gm-Features: Ac12FXwdbLpwUSNhuhaOiNDhdLMi-rzb1wwfUUZba5yrJKd8Lr2VUVyTBlSMGGs
+Message-ID: <CAEjxPJ7wJJnocUvEW-79nsD+aU3mwK-Zpm90Urk-+u4s_-6_rA@mail.gmail.com>
+Subject: Re: [PATCH testsuite 4/6] tests/module_load: run sh instead of bash
 To: Ondrej Mosnacek <omosnace@redhat.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jul 5, 2025 at 8:15=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.com=
+On Sat, Jul 5, 2025 at 8:14=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.com=
 > wrote:
 >
-> On aarch64, kexec writes the image into a temporary file and loads that.
-> Adjust the policy such that it is able to create it and load it as the
-> kernel/initramfs image.
+> This avoids "bash: /root/.bashrc: Permission denied" messages when
+> running the tests.
 >
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  policy/test_file_load.te | 28 ++++++++++++++++++----------
->  1 file changed, 18 insertions(+), 10 deletions(-)
+>  tests/module_load/test | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 >
-> diff --git a/policy/test_file_load.te b/policy/test_file_load.te
-> index 2e3f71d..5e5c85c 100644
-> --- a/policy/test_file_load.te
-> +++ b/policy/test_file_load.te
-> @@ -7,9 +7,19 @@ require {
->      type user_tmp_t;
->  }
+> diff --git a/tests/module_load/test b/tests/module_load/test
+> index 98c5946..b7318ef 100755
+> --- a/tests/module_load/test
+> +++ b/tests/module_load/test
+> @@ -116,12 +116,12 @@ SKIP: {
+>      system("echo 'measure func=3DBPRM_CHECK' > /tmp/test_ima_policy");
 >
-> +attribute testkexecdomain;
-> +
-> +type test_kexec_tmp_file_t;
-> +files_tmp_file(test_kexec_tmp_file_t)
-> +
-> +files_rw_generic_tmp_dir(testkexecdomain)
-> +files_tmp_filetrans(testkexecdomain, test_kexec_tmp_file_t, file)
-> +manage_files_pattern(testkexecdomain, test_kexec_tmp_file_t, test_kexec_=
-tmp_file_t)
-> +
->  ###################### Allow sys kexec_image_load ######################
->  type test_kexec_allow_kexec_image_load_t;
->  testsuite_domain_type(test_kexec_allow_kexec_image_load_t)
-> +typeattribute test_kexec_allow_kexec_image_load_t testkexecdomain;
+>      $result =3D system
+> -qq(runcon -t test_policy_allow_policy_load_t bash -c "echo '/tmp/test_im=
+a_policy' > /sys/kernel/security/ima/policy");
+> +qq(runcon -t test_policy_allow_policy_load_t sh -c "echo '/tmp/test_ima_=
+policy' > /sys/kernel/security/ima/policy");
+>      ok( $result eq 0 );
 >
->  files_search_boot(test_kexec_allow_kexec_image_load_t)
->  fs_rw_inherited_tmpfs_files(test_kexec_allow_kexec_image_load_t)
-> @@ -17,12 +27,12 @@ exec_files_pattern(test_kexec_allow_kexec_image_load_=
-t, kdump_exec_t, kdump_exec
->  domain_entry_file(test_kexec_allow_kexec_image_load_t, kdump_exec_t)
->  allow test_kexec_allow_kexec_image_load_t self:capability sys_boot;
+>      # Deny system { policy_load } - EACCES
+>      $result =3D system
+> -qq(runcon -t test_policy_deny_policy_load_t bash -c "echo '/tmp/test_ima=
+_policy' > /sys/kernel/security/ima/policy 2>&1");
+> +qq(runcon -t test_policy_deny_policy_load_t sh -c "echo '/tmp/test_ima_p=
+olicy' > /sys/kernel/security/ima/policy 2>&1");
+>      ok( $result >> 8 eq 1 );
 >
-> -allow test_kexec_allow_kexec_image_load_t boot_t:system  kexec_image_loa=
-d;
-> -allow test_kexec_allow_kexec_image_load_t tmpfs_t:system kexec_image_loa=
-d;
-> +allow test_kexec_allow_kexec_image_load_t { boot_t tmpfs_t test_kexec_tm=
-p_file_t }:system kexec_image_load;
->
->  ###################### Deny sys kexec_image_load ######################
->  type test_kexec_deny_kexec_image_load_t;
->  testsuite_domain_type(test_kexec_deny_kexec_image_load_t)
-> +typeattribute test_kexec_deny_kexec_image_load_t testkexecdomain;
->
->  files_search_boot(test_kexec_deny_kexec_image_load_t)
->  fs_rw_inherited_tmpfs_files(test_kexec_deny_kexec_image_load_t)
-> @@ -30,34 +40,32 @@ exec_files_pattern(test_kexec_deny_kexec_image_load_t=
-, kdump_exec_t, kdump_exec_
->  domain_entry_file(test_kexec_deny_kexec_image_load_t, kdump_exec_t)
->  allow test_kexec_deny_kexec_image_load_t self:capability sys_boot;
->
-> -neverallow test_kexec_deny_kexec_image_load_t boot_t:system  kexec_image=
-_load;
-> -neverallow test_kexec_deny_kexec_image_load_t tmpfs_t:system kexec_image=
-_load;
-> +neverallow test_kexec_deny_kexec_image_load_t { boot_t tmpfs_t test_kexe=
-c_tmp_file_t }:system kexec_image_load;
->
->  ###################### Allow sys kexec_initramfs_load ##################=
-####
->  type test_kexec_allow_kexec_initramfs_load_t;
->  testsuite_domain_type(test_kexec_allow_kexec_initramfs_load_t)
-> +typeattribute test_kexec_allow_kexec_initramfs_load_t testkexecdomain;
->
->  files_search_boot(test_kexec_allow_kexec_initramfs_load_t)
->  fs_rw_inherited_tmpfs_files(test_kexec_allow_kexec_initramfs_load_t)
->  domain_entry_file(test_kexec_allow_kexec_initramfs_load_t, kdump_exec_t)
->  allow test_kexec_allow_kexec_initramfs_load_t  self:capability sys_boot;
->
-> -allow test_kexec_allow_kexec_initramfs_load_t  boot_t:system  { kexec_im=
-age_load kexec_initramfs_load } ;
-> -allow test_kexec_allow_kexec_initramfs_load_t  tmpfs_t:system { kexec_im=
-age_load kexec_initramfs_load };
-> +allow test_kexec_allow_kexec_initramfs_load_t { boot_t tmpfs_t test_kexe=
-c_tmp_file_t }:system { kexec_image_load kexec_initramfs_load };
->
->  ###################### Deny sys kexec_initramfs_load ###################=
-###
->  type test_kexec_deny_kexec_initramfs_load_t;
->  testsuite_domain_type(test_kexec_deny_kexec_initramfs_load_t)
-> +typeattribute test_kexec_deny_kexec_initramfs_load_t testkexecdomain;
->
->  files_search_boot(test_kexec_deny_kexec_initramfs_load_t)
->  fs_rw_inherited_tmpfs_files(test_kexec_deny_kexec_initramfs_load_t)
->  domain_entry_file(test_kexec_deny_kexec_initramfs_load_t, kdump_exec_t)
-> -allow test_kexec_deny_kexec_initramfs_load_t boot_t:system  kexec_image_=
-load;
-> -allow test_kexec_deny_kexec_initramfs_load_t tmpfs_t:system kexec_image_=
-load;
-> +allow test_kexec_deny_kexec_initramfs_load_t { boot_t tmpfs_t test_kexec=
-_tmp_file_t }:system kexec_image_load;
->  allow test_kexec_deny_kexec_initramfs_load_t self:capability sys_boot;
->
-> -neverallow test_kexec_deny_kexec_initramfs_load_t boot_t:system  kexec_i=
-nitramfs_load;
-> -neverallow test_kexec_deny_kexec_initramfs_load_t tmpfs_t:system kexec_i=
-nitramfs_load;
-> +neverallow test_kexec_deny_kexec_initramfs_load_t { boot_t tmpfs_t test_=
-kexec_tmp_file_t }:system kexec_initramfs_load;
->
->  ###################### Allow sys firmware_load ######################
->  type test_kmodule_allow_firmware_load_t;
+>      system("rm -f /tmp/test_ima_policy");
 > --
 > 2.50.0
 >
