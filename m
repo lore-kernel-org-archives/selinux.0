@@ -1,107 +1,133 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 412DA2BEFEC
-	for <selinux@vger.kernel.org>; Thu, 10 Jul 2025 10:05:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA9A1946F;
+	Thu, 10 Jul 2025 11:46:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752141953; cv=none; b=pjDOC/naMuDGL8SlWB4X7gcCgcc+YAjb/mhnWfsV6ABAeIWG1ikPhetyeWRdRfL/SQmCvVrC+U02dbmXJ8QDKjlOyMoCKKVN+QC4h9J+6cY/rdVhoTwb2idPLGAJ8A7QwDw4IpFk+sTnoPX/1bMDPZb4H0DXhH4UmS040MrGbFc=
+	t=1752148012; cv=none; b=ji8mdKpBBG0aJtQ+7iUEJq3yK9oVhz2+0g1KJT7TDXDbcByiaIjZogJP6480tiRgV0JkprbJLJPbjLG9G0CSrBeO7oMAhtML7JFEICeQSbBCmpuKEdpmYrFVGcjsciwf1SkeiGE1AeVUXJO64g4vEO6rTGVZIaOIVHplenxpzr8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752141953; c=relaxed/simple;
-	bh=NzZnC0gZvRO8/seZ3xZnndeS8ZHLDqAAupHH+SIWEYs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=oiVXijWXlbLzRSmY/8n8nlnvz7bdH9CzpYgicIMlyHqh+CBDo93C0271CCxXlKVGdDbRoI3c0B3PYkEBZKoGo9MRUUIWJ1yd5iN4Gp9+fJge/g9P6bX7fYwmsnjAmswvPLOS24Wuf1+8cqHvHPJ6IhR27tXbZA1Hg9rhz53B9R0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fZUNAEQz; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1752148012; c=relaxed/simple;
+	bh=t/OeAvIh8DyOgjIIocAvYTIOO6EsHiE6fqTQPT+2lQY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BeA+5v6uDYHW/GYQ7pIRaTJ0vy7J27tgju/GkAa6w+SVjhpDZPAdmGRXtorH19xgKuFAvjDVJqq5fYbSrD9LN9SJTZnkYNDjQs41AlMi+oA8c3j/X4NbAdBJrpgM6vGtljLitwUDpFNGSuMPPb0SjwEN6IRAVOtDYASwjy8FFLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kmy2T+mx; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fZUNAEQz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1752141949;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=P5rBqwNJphecBUzvcr/z53rjv3BBjXeCNTAfHcfeEUg=;
-	b=fZUNAEQzHYO+YGP9kHNmJVO6reuAJaciNPxq3tpydrvYTiPogxTJUTLuEEzSbGV4hz4MIe
-	4fZVdvsuRg4Ykyv8pEzGe3weNpNu77ycS3vewhBgjSRytN0kmTjbITVADklALKmn398x+s
-	wNmBrqk2K0xaTWTSfUyA+++WOLEQlRM=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-538-Fhu_x08WO7afywyg_5_wwg-1; Thu, 10 Jul 2025 06:05:47 -0400
-X-MC-Unique: Fhu_x08WO7afywyg_5_wwg-1
-X-Mimecast-MFC-AGG-ID: Fhu_x08WO7afywyg_5_wwg_1752141946
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-313f8835f29so1439229a91.3
-        for <selinux@vger.kernel.org>; Thu, 10 Jul 2025 03:05:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1752141946; x=1752746746;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=P5rBqwNJphecBUzvcr/z53rjv3BBjXeCNTAfHcfeEUg=;
-        b=vqjm/NlPrn7M/Z7cwDO0dvCLOyv3eoA6NMnc8znqwcGg2BRADwkZH32RATVrsUqtg2
-         DMqGNnnf7qAdiDNZBNv28SHWMqZD3TA+Sx5r/2lmZ+Ff+HA/ir8DTLztrwcrA4EHtSFV
-         lFw3ugYmMwP8xWMBShwIVwU/NtaBTGOEAVRGpRn1EJLXkLwfP5ZwNm3dZpvbo9t1ES1J
-         4OHuC+5NoNIGdOE20xwPFBwbQx8T9Zb5/PqCEHYq4j8yye/UYIk5Ry2OAW70Oy44xtyR
-         jhttWkqQZtAWidW0e4dXDYWETQgfKIY4oh4WXAWSQgxpgqtjHxaMKmYinLyA32KhENsx
-         qeWw==
-X-Gm-Message-State: AOJu0YzJ0qA95ADG66lAjKUFAOFpPzeOOEUQaCZAC+VfYbqxg+OjD4P+
-	HQKM/vwGHzaZEOoMaBPpifzX8tDzbna80ct8nT/S0fsD7PZT0NTZwu4hX6GUNUpOfJY5C3/Y7kQ
-	A9mlsCEzQIfjyCmeo+REXf+MWEG7pn1Cvk6F9GPNDnuUzpyzHpTcFbRdsS8aRWLoFVxoQhZLSOQ
-	ESrV7034JpdJc5ISPekCkw4FJT6NaWlrjPlpuK5GJA4A==
-X-Gm-Gg: ASbGncvPTUogRGXdY0pR61e3igyuZrxb+4Fkq4PMi6MPv6l1yughIhJB/v7G3aJoIeJ
-	g4MnHaMGaPNAFfzGb/kWPw88o1qqWRyn/ymrhf/8CLwMy0rkZzLCeth0l9UFzNWMkLx1dt1NK8I
-	oj6vEltf78i51jRvUE/Av470JA6M5Jb0ToDJZaeg==
-X-Received: by 2002:a17:90b:4906:b0:31a:9004:899d with SMTP id 98e67ed59e1d1-31c3f00254emr3103804a91.18.1752141946095;
-        Thu, 10 Jul 2025 03:05:46 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGBZ3JnBQjvEV3K+nn9/4TeRz7VhokxZeg/zaiLK+BWwVtkfpwq2YMSTw/9bvjKD9zwz2QJqWM1+/XIjQnFze0=
-X-Received: by 2002:a17:90b:4906:b0:31a:9004:899d with SMTP id
- 98e67ed59e1d1-31c3f00254emr3103783a91.18.1752141945783; Thu, 10 Jul 2025
- 03:05:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kmy2T+mx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C78A4C4CEE3;
+	Thu, 10 Jul 2025 11:46:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1752148012;
+	bh=t/OeAvIh8DyOgjIIocAvYTIOO6EsHiE6fqTQPT+2lQY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=kmy2T+mxE+7xOOMDTL8TRFHexoTeE0G4VAikvj3fcRgN4jfOqsJtdyjMyzE46/SXt
+	 u3fVlUmIO/B6hi2vHg9m8YC8Bqyvilj+TJVzLDeK7wFYDMBo5MtFtW/EvXYZAF8tn3
+	 w2b6s3ETa3JNlIUg2Wk74516+WI08ZvVDCQVnBxTUg+o/zokk4qZDp7dL2G480vhX9
+	 nZY+InRMFy3JgfTByCWsPrSdorvtM+3Jzy35IC5jLmWWtjSenXTHNTzjNL0UoPJCNW
+	 nBDBboyVOf0dPPH4SRBEmKwamyu1YjdIWZQlzEuZQrxfDxcsVspPgnKBs2rpsxE0k4
+	 m6Mao47ynwhDQ==
+Date: Thu, 10 Jul 2025 13:46:42 +0200
+From: Christian Brauner <brauner@kernel.org>
+To: Song Liu <songliubraving@meta.com>
+Cc: Paul Moore <paul@paul-moore.com>, Al Viro <viro@zeniv.linux.org.uk>, 
+	Song Liu <song@kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, 
+	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+	"linux-security-module@vger.kernel.org" <linux-security-module@vger.kernel.org>, "apparmor@lists.ubuntu.com" <apparmor@lists.ubuntu.com>, 
+	"selinux@vger.kernel.org" <selinux@vger.kernel.org>, 
+	"tomoyo-users_en@lists.sourceforge.net" <tomoyo-users_en@lists.sourceforge.net>, 
+	"tomoyo-users_ja@lists.sourceforge.net" <tomoyo-users_ja@lists.sourceforge.net>, Kernel Team <kernel-team@meta.com>, 
+	"andrii@kernel.org" <andrii@kernel.org>, "eddyz87@gmail.com" <eddyz87@gmail.com>, 
+	"ast@kernel.org" <ast@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, 
+	"martin.lau@linux.dev" <martin.lau@linux.dev>, "jack@suse.cz" <jack@suse.cz>, 
+	"kpsingh@kernel.org" <kpsingh@kernel.org>, "mattbobrowski@google.com" <mattbobrowski@google.com>, 
+	"amir73il@gmail.com" <amir73il@gmail.com>, "repnop@google.com" <repnop@google.com>, 
+	"jlayton@kernel.org" <jlayton@kernel.org>, "josef@toxicpanda.com" <josef@toxicpanda.com>, 
+	"mic@digikod.net" <mic@digikod.net>, "gnoack@google.com" <gnoack@google.com>, 
+	"m@maowtm.org" <m@maowtm.org>, "john.johansen@canonical.com" <john.johansen@canonical.com>, 
+	"john@apparmor.net" <john@apparmor.net>, 
+	"stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>, "omosnace@redhat.com" <omosnace@redhat.com>, 
+	"takedakn@nttdata.co.jp" <takedakn@nttdata.co.jp>, 
+	"penguin-kernel@i-love.sakura.ne.jp" <penguin-kernel@i-love.sakura.ne.jp>, "enlightened@chromium.org" <enlightened@chromium.org>
+Subject: Re: [RFC] vfs: security: Parse dev_name before calling
+ security_sb_mount
+Message-ID: <20250710-roden-hosen-ba7f215706bb@brauner>
+References: <20250708230504.3994335-1-song@kernel.org>
+ <20250709102410.GU1880847@ZenIV>
+ <CAHC9VhSS1O+Cp7UJoJnWNbv-Towia72DitOPH0zmKCa4PBttkw@mail.gmail.com>
+ <1959367A-15AB-4332-B1BC-7BBCCA646636@meta.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250708210748.8782-1-paul@paul-moore.com> <CAFqZXNvDNAtukRPhKFiQmN+koHOevx75qGCK0uE5nWX+afTPqw@mail.gmail.com>
- <CAHC9VhT=BG_3H=JAuJzcWKABM+eHBZYRHjVoeomRnH0OHkR28A@mail.gmail.com>
-In-Reply-To: <CAHC9VhT=BG_3H=JAuJzcWKABM+eHBZYRHjVoeomRnH0OHkR28A@mail.gmail.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Thu, 10 Jul 2025 12:05:34 +0200
-X-Gm-Features: Ac12FXw1rmvX9kgDHdMOroUFEdMIMNvFRjzAiZIcIdBEWxU71PMzlw5JNah9nGk
-Message-ID: <CAFqZXNvxvZO9tOCpxshOLkQy=ogka=ow=njeb9By3MP44HjXWA@mail.gmail.com>
-Subject: Re: [PATCH] policy/test_secretmem.te: add anon_inode perms required
- in Linux v6.16-rc5
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1959367A-15AB-4332-B1BC-7BBCCA646636@meta.com>
 
-On Wed, Jul 9, 2025 at 6:20=E2=80=AFPM Paul Moore <paul@paul-moore.com> wro=
-te:
->
-> On Wed, Jul 9, 2025 at 3:35=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.c=
-om> wrote:
-> >
-> > I'm going to merge the patch with the extra permission dropped, since
-> > it's a minor change. I'm also going to add a Suggested-by for good
-> > measure, as Shivank originally drafted the patch. Thank you for taking
-> > time to formalize and test it!
->
-> A more careful reading of the other thread would have shown that
-> Shivank and I arrived at the same/similar patch independently; the
-> Suggested-by: tag in this case is wrong.  If it was the case that
-> Shivank drafted the patch, you should have contacted him about adding
-> a Signed-off-by: tag since he would have been the original author.
+On Wed, Jul 09, 2025 at 05:06:36PM +0000, Song Liu wrote:
+> Hi Al and Paul, 
+> 
+> Thanks for your comments!
+> 
+> > On Jul 9, 2025, at 8:19 AM, Paul Moore <paul@paul-moore.com> wrote:
+> > 
+> > On Wed, Jul 9, 2025 at 6:24 AM Al Viro <viro@zeniv.linux.org.uk> wrote:
+> >> On Tue, Jul 08, 2025 at 04:05:04PM -0700, Song Liu wrote:
+> >>> security_sb_mount handles multiple types of mounts: new mount, bind
+> >>> mount, etc. When parameter dev_name is a path, it need to be parsed
+> >>> with kern_path.
+> > 
+> > ...
+> > 
+> >> security_sb_mount() is and had always been a mind-boggling trash of an API.
+> >> 
+> >> It makes no sense in terms of operations being requested.  And any questions
+> >> regarding its semantics had been consistently met with blanket "piss off,
+> >> LSM gets to do whatever it wants to do, you are not to question the sanity
+> >> and you are not to request any kind of rules - give us the fucking syscall
+> >> arguments and let us at it".
+> > 
+> > I'm not going to comment on past remarks made by other devs, but I do
+> > want to make it clear that I am interested in making sure we have LSM
+> > hooks which satisfy both the needs of the existing in-tree LSMs while
+> > also presenting a sane API to the kernel subsystems in which they are
+> > placed.  I'm happy to revisit any of our existing LSM hooks to
+> > restructure them to better fit these goals; simply send some patches
+> > and let's discuss them.
+> > 
+> >> Come up with a saner API.  We are done accomodating that idiocy.  The only
+> >> changes you get to make in fs/namespace.c are "here's our better-defined
+> >> hooks, please call <this hook> when you do <that>".
+> 
+> Right now, we have security_sb_mount and security_move_mount, for 
+> syscall “mount” and “move_mount” respectively. This is confusing 
+> because we can also do move mount with syscall “mount”. How about 
+> we create 5 different security hooks:
+> 
+> security_bind_mount
+> security_new_mount
+> security_reconfigure_mount
+> security_remount
+> security_change_type_mount
+> 
+> and remove security_sb_mount. After this, we will have 6 hooks for
+> each type of mount (the 5 above plus security_move_mount).
 
-Apologies, I must have read past that part :/ You're right, I messed
-it up... I guess it's not worth a force push to the main branch, but
-let me know if you'd prefer that.
+I've multiple times pointed out that the current mount security hooks
+aren't working and basically everything in the new mount api is
+unsupervised from an LSM perspective.
 
---=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
+My recommendation is make a list of all the currently supported
+security_*() hooks in the mount code (I certainly don't have them in my
+head). Figure out what each of them allow to mediate effectively and how
+the callchains are related.
 
+Then make a proposal how to replace them with something that a) doesn't
+cause regressions which is probably something that the LSMs care about
+and b) that covers the new mount API sufficiently to be properly
+mediated.
+
+I'll happily review proposals. Fwiw, I'm pretty sure that this is
+something that Mickael is interested in as well.
