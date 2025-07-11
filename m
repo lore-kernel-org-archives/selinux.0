@@ -1,129 +1,110 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5479E253F12;
-	Fri, 11 Jul 2025 09:36:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF87A148827
+	for <selinux@vger.kernel.org>; Fri, 11 Jul 2025 14:33:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752226592; cv=none; b=ORotkoGB9yoOtX+0Gc6/qElvah8/5Py/61nExpXjwcB/fN8jA7ZVHhR3hvVg15IB6HGR+zduL6xPMwGLSjZwlX5xpIvd32+DLSM2yVcp9ZnjQy8BadJkKEa+KlifqZykRToVwWLv5mhdPomETENAWZ/vFnmcTmuW6V6STOTGoDA=
+	t=1752244429; cv=none; b=IC/Gdl16VYDV5mfl1cK6VDbf45uYl4L/R7R+Flbwrl7DeoyhO/0xDQhwILFiwTTqeBEDMrvTtjVQDAcPUdIKj13Lhi3RPSPKuMFPXzVFjHJsd0hfZv6AF1ymtAD7y5t5ysixkExBhQ6Psp8TWX3fuNqwFQ9Rhppro7VbApsmzBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752226592; c=relaxed/simple;
-	bh=wravLw2QyrJLSNCdmXnM24JOPnV05g3lbLl4G+9JMH8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qS7qBFU8pf8uQeqcRle30bMpnHcX4mqwbG5phFs8p00GwjP66+2HeVES4ooOWkUesArvJZTlFgPlGCwPDUwlNQ2AvIk6ZZfES+wqz5+JuHYaorVJelZta8xovKCYs4iWjjLIvUOW/Qbbwi5gHTOyXoZCOM1UgmaLqqkvlpwlaSY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OfDSUfdR; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1752244429; c=relaxed/simple;
+	bh=8EQrLALbXdhrjQ5jVA8+1HZmOzMWYtoNDHLv3pQPKwE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sCThx/TccGJpQSqYhYR7V8g7dWmztFWzT8C7pOlhAbKku5uFzCMkL3wrLQgLh0+jhFCQ0Zj37MP6Cz7MlYm2PbAkXFT38n5opBtE3K1k5qQLIH4rsGyO3tTt96TL9Me4A9h+WKYwgLwcoC+qxUD1wnNwwDirqrrxEi5sJMOppOg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hbzGqCOW; arc=none smtp.client-ip=209.85.215.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OfDSUfdR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6DFAC4CEED;
-	Fri, 11 Jul 2025 09:36:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1752226591;
-	bh=wravLw2QyrJLSNCdmXnM24JOPnV05g3lbLl4G+9JMH8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=OfDSUfdRw476/lz/ONpYwW1LihVsJP6g0T4SmP1iy2bvr6qRewRf+NN6qbBh4loy4
-	 XRACTQsVQQKkeVgPiZ+RWxgjPwc4mFpA7ovzYbzspNEdtIOM16+PsVIznQZuGXTAjO
-	 YZepOneoK/wohc6HXIs4ZC6Dw0BMRD2fZXWkmRYafw+nYnYuohAHbnQyfuMF4JKUzo
-	 b/kZEPC8SbEEm0PHcf5sIEjBTqR4I9EN5tqD8XTVmuUcTUJyvUBSuDhq4FG32/pV4q
-	 Nk1uYNjkE5XN2AF5ImMIUTv0KevWM9wO4dVYjLt97vGrQgXCndA8TJQLrAVNEasasg
-	 H4O1AEKzCaDFg==
-Date: Fri, 11 Jul 2025 11:36:22 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: Song Liu <songliubraving@meta.com>
-Cc: Paul Moore <paul@paul-moore.com>, Al Viro <viro@zeniv.linux.org.uk>, 
-	Song Liu <song@kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, 
-	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"linux-security-module@vger.kernel.org" <linux-security-module@vger.kernel.org>, "apparmor@lists.ubuntu.com" <apparmor@lists.ubuntu.com>, 
-	"selinux@vger.kernel.org" <selinux@vger.kernel.org>, 
-	"tomoyo-users_en@lists.sourceforge.net" <tomoyo-users_en@lists.sourceforge.net>, 
-	"tomoyo-users_ja@lists.sourceforge.net" <tomoyo-users_ja@lists.sourceforge.net>, Kernel Team <kernel-team@meta.com>, 
-	"andrii@kernel.org" <andrii@kernel.org>, "eddyz87@gmail.com" <eddyz87@gmail.com>, 
-	"ast@kernel.org" <ast@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, 
-	"martin.lau@linux.dev" <martin.lau@linux.dev>, "jack@suse.cz" <jack@suse.cz>, 
-	"kpsingh@kernel.org" <kpsingh@kernel.org>, "mattbobrowski@google.com" <mattbobrowski@google.com>, 
-	"amir73il@gmail.com" <amir73il@gmail.com>, "repnop@google.com" <repnop@google.com>, 
-	"jlayton@kernel.org" <jlayton@kernel.org>, "josef@toxicpanda.com" <josef@toxicpanda.com>, 
-	"mic@digikod.net" <mic@digikod.net>, "gnoack@google.com" <gnoack@google.com>, 
-	"m@maowtm.org" <m@maowtm.org>, "john.johansen@canonical.com" <john.johansen@canonical.com>, 
-	"john@apparmor.net" <john@apparmor.net>, 
-	"stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>, "omosnace@redhat.com" <omosnace@redhat.com>, 
-	"takedakn@nttdata.co.jp" <takedakn@nttdata.co.jp>, 
-	"penguin-kernel@i-love.sakura.ne.jp" <penguin-kernel@i-love.sakura.ne.jp>, "enlightened@chromium.org" <enlightened@chromium.org>
-Subject: Re: [RFC] vfs: security: Parse dev_name before calling
- security_sb_mount
-Message-ID: <20250711-pfirsich-worum-c408f9a14b13@brauner>
-References: <20250708230504.3994335-1-song@kernel.org>
- <20250709102410.GU1880847@ZenIV>
- <CAHC9VhSS1O+Cp7UJoJnWNbv-Towia72DitOPH0zmKCa4PBttkw@mail.gmail.com>
- <1959367A-15AB-4332-B1BC-7BBCCA646636@meta.com>
- <20250710-roden-hosen-ba7f215706bb@brauner>
- <5EB3EFBC-69BA-49CC-B416-D4A7398A2B47@meta.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hbzGqCOW"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-b31d578e774so2836483a12.1
+        for <selinux@vger.kernel.org>; Fri, 11 Jul 2025 07:33:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1752244427; x=1752849227; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=llKVvRGuUm2a68Ss91thZXfT5YWJTPCvkcTV0N3Orzw=;
+        b=hbzGqCOWVjOlbz6qhcvKRAx+Yai7q/i1nkWpEJu3f50VdzGP/fojI7sbpobO3Mkmpq
+         07yDwJ/DLnk3yggqvwnQUfcfXP6wK2Dt3PucnQSly0epAkbxq9Fz8LiqZ+xhqol75TtX
+         Lu+73Sj+J//2PEeuMYdF95V6s5xxr1e71YunqqMTSqrICGRa+4pFL00rwCOjEjYrGFJt
+         B7bPdky1U5Zkz1LO/bmhuBFXttG905s/2PH4bsSywBm2+Clb0hPqrlpNUO2lVP4K62hl
+         QC2iU8z4FEWLsiWZmctoi9rx/+ZAe9SchQ3loYgEC5BX9GWFQdOpJs5sRe55h83Belzq
+         dHUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1752244427; x=1752849227;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=llKVvRGuUm2a68Ss91thZXfT5YWJTPCvkcTV0N3Orzw=;
+        b=NcT1Elh1+Ti2qh27mcavvfMRtPUevZGToYFHJCoh1V5Vakac5/Sxp9HoU/8K8wmJ7Y
+         txcxHDMogdTXzcWwvqzocD6rb9b5R/unB1cjhMtl+XeSdwD3qdetxazSFwGZT3a5apMv
+         HQsEQa/9/OK5WMmqD6NxjqPugMEsB8lhtxyo0vrJVRrq/xgnEJFFvsdetRPkDZGYlV27
+         32CURMmCA5bR6NvSDQLVpt4tBgqqVifNT6xeaLB2K1wULXKX8442UNBpQQAxK9sf/Yx2
+         lDQgMh3ex0liFYY2Ti8KtISVHkW6MTRDSZlefNv5sTtH/8mcV5heNRUOgwwAZeYdg+OC
+         G2uw==
+X-Gm-Message-State: AOJu0YwotHx1SZl6r+ErbQdknihEU4TecPkUYyexIYX8n4n4HF87MGq5
+	MBBDTyeAlH0eyS0wwYDf6BGC3DX7CLgQO8kB2XCfjpHjT64IsIMjnjQFvhycpCw8jle86Z0C4cM
+	cLDZGI8EHrOkSSqZo7fIrY9JfjuZbo4++qw==
+X-Gm-Gg: ASbGncsqQp0CUvKHcNzd3c/jJTgRMJ2jRnDu3H8FoGk9hHvFoy90yMGY/iCe0MWBZ7d
+	0dMFcifg15k1RmsRs0P2FSCiShjKqEnxx7KT69e0Eqjhd93BcFTOObZq1J2uqheTOjsGk5/2rLJ
+	m3SCDKNBgdYEIYGHyqaNh1xyQLmq2oF3HTqgD76uSIGjX6IyOvgbQyK07UUD1GP5pgaP9LrdPWG
+	1ueEN/y9dQ/k0eX3w==
+X-Google-Smtp-Source: AGHT+IH3HyDx4B4KmiVFkdGm1eAQSqWsder8He9XzkkHrCptx7pCSKocp7oElFUC5RbH9o6eLlmhk+NQy/14mDQqBKY=
+X-Received: by 2002:a17:90b:2e47:b0:313:f995:91cc with SMTP id
+ 98e67ed59e1d1-31c3cf1a3d5mr11682368a91.2.1752244426806; Fri, 11 Jul 2025
+ 07:33:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <5EB3EFBC-69BA-49CC-B416-D4A7398A2B47@meta.com>
+References: <20250626155755.21075-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20250626155755.21075-2-stephen.smalley.work@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 11 Jul 2025 10:33:35 -0400
+X-Gm-Features: Ac12FXy_LLq6qn48jEJRo5U0UAuXdRedZnuZ96mhOOoAJnOg4rAmymTwJUrwypM
+Message-ID: <CAEjxPJ5824rxcio4kZyN9N_ho_zTGPmyu=kJmyA4X5Dnf5+zhQ@mail.gmail.com>
+Subject: Re: [PATCH] SECURITY.md: add my email address and GPG key fingerprint
+To: selinux@vger.kernel.org
+Cc: jwcart2@gmail.com, lautrbach@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 10, 2025 at 05:00:18PM +0000, Song Liu wrote:
-> 
-> 
-> > On Jul 10, 2025, at 4:46 AM, Christian Brauner <brauner@kernel.org> wrote:
-> 
-> [...]
-> 
-> >> Right now, we have security_sb_mount and security_move_mount, for 
-> >> syscall “mount” and “move_mount” respectively. This is confusing 
-> >> because we can also do move mount with syscall “mount”. How about 
-> >> we create 5 different security hooks:
-> >> 
-> >> security_bind_mount
-> >> security_new_mount
-> >> security_reconfigure_mount
-> >> security_remount
-> >> security_change_type_mount
-> >> 
-> >> and remove security_sb_mount. After this, we will have 6 hooks for
-> >> each type of mount (the 5 above plus security_move_mount).
-> > 
-> > I've multiple times pointed out that the current mount security hooks
-> > aren't working and basically everything in the new mount api is
-> > unsupervised from an LSM perspective.
-> 
-> To make sure I understand the comment. By “new mount api”, do you mean 
-> the code path under do_new_mount()? 
+On Thu, Jun 26, 2025 at 11:58=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-fsopen()
-fsconfig()
-fsmount()
-open_tree()
-open_tree_attr()
-move_mount()
-statmount()
-listmount()
+NAK'ing my own patch due to generating a new key for this purpose,
+will follow up again once it is signed by others.
 
-I think that's all.
 
-> 
-> > My recommendation is make a list of all the currently supported
-> > security_*() hooks in the mount code (I certainly don't have them in my
-> > head). Figure out what each of them allow to mediate effectively and how
-> > the callchains are related.
-> > 
-> > Then make a proposal how to replace them with something that a) doesn't
-> > cause regressions which is probably something that the LSMs care about
-> > and b) that covers the new mount API sufficiently to be properly
-> > mediated.
-> > 
-> > I'll happily review proposals. Fwiw, I'm pretty sure that this is
-> > something that Mickael is interested in as well.
-> 
-> So we will consider a proper redesign of LSM hooks for mount syscalls, 
-> but we do not want incremental improvements like this one. Do I get 
-> the direction right?
-
-If incremental is workable then I think so yes. But it would be great to
-get a consistent picture of what people want/need.
+> ---
+> No hurry on this so feel free to wait until after final release if you li=
+ke.
+>
+>  SECURITY.md | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/SECURITY.md b/SECURITY.md
+> index 4f624f5d..2fee4927 100644
+> --- a/SECURITY.md
+> +++ b/SECURITY.md
+> @@ -33,6 +33,8 @@ the issue as quickly as possible and shorten the disclo=
+sure window.
+>    *  (GPG fingerprint) 4568 1128 449B 65F8 80C6  1797 3A84 A946 B4BA 62A=
+E
+>  * Paul Moore, paul@paul-moore.com
+>    *  (GPG fingerprint) 7100 AADF AE6E 6E94 0D2E  0AD6 55E4 5A5A E8CA 7C8=
+A
+> +* Stephen Smalley, stephen.smalley.work@gmail.com
+> +  *  (GPG fingerprint) 5073 3D29 EB3D 5CF7 17AB  32FE 100E 57E3 3B8B 54F=
+2
+>  * Jason Zaman, perfinion@gentoo.org
+>    *  (GPG fingerprint) 6319 1CE9 4183 0986 89CA  B8DB 7EF1 37EC 935B 0EA=
+F
+>  * Steve Lawrence, slawrence@tresys.com
+> --
+> 2.49.0
+>
