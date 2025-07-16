@@ -1,66 +1,50 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 110A12EA749;
-	Wed, 16 Jul 2025 08:32:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D72D820110B
+	for <selinux@vger.kernel.org>; Wed, 16 Jul 2025 11:17:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752654724; cv=none; b=LTYaCrc7jaZNRT3jOS+miyLLaounv2F9IzWDOJFMeNaZ6Z6ZtkEy5x0scIRgDQ0iWqfOLNPjQgJRfY6p4g5nX3zkbMTAYpEdXVoy9aad5r8ux9Yv++bZeDOo8eCcxQlzogy8qwjhj6YgRsmdIvSPMZ+Qs0ogbdyd0CRGpDc9/JU=
+	t=1752664649; cv=none; b=gudAibxFP5Y4giNkC3ZYKCMurjWG4hUy9L1hY4grAJXRtRaLeCwqoychEGqZ5ByOj4OtGM2k4WfHORdwdGTsDPvkhhz61fLIhVp3dQrLdC3OgCDqLPACWXWp2+9DmWIkyrCA1xusD+8ar1gp/Q+XTrA3dC6EXNe47CQuFJ7vrKQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752654724; c=relaxed/simple;
-	bh=pixhDAk3NXF+ez/UC4sCfxH4mfu5c2ZCe/3FOrSKxmA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=N1JbmuQZwm0092RdX2YZ7GlHmrhDEIqFhdeWHDlSm+awzmxhyD68HsrB2c7vYn225sVKi8QFggtfDiGmfjasHezQ8Gj3OmuuvlFpEMH4AZSBThLlweJE8h+a3LAx3cn0aZ236m9eugpMK/vr2L4oBIZQo19KVEHtNN7kjqgCQfU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TjGFTVb7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1752664649; c=relaxed/simple;
+	bh=NKBUFksnZkjRmO4SP8ytqDVtDgDgxtY2clQQDjQcw+g=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Y+lggPPk+MVfFlTABAq6q90VczO/lT4o/FUrxd90r818gR1iXsQtW/2TLS55tQwjOrV+5HERGZZOFTnaBmKfEhgl3JSoiZQPO7XK+IAqjSpgFuvo8BYwnWwurtWsmJxsYafiB+lDgmesfvetQ2heaaVnC9V6TBZeQcfmgDCFsdU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LR2QUY/f; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TjGFTVb7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AC1AC4CEF0;
-	Wed, 16 Jul 2025 08:31:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1752654723;
-	bh=pixhDAk3NXF+ez/UC4sCfxH4mfu5c2ZCe/3FOrSKxmA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=TjGFTVb7WA8CXJ6fa9ZunnX0H7E3pACvrqlm6U6kufhsPuFT7/qKNj+2PuK4rf422
-	 +/Vz5U7FyZF1IKEu6uwNqPHz+FJaWsNVM3NJmGFvApIa55S4kznSr5h0dOm9jqrvcS
-	 ZPWl1dYW0SDaotH84/KEdVcBl9HWmemC76mRyRv1mFee8RuPfM+aSSgy4AsWsR0Jtt
-	 2428KtOR29kVeXOrvqufoE3TflupQjHHf5sr6r2T2XqQCjsHhG0vGUZPWgvobe7gw3
-	 YiaNk0muRgqqvpTWNR8BqdV5pCZV+sLz8AY6vym0qlT1Prz0py2hxARudlILw5soG7
-	 GJGCOYu1gVsYQ==
-Date: Wed, 16 Jul 2025 10:31:53 +0200
-From: Christian Brauner <brauner@kernel.org>
-To: Song Liu <songliubraving@meta.com>
-Cc: Paul Moore <paul@paul-moore.com>, Al Viro <viro@zeniv.linux.org.uk>, 
-	Song Liu <song@kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, 
-	"linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"linux-security-module@vger.kernel.org" <linux-security-module@vger.kernel.org>, "apparmor@lists.ubuntu.com" <apparmor@lists.ubuntu.com>, 
-	"selinux@vger.kernel.org" <selinux@vger.kernel.org>, 
-	"tomoyo-users_en@lists.sourceforge.net" <tomoyo-users_en@lists.sourceforge.net>, 
-	"tomoyo-users_ja@lists.sourceforge.net" <tomoyo-users_ja@lists.sourceforge.net>, Kernel Team <kernel-team@meta.com>, 
-	"andrii@kernel.org" <andrii@kernel.org>, "eddyz87@gmail.com" <eddyz87@gmail.com>, 
-	"ast@kernel.org" <ast@kernel.org>, "daniel@iogearbox.net" <daniel@iogearbox.net>, 
-	"martin.lau@linux.dev" <martin.lau@linux.dev>, "jack@suse.cz" <jack@suse.cz>, 
-	"kpsingh@kernel.org" <kpsingh@kernel.org>, "mattbobrowski@google.com" <mattbobrowski@google.com>, 
-	"amir73il@gmail.com" <amir73il@gmail.com>, "repnop@google.com" <repnop@google.com>, 
-	"jlayton@kernel.org" <jlayton@kernel.org>, "josef@toxicpanda.com" <josef@toxicpanda.com>, 
-	"mic@digikod.net" <mic@digikod.net>, "gnoack@google.com" <gnoack@google.com>, 
-	"m@maowtm.org" <m@maowtm.org>, "john.johansen@canonical.com" <john.johansen@canonical.com>, 
-	"john@apparmor.net" <john@apparmor.net>, 
-	"stephen.smalley.work@gmail.com" <stephen.smalley.work@gmail.com>, "omosnace@redhat.com" <omosnace@redhat.com>, 
-	"takedakn@nttdata.co.jp" <takedakn@nttdata.co.jp>, 
-	"penguin-kernel@i-love.sakura.ne.jp" <penguin-kernel@i-love.sakura.ne.jp>, "enlightened@chromium.org" <enlightened@chromium.org>
-Subject: Re: [RFC] vfs: security: Parse dev_name before calling
- security_sb_mount
-Message-ID: <20250716-unsolidarisch-sagst-e70630ddf6b7@brauner>
-References: <CAHC9VhSS1O+Cp7UJoJnWNbv-Towia72DitOPH0zmKCa4PBttkw@mail.gmail.com>
- <1959367A-15AB-4332-B1BC-7BBCCA646636@meta.com>
- <20250710-roden-hosen-ba7f215706bb@brauner>
- <5EB3EFBC-69BA-49CC-B416-D4A7398A2B47@meta.com>
- <20250711-pfirsich-worum-c408f9a14b13@brauner>
- <4EE690E2-4276-41E6-9D8C-FBF7E90B9EB3@meta.com>
- <20250714-ansonsten-shrimps-b4df1566f016@brauner>
- <3ACFCAB1-9FEC-4D4E-BFB0-9F37A21AA204@meta.com>
- <20250715-knattern-hochklassig-ddc27ddd4557@brauner>
- <B2872298-BC9C-4BFD-8C88-CED88E0B7E3A@meta.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LR2QUY/f"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1752664645;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=zrnFWR3+3yAGDsuszckVm1FVxfzMPbzeFPJ2xgIromA=;
+	b=LR2QUY/fTm9Yi/YDt9GgQ6TKLXbWL9JCVJtIHIDe4a3805qXdzBZWi/OgeLw2ZDMvCNRVi
+	rhgkcYv3Qy5Bej14is40fIyP/iCI+zjz2pLDmD1Vd/NARPvSnkmcpyMMjGCtNcezdimPWQ
+	C1bCaoTR2Ffs1y8jflI8d+cXMdhBYVo=
+Received: from mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-602-3__wlOaZNO-9I47Tz1VTzw-1; Wed,
+ 16 Jul 2025 07:17:23 -0400
+X-MC-Unique: 3__wlOaZNO-9I47Tz1VTzw-1
+X-Mimecast-MFC-AGG-ID: 3__wlOaZNO-9I47Tz1VTzw_1752664642
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D69611800284
+	for <selinux@vger.kernel.org>; Wed, 16 Jul 2025 11:17:21 +0000 (UTC)
+Received: from localhost (unknown [10.45.225.175])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 5808019373D8
+	for <selinux@vger.kernel.org>; Wed, 16 Jul 2025 11:17:21 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: selinux@vger.kernel.org
+Subject: ANN: SELinux userspace 3.9
+Date: Wed, 16 Jul 2025 13:17:19 +0200
+Message-ID: <878qkomlkw.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -68,106 +52,133 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <B2872298-BC9C-4BFD-8C88-CED88E0B7E3A@meta.com>
+Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-On Tue, Jul 15, 2025 at 10:31:39PM +0000, Song Liu wrote:
-> 
-> > On Jul 15, 2025, at 3:18 AM, Christian Brauner <brauner@kernel.org> wrote:
-> > On Mon, Jul 14, 2025 at 03:10:57PM +0000, Song Liu wrote:
-> 
-> 
-> [...]
-> 
-> >>> If you place a new security hook into __do_loopback() the only thing
-> >>> that I'm not excited about is that we're holding the global namespace
-> >>> semaphore at that point. And I want to have as little LSM hook calls
-> >>> under the namespace semaphore as possible.
-> >> 
-> >> do_loopback() changed a bit since [1]. But if we put the new hook 
-> >> in do_loopback() before lock_mount(), we don’t have the problem with
-> >> the namespace semaphore, right? Also, this RFC doesn’t seem to have 
-> >> this issue either.
-> > 
-> > While the mount isn't locked another mount can still be mounted on top
-> > of it. lock_mount() will detect this and lookup the topmost mount and
-> > use that. IOW, the value of old_path->mnt may have changed after
-> > lock_mount().
-> 
-> I am probably confused. Do you mean path->mnt (instead of old_path->mnt) 
-> may have changed after lock_mount()? 
+Hello!
 
-I mean the target path. I forgot that the code uses @old_path to mean
-the source path not the target path. And you're interested in the source
-path, not the target path.
+The 3.9 release for the SELinux userspace is now available at:
 
-> 
-> > If you have 1000 containers each calling into
-> >>> security_something_something_bind_mount() and then you do your "walk
-> >>> upwards towards the root stuff" and that root is 100000 directories away
-> >>> you've introduced a proper DOS or at least a severe new bottleneck into
-> >>> the system. And because of mount namespace propagation that needs to be
-> >>> serialized across all mount namespaces the namespace semaphore isn't
-> >>> something we can just massage away.
-> >> 
-> >> AFAICT, a poorly designed LSM can easily DoS a system. Therefore, I 
-> >> don’t think we need to overthink about a LSM helper causing DoS in 
-> >> some special scenarios. The owner of the LSM, either built-in LSM or 
-> >> BPF LSM, need to be aware of such risks and design the LSM rules 
-> >> properly to avoid DoS risks. For example, if the path tree is really 
-> >> deep, the LSM may decide to block the mount after walking a preset 
-> >> number of steps.
-> > 
-> > The scope of the lock matters _a lot_. If a poorly designed LSM happens
-> > to take exorbitant amount of time under the inode_lock() it's annoying:
-> > to anyone else wanting to grab the inode_lock() _for that single inode_.
-> > 
-> > If a poorly designed LSM does broken stuff under the namespace semaphore
-> > any mount event on the whole system will block, effectively deadlocking
-> > the system in an instant. For example, if anything even glances at
-> > /proc/<pid>/mountinfo it's game over. It's already iffy that we allow
-> > security_sb_statfs() under there but that's at least guaranteed to be
-> > fast.
-> > 
-> > If you can make it work so that we don't have to place security_*()
-> > under the namespace semaphore and you can figure out how to deal with a
-> > potential overmount racing you then this would be ideal for everyone.
-> 
-> I am trying to understand all the challenges here. 
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-As long as you're only interested in the source path's mount, you're
-fine.
+I signed all tarballs using my gpg key, see .asc files.
+You can download the public key from
+https://github.com/bachradsusi.gpg
 
-> 
-> It appears to me that do_loopback() has the tricky issue:
-> 
-> static int do_loopback(struct path *path, ...)
-> {
-> 	...
-> 	/* 
-> 	 * path may still change, so not a good point to add
-> 	 * security hook 
-> 	 */
-> 	mp = lock_mount(path);
-> 	if (IS_ERR(mp)) {
-> 		/* ... */
-> 	}
-> 	/* 
-> 	 * namespace_sem is locked, so not a good point to add
-> 	 * security hook
-> 	 */
-> 	...
-> }
-> 
-> Basically, without major work with locking, there is no good 
-> spot to insert a security hook into do_loopback(). Or, maybe 
-> we can add a hook somewhere in lock_mount()? 
+Thanks to all the contributors, reviewers, testers and reporters!
 
-You can't really because the lookup_mnt() call in lock_mount() happens
-under the namespace semaphore already and if it's the topmost mount it
-won't be dropped again and you can't drop it again without risking
-overmounts again.
+User-visible changes
+--------------------
+* Support static-only builds with DISABLE_SHARED=3Dy
 
-But again, as long as you are interested in the source mount you should
-be fine.
+* Add restore option to modify user and role portions
+
+* setfiles: Add -U option to modify user and role portions
+
+* semanage.conf: Add relabel_store config option
+
+* semodule: Add [-g PATH |--config=3DPATH] for an alternate path for the se=
+manage config
+
+* libselinux: Fix local literal fcontext definitions priority
+
+* libselinux: Fix order for path substitutions
+
+* libsepol: Add new 'netif_wildcard' policy capability
+
+* checkpolicy: Add support for wildcard netifcon names
+
+* libsepol: Allow multiple policycap statements
+
+* libsepol: Support genfs_seclabel_wildcard
+
+* Replace all links to selinuxproject.org
+
+* Bug fixes
+
+Shortlog of the changes since 3.8.1 release
+-------------------------------------------
+Alyssa Ross (4):
+      Support static-only builds
+      libselinux: be careful with non-portable LFS macro
+      libsemanage: add missing libaudit private library
+      policycoreutils: use pkg-config for libsemanage
+
+Christian G=C3=B6ttsche (23):
+      checkpolicy: rework cleanup in define_te_avtab_xperms_helper()
+      checkpolicy: free left hand conditional expression on error
+      checkpolicy: abort on mismatched declarations
+      checkpolicy: perform cleanup on error in define_filename_trans()
+      libselinux: add restore option to modify user and role portions
+      setfiles: add option to modify user and role portions
+      libselinux: introduce context_to_str(3)
+      mcstrans: make use of context_to_str(3)
+      libselinux: constify global strings
+      libselinux: use local instead of global error buffer
+      libselinux: initialize regex arch string in a thread safe way
+      libselinux: limit fcontext regex path length
+      checkpolicy: free ebitmap on error in define_compute_type_helper()
+      libselinux: limit node depth while parsing compiled fcontexts
+      libsemanage: fix handling errors during child execution
+      semanage: improve -e documentation and fix delete operation
+      libselinux: prioritize local literal fcontext definitions
+      libselinux: retain LIFO order for path substitutions
+      libsepol: update sort order for netifcon definitions
+      libsepol: add netif_wildcard polcap
+      checkpolicy: add support for wildcard netifcon names
+      secilc/test: add test for wildcard netifcon statement
+      libsepol/cil: reject wildcard only network interface names
+
+Daniel Burgener (1):
+      Switch from bison name-prefix to api.prefix
+
+Inseob Kim (8):
+      libsepol: Fix markers for info nodes w/o children
+      libsepol: Allow booleanif to have info nodes
+      libsepol: Make line markers of rules configurable
+      checkpolicy: Support line markers for allow rules
+      checkmodule: Support line markers for allow rules
+      checkpolicy: Allow lineno > 1 for source file line
+      libsepol: Allow multiple policycap statements
+      libsepol: Support genfs_seclabel_wildcard
+
+James Carter (5):
+      libselinux: Do not inline compile_regex()
+      libsemanage: Ignore missing field initializers in swig generated code
+      Policycoreutils: Make pkg-config work for more types of builds
+      libsepol/cil: Fix copying of declarations
+      libsepol/cil: Expand class-permissions in deny rules
+
+Petr Lautrbach (6):
+      README: update subscribe information
+      Update VERSIONs to 3.9-rc1 for release.
+      Update VERSIONs to 3.9-rc2 for release.
+      sepolicy: use multiprocessing 'fork' method
+      Update VERSIONs to 3.9-rc3 for release.
+      Update VERSIONs to 3.9 for release.
+
+Rahul Sandhu (1):
+      libsemanage: create semanage_basename to ensure posix compliance
+
+Robert Marko (1):
+      policycoreutils: run_init: define _GNU_SOURCE
+
+Stephen Smalley (2):
+      libsepol,checkpolicy: introduce neveraudit types
+      userspace: replace all links to selinuxproject.org
+
+Thi=C3=A9baud Weksteen (2):
+      libselinux: warn on identical duplicate properties
+      libselinux: Document thread caveat for security_compute_av.3
+
+Tristan Ross (3):
+      libsemanage: add relabel_store config option
+      libsemanage: add semanage_handle_create_with_path
+      semodule: add config argument
+
+=D0=BD=D0=B0=D0=B1 (2):
+      Insert -I../../libselinux/include and -L../../libselinux/src into sub=
+programs where needed
+      Inject matchpathcon_filespec_add64() if !defined(__INO_T_MATCHES_INO6=
+4_T) instead of using __BITS_PER_LONG < 64 as proxy
+
