@@ -1,150 +1,148 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B3DBC1865EE;
-	Fri, 18 Jul 2025 15:35:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 322DB14F70
+	for <selinux@vger.kernel.org>; Sun, 20 Jul 2025 12:52:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1752852907; cv=none; b=I/VPbFjMhc9AuFX4NngDgrE76tuXYuA/+8EMpsLZuJzY/af2GgSKafh28UJMgeXE+Rq43MJRHRO9vUtP+Dt3ju5drCwv8lW5KM7M15PkhwNequUrqFfG8OPNr7bYrQSEpNoE1Rv92klEPda8QGIfoQ3Dmc3UK6YF+n7/cU6/sGI=
+	t=1753015961; cv=none; b=flv+VJ9V3k8TYxNKknxro4PBjqTfV7eQmGQ+yWJJy5Olbuihc0LZ4YWU9MQL4cyKKDpPITqhIWJ2bybcumN7iDJYQ4QQoPkHvv9GZ2wEY+W7rdVulxJzW15mJYbm72+FSAW5rNkDu68hclDrrhIEstrqYVm+NCHAs0AIJeQU9ng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1752852907; c=relaxed/simple;
-	bh=FxcvYdQRY3DcBanF32X4QBOp7OCa18HAxUo7EjU1yqk=;
-	h=From:To:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=T26W0m1bc+NH04suj5cGXbnU5eRRKKMS+hzV+XcGGckLitOSwtXxpskQhzDfZ1NqNenBj3/i/j0/W/peO9xAIsBxDNJuEJjR0qSGs5ihGqXWSfJSyu10PI8G29RzMapb98Z3pYh0BQTrLuTIn7aWuXRUOOaZlmrEq772aoz/mrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=IHK8cY5/; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1753015961; c=relaxed/simple;
+	bh=SAukvWyIMReWR5H40W1upOS3C3N7rtiJfR5kuU7hCkM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=q++UEL2wtHUcBVJ1+zR3aBY2amrrwmcwpOlSXOd5hIj6vCB2bV0xiIZTUYXqun6XjzOdFOEcFPox6ipzCkZE88Cld5E6Bm/6kcVAomZwdKl0Xkj/n1wImf5fPdl5Kg5x2HHYhHecD6+0gycq9wKQU1asqa6C9ycPfdhfT5MBjTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P7cfHGma; arc=none smtp.client-ip=209.85.128.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="IHK8cY5/"
-Received: from narnia (unknown [40.78.13.147])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 04C33211FEB6;
-	Fri, 18 Jul 2025 08:35:03 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 04C33211FEB6
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1752852905;
-	bh=laEB97ogdr442ty4J3QQO87ShWSCdclOdA+Q3Ik/eFw=;
-	h=From:To:Subject:In-Reply-To:References:Date:From;
-	b=IHK8cY5/lSxxbodzOTpipcidTjQMMy8rPm8E6SOR/VtgYTbdq9p+VnU2shW4cq/I/
-	 /J+K1bw0suszJuKinQS4P9SfgkKHSGTkpMiZ9VPvrk3cFAAl73qeavYt63B5GGTpOJ
-	 67vIjk6zBJxDgSvijyMM9PZ2EwNOtuwT7WljerpE=
-From: Blaise Boscaccy <bboscaccy@linux.microsoft.com>
-To: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley
- <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>,
- Casey Schaufler <casey@schaufler-ca.com>, John Johansen
- <john.johansen@canonical.com>, Christian =?utf-8?Q?G=C3=B6ttsche?=
- <cgzones@googlemail.com>, linux-security-module@vger.kernel.org,
- linux-kernel@vger.kernel.org, selinux@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH] lsm,selinux: Add LSM blob support for BPF objects
-In-Reply-To: <941986e9f4f295f247e5982002e16fe9@paul-moore.com>
-References: <20250715222655.705241-1-bboscaccy@linux.microsoft.com>
- <941986e9f4f295f247e5982002e16fe9@paul-moore.com>
-Date: Fri, 18 Jul 2025 08:35:02 -0700
-Message-ID: <875xfp4imx.fsf@microsoft.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P7cfHGma"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-45629703011so24069145e9.0
+        for <selinux@vger.kernel.org>; Sun, 20 Jul 2025 05:52:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1753015958; x=1753620758; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ov1qN3NirKFjJ2j/kcm69bEZNcn/tX4qyaZU9f0GHJU=;
+        b=P7cfHGmax3RrCYUett9D/CdXciUoctEvihI44KnhN+wlNPNyBIxudGSFHW31rxBkIy
+         Q0k7KcNNff2WeCNHGEyZgtVfst4WZkb8LUKEU7yg3SW4P102zLRvoTNoadBFPfVKzbkO
+         lIM/ofowyD/ZkJf0n24Ai//URNMB6mCvyEhdoQxyiy48jZWaDcoq8lo6nlH+3Vr1bEZ/
+         iXTgT2XihxsXBdCj7YYo+tWGB/ivnwjP7amvElaln+fCJauPhHnOc9u7ZbX0+OIPpomW
+         TVpPAYX099KSeitExNOcGOi4iDZnrteJHWx2VFtz8mqbSnScUshoad01mXsZAyEjy/1G
+         nX2w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753015958; x=1753620758;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ov1qN3NirKFjJ2j/kcm69bEZNcn/tX4qyaZU9f0GHJU=;
+        b=Df6uAXdIhWGWCBwNPgnEJCdG1iYF9zDyOxlJLhIAiRbyll+2uz/W2F11v+gCG2YhVu
+         RgUBQPrbTKGyySvMockj+JQ1GdFhswJWfUP8i10ZuUHvyrPj1TVWRQ5FWObjyOTBnBJ+
+         EwwNW+gqhaU08pUqNm36iZ8ieUv5elRa705rJNk1FefakwTwjab0mHUuFn9wlz+uq+Ye
+         qjtg5FOMmElegiSAU68aTkyX/NL2Xc2bbz9I5k8Q/Ythnq6zOsRhKr8VuanXofn37DY9
+         JG3w/kZBrIBXveJzjy4n63Y1MY4Okzkcom82CtXf4o/+QuWbwAD/oeS5bVhoo3qF0uNz
+         E/Gw==
+X-Gm-Message-State: AOJu0YzNfwRDBd5NjSsDNOxw023bFk1cVXbBU0N4roBpDAwrtDQHnXeT
+	8mNOUVJiTx6Xo0CZyoMlfThEx2XYCJBpta2BMvVF2arqmZu3O7dTp4cTHs+oPw==
+X-Gm-Gg: ASbGncuynptRtMuyCi+AxHxcsBJW/FE7G9jxYdye2nMKTnNXC9ze4TBhPxkYA4/GeOg
+	1IAbBitwiYShmuuqgYgmE1Gbg2oBcGiA9YboGV+48Fo6+JlSUf7bCGOIBLBBbu73gTsghcpjvAp
+	mUpwWip3S9enr7fFDl3Jk1FPBK/CtrPI1o1MN3kTfl2+EMzhRMooqbodQr4coEe3ggHcnNHkaTH
+	eJlw7QcXID5BqRWnT9kvM7BdRUn8P50DyhbEKrejbk35/oPgT9OBWahJ/UaZTDmkD4m17Azp7CW
+	V4/pzBdtlcTnhgSxb74JAK9iUvcbZN72CviLwtJqH1nW251I/o7Cd8bMWqz4C1HSmyw3vx0VvFX
+	9Mz8fEJt6LNzm
+X-Google-Smtp-Source: AGHT+IHAPhdNIqrGnUlAdBaMHA32ezwdRjkf1jUfk9MeJAWXD/3LQGmBq1qqq5ZinWE2OHTwX1I3xA==
+X-Received: by 2002:a05:600c:699a:b0:43c:ec4c:25b4 with SMTP id 5b1f17b1804b1-45636ba6679mr147378575e9.10.1753015958203;
+        Sun, 20 Jul 2025 05:52:38 -0700 (PDT)
+Received: from sierra ([2a0a:ef40:98b:8700:d4ac:8933:92b1:5832])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b61ca4d7b1sm7605930f8f.71.2025.07.20.05.52.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 20 Jul 2025 05:52:37 -0700 (PDT)
+From: Rahul Sandhu <nvraxn@gmail.com>
+To: selinux@vger.kernel.org
+Cc: Rahul Sandhu <nvraxn@gmail.com>
+Subject: [PATCH] libselinux: fix parsing of the enforcing kernel cmdline parameter
+Date: Sun, 20 Jul 2025 13:52:29 +0100
+Message-ID: <20250720125229.306644-1-nvraxn@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-Paul Moore <paul@paul-moore.com> writes:
+Currently, parsing of the cmdline has two issues:
+- By using atoi, no error checking is done. What happens if an argument
+  that isn't an integer is provided, e.g. enforcing=foo? And as there
+  is also no validation that the number provided is actually valid, 1
+  or 0, what happens if enforcing=2?
 
-> On Jul 15, 2025 Blaise Boscaccy <bboscaccy@linux.microsoft.com> wrote:
->> 
->> This patch introduces LSM blob support for BPF maps, programs, and
->> tokens to enable LSM stacking and multiplexing of LSM modules that
->> govern BPF objects. Additionally, the existing BPF hooks used by
->> SELinux have been updated to utilize the new blob infrastructure,
->> removing the assumption of exclusive ownership of the security
->> pointer.
->> 
->> Signed-off-by: Blaise Boscaccy <bboscaccy@linux.microsoft.com>
->> ---
->>  include/linux/lsm_hooks.h         |   3 +
->>  security/security.c               | 120 +++++++++++++++++++++++++++++-
->>  security/selinux/hooks.c          |  56 +++-----------
->>  security/selinux/include/objsec.h |  17 +++++
->>  4 files changed, 147 insertions(+), 49 deletions(-)
->
-> ...
->
->> @@ -835,6 +841,72 @@ static int lsm_bdev_alloc(struct block_device *bdev)
->>  	return 0;
->>  }
->>  
->> +/**
->> + * lsm_bpf_map_alloc - allocate a composite bpf_map blob
->> + * @map: the bpf_map that needs a blob
->> + *
->> + * Allocate the bpf_map blob for all the modules
->> + *
->> + * Returns 0, or -ENOMEM if memory can't be allocated.
->> + */
->> +static int lsm_bpf_map_alloc(struct bpf_map *map)
->> +{
->> +	if (blob_sizes.lbs_bpf_map == 0) {
->> +		map->security = NULL;
->> +		return 0;
->> +	}
->> +
->> +	map->security = kzalloc(blob_sizes.lbs_bpf_map, GFP_KERNEL);
->> +	if (!map->security)
->> +		return -ENOMEM;
->> +
->> +	return 0;
->> +}
->
-> Casey suggested considering kmem_cache for the different BPF objects,
-> but my gut feeling is that none ofthe BPF objects are going to be
-> allocated with either enough frequency, or enough quantity, where a
-> simple kzalloc() wouldn't be sufficient, at least for now.  Thoughts
-> on this Blaise?
+- After the first strstr, no arguments that follow are searched for; if
+  I have enforcing=0 enforcing=1, the latter enforcing=1 is not taken
+  into account. This is made even worse due to halting searching after
+  finding the first "enforcing=" token, meaning that if the cmdline was
+  as follows:
 
-Yeah, I agree, the number of allocations should be very low in
-comparision to something like inodes. We are probably okay using kzalloc
-forf the time being. 
+  fooenforcing=0 enforcing=0
 
->
-> Assuming we stick with kazlloc() based allocation, please look at using
-> the lsm_blob_alloc() helper function as Song mentioned  As I'm writing
-> this I'm realizing there are a few allocatiors that aren't using the
-> helper, I need to fix those up ...
+  the enforcing parameter is entirely ignored.
 
-Will do.
+This patch fixes this by:
 
->
-> It's worth mentioning that the allocation scheme is an internal LSM
-> implementation detail, something we can change at any time with a small
-> patch, so I wouldn't stress too much about "Getting it Right" at this
-> point in time.
->
->> @@ -5763,7 +5862,12 @@ int security_bpf_token_capable(const struct bpf_token *token, int cap)
->>   */
->>  void security_bpf_map_free(struct bpf_map *map)
->>  {
->> +	if (!map->security)
->> +		return;
->> +
->
-> We don't currently check if map->security is NULL in the current hook,
-> or the SELinux callback (it's not a common pattern for the LSM blobs),
-> did you run into a problem where the blob pointer was NULL?
->
-> The same comment applies to all three blob types.
+  - Using strtol to actually validate that we got passed a number, and
+    then validating that that number is either 0 or 1. If instead we
+    get passed an invalid value, we skip over the argument entirely.
 
-No real issues that I ran into. I was cribbing off the pattern used in
-block devices. After taking a second look, it looks safe to remove that
-check. I'll get that fixed in v2.
+  - Looping until the last "enforcing=" in the cmdline. Latter (valid)
+    arguments take precedence over previous arguments.
 
--blaise
+Although this patch (intentionally) breaks the case where "enforcing="
+is provided with a positive argument that isn't 1, enforcing=2 doesn't
+really make much sense, and being strict with the arguments we parse is
+a good thing given that SELinux's mode of operation is controlled by
+that option.
 
->
->>  	call_void_hook(bpf_map_free, map);
->> +	kfree(map->security);
->> +	map->security = NULL;
->>  }
->>  
->>  /**
->
-> --
-> paul-moore.com
+Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+---
+ libselinux/src/load_policy.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
+
+diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
+index dc1e4b6e..9d411b95 100644
+--- a/libselinux/src/load_policy.c
++++ b/libselinux/src/load_policy.c
+@@ -244,17 +244,26 @@ int selinux_init_load_policy(int *enforce)
+ 	rc = mount("proc", "/proc", "proc", 0, 0);
+ 	cfg = fopen("/proc/cmdline", "re");
+ 	if (cfg) {
+-		char *tmp;
+ 		buf = malloc(selinux_page_size);
+ 		if (!buf) {
+ 			fclose(cfg);
+ 			return -1;
+ 		}
+-		if (fgets(buf, selinux_page_size, cfg) &&
+-		    (tmp = strstr(buf, "enforcing="))) {
+-			if (tmp == buf || isspace((unsigned char)*(tmp - 1))) {
+-				secmdline =
+-				    atoi(tmp + sizeof("enforcing=") - 1);
++		if (fgets(buf, selinux_page_size, cfg)) {
++			char *search = buf;
++			char *tmp;
++			while ((tmp = strstr(search, "enforcing="))) {
++				if (tmp == buf || isspace((unsigned char)*(tmp - 1))) {
++					char *valstr = tmp + sizeof("enforcing=") - 1;
++					char *endptr;
++					errno = 0;
++					long val = strtol(valstr, &endptr, 10);
++					if (endptr != valstr && errno == 0 && (val == 0 || val == 1)) {
++						secmdline = (int)val;
++					}
++				}
++				/* advance past the current substring, latter arguments take precedence */
++				search = tmp + 1;
+ 			}
+ 		}
+ 		fclose(cfg);
+-- 
+2.50.1
+
