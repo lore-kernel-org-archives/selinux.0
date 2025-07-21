@@ -1,74 +1,113 @@
-Received: from markus.defensec.nl (markus.defensec.nl [45.80.168.93])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 031E3284669
-	for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 08:53:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.80.168.93
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id CDC821B394F
+	for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 09:01:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.2
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753088003; cv=none; b=lgTpUAQ+rkTt4poac4ojVOoYWtRUEmvJV8HSkJhNL4/srrZX640mQ5bV5Ej9Nhsqar09tTaHNEPG/u29wBBoLu40pc10pCEdPlFVeSKk2YOFuPHh+BXNCo82YI5ZWSWrSNv20irz8nJjEdIIKCrLF7Vyelci0728XZIQ13dyTDg=
+	t=1753088472; cv=none; b=CMswyKOv9cbXlbdSqRLkjFiHVKCy43/ReGpoqhpq1mpS/QKLjapr/80EAqy/rWRc7XdZeKbgcYaEQA4JTRzqVuLSeqNkBeuNsk2FM8O7wz8/o9QXUV+g8oVEM8n37+TPDkx6PubcvDkGiscGVCRy+BjMiOr4ckv0FYrOihz2Nl8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753088003; c=relaxed/simple;
-	bh=naBDr1ZvWNiKBNg8OMv3+8JqtOzFjVoBOZpBBOFGKDY=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jRceHMGWTY/EtGlWzxQr7r1OqiVl//J90KqZQKYTi7WK5trnn6EzXWkp27uKRuiqrneH1raXXGGPbk2OvoSNcZAZuOrS8UkgdEibJSAQ6dKun08En7e4QIZ//fvEQXkdDwSeOnF+Q8Z6G/RA3tiKI9lFq3OcJfKeMAl9roxzjn4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl; spf=pass smtp.mailfrom=defensec.nl; dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b=fSkXH33J; arc=none smtp.client-ip=45.80.168.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=defensec.nl
+	s=arc-20240116; t=1753088472; c=relaxed/simple;
+	bh=7DSCDgcsHmFZz+oHUmrA2iOmXIVZLVrxHHhag9jHjY8=;
+	h=Date:From:To:Subject:References:Mime-Version:Message-ID:
+	 Content-Type; b=kgMlvUZCpTrLELvZNKk3bDYi31LhZRGvRaEOL+Jdhuc6m93rqyiqxL94CXZzyAA0yY/4dHAw8qlVev6NaA8/CykcSU1uidpS+257LH4Ej8+YWjmpCq+HxkMz4ujGTVEF5Ac9AT4nnSHzgsaO5Zox2jqRCa7l5K352SYJIf/0E+E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=EcDWUPCY; arc=none smtp.client-ip=220.197.31.2
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="fSkXH33J"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
-	s=default; t=1753087671;
-	bh=naBDr1ZvWNiKBNg8OMv3+8JqtOzFjVoBOZpBBOFGKDY=;
-	h=From:To:Subject:Date:From;
-	b=fSkXH33Jz4M25ZpBbNQsMnZM8v1L7C0MS3auEusHIp0Pn31xsQ+zvU6ErKwSO57RF
-	 C1lugMLKrViGcmReG00uGiEKbMYSFeg4liju2jsSswLeyYWJDpO+8XERANKWpvoXr1
-	 BbcqggcHrV0aBaCDb7o1rjaJ+8SlFZqSBEkpiF4w=
-Received: from nimbus (nimbus.lan [IPv6:2a10:3781:2099::514])
-	by markus.defensec.nl (Postfix) with ESMTPSA id C47BF1B38E2
-	for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 10:47:51 +0200 (CEST)
-From: Dominick Grift <dominick.grift@defensec.nl>
-To: selinux@vger.kernel.org
-Subject: systemd.exec(5) PAMName= with libselinux
-Date: Mon, 21 Jul 2025 10:47:51 +0200
-Message-ID: <87jz42dj60.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="EcDWUPCY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Date:From:To:Subject:Mime-Version:Message-ID:
+	Content-Type; bh=7DSCDgcsHmFZz+oHUmrA2iOmXIVZLVrxHHhag9jHjY8=;
+	b=EcDWUPCYclTu6LX+Q6uvwUM+V1iBRqtpATMOZRwYhIHtdYMaHQ9GGieZmWLrK1
+	IayE+I2Pgdgxllu7Ata092OAbNcYnn0wXrt2CyEm+gmcQbyQFl74DWUy++wRLeHi
+	S556DVQ3yJUPWIfnPmNIr3glS7us/QcXznxtCoW3ckTig=
+Received: from sf-c (unknown [])
+	by gzsmtp5 (Coremail) with SMTP id QCgvCgB3TxvPAX5oTtCLBA--.37044S2;
+	Mon, 21 Jul 2025 17:01:06 +0800 (CST)
+Date: Mon, 21 Jul 2025 17:01:07 +0800
+From: "robinshao007@163.com" <robinshao007@163.com>
+To: selinux <selinux@vger.kernel.org>, 
+	nvraxn <nvraxn@gmail.com>
+Subject: Re: [PATCH] libselinux: fix parsing of the enforcing kernel cmdline parameter
+References: <20250720125229.306644-1-nvraxn@gmail.com>
+X-Priority: 3
+X-GUID: 474CE69B-F437-485C-87CD-D6A0DB7206E0
+X-Has-Attach: no
+X-Mailer: Foxmail 7.2.25.398[cn]
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain
+Mime-Version: 1.0
+Message-ID: <202507211701051662994@163.com>
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
+X-CM-TRANSID:QCgvCgB3TxvPAX5oTtCLBA--.37044S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxAr4rGry7XF1xKFWftr17trb_yoW5Cw17pF
+	48Kr4UJw1rWF1xtw12k3y7Gr1rur1rZa9rW398Gw1YyF45JF10grs3K3WYvrZ7Ar1UXa1a
+	qrZ8WFW3uFyUJ3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0zRmsj8UUUUU=
+X-CM-SenderInfo: purex0pvkd0iiqx6il2tof0z/1tbiWxSRC2h9-oNrgAAAsW
 
+SGkgUmFodWzvvIwKCkkgZ290IHdoYXQgeW91IHdhbnQgdG8gZG8uCkJ1dCBJJ20gd29uZGVyaW5n
+IHdoZXRoZXIgdGhlIGZpbGUgImxpYnNlbGludXgvc3JjL2xvYWRfcG9saWN5LmMiIGJlbG9uZ3Mg
+dG8gdGhlIFNFTGludXgga2VybmVsIGNvZGUgLSBwZXJoYXBzIGl0J3Mgbm90IHBhcnQgb2YgdGhl
+IFNFTGludXgga2VybmVsIGNvbXBvbmVudHMuIApJdCBpcyBhIHBhcnQgb2YgbGlic2VsaW51eCBt
+b2R1bGUuCgpyb2JpbnNoYW8wMDdAMTYzLmNvbQoKCi8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8v
+Ly8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vCgrCoAoKCgpGcm9tOsKgUmFodWwgU2Fu
+ZGh1CgoKCkRhdGU6wqAyMDI1LTA3LTIwwqAyMDo1MgoKCgpUbzrCoHNlbGludXgKCgoKQ0M6wqBS
+YWh1bCBTYW5kaHUKCgoKU3ViamVjdDrCoFtQQVRDSF0gbGlic2VsaW51eDogZml4IHBhcnNpbmcg
+b2YgdGhlIGVuZm9yY2luZyBrZXJuZWwgY21kbGluZSBwYXJhbWV0ZXIKCgoKQ3VycmVudGx5LCBw
+YXJzaW5nIG9mIHRoZSBjbWRsaW5lIGhhcyB0d28gaXNzdWVzOgoKCgotIEJ5IHVzaW5nIGF0b2ks
+IG5vIGVycm9yIGNoZWNraW5nIGlzIGRvbmUuIFdoYXQgaGFwcGVucyBpZiBhbiBhcmd1bWVudAoK
+CgrCoCB0aGF0IGlzbid0IGFuIGludGVnZXIgaXMgcHJvdmlkZWQsIGUuZy4gZW5mb3JjaW5nPWZv
+bz8gQW5kIGFzIHRoZXJlCgoKCsKgIGlzIGFsc28gbm8gdmFsaWRhdGlvbiB0aGF0IHRoZSBudW1i
+ZXIgcHJvdmlkZWQgaXMgYWN0dWFsbHkgdmFsaWQsIDEKCgoKwqAgb3IgMCwgd2hhdCBoYXBwZW5z
+IGlmIGVuZm9yY2luZz0yPwoKCgrCoAoKCgotIEFmdGVyIHRoZSBmaXJzdCBzdHJzdHIsIG5vIGFy
+Z3VtZW50cyB0aGF0IGZvbGxvdyBhcmUgc2VhcmNoZWQgZm9yOyBpZgoKCgrCoCBJIGhhdmUgZW5m
+b3JjaW5nPTAgZW5mb3JjaW5nPTEsIHRoZSBsYXR0ZXIgZW5mb3JjaW5nPTEgaXMgbm90IHRha2Vu
+CgoKCsKgIGludG8gYWNjb3VudC4gVGhpcyBpcyBtYWRlIGV2ZW4gd29yc2UgZHVlIHRvIGhhbHRp
+bmcgc2VhcmNoaW5nIGFmdGVyCgoKCsKgIGZpbmRpbmcgdGhlIGZpcnN0ICJlbmZvcmNpbmc9IiB0
+b2tlbiwgbWVhbmluZyB0aGF0IGlmIHRoZSBjbWRsaW5lIHdhcwoKCgrCoCBhcyBmb2xsb3dzOgoK
+CgrCoAoKCgrCoCBmb29lbmZvcmNpbmc9MCBlbmZvcmNpbmc9MAoKCgrCoAoKCgrCoCB0aGUgZW5m
+b3JjaW5nIHBhcmFtZXRlciBpcyBlbnRpcmVseSBpZ25vcmVkLgoKCgrCoAoKCgpUaGlzIHBhdGNo
+IGZpeGVzIHRoaXMgYnk6CgoKCsKgCgoKCsKgIC0gVXNpbmcgc3RydG9sIHRvIGFjdHVhbGx5IHZh
+bGlkYXRlIHRoYXQgd2UgZ290IHBhc3NlZCBhIG51bWJlciwgYW5kCgoKCsKgwqDCoCB0aGVuIHZh
+bGlkYXRpbmcgdGhhdCB0aGF0IG51bWJlciBpcyBlaXRoZXIgMCBvciAxLiBJZiBpbnN0ZWFkIHdl
+CgoKCsKgwqDCoCBnZXQgcGFzc2VkIGFuIGludmFsaWQgdmFsdWUsIHdlIHNraXAgb3ZlciB0aGUg
+YXJndW1lbnQgZW50aXJlbHkuCgoKCsKgCgoKCsKgIC0gTG9vcGluZyB1bnRpbCB0aGUgbGFzdCAi
+ZW5mb3JjaW5nPSIgaW4gdGhlIGNtZGxpbmUuIExhdHRlciAodmFsaWQpCgoKCsKgwqDCoCBhcmd1
+bWVudHMgdGFrZSBwcmVjZWRlbmNlIG92ZXIgcHJldmlvdXMgYXJndW1lbnRzLgoKCgrCoAoKCgpB
+bHRob3VnaCB0aGlzIHBhdGNoIChpbnRlbnRpb25hbGx5KSBicmVha3MgdGhlIGNhc2Ugd2hlcmUg
+ImVuZm9yY2luZz0iCgoKCmlzIHByb3ZpZGVkIHdpdGggYSBwb3NpdGl2ZSBhcmd1bWVudCB0aGF0
+IGlzbid0IDEsIGVuZm9yY2luZz0yIGRvZXNuJ3QKCgoKcmVhbGx5IG1ha2UgbXVjaCBzZW5zZSwg
+YW5kIGJlaW5nIHN0cmljdCB3aXRoIHRoZSBhcmd1bWVudHMgd2UgcGFyc2UgaXMKCgoKYSBnb29k
+IHRoaW5nIGdpdmVuIHRoYXQgU0VMaW51eCdzIG1vZGUgb2Ygb3BlcmF0aW9uIGlzIGNvbnRyb2xs
+ZWQgYnkKCgoKdGhhdCBvcHRpb24uCgoKCsKgCgoKClNpZ25lZC1vZmYtYnk6IFJhaHVsIFNhbmRo
+dSA8bnZyYXhuQGdtYWlsLmNvbT4KCgoKLS0tCgoKCmxpYnNlbGludXgvc3JjL2xvYWRfcG9saWN5
+LmMgfCAyMSArKysrKysrKysrKysrKystLS0tLS0KCgoKMSBmaWxlIGNoYW5nZWQsIDE1IGluc2Vy
+dGlvbnMoKyksIDYgZGVsZXRpb25zKC0pCgoKCsKgCgoKCmRpZmYgLS1naXQgYS9saWJzZWxpbnV4
+L3NyYy9sb2FkX3BvbGljeS5jIGIvbGlic2VsaW51eC9zcmMvbG9hZF9wb2xpY3kuYwoKCgppbmRl
+eCBkYzFlNGI2ZS4uOWQ0MTFiOTUgMTAwNjQ0CgoKCi0tLSBhL2xpYnNlbGludXgvc3JjL2xvYWRf
+cG9saWN5LmMKCgoKKysrIGIvbGlic2VsaW51eC9zcmMvbG9hZF9wb2xpY3kuYwoKCgpAQCAtMjQ0
+LDE3ICsyNDQsMjYgQEAgaW50IHNlbGludXhfaW5pdF9sb2FkX3BvbGljeShpbnQgKmVuZm9yY2Up
+CgoKCnJjID0gbW91bnQoInByb2MiLCAiL3Byb2MiLCAicHJvYyIsIDAsIDApOwoKCgpjZmcgPSBm
+b3BlbigiL3Byb2MvY21kbGluZSIsICJyZSIpOwoKCgppZiAoY2ZnKSB7CgoKCi0gY2hhciAqdG1w
+OwoKCgpidWYgPSBtYWxsb2Moc2VsaW51eF9wYWdlX3NpemUpOwoKCgppZiAoIWJ1ZikgewoKCgpm
+Y2xvc2UoY2ZnKTsKCgoKcmV0dXJuIC0xOwoKCgp9CgoKCi0gaWYgKGZnZXRzKGJ1Ziwgc2VsaW51
+eF9wYWdlX3NpemUsIGNmZykgJiYKCgoKLSDCoMKgwqAgKHRtcCA9IHN0cnN0cihidWYsICJlbmZv
+cmNpbmc9IikpKSB7CgoKCi0gaWYgKHRtcCA9PSBidWYgfHwgaXNzcGFjZSgodW5zaWduZWQgY2hh
+cikqKHRtcCAtIDEpKSkgewoKCgotIHNlY21kbGluZSA9CgoKCi0gwqDCoMKgIGF0b2kodG1wICsg
+c2l6ZW9mKCJlbmZvcmNpbmc9IikgLSAxKTsKCgoKKyBpZiAoZmdldHMoYnVmLCBzZWxpbnV4X3Bh
+Z2Vfc2l6ZSwgY2ZnKSkgewoKCgorIGNoYXIgKnNlYXJjaCA9IGJ1ZjsKCgoKKyBjaGFyICp0bXA7
+CgoKCisgd2hpbGUgKCh0bXAgPSBzdHJzdHIoc2VhcmNoLCAiZW5mb3JjaW5nPSIpKSkgewoKCgor
+IGlmICh0bXAgPT0gYnVmIHx8IGlzc3BhY2UoKHVuc2lnbmVkIGNoYXIpKih0bXAgLSAxKSkpIHsK
+CgoKKyBjaGFyICp2YWxzdHIgPSB0bXAgKyBzaXplb2YoImVuZm9yY2luZz0iKSAtIDE7CgoKCisg
+Y2hhciAqZW5kcHRyOwoKCgorIGVycm5vID0gMDsKCgoKKyBsb25nIHZhbCA9IHN0cnRvbCh2YWxz
+dHIsICZlbmRwdHIsIDEwKTsKCgoKKyBpZiAoZW5kcHRyICE9IHZhbHN0ciAmJiBlcnJubyA9PSAw
+ICYmICh2YWwgPT0gMCB8fCB2YWwgPT0gMSkpIHsKCgoKKyBzZWNtZGxpbmUgPSAoaW50KXZhbDsK
+CgoKKyB9CgoKCisgfQoKCgorIC8qIGFkdmFuY2UgcGFzdCB0aGUgY3VycmVudCBzdWJzdHJpbmcs
+IGxhdHRlciBhcmd1bWVudHMgdGFrZSBwcmVjZWRlbmNlICovCgoKCisgc2VhcmNoID0gdG1wICsg
+MTsKCgoKfQoKCgp9CgoKCmZjbG9zZShjZmcpOwoKCgotLQoKCgoyLjUwLjEKCgoKwqAKCgo=
 
-systemd has an identity directive called PAMName= which allows you to
-run a unit with a specified PAM stack. The issue here is that in this
-case the "session leader" is always systemd.
-
-Thus you get into issues with pam_selinux because since systemd is for
-example always associated with "init_t" you can't really specify log
-SELinux identity foo_u in with foo_r:foo_t:s0 if this PAM stack is used
-and log SELinux identity foo_u in with bar_r:bar_t:s0 if that PAM stack
-is used.
-
-This previously was not a big issue since this feature is pretty niche
-but with the advent of `run0` it became an issue since that relies on
-PAMName=
-
-The problem is that pam_selinux is often already used to start the
-systemd --user instance, for example:
-
-/etc/selinux/TYPE/contexts/users/foo_u (/etc/pam.d/systemd-user):
-system_r:init_t:s0 foo_r:foo_systemd_user_instance_t:s0
-
-So you can't add the following because it would conflict
-
-/etc/selinux/TYPE/contexts/user/foo_u (/etc/pam.d/run0):
-system_r:init_t:s0 foo_r:foo_shell_t:s0
-
-Ideas? Suggestions?
-
--- 
-gpg --locate-keys dominick.grift@defensec.nl (wkd)
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
-Mastodon: @kcinimod@defensec.nl
