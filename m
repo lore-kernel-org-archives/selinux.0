@@ -1,63 +1,63 @@
-Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C97245033
-	for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 23:24:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE965246775
+	for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 23:24:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753140248; cv=none; b=B9BWGHO7cxqz2M2doBSFFaRcH1dIHWg6mOp5ZIQ99HSJmZphpXvSnIF3ZupRiJLwW8vWaHUF1lck0yocAX4NS7m1u08P7yB7AELAtTAzkqlTiUTBzi8O/Q+zFp2lUMl+XAyRDPUg3PDVl1EstBLftkEcU9pRP30HWuuy1iOfVZA=
+	t=1753140249; cv=none; b=H8NxuEWAPp98ehm72q1Wv371wr6QAplY5INQRXuZjSSGyhBwVmErhEUFk/fuUeQ1XcWjLVLeTkjwF2BOlvWElAHLRm0/RHRb/th/EOLiTmlGxiN4MZ5SJqKHHd2cZf5bsH2of5UahQIG9xzAFm1aYXBg9GhzC11LkbV9fRJqm8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753140248; c=relaxed/simple;
-	bh=rdBPCXy4+zMMahAP+JfAAcpjXp+SK/yo0e3ExJHaW6Y=;
+	s=arc-20240116; t=1753140249; c=relaxed/simple;
+	bh=VkDqekEGooACbobTsF+ofijOUXBUL1lObHTgsHIPDUQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=b74mbqkv7x5IihdX5efw/khik8qRbDSmJu25o76LY+f3ONukhVy3zj+9AWW88IDnN/6xlKxw34hMffhdZvx2/IzlpUaqF3fUW6T+3ek3dxUnht1hbSrgw0IT+GcT0GTq/MeDXmw0JSE5F0nKFGNyI5k37qJX1uTPfHCqCI+VRk8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=UdAlQkmm; arc=none smtp.client-ip=209.85.222.171
+	 MIME-Version; b=RjChJYABW+zG0eU1THwCHN0fEsH8u3HEGjMKN6xfxsfd/eUG9NfeXX8EBLLVYAu2a7nfDUfjzLuGhZL07x+EPQUOE+/pTVFFO1c5HO1W+RLCujEBEFNJP1j7+TWxkaXKlb2l/ZtXGnBQjeyAm5gkvtoBsJ5qK8zaGw972QwYNSY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=CkgifJh5; arc=none smtp.client-ip=209.85.219.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="UdAlQkmm"
-Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-7e34607e575so851395085a.2
-        for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 16:24:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="CkgifJh5"
+Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-700c7e4c048so78429716d6.3
+        for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 16:24:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1753140245; x=1753745045; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1753140247; x=1753745047; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=cr+5XluOiiRdnmU0yLT3prhxmj6Bm+YlSZyG9UsMSgw=;
-        b=UdAlQkmmn4uTGuwRe/hUpxzNCxgwW+P7aIY0uAJInL3jQNrWsxDdSC1Ir8Uo++wzhx
-         SLczswux54kZzhHCi4bBQUBEVFDjzUp85CJt3qU9WqTZkXKiRMYYogXLrIOZ92v2Qw+W
-         xoaob7neAVreHobJIv2ot40W24XgdR3sjXjio4AbFKj/SSKPotLPIk5ACOXuQF8/A/TH
-         otQaXkeqqXeL3oiMJ4QnAlCoWH4lZX1BAHnpjWccH6UBieVzc4has9/4odv49dlCTgyt
-         0R23kO7k2jS/DECwpWpHXBVrGjzmtI1L/B6XIRp4SkWbE9I7dWxuJ/DxNSlRK+NcS6bh
-         NjHg==
+        bh=uy5IJRaBCCHH5fmqqMmAku9Mm3gK87SrjLXhFK18rJM=;
+        b=CkgifJh5HGUyywy0ZakvW+M0Z11fhpnjyy15Ei69onb+IRZV2EIOGFh6ZyWmHpDzZL
+         tlf3K0iQq1Q8/KE6otGgA35YBbl3AHxGTnOYapZPY3IWh5BjkYLdC23ymic6AAaFn8pU
+         /j18OEFTjVXeCtNO7z1kKc9TP5PnMNU8dQI7tgNo+liU+V2ZtnVXi2jamt9lEJcUROr+
+         /RJQp74kz+zPBoBQrpuYTorxjnR0WD7WJuHytclBX+6ClnbByBBsIF1929zT4gxOOyDV
+         ko8y+K91E3OajKUGpVHQK3Y+lkr/M+6LtvnU2g9aa6I6YFiLJzAkIwd+/h41F0O4u1QB
+         XWnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753140245; x=1753745045;
+        d=1e100.net; s=20230601; t=1753140247; x=1753745047;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=cr+5XluOiiRdnmU0yLT3prhxmj6Bm+YlSZyG9UsMSgw=;
-        b=w0+xviS5XGSCYL65phDlsXPFtisado6lvW48E8bsDYETMBicQ4VXWjpi+Y8Dem+csY
-         lPdIbWiLLMCoqHTN1uPCYv9Xl+DZjeCoafvSXAh4yuCMgp+l+l8b5whHUSxFz2f8TMKG
-         66HjMn6cFfJobLBRcWmhu9PuMi2TRuh39dINWNw622/p16pMxQjCz6vGQqyJE1+ALa0s
-         k6BeCpXauNnNDhbQ4ZvkNnbp/WlbTJ+fZP5lxOWtXJqDdMIGR9W6GQCw+h7JnqEIxi+K
-         qN8KT4zDvz5cqZd0OfltQthyR6nEFgeP3GM3/sjw+du9Wa0foEc+vaXbEm3LKE4t0tQy
-         x0sA==
-X-Forwarded-Encrypted: i=1; AJvYcCXTZPjOfAkI1HJADquopbV38B93oOF9B/T0gZZvfLF5uQK7FP/4BggwXhPeIItM6ZKq+ZD3Nth8@vger.kernel.org
-X-Gm-Message-State: AOJu0YwynnDYGK3kE+PEi2gx8p41rHy9Sh9SnPBnNzrAQp5UP65+nYTu
-	8P/Gsb+1/63dFXbzT6T/25ZwGvuJLPSTyLUDDdjeSlaWc9xYz/sX04b5TPpOECmR7A==
-X-Gm-Gg: ASbGnctc0ATRZWgCC3X70TWm4VAVpNKlXjiASIWsusRrVceu9WbgyI7Y73dUl5YEPDt
-	SBESvu4ou2IFUyO3n+W8h2yoXz7COn/ACfvdYs7gVFvbR71zb3Wq66X+wYNFlW+LKqSfBpDZrW/
-	7fZhLIxsmQQsio7dyC1poThjFrHsPZBu9HeBRAMHeLD9fEzLySBQtkbf7z/uzTf6bZ5qxdEgK+j
-	qClQ03u0TbzLnAunBDRthC4+G/ypWCMQefJUofdtxklb130ee/XqaaVPECHVtc5qUmmdGC+6xNf
-	RIxd9sN/mUbMCWj2gENk1krFmBV4GT7BlwHQCgz9seeJVJTR08/N7813v/PKSExpe3wSGXpSp0W
-	UqjhljAjjR4zc3eQFzwEI/Ju6DMKKcQZGSoqpZVP2eJmQc8KszG9MzJaj2QuXC9gDvCs=
-X-Google-Smtp-Source: AGHT+IH2/awtgbdd9HS8F8qdKLvqQLxCU+tNuju4p23IFiYiJXPedSeAn1ufJcSLiXNam+ak1ZbEJg==
-X-Received: by 2002:a05:620a:4623:b0:7d3:9260:6dc7 with SMTP id af79cd13be357-7e356a24654mr2055990985a.6.1753140245593;
-        Mon, 21 Jul 2025 16:24:05 -0700 (PDT)
+        bh=uy5IJRaBCCHH5fmqqMmAku9Mm3gK87SrjLXhFK18rJM=;
+        b=ED7O0/BLpDBTasH49eFQb6Y/UFlsWj7hBOTsRigXYytA+e8NMrFe4rKvWkJexhTJSZ
+         /Ttuzf6aO+64Q5u071Lziip/6Uj7V6M16KshJLb5TL0SZHQO+KxQHeXWH9exNNHLXHfu
+         fGCKYt37djCNiBUOH3wWj7Lt9UD6XOMo6RyHzK2pAHSC2c7xN6sl1uVtiLUVfaGgETH0
+         uNvgUel9MnZyAtM1D4HvcEyVYt98rcTM6SHF4NFgscd25cL1RmGV7ttE5d5a9TuVgDPU
+         KyUCpLd68Fzg1gZMEYyEMMn3ks47y0JAkDg6LFsxdM5w1BAKcI3HE4k5ToAuki8V3go6
+         Xagw==
+X-Forwarded-Encrypted: i=1; AJvYcCXFQHE6gGKs8AxK5vki5MXvPXhgZO4jL07ux0ZNhnDdQAIE8HVg+nOD32A8E5jywA8FFkO5TaPK@vger.kernel.org
+X-Gm-Message-State: AOJu0YxfAo7tS8oY6ZRYajDKknd2FafiKzfC5vBSO7cVUUxxJ8r/Nk9K
+	yRDQ8tKX/YVOKzApnlarh51TJbDCNfW6KLTdzH+nXLXXEfiPWu53GUOtxxEk8Wncsg==
+X-Gm-Gg: ASbGncsT2Jf+4YZILp064tnboAd7BQtrfDeHW1bfKNs7eVGCBHsUibdKbtqZ8tis3Hr
+	0UFQ2JsNOO+nsamKYrzVVPT5+XF8s0X2AHEyE/CRZySC1nbDLA+BYnGmd12CtTyu+I160N4bFw9
+	1/9+IjvuLFvuR84T1fu268jFH4WYZMOFKpwTsK94FmNFW3ttIgZN1hjQs8eqgdhekAcMuFoqsHD
+	epW5K8mTKHnfFWr78UdkJ1xLTEz62Iu3rynJ4F1CSaxa0uzoFTxvQmALL2iihXm+GhUwFbvUmnI
+	XXv19eSzwHy59icuD4fkW/CUjgPiRSB7DkXIZJLPuHX9quG3J/3kYgMjJloWHD+kYEXu6boYN+V
+	ZaoHMFlrOeuAuPPWtqKSp+rnrShqRMrrE4w0B4OsG3Q8Pwb9jWmnab2FDMHBlRs/J5qQ=
+X-Google-Smtp-Source: AGHT+IEnICSUlfqJ3cELZ4P+O3voqpvhoWJ3CPj++sIhYNyBXHwTOyWdS/DJdQh1lgzBLivqZUv5lQ==
+X-Received: by 2002:a05:6214:3bc2:b0:704:f952:1881 with SMTP id 6a1803df08f44-7051a1955femr214146526d6.46.1753140246830;
+        Mon, 21 Jul 2025 16:24:06 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-7e356c649cbsm480552585a.75.2025.07.21.16.24.05
+        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-7051b9196e7sm45357886d6.48.2025.07.21.16.24.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Jul 2025 16:24:05 -0700 (PDT)
+        Mon, 21 Jul 2025 16:24:06 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
 To: linux-security-module@vger.kernel.org,
 	linux-integrity@vger.kernel.org,
@@ -74,9 +74,9 @@ Cc: John Johansen <john.johansen@canonical.com>,
 	Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
 	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
 	Xiu Jianfeng <xiujianfeng@huawei.com>
-Subject: [RFC PATCH v2 06/34] lsm: integrate lsm_early_cred() and lsm_early_task() into caller
-Date: Mon, 21 Jul 2025 19:21:09 -0400
-Message-ID: <20250721232142.77224-42-paul@paul-moore.com>
+Subject: [RFC PATCH v2 07/34] lsm: rename ordered_lsm_init() to lsm_init_ordered()
+Date: Mon, 21 Jul 2025 19:21:10 -0400
+Message-ID: <20250721232142.77224-43-paul@paul-moore.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250721232142.77224-36-paul@paul-moore.com>
 References: <20250721232142.77224-36-paul@paul-moore.com>
@@ -86,72 +86,54 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1881; i=paul@paul-moore.com; h=from:subject; bh=rdBPCXy4+zMMahAP+JfAAcpjXp+SK/yo0e3ExJHaW6Y=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBofsufmFIlee/a09i1WUsF6musLpbaGAIzsUhLh bf7XqM30TKJAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaH7LnwAKCRDqIPLalzeJ c/LSEACInaP2nWSEqMsoqyI+RYT4mS1nDgi2/sUYsDAxrqW8kwPeDLig8a+c20/0YzPUnEo8BG+ 8y1jyITSKzE57ahgHD05zJbi8s1Vu72lyGxQ7FdDNL4hqYt5eHcJfiSrXh0SHIz6DBQRmv3lv9x r5dcu9OyggScOlbgLu4Ms+Ofk31sZFB5Of9GPWnpzQw89j6S/x1kjYwockWptx4lMlW+XUXQoPN EbskUvFG/UiuF6q4Hbhrtd/fjqn8AGQnuo0dXjrFkkSg+hq5+qOUcbo32zqR6jEeeLFWwt1UfCo 0qy3eaGjibr/LTSv+7s+UUT/az4ytlY/JgOQOj+pYnKbZatt3UyTkpokZw54dYN1E4F792RWSyW wSaB2PX+NAW4lKVUIJKNmEYX/tDhN+DchBU10olu/DBN/k+fQLE9W+PEEHmKJ44TTCXcGFjjjeH HjLEdZfTh587IQSEGlPsfelkkMD/or0EMAsxQqqrmXEhDoWFoS2I3K/5IvHovn2BOrcJT+m3wC3 qd/glUGSa8AOnkxPcV1JiDXmHBq4B78oUkRM00Ee/7B/8rqfvNGz27NkXyZi15J9A2W+yy0H0yX nrkPE7gf6LBV5GUEdSe7a/A4RBQA2BAEwV9ex1rOkeFqT1E3XLfH8Ni9pZ672ceJOz8SaigQ0v9 BYtGtcWcm7AE3nA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1352; i=paul@paul-moore.com; h=from:subject; bh=VkDqekEGooACbobTsF+ofijOUXBUL1lObHTgsHIPDUQ=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBofsuizBpilSTgtAAg2jEdeFOazNsypDwk13CHZ YdeCuv4DUSJAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaH7LogAKCRDqIPLalzeJ c1ROD/4xhNOREvykj2e3Vy4j6gClYsRDPmXq1eFmZ7Gs2VmiSVu9To6+Ynlneal5RwPaXkbibCH 1J4t9v6WtgLjXqIolWsdzyw4XNfTvKAUtfhebmLokZoZTfpRvLTOwfKH4LCzcjg0FoppAeCZFTZ r7o1QSPbwR7V8NFNG2fW+osxicyi/eRZkcsSLNLU7MgjEVap+SYZVrdhJVw2KvgWoPsk2qlUTDi 4pL8jaK1MIoyERvxaWWH5HyoEMBsZbOnL+637YjkTroMXVT3KkmFVjfAyANoZEOYZti/SiUrjgB Ly31I1bTb8S2lu+FPDKtEKQmFqmRZkB+gcZl35HAsYSJOT/D3vUgFJqnQbKV9N1w+rhwxszzm40 h8rPJUJUHQZjptwMluPJnB9cU0k5P4reRsiv3KvYC5Lb9xn1qTdqd1oi2tZ87Khl3RBuFEZSbkS qgznvHQCKHp92Avl2ZLmzIwS/9bg6s5jjC8ajF1wN2tjfdZuhKbsCSNBOEPthwQmygO1KFB6NWp tQV8H/yp0HSaQQrNlr6Y00ZggE8tT+uXHtEGXOzpSL6pQg+5s7KFJZT7JchIvLmlolf8ZrgSTxD ZbXaMjMLySO77HUtIM6b9BRbUiFsvjtHhDKIMDY5FlevaJC7Hoqn1l79JUvwF4LtyF2WEjAp1PB ZNWWRBB+bm5Q3sg==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
-With only one caller of lsm_early_cred() and lsm_early_task(), insert
-the functions' code directly into the caller and ger rid of the two
-functions.
+The new name more closely fits the rest of the naming scheme in
+security/lsm_init.c.  This patch also adds a trivial comment block to
+the top of the function.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/lsm_init.c | 35 +++++------------------------------
- 1 file changed, 5 insertions(+), 30 deletions(-)
+ security/lsm_init.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/security/lsm_init.c b/security/lsm_init.c
-index d20c6df55e7d..7e736c20458a 100644
+index 7e736c20458a..c8af26a6ce14 100644
 --- a/security/lsm_init.c
 +++ b/security/lsm_init.c
-@@ -288,34 +288,6 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+@@ -288,7 +288,10 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
  	kfree(sep);
  }
  
--/**
-- * lsm_early_cred - during initialization allocate a composite cred blob
-- * @cred: the cred that needs a blob
-- *
-- * Allocate the cred blob for all the modules
-- */
--static void __init lsm_early_cred(struct cred *cred)
--{
--	int rc = lsm_cred_alloc(cred, GFP_KERNEL);
--
--	if (rc)
--		panic("%s: Early cred alloc failed.\n", __func__);
--}
--
--/**
-- * lsm_early_task - during initialization allocate a composite task blob
-- * @task: the task that needs a blob
-- *
-- * Allocate the task blob for all the modules
-- */
--static void __init lsm_early_task(struct task_struct *task)
--{
--	int rc = lsm_task_alloc(task);
--
--	if (rc)
--		panic("%s: Early task alloc failed.\n", __func__);
--}
--
- static void __init ordered_lsm_init(void)
+-static void __init ordered_lsm_init(void)
++/**
++ * lsm_init_ordered - Initialize the ordered LSMs
++ */
++static void __init lsm_init_ordered(void)
  {
  	unsigned int first = 0;
-@@ -376,8 +348,11 @@ static void __init ordered_lsm_init(void)
- 						    blob_sizes.lbs_inode, 0,
- 						    SLAB_PANIC, NULL);
+ 	struct lsm_info **lsm;
+@@ -336,9 +339,6 @@ static void __init ordered_lsm_init(void)
+ 	init_debug("xattr slots          = %d\n", blob_sizes.lbs_xattr_count);
+ 	init_debug("bdev blob size       = %d\n", blob_sizes.lbs_bdev);
  
--	lsm_early_cred((struct cred *) current->cred);
--	lsm_early_task(current);
-+	if (lsm_cred_alloc((struct cred *)current->cred, GFP_KERNEL))
-+		panic("%s: early cred alloc failed.\n", __func__);
-+	if (lsm_task_alloc(current))
-+		panic("%s: early task alloc failed.\n", __func__);
-+
- 	lsm_order_for_each(lsm) {
- 		initialize_lsm(*lsm);
+-	/*
+-	 * Create any kmem_caches needed for blobs
+-	 */
+ 	if (blob_sizes.lbs_file)
+ 		lsm_file_cache = kmem_cache_create("lsm_file_cache",
+ 						   blob_sizes.lbs_file, 0,
+@@ -492,7 +492,7 @@ int __init security_init(void)
  	}
+ 
+ 	/* Load LSMs in specified order. */
+-	ordered_lsm_init();
++	lsm_init_ordered();
+ 
+ 	return 0;
+ }
 -- 
 2.50.1
 
