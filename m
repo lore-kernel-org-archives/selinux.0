@@ -1,64 +1,63 @@
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
+Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FB4E245033
-	for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 23:24:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53FA62475F2
+	for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 23:24:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753140274; cv=none; b=sTibRiGgqyFr0OwTeiB+gMUqeA72AxTF3aWMp9lvRGAGnJS5TOtqbkwiNXjwl9l70GNELoHw7aeJaLQiG0TUZYJ7BomLOOBWadsPhGk35xsafPWcxrJhhfoiwNt9LxSFnBipTXFZB+vqdBj28QZexTujyyjXXQ+l3pUNA1+v6R0=
+	t=1753140274; cv=none; b=XtSthMcYSw3FPOrWuTq4/BViXy9N+hbuQ8LAoX67PokN1n/BoswUJPX+j1ktadV6mQjwRmdR48/pZ292UyvBVrPSVldvXHLZTziOZHdY4gXGU6Bm6G4YDekz2/FHkqqEDDOhnbaB4dtUtGUqWmCQuSM1XYysiVxmU1lkD3hti6k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1753140274; c=relaxed/simple;
-	bh=+gdQ1Czu7rv7jdTTczvi1RYieE4Tkxnqe62OiAJK00s=;
+	bh=dtTlDf9Zs1w3qXgBN4kcfoXdJ9Galgh9dd6NXDYVJZs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=EnPC4V+fAQgymh7VyACKAHGa/1fbgxvF2VSo4sx3vJ/BZsFDpV0mdad3XiIVY3MEoXft2YgOZM9MzsG41Vbj344e0PshbLp9yVjOY/cp4hKoZAS87aYTgUFq+LqnY9Ez0e2MBTU2rWDDEhito0OSkLbGeoEYSz/Q064b1SzPEsw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=RMO6Rapk; arc=none smtp.client-ip=209.85.219.43
+	 MIME-Version; b=dMBL9XNy1smyGSbbdojlf3AXOkuPMOHv+8ozVZXGsHxz6gYFQ8f/fpXMVhs5AVgMFBSv+N47ypZ72gr+HvvWBO39mkgcVo/ArIriTIKTfaEuUZN9ckJhKt3z3puJzsUKTF2OW4LgfdYkqp3lga1wQwc1d699QBbmQDpjOHP/u+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=CBzCQrjU; arc=none smtp.client-ip=209.85.222.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="RMO6Rapk"
-Received: by mail-qv1-f43.google.com with SMTP id 6a1803df08f44-6fb1be9ba89so40937966d6.2
-        for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 16:24:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="CBzCQrjU"
+Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-7e346ab53d8so436439585a.0
+        for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 16:24:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1753140271; x=1753745071; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1753140272; x=1753745072; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FiA+OJUaAzDTv5PHcF3sh1p3tu3Ya4mB63tPg4bKqH4=;
-        b=RMO6RapkzDCyp+WnyVhxL7lNRuTSKPP+nXFeL+OTf/lfhokG5yndvPPuerJBYJmxtI
-         PYYWLF/3T4BKDasNOp0J21UIEAnizRFmI3AkKb8FoMpeCnFJuFpej1UOygr3jB79C8QN
-         yyKAtLQiHgPJ2+0PY/LuXAlEsbp5LiZsnAss57R8MCT5rbik2ZzPyB9JXe3EXclwnvza
-         k8e2J2/uSqGxESC2vSug0tY25hLqi07frR9V1RW6ictSr16h3YVM2hd9ts+9uEV1Hoy4
-         UyCaiAovie3Lns+wUdt4ji/kT/s8kKmvWR58UBiRgsuO0MzDAXH7PxyxwW5+Cgoe5USW
-         gFrA==
+        bh=Y4osn1cU2KHpyctysVPOujBHcpLOdAZCknxigtl4erg=;
+        b=CBzCQrjUfV4R8fFYnokVkLgmzsFVP8Gg17oYQ29VLVoAtQlGemi1aOEIJ05eDsPSNN
+         +Hakb8SVfIL8l73OA7So8wpyLjqMibcs2nV567iz5HFn+tGTJLlZ00w0vbmTDkoqBwtG
+         Aby96dwIEZyCjFsazDD1KpU82BfM4ofQJ4bL9H57UEil0l7UlzMS2NpuoPjNQS7XoRTh
+         6OKutoI5/I6czFZWiJZMZzNxhwLbEnx2b7WYRko7B0OicKiLnPa9OzKctECFqbdE7fcb
+         5FE1sbFZFTWBPo+5pBIwf3wnu6lD/q0Tsy6WoP6UEQ1ZsKH3MMwhJBqhb06Q/pX7Xudm
+         KzAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753140271; x=1753745071;
+        d=1e100.net; s=20230601; t=1753140272; x=1753745072;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FiA+OJUaAzDTv5PHcF3sh1p3tu3Ya4mB63tPg4bKqH4=;
-        b=ijfdybNMYCNA19lCVoZDM1iSOFbnSdz7jr30d2neff3eS3f1gHuhwW+0wuegdQzEFB
-         4IK8h40c4b5iHtMnSKOawp3mrF6ugBqgRmEEEKjdm0jHorfy492TgXrZpXz429k6/NYS
-         TDDENPE42dbOM0yy3CP+S+B4i/3QS7VZb1iSTuMsmfDOSZ0TwBTcLv2gKwCwSYYolcuq
-         u2croIKrgVrkJ2T8llzNBMcmEBJ2zZOnqVSG3XL5+3BH2i8O1oguALyMTkvq615tHbhP
-         dRuaN8L6H0MjKuN6+ELQnhP+2hvX3m39Tg8KpQa/cR6nzSCAcrFJn4utGby1Uv3ZYa1l
-         JrKA==
-X-Forwarded-Encrypted: i=1; AJvYcCXsrsgFtoTgggbb8gsxGuqx3o7GwhYKFhprigULi7L5TGyEm/Willes0YBuIWGQlsLWTkWoYBan@vger.kernel.org
-X-Gm-Message-State: AOJu0YyyyRA0+gIdE+JEJ9Blv0eMC/YycMJoOx+QbQW9kwVjGxAfF7Ug
-	Yy7tYeZLHPtB06dAil7zlw1cbzl/aUuRAs/rckuV2N9WBfOWzklElwijUJY2mNiZGoGodQ9hITt
-	ualA=
-X-Gm-Gg: ASbGncspRH5AAP2zF1LFtXEI+zBBRWObSG+D5cJp9wvN9yiGAv8Wutc5CulQKGPg9NA
-	iC9DY2444XCr38knpo4fyin7SU2EkqjV45aC83YyShjR0cSomqgQ4IICguchZ58IY16FMNc370R
-	1IAcZUehM/TPL7Dg3UFZxqqhTE7KyPEO6UWCCisB6kF0oREpHhJzPYZSVzD8fe0qtulmxt1KDRF
-	CblEPnqtipXwV3UPStvCzbPkY9KgQmxoNCpMRPDtcYdEzI0K1e1ioLd74SzlobtXRyhSzVC5u46
-	wJhx4eIJz001bSloNGgIY+03G9IDHiAsI2MWpcVtK+KedGlSRkteitRDwx/mo7nx3uNC5RF8aNq
-	bixE/18WHIxkmdEQb+I/oj97FgYluv+NefOwbWyM05RlgS4ZrI57/6txCDCnQzWemWq0=
-X-Google-Smtp-Source: AGHT+IEJYlolQFTaUn6HdlFtxzYbq+OWBtBbLKQwUX9IaoI3NSxY1nHpuB/NK8zVy0VsghQAZOws0g==
-X-Received: by 2002:a05:6214:c2f:b0:704:9bc2:be36 with SMTP id 6a1803df08f44-704f69fdcefmr429300856d6.7.1753140271240;
-        Mon, 21 Jul 2025 16:24:31 -0700 (PDT)
+        bh=Y4osn1cU2KHpyctysVPOujBHcpLOdAZCknxigtl4erg=;
+        b=hbXeUKNU5TaFrB2OxHKdxR08cJOun4BrxYKcKoijlq/x1JM7CJ0Kzf1b2iK9slujyy
+         eVYjcG4QVM8ICS49xKcrpPy5QkuhEGZJ2E877kC4pulCndf677TmAdMVKb4eeTJ/O2sb
+         Uo2318x/R+vIIoO49rYH+y+NO6MCRXcOgaEw7PsXzc4wJSW3w8Dn76Q1N+gN78uLvlS9
+         U9+K8V8SYv+d25XWI1yevtx/z73ZT6v7kQyHjIOjGGvU2m6WCQYSO1V8E5i2ahauj1fS
+         2svbrjVzxYQeOaDXt9zr+AmmUU66fWaCrVlaUaE4yHuiRFlyppRw3SAK9u5i8+0LfVbr
+         0gXw==
+X-Forwarded-Encrypted: i=1; AJvYcCWWj9Z22hpLDECvt2REMv0Xb4ZdKbGecwG9V79uQ3L/YGWFZBkCqg3OUJFtGjy1Zwpzb1lzmOr0@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyvl1VlxA+15JAYcqiTDOsjXpOSyPCI/3a7a+MZzZwzjAEv+v/8
+	3ANIov0t2bRKyMa4rZ+ERRXXVo/f+lDVpamkj/h8+VgW8cEwgYSKUSJ+dYqhPWrO9w==
+X-Gm-Gg: ASbGncvQYuM6xmzLc1h+iepZjBvbINtzxrRdvlP9mrTR2Y0OUgreg+vpH/d4wQfb15I
+	5j1SwEGQtxYrIOpTFRp4un5t4oZZYu5GeB/nsfzGzv9UCUC/E048vWErWhRuGStfW18EIu7ZVUG
+	7xORhA7ktCahiFr3YKDGWMV97TQXzJs78uE/TnkUgLLvWbrWGai0Q04BFz5xmEUrACF9L9LHbRJ
+	3PbIS3iSBDuvr5BMK1FpUYVIaYi1kCiopbkdT/8ITCnSlyU5YCtTMCzEnExYTJHNASIwxWy3CJf
+	83Vy/rs4sawdgxEm3RUfApySYzw24zcp3rHKgCZZlUGXExLui0WPzgrFFBBrgBB9QyE7qJ3s6ay
+	aLmaWfBop+qk7GFfY5VCsyoQImi3ZB4trm+9MJQ4Q7XxEb2ikOEcf9Q/yD+OMzOhbNIs=
+X-Google-Smtp-Source: AGHT+IFkxGCxtcFnWVigtUFhdyx2aVzIyfYem/1oEuP3/Zm9qp6xaLQfWlhY3zSnEccPCMBAk1ecng==
+X-Received: by 2002:a05:620a:12c6:b0:7d3:c4c7:75d6 with SMTP id af79cd13be357-7e34d9d33dbmr2054160585a.47.1753140272445;
+        Mon, 21 Jul 2025 16:24:32 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-7051ba8df3fsm45917276d6.79.2025.07.21.16.24.30
+        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-7051b92394fsm44367576d6.51.2025.07.21.16.24.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Jul 2025 16:24:30 -0700 (PDT)
+        Mon, 21 Jul 2025 16:24:32 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
 To: linux-security-module@vger.kernel.org,
 	linux-integrity@vger.kernel.org,
@@ -75,9 +74,9 @@ Cc: John Johansen <john.johansen@canonical.com>,
 	Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
 	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
 	Xiu Jianfeng <xiujianfeng@huawei.com>
-Subject: [RFC PATCH v2 29/34] apparmor: move initcalls to the LSM framework
-Date: Mon, 21 Jul 2025 19:21:32 -0400
-Message-ID: <20250721232142.77224-65-paul@paul-moore.com>
+Subject: [RFC PATCH v2 30/34] lockdown: move initcalls to the LSM framework
+Date: Mon, 21 Jul 2025 19:21:33 -0400
+Message-ID: <20250721232142.77224-66-paul@paul-moore.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250721232142.77224-36-paul@paul-moore.com>
 References: <20250721232142.77224-36-paul@paul-moore.com>
@@ -87,114 +86,34 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3564; i=paul@paul-moore.com; h=from:subject; bh=+gdQ1Czu7rv7jdTTczvi1RYieE4Tkxnqe62OiAJK00s=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBofsvv6v4jeR0i1ABMksbYtivuhAW46UQ0diKcZ EBKoa+lOO6JAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaH7L7wAKCRDqIPLalzeJ c3m6EADW6MDxdj8pJsfgiw/fl7aMHs4m700QgWzXJYmHHH7HRXEV/xeooRmyRUFw7+5oKTVwoD/ YPrhY/PiSRlNJqDdjLXBiuoWUwFmpP21JfDNd9noEE9k4qE5AbrUKlPro+y1Py22uoytXogWXty 8LBplAGhdPIInIEzZcjhsps88bpB6Vk/vTVyiL2xVIzec5BOfq8XD7+XEYETDqvIId1TRjvNWew ERknhdwCk09irU9Vo9wYIeTak867TvWff5v1KFgC2UkQN0QmHXFsxvU/a7RBE5ghJiENvRhS9oI cn7PS3D1dX8q5Wh1lFD3tUWdD81tA/uBLLX1ZyU99vDg55mg72M3k9NIQo93PoPiNPhb2niq5Cv RgAanmcx76UBs4VVN/IMBeXd0K0DbMEspFb1HU1rtjzVbOljNFDoyIZY3iB7iirt/8ZYfx/UuLg 63qpJ0SBeg3Hn0hvbkpYnG2ZSzdSQZYMG6R/LGwojPkyWkBIdcXY7ouSvZgnuAJkbc41uecM1P/ p7rZc7J5eQeE9XRABYr4sndvtwV2P5U4T0rqt5LRS+U+JIQ8JZumj8RVDDfot/vz1YWY30+xhwN v3zUYgUXoLO4lUf9A9xedmC5JEQNikht9/1lQb6UrLNtdzKQMaOVRoQ0v5+L+dQ7ffqRqdxjGdz SrZguKNQPcNs61w==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=776; i=paul@paul-moore.com; h=from:subject; bh=dtTlDf9Zs1w3qXgBN4kcfoXdJ9Galgh9dd6NXDYVJZs=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBofsvy3UEZdfYgB23vwGfEkd84LDlsFR4wF6KP+ yniXnVb3q2JAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaH7L8gAKCRDqIPLalzeJ c+btEACauTWNp5Gu8YrkRQgdA4davHACFivPcXvrQ0Il6ENbXpajLH2TWVTaUlQU3YZhIJyT23v cRM868Poy+cb7oob11+8scn9nuO92G3E2YdladXyFnt0c0QUG6PlU4f2H6lm2VR8Ti+d+AJYCtz zrIVH8io5PiTjgy4qxyDJOUafdDbJODKMJvAY/wKcGARa8yGXH1KZmrpnHMDz1kGj3A1uhaIOnz ggR0W0+fFO/dGkrRgAm2FctkVHlGBXNxJCWEbgPevx8gxx7QUZYZFUOSU8wywc++Dtodq8J3rmW e8piOK9TgjyFcJgWnGms3TP3YacJ2LOYJhsH4KtjQLFgLPmYUaE2GtFZNvi5Pj4aDjC6CNM0d59 ihkl3WL88A3fDwtlJdJH28MLimjtz0NLTJrpuTUI6FypLQapA5U8P9fKV+JgwOGsaw+3XsRRI6u xaJiVpBfGAV7dhw6aibup9vYOG0yRVAE6/G9sMiGvVm0gp/uGup5muMix6FwmrWcMK3oQSkHQkF ZizYDYcJDr7rbDXgvUcHV6FzVOz1RNrwxn5HyJ0IBgsLYWGelAdYq0J6m8XrU3LYlu3RT5Jc7zp MjnoSIzrKUqklG6PCsA0vaitp64IbcxUY+AB/uoghzqnRdyOpzLW9rsNgey3cffgxwpYecYLt3p 9J5j0FwPnbh9EFA==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
 Reviewed-by: Kees Cook <kees@kernel.org>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/apparmor/apparmorfs.c         | 4 +---
- security/apparmor/crypto.c             | 4 +---
- security/apparmor/include/apparmorfs.h | 2 ++
- security/apparmor/include/crypto.h     | 1 +
- security/apparmor/lsm.c                | 9 ++++++++-
- 5 files changed, 13 insertions(+), 7 deletions(-)
+ security/lockdown/lockdown.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/security/apparmor/apparmorfs.c b/security/apparmor/apparmorfs.c
-index 0aef34b9609b..02fbc7aa072c 100644
---- a/security/apparmor/apparmorfs.c
-+++ b/security/apparmor/apparmorfs.c
-@@ -2632,7 +2632,7 @@ static const struct inode_operations policy_link_iops = {
-  *
-  * Returns: error on failure
-  */
--static int __init aa_create_aafs(void)
-+int __init aa_create_aafs(void)
- {
- 	struct dentry *dent;
- 	int error;
-@@ -2711,5 +2711,3 @@ static int __init aa_create_aafs(void)
- 	AA_ERROR("Error creating AppArmor securityfs\n");
- 	return error;
+diff --git a/security/lockdown/lockdown.c b/security/lockdown/lockdown.c
+index 4813f168ff93..8d46886d2cca 100644
+--- a/security/lockdown/lockdown.c
++++ b/security/lockdown/lockdown.c
+@@ -161,8 +161,6 @@ static int __init lockdown_secfs_init(void)
+ 	return PTR_ERR_OR_ZERO(dentry);
  }
+ 
+-core_initcall(lockdown_secfs_init);
 -
--fs_initcall(aa_create_aafs);
-diff --git a/security/apparmor/crypto.c b/security/apparmor/crypto.c
-index aad486b2fca6..e4395c1bfac5 100644
---- a/security/apparmor/crypto.c
-+++ b/security/apparmor/crypto.c
-@@ -99,7 +99,7 @@ int aa_calc_profile_hash(struct aa_profile *profile, u32 version, void *start,
- 	return error;
- }
- 
--static int __init init_profile_hash(void)
-+int __init init_profile_hash(void)
- {
- 	struct crypto_shash *tfm;
- 
-@@ -119,5 +119,3 @@ static int __init init_profile_hash(void)
- 
- 	return 0;
- }
--
--late_initcall(init_profile_hash);
-diff --git a/security/apparmor/include/apparmorfs.h b/security/apparmor/include/apparmorfs.h
-index 1e94904f68d9..dd580594dfb7 100644
---- a/security/apparmor/include/apparmorfs.h
-+++ b/security/apparmor/include/apparmorfs.h
-@@ -104,6 +104,8 @@ enum aafs_prof_type {
- #define prof_dir(X) ((X)->dents[AAFS_PROF_DIR])
- #define prof_child_dir(X) ((X)->dents[AAFS_PROF_PROFS])
- 
-+int aa_create_aafs(void);
-+
- void __aa_bump_ns_revision(struct aa_ns *ns);
- void __aafs_profile_rmdir(struct aa_profile *profile);
- void __aafs_profile_migrate_dents(struct aa_profile *old,
-diff --git a/security/apparmor/include/crypto.h b/security/apparmor/include/crypto.h
-index 636a04e20d91..f3ffd388cc58 100644
---- a/security/apparmor/include/crypto.h
-+++ b/security/apparmor/include/crypto.h
-@@ -13,6 +13,7 @@
- #include "policy.h"
- 
- #ifdef CONFIG_SECURITY_APPARMOR_HASH
-+int init_profile_hash(void);
- unsigned int aa_hash_size(void);
- char *aa_calc_hash(void *data, size_t len);
- int aa_calc_profile_hash(struct aa_profile *profile, u32 version, void *start,
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index a7f6a3274682..2fefaab6349f 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -31,6 +31,7 @@
- #include "include/audit.h"
- #include "include/capability.h"
- #include "include/cred.h"
-+#include "include/crypto.h"
- #include "include/file.h"
- #include "include/ipc.h"
- #include "include/net.h"
-@@ -2146,7 +2147,6 @@ static int __init apparmor_nf_ip_init(void)
- 
- 	return 0;
- }
--__initcall(apparmor_nf_ip_init);
+ #ifdef CONFIG_SECURITY_LOCKDOWN_LSM_EARLY
+ DEFINE_EARLY_LSM(lockdown) = {
+ #else
+@@ -170,4 +168,5 @@ DEFINE_LSM(lockdown) = {
  #endif
- 
- static char nulldfa_src[] = {
-@@ -2277,4 +2277,11 @@ DEFINE_LSM(apparmor) = {
- 	.enabled = &apparmor_enabled,
- 	.blobs = &apparmor_blob_sizes,
- 	.init = apparmor_init,
-+	.initcall_fs = aa_create_aafs,
-+#if defined(CONFIG_NETFILTER) && defined(CONFIG_NETWORK_SECMARK)
-+	.initcall_device = apparmor_nf_ip_init,
-+#endif
-+#ifdef CONFIG_SECURITY_APPARMOR_HASH
-+	.initcall_late = init_profile_hash,
-+#endif
+ 	.id = &lockdown_lsmid,
+ 	.init = lockdown_lsm_init,
++	.initcall_core = lockdown_secfs_init,
  };
 -- 
 2.50.1
