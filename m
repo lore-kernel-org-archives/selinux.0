@@ -1,65 +1,63 @@
-Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
+Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99A95246765
-	for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 23:24:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C97245033
+	for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 23:24:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753140247; cv=none; b=CLJqpyLsfOCYqUZ8xC6zjxkfaFDvw3NWqyp3HOhsRP7k0quyNFEHNAoQWw2+uYoopdcAkI9zQE1aRN2xzKJK3GxSg6V+h94qwyC0GK1EsKVhHDZrO+rmkBCJrNglwBHiCUs0XBvZqzaocdCkvZ3pv8UxqqEHpmJ9O99KOM0vzAI=
+	t=1753140248; cv=none; b=B9BWGHO7cxqz2M2doBSFFaRcH1dIHWg6mOp5ZIQ99HSJmZphpXvSnIF3ZupRiJLwW8vWaHUF1lck0yocAX4NS7m1u08P7yB7AELAtTAzkqlTiUTBzi8O/Q+zFp2lUMl+XAyRDPUg3PDVl1EstBLftkEcU9pRP30HWuuy1iOfVZA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753140247; c=relaxed/simple;
-	bh=sJ3xHy7C70p8eD3qfM5ogSJFTU3Y5lkGyavDif9LnjE=;
+	s=arc-20240116; t=1753140248; c=relaxed/simple;
+	bh=rdBPCXy4+zMMahAP+JfAAcpjXp+SK/yo0e3ExJHaW6Y=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UN4lmlrZqBy159AOmKLYrv2X4dFhBm3ZSis+c8bGnCA4Tb44NboUU3erK1c1IsgQXkgmxMVVa+v/Pw1rA57gIgjNacCxUr6Fm6IwSD476gYQs4QizVE/XGlqz9CZdbP1rh28mqk5TMw35X4KITYBFVcuJo97LTY+JRwTMBnoiy0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=aEfS4R3a; arc=none smtp.client-ip=209.85.160.177
+	 MIME-Version; b=b74mbqkv7x5IihdX5efw/khik8qRbDSmJu25o76LY+f3ONukhVy3zj+9AWW88IDnN/6xlKxw34hMffhdZvx2/IzlpUaqF3fUW6T+3ek3dxUnht1hbSrgw0IT+GcT0GTq/MeDXmw0JSE5F0nKFGNyI5k37qJX1uTPfHCqCI+VRk8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=UdAlQkmm; arc=none smtp.client-ip=209.85.222.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="aEfS4R3a"
-Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-4ab7082b3f7so64158451cf.3
-        for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 16:24:05 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="UdAlQkmm"
+Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-7e34607e575so851395085a.2
+        for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 16:24:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1753140244; x=1753745044; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1753140245; x=1753745045; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=beo6MFDAYtua5/S2j8GARDSQ9e3HZAx0UoA8dvN4IVI=;
-        b=aEfS4R3amkdLjnuTFHH5tfqsryHrdK9knZt4KLi4mlQM4f8uHYFdSJrSrFf+zUtEmt
-         8ze2CNUSNJptJMg8dt2j0OV8EN4y2Llpn+eVKIDmXvrAyAFZtgRcb3xL2Ce4OR5aWlAo
-         ZTlX1vkdJiqOJbMKSPyowoIDkCsWh5VoUyPH2w3vWDWL2yKKPczcv/fS+7aDwY/+IrF8
-         MhPiLq149mEBQi8sIm1qjYgGmSsn1++3kHeevVqtXdMut2VI1U61Lk0h9+gpLh3/YDwh
-         K+ERgyjyKzeEhyapQIl9KLjK3qy02HtSC8BYA1sOKz6gwpovgRGUPSF3IqiT6s72ZSm1
-         qimw==
+        bh=cr+5XluOiiRdnmU0yLT3prhxmj6Bm+YlSZyG9UsMSgw=;
+        b=UdAlQkmmn4uTGuwRe/hUpxzNCxgwW+P7aIY0uAJInL3jQNrWsxDdSC1Ir8Uo++wzhx
+         SLczswux54kZzhHCi4bBQUBEVFDjzUp85CJt3qU9WqTZkXKiRMYYogXLrIOZ92v2Qw+W
+         xoaob7neAVreHobJIv2ot40W24XgdR3sjXjio4AbFKj/SSKPotLPIk5ACOXuQF8/A/TH
+         otQaXkeqqXeL3oiMJ4QnAlCoWH4lZX1BAHnpjWccH6UBieVzc4has9/4odv49dlCTgyt
+         0R23kO7k2jS/DECwpWpHXBVrGjzmtI1L/B6XIRp4SkWbE9I7dWxuJ/DxNSlRK+NcS6bh
+         NjHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753140244; x=1753745044;
+        d=1e100.net; s=20230601; t=1753140245; x=1753745045;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=beo6MFDAYtua5/S2j8GARDSQ9e3HZAx0UoA8dvN4IVI=;
-        b=jaLLAelrpiwRLouTrnbvEAkXR6cECRzWsysg4sCWqAVdV4Ia+16FDJWe3QP+0nYLpi
-         ERgr/JeVgsugx/6W78Qe4WndQLmGPkUbWiMbEU3aIHKOvFBxul7iqc870uKoq/BbGSO0
-         5UhHEx7X1aH266Octa5QAJCE2pANE4o63oEogHi+m6lZRkwVr9XndBZ19/Oui3Q492y7
-         o5F0nIuERlBPCfvX3y77Q8ao3G+uMw41lFuC0LX5k+HWMveTqRe4ncZzUKtBIDxvILa8
-         sXCnIIloeA6tDVkcLhw5dBaSiMBBuo330jiupvJpg/z9EKFnLBBiVFZ1AQdkE5pQ8VFZ
-         jdxQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXXnYcth2FX3kP/jxVwZfn8PROinjBq4i3YnKdJ4E4N++gmyMTVVTlA4whlIbzwWIgcpbJ3Cb1k@vger.kernel.org
-X-Gm-Message-State: AOJu0YzstxPt1wS/BuCWhDqsXciq7W6R1vC+SX8QvRqDOjzAUS9ESYcn
-	5kiVXZyl4yNFQTc0h24QRapY19on3j5LhP3mSj4mwZgG+xaQVdQVFr09QHvAmxF4wRDM/GEvfpH
-	bFoE=
-X-Gm-Gg: ASbGncsxxJW4/V79ANsCtli4D6m6CcEdLQS4rhkfGoryoL756x7mPvW5WkAnU7klloF
-	/vK86DbQeNkOxDxe/Ss2ceDy1PC3GMWct/aQbAHNd/RciWVaBYVYFwOW6h32XhxFf5h1ZLoB4rA
-	jkDel6LBVSHXykgO6652oe4nGHOLoIZRXXR4y1G2/VMiA5TTRYSpMU+7Hja/kgfXYSUH7T/nI+Z
-	hDgtMCyQqpCUa3RymTu2gDywJC3oY09c0Vj5QJLEUWz/DeSg8yUA9qIYF4ueuLFDClXBUM8iKWU
-	otI81K637j1VZR+Lehv4VBfn2bromnF6rWcTLx21bGQAl4NK1NtW+wUKQZpt+fTKvBsi8yB03wJ
-	MPndiwpmO8kmHrRxAtJ6nOHiS0UrIQ8dOXNleL2yqwE5bsiCnu9PlqOd+Gy8ibRHXRizRpHWB6J
-	SEjw==
-X-Google-Smtp-Source: AGHT+IFoonNJzWXgnH/3KtOAD2gWtOBkFOgNqS2pzH1PLI/hnzTpsgw4zYDsrF7GZ3mUmkB7iYo2nw==
-X-Received: by 2002:a05:622a:1187:b0:4aa:a5c8:8645 with SMTP id d75a77b69052e-4abd0622ee4mr82574031cf.22.1753140244576;
-        Mon, 21 Jul 2025 16:24:04 -0700 (PDT)
+        bh=cr+5XluOiiRdnmU0yLT3prhxmj6Bm+YlSZyG9UsMSgw=;
+        b=w0+xviS5XGSCYL65phDlsXPFtisado6lvW48E8bsDYETMBicQ4VXWjpi+Y8Dem+csY
+         lPdIbWiLLMCoqHTN1uPCYv9Xl+DZjeCoafvSXAh4yuCMgp+l+l8b5whHUSxFz2f8TMKG
+         66HjMn6cFfJobLBRcWmhu9PuMi2TRuh39dINWNw622/p16pMxQjCz6vGQqyJE1+ALa0s
+         k6BeCpXauNnNDhbQ4ZvkNnbp/WlbTJ+fZP5lxOWtXJqDdMIGR9W6GQCw+h7JnqEIxi+K
+         qN8KT4zDvz5cqZd0OfltQthyR6nEFgeP3GM3/sjw+du9Wa0foEc+vaXbEm3LKE4t0tQy
+         x0sA==
+X-Forwarded-Encrypted: i=1; AJvYcCXTZPjOfAkI1HJADquopbV38B93oOF9B/T0gZZvfLF5uQK7FP/4BggwXhPeIItM6ZKq+ZD3Nth8@vger.kernel.org
+X-Gm-Message-State: AOJu0YwynnDYGK3kE+PEi2gx8p41rHy9Sh9SnPBnNzrAQp5UP65+nYTu
+	8P/Gsb+1/63dFXbzT6T/25ZwGvuJLPSTyLUDDdjeSlaWc9xYz/sX04b5TPpOECmR7A==
+X-Gm-Gg: ASbGnctc0ATRZWgCC3X70TWm4VAVpNKlXjiASIWsusRrVceu9WbgyI7Y73dUl5YEPDt
+	SBESvu4ou2IFUyO3n+W8h2yoXz7COn/ACfvdYs7gVFvbR71zb3Wq66X+wYNFlW+LKqSfBpDZrW/
+	7fZhLIxsmQQsio7dyC1poThjFrHsPZBu9HeBRAMHeLD9fEzLySBQtkbf7z/uzTf6bZ5qxdEgK+j
+	qClQ03u0TbzLnAunBDRthC4+G/ypWCMQefJUofdtxklb130ee/XqaaVPECHVtc5qUmmdGC+6xNf
+	RIxd9sN/mUbMCWj2gENk1krFmBV4GT7BlwHQCgz9seeJVJTR08/N7813v/PKSExpe3wSGXpSp0W
+	UqjhljAjjR4zc3eQFzwEI/Ju6DMKKcQZGSoqpZVP2eJmQc8KszG9MzJaj2QuXC9gDvCs=
+X-Google-Smtp-Source: AGHT+IH2/awtgbdd9HS8F8qdKLvqQLxCU+tNuju4p23IFiYiJXPedSeAn1ufJcSLiXNam+ak1ZbEJg==
+X-Received: by 2002:a05:620a:4623:b0:7d3:9260:6dc7 with SMTP id af79cd13be357-7e356a24654mr2055990985a.6.1753140245593;
+        Mon, 21 Jul 2025 16:24:05 -0700 (PDT)
 Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id d75a77b69052e-4abb49a95c9sm48093881cf.27.2025.07.21.16.24.04
+        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-7e356c649cbsm480552585a.75.2025.07.21.16.24.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Jul 2025 16:24:04 -0700 (PDT)
+        Mon, 21 Jul 2025 16:24:05 -0700 (PDT)
 From: Paul Moore <paul@paul-moore.com>
 To: linux-security-module@vger.kernel.org,
 	linux-integrity@vger.kernel.org,
@@ -76,9 +74,9 @@ Cc: John Johansen <john.johansen@canonical.com>,
 	Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
 	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
 	Xiu Jianfeng <xiujianfeng@huawei.com>
-Subject: [RFC PATCH v2 05/34] lsm: integrate report_lsm_order() code into caller
-Date: Mon, 21 Jul 2025 19:21:08 -0400
-Message-ID: <20250721232142.77224-41-paul@paul-moore.com>
+Subject: [RFC PATCH v2 06/34] lsm: integrate lsm_early_cred() and lsm_early_task() into caller
+Date: Mon, 21 Jul 2025 19:21:09 -0400
+Message-ID: <20250721232142.77224-42-paul@paul-moore.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20250721232142.77224-36-paul@paul-moore.com>
 References: <20250721232142.77224-36-paul@paul-moore.com>
@@ -88,77 +86,72 @@ List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2003; i=paul@paul-moore.com; h=from:subject; bh=sJ3xHy7C70p8eD3qfM5ogSJFTU3Y5lkGyavDif9LnjE=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBofsubFQ02x5okQRnLfJFXEQBTRBCEH72Si1g+0 fLnIqLHo7KJAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaH7LmwAKCRDqIPLalzeJ c9MID/4qbI6LBQ3r9eKYM4n1dbbBZ6t6cl22UVk/Mc5X7k8EJE1Asvptpk859IaZjQ8tKIKK2J2 9MIPFX6RtOszP9ahTFS+fRFwksTjND4eg3TsBnh6AlBMGgTlKqqDZsOIPZ5y+JLmSiC9x9riUmE QgSQIxrhwHDVI0YXMHriKAoyAaq3Wc9Pw5wDi7zQZFQRAVCXd+VG9PHF0/14lg4bgA5HxqUPSD5 ANjscsCuUjvXqUF3qcLifLDAbcjbEunLgIkmkjqyBBbH96rZls6jDn2ZKINPU76Eix+NxklqQ5X ISEzI2VSvsPs+UYu44L8JUVw1Lf2f0kXf5Iy+P1/7/UsStmsOJrbrUojWWs7EXMT7On2xz1rHKW UAKdgF2BdZT06dGjuh6n666fc+G6pOwmAqewxAbQceKztR7ee0MmIpVC/DAlHlJbmPQqjKc+pRB PrXDN7zxRq85FOh1dwvyYY3nfmxIyNmJmaiTZ6X/lIevIPMe0z8nuDRi8EGp9U443KVtkbg3OnJ 8WBcUQKsREBTbbChr46E0Nw5rIq9lDq0jm29RbaCWd7HZcW36u6Z+qiPm4LP8GGowdhaFGHKwuL hhIoZSpZrgsIWQjRzZTEGdfQztGzAeHGq/wDBWLTOW7gyBYz8Hu9y0GBXsiTHPkwRc/IlNJbMVl +Sw27+ahg1cAB+w==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1881; i=paul@paul-moore.com; h=from:subject; bh=rdBPCXy4+zMMahAP+JfAAcpjXp+SK/yo0e3ExJHaW6Y=; b=owEBbQKS/ZANAwAKAeog8tqXN4lzAcsmYgBofsufmFIlee/a09i1WUsF6musLpbaGAIzsUhLh bf7XqM30TKJAjMEAAEKAB0WIQRLQqjPB/KZ1VSXfu/qIPLalzeJcwUCaH7LnwAKCRDqIPLalzeJ c/LSEACInaP2nWSEqMsoqyI+RYT4mS1nDgi2/sUYsDAxrqW8kwPeDLig8a+c20/0YzPUnEo8BG+ 8y1jyITSKzE57ahgHD05zJbi8s1Vu72lyGxQ7FdDNL4hqYt5eHcJfiSrXh0SHIz6DBQRmv3lv9x r5dcu9OyggScOlbgLu4Ms+Ofk31sZFB5Of9GPWnpzQw89j6S/x1kjYwockWptx4lMlW+XUXQoPN EbskUvFG/UiuF6q4Hbhrtd/fjqn8AGQnuo0dXjrFkkSg+hq5+qOUcbo32zqR6jEeeLFWwt1UfCo 0qy3eaGjibr/LTSv+7s+UUT/az4ytlY/JgOQOj+pYnKbZatt3UyTkpokZw54dYN1E4F792RWSyW wSaB2PX+NAW4lKVUIJKNmEYX/tDhN+DchBU10olu/DBN/k+fQLE9W+PEEHmKJ44TTCXcGFjjjeH HjLEdZfTh587IQSEGlPsfelkkMD/or0EMAsxQqqrmXEhDoWFoS2I3K/5IvHovn2BOrcJT+m3wC3 qd/glUGSa8AOnkxPcV1JiDXmHBq4B78oUkRM00Ee/7B/8rqfvNGz27NkXyZi15J9A2W+yy0H0yX nrkPE7gf6LBV5GUEdSe7a/A4RBQA2BAEwV9ex1rOkeFqT1E3XLfH8Ni9pZ672ceJOz8SaigQ0v9 BYtGtcWcm7AE3nA==
 X-Developer-Key: i=paul@paul-moore.com; a=openpgp; fpr=7100AADFAE6E6E940D2E0AD655E45A5AE8CA7C8A
 Content-Transfer-Encoding: 8bit
 
-With only one caller of report_lsm_order(), insert the function's code
-directly into the caller and ger rid of report_lsm_order().
+With only one caller of lsm_early_cred() and lsm_early_task(), insert
+the functions' code directly into the caller and ger rid of the two
+functions.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- security/lsm_init.c | 33 ++++++++++++---------------------
- 1 file changed, 12 insertions(+), 21 deletions(-)
+ security/lsm_init.c | 35 +++++------------------------------
+ 1 file changed, 5 insertions(+), 30 deletions(-)
 
 diff --git a/security/lsm_init.c b/security/lsm_init.c
-index a73c3769dfea..d20c6df55e7d 100644
+index d20c6df55e7d..7e736c20458a 100644
 --- a/security/lsm_init.c
 +++ b/security/lsm_init.c
-@@ -288,26 +288,6 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+@@ -288,34 +288,6 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
  	kfree(sep);
  }
  
--static void __init report_lsm_order(void)
+-/**
+- * lsm_early_cred - during initialization allocate a composite cred blob
+- * @cred: the cred that needs a blob
+- *
+- * Allocate the cred blob for all the modules
+- */
+-static void __init lsm_early_cred(struct cred *cred)
 -{
--	struct lsm_info **lsm, *early;
--	int first = 0;
+-	int rc = lsm_cred_alloc(cred, GFP_KERNEL);
 -
--	pr_info("initializing lsm=");
--
--	/* Report each enabled LSM name, comma separated. */
--	lsm_early_for_each_raw(early) {
--		if (is_enabled(early))
--			pr_cont("%s%s", first++ == 0 ? "" : ",", early->name);
--	}
--	lsm_order_for_each(lsm) {
--		if (is_enabled(*lsm))
--			pr_cont("%s%s", first++ == 0 ? "" : ",", (*lsm)->name);
--	}
--
--	pr_cont("\n");
+-	if (rc)
+-		panic("%s: Early cred alloc failed.\n", __func__);
 -}
 -
- /**
-  * lsm_early_cred - during initialization allocate a composite cred blob
-  * @cred: the cred that needs a blob
-@@ -338,7 +318,9 @@ static void __init lsm_early_task(struct task_struct *task)
- 
+-/**
+- * lsm_early_task - during initialization allocate a composite task blob
+- * @task: the task that needs a blob
+- *
+- * Allocate the task blob for all the modules
+- */
+-static void __init lsm_early_task(struct task_struct *task)
+-{
+-	int rc = lsm_task_alloc(task);
+-
+-	if (rc)
+-		panic("%s: Early task alloc failed.\n", __func__);
+-}
+-
  static void __init ordered_lsm_init(void)
  {
-+	unsigned int first = 0;
- 	struct lsm_info **lsm;
-+	struct lsm_info *early;
+ 	unsigned int first = 0;
+@@ -376,8 +348,11 @@ static void __init ordered_lsm_init(void)
+ 						    blob_sizes.lbs_inode, 0,
+ 						    SLAB_PANIC, NULL);
  
- 	if (chosen_lsm_order) {
- 		if (chosen_major_lsm) {
-@@ -354,7 +336,16 @@ static void __init ordered_lsm_init(void)
- 		lsm_prepare(*lsm);
+-	lsm_early_cred((struct cred *) current->cred);
+-	lsm_early_task(current);
++	if (lsm_cred_alloc((struct cred *)current->cred, GFP_KERNEL))
++		panic("%s: early cred alloc failed.\n", __func__);
++	if (lsm_task_alloc(current))
++		panic("%s: early task alloc failed.\n", __func__);
++
+ 	lsm_order_for_each(lsm) {
+ 		initialize_lsm(*lsm);
  	}
- 
--	report_lsm_order();
-+	pr_info("initializing lsm=");
-+	lsm_early_for_each_raw(early) {
-+		if (is_enabled(early))
-+			pr_cont("%s%s", first++ == 0 ? "" : ",", early->name);
-+	}
-+	lsm_order_for_each(lsm) {
-+		if (is_enabled(*lsm))
-+			pr_cont("%s%s", first++ == 0 ? "" : ",", (*lsm)->name);
-+	}
-+	pr_cont("\n");
- 
- 	init_debug("cred blob size       = %d\n", blob_sizes.lbs_cred);
- 	init_debug("file blob size       = %d\n", blob_sizes.lbs_file);
 -- 
 2.50.1
 
