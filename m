@@ -1,147 +1,117 @@
-Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
+Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5695C1DFE1
-	for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 23:34:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5768190477
+	for <selinux@vger.kernel.org>; Tue, 22 Jul 2025 05:42:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753140887; cv=none; b=TP0MO6k3EnhHnC/W71TFBXiUx7sPz06f0mI5FRZrXv4sHyMuwdKFF2ZlX1KPPYT5W7B8fh+N/yQjAvu+WHhryzPQ3/q1OZEKRSu8kPc6gemXw4YwHIIzZcOvYKDQXEPhy/2Htl0pFbinppajJCPDGKBxOtgoghwtTmzo1D9Fyo0=
+	t=1753162969; cv=none; b=b3yOJyN1yueYHHmfsoFblFJPnByq82W3okyg9aoV+PsLhfLyyn0L3AFghkTUGvj/JNXawElTNc4jA7MgPGW0kGhwwlYf/HpL49PtvgN1XNo3Ww7Y0+XAxdQEBtWNF2kD2R9/gKRFpS0GkFAhDAHraxfhaI+Wr4kerXGFHU9IEgQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753140887; c=relaxed/simple;
-	bh=2CurineEqHX+7NKWaNMui0MCdrtqHlaGr+HoSBz9zsg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bPcJfriz0D6Igli6prDpYuTDqn5praqCzXBjfM7WMulpUGmBGxfq+OEOuB9NUjZBbVtfVJ82SzrgcAQc+DecPXt1/urFFv1uqg/GzSB+jaorQCcDgS/SZvRub7fKgvU6PIMwLE5HS7SbQOI3kOmNUtkjJdgroiWKvO+z5oZFUlM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=dP4py0a+; arc=none smtp.client-ip=209.85.128.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1753162969; c=relaxed/simple;
+	bh=K4xhP8JalRNn/NTfpZCgPja2QbEEtAvWmQVQb7U2jSs=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 In-Reply-To; b=KejgF7cryeUn/ON/wL4uHA7TXe2ZzAhdXbu8TGVqbARPbjoEo40S1AxLj8CUKiUIqraTzOPl2lkQECjMGUu6hwVDXOcVKKIt12PnISJUMuAr02aSSf3N3Aya8e9Vfk5xMsEpTV75vM5vIkVpsVRVAOkIs1TQQa75SJ0MmDhvN28=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OCX7SeQE; arc=none smtp.client-ip=209.85.221.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="dP4py0a+"
-Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-70e4043c5b7so40961997b3.1
-        for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 16:34:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OCX7SeQE"
+Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-3a575a988f9so2990840f8f.0
+        for <selinux@vger.kernel.org>; Mon, 21 Jul 2025 22:42:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1753140885; x=1753745685; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1753162966; x=1753767766; darn=vger.kernel.org;
+        h=in-reply-to:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Y8BWEenObk1rz4p7yLYXtPBA0vfYLsBEcPbdz1dokJM=;
-        b=dP4py0a+zBZgXVQvRhKF0LG/Nmi/hqVV6bp2qb/FpJtljfGn1+TPFwC6UKXGsQmqfp
-         SRO0tq6OQMz0EZ2Ku6OMPd9UzRCLuRchaYAazCMIyyb5Oye3S7miucsnmaEaG5vOCEZc
-         sOWVcFQfBaqTdN6e/IwhHmc+juRlhu5lqG113D23vD4UIQlDrYTjWRlVlpeCmn7FZWJ6
-         B6/p67+LZ2B+fS5stmtbUB3a23SFp9ewVS6hA03YM+qNKG5ZXx31gb5oLMuHWga9lDB7
-         cFfZkMHe2ZGLZYAM1BjLFbgdx/0yqZXq/Pw7aG9v8K0A2yUzs/EhmejziBSs2Re7HNGj
-         XCfg==
+        bh=QcTEN3kb7T3wFEbnDebi7CnZx0TM17vzKebKUMomQqA=;
+        b=OCX7SeQELBLWBIxQpkT+FajQtmzOPX8QBJw6nujBd1tqICBlt0b7bBV1uZeO4E+nh4
+         CW+G2oCg8YwiOVS+kWa/q5dm5gs4PQrrSTpK3r4QxNI9kbH82UmkWQ9R6R8GD04jkvzf
+         MERi9XZX4Bu6S9R6xNvZIaNZDMqTfn7RJCYcpOm5DGMnNmKLKcgindLghphPfYzqD8tZ
+         MqxBqFSd5i1uRgzhUPsat64a97ir75oCEtvlvKgVXLsG2TI3hCh9CXTGpC9qE3QBEtPA
+         UMXRExS41/DeBxw4j1/fOXYPmbViQU8mM1L5vyNnctoOirdRGiOQiGPlcCj696nRIGX5
+         HVtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753140885; x=1753745685;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Y8BWEenObk1rz4p7yLYXtPBA0vfYLsBEcPbdz1dokJM=;
-        b=Gk2O42Crpl1SZr53Zhq0Sf2FVPqhyojyZ80igJLR6ztOS3fvRKbGkBY4QTr3zWGQnj
-         C8Dr4ralbUNVBMzSlXNMm8lgwpr150mAbmx9QQtKzV+/CoV8DohAKdPBtpPP0Gs3L8zg
-         daLIK4/Ba/VZNn8vkzf8XJ7MeFnueCx64YXO7Umv33PvP9S4CZTR7ETmBJSdKlQPE2EV
-         rI9s7Ep6oETsJjnCMG9YbYJvA6Mmdr8tZHvhtNWhssX+5PL6SV0+kEeL5CN6880xhl8D
-         jT5/i4l3OGbUVcbyQETQsegcQcDPKKJ0q5noqV0fqiG0szbUoqO8F8NK8+VDB+FlO0UQ
-         /FxA==
-X-Forwarded-Encrypted: i=1; AJvYcCUW6dfHSMeoU6AyG+cDNtIRD6LKILFS5uWvKAiaix7c9lUXlCe5+JwLlPSVTJOuJt9TqaCYF3ox@vger.kernel.org
-X-Gm-Message-State: AOJu0YxlT1RDdBRHKAFPUfAGkbo3g9kHrOoyjssSL4/aEnT1qdN0BAMj
-	N118EeaKoEMKq7gYuUV5OBNbiiMHj2mTSctVWZaS+rsE+JhX/8hice2svXXFCldvz+SEipFUiWT
-	w3irY1Yko4U4BLehJbCNi79Hm0LzgNkcE3F7KGIxS
-X-Gm-Gg: ASbGncvI9ydPX+dpWVBn84AvSvHt24BszVyDUXyT5Tbf4nS3uXn0z6TWAIuCs66hj6l
-	9TlNJBC4BUVU8236zP06H6Dg4GFd80kJsKGUJNuufE8WVR6oF0N7MJ3RgXbLANqCRJy0jr0QlAz
-	ay4Ae0DKe/5etkWaBBn0hIGYuO+KRP0obCpOFt11CQ4K7LP9o3f5aXCwYFGOrLvBkA3EKbpm7oy
-	kA3SQ0=
-X-Google-Smtp-Source: AGHT+IEbg3yJC3dxGDA+JUibq+JWrVJwqo9892gqJhB+FMSYOvlZxIusmc4Rt5djWNPGAjtSmSOrxLTj/6Q1jEpRXPs=
-X-Received: by 2002:a05:690c:48c4:b0:717:c1cd:3443 with SMTP id
- 00721157ae682-718375398ccmr285616697b3.38.1753140885325; Mon, 21 Jul 2025
- 16:34:45 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1753162966; x=1753767766;
+        h=in-reply-to:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=QcTEN3kb7T3wFEbnDebi7CnZx0TM17vzKebKUMomQqA=;
+        b=UZbMWCDRgfRVx/KNTXD1K3n1cmbT02UIvH/Xyg9s2G9Y9QfOxT9NoLTDWc9OMtA2Gl
+         Sh5h/+dLlir6SQLken3HaZfhKYV/CMjvjPTe8d49IYwVnsTs1vffbzD/lhlUuWVMABZr
+         HWdZSagZhe4I0VYpyN+OGWGxSkTAWsZEdMKuuu6MVvge+Y12t9kpuJROqBXY2tT/0yy0
+         BIAWHpN8TA+6ZeKSuJyIN9vPEqqIXQROg6LhALsnPGj7cjvCLdPSPp0NzVeb8Ooelt4N
+         jLXsPBKAwJrmM7myH++yH1GbA62qVKO3WRJhPns0ucoWQX9Vm75UcEMuYpyhbd+AXTpB
+         7i3Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXs5x9S12H8R/VXFk6x3WBGohdcOas8bGtLr5lUlueodzNQkC5BOZIg4XXsqb65MHttEUikoygi@vger.kernel.org
+X-Gm-Message-State: AOJu0YyMPq6YqPE5su/q8hH49zORINyT841hQUaS551KyQbLt3n5tyfA
+	lcuWe598hrMCw6RO1hXxFTEcAsSoMNKYnv9Npk3R39OFJzsdnrxE/Jpu
+X-Gm-Gg: ASbGncte6nsNAKuOrqkhLeQEKBAMTCYDf+WgH7FejLccU4JB+c7iBZzxGRhh1fzHzpR
+	cWBvezrzkNbG/6QVSZNg0CpeasHTJhduQToE29maFes3WoP1IBlP5HggMUjEYq899cCMUBWJDSW
+	Vrg9pNKfmq26fXANsce3Yd1MAPXaXr7X70nOhh4lP5LpjQnoFpBI0VGYvJB+qRAlDiRDxjcIEEb
+	rJBQdBIfn2heB9BBTJznZi+AEeKZxe5I0HnmzvmroudX1t6e925foOo2+NFY2YGuOAPPFJtt/ds
+	COoiyb+ZTFWX+zno8oMN4w/JJoXredl0iDk5Vd/kY03GdV13XVBuVEGlNSdhmY9UpuFn/F4i2fo
+	MnAQiSoRYRfHlTprZ
+X-Google-Smtp-Source: AGHT+IG4gc+6SJk1rvUzh96laewBjw1ohJdVBJjXRjz6AtSf5AROGH+vhAlMJGSaGtAzSWDg3CShKw==
+X-Received: by 2002:a5d:64cd:0:b0:3a4:f7e6:284b with SMTP id ffacd0b85a97d-3b61b0ec05bmr12527858f8f.10.1753162965837;
+        Mon, 21 Jul 2025 22:42:45 -0700 (PDT)
+Received: from localhost ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b61ca253f9sm12558713f8f.6.2025.07.21.22.42.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Jul 2025 22:42:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250721232142.77224-36-paul@paul-moore.com> <20250721232142.77224-67-paul@paul-moore.com>
- <CAHC9VhSY7FoQdSo=VvzZCs=_WQhOz+HKjV8jXe==-4wOCvpVjQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhSY7FoQdSo=VvzZCs=_WQhOz+HKjV8jXe==-4wOCvpVjQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 21 Jul 2025 19:34:34 -0400
-X-Gm-Features: Ac12FXxhmUEw4ux0NFNWPfm6MZ_No-FNPXdK9lAYBiDJVQT0JYiCod7HVfzsW0A
-Message-ID: <CAHC9VhRYxY=2kPzHb6oCaEx7njzQBZmJK8PWhsr2W_LNYpkvNA@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 31/34] ima,evm: move initcalls to the LSM framework
-To: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
-	selinux@vger.kernel.org
-Cc: John Johansen <john.johansen@canonical.com>, Mimi Zohar <zohar@linux.ibm.com>, 
-	Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>, 
-	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
-	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
-	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
-	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 22 Jul 2025 06:42:40 +0100
+Message-Id: <DBICEHLQ2KYS.2WJEMIZAPCJCG@gmail.com>
+Cc: <nvraxn@gmail.com>, <omosnace@redhat.com>, <paul@paul-moore.com>,
+ <selinux@vger.kernel.org>
+Subject: Re: [PATCH] libselinux: fix parsing of the enforcing kernel cmdline
+ parameter
+From: "Rahul Sandhu" <nvraxn@gmail.com>
+To: <stephen.smalley.work@gmail.com>
+X-Mailer: aerc 0.20.1
+In-Reply-To: <CAEjxPJ5M76PFEMghyCWPsJW27rNA6A4yxhFydGoWWDW0Eybqfw@mail.gmail.com>
 
-On Mon, Jul 21, 2025 at 7:30=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
-> On Mon, Jul 21, 2025 at 7:24=E2=80=AFPM Paul Moore <paul@paul-moore.com> =
-wrote:
-> >
-> > This patch converts IMA and EVM to use the LSM frameworks's initcall
-> > mechanism.  There was a minor challenge in this conversion that wasn't
-> > seen when converting the other LSMs brought about by the resource
-> > sharing between the two related, yes independent IMA and EVM LSMs.
-> > This was resolved by registering the same initcalls for each LSM and
-> > including code in each registered initcall to ensure it only executes
-> > once during each boot.
-> >
-> > It is worth mentioning that this patch does not touch any of the
-> > "platform certs" code that lives in the security/integrity/platform_cer=
-ts
-> > directory as the IMA/EVM maintainers have assured me that this code is
-> > unrelated to IMA/EVM, despite the location, and will be moved to a more
-> > relevant subsystem in the future.
-> >
-> > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > ---
-> >  security/integrity/Makefile       |  2 +-
-> >  security/integrity/evm/evm_main.c |  6 ++---
-> >  security/integrity/iint.c         |  4 +--
-> >  security/integrity/ima/ima_main.c |  6 ++---
-> >  security/integrity/initcalls.c    | 41 +++++++++++++++++++++++++++++++
-> >  security/integrity/initcalls.h    | 13 ++++++++++
-> >  6 files changed, 63 insertions(+), 9 deletions(-)
-> >  create mode 100644 security/integrity/initcalls.c
-> >  create mode 100644 security/integrity/initcalls.h
+Hi Stephen,
+
+> We should make it match the kernel's logic for parsing and handling
+> enforcing=3D on the cmdline. For reference, the kernel does this:
 >
-> ...
->
-> > diff --git a/security/integrity/initcalls.h b/security/integrity/initca=
-lls.h
-> > new file mode 100644
-> > index 000000000000..5511c62f8166
-> > --- /dev/null
-> > +++ b/security/integrity/initcalls.h
-> > @@ -0,0 +1,13 @@
-> > +/* SPDX-License-Identifier: GPL-2.0 */
-> > +
-> > +#ifndef PLATFORM_CERTS_INITCALLS_H
-> > +#define PLATFORM_CERTS_INITCALLS_H
->
-> Ooops, the above two lines can obviously be removed, vestiges of the
-> previous revision.
+> static int __init enforcing_setup(char *str)
+> {
+>        unsigned long enforcing;
+>        if (!kstrtoul(str, 0, &enforcing))
+>                selinux_enforcing_boot =3D enforcing ? 1 : 0;
+>        return 1;
+> }
+> __setup("enforcing=3D", enforcing_setup);
 
-... and replaced with a more appropriate marco guard against multiple inclu=
-des.
+Okay, seems reasonable, I'll send a v2 to follow that logic shortly.
 
-> > +int integrity_fs_init(void);
-> > +
-> > +int init_ima(void);
-> > +int init_evm(void);
-> > +
-> > +int integrity_late_init(void);
-> > +
-> > +#endif
-> > --
-> > 2.50.1
+> And the kernel's parser ignores anything after a "--", passing
+> anything after that to the init process.
 
---=20
-paul-moore.com
+Just to clarify, unless I'm missing anything I don't see any need for
+us to worry about that as:
+
+1. Based on the logic above it would seem 'enforcing=3D' is recognised by
+   the kernel?
+2. We're reading /proc/cmdline anyway, so I don't see a reason for that
+   to be a concern - we're going to see all arguments as far as I can
+   tell.
+
+Although, I'm a bit confused about CONFIG_SECURITY_SELINUX_DEVELOP, how
+are we handling that in libselinux? I don't think that stops userspace
+from loading in permissive mode, and even with:
+
+#define selinux_enforcing_boot 1
+
+I don't see how that would stop libselinux from loading in permissive.
+
+Regards,
+Rahul
