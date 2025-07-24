@@ -1,62 +1,62 @@
-Received: from sonic310-31.consmr.mail.ne1.yahoo.com (sonic310-31.consmr.mail.ne1.yahoo.com [66.163.186.212])
+Received: from sonic309-27.consmr.mail.ne1.yahoo.com (sonic309-27.consmr.mail.ne1.yahoo.com [66.163.184.153])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76EF4242D69
-	for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 23:39:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.186.212
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CFE94C8F
+	for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 23:41:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753400387; cv=none; b=UCvNgVIi9c6GdeTTbaKfaTeJNigZzkNo5M5hG+KP1rg6wg+6omBbPmlwHHH95ef0OgmpWyzt6mFOjBOoFQ3Y04nXeenWUkht/Z3cmFhptT6o5+D7mb/tNm5ISIwgmnEdHz8BV0pFdVNv8+xN+x6mLv98YYQF34CH0ZdGAlbBuxM=
+	t=1753400501; cv=none; b=qeQTCM7MjbefMmGckTIH8g8Gu7KiiZPS1zyh05tytYKE5r+klSurTQB/cY7eCTl2c47J62nS788w67BbKcQSKbYI/xQf8vyjlU6RkxyeYVeYCSOHe+LejxK4S375KQ/xA8EuuZWFgPeNXrKRN4ywU4noZ/EcYXYaAjbUv94Z3IY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753400387; c=relaxed/simple;
-	bh=IozoeKc+myZ61Q09FxPvtUQ+iQVywdq2J/1OVE5F4Ac=;
+	s=arc-20240116; t=1753400501; c=relaxed/simple;
+	bh=IcEdiPNjSULk0gDBonXhBLKVl4qmOrgyTdZRCGwedrw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DTeE9SSR/NIuDfzq000Lv/VxUMxChK0IHXTLiH0Yne/gpRUalCc1Sna4IT9TnkVnNJ4xlH/35hFHenyiKtEjZDBMHi6hhZ0lVjW8mhBBO905DOy4cggVa4pMc3Gmc/nF1O9oeypsh04WD0o0KISj1CjIfmnN5TlDtm9q9sLY3z4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=XJm+fNj9; arc=none smtp.client-ip=66.163.186.212
+	 In-Reply-To:Content-Type; b=nj3O5mDyiVlnjAYcB0xQg62h94zV53VN0fQ3diLrCti1jP8JT0vj5AoJmUaWCwfo866DmkUHpVx9kuxp7QM01S2wvZEcGi2UhP2qKeVuUYfZ8nVvl1JpmXKsDAcKPFwdzFxuHEwE1gqGsAabi5h179yBzkmrd39kQ6rvKPbd7VU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=pQdA73Dp; arc=none smtp.client-ip=66.163.184.153
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="XJm+fNj9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1753400385; bh=D4UXIiSwAd78KReAbVjXDxGlVt15ojyGbNdVGdhm+7I=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=XJm+fNj9Iqz1yJaS6kE7XQtmW0NtAaL9j+KcuZv34STY4SMqpeKOwG2hEhivEDkwc9td8oVegdAtm27Z6lzjTXWbiXlztYsF/lYCr2U2LhG/uFZGaJVf4LhPDCimo4QNaHOZNBzjtPt6SMPJ4PuPfSrGYA+0bdYs2tS0cDX+k0PteSoV6xR2WjwXyn6qdX075Feup7q65ycxq9/jmgWhJRJriQdM/gFac5/zm7V8g7aV8dBhQgmC+hny+b8Q6YtqJl/+QUnkSHHdnKKxolP88iNxcDVKyX7jecjNq082lD+O6ss3dVgQQRRwbKzgPVGyHr0EyLMCHSUo7Svb61MgQA==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1753400385; bh=fRg+BbhQEaYeAxyUJIeYdQi4iNBNr7ceCSH8G4dEygK=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=HMxD/r358/rs2ogVG9SMcHf8GTobKarO35qHNOifWbSuLLnEiEfupWy2HqrwBs7q/JL+VSZmJ8lP00baQCsqi5aHYtA+7pU97u3BqAfVNinZG84EPx3ReSbZ6t7veiP8ThxtqIQaQ8B34vGvP0K/AkSG+3Wq5TcYtR1UkPfJRHe9vcQJlELsIorIEKMQBmoGZ3rgOgqQNZY/vPh48qgy40UPeG31kyaEXE06x7Yg2LgPRIZp5/9XdyIbI6NavrIvMMsm2ersFjx0gURNGntnwAigyNpG5aAKs+AVk1sCoxyPowAWcmGWoFfLS3p5j4k1jaiQ5TdSq4lFIeVKHyGF5w==
-X-YMail-OSG: pWSwA3EVM1ndncA54_YVNxnSfsO2t7DBlvp_gz7oSU6NPooeczWnN5Y.K07RqDr
- 14pi7uZzrI14ZgVhfuuGWnVmedlsyQ_OdIvywTKTt7TTQmW.h3HvbjQmiLz8yFVxi7n5uMYTiFB4
- DXTZTbgtgwZYC6cwvT5_rp9Gin1hCCkce1aedO38g514liULBhyoKp.vv8.4vYbzU4rndgaNl5Eq
- TZL_nP5VtCRPQv3cSlsXp9cz5ZEp3zTE6kdJf86.kSuazbYpOSxenTTCMnGvx_6HEounthie3lYU
- w8fhxDchN9KmA75o9Tv1OsBeLBkk67_pRtltUOjBExcY3I_2WxCjJLYGf8UU6q9q.Soh9JT0NBXf
- rayYwtNQOohI6dEgJ.1Dk6hecwDiE6Uryn60MgzsjLPDh8ZS_pc20fNfDphGVEqeBvXJO1xEa5BO
- g_n4ieh1aJD6Ktg_.13O14bQfZX2jYC5_GV9EJibfu8FG7jTN0fJzkLXZ7kv9wp.AjAkhM_gnc28
- 63t.N6TO0EdKY1HbavLfOMLc6MyqhFo.PxrToTq5LdEG3rt7cGXW91nAkZzEWYEOIT2pFfApRQaC
- E5w71puWf6FU6zp.ubzXBt_w4BIB1p7urSD3FdHsV2VVX9WXUaOs8i_y9Z2QXATMIhVQQ8Woh0MF
- .Rm9uFHuxVOVS9ul_dbCzs_EWf0fOZI5T_5SgMCGG3TwwxVcvlhNLhD7qFo8TzoAMbv9a.6YOiBh
- 3NxU2ooacixeOO3TKrLxRLAJx8FvmoxQRaLtc50ZsCVirWP55gX_u9d5MSvuqcKgPI4ua49SD3do
- ShM5abpvXK0wr53Lthdb3_ssgh0xSyibBq92jo3LPZGLU3jPYsqhUJmYL9JX4VJXEcKpp7.9pz_g
- UQ8xrxB0WWYsTBAsOmWaaMZylEqzbUpUS..aU9cb17LLdI0FDWHOU.dA7SEnnYPxiG_pAhvGzFCm
- 5DXQWA2vbYh3nqSDxXeP33dA8NwgcCECYbrdoY.6GJJQ1PfzglliMz1mE06N.KsLY4v4iYZvqsvO
- 72cVx_aGNAco8PAlGr5LHgL_ZsExRbv.Lt3Otk2Cp6tUM0xXXAGfjeLpTZSqI6Y7tggPfBGP808Z
- onE.cqfsv4cUrwtGzaeqm.v.bCEF7a_ut.ZMEqcl55v5E3qdjcj4.ruH06eK6ChiJHhGiF7mEn6v
- rjA.5YEcTOXMcBu2GgcAUP4eWYPkDnkIUScWTY6g_ylUTcOaqJblo8.vvWZoqRiQcqRA6jsyjDL6
- g8IGltg_E9KpLAR0DOrHJrfFfhDzqilnp1y6a9kDlVUgoNmEK0R4214a3EziQ5mVH_33Ep7rEkxK
- oYoLPslHsUrZv2nlDkSgtjlChGsm3jsSu0IY5z1LtfsiUyh64RgWh6Og_p.KJXO0JfrsqW4Rrs73
- Bed3or7Tu3dsTg1.Knx00W7AtT87WAFj0Xn4k_phN0X1RKByvJFeEbU_nFEoa6o0WIHJ19eDELxa
- b0zhTUdiknPeWLcZdX_3auVuxLeIKNtPUCb9V2wxC3lobrpHAsxw8rkGLW2TVTrvypmO1eHMP78.
- qFuyXRpVexUlInC9MxlBIpiPtJZh_mOkPSQOG5OuTZOv0r2zQPEu8lYIu4Or6Nj95pRh.XdcCPlX
- s0ErJ.vtViH3lWQnPWSXbHLG4Rn3bGvql9odawS.GlxsTk7U8eUYSHcc9bGm4ZoLyeFRiWOKcW3j
- cEtRXx4rg50JKobKuTHkRMIATBsMczFVVz.hfVyrDcz1L2guFpvj.cW2.rxlfLMbEIYphAphDOU9
- BDnE6Jo8rBY0KRSCrZ8loQBcLy86NTEIPzA25a6m1NlStcYKnjNWYVWYiekkftVDg_IgZkB4algq
- kVT0CEICf0khUmWgch4WMJemyGN2yHjS7FOjSD0J6sak4zSxMGmVuqTRc_qkRghPEYiZVQYkTEN0
- BdyHnnYnjhchOloX_tpGw7TfCbQrw4hzV6MvvgkTtIAtYt510z41k6t.5wv2ZJ4Fg7RikUk0Wmiq
- 4n4eJLg7AecE5Fec_YMwJkNeYp46nbT.C9UoQceEsYU3cqheavO6Kh9A450qO.QCQoIAmtaV6ZQ3
- dChxo_LANRbelM.kRqneYEwr6ReR.WrJVvmD1_e2wz8wRFq14uxT1xWYkueY_WPKK3JrgoA7d1KU
- eZqrvBogHgogQ0kEHizrXz2m0FUiim9u4EjOoGOmBdsjBPLXi3rPNr3tSQD9KgWCraLey_M4jtny
- wAxsxhhkDy8pX960C72CTs9nX2rmU9i9soGNX4KINEoQsWZIgYlQGFRNtJd14i_guBXcex1zZEpl
- 9KlbvWuS3cEBnxFPkGJmFBBKJEhArme2VjR2x1P37
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="pQdA73Dp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1753400499; bh=41ss1xSkfipC5PdMJ61F11W3sliTJUTAad4bQhl6oM4=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=pQdA73DpkmP2YZaAO220ber2OCjQ8JZ6czLvtKAWq82N/aH9YvERplmURFSK9vAEiHORkaIDIZvssdGwAjLjFU66r2zgORQ3cJO6UhDO9/DGyGuH6J9YASDajjjFlnW4BshS8EQs5q+wrv5nkJd3MUoM8DwtQI2JB+pBliKkraB13xGqNSMb6osmHclKMSKMyC4RpG832UpeUx19GIzvAXMqX621B/V4iS5Ku0ww2xmmjfYOoMLtRbVL4p0LbD4jdLYdXKzDbOq8nSh96GoavF4RrZ3radVRYHLrkRJFHIHvUp7CycTG0ubCXtjgBbXLVokBm8NUF76kRA+OlpVqNw==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1753400499; bh=LMomKOhvx8zghBOAn6MTEZSg+0qNK98kHor/u7wAjbu=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=B862nXskrOZKtNHPJJPKJ0St8ukSmCpiSZ5Zm94CfykrGy11MIHu1dwksRlJ8GG8rOxzGxwrVQZoAUTwQcE6p+1CW2rtknvR9PDmAYL1up115TJzve9wRr7bp9A3wxhC5Sflpyrrpkbik4Z0qaqBTQHL0uWwx0neTecYgRg87Sgi3FnXedcqjh8OY9c374uPJOi6X0ZanDmAN/0YlITJuGDgxxTun1NAlNVVC0j1sj0ImU9LCCfYINvzDrogMTlDj2XMsITZA8W4HDYyR2bdQ6yLmyx1UOxKLLBfG4K1tr7w7t9oLio4k+6wRX6fvO59puPlFhsMxjOXLvSNWsUQCg==
+X-YMail-OSG: qc_NYO8VM1kpvPHHOrx3oKyJ7KmMDSfWDwV6QISHfQ58hbIZ1.EvGITOe.5sfsx
+ 9Hy7R5oLa5xKxR9xSeA1dvyi5d7vSHF.RyymvCNyEf_i3Y_hiqiLCrIcno_oZHNu2WsnPRX4JzFw
+ Xvm2b6Qps2ZdbEkq6Dy1RFOmNiJlGhhbIxjkBSH1NhsGpemBvGh8GQpTz6ghvubgXd6R623rlEBj
+ IC1FtbyqrmxUdt_OoS1fnH4dLyaRI5vuRm167rlu1JemQHaWnS1D47cjEps7_rWeKvPc1WKRf1Ao
+ kPOu5OnhW_c00n9amwYh6JKt.AEShzomZ5p5reG0w7WdZlAiVYSJ55WnzEwVfTSmc5Iw0SRqyr_I
+ UCMVbtr17scGxEhovZqj6Dvk.mnD.yWYjtNe_x4ijbEaWHxMEMoGM_OsQNN9N82a2ttRH1ivw7la
+ GI.6Iw12QLsgWeRU8nd8Vp5hGmcbpGIpZw6Db2.ieDnq0CK4wVuy9bCJ6odCEjJ.o3McpgyCgfJd
+ pNa_pU.A.Wkjro5Q_ofB8veMkEnejZ3d7eL1Jsv6NEAltoQH7tr3JfXAQXfSlSf5aB7reGbPoz1u
+ ec6hko5Hd6jW23WkvpH6KzBgvuDWBSeI__AwNq_zXotgim5SlhigLGZuEWNweRX2ZKggxTzoMkVK
+ iHlooofRfO5bLf87BRIq3xOD0mMxsdLRhgayQIEa4j2DxtIYMit9hTU6YFtkSsvkL_NgVWKHsw_I
+ kNJsvKpRov8FPmgkvORUV_FbPxg9s6moWY7.y0b0HOFRzucUtn7xGbuIH32_5SkvyWXFZ8dqjToa
+ xDq_kBN1ScQo0AkgNcQMM0VA6sHcbVS4K30ESOUpRqXVkzGX19pbxniGA3w7dEAXsHh_5JxfdFyZ
+ opiHhukSbjjOnbmz4oWLVR16WKWyTBn9c6hyRo4TIavwF3LzO3pbfrd44uOqkRQO61fQwhVwpjn3
+ EDpDccRRTZ40X_S0zMy_0NZzTAH6ffBv.ORZPS.ZtEKaodNpVocCtLjvfOcbURXxoghw2ILRWVUo
+ G5hPnvLzwoEt8TbQmMIniXjA.syQOk0ZGaxMB4lZ6PuqzL9dJYDWq6ul5u7vXJarjAW2LVNmdOzW
+ VbFg3MEvrhKAMNwu0_5hP3kOUNa6WQHDPD_vjyinJyo4ANN8RacRWBWwgFWFe6JWvj6Dnucyx3s6
+ HitG_S_Un6AdwmiKdvmIYf_X4zgWWLwscfDpIGXVnB3uVBwn8zlcDMuKOyHcvB3HFKkBCoB2YZpk
+ zhTwu3Vue61vyRQrOdt9UuJpVfHP2JGuzK4DY479ILQyn2QPoUCmQXcz29kyBcMl1DvqlL2hQqjV
+ TlSm5GCozRR1nodLSU7a8eQl8A37yv4fMOlZRPf0WQthpmI64UBzRbndaPlUq_FCJvSqm17o6GFx
+ TwxFkElYgdA4ZHlfVGfIhRfcdeb2f4sFTpWy9dCxK4uOqFC0ArPw4GLILVL8BYxxOfQEILaTccoc
+ x9SfY2V59RvsP85HG2yL3Oef9AgAqE6RNj_N2Nl_drI6LBU4LyIFy_pyR2NnMIgoHTx4qEK4vFcH
+ 7_TE7KG0z9jCaxA7uDWC_l1EALrBrPwFV2FWfhrm9xlzz2CnEPM9BIWD55nnJ9hRQI8KbXFvA98P
+ YkGrfmsqrqRmOkjbccNzWIid8fh0_SYX_XdRGJyj4poof4SI0IZUaRoxcpCEXZbj4XTMsBuE4tW1
+ 2kMDd3uXVy9oID2avzJPVTzdAShILxv6Q2sLMF6_gZZ2R1qtnesnPFRkIyl9M71t7X0wdVTYxx5d
+ _e_dC6FglvSr9FDHZnvNhEDVoTZTwWA5yKsdKpaHCgBwzWRZEgxNLi5Gz3odhBSHNxXlDUnkegDN
+ zPOJn0OAbs4Rl2gDG19vxR3v6lfChyC.zVTxjEMXTEViBEx8Dy.Mj6DEVrpOZCIKvmvAbpukbUze
+ qNz0rmUzbBoS2C9uII7FOTLxhgDDFvg.n1uZHUSosc7IhF2ca19XaHyobpeOs7VPZBA6sKHZqxl0
+ vu0nxcY2PhAbNOTLVDuLeP0hAx0FI2RP_aHVxk5bbviVHy2wjJYxAh9arJ_6A_OOQ.av7tXMgeph
+ AnqdhLKNJdMnCIKn4EWSjX70RDXWEzNf4O3c3DlgqGNWpisiZ3bxsucEGKmA_SB3.1R4DWdg4Rvo
+ JrMwovK3jnMG_yDXRoMDJDz9cg6lW4lhtBFWYvuk85OrXZrgVIF18sqWWNJBRnN2sedo6ANerqr3
+ CzICNYABATJtBDdadJ.eKjnK1esRJ3T31VvzYF5nN5uyzkd9kLSVlp9UAyRNuWaX1sBDw1xismGt
+ VACjTWDs3710b2Wss0HKc5fOHs.sCimdJvHHcCOM-
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 382997fd-3c7c-4364-89f9-69d82166a3fc
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Thu, 24 Jul 2025 23:39:45 +0000
-Received: by hermes--production-gq1-74d64bb7d7-lwch7 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID ac9fc2ff9e6c27f811bd2abab431ec14;
-          Thu, 24 Jul 2025 23:29:35 +0000 (UTC)
-Message-ID: <52b0a3f3-4b5d-473b-ace5-29c5862a5898@schaufler-ca.com>
-Date: Thu, 24 Jul 2025 16:29:33 -0700
+X-Sonic-ID: 715c0da7-07a9-49a7-801d-5b9b055b5fb5
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Thu, 24 Jul 2025 23:41:39 +0000
+Received: by hermes--production-gq1-74d64bb7d7-nrjbm (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID d01e5d3f8c474e81f79a181bb5f79386;
+          Thu, 24 Jul 2025 23:31:30 +0000 (UTC)
+Message-ID: <eb722871-649f-4284-a3c0-3db9f2423baf@schaufler-ca.com>
+Date: Thu, 24 Jul 2025 16:31:28 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -64,8 +64,8 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 17/34] lsm: cleanup initialize_lsm() and rename to
- lsm_init_single()
+Subject: Re: [RFC PATCH v2 19/34] lsm: add/tweak function header comment
+ blocks in lsm_init.c
 To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org
 Cc: John Johansen <john.johansen@canonical.com>,
@@ -78,86 +78,68 @@ Cc: John Johansen <john.johansen@canonical.com>,
  Xiu Jianfeng <xiujianfeng@huawei.com>,
  Casey Schaufler <casey@schaufler-ca.com>
 References: <20250721232142.77224-36-paul@paul-moore.com>
- <20250721232142.77224-53-paul@paul-moore.com>
+ <20250721232142.77224-55-paul@paul-moore.com>
 Content-Language: en-US
 From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20250721232142.77224-53-paul@paul-moore.com>
+In-Reply-To: <20250721232142.77224-55-paul@paul-moore.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-Mailer: WebService/1.1.24187 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
 On 7/21/2025 4:21 PM, Paul Moore wrote:
-> Rename initialize_lsm() to be more consistent with the rest of the LSM
-> initialization changes and rework the function itself to better fit
-> with the "exit on fail" coding pattern.
+> Add function header comments for lsm_static_call_init() and
+> early_security_init(), tweak the existing comment block for
+> security_add_hooks().
 >
-> Reviewed-by: Kees Cook <kees@kernel.org>
-> Reviewed-by: John Johansen <john.johansen@canonical.com>
 > Signed-off-by: Paul Moore <paul@paul-moore.com>
 
 Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
 
 
 > ---
->  security/lsm_init.c | 25 +++++++++++++++----------
->  1 file changed, 15 insertions(+), 10 deletions(-)
+>  security/lsm_init.c | 17 ++++++++++++-----
+>  1 file changed, 12 insertions(+), 5 deletions(-)
 >
 > diff --git a/security/lsm_init.c b/security/lsm_init.c
-> index aad363e37140..49f93383e551 100644
+> index 25fe0c89e884..75e97f6b530c 100644
 > --- a/security/lsm_init.c
 > +++ b/security/lsm_init.c
-> @@ -169,6 +169,7 @@ static void __init lsm_order_append(struct lsm_info *lsm, const char *src)
->  		   lsm_is_enabled(lsm) ? "enabled" : "disabled");
+> @@ -312,6 +312,10 @@ static void __init lsm_order_parse(const char *list, const char *src)
+>  	}
 >  }
 >  
-> +
->  /**
->   * lsm_blob_size_update - Update the LSM blob size and offset information
->   * @sz_req: the requested additional blob size
-> @@ -222,16 +223,20 @@ static void __init lsm_prepare(struct lsm_info *lsm)
->  	lsm_blob_size_update(&blobs->lbs_bdev, &blob_sizes.lbs_bdev);
->  }
->  
-> -/* Initialize a given LSM, if it is enabled. */
-> -static void __init initialize_lsm(struct lsm_info *lsm)
 > +/**
-> + * lsm_init_single - Initialize a given LSM
-> + * @lsm: LSM definition
+> + * lsm_static_call_init - Initialize a LSM's static calls
+> + * @hl: LSM hook list
 > + */
-> +static void __init lsm_init_single(struct lsm_info *lsm)
+>  static void __init lsm_static_call_init(struct security_hook_list *hl)
 >  {
-> -	if (lsm_is_enabled(lsm)) {
-> -		int ret;
-> +	int ret;
->  
-> -		init_debug("initializing %s\n", lsm->id->name);
-> -		ret = lsm->init();
-> -		WARN(ret, "%s failed to initialize: %d\n", lsm->id->name, ret);
-> -	}
-> +	if (!lsm_is_enabled(lsm))
-> +		return;
-> +
-> +	init_debug("initializing %s\n", lsm->id->name);
-> +	ret = lsm->init();
-> +	WARN(ret, "%s failed to initialize: %d\n", lsm->id->name, ret);
+>  	struct lsm_static_call *scall = hl->scalls;
+> @@ -332,12 +336,12 @@ static void __init lsm_static_call_init(struct security_hook_list *hl)
 >  }
 >  
 >  /**
-> @@ -373,7 +378,7 @@ static void __init lsm_init_ordered(void)
->  		panic("%s: early task alloc failed.\n", __func__);
->  
->  	lsm_order_for_each(lsm) {
-> -		initialize_lsm(*lsm);
-> +		lsm_init_single(*lsm);
+> - * security_add_hooks - Add a modules hooks to the hook lists.
+> - * @hooks: the hooks to add
+> - * @count: the number of hooks to add
+> - * @lsmid: the identification information for the security module
+> + * security_add_hooks - Add a LSM's hooks to the LSM framework's hook lists
+> + * @hooks: LSM hooks to add
+> + * @count: number of hooks to add
+> + * @lsmid: identification information for the LSM
+>   *
+> - * Each LSM has to register its hooks with the infrastructure.
+> + * Each LSM has to register its hooks with the LSM framework.
+>   */
+>  void __init security_add_hooks(struct security_hook_list *hooks, int count,
+>  			       const struct lsm_id *lsmid)
+> @@ -350,6 +354,9 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
 >  	}
 >  }
 >  
-> @@ -423,7 +428,7 @@ int __init early_security_init(void)
->  		lsm_enabled_set(lsm, true);
->  		lsm_order_append(lsm, "early");
->  		lsm_prepare(lsm);
-> -		initialize_lsm(lsm);
-> +		lsm_init_single(lsm);
->  	}
->  
->  	return 0;
+> +/**
+> + * early_security_init - Initialize the early LSMs
+> + */
+>  int __init early_security_init(void)
+>  {
+>  	struct lsm_info *lsm;
