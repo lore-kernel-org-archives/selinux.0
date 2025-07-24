@@ -1,62 +1,62 @@
 Received: from sonic312-29.consmr.mail.ne1.yahoo.com (sonic312-29.consmr.mail.ne1.yahoo.com [66.163.191.210])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68CB12E9EB4
-	for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 15:28:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C1DB2E9EB4
+	for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 15:29:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.191.210
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753370926; cv=none; b=a3tSymKGMYabLADINazbkEqwyCTKswGdkMd15qOescPbEH/KWX9BSpJphVKociWEAnaEpItqFSG/conmHwIfphnHysod8TMihvaF4nx4JAmCdLHc+C8NZaNJAp/8X7x0Pky+Fjevuoth8gCxpQip5wZM21WS7LZDRn8Ps6FYcEI=
+	t=1753371002; cv=none; b=T3a6+1THpwWnUkM/9S9ciTc6MONnI3ITakYPbTzYGaQK9r+EzegslMAPUSv6JY7+YS6kB1m9tz2bVzA1qAHoDVJiJd8gSyJYpcXaC3TV0XaY0ZLz+hAbAMcQloZBlNw2UyxnVCWGblyxXLlrgmUHMtT8aDu5CwWcxIzbXSXJSvg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753370926; c=relaxed/simple;
-	bh=wFG6ginIIiiPePvgb9Hpc9kirHtgpX0uxnTLwJhWcjk=;
+	s=arc-20240116; t=1753371002; c=relaxed/simple;
+	bh=bu4+EeurYeFCvN6EZYEkLMGgI7z1ksMkAjNB3fbChiM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VCh1/0H45hz55pxE5mSZ/sCva6JPWMlTKhCQWxu15PTwTvOQaEcPJCafI94S2RxsJMwBNSJy9YQPUIjyMCUVLsQULbwd3Aslpp9qaWsZQGrg+OyoemhWm3VNfR4rhfsLnOqH39juHskBEALqc5YmuXd0TNDvAAoF1ZufbAzljnw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=OsAslRPe; arc=none smtp.client-ip=66.163.191.210
+	 In-Reply-To:Content-Type; b=cdIF/6yQ7WwyH5dT/5PdvftjS7c4vaiC5EhkX9sqwcwnaBRobDkup+LH+DdBHL3NsID22vzfxItgWKgqariynJJX7pKFqhJttCmJGdnn6xZrHJ8Mw/PU0Gg9gOphrZkb7lmEE62mvZehHRottpSoGCEpyvOBFs7atNbYwLmmGt8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=B3Duyy4D; arc=none smtp.client-ip=66.163.191.210
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="OsAslRPe"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1753370924; bh=IzFKE5uzWQzH8q+DZ2R5voj5753qmS0KFa13aAkfcXQ=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=OsAslRPeARV6AimZsavD+bJvE0gccMZ/f56Ypm+hHZWHIUmc8yPpmKY98FDXoI4dzWWpNAIcamjp94M25bn0Z0UR1n3uQeTd1MH+dD1EExyKZ5+J0nkyE1UbGfdZjmSvsf+bwBZqr9agufK4Pzeh8GMB0eFt0paQ7C9BB1jU4KbZxYjogh2tnnUCoQBIzzty4ucLKtMEz0B3fWyQbh7nVAojKsuTE+tIM7opAUnsdXvWfZag/sGGMGiXn5fJV9T0ZHUIMr9b4fhREotFhiQLhg/fa5xV5tWvd8LrvyKcIfL3Tpdha7uYl92lQDDZ8hrHTbcBMCnH6pQnDHr/vBiuGw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1753370924; bh=nrCCEXkM5ne4ZCKca5Zxbq6NikYWjwX2neVdq8uTMFR=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=hyBJzx/Bt+EIYpNqtD4waQfutXdllMYh0KaqFsnnqY1ndZC9zZBhWoWNEBSe4L1dGmRs4yVXNQkobcfzwEVPFJqMlD2qUnV/ACJsd+Wk8xM/U+IsB7EbLeL2Ct3sAC4B8qxxcSt/NuSSyO9s6Y0nQU+YHpF398Vj+yci8hJ8Nlfp5bPh5Pzuf62jhdt3fXPpTk4Bm/tXeHqPHZmsJK7oRCSv7KByycub8dtpdl4v4LaCCxAyw1Iey2hZ1uKtW/W8shVM8z7XmTqlau7nScZk/Y4RqSdW9Ia0zIRnLt5fSt84GRYN3DVW95VBwi277Bmlu3TVJaCOoEEBSNT6VkVnVA==
-X-YMail-OSG: BVijqLsVM1kSgO__1x5iyoabSF5PVNqQkShDih7tLDIwq_mrUYqFPf7k8pE04Vt
- bEiudCQI3hVslk5KuJRcqg9rSwzII00McgjuSnO83_.5a8zFX_malfk10BIWs5zUqizkev7Bd81Q
- fhb6N98ltEUNRABJsOGAdihJxT7mxhCHY9WRKLB3Sd5SB38tOlr.ax27IlSfvTgAZlQX5pYGjT67
- W1Ez3x6mmzsUW.3iNWTxU4w4FQlkZmsAc6dKAnkg_R7ORe_0jhgPGg5aq5mjB765MiXnpjPk_K1w
- Io.YL_s4prBJBO9_K24Sh5PuMt_.tO6jEmd5Kvgnv0jzbcVW0sdipDAAhoPFGd6rocfIfM7a2W5i
- U0Tj0hqZDVnwrriKs48Q93p2FcWiEqEsQVXfZ.OCEDBOkU6mGJ1MYvX_PmaF0DMaTqw_8WkZ1Omu
- rEZjAroYCgix8KkOXbiJfQ7tYQpUgcdNJnoQpgshNvKyw9oZ2PypRjyPnEXtNECeQJe_XqmjEMyj
- rXh7vRxfIluyZBlzJYhw.hLmuTFgRFYDc4rqCmvGuW2rdD17cF3QLDDaGUKHxFrcWATAowrqopfl
- FJHXrTHalxCRz4yM0Or2NKXDXC7ODiNJLrPtlsg6yYRPoq086A1_S3q0bBhu2myGGv_kGe7DXFpl
- vLgOYg8WIjyCSJjG4AwANDnp7mob845j7qF9QFiw6WV_VcDgvY_9SRurCxUVrvEwk9GgGRAOEiWB
- RBr5phUBwO.OSYO1APZ_i0KTBLekzpSwNpPitgLY6tUu5B5BldGNVc0fQC3KWP7I7yZdNHrVH7Xe
- tlTMIACI63pCIbRBSNh_WWdEhj6u8VH9arj6OPVr3LiiVn0yDo5kigjbqkXbTLDXDPyzeoRCsYHW
- 1AMwChRiMiRC6HM5P0dKuV0c32m1w_7JaEp_cgYWPEby.rIf6HqSOZl9QpGDioUAOkXyqxrU2l8v
- yaG6Fd4EQTT1zMFpEwjo42WjZj0tzoGl_MEBP2vQDr3llSM9.bl_.c3t3ZXl.UyVFEOR2m2BtblK
- j7rXUHV7hQ1FKztVt4ibKkkJnOxyl4hfTckAw6T6Hgr0iG1RoBQx1pYC7dkr8BqnVPQ6MeH9VEia
- rKurrd6UVRWmznNM8k8nJXx1n0X84KSSrIB8w4P3pnepDyApZCVpaf2NEUJ.bO116o0Xb.dzg8YL
- hmuFXhJKiDIAqVBQsZgxd6W7ZKMHv6o2AdfQYqtUTogPEI5kjRBLzw2e7mzY6OxIU5T0zhZboJ_.
- XiZeNUJ5MZMkKd5dPa5nhvOKG2.7OlOnYR_mkxUR0p5pcF_JpwpQjcG0Ff.viGwuDYSRZvm7LHeQ
- qtSx5pYbpV_u4ktqGoMc0awg2w59FyJB2GCkVZK49PTxNt1dEBqLo3KYS.Q7NY0YAG9eTZ4sqv81
- 9J3jmklSVHaxTL8MUzg3yBZrxavShv3338XWAG.LDCOPpkOfNSohp6NBI3Gr2VbKf6xSHCaOwslZ
- aJuzz.BpuQ88zk6Fo4_3gVIKHXdyFCE5zFuRIUAVvq.Z0k1dZdklXxO_fmxA2L6r4Z6MRKWTBzk.
- kMyxb2zCUGuRc19mSoCZrc6nD1uye3FwBQo.eC21QxUxDnpezLnzbMywKa0nFcezBknoraHtqsfh
- 5vqgGbFrW.uHeb1_Ct4wiSjpbtlJcE9KvN3A_OilmsUU78E6eauV6YcKnhbxdvBVX2DM1Ryenv4H
- RENaSAz3Q07rv38H.IrLmjLOd.EGEQkkg6G5ChepUsftxAWHb1e4bw6WYsEVDoGQrevxmXpWQiPZ
- HavPe8.bc.oihJN983Oi.0JoZsSpaaUEaOYowVtzjKbiL9fxVWb0HA6YOgMvQlOpQ39n3_cxtTpC
- qyVnns6GEMt.48Cf100gYvofQ4srIyWo41EfGayi.ZmgPrnUfyfZYG6VLCCslrJlBs15BNzdbDui
- AyQF.1HsjfLoS3xIuHclH7ZRIlbK6TFDku8xb7Qjr6g1PLtEYgxanBBOnIwA05vADTSdBC0oI4XS
- NEyWc9522J8lD9JnOw98OtRhiDvzSNkKZGcacirZOHPHcr0U7sPY1A07L4WnHvE2mM6LhXgooDxM
- L52WwblFwefAlQ3vADKvzfwUtCRbvHv7V4mYza6S3ZlzrflNNq8K44oyRNt8OfU5q6jGdM06OlIB
- 4cjUlOlA1rYvzxlepcuuUQD2cStMadp9A3cVRdmzAygl_qRLt0ythLrEw7kKIPQPn_A6bA0o59hk
- meYsV..6yo4yxD2V5On7x0i0ajtM4TZerPE6nmnAsxYmJtHgIycoKJksGvBzF2ESZ5f99sMCYjMt
- wRn8SZO73NNl4FGuSs.FskySNoUbhHcN4ww--
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="B3Duyy4D"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1753370999; bh=n89hw//G/TiR4YffPd0vOqeZKCw+kE3uOGRCRP5IHog=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=B3Duyy4Dr8eWTL5ep1zfH7305NOV+G3PEwk4ry5udASdWUVKoQx/cq+QJTQTnTgIt1bVR/k0+EJH0zqzEPkDM7/UaBWF2vB2Fm0vXVqVfE3wMuS1Sj3kvSNEVoqIYvy8folm81iHZCodCLKA6FWfQueuhmRegP6rEDXDL+26P9/qm2fOOeNfMklEAgI0BpwGoOS5P0Vh6xVRzn0RxCGd7y1EFLPZ5Vpml6OrgIK8bpr/r1TXR70ZGXLPXkNCjIWBYjNVw4py+aGAlazmHxeA5VCCsSVHKLSucixoa/IFFUMJQ42LKWRDZymKFRGD6JrY7p3Y9EBU2aGWP8ONguhq3g==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1753370999; bh=F82k3MZtCR39QBHbpgcjbr6ZsBqawKv6x3NxV3mOvAG=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=Gz80lQdMvUOPK2GkkgRzN6Etlz7iMSQTKPhA+Qu6ARj8AkZVDFSWQqNhubCZGQ49Ab4wYAkVNpmKYJBQ28n1kGf4tLMmU/zN4FJFOfqwAakYtooya6aGs87OvXyyKan4A72g4bhXqtHZ1vEmVU9QEs7HA0s3fGS7ZV88HqbxeYhR4qFWm6Hgi28+LwCmSf91eyH7NzI41Nkez1S055vLyRDTZTmxS7ouFCv85gNpmR5THPX60RzFIxM1NWIVYSbxYlB/0rZICB+R1xAOoW2IbSzySTlbDhfLM4XJ5XDd2ws1mlGPRpV+8EuCnUA7KNe+Lfr8mBchJrIceZT0hPUC9A==
+X-YMail-OSG: y3UlXPEVM1liXemuqzgj0ZFVmC_hY33t8yOhlcwOvTLVL_7.fV3kHKD4CWBu9HQ
+ BTzMo7EjNPBiqfeLBMBqm9dlBUmKvkIR9DHJ0IMdATfCLE.QhZNRzI3ouU34kXshaMMbDScWl6dL
+ v1hxT6rvVjx17iAPmODq_AHM2rP0ma7pp0wLIxCVaw6Uzhj7POllzC3I.8KOmqducAPllJB0pLe9
+ H_f8sOA7GLpox4EwPt8XVp41LoeEZkeKXXisxbM7gC1MTVHS3_BR.pUmz5rInzFPcoiwwjHWuDw1
+ w9Qqv.hN1ECI9jzZFvVBLH1RrB1Jzy9PYDBDc8slcWV3tudVq46X.fcCmQh_ygmKFJYVDy3RgRNY
+ rpmMuyBGyqyz8.2HFqrLTH2QtZaX6uD1EzRfI.CJvJkb.B0cfQYgWIwu340G1M6hPaJH5AGpes_3
+ CmJC5gL4RverRTgRjVjIVLiou_.D_q2mYqltIcxU6AKkcpRbRIIgTDO62XlzD.zD5aMp86JUR7BZ
+ 0JxXWNiDbrAf0aIRVpiMFN76n3QvoomIR06WL3aW1.q5waCpPmKu4AFVEOK3EaO4qj5ZY0MgCa2e
+ F.5TKQRd958H8R9AAFOCRTwfaNl4rqdobiNFZCWUcAm_RMAm2usFKKSP6P2ZHQf3Kepo71eQk7yq
+ dXf49kQ2Kla_9DR77FfTbZxJRCqk4rwQ9HPqnIr1rh4p4N_xT770Sk7_Qn2g2oUvXX74EpRm9QHY
+ UT2gAkXJbMsWa_UbyKx43seT43Rh2ruVv9coXi2vr8KYHXvK6xzA7nVrzsxwY.DvLBUDP.vl4xG1
+ FUYxwLE1486Z.LrEWV9qGanAYyvDb.FelyhYmLc.jx2OQ2CLb2VC8VNBCnWyy8YGBc1nqIuqt8iV
+ smOzALbwRR.KvUSWa3AFe.4szaNl8RuTPJKP5RbGOqPQdK0QHSIBqLKEiesVo78yFan8HdWvVWlW
+ Eezv0aEQChGWywOl9zeZTN0ffei6MnmTAAjKPko2SF8di4NdophZY9RNIub4.hy0rpRAIWLz0ov_
+ SfvGFUTpnSWXvgwa1zAMF5.cBSEWCJpSy3nvGsJzS05iGKPgLIUhqROQvyENhmdfh05ConQ.rq__
+ b16tQjXvNT2DTOM5NEiwaPP5j4J.86_29cMMAxk6H91xzG4d8Y8RbeaB35R5PcCfdNkCrULZQ2Uw
+ QVo_B8yTF68_cv35bYlIc3TDrvHQy0QSS_Q1wP5waaZBSIAfki_cPPKTF3ML8kZDW27O66aaXYMl
+ 3ePt4Rx6lM6.gsElQUROMA4Z8KIgjkxqiqIBILj8qvxroXxVwB.qMNnD0WizAvDiOVNyWyZ58qtJ
+ wjN.QgchEg9v_CbTdgOY8W_kfXSg4KCngUoIrzIwXVf7EUtnZr8DiA78j8goBKqNPTZMC46nZtNe
+ GkE9s7t2vnuZ0GzgpblehyaVBJOHPLnhqHNcDqkbvXnLg.S6JVRw7vO_LeOiy5H1897uJL1PiSnt
+ T2C8r1CUHoqt1REl1BXQGlv65HSr8EpiLwi0Ls1gMD9qOKFI7AaAZ8BpOa7xKhyOvyrDNYm0N4ma
+ Nvczehk81cAayGw6Jw5wGHdcy2DE0u6.9Jhn2cP.W00OK2Hr9vL3jRiF.B.gMUP2tB7_9GX3T09T
+ twvz3N8LlnkCnRr6TvCxmVP.2nGWut6mmooBxiu.mmZbbULMFlmi40MT_z7DsB_4yZLytTQknGGl
+ plLdTtaSuYdprOY89rQudaK2AjRba42Hna3.RK6NjqnEwhCXNef4AXQFj6evq0fVxO_IBMX3Crqr
+ Vk6sm.bA14lEhdgnulHNA71S2yBqQX6yrsUHZxzJzGFmFUt3zWGXxbca9Te5ZfFdvkBLr4VZH_8F
+ QoCgTMmGJW.1qXCT3n3Jb_aHkeTrNkDB69uM1GsTBblK0yaS_Gru593p_JeMbO.A7RcBZrggVMUF
+ 89gfEk_bF7orh0lQ665worPTiROiEplGgmR7bKBm.Lg5ltt3OLKjXoms4Cw5hGoAdy_3ssFFP_Qa
+ 9VvZTP.2BSwIYzFJtphX3CGlWOy8.hKMdpEYHlao98qmIcygiKIQYJciaKjxvImKUug2Mtm7njWE
+ OYA.C52Y4Pmp_DEdXipjylooemxzFXgFl97daGnuyJ71TDEq2URZ2Vx9MqW.yRl7vB._asmhhW5o
+ mWlAjwgaV.n.YY0trx_4FNz1Fl1ZPRlvBK3z0wm9HUujubLkXlOvqk7FQuTXhPLp_iUPUAoEwv8_
+ Y.agJaC89zuJ1HjqdWyNbfGKyUL2vamBL1dTmKBW98SCbLVkXWrd6Cbk7Si5OtSU0cYdUZwcFT69
+ psfiuUM81Ii.arjlPb8Iftm_I0j9W_0hYrQ--
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: e60a6a92-d3c8-4dd1-a3ec-77719cfe82fb
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Thu, 24 Jul 2025 15:28:44 +0000
-Received: by hermes--production-gq1-74d64bb7d7-w6q4t (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID c0be3c125fd03faf460576765fd8680e;
-          Thu, 24 Jul 2025 15:28:41 +0000 (UTC)
-Message-ID: <58465c46-72b9-4f6d-9ebc-668a95024a27@schaufler-ca.com>
-Date: Thu, 24 Jul 2025 08:28:39 -0700
+X-Sonic-ID: ab3cd072-44aa-4f2f-90dd-ef67ac1ec043
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.ne1.yahoo.com with HTTP; Thu, 24 Jul 2025 15:29:59 +0000
+Received: by hermes--production-gq1-74d64bb7d7-2dlqg (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 8a4d55be7f5ac235f3d5ce4ab540a3c6;
+          Thu, 24 Jul 2025 15:19:47 +0000 (UTC)
+Message-ID: <3f1d48db-5a92-4f4f-9672-5f2da5f90c4b@schaufler-ca.com>
+Date: Thu, 24 Jul 2025 08:19:45 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -64,8 +64,8 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 07/34] lsm: rename ordered_lsm_init() to
- lsm_init_ordered()
+Subject: Re: [RFC PATCH v2 05/34] lsm: integrate report_lsm_order() code into
+ caller
 To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org
 Cc: John Johansen <john.johansen@canonical.com>,
@@ -78,18 +78,17 @@ Cc: John Johansen <john.johansen@canonical.com>,
  Xiu Jianfeng <xiujianfeng@huawei.com>,
  Casey Schaufler <casey@schaufler-ca.com>
 References: <20250721232142.77224-36-paul@paul-moore.com>
- <20250721232142.77224-43-paul@paul-moore.com>
+ <20250721232142.77224-41-paul@paul-moore.com>
 Content-Language: en-US
 From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20250721232142.77224-43-paul@paul-moore.com>
+In-Reply-To: <20250721232142.77224-41-paul@paul-moore.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-Mailer: WebService/1.1.24187 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
 On 7/21/2025 4:21 PM, Paul Moore wrote:
-> The new name more closely fits the rest of the naming scheme in
-> security/lsm_init.c.  This patch also adds a trivial comment block to
-> the top of the function.
+> With only one caller of report_lsm_order(), insert the function's code
+> directly into the caller and ger rid of report_lsm_order().
 >
 > Signed-off-by: Paul Moore <paul@paul-moore.com>
 
@@ -97,41 +96,65 @@ Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
 
 
 > ---
->  security/lsm_init.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
+>  security/lsm_init.c | 33 ++++++++++++---------------------
+>  1 file changed, 12 insertions(+), 21 deletions(-)
 >
 > diff --git a/security/lsm_init.c b/security/lsm_init.c
-> index 7e736c20458a..c8af26a6ce14 100644
+> index a73c3769dfea..d20c6df55e7d 100644
 > --- a/security/lsm_init.c
 > +++ b/security/lsm_init.c
-> @@ -288,7 +288,10 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+> @@ -288,26 +288,6 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
 >  	kfree(sep);
 >  }
 >  
-> -static void __init ordered_lsm_init(void)
-> +/**
-> + * lsm_init_ordered - Initialize the ordered LSMs
-> + */
-> +static void __init lsm_init_ordered(void)
->  {
->  	unsigned int first = 0;
->  	struct lsm_info **lsm;
-> @@ -336,9 +339,6 @@ static void __init ordered_lsm_init(void)
->  	init_debug("xattr slots          = %d\n", blob_sizes.lbs_xattr_count);
->  	init_debug("bdev blob size       = %d\n", blob_sizes.lbs_bdev);
+> -static void __init report_lsm_order(void)
+> -{
+> -	struct lsm_info **lsm, *early;
+> -	int first = 0;
+> -
+> -	pr_info("initializing lsm=");
+> -
+> -	/* Report each enabled LSM name, comma separated. */
+> -	lsm_early_for_each_raw(early) {
+> -		if (is_enabled(early))
+> -			pr_cont("%s%s", first++ == 0 ? "" : ",", early->name);
+> -	}
+> -	lsm_order_for_each(lsm) {
+> -		if (is_enabled(*lsm))
+> -			pr_cont("%s%s", first++ == 0 ? "" : ",", (*lsm)->name);
+> -	}
+> -
+> -	pr_cont("\n");
+> -}
+> -
+>  /**
+>   * lsm_early_cred - during initialization allocate a composite cred blob
+>   * @cred: the cred that needs a blob
+> @@ -338,7 +318,9 @@ static void __init lsm_early_task(struct task_struct *task)
 >  
-> -	/*
-> -	 * Create any kmem_caches needed for blobs
-> -	 */
->  	if (blob_sizes.lbs_file)
->  		lsm_file_cache = kmem_cache_create("lsm_file_cache",
->  						   blob_sizes.lbs_file, 0,
-> @@ -492,7 +492,7 @@ int __init security_init(void)
+>  static void __init ordered_lsm_init(void)
+>  {
+> +	unsigned int first = 0;
+>  	struct lsm_info **lsm;
+> +	struct lsm_info *early;
+>  
+>  	if (chosen_lsm_order) {
+>  		if (chosen_major_lsm) {
+> @@ -354,7 +336,16 @@ static void __init ordered_lsm_init(void)
+>  		lsm_prepare(*lsm);
 >  	}
 >  
->  	/* Load LSMs in specified order. */
-> -	ordered_lsm_init();
-> +	lsm_init_ordered();
+> -	report_lsm_order();
+> +	pr_info("initializing lsm=");
+> +	lsm_early_for_each_raw(early) {
+> +		if (is_enabled(early))
+> +			pr_cont("%s%s", first++ == 0 ? "" : ",", early->name);
+> +	}
+> +	lsm_order_for_each(lsm) {
+> +		if (is_enabled(*lsm))
+> +			pr_cont("%s%s", first++ == 0 ? "" : ",", (*lsm)->name);
+> +	}
+> +	pr_cont("\n");
 >  
->  	return 0;
->  }
+>  	init_debug("cred blob size       = %d\n", blob_sizes.lbs_cred);
+>  	init_debug("file blob size       = %d\n", blob_sizes.lbs_file);
