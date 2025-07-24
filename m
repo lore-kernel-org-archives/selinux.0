@@ -1,80 +1,176 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ED9B1FDD
-	for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 10:45:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEEA7272E66
+	for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 12:29:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753353949; cv=none; b=n2G8S/qbC1cwbKPoxX/rOo5GmbHuXLtXDCrne+x4Jn+rYVZSCm8+3jHA/Ae77cOTYU/D414oXY9jGTn3MyvtgspZ5wWKuz1bzfXsp4ogjh8UBAC5I3cIT0AChCPyIxUr/eK1Ao0LdlcvktT/+L9gUnD9DidStP+hICWNIw3Bo4U=
+	t=1753360146; cv=none; b=GdQ8wPX7aWr5j9mj+GEnLSu5PSrJTns5xGdMdh5+GlN4A6wMjvNklKkyruitP3MfzTyyJO0vFRULqMGobvLHAGY4b7W6aS1+C781N8/6OKBqPqT0CcWA0UdATJ39sCb15b7b4w4MFdtciLi/3vORYGP3657pSLdQtAwvkxxrWcE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753353949; c=relaxed/simple;
-	bh=DiRFlKcw3pDJaNiybWSt2rspepQ2F3dxiOQnF2RqjSU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-type; b=Wj61r+XN5r0sBT+uyZxfw3TMm0aO8T3/0LgBvRPRTH42roSOkNWec2c5cuVWwCeDP+tEvx0YWj90WQwfaQbJM/goMA1iwEjdkLSXP52k7rIPG5N8xALWDkL7Ae6pjwPIkd6Pftrwox03v1ir3EutwCD+6UwcBB9RuE+aELWRX4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=daE67rnr; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1753360146; c=relaxed/simple;
+	bh=CK0H9PnL+vMic4jWafmej2ZrjJ3lQ0pDuDQOXGr19qY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Rl5+Q43tGedviBn39qmbzG2iraiOj2MOlUUQZ6AyXiOtnnp0T/JSCDjLXkIZ9+d5HR64koOh0UROVDBG+vgvM6nIGSfMewnhIZdrPiu1axJaKDhhwVKsANS4JCe353rCg3HXIo2ZZpKiqEkWcq1gpXt+odanViNg7jn6tJ71J7Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KNK/vnOp; arc=none smtp.client-ip=209.85.215.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="daE67rnr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1753353946;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=01CjsgxmR2GAK6elkmbAfp/wkOvPnAE1sy2ZDHi5SdM=;
-	b=daE67rnrqxQEKHZpSDEMwZsh3GPVgWvGYlsohqlSYV6GYWh0kf3MDx4GYlj0ynm19R21Id
-	Go/fstPfJB/VYpoCwrEHFHrguK+3Ot3g3xQKBpY+89bQJjK/Kne7DykGJ/uNd2dEdu8KMP
-	N8+gMBILjWxJvy/amCb7pAQAeqaPrqU=
-Received: from mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-378-FMXsUvYdO1WqA9RVMF4LLQ-1; Thu,
- 24 Jul 2025 06:45:44 -0400
-X-MC-Unique: FMXsUvYdO1WqA9RVMF4LLQ-1
-X-Mimecast-MFC-AGG-ID: FMXsUvYdO1WqA9RVMF4LLQ_1753353944
-Received: from mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.15])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D5E6A195608B
-	for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 10:45:43 +0000 (UTC)
-Received: from p16v.redhat.com (unknown [10.44.33.172])
-	by mx-prod-int-02.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 89C6C1956089;
-	Thu, 24 Jul 2025 10:45:42 +0000 (UTC)
-From: Petr Lautrbach <lautrbach@redhat.com>
-To: selinux@vger.kernel.org
-Cc: Petr Lautrbach <lautrbach@redhat.com>
-Subject: [PATCH] README.md: add link to the github wiki
-Date: Thu, 24 Jul 2025 12:45:31 +0200
-Message-ID: <20250724104539.42620-1-lautrbach@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KNK/vnOp"
+Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-b31e0ead80eso855559a12.0
+        for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 05:29:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1753360144; x=1753964944; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=sZYQiQQ1gEx0AK2OBrJZUyBZ9T51Fc4HZRiWLUj2d38=;
+        b=KNK/vnOpt177wl6r46djzkOZ5qk4qB9FUqXkjbgnPWWP5uXT9tCcM2C9JqGadbYN54
+         2GoQ7t9lyPzjiodMpnAd7yMIz/gt+5vEtatmUhdos0AnOIXx/AT9xT3chlMQykP30bb4
+         2RLx46reWVswvKNVkr41HOu7QhmdcYJDo584EAqBCOXigpCAyLHY5GTjwqB+Amflopwj
+         ddK4J1mcontX7SXfYcpHWSjPoU6nQIgh4aTeOCAciTtCMYWN0Vo4PPuYQj5duCFX8E8g
+         kbhXuLJmd6GdlpIy0urhIu5pDw9C2BlwU+sdZzmXZoRUtYHhP2KJHgFgXOwbQOEC0gmF
+         EvEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753360144; x=1753964944;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sZYQiQQ1gEx0AK2OBrJZUyBZ9T51Fc4HZRiWLUj2d38=;
+        b=KLsWCnuOFCNUHojVx+rSP3rWk+cTkNnX6EC2+TxpRa+Q6nzQ7fwUcx+dADmO/XhLOO
+         zPIb9YSzmfqz2RmIbHlssrmcjekgcuF4LeqdzN+MrYIKCkewNym7PrIli1UuKAAYp//a
+         lN1qgrDpRBTbLGItUoekrt6J7vAFIGX5pPcCVSp/ZkjN1LCQK4qipT1ga1meLpL5Z8RB
+         bPcbAQmrVLKBexgYYBanA3n4sH7kO8keCxcZ7nEvWJu5nssvdm/Z/XsahDjYtiT8XGDf
+         63+offryO1vLgdg6ZMmjzvc9M0vkMniqZVSFYOIF7VD2yQ7SLUi1DA6ruLhThR+yq60E
+         ulyA==
+X-Forwarded-Encrypted: i=1; AJvYcCX9jJtG1QmUqcJklq2q2Dcw968d+Me0nwVt8Ya7NMHUzhUuessFx3V4lCt/PbHoiruJ40PMbfGV@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx1BY++J2K9MNnnaOvS1OCkxE6btpiCsLhmhvqAV3kqp6I2/V4Y
+	z7GPAEVb/zjL3puIx2mPsgyETxmCjnwDzpHu0T9UphPah5xVogzbJAa2ClPMVY6pVvjLTdSkfVT
+	FV0a9gjmcD9Wp3kFFw6m85qqtHFsyZ5k=
+X-Gm-Gg: ASbGncv/BAjMzsz8YFXyMcOnivWvl/dYeypkjkatb5vtTghVmkt8L2tU6r9I6f46ME5
+	rmYvWngMjAEJPwkkXlRAPhl4ZQhHACsUPclnyTMWqxZ0oIp9a2HRvS4qzu5hdzTZymt0uNGHUTa
+	6apP9SKolkNa+kegUSRt9hjDdnP4hnVkvvvYtN6C6DwNkgTw/DZh3z4IPC/yXLDp66hEK7pgm1/
+	0jRTOs=
+X-Google-Smtp-Source: AGHT+IFr3HQS4/Ll2AsYts50MGCihHPPJ8JDVHYyedGzhBFP38Xf7oCVZ/UpeK+s27RSR+L6K7Dxz5oCbX7BDzzeLL8=
+X-Received: by 2002:a17:90b:562b:b0:319:bf4:c3e8 with SMTP id
+ 98e67ed59e1d1-31e507c4148mr11138944a91.18.1753360143865; Thu, 24 Jul 2025
+ 05:29:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.15
+References: <CAEjxPJ7ZuzcMLqewoci=wamT-F3Q_CD2iqBR+zMAB+V1hLOrHQ@mail.gmail.com>
+ <20250724091320.228757-1-nvraxn@gmail.com>
+In-Reply-To: <20250724091320.228757-1-nvraxn@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 24 Jul 2025 08:28:52 -0400
+X-Gm-Features: Ac12FXw3lfwI4OxPfuB3vkTGzYAntSaKXrz6HnL7uNnIo_5UtPBM1_YMa89-8Yg
+Message-ID: <CAEjxPJ6AuwTX9soXmHSiJbE2r69mRt8qFTTOQj-FhWUjnnYdQg@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: fix parsing of the enforcing kernel
+ cmdline parameter
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: omosnace@redhat.com, paul@paul-moore.com, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
----
- README.md | 3 +++
- 1 file changed, 3 insertions(+)
+On Thu, Jul 24, 2025 at 5:13=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wro=
+te:
+>
+> Currently, parsing of the cmdline has two issues:
+> - By using atoi, no error checking is done. What happens if an argument
+>   that isn't an integer is provided, e.g. enforcing=3Dfoo? And as there
+>   is also no validation that the number provided is actually valid, 1
+>   or 0, what happens if enforcing=3D2?
+>
+> - After the first strstr, no arguments that follow are searched for; if
+>   I have enforcing=3D0 enforcing=3D1, the latter enforcing=3D1 is not tak=
+en
+>   into account. This is made even worse due to halting searching after
+>   finding the first "enforcing=3D" token, meaning that if the cmdline was
+>   as follows:
+>
+>   fooenforcing=3D0 enforcing=3D0
+>
+>   the enforcing parameter is entirely ignored.
+>
+> This patch fixes this by:
+>
+>   - Using strtol to actually validate that we got passed a number, and
+>     then validating that that number is either 0 or 1. If instead we
+>     get passed an invalid value, we skip over the argument entirely.
+>
+>   - Looping until the last "enforcing=3D" in the cmdline. Latter (valid)
+>     arguments take precedence over previous arguments.
+>
+> In the case where "enforcing=3D" is passed an invalid argument (i.e. not
+> 0 or 1), default to enforcing mode (so enforcing=3D1) as the kernel also
+> does.
 
-diff --git a/README.md b/README.md
-index aa98d7819b01..5c6caa9d710f 100644
---- a/README.md
-+++ b/README.md
-@@ -19,6 +19,9 @@ Please submit all bug reports and patches to the <selinux@vger.kernel.org>
- mailing list. You can subscribe by sending an email to <selinux+subscribe@vger.kernel.org>
- Archives of the mailing list are available at https://lore.kernel.org/selinux.
- 
-+See the [SELinux Userspace wiki](https://github.com/SELinuxProject/selinux/wiki)
-+for more information.
-+
- Installation
- ------------
- 
--- 
-2.50.1
+Sorry if I was unclear, but the kernel leaves selinux_enforcing_boot
+initialized as zero if kstrtoul() returns an error. So it accepts
+enforcing=3D2 as equivalent to enforcing=3D1 but it does not accept
+enforcing=3Don or similar.
 
+>
+> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+> ---
+>  libselinux/src/load_policy.c | 23 +++++++++++++++++------
+>  1 file changed, 17 insertions(+), 6 deletions(-)
+>
+> v2: Follow the same argument parsing behaviour as the kernel does.
+>
+> diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
+> index dc1e4b6e..0d2a16d2 100644
+> --- a/libselinux/src/load_policy.c
+> +++ b/libselinux/src/load_policy.c
+> @@ -244,17 +244,28 @@ int selinux_init_load_policy(int *enforce)
+>         rc =3D mount("proc", "/proc", "proc", 0, 0);
+>         cfg =3D fopen("/proc/cmdline", "re");
+>         if (cfg) {
+> -               char *tmp;
+>                 buf =3D malloc(selinux_page_size);
+>                 if (!buf) {
+>                         fclose(cfg);
+>                         return -1;
+>                 }
+> -               if (fgets(buf, selinux_page_size, cfg) &&
+> -                   (tmp =3D strstr(buf, "enforcing=3D"))) {
+> -                       if (tmp =3D=3D buf || isspace((unsigned char)*(tm=
+p - 1))) {
+> -                               secmdline =3D
+> -                                   atoi(tmp + sizeof("enforcing=3D") - 1=
+);
+> +               if (fgets(buf, selinux_page_size, cfg)) {
+> +                       char *search =3D buf;
+> +                       char *tmp;
+> +                       while ((tmp =3D strstr(search, "enforcing=3D"))) =
+{
+> +                               if (tmp =3D=3D buf || isspace((unsigned c=
+har)*(tmp - 1))) {
+> +                                       char *valstr =3D tmp + sizeof("en=
+forcing=3D") - 1;
+> +                                       char *endptr;
+> +                                       errno =3D 0;
+> +                                       const long val =3D strtol(valstr,=
+ &endptr, 0);
+> +                                       if (endptr !=3D valstr && errno =
+=3D=3D 0) {
+> +                                               secmdline =3D val ? 1 : 0=
+;
+> +                                       } else {
+> +                                               secmdline =3D 1;
+
+Unless I misunderstand, the kernel would default to 0 in this case.
+
+> +                                       }
+> +                               }
+> +                               /* advance past the current substring, la=
+tter arguments take precedence */
+> +                               search =3D tmp + 1;
+>                         }
+>                 }
+>                 fclose(cfg);
+> --
+> 2.50.1
+>
