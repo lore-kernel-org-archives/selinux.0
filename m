@@ -1,173 +1,93 @@
 Received: from mail-yb1-f176.google.com (mail-yb1-f176.google.com [209.85.219.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74FC6186E2E
-	for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 02:10:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81E452E3710
+	for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 02:14:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753323011; cv=none; b=pqvRe2qgnmLjJeXS/WbiWbgR4w3Lu30gZddUSrVcpEKyhU5uu91pH/D9ls5IKn8hsb1EMXE2mKXg6ht3j95+FmqvxMZd2U8/+7W6eDr91hpLz3Cpg95w1HdPHVkSXcXmiTiVfKwz8/gQ/Hhs0DcXJH5nb8WFsEjhBTEr2zbt/iM=
+	t=1753323277; cv=none; b=LLE2KerowUyXGa318Wk1f+hxvyV3rS/QxwX8a5hIB2ytZx4/aTgkvj7+aBGx8XW8S63a4PV+JMYiqhfk8vABc+0CUOKSOW9UjuNyX+ASujfoJjbytkqq8AnYXlX4JVfqEcPlSkLbra6PimlrmA5PCDBrj2WwAA6iZSvKd+XxP8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753323011; c=relaxed/simple;
-	bh=ffvh4rw69doyRsmJ7u3cRO1OWqVlFCUnRhvVhvHpZTk=;
+	s=arc-20240116; t=1753323277; c=relaxed/simple;
+	bh=+e64xbNtb5wtFJ4daFRvY+EmLJfoQXxo60RzoekjTVo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=iYfW2umYm/4B/G86UfVOmMFCwF2Ei3WnGUFeX4B1k4GLZZmmjTb7y6dGUFXsFZkCRekdqIZKRemAf4hVwW5BNhM6xW10iTZx3FPf7w1XgmFEKkNb0ZE4EOOwbPdrms81aGhItj8LO4ZSpzX/LNLJWGGHfz1KNH4qKyTSvR++9Ew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=JTcDKuI/; arc=none smtp.client-ip=209.85.219.176
+	 To:Cc:Content-Type; b=bF6lczpWLFK8N4ZEacZrx6Uc88Zzwn8W0AIvq98ow78Fgu1js50Led7aEeYiLKIxEzXyEt64ogXDPc8r5VMuKNMyYvzMvKptYr2eXHLHzzVK+UWE/9xmHdBRYM83GfwKxKQSw7ytwSY/mi6RUNpmeoB7x+d5BObpVIMIPcai7Fw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=AeuEjWci; arc=none smtp.client-ip=209.85.219.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="JTcDKuI/"
-Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e8bbb02b887so342774276.3
-        for <selinux@vger.kernel.org>; Wed, 23 Jul 2025 19:10:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="AeuEjWci"
+Received: by mail-yb1-f176.google.com with SMTP id 3f1490d57ef6-e8dd5602497so382137276.0
+        for <selinux@vger.kernel.org>; Wed, 23 Jul 2025 19:14:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1753323008; x=1753927808; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1753323274; x=1753928074; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ezOsh3Rw02sTHRTVL0D2zAjlIafvsBxPOvx6XqZve/E=;
-        b=JTcDKuI/5CUQCswz04ZlBKuJ9nt1HfEgvhgr0nGsG9qp4BfN+m+hvEEEj2n1KSB5t5
-         Hxia7vyFpvdiDnvE2X9hHOj8zKmSDAdrbDLE8CmWjesvRLDha7n4X9vXlfjpu6i1lIf5
-         s5YmjwyTrKz7KDqG9G6wjRcjlDiB3ySIBdQCj4Hqgp7gwybEXQ+EFIBWRTkS+JUKxC3Z
-         HE3YVrql5NXTPsdBwztgQAj6ZHafhnWx7Y1aZAd8pUBm+jAxolMA9D12Coe2nmSmnqrW
-         a/b1qZmN1v9C/VqBmE7cu88zdzjd2+GScqCoLSusEJMLpxas41Qu/5Vr8kdEsDllqlXI
-         JsBA==
+        bh=9oyaxbTVIE1qfI2IXsReOJiGj/VIIyNJNhXOdOAruP8=;
+        b=AeuEjWciLCLiR4CDBbr7XiOR46TMakApJpC4AOnRexplkVGYwf9ROd1tRYao6BQs/K
+         8O3hX8+8v+T+AMFHD+d9q3NuospdjT0N+rSFTzmSl2YQ4gbDI4Joyf+m9FFqf9PHUfTs
+         kZ8RJTkfkp8PaWp2RgGWrbIImQON3vpWc8YLLtFxq7AIVKh5t/yp9ZEABT56InngfS/g
+         dJClXE7/gDSp+dGCYdpDIka5dGmVN/goy5GCyA/QooqyIYzOrUkBhf5lQftsk/y/6za2
+         4/WvrFRcAfVenaaWQZupA9Os2Sym6ADtS+lecwkOQMrF9Ypshd76UF74tmN+QlkA8WHQ
+         Cf8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753323008; x=1753927808;
+        d=1e100.net; s=20230601; t=1753323274; x=1753928074;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ezOsh3Rw02sTHRTVL0D2zAjlIafvsBxPOvx6XqZve/E=;
-        b=guKFATokTs25RkOpiSrSzrO78b/vhQsqKzkjV00F1VOjvw/eIjRZN8HZWq5r1Fnflh
-         1Jqhj359Wri4KMZAGVX1qkg2vfZJOgMC2bnqXbOU2eOVf3C5yG4WGCEXStTUIcLJfrq4
-         d3EWuJYkT7ePls9TAOykzrf+dVA/GxZY0tOp3V0u9o+PFTqOJu36j8XLCZWqazpvX+1a
-         UkvPadbAwEozNOKSBQCYjgzEIn0zBcXbmBP+qdXTwUkdEZ9msH7oTzua4zPM8K8S9lvo
-         uQ11DqPfo0IlKuEQtliQBqmp1g5oLSNYNnc8i0I/1TCHPm3gh3y6bRWtrqzz9cMZABNL
-         t1oA==
-X-Forwarded-Encrypted: i=1; AJvYcCWVV1FU31kmV4W8IdJ+EpfTsxnCmlq/N5uIgkKEJBBSLl0WYi9ZrigYJ0yoXKiApZyAt82uHn7V@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw0QR+NOzWUlNDTBvzN+mv5LNrMpjtt3JlcEAm2PTqm9grw9tQH
-	7dgTtxW2RQarSCYo7PPD6SD1bRhXSKQkdGtgBklaw8GZd5+4TiCDmMc8jmtUJmvDTa2r7/VOgpd
-	+pLX2U2A9OcWztA1DVsPC+J7Yqfj9PCpJD+pcq8re
-X-Gm-Gg: ASbGncvA06CGAeLk7OLZ/EP/cwjWTe+GUqtk+kLuv9veiicMVDT775MVFO1DO1L1VPm
-	hQ6OJpjb+2DF3os1SGrgnNw9kDc+7yH00dgtOB6cakf5FmnV9Gar1YsEdZSJoaN188cuzd977y+
-	kRlPuWzTIsxWm4Woihgl74q+heQD1lmejWIOb4NJajpIdeQ0tLdonto6a11uCO8EKJ1mBzsDZda
-	ORCod8=
-X-Google-Smtp-Source: AGHT+IEjtM0YH/uIkH5EC6RHdxIYSOEo9s7z9JMeuLNs93fJxU9BkwVAtv1fRHAPFv5MIBRtQfg1omYHVhyQIQh0vnM=
-X-Received: by 2002:a05:6902:1288:b0:e82:17a1:5c15 with SMTP id
- 3f1490d57ef6-e8dc57e75dcmr6464733276.10.1753323006953; Wed, 23 Jul 2025
- 19:10:06 -0700 (PDT)
+        bh=9oyaxbTVIE1qfI2IXsReOJiGj/VIIyNJNhXOdOAruP8=;
+        b=Zh5vGRKepW1VIbLqlTnIVSMfTP+dkUKOG5m9OLxjcgNQlh5mfw6T7bE7nSo4m31r9E
+         sMoI8lGxhnTwqL2pYbVYUVrVDKKnXiN/4bPuVWuYiQwFqOpuTTl6MZko+7IgmwSvPvA8
+         yn8KOROembGMwvWMZC1GV5SZ2+8sMgFYw02lLM6ePQu/wMs8ggXJMnhSLXcNHzfgdCZx
+         UIY6bE8tUtxMw9TjaHoUXcBWFKoQa0LCZhvYCZvAWbp1sasELCMp/7XhJA/QX1xWgMLD
+         uq5F/COsIy6SzGKGsvsK+6HznoEapofPuUNICnnLU7QO8A027+gv+EruRk7XngOEJpmr
+         g74Q==
+X-Gm-Message-State: AOJu0Yxj1/ndS0juPwdbAce3QPR0CF8lYaXfVhznwtiCQ8DQQSPrFJlc
+	mGLlyQ9kmiiIbXQegfnd2VAsqF/XxJPcStR2Q6LcPlWPwfrpNIu7RPPf4HhZ4UjJIANZE4whzUJ
+	a6UKDD8OXPHmQmRwdCHVAZOs313EXhWy+s/ftO0m0
+X-Gm-Gg: ASbGnct/tAwDbOh/PkJ9WGh2hK9Jk9qcCmViD0NKOY03NTSSlv51vsBKcPVJx84jgsz
+	ieRNVRbWYNCjCyYc731M9D9qNwOVefap/TIJGvgyS+N5g7dJhlL8VwVDI/VMoAOnU26NiAWUszk
+	xhA8ttQe3epam3F5TiLRhHoA9cMD/vejPsh8mm1ByhRj5cM2cWtZTAs8F+uTOqOpuEX+CtKueae
+	uvVFes=
+X-Google-Smtp-Source: AGHT+IFyIId5sI67X0GpwBeScBi6i2xdeQndiJMOPFDXWrD+lQI5LoruWwk2XUKzbj+0RkY3xzrX7q4XkSlGqNNFsq8=
+X-Received: by 2002:a05:6902:3402:b0:e8b:e92c:58af with SMTP id
+ 3f1490d57ef6-e8dc5b09e5emr6466274276.48.1753323274544; Wed, 23 Jul 2025
+ 19:14:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250428195022.24587-2-stephen.smalley.work@gmail.com>
- <CAHC9VhQfrMe7EY3_bvW6PcLdaW7tPMgv6WZuePxd1RrbhyZv-g@mail.gmail.com>
- <CAHC9VhQyDX+NgWipgm5DGMewfVTBe3DkLbe_AANRiuAj40bA1w@mail.gmail.com>
- <6797b694-6c40-4806-9541-05ce6a0b07fc@oracle.com> <CAHC9VhQsK_XpJ-bbt6AXM4fk30huhrPvvMSEuHHTPb=eJZwoUA@mail.gmail.com>
-In-Reply-To: <CAHC9VhQsK_XpJ-bbt6AXM4fk30huhrPvvMSEuHHTPb=eJZwoUA@mail.gmail.com>
+References: <20250723182550.1065144-2-stephen.smalley.work@gmail.com>
+In-Reply-To: <20250723182550.1065144-2-stephen.smalley.work@gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 23 Jul 2025 22:09:56 -0400
-X-Gm-Features: Ac12FXzwcvMXRcY-HOujXriwLTi0J58g3gNTBeLJ4hgKLEq2xrVmA3w4Jght3uY
-Message-ID: <CAHC9VhQnR6TKzzzpE9XQqiFivV0ECbVx7GH+1fQmz917-MAhsw@mail.gmail.com>
-Subject: Re: [PATCH v2] security,fs,nfs,net: update security_inode_listsecurity()
- interface
-To: Anna Schumaker <anna.schumaker@oracle.com>
-Cc: Trond Myklebust <trondmy@kernel.org>, Anna Schumaker <anna@kernel.org>, 
-	Jakub Kicinski <kuba@kernel.org>, Casey Schaufler <casey@schaufler-ca.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, James Morris <jmorris@namei.org>, 
-	"Serge E. Hallyn" <serge@hallyn.com>, Eric Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, 
-	Willem de Bruijn <willemb@google.com>, "David S. Miller" <davem@davemloft.net>, 
-	Simon Horman <horms@kernel.org>, Ondrej Mosnacek <omosnace@redhat.com>, linux-nfs@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, netdev@vger.kernel.org, 
-	selinux@vger.kernel.org
+Date: Wed, 23 Jul 2025 22:14:23 -0400
+X-Gm-Features: Ac12FXwAwqrzOlqoY3NqEU_T60vfN6wsXqXkn9N64cvMp1ws4xcFaXydIhJpF4Y
+Message-ID: <CAHC9VhSUbZrbV06hzzu5kNwrgojjYVYaUL_Yto+stWD1C=XZ5A@mail.gmail.com>
+Subject: Re: [PATCH userspace] SECURITY.md: add my email address and GPG key fingerprint
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, jwcart2@gmail.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 19, 2025 at 5:18=E2=80=AFPM Paul Moore <paul@paul-moore.com> wr=
-ote:
-> On Tue, May 27, 2025 at 5:03=E2=80=AFPM Anna Schumaker
-> <anna.schumaker@oracle.com> wrote:
-> > On 5/20/25 5:31 PM, Paul Moore wrote:
-> > > On Tue, Apr 29, 2025 at 7:34=E2=80=AFPM Paul Moore <paul@paul-moore.c=
-om> wrote:
-> > >> On Mon, Apr 28, 2025 at 4:15=E2=80=AFPM Stephen Smalley
-> > >> <stephen.smalley.work@gmail.com> wrote:
-> > >>>
-> > >>> Update the security_inode_listsecurity() interface to allow
-> > >>> use of the xattr_list_one() helper and update the hook
-> > >>> implementations.
-> > >>>
-> > >>> Link: https://lore.kernel.org/selinux/20250424152822.2719-1-stephen=
-.smalley.work@gmail.com/
-> > >>>
-> > >>> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > >>> ---
-> > >>> This patch is relative to the one linked above, which in theory is =
-on
-> > >>> vfs.fixes but doesn't appear to have been pushed when I looked.
-> > >>>
-> > >>>  fs/nfs/nfs4proc.c             | 10 ++++++----
-> > >>>  fs/xattr.c                    | 19 +++++++------------
-> > >>>  include/linux/lsm_hook_defs.h |  4 ++--
-> > >>>  include/linux/security.h      |  5 +++--
-> > >>>  net/socket.c                  | 17 +++++++----------
-> > >>>  security/security.c           | 16 ++++++++--------
-> > >>>  security/selinux/hooks.c      | 10 +++-------
-> > >>>  security/smack/smack_lsm.c    | 13 ++++---------
-> > >>>  8 files changed, 40 insertions(+), 54 deletions(-)
-> > >>
-> > >> Thanks Stephen.  Once we get ACKs from the NFS, netdev, and Smack
-> > >> folks I can pull this into the LSM tree.
-> > >
-> > > Gentle ping for Trond, Anna, Jakub, and Casey ... can I get some ACKs
-> > > on this patch?  It's a little late for the upcoming merge window, but
-> > > I'd like to merge this via the LSM tree after the merge window closes=
-.
-> >
-> > For the NFS change:
-> >     Acked-by: Anna Schumaker <anna.schumaker@oracle.com>
+On Wed, Jul 23, 2025 at 2:27=E2=80=AFPM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Hi Anna,
+> This key can be downloaded from https://github.com/stephensmalley.gpg
+> or
+> https://keyserver.ubuntu.com/pks/lookup?op=3Dget&search=3D0x578c4211832f0=
+a7ea2c5a7c221a46e603f744ecf
 >
-> Thanks for reviewing the patch.  Unfortunately when merging the patch
-> today and fixing up some merge conflicts I bumped into an odd case in
-> the NFS space and I wanted to check with you on how you would like to
-> resolve it.
->
-> Commit 243fea134633 ("NFSv4.2: fix listxattr to return selinux
-> security label")[1] adds a direct call to
-> security_inode_listsecurity() in nfs4_listxattr(), despite the
-> existing nfs4_listxattr_nfs4_label() call which calls into the same
-> LSM hook, although that call is conditional on the server supporting
-> NFS_CAP_SECURITY_LABEL.  Based on a quick search, it appears the only
-> caller for nfs4_listxattr_nfs4_label() is nfs4_listxattr() so I'm
-> wondering if there isn't some room for improvement here.
->
-> I think there are two obvious options, and I'm curious about your
-> thoughts on which of these you would prefer, or if there is another
-> third option that you would like to see merged.
->
-> Option #1:
-> Essentially back out commit 243fea134633, removing the direct LSM call
-> in nfs4_listxattr() and relying on the nfs4_listxattr_nfs4_label() for
-> the LSM/SELinux xattrs.  I think we would want to remove the
-> NFS_CAP_SECURITY_LABEL check and build nfs4_listxattr_nfs4_label()
-> regardless of CONFIG_NFS_V4_SECURITY_LABEL.
->
-> Option #2:
-> Remove nfs4_listxattr_nfs4_label() entirely and keep the direct LSM
-> call in nfs4_listxattr(), with the required changes for this patch.
->
-> Thoughts?
->
-> [1] https://lore.kernel.org/all/20250425180921.86702-1-okorniev@redhat.co=
-m/
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  SECURITY.md | 2 ++
+>  1 file changed, 2 insertions(+)
 
-A gentle ping on the question above for the NFS folks.  If I don't
-hear anything I'll hack up something and send it out for review, but I
-thought it would nice if we could sort out the proper fix first.
+I have verified that the GPG key identified by the fingerprint in the
+patch belongs to Stephen.
+
+Acked-by: Paul Moore <paul@paul-moore.com>
 
 --=20
 paul-moore.com
