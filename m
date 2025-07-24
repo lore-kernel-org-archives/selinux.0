@@ -1,241 +1,111 @@
-Received: from sonic311-30.consmr.mail.ne1.yahoo.com (sonic311-30.consmr.mail.ne1.yahoo.com [66.163.188.211])
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3B982E972D
-	for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 15:48:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.188.211
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D46854723;
+	Thu, 24 Jul 2025 19:02:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753372137; cv=none; b=PeLftCSFXqdcTWAGv5AOZ/USw7b3aLunD7ci9BQC6olR8LYX1UaGJMpQi9pWc29ThvBexb/9KYL6YyjfvDibzub1nRm3qsLv0ZLphm1q8i8n1tJSgSSMDNgUBL8yfuv28jz2X82UTSfVQG3OZqpD97vJQ/o7QMaTRYCEGre867E=
+	t=1753383741; cv=none; b=SHX7sYWHBt5hhdMtWyMWIAxM2tB2NDEn0iA7V/OoKURvw8xUSH2EhRYRi2Jlh8rVPMDNPtaBGRf5phxpHLpYwU+Uou4LyKxiBZVmpcs/vsGPnbP9R75MgdWtCTOmC1CFzSMooeJRMIdJ2ngdzeeUFF12jkeyYi8R+aSxVtebadU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753372137; c=relaxed/simple;
-	bh=jVVa9Xe0+SBaOiIElfqhCIntfihgaQ+gkZBJfgjvLJw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PqwsDvYVxRrEs/nqY9UXDYTTTKYAk7Qdas+j1JEs/5MJ4G2Y+EpLfSZtTCHSD1r+h9qW3WfRaBs96wS8vOcFvTXYS63jz/ZFmIIIjOhNAGeFTk/of6x22skaR/IcSFI94cAyFM+F6ZFYDcbmGpRCcBSQ/ynyqC0m7zuFp3Io5mk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=FBLNIYPO; arc=none smtp.client-ip=66.163.188.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1753383741; c=relaxed/simple;
+	bh=Ki4/Gr24owF0A82pGIclAhrm3tUXRFh0LjrgcfEMEGY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=IAQUeFK72j7S0xn8nXELB/NaYzpjjNjsa1EXZ5KA6P/Zf9woLx7L+kykUseNUgBFiABnQSwYYYhCUle6sEcJiC3dpOkD1qctmKnvabLRxIlWVlGWVCQQeSYFLh0/wwyIup2rf+UfATN7bK+TllyMG/gLAsm8ZIrwMjUL9X76dIc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KcgaR1Oz; arc=none smtp.client-ip=209.85.215.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="FBLNIYPO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1753372135; bh=KwKeW8J1nTUuct1uuMWKRWPoeb2EfVrnBdJ+Z7/C/7E=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=FBLNIYPO/+k+hKRTTUtiJOQpctC6YoQ1HeIl8PVpPlapxhkEBholCwG/qkbLJwvmCPNZiMF90+KcXilgcAM6DsN1FV3GQKTFc5mQJjK7b5WgSBlxDv1/f/xcmL2rLARtI3dDGqO1iogkm9lcmbBrq4DF2P1ptH+ieLLQAvjeHIxzXQ1o/v5J9L2HCcSJta6xC2kXGM4oZVLet/aQdt/ZxTwWxbIWrE3t9jQZoJ9Pg9cvWyyyBHSaQyYqgv+Cfjolt7OmxrsNs/RFnA2HtXM5d8duAODVb88b+nSIuzV9xfsnKEhbNBO0nYM0YrMFJH5FCdH6228DbCYLCa+TH8o0xQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1753372135; bh=/l426wAuuynPHI8Ikajo89SxtYhNDvMSH7hJBwJGfAa=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=AfEMXSMwMpI0UrnqX6YdWug1DC64F8wujdCCACMqE4iebEKb1aZhceLIq5nJsZ6zh0Mt/SIxRMCmR591lOdn2eFNm7cc+eZQKFcuOjx4rtVy93a+WqjDLTd+tvFtNvf17zKLWR5mcRslrWd5G6p3+HeXS3x/k1Mfg20LffQYcWMO9k3WWDnortBlDAIynV3PTICEh3Q7Rb+mOhk0ueIXFRbODcUfKSi4hR9CDsEXlikZCAuCkKCYRtv3q4wW3wwfUmbrsz6oDipkM49r1IeK8c2+0KmM7Cg/U98QNoujt6brH2dQcurDEgaiCHJMu3hQKm05A/rP6W0JP1SDs8pW8Q==
-X-YMail-OSG: 3ISRCKkVM1lpYUnxh9tlcg0wOEwl2LU7LJ4REmT3rIyYmLEkqidq1lsyL2xg4j6
- iuIbcs36Z633.ATtSjtfpuCNvBOIEE.YQZTvTmxWKm6mx7kwZm7cBtyMw0hn4UWlv0qkffssDr37
- oW3wYyC1mat.0lv6guCS6E9tS2vdflbMKMgQ.kXXMwlYtU2SDOEDGA5YiiYA7QDGz5NGf4ZW9ZEv
- 1WveabOrJLPL6.VPZiIz0zazQBxi_Oa3sEgnJrf.cs3ZsWq4pzlN5cSu9XHcvTcU.1LywybQqjtL
- 87mjo60lKs2EX9YiS66G0GGvLn6kntBtIA0ejAIIc9Fdh06DYrH3vV3mQ_FAkIpZ3uX_jbGuJmzC
- aHHklrt8nKa3VVz2BRMiOWd_5og1Fd_jWk_bL96DOykQyz1dXU.I4Mg.cR9AZoCa_ZcnX92PeTZH
- F.a8OUnnOK3x.BobHpDk5nsrxYYrUz7KDoW9zJg_qDIt7cU5FYcDDSfZGN6h3h4d3XUyBW_UGwSp
- KY.bR1hPBCfLOdj5zy7Ul6ldW3ALaJGkxxqJeVxmOyqB4MRERkoS0yCtGTMaSbaN.SRDipGGu1oo
- cBtg8hdvkpmIKGS8ksjPVSJH3G9j2.O3mtwNpqACUf7xDugE5IV17HoQrPTF4cldgFf9BLObJAzj
- Jabg_SVAHAuO.5B0QvC12sAzyvEZzyMvFlomBhdHPQKfU0sPtfflEqvqg8r6uaFx8puKCDU4HLiu
- ZQoKJNUALrvzCQzajXWu2o5khTEKFGSAhZuEdscG1qI53T2WJQmjZfxCep.m1dd8wK2ZjnitK3ok
- OhJmNDVQ7e1DqOJLONHOyn3HxcBavH.Sr.YIirFbmbUy9F2.BwgeL6RXDFgHSA3oN7zUyU7l1Qtm
- tcaHE3U8pp5B3qP0cCcH20E5kDvMJzoeG3B3arGGVSNhPNCLT9SwRs39ueH32mn1GQb5G529fzx_
- CVArS39XfFGtfv1IEPM0bZf1.9aYfMTHmHommmRdxTAFa8JYH632ttKA00WHCPWocs1iAQor4TAH
- fq5fQiDAOgjRFyZvBGfpeUNPMhW97XXnEab9hdTN60omqDCmS28QaUS_8gVwkVr8KCGk1N0aqEpQ
- rExk3OU6crqHGWN9MNP_GhEJQr1O8b9VG5hMCg0RHj9qlNIJCuiErmC3bYzITv.8UA5nTyORHhBE
- piw88GdI0S9fgg2iqT_V.VOCeZnI3U3KheUOKaAAwesqvYdtPg74SQkPZ409EjS1FQ5rmBPwGP5_
- KRcWuHGroiEuyldjJr3jgmxDmz8fN5EMYyBE0cjAhDl9BK1A_vsdPjIHWE.Pqn6ECLljaDbJGvVR
- _yLBybdNOrhRAPdrCr7PQia9WQ0.UBJzklALx._wgdo9OYGkpRhnHPrtcNreqQb_BJXHheAl9IXR
- RIQ_3svA3wgQMqUzhwFZa7A.VNpva3aEgDnIxk1CSV2un8vXAjGhg7ZldOecchgPYq4avZnLh536
- JiI0vRHVvs83c_sktItB7u4oCMDdJ4h6.GfP8pUBt2hJ.KNhw052RVmxjOHRF2bxjUOwJzdQVFsI
- DiTVHika5a0VtkZeYfBbDWEWZlDfkrSyCTaR0aXUIVTY9hk8.rjya97wDTabBdVOAaWH6TDvqnxs
- z.O7ibJpTHJ6ELR.DXXZPT_1Ho1.ynPaBKU6qcfZ3_8xhprJhMvZSy_6CAh5WDNcgLGdVtge4ztU
- v.eLyQB7eiQFnuSVhHhrb7PmQ6EH10mORdikRotOb7.2MY0wDY6KGdh12gKnRZCZOJrXvIHDpRmh
- 8UnssF5aWTtz3ZTJqmEHcF0E4WtWbrXbkqb54MKwAdWnO4Vvdqh7QE9fPqongEe7dKWVPD9BAoE5
- XohLA.IvnUa3Xuijn17525DrAvV2jpb0QbWO8k3DgLbaKXq5P1NuYTYGzI0u59usED6tC7hCB7Y4
- ICJLUHgtSdOR0YtDPFWUbMAkvGdynGjEMGk1w6YiP7ki96gIarGG23B5VFNs0wllcqog5KhljVYs
- ORZvjow3soIZB8JUq_yLIC3YJK3JayXS4CiZxSrwbPmFILxFsjRI3iZoNBtWbyTtX0ZkiHu02brZ
- 3QVhNeMYv0vCtx2pGACgxIFl8Jnl7PHpg16Om.4mHZlM_t4mdmnLTJBucQX4l0bkE7H0am6nbB4c
- KB0JX2Ubs9IrxQ2jLSb.tdsguTT4a9HZWT6rZeONiG6dmN43ltmxxmC70J02.AdcFeX0pHlajgRl
- kpWGpPJouj.Yam1n.KgVmcwBcbENIlbCH5beG2c7DmNqxPbLJAWU5McffSgT4yygVIsZ3.DYLwiA
- puwDS9Y14hrLxhsZrzbVHvyITEDTd9zPF827ltGnahnhktw--
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: cfceda94-85c3-4414-b59f-d6257e31f2e0
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Thu, 24 Jul 2025 15:48:55 +0000
-Received: by hermes--production-gq1-74d64bb7d7-mh87r (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 061fa2e34252f4ff20978e548f48970a;
-          Thu, 24 Jul 2025 15:48:52 +0000 (UTC)
-Message-ID: <d499e2c1-69d3-4b15-ae0e-84063274c9d2@schaufler-ca.com>
-Date: Thu, 24 Jul 2025 08:48:50 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KcgaR1Oz"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-b391ca6146eso1242413a12.3;
+        Thu, 24 Jul 2025 12:02:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1753383739; x=1753988539; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Fkz91VXcfgq3iozVOkIDXIOnPY5WxbCgqpgDGeRz9L0=;
+        b=KcgaR1OzuxuZD8J5xWXwlAW8dnu2SOjQTqPHlJlQTX1OAQ0NPsvEqL1fYVBVTpWHNa
+         J63qAmijW+zdwghDV+P8k6Oay5ZxYNHe1PeUIYmpXeRN6LiT2K8NXRCIB5cF31EKGZhX
+         /E29aFL1z022kpMepIoQgafm2mVTZxJTRmMxGkjmTTJbjiu5hZSd1XVk3cv8VLNBB51f
+         GikAwhqtoac4H5qd8iYdlmGqry2TZqxZC+O9oZ/tRGecspfhYez3P5OqcsbQTfq7fNrR
+         y0GojzZ3505zJ6JEzUqPTm4GGdC+srma7SAdT/p8iEZVC8YCvKrQ7vBQHc1aIF+CYHhk
+         lZuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753383739; x=1753988539;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Fkz91VXcfgq3iozVOkIDXIOnPY5WxbCgqpgDGeRz9L0=;
+        b=vBwMB5DPeX6FwRDfEjyqtU30i5POPPVVi2qS4WrfErdQ1Xg5/yeD0uwdC4gfoqPj8j
+         NaMjuUTCU/SaSOYfWWyhr5CJXuwBqQA9iLs0VOFN4r43amHRQ8gCKiXTx9YDTKU1Xm95
+         bJKZVcfapUnPWSpJHfOkhxSb6zBxL3PDSAqY8kguOI0QtW4urL0x3X6EgNAZhi+9nUFl
+         4uJzDJvPjGxylp8834pDvStUazZjUTKpOItpZRIdfI1VgyOPNhSpV8V6n2ydWm8sKP7Z
+         i4rseO/N/K77B67AgOf6dfbvc9bniXaXm5Z7zHKLa/LFhLf+zWF7Sc7hBT2yycd9nd9F
+         t0wQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVvNEKfWYBZvFYpteGagxSU78MMsfESU1wPAcj907wGZSp5qHLjTce92kAC3SdOB26ucbHBBdreuS9Px3Q=@vger.kernel.org, AJvYcCXvizShC3YBWVld378vwLz6Uga/U3i/eT2XUdtKchh0iXT3qsMKmqX+CfKcWBMrrMTE6zBMEaBFoA==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzfcpSIFzsxz5DPjq5i/lRfhtYLpDpibZguv7qZWw50njzvxPYj
+	lYF7uvF7hM7SrvyDUd9ndNU84HTOF3GNM4vQTWxD4enVYBGOqxtb5/qthyPc/D0pBtZe4Gy3yfJ
+	JA/5Utfn3rbikiw1qAVoVwPvo4m+ZYwg=
+X-Gm-Gg: ASbGncuUeA8LVXNHZk37PUnz4X35hdAfnqv56QQoj1YQJ6k6m5PJXoH0Ni5ZEKuyWEg
+	DBGrPvpYrA2KF22dHcwBtpyI5CgsU607hIgR7m7LljgIPOAgSiHv7skTmTDUO4Nzcrwxyae/knp
+	pKHg046k5nkFzTJe8FogZCxLok/LToJw0JGEkfTaNfFQet6oZkBRZsLgVgOLlKpJgatwteVUK1V
+	GKgNio=
+X-Google-Smtp-Source: AGHT+IFoMiKInwdd0hg3JJY73V0h+BUGXvs3ggHqv1k4lBkmnZcirbT0I6avok3Q2v80VWFW4l87r6UFEv7qPL0xDHs=
+X-Received: by 2002:a17:90b:2705:b0:311:ad7f:329c with SMTP id
+ 98e67ed59e1d1-31e50816984mr12076486a91.18.1753383738711; Thu, 24 Jul 2025
+ 12:02:18 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH v2 15/34] lsm: rename/rework ordered_lsm_parse() to
- lsm_order_parse()
-To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
- linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Cc: John Johansen <john.johansen@canonical.com>,
- Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>,
- Fan Wu <wufan@kernel.org>, =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?=
- <mic@digikod.net>, =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
- Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
- Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
- Xiu Jianfeng <xiujianfeng@huawei.com>,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20250721232142.77224-36-paul@paul-moore.com>
- <20250721232142.77224-51-paul@paul-moore.com>
-Content-Language: en-US
-From: Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <20250721232142.77224-51-paul@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebService/1.1.24187 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
+References: <20250723122304.911130-1-yuehaibing@huawei.com>
+In-Reply-To: <20250723122304.911130-1-yuehaibing@huawei.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 24 Jul 2025 15:02:06 -0400
+X-Gm-Features: Ac12FXwr7U-uq5EVY40dkslJtrESW-f8aks9sZ5QU3dckRi2BiBs8NfQUVoeWTE
+Message-ID: <CAEjxPJ4En_8wu8GP8kM+JOGUsC=oPuh7-TmVjLaN3TcQRAdz1A@mail.gmail.com>
+Subject: Re: [PATCH -next] selinux: Remove unused function selinux_policycap_netif_wildcard()
+To: Yue Haibing <yuehaibing@huawei.com>
+Cc: paul@paul-moore.com, omosnace@redhat.com, selinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 7/21/2025 4:21 PM, Paul Moore wrote:
-> Rename ordered_lsm_parse() to lsm_order_parse() for the sake of
-> consistency with the other LSM initialization routines, and also
-> do some minor rework of the function.  Aside from some minor style
-> decisions, the majority of the rework involved shuffling the order
-> of the LSM_FLAG_LEGACY and LSM_ORDER_FIRST code so that the
-> LSM_FLAG_LEGACY checks are handled first; it is important to note
-> that this doesn't affect the order in which the LSMs are registered.
+On Wed, Jul 23, 2025 at 8:01=E2=80=AFAM Yue Haibing <yuehaibing@huawei.com>=
+ wrote:
 >
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> This is unused since commit a3d3043ef24a ("selinux: get netif_wildcard
+> policycap from policy instead of cache").
+>
+> Signed-off-by: Yue Haibing <yuehaibing@huawei.com>
 
-Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  security/lsm_init.c | 82 ++++++++++++++++++++-------------------------
->  1 file changed, 37 insertions(+), 45 deletions(-)
+>  security/selinux/include/security.h | 6 ------
+>  1 file changed, 6 deletions(-)
 >
-> diff --git a/security/lsm_init.c b/security/lsm_init.c
-> index 8c632ab77da9..b1156f414491 100644
-> --- a/security/lsm_init.c
-> +++ b/security/lsm_init.c
-> @@ -225,83 +225,75 @@ static void __init initialize_lsm(struct lsm_info *lsm)
->  	}
+> diff --git a/security/selinux/include/security.h b/security/selinux/inclu=
+de/security.h
+> index 8201e6a3ac0f..7f19972f7922 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -203,12 +203,6 @@ static inline bool selinux_policycap_netlink_xperm(v=
+oid)
+>                 selinux_state.policycap[POLICYDB_CAP_NETLINK_XPERM]);
 >  }
->  
-> -/* Populate ordered LSMs list from comma-separated LSM name list. */
-> -static void __init ordered_lsm_parse(const char *order, const char *origin)
-> +/**
-> + * lsm_order_parse - Parse the comma delimited LSM list
-> + * @list: LSM list
-> + * @src: source of the list
-> + */
-> +static void __init lsm_order_parse(const char *list, const char *src)
->  {
->  	struct lsm_info *lsm;
->  	char *sep, *name, *next;
->  
-> -	/* LSM_ORDER_FIRST is always first. */
-> -	lsm_for_each_raw(lsm) {
-> -		if (lsm->order == LSM_ORDER_FIRST)
-> -			lsm_order_append(lsm, "  first");
-> -	}
+>
+> -static inline bool selinux_policycap_netif_wildcard(void)
+> -{
+> -       return READ_ONCE(
+> -               selinux_state.policycap[POLICYDB_CAP_NETIF_WILDCARD]);
+> -}
 > -
-> -	/* Process "security=", if given. */
-> +	/* Handle any Legacy LSM exclusions if one was specified. */
->  	if (lsm_order_legacy) {
-> -		struct lsm_info *major;
-> -
->  		/*
-> -		 * To match the original "security=" behavior, this
-> -		 * explicitly does NOT fallback to another Legacy Major
-> -		 * if the selected one was separately disabled: disable
-> -		 * all non-matching Legacy Major LSMs.
-> +		 * To match the original "security=" behavior, this explicitly
-> +		 * does NOT fallback to another Legacy Major if the selected
-> +		 * one was separately disabled: disable all non-matching
-> +		 * Legacy Major LSMs.
->  		 */
-> -		lsm_for_each_raw(major) {
-> -			if ((major->flags & LSM_FLAG_LEGACY_MAJOR) &&
-> -			    strcmp(major->id->name, lsm_order_legacy) != 0) {
-> -				lsm_enabled_set(major, false);
-> +		lsm_for_each_raw(lsm) {
-> +			if ((lsm->flags & LSM_FLAG_LEGACY_MAJOR) &&
-> +			     strcmp(lsm->id->name, lsm_order_legacy)) {
-> +				lsm_enabled_set(lsm, false);
->  				init_debug("security=%s disabled: %s (only one legacy major LSM)\n",
-> -					   lsm_order_legacy, major->id->name);
-> +					   lsm_order_legacy, lsm->id->name);
->  			}
->  		}
->  	}
->  
-> -	sep = kstrdup(order, GFP_KERNEL);
-> +	/* LSM_ORDER_FIRST */
-> +	lsm_for_each_raw(lsm) {
-> +		if (lsm->order == LSM_ORDER_FIRST)
-> +			lsm_order_append(lsm, "first");
-> +	}
-> +
-> +	/* Normal or "mutable" LSMs */
-> +	sep = kstrdup(list, GFP_KERNEL);
->  	next = sep;
->  	/* Walk the list, looking for matching LSMs. */
->  	while ((name = strsep(&next, ",")) != NULL) {
-> -		bool found = false;
-> -
->  		lsm_for_each_raw(lsm) {
-> -			if (strcmp(lsm->id->name, name) == 0) {
-> -				if (lsm->order == LSM_ORDER_MUTABLE)
-> -					lsm_order_append(lsm, origin);
-> -				found = true;
-> -			}
-> +			if (!strcmp(lsm->id->name, name) &&
-> +			    lsm->order == LSM_ORDER_MUTABLE)
-> +				lsm_order_append(lsm, src);
->  		}
-> -
-> -		if (!found)
-> -			init_debug("%s ignored: %s (not built into kernel)\n",
-> -				   origin, name);
->  	}
-> +	kfree(sep);
->  
-> -	/* Process "security=", if given. */
-> +	/* Legacy LSM if specified. */
->  	if (lsm_order_legacy) {
->  		lsm_for_each_raw(lsm) {
-> -			if (lsm_order_exists(lsm))
-> -				continue;
-> -			if (strcmp(lsm->id->name, lsm_order_legacy) == 0)
-> -				lsm_order_append(lsm, "security=");
-> +			if (!strcmp(lsm->id->name, lsm_order_legacy))
-> +				lsm_order_append(lsm, src);
->  		}
->  	}
->  
-> -	/* LSM_ORDER_LAST is always last. */
-> +	/* LSM_ORDER_LAST */
->  	lsm_for_each_raw(lsm) {
->  		if (lsm->order == LSM_ORDER_LAST)
-> -			lsm_order_append(lsm, "   last");
-> +			lsm_order_append(lsm, "last");
->  	}
->  
-> -	/* Disable all LSMs not in the ordered list. */
-> +	/* Disable all LSMs not previously enabled. */
->  	lsm_for_each_raw(lsm) {
->  		if (lsm_order_exists(lsm))
->  			continue;
->  		lsm_enabled_set(lsm, false);
->  		init_debug("%s skipped: %s (not in requested order)\n",
-> -			   origin, lsm->id->name);
-> +			   src, lsm->id->name);
->  	}
-> -
-> -	kfree(sep);
->  }
->  
->  /**
-> @@ -319,9 +311,9 @@ static void __init lsm_init_ordered(void)
->  				lsm_order_legacy, lsm_order_cmdline);
->  			lsm_order_legacy = NULL;
->  		}
-> -		ordered_lsm_parse(lsm_order_cmdline, "cmdline");
-> +		lsm_order_parse(lsm_order_cmdline, "cmdline");
->  	} else
-> -		ordered_lsm_parse(lsm_order_builtin, "builtin");
-> +		lsm_order_parse(lsm_order_builtin, "builtin");
->  
->  	lsm_order_for_each(lsm) {
->  		lsm_prepare(*lsm);
+>  struct selinux_policy_convert_data;
+>
+>  struct selinux_load_state {
+> --
+> 2.34.1
+>
