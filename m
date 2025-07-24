@@ -1,210 +1,102 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72CAB13B5A9
-	for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 13:31:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2884F13BC0C
+	for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 13:40:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753363863; cv=none; b=GRCaHB1AAjRvYKHRuWGrywisTTWnvGNuenpnsDNbky52Mx7m1thBNdLTtHsZwC3vmiF/zWrU2Y+oh0TQYnxwkKctqmr4HJ00d7YWUOI5pOVUT69i9l0YC4aGROK7IbghWODd0UDP3UkJdvBLefiPYbbK9rcjnQbXl5lrAp2EtIo=
+	t=1753364460; cv=none; b=keM4m5lTqNKIEKgC87X9/08oGBpkY4rLW0CNw4iwmCoH47/AA/EhTBmQNODqddxd9CstIk6oskC/ySvosq8zLcNMnqaBBibnNIwUXbfLkBg6eNnFGNKlkzhudpjRl7I/8Tz06+810MC9wRDx+6I8eQqfIYB4KmbwWI8+Vc23xgU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753363863; c=relaxed/simple;
-	bh=JnNibrsmwEtER49DjeIX5eoa7BMIB7HWva7zLybIVng=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=N7QdSbdNaRr/SK5JWgRhQ6ajBvIvRBb+ae1EFU3UzEWUQ0C+jsvgm/8v86RmAAhFSaFsnoHTx+tXaLmr2aP9bsNxehUvpDl56Mw3w477+lX7NHO4w5Y1b23CQgvygslzGaNvHBZPoGCB+MN8TQqsb8BvFfMt1LTr7mzZ09Hkpw8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CVln6eIm; arc=none smtp.client-ip=209.85.216.50
+	s=arc-20240116; t=1753364460; c=relaxed/simple;
+	bh=uNNji6sWdcor346Yc9nrzS6Spsb1lx92VbBloaioCW4=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 In-Reply-To; b=gfCX5hlGi1bxHmWdYGokJDQjeLVgLVHM5nRzgyLaOvdEHV/DQ/UaHmJftsukeYe3Bhdk82sSPJNhVMpG1YUqnuMC8LO9mkajxExa0aJYZC/8rSIpb/yvECITCqtV8XAVN1RpF2PbS0xTcWBmD6qccS3FhY8WWaNVKVdjIvDe17k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hnB5rB8f; arc=none smtp.client-ip=209.85.128.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CVln6eIm"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-313a001d781so797072a91.3
-        for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 06:31:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hnB5rB8f"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4537edf2c3cso10756565e9.3
+        for <selinux@vger.kernel.org>; Thu, 24 Jul 2025 06:40:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753363861; x=1753968661; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1753364457; x=1753969257; darn=vger.kernel.org;
+        h=in-reply-to:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Vd//oG+PYjwsR5abxjsN2briEsPNvCGUAVjEYLALwfo=;
-        b=CVln6eImCKGLAZfCz3Cgj+MatMEjNI3T69hS7IHY6DhDANTO2+LnU2ViGYLME2ulXW
-         eKOzajVQv4kaVHi0tKur94+Cr1ej6biyuo75Zp8a+UQAVo7nw163rH8hdJ8veiow3y7i
-         zJz3OgFUxIaLRz1PTULi9i0RB6mjrE2iOhTjPOTu5yhWJUErCq/afF2Z0tCt6xGfOtxM
-         sOtCBhlj3DiwVvvb2iHLWjXc9y6sRpwu+EhQ6UD9jlc/qyg72SDmkerQYPc7sZ6RsP85
-         pC9r0jQJBxpxPlheueP1wu6tavpCYJePUT6P5W3K/JzBlDS7efe6qWQMpSknqTYUODt8
-         3RRQ==
+        bh=s/ownqtwyZU790rNj2X2mB6XgqIqTyMF8fYVbdzD8YQ=;
+        b=hnB5rB8fS0vA447chClCOYUjnvkXJUlBX2AEJE59b/LJsD+bCrdqEK1NDakdL0AlnZ
+         TT/XA/BS5RrUozMgFT++Ep3OFYhMvuVgbKv+c2RfBl+PGVxa+4rpqPtSvEDkmsTwK81L
+         OtLo8Vf4GkiA9+2nNxUZlqttCEgBED6pY7g2BpY5gF2r6aPTziEz8KiAydiEPxSI1lAf
+         tp/eNnhVFzF4K499vzqSraC6ft4u3RMxhqDKxZYrHHVNfsry0y3FCCfO9lhTbuf4pFXz
+         Rl2tNrTVa7ibbUSkSWAlrwlL8uW9WW964ZtafyVpmKGY5rXxJQuPoRLhg0XOL8de8lvP
+         1Mug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753363861; x=1753968661;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Vd//oG+PYjwsR5abxjsN2briEsPNvCGUAVjEYLALwfo=;
-        b=bgRGDm6J0IdrvZXPQ+7uS+XNW3sI1Jvmbe70a1oc5qshi5XZYLTD9wXBKBCK356p0A
-         NY7l67QSYXar9HpHNdiaZgO+/8yx6dMzGgQbdSwaqycseSE66D4/9pi06f47jch1405f
-         wmEfYSjy0fJKGHL7VvZBTHyPCuvrVLx6FRzUAzdiThg2AlwKjfq4+mnMuO1o9wsHSsgG
-         p/V2zHSuX6pXOJvnZSjVvrypb2B510FQMrPpxsfeKHdxXeHI+2Q8PKQjs7K3UeLjprk/
-         YrFWu/RbZjFNXvNzuMGFm2kjEueBasvupKsjLB0FM/CfugYRFr+khunurpuUyPY1oUmR
-         8eAQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV65+dZUK5ckZEWjlLGrGwHShclOBV5UibLCGa87+DBiWxaWyp3R9zEC2op2f06Fa3zxhn9823+@vger.kernel.org
-X-Gm-Message-State: AOJu0YwlvY7t79U8l48IgoQV6mJ0rAh9n9A7JVbvdG1FMhjvV2ld923s
-	Q+YPVfW0C3qbKcDrdJHN9UVKtnD242DwMqab5XCDVfHVJvfg4xpT1K4A9LiyypS+V4Gbp3WrMb+
-	X6AYqPZfBEbNYPIPyrRvk+//xeuOJD30=
-X-Gm-Gg: ASbGncvS3VQb+6O/CwHdH9/mhyd+8j175TDLseEFkv/r0ozIsEEnI/RLhLG0Yc96xQM
-	8XZBWCSVlHstOQd7uck/P1ipeePbeTlvspscZM4Er/uUt8elFsOZiIPHbpJwol9BMGQawyGKQtq
-	NTqVxzd2DzpzfH6UzAXadIZs/lgub+sQat7JVcn1HbV1Fflm1jX7ZE0l5LXpjsLExBg1fy9JawI
-	78Tyxc=
-X-Google-Smtp-Source: AGHT+IFzNQnZxvUmEoqYr3VGGCkhuFB+hHFLVP47vf+F/0rjzGIWRTYVznHOMMwwTJz9FOU+NTALFrsHspaGJgEtbzE=
-X-Received: by 2002:a17:90b:3f8d:b0:311:e8cc:424c with SMTP id
- 98e67ed59e1d1-31e507cdcebmr9709242a91.25.1753363860555; Thu, 24 Jul 2025
- 06:31:00 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1753364457; x=1753969257;
+        h=in-reply-to:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=s/ownqtwyZU790rNj2X2mB6XgqIqTyMF8fYVbdzD8YQ=;
+        b=puwWMNuuaN1jS/DG2AVA+cP1paq42ilsBD2xup27PyDwcTErUXdBnD68V5Pw0mKsY8
+         jahcNTcSpEk1vmN4Xr43LIoh9F2wB9CKSEhu1Og9WF1Zrdn2YS2/qiqT8LUVwP0yav0f
+         FMwv/6DDXfv3W2XA5H8fYuu503T9pMCGyFr+9zH6z62h+SLsUd5bmxKw834MNXSjzVXG
+         5xeLO21M03AyjFXv178oPyGnN30vWdOBAPQuiPhZKWZwsYAqHVhOQT1OOyNZi7fWPBhW
+         zyAvPkHrJJWkBxsFajO+7ahm9ZhE3SWJbrvpei4uOVo3g8j9EWBOChb7fKQIuhQiJSY3
+         YzoA==
+X-Forwarded-Encrypted: i=1; AJvYcCV10u8/4f5kaUq3eeR7/7oNzxwDhTxHDeqMh3ECOrN+bRer2451B/6IfYU/3AJddf4ECjNlJwdM@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywynow/cNt+Z3YyaDaZsoXEavybuZLODQD7B+nI/aIy3KjJY3Xu
+	uphAQvF8LOSx9wW+gQp2czLwZWajC8nQe4IO+vJMx04HdNb3XR+bzZ9+
+X-Gm-Gg: ASbGncu9vHB3rrKvd3bRnQyVFKxIrN41COt2Cxm/7QPHNhfCoSB2GRiH4Eh5RAY7Nl9
+	8BEKe7veAFrUg2lDsdoatq4MK3uhBec2GGsfYXTAEbuDYVb6MPGFfCaIDjX+J8bGEeKX1P7+DT/
+	m+ctKmP0I1pe3yXeE3A2Jun/FQQ/k4mUIj8DyFf7qyBjRhQ+yhidlY7fDW6eKYmecLDrqA/57Lg
+	dkbmQZeWs6za0VHiKSNMKFHow2o8yKL5ymiOcodFjibB3A+5Ief5iMVwbN5+WhG8KlYtHNBLAvw
+	i6XQDIypRBek0wBxDu9mCQLP58J5LY9ZDj5lamvmfOpwqrSe1+RzJxkWqle27BwF1jGPj6s9CWz
+	xui9JzDntme5QzS1C
+X-Google-Smtp-Source: AGHT+IGyQok4xeTrQu7Neqa/S9QnYTwDJvk6WbDa7XjmarO9XKGBr2/OwbE0e3BNPrOwYoNXbLW8XA==
+X-Received: by 2002:a5d:64c2:0:b0:3b3:9c56:49bf with SMTP id ffacd0b85a97d-3b768f15f07mr6302944f8f.56.1753364457245;
+        Thu, 24 Jul 2025 06:40:57 -0700 (PDT)
+Received: from localhost ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b76fc6d2c1sm2223554f8f.23.2025.07.24.06.40.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 24 Jul 2025 06:40:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <CAEjxPJ6AuwTX9soXmHSiJbE2r69mRt8qFTTOQj-FhWUjnnYdQg@mail.gmail.com>
- <20250724130511.317098-1-nvraxn@gmail.com> <CAEjxPJ5ZqR5wmqV_tpAz6erkrpR-QWFyDmFQiwmVKnO3s3XGqQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5ZqR5wmqV_tpAz6erkrpR-QWFyDmFQiwmVKnO3s3XGqQ@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 24 Jul 2025 09:30:49 -0400
-X-Gm-Features: Ac12FXyOdeuEDk60aFxFgSgJavAW7uDmsiHnqzEAmiykGHXs5zZ6qcFzoToMuZU
-Message-ID: <CAEjxPJ6-ZbOKxtpbpD4NixZeQy+gU6Z3T8C8jLRvCPDHC-mL3w@mail.gmail.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 24 Jul 2025 14:40:53 +0100
+Message-Id: <DBKBTPW45V4F.19G9M5KWLWWRH@gmail.com>
+Cc: <jwcart2@gmail.com>, <nvraxn@gmail.com>, <omosnace@redhat.com>,
+ <paul@paul-moore.com>, <plautrba@redhat.com>, <selinux@vger.kernel.org>
 Subject: Re: [PATCH v3] libselinux: fix parsing of the enforcing kernel
  cmdline parameter
-To: Rahul Sandhu <nvraxn@gmail.com>, Petr Lautrbach <plautrba@redhat.com>, 
-	James Carter <jwcart2@gmail.com>
-Cc: omosnace@redhat.com, paul@paul-moore.com, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+From: "Rahul Sandhu" <nvraxn@gmail.com>
+To: <stephen.smalley.work@gmail.com>
+X-Mailer: aerc 0.20.1
+In-Reply-To: <CAEjxPJ6-ZbOKxtpbpD4NixZeQy
+ gU6Z3T8C8jLRvCPDHC-mL3w@mail.gmail.com>
 
-On Thu, Jul 24, 2025 at 9:27=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Thu, Jul 24, 2025 at 9:05=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> w=
-rote:
-> >
-> > Currently, parsing of the cmdline has two issues:
-> > - By using atoi, no error checking is done. What happens if an argument
-> >   that isn't an integer is provided, e.g. enforcing=3Dfoo? And as there
-> >   is also no validation that the number provided is actually valid, 1
-> >   or 0, what happens if enforcing=3D2?
-> >
-> > - After the first strstr, no arguments that follow are searched for; if
-> >   I have enforcing=3D0 enforcing=3D1, the latter enforcing=3D1 is not t=
-aken
-> >   into account. This is made even worse due to halting searching after
-> >   finding the first "enforcing=3D" token, meaning that if the cmdline w=
-as
-> >   as follows:
-> >
-> >   fooenforcing=3D0 enforcing=3D0
-> >
-> >   the enforcing parameter is entirely ignored.
-> >
-> > This patch fixes this by:
-> >
-> >   - Using strtol to actually validate that we got passed a number, and
-> >     then validating that that number is either 0 or 1. If instead we
-> >     get passed an invalid value, we skip over the argument entirely.
->
-> This is not quite correct but not a big deal to me since you clarify belo=
-w.
->
-> >
-> >   - Looping until the last "enforcing=3D" in the cmdline. Latter (valid=
-)
-> >     arguments take precedence over previous arguments.
-> >
-> > For the case where "enforcing=3D" is provided with a valid integer, 0 i=
-s
-> > treated as permissive mode, and anything else (such as 1 or 2, etc) is
-> > treated as enforcing mode. When "enforcing=3D" is passed an argument th=
-at
-> > is not a valid integer (such as "on"), default to enforcing=3D0, i.e.
-> > permissive mode. This is in line with how the kernel parses the
-> > enforcing parameter.
-> >
-> > Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
->
-> This looks good to me wrt consistency with the kernel but will defer
-> to one of the other selinux userspace maintainers to merge.
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Also, not sure if this matters but b4 warns about the following:
+>=20
+> Checking attestation on all messages, may take a moment...
+> ---
+>   =E2=9C=93 [PATCH v3] libselinux: fix parsing of the enforcing kernel cm=
+dline parameter
+>     + Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com> (=E2=9C=
+=93
+> DKIM/gmail.com)
+>   ---
+>   =E2=9C=93 Signed: DKIM/gmail.com
+> ---
+> Total patches: 1
+> ---
+> NOTE: some trailers ignored due to from/email mismatches:
+>     ! Trailer: Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+>      Msg From: robinshao007@163.com <robinshao007@163.com>
+> NOTE: Rerun with -S to apply them anyway
 
-Also, not sure if this matters but b4 warns about the following:
-
-Checking attestation on all messages, may take a moment...
----
-  =E2=9C=93 [PATCH v3] libselinux: fix parsing of the enforcing kernel cmdl=
-ine parameter
-    + Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com> (=E2=9C=93
-DKIM/gmail.com)
-  ---
-  =E2=9C=93 Signed: DKIM/gmail.com
----
-Total patches: 1
----
-NOTE: some trailers ignored due to from/email mismatches:
-    ! Trailer: Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
-     Msg From: robinshao007@163.com <robinshao007@163.com>
-NOTE: Rerun with -S to apply them anyway
-
->
-> > ---
-> >  libselinux/src/load_policy.c | 23 +++++++++++++++++------
-> >  1 file changed, 17 insertions(+), 6 deletions(-)
-> >
-> > v2: Follow the same argument parsing behaviour as the kernel does.
-> > v3: Actually follow the kernel's behaviour where "enforcing=3D" is not
-> >     provided with a valid integer...
-> >
-> > diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.=
-c
-> > index dc1e4b6e..ec2d5614 100644
-> > --- a/libselinux/src/load_policy.c
-> > +++ b/libselinux/src/load_policy.c
-> > @@ -244,17 +244,28 @@ int selinux_init_load_policy(int *enforce)
-> >         rc =3D mount("proc", "/proc", "proc", 0, 0);
-> >         cfg =3D fopen("/proc/cmdline", "re");
-> >         if (cfg) {
-> > -               char *tmp;
-> >                 buf =3D malloc(selinux_page_size);
-> >                 if (!buf) {
-> >                         fclose(cfg);
-> >                         return -1;
-> >                 }
-> > -               if (fgets(buf, selinux_page_size, cfg) &&
-> > -                   (tmp =3D strstr(buf, "enforcing=3D"))) {
-> > -                       if (tmp =3D=3D buf || isspace((unsigned char)*(=
-tmp - 1))) {
-> > -                               secmdline =3D
-> > -                                   atoi(tmp + sizeof("enforcing=3D") -=
- 1);
-> > +               if (fgets(buf, selinux_page_size, cfg)) {
-> > +                       char *search =3D buf;
-> > +                       char *tmp;
-> > +                       while ((tmp =3D strstr(search, "enforcing=3D"))=
-) {
-> > +                               if (tmp =3D=3D buf || isspace((unsigned=
- char)*(tmp - 1))) {
-> > +                                       char *valstr =3D tmp + sizeof("=
-enforcing=3D") - 1;
-> > +                                       char *endptr;
-> > +                                       errno =3D 0;
-> > +                                       const long val =3D strtol(valst=
-r, &endptr, 0);
-> > +                                       if (endptr !=3D valstr && errno=
- =3D=3D 0) {
-> > +                                               secmdline =3D val ? 1 :=
- 0;
-> > +                                       } else {
-> > +                                               secmdline =3D 0;
-> > +                                       }
-> > +                               }
-> > +                               /* advance past the current substring, =
-latter arguments take precedence */
-> > +                               search =3D tmp + 1;
-> >                         }
-> >                 }
-> >                 fclose(cfg);
-> > --
-> > 2.50.1
-> >
+Huh, not sure what's up with that, they did reply to the thread earlier
+and it did mangle some of the spacing, might be that? Regardless, I'll
+update the commit message too, forgot about the earlier paragraph...
