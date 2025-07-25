@@ -1,182 +1,120 @@
-Received: from mail-yb1-f175.google.com (mail-yb1-f175.google.com [209.85.219.175])
+Received: from mail-yb1-f180.google.com (mail-yb1-f180.google.com [209.85.219.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 750FC2EF282
-	for <selinux@vger.kernel.org>; Fri, 25 Jul 2025 16:42:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3229D190472
+	for <selinux@vger.kernel.org>; Fri, 25 Jul 2025 16:51:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753461781; cv=none; b=gGW4L/7dJ5AvM/XmFK0jsAQ8cz2rL4gvOuXf5OCDlpVn/dTcNLcMYaaqUyqu0Hn6O06m1I4mJuAlX0wJHP5VuHTDqGXSHh1ImmXY9aw7NiJFqK8TfgQMGhWG9alb6fEj2I3eGelJfalurQDAH3dasHqtIRcPtF/GCEfToQ6iJwU=
+	t=1753462276; cv=none; b=HeRSXlTWG09fst/4TXvQVJODoNvjQMKQ9Nipnp2GJ2/lgG2TxSBpDfWDY/2mzWrmZ58Wqp49GPU5GEz0az1ILrwaqo+0bzdsdqYfx8bJ8OgUE7o6b5YyHsn0UK2XESoQmH9Kmjav2MUxbE0dDT6xsAGNhRjZyZR5CQr6ZKMnCsw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753461781; c=relaxed/simple;
-	bh=hhtlTKXXECi8yi5iXycyKR9shLCwOKiYr5xEdB0jQpY=;
+	s=arc-20240116; t=1753462276; c=relaxed/simple;
+	bh=sUq90Sh6cl0YhbPvlnrOqL37+dCf0oAyETbneVq/h1s=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KcfG9U92ijd7LT+2atWjBuzlHN+6X68+xkDWsh/LHNJZlTLENlQsR8THWVNulV5GQNIoneeRJE3KgK98UlvC4yJdoPxDpUM3iJlbajGPJAdlB56mXrwChN/70flhRA5DL9aRTXZJNveLoYqLxtnVobLGLGBRokKFd6B4mbVdtt4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=L4jAhkKB; arc=none smtp.client-ip=209.85.219.175
+	 To:Cc:Content-Type; b=fA3nnOCtfAviUedygaGE0PyNrI4pRbFiE+wWjv/1gLJP19jONica+DUefTsNNDHKulyse1V4Ob724rmXl6oWcFZAS2+ZtTvLiGkBAdA0VBRVuu8NoY96s43RY8UtUp86iHNGhHiOZ9JTaYaL1ZiXAZ6inOO7pvIvGkn+07feahQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Z2Z6akvx; arc=none smtp.client-ip=209.85.219.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="L4jAhkKB"
-Received: by mail-yb1-f175.google.com with SMTP id 3f1490d57ef6-e8bbb605530so2691013276.0
-        for <selinux@vger.kernel.org>; Fri, 25 Jul 2025 09:42:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Z2Z6akvx"
+Received: by mail-yb1-f180.google.com with SMTP id 3f1490d57ef6-e7d9d480e6cso1672093276.2
+        for <selinux@vger.kernel.org>; Fri, 25 Jul 2025 09:51:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1753461778; x=1754066578; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1753462272; x=1754067072; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lJzRqhe+x1DhI6Hy5VLKk5oBTrst/YcQYkVXjLnnM6c=;
-        b=L4jAhkKBoJMuMXC9u1RsjBdJG7LPDmsUParFxp7tg2e951gGEBiypKbYWYA3C+5ERg
-         3d0hupBGQTEfzoxQnTTqo7vq9dYZyYPQjt9c7rLMb6w/Gt10+jaKamR0bDeG/VVeXQI7
-         T18xrTnnIZT0k7/GTymY6bimvCfa6/ccFYt+x5C+qO2O62TmnKWMB7o8R2BzHG8olMeE
-         bPU1JZCla6S0UBqTKR3ghgpJlzvh851wBNIMmEf/GnnwAXZ7p/K+GvN3F+SNLh9MXgdh
-         vYfHO+s7L/rskIXo+s7gdnhN62PNcNnu09CIsliUHngJGcs+/aBOD53iNySU/Tui1U75
-         D86g==
+        bh=E+TS3X9vskWtrzO1Cy8NLFMGD99SvsurX0COyWC4lWI=;
+        b=Z2Z6akvxCs7zsjjGqlwApNHOOVFDG3Z/Wk/9THwVETAk65VYon/mc8Ymll+1shwiO1
+         AgQ9Ik4kt3E90I/31RVw9RybXw1ZzQqH6V3Xvpb960WloAfoE12sc8UERkQ7xN734qyS
+         k1fNV6Q/jgS8qb3ZjGTbmzWDZoigdeKUI3C3s+OPsvDd3xCEUqVuGHP2Ywva+pv5vsjf
+         DTE5b0fexS5iOSkmL/uCW/mHrlKZuD0fdCI0dF5OPIgvw7Ibjiw/LJSPIwzSUO7lThfk
+         NWqtu4nkyc8vChpn+PIkMRb6T12bgyWJNK40Jn3kTv+MAgBvgB/PJHS/9oQpuG/W7sed
+         14QA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753461778; x=1754066578;
+        d=1e100.net; s=20230601; t=1753462272; x=1754067072;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lJzRqhe+x1DhI6Hy5VLKk5oBTrst/YcQYkVXjLnnM6c=;
-        b=X8bpKUnjQdbWvoLiljJTlYr0IvlNeulMEnLCQPPhBqqXu89jdl3y9TDQ5ElA7fKBEP
-         cnnJfhd9qQeUW6/aX6DcJ/JUXim9OZzPPm6K9X/n5u+6qqA0v2UuNDE2Kof/cjNtIz9I
-         fv3bZZo0Xtjgt4QeH7ME1yjSkSlCJ0K760jH182yTyhXiGoxFNvF0ATqnm7m2qy/Mo8Y
-         EN2Yo5rkbUxORA0HI95bwhEatgaJ19Sq59lfeINK5XxnXvrrJGERfxRocI5Ztc4hnR/1
-         dZuOepvCNMkGV8GLLchYEsV0pCqYGLSS8ss0KJj0OMbTF8fSX6hJNhepJMPkw1xc27L/
-         rN9g==
-X-Forwarded-Encrypted: i=1; AJvYcCX5QiqjjQZjoe7kErjKBUFpJV/skUFgvnnw4cpjeDkijHRJMcv1dzX7iDG8ayFfJCpzWVV+3U8n@vger.kernel.org
-X-Gm-Message-State: AOJu0YzH/WJgl6VROEEMlPcI6Ea0XmYNZrjSW1C/m+M/isXk3YNEoZ9J
-	0iIrYw5IjvqhZvpu3T2e8RfG83L9noX+20XLE7dCWvRY/M057OQtFj2hTZYoDAEsEHFWXkh3e2m
-	V4Byru5iE82fdI0dn5WJRIxwQ9jxs1I6RQQeWA7WQ
-X-Gm-Gg: ASbGncuI9XOMSwmbLCe8bYGB+cr/aBkdI7wQDHRum0RvUT9GhchHIRAyYbPSiBFbwaC
-	X+GWHI/t9iP2Nl4jb6aZARosvtV8H5CtiwiX4IxCShgiht9V43jEmvb4NS//rPwVAVCk3sz+BPt
-	uus/xFBD/RYY6cBfOSopbAepX3udlWaNLjbDJ3GogjN+T8LUQXrE8V+Z6xFZ2JDZPL+AhPTqbQd
-	nMMO1df3yuytA56Uw==
-X-Google-Smtp-Source: AGHT+IF1faD5g6+XnhuNEv7CBYvFQPNcZ+LK70Kcbf62OUhg6COOmvkNfui8ej3LxKAZeu2xE91uB+0DguYnF971Bic=
-X-Received: by 2002:a05:6902:18d4:b0:e8d:7904:f065 with SMTP id
- 3f1490d57ef6-e8defb397acmr2712573276.15.1753461778426; Fri, 25 Jul 2025
- 09:42:58 -0700 (PDT)
+        bh=E+TS3X9vskWtrzO1Cy8NLFMGD99SvsurX0COyWC4lWI=;
+        b=BinQmwhCB76Mw4/ndGXPHBJqYME2khBujDIPiF+ROWLOWb82spIyDXXz4nLwFIwfw/
+         XqAl1vadb6Jhgd8KhPZ3o21n765KUX6xyEhNln+/KWEFYqXbbB5xXU7V+EqcBQ3uMj5W
+         R9egfkiG0FSwPZ/4pJpJlZaddpSCjHGNeENpgwO0Ods4fGQLFy44n8hKC09gLnN91KO+
+         0bFpNHo2wiWav10mk0f8aeYv4C9WvILpMEdJEufwhoHj4oCqZ07i8S9YHMS1iND+adJm
+         gydaSYL3VSgW6oKVKh3mXZ3Wq5hGT0Y0khdbLuQ3xLSubP1mfG9bQLBBYgBr1y7QDNaE
+         nYOg==
+X-Forwarded-Encrypted: i=1; AJvYcCVe9UpiXQtGvRPR7hqKcbfNvlkvenSKRsx1voTkbda8XeItGXvcP2UPgFtfQG8JGda7MARYWcxV@vger.kernel.org
+X-Gm-Message-State: AOJu0YwqDnui/ZqLdX9Y8F11uWr1WP/57x5W210N3finWEPZqrhxNhbh
+	Yz2gYmLq3uoYedpqFVfIR9eKXMSg6i+qSIcsbVHWeP9OWHtmtDeBGDHzU8c4C9yr16/62y4UPuD
+	AnnTEsuy96PKEFtURN2qNS30wUuVe/BgxbH9IzvyJ
+X-Gm-Gg: ASbGncuWQZPI9GbKJ+tA/UBkK6L+5u7KytpYjs+88qgAdG3rUwyFFKFZAK6Ka3YHkKl
+	V2FBp+pPoh+V5cqoB9Zib7MjixD2Qvn8tqIAvhGcUGSuHaGIsyqrp1uv/MxzfYEjcVOqYH9aFF+
+	hwu8aTvCG1Wxqfq8Er+4//lxLpw9HvdmJl8ReeVtxdAQO0peEVwQo9y0UvuEsng8yf19gMsFDbU
+	bsCOqQ=
+X-Google-Smtp-Source: AGHT+IHIMUcpn26HcyO0g3+tumAw+yRrAoF1TB10X+w5SEyTELp5aINmD8gCkp03hjGDmEB3Xc56OmNEC7+ABlOi7z8=
+X-Received: by 2002:a05:6902:c0f:b0:e8b:d37b:86fa with SMTP id
+ 3f1490d57ef6-e8df121068emr2599450276.37.1753462272003; Fri, 25 Jul 2025
+ 09:51:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250721232142.77224-36-paul@paul-moore.com> <20250721232142.77224-47-paul@paul-moore.com>
- <6e5422c4-0458-4a15-8833-462e318f283d@schaufler-ca.com> <CAHC9VhThNtGCA-jmjRagJfzPJaTh9myqFcwqA4J5Zv3ojEFDfQ@mail.gmail.com>
- <6621fbb0-fb66-4aa0-b77b-1cd0db195660@schaufler-ca.com>
-In-Reply-To: <6621fbb0-fb66-4aa0-b77b-1cd0db195660@schaufler-ca.com>
+References: <20250721232142.77224-36-paul@paul-moore.com> <20250721232142.77224-66-paul@paul-moore.com>
+ <3101077d-a5e2-d08b-03c2-2ed064a35b54@huaweicloud.com>
+In-Reply-To: <3101077d-a5e2-d08b-03c2-2ed064a35b54@huaweicloud.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 25 Jul 2025 12:42:47 -0400
-X-Gm-Features: Ac12FXzZH4VsZDsAGPbKQw8Kv6dIfR7tsNmxsQ9bEltpRC2GFe7Nt38l4hGhaAY
-Message-ID: <CAHC9VhSdLO-TdMp+oZjxb-jzuqoQX0sD-84G+SoqNwn2i3VZaA@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 11/34] lsm: get rid of the lsm_names list and do
- some cleanup
-To: Casey Schaufler <casey@schaufler-ca.com>
+Date: Fri, 25 Jul 2025 12:51:00 -0400
+X-Gm-Features: Ac12FXyb2UHoFwiiWMxd4QzB2ubVseAs_bHPNy40Qx4LAoNpddjuNEjTQFYhh_o
+Message-ID: <CAHC9VhR_24Zv7u0Btz8pSk420Totnx2uRyVdoHU1tXevWKw5mA@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 30/34] lockdown: move initcalls to the LSM framework
+To: Xiu Jianfeng <xiujianfeng@huaweicloud.com>
 Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
 	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
 	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
 	Fan Wu <wufan@kernel.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
 	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
 	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
-	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
 	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 25, 2025 at 10:27=E2=80=AFAM Casey Schaufler <casey@schaufler-c=
-a.com> wrote:
-> On 7/24/2025 7:28 PM, Paul Moore wrote:
-> > On Thu, Jul 24, 2025 at 11:39=E2=80=AFAM Casey Schaufler <casey@schaufl=
-er-ca.com> wrote:
-> >> On 7/21/2025 4:21 PM, Paul Moore wrote:
-> >>> The LSM currently has a lot of code to maintain a list of the current=
-ly
-> >>> active LSMs in a human readable string, with the only user being the
-> >>> "/sys/kernel/security/lsm" code.  Let's drop all of that code and
-> >>> generate the string on first use and then cache it for subsequent use=
-.
-> >>>
-> >>> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> >>> ---
-> >>>  include/linux/lsm_hooks.h |  1 -
-> >>>  security/inode.c          | 59 +++++++++++++++++++++++++++++++++++++=
---
-> >>>  security/lsm_init.c       | 49 --------------------------------
-> >>>  3 files changed, 57 insertions(+), 52 deletions(-)
-> > ..
-> >
-> >>> +/* NOTE: we never free the string below once it is set. */
-> >>> +static DEFINE_SPINLOCK(lsm_read_lock);
-> >>> +static char *lsm_read_str =3D NULL;
-> >>> +static ssize_t lsm_read_len =3D 0;
-> >>> +
-> >>>  static ssize_t lsm_read(struct file *filp, char __user *buf, size_t =
-count,
-> >>>                       loff_t *ppos)
-> >>>  {
-> >>> -     return simple_read_from_buffer(buf, count, ppos, lsm_names,
-> >>> -             strlen(lsm_names));
-> >>> +     int i;
-> >>> +     char *str;
-> >>> +     ssize_t len;
-> >>> +
-> >>> +restart:
-> >>> +
-> >>> +     rcu_read_lock();
-> >>> +     if (!lsm_read_str) {
-> >>> +             /* we need to generate the string and try again */
-> >>> +             rcu_read_unlock();
-> >>> +             goto generate_string;
-> >>> +     }
-> >>> +     len =3D simple_read_from_buffer(buf, count, ppos,
-> >>> +                                   rcu_dereference(lsm_read_str),
-> >>> +                                   lsm_read_len);
-> >>> +     rcu_read_unlock();
-> >>> +     return len;
-> >>> +
-> >>> +generate_string:
-> >>> +
-> >>> +     for (i =3D 0; i < lsm_active_cnt; i++)
-> >>> +             /* the '+ 1' accounts for either a comma or a NUL */
-> >>> +             len +=3D strlen(lsm_idlist[i]->name) + 1;
-> >>> +
-> >>> +     str =3D kmalloc(len, GFP_KERNEL);
-> >>> +     if (!str)
-> >>> +             return -ENOMEM;
-> >>> +     str[0] =3D '\0';
-> >>> +
-> >>> +     for (i =3D 0; i < lsm_active_cnt; i++) {
-> >>> +             if (i > 0)
-> >>> +                     strcat(str, ",");
-> >>> +             strcat(str, lsm_idlist[i]->name);
-> >>> +     }
-> >>> +
-> >>> +     spin_lock(&lsm_read_lock);
-> >>> +     if (lsm_read_str) {
-> >>> +             /* we raced and lost */
-> >>> +             spin_unlock(&lsm_read_lock);
-> >>> +             kfree(str);
-> >>> +             goto restart;
-> >>> +     }
-> >>> +     lsm_read_str =3D str;
-> >>> +     lsm_read_len =3D len;
-> >> You're going to get a nul byte at the end of the string because
-> >> you accounted for the ',' above, but there isn't one at the end
-> >> of the string.
-> > I'm not sure I understand your concern here, can you phrase it differen=
-tly?
+On Fri, Jul 25, 2025 at 4:12=E2=80=AFAM Xiu Jianfeng
+<xiujianfeng@huaweicloud.com> wrote:
+> On 2025/7/22 7:21, Paul Moore wrote:
+> > Reviewed-by: Kees Cook <kees@kernel.org>
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
 >
-> "lockdown,capability,...,evm\0" You get the '\0' because you always expec=
-t
-> a trailing ','. On the last element there is no ',' but the length is add=
-ed
-> as if there is.
->
-> +       lsm_read_len =3D len - 1;
->
-> will fix the problem.
+> Reviewed-by: Xiu Jianfeng <xiujianfeng@huawei.com>
 
-Ah, yes, gotcha.  Thanks for catching this, the fix will be in the
-next revision.
+Thank you for reviewing this patch.  As you are a Lockdown maintainer,
+can I change your reviewed-by into an acked-by tag?
+
+> > ---
+> >  security/lockdown/lockdown.c | 3 +--
+> >  1 file changed, 1 insertion(+), 2 deletions(-)
+> >
+> > diff --git a/security/lockdown/lockdown.c b/security/lockdown/lockdown.=
+c
+> > index 4813f168ff93..8d46886d2cca 100644
+> > --- a/security/lockdown/lockdown.c
+> > +++ b/security/lockdown/lockdown.c
+> > @@ -161,8 +161,6 @@ static int __init lockdown_secfs_init(void)
+> >       return PTR_ERR_OR_ZERO(dentry);
+> >  }
+> >
+> > -core_initcall(lockdown_secfs_init);
+> > -
+> >  #ifdef CONFIG_SECURITY_LOCKDOWN_LSM_EARLY
+> >  DEFINE_EARLY_LSM(lockdown) =3D {
+> >  #else
+> > @@ -170,4 +168,5 @@ DEFINE_LSM(lockdown) =3D {
+> >  #endif
+> >       .id =3D &lockdown_lsmid,
+> >       .init =3D lockdown_lsm_init,
+> > +     .initcall_core =3D lockdown_secfs_init,
+> >  };
 
 --=20
 paul-moore.com
