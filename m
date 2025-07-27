@@ -1,66 +1,66 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9FD62AD2F
-	for <selinux@vger.kernel.org>; Sun, 27 Jul 2025 15:33:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44A0A1EA91
+	for <selinux@vger.kernel.org>; Sun, 27 Jul 2025 15:44:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753630394; cv=none; b=fyxOB1S4JdkvKZj9FAmJC1D+5/epRJGG//PKDLWjAn1kzbVMk+RUoSz/HfBwAQkApLNyDZBcdMfYFrQi/WYvDpqg2Crn8vS7D7FiyOokhskAlZ/mYwz0Yd24cYxscqzLyl6KQAFVuPuMrkKw/mEBv/2Q9Xt+y8DGSP5kNFwG6+s=
+	t=1753631077; cv=none; b=KAPHCuihooBu+Rluqq9JEmTODCRccyNXvhSANKMIKMqR3mI7OlXS4NJ/bfw7MlBhuNYWqG5oTx3bwdJsxVfUI/BnOBLVsvrvPpJo1gQ6P02v285yIHNzjjTu+E8tbxRq7PUwYZEJPLcXAlzR4+aRwUswMRar+l5zk3Ic3lU4OdE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753630394; c=relaxed/simple;
-	bh=Cm3wjs7S8aNRFW2t+Wvl1ed/iDqwslx5GnggVWjbop0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iVS9u+jM1er1vn3ecf+qr3GxdLLcKJFS9v8HoN1Pw2a67CMiNChHMk37ibh6ZbIoo9bQDhCQQo3sXohcSCFYvXX2NOtRo9r9C7U4yFh+CDW8WJ0P2eMOt16KhWQ+T3LAcNrPKDhU+tbYzM1JlfOFP9Lt3PwWumbZQRfIP1a7PnQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K35ZUNl/; arc=none smtp.client-ip=209.85.221.54
+	s=arc-20240116; t=1753631077; c=relaxed/simple;
+	bh=Bfg1GSEcCUl/noNvbn1cJFNhadvI6PBKATP1Wd92QBA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=J55bkcJ579JMqhML7mk9VSh0lzpX7IDcahI4jhPJORT19Jtk3NgQUyVJ3+f56rTzyQywD9H4ArvQ79ENa0ZKcWKbf3N6+0pxmjr9WebF3p41863UE/MxMVcIEXFf4OPoGvmnpr7cMIR9ixNA9MRJ3Iyq/1hRgUT24qYimNljjYA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CwkvUfw+; arc=none smtp.client-ip=209.85.221.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K35ZUNl/"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-3b7886bee77so203288f8f.0
-        for <selinux@vger.kernel.org>; Sun, 27 Jul 2025 08:33:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CwkvUfw+"
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-3b78310b296so389626f8f.2
+        for <selinux@vger.kernel.org>; Sun, 27 Jul 2025 08:44:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753630391; x=1754235191; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1753631073; x=1754235873; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=9C2oFmN8NuivPOE7MSnRWBW7ukm4KmrVTUXJt1FBj9U=;
-        b=K35ZUNl/+fdo/3I3Ty1502mxRWHNmieUmkbqnTr6CMD0p0ZhJAcC3cGqHBn3NbA0Ay
-         iJKopDetNG5V+cWiEWfbBqyEu8qoDO0BRUmB2w+6N6cbiblpzsD3KcXkr6t4mUpmXgiF
-         O+Wn191atI3jSnR+DWAbf0o28fy20pj4JqHtk9n/y5j0rzSqU6mhc7Tvl1WCIVWW4lwK
-         GBpRD9IjvlZpV3/pDnXCiGSVEfd4wIEVyqZq44ueNLOuRn+rM+0Dkn94dfsIv/c0RF/g
-         kwszBl+/j4OtfFVplUc2liM7YnRDgyo7/eu5yErUuSpSH7ureg5Desu4xQaQqd6/xgTf
-         zM4g==
+        bh=0IjUJ5wAjpUzkA0cdlTJa7c8hbXgtuP2dl4G7UP2L5U=;
+        b=CwkvUfw+Lq3NlWWIaFBmEfLbOXySLuEbVKNkI1RNnE+Fhf/Jn67x0Xm3RlvYpNWNxf
+         YnvWdL/2cSfODP9Dqsyrup5dHkeoKiz2IxVAiROp4WoJ1MyehgSrpprFfXLDD4nwzHmp
+         gR93bh+c7I5HWAcb3ZLxH7IYIBUnGRvo1oJw/pDDj8Iz8SvNhelpMnB9d6v4zzixV7ks
+         jvi4ADna7UxQAeBdIlKKPnlJjeqWyihj/wIjMjdOU4iNs20D7UPtEXQY7vDOwNTIg5ir
+         dYbjVAxLfRkj+7B25w28rg6OmEklg6f2Mir8YvTNedXsHC0ct7NVa7GhWdfjmaip74mJ
+         bkfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753630391; x=1754235191;
+        d=1e100.net; s=20230601; t=1753631073; x=1754235873;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=9C2oFmN8NuivPOE7MSnRWBW7ukm4KmrVTUXJt1FBj9U=;
-        b=POKkghgTyA6LCrwr5kP19JJ1FGuuZZITWgSgzljAJ7sw4m0fOGN9bRiPFPd0zmrRkq
-         QWszs4QMXd6ENfLcSR3IGAIQ2lqSNTwcvFC3mk59LohVQ0738Im7ghbkqfisvzvWnraj
-         XSJj4Gg82zly7Vqr4rsAhTDruBErSD7iZqVGTdCqLFMjzHH1E3nDoIHY6845OwTbY+gn
-         yg7DH20NEE+6jNaZppfWwA/E4CQc5SCkKE6Q7IZfbj7JkEvQ+hCHJnHODv/XJwwKux2i
-         P7p5LcmZFk6tZMyOD4YKTWVt6lg1xcs4dOVR13jS8G8jxlpAFSSifdtneszj5sMA/349
-         LM6w==
-X-Gm-Message-State: AOJu0YyeMUg5gE3wXmLoNIrK8CRxBzcS9YqckX0J0zoTU1odgK5KefFe
-	IMzzMWGxLbLj/oUYa/XcaF9VWk3sxUiimL0HxXO2paBi9ufwFH4EbzEOOgOuvQ==
-X-Gm-Gg: ASbGncvED3N85+TgJIyOOoI2v4Fd1OrFstETX9ZeHoe0y0HIFxlJgCHmYSEQpCAYpUT
-	KKgsPL/PXKBjAiRDjgCHrLWsRwzis181DHBV2dLRUXeSoIJwrKn2W71/A0xHkvWA3lvGThP2OcG
-	aKeDnG7n0KJd/S2W1DzR6dXBYBpV/ZWucy/bO8YauyfOi4nik6Xvym1MW1yfFJ1xPd/xF7/vlyD
-	RWcd1Od8bao1LZHJysWEffJ1vEAeMV7amxQA4qb08fKxT9I+seVxP1kL+b3O8OKeaUEXkZiJpCp
-	lWulsScVcl7o6tIp27XGCQIA30SY+6akYdOIAGoLrKnck4r/IH3MLnMiquBT1Bu9uW9PFM6usTw
-	+VKRUbQtz5mqyYBRcd7K56IM=
-X-Google-Smtp-Source: AGHT+IEFHPs1AaIbGQoPEs4zK50r+9vutcqoKiLfn18jb+bZrRCdlN+4CYYg+jb8tmZibXu+QGen9A==
-X-Received: by 2002:a05:6000:2405:b0:3a8:6260:ea91 with SMTP id ffacd0b85a97d-3b776667202mr5633835f8f.40.1753630390754;
-        Sun, 27 Jul 2025 08:33:10 -0700 (PDT)
+        bh=0IjUJ5wAjpUzkA0cdlTJa7c8hbXgtuP2dl4G7UP2L5U=;
+        b=koiTIxUPOZ1jT/MMM7sQXELwLTkNKE0WkgI+W1M6W3CYFI0BHICmzel3pLjtmQP+TZ
+         fX8kJbF9wIU29LAFIgUUrVPo2a8acI/Hc3bOy+H+kxky6k6/zsc0+KLgJQ0170TlklSI
+         Ig7cYJ6Fw5NU0rpCXFk+WlNM35RySMbs8XOnJharRoqCIOC6mCc5toYbuPB7cykqGfCH
+         5sYNrjpG64mKHDbaFfTd0rU8dpc0xoQaz0UB8hpvwvqXBShcK9WWEKgSkvsWX3rKKKCZ
+         Rsns3kXry5MTTm+/k3yGOq3B7XZa+EkNkQrIp15rCwPyTfiga4hg57WLe6Q3f8nQ9Qtn
+         5ZrA==
+X-Gm-Message-State: AOJu0YxlPiPU8OWKWG0ryo1NeDBUKkarEcrstgY5Dm3PnvC7apa2Vaxv
+	srsyB7WeJ9a31b+P6bdh4J7/37Coda6X+/6KF4HYYcbwYd0Qmhyz0ja4FF8NhQ==
+X-Gm-Gg: ASbGncuCGfBQdPxnlLGzBnPdbmPOVpMAwV/AtBUgRBgdWZ27Sz3BjHTA0hakUNeTt7o
+	5URV61AGCOZbm3m88s/wOkkezscpiZpbj4+nJXEPjNimF/nyUKHxbXGesFzaj9eYYeFxojUiU4G
+	5i2HAGtjuP7bSLI28RidNqLc0tq1eoopbS/owp18OtrRH2udMYiXwlPumbWhDWSyJczUCU7sH/t
+	giwUHbOb1NrAlpil1b8e6JF/YVsrFIXwwP90Mnq1Iq96UInTWva7DaJbwRKo5ns7nOGZO3ce4Kt
+	nEI0ovdooV8ZX6PMEUFBphnTcSRL83L7Gaxufe4XjwAtxYtpKCSdWsOvmHVg6nDnDii0YO/nevt
+	3AGSxh68/rNn2
+X-Google-Smtp-Source: AGHT+IF2BLh5ThRhx08oHdo6rl08tenskjr1j035UckFrq1Zi3I22D8Fehon/9EVXIYOgXXkZPL3EA==
+X-Received: by 2002:a05:6000:178c:b0:3b5:dd38:3523 with SMTP id ffacd0b85a97d-3b77671d378mr6405731f8f.8.1753631073040;
+        Sun, 27 Jul 2025 08:44:33 -0700 (PDT)
 Received: from sierra ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b778eba0e6sm6021561f8f.25.2025.07.27.08.33.10
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4587abc13besm65168985e9.2.2025.07.27.08.44.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Jul 2025 08:33:10 -0700 (PDT)
+        Sun, 27 Jul 2025 08:44:32 -0700 (PDT)
 From: Rahul Sandhu <nvraxn@gmail.com>
 To: selinux@vger.kernel.org
 Cc: Rahul Sandhu <nvraxn@gmail.com>
-Subject: [PATCH] libselinux: refactor selinux_getenforcemode
-Date: Sun, 27 Jul 2025 16:32:50 +0100
-Message-ID: <20250727153250.731505-1-nvraxn@gmail.com>
+Subject: [PATCH] libselinux: selinux_getenforcemode: remove out2 label
+Date: Sun, 27 Jul 2025 16:44:22 +0100
+Message-ID: <20250727154422.732647-1-nvraxn@gmail.com>
 X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -70,102 +70,66 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Invert the check for cfg being a nullptr and early return.
+The out2 label previously only existed such that free(buf) isn't called
+if malloc(3) fails to allocate buf. However, posix says[1] that calling
+free(3) with a nullptr is valid:
+
+> If ptr is a null pointer, no action shall occur.
+
+Hence, remove the extra label to simplify the logic.
+
+[1] https://pubs.opengroup.org/onlinepubs/009604499/functions/free.html
 
 Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 ---
- libselinux/src/selinux_config.c | 75 ++++++++++++++++-----------------
- 1 file changed, 37 insertions(+), 38 deletions(-)
+ libselinux/src/compute_create.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
-index 75db14ba..a2335fa9 100644
---- a/libselinux/src/selinux_config.c
-+++ b/libselinux/src/selinux_config.c
-@@ -88,47 +88,46 @@ static const uint16_t file_path_suffixes_idx[NEL] = {
- 
- int selinux_getenforcemode(int *enforce)
- {
--	int ret = -1;
- 	FILE *cfg = fopen(SELINUXCONFIG, "re");
--	if (cfg) {
--		char *buf;
--		char *tag;
--		int len = sizeof(SELINUXTAG) - 1;
--		buf = malloc(selinux_page_size);
--		if (!buf) {
--			fclose(cfg);
--			return -1;
--		}
--		while (fgets_unlocked(buf, selinux_page_size, cfg)) {
--			if (strncmp(buf, SELINUXTAG, len))
--				continue;
--			tag = buf+len;
--			while (isspace((unsigned char)*tag))
--				tag++;
--			if (!strncasecmp
--			    (tag, "enforcing", sizeof("enforcing") - 1)) {
--				*enforce = 1;
--				ret = 0;
--				break;
--			} else
--			    if (!strncasecmp
--				(tag, "permissive",
--				 sizeof("permissive") - 1)) {
--				*enforce = 0;
--				ret = 0;
--				break;
--			} else
--			    if (!strncasecmp
--				(tag, "disabled",
--				 sizeof("disabled") - 1)) {
--				*enforce = -1;
--				ret = 0;
--				break;
--			}
--		}
-+	if (!cfg)
-+		return -1;
-+
-+	char *buf = malloc(selinux_page_size);
-+	if (!buf) {
- 		fclose(cfg);
--		free(buf);
-+		return -1;
+diff --git a/libselinux/src/compute_create.c b/libselinux/src/compute_create.c
+index ff8553bc..b0c6ea34 100644
+--- a/libselinux/src/compute_create.c
++++ b/libselinux/src/compute_create.c
+@@ -81,34 +81,33 @@ int security_compute_create_name_raw(const char * scon,
+ 	if (len < 0 || (size_t)len >= size) {
+ 		errno = EOVERFLOW;
+ 		ret = -1;
+-		goto out2;
++		goto out;
  	}
-+
-+	int ret = -1;
-+	static const int len = sizeof(SELINUXTAG) - 1;
-+	while (fgets_unlocked(buf, selinux_page_size, cfg)) {
-+		if (strncmp(buf, SELINUXTAG, len))
-+			continue;
-+
-+		char *tag = buf + len;
-+		while (isspace((unsigned char)*tag))
-+			tag++;
-+
-+		if (!strncasecmp(tag, "enforcing", sizeof("enforcing") - 1)) {
-+			*enforce = 1;
-+			ret = 0;
-+			break;
-+		} else if (!strncasecmp(tag, "permissive",
-+					sizeof("permissive") - 1)) {
-+			*enforce = 0;
-+			ret = 0;
-+			break;
-+		} else if (!strncasecmp(tag, "disabled",
-+					sizeof("disabled") - 1)) {
-+			*enforce = -1;
-+			ret = 0;
-+			break;
-+		}
-+	}
-+
-+	fclose(cfg);
+ 
+ 	if (objname &&
+ 	    object_name_encode(objname, buf + len, size - len) < 0) {
+ 		errno = ENAMETOOLONG;
+ 		ret = -1;
+-		goto out2;
++		goto out;
+ 	}
+ 
+ 	ret = write(fd, buf, strlen(buf));
+ 	if (ret < 0)
+-		goto out2;
++		goto out;
+ 
+ 	memset(buf, 0, size);
+ 	ret = read(fd, buf, size - 1);
+ 	if (ret < 0)
+-		goto out2;
++		goto out;
+ 
+ 	*newcon = strdup(buf);
+ 	if (!(*newcon)) {
+ 		ret = -1;
+-		goto out2;
++		goto out;
+ 	}
+ 	ret = 0;
+-      out2:
+-	free(buf);
+       out:
 +	free(buf);
-+
+ 	close(fd);
  	return ret;
  }
- 
 -- 
 2.50.1
 
