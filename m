@@ -1,102 +1,171 @@
-Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E30A02264A5;
-	Sat, 26 Jul 2025 09:38:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9FD62AD2F
+	for <selinux@vger.kernel.org>; Sun, 27 Jul 2025 15:33:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753522704; cv=none; b=H/F1cgDM2RHGzU1IU2RDGD13q8ZAMb3LJu13at9q5wCxv/f61g7r2+UcGy+IuAgJiiG9XrfksqIXRiexHdLavuVkotmjn10S5TkRXKZ8ufWy3TNLVjGclaOFs1DM3TpsPpV6xDI3PAOgCDyxyWWAB2QUGjNNGxGiWCdDUjGabo4=
+	t=1753630394; cv=none; b=fyxOB1S4JdkvKZj9FAmJC1D+5/epRJGG//PKDLWjAn1kzbVMk+RUoSz/HfBwAQkApLNyDZBcdMfYFrQi/WYvDpqg2Crn8vS7D7FiyOokhskAlZ/mYwz0Yd24cYxscqzLyl6KQAFVuPuMrkKw/mEBv/2Q9Xt+y8DGSP5kNFwG6+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753522704; c=relaxed/simple;
-	bh=dHuPBIMsuD8ezdXET4y9gJICTLo3EGhV2OmdP7sJqmY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=k1517Af/puATjNLgR/O5qmxfD5wTGYDvgaD83LGtb2zswbAvudzMIuOZ7H3fAUH4ReCnk1wgjOPyLHAT2oSjazoauXnYFIzq1NXqGd9JVazyzHXXwzk/KrIy9oY0Yov8h6pJxNJz7yUhK7OApIv/esrPeErDM1xnNKKfHg2Aoy0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.234])
-	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4bq03j3MMgz2RVv6;
-	Sat, 26 Jul 2025 17:36:01 +0800 (CST)
-Received: from kwepemg500012.china.huawei.com (unknown [7.202.181.74])
-	by mail.maildlp.com (Postfix) with ESMTPS id 9F35C1400CF;
-	Sat, 26 Jul 2025 17:38:18 +0800 (CST)
-Received: from [10.67.110.112] (10.67.110.112) by
- kwepemg500012.china.huawei.com (7.202.181.74) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Sat, 26 Jul 2025 17:38:17 +0800
-Message-ID: <68025cd0-e55a-066e-954e-a398feedc34b@huawei.com>
-Date: Sat, 26 Jul 2025 17:38:16 +0800
+	s=arc-20240116; t=1753630394; c=relaxed/simple;
+	bh=Cm3wjs7S8aNRFW2t+Wvl1ed/iDqwslx5GnggVWjbop0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=iVS9u+jM1er1vn3ecf+qr3GxdLLcKJFS9v8HoN1Pw2a67CMiNChHMk37ibh6ZbIoo9bQDhCQQo3sXohcSCFYvXX2NOtRo9r9C7U4yFh+CDW8WJ0P2eMOt16KhWQ+T3LAcNrPKDhU+tbYzM1JlfOFP9Lt3PwWumbZQRfIP1a7PnQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=K35ZUNl/; arc=none smtp.client-ip=209.85.221.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="K35ZUNl/"
+Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-3b7886bee77so203288f8f.0
+        for <selinux@vger.kernel.org>; Sun, 27 Jul 2025 08:33:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1753630391; x=1754235191; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=9C2oFmN8NuivPOE7MSnRWBW7ukm4KmrVTUXJt1FBj9U=;
+        b=K35ZUNl/+fdo/3I3Ty1502mxRWHNmieUmkbqnTr6CMD0p0ZhJAcC3cGqHBn3NbA0Ay
+         iJKopDetNG5V+cWiEWfbBqyEu8qoDO0BRUmB2w+6N6cbiblpzsD3KcXkr6t4mUpmXgiF
+         O+Wn191atI3jSnR+DWAbf0o28fy20pj4JqHtk9n/y5j0rzSqU6mhc7Tvl1WCIVWW4lwK
+         GBpRD9IjvlZpV3/pDnXCiGSVEfd4wIEVyqZq44ueNLOuRn+rM+0Dkn94dfsIv/c0RF/g
+         kwszBl+/j4OtfFVplUc2liM7YnRDgyo7/eu5yErUuSpSH7ureg5Desu4xQaQqd6/xgTf
+         zM4g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753630391; x=1754235191;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=9C2oFmN8NuivPOE7MSnRWBW7ukm4KmrVTUXJt1FBj9U=;
+        b=POKkghgTyA6LCrwr5kP19JJ1FGuuZZITWgSgzljAJ7sw4m0fOGN9bRiPFPd0zmrRkq
+         QWszs4QMXd6ENfLcSR3IGAIQ2lqSNTwcvFC3mk59LohVQ0738Im7ghbkqfisvzvWnraj
+         XSJj4Gg82zly7Vqr4rsAhTDruBErSD7iZqVGTdCqLFMjzHH1E3nDoIHY6845OwTbY+gn
+         yg7DH20NEE+6jNaZppfWwA/E4CQc5SCkKE6Q7IZfbj7JkEvQ+hCHJnHODv/XJwwKux2i
+         P7p5LcmZFk6tZMyOD4YKTWVt6lg1xcs4dOVR13jS8G8jxlpAFSSifdtneszj5sMA/349
+         LM6w==
+X-Gm-Message-State: AOJu0YyeMUg5gE3wXmLoNIrK8CRxBzcS9YqckX0J0zoTU1odgK5KefFe
+	IMzzMWGxLbLj/oUYa/XcaF9VWk3sxUiimL0HxXO2paBi9ufwFH4EbzEOOgOuvQ==
+X-Gm-Gg: ASbGncvED3N85+TgJIyOOoI2v4Fd1OrFstETX9ZeHoe0y0HIFxlJgCHmYSEQpCAYpUT
+	KKgsPL/PXKBjAiRDjgCHrLWsRwzis181DHBV2dLRUXeSoIJwrKn2W71/A0xHkvWA3lvGThP2OcG
+	aKeDnG7n0KJd/S2W1DzR6dXBYBpV/ZWucy/bO8YauyfOi4nik6Xvym1MW1yfFJ1xPd/xF7/vlyD
+	RWcd1Od8bao1LZHJysWEffJ1vEAeMV7amxQA4qb08fKxT9I+seVxP1kL+b3O8OKeaUEXkZiJpCp
+	lWulsScVcl7o6tIp27XGCQIA30SY+6akYdOIAGoLrKnck4r/IH3MLnMiquBT1Bu9uW9PFM6usTw
+	+VKRUbQtz5mqyYBRcd7K56IM=
+X-Google-Smtp-Source: AGHT+IEFHPs1AaIbGQoPEs4zK50r+9vutcqoKiLfn18jb+bZrRCdlN+4CYYg+jb8tmZibXu+QGen9A==
+X-Received: by 2002:a05:6000:2405:b0:3a8:6260:ea91 with SMTP id ffacd0b85a97d-3b776667202mr5633835f8f.40.1753630390754;
+        Sun, 27 Jul 2025 08:33:10 -0700 (PDT)
+Received: from sierra ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b778eba0e6sm6021561f8f.25.2025.07.27.08.33.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 27 Jul 2025 08:33:10 -0700 (PDT)
+From: Rahul Sandhu <nvraxn@gmail.com>
+To: selinux@vger.kernel.org
+Cc: Rahul Sandhu <nvraxn@gmail.com>
+Subject: [PATCH] libselinux: refactor selinux_getenforcemode
+Date: Sun, 27 Jul 2025 16:32:50 +0100
+Message-ID: <20250727153250.731505-1-nvraxn@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.5.1
-Subject: Re: [RFC PATCH v2 30/34] lockdown: move initcalls to the LSM
- framework
-Content-Language: en-US
-To: Paul Moore <paul@paul-moore.com>
-CC: <linux-security-module@vger.kernel.org>,
-	<linux-integrity@vger.kernel.org>, <selinux@vger.kernel.org>, John Johansen
-	<john.johansen@canonical.com>, Mimi Zohar <zohar@linux.ibm.com>, Roberto
- Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
-	=?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>,
-	=?UTF-8?Q?G=c3=bcnther_Noack?= <gnoack@google.com>, Kees Cook
-	<kees@kernel.org>, Micah Morton <mortonm@chromium.org>, Casey Schaufler
-	<casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng
-	<xiujianfeng@huawei.com>
-References: <20250721232142.77224-36-paul@paul-moore.com>
- <20250721232142.77224-66-paul@paul-moore.com>
- <3101077d-a5e2-d08b-03c2-2ed064a35b54@huaweicloud.com>
- <CAHC9VhR_24Zv7u0Btz8pSk420Totnx2uRyVdoHU1tXevWKw5mA@mail.gmail.com>
-From: xiujianfeng <xiujianfeng@huawei.com>
-In-Reply-To: <CAHC9VhR_24Zv7u0Btz8pSk420Totnx2uRyVdoHU1tXevWKw5mA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
- kwepemg500012.china.huawei.com (7.202.181.74)
 
+Invert the check for cfg being a nullptr and early return.
 
+Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+---
+ libselinux/src/selinux_config.c | 75 ++++++++++++++++-----------------
+ 1 file changed, 37 insertions(+), 38 deletions(-)
 
-On 2025/7/26 0:51, Paul Moore wrote:
-> On Fri, Jul 25, 2025 at 4:12 AM Xiu Jianfeng
-> <xiujianfeng@huaweicloud.com> wrote:
->> On 2025/7/22 7:21, Paul Moore wrote:
->>> Reviewed-by: Kees Cook <kees@kernel.org>
->>> Signed-off-by: Paul Moore <paul@paul-moore.com>
->>
->> Reviewed-by: Xiu Jianfeng <xiujianfeng@huawei.com>
-> 
-> Thank you for reviewing this patch.  As you are a Lockdown maintainer,
-> can I change your reviewed-by into an acked-by tag?
+diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
+index 75db14ba..a2335fa9 100644
+--- a/libselinux/src/selinux_config.c
++++ b/libselinux/src/selinux_config.c
+@@ -88,47 +88,46 @@ static const uint16_t file_path_suffixes_idx[NEL] = {
+ 
+ int selinux_getenforcemode(int *enforce)
+ {
+-	int ret = -1;
+ 	FILE *cfg = fopen(SELINUXCONFIG, "re");
+-	if (cfg) {
+-		char *buf;
+-		char *tag;
+-		int len = sizeof(SELINUXTAG) - 1;
+-		buf = malloc(selinux_page_size);
+-		if (!buf) {
+-			fclose(cfg);
+-			return -1;
+-		}
+-		while (fgets_unlocked(buf, selinux_page_size, cfg)) {
+-			if (strncmp(buf, SELINUXTAG, len))
+-				continue;
+-			tag = buf+len;
+-			while (isspace((unsigned char)*tag))
+-				tag++;
+-			if (!strncasecmp
+-			    (tag, "enforcing", sizeof("enforcing") - 1)) {
+-				*enforce = 1;
+-				ret = 0;
+-				break;
+-			} else
+-			    if (!strncasecmp
+-				(tag, "permissive",
+-				 sizeof("permissive") - 1)) {
+-				*enforce = 0;
+-				ret = 0;
+-				break;
+-			} else
+-			    if (!strncasecmp
+-				(tag, "disabled",
+-				 sizeof("disabled") - 1)) {
+-				*enforce = -1;
+-				ret = 0;
+-				break;
+-			}
+-		}
++	if (!cfg)
++		return -1;
++
++	char *buf = malloc(selinux_page_size);
++	if (!buf) {
+ 		fclose(cfg);
+-		free(buf);
++		return -1;
+ 	}
++
++	int ret = -1;
++	static const int len = sizeof(SELINUXTAG) - 1;
++	while (fgets_unlocked(buf, selinux_page_size, cfg)) {
++		if (strncmp(buf, SELINUXTAG, len))
++			continue;
++
++		char *tag = buf + len;
++		while (isspace((unsigned char)*tag))
++			tag++;
++
++		if (!strncasecmp(tag, "enforcing", sizeof("enforcing") - 1)) {
++			*enforce = 1;
++			ret = 0;
++			break;
++		} else if (!strncasecmp(tag, "permissive",
++					sizeof("permissive") - 1)) {
++			*enforce = 0;
++			ret = 0;
++			break;
++		} else if (!strncasecmp(tag, "disabled",
++					sizeof("disabled") - 1)) {
++			*enforce = -1;
++			ret = 0;
++			break;
++		}
++	}
++
++	fclose(cfg);
++	free(buf);
++
+ 	return ret;
+ }
+ 
+-- 
+2.50.1
 
-Yes, absolutely! Thanks for checking!
-
-> 
->>> ---
->>>  security/lockdown/lockdown.c | 3 +--
->>>  1 file changed, 1 insertion(+), 2 deletions(-)
->>>
->>> diff --git a/security/lockdown/lockdown.c b/security/lockdown/lockdown.c
->>> index 4813f168ff93..8d46886d2cca 100644
->>> --- a/security/lockdown/lockdown.c
->>> +++ b/security/lockdown/lockdown.c
->>> @@ -161,8 +161,6 @@ static int __init lockdown_secfs_init(void)
->>>       return PTR_ERR_OR_ZERO(dentry);
->>>  }
->>>
->>> -core_initcall(lockdown_secfs_init);
->>> -
->>>  #ifdef CONFIG_SECURITY_LOCKDOWN_LSM_EARLY
->>>  DEFINE_EARLY_LSM(lockdown) = {
->>>  #else
->>> @@ -170,4 +168,5 @@ DEFINE_LSM(lockdown) = {
->>>  #endif
->>>       .id = &lockdown_lsmid,
->>>       .init = lockdown_lsm_init,
->>> +     .initcall_core = lockdown_secfs_init,
->>>  };
-> 
