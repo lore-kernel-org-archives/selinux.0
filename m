@@ -1,112 +1,103 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
+Received: from mail-yb1-f173.google.com (mail-yb1-f173.google.com [209.85.219.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 569E31A704B
-	for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 14:25:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 252A61A23AC
+	for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 21:49:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753712717; cv=none; b=GBDBayv6vzk7IZX0PGscbvLWh8GN4W4KxcG65aTf21zyxxMn92sw9cVXghDwluDp7d83KJ7sjknhxcRTH4Pk8G/ZUzMHxsL0GJuSw0H4x7XrgDBrnlD6uzP4/KF3pCOWhfZSEDX03nkZlAJUcUE+cTv2H5j4yGVPRRmNbKXwuC4=
+	t=1753739379; cv=none; b=U2YSPYrhpSkSNujj+UpsgQ1u1HVoMHPjvjBqh7JJ3tNoYKtrAI+hcU4r3jki+jBD+7c5pMen3bg+IVHwOhTIJCqDWSuxja2SDuxA+DEugZZRgiM6/wDcqp+ZrP4g4etOZuJ/Z7o8krRVJzJZgQooleFXfA5zOGQW8VcKIvRaMGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753712717; c=relaxed/simple;
-	bh=Y6g42KGu5y9frSahjqIAJsKLtK5F3uuHjpCiZXd3ofo=;
+	s=arc-20240116; t=1753739379; c=relaxed/simple;
+	bh=tTCJWGUp62X7xORqgRT8/m9obaHcnwzTRIbKZR7RuOM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=N2pRFXw+ynY56rgSAxE5xfvTA5hWw4AolvQ4KRvuXPehxKbfnY84GAKthRsNaiSsMk0Ei2ILfMGdzgF8jQ4CJf5cm4vWNa+Nle0DXi6+RkscYgn4Zdj4JLJfTkgH+g+TXwNUcDZjVKeDTYL7X0VwrCTwyHC4xxOzyv+AsMlEesw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cg3V74x+; arc=none smtp.client-ip=209.85.215.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=UPdLzVzy0kt7NkAnPOYn9kmOzLJQfS/m71GMGSKSZz9PKEYz4SgKala/tLQbAtUQWTG3GBDJ9HJdFsJXnQN9oiaJav3QlbhG+znxc6jHe8Tzg/vvXTTbhfTYoHva/SACWVR8NeMpTmuMXSPkHwjC/HV6pHbvxebZ8YVBitR2Sm8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Nh+KwAhg; arc=none smtp.client-ip=209.85.219.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cg3V74x+"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-b391ca6146eso3979072a12.3
-        for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 07:25:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Nh+KwAhg"
+Received: by mail-yb1-f173.google.com with SMTP id 3f1490d57ef6-e8dfa47af2aso1900550276.3
+        for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 14:49:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753712715; x=1754317515; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1753739376; x=1754344176; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=VtBH2bx0nCFlyN5uxDO7OAPestYO0fDXBBe5cxURjQU=;
-        b=cg3V74x+G4B119gLOcneBfK+u/Hl9I8dHkSUps3xnXTlNF5Ihmekph80c1MSQQVltT
-         0fE3ddVYZ4F726xj4RQfpWOpgOekjaZG8ypFMIKSsrMBrlfQ7fwZbsGkAF9b5O8k6prY
-         TCAWPJ6boivv7rg5OsH1zU6/OzGU9QWe4a+7ym3ceM6BkdLhwrkYX7akPqUsirvXR0pT
-         kj4CazVFuusRvkGWOqrzjbIDmEQbJxk2mylwlEu5TphNpZ6ckOUKCMUlXezh2IkmAeoA
-         feLwly5Wqc8Lj96Uq1P30B4z5BA8/Eo5mWh11iu04O2wrTS90oDaj0ONovZYS4ixPWGb
-         VFqw==
+        bh=poaEelBg7a7OcoaRwgyEnvu3ww/B0f0meFimZvf+Ksc=;
+        b=Nh+KwAhg220CV5ri5tPFw7EWzAPu7j3V3OA15Ypm2cfmtWCJMJZwB4uQP5llEDBiUj
+         0WMw5a1JT6p1AKSg0PPTclQVO8PXh/xLaBHvROZ+R8XWT5IDqAMozM23xfekNFXtrv7Y
+         yMwNWnGjUlXJI7RK/ZrbojjGkDLpnwj/Wems67wS9YR2OQERVE9VHF5x/vBvrsw1uP22
+         jjuBdb3nJLh511EJvJHtLnUH4TAM+HfZv+5C74Z3DMtrDdVR7se/NalkW0GD6u1Vx4M3
+         2Q64lV9GbNNNuui/PlCznV3zYeXxzIks9ASQGBVG/0r3JtxkTCIoWz+xRnt6bdDuR7fL
+         IG/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753712715; x=1754317515;
+        d=1e100.net; s=20230601; t=1753739376; x=1754344176;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=VtBH2bx0nCFlyN5uxDO7OAPestYO0fDXBBe5cxURjQU=;
-        b=XbvoC9/1zZ2o4Psk4c36bxkgNWZUhygOw1F82R9/DZwwl1JTTMnBLLiklt76ShOych
-         nOOFHSJM/3aRi15dE3LynzwtCPpbhqF0hs3pr18hY3mxvfMmsKF0jXEXKH0b8ikyKvFd
-         v/avffucNBH196GqYW0RU3ZtZT8ISqU6u/HMPo67TYoP5IOvKlKeVArWYxdkTreV8I8z
-         vn9GpDoZdac1lihmAquGZLv4Y4sFNm6ryWhylEmFx0560ojJIS1DP8iqxPCfwe1oLuHN
-         CTpeePY5AnBbgiMd6RtAMh/QzrXylMGJGFpMoD14kisTa6mB9DmAwOQR9YQLUgNRLOof
-         FPLQ==
-X-Gm-Message-State: AOJu0Ywbfmxah5iIS2yWI8W8JwxgY7yIQm9C+A+7Z3haOXwuNHDCpLC0
-	SXSyCyZZ10OD8aRxRC/OdDTnNdtkT45TrIAHnrbkMeijC21BFdvjih9iSYHqsIa6ppZDbAZgEpi
-	uvcGlZUb/dkhq4iPauFeSSwFInQ/a+WDqxA==
-X-Gm-Gg: ASbGnctgDA4DFK70CyiSK6hnEcJczlWX1HnSdJNSPzSxP6VKB+aPGHv6HpcSmEwEM7O
-	A06e5YgvUR8lQ+fdxF/aPHWIsOG+3jkPsct0HCXZ/RF28QCs7Kmr21eJncovVjXJOJYNOsqRt+b
-	ANd/hIaepzBYfFAjErF87y0PcNZiBLRn3Hoh8UxjqCx13QxLwqDtb4ucpJDRnW2m1AIfhsYt9o5
-	tAKCT0=
-X-Google-Smtp-Source: AGHT+IFpJhGXAvjD7O/yBWdmPX5HyimRmcMJnsV3xAtClZgnARRcJZuulxs+QNt1hknwhG3OeYZucwXCjtQKN28FimM=
-X-Received: by 2002:a17:90b:4ccd:b0:311:ba2e:bdc9 with SMTP id
- 98e67ed59e1d1-31e77a0351dmr15760847a91.27.1753712715391; Mon, 28 Jul 2025
- 07:25:15 -0700 (PDT)
+        bh=poaEelBg7a7OcoaRwgyEnvu3ww/B0f0meFimZvf+Ksc=;
+        b=g1LzrqaLKjdmkelbZih/HraLuhFRoIff3PqM4H5yN5wDToeMPwsHfrIgYA+ejOK2Sp
+         YSctIsII80z1zQx23ILLGQWC9RpgxGYdcr7z+EQrBWLdMiLuWLFprNsUZg5NAITeFhX2
+         85Oco/fZ232wPhyvDg5LdsPtsJcdnJ8ImhwjZGvNTRl8zd3GRKNXyXm2xe0UFiVGgUM4
+         QbYzT2TECeCtotjFNueMDUP+xTu5rokEqV8Mi3FZm1W0/Y1m1qPJ6IjtQC7OPEEXzUPc
+         3pmlV2mw067YrlNuf8T1Zof8hz/0yr8Y1gZ7baKzOEF0mE8I97Qt2AiYH7IeLufICtxG
+         9SJA==
+X-Forwarded-Encrypted: i=1; AJvYcCVSNYRWADMtjTgvf8m8SqNu9Dz9HEZmfdTxB0IO48HXVtENqHrL2uFv96Iyaew12XKeofEhp/AC@vger.kernel.org
+X-Gm-Message-State: AOJu0YwvdWjAyN5hZmNn3S9IHUlqzuubi3Iw/zyQ51RN+vovNZNmO24C
+	ACDDossldy8gpejDH4TXWxthwmpwmgR54hu9SgEPHEOsLvayZnr5sa0KLU4YEe2GdfN058nouAb
+	ntPo7inq5X/KqaSpod/zRychW40kAeQJ2JGFIPdKt
+X-Gm-Gg: ASbGncuOdbzPhaO0lCKvooFT/DTMNXq5rEhjn3xdS7+sauNubWm4Y8sLNoszbt5pjon
+	rlW41f8OjqRTE32Qps2Le7FGHPFVXoWfjmN1jce5pHAieggLN+MzZm5Oi1HSybjjV7pjpa/QZzR
+	ba4UfJ+n0f5hCuZ+bf541CrAPXMACHEcN8p3KqY8VUN+jDnQ3vMCDrQaiTFX/ocGdminzFfFKiQ
+	im3nouCDatyMKXWzQ==
+X-Google-Smtp-Source: AGHT+IGDWEdUVk8nOAd3eyXAgRoqbzWehDC/nmyeD5iRJSvY5Vw/y940r4iuZWMM9Zl9+esWYILkX9fMDQfg5o7B9Hc=
+X-Received: by 2002:a05:6902:1501:b0:e8e:25db:be33 with SMTP id
+ 3f1490d57ef6-e8e25dbc361mr1013358276.28.1753739375979; Mon, 28 Jul 2025
+ 14:49:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250724104539.42620-1-lautrbach@redhat.com> <CAEjxPJ5vzcrkieyAieFDaiHeWGDhHgLprp4qi9mLeVKfagp75w@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5vzcrkieyAieFDaiHeWGDhHgLprp4qi9mLeVKfagp75w@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 28 Jul 2025 10:25:01 -0400
-X-Gm-Features: Ac12FXxduyMOaJT-ua4lWx4aLbMr-zoFo8I0jEwbq5X8dd83PE3Y1YRwa6vUm6A
-Message-ID: <CAEjxPJ6U-T3nsxPVvx1y7t5o8URd6oA1bO-DQw0E63Hi_Zi9hg@mail.gmail.com>
-Subject: Re: [PATCH] README.md: add link to the github wiki
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: selinux@vger.kernel.org
+References: <20250721232142.77224-36-paul@paul-moore.com> <20250721232142.77224-66-paul@paul-moore.com>
+ <3101077d-a5e2-d08b-03c2-2ed064a35b54@huaweicloud.com> <CAHC9VhR_24Zv7u0Btz8pSk420Totnx2uRyVdoHU1tXevWKw5mA@mail.gmail.com>
+ <68025cd0-e55a-066e-954e-a398feedc34b@huawei.com>
+In-Reply-To: <68025cd0-e55a-066e-954e-a398feedc34b@huawei.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 28 Jul 2025 17:49:25 -0400
+X-Gm-Features: Ac12FXyHnpkhjuUV-tiMUv0zwfhXi7dvEqfqeEj1riNPGNByZhk8N5Ld8lteEnw
+Message-ID: <CAHC9VhSp0cfSf1aeuWU3ZGt45v-vyoR9L2LtAMLpE+yB39ThPw@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 30/34] lockdown: move initcalls to the LSM framework
+To: xiujianfeng <xiujianfeng@huawei.com>
+Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
+	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
+	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
+	Fan Wu <wufan@kernel.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
+	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 24, 2025 at 10:11=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Thu, Jul 24, 2025 at 6:45=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.=
-com> wrote:
+On Sat, Jul 26, 2025 at 5:38=E2=80=AFAM xiujianfeng <xiujianfeng@huawei.com=
+> wrote:
+> On 2025/7/26 0:51, Paul Moore wrote:
+> > On Fri, Jul 25, 2025 at 4:12=E2=80=AFAM Xiu Jianfeng
+> > <xiujianfeng@huaweicloud.com> wrote:
+> >> On 2025/7/22 7:21, Paul Moore wrote:
+> >>> Reviewed-by: Kees Cook <kees@kernel.org>
+> >>> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> >>
+> >> Reviewed-by: Xiu Jianfeng <xiujianfeng@huawei.com>
 > >
-> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
+> > Thank you for reviewing this patch.  As you are a Lockdown maintainer,
+> > can I change your reviewed-by into an acked-by tag?
 >
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Yes, absolutely! Thanks for checking!
 
-Thanks, merged.
+Done, thanks!
 
->
-> > ---
-> >  README.md | 3 +++
-> >  1 file changed, 3 insertions(+)
-> >
-> > diff --git a/README.md b/README.md
-> > index aa98d7819b01..5c6caa9d710f 100644
-> > --- a/README.md
-> > +++ b/README.md
-> > @@ -19,6 +19,9 @@ Please submit all bug reports and patches to the <sel=
-inux@vger.kernel.org>
-> >  mailing list. You can subscribe by sending an email to <selinux+subscr=
-ibe@vger.kernel.org>
-> >  Archives of the mailing list are available at https://lore.kernel.org/=
-selinux.
-> >
-> > +See the [SELinux Userspace wiki](https://github.com/SELinuxProject/sel=
-inux/wiki)
-> > +for more information.
-> > +
-> >  Installation
-> >  ------------
-> >
-> > --
-> > 2.50.1
-> >
-> >
+--=20
+paul-moore.com
