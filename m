@@ -1,103 +1,143 @@
-Received: from mail-yb1-f173.google.com (mail-yb1-f173.google.com [209.85.219.173])
+Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com [209.85.219.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 252A61A23AC
-	for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 21:49:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6D45229B28
+	for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 22:34:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753739379; cv=none; b=U2YSPYrhpSkSNujj+UpsgQ1u1HVoMHPjvjBqh7JJ3tNoYKtrAI+hcU4r3jki+jBD+7c5pMen3bg+IVHwOhTIJCqDWSuxja2SDuxA+DEugZZRgiM6/wDcqp+ZrP4g4etOZuJ/Z7o8krRVJzJZgQooleFXfA5zOGQW8VcKIvRaMGM=
+	t=1753742054; cv=none; b=P+4GRDWC8tO53oKiRArOwJnL2ecAHcaZdQ+wwtS5SSn2T2IjeS4XILOV1hUp08TwzpKGUTLlgdSkKL8bR0O1lkn++o8eWam+UBkQw2MdgZ2eS8oFUlRgsrNFcmtRITtKkHurAgZrdzAE5estX72lCHZiEbXCmZk4DFxMwB63fwc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753739379; c=relaxed/simple;
-	bh=tTCJWGUp62X7xORqgRT8/m9obaHcnwzTRIbKZR7RuOM=;
+	s=arc-20240116; t=1753742054; c=relaxed/simple;
+	bh=sPZcX5ETkRkiJ/sMnu035foPVHqPhbI57EiOWs7UoFs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=UPdLzVzy0kt7NkAnPOYn9kmOzLJQfS/m71GMGSKSZz9PKEYz4SgKala/tLQbAtUQWTG3GBDJ9HJdFsJXnQN9oiaJav3QlbhG+znxc6jHe8Tzg/vvXTTbhfTYoHva/SACWVR8NeMpTmuMXSPkHwjC/HV6pHbvxebZ8YVBitR2Sm8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Nh+KwAhg; arc=none smtp.client-ip=209.85.219.173
+	 To:Cc:Content-Type; b=dVVmLlruNOeTv+cgkNgZ3rthgXyre9Bs2p5D0zForLsuAuEYkX1W4xoGVpwsBdwZEZEaQeVdfBDkP282RELugLderu2waDWQNNG4JdH2JiO2z2p1sGVnGIArIk+E5EX1NlOAHCNosQRGDdbkYq98N1c9jiMr3kBQ4HqLC53DJcU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=BAQQVvjo; arc=none smtp.client-ip=209.85.219.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Nh+KwAhg"
-Received: by mail-yb1-f173.google.com with SMTP id 3f1490d57ef6-e8dfa47af2aso1900550276.3
-        for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 14:49:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="BAQQVvjo"
+Received: by mail-yb1-f181.google.com with SMTP id 3f1490d57ef6-e8e03314c41so1898704276.2
+        for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 15:34:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1753739376; x=1754344176; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1753742052; x=1754346852; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=poaEelBg7a7OcoaRwgyEnvu3ww/B0f0meFimZvf+Ksc=;
-        b=Nh+KwAhg220CV5ri5tPFw7EWzAPu7j3V3OA15Ypm2cfmtWCJMJZwB4uQP5llEDBiUj
-         0WMw5a1JT6p1AKSg0PPTclQVO8PXh/xLaBHvROZ+R8XWT5IDqAMozM23xfekNFXtrv7Y
-         yMwNWnGjUlXJI7RK/ZrbojjGkDLpnwj/Wems67wS9YR2OQERVE9VHF5x/vBvrsw1uP22
-         jjuBdb3nJLh511EJvJHtLnUH4TAM+HfZv+5C74Z3DMtrDdVR7se/NalkW0GD6u1Vx4M3
-         2Q64lV9GbNNNuui/PlCznV3zYeXxzIks9ASQGBVG/0r3JtxkTCIoWz+xRnt6bdDuR7fL
-         IG/g==
+        bh=rxvcUsNhJgTxupj821AHIcY8DElHclblBesN4OnHvqU=;
+        b=BAQQVvjo4+r/Rzygo5DaWFjibtyvfNSBEIAvOD2YZAmRfCJgAeN5d92QtGcXCTMZB+
+         uROPtj6URai/NAWG0JQSDJDQLGtA/et4nx9Vmn1jy55XccfERZE3BxWO11q4W7KYJnuN
+         J+1g2FtiLFdLd16/YPnjLc8qB5rcFiVfcv14s64asdDcqEtQfg/puNFTDHhq4w43Ti4d
+         P3f+M61dufnh4xi9zO/owE/+pAfi8HczuCxx1lAm+Mh84WJAGTWHFRvT7X90xCQRSJFi
+         e1aPWQ2hOEZfzFcasZtid7+FQM8Hl1RBolkDguYNj2FeKSsQqULgt5oiwkYmQBDinJo0
+         ZJ+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753739376; x=1754344176;
+        d=1e100.net; s=20230601; t=1753742052; x=1754346852;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=poaEelBg7a7OcoaRwgyEnvu3ww/B0f0meFimZvf+Ksc=;
-        b=g1LzrqaLKjdmkelbZih/HraLuhFRoIff3PqM4H5yN5wDToeMPwsHfrIgYA+ejOK2Sp
-         YSctIsII80z1zQx23ILLGQWC9RpgxGYdcr7z+EQrBWLdMiLuWLFprNsUZg5NAITeFhX2
-         85Oco/fZ232wPhyvDg5LdsPtsJcdnJ8ImhwjZGvNTRl8zd3GRKNXyXm2xe0UFiVGgUM4
-         QbYzT2TECeCtotjFNueMDUP+xTu5rokEqV8Mi3FZm1W0/Y1m1qPJ6IjtQC7OPEEXzUPc
-         3pmlV2mw067YrlNuf8T1Zof8hz/0yr8Y1gZ7baKzOEF0mE8I97Qt2AiYH7IeLufICtxG
-         9SJA==
-X-Forwarded-Encrypted: i=1; AJvYcCVSNYRWADMtjTgvf8m8SqNu9Dz9HEZmfdTxB0IO48HXVtENqHrL2uFv96Iyaew12XKeofEhp/AC@vger.kernel.org
-X-Gm-Message-State: AOJu0YwvdWjAyN5hZmNn3S9IHUlqzuubi3Iw/zyQ51RN+vovNZNmO24C
-	ACDDossldy8gpejDH4TXWxthwmpwmgR54hu9SgEPHEOsLvayZnr5sa0KLU4YEe2GdfN058nouAb
-	ntPo7inq5X/KqaSpod/zRychW40kAeQJ2JGFIPdKt
-X-Gm-Gg: ASbGncuOdbzPhaO0lCKvooFT/DTMNXq5rEhjn3xdS7+sauNubWm4Y8sLNoszbt5pjon
-	rlW41f8OjqRTE32Qps2Le7FGHPFVXoWfjmN1jce5pHAieggLN+MzZm5Oi1HSybjjV7pjpa/QZzR
-	ba4UfJ+n0f5hCuZ+bf541CrAPXMACHEcN8p3KqY8VUN+jDnQ3vMCDrQaiTFX/ocGdminzFfFKiQ
-	im3nouCDatyMKXWzQ==
-X-Google-Smtp-Source: AGHT+IGDWEdUVk8nOAd3eyXAgRoqbzWehDC/nmyeD5iRJSvY5Vw/y940r4iuZWMM9Zl9+esWYILkX9fMDQfg5o7B9Hc=
-X-Received: by 2002:a05:6902:1501:b0:e8e:25db:be33 with SMTP id
- 3f1490d57ef6-e8e25dbc361mr1013358276.28.1753739375979; Mon, 28 Jul 2025
- 14:49:35 -0700 (PDT)
+        bh=rxvcUsNhJgTxupj821AHIcY8DElHclblBesN4OnHvqU=;
+        b=eWVRk74UU1kw16WrFuzryCS0sjG39JfQOjpSA8AlXL517XbB+/2gvgr9fd/yLzFoqA
+         v5YSnYfvC1MkYakyz2KgibFs+fVMSGEKsCk7qfuQFlM+IRDpxToCCGcMi2FLleA63v6L
+         KsCPAYrJsLxjroSqAjc5XrkNaNCe0vI5NaQkiU5D4AwaaETbuXlWW/Q4Vfw17h1VtqPy
+         VZp5ce732PLgqYb+Fe9xP2PISshZt255em11slmLWB7gOWtIPEuBzAAlTM/eb/xXXg32
+         POHWgqr0EWPRAB1A8RnGDSv/150uyKp9ZyWoanB2p4tLbFrx4eFUUNtWKUkwtI50RyS1
+         7uOg==
+X-Forwarded-Encrypted: i=1; AJvYcCUnNp6sB62uZTGy7s9acKiO8bfeGzJ20PFXzrP3u+V+RjxIGyeWNzISNWu8AHyAkmcRTKbhAlQw@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx12wDjL+d9vl0GQXNHaho1w7JXIwiDXABXAtYc/FOaaL+wcO2q
+	GOPOzDj+pz2h+RM52yg0Uff4J81zBCEoPj66NlwaH++I19eNLw5yBgcU971eR5zNaYzH238lBhZ
+	HbeAlwi6WaRTbZWYOiET+bvixsbBGPEivC+8rnpsb
+X-Gm-Gg: ASbGncs6ROUBe7Zn+EW6Vph0hCAN3/I59qpRvlwNSs55puzjXlnVCUtUQcZ5zd9yNi7
+	h3e/zY2C0yVAtUm9Agtd/keb/4+THkoKwWc7QvhoHHyW7bjL8TfPdlljjBcmqzd/WlijZbjZFmK
+	movJWq/KMEIDM//Dtxgzbb6JL9dU66opjdhr/UGCu0n1y3Wcl66Yo55xWkAwcy8x8rkdMIYqwGy
+	74EDC8=
+X-Google-Smtp-Source: AGHT+IFL3W4827GDMXMSQDjasWXwEUHowvOtptVCyqMAy54udRGPNZxYAyTwlijvBSOV3qH587CqZUfiWhf0PRqfd18=
+X-Received: by 2002:a05:6902:1704:b0:e8e:219f:a662 with SMTP id
+ 3f1490d57ef6-e8e219faa10mr3054599276.26.1753742051862; Mon, 28 Jul 2025
+ 15:34:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250721232142.77224-36-paul@paul-moore.com> <20250721232142.77224-66-paul@paul-moore.com>
- <3101077d-a5e2-d08b-03c2-2ed064a35b54@huaweicloud.com> <CAHC9VhR_24Zv7u0Btz8pSk420Totnx2uRyVdoHU1tXevWKw5mA@mail.gmail.com>
- <68025cd0-e55a-066e-954e-a398feedc34b@huawei.com>
-In-Reply-To: <68025cd0-e55a-066e-954e-a398feedc34b@huawei.com>
+References: <20250721232142.77224-36-paul@paul-moore.com> <20250721232142.77224-62-paul@paul-moore.com>
+ <5ff016adea8969e4a97387d4ed88a172bdc4b3de.camel@huaweicloud.com>
+In-Reply-To: <5ff016adea8969e4a97387d4ed88a172bdc4b3de.camel@huaweicloud.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 28 Jul 2025 17:49:25 -0400
-X-Gm-Features: Ac12FXyHnpkhjuUV-tiMUv0zwfhXi7dvEqfqeEj1riNPGNByZhk8N5Ld8lteEnw
-Message-ID: <CAHC9VhSp0cfSf1aeuWU3ZGt45v-vyoR9L2LtAMLpE+yB39ThPw@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 30/34] lockdown: move initcalls to the LSM framework
-To: xiujianfeng <xiujianfeng@huawei.com>
+Date: Mon, 28 Jul 2025 18:34:00 -0400
+X-Gm-Features: Ac12FXzQAYGZ-9s23WBgAfhFxpylH2DbTwTSk8I658l0CgcFmUXiJS_noueOtGo
+Message-ID: <CAHC9VhTh1=Qh2_4YKsXyC8dT6BFyh3nVbhfexLFsAWh7wiUCjg@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 26/34] smack: move initcalls to the LSM framework
+To: Roberto Sassu <roberto.sassu@huaweicloud.com>, Casey Schaufler <casey@schaufler-ca.com>
 Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
 	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
 	Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, 
 	Fan Wu <wufan@kernel.org>, =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
 	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
 	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
-	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
-	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>
+	Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
+	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jul 26, 2025 at 5:38=E2=80=AFAM xiujianfeng <xiujianfeng@huawei.com=
-> wrote:
-> On 2025/7/26 0:51, Paul Moore wrote:
-> > On Fri, Jul 25, 2025 at 4:12=E2=80=AFAM Xiu Jianfeng
-> > <xiujianfeng@huaweicloud.com> wrote:
-> >> On 2025/7/22 7:21, Paul Moore wrote:
-> >>> Reviewed-by: Kees Cook <kees@kernel.org>
-> >>> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> >>
-> >> Reviewed-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+On Mon, Jul 28, 2025 at 5:46=E2=80=AFAM Roberto Sassu
+<roberto.sassu@huaweicloud.com> wrote:
+> On Mon, 2025-07-21 at 19:21 -0400, Paul Moore wrote:
+> > As the LSM framework only supports one LSM initcall callback for each
+> > initcall type, the init_smk_fs() and smack_nf_ip_init() functions were
+> > wrapped with a new function, smack_initcall() that is registered with
+> > the LSM framework.
 > >
-> > Thank you for reviewing this patch.  As you are a Lockdown maintainer,
-> > can I change your reviewed-by into an acked-by tag?
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > ---
+> >  security/smack/smack.h           | 7 +++++++
+> >  security/smack/smack_lsm.c       | 9 +++++++++
+> >  security/smack/smack_netfilter.c | 4 +---
+> >  security/smack/smackfs.c         | 4 +---
+> >  4 files changed, 18 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/security/smack/smack.h b/security/smack/smack.h
+> > index bf6a6ed3946c..885a2f2929fd 100644
+> > --- a/security/smack/smack.h
+> > +++ b/security/smack/smack.h
+> > @@ -275,6 +275,13 @@ struct smk_audit_info {
+> >  #endif
+> >  };
+> >
+> > +/*
+> > + * Initialization
+> > + */
+> > +int init_smk_fs(void);
+> > +int smack_nf_ip_init(void);
 >
-> Yes, absolutely! Thanks for checking!
+> I made the following changes (due to not having
+> CONFIG_SECURITY_SMACK_NETFILTER) ...
 
-Done, thanks!
+Nice catch, thanks Roberto!
+
+I made a slight change to use the defined(SMACK_NETFILTER) macro as
+done elsewhere in the Smack code, but otherwise it looks good to me.
+Casey, are you okay with this?
+
+diff --git a/security/smack/smack.h b/security/smack/smack.h
+index 885a2f2929fd..3662d61bb32e 100644
+--- a/security/smack/smack.h
++++ b/security/smack/smack.h
+@@ -278,8 +278,15 @@ struct smk_audit_info {
+/*
+ * Initialization
+ */
+-int init_smk_fs(void);
++#if defined(CONFIG_SECURITY_SMACK_NETFILTER)
+int smack_nf_ip_init(void);
++#else
++static inline int smack_nf_ip_init(void);
++{
++       return 0;
++}
++#endif
++int init_smk_fs(void);
+int smack_initcall(void);
 
 --=20
 paul-moore.com
