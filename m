@@ -1,197 +1,180 @@
-Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A57C221FD8;
-	Mon, 28 Jul 2025 11:03:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=14.137.139.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FE1B26738C
+	for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 14:05:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753700603; cv=none; b=LRX6i+HtkHT063E+2dMZooCWqS18t7EkGWa7aFWF51E+4akHMGXdP0cpG1hGvneyDq8S4TtOnUzf5K2NP47ifvdE6BeRWwihhZvXJ9F4iWC3wsxshYJTNg0H+28cHif7HDt/pmAd2paqzn7lpbkgblMBUSoq7t7YtwaiYgulR6c=
+	t=1753711506; cv=none; b=ZpbVkNZLGBL8h4BFjbS5ezSoOkZNk5WoMM5FZlUmfZis/hL7fUJD+cioxROQxSXAob5UcQAKK35EG04YhTVZp5v7/jN1KQo9z74OGU13hhA/YJjVwZW4fLvHaJF8RP+ks5kYUk3qZPQ+ADSlDk2Jl6THaWZwYxhQUhzuQewN8PU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753700603; c=relaxed/simple;
-	bh=CN1jnDvA3LyMBJiEkR5/JGLNsQlLMgk0oGT8Glp2hSs=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=N+PxVA/ky/X9HRfLNgwLAAznbimT9s4QtIpx0Cj83r5BUQHWqpXCvMQL61lvHO4Lrwnyd6Yg4H/fbAOKoMiUQ2mWqCLDoPyo+8zZHDOFx04tVPgIctoTIEC6c7l3z4nFYH1EWv5TkCnoJLMtLySLR7pLNY/ZXnKsAxJetUV/MmM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=14.137.139.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.18.186.29])
-	by frasgout12.his.huawei.com (SkyGuard) with ESMTPS id 4brFR26fYVzsS9P;
-	Mon, 28 Jul 2025 18:42:06 +0800 (CST)
-Received: from mail02.huawei.com (unknown [7.182.16.47])
-	by mail.maildlp.com (Postfix) with ESMTP id DC50D1402F6;
-	Mon, 28 Jul 2025 18:44:03 +0800 (CST)
-Received: from [127.0.0.1] (unknown [10.204.63.22])
-	by APP1 (Coremail) with SMTP id LxC2BwCHEphpVIdo6Vz5AA--.58937S2;
-	Mon, 28 Jul 2025 11:44:03 +0100 (CET)
-Message-ID: <6c5ebaa88d1ee15046e9ea0bc61d9a843b850200.camel@huaweicloud.com>
-Subject: Re: [RFC PATCH v2 31/34] ima,evm: move initcalls to the LSM
- framework
-From: Roberto Sassu <roberto.sassu@huaweicloud.com>
-To: Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Paul Moore
-	 <paul@paul-moore.com>
-Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
- selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, Mimi
- Zohar <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, Fan
- Wu <wufan@kernel.org>, =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?=
- <mic@digikod.net>,  =?ISO-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>,
- Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, Casey
- Schaufler <casey@schaufler-ca.com>, Tetsuo Handa
- <penguin-kernel@i-love.sakura.ne.jp>, Xiu Jianfeng <xiujianfeng@huawei.com>
-Date: Mon, 28 Jul 2025 12:43:50 +0200
-In-Reply-To: <st4eimc4lovdeqrtxfhwjpgcblyufzahec2hmtrxvkpp4woejw@iqeuzubt7afe>
-References: <20250721232142.77224-36-paul@paul-moore.com>
-	 <20250721232142.77224-67-paul@paul-moore.com>
-	 <st4eimc4lovdeqrtxfhwjpgcblyufzahec2hmtrxvkpp4woejw@iqeuzubt7afe>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.44.4-0ubuntu2 
+	s=arc-20240116; t=1753711506; c=relaxed/simple;
+	bh=qaGtAnLlzpAuCkwScVrC+g8xsetUszPxbcZ/2i22H70=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=XTzlNR4AMs62FW/GIDZAtAYRoGkCpSwQ/x64Mfjo86IZ+Qs3QwiHMWtJswJZgNhJH53hWLeuSnDs1dAw4p8nn9ChttZtR/WzXC91kecMGkFKLEXip/o+J2OkI8AHkbudV3pEBlbaPGISjC9sCI91mCq8Hb4iRupiM23FgveXMHg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eVoFkK2s; arc=none smtp.client-ip=209.85.215.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eVoFkK2s"
+Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-b3bad2f99f5so3788703a12.1
+        for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 07:05:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1753711504; x=1754316304; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hYe6HnCUJzYNIpKJwVB1KOpRzewqlQNrWU4trVbAsGQ=;
+        b=eVoFkK2s8NIMmqbK+sr5ag412LlTUOq3TkqaOA1ccniziIUxzqVKCyBlQDwu7Co37c
+         Nu6vadXo5gn/QXAiY+/1VlqwxPcfTHI5qH/WPRuFV0ZtRMs4rg+jr/Yjzv3lLloMKUIV
+         W62+YRCDio+rwZdNExcH62YEabvFQZsf/JeGdCnPXd9iEZDop8ukLV+E0HcA6o3qnw6j
+         YrKr2n70dhEDtZSfGEfSXrlkT3G5op3VuibUf0t3Ia+NCODmprOig2zzEEDpM34l5It+
+         fP9RV3hAW+Dzklo2A31ZQyX/fv/93INEa1GODLva4SLErCFlJbmV2z8kqIVbi/CoVMJR
+         luqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1753711504; x=1754316304;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=hYe6HnCUJzYNIpKJwVB1KOpRzewqlQNrWU4trVbAsGQ=;
+        b=q58Q/r7jwLZj6Bzvm9D+muoyCiqKFokJN3jA/8gFZNW0MwlvG+PW/b/WJQ8Z9Vin7F
+         6jHPSySnu49/GmdyWQc8lEkjkCydHivLDPmdz+o/n8bC9+kpTZyaCFybui9twNT1F2XJ
+         +455jod0xAfJ87HJOHDeJfywrp28JmECjXzPcKJew4eHooNlQePYf/cm9i3d0AzzmzSN
+         o0SAhm9oEQ2MNWOE7j2KoGatIL4AmBh1zgi2+mNuNLidkCti2H6eUSYxb2xALwOZ9Mo8
+         RWgXlgTGuvFhc0S/cYd36ICRYTBimguolkkVtnyj7x4Tf15ssxH53FGluWoLFkzjKEjZ
+         G8uw==
+X-Forwarded-Encrypted: i=1; AJvYcCVvfnAuvstpdRe/kCSwNHxpCjHkOsPvRsMBeKGXfxaaZ9/Yh516KPFz1zEuoaNevNOgE61SBw31@vger.kernel.org
+X-Gm-Message-State: AOJu0YyoZkPG2gefpMm6CbFKTjXa9VdhwGqYBP6jPZHqfL9Zet1Q2DJh
+	rrbtiG0k6MEeJ8Eb3D7vibx84mwY9mUpGQjQBcPiKGkfc+FNnUTSVCUZXXw/3pjHu/C+fSXVOTx
+	0mrQaqVcsWL8tupBHmtAMZc4xczZHUuR4CrhC
+X-Gm-Gg: ASbGncuuHVQP7pQ1tmhrooacx7Buvwmmul9/JD7VIOrNQrzzH17jtgfcgJV5aWB0DAP
+	eWdXBrDiQznPsujHIHodst5HtTPVJRX+LfVObAgJ5dmyqyldCdt0MDpY/mHhjbhbrk7OaJPsyDU
+	4QwgzO1T4qFeBzgc8IqGkPqxne7QXW60TV/d3l4TH3fe1lE4Vrl0oTzH5H1pq9uQ/5DcJrf373H
+	IX1dns=
+X-Google-Smtp-Source: AGHT+IExO9Pmvtd8DgOvvO8VFTl7lp5Igbs5l75M03WucPkYcWCzRP2jym5Km4HG8JhxtpgiozMoBwAeQRsoCODx7AI=
+X-Received: by 2002:a17:90b:48cd:b0:31f:14b:f397 with SMTP id
+ 98e67ed59e1d1-31f014bf53cmr4500554a91.1.1753711503601; Mon, 28 Jul 2025
+ 07:05:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-CM-TRANSID:LxC2BwCHEphpVIdo6Vz5AA--.58937S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxGrWxur4fXFWrKryxAryfXrb_yoW5ZFyDpa
-	nFgayUGr1kZFWIka93C3W5CFyfK39Ygry5Gw15Arn0yF93ur1UWrs7AryUGr1fGrW5Gayx
-	twnaqr4akw1DtFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUvjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-	xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-	AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-	x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-	0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AF
-	wI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4
-	xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5
-	MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I
-	0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWU
-	JVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUFk
-	u4UUUUU
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQADBGiHHzsDCgAAsE
+References: <CAEjxPJ6nRZ50-L5wDtnppC641OjuEzO8QRUhGjJXcT5iKTNfbQ@mail.gmail.com>
+ <20250725221525.479629-2-nvraxn@gmail.com>
+In-Reply-To: <20250725221525.479629-2-nvraxn@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 28 Jul 2025 10:04:51 -0400
+X-Gm-Features: Ac12FXwbyuUG1pujP1dIsKp5Al-gC89wUdjloVgmMBaCOiT-Smy08Sx3Mjpg0Hg
+Message-ID: <CAEjxPJ4GN0rTV_aH1eWnr5FGrBeQ=KaXaRDkkDpVwHv5myye-g@mail.gmail.com>
+Subject: Re: [PATCH v5] libselinux: fix parsing of the enforcing kernel
+ cmdline parameter
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: jwcart2@gmail.com, omosnace@redhat.com, paul@paul-moore.com, 
+	plautrba@redhat.com, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2025-07-28 at 11:46 +0200, Nicolas Bouchinet wrote:
-> Hi Paul,
->=20
-> With `CONFIG_INTEGRITY=3Dy` but not `CONFIG_IMA=3Dy` or `CONFIG_EVM=3Dy` =
-it
-> does not compile :
+On Fri, Jul 25, 2025 at 6:16=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wro=
+te:
+>
+> Currently, parsing of the cmdline has two issues:
+> - By using atoi, no error checking is done. What happens if an argument
+>   that isn't an integer is provided, e.g. enforcing=3Dfoo? And as there
+>   is also no validation that the number provided is actually valid, 1
+>   or 0, what happens if enforcing=3D2?
+>
+> - After the first strstr, no arguments that follow are searched for; if
+>   I have enforcing=3D0 enforcing=3D1, the latter enforcing=3D1 is not tak=
+en
+>   into account. This is made even worse due to halting searching after
+>   finding the first "enforcing=3D" token, meaning that if the cmdline was
+>   as follows:
+>
+>   fooenforcing=3D0 enforcing=3D0
+>
+>   the enforcing parameter is entirely ignored.
+>
+> This patch fixes this by:
+>
+>   - Using strtol to actually validate that we got passed a number, and
+>     if not default to 0 (i.e. permissive mode) as per kernel behaviour.
+>     If given a positive integer that isn't 1, also treat that as 1 (so
+>     enforcing mode).
+>
+>   - Looping until the last "enforcing=3D" in the cmdline. Latter (valid)
+>     arguments take precedence over previous arguments.
+>
+> For the case where "enforcing=3D" is provided with a valid integer, 0 is
+> treated as permissive mode, and anything else (such as 1 or 2, etc) is
+> treated as enforcing mode. When "enforcing=3D" is passed an argument that
+> is not a valid integer (such as "on"), default to enforcing=3D0, i.e.
+> permissive mode. This is in line with how the kernel parses the
+> enforcing parameter.
+>
+> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 
-Hi Nicolas
-
-thanks, I was about to answer too:
-
-Same type of change as for Smack (I didn't check the other LSMs):
-
-diff --git a/security/integrity/initcalls.h
-b/security/integrity/initcalls.h
-index 5511c62f8166..a0e27fab67db 100644
---- a/security/integrity/initcalls.h
-+++ b/security/integrity/initcalls.h
-@@ -5,8 +5,23 @@
-=20
- int integrity_fs_init(void);
-=20
-+#ifdef CONFIG_IMA
- int init_ima(void);
-+#else
-+static inline int init_ima(void)
-+{
-+       return 0;
-+}
-+#endif
-+
-+#ifdef CONFIG_EVM
- int init_evm(void);
-+#else
-+static inline int init_evm(void)
-+{
-+       return 0;
-+}
-+#endif
-=20
- int integrity_late_init(void);
-
-
-Plus:
-
-diff --git a/security/integrity/initcalls.c
-b/security/integrity/initcalls.c
-index 92ec9f0aa2a7..6afa411068f2 100644
---- a/security/integrity/initcalls.c
-+++ b/security/integrity/initcalls.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0+
- /*
-- * Platform certificate / keyring initcalls
-+ * IMA/EVM initcalls
-  *
-  */
-
-Thanks
-
-Roberto
-
-> ```
-> ld: vmlinux.o: in function `integrity_late_init':
-> security/integrity/initcalls.c:32:(.init.text+0x47f85): undefined referen=
-ce to `init_ima'
-> ld: security/integrity/initcalls.c:36:(.init.text+0x47f96): undefined ref=
-erence to `init_evm'
-> make[2]: *** [scripts/Makefile.vmlinux:91: vmlinux.unstripped] Error 1
-> make[1]: *** [Makefile:1236: vmlinux] Error 2
-> make: *** [Makefile:248: __sub-make] Error 2
-> ```
->=20
-> >  security/integrity/Makefile       |  2 +-
-> >  security/integrity/evm/evm_main.c |  6 ++---
-> >  security/integrity/iint.c         |  4 +--
-> >  security/integrity/ima/ima_main.c |  6 ++---
-> >  security/integrity/initcalls.c    | 41 +++++++++++++++++++++++++++++++
-> >  security/integrity/initcalls.h    | 13 ++++++++++
-> >  6 files changed, 63 insertions(+), 9 deletions(-)
-> >  create mode 100644 security/integrity/initcalls.c
-> >  create mode 100644 security/integrity/initcalls.h
-> >=20
-> > diff --git a/security/integrity/Makefile b/security/integrity/Makefile
-> > index 92b63039c654..6ea330ea88b1 100644
-> > --- a/security/integrity/Makefile
-> > +++ b/security/integrity/Makefile
-> > @@ -5,7 +5,7 @@
-> > =20
-> >  obj-$(CONFIG_INTEGRITY) +=3D integrity.o
-> > =20
-> > -integrity-y :=3D iint.o
-> > +integrity-y :=3D iint.o initcalls.o
-> >  integrity-$(CONFIG_INTEGRITY_AUDIT) +=3D integrity_audit.o
-> >  integrity-$(CONFIG_INTEGRITY_SIGNATURE) +=3D digsig.o
-> >  integrity-$(CONFIG_INTEGRITY_ASYMMETRIC_KEYS) +=3D digsig_asymmetric.o
->=20
+Reviewed-by: Stephen Smalley <stephen.smalley.work@gmall.com>
+Tested-by:  Stephen Smalley <stephen.smalley.work@gmall.com>
 > ---
->=20
-> > diff --git a/security/integrity/initcalls.h b/security/integrity/initca=
-lls.h
-> > new file mode 100644
-> > index 000000000000..5511c62f8166
-> > --- /dev/null
-> > +++ b/security/integrity/initcalls.h
-> > @@ -0,0 +1,13 @@
-> > +/* SPDX-License-Identifier: GPL-2.0 */
-> > +
-> > +#ifndef PLATFORM_CERTS_INITCALLS_H
-> > +#define PLATFORM_CERTS_INITCALLS_H
-> > +
-> > +int integrity_fs_init(void);
-> > +
-> > +int init_ima(void);
-> > +int init_evm(void);
-> > +
-> > +int integrity_late_init(void);
-> > +
-> > +#endif
-> > --=20
-> > 2.50.1
-> >=20
->=20
-> Nicolas
-
+>  libselinux/src/load_policy.c | 23 +++++++++++++++++------
+>  1 file changed, 17 insertions(+), 6 deletions(-)
+>
+> v2: Follow the same argument parsing behaviour as the kernel does.
+> v3: Actually follow the kernel's behaviour where "enforcing=3D" is not
+>     provided with a valid integer...
+> v4: Update the commit message to also reflect the behaviour above.
+> v5: Advance past sizeof("enforcing=3D") - 1 instead of just 1
+>
+> diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
+> index dc1e4b6e..f67e5538 100644
+> --- a/libselinux/src/load_policy.c
+> +++ b/libselinux/src/load_policy.c
+> @@ -244,17 +244,28 @@ int selinux_init_load_policy(int *enforce)
+>         rc =3D mount("proc", "/proc", "proc", 0, 0);
+>         cfg =3D fopen("/proc/cmdline", "re");
+>         if (cfg) {
+> -               char *tmp;
+>                 buf =3D malloc(selinux_page_size);
+>                 if (!buf) {
+>                         fclose(cfg);
+>                         return -1;
+>                 }
+> -               if (fgets(buf, selinux_page_size, cfg) &&
+> -                   (tmp =3D strstr(buf, "enforcing=3D"))) {
+> -                       if (tmp =3D=3D buf || isspace((unsigned char)*(tm=
+p - 1))) {
+> -                               secmdline =3D
+> -                                   atoi(tmp + sizeof("enforcing=3D") - 1=
+);
+> +               if (fgets(buf, selinux_page_size, cfg)) {
+> +                       char *search =3D buf;
+> +                       char *tmp;
+> +                       while ((tmp =3D strstr(search, "enforcing=3D"))) =
+{
+> +                               if (tmp =3D=3D buf || isspace((unsigned c=
+har)*(tmp - 1))) {
+> +                                       char *valstr =3D tmp + sizeof("en=
+forcing=3D") - 1;
+> +                                       char *endptr;
+> +                                       errno =3D 0;
+> +                                       const long val =3D strtol(valstr,=
+ &endptr, 0);
+> +                                       if (endptr !=3D valstr && errno =
+=3D=3D 0) {
+> +                                               secmdline =3D val ? 1 : 0=
+;
+> +                                       } else {
+> +                                               secmdline =3D 0;
+> +                                       }
+> +                               }
+> +                               /* advance past the current substring, la=
+tter arguments take precedence */
+> +                               search =3D tmp + sizeof("enforcing=3D") -=
+ 1;
+>                         }
+>                 }
+>                 fclose(cfg);
+> --
+> 2.50.1
+>
