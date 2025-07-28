@@ -1,180 +1,200 @@
-Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FE1B26738C
-	for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 14:05:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D60F26CE39
+	for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 14:24:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753711506; cv=none; b=ZpbVkNZLGBL8h4BFjbS5ezSoOkZNk5WoMM5FZlUmfZis/hL7fUJD+cioxROQxSXAob5UcQAKK35EG04YhTVZp5v7/jN1KQo9z74OGU13hhA/YJjVwZW4fLvHaJF8RP+ks5kYUk3qZPQ+ADSlDk2Jl6THaWZwYxhQUhzuQewN8PU=
+	t=1753712690; cv=none; b=nS+54PGYpH++jRpANR/ULbavrHeeuWRecf1ZfWp9DkRaQ2VLfhKGPfXC0ItEettP59K7z4HCMmRyR7mM0Ef1pQqTlhY23CSHfGs6RIFleaar11rktN6T8/p97DQFBL8z/iH5EU6iNSsYRsX38HyqD6tagHh7LpBZGo0jct1S/F4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753711506; c=relaxed/simple;
-	bh=qaGtAnLlzpAuCkwScVrC+g8xsetUszPxbcZ/2i22H70=;
+	s=arc-20240116; t=1753712690; c=relaxed/simple;
+	bh=oDrzRE42nXQsDquvl2IaG27fuKVOkvy9OljPRmmoJ0M=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XTzlNR4AMs62FW/GIDZAtAYRoGkCpSwQ/x64Mfjo86IZ+Qs3QwiHMWtJswJZgNhJH53hWLeuSnDs1dAw4p8nn9ChttZtR/WzXC91kecMGkFKLEXip/o+J2OkI8AHkbudV3pEBlbaPGISjC9sCI91mCq8Hb4iRupiM23FgveXMHg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eVoFkK2s; arc=none smtp.client-ip=209.85.215.179
+	 To:Cc:Content-Type; b=n5DmZ71JcliHGZnL455d6/xwzIJBbDr5FRB4ZViPcEyhJDT/9iz+HPWmYDrHSdIa1zOORSkVLBHz+J5gejOjdQZCq2ZeE9ZnmjsWrJj+ceT/99LHxrfFRDfVC/049u3wYPzULwL/RXu8r8bCDcTWFNJvhmBxfipS1QNq0CwOp0A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FdTM9JYj; arc=none smtp.client-ip=209.85.214.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eVoFkK2s"
-Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-b3bad2f99f5so3788703a12.1
-        for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 07:05:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FdTM9JYj"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2402bbb4bf3so11819195ad.2
+        for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 07:24:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753711504; x=1754316304; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1753712688; x=1754317488; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=hYe6HnCUJzYNIpKJwVB1KOpRzewqlQNrWU4trVbAsGQ=;
-        b=eVoFkK2s8NIMmqbK+sr5ag412LlTUOq3TkqaOA1ccniziIUxzqVKCyBlQDwu7Co37c
-         Nu6vadXo5gn/QXAiY+/1VlqwxPcfTHI5qH/WPRuFV0ZtRMs4rg+jr/Yjzv3lLloMKUIV
-         W62+YRCDio+rwZdNExcH62YEabvFQZsf/JeGdCnPXd9iEZDop8ukLV+E0HcA6o3qnw6j
-         YrKr2n70dhEDtZSfGEfSXrlkT3G5op3VuibUf0t3Ia+NCODmprOig2zzEEDpM34l5It+
-         fP9RV3hAW+Dzklo2A31ZQyX/fv/93INEa1GODLva4SLErCFlJbmV2z8kqIVbi/CoVMJR
-         luqA==
+        bh=e2UDk+JeuyrMHKR9uhtTwmehfhwkuiE5Eoc1XI+bwjE=;
+        b=FdTM9JYjBV9fvJyEUmx5F0dgtymHbiNmd9IGm9tDitF45zY+v/IdHV3eUS+/t3PUXo
+         xaBkldb+c9nmSShTnPvfDSSse54Hj/QOP2EHSbMGtynnPL0YACqPqyBSfV8ZaQAzEBmV
+         djEzNrgFfdgLqqOsI25HNo4Go326q//BpmbbMcvktmwCWMajsoKm6PE7yyM03/4yvlCD
+         lhurq+96WVCntSNYNEgDydwqEeBOSAr3Mb4LZuNjY446EMozoXFLlKwtPcearNEb04xB
+         4nrGx7cVvmb08udmYr+pwDbXJt6zhtEnp90yw7xom/TCwLIg4TI/iRZiD+nYehS9iEuL
+         7XPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753711504; x=1754316304;
+        d=1e100.net; s=20230601; t=1753712688; x=1754317488;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=hYe6HnCUJzYNIpKJwVB1KOpRzewqlQNrWU4trVbAsGQ=;
-        b=q58Q/r7jwLZj6Bzvm9D+muoyCiqKFokJN3jA/8gFZNW0MwlvG+PW/b/WJQ8Z9Vin7F
-         6jHPSySnu49/GmdyWQc8lEkjkCydHivLDPmdz+o/n8bC9+kpTZyaCFybui9twNT1F2XJ
-         +455jod0xAfJ87HJOHDeJfywrp28JmECjXzPcKJew4eHooNlQePYf/cm9i3d0AzzmzSN
-         o0SAhm9oEQ2MNWOE7j2KoGatIL4AmBh1zgi2+mNuNLidkCti2H6eUSYxb2xALwOZ9Mo8
-         RWgXlgTGuvFhc0S/cYd36ICRYTBimguolkkVtnyj7x4Tf15ssxH53FGluWoLFkzjKEjZ
-         G8uw==
-X-Forwarded-Encrypted: i=1; AJvYcCVvfnAuvstpdRe/kCSwNHxpCjHkOsPvRsMBeKGXfxaaZ9/Yh516KPFz1zEuoaNevNOgE61SBw31@vger.kernel.org
-X-Gm-Message-State: AOJu0YyoZkPG2gefpMm6CbFKTjXa9VdhwGqYBP6jPZHqfL9Zet1Q2DJh
-	rrbtiG0k6MEeJ8Eb3D7vibx84mwY9mUpGQjQBcPiKGkfc+FNnUTSVCUZXXw/3pjHu/C+fSXVOTx
-	0mrQaqVcsWL8tupBHmtAMZc4xczZHUuR4CrhC
-X-Gm-Gg: ASbGncuuHVQP7pQ1tmhrooacx7Buvwmmul9/JD7VIOrNQrzzH17jtgfcgJV5aWB0DAP
-	eWdXBrDiQznPsujHIHodst5HtTPVJRX+LfVObAgJ5dmyqyldCdt0MDpY/mHhjbhbrk7OaJPsyDU
-	4QwgzO1T4qFeBzgc8IqGkPqxne7QXW60TV/d3l4TH3fe1lE4Vrl0oTzH5H1pq9uQ/5DcJrf373H
-	IX1dns=
-X-Google-Smtp-Source: AGHT+IExO9Pmvtd8DgOvvO8VFTl7lp5Igbs5l75M03WucPkYcWCzRP2jym5Km4HG8JhxtpgiozMoBwAeQRsoCODx7AI=
-X-Received: by 2002:a17:90b:48cd:b0:31f:14b:f397 with SMTP id
- 98e67ed59e1d1-31f014bf53cmr4500554a91.1.1753711503601; Mon, 28 Jul 2025
- 07:05:03 -0700 (PDT)
+        bh=e2UDk+JeuyrMHKR9uhtTwmehfhwkuiE5Eoc1XI+bwjE=;
+        b=MU6jA+vpV82uxQME0DUnxyQygpOBO+z/SN4Fkb7oGZKgWaC/JufC1VC+xmcniLKywQ
+         94SjSS38+bLfXecnbjgDhYBzyMzoSx05xh3M5IVQRMlmD10FjIxPhzZVULv/fNUVQXQE
+         eiOIkAwdiFD5L8i9TCm/TEj3QJpJ0jsE77nWT5N69LQ1jfmc9DJanWLrbIpyO9O3EBwt
+         cB6HqD0v46Gm5jcGE7z837SrUz2230ApmGERYaT9h+x28kWS8BxlCh/Gfo8rtnmnrlwE
+         MzdgYNIQsfhjIFUFExmUvt2VjmOoSmfX/0Wt9bjyMeByXXfRCfDCpOyKnhcdhUZQ7peB
+         cplw==
+X-Gm-Message-State: AOJu0Yz9nl0N7clGHBVFFhaXezNJ868cdNb5yX8GgH5haJNrQkgZoPYD
+	AjXjscQoO0OWOAHd36JwRbIq8DDOT93wOEaXfUEhxZtsbf0sTACquxQthGucwZhDvfYmRhStsft
+	Fcw1N85Dj0XYHag8hL9gj2ZhcjgoHzWoqJQ==
+X-Gm-Gg: ASbGncuuvHa4CUMRYFXQOwjORU4cb+hcSOlumhREMV3/sOqUZ30NDFJdPU2tVhllSlp
+	T3XjNYsokV0TCHeFhs1CphIdYuvglMhIS+Z3+qsWhUwlmHewsB5ooUyxDl50iWn/4pERFQ6o9uS
+	tEum94ynIuLbU+RFG5LPhxGV7qtg0ddT9jHGAeJlXJSu9bx7dAHZNCHRoFwBrDUdv0jkIKZ+vSE
+	trQa48=
+X-Google-Smtp-Source: AGHT+IGJXP7vVJpUpXwYaye4aaBCaMJUNceAR4DdjeaoobE470esLQqfPrO0sgNajzCPmOASAahRwYNl76mAf1LsdIc=
+X-Received: by 2002:a17:902:e84d:b0:240:5549:7094 with SMTP id
+ d9443c01a7336-240554973c7mr10161195ad.18.1753712684889; Mon, 28 Jul 2025
+ 07:24:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAEjxPJ6nRZ50-L5wDtnppC641OjuEzO8QRUhGjJXcT5iKTNfbQ@mail.gmail.com>
- <20250725221525.479629-2-nvraxn@gmail.com>
-In-Reply-To: <20250725221525.479629-2-nvraxn@gmail.com>
+References: <20250724084044.23390-1-lautrbach@redhat.com> <CAEjxPJ5+2r+nrSv4w757=Ue6gj0XX0WtOKSyp3-UUfQ2rzksQA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5+2r+nrSv4w757=Ue6gj0XX0WtOKSyp3-UUfQ2rzksQA@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 28 Jul 2025 10:04:51 -0400
-X-Gm-Features: Ac12FXwbyuUG1pujP1dIsKp5Al-gC89wUdjloVgmMBaCOiT-Smy08Sx3Mjpg0Hg
-Message-ID: <CAEjxPJ4GN0rTV_aH1eWnr5FGrBeQ=KaXaRDkkDpVwHv5myye-g@mail.gmail.com>
-Subject: Re: [PATCH v5] libselinux: fix parsing of the enforcing kernel
- cmdline parameter
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: jwcart2@gmail.com, omosnace@redhat.com, paul@paul-moore.com, 
-	plautrba@redhat.com, selinux@vger.kernel.org
+Date: Mon, 28 Jul 2025 10:24:33 -0400
+X-Gm-Features: Ac12FXxbDmjJqf1bj3zzOMo0mB1qPB5Oy5iqv-HPXa4-9JEPLRNN2LiW3hfjlSY
+Message-ID: <CAEjxPJ4EzkmxRZ082x=9_fykhrEaaRt4ZLpTHqT2V7XNvvD6tA@mail.gmail.com>
+Subject: Re: [PATCH] Update CONTRIBUTING.md
+To: Petr Lautrbach <lautrbach@redhat.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 25, 2025 at 6:16=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wro=
-te:
+On Thu, Jul 24, 2025 at 10:11=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Currently, parsing of the cmdline has two issues:
-> - By using atoi, no error checking is done. What happens if an argument
->   that isn't an integer is provided, e.g. enforcing=3Dfoo? And as there
->   is also no validation that the number provided is actually valid, 1
->   or 0, what happens if enforcing=3D2?
+> On Thu, Jul 24, 2025 at 4:52=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.=
+com> wrote:
+> >
+> > This is based on
+> > https://github.com/SELinuxProject/selinux/wiki/Contributing with
+> > preserved "Developer Certificate of Origin" part
+> >
+> > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 >
-> - After the first strstr, no arguments that follow are searched for; if
->   I have enforcing=3D0 enforcing=3D1, the latter enforcing=3D1 is not tak=
-en
->   into account. This is made even worse due to halting searching after
->   finding the first "enforcing=3D" token, meaning that if the cmdline was
->   as follows:
->
->   fooenforcing=3D0 enforcing=3D0
->
->   the enforcing parameter is entirely ignored.
->
-> This patch fixes this by:
->
->   - Using strtol to actually validate that we got passed a number, and
->     if not default to 0 (i.e. permissive mode) as per kernel behaviour.
->     If given a positive integer that isn't 1, also treat that as 1 (so
->     enforcing mode).
->
->   - Looping until the last "enforcing=3D" in the cmdline. Latter (valid)
->     arguments take precedence over previous arguments.
->
-> For the case where "enforcing=3D" is provided with a valid integer, 0 is
-> treated as permissive mode, and anything else (such as 1 or 2, etc) is
-> treated as enforcing mode. When "enforcing=3D" is passed an argument that
-> is not a valid integer (such as "on"), default to enforcing=3D0, i.e.
-> permissive mode. This is in line with how the kernel parses the
-> enforcing parameter.
->
-> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-Reviewed-by: Stephen Smalley <stephen.smalley.work@gmall.com>
-Tested-by:  Stephen Smalley <stephen.smalley.work@gmall.com>
-> ---
->  libselinux/src/load_policy.c | 23 +++++++++++++++++------
->  1 file changed, 17 insertions(+), 6 deletions(-)
+Thanks, merged.
+
 >
-> v2: Follow the same argument parsing behaviour as the kernel does.
-> v3: Actually follow the kernel's behaviour where "enforcing=3D" is not
->     provided with a valid integer...
-> v4: Update the commit message to also reflect the behaviour above.
-> v5: Advance past sizeof("enforcing=3D") - 1 instead of just 1
->
-> diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-> index dc1e4b6e..f67e5538 100644
-> --- a/libselinux/src/load_policy.c
-> +++ b/libselinux/src/load_policy.c
-> @@ -244,17 +244,28 @@ int selinux_init_load_policy(int *enforce)
->         rc =3D mount("proc", "/proc", "proc", 0, 0);
->         cfg =3D fopen("/proc/cmdline", "re");
->         if (cfg) {
-> -               char *tmp;
->                 buf =3D malloc(selinux_page_size);
->                 if (!buf) {
->                         fclose(cfg);
->                         return -1;
->                 }
-> -               if (fgets(buf, selinux_page_size, cfg) &&
-> -                   (tmp =3D strstr(buf, "enforcing=3D"))) {
-> -                       if (tmp =3D=3D buf || isspace((unsigned char)*(tm=
-p - 1))) {
-> -                               secmdline =3D
-> -                                   atoi(tmp + sizeof("enforcing=3D") - 1=
-);
-> +               if (fgets(buf, selinux_page_size, cfg)) {
-> +                       char *search =3D buf;
-> +                       char *tmp;
-> +                       while ((tmp =3D strstr(search, "enforcing=3D"))) =
-{
-> +                               if (tmp =3D=3D buf || isspace((unsigned c=
-har)*(tmp - 1))) {
-> +                                       char *valstr =3D tmp + sizeof("en=
-forcing=3D") - 1;
-> +                                       char *endptr;
-> +                                       errno =3D 0;
-> +                                       const long val =3D strtol(valstr,=
- &endptr, 0);
-> +                                       if (endptr !=3D valstr && errno =
-=3D=3D 0) {
-> +                                               secmdline =3D val ? 1 : 0=
-;
-> +                                       } else {
-> +                                               secmdline =3D 0;
-> +                                       }
-> +                               }
-> +                               /* advance past the current substring, la=
-tter arguments take precedence */
-> +                               search =3D tmp + sizeof("enforcing=3D") -=
- 1;
->                         }
->                 }
->                 fclose(cfg);
-> --
-> 2.50.1
->
+> > ---
+> >  CONTRIBUTING.md | 51 +++++++++++++++++++++++++++++++------------------
+> >  1 file changed, 32 insertions(+), 19 deletions(-)
+> >
+> > diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
+> > index 575410bf8c3d..c501cf842dcd 100644
+> > --- a/CONTRIBUTING.md
+> > +++ b/CONTRIBUTING.md
+> > @@ -4,18 +4,31 @@ Contributing to the SELinux userspace project is a si=
+milar process to
+> >  other open source projects. Bug reports, new features to the existing
+> >  code, additional tools, or updated documentation are all welcome.
+> >
+> > -You can find a list of open issues where you might contribute to the S=
+ELinux kernel code at
+> > -https://github.com/SELinuxProject/selinux-kernel/issues or to the SELi=
+nux userspace code at
+> > -https://github.com/SELinuxProject/selinux/issues.
+> > +You can find a list of open issues to the SELinux userspace code at
+> > +https://github.com/SELinuxProject/selinux/issues
+> >
+> > -See the SELinux userspace
+> > -[wiki page](https://github.com/selinuxproject/selinux/wiki) for more
+> > -information on mailing lists, documentation, and other resources.
+> > +See the SELinux kernel [Getting Started](https://github.com/selinuxpro=
+ject/selinux-kernel/wiki/Getting-Started)
+> > +guide if you want to contribute to SELinux kernel development instead.
+> > +
+> > +## Mailing list
+> > +
+> > +SELinux has a public mailing list for developers, subscribe by sending=
+ an email to
+> > +[selinux+subscribe@vger.kernel.org](mailto:selinux+subscribe@vger.kern=
+el.org).
+> > +It is generally wise to read relevant postings to the list before begi=
+nning any
+> > +area of new work. Searchable mailing list archives are available exter=
+nally at
+> > +https://lore.kernel.org/selinux/ . Patches for SELinux are tracked via
+> > +https://patchwork.kernel.org/project/selinux/list/ .
+> > +
+> > +## IRC
+> > +
+> > +An unofficial SELinux IRC channel is
+> > +[\#selinux](https://web.libera.chat/?channel=3D#selinux) on [Libera.Ch=
+at](https://libera.chat/).
+> >
+> >  ## Reporting Bugs
+> >
+> > -All bugs and patches should be submitted to the [SELinux mailing
+> > -list](https://lore.kernel.org/selinux) at selinux@vger.kernel.org.
+> > +All bugs and patches should be submitted to the
+> > +[SELinux mailing list](https://lore.kernel.org/selinux) at
+> > +[selinux@vger.kernel.org](mailto:selinux@vger.kernel.org).
+> >
+> >  When reporting bugs please include versions of SELinux related librari=
+es and
+> >  tools (libsepol, libselinux, libsemanage, checkpolicy). If you are
+> > @@ -23,17 +36,20 @@ using a custom policy please include it as well.
+> >
+> >  ## Compiling
+> >
+> > -See README.md for instructions on how to compile and test this project=
+.
+> > +There are a number of dependencies required to build the userspace
+> > +tools/libraries. Consult the [README.md](https://github.com/SELinuxPro=
+ject/selinux/blob/main/README.md)
+> > +for the current list of dependencies and how to build the userspace co=
+de.
+> >
+> >  ## Contributing Code
+> >
+> > -After obtaining the code of the repository (see below), create a patch
+> > -against the repository, and post that patch to the [SELinux mailing
+> > -list](https://lore.kernel.org/selinux) at selinux@vger.kernel.org. Whe=
+n preparing
+> > -patches, please follow these guidelines:
+> > +After cloning the code of the repository (see below), create a patch a=
+gainst the
+> > +repository, and post that patch to the
+> > +[SELinux mailing list](https://lore.kernel.org/selinux) at
+> > +[selinux@vger.kernel.org](mailto:selinux@vger.kernel.org).
+> > +When preparing patches, please follow these guidelines:
+> >
+> > --   Patches should apply with -p1
+> > --   Must apply against HEAD of the master branch
+> > +-   Patches should apply with git am
+> > +-   Must apply against HEAD of the main branch
+> >  -   Separate large patches into logical patches
+> >  -   Patch descriptions must end with your "Signed-off-by" line. This m=
+eans your
+> >      code meets the Developer's certificate of origin, see below.
+> > @@ -43,10 +59,7 @@ design on the mailing list prior to submitting the p=
+atch.
+> >
+> >  ## Development Repository
+> >
+> > -Git is a modern source code management system. For more information
+> > -about Git please see the Git website.
+> > -
+> > -To get an anonymous checkout of the SELinux userland repository you ca=
+n
+> > +To get a copy of the SELinux userland repository you can
+> >  run:
+> >
+> >      $ git clone https://github.com/SELinuxProject/selinux.git
+> > --
+> > 2.50.1
+> >
+> >
