@@ -1,411 +1,194 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97CAC21C179
-	for <selinux@vger.kernel.org>; Sun, 27 Jul 2025 15:55:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B4DB22C35D;
+	Mon, 28 Jul 2025 09:46:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=14.137.139.23
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753631744; cv=none; b=IG8QXu2/vciDb//A+0+lVg3L9CiSNMLF1csaXZvZ79jhIG+6j3cfcyuejpFhWporxUSKgltMxG8jVZwSfAVdbxNLzpQKtmBuvNXTBwme8WqwrWe+YyQ2KtykBt41jhdTja1FJvgx+ELTAYWYYGy4d3eLeVaqDIxw0Uv8enti9XY=
+	t=1753695987; cv=none; b=qAocOyMiItMAJeGCLEtKmloDbZdnXOMgN+GROyAAbHmSF+Ei6TMURZaepOHZbWYnrOcmRPqnz/JKigctXgZ2YJbdqsZQsONSujBUCjtCZw8zHNbF//qigXOP1i0kqDnc+G9zwgwR0ApCJLxh3gnTy7SslRk0iDOQOut1uIDLFJk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753631744; c=relaxed/simple;
-	bh=1M6qmyfepYtRYfs1O+Vf46fbbKgOr+/UuPd4u0cwflo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kg9bgcDRocqRVe11jHnKgDx2J3V1wAjinYBj8dGXD20VMXwgvIvx+yh74sBXRlDAXUnUq8S0Ivgt93Y9xexsT3RuFDLWdi8GMF03T7/IaHgDFQQWR0f/u8DkkuJAfteeq0NtuzeGinOMCfJIGByT9PsXhdf/GyXyXR4+dDkGYGM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kGtuM5lj; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kGtuM5lj"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4563cfac19cso39049845e9.2
-        for <selinux@vger.kernel.org>; Sun, 27 Jul 2025 08:55:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753631741; x=1754236541; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LKYRWWrhFnJGJZq0dfrJrZWC1t3EWxMMyewzSKKQHh8=;
-        b=kGtuM5ljVykh2czRMustpXUdkguvxWd6P39Vl5sbczwsMf2Zo723DBtE4WFmvQTMsW
-         9QaQU6tBUioZDF2yIfh3L7hkExhC7iAPmbDHFeY+SS4SvWthLTEv5mmwBq88uXpsLVnV
-         ogQqLUoQgIR1Nj3go8uQZOu+heUI6ckBRw21Mvd0wSkzVrhUQu54bt8XN5WdbrVR6cMa
-         OWm3i1YNJyMSOglR0YsUtqQiGuQBdTarDZnyvntLnrxeqpyjexxD/YYVHdLWTUWVEayv
-         HaF+F/cv6qZNH1ivn70vCRBGwX6pyGO/g7YdAfAshohHBdjPRkFWAqYPapuJKFYU/h8R
-         8UpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753631741; x=1754236541;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LKYRWWrhFnJGJZq0dfrJrZWC1t3EWxMMyewzSKKQHh8=;
-        b=CR3qlyaQebiiQY8UvFsPesF/zNIqpMRObWY8hIxVJYsyip6sZy38OP+N3V/3C57u7k
-         vM8U4+D7pc5fENKVVE5fplPTkhz7m+1RyeTuS0lxPH7cnLFDPh3YioBp6LVwmbG7VpDe
-         /YkhwKtkToiseRMxBV5389PkF9DrCgqsIaRSuMNIbrbEkePOZHiBK8lAF2vnBG1Uvlk5
-         FMON628lMI9wSAyWInb58mHZdrNMXCCSPq9sJmkuS9dvKel+qV4Y4oIvxN9QvHW+zmNG
-         c+V6TAH3qO8ww9/Rbzd33C+byw74Ql/HUvVn4OnqFoYRVGJ490fnCWf/BZYwUpIdwDWq
-         y6vw==
-X-Gm-Message-State: AOJu0Yz4VfLn5vmk86Orw4FBr2gw6Rd7RtB7DcT2FZxcnsA/aoTpjkVq
-	RYICSDE8ZcVsdgWWWQuP4pZSYNFcqkWqWpOcEnpb7auqVlQEENOoQbjm
-X-Gm-Gg: ASbGncsOMlOW24NCm56rudTbuKzb8TxkcF2DWGqOurDsMCCO2WnrxOcxv+CCD4uGpgi
-	jv8QPyj0ITDhSCv9Xivsjzc01rtbOfPYi62NnWf7XQaMtTyal+MrJfJQn+JRWcB4XV7CVOGZX31
-	XFdeSGBSLmPpEyYTCkBLYOO3OXAD0/XBXvMyi/85LRpo5kcGcP8uC/98afpf8xPzzM3EdW96h+I
-	OQ+IT5IUyBot79f3E/odzuL/RccU9otrxE8dVdcHZfgw9Y0lpz6z4QySVBNaw71hsvSbzJzd553
-	XzLMTeuMFFZJ4c5z5yFFhYQ4TFl23Z4q/1jGb82bKkS5HjlW4LvLZ5Q8w3M59aWjraBZl8gPz2S
-	31rTgL3G/RLEO
-X-Google-Smtp-Source: AGHT+IH+Ht804fZguvajr9XqSjRiuLkoHgaXAHfQcFyEmgeO6bTkpFv861QTe7QzjMz5Mk6Tz3Xopg==
-X-Received: by 2002:a05:6000:2910:b0:3a5:1222:ac64 with SMTP id ffacd0b85a97d-3b77664294dmr6267816f8f.38.1753631740515;
-        Sun, 27 Jul 2025 08:55:40 -0700 (PDT)
-Received: from sierra ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3b778f0c65asm5912199f8f.62.2025.07.27.08.55.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Jul 2025 08:55:40 -0700 (PDT)
-From: Rahul Sandhu <nvraxn@gmail.com>
-To: nvraxn@gmail.com
-Cc: selinux@vger.kernel.org
-Subject: [PATCH v2] libselinux: remove out2 labels
-Date: Sun, 27 Jul 2025 16:55:29 +0100
-Message-ID: <20250727155530.733633-1-nvraxn@gmail.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20250727154422.732647-1-nvraxn@gmail.com>
-References: <20250727154422.732647-1-nvraxn@gmail.com>
+	s=arc-20240116; t=1753695987; c=relaxed/simple;
+	bh=P62eZg/nm410fwbt5YFv3Mb7ON32QFktxryCVgTdFF4=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=OY65dEYN8Gf0Cc4cirOY6Mr+yBV3bfLVySUsdwGkixt30PceElE6ifLHOd+T+AfmXZ9Q94n0twCVUIB5ZdVFxA80Mo3KKtgBpKubO5hSbLRXIfIg2upzmRh2/4cEanqpRjjnkoH4gzaGfG6X0IrWBHHESLioludiI+GkX6hMTO4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=14.137.139.23
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.18.186.29])
+	by frasgout11.his.huawei.com (SkyGuard) with ESMTPS id 4brD9P1qtYz1HCbV;
+	Mon, 28 Jul 2025 17:45:13 +0800 (CST)
+Received: from mail02.huawei.com (unknown [7.182.16.27])
+	by mail.maildlp.com (Postfix) with ESMTP id 48EA614037D;
+	Mon, 28 Jul 2025 17:46:16 +0800 (CST)
+Received: from [127.0.0.1] (unknown [10.204.63.22])
+	by APP2 (Coremail) with SMTP id GxC2BwD301bdRodoTzb3AA--.22192S2;
+	Mon, 28 Jul 2025 10:46:15 +0100 (CET)
+Message-ID: <5ff016adea8969e4a97387d4ed88a172bdc4b3de.camel@huaweicloud.com>
+Subject: Re: [RFC PATCH v2 26/34] smack: move initcalls to the LSM framework
+From: Roberto Sassu <roberto.sassu@huaweicloud.com>
+To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
+  linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Cc: John Johansen <john.johansen@canonical.com>, Mimi Zohar
+ <zohar@linux.ibm.com>, Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu
+ <wufan@kernel.org>, =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>, 
+ =?ISO-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>, Kees Cook
+ <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, Casey Schaufler
+ <casey@schaufler-ca.com>, Tetsuo Handa
+ <penguin-kernel@I-love.SAKURA.ne.jp>, Nicolas Bouchinet
+ <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
+Date: Mon, 28 Jul 2025 11:46:02 +0200
+In-Reply-To: <20250721232142.77224-62-paul@paul-moore.com>
+References: <20250721232142.77224-36-paul@paul-moore.com>
+	 <20250721232142.77224-62-paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.4-0ubuntu2 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:GxC2BwD301bdRodoTzb3AA--.22192S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxGr47AF4xZw4rKFWUuw1UGFg_yoW5KFWDpr
+	WDtFnxKF1xtFZ7AF17u347KFyag395GryUCrs8uw15ZFnxWry8Grn3Zry7AF1fGF4DZF4r
+	KF47Xr13W3WqkrJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUvjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+	AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+	x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+	0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AF
+	wI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4
+	xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5
+	MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I
+	0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWU
+	JVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUFk
+	u4UUUUU
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQADBGiHHzsCbQAAsi
 
-The out2 label previously only existed such that free(buf) isn't called
-if malloc(3) fails to allocate buf. However, posix says[1] that calling
-free(3) with a nullptr is valid:
+On Mon, 2025-07-21 at 19:21 -0400, Paul Moore wrote:
+> As the LSM framework only supports one LSM initcall callback for each
+> initcall type, the init_smk_fs() and smack_nf_ip_init() functions were
+> wrapped with a new function, smack_initcall() that is registered with
+> the LSM framework.
+>=20
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  security/smack/smack.h           | 7 +++++++
+>  security/smack/smack_lsm.c       | 9 +++++++++
+>  security/smack/smack_netfilter.c | 4 +---
+>  security/smack/smackfs.c         | 4 +---
+>  4 files changed, 18 insertions(+), 6 deletions(-)
+>=20
+> diff --git a/security/smack/smack.h b/security/smack/smack.h
+> index bf6a6ed3946c..885a2f2929fd 100644
+> --- a/security/smack/smack.h
+> +++ b/security/smack/smack.h
+> @@ -275,6 +275,13 @@ struct smk_audit_info {
+>  #endif
+>  };
+> =20
+> +/*
+> + * Initialization
+> + */
+> +int init_smk_fs(void);
+> +int smack_nf_ip_init(void);
 
-> If ptr is a null pointer, no action shall occur.
+I made the following changes (due to not having
+CONFIG_SECURITY_SMACK_NETFILTER):
 
-Hence, remove the extra labels to simplify the logic.
+diff --git a/security/smack/smack.h b/security/smack/smack.h
+index 885a2f2929fd..4401cee2bbb7 100644
+--- a/security/smack/smack.h
++++ b/security/smack/smack.h
+@@ -279,9 +279,17 @@ struct smk_audit_info {
+  * Initialization
+  */
+ int init_smk_fs(void);
+-int smack_nf_ip_init(void);
+ int smack_initcall(void);
+=20
++#ifdef CONFIG_SECURITY_SMACK_NETFILTER
++int smack_nf_ip_init(void);
++#else
++static inline int smack_nf_ip_init(void)
++{
++       return 0;
++}
++#endif
++
 
-[1] https://pubs.opengroup.org/onlinepubs/009604499/functions/free.html
+Roberto
 
-Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
----
- libselinux/src/canonicalize_context.c |  9 ++++-----
- libselinux/src/compute_av.c           | 11 +++++------
- libselinux/src/compute_create.c       | 13 ++++++-------
- libselinux/src/compute_member.c       | 11 +++++------
- libselinux/src/compute_relabel.c      | 11 +++++------
- libselinux/src/compute_user.c         | 15 +++++++--------
- libselinux/src/get_initial_context.c  |  7 +++----
- libselinux/src/procattr.c             |  9 ++++-----
- 8 files changed, 39 insertions(+), 47 deletions(-)
-
-diff --git a/libselinux/src/canonicalize_context.c b/libselinux/src/canonicalize_context.c
-index 6af8491d..d9f0beb4 100644
---- a/libselinux/src/canonicalize_context.c
-+++ b/libselinux/src/canonicalize_context.c
-@@ -36,12 +36,12 @@ int security_canonicalize_context_raw(const char * con,
- 	if (strlcpy(buf, con, size) >= size) {
- 		errno = EOVERFLOW;
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 
- 	ret = write(fd, buf, strlen(buf) + 1);
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	memset(buf, 0, size);
- 	ret = read(fd, buf, size - 1);
-@@ -54,12 +54,11 @@ int security_canonicalize_context_raw(const char * con,
- 	*canoncon = strdup(buf);
- 	if (!(*canoncon)) {
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 	ret = 0;
--      out2:
--	free(buf);
-       out:
-+	free(buf);
- 	close(fd);
- 	return ret;
- }
-diff --git a/libselinux/src/compute_av.c b/libselinux/src/compute_av.c
-index 354a19e1..bd31279f 100644
---- a/libselinux/src/compute_av.c
-+++ b/libselinux/src/compute_av.c
-@@ -46,17 +46,17 @@ int security_compute_av_flags_raw(const char * scon,
- 	if (ret < 0 || (size_t)ret >= len) {
- 		errno = EOVERFLOW;
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 
- 	ret = write(fd, buf, strlen(buf));
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	memset(buf, 0, len);
- 	ret = read(fd, buf, len - 1);
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	ret = sscanf(buf, "%x %x %x %x %u %x",
- 		     &avd->allowed, &avd->decided,
-@@ -64,7 +64,7 @@ int security_compute_av_flags_raw(const char * scon,
- 		     &avd->seqno, &avd->flags);
- 	if (ret < 5) {
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	} else if (ret < 6)
- 		avd->flags = 0;
- 
-@@ -79,9 +79,8 @@ int security_compute_av_flags_raw(const char * scon,
- 		map_decision(tclass, avd);
- 
- 	ret = 0;
--      out2:
--	free(buf);
-       out:
-+	free(buf);
- 	close(fd);
- 	return ret;
- }
-diff --git a/libselinux/src/compute_create.c b/libselinux/src/compute_create.c
-index ff8553bc..b0c6ea34 100644
---- a/libselinux/src/compute_create.c
-+++ b/libselinux/src/compute_create.c
-@@ -81,34 +81,33 @@ int security_compute_create_name_raw(const char * scon,
- 	if (len < 0 || (size_t)len >= size) {
- 		errno = EOVERFLOW;
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 
- 	if (objname &&
- 	    object_name_encode(objname, buf + len, size - len) < 0) {
- 		errno = ENAMETOOLONG;
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 
- 	ret = write(fd, buf, strlen(buf));
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	memset(buf, 0, size);
- 	ret = read(fd, buf, size - 1);
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	*newcon = strdup(buf);
- 	if (!(*newcon)) {
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 	ret = 0;
--      out2:
--	free(buf);
-       out:
-+	free(buf);
- 	close(fd);
- 	return ret;
- }
-diff --git a/libselinux/src/compute_member.c b/libselinux/src/compute_member.c
-index 53d2f559..ebe33264 100644
---- a/libselinux/src/compute_member.c
-+++ b/libselinux/src/compute_member.c
-@@ -41,27 +41,26 @@ int security_compute_member_raw(const char * scon,
- 	if (ret < 0 || (size_t)ret >= size) {
- 		errno = EOVERFLOW;
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 
- 	ret = write(fd, buf, strlen(buf));
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	memset(buf, 0, size);
- 	ret = read(fd, buf, size - 1);
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	*newcon = strdup(buf);
- 	if (!(*newcon)) {
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 	ret = 0;
--      out2:
--	free(buf);
-       out:
-+	free(buf);
- 	close(fd);
- 	return ret;
- }
-diff --git a/libselinux/src/compute_relabel.c b/libselinux/src/compute_relabel.c
-index 9c0a2304..b2c1520e 100644
---- a/libselinux/src/compute_relabel.c
-+++ b/libselinux/src/compute_relabel.c
-@@ -41,27 +41,26 @@ int security_compute_relabel_raw(const char * scon,
- 	if (ret < 0 || (size_t)ret >= size) {
- 		errno = EOVERFLOW;
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 
- 	ret = write(fd, buf, strlen(buf));
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	memset(buf, 0, size);
- 	ret = read(fd, buf, size - 1);
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	*newcon = strdup(buf);
- 	if (!*newcon) {
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 	ret = 0;
--      out2:
--	free(buf);
-       out:
-+	free(buf);
- 	close(fd);
- 	return ret;
- }
-diff --git a/libselinux/src/compute_user.c b/libselinux/src/compute_user.c
-index d4387aed..584219c7 100644
---- a/libselinux/src/compute_user.c
-+++ b/libselinux/src/compute_user.c
-@@ -43,27 +43,27 @@ int security_compute_user_raw(const char * scon,
- 	if (ret < 0 || (size_t)ret >= size) {
- 		errno = EOVERFLOW;
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 
- 	ret = write(fd, buf, strlen(buf));
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	memset(buf, 0, size);
- 	ret = read(fd, buf, size - 1);
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	if (sscanf(buf, "%u", &nel) != 1) {
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 
- 	ary = malloc((nel + 1) * sizeof(char *));
- 	if (!ary) {
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 
- 	ptr = buf + strlen(buf) + 1;
-@@ -72,16 +72,15 @@ int security_compute_user_raw(const char * scon,
- 		if (!ary[i]) {
- 			freeconary(ary);
- 			ret = -1;
--			goto out2;
-+			goto out;
- 		}
- 		ptr += strlen(ptr) + 1;
- 	}
- 	ary[nel] = NULL;
- 	*con = ary;
- 	ret = 0;
--      out2:
--	free(buf);
-       out:
-+	free(buf);
- 	close(fd);
- 	return ret;
- }
-diff --git a/libselinux/src/get_initial_context.c b/libselinux/src/get_initial_context.c
-index fb774c82..badcda9f 100644
---- a/libselinux/src/get_initial_context.c
-+++ b/libselinux/src/get_initial_context.c
-@@ -46,17 +46,16 @@ int security_get_initial_context_raw(const char * name, char ** con)
- 	}
- 	ret = read(fd, buf, size - 1);
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	*con = strdup(buf);
- 	if (!(*con)) {
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 	ret = 0;
--      out2:
--	free(buf);
-       out:
-+	free(buf);
- 	close(fd);
- 	return ret;
- }
-diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
-index aa16c934..f8e8f191 100644
---- a/libselinux/src/procattr.c
-+++ b/libselinux/src/procattr.c
-@@ -153,22 +153,21 @@ static int getprocattrcon_raw(char **context, pid_t pid, const char *attr,
- 		ret = read(fd, buf, size - 1);
- 	} while (ret < 0 && errno == EINTR);
- 	if (ret < 0)
--		goto out2;
-+		goto out;
- 
- 	if (ret == 0) {
- 		*context = NULL;
--		goto out2;
-+		goto out;
- 	}
- 
- 	*context = strdup(buf);
- 	if (!(*context)) {
- 		ret = -1;
--		goto out2;
-+		goto out;
- 	}
- 	ret = 0;
--      out2:
--	free(buf);
-       out:
-+	free(buf);
- 	errno_hold = errno;
- 	close(fd);
- 	errno = errno_hold;
--- 
-2.50.1
+> +int smack_initcall(void);
+> +
+>  /*
+>   * These functions are in smack_access.c
+>   */
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index e09490c75f59..f14d536c516b 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -5270,6 +5270,14 @@ static __init int smack_init(void)
+>  	return 0;
+>  }
+> =20
+> +int __init smack_initcall(void)
+> +{
+> +	int rc_fs =3D init_smk_fs();
+> +	int rc_nf =3D smack_nf_ip_init();
+> +
+> +	return rc_fs ? rc_fs : rc_nf;
+> +}
+> +
+>  /*
+>   * Smack requires early initialization in order to label
+>   * all processes and objects when they are created.
+> @@ -5279,4 +5287,5 @@ DEFINE_LSM(smack) =3D {
+>  	.flags =3D LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
+>  	.blobs =3D &smack_blob_sizes,
+>  	.init =3D smack_init,
+> +	.initcall_device =3D smack_initcall,
+>  };
+> diff --git a/security/smack/smack_netfilter.c b/security/smack/smack_netf=
+ilter.c
+> index 8fd747b3653a..17ba578b1308 100644
+> --- a/security/smack/smack_netfilter.c
+> +++ b/security/smack/smack_netfilter.c
+> @@ -68,7 +68,7 @@ static struct pernet_operations smack_net_ops =3D {
+>  	.exit =3D smack_nf_unregister,
+>  };
+> =20
+> -static int __init smack_nf_ip_init(void)
+> +int __init smack_nf_ip_init(void)
+>  {
+>  	if (smack_enabled =3D=3D 0)
+>  		return 0;
+> @@ -76,5 +76,3 @@ static int __init smack_nf_ip_init(void)
+>  	printk(KERN_DEBUG "Smack: Registering netfilter hooks\n");
+>  	return register_pernet_subsys(&smack_net_ops);
+>  }
+> -
+> -__initcall(smack_nf_ip_init);
+> diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+> index b1e5e62f5cbd..405ace6db109 100644
+> --- a/security/smack/smackfs.c
+> +++ b/security/smack/smackfs.c
+> @@ -2978,7 +2978,7 @@ static struct vfsmount *smackfs_mount;
+>   * Returns true if we were not chosen on boot or if
+>   * we were chosen and filesystem registration succeeded.
+>   */
+> -static int __init init_smk_fs(void)
+> +int __init init_smk_fs(void)
+>  {
+>  	int err;
+>  	int rc;
+> @@ -3021,5 +3021,3 @@ static int __init init_smk_fs(void)
+> =20
+>  	return err;
+>  }
+> -
+> -__initcall(init_smk_fs);
 
