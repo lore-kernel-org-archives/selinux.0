@@ -1,71 +1,71 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D60F26CE39
-	for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 14:24:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 569E31A704B
+	for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 14:25:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753712690; cv=none; b=nS+54PGYpH++jRpANR/ULbavrHeeuWRecf1ZfWp9DkRaQ2VLfhKGPfXC0ItEettP59K7z4HCMmRyR7mM0Ef1pQqTlhY23CSHfGs6RIFleaar11rktN6T8/p97DQFBL8z/iH5EU6iNSsYRsX38HyqD6tagHh7LpBZGo0jct1S/F4=
+	t=1753712717; cv=none; b=GBDBayv6vzk7IZX0PGscbvLWh8GN4W4KxcG65aTf21zyxxMn92sw9cVXghDwluDp7d83KJ7sjknhxcRTH4Pk8G/ZUzMHxsL0GJuSw0H4x7XrgDBrnlD6uzP4/KF3pCOWhfZSEDX03nkZlAJUcUE+cTv2H5j4yGVPRRmNbKXwuC4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753712690; c=relaxed/simple;
-	bh=oDrzRE42nXQsDquvl2IaG27fuKVOkvy9OljPRmmoJ0M=;
+	s=arc-20240116; t=1753712717; c=relaxed/simple;
+	bh=Y6g42KGu5y9frSahjqIAJsKLtK5F3uuHjpCiZXd3ofo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=n5DmZ71JcliHGZnL455d6/xwzIJBbDr5FRB4ZViPcEyhJDT/9iz+HPWmYDrHSdIa1zOORSkVLBHz+J5gejOjdQZCq2ZeE9ZnmjsWrJj+ceT/99LHxrfFRDfVC/049u3wYPzULwL/RXu8r8bCDcTWFNJvhmBxfipS1QNq0CwOp0A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FdTM9JYj; arc=none smtp.client-ip=209.85.214.174
+	 To:Cc:Content-Type; b=N2pRFXw+ynY56rgSAxE5xfvTA5hWw4AolvQ4KRvuXPehxKbfnY84GAKthRsNaiSsMk0Ei2ILfMGdzgF8jQ4CJf5cm4vWNa+Nle0DXi6+RkscYgn4Zdj4JLJfTkgH+g+TXwNUcDZjVKeDTYL7X0VwrCTwyHC4xxOzyv+AsMlEesw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cg3V74x+; arc=none smtp.client-ip=209.85.215.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FdTM9JYj"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2402bbb4bf3so11819195ad.2
-        for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 07:24:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cg3V74x+"
+Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-b391ca6146eso3979072a12.3
+        for <selinux@vger.kernel.org>; Mon, 28 Jul 2025 07:25:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753712688; x=1754317488; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1753712715; x=1754317515; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=e2UDk+JeuyrMHKR9uhtTwmehfhwkuiE5Eoc1XI+bwjE=;
-        b=FdTM9JYjBV9fvJyEUmx5F0dgtymHbiNmd9IGm9tDitF45zY+v/IdHV3eUS+/t3PUXo
-         xaBkldb+c9nmSShTnPvfDSSse54Hj/QOP2EHSbMGtynnPL0YACqPqyBSfV8ZaQAzEBmV
-         djEzNrgFfdgLqqOsI25HNo4Go326q//BpmbbMcvktmwCWMajsoKm6PE7yyM03/4yvlCD
-         lhurq+96WVCntSNYNEgDydwqEeBOSAr3Mb4LZuNjY446EMozoXFLlKwtPcearNEb04xB
-         4nrGx7cVvmb08udmYr+pwDbXJt6zhtEnp90yw7xom/TCwLIg4TI/iRZiD+nYehS9iEuL
-         7XPA==
+        bh=VtBH2bx0nCFlyN5uxDO7OAPestYO0fDXBBe5cxURjQU=;
+        b=cg3V74x+G4B119gLOcneBfK+u/Hl9I8dHkSUps3xnXTlNF5Ihmekph80c1MSQQVltT
+         0fE3ddVYZ4F726xj4RQfpWOpgOekjaZG8ypFMIKSsrMBrlfQ7fwZbsGkAF9b5O8k6prY
+         TCAWPJ6boivv7rg5OsH1zU6/OzGU9QWe4a+7ym3ceM6BkdLhwrkYX7akPqUsirvXR0pT
+         kj4CazVFuusRvkGWOqrzjbIDmEQbJxk2mylwlEu5TphNpZ6ckOUKCMUlXezh2IkmAeoA
+         feLwly5Wqc8Lj96Uq1P30B4z5BA8/Eo5mWh11iu04O2wrTS90oDaj0ONovZYS4ixPWGb
+         VFqw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753712688; x=1754317488;
+        d=1e100.net; s=20230601; t=1753712715; x=1754317515;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=e2UDk+JeuyrMHKR9uhtTwmehfhwkuiE5Eoc1XI+bwjE=;
-        b=MU6jA+vpV82uxQME0DUnxyQygpOBO+z/SN4Fkb7oGZKgWaC/JufC1VC+xmcniLKywQ
-         94SjSS38+bLfXecnbjgDhYBzyMzoSx05xh3M5IVQRMlmD10FjIxPhzZVULv/fNUVQXQE
-         eiOIkAwdiFD5L8i9TCm/TEj3QJpJ0jsE77nWT5N69LQ1jfmc9DJanWLrbIpyO9O3EBwt
-         cB6HqD0v46Gm5jcGE7z837SrUz2230ApmGERYaT9h+x28kWS8BxlCh/Gfo8rtnmnrlwE
-         MzdgYNIQsfhjIFUFExmUvt2VjmOoSmfX/0Wt9bjyMeByXXfRCfDCpOyKnhcdhUZQ7peB
-         cplw==
-X-Gm-Message-State: AOJu0Yz9nl0N7clGHBVFFhaXezNJ868cdNb5yX8GgH5haJNrQkgZoPYD
-	AjXjscQoO0OWOAHd36JwRbIq8DDOT93wOEaXfUEhxZtsbf0sTACquxQthGucwZhDvfYmRhStsft
-	Fcw1N85Dj0XYHag8hL9gj2ZhcjgoHzWoqJQ==
-X-Gm-Gg: ASbGncuuvHa4CUMRYFXQOwjORU4cb+hcSOlumhREMV3/sOqUZ30NDFJdPU2tVhllSlp
-	T3XjNYsokV0TCHeFhs1CphIdYuvglMhIS+Z3+qsWhUwlmHewsB5ooUyxDl50iWn/4pERFQ6o9uS
-	tEum94ynIuLbU+RFG5LPhxGV7qtg0ddT9jHGAeJlXJSu9bx7dAHZNCHRoFwBrDUdv0jkIKZ+vSE
-	trQa48=
-X-Google-Smtp-Source: AGHT+IGJXP7vVJpUpXwYaye4aaBCaMJUNceAR4DdjeaoobE470esLQqfPrO0sgNajzCPmOASAahRwYNl76mAf1LsdIc=
-X-Received: by 2002:a17:902:e84d:b0:240:5549:7094 with SMTP id
- d9443c01a7336-240554973c7mr10161195ad.18.1753712684889; Mon, 28 Jul 2025
- 07:24:44 -0700 (PDT)
+        bh=VtBH2bx0nCFlyN5uxDO7OAPestYO0fDXBBe5cxURjQU=;
+        b=XbvoC9/1zZ2o4Psk4c36bxkgNWZUhygOw1F82R9/DZwwl1JTTMnBLLiklt76ShOych
+         nOOFHSJM/3aRi15dE3LynzwtCPpbhqF0hs3pr18hY3mxvfMmsKF0jXEXKH0b8ikyKvFd
+         v/avffucNBH196GqYW0RU3ZtZT8ISqU6u/HMPo67TYoP5IOvKlKeVArWYxdkTreV8I8z
+         vn9GpDoZdac1lihmAquGZLv4Y4sFNm6ryWhylEmFx0560ojJIS1DP8iqxPCfwe1oLuHN
+         CTpeePY5AnBbgiMd6RtAMh/QzrXylMGJGFpMoD14kisTa6mB9DmAwOQR9YQLUgNRLOof
+         FPLQ==
+X-Gm-Message-State: AOJu0Ywbfmxah5iIS2yWI8W8JwxgY7yIQm9C+A+7Z3haOXwuNHDCpLC0
+	SXSyCyZZ10OD8aRxRC/OdDTnNdtkT45TrIAHnrbkMeijC21BFdvjih9iSYHqsIa6ppZDbAZgEpi
+	uvcGlZUb/dkhq4iPauFeSSwFInQ/a+WDqxA==
+X-Gm-Gg: ASbGnctgDA4DFK70CyiSK6hnEcJczlWX1HnSdJNSPzSxP6VKB+aPGHv6HpcSmEwEM7O
+	A06e5YgvUR8lQ+fdxF/aPHWIsOG+3jkPsct0HCXZ/RF28QCs7Kmr21eJncovVjXJOJYNOsqRt+b
+	ANd/hIaepzBYfFAjErF87y0PcNZiBLRn3Hoh8UxjqCx13QxLwqDtb4ucpJDRnW2m1AIfhsYt9o5
+	tAKCT0=
+X-Google-Smtp-Source: AGHT+IFpJhGXAvjD7O/yBWdmPX5HyimRmcMJnsV3xAtClZgnARRcJZuulxs+QNt1hknwhG3OeYZucwXCjtQKN28FimM=
+X-Received: by 2002:a17:90b:4ccd:b0:311:ba2e:bdc9 with SMTP id
+ 98e67ed59e1d1-31e77a0351dmr15760847a91.27.1753712715391; Mon, 28 Jul 2025
+ 07:25:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250724084044.23390-1-lautrbach@redhat.com> <CAEjxPJ5+2r+nrSv4w757=Ue6gj0XX0WtOKSyp3-UUfQ2rzksQA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5+2r+nrSv4w757=Ue6gj0XX0WtOKSyp3-UUfQ2rzksQA@mail.gmail.com>
+References: <20250724104539.42620-1-lautrbach@redhat.com> <CAEjxPJ5vzcrkieyAieFDaiHeWGDhHgLprp4qi9mLeVKfagp75w@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5vzcrkieyAieFDaiHeWGDhHgLprp4qi9mLeVKfagp75w@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 28 Jul 2025 10:24:33 -0400
-X-Gm-Features: Ac12FXxbDmjJqf1bj3zzOMo0mB1qPB5Oy5iqv-HPXa4-9JEPLRNN2LiW3hfjlSY
-Message-ID: <CAEjxPJ4EzkmxRZ082x=9_fykhrEaaRt4ZLpTHqT2V7XNvvD6tA@mail.gmail.com>
-Subject: Re: [PATCH] Update CONTRIBUTING.md
+Date: Mon, 28 Jul 2025 10:25:01 -0400
+X-Gm-Features: Ac12FXxduyMOaJT-ua4lWx4aLbMr-zoFo8I0jEwbq5X8dd83PE3Y1YRwa6vUm6A
+Message-ID: <CAEjxPJ6U-T3nsxPVvx1y7t5o8URd6oA1bO-DQw0E63Hi_Zi9hg@mail.gmail.com>
+Subject: Re: [PATCH] README.md: add link to the github wiki
 To: Petr Lautrbach <lautrbach@redhat.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -74,12 +74,8 @@ Content-Transfer-Encoding: quoted-printable
 On Thu, Jul 24, 2025 at 10:11=E2=80=AFAM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Thu, Jul 24, 2025 at 4:52=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.=
+> On Thu, Jul 24, 2025 at 6:45=E2=80=AFAM Petr Lautrbach <lautrbach@redhat.=
 com> wrote:
-> >
-> > This is based on
-> > https://github.com/SELinuxProject/selinux/wiki/Contributing with
-> > preserved "Developer Certificate of Origin" part
 > >
 > > Signed-off-by: Petr Lautrbach <lautrbach@redhat.com>
 >
@@ -89,111 +85,27 @@ Thanks, merged.
 
 >
 > > ---
-> >  CONTRIBUTING.md | 51 +++++++++++++++++++++++++++++++------------------
-> >  1 file changed, 32 insertions(+), 19 deletions(-)
+> >  README.md | 3 +++
+> >  1 file changed, 3 insertions(+)
 > >
-> > diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
-> > index 575410bf8c3d..c501cf842dcd 100644
-> > --- a/CONTRIBUTING.md
-> > +++ b/CONTRIBUTING.md
-> > @@ -4,18 +4,31 @@ Contributing to the SELinux userspace project is a si=
-milar process to
-> >  other open source projects. Bug reports, new features to the existing
-> >  code, additional tools, or updated documentation are all welcome.
+> > diff --git a/README.md b/README.md
+> > index aa98d7819b01..5c6caa9d710f 100644
+> > --- a/README.md
+> > +++ b/README.md
+> > @@ -19,6 +19,9 @@ Please submit all bug reports and patches to the <sel=
+inux@vger.kernel.org>
+> >  mailing list. You can subscribe by sending an email to <selinux+subscr=
+ibe@vger.kernel.org>
+> >  Archives of the mailing list are available at https://lore.kernel.org/=
+selinux.
 > >
-> > -You can find a list of open issues where you might contribute to the S=
-ELinux kernel code at
-> > -https://github.com/SELinuxProject/selinux-kernel/issues or to the SELi=
-nux userspace code at
-> > -https://github.com/SELinuxProject/selinux/issues.
-> > +You can find a list of open issues to the SELinux userspace code at
-> > +https://github.com/SELinuxProject/selinux/issues
-> >
-> > -See the SELinux userspace
-> > -[wiki page](https://github.com/selinuxproject/selinux/wiki) for more
-> > -information on mailing lists, documentation, and other resources.
-> > +See the SELinux kernel [Getting Started](https://github.com/selinuxpro=
-ject/selinux-kernel/wiki/Getting-Started)
-> > +guide if you want to contribute to SELinux kernel development instead.
+> > +See the [SELinux Userspace wiki](https://github.com/SELinuxProject/sel=
+inux/wiki)
+> > +for more information.
 > > +
-> > +## Mailing list
-> > +
-> > +SELinux has a public mailing list for developers, subscribe by sending=
- an email to
-> > +[selinux+subscribe@vger.kernel.org](mailto:selinux+subscribe@vger.kern=
-el.org).
-> > +It is generally wise to read relevant postings to the list before begi=
-nning any
-> > +area of new work. Searchable mailing list archives are available exter=
-nally at
-> > +https://lore.kernel.org/selinux/ . Patches for SELinux are tracked via
-> > +https://patchwork.kernel.org/project/selinux/list/ .
-> > +
-> > +## IRC
-> > +
-> > +An unofficial SELinux IRC channel is
-> > +[\#selinux](https://web.libera.chat/?channel=3D#selinux) on [Libera.Ch=
-at](https://libera.chat/).
+> >  Installation
+> >  ------------
 > >
-> >  ## Reporting Bugs
-> >
-> > -All bugs and patches should be submitted to the [SELinux mailing
-> > -list](https://lore.kernel.org/selinux) at selinux@vger.kernel.org.
-> > +All bugs and patches should be submitted to the
-> > +[SELinux mailing list](https://lore.kernel.org/selinux) at
-> > +[selinux@vger.kernel.org](mailto:selinux@vger.kernel.org).
-> >
-> >  When reporting bugs please include versions of SELinux related librari=
-es and
-> >  tools (libsepol, libselinux, libsemanage, checkpolicy). If you are
-> > @@ -23,17 +36,20 @@ using a custom policy please include it as well.
-> >
-> >  ## Compiling
-> >
-> > -See README.md for instructions on how to compile and test this project=
-.
-> > +There are a number of dependencies required to build the userspace
-> > +tools/libraries. Consult the [README.md](https://github.com/SELinuxPro=
-ject/selinux/blob/main/README.md)
-> > +for the current list of dependencies and how to build the userspace co=
-de.
-> >
-> >  ## Contributing Code
-> >
-> > -After obtaining the code of the repository (see below), create a patch
-> > -against the repository, and post that patch to the [SELinux mailing
-> > -list](https://lore.kernel.org/selinux) at selinux@vger.kernel.org. Whe=
-n preparing
-> > -patches, please follow these guidelines:
-> > +After cloning the code of the repository (see below), create a patch a=
-gainst the
-> > +repository, and post that patch to the
-> > +[SELinux mailing list](https://lore.kernel.org/selinux) at
-> > +[selinux@vger.kernel.org](mailto:selinux@vger.kernel.org).
-> > +When preparing patches, please follow these guidelines:
-> >
-> > --   Patches should apply with -p1
-> > --   Must apply against HEAD of the master branch
-> > +-   Patches should apply with git am
-> > +-   Must apply against HEAD of the main branch
-> >  -   Separate large patches into logical patches
-> >  -   Patch descriptions must end with your "Signed-off-by" line. This m=
-eans your
-> >      code meets the Developer's certificate of origin, see below.
-> > @@ -43,10 +59,7 @@ design on the mailing list prior to submitting the p=
-atch.
-> >
-> >  ## Development Repository
-> >
-> > -Git is a modern source code management system. For more information
-> > -about Git please see the Git website.
-> > -
-> > -To get an anonymous checkout of the SELinux userland repository you ca=
-n
-> > +To get a copy of the SELinux userland repository you can
-> >  run:
-> >
-> >      $ git clone https://github.com/SELinuxProject/selinux.git
 > > --
 > > 2.50.1
 > >
