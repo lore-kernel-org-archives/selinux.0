@@ -1,63 +1,68 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5049214210;
-	Tue, 29 Jul 2025 02:24:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4888026A1B8;
+	Tue, 29 Jul 2025 09:10:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753755863; cv=none; b=iBPF3SW+3VxwHh/o+kB6yAAq3/tj2xVPFUDxe3pqF44jHCMc837QeCqxuesXRXnn9zWbRKssu1AzlzaVwZ/zwOk68M8iomXzY88Dsl/McoDVwi2foiXOgMhhtGScAW8uP/+IcOUu/nCXxHcwTZDM8V0ok+7gVaqXCTnLblWyg68=
+	t=1753780252; cv=none; b=RAjXaavlA4JJle3sV71LNlwErYHtUMr19ehOb7bIgHYxOmNKYCOOS4JDzecPlmHMIv+rOiEBCuzvI1NtQQaVyj2/rAHCjm840X9MaT9kl68UJWVgL8itpXaioZAcTx6vPiqtVP1p33fKLLPC8RFnZ96jQnm5Xbn5SPGDpj33Nio=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753755863; c=relaxed/simple;
-	bh=IMbYkLASt6ZSAThWVaUFJYFkgrjOTAkJN0zp8UYjtXM=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=YvCz89m/OJc+bxOn6htPE6FWZbh4wbPYpG/kLFep523T4O4oGHL7JglPQuBBO2GscF7roOumMPMZqclSx6hVJoBCJdutHdmEAI9df+PlxJR4z4CydAZ7ZnbbjkH1FtEkZi5b1IippZLLzWz2ymYxkC0iZAu/ngQk1htypEc/bCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KaZINrnE; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1753780252; c=relaxed/simple;
+	bh=gK4Yvwc3AeQ0XMOafjrcf+wxfetigDikGdk3gyvzbVE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=hgFdRaoKh3FpQ+gugBVBI8NiJvPuK5IO9PzYD1adb6HPc9xGFSpkbTkBiDun9H85JtQhJi0bLKGdeNK1/tL6b5B56eYZcJlYmLaB9FpDofB/2LGXS5J18Bl8QIO8eYOCqsjYxW9P0KPZrXwSicGvf9C9wCpWO9ON6EbLPOFp65A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=Nxn4WwVR; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KaZINrnE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B08EC4CEE7;
-	Tue, 29 Jul 2025 02:24:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1753755862;
-	bh=IMbYkLASt6ZSAThWVaUFJYFkgrjOTAkJN0zp8UYjtXM=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=KaZINrnE1tHJoR7vRV/ofGpOjcxjkO0OwmdrgFq5G5ONIobfDu4bwxUFd9mdKj7h0
-	 bNf3wXtGCChNgrlJwMMFA3A0pbLaj+UPJXs43y1HZ7kclhm77WKDMhT8NJbP+r9epf
-	 qlGYKRNpHhKSEtGII1ctiwRrXJmQ6TtLw3SzP34q99wmt+KzmaBOLxm6rNkSrF+0/I
-	 GxP5QK6Lxhq+g41rFnag+kxt0jkAM/GcvGa79RlP/dunV2UYx3wmiFTdRKKe85KiTa
-	 zvX15USdLyFswbVw9b+1WPDIspEfNsmncju8Sif6ymp+d8vTujU2MFcnmyXHA8EBEE
-	 ZKIrRV1cmnCag==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 33C08383BF5F;
-	Tue, 29 Jul 2025 02:24:40 +0000 (UTC)
-Subject: Re: [GIT PULL] selinux/selinux-pr-20250725
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <6e344a8bd7d60522825222628e949a14@paul-moore.com>
-References: <6e344a8bd7d60522825222628e949a14@paul-moore.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <6e344a8bd7d60522825222628e949a14@paul-moore.com>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20250725
-X-PR-Tracked-Commit-Id: ee79ba39b3d6fdcfa53de6519d7e259e284e78f7
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: dffb641bea1d0c5a4017771aafb39513701095be
-Message-Id: <175375587889.935612.4691676896986606922.pr-tracker-bot@kernel.org>
-Date: Tue, 29 Jul 2025 02:24:38 +0000
-To: Paul Moore <paul@paul-moore.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, selinux@vger.kernel.org, linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="Nxn4WwVR"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1753780247; h=From:To:Subject:Date:Message-Id:MIME-Version;
+	bh=xLOn24MxdPURuEEkt2stIxBd6I+5GdQyNqZxLgQ8Evc=;
+	b=Nxn4WwVRDKmz6D8i3jR6Gdbk0MloD7abNjRYOJCkOqtsBK93pT+T32pb8T8GdQ1lwktaPvt+WFKI8ZqYMckz/j2OJ18qvyZ4cOUobKJT/NmU/egtOpP4h/UYp+Yla3COEa7AnUiq0y65MjYGKqgea+4LuaC7ozEPIPyV3qMun9w=
+Received: from localhost(mailfrom:tianjia.zhang@linux.alibaba.com fp:SMTPD_---0WkPUOPq_1753780246 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 29 Jul 2025 17:10:46 +0800
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+To: Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Subject: [PATCH] selinux: use a consistent method to get full socket from skb
+Date: Tue, 29 Jul 2025 17:10:44 +0800
+Message-Id: <20250729091044.95411-1-tianjia.zhang@linux.alibaba.com>
+X-Mailer: git-send-email 2.39.5 (Apple Git-154)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-The pull request you sent on Fri, 25 Jul 2025 16:49:27 -0400:
+In order to maintain code consistency and readability,
+skb_to_full_sk() is used to get full socket from skb.
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20250725
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+---
+ security/selinux/hooks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/dffb641bea1d0c5a4017771aafb39513701095be
-
-Thank you!
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 595ceb314aeb..362f92b2fafb 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5861,7 +5861,7 @@ static unsigned int selinux_ip_output(void *priv, struct sk_buff *skb,
+ 	/* we do this in the LOCAL_OUT path and not the POST_ROUTING path
+ 	 * because we want to make sure we apply the necessary labeling
+ 	 * before IPsec is applied so we can leverage AH protection */
+-	sk = sk_to_full_sk(skb->sk);
++	sk = skb_to_full_sk(skb);
+ 	if (sk) {
+ 		struct sk_security_struct *sksec;
+ 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.39.5 (Apple Git-154)
+
