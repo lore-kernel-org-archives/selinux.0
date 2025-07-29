@@ -1,106 +1,183 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D057944E;
-	Tue, 29 Jul 2025 14:01:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17343CA4B
+	for <selinux@vger.kernel.org>; Tue, 29 Jul 2025 14:33:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753797672; cv=none; b=I5LJmRAm0Lt7FfkUE9wDiKNq6R2Gy0l9EYbpBgo/ZzUQa7eGnf0dHsxgLnd0QIKQio5Wu0SgpI3aMR8bwVFIJx5EQy3WS7G04FK9k92pgPF78RaDGe4JyoCKyyShQbNYUMFvcVeAiqCDTngwR1iYxOuvr9i3kEbIR5YnCGJpqYE=
+	t=1753799639; cv=none; b=ZhlbOrPOwc6v9NaGt9sQe6uyoeS+tIOCJFpH8oZkZKSR3RGBSjMbqUbUU4OsRz+FckZInHmSxzUSwK+nbyEMf2XRpbkMraAss5z6x9zS/aP5xU0EE3MFH/2fd3wlsF938YmPzav27ivXLcoe2XVKFqqVJ4g8/DqsidTqS9GicFE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753797672; c=relaxed/simple;
-	bh=r3HIC7Boxoc8WBzaUCJ1hQaQWM78N1Woz+Lqyxl0MTU=;
+	s=arc-20240116; t=1753799639; c=relaxed/simple;
+	bh=hu7OaxbYesvpo8rMIBACAw6Ph085ioSQQGl4eqkmqQQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=u7Nv8P43YULM2L1fkMyJ/CR9Dw5p4VM23oZ01rDGCIuvPjg4njw1Gric7EJuA/kSOJ1GOk9bB8vHEmzI64KhtiwKJ8IFndyI8cUeqBjlnyh+mwS75H2yJ4AQtPptiogW6fAOYBPUpDZOIkTMpZGrZvKcBhu7WqIKnH9uFN4NuPE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V8R0hUQz; arc=none smtp.client-ip=209.85.216.49
+	 To:Cc:Content-Type; b=WWUH+tJRJ6dVauD6G3xBrs3wLqsRHRQ0g2GHYV7abQ1NBilCZU5v22/i53EXPFcznk99n/k8DzRAB9ITkS2iPG/tDGc5kkQ5yFLIb3PjfVBldpZE/zV9zsvEolXeIIbUw725bRQktChSCSg0PC9U/vo4n9JcSCPyWq4BJWRPkJk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R0Bnj6RN; arc=none smtp.client-ip=209.85.216.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V8R0hUQz"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-31f3b54da19so332231a91.1;
-        Tue, 29 Jul 2025 07:01:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R0Bnj6RN"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-31f53b3b284so285376a91.1
+        for <selinux@vger.kernel.org>; Tue, 29 Jul 2025 07:33:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753797670; x=1754402470; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1753799636; x=1754404436; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Q5L+zwK3WhJ2pLBcL0OsL1prz9X5dOPsX+0ffaqpEcI=;
-        b=V8R0hUQz0LNC1stDr8D0N0TlKML1s6HoGZ8r27jMnS2hClkzKwNAPBvNI7w0W8tKN1
-         kbRkjYnRa6Pfuwz+1HUZYM89NjmoX6oIm0tb2tYWVHIQFWkP+LjFrzaIcWUg4SM5ytyP
-         esftwR/8e39YFc1jQzrUjnimsr41Q+v/oCpdyrdkJmvVI5ExwWh4QG/5IXEhpf8QehBN
-         f5/EZbh7ps0wj0Mlbp7XxEGRSl5cBPaGCHXVvQ7E7M3ib8CqmTqcckgn4qd8UIVv8QhW
-         RAd6fUAtU8nKVZdncDXbj+/27EIQhYz15IygBS1o0YlhwpCyHow2InGCnvMhdYf8Z870
-         omyQ==
+        bh=hbmq3Gn6dT1E62xNXfEFsvikT/GPc2RNney7gZh2nFQ=;
+        b=R0Bnj6RNLgWg117CEfmhudkzxJf/WOO3yyHHm94NXrBlS0e5sZrFqIj9Evnww4GBqx
+         yN0dN9+pNKgoXVXHaxCjSZN7XEvFtkCf0MSZm8u1Wtxtqsde66k4CgJrzcV3w2tigH1K
+         dhfTqoK7jSFm8Zyg7+/4NZcoiMOxtB3k2AuGPQobWJaqNwtYCYUg9TKssKqkcKqJGu96
+         rB5BQSKopU5G6h8cGP7Oa2qSoEdFzBcO1YQUCNnq0qeTqAg2GMV672E1SeBhlzV3nyfT
+         XFBH7czQUS/UUX4ZElZmwuKxKM/QBY2Q+Xrvk8rWESYl0hVI4Nc6Ga85kbq9WZeMPsIj
+         /f/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753797670; x=1754402470;
+        d=1e100.net; s=20230601; t=1753799636; x=1754404436;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Q5L+zwK3WhJ2pLBcL0OsL1prz9X5dOPsX+0ffaqpEcI=;
-        b=T5jdgmOxxLOC6sKhCrSio161Xcle3PPRfVCAunYxj0dhIJHKI/7MxYIZejBVlHIH2m
-         DQzNwhen6AeGuhh+FE6TNkKW/iOBh0ItQ65XBE4Q668eiyNd4dr9+X/+tOlUd16WwVcR
-         /SaDJunAh/0C6JQE7OjN6ha/4ctMSMAZt+S1TZHgb11Jxo/wdnVg7ZGd37q1zWeeazXJ
-         mcN5lVd4Cub2DbLwsCd0wI8gIv1aIzk46kuNjAxw3Hm3MuNyCd9Ad+J/Xh4UU9DV/+/n
-         IMu0/MhPIhCgDE9jbNpMtTAIqr81cHFasWBf4OPoFU8527fxTeeSWy/2x85Ky+BeZ5Lx
-         nS/w==
-X-Forwarded-Encrypted: i=1; AJvYcCUZlEBensAx/0x2s265SutHZtq5X9k6cMQashLTjfkjV/G/47SNmj/6JSc0BIaAm/tFz9Wh9TbWMA==@vger.kernel.org, AJvYcCUmQY0LlRWd2LR2f+O38zkFp6syKkCSkH75iaVH4AQaiRSssIu53w97PxBm0lspfhkdF9iWjnEE+3xFvoA=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyUS1mcgPqbCAPKolMQkVzrKmZTm28OhavdJ6A4qLeCXzyoBSop
-	1A6/bqsdGhEYrkZVfrFQrP8S1mO2EDIIFqKFqrd2BDnWJzkQSWlSigo0Nep1HAAktRtdAAk4tiC
-	VvBvuN60Hm0Xw9BCQrW+jtGpUiGzhRrU=
-X-Gm-Gg: ASbGncs3tprryzyhS9FkUpXP3cWmjI3zSHtS2F/YWyOQJUOCt6OxsXwy5NGxF5KnbGa
-	E3KJpAn4KRttltqB8OLfcr9mPGb+J/bRYa9RLgfxB3W9XTFmw4uB5+trWPf/ODsYaw9e1F3SifU
-	Wy7B1C7RTdR8mmXvjUQk89lVhwsj7jO9puXjyr3b2/X2+6O+eoslQkv44Q7SzeQmE2YYphyA+qh
-	g5iBvA=
-X-Google-Smtp-Source: AGHT+IFW67L0lIMnI0+TrOex8d1GtwXQs7A9sNYwHJSYPTF2kRQ+LFfk0BstVUYBAFrEzrDIf7dvCFONgIbz05Um7uc=
-X-Received: by 2002:a17:90b:3906:b0:312:e76f:5213 with SMTP id
- 98e67ed59e1d1-31e77b0ede5mr21684773a91.28.1753797661341; Tue, 29 Jul 2025
- 07:01:01 -0700 (PDT)
+        bh=hbmq3Gn6dT1E62xNXfEFsvikT/GPc2RNney7gZh2nFQ=;
+        b=JksJPiRmj+HhlKC/ErDC9+jU457Xr31uyejwRCzB+7kgdack5NZr8rvy0slbmk4FXT
+         CHi0xrXvo6DatPbg2Gw8XBs46FHDagsUZesfEHOjac6bOZVYpG9giEDIqaSFEDaQrqA4
+         rfac5lP04r7N1eqXkioZs4Zk4svCszFX9bbXizBPMVPgxOeZslgAffG4BPreqXQmwJqA
+         Q7HLKjmLUnCu8j3E6hLvNaEmNJ9S5SntTU5vBahNtNvFNl3laPhQrlYieQj61QN5bvKp
+         I00lX/DPWqWS8SErL3jxg/DbjNXp3uyku01B88W4PFYWR/UgDuDbUCRjldmzmNajSnkd
+         Zkkg==
+X-Gm-Message-State: AOJu0YzVDwD1ivZhYvzLamYIxtmNmMMvY9h6SnICCV/pLMkTr+DguRi+
+	n1x1qI4YdcdxMWdh9lFCRLnrtIpd7sjovCrJOnB4wfoxWl1r0kQcu5WROTLBx0fx7t4JfTyGOQ9
+	KaoM3L7JMLjNFO57agT85yFP5uChvM/9CXg==
+X-Gm-Gg: ASbGnctj3QSLpVA6QIhmKhI9jPdPYSbowCLo1a2Guue9TDk6Y/FS2Gmv4PygqzG6tcI
+	jEarwDcT8vpNdIyr3M3+XUALwUkJWQmVaviJ5ABzu5y5M8lm/7qrAminX4mIyD6/b7H/JFh24vD
+	UWm23Cb4dg1rei2TnL7QQ7vtsAb2lToHGXXjU4kUbTD7sxkn4kzmX/rAO0T2O7tV+iiE9Ykhd73
+	MYkJfsg/CqmT9RTnw==
+X-Google-Smtp-Source: AGHT+IEzXZ1zA2NcE8d9HopHBDgTT4lMamsK5wSY71hmW8C89ECtm5br27MXMRa/oHgfXWdrdvieLzzliecuTEF0Iec=
+X-Received: by 2002:a17:90b:4c4b:b0:31f:4e9b:7c6a with SMTP id
+ 98e67ed59e1d1-31f4e9b84dbmr1050556a91.15.1753799636196; Tue, 29 Jul 2025
+ 07:33:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250729091044.95411-1-tianjia.zhang@linux.alibaba.com>
-In-Reply-To: <20250729091044.95411-1-tianjia.zhang@linux.alibaba.com>
+References: <20250727153250.731505-1-nvraxn@gmail.com>
+In-Reply-To: <20250727153250.731505-1-nvraxn@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 29 Jul 2025 10:00:50 -0400
-X-Gm-Features: Ac12FXzD51pX5c-mQ16et67ewj8uzEI4xq6_UENn8a3U_oH5rQu6qNt1ntOGbYI
-Message-ID: <CAEjxPJ6bPApxKRYt8KTcPcKez=2=mDV+f8xNF_UfO_jHawi8KQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: use a consistent method to get full socket from skb
-To: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
+Date: Tue, 29 Jul 2025 10:33:45 -0400
+X-Gm-Features: Ac12FXwuiMjQBRrcpNFc7aHTIduzcgSuDSxJaz2-zBtf47U_6PCyO0c-gGKsYzI
+Message-ID: <CAEjxPJ483QFyTuM3bHbsgs-i6PJ=UtbezZ-6NPaMBw9JrOCvdg@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: refactor selinux_getenforcemode
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 29, 2025 at 5:10=E2=80=AFAM Tianjia Zhang
-<tianjia.zhang@linux.alibaba.com> wrote:
+On Sun, Jul 27, 2025 at 11:33=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wr=
+ote:
 >
-> In order to maintain code consistency and readability,
-> skb_to_full_sk() is used to get full socket from skb.
+> Invert the check for cfg being a nullptr and early return.
 >
-> Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 > ---
->  security/selinux/hooks.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  libselinux/src/selinux_config.c | 75 ++++++++++++++++-----------------
+>  1 file changed, 37 insertions(+), 38 deletions(-)
 >
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 595ceb314aeb..362f92b2fafb 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -5861,7 +5861,7 @@ static unsigned int selinux_ip_output(void *priv, s=
-truct sk_buff *skb,
->         /* we do this in the LOCAL_OUT path and not the POST_ROUTING path
->          * because we want to make sure we apply the necessary labeling
->          * before IPsec is applied so we can leverage AH protection */
-> -       sk =3D sk_to_full_sk(skb->sk);
-> +       sk =3D skb_to_full_sk(skb);
->         if (sk) {
->                 struct sk_security_struct *sksec;
+> diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_con=
+fig.c
+> index 75db14ba..a2335fa9 100644
+> --- a/libselinux/src/selinux_config.c
+> +++ b/libselinux/src/selinux_config.c
+> @@ -88,47 +88,46 @@ static const uint16_t file_path_suffixes_idx[NEL] =3D=
+ {
+>
+>  int selinux_getenforcemode(int *enforce)
+>  {
+> -       int ret =3D -1;
+>         FILE *cfg =3D fopen(SELINUXCONFIG, "re");
+> -       if (cfg) {
+> -               char *buf;
+> -               char *tag;
+> -               int len =3D sizeof(SELINUXTAG) - 1;
+> -               buf =3D malloc(selinux_page_size);
+> -               if (!buf) {
+> -                       fclose(cfg);
+> -                       return -1;
+> -               }
+> -               while (fgets_unlocked(buf, selinux_page_size, cfg)) {
+> -                       if (strncmp(buf, SELINUXTAG, len))
+> -                               continue;
+> -                       tag =3D buf+len;
+> -                       while (isspace((unsigned char)*tag))
+> -                               tag++;
+> -                       if (!strncasecmp
+> -                           (tag, "enforcing", sizeof("enforcing") - 1)) =
+{
+> -                               *enforce =3D 1;
+> -                               ret =3D 0;
+> -                               break;
+> -                       } else
+> -                           if (!strncasecmp
+> -                               (tag, "permissive",
+> -                                sizeof("permissive") - 1)) {
+> -                               *enforce =3D 0;
+> -                               ret =3D 0;
+> -                               break;
+> -                       } else
+> -                           if (!strncasecmp
+> -                               (tag, "disabled",
+> -                                sizeof("disabled") - 1)) {
+> -                               *enforce =3D -1;
+> -                               ret =3D 0;
+> -                               break;
+> -                       }
+> -               }
+> +       if (!cfg)
+> +               return -1;
+> +
+> +       char *buf =3D malloc(selinux_page_size);
+> +       if (!buf) {
+>                 fclose(cfg);
+> -               free(buf);
+> +               return -1;
+>         }
+> +
+> +       int ret =3D -1;
+> +       static const int len =3D sizeof(SELINUXTAG) - 1;
+> +       while (fgets_unlocked(buf, selinux_page_size, cfg)) {
+> +               if (strncmp(buf, SELINUXTAG, len))
+> +                       continue;
+> +
+> +               char *tag =3D buf + len;
+> +               while (isspace((unsigned char)*tag))
+> +                       tag++;
+> +
+> +               if (!strncasecmp(tag, "enforcing", sizeof("enforcing") - =
+1)) {
+> +                       *enforce =3D 1;
+> +                       ret =3D 0;
+> +                       break;
+> +               } else if (!strncasecmp(tag, "permissive",
+> +                                       sizeof("permissive") - 1)) {
+> +                       *enforce =3D 0;
+> +                       ret =3D 0;
+> +                       break;
+> +               } else if (!strncasecmp(tag, "disabled",
+> +                                       sizeof("disabled") - 1)) {
+> +                       *enforce =3D -1;
+> +                       ret =3D 0;
+> +                       break;
+> +               }
+> +       }
+> +
+> +       fclose(cfg);
+> +       free(buf);
+> +
+>         return ret;
+>  }
 >
 > --
-> 2.39.5 (Apple Git-154)
+> 2.50.1
+>
 >
