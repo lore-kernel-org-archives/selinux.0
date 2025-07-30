@@ -1,183 +1,91 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 480B62DCF48
-	for <selinux@vger.kernel.org>; Wed, 30 Jul 2025 15:07:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63E562DCF40
+	for <selinux@vger.kernel.org>; Wed, 30 Jul 2025 16:10:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753888056; cv=none; b=i9cKrHlfrgnMwNS9gCqE8fu+KYcjqTC2KcvdqzR7Gy2KyAkx198U5joX2Mp3Yk01lXNf77Ftv8g7xsObzAFoF9aIcMZS0Ypwwm9ZHtllKVevNHhADRmPqdD8VgiVaXFrSsuj1RRQ053iPYF7+bIBPtaWj9dLvBokIqP+rUEzjbE=
+	t=1753891859; cv=none; b=dtPR37KyFMORqrvvvAjrdZJwIG6ulcZ8iDNeVN4NSIY0iZhP+tkQjrJBGIBpNxkBzbyAM/qqJnKn/Rof4Y57wSDvLBahg1d3y9rpQ92VWxbOMLLbKXqeIgp4BBTnspuvmDJsGhZ/SfRfDXuPZZh1r+FYmovSrwSqRksb9rairRs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753888056; c=relaxed/simple;
-	bh=+kD8U/D1Eci5pc4pqVceIugjV1Z6EJR2haK/66LcRN8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dXFyPWxW+7Eoekc5rTeIfyeHWx4aMMvMWZR+yvYLILtChoHmPrHBkP2TOh3mjpk+wGi6iKcCc1HeRYO5T0AnsHZHzpBE0940mHUqwjIDNOvAK/YtZ2kM6LpcUO6s1bB0MvW4siLYxv/SL3B/QN2Uq2ygQmNKa7jX73MFFIZKp6s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Pn1PF7hd; arc=none smtp.client-ip=209.85.128.45
+	s=arc-20240116; t=1753891859; c=relaxed/simple;
+	bh=Xe6c8jY3+gbGQXhob7vsYHqis+TEwd7SlbyZMEE52hI=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To; b=K2TnGDRTLyENeEVZjQ/3Jzsgh1FTd2Fl+N725UK03K3F2MTo0uh1t9qjBN+ikVYe9KsTl9xWvXEKW+aY0PaSFY5JAKW9AgE4JxgU5tOrzE+AXdYfg7/kvmOzMmwPIu3jCumBoApjy3xaqQgLmGJlpf/dmUhrG4Xav7eMDs5xjJY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KPtrF5Yo; arc=none smtp.client-ip=209.85.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Pn1PF7hd"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-45896cf24ebso6375125e9.1
-        for <selinux@vger.kernel.org>; Wed, 30 Jul 2025 08:07:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KPtrF5Yo"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-451d41e1ad1so7794005e9.1
+        for <selinux@vger.kernel.org>; Wed, 30 Jul 2025 09:10:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753888052; x=1754492852; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=FZd5ZZ9RjXBzXj+p4VBXvjypM2OE0/0+pzuxc1GM3QU=;
-        b=Pn1PF7hdD/i7KzgBi3AiiVy0NR8jL7H4OVODIxxAdCak/ilTZkMptKdTyJEX+ci07X
-         wjU+Xgtahcy25yNEvTT5Dsy4KhCeqLFtTAGeG8O4Kp75GU0iHuwkBSYFnqq/SN/fHbvV
-         ugNUTtwo9TMjrxF/d4LMK/QCWbVNePX+/YHqMO5HIw81iBoy4gOeiiLf10nv82ZfYJJX
-         5MoIwQTjk5o7BEVXYlNhVoO1Hba2JRu8Xp5cvwAl3SNWJIdUVnpOo5Aaw3QaOheWcSxK
-         u1wJXegP2CYUq4z7yycPnKCdFssh8nn7FkY962emSJg/QbPXX0H7voJVdSZOXnp0P136
-         Fcrw==
+        d=gmail.com; s=20230601; t=1753891856; x=1754496656; darn=vger.kernel.org;
+        h=to:from:subject:message-id:date:content-transfer-encoding
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=CqKE2Wmpz8b7XfQpTqmdtoyrrpUVs1wy676r+WwNf7c=;
+        b=KPtrF5YoTKBYh95bcTT0gKp0+qc3X4C2V7ZnfycbVa27iweYc6OnEhFf7VoClq7G67
+         HWPhtFikK/HRg+zmlNA1o0CIc5cyS7qrzZ0eWkf9QhUlF4Xs8Cc9d+XcDjQ3x9nm/EXn
+         DoOyOYuqy92s7kpM/ZgpiUDDSLNacwN0clxfwC3ZBE/PNlB+JA73M0skJ4LV9h+zlZlS
+         E87231P1KGPoSQsAyauMWTBNjgdmS9j0lLK4cG5mGEJCXudVskO9pAkZe7CZTPHQmfgH
+         dNk90CbYOBERK6qKScqPA5XzGBTCryUGW9sBu8LRwhKs6dmGeCXnU+rLdt7UTaoY1znY
+         54PQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753888052; x=1754492852;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=1e100.net; s=20230601; t=1753891856; x=1754496656;
+        h=to:from:subject:message-id:date:content-transfer-encoding
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=FZd5ZZ9RjXBzXj+p4VBXvjypM2OE0/0+pzuxc1GM3QU=;
-        b=Dgb7MXgiPf9+k8JlyFbgQauE4tasCjDcGkSCiFR8fB2rmSWKzGt3/s/zx36iTT/iJq
-         g1j49bIHHpHPEy6keMyeyTkgGSozNS0E5XOLt8/nbLKSKESPpfYN1OzUwM5yhuI7z3Df
-         y+MgCNh6j0gIbJNUnmCokg8NfyKPiZNt4f7MngW6Ta3xvSJc4qDmor+q1xis44EV+9sq
-         CY7u1UfFaKxtYc4xawFknFJ1YeRwC7wneWV1ub7sMpoCqwYUKerFJoN5hfJYHDdyWboH
-         3fYSduf7t8Zk2is6M1vLc/TPGc9qrm8o+pcWmYN81Df4s6r1jAWc12SYpprt7keRNujj
-         Xqiw==
-X-Gm-Message-State: AOJu0YzqDrkj0eZ4iLJT2+btl2cb0D31B9SGuSsa9G5q5dbFB6a1Bv0I
-	Vzqp/rfIi86LYcLMNmSRDGHnUgjWjeqeH0RsGz3Crt2lvAZIZidpn1Rk5BypoA==
-X-Gm-Gg: ASbGnctntXjS1L3yT8ZWhCwb2xQOEPHOUOuV1T0J1EkheDwzmLGHRDr/nyB35C3y6Ql
-	HO9S2Dc7CONRfjEMVH6qvLtRIEuyPr+8FjntYawfDqVW5Uy6bCkE1OmTKZMfnjcKd5SDA5VWyI8
-	om4Zs+p21GfsBnUx8qvjRWbbaXbEpIlRUHa2f5QjQoDmUlEcEGD5i4G77weGpgLcrwotL+zVKRC
-	m+0TpWf5nIUH5hrZuOhtZk6XX5oLI6sqWAO7SSTunB6Xov/TTo5mLV5lJ4NqutouXd2bvSUrvCJ
-	Y71HrtTqmkK5ZU7a1tYtTNT1W7Rgc0+/5EUaFeg9I+B+Fp97rbD4ltHUZRiBlPOP0PVX8p/KBXV
-	f3/Wsd+KATB/B
-X-Google-Smtp-Source: AGHT+IF88ea9JlUP09zvU1p2d8TV3nW0d+2eVsP5sSa0KQSBIuz8EX1g6xwy/GyAwqiSYMpAXopPwg==
-X-Received: by 2002:a05:600d:108:20b0:456:1560:7c63 with SMTP id 5b1f17b1804b1-458939439ecmr21567175e9.3.1753888052207;
-        Wed, 30 Jul 2025 08:07:32 -0700 (PDT)
-Received: from sierra ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-458953eaeeesm32882345e9.25.2025.07.30.08.07.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Jul 2025 08:07:31 -0700 (PDT)
-From: Rahul Sandhu <nvraxn@gmail.com>
-To: selinux@vger.kernel.org
-Cc: Rahul Sandhu <nvraxn@gmail.com>
-Subject: [PATCH] libselinux: load_policy: log using selinux_log instead of fprintf
-Date: Wed, 30 Jul 2025 16:07:23 +0100
-Message-ID: <20250730150723.974292-1-nvraxn@gmail.com>
-X-Mailer: git-send-email 2.50.1
+        bh=CqKE2Wmpz8b7XfQpTqmdtoyrrpUVs1wy676r+WwNf7c=;
+        b=DG+O0EaZohbpdSJkv8N3w5X00SN2JLySWzNQd6f/XbJZimkgjN0ANnfBeiLjXC9DYu
+         p/FYPOyvKHNrxhDWOL5huwEoNWJU1AI4W6jpFFRuttCSmTLJv9XAKnlZpItmgZMOMbCU
+         7DizzxzLH0HRFrOw483DY525B/7ztroK7IxDT7VdXYDvJoawnlfbX0gNJxYs/6S2bWIO
+         RKtaNlUn4d4LZ/+/Xs+FlH69P4D68IecJp4347UR7EO1pNguBt0QCFgGYdBN4JkA8hWj
+         KkqouPqQptt8qVIdiUHC3Z89F/1hVdxyukpbjTxi45i46GdH9bi3tTm5WL6iY/w5/dzw
+         /i9A==
+X-Gm-Message-State: AOJu0YwXbesdBgh+6WHtqmO5rfoFO3yGEA9UMRJbNs0pSKXk9eBCTnD/
+	3NbF+JM+OellQk9rDxaoT959dKld+11xg1j39e5ogJW7z8bqfr3p2UsA/CbZDg==
+X-Gm-Gg: ASbGncuz8WJ2ZpeeLgxw2Ht557h9lfDfK0+iRDLvFw9YWQCCuMbTRUc2uQvAokvC+4B
+	B74UAnydZXZFYpAm8HtS/GCunzeZCjf3F+o2x/3v+hkXwW7iQFtxpWz9H3RwANbatsunSpg6bgM
+	bQEprHzENO2CrdyHkmwAePjiuaOccE91CngxnQRBp3OpZJ4VuJ5iadB7Wx5yotR9jJV89bI36P0
+	ccJVxGuNGlxOknBw9P2Yr4rMO40Vx0dzl+Vh1F1YK6V5VNJkipphgla+O5GSBHX9eGwQVXXGby2
+	1maHu48WL3osivKeFTVqupBHCEXkHVnO8qpUGpyaZMCb68VkauvwRMvw55yAINXM5GijIvanCyh
+	wLkWJDXySRFZxGtlY
+X-Google-Smtp-Source: AGHT+IF2SQbEIJ7dUCFnWzLbqgVvA1lh/WhWxuSb89MQ/Wcwwz8jwRpEeuxDMynRPmevAh/ePiarRA==
+X-Received: by 2002:a05:600c:1d91:b0:456:2832:f98d with SMTP id 5b1f17b1804b1-45892bd1af8mr39725095e9.27.1753891855565;
+        Wed, 30 Jul 2025 09:10:55 -0700 (PDT)
+Received: from localhost ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4589536b3b4sm33270305e9.3.2025.07.30.09.10.55
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 30 Jul 2025 09:10:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 30 Jul 2025 17:10:54 +0100
+Message-Id: <DBPIRUM77DL6.AEMZQHEO7W71@gmail.com>
+Subject: Possibly re-expose the enforcing kernel cmdline parameter
+From: "Rahul Sandhu" <nvraxn@gmail.com>
+To: <selinux@vger.kernel.org>
+X-Mailer: aerc 0.20.1
 
-This allows consumers to override our logging to stderr using the
-callback based mechanism selinux_log provides.
+Hi,
 
-Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
----
- libselinux/src/load_policy.c | 37 ++++++++++++++++++------------------
- 1 file changed, 19 insertions(+), 18 deletions(-)
+This is more of a question for the kernel guys.  Currently, libselinux
+also checks the enforcing kernel cmdline parameter by *mounting /proc*.
+This is... not ideal; granted many situations in early boot where the
+policy is loaded with selinux_init_load_policy (3) will require /proc
+mounted later for things like getcon to work (given they use the /proc
+api), however I don't really think this is ideal at all, especially as
+often the thing loading the policy is init.  Would it be possible to
+reexpose the enforcing kernel cmdline parameter as part of PID 1's env?
+I think would be cleaner, however I'm not sure if this goes against the
+kernel's policy for anything or isn't feasible for some reason.
 
-diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-index f67e5538..8e737a23 100644
---- a/libselinux/src/load_policy.c
-+++ b/libselinux/src/load_policy.c
-@@ -16,6 +16,7 @@
- #include <sepol/policydb.h>
- #endif
- #include <dlfcn.h>
-+#include "callbacks.h"
- #include "policy.h"
- #include <limits.h>
- 
-@@ -136,25 +137,25 @@ int selinux_mkload_policy(int preservebools __attribute__((unused)))
- 		fd = open(path, O_RDONLY | O_CLOEXEC);
- 	}
- 	if (fd < 0) {
--		fprintf(stderr,
--			"SELinux:  Could not open policy file <= %s.%d:  %m\n",
--			selinux_binary_policy_path(), maxvers);
-+		selinux_log(SELINUX_ERROR,
-+		            "SELinux:  Could not open policy file <= %s.%d:  %m\n",
-+		            selinux_binary_policy_path(), maxvers);
- 		goto dlclose;
- 	}
- 
- 	if (fstat(fd, &sb) < 0) {
--		fprintf(stderr,
--			"SELinux:  Could not stat policy file %s:  %m\n",
--			path);
-+		selinux_log(SELINUX_ERROR,
-+		            "SELinux:  Could not stat policy file %s:  %m\n",
-+		            path);
- 		goto close;
- 	}
- 
- 	size = sb.st_size;
- 	data = map = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
- 	if (map == MAP_FAILED) {
--		fprintf(stderr,
--			"SELinux:  Could not map policy file %s:  %m\n",
--			path);
-+		selinux_log(SELINUX_ERROR,
-+		            "SELinux:  Could not map policy file %s:  %m\n",
-+		            path);
- 		goto close;
- 	}
- 
-@@ -175,9 +176,9 @@ int selinux_mkload_policy(int preservebools __attribute__((unused)))
- 		if (policydb_set_vers(policydb, kernvers) ||
- 		    policydb_to_image(NULL, policydb, &data, &size)) {
- 			/* Downgrade failed, keep searching. */
--			fprintf(stderr,
--				"SELinux:  Could not downgrade policy file %s, searching for an older version.\n",
--				path);
-+			selinux_log(SELINUX_ERROR,
-+			            "SELinux:  Could not downgrade policy file %s, searching for an older version.\n",
-+			            path);
- 			policy_file_free(pf);
- 			policydb_free(policydb);
- 			munmap(map, sb.st_size);
-@@ -192,9 +193,9 @@ int selinux_mkload_policy(int preservebools __attribute__((unused)))
- 	rc = security_load_policy(data, size);
- 	
- 	if (rc)
--		fprintf(stderr,
--			"SELinux:  Could not load policy file %s:  %m\n",
--			path);
-+		selinux_log(SELINUX_ERROR,
-+		            "SELinux:  Could not load policy file %s:  %m\n",
-+		            path);
- 
-       unmap:
- 	if (data != map)
-@@ -205,7 +206,7 @@ int selinux_mkload_policy(int preservebools __attribute__((unused)))
-       dlclose:
- #ifdef SHARED
- 	if (errormsg)
--		fprintf(stderr, "libselinux:  %s\n", errormsg);
-+		selinux_log(SELINUX_ERROR, "libselinux:  %s\n", errormsg);
- 	if (libsepolh)
- 		dlclose(libsepolh);
- #endif
-@@ -317,7 +318,7 @@ int selinux_init_load_policy(int *enforce)
- 			*enforce = 0;
- 		} else {
- 			/* Only emit this error if selinux was not disabled */
--			fprintf(stderr, "Mount failed for selinuxfs on %s:  %m\n", SELINUXMNT);
-+			selinux_log(SELINUX_ERROR, "Mount failed for selinuxfs on %s:  %m\n", SELINUXMNT);
- 		}
- 
- 		if (rc == 0)
-@@ -365,7 +366,7 @@ int selinux_init_load_policy(int *enforce)
- 	if (orig_enforce != *enforce) {
- 		rc = security_setenforce(*enforce);
- 		if (rc < 0) {
--			fprintf(stderr, "SELinux:  Unable to switch to %s mode:  %m\n", (*enforce ? "enforcing" : "permissive"));
-+			selinux_log(SELINUX_ERROR, "SELinux:  Unable to switch to %s mode:  %m\n", (*enforce ? "enforcing" : "permissive"));
- 			if (*enforce)
- 				goto noload;
- 		}
--- 
-2.50.1
+If this seems both reasonable and feasible, I'd be happy to send over a
+patch.
 
+Best Regards,
+Rahul
