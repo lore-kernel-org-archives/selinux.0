@@ -1,168 +1,434 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32CACC13D
-	for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 10:22:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9316B2576
+	for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 14:17:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753957355; cv=none; b=ZkeUgvV1K0X1OSWbVQnSmN+2qHEZefxjMC1xEUfEPpWFWr46wFZJNi+SZKlGgwAnll9lgPpBLZ0FKLpXJFIx7MsmrdSOFq9vJmozcUKx95Zo6Bgp1w1D/hwFcEV074fhy/PxgsiI4GwMCB8A2LbBMta2TRI7OGIvifE0bPsmUEY=
+	t=1753971427; cv=none; b=bH8NDGSX0Tlbhi6EO6ziAw71q20AznJauEdfCegOoNk6T+Sh4suQJCXdkvExPARGCaBAo0B2UGXNLQ6a8xQ+D/aUwk5PeBShLpjoXsyiM1SvbvnscWZqcIuDvLIY5aplqJlmC3qIDe50TDt/aO8K+kBb1v3XpdhK41hocWDWwlA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753957355; c=relaxed/simple;
-	bh=L6hpZxksUbbLOxyxL5XJQGcezZQx3dRpE5pyXefKDs8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=es2w6+9rZruvC96J9foVZm5gtXV20N5EO0KPF4H60rcHSLbzRRbwrLhXVt1OOVvJa5UoEtAd7dKDIyqQ8c5M8L+i/wnxUTMESEZilzlxBKUC5wBR7RjrDw0rinfRu18ih3s6tutoWE4ZcFdZhUO9BrrT5NtEt1BhrK67glpKgRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EGBGOent; arc=none smtp.client-ip=209.85.128.43
+	s=arc-20240116; t=1753971427; c=relaxed/simple;
+	bh=+Iz3AEfS76Te6ka6v/APu7RBq8koIri5yaZDG3SgYXs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Iphd5pK09xc2b7yJ7Z9sO7rY761N2bMccZoD39DoiGDRe8jVWEBKraRz0NOPYdY/seNn/nejBKuFKkqrPWAB9EFfP+HfrPFpiGfY073inSaP4wbQBAyZi5pOBfzAD1WNYdg9sjGGsRFKf+9Tr6NLuvp6PHCGI6ZB3HVyHKTBYrM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EVjaqhJU; arc=none smtp.client-ip=209.85.216.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EGBGOent"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-45892deb246so1337945e9.2
-        for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 03:22:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EVjaqhJU"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-31eb75f4ce1so904486a91.3
+        for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 07:17:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753957352; x=1754562152; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=8xhGkizseSjj8M5q6Mt6GM1rQiBQd5VOWaKLd/Qq4Rc=;
-        b=EGBGOentcmUpkE7tz8iObpZgwCScXSWzfi5uOemjfQn4DXR8sXtUOPmXXq4rKjrV5g
-         msGUPJcg7ax9G9YHKlNIXPLH27RZvfZS0+B+ZmV0K9Lb7abQnPopa7C6EDhD/+5CKJy5
-         UhxV8EsgEJ0db/UfEdaOE8dEcI1bCXgxX/qVbAZMcH5nPR8LaM9L5edVvh18nqXo08jQ
-         qpJxGZhtKxM+qcmfvDjl7t9rR1QfxFXjlLyU7GISNPjnlSFfB7XQjaXhMm6xaLjGnKcp
-         yohvD6EK/WT0NfJS68jc1a3AKmRRVTPXzdA5+hrwNH95TUxvuOdK0FGXjczKJBhFKk3k
-         P04Q==
+        d=gmail.com; s=20230601; t=1753971425; x=1754576225; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=QWcNWzeS8iWxUpxwHCrb6Q13zBjYPVADrgEuLkydMR4=;
+        b=EVjaqhJUJhG9Id7KQVnGNuZJhXfRMV0mcsHZsJNBcI6XMAPgGTeLSym67mvSPJABE9
+         gJteGTgLHe2qskDSmypAwiAf+9KGgDEl9vJ8M+6jXJx4Gm0IMKdhjwwzGdps5tFu/Ytr
+         uXP1ESO/KvdoOZSotB+oIOai8d2FN9ld8fDzYJgCW9pnNav/dCL+noYY0W02/3BgnMuR
+         8vVcs6xzOJ7MmM8m+JFYL2GbKrEZl7QNdAZeUt+5Ag8uKAVuu57kmKnizW0wy0sh4MSr
+         QB7J3ItT8jsTQt3ZrK8Uu4ueREax1SURByh45Z1wl/IFYKW1bJJiFoiMfrBO1wAaGFrd
+         RzxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753957352; x=1754562152;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=8xhGkizseSjj8M5q6Mt6GM1rQiBQd5VOWaKLd/Qq4Rc=;
-        b=JcfmSY+QQ5w1RhYiIBSdDV6ep0D/um0bhRKHYh7vHwiDMjrHb/p/tzFmAQZAOVGgon
-         vClT/FrlEh0/bo8zbZdim9HdL7wzYfecDa74QsfN2qth5TwAQy0fPixn9aStGHJHmu4o
-         obacVU2oU6lCBnuhHfoOarZzzgqgp74BdzuG5Dw3FaSbGJ8hdoHecH/NKYmpyVf8iu1V
-         wamJu3T/ajb7A0KJpTn+kn8829t3m22VsoLseJQaROZV9JpCTxUzsK3w5bXlpqAgsdsM
-         vrYIVq4a6Iq4wGUaRqcU6rubJiiv87dePlCkeBEVeA43Zh2dDqlhXYK26HsfraEUIV6a
-         eW2A==
-X-Gm-Message-State: AOJu0YzsggiNozj5hW7Cx1YbY8EVCi6jGjuqZrHjv2e6wf+UlxEULtKY
-	1nwxplQHYEcoACZfsB+0Emd0Qn+zpyaUPvL7s+lT05EPgofa6WkK8EU2C8iSPg==
-X-Gm-Gg: ASbGncv6MBHpRBQHNNNV0LOshyKcu+4pwhIu7AbahkNCPrfKyD7FWPJWJCcvAR7qi8w
-	oGP6YtAsPcoAncmShLFinCL2KxmloI7cOn/PqVGjNdsHxQThs59Ql46rpknBXgpznapFj3Z+740
-	nHcCkY90rf1GBD2tCFTVSYLXgiOJRHOgCiF24pvx6/rwpGdBWQRx4QqiicO+hj2bDCoE2r20V8i
-	2IrmaIEjW3BCNxEKcEbWkNLgyxMpfZKJ/yg0wi0Df6toxfGOACMWcq2abdYnhopZdkRQKaEc7Nu
-	4lF4P0KAi24cKazb1/m0C5xSKni328qgfMWEziIugFWdL6ea87aQv76EuKR02VtVlyGrMQdsDwi
-	HbGA9m3xB0ZQ6
-X-Google-Smtp-Source: AGHT+IHNFa7nU9j8ugrD5PxyQQBiV5sl7EBLr7EaR0THdMHqQ2UW5Vd36aE4GnHP6f3igtJy9DmdUw==
-X-Received: by 2002:a05:600c:4443:b0:456:285b:db24 with SMTP id 5b1f17b1804b1-4589eaa6e95mr17529495e9.28.1753957352069;
-        Thu, 31 Jul 2025 03:22:32 -0700 (PDT)
-Received: from sierra ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-458953d033fsm63087765e9.15.2025.07.31.03.22.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 31 Jul 2025 03:22:31 -0700 (PDT)
-From: Rahul Sandhu <nvraxn@gmail.com>
-To: selinux@vger.kernel.org
-Cc: Rahul Sandhu <nvraxn@gmail.com>
-Subject: [PATCH] python: fix flake8 F824 error
-Date: Thu, 31 Jul 2025 11:22:24 +0100
-Message-ID: <20250731102224.1045166-1-nvraxn@gmail.com>
-X-Mailer: git-send-email 2.50.1
+        d=1e100.net; s=20230601; t=1753971425; x=1754576225;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=QWcNWzeS8iWxUpxwHCrb6Q13zBjYPVADrgEuLkydMR4=;
+        b=EM1ZiwatlJW2eOmAVYgP6R9/BKCO3viqYaMO68ZfNH2RfY3Hf3rfxG3nieKp7ZCu5o
+         Ir/gm43LgBn/Nip6Iqyyiqp4gb8BmfMi8bmEGlNF9LIWXNPp8D0THkOi43l4+9xHdIGF
+         G1vSww3a1pndA7iYQFsvbYj3tUa4lxPDuyAsaDDhYukL16RpguFFKtwSQOR7mVNOL3K8
+         JOJwUwCDQtFni650JMfL+3VEIzmFwcSdfq7PCQHEGiXxTQoMmDorI35kijdjxk/Kq0uA
+         6AV7Ok6QKp9GbEWEOeeCTp5Kuu6AsA4VH8iNIpEbN8VKIK8e3nt8GU+HfnAdupm4uvPq
+         MyCw==
+X-Gm-Message-State: AOJu0YwNkkIyYw2WuAJ3NDehZDx8zaCGIkHHN3UO90mQsluJX/flF081
+	4YrO6enCnHAzZEyWTd7iGNCbTrfuq2LzHmh+JspMbbwH4tCPuwc9uFb4NscnAVpcUhjC9BYNd2L
+	tBbIoKzmMOS62BaL9GnmKoJ4UWMoBGEw=
+X-Gm-Gg: ASbGncsGpFZaVsRBGewO4cUHUy+e5fPvPkkrQ4jkk42iyurOZuwCI8gHHm7MRwMZflj
+	GfrXeXmG95LL4WHk7lUA37faBKx9JCeV4m7gsx+c0yjpV1hI+EycNcUDVoN/oKEsVG9oaATInGj
+	RWiAna1W654IjHG6nl+AvPhf78b2vxQabV4i5F/8htCvEtqTqunRvbihptdLJ4nvdhKJg3JW+tA
+	wZBWe4=
+X-Google-Smtp-Source: AGHT+IEh84gfH9Dg9jqbcsoaq1bgOpCpWkI5jnXcDC0XCoAerycav7PE8U8sc8nPdJo7Hra76bDspE/dTgGF/Z8l0og=
+X-Received: by 2002:a17:90b:380a:b0:31f:28ae:8709 with SMTP id
+ 98e67ed59e1d1-31f5ddb096cmr12273118a91.8.1753971424330; Thu, 31 Jul 2025
+ 07:17:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250727154422.732647-1-nvraxn@gmail.com> <20250727155530.733633-1-nvraxn@gmail.com>
+ <CAEjxPJ54SJLsdzygZiCc8L4vfwdFPJ5mpLzjXvDZ_aJCcp=EXw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ54SJLsdzygZiCc8L4vfwdFPJ5mpLzjXvDZ_aJCcp=EXw@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 31 Jul 2025 10:16:53 -0400
+X-Gm-Features: Ac12FXzgMmjl_8n3TPMwhYEBZz2SNQrRZG-2SX2ZnnEogdUlXBemB5150Kj9U4I
+Message-ID: <CAEjxPJ6-h=YkfE6O1EnNcWHPANCfio2yJnFrt-QXJwaZ9Kx2Gg@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: remove out2 labels
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This fixes failing CI[1].  From the flake8 documentation[2]:
+On Tue, Jul 29, 2025 at 10:51=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Sun, Jul 27, 2025 at 11:55=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> =
+wrote:
+> >
+> > The out2 label previously only existed such that free(buf) isn't called
+> > if malloc(3) fails to allocate buf. However, posix says[1] that calling
+> > free(3) with a nullptr is valid:
+> >
+> > > If ptr is a null pointer, no action shall occur.
+> >
+> > Hence, remove the extra labels to simplify the logic.
+> >
+> > [1] https://pubs.opengroup.org/onlinepubs/009604499/functions/free.html
+> >
+> > Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-> global name / nonlocal name is unused: name is never assigned in scope
+Thanks, applied.
 
-Meaning that a global only needs to be defined with the global keyword
-in scope when it's being assigned to; not when it's being read.
-
-[1] https://github.com/SELinuxProject/selinux/actions/runs/16623315767/job/47032933729
-[2] https://flake8.pycqa.org/en/latest/user/error-codes.html
-
-Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
----
- mcstrans/share/util/mlstrans-test         | 4 ++--
- python/semanage/seobject.py               | 1 -
- python/sepolgen/src/sepolgen/refparser.py | 2 +-
- python/sepolicy/sepolicy/__init__.py      | 3 ---
- 4 files changed, 3 insertions(+), 7 deletions(-)
-
-diff --git a/mcstrans/share/util/mlstrans-test b/mcstrans/share/util/mlstrans-test
-index df34e0e6..8fa0c379 100644
---- a/mcstrans/share/util/mlstrans-test
-+++ b/mcstrans/share/util/mlstrans-test
-@@ -8,7 +8,7 @@ errors = 0
- 
- 
- def untrans(trans, val):
--    global errors, verbose
-+    global errors
-     (rc, raw) = selinux.selinux_trans_to_raw_context(trans)
-     if raw != val:
-         print("untrans: '%s' -> '%s' != '%s' FAILED" % (trans, raw, val))
-@@ -19,7 +19,7 @@ def untrans(trans, val):
- 
- 
- def trans(raw, val):
--    global errors, verbose
-+    global errors
-     (rc, trans) = selinux.selinux_raw_to_trans_context(raw)
-     if trans != val:
-         print("trans: '%s' -> '%s' != '%s' FAILED" % (raw, trans, val))
-diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-index 10963e81..b41efd59 100644
---- a/python/semanage/seobject.py
-+++ b/python/semanage/seobject.py
-@@ -244,7 +244,6 @@ class semanageRecords:
-     args = None
- 
-     def __init__(self, args = None):
--        global handle
-         if args:
-             # legacy code - args was store originally
-             if isinstance(args, str):
-diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/src/sepolgen/refparser.py
-index c8a3eb54..01a322ca 100644
---- a/python/sepolgen/src/sepolgen/refparser.py
-+++ b/python/sepolgen/src/sepolgen/refparser.py
-@@ -1038,7 +1038,7 @@ def p_quoted_filename(p):
- #
- 
- def p_error(tok):
--    global error, parse_file, success, parser
-+    global error, success
-     error = "%s: Syntax error on line %d %s [type=%s]" % (parse_file, tok.lineno, tok.value, tok.type)
-     print(error)
-     success = False
-diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
-index 2d526c94..3b87a869 100644
---- a/python/sepolicy/sepolicy/__init__.py
-+++ b/python/sepolicy/sepolicy/__init__.py
-@@ -195,7 +195,6 @@ def init_policy():
-     policy(policy_file)
- 
- def info(setype, name=None):
--    global _pol
-     if not _pol:
-         init_policy()
- 
-@@ -354,7 +353,6 @@ def _setools_rule_to_dict(rule):
- 
- 
- def search(types, seinfo=None):
--    global _pol
-     if not _pol:
-         init_policy()
-     if not seinfo:
-@@ -936,7 +934,6 @@ def get_all_roles():
-     if roles:
-         return roles
- 
--    global _pol
-     if not _pol:
-         init_policy()
- 
--- 
-2.50.1
-
+>
+> > ---
+> >  libselinux/src/canonicalize_context.c |  9 ++++-----
+> >  libselinux/src/compute_av.c           | 11 +++++------
+> >  libselinux/src/compute_create.c       | 13 ++++++-------
+> >  libselinux/src/compute_member.c       | 11 +++++------
+> >  libselinux/src/compute_relabel.c      | 11 +++++------
+> >  libselinux/src/compute_user.c         | 15 +++++++--------
+> >  libselinux/src/get_initial_context.c  |  7 +++----
+> >  libselinux/src/procattr.c             |  9 ++++-----
+> >  8 files changed, 39 insertions(+), 47 deletions(-)
+> >
+> > diff --git a/libselinux/src/canonicalize_context.c b/libselinux/src/can=
+onicalize_context.c
+> > index 6af8491d..d9f0beb4 100644
+> > --- a/libselinux/src/canonicalize_context.c
+> > +++ b/libselinux/src/canonicalize_context.c
+> > @@ -36,12 +36,12 @@ int security_canonicalize_context_raw(const char * =
+con,
+> >         if (strlcpy(buf, con, size) >=3D size) {
+> >                 errno =3D EOVERFLOW;
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >
+> >         ret =3D write(fd, buf, strlen(buf) + 1);
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         memset(buf, 0, size);
+> >         ret =3D read(fd, buf, size - 1);
+> > @@ -54,12 +54,11 @@ int security_canonicalize_context_raw(const char * =
+con,
+> >         *canoncon =3D strdup(buf);
+> >         if (!(*canoncon)) {
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >         ret =3D 0;
+> > -      out2:
+> > -       free(buf);
+> >        out:
+> > +       free(buf);
+> >         close(fd);
+> >         return ret;
+> >  }
+> > diff --git a/libselinux/src/compute_av.c b/libselinux/src/compute_av.c
+> > index 354a19e1..bd31279f 100644
+> > --- a/libselinux/src/compute_av.c
+> > +++ b/libselinux/src/compute_av.c
+> > @@ -46,17 +46,17 @@ int security_compute_av_flags_raw(const char * scon=
+,
+> >         if (ret < 0 || (size_t)ret >=3D len) {
+> >                 errno =3D EOVERFLOW;
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >
+> >         ret =3D write(fd, buf, strlen(buf));
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         memset(buf, 0, len);
+> >         ret =3D read(fd, buf, len - 1);
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         ret =3D sscanf(buf, "%x %x %x %x %u %x",
+> >                      &avd->allowed, &avd->decided,
+> > @@ -64,7 +64,7 @@ int security_compute_av_flags_raw(const char * scon,
+> >                      &avd->seqno, &avd->flags);
+> >         if (ret < 5) {
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         } else if (ret < 6)
+> >                 avd->flags =3D 0;
+> >
+> > @@ -79,9 +79,8 @@ int security_compute_av_flags_raw(const char * scon,
+> >                 map_decision(tclass, avd);
+> >
+> >         ret =3D 0;
+> > -      out2:
+> > -       free(buf);
+> >        out:
+> > +       free(buf);
+> >         close(fd);
+> >         return ret;
+> >  }
+> > diff --git a/libselinux/src/compute_create.c b/libselinux/src/compute_c=
+reate.c
+> > index ff8553bc..b0c6ea34 100644
+> > --- a/libselinux/src/compute_create.c
+> > +++ b/libselinux/src/compute_create.c
+> > @@ -81,34 +81,33 @@ int security_compute_create_name_raw(const char * s=
+con,
+> >         if (len < 0 || (size_t)len >=3D size) {
+> >                 errno =3D EOVERFLOW;
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >
+> >         if (objname &&
+> >             object_name_encode(objname, buf + len, size - len) < 0) {
+> >                 errno =3D ENAMETOOLONG;
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >
+> >         ret =3D write(fd, buf, strlen(buf));
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         memset(buf, 0, size);
+> >         ret =3D read(fd, buf, size - 1);
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         *newcon =3D strdup(buf);
+> >         if (!(*newcon)) {
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >         ret =3D 0;
+> > -      out2:
+> > -       free(buf);
+> >        out:
+> > +       free(buf);
+> >         close(fd);
+> >         return ret;
+> >  }
+> > diff --git a/libselinux/src/compute_member.c b/libselinux/src/compute_m=
+ember.c
+> > index 53d2f559..ebe33264 100644
+> > --- a/libselinux/src/compute_member.c
+> > +++ b/libselinux/src/compute_member.c
+> > @@ -41,27 +41,26 @@ int security_compute_member_raw(const char * scon,
+> >         if (ret < 0 || (size_t)ret >=3D size) {
+> >                 errno =3D EOVERFLOW;
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >
+> >         ret =3D write(fd, buf, strlen(buf));
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         memset(buf, 0, size);
+> >         ret =3D read(fd, buf, size - 1);
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         *newcon =3D strdup(buf);
+> >         if (!(*newcon)) {
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >         ret =3D 0;
+> > -      out2:
+> > -       free(buf);
+> >        out:
+> > +       free(buf);
+> >         close(fd);
+> >         return ret;
+> >  }
+> > diff --git a/libselinux/src/compute_relabel.c b/libselinux/src/compute_=
+relabel.c
+> > index 9c0a2304..b2c1520e 100644
+> > --- a/libselinux/src/compute_relabel.c
+> > +++ b/libselinux/src/compute_relabel.c
+> > @@ -41,27 +41,26 @@ int security_compute_relabel_raw(const char * scon,
+> >         if (ret < 0 || (size_t)ret >=3D size) {
+> >                 errno =3D EOVERFLOW;
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >
+> >         ret =3D write(fd, buf, strlen(buf));
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         memset(buf, 0, size);
+> >         ret =3D read(fd, buf, size - 1);
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         *newcon =3D strdup(buf);
+> >         if (!*newcon) {
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >         ret =3D 0;
+> > -      out2:
+> > -       free(buf);
+> >        out:
+> > +       free(buf);
+> >         close(fd);
+> >         return ret;
+> >  }
+> > diff --git a/libselinux/src/compute_user.c b/libselinux/src/compute_use=
+r.c
+> > index d4387aed..584219c7 100644
+> > --- a/libselinux/src/compute_user.c
+> > +++ b/libselinux/src/compute_user.c
+> > @@ -43,27 +43,27 @@ int security_compute_user_raw(const char * scon,
+> >         if (ret < 0 || (size_t)ret >=3D size) {
+> >                 errno =3D EOVERFLOW;
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >
+> >         ret =3D write(fd, buf, strlen(buf));
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         memset(buf, 0, size);
+> >         ret =3D read(fd, buf, size - 1);
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         if (sscanf(buf, "%u", &nel) !=3D 1) {
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >
+> >         ary =3D malloc((nel + 1) * sizeof(char *));
+> >         if (!ary) {
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >
+> >         ptr =3D buf + strlen(buf) + 1;
+> > @@ -72,16 +72,15 @@ int security_compute_user_raw(const char * scon,
+> >                 if (!ary[i]) {
+> >                         freeconary(ary);
+> >                         ret =3D -1;
+> > -                       goto out2;
+> > +                       goto out;
+> >                 }
+> >                 ptr +=3D strlen(ptr) + 1;
+> >         }
+> >         ary[nel] =3D NULL;
+> >         *con =3D ary;
+> >         ret =3D 0;
+> > -      out2:
+> > -       free(buf);
+> >        out:
+> > +       free(buf);
+> >         close(fd);
+> >         return ret;
+> >  }
+> > diff --git a/libselinux/src/get_initial_context.c b/libselinux/src/get_=
+initial_context.c
+> > index fb774c82..badcda9f 100644
+> > --- a/libselinux/src/get_initial_context.c
+> > +++ b/libselinux/src/get_initial_context.c
+> > @@ -46,17 +46,16 @@ int security_get_initial_context_raw(const char * n=
+ame, char ** con)
+> >         }
+> >         ret =3D read(fd, buf, size - 1);
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         *con =3D strdup(buf);
+> >         if (!(*con)) {
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >         ret =3D 0;
+> > -      out2:
+> > -       free(buf);
+> >        out:
+> > +       free(buf);
+> >         close(fd);
+> >         return ret;
+> >  }
+> > diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
+> > index aa16c934..f8e8f191 100644
+> > --- a/libselinux/src/procattr.c
+> > +++ b/libselinux/src/procattr.c
+> > @@ -153,22 +153,21 @@ static int getprocattrcon_raw(char **context, pid=
+_t pid, const char *attr,
+> >                 ret =3D read(fd, buf, size - 1);
+> >         } while (ret < 0 && errno =3D=3D EINTR);
+> >         if (ret < 0)
+> > -               goto out2;
+> > +               goto out;
+> >
+> >         if (ret =3D=3D 0) {
+> >                 *context =3D NULL;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >
+> >         *context =3D strdup(buf);
+> >         if (!(*context)) {
+> >                 ret =3D -1;
+> > -               goto out2;
+> > +               goto out;
+> >         }
+> >         ret =3D 0;
+> > -      out2:
+> > -       free(buf);
+> >        out:
+> > +       free(buf);
+> >         errno_hold =3D errno;
+> >         close(fd);
+> >         errno =3D errno_hold;
+> > --
+> > 2.50.1
+> >
+> >
