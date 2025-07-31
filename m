@@ -1,85 +1,84 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F298D86338
-	for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 14:17:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8677A78C91
+	for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 14:18:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753971460; cv=none; b=dtidsfXfAnE2vBgftYwM2u7Pxr8GKktKmfj/TGGjFiyussKQQindEvcDORZwPeMM+UW7zIp6ch3OpkIDDIHoHf3O+mmqLVZHBJ1w88XnV978dbkARln6OQwhwTBxtHqOh5+yQsuTqiF+sXP8J1lJtxdzXG3QpkEZMFVZR9nHJM0=
+	t=1753971487; cv=none; b=JPv/RrsEl4mNRGEuu+6KvwwcyVzNGBigJp+n6bBQ+7JrqcGHERxTef3rNRLPju9Cprt/SAClBb17W+RLVs2m6zeO7wUx9VGA0noraNuGuqnl6OR67HGF0cLPKspm/a+A0yLlot/f0hrzBw6FaNl/q4tpXFa7+NkpWf88Cb3ax5o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753971460; c=relaxed/simple;
-	bh=OyjG6crtVWjs0OshdwtSX29rQjuA6eMen8JhDgiKBmc=;
+	s=arc-20240116; t=1753971487; c=relaxed/simple;
+	bh=z/b7aAt4khxdttx3mPhjRkhRN8t3Bd0oaTE2/b8Er0w=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PD3wCmFmPRPvs9XiEx2/eL/O/kO8PukrdtIOgBuxFkay7TBPP/p3VyWp2IP3aJO3WEL24BbjzRqhcIr+A5h/zn+HgiX73LZ3afpvee0mr4VASeGIvQUfr1decseZS9ol7ICR5f89sn2JneGID1Na7z4EOEv1OlL8xyC2kqG0Fkw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a19j/aSZ; arc=none smtp.client-ip=209.85.216.46
+	 To:Cc:Content-Type; b=HU+YAPFNGo4kBTG0IoA+xQykWp9hmFasEP7K67BJSUv+U2fE6WfloQAxLvCvMiqlVMc80C3DK50P+oMVb96nXZuFoMvtC0Yj8fgKlp5NYyQR5xCW7H8y3VAjr1Ejh3+B6hRA8rkALvYEnrUp9ofAHxNCy8bV2dGE2VsTlZ/IMkU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gagLW+GI; arc=none smtp.client-ip=209.85.215.180
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a19j/aSZ"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-31c4a546cc2so909509a91.2
-        for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 07:17:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gagLW+GI"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-b170c99aa49so656768a12.1
+        for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 07:18:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753971456; x=1754576256; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1753971485; x=1754576285; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yysINEze4u3ia5NINuu0sTbtxP572Xm+x3PYf6FXQI4=;
-        b=a19j/aSZxqN6ezKa1ySVpvYNQ+5WPAxXmswBw+rcfcG0KS93Fimc7GOSGNFxBzN79s
-         z04I4NM6mfA0T/G9gHPP3qTmGqUTepn+D2BnI84WvOG7Pm44h95zZSrunai1vFZ80egz
-         cD6QQh5Hqkp5Ncc4N+20PpZAPlnEqxW3aFMpTyZlkRqvJcEQrlcEaD3p1FvlUYvLbz1m
-         sZyXRZMAeNU0BYfPvOD5wXcfgJbNr3/qyK/PtChH+aii2sGwW3Yx1xPcoeiHUp4PgNoG
-         fXEN+UJy9Q8aRGEs9GA+G58OQjapGH5zukuuUc8iXp9Axjmw+Si3FHFKOGYlNCf3U7pu
-         OQTw==
+        bh=ceAP8i1CaafdeQktAwO+FcpNcFMvBgAYdjbGHImqWZA=;
+        b=gagLW+GIlB/q//BusaVS+YTJcs3hwCsqdhuC6n2lo7VAwRzYFfJ8LEdJ9HPZue0WfK
+         BVt7olRFwUv7bD2Rfw/1FnHLVbJfbMKsEDri7MXcSR/vZWyzrWpWsPTho1K/UtJdkpTo
+         i3eBarZZnFXpCL5+1B43LwninKmHP/s1K7m0J0lvTWJeeimaCctvpK3DleYZTtoVYblK
+         1/eSjkKuqE3DWlMYQ8ltZ/oAp5OVurEXNDi7WtoJdpr6eFBzdmxtljxjyUc42toV0gTh
+         19Js0bsA4dA0i6O2s5Kq7DL7K6UecNtQQ+/i9/I7HSmlFvW6JHV3uE6q5u0Irunyb36U
+         VfKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753971456; x=1754576256;
+        d=1e100.net; s=20230601; t=1753971485; x=1754576285;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=yysINEze4u3ia5NINuu0sTbtxP572Xm+x3PYf6FXQI4=;
-        b=WISULfunyqV/1dZArsWng51Mbb9IV/WYA+o4SB+J+AbR+p8uoao82hAmbSpzkYJ+NC
-         M3ffoQvYZLLgjwTvJFseeXPbmnqxLW8v7C3Ty8XjNrfRwAmJtDqhEu960oDC+gcoQW6u
-         ZD/fGitQU/4Xq9X/UX+9GtiMcRCGuRc00shH+m6v0iXY4b7dtTJSrXcmIM9eYYqMaOxS
-         5jI0f9JNtuurqVAvWuAbmX5gScrD1GlWP4ZwnRIRnSkuzHTu7Y4bGtDZEclZ0qsY8ZEn
-         splPS/U2q/JPBQDN6rAFMj5QY/bl/QMa5zJy2LF7rMXy57nYe8OW1w7u92TGtmm490VE
-         Wn5g==
-X-Forwarded-Encrypted: i=1; AJvYcCV2ckVU4LS9MG5UbKDR44PMWhJcEoWlFWIeXfbnt//OjrqhdCRI34VirPmXRlj1Uh4C5RhfzMSf@vger.kernel.org
-X-Gm-Message-State: AOJu0YwHC4gkl5o3paWeBa2OlPwoosU3kSUIwJ89cIwQtDuFbtP21n1H
-	jDrReyl0l7VyusKhutxyhU7SlQOhg5ymHff9XRrgmi0GBf4pESefcy/TSVYBU2+N1RNagULDbly
-	T1gdA6ZlS6pUutROgtcWYwvRxG4XGTTgqww==
-X-Gm-Gg: ASbGncvX4YSeLVWHsILNMCltcSco0pDCZ9fA1J10PliDowmvAlackMX70+hSWx8Nyi5
-	Fjj3nGso9N7Zz82HeHvk2dOX7jG4cTuxnauagUvz0d9dBgWfwBwEMlrB2nzRFJBAWki0sJN9ywn
-	5f1UEVAt5ss21h7vSfkmijspv44bIpk3qKp9DHM8Lg8r10yVuHQcozNoLAHnJHw+VM92FJztT1i
-	wmmljg=
-X-Google-Smtp-Source: AGHT+IGH0ugKJl4d00l7LpXf23yofOmTWfBtWHftIPbKarIUu97cfRbRlkRgmu2JKAeZKsf5jnasS88wMriozyiEJzg=
-X-Received: by 2002:a17:90b:5103:b0:313:f6fa:5bb5 with SMTP id
- 98e67ed59e1d1-31f5de54a99mr10750293a91.18.1753971455980; Thu, 31 Jul 2025
- 07:17:35 -0700 (PDT)
+        bh=ceAP8i1CaafdeQktAwO+FcpNcFMvBgAYdjbGHImqWZA=;
+        b=hog1VTN7T9iIhCC9skhCHJX99F8AgGNTwIpNk0Nzp20VmpowpGGg4Kav84+8hNNlCA
+         a3vMeG+Y/VGgVwoE7sDFjdbXh0R2nh4R1iMqCBo9LGj+J5xCBxnxr9HXnZC65wfWHcLe
+         Q3TeZ+8QwWL3AXQ+FNVlHKLXO8yTHDDukaEwUMIAlZC22HjTuHIdIuRAgb4UaNdXx7/1
+         G/UVvGpWt3LQxFMP23DJt2oNsSItBjqu/2omnRYashUH0g94mRR7QaMZ8Z0Q2uAjtisU
+         3z+oIqWL9Up9ucf2OXqQLzHgzJBNxzsQQQL8A1wJLtxN3LGwLwsdB+s1WJnqalVP+aDD
+         T1dQ==
+X-Gm-Message-State: AOJu0YzvP8OX3S4yIaUuIIZIEikx8t3EDhOoPZt/YsswUfFrDPU8/KJS
+	b1w267cqU4Ec+cqcem2ucU4KZWzwtVnlAieEoJm9MdrHFWuWxcdfggH2JS8yA4gQg8qutsENUIp
+	FcSLz332WtRFws3cFwJDTdr6RMaFrkdE=
+X-Gm-Gg: ASbGncuiUe0IGCB0SeDie1jMfrV6ukwPUUQ9o7ASgFtxQSIeeQDNtSJWCWPi05FuUS0
+	d7018lbR4g3wuW8BIX3DncLmI+kCXP6W8rRFmrDbnXmGyxYGrWs2EkcdbNR5aYN9oFuPzwSGFDO
+	zJdXklR+6B9YFQnNoGiCcRFuP+FBuGcPtpmgGgNVvsCdqjgnPMsC1J5AVoa5wnnnTuJIEpywhEt
+	o8+va0=
+X-Google-Smtp-Source: AGHT+IGV/QdW2H7y7SA8uWAHTRHVIhC8ke6N5OJRYPlA6RrVkx0s5i7NldtBal3xu18giC+h8GIA2X8xQm3GACHiuec=
+X-Received: by 2002:a17:90b:562b:b0:311:eb85:96df with SMTP id
+ 98e67ed59e1d1-31f5de31dbfmr11101949a91.17.1753971482008; Thu, 31 Jul 2025
+ 07:18:02 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <82e217c7-7124-4d49-ab98-074a6c2535c9@googlemail.com>
- <20250730074729.936489-1-nvraxn@gmail.com> <CAEjxPJ7m3Mj2NAntf2TUSrostQDmOeBtN4Ja67s5RFCnMXwFwA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7m3Mj2NAntf2TUSrostQDmOeBtN4Ja67s5RFCnMXwFwA@mail.gmail.com>
+References: <20250730150723.974292-1-nvraxn@gmail.com> <CAEjxPJ78Ynm52M14_Jm48vkLi2MpXBVoQCbyGavauhwkeHf52A@mail.gmail.com>
+In-Reply-To: <CAEjxPJ78Ynm52M14_Jm48vkLi2MpXBVoQCbyGavauhwkeHf52A@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 31 Jul 2025 10:17:24 -0400
-X-Gm-Features: Ac12FXzY0bTAxS8uBQ6jo63phodzgGh5CX6o27Uv_PKjh3FLadlcNJ8BKGzeGGI
-Message-ID: <CAEjxPJ6cWZjfbUm1YP+HiMMXYoGrQ6CuUYKguNttHGPYkjPAYA@mail.gmail.com>
-Subject: Re: [PATCH v2] libselinux: refactor selinux_getenforcemode
+Date: Thu, 31 Jul 2025 10:17:50 -0400
+X-Gm-Features: Ac12FXy5ijBkU6q7sUYI5uDP41-Uy-Vpdj9WX2hYTsh4yA_t47Bg1uVq7_V-U4o
+Message-ID: <CAEjxPJ6rxztd+qoxeeY4CfwVDTOB03vngarTxPWr77E43wMegQ@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: load_policy: log using selinux_log instead of fprintf
 To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: cgzones@googlemail.com, selinux@vger.kernel.org
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 30, 2025 at 8:59=E2=80=AFAM Stephen Smalley
+On Wed, Jul 30, 2025 at 12:54=E2=80=AFPM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Wed, Jul 30, 2025 at 3:47=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> w=
-rote:
+> On Wed, Jul 30, 2025 at 11:08=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> =
+wrote:
 > >
-> > Invert the check for cfg being a nullptr and early return.
+> > This allows consumers to override our logging to stderr using the
+> > callback based mechanism selinux_log provides.
 > >
 > > Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 >
@@ -89,104 +88,132 @@ Thanks, applied.
 
 >
 > > ---
-> >  libselinux/src/selinux_config.c | 75 ++++++++++++++++-----------------
-> >  1 file changed, 37 insertions(+), 38 deletions(-)
+> >  libselinux/src/load_policy.c | 37 ++++++++++++++++++------------------
+> >  1 file changed, 19 insertions(+), 18 deletions(-)
 > >
-> > v2: Don't mark len static.
+> > diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.=
+c
+> > index f67e5538..8e737a23 100644
+> > --- a/libselinux/src/load_policy.c
+> > +++ b/libselinux/src/load_policy.c
+> > @@ -16,6 +16,7 @@
+> >  #include <sepol/policydb.h>
+> >  #endif
+> >  #include <dlfcn.h>
+> > +#include "callbacks.h"
+> >  #include "policy.h"
+> >  #include <limits.h>
 > >
-> > diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_c=
-onfig.c
-> > index 75db14ba..e1bc1b79 100644
-> > --- a/libselinux/src/selinux_config.c
-> > +++ b/libselinux/src/selinux_config.c
-> > @@ -88,47 +88,46 @@ static const uint16_t file_path_suffixes_idx[NEL] =
-=3D {
-> >
-> >  int selinux_getenforcemode(int *enforce)
-> >  {
-> > -       int ret =3D -1;
-> >         FILE *cfg =3D fopen(SELINUXCONFIG, "re");
-> > -       if (cfg) {
-> > -               char *buf;
-> > -               char *tag;
-> > -               int len =3D sizeof(SELINUXTAG) - 1;
-> > -               buf =3D malloc(selinux_page_size);
-> > -               if (!buf) {
-> > -                       fclose(cfg);
-> > -                       return -1;
-> > -               }
-> > -               while (fgets_unlocked(buf, selinux_page_size, cfg)) {
-> > -                       if (strncmp(buf, SELINUXTAG, len))
-> > -                               continue;
-> > -                       tag =3D buf+len;
-> > -                       while (isspace((unsigned char)*tag))
-> > -                               tag++;
-> > -                       if (!strncasecmp
-> > -                           (tag, "enforcing", sizeof("enforcing") - 1)=
-) {
-> > -                               *enforce =3D 1;
-> > -                               ret =3D 0;
-> > -                               break;
-> > -                       } else
-> > -                           if (!strncasecmp
-> > -                               (tag, "permissive",
-> > -                                sizeof("permissive") - 1)) {
-> > -                               *enforce =3D 0;
-> > -                               ret =3D 0;
-> > -                               break;
-> > -                       } else
-> > -                           if (!strncasecmp
-> > -                               (tag, "disabled",
-> > -                                sizeof("disabled") - 1)) {
-> > -                               *enforce =3D -1;
-> > -                               ret =3D 0;
-> > -                               break;
-> > -                       }
-> > -               }
-> > +       if (!cfg)
-> > +               return -1;
-> > +
-> > +       char *buf =3D malloc(selinux_page_size);
-> > +       if (!buf) {
-> >                 fclose(cfg);
-> > -               free(buf);
-> > +               return -1;
+> > @@ -136,25 +137,25 @@ int selinux_mkload_policy(int preservebools __att=
+ribute__((unused)))
+> >                 fd =3D open(path, O_RDONLY | O_CLOEXEC);
 > >         }
-> > +
-> > +       int ret =3D -1;
-> > +       const int len =3D sizeof(SELINUXTAG) - 1;
-> > +       while (fgets_unlocked(buf, selinux_page_size, cfg)) {
-> > +               if (strncmp(buf, SELINUXTAG, len))
-> > +                       continue;
-> > +
-> > +               char *tag =3D buf + len;
-> > +               while (isspace((unsigned char)*tag))
-> > +                       tag++;
-> > +
-> > +               if (!strncasecmp(tag, "enforcing", sizeof("enforcing") =
-- 1)) {
-> > +                       *enforce =3D 1;
-> > +                       ret =3D 0;
-> > +                       break;
-> > +               } else if (!strncasecmp(tag, "permissive",
-> > +                                       sizeof("permissive") - 1)) {
-> > +                       *enforce =3D 0;
-> > +                       ret =3D 0;
-> > +                       break;
-> > +               } else if (!strncasecmp(tag, "disabled",
-> > +                                       sizeof("disabled") - 1)) {
-> > +                       *enforce =3D -1;
-> > +                       ret =3D 0;
-> > +                       break;
-> > +               }
-> > +       }
-> > +
-> > +       fclose(cfg);
-> > +       free(buf);
-> > +
-> >         return ret;
-> >  }
+> >         if (fd < 0) {
+> > -               fprintf(stderr,
+> > -                       "SELinux:  Could not open policy file <=3D %s.%=
+d:  %m\n",
+> > -                       selinux_binary_policy_path(), maxvers);
+> > +               selinux_log(SELINUX_ERROR,
+> > +                           "SELinux:  Could not open policy file <=3D =
+%s.%d:  %m\n",
+> > +                           selinux_binary_policy_path(), maxvers);
+> >                 goto dlclose;
+> >         }
 > >
+> >         if (fstat(fd, &sb) < 0) {
+> > -               fprintf(stderr,
+> > -                       "SELinux:  Could not stat policy file %s:  %m\n=
+",
+> > -                       path);
+> > +               selinux_log(SELINUX_ERROR,
+> > +                           "SELinux:  Could not stat policy file %s:  =
+%m\n",
+> > +                           path);
+> >                 goto close;
+> >         }
+> >
+> >         size =3D sb.st_size;
+> >         data =3D map =3D mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0=
+);
+> >         if (map =3D=3D MAP_FAILED) {
+> > -               fprintf(stderr,
+> > -                       "SELinux:  Could not map policy file %s:  %m\n"=
+,
+> > -                       path);
+> > +               selinux_log(SELINUX_ERROR,
+> > +                           "SELinux:  Could not map policy file %s:  %=
+m\n",
+> > +                           path);
+> >                 goto close;
+> >         }
+> >
+> > @@ -175,9 +176,9 @@ int selinux_mkload_policy(int preservebools __attri=
+bute__((unused)))
+> >                 if (policydb_set_vers(policydb, kernvers) ||
+> >                     policydb_to_image(NULL, policydb, &data, &size)) {
+> >                         /* Downgrade failed, keep searching. */
+> > -                       fprintf(stderr,
+> > -                               "SELinux:  Could not downgrade policy f=
+ile %s, searching for an older version.\n",
+> > -                               path);
+> > +                       selinux_log(SELINUX_ERROR,
+> > +                                   "SELinux:  Could not downgrade poli=
+cy file %s, searching for an older version.\n",
+> > +                                   path);
+> >                         policy_file_free(pf);
+> >                         policydb_free(policydb);
+> >                         munmap(map, sb.st_size);
+> > @@ -192,9 +193,9 @@ int selinux_mkload_policy(int preservebools __attri=
+bute__((unused)))
+> >         rc =3D security_load_policy(data, size);
+> >
+> >         if (rc)
+> > -               fprintf(stderr,
+> > -                       "SELinux:  Could not load policy file %s:  %m\n=
+",
+> > -                       path);
+> > +               selinux_log(SELINUX_ERROR,
+> > +                           "SELinux:  Could not load policy file %s:  =
+%m\n",
+> > +                           path);
+> >
+> >        unmap:
+> >         if (data !=3D map)
+> > @@ -205,7 +206,7 @@ int selinux_mkload_policy(int preservebools __attri=
+bute__((unused)))
+> >        dlclose:
+> >  #ifdef SHARED
+> >         if (errormsg)
+> > -               fprintf(stderr, "libselinux:  %s\n", errormsg);
+> > +               selinux_log(SELINUX_ERROR, "libselinux:  %s\n", errorms=
+g);
+> >         if (libsepolh)
+> >                 dlclose(libsepolh);
+> >  #endif
+> > @@ -317,7 +318,7 @@ int selinux_init_load_policy(int *enforce)
+> >                         *enforce =3D 0;
+> >                 } else {
+> >                         /* Only emit this error if selinux was not disa=
+bled */
+> > -                       fprintf(stderr, "Mount failed for selinuxfs on =
+%s:  %m\n", SELINUXMNT);
+> > +                       selinux_log(SELINUX_ERROR, "Mount failed for se=
+linuxfs on %s:  %m\n", SELINUXMNT);
+> >                 }
+> >
+> >                 if (rc =3D=3D 0)
+> > @@ -365,7 +366,7 @@ int selinux_init_load_policy(int *enforce)
+> >         if (orig_enforce !=3D *enforce) {
+> >                 rc =3D security_setenforce(*enforce);
+> >                 if (rc < 0) {
+> > -                       fprintf(stderr, "SELinux:  Unable to switch to =
+%s mode:  %m\n", (*enforce ? "enforcing" : "permissive"));
+> > +                       selinux_log(SELINUX_ERROR, "SELinux:  Unable to=
+ switch to %s mode:  %m\n", (*enforce ? "enforcing" : "permissive"));
+> >                         if (*enforce)
+> >                                 goto noload;
+> >                 }
 > > --
 > > 2.50.1
+> >
 > >
