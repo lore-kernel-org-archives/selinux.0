@@ -1,67 +1,71 @@
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6191135971
-	for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 19:12:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D795A29
+	for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 19:19:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753989179; cv=none; b=PLo3EzDyyoie/sDoWJBEG2LzIj/56p/5ArXx+manPBOrZSS95NVskJjVbmBTihfHBHHRdko4UE4lVlnoqRmkLZQnEavOpgZAvHwrW4Km+5zsPHbRDo6fl/O+aUzHr0oTs0A2UWQDT2SS5xJ8EbvtaDST+hL3xxYP5AgTuCezzyI=
+	t=1753989550; cv=none; b=BMKLxoPXSw2LHI2pXqN0Vk6uHwGfR8ZuvzRgwZQzRF288cNCV30BgmZgkfOcl7AY5jWqT/GdAXS102GaUETXV+KpRnHoYzZXShD0/41QFQDY+v8t4wknE4IELrNpuBxmXtUAKvV/TMPpZRoJUsYKXMvtzpZyjjiih0RYvhqrVWk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753989179; c=relaxed/simple;
-	bh=PobyZq8q8gTLhIxMhAZdB5iVXIfpwSwerrt5aK20Z1Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=b8LozZ/SsZK+7mBvWaZ78WYbxPJf097TkUfKyFF+gTOoLdr0FwDlQUIG2CNRUiUyeqZOLQ5kRRSMBQkIbaIIeUEH1oRS8jyktp36beKwGrbb8oWgVkchITWyzHpCkn70NsD/JmgSsBo2iNR7H4Gmyr0XLnhBwMuBG8xpJ7hSFFI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jwSNn28Z; arc=none smtp.client-ip=209.85.221.42
+	s=arc-20240116; t=1753989550; c=relaxed/simple;
+	bh=8bGFqUGCYiFJDJCqMt3ZMhEZw6v1dEA/OL120wzpSrs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=JyC22CJvqKCTJHxMU9sOMo5FPxEBznkRqovzQjnMGhBQTqv36ytyQ5r1kBb3EqUSoMs3nGR+HWvFEhGJMlIrSfPyEIUeV4rt6HZy97w4EX2AoPkQpychD/KErsuXctkAUF9gdYeOrHDOPA2QhyRipnM2uilAEyjlWueC/wlmGFU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gZb69ffg; arc=none smtp.client-ip=209.85.128.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jwSNn28Z"
-Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-3b79bddd604so609706f8f.0
-        for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 12:12:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gZb69ffg"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4589b3e3820so13260405e9.3
+        for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 12:19:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753989176; x=1754593976; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=XLg8mfg+NSK7huvbzUce032z47AEJeJZ9ohAtC28rWs=;
-        b=jwSNn28ZhKZABgNAkOEZEANHyaVokGDwch8HfcRk+7cfHGyJ6arn3SezTcx8IagLf+
-         5/6TH7KQBOnDQ8ffVWBJN0irh+oXgpoLrIuiZeLIGUZ5DKkExH7oJaSWRBQpdErdHkUj
-         X/bmz5v+IPiPk122JH1Y3lfzHIBFCMvrHanzBQj2i+344OGeuu6Le6ncXBsNCzhiaTFf
-         +IiBD6oRuKMwcDA2Dd9M57i5rOi4dUg/OyX39p6VgEWzNfDGKnJStqidUrKxhpYe/yW+
-         k8GA8FkrPuAnscYH2E6KcPCtV8zic9XhrcXuXaZdBzzUuoS+hYj6IrQXvxaeRzP5sZxs
-         1lmw==
+        d=gmail.com; s=20230601; t=1753989547; x=1754594347; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BK0weZGQhde0jEmRQ5ymFaVODx7gysG8RJlJTCxnQfE=;
+        b=gZb69ffg69kZeuAmpSr4q8dsq7rcezjqu4rsusjfTNXgqZbkvUfIbMPlI7UvlQCugF
+         ej9VhuuKsENDzDqKoeMGtBHAX8eCmzN94ifFrqmHLusGbEzhVf0g5fW8u4S9QQ+oyfah
+         PlVtQ/nFwv3fIlIxJYegckuLFh1EFbvBPs6dvTTYopwkgGxamekgWyEXX1pHVV59Qswx
+         lIqdBfNTprPYYBiNU1ZogFwX0K456es5a2x/Np+ZJw8buc7RKfnEnECogXUBuxg9vqgf
+         R28RdsAKsB/YFtFwfyEYLZ8PqWbjRseXwdizNGGgWwPq4RWuSuJqYdkNR6+MkPzgaVp6
+         eYHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753989176; x=1754593976;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=XLg8mfg+NSK7huvbzUce032z47AEJeJZ9ohAtC28rWs=;
-        b=LFDUIgrkg0WGnYN49Mx1YL2MhbkVy7Er/GTdw806o+mUyVQNLtZLtyQwvZiDOhBC1y
-         ddM2kVBhZM+KG0Ur3bu4b7caHKtns6biT1abnTSLTQadPtBM1LjV9cHNPVx92ILLlkIt
-         wR6ZZwAu5AcjowqHzKiX1DdXIcP/zCZshiQB6uUstj3pczpEXTd268CwPR9JHsRkfVJx
-         Fz47iL09YqvdcdLzXSkHD/RHfsTTBTBU/9Hh1P1bfRYjtVetDS8IfqswXKhJAJHcLuPM
-         jcXyiS7LolRZ1++rNzwZlHurTyqs8NQ9vRewob1N4b2xQvWpVw5d4Jw8GJMDA82ZZgBO
-         qJyQ==
-X-Gm-Message-State: AOJu0Yxj4i3U4VnZJUdyFZu1Aon3TlzhwAgyXBPl47Bkz0LR41LUhW4g
-	mygqESOfthmNZd9xQSiR9X+MHJCa1G/sllZrEkZHA9+LUWosoZdVRWxm8aY63g==
-X-Gm-Gg: ASbGncvY0c+6drWhfAD0dcXT/3ceZmLQY+58C5n3G6hyqe46zURcLvK1oxJ688U92S1
-	1+VCwDHjnZ+iMCW26Etn0G9WmCBFpPwMWw2Hvl/AsrjOTFRlHVDlnhlN6LPDMbBi5XPcatJLaH9
-	FzaJ45G4D+IRcQ7YLCgPaqupuvEFMVNR7eD8klN9SDrFQR7g3UcODxHCYB+iVCSaaE3DAxBrhF+
-	MF+gX6NeKuLBf2T+/NkuzFoxgQs5xocJtZRSdes6hI69PFemzuylFeRjkYBNSsnRdp1+lplizwf
-	dRaDyw2P/+WOlUBBJtqF2CmpeJ80vrudR1magxOyUAHa6eTfosTeb6PyJCHJjX0nG2jSc4w16Mo
-	qSj12jsmBnwtB
-X-Google-Smtp-Source: AGHT+IHBV8XoQSJrv12vEY42HMgpH0Jq4ctB92V/YGdhUUb7UUrJTxNiFuMub/3V9ZKm1K6ljzMHXA==
-X-Received: by 2002:a05:6000:1786:b0:3b7:9c79:32be with SMTP id ffacd0b85a97d-3b79c7935eamr2985537f8f.45.1753989175402;
-        Thu, 31 Jul 2025 12:12:55 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1753989547; x=1754594347;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=BK0weZGQhde0jEmRQ5ymFaVODx7gysG8RJlJTCxnQfE=;
+        b=SyuSJnXBRrrMWPy9ItoSwsPKY9MrCX40U/HeJFRD3dqv8s98BEVV5pLMOpGhtd0cbf
+         1DjLI3Atine+QAL1A+HyvMrjwERqv35SBfgIwc717JoxT39Gf5uzXJwaUZWhPxUeNNdi
+         hqXmIpoEKxRsycvWCMQde0lAygeYC4wEJDp9EhfmzjCRKHM+MAQ0SGMHuymcx7CS9P21
+         /k9fLzI23mHJ6d/4i5ss88IvDGCYOkZD//sKJrJqrJk/WlmSUs0yoEtq1b7pu/mEBLBC
+         aIZQyQ4MVhc9xbX6tk91OrfQSMGO0ZUqQx/68YsvGILSBtWT9rqQuepuP3qzYt+AcJrj
+         pIqw==
+X-Gm-Message-State: AOJu0Yxf/9FtfprmSbcQEw20K6bozFDGxX5taVM2Rk0WrpDW4xkgHx3F
+	wo0sJxWkCkMSLtGU1LD0J1as0ulJ5Vz+hPfc9Asp0nAl+kBF46Hclp3u
+X-Gm-Gg: ASbGncuOJmQCCTbMF7aec7XBCLY5byrOQhzZGHjjWPWIUdeM6PyylnPqMtcwk34dfC6
+	JAk8ANRWK+ww2V05DKsEvK7XnYbj+MujOF4Xb1C4v1x0tW2KfgAK20YbDExqbyvWT4hj3pRQf3G
+	+fYdE4WERGrs15j6Yd/qYIPgjar86HVpbfm6MtEaCWfHmBNj2TniH73qWifsptfHgZEKGtdXUr6
+	ct9swP5AWKKGbBYI7MOYyiZ3IklRUeohlTK/eYm3GkDyF6rlaxIpwIGKhlx9XqJ37jKqyI78One
+	LjHMFSTBVNAZhXEZmKNFd3XHXcogPamX1rz1joMMTOZNm3Lf14M7aPkt7ASkEKhHuJXUEpu5/Pr
+	e+g03MQs1oMsJgP2do1TE+es=
+X-Google-Smtp-Source: AGHT+IG3IxO5PHreSD9RGZXG+volZyKfMCUF+H7c2MIkAKbFYgvYpl9go3Qi4ricFYHugfh3bsEFLw==
+X-Received: by 2002:a05:600c:6099:b0:43d:745a:5a50 with SMTP id 5b1f17b1804b1-45892bc6d02mr81083415e9.19.1753989546569;
+        Thu, 31 Jul 2025 12:19:06 -0700 (PDT)
 Received: from sierra ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4589f0803e9sm38145165e9.0.2025.07.31.12.12.54
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4589ee4f0f8sm37303265e9.15.2025.07.31.12.19.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 31 Jul 2025 12:12:55 -0700 (PDT)
+        Thu, 31 Jul 2025 12:19:06 -0700 (PDT)
 From: Rahul Sandhu <nvraxn@gmail.com>
-To: selinux@vger.kernel.org
-Cc: Rahul Sandhu <nvraxn@gmail.com>
-Subject: [PATCH] seunshare: fix the frail tmpdir cleanup
-Date: Thu, 31 Jul 2025 20:12:52 +0100
-Message-ID: <20250731191252.1091439-1-nvraxn@gmail.com>
+To: nvraxn@gmail.com
+Cc: selinux@vger.kernel.org
+Subject: [PATCH v2] seunshare: fix the frail tmpdir cleanup
+Date: Thu, 31 Jul 2025 20:18:59 +0100
+Message-ID: <20250731191859.1091884-1-nvraxn@gmail.com>
 X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20250731191252.1091439-1-nvraxn@gmail.com>
+References: <20250731191252.1091439-1-nvraxn@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -86,14 +90,16 @@ the entire thing using the rm_rf () function with elevated permissions.
 
 Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 ---
- sandbox/seunshare.c | 71 +++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 59 insertions(+), 12 deletions(-)
+ sandbox/seunshare.c | 70 +++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 58 insertions(+), 12 deletions(-)
+
+v2: don't use else after return
 
 diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-index 97430535..d1d96257 100644
+index 97430535..a245384e 100644
 --- a/sandbox/seunshare.c
 +++ b/sandbox/seunshare.c
-@@ -403,6 +403,60 @@ err:
+@@ -403,6 +403,59 @@ err:
  	return rc;
  }
  
@@ -142,19 +148,18 @@ index 97430535..d1d96257 100644
 +		}
 +
 +		return rc;
-+	} else {
-+		if (unlinkat(targetfd, path, 0) < 0) {
-+			perror("unlinkat");
-+			return false;
-+		}
-+		return true;
 +	}
++	if (unlinkat(targetfd, path, 0) < 0) {
++		perror("unlinkat");
++		return false;
++	}
++	return true;
 +}
 +
  /**
   * Clean up runtime temporary directory.  Returns 0 if no problem was detected,
   * >0 if some error was detected, but errors here are treated as non-fatal and
-@@ -428,24 +482,17 @@ static int cleanup_tmpdir(const char *tmpdir, const char *src,
+@@ -428,24 +481,17 @@ static int cleanup_tmpdir(const char *tmpdir, const char *src,
  		free(cmdbuf); cmdbuf = NULL;
  	}
  
