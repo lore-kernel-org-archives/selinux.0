@@ -1,71 +1,67 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79F8478C91
-	for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 16:23:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82BB723C515
+	for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 17:17:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753979032; cv=none; b=kW/4QI6vqboSRb1g/I13tmnyFmfQU+1LDZ5O+wZSDQ8oMtjaOlYooC9/0KZt+QyIo4LJhaGO13iqC9htfrQAVpedZ0e8YMZBiCN7vLo4UFD1+w1dLogYgs6sskQ/yVKwN1uHAZJEKrcPYjfUAdV6WFHOYk706eJ5OkTq71h+83c=
+	t=1753982240; cv=none; b=oO7jZCoQb2Z3i9IckDNRjW0UCdZcs3ctW2c3xPgs+zLx/9fpLpUqohZJsFRm3nCJN+6vwQFVbWQ78vxqL47oSDV64DlNoTk2IXn5yPi32+ZZcUPL+cvymDCONyGgb2LzwlJo+c9rUxWekVCg/QImciiOYfUiLxhZd7MlLHZ8OVU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753979032; c=relaxed/simple;
-	bh=ITm29zf7j4dMd5m1p9OpIiasOdDw9Er7OnrQBxXCDuY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=o/sdWl+gQ4x9GzJUYQ0Dz+gYgXp2SagefpRjuX9DN65p6ouyY6OsvqWJNlLtAElAZh75RS6hzfzsHb+o7mbVLq+bGa7iri+syClhWrufgqdIcNoT/jmRtokwlJcKKL37lysdU983JtMb1Kal6tBymnG99SuZA2MqokxZO5za154=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YVjxGj3Q; arc=none smtp.client-ip=209.85.128.42
+	s=arc-20240116; t=1753982240; c=relaxed/simple;
+	bh=z2FZpXXl8QuOZLLZSpEFXpOZ89YUT0TkehDdsFLJxcw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Lg+l5q9UDc38pjEytsELlrsrljErudH2h7JErgFXCwtZdLCfonqax/ujld09axBEZxnlx0R1pLU3DoByWSKX5rI8YgEA+lMuJJDmD0cDJlo8X8Ka0P25j2OEP207fViwlExd8Ks/laX9cIaP48Grzx0poxIvClKJ/XExPNqZFQs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RQSlqCa1; arc=none smtp.client-ip=209.85.221.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YVjxGj3Q"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-455b002833bso4361845e9.0
-        for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 09:23:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RQSlqCa1"
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-3b7910123a0so1164994f8f.1
+        for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 10:17:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753979029; x=1754583829; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+ZgQ/6wy+1Txzi1j/GRJ/5qj6Q1G7vnbHw34Hf20Buk=;
-        b=YVjxGj3Q1nxhM0gWV+TXxAyHpxsSs9RqEPOtdgUmET/E9iEqEBHJynmG4Yht2v5GY4
-         6mw1CbP7pT1ae/8WJ/tbz3bYGzuWi+dqFaFG7b6NVjJOR/NvRNvESC/j/r748lxGy9wO
-         fzm++FKnsuwCAcF3cMIjjMqKZYf0hJehRida1/inVvHsjG96x5wBQbVPVF21YA5cg+XB
-         vAyrWIaYOBJA24uEkpuxhbGjkvIS+DHpi2L2XtRZ3qgip1E8QpOPq8ZEnrudibVtMxyW
-         lkKUn3dA/zaoiPxpXnd18L2PgDPKko4z+RLdDKOFKrRb7rsJzRjvoLcALRqB0ki7SIHb
-         xYPw==
+        d=gmail.com; s=20230601; t=1753982236; x=1754587036; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=0EBN9mDr/mtT8FZeiTZxjF9uZtax2B6ac9hr9NxYdvM=;
+        b=RQSlqCa1kdxXkUL76kMDwVPsZGSkUjD14mKf3h8+I1QyEAG4ilP17qsL7OrC+6PhBC
+         vGpYmVl5s5Z8QiMoyIWt1kHXUN4Lbuhemcz4Wn+t2WcBDpHP1Ner7BGMBXe4hLm6DFrV
+         WdL9tIetQdDVe+E+dYAxbdVxKp9KbQjvTtJZzoq2UJJEVjaBr+qforpejmapjRBNbGOk
+         oNlqx+/ozQSSTXiV7jAXrqAzvLKgMjbIYs6GDPKmPLBHxEqO8mc4cibbrfaRiBEZMmZ9
+         FROdu2E0hZTgdkl0EgRSA/mJ5NbT3uBCH5UzW0VHXTdfVoI0jGmFUpG6SMNd30AfF6un
+         oB9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753979029; x=1754583829;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+ZgQ/6wy+1Txzi1j/GRJ/5qj6Q1G7vnbHw34Hf20Buk=;
-        b=BkhF9LFehgkjcy24l/nUGjPO07tu6SZ66bm7Z9OIBrk3iWfhzo0e62aiBRt7Nh4QFD
-         1VePKSfik/mmotqaHnODKKK7hCyZ/QFOgvKWSoxwq7V6Zk8X00+eTBguRFRrQBCJB4gw
-         ZemsRGlEyfqfnCSQrENOrukyRKbX1yAdcXgiNi/abq+w8FpquoQ1VNJ2miBzwITkD1YE
-         aOmKzz3s5SGMucGwrSL4td7W6vbeRaITbjtIyPtBV8cEMoQKl8FWU5D4YA4gmOpSDo/1
-         FcBeEIKuEs5p/jWABr3NbeQJ2IxyGIVtIbZrMiDA+75k7XmBb4E9ZNkhLgReStdqse1z
-         /9pA==
-X-Gm-Message-State: AOJu0YzN37qzXOKxOu8TwA/DEOmJnXSTi2TSezBwAHh101ISVo3t36vt
-	fsh/lgvCQXiwTDe0rb3JiIdZkQ56kNtMikdnMrBL7GKf6lWrTVK4yo2L4kkUtw==
-X-Gm-Gg: ASbGncsa4hKkAURg399vZFi9uB8RmUu8CzdS4VgtfnmG9o6t7lpU3JTT15Ns0hgwfT5
-	HM0QTVa0Zj9eoiwlh6Zpchd6kKPsp8n4hV7dgrIdZUd2rhQ1jrac+PXmD5C1z6gT27hsQ9nrS/L
-	noothcCSLxfQ1vDZ3hwKmaxRQTM9NERthMXuxnzKqctI1Ucz40sozrfqaO32NjhtyUhXTNeNgvM
-	1cLaXT3cuG9/5kntbgnlbkLY3N9/SeMIdVs/a1Ahp2sPbOwvvQUPrIdnFc55k9X5MZwAalmunrh
-	KYWUdACaonh/XRBDJWHufaLxbI1FRH+Nl+sZkJ6mGgf8GfqOcuPzcnTvDAH2hVfmi8hS0Tu7IkB
-	1v35JCT9nAZULCge/tg+8Pg4=
-X-Google-Smtp-Source: AGHT+IHt9VZVrFZsoIBgvx2ifFvoXFwf2gJMz047Ogx6AKKPJuqzs+KWHr3+TPK6wY8JwmorrVGEoA==
-X-Received: by 2002:a05:600c:3b95:b0:441:a715:664a with SMTP id 5b1f17b1804b1-45892bc6b91mr62038645e9.20.1753979028393;
-        Thu, 31 Jul 2025 09:23:48 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1753982236; x=1754587036;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0EBN9mDr/mtT8FZeiTZxjF9uZtax2B6ac9hr9NxYdvM=;
+        b=U2WbK+Ii8sWOr685Td6pmqaF7TDi7/jRukkv+Y8pr+zRYKccGCtzsnjqgfZkNZNWY3
+         2seHMch4bvwDtOcne7L/n65qdmWX6IxHA7JPY6GHro8FGNPL6Oc7kmu7n3M6tVnWM7jq
+         E/cYaw98budPEGjt9FBLCsHVfXoTX7NUbIcCcg+mKJdF3aBbuJcHKbatJ8oVC7EgSSoE
+         z5CqvF6BU4IOC8zOw7kp8k+dERHpHDq50gV6oVReFuO9V5JHf/rwaClxmrp2/OQHqIhb
+         tyBI7isFDs2VaGXboAyVTvrQRfSbcQoG05ECe9fawKzuTuBFWj5+ov64tUWtX/BYND+K
+         UbeA==
+X-Gm-Message-State: AOJu0YwDjFa9HR4xTRJluZwDMvmyixSUlWSlsV8BR1VzVfJ3EwDTWpnN
+	sVV5+Q13rmKl9BL4vbIqA8tR1ULFPOGk0gL11WtCg/mrbK/QcPLstQkzXbgajA==
+X-Gm-Gg: ASbGncthFCBp13dMAHhS0XvaV0K6lZoh/PxvHylaOdC9BVcwsxXhit2O+p0348qAxuE
+	kyUckKjVueK+YskT7zj42OZAbMfyxDcn9eRnDWF6XdKKkTsfQHSb5yPctb7MH68b6Lb8JuDCTR7
+	Er/tCWa0zQdY/JbfpwieR2i7EnWQTWfxP9JvWPRoBVL4Ovac0IHaHqK+qqbONENRloCFJ3dgqwK
+	TOoI8eVLkDsazFgKvfh1SQvoDcYSliOKn68pVwhjJIoz5q6RRpdUPVRUEcGiiqI95w5ouhzOW+T
+	dyJQG5lQ592z7nKG7tOjPcjyAysGzUwjsUZcbzi+5bFZwwxP2BCpvkW2EHTJmvFNzctdkfWbJvv
+	ve32dVWDtiQaIvzQsIUmD+nE=
+X-Google-Smtp-Source: AGHT+IGbNN0xIhI1xMiToOrWaVuV+4dWje7hYLRO1gfLKEjJ2Div5AxD0JIsy4JP8y0yjlhbchjacw==
+X-Received: by 2002:a5d:64cc:0:b0:3b7:861f:4887 with SMTP id ffacd0b85a97d-3b794fe4e62mr7154543f8f.3.1753982235598;
+        Thu, 31 Jul 2025 10:17:15 -0700 (PDT)
 Received: from sierra ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45895377748sm70897015e9.9.2025.07.31.09.23.47
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4588ddb7e45sm70133135e9.3.2025.07.31.10.17.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 31 Jul 2025 09:23:48 -0700 (PDT)
+        Thu, 31 Jul 2025 10:17:15 -0700 (PDT)
 From: Rahul Sandhu <nvraxn@gmail.com>
-To: nvraxn@gmail.com
-Cc: selinux@vger.kernel.org
-Subject: [PATCH v2] libselinux: refactor selinux_check_securetty_context
-Date: Thu, 31 Jul 2025 17:23:42 +0100
-Message-ID: <20250731162342.1074496-1-nvraxn@gmail.com>
+To: selinux@vger.kernel.org
+Cc: Rahul Sandhu <nvraxn@gmail.com>
+Subject: [PATCH] seunshare: always use translations when printing
+Date: Thu, 31 Jul 2025 18:17:06 +0100
+Message-ID: <20250731171706.1079400-1-nvraxn@gmail.com>
 X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20250731162139.1074252-1-nvraxn@gmail.com>
-References: <20250731162139.1074252-1-nvraxn@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -74,110 +70,75 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Invert the checks for fp and con, and initalise char *end as NULL.
+Some errors previously were not using gettext for translations, hence
+wrap them with the _ macro.
 
 Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 ---
- .../src/selinux_check_securetty_context.c     | 79 +++++++++++--------
- 1 file changed, 45 insertions(+), 34 deletions(-)
+ sandbox/seunshare.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-v2: oops, didn't mean to include fcntl.h
-
-diff --git a/libselinux/src/selinux_check_securetty_context.c b/libselinux/src/selinux_check_securetty_context.c
-index 7609752e..6d039f8f 100644
---- a/libselinux/src/selinux_check_securetty_context.c
-+++ b/libselinux/src/selinux_check_securetty_context.c
-@@ -8,45 +8,56 @@
+diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
+index 106f625f..97430535 100644
+--- a/sandbox/seunshare.c
++++ b/sandbox/seunshare.c
+@@ -103,7 +103,7 @@ static int set_signal_handles(void)
  
- int selinux_check_securetty_context(const char * tty_context)
- {
-+	context_t con = context_new(tty_context);
-+	if (!con) {
-+		return -1;
-+	}
-+
-+	FILE *fp = fopen(selinux_securetty_types_path(), "re");
-+	if (!fp) {
-+		context_free(con);
-+		return -1;
-+	}
-+
-+	const char *type = context_type_get(con);
-+
- 	char *line = NULL;
--	char *start, *end = NULL;
-+	char *start = NULL;
-+	char *end = NULL;
- 	size_t line_len = 0;
--	ssize_t len;
- 	int found = -1;
--	FILE *fp;
--	fp = fopen(selinux_securetty_types_path(), "re");
--	if (fp) {
--		context_t con = context_new(tty_context);
--		if (con) {
--			const char *type = context_type_get(con);
--			while ((len = getline(&line, &line_len, fp)) != -1) {
--
--				if (line[len - 1] == '\n')
--					line[len - 1] = 0;
--
--				/* Skip leading whitespace. */
--				start = line;
--				while (*start && isspace((unsigned char)*start))
--					start++;
--				if (!(*start))
--					continue;
--
--				end = start;
--				while (*end && !isspace((unsigned char)*end))
--					end++;
--				if (*end)
--					*end++ = 0;
--				if (!strcmp(type, start)) {
--					found = 0;
--					break;
--				}
--			}
--			free(line);
--			context_free(con);
-+	ssize_t len;
-+	while ((len = getline(&line, &line_len, fp)) != -1) {
-+
-+		if (line[len - 1] == '\n') {
-+			line[len - 1] = 0;
-+		}
-+
-+		/* Skip leading whitespace. */
-+		start = line;
-+		while (*start && isspace((unsigned char)*start)) {
-+			start++;
-+		}
-+		if (!(*start)) {
-+			continue;
-+		}
-+
-+		end = start;
-+		while (*end && !isspace((unsigned char)*end)) {
-+			end++;
-+		}
-+		if (*end) {
-+			*end++ = 0;
-+		}
-+		if (!strcmp(type, start)) {
-+			found = 0;
-+			break;
- 		}
--		fclose(fp);
+ 	/* Empty the signal mask in case someone is blocking a signal */
+ 	if (sigemptyset(&empty)) {
+-		fprintf(stderr, "Unable to obtain empty signal set\n");
++		fprintf(stderr, _("Unable to obtain empty signal set\n"));
+ 		return -1;
  	}
  
-+	free(line);
-+	context_free(con);
-+	fclose(fp);
-+
- 	return found;
- }
--
+@@ -111,12 +111,12 @@ static int set_signal_handles(void)
+ 
+ 	/* Terminate on SIGHUP */
+ 	if (signal(SIGHUP, SIG_DFL) == SIG_ERR) {
+-		perror("Unable to set SIGHUP handler");
++		perror(_("Unable to set SIGHUP handler"));
+ 		return -1;
+ 	}
+ 
+ 	if (signal(SIGINT, handler) == SIG_ERR) {
+-		perror("Unable to set SIGINT handler");
++		perror(_("Unable to set SIGINT handler"));
+ 		return -1;
+ 	}
+ 
+@@ -353,7 +353,7 @@ static int rsynccmd(const char * src, const char *dst, char **cmdbuf)
+ 
+ 	/* match glob for all files in src dir */
+ 	if (asprintf(&buf, "%s/*", src) == -1) {
+-		fprintf(stderr, "Out of memory\n");
++		fprintf(stderr, _("Out of memory\n"));
+ 		return -1;
+ 	}
+ 
+@@ -371,12 +371,12 @@ static int rsynccmd(const char * src, const char *dst, char **cmdbuf)
+ 
+ 		if (!buf) {
+ 			if (asprintf(&newbuf, "\'%s\'", path) == -1) {
+-				fprintf(stderr, "Out of memory\n");
++				fprintf(stderr, _("Out of memory\n"));
+ 				goto err;
+ 			}
+ 		} else {
+ 			if (asprintf(&newbuf, "%s  \'%s\'", buf, path) == -1) {
+-				fprintf(stderr, "Out of memory\n");
++				fprintf(stderr, _("Out of memory\n"));
+ 				goto err;
+ 			}
+ 		}
+@@ -387,7 +387,7 @@ static int rsynccmd(const char * src, const char *dst, char **cmdbuf)
+ 
+ 	if (buf) {
+ 		if (asprintf(&newbuf, "/usr/bin/rsync -trlHDq %s '%s'", buf, dst) == -1) {
+-			fprintf(stderr, "Out of memory\n");
++			fprintf(stderr, _("Out of memory\n"));
+ 			goto err;
+ 		}
+ 		*cmdbuf=newbuf;
 -- 
 2.50.1
 
