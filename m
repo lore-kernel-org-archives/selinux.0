@@ -1,100 +1,178 @@
-Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA75C16FF44
-	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 18:29:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D93E71D5CE5
+	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 18:38:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754072967; cv=none; b=jNge57lSMwUrgLB6CHlZN4brtDFdF21jING54+mYkaMnsjVWcuWen7qTINdnSLh68+3JbaVb9j2L1BStE4XZlzGsZb3fCPLcq4bZFs0NaRjNRN6aulwFnTm2EU4DSGxVywaDEIQYa+W+/nPNu+J13TBhCh0irTJt5vjONPGbnDE=
+	t=1754073512; cv=none; b=dKhd1p1n+JVK0zHgt7362CiGm1LeqNI3zNW95npzUG2HPqZFCTgiONMNV+4msFjRi3XlvNAMnezc0H9s/b+lhQ2bdjVbttiWt62/4l99vvoeITuVBq+Lqj9lVsrOcok1Y9A/YYHwxHuXDg8SoGVzodOoS1tulCYlNvqJOak4Nw0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754072967; c=relaxed/simple;
-	bh=yktrILKbEUGAffgtsVMTTrqFFPuAPnEGyOEyDKTvrfA=;
+	s=arc-20240116; t=1754073512; c=relaxed/simple;
+	bh=oSSAs42lD3plOAoKgxguxym57zog1c4MEGurdFxOafA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=J0Y1KACH+y5ub7rRQNk9ehEhkrpUADM8wHPHctXxb+tkVnJ406cbLXOZmi/CE2i2f2LN/QVvDI4MVAgROpZZ0XXGi1rryR93IEDaC7HVncJHJaIzB+ymUppvS019rDBBZyA3gDAfU4HgW+StKvcKDRUyOVt16KUCPp1G+g3PFNw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jU3Jl4fZ; arc=none smtp.client-ip=209.85.210.172
+	 To:Cc:Content-Type; b=KU61gDrH8g2JkRXBlfu4+b4r8UJu3FRLrjkqOLGgk/hiyAZ+aL4N447t7d3M13KPFSk2MhmkC/OoTdcECaxpUtRUs+UDb8w8bJEbJy13utH3mgdsHyScfRe9BPh839j0IFCdxHqpoBVIGW++4v44QeXd5pcnFTUbQXH9uaQfDw8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=luzsVsHg; arc=none smtp.client-ip=209.85.216.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jU3Jl4fZ"
-Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-76bdc73f363so1100735b3a.3
-        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 11:29:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="luzsVsHg"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-32117db952aso24350a91.0
+        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 11:38:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754072965; x=1754677765; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1754073510; x=1754678310; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=qqzdGVD6wAPurGhPETHCOYphLAfb7IXM9ugtg643w1k=;
-        b=jU3Jl4fZhlT0i0l1UbPgqxVS6Ue7/M52MXsITf4YkHWwo6Mrjv/ZSGuefPB0BaTEDj
-         OV54JllZ1qek49yPDt/pbc5qgoCKOaQN8JN9nLJoeIeBQDN3R7DLn2sVJqPGZ/L+6+nR
-         B3Ao+SJlMsBsy06iNdODv5DzQ/B4R/V0ow5rm9bnnSt25BbKD3MSnlsjJQ3FEkAIXKf4
-         U8qVdQq6BFrB4ABr6DNTScsQ4RB173ntj6OIORsYOprUb8bc+RIjaoZ9yAjBBLigmbDV
-         a8KAleI8DNiCuejqg/T1y8px5qd6jWeHMXhvY3jZYDxOFJK6TV+YONI9OH4VQdRZJ1Q5
-         JT/g==
+        bh=WkXTjMsDQQb5r7DOGMtZRWkjU1xbXpZZo0DENsu90EM=;
+        b=luzsVsHgHhBO80kheEP8wfqrHkkK7dZFXYz7zc6GFeWIIEzB+zI+9p4wYeXgLrS0Jd
+         reZr/GMFt13/WVXo9e4FjPrnVaTOHyXkIJ3riHxK81iIzpBwvYj8sVb/2Ak5xvKSsCaT
+         TkQ6OR3Blcg0/5gbIxG+TtyyM+ImMDqT1slzbIwoeQ5GtzWbBL68vN614V3YrSRsC0BD
+         8ixEIB29Cekea0rqNPlF6bjFF/GkKV7OCZ+/aMgaxskst4hNxLw2+l1w1FxnB+siCO/h
+         9BTBVJKTjhCCgDDa46BaCBKefkgHgL/YdA61RLRnx//BJki8CC33NXoAoR35p5zFK0cO
+         ZO4g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754072965; x=1754677765;
+        d=1e100.net; s=20230601; t=1754073510; x=1754678310;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=qqzdGVD6wAPurGhPETHCOYphLAfb7IXM9ugtg643w1k=;
-        b=bCNoblMwqe5MaLQuznKMWEWGcvwzhKzf1H5+2DpKhkyyduS/zRTqqZv4yvgvMHFQ6s
-         fMm4t4pfCI15jBUpaRVb2WuVufJdMn03e889JMNrFAHiG221QOFbdCu0qy7vCHraJFM+
-         G+QllVhLyj33vKrSMH7LFtj48xniC39EldF8W+ZRgXrXQwgoyNmUCsE2Zfd8tllheWX9
-         XWbib/oVmnAGQ0VHWqhDdkuVlBwMImd3+j3Xvy5Fpak++k2aldeuKC4qxRV70aeVrM8p
-         6tKSJW7CqQVo16QbO1klEr4GvzKMcGCbbhuvdKk2N04WzvWqFMQqvkwIuoTl/ItKqmWI
-         e0nA==
-X-Gm-Message-State: AOJu0Yx5baYAQnN9vEp97DutOhL753zes4MmvAnTfuD0fovQalK35Xng
-	UEYE2K4B0Z3VKx3Z4cxUoS24UpsJDRDwU7w8BzKYVIrf4F392xD8ma8W6zgyKGZ/HVskgkt/5x/
-	KSi3p57kfd0IZO42pVJHhzABkEJu+QDQ=
-X-Gm-Gg: ASbGncvAi3tI/Mp6lqcOUqFPMBz4KZKIB0R4rwKBeAXKCG/zsWavK59VMD8JttWHANb
-	JyzflZbL5DgKz/3Aitp7JLsyucdklngpU/KrxEx5utzUsDluCjaF6/9yPldWncybdmb0meQPOoa
-	aN410EcXUNBq3CRMY8qetBzWep9DKRUGgJynshfArIAwcAeXtKUpa0rgOX+GOxoOQxiCFT8EDDu
-	/vT7CU=
-X-Google-Smtp-Source: AGHT+IFNvTxleru1Rx3rewF/0HX9HCudOsAShR2mNehn/UFWjfOWSb/k4c2Eo2DX5KftNWeGBZQxvZ6lB21Dwuogo7g=
-X-Received: by 2002:a05:6a20:9392:b0:232:93c2:8851 with SMTP id
- adf61e73a8af0-23df8fbbe30mr1019743637.18.1754072965091; Fri, 01 Aug 2025
- 11:29:25 -0700 (PDT)
+        bh=WkXTjMsDQQb5r7DOGMtZRWkjU1xbXpZZo0DENsu90EM=;
+        b=hwH1cYNfKzrhcrMdQLmy1i9kIDVOEtG541+dHYK2Z8q5QSeVqJj+foI5gQpdVUuA7k
+         pAfGAjSmYokEaVp/NLkQfITMwXBsKCIc16T193FyMlVCy9lZ7mV2aRvtnbGB9jPsdZm+
+         LOeBqPK9eiuEmoX6Q5SzV3Kw/u/oO0Cy4CKbGzMuARj29fY9eyZ95DKdPIaUqfurVGwd
+         k9AptU7cji0vNL6vDVYhS39Oe4pH3iaTCyizcHSZbmnd7fwXcOriSFyAbn2W/y5JfWay
+         Ue+yxpQ/xfm5whBW44tlWlVswElY4LbpbO0G5kNZCZleQIjRAyG8hvS4Hh5T8p7+ccaQ
+         xJMA==
+X-Gm-Message-State: AOJu0YzQvCI9dBlgd4o4ALfa+EO/VediokSQw4LisAPWdtPwkwTMzs1r
+	yRJKG8QK+tXcxruACFys8xfq0cDxdcO75WdHcKJbdqc3HUKnjrUgu0lXThcpgliiMbc/G7fLqEd
+	Q7wHkH5bEJe5bx1J4VcWxaXa1idK+YZI=
+X-Gm-Gg: ASbGncsz7v5T2dPypoRZnsfrjTPITkbkB/XjSQC2mtxfX9BDgGISQKssvD64z3wbnW5
+	4ffHcwaI0dZln4RxWlGPVgFTGeT68vBlxO31dx4uhuVYYl8hMhdOtPcwGPkJ8NaKBUKaqlP0zpj
+	Ooi/UHqnzsy8uA5HYbM6jQnyTFVfBB9a6Hga45FDYV1Xf4WT+08azLAdpTc4sCKj2kJRRCURwV8
+	RVsNkY=
+X-Google-Smtp-Source: AGHT+IFHC+VnMGO1OYs5eivpjz0U+v4Ww4S+GLxCxBwGPtWBTnrcUGUCodXFO5msk+7U5l8EPNp/rhMik9zxEenLupY=
+X-Received: by 2002:a17:90b:1650:b0:31e:f193:1822 with SMTP id
+ 98e67ed59e1d1-321162c8f2dmr925205a91.28.1754073509990; Fri, 01 Aug 2025
+ 11:38:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <DBRASSYXDGO0.2X50XS44GR1WL@gmail.com>
-In-Reply-To: <DBRASSYXDGO0.2X50XS44GR1WL@gmail.com>
+References: <20250801154637.143931-1-danieldurning.work@gmail.com>
+In-Reply-To: <20250801154637.143931-1-danieldurning.work@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 1 Aug 2025 14:29:12 -0400
-X-Gm-Features: Ac12FXwAPDQnsOQHquAyhtLRV006T9ePWfb1zbcLkIgkuTC3J-OccHiT18zXakU
-Message-ID: <CAEjxPJ5y9fV+B0_WrT71+NymwHubVVgbNePCa5+tM0deamWA-Q@mail.gmail.com>
-Subject: Re: [PATCH v3] seunshare: fix the frail tmpdir cleanup
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: selinux@vger.kernel.org
+Date: Fri, 1 Aug 2025 14:38:18 -0400
+X-Gm-Features: Ac12FXx8S24PcDm1HFzRkx1NVjUnKYiG6E3NK3p1gKZ2poivSSgNz_sIMsqtP9Y
+Message-ID: <CAEjxPJ799AYzKGMJr5vmcP+b_ikPncy-vwaKZudRMRokwyuXMQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: implement bpf_token_cmd and bpf_token_capable hooks
+To: danieldurning.work@gmail.com
+Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 1, 2025 at 2:21=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wrot=
+On Fri, Aug 1, 2025 at 11:49=E2=80=AFAM <danieldurning.work@gmail.com> wrot=
 e:
 >
-> > I would think the idiomatic C way of doing this would be to use fts(3)
-> > or nftw(3).
-> > setfiles/restorecon originally used nftw(3) but later switched to
-> > fts(3) for reasons I don't recall.
+> From: Daniel Durning <danieldurning.work@gmail.com>
 >
-> It's worth noting that fts (3) is not actually mandated by POSIX from a
-> portability perspective, however we do already depend on it for other
-> parts of the userspace[1] (as you mentioned), and shims exist for other
-> libcs, for example musl[2], so I don't think this is a huge deal.  I
-> can't speak for setfiles and restorecon, but nftw's api is pretty crap
-> compared to fts, so, like them, I'd rather use fts for this than nftw
-> even though nftw is part of posix[3].
->
-> I think dirfds are fine to use here, however I'm happy to send a v2
-> using fts if you wish - would you like me to do so?
+> Implement bpf_token_cmd and bpf_token_capable hooks for SELinux.
+> For both hooks we check against the token SID, to support
+> delegation. We could add a further check based on process SID
+> when the token is first created.
 
-Maybe wait and see what other SELinux userspace maintainers think - I
-am just one opinion here.
+I agree with the approach - it is consistent with how tokens are used.
+I suppose we could perform a process-based check in
+selinux_bpf_token_create() if it was generic, or add one to each of
+these hooks if we want a different permission for different cmd or cap
+values.
+
+We may need to wrap these checks with a new policy capability (see
+security/selinux/include/policycap.h and related code) to avoid
+breaking compatibility on existing systems using BPF tokens, if any.
 
 >
-> [1] https://github.com/SELinuxProject/selinux/blob/main/libselinux/src/se=
-linux_restorecon.c#L17
-> [2] https://github.com/void-linux/musl-fts
-> [3] https://pubs.opengroup.org/onlinepubs/9699919799/functions/nftw.html
+> Signed-off-by: Daniel Durning <danieldurning.work@gmail.com>
+
+Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+> ---
+>  security/selinux/hooks.c | 48 ++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 48 insertions(+)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 335fbf76cdd2..bffddffe0b25 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -7154,6 +7154,52 @@ static void selinux_bpf_token_free(struct bpf_toke=
+n *token)
+>         token->security =3D NULL;
+>         kfree(bpfsec);
+>  }
+> +
+> +static int selinux_bpf_token_cmd(const struct bpf_token *token, enum bpf=
+_cmd cmd)
+> +{
+> +       struct bpf_security_struct *bpfsec =3D token->security;
+> +       u32 sid =3D bpfsec->sid;
+> +       int ret;
+> +
+> +       switch (cmd) {
+> +       case BPF_MAP_CREATE:
+> +               ret =3D avc_has_perm(sid, sid, SECCLASS_BPF, BPF__MAP_CRE=
+ATE,
+> +                                  NULL);
+> +               break;
+> +       case BPF_PROG_LOAD:
+> +               ret =3D avc_has_perm(sid, sid, SECCLASS_BPF, BPF__PROG_LO=
+AD,
+> +                                  NULL);
+> +               break;
+> +       default:
+> +               ret =3D 0;
+> +               break;
+> +       }
+> +
+> +       return ret;
+> +}
+> +
+> +static int selinux_bpf_token_capable(const struct bpf_token *token, int =
+cap)
+> +{
+> +       u16 sclass;
+> +       struct bpf_security_struct *bpfsec =3D token->security;
+> +       u32 sid =3D bpfsec->sid;
+> +       u32 av =3D CAP_TO_MASK(cap);
+> +
+> +       switch (CAP_TO_INDEX(cap)) {
+> +       case 0:
+> +               sclass =3D SECCLASS_CAP_USERNS;
+> +               break;
+> +       case 1:
+> +               sclass =3D SECCLASS_CAP2_USERNS;
+> +               break;
+> +       default:
+> +               pr_err("SELinux:  out of range capability %d\n", cap);
+> +               return -EINVAL;
+> +       }
+> +
+> +       return avc_has_perm(sid, sid, sclass, av, NULL);
+> +}
+> +
+>  #endif
+>
+>  struct lsm_blob_sizes selinux_blob_sizes __ro_after_init =3D {
+> @@ -7525,6 +7571,8 @@ static struct security_hook_list selinux_hooks[] __=
+ro_after_init =3D {
+>         LSM_HOOK_INIT(bpf_map_free, selinux_bpf_map_free),
+>         LSM_HOOK_INIT(bpf_prog_free, selinux_bpf_prog_free),
+>         LSM_HOOK_INIT(bpf_token_free, selinux_bpf_token_free),
+> +       LSM_HOOK_INIT(bpf_token_cmd, selinux_bpf_token_cmd),
+> +       LSM_HOOK_INIT(bpf_token_capable, selinux_bpf_token_capable),
+>  #endif
+>
+>  #ifdef CONFIG_PERF_EVENTS
+> --
+> 2.50.1
+>
