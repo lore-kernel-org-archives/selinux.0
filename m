@@ -1,71 +1,67 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFDCF17DFE7
-	for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 21:18:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F49A21ABAD
+	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 14:33:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1753996739; cv=none; b=iZdF4SV/EJ4pPNJZ+jM5pwWkiWPPkV5eqtlxBssIXIJVEAqsG4y7qwGt8QjWBOWN1ubZNQBP6pdE4S89awDvuLBX6c0BIc18nJw4AEYATGo3CYBvehO94+11jRsVUZ0QZqK5sjitWqLrIerHNsdRTVLzWu2oW70hiBUN126Yq8w=
+	t=1754058792; cv=none; b=n9aqBAnaX++deyYr+zIfK9HBnxMKsQENmmHIlCJW9gy1FcIDfhPBoHb8WG8aizHjrfreKH4MG/0B6L8pfXfHvYr6o+ZfD2iiQ059RSrakGnUCRAWp0hQKIV0ov1NZsopC2WBrtiYeOZtEycXqKG/WqF314e39qKPkCOPkNKILwo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1753996739; c=relaxed/simple;
-	bh=G6nFqeTuGJeiGnUr6a1vA9647zrtWqwsNgcEX1Ad314=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GD5QK9BF5HH/gPf86dW0tCpgizsaiTpwmhTu/jzlzX91LfksFwVCueTdntq/aWhrGkJUBed5K9nUQBF7RekMTI94WmYZg9Vewbdl37/FWVLLnRHFWcDFyBjjWIkAgZFpovVReLexN8zOLOwONybDwfCyoi8J0TaEmf2F/kwwcKQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WyiCwDIS; arc=none smtp.client-ip=209.85.128.53
+	s=arc-20240116; t=1754058792; c=relaxed/simple;
+	bh=rqG76n9ombPwhb0O1o9vUQ68mAx2NF3aMh3W5truSLM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=F4Nq8og2tyUz0pNfRaCs6HJGmp3YPzRMiiYsegs5BvA4GcEMAz8BtjOnbffFjGmOqeg01ShqXeyDRDQk2qxTF97DvhA6IPQpUryMlxml25bAVzANiKpFMWSsw6CBWwLEWgPO0QegMC+Po4EuMM+1ouI0UpovEVodbkNKqlEpJlo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MDtsIQPD; arc=none smtp.client-ip=209.85.221.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WyiCwDIS"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-455fdfb5d04so7859815e9.2
-        for <selinux@vger.kernel.org>; Thu, 31 Jul 2025 14:18:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MDtsIQPD"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-3b79bddd604so1288459f8f.0
+        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 07:33:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1753996736; x=1754601536; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kuBWD56bkJCAWYOCLno1DVOyk8qEh5OjdN0XiiapI9k=;
-        b=WyiCwDISgMGiQ8G2x2COhous8z0d+2q8MUX71oqXHI7RAG2apHOkAmX9ILuecdwaSM
-         TMY4Y+vTpYOsO4wAO9WXp1oJK/zFecO5jq8PfJOPrf8U2rtlf7yS0KV37UTxMm3+nvGH
-         pXQCZ07BM6geUq3L9klKU8oCeFO5nYkLaAJpMVseCod6JqHtDzP34/gWcAq5FWTyhW7v
-         xmtDChy6mxHvSo9CzF2yECwKsUcsbDwB1SAFR2ON/9O498mfdJbEAyr8aIzgZqSjE98w
-         Sk9XAPbiscUsZViwNsB0vfJeEOXEfRZZ38Pc5CK3hMCv2oyKEDYf4Wn5MZjIAJrd/rfm
-         bQmQ==
+        d=gmail.com; s=20230601; t=1754058789; x=1754663589; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=8+/BogaydoqYYjfmBy4X2fz2xqxt28O5Ne0sp9KpCxw=;
+        b=MDtsIQPDg6QEAbVfKl7WluMFOfy9D4CR4pezQl2dwf18V5d4mPnZ6ipbauDUxEUv+X
+         dZlxLHFUTE0O5AYsZbGAix0CHHfqtHZbQA/D3qTMhpBR9VPhzsShxCouEW547kgLHhN7
+         TkB5s0L9KljFikET+/OiQjK/1rSiz6d6HRA6QaI3HsZnh49tlfnGxUaHB/f01O8vTKjx
+         rwfMsvYU8uwlvAMpNBkgAwH8LAzfrZdRoCxYg1i94HKfJmSQB8/LJ/Itc1mLuzBiWhdp
+         CEkicxNLB+wpETXLn+rCOtE0FK/4/iJh4rbQ7B24lSArPdYJOqK3y+hNglVtQ/9rZtTb
+         TWiQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1753996736; x=1754601536;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kuBWD56bkJCAWYOCLno1DVOyk8qEh5OjdN0XiiapI9k=;
-        b=GcnoUEIP/VMaPV88+F9FePhuyawnNFFnTSHwNZHZVcpB9MKnRgKwu6MzvmBbvUQUtj
-         s/1rEyeAiBMLB5HDbXYkvz4KZT7yDwZkpjxYKPrZme5+wmCdMNyDfOWxPimIUKCsSLdI
-         2TJT+cZkvVwxzPOqegKoXLcppzdGfqRE1lEGFyyWs162ShJatnz4Cl4B29rCLnUeJj6c
-         1UQRN8PHs1l41hWtFMx55ayo7GmfMIm8AC1ocl1xwWWwbf26J23Tt/x5Pfp2wblZOBoR
-         mf0Yr03FX5NGYcYRTGBIQjfDEaeszDrJbaLb3e15PO4njnlWCQoNWVqjPsLuSfrayIhs
-         7HXw==
-X-Gm-Message-State: AOJu0YxT6KmrjuQyAFpP7CYKAIICnSCLxikJ5klDLvo4QKVNIyovKZot
-	ydVqSsaU/ElikU6VeeDQCydX/jOT8OBIlVY+HEar6OB5rAZD5tNmASDAGoUYbg==
-X-Gm-Gg: ASbGncuXNQXRBEorKm1c9T1svvgIpsWWCXvFJjTTXSWFzMr37s6bUTY9aSq0CwE1X25
-	1451mcE8y0wpOPEejZxQBS586RjVvYlrd22DbbKFgu4holl0SiI9LaQU5SRcyFlDdoTJh3Qbdid
-	Fsz5yjzDASnCTosNnD0p3O7dExvsH+9HCvzBZh/HtvMyyWrDqM3p3qiu+8weAPNLtye7QcE2DRB
-	yiu5B6WY9EEiYVlNY0qrkvalFM4LYyVX2s38DJb5DhfWKpCxIMyb/tkMeTDdkz0VRu8/iW/Sl1M
-	NRvpAm1VPRVOE7m67FukpmersU2JOjUvqv0b1fKPIOuuUUOKDiBDUoLmU5AOYwTFQ60diYmtpd8
-	XVDZ1QQ83ephtsSYK3V/MCrE=
-X-Google-Smtp-Source: AGHT+IHVAZGgh4zBVmj4oXup+FmwcpjU1LVsDnmm8OWqBmNcs+WB/0EYyC7HqVeTsnCKAnDMdX0TBw==
-X-Received: by 2002:a05:600c:c1d7:10b0:450:d386:1afb with SMTP id 5b1f17b1804b1-45892d5e314mr62354765e9.9.1753996735636;
-        Thu, 31 Jul 2025 14:18:55 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1754058789; x=1754663589;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8+/BogaydoqYYjfmBy4X2fz2xqxt28O5Ne0sp9KpCxw=;
+        b=JBZrhTjPglRoNNYLynH7x1jk+371kudiLzF0WMNUvhDt5mZImG0s0c2AA/LDIcbSj6
+         9Zq3BRJ2c6YzBBsJjmxZJAZ821xcCstfvscfDf0aiZYopHEmTzfWzgxlNiVcFQhTXJlN
+         ual61vSENtP1SFgfbdBNhkcMJ+KukuuQXpvZZ9TWN7QmYp7rodQzkGYRgjc3IcWy00+t
+         Q/53Z7V0gGVjb9tIYxAzKBP9MKlYZBTyvG+EvUIIVIv50f9oakH2mUucPhFDT5ThNWpW
+         mSluQngPBEOISXWL8ID98NoDI9yYW7PqwJtwOZUgmWCxnhGl1dSkzfzU7Bt8LfrNOYjh
+         oTnA==
+X-Gm-Message-State: AOJu0YzPNZFMlk9JVmGHLjFU8GacOXyV0aQC8aBeikvfxFs/YYMR45BB
+	1CKocBGNFk1xI0PdljWJBKJNpFnhUnBnU9dFIsyguwXv2wIwxVMnW2r0/BgynA==
+X-Gm-Gg: ASbGncs7IUMfbREGM6nJ3nkzyZXpJz+oBdgvB+Z7aeOL7GBXwpHnvHcB0lpnYHtMPb4
+	JqK+S/6mr12CBpN4Qty+0hkOc3aDrXZIS6oha/ukFAM9Eo/ZMFegLbuQJ8untuzCFxFHpPJmC6+
+	yY7KytmRdlZRvJNF2njgYdPAtxAkVfFuxPrIhdQjGFu5GGyoL+RH+b2Psibth8yXAim1MaisZnY
+	aao7M5kyRMtLG+RzSfeRL2zKKjFZW8epWFoPfHEbsU4/Pp32MHnDpYJ3+4tATrNjI/nGsaY8+cV
+	8lfmUNUE0DGcPufSX/YrxnsmuwTS/NcVxP1VjM4n5qHlHKG/GoMx5cmQfpg/ooBjTbE1RT81CwK
+	HbM/XMMsk2OPk
+X-Google-Smtp-Source: AGHT+IHexzvaimq8lGzYIOLGclQ2x8jOAt3ElykE1gBfyUlhbIb2N3m/MRu0PYzbJH+dUA6Mi2TFmQ==
+X-Received: by 2002:a05:6000:2511:b0:3b7:9c79:32a6 with SMTP id ffacd0b85a97d-3b79c793525mr4761749f8f.47.1754058789161;
+        Fri, 01 Aug 2025 07:33:09 -0700 (PDT)
 Received: from sierra ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4588dd77cbbsm67023115e9.2.2025.07.31.14.18.55
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-458b55b4b4bsm161275e9.1.2025.08.01.07.33.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 31 Jul 2025 14:18:55 -0700 (PDT)
+        Fri, 01 Aug 2025 07:33:08 -0700 (PDT)
 From: Rahul Sandhu <nvraxn@gmail.com>
-To: nvraxn@gmail.com
-Cc: selinux@vger.kernel.org
-Subject: [PATCH v3] seunshare: fix the frail tmpdir cleanup
-Date: Thu, 31 Jul 2025 22:18:49 +0100
-Message-ID: <20250731211849.1102381-1-nvraxn@gmail.com>
+To: selinux@vger.kernel.org
+Cc: Rahul Sandhu <nvraxn@gmail.com>
+Subject: [PATCH] libsemanage: refactor semanage_user_roles
+Date: Fri,  1 Aug 2025 15:33:00 +0100
+Message-ID: <20250801143300.1189741-1-nvraxn@gmail.com>
 X-Mailer: git-send-email 2.50.1
-In-Reply-To: <DBQHP9O2QZP7.15GAYG3PERBJ8@gmail.com>
-References: <DBQHP9O2QZP7.15GAYG3PERBJ8@gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -74,132 +70,102 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-For some reason, rm is invoked via system (3) to cleanup the runtime
-temp directory.  This really isn't all that robust, *especially* given
-that seunshare is supposed to be a security boundry.  Instead do this
-using libc, the API designed to be used within C programs.
-
-Also, don't bother trying to delete the contents of the tmpdir and then
-trying to delete the parent directory with rmdir later - for some...
-undocumented reason currently we attempt to delete the contents of the
-dir with dropped perms, *then* elevate perms, *then* delete the tmpdir.
-
-This doesn't really make all that much sense as far as I can tell.  We
-should be the only ones using the tmpdir, so we may as well just delete
-the entire thing using the rm_rf () function with elevated permissions.
+Reduce the levels of nesting by early returning on errors.
 
 Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 ---
- sandbox/seunshare.c | 77 ++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 65 insertions(+), 12 deletions(-)
+ libsemanage/src/seusers_local.c | 76 +++++++++++++++++++--------------
+ 1 file changed, 45 insertions(+), 31 deletions(-)
 
-v2: don't use else after return
-v3: don't follow symlinks in rm_rf ().  This is pretty important as we
-    we are operating on an untrusted directory, which may have symlinks
-    pointed to privileged content.  However, as we only really need to
-    operate on the contents of the tmpdir, we can ignore symlinks.
-
-diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-index 97430535..8b1af609 100644
---- a/sandbox/seunshare.c
-+++ b/sandbox/seunshare.c
-@@ -403,6 +403,66 @@ err:
- 	return rc;
- }
+diff --git a/libsemanage/src/seusers_local.c b/libsemanage/src/seusers_local.c
+index eb3f82bc..282d56fa 100644
+--- a/libsemanage/src/seusers_local.c
++++ b/libsemanage/src/seusers_local.c
+@@ -18,39 +18,53 @@ typedef struct semanage_seuser record_t;
+ #include "string.h"
+ #include <stdlib.h>
  
-+/*
-+ * Recursively delete a directory.
-+ * SAFTEY: This function will NOT follow symbolic links (AT_SYMLINK_NOFOLLOW).
-+ *         As a result, this function can be run safely on a directory owned by
-+ *         a non-root user: symbolic links to root paths (such as /root) will
-+ *         not be followed.
-+ */
-+static bool rm_rf(int targetfd, const char *path) {
-+	struct stat statbuf;
+-static char *semanage_user_roles(semanage_handle_t * handle, const char *sename) {
++static char *semanage_user_roles(semanage_handle_t * handle, const char * sename) {
+ 	char *roles = NULL;
+-	unsigned int num_roles;
+-	size_t i;
+-	size_t size = 0;
+-	const char **roles_arr;
++	const char **roles_arr = NULL;
+ 	semanage_user_key_t *key = NULL;
+-	semanage_user_t * user;
+-	if (semanage_user_key_create(handle, sename, &key) >= 0) {
+-		if (semanage_user_query(handle, key, &user) >= 0) {
+-			if (semanage_user_get_roles(handle,
+-						    user,
+-						    &roles_arr,
+-						    &num_roles) >= 0) {
+-				for (i = 0; i<num_roles; i++) {
+-					size += (strlen(roles_arr[i]) + 1);
+-				}
+-				if (num_roles == 0) {
+-					roles = strdup("");
+-				} else {
+-					roles = malloc(size);
+-					if (roles) {
+-						strcpy(roles,roles_arr[0]);
+-						for (i = 1; i<num_roles; i++) {
+-							strcat(roles,",");
+-							strcat(roles,roles_arr[i]);
+-						}
+-					}
+-				}
+-				free(roles_arr);
+-			}
+-			semanage_user_free(user);
+-		}
++	semanage_user_t *user = NULL;
 +
-+	if (fstatat(targetfd, path, &statbuf, AT_SYMLINK_NOFOLLOW) < 0) {
-+		if (errno == ENOENT) {
-+			return true;
-+		}
-+		perror("fstatat");
-+		return false;
++	if (semanage_user_key_create(handle, sename, &key) < 0) {
++		goto cleanup;
 +	}
 +
-+	if (S_ISDIR(statbuf.st_mode)) {
-+		const int newfd = openat(targetfd, path, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
-+		if (newfd < 0) {
-+			perror("openat");
-+			return false;
-+		}
-+
-+		DIR *dir = fdopendir(newfd);
-+		if (!dir) {
-+			perror("fdopendir");
-+			close(newfd);
-+			return false;
-+		}
-+
-+		struct dirent *entry;
-+		int rc = true;
-+		while ((entry = readdir(dir)) != NULL) {
-+			if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
-+				continue;
-+			}
-+
-+			if (rm_rf(dirfd(dir), entry->d_name) != 0) {
-+				rc = false;
-+			}
-+		}
-+
-+		closedir(dir);
-+
-+		if (unlinkat(targetfd, path, AT_REMOVEDIR) < 0) {
-+			perror("unlinkat");
-+			rc = false;
-+		}
-+
-+		return rc;
++	if (semanage_user_query(handle, key, &user) < 0) {
++		goto cleanup;
 +	}
-+	if (unlinkat(targetfd, path, 0) < 0) {
-+		perror("unlinkat");
-+		return false;
-+	}
-+	return true;
-+}
 +
- /**
-  * Clean up runtime temporary directory.  Returns 0 if no problem was detected,
-  * >0 if some error was detected, but errors here are treated as non-fatal and
-@@ -428,24 +488,17 @@ static int cleanup_tmpdir(const char *tmpdir, const char *src,
- 		free(cmdbuf); cmdbuf = NULL;
++	unsigned int num_roles = 0;
++	if (semanage_user_get_roles(handle, user, &roles_arr, &num_roles) < 0) {
++		goto cleanup;
++	}
++
++	if (num_roles == 0) {
++		roles = strdup("");
++		goto cleanup;
++	}
++
++	size_t size = 0;
++	for (size_t i = 0; i < num_roles; i++) {
++		size += (strlen(roles_arr[i]) + 1);
++	}
++
++	roles = malloc(size);
++	if (!roles) {
++		goto cleanup;
++	}
++
++	strcpy(roles, roles_arr[0]);
++
++	for (size_t i = 1; i < num_roles; i++) {
++		strcat(roles, ",");
++		strcat(roles, roles_arr[i]);
++	}
++
++cleanup:
++	free(roles_arr);
++	if (user) {
++		semanage_user_free(user);
++	}
++	if (key) {
+ 		semanage_user_key_free(key);
  	}
- 
--	/* remove files from the runtime temporary directory */
--	if (asprintf(&cmdbuf, "/bin/rm -r '%s/' 2>/dev/null", tmpdir) == -1) {
--		fprintf(stderr, _("Out of memory\n"));
--		cmdbuf = NULL;
-+	if ((uid_t)setfsuid(0) != 0) {
-+		/* setfsuid does not return error, but this check makes code checkers happy */
- 		rc++;
- 	}
--	/* this may fail if there's root-owned file left in the runtime tmpdir */
--	if (cmdbuf && spawn_command(cmdbuf, pwd->pw_uid) != 0) rc++;
--	free(cmdbuf); cmdbuf = NULL;
- 
--	/* remove runtime temporary directory */
--	if ((uid_t)setfsuid(0) != 0) {
--		/* setfsuid does not return error, but this check makes code checkers happy */
-+	/* Recursively remove the runtime temp directory.  */
-+	if (!rm_rf(AT_FDCWD, tmpdir)) {
-+		fprintf(stderr, _("Failed to recursively remove directory %s\n"), tmpdir);
- 		rc++;
- 	}
- 
--	if (pwd->pw_uid != 0 && rmdir(tmpdir) == -1)
--		fprintf(stderr, _("Failed to remove directory %s: %s\n"), tmpdir, strerror(errno));
- 	if ((uid_t)setfsuid(pwd->pw_uid) != 0) {
- 		fprintf(stderr, _("unable to switch back to user after clearing tmp dir\n"));
- 		rc++;
+ 	return roles;
 -- 
 2.50.1
 
