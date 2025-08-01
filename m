@@ -1,90 +1,92 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC64C1AAA1B
-	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 17:58:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 136221917E3
+	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 18:02:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754071089; cv=none; b=J6MgIDdjmXMvtQ/bxIJgwOVq03SH1buxbLEbS/kfigSBFPsOi0X5+kYI2puCWnTzhGp1uwC52zokzsLgoPO4z0zGrNzFA2gbjdptX/+sHpcADDM+7LPF9jB6EPT9g/9k7/qyUyqKRxDUzwbnafg3EZaABNyo3oK8s5PzKX9Wc1s=
+	t=1754071356; cv=none; b=eTgTT6HuHJo73XYEKSs43YMUB+CH3i54GnqGOVpu1mIyPnpfJqB8CgUGUFnRYu3tKBnZ2ToicpwZmwl9me7cjIFlEhoZRCNowT3f8zvICbpZv4hR3pbC0g0ddB+VGofkpoRBX22I1+34442VucRnMhfI/Q4wag+7YtU3xt3E7qg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754071089; c=relaxed/simple;
-	bh=WDJLA9ighCKoylyABheWwKTmuNnofiYUSj9IDBDQIXw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Sam43+aMgvS01++Uho3dnhiN1jbi0i30T0SAthMQd9em+gn7DlnikXMAeQSeKMLHSkV1vOIbxcJhVQsD3r0T0wbNQDRf7bxXxs+cGYyEWt7PQ0aMUV6TeEWNFT5ZnY8z9i45uMVnU1pRg6BGPoNel+tmTaD3Y4ZuzwvErBkEZ5k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RVo3BrWp; arc=none smtp.client-ip=209.85.215.177
+	s=arc-20240116; t=1754071356; c=relaxed/simple;
+	bh=R0/bCMMjBaLjWCD1+EdJiEaDfwrPNZwxZwwru6nwG9s=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 In-Reply-To; b=kf+2c90EAbEKPI/aR4m1iG0/hz3QZfwo/aV1gAfGATTZnAfxKhDOogkI3UKhZ9yxafHSOruxqJfOFZUxeZqQATvn2zBMFzo59D5AVfFMKAPJtL5053YGTffBn8ntngLm2Poera4JexnGHRV297PjZsHSCCfuZZebcvqa/7ITFiw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aAa4Tgp8; arc=none smtp.client-ip=209.85.128.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RVo3BrWp"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-b34a8f69862so911105a12.2
-        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 10:58:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aAa4Tgp8"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4561a4a8bf2so11674535e9.1
+        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 11:02:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754071087; x=1754675887; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1754071353; x=1754676153; darn=vger.kernel.org;
+        h=in-reply-to:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=DaGut5K7hIPAjaQAByCM6a13t7ENdfTlI5DCUuXNNL8=;
-        b=RVo3BrWph18jdJBDirzw/qIYsF+4/RkaS4PjiqEjDANpAIhSXw6T5wveC43V59fKlY
-         tf2Mig6WZcRfeKfzLVXJ6SuZUtOCF/0KGF+ug1r/aADyvmfvqmnzXIK04KAyBohca3OR
-         eGjXoYpD4iofuYNuMyRnxMS+K97GsW72j1JNjUTmEbVWgmPxNpPJeyMtiR6j1F6sHcwQ
-         pYTKQI4bbljvOj2FH8sZdPDvypZrHAJmK4AaZpQOb14OYr/NvXc8UKHzhx1c1lQJfu0m
-         4s+kTjwGjCXc0h3+fpOjfo3SnlxQWQx7/HkoBmJq0nwQ1i46Qvk9MDKuymcOqwZhUTgc
-         B58w==
+        bh=Jve1d4Och/afFGSX4XwXAedjsag7SRGHaS3i4mUSqBw=;
+        b=aAa4Tgp89UfrcKrQBVXWLiih1RYnz2aGt0/QozDLcTCRop/+LZEJVH9iWzI66kZRXF
+         Hww/f3s4A5fZRufGpJbD1cvgqFwadQGt3cQmB335fuKGy3gDfSNV2yFixixIJ9Ugixc3
+         SydYIdsdt8MObVj0iiKX9xbNaprbt+3dC8jgJm83dbZppnt7UejyDV1of1q+8semtKYd
+         4diHUFNXaEAQlTodJDrZ0mhW3oozqIuA4/oUcCBGFV5KzNAIi8brRgEZWHgmDGI5rh9f
+         cQ0qPKQba1yq/VO1enEngp8cPmO8U2BUtY37DViSedoOT5na7W1hkLEbBf0qWaV6mMU4
+         5+0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754071087; x=1754675887;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=DaGut5K7hIPAjaQAByCM6a13t7ENdfTlI5DCUuXNNL8=;
-        b=Oh0jWRAZ1ZbuEiOaX3oDrY3HGIugKJPfg1zXVPi7nVx0J1Fh0VYtEYH8Jm1ebJyGjS
-         JPbecbC1bnidGQhtz4OrXapdvQUeWuDblDSyq9hDuDHS4JDyvONNyK9nPjSX42ZaT88I
-         eQ3zj13s+IwzA1g44xj3e6f+v234wbzW0HdlgBNCtrrG2HBn2RkMUVLic4DotvHXgi7+
-         MWO4KAwljgLSaJEAaekK0t5KPN7LkIlyfB7BWo8jiJAKEYWAL/qMn9Fr0Hw3j+xdO0RX
-         J8LfuGJGeEN4M4HnxeOUOXNO3pWZjy5PF0HRreM2DH5oZ6CSrgKsFdcT3GxwZUO4fp/e
-         Z++w==
-X-Gm-Message-State: AOJu0Yxx5ffEZtZ6Qqz+8Pt59WvwziHYjtgM2+xTvgECVN13k7xyu4eK
-	qNqV3KWv/Ll0MsRWiWiz7+U2PDX/WGAdTQ1TBjRie3ctgUfOAl6M7GQJGsGBU0MMz+dgsammnSk
-	ynTHlkXA5htot5gXsZ8usmAJoKTgitxPHpA==
-X-Gm-Gg: ASbGnctnk2e16t5znUhDeKOlpwUZOBbeuV3IGC49S8g7bcvEJUSIuuBq7XS3sAg5J6f
-	n4AYLq8oHaDYHauauYM1pGwj1hBLVftuhKaRivSv1fu2IIlZ6MdTIvEouLkbdz9a806xLPmYcHl
-	N81zpPLWjONTpAgBRnXG7t0kOBVnDOMfjLI7/pQJRMi7nvmy/r9Y7dHMqOGHEitxJiBkZoN+nWo
-	13LeMY=
-X-Google-Smtp-Source: AGHT+IFKGLiM6wRbPXSoVzvGjLwIp5tOOxeeNkGBzQCS3jMPrC1gLjCJQenXxRDIMYuSv8XABclzttmI/welJWGEe9c=
-X-Received: by 2002:a17:90b:3b44:b0:312:1c83:58e9 with SMTP id
- 98e67ed59e1d1-321161da196mr878799a91.5.1754071087277; Fri, 01 Aug 2025
- 10:58:07 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1754071353; x=1754676153;
+        h=in-reply-to:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Jve1d4Och/afFGSX4XwXAedjsag7SRGHaS3i4mUSqBw=;
+        b=b2AHSwHIKozZwB5/IAcdx1jdoWfK3vmczCgXbNZQv/bHPReFtlysiaEOFd6BMJgEIc
+         cBcUgg4TOPWf0EVw7dkWBujw0X2Kb7+SNqfrdOuvwzkJX1gYqO70wsOUIbrDAIPACMRN
+         maV8p/O6IKmhTsHhUUSUxCBYeCradohml2lEODrNqrvE3/bFkPTuThSplC5DIKwcwoJQ
+         mMDhtyAH/0uRFwjkA1XQGdA4IbkbtwgAfwuR+YMkN0hO4S2u2KxP0EKg4DGb0/xzlhfT
+         DDsbYpvJbFp6xv23nN4a6NAP3DgDaECVpk49vmItMoTISMkIO/X+e0jIf0Ac+9lHdJ1u
+         JvzA==
+X-Forwarded-Encrypted: i=1; AJvYcCUz/FyTKXp8YwcsNVLRTlzcx/PUVBDr1n1NNbwPZFo99Zh8wrH96FOuxp3m7EQlKLvBqUzHpeHO@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywy7yAOVr7ek5LWjdYq7YpYsN0Tbm3kUUqnzUbzq2Grc7O2VBKS
+	mpOaps7tnaXlK/+LWJJ0WVcf9SAI4wetPQnY1kflHVDWUM3+S/gk9M0Y
+X-Gm-Gg: ASbGncu3TlrFrs2uixaXcZUV10b78l7hX8MresihI7PODBgZZ636bFNUmJBwPBUmGp6
+	yFMkLPz/IRqbx1VfKfOCoKvye+1nfhDJUbQu4fgxx66W8jWOGuB8ByzViVTFWxLiX84CDYHsI2y
+	Ae10hDgYqJjiNm2r6kOiT4qCmG9Nl1GQbQSbQ90g1XZY9um5kc6l1qeQoWXQjPeoonj2SyatUPm
+	hCeFTK3W979onpUr/LiXQOAH8MktLjJGK9tAk/3j5NmwPaA2reR5Hl4fTmgnXP7YKKITFIE4dn7
+	Sx4vp6yq6JfVnbrkOvmiVMB7OeMkxRRievseV2pOPNii863ptuP69sZt4OgdiPcq2oXLECjyGO/
+	Sxe1uTi7IJuaFDuDycpT30ARIaP0=
+X-Google-Smtp-Source: AGHT+IGWUrhzvduC5LlyLLqnsvtK/365x91uitDCtxX2Evs3n9thjI2qdSZDM+X5yyeR+Ws8TmaJ1g==
+X-Received: by 2002:a05:600c:35cb:b0:455:de98:c504 with SMTP id 5b1f17b1804b1-458b6872ffcmr2250035e9.0.1754071352939;
+        Fri, 01 Aug 2025 11:02:32 -0700 (PDT)
+Received: from localhost ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-458953eaf08sm109671995e9.26.2025.08.01.11.02.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 01 Aug 2025 11:02:32 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <DBR9Z1C82MG9.J5SX2WJQ0UBS@gmail.com>
-In-Reply-To: <DBR9Z1C82MG9.J5SX2WJQ0UBS@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 1 Aug 2025 13:57:55 -0400
-X-Gm-Features: Ac12FXwNx0VHTgdb0Fdc4tMWQAMgln2VHpOnLvaUBaMvkxmGyfutHQkH_p_v0gM
-Message-ID: <CAEjxPJ5OXCS1nkJzukkp61J3a4fmGeOLftTiDHKjQmPvDw+yKQ@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: refactor selinux_check_securetty_context
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 01 Aug 2025 19:02:32 +0100
+Message-Id: <DBRAEESRVT8A.2W2FHL146DBLX@gmail.com>
+Cc: <nvraxn@gmail.com>, <selinux@vger.kernel.org>
+Subject: Re: [PATCH] libselinux: refactor selinux_check_securetty_context
+From: "Rahul Sandhu" <nvraxn@gmail.com>
+To: <stephen.smalley.work@gmail.com>
+X-Mailer: aerc 0.20.1
+In-Reply-To: <CAEjxPJ5OXCS1nkJzukkp61J3a4fmGeOLftTiDHKjQmPvDw
+ yKQ@mail.gmail.com>
 
-On Fri, Aug 1, 2025 at 1:42=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wrot=
-e:
->
-> > No need for { } for single-statement bodies.
->
-> Thanks, I wasn't sure about the correct style here as I couldn't find a
-> style guide.  Is there one I could read, and if there is could we link
-> to it in the CONTRIBUTING guide[1]?
->
-> [1] https://github.com/SELinuxProject/selinux/blob/main/CONTRIBUTING.md
+> Unfortunately not. It would be good to specify one at some point and
+> start applying it.
 
-Unfortunately not. It would be good to specify one at some point and
-start applying it. The selinux-testsuite has a tools/check-syntax
-script for checking (and optionally fixing) coding style; we could
-either duplicate that for the userspace or come up with something
-else. There is a scripts/Lindent in the selinux userspace tree from
-Linux but it hasn't really been used or enforced by most.
+Ah okay, and yea sounds reasonable.
+
+> The selinux-testsuite has a tools/check-syntax script for checking
+> (and optionally fixing) coding style; we could either duplicate that
+> for the userspace or come up with something else.
+
+Maybe we could consider clang-format?  My understanding is that Linux
+has also adopted it, and our code style doesn't seem too far off, so
+that could probably be tweaked without too much work.  Also has the
+advantage of a lot of tooling and editors supporting/integrating with
+it.
