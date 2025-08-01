@@ -1,192 +1,94 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B84F42737F2
-	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 18:26:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47C2216FF44
+	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 18:28:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754072813; cv=none; b=BbfrNWkCiBfSV3nq1CWz+uxNXBR/osH2A6qpOjEICJFOiR1UPlqvMPnWTT7JwHtFIQjcO1WRgzGwAwBfHXwtvdiMUTqYMnizQQr5FYF2OBvsNkTg6XkVTIlC1XgEACO+6XyTVl0jOG0vGFAVxkookML+T52rsc/pe0E+YyNcTgw=
+	t=1754072911; cv=none; b=VWTxn/7GHp+7iW25evlEByp7i3htffTSJ6yfw+OphGLRSRbzeHcu8ToiPZ/PMWn/5H/hcpN9P91naKXVUc3Zbgmu95tJ4buugYtVKHuFMLNTI5fvHL4QgH3QEAyRZFTfG79VDh+AAsZSIkjjE9SkQgRcMra+uAnicUbqfIKxh2I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754072813; c=relaxed/simple;
-	bh=sJGT3AtNp4PD1hsbejFtPv3IKW/QNvqhjAGokH3Qa5c=;
+	s=arc-20240116; t=1754072911; c=relaxed/simple;
+	bh=Se7RiHpdkWPlAnZvn5y8yOpernsrhytGxlENPsib8jA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ds1hbMqt1xA+Skr3q9ejgH/lOIwnDYJ32A9+kBYkrxfHGv6kkY7P+dVnXvx9TP1jihazEdCmQ5tRDJsd6qXhKJ4PYWXc2hS/ZTp5n/V8MOgvNU9Jm4qKYSomcyEpINOF2BZaRjqyvZuHSfujQ4dxr3SNSTxauE+l04/2Fu4Al2s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HYH3QIaY; arc=none smtp.client-ip=209.85.216.50
+	 To:Cc:Content-Type; b=TATH7kgUDjEa+16vTaSrPOPyBE5w5ve0fvWhte1jWqINSxhsoqPLWZVL0vO1qZQmPxhhlgNoqmaEa9n2Of07ddCGKbOt1JA/otzWXM1pGOoUw980zQ4Ut8QWO967EhLSPSaVTq5kQq6DuqnyO7D0ePbceuEdQIQg9nzSzOU8qtc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BaN/398f; arc=none smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HYH3QIaY"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-31eb40b050bso1816139a91.0
-        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 11:26:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BaN/398f"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-31eb75f4ce1so2174414a91.3
+        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 11:28:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754072811; x=1754677611; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1754072909; x=1754677709; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=2KwVpKXYsA1yD/pNq3lBn/UI1G3/1JveeLVjNg/mrhs=;
-        b=HYH3QIaYyJ4b6kHjjuH8XuwLu61nS2CRoFfhyNQXIbqjWUTO2X4yxq66A7FESfbmf6
-         HR9/TQA9m3jd6KYybrV3Wt7Ko5qhLWSB+I7NHtRdHL/77k24CfXxwxs9eLS9CDz5k0z0
-         Hz+Fx45SxnxWklwmUplKjzvr4VgZiHckUcLt16m7VbVIu73wyJT7GrGhfCSQJaGBVhwP
-         ay6EOGUKN1JM189mkgZeNA50f8bWc2zrXF6oDAoGI9T1jkMu2L72A0vyzf6xrijN6LM9
-         gXiplSBC30Zargl5lV4hP0ZgnOFN4/ieC28EjRpWOgs3I5cquja6M8mdj3F7T9uda2mv
-         0TgA==
+        bh=w+Cs1wWJbHyYZGI7ALAqo3xzdz/9esnKln9lPV3zNeE=;
+        b=BaN/398fOturUx/U3Gt3y3AE4uikAzhwV7AdthPOLaOasSIuaW/oksWCjoyBn5s6J1
+         JPaTmxb9KdZ8ZZ6QPVucT1NOQIIvklyUTYq6fubPm+ZkTi+8ECjpoiI9LWg9R0RNZSEv
+         TtACdcjzd2wlg2Cl9hgNR91Smxq75uc1lgIvXjtYKqaVP28MHmXE/dubTIj29iXDfINR
+         73yRxT5Ce3kLU/8Oo32jo4N7hvxEj9ZWAottKDaUkvJxXdbCV0nrkk60wDDYy8l1ZF8G
+         68qMMXkPgIr1YPXAl9zB3CIOCnj4uQ0xFJpri3jlpI8dvvvL8Nwrtodi+Ti+ly2GPGwE
+         kkeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754072811; x=1754677611;
+        d=1e100.net; s=20230601; t=1754072909; x=1754677709;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=2KwVpKXYsA1yD/pNq3lBn/UI1G3/1JveeLVjNg/mrhs=;
-        b=UIqRQ/5czCmfixp3//apdTZv5vY/0iCV7jbVuTpaIn1byiOEtQ8mwOKdBMSpdaey6/
-         UIxKZe18CiVcexrk1ksptZguIC42LJGYkragp0xIkCMK/4bsNePfpRcbsPinwNyo5+T2
-         +UVhqWdU1VJfJr6mabOTI1k7GVeGbb/QIudklISdvcVO84CnLPffvTX8DMc+iw1f9qNv
-         KelmTOnT+Z+3nEpquEoio6QHKqum6bj/yKNMbIuS8WkqHGIUdgcW1w/tla8gfOLkPa+p
-         Jdff9lDExpYCapfrjCGOLAw8Eg6j+FitVI/dkBeFrZ8+9bsUhVDfmornFOCXDhhl16W5
-         P6Rw==
-X-Gm-Message-State: AOJu0YymAeKnDdYk/cPuCldrXukNqUg799xc+kaKyhZfsupKGQGELSC6
-	hN0ENZ0BvmAFFlrUtiFkJJ3EIEev28jOhws1waZG/8R07PfZKKkjBRXmjFauDJffdfGTsH/v3pS
-	8uflH1VQQaVh1I22OcMUt5bMwS2SMOPmf7w==
-X-Gm-Gg: ASbGnctL0DFuCf2ecsf+RaMgz+XAMX7dRsuYtlL4YDSiYGFjWZoNLiDW9EkCP699pOy
-	4uWbMCeFKaeTuY7/+627KmHr2HVKTJMyS6yBFU2z7nTCtPiPhsfIpRZd1Uq+7IKJCR97rArYnwM
-	cU8JS46gnRr+yFXw9dEAXycqEB9lWk40o2vS4xZCce3Kpn80rak2M14uxfLQPypy8/30t23Dp/d
-	Yj++6w=
-X-Google-Smtp-Source: AGHT+IGJJIqEibERtwBBgd696Q24DWdpgAkO6lZODABQw02JWPB4Cl5VQHHhXmcOsAyTlsqNCO8Mf97a0I8j6KHFJmg=
-X-Received: by 2002:a17:90b:268e:b0:312:f2ee:a895 with SMTP id
- 98e67ed59e1d1-321162e37a6mr852401a91.31.1754072810876; Fri, 01 Aug 2025
- 11:26:50 -0700 (PDT)
+        bh=w+Cs1wWJbHyYZGI7ALAqo3xzdz/9esnKln9lPV3zNeE=;
+        b=MVqXQgqeeA6vFBbxSaF4mYwFFYxHXIh0dil413DjXxI3r8aWYptLO2GZvIGgHCwR25
+         T+JljD2XOCN/5kCN6ksnQyDDvEcgiPWm3vXVm9FHssKzmOfp8fzZQXiWrDh0yVgoSBe7
+         DLbCIrXT0jkITVKy0mWmrz55eeir+WGlNgb2cczuQBW/iNxz7FDACC95AsqZv5Bg4uZW
+         0ZtI8Eemkyl9dpC48XMy3OzFJgvIFFm/jnGspwpE3/YWRoJ3TyA1Ae5xJAAnD25dXTYf
+         WEsESmEXZprPmINVRnG2mhdvD4VhIwF5LuY6sdYW1YD81Ql2IZHeDhIH6db7x7X6DtSd
+         fs3A==
+X-Gm-Message-State: AOJu0YyX4Fv+W9Fh8gFvedGUlrBQ3h7d90y+GIcqTP2URBeR/RWTm6n1
+	l3hav50RWvzqKgjUYtgcAHpo2wdFi12+uUmb90+BfPygrnKGIf7lFiIlos5fbi1EqOkuJG/KIsZ
+	VbIHklHH62ObJBES9D5EISNuho1cc6CE=
+X-Gm-Gg: ASbGncsESA0Q2eEixlif+iTHAwfKuBAONp+OezVVp6iNpHLllBCkFNR4ARIOvbiUYCD
+	VmqBIQwDJg6YhmBNZa01/wFk0ahUJMusnmMmw+4q1bJ9f0gE2RJKC1N/yTbK0do65kMfuuMv8Bm
+	7lo/WpOjHUe2HspvWFaFAfJ6MDBfsOfpGJLhdynlsZjs1lMRGuTU//XKrKlL63AR8IASeFU7Ftt
+	a4gQ58=
+X-Google-Smtp-Source: AGHT+IEAi4loZeU2WtWJqCtrUhAKJGGCcR8aWhrVfbAg6rkd7kFaDJPmnyVbUev8eSg7yB7Z1JEa/14GYNRHTRKbalI=
+X-Received: by 2002:a17:90b:4b43:b0:31c:bfb9:fca0 with SMTP id
+ 98e67ed59e1d1-321161ea32bmr944431a91.4.1754072908506; Fri, 01 Aug 2025
+ 11:28:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250801143300.1189741-1-nvraxn@gmail.com>
-In-Reply-To: <20250801143300.1189741-1-nvraxn@gmail.com>
+References: <DBRAEESRVT8A.2W2FHL146DBLX@gmail.com>
+In-Reply-To: <DBRAEESRVT8A.2W2FHL146DBLX@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 1 Aug 2025 14:26:39 -0400
-X-Gm-Features: Ac12FXxXfBo6BabnNBYfN6yzugc68vrb6_sGpPbvSbOzveSNIvwockztreqgt8g
-Message-ID: <CAEjxPJ5RyF4ohqgrvCaPGJoEcXBCL3mY4U9CDhZEJfn3cNC_=Q@mail.gmail.com>
-Subject: Re: [PATCH] libsemanage: refactor semanage_user_roles
+Date: Fri, 1 Aug 2025 14:28:17 -0400
+X-Gm-Features: Ac12FXyIdG4MbhK5v6iSpNtWi69wpfyeEqAj4xuqj8yfhRIRZXnpufjUykr39fg
+Message-ID: <CAEjxPJ5KspE2imGEwx9EQJ131qdjufWg6Y5r=Rtu1ogde=9R7g@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: refactor selinux_check_securetty_context
 To: Rahul Sandhu <nvraxn@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 1, 2025 at 10:33=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wro=
-te:
+On Fri, Aug 1, 2025 at 2:02=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wrot=
+e:
 >
-> Reduce the levels of nesting by early returning on errors.
+> > Unfortunately not. It would be good to specify one at some point and
+> > start applying it.
 >
-> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
-> ---
->  libsemanage/src/seusers_local.c | 76 +++++++++++++++++++--------------
->  1 file changed, 45 insertions(+), 31 deletions(-)
+> Ah okay, and yea sounds reasonable.
 >
-> diff --git a/libsemanage/src/seusers_local.c b/libsemanage/src/seusers_lo=
-cal.c
-> index eb3f82bc..282d56fa 100644
-> --- a/libsemanage/src/seusers_local.c
-> +++ b/libsemanage/src/seusers_local.c
-> @@ -18,39 +18,53 @@ typedef struct semanage_seuser record_t;
->  #include "string.h"
->  #include <stdlib.h>
+> > The selinux-testsuite has a tools/check-syntax script for checking
+> > (and optionally fixing) coding style; we could either duplicate that
+> > for the userspace or come up with something else.
 >
-> -static char *semanage_user_roles(semanage_handle_t * handle, const char =
-*sename) {
-> +static char *semanage_user_roles(semanage_handle_t * handle, const char =
-* sename) {
->         char *roles =3D NULL;
-> -       unsigned int num_roles;
-> -       size_t i;
-> -       size_t size =3D 0;
-> -       const char **roles_arr;
-> +       const char **roles_arr =3D NULL;
->         semanage_user_key_t *key =3D NULL;
-> -       semanage_user_t * user;
-> -       if (semanage_user_key_create(handle, sename, &key) >=3D 0) {
-> -               if (semanage_user_query(handle, key, &user) >=3D 0) {
-> -                       if (semanage_user_get_roles(handle,
-> -                                                   user,
-> -                                                   &roles_arr,
-> -                                                   &num_roles) >=3D 0) {
-> -                               for (i =3D 0; i<num_roles; i++) {
-> -                                       size +=3D (strlen(roles_arr[i]) +=
- 1);
-> -                               }
-> -                               if (num_roles =3D=3D 0) {
-> -                                       roles =3D strdup("");
-> -                               } else {
-> -                                       roles =3D malloc(size);
-> -                                       if (roles) {
-> -                                               strcpy(roles,roles_arr[0]=
-);
-> -                                               for (i =3D 1; i<num_roles=
-; i++) {
-> -                                                       strcat(roles,",")=
-;
-> -                                                       strcat(roles,role=
-s_arr[i]);
-> -                                               }
-> -                                       }
-> -                               }
-> -                               free(roles_arr);
-> -                       }
-> -                       semanage_user_free(user);
-> -               }
-> +       semanage_user_t *user =3D NULL;
-> +
-> +       if (semanage_user_key_create(handle, sename, &key) < 0) {
-> +               goto cleanup;
-> +       }
+> Maybe we could consider clang-format?  My understanding is that Linux
+> has also adopted it, and our code style doesn't seem too far off, so
+> that could probably be tweaked without too much work.  Also has the
+> advantage of a lot of tooling and editors supporting/integrating with
+> it.
 
-Here and below, no need for { } around a single statement body.
-
-> +
-> +       if (semanage_user_query(handle, key, &user) < 0) {
-> +               goto cleanup;
-> +       }
-> +
-> +       unsigned int num_roles =3D 0;
-> +       if (semanage_user_get_roles(handle, user, &roles_arr, &num_roles)=
- < 0) {
-> +               goto cleanup;
-> +       }
-> +
-> +       if (num_roles =3D=3D 0) {
-> +               roles =3D strdup("");
-> +               goto cleanup;
-> +       }
-> +
-> +       size_t size =3D 0;
-> +       for (size_t i =3D 0; i < num_roles; i++) {
-> +               size +=3D (strlen(roles_arr[i]) + 1);
-> +       }
-> +
-> +       roles =3D malloc(size);
-> +       if (!roles) {
-> +               goto cleanup;
-> +       }
-> +
-> +       strcpy(roles, roles_arr[0]);
-> +
-> +       for (size_t i =3D 1; i < num_roles; i++) {
-> +               strcat(roles, ",");
-> +               strcat(roles, roles_arr[i]);
-> +       }
-> +
-> +cleanup:
-> +       free(roles_arr);
-> +       if (user) {
-> +               semanage_user_free(user);
-> +       }
-
-Here and below, looks like it is valid to call with a NULL user/key so
-no need to test for non-NULL.
-
-> +       if (key) {
->                 semanage_user_key_free(key);
->         }
->         return roles;
-> --
-> 2.50.1
->
->
+I would be fine with that, and with using the Linux kernel's config
+for it. Other SELinux userspace maintainers are free to speak up if
+they disagree.
