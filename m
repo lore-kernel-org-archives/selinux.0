@@ -1,174 +1,192 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E662B28CF77
-	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 17:45:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A9F41D5CE5
+	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 17:46:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754070341; cv=none; b=FQxP9z7xnZL602IRrVX18CBuqMd2RgWjm8aa09JIs9f1TpRLiawfsBrgt2Cn1avO0wnfKdp14b77SAe+6lEnQiEcaMbfqwTKnUmMA5Ru/R7w/piXDTaxaZsu6JGdiuHkD2dmbJQDO1/9Q4+EkoqBsolsJxNfXBNDelDyA7Eos7Y=
+	t=1754070390; cv=none; b=O7zrMtMxiXiDo+IvM/37KTOH5Bm6oIdhM5qI9FSVwe7FVJVWZHIv7m7fxlz/NCkficNkqt7qV8QpN2QzBiY6PkrTSoVxe53Hj/0lVWs8f3O21AUR3cnnnN8TdbcC3skERv95L72f4JIiiQ9HIfKOCQgyrm5gYzPL22OgK+riwSY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754070341; c=relaxed/simple;
-	bh=dyyd5QyTCjSDYUmHDgY+Yv/B8R7+f1Q8w8xNLiFajYg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mFkOu3p+jYT7ddspaFkwVw3jY8yf22wCoJfTi4wXXtn8enZ+wHAiT+2PhIZ50HsckAI5olGp3qkQ8aLPCmjV68vCqaPYjF6puym5sp0NxJMWxM+u2egPMarMy7CkkGX8UFS4W2fTQhy9zZS2tLNuqBhh3Umu+sypnnWrxMKqXWI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Vvlkfj0z; arc=none smtp.client-ip=209.85.128.46
+	s=arc-20240116; t=1754070390; c=relaxed/simple;
+	bh=EasO3w/tefR2JM76xlMR8XT3OL1MdyyDhU57wVyNPGY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=cR7gL1ew65WjRtDIQCruepqUgVgIeeWqMt97HU7hMdq0r1hMfdQhfoT3ELsFaI2vtZbzzioE9z6Chbkf8/SjYKp1OE5ufRNi3xa5iR9ELxD46mbA22afaiGM2p+T2vE7vloXh/dGLmhlV1p5e4i8xRRkWk0d8N2q+0BmtpfkhpQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Gc+/2mHN; arc=none smtp.client-ip=209.85.216.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Vvlkfj0z"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4560add6cd2so18490665e9.0
-        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 10:45:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gc+/2mHN"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-31f28d0495fso2557153a91.1
+        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 10:46:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754070337; x=1754675137; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1754070388; x=1754675188; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=f8Xgc7wAh3AQD4jw99aJvo3qk4m68HjFouMy1TWzTKI=;
-        b=Vvlkfj0zojLq1CUepjM0pYasCU7jpR0LVdp/HjyoWWUq4wpVyWJb1yx4DphwLGe6NW
-         VnVMOBnkiHU2w9epZUf1F3GyTpMAyI9Xs0ZJyv01JIZ73tWzlEX0zzDt3gjlSnWG/ZJ+
-         rIJRGa63CKKaAQtCjTwDwPUfkyyUfXOiwlRY5g4ysnwSXv7uF5s8MJcsh6DMVEMZX10h
-         A5GQlh1cADX2+P4C/UfQvPspVBzACH2VVNOv38GYt9oB22GGzsz8rhoQPUnuWBxiw/WH
-         OpAJHn6ZG4LtzNmAAYaWpg2/HQxoOw7KZZFBpjjoRXH6HMmq3u59gLSzUiIDLgg4xqY6
-         cGiA==
+        bh=vzAumX70jYR/OCZ+uayxxo7rPFpg4Zy43LTHF5k/2ig=;
+        b=Gc+/2mHNrweyJwBfoNAeU4k0tx61o/VAlJcvErC9VcI+FRVjUyrfkT1S0tMOKe9SnK
+         DAEzrpDR1I1PAr42MkDV2RloYDlK7072JyszYOvAXCLvRZbZe4Evyg10Lna2as8ru0F/
+         qcmnOon+w4MWbYlaD/F8MgOu+40jm++MDx+vDpALRClGcEajsctf46Zm21jc0X9RsGiZ
+         EgtVDK1m6lX0MWt2wbTNp7R3AfEW322eiFj9PVmN2ZzAK0x+jaRwaZwMOqWSXMgoO/GD
+         WpKI9G1RDoDyxXSj6fp2VtyWDOGGeH7cKbaLvUxaKiNKsN9bREdM2XeH3bz2wJS9jpAa
+         /9Jw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754070337; x=1754675137;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20230601; t=1754070388; x=1754675188;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=f8Xgc7wAh3AQD4jw99aJvo3qk4m68HjFouMy1TWzTKI=;
-        b=cLT2o08sXiIybRNzSpp23kKR6wKFP9EeRqCrtWqkTlO2H6aZY5rhCp8+a3uQ8NuVYo
-         cUBHEvjzjbttr/q7cnFE/ew7VReQG4tfT4nuzPoCKJm0TlNm1NjTX+qdnXlAyGmJiTMw
-         CxOqBfX7yBfW+3fpbFXaqbzn3fhy3rH0vNEYUXJYO6WkiBI0esZfrHVPEbWc+SMoRegS
-         yOMwo/yjm1R0BrfF+ThlJYxrhpAkPAxb7kQgSzwIJYSzT3fRID3o5zPRb6AwGEX0QTjP
-         9gLZoQP9tC9OhgQGvUjTwRaYdZh/cgDG+mZeN71gzR/SOZZTiszaWA6Jdw6BTHSwi695
-         ZtVQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWzr+NdIwUCvEH2VgQk2/g0euOS2fvI0KsExJxXSwmu3l8bi62aWU8LXFERbgHcnAP1NVH+K/8L@vger.kernel.org
-X-Gm-Message-State: AOJu0YymJXN0cUNx0y9x71qypKID79I9CaSG9Qd+WEzpabcjNQgy/oNb
-	+uxgfla0PAv+Aib/TV+4OFuszZyAMPuqGsogX6pHL/dLguFRHd0Fl86Q
-X-Gm-Gg: ASbGncuDP+/V5larwrCsT2FOkyqES40Z27FcDNTFnWs8nHDUR1vXychU1Wnj1rt2ph9
-	Yu8ECSaLKi95OEQ+FIaQiMDku2hhSqtMDjjsJOImv3/vqX9qs1ODjrx/kc2dvPF5BUjijrk3KmS
-	6CLQCByxrJG3XWD8vInOPpMl3G3JQctLaIjPRjXnhTBQ1sc9d/Nj0M3TvFuTWOLRipZwKogy/75
-	FL/I04kn13avI+fxpmwDnuVDi5lM0PD/J5Se33yfXvWktgtXoo3P9wj2lpBLi7JAplpm98YQYdO
-	B2z4VJrrx7kHTxJk/SgdgNHoaFZ90sfDIojKxEfvg27KecOC6jw/Y+KlNAR9wTICQKaiD6uKa/2
-	k1aIE1lh5kswS
-X-Google-Smtp-Source: AGHT+IEQVmJ1sUuQjbpJr42ATniV0xBSZlpcAt3BTSkDlmnZkgTYHwWnUp8yh4vw2dyRrSr9BIQ7TQ==
-X-Received: by 2002:a05:600c:1c90:b0:450:c9e3:91fe with SMTP id 5b1f17b1804b1-458b591e348mr5307415e9.0.1754070337029;
-        Fri, 01 Aug 2025 10:45:37 -0700 (PDT)
-Received: from sierra ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-458981d0b06sm117826385e9.5.2025.08.01.10.45.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Aug 2025 10:45:36 -0700 (PDT)
-From: Rahul Sandhu <nvraxn@gmail.com>
-To: stephen.smalley.work@gmail.com
-Cc: nvraxn@gmail.com,
-	selinux@vger.kernel.org
-Subject: [PATCH v3] libselinux: refactor selinux_check_securetty_context
-Date: Fri,  1 Aug 2025 18:45:27 +0100
-Message-ID: <20250801174527.1203687-1-nvraxn@gmail.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <CAEjxPJ60msaQXmD3kWOPoLb-=Fx1WK2TdGObpg+Vq40-yJEfTw@mail.gmail.com>
-References: <CAEjxPJ60msaQXmD3kWOPoLb-=Fx1WK2TdGObpg+Vq40-yJEfTw@mail.gmail.com>
+        bh=vzAumX70jYR/OCZ+uayxxo7rPFpg4Zy43LTHF5k/2ig=;
+        b=CaFMLt5JTcU4p8xNE0K3oWnwkh6ue6UMW5X9DkaV3UWsupcdNj/qFfkK+vHx3im1/T
+         BMbqngRhyzPe/4PGAMgGXnbzv1vHPVOeohcH7oYXB6jiqojiQzBYJPZ6/6GS9EKKO/Rt
+         SOzsXqHhZYt6Mem79EQ/GBc4uOzs7pPih72RlOdHblsIaisA9y52I2+uakcNaSlcqP83
+         di6iD5c7cDkbDHcGFbrGacLdfTKbePM8c3NBz3/reMuaGk+8OAIyl6hdxM1I8W2rzncg
+         962yx5F6XY9m9ZH7vFoxEQ6Ttat4kNIPQvhZFbO4PFYicSOoQsn7nuVfmtTEsT1y7Kh3
+         pCvA==
+X-Gm-Message-State: AOJu0YzqaXoNtj8Ba6vs8qyvJkpgIoko97SSI9sfgNQ/ksobX0rVtUk0
+	0uH/F8WZhyaFWlXC4VfGvHjWxkqox2+cJYLMLL3/T/4ys2pAMNjGj/LWpUUc3EJZbi/OPnrjJ80
+	smNOIszKtKO8fGFhOMilwF92rJDLFk2JmCg==
+X-Gm-Gg: ASbGncv+yBkWuNi3f8McVxiNlcZ9y7WBaD7MoWb3k+WO0W1zi5dLFNRnooSU9KeOPg7
+	q6JCop69I+0kcSgbu8d7AyXZ60lim/iS52zUN+e4KB/ucebu+zrOA7z9iLJh4YeXM7/nnAvST2H
+	y8Up7HF4/00AVLRk0bCBGEmKuKrNh+AJh5G/9RpSykdPLU//yyPn9M26QF9k0EqbTq/5zIZuDpd
+	mK8K1c=
+X-Google-Smtp-Source: AGHT+IE9UOwnvgeWleFrlbyiz/ea0yTsayDOk3JOCMKBMFIJ4FJxMz8VsEcUuK0LuJaEzu7HQJtiz6NctVgL3CxLdJ8=
+X-Received: by 2002:a17:90a:e7d2:b0:31f:485f:fab6 with SMTP id
+ 98e67ed59e1d1-321161ec318mr867958a91.4.1754070387730; Fri, 01 Aug 2025
+ 10:46:27 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250730181503.991208-2-nvraxn@gmail.com>
+In-Reply-To: <20250730181503.991208-2-nvraxn@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 1 Aug 2025 13:46:16 -0400
+X-Gm-Features: Ac12FXxMYd30FEYpv6eaRsXTZUc6f7v40O5BfpTU7cMspyf7A9ri7YnaWoNjd34
+Message-ID: <CAEjxPJ4UKshtRGPyEKwkfTS-D5uc9thFNovC2_--kdV-Y3gDbg@mail.gmail.com>
+Subject: Re: [PATCH] libsemanage: get_home_dirs: cleanup parsing of values
+ from conf files
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Invert the checks for fp and con.
+On Wed, Jul 30, 2025 at 2:15=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wro=
+te:
+>
+> atoi (3) is... bugprone.  It's virtually impossible to differentiate an
+> invalid value (e.g. the string "foo") from a valid value such as "0" as
+> 0 is returned on error!  From the manual page:
+>
+> >       except that atoi() does not detect errors.
+> > RETURN VALUE
+> >       The converted value or 0 on error.
+>
+> In the case of get_home_dirs, atoi is downright wrong.  We are parsing
+> UID_MIN, UID_MAX, and LU_UIDNUMBER, which all have a numerical value,
+> without any validation that what we are parsing is actually a number.
+> This is especially problematic as that means that in the case of an
+> invalid value (e.g. UID_MIN=3Dfoo), UID_MIN is incorrectly parsed as 0.
+>
+> Instead, use strtoul (3) to parse these values.  If parsing fails, such
+> as in the case where UID_MIN=3Dfoo, warn that parsing failed, and use the
+> default values for each key as specified by the manual page.
+>
+> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+> ---
+>  libsemanage/src/genhomedircon.c | 41 ++++++++++++++++++++++++++++-----
+>  1 file changed, 35 insertions(+), 6 deletions(-)
+>
+> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedir=
+con.c
+> index 8782e2cb..a7b44d8d 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -354,24 +354,53 @@ static semanage_list_t *get_home_dirs(genhomedircon=
+_settings_t * s)
+>
+>         path =3D semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL);
+>         if (path && *path) {
+> -               temp =3D atoi(path);
+> -               minuid =3D temp;
+> -               minuid_set =3D 1;
+> +               char *endptr;
+> +               const unsigned long val =3D strtoul(path, &endptr, 0);
+> +               if (endptr !=3D path && *endptr =3D=3D '\0') {
+> +                       minuid =3D (uid_t)val;
+> +                       minuid_set =3D 1;
+> +               } else {
+> +                       /* we were provided an invalid value, use default=
+s.  */
+> +                       WARN(s->h_semanage,
+> +                            "Conversion failed for key UID_MIN, is its v=
+alue a number?"
+> +                            "  Falling back to default value of `1000`."=
+);
+> +                       minuid =3D 1000;
 
-Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
----
- .../src/selinux_check_securetty_context.c     | 69 ++++++++++---------
- 1 file changed, 36 insertions(+), 33 deletions(-)
+Here and below, it would be nice if we could use a #define, either a
+pre-existing one or one of our own, and avoid manual duplication of
+the value/string.
 
-diff --git a/libselinux/src/selinux_check_securetty_context.c b/libselinux/src/selinux_check_securetty_context.c
-index 7609752e..bf61f53d 100644
---- a/libselinux/src/selinux_check_securetty_context.c
-+++ b/libselinux/src/selinux_check_securetty_context.c
-@@ -8,45 +8,48 @@
- 
- int selinux_check_securetty_context(const char * tty_context)
- {
-+	FILE *fp = fopen(selinux_securetty_types_path(), "re");
-+	if (!fp)
-+		return -1;
-+
-+	context_t con = context_new(tty_context);
-+	if (!con) {
-+		fclose(fp);
-+		return -1;
-+	}
-+
-+	const char *type = context_type_get(con);
-+
- 	char *line = NULL;
- 	char *start, *end = NULL;
- 	size_t line_len = 0;
--	ssize_t len;
- 	int found = -1;
--	FILE *fp;
--	fp = fopen(selinux_securetty_types_path(), "re");
--	if (fp) {
--		context_t con = context_new(tty_context);
--		if (con) {
--			const char *type = context_type_get(con);
--			while ((len = getline(&line, &line_len, fp)) != -1) {
--
--				if (line[len - 1] == '\n')
--					line[len - 1] = 0;
--
--				/* Skip leading whitespace. */
--				start = line;
--				while (*start && isspace((unsigned char)*start))
--					start++;
--				if (!(*start))
--					continue;
--
--				end = start;
--				while (*end && !isspace((unsigned char)*end))
--					end++;
--				if (*end)
--					*end++ = 0;
--				if (!strcmp(type, start)) {
--					found = 0;
--					break;
--				}
--			}
--			free(line);
--			context_free(con);
-+	ssize_t len;
-+	while ((len = getline(&line, &line_len, fp)) != -1) {
-+		if (line[len - 1] == '\n')
-+			line[len - 1] = 0;
-+
-+		/* Skip leading whitespace. */
-+		start = line;
-+		while (*start && isspace((unsigned char)*start))
-+			start++;
-+		if (!(*start))
-+			continue;
-+
-+		end = start;
-+		while (*end && !isspace((unsigned char)*end))
-+			end++;
-+		if (*end)
-+			*end++ = 0;
-+		if (!strcmp(type, start)) {
-+			found = 0;
-+			break;
- 		}
--		fclose(fp);
- 	}
- 
-+	free(line);
-+	context_free(con);
-+	fclose(fp);
-+
- 	return found;
- }
--
--- 
-2.50.1
+> +                       minuid_set =3D 1;
+> +               }
+>         }
+>         free(path);
+>         path =3D NULL;
+>
+>         path =3D semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL);
+>         if (path && *path) {
+> -               temp =3D atoi(path);
+> -               maxuid =3D temp;
+> +               char *endptr;
+> +               const unsigned long val =3D strtoul(path, &endptr, 0);
+> +               if (endptr !=3D path && *endptr =3D=3D '\0') {
+> +                       maxuid =3D (uid_t)val;
+> +               } else {
+> +                       /* we were provided an invalid value, use default=
+s.  */
+> +                       WARN(s->h_semanage,
+> +                            "Conversion failed for key UID_MAX, is its v=
+alue a number?"
+> +                            "  Falling back to default value of `6000`."=
+);
 
+Note the inconsistency here, which would be avoided by the approach
+suggested above.
+
+> +                       maxuid =3D 60000;
+> +               }
+>         }
+>         free(path);
+>         path =3D NULL;
+>
+>         path =3D semanage_findval(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=3D"=
+);
+>         if (path && *path) {
+> -               temp =3D atoi(path);
+> +               char *endptr;
+> +               const unsigned long val =3D strtoul(path, &endptr, 0);
+> +               if (endptr !=3D path && *endptr =3D=3D '\0') {
+> +                       temp =3D (uid_t)val;
+> +               } else {
+> +                       /* we were provided an invalid value, use default=
+s.  */
+> +                       WARN(s->h_semanage,
+> +                            "Conversion failed for key LU_UIDNUMBER, is =
+its value a number?"
+> +                            "  Falling back to default value of `500`.")=
+;
+> +                       temp =3D 500;
+
+Ditto.
+
+> +               }
+>                 if (!minuid_set || temp < minuid) {
+>                         minuid =3D temp;
+>                         minuid_set =3D 1;
+> --
+> 2.50.1
+>
+>
