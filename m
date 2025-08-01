@@ -1,230 +1,98 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD29519F43A
-	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 18:12:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 408DD2737F2
+	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 18:21:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754071976; cv=none; b=JCIAy0++YRHquCZQE+aBWXmku8KQr64tEOVsEqUTg9o+9TUI2IPZbzakljNJBaHTbvy3pb8f9rXRvCjhilKqjFKk91L9KtFDTtQ0LU6S8oH7PZ43DSvR1aiFSZDEqy4meJitFmom7Tx2b3K3zjPI23U2Tc/rz4nsSa83vKfGQU8=
+	t=1754072484; cv=none; b=c72DSoSTOztvXLrR2dTIRMWJ2FSGA1GRbsEIRHA5kW8bojd6AA4jY4mDCX29zeB94zZpYng5Ve0aLLkjhBcsP1T2D3eiNMmvN33xP6lLrEl1rxrU7mL0q76J8aV5TljD+/JwYKtrq6A1jlrlhLRPndT2v4zeYNsrREEhH1zD+Xg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754071976; c=relaxed/simple;
-	bh=AuTrePRgGNFyuw9P3cyvy9P5xxoHQ8MDC1g9oiJ4PxQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=erGNndoHSfWFszLsVC7GFHt58LsI5jY/iOi6twQPgi6lFrizM8YfLTWnlaIpdzjfr7ZVDRTno8fmdNB7M7y/scc4SmrnocRbZQj1on0jsGIbc/+LIOZMdeUrS9a4MUYAIKH6I3HMjlfosqImjsnvBPrM+xWbkxzZ79ba8Fh7GOA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dfGtMyF2; arc=none smtp.client-ip=209.85.216.46
+	s=arc-20240116; t=1754072484; c=relaxed/simple;
+	bh=lhmqeqBb5B08uWFvtSrqHUvfWHc5inFhbw2642W9DZ8=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 In-Reply-To; b=t4K4aWE8s192+UF2bPQHp+xPYXjJTB+hpVGTkGt3QkbowQIoNvA5IUaVPqhCGGuF8PIg3foz8YpWEThcWuNLmuplvedOuU8tLj8O6ORaMhbOoheD1yBkSCw8xlcw1HR9QDgw9LIRATTunPHDUlu7BXKP5diNZidrTMboGvQeN/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LMuaO7Js; arc=none smtp.client-ip=209.85.128.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dfGtMyF2"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-313a001d781so1778328a91.3
-        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 11:12:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LMuaO7Js"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-45617887276so7518265e9.2
+        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 11:21:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754071974; x=1754676774; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1754072480; x=1754677280; darn=vger.kernel.org;
+        h=in-reply-to:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JoCfU8TLuVNQDPKRIC9ue9KBuDr180gVKJ3960V3HVU=;
-        b=dfGtMyF2lSCElE75V7TjlUntWOR1ICZwmbJyCwpQbcg/hWYY2bML4HfGa2X/qKk+55
-         ZHxDl0EHwsRjF6NjFGDRxYsJaEAv8Wf2l/rwC3vBVlhNWWQCrnPv+ly784mYnFajkr8h
-         m9+enrdOSiqw+bfnGTffjY9o9SBCa+Nl5IPeyksHlipixhfXRvleJyOlrtAXeN2s68YQ
-         BN2yeKDBcbZRCG/EDFeAPkvpfy+z6KPTdlZJlurod9L/NzV9kV6TjNXMmh/B4uWbBY2N
-         7DThW6/B7iGCYaOLQuKJZ0JkU6fPhRXUi2dcyveSjgaG+ypawGftXITzDqlfmGvyJ0Uf
-         BZJQ==
+        bh=oDfIOziBBr5F+QtlXxJWbtXoBzOtASyAWKHwPsinZLw=;
+        b=LMuaO7JsG6vwBMdYuP6ahPH1ePBDXN0ASbfV7GU+1LsDWTVjgxWWLGPYbvshq/BCLD
+         aHIixBEJTDAoahzOsUV360dD8+rQJvXzAvFLjiact3r3/NWK0TudMWTyjO55zYldidWe
+         QHwWXFMJcp04cHo2kU/iZpZCIh99v+rPvO4OLQLDrWIR6m41eu/T0WJvYVzaXC4gLFVL
+         rCz6Vz+fRVTh255/gQj5W7GgwqF6UnvBRsfB/94pvxdDMoNoqHDeCaJhgmTcfo6Fm2OU
+         njjbCKQWkuLo/S6VqGghMkzHWwbfnKuPIIaUdvHnvOSaX9aYrPRn1VE/a+CPNB4DFPZK
+         jp5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754071974; x=1754676774;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JoCfU8TLuVNQDPKRIC9ue9KBuDr180gVKJ3960V3HVU=;
-        b=OpGe66Pn47CbsKZw/wPgdIR82120Kr+PePKlkJcXkQxf+JXHJKMDpinwHtE4/2mwcJ
-         lBJDIFbs1FQlkYxicR5jjIcZwneg/DqdmcJyLo4DSD1VI9Z0zrvJW7mVplGTQ0pQHtOf
-         LodLRT7Dag91t/N0M+otisp5XM5XG+W1k/6dFk0E79oJqeyN9OHZbtK9MrV1knEiMiE8
-         xt9yubPyjpDd1q7a1K9aanrtqlh34fFDxiG4TsTk6fG48sOsIMky5wwzU/XuRxl5S8Lc
-         drLO9DoxGxpE8FQlOLxim3oSLpxz/R+1Cb/+5o8WQZi0VgLHLeXh+wH8S5C4PUSkYj1/
-         J5XQ==
-X-Gm-Message-State: AOJu0YwxYziJ++dX7mRHuzYLdpiJnR3d3Js+jaskzyJ86OnXc1JTWmWm
-	MCBnukwhBN0PJ8XPFiPGbcC7WVHup0JLrj5PPMV32OORSmln8TPOggEZxusSwgtjQr4Hn8Zh8vM
-	5P3yTDhAtX6s4J6JpEAqSU0knxA3aajZrCg==
-X-Gm-Gg: ASbGncvDIpRwZGM4dRVb5s3bo0nbsdBRx/Jjlvlb9CaeO3/4rqub0FloKfwwpBFT/gx
-	4lwynJ25AcMjTFRCTmqhZ/MTaQCUFoI0mCMj8rkXjxI521OBnydVlLtk6LPFIuzywvi7QHFR4GM
-	zpReMq2sIlG5hLFpbt5JreFIspYykuQZpbhKjRueImHicr+pTvQILgXhRPcY9hh7M6tjMVgcf+X
-	9E9HWoq8jFxyvCXQg==
-X-Google-Smtp-Source: AGHT+IEiII/zzz4Y//UocUeWs5da+pReBZ5kCgoJLrUJEFahGyx+RcxYO0e54P281oNsF07UpJdgWDD90u1KOn5AfyM=
-X-Received: by 2002:a17:90b:4a01:b0:313:5d2f:54f8 with SMTP id
- 98e67ed59e1d1-321162e51f8mr1051524a91.33.1754071973902; Fri, 01 Aug 2025
- 11:12:53 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1754072480; x=1754677280;
+        h=in-reply-to:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=oDfIOziBBr5F+QtlXxJWbtXoBzOtASyAWKHwPsinZLw=;
+        b=e+iyG+HBVMxgOXiek/IqqSW2zPw+MBI8LzTNAJU3/jRQppnQrHFUqnrAe0AaFsptM9
+         Mj9IJ7FLODKPUh9MXd3ds7BjnU9xspofDSa1uSC7Z3FOuN+9CcZBe8S64FIvYt8H0jtF
+         0JUbP77XMTsh7C/E2j7u7jL0UY4vmXu6rqsVN8PxbpkZ56pHjKDQBzTsSCIyw9e4TIim
+         W0Qb2PnY5pmA5mzXAqvLRm6em2H/P6lgHEDtjnkW3ZK4TSyD37DNUxvv6qqggx4lJmgS
+         173fSWPYmIyNiaDYAXvcIJSGI3VMSC1VpczMGINb0JMjX7835kRjhEue1pFA0tP5vMQ5
+         unwg==
+X-Forwarded-Encrypted: i=1; AJvYcCV+0PFzeQ4UNVoL6oeMr1u48zxxU58RYGDMLjjEFirWbOWOJwhv+5RqrkySm10s8qo/vGgpAlHI@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy3fqD4tvD5Fu/GE2t4ewVEnsMa8prhMFc7aohcdncanWXiHc6l
+	VBQpTZ9fV27BbLdLVvUQBJleLf8uqMTuKbG4imnudUyyrPHqKZ5BKigiD9nxxg==
+X-Gm-Gg: ASbGncsc0OyZRCgHqal2vbenYwyhQauvkeYjx72+E12kx68bJULAU3pbY043hqbEi5y
+	d5FqfA3SYp02b3U09L/TDQaT+yChIcMQ0p8yVdy9Va/P9YnYcFM1Qt3Q/zU+7z72O9X4Jnka2wX
+	utPqxSHX4s2ufwwXh41Y5MdPNa2I4V5PrUphAaPHh9atIVogFl+nHMP3KbKGaToYS55Y+cTq7jD
+	6AIKTbQKrxfPdAhJkLSN2f+KlKQNjgP7LaNI61q2hg37OcK7RKIqTfNzQ+9TehyddXwpXbEA0FZ
+	OGdbp/ZWoT/uZQjok2fA0KYtdH8ovL2kYvdsHoxrSgj2T9ulRbPkCJuckGLTPyTMsq1FPnhTCm0
+	5pU7A7/r2G5BrjCnh
+X-Google-Smtp-Source: AGHT+IH00KXqOXSeO4OFW3sFJx+SAsct1zAjfDJ30KuDo5YnCTIsJGsm4zYhZDlkvinkhEXPBLzm8w==
+X-Received: by 2002:a05:600c:3b89:b0:456:2d06:618a with SMTP id 5b1f17b1804b1-458b6b36b81mr2318335e9.18.1754072480505;
+        Fri, 01 Aug 2025 11:21:20 -0700 (PDT)
+Received: from localhost ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-458af917d20sm17187365e9.2.2025.08.01.11.21.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 01 Aug 2025 11:21:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <DBQHP9O2QZP7.15GAYG3PERBJ8@gmail.com> <20250731211849.1102381-1-nvraxn@gmail.com>
-In-Reply-To: <20250731211849.1102381-1-nvraxn@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 1 Aug 2025 14:12:42 -0400
-X-Gm-Features: Ac12FXztzHbVopUyG_lpiAelWO3nmC8ZUt6jx8Iv7E58w3YIK6pEIPz9u1sYX7U
-Message-ID: <CAEjxPJ6QGZcAO+zjdajOFTaDc+tuh56Vao3niO37udEr=UfAgg@mail.gmail.com>
-Subject: Re: [PATCH v3] seunshare: fix the frail tmpdir cleanup
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 01 Aug 2025 19:21:19 +0100
+Message-Id: <DBRASSYXDGO0.2X50XS44GR1WL@gmail.com>
+Cc: <nvraxn@gmail.com>, <selinux@vger.kernel.org>
+Subject: Re: [PATCH v3] seunshare: fix the frail tmpdir cleanup
+From: "Rahul Sandhu" <nvraxn@gmail.com>
+To: <stephen.smalley.work@gmail.com>
+X-Mailer: aerc 0.20.1
+In-Reply-To: <CAEjxPJ6QGZcAO zjdajOFTaDc
+ tuh56Vao3niO37udEr=UfAgg@mail.gmail.com>
 
-On Thu, Jul 31, 2025 at 5:19=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wro=
-te:
->
-> For some reason, rm is invoked via system (3) to cleanup the runtime
-> temp directory.  This really isn't all that robust, *especially* given
-> that seunshare is supposed to be a security boundry.  Instead do this
+> I would think the idiomatic C way of doing this would be to use fts(3)
+> or nftw(3).
+> setfiles/restorecon originally used nftw(3) but later switched to
+> fts(3) for reasons I don't recall.
 
-spelling (boundry->boundary)
+It's worth noting that fts (3) is not actually mandated by POSIX from a
+portability perspective, however we do already depend on it for other
+parts of the userspace[1] (as you mentioned), and shims exist for other
+libcs, for example musl[2], so I don't think this is a huge deal.  I
+can't speak for setfiles and restorecon, but nftw's api is pretty crap
+compared to fts, so, like them, I'd rather use fts for this than nftw
+even though nftw is part of posix[3].
 
-> using libc, the API designed to be used within C programs.
+I think dirfds are fine to use here, however I'm happy to send a v2
+using fts if you wish - would you like me to do so?
 
-I would think the idiomatic C way of doing this would be to use fts(3)
-or nftw(3).
-setfiles/restorecon originally used nftw(3) but later switched to
-fts(3) for reasons I don't recall.
-
->
-> Also, don't bother trying to delete the contents of the tmpdir and then
-> trying to delete the parent directory with rmdir later - for some...
-> undocumented reason currently we attempt to delete the contents of the
-> dir with dropped perms, *then* elevate perms, *then* delete the tmpdir.
->
-> This doesn't really make all that much sense as far as I can tell.  We
-> should be the only ones using the tmpdir, so we may as well just delete
-> the entire thing using the rm_rf () function with elevated permissions.
->
-> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
-> ---
->  sandbox/seunshare.c | 77 ++++++++++++++++++++++++++++++++++++++-------
->  1 file changed, 65 insertions(+), 12 deletions(-)
->
-> v2: don't use else after return
-> v3: don't follow symlinks in rm_rf ().  This is pretty important as we
->     we are operating on an untrusted directory, which may have symlinks
->     pointed to privileged content.  However, as we only really need to
->     operate on the contents of the tmpdir, we can ignore symlinks.
->
-> diff --git a/sandbox/seunshare.c b/sandbox/seunshare.c
-> index 97430535..8b1af609 100644
-> --- a/sandbox/seunshare.c
-> +++ b/sandbox/seunshare.c
-> @@ -403,6 +403,66 @@ err:
->         return rc;
->  }
->
-> +/*
-> + * Recursively delete a directory.
-> + * SAFTEY: This function will NOT follow symbolic links (AT_SYMLINK_NOFO=
-LLOW).
-> + *         As a result, this function can be run safely on a directory o=
-wned by
-> + *         a non-root user: symbolic links to root paths (such as /root)=
- will
-> + *         not be followed.
-> + */
-> +static bool rm_rf(int targetfd, const char *path) {
-> +       struct stat statbuf;
-> +
-> +       if (fstatat(targetfd, path, &statbuf, AT_SYMLINK_NOFOLLOW) < 0) {
-> +               if (errno =3D=3D ENOENT) {
-> +                       return true;
-> +               }
-> +               perror("fstatat");
-> +               return false;
-> +       }
-> +
-> +       if (S_ISDIR(statbuf.st_mode)) {
-> +               const int newfd =3D openat(targetfd, path, O_RDONLY | O_D=
-IRECTORY | O_CLOEXEC);
-> +               if (newfd < 0) {
-> +                       perror("openat");
-> +                       return false;
-> +               }
-> +
-> +               DIR *dir =3D fdopendir(newfd);
-> +               if (!dir) {
-> +                       perror("fdopendir");
-> +                       close(newfd);
-> +                       return false;
-> +               }
-> +
-> +               struct dirent *entry;
-> +               int rc =3D true;
-> +               while ((entry =3D readdir(dir)) !=3D NULL) {
-> +                       if (strcmp(entry->d_name, ".") =3D=3D 0 || strcmp=
-(entry->d_name, "..") =3D=3D 0) {
-> +                               continue;
-> +                       }
-> +
-> +                       if (rm_rf(dirfd(dir), entry->d_name) !=3D 0) {
-> +                               rc =3D false;
-> +                       }
-> +               }
-> +
-> +               closedir(dir);
-> +
-> +               if (unlinkat(targetfd, path, AT_REMOVEDIR) < 0) {
-> +                       perror("unlinkat");
-> +                       rc =3D false;
-> +               }
-> +
-> +               return rc;
-> +       }
-> +       if (unlinkat(targetfd, path, 0) < 0) {
-> +               perror("unlinkat");
-> +               return false;
-> +       }
-> +       return true;
-> +}
-> +
->  /**
->   * Clean up runtime temporary directory.  Returns 0 if no problem was de=
-tected,
->   * >0 if some error was detected, but errors here are treated as non-fat=
-al and
-> @@ -428,24 +488,17 @@ static int cleanup_tmpdir(const char *tmpdir, const=
- char *src,
->                 free(cmdbuf); cmdbuf =3D NULL;
->         }
->
-> -       /* remove files from the runtime temporary directory */
-> -       if (asprintf(&cmdbuf, "/bin/rm -r '%s/' 2>/dev/null", tmpdir) =3D=
-=3D -1) {
-> -               fprintf(stderr, _("Out of memory\n"));
-> -               cmdbuf =3D NULL;
-> +       if ((uid_t)setfsuid(0) !=3D 0) {
-> +               /* setfsuid does not return error, but this check makes c=
-ode checkers happy */
->                 rc++;
->         }
-> -       /* this may fail if there's root-owned file left in the runtime t=
-mpdir */
-> -       if (cmdbuf && spawn_command(cmdbuf, pwd->pw_uid) !=3D 0) rc++;
-> -       free(cmdbuf); cmdbuf =3D NULL;
->
-> -       /* remove runtime temporary directory */
-> -       if ((uid_t)setfsuid(0) !=3D 0) {
-> -               /* setfsuid does not return error, but this check makes c=
-ode checkers happy */
-> +       /* Recursively remove the runtime temp directory.  */
-> +       if (!rm_rf(AT_FDCWD, tmpdir)) {
-> +               fprintf(stderr, _("Failed to recursively remove directory=
- %s\n"), tmpdir);
->                 rc++;
->         }
->
-> -       if (pwd->pw_uid !=3D 0 && rmdir(tmpdir) =3D=3D -1)
-> -               fprintf(stderr, _("Failed to remove directory %s: %s\n"),=
- tmpdir, strerror(errno));
->         if ((uid_t)setfsuid(pwd->pw_uid) !=3D 0) {
->                 fprintf(stderr, _("unable to switch back to user after cl=
-earing tmp dir\n"));
->                 rc++;
-> --
-> 2.50.1
->
->
+[1] https://github.com/SELinuxProject/selinux/blob/main/libselinux/src/seli=
+nux_restorecon.c#L17
+[2] https://github.com/void-linux/musl-fts
+[3] https://pubs.opengroup.org/onlinepubs/9699919799/functions/nftw.html
