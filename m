@@ -1,66 +1,69 @@
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+Received: from mail-qk1-f194.google.com (mail-qk1-f194.google.com [209.85.222.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F49A21ABAD
-	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 14:33:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2417727A906
+	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 15:49:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754058792; cv=none; b=n9aqBAnaX++deyYr+zIfK9HBnxMKsQENmmHIlCJW9gy1FcIDfhPBoHb8WG8aizHjrfreKH4MG/0B6L8pfXfHvYr6o+ZfD2iiQ059RSrakGnUCRAWp0hQKIV0ov1NZsopC2WBrtiYeOZtEycXqKG/WqF314e39qKPkCOPkNKILwo=
+	t=1754063356; cv=none; b=csYv5R05MoJcuYz2ekoiaFTYHkTpHLl03CoXWwvkcJIgkO9SSQU+HSzDW0186sorSbUP5VyfT5Om6vv5p4oSOc4eR2PGJwNKxSO6k5lzffZYhVbZj4s2an0y1/H5z4ZFrqJfmbm8VQcTmVJGFlJY1P/I4gm0eUpNUHBrBGNgGEU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754058792; c=relaxed/simple;
-	bh=rqG76n9ombPwhb0O1o9vUQ68mAx2NF3aMh3W5truSLM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=F4Nq8og2tyUz0pNfRaCs6HJGmp3YPzRMiiYsegs5BvA4GcEMAz8BtjOnbffFjGmOqeg01ShqXeyDRDQk2qxTF97DvhA6IPQpUryMlxml25bAVzANiKpFMWSsw6CBWwLEWgPO0QegMC+Po4EuMM+1ouI0UpovEVodbkNKqlEpJlo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MDtsIQPD; arc=none smtp.client-ip=209.85.221.48
+	s=arc-20240116; t=1754063356; c=relaxed/simple;
+	bh=rAujF+bIjGCTRHwe82Ukg/EqZl6PN2eBR7iMnhM+dX0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Yy78XC6avAOQ7B8EQkiKIe9OGc4WAmX9HVO0ep5wTx03UewOhpBfKTHk4m9Q5sGXdi3tB04XOBdLh9Fr9stecOJ/nIqaJyx7NXt+/sSb3RYNpnFhfMoiAXSbQ9FNYnClBw5f5pAyKN/kE8nJStuKEVEKypbumLiOYb5OkIeDhP8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VMxZAS9h; arc=none smtp.client-ip=209.85.222.194
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MDtsIQPD"
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-3b79bddd604so1288459f8f.0
-        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 07:33:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VMxZAS9h"
+Received: by mail-qk1-f194.google.com with SMTP id af79cd13be357-7e346ab52e9so200502985a.2
+        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 08:49:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754058789; x=1754663589; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1754063353; x=1754668153; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=8+/BogaydoqYYjfmBy4X2fz2xqxt28O5Ne0sp9KpCxw=;
-        b=MDtsIQPDg6QEAbVfKl7WluMFOfy9D4CR4pezQl2dwf18V5d4mPnZ6ipbauDUxEUv+X
-         dZlxLHFUTE0O5AYsZbGAix0CHHfqtHZbQA/D3qTMhpBR9VPhzsShxCouEW547kgLHhN7
-         TkB5s0L9KljFikET+/OiQjK/1rSiz6d6HRA6QaI3HsZnh49tlfnGxUaHB/f01O8vTKjx
-         rwfMsvYU8uwlvAMpNBkgAwH8LAzfrZdRoCxYg1i94HKfJmSQB8/LJ/Itc1mLuzBiWhdp
-         CEkicxNLB+wpETXLn+rCOtE0FK/4/iJh4rbQ7B24lSArPdYJOqK3y+hNglVtQ/9rZtTb
-         TWiQ==
+        bh=weN5SFTWDPM64McQAyP7ppntKaoXE0YyY35jMaMmSb4=;
+        b=VMxZAS9h7hQfiG3JhLkmc/nGqKYQxgBjaCAHmXpbqYSvzmlba+IC6ui5nGsSTWOI7R
+         8IzxrmZA9/4PJAHOrXeCUKUu+xMVc01eBrES9eXm6WaOLzdP6jLvXy7EfzNqk5oLrC12
+         fHBPg45WhLYtGNT2ERSvHUMLdgSkfhbhthnHvAKza0W0LVSUM/7q4vBirjpGzYNSx4//
+         wpkuZsbP6z25Z0jTOszw4pGYdounHKEAFULVTwLQH/Mu8eFxfDA1FrbErFknfxZdOB3m
+         Uv3QEnNOVZbCZBF1iN2sPXp/JOEbW3gxiboCwMYopcawZyUsPsfhAQgWA+vCXJ1dGYNq
+         aLWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754058789; x=1754663589;
+        d=1e100.net; s=20230601; t=1754063353; x=1754668153;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=8+/BogaydoqYYjfmBy4X2fz2xqxt28O5Ne0sp9KpCxw=;
-        b=JBZrhTjPglRoNNYLynH7x1jk+371kudiLzF0WMNUvhDt5mZImG0s0c2AA/LDIcbSj6
-         9Zq3BRJ2c6YzBBsJjmxZJAZ821xcCstfvscfDf0aiZYopHEmTzfWzgxlNiVcFQhTXJlN
-         ual61vSENtP1SFgfbdBNhkcMJ+KukuuQXpvZZ9TWN7QmYp7rodQzkGYRgjc3IcWy00+t
-         Q/53Z7V0gGVjb9tIYxAzKBP9MKlYZBTyvG+EvUIIVIv50f9oakH2mUucPhFDT5ThNWpW
-         mSluQngPBEOISXWL8ID98NoDI9yYW7PqwJtwOZUgmWCxnhGl1dSkzfzU7Bt8LfrNOYjh
-         oTnA==
-X-Gm-Message-State: AOJu0YzPNZFMlk9JVmGHLjFU8GacOXyV0aQC8aBeikvfxFs/YYMR45BB
-	1CKocBGNFk1xI0PdljWJBKJNpFnhUnBnU9dFIsyguwXv2wIwxVMnW2r0/BgynA==
-X-Gm-Gg: ASbGncs7IUMfbREGM6nJ3nkzyZXpJz+oBdgvB+Z7aeOL7GBXwpHnvHcB0lpnYHtMPb4
-	JqK+S/6mr12CBpN4Qty+0hkOc3aDrXZIS6oha/ukFAM9Eo/ZMFegLbuQJ8untuzCFxFHpPJmC6+
-	yY7KytmRdlZRvJNF2njgYdPAtxAkVfFuxPrIhdQjGFu5GGyoL+RH+b2Psibth8yXAim1MaisZnY
-	aao7M5kyRMtLG+RzSfeRL2zKKjFZW8epWFoPfHEbsU4/Pp32MHnDpYJ3+4tATrNjI/nGsaY8+cV
-	8lfmUNUE0DGcPufSX/YrxnsmuwTS/NcVxP1VjM4n5qHlHKG/GoMx5cmQfpg/ooBjTbE1RT81CwK
-	HbM/XMMsk2OPk
-X-Google-Smtp-Source: AGHT+IHexzvaimq8lGzYIOLGclQ2x8jOAt3ElykE1gBfyUlhbIb2N3m/MRu0PYzbJH+dUA6Mi2TFmQ==
-X-Received: by 2002:a05:6000:2511:b0:3b7:9c79:32a6 with SMTP id ffacd0b85a97d-3b79c793525mr4761749f8f.47.1754058789161;
-        Fri, 01 Aug 2025 07:33:09 -0700 (PDT)
-Received: from sierra ([2a0a:ef40:8c6:a500:5855:6003:61ac:b38b])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-458b55b4b4bsm161275e9.1.2025.08.01.07.33.08
+        bh=weN5SFTWDPM64McQAyP7ppntKaoXE0YyY35jMaMmSb4=;
+        b=AG29WLWu2RWaXw/O4coUJrsC0uicPwHRuQdDh+8YCQAKiiQejDgWy2O8e6hHBeM/pI
+         yNGW+7VqpkDse3EBrOEP5O30amPVnyWbiW7N0zvjA0SmegDUYKEp1LvpVtoJQCnLKKVT
+         sAobX3SgZ0x4U92tx04Y3v/gO8Td5u0KApVxUQioSbW8yXsV9Vr6vFB2kvFH3scyAgpL
+         eT3j1dw3M1RuYdc/gqAsh9cI0SDyRVkbgkGGP+yH3Z8bn/vKhkPUk7KM5IzqnqHe3Rtt
+         /fPX2G1u34EPDBYXzSSPohT1QVRHe4iQQOm5rTPnzZx0zyt+tIk9MbZneT2e5XJrcbXJ
+         E58g==
+X-Gm-Message-State: AOJu0Yyl7kP/N/RN6bz3LMQXT7Um4LrO70rmBU6t4ScdqmvMU/9qwyxW
+	QTxTVAUtW/LhlPSr+KVvvQ0FrCbQjq5aj5UM/Vdw8oGSodiyD4XSh6EUEfRQYsGq
+X-Gm-Gg: ASbGncvdCT7AyE8b1EvxqTpF6I+Sph51o8cZth5y+U8yfwXz3psVqvbWGzJqVcpK2mq
+	8qC1cEVGwQlfKDfXL+5vC2Gug9kq5Mj6/ZNVB1LhuRdZPziMsYbW9RyvHrE03/qCb/fZ4dww6qt
+	baDRlfBWHWCrWoBGOkF+kxIASPsNqNwsPOfVQuLQVmujemIoWPXxejatLHGFpJz+9fhZZFbPmfb
+	5gzYbBloHTXPw4IjcmwXn+yYFcr6UCSoBzz38XDLWxZoqhra6g3lCv5h7GLATEgDGVyZ5mppEAE
+	rfj1fNrAerjn00qhzOxF3qKd4j+eIznPRFtXAoelpswVrPSeBneH9mrlMF4wqfB85O+fA1Xw9IE
+	02dk+P+fAtiyUFYBXYAhV8P3HOKjxDvm12FuGzUCz4MzwU0gdHGxizPeyn5LnQFY7K92Sv8K9N3
+	uuPhLTg76mYccvL0WH7GVNtmLSYgcvr/O6jA==
+X-Google-Smtp-Source: AGHT+IEjOF9eE9zgtGgnwOZaoDBHWKAYwDRqQdeP6E59+Nsj+sfVc8yXLmK949IzpACvR/orRqHEGg==
+X-Received: by 2002:a05:620a:5613:b0:7e3:4ef1:f583 with SMTP id af79cd13be357-7e69636b9a7mr37983185a.42.1754063353297;
+        Fri, 01 Aug 2025 08:49:13 -0700 (PDT)
+Received: from localhost (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-7e67f593eedsm230124985a.7.2025.08.01.08.49.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 Aug 2025 07:33:08 -0700 (PDT)
-From: Rahul Sandhu <nvraxn@gmail.com>
+        Fri, 01 Aug 2025 08:49:12 -0700 (PDT)
+From: danieldurning.work@gmail.com
 To: selinux@vger.kernel.org
-Cc: Rahul Sandhu <nvraxn@gmail.com>
-Subject: [PATCH] libsemanage: refactor semanage_user_roles
-Date: Fri,  1 Aug 2025 15:33:00 +0100
-Message-ID: <20250801143300.1189741-1-nvraxn@gmail.com>
+Cc: paul@paul-moore.com,
+	stephen.smalley.work@gmail.com,
+	omosnace@redhat.com
+Subject: [PATCH] selinux: implement bpf_token_cmd and bpf_token_capable hooks
+Date: Fri,  1 Aug 2025 15:46:37 +0000
+Message-ID: <20250801154637.143931-1-danieldurning.work@gmail.com>
 X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
@@ -70,102 +73,84 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Reduce the levels of nesting by early returning on errors.
+From: Daniel Durning <danieldurning.work@gmail.com>
 
-Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
+Implement bpf_token_cmd and bpf_token_capable hooks for SELinux.
+For both hooks we check against the token SID, to support
+delegation. We could add a further check based on process SID
+when the token is first created.
+
+Signed-off-by: Daniel Durning <danieldurning.work@gmail.com>
 ---
- libsemanage/src/seusers_local.c | 76 +++++++++++++++++++--------------
- 1 file changed, 45 insertions(+), 31 deletions(-)
+ security/selinux/hooks.c | 48 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 48 insertions(+)
 
-diff --git a/libsemanage/src/seusers_local.c b/libsemanage/src/seusers_local.c
-index eb3f82bc..282d56fa 100644
---- a/libsemanage/src/seusers_local.c
-+++ b/libsemanage/src/seusers_local.c
-@@ -18,39 +18,53 @@ typedef struct semanage_seuser record_t;
- #include "string.h"
- #include <stdlib.h>
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 335fbf76cdd2..bffddffe0b25 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7154,6 +7154,52 @@ static void selinux_bpf_token_free(struct bpf_token *token)
+ 	token->security = NULL;
+ 	kfree(bpfsec);
+ }
++
++static int selinux_bpf_token_cmd(const struct bpf_token *token, enum bpf_cmd cmd)
++{
++	struct bpf_security_struct *bpfsec = token->security;
++	u32 sid = bpfsec->sid;
++	int ret;
++
++	switch (cmd) {
++	case BPF_MAP_CREATE:
++		ret = avc_has_perm(sid, sid, SECCLASS_BPF, BPF__MAP_CREATE,
++				   NULL);
++		break;
++	case BPF_PROG_LOAD:
++		ret = avc_has_perm(sid, sid, SECCLASS_BPF, BPF__PROG_LOAD,
++				   NULL);
++		break;
++	default:
++		ret = 0;
++		break;
++	}
++
++	return ret;
++}
++
++static int selinux_bpf_token_capable(const struct bpf_token *token, int cap)
++{
++	u16 sclass;
++	struct bpf_security_struct *bpfsec = token->security;
++	u32 sid = bpfsec->sid;
++	u32 av = CAP_TO_MASK(cap);
++
++	switch (CAP_TO_INDEX(cap)) {
++	case 0:
++		sclass = SECCLASS_CAP_USERNS;
++		break;
++	case 1:
++		sclass = SECCLASS_CAP2_USERNS;
++		break;
++	default:
++		pr_err("SELinux:  out of range capability %d\n", cap);
++		return -EINVAL;
++	}
++
++	return avc_has_perm(sid, sid, sclass, av, NULL);
++}
++
+ #endif
  
--static char *semanage_user_roles(semanage_handle_t * handle, const char *sename) {
-+static char *semanage_user_roles(semanage_handle_t * handle, const char * sename) {
- 	char *roles = NULL;
--	unsigned int num_roles;
--	size_t i;
--	size_t size = 0;
--	const char **roles_arr;
-+	const char **roles_arr = NULL;
- 	semanage_user_key_t *key = NULL;
--	semanage_user_t * user;
--	if (semanage_user_key_create(handle, sename, &key) >= 0) {
--		if (semanage_user_query(handle, key, &user) >= 0) {
--			if (semanage_user_get_roles(handle,
--						    user,
--						    &roles_arr,
--						    &num_roles) >= 0) {
--				for (i = 0; i<num_roles; i++) {
--					size += (strlen(roles_arr[i]) + 1);
--				}
--				if (num_roles == 0) {
--					roles = strdup("");
--				} else {
--					roles = malloc(size);
--					if (roles) {
--						strcpy(roles,roles_arr[0]);
--						for (i = 1; i<num_roles; i++) {
--							strcat(roles,",");
--							strcat(roles,roles_arr[i]);
--						}
--					}
--				}
--				free(roles_arr);
--			}
--			semanage_user_free(user);
--		}
-+	semanage_user_t *user = NULL;
-+
-+	if (semanage_user_key_create(handle, sename, &key) < 0) {
-+		goto cleanup;
-+	}
-+
-+	if (semanage_user_query(handle, key, &user) < 0) {
-+		goto cleanup;
-+	}
-+
-+	unsigned int num_roles = 0;
-+	if (semanage_user_get_roles(handle, user, &roles_arr, &num_roles) < 0) {
-+		goto cleanup;
-+	}
-+
-+	if (num_roles == 0) {
-+		roles = strdup("");
-+		goto cleanup;
-+	}
-+
-+	size_t size = 0;
-+	for (size_t i = 0; i < num_roles; i++) {
-+		size += (strlen(roles_arr[i]) + 1);
-+	}
-+
-+	roles = malloc(size);
-+	if (!roles) {
-+		goto cleanup;
-+	}
-+
-+	strcpy(roles, roles_arr[0]);
-+
-+	for (size_t i = 1; i < num_roles; i++) {
-+		strcat(roles, ",");
-+		strcat(roles, roles_arr[i]);
-+	}
-+
-+cleanup:
-+	free(roles_arr);
-+	if (user) {
-+		semanage_user_free(user);
-+	}
-+	if (key) {
- 		semanage_user_key_free(key);
- 	}
- 	return roles;
+ struct lsm_blob_sizes selinux_blob_sizes __ro_after_init = {
+@@ -7525,6 +7571,8 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(bpf_map_free, selinux_bpf_map_free),
+ 	LSM_HOOK_INIT(bpf_prog_free, selinux_bpf_prog_free),
+ 	LSM_HOOK_INIT(bpf_token_free, selinux_bpf_token_free),
++	LSM_HOOK_INIT(bpf_token_cmd, selinux_bpf_token_cmd),
++	LSM_HOOK_INIT(bpf_token_capable, selinux_bpf_token_capable),
+ #endif
+ 
+ #ifdef CONFIG_PERF_EVENTS
 -- 
 2.50.1
 
