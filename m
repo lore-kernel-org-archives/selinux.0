@@ -1,192 +1,90 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A9F41D5CE5
-	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 17:46:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC64C1AAA1B
+	for <selinux@vger.kernel.org>; Fri,  1 Aug 2025 17:58:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754070390; cv=none; b=O7zrMtMxiXiDo+IvM/37KTOH5Bm6oIdhM5qI9FSVwe7FVJVWZHIv7m7fxlz/NCkficNkqt7qV8QpN2QzBiY6PkrTSoVxe53Hj/0lVWs8f3O21AUR3cnnnN8TdbcC3skERv95L72f4JIiiQ9HIfKOCQgyrm5gYzPL22OgK+riwSY=
+	t=1754071089; cv=none; b=J6MgIDdjmXMvtQ/bxIJgwOVq03SH1buxbLEbS/kfigSBFPsOi0X5+kYI2puCWnTzhGp1uwC52zokzsLgoPO4z0zGrNzFA2gbjdptX/+sHpcADDM+7LPF9jB6EPT9g/9k7/qyUyqKRxDUzwbnafg3EZaABNyo3oK8s5PzKX9Wc1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754070390; c=relaxed/simple;
-	bh=EasO3w/tefR2JM76xlMR8XT3OL1MdyyDhU57wVyNPGY=;
+	s=arc-20240116; t=1754071089; c=relaxed/simple;
+	bh=WDJLA9ighCKoylyABheWwKTmuNnofiYUSj9IDBDQIXw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cR7gL1ew65WjRtDIQCruepqUgVgIeeWqMt97HU7hMdq0r1hMfdQhfoT3ELsFaI2vtZbzzioE9z6Chbkf8/SjYKp1OE5ufRNi3xa5iR9ELxD46mbA22afaiGM2p+T2vE7vloXh/dGLmhlV1p5e4i8xRRkWk0d8N2q+0BmtpfkhpQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Gc+/2mHN; arc=none smtp.client-ip=209.85.216.45
+	 To:Cc:Content-Type; b=Sam43+aMgvS01++Uho3dnhiN1jbi0i30T0SAthMQd9em+gn7DlnikXMAeQSeKMLHSkV1vOIbxcJhVQsD3r0T0wbNQDRf7bxXxs+cGYyEWt7PQ0aMUV6TeEWNFT5ZnY8z9i45uMVnU1pRg6BGPoNel+tmTaD3Y4ZuzwvErBkEZ5k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RVo3BrWp; arc=none smtp.client-ip=209.85.215.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Gc+/2mHN"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-31f28d0495fso2557153a91.1
-        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 10:46:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RVo3BrWp"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-b34a8f69862so911105a12.2
+        for <selinux@vger.kernel.org>; Fri, 01 Aug 2025 10:58:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754070388; x=1754675188; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1754071087; x=1754675887; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vzAumX70jYR/OCZ+uayxxo7rPFpg4Zy43LTHF5k/2ig=;
-        b=Gc+/2mHNrweyJwBfoNAeU4k0tx61o/VAlJcvErC9VcI+FRVjUyrfkT1S0tMOKe9SnK
-         DAEzrpDR1I1PAr42MkDV2RloYDlK7072JyszYOvAXCLvRZbZe4Evyg10Lna2as8ru0F/
-         qcmnOon+w4MWbYlaD/F8MgOu+40jm++MDx+vDpALRClGcEajsctf46Zm21jc0X9RsGiZ
-         EgtVDK1m6lX0MWt2wbTNp7R3AfEW322eiFj9PVmN2ZzAK0x+jaRwaZwMOqWSXMgoO/GD
-         WpKI9G1RDoDyxXSj6fp2VtyWDOGGeH7cKbaLvUxaKiNKsN9bREdM2XeH3bz2wJS9jpAa
-         /9Jw==
+        bh=DaGut5K7hIPAjaQAByCM6a13t7ENdfTlI5DCUuXNNL8=;
+        b=RVo3BrWph18jdJBDirzw/qIYsF+4/RkaS4PjiqEjDANpAIhSXw6T5wveC43V59fKlY
+         tf2Mig6WZcRfeKfzLVXJ6SuZUtOCF/0KGF+ug1r/aADyvmfvqmnzXIK04KAyBohca3OR
+         eGjXoYpD4iofuYNuMyRnxMS+K97GsW72j1JNjUTmEbVWgmPxNpPJeyMtiR6j1F6sHcwQ
+         pYTKQI4bbljvOj2FH8sZdPDvypZrHAJmK4AaZpQOb14OYr/NvXc8UKHzhx1c1lQJfu0m
+         4s+kTjwGjCXc0h3+fpOjfo3SnlxQWQx7/HkoBmJq0nwQ1i46Qvk9MDKuymcOqwZhUTgc
+         B58w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754070388; x=1754675188;
+        d=1e100.net; s=20230601; t=1754071087; x=1754675887;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vzAumX70jYR/OCZ+uayxxo7rPFpg4Zy43LTHF5k/2ig=;
-        b=CaFMLt5JTcU4p8xNE0K3oWnwkh6ue6UMW5X9DkaV3UWsupcdNj/qFfkK+vHx3im1/T
-         BMbqngRhyzPe/4PGAMgGXnbzv1vHPVOeohcH7oYXB6jiqojiQzBYJPZ6/6GS9EKKO/Rt
-         SOzsXqHhZYt6Mem79EQ/GBc4uOzs7pPih72RlOdHblsIaisA9y52I2+uakcNaSlcqP83
-         di6iD5c7cDkbDHcGFbrGacLdfTKbePM8c3NBz3/reMuaGk+8OAIyl6hdxM1I8W2rzncg
-         962yx5F6XY9m9ZH7vFoxEQ6Ttat4kNIPQvhZFbO4PFYicSOoQsn7nuVfmtTEsT1y7Kh3
-         pCvA==
-X-Gm-Message-State: AOJu0YzqaXoNtj8Ba6vs8qyvJkpgIoko97SSI9sfgNQ/ksobX0rVtUk0
-	0uH/F8WZhyaFWlXC4VfGvHjWxkqox2+cJYLMLL3/T/4ys2pAMNjGj/LWpUUc3EJZbi/OPnrjJ80
-	smNOIszKtKO8fGFhOMilwF92rJDLFk2JmCg==
-X-Gm-Gg: ASbGncv+yBkWuNi3f8McVxiNlcZ9y7WBaD7MoWb3k+WO0W1zi5dLFNRnooSU9KeOPg7
-	q6JCop69I+0kcSgbu8d7AyXZ60lim/iS52zUN+e4KB/ucebu+zrOA7z9iLJh4YeXM7/nnAvST2H
-	y8Up7HF4/00AVLRk0bCBGEmKuKrNh+AJh5G/9RpSykdPLU//yyPn9M26QF9k0EqbTq/5zIZuDpd
-	mK8K1c=
-X-Google-Smtp-Source: AGHT+IE9UOwnvgeWleFrlbyiz/ea0yTsayDOk3JOCMKBMFIJ4FJxMz8VsEcUuK0LuJaEzu7HQJtiz6NctVgL3CxLdJ8=
-X-Received: by 2002:a17:90a:e7d2:b0:31f:485f:fab6 with SMTP id
- 98e67ed59e1d1-321161ec318mr867958a91.4.1754070387730; Fri, 01 Aug 2025
- 10:46:27 -0700 (PDT)
+        bh=DaGut5K7hIPAjaQAByCM6a13t7ENdfTlI5DCUuXNNL8=;
+        b=Oh0jWRAZ1ZbuEiOaX3oDrY3HGIugKJPfg1zXVPi7nVx0J1Fh0VYtEYH8Jm1ebJyGjS
+         JPbecbC1bnidGQhtz4OrXapdvQUeWuDblDSyq9hDuDHS4JDyvONNyK9nPjSX42ZaT88I
+         eQ3zj13s+IwzA1g44xj3e6f+v234wbzW0HdlgBNCtrrG2HBn2RkMUVLic4DotvHXgi7+
+         MWO4KAwljgLSaJEAaekK0t5KPN7LkIlyfB7BWo8jiJAKEYWAL/qMn9Fr0Hw3j+xdO0RX
+         J8LfuGJGeEN4M4HnxeOUOXNO3pWZjy5PF0HRreM2DH5oZ6CSrgKsFdcT3GxwZUO4fp/e
+         Z++w==
+X-Gm-Message-State: AOJu0Yxx5ffEZtZ6Qqz+8Pt59WvwziHYjtgM2+xTvgECVN13k7xyu4eK
+	qNqV3KWv/Ll0MsRWiWiz7+U2PDX/WGAdTQ1TBjRie3ctgUfOAl6M7GQJGsGBU0MMz+dgsammnSk
+	ynTHlkXA5htot5gXsZ8usmAJoKTgitxPHpA==
+X-Gm-Gg: ASbGnctnk2e16t5znUhDeKOlpwUZOBbeuV3IGC49S8g7bcvEJUSIuuBq7XS3sAg5J6f
+	n4AYLq8oHaDYHauauYM1pGwj1hBLVftuhKaRivSv1fu2IIlZ6MdTIvEouLkbdz9a806xLPmYcHl
+	N81zpPLWjONTpAgBRnXG7t0kOBVnDOMfjLI7/pQJRMi7nvmy/r9Y7dHMqOGHEitxJiBkZoN+nWo
+	13LeMY=
+X-Google-Smtp-Source: AGHT+IFKGLiM6wRbPXSoVzvGjLwIp5tOOxeeNkGBzQCS3jMPrC1gLjCJQenXxRDIMYuSv8XABclzttmI/welJWGEe9c=
+X-Received: by 2002:a17:90b:3b44:b0:312:1c83:58e9 with SMTP id
+ 98e67ed59e1d1-321161da196mr878799a91.5.1754071087277; Fri, 01 Aug 2025
+ 10:58:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250730181503.991208-2-nvraxn@gmail.com>
-In-Reply-To: <20250730181503.991208-2-nvraxn@gmail.com>
+References: <DBR9Z1C82MG9.J5SX2WJQ0UBS@gmail.com>
+In-Reply-To: <DBR9Z1C82MG9.J5SX2WJQ0UBS@gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 1 Aug 2025 13:46:16 -0400
-X-Gm-Features: Ac12FXxMYd30FEYpv6eaRsXTZUc6f7v40O5BfpTU7cMspyf7A9ri7YnaWoNjd34
-Message-ID: <CAEjxPJ4UKshtRGPyEKwkfTS-D5uc9thFNovC2_--kdV-Y3gDbg@mail.gmail.com>
-Subject: Re: [PATCH] libsemanage: get_home_dirs: cleanup parsing of values
- from conf files
+Date: Fri, 1 Aug 2025 13:57:55 -0400
+X-Gm-Features: Ac12FXwNx0VHTgdb0Fdc4tMWQAMgln2VHpOnLvaUBaMvkxmGyfutHQkH_p_v0gM
+Message-ID: <CAEjxPJ5OXCS1nkJzukkp61J3a4fmGeOLftTiDHKjQmPvDw+yKQ@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: refactor selinux_check_securetty_context
 To: Rahul Sandhu <nvraxn@gmail.com>
 Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 30, 2025 at 2:15=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wro=
-te:
+On Fri, Aug 1, 2025 at 1:42=E2=80=AFPM Rahul Sandhu <nvraxn@gmail.com> wrot=
+e:
 >
-> atoi (3) is... bugprone.  It's virtually impossible to differentiate an
-> invalid value (e.g. the string "foo") from a valid value such as "0" as
-> 0 is returned on error!  From the manual page:
+> > No need for { } for single-statement bodies.
 >
-> >       except that atoi() does not detect errors.
-> > RETURN VALUE
-> >       The converted value or 0 on error.
+> Thanks, I wasn't sure about the correct style here as I couldn't find a
+> style guide.  Is there one I could read, and if there is could we link
+> to it in the CONTRIBUTING guide[1]?
 >
-> In the case of get_home_dirs, atoi is downright wrong.  We are parsing
-> UID_MIN, UID_MAX, and LU_UIDNUMBER, which all have a numerical value,
-> without any validation that what we are parsing is actually a number.
-> This is especially problematic as that means that in the case of an
-> invalid value (e.g. UID_MIN=3Dfoo), UID_MIN is incorrectly parsed as 0.
->
-> Instead, use strtoul (3) to parse these values.  If parsing fails, such
-> as in the case where UID_MIN=3Dfoo, warn that parsing failed, and use the
-> default values for each key as specified by the manual page.
->
-> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
-> ---
->  libsemanage/src/genhomedircon.c | 41 ++++++++++++++++++++++++++++-----
->  1 file changed, 35 insertions(+), 6 deletions(-)
->
-> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedir=
-con.c
-> index 8782e2cb..a7b44d8d 100644
-> --- a/libsemanage/src/genhomedircon.c
-> +++ b/libsemanage/src/genhomedircon.c
-> @@ -354,24 +354,53 @@ static semanage_list_t *get_home_dirs(genhomedircon=
-_settings_t * s)
->
->         path =3D semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL);
->         if (path && *path) {
-> -               temp =3D atoi(path);
-> -               minuid =3D temp;
-> -               minuid_set =3D 1;
-> +               char *endptr;
-> +               const unsigned long val =3D strtoul(path, &endptr, 0);
-> +               if (endptr !=3D path && *endptr =3D=3D '\0') {
-> +                       minuid =3D (uid_t)val;
-> +                       minuid_set =3D 1;
-> +               } else {
-> +                       /* we were provided an invalid value, use default=
-s.  */
-> +                       WARN(s->h_semanage,
-> +                            "Conversion failed for key UID_MIN, is its v=
-alue a number?"
-> +                            "  Falling back to default value of `1000`."=
-);
-> +                       minuid =3D 1000;
+> [1] https://github.com/SELinuxProject/selinux/blob/main/CONTRIBUTING.md
 
-Here and below, it would be nice if we could use a #define, either a
-pre-existing one or one of our own, and avoid manual duplication of
-the value/string.
-
-> +                       minuid_set =3D 1;
-> +               }
->         }
->         free(path);
->         path =3D NULL;
->
->         path =3D semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL);
->         if (path && *path) {
-> -               temp =3D atoi(path);
-> -               maxuid =3D temp;
-> +               char *endptr;
-> +               const unsigned long val =3D strtoul(path, &endptr, 0);
-> +               if (endptr !=3D path && *endptr =3D=3D '\0') {
-> +                       maxuid =3D (uid_t)val;
-> +               } else {
-> +                       /* we were provided an invalid value, use default=
-s.  */
-> +                       WARN(s->h_semanage,
-> +                            "Conversion failed for key UID_MAX, is its v=
-alue a number?"
-> +                            "  Falling back to default value of `6000`."=
-);
-
-Note the inconsistency here, which would be avoided by the approach
-suggested above.
-
-> +                       maxuid =3D 60000;
-> +               }
->         }
->         free(path);
->         path =3D NULL;
->
->         path =3D semanage_findval(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=3D"=
-);
->         if (path && *path) {
-> -               temp =3D atoi(path);
-> +               char *endptr;
-> +               const unsigned long val =3D strtoul(path, &endptr, 0);
-> +               if (endptr !=3D path && *endptr =3D=3D '\0') {
-> +                       temp =3D (uid_t)val;
-> +               } else {
-> +                       /* we were provided an invalid value, use default=
-s.  */
-> +                       WARN(s->h_semanage,
-> +                            "Conversion failed for key LU_UIDNUMBER, is =
-its value a number?"
-> +                            "  Falling back to default value of `500`.")=
-;
-> +                       temp =3D 500;
-
-Ditto.
-
-> +               }
->                 if (!minuid_set || temp < minuid) {
->                         minuid =3D temp;
->                         minuid_set =3D 1;
-> --
-> 2.50.1
->
->
+Unfortunately not. It would be good to specify one at some point and
+start applying it. The selinux-testsuite has a tools/check-syntax
+script for checking (and optionally fixing) coding style; we could
+either duplicate that for the userspace or come up with something
+else. There is a scripts/Lindent in the selinux userspace tree from
+Linux but it hasn't really been used or enforced by most.
