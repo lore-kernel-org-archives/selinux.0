@@ -1,130 +1,97 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5ABB26136D
-	for <selinux@vger.kernel.org>; Mon,  4 Aug 2025 12:18:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70B9626E17D
+	for <selinux@vger.kernel.org>; Mon,  4 Aug 2025 12:48:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754309909; cv=none; b=S7xhH0oG6VOr/Za7NqeehZWRiSRcRbqRBz2edV1O30kAY87m3exFSVnesTSr0gIYUEIDmvFWz/cnqPWBAlCs1CENZ16jBZ2uwnZf8jkvvUSShuMngAmkZSRVjPwNxOqrlNs4QWW+/sghMMqRq/Spd06fiEec5DMA8ReqDUf0owI=
+	t=1754311736; cv=none; b=jrv2Z+K5x5JjD753zNH+rfoBCajfHUdP2cx2iD1ere+bQEH5CDyVIPPNkwlDRT+eAvZjo2/KT8Oz6PU6/r2Q8sbTtzCOFGbZw4YIWDuq0L3BTj89EFvi7BAi+d6ctV3sFs5h6Q+jTKjvx8jJo4bHft19j7HT62FWxXaBcSWnPhE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754309909; c=relaxed/simple;
-	bh=lqC6dC30Hr7pPhm6COOBXT5bBwJkOccUEJRzeLxF4G8=;
+	s=arc-20240116; t=1754311736; c=relaxed/simple;
+	bh=sMebuIP3tHzTmFaUZ7PPOw2Valp/rAu5dIZM6eJtE5Y=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Cr8T80ESec/pNohKy0q+zpzrWIWHk5s5FD7BfrMQ0RVm9gvsMZFOsxGG0gDdv6Cz22fyqjASv5vJcseboKUURjtvA4UVhIsIAsM5I3Sq/SHSHHfdwA6yLDSMPeCgUfkrXEVb5Y3PgJ/njs2U7TAYxiFGMak8Xv/Iz181yVW1D2Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RIrV3Qha; arc=none smtp.client-ip=209.85.216.52
+	 To:Cc:Content-Type; b=RFMZl2q2mdDBO2OOg9CQT6P03DGbX9fzeD2gSVI+JRqJSxWZQiUd/cLf589QJfit3ivEJ9TyhPm3i8H0nLRyxWl261b0YF44/LkIAWER6bMt/3PzrSIerEZtvFFpIfUlbOZGNMS3yg43yP+aiSUkEUCQQCTokRhOhx4L7g5C//U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JspP43dr; arc=none smtp.client-ip=209.85.215.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RIrV3Qha"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-31f53b3b284so5223419a91.1
-        for <selinux@vger.kernel.org>; Mon, 04 Aug 2025 05:18:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JspP43dr"
+Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-b3aa2a0022cso4099998a12.1
+        for <selinux@vger.kernel.org>; Mon, 04 Aug 2025 05:48:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754309907; x=1754914707; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1754311735; x=1754916535; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lqC6dC30Hr7pPhm6COOBXT5bBwJkOccUEJRzeLxF4G8=;
-        b=RIrV3QhaY6NQCh6xZfIYgBUeJqKQYSVWlgQaFX2/soTreAM6uz+KloRVIke0HeSOXT
-         OlZ5wN+IDUGH1XDqU4C+yroj5tmlD1u3nNoaGzmy6xtQ1EZT3QiVDsayXK0HmvImVPhQ
-         nXOIrQzNPa3aFsWqBmEVpPkRPbd27NiSRT7ObGTzHpMj4wTBidhxkHEObSBnMxFgc1BZ
-         0GwiVFlaI0AXn79LbY9TmzJNhFRi5HENYSKT3FG/EBPKj1/xyctjSAQwmf72GV7DWfYl
-         IZKPSqfquAl1z8zt/Em9uBLrMqIcwwrR7QVZOowUccKsrNy2MjANLMco823yBW1cTTce
-         lTWw==
+        bh=+F05Y1QMC4YpOb/aWkWG6SrOJ0kIjkod+ub5AByhZsM=;
+        b=JspP43druw+5NP231kr6V3OTOz5UqL70JrRq59ZNvu+PZFiJrtcJI/LkdP36p6wIGN
+         M0HXxOsniEMniD7lBMnRuIlwmTtzwIWgU3DFQRIL1bJ3cE2FITMO9q7GRd7jQ8UbbTXQ
+         PQWJVq0PZ/JWWHA3ahFxDVfpvYYBPjxUYgEROi7RtW4LicdX8x3AT/DCQLEhkTnAldpj
+         BL0s3NcnbagqLnn1u06t+fpwcd1v8pxjCHX7LmDNumDuZ04grlhwWRXdYI/HGvy03zf8
+         +4/fWaJ0W99EYGnl9/aNp0/ia58Q8IFT9z1TMFlcZw6VBYGX+6zaa87P2q+Z1LqkGfmV
+         jADg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754309907; x=1754914707;
+        d=1e100.net; s=20230601; t=1754311735; x=1754916535;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lqC6dC30Hr7pPhm6COOBXT5bBwJkOccUEJRzeLxF4G8=;
-        b=tMZk1TY2af4wVzaGHMv6o+dTj6HM/GEoH2aTyGmZ/+GIdkcs5Satsd+jOjoo7oyT5C
-         if1Id64LNO5ls6visB2jYkZP91g2UqIeSaGFQTjFhevJkPmOZYVi4mfBVIerJGWRKKKw
-         9EM9IhFYZLmfJHycIcG8jzC5w83SO/+ENXc0WKitMtzZGJDgrv3WRe/BZ8rgijYhJbJW
-         msecax0ojetUy/yTm/tEAg4gtwXbOvJoEzmKeoI2FTTMYKaa/vbVKlxd4Eon4jks/eXz
-         tZuESLwIujjwOIwdLKIpccHWW7A8n14x/sDq8iG3b+qKUFwICZThTQjm48MI6XWld0oJ
-         0mdg==
-X-Forwarded-Encrypted: i=1; AJvYcCVrvapo06L9yUdDimxDy6IXKG+xszoVfx5xGgc3FJKq3G9KyRTbtdOOuRq5HqXoIZ/Pv9TTbNFI@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw+AduNHt6gEs1j/VUsVaKbnY/MMaQD+spZo60Kzg7cowScTMcN
-	VaBzpbw+4U/LDE0PSWWCQ+IJsDoIvLubZtFxlmy9mzoOJTRAnywuZfUD6s6FIzJS0k5HX8TOqjG
-	EcRMFlwOYmR8eWco9KvO5sQWS+sCu/lD2beAU
-X-Gm-Gg: ASbGnctG02MaTUhcSfprzFq+ZZ4G05KF6BuTS9DXuHTvtPvB/hVQCqpv2LpXkucxv/M
-	WHYjVB6hvr+E53mo/eH3xt8V+vUgdmcPmmKkvBAYc86hXL/dzpzuWijUIXPCSmmJGP1F+mSdkwV
-	kxyVA6LG+IQkj89HRjeFHsT9PAYPjDvNXl8Pr+CNnDwjFwDOJgbftiGQZiDWwvMRgnc+ZJOGapI
-	yFFHx8=
-X-Google-Smtp-Source: AGHT+IENgG1CpgnX6bM4sx1PnhquhkvuMNAomRloMix28UpTVgIMGrSnOSL0BRhZdQl62rO4s4dh1U55mWXzajq3Dpg=
-X-Received: by 2002:a17:90b:3e8e:b0:31f:14b:f397 with SMTP id
- 98e67ed59e1d1-32116818bfdmr13846999a91.1.1754309906785; Mon, 04 Aug 2025
- 05:18:26 -0700 (PDT)
+        bh=+F05Y1QMC4YpOb/aWkWG6SrOJ0kIjkod+ub5AByhZsM=;
+        b=AxT+1S8Jko8VIweVM5NSQeD+938Yh/+jiObpKNdabcXb3CjAd2zWRsfmgDvawiqE1t
+         8N/fng2z3VLCUFX9CtwMeUHMI5yiFU24ljJClw4c6MHpVBcfkQCkH42P3gKDli8rI/jY
+         lnoW0LWHGZ/QTuTteGLDDL5dYrvZy4lIKcPDZKnr5bcMsn0us0nb5ONEYzbR6wK4JkNa
+         xcYmDjvpXWC5PxpNvg/bwqC55tXwU0+k1CydP+ymWr2en0mJg+NZdfrLyGNOeuuIuy0M
+         5kwlb+bm9VGsb88tVBvmolwQVZoOoMl/InzRnYLn0BjC4HiwKmb71YGGYN74AuGCZ4vH
+         BF5Q==
+X-Gm-Message-State: AOJu0YydKQV1Mz+6OROrU93Uj9YyKveQTQ5rYyCJdoiQL34EnJPANzfL
+	urnupG0n/J3D2HuT9LpUotegYiLna4NpS7a8XmrjJRzmQCCRDaO39neI28jPzoJrlZLom8RnVFO
+	dxAJdtQwTobRLzP7h5WnWSKDI5moqFTQ=
+X-Gm-Gg: ASbGncsPrgQgkuIx7zXvmL1y6ZldjmcefOl88bnnjgWPQd3+EC+NE47l6ZvtHBRZOG3
+	tb8bHJBkPPcol5JEr42HpM/fViCXXblPqRRZpNQ4N+tmaiWiALTHlNn0ZftM31DDuASsvJ5+5Jb
+	lklKA3qbvp3taFHhqh/M44HuJOL30jrX1yrkH8q9sVrlyx3IIk4olzxGeIUmMSuk21g1sTJtcXe
+	TRhexs=
+X-Google-Smtp-Source: AGHT+IGtjgLMFiIKkcWtuvrHBWDm1FloP8Bsjw8FE0qkt46INDn4YsnZMlz8/FVyPst+qlxKJ2HpVovglsOoZOEX/gU=
+X-Received: by 2002:a17:90b:540c:b0:312:e9d:3ffa with SMTP id
+ 98e67ed59e1d1-321162ccb3fmr12203771a91.31.1754311734702; Mon, 04 Aug 2025
+ 05:48:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250801154637.143931-1-danieldurning.work@gmail.com>
- <CAEjxPJ799AYzKGMJr5vmcP+b_ikPncy-vwaKZudRMRokwyuXMQ@mail.gmail.com>
- <CAEjxPJ7d=LJ=Rxyiy6TpjEETVhkAkKxJci0Hog1v+55V8jvpdw@mail.gmail.com> <1986fe81af8.28a7.85c95baa4474aabc7814e68940a78392@paul-moore.com>
-In-Reply-To: <1986fe81af8.28a7.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+References: <20250723182550.1065144-2-stephen.smalley.work@gmail.com> <CAHC9VhSUbZrbV06hzzu5kNwrgojjYVYaUL_Yto+stWD1C=XZ5A@mail.gmail.com>
+In-Reply-To: <CAHC9VhSUbZrbV06hzzu5kNwrgojjYVYaUL_Yto+stWD1C=XZ5A@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 4 Aug 2025 08:18:14 -0400
-X-Gm-Features: Ac12FXy0ZLoewke1xlGj-yBpE0dAGfruW5TbeZt6xrMjD45sa521-_8-KDT1f34
-Message-ID: <CAEjxPJ6wM2Jv6J7Vdmk8H4GYXGgoeQFqZfRK3EZkv=9MgOdAXQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: implement bpf_token_cmd and bpf_token_capable hooks
+Date: Mon, 4 Aug 2025 08:48:43 -0400
+X-Gm-Features: Ac12FXwMAbYlnLa4NtjS8GArl_-5GJ9ARp7k1O1u7jkXbbwb7uQoC-3CF_tVqAg
+Message-ID: <CAEjxPJ7SAJKdZDqdP4jj5i7wjNhJDjV0+8LyC3TQPVWNV4ZmQQ@mail.gmail.com>
+Subject: Re: [PATCH userspace] SECURITY.md: add my email address and GPG key fingerprint
 To: Paul Moore <paul@paul-moore.com>
-Cc: danieldurning.work@gmail.com, ericsu@linux.microsoft.com, 
-	selinux@vger.kernel.org, omosnace@redhat.com
+Cc: selinux@vger.kernel.org, jwcart2@gmail.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Aug 3, 2025 at 8:29=E2=80=AFAM Paul Moore <paul@paul-moore.com> wro=
-te:
+On Wed, Jul 23, 2025 at 10:14=E2=80=AFPM Paul Moore <paul@paul-moore.com> w=
+rote:
 >
-> On August 1, 2025 3:30:02 PM Stephen Smalley
+> On Wed, Jul 23, 2025 at 2:27=E2=80=AFPM Stephen Smalley
 > <stephen.smalley.work@gmail.com> wrote:
-> > On Fri, Aug 1, 2025 at 2:38=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> >>
-> >> On Fri, Aug 1, 2025 at 11:49=E2=80=AFAM <danieldurning.work@gmail.com>=
- wrote:
-> >>>
-> >>> From: Daniel Durning <danieldurning.work@gmail.com>
-> >>>
-> >>> Implement bpf_token_cmd and bpf_token_capable hooks for SELinux.
-> >>> For both hooks we check against the token SID, to support
-> >>> delegation. We could add a further check based on process SID
-> >>> when the token is first created.
-> >>
-> >> I agree with the approach - it is consistent with how tokens are used.
-> >> I suppose we could perform a process-based check in
-> >> selinux_bpf_token_create() if it was generic, or add one to each of
-> >> these hooks if we want a different permission for different cmd or cap
-> >> values.
 > >
-> > Ah, actually that doesn't look viable at least for the token capable
-> > checks, since those look like they can occur from outside of process
-> > context if I am reading the code correctly.
-> >>>
+> > This key can be downloaded from https://github.com/stephensmalley.gpg
+> > or
+> > https://keyserver.ubuntu.com/pks/lookup?op=3Dget&search=3D0x578c4211832=
+f0a7ea2c5a7c221a46e603f744ecf
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+> >  SECURITY.md | 2 ++
+> >  1 file changed, 2 insertions(+)
 >
-> Eric Suen has also been working on a SELinux BPF token implementation too=
-,
-> and I believe he is planning to post it upstream for review soon.
+> I have verified that the GPG key identified by the fingerprint in the
+> patch belongs to Stephen.
 >
-> I do expect we'll need to have a discussion about the access controls,
-> especially the labels involved, as BPF tokens are quite bit different fro=
-m
-> many of the other SELinux access controls.
+> Acked-by: Paul Moore <paul@paul-moore.com>
 
-Eric - note that Daniel also posted a patch for the selinux-testsuite
-to exercise these hooks and checks based on the Linux kernel self-test
-for bpf tokens, see
-https://lore.kernel.org/selinux/CAEjxPJ7DBDnZEFvgpe58K4B+4kZdOqUGMHvGC2vKt-=
-4Zget=3DHg@mail.gmail.com/T/#t
-
-Paul - it would be good to avoid such duplication of effort in the
-future, maybe we should be tracking such things in the GitHub project?
-
->
-> --
-> paul-moore.com
->
->
->
+Gentle nudge on this patch, since several others have verified and
+signed my key, and I have uploaded the updated signed key to the
+public key servers and to github.com/stephensmalley.gpg.
