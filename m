@@ -1,162 +1,108 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60AD22868A5
-	for <selinux@vger.kernel.org>; Mon,  4 Aug 2025 17:10:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2989516F8E9
+	for <selinux@vger.kernel.org>; Mon,  4 Aug 2025 20:13:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754327407; cv=none; b=A+B9TbYAS7kxf8ugInjqb2zoFsmVg2aY8nQY5yA9BcJL5njPygkToAOFr/+UXy2xLTC1x54pHL6/NPURuGeuVl7YaZinOtT7NqO6hy+HSnpWiEz/CAWlOW+IoFmIH/kejDXID/vKna7ges+kK5PVU5c/IAg3LG1fcLyQ1SEWFUQ=
+	t=1754338408; cv=none; b=exasVl6wU3qV8kKkMfxU0NdUE0WKNKy/KmhCSsMPlFUN6HzD6QaoEZx+07wvOcxH9gdg+jkqisRqm9AhJIdWyuDyt2yljmyTfOCP0GODbFiUEyweXcThf9ECGJKVxVqsnUeG01nrCfHUPvVHT2lA6ByfuArVhNK42DPMJDb1BwQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754327407; c=relaxed/simple;
-	bh=9YxoarysC+JlxqrEtfOESKYjngiGtIxQ0E8CEh/VmVo=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FWCu9zZqf7oF190dod88RO08rD84JGuUYUrYxts/Fycb2uRNZW8Bsad6iUf0S9rOQYKrqV5WbppBLpcPedEiz1bQTAO92GWOUXuqthJti94zueTnf/S9vNWfvlUTbrGTpmw1HyV/80LEy2l0MMSTcQtSzl6XFi2PMh92aPooOaw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FSvMpwOw; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1754338408; c=relaxed/simple;
+	bh=iAMISEL+whP0rmBAPPY6XSoEe/4DsdxED+mdUwdbF30=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DrkWbDMonoko0YRAYlzEBBaAGYyqbeC5ALgH0BnA4Gz4WH0dbfMpDiIgVuRdqRVBmSFHMcuPWjvgxXcuMFOiwhX9nDFW162C55+JvGPAN58Ol77AZ5At1fJvfVhQxhr69Wzv6BtWWkmRiNWngOF6fKplHdmiLmC7EHGOs9RYQYM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=BueDQMmS; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FSvMpwOw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1754327404;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=RQiccqwb3852XP5PUpovlNUiTghhgWpIkmN0BxpnNbQ=;
-	b=FSvMpwOwZwmYCuQ3+iDDn4OAwEjAeIdMQVSgb/t9FVvLfgb5ZE4AsWLPmyETvXnmNH88ZV
-	tWMlElD/5uTnf6dgc59BPWvgBZUt33W2W6IlyPl0WNHTFkZ5MutPBXH8l+3M3g44UPCTHw
-	ftnAXV0dALAzl/clfTMFU6zEXJEykng=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-404-pXU19TM8O9qfyZ6awo_5pg-1; Mon,
- 04 Aug 2025 13:10:01 -0400
-X-MC-Unique: pXU19TM8O9qfyZ6awo_5pg-1
-X-Mimecast-MFC-AGG-ID: pXU19TM8O9qfyZ6awo_5pg_1754327400
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5E7071955D4B
-	for <selinux@vger.kernel.org>; Mon,  4 Aug 2025 17:10:00 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.45.225.228])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 9C6531800359
-	for <selinux@vger.kernel.org>; Mon,  4 Aug 2025 17:09:59 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@vger.kernel.org
-Subject: [PATCH v2] secilc: Add test for attribute assignment to attributes
-Date: Mon,  4 Aug 2025 19:03:45 +0200
-Message-ID: <20250804170953.246873-1-vmojzis@redhat.com>
-In-Reply-To: <20250716144435.1084767-1-vmojzis@redhat.com>
-References: <20250716144435.1084767-1-vmojzis@redhat.com>
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="BueDQMmS"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2403c13cac3so44671055ad.0
+        for <selinux@vger.kernel.org>; Mon, 04 Aug 2025 13:13:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1754338406; x=1754943206; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Jcjys6HWaz5UdeMdJ3p3iW42X5qoPCofECgkzkZ/hAA=;
+        b=BueDQMmSWvg0JvqoCzYeHQoOA4D97xMMNGRdDL0oWvicEAtO31zTcIV3NcCUHpvZPJ
+         mjG/jBoB6giCD58a54xfdzwMFvTTIoHiOKWAmD7NEYiT/6fx/Rp9jLO4cNKKTPQROmd5
+         JlHMC4z4q3sNlJ7sm037gXcrSYw/bbZftxJYHpLydktKsVUi9kEJleMLRIcwQNWbaauL
+         jogQgKQk9R7ZdS79sHgfekK0jAieeFIwqEMeAkmT/CcMX1pgyJ7oFgG6HlreweQkuepH
+         g/3+ot0mWRIHVY1q0+CwnaG7HwQDHDus/yppF62dLtUIyGWvHCEUUDraaziyDHq9Ogja
+         5E+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754338406; x=1754943206;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Jcjys6HWaz5UdeMdJ3p3iW42X5qoPCofECgkzkZ/hAA=;
+        b=Err01IEDLf+rU5BOf4WHcz04sYW4ZRhcqKQNtZr7eDENKFieFIyrJJd7aI6A98G5WD
+         htBW8J0T4jc4/07FCRnMxzONhQ72BTMyeWBzVpTfxgixQUYvL30bYNifLs5fQQN0zVcf
+         5ow2TfZ6IPFaqfvRbFyb0g+BoS8w3l7U/AtGUd+JNt1dzE/SXKE5feXHTF6PwKyZyRJB
+         snFm53SbCal60aee1+ZtkaQ5FhxvSvwC1EqCNwAXQIqwWHu0hSNUN5SUFGs6GuR/nbwy
+         /rG8iNcJRp70XeXuqtXLdSYbRE+K6F/CqgbCEqz4QkHwmTsaHgeHsRWETAlsuPJptj+M
+         pNNQ==
+X-Gm-Message-State: AOJu0Yw13sVG67M1THHCU4bGThEUAxijTFfkgxoRuJCKmR9GWG51vNGu
+	qPqY29+xbw6HE21qnuOC+v2XdbZGj6+psYZyhXlVQE6p6aXm7DM4xRTcBboOtN5UM2J72xQDVUi
+	z3TfJTpwLsFPe4MakCWiSjjCKju5SiB9nD3WN4r9v
+X-Gm-Gg: ASbGncuwU2zMSejOFtmwbhGc8puV9G/bF9R93S284FXjJyVIvEKRPIue1WCN/FJuLL4
+	/mI54IATd0ZeNBycEwryvcU+VIeOUy6TavkyX4qelK6R8skI7HHH8/DvfZXqcyku8STK5Prgew/
+	EzEDS7UsNMBPZLVGNUQxAErtO/FKlFEF4NWs40p7SWwVTNtbmJMbp95zEfewXCtWMqo4rupzcBr
+	fx7BcG78yDKU4JajA==
+X-Google-Smtp-Source: AGHT+IGhCkKqJ+aOvbVhrvlmO+rJgVP0ZLaIQsUjuEk8JTm5H5T9RMp74mA7ju2ajCsP93eAvIL774lsQ0lYmIDCP7s=
+X-Received: by 2002:a17:902:e809:b0:240:72d8:96fa with SMTP id
+ d9443c01a7336-24288dfe502mr10180085ad.20.1754338406316; Mon, 04 Aug 2025
+ 13:13:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+References: <20250801154637.143931-1-danieldurning.work@gmail.com>
+ <CAEjxPJ799AYzKGMJr5vmcP+b_ikPncy-vwaKZudRMRokwyuXMQ@mail.gmail.com>
+ <CAEjxPJ7d=LJ=Rxyiy6TpjEETVhkAkKxJci0Hog1v+55V8jvpdw@mail.gmail.com>
+ <1986fe81af8.28a7.85c95baa4474aabc7814e68940a78392@paul-moore.com> <CAEjxPJ6wM2Jv6J7Vdmk8H4GYXGgoeQFqZfRK3EZkv=9MgOdAXQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6wM2Jv6J7Vdmk8H4GYXGgoeQFqZfRK3EZkv=9MgOdAXQ@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 4 Aug 2025 16:13:14 -0400
+X-Gm-Features: Ac12FXwkYMg8emeau8xYYFcXliB8qOc1Yqs26pSQD1BK5n3WbxIT9HYfQ1CZzOY
+Message-ID: <CAHC9VhSmgVM07r=ogDq69gxhVUSMvTh73h6db1dcYiX8XuTdBg@mail.gmail.com>
+Subject: Re: [PATCH] selinux: implement bpf_token_cmd and bpf_token_capable hooks
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, danieldurning.work@gmail.com, 
+	ericsu@linux.microsoft.com
+Cc: selinux@vger.kernel.org, omosnace@redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
-Added a deny rule to the mix, which also behaves as expected.
-To be honest, I gave up on more complex examples with deny rules, since
-they quickly become hard to understand (but at least never caused a
-compilation error for me).
+On Mon, Aug 4, 2025 at 8:18=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> Eric - note that Daniel also posted a patch for the selinux-testsuite
+> to exercise these hooks and checks based on the Linux kernel self-test
+> for bpf tokens, see
+> https://lore.kernel.org/selinux/CAEjxPJ7DBDnZEFvgpe58K4B+4kZdOqUGMHvGC2vK=
+t-4Zget=3DHg@mail.gmail.com/T/#t
 
-Please let me know if there is a use case you'd like to see tested.
+FWIW, I believe Eric has some basic tests too, although I will admit
+to losing track of that aspect, as we have had several months of
+setbacks lately due to package building, email, etc.
 
- secilc/test/attribute_assignment_test.cil | 79 +++++++++++++++++++++++
- 1 file changed, 79 insertions(+)
- create mode 100644 secilc/test/attribute_assignment_test.cil
+> Paul - it would be good to avoid such duplication of effort in the
+> future, maybe we should be tracking such things in the GitHub project?
 
-diff --git a/secilc/test/attribute_assignment_test.cil b/secilc/test/attribute_assignment_test.cil
-new file mode 100644
-index 00000000..dde3be5e
---- /dev/null
-+++ b/secilc/test/attribute_assignment_test.cil
-@@ -0,0 +1,79 @@
-+(typeattribute a)
-+(typeattribute b)
-+(typeattribute c)
-+(typeattribute d)
-+(typeattribute e)
-+(typeattribute f)
-+(typeattribute g)
-+
-+(type ta)
-+(type tb)
-+(type tc)
-+(type td)
-+(type te)
-+(type tf)
-+(type tg)
-+
-+(role rr)
-+
-+; Basic attribute assignment
-+(typeattributeset a b)
-+
-+; Assignment with types
-+(typeattributeset b (ta tb))
-+(typeattributeset a b)
-+; Expected: a includes both ta and tb as members via b
-+; seinfo -xa a
-+
-+; Chained attribute assignment
-+(typeattributeset a b)
-+(typeattributeset c tc)
-+(typeattributeset b c)
-+; Expected: a includes tc via b and c
-+; seinfo -xa a
-+
-+; roletype assignment via chained attributes (tc -> c -> b -> a)
-+(typeattributeset a b)
-+(typeattributeset c tc)
-+(typeattributeset b c)
-+(roletype rr c)
-+; Expected: tc is assigned to role rr
-+; seinfo -xr rr
-+
-+; Multiple attributes/types assigned 
-+(typeattributeset d td)
-+(typeattributeset e td)
-+(typeattributeset f (te tf))
-+(typeattributeset g (d e f tc))
-+; Expected: g includes tc, td via both b and c, and te and tf via f
-+; seinfo -xa g
-+
-+; Cyclic assignment
-+(typeattributeset a b)
-+(typeattributeset b c)
-+; (typeattributeset c a)
-+; Expected: ^^^ Should exit with error
-+; Self-reference found for a at <test file>:38
-+
-+; Allow each attribute some access so that they don't get optimized out
-+(allow a a (dir (getattr)))
-+(allow b b (dir (open)))
-+(allow c c (dir (search)))
-+(allow d d (dir (search)))
-+(allow e e (dir (search)))
-+(allow f f (dir (open)))
-+(allow g g (dir (getattr search open)))
-+; Expected: ta is assigned to "a" and "b", while tc is assigned to "a", "b", "c" and "g" and so are assigned permissions accordingly
-+; sesearch -A -s ta
-+; sesearch -A -s tc
-+
-+; Deny rule
-+(deny f g (dir (open)))
-+(typeattributeset g tg)
-+; Expected: tg (assigned to g) is allowed "getattr", "search" and "open" access to g,
-+; while tf (assigned to both g and f) is only allowed "getattr" and "search"
-+; sesearch -A -s tf
-+; sesearch -A -s tg
-+; ^^^ the "open" access is assigned via a new attribute deny_rule_attr_XXXX,
-+; which is assigned types in "g", but not in "f" -- tc, td and tg
-+; seinfo -xa deny_rule_attr_XXXX
-\ No newline at end of file
--- 
-2.49.0
+Yes, it's unfortunate when we see duplicated work, but thankfully it
+happens very rarely in our case.  We can track things on GitHub, but
+with development happening largely on the mailing list I'm skeptical
+about how successful that will end up being.  Our GH related efforts
+have been very mixed thus far.  Another option might simply be to tell
+people to announce a development effort on the mailing list, although
+I can see that having problems too.
 
+If there are some positives, it may be that both Daniel and Eric's
+work are still in the early stages, so there is likely room for the
+two of them to cooperate together on a solution.  Daniel, Eric, what
+do you think about that?
+
+--=20
+paul-moore.com
