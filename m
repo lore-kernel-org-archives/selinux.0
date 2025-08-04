@@ -1,107 +1,88 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 916DE8F58
-	for <selinux@vger.kernel.org>; Mon,  4 Aug 2025 14:52:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48157165F13
+	for <selinux@vger.kernel.org>; Mon,  4 Aug 2025 16:34:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754319139; cv=none; b=WAlsCQx6S2lv3cAnQpbX2AKMQRWrCAbWnnT4fFI0t+8Fc29h1hN1Y7UJAiN7ud3IfE/XP3PPTUirnEgSnypYS7bivXQpYVnqKdNRWJG134te4M1Hyoc7uQG6x/IiqMZgCoY7sOr+ikIfSKshOnZ3rlwVX+tUW600ktuzZfRQ6/4=
+	t=1754325266; cv=none; b=iN6+ZPIdvIADdY8t0Bmnljam2mF3WE0El5G3j8VxEp311HvYUhqNXTmsdA4oyE21PSVrjSt8iygLkcSgeGQXfJup5kmot1QAF2vqgstUXrsMjMi/hEwyLrcSRQJFI67Dx2DPXDFIYrvaqqCqM8OD/jYCkE96YRwdPndXk7PmGcs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754319139; c=relaxed/simple;
-	bh=54eMTJDPCG5pT/DVfqU2p9AITjgBWZhHNlPkno33bNk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QsmaMZiWavwu3V3eFogS3IgG1+/zGeVVIJGP71ZGrhrf+zRBMxW2mFqP0nQM7E6ylxDVxAZFqxOT7VSTec/simkmBSsO7FYCF1ZNzCb2r5IgNcaIO7y/NeNWbauntaJc/R/zC08F324xedn0N0D2ee9xDxcPI0sSxiiAhHr8xn4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=UzHYX504; arc=none smtp.client-ip=209.85.216.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1754325266; c=relaxed/simple;
+	bh=lCYVwcr0GSszPQqL1o0v2dp0nKEFL1bkliIT/LTGdFc=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=qqpnonSikfcM+JKTKkIKQ2YHwKje7Vr20FgzQ6w6LVoag8eEUw++Xf4YtLb78GJ2LtHDi+jPeObu1jewf6KGNxd2LAkXq/8BbTKUdp43QfVzpb3RkSIlSEybSUwQnCSESb5yOYfNlSeKWKXdeGhswbUY9Vw1BX/9FTpVsgjD6gY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eQ2Qxvet; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="UzHYX504"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-3190fbe8536so2919274a91.3
-        for <selinux@vger.kernel.org>; Mon, 04 Aug 2025 07:52:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1754319135; x=1754923935; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=y2XOyCZQ4BA+qFc9hYWA3x68LbHIUoRZhcHyoxazfKM=;
-        b=UzHYX504GVrp3oXBv8yQwG8+RL/kgC7xp8AcQCWMySyPi2ObKrV6UZ6lGNMIl47vNe
-         SEnSYJTglJWcJs01HAddLBSWggLz5jJY8PILPUZiDJTbifcUKbD7quatFhxQ8HcdmetF
-         Dl1yM6rQYf87y2temfR06R7yTC3v64Ls/zaNs/RD6axuM71V41qJtN1kklqqb03l9RBi
-         Sn42E9eNLpHfwONoW+ArWJd9yu4Vhw/W68KqDbpt9STqE9pgoAJwZ/SOTxEgufm0HJn4
-         Fu6mFKUxNhDnDJ5W+Haa6XqJQtuR7lPx56IqjJ/umFHLRdN3KTQHNOMvr2+FN7eyr36E
-         Hk+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754319135; x=1754923935;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=y2XOyCZQ4BA+qFc9hYWA3x68LbHIUoRZhcHyoxazfKM=;
-        b=Iu0Xw6PsSBsLlU7LKfti0UVZMSF/fJAYEwodPRD7AiEophX7Y2sFmuH/H7DzcpM4YJ
-         5S7i8TgcnhcVy9o2lNvtNJ20/3xXbftSRrOVonYLWOXyNnJ/ioGuSrzOWA0tjXxpeBn+
-         3caHPGTiEEFm7Z10VTkO0zgjM1zdGm82PhRkt4dK9Vw0Ves+6N0JIiQW4uOttCX7P/ii
-         PZCcl3e7zQUk6D610vGveRHa/rOvlQZRskWxWjtASZyNLcdUPTUk5MDaFJRP9XPpsJzy
-         1rf4x8bqdWG+Avnzpm6CfmncuxRrkC3CL2tYtQ4WQxQ5TbLZYp+I5lKXTvLy3jbd6tFX
-         RkqA==
-X-Gm-Message-State: AOJu0Yzw9KMGarqzm4ONVP2fVrg/Ir28krcHMnlG7qMBUOwjtKgbPSuM
-	8csPElkX4AfJg9w3G4obTNXkSRw5uJRKRCZ2DbnRiukN7iTxAWlo1IByyD/E1h93FNwIxrcgbh5
-	fydmuyDiRR8MV5R1GfPxTE9+UVytQcZ2tefRf+MbFHHBsFSWsFF0=
-X-Gm-Gg: ASbGncsp6BPK8Hs539ReHOW44o6cKBVUk1ggj0a6HXDRop1mfhvq7tte9Y6xq3C6TEU
-	3C95ob8Dw13olRGBMfwSF24PdkByyDsZzO5ghAJ89qY6MceOxvi22oy/SvJ4DZ71qtQkWVvZK1B
-	UeX1oiLwbYu9zaz3hLn7s2C5lNFE1Z/5uAcNJJONLKJdypqc4IdVdu0xAQgAzZA/yftWB+BGaQJ
-	T3KKCc=
-X-Google-Smtp-Source: AGHT+IEI/SgClQfYpb9QIFqX59rfZhX0MjtLy3n9Q1nHeBrK3TqvYCBgl0mKCgs3nCxk/wQJJxFZbEnHRb8aA7PGfrk=
-X-Received: by 2002:a17:90b:3509:b0:321:2407:3ced with SMTP id
- 98e67ed59e1d1-32124073dedmr8644070a91.28.1754319135413; Mon, 04 Aug 2025
- 07:52:15 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eQ2Qxvet"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1754325263;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=f8o4DudD8XmgPsu+4yR+R7vwaS7YkOb3ssqHtIPpcME=;
+	b=eQ2QxvetCpyqz9iTbok7uaPgnC+H6QJUhaY9/Y141uMgpZgszFrP7+2AtV/+TxGoyP6l8W
+	CvoW6AVgLuo3zaFdX02Sqy2Ji6tLucWD2z98Tu7Xln8XnO0t305+sVz8OZz2B0W+Iy2h08
+	e0sN/gMpl4fa5oew1jz6HMueg0TozDo=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-622-bfpVle_ON62GafQb-4P_5Q-1; Mon,
+ 04 Aug 2025 12:34:19 -0400
+X-MC-Unique: bfpVle_ON62GafQb-4P_5Q-1
+X-Mimecast-MFC-AGG-ID: bfpVle_ON62GafQb-4P_5Q_1754325258
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id EBAED19560BD;
+	Mon,  4 Aug 2025 16:34:17 +0000 (UTC)
+Received: from localhost (unknown [10.44.33.56])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6D4471800EED;
+	Mon,  4 Aug 2025 16:34:17 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley
+ <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, jwcart2@gmail.com
+Subject: Re: [PATCH userspace] SECURITY.md: add my email address and GPG key
+ fingerprint
+In-Reply-To: <CAHC9VhSUbZrbV06hzzu5kNwrgojjYVYaUL_Yto+stWD1C=XZ5A@mail.gmail.com>
+References: <20250723182550.1065144-2-stephen.smalley.work@gmail.com>
+ <CAHC9VhSUbZrbV06hzzu5kNwrgojjYVYaUL_Yto+stWD1C=XZ5A@mail.gmail.com>
+Date: Mon, 04 Aug 2025 18:34:15 +0200
+Message-ID: <87o6sv11x4.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250723182550.1065144-2-stephen.smalley.work@gmail.com>
- <CAHC9VhSUbZrbV06hzzu5kNwrgojjYVYaUL_Yto+stWD1C=XZ5A@mail.gmail.com> <CAEjxPJ7SAJKdZDqdP4jj5i7wjNhJDjV0+8LyC3TQPVWNV4ZmQQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7SAJKdZDqdP4jj5i7wjNhJDjV0+8LyC3TQPVWNV4ZmQQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 4 Aug 2025 10:52:03 -0400
-X-Gm-Features: Ac12FXyi9qd5uG1903pqrRDEquTFP7-sUYFtthiRM5Eq3FcGWMi6otfqzx-idtw
-Message-ID: <CAHC9VhQ_ePH2ZmX9nNGs6BDHuwV8_efHC2xoCFfm0XdiGQc8CQ@mail.gmail.com>
-Subject: Re: [PATCH userspace] SECURITY.md: add my email address and GPG key fingerprint
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, jwcart2@gmail.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-On Mon, Aug 4, 2025 at 8:48=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Jul 23, 2025 at 10:14=E2=80=AFPM Paul Moore <paul@paul-moore.com>=
- wrote:
-> > On Wed, Jul 23, 2025 at 2:27=E2=80=AFPM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > This key can be downloaded from https://github.com/stephensmalley.gpg
-> > > or
-> > > https://keyserver.ubuntu.com/pks/lookup?op=3Dget&search=3D0x578c42118=
-32f0a7ea2c5a7c221a46e603f744ecf
-> > >
-> > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > > ---
-> > >  SECURITY.md | 2 ++
-> > >  1 file changed, 2 insertions(+)
-> >
-> > I have verified that the GPG key identified by the fingerprint in the
-> > patch belongs to Stephen.
-> >
-> > Acked-by: Paul Moore <paul@paul-moore.com>
+Paul Moore <paul@paul-moore.com> writes:
+
+> On Wed, Jul 23, 2025 at 2:27=E2=80=AFPM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+>>
+>> This key can be downloaded from https://github.com/stephensmalley.gpg
+>> or
+>> https://keyserver.ubuntu.com/pks/lookup?op=3Dget&search=3D0x578c4211832f=
+0a7ea2c5a7c221a46e603f744ecf
+>>
+>> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>> ---
+>>  SECURITY.md | 2 ++
+>>  1 file changed, 2 insertions(+)
 >
-> Gentle nudge on this patch, since several others have verified and
-> signed my key, and I have uploaded the updated signed key to the
-> public key servers and to github.com/stephensmalley.gpg.
+> I have verified that the GPG key identified by the fingerprint in the
+> patch belongs to Stephen.
+>
+> Acked-by: Paul Moore <paul@paul-moore.com>
+>
 
-Considering the nature of this patch, and the fact that there are
-others who can verify Stephen's GPG fingerprint, I think it would be a
-very good thing if a few more people who can verify the fingerprint
-can ACK this patch.
+Acked-by: Petr Lautrbach <lautrbach@redhat.com>
 
---=20
-paul-moore.com
