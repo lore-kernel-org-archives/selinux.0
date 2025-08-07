@@ -1,161 +1,201 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0EAC3610D
-	for <selinux@vger.kernel.org>; Thu,  7 Aug 2025 06:07:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
+Received: from mail-pf1-f201.google.com (mail-pf1-f201.google.com [209.85.210.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D874241686
+	for <selinux@vger.kernel.org>; Thu,  7 Aug 2025 07:57:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754546877; cv=none; b=F1FDj2gN8oqdAXIyx4Uc7smJoLULHgAXfSdaUdwLk5YjM2Ctf+Grq+kDmbsieUlBU/bo5dzO86ETl9RjNczPIbir+ovAmll3cediBr3+SunK8vQP+7T2eQc7pl7wCub/sLW5lIncAc7KI1L0iFjsM3948kgH/DSooBJLqgLbf50=
+	t=1754553460; cv=none; b=R19tB3RJfoU6kbnQHUcO6jg0BUaIsrQSWQbTXFQmqJC7L5Zg7zX/Z29SgGbpPhc/Uc+CNEnKXY06fOTX9Yxj6RNYLuSAmbKrPXf1TAvPjA5JCE/sMFI+zlQFGkgjTXgaocTKO+oPSYQ8krWpt5F1UEasqPnjZJaKqXnl34l94PE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754546877; c=relaxed/simple;
-	bh=bwZi8MaeF4Hw4C+CkfAI0K70KAl5Uxvlxj3suZMNv88=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=nlDTkGYwYh6Y7UT7My6+ZVhQAQiIHw9BzO7bhOKDDqjuiL0M8mvMEyZhzrKrbqqm1cH7roFiKiKPn4x2ttWSvLB1pUbqXXThr5iNkU6rFeIcYuuz5WmBxfeIiNtQ/kMgONivGEAcZTlh/Rx2NUa0OWBeh3d1Mudt1N1QF9Kpgrk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=ON+NPbOk; arc=none smtp.client-ip=117.135.210.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1754553460; c=relaxed/simple;
+	bh=qfxUK/7tbAm4+fSRT0kOqzlxvDzJPvrpN7Ck+0QWw/A=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=nyqmJ4RwVOB+o1Pje68PRQ86Wdwv/KbXZkxpYNg3FKKiuo28ssfRbVQE8RiJJZ/0BJEZmwTs7ZIeHwaShNQW9650Kq9mrmbTS4fmNhMoio0DI1XF/mwktLYUjZOpM40kkzST0TdSivtHRkiDzgvrdA/2gROHDxxExgKH9MnQcfY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=VI7UsoNs; arc=none smtp.client-ip=209.85.210.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="ON+NPbOk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
-	Content-Type; bh=QAHX9XKCI8/QuUc1Kq5ajxvEpdhaY/X6pQypKla7Gak=;
-	b=ON+NPbOkQDwLkNvNQggNCOTxMCMWigWw2mSqpWpw3VrFZ1sfOe98ZftkSGjUVj
-	qGxxPNXLxgpb0Gu2uiVlIMNzFK2JzL3QCUAyhmrnszKvJ91av1peeuWO6+nVIlBT
-	yXxrCU1oKpXQ21hdh4jmnXKlQuzzcs6HxtEsHOdHpy9U8=
-Received: from [192.168.3.49] (unknown [])
-	by gzga-smtp-mtada-g1-3 (Coremail) with SMTP id _____wDnN9GvQpRo9OAoAQ--.35494S2;
-	Thu, 07 Aug 2025 14:07:44 +0800 (CST)
-Message-ID: <205d64c9-98c6-4ab7-a74a-5de5f797105f@163.com>
-Date: Thu, 7 Aug 2025 14:07:50 +0800
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="VI7UsoNs"
+Received: by mail-pf1-f201.google.com with SMTP id d2e1a72fcca58-75ab147e0a3so1534006b3a.3
+        for <selinux@vger.kernel.org>; Thu, 07 Aug 2025 00:57:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1754553458; x=1755158258; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=bVn3pXWrE8ptkNx3q5SpDyS1PDtyVrfoh2hP9Ksy/jA=;
+        b=VI7UsoNsmSbvVLQYrqZ7KoRVFj97BSuRN0I2w0Tabs+ms+/S5z5dF54ge4J8cy3BlV
+         Q5bKRQhDkkuFH4LXPizlzbSgXfDd68wcT1JjRsJNNkrl2ZNPC8dn4x12xPbmMZQlerLd
+         vMHO/Q4d9ykjrStMn4HkAg9x1yKQ9Nte0g63aitOz5fzCn8xsdYAb3KGJrHiQKFOJ6dR
+         ZqVQe2nPEz8h7PIIehdxtU7ZtD4X1B4Y3D8cufzcUgTMh6aX7yuorNROFhn8kbDcM7Pr
+         vSVW8jW7+uycbXja+rLO3aOIE9XWbL9/9pZpVug9/a5e+jo1xKRbD5XOSyIZPd9utd5C
+         qzvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754553458; x=1755158258;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bVn3pXWrE8ptkNx3q5SpDyS1PDtyVrfoh2hP9Ksy/jA=;
+        b=KxrBeB2U6afQbJImr3RMS/+r0wsbF/YHQsEUfAwHAJ01tBKLxspyDG7LnUpQ0CRRhC
+         lI8hfGIphPlD3Gck1Ds5EhVQujdTGdsGLWekVikMtDQxoQlQ+w1p3PDaiq82ub7uciCl
+         OQ5wXGysufbwhD7cq1stzjSORVTQw9+mELg2yEmvuG/quGh91sDtPf3ObHyNHrGPCA25
+         zdaz0Cy+Iw8Ooc8vVrNFKIEfE7ApskogVGjJMBH4fYq8LP7pLlcvOsOfmRxNdsYQiYdY
+         bwPc6kRweS5+5erRDXrydGifGqodwHheXQYPIfRtk+YWc8g3rYj+QL1+YHJuvHOaxfd2
+         28xg==
+X-Forwarded-Encrypted: i=1; AJvYcCU8WfEyfzQC+NMboTN3wB1TASuw5Fr1u3STHiK3mj15PiWL/0Md2nJ6M4/3KRu/wu1+j6+X1prW@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz1lQzW3UEUYGqz+P6rjq+HxPx8kdmNTqjVEQk46/Qsbc7t4gXu
+	OtoG44V/lRZexGcoVAnRSXJTTiNYubmMzY0Dt4BesZqxWbeDmNFl8mE78GwPaZDZYdnWYV3mQnj
+	eXg==
+X-Google-Smtp-Source: AGHT+IF2BSxC7vgD0XYWFDXuPwuLdGaPbk25UgUn3Ax0OeCunYBG+ypLlIzyUoGX5ubXzQtF7kNtY9S3RA==
+X-Received: from pgbcu5.prod.google.com ([2002:a05:6a02:2185:b0:b42:8b90:cffa])
+ (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a20:1611:b0:1f5:72eb:8b62
+ with SMTP id adf61e73a8af0-240312c56d8mr9197770637.20.1754553457811; Thu, 07
+ Aug 2025 00:57:37 -0700 (PDT)
+Date: Thu,  7 Aug 2025 17:56:46 +1000
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] libsemanage: get_home_dirs: cleanup parsing of values
- from conf files
-To: Stephen Smalley <stephen.smalley.work@gmail.com>,
- Rahul Sandhu <nvraxn@gmail.com>
-Cc: selinux@vger.kernel.org
-References: <20250730181503.991208-2-nvraxn@gmail.com>
- <CAEjxPJ4UKshtRGPyEKwkfTS-D5uc9thFNovC2_--kdV-Y3gDbg@mail.gmail.com>
-From: Fei Shao <robinshao007@163.com>
-In-Reply-To: <CAEjxPJ4UKshtRGPyEKwkfTS-D5uc9thFNovC2_--kdV-Y3gDbg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDnN9GvQpRo9OAoAQ--.35494S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxZFyrZrW8CF4rJw45Gr13XFb_yoWrGF18pr
-	Z5WF15GFW7XFySvrsIva1DXa4rXwn2gr1UKwn7ta48trWDAFn3Wr43Cw4IkFyakF12g3W2
-	y3yFqrnxuw1qvaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0zRFD7fUUUUU=
-X-CM-SenderInfo: purex0pvkd0iiqx6il2tof0z/1tbiOh+iC2iUQpUDlgAAsy
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.50.1.703.g449372360f-goog
+Message-ID: <20250807075647.755848-1-tweek@google.com>
+Subject: [RFC PATCH 1/2] lsm: add type to security_inode_init_security_anon
+From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
+To: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, Hugh Dickins <hughd@google.com>, 
+	Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, Jeff Xu <jeffxu@google.com>
+Cc: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>, linux-kernel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+Introduce a new enum (lsm_anon_inode_id) to identify the type of
+anonymous inode being created. This enum is passed down to the
+security_inode_init_security_anon LSM hook.
 
+Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+---
+ fs/anon_inodes.c              | 5 +++--
+ include/linux/lsm_hook_defs.h | 3 ++-
+ include/linux/security.h      | 8 ++++++++
+ security/security.c           | 4 +++-
+ security/selinux/hooks.c      | 1 +
+ 5 files changed, 17 insertions(+), 4 deletions(-)
 
-on  2025-08-02 1:46, Stephen Smalley wrote:
-> On Wed, Jul 30, 2025 at 2:15 PM Rahul Sandhu <nvraxn@gmail.com> wrote:
->> atoi (3) is... bugprone.  It's virtually impossible to differentiate an
->> invalid value (e.g. the string "foo") from a valid value such as "0" as
->> 0 is returned on error!  From the manual page:
->>
->>>        except that atoi() does not detect errors.
->>> RETURN VALUE
->>>        The converted value or 0 on error.
->> In the case of get_home_dirs, atoi is downright wrong.  We are parsing
->> UID_MIN, UID_MAX, and LU_UIDNUMBER, which all have a numerical value,
->> without any validation that what we are parsing is actually a number.
->> This is especially problematic as that means that in the case of an
->> invalid value (e.g. UID_MIN=foo), UID_MIN is incorrectly parsed as 0.
->>
->> Instead, use strtoul (3) to parse these values.  If parsing fails, such
->> as in the case where UID_MIN=foo, warn that parsing failed, and use the
->> default values for each key as specified by the manual page.
->>
->> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
->> ---
->>   libsemanage/src/genhomedircon.c | 41 ++++++++++++++++++++++++++++-----
->>   1 file changed, 35 insertions(+), 6 deletions(-)
->>
->> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
->> index 8782e2cb..a7b44d8d 100644
->> --- a/libsemanage/src/genhomedircon.c
->> +++ b/libsemanage/src/genhomedircon.c
->> @@ -354,24 +354,53 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
->>
->>          path = semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MIN", NULL);
->>          if (path && *path) {
->> -               temp = atoi(path);
->> -               minuid = temp;
->> -               minuid_set = 1;
->> +               char *endptr;
->> +               const unsigned long val = strtoul(path, &endptr, 0);
->> +               if (endptr != path && *endptr == '\0') {
->> +                       minuid = (uid_t)val;
->> +                       minuid_set = 1;
->> +               } else {
->> +                       /* we were provided an invalid value, use defaults.  */
->> +                       WARN(s->h_semanage,
->> +                            "Conversion failed for key UID_MIN, is its value a number?"
->> +                            "  Falling back to default value of `1000`.");
->> +                       minuid = 1000;
-> Here and below, it would be nice if we could use a #define, either a
-> pre-existing one or one of our own, and avoid manual duplication of
-> the value/string.
-At top of get_home_dirs, the minuid is set to 500 default, Should the 
-value be reset to 500 by default here?
->> +                       minuid_set = 1;
-In both the if and else branches,|minuid_set|is set to 1 — could this be 
-moved outside the conditional blocks and implemented with just a single 
-line of code?
->> +               }
->>          }
->>          free(path);
->>          path = NULL;
->>
->>          path = semanage_findval(PATH_ETC_LOGIN_DEFS, "UID_MAX", NULL);
->>          if (path && *path) {
->> -               temp = atoi(path);
->> -               maxuid = temp;
->> +               char *endptr;
->> +               const unsigned long val = strtoul(path, &endptr, 0);
->> +               if (endptr != path && *endptr == '\0') {
->> +                       maxuid = (uid_t)val;
->> +               } else {
->> +                       /* we were provided an invalid value, use defaults.  */
->> +                       WARN(s->h_semanage,
->> +                            "Conversion failed for key UID_MAX, is its value a number?"
->> +                            "  Falling back to default value of `6000`.");
-6000 or 60000?
-> Note the inconsistency here, which would be avoided by the approach
-> suggested above.
->
->> +                       maxuid = 60000;
->> +               }
->>          }
->>          free(path);
->>          path = NULL;
->>
->>          path = semanage_findval(PATH_ETC_LIBUSER, "LU_UIDNUMBER", "=");
->>          if (path && *path) {
->> -               temp = atoi(path);
->> +               char *endptr;
->> +               const unsigned long val = strtoul(path, &endptr, 0);
->> +               if (endptr != path && *endptr == '\0') {
->> +                       temp = (uid_t)val;
->> +               } else {
->> +                       /* we were provided an invalid value, use defaults.  */
->> +                       WARN(s->h_semanage,
->> +                            "Conversion failed for key LU_UIDNUMBER, is its value a number?"
->> +                            "  Falling back to default value of `500`.");
->> +                       temp = 500;
-> Ditto.
->
->> +               }
->>                  if (!minuid_set || temp < minuid) {
->>                          minuid = temp;
->>                          minuid_set = 1;
->> --
->> 2.50.1
->>
->>
+diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+index 1d847a939f29..9a2f09808f86 100644
+--- a/fs/anon_inodes.c
++++ b/fs/anon_inodes.c
+@@ -21,6 +21,7 @@
+ #include <linux/magic.h>
+ #include <linux/anon_inodes.h>
+ #include <linux/pseudo_fs.h>
++#include <linux/security.h>
+=20
+ #include <linux/uaccess.h>
+=20
+@@ -121,8 +122,8 @@ struct inode *anon_inode_make_secure_inode(struct super=
+_block *sb, const char *n
+ 		return inode;
+ 	inode->i_flags &=3D ~S_PRIVATE;
+ 	inode->i_op =3D &anon_inode_operations;
+-	error =3D	security_inode_init_security_anon(inode, &QSTR(name),
+-						  context_inode);
++	error =3D security_inode_init_security_anon(inode, LSM_ANON_INODE_GENERIC=
+,
++						  &QSTR(name), context_inode);
+ 	if (error) {
+ 		iput(inode);
+ 		return ERR_PTR(error);
+diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.h
+index fd11fffdd3c3..1634f41f7a3c 100644
+--- a/include/linux/lsm_hook_defs.h
++++ b/include/linux/lsm_hook_defs.h
+@@ -119,7 +119,8 @@ LSM_HOOK(int, -EOPNOTSUPP, inode_init_security, struct =
+inode *inode,
+ 	 struct inode *dir, const struct qstr *qstr, struct xattr *xattrs,
+ 	 int *xattr_count)
+ LSM_HOOK(int, 0, inode_init_security_anon, struct inode *inode,
+-	 const struct qstr *name, const struct inode *context_inode)
++	 enum lsm_anon_inode_id type, const struct qstr *name,
++	 const struct inode *context_inode)
+ LSM_HOOK(int, 0, inode_create, struct inode *dir, struct dentry *dentry,
+ 	 umode_t mode)
+ LSM_HOOK(void, LSM_RET_VOID, inode_post_create_tmpfile, struct mnt_idmap *=
+idmap,
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 521bcb5b9717..98a97b8a1093 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -263,6 +263,12 @@ struct request_sock;
+ #define LSM_UNSAFE_PTRACE	2
+ #define LSM_UNSAFE_NO_NEW_PRIVS	4
+=20
++/* anon_inode types */
++enum lsm_anon_inode_id {
++	LSM_ANON_INODE_GENERIC,
++	LSM_ANON_INODE_MEMFD
++};
++
+ #ifdef CONFIG_MMU
+ extern int mmap_min_addr_handler(const struct ctl_table *table, int write,
+ 				 void *buffer, size_t *lenp, loff_t *ppos);
+@@ -402,6 +408,7 @@ int security_inode_init_security(struct inode *inode, s=
+truct inode *dir,
+ 				 const struct qstr *qstr,
+ 				 initxattrs initxattrs, void *fs_data);
+ int security_inode_init_security_anon(struct inode *inode,
++				      enum lsm_anon_inode_id type,
+ 				      const struct qstr *name,
+ 				      const struct inode *context_inode);
+ int security_inode_create(struct inode *dir, struct dentry *dentry, umode_=
+t mode);
+@@ -889,6 +896,7 @@ static inline int security_inode_init_security(struct i=
+node *inode,
+ }
+=20
+ static inline int security_inode_init_security_anon(struct inode *inode,
++						    enum lsm_anon_inode_id type,
+ 						    const struct qstr *name,
+ 						    const struct inode *context_inode)
+ {
+diff --git a/security/security.c b/security/security.c
+index ad163f06bf7a..09aa858819a2 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1861,6 +1861,7 @@ EXPORT_SYMBOL(security_inode_init_security);
+ /**
+  * security_inode_init_security_anon() - Initialize an anonymous inode
+  * @inode: the inode
++ * @type: the type of anonymous inode
+  * @name: the anonymous inode class
+  * @context_inode: an optional related inode
+  *
+@@ -1871,10 +1872,11 @@ EXPORT_SYMBOL(security_inode_init_security);
+  * creation of this inode, or another -errno upon other errors.
+  */
+ int security_inode_init_security_anon(struct inode *inode,
++				      enum lsm_anon_inode_id type,
+ 				      const struct qstr *name,
+ 				      const struct inode *context_inode)
+ {
+-	return call_int_hook(inode_init_security_anon, inode, name,
++	return call_int_hook(inode_init_security_anon, inode, type, name,
+ 			     context_inode);
+ }
+=20
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index c95a5874bf7d..8d36d5ebb6e5 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2967,6 +2967,7 @@ static int selinux_inode_init_security(struct inode *=
+inode, struct inode *dir,
+ }
+=20
+ static int selinux_inode_init_security_anon(struct inode *inode,
++					    enum lsm_anon_inode_id type,
+ 					    const struct qstr *name,
+ 					    const struct inode *context_inode)
+ {
+--=20
+2.50.1.703.g449372360f-goog
 
