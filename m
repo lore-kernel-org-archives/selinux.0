@@ -1,451 +1,209 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from TYDPR03CU002.outbound.protection.outlook.com (mail-japaneastazon11013037.outbound.protection.outlook.com [52.101.127.37])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E812F26281
-	for <selinux@vger.kernel.org>; Thu,  7 Aug 2025 13:46:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754574410; cv=none; b=CQd7Ae4tz3wmg8Jfr2f4qr84e45apVBxYcU4RxYslIAO7/kVHjmRjhzr85ZH1tOu2FfCb1kP6VcqiqUluSacQHXpINlXkmpj6iGmOz1mGN3f0z5Aq+B54TfAj8IxsXJZ3jADCGfiGWuO3WE26mi5vfAXVHSeBbmuThlSLVqDvRI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754574410; c=relaxed/simple;
-	bh=XgQIMKXZypefAPws8BgnEPhFcW+uQDfhigmekBIqr+0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ISQpa4HCYa2v/FYFiL01Y2Oq3p7RBuELGaUFcvDiAOJagAGMoCEpAEj2/HcRh4IyUTBh1mIhGbfSuUxuHBEbJ85P248lL7b2WLXvmquK94SHivcKxT8PU2HHeBlkt7UoDrJL5W5H9LriUWrDeyCf9itym5sIulwfBUWpQXUhWAE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HQvR9ooN; arc=none smtp.client-ip=209.85.210.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EF9819DF4D;
+	Thu,  7 Aug 2025 14:06:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.127.37
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1754575579; cv=fail; b=DT+n86kwEdrxMIj7etZO2s0nIupqHCucxdW+NTOz6lgjD7a/GD/vVtosXY8is7EFUip9MIqr29GTpnxGZNZBx+XVjt6V62f3OkPtVpIM7HTSPSaVHDBcugEba85pK9Si9Agj4HMlttD+lC8YdBG29Fmu/WQFFGCLlTVQ4w1wacY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1754575579; c=relaxed/simple;
+	bh=D6D4T/Z+20Oy5samUQBcuUyO282MaRhbptIx5WlitLQ=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=ZXzBke4kjsnq/LQ8F8oJq2b7HjFhVul2JzVWx1sCOC0VUCjCWcXQGUpUQOOlwOd/F95vY5geVIsg4sXRuwLhc4tPLIim/DCWodNwPWy8y/i3oH6wo7c9jvzY6ccdVWLm9qEe8FoB8o2YBej978FTw4+FFGJWwDSLrB16NBTRFEc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com; spf=pass smtp.mailfrom=vivo.com; dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b=OMfMyLcl; arc=fail smtp.client-ip=52.101.127.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vivo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HQvR9ooN"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-76bd9d723bfso914019b3a.1
-        for <selinux@vger.kernel.org>; Thu, 07 Aug 2025 06:46:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754574408; x=1755179208; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ofgsuSG9CM4UzSPbKaMZBz1USZaI6AQJqc3AUctwRs0=;
-        b=HQvR9ooN1cOD04C01mpRlxWE8ti6h25C4T/HIR83u6tH6RQyhkhc/RnkmDZThEasYM
-         g7salnz5VyVsBKNDeF/h3nJy7CDYM0WKrRAwRwrr25t1ts61pMj9KRahOYJvH7PCSH8p
-         YM8+VucTTXt8b9vy8Q7jKOI0pqPd6OE4CwffIdAdNbPYG9RoRX1pV4O4QbX8R8AS70mu
-         ojg9wX3Zv186AjAMQojJUziuzmZbreaGnqJGuWhxmAokSMy7tgV4CD022uYXtCRqgjlJ
-         Es5EoR6HQP5dRUnB7f2CekuMjI5uThQxqgusqOhhUah4jiwbFXaL5doCCjMvPFC+0izh
-         kIIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754574408; x=1755179208;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ofgsuSG9CM4UzSPbKaMZBz1USZaI6AQJqc3AUctwRs0=;
-        b=lxg9b0Mv+ssMLpJCs/75qZdtohb69GH38NLLSZX7AtcIzghgz6GcKKr10iJKqipIjx
-         aJkBjqCAyhcksOs3voKwUDbkud+eiSrZO/xD7zF0lFPi4LY+ehqvCvHZhxooRdy1kn07
-         JqegttLIqNz6WbCvdSQJKZpMC+Ca15umq7PtW7sOLuJObiTvga0UEDmJOS4WYFWcLoxo
-         yiU1tdYleOqnzpVK0pTnXZixRF9eaY5WZZ4K7TUqsMhZXy4Fx+Rvy/A67xwGLkNzYHyE
-         l5MePTWJ1/a3DnyDWoWrE6SfeATZHRWDPvqa5ljjuiFGqsXFcSWEMOhD90BKBGXEd8Tw
-         JiRQ==
-X-Gm-Message-State: AOJu0YyVjyK8j8d06XCUEVWWihyhYMc/pjmaRJVEZ3m2+Yzb98+w8pIF
-	zRKLr+V0RJF9ymdNcngsynmQL+TcaSShv05CwZCXEI6x6P94vo6bu90a+iyR0aO4f81fktKs2be
-	u1IeNwjlcuw7UP/DBBzq0xiLH0tEhcVQ=
-X-Gm-Gg: ASbGncvb+L84d3KCL4CjgmRNqeYebeaGiI7m4p1qb7WpPGkbongqlLPnIWlCxLi8N+X
-	qw2BahG8QIlT6403q/un/QauFKxAxNfHjlJHvG5VFcYEKr701kg0qWfQHAoj4Ne/yUhBp4IPboy
-	ADULohFp/YRidTLcby0WmWyVOpEGOo1hCoCJOQJysx2NU/nRTTgiAMIt6QnUulDPDTgiAmx4/vY
-	MzVyaE=
-X-Google-Smtp-Source: AGHT+IG2j6pmwPfuIrEDSPrIBLHk1SuCTJyw/hPPyzVaRCj6XJ5O9C7hT7nq1bYgfM8spQT4bzEidSc+Hz6KEV/msG0=
-X-Received: by 2002:a17:902:e5c3:b0:23f:ecc1:ed6f with SMTP id
- d9443c01a7336-2429f562ac1mr105349575ad.17.1754574407835; Thu, 07 Aug 2025
- 06:46:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b="OMfMyLcl"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=hovu1rPLYDvOPsxHZSi9AMUTBfZtzaIQhTw9+yb257DxFKl0Uv686MPzeghmoig90cZxBMVkPnoKIjFMYkLm5dHprJlgkwEkMVeWcVHGXajvGenDTq7QjCuEfOnW71PzBwoh0lSXYBO531r5sCxzKf2CL2J1UMwy/yMRrMDhnBXVDRaltVmT/OgO09LmMVkD4rdqoCXtVSDo8Y/YmQs8dwHeXVr7+qQk8EUdJXUIYXdP+b+CmMm3YUvzYoHunfCMq9xrERdUWfqZAQUJ3MSZge7yfMfcYrYMjjqxNAv71jvP41jH2ZZkvF3+J6S4L5JMo5Ah0DjJbTwFYVv5jj8CwQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=bdx/umFsXow8/zUITIZQibtW3yERtLxrQaDAorCQBHE=;
+ b=DZGPysi+t9JCbm7Fb6rgpj4OrD3CRsYEToMPMNIfVI+fEiBueIEI7gaMMa/63ZdtroKbvps1gdOfhPFayNwG2lNGtBVWf6f/D92Kd+61rjF3TUFcymPxKgnFeASYrJbksXd3knd8bXZDwOWQ7UUHc6Q1YvZo8XEL2magFNS5Hp9pCmvVqPqhDt/9qU90YsuZrB1LkhvMSWOixK6mH3y4+BN6T0yP2iQba+yZ20ue7Nt2GKK8Pr3oFL7d0cve2PaNJtwNpelFLAmKEaq2mkkSIjsEVhd5xfF9PB0Vp5bJfNM36HtF8iOQRb6W8UxkxbVv8OEte/K/uLHhGJYJbN91uQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
+ dkim=pass header.d=vivo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bdx/umFsXow8/zUITIZQibtW3yERtLxrQaDAorCQBHE=;
+ b=OMfMyLclZFzRdkRUq0390l+4vDJ6mb+ZwWc5cn315KsqbEosfiLqFSCzqPpAbfw8pGV5qRRSIFO84FsRQmLKVMkwVUh6a1LKcmnc5EbkE7VLjzN53zROtq+3pksmgKiNX4UFIZUwR7jjNBRD1cdGtQVLM409JVq2YFr7Y2NXlocQkETf34uGrMKzIi7R3M9uCoOzLT11Lu+/ZsxfwS6GaaDdaVCtSQTfGa/1Zvn1s3qN/l9tmUdM4s+/g7JZ4P7TKcpfIjKpB2H/HMHyJKslMUDMk7OXrrH0v8tYj8jtJZ7Nnf1YzkrAEqmfnekqQU//g4z4Z4Ow3eCzyguugjT3dw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=vivo.com;
+Received: from SI2PR06MB5140.apcprd06.prod.outlook.com (2603:1096:4:1af::9) by
+ TY1PPFECF6DCA7C.apcprd06.prod.outlook.com (2603:1096:408::92f) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.8943.29; Thu, 7 Aug 2025 14:06:12 +0000
+Received: from SI2PR06MB5140.apcprd06.prod.outlook.com
+ ([fe80::468a:88be:bec:666]) by SI2PR06MB5140.apcprd06.prod.outlook.com
+ ([fe80::468a:88be:bec:666%4]) with mapi id 15.20.9009.013; Thu, 7 Aug 2025
+ 14:06:12 +0000
+From: Qianfeng Rong <rongqianfeng@vivo.com>
+To: Paul Moore <paul@paul-moore.com>,
+	Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>,
+	selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Qianfeng Rong <rongqianfeng@vivo.com>
+Subject: [PATCH] selinux: Remove redundant __GFP_NOWARN
+Date: Thu,  7 Aug 2025 22:05:45 +0800
+Message-Id: <20250807140545.566615-1-rongqianfeng@vivo.com>
+X-Mailer: git-send-email 2.34.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: TYCP286CA0131.JPNP286.PROD.OUTLOOK.COM
+ (2603:1096:400:2b6::13) To SI2PR06MB5140.apcprd06.prod.outlook.com
+ (2603:1096:4:1af::9)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250806180149.1995-1-ericsu@linux.microsoft.com> <CAEjxPJ4MPBmjfr_e6x94XmDHUhZR+EJ0_Gqyjn8mbALL2HNKJw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4MPBmjfr_e6x94XmDHUhZR+EJ0_Gqyjn8mbALL2HNKJw@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 7 Aug 2025 09:46:36 -0400
-X-Gm-Features: Ac12FXx8AOKX9EWHNFuTUtrS_NHLDkOE_eYCU98gcLZGLq6bhV4LneETTLNUPvw
-Message-ID: <CAEjxPJ4Xk81Tc=o532SvqWeeig4wt-oOt8Np0DubUBbfFuVLnQ@mail.gmail.com>
-Subject: Re: [PATCH] SELinux: Add support for BPF token access control
-To: ericsu@linux.microsoft.com, danieldurning.work@gmail.com
-Cc: selinux@vger.kernel.org, paul@paul-moore.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SI2PR06MB5140:EE_|TY1PPFECF6DCA7C:EE_
+X-MS-Office365-Filtering-Correlation-Id: ce6d04cf-eb70-4812-2993-08ddd5bb9107
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|52116014|376014|1800799024|38350700014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?pPSZIbgI2pkEkTuuog7IL3CCqKkhR7EXtdfw4JC1l1kdwEG+6ogpDsNyPNqp?=
+ =?us-ascii?Q?vZ179tDki+wbPG3KzGM5l0xpyhAUNQmkCCJNMWOfwY76pN+EEyO+q8abrWz4?=
+ =?us-ascii?Q?e72z7AsQLfXslWO8ogGUiEgoodSb5aUYU454bwLAfW7f2u2y8JPAbkVAVK/H?=
+ =?us-ascii?Q?z6xm6ObsFQezMP2KC28MQYxJsLbjlurKiTtZw09nwyNzst46eY9ZEZ35ltoT?=
+ =?us-ascii?Q?EQJ/8WeZUJugcHBVJOZX4xgWXrL2YeYmdaQnsltOfGy9e9E/IK/dTKVPfi03?=
+ =?us-ascii?Q?3/b8YZ85w1aVvniaXAo2K+M4VJLG08/WbaSCLk3rwmiDV3Z7ys2G0AiXxTMW?=
+ =?us-ascii?Q?g8Iz9ICGvyXzp075m4NrjakF1xS1i1j0G1jwuGEcMe3REswlvRUa+lW+rH/9?=
+ =?us-ascii?Q?PSRuOjcmlT7CNock0fC/7093nN6rwloW4D6F9Rx3Gx912YFd+2jfltIHLtoy?=
+ =?us-ascii?Q?mqwhQav4+j1mofygQRORlcIGQ/oPxDCgcOQaXNradr0Ua1jbh+zQLKUcg6vX?=
+ =?us-ascii?Q?mSrLJLNe0yzNnJHFuoqZ9hyTb4lml+a8xrNQCeLoriRFNuoaXpm6MQr66KP7?=
+ =?us-ascii?Q?Laqmsxf5inl/NFNlmJMM2ww42c3QYwJ7xLK13bYFp0CWyYZL1EzfBcgGBobC?=
+ =?us-ascii?Q?d9ahq1LvKGbhN+F9Jh+wXaFfeHKY8O8Iao6TAVUn+YqBNyYblj+3XqCqmNbo?=
+ =?us-ascii?Q?z5LMDc4a/oPVElVDpx3i+HpG2Qm3LQcWjTKw2VPAVPNCKDOVs4PrjDw6sFDu?=
+ =?us-ascii?Q?zUXQFjwdUbCdPCz4rRQMi0oM7L7InxlhN9pDySn49pK4+zb8x8vc3QlFyxFu?=
+ =?us-ascii?Q?FHtyzYVn8TuJtPGvzl5PXbfvEOGOF5A+jMaLB56OP9pqffamQrnbdjYBNJhQ?=
+ =?us-ascii?Q?PhzkKdueWjbelMWa5+c5ss14+Iu21RjE1uHK2LeGpJKNlJxhW/9h5Y1PP6wf?=
+ =?us-ascii?Q?g4gKv5z1Lk2G4q8+Zq2i2GtIJLFFhT5QBYEy8XssNjsFX9YjLTza7XhatReX?=
+ =?us-ascii?Q?R3yoYxlvZzAwJBOopRkoZ4vb6t5P9zzKki3DNGbRFHqGJM6M1y6xpwEKby5b?=
+ =?us-ascii?Q?fY6l6XHKuG5G+h+u4JG6dmYD6YzUwAhlEQfUYICn4wUkxq/6ZnLQKrgJDtN4?=
+ =?us-ascii?Q?2D6WCpi2XC6xN9iUMUztEkONOnvDLthBayVE/XLH0hCg03rJ5IFiSAH2g47q?=
+ =?us-ascii?Q?R3BgyZcyUC6RfVyqSI8H6CPQ22kKa9urcrFCcm1LH/yhi5xb2AaXu6rX2sbG?=
+ =?us-ascii?Q?NNBKo3/jqQANzk9sIvEK9XXa/gr21NIATF4AsO7GhqO3McBs/QIazTKtEdXy?=
+ =?us-ascii?Q?TN0dVag/JxMtWsHNHDfa+zPW4oQyMMoSVNwdoVPqKmRoX3/SE81fRkO1dE0J?=
+ =?us-ascii?Q?tTek4Z6pwhJihPB3EHBMWRxJIr5DdeUkIZ8Kp8b0u7eb3eu/ysW0rOAHJJxm?=
+ =?us-ascii?Q?+xmGptqTjZ3WegSf1JJttSA1vkPm8z6kIXAs4lDzruW/WsQZp7KIeQ=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SI2PR06MB5140.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(52116014)(376014)(1800799024)(38350700014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?Inxw5e8sxFA+YdmTggMmczT0Rpj1/eHTozJdp8rvmRoFwUMQqPywp8mE1AUB?=
+ =?us-ascii?Q?3rqJEzFTQdt0p26av86RJ4avLYK838vISIkGnFCRR7pHFDqtkJ40lLfwPd7f?=
+ =?us-ascii?Q?094PGguqWBmCclHf+P3FxcHdorUA6is9M9mF3DVgziVs91kWoMydU9xHxJzF?=
+ =?us-ascii?Q?W0Y8fstb5ZJQUVQ4qmFhtNg1lAOdh8Tpsl9zLFseX0qzhfoXzDZ5WzF4uf6+?=
+ =?us-ascii?Q?oVIIrL5qOqFHdoSXuPVsagprf6HSnGHq2PPTlfs1LRZHPyizB1gbKZTLpWFM?=
+ =?us-ascii?Q?pcjsDuAkA+qCIgLIlbooEm21IK22wdrOrRhxtKcQ9kzw6i+wRWgGtLO8a37G?=
+ =?us-ascii?Q?sz5+rdmkwtDG8r73BzJ1cCPBWIhy/HLTW4+Tb78dO6zdHaz0bw6QTfoTklGX?=
+ =?us-ascii?Q?7p3wU3ZWWYFKcckJdC4bme2wmwOalqSHXPrRe13oHe3IJUMFwcmiI+13BDHP?=
+ =?us-ascii?Q?540fjONHQM7nv0IMhKKOFs3XdN/lfgawFOrjr3nZUPz3/NSXMGEwZTH4O9qJ?=
+ =?us-ascii?Q?IZ4zQeOyMZGbAyZx8gIjmdMKGMdR08DZIZdekcX7nm2RVuO5RerQ4NNniX13?=
+ =?us-ascii?Q?A7yXBJlRzuVRYxRWWT3COPjO0hSx7Kw+Lz0mvxQvu7ynocohpVZ10M8XxIQ1?=
+ =?us-ascii?Q?PjnoXFlNsA7d16mH280DGr5xO9mSVo/Q42emcwNzLFAGju6vbyPHJf5GU2J5?=
+ =?us-ascii?Q?78Z9bISIho0eicWAjK1kCbinfOlRuE9qaJ8a78aZK0PjDk641MU0Z/v6GPzf?=
+ =?us-ascii?Q?UnR2r1ugn3fqFEKeDExc2zOmk/lkC4IrhwsuFmTNhW7NxozcglJyRlR35MLa?=
+ =?us-ascii?Q?j4T+1hCZX3DWvxMLpxpCSXMoeBcqceBasfIJAqlvzcoQuiKs1dwr2RcSe3qa?=
+ =?us-ascii?Q?mwXbfcZmDYIJ45bWKOmtXw6S8txdGfEkQEsj0q6WP2gMENcjgA1rMxsIHj2h?=
+ =?us-ascii?Q?M91BaseByLtTgrXg6AEZZDLS5N/oFCuydA8B3OCeYsIPzfi++hycOFHoXo58?=
+ =?us-ascii?Q?1Z72hh9E7IKNf6gF/fbc5Tt0YghhmDeWvarKqYuVBKvvmqlff5NtLqW7I8ql?=
+ =?us-ascii?Q?3UBHB29Rn6www1FqJYf5y/9cZV4zx9aJyGURCSbdHSSDC1bz4DQSnRHv80mZ?=
+ =?us-ascii?Q?2zr0TSKREr39BSyJcr+oLKGOZz/6vBB0P23L12bgtgiliYVux5y2jvfaTClF?=
+ =?us-ascii?Q?rqlzonr/bVL70NeT+GXLfYBPcetqF8YeaGXb0sYUXyxcoKE/ojs2pB0fU5xQ?=
+ =?us-ascii?Q?VmBhrqIguafinjUCPat1QJTDwuGrRxclpOQ5F0KKenZ0AXuufrkNIJxQRqu3?=
+ =?us-ascii?Q?CZFbM//J3nWh9HWwj4GNIcXNvRaDQJ05dmhAIx0Lhm5TR9tg28rCHWkgjlO1?=
+ =?us-ascii?Q?0EibsTL+0UUqrXn/0XKkv7EueeDLQTXxCGBQGRxWv0GtHWapdDs4Y2ywrgO2?=
+ =?us-ascii?Q?Cgki/ptzH7KqEOHSI6tOj8gNlEUYuTcTzNdxnjrvmi02VHjoX+4hHKZIQQTC?=
+ =?us-ascii?Q?exJgDoGnZTxchSIWqXgoEHRzhx5LC3GjP54BoRyoe5T05SYmBAvPy297HWVn?=
+ =?us-ascii?Q?Vg8yBE4KlPP1/9ZW0nZofxs69v6T0XV6txc+0ZBB?=
+X-OriginatorOrg: vivo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ce6d04cf-eb70-4812-2993-08ddd5bb9107
+X-MS-Exchange-CrossTenant-AuthSource: SI2PR06MB5140.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 07 Aug 2025 14:06:12.7254
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: BDkJyTVenPhsUXCaAVLqUm4+QbUXyyFHKDOpEoY3crLwucSVysc3IHLew335aqjIPL5RpwRDKlCA+wU0TPJ2gQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TY1PPFECF6DCA7C
 
-On Wed, Aug 6, 2025 at 2:33=E2=80=AFPM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Aug 6, 2025 at 2:07=E2=80=AFPM <ericsu@linux.microsoft.com> wrote=
-:
-> >
-> > From: Eric Suen <ericsu@linux.microsoft.com>
-> >
-> > BPF token support was introduced to allow a privileged process to deleg=
-ate
-> > limited BPF functionality=E2=80=94such as map creation and program load=
-ing=E2=80=94to an
-> > unprivileged process:
-> >   https://lore.kernel.org/linux-security-module/20231130185229.2688956-=
-1-andrii@kernel.org/
-> >
-> > This patch adds SELinux support for controlling BPF token access. With
-> > this change, SELinux policies can now enforce constraints on BPF token
-> > usage based on both the delegating (privileged) process and the recipie=
-nt
-> > (unprivileged) process.
-> >
-> > Supported operations currently include:
-> >   - map_create
-> >   - prog_load
-> >
-> > High-level workflow:
-> >   1. An unprivileged process creates a VFS context via `fsopen()` and
-> >      obtains a file descriptor.
-> >   2. This descriptor is passed to a privileged process, which configure=
-s
-> >      BPF token delegation options and mounts a BPF filesystem.
-> >   3. SELinux records the `creator_sid` of the privileged process during
-> >      mount setup.
-> >   4. The unprivileged process then uses this BPF fs mount to create a
-> >      token and attach it to subsequent BPF syscalls.
-> >   5. During verification of `map_create` and `prog_load`, SELinux uses
-> >      `creator_sid` and the current SID to check policy permissions via:
-> >        avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
-> >                     BPF__MAP_CREATE, NULL);
-> >
-> > To verify the logic introduced by this patch, my fork of the SELinux
-> > testsuite with relevant test cases is available here:
-> >   https://github.com/havefuncoding1/selinux-testsuite
->
-> Interesting approach. Added Daniel to the distribution. Can you please
-> also post your testsuite patch to the list for review as per
-> https://github.com/SELinuxProject/selinux-kernel/wiki/Getting-Started#sub=
-mitting-a-testsuite-patch
+Commit 16f5dfbc851b ("gfp: include __GFP_NOWARN in GFP_NOWAIT")
+made GFP_NOWAIT implicitly include __GFP_NOWARN.
 
-Also, since you are introducing new permissions and a policy
-capability, please include instructions in the commit description for
-running your testsuite, see
-https://github.com/SELinuxProject/selinux-kernel/wiki/Getting-Started#add-n=
-ew-permissions
-and
-https://github.com/SELinuxProject/selinux-kernel/wiki/Getting-Started#addin=
-g-a-new-selinux-policy-capability
-for instructions and links to example previous commits.
+Therefore, explicit __GFP_NOWARN combined with GFP_NOWAIT
+(e.g., `GFP_NOWAIT | __GFP_NOWARN`) is now redundant. Let's clean
+up these redundant flags across subsystems.
 
->
-> >
-> > Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
-> > ---
-> >  security/selinux/hooks.c                   | 107 ++++++++++++++++++++-
-> >  security/selinux/include/classmap.h        |   2 +-
-> >  security/selinux/include/objsec.h          |   4 +
-> >  security/selinux/include/policycap.h       |   1 +
-> >  security/selinux/include/policycap_names.h |   1 +
-> >  security/selinux/include/security.h        |   6 ++
-> >  6 files changed, 118 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 335fbf76cdd2..ef9771542737 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -733,6 +733,8 @@ static int selinux_set_mnt_opts(struct super_block =
-*sb,
-> >                 goto out;
-> >         }
-> >
-> > +       sbsec->creator_sid =3D current_sid();
-> > +
-> >         if (strcmp(sb->s_type->name, "proc") =3D=3D 0)
-> >                 sbsec->flags |=3D SE_SBPROC | SE_SBGENFS;
-> >
-> > @@ -7002,9 +7004,13 @@ static int selinux_ib_alloc_security(void *ib_se=
-c)
-> >  static int selinux_bpf(int cmd, union bpf_attr *attr,
-> >                        unsigned int size, bool kernel)
-> >  {
-> > +       bool bpf_token_perms =3D selinux_policycap_bpf_token_perms();
-> >         u32 sid =3D current_sid();
-> >         int ret;
-> >
-> > +       if (bpf_token_perms)
-> > +               return 0;
-> > +
-> >         switch (cmd) {
-> >         case BPF_MAP_CREATE:
-> >                 ret =3D avc_has_perm(sid, sid, SECCLASS_BPF, BPF__MAP_C=
-REATE,
-> > @@ -7086,10 +7092,34 @@ static int selinux_bpf_prog(struct bpf_prog *pr=
-og)
-> >                             BPF__PROG_RUN, NULL);
-> >  }
-> >
-> > +static int selinux_bpffs_creator_sid(const union bpf_attr *attr)
-> > +{
-> > +       struct path path;
-> > +       struct super_block *sb;
-> > +       struct superblock_security_struct *sbsec;
-> > +
-> > +       CLASS(fd, f)(attr->token_create.bpffs_fd);
-> > +
-> > +       if (!fd_file(f))
-> > +               return SECSID_NULL;
-> > +
-> > +       path =3D fd_file(f)->f_path;
-> > +       sb =3D path.dentry->d_sb;
-> > +       if (!sb)
-> > +               return SECSID_NULL;
-> > +
-> > +       sbsec =3D selinux_superblock(sb);
-> > +       if (!sbsec)
-> > +               return SECSID_NULL;
-> > +
-> > +       return sbsec->creator_sid;
-> > +}
-> > +
-> >  static int selinux_bpf_map_create(struct bpf_map *map, union bpf_attr =
-*attr,
-> >                                   struct bpf_token *token, bool kernel)
-> >  {
-> >         struct bpf_security_struct *bpfsec;
-> > +       u32 ssid;
-> >
-> >         bpfsec =3D kzalloc(sizeof(*bpfsec), GFP_KERNEL);
-> >         if (!bpfsec)
-> > @@ -7098,7 +7128,15 @@ static int selinux_bpf_map_create(struct bpf_map=
- *map, union bpf_attr *attr,
-> >         bpfsec->sid =3D current_sid();
-> >         map->security =3D bpfsec;
-> >
-> > -       return 0;
-> > +       if (!token)
-> > +               ssid =3D bpfsec->sid;
-> > +       else {
-> > +               ssid =3D selinux_bpffs_creator_sid(attr);
-> > +               if (ssid =3D=3D SECSID_NULL)
-> > +                       return -EPERM;
-> > +       }
-> > +
-> > +       return avc_has_perm(ssid, bpfsec->sid, SECCLASS_BPF, BPF__MAP_C=
-REATE, NULL);
-> >  }
-> >
-> >  static void selinux_bpf_map_free(struct bpf_map *map)
-> > @@ -7113,6 +7151,7 @@ static int selinux_bpf_prog_load(struct bpf_prog =
-*prog, union bpf_attr *attr,
-> >                                  struct bpf_token *token, bool kernel)
-> >  {
-> >         struct bpf_security_struct *bpfsec;
-> > +       u32 ssid;
-> >
-> >         bpfsec =3D kzalloc(sizeof(*bpfsec), GFP_KERNEL);
-> >         if (!bpfsec)
-> > @@ -7121,7 +7160,15 @@ static int selinux_bpf_prog_load(struct bpf_prog=
- *prog, union bpf_attr *attr,
-> >         bpfsec->sid =3D current_sid();
-> >         prog->aux->security =3D bpfsec;
-> >
-> > -       return 0;
-> > +       if (!token)
-> > +               ssid =3D bpfsec->sid;
-> > +       if (token) {
-> > +               ssid =3D selinux_bpffs_creator_sid(attr);
-> > +               if (ssid =3D=3D SECSID_NULL)
-> > +                       return -EPERM;
-> > +       }
-> > +
-> > +       return avc_has_perm(ssid, bpfsec->sid, SECCLASS_BPF, BPF__PROG_=
-LOAD, NULL);
-> >  }
-> >
-> >  static void selinux_bpf_prog_free(struct bpf_prog *prog)
-> > @@ -7132,10 +7179,18 @@ static void selinux_bpf_prog_free(struct bpf_pr=
-og *prog)
-> >         kfree(bpfsec);
-> >  }
-> >
-> > +#define bpf_token_cmd(T, C) \
-> > +       ((T)->allowed_cmds & (1ULL << (C)))
-> > +
-> >  static int selinux_bpf_token_create(struct bpf_token *token, union bpf=
-_attr *attr,
-> >                                     const struct path *path)
-> >  {
-> >         struct bpf_security_struct *bpfsec;
-> > +       u32 sid =3D selinux_bpffs_creator_sid(attr);
-> > +       int err;
-> > +
-> > +       if (sid =3D=3D SECSID_NULL)
-> > +               return -EPERM;
-> >
-> >         bpfsec =3D kzalloc(sizeof(*bpfsec), GFP_KERNEL);
-> >         if (!bpfsec)
-> > @@ -7144,6 +7199,29 @@ static int selinux_bpf_token_create(struct bpf_t=
-oken *token, union bpf_attr *att
-> >         bpfsec->sid =3D current_sid();
-> >         token->security =3D bpfsec;
-> >
-> > +       bpfsec->perms =3D 0;
-> > +
-> > +       /**
-> > +        * 'token->allowed_cmds' is a bit mask of allowed commands
-> > +        * Convert the BPF command enum to a bitmask representing its p=
-osition in the
-> > +        * allowed_cmds bitmap.
-> > +        */
-> > +       if (bpf_token_cmd(token, BPF_MAP_CREATE)) {
-> > +               err =3D avc_has_perm(bpfsec->sid, sid, SECCLASS_BPF, BP=
-F__MAP_CREATE_AS, NULL);
-> > +               if (err)
-> > +                       return err;
-> > +
-> > +               bpfsec->perms |=3D BPF__MAP_CREATE;
-> > +       }
-> > +
-> > +       if (bpf_token_cmd(token, BPF_PROG_LOAD)) {
-> > +               err =3D avc_has_perm(bpfsec->sid, sid, SECCLASS_BPF, BP=
-F__PROG_LOAD_AS, NULL);
-> > +               if (err)
-> > +                       return err;
-> > +
-> > +               bpfsec->perms |=3D BPF__PROG_LOAD;
-> > +       }
-> > +
-> >         return 0;
-> >  }
-> >
-> > @@ -7154,6 +7232,30 @@ static void selinux_bpf_token_free(struct bpf_to=
-ken *token)
-> >         token->security =3D NULL;
-> >         kfree(bpfsec);
-> >  }
-> > +
-> > +static int selinux_bpf_token_cmd(const struct bpf_token *token, enum b=
-pf_cmd cmd)
-> > +{
-> > +       struct bpf_security_struct *bpfsec;
-> > +
-> > +       if (!token || !token->security)
-> > +               return -EINVAL;
-> > +
-> > +       bpfsec =3D token->security;
-> > +       switch (cmd) {
-> > +       case BPF_MAP_CREATE:
-> > +               if ((bpfsec->perms & BPF__MAP_CREATE) !=3D BPF__MAP_CRE=
-ATE)
-> > +                       return -EACCES;
-> > +               break;
-> > +       case BPF_PROG_LOAD:
-> > +               if ((bpfsec->perms & BPF__PROG_LOAD) !=3D BPF__PROG_LOA=
-D)
-> > +                       return -EACCES;
-> > +               break;
-> > +       default:
-> > +               break;
-> > +       }
-> > +
-> > +       return 0;
-> > +}
-> >  #endif
-> >
-> >  struct lsm_blob_sizes selinux_blob_sizes __ro_after_init =3D {
-> > @@ -7585,6 +7687,7 @@ static struct security_hook_list selinux_hooks[] =
-__ro_after_init =3D {
-> >         LSM_HOOK_INIT(bpf_map_create, selinux_bpf_map_create),
-> >         LSM_HOOK_INIT(bpf_prog_load, selinux_bpf_prog_load),
-> >         LSM_HOOK_INIT(bpf_token_create, selinux_bpf_token_create),
-> > +       LSM_HOOK_INIT(bpf_token_cmd, selinux_bpf_token_cmd),
-> >  #endif
-> >  #ifdef CONFIG_PERF_EVENTS
-> >         LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
-> > diff --git a/security/selinux/include/classmap.h b/security/selinux/inc=
-lude/classmap.h
-> > index 5665aa5e7853..a6ed864af64c 100644
-> > --- a/security/selinux/include/classmap.h
-> > +++ b/security/selinux/include/classmap.h
-> > @@ -171,7 +171,7 @@ const struct security_class_mapping secclass_map[] =
-=3D {
-> >         { "infiniband_endport", { "manage_subnet", NULL } },
-> >         { "bpf",
-> >           { "map_create", "map_read", "map_write", "prog_load", "prog_r=
-un",
-> > -           NULL } },
-> > +           "map_create_as", "prog_load_as", NULL } },
-> >         { "xdp_socket", { COMMON_SOCK_PERMS, NULL } },
-> >         { "mctp_socket", { COMMON_SOCK_PERMS, NULL } },
-> >         { "perf_event",
-> > diff --git a/security/selinux/include/objsec.h b/security/selinux/inclu=
-de/objsec.h
-> > index 1d7ac59015a1..b7e55e5c6d9c 100644
-> > --- a/security/selinux/include/objsec.h
-> > +++ b/security/selinux/include/objsec.h
-> > @@ -87,6 +87,8 @@ struct superblock_security_struct {
-> >         u32 sid; /* SID of file system superblock */
-> >         u32 def_sid; /* default SID for labeling */
-> >         u32 mntpoint_sid; /* SECURITY_FS_USE_MNTPOINT context for files=
- */
-> > +       u32 creator_sid;        /* SID of privileged process and is use=
-d to */
-> > +                                               /* verify bpf operation=
-s */
-> >         unsigned short behavior; /* labeling behavior */
-> >         unsigned short flags; /* which mount options were specified */
-> >         struct mutex lock;
-> > @@ -164,6 +166,8 @@ struct pkey_security_struct {
-> >
-> >  struct bpf_security_struct {
-> >         u32 sid; /* SID of bpf obj creator */
-> > +       u32 perms;      /* allowed AV permissions, e.g. BPF__MAP_CREATE=
-, */
-> > +                               /* for requested bpf commands */
-> >  };
-> >
-> >  struct perf_event_security_struct {
-> > diff --git a/security/selinux/include/policycap.h b/security/selinux/in=
-clude/policycap.h
-> > index 7405154e6c42..cde6aaf442cd 100644
-> > --- a/security/selinux/include/policycap.h
-> > +++ b/security/selinux/include/policycap.h
-> > @@ -17,6 +17,7 @@ enum {
-> >         POLICYDB_CAP_NETLINK_XPERM,
-> >         POLICYDB_CAP_NETIF_WILDCARD,
-> >         POLICYDB_CAP_GENFS_SECLABEL_WILDCARD,
-> > +       POLICYDB_CAP_BPF_TOKEN_PERMS,
-> >         __POLICYDB_CAP_MAX
-> >  };
-> >  #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
-> > diff --git a/security/selinux/include/policycap_names.h b/security/seli=
-nux/include/policycap_names.h
-> > index d8962fcf2ff9..cd5e73f992ea 100644
-> > --- a/security/selinux/include/policycap_names.h
-> > +++ b/security/selinux/include/policycap_names.h
-> > @@ -20,6 +20,7 @@ const char *const selinux_policycap_names[__POLICYDB_=
-CAP_MAX] =3D {
-> >         "netlink_xperm",
-> >         "netif_wildcard",
-> >         "genfs_seclabel_wildcard",
-> > +       "bpf_token_perms",
-> >  };
-> >  /* clang-format on */
-> >
-> > diff --git a/security/selinux/include/security.h b/security/selinux/inc=
-lude/security.h
-> > index 8201e6a3ac0f..d3832e4ad4fb 100644
-> > --- a/security/selinux/include/security.h
-> > +++ b/security/selinux/include/security.h
-> > @@ -209,6 +209,12 @@ static inline bool selinux_policycap_netif_wildcar=
-d(void)
-> >                 selinux_state.policycap[POLICYDB_CAP_NETIF_WILDCARD]);
-> >  }
-> >
-> > +static inline bool selinux_policycap_bpf_token_perms(void)
-> > +{
-> > +       return READ_ONCE(
-> > +               selinux_state.policycap[POLICYDB_CAP_BPF_TOKEN_PERMS]);
-> > +}
-> > +
-> >  struct selinux_policy_convert_data;
-> >
-> >  struct selinux_load_state {
-> > --
-> > 2.50.1.windows.1
-> >
-> >
+No functional changes.
+
+Signed-off-by: Qianfeng Rong <rongqianfeng@vivo.com>
+---
+ security/selinux/avc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 4b4837a20225..c70053f2806e 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -293,26 +293,26 @@ static struct avc_xperms_decision_node
+ 	struct extended_perms_decision *xpd;
+ 
+ 	xpd_node = kmem_cache_zalloc(avc_xperms_decision_cachep,
+-				     GFP_NOWAIT | __GFP_NOWARN);
++				     GFP_NOWAIT);
+ 	if (!xpd_node)
+ 		return NULL;
+ 
+ 	xpd = &xpd_node->xpd;
+ 	if (which & XPERMS_ALLOWED) {
+ 		xpd->allowed = kmem_cache_zalloc(avc_xperms_data_cachep,
+-						GFP_NOWAIT | __GFP_NOWARN);
++						GFP_NOWAIT);
+ 		if (!xpd->allowed)
+ 			goto error;
+ 	}
+ 	if (which & XPERMS_AUDITALLOW) {
+ 		xpd->auditallow = kmem_cache_zalloc(avc_xperms_data_cachep,
+-						GFP_NOWAIT | __GFP_NOWARN);
++						GFP_NOWAIT);
+ 		if (!xpd->auditallow)
+ 			goto error;
+ 	}
+ 	if (which & XPERMS_DONTAUDIT) {
+ 		xpd->dontaudit = kmem_cache_zalloc(avc_xperms_data_cachep,
+-						GFP_NOWAIT | __GFP_NOWARN);
++						GFP_NOWAIT);
+ 		if (!xpd->dontaudit)
+ 			goto error;
+ 	}
+@@ -340,7 +340,7 @@ static struct avc_xperms_node *avc_xperms_alloc(void)
+ {
+ 	struct avc_xperms_node *xp_node;
+ 
+-	xp_node = kmem_cache_zalloc(avc_xperms_cachep, GFP_NOWAIT | __GFP_NOWARN);
++	xp_node = kmem_cache_zalloc(avc_xperms_cachep, GFP_NOWAIT);
+ 	if (!xp_node)
+ 		return xp_node;
+ 	INIT_LIST_HEAD(&xp_node->xpd_head);
+@@ -495,7 +495,7 @@ static struct avc_node *avc_alloc_node(void)
+ {
+ 	struct avc_node *node;
+ 
+-	node = kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT | __GFP_NOWARN);
++	node = kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT);
+ 	if (!node)
+ 		goto out;
+ 
+-- 
+2.34.1
+
