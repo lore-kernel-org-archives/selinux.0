@@ -1,72 +1,72 @@
 Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDC0122258C;
-	Fri,  8 Aug 2025 11:57:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6151823535F;
+	Fri,  8 Aug 2025 12:00:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754654255; cv=none; b=sCpJI9jwOS35KfSlewNOZ3VVXRIzEqql/m2psmhSHU7V/3S1sOKMSJ+6Gv7gkyamgIBm5+rscH++6xDA9hB/jnkRq+b8zRJhLgMr1ZRNC5sw2rv8U38PafSanjtUIay6SPk2r2ErEZNzJLWattOdJn2CfJD1fXarvLUnII/5+jU=
+	t=1754654432; cv=none; b=Qj2f81r1KucxHdcLn7ADOCFM+UVRAzj3vGuPBYQq01w8CmQZ+2dGCH0n39Hnr0wkqi24Byt7NEHj5vDqGFW+/aSfh8DNFP3RzwxbFDwYyCyQHLWDMqImnTxQW6mg/AzFf/CjpHrK5TFDTKdz/8p7PLv2fr8Kh2k/ia40EgfyHas=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754654255; c=relaxed/simple;
-	bh=exllA3Jx6HUaPakedceH9it4g83BDsncNgPqDd46eb0=;
+	s=arc-20240116; t=1754654432; c=relaxed/simple;
+	bh=Awm2CVl1S46eknzxBL3TWzk0c7W8l/EuMA5R3fDDxIU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=aQPW2Tu1RDlWLH+VOwuBa3W6OCUfC/1O9ZUOEDjfvGGhRk9pzViMLWd+8/dpiztn+IiD0Qbb6BUSMExj5/4Dg4Q/+Rhe6AqNxdZZZaahBQRcOGgOoTw4MtwZArJBYBrNAyZNVupi1kQNk5uK+/TJYvQWZJNttisD9JlGcCW5Cco=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R0SNR28J; arc=none smtp.client-ip=209.85.216.44
+	 To:Cc:Content-Type; b=LpZyhiUNpHGUnOS9iAe36pNz25WJ/pqksTf8P3AomRC8b46oL/B5bClh7lIP4LYERhkPErdcBrteLA3K6BsiPPZen1CK6NrZ3ZVHkDY3MCgXPeM5xArrakTCkj8DhEY/OIeVuTC5BsKLvxPCH/EhWhsplNkbvOKnBvslWBiFLjQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZmeMzKoi; arc=none smtp.client-ip=209.85.216.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R0SNR28J"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-31ec95ad016so1835171a91.3;
-        Fri, 08 Aug 2025 04:57:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZmeMzKoi"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-315f6b20cf9so2481972a91.2;
+        Fri, 08 Aug 2025 05:00:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1754654253; x=1755259053; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1754654431; x=1755259231; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JPmy7TV8Otdi8h7z+/vlIcixcwuDXsOiVWvreOaDeQE=;
-        b=R0SNR28JfKMJ5Rp8lP5HmMTKGt5M4xrZ2h2qBxtQGeqpndZcK/II+FEm0/5JgxVeUV
-         2ISurGJpcHaPiYFwOPl2sWkTpfd0wNP8Xv4uTzFL17GMLNvYMXj4tfNUZrKx0+yinrVG
-         DblcO/Iz58qU8xcmm12h+fYfXi+xdTQT8DJREoAsRIZqaA5xX0exXFRIyVk3e4uv730F
-         a/Hp7TQ7dutrBW9RFUkc8Og2PjwpnYKzw4d/qblsthEO0VE7V2eX8/w0bltqgt4VyFZI
-         btm/+M+HHdX7M8cYQgMfd8Pv/1H7OSls0SAJ/634rhWP+uDstvpXbFPEHU5j0TNNj7sp
-         5Xaw==
+        bh=2hi76Ohh79K59CceKNbPaQDs8RKv1PGUmPcWpUhNqOE=;
+        b=ZmeMzKoifij67sHCZhMDvVwj5h7DcFHF+HqamUpswTouXLaQsT+BtqyUVDBa5jKSL5
+         UJTR4aDi/7p3O7E0h95DMNOLUgN8ykG+a9jfnp3+D3S0dISpyvHznlz1mSZhNnbCSNxl
+         Al/V43Q3k8HWIAAxNRmNfTX1QjCDmfQ0VdHAXvyZ3+Y+zuOgTFtv5YUhwoHnBH7zbZwL
+         ppI+qxz9m7LEBPioWMIJwKoA9eUGV+8Wc94LGRSAqJiuYfKHrCHcvdddhfsCbju9c2Qm
+         VlLmFmEFNBnxRKEeqGXEmDo/txFJg4w6QzmCaptBxD5wh2GmngevM0aKPGvo7ipWEF1f
+         +Xhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1754654253; x=1755259053;
+        d=1e100.net; s=20230601; t=1754654431; x=1755259231;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=JPmy7TV8Otdi8h7z+/vlIcixcwuDXsOiVWvreOaDeQE=;
-        b=s5z10H/DaSCJYbCLeHtl5cGAm7xVPhQScHpqIwCJ2Ms0bqIj5KMC+UUahux78/4/F7
-         5ZVZYRT1/Ag7P1kvYNjZwEkJpTUsvs41aJ7SBtWqHr68AQ7htAKHZ8j2DcoqiPuX1LyL
-         wuzfeTutlRVCZCuL27ESbOhFwmLRMlX+Kx5DhUmAbvfANzoWfu2jzBAzoILC3Rl/+eWC
-         o1Tb6dzuspXmT5nslaTo0HtxYzSI9Pk74+okfX3DxD3sAvGXOqN1tOBpO3G6gV/f9ei8
-         XYnH63kRMy5uUMksjzOjIrsiOhbKk6xb47r2KqfjeYgjiwWooB8HN9DPMFV5Xo30i+rh
-         dvEg==
-X-Forwarded-Encrypted: i=1; AJvYcCU8eaHP5RK7XqatJRVlFCJB+L8S+uLPBX0Jekb2u/+E9nI8cGLt3Hba9RCPF2+KSumBAcqAmXs8puz4672uE+sKR/dUu/Kj@vger.kernel.org, AJvYcCV4E5JTj6/mtlxIOYA0J3X//WZAsghcSbfgsmovPNMWW+p5KgnPmWj345ItEvNYjiLu6KbOObp8ww==@vger.kernel.org, AJvYcCXaBTx6qPT1kVTdPmimgeqfK9KExRwp+ZcT72oLee87ZbeVnRzWql4aSnqgBmhDCGUsji1AqBbm7/zo0U8=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyYP3QGN71jCvUIo01Nfn9cY+1Hs3YOJ000MXN8+yzb115Tg+HT
-	+eoef5w+iFF332ErWtb9iLjdNauBm/wcTlQa7BzEXMgbOK8W6WVjIMnBr2eYIvSTPcFafbGBJrx
-	l/AbzyQmyUuiFR5qqEnHmX6Ce4mgAMRo=
-X-Gm-Gg: ASbGncuu8AGZJR0jgoOQcQ3cCLC4YUogNMhkNYMw5odPxwpjpMRpYsLH/rTQdmyBStI
-	7DmQ846LZ39V/LpqSbePxvIaBrS5F69/NCjBFGqhACc8K2N7ZxCovaj9XrU/fFDw7Y7k3mCpxlH
-	W1iSdvd4VfBO1ec96xyp/KVKyCQmxYC6qAvT52IcCkhrXQ0p2QSJYi0Ls7SdGWZaKgq5IZdycUD
-	reh4UY=
-X-Google-Smtp-Source: AGHT+IGLy0Plqc8pj0XqKVn/tG+Xg4TWhxNzbjRb+GBKmuIFfOWvybXhxeNO32hP17A6PKMexiQOxvyLz+efX+befPA=
-X-Received: by 2002:a17:90b:5866:b0:312:959:dc4f with SMTP id
- 98e67ed59e1d1-321839caddemr3562952a91.5.1754654252833; Fri, 08 Aug 2025
- 04:57:32 -0700 (PDT)
+        bh=2hi76Ohh79K59CceKNbPaQDs8RKv1PGUmPcWpUhNqOE=;
+        b=EidEuXqy0DL8MRYjz+hZs4yD9g2E9Rf6WVFqaS+zhJWtPmZ/7qu4H0FXNcbX+q4Z8+
+         GCg3GnD9XkFqfIS462By6STDiaSMgUTWXJ0Yx1JOFJu/MOickj18eMl2Rrgyqr5ZiI7I
+         94r/IkxVIideRGvMZr9xsSN1IhgLKweKJ7sbSRXzYC9WTnGsJsyTnRRfd7H0lr11+kOv
+         iIJAv3cBar3a9kenmTW05VWT+1IpbyBv0mDfCIkAY5XvHSUuAdpXhXqiLi9XSOKlleff
+         L/jUqFxURWtGtkLRDoMyKthKFyae14lFRjTwhlOjA9qon2upReYRRqHRMtxtY5Q7im5L
+         z15g==
+X-Forwarded-Encrypted: i=1; AJvYcCUqpdYDgVceokXsNpe1D+6ZkQyq7KInwOT1KdDQoOEW03AciaJ/weoFTdT3TvHptK8e3iDIxqS1ew==@vger.kernel.org, AJvYcCXHbMSlU45nQKrHFo9LOpw5xk3v9EHYo8XQo0VgsYzPzTH1niuKGRSB9p+KAPMkMi7WMETozQj+EzD7ryJA5BSFzBKF33sR@vger.kernel.org, AJvYcCXKk572z/vSa//nLU0sUF2OtbGwAL+1/GrBHMHhocfJVWslR5jzHiPgvzofDU+cKIaqLe8M4BwFsTQOFJY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxRoa94ygEnhquOjMnJVQ1UdPuyN8YAHcEhew4xM/ZFIG/WyucK
+	HvjUbnG5tEHZL0BP5+LbnoUOw/z6XHW8I6MJ1tUNBXNO9JrEJ+w+/yI4hhUcFEN5kFF8Uh18k4D
+	mOe5t8YM9ezxlln+BE146Lj/AqlpX2w4=
+X-Gm-Gg: ASbGncslvNurWRVnEpPI8TJdCUUYWLU+a4n8hY2K43JO63j6W87wsVnGvD0dMepeFKU
+	Rm+588Pa6O/HgUhSBz0LFhuzwHmPGFKjNLBAVRXZTcnWrHiv0W05olY6OPMYq1yGJT5YLA9gvLP
+	Qy6K413MGhENOWNWbUeaBv1JgN66ekLWjiuq2+vQ4QIHRJ3tyAPrduvPJoYF5AuRM4JyDdpStBj
+	c6yfG0KfciPUjU9Bg==
+X-Google-Smtp-Source: AGHT+IHi6fw0dHtVpsqB+ib1T3y9IzTsrvf1TTWV49eZqYfOGNEzc0eot/Xe28UN5RO3wnrOxgcy43UMV4rv8F3rGk4=
+X-Received: by 2002:a17:90b:1f87:b0:31f:11d6:cea0 with SMTP id
+ 98e67ed59e1d1-32183c46713mr4345735a91.27.1754654430569; Fri, 08 Aug 2025
+ 05:00:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250807075745.756415-1-tweek@google.com>
-In-Reply-To: <20250807075745.756415-1-tweek@google.com>
+References: <20250807075647.755848-1-tweek@google.com>
+In-Reply-To: <20250807075647.755848-1-tweek@google.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 8 Aug 2025 07:57:21 -0400
-X-Gm-Features: Ac12FXzFkzXFEtiVUAp0b2BNfX-6piwGGTrFd0rcZB7MNDm2DLbb9e2scCpH7zA
-Message-ID: <CAEjxPJ5nC7s=+Os4+9XjkzhGTyaNVrCyJgx+rz5n3baRFWVrzA@mail.gmail.com>
-Subject: Re: [RFC PATCH 2/2] memfd: call security_inode_init_security_anon
+Date: Fri, 8 Aug 2025 08:00:19 -0400
+X-Gm-Features: Ac12FXyi4-bvbpcCoKELBvxA5wUsYIy3UCyB7KojQgmh4zQHcK8f2vyyGNnU77s
+Message-ID: <CAEjxPJ43YqFSLK_aczqFqtg-p35A8uE-ZCbF6v13Aqq7VxBByA@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/2] lsm: add type to security_inode_init_security_anon
 To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
 Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
 	Hugh Dickins <hughd@google.com>, Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, 
@@ -78,128 +78,149 @@ Content-Transfer-Encoding: quoted-printable
 On Thu, Aug 7, 2025 at 3:57=E2=80=AFAM Thi=C3=A9baud Weksteen <tweek@google=
 .com> wrote:
 >
-> Prior to this change, no security hooks were called at the creation of a
-> memfd file. It means that, for SELinux as an example, it will receive
-> the default type of the filesystem that backs the in-memory inode. In
-> most cases, that would be tmpfs, but if MFD_HUGETLB is passed, it will
-> be hugetlbfs. Both can be considered implementation details of memfd.
->
-> It also means that it is not possible to differentiate between a file
-> coming from memfd_create and a file coming from a standard tmpfs mount
-> point.
->
-> Additionally, no permission is validated at creation, which differs from
-> the similar memfd_secret syscall.
->
-> Call security_inode_init_security_anon during creation. This ensures
-> that the file is setup similarly to other anonymous inodes. On SELinux,
-> it means that the file will receive the security context of its task.
->
-> The ability to limit fexecve on memfd has been of interest to avoid
-> potential pitfalls where /proc/self/exe or similar would be executed
-> [1][2]. Reuse the "execute_no_trans" and "entrypoint" access vectors,
-> similarly to the file class. These access vectors may not make sense for
-> the existing "anon_inode" class. Therefore, define and assign a new
-> class "memfd_file" to support such access vectors.
+> Introduce a new enum (lsm_anon_inode_id) to identify the type of
+> anonymous inode being created. This enum is passed down to the
+> security_inode_init_security_anon LSM hook.
 
-To provide backward compatibility, I would anticipate that you will
-need to define a new SELinux policy capability and make this change
-conditional on it being enabled, see:
-https://github.com/SELinuxProject/selinux-kernel/wiki/Getting-Started#addin=
-g-a-new-selinux-policy-capability
-for instructions and links to examples.
+The intent was to distinguish the type of anonymous inode based on
+name-based type_transition rules in the policy using the provided name
+string. If that doesn't suffice, this might be justified, but the next
+patch doesn't appear to justify it.
 
-Otherwise, see below.
-
->
-> [1] https://crbug.com/1305267
-> [2] https://lore.kernel.org/lkml/20221215001205.51969-1-jeffxu@google.com=
-/
 >
 > Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 > ---
->  mm/memfd.c                          | 16 ++++++++++++++--
->  security/selinux/hooks.c            | 15 +++++++++++----
->  security/selinux/include/classmap.h |  2 ++
->  3 files changed, 27 insertions(+), 6 deletions(-)
+>  fs/anon_inodes.c              | 5 +++--
+>  include/linux/lsm_hook_defs.h | 3 ++-
+>  include/linux/security.h      | 8 ++++++++
+>  security/security.c           | 4 +++-
+>  security/selinux/hooks.c      | 1 +
+>  5 files changed, 17 insertions(+), 4 deletions(-)
 >
-> diff --git a/mm/memfd.c b/mm/memfd.c
-> index bbe679895ef6..13bff0e91816 100644
-> --- a/mm/memfd.c
-> +++ b/mm/memfd.c
-> @@ -433,6 +433,9 @@ static struct file *alloc_file(const char *name, unsi=
-gned int flags)
->  {
->         unsigned int *file_seals;
->         struct file *file;
-> +       struct inode *inode;
-> +       int err =3D 0;
-> +       const char *anon_name =3D "[memfd]";
+> diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+> index 1d847a939f29..9a2f09808f86 100644
+> --- a/fs/anon_inodes.c
+> +++ b/fs/anon_inodes.c
+> @@ -21,6 +21,7 @@
+>  #include <linux/magic.h>
+>  #include <linux/anon_inodes.h>
+>  #include <linux/pseudo_fs.h>
+> +#include <linux/security.h>
 >
->         if (flags & MFD_HUGETLB) {
->                 file =3D hugetlb_file_setup(name, 0, VM_NORESERVE,
-> @@ -444,12 +447,21 @@ static struct file *alloc_file(const char *name, un=
-signed int flags)
->         }
->         if (IS_ERR(file))
->                 return file;
+>  #include <linux/uaccess.h>
+>
+> @@ -121,8 +122,8 @@ struct inode *anon_inode_make_secure_inode(struct sup=
+er_block *sb, const char *n
+>                 return inode;
+>         inode->i_flags &=3D ~S_PRIVATE;
+>         inode->i_op =3D &anon_inode_operations;
+> -       error =3D security_inode_init_security_anon(inode, &QSTR(name),
+> -                                                 context_inode);
+> +       error =3D security_inode_init_security_anon(inode, LSM_ANON_INODE=
+_GENERIC,
+> +                                                 &QSTR(name), context_in=
+ode);
+>         if (error) {
+>                 iput(inode);
+>                 return ERR_PTR(error);
+> diff --git a/include/linux/lsm_hook_defs.h b/include/linux/lsm_hook_defs.=
+h
+> index fd11fffdd3c3..1634f41f7a3c 100644
+> --- a/include/linux/lsm_hook_defs.h
+> +++ b/include/linux/lsm_hook_defs.h
+> @@ -119,7 +119,8 @@ LSM_HOOK(int, -EOPNOTSUPP, inode_init_security, struc=
+t inode *inode,
+>          struct inode *dir, const struct qstr *qstr, struct xattr *xattrs=
+,
+>          int *xattr_count)
+>  LSM_HOOK(int, 0, inode_init_security_anon, struct inode *inode,
+> -        const struct qstr *name, const struct inode *context_inode)
+> +        enum lsm_anon_inode_id type, const struct qstr *name,
+> +        const struct inode *context_inode)
+>  LSM_HOOK(int, 0, inode_create, struct inode *dir, struct dentry *dentry,
+>          umode_t mode)
+>  LSM_HOOK(void, LSM_RET_VOID, inode_post_create_tmpfile, struct mnt_idmap=
+ *idmap,
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 521bcb5b9717..98a97b8a1093 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -263,6 +263,12 @@ struct request_sock;
+>  #define LSM_UNSAFE_PTRACE      2
+>  #define LSM_UNSAFE_NO_NEW_PRIVS        4
+>
+> +/* anon_inode types */
+> +enum lsm_anon_inode_id {
+> +       LSM_ANON_INODE_GENERIC,
+> +       LSM_ANON_INODE_MEMFD
+> +};
 > +
-> +       inode =3D file_inode(file);
-> +       err =3D security_inode_init_security_anon(inode,
-> +                       LSM_ANON_INODE_MEMFD,
-> +                       &QSTR(anon_name), NULL);
-
-Since the anon_name already indicates that this is a memfd, so can't
-you already distinguish these via name-based type_transition rules?
-Why do we need the enum argument?
-
+>  #ifdef CONFIG_MMU
+>  extern int mmap_min_addr_handler(const struct ctl_table *table, int writ=
+e,
+>                                  void *buffer, size_t *lenp, loff_t *ppos=
+);
+> @@ -402,6 +408,7 @@ int security_inode_init_security(struct inode *inode,=
+ struct inode *dir,
+>                                  const struct qstr *qstr,
+>                                  initxattrs initxattrs, void *fs_data);
+>  int security_inode_init_security_anon(struct inode *inode,
+> +                                     enum lsm_anon_inode_id type,
+>                                       const struct qstr *name,
+>                                       const struct inode *context_inode);
+>  int security_inode_create(struct inode *dir, struct dentry *dentry, umod=
+e_t mode);
+> @@ -889,6 +896,7 @@ static inline int security_inode_init_security(struct=
+ inode *inode,
+>  }
+>
+>  static inline int security_inode_init_security_anon(struct inode *inode,
+> +                                                   enum lsm_anon_inode_i=
+d type,
+>                                                     const struct qstr *na=
+me,
+>                                                     const struct inode *c=
+ontext_inode)
+>  {
+> diff --git a/security/security.c b/security/security.c
+> index ad163f06bf7a..09aa858819a2 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1861,6 +1861,7 @@ EXPORT_SYMBOL(security_inode_init_security);
+>  /**
+>   * security_inode_init_security_anon() - Initialize an anonymous inode
+>   * @inode: the inode
+> + * @type: the type of anonymous inode
+>   * @name: the anonymous inode class
+>   * @context_inode: an optional related inode
+>   *
+> @@ -1871,10 +1872,11 @@ EXPORT_SYMBOL(security_inode_init_security);
+>   * creation of this inode, or another -errno upon other errors.
+>   */
+>  int security_inode_init_security_anon(struct inode *inode,
+> +                                     enum lsm_anon_inode_id type,
+>                                       const struct qstr *name,
+>                                       const struct inode *context_inode)
+>  {
+> -       return call_int_hook(inode_init_security_anon, inode, name,
+> +       return call_int_hook(inode_init_security_anon, inode, type, name,
+>                              context_inode);
+>  }
+>
 > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 8d36d5ebb6e5..49742930e706 100644
+> index c95a5874bf7d..8d36d5ebb6e5 100644
 > --- a/security/selinux/hooks.c
 > +++ b/security/selinux/hooks.c
-> @@ -2367,8 +2367,8 @@ static int selinux_bprm_creds_for_exec(struct linux=
-_binprm *bprm)
->         ad.u.file =3D bprm->file;
+> @@ -2967,6 +2967,7 @@ static int selinux_inode_init_security(struct inode=
+ *inode, struct inode *dir,
+>  }
 >
->         if (new_tsec->sid =3D=3D old_tsec->sid) {
-> -               rc =3D avc_has_perm(old_tsec->sid, isec->sid,
-> -                                 SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, =
-&ad);
-> +               rc =3D avc_has_perm(old_tsec->sid, isec->sid, isec->sclas=
-s,
-> +                                 FILE__EXECUTE_NO_TRANS, &ad);
-
-Here and below I am a little concerned that we could end up reaching
-this code on an inode with an isec->sclass that does not define the
-execute_no_trans and entrypoint permissions. We should do something to
-make that never happens, or check for it and always deny in that case.
-
->                 if (rc)
->                         return rc;
->         } else {
-> @@ -2378,8 +2378,8 @@ static int selinux_bprm_creds_for_exec(struct linux=
-_binprm *bprm)
->                 if (rc)
->                         return rc;
+>  static int selinux_inode_init_security_anon(struct inode *inode,
+> +                                           enum lsm_anon_inode_id type,
+>                                             const struct qstr *name,
+>                                             const struct inode *context_i=
+node)
+>  {
+> --
+> 2.50.1.703.g449372360f-goog
 >
-> -               rc =3D avc_has_perm(new_tsec->sid, isec->sid,
-> -                                 SECCLASS_FILE, FILE__ENTRYPOINT, &ad);
-> +               rc =3D avc_has_perm(new_tsec->sid, isec->sid, isec->sclas=
-s,
-> +                                 FILE__ENTRYPOINT, &ad);
->                 if (rc)
->                         return rc;
->
-> @@ -2997,6 +2997,13 @@ static int selinux_inode_init_security_anon(struct=
- inode *inode,
->
->                 isec->sclass =3D context_isec->sclass;
->                 isec->sid =3D context_isec->sid;
-> +       } else if (type =3D=3D LSM_ANON_INODE_MEMFD) {
-> +               isec->sclass =3D SECCLASS_MEMFD_FILE;
-> +               rc =3D security_transition_sid(
-> +                       sid, sid,
-> +                       isec->sclass, name, &isec->sid);
-
-Again, name-based type_transitions ought to be able to distinguish
-memfd based on the name argument IIUC.
