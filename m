@@ -1,186 +1,205 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA4D2221558
-	for <selinux@vger.kernel.org>; Fri,  8 Aug 2025 07:16:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDC0122258C;
+	Fri,  8 Aug 2025 11:57:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754637413; cv=none; b=o3KsON1rnfJTgcBQfeHJU5utY9/TbtzECjuIIIJpfr/gWNr0UbSnPePCbe5/rOb4WjNjyig4H+3e3s/zpD0p+ndat4/+JxHoBxmggQto2n6pduAEXCl6KG1O5fZsj+WyMIvelB1G9Sbx/JQmZUAlibaQ1h1v9S95d4RKft5NZXc=
+	t=1754654255; cv=none; b=sCpJI9jwOS35KfSlewNOZ3VVXRIzEqql/m2psmhSHU7V/3S1sOKMSJ+6Gv7gkyamgIBm5+rscH++6xDA9hB/jnkRq+b8zRJhLgMr1ZRNC5sw2rv8U38PafSanjtUIay6SPk2r2ErEZNzJLWattOdJn2CfJD1fXarvLUnII/5+jU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754637413; c=relaxed/simple;
-	bh=/RMT7NTp1oEFoLLROxxuFlP024+37FuV4HdTXu/aOV4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=e/rJl+IkdEPnBDSHJp3yHnQzpfxsfMDaGh2DJtZ+Zd4K54SS2phdST/yw+N37Y2vM6u0HuaIrhryBCZOV6heZnnSRdQ66PROXBlUH5pi5oRiZW3+mD8ejqKA0bc0mO7gT9bT2sSENQuTVr/jZ49pgKrGDoMloFjbnaZyGiXW2ZU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=k7bBY8xL; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=K7sB95iA; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=k7bBY8xL; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=K7sB95iA; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1754654255; c=relaxed/simple;
+	bh=exllA3Jx6HUaPakedceH9it4g83BDsncNgPqDd46eb0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=aQPW2Tu1RDlWLH+VOwuBa3W6OCUfC/1O9ZUOEDjfvGGhRk9pzViMLWd+8/dpiztn+IiD0Qbb6BUSMExj5/4Dg4Q/+Rhe6AqNxdZZZaahBQRcOGgOoTw4MtwZArJBYBrNAyZNVupi1kQNk5uK+/TJYvQWZJNttisD9JlGcCW5Cco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R0SNR28J; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="k7bBY8xL";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="K7sB95iA";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="k7bBY8xL";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="K7sB95iA"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id C5DCC5BDB8;
-	Fri,  8 Aug 2025 07:16:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1754637403;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=St0Eh41srmPo5Myog46kRVAv2peqCfbBZggyHocAocw=;
-	b=k7bBY8xL+Kr4ECaQ5f/3I8Kizo2JMds238KUeeBUC/f5mu2QDiB9s0DRrbVVX9DEEYi8/U
-	GJ/mmfGww5pEvaTqeYyt0btSKosdnYFZvThMNOMCzAPEwKk5SW2b58YqvtCmlt9Jyh2/Gf
-	hx3f1bcqp8f0Lm/6L0FLpnfUc0InX+0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1754637403;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=St0Eh41srmPo5Myog46kRVAv2peqCfbBZggyHocAocw=;
-	b=K7sB95iAmVh/48NcKZwsIZCE2rzmXIpjT6YJw0xkTUhARSx0vmOu29cV4lCh7R6cMG8t+p
-	Awdw8RESjTprCLBA==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=k7bBY8xL;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=K7sB95iA
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1754637403;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=St0Eh41srmPo5Myog46kRVAv2peqCfbBZggyHocAocw=;
-	b=k7bBY8xL+Kr4ECaQ5f/3I8Kizo2JMds238KUeeBUC/f5mu2QDiB9s0DRrbVVX9DEEYi8/U
-	GJ/mmfGww5pEvaTqeYyt0btSKosdnYFZvThMNOMCzAPEwKk5SW2b58YqvtCmlt9Jyh2/Gf
-	hx3f1bcqp8f0Lm/6L0FLpnfUc0InX+0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1754637403;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=St0Eh41srmPo5Myog46kRVAv2peqCfbBZggyHocAocw=;
-	b=K7sB95iAmVh/48NcKZwsIZCE2rzmXIpjT6YJw0xkTUhARSx0vmOu29cV4lCh7R6cMG8t+p
-	Awdw8RESjTprCLBA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8531113A7E;
-	Fri,  8 Aug 2025 07:16:43 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id t5/PHVuklWhnKwAAD6G6ig
-	(envelope-from <pvorel@suse.cz>); Fri, 08 Aug 2025 07:16:43 +0000
-Date: Fri, 8 Aug 2025 09:16:32 +0200
-From: Petr Vorel <pvorel@suse.cz>
-To: ltp@lists.linux.it
-Cc: Mimi Zohar <zohar@linux.ibm.com>, Paul Moore <paul@paul-moore.com>,
-	linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-	Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: Re: [PATCH] tst_security.sh: Use the same value for checkreqprot
-Message-ID: <20250808071632.GA406350@pevik>
-Reply-To: Petr Vorel <pvorel@suse.cz>
-References: <20250425125057.38992-1-pvorel@suse.cz>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R0SNR28J"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-31ec95ad016so1835171a91.3;
+        Fri, 08 Aug 2025 04:57:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1754654253; x=1755259053; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JPmy7TV8Otdi8h7z+/vlIcixcwuDXsOiVWvreOaDeQE=;
+        b=R0SNR28JfKMJ5Rp8lP5HmMTKGt5M4xrZ2h2qBxtQGeqpndZcK/II+FEm0/5JgxVeUV
+         2ISurGJpcHaPiYFwOPl2sWkTpfd0wNP8Xv4uTzFL17GMLNvYMXj4tfNUZrKx0+yinrVG
+         DblcO/Iz58qU8xcmm12h+fYfXi+xdTQT8DJREoAsRIZqaA5xX0exXFRIyVk3e4uv730F
+         a/Hp7TQ7dutrBW9RFUkc8Og2PjwpnYKzw4d/qblsthEO0VE7V2eX8/w0bltqgt4VyFZI
+         btm/+M+HHdX7M8cYQgMfd8Pv/1H7OSls0SAJ/634rhWP+uDstvpXbFPEHU5j0TNNj7sp
+         5Xaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1754654253; x=1755259053;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JPmy7TV8Otdi8h7z+/vlIcixcwuDXsOiVWvreOaDeQE=;
+        b=s5z10H/DaSCJYbCLeHtl5cGAm7xVPhQScHpqIwCJ2Ms0bqIj5KMC+UUahux78/4/F7
+         5ZVZYRT1/Ag7P1kvYNjZwEkJpTUsvs41aJ7SBtWqHr68AQ7htAKHZ8j2DcoqiPuX1LyL
+         wuzfeTutlRVCZCuL27ESbOhFwmLRMlX+Kx5DhUmAbvfANzoWfu2jzBAzoILC3Rl/+eWC
+         o1Tb6dzuspXmT5nslaTo0HtxYzSI9Pk74+okfX3DxD3sAvGXOqN1tOBpO3G6gV/f9ei8
+         XYnH63kRMy5uUMksjzOjIrsiOhbKk6xb47r2KqfjeYgjiwWooB8HN9DPMFV5Xo30i+rh
+         dvEg==
+X-Forwarded-Encrypted: i=1; AJvYcCU8eaHP5RK7XqatJRVlFCJB+L8S+uLPBX0Jekb2u/+E9nI8cGLt3Hba9RCPF2+KSumBAcqAmXs8puz4672uE+sKR/dUu/Kj@vger.kernel.org, AJvYcCV4E5JTj6/mtlxIOYA0J3X//WZAsghcSbfgsmovPNMWW+p5KgnPmWj345ItEvNYjiLu6KbOObp8ww==@vger.kernel.org, AJvYcCXaBTx6qPT1kVTdPmimgeqfK9KExRwp+ZcT72oLee87ZbeVnRzWql4aSnqgBmhDCGUsji1AqBbm7/zo0U8=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyYP3QGN71jCvUIo01Nfn9cY+1Hs3YOJ000MXN8+yzb115Tg+HT
+	+eoef5w+iFF332ErWtb9iLjdNauBm/wcTlQa7BzEXMgbOK8W6WVjIMnBr2eYIvSTPcFafbGBJrx
+	l/AbzyQmyUuiFR5qqEnHmX6Ce4mgAMRo=
+X-Gm-Gg: ASbGncuu8AGZJR0jgoOQcQ3cCLC4YUogNMhkNYMw5odPxwpjpMRpYsLH/rTQdmyBStI
+	7DmQ846LZ39V/LpqSbePxvIaBrS5F69/NCjBFGqhACc8K2N7ZxCovaj9XrU/fFDw7Y7k3mCpxlH
+	W1iSdvd4VfBO1ec96xyp/KVKyCQmxYC6qAvT52IcCkhrXQ0p2QSJYi0Ls7SdGWZaKgq5IZdycUD
+	reh4UY=
+X-Google-Smtp-Source: AGHT+IGLy0Plqc8pj0XqKVn/tG+Xg4TWhxNzbjRb+GBKmuIFfOWvybXhxeNO32hP17A6PKMexiQOxvyLz+efX+befPA=
+X-Received: by 2002:a17:90b:5866:b0:312:959:dc4f with SMTP id
+ 98e67ed59e1d1-321839caddemr3562952a91.5.1754654252833; Fri, 08 Aug 2025
+ 04:57:32 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250425125057.38992-1-pvorel@suse.cz>
-X-Spam-Level: 
-X-Spam-Flag: NO
-X-Rspamd-Queue-Id: C5DCC5BDB8
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-2.21 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	HAS_REPLYTO(0.30)[pvorel@suse.cz];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	FREEMAIL_CC(0.00)[linux.ibm.com,paul-moore.com,vger.kernel.org,linux.microsoft.com,gmail.com];
-	DKIM_TRACE(0.00)[suse.cz:+];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[7];
-	TAGGED_RCPT(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	MISSING_XM_UA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	REPLYTO_EQ_FROM(0.00)[]
-X-Spam-Score: -2.21
+References: <20250807075745.756415-1-tweek@google.com>
+In-Reply-To: <20250807075745.756415-1-tweek@google.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Fri, 8 Aug 2025 07:57:21 -0400
+X-Gm-Features: Ac12FXzFkzXFEtiVUAp0b2BNfX-6piwGGTrFd0rcZB7MNDm2DLbb9e2scCpH7zA
+Message-ID: <CAEjxPJ5nC7s=+Os4+9XjkzhGTyaNVrCyJgx+rz5n3baRFWVrzA@mail.gmail.com>
+Subject: Re: [RFC PATCH 2/2] memfd: call security_inode_init_security_anon
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
+	Hugh Dickins <hughd@google.com>, Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, 
+	Jeff Xu <jeffxu@google.com>, linux-kernel@vger.kernel.org, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi all,
+On Thu, Aug 7, 2025 at 3:57=E2=80=AFAM Thi=C3=A9baud Weksteen <tweek@google=
+.com> wrote:
+>
+> Prior to this change, no security hooks were called at the creation of a
+> memfd file. It means that, for SELinux as an example, it will receive
+> the default type of the filesystem that backs the in-memory inode. In
+> most cases, that would be tmpfs, but if MFD_HUGETLB is passed, it will
+> be hugetlbfs. Both can be considered implementation details of memfd.
+>
+> It also means that it is not possible to differentiate between a file
+> coming from memfd_create and a file coming from a standard tmpfs mount
+> point.
+>
+> Additionally, no permission is validated at creation, which differs from
+> the similar memfd_secret syscall.
+>
+> Call security_inode_init_security_anon during creation. This ensures
+> that the file is setup similarly to other anonymous inodes. On SELinux,
+> it means that the file will receive the security context of its task.
+>
+> The ability to limit fexecve on memfd has been of interest to avoid
+> potential pitfalls where /proc/self/exe or similar would be executed
+> [1][2]. Reuse the "execute_no_trans" and "entrypoint" access vectors,
+> similarly to the file class. These access vectors may not make sense for
+> the existing "anon_inode" class. Therefore, define and assign a new
+> class "memfd_file" to support such access vectors.
 
-FYI patch merged.
+To provide backward compatibility, I would anticipate that you will
+need to define a new SELinux policy capability and make this change
+conditional on it being enabled, see:
+https://github.com/SELinuxProject/selinux-kernel/wiki/Getting-Started#addin=
+g-a-new-selinux-policy-capability
+for instructions and links to examples.
 
-Kind regards,
-Petr
+Otherwise, see below.
 
-> kernel commit e9c38f9fc2cc ("Documentation,selinux: deprecate setting
-> checkreqprot to 1") from v5.10-rc1 deprecated checkreqprot value 1
-> (emit warning in dmesg). Code is used only in ima_selinux.sh
-> which requires 5.12. Touching /sys/fs/selinux/checkreqprot is required
-> to trigger the measurement via selinux_ima_measure_state().
-
-> Using the same value (0 by default) works on recent 6.14, it should be
-> safe changing to use the same value. This way misleading warning is
-> avoided and hopefully kept working in the future.
-
-> Also, this way it does not modify SUT setting (don't influence other
-> tests), which is always better.
-
-> Fixes: 36c695e497 ("tst_security.sh: Add helper tst_update_selinux_state()")
-> Signed-off-by: Petr Vorel <pvorel@suse.cz>
+>
+> [1] https://crbug.com/1305267
+> [2] https://lore.kernel.org/lkml/20221215001205.51969-1-jeffxu@google.com=
+/
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 > ---
-> @SELinux developers: FYI tst_security.sh is used in LTP test in
-> ima_selinux.sh [1] test.
-
-> Kind regards,
-> Petr
-
-> [1] https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/security/integrity/ima/tests/ima_selinux.sh
-
->  testcases/lib/tst_security.sh | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
-
-> diff --git a/testcases/lib/tst_security.sh b/testcases/lib/tst_security.sh
-> index 4e2d34ca98..820736c723 100644
-> --- a/testcases/lib/tst_security.sh
-> +++ b/testcases/lib/tst_security.sh
-> @@ -142,11 +142,10 @@ tst_get_enforce()
-
->  tst_update_selinux_state()
+>  mm/memfd.c                          | 16 ++++++++++++++--
+>  security/selinux/hooks.c            | 15 +++++++++++----
+>  security/selinux/include/classmap.h |  2 ++
+>  3 files changed, 27 insertions(+), 6 deletions(-)
+>
+> diff --git a/mm/memfd.c b/mm/memfd.c
+> index bbe679895ef6..13bff0e91816 100644
+> --- a/mm/memfd.c
+> +++ b/mm/memfd.c
+> @@ -433,6 +433,9 @@ static struct file *alloc_file(const char *name, unsi=
+gned int flags)
 >  {
-> -	local cur_val new_val
-> +	local val
->  	local dir=$(tst_get_selinux_dir)
->  	[ -n "$dir" ] || return 1
+>         unsigned int *file_seals;
+>         struct file *file;
+> +       struct inode *inode;
+> +       int err =3D 0;
+> +       const char *anon_name =3D "[memfd]";
+>
+>         if (flags & MFD_HUGETLB) {
+>                 file =3D hugetlb_file_setup(name, 0, VM_NORESERVE,
+> @@ -444,12 +447,21 @@ static struct file *alloc_file(const char *name, un=
+signed int flags)
+>         }
+>         if (IS_ERR(file))
+>                 return file;
+> +
+> +       inode =3D file_inode(file);
+> +       err =3D security_inode_init_security_anon(inode,
+> +                       LSM_ANON_INODE_MEMFD,
+> +                       &QSTR(anon_name), NULL);
 
-> -	cur_val=$(cat $dir/checkreqprot)
-> -	[ $cur_val = 1 ] && new_val=0 || new_val=1
-> -	echo $new_val > $dir/checkreqprot
-> +	val=$(cat $dir/checkreqprot)
-> +	echo $val > $dir/checkreqprot
->  }
+Since the anon_name already indicates that this is a memfd, so can't
+you already distinguish these via name-based type_transition rules?
+Why do we need the enum argument?
+
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 8d36d5ebb6e5..49742930e706 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2367,8 +2367,8 @@ static int selinux_bprm_creds_for_exec(struct linux=
+_binprm *bprm)
+>         ad.u.file =3D bprm->file;
+>
+>         if (new_tsec->sid =3D=3D old_tsec->sid) {
+> -               rc =3D avc_has_perm(old_tsec->sid, isec->sid,
+> -                                 SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, =
+&ad);
+> +               rc =3D avc_has_perm(old_tsec->sid, isec->sid, isec->sclas=
+s,
+> +                                 FILE__EXECUTE_NO_TRANS, &ad);
+
+Here and below I am a little concerned that we could end up reaching
+this code on an inode with an isec->sclass that does not define the
+execute_no_trans and entrypoint permissions. We should do something to
+make that never happens, or check for it and always deny in that case.
+
+>                 if (rc)
+>                         return rc;
+>         } else {
+> @@ -2378,8 +2378,8 @@ static int selinux_bprm_creds_for_exec(struct linux=
+_binprm *bprm)
+>                 if (rc)
+>                         return rc;
+>
+> -               rc =3D avc_has_perm(new_tsec->sid, isec->sid,
+> -                                 SECCLASS_FILE, FILE__ENTRYPOINT, &ad);
+> +               rc =3D avc_has_perm(new_tsec->sid, isec->sid, isec->sclas=
+s,
+> +                                 FILE__ENTRYPOINT, &ad);
+>                 if (rc)
+>                         return rc;
+>
+> @@ -2997,6 +2997,13 @@ static int selinux_inode_init_security_anon(struct=
+ inode *inode,
+>
+>                 isec->sclass =3D context_isec->sclass;
+>                 isec->sid =3D context_isec->sid;
+> +       } else if (type =3D=3D LSM_ANON_INODE_MEMFD) {
+> +               isec->sclass =3D SECCLASS_MEMFD_FILE;
+> +               rc =3D security_transition_sid(
+> +                       sid, sid,
+> +                       isec->sclass, name, &isec->sid);
+
+Again, name-based type_transitions ought to be able to distinguish
+memfd based on the name argument IIUC.
