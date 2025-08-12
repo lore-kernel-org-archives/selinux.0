@@ -1,189 +1,179 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ED04137750
-	for <selinux@vger.kernel.org>; Tue, 12 Aug 2025 12:18:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8CE61DDC0B
+	for <selinux@vger.kernel.org>; Tue, 12 Aug 2025 12:27:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755001113; cv=none; b=P83AQXEHH/VXoTlbB0pL6HNZp8QxS9elmoObE30216b5o9KbErsGSccFZBhF4MA8kIhDyKZcagGC0/Rmc48G/u3L6tftNXQvjlHpnXyDd99eQzAgmTfxBnmq4PsyXDtX/lYrqbzdzzZLqxaLiyCvZqZ5rTFk+KP4vrRYG5w7ua8=
+	t=1755001666; cv=none; b=JaUR3JxbJNqEpIBfFKPy/hvn6Ed6DMJjvuZcJuyUd7fHPk6K+5k+jXcHTy7/BaGIwux6ypWGMlWxGdIOaMP1JeUNjAgp9HIGeY4PeLwYd7Sm6DSz7GUMaDHbaVQRvTR+D2gIgJrk7Gv/CkMwc1s7zwMg9SnM+bBkvBni4SMeTfI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755001113; c=relaxed/simple;
-	bh=FkHDSCn9zDNm/J8hJnjP8qhsPJUsRfYFoxxjiG5dGEA=;
+	s=arc-20240116; t=1755001666; c=relaxed/simple;
+	bh=952xq6Uz9Y9dzD0fr/lt1hHKSPNVztDhx6AcSSzrUGs=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jRw0x6aTv7rbmT8qcsbirfpJigEi0YKrwcS/Y+gzOBFRW9PsRmokr35CPsR7tORvuoRI7Yb0azyrmqLnJD21aUsLbAeWCVjkIQa0qPV9lwW/FJ5M5RkZ890Jq1zociWRLeLRbXiio/EL8QJnq3yB6/i8eTMOVGqaLqWIRvywx4E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BTZ7Plq0; arc=none smtp.client-ip=209.85.216.46
+	 To:Cc:Content-Type; b=cRIM4cCxVK4WDPF8FI+vr18Yo6W4FAtZMCAW7/muh+qUp+9+40L1YmtCEfifgJsjXgQe0eC8y0xZK9fnHD31v+lG19ApmCnlwtRmBZWdZDvDhA38NBp0CPy7eLofQHhituzphb/NzdQvtMGkqE6Oc5uWuztiXw1tzIABwqDROYM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bN8lH+Ma; arc=none smtp.client-ip=209.85.216.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BTZ7Plq0"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-32106b0930eso5642800a91.0
-        for <selinux@vger.kernel.org>; Tue, 12 Aug 2025 05:18:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bN8lH+Ma"
+Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-320dfa8cfa3so4816809a91.3
+        for <selinux@vger.kernel.org>; Tue, 12 Aug 2025 05:27:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755001111; x=1755605911; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1755001664; x=1755606464; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=U1VDCRdzgbDUh9XQcpAhuV4z4JDM017Iq2ASJMN871w=;
-        b=BTZ7Plq0+fbf6mraDicLNFT2dV7+xw/6iv0YXSmtidaxeaozQLkowthtcevK93jJs2
-         vFd0U9/k1z4QJSZIEjPJw4ysY8ZSQoTedw4/5HfYWcexmZFCx2QJV6u/l3+QdsrbxSmt
-         gHMCZMA+vvBLpCDz5Ma6shkUeRrVdpGWrseUueirGQNsU5uZWeq+QVYZoSe+GkuvbXa8
-         KIQzy2DsU9kSS461tQI0PKEZ22f8QhRa8gXI42uLmiEBokTPXRFwQF7G8gNJLiVmTqyI
-         L13S6/ZQtI8ElrsriUNbvXAKXJlTovWE5JNNkucfNdYr7yzo8US4T/sM9kwzwI+5r5GW
-         pu/g==
+        bh=iwCAGceu4/gql2x5fQ1kXpf2VxSRLnCVipIz+AYDNB8=;
+        b=bN8lH+MazEqPW3aQ9MZ7RiW64mPLddX0EfAsl4Jbg6rRIFmZcvOiF0ptLzPmIVk2wS
+         pSmf7VCCw0hv1dy0dpURvBI3hpDbMIh+/COUurBirrk/JfI+a/rrWzbBvF5XRPuOUx8e
+         0XSTSuXkhz5vo52Ymy+O77Zh9W1R0MaNCrgDzxejoabmSbPRacNzRh8xxJ1+TJEODBT6
+         S2NvQK6rP0SI1pXPh55MYYG8P63iVXxAx2nM+FRbreEOOqz0AE4isG2L4f5cAZgc8JNQ
+         gBVUds/MbFrJSUrXnnIleQN1Rp63Nf7NLBFn7zc44f+an4Fln1whjm/JA7/VAuw9DsUl
+         o5hQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755001111; x=1755605911;
+        d=1e100.net; s=20230601; t=1755001664; x=1755606464;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=U1VDCRdzgbDUh9XQcpAhuV4z4JDM017Iq2ASJMN871w=;
-        b=duA4dZo9QSTDW3vDc2fjwF+pugtAk+S59McYjZ/imr8hPWiPthl/ji/4x1ttY550aM
-         8NLIeOVKM7tajGTaRryVQnAXiuzvEfJIw3oAaxOD8v4TkTdGOx1lgLF/EWj78c8u9Jtc
-         uiGwoQbLU15qKA6IGCT9h+EBSVawowI0MZU6ywypKZ0p7WVYVsujOnUQ1k3QwJllGs8n
-         YmgXCDnxOCwhsbwwBGcIPMcX7X6okzWq987MS43yn5aBUBoUw4sBfe+lc8OmiOUdvWmm
-         L9BSIlg4qqYPRAK8MndAKMComCjZup7iyOajQcm7AnR6t/Dq78yXzuJV0Dyg+hZEuHYA
-         TIYg==
-X-Forwarded-Encrypted: i=1; AJvYcCX5CsYwKmd/REMW7ytawNHMFnbGvJChJUtgPy8IyanZv+yQs8nTwIOM3AwJd3/gdN9aioU6hJnv@vger.kernel.org
-X-Gm-Message-State: AOJu0YwOCAjyCyI4naErDlUobM4EScBJKwDG18MVT5tvMyAKYiM2raRx
-	RWnbwYxxTLUyK54Y2pAPG+4AVs9IA38I/siR4u6bX5/8iQMhPrUkZDkKgyo50QhCpVoCnPGwDoO
-	xsKV8VVnUqWisq59TzyF1gU6VhSoY2rhdhA==
-X-Gm-Gg: ASbGnctrP2cRiGYug1OzYiZkCA3wYCjsnU9+PcjlM48QuxeKOocQbXUwoUUSzPDaoYS
-	VSKWRrQwT/Zv8QpZ0eEHnExG+TCTCqxkkBag0HgszSBj+EuD28ZDR0KMEnhfU84/3azOhsqdZ3g
-	5+q2Tp7jca7KDK98xx8b00gVrl2WwQ6vkkU1vCQgxCSe2toxZNAgFVxYrzt0zbKP9IMoLLOEpuv
-	yrztj0=
-X-Google-Smtp-Source: AGHT+IEqHjRJC1ti2+m/T41PE24Bjjk+wcOSj4v9glAjek5+txgDMiBlPrd4VqekuFQSeC8V2uKP23l4WG/PtyVS+QI=
-X-Received: by 2002:a17:90a:ec86:b0:321:c85d:dd93 with SMTP id
- 98e67ed59e1d1-321c85de7a0mr1656241a91.4.1755001111271; Tue, 12 Aug 2025
- 05:18:31 -0700 (PDT)
+        bh=iwCAGceu4/gql2x5fQ1kXpf2VxSRLnCVipIz+AYDNB8=;
+        b=H5DXLPaKTLBnZtJmRKQ4rtsFsl2f+5e/l44vas6p435qAu44djeHXwv50MZtdMuiuo
+         CvicmPF/sHfqm+Z3L5QwN+r0/r6sbduwnTOEa/X/MM2b5htihyEa00gzYJUwcdRHbBsU
+         i41rWaMm7Bc29wi2j6QY087r4Cjq8HFEw0PmaHMvXkC0H32BS4EcaqXuwReP2ctoULkG
+         7FVIzJPwpbLsdX6Dwi2dlBHWtKvaJn8I9faYcokGj0vAzfFbERzAtQpipLzH/sncYuUo
+         WLNBPyA0hGVGVw4n+kuM42e8z+GCiEJSar7ymg8fGC07F75B3EMKIWl+W9n/yFMsrZLw
+         w0jg==
+X-Forwarded-Encrypted: i=1; AJvYcCVbG66Y0DcICykMbhMg/l19qUUIj4vsdJe6v+YQqGBU1gBiz+h/ZgT7t0RuDiYX9s0k97nvvIew@vger.kernel.org
+X-Gm-Message-State: AOJu0YxszFUgy7F/rGD6aiwNtXT+bcLf4OHpvN7BGSJcdfaigGZU8Y6G
+	4Hy4Ls0AvRakc5nqv2PADI+nLxARtBrRzpj9SckV+D6a5Wv6GvQ4xCpfR6Oo5nmCBJaX46Dm8Iu
+	3DhAz6RCxfXOUcsZRKa4flbtefy0V8SV6NQ==
+X-Gm-Gg: ASbGncuqZZBkgPNjlF8hES9NJoFXrwlJgL2lGiTB8FLaOamIHCFxqzIrZFo2YWRwcpk
+	vKMu7jYaGa0Ze31Gl55VioZK6cH697hrpn8RSDexPJ7kmA2aQ65fPZ/9nHCsbdDAMy+EvK2B/on
+	GImjjhcmStwQA1PY58JxaLwySyqCvABxfhqhisNax7mLi+pz4jvNH08EaZpTYxVCrRBJl/QtYai
+	QUmUVU=
+X-Google-Smtp-Source: AGHT+IGTxLljGFzt76MsPzPw58ji/sy79tGDoirP/CVvsv5IPweo/O5N1ypkZtGNI01ae9xZPPikBvlj/bqdfjnBlO8=
+X-Received: by 2002:a17:90b:2ecd:b0:312:639:a06a with SMTP id
+ 98e67ed59e1d1-321c0b7a61cmr4207129a91.31.1755001663603; Tue, 12 Aug 2025
+ 05:27:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250808184711.291-1-ericsu@linux.microsoft.com>
- <CAEjxPJ6SBAy8yi8XhASR5pVFnYfvJhFujzGfBQuS9o2TziOSFw@mail.gmail.com> <8cd1865a-6220-471d-826d-e4908b39f229@linux.microsoft.com>
-In-Reply-To: <8cd1865a-6220-471d-826d-e4908b39f229@linux.microsoft.com>
+References: <20250806180149.1995-1-ericsu@linux.microsoft.com>
+ <CAKrb_fGECzqWO+Kq7n+5Q=J404npPyttrkLcXwLkdM-UZcZmLA@mail.gmail.com> <e5278ea4-33b5-48b5-a59e-bef7c4cfe866@linux.microsoft.com>
+In-Reply-To: <e5278ea4-33b5-48b5-a59e-bef7c4cfe866@linux.microsoft.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 12 Aug 2025 08:18:19 -0400
-X-Gm-Features: Ac12FXxagvjewiX5fFmWcWUxZuz9f5MjlVKruGqRtNd0P88hNZBXMTKvXvuJzok
-Message-ID: <CAEjxPJ69ee3c33jQsE39QeHk9q2ADNYtf2nyry3-8pu1F0zCkg@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/bpf: Add tests for SELinux BPF token
- access control
+Date: Tue, 12 Aug 2025 08:27:32 -0400
+X-Gm-Features: Ac12FXyQJ3boT5ELzMpCkXtyr6omVgJsgy57BrtQdZKE1YR6ZZNlH3BXyppFCcc
+Message-ID: <CAEjxPJ6OgHn6VoXNhcUOxKd5e2AVzKZQajfVaqt40VENor=weQ@mail.gmail.com>
+Subject: Re: [PATCH] SELinux: Add support for BPF token access control
 To: Eric Suen <ericsu@linux.microsoft.com>
-Cc: danieldurning.work@gmail.com, selinux@vger.kernel.org, paul@paul-moore.com, 
-	omosnace@redhat.com
+Cc: Daniel Durning <danieldurning.work@gmail.com>, selinux@vger.kernel.org, 
+	paul@paul-moore.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Aug 11, 2025 at 2:36=E2=80=AFPM Eric Suen <ericsu@linux.microsoft.c=
+On Mon, Aug 11, 2025 at 3:30=E2=80=AFPM Eric Suen <ericsu@linux.microsoft.c=
 om> wrote:
 >
-> On 8/8/2025 12:59 PM, Stephen Smalley wrote:
-> > On Fri, Aug 8, 2025 at 2:47=E2=80=AFPM Eric Suen <ericsu@linux.microsof=
-t.com> wrote:
-> >> This patch adds new tests to verify the SELinux support for BPF token
-> >> access control, as introduced in the corresponding kernel patch:
-> >>    https://lore.kernel.org/selinux/20250806180149.1995-1-ericsu@linux.=
-microsoft.com/
+> On 8/7/2025 11:00 AM, Daniel Durning wrote:
+> > On Wed, Aug 6, 2025 at 2:07=E2=80=AFPM<ericsu@linux.microsoft.com> wrot=
+e:
+> >> From: Eric Suen<ericsu@linux.microsoft.com>
 > >>
-> >> Four new tests are added to cover both positive and negative scenarios=
-,
-> >> ensuring that the SELinux policy enforcement on BPF token usage behave=
+> >> BPF token support was introduced to allow a privileged process to dele=
+gate
+> >> limited BPF functionality=E2=80=94such as map creation and program loa=
+ding=E2=80=94to an
+> >> unprivileged process:
+> >>    https://lore.kernel.org/linux-security-module/20231130185229.268895=
+6-1-andrii@kernel.org/
+> >>
+> >> This patch adds SELinux support for controlling BPF token access. With
+> >> this change, SELinux policies can now enforce constraints on BPF token
+> >> usage based on both the delegating (privileged) process and the recipi=
+ent
+> >> (unprivileged) process.
+> >>
+> >> Supported operations currently include:
+> >>    - map_create
+> >>    - prog_load
+> >>
+> >> High-level workflow:
+> >>    1. An unprivileged process creates a VFS context via `fsopen()` and
+> >>       obtains a file descriptor.
+> >>    2. This descriptor is passed to a privileged process, which configu=
+res
+> >>       BPF token delegation options and mounts a BPF filesystem.
+> >>    3. SELinux records the `creator_sid` of the privileged process duri=
+ng
+> >>       mount setup.
+> >>    4. The unprivileged process then uses this BPF fs mount to create a
+> >>       token and attach it to subsequent BPF syscalls.
+> >>    5. During verification of `map_create` and `prog_load`, SELinux use=
 s
-> >> as expected.
-> >>    - Successful map_create and prog_load when SELinux permissions are
-> >>      granted.
-> >>    - Enforcement of SELinux policy restrictions when access is denied.
+> >>       `creator_sid` and the current SID to check policy permissions vi=
+a:
+> >>         avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
+> >>                      BPF__MAP_CREATE, NULL);
 > >>
-> >> These tests are located under the tests/bpf directory and can be run
-> >> using the standard SELinux testsuite workflow.
-> > (added Daniel to cc since he also posted a testsuite patch and thus
-> > should be included)
-> >
-> > As I mentioned on the other thread, you should include instructions in
-> > your commit message for how to temporarily define the requisite policy
-> > capability and new permissions to run these tests; an example is
-> > linked from the SELinux kernel wiki Getting Started page and my other
-> > email.
-> > That alone isn't worth re-submitting this patch but see below for more.
-> Stephen - I followed instructions in this example to enable new
-> permissions and capability:
-> https://github.com/SELinuxProject/selinux-testsuite/commit/023b79b8319e5f=
-e222fb5af892c579593e1cbc50
->
->
-> I experimented with those commands, and 'sudo semodule -i
-> netlink_xperm.cil' failed with following errors. I am in the process of
-> figuring this out. In the meantime, if you know where the problem is,
-> could you please let me know?
-> Invalid policycap (netlink_xperm) at
-> /var/lib/selinux/targeted/tmp/modules/400/netlink_xperm/cil:1
-> Failed to verify cil database
-> Failed to verify cil database
-> Post process failed
-> semodule:  Failed!
+> >> To verify the logic introduced by this patch, my fork of the SELinux
+> >> testsuite with relevant test cases is available here:
+> >>    https://github.com/havefuncoding1/selinux-testsuite
+> >>
 
-The above error is for the netlink_xperm policy capability, which
-requires a corresponding libsepol patch to define it for the policy
-compiler. For your testsuite patch, you would be instead using your
-libsepol patch and policy capability name here.
+> >> @@ -7086,10 +7092,34 @@ static int selinux_bpf_prog(struct bpf_prog *p=
+rog)
+> >>                              BPF__PROG_RUN, NULL);
+> >>   }
+> >>
+> >> +static int selinux_bpffs_creator_sid(const union bpf_attr *attr)
+> >> +{
+> >> +       struct path path;
+> >> +       struct super_block *sb;
+> >> +       struct superblock_security_struct *sbsec;
+> >> +
+> >> +       CLASS(fd, f)(attr->token_create.bpffs_fd);
+> >> +
+> >> +       if (!fd_file(f))
+> >> +               return SECSID_NULL;
+> > Is it possible for this value to be null assuming there is not a bug
+> > in the kernel? You would not want to do a runtime check for something
+> > that would indicate a kernel bug lest you accidentally hide the bug.
+> I always think being defensive is a good thing in kernel development.
+> But you have a valid point, and I will review and update in next
+> iteration if appropriate. Same applies to all similar comments below.
+> Thank you.
 
-> >> diff --git a/tests/bpf/test b/tests/bpf/test
-> >> index a3fd856..aefc70c 100755
-> >> --- a/tests/bpf/test
-> >> +++ b/tests/bpf/test
-> >> @@ -9,8 +9,10 @@ BEGIN {
-> >>
-> >>       $test_bpf_count       =3D 7;
-> >>       $test_fdreceive_count =3D 4;
-> >> +    $test_bpf_token_count =3D 4;
-> >>
-> >> -    $test_count =3D $test_bpf_count + $test_fdreceive_count;
-> >> +    $test_count =3D $test_bpf_count + $test_fdreceive_count +
-> >> +                  $test_bpf_token_count;
-> >>
-> >>       # allow info to be shown during tests
-> >>       $v =3D $ARGV[0];
-> >> @@ -67,6 +69,13 @@ ok( $result eq 0 );
-> >>   $result =3D system "runcon -t test_bpf_t $basedir/bpf_test -p $v";
-> >>   ok( $result eq 0 );
-> >>
-> >> +# BPF token - BPF_MAP_CREATE_AS, BPF_PROG_LOAD_AS
-> >> +$result =3D system "runcon -t test_bpf_t $basedir/bpf_test -c $v";
-> >> +ok ( $result eq 0 );
-> >> +
-> >> +$result =3D system "runcon -t test_bpf_t $basedir/bpf_test -l $v";
-> >> +ok ( $result eq 0 );
-> >> +
-> >>   # Deny map_create permission
-> >>   $result =3D
-> >>     system "runcon -t test_bpf_deny_map_create_t $basedir/bpf_test -m =
-$v 2>&1";
-> >> @@ -92,6 +101,16 @@ $result =3D
-> >>     system "runcon -t test_bpf_deny_prog_run_t $basedir/bpf_test -p $v=
- 2>&1";
-> >>   ok($result);
-> >>
-> >> +# BPF token - deny BPF_MAP_CREATE_AS
-> >> +$result =3D
-> >> +  system "runcon -t test_bpf_deny_map_create_as_t $basedir/bpf_test -=
-c $v 2>&1";
-> >> +ok($result);
-> >> +
-> >> +# BPF token - deny BPF_PROG_LOAD_AS
-> >> +$result =3D
-> >> +  system "runcon -t test_bpf_deny_prog_load_as_t $basedir/bpf_test -l=
- $v 2>&1";
-> >> +ok($result);
-> >> +
-> >>   #
-> >>   ################ BPF Tests for fdreceive #######################
-> >>   #
-> > At least on my system, perl tidy complained about some lines in this
-> > file; be sure to re-run it and amend.
-> I did run 'checkpatch.pl'. Maybe there are warnings I missed. I will
-> take a look again.
+The Linux kernel way is to NOT check conditions that can only occur if
+there is a kernel bug (or use BUG_ON/BUG/etc macros for such checks so
+they can be compiled away for production, but adding new instances of
+those is generally frowned upon). So unless you can identify a case
+where these are userspace-triggerable, you shouldn't be checking them.
 
-For the testsuite, use ./tools/check-syntax to check for syntax
-problems, and ./tools/check-syntax -f to automatically fix any. The
-perl scripts are formatted via perl tidy.
+> >> @@ -7098,7 +7128,15 @@ static int selinux_bpf_map_create(struct bpf_ma=
+p *map, union bpf_attr *attr,
+> >>          bpfsec->sid =3D current_sid();
+> >>          map->security =3D bpfsec;
+> >>
+> >> -       return 0;
+> >> +       if (!token)
+> >> +               ssid =3D bpfsec->sid;
+> >> +       else {
+> >> +               ssid =3D selinux_bpffs_creator_sid(attr);
+> >> +               if (ssid =3D=3D SECSID_NULL)
+> >> +                       return -EPERM;
+> > Should this ever be null? See above (for this and all repeated
+> > occurrences of this check).
+
+If this check remains in your final patch, then returning -EPERM from
+SELinux is uncommon - we usually return -EACCES on permission denials,
+only using -EPERM for superuser/capability checks. Also silently
+returning -EPERM or -EACCES is not ideal for SELinux since it provides
+no insight to the user as to the cause and no way to override (ala
+permissive mode) if needed. It might actually be better to just fall
+through and let it pass SECSID_NULL to avc_has_perm(), which will
+produce an SELinux avc audit message (with the unlabeled context,
+since any unknown SID is mapped to that automatically) to the user and
+the option for overriding via permissive mode.
