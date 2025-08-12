@@ -1,183 +1,100 @@
-Received: from mail-ua1-f54.google.com (mail-ua1-f54.google.com [209.85.222.54])
+Received: from mail-qv1-f51.google.com (mail-qv1-f51.google.com [209.85.219.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A5D02D63F7
-	for <selinux@vger.kernel.org>; Tue, 12 Aug 2025 15:18:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 493CF2264C7
+	for <selinux@vger.kernel.org>; Tue, 12 Aug 2025 17:18:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755011928; cv=none; b=MLEDXFyXt3fuqqw8MBFavhPwxlVtzTxFQ7CXMUwhY1F/XZNck4BBKwHhfRYwD0yTMCcjykUsnqpT7sjz4wJ4s/5T7H1DGY/cOXqWUGHgN7uZus3cpjQDbvcLYV/8qr2TkXYXypJkXmwbhQNAApVv/ilTkaxQ9X1/q0z/H+I6z8o=
+	t=1755019097; cv=none; b=Ouche7TCo6rfjVRbF41jLGug9MpW6zDZOBh6FwmzTCiNl5ZtOosERuYRX9f1uHDKhopya6Raft0+wqNSSnYzxlKOHJVo82rg1DKj/fql1hmKThGbYSiU7rMNTw6pVF7Myg30WudOMyegelBNUmlZrhQ0ykoZZb2R9OSvG6QFTGo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755011928; c=relaxed/simple;
-	bh=w6JlLBcB/cqn6LOc8/qavDjWlI3i8lN/we/FZIZbeN8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gxDEGTwElSSVCxH5jlfjbYq4Blhlm1bJsBycldxC9KjbC41d5HAkCfb0ZSXUPty5YQC4BoCFHP0FIYUYBYLCE7mzTbU3iZWIlZBuJUY7WEtiFJ4JGUb+I3XZCvEcgypJ3hr+YG9gefhRe/rN8o2OnfchpN6oLESy1iypum/HgjY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jbGw1UKo; arc=none smtp.client-ip=209.85.222.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1755019097; c=relaxed/simple;
+	bh=/1/AcIXKW6qI9qQKGtUvf0EaTv0IPP0cBe2w8dCxcXM=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=ixO+BUPnTI8FSau+xqMqHKbjGldZ0PqKGIhbJS8MSHNMkJ9F3/rfU9v1sUJF0xgqtpuL6rGcyabIJ8xWgMv73QdpqAuAOFQUl+WEMR+l0oMHJJUZh68Kzj5XML5Y+blTNa9Bk6Qumi2489TvEv/veV5q5qqkEXb+fRFrIBDUc7k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Mpk57Cja; arc=none smtp.client-ip=209.85.219.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jbGw1UKo"
-Received: by mail-ua1-f54.google.com with SMTP id a1e0cc1a2514c-88bc71ff9b0so2624165241.1
-        for <selinux@vger.kernel.org>; Tue, 12 Aug 2025 08:18:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Mpk57Cja"
+Received: by mail-qv1-f51.google.com with SMTP id 6a1803df08f44-70756dc2c00so73879826d6.1
+        for <selinux@vger.kernel.org>; Tue, 12 Aug 2025 10:18:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755011926; x=1755616726; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4WtaxxLbK7p2y3PHa/LD+Y+g4cIn57tdGIvbD5vhxtQ=;
-        b=jbGw1UKo7uu411jBQUuP9eHG+qdTij8UF1ngbgLPM6AeOxJ/HnEW2LVKnzddONB7lB
-         lHZABMTDuA0urYSN6uyuxGnVbHkZCW1LxovhM7CmqW8RAiIex3sGS1oG2E85SHnQERUk
-         0VvoN9mRfcg0KKRF7+4BAy70pEgeDAwIgnL/nS7eWFufkCNzqYXyKWsHW7gV6xXnlRxJ
-         p/F5xVQiGaLXTwAOvtntW/34JOnMPs1wLXNGKlu2HfVagFNSTLemX8I80O34ihUB2uE1
-         Ki7aA4mzqXTlUl4nF3Q1BVB+0ico6y5BSsiiYLpj618BcSXBsLUWL36oiL30hzx8jzRt
-         YblQ==
+        d=paul-moore.com; s=google; t=1755019093; x=1755623893; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=6ZI90C2tnuaKIdrwdu0WyqnSd0Q2d8pZCzdJupkSfts=;
+        b=Mpk57CjaoyPYJM6sRl1tWus/CaIVyZEaVym19ZsytqPyB2f8d7j73dBPci3tjHYvRz
+         RaQAOn0BTi+53cutgDTmGO5SNlYumN8gl5MMdXUkwXCL9SBDZ5t82ShQvK+g8dzkRK43
+         jUGeI8ygJGAIKreqKGCe8BZoyITnPhUfg8dwaha6JsB6vAOkP6rdHtSIgUjLrivdOSmn
+         8A87cQ/PMankbRaZZxDWBQ4hb7c7YCoDn8H/q39YQ2s/ZBdtWU3BLK8tgZ8k89xp32d5
+         /eFapMIjsbQ67viT2TRel27kMw5Nq1P955uYvuC4Yj9+A2R8XPOEK7CZXahPBgEfPO8V
+         KkMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755011926; x=1755616726;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4WtaxxLbK7p2y3PHa/LD+Y+g4cIn57tdGIvbD5vhxtQ=;
-        b=ifdJcpplqC8lkr57Sxi5W17UqcOn72BaE+CqD11bnz9bos8OlP//L4PPvMQsBYrdV3
-         gIrejBmnTbeljD1D1OUv8gu+X207L5KBnS9vm2i0skbDHNU8vPw/Oc0mB3o710B1uut0
-         HOmB1fTO8Cjxk20J9n2UbRvUTW8sD6WcOLvm9bZWke1Me5uhlJIZMMpCHB63hBkRKQdR
-         TX//lmncK4HEpqe6c7WlKOZc+z1BP4YPM7Bk848v2ty9h+VWd41ACo1a0r+nLgWKBa/g
-         wcFLjYrCciyxcVzCRxIPhZiLdJixcjdwvxRogUw+8zwa8k/0Rn9FffQ+jl64l4kT+Zm6
-         Yp0w==
-X-Gm-Message-State: AOJu0YxerSJ5X+/OjuVO4BI9GlAAsMNcX596Wvs0oNqrm4vXHbAhRAua
-	c6ETwwsM+DXPox5TAhA/8AYjBoe1JSsYTQzL2O+J9Jnb8v8b6kiJ57fAtyDLuVP2IatGagw9p0V
-	gN2KJnjGVQcmCMOwcqq7yWcNTwUMwS/g=
-X-Gm-Gg: ASbGncvMimKLyWpERlXUzc1fNy68tX5gJfDrV6Cp6RdnkZeTCj2HfMaaXtNWEGtmDRZ
-	k4v9P//N0VMiP9QAchdt1snyeN86fBN3xcbEl/Qp7W0NY1oQ+EY4q5NhckErUAaoQ38g960Bf+9
-	jLn51mFiBfnTzlDJiwCqoalZPzW1VIMYGGsjwKzTBs2UIbo5hYZ9v4+F4mjJCYwKo47rHR+afdP
-	loR
-X-Google-Smtp-Source: AGHT+IEGfypYog4rmUU4hReRKRqnO6r7jOpIkXn2vb4HzZS7RfD7O6qbVqC8FsLuFcy+yoZsp0DaJhHW1Cao1TH4DWw=
-X-Received: by 2002:a05:6102:5a86:b0:4fb:ebe1:7db1 with SMTP id
- ada2fe7eead31-50e21883abbmr113968137.12.1755011926010; Tue, 12 Aug 2025
- 08:18:46 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1755019093; x=1755623893;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=6ZI90C2tnuaKIdrwdu0WyqnSd0Q2d8pZCzdJupkSfts=;
+        b=AyLYxSIraC0qyljezSl1lWBfnJWKENZNDgItf+436Q7glIQ9FaYBLt6n7Xupi7ZL3+
+         Gd4rOpyHe8ResTet883ImrfJ9ANagf+WAJmL44abZjFGfuFVHwSM2M6CsFqFTTn1fSkb
+         TRG+JZn5F8GwdJRKB4hPYERnFM0mVWGpWb8UyUAtoilxr0Y4wj22miNJD6eBA/o2SRKf
+         ABDTfi2STNlsTmHqjkzt9aj7RxStyDbcUiFugpmVoRDxh9zOEdf77mU6UUpLQ8hBv+kU
+         xJuPZ1bGGt00AvReLZ56LAJDPGZgGps6F8TJQrltFHmxNrfOYT3/jjCUwQ3qzxWyL7UV
+         Yd7g==
+X-Forwarded-Encrypted: i=1; AJvYcCV2h9HWeS8EwXVjTYs5S+AClxht6DHiWS7UtbcutYah4VMSz5LSlbUfWnhyqBhIqdahXyOIsQ8v@vger.kernel.org
+X-Gm-Message-State: AOJu0YzmSfa1yeIq5jVFAioJNr47oserb8UKLG0z5mVZuEoPXeJgYSL7
+	e6pgKVqHiwVFYz58mnBOLCRu0twKQ+YI0YvP8GY7GShT98lYZ9zGUliWAfdmLJKUFg==
+X-Gm-Gg: ASbGncsppk5XCGHP3smBcFlf9H4/fnLUGX5WHk10qEFmvE3n3s28tz/jwy2nHlUsjab
+	9Lg1ppQB2rVzhamsD3aozzLjwcWXQh2vZb7maGgdZJ7jNxX7YoE1kl49DJpz8qVlQLoqGOBihIz
+	h29r3MOLcy5tRS9WiOAuicOIOPfpvtZXProaoQL8BgcY6fpo9gne1TAzzGI4N75j/FEeuUQvukM
+	ug6ByUmK6bO/sK7c5uaIF9121x2r6QvIjN9b4O9lBqYOJjJyorL8cRNChUxH7RyL6FI2Xo90yhB
+	g1wDq3c9C5sJ3ntQU7r6N2ZvJm4KskFLvcKIW9TcXn0nUO/JQNLkc4ZY9ufU4G9YteguFhIe1os
+	hCrH9NUR/OMUT1ZL28gPtOzYlO64dmAigfZ3T6nhfZja3FgtNr514WyQIncqEzAp+Z+4=
+X-Google-Smtp-Source: AGHT+IFFxlzYtv9/lJGBE1NR5KyO4C9Gn0dlEhp7e0IyW62FroGzl6MnQ1bI7Yv0CgoeIIwr0ShuyA==
+X-Received: by 2002:a05:6214:ac3:b0:707:5759:8464 with SMTP id 6a1803df08f44-709e6d486b2mr6084496d6.44.1755019093063;
+        Tue, 12 Aug 2025 10:18:13 -0700 (PDT)
+Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
+        by smtp.gmail.com with UTF8SMTPSA id 6a1803df08f44-7077ca1dc91sm179342506d6.27.2025.08.12.10.18.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Aug 2025 10:18:12 -0700 (PDT)
+Date: Tue, 12 Aug 2025 13:18:11 -0400
+Message-ID: <c673760d9f02f494f06ea7df9ee6128a@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20250731102224.1045166-1-nvraxn@gmail.com>
-In-Reply-To: <20250731102224.1045166-1-nvraxn@gmail.com>
-From: James Carter <jwcart2@gmail.com>
-Date: Tue, 12 Aug 2025 11:18:34 -0400
-X-Gm-Features: Ac12FXygcucO9rOo_d0ZRU4MhX6klYUezyiwmzfetjRYDHQCwZCqO4FDCrKWiMo
-Message-ID: <CAP+JOzTBrgKgzf2M4VRXXG_1=wSd-Zf-xGrp7J6w=o34+adGCg@mail.gmail.com>
-Subject: Re: [PATCH] python: fix flake8 F824 error
-To: Rahul Sandhu <nvraxn@gmail.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20250812_1310/pstg-lib:20250812_1218/pstg-pwork:20250812_1310
+From: Paul Moore <paul@paul-moore.com>
+To: Qianfeng Rong <rongqianfeng@vivo.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Qianfeng Rong <rongqianfeng@vivo.com>
+Subject: Re: [PATCH] selinux: Remove redundant __GFP_NOWARN
+References: <20250807140545.566615-1-rongqianfeng@vivo.com>
+In-Reply-To: <20250807140545.566615-1-rongqianfeng@vivo.com>
 
-On Thu, Jul 31, 2025 at 6:34=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wro=
-te:
->
-> This fixes failing CI[1].  From the flake8 documentation[2]:
->
-> > global name / nonlocal name is unused: name is never assigned in scope
->
-> Meaning that a global only needs to be defined with the global keyword
-> in scope when it's being assigned to; not when it's being read.
->
-> [1] https://github.com/SELinuxProject/selinux/actions/runs/16623315767/jo=
-b/47032933729
-> [2] https://flake8.pycqa.org/en/latest/user/error-codes.html
->
-> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
-
-Acked-by: James Carter <jwcart2@gmail.com>
-
+On Aug  7, 2025 Qianfeng Rong <rongqianfeng@vivo.com> wrote:
+> 
+> Commit 16f5dfbc851b ("gfp: include __GFP_NOWARN in GFP_NOWAIT")
+> made GFP_NOWAIT implicitly include __GFP_NOWARN.
+> 
+> Therefore, explicit __GFP_NOWARN combined with GFP_NOWAIT
+> (e.g., `GFP_NOWAIT | __GFP_NOWARN`) is now redundant. Let's clean
+> up these redundant flags across subsystems.
+> 
+> No functional changes.
+> 
+> Signed-off-by: Qianfeng Rong <rongqianfeng@vivo.com>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 > ---
->  mcstrans/share/util/mlstrans-test         | 4 ++--
->  python/semanage/seobject.py               | 1 -
->  python/sepolgen/src/sepolgen/refparser.py | 2 +-
->  python/sepolicy/sepolicy/__init__.py      | 3 ---
->  4 files changed, 3 insertions(+), 7 deletions(-)
->
-> diff --git a/mcstrans/share/util/mlstrans-test b/mcstrans/share/util/mlst=
-rans-test
-> index df34e0e6..8fa0c379 100644
-> --- a/mcstrans/share/util/mlstrans-test
-> +++ b/mcstrans/share/util/mlstrans-test
-> @@ -8,7 +8,7 @@ errors =3D 0
->
->
->  def untrans(trans, val):
-> -    global errors, verbose
-> +    global errors
->      (rc, raw) =3D selinux.selinux_trans_to_raw_context(trans)
->      if raw !=3D val:
->          print("untrans: '%s' -> '%s' !=3D '%s' FAILED" % (trans, raw, va=
-l))
-> @@ -19,7 +19,7 @@ def untrans(trans, val):
->
->
->  def trans(raw, val):
-> -    global errors, verbose
-> +    global errors
->      (rc, trans) =3D selinux.selinux_raw_to_trans_context(raw)
->      if trans !=3D val:
->          print("trans: '%s' -> '%s' !=3D '%s' FAILED" % (raw, trans, val)=
-)
-> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-> index 10963e81..b41efd59 100644
-> --- a/python/semanage/seobject.py
-> +++ b/python/semanage/seobject.py
-> @@ -244,7 +244,6 @@ class semanageRecords:
->      args =3D None
->
->      def __init__(self, args =3D None):
-> -        global handle
->          if args:
->              # legacy code - args was store originally
->              if isinstance(args, str):
-> diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/=
-src/sepolgen/refparser.py
-> index c8a3eb54..01a322ca 100644
-> --- a/python/sepolgen/src/sepolgen/refparser.py
-> +++ b/python/sepolgen/src/sepolgen/refparser.py
-> @@ -1038,7 +1038,7 @@ def p_quoted_filename(p):
->  #
->
->  def p_error(tok):
-> -    global error, parse_file, success, parser
-> +    global error, success
->      error =3D "%s: Syntax error on line %d %s [type=3D%s]" % (parse_file=
-, tok.lineno, tok.value, tok.type)
->      print(error)
->      success =3D False
-> diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepol=
-icy/__init__.py
-> index 2d526c94..3b87a869 100644
-> --- a/python/sepolicy/sepolicy/__init__.py
-> +++ b/python/sepolicy/sepolicy/__init__.py
-> @@ -195,7 +195,6 @@ def init_policy():
->      policy(policy_file)
->
->  def info(setype, name=3DNone):
-> -    global _pol
->      if not _pol:
->          init_policy()
->
-> @@ -354,7 +353,6 @@ def _setools_rule_to_dict(rule):
->
->
->  def search(types, seinfo=3DNone):
-> -    global _pol
->      if not _pol:
->          init_policy()
->      if not seinfo:
-> @@ -936,7 +934,6 @@ def get_all_roles():
->      if roles:
->          return roles
->
-> -    global _pol
->      if not _pol:
->          init_policy()
->
-> --
-> 2.50.1
->
->
+>  security/selinux/avc.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
+
+Merged into selinux/dev with some minor tweaks to line wrapping and
+horizontal alignment, thanks.
+
+--
+paul-moore.com
