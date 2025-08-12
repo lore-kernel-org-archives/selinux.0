@@ -1,206 +1,183 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+Received: from mail-ua1-f54.google.com (mail-ua1-f54.google.com [209.85.222.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50BEF18C332
-	for <selinux@vger.kernel.org>; Tue, 12 Aug 2025 13:05:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A5D02D63F7
+	for <selinux@vger.kernel.org>; Tue, 12 Aug 2025 15:18:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755003931; cv=none; b=LXhtFUINXLQ9S+gLjXDs+7MSBcn8YlypB5AdVfIAUqKH+R/BK+hHAUdGI7YMgXaqnCG7EjMNyTuCc7+MyeEM8L+3tGfZQsV5pZxqWzE2vI0cAnH10Bn4N74xat1mUbg4AQlbS4vzDQ5YmzRkjpy4M4YOMVP9cho3+QoKxTMtoqs=
+	t=1755011928; cv=none; b=MLEDXFyXt3fuqqw8MBFavhPwxlVtzTxFQ7CXMUwhY1F/XZNck4BBKwHhfRYwD0yTMCcjykUsnqpT7sjz4wJ4s/5T7H1DGY/cOXqWUGHgN7uZus3cpjQDbvcLYV/8qr2TkXYXypJkXmwbhQNAApVv/ilTkaxQ9X1/q0z/H+I6z8o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755003931; c=relaxed/simple;
-	bh=Mw/FUIg3mNMjdearmPXFzmGdQTEpDsCbAvralp/uyRI=;
+	s=arc-20240116; t=1755011928; c=relaxed/simple;
+	bh=w6JlLBcB/cqn6LOc8/qavDjWlI3i8lN/we/FZIZbeN8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PuvDWRZVZOtp4eHprqQk5Z0oKVEoZjiijlCYf1de2xLHNCtWhR29TqtilP2Uepl0Q58jMNIfHFS89fhRcFaz+Jo21aelLZeJPWyDQL3jTJ7Y5uD3CzkkKucghDI8cecrfeJwkOqYAWLBmbAs2+a3nvuHJJWzMmf0/o/lkDgnCFI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kO45KZtv; arc=none smtp.client-ip=209.85.216.45
+	 To:Cc:Content-Type; b=gxDEGTwElSSVCxH5jlfjbYq4Blhlm1bJsBycldxC9KjbC41d5HAkCfb0ZSXUPty5YQC4BoCFHP0FIYUYBYLCE7mzTbU3iZWIlZBuJUY7WEtiFJ4JGUb+I3XZCvEcgypJ3hr+YG9gefhRe/rN8o2OnfchpN6oLESy1iypum/HgjY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jbGw1UKo; arc=none smtp.client-ip=209.85.222.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kO45KZtv"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-31f02b6cd37so5686429a91.1
-        for <selinux@vger.kernel.org>; Tue, 12 Aug 2025 06:05:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jbGw1UKo"
+Received: by mail-ua1-f54.google.com with SMTP id a1e0cc1a2514c-88bc71ff9b0so2624165241.1
+        for <selinux@vger.kernel.org>; Tue, 12 Aug 2025 08:18:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755003930; x=1755608730; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1755011926; x=1755616726; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=sB2+Hd6W8t+bpRDy2Hx5iNZBHEIV9u8+xh8MBKPAHvc=;
-        b=kO45KZtvzOufgxaozFlbj0gi3YPzj/gFXI40mOK5TQraM3htwVdIIQGeSb0Zb/aGyN
-         HBYAdOYr17Cb4qH4MsR4HTlT2CMnZbDH2e3s1gkQdANnBEi7ZqQZVGtXvje6/Pq5mtGs
-         /ofErdIwIgxL/jwyZDb6unz1S2KOCEP3RG8v17NxPblwnZ/L2RE7/PsykuzeKw38InjX
-         kyy7/LQyZpAVDf9+nZ5qteUwwrWrA5H7BguP4VmfkX6J64ypGYPvDuJ8dSr59o2X3PcI
-         QTPm+JsMo7C4hkJfp9shlDHkl4FyFzEFipM2dFk2qb3fjzbZym8p1nD9eoWOzjYPM7IQ
-         DXAw==
+        bh=4WtaxxLbK7p2y3PHa/LD+Y+g4cIn57tdGIvbD5vhxtQ=;
+        b=jbGw1UKo7uu411jBQUuP9eHG+qdTij8UF1ngbgLPM6AeOxJ/HnEW2LVKnzddONB7lB
+         lHZABMTDuA0urYSN6uyuxGnVbHkZCW1LxovhM7CmqW8RAiIex3sGS1oG2E85SHnQERUk
+         0VvoN9mRfcg0KKRF7+4BAy70pEgeDAwIgnL/nS7eWFufkCNzqYXyKWsHW7gV6xXnlRxJ
+         p/F5xVQiGaLXTwAOvtntW/34JOnMPs1wLXNGKlu2HfVagFNSTLemX8I80O34ihUB2uE1
+         Ki7aA4mzqXTlUl4nF3Q1BVB+0ico6y5BSsiiYLpj618BcSXBsLUWL36oiL30hzx8jzRt
+         YblQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755003930; x=1755608730;
+        d=1e100.net; s=20230601; t=1755011926; x=1755616726;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=sB2+Hd6W8t+bpRDy2Hx5iNZBHEIV9u8+xh8MBKPAHvc=;
-        b=sMcKK9XPY/xfl8Uwxlk8ej4DAZouy33laWKR09NmhQskllOJOfWpaFBW4zCJFAQUxU
-         oeeWVaXCgKuqrE347ieHTB0WT6//LA7bmFti5JmwbfXOIOBD3zFNBBf1zXcNbTMJtvrK
-         8cAc8rG5r2kHUQJ3Q8n7hMh0vNaRlqazOCeGWrt+IMvigdQiLMm71e33552D08rSIDz9
-         DBu7QA9w1RaFFeIJQ/lFhc8gEMfjb7vFboXwwxqF77hXmpyqRJVbdUgvAsJdFrAMuinH
-         i3fugh9wP9SJunHmZwBmv556kC1DE33rVtikGX7yycAI+AZz9on2Yzh1FSSYrTptGu33
-         PWvw==
-X-Forwarded-Encrypted: i=1; AJvYcCUrhfdnXWATh7ZnMJ0irZGFz2fOYBB1ZRTdMU+B9EMMIKbl3e8uNAxIUlqezvJHbGXkeqscpjt7@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy64lUxBN3U1VLsYbqHAAKJIbzffu65YkGOEybKobwFwAH+3AMD
-	l3u4Mstqv8PdJG8G+RvWOyfesEJ2NYOOtm/Xqxsk8cvNlBzSOglOnaBRXIURPT0QJwPZ8wuRG6O
-	XTYdDIJXlVGd5dKv6oTilI9A0l4k3AR8=
-X-Gm-Gg: ASbGncteruF31yuFqjKdP9P1qWanvuDOWi+ivHqgzJrmYGIc6fY+s1TAapBhLnXBhWZ
-	iL0Xow9UHikzvBmuI6xTo7Y+8dYFno3y8iNJd/BH/5LQQiq+w/UUvmoNaAl20L7LMhaChpxuTA3
-	WGQCq6GQXHSda2RZVX/uU/0bhbo7C0g5RoGIbr6aGeoxkR8W0k348CWYLIK2JrBMZGWIWju8Enf
-	swk/4c=
-X-Google-Smtp-Source: AGHT+IE2iad8kiLZmJ20fpKPRcC5hkMwW54U37qvhTNFiUswjIxFGG2KgAdUAPQqSB6DwPlNGZ/63E42P+D0JqNRIGU=
-X-Received: by 2002:a17:90b:35c8:b0:31f:3cfd:d334 with SMTP id
- 98e67ed59e1d1-321839d7834mr24493796a91.4.1755003929266; Tue, 12 Aug 2025
- 06:05:29 -0700 (PDT)
+        bh=4WtaxxLbK7p2y3PHa/LD+Y+g4cIn57tdGIvbD5vhxtQ=;
+        b=ifdJcpplqC8lkr57Sxi5W17UqcOn72BaE+CqD11bnz9bos8OlP//L4PPvMQsBYrdV3
+         gIrejBmnTbeljD1D1OUv8gu+X207L5KBnS9vm2i0skbDHNU8vPw/Oc0mB3o710B1uut0
+         HOmB1fTO8Cjxk20J9n2UbRvUTW8sD6WcOLvm9bZWke1Me5uhlJIZMMpCHB63hBkRKQdR
+         TX//lmncK4HEpqe6c7WlKOZc+z1BP4YPM7Bk848v2ty9h+VWd41ACo1a0r+nLgWKBa/g
+         wcFLjYrCciyxcVzCRxIPhZiLdJixcjdwvxRogUw+8zwa8k/0Rn9FffQ+jl64l4kT+Zm6
+         Yp0w==
+X-Gm-Message-State: AOJu0YxerSJ5X+/OjuVO4BI9GlAAsMNcX596Wvs0oNqrm4vXHbAhRAua
+	c6ETwwsM+DXPox5TAhA/8AYjBoe1JSsYTQzL2O+J9Jnb8v8b6kiJ57fAtyDLuVP2IatGagw9p0V
+	gN2KJnjGVQcmCMOwcqq7yWcNTwUMwS/g=
+X-Gm-Gg: ASbGncvMimKLyWpERlXUzc1fNy68tX5gJfDrV6Cp6RdnkZeTCj2HfMaaXtNWEGtmDRZ
+	k4v9P//N0VMiP9QAchdt1snyeN86fBN3xcbEl/Qp7W0NY1oQ+EY4q5NhckErUAaoQ38g960Bf+9
+	jLn51mFiBfnTzlDJiwCqoalZPzW1VIMYGGsjwKzTBs2UIbo5hYZ9v4+F4mjJCYwKo47rHR+afdP
+	loR
+X-Google-Smtp-Source: AGHT+IEGfypYog4rmUU4hReRKRqnO6r7jOpIkXn2vb4HzZS7RfD7O6qbVqC8FsLuFcy+yoZsp0DaJhHW1Cao1TH4DWw=
+X-Received: by 2002:a05:6102:5a86:b0:4fb:ebe1:7db1 with SMTP id
+ ada2fe7eead31-50e21883abbmr113968137.12.1755011926010; Tue, 12 Aug 2025
+ 08:18:46 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250808184711.291-1-ericsu@linux.microsoft.com>
- <CAEjxPJ6SBAy8yi8XhASR5pVFnYfvJhFujzGfBQuS9o2TziOSFw@mail.gmail.com>
- <8cd1865a-6220-471d-826d-e4908b39f229@linux.microsoft.com> <CAEjxPJ69ee3c33jQsE39QeHk9q2ADNYtf2nyry3-8pu1F0zCkg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ69ee3c33jQsE39QeHk9q2ADNYtf2nyry3-8pu1F0zCkg@mail.gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 12 Aug 2025 09:05:17 -0400
-X-Gm-Features: Ac12FXw2Cy7etVF41jzKqVSFjZqp0wA7CrhxX6P_mJQP-w5tA9PeXKREMVRFxvA
-Message-ID: <CAEjxPJ4g+oCmvPxou4EyfdLMBuSMNDkoBLBM5LqpP_mSKr6_VQ@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/bpf: Add tests for SELinux BPF token
- access control
-To: Eric Suen <ericsu@linux.microsoft.com>
-Cc: danieldurning.work@gmail.com, selinux@vger.kernel.org, paul@paul-moore.com, 
-	omosnace@redhat.com
+References: <20250731102224.1045166-1-nvraxn@gmail.com>
+In-Reply-To: <20250731102224.1045166-1-nvraxn@gmail.com>
+From: James Carter <jwcart2@gmail.com>
+Date: Tue, 12 Aug 2025 11:18:34 -0400
+X-Gm-Features: Ac12FXygcucO9rOo_d0ZRU4MhX6klYUezyiwmzfetjRYDHQCwZCqO4FDCrKWiMo
+Message-ID: <CAP+JOzTBrgKgzf2M4VRXXG_1=wSd-Zf-xGrp7J6w=o34+adGCg@mail.gmail.com>
+Subject: Re: [PATCH] python: fix flake8 F824 error
+To: Rahul Sandhu <nvraxn@gmail.com>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 12, 2025 at 8:18=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Thu, Jul 31, 2025 at 6:34=E2=80=AFAM Rahul Sandhu <nvraxn@gmail.com> wro=
+te:
 >
-> On Mon, Aug 11, 2025 at 2:36=E2=80=AFPM Eric Suen <ericsu@linux.microsoft=
-.com> wrote:
-> >
-> > On 8/8/2025 12:59 PM, Stephen Smalley wrote:
-> > > On Fri, Aug 8, 2025 at 2:47=E2=80=AFPM Eric Suen <ericsu@linux.micros=
-oft.com> wrote:
-> > >> This patch adds new tests to verify the SELinux support for BPF toke=
-n
-> > >> access control, as introduced in the corresponding kernel patch:
-> > >>    https://lore.kernel.org/selinux/20250806180149.1995-1-ericsu@linu=
-x.microsoft.com/
-> > >>
-> > >> Four new tests are added to cover both positive and negative scenari=
-os,
-> > >> ensuring that the SELinux policy enforcement on BPF token usage beha=
-ves
-> > >> as expected.
-> > >>    - Successful map_create and prog_load when SELinux permissions ar=
-e
-> > >>      granted.
-> > >>    - Enforcement of SELinux policy restrictions when access is denie=
-d.
-> > >>
-> > >> These tests are located under the tests/bpf directory and can be run
-> > >> using the standard SELinux testsuite workflow.
-> > > (added Daniel to cc since he also posted a testsuite patch and thus
-> > > should be included)
-> > >
-> > > As I mentioned on the other thread, you should include instructions i=
-n
-> > > your commit message for how to temporarily define the requisite polic=
-y
-> > > capability and new permissions to run these tests; an example is
-> > > linked from the SELinux kernel wiki Getting Started page and my other
-> > > email.
-> > > That alone isn't worth re-submitting this patch but see below for mor=
-e.
-> > Stephen - I followed instructions in this example to enable new
-> > permissions and capability:
-> > https://github.com/SELinuxProject/selinux-testsuite/commit/023b79b8319e=
-5fe222fb5af892c579593e1cbc50
-> >
-> >
-> > I experimented with those commands, and 'sudo semodule -i
-> > netlink_xperm.cil' failed with following errors. I am in the process of
-> > figuring this out. In the meantime, if you know where the problem is,
-> > could you please let me know?
-> > Invalid policycap (netlink_xperm) at
-> > /var/lib/selinux/targeted/tmp/modules/400/netlink_xperm/cil:1
-> > Failed to verify cil database
-> > Failed to verify cil database
-> > Post process failed
-> > semodule:  Failed!
+> This fixes failing CI[1].  From the flake8 documentation[2]:
 >
-> The above error is for the netlink_xperm policy capability, which
-> requires a corresponding libsepol patch to define it for the policy
-> compiler. For your testsuite patch, you would be instead using your
-> libsepol patch and policy capability name here.
+> > global name / nonlocal name is unused: name is never assigned in scope
+>
+> Meaning that a global only needs to be defined with the global keyword
+> in scope when it's being assigned to; not when it's being read.
+>
+> [1] https://github.com/SELinuxProject/selinux/actions/runs/16623315767/jo=
+b/47032933729
+> [2] https://flake8.pycqa.org/en/latest/user/error-codes.html
+>
+> Signed-off-by: Rahul Sandhu <nvraxn@gmail.com>
 
-Also, if you are using a non-Fedora-based distribution and it is just
-too much work for you to provide the same style of instructions, just
-explain clearly what you did prior to running your tests to enable the
-capability and define the new permissions in a manner that can be
-replicated by another, so that we can test it ourselves. Thank you.
+Acked-by: James Carter <jwcart2@gmail.com>
 
+> ---
+>  mcstrans/share/util/mlstrans-test         | 4 ++--
+>  python/semanage/seobject.py               | 1 -
+>  python/sepolgen/src/sepolgen/refparser.py | 2 +-
+>  python/sepolicy/sepolicy/__init__.py      | 3 ---
+>  4 files changed, 3 insertions(+), 7 deletions(-)
 >
-> > >> diff --git a/tests/bpf/test b/tests/bpf/test
-> > >> index a3fd856..aefc70c 100755
-> > >> --- a/tests/bpf/test
-> > >> +++ b/tests/bpf/test
-> > >> @@ -9,8 +9,10 @@ BEGIN {
-> > >>
-> > >>       $test_bpf_count       =3D 7;
-> > >>       $test_fdreceive_count =3D 4;
-> > >> +    $test_bpf_token_count =3D 4;
-> > >>
-> > >> -    $test_count =3D $test_bpf_count + $test_fdreceive_count;
-> > >> +    $test_count =3D $test_bpf_count + $test_fdreceive_count +
-> > >> +                  $test_bpf_token_count;
-> > >>
-> > >>       # allow info to be shown during tests
-> > >>       $v =3D $ARGV[0];
-> > >> @@ -67,6 +69,13 @@ ok( $result eq 0 );
-> > >>   $result =3D system "runcon -t test_bpf_t $basedir/bpf_test -p $v";
-> > >>   ok( $result eq 0 );
-> > >>
-> > >> +# BPF token - BPF_MAP_CREATE_AS, BPF_PROG_LOAD_AS
-> > >> +$result =3D system "runcon -t test_bpf_t $basedir/bpf_test -c $v";
-> > >> +ok ( $result eq 0 );
-> > >> +
-> > >> +$result =3D system "runcon -t test_bpf_t $basedir/bpf_test -l $v";
-> > >> +ok ( $result eq 0 );
-> > >> +
-> > >>   # Deny map_create permission
-> > >>   $result =3D
-> > >>     system "runcon -t test_bpf_deny_map_create_t $basedir/bpf_test -=
-m $v 2>&1";
-> > >> @@ -92,6 +101,16 @@ $result =3D
-> > >>     system "runcon -t test_bpf_deny_prog_run_t $basedir/bpf_test -p =
-$v 2>&1";
-> > >>   ok($result);
-> > >>
-> > >> +# BPF token - deny BPF_MAP_CREATE_AS
-> > >> +$result =3D
-> > >> +  system "runcon -t test_bpf_deny_map_create_as_t $basedir/bpf_test=
- -c $v 2>&1";
-> > >> +ok($result);
-> > >> +
-> > >> +# BPF token - deny BPF_PROG_LOAD_AS
-> > >> +$result =3D
-> > >> +  system "runcon -t test_bpf_deny_prog_load_as_t $basedir/bpf_test =
--l $v 2>&1";
-> > >> +ok($result);
-> > >> +
-> > >>   #
-> > >>   ################ BPF Tests for fdreceive #######################
-> > >>   #
-> > > At least on my system, perl tidy complained about some lines in this
-> > > file; be sure to re-run it and amend.
-> > I did run 'checkpatch.pl'. Maybe there are warnings I missed. I will
-> > take a look again.
+> diff --git a/mcstrans/share/util/mlstrans-test b/mcstrans/share/util/mlst=
+rans-test
+> index df34e0e6..8fa0c379 100644
+> --- a/mcstrans/share/util/mlstrans-test
+> +++ b/mcstrans/share/util/mlstrans-test
+> @@ -8,7 +8,7 @@ errors =3D 0
 >
-> For the testsuite, use ./tools/check-syntax to check for syntax
-> problems, and ./tools/check-syntax -f to automatically fix any. The
-> perl scripts are formatted via perl tidy.
+>
+>  def untrans(trans, val):
+> -    global errors, verbose
+> +    global errors
+>      (rc, raw) =3D selinux.selinux_trans_to_raw_context(trans)
+>      if raw !=3D val:
+>          print("untrans: '%s' -> '%s' !=3D '%s' FAILED" % (trans, raw, va=
+l))
+> @@ -19,7 +19,7 @@ def untrans(trans, val):
+>
+>
+>  def trans(raw, val):
+> -    global errors, verbose
+> +    global errors
+>      (rc, trans) =3D selinux.selinux_raw_to_trans_context(raw)
+>      if trans !=3D val:
+>          print("trans: '%s' -> '%s' !=3D '%s' FAILED" % (raw, trans, val)=
+)
+> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+> index 10963e81..b41efd59 100644
+> --- a/python/semanage/seobject.py
+> +++ b/python/semanage/seobject.py
+> @@ -244,7 +244,6 @@ class semanageRecords:
+>      args =3D None
+>
+>      def __init__(self, args =3D None):
+> -        global handle
+>          if args:
+>              # legacy code - args was store originally
+>              if isinstance(args, str):
+> diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/=
+src/sepolgen/refparser.py
+> index c8a3eb54..01a322ca 100644
+> --- a/python/sepolgen/src/sepolgen/refparser.py
+> +++ b/python/sepolgen/src/sepolgen/refparser.py
+> @@ -1038,7 +1038,7 @@ def p_quoted_filename(p):
+>  #
+>
+>  def p_error(tok):
+> -    global error, parse_file, success, parser
+> +    global error, success
+>      error =3D "%s: Syntax error on line %d %s [type=3D%s]" % (parse_file=
+, tok.lineno, tok.value, tok.type)
+>      print(error)
+>      success =3D False
+> diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepol=
+icy/__init__.py
+> index 2d526c94..3b87a869 100644
+> --- a/python/sepolicy/sepolicy/__init__.py
+> +++ b/python/sepolicy/sepolicy/__init__.py
+> @@ -195,7 +195,6 @@ def init_policy():
+>      policy(policy_file)
+>
+>  def info(setype, name=3DNone):
+> -    global _pol
+>      if not _pol:
+>          init_policy()
+>
+> @@ -354,7 +353,6 @@ def _setools_rule_to_dict(rule):
+>
+>
+>  def search(types, seinfo=3DNone):
+> -    global _pol
+>      if not _pol:
+>          init_policy()
+>      if not seinfo:
+> @@ -936,7 +934,6 @@ def get_all_roles():
+>      if roles:
+>          return roles
+>
+> -    global _pol
+>      if not _pol:
+>          init_policy()
+>
+> --
+> 2.50.1
+>
+>
