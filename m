@@ -1,64 +1,64 @@
-Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com [209.85.160.181])
+Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 518C2307AF4;
-	Thu, 14 Aug 2025 13:27:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EDE43090D5;
+	Thu, 14 Aug 2025 13:27:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755178056; cv=none; b=HNqWI1uFp7lGZ9+8193ZeKToAR9wntW+b2ALXL+SEclz+L2HICQJYVJAG2UqlyOVdlWLeXiI/bXx+bNxIpj/4fLKXy0eYypuBDD/9aePnMg5Bt5SGEb0WqpIhdBbOOqS/0ufKURqDEvJ8YxAkWxFHyZPFX0Be2A0WVT8CIXBx18=
+	t=1755178059; cv=none; b=p7JB4bL1vs5hw0qOd/c4aQJXNCBns3ogaF8gHKfg5GZLMqMCLqoQ8lbvCRegmb8Q0Pr9B3QAReZpL4IJOEX0gYjSB3PNrnJmP4ezrJZAWI0YErHevwEEh+PmvSeY8VZgd630gLNS4aq261AA9xj0Bx7JF060zU8FhkDS9rVa7HQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755178056; c=relaxed/simple;
-	bh=aZfkQZelFfWXEcJeSq2KKwGhMEPmDeMDvhFrS2CLduc=;
+	s=arc-20240116; t=1755178059; c=relaxed/simple;
+	bh=+XbHTGPNoSjFtIf/BG1h34x2533kCvMkdtmSWHyNesI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iOetN+DwN4eoOcbonpz1iIsBvFGOG5QtZszS+1GusVxTHfNePpZhZzfIqh1fRczj5KXzEQdZVA3vI6n6Toxo0hDMNPNmT/wfr1lT8BsRLBwLiiMRe82aYozoRRkho1xTyHCA6AVsa4J3SHk6cO4qex0rKQ1gLPQlczk4OOtS9GY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OdqbJ0+F; arc=none smtp.client-ip=209.85.160.181
+	 MIME-Version; b=Q26dtqW0WS38lqaiR8dVukYNoUI4+PFhQy7j/syg+xJWdnvw7hvSsOCT9CBDmc3RCF89XkqE+gSqFuIzyIcafwfEYcrhZddjPOtQPI4cjCBHglMtDq4efLtLPcWsL2/74gd0sbDoPPTNN2xbxounKtQC15f9HmqVE4XSTy3+UIg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LQ+ZYB2O; arc=none smtp.client-ip=209.85.160.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OdqbJ0+F"
-Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-4b109a95f09so6547431cf.1;
-        Thu, 14 Aug 2025 06:27:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LQ+ZYB2O"
+Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-4b109ae67fdso12844091cf.1;
+        Thu, 14 Aug 2025 06:27:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755178053; x=1755782853; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1755178055; x=1755782855; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=JmWXK6xiL7dO0GSO4urHCElVPEi9OSvkEukCRxJp8w8=;
-        b=OdqbJ0+FI4hg2tKIvt9tjnVag48md8o//ojLPTQ0b+w6RgaydpIitcloyRzDiVVxbH
-         h2LFZBeiI+xKbKDtypjSImzU4FCSXa2t4wUESbrLApl+636oPq/Vg9mgtJGvJ0Sa4C7a
-         WddaqeHwReEmdn5plOaDFBbucIkULopbNFm9tMrJMo/nWSpMOAeQxXOZILkaMIQWm0Lq
-         PxBjbWegRfvPwUwD0xT4DuKw4ejyeHaODrwuR4+36DknnDyzzKEbqXIcz2EVXbxiXcde
-         kgSFN/dAXaBVm66BOmIvmdoTApG5vfhqyQTOGDw/a7flwJsKSvCGzbecHqsfKmcMAzC7
-         zB3Q==
+        bh=r2SVVKjjmVFjQRUC1vs8GPFvm73+gK9kNT8ItTeihwg=;
+        b=LQ+ZYB2OL3eJSi5+P//XklKAtu7Fwd0yk9AQjXfhlaJX+nbJvf4z2sq31y56XrQFd4
+         O8/yvUq6kHAsiHcm9r4spwMIeLbXDPx/vOe9kuK2R4O6eyCqoQHTQq2ZU6b30W70kxp9
+         gu2UYMx3Mwnv/pha3PGy/pAWMl1B5POCdQN7+gcYw7fUM1w/VA7A8iCRIycP65rfZln0
+         SDrBV50O7AJVoZ0z+Bb5HpevJI/fvpPDHgntlpXZs0Dwd5ldZJe29oDYsrhi5r+AOTna
+         bTA5J3P9CcJwcCMWzc/848TQKsHAQmOoNyDNIHaf7jexTVyXcRfGeVSgC41d4pUCNC3p
+         hjyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755178053; x=1755782853;
+        d=1e100.net; s=20230601; t=1755178055; x=1755782855;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=JmWXK6xiL7dO0GSO4urHCElVPEi9OSvkEukCRxJp8w8=;
-        b=eFshJH4FdzHxUtfVKUzPcwdwsbdQOfpf46lTE3QgX00EsFAaZwelG/Y25ove1/ZnoD
-         7XZuYQ1LTvnUmciCNjeLzRmOFsM7FY0viiERGA+2oR2GaOJl0T90LKL7zclJ5eF5/Htk
-         LG3IoHgRmjJ9tydbr90dVx11iGKiPpb8qCEf/Q8NfknQKRtri8W/Q5Z4jbg3kb9OtfgB
-         5NdxIUtRq0zy7axTqzMeuBvWbWfQ0UfeR1o/+kCBlIkg4cAYpcacJXtU/5ETnvE31qzl
-         ZzpuCf+pZ1S7wpjUV3fOFBMkRtjTDcd04xEnQpT40UMsGWp/byl1DR5Y+hRIxA7TBQBL
-         cEUg==
-X-Forwarded-Encrypted: i=1; AJvYcCXQ7LxanTWCwsfvPf6BTA6EeMdyBzF4q7E5vKyXsUVcfyITXixsIjvBe5h2bXVuhNHUFP/csQg=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxnBAjyHzOsO77SKE6UfS7eAe/DMRT3mP4+n697TAJ5BcZULaYq
-	JAzjzGjk0SGFEs/R6o/521vRlBqAuF4NB3WZwwbcicSEdONkMPAG9NOXir8IXA==
-X-Gm-Gg: ASbGncsSnYGxQ9g6t2FU3RmY4RJbZpJ+WsCVtPc29gd/4EauwLu+tUXub2j38CThCEB
-	4ttMeT1aedh8vASZjGDGtWlnNHSBrHFlZZbXhKDO937Y+7YIFkEHab0xi4BUd3bMq6T1L0bK16R
-	hwQgaMtLqXhvbboQqWyqRlfmrb/f48+d5kFDJm/sShPht2YY+HJgA+WxmOOvRPfEMQ1XZ9hRbZT
-	3yXRntRg7LE2t0EOqwa0eZocrPoCDEImnBbPAeDLgt648z8tcTPr8xgkT5RZrxqZjR6yKvvYCFJ
-	NRjhzi6pv1zGVPQXdvTktQb8Cbquz5yK5CiZ43PIxlOVS8OMyppwCJE2zx1QLzk7/6ZOcrn0GH2
-	BYFfFYhv/1zqlsUTTUfIXElG/ibZa0DBlTIn8x7Fsr8AJxvtNZf/26LoMENCbJJQQ6wvLpZKeHB
-	KLP5wiQRC7UwXpJ1Zuh2kyfNVJQg==
-X-Google-Smtp-Source: AGHT+IH4hIxuSR0GpKsOb/wwozG8WWlxeprp6iBnImNjxOCbABYN/eNkW4tTScfzGPhAvyEmfhQmrQ==
-X-Received: by 2002:ac8:7d0a:0:b0:4b0:8633:f979 with SMTP id d75a77b69052e-4b10aaae56fmr42016431cf.42.1755178052747;
-        Thu, 14 Aug 2025 06:27:32 -0700 (PDT)
+        bh=r2SVVKjjmVFjQRUC1vs8GPFvm73+gK9kNT8ItTeihwg=;
+        b=cXIjiKpxJKdg3u2xGrF8EePzRaqLJjGryojTGDWeFSLHloGZqWa9wBQpGwceyZdWm5
+         PzWQHO019HRoDLexcHedWVObLc3IQF313Jo1Uupq0+iuY3nYzVp790Lnr6ESFrUrAIo7
+         ngJUAGa2H1DP5McKUpEb1ZK6D/41bnkWfpdZIrqVas2Ge5Kp3n8bKYg4yndN+FYq/Ph2
+         tOEznUaiWBjEIZr+I7xz2DNc/nyYoAvX4lwMN2F8QG0KmDcrdvQ1IukuGWP7s3m3cf3Z
+         OSwcezIQ6bHhA/uH87JA92sU8dTsMSZxrQ7xtotq0aP6i7lMuDriREKr/Orvr95Kx1Jq
+         UqxA==
+X-Forwarded-Encrypted: i=1; AJvYcCVAXX15yXbSblK7mgjKTcucfhHh8YaYa9x4GEkoWjV9rnHFil12g3aWqp6dcqxSI+JoXdxFG+U=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyJJgD/7BRkzygyEglZXq5UaiCvDLE+SQt08Sd0jR7N2px/NQAI
+	Db8QaOxQZemw2iM6SLIL+89bMrT3rM2DsYnEMx0jfdLx3GPm3nhvivLbDqRmTQ==
+X-Gm-Gg: ASbGncte4BKhURXKdtRKhuvf9S73pAt4iDEW0olPyzGpuGeO8I+elBd0RBpjJTfqr1W
+	nhdv2KOf1DrGTABBxx6BAfn0VDoMl4ph/UkGWVHaTz4kVnMjEg1xBuzWT/8HTBjaw7osaEsIGOV
+	QFkXXADYtjwz/0lN7XL8/6l/f2p+De/1JKGTpbm18PSUDEApYiSC4tCHDBlizBQ2xg78cbFTv6a
+	N3yo8zO3/h22vGLu4juy6zeyadtYajw4NgkZNz/3L0IM4TwNu6Zm6/4XZUuDWppO9Qu2OjpDIh8
+	TcC86dmw46gapaEOy0E0A1TQYd+DIXBmPDn6CZVBinYKTxgio8FwyL0m5k+PNYEd/enuFm2qFxG
+	8bwMavbbuoLeGJNCwJOfNRjaQiORbI3zLKHLYbHUiHdRpZGl4Ms1IZAxq9sU9XP+RfTHhY5hz21
+	EboaQP4O8Mgfn2Ja2UPUUE2RV0ew==
+X-Google-Smtp-Source: AGHT+IFZ4++3qawHtj4pPAUSzWbt1228v0ineTRL2roBn3n+DQ9PtO4FHZMWVLVOa5ApOtoa5qCuoQ==
+X-Received: by 2002:a05:622a:8316:b0:4b0:7b08:b072 with SMTP id d75a77b69052e-4b10a920d94mr35012371cf.9.1755178054675;
+        Thu, 14 Aug 2025 06:27:34 -0700 (PDT)
 Received: from fedora.. (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4b0733088e1sm153587391cf.61.2025.08.14.06.27.32
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-4b0733088e1sm153587391cf.61.2025.08.14.06.27.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Aug 2025 06:27:32 -0700 (PDT)
+        Thu, 14 Aug 2025 06:27:34 -0700 (PDT)
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
 To: selinux@vger.kernel.org
 Cc: paul@paul-moore.com,
@@ -66,9 +66,9 @@ Cc: paul@paul-moore.com,
 	netdev@vger.kernel.org,
 	horms@kernel.org,
 	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v7 30/42] selinux: convert selinux_file_send_sigiotask() to namespace-aware helper
-Date: Thu, 14 Aug 2025 09:26:21 -0400
-Message-ID: <20250814132637.1659-31-stephen.smalley.work@gmail.com>
+Subject: [PATCH v7 32/42] selinux: update cred_tsid_has_perm_noaudit() to return the combined avd
+Date: Thu, 14 Aug 2025 09:26:23 -0400
+Message-ID: <20250814132637.1659-33-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250814132637.1659-1-stephen.smalley.work@gmail.com>
 References: <20250814132637.1659-1-stephen.smalley.work@gmail.com>
@@ -80,88 +80,79 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Convert selinux_file_send_sigiotask() to use the cred_task_has_perm()
-namespace-aware permission checking helper. This required saving the
-file owner cred in the file security blob for later use in this hook
-function. Since the cred already includes the cred/task security blob
-which has the task SID and the SELinux state/namespace, we can drop
-those separate fields from the file_security_struct at the same time.
+cred_tsid_has_perm_noaudit() currently just returns the last computed
+av_decision (avd) structure, which in the case of multiple SELinux
+namespaces will only contain the decisions from the init SELinux
+namespace. Generally this has no effect since a permission denial
+by any namespace will cause an immediate error return with -EACCES,
+but in the case where permission is allowed and the caller caches
+the avd itself for later reuse, it could lead to the caller
+incorrectly only using the cached decisions from the init namespace.
+Change cred_tsid_has_perm_noaudit() to combine the results from any
+avc_has_perm_noaudit() calls to produce the final avd that is returned
+to the caller to avoid this problem. The combining logic varies
+for different fields of the avd, e.g. intersection for allowed
+and flags (per-domain permissive), union for auditallow and auditdeny,
+and the seqno is always set from the current namespace only.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/hooks.c          | 15 ++++++---------
- security/selinux/include/objsec.h |  3 +--
- 2 files changed, 7 insertions(+), 11 deletions(-)
+ security/selinux/avc.c | 30 ++++++++++++++++++++----------
+ 1 file changed, 20 insertions(+), 10 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 07bf35c14ae2..3c487b48e510 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3849,8 +3849,7 @@ static int selinux_file_alloc_security(struct file *file)
- 	u32 sid = current_sid();
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index e153f0122b4d..01405d1fb546 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -1557,28 +1557,38 @@ int cred_tsid_has_perm_noaudit(const struct cred *cred, u32 tsid, u16 tclass,
+ {
+ 	struct task_security_struct *tsec;
+ 	struct selinux_state *state;
++	struct av_decision tmp_avd;
+ 	u32 ssid;
+ 	int rc;
  
- 	fsec->sid = sid;
--	fsec->fown_sid = sid;
--	fsec->state = get_selinux_state(current_selinux_state);
-+	fsec->cred = get_cred(current_cred());
+-	do {
++	tsec = selinux_cred(cred);
++	ssid = tsec->sid;
++	state = tsec->state;
++
++	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass,
++				requested, 0, avd);
++	if (rc)
++		return rc;
++
++	cred = tsec->parent_cred;
++	while (cred) {
+ 		tsec = selinux_cred(cred);
+ 		ssid = tsec->sid;
+ 		state = tsec->state;
+ 
+-		/*
+-		 * TODO Do we need to use a tmp avd for each
+-		 * avc_has_perm_noaudit() call and intersect/union
+-		 * the sets as appropriate as we go? Or can we
+-		 * simply use the last result since we generally
+-		 * only care when there is a denial?
+-		 */
+ 		rc = avc_has_perm_noaudit(state, ssid, tsid, tclass,
+-					  requested, 0, avd);
++					  requested, 0, &tmp_avd);
++
++		avd->allowed &= tmp_avd.allowed;
++		avd->auditallow |= tmp_avd.auditallow;
++		avd->auditdeny |= tmp_avd.auditdeny;
++		avd->flags &= tmp_avd.flags;
++
+ 		if (rc)
+ 			return rc;
+ 
+ 		cred = tsec->parent_cred;
+-	} while (cred);
++	}
  
  	return 0;
  }
-@@ -3859,8 +3858,7 @@ static void selinux_file_free_security(struct file *file)
- {
- 	struct file_security_struct *fsec = selinux_file(file);
- 
--	put_selinux_state(fsec->state);
--	fsec->state = NULL;
-+	put_cred(fsec->cred);
- }
- 
- /*
-@@ -4143,14 +4141,14 @@ static void selinux_file_set_fowner(struct file *file)
- 	struct file_security_struct *fsec;
- 
- 	fsec = selinux_file(file);
--	fsec->fown_sid = current_sid();
-+	put_cred(fsec->cred);
-+	fsec->cred = get_cred(current_cred());
- }
- 
- static int selinux_file_send_sigiotask(struct task_struct *tsk,
- 				       struct fown_struct *fown, int signum)
- {
- 	struct file *file;
--	u32 sid = task_sid_obj(tsk);
- 	u32 perm;
- 	struct file_security_struct *fsec;
- 
-@@ -4164,9 +4162,8 @@ static int selinux_file_send_sigiotask(struct task_struct *tsk,
- 	else
- 		perm = signal_to_av(signum);
- 
--	return avc_has_perm(fsec->state,
--			    fsec->fown_sid, sid,
--			    SECCLASS_PROCESS, perm, NULL);
-+	return cred_task_has_perm(fsec->cred, tsk, SECCLASS_PROCESS, perm,
-+				  NULL);
- }
- 
- static int selinux_file_receive(struct file *file)
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 662329923214..9975a13700c5 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -55,10 +55,9 @@ struct inode_security_struct {
- 
- struct file_security_struct {
- 	u32 sid; /* SID of open file description */
--	u32 fown_sid; /* SID of file owner (for SIGIO) */
- 	u32 isid; /* SID of inode at the time of file open */
- 	u32 pseqno; /* Policy seqno at the time of file open */
--	struct selinux_state *state; /* SELinux state */
-+	const struct cred *cred; /* cred for file owner (for SIGIO) */
- };
- 
- struct superblock_security_struct {
 -- 
 2.50.1
 
