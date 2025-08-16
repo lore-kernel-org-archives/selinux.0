@@ -1,583 +1,364 @@
-Received: from sonic310-30.consmr.mail.ne1.yahoo.com (sonic310-30.consmr.mail.ne1.yahoo.com [66.163.186.211])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B86D43002BC
-	for <selinux@vger.kernel.org>; Sat, 16 Aug 2025 17:29:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.186.211
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5B0CB21765B
+	for <selinux@vger.kernel.org>; Sat, 16 Aug 2025 20:14:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755365367; cv=none; b=J80ZO0xhI/YVnvCsCF+dPBT02qWj7NFHWScnUwfKi5RGOhjEDx2qh/cUZ5boql5OVqi/+pMPFrp+//bZnfB0+OHc3HecXtfKI8OtSDlfoehEupbG24ZS/ZlE24TzA9BjKKWVX9idXpVfcRR6TKUl+n1MfZIh3WLd0Am2EMMXsHU=
+	t=1755375264; cv=none; b=d7shDX19gYxb+fB9H+89sScJ7s9hfcOemj9oO+rjYiub4vfWiJ3814Z18cwZzHKCJhYBqJ7jgckepplgCSm6gzGiy4Md4siNPR+wahp39TWYaga7VhZyb9sQrWAIEFw+6sXUzCcfcOC9zFURr/6LYs9PR4tfOn/w/X5XoNCAFMc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755365367; c=relaxed/simple;
-	bh=opmLbSEBotBvI1yuKRKT9WejLKBo0eNa0QroIBsDs5Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZLmNqm60reu8HQyhQzvdIgjFzwlipUQ4WQPRcpNLLlOFosV6KQ9Lfv1EdNUNfOly9tRDY6mei2cpyQtPupUuJTYqLT689M/v9KO+jZ6N4BLI2LhszR/aIXg7yew9K7GFoIljnU/d69dkKVjX60WIKOS8HZdjqDNIFXaL6KRcRgI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=fibusT7f; arc=none smtp.client-ip=66.163.186.211
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
+	s=arc-20240116; t=1755375264; c=relaxed/simple;
+	bh=w9DQ8zCWow40XA7aqefppIUtRKvO4xOu+bZ5jRKDbAs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Q9czrnhFm23SaKFf1p86igadfGe4ot9oETciVpDBBqIjxTMboTOQmxi3y+4wA1OFrjupQuSm+1xg9hIv0NwcjwSICkvL07xubDd9XxbT7yopJTVU8U6ZX3RY0YI6eF5kmtetUKyMqK3oRrKyI4jKDHu2uSCz2AEp9insR7yDz0A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=Zn2cUSFv; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="fibusT7f"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1755365356; bh=tORoYsfNrRhhb2GqJbE8RmU2+8hj92sgtnIUvWxQHy0=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=fibusT7fkPD/yg1cJlIsd2Fj1JQZ6Oo9Bn54Zo7T/6VhOel8UXoYGSj5rxxVHgvrQns+EnkpSD34naHNGbRq78EqbLYVagNbm8TwuBxjBI1W+07V/ETZ/c8TGmsVFbK9zLIzI1VQuHm8z/Z107r+E03N3ev325o9qMw2PujM3B3ZdUrH+Y8Nb00w7Hm2a3kUIq9jnZXiTK9eiMJkWhJVuSIQnF1p/RBSIYwlNuUZWw8iM16w5pwWFnln7uhrAg2DWN6AEcCVthc5l/dYcxUkL/gYq1K4nHu3aSHuXqxKblbxuKHyvrlzH1wn2YQCQR3NC/6FC7ymKiltfahwbLjZmw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1755365356; bh=dJK++GnwYrPan1iiyMRqTFmjSA+xMbTyUW4OSmVEj48=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=m3htZUxezKD/bGfV/5mjc9yhnoNCrPEi/YexgbYSnKUGrq+LphrF0ylPOuZdlLZPYfZA8QJwK3Q94l014CLGMlW6L3K15CBHb0vFSHEPsSZv5bWV4QCp1J1nkgvPy4bjLOrrcCgMYdok0xORFUbO00HRR6Y8mCQB0zxZgLxYscY04eYJCi4x5AhU961NJZq9TcI1ULeF1QVpC2m1tewRxlfb0tSeeiBUqpJAxl3aclJBwbGKD5rU4sPZN/BCipFmm3IbNMhFbOsnvcnm3BjGJ2BbKr+DvnQue31zHUntaQFAJCgDru+KsFCzLvmuepDiuEzV7iXMbEyTbyRxI7bzbQ==
-X-YMail-OSG: byN0QNsVM1muBYYTHteLcN8zhY6e2xjerD2imS1okPnC41pDWfMBtfp0gWxKsV0
- CB6J4iLsIGKW9VFMJpylIviBN.4lA0b1zMDz6Zi5sjFXXm7BNG7637s_jeGLqq3j9S5VlE3saDvv
- C8ix6yDvPuM8Kdvn538YsZHdPWS5omgcp1Y.92xC9uYhSemOL5ymWdvR5HEQCd1D5aA7bkCVtbB2
- bgpx83Z86IfdZP4SNXv2fpDhTlhuHLNOfqHlMoB8gYxH8JJKqRSYcgnhpSmzGStuFiHIDK7ePxQf
- S9LT4O1yMWphE2Nddjw85XkziilRQzv_paf9QLpIgFFev3gbyshoFqBYfKFLA3slo2QM2Babd4yo
- 00Mg38C6OErHPv_DsO_f0xXzmX6n7SkFHkRzyzh2Pmlp59OgjdtUdZhtouWB68nxxZERRepUJ.MR
- S4N5oIHNQKJUXrgNKcpBPgAbjrN3RadizXpGRQ1Zo_vwMdlvwutUdoXZQ478SptdQlyRKyyqlM.L
- 7FMGG5D3AYHr6w_peXnxXQTKYqTO3Sh.bAivACbxh3Dc9n5DRbTUHz9ZyI5SCdCiY6Xd40j5QDTF
- Nx8Op0lEHCYWYZPOkbaCAYhkp5GkEsVPjdZ1PiaYURIntjjrRMDy3IxRtXbNcT1QXmG3glbVjup_
- pC4Z1XFGQoWBe8XNkf4wYqQQVLApAEPIOjdXwO8t1HRRSrqM9iPfZWnghKCMPWFVLDVQO0qJGMi_
- bXP9VXyjYP1qGLh98XOzfWvpWu3U4B0Z1_SlDFK8ksrE5BC6th29gw1GekebAXjXCgzZEeBB5W.M
- 1byJLP_idwLSgbj3ZouG0KJPs4OAhFeo9JndjSpLu.AMGDDr_hOd8udunnDM5kSPpb53KTissd5s
- JhDetNrukq_6rjL.rJ1gQOYXZjK0ws6lUyuxkfL1dSLAEtVujB5wH0s6BF7_5uvRE.sQTk5ArBP.
- AmxIjc9pZUeI33LURBLVm7Q4QvFSLDqyBx1Mk5eYFyLrFz9wRdtckFuwRIBsYWfcspzwqD0pJ0R8
- 3LbOMp3_.qxnITmqFm2zwLA4BNilA.p5_IiPLco4zYVlGBmVmTyjSD5vB.zf6rE6srAxgXlLQ1YK
- EQ9MPfhNL9PCoN9d0csbQmtLsiJsvyxhJ8CfVGUhRx2_PSWN2QTY8YOwm0vbst8IZDqIQwVDkFLX
- eOiG6YlQlJxEFJ9YIXII.NnEOfq4EGl7Y.JLGmgc1w6m4W992vJrZFhQ9tmxFKluY0Qa4iWAEBJV
- qW_SML7d2SrQZ9jSEmuylkmVW8FiGJn0oXyfmiXdIP8WFwvgJeg_Bh94hB1mstUcLsd7F8NS0LaF
- fC.sHM12Lnb3xwPK8yXuDbF1nDWaU.HCx92zF7OaRKMgy39CN0QmwRr5FETzzsl3L_GR4c3PkkFP
- LnuUKz4HBsnSZV5p.RHvKj9oOrIBBTn9Auk4GyV6C7yRvBnMEc5VgiW1.7VhW0huY5maJ_1igBnX
- 5tcMSNMvLCZ2O3Oo9CeZ6vwbyq5OuWut6x.KqVUhIcyEpGuoOefoiUCLBU_GBLdT4M7bDpErdZaM
- OvnUY8mMD4vm7a7jrTIB6wGDxtsW3.xl5YPM2p2SF_pTgxFu7cQtH9eRghQO2DBa..vxF35PTMW1
- LGfYGWP7qFUl1I1xeb1syrao_TtG9ZcDx7UoGVl6eu0zLAvuGrJK1H4Z6WiRz8jPsqQ9oYURgcWF
- 9iSFvTy0ddNv0Mm83_O1xwFqe3wQJmTCu3ybSsLzejXp.RrppLYaKqE3O8MxN2Q7hqAYrVnmHJev
- jd3VcxvMVhVw2IoRuut3NJLuqh5oalwavBzZDpKM8PhPLidqjF0QUjSn2.qgZfIvh1NJbyzvD0YT
- 7Lc75hriAX_syNETIDPrwu3xYXgw26ts92NgESpzsff96kn5RHrhZ1ARKk7uN.YmSjNLB_XwrmY3
- F4Y0S2iS8kVhGfUrsVRypIzK0lZ2uu4axyyzD6_UzmDvfw_BVbPpAmH6P0HPa5ki9iVlk_Yx.._J
- BiU.XxAeMtygZ7yq3JyU4pAHkqeYludZWqqoOz6So9WFcVf7fHDSOwfCqEkKeb7NAoia1YFfwN2R
- O8PShWF_pOw0XN.WzSYeDicnCGbhn9nEbgwVzX4PzIvUaXo4R_RaVmr.Qvxo5H5DaFU9zC1TDUbO
- 5jXgIYmtE3N4w85MRWokM5O.FXEDsVN34IqSrO8NLvsie58BUMus_JbvdPNYI_NYhrPlaC9sfDcb
- A04WqssvAsvJENRQ6QkfKPh.07fUqXXR149VUth_I4TpKFU4mI5c1s5frIfmG5khrHDgo_j7ndIs
- CiAv.CubjdNtUmok63VKz8ZEw8qgimTvqlw--
-X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 9bba87de-012f-4754-9bce-3e24872a0a32
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Sat, 16 Aug 2025 17:29:16 +0000
-Received: by hermes--production-gq1-74d64bb7d7-45lk9 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID a7374b10bab8e01c99c92e4838c45fe8;
-          Sat, 16 Aug 2025 17:29:15 +0000 (UTC)
-From: Casey Schaufler <casey@schaufler-ca.com>
-To: casey@schaufler-ca.com,
-	paul@paul-moore.com,
-	eparis@redhat.com,
-	linux-security-module@vger.kernel.org,
-	audit@vger.kernel.org
-Cc: jmorris@namei.org,
-	serge@hallyn.com,
-	keescook@chromium.org,
-	john.johansen@canonical.com,
-	penguin-kernel@i-love.sakura.ne.jp,
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Zn2cUSFv"
+Received: from ericsu-dev1 (unknown [131.107.160.74])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 43DEC2015BD3;
+	Sat, 16 Aug 2025 13:14:21 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 43DEC2015BD3
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1755375261;
+	bh=tSTJ0W92kJRx5vHyfphZkJbqABSRiBl4XvNyazDnqjs=;
+	h=From:To:Cc:Subject:Date:From;
+	b=Zn2cUSFvqWRZpG1jfZA/8KSUBl5bUlbfNdAjWb77uPeaCsGLQVmH1Pp1P4xnC08Fk
+	 tG/poFCCEtm6paoZVL5T+1l3UqjA2qCwjEmC707VwmCM0mXPcy6+12KHSFfhvYjJWW
+	 pPs1IESlMky9aaOFCIr0zb9RFCQ3GEB873jqhDE8=
+From: Eric Suen <ericsu@linux.microsoft.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
 	stephen.smalley.work@gmail.com,
-	linux-kernel@vger.kernel.org,
-	selinux@vger.kernel.org
-Subject: [PATCH v6 3/4] Audit: Add record for multiple task security contexts
-Date: Sat, 16 Aug 2025 10:28:58 -0700
-Message-ID: <20250816172859.6437-4-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20250816172859.6437-1-casey@schaufler-ca.com>
-References: <20250816172859.6437-1-casey@schaufler-ca.com>
+	omosnace@redhat.com,
+	danieldurning.work@gmail.com
+Subject: [PATCH v2] SELinux: Add support for BPF token access control
+Date: Sat, 16 Aug 2025 13:14:20 -0700
+Message-ID: <20250816201420.197-1-ericsu@linux.microsoft.com>
+X-Mailer: git-send-email 2.50.1.windows.1
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Replace the single skb pointer in an audit_buffer with a list of
-skb pointers. Add the audit_stamp information to the audit_buffer as
-there's no guarantee that there will be an audit_context containing
-the stamp associated with the event. At audit_log_end() time create
-auxiliary records as have been added to the list. Functions are
-created to manage the skb list in the audit_buffer.
+BPF token support was introduced to allow a privileged process to delegate
+limited BPF functionality—such as map creation and program loading—to an
+unprivileged process:
+  https://lore.kernel.org/linux-security-module/20231130185229.2688956-1-andrii@kernel.org/
 
-Create a new audit record AUDIT_MAC_TASK_CONTEXTS.
-An example of the MAC_TASK_CONTEXTS record is:
+This patch adds SELinux support for controlling BPF token access. With
+this change, SELinux policies can now enforce constraints on BPF token
+usage based on both the delegating (privileged) process and the recipient
+(unprivileged) process.
 
-    type=MAC_TASK_CONTEXTS
-    msg=audit(1600880931.832:113)
-    subj_apparmor=unconfined
-    subj_smack=_
+Supported operations currently include:
+  - map_create
+  - prog_load
 
-When an audit event includes a AUDIT_MAC_TASK_CONTEXTS record the
-"subj=" field in other records in the event will be "subj=?".
-An AUDIT_MAC_TASK_CONTEXTS record is supplied when the system has
-multiple security modules that may make access decisions based on a
-subject security context.
+High-level workflow:
+  1. An unprivileged process creates a VFS context via `fsopen()` and
+     obtains a file descriptor.
+  2. This descriptor is passed to a privileged process, which configures
+     BPF token delegation options and mounts a BPF filesystem.
+  3. SELinux records the `creator_sid` of the privileged process during
+     mount setup.
+  4. The unprivileged process then uses this BPF fs mount to create a
+     token and attach it to subsequent BPF syscalls.
+  5. During verification of `map_create` and `prog_load`, SELinux uses
+     `creator_sid` and the current SID to check policy permissions via:
+       avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
+                    BPF__MAP_CREATE, NULL);
 
-Refactor audit_log_task_context(), creating a new audit_log_subj_ctx().
-This is used in netlabel auditing to provide multiple subject security
-contexts as necessary.
+The implementation introduces two new permissions:
+  - map_create_as
+  - prog_load_as
 
-Suggested-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+At token creation time, SELinux verifies that the current process has the
+appropriate `*_as` permission (depending on the `allowed_cmds` value in
+the bpf_token) to act on behalf of the `creator_sid`.
+
+Example SELinux policy:
+  allow test_bpf_t self:bpf {
+      map_create map_read map_write prog_load prog_run
+      map_create_as prog_load_as
+  };
+
+Additionally, a new policy capability bpf_token_perms is added to ensure
+badkward compability. If disabled, previous behavior ((checks based on
+current process SID)) is preserved.
+
+Changes in v2:
+- Fixed bug in selinux_bpffs_creator_sid(u32 fd) where it retrieved
+  creator_sid from wrong file descriptor
+- Removed unnecessary checks for null, per review comments from
+  the first patch
+
+Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
 ---
- include/linux/audit.h        |  16 +++
- include/uapi/linux/audit.h   |   1 +
- kernel/audit.c               | 208 +++++++++++++++++++++++++++++------
- net/netlabel/netlabel_user.c |   9 +-
- security/apparmor/lsm.c      |   3 +
- security/selinux/hooks.c     |   3 +
- security/smack/smack_lsm.c   |   3 +
- 7 files changed, 202 insertions(+), 41 deletions(-)
+ security/selinux/hooks.c                   | 93 +++++++++++++++++++++-
+ security/selinux/include/classmap.h        |  2 +-
+ security/selinux/include/objsec.h          |  4 +
+ security/selinux/include/policycap.h       |  1 +
+ security/selinux/include/policycap_names.h |  1 +
+ security/selinux/include/security.h        |  6 ++
+ 6 files changed, 104 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/audit.h b/include/linux/audit.h
-index a394614ccd0b..38e5edffe371 100644
---- a/include/linux/audit.h
-+++ b/include/linux/audit.h
-@@ -37,6 +37,8 @@ struct audit_watch;
- struct audit_tree;
- struct sk_buff;
- struct kern_ipc_perm;
-+struct lsm_id;
-+struct lsm_prop;
- 
- struct audit_krule {
- 	u32			pflags;
-@@ -147,6 +149,9 @@ extern unsigned compat_signal_class[];
- #define AUDIT_TTY_ENABLE	BIT(0)
- #define AUDIT_TTY_LOG_PASSWD	BIT(1)
- 
-+/* bit values for audit_cfg_lsm */
-+#define AUDIT_CFG_LSM_SECCTX_SUBJECT	BIT(0)
-+
- struct filename;
- 
- #define AUDIT_OFF	0
-@@ -185,6 +190,7 @@ extern void		    audit_log_path_denied(int type,
- 						  const char *operation);
- extern void		    audit_log_lost(const char *message);
- 
-+extern int audit_log_subj_ctx(struct audit_buffer *ab, struct lsm_prop *prop);
- extern int audit_log_task_context(struct audit_buffer *ab);
- extern void audit_log_task_info(struct audit_buffer *ab);
- 
-@@ -210,6 +216,8 @@ extern u32 audit_enabled;
- 
- extern int audit_signal_info(int sig, struct task_struct *t);
- 
-+extern void audit_cfg_lsm(const struct lsm_id *lsmid, int flags);
-+
- #else /* CONFIG_AUDIT */
- static inline __printf(4, 5)
- void audit_log(struct audit_context *ctx, gfp_t gfp_mask, int type,
-@@ -245,6 +253,11 @@ static inline void audit_log_key(struct audit_buffer *ab, char *key)
- { }
- static inline void audit_log_path_denied(int type, const char *operation)
- { }
-+static inline int audit_log_subj_ctx(struct audit_buffer *ab,
-+				     struct lsm_prop *prop)
-+{
-+	return 0;
-+}
- static inline int audit_log_task_context(struct audit_buffer *ab)
- {
- 	return 0;
-@@ -269,6 +282,9 @@ static inline int audit_signal_info(int sig, struct task_struct *t)
- 	return 0;
- }
- 
-+static inline void audit_cfg_lsm(const struct lsm_id *lsmid, int flags)
-+{ }
-+
- #endif /* CONFIG_AUDIT */
- 
- #ifdef CONFIG_AUDIT_COMPAT_GENERIC
-diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
-index 9a4ecc9f6dc5..8cad2f307719 100644
---- a/include/uapi/linux/audit.h
-+++ b/include/uapi/linux/audit.h
-@@ -148,6 +148,7 @@
- #define AUDIT_IPE_POLICY_LOAD	1422	/* IPE policy load */
- #define AUDIT_LANDLOCK_ACCESS	1423	/* Landlock denial */
- #define AUDIT_LANDLOCK_DOMAIN	1424	/* Landlock domain status */
-+#define AUDIT_MAC_TASK_CONTEXTS	1425	/* Multiple LSM task contexts */
- 
- #define AUDIT_FIRST_KERN_ANOM_MSG   1700
- #define AUDIT_LAST_KERN_ANOM_MSG    1799
-diff --git a/kernel/audit.c b/kernel/audit.c
-index 226c8ae00d04..c924b30f2524 100644
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -54,6 +54,7 @@
- #include <net/netlink.h>
- #include <linux/skbuff.h>
- #include <linux/security.h>
-+#include <linux/lsm_hooks.h>
- #include <linux/freezer.h>
- #include <linux/pid_namespace.h>
- #include <net/netns/generic.h>
-@@ -81,6 +82,11 @@ static u32	audit_failure = AUDIT_FAIL_PRINTK;
- /* private audit network namespace index */
- static unsigned int audit_net_id;
- 
-+/* Number of modules that provide a security context.
-+   List of lsms that provide a security context */
-+static u32 audit_subj_secctx_cnt;
-+static const struct lsm_id *audit_subj_lsms[MAX_LSM_COUNT];
-+
- /**
-  * struct audit_net - audit private network namespace data
-  * @sk: communication socket
-@@ -195,8 +201,10 @@ static struct audit_ctl_mutex {
-  * to place it on a transmit queue.  Multiple audit_buffers can be in
-  * use simultaneously. */
- struct audit_buffer {
--	struct sk_buff       *skb;	/* formatted skb ready to send */
-+	struct sk_buff       *skb;	/* the skb for audit_log functions */
-+	struct sk_buff_head  skb_list;	/* formatted skbs, ready to send */
- 	struct audit_context *ctx;	/* NULL or associated context */
-+	struct audit_stamp   stamp;	/* audit stamp for these records */
- 	gfp_t		     gfp_mask;
- };
- 
-@@ -278,6 +286,27 @@ static pid_t auditd_pid_vnr(void)
- 	return pid;
- }
- 
-+/**
-+ * audit_cfg_lsm - Identify a security module as providing a secctx.
-+ * @lsmid: LSM identity
-+ * @flags: which contexts are provided
-+ *
-+ * Description:
-+ * Increments the count of the security modules providing a secctx.
-+ * If the LSM id is already in the list leave it alone.
-+ */
-+void audit_cfg_lsm(const struct lsm_id *lsmid, int flags)
-+{
-+	int i;
-+
-+	if (flags & AUDIT_CFG_LSM_SECCTX_SUBJECT) {
-+		for (i = 0 ; i < audit_subj_secctx_cnt; i++)
-+			if (audit_subj_lsms[i] == lsmid)
-+				return;
-+		audit_subj_lsms[audit_subj_secctx_cnt++] = lsmid;
-+	}
-+}
-+
- /**
-  * audit_get_sk - Return the audit socket for the given network namespace
-  * @net: the destination network namespace
-@@ -1776,10 +1805,13 @@ __setup("audit_backlog_limit=", audit_backlog_limit_set);
- 
- static void audit_buffer_free(struct audit_buffer *ab)
- {
-+	struct sk_buff *skb;
-+
- 	if (!ab)
- 		return;
- 
--	kfree_skb(ab->skb);
-+	while ((skb = skb_dequeue(&ab->skb_list)))
-+		kfree_skb(skb);
- 	kmem_cache_free(audit_buffer_cache, ab);
- }
- 
-@@ -1795,6 +1827,10 @@ static struct audit_buffer *audit_buffer_alloc(struct audit_context *ctx,
- 	ab->skb = nlmsg_new(AUDIT_BUFSIZ, gfp_mask);
- 	if (!ab->skb)
- 		goto err;
-+
-+	skb_queue_head_init(&ab->skb_list);
-+	skb_queue_tail(&ab->skb_list, ab->skb);
-+
- 	if (!nlmsg_put(ab->skb, 0, 0, type, 0, 0))
- 		goto err;
- 
-@@ -1860,7 +1896,6 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
- 				     int type)
- {
- 	struct audit_buffer *ab;
--	struct audit_stamp stamp;
- 
- 	if (audit_initialized != AUDIT_INITIALIZED)
- 		return NULL;
-@@ -1915,14 +1950,14 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
- 		return NULL;
- 	}
- 
--	audit_get_stamp(ab->ctx, &stamp);
-+	audit_get_stamp(ab->ctx, &ab->stamp);
- 	/* cancel dummy context to enable supporting records */
- 	if (ctx)
- 		ctx->dummy = 0;
- 	audit_log_format(ab, "audit(%llu.%03lu:%u): ",
--			 (unsigned long long)stamp.ctime.tv_sec,
--			 stamp.ctime.tv_nsec/1000000,
--			 stamp.serial);
-+			 (unsigned long long)ab->stamp.ctime.tv_sec,
-+			 ab->stamp.ctime.tv_nsec/1000000,
-+			 ab->stamp.serial);
- 
- 	return ab;
- }
-@@ -2178,31 +2213,128 @@ void audit_log_key(struct audit_buffer *ab, char *key)
- 		audit_log_format(ab, "(null)");
- }
- 
--int audit_log_task_context(struct audit_buffer *ab)
-+/**
-+ * audit_buffer_aux_new - Add an aux record buffer to the skb list
-+ * @ab: audit_buffer
-+ * @type: message type
-+ *
-+ * Aux records are allocated and added to the skb list of
-+ * the "main" record. The ab->skb is reset to point to the
-+ * aux record on its creation. When the aux record in complete
-+ * ab->skb has to be reset to point to the "main" record.
-+ * This allows the audit_log_ functions to be ignorant of
-+ * which kind of record it is logging to. It also avoids adding
-+ * special data for aux records.
-+ *
-+ * On success ab->skb will point to the new aux record.
-+ * Returns 0 on success, -ENOMEM should allocation fail.
-+ */
-+static int audit_buffer_aux_new(struct audit_buffer *ab, int type)
-+{
-+	WARN_ON(ab->skb != skb_peek(&ab->skb_list));
-+
-+	ab->skb = nlmsg_new(AUDIT_BUFSIZ, ab->gfp_mask);
-+	if (!ab->skb)
-+		goto err;
-+	if (!nlmsg_put(ab->skb, 0, 0, type, 0, 0))
-+		goto err;
-+	skb_queue_tail(&ab->skb_list, ab->skb);
-+
-+	audit_log_format(ab, "audit(%llu.%03lu:%u): ",
-+			 (unsigned long long)ab->stamp.ctime.tv_sec,
-+			 ab->stamp.ctime.tv_nsec/1000000,
-+			 ab->stamp.serial);
-+
-+	return 0;
-+
-+err:
-+	kfree_skb(ab->skb);
-+	ab->skb = skb_peek(&ab->skb_list);
-+	return -ENOMEM;
-+}
-+
-+/**
-+ * audit_buffer_aux_end - Switch back to the "main" record from an aux record
-+ * @ab: audit_buffer
-+ *
-+ * Restores the "main" audit record to ab->skb.
-+ */
-+static void audit_buffer_aux_end(struct audit_buffer *ab)
-+{
-+	ab->skb = skb_peek(&ab->skb_list);
-+}
-+
-+/**
-+ * audit_log_subj_ctx - Add LSM subject information
-+ * @ab: audit_buffer
-+ * @prop: LSM subject properties.
-+ *
-+ * Add a subj= field and, if necessary, a AUDIT_MAC_TASK_CONTEXTS record.
-+ */
-+int audit_log_subj_ctx(struct audit_buffer *ab, struct lsm_prop *prop)
- {
--	struct lsm_prop prop;
- 	struct lsm_context ctx;
-+	char *space = "";
- 	int error;
-+	int i;
- 
--	security_current_getlsmprop_subj(&prop);
--	if (!lsmprop_is_set(&prop))
-+	security_current_getlsmprop_subj(prop);
-+	if (!lsmprop_is_set(prop))
- 		return 0;
- 
--	error = security_lsmprop_to_secctx(&prop, &ctx, LSM_ID_UNDEF);
--	if (error < 0) {
--		if (error != -EINVAL)
--			goto error_path;
-+	if (audit_subj_secctx_cnt < 2) {
-+		error = security_lsmprop_to_secctx(prop, &ctx, LSM_ID_UNDEF);
-+		if (error < 0) {
-+			if (error != -EINVAL)
-+				goto error_path;
-+			return 0;
-+		}
-+		audit_log_format(ab, " subj=%s", ctx.context);
-+		security_release_secctx(&ctx);
- 		return 0;
- 	}
--
--	audit_log_format(ab, " subj=%s", ctx.context);
--	security_release_secctx(&ctx);
-+	/* Multiple LSMs provide contexts. Include an aux record. */
-+	audit_log_format(ab, " subj=?");
-+	error = audit_buffer_aux_new(ab, AUDIT_MAC_TASK_CONTEXTS);
-+	if (error)
-+		goto error_path;
-+
-+	for (i = 0; i < audit_subj_secctx_cnt; i++) {
-+		error = security_lsmprop_to_secctx(prop, &ctx,
-+						   audit_subj_lsms[i]->id);
-+		if (error < 0) {
-+			/*
-+			 * Don't print anything. An LSM like BPF could
-+			 * claim to support contexts, but only do so under
-+			 * certain conditions.
-+			 */
-+			if (error == -EOPNOTSUPP)
-+				continue;
-+			if (error != -EINVAL)
-+				audit_panic("error in audit_log_subj_ctx");
-+		} else {
-+			audit_log_format(ab, "%ssubj_%s=%s", space,
-+					 audit_subj_lsms[i]->name, ctx.context);
-+			space = " ";
-+			security_release_secctx(&ctx);
-+		}
-+	}
-+	audit_buffer_aux_end(ab);
- 	return 0;
- 
- error_path:
--	audit_panic("error in audit_log_task_context");
-+	audit_panic("error in audit_log_subj_ctx");
- 	return error;
- }
-+EXPORT_SYMBOL(audit_log_subj_ctx);
-+
-+int audit_log_task_context(struct audit_buffer *ab)
-+{
-+	struct lsm_prop prop;
-+
-+	security_current_getlsmprop_subj(&prop);
-+	return audit_log_subj_ctx(ab, &prop);
-+}
- EXPORT_SYMBOL(audit_log_task_context);
- 
- void audit_log_d_path_exe(struct audit_buffer *ab,
-@@ -2411,6 +2543,26 @@ int audit_signal_info(int sig, struct task_struct *t)
- 	return audit_signal_info_syscall(t);
- }
- 
-+/**
-+ * __audit_log_end - enqueue one audit record
-+ * @skb: the buffer to send
-+ */
-+static void __audit_log_end(struct sk_buff *skb)
-+{
-+	struct nlmsghdr *nlh;
-+
-+	if (audit_rate_check()) {
-+		/* setup the netlink header, see the comments in
-+		 * kauditd_send_multicast_skb() for length quirks */
-+		nlh = nlmsg_hdr(skb);
-+		nlh->nlmsg_len = skb->len - NLMSG_HDRLEN;
-+
-+		/* queue the netlink packet */
-+		skb_queue_tail(&audit_queue, skb);
-+	} else
-+		audit_log_lost("rate limit exceeded");
-+}
-+
- /**
-  * audit_log_end - end one audit record
-  * @ab: the audit_buffer
-@@ -2423,25 +2575,15 @@ int audit_signal_info(int sig, struct task_struct *t)
- void audit_log_end(struct audit_buffer *ab)
- {
- 	struct sk_buff *skb;
--	struct nlmsghdr *nlh;
- 
- 	if (!ab)
- 		return;
- 
--	if (audit_rate_check()) {
--		skb = ab->skb;
--		ab->skb = NULL;
-+	while ((skb = skb_dequeue(&ab->skb_list)))
-+		__audit_log_end(skb);
- 
--		/* setup the netlink header, see the comments in
--		 * kauditd_send_multicast_skb() for length quirks */
--		nlh = nlmsg_hdr(skb);
--		nlh->nlmsg_len = skb->len - NLMSG_HDRLEN;
--
--		/* queue the netlink packet and poke the kauditd thread */
--		skb_queue_tail(&audit_queue, skb);
--		wake_up_interruptible(&kauditd_wait);
--	} else
--		audit_log_lost("rate limit exceeded");
-+	/* poke the kauditd thread */
-+	wake_up_interruptible(&kauditd_wait);
- 
- 	audit_buffer_free(ab);
- }
-diff --git a/net/netlabel/netlabel_user.c b/net/netlabel/netlabel_user.c
-index 6d6545297ee3..0da652844dd6 100644
---- a/net/netlabel/netlabel_user.c
-+++ b/net/netlabel/netlabel_user.c
-@@ -84,7 +84,6 @@ struct audit_buffer *netlbl_audit_start_common(int type,
- 					       struct netlbl_audit *audit_info)
- {
- 	struct audit_buffer *audit_buf;
--	struct lsm_context ctx;
- 
- 	if (audit_enabled == AUDIT_OFF)
- 		return NULL;
-@@ -96,13 +95,7 @@ struct audit_buffer *netlbl_audit_start_common(int type,
- 	audit_log_format(audit_buf, "netlabel: auid=%u ses=%u",
- 			 from_kuid(&init_user_ns, audit_info->loginuid),
- 			 audit_info->sessionid);
--
--	if (lsmprop_is_set(&audit_info->prop) &&
--	    security_lsmprop_to_secctx(&audit_info->prop, &ctx,
--				       LSM_ID_UNDEF) > 0) {
--		audit_log_format(audit_buf, " subj=%s", ctx.context);
--		security_release_secctx(&ctx);
--	}
-+	audit_log_subj_ctx(audit_buf, &audit_info->prop);
- 
- 	return audit_buf;
- }
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 8e1cc229b41b..220d1684b8d4 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -2530,6 +2530,9 @@ static int __init apparmor_init(void)
- 	security_add_hooks(apparmor_hooks, ARRAY_SIZE(apparmor_hooks),
- 				&apparmor_lsmid);
- 
-+	/* Inform the audit system that secctx is used */
-+	audit_cfg_lsm(&apparmor_lsmid, AUDIT_CFG_LSM_SECCTX_SUBJECT);
-+
- 	/* Report that AppArmor successfully initialized */
- 	apparmor_initialized = 1;
- 	if (aa_g_profile_mode == APPARMOR_COMPLAIN)
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index c95a5874bf7d..975b84b466b4 100644
+index 335fbf76cdd2..29b35ed4c306 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -7618,6 +7618,9 @@ static __init int selinux_init(void)
- 	/* Set the security state for the initial task. */
- 	cred_init_security();
+@@ -733,6 +733,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 		goto out;
+ 	}
  
-+	/* Inform the audit system that secctx is used */
-+	audit_cfg_lsm(&selinux_lsmid, AUDIT_CFG_LSM_SECCTX_SUBJECT);
++	sbsec->creator_sid = current_sid();
 +
- 	default_noexec = !(VM_DATA_DEFAULT_FLAGS & VM_EXEC);
- 	if (!default_noexec)
- 		pr_notice("SELinux:  virtual memory is executable by default\n");
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index fc340a6f0dde..eaff9b8901a7 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -5267,6 +5267,9 @@ static __init int smack_init(void)
- 	/* initialize the smack_known_list */
- 	init_smack_known_list();
+ 	if (strcmp(sb->s_type->name, "proc") == 0)
+ 		sbsec->flags |= SE_SBPROC | SE_SBGENFS;
  
-+	/* Inform the audit system that secctx is used */
-+	audit_cfg_lsm(&smack_lsmid, AUDIT_CFG_LSM_SECCTX_SUBJECT);
+@@ -7002,9 +7004,13 @@ static int selinux_ib_alloc_security(void *ib_sec)
+ static int selinux_bpf(int cmd, union bpf_attr *attr,
+ 		       unsigned int size, bool kernel)
+ {
++	bool bpf_token_perms = selinux_policycap_bpf_token_perms();
+ 	u32 sid = current_sid();
+ 	int ret;
+ 
++	if (bpf_token_perms)
++		return 0;
++
+ 	switch (cmd) {
+ 	case BPF_MAP_CREATE:
+ 		ret = avc_has_perm(sid, sid, SECCLASS_BPF, BPF__MAP_CREATE,
+@@ -7086,10 +7092,29 @@ static int selinux_bpf_prog(struct bpf_prog *prog)
+ 			    BPF__PROG_RUN, NULL);
+ }
+ 
++static int selinux_bpffs_creator_sid(u32 fd)
++{
++	struct path path;
++	struct super_block *sb;
++	struct superblock_security_struct *sbsec;
++
++	CLASS(fd, f)(fd);
++
++	if (fd_empty(f))
++		return SECSID_NULL;
++
++	path = fd_file(f)->f_path;
++	sb = path.dentry->d_sb;
++	sbsec = selinux_superblock(sb);
++
++	return sbsec->creator_sid;
++}
++
+ static int selinux_bpf_map_create(struct bpf_map *map, union bpf_attr *attr,
+ 				  struct bpf_token *token, bool kernel)
+ {
+ 	struct bpf_security_struct *bpfsec;
++	u32 ssid;
+ 
+ 	bpfsec = kzalloc(sizeof(*bpfsec), GFP_KERNEL);
+ 	if (!bpfsec)
+@@ -7098,7 +7123,12 @@ static int selinux_bpf_map_create(struct bpf_map *map, union bpf_attr *attr,
+ 	bpfsec->sid = current_sid();
+ 	map->security = bpfsec;
+ 
+-	return 0;
++	if (!token)
++		ssid = bpfsec->sid;
++	else
++		ssid = selinux_bpffs_creator_sid(attr->map_token_fd);
++
++	return avc_has_perm(ssid, bpfsec->sid, SECCLASS_BPF, BPF__MAP_CREATE, NULL);
+ }
+ 
+ static void selinux_bpf_map_free(struct bpf_map *map)
+@@ -7113,6 +7143,7 @@ static int selinux_bpf_prog_load(struct bpf_prog *prog, union bpf_attr *attr,
+ 				 struct bpf_token *token, bool kernel)
+ {
+ 	struct bpf_security_struct *bpfsec;
++	u32 ssid;
+ 
+ 	bpfsec = kzalloc(sizeof(*bpfsec), GFP_KERNEL);
+ 	if (!bpfsec)
+@@ -7121,7 +7152,12 @@ static int selinux_bpf_prog_load(struct bpf_prog *prog, union bpf_attr *attr,
+ 	bpfsec->sid = current_sid();
+ 	prog->aux->security = bpfsec;
+ 
+-	return 0;
++	if (!token)
++		ssid = bpfsec->sid;
++	else
++		ssid = selinux_bpffs_creator_sid(attr->prog_token_fd);
++
++	return avc_has_perm(ssid, bpfsec->sid, SECCLASS_BPF, BPF__PROG_LOAD, NULL);
+ }
+ 
+ static void selinux_bpf_prog_free(struct bpf_prog *prog)
+@@ -7132,10 +7168,18 @@ static void selinux_bpf_prog_free(struct bpf_prog *prog)
+ 	kfree(bpfsec);
+ }
+ 
++#define bpf_token_cmd(T, C) \
++	((T)->allowed_cmds & (1ULL << (C)))
++
+ static int selinux_bpf_token_create(struct bpf_token *token, union bpf_attr *attr,
+ 				    const struct path *path)
+ {
+ 	struct bpf_security_struct *bpfsec;
++	u32 sid = selinux_bpffs_creator_sid(attr->token_create.bpffs_fd);
++	int err;
++
++	if (sid == SECSID_NULL)
++		return -EPERM;
+ 
+ 	bpfsec = kzalloc(sizeof(*bpfsec), GFP_KERNEL);
+ 	if (!bpfsec)
+@@ -7144,6 +7188,29 @@ static int selinux_bpf_token_create(struct bpf_token *token, union bpf_attr *att
+ 	bpfsec->sid = current_sid();
+ 	token->security = bpfsec;
+ 
++	bpfsec->perms = 0;
++
++	/**
++	 * 'token->allowed_cmds' is a bit mask of allowed commands
++	 * Convert the BPF command enum to a bitmask representing its position in the
++	 * allowed_cmds bitmap.
++	 */
++	if (bpf_token_cmd(token, BPF_MAP_CREATE)) {
++		err = avc_has_perm(bpfsec->sid, sid, SECCLASS_BPF, BPF__MAP_CREATE_AS, NULL);
++		if (err)
++			return err;
++
++		bpfsec->perms |= BPF__MAP_CREATE;
++	}
++
++	if (bpf_token_cmd(token, BPF_PROG_LOAD)) {
++		err = avc_has_perm(bpfsec->sid, sid, SECCLASS_BPF, BPF__PROG_LOAD_AS, NULL);
++		if (err)
++			return err;
++
++		bpfsec->perms |= BPF__PROG_LOAD;
++	}
 +
  	return 0;
  }
  
+@@ -7154,6 +7221,27 @@ static void selinux_bpf_token_free(struct bpf_token *token)
+ 	token->security = NULL;
+ 	kfree(bpfsec);
+ }
++
++static int selinux_bpf_token_cmd(const struct bpf_token *token, enum bpf_cmd cmd)
++{
++	struct bpf_security_struct *bpfsec;
++
++	bpfsec = token->security;
++	switch (cmd) {
++	case BPF_MAP_CREATE:
++		if ((bpfsec->perms & BPF__MAP_CREATE) != BPF__MAP_CREATE)
++			return -EACCES;
++		break;
++	case BPF_PROG_LOAD:
++		if ((bpfsec->perms & BPF__PROG_LOAD) != BPF__PROG_LOAD)
++			return -EACCES;
++		break;
++	default:
++		break;
++	}
++
++	return 0;
++}
+ #endif
+ 
+ struct lsm_blob_sizes selinux_blob_sizes __ro_after_init = {
+@@ -7585,6 +7673,7 @@ static struct security_hook_list selinux_hooks[] __ro_after_init = {
+ 	LSM_HOOK_INIT(bpf_map_create, selinux_bpf_map_create),
+ 	LSM_HOOK_INIT(bpf_prog_load, selinux_bpf_prog_load),
+ 	LSM_HOOK_INIT(bpf_token_create, selinux_bpf_token_create),
++	LSM_HOOK_INIT(bpf_token_cmd, selinux_bpf_token_cmd),
+ #endif
+ #ifdef CONFIG_PERF_EVENTS
+ 	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 5665aa5e7853..a6ed864af64c 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -171,7 +171,7 @@ const struct security_class_mapping secclass_map[] = {
+ 	{ "infiniband_endport", { "manage_subnet", NULL } },
+ 	{ "bpf",
+ 	  { "map_create", "map_read", "map_write", "prog_load", "prog_run",
+-	    NULL } },
++	    "map_create_as", "prog_load_as", NULL } },
+ 	{ "xdp_socket", { COMMON_SOCK_PERMS, NULL } },
+ 	{ "mctp_socket", { COMMON_SOCK_PERMS, NULL } },
+ 	{ "perf_event",
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 1d7ac59015a1..b7e55e5c6d9c 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -87,6 +87,8 @@ struct superblock_security_struct {
+ 	u32 sid; /* SID of file system superblock */
+ 	u32 def_sid; /* default SID for labeling */
+ 	u32 mntpoint_sid; /* SECURITY_FS_USE_MNTPOINT context for files */
++	u32 creator_sid;	/* SID of privileged process and is used to */
++						/* verify bpf operations */
+ 	unsigned short behavior; /* labeling behavior */
+ 	unsigned short flags; /* which mount options were specified */
+ 	struct mutex lock;
+@@ -164,6 +166,8 @@ struct pkey_security_struct {
+ 
+ struct bpf_security_struct {
+ 	u32 sid; /* SID of bpf obj creator */
++	u32 perms;	/* allowed AV permissions, e.g. BPF__MAP_CREATE, */
++				/* for requested bpf commands */
+ };
+ 
+ struct perf_event_security_struct {
+diff --git a/security/selinux/include/policycap.h b/security/selinux/include/policycap.h
+index 7405154e6c42..cde6aaf442cd 100644
+--- a/security/selinux/include/policycap.h
++++ b/security/selinux/include/policycap.h
+@@ -17,6 +17,7 @@ enum {
+ 	POLICYDB_CAP_NETLINK_XPERM,
+ 	POLICYDB_CAP_NETIF_WILDCARD,
+ 	POLICYDB_CAP_GENFS_SECLABEL_WILDCARD,
++	POLICYDB_CAP_BPF_TOKEN_PERMS,
+ 	__POLICYDB_CAP_MAX
+ };
+ #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
+diff --git a/security/selinux/include/policycap_names.h b/security/selinux/include/policycap_names.h
+index d8962fcf2ff9..cd5e73f992ea 100644
+--- a/security/selinux/include/policycap_names.h
++++ b/security/selinux/include/policycap_names.h
+@@ -20,6 +20,7 @@ const char *const selinux_policycap_names[__POLICYDB_CAP_MAX] = {
+ 	"netlink_xperm",
+ 	"netif_wildcard",
+ 	"genfs_seclabel_wildcard",
++	"bpf_token_perms",
+ };
+ /* clang-format on */
+ 
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 8201e6a3ac0f..d3832e4ad4fb 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -209,6 +209,12 @@ static inline bool selinux_policycap_netif_wildcard(void)
+ 		selinux_state.policycap[POLICYDB_CAP_NETIF_WILDCARD]);
+ }
+ 
++static inline bool selinux_policycap_bpf_token_perms(void)
++{
++	return READ_ONCE(
++		selinux_state.policycap[POLICYDB_CAP_BPF_TOKEN_PERMS]);
++}
++
+ struct selinux_policy_convert_data;
+ 
+ struct selinux_load_state {
 -- 
-2.50.1
+2.50.1.windows.1
 
