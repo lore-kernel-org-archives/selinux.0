@@ -1,32 +1,62 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4C34F1DED49
-	for <selinux@vger.kernel.org>; Sat, 16 Aug 2025 17:27:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from sonic309-27.consmr.mail.ne1.yahoo.com (sonic309-27.consmr.mail.ne1.yahoo.com [66.163.184.153])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A52EC1A317D
+	for <selinux@vger.kernel.org>; Sat, 16 Aug 2025 17:28:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.184.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755365233; cv=none; b=HN1lXbI+e/OLRHpMQGsgMYdcAzD/NJeQEBEyYAcBgkEvz7KOyOj8KGi/pHaMTvaIYgKc+7C6vKFbcYUbPIIx0ExBa52mPXo7yRLVSQ747P8zljKgjnxIrjmXTJ5jyK7V7XPrhUMONJwVjp/AnoLSpvZ9kKTiUOx0FAhrVZt7J7E=
+	t=1755365285; cv=none; b=ZGKkbuyu1wgsfGPsPJBMQPlR4ayOq2vFZzkGCUnVJsfv131OIbjLvb8xd6E10YSM6qHJSqYEfpqI7/tIas10ZKnOsiypFylTneHTGkcRMwBoUuwKVt+8M6c7JqhEhKGlPBoWAn1/4pp3Q5nxKCj/PeDyoMijIpOSlguoNgRhFRs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755365233; c=relaxed/simple;
-	bh=37BmG4fz76LYSqvY6wBOTrtn+xEzfWG8QYNHAmxxRk8=;
+	s=arc-20240116; t=1755365285; c=relaxed/simple;
+	bh=qfd5Bpl29LjbUuYcluXS6+PkRhUbGbXh09AU6IENGkA=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TJMfX4wGQicDG57JjdKKTwitn/f0oEQEYYmsu1eXNUfPZvjtus/GUssfU/G6DaOEsB/zWpWRx/GuijE3n2WESDB1boTt6scx1DPirPPTjnFcDiVEOSZL2TppIIe3nzM+MccQaRMRM4B03/zs1GI1YVzkecegW/1GhOPpz5fYR2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=ow1egP9N; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	 In-Reply-To:Content-Type; b=O5fMwClEBsr+FhGlqmHjtHRPIdojt9z9KE5Vb+2V6imtHjQ5wCOIK0rlpLM3l2eIFjLCPQ/BP1uQhCQOJ3xDPbNqtJdT94bFQP1PrLUcynjYrwypjAIxxcxeN/6w1xSn7/ivds2Ya7apDJXt+9tLKontdFu9NCaSEhHdffSitSc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=il+Ei518; arc=none smtp.client-ip=66.163.184.153
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="ow1egP9N"
-Received: from [10.137.198.68] (unknown [131.107.8.68])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 48FFA2015BC2;
-	Sat, 16 Aug 2025 10:27:04 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 48FFA2015BC2
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1755365224;
-	bh=fXR8AFKdWkM6qR2Ry7AGbsp2PNwVeXA39cut9wXmQHQ=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ow1egP9N0K/ZSTElAHv3hh1aJREIt3P5lPyILgy2YCuZuro4pVN4uRO15OCNhTPbn
-	 v1vQ4igzgkUy2dKZewr57s0AtahNZWm6hyiCzy8Vt0oAF98JvY/mxXWLIOx0w1hUK7
-	 zP34csboxLNK13PhoZVnuFVCQ7eA8ssdtwcYiGQI=
-Message-ID: <6c61da87-3da6-4b13-9362-a06f64b85ae0@linux.microsoft.com>
-Date: Sat, 16 Aug 2025 10:27:03 -0700
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="il+Ei518"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1755365276; bh=i8DayYv+95JsTVimWEBfQAF5hYZeMAz3j5aY/gIoeQE=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=il+Ei518Qq207efT+RmQbo1KQd8rhr+sMApI6n4QvQb9cxKl8LXdDG3DfeIpq75YiF2l4rx7Jen5sARihKUC7JGtn/zPe8iAAMdC+zWRn/KsNxFEAaKq1+OM30UAiAojdvCzjdxX2ShNcfRDWYy4kg8nHMjk8QpgDeyEBZyxCoZOp5ctxz0Y6IcooGZWBh0rqJFT16sfX8K8tWsFRZeVmrq94PMaIkZV4fhUvNXUs/I6so2UAwgmTX3aDt+IadrDrBPxzx54GK3T4tWfI7Vnge36wpjirnsk3rKxsEDpLqE4C9KAQZIa4jSfIyBE2z/Ea779AGsELhe0TzqT1xi37A==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1755365276; bh=tNje3rHJRdLXlmNVOri2AM2PuYULlPcH2Cr1ZwZ1KH4=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=UjNkUDIQnRmUg9gT5E3VJb4ZKjWTGj/hgJzVjGI6CNDdoQd88/3+vXgnkXzNmU8yKwZIttkSS0ENXYtDSO54HDddVC3FB6J5HAXezSbAaM3CSFqCP+csBxavElOfaTsIanQl6Oyq2zbWsXdjtIdKXtzcTuqj+pe8LS/K2OJ8O6YnyaxR9+obGossGIQXQEvkJyBw/Y3RdZtJyHo2ZLH0R+3+ajirRxzrZIejyTvWbUfWmBzG7p6NqhGzNZK7YJi5iyqkds4IJ/hSX/BUb1QXYbCYpeid25YvKbY8FuKxNSvwnfMKTJFAJhP+297jSQAIp3DRxVYaJ+51IeaoCHAc2g==
+X-YMail-OSG: La05JAUVM1l6C2gpIlsRgjat3TOYEPvoifJKmbaMfP0k.hCiUO3wMZDvqhpTOJF
+ JqqmdRZZ_Sc2rB7tV4_UgcI4KE_xXuCFdwUVhmT5RYoZKUkmxXwRIlfQOlv5gvV7yKyl34ElWR.6
+ EWf6tRuDYvZNfFsjWSRVA1Nndl.jWwvuln7S2zRtwuTR16D2lmjXa7Shi9Dq4M50LrmpvHsYrfws
+ 1eWljiJ2D7IZajBfqVWUMYOd9mfNscznR9dA2TcGK5NVgSuIzDNWijjQJE_sLWvsfjOafFRT7463
+ oK6WEQLq_50cNDXsJZzgUGAeJKUZkB8YqGXxWqcnlHMtQdurXB.hdEFgEKSsL.kqEOI2ZN0eCERt
+ Np_.UNsW8ND5MyuBxbgby6U70m_c8X.Lm3Y6OqJScHIU4ZTk73K3EEvMSkd48wMxFNKFp99bLhNU
+ 8nT7A3XfknfOG2ZH7JeOW.RuQN.n.nVngBxBQ55byXoCqEYWInI2DZILl7MUp3SR54MSjx8eViuQ
+ MOBVrVkwyFEOoTChZo5UewVKbPv9mKRoXEbWLqizJ2394CT8vjymssvi_m9w3TZHcBGmiuJLZg4J
+ Jh7O9bMJwSB.jduefaUxGbI.tN0oZXYKD5GcuUf.Gq7Zl4jqtoD9l8gqRo7YCKYQHgVVCdUc9vgo
+ TV9DiHivqJFMjzODXcw55PmYN.rnH7gvL3EW9pgeElaV.03HDaygKbURRONQ9ONcCD7kKMDKwvjP
+ 5VO5EBynuNb64vj_mZfQwtmwGKLoNEbpyoIVSScQUkiesjqT4IyAUx2KIa2rYmrC2_mGJ.1_4bOL
+ 6Ue.GXnoLzK6ldknHkvzavMpia1jAI0K_any1rPQp5YBZRBG1CFbPmXvBV7ClQzr2dIwGQmZrJt4
+ vqV_jr7u.y_cJxUqBT6Db5ObMRiDKFyaPAGi3e3n177pqhc5eA.VO1Tu7mwn25vnw.3d3GsS77hj
+ oeU.2NU3hUTqld0dBcpBm4dOPedk3Na05U1u3Pcw6rDHxE5i5WryHq0dzlVYt_7SICGSA1oHP1PV
+ TJPE5ctK1ZQP1Ol6zVz.rZEPGAVzht9QFLvtg4n2Ar2rP5u0Y6FRF8DthCKneRcbI752yLhYIZwc
+ tVVCNl1K38_jvYRk0PUIXZkATL9ZjODPf4kEVilbSMEc99LVWlZUtXCnxUpbV0xRVqYPKfAHOU5V
+ iEVY_CExQhkG6ULYH9r_LiOcwS13PAICjLo4vSyTWCEsKzOaey2aeVDiw4IFx2ui8OnUs1xaOFMA
+ zvvfSpE38Nhp4HxJxtNZgHUR3Th2cgGDQADLNwFInHyIMB6qwNQRMxr0FhzZENVnnEDaofdW_01s
+ 50QuJgoYcl268zqpzEi4aCmFC6KIpAeKm4YUcrXz5UDJd0jBAAU_qUbEkEz_0w0aLf28xgJCJM7_
+ bWOLEiqalYe0IzxK2TaIOo1VecS84IYk43zk7I9kxd1gh.96kxXtemEMPhBcD9FkIo3EEreP_8pB
+ 2U3E6.50.IF.vrSv80iBS_pl.VFPs4cL3S8.Uvf7hK3vbGFZoLqegW1gPOgSN8N8zGWqoSu6kWFx
+ ZYfS1v0732JGR5U9Xw.J6VVSsqxXFIU89fO2YdDrDKHEm9xYlosAE_cGnYDT2zb_lgsLeAztJfZV
+ 0fLk8QRCgN5gsPZBefLSEYcsOaVX6LziNCmTLENaRZ5VDE3rqKEMtomCrOy6XTJjYpTp_y2GGVDQ
+ rmW8I0OMfx.fCARY3vhOJnTPyj9ujpH8n9YAPq48DnjPyzzx1sbkJ8IVwjGdDWRSk4sBR.CEfQLd
+ 1eDW8OREi1wQy64jFSEZ_dnxXPE.yUd5VU2oDkWG1B7BBpBj0kY3zcbO6GPNebcu71w8uruYd5ON
+ Xwk.FP9iTdmY.7ffWbgPsygZk.2gwgfOSayD1FOGQmtG8NUAnCebAlbXlJGalebF2Opms_IcGeVt
+ 7lGiwgvNx4zvKv8gaaU14B_JuPoO5axNxS7grsGLkkAAJSpmHa7xII5dpShjW9l6c82N4Swosjv7
+ 2BQxvuDMUsTKljw1OIRc.BivcY1urIGssVkYEr.b1yNsOLZKDY9vqlvQDRYB9zmpttdeqgPD_tzA
+ yJLXfJWdNN4FtXW2.QQyGwL082iYIzPBmOAWZDKab0cn2pgAoTCOfv8rCjPqZlDkaloZ9Kn7XomR
+ rNwIJHk2fKesYXLy0CMI0LqX6tCFCxi1v4zSOaid0EGScsY.tyuw33rjp6irnjDCspN.eegh9lle
+ _Bk2_6shZn9fR8sPmQJLAcOq7FeeU5oAu6jvKeV2iKpQsfbpRf1pJSSk5tPHs7m_5Beui9B5LfCi
+ mBd5et67LFI6OS7PsrnwtpbdU
+X-Sonic-MF: <casey@schaufler-ca.com>
+X-Sonic-ID: 00d65f2d-0ce4-4459-b992-21d0ad94126c
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Sat, 16 Aug 2025 17:27:56 +0000
+Received: by hermes--production-gq1-74d64bb7d7-4ndhm (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 6030f5619f5a29a549fe58c2f4d3ccdf;
+          Sat, 16 Aug 2025 17:27:53 +0000 (UTC)
+Message-ID: <99ee372d-ca63-4dae-bf53-567a5dc69be4@schaufler-ca.com>
+Date: Sat, 16 Aug 2025 10:27:51 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -34,121 +64,90 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] SELinux: Add support for BPF token access control
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Daniel Durning <danieldurning.work@gmail.com>, selinux@vger.kernel.org,
- paul@paul-moore.com
-References: <20250806180149.1995-1-ericsu@linux.microsoft.com>
- <CAKrb_fGECzqWO+Kq7n+5Q=J404npPyttrkLcXwLkdM-UZcZmLA@mail.gmail.com>
- <e5278ea4-33b5-48b5-a59e-bef7c4cfe866@linux.microsoft.com>
- <CAEjxPJ6OgHn6VoXNhcUOxKd5e2AVzKZQajfVaqt40VENor=weQ@mail.gmail.com>
- <CAEjxPJ5H6gWin-fnBMogZJtzZRmxz=q6XeMeP1mR5ju0ENj3xQ@mail.gmail.com>
+Subject: Re: [PATCH v5 0/5] Audit: Records for multiple security contexts
+To: paul@paul-moore.com, eparis@redhat.com,
+ linux-security-module@vger.kernel.org, audit@vger.kernel.org
+Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org,
+ john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+ stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org,
+ selinux@vger.kernel.org
+References: <20250816164140.6045-1-casey.ref@schaufler-ca.com>
+ <20250816164140.6045-1-casey@schaufler-ca.com>
 Content-Language: en-US
-From: Eric Suen <ericsu@linux.microsoft.com>
-In-Reply-To: <CAEjxPJ5H6gWin-fnBMogZJtzZRmxz=q6XeMeP1mR5ju0ENj3xQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+From: Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <20250816164140.6045-1-casey@schaufler-ca.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Mailer: WebService/1.1.24338 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo
 
-On 8/13/2025 8:02 AM, Stephen Smalley wrote:
-> On Tue, Aug 12, 2025 at 8:27 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
->> On Mon, Aug 11, 2025 at 3:30 PM Eric Suen <ericsu@linux.microsoft.com> wrote:
->>> On 8/7/2025 11:00 AM, Daniel Durning wrote:
->>>> On Wed, Aug 6, 2025 at 2:07 PM<ericsu@linux.microsoft.com> wrote:
->>>>> From: Eric Suen<ericsu@linux.microsoft.com>
->>>>>
->>>>> BPF token support was introduced to allow a privileged process to delegate
->>>>> limited BPF functionality—such as map creation and program loading—to an
->>>>> unprivileged process:
->>>>>     https://lore.kernel.org/linux-security-module/20231130185229.2688956-1-andrii@kernel.org/
->>>>>
->>>>> This patch adds SELinux support for controlling BPF token access. With
->>>>> this change, SELinux policies can now enforce constraints on BPF token
->>>>> usage based on both the delegating (privileged) process and the recipient
->>>>> (unprivileged) process.
->>>>>
->>>>> Supported operations currently include:
->>>>>     - map_create
->>>>>     - prog_load
->>>>>
->>>>> High-level workflow:
->>>>>     1. An unprivileged process creates a VFS context via `fsopen()` and
->>>>>        obtains a file descriptor.
->>>>>     2. This descriptor is passed to a privileged process, which configures
->>>>>        BPF token delegation options and mounts a BPF filesystem.
->>>>>     3. SELinux records the `creator_sid` of the privileged process during
->>>>>        mount setup.
->>>>>     4. The unprivileged process then uses this BPF fs mount to create a
->>>>>        token and attach it to subsequent BPF syscalls.
->>>>>     5. During verification of `map_create` and `prog_load`, SELinux uses
->>>>>        `creator_sid` and the current SID to check policy permissions via:
->>>>>          avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
->>>>>                       BPF__MAP_CREATE, NULL);
->>>>>
->>>>> To verify the logic introduced by this patch, my fork of the SELinux
->>>>> testsuite with relevant test cases is available here:
->>>>>     https://github.com/havefuncoding1/selinux-testsuite
->>>>>
->>>>> @@ -7086,10 +7092,34 @@ static int selinux_bpf_prog(struct bpf_prog *prog)
->>>>>                               BPF__PROG_RUN, NULL);
->>>>>    }
->>>>>
->>>>> +static int selinux_bpffs_creator_sid(const union bpf_attr *attr)
->>>>> +{
->>>>> +       struct path path;
->>>>> +       struct super_block *sb;
->>>>> +       struct superblock_security_struct *sbsec;
->>>>> +
->>>>> +       CLASS(fd, f)(attr->token_create.bpffs_fd);
->>>>> +
->>>>> +       if (!fd_file(f))
->>>>> +               return SECSID_NULL;
->>>> Is it possible for this value to be null assuming there is not a bug
->>>> in the kernel? You would not want to do a runtime check for something
->>>> that would indicate a kernel bug lest you accidentally hide the bug.
->>> I always think being defensive is a good thing in kernel development.
->>> But you have a valid point, and I will review and update in next
->>> iteration if appropriate. Same applies to all similar comments below.
->>> Thank you.
->> The Linux kernel way is to NOT check conditions that can only occur if
->> there is a kernel bug (or use BUG_ON/BUG/etc macros for such checks so
->> they can be compiled away for production, but adding new instances of
->> those is generally frowned upon). So unless you can identify a case
->> where these are userspace-triggerable, you shouldn't be checking them.
-> On a quick look, the only other use of "CLASS(fd,
-> f)(attr->token_create.bpffs_fd);" that I saw was in
-> kernel/bpf/token.c:bpf_token_create(), and it checks for fd_empty(f)
-> rather than fd_file(f). The other question I have though is are we
-> guaranteed that attr->token_create.bpffs_fd is always set on all
-> callers of this selinux_bpffs_creator_sid() function outside the
-> context of bpf_token_create()?
-Stephen - you are absolutely right. After seeing your comment about 
-allow rule for 'kernel_t' in my test, I started to debug and 
-'token_create.bpffs_fd' was exactly the root cause. I have fixed it and 
-things look much better now. Thank you. I will send out new iteration soon.
->>>>> @@ -7098,7 +7128,15 @@ static int selinux_bpf_map_create(struct bpf_map *map, union bpf_attr *attr,
->>>>>           bpfsec->sid = current_sid();
->>>>>           map->security = bpfsec;
->>>>>
->>>>> -       return 0;
->>>>> +       if (!token)
->>>>> +               ssid = bpfsec->sid;
->>>>> +       else {
->>>>> +               ssid = selinux_bpffs_creator_sid(attr);
->>>>> +               if (ssid == SECSID_NULL)
->>>>> +                       return -EPERM;
->>>> Should this ever be null? See above (for this and all repeated
->>>> occurrences of this check).
->> If this check remains in your final patch, then returning -EPERM from
->> SELinux is uncommon - we usually return -EACCES on permission denials,
->> only using -EPERM for superuser/capability checks. Also silently
->> returning -EPERM or -EACCES is not ideal for SELinux since it provides
->> no insight to the user as to the cause and no way to override (ala
->> permissive mode) if needed. It might actually be better to just fall
->> through and let it pass SECSID_NULL to avc_has_perm(), which will
->> produce an SELinux avc audit message (with the unlabeled context,
->> since any unknown SID is mapped to that automatically) to the user and
->> the option for overriding via permissive mode.
+Opps. script error. Please disregard.
 
-Got it. Thank you.
 
+On 8/16/2025 9:41 AM, Casey Schaufler wrote:
+> The Linux audit system includes LSM based security "context" information
+> in its events. Historically, only one LSM that uses security contexts can
+> be active on a system. One of the few obsticles to allowing multiple LSM
+> support is the inability to report more than one security context in an
+> audit event. This patchset provides a mechanism to provide supplimental
+> records containing more than one security context for subjects and
+> objects.
+>
+> The mechanism for reporting multiple security contexts inspired
+> considerable discussion. It would have been possible to add multiple
+> contexts to existing records using sophisticated formatting. This would
+> have significant backward compatibility issues, and require additional
+> parsing in user space code. Adding new records for an event that contain
+> the contexts is more in keeping with the way audit events have been
+> constructed in the past.
+>
+> Only audit events associated with system calls have required multiple
+> records prior to this. Mechanism has been added allowing any event
+> to be composed of multiple records. This should make it easier to
+> add information to existing audit events without breaking backward
+> compatability.
+>
+> v5:
+> Comment on the LSM_ID_UNDEF behavior in security_secid_to_secctx().
+> Change some names to better reflect their purpose.
+> Move alignment changes into a separate patch.
+> v4:
+> Use LSM_ID_UNDEF when checking for valid LSM IDs in
+> security_lsmprop_to_secctx().
+> Fix the object record to include only those for LSMs that use them.
+> Squash the two patches dealing with subject contexts.
+> Base the patches on Paul Moore's LSM initialization patchset.
+> https://lore.kernel.org/all/20250409185019.238841-31-paul@paul-moore.com/
+> v3:
+> Rework how security modules identify that they provide security
+> contexts to the audit system. Maintain a list within the audit
+> system of the security modules that provide security contexts.
+> Revert the separate counts of subject and object contexts.
+> v2:
+> Maintain separate counts for LSMs using subject contexts and object
+> contexts. AppArmor uses the former but not the latter.
+> Correct error handling in object record creation.
+>
+> https://github.com/cschaufler/lsm-stacking#audit-6.16-rc4-v5
+>
+> Casey Schaufler (5):
+>   Audit: Create audit_stamp structure
+>   LSM: security_lsmblob_to_secctx module selection
+>   Audit: Add record for multiple task security contexts
+>   Audit: Fix indentation in audit_log_exit
+>   Audit: Add record for multiple object contexts
+>
+>  include/linux/audit.h        |  23 +++
+>  include/linux/security.h     |   6 +-
+>  include/uapi/linux/audit.h   |   2 +
+>  kernel/audit.c               | 274 ++++++++++++++++++++++++++++++-----
+>  kernel/audit.h               |  13 +-
+>  kernel/auditsc.c             |  65 +++------
+>  net/netlabel/netlabel_user.c |   8 +-
+>  security/apparmor/lsm.c      |   3 +
+>  security/lsm.h               |   4 -
+>  security/lsm_init.c          |   5 -
+>  security/security.c          |  21 ++-
+>  security/selinux/hooks.c     |   5 +
+>  security/smack/smack_lsm.c   |   5 +
+>  13 files changed, 325 insertions(+), 109 deletions(-)
+>
