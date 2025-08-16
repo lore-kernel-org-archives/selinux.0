@@ -1,59 +1,60 @@
 Received: from sonic303-27.consmr.mail.ne1.yahoo.com (sonic303-27.consmr.mail.ne1.yahoo.com [66.163.188.153])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83B622F60B5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83C572F60B7
 	for <selinux@vger.kernel.org>; Sat, 16 Aug 2025 16:42:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.163.188.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755362525; cv=none; b=cG3gqdOWJ0zmWZXimBc7+mo98Vnbyp2pn5opGvt2S4lK8BR7C9vW1jtFLHWU7BkNqibSNXVnJghLFCkIKsEnGwI7wPgfP2GKDTZUCXctuef9Gw7+kuaYJf/gCFQJefxTVTHCZx3+FOxB0+f4T9xCh9Nbsq106P6mSnhyyK95+bU=
+	t=1755362527; cv=none; b=ilOkaFQj0G+buSfbIMdfT3jf7SRp6gR4dxBuaq+wpuTTenqHkw8PReJcU3mot/69AtBv8zqjThwN7xNN3qW1zk95D2hQZwVDqOSZAhu+u/GBZKU+OXoZRxMnBlH8Yv+/UcafMVFo5lMYraHdfs5ZYrZbSvnEUy7X/c7Cwo/AJao=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755362525; c=relaxed/simple;
-	bh=LzUCl3hoJEExpToziP9fTxrE872KV3dSO1feighJNnM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:References; b=X8LuRJ2MqhHqHkom7PwgIKcc68Y45X1USiWOh3K7XCDGYhyT04gCPZPb25aVhoUQovirJScqmGYMEoNNfxr3TWFfUGJj8t/IVgfxeDSS5tCH86d1ZI4NblvmWW0begY0NZJFxz9uNukl/ToKX20kQIzH8ivBUhW8EwcAiYTxRws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=nEl8U3Ex; arc=none smtp.client-ip=66.163.188.153
+	s=arc-20240116; t=1755362527; c=relaxed/simple;
+	bh=LdSH0wZXA0d9ZO+V9BqGuMWnBUCrEK/3MhTgmFMbuTk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=P8mGgHZ07yE2JGgHZL5FeYDXP4l8MjkRUaCaH2I1TLxH+7fOri2ycDlF4vv6rLOAd8zM0dPpiPVYtvJRg/Q8EeurtoGSYGtJ5eXn83Ib092MAM14uqJP8RsIukgttIQw3Gj9o2aoM6Vhs5P/akjaN3mxDgnsfwMZQ0rO+y2JZx8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com; spf=none smtp.mailfrom=schaufler-ca.com; dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b=fzND00tT; arc=none smtp.client-ip=66.163.188.153
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=schaufler-ca.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="nEl8U3Ex"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1755362517; bh=D+A4s2puEKRfCvZ3mdVLmiFNlIwcfme6AV7KlzI6Syc=; h=From:To:Cc:Subject:Date:References:From:Subject:Reply-To; b=nEl8U3ExyK8q2NDtm2QbVM8k9Mh2f8ErwLoPHsgBfwj9ZquUhShNF1Z9+fUwDVpw5tATwj821Eac7Wk6QlksrM9x2QVEUq9W8kmeSgKKF0Bke+70hxnRfR4E9MdDBa71z3moNHZ1sG01DApjeoInKd1boUhQrkeLIk98AgncLDNxMgR0pGmDI3q7UTWbCSAgCLi0g+4wucN9xrB9X9yEZsl24qqyYu4vVEuFposaZEU5hjZOHw1jL1ZE0DNqCGSCcSP7BbsaUr9FJhvu7ss+Q55itcapSWD3WjXhBAeWMEGB8mPjvPBeKV92s9kXJgZ3qQJ8b5TBVI3j9WuMsFJpvw==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1755362517; bh=PyNE3QwL6ADIqBMJz37yIKeZixQ2H0LcsDPEfsz5rQu=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=lkcWvrVicrSQOZv9DOSYaUKPbzBtlQXm41XMcvBHDixNnykECtyKr0NNEzvsF4F3TBIQ+lcxxuiL3vejFX3FqZkjYThxGe5b+0RpbY5X1gRSZujpMKIhhI3E6CMt4e6tIZmACD/zWQ5wtSDMVHEQQ58MefxFyud4KGL/JvbXMAA0wMddpRYNnd3RNHfBZsCCogNM1gYyPAhlLJn0QZTFurjoIjKHm//j/e7ewDPJ2Dx/acdA8k66NUGho0iOyV79s8fXbFNPOvj8z9+Y9cJrZs3e5V0dBjy9CTbVFuwvVEp6WWtOx+1pptxE1tVF0u8ox5FV71vuR8XLtp7856I5/w==
-X-YMail-OSG: .trXr3YVM1kHaebagFcoRlPYoa2pr3slXNsZnTUQaWMTSognFXPfX41WNbK.XcM
- Gi4LmTtxfSy0jV_AOzB_5gssLq0Yjyy.9.0HtdQeFLFs7i.pz5fZr3EAJeMJGbfm0J37IBNn6RSU
- xAeq0Ma5f7fHRP1Wh_DdCk4BWddmG.W7rEicsTSG20wlUsCaI0LZk2RwOqFqy9.w0ddDu90bQHiu
- E0CvkJfg3PXD61Rindz2FkHEjKWHK2h_yOOdHcAC6uCo1wR.1bxzbOL_btrckvlWsmc.cbCOJiBj
- dRhM0D7CXryK8Rg4h0vwmGo1tEnymj64.3aFXpCHR4qVOpdjYN_MJhEU6mcSbjJP9jovTw6ZJcFO
- yABuQg.CCfostoCthijgwMLx.XRDuW3gcacRyXekFqUTU_FScMXyBzAcgvjqKK7tFzmmAQDC01CK
- 2_Jd48zOkHpzh3b2.xlfstDZ_l6OCGswkZXLaKHekLYOU4fDABC.ZNfowqAQuL6CfzbcwmrctgYW
- SkwuZ9BpxGnuJA5j9ZGaPSTJLBahNhpnmX7Te1rFXOjJsFXPNmIByIXZq9k1Xpwd0ZGlyAip4H3_
- pkn7Fc748fxov3GJTQ_kLFcXFuo7fNHSqqckRpHOoyxHlUl4XwoyjLrHTNHEtMThdiK.iG8w3Iub
- wcB.uPcsoGYCDKI8DU5YimPYJsXKJ_Kb8On8fJt7gXZ3amKEHdJIL9l0DPBlCyWQsmaTtK4XWWnY
- jrkPj99ya9ABqSVICx8QSwFc5PY7rlyeOPYUvZR3Op1EbvjcCu5fP4yDYlIO5kVaqTgC064Anq58
- 9sS5MQaSMlBizTmRJkl0lGCm.h.b1gH3b8V7g6NiNB8VE_sVVgcT350droO.LIK34KuuOcbr_xX1
- Cinsx0ZkQPRKZmBW9al7ngLcUn47MnvUDm.sQdRFMr.7i7k1VpjoZmpp_eGPyhxGyUK0qLYuaZ9B
- hlOVjxyDwWXkA_NOL2Ok4LQ.71oKVWbAsAfsQfeioTnRVcvvhjApas9ZqihwAe4q.ZzIYcO6MYZB
- fcatzob6e7cE3xinYxiYTLUX7ihl4axQADD3UKu7JnpcgJreFSqZZnv1quomgqnk0Kle8u8dN40V
- rHx9YHQclf.PkBhvzUSXhEDQJitKUxmopDbSxQ3Ct4Q4ES.oYJarI7qV_Vse751LFbQtbLqUM7xo
- hCG8L5CoBAv0eK4GQj3Uju01ykhlW_iQLjubWi1Kj8VznztecemKImAjC.rg7jpVL8Vz61ZA4XCs
- KZ3HY3CH4Ouyae5Z43vilGkXb3ndzq2_Nd59hyU4DSOWhdjTWZ1k1.mg1n6U8Thz0AZH8DCmy6_l
- RrrMPPrbabebJ6ExnQaQbRDBejnfAn0OYxVRcnZuoommg.B9g6tvCNtOoUGxG9_cX08CgAH33k3R
- ZgKs7hVsuDtqFRqolHv4h5v87Id2H6cVm.M30ocofGxHH3hyKEhI2ZnicPSvBIjOi4fiMgn.mHOU
- qn1zOm5Q0cIHax1bmSgQJcfvlvPuhQKrfZSRU8Wlc9CrhAbehTYjjkUCvzWf1reglVQVVYFBlMzd
- X8vIryOpuZCbqCWugCllMoumuwZIyRtMg.Djz.KHTZDeNrejdh.hvHMlXz19u9.8tGjVoqlsewup
- wzueaAjwn.OYaVTfNr1EMwHP0PsoTx1LFP2UVs6R.2863swW6P991DI.lzbQToI8JOeUtla2ONIF
- dm6YqdEJzo4fX0_4E3j3spwtoCh3deCpEzjMppgVORUQgXQwDinEs1Am._8KaDSkHu.rVKeJ1Hg0
- mxDkWWUDXX12ZdUrySxsZHSN88IaEtxSYIurbwJax8tqHC96xV539U0XvrL68IFmGo0XUVzZVlz8
- k_fvcw5DUbErPsMZUSNcmf.z5k_mE8v5ABMwiiX_Dk1BWfDHdIwEBNO9QHeYzYuPEoVHpZPv5znm
- FbQQz3rxQfJ3qf00SxvmQu4yuxXyQ4tKS1uuFwmSbgLxMQPGCZ5i1sTJxEO4V32Z.rbC_ehehDDU
- P7tN3XGdYbkbENnaC28FYZr1UhtQWGVV5.U34ztu3oIzw_fJxcWZ85rQX9gfSpOA3Xmkf9gJvFUq
- ZnqNF94iw2OuXbawYRxGPVRKSTv.rz9_3uIHO1L9qAi4lkpsTor7KG4Vki4GBA0kBPPL_WlpnXmp
- LvsRMM5cUfRUManKcRZmeuxzlj9KnuQ8WqweXbwuzCHzvmrwLcXUNLf0kpmsctO81_QGD8dLGPR.
- ARZydcG6In9qc2Vi8QhilN568E8OQJUG.M7NwysKfeYgaT_gojBFyOG4A7hFnambfx2LKDL32mcI
- eTGmWz.qxnfERF.mj9vCq
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="fzND00tT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1755362517; bh=D0lcggDIluX3CxfaaRR5GM2Q348797+wJXjQGm4ExYY=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject:Reply-To; b=fzND00tTwqvQQj0Z4sB62wJEF+MNwfas750XEwQuZ7B7PxkKfqu2ZKXRa9lcoTiwsM9kpwFTEfcbDBSy3FsSn3TzTQG/9u0rcSUBepzHOjoRlpXROKG7Ia2fKEAGgAMnHbINxh/jG2SD/yM5uOW1Xg/Bq0KbDIF8Bb/KTTwTXsX+9hb3xvHX7+Z6JLNHhQ0II//lT1uInGMheYZ6WzFseWHD7Fi5EqugtQZQd2GDjtqnuCxtalkbSIkV4inf/e23yF+PvjJ93VdJEXooKt/3mN4BO9+o7PNJ/aUw93BMFhXgnmthLRVLDIHC40xvC23ZEqDR1xubWfeP91Ha56zl5A==
+X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1755362517; bh=iAYOMfjvuoRciCFSqB/hofsrDh8lNHnHo95pMviXXuK=; h=X-Sonic-MF:From:To:Subject:Date:From:Subject; b=Z+b/ZJep2PExnm1+9XuaxnwoS+XhcDG2Id1JXaYMlplnVCZHK6pRJDeovL6kRxs01fI1lK7GloLrBifjpX2Z9UVRbBUB3NM+Nfp/Iu0RfpsyLYCUZIgwTyZltbFOSBHL9AHeorfpJhqn/W8F1mm/vjyUta/yHDAi2/ArOj0RBu1Uunzj8Hs3Dhn6aqUSaMGkyIfXj0WWNIJegXyzLQb7r8ZKlEhKKmsgO0FVZ5ouf1TjRdYqMYNBpeRQq1QUKsF2iuj5YQBE/Y6J0GBCrNLN6dThvuycHqL1OQuFpcyEcybklDqvYX/8cMqZepJ8LjW7EykgAWCGFD2yA4Fdvn9yCA==
+X-YMail-OSG: njfaFDwVM1kpElMw3IxHcCdSmMk0xxNZM8fo3fmoe4rb1yVz3CRicBZeGgJ.Nli
+ R41nJq37h9.OatlgxMLXI6JQrvUmE_W2Y9C87JwWMC6jQSqor3iknKl7bigDKbMIExVFMCQeI8oZ
+ .kvFKBWHjIE0O_ydfvw7mKHQQYhEYYiWxI4j3zjMPjJJlH3AJjRu_L6zWEp1Y6icXjATgrOxe9h0
+ yCWXs.Ukxa17qeN7PPgpRmIEmpFgME5xfQccfmLvFai2.UNte82twjbnfyts1JKgZiq0vrVo2hci
+ Fdt7.efE5XbCyh4uCmgM2ve80av4oDPQSfxNYmvl5ryLLizPpkpUiAiAYENrHnY.mqIP5dEBDwmm
+ DC6kGOnukkdzXiiZUnj8vJG5zfp_jaqCrhKyUCFM66x6Jd87Pqg.MIs.aWPbppVZVmynDrF_C.RQ
+ t8Tvbz3LHXWreJ6zwNq3FGb0PDqw83jql3CiG4mhCdymjOebRtbPdUSdE3iqMu7NVFc8Dti8ZZyp
+ RuY3fnTmrT6SPB_LfZ4atTNrwEcn7ew_MFjvowhSPYAJQSdh8xSGu6DJmkS2bHwyZHMWDklgmv3J
+ dQI_ze1hBOjBTfTdAFYhhDYpeNFOJowLpfb6cUuyz6pZRQ18P4vkuHQGrffer0jWgNglvVMHSdR3
+ Ir8x6xoTPr.R7rHUweutq3Z2hMM9OjHAPtsLKa0rSxHbSsCXv0gr3DB7PEwjlsiJy1AzARFR4Uco
+ GvGE.Wo9mx_G_BISX7JvFElustO6FnBlpJKjnZipNdQ7muGAkbzLPfUPWBgnHSRamkHdLVKvwAr7
+ GYczr4HmQzUw0rJ31fcT.3g822AGPJ_ozBGX8caabYXFfcvUKTSfJ7AJdV4W.VQP.DOvaIF2Fj.k
+ 7qmZSQ.kowjjqSahhkv6Gd9OOyGidXMkCyaLcfJefA8vfFhxQDs8WzddDsA0U31scpWfSlXGdwf3
+ 4y6eq6BvP8rov6rbqclmxBoQ01LM4iYAYKrbgUDuSgsCiiwI3aks5OsEyD1KUZVyPqh_god5atng
+ iaF5RG.A6Oe4YF5ekF3Kbmvob.0FVmEdB804umCOXz7M79oWytusI2wa.6xxDTdDOHWfRIatHOLX
+ jkHWj9uF32g6TnNrgi__iQShRwNeDZscyQswRchOHoH4fGp.HZW1gtYC7KwWRWnK0.izTm__1L6u
+ IkSl3AgAyxVHuH2Vm518lR4YgGBScTV1cUjzR0oiIyE3z._mXD9pMrEyytFyATmML80naRINbSaT
+ qXDGt.ZvN2T81Z9adpgdnC8cly_prcVrkKq8kDIoacbb5NfY_7MQSYs_EG9uSymwleauk3bxbgsk
+ _xL8kyjcvEYaIpii_VoCF0aHt.JWYKuPCwA4ZARwGFtjNa.0N8.8K4YHNClWg3NpVEcAKzrBdicu
+ SqwRmDqt5cBSSEAqmHkGbbmFWmz.zKR4IIidlBPsBKTssQjL4sVJz7pxnF4.hkMb4A66E6BDLT_q
+ P7BmrlsKg3sJmQSbijQcM_wO4_pOR9n82o8CCT5VbGBzelz8DV_DN7lL9ZuSoQ.Egjnj.TXqdvQ4
+ zM31SrREFZXB2TEHFNPAeJ5AUr5edpS4zbEsKBt5xsR.DCNKKLb__ZsSgJoHRAcvf3cRM1sg89ce
+ QSkQui39D.Eq8l.WlR3k_018yARydmAz10lN9mk0TmK_f24OnOKntMfEZtvvdFPduDEhSec5pdWz
+ O.Fcny7dU438ogCBZ_urRWVmo4bY4DktKsND6ZxhFY0ZVM.PuMG1CO2So1mUXsYHCy0Q6B9o67yn
+ EtXqmAaoRBoqo4ZeQbLugIyhy7XjIcRxqgSrN700zj7ZMVwahlxsoETfOy3zjjNEabc7U5hIq2qM
+ n0osCLE7wsN3aufQcy.1eLjr_QBm083RXl5c8VZdEI1BAzlb.aC1SgqKmfo1ES4QahhLAM3Mz4aW
+ asRTPQrbt5Y2.80JMIf91GheFkJB1M398DSZeSYiydSbpO0G7xOelVsaesUISYgpHiynimXBEKaS
+ hxpQtbwiEmyWoET69xxLy.wLasEvZDRaVpssFQuERXpOHpEfpnvcQKViPSQXgVSDgJHK9Cpy3gM5
+ kHVzuNDcgF3gERWdbMFJrOiHFGNU.T1fdArzN.5MHdFMavAeWeKT2WsYEmsF2cZDUBHB68ld9F0L
+ mLsqNNGygPmLmNdJ88EBe_aJSyC_s6Q4x_VmoeQtQTrda5KYOZtEDVGErEftnRM1trRKEJQnJxgh
+ tnR28nOiFLuIbaIISRVP9zzDUakgCtrQYML0bdKsIRd1waU98fTM7MMaGbQD3owO9FIk6O0LJ8YT
+ wPSYvtGZLKyXlSDzEsInf1adK
 X-Sonic-MF: <casey@schaufler-ca.com>
-X-Sonic-ID: 9e61bf04-052a-4a3a-9223-318438cb2654
+X-Sonic-ID: 27f2f0f8-8167-4224-b0b6-64b5e33f7407
 Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Sat, 16 Aug 2025 16:41:57 +0000
 Received: by hermes--production-gq1-74d64bb7d7-5qmwx (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID 12cf07a2fbb9800c7a9ea9632f3a0835;
-          Sat, 16 Aug 2025 16:41:52 +0000 (UTC)
+          Sat, 16 Aug 2025 16:41:54 +0000 (UTC)
 From: Casey Schaufler <casey@schaufler-ca.com>
 To: casey@schaufler-ca.com,
 	paul@paul-moore.com,
@@ -68,10 +69,12 @@ Cc: jmorris@namei.org,
 	stephen.smalley.work@gmail.com,
 	linux-kernel@vger.kernel.org,
 	selinux@vger.kernel.org
-Subject: [PATCH v5 0/5] Audit: Records for multiple security contexts
-Date: Sat, 16 Aug 2025 09:41:35 -0700
-Message-ID: <20250816164140.6045-1-casey@schaufler-ca.com>
+Subject: [PATCH v5 1/5] Audit: Create audit_stamp structure
+Date: Sat, 16 Aug 2025 09:41:36 -0700
+Message-ID: <20250816164140.6045-2-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20250816164140.6045-1-casey@schaufler-ca.com>
+References: <20250816164140.6045-1-casey@schaufler-ca.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -79,75 +82,173 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-References: <20250816164140.6045-1-casey.ref@schaufler-ca.com>
 
-The Linux audit system includes LSM based security "context" information
-in its events. Historically, only one LSM that uses security contexts can
-be active on a system. One of the few obsticles to allowing multiple LSM
-support is the inability to report more than one security context in an
-audit event. This patchset provides a mechanism to provide supplimental
-records containing more than one security context for subjects and
-objects.
+Replace the timestamp and serial number pair used in audit records
+with a structure containing the two elements.
 
-The mechanism for reporting multiple security contexts inspired
-considerable discussion. It would have been possible to add multiple
-contexts to existing records using sophisticated formatting. This would
-have significant backward compatibility issues, and require additional
-parsing in user space code. Adding new records for an event that contain
-the contexts is more in keeping with the way audit events have been
-constructed in the past.
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+---
+ kernel/audit.c   | 17 +++++++++--------
+ kernel/audit.h   | 13 +++++++++----
+ kernel/auditsc.c | 22 +++++++++-------------
+ 3 files changed, 27 insertions(+), 25 deletions(-)
 
-Only audit events associated with system calls have required multiple
-records prior to this. Mechanism has been added allowing any event
-to be composed of multiple records. This should make it easier to
-add information to existing audit events without breaking backward
-compatability.
-
-v5:
-Comment on the LSM_ID_UNDEF behavior in security_secid_to_secctx().
-Change some names to better reflect their purpose.
-Move alignment changes into a separate patch.
-v4:
-Use LSM_ID_UNDEF when checking for valid LSM IDs in
-security_lsmprop_to_secctx().
-Fix the object record to include only those for LSMs that use them.
-Squash the two patches dealing with subject contexts.
-Base the patches on Paul Moore's LSM initialization patchset.
-https://lore.kernel.org/all/20250409185019.238841-31-paul@paul-moore.com/
-v3:
-Rework how security modules identify that they provide security
-contexts to the audit system. Maintain a list within the audit
-system of the security modules that provide security contexts.
-Revert the separate counts of subject and object contexts.
-v2:
-Maintain separate counts for LSMs using subject contexts and object
-contexts. AppArmor uses the former but not the latter.
-Correct error handling in object record creation.
-
-https://github.com/cschaufler/lsm-stacking#audit-6.16-rc4-v5
-
-Casey Schaufler (5):
-  Audit: Create audit_stamp structure
-  LSM: security_lsmblob_to_secctx module selection
-  Audit: Add record for multiple task security contexts
-  Audit: Fix indentation in audit_log_exit
-  Audit: Add record for multiple object contexts
-
- include/linux/audit.h        |  23 +++
- include/linux/security.h     |   6 +-
- include/uapi/linux/audit.h   |   2 +
- kernel/audit.c               | 274 ++++++++++++++++++++++++++++++-----
- kernel/audit.h               |  13 +-
- kernel/auditsc.c             |  65 +++------
- net/netlabel/netlabel_user.c |   8 +-
- security/apparmor/lsm.c      |   3 +
- security/lsm.h               |   4 -
- security/lsm_init.c          |   5 -
- security/security.c          |  21 ++-
- security/selinux/hooks.c     |   5 +
- security/smack/smack_lsm.c   |   5 +
- 13 files changed, 325 insertions(+), 109 deletions(-)
-
+diff --git a/kernel/audit.c b/kernel/audit.c
+index 61b5744d0bb6..547967cb4266 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -1833,11 +1833,11 @@ unsigned int audit_serial(void)
+ }
+ 
+ static inline void audit_get_stamp(struct audit_context *ctx,
+-				   struct timespec64 *t, unsigned int *serial)
++				   struct audit_stamp *stamp)
+ {
+-	if (!ctx || !auditsc_get_stamp(ctx, t, serial)) {
+-		ktime_get_coarse_real_ts64(t);
+-		*serial = audit_serial();
++	if (!ctx || !auditsc_get_stamp(ctx, stamp)) {
++		ktime_get_coarse_real_ts64(&stamp->ctime);
++		stamp->serial = audit_serial();
+ 	}
+ }
+ 
+@@ -1860,8 +1860,7 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
+ 				     int type)
+ {
+ 	struct audit_buffer *ab;
+-	struct timespec64 t;
+-	unsigned int serial;
++	struct audit_stamp stamp;
+ 
+ 	if (audit_initialized != AUDIT_INITIALIZED)
+ 		return NULL;
+@@ -1916,12 +1915,14 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
+ 		return NULL;
+ 	}
+ 
+-	audit_get_stamp(ab->ctx, &t, &serial);
++	audit_get_stamp(ab->ctx, &stamp);
+ 	/* cancel dummy context to enable supporting records */
+ 	if (ctx)
+ 		ctx->dummy = 0;
+ 	audit_log_format(ab, "audit(%llu.%03lu:%u): ",
+-			 (unsigned long long)t.tv_sec, t.tv_nsec/1000000, serial);
++			 (unsigned long long)stamp.ctime.tv_sec,
++			 stamp.ctime.tv_nsec/1000000,
++			 stamp.serial);
+ 
+ 	return ab;
+ }
+diff --git a/kernel/audit.h b/kernel/audit.h
+index 0211cb307d30..4d6dd2588f9b 100644
+--- a/kernel/audit.h
++++ b/kernel/audit.h
+@@ -99,6 +99,12 @@ struct audit_proctitle {
+ 	char	*value;	/* the cmdline field */
+ };
+ 
++/* A timestamp/serial pair to identify an event */
++struct audit_stamp {
++	struct timespec64	ctime;	/* time of syscall entry */
++	unsigned int		serial;	/* serial number for record */
++};
++
+ /* The per-task audit context. */
+ struct audit_context {
+ 	int		    dummy;	/* must be the first element */
+@@ -108,10 +114,9 @@ struct audit_context {
+ 		AUDIT_CTX_URING,	/* in use by io_uring */
+ 	} context;
+ 	enum audit_state    state, current_state;
+-	unsigned int	    serial;     /* serial number for record */
++	struct audit_stamp  stamp;	/* event identifier */
+ 	int		    major;      /* syscall number */
+ 	int		    uring_op;   /* uring operation */
+-	struct timespec64   ctime;      /* time of syscall entry */
+ 	unsigned long	    argv[4];    /* syscall arguments */
+ 	long		    return_code;/* syscall return code */
+ 	u64		    prio;
+@@ -263,7 +268,7 @@ extern void audit_put_tty(struct tty_struct *tty);
+ extern unsigned int audit_serial(void);
+ #ifdef CONFIG_AUDITSYSCALL
+ extern int auditsc_get_stamp(struct audit_context *ctx,
+-			      struct timespec64 *t, unsigned int *serial);
++			     struct audit_stamp *stamp);
+ 
+ extern void audit_put_watch(struct audit_watch *watch);
+ extern void audit_get_watch(struct audit_watch *watch);
+@@ -304,7 +309,7 @@ extern void audit_filter_inodes(struct task_struct *tsk,
+ 				struct audit_context *ctx);
+ extern struct list_head *audit_killed_trees(void);
+ #else /* CONFIG_AUDITSYSCALL */
+-#define auditsc_get_stamp(c, t, s) 0
++#define auditsc_get_stamp(c, s) 0
+ #define audit_put_watch(w) do { } while (0)
+ #define audit_get_watch(w) do { } while (0)
+ #define audit_to_watch(k, p, l, o) (-EINVAL)
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index 78fd876a5473..528b6d2f5cb0 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -994,10 +994,10 @@ static void audit_reset_context(struct audit_context *ctx)
+ 	 */
+ 
+ 	ctx->current_state = ctx->state;
+-	ctx->serial = 0;
++	ctx->stamp.serial = 0;
++	ctx->stamp.ctime = (struct timespec64){ .tv_sec = 0, .tv_nsec = 0 };
+ 	ctx->major = 0;
+ 	ctx->uring_op = 0;
+-	ctx->ctime = (struct timespec64){ .tv_sec = 0, .tv_nsec = 0 };
+ 	memset(ctx->argv, 0, sizeof(ctx->argv));
+ 	ctx->return_code = 0;
+ 	ctx->prio = (ctx->state == AUDIT_STATE_RECORD ? ~0ULL : 0);
+@@ -1917,7 +1917,7 @@ void __audit_uring_entry(u8 op)
+ 
+ 	ctx->context = AUDIT_CTX_URING;
+ 	ctx->current_state = ctx->state;
+-	ktime_get_coarse_real_ts64(&ctx->ctime);
++	ktime_get_coarse_real_ts64(&ctx->stamp.ctime);
+ }
+ 
+ /**
+@@ -2039,7 +2039,7 @@ void __audit_syscall_entry(int major, unsigned long a1, unsigned long a2,
+ 	context->argv[3]    = a4;
+ 	context->context = AUDIT_CTX_SYSCALL;
+ 	context->current_state  = state;
+-	ktime_get_coarse_real_ts64(&context->ctime);
++	ktime_get_coarse_real_ts64(&context->stamp.ctime);
+ }
+ 
+ /**
+@@ -2508,21 +2508,17 @@ EXPORT_SYMBOL_GPL(__audit_inode_child);
+ /**
+  * auditsc_get_stamp - get local copies of audit_context values
+  * @ctx: audit_context for the task
+- * @t: timespec64 to store time recorded in the audit_context
+- * @serial: serial value that is recorded in the audit_context
++ * @stamp: timestamp to record
+  *
+  * Also sets the context as auditable.
+  */
+-int auditsc_get_stamp(struct audit_context *ctx,
+-		       struct timespec64 *t, unsigned int *serial)
++int auditsc_get_stamp(struct audit_context *ctx, struct audit_stamp *stamp)
+ {
+ 	if (ctx->context == AUDIT_CTX_UNUSED)
+ 		return 0;
+-	if (!ctx->serial)
+-		ctx->serial = audit_serial();
+-	t->tv_sec  = ctx->ctime.tv_sec;
+-	t->tv_nsec = ctx->ctime.tv_nsec;
+-	*serial    = ctx->serial;
++	if (!ctx->stamp.serial)
++		ctx->stamp.serial = audit_serial();
++	*stamp = ctx->stamp;
+ 	if (!ctx->prio) {
+ 		ctx->prio = 1;
+ 		ctx->current_state = AUDIT_STATE_RECORD;
 -- 
 2.50.1
 
