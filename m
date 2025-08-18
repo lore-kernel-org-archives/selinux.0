@@ -1,119 +1,145 @@
-Received: from markus.defensec.nl (markus.defensec.nl [45.80.168.93])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C813230F54C
-	for <selinux@vger.kernel.org>; Mon, 18 Aug 2025 09:58:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.80.168.93
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 36D9430E0D7
+	for <selinux@vger.kernel.org>; Mon, 18 Aug 2025 10:21:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755511082; cv=none; b=b+Pu9jmy3eJyHZRGO9kAUUoQIQGbjNUxCawUXLykoHcYwMfoyH+W+bM87YvruLcxTSHYmO/D/TSjkJeVsPSEd8QMuxqa9bQ0UteKmagn7eBWGY2l1S4c3VLsglMZ6rXUxTfKev1K0lv72iRJNNYqly80b0C+2cIEPNHIdCYFYpc=
+	t=1755512465; cv=none; b=ofvxGHmZhbDAOCBLpTF2enXJq2GC5ciyFzqPWrYFqKNXekpRv6H410oHUhwFWKUjsyHKCd7+0d0dKIrqznyb+XjtZuNfEr9p1y7LFen9vDXXRfEZMsRGjbi80DKQhjbSvKT3TAlsDRi/4wlNJODzCV9C6ccSr5aU+fwDVyakXXk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755511082; c=relaxed/simple;
-	bh=5GGMt3shzw2rI49biQAOQCU7/kOfGFLIUky9EGQY5bw=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=nhcoGZYcPuveUHxhMga+O3nS9UGli0ioDH92QgOd+6XgWH03NpN39C4ILNwzRgzZsLoqqQf8N0xLImI0HcEDNJCkdNy8sBLlI+zbJujyzwRgm92Q0KyFq8xOrWUnxVbLA1yUWK7kl9ME42u/2xTssNvre3G+gueCtuQf3/nb8Dk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl; spf=pass smtp.mailfrom=defensec.nl; dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b=IoWC2zGK; arc=none smtp.client-ip=45.80.168.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=defensec.nl
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=defensec.nl
+	s=arc-20240116; t=1755512465; c=relaxed/simple;
+	bh=xq9nfQjayQvYisYAXJJZBJorSy5b8ZSoPtpYEt0arSU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=UJGS7PFGlS8F7qoE61n0+3YGOFLFx+JqBpStvcIAK83VVAqcqSMka9XOY6b6UsOYkV6/DjJkR/G3h+2ubq8nEPHshHkNKxfFc7Ck2h2QCiiX1CTWGqiczoOpFoQzF1G7H15EgC0YkB8HHLy93OV9mq6GJqUkCXpjStkSv5uw+yA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=lAshp1RC; arc=none smtp.client-ip=117.135.210.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="IoWC2zGK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=defensec.nl;
-	s=default; t=1755510798;
-	bh=5GGMt3shzw2rI49biQAOQCU7/kOfGFLIUky9EGQY5bw=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=IoWC2zGKB6XjpUtkTUB2r0O2t5kk9G9zJkEX/1Ncgg7z6+I/35isr1u413uosS+M1
-	 DPOEb5zNK36tH9kbwpGOtVli3UCo6UXdBKuJbGwQ+n8qrxZ5Xiljq/qDqOPhcfLQSQ
-	 fv6PQkBDDA9u/mr3oAiiiHGeLApLViKojAlZdurQ=
-Received: from nimbus (nimbus.lan [IPv6:2a10:3781:2099::514])
-	by markus.defensec.nl (Postfix) with ESMTPSA id 9F3901BB07D;
-	Mon, 18 Aug 2025 11:53:18 +0200 (CEST)
-From: Dominick Grift <dominick.grift@defensec.nl>
-To: BOBx <kabc005009@163.com>
-Cc: selinux@vger.kernel.org
-Subject: Re: [Help] how to compile te with checkpolicy.
-In-Reply-To: <8925af9c-2977-4acf-9b48-7f6ce3b280ec@163.com> (BOBx's message of
-	"Mon, 18 Aug 2025 16:01:04 +0800")
-References: <8925af9c-2977-4acf-9b48-7f6ce3b280ec@163.com>
-Date: Mon, 18 Aug 2025 11:53:18 +0200
-Message-ID: <87ikilyn01.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="lAshp1RC"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Message-ID:Date:MIME-Version:Subject:To:From:
+	Content-Type; bh=Ee15XAq5g1Bsv219+pTIFjaUMC4meRXlWZtIpf9wyHM=;
+	b=lAshp1RCgOLJ4MZQewiBG41VK9uvaUE2hMHCe1qLoH250UOUtOQI5CML1eXbHm
+	B1nljmdgFq9h1n7lB7yYU2VUMMBGc8q/d7UgvZnmHxFnKK9YKlyG4Cj3gsAfQqPP
+	NUw2sVdKTa7pAqisnpVuyjI0YZvZfQi/yp7ysNyMwKe+8=
+Received: from [192.168.3.49] (unknown [])
+	by gzga-smtp-mtada-g0-1 (Coremail) with SMTP id _____wD3l8lw_qJoMy9GCw--.26830S2;
+	Mon, 18 Aug 2025 18:20:33 +0800 (CST)
+Message-ID: <fc5583ce-8b27-4818-ae05-96e6332dd6a0@163.com>
+Date: Mon, 18 Aug 2025 18:20:32 +0800
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [Help] how to compile te with checkpolicy.
+To: Dominick Grift <dominick.grift@defensec.nl>
+Cc: selinux@vger.kernel.org
+References: <8925af9c-2977-4acf-9b48-7f6ce3b280ec@163.com>
+ <87ikilyn01.fsf@defensec.nl> <87ect9ymt0.fsf@defensec.nl>
+From: Fei Shao <kabc005009@163.com>
+In-Reply-To: <87ect9ymt0.fsf@defensec.nl>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wD3l8lw_qJoMy9GCw--.26830S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxXrWrtr13uFykXFy7ArWxXrb_yoW5WrWrpF
+	ZxG3ZIyr4UXr1UJrn7Kr1UXr1UKryDtw4UXFy5Jr18Ar1qyr1UWF1DJF18WrykCryUJw1U
+	Jr45JFZrXFyUArDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0zRFD7fUUUUU=
+X-CM-SenderInfo: pndeuiqqvqimi6rwjhhfrp/1tbiEQKttGii-hcM5gAAsD
 
-BOBx <kabc005009@163.com> writes:
 
-> Hi all,
->
-> These days I tried to compile te with tools named checkpolicy. I have
-> searched the process with google and chatgpt, and I followed the steps
-> they told me but I failed.
 
-Hi,
+On 18/08/2025 17:57, Dominick Grift wrote:
+> Dominick Grift <dominick.grift@defensec.nl> writes:
+>
+>> BOBx <kabc005009@163.com> writes:
+>>
+>>> Hi all,
+>>>
+>>> These days I tried to compile te with tools named checkpolicy. I have
+>>> searched the process with google and chatgpt, and I followed the steps
+>>> they told me but I failed.
+>> Hi,
+>>
+>> checkpolicy is for monolithic policy. see below for modular policy:
+>>
+>>> The following is my te file,  cmd and response and other infomation.
+>>>
+>>> My te file(my_policy.te):
+>>> ----------------------------------------------
+>> This is modular policy that should be compiled with checkmodule and then
+>> packaged with semodule_package:
+> Oops.
+> Actually I am wrong. This is reference policy.
+> I should be compiled with the reference policy makefile. I am not sure
+> what package provides this Makefile in ubuntu but probably package
+> selinux-policy-dev:
+>
+> https://packages.ubuntu.com/questing/all/selinux-policy-dev/filelist
+>
+> /usr/share/selinux/devel/Makefile
+>
+> So this should work:
+>
+> make -f /usr/share/selinux/devel/Makefile my_policy.pp
+I use this command generate pp file well.
 
-checkpolicy is for monolithic policy. see below for modular policy:
+>> checkmodule -M -m my_policy.te -o my_policy.mod
+This command doesn't work. The response is :
+----------------------------------------------------
+my_policy.te:1:ERROR 'Building a policy module, but no module 
+specification found.
+' at token 'policy_module' on line 1:
 
->
-> The following is my te file,=C2=A0 cmd and response and other infomation.
->
-> My te file(my_policy.te):
-> ----------------------------------------------
 
-This is modular policy that should be compiled with checkmodule and then
-packaged with semodule_package:
+checkmodule:  error(s) encountered while parsing configuration
+--------------------------------------------------
+It seems the articles from search engine are not wrong.
 
-checkmodule -M -m my_policy.te -o my_policy.mod
-semodule_package -o my_policy.pp -m my_policy.mod
-semodule -i my_policy.pp
 
-for more information see:
+>> semodule_package -o my_policy.pp -m my_policy.mod
+>> semodule -i my_policy.pp
+>>
+>> for more information see:
+>>
+>> man checkpolicy
+>> man checkmodule
+>> man semodule_package
+>> man semodule
+>>
+>>> policy_module(my_mypolicy, 1.0)
+>>>
+>>> # Define types
+>>> type my_type_t;
+>>> type my_type_exec_t, file_type;
+>>>
+>>> # Allow rules
+>>> allow my_type_t my_type_exec_t:file execute;
+>>> ----------------------------------------------
+>>>
+>>> The command:
+>>> ----------------------------------------------
+>>> sudo checkpolicy -M -o my_policy.pp my_policy.te
+>>> ----------------------------------------------
+>>>
+>>> The response  from command:
+>>> ----------------------------------------------
+>>> my_policy.te:1:ERROR 'syntax error' at token 'policy_module' on line 1:
+>>>
+>>>
+>>> checkpolicy:  error(s) encountered while parsing configuration
+>>> ----------------------------------------------
+>>>
+>>> OS information: 6.11.0-29-generic, ubuntu 24.10.
+>>>
+>>> Would you like help me to compile te with checkpolicy please? Or which
+>>> URL should I read please?
+>>>
+>>> Best regards
+>>>
+>>> BOBx
+>>>
+>>>
+>>>
 
-man checkpolicy
-man checkmodule
-man semodule_package
-man semodule
-
-> policy_module(my_mypolicy, 1.0)
->
-> # Define types
-> type my_type_t;
-> type my_type_exec_t, file_type;
->
-> # Allow rules
-> allow my_type_t my_type_exec_t:file execute;
-> ----------------------------------------------
->
-> The command:
-> ----------------------------------------------
-> sudo checkpolicy -M -o my_policy.pp my_policy.te
-> ----------------------------------------------
->
-> The response=C2=A0 from command:
-> ----------------------------------------------
-> my_policy.te:1:ERROR 'syntax error' at token 'policy_module' on line 1:
->
->
-> checkpolicy:=C2=A0 error(s) encountered while parsing configuration
-> ----------------------------------------------
->
-> OS information: 6.11.0-29-generic, ubuntu 24.10.
->
-> Would you like help me to compile te with checkpolicy please? Or which
-> URL should I read please?
->
-> Best regards
->
-> BOBx
->
->
->
-
---=20
-gpg --locate-keys dominick.grift@defensec.nl (wkd)
-Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
-Mastodon: @kcinimod@defensec.nl
