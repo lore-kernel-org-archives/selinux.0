@@ -1,311 +1,532 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-lj1-f196.google.com (mail-lj1-f196.google.com [209.85.208.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FB9A1F462D
-	for <selinux@vger.kernel.org>; Mon, 18 Aug 2025 13:02:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 271F021A94F
+	for <selinux@vger.kernel.org>; Mon, 18 Aug 2025 14:37:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755522132; cv=none; b=pxP7QHQkQz5PiCBgQsp+sQKrMFVj5jPLj76FaIpD0YZX6qCtgGXQL3ORaO8x9KKS5BN3vhdc2yrmjqQ/8aUMafdyxlAMNiqU+zBTNaRWQSPu/SkgVsvOtu5qU7ThZhWQrUcZnQNZ1R4jdmVXdzgnVytjAelIAZAtgO03idJpdiA=
+	t=1755527859; cv=none; b=VH7wZZ3/KYG5w9RLD0KBp4XNmLTSZuxomqIY3+U8WJtWdTf5emB8uvjepLFYVQDfwYWxEMFb2yL96rjeaflccxmjIr8khZAXXZ0AffG95i+i0MKNw6w2he7kR4p4wmthD7QMxzT44mmE/9iKtrulDnmuuRZBo4plRCj+OZUxh04=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755522132; c=relaxed/simple;
-	bh=Yu5wXHweYC+7uw2bLXNg9Zx6SAg3LgmRfIMA09JWC2c=;
+	s=arc-20240116; t=1755527859; c=relaxed/simple;
+	bh=bf8+kCN6vHfcX1LZhiXuI18ORpVK1SeYs68LPsDyjhE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tYZBB/3oHxw7BlMWl6+2ojjqZZCZ5Y7jyo4PjV5r5Dtq6iE6U09Mu3YvZIabK/NWc9MIdQTl9mbfPSi65a+XuJbYEk1y0Jd+DmtLkHQM2S3ZE/xj9AglN1hMleqMmG3b3khH2QFkwTbw9ReXtOyS4GES0Civo0Yuujaxce+xfGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=azEvkHFe; arc=none smtp.client-ip=209.85.216.43
+	 To:Cc:Content-Type; b=F7JOeJaobqCFCmT/k1hlU5+M458vu+eteFqFIosGbFAX5iYOEOmOdf2zdoCvWBRrGZRExcxPo1DHJ8hjxpGDhFcDIOr6V2s/LAsPq89DGrqhqSxcVANKzZfTJqTwoQdLOjfdp6fqXMyCwjCzIMO2fCrsu8BbRennwukKxkZJeTQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XwWj+VSw; arc=none smtp.client-ip=209.85.208.196
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="azEvkHFe"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-32326e202e0so3213483a91.2
-        for <selinux@vger.kernel.org>; Mon, 18 Aug 2025 06:02:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XwWj+VSw"
+Received: by mail-lj1-f196.google.com with SMTP id 38308e7fff4ca-333f8db5aedso30629291fa.0
+        for <selinux@vger.kernel.org>; Mon, 18 Aug 2025 07:37:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755522130; x=1756126930; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1755527855; x=1756132655; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=G6Hkp+Ql0DCw8Fjo9TOkdgJ2k+jl3fnJ7pgYpOY6UBo=;
-        b=azEvkHFedobwESvmSLWX0TFZFc1Kuf3VOybyeVYl/72cg44vmnRWqB8QvpKQrAMQCK
-         W5AB0xKatfp/6GkB4PiWNHHnGaeJ0Edt96RFGjBdzflPYOGx9wtLeXpWWbpKL2mWqtiS
-         kDXtcAikAR6P5g0p4sB/QIkR8aaF6g1SfxC3jBuKbYAl5NlmD4bh8giAMmJi2Rzgqq2R
-         VqaWgcB1m5uA4uVq/oaC8DR5qW84fVkt6/ZBKHUDSHBzLUa6YItujIc3IYxFpC0ID6yn
-         c1FIZB6ALLQJgmUiNLHhRktYf6GI8www6B7JXW0vXm48SCUigB8gG9neSJR5q5dATevx
-         2JLQ==
+        bh=dndQhPuX1plXRpY6Hg6t5vxM8fZqkzUUnlWdRNBPnF0=;
+        b=XwWj+VSw/lZJX7osugZGfEXU+xVERuyq1A4aVAoUDxRnMe5mQPnQu53sBQRtg+u7pH
+         BJmwKcMWdH6OoUL4jUNpPgbpSRzFYisCOltOIZXIJZJs9goTWY9L7cRdxX9aQNGt6TMf
+         HKc8kxyefW/KoWcp1XZMpjD08v1Ye6jO07Imus2cijxPlLCMMlIlL8O2M/GJ0Lw2kAmS
+         eMGfYvxG9zpfHPBU2u74N1Z/IJ6i854pGJ5FkOMW26cFht5g8ABjOLt/0Pr+BftkjhHT
+         h7xFD8TR6SyolHW68pEodmUAASpEf8NaUckdaFaX6INuknnbp9hYp3jbY4d52ENxshc+
+         NWdA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755522130; x=1756126930;
+        d=1e100.net; s=20230601; t=1755527855; x=1756132655;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=G6Hkp+Ql0DCw8Fjo9TOkdgJ2k+jl3fnJ7pgYpOY6UBo=;
-        b=gKl8WhgIKTNN4mim8PQpNk3TDG4lsPDQppOlRzKWNj/8Fr0kzz3QmEOsgynhumV5zq
-         SaVEwtPXefK3z1VFlvdNag44ISkq2bR6RBQmb1GGS8fua264vfajmW2Ikc/cDdiLqF9j
-         9UYYgvQe6iPrDW/rbTeNDHCWeO0cLt/7HLYRFL8QwU2bruAVSoK+ekGTOyNSX0em81PQ
-         7FD4QFK8e+KGlmHUGGOfz6cGET2Z5A9AXiP6w4Aw1EYVpZ9y8oFMaBnl9lsaAIdZMShd
-         f/C4pnZXfbOVBbulAinRHQcXFyVK3uJjCl2XjVxPpYe160it854kBT0Cgg/t/FOnQQ3/
-         viEg==
-X-Gm-Message-State: AOJu0YyFf5DtqvVA+eyC46C55jb/HZgyG7gjdN9ZGl7lIY19Ni1KtQVT
-	JcyU84Gj07WC8SRWlfcqtXto5QjCV9fsRmnLgVCP+6kJkRCU88Q2oCHX/ZS3jJkO/fmU3SPE1RY
-	vqjvGfgiow4/BIpZ7que7OGJDXH+n1vyaUh12
-X-Gm-Gg: ASbGncvmYnks/93CBYVVLe/iqieb5zUWUvw4en+TiJcsPrMvcEPkLaCbv9PBinskXtx
-	a+631X/YAM7NrUEFLLk0TUcLAvJOLeucd/ZG/d9zlKR5uFhf6aMXdODTK+vzbkaTZxaNsI3FYrG
-	Lv72Jf919pH1p5yASciuxY42rVMKGVZgE2qUYaDdtOBDBdGznQpgKpCsae9zTWQ2xx6uf1pGhdU
-	PITpVE=
-X-Google-Smtp-Source: AGHT+IHvAk1CzHYrnuSIgbSZlRTMYadhcDMI+k9yt77AgjNNhayuI+FrxGud/Uw5CRxCsppE1hNwGKAHWY2ao1BQdjw=
-X-Received: by 2002:a17:90b:2fcd:b0:31f:7160:df4b with SMTP id
- 98e67ed59e1d1-3234dbbfcfemr14432942a91.15.1755522038550; Mon, 18 Aug 2025
- 06:00:38 -0700 (PDT)
+        bh=dndQhPuX1plXRpY6Hg6t5vxM8fZqkzUUnlWdRNBPnF0=;
+        b=hCYIh1MCir2TErWNpQqtMxWr7Fp1bpZSgiYUuiSx2mETfRNN6Vm8Va7MU/kgAzROjS
+         ZnMtv90jg9Wr530lDSMNmLzllEkZ9ajVs3pyfTIBiJFa4KaDhvMmb5SYqs/w+scWvK27
+         7dFeL7KMuz7zQ5B8OlRTVEbXcNEmENBg+W3CEUwex4LYCrZ0dxBoMz5oa0uIZmeOOauJ
+         SZyGh5v9q1OrSMWta9Jyf1IDAi7F9IC6XCEXARPWRDUeB121dYrBvLrMyRFbn4AF+9+Q
+         HEBg77VGNnVomYBOaZKmiJwoAwYFYQXFxWZXQ14SyeHdFKVxkRCkQrp8Or/kHteimbDj
+         bhjw==
+X-Gm-Message-State: AOJu0Yy0JVfN5ziy4+qD1VtuoqbnPLs83almgHQfgS8X10F1zFKGLpTL
+	Ur9ufVvxJFkV4YBXIiB6Uhf9DMzUNF7+CzkFroKmecqlcPSoB28GKqbRL4c0xziEwmUMjkYjjdZ
+	N0da6r2rizMyNdAGJcURHpgL074VsQXk=
+X-Gm-Gg: ASbGnctzBfNg7XO4V6zmrV9oMq5vkC4+uK5JXDt2MfkDnVHaZo/WpbfZMJEYp36lLPB
+	7Zb8U4GFu7kLFvSLPpMEx0p/iA6/WMP324WKt+LZiDp02FeN8aorCBvRAlgMGMMMoJtvKrG3JQl
+	jYs17OI+wEIqudsCBvOj1+65M3IWJGlPLuoExvVphD41aYjAjAb2dGvrTOHHbPUEPVkSjwL4hxV
+	sfztWoHsPtu0MIy7g==
+X-Google-Smtp-Source: AGHT+IFUR0H0OrHgXtbs0Nb2Ei8IaVqxS59Ee1FQYdUbp5L2b5YHvOjRVktrAcwGHnHWcaybBMXbIc9oEGwnpWsTMCw=
+X-Received: by 2002:a2e:be21:0:b0:332:8187:f837 with SMTP id
+ 38308e7fff4ca-3340995c150mr33127191fa.27.1755527854662; Mon, 18 Aug 2025
+ 07:37:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250816201420.197-1-ericsu@linux.microsoft.com>
-In-Reply-To: <20250816201420.197-1-ericsu@linux.microsoft.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 18 Aug 2025 09:00:27 -0400
-X-Gm-Features: Ac12FXwzVfXJp3XCqzk2tCaM4mBFbjX9flbAm3MYezDyvRO2i8ft5EZclI8xnxI
-Message-ID: <CAEjxPJ64tMA5zsYh=NHa4gBeC6ytDqS8DenfFc5S5H95m_Aeow@mail.gmail.com>
-Subject: Re: [PATCH v2] SELinux: Add support for BPF token access control
+References: <20250817191031.1150-1-ericsu@linux.microsoft.com>
+In-Reply-To: <20250817191031.1150-1-ericsu@linux.microsoft.com>
+From: Daniel Durning <danieldurning.work@gmail.com>
+Date: Mon, 18 Aug 2025 10:37:21 -0400
+X-Gm-Features: Ac12FXy4L5rhYS_JImYKtcVIvTHYTarOQElvEWwsIvVKvDkybH_3-6e4WjwDxYk
+Message-ID: <CAKrb_fGsWid=-muzOorRR6gQ8onf3EZ6z93ocQaM4SZ8-9Pxaw@mail.gmail.com>
+Subject: Re: [PATCH testsuite v2] tests/bpf: Add tests for SELinux BPF token
+ access control
 To: Eric Suen <ericsu@linux.microsoft.com>
-Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com, 
-	danieldurning.work@gmail.com
+Cc: selinux@vger.kernel.org, paul@paul-moore.com, 
+	stephen.smalley.work@gmail.com, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Aug 16, 2025 at 4:14=E2=80=AFPM Eric Suen <ericsu@linux.microsoft.c=
+On Sun, Aug 17, 2025 at 3:10=E2=80=AFPM Eric Suen <ericsu@linux.microsoft.c=
 om> wrote:
 >
-> BPF token support was introduced to allow a privileged process to delegat=
-e
-> limited BPF functionality=E2=80=94such as map creation and program loadin=
-g=E2=80=94to an
-> unprivileged process:
->   https://lore.kernel.org/linux-security-module/20231130185229.2688956-1-=
-andrii@kernel.org/
+> This patch adds new tests to verify the SELinux support for BPF token
+> access control, as introduced in the corresponding kernel patch:
+>   https://lore.kernel.org/selinux/20250816201420.197-1-ericsu@linux.micro=
+soft.com/
 >
-> This patch adds SELinux support for controlling BPF token access. With
-> this change, SELinux policies can now enforce constraints on BPF token
-> usage based on both the delegating (privileged) process and the recipient
-> (unprivileged) process.
+> Four new tests are added to cover both positive and negative scenarios,
+> ensuring that the SELinux policy enforcement on BPF token usage behaves
+> as expected.
+>   - Successful map_create and prog_load when SELinux permissions are
+>     granted.
+>   - Enforcement of SELinux policy restrictions when access is denied.
 >
-> Supported operations currently include:
->   - map_create
->   - prog_load
+> For testing purposes, you can update the base policy by manually
+> modifying your base module and tweaking /usr/share/selinux/devel as
+> follows:
+>   sudo semodule -c -E base
+>   sudo cp base.sil base.sil.orig
+>   sudo sed -i "s/map_create/map_create map_create_as/" base.cil
+>   sudo sed -i "s/prog_load/prog_load prog_load_as/" base.cil
+>   sudo semodule -i base.cil
+>   echo "(policycap bpf_token_perms)" > bpf_token_perms.cil
+>   sudo semodule -i bpf_token_perms.cil
+>   sudo cp /usr/share/selinux/devel/include/support/all_perms.spt \
+>       /usr/share/selinux/devel/include/support/all_perms.spt.orig
+>   sudo sed -i "s/"map_create/map_create map_create_as/" \
+>       /usr/share/selinux/devel/include/support/all_perms.spt
+>   sudo sed -i "s/prog_load/prog_load prog_load_as/" \
+>       /usr/share/selinux/devel/include/support/all_perms.spt
 >
-> High-level workflow:
->   1. An unprivileged process creates a VFS context via `fsopen()` and
->      obtains a file descriptor.
->   2. This descriptor is passed to a privileged process, which configures
->      BPF token delegation options and mounts a BPF filesystem.
->   3. SELinux records the `creator_sid` of the privileged process during
->      mount setup.
->   4. The unprivileged process then uses this BPF fs mount to create a
->      token and attach it to subsequent BPF syscalls.
->   5. During verification of `map_create` and `prog_load`, SELinux uses
->      `creator_sid` and the current SID to check policy permissions via:
->        avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
->                     BPF__MAP_CREATE, NULL);
->
-> The implementation introduces two new permissions:
->   - map_create_as
->   - prog_load_as
->
-> At token creation time, SELinux verifies that the current process has the
-> appropriate `*_as` permission (depending on the `allowed_cmds` value in
-> the bpf_token) to act on behalf of the `creator_sid`.
->
-> Example SELinux policy:
->   allow test_bpf_t self:bpf {
->       map_create map_read map_write prog_load prog_run
->       map_create_as prog_load_as
->   };
->
-> Additionally, a new policy capability bpf_token_perms is added to ensure
-> badkward compability. If disabled, previous behavior ((checks based on
-
-backward compatibility
-
-> current process SID)) is preserved.
+> When finished testing, you can semodule -r base bpf_token_perms to
+> undo the two module changes and restore your all_perms.spt file from
+> the saved .orig file.
 >
 > Changes in v2:
-> - Fixed bug in selinux_bpffs_creator_sid(u32 fd) where it retrieved
->   creator_sid from wrong file descriptor
-> - Removed unnecessary checks for null, per review comments from
->   the first patch
+> - Removed allow rule for 'kernel_t' in test_bpf.te which was added due
+>   to a bug in the kernel
+> - Cleaned up other unnecessary rules in test_bpf.te
+> - Added token_test.c which was missing from previous patch
 >
 > Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
 > ---
->  security/selinux/hooks.c                   | 93 +++++++++++++++++++++-
->  security/selinux/include/classmap.h        |  2 +-
->  security/selinux/include/objsec.h          |  4 +
->  security/selinux/include/policycap.h       |  1 +
->  security/selinux/include/policycap_names.h |  1 +
->  security/selinux/include/security.h        |  6 ++
->  6 files changed, 104 insertions(+), 3 deletions(-)
+>  policy/test_bpf.te     |  39 +++
+>  tests/bpf/Makefile     |   5 +-
+>  tests/bpf/bpf_common.h |  10 +
+>  tests/bpf/bpf_test.c   |  59 +++--
+>  tests/bpf/test         |  21 +-
+>  tests/bpf/token_test.c | 538 +++++++++++++++++++++++++++++++++++++++++
+>  6 files changed, 653 insertions(+), 19 deletions(-)
+>  create mode 100644 tests/bpf/token_test.c
 >
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 335fbf76cdd2..29b35ed4c306 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -733,6 +733,8 @@ static int selinux_set_mnt_opts(struct super_block *s=
-b,
->                 goto out;
+> diff --git a/policy/test_bpf.te b/policy/test_bpf.te
+> index 5eab0bd..45da852 100644
+> --- a/policy/test_bpf.te
+> +++ b/policy/test_bpf.te
+> @@ -57,3 +57,42 @@ typeattribute test_bpf_deny_prog_run_t bpfdomain;
+>  allow test_bpf_deny_prog_run_t self:process { setrlimit };
+>  allow test_bpf_deny_prog_run_t self:capability { sys_resource sys_admin =
+};
+>  allow test_bpf_deny_prog_run_t self:bpf { map_create map_read map_write =
+prog_load };
+> +
+> +################### Allow map_create_as and prog_load_as ###############=
+####
+> +fs_list_bpf_dirs(test_bpf_t)
+> +allow test_bpf_t bpf_t:filesystem mount;
+> +allow test_bpf_t root_t:dir mounton;
+> +allow test_bpf_t self:bpf { map_create_as prog_load_as };
+> +allow test_bpf_t self:cap2_userns { bpf perfmon };
+> +allow test_bpf_t self:cap_userns { net_admin setgid setuid sys_admin };
+> +allow test_bpf_t self:user_namespace create;
+> +
+> +############################ Deny map_create_as ########################=
+####
+> +type test_bpf_deny_map_create_as_t;
+> +testsuite_domain_type(test_bpf_deny_map_create_as_t)
+> +typeattribute test_bpf_deny_map_create_as_t bpfdomain;
+> +allow test_bpf_deny_map_create_as_t self:process { setrlimit };
+> +allow test_bpf_deny_map_create_as_t self:capability { sys_resource sys_a=
+dmin };
+> +
+> +fs_list_bpf_dirs(test_bpf_deny_map_create_as_t)
+> +allow test_bpf_deny_map_create_as_t bpf_t:filesystem mount;
+> +allow test_bpf_deny_map_create_as_t root_t:dir mounton;
+> +allow test_bpf_deny_map_create_as_t self:bpf { map_create map_read map_w=
+rite prog_load prog_load_as };
+> +allow test_bpf_deny_map_create_as_t self:cap2_userns { bpf };
+> +allow test_bpf_deny_map_create_as_t self:cap_userns { setgid setuid sys_=
+admin };
+> +allow test_bpf_deny_map_create_as_t self:user_namespace create;
+> +
+> +############################ Deny prog_load_as #########################=
+####
+> +type test_bpf_deny_prog_load_as_t;
+> +testsuite_domain_type(test_bpf_deny_prog_load_as_t)
+> +typeattribute test_bpf_deny_prog_load_as_t bpfdomain;
+> +allow test_bpf_deny_prog_load_as_t self:process { setrlimit };
+> +allow test_bpf_deny_prog_load_as_t self:capability { sys_resource sys_ad=
+min };
+> +
+> +fs_list_bpf_dirs(test_bpf_deny_prog_load_as_t)
+> +allow test_bpf_deny_prog_load_as_t bpf_t:filesystem mount;
+> +allow test_bpf_deny_prog_load_as_t root_t:dir mounton;
+> +allow test_bpf_deny_prog_load_as_t self:bpf { map_create map_create_as m=
+ap_read map_write prog_load };
+> +allow test_bpf_deny_prog_load_as_t self:cap2_userns { bpf perfmon };
+> +allow test_bpf_deny_prog_load_as_t self:cap_userns { net_admin setgid se=
+tuid sys_admin };
+> +allow test_bpf_deny_prog_load_as_t self:user_namespace create;
+> diff --git a/tests/bpf/Makefile b/tests/bpf/Makefile
+> index 1ae8ce9..cacefbe 100644
+> --- a/tests/bpf/Makefile
+> +++ b/tests/bpf/Makefile
+> @@ -1,5 +1,5 @@
+>  TARGETS =3D bpf_test
+> -DEPS =3D bpf_common.c bpf_common.h
+> +SRCS =3D bpf_test.c bpf_common.c token_test.c
+>  LDLIBS +=3D -lselinux -lbpf
+>
+>  # export so that BPF_ENABLED entries get built correctly on local build
+> @@ -14,4 +14,5 @@ clean:
+>         rm -f $(TARGETS) test_sock flag *_flag
+>         @set -e; for i in $(BPF_ENABLED); do $(MAKE) -C $$i clean ; done
+>
+> -$(TARGETS): $(DEPS)
+> +$(TARGETS): $(SRCS)
+> +       $(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+> \ No newline at end of file
+> diff --git a/tests/bpf/bpf_common.h b/tests/bpf/bpf_common.h
+> index 44ac28f..adba522 100644
+> --- a/tests/bpf/bpf_common.h
+> +++ b/tests/bpf/bpf_common.h
+> @@ -12,6 +12,8 @@
+>  extern int create_bpf_map(void);
+>  extern int create_bpf_prog(void);
+>  extern void bpf_setrlimit(void);
+> +extern int test_bpf_map_create(void);
+> +extern int test_bpf_prog_load(void);
+>
+>  /* edited eBPF instruction library */
+>  /* Short form of mov, dst_reg =3D imm32 */
+> @@ -32,3 +34,11 @@ extern void bpf_setrlimit(void);
+>                                                .off   =3D 0,             =
+         \
+>                                                         .imm   =3D 0 })
+>
+> +/* Raw code statement block */
+> +#define BPF_RAW_INSN(CODE, DST, SRC, OFF, IMM)                 \
+> +       ((struct bpf_insn) {                                    \
+> +               .code  =3D CODE,                                  \
+> +                       .dst_reg =3D DST,                                =
+ \
+> +                               .src_reg =3D SRC,                        =
+         \
+> +                                       .off   =3D OFF,                  =
+                 \
+> +                                               .imm   =3D IMM })
+> diff --git a/tests/bpf/bpf_test.c b/tests/bpf/bpf_test.c
+> index 3c6a29c..a8dc383 100644
+> --- a/tests/bpf/bpf_test.c
+> +++ b/tests/bpf/bpf_test.c
+> @@ -1,28 +1,38 @@
+>  #include "bpf_common.h"
+>
+> +#define write_verbose(verbose, fmt, ...) \
+> +       do { \
+> +               if (verbose) \
+> +                       printf(fmt "\n", ##__VA_ARGS__); \
+> +       } while (0)
+> +
+>  static void usage(char *progname)
+>  {
+>         fprintf(stderr,
+> -               "usage:  %s -m|-p [-v]\n"
+> +               "usage:  %s -m|-p|-c|-l [-v]\n"
+>                 "Where:\n\t"
+>                 "-m    Create BPF map fd\n\t"
+>                 "-p    Create BPF prog fd\n\t"
+> +               "-c    Test BPF token map create\n\t"
+> +               "-l    Test BPF token program load\n\t"
+>                 "-v Print information.\n", progname);
+>         exit(-1);
+>  }
+>
+>  int main(int argc, char *argv[])
+>  {
+> -       int opt, result, fd;
+> -       bool verbose =3D false;
+> +       int opt, result, ret;
+> +       bool verbose =3D false, is_fd =3D true;
+>         char *context;
+>
+>         enum {
+>                 MAP_FD =3D 1,
+> -               PROG_FD
+> +               PROG_FD,
+> +               MAP_CREATE,
+> +               PROG_LOAD,
+>         } bpf_fd_type;
+>
+> -       while ((opt =3D getopt(argc, argv, "mpv")) !=3D -1) {
+> +       while ((opt =3D getopt(argc, argv, "mpclv")) !=3D -1) {
+>                 switch (opt) {
+>                 case 'm':
+>                         bpf_fd_type =3D MAP_FD;
+> @@ -30,6 +40,12 @@ int main(int argc, char *argv[])
+>                 case 'p':
+>                         bpf_fd_type =3D PROG_FD;
+>                         break;
+> +               case 'c':
+> +                       bpf_fd_type =3D MAP_CREATE;
+> +                       break;
+> +               case 'l':
+> +                       bpf_fd_type =3D PROG_LOAD;
+> +                       break;
+>                 case 'v':
+>                         verbose =3D true;
+>                         break;
+> @@ -44,8 +60,7 @@ int main(int argc, char *argv[])
+>                 exit(-1);
 >         }
 >
-> +       sbsec->creator_sid =3D current_sid();
-> +
->         if (strcmp(sb->s_type->name, "proc") =3D=3D 0)
->                 sbsec->flags |=3D SE_SBPROC | SE_SBGENFS;
+> -       if (verbose)
+> -               printf("Process context:\n\t%s\n", context);
+> +       write_verbose(verbose, "Process context:\n\n%s", context);
 >
-> @@ -7002,9 +7004,13 @@ static int selinux_ib_alloc_security(void *ib_sec)
->  static int selinux_bpf(int cmd, union bpf_attr *attr,
->                        unsigned int size, bool kernel)
->  {
-> +       bool bpf_token_perms =3D selinux_policycap_bpf_token_perms();
->         u32 sid =3D current_sid();
->         int ret;
+>         free(context);
 >
-> +       if (bpf_token_perms)
-> +               return 0;
-> +
->         switch (cmd) {
->         case BPF_MAP_CREATE:
->                 ret =3D avc_has_perm(sid, sid, SECCLASS_BPF, BPF__MAP_CRE=
-ATE,
-> @@ -7086,10 +7092,29 @@ static int selinux_bpf_prog(struct bpf_prog *prog=
-)
->                             BPF__PROG_RUN, NULL);
->  }
+> @@ -54,24 +69,36 @@ int main(int argc, char *argv[])
 >
-> +static int selinux_bpffs_creator_sid(u32 fd)
-> +{
-> +       struct path path;
-> +       struct super_block *sb;
-> +       struct superblock_security_struct *sbsec;
-> +
-> +       CLASS(fd, f)(fd);
-> +
-> +       if (fd_empty(f))
-> +               return SECSID_NULL;
-> +
-> +       path =3D fd_file(f)->f_path;
-> +       sb =3D path.dentry->d_sb;
-> +       sbsec =3D selinux_superblock(sb);
-> +
-> +       return sbsec->creator_sid;
-> +}
-> +
->  static int selinux_bpf_map_create(struct bpf_map *map, union bpf_attr *a=
-ttr,
->                                   struct bpf_token *token, bool kernel)
->  {
->         struct bpf_security_struct *bpfsec;
-> +       u32 ssid;
+>         switch (bpf_fd_type) {
+>         case MAP_FD:
+> -               if (verbose)
+> -                       printf("Creating BPF map\n");
+> +               write_verbose(verbose, "Creating BPF map");
 >
->         bpfsec =3D kzalloc(sizeof(*bpfsec), GFP_KERNEL);
->         if (!bpfsec)
-> @@ -7098,7 +7123,12 @@ static int selinux_bpf_map_create(struct bpf_map *=
-map, union bpf_attr *attr,
->         bpfsec->sid =3D current_sid();
->         map->security =3D bpfsec;
+> -               fd =3D create_bpf_map();
+> +               ret =3D create_bpf_map();
+>                 break;
+>         case PROG_FD:
+> -               if (verbose)
+> -                       printf("Creating BPF prog\n");
+> +               write_verbose(verbose, "Creating BPF prog");
+> +
+> +               ret =3D create_bpf_prog();
+> +               break;
+> +       case MAP_CREATE:
+> +               is_fd =3D false;
+> +               write_verbose(verbose, "Testing BPF map create");
+> +
+> +               ret =3D test_bpf_map_create();
+> +               break;
+> +       case PROG_LOAD:
+> +               is_fd =3D false;
+> +               write_verbose(verbose, "Testing BPF prog load");
 >
-> -       return 0;
-> +       if (!token)
-> +               ssid =3D bpfsec->sid;
-> +       else
-> +               ssid =3D selinux_bpffs_creator_sid(attr->map_token_fd);
-> +
-> +       return avc_has_perm(ssid, bpfsec->sid, SECCLASS_BPF, BPF__MAP_CRE=
-ATE, NULL);
->  }
+> -               fd =3D create_bpf_prog();
+> +               ret =3D test_bpf_prog_load();
+>                 break;
+>         default:
+>                 usage(argv[0]);
+>         }
 >
->  static void selinux_bpf_map_free(struct bpf_map *map)
-> @@ -7113,6 +7143,7 @@ static int selinux_bpf_prog_load(struct bpf_prog *p=
-rog, union bpf_attr *attr,
->                                  struct bpf_token *token, bool kernel)
->  {
->         struct bpf_security_struct *bpfsec;
-> +       u32 ssid;
+> -       if (fd < 0)
+> -               return fd;
+> +       if (ret < 0)
+> +               return ret;
+> +
+> +       if (is_fd)
+> +               close(ret);
 >
->         bpfsec =3D kzalloc(sizeof(*bpfsec), GFP_KERNEL);
->         if (!bpfsec)
-> @@ -7121,7 +7152,12 @@ static int selinux_bpf_prog_load(struct bpf_prog *=
-prog, union bpf_attr *attr,
->         bpfsec->sid =3D current_sid();
->         prog->aux->security =3D bpfsec;
->
-> -       return 0;
-> +       if (!token)
-> +               ssid =3D bpfsec->sid;
-> +       else
-> +               ssid =3D selinux_bpffs_creator_sid(attr->prog_token_fd);
-> +
-> +       return avc_has_perm(ssid, bpfsec->sid, SECCLASS_BPF, BPF__PROG_LO=
-AD, NULL);
->  }
->
->  static void selinux_bpf_prog_free(struct bpf_prog *prog)
-> @@ -7132,10 +7168,18 @@ static void selinux_bpf_prog_free(struct bpf_prog=
- *prog)
->         kfree(bpfsec);
->  }
->
-> +#define bpf_token_cmd(T, C) \
-> +       ((T)->allowed_cmds & (1ULL << (C)))
-> +
->  static int selinux_bpf_token_create(struct bpf_token *token, union bpf_a=
-ttr *attr,
->                                     const struct path *path)
->  {
->         struct bpf_security_struct *bpfsec;
-> +       u32 sid =3D selinux_bpffs_creator_sid(attr->token_create.bpffs_fd=
-);
-> +       int err;
-> +
-> +       if (sid =3D=3D SECSID_NULL)
-> +               return -EPERM;
-
-Still doing a hardcoded return of -EPERM here with no log or audit
-message or way to override if permissive.
-Is this even possible? If so, would still prefer to let it fall
-through to the permission checks that will show up as access denied to
-unlabeled_t,
-which will alert the user and offer the option of overriding via
-permissive mode or an allow rule.
-
->
->         bpfsec =3D kzalloc(sizeof(*bpfsec), GFP_KERNEL);
->         if (!bpfsec)
-> @@ -7144,6 +7188,29 @@ static int selinux_bpf_token_create(struct bpf_tok=
-en *token, union bpf_attr *att
->         bpfsec->sid =3D current_sid();
->         token->security =3D bpfsec;
->
-> +       bpfsec->perms =3D 0;
-> +
-> +       /**
-> +        * 'token->allowed_cmds' is a bit mask of allowed commands
-> +        * Convert the BPF command enum to a bitmask representing its pos=
-ition in the
-> +        * allowed_cmds bitmap.
-> +        */
-> +       if (bpf_token_cmd(token, BPF_MAP_CREATE)) {
-> +               err =3D avc_has_perm(bpfsec->sid, sid, SECCLASS_BPF, BPF_=
-_MAP_CREATE_AS, NULL);
-> +               if (err)
-> +                       return err;
-> +
-> +               bpfsec->perms |=3D BPF__MAP_CREATE;
-> +       }
-> +
-> +       if (bpf_token_cmd(token, BPF_PROG_LOAD)) {
-> +               err =3D avc_has_perm(bpfsec->sid, sid, SECCLASS_BPF, BPF_=
-_PROG_LOAD_AS, NULL);
-> +               if (err)
-> +                       return err;
-> +
-> +               bpfsec->perms |=3D BPF__PROG_LOAD;
-> +       }
-> +
+> -       close(fd);
 >         return 0;
 >  }
+> diff --git a/tests/bpf/test b/tests/bpf/test
+> index a3fd856..14bda32 100755
+> --- a/tests/bpf/test
+> +++ b/tests/bpf/test
+> @@ -9,8 +9,10 @@ BEGIN {
+>
+>      $test_bpf_count       =3D 7;
+>      $test_fdreceive_count =3D 4;
+> +    $test_bpf_token_count =3D 4;
+>
+> -    $test_count =3D $test_bpf_count + $test_fdreceive_count;
+> +    $test_count =3D
+> +      $test_bpf_count + $test_fdreceive_count + $test_bpf_token_count;
+>
+>      # allow info to be shown during tests
+>      $v =3D $ARGV[0];
+> @@ -67,6 +69,13 @@ ok( $result eq 0 );
+>  $result =3D system "runcon -t test_bpf_t $basedir/bpf_test -p $v";
+>  ok( $result eq 0 );
+>
+> +# BPF token - BPF_MAP_CREATE_AS, BPF_PROG_LOAD_AS
+> +$result =3D system "runcon -t test_bpf_t $basedir/bpf_test -c $v";
+> +ok( $result eq 0 );
+> +
+> +$result =3D system "runcon -t test_bpf_t $basedir/bpf_test -l $v";
+> +ok( $result eq 0 );
+> +
+>  # Deny map_create permission
+>  $result =3D
+>    system "runcon -t test_bpf_deny_map_create_t $basedir/bpf_test -m $v 2=
+>&1";
+> @@ -92,6 +101,16 @@ $result =3D
+>    system "runcon -t test_bpf_deny_prog_run_t $basedir/bpf_test -p $v 2>&=
+1";
+>  ok($result);
+>
+> +# BPF token - deny BPF_MAP_CREATE_AS
+> +$result =3D
+> +  system "runcon -t test_bpf_deny_map_create_as_t $basedir/bpf_test -c $=
+v 2>&1";
+> +ok($result);
+> +
+> +# BPF token - deny BPF_PROG_LOAD_AS
+> +$result =3D
+> +  system "runcon -t test_bpf_deny_prog_load_as_t $basedir/bpf_test -l $v=
+ 2>&1";
+> +ok($result);
+> +
+>  #
+>  ################ BPF Tests for fdreceive #######################
+>  #
+> diff --git a/tests/bpf/token_test.c b/tests/bpf/token_test.c
+> new file mode 100644
+> index 0000000..eb1e3da
+> --- /dev/null
+> +++ b/tests/bpf/token_test.c
+> @@ -0,0 +1,538 @@
+> +#include "bpf_common.h"
+> +#include "signal.h"
+> +#include "linux/mount.h"
+> +#include <linux/unistd.h>
+> +#include "sys/wait.h"
+> +#include "sys/socket.h"
+> +#include "fcntl.h"
+> +#include "sched.h"
+> +#include <bpf/btf.h>
+> +
+> +#define bit(n) (1ULL << (n))
+> +
+> +#define zclose(fd) do { if (fd >=3D 0) close(fd); fd =3D -1; } while (0)
+> +#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+> +
+> +#define _CHECK(condition, format...) ({    \
+> +       int __ret =3D !!(condition); \
+> +       int __save_errno =3D errno;   \
+> +       if (__ret) {    \
+> +               fprintf(stderr, ##format);   \
+> +       }   \
+> +       errno =3D __save_errno;   \
+> +       __ret;  \
+> +})
+> +
+> +#define ASSERT_OK(res, name) ({     \
+> +       long long ___res =3D (res);       \
+> +       bool ___ok =3D ___res =3D=3D 0;       \
+> +       _CHECK(!___ok, \
+> +                       "%s failed. unexpected error: %lld (errno %d)\n",=
+  \
+> +                        name, ___res, errno);  \
+> +       ___ok;                          \
+> +})
+> +
+> +#define ASSERT_GT(actual, expected, name) ({    \
+> +       typeof(actual) ___act =3D (actual);   \
+> +       typeof(expected) ___exp =3D (expected);   \
+> +       bool ___ok =3D ___act > ___exp;       \
+> +       _CHECK(!___ok,  \
+> +                       "unexpected %s: actual %lld <=3D expected %lld (e=
+rrno %d)\n",   \
+> +                       (name), (long long)(___act), (long long)(___exp),=
+ errno);  \
+> +       ___ok;  \
+> +})
+> +
+> +#define ASSERT_GE(actual, expected, name) ({    \
+> +       typeof(actual) ___act =3D (actual);       \
+> +       typeof(expected) ___exp =3D (expected);   \
+> +       bool ___ok =3D ___act >=3D ___exp;          \
+> +       _CHECK(!___ok,  \
+> +                       "unexpected %s: actual %lld < expected %lld (errn=
+o %d)\n",   \
+> +                       (name), (long long)(___act), (long long)(___exp),=
+ errno);          \
+> +       ___ok;  \
+> +})
+> +
+> +#define ASSERT_EQ(actual, expected, name) ({    \
+> +       typeof(actual) ___act =3D (actual);           \
+> +       typeof(expected) ___exp =3D (expected);       \
+> +       bool ___ok =3D ___act =3D=3D ___exp;              \
+> +       _CHECK(!___ok,   \
+> +                       "unexpected %s: actual %lld !=3D expected %lld (e=
+rrno %d)\n",   \
+> +                       (name), (long long)(___act), (long long)(___exp),=
+ errno);          \
+> +       ___ok;  \
+> +})
+> +
+> +#define ASSERT_OK_PTR(ptr, name) ({     \
+> +       const void *___res =3D (ptr);         \
+> +       int ___err =3D libbpf_get_error(___res);  \
+> +       bool ___ok =3D ___err =3D=3D 0;           \
+> +       _CHECK(!___ok,  \
+> +                       "%s unexpected error: %d\n", name, ___err);  \
+> +       ___ok;      \
+> +})
+> +
+> +struct bpffs_opts {
+> +       __u64 cmds;
+> +       __u64 maps;
+> +       __u64 progs;
+> +       __u64 attachs;
+> +       const char *cmds_str;
+> +       const char *maps_str;
+> +       const char *progs_str;
+> +       const char *attachs_str;
+> +};
+> +
+> +typedef int (*child_callback_fn)(int bpffs_fd);
+> +
+> +static inline int sys_mount(const char *dev_name, const char *dir_name,
+> +                           const char *type, unsigned long flags,
+> +                           const void *data)
+> +{
+> +       return syscall(__NR_mount, dev_name, dir_name, type, flags, data)=
+;
+> +}
+> +
+> +static inline int sys_fsopen(const char *fsname, unsigned int flags)
+> +{
+> +       return syscall(__NR_fsopen, fsname, flags);
+> +}
+> +
+> +static inline int sys_fsconfig(int fs_fd, unsigned int cmd, const char *=
+key,
+> +                              const void *val, int aux)
+> +{
+> +       return syscall(__NR_fsconfig, fs_fd, cmd, key, val, aux);
+> +}
+> +
+> +static inline int sys_fsmount(int fs_fd, unsigned int flags,
+> +                             unsigned int ms_flags)
+> +{
+> +       return syscall(__NR_fsmount, fs_fd, flags, ms_flags);
+> +}
+
+It looks like you are using code heavily derived from elsewhere in the
+kernel (tools/testing/selftests/bpf/prog_tests/token.c). It is
+probably worth adding a note and including the original license at the
+top of your file. I did this in my own token test suite patch if you
+want an example.
