@@ -1,116 +1,130 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-lj1-f195.google.com (mail-lj1-f195.google.com [209.85.208.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68526280A5E
-	for <selinux@vger.kernel.org>; Tue, 19 Aug 2025 14:56:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E38F27FB25
+	for <selinux@vger.kernel.org>; Tue, 19 Aug 2025 15:12:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755615402; cv=none; b=rMPr2re7gw6IQaL2KZoDeJjpoQ7zFELyzL8nCrJhMSBh/+wU8HhmgMYgWfam9yH1G5KrMDFhcQhW9mOXDG1vT4y8dN+eOoNwU5mhale18T+CKvvz2ZeWR6Rh4x5A5UDRvBCjPXbyLnQRjW6pCfs/lSD78liFPb7tQJEDYm1456Y=
+	t=1755616329; cv=none; b=Feoa2N8GpYjaz5UpenHq3PnESMBfuB2gYNIV0ysZTbbIml8KAXpSTd4L84+yKltyBUknYLNtyrw4v6Wi1ny74HbPWhTfnh0Hc0irQJpDinEZOYJKRgjy7Vg952eZE4Mo8b3VYZ35WGQDquToTw2JQ3iHf6nd+8Z39CPU+t6338A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755615402; c=relaxed/simple;
-	bh=ELRQ3hOZwpeTiP42YnBceOBTrxHGJHFkt+FI+54mVyU=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=csgvUm1Aqcy6TkARi3xZHc7d3McVOjmhljZSv3CZTbcJXqJbJOyf4B8tOdb7XT8WZLVjvXz4c5Pk44UJoNzfHNksrNdn04GH36N9uNQJ1BoP3SweMBDC3ia/eImZVbxk41aW1B0CHk5rf8WCHZpuNIYDIp/pDllUjfqNdL76lNE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=QGmWCOAa; arc=none smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1755616329; c=relaxed/simple;
+	bh=4HEqLiU1VhNr3l5G5EdnT/XSxBlcvmfbk/qU8m80y/0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qzKvEdYg9GOgxSBqNrVdkNoNNBgEG3W8j6FCpmP7hPt/Y+3oYXSfZHnKQz1V5zbo2inY4lkFPyduoYfcgebvZm2pjDU56bC3y3QCLBy8kbGCNkturt+zcKelcIdH04jsLW6TeOpLv4B2uhRjz5/8L2fgKr/jWhmEhOsSa1u8PaA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XnR/ZtT8; arc=none smtp.client-ip=209.85.208.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="QGmWCOAa"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-323267b98a4so4606206a91.1
-        for <selinux@vger.kernel.org>; Tue, 19 Aug 2025 07:56:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XnR/ZtT8"
+Received: by mail-lj1-f195.google.com with SMTP id 38308e7fff4ca-333f82a3a9eso46216011fa.1
+        for <selinux@vger.kernel.org>; Tue, 19 Aug 2025 08:12:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1755615399; x=1756220199; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=om8+GylJanYijPqNxQuupiP0PYjgSVTngOJHk0kcsDs=;
-        b=QGmWCOAaSnIEPzqU1vqtjpyKIOs8QOuD8qKrxO2rmU3JGj5kFz8CBDafeKG/KwE3IZ
-         hK6S7FycWbZIp35iN2VnlKCKkLdL3ZRjq7BS6WGhtBUDuWDeu6UXYTOXejLetrDZjoeE
-         fKiD+f0/Pbew9iE5U2mkEKyl7TZUyOZwVqAz07PNPxSy/F6F5I/Pp2s6A6399gNMp6R6
-         tFjBxqefz8Jxc/FEW2hpFmau9jZvi560rBXvrDBd5ewvNyWoLbwbyID82Wk23Yvlw6B7
-         Z55mgZPIeqGvR/ve2HIt9Qq1C4X9tQR+3KE9aYY+27Xwig2iSShjLe6857i58lWdv45o
-         P0+g==
+        d=gmail.com; s=20230601; t=1755616325; x=1756221125; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ztb9f/hQFXF9FY5Lx3E6TqMp8d6tSjSalLbxwWZ/XO4=;
+        b=XnR/ZtT8KLfhl9Dug4LwZIqGV5pkcXEsBiwoN9DzHrc3nJkjx6TrN+kUoQPQWL0beW
+         dshE807UsNqaNvFTRBJLk6GOFIYWBEcLvQzrgXOdrEyhjncBBy/a4sOEaMBFkZ2kmeHj
+         mejpfqNb7XLiEha0hXIi4hACS8b8fvn9fTbvfhOYGH+7ze2zLF9IRLX1GFqJnW5LqtJL
+         i2RVEQVSFOMuUqfUG96muM5rAWKk6PU+X7DYR2gMbtqsmHQ/THmXY3eNl4ZhV/VOpx84
+         /U17HosYrQqbqQPLyWOY+Jd1QeHiyl594xQHpG5CL3QlzBlie1gjKDUaN844drOsx0A/
+         ESIg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755615399; x=1756220199;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=om8+GylJanYijPqNxQuupiP0PYjgSVTngOJHk0kcsDs=;
-        b=BNG9V9JELaH1xvqWqSO7DWgfXrrcCwQ/BG6GKB7MFhUc+wh5f6okXRsxw+Uyzbh1o3
-         OMG34B+HGR3R0nwy9NZjuS5e5Nw67aiSEBV6iWfK7Vjpfcr8latFFLtT0tZP3FL2bGC6
-         j7KL1+DJDwMo4yjPCFXZ93I3IvPAyY1peP/Y76V7OxWF09foYXMOn+IWSvCxLFrsPe3w
-         3zRRpCT099h6TTf02AMwOMZhMtcDRTnKYDOUSQ7q5ZlLoLrh50qS3k6Udg3OwPbdZIas
-         /I+O/vHry2ejVu1YGWMLtQ+pl20TwuFMNmCp5G0CpdoYyKYN0gojB8SX/FldQ7whwYTE
-         Es/A==
-X-Forwarded-Encrypted: i=1; AJvYcCVyzTuLmqMLWfUR/CMqVQ8nyQIbNPjrHbe7nhrNSYUQ1wBGWdSlu4C3EPR+3dL8B+bvV4LCrZwb@vger.kernel.org
-X-Gm-Message-State: AOJu0YzZqTihqKXlelIChtiTXFMspMBAhxcaFgE+QE0SmSxlYxLhQ787
-	soq6MFpGsXa0qbJzotuJz4PXyX1/WCPAcRuY+Fb8dVjR/gE+KTBi7m5gInhMc6FQOVcjsEVm5Mr
-	FZgVucw/TPjS/dKJe5w/knvWmDJ/bdFJV8re76XJ3
-X-Gm-Gg: ASbGncv8XkcYAyv4iIw9/DflcFRFSCbWRSiTUUJpjnoZukbjHnNChG/44+hpmV4podq
-	7bq1gGUYDXxnYsaSpVc1fLSGY9OBNTIbhQtBjZqToPJxa4/iymYEvsCCDOZGilUSUzduGmK1+fW
-	zyzBe6MyPUXHia+BfgeAmhs6QIqwX4hHKnRduFXTdrVjV3x7LmJ4JgcTKHRJGxtjtHGKq5FRBuR
-	nfGIsw=
-X-Google-Smtp-Source: AGHT+IE49+XPnBQc6B8Q5oFF3ZybE61TRrP8sGpydu+cRS/OemldinxpEQ2S7YE7y6mOMXaC6E4L57zujbzwokba3R4=
-X-Received: by 2002:a17:90b:39cd:b0:321:b975:abe5 with SMTP id
- 98e67ed59e1d1-324423497b4mr4040268a91.0.1755615399425; Tue, 19 Aug 2025
- 07:56:39 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1755616325; x=1756221125;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ztb9f/hQFXF9FY5Lx3E6TqMp8d6tSjSalLbxwWZ/XO4=;
+        b=X3HlOZgVU+ShwvVm2Z05B63r465NA9f5kz81G/xwfY2J9+SYAvc3/WiYxtpeAF6ruz
+         morBNFfrfLO/So29VkIPkdQgKVqPmwVKCR4fj9QFSBwucMk2gFbh3Wlf2z9rXY2i3sDw
+         53+TmZNenbBmEdSTwOqFqPDYAKE0VLX1Qh2REKjWSjq/84S4UugQNioh+3zKIrSBL/xd
+         7x75nF5PuDb2G3+3mqqgTnw9amikR1t7+4GHARmhJLUqOA/WByD2ULZJgpn9M6MPbN0c
+         ZC4dyDx+tbPwrf9KWGqjt6r9Dwme9Qm/ns0DuuiQiu/UnlrFffznHyoRwYwdtcN5gqVO
+         +Amw==
+X-Gm-Message-State: AOJu0YxK8GYh2AxjVlpX6DJJE1CvBpGzp3Bu3aHqzJd/BKQKV6LlY29Z
+	Uc+zJvXmQmKSL9SLROAXTCbfup94MsM1GpbOKXCiuEFovZHSKe1vve7tFvwsilLNrH05CdxrIwz
+	SCtfqgcsLi5CiDqQOrhwTC+Lo1F/Op2c=
+X-Gm-Gg: ASbGncutNShycu3LkUsq//cUpM0gUeWiYgBXbN5ln55BO4CtvGNHcPN9Z+Lwuix5K14
+	P0zuOGAr6QmxfdXkbIcAJgIlLRlyifm90CUZsA/EnJe7t0n/03BMHBLtM3A699opas8lOLlkCHq
+	sE3kh5VTwdmNWRBWXLqHvAarbfk3QQywz+MW8XBzUbeKX8Oy8UGCvg98d5O4boLB/X1IbVgWPOl
+	/VuvA85n31xaFNQ9g==
+X-Google-Smtp-Source: AGHT+IHjo+lUVRJQDPt94R2yWjlS37JRPiA/piOLCFYcwEeEx8UYUwgKBfm0pm/GyBsGGChuDLQH/Wwd8XqoCume9Tk=
+X-Received: by 2002:a05:651c:b29:b0:326:cf84:63c4 with SMTP id
+ 38308e7fff4ca-33531727336mr9402361fa.1.1755616324852; Tue, 19 Aug 2025
+ 08:12:04 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 19 Aug 2025 10:56:27 -0400
-X-Gm-Features: Ac12FXwMom27El91QycvjYzBe1ILor1PtOm_viaQq7KOGF6ZD2EdzLeM-qMaBDE
-Message-ID: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com>
-Subject: LSM namespacing API
-To: linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc: John Johansen <john.johansen@canonical.com>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>
+References: <20250817191031.1150-1-ericsu@linux.microsoft.com>
+In-Reply-To: <20250817191031.1150-1-ericsu@linux.microsoft.com>
+From: Daniel Durning <danieldurning.work@gmail.com>
+Date: Tue, 19 Aug 2025 11:11:53 -0400
+X-Gm-Features: Ac12FXydrM78ekTu6x9k8DCmD5DgQDv6Fb_BqVhJ0sAe8p3Qn1XelmcZnq5Jk70
+Message-ID: <CAKrb_fEMvB2h0uwwm3ZAWXXoEfA6Yk634njGpWoW8hDOQLbMEQ@mail.gmail.com>
+Subject: Re: [PATCH testsuite v2] tests/bpf: Add tests for SELinux BPF token
+ access control
+To: Eric Suen <ericsu@linux.microsoft.com>
+Cc: selinux@vger.kernel.org, paul@paul-moore.com, 
+	stephen.smalley.work@gmail.com, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hello all,
+On Sun, Aug 17, 2025 at 3:10=E2=80=AFPM Eric Suen <ericsu@linux.microsoft.c=
+om> wrote:
+>
+> This patch adds new tests to verify the SELinux support for BPF token
+> access control, as introduced in the corresponding kernel patch:
+>   https://lore.kernel.org/selinux/20250816201420.197-1-ericsu@linux.micro=
+soft.com/
+>
+> Four new tests are added to cover both positive and negative scenarios,
+> ensuring that the SELinux policy enforcement on BPF token usage behaves
+> as expected.
+>   - Successful map_create and prog_load when SELinux permissions are
+>     granted.
+>   - Enforcement of SELinux policy restrictions when access is denied.
+>
+> For testing purposes, you can update the base policy by manually
+> modifying your base module and tweaking /usr/share/selinux/devel as
+> follows:
+>   sudo semodule -c -E base
+>   sudo cp base.sil base.sil.orig
 
-As most of you are likely aware, Stephen Smalley has been working on
-adding namespace support to SELinux, and the work has now progressed
-to the point where a serious discussion on the API is warranted.  For
-those of you are unfamiliar with the details or Stephen's patchset, or
-simply need a refresher, he has some excellent documentation in his
-work-in-progress repo:
+Should be sudo cp base.cil base.cil.orig.
 
-* https://github.com/stephensmalley/selinuxns
+>   sudo sed -i "s/map_create/map_create map_create_as/" base.cil
+>   sudo sed -i "s/prog_load/prog_load prog_load_as/" base.cil
+>   sudo semodule -i base.cil
+>   echo "(policycap bpf_token_perms)" > bpf_token_perms.cil
+>   sudo semodule -i bpf_token_perms.cil
+>   sudo cp /usr/share/selinux/devel/include/support/all_perms.spt \
+>       /usr/share/selinux/devel/include/support/all_perms.spt.orig
+>   sudo sed -i "s/"map_create/map_create map_create_as/" \
+>       /usr/share/selinux/devel/include/support/all_perms.spt
 
-Stephen also gave a (pre-recorded) presentation at LSS-NA this year
-about SELinux namespacing, you can watch the presentation here:
+You have an extra quotation mark here just before map_create.
 
-* https://www.youtube.com/watch?v=AwzGCOwxLoM
+>   sudo sed -i "s/prog_load/prog_load prog_load_as/" \
+>       /usr/share/selinux/devel/include/support/all_perms.spt
+>
+> When finished testing, you can semodule -r base bpf_token_perms to
+> undo the two module changes and restore your all_perms.spt file from
+> the saved .orig file.
 
-In the past you've heard me state, rather firmly at times, that I
-believe namespacing at the LSM framework layer to be a mistake,
-although if there is something that can be done to help facilitate the
-namespacing of individual LSMs at the framework layer, I would be
-supportive of that.  I think that a single LSM namespace API, similar
-to our recently added LSM syscalls, may be such a thing, so I'd like
-us to have a discussion to see if we all agree on that, and if so,
-what such an API might look like.
+Might be best to do a sudo dnf reinstall selinux-policy-devel to make
+sure everything is reset.
 
-At LSS-NA this year, John Johansen and I had a brief discussion where
-he suggested a single LSM wide clone*(2) flag that individual LSM's
-could opt into via callbacks.  John is directly CC'd on this mail, so
-I'll let him expand on this idea.
+>
+> Changes in v2:
+> - Removed allow rule for 'kernel_t' in test_bpf.te which was added due
+>   to a bug in the kernel
+> - Cleaned up other unnecessary rules in test_bpf.te
+> - Added token_test.c which was missing from previous patch
+>
+> Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
 
-While I agree with John that a fs based API is problematic (see all of
-our discussions around the LSM syscalls), I'm concerned that a single
-clone*(2) flag will significantly limit our flexibility around how
-individual LSMs are namespaced, something I don't want to see happen.
-This makes me wonder about the potential for expanding
-lsm_set_self_attr(2) to support a new LSM attribute that would support
-a namespace "unshare" operation, e.g. LSM_ATTR_UNSHARE.  This would
-provide a single LSM framework API for an unshare operation while also
-providing a mechanism to pass LSM specific via the lsm_ctx struct if
-needed.  Just as we do with the other LSM_ATTR_* flags today,
-individual LSMs can opt-in to the API fairly easily by providing a
-setselfattr() LSM callback.
-
-Thoughts?
-
--- 
-paul-moore.com
+Tested-by: Daniel Durning <danieldurning.work@gmail.com>
