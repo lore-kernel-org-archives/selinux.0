@@ -1,204 +1,155 @@
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+Received: from smtp-8fad.mail.infomaniak.ch (smtp-8fad.mail.infomaniak.ch [83.166.143.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99EE4262815
-	for <selinux@vger.kernel.org>; Thu, 21 Aug 2025 08:12:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.123
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93F7719C542
+	for <selinux@vger.kernel.org>; Thu, 21 Aug 2025 09:56:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=83.166.143.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755763954; cv=none; b=hRsD0eX3xg4ZTjb9NRPhTUiHoSRD5cfOxbfZ6da+DD0absQOC/Xqrd+9UYdvy9sLLgYI+lsGWs/ilhTBdmKY1ibuH7mQzUUW7UytBaZjsmFUEEEljHl/q6vq2OgsKf6sWEadd3CT3XofaQnxnW8IQLfAiuekswGBWQ6wVrKD5gU=
+	t=1755770213; cv=none; b=a0/vV3xTogi7o/a1Ht/mNGBcoRbG2YPHnv76c0IHF7ytx2cDGfo0iJSDbT0DxnWyfVXVLZLP+SqjuyAOM1OTW9D3S8FXrQezLJt67YPDrcl2h9bVJ1KHb/lwi71/sf0ABGBAbBPlmrw+BOmH6J1Rs936vG3pZRuMyhGY5ULkqSM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755763954; c=relaxed/simple;
-	bh=uwipK4RlTI/vQ2v3QROW9HyrQu51NNMUdnCOUUgx3YA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PqOKsEcKpFLu50xSHvNBoVs8firnIKuAtQDXZ69g1u1yGSmuZZF89/uMw/EUrHs/YaORljkJa1/DshLleMyB8e1o5AkHs53idkKiorRh9ycEX+WX408cX32/morUBcaffGYbtRBgD4Hp5bwt3q+PSDXPpa00KIwegcJmdM835b0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=I4UKwjFQ; arc=none smtp.client-ip=185.125.188.123
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
+	s=arc-20240116; t=1755770213; c=relaxed/simple;
+	bh=RD++S/2gB9rhfpyLLace3/VKTHkKstFCChwuvbgMXtc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DnKEd24TxWJnVFjvbyAsRCjQtwfphh2Y+0+O6mrrYCpKXw1+O1qJ3PYN0rYqjWxCeBt0hQnMc9zHEnNAW3UBGKgqel29NYE7jvyuaVTYhYZMEGnGQj3TCEanqv8bjIZf/LlEIva8aUpPhduHpAQCBVHcK97+bM5+iquOEh0ebBo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net; spf=pass smtp.mailfrom=digikod.net; dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b=ZlTa45mg; arc=none smtp.client-ip=83.166.143.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=digikod.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=digikod.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="I4UKwjFQ"
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com [209.85.215.198])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id F15323F7C0
-	for <selinux@vger.kernel.org>; Thu, 21 Aug 2025 08:12:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1755763945;
-	bh=vQWwoXxr6VbB+o8afPbqRBzG7z+wpXJtLQfgnKgYKJY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type;
-	b=I4UKwjFQku4Gy0RxfI4umb2y/usEJAtMyZP7Q/7mhzbWJfEH0eNylPtf6sEWxoRES
-	 8BR/WrjdHN9OjIb4ScFi66/TlNkrP5NLyH3QO5C+0AzqDi/HNB3H7dB6KzvxgKxDy1
-	 XM/WiAKDAb/unnWCVVUSpiqM38157yCdYhyLytDiAkWUt2RhEZWgdeC93H0KSyt79O
-	 NIik7u8l9kC5DWUcm9lCLI1DQ2pBIgc6uHT7yiIr/8PuU7ZEXzIcbsGhPKrauk0wPC
-	 6lKmkiHAdXXRe3Qs6hsmqm4YiVgfWtpVPexSjfAnXlGhBMPWr3HBjOJcWbKSSWQSbd
-	 4rPdS/9h87W4g==
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-b47174b2582so1268986a12.2
-        for <selinux@vger.kernel.org>; Thu, 21 Aug 2025 01:12:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755763937; x=1756368737;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=vQWwoXxr6VbB+o8afPbqRBzG7z+wpXJtLQfgnKgYKJY=;
-        b=f2TmE1uW3OVPx3ClW1zGVZL6aSWgY7VclL+xONGJRla1LQOJM1ypXR7mgnd+bLvl5g
-         WLXYVqrvPig6pSdafi+ykgZREQjXkhhCHU2bawexS6dxcesdehR34/6IbS+6jZ9mEVSA
-         bgusNKbfS96+JmiNMSeisvSNTMOxmrkwZRx5YWPjXLdDW9u8W9W9vkrH4d2+2cnx0XCi
-         Zcgc6ika7Elj5Cn7ztOfzC3YQ0OOu0bXMwtNYCQgzxEVFWYz/mw+pHN9icxOf7+Z5ccL
-         LZ9v4w0iVep/o5hzsVo+JCqRE6uPlnD0tb/xxMHRigRhPf+dw3Efc3vIDoyh9QAKIq30
-         QYSQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVU59ah0awdlP89PJKmEBY4DuCt2IMjH+89jFU1ni5kqMUbFR01N5q+AMSnMdfZ4ZGinhKwzsUD@vger.kernel.org
-X-Gm-Message-State: AOJu0YzBata6UwT2LIWZpErS4UR6m+XZ2AgZ+anKqhBgvno7IYxnIocs
-	Kp4aCpiX57pBPIzfG6lZWJoT7RhYSFK5aizW1gQgtEfmZvvcikgQtEALpgzXoLenP9C2ub4vWXG
-	kfzqYDx36TRo/chbjiEzH0myaBtPYWayWwRGPVK/XiZVTf6prLxVaq0VH1uJaQ2bm/8ckWXuL+w
-	GqK28adRI=
-X-Gm-Gg: ASbGncsRLjpLMSIvpRw46uVMHVciHRn8BF/lcqrtgsAHwYGh1WNGwG3k0zoFEHPaTQn
-	9eid52+6dHdxR1pHHOnZcRdFFbfCKndc/p82z42b9ROo8Ceaf+0bK4WNORUBao2KS2TY4Hl4Vdx
-	vfrUOAwzKnV4bMP6nMkM8wtoMMaD5cvHuDXtzo37/nbirIFnv1va0YZu5gZfu4NK0vp2HcxWPn2
-	w84l8fn2skQmgOHMeU8RVyJpbGB7d/OB7G0jPKF1wwJqX9fUbYQUuT12DSweIsp5UKfzX/wtLOg
-	IG7OkGfpVMdUYjaSZHkRrwDl5o3oyRsC6cQ4xs2uFTnIGm/dO+VX9A==
-X-Received: by 2002:a17:903:22c8:b0:243:38d:b3c5 with SMTP id d9443c01a7336-245feddd902mr21659065ad.47.1755763937337;
-        Thu, 21 Aug 2025 01:12:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGrz6Ceb3iGn9WBPNAmYI3hI5vPAmwD2RalQSrAqxg3pEgK0u2USRcLhvfQGFcTR9NyAxZcWA==
-X-Received: by 2002:a17:903:22c8:b0:243:38d:b3c5 with SMTP id d9443c01a7336-245feddd902mr21658815ad.47.1755763936877;
-        Thu, 21 Aug 2025 01:12:16 -0700 (PDT)
-Received: from [192.168.192.85] ([50.39.98.232])
-        by smtp.googlemail.com with ESMTPSA id 41be03b00d2f7-b47640ae72esm4094081a12.42.2025.08.21.01.12.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 Aug 2025 01:12:16 -0700 (PDT)
-Message-ID: <9b6ce8f5-6400-4baa-94ee-069e860e8d2e@canonical.com>
-Date: Thu, 21 Aug 2025 01:12:15 -0700
+	dkim=pass (1024-bit key) header.d=digikod.net header.i=@digikod.net header.b="ZlTa45mg"
+Received: from smtp-4-0000.mail.infomaniak.ch (smtp-4-0000.mail.infomaniak.ch [10.7.10.107])
+	by smtp-4-3000.mail.infomaniak.ch (Postfix) with ESMTPS id 4c6zHb0XS5z7n0;
+	Thu, 21 Aug 2025 11:56:43 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=digikod.net;
+	s=20191114; t=1755770202;
+	bh=CcF96cTH8TvqDj/jopGA6l4dQnniN37SmQZfVrjgA5o=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ZlTa45mgBaEvPksgDV0n5FHogncwebFkXt9a/LeLPx5oGamuvY2fhbBoeymZaf/Xm
+	 A8tC2rG5tvEnfO5/4qx3+7AvKkEzqg9mSO4lQGO6mCq3TE/nXcgaUbBa2kwTNtkeaN
+	 bP1TCVhn+D+cKhN1mAVSSJSvJQgkvERz0AgsSndg=
+Received: from unknown by smtp-4-0000.mail.infomaniak.ch (Postfix) with ESMTPA id 4c6zHZ3BYyzV3X;
+	Thu, 21 Aug 2025 11:56:42 +0200 (CEST)
+Date: Thu, 21 Aug 2025 11:56:41 +0200
+From: =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
+	John Johansen <john.johansen@canonical.com>, Maxime =?utf-8?Q?B=C3=A9lair?= <maxime.belair@canonical.com>
+Subject: Re: LSM namespacing API
+Message-ID: <20250821.Ree4Liedeita@digikod.net>
+References: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com>
+ <CAEjxPJ5EvR+2fboLu_nBGZu+ZVUpX4KM6xdPUqDErCmw=iA37g@mail.gmail.com>
+ <CAHC9VhSubXA4tAUoz7T==UvfrM_DXS6nF5s0tJZ1HrrVizMgZA@mail.gmail.com>
+ <20250820.ieNg1quoRouz@digikod.net>
+ <CAHC9VhS3c257ywxADRzPYE-DsXSwRp8P2RhAfdDnXJHOX5bXTQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: LSM namespacing API
-To: Paul Moore <paul@paul-moore.com>, "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
- linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-References: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com>
- <CAEjxPJ5EvR+2fboLu_nBGZu+ZVUpX4KM6xdPUqDErCmw=iA37g@mail.gmail.com>
- <CAHC9VhSubXA4tAUoz7T==UvfrM_DXS6nF5s0tJZ1HrrVizMgZA@mail.gmail.com>
- <aKZ+2NMx+ZQhpySY@mail.hallyn.com>
- <CAHC9VhR-5Rwg132UsLdpJgM0c51HYBrBDivBinw3YcYqe0QTKA@mail.gmail.com>
-Content-Language: en-US
-From: John Johansen <john.johansen@canonical.com>
-Autocrypt: addr=john.johansen@canonical.com; keydata=
- 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 lT9Q
-Organization: Canonical
-In-Reply-To: <CAHC9VhR-5Rwg132UsLdpJgM0c51HYBrBDivBinw3YcYqe0QTKA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHC9VhS3c257ywxADRzPYE-DsXSwRp8P2RhAfdDnXJHOX5bXTQ@mail.gmail.com>
+X-Infomaniak-Routing: alpha
 
-On 8/20/25 19:35, Paul Moore wrote:
-> On Wed, Aug 20, 2025 at 10:05 PM Serge E. Hallyn <serge@hallyn.com> wrote:
->> On Tue, Aug 19, 2025 at 02:51:00PM -0400, Paul Moore wrote:
->>> On Tue, Aug 19, 2025 at 1:47 PM Stephen Smalley
->>> <stephen.smalley.work@gmail.com> wrote:
+On Wed, Aug 20, 2025 at 04:47:15PM -0400, Paul Moore wrote:
+> On Wed, Aug 20, 2025 at 10:44 AM Mickaël Salaün <mic@digikod.net> wrote:
+> > On Tue, Aug 19, 2025 at 02:51:00PM -0400, Paul Moore wrote:
+> > > On Tue, Aug 19, 2025 at 1:47 PM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
 > 
 > ...
 > 
->>>> Serge pointed out that we also will need an API to attach to an
->>>> existing SELinux namespace, which I captured here:
->>>> https://github.com/stephensmalley/selinuxns/issues/19
->>>> This is handled for other Linux namespaces by opening a pseudo file
->>>> under /proc/pid/ns and invoking setns(2), so not sure how we want to
->>>> do it.
->>>
->>> One option would be to have a the LSM framework return a LSM namespace
->>> "handle" for a given LSM using lsm_get_self_attr(2) and then do a
->>> setns(2)-esque operation using lsm_set_self_attr(2) with that
->>> "handle".  We would need to figure out what would constitute a
->>> "handle" but let's just mark that as TBD for now with this approach (I
->>> think better options are available).
->>
->> The use case which would be complicated (not blocked) by this, is
->>
->> * a runtime creates a process p1
->>    * p1 unshares its lsm namespace
->> * runtime forks a debug/admin process p2
->>    * p2 wants to enter p1's namespace
->>
->> Of course the runtime could work around it by, before relinquishing
->> control of p1 to a new executable, returning the lsm_get_self_attr()
->> data to over a pipe.
->>
->> Note I don't think we should support setting another task's namespace,
->> only getting its namespace ID.
->>
->>> Since we have an existing LSM namespace combination, with processes
->>> running inside of it, it might be sufficient to simply support moving
->>> into an existing LSM namespace set with setns(2) using only a pidfd
->>> and a new CLONE_LSMNS flag (or similar, upstream might want this as
->>> CLONE_NEWLSM).  This would simply set the LSM namespace set for the
->>> setns(2) caller to match that of the target pidfd.  We still wouldn't
->>> want to support CLONE_LSMNS/CLONE_NEWLSM for clone*().
->>
->> A part of me is telling (another part of) me that being able to setns
->> to a subset of the lsms could lead to privilege escapes through
->> weird policy configurations for the various LSMs.  In which case,
->> an all-or-nothing LSM setns might actually be preferable.
+> > > Since we have an existing LSM namespace combination, with processes
+> > > running inside of it, it might be sufficient to simply support moving
+> > > into an existing LSM namespace set with setns(2) using only a pidfd
+> > > and a new CLONE_LSMNS flag (or similar, upstream might want this as
+> > > CLONE_NEWLSM).  This would simply set the LSM namespace set for the
+> >
+> > Bike shedding but, I would prefer CLONE_NEWSEC or something without LSM
+> > because the goal is not to add a new LSM but a new "security" namespace.
 > 
-> Sorry I probably wasn't as clear as I should have been, but my idea
-> with using the existing procfs/setns(2) approach with a single
-> CLONE_NEWLSM (name pending sufficient bikeshedding) was that the
-> process being setns()'d would simply end up in the exact copy of the
-> target process' LSM namespace configuration, it shouldn't be a new
-> set/subset/configuration ... and I would expect us to have controls
-> around that such that LSMs could enforce policy on a setns(2)
-> operation that involved their LSM.
+> I disagree with your statement about the goal.  In fact I would argue
+> that one of the goals is to explicitly *not* create a generic
+> "security" namespace.  Defining a single, LSM-wide namespace, is
+> already an almost impossible task, extending it to become a generic
+> "security" namespace seems maddening.
+
+I didn't suggest a generic "security" namespace that would include
+non-LSM access checks, just using the name "security" instead of "LSM",
+but never mind.
+
 > 
-entering as a complete set, is certainly the safest. At a minim the
-LSMs are going to need to be able to specify the set of namespaces
-the are needed if you enter the LSM namespace. The easiest way to
-do this is what you propose, take away the flexibility and allow
-moving everything as a set.
+> > > setns(2) caller to match that of the target pidfd.  We still wouldn't
+> > > want to support CLONE_LSMNS/CLONE_NEWLSM for clone*().
+> >
+> > Why making clone*() support this flag would be an issue?
+> 
+> With the understanding that I'm not going to support a single LSM-wide
+> namespace (see my previous comments), we would need multiple flags for
 
-I do think we might still have a need to be able to request entering
-an LSM namespace from the set, but I think that at least for a first
-its probably better to not go there.
+I'm confused about the goal of this thread...  When I read namespace I
+think about the user space interface that enables to tie a set of
+processes to ambient kernel objects.  I'm not suggesting to force all
+LSM to handle namespaces, but to have a unified user space interface
+(i.e. namespace flag, file descriptor...) that can be used by user space
+to request a new "context" that may or may not be used by running LSMs.
 
+> clone*(), one for each LSM that wanted to implement a namespace.
+
+My understanding of this proposal was to create a LSM-wide namespace,
+and one of the reason was to avoid one namespace per LSM.  As I
+explained in my previous email, I think it would make sense and could be
+convincing.
+
+> While clone3() has expanded the number of flag bits from clone(),
+> there is still a limitation of 64-bits and I'm fairly certain the
+> other kernel devs are not going to be supportive of a flag for each
+> LSM that wants one.
+> 
+> Maybe we could argue for our own u64 in cl_args, or create our own
+> lsm_clone(2) syscall that mimics clone3(2) with better LSM support,
+> but neither of these seem like great ideas at the moment.
+
+My idea was that using CLONE_NEWLSM would just fork the current/initial
+namespace used by LSMs to tie security policies/configurations to
+processes, but as John already said, it would be the responsibility of
+each LSM to either inherit and keep in sync the parent policy (e.g.
+SELinux) or start with a blank/default one (e.g. Yama).
+
+One way to configure a newly created namespace could be to load a
+configuration in the parent namespace (e.g. with one of the new LSM
+config syscall and a dedicated flag) that would only be applied to child
+namespaces when they are created, similarly to attr/exec for execve(2).
+I think this is what you meant with the LSM_UNSHARE flag, right?
+
+> 
+> > > Any other ideas?
+> >
+> > The goal of a namespace is to configure absolute references (e.g. file
+> > path, network address, PID, time).  I think it would make sense to have
+> > an LSM/MAC/SEC namespace that would enforce a consistent access control
+> > on every processes in this namespace.
+> 
+> Once again, I'm not going to support the idea of a namespace at the
+> LSM framework layer, individual LSMs are better suited to implementing
+> their own namespacing concepts.  However, I do support the LSM
+> framework providing an API and/or helpers to help make it easier for
+> individual LSMs and userspace to create/manage individual LSM
+> namespaces.
+
+Should we still talk about "namespace" or use another name?
+
+> 
+> > A related namespace file
+> > descriptor could then be used with an LSM-specific syscall to configure
+> > the policy related to a specific namespace (instead of only the current
+> > namespace)
+> 
+> That is a reasonable request, and I think the same underlying solution
+> that we would use for setns(2) could also be used here.
+
+I'm not sure having a set of namespace file descriptors without related
+clone flags would be acceptable, at least for what we currently call
+Linux "namespace".
