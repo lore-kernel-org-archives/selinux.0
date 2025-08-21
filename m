@@ -1,71 +1,71 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3C30315761;
-	Thu, 21 Aug 2025 13:00:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 604952E7176;
+	Thu, 21 Aug 2025 13:04:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755781205; cv=none; b=DMOr2Ez6aLg4sOlx8t2ODglJTFqqW7ehUhgPoj84LwjGEzJnjGdViSV90gd9S5mI8/gqPtHF+eVEAB9/ddqO58jesLJTlvwyZOjmD7hjD5F9/dTq6NBoND1OMGy6JD+57TgXIsoAXl12llY1uYqjgRf1GpaM4MwKnxj+dF/tIJk=
+	t=1755781442; cv=none; b=k5X18HrZ6mA0Y7/BGf9bT74uR8LYOh/AEBEodmE1Gga8fu6KwY9psXWsRDG5oRdRCPoWYyJAXGj3jblfNWs9yqm/f0PTTo1tusm4J2JdtiyAKgcKdbus5vx38/qea4dsbbm4Ra4PrI4SBBOsdOF/kYEPIkbvctetR5D2U7EkgBM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755781205; c=relaxed/simple;
-	bh=4KrfimWBNwAtJPyUf+qP1dpHV5DKSwK8yzQl9Mt3TFY=;
+	s=arc-20240116; t=1755781442; c=relaxed/simple;
+	bh=IQffsHkJjkPaPl5FrEI5X3ZwB3AQ4jhcAdzezNY01fQ=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=f6GxhQA3c52dY3y2S2vM1clcwwhofuWPertwprJL2kM8mRkEtYiBwlF97sFArCiCHGHa8x23qKmHlWHHBLaxK2FqSl2ez4p/gpjlYx4UGWftoj6gw8V1gmFZzmzX2CPvv9TqVzCLHb7drP4Dt+0zjb3QWTTkK4w3NeO8K6jW2rE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=blyoPFAt; arc=none smtp.client-ip=209.85.216.52
+	 To:Cc:Content-Type; b=Mm1eyPXfRNs1gtUvKgphnUudirVpz/k27qMvyIxw0f67RPCVKNbfEyYLOz3lwsuGEVFmcwxG4IPtLKuckgZ3ysi1IaZZ6J1CuoaOi9oL4t/NvjKh7y65HlM77LzM05b9tEN4slphKgnV6foVEHdJZGqeGI7Rj1C3amvwEPysu8o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h45gp5bF; arc=none smtp.client-ip=209.85.216.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="blyoPFAt"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-324fb2bb099so424926a91.3;
-        Thu, 21 Aug 2025 06:00:03 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h45gp5bF"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-32326e2f0b3so780100a91.2;
+        Thu, 21 Aug 2025 06:04:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1755781203; x=1756386003; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1755781440; x=1756386240; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=porHcg3o+CIlMILgXPZ+Bm8oPIC1CRCMt8yqWjRC8KA=;
-        b=blyoPFAtzrBpHiPnB5let5tRC8pEgUglXHugS/Jxuhen6ccb6HCEcPz+na5QKz8kK2
-         NGSvbE9ocDTJ59YDxidQnVk06FtK0yK2XUhZtjbnfy0iR2XtURi2wEAOqwgkpYTVjxfo
-         OlN6LnNazXXbGzglYhh3upaLCnPUwW9hwFWIis/RZwFsKcpm+tYrmBku67kmgSi16WCt
-         RgQR3/T/YmQ7vm7SJb92IoD6jZZiD39uLrsoCv0aRGWZsPfYYyBpfN54CxkeRyS/zjGj
-         /p1WjJT4uGdItkWmLF1tbzBP/qVgfNaxU6ggVxoRAqjxrTgBUB5l6PAvhtabLxsSkOcI
-         VESg==
+        bh=IQffsHkJjkPaPl5FrEI5X3ZwB3AQ4jhcAdzezNY01fQ=;
+        b=h45gp5bFIf2/wIECEgJxmRHAfz65bTCcjL81cxaNgjSQWMKJmsYNu7Ecxye8++LcIS
+         RbIn2VOY7AUVnRTlV8otxEOD9EGkLRkYdBBqMYr2sQO7j9flSByO+U/MjNOSkYdieh3y
+         jZwwgtaK3aIVCtrn2vMLJFFFPir6PhtkVNR4r5T9kL2JJyMYDu/AS4fAx891gZkRe2NW
+         VF1HtHICA64DCah9tdbFZrGdnqe2H/NdKcdXn6sEWK2dgmQj6SlsrJSWyvWRauvMhT07
+         bncVQFlrHAyHvdIShH801ME2kaa/rdCm11KMN+P/IKNNybN8IbXe8qO3xv3RwgzeFMiN
+         7OsA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755781203; x=1756386003;
+        d=1e100.net; s=20230601; t=1755781440; x=1756386240;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=porHcg3o+CIlMILgXPZ+Bm8oPIC1CRCMt8yqWjRC8KA=;
-        b=J+uwFpkNPPtTpH9e1yHXjIloDshoIQ7xPHSw0FeDNYqvVonEprXtD5f8E4TT2JrlsJ
-         kIKepIZ9u+f0pj7WSGHTEhwQOLoBGhltdJn+CRQMVHAdu98iYzv7JPZZKbcMi8qmdqff
-         RRMX0r6FFN5IWHitJJVWxHdXV1Jr81MmhKYB+Q57tfJ9tO8J2NlqaDWq3VRz6IUmDY1n
-         9kH1pTEl/p3ndsapROHQKHs/yg0KaG685mTIQ0DoaGv2Q2MTZscEevJZKPbufasEL1HE
-         VHEaB/MrrElrc0JgHZmnhe2Q96qGPQ2fr1j5ZpDgAhkjuPr8CIpzZO5uEACeY1qlSjKB
-         9aLw==
-X-Forwarded-Encrypted: i=1; AJvYcCUsDDfPmsmbQPHerTzYNDShiYsc9qOEKHFOUSx0NlG6a/ePShrQzK02bXHqCCRZqn8bNlSYrJZINOHGxI8=@vger.kernel.org, AJvYcCWiYdxLmLfi0XOd5T33ZF+o79ko94jDHpKI5Ebd1EtVo2DXyzAgaL0yKAYAn7p/xuVPwQRdyLkH3w==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzN+QFDuGmilb+TF3rTjkmSHsXVGIA9BICh7mqLWEgPGMaMU3Iz
-	b0jUxMhPl1GAZXeMrMF4EjR/gOsPSUb9NM4Tj/GnqHQFFDgU6XWbq+GWZF2/OZDhF4hPcTWm8im
-	t4thFID1/6YEhRuy8Ww8cSVrscPvBaYI=
-X-Gm-Gg: ASbGncs+t/MLT8dSdYB2LQRtQ+Agjxj62FHBXXRiOTZ+RFe2JH3It8hl9gfU+2seT18
-	bDG+zJ19HtgqCyFALVFHpqQsMdTVsHJusDz2FcUuRldoOXrkp0YxxV9WCEXDykwNNE/wh9hqmRY
-	2pKAAMgl7+MzJnsVb1aSnkgj/Pv1Qbougtmo4tOm9mMWO9VbHtYd258JyNv3k8gTw7zLssGM9Af
-	7mOQWQ=
-X-Google-Smtp-Source: AGHT+IGhfF7ZuE01O8iuJxPeUZxW4tnDVFdj7yiQ0fXUgOVpDWzyJZ6B2kePNFYCIjZ1J5z94V5nPCW/1PVlqBK8OL8=
-X-Received: by 2002:a17:90b:1cce:b0:31e:d4e3:4002 with SMTP id
- 98e67ed59e1d1-324ed0d6fcdmr3057651a91.2.1755781203014; Thu, 21 Aug 2025
- 06:00:03 -0700 (PDT)
+        bh=IQffsHkJjkPaPl5FrEI5X3ZwB3AQ4jhcAdzezNY01fQ=;
+        b=Wqrd4yianFJGthM9Arqqm70jdEKqdO9d5YhkMzlv36I0HglJSGdENOucA80+XIj6ci
+         NM3m0Ls5CwwjtljMwU30x2g3q2N+g/9TnaESMt4entP6kPlyDpItPJMkGJveaYL271W8
+         m420eV3SlOKIJVBobLeK/hnIhOtNfQ4KvK/qKT19SkKC2iwPReKX6EDAsMtTQ4WUSJTI
+         Ksa4bMjstfWN6lTxvftQw75IrZixGFfnkwZvPQW+UahDpJwzC22URL6+fmzwt37V21Sx
+         UdEnO8o1qbt/y//1XcWrtSqH8UKtT9EhQiyLcaWzwOq2MlAT22kKHwhQqRi0Sp2MX/3p
+         D5Jg==
+X-Forwarded-Encrypted: i=1; AJvYcCUEOOMfExY6Xee8yV4d/p948kCQ4SFt+Hx6u7t9pudwnFNh2bX7tU7mw7wzpRO6C5psT1TEdhpjuQ==@vger.kernel.org, AJvYcCWIJwu1+AOrZy9eO6XpvPAG7hgI9M4/lH97wHXGTxKxjKlycSdExh/Ub1qJmbB3yn682f8kH527dZs1zoo=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yze8wrnbH1sb1ISSCJbbP/H6hLwEc91lqpi8WTrDliGQHxOPhhN
+	BQoc2Nabco5EZnmIDnB7GW96RZO4CnbvTlsxkUQPCB2czYDGtxBL3cUhY5jpfvjAQQDFFgzDtb3
+	VGDn+O+q9YMwe+iO+uFatcqbzDk6AMcE=
+X-Gm-Gg: ASbGnctMvRvk9cV15UUgdQp1mV2pyGu2pbpK5Wy47OYzcY5hr4htIlWsD8tn2PjNFMd
+	ADBxaeLkRPzBLL8s/T/uSpP9CED47mdr00PAVLzWFYi89xrzd1UNqwFVZMSSUyQXfJWYhzMgvvn
+	bvTnY+91VjIs/0LMNyYFCj14/UT/nTynYqKTLJ11dXxj0kkv3CFbbYl7yyxeA0rLSC2MPa1zboM
+	+egTWo=
+X-Google-Smtp-Source: AGHT+IHOjUwVveUGbP1H2bxrM5RrKXU+JZeOkQ7ZUMDMifja+D7IyxwPy44Ft2eopE0YxtdZo+taUU4v2YR39f27RMk=
+X-Received: by 2002:a17:90b:5446:b0:31e:f193:1822 with SMTP id
+ 98e67ed59e1d1-324ed1bfa86mr3177405a91.28.1755781440315; Thu, 21 Aug 2025
+ 06:04:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250820212302.2325779-1-nkapron@google.com>
-In-Reply-To: <20250820212302.2325779-1-nkapron@google.com>
+References: <20250820212302.2325779-1-nkapron@google.com> <CAEjxPJ4Vi9rXXkvPUoS-tjHks_6oevdkhrjvSeX_Rh5VV5gBBw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4Vi9rXXkvPUoS-tjHks_6oevdkhrjvSeX_Rh5VV5gBBw@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Thu, 21 Aug 2025 08:59:51 -0400
-X-Gm-Features: Ac12FXy53CXh_ByAd_wEhfKRh7orVilBeqNXVQCpecz66dlkirgVwdHriDPCuE0
-Message-ID: <CAEjxPJ4Vi9rXXkvPUoS-tjHks_6oevdkhrjvSeX_Rh5VV5gBBw@mail.gmail.com>
+Date: Thu, 21 Aug 2025 09:03:49 -0400
+X-Gm-Features: Ac12FXyNDcrIGqyYmrQU68rMn6r9BjZGRzXSs0MDpowUWDoVliBgb9j83DE2580
+Message-ID: <CAEjxPJ6iFrfVxbRM71b9G0+59L+vxNiJ1mpeXSGwuG_n+D15Lw@mail.gmail.com>
 Subject: Re: [PATCH] selinux: enable per-file labeling for functionfs
 To: Neill Kapron <nkapron@google.com>
 Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, kernel-team@android.com, 
@@ -73,61 +73,40 @@ Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, ker
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 20, 2025 at 5:23=E2=80=AFPM Neill Kapron <nkapron@google.com> w=
-rote:
+On Thu, Aug 21, 2025 at 8:59=E2=80=AFAM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> This patch adds support for genfscon per-file labeling of functionfs
-> files as well as support for userspace to apply labels after new
-> functionfs endpoints are created.
+> On Wed, Aug 20, 2025 at 5:23=E2=80=AFPM Neill Kapron <nkapron@google.com>=
+ wrote:
+> >
+> > This patch adds support for genfscon per-file labeling of functionfs
+> > files as well as support for userspace to apply labels after new
+> > functionfs endpoints are created.
+> >
+> > This allows for separate labels and therefore access control on a
+> > per-endpoint basis. An example use case would be for the default
+> > endpoint EP0 used as a restricted control endpoint, and additional
+> > usb endpoints to be used by other more permissive domains.
+> >
+> > It should be noted that if there are multiple functionfs mounts on a
+> > system, genfs file labels will apply to all mounts, and therefore will =
+not
+> > likely be as useful as the userspace relabeling portion of this patch -
+> > the addition to selinux_is_genfs_special_handling().
+> >
+> > Signed-off-by: Neill Kapron <nkapron@google.com>
 >
-> This allows for separate labels and therefore access control on a
-> per-endpoint basis. An example use case would be for the default
-> endpoint EP0 used as a restricted control endpoint, and additional
-> usb endpoints to be used by other more permissive domains.
+> Did you confirm that functionfs is safe wrt genfscon-based and
+> userspace labeling, as per:
+> https://github.com/SELinuxProject/selinux-kernel/issues/2
 >
-> It should be noted that if there are multiple functionfs mounts on a
-> system, genfs file labels will apply to all mounts, and therefore will no=
-t
-> likely be as useful as the userspace relabeling portion of this patch -
-> the addition to selinux_is_genfs_special_handling().
->
-> Signed-off-by: Neill Kapron <nkapron@google.com>
+> Also as per that longstanding open issue, we'd welcome patches to
+> generalize the current hardcoded list of filesystem types to
+> instead lookup the filesystem type in the policy to see if it should
+> support genfscon and/or userspace labeling.
 
-Did you confirm that functionfs is safe wrt genfscon-based and
-userspace labeling, as per:
-https://github.com/SELinuxProject/selinux-kernel/issues/2
-
-Also as per that longstanding open issue, we'd welcome patches to
-generalize the current hardcoded list of filesystem types to
-instead lookup the filesystem type in the policy to see if it should
-support genfscon and/or userspace labeling.
-
-> ---
->  security/selinux/hooks.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index e474cd7398ef..54b82c814b4d 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -474,6 +474,7 @@ static int selinux_is_genfs_special_handling(struct s=
-uper_block *sb)
->                 !strcmp(sb->s_type->name, "debugfs") ||
->                 !strcmp(sb->s_type->name, "tracefs") ||
->                 !strcmp(sb->s_type->name, "rootfs") ||
-> +               !strcmp(sb->s_type->name, "functionfs") ||
->                 (selinux_policycap_cgroupseclabel() &&
->                  (!strcmp(sb->s_type->name, "cgroup") ||
->                   !strcmp(sb->s_type->name, "cgroup2")));
-> @@ -741,6 +742,7 @@ static int selinux_set_mnt_opts(struct super_block *s=
-b,
->             !strcmp(sb->s_type->name, "binder") ||
->             !strcmp(sb->s_type->name, "bpf") ||
->             !strcmp(sb->s_type->name, "pstore") ||
-> +           !strcmp(sb->s_type->name, "functionfs") ||
->             !strcmp(sb->s_type->name, "securityfs"))
->                 sbsec->flags |=3D SE_SBGENFS;
->
-> --
-> 2.51.0.261.g7ce5a0a67e-goog
->
+Also, do we need a new policycap to conditionally enable this new
+labeling behavior to avoid any regressions?
+See the corresponding checks for cgroup labeling and
+https://github.com/SELinuxProject/selinux-kernel/wiki/Getting-Started#addin=
+g-a-new-selinux-policy-capability
