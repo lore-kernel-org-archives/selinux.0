@@ -1,59 +1,59 @@
-Received: from mail-pf1-f182.google.com (mail-pf1-f182.google.com [209.85.210.182])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 286AF140E5F
-	for <selinux@vger.kernel.org>; Fri, 22 Aug 2025 02:09:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 633D43F9C5
+	for <selinux@vger.kernel.org>; Fri, 22 Aug 2025 02:14:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755828579; cv=none; b=NtlV9oG/gTP4NkFNY28xHalZHM7qAfsUmJGAt+6fonKyS996OE+Na9EeCrkVL38WIsIUUsJhDShok/eeqg4dsNzAiR1PpGcAhkCurxuymY9O5U6+riLa+SQTOOonf7CBLKwYOp4GASriPIgckjd4ZV25+RAb2K9e79VZ+FV+RJM=
+	t=1755828882; cv=none; b=rLe7HXGo0rcKn1M1GwmJwt00S+hDOl6EzMoxbAtZQCY9ILTNm64vQqy8+zFhXOOkKKG1EQa3AJ0E8/03o0hHqhVj1XbodNFkUv7Nlta7NM+h+MvdMvQiCshXvWhb2xpFxW+YxOYg9dTV/5i7vvMmzDbHlkV5DBj7khgOd1sYbZY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755828579; c=relaxed/simple;
-	bh=U42Sc+Kk9sXu03rV6dfo35zreD1MTPPg+P9rUoVcfG4=;
+	s=arc-20240116; t=1755828882; c=relaxed/simple;
+	bh=bISpGZXty60XbXO3pu2twUaWVpiPeBB/bjButk1FHZg=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Tw5IKbgxald5v+8ipjlnrHDs6Vs+/smb+903dfArCt7Wi6vGwJ4fvbh+789A2xqPa5xPU0EfEuLZ3DSbqJ4HLFUfg7RaIImzvWykINClADGkooRj9HZg99+3P0WHi2FVqWwVA9h3tIQSYm5ccbCTmt0bfLEk1NLQvMmkYBtcl+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=TszoqEC/; arc=none smtp.client-ip=209.85.210.182
+	 To:Cc:Content-Type; b=k3Oz4wZaFDQ7I3TruXbMxPrXtWmT44dUoJaDzhH/wS1lfVQ6+M8UIoHfQ+dkubWxDbUnd5M4w1nY3xiVKh6DimZH39bTk6BWHUT4KqprQnWc1aMI521V8yZ5Qkx+io6DEeK+vQfw/8gNxe0ekUsxCuPylm5nbIGqaoofwqahcPo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Z1Bbq+3g; arc=none smtp.client-ip=209.85.216.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="TszoqEC/"
-Received: by mail-pf1-f182.google.com with SMTP id d2e1a72fcca58-76e434a0118so2150651b3a.0
-        for <selinux@vger.kernel.org>; Thu, 21 Aug 2025 19:09:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Z1Bbq+3g"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-321cfa7ad29so2058176a91.1
+        for <selinux@vger.kernel.org>; Thu, 21 Aug 2025 19:14:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1755828577; x=1756433377; darn=vger.kernel.org;
+        d=paul-moore.com; s=google; t=1755828880; x=1756433680; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yLP8iKRr+ohSFMsq/mB16HGu0FINjmHne4DCLR47GiA=;
-        b=TszoqEC/Fc9VBkv+4xt15Z0ectpygPIcrRmtKby+YojJQsfj0rEMSvQEIbvYMAK7pB
-         1Jp9E+cCOOZTJsgEfOhrIqURP96s0N8bGqcyC2cFiC08liOLWxBGtrVcCsy3MMqYWXZh
-         FCTBmcvdaXfg0r+FZcDpMtBGm/4AgZIWekTzD7mzU293tztkSufrGbzPfpJ9ZQftlkAL
-         sCiYJJgxDvKnthr3FU3OsILS1vdyYcBARTkZhrNHSi0bOGKbKnsoBWBpwl1rST0Gg02U
-         +0AbCfbWm0FWG2n5d34Ncv80cmFAmArGp8VoJaRj6g37Wmz4F8aFtIao+mhNieii1WAD
-         nDgw==
+        bh=snSTyNlLtKKYHQw2AzoRfTppJ3BqX2cUN0VJIOzBi4o=;
+        b=Z1Bbq+3g9ciKMOsbAD8jyLYRz9KGTJ0pZ41Oq6MSa3ndHCR916+lNWgfxjeKkkgRhY
+         IY2iI0IiqbjHHAstgzAm2vSnjW+vdbwMzVMNNAzxpBwvJVR178YKsInL5fsJiC/BLQ03
+         QsmCY01/Xm+oSRkOP927t+cLnXhMedp6MRZ8aUgA3/YH5YnOKNLhgsbV7QwkHqDDOYQ0
+         zLQP3SWcjw+T3xgbIqzrMkAhMe7Bju4FSUhOcSKDeW72guVgmpWtTolOOcsh/wi+qyxo
+         hPpGbtgg0n2u7iP1Z8A86v6Gw8eYrDXIVWPQdRHEChdwrH3uBfTj2I7NLovgtJqojaM/
+         3v7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755828577; x=1756433377;
+        d=1e100.net; s=20230601; t=1755828880; x=1756433680;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=yLP8iKRr+ohSFMsq/mB16HGu0FINjmHne4DCLR47GiA=;
-        b=PBLQwEsNhA2GbEuSRuNX5nuFj9pkt/QWd0kWIGVLLWB4xJZU2lN+fWvW+o26RP7HNY
-         WfOAwASwfeav3eqYV+j7Im52DBL/t8btbXu9b61QU6VKSI0XG+BQuqFVmbLMDm3EIDPv
-         emzaH4WKzi8LYYT5HWvNWzF0pPb2LCg5zqawagxk5LKaaXzR140WiI+2waO3ewuogy0x
-         g+vtrY+r22pjpo7PyFNdjcLBAG3eqfdrGAZQDUlE2z75jHp3rvaNHCT8tlWtwQ6b+IEp
-         yXYzzpD0P0Y3Amox9e7vOSIMA+PlzzdOHjfnAuUfY84xEhSZn3FfoV0H73OQHrAtecQC
-         MeGw==
-X-Forwarded-Encrypted: i=1; AJvYcCUPQnqckWmufV3CQdHkf/KcTiGEM8Aei5Il8TmvjUmQKPkFbfIiYbvv7ah+/Uw7UmPs8YyAdKwZ@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy4sWfP14a1uujM1jcN/f2X2D0LYfl9S2NCZ3xJAAczxAVuc3vo
-	y9XKQ51yeOOP7CFkaWy7Pre9zkvoQZwqfDq5y+SOzLB50LCVGM/PQYALdRY0sRiGhOGqIK66Rpp
-	ZWm8GwFDNU5knt1WV68D+EN+lcrK0/ybAbOe2p9MT
-X-Gm-Gg: ASbGncsdNIEFb5HcG8aQLW+nb05vsd3QgT/cLwUkILXNNMSmiVJ6J4H00xmRrUc0BS9
-	l1eJqd9Wl8oYhrTzinvGyhekFB3dOP3Vg6tUjbRqjrJ0J6TjIZ01vkqPpW3D7//5lflVHTvlTNF
-	Uy6HTSolSxhhv0aj/QDCC+y9gPJ32dBUfOXgYZ2rrWa6a+OHv9I4RZQSeuumi1USzhJwLHP5k1l
-	HDVlB4=
-X-Google-Smtp-Source: AGHT+IEcl0zQPWPOL2ThXaF277kZWC8q5RjBCXk3kMOCqG4g9sY/ljFwTT2yo/j5P5ezk8JiEPirfpibmS38bGcONxo=
-X-Received: by 2002:a05:6a20:7489:b0:243:15b9:778c with SMTP id
- adf61e73a8af0-24340e6cb77mr1881334637.48.1755828577324; Thu, 21 Aug 2025
- 19:09:37 -0700 (PDT)
+        bh=snSTyNlLtKKYHQw2AzoRfTppJ3BqX2cUN0VJIOzBi4o=;
+        b=Lydn7pe776VjZRNLmERiUWgMUkKsmAN/OpwptSKh4xviYlYhV2vGfM10inGvPVa3hi
+         BSVRjyt/7+T76iwQqhOHVgLHsmM02tfijnJ0GESiBN73THlceDNaoy46tOKjjzc+ktvr
+         rm9mPy94WLv1xx4Cu4CaqhFLk4InBNBkYP4zhm2kxnk73JHp5xlkERcn7pLTxLOZ0nHq
+         2V9cX2ibuJKBzXYHLeUM/GzBvzjn+EIktksH+R46L4H/QT5PdbRQEGq2xTs3bpJ0u+FW
+         4cczqm2nv8TzqdkwKlNrbL7iogLmF1Iez/iMmAkLEDumXMEM1dKijM+XNjo997ekzGZg
+         qwsA==
+X-Forwarded-Encrypted: i=1; AJvYcCWSVtoGGP3gnP7imA7LGMEAPWqExgWyH6qyfiQBuSFrEHDD9exGIiijTFkMlWG7DaYBwnU6IG4z@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw/qZK4cq4gY7bEKocGaifDsZDFY4w4yKzB20bAydF9sPPvU9by
+	ube3CzkF8JhMrNrc6TuVLKANL86GwvCEfPio6ppp+iiGnEfbgQ+KCtHmJrKcFPBH1e6rYOiTDcI
+	/8E+EU7GxTz6Zhxx1DJXKOUJDY0UM/lSylnBXkTnw
+X-Gm-Gg: ASbGncu/zk4qtHWB5//SZOFywPR3jl8JyN2xJHI9zYjURW+fKelWOP9QEwOec7nid1Z
+	nTQKhKLMg7WJ271R8ppxZj/j4fRE+WPDqIP7m7AU4VgtvLBBldNbAeJFtPKDzrSV4U2SeGFko7J
+	G51PK5NuBplm2rF67lGPSyv4rXX14fqPWySr0I82ZjY/QIxkI1E16tK+Gsu1kaXZF9JmnDadLra
+	S/rV4Y=
+X-Google-Smtp-Source: AGHT+IFAM/EmAaCw+9+/FOCkbJwNwLUbgWW82O4+S8unwojlsgKl9CKToeQr/rose4HyFTE38K7RBdKAIbEnxhWKlx4=
+X-Received: by 2002:a17:90b:3c86:b0:321:335e:19cc with SMTP id
+ 98e67ed59e1d1-324eecf9acbmr5923331a91.4.1755828880595; Thu, 21 Aug 2025
+ 19:14:40 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -61,89 +61,60 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com>
- <CAEjxPJ5EvR+2fboLu_nBGZu+ZVUpX4KM6xdPUqDErCmw=iA37g@mail.gmail.com>
- <CAHC9VhSubXA4tAUoz7T==UvfrM_DXS6nF5s0tJZ1HrrVizMgZA@mail.gmail.com>
- <20250820.ieNg1quoRouz@digikod.net> <CAHC9VhS3c257ywxADRzPYE-DsXSwRp8P2RhAfdDnXJHOX5bXTQ@mail.gmail.com>
- <20250821.Ree4Liedeita@digikod.net>
-In-Reply-To: <20250821.Ree4Liedeita@digikod.net>
+ <2e303958-ca60-4458-ac6d-6b83f331f660@schaufler-ca.com> <CAHC9VhQ5Vs+_DYAcN_Z4M9PVqW=PjaHcr4sVXADU5yqp1zFHVQ@mail.gmail.com>
+ <20250820.xo0hee4Zeeyu@digikod.net>
+In-Reply-To: <20250820.xo0hee4Zeeyu@digikod.net>
 From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 21 Aug 2025 22:09:25 -0400
-X-Gm-Features: Ac12FXzHbfRH1s6Tzr7AcXsiKbn9LpN9T2Gbw1X6nzUUC3lAAJW1biVNyduCR2k
-Message-ID: <CAHC9VhQC9Yn3W1mU_=iOtctGeSLe9FvJnDRYBO-o1AfACVDNUQ@mail.gmail.com>
+Date: Thu, 21 Aug 2025 22:14:28 -0400
+X-Gm-Features: Ac12FXwKudN2CvQnT8J-dwguQbkz7dbQCLtewUNn3PfMmIHoHQBnHVy0atmzERc
+Message-ID: <CAHC9VhSS1K0Zsq_ULP4sK9Okwthd+CO3vUdVPAf+F8FKfZsVqQ@mail.gmail.com>
 Subject: Re: LSM namespacing API
 To: =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, linux-security-module@vger.kernel.org, 
+Cc: Casey Schaufler <casey@schaufler-ca.com>, linux-security-module@vger.kernel.org, 
 	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>, 
+	Stephen Smalley <stephen.smalley.work@gmail.com>, 
 	=?UTF-8?Q?Maxime_B=C3=A9lair?= <maxime.belair@canonical.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 21, 2025 at 5:56=E2=80=AFAM Micka=C3=ABl Sala=C3=BCn <mic@digik=
+On Thu, Aug 21, 2025 at 6:00=E2=80=AFAM Micka=C3=ABl Sala=C3=BCn <mic@digik=
 od.net> wrote:
-> On Wed, Aug 20, 2025 at 04:47:15PM -0400, Paul Moore wrote:
-> > On Wed, Aug 20, 2025 at 10:44=E2=80=AFAM Micka=C3=ABl Sala=C3=BCn <mic@=
-digikod.net> wrote:
-> > > On Tue, Aug 19, 2025 at 02:51:00PM -0400, Paul Moore wrote:
-> > > > On Tue, Aug 19, 2025 at 1:47=E2=80=AFPM Stephen Smalley
-> > > > <stephen.smalley.work@gmail.com> wrote:
-> >
-> > ...
-> >
-> > > > Since we have an existing LSM namespace combination, with processes
-> > > > running inside of it, it might be sufficient to simply support movi=
-ng
-> > > > into an existing LSM namespace set with setns(2) using only a pidfd
-> > > > and a new CLONE_LSMNS flag (or similar, upstream might want this as
-> > > > CLONE_NEWLSM).  This would simply set the LSM namespace set for the
+> On Tue, Aug 19, 2025 at 02:40:52PM -0400, Paul Moore wrote:
+> > On Tue, Aug 19, 2025 at 1:11=E2=80=AFPM Casey Schaufler <casey@schaufle=
+r-ca.com> wrote:
 > > >
-> > > Bike shedding but, I would prefer CLONE_NEWSEC or something without L=
-SM
-> > > because the goal is not to add a new LSM but a new "security" namespa=
-ce.
-> >
-> > I disagree with your statement about the goal.  In fact I would argue
-> > that one of the goals is to explicitly *not* create a generic
-> > "security" namespace.  Defining a single, LSM-wide namespace, is
-> > already an almost impossible task, extending it to become a generic
-> > "security" namespace seems maddening.
->
-> I didn't suggest a generic "security" namespace that would include
-> non-LSM access checks, just using the name "security" instead of "LSM",
-> but never mind.
->
-> > > > setns(2) caller to match that of the target pidfd.  We still wouldn=
-'t
-> > > > want to support CLONE_LSMNS/CLONE_NEWLSM for clone*().
+> > > The advantage of a clone flag is that the operation is atomic with
+> > > the other namespace flag based behaviors. Having a two step process
 > > >
-> > > Why making clone*() support this flag would be an issue?
+> > >         clone(); lsm_set_self_attr(); - or -
+> > >         lsm_set_self_attr(); clone();
+> > >
+> > > is going to lead to cases where neither order really works correctly.
 > >
-> > With the understanding that I'm not going to support a single LSM-wide
-> > namespace (see my previous comments), we would need multiple flags for
+> > I was envisioning something that works similarly to LSM_ATTR_EXEC
+> > where the unshare isn't immediate, but rather happens at a future
+> > event.  With LSM_ATTR_EXEC it happens at the next exec*(), with
+> > LSM_ATTR_UNSHARE I imagine it would happen at the next clone*().
 >
-> I'm confused about the goal of this thread...  When I read namespace I
-> think about the user space interface that enables to tie a set of
-> processes to ambient kernel objects.  I'm not suggesting to force all
-> LSM to handle namespaces, but to have a unified user space interface
-> (i.e. namespace flag, file descriptor...) that can be used by user space
-> to request a new "context" that may or may not be used by running LSMs.
+> The next unshare(2) would make more sense to me.
 
-The goal of this thread is to hopefully define a set of APIs that
-allow userspace to create new LSM namespace sets, and join existing
-LSM namespace sets.  We're not necessarily focused on any individual
-LSM namespace concepts, beyond ensuring that the API provides enough
-flexibility for the different concepts to be implemented.
+That's definitely something to discuss.  I've been fairly loose on
+that in the discussion thus far, but as things are starting to settle
+on the lsm_set_self_attr(2) approach as one API, we should start to
+clarify that.
 
-> > clone*(), one for each LSM that wanted to implement a namespace.
->
-> My understanding of this proposal was to create a LSM-wide namespace,
-> and one of the reason was to avoid one namespace per LSM.
+> This deferred operation could be requested with a flag in
+> lsm_config_system_policy(2) instead:
+> https://lore.kernel.org/r/20250709080220.110947-1-maxime.belair@canonical=
+.com
 
-As I stated in my original email, perhaps not clearly enough, and
-several times in the past, I have no interest in supporting a single
-LSM-wide namespace at this point in time.  Any LSM namespaces must be
-done at the individual LSM layer, although I am supportive of an API
-at the LSM framework layer to both help facilitate the individual LSM
-namespaces and provide a better userspace interface.
+I want to keep the policy syscall work separate from the LSM namespace
+discussion as we don't want to require a policy load operation to
+create a new LSM namespace.  I think it's probably okay if the policy
+syscall work were to be namespace aware so that an orchestrator could
+load a LSM policy into a LSM namespace other than it's own, but that
+is still not overly dependent on what we are discussing here (yes,
+maybe it is a little, but only just so).
 
 --=20
 paul-moore.com
