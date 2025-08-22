@@ -1,120 +1,169 @@
-Received: from mail-il1-f169.google.com (mail-il1-f169.google.com [209.85.166.169])
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23D5A2236E1
-	for <selinux@vger.kernel.org>; Thu, 21 Aug 2025 22:33:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 042361A316C
+	for <selinux@vger.kernel.org>; Fri, 22 Aug 2025 01:50:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1755815617; cv=none; b=QH9/054fnn6wtcAUS6THxNEBA/5QqjMyBxlIqX7N9x6cWV8v6OvyoBC3QzIWhwPYG56ZQu8IQXzpJA86YZDobOY1J5dYolSOKZpUny7doqmAxcMQmmaf40TTXDaGTo+c69O+XuAF620JJKot01hHo3U12PAXEx9JC3g4vCX3uo8=
+	t=1755827438; cv=none; b=VqOXoudW9p0NXH5Z167BCJvhf0pL53o7Xv2C6OIGUjTYzP+aNmyDj6TXKQnlXQV3H6RhoGtTJO6x4ia3+weq4mBUVKM4H2BzndtIAKKRnHSxUk6r/govTUe5Sr6YK0uvj5h6AQqH581yuyw0wLlmunqkgGWQtTlRCMIIWtscAQQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1755815617; c=relaxed/simple;
-	bh=SnZKxn3/SMbjs4aOcSRemCcoa3UrhMIbtGqm7h9md8s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Kt9adtVPpt9oHQDMaZlLL6BQ6PwjCnIBbSVbO1mvWj5VqJSUQIC4RckG1ckqD8pP6ME9VtezWeytuYmcTUuPPh+ezUroGzNPBJ5ZOfxZ3ZKLAb3QqBoy0c0J60KXnzGrPdd5QW4zjFa32fMrSmMrcKcNJXH+oEBtsPGJsk2S2F0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=J3D5ZTQv; arc=none smtp.client-ip=209.85.166.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1755827438; c=relaxed/simple;
+	bh=8WGUDYIWCI0XUA/Aq3asozKWW6rnukYIVdUVVHfJsDw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=QzB/gVb7Gyy2MB5YNSWox4C2pMu+g3TwS2Dmzo33l++7qL5e1lNARCcKPFKuu56X0Q5UWbo9bE/DN0ykG7VYUYuvmW+H3uwUcIvU4kS5dSl5BZSZsllMOOyQuPHtUQL92sfPtrKpDsQc1Saj7lX5I2egs+vGpl2IZLbFVrfkqBQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=Fgvhj+i3; arc=none smtp.client-ip=209.85.210.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="J3D5ZTQv"
-Received: by mail-il1-f169.google.com with SMTP id e9e14a558f8ab-3e854d14bdaso8129005ab.1
-        for <selinux@vger.kernel.org>; Thu, 21 Aug 2025 15:33:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="Fgvhj+i3"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-76e4fc419a9so1594265b3a.0
+        for <selinux@vger.kernel.org>; Thu, 21 Aug 2025 18:50:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1755815615; x=1756420415; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=SnZKxn3/SMbjs4aOcSRemCcoa3UrhMIbtGqm7h9md8s=;
-        b=J3D5ZTQv8fb6X0YUBgcYcQASaIY13cXvtB30Opm6bQD8V59DGv5wD1QqXbZ4SLdvTa
-         PeWoCR3unJScqdN6+zmE4tDbDyMXuzu0QNZQWmkxaK1k4Mj6zCLDSrxD4DDRLs2eIv3Y
-         qqPz8UdFNEflfuFFkfRkIMb6S543crBj+Ft4Ha2eefkPZJ7bJknVgOfYktl7o/3+Oh86
-         /kd3vwSKZiItMC8iYSqu8hgigioY1kLNW4m4LjI0a+H5ygvIUhMDPKDajhRaCcSTMq5V
-         TxDwyW/Vzk2at3zL9hnZzs95vsaiVgqNn2D+XEs0bhw82aFZC2PqhYP9yfxEOKB5+OKX
-         ILyg==
+        d=paul-moore.com; s=google; t=1755827435; x=1756432235; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fM1VQGGbaao3xVBrGpCMs2zca6FvFyseJxxIoayxqao=;
+        b=Fgvhj+i319qQ7s9Qa2Cv9kyAZvcZ/dDwbBGUFnCIKOqoHsv5YV+/ujm7vIlxTXudKo
+         hMOoszReEdN88C5POl3qgWFKKaAB01G5/d53lkzXmsNPyJ7i7VJsynWd30MLSPDO3TnZ
+         JVY9SBzG81MI2Ct29ZUiQEcyUsumdd5qhpI5MSJ3tU49O+pypGgYSygq1R/XTyc1g0pr
+         oCw6TL+bczBDxQ87Q+PBcETbZAXaoLiJbaqpYRHOVUL1dmmsYUgOhGvowDhU86bk+8BZ
+         IRu9j5H6SsiutnV5MfJk9t4p6geHjLZUX6y/GS45CkFE2rvzW5AcAkwnEi8bqZFMwTVp
+         yGiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1755815615; x=1756420415;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=SnZKxn3/SMbjs4aOcSRemCcoa3UrhMIbtGqm7h9md8s=;
-        b=l1k+kN4/Jxbspsxd2pqJ9LODIQuBM1/T9fKD+zbkJ2xOQAUePykQvtDayOWfSdIXfW
-         wcheA971VZiStZv9mIzNqjDSBoSuxhAgUUdjcRVPyV90RSpIBSYYIXfry3DqnylzEixi
-         B7QPy2c6fHgAxNd4zCOoGj50INvs/NBRf7fpTFJf7l53ZGU9rvzn0bM7lFUCfTTyWDfR
-         LTLBTviMzy/ahUjRvCEF8ZDBLbkapWfG2Gi8Ykazz2lqZ8b3NNSvU9a9ciupcGvABfDb
-         PRXoP+QMxwoB1JvkpVceZPHsXLOQiHbteOxx/Pdqshv/8/LG1HZm9Us/P3C/FUjjjkrE
-         aCjg==
-X-Forwarded-Encrypted: i=1; AJvYcCV2ayaUgQd6BBocZfY6InfpLhqp6hZ7zhnlOt9d+FnBYPTccMlRuJc+hTABFtZ/BUO5OPIq/kOf@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw/juyzOPEnnr8CW1RoYyQDNt4KZ/gCacf522Zn4NdD2eOge4IF
-	O+sB9ogrNcKSROVGU6KWECtnv2w+zwtmmDOQxPH8pKnQ4cOOVFPuZMbJDSzAvSmxIQ==
-X-Gm-Gg: ASbGnctmMxgCag4HVvOInIEGpQ8NXkBTtPhttaX37+yZY2MtPmRXLdu8VYSfRuNbcWY
-	/N4Sm5wN5E9cOt8afY4S6cBKoq3vsGcoJXOQN3kPTnI0fZsrrEUntOwRkcabDjLh8Oqrpyrjd+C
-	gKMZzOweF4xhlgtSJnRY2B07ppsjkKZgtM02JmnIeTW9kshhaWTS38xVFUjzrI8JPs32Tf7u1st
-	4my8LVUc1MR3oXlSTh5neOlK4wdVqIjbFdezlPtx27uLKSG8e29WxUxzMMThKAlTzd3labk033V
-	Tj2PZUy1WU88IlsdzMqA+6EE9nGHZXqQN93f3cZGFvO13o8HXeNckp0o+385uxzAf7mlQHq+57b
-	1kfnKcl7jwRRl72ZPmOzUDuDTXGIyEk1zLP2/6iGYAxSTs5VhX2jmG+olauonCk3GAg==
-X-Google-Smtp-Source: AGHT+IEGzbbJOOBIn6TC2Tb+WI7UDDv9xLsePcm3E8uJTuF+vAY06pBGbAB+hdY1ZUNYILsPBsWGow==
-X-Received: by 2002:a92:cd88:0:b0:3e5:4816:8bca with SMTP id e9e14a558f8ab-3e921a5d7a2mr20072225ab.12.1755815615067;
-        Thu, 21 Aug 2025 15:33:35 -0700 (PDT)
-Received: from google.com (189.227.72.34.bc.googleusercontent.com. [34.72.227.189])
-        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3e57e6a6c3bsm80502205ab.41.2025.08.21.15.33.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Aug 2025 15:33:34 -0700 (PDT)
-Date: Thu, 21 Aug 2025 22:33:32 +0000
-From: Neill Kapron <nkapron@google.com>
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>,
-	kernel-team@android.com, selinux@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] selinux: enable per-file labeling for functionfs
-Message-ID: <aKeevPJ0TDcp1T8W@google.com>
-References: <20250820212302.2325779-1-nkapron@google.com>
- <CAEjxPJ4Vi9rXXkvPUoS-tjHks_6oevdkhrjvSeX_Rh5VV5gBBw@mail.gmail.com>
- <CAEjxPJ6iFrfVxbRM71b9G0+59L+vxNiJ1mpeXSGwuG_n+D15Lw@mail.gmail.com>
+        d=1e100.net; s=20230601; t=1755827435; x=1756432235;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=fM1VQGGbaao3xVBrGpCMs2zca6FvFyseJxxIoayxqao=;
+        b=Hmi+mT9shZ+plDwC0EWWsD39OdIGrggZDpPFNjrHxVtyt/wFJdqWOc/fZoWQLZOd17
+         JxthtR98+Q3w/9HYsjl0lLxs5/q/12bVs2UdqPaIHRIVbp2+ZzFLE99hjRwV/1cKLWeb
+         eDT8Zj6SKkTQkPyOFrQ1GgJjXj/7BUmPotYGzJqj4wxICRuaUz1TcDasiTxWXQjMVqPY
+         AwjWJSXAb+QGEf7NlKba/xAxauEh5QEJTNp408ivagheHtmbfPxBKFiuO7AM7lfVQItc
+         5NLfqyIOsOA4MP/DX6UCwEUdoDleiOsOoA7MEVluQGyypH+FyDhMLkvP5TaUrpD3lUaT
+         PV/Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUWN8QzhacyZi4sdiTwuMx34d0mOXKQVYwqlTVGR3KvxyWw1iC5Fx1RqKlwVRqGbdL38A7GulG4@vger.kernel.org
+X-Gm-Message-State: AOJu0YxXaSj8p/BW8hlPTmu5rbqxRf7+ttKuUWAIp796NIT+9Vk9HlYT
+	l8DfCk8X3BBWnpVfiKJRZTP3+vXKnUCDPN7BNafbEodNc93riXQ2UjuCrhe3wd2SuKD3Yhll8om
+	4bTMYaQnGPiCmGr2MkE8B67/sSJ2/wnHGxpAeevRw
+X-Gm-Gg: ASbGncsm/c6O8nxa3CRTmIS9pkikXD3B6PSTQ5deIVekonWGQequStbWfUg8UY96hmg
+	Xpkc9PWUPlsDEBAGYp8ERQZ88r1dPnVF4t0zMLybGBZHDeaecEX19RvQa9F5XDq8vKIxpF66s0B
+	sx9wzmeH8MfaG4mFSQpxWgsIorDBIyMhaOW30IylFjQyFl5F6nUYYBrmTq3BwIS6rk292vljmqL
+	ExQEEM=
+X-Google-Smtp-Source: AGHT+IHBuBobs/vblH7LUy/G0OP8be24STA5cAdkqfHVbd0CPoNQhONGc13E2tH6gwe5Et27wxt9pQ0//6oluc0v/Xo=
+X-Received: by 2002:a05:6a20:2448:b0:243:78a:829a with SMTP id
+ adf61e73a8af0-24340e06a0cmr1657690637.51.1755827434990; Thu, 21 Aug 2025
+ 18:50:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAEjxPJ6iFrfVxbRM71b9G0+59L+vxNiJ1mpeXSGwuG_n+D15Lw@mail.gmail.com>
+References: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com>
+ <CAEjxPJ5EvR+2fboLu_nBGZu+ZVUpX4KM6xdPUqDErCmw=iA37g@mail.gmail.com>
+ <CAHC9VhSubXA4tAUoz7T==UvfrM_DXS6nF5s0tJZ1HrrVizMgZA@mail.gmail.com>
+ <aKZ+2NMx+ZQhpySY@mail.hallyn.com> <CAHC9VhR-5Rwg132UsLdpJgM0c51HYBrBDivBinw3YcYqe0QTKA@mail.gmail.com>
+ <aKaMVPbPrgUc7mtv@mail.hallyn.com>
+In-Reply-To: <aKaMVPbPrgUc7mtv@mail.hallyn.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 21 Aug 2025 21:50:23 -0400
+X-Gm-Features: Ac12FXyBORUydle3k00Nh9qGFkyX6vaTXFoYaF3wxZe0af5zpDG_LnSTMOjePyM
+Message-ID: <CAHC9VhQRbva1QHgORhXpw5ubqgoTo3X=+NTmZM+514v2qK4Cgw@mail.gmail.com>
+Subject: Re: LSM namespacing API
+To: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, linux-security-module@vger.kernel.org, 
+	selinux@vger.kernel.org, John Johansen <john.johansen@canonical.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 21, 2025 at 09:03:49AM -0400, Stephen Smalley wrote:
-> On Thu, Aug 21, 2025 at 8:59 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
+On Wed, Aug 20, 2025 at 11:02=E2=80=AFPM Serge E. Hallyn <serge@hallyn.com>=
+ wrote:
+> On Wed, Aug 20, 2025 at 10:35:42PM -0400, Paul Moore wrote:
+> > On Wed, Aug 20, 2025 at 10:05=E2=80=AFPM Serge E. Hallyn <serge@hallyn.=
+com> wrote:
+> > > On Tue, Aug 19, 2025 at 02:51:00PM -0400, Paul Moore wrote:
+> > > > On Tue, Aug 19, 2025 at 1:47=E2=80=AFPM Stephen Smalley
+> > > > <stephen.smalley.work@gmail.com> wrote:
 > >
-> > Did you confirm that functionfs is safe wrt genfscon-based and
-> > userspace labeling, as per:
-> > https://github.com/SELinuxProject/selinux-kernel/issues/2
-
-Yes, I believe this is safe - FunctionFS is a filesystem which
-exclusively exists in memory. The kernel creates an EP0 file to which
-userspace writes usb endpoint descriptors to, and the kernel
-sequentially creates the endpoint files for each descriptor.
-.create/.link/.rename methods are not supported for the root directory
-or any of the file inodes. So userspace can control the number of files
-created in this directory, but does not have control of their naming or
-anything else.
-
-In Android, we further restrict permissions to the directory and control
-endpoint EP0 to specific system processes. Our goal with this patch is
-to maintain this restriction, while providing more permissive labels to
-the endpoints created by the system process.
-
+> > ...
 > >
-> > Also as per that longstanding open issue, we'd welcome patches to
-> > generalize the current hardcoded list of filesystem types to
-> > instead lookup the filesystem type in the policy to see if it should
-> > support genfscon and/or userspace labeling.
+> > > > > Serge pointed out that we also will need an API to attach to an
+> > > > > existing SELinux namespace, which I captured here:
+> > > > > https://github.com/stephensmalley/selinuxns/issues/19
+> > > > > This is handled for other Linux namespaces by opening a pseudo fi=
+le
+> > > > > under /proc/pid/ns and invoking setns(2), so not sure how we want=
+ to
+> > > > > do it.
+> > > >
+> > > > One option would be to have a the LSM framework return a LSM namesp=
+ace
+> > > > "handle" for a given LSM using lsm_get_self_attr(2) and then do a
+> > > > setns(2)-esque operation using lsm_set_self_attr(2) with that
+> > > > "handle".  We would need to figure out what would constitute a
+> > > > "handle" but let's just mark that as TBD for now with this approach=
+ (I
+> > > > think better options are available).
+> > >
+> > > The use case which would be complicated (not blocked) by this, is
+> > >
+> > > * a runtime creates a process p1
+> > >   * p1 unshares its lsm namespace
+> > > * runtime forks a debug/admin process p2
+> > >   * p2 wants to enter p1's namespace
+> > >
+> > > Of course the runtime could work around it by, before relinquishing
+> > > control of p1 to a new executable, returning the lsm_get_self_attr()
+> > > data to over a pipe.
+> > >
+> > > Note I don't think we should support setting another task's namespace=
+,
+> > > only getting its namespace ID.
+> > >
+> > > > Since we have an existing LSM namespace combination, with processes
+> > > > running inside of it, it might be sufficient to simply support movi=
+ng
+> > > > into an existing LSM namespace set with setns(2) using only a pidfd
+> > > > and a new CLONE_LSMNS flag (or similar, upstream might want this as
+> > > > CLONE_NEWLSM).  This would simply set the LSM namespace set for the
+> > > > setns(2) caller to match that of the target pidfd.  We still wouldn=
+'t
+> > > > want to support CLONE_LSMNS/CLONE_NEWLSM for clone*().
+> > >
+> > > A part of me is telling (another part of) me that being able to setns
+> > > to a subset of the lsms could lead to privilege escapes through
+> > > weird policy configurations for the various LSMs.  In which case,
+> > > an all-or-nothing LSM setns might actually be preferable.
+> >
+> > Sorry I probably wasn't as clear as I should have been, but my idea
+> > with using the existing procfs/setns(2) approach with a single
+> > CLONE_NEWLSM (name pending sufficient bikeshedding) was that the
+> > process being setns()'d would simply end up in the exact copy of the
+> > target process' LSM namespace configuration, it shouldn't be a new
 >
+> Oh, I think I was being unclear - I thought the first option, using
+> lsm_set_self_attr(), would allow choosing a subset of LSMs to setns to.
+> In contrast, the pure setns with a single flag is less flexible, but
+> possibly safer.  So I typed there the result of my train of thought,
+> which is that your second suggestion is probably preferable.
 
-Unfortunately, that is outside my expertise at this time and I don't
-have a solid understanding of how this would be accomplished.
+I think we've probably both been a bit off :)  Let me try again ...
 
-> Also, do we need a new policycap to conditionally enable this new
-> labeling behavior to avoid any regressions?
-> See the corresponding checks for cgroup labeling and
-> https://github.com/SELinuxProject/selinux-kernel/wiki/Getting-Started#adding-a-new-selinux-policy-capability
+I'm proposing the lsm_set_self_attr(2) approach as a way for a process
+to setup an arbitrary set of LSM namespaces to take effect on an
+upcoming clone() or exec() (we can discuss that detail).  I didn't
+originally envision this as a way to potentially join existing LSM
+namespaces, but rather a way to create new LSM namespaces when a new
+process is created/exec'd.
 
-Thanks, I will send a V2 which adds a new policycap for this.
+The procfs/setns(2) approach would be in addition to the
+lsm_set_self_attr(2) mechanism, and would allow a process to enter a
+previously configured LSM namespace set when a CLONE_LSMNS (or
+similar) flag was passed to setns(2).
+
+Both mechanisms are very much up for debate in my mind, and doing
+either or both, is possible as far as I'm concerned.
+
+--=20
+paul-moore.com
