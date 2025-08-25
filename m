@@ -1,156 +1,130 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-ua1-f43.google.com (mail-ua1-f43.google.com [209.85.222.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9DF92FABE8
-	for <selinux@vger.kernel.org>; Mon, 25 Aug 2025 14:21:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58BC235965
+	for <selinux@vger.kernel.org>; Mon, 25 Aug 2025 16:09:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756131727; cv=none; b=cXwGnz9Ma2IU36IqneMnPSTZ7fGmQLJjxNE0e/UiA1biLRyFUJm9wVEBemtlCC/rgNN0MsaFzaQf3KKwvBSzul74K8wrCbjwRAdLeAh7ET5aOPbb7AUvp6TCcyiZqtsv3gHGUvaN6PdT0iVAYEgqEQgQe3EOhUwD1deqlEGWKZ0=
+	t=1756138142; cv=none; b=G/LZAeIQxnQcoSuhqium2GBRiA9u0CyuhaLKhYMFc0Y5HvO79vMDn7W3z+CDTVxk0sRA6cQ5PZ9lAJyNSoGh2G7IQ93RKSr7xI+BWo3i4IpIHIisMR24UeOJi4Lfp07BB3ACiPMU/XdDU1IyTjT05SCw7dzuYa25HASDcZPgjNM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756131727; c=relaxed/simple;
-	bh=gzftMivDxu2zRoECJzsqe5Ub4RQrLSoau3N2kaZTT7I=;
+	s=arc-20240116; t=1756138142; c=relaxed/simple;
+	bh=cGAwS+u+5tSMWjaESG7UG2EyF4eZ33+ipaFxJ1uXn0U=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=u7cFHLbRu+P52MjzO1wrzF6pWmMdyqTZT2TsvsIgxk1mBm/DnxwMJ+8HOB+Q5O8N+qgorT8IOZqNxeRDuCAGbg2faz0RXq8TTIP+HcSz0crgzNAkllKqFVdtaYk8OifpQypQs8P8G3Tm2eIIt2EB6noKMN1Amd5NNTFZIbh43/c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KIbi1D8O; arc=none smtp.client-ip=209.85.216.43
+	 To:Cc:Content-Type; b=K6UBYCUtYvQClqTyEf4TqcvelbR0e9BzppYsLP73fH9slWTdPa1m2cfTwnzHoOBLBVs83RqoHbu/dnSg/i9PpqVa+9WsxBmFH+/tlkYuDMCtG/3bjlMRKQKPPBWjdJubv9WzJGVPdCcyzouAJJDwc+BXF0N1Xy/d0IILj9xTfcA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lQ4eY5Op; arc=none smtp.client-ip=209.85.222.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KIbi1D8O"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-32326e8005bso4673254a91.3
-        for <selinux@vger.kernel.org>; Mon, 25 Aug 2025 07:21:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lQ4eY5Op"
+Received: by mail-ua1-f43.google.com with SMTP id a1e0cc1a2514c-89018e97232so1505362241.0
+        for <selinux@vger.kernel.org>; Mon, 25 Aug 2025 09:09:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756131716; x=1756736516; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1756138139; x=1756742939; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=qGRCQGz9TpNku0pUcMRS+IChx6aMjSM7tueVsknbVGY=;
-        b=KIbi1D8Oi3oelWXKaFzHRj8/sqx+/MvGvAhdSHrN6Gvx5+2ADk1ADQ2IiAQol1+VnN
-         Oug+we9uF2GxzUG3KLJmVptYgG+vCwTqStYizlYOgk6frvkuD5pE/UcezaCTq2B8a88U
-         Wu34ON45SEBRCM74dKHisfBDcuXZxPIkBlkBKU41J37hQy3F4hcVrBl0uIbWZ90Dp0GO
-         58y/Fe8dRi90WA5wD80TVbB/12Cy3xNJcv3X0NgNVUvM66dWflCeTLaEQ2V5VwY8+LCx
-         J8Lmm1yb0YDA06a8g7YA2yrpSyUzR9ZizOX+4ZtDc6hA7VASX8rWsBNmn7nVETBbOzIL
-         8dEg==
+        bh=JO5l3AOCdClqohQVsWwFvd+muidfX3hSPlnoFMCUV0o=;
+        b=lQ4eY5Op2k8BYTNohOJRJVHlPKTfUT3HEq+W5uj3QRDgSLV20cRU946XRyx3oeGZHd
+         p5wAyEuAUrsitu/bS36oQjSditmXNUr3QKOUtsSqqBdYZqUvWTJcOlvJbFRjFJi2CBMk
+         dgeln9Jvu4dm5nHi7Ec+95MGt7zSAt5c9/9sYO+KX5EDKrkhXThoJSlpNpH4mvCASlTP
+         6N0UB0Uvrzj8v4x/LH2bICdaWdLfcNEIVpUUROnK2FUeNCSP3QpxLdGjRFF8xcIGf5+r
+         mb0qZzAcvoBGHSJR6VdlsqCBFi700yqhHuubp31mbEkuHQewUf4xVECDOW/b4NwPuR4I
+         IV9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756131716; x=1756736516;
+        d=1e100.net; s=20230601; t=1756138139; x=1756742939;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=qGRCQGz9TpNku0pUcMRS+IChx6aMjSM7tueVsknbVGY=;
-        b=I9xPMfJ5fjfMhZmQA6JD2+4UW5IgXW7XIf8jYZOVeRYH+n1sfe6B9JxivQSFr7dNnp
-         6VUuWRr3MoAIfE3IYA/tJ3SNj3qg9HhwJyIb6RvyYOACjmqdwDXnquKHY7bfe5qMC+E0
-         UA6zTEHIqlvbjBj2iyqtKQ0fiZgIB6mzw3H409lCXk1F0CnL/PRxjv+n2cnfHJjI38k6
-         2QRgYwsi0EhrOAjmgp2ml2zrBuQOyXA+sF1B7urCxRzp7XcKPpGTXI9/4mOUheF7DsG4
-         xJRNKf8G1xQiFIklJVJA4xN2znaRzHnIkN2udhDVvQH9saA74frcEcl0dh6q0qeBvE8h
-         +Ufg==
-X-Gm-Message-State: AOJu0Yz9s6tbnt+pAJq+D+jKNLJlbgWgxA+UJ4SDoB7p4+tshn2x16sB
-	3meQhJ8EW9YENxa7BXJRhz5UpFkG4zx5dsU5Vw44ii6UUqMWduytIHULjOye6Q0OkLNhuIq+Na6
-	h1uj7w0gGfg9RKnZthhtwiR/BlFJwuwk=
-X-Gm-Gg: ASbGncthae3GL+Mxsz0aUHQrXnCrZ1EAz0Y7yt4FlzU90tP8SqyI9Xvp0HbcLrrXpMf
-	cRvA14uPrTG87bQT62qnWOqW0sBq6/fFr7JghRNzd0h9GVFsMBIdnfx8TtYqnJJSCGbP4zKykhW
-	LPxk18g0k7FKentfUfWLky/pDsuofe6WNONM0hLua7fwZkx731s0KVI7wwebs1ZVMnxa1NZGuUj
-	3UEtF0=
-X-Google-Smtp-Source: AGHT+IHTi8DKuXcVLwQJwdUzzJ8psHeaHx75Hgf+NPVL/moUsaHjTxNcfg3t7Nng0PR9/7K4HLUvX++gjQ8KdXh62Ts=
-X-Received: by 2002:a17:90b:2f47:b0:321:87fa:e1ec with SMTP id
- 98e67ed59e1d1-32515ef197cmr15274158a91.34.1756131715912; Mon, 25 Aug 2025
- 07:21:55 -0700 (PDT)
+        bh=JO5l3AOCdClqohQVsWwFvd+muidfX3hSPlnoFMCUV0o=;
+        b=bunEzjpExp2/miZx7X52JQeJlrB/nQUEZutNrb85SOS4YNvxbRnpuNS6XfYR9Sfv+I
+         xKPyfaEMOYvFPkVxXpWeex/rIWuJGp8k4StPYlOxmHASp0ssHZLugnlaKIsbnqbcvDQm
+         hHIc1bu3kUXDEm0dbzU6BR22StH/lvofRS0G1ryFf+XoRnz9dTt4OvP+wWoQZNZlJw4n
+         vasQBpH39etTghjds8hY7MKFc5rMKirye6706nXnQnRnC5+oJ2Qkv3WMBPlJtKbPDCoa
+         ZW9HpzYWr2aw66U0pQnH6x38HQL50TPcH+IkErPYKtGlxVe+7PQaX4gmyzfEAcycs38H
+         svCg==
+X-Gm-Message-State: AOJu0Yxcr/kh3KKZq9Wbxl3p10mcPjAilsiVlw9rXOP8M8Fsa/VULBf3
+	G/urFBNXxAfIa/bT26yeShJZmTObatTDKPjyunoMV39tOYj4zv7ygx9O7xa2mMjABQYkIYX9gae
+	RVNbKh9E0A7sg5m6jK/u1shqkUho0HjY3RXfW
+X-Gm-Gg: ASbGncuBtH64DpccBCKcP6RHYXkBY908KonZvFAoQ5Y+etxtytdIyJ+VMkQDNmk6HQm
+	iwRs9ScqalR8UampbMvUBmroF6zBmuWuLrH1p4mNFOnL3IDbS2UorOj9cXCHWYhE1kDNyBjbGvU
+	/iKuaup4JMPijiA6FxeahsdKbOOcTvuY6JuUdCkyu+AGk3tJe/H71Vz2mMRLIK+f61t4rDMgSm1
+	wC+
+X-Google-Smtp-Source: AGHT+IHMHpmw3oNwfGFeOw04XZ/f/HMSEqH1zWrGF2Rss33aZgjb/MrssUDMAXBGQsgK88ABpHNO1eLUC3qVS0T3mXc=
+X-Received: by 2002:a05:6102:1489:b0:4bb:eb4a:f9ec with SMTP id
+ ada2fe7eead31-51d0ecbbc75mr3864766137.16.1756138138635; Mon, 25 Aug 2025
+ 09:08:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250821190312.1361-1-ericsu@linux.microsoft.com>
-In-Reply-To: <20250821190312.1361-1-ericsu@linux.microsoft.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 25 Aug 2025 10:21:44 -0400
-X-Gm-Features: Ac12FXxLYPCVCc0hjonXK5J2tUA7nzjFpLnHv8ZA-B42dNQ75ttZRpbXdpf2khg
-Message-ID: <CAEjxPJ7VKyDMbkS-+LLdJY+Rcf=hcv25iPpVd63wtiOX=+pSYg@mail.gmail.com>
-Subject: Re: [PATCH testsuite v3] tests/bpf: Add tests for SELinux BPF token
- access control
-To: Eric Suen <ericsu@linux.microsoft.com>
-Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com, 
-	danieldurning.work@gmail.com
+References: <87sehiyuh3.fsf@defensec.nl>
+In-Reply-To: <87sehiyuh3.fsf@defensec.nl>
+From: James Carter <jwcart2@gmail.com>
+Date: Mon, 25 Aug 2025 12:08:47 -0400
+X-Gm-Features: Ac12FXx2osJzj-qR_Z7BPkJ6NOVCGlN3HzMKAj3-EPmdRWWkcBFCPqND2lR_b4o
+Message-ID: <CAP+JOzR8YGou8Y+GsLfeR4aG3KB+arNW5X-_cr+Xw24vQnUU6w@mail.gmail.com>
+Subject: Re: fpp cil-policy
+To: Dominick Grift <dominick.grift@defensec.nl>
+Cc: selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 21, 2025 at 3:03=E2=80=AFPM Eric Suen <ericsu@linux.microsoft.c=
-om> wrote:
+On Sat, Aug 23, 2025 at 10:37=E2=80=AFAM Dominick Grift
+<dominick.grift@defensec.nl> wrote:
 >
-> This patch adds new tests to verify the SELinux support for BPF token
-> access control, as introduced in the corresponding kernel patch:
->   https://lore.kernel.org/selinux/20250816201420.197-1-ericsu@linux.micro=
-soft.com/
+>
+> Hi
+>
+> Someone on IRC asked whether there is a project that can convert
+> refpolicy to valid CIL and leverages CIL features such as macros,
+> blockabstracts, class maps and permissions etc.
+>
+> It reminded me of FPP. I could not find the code anywhere. Is it still
+> available and if so, where? Also wondering what happened to that
+> project. Were there any blockers?
 >
 
-No need to re-spin just for this, but this also depends on the
-corresponding userspace patch for libsepol.
+I have not done anything with FPP in a long time.
+You can see this email for a posting to the list back in 2011.
+https://lore.kernel.org/selinux/1299608758.24687.19.camel@moss-lions.epoch.=
+ncsc.mil/
 
-> Four new tests are added to cover both positive and negative scenarios,
-> ensuring that the SELinux policy enforcement on BPF token usage behaves
-> as expected.
->   - Successful map_create and prog_load when SELinux permissions are
->     granted.
->   - Enforcement of SELinux policy restrictions when access is denied.
->
-> For testing purposes, you can update the base policy by manually
-> modifying your base module and tweaking /usr/share/selinux/devel as
-> follows:
->   sudo semodule -c -E base
->   sudo cp base.cil base.cil.orig
->   sudo sed -i "s/map_create/map_create map_create_as/" base.cil
->   sudo sed -i "s/prog_load/prog_load prog_load_as/" base.cil
->   sudo semodule -i base.cil
->   echo "(policycap bpf_token_perms)" > bpf_token_perms.cil
->   sudo semodule -i bpf_token_perms.cil
->   sudo cp /usr/share/selinux/devel/include/support/all_perms.spt \
->       /usr/share/selinux/devel/include/support/all_perms.spt.orig
->   sudo sed -i "s/map_create/map_create map_create_as/" \
->       /usr/share/selinux/devel/include/support/all_perms.spt
->   sudo sed -i "s/prog_load/prog_load prog_load_as/" \
->       /usr/share/selinux/devel/include/support/all_perms.spt
->
-> When finished testing, you can semodule -r base bpf_token_perms to
-> undo the two module changes and restore your all_perms.spt file from
-> the saved .orig file.
->
-> Changes in v2:
-> - Removed allow rule for 'kernel_t' in test_bpf.te which was added due
->   to a bug in the kernel
-> - Cleaned up other unnecessary rules in test_bpf.te
-> - Added token_test.c which was missing from previous patch
->
-> Changes in v3:
-> - Added original license in 'token_test.c'
-> - Updated patch description to
->     - replace 'base.sil' with 'base.cil'
->     - Remove extra quotation mark in 'sudo 'sed -i "s/"map_create'
->
-> Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
-> Tested-by: Daniel Durning <danieldurning.work@gmail.com>
-> ---
->  policy/test_bpf.te     |  39 +++
->  tests/bpf/Makefile     |   5 +-
->  tests/bpf/bpf_common.h |  10 +
->  tests/bpf/bpf_test.c   |  59 +++--
->  tests/bpf/test         |  21 +-
->  tests/bpf/token_test.c | 543 +++++++++++++++++++++++++++++++++++++++++
->  6 files changed, 658 insertions(+), 19 deletions(-)
->  create mode 100644 tests/bpf/token_test.c
+A lot of the code lives on in selpoltools
+https://github.com/jwcart2/selpoltools
+but not the conversion to CIL.
 
-If I run the tests manually ala "sudo ./tests/bpf/test", I see the
-following output during the new tests:
-ok 9
-unexpected userns_map_create/token_create: actual -13 <=3D expected 0 (errn=
-o 13)
-test_callback failed. unexpected error: -22 (errno 13)
-waitpid_child failed. unexpected error: 22 (errno 2)
-ok 10
-unexpected userns_prog_load/token_create: actual -13 <=3D expected 0 (errno=
- 13)
-test_callback failed. unexpected error: -22 (errno 13)
-waitpid_child failed. unexpected error: 22 (errno 2)
-ok 11
+There is a Refpolicy linter in selpoltools and a program to convert to
+a new language that I was working on called smpl (SELinux Improved
+Policy Language) which I created specifically to be automatically
+generated from the Refpolicy. [I think I had to resort to just
+identifying certain problems and hard-coding the output.]
+There didn't seem to be a lot of interest in smpl and I never finished
+the smpl to CIL part.
 
-Generally we try to avoid/minimize spurious output from the tests for
-legitimate errors, so ideally you would eliminate this noise if these
-are in fact operating as intended.
+FPP required a number of patches to Refpolicy for it to work.
+It could not handle generic m4 defines (like "basic_ubac_condtions" in
+the constraints file or "can_exec" in misc_patterns.spt)
+It could not handle defines in an ifdef
+It could not handle labeled booleans where a boolean name is concated
+with a path.
+It could not handle set expressions in an interface ("file_type - $1")
+It could not handle an else block for an optional (yes, this occurs
+once or twice)
+It could not handle undeclared types in an interface (usually an
+interface that is not used and would be removed anyway because of the
+unfulfilled require block)
+
+While FPP did retain the interfaces, it did not create blocks or use
+class maps or anything like that.
+
+Jim
+
+> Thanks
+>
+> --
+> gpg --locate-keys dominick.grift@defensec.nl (wkd)
+> Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+> Dominick Grift
+> Mastodon: @kcinimod@defensec.nl
