@@ -1,143 +1,153 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F0496BFCE;
-	Mon, 25 Aug 2025 12:47:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 731282ECE8A
+	for <selinux@vger.kernel.org>; Mon, 25 Aug 2025 14:08:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756126047; cv=none; b=YZar41SzlE3wsBPZITNOCDfITDXj0WHplRvwu+YqxnkvmrLWSOBdbi0iGVrn6f/ZUUf46g4QRVNoI1QxHiDNnVQwD6yzaPAb0y/SKYxAy1vJulqaYKcUvb+hYYZ5ZwSV9WbtZPko1TlOFLXieKuoG7RvhJNZ+CZPLbEoodo4jSo=
+	t=1756130905; cv=none; b=G9K639cAQcNKhmJTT6UPZr/BHKtSksY7YQDI7PiKOpiI5UKuqFnaer7KtHaUgSR88SG/ucNME5oLym/MBNWg3pbwBWAIc+4iotUQ4YSg8ZY36JLobTSFNMfeQ81D6VYC4uh682PHfDDIzlB1H3oQTBj7ppnUbrmdQjno2n20bl0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756126047; c=relaxed/simple;
-	bh=0gdFNx6GXTjA5oLRilWZiyfEvwBHxFr5q6NQWUJX7lc=;
+	s=arc-20240116; t=1756130905; c=relaxed/simple;
+	bh=chf0Y4qkGlq3ad0oQHjvKOgaLPHG/fPokA9WGs/uGVw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=bDs0PdjvKjMXxZvF+oxvID0RRnw31PtY/VqqOPdBSWA59QGHzUmi32EKajSAg58It3kZcM+v/IQ3kTORSSo4MRFbP5Yh2qV9D6b3UexR1jBtm8ZUokdv+2XpxBmFx+gviEHRWZ3vZzOvb8cGebD2dYUf84qgapN9yAym/UyxmEM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B04b0TZN; arc=none smtp.client-ip=209.85.210.176
+	 To:Cc:Content-Type; b=laiohCrHVQ5+bwYnQkhfCHqL0rCPfQ/uEDvYD8F83UNmWa9QQrwITbEvnArJLCiNvT2UR6JP9EW4ODNeiDB4GDUeiapX5XGIrI8Hpt2edUIyKBLlDRtWw1vEr50CJQmWeDMdN5Xm3RB1C75qApQyYI8DwZrkrVDiCQUgGcuLl9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I8D2V2pk; arc=none smtp.client-ip=209.85.215.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B04b0TZN"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-76e4fc419a9so3794947b3a.0;
-        Mon, 25 Aug 2025 05:47:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I8D2V2pk"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-b47174c8e45so4262394a12.2
+        for <selinux@vger.kernel.org>; Mon, 25 Aug 2025 07:08:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756126045; x=1756730845; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1756130904; x=1756735704; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6pB42h8KhdCu+rKcl6R+qSx9ydRtdSuvsQ7gp0cs6PM=;
-        b=B04b0TZNpIjXThagXzvp+82oBaAZqRHjInmz5A9+6A2oTE+KwaQlNidUq5TLS9Z6na
-         MzWllDgEshDdf7XBIIacNv/TUpeK5tfs4EZUtGfYoLpbRYL3eL5laRLRJL1d42ukLYBp
-         salXvo7Z6lQBRxfKasFx/ToBwP0N2YKsOu9179J2ERjEHZ/gY3rBGOWs9eP56D0HCeOe
-         8rKilT3ermcAsxAJRmY67gaI11HvxaehKZexOOkrG49ZRtv+3dhvzeLOXO/boQ2V0fKC
-         cxSzfA4fZJubo4p6knBHjll0GhwRC06hd0hEPMByqHkhantq4BC2Y8KpWOG8QdsAB0QF
-         yiGA==
+        bh=yzJW2ROTeAzGAsrDdQWA8NqRpSmSo27xEb1eymuax+4=;
+        b=I8D2V2pkr9ClHiNzw/dfel3Y8UoHYzaZc4tORII+ftBdo3JxvtJjo1/DefSkhm3eSZ
+         8ka+dIkXRJ2lQ99JH3HoyKJLHzycY73M7g4cBYdcTQvsUMRQJQpYuk+vFhLtAeNcdGA9
+         csY8EEXh4TWX96Fq4vIaaNIDbEXyYo6SqY+JQvHQNEMKrL9am/BrC+vRHPimzdkuqFmJ
+         UFsWjm8FjlmkxTsBCHU2cJTW7jle5Xw0iIot7+AKzAdPaAzVvdoXsqWXwwfP4tq3AYx7
+         a/wJcma9GC8IyDEfLWwsFhv3hL3yChZw0+9pApjIYibTxD6ifHF08r2pmLLI9btB+m6R
+         1jGg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756126045; x=1756730845;
+        d=1e100.net; s=20230601; t=1756130904; x=1756735704;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=6pB42h8KhdCu+rKcl6R+qSx9ydRtdSuvsQ7gp0cs6PM=;
-        b=PIUdaZ9PQAw4g877R/HCntryxteep4hl0fDq6pMJH61qtMnbNpXDonTnkbi6aprdoq
-         0koii7PXl7nf4fHRVISkf5JC/9D9DsATDjf/VBQTQ8GTYhiPBGAi+1eT5YmaSCRmPLL4
-         69j85J4d4vI3BHXvBMVstj5fAtkArWAMU0AotBzIeJpMA841uP6bVyWXCObaeqKc+PxH
-         JwI25Ld43QY3aTlsuCSdQMl+RmKwW8IHb6WXPBbDZZtwGumfAQLqr/ZPZgZcwpnLz+1S
-         nNj0s6ZW6e3fQsFUBtSuxfClMulgkn9cQuY0kCh1x7H1Czh6bWIFoonhBjp+yBakJaGR
-         KZcA==
-X-Forwarded-Encrypted: i=1; AJvYcCUOxp1T9eHTSQPUEjVQu+whW2CZoNfEG9BrwKZ3Icp/xn8QSmO+2nVjApqa1rY9d0Ua/rbLKTJ40RMaTIQ=@vger.kernel.org, AJvYcCVc3ZFm535gXQhAGKESs67S+yyIkC32jZKqkoJzUY3wwvqNdapqNjumMMsK9/qjjVBSSPY4f58kTg==@vger.kernel.org
-X-Gm-Message-State: AOJu0YzL4jdL9BNQLz99fjnlP2MHYv/gZ92FXp6DB8EYF4Hom5B30kGv
-	0E17eARGUoUCc517v7a7jWwKUGo9iGuapDgLJnmiHkEIvz8F3MvBiKz6TjpoPzwbDR5u6tkvVHS
-	hqDtwssXve0QEQHLrRZgo36ToYNEvuzI=
-X-Gm-Gg: ASbGnctjIeO9bX6HYiYrT0xAah/x4DOSlnaakLl1KNFxLtJs3MLAJcQ+ksGSon+7mUG
-	Y4xwKf0vlV/s3nHzwBi/pvPuuf218TttNu8hXVu13wHyl/IIykK0Xx1czPEHJidG+VyjP7FCiSs
-	3U8J/m97ZsY6tnqbtTAECF8tjdVEm/XmE/V26uFgFnAXsJAY3baCpYfHOh5a72wH9gYeysvfa/4
-	WNBRVE=
-X-Google-Smtp-Source: AGHT+IHK4G55vrT0z/Vc9/EMd1Xem4OzHkqt4YcrDG6lt8qqXtwp8frm3zJhvIQ3rDj7SzFcOYWWfEi0n/Kk8cuc56g=
-X-Received: by 2002:a05:6a20:6a26:b0:243:78a:8296 with SMTP id
- adf61e73a8af0-24340e06888mr16844987637.47.1756126045319; Mon, 25 Aug 2025
- 05:47:25 -0700 (PDT)
+        bh=yzJW2ROTeAzGAsrDdQWA8NqRpSmSo27xEb1eymuax+4=;
+        b=nqs/3cZc8t1BSNuPthyB1CPfKgnbyNtIFIJUQUkOz2nsJijo8HID8foZ+ed/oDZgBv
+         TAh2q5kAouSR6I/nWRwa95aAajybEIV7zgRAvOqi9w2X6J5XjD+z0zusT+NyOX+AIILf
+         C7Y1bpsiR+j9onB51sKeFiDb5K82mkkXbxsjR1YqVz2OXWVpylk7t2fSBnf2JVRcOtnj
+         SNHNb1fpRvCXr02DPpPaoUtm/jKVcUa5jJQKetEMI19DgTpyuPu3yUMJk9Kg97L2B7B2
+         l7py4yRHfHVoF0tobOSXwOQfrTJCP/lqaK7tt1wsvljbFCaT6mKwpv7nNqd5LeSifM3s
+         l3uA==
+X-Forwarded-Encrypted: i=1; AJvYcCXDqjXrUHx0rJAUAw6uvGa5lTUJJxHI5A1794gv4NHJclsxpBpRI5g1EEaJysZFfROROIGUNXqZ@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw0N5XavfMhMcwdN4dfzfmL2qGse12+Z5DYF1fnYYlF8HFxRrdc
+	N3RwbMwwIdBCo57Jh2JjJa5vpDO34tfFPopblqKjMJTVg/udy5Dw7UZg4u3UdpG35pEuvArTB2Q
+	8jyZq6rKNc03K6Vn0K9CU0Eu2HJM2E5N5Kw==
+X-Gm-Gg: ASbGncsVACrmUNBcwgL9yRYZcG0LUP8QG7FcS116Q24aWIqSo4HjVi5aTrq6JMUGANc
+	rym+2BYwiq1F4NuhWavM2pBQuGAMf6VVFnW8AMi+ZuK47wVxyK97QK1kfXxuPBV0y6XP2bINGAz
+	SmTcv2f4EqIcQEJ4pmXv7CdoKovOjhquL3dydearL9DMfY5cH3A9UK16dY+y91kuFwJfMYrm7Dg
+	Xi+z+A=
+X-Google-Smtp-Source: AGHT+IHW9WlLHiZlY0dpH8o3WVeOtfEGDnlWoo7eBKIXBJXZ6FuzViCObsGxhwkEV/2mPsWy175GQ2xbi+DowcKP9EA=
+X-Received: by 2002:a17:902:db0c:b0:240:a430:91d with SMTP id
+ d9443c01a7336-2462edee7b2mr139186515ad.10.1756130903576; Mon, 25 Aug 2025
+ 07:08:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250824130106.35366-1-mittalyugansh1@gmail.com>
-In-Reply-To: <20250824130106.35366-1-mittalyugansh1@gmail.com>
+References: <20250821182021.304-1-ericsu@linux.microsoft.com> <CAKrb_fEx=oKncdp8Ypi5gPuyp=G7KmwUec4sbMO2OOcGEvyNHw@mail.gmail.com>
+In-Reply-To: <CAKrb_fEx=oKncdp8Ypi5gPuyp=G7KmwUec4sbMO2OOcGEvyNHw@mail.gmail.com>
 From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Mon, 25 Aug 2025 08:47:12 -0400
-X-Gm-Features: Ac12FXyPz3TVvLbv55vx5OvxIWKPlrlzVuYOuRUEj4dKsNis_Ik6IjZqj7xVw4M
-Message-ID: <CAEjxPJ6xCZLotyjfF-SBKbxFUur4=0bFbUpSZgbOkF_BMaAd4g@mail.gmail.com>
-Subject: Re: [PATCH 2/2] selinux: make __inode_security_revalidate non-sleeping
-To: Yugansh Mittal <mittalyugansh1@gmail.com>
-Cc: paul@paul-moore.com, omosnace@redhat.com, selinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
+Date: Mon, 25 Aug 2025 10:08:12 -0400
+X-Gm-Features: Ac12FXzFVJ5To674Dk9bFWQm0Dk1IzEBZRr6DefKVV_Os2AQrKjGRyckn2XOG84
+Message-ID: <CAEjxPJ6zHGwHpxWgLP6SjiRV4CrusbRjDkcTN_tGqK9Xn+WgXg@mail.gmail.com>
+Subject: Re: [PATCH v3] SELinux: Add support for BPF token access control
+To: Daniel Durning <danieldurning.work@gmail.com>
+Cc: Eric Suen <ericsu@linux.microsoft.com>, selinux@vger.kernel.org, 
+	paul@paul-moore.com, omosnace@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Aug 24, 2025 at 9:01=E2=80=AFAM Yugansh Mittal <mittalyugansh1@gmai=
-l.com> wrote:
+On Fri, Aug 22, 2025 at 1:57=E2=80=AFPM Daniel Durning
+<danieldurning.work@gmail.com> wrote:
 >
-> Replace the blocking revalidation logic in __inode_security_revalidate()
-> with a fast, RCU-safe check of the inode security struct.
+> On Thu, Aug 21, 2025 at 2:20=E2=80=AFPM Eric Suen <ericsu@linux.microsoft=
+.com> wrote:
+> >
+> > BPF token support was introduced to allow a privileged process to deleg=
+ate
+> > limited BPF functionality=E2=80=94such as map creation and program load=
+ing=E2=80=94to an
+> > unprivileged process:
+> >   https://lore.kernel.org/linux-security-module/20231130185229.2688956-=
+1-andrii@kernel.org/
+> >
+> > This patch adds SELinux support for controlling BPF token access. With
+> > this change, SELinux policies can now enforce constraints on BPF token
+> > usage based on both the delegating (privileged) process and the recipie=
+nt
+> > (unprivileged) process.
+> >
+> > Supported operations currently include:
+> >   - map_create
+> >   - prog_load
+> >
+> > High-level workflow:
+> >   1. An unprivileged process creates a VFS context via `fsopen()` and
+> >      obtains a file descriptor.
+> >   2. This descriptor is passed to a privileged process, which configure=
+s
+> >      BPF token delegation options and mounts a BPF filesystem.
+> >   3. SELinux records the `creator_sid` of the privileged process during
+> >      mount setup.
+> >   4. The unprivileged process then uses this BPF fs mount to create a
+> >      token and attach it to subsequent BPF syscalls.
+> >   5. During verification of `map_create` and `prog_load`, SELinux uses
+> >      `creator_sid` and the current SID to check policy permissions via:
+> >        avc_has_perm(creator_sid, current_sid, SECCLASS_BPF,
+> >                     BPF__MAP_CREATE, NULL);
+> >
+> > The implementation introduces two new permissions:
+> >   - map_create_as
+> >   - prog_load_as
+> >
+> > At token creation time, SELinux verifies that the current process has t=
+he
+> > appropriate `*_as` permission (depending on the `allowed_cmds` value in
+> > the bpf_token) to act on behalf of the `creator_sid`.
+> >
+> > Example SELinux policy:
+> >   allow test_bpf_t self:bpf {
+> >       map_create map_read map_write prog_load prog_run
+> >       map_create_as prog_load_as
+> >   };
+> >
+> > Additionally, a new policy capability bpf_token_perms is added to ensur=
+e
+> > backward compatibility. If disabled, previous behavior ((checks based o=
+n
+> > current process SID)) is preserved.
+> >
+> > Changes in v2:
+> > - Fixed bug in selinux_bpffs_creator_sid(u32 fd) where it retrieved
+> >   creator_sid from wrong file descriptor
+> > - Removed unnecessary checks for null, per review comments from
+> >   the first patch
+> >
+> > Changes in v3:
+> > - Removed check for 'sid =3D=3D SECSID_NULL' in selinux_bpf_token_creat=
+e and
+> >   allow it to fall through to the permission checks which will fail as
+> >   access denied to unlabeled_t
+> >
+> > Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
 >
-> Previously, the function could invoke inode_doinit_with_dentry() when
-> may_sleep was true, which might block. With this change we always avoid
-> sleeping and return -ECHILD if the inode label is invalid, forcing the
-> caller to retry in a sleepable context.
+> Tested-by: Daniel Durning <danieldurning.work@gmail.com>
+> Reviewed-by: Daniel Durning <danieldurning.work@gmail.com>
 
-If you look at the callers of __inode_security_revalidate(), you will
-see that not all are capable of propagating -ECHILD to their callers
-and forcing a retry; IIRC this is only truly possible during rcu path
-walk. Hence, this change will produce situations where the inode may
-be left with a stale or unlabeled context.
-Your patch was marked as 2/2 but I did not see a 1/2 patch.
-
->
-> This ensures that __inode_security_revalidate() can safely run in
-> non-sleepable contexts while preserving correct retry semantics.
->
-> Signed-off-by: Yugansh Mittal <mittalyugansh1@gmail.com>
-> ---
->  security/selinux/hooks.c | 22 +++++++++-------------
->  1 file changed, 9 insertions(+), 13 deletions(-)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index c95a5874b..2bb94794e 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -282,19 +282,15 @@ static int __inode_security_revalidate(struct inode=
- *inode,
->         if (!selinux_initialized())
->                 return 0;
->
-> -       if (may_sleep)
-> -               might_sleep();
-> -       else
-> -               return -ECHILD;
-> -
-> -       /*
-> -        * Check to ensure that an inode's SELinux state is valid and try
-> -        * reloading the inode security label if necessary.  This will fa=
-il if
-> -        * @dentry is NULL and no dentry for this inode can be found; in =
-that
-> -        * case, continue using the old label.
-> -        */
-> -       inode_doinit_with_dentry(inode, dentry);
-> -       return 0;
-> +       rcu_read_lock();
-> +        isec =3D selinux_inode(inode);
-> +        if (unlikely(!isec || is_label_invalid(isec))) {
-> +                rcu_read_unlock();
-> +                return -ECHILD;  /* force caller to handle reload elsewh=
-ere */
-> +        }
-> +        rcu_read_unlock();
-> +
-> +       return 0; /* valid and no sleeping done */
->  }
->
->  static struct inode_security_struct *inode_security_novalidate(struct in=
-ode *inode)
-> --
-> 2.43.0
->
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
