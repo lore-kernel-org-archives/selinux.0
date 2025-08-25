@@ -1,246 +1,143 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6082228466D
-	for <selinux@vger.kernel.org>; Mon, 25 Aug 2025 11:40:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F0496BFCE;
+	Mon, 25 Aug 2025 12:47:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756122046; cv=none; b=NEZAKpI0l+/wAw5VtyBYa1/fKh0cHHz9zTRpbrV/i8KnZN5YknFfEtl1Dd5lsUstcSxT/FTL+QkFIKgcSIL1+FgP4H3G0sdtI1Am6Gl9K2S4gL7yv46p3f0Caaautz7dqJE8wn93HPlnFtSEaZm0e/i+0uZi0CaGqbYJkS3Q7iU=
+	t=1756126047; cv=none; b=YZar41SzlE3wsBPZITNOCDfITDXj0WHplRvwu+YqxnkvmrLWSOBdbi0iGVrn6f/ZUUf46g4QRVNoI1QxHiDNnVQwD6yzaPAb0y/SKYxAy1vJulqaYKcUvb+hYYZ5ZwSV9WbtZPko1TlOFLXieKuoG7RvhJNZ+CZPLbEoodo4jSo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756122046; c=relaxed/simple;
-	bh=XmOeOd1pViwutI8wtiDdDhgWiGhbRMXdQ9LlGz9YIc0=;
+	s=arc-20240116; t=1756126047; c=relaxed/simple;
+	bh=0gdFNx6GXTjA5oLRilWZiyfEvwBHxFr5q6NQWUJX7lc=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nLNRCOkyTnoWQ59AnmYT31i4o8SmiKP3G4xX0jLWQJnxCBp60I4nbr6sBls8QqZBxDwm3dMCxYuyKs/+CoinKAw4y2j8/48aLx+BvItqPpyTf9CshSx0CSWUGwpQWEhb260Biu4CwnxCaXhdZofGsU1hpv/hwmncMUUCOPW+01U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YwqShMBX; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 To:Cc:Content-Type; b=bDs0PdjvKjMXxZvF+oxvID0RRnw31PtY/VqqOPdBSWA59QGHzUmi32EKajSAg58It3kZcM+v/IQ3kTORSSo4MRFbP5Yh2qV9D6b3UexR1jBtm8ZUokdv+2XpxBmFx+gviEHRWZ3vZzOvb8cGebD2dYUf84qgapN9yAym/UyxmEM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=B04b0TZN; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YwqShMBX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756122043;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=i1tL7FInsElGn6Q+dpU9DZrUipU/+oqNog7jlscNK44=;
-	b=YwqShMBX9jA+mf8SZCUuPsKAezr/h6m/wxFUgNc01ysRSWnd9K8Szh82KkN/4UNIBm+V+u
-	l1zETnTTA60+VA9lKsxcqfTROfOg0d61CiRY7clzP/b6o6yw7trt99TLNeX9f9aofpLoA1
-	jgjjy6Z5Lq6eEnI3KCZwgm2zG9qKpV4=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-663-WmbjVt3hNai2pxq9POBV7w-1; Mon, 25 Aug 2025 07:40:42 -0400
-X-MC-Unique: WmbjVt3hNai2pxq9POBV7w-1
-X-Mimecast-MFC-AGG-ID: WmbjVt3hNai2pxq9POBV7w_1756122041
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-246164c4743so77858415ad.3
-        for <selinux@vger.kernel.org>; Mon, 25 Aug 2025 04:40:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B04b0TZN"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-76e4fc419a9so3794947b3a.0;
+        Mon, 25 Aug 2025 05:47:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1756126045; x=1756730845; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6pB42h8KhdCu+rKcl6R+qSx9ydRtdSuvsQ7gp0cs6PM=;
+        b=B04b0TZNpIjXThagXzvp+82oBaAZqRHjInmz5A9+6A2oTE+KwaQlNidUq5TLS9Z6na
+         MzWllDgEshDdf7XBIIacNv/TUpeK5tfs4EZUtGfYoLpbRYL3eL5laRLRJL1d42ukLYBp
+         salXvo7Z6lQBRxfKasFx/ToBwP0N2YKsOu9179J2ERjEHZ/gY3rBGOWs9eP56D0HCeOe
+         8rKilT3ermcAsxAJRmY67gaI11HvxaehKZexOOkrG49ZRtv+3dhvzeLOXO/boQ2V0fKC
+         cxSzfA4fZJubo4p6knBHjll0GhwRC06hd0hEPMByqHkhantq4BC2Y8KpWOG8QdsAB0QF
+         yiGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756122041; x=1756726841;
+        d=1e100.net; s=20230601; t=1756126045; x=1756730845;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=i1tL7FInsElGn6Q+dpU9DZrUipU/+oqNog7jlscNK44=;
-        b=mPDkSpaDZ8iit4zBmDnxHyKkEzgSSW6JM5wT0fH7BmD4Tv/5ZdJAsPL6ADl5CtzcKH
-         YcqWZi7uhpUA1lqiMBTy/NYtsYplfgjbANn1h98s1F52PybV9yY2xhZn1q7vrqzH4HE0
-         mkiVHZh6946DvGmDTmM5zTUY1ywI3tlTbtTiH9NZTBMktknNwimSEEJmrxZ5ZvLQcP3Z
-         KnSNK/+rnx2ykdHg9Ulq7mGQgsvbq/UEdCokGgZNY8fQ/reZppSSk+ztwY4lfXwIN0lt
-         0ia+wftjIvxzHFU5u7dbP6xMu900glhldRDMRzB23zgmertY61jTDbngElQbUo9cXBcv
-         HEwg==
-X-Forwarded-Encrypted: i=1; AJvYcCUPr0DAma+Er4zwNHdBduQP89lQzCQkHH8Dk69MpXbGbA+C0f2K8FUri8Af4WAYx9uFDu3mfOgQ@vger.kernel.org
-X-Gm-Message-State: AOJu0YwFbxcRZqadVj/c7kfn7nwZtlg9Smfda5IrUh2peMGZUhE6E0/k
-	SlYUMb2M6wffIRaCPfQqg7Pvb67ta4US70E4AtIjgzICkNIbVo3WQOO1tYsxt+IKFJ4HUPf5tDE
-	1meGQLc35rC0OZP8+9dSDmG/pDjwOfkH6zteXKf4muXYTrGLKxZdeI0olJ1Pu3+lybFNESPcfmn
-	k8aDpFHrsxzz+EcVOpBc3fSUB03nUqvNiVoQ==
-X-Gm-Gg: ASbGncsdD2sWYlWHdGkn1IqnPtNOzhJLwnU01qAXKFQ21RO7h86txMIl0BGMHTT0gxG
-	TacO9TZb1BxUQyBeS9Q+tdkT68Qo0lqXPhEOSHbPqfBA5Ruy0YCc5qtNETHuVxM3hPdBpqcOdU0
-	drxf5YGfVEyIgFGpZkujwCdeEGH8DqHXGTlvL+/fghsnIM6tc2hn1/UA==
-X-Received: by 2002:a17:903:187:b0:235:ec11:f0ee with SMTP id d9443c01a7336-2462eded8bbmr149438095ad.14.1756122040928;
-        Mon, 25 Aug 2025 04:40:40 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IHLCziNmCrrf8tECcKtIH9dzFLSdIyn7zlRi1/szsUtdVvup0dJYiATJcecD2+pMYNgqYeGYRFvetRjSq8AhlA=
-X-Received: by 2002:a17:903:187:b0:235:ec11:f0ee with SMTP id
- d9443c01a7336-2462eded8bbmr149437725ad.14.1756122040456; Mon, 25 Aug 2025
- 04:40:40 -0700 (PDT)
+        bh=6pB42h8KhdCu+rKcl6R+qSx9ydRtdSuvsQ7gp0cs6PM=;
+        b=PIUdaZ9PQAw4g877R/HCntryxteep4hl0fDq6pMJH61qtMnbNpXDonTnkbi6aprdoq
+         0koii7PXl7nf4fHRVISkf5JC/9D9DsATDjf/VBQTQ8GTYhiPBGAi+1eT5YmaSCRmPLL4
+         69j85J4d4vI3BHXvBMVstj5fAtkArWAMU0AotBzIeJpMA841uP6bVyWXCObaeqKc+PxH
+         JwI25Ld43QY3aTlsuCSdQMl+RmKwW8IHb6WXPBbDZZtwGumfAQLqr/ZPZgZcwpnLz+1S
+         nNj0s6ZW6e3fQsFUBtSuxfClMulgkn9cQuY0kCh1x7H1Czh6bWIFoonhBjp+yBakJaGR
+         KZcA==
+X-Forwarded-Encrypted: i=1; AJvYcCUOxp1T9eHTSQPUEjVQu+whW2CZoNfEG9BrwKZ3Icp/xn8QSmO+2nVjApqa1rY9d0Ua/rbLKTJ40RMaTIQ=@vger.kernel.org, AJvYcCVc3ZFm535gXQhAGKESs67S+yyIkC32jZKqkoJzUY3wwvqNdapqNjumMMsK9/qjjVBSSPY4f58kTg==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzL4jdL9BNQLz99fjnlP2MHYv/gZ92FXp6DB8EYF4Hom5B30kGv
+	0E17eARGUoUCc517v7a7jWwKUGo9iGuapDgLJnmiHkEIvz8F3MvBiKz6TjpoPzwbDR5u6tkvVHS
+	hqDtwssXve0QEQHLrRZgo36ToYNEvuzI=
+X-Gm-Gg: ASbGnctjIeO9bX6HYiYrT0xAah/x4DOSlnaakLl1KNFxLtJs3MLAJcQ+ksGSon+7mUG
+	Y4xwKf0vlV/s3nHzwBi/pvPuuf218TttNu8hXVu13wHyl/IIykK0Xx1czPEHJidG+VyjP7FCiSs
+	3U8J/m97ZsY6tnqbtTAECF8tjdVEm/XmE/V26uFgFnAXsJAY3baCpYfHOh5a72wH9gYeysvfa/4
+	WNBRVE=
+X-Google-Smtp-Source: AGHT+IHK4G55vrT0z/Vc9/EMd1Xem4OzHkqt4YcrDG6lt8qqXtwp8frm3zJhvIQ3rDj7SzFcOYWWfEi0n/Kk8cuc56g=
+X-Received: by 2002:a05:6a20:6a26:b0:243:78a:8296 with SMTP id
+ adf61e73a8af0-24340e06888mr16844987637.47.1756126045319; Mon, 25 Aug 2025
+ 05:47:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250806143105.915748-1-omosnace@redhat.com> <aJP+/1VGbe1EcgKz@mail.hallyn.com>
- <aJaPQZqDIcT17aAU@mail.hallyn.com> <CAADnVQKY0z1RAJdAmRGbLWZxrJPG6Kawe6_qQHjoVM7Xz8CfuA@mail.gmail.com>
- <CAFqZXNtAfzFJtL3gG7ViEFOWoAE2VNrvCOA5DxqMmWt7z6g5Yg@mail.gmail.com>
-In-Reply-To: <CAFqZXNtAfzFJtL3gG7ViEFOWoAE2VNrvCOA5DxqMmWt7z6g5Yg@mail.gmail.com>
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Mon, 25 Aug 2025 13:40:29 +0200
-X-Gm-Features: Ac12FXywkjbpILypI5RWnFIND68dT-H5iuSShUyGnrn6lJQ2zbZhJJjba7Q-KBA
-Message-ID: <CAFqZXNukE9n6MN_kQ+Q2c5fFaMt3aO-Z8km-u_RSpiJCr+eb2A@mail.gmail.com>
-Subject: Re: [PATCH] x86/bpf: use bpf_capable() instead of capable(CAP_SYS_ADMIN)
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>, daniel.sneddon@linux.intel.com, 
-	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, alexandre.chartre@oracle.com, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, bpf <bpf@vger.kernel.org>, 
-	selinux@vger.kernel.org, LSM List <linux-security-module@vger.kernel.org>
+References: <20250824130106.35366-1-mittalyugansh1@gmail.com>
+In-Reply-To: <20250824130106.35366-1-mittalyugansh1@gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Mon, 25 Aug 2025 08:47:12 -0400
+X-Gm-Features: Ac12FXyPz3TVvLbv55vx5OvxIWKPlrlzVuYOuRUEj4dKsNis_Ik6IjZqj7xVw4M
+Message-ID: <CAEjxPJ6xCZLotyjfF-SBKbxFUur4=0bFbUpSZgbOkF_BMaAd4g@mail.gmail.com>
+Subject: Re: [PATCH 2/2] selinux: make __inode_security_revalidate non-sleeping
+To: Yugansh Mittal <mittalyugansh1@gmail.com>
+Cc: paul@paul-moore.com, omosnace@redhat.com, selinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 13, 2025 at 11:49=E2=80=AFAM Ondrej Mosnacek <omosnace@redhat.c=
-om> wrote:
+On Sun, Aug 24, 2025 at 9:01=E2=80=AFAM Yugansh Mittal <mittalyugansh1@gmai=
+l.com> wrote:
 >
-> On Sat, Aug 9, 2025 at 2:46=E2=80=AFAM Alexei Starovoitov
-> <alexei.starovoitov@gmail.com> wrote:
-> >
-> > On Fri, Aug 8, 2025 at 4:59=E2=80=AFPM Serge E. Hallyn <serge@hallyn.co=
-m> wrote:
-> > >
-> > > On Wed, Aug 06, 2025 at 08:18:55PM -0500, Serge E. Hallyn wrote:
-> > > > On Wed, Aug 06, 2025 at 04:31:05PM +0200, Ondrej Mosnacek wrote:
-> > > > > Don't check against the overloaded CAP_SYS_ADMINin do_jit(), but =
-instead
-> > > > > use bpf_capable(), which checks against the more granular CAP_BPF=
- first.
-> > > > > Going straight to CAP_SYS_ADMIN may cause unnecessary audit log s=
-pam
-> > > > > under SELinux, as privileged domains using BPF would usually only=
- be
-> > > > > allowed CAP_BPF and not CAP_SYS_ADMIN.
-> > > > >
-> > > > > Link: https://bugzilla.redhat.com/show_bug.cgi?id=3D2369326
-> > > > > Fixes: d4e89d212d40 ("x86/bpf: Call branch history clearing seque=
-nce on exit")
-> > > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > >
-> > > > So this seems correct, *provided* that we consider it within the pu=
-rview of
-> > > > CAP_BPF to be able to avoid clearing the branch history buffer.
-> >
-> > true, but...
-> >
-> > > >
-> > > > I suspect that's the case, but it might warrant discussion.
-> > > >
-> > > > Reviewed-by: Serge Hallyn <serge@hallyn.com>
-> > >
-> > > (BTW, I'm assuming this will get pulled into a BPF tree or something,=
- and
-> > > doesn't need to go into the capabilities tree.  Let me know if that's=
- wrong)
-> >
-> > Right.
-> > scripts/get_maintainer.pl arch/x86/net/bpf_jit_comp.c
-> > is your friend.
-> >
-> > Pls cc author-s of the commit in question in the future.
-> > Adding them now.
-> >
-> > > > > diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_c=
-omp.c
-> > > > > index 15672cb926fc1..2a825e5745ca1 100644
-> > > > > --- a/arch/x86/net/bpf_jit_comp.c
-> > > > > +++ b/arch/x86/net/bpf_jit_comp.c
-> > > > > @@ -2591,8 +2591,7 @@ emit_jmp:
-> > > > >                     seen_exit =3D true;
-> > > > >                     /* Update cleanup_addr */
-> > > > >                     ctx->cleanup_addr =3D proglen;
-> > > > > -                   if (bpf_prog_was_classic(bpf_prog) &&
-> > > > > -                       !capable(CAP_SYS_ADMIN)) {
-> > > > > +                   if (bpf_prog_was_classic(bpf_prog) && !bpf_ca=
-pable()) {
-> >
-> > This looks wrong for several reasons.
-> >
-> > 1.
-> > bpf_capable() and CAP_BPF in general applies to eBPF only.
-> > There is no precedent so far to do anything differently
-> > for cBPF when CAP_BPF is present.
+> Replace the blocking revalidation logic in __inode_security_revalidate()
+> with a fast, RCU-safe check of the inode security struct.
 >
-> That's not entirely true, see below.
->
-> > 2.
-> > commit log states that
-> > "privileged domains using BPF would usually only be allowed CAP_BPF
-> > and not CAP_SYS_ADMIN"
-> > which is true for eBPF only, since cBPF is always allowed for
-> > all unpriv users.
-> > Start chrome browser and you get cBPF loaded.
->
-> Processes using cBPF (via SO_ATTACH_FILTER) already can trigger a
-> CAP_BPF check - when the net.core.bpf_jit_harden sysctl is set to 1,
-> then the sequence sk_attach_filter() -> __get_filter() ->
-> bpf_prog_alloc() -> bpf_prog_alloc_no_stats() ->
-> bpf_jit_blinding_enabled() -> bpf_token_capable() happens for the same
-> iio-sensor-proxy syscall as the one that hits the CAP_SYS_ADMIN check.
-> Because of this we have already granted the BPF capability in
-> Fedora/RHEL SELinux policy to many domains that would usually run as
-> root and that use SO_ATTACH_FILTER. The logic being that they are
-> legitimately using BPF + without SELinux they would be fully
-> privileged (root) and they would pass that check + it seemed they
-> could otherwise lose some performance due to the hardening (though I'm
-> not sure now if it applies to cBPF, so this point could be moot) +
-> CAP_BPF doesn't grant any excess privileges beyond this (as opposed to
-> e.g. CAP_SYS_ADMIN). This is what I meant behind that commit log
-> statement, though I didn't remember the details, so I didn't state it
-> as clearly as I could have (my apologies).
->
-> Now this same usage started triggering the new plain CAP_SYS_ADMIN
-> check so I naturally assumed that changing it to bpf_capable() would
-> be the most logical solution (as it would let us keep the services
-> excluded from the hardening via CAP_BPF without granting the broad
-> CAP_SYS_ADMIN).
->
-> Is the fact that CAP_BPF check is reachable via cBPF use unexpected
-> behavior? If both cBPF and eBPF can be JIT'd and CAP_BPF is already
-> being used for the "exempt from JIT hardening" semantics in one place,
-> why should cBPF and eBPF be treated differently? In fact, shouldn't
-> the decision to apply the Spectre mitigation also take into account
-> the net.core.bpf_jit_harden sysctl even when the program is not cBPF?
->
-> > 3.
-> > glancing over bugzilla it seems that the issue is
-> > excessive audit spam and not related to CAP_BPF and privileges.
-> > If so then the fix is to use
-> > ns_capable_noaudit(&init_user_ns, CAP_SYS_ADMIN)
-> >
-> > 4.
-> > I don't understand how the patch is supposed to fix the issue.
-> > iio-sensor-proxy is probably unpriv. Why would it use CAP_BPF?
-> > It's using cBPF, so there is no reason for it to have CAP_BPF.
-> > So capable(CAP_BPF) will fail just like capable(CAP_SYS_ADMIN),
-> > but since CAP_BPF check was done first, the audit won't
-> > be printed, because it's some undocumented internal selinux behavior ?
-> > None of it is in the commit log :(
->
-> It is not unprivileged. It runs as root and without SELinux it would
-> have all capabilities allowed. If it were running without any
-> capabilities, then indeed there would be no SELinux checks.
->
-> > 5.
-> > And finally all that looks like a selinux bug.
-> > Just because something in the kernel is asking capable(CAP_SYS_ADMIN)
-> > there is no need to spam users with the wrong message:
-> > "SELinux is preventing iio-sensor-prox from using the 'sys_admin' capab=
-ilities."
-> > iio-sensor-prox is not trying to use 'sys_admin' capabilities.
-> > cBPF prog will be loaded anyway, with or without BHB clearing.
->
-> Well, it depends... In this case the AVC denial informs us that the
-> kernel is making some decision depending on the capability and that a
-> decision should be made in the policy to allow or silence the access
-> vector. Even when the consequence is not a failure of the syscall, it
-> still may be useful to have the denial reported, since there is a
-> potential performance impact. OTOH, with CAP_SYS_ADMIN if the decision
-> is to not allow it, then silencing it via a dontaudit rule would
-> potentially hide other more critical CAP_SYS_ADMIN denials, so it's
-> hard to decide what is better - to silence this specific case in the
-> kernel vs. to let the user allow/silence the specific AV in the
-> policy...
+> Previously, the function could invoke inode_doinit_with_dentry() when
+> may_sleep was true, which might block. With this change we always avoid
+> sleeping and return -ECHILD if the inode label is invalid, forcing the
+> caller to retry in a sleepable context.
 
-Bumping this, as I'd like to hear some feedback to the points above.
+If you look at the callers of __inode_security_revalidate(), you will
+see that not all are capable of propagating -ECHILD to their callers
+and forcing a retry; IIRC this is only truly possible during rcu path
+walk. Hence, this change will produce situations where the inode may
+be left with a stale or unlabeled context.
+Your patch was marked as 2/2 but I did not see a 1/2 patch.
 
-Thanks,
-
---=20
-Ondrej Mosnacek
-Senior Software Engineer, Linux Security - SELinux kernel
-Red Hat, Inc.
-
+>
+> This ensures that __inode_security_revalidate() can safely run in
+> non-sleepable contexts while preserving correct retry semantics.
+>
+> Signed-off-by: Yugansh Mittal <mittalyugansh1@gmail.com>
+> ---
+>  security/selinux/hooks.c | 22 +++++++++-------------
+>  1 file changed, 9 insertions(+), 13 deletions(-)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index c95a5874b..2bb94794e 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -282,19 +282,15 @@ static int __inode_security_revalidate(struct inode=
+ *inode,
+>         if (!selinux_initialized())
+>                 return 0;
+>
+> -       if (may_sleep)
+> -               might_sleep();
+> -       else
+> -               return -ECHILD;
+> -
+> -       /*
+> -        * Check to ensure that an inode's SELinux state is valid and try
+> -        * reloading the inode security label if necessary.  This will fa=
+il if
+> -        * @dentry is NULL and no dentry for this inode can be found; in =
+that
+> -        * case, continue using the old label.
+> -        */
+> -       inode_doinit_with_dentry(inode, dentry);
+> -       return 0;
+> +       rcu_read_lock();
+> +        isec =3D selinux_inode(inode);
+> +        if (unlikely(!isec || is_label_invalid(isec))) {
+> +                rcu_read_unlock();
+> +                return -ECHILD;  /* force caller to handle reload elsewh=
+ere */
+> +        }
+> +        rcu_read_unlock();
+> +
+> +       return 0; /* valid and no sleeping done */
+>  }
+>
+>  static struct inode_security_struct *inode_security_novalidate(struct in=
+ode *inode)
+> --
+> 2.43.0
+>
