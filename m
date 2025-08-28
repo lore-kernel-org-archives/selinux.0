@@ -1,110 +1,198 @@
-Received: from mail-il1-f202.google.com (mail-il1-f202.google.com [209.85.166.202])
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D15C31282B
-	for <selinux@vger.kernel.org>; Wed, 27 Aug 2025 22:22:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46F9915B54A;
+	Thu, 28 Aug 2025 13:09:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756333372; cv=none; b=n6/BBxXZODjGSyrU/cn3IbEhlMAa92Zsg72+pkOqRZV7GWwAtNRZ7QbS6MuC1YX/oslRp2ARnZ56vhF8bFmVIfNPou0uNe2B0PslGmKtPtwiKe2GA7q8fh5dSkNJNFTRz0QeP2qV6qYGtnl0UbeqjcjU6jIiitXdagu/J9Np7Mg=
+	t=1756386541; cv=none; b=uBKa3jGsz/jeJTVmUVS2bwFWrH6BQzwuAjyrMHn2wIVlxff8uWsrAdIaBd9nmOflhU7jw9DyoBfF5eFNE4ChNtZwjbmGgOsYzJG7QUS5+snW8z66RD66B0T+XGIhtgFq25fRexzCBBnq5x5BMJI8wwbt8bBbe4uTB9829a87bdc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756333372; c=relaxed/simple;
-	bh=ds/S1EVyIKnvZ9LVpP/WvBCpoyb7+PD68B4U73/Pc0k=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=mUTh8x/Bhnju7+WMqRyGDtMLPW9mfxx3a5BCJFm1tzp41Wj/iU3Yb2uvgZA/UCDFbuAOIRpqbAEYtsMPwbyreQF99ptDqevaAV3mE38EQFX2lhAAfil6YpSoAbjhkdCn7nutVgdF2IyNSRatqE1lDDYVYjjtWMtSSriQhutzDc0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--nkapron.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=iqOtqQJA; arc=none smtp.client-ip=209.85.166.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--nkapron.bounces.google.com
+	s=arc-20240116; t=1756386541; c=relaxed/simple;
+	bh=iJxkRNGF0qNm2/a68HQMqhq5i3qJlyN1dJGOak8lZhI=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qfzgwMdGbz6UeCUzUKCXdNDLjolAlZL2PSgud0jJ9bqYAXFaRvWfb9u2gvfVHsxf0KixbS0lbN/PEspKAQ+yNrct9tqz2AZ0FChJFEP/aq/bI48d0X/v2FvwaUo/T0080bHtUlwXjSU2ONL92Pd9gurl/mT9SxKRXgxHmfsLeH8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TgbQn/FD; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="iqOtqQJA"
-Received: by mail-il1-f202.google.com with SMTP id e9e14a558f8ab-3ec4acb4b61so3951015ab.0
-        for <selinux@vger.kernel.org>; Wed, 27 Aug 2025 15:22:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TgbQn/FD"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-327771edfbbso971736a91.0;
+        Thu, 28 Aug 2025 06:09:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1756333370; x=1756938170; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=YATE6/X/BBWba8kshTUTT9lCmwAYXNlSRbgjhzgP5vU=;
-        b=iqOtqQJA6bp+I9qyih+Gs9D6ALLPqNQgFTBDAc4iwBAjuL+JIleALrijOXLmK9Iz6X
-         +j4Mq27KVTs1o1CnwsghXAP1jWdeHPylFUh0EKf+Df4kYjfdSmHjmXWe1I2T6lEx3MZG
-         Q0d7tLWAplXCoW2xloNFUIdR/s3l+EolE3VGLjQH20bwa07HbicNFFFPwkszQC2TLCNR
-         Hge2Qa2QOOPLz57eglZBNN+1kBzs04wIG7jPNhMDkvhcvbqg8KQPvugOFxw4i06cHx/U
-         ePu7/wG7lm43dcF8u5Rf2mVpDHWqole7kXJr1JURFi1E2ae5rtr4Z/gckS6Jx5ORhwY2
-         C29A==
+        d=gmail.com; s=20230601; t=1756386539; x=1756991339; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LvhomtO4DwakeG1+rtCtiLjt0uJV+P5XvM8piJEihZg=;
+        b=TgbQn/FDmwauMY0I1FgmuX4yaC8RvJB9SRZjOF1e4oRtHiT6chzs7zN9+gFsXDlyu7
+         dQOsXcsW3awYsuorFgwTbtZBBQpHaJ2GQxDKH4xtHEt983rDlbrLMiX/Af0xeu1+/kgq
+         fQSox80XpB8hYlQkshFtlM5SebFB0eUm2xRrzrSTcNtDvu6N+gMQ36+xJLzqubAXGJh0
+         CIY4TeofDuMwuWL3U4ivdA8bcHfKviYYn05X8Ovvwaxg6z3xa+Ojw6MprQ4OdGLKs161
+         CA5j5G/ouemXmpJ8Bbv5PHBV4Cm/LIbTD0W33i9ClXCTz0QoFMXtC0nFJf4HLQWg+8JI
+         oxRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756333370; x=1756938170;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=YATE6/X/BBWba8kshTUTT9lCmwAYXNlSRbgjhzgP5vU=;
-        b=Sv4xmPw+7HSOVqzpCtRf07rAeoLyUULQGmiYKLU2jv40qww88o2V6U+BaY2ZGqfJfJ
-         CZlBG6FSXN7PoCY3s8U7rrj33oEcFXNZoPYJG9NahtfuyR+DJP2oWTm7FsObCMeA5GKM
-         JgZGhXxCLM+rtrI5v59B0+RvLvLrtwSak2+ETR8NY03RrNZoRnVrk2YMecwNwEf8v28W
-         pA5Gh6IV2/fuhBNRSSbEstgkiTAnSSvK4PXZE0I6jG/MiklGW2QVKJu1Br1FIay7ONfS
-         vfn8zgdRIXj3OhabB8azm6Obke3abLWr6fSmJHQvtCeeYrT5vfF6CLEpEYq3zYG1DmhU
-         41Xg==
-X-Forwarded-Encrypted: i=1; AJvYcCUGYOSAnI5Tava95D2R5K/XpSG4Mvo0kSzBFVVsOpbiH3B51dyjopMeKq8T2lVjFLObjHjNAJ3P@vger.kernel.org
-X-Gm-Message-State: AOJu0YxXo/MZKl4kkAcSVcfb4lvtef5A0HT2yP5Td3eQAS9xcUHlk1Z1
-	gXHQ5y+T7Cp5tYNY4QVfpoyJTpTUnlXPzT5y5UGFmmmtdjorhfgopC4vfrpMlez4R+/dO9/Y902
-	jPNXC18mGmw==
-X-Google-Smtp-Source: AGHT+IG08NPlcTfnwJRV14NPo5BAvb6gaNt/RvTdXkNxGluLT4kwGpYXIl8mJzP3qm8I+PwEm4sOfWuatXVf
-X-Received: from ilgr20.prod.google.com ([2002:a92:c514:0:b0:3e5:533b:799f])
- (user=nkapron job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6e02:190e:b0:3f0:f671:aca5
- with SMTP id e9e14a558f8ab-3f0f671adafmr25112685ab.19.1756333370643; Wed, 27
- Aug 2025 15:22:50 -0700 (PDT)
-Date: Wed, 27 Aug 2025 22:22:21 +0000
-In-Reply-To: <20250827222224.1648500-1-nkapron@google.com>
+        d=1e100.net; s=20230601; t=1756386539; x=1756991339;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=LvhomtO4DwakeG1+rtCtiLjt0uJV+P5XvM8piJEihZg=;
+        b=H9ZEa8f+qsq7W3bn4pircMJCxI3MYpMDMxXHVHLCHT0VIYtll5SPOcrf+TdK2Fi+cI
+         MbksDhRe2MmSbAqIjTZ3hVju6XSGBu77cOHSQ3q54PeDuIin3bmXQYpegpqcJmYT6mFD
+         hg6z4Io3Y0549eSBOfQv78GxSpSCmMjQbgtKc+J7Sb4rqJZ5mTOzGfICqXKShA25I3Zd
+         xN+93gUZ79acIdJNnxOLRlpMPe1JxCsoG3tAwBKAn0PiMTYZdxu1B6HC3HBrxMQMzPrV
+         Ih+Swv3TZz/zVg88lkkF6PyWL/ZKhRGn40cex7bmkc7Z+/8CGdaYqFVlBNcwMKeS2I+g
+         DzhQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUYuFqJvfu8Pj19l9R8Ok4CMpaTpHERFHyVgSTXohO/7QXFsHh++CxkHKsWXkEiunrB6NczDOH3Xg==@vger.kernel.org, AJvYcCXim6oHArX4q2xxQFUbK50yBAsZp2+njy0417oteUnYqHHoXnW2JbLWjYBch4HwAC5Pafug7V6xWWjV+Mw=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxzM01IbZC1BXyuVZ/oLjjXzbGcqceYs8K6H3EjpBOe9mHwRid1
+	gg5pE+fGh0Uajtv3tH+LbN+845UR6ojKE/38RHgr63GNm6Xs+WpKXJjdXcMhB78b1TyDSqAVSSr
+	0yNeQnRrvVOKsGz3Y9nBNKYXmqDl/Hpg=
+X-Gm-Gg: ASbGnctvVM6b8hzdg1Jzr4yHUbM+5IBrsZSuU1pbnDGuvVdK4/JgiRcwsNzhRxg2zJX
+	wbijjYtqTb6uW5NMOYoOioo0n3OMKck/8RPz/KC8TvELR2tyPcLYHPhQf9OHr1BaqcQXWKy5Lq9
+	o1HTCw2Pnt3Vi0RC0S4LqOaj6OOMCkH+LO1SOs2BkHvcy6Gyt8ekf48Vb1BzPyj1xMNP+RrJVut
+	fLQiyw=
+X-Google-Smtp-Source: AGHT+IHKOQI4wq68UTSVfowK93Ay2Usq+Z4cugsDDMakFbw6QbzKTxxqLjIN0VmU4V1nzpF+Wbvnm01f1s6+k/FamA0=
+X-Received: by 2002:a17:90b:180b:b0:327:ced1:26e2 with SMTP id
+ 98e67ed59e1d1-327ced12a9emr628290a91.18.1756386539327; Thu, 28 Aug 2025
+ 06:08:59 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
 References: <20250827222224.1648500-1-nkapron@google.com>
-X-Mailer: git-send-email 2.51.0.318.gd7df087d1a-goog
-Message-ID: <20250827222224.1648500-2-nkapron@google.com>
-Subject: [PATCH v2 2/2] libsepol: Support functionfs_seclabel policycap
-From: Neill Kapron <nkapron@google.com>
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Neill Kapron <nkapron@google.com>, kernel-team@android.com, 
+In-Reply-To: <20250827222224.1648500-1-nkapron@google.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Thu, 28 Aug 2025 09:08:48 -0400
+X-Gm-Features: Ac12FXyuN1Byx-wSgubWxpD86t3QKFNyAnpuKSQ6RHk1qhXNp667qnH7glyoWro
+Message-ID: <CAEjxPJ4QKnzgoSYgfy8+CqjRigEbW7=B5t4fO4djbO5GnLtCOg@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] selinux: enable per-file labeling for functionfs
+To: Neill Kapron <nkapron@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, kernel-team@android.com, 
 	linux-kernel@vger.kernel.org, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This adds the necessary userspace pieces to support the
-functionfs_seclabel policycap which enables per-file labels in
-functionfs and the ability for userspace to apply the labels.
+On Wed, Aug 27, 2025 at 6:22=E2=80=AFPM Neill Kapron <nkapron@google.com> w=
+rote:
+>
+> This patch adds support for genfscon per-file labeling of functionfs
+> files as well as support for userspace to apply labels after new
+> functionfs endpoints are created.
+>
+> This allows for separate labels and therefore access control on a
+> per-endpoint basis. An example use case would be for the default
+> endpoint EP0 used as a restricted control endpoint, and additional
+> usb endpoints to be used by other more permissive domains.
+>
+> It should be noted that if there are multiple functionfs mounts on a
+> system, genfs file labels will apply to all mounts, and therefore will no=
+t
+> likely be as useful as the userspace relabeling portion of this patch -
+> the addition to selinux_is_genfs_special_handling().
+>
+> This patch introduces the functionfs_seclabel policycap to maintain
+> existing functionfs genfscon behavior unless explicitly enabled.
+>
+> Signed-off-by: Neill Kapron <nkapron@google.com>
+>
+> Changes since v1:
+> - Add functionfs_seclabel policycap
+> - Move new functionality to the end of existing lists
 
-With the policycap disabled, legacy behaviors are maintained and
-per-file labeling is disallowed.
+This isn't actually a multi-patch series for the kernel, so don't use
+the patch 1/2, patch 2/2 notation since that confuses b4 (it tries to
+pull in the 2nd patch for libsepol and unsurprisingly that won't apply
+to the kernel). Not sure that warrants re-posting (defer to Paul). The
+patch itself looks fine to me but we now have 3 pending patches each
+of which is trying to claim the next available policy capability bit,
+so we'll ultimately need to de-conflict for upstream merge. Otherwise,
+you can add my:
 
-Signed-off-by: Neill Kapron <nkapron@google.com>
----
- libsepol/include/sepol/policydb/polcaps.h | 1 +
- libsepol/src/polcaps.c                    | 1 +
- 2 files changed, 2 insertions(+)
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
-index 0835ea21..bbaebf1a 100644
---- a/libsepol/include/sepol/policydb/polcaps.h
-+++ b/libsepol/include/sepol/policydb/polcaps.h
-@@ -19,6 +19,7 @@ enum {
- 	POLICYDB_CAP_NETLINK_XPERM,
- 	POLICYDB_CAP_NETIF_WILDCARD,
- 	POLICYDB_CAP_GENFS_SECLABEL_WILDCARD,
-+	POLICYDB_CAP_FUNCTIONFS_SECLABEL,
- 	__POLICYDB_CAP_MAX
- };
- #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
-diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
-index 7ac0ae7c..83eb6143 100644
---- a/libsepol/src/polcaps.c
-+++ b/libsepol/src/polcaps.c
-@@ -18,6 +18,7 @@ static const char * const polcap_names[POLICYDB_CAP_MAX + 1] = {
- 	[POLICYDB_CAP_NETLINK_XPERM]			= "netlink_xperm",
- 	[POLICYDB_CAP_NETIF_WILDCARD]			= "netif_wildcard",
- 	[POLICYDB_CAP_GENFS_SECLABEL_WILDCARD]		= "genfs_seclabel_wildcard",
-+	[POLICYDB_CAP_FUNCTIONFS_SECLABEL]		= "functionfs_seclabel",
- };
- 
- int sepol_polcap_getnum(const char *name)
--- 
-2.51.0.318.gd7df087d1a-goog
-
+> ---
+>  security/selinux/hooks.c                   | 8 ++++++--
+>  security/selinux/include/policycap.h       | 1 +
+>  security/selinux/include/policycap_names.h | 1 +
+>  security/selinux/include/security.h        | 6 ++++++
+>  4 files changed, 14 insertions(+), 2 deletions(-)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index e474cd7398ef..333bb6cba25e 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -476,7 +476,9 @@ static int selinux_is_genfs_special_handling(struct s=
+uper_block *sb)
+>                 !strcmp(sb->s_type->name, "rootfs") ||
+>                 (selinux_policycap_cgroupseclabel() &&
+>                  (!strcmp(sb->s_type->name, "cgroup") ||
+> -                 !strcmp(sb->s_type->name, "cgroup2")));
+> +                 !strcmp(sb->s_type->name, "cgroup2"))) ||
+> +               (selinux_policycap_functionfs_seclabel() &&
+> +                !strcmp(sb->s_type->name, "functionfs"));
+>  }
+>
+>  static int selinux_is_sblabel_mnt(struct super_block *sb)
+> @@ -741,7 +743,9 @@ static int selinux_set_mnt_opts(struct super_block *s=
+b,
+>             !strcmp(sb->s_type->name, "binder") ||
+>             !strcmp(sb->s_type->name, "bpf") ||
+>             !strcmp(sb->s_type->name, "pstore") ||
+> -           !strcmp(sb->s_type->name, "securityfs"))
+> +           !strcmp(sb->s_type->name, "securityfs") ||
+> +           (selinux_policycap_functionfs_seclabel() &&
+> +            strcmp(sb->s_type->name, "functionfs")))
+>                 sbsec->flags |=3D SE_SBGENFS;
+>
+>         if (!strcmp(sb->s_type->name, "sysfs") ||
+> diff --git a/security/selinux/include/policycap.h b/security/selinux/incl=
+ude/policycap.h
+> index 7405154e6c42..135a969f873c 100644
+> --- a/security/selinux/include/policycap.h
+> +++ b/security/selinux/include/policycap.h
+> @@ -17,6 +17,7 @@ enum {
+>         POLICYDB_CAP_NETLINK_XPERM,
+>         POLICYDB_CAP_NETIF_WILDCARD,
+>         POLICYDB_CAP_GENFS_SECLABEL_WILDCARD,
+> +       POLICYDB_CAP_FUNCTIONFS_SECLABEL,
+>         __POLICYDB_CAP_MAX
+>  };
+>  #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
+> diff --git a/security/selinux/include/policycap_names.h b/security/selinu=
+x/include/policycap_names.h
+> index d8962fcf2ff9..ff8882887651 100644
+> --- a/security/selinux/include/policycap_names.h
+> +++ b/security/selinux/include/policycap_names.h
+> @@ -20,6 +20,7 @@ const char *const selinux_policycap_names[__POLICYDB_CA=
+P_MAX] =3D {
+>         "netlink_xperm",
+>         "netif_wildcard",
+>         "genfs_seclabel_wildcard",
+> +       "functionfs_seclabel",
+>  };
+>  /* clang-format on */
+>
+> diff --git a/security/selinux/include/security.h b/security/selinux/inclu=
+de/security.h
+> index 7f19972f7922..0f954a40d3fc 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -203,6 +203,12 @@ static inline bool selinux_policycap_netlink_xperm(v=
+oid)
+>                 selinux_state.policycap[POLICYDB_CAP_NETLINK_XPERM]);
+>  }
+>
+> +static inline bool selinux_policycap_functionfs_seclabel(void)
+> +{
+> +       return READ_ONCE(
+> +               selinux_state.policycap[POLICYDB_CAP_FUNCTIONFS_SECLABEL]=
+);
+> +}
+> +
+>  struct selinux_policy_convert_data;
+>
+>  struct selinux_load_state {
+> --
+> 2.51.0.318.gd7df087d1a-goog
+>
