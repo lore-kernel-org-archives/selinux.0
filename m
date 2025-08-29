@@ -1,147 +1,92 @@
-Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+Received: from mail-il1-f178.google.com (mail-il1-f178.google.com [209.85.166.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AF6E314A81
-	for <selinux@vger.kernel.org>; Fri, 29 Aug 2025 14:21:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFEDA326D53
+	for <selinux@vger.kernel.org>; Fri, 29 Aug 2025 16:31:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756477313; cv=none; b=KkaSuH+jjwbaFHLqayPgGu1lo7Zt6FlCgCZTkqUH8rKMPMFZBmlxB8DOqWBRo1rbvDeVHN5VfIeOgFzaVo+jteRsVwkTnJlK0JvtWJkWAnwN76aTyVsUrgj7O0k+6mWlEo49DBfj/jx+mu1PDy/OYYdEb5XQYETpDe7N7CGMBdA=
+	t=1756485086; cv=none; b=h2a0u/73qdV9+4qJ6O9wshdhKptUPRnr6PiHbUavf0YDPvtKgs3OMQ+AuYqhSoLPEUDSZTVPS6MX4iH79Eb66ZwFfUSv53dXX983gTTvyBhYYTAHbXxSPiRDUPMp1JdjLd0AYlqCA1tvgeVODxErt8r2+SXJUecQuz/UtUJngqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756477313; c=relaxed/simple;
-	bh=d4XoZNc9cduMyfwotp3SBa0zk165uOd57JOMvnLgwWY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QF4p+6UeYt1o6smh5EJyBwkB78MkuAex1j2eAtYXO66pW1mDJIlBPdG4Zmfm4sJJ/Zlqh7y4Rqi64kCe+peomUdtSzHglEfrRmjPSE29wkC+JgaEgp1kGCulCAVbDjDFo93dmY0pQs/U5bNJTDe/qNG7KomlqFm2PsR+kHLgOjA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bCKxBOCu; arc=none smtp.client-ip=209.85.215.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1756485086; c=relaxed/simple;
+	bh=pHyUzdGIEuMbKyrMh+j6H6WX/5fl8Lbl5tqXrks6ehM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=JHMhcoexFz+H+rdPbLZR2T2ekUqKD/JO0CMcgDkeRJK2XcT+V72U7NFamQ+OQwq8bIe5M+53Uc3KSFfgcxyR6D3ufeAaxYikplASk7FVtAq/s+jVnvKN1WduisI2wpkQr7O3bAyTKDppH9a1byVtnjxeNekqtE4CjVbMT/DttGM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=KRd13MX+; arc=none smtp.client-ip=209.85.166.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bCKxBOCu"
-Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-b4c6fee41c9so1387724a12.1
-        for <selinux@vger.kernel.org>; Fri, 29 Aug 2025 07:21:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="KRd13MX+"
+Received: by mail-il1-f178.google.com with SMTP id e9e14a558f8ab-3ea8b3a64c1so9901565ab.0
+        for <selinux@vger.kernel.org>; Fri, 29 Aug 2025 09:31:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756477311; x=1757082111; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VzRSTTydT8IbaiprwfVaOjrfTXNJ4jQqmuHyDkQEpJE=;
-        b=bCKxBOCuKbGljBivFHts7QngUvbFQQuwrMyRUm4Bw8XlP8DR5vKIWysFqmN4T7bSgs
-         OYXd5MbiGpFvC8fblQUO1S3GHCI1FrYgef2Rc6tqQfv1XBx0eA+DJEaao095cLKKMp7G
-         sd5qaRgzGLn8vJdFQz2ObV+dKY+q48mEhy5zJpPFxiftJ7btClKJeW4/C3sp7NfvcdBj
-         yoisFzRkxKOnpwXdie+pNUbIJln7NOWrKgiBbH3f/O0mk+nqr3pNPVJGpavZAY7c1S8B
-         Lg6Xechrk9LIquwrDAIDdmHL0HxV9Ur/8eFdVY5+pynt6IKofx+hsMpim5r7bLgv9RIV
-         7R3g==
+        d=google.com; s=20230601; t=1756485084; x=1757089884; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=6Aq9F6GkDNRj0W5kCY4QlKzlsKBjTYse7H5/E8RG41o=;
+        b=KRd13MX+7P+3AH1dA3PWUdQuEZ8rs/th7cksPNkocp07v0xeyyGkAy+3IcJvplUUey
+         gZSuI26Yh3yQLilHOzqjiZZW0eOWzDqkzVi9/1JGMq1jqHmp4pIdWA31iY4pBnVC1t7g
+         0Tb5xvzZWeW+4vq6MrY+JS/AylEx0AVFNGv7Y/H0CLuYwy+69qRPCbiWbKGs/I2BADCM
+         YobVpfstmo+i9xDaXOEkVyj4d7sRQFG3RZ1Ay1DFpsdJyR40edcONvx5yRbfKmqshjlY
+         dbjuf5D17B16unQBmCqz8jY3VYzVArhGFHSco2e+t4dHQS/g3Ba5cYH2BrXWDFDLFvKk
+         uUVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756477311; x=1757082111;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=VzRSTTydT8IbaiprwfVaOjrfTXNJ4jQqmuHyDkQEpJE=;
-        b=m+eQLSb2KqBL8TS+keX1kBbUqojylH4Nyv5fwzfS4LL+bzXQHC+ZNhv08nibItpFFB
-         oPiOzauOVyAZgwPJEnHvVr59yxamGBxwAv/j/T4LeVqQvyf1xoGhgvBXjRgi12KU9NkF
-         7nAxbkOUPZzJEtn+OACO/tQof6qT9110ZuK7uBWucGGuWXuugpzrLyfj6oWjHVeC52Nj
-         58dMyURm3goIjCA5iscVMGfSv4YjqnmCKderxSzzCe/1DkmmCZy4wP6jLXcIINPawoxu
-         cYZg9IQ0bytzlOC1koIZ5J8z8zrRdxtELNogC6Yey4P84qjIbxmaJzor9qR4ApyHXY5F
-         lGlw==
-X-Gm-Message-State: AOJu0YzQp/RPcjPX56qpKmtgldM1wCOEJ6YrphtRTeApate6YXsdkz6y
-	8AI0auII9ethhALDowVGTdnrRoq25D8H9MjzWjCi07R9vtY02pFDA9HvSe0ps7rVAfPAL30JuVp
-	d74B9J0Y1J2AsWFkH4dO0xGcilwjFxAA5JA==
-X-Gm-Gg: ASbGncujVg/fvtuRBRbMFxfmWDj/b6F6YdhLlg+Atd3fBHAELmRFnqGEd/8EZcMzHol
-	dqrV4YhSDyEW+bGk6hDMBnJrO/Usc9VSPh0URfb3zqJz5rPR/vva9GugzLnLRfXvfKMbkuRPxPv
-	6n+hT0/v9HTBB/m1BCmXuSUJI/lx1ltiwr8L0Ij8alETXMuphHUNIa/tJkq93Us9Mo3Q1xQXa4A
-	DJI71BObCMZ2PhTTw==
-X-Google-Smtp-Source: AGHT+IGi1Su2qxFmnChTeSkNXhvovmJvMuJsWsctdNnOpWcdx6HnfmBnROGyVSZZNoLMca/amo+ZsYSQTnHqw7TJE6A=
-X-Received: by 2002:a17:90b:5644:b0:327:70b9:9d68 with SMTP id
- 98e67ed59e1d1-32770b99e1bmr13412969a91.16.1756477311161; Fri, 29 Aug 2025
- 07:21:51 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1756485084; x=1757089884;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6Aq9F6GkDNRj0W5kCY4QlKzlsKBjTYse7H5/E8RG41o=;
+        b=WrJQQyHyq7wmCLyYQZmpgSBny8H9msBfxOIMecCKrArDkUGgoa0WqxgSDkShUAw3qM
+         qOz/+HIFErMNOvUf71tLHQIzxBMWhJEI3+898K8U2r4R1E+9B6m6x1Ad/8MvyVHwSfCR
+         NsIBUo5OvQ2/whLHZk835Z4SWj2cAJAUEYbZAeI6niNNYF4bORV8sN+NcRbHacHwmSX2
+         bsJfYPDrOup8IUcoxDh8F8SRogcd/c8cCVjLBnE/qbB0m+lT1gw1KMZlNwdshHbAzp8F
+         Is7YtjJ757Qm2YgjTuOl4nNeFxWPp4IisIkGfEtzq9chx3AAHaEw6sGaHlxQWcMKqiJ0
+         Sp4g==
+X-Forwarded-Encrypted: i=1; AJvYcCU1CowA6DDD+AZPmDc2Jo1rYYGtC7Zi+DgSxQ8lfRqT7PbkKQ6YtpsVJazFIrTX2A63M2ypoFCq@vger.kernel.org
+X-Gm-Message-State: AOJu0YyMmrLwlMTXNnuS5kebumq9Ztu0qMKqkxrq8ls48Xgrlq2JWxLg
+	Hclp7qNibPBVm3Es983szAFA2RzbUrAhxWlIlu/Qh+prsTYs3uqS7WlpzpPh/qOSBg==
+X-Gm-Gg: ASbGncsKUeLS7jPYkZ9l5iH0wQlMpM7UpR8iVGr2ZbQcLqQZ4Pvp164XINiibTegOhN
+	PpvD/N00hwYOML6lJ9B28mfisp4kXeaPNnL1FUuF3GNAz9UAzMtOyLEGzZWlVJTCx2NUGQLE8Gq
+	zPSrjKGUoQsRZfw6s8XYJ9vpb5bYUlkkaFf7IYEyaR6EJ/HC9G1MPtyV/T56punaIybXm1cEYVS
+	sYKVrtHo29bCiLcI3Lrdoj1tt7R4ejv0/YKWS0DZCoZCgpN0JTin1nBFkL967i6lxd+lY5E2EaE
+	JUKeMVNV484PQeAiVj3cM/jqFWfiVtaDB1sxikyQe7CqHlCbk0DsZ6jUgEptgsnKCLxRypdS7ow
+	+WHLpyfp9Tpl74H/e3IrxjNx+Azlc2h8IsA0NlzSS78LmZ/H5oEbDdLCzoIySG8JCNA==
+X-Google-Smtp-Source: AGHT+IH8g3k6EVCj6uu/y7CYnCfGfvfUlntaVdqZjmhIzXo0V9tMdpenbFbzM26tob/Rtwf21Sm4Ew==
+X-Received: by 2002:a05:6e02:16ce:b0:3e5:4631:547c with SMTP id e9e14a558f8ab-3e921d461a5mr379924525ab.14.1756485083760;
+        Fri, 29 Aug 2025 09:31:23 -0700 (PDT)
+Received: from google.com (189.227.72.34.bc.googleusercontent.com. [34.72.227.189])
+        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3f29f7864easm8752885ab.20.2025.08.29.09.31.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 29 Aug 2025 09:31:23 -0700 (PDT)
+Date: Fri, 29 Aug 2025 16:31:21 +0000
+From: Neill Kapron <nkapron@google.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>,
+	kernel-team@android.com, selinux@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] selinux: enable per-file labeling for functionfs
+Message-ID: <aLHV2Tb5aw1Znfw8@google.com>
+References: <20250828170317.2322582-1-nkapron@google.com>
+ <CAEjxPJ7-M5OAiTLmOynP36HF6XmJKhH2kTFAGmhg8ohCkZuT8w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250829141000.13795-2-stephen.smalley.work@gmail.com>
-In-Reply-To: <20250829141000.13795-2-stephen.smalley.work@gmail.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Fri, 29 Aug 2025 10:21:40 -0400
-X-Gm-Features: Ac12FXx0SeY008bxqNDEgMuBlarrwLw43gp1cTiGHwmGz-nqvL6QabTVHoOdnQ0
-Message-ID: <CAEjxPJ4h3QmeRJN++8A=hjD98tOis6_09Zhi1EDK6sKtP5cZiQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix sel_read_bool() allocation and error handling
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com, omosnace@redhat.com, willy@infradead.org, 
-	vishal.moola@gmail.com, david@redhat.com, mst@redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAEjxPJ7-M5OAiTLmOynP36HF6XmJKhH2kTFAGmhg8ohCkZuT8w@mail.gmail.com>
 
-On Fri, Aug 29, 2025 at 10:13=E2=80=AFAM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> Switch sel_read_bool() from using get_zeroed_page() and free_page()
-> to kzalloc() and kfree(), and fix the error path to free the buffer
-> when security_get_bool_value() returns an error.
->
-> Reported-by: Matthew Wilcox <willy@infradead.org>
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
-> Could likely just use kmalloc() as suggested but being conservative.
-> Double NOT also likely unnecessary since values are sanitized on
-> input but likewise being conservative. We obviously have more places
-> to fix in selinuxfs.
->
->  security/selinux/selinuxfs.c | 18 ++++++++++--------
->  1 file changed, 10 insertions(+), 8 deletions(-)
->
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 9aa1d03ab612..e90990c57bd1 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -1203,7 +1203,8 @@ static ssize_t sel_read_bool(struct file *filep, ch=
-ar __user *buf,
->                              size_t count, loff_t *ppos)
->  {
->         struct selinux_fs_info *fsi =3D file_inode(filep)->i_sb->s_fs_inf=
-o;
-> -       char *page =3D NULL;
-> +       char *buffer =3D NULL;
-> +       size_t size;
->         ssize_t length;
->         ssize_t ret;
->         int cur_enforcing;
-> @@ -1218,21 +1219,22 @@ static ssize_t sel_read_bool(struct file *filep, =
-char __user *buf,
->                 goto out_unlock;
->
->         ret =3D -ENOMEM;
-> -       page =3D (char *)get_zeroed_page(GFP_KERNEL);
-> -       if (!page)
-> +       size =3D 4; /* 0|1 0|1 */
-> +       buffer =3D kzalloc(size, GFP_KERNEL);
+On Fri, Aug 29, 2025 at 08:18:08AM -0400, Stephen Smalley wrote:
+ 
+> As before, don't rely on the policy capability bit remaining stable
+> until Paul merges this patch.
+> Also, not worth re-spinning IMHO but the changelog below normally goes
+> after the "---" before
+> the diffstat so that it doesn't get included in the commit message
+> since no one cares about
+> the in-submission changes once the patch is merged.
 
-Should likely just allocate that on the stack and be done with it.
-Will wait a bit for other comments before re-spinning though.
+Thanks, I appreciate your guidance on this!
 
-> +       if (!buffer)
->                 goto out_unlock;
->
->         cur_enforcing =3D security_get_bool_value(index);
->         if (cur_enforcing < 0) {
->                 ret =3D cur_enforcing;
-> -               goto out_unlock;
-> +               goto out_free;
->         }
-> -       length =3D scnprintf(page, PAGE_SIZE, "%d %d", cur_enforcing,
-> -                         fsi->bool_pending_values[index]);
-> +       length =3D scnprintf(buffer, size, "%d %d", !!cur_enforcing,
-> +                         !!fsi->bool_pending_values[index]);
->         mutex_unlock(&selinux_state.policy_mutex);
-> -       ret =3D simple_read_from_buffer(buf, count, ppos, page, length);
-> +       ret =3D simple_read_from_buffer(buf, count, ppos, buffer, length)=
-;
->  out_free:
-> -       free_page((unsigned long)page);
-> +       kfree(buffer);
->         return ret;
->
->  out_unlock:
-> --
-> 2.51.0
->
+Neill
