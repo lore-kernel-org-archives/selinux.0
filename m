@@ -1,116 +1,94 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4616274B57
-	for <selinux@vger.kernel.org>; Sat, 30 Aug 2025 11:48:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3CF3253B71
+	for <selinux@vger.kernel.org>; Sat, 30 Aug 2025 14:14:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756554512; cv=none; b=oFy2uLvfL7t5UVO8dRRZEXIxarwapBbNdOlMNqX/rBX9A0Oq52kEX/bSXvfGNFZu745BaQs+5/yqSX8cHWXHTUtiy8uTtmfcyNvIvqEDvpuzzMWveDwSLhWGMjHc3g2POAbeEuPBM7mqhl2D2OAFwjZnHHKWvEAkdz+VTwsAUDs=
+	t=1756563295; cv=none; b=HybY+c9uxkzog1UMi9ZPKFw5hUAzdO0gjUvYXlJ5UF3ZNGf1PV7wlFwsYNWMCUrHD+LMNPNzqzxUV6Linjc4tOqehA3ZDbs74YUTa84yzM94DVnkqu+QtNM2k8Nq+dPXyxqifwB+qlXAcCjqkom3wIhwghzMJGePhbKRTmnnjug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756554512; c=relaxed/simple;
-	bh=zaeQ9+KQzLSByS2I5JXk0VDH5I1R+0tcwVDmQJqKIVE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rfSjG1S/nvhIOwLZeaklO8oVhn+gTQN4QL/XZSGo7qjjPWVshilipp8pHhdiDVMbl+ODNhcH99sXwyJj0uGhz5EYIYg/PMT5SJXBtkqzziRuYolyhJGlM5jHIXmr61hO9Llkw2sWTOQHsZujmN6Qb0UZgp/YYb7Itosl2RC0amc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dv4L/+Q2; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1756563295; c=relaxed/simple;
+	bh=NLarFhy3kQ/TjCF4gbAzrkvsWHYogEKJLhKX1GQRe6E=;
+	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
+	 References:In-Reply-To; b=WNrORXwclnsgqqJDrZ3Yoxpc3ehy01V0tC9b3LJuNa6XArYZPKAgfDJVZ8KSK+XqFvik6FgdsUyQ1Gphd+3Qg+VvuI8TzSNdqDxn+TMOuYtkn9VwdYqrIeODJGPGM9rsXVAoWDG7vk81Sp4ExA6b+9tY0PAAxYE090Qy5hynoRg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=PzTO+rLX; arc=none smtp.client-ip=209.85.210.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dv4L/+Q2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1756554509;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KaKjGFLwy+V7ecd9sJXmkoNWgd3Dh2vSUHl3RDc679g=;
-	b=dv4L/+Q2Hl//duaCXOolyMoLMsCc3kbQZWSTmlGmgrf/PMIw5tMdZ9OUqHeiqtohdmKFvI
-	W5WS3qpoB2OmEgI0MlIi+MHX4JB48cYxOf9Y0R+YJnYN0iS+tkT0flhQb0ArdxOz5Rtczr
-	bQTvxT/JahnNCxDbfyzANYlH0aOHSn4=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-230-KrR4lZkRNzKhm_tmzTExdA-1; Sat, 30 Aug 2025 07:48:25 -0400
-X-MC-Unique: KrR4lZkRNzKhm_tmzTExdA-1
-X-Mimecast-MFC-AGG-ID: KrR4lZkRNzKhm_tmzTExdA_1756554504
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-45b467f5173so23815305e9.3
-        for <selinux@vger.kernel.org>; Sat, 30 Aug 2025 04:48:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="PzTO+rLX"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-77033293ed8so2691325b3a.0
+        for <selinux@vger.kernel.org>; Sat, 30 Aug 2025 07:14:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1756563293; x=1757168093; darn=vger.kernel.org;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=/vhRNtUPsZDFJYGrztPkjMPFnVe+Rwz4ScA0R7wbO7c=;
+        b=PzTO+rLXWFtNInMn5cl2f5knPnOvyE8e/ZqjD6aiCCgQ+BqEwHDYo2HM/3A5Bp3ZZy
+         kYJ8hDu8Ienhgrt1uHtN16ectKQmQN08h8U2JrVHJuXTQ6jnCisyevIRb9LNG56KJ7oN
+         j9nGMxcgPfM/4aK6n0gGcpk91LIAFAwD81DpLOkPe8CIUGHcG0gAPew+VP5xXWRp+/oJ
+         13bFkvkb0Hk2b+Zp87AaWQUa4siq/7PfpHEC/vTtqCqxPZSIK7weWF5prqkbRimVzCQs
+         1jE3rlj/30EYzDkgEAkf6paZLUkCmynYaNk/jQH8zHBcHE2K6C+gqg/WV6lz1lY/VXVe
+         YRwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756554504; x=1757159304;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KaKjGFLwy+V7ecd9sJXmkoNWgd3Dh2vSUHl3RDc679g=;
-        b=bczr5Xs+uDPkGlohaJlC7AhmhklFXzQXLVg3Y7x+nJKrLEkCA77cgSLDAj2n7Di+Om
-         PKLNx+e0e6N1eC4Iq2leQv+MGYiUYm1f+Ck8zfzNO95nkkX4ocsPOqkXtMhNEUNTyXvq
-         onWuWU7zTS4eDi8VQtA78WkSUfes4nlVEMTlGxRZL5KxOHi29HmhHX49yslknCCfImX4
-         ekc5kFOjGD9jx9GIWYkJ5SNbqSlmM0cueuFh04zRBT05/EVH7ulpwF79uDgQEJl4BB00
-         XMVen0KZ93hvqfnOdfJGo+9JeUmP2I6CNzt+EuPfEQ4+OPgWuhHDVhiSXVBYUvxc1QZ9
-         E/uw==
-X-Forwarded-Encrypted: i=1; AJvYcCUvAPuenC0SviTTlYD8hTJMTe9QkhKd5GDN3ngQzjTdPb4lLU0xABgUj+YG3LaK88Bijdfnqznw@vger.kernel.org
-X-Gm-Message-State: AOJu0YxLV/YT9HKJ2ows6qOTGAF+A0LVRK+l9hjDs4XpK+vpjorbQjaL
-	N1Y7EXXvedHfSiE0oG4bRrDw/LsVV8q6rQ4dit/VNKmccqJ/mTgo4BTumbJ3e+kflFRey4grI7Q
-	p+VW07h2HHWJ/nqz6nUHssqhCixcuFq1RxutfjIVFBNZnjhlqROXZloI50Lk=
-X-Gm-Gg: ASbGncsESXnAQV+JAud5MZRSxptChi58trX/zgtb1Cm5NHm4uCCAHft2wJJo7CP3sFJ
-	goOOJK+m9gSddTONLrF8RGqvhrPeCbEu38WsswQrUpAZ7OuXMp78DU232pBMx/sRMkkc53N3HiN
-	kD/3bOViTUpi6EIpb+2prjhIxV79EwlQFuDL0Rf4r8Mf80UA3qzUGARaR7mRRfej8aYQPwRypxT
-	4cvTIAC8xlRvQtlyGcakg2ElGXn/eBVCDT6RoxTS7r1KptXabgoApW5xB/X6utdStor8czZLd0o
-	4esUYgFu9BuSirxsjPWR75tUYV8KnhkRk4w=
-X-Received: by 2002:a05:600c:1c98:b0:459:dd16:ddde with SMTP id 5b1f17b1804b1-45b8559b660mr12175365e9.23.1756554504262;
-        Sat, 30 Aug 2025 04:48:24 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG6Nv86gUIdggy1hEBUnLjrjO0ADmTfym8Sdz/L9HHFlU6ED/awS0qFW6I6CEH8xnA1upuKWw==
-X-Received: by 2002:a05:600c:1c98:b0:459:dd16:ddde with SMTP id 5b1f17b1804b1-45b8559b660mr12175215e9.23.1756554503856;
-        Sat, 30 Aug 2025 04:48:23 -0700 (PDT)
-Received: from redhat.com ([2a06:c701:73e7:4d00:2294:2331:c6cf:2fde])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3cf270fc496sm7074059f8f.1.2025.08.30.04.48.22
+        d=1e100.net; s=20230601; t=1756563293; x=1757168093;
+        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
+         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=/vhRNtUPsZDFJYGrztPkjMPFnVe+Rwz4ScA0R7wbO7c=;
+        b=rOytEUPDB13/a3gcuBcq5vQ6+jAcleB19wLhoAQSwVJcu98mezIYbhVUXJ8ZdgoBIp
+         w/aavzxRDTfxhU9Xaug7X5xwwcAm5B6o9/L98epsFnO//wXDinYkdLMgV3I9ypcgXh8s
+         Nw19qjv4tJv2yoYeP9GoN4kQu9oJSeac6CnlpX+7Bp7dUQ9bPqlknwiXlTaVYGfkfGO/
+         Y0J6UkeorpDBgGoZtLAMmFanV0/IRGchbK63jzM181GiOX4i5uF9VrDGxu/h97p3lswb
+         fcto7tEEj5R+wBtH/2NhYLQJEibZm8hK9aijfERMFSEjW71QsSr1kj3NcASc5CB7gjqJ
+         LPQg==
+X-Forwarded-Encrypted: i=1; AJvYcCXTaNEwzirEOLvay/GqCJdzqbmA12N8bbWXgFRrBWIUdiQITLie1eAtQQuL1gny3+WmFfh7sOY7@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzi+YV5pQThya2aVtIK/uG2qKehlau8nUv8Y2bH+0nkF0+2TfHK
+	4Axt3lN/d6buVOv423LYsWw8WsyXGIjAX+0b0IewTJ6VpnMGcNIc+RuTXEoMqteHmA==
+X-Gm-Gg: ASbGnctb3emtzyVr24fCDNRguSas26E16eeYrXeiHH0V64UnCoHM8j43qNRcd6OT5Cc
+	/fbGeLA9ihsRz1tIfbKPCmwSkL2MaG104yeWQIDUy1v45Kj9rDbPutiLzzCO8lziJ7gKFXZCC+Z
+	PDIDjBQg1iQGi5yh4Zuib9bCgbHv/UYO5mOmRS86Qn7QD/FuvSCSUrhLeDYatXKB6PVTYie+7Aj
+	ojL0iksuJ8uniONUM0A3pgBzvPahtbbr12JyQqhBjcBQlhjk+o45YAcAyi408NzPZdjuR9/kR1X
+	f3qnxcE+biio6Xq/bP5qpIDk7BqR7Fp3GlcJNy+BchyNYhTXW3EAD33aBkHv6BzMTO+TH/ArWZb
+	jFoby/eua8HQJbw==
+X-Google-Smtp-Source: AGHT+IGXGDxudBPOQGj+2n/Xq4JGPNY8rIEn5BPaZdBF3FLtxzrLU7/7VkCvAu8X+BdRWPuL6Qz8AQ==
+X-Received: by 2002:a05:6300:210d:b0:243:966e:21a with SMTP id adf61e73a8af0-243d6f0b8a2mr3512373637.36.1756563293102;
+        Sat, 30 Aug 2025 07:14:53 -0700 (PDT)
+Received: from localhost ([205.220.129.22])
+        by smtp.gmail.com with UTF8SMTPSA id 98e67ed59e1d1-3296c8c11eesm1319169a91.19.2025.08.30.07.14.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 30 Aug 2025 04:48:23 -0700 (PDT)
-Date: Sat, 30 Aug 2025 07:48:20 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Matthew Wilcox <willy@infradead.org>
-Cc: "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-	David Hildenbrand <david@redhat.com>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Paul Moore <paul@paul-moore.com>,
-	Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-Subject: Re: [PATCH v2 7/7] virtio_balloon: Stop calling page_address() in
- free_pages()
-Message-ID: <20250830074747-mutt-send-email-mst@kernel.org>
-References: <20250826205617.1032945-1-vishal.moola@gmail.com>
- <20250826205617.1032945-8-vishal.moola@gmail.com>
- <5ee2b684-94d9-40be-b01c-b0538ced33bc@redhat.com>
- <aK9Ogjn71JoOM3w3@fedora>
- <aLBthEcK1rDPQLrE@casper.infradead.org>
+        Sat, 30 Aug 2025 07:14:52 -0700 (PDT)
+Date: Sat, 30 Aug 2025 10:14:37 -0400
+Message-ID: <e6e9ea4bacac5553810f7963533a71ca@paul-moore.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aLBthEcK1rDPQLrE@casper.infradead.org>
+MIME-Version: 1.0 
+Content-Type: text/plain; charset=UTF-8 
+Content-Transfer-Encoding: 8bit 
+X-Mailer: pstg-pwork:20250830_ 948/pstg-lib:20250830_ 845/pstg-pwork:20250830_ 948
+From: Paul Moore <paul@paul-moore.com>
+To: Casey Schaufler <casey@schaufler-ca.com>, casey@schaufler-ca.com, eparis@redhat.com, linux-security-module@vger.kernel.org, audit@vger.kernel.org
+Cc: jmorris@namei.org, serge@hallyn.com, keescook@chromium.org, john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp, stephen.smalley.work@gmail.com, linux-kernel@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH v6 1/4] Audit: Create audit_stamp structure
+References: <20250816172859.6437-2-casey@schaufler-ca.com>
+In-Reply-To: <20250816172859.6437-2-casey@schaufler-ca.com>
 
-On Thu, Aug 28, 2025 at 03:53:56PM +0100, Matthew Wilcox wrote:
-> On Wed, Aug 27, 2025 at 11:29:22AM -0700, Vishal Moola (Oracle) wrote:
-> > I imagine theres more of these lingering in the kernel, but theres so
-> > many callers and I only looked for the ones that were calling
-> > page_address() inline :(.
+On Aug 16, 2025 Casey Schaufler <casey@schaufler-ca.com> wrote:
 > 
-> There's only 841 callers of free_page() and free_pages()!
+> Replace the timestamp and serial number pair used in audit records
+> with a structure containing the two elements.
 > 
-> It's a bit of a disease we have, to be honest,  Almost all of
-> them should be using kmalloc() instead.  To pick on one at random,
-> sel_read_bool() in security/selinux/selinuxfs.c is the implementation
-> of read() for some file in selinux.  All it's trying to do is output two
-> numbers, so it allocates an entire page of memory, prints two numbers
-> to it (while being VERY CAREFUL not to overflow the buffer!) and copies
-> the buffer to userspace.
-> 
-> It should just use kmalloc.
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> ---
+>  kernel/audit.c   | 17 +++++++++--------
+>  kernel/audit.h   | 13 +++++++++----
+>  kernel/auditsc.c | 22 +++++++++-------------
+>  3 files changed, 27 insertions(+), 25 deletions(-)
 
-Why even kmalloc? Why not have a small array on stack?
+Merged into audit/dev, thanks.
 
->  Oh, and it should avoid leaking the buffer
-> if security_get_bool_value() returns an error.
-
+--
+paul-moore.com
