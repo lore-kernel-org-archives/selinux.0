@@ -1,74 +1,74 @@
 Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFAE534AB08
-	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 18:10:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 266AB199252
+	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 18:12:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756836609; cv=none; b=LR6WMngtUz7OaSjLsYRFvQpHdP3nCeHeP01oAuSlrrnhCPUCnEbd7B7hYqp19W7qPY0dRKGBUMcHEf9KmpQ82EVLAQrFqHvsEgCPzPqjEbm1qXdbR1+/46vUkrp6+n++3RLm9qwRRathp8d2uUIjTIVHTe0G7ofhepc2cG0b6Rg=
+	t=1756836764; cv=none; b=H5EvcCWE67sJE6zMwOT15QHGK48J+hr+U/ijWZ9ZSQ01L/JYj2TaP6gsi/fm0wGDEaNJ5Eu46VAdCQEIwqjU4obJLodlJsDDcRH19gAv0cQ+fedO2J9NHLI4glfjY412oFlhr+L5bvOniUylM5XhwWflarDQMdqsW7MghHZ2LCI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756836609; c=relaxed/simple;
-	bh=x37aYtQf1T+qQIfI57QuxqNoCxBKfMb0foRem8DJSzE=;
+	s=arc-20240116; t=1756836764; c=relaxed/simple;
+	bh=f7TN2CQmOnPT2S/vKWYBIFNSNrRP1xZMe31zy41NQ88=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=L2vFlB7Rf5Fz91vPUrmtgKizc5y2yYdJkk1CCUuX9qQsXpYmsZs/cL5o1oKlAtMzoCcsDKoK4POhzTB3tvhW8ndQKsV4dP+ULdJFTfIIG39cwMYwVD5OQqHUW0hyo8rZcLoDMyD/4qz8o1eB31o4+0zFiCqfPw0rJC0tLkKlS9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=RucdsYBn; arc=none smtp.client-ip=185.125.188.122
+	 In-Reply-To:Content-Type; b=PS29ntFOvnOkSYUU9W7nSbZ1zN2RMBNLHF2DG34peQZzzWSVgmvj1c6GyYgE4K9BUxXFPva1ySrtS/ogqxcLicJX+yerH3gFHmcroztRRjIBQGs813jah95LRVSXOOz13KvMivA5h2ODGeEq//VE7Y/7/+FLhB88X0cmbmDwr5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=u9bv+Ob6; arc=none smtp.client-ip=185.125.188.122
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="RucdsYBn"
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com [209.85.215.200])
+	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="u9bv+Ob6"
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 30A963F52D
-	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 18:10:06 +0000 (UTC)
+	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 6C2A53F078
+	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 18:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1756836606;
-	bh=vF3jqd81vSB4gpqfdDwkV1Nw7zHIphbc4gz/EPHOY0E=;
+	s=20210705; t=1756836761;
+	bh=8OAG1bVjL9CPCRwt3wdW7B2gPYUDizNhwd31HwbHaV0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
 	 In-Reply-To:Content-Type;
-	b=RucdsYBnKhqem84RSrMPYWd3Wa6iecbyS7dCmmRQvr5qJyrqUX9tuWszhcczRcgRe
-	 xPWuhBIvFWasFWlmtjWSfA7ybxYzqSOLGOCSS9eM7S9A756oBmBxIUeOJ/Km3Es/ZX
-	 eSIIgJXInCbjYu4sIQDSs+zT/8ZKko9cVaAoHjdZpj3KFW64Rly0snLxuZd64uKHPo
-	 ekrXuC/o6LXtTzfdUIAOFcVMemRBBcUN0Kb08GT6bp4WvpaZi5QphENHmCIm3HvRD3
-	 J439JkfVZsmc0cKxsm8XVdKDkCd3e3CcFXi2OklX6ZBY7dFuB5LFok4TgiPt8UYraT
-	 lga/byVApDZxg==
-Received: by mail-pg1-f200.google.com with SMTP id 41be03b00d2f7-b47173a00e8so4266100a12.1
-        for <selinux@vger.kernel.org>; Tue, 02 Sep 2025 11:10:06 -0700 (PDT)
+	b=u9bv+Ob6UCpS1VUlRRAfUlwW+g15m6mi1CfsW9+7R5elxLl8n/Ap/2lRw0xjRtaE7
+	 OTSOR81feDiDykswBLyDIX4BzAdVY5CzoF/+l7Fvfg3Q99Yyy6eSur2U6EwFTnGoI0
+	 TyXnEC8iK0adjLie8GP7DxdsNzD78GwV17l+sV+abMQgkd7wMhIQr/utyVnjIFHQ0+
+	 2OYxO+J4JQQjCgce6NSbm174cxTicQE6ozcSH8bcP8g8RdJABdGgI6wZGhqoggLhw7
+	 l3eh7pDTL+9BBBehp/+XCFYJ4XrTD5PO+Teyl/KyYHfVlU6uM+1Y8bDjU8je1CpglS
+	 g31HuoZxRg/lQ==
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-248f7745075so84541935ad.3
+        for <selinux@vger.kernel.org>; Tue, 02 Sep 2025 11:12:41 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756836605; x=1757441405;
+        d=1e100.net; s=20230601; t=1756836760; x=1757441560;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vF3jqd81vSB4gpqfdDwkV1Nw7zHIphbc4gz/EPHOY0E=;
-        b=oBAEa3LLPJE/Rz+Y36HsaVHww6v68gXa8lvtistAUT2QW5gSec1CH+p414ResC5eOR
-         XUuDTq406o5MkHm1ArlmIyLRk/s2KYW5aDWKQGsdihhPZ10ATk2kx6lDa4EG54E3G4J2
-         sz9uyE1f4PLyoOqz6woDEuhKOU/ZYcFf3CsSOmHI2Jg/yJdGGvcu2a3383ohKNlur2+4
-         PYEo9QoVDv27Wsz/BX8Z0CdmW1sTC3Gu4Wn2elUUafj0LUtytx1Z8RY7oyt7twXXYOau
-         B1qabbJ/tVzlKQCqRFZL1DacZdH2c+j+cIVC8uzGI06MWy8MDqR80ynaEqwqLSGEwQ+R
-         sk6Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVy/Xk10YqhFMh5NyqsJJjdVYbuzl0qMEkyUL8gb7ehVZl1ZVk4tx80mw26mXk7ztVSblHEj03O@vger.kernel.org
-X-Gm-Message-State: AOJu0YwQl/FvLMA0uW4BNGv3O1/AMlmRK2Whc1iUn5r10qKA7EgEzast
-	NcYwkTSHrfNCYifUL7stWxsqRiIKaYAXK0xpFSXcAzyHAMBIOkm0OYrGj9nYoYOrHF3W+w1bWRO
-	xi5ekXlR/mpvzK3waYkcA0AH34gwxcBPErBlOpyWAEp7xHINyuWsRBZ5O56/4bTE5cTMbB+n8ix
-	gt4bnc/+INyg==
-X-Gm-Gg: ASbGncskCTCRXqShduYxn0IRR/y/ATvNVpZonw7U7umZti0vAJIfC8irx4s/63JxtD4
-	vyB1jwhDd3aDPkpOKy0aAh2x6/YUCfdoj61Flf7ZE0QzoUGIEElQQ9gEs92GSAOcekVuUL1+4b+
-	zbgkg8VmVj1y1H7RUQamigV/yvkytLYV91Y8+7/QpsvaMbAZHfS1fV2Tlz8NPa0/Fgy/G5Ytn38
-	najcZg2VWAbdCXs4AwFx/0iOKBZThkMG6FKwoYsxX9jZ4cvg1nZvR8gCU8BjsbV5TScGMa0tZuH
-	54pBJPzlERN7WuqvhnZHVc7Id0sxbCQ+V5lj3k9c1N9U9cQZPc/jLA==
-X-Received: by 2002:a05:6a20:394a:b0:246:5be:ca75 with SMTP id adf61e73a8af0-24605becd8bmr1112242637.19.1756836604653;
-        Tue, 02 Sep 2025 11:10:04 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEAdky4X83dCdLD8W2rdTaUFzawINMvKdk8EFavw2MC7ZaX/ZlbN7IUOQIlY+PSUl6Dzc5J2w==
-X-Received: by 2002:a05:6a20:394a:b0:246:5be:ca75 with SMTP id adf61e73a8af0-24605becd8bmr1112201637.19.1756836604144;
-        Tue, 02 Sep 2025 11:10:04 -0700 (PDT)
+        bh=8OAG1bVjL9CPCRwt3wdW7B2gPYUDizNhwd31HwbHaV0=;
+        b=iINvSMPa5uh87O7tkepcIjakV3yWHDfea47k/qyZte1UNw1+FDHzJmBMVmWYs+oFEk
+         7pWzu+RkE3mEdYM5x1tDLgVzfN7ylmePeFhQxp5RF4cWOpQie7hYVtgCSThi5u3noiIy
+         7juTbj1XbVhxLHA45S2uZCnSZTws2hY39mWTr2wXhv9Et7438Z6guHDtbm3Wl+EBKgmU
+         3VD6QvqGP+MJ/nZGilHCYeYvmn9nF1+R9/NKKcFqapBDq5bDpYGktaYe8SGsds+xrUrR
+         VXcK+zYCAYfsRGMkacE5gS2qpA+xfaMmpiRcl2Yx72FQjKkfsVhAMGfqQ1lkGH78aLA3
+         pnyg==
+X-Forwarded-Encrypted: i=1; AJvYcCWuTdwXkp9TcRfa/qiIJxOeBymfM3Zv/umYUysP7Y59AuILcGq9wwDnFL+APMtMwXM9aMK3mjM5@vger.kernel.org
+X-Gm-Message-State: AOJu0YxuJNLFcusmei5ff7TtDv9ZkwDLazGL5y0GVDuNCIhAbYbXe94M
+	umVqX5+JxzL25rOsE+4RZIqllZAAx2zsghYiC/1UUzHJdWYb/hBhO2eR5uxLsImsNz0Qld/i/NP
+	G2pwfzLwUIvrTdaH+ePJzBQsqwr/44NJfRaCX0OsPaKuvOXwzOhKa5MiIVxgKx6NYYoXqy0VVNk
+	4=
+X-Gm-Gg: ASbGncsk4W4abGDsxdpqYJrMTT9hYf6IpcqeuleLU273eUmvpJqLzxDUd9Fsy32Tm9k
+	TtvxwJQEti7Vyc5PRFF6Wa2q5lFmFkkqgCThBZDcRE4X1RF/crTcKskAVTOb93x9OSzVpBfD4Is
+	fLIqisxmqECHoZC0a/q7giKKrwU65MfdWH77UXzEvejZXcRmo1drmyGBuvzZ20Fhlgqk7MPAz3c
+	Lc1G4opgMAw0UDMjE1q1XtiRbiNx3/YrHmg/VRceG1MC1IpzTeVezx5f7YsGrg7rYibWBm3lX6A
+	ed84TDwy6tzdeczYhyfDpRfnQUKtvGUxWsyGB/DqCVfU1dHxsnE3kA==
+X-Received: by 2002:a17:902:f546:b0:24a:b0cf:5f97 with SMTP id d9443c01a7336-24ab0cf62acmr128840235ad.40.1756836760053;
+        Tue, 02 Sep 2025 11:12:40 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IG6Z9QhsV1kVBWLUb6ZoH49fJe8Nd9tqX0yzW3Pc4kIIhcm2JnpybbkEkhFkr2ftwqOdAbiTA==
+X-Received: by 2002:a17:902:f546:b0:24a:b0cf:5f97 with SMTP id d9443c01a7336-24ab0cf62acmr128839895ad.40.1756836759618;
+        Tue, 02 Sep 2025 11:12:39 -0700 (PDT)
 Received: from [192.168.192.85] ([50.47.129.42])
-        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-7722a4e1ca7sm14187917b3a.71.2025.09.02.11.10.03
+        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-24906390b6bsm138497285ad.99.2025.09.02.11.12.38
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Sep 2025 11:10:03 -0700 (PDT)
-Message-ID: <fa97f146-828c-419a-9365-b45d7cb91f35@canonical.com>
-Date: Tue, 2 Sep 2025 11:10:02 -0700
+        Tue, 02 Sep 2025 11:12:39 -0700 (PDT)
+Message-ID: <d2a5494c-bdf6-4fb6-9a03-9f46fab9ad81@canonical.com>
+Date: Tue, 2 Sep 2025 11:12:38 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -76,7 +76,7 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 28/34] safesetid: move initcalls to the LSM framework
+Subject: Re: [PATCH v3 30/34] lockdown: move initcalls to the LSM framework
 To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org
 Cc: Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu
@@ -89,7 +89,7 @@ Cc: Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu
  Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
  Xiu Jianfeng <xiujianfeng@huawei.com>
 References: <20250814225159.275901-36-paul@paul-moore.com>
- <20250814225159.275901-64-paul@paul-moore.com>
+ <20250814225159.275901-66-paul@paul-moore.com>
 Content-Language: en-US
 From: John Johansen <john.johansen@canonical.com>
 Autocrypt: addr=john.johansen@canonical.com; keydata=
@@ -135,60 +135,38 @@ Autocrypt: addr=john.johansen@canonical.com; keydata=
  +T7sv9+iY+e0Y+SolyJgTxMYeRnDWE6S77g6gzYYHmcQOWP7ZMX+MtD4SKlf0+Q8li/F9GUL
  p0rw8op9f0p1+YAhyAd+dXWNKf7zIfZ2ME+0qKpbQnr1oizLHuJX/Telo8KMmHter28DPJ03 lT9Q
 Organization: Canonical
-In-Reply-To: <20250814225159.275901-64-paul@paul-moore.com>
+In-Reply-To: <20250814225159.275901-66-paul@paul-moore.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 8/14/25 15:50, Paul Moore wrote:
 > Reviewed-by: Kees Cook <kees@kernel.org>
-> Acked-by: Micah Morton <mortonm@chromium.org>
+> Acked-by: Xiu Jianfeng <xiujianfeng@huawei.com>
 > Signed-off-by: Paul Moore <paul@paul-moore.com>
 
 Reviewed-by: John Johansen <john.johansen@canonical.com>
 
 > ---
->   security/safesetid/lsm.c        | 1 +
->   security/safesetid/lsm.h        | 2 ++
->   security/safesetid/securityfs.c | 3 +--
->   3 files changed, 4 insertions(+), 2 deletions(-)
+>   security/lockdown/lockdown.c | 3 +--
+>   1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> diff --git a/security/safesetid/lsm.c b/security/safesetid/lsm.c
-> index 9a7c68d4e642..d5fb949050dd 100644
-> --- a/security/safesetid/lsm.c
-> +++ b/security/safesetid/lsm.c
-> @@ -289,4 +289,5 @@ static int __init safesetid_security_init(void)
->   DEFINE_LSM(safesetid_security_init) = {
->   	.id = &safesetid_lsmid,
->   	.init = safesetid_security_init,
-> +	.initcall_fs = safesetid_init_securityfs,
->   };
-> diff --git a/security/safesetid/lsm.h b/security/safesetid/lsm.h
-> index d346f4849cea..bf5172e2c3f7 100644
-> --- a/security/safesetid/lsm.h
-> +++ b/security/safesetid/lsm.h
-> @@ -70,4 +70,6 @@ enum sid_policy_type _setid_policy_lookup(struct setid_ruleset *policy,
->   extern struct setid_ruleset __rcu *safesetid_setuid_rules;
->   extern struct setid_ruleset __rcu *safesetid_setgid_rules;
->   
-> +int safesetid_init_securityfs(void);
-> +
->   #endif /* _SAFESETID_H */
-> diff --git a/security/safesetid/securityfs.c b/security/safesetid/securityfs.c
-> index 8e1ffd70b18a..ece259f75b0d 100644
-> --- a/security/safesetid/securityfs.c
-> +++ b/security/safesetid/securityfs.c
-> @@ -308,7 +308,7 @@ static const struct file_operations safesetid_gid_file_fops = {
->   	.write = safesetid_gid_file_write,
->   };
->   
-> -static int __init safesetid_init_securityfs(void)
-> +int __init safesetid_init_securityfs(void)
->   {
->   	int ret;
->   	struct dentry *policy_dir;
-> @@ -345,4 +345,3 @@ static int __init safesetid_init_securityfs(void)
->   	securityfs_remove(policy_dir);
->   	return ret;
+> diff --git a/security/lockdown/lockdown.c b/security/lockdown/lockdown.c
+> index 4813f168ff93..8d46886d2cca 100644
+> --- a/security/lockdown/lockdown.c
+> +++ b/security/lockdown/lockdown.c
+> @@ -161,8 +161,6 @@ static int __init lockdown_secfs_init(void)
+>   	return PTR_ERR_OR_ZERO(dentry);
 >   }
-> -fs_initcall(safesetid_init_securityfs);
+>   
+> -core_initcall(lockdown_secfs_init);
+> -
+>   #ifdef CONFIG_SECURITY_LOCKDOWN_LSM_EARLY
+>   DEFINE_EARLY_LSM(lockdown) = {
+>   #else
+> @@ -170,4 +168,5 @@ DEFINE_LSM(lockdown) = {
+>   #endif
+>   	.id = &lockdown_lsmid,
+>   	.init = lockdown_lsm_init,
+> +	.initcall_core = lockdown_secfs_init,
+>   };
 
