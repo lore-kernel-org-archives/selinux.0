@@ -1,154 +1,160 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F04162DC353
-	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 15:46:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BAE3305078
+	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 16:12:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756827992; cv=none; b=Qt1Resmaqpv+QZuvkRvTaDdQWK8Bt7s+Qc8hZnCfV8VQcJumraTzUO1wFQU4ve91fvMpccWAsDmyOKHJp/mpCZZxwLr3tqYcRbafPFx18/7sBeNIHiA6UiDJ5JjE9Bw66jnd6xH2Da6Fd66tC5T6v4eJCYBWI8p91XoCnCDCKYY=
+	t=1756829542; cv=none; b=nklz1KuAssJ9SpaBEOiHlo0ymja2ThzMNd6Rxn3MOLAdrRE4fxGvckttQmDx2w2UJDuc3/5OfegmKvGtWb6K/MllZQ7jmFf7tQmFf0Qs6mP4y7JzBuNIqfK/aK8VZ5M2ueYmARbDjqYuLkA9BKBJg161lhrbiv/ucnZEWKCFJJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756827992; c=relaxed/simple;
-	bh=84EkvKSFQytHOr5wPfHh+SqP3xnPhY2sv+aKhZqhXx0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ciHV4Ypc91dnH+DVymWkokth62PV11e1epPS4PFP8g3sEgeuv42MWu5T9OGabQu8ZtkJ8zzMhRHC8Qg8AKMEoy8xSN++cA+Dlkmh99+fwaULEpwK0gSDdeRHZJDkCmilNAlUCTaBXooZq2/A1aYA+nz11BPrBYgGYBH3sN6nmRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NyqNtuv1; arc=none smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1756829542; c=relaxed/simple;
+	bh=2SR9P1O+YrASSHlefAO/UYRjrCdaIm4AAsUtCVxBgwQ=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=h5QRcjAzvhw6U7LmRS6VgP1wCfYa82UCoMgiVnpatHKm4amX7g/FAAznfISMLKU3leup5ET+DCoNQLZZ35nsdqiVFX8kWhOAweLSjmdcHg2beWTBvgXfVBVK6Ztbck/rd9sAFzExwcDUuB1Hwy8SgXaoUs/lgOETJmS0Z63bk1s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HVHq4q99; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NyqNtuv1"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-248c7f955a2so49047955ad.2
-        for <selinux@vger.kernel.org>; Tue, 02 Sep 2025 08:46:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756827990; x=1757432790; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xLjUl/69VEgieZGeBzVCPjFRVERoMj5AiKNGPP/3SpI=;
-        b=NyqNtuv1Ehsje0wb6K9xcLuSeyDRpQo5ylMB0/a6mwZPcepDsKiyNwaJW/0PEYPkis
-         Z7d0ONUnzDKm8g9vR+1xK98eWp9tOaKYuV5/g2dWYuJBdOTVITsI2HEj9aAyw8nL8OBD
-         SNKYQ1tZAcjH2qnlhUgTfCNWq8N8Sdicx5pqGQ96NIt5XZ1KfWcSbSx5jVsBnAXKnXmz
-         4rC4kcOH3nEmN9YydmAr03O0RGLtkm7j9RHTl9+AvfQU8nxKWj3cVJ2ZK2S/5ZBnZQNe
-         Fr4pZFDqbFk+TIUg9rJXTZS60U7ip6i9pnaZwovu34JQER9exDlZmCPpM/ExHlVmtkBo
-         2msQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756827990; x=1757432790;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=xLjUl/69VEgieZGeBzVCPjFRVERoMj5AiKNGPP/3SpI=;
-        b=gS6ZOQX5HDriiiOzIqBE6E7UfHVb+CrzvhkMqO5MlLNxLCgHghdeQYtzdz1VIu6yqn
-         pc8SoDiT93+pDu2a8j7ZBd0l8uEss1pNQsl5O3m+01bXoEQ1aTH6H6g75kOEL5cbI5JQ
-         0iu7Jw7ohlmJmZK/zcwhQhPZFwRcdNtILNseGsfOAGFDPCqy2hooA1x6U1JMuKvqs8HP
-         SNITq4zJmsOohAftSw20Ce9qFplX5NNLtCx6TmtXsJKvACwu20R6GsfVLWQnCLuPjbpv
-         rW7Cn0JgroXPSRAruzz9WH6bGvnY5+7eliEK69cigXwKi7U/7zzlDy5AmfXtlcMuon/T
-         X9ng==
-X-Gm-Message-State: AOJu0YyBd0hEWwuQX2jZVeTbV6tK15qwiK7ESVw0J1HNbpv66zNft/b/
-	qjw79lqn2pocggPImZ2uxKuCxEuyUhL/Lkf2UfRp7J/W/pyoIMTlG7v1obFZ5XS7crROMK/cpsV
-	bqPKW3XO0xqZ1xdylWizcH11dASt9HcB8XA==
-X-Gm-Gg: ASbGncvxvx0spDUfIMyDX+eDeLm2HwXbc8yvefYrwFBeZWXRGqmqMds0s7Mvrkyl38y
-	AKZ5I404ce0z0BePj1mBL2AkFD8sEMS7m7L6XUJ5cjhJtgQ6tlFrgwiREvPKT7a5fIdl4wtqQCh
-	hlSeLzmqHf7Eujit8GuyXcDvt0hiifeuBKuVF7wmxGgw63g2niQV6PYa5pvvQ6WPn2leEI6xnaI
-	edPGlE=
-X-Google-Smtp-Source: AGHT+IEJTStx9v5WBlPqj/i1IJFR9zMnnzDCBF5xUm+DS4khNtsyUkDSMRxizbvOje9bbndPB9LjKh73XSDLrib8UPk=
-X-Received: by 2002:a17:903:41cd:b0:248:9348:965e with SMTP id
- d9443c01a7336-249448f8a41mr154179385ad.9.1756827990042; Tue, 02 Sep 2025
- 08:46:30 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HVHq4q99"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1756829539;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=l6S9vrvf2fdzJPkWV+rZ11kMbAZVmJ3VXFSkiQqwQ/0=;
+	b=HVHq4q99te5T5NWpS8g7rcmUMbfer0TYe384lW9M613amk2GaajhRwwE1sHP47DXRJ299L
+	NZ4MUUpfXsv3Qak76QdwlJm6Q+nC2oCZ2AJ0TYJVWsZQExB2l1VqMpAKCEGD35VAmPmYEC
+	+aKCN0WIEXCrK3YcA5enLF9hXDu5Lhk=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-518-dY95ORt5Ozixu8cKApAr2A-1; Tue,
+ 02 Sep 2025 12:12:18 -0400
+X-MC-Unique: dY95ORt5Ozixu8cKApAr2A-1
+X-Mimecast-MFC-AGG-ID: dY95ORt5Ozixu8cKApAr2A_1756829536
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 64F4F195604F;
+	Tue,  2 Sep 2025 16:12:16 +0000 (UTC)
+Received: from localhost (unknown [10.45.224.26])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B54AE19560B4;
+	Tue,  2 Sep 2025 16:12:15 +0000 (UTC)
+From: Petr Lautrbach <lautrbach@redhat.com>
+To: Stephen Smalley <stephen.smalley.work@gmail.com>, "Richard W.M. Jones"
+ <rjones@redhat.com>
+Cc: selinux@vger.kernel.org
+Subject: Re: [PATCH] setfiles: Add -A option to disable
+ SELINUX_RESTORECON_ADD_ASSOC
+In-Reply-To: <CAEjxPJ499HdhmsfX7kbchq7JFW07RD6jY5CrZMAAc3wZ+bbjXQ@mail.gmail.com>
+References: <20250901143412.2904562-1-rjones@redhat.com>
+ <20250901143412.2904562-2-rjones@redhat.com>
+ <CAEjxPJ499HdhmsfX7kbchq7JFW07RD6jY5CrZMAAc3wZ+bbjXQ@mail.gmail.com>
+Date: Tue, 02 Sep 2025 18:12:14 +0200
+Message-ID: <871poo96ld.fsf@redhat.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250901143412.2904562-1-rjones@redhat.com> <20250901143412.2904562-2-rjones@redhat.com>
-In-Reply-To: <20250901143412.2904562-2-rjones@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 2 Sep 2025 11:46:19 -0400
-X-Gm-Features: Ac12FXzSmbPDGkeDiUqaQ3SYuyPsJdjeLW3nFpGwWGX_lnmqKRTRf5li0sBJlQA
-Message-ID: <CAEjxPJ499HdhmsfX7kbchq7JFW07RD6jY5CrZMAAc3wZ+bbjXQ@mail.gmail.com>
-Subject: Re: [PATCH] setfiles: Add -A option to disable SELINUX_RESTORECON_ADD_ASSOC
-To: "Richard W.M. Jones" <rjones@redhat.com>
-Cc: selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On Mon, Sep 1, 2025 at 10:34=E2=80=AFAM Richard W.M. Jones <rjones@redhat.c=
-om> wrote:
->
-> SELINUX_RESTORECON_ADD_ASSOC tracks conflicts between inodes that have
-> differing contexts.  However doing this involves building a large
-> internal hashtable that stores the full path of every file examined by
-> setfiles.  For filesystems that have very large numbers of files or
-> long pathnames, this uses a lot of memory, which makes SELinux
-> relabelling in constrained memory environments infeasible.
->
-> This adds a new setfiles -A option that disables this tracking.
->
-> For example, using setfiles to relabel a filesystem with 15 million
-> files took 3.7GB of RAM.  Using this option, the same filesystem can
-> be relabelled in 121MB (albeit with no warnings or errors possible for
-> conflicting labels, but for our use case we don't care about that.)
->
-> Fixes: https://issues.redhat.com/browse/RHEL-111505
-> Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
+Stephen Smalley <stephen.smalley.work@gmail.com> writes:
 
-I don't think we usually include downstream issue tracker links in our
-upstream commit messages, but no need to re-submit just for that.
+> On Mon, Sep 1, 2025 at 10:34=E2=80=AFAM Richard W.M. Jones <rjones@redhat=
+.com> wrote:
+>>
+>> SELINUX_RESTORECON_ADD_ASSOC tracks conflicts between inodes that have
+>> differing contexts.  However doing this involves building a large
+>> internal hashtable that stores the full path of every file examined by
+>> setfiles.  For filesystems that have very large numbers of files or
+>> long pathnames, this uses a lot of memory, which makes SELinux
+>> relabelling in constrained memory environments infeasible.
+>>
+>> This adds a new setfiles -A option that disables this tracking.
+>>
+>> For example, using setfiles to relabel a filesystem with 15 million
+>> files took 3.7GB of RAM.  Using this option, the same filesystem can
+>> be relabelled in 121MB (albeit with no warnings or errors possible for
+>> conflicting labels, but for our use case we don't care about that.)
+>>
+>> Fixes: https://issues.redhat.com/browse/RHEL-111505
+>> Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
+>
+> I don't think we usually include downstream issue tracker links in our
+> upstream commit messages, but no need to re-submit just for that.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+FTR in git log there are already about 60 references to bugzilla.redhat.com=
+ and
+issues.redhat.com is replacement of bugzilla.redhat.com for issues
+reported on RHEL or CentOS. There are also bugs.debian.org,
+bugs.gentoo.org, bugs.chromium.org references.
 
-> ---
->  policycoreutils/setfiles/setfiles.8 | 4 ++++
->  policycoreutils/setfiles/setfiles.c | 5 ++++-
->  2 files changed, 8 insertions(+), 1 deletion(-)
+
+Until these issue trackers disappear, it could be a good source for another
+context or related discussions.
+
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 >
-> diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfil=
-es/setfiles.8
-> index eabf0a1c..7c9c5d39 100644
-> --- a/policycoreutils/setfiles/setfiles.8
-> +++ b/policycoreutils/setfiles/setfiles.8
-> @@ -23,6 +23,7 @@ setfiles \- set SELinux file security contexts.
->  .RB [ \-I | \-D ]
->  .RB [ \-T
->  .IR nthreads ]
-> +.RB [ \-A ]
->  .I spec_file
->  .IR pathname \ ...
->
-> @@ -187,6 +188,9 @@ use up to
->  threads.  Specify 0 to create as many threads as there are available
->  CPU cores; 1 to use only a single thread (default); or any positive
->  number to use the given number of threads (if possible).
-> +.TP
-> +.B \-A
-> +do not track conflicting inodes (saves memory)
->
->  .SH "ARGUMENTS"
->  .TP
-> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfil=
-es/setfiles.c
-> index ad09f840..40f2e7fe 100644
-> --- a/policycoreutils/setfiles/setfiles.c
-> +++ b/policycoreutils/setfiles/setfiles.c
-> @@ -147,7 +147,7 @@ int main(int argc, char **argv)
->         const char *base;
->         int errors =3D 0;
->         const char *ropts =3D "e:f:hiIDlmno:pqrsvFURW0xT:";
-> -       const char *sopts =3D "c:de:f:hiIDlmno:pqr:svCEFUR:W0T:";
-> +       const char *sopts =3D "c:de:f:hiIDlmno:pqr:svCEFUR:W0T:A";
->         const char *opts;
->         union selinux_callback cb;
->         long unsigned skipped_errors;
-> @@ -375,6 +375,9 @@ int main(int argc, char **argv)
->                         if (*optarg =3D=3D '\0' || *endptr !=3D '\0')
->                                 usage(argv[0]);
->                         break;
-> +               case 'A':
-> +                       r_opts.add_assoc =3D 0;
-> +                       break;
->                 case 'h':
->                 case '?':
->                         usage(argv[0]);
-> --
-> 2.50.1
->
->
+>> ---
+>>  policycoreutils/setfiles/setfiles.8 | 4 ++++
+>>  policycoreutils/setfiles/setfiles.c | 5 ++++-
+>>  2 files changed, 8 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfi=
+les/setfiles.8
+>> index eabf0a1c..7c9c5d39 100644
+>> --- a/policycoreutils/setfiles/setfiles.8
+>> +++ b/policycoreutils/setfiles/setfiles.8
+>> @@ -23,6 +23,7 @@ setfiles \- set SELinux file security contexts.
+>>  .RB [ \-I | \-D ]
+>>  .RB [ \-T
+>>  .IR nthreads ]
+>> +.RB [ \-A ]
+>>  .I spec_file
+>>  .IR pathname \ ...
+>>
+>> @@ -187,6 +188,9 @@ use up to
+>>  threads.  Specify 0 to create as many threads as there are available
+>>  CPU cores; 1 to use only a single thread (default); or any positive
+>>  number to use the given number of threads (if possible).
+>> +.TP
+>> +.B \-A
+>> +do not track conflicting inodes (saves memory)
+>>
+>>  .SH "ARGUMENTS"
+>>  .TP
+>> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfi=
+les/setfiles.c
+>> index ad09f840..40f2e7fe 100644
+>> --- a/policycoreutils/setfiles/setfiles.c
+>> +++ b/policycoreutils/setfiles/setfiles.c
+>> @@ -147,7 +147,7 @@ int main(int argc, char **argv)
+>>         const char *base;
+>>         int errors =3D 0;
+>>         const char *ropts =3D "e:f:hiIDlmno:pqrsvFURW0xT:";
+>> -       const char *sopts =3D "c:de:f:hiIDlmno:pqr:svCEFUR:W0T:";
+>> +       const char *sopts =3D "c:de:f:hiIDlmno:pqr:svCEFUR:W0T:A";
+>>         const char *opts;
+>>         union selinux_callback cb;
+>>         long unsigned skipped_errors;
+>> @@ -375,6 +375,9 @@ int main(int argc, char **argv)
+>>                         if (*optarg =3D=3D '\0' || *endptr !=3D '\0')
+>>                                 usage(argv[0]);
+>>                         break;
+>> +               case 'A':
+>> +                       r_opts.add_assoc =3D 0;
+>> +                       break;
+>>                 case 'h':
+>>                 case '?':
+>>                         usage(argv[0]);
+>> --
+>> 2.50.1
+>>
+>>
+
