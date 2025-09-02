@@ -1,180 +1,302 @@
-Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AEF82765E3
-	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 16:30:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48FB3340D87
+	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 16:33:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756830634; cv=none; b=gCae8VDlY0uKana5GR4i0WBP8n9wY79COrGlIc8+AB3N+EkISr5rSYTEUE2Ag5i5Uz+M6RIx++3CnVtholrHVRkQF8G9m3M9DVccRE0ArTp/flE6bx5E42cmz8OD2Dcme0yDfzoNxrZ/pBCOTp699yT1AAUTSm2unB/ED/vP74k=
+	t=1756830839; cv=none; b=UX3YWB4XCkzgGrWDAGRFeGCIYuLsYJkJ0j6+uLFfjfIZWk7EEMBRDrMvD3dErtXDVlv37FCYcyRb53b+wleeNieDvKChGOIXv33pI1kGCUsW9c9A696CNLBKTd1sHc4fpuI2rFWcLCbaKjiT+Ldf0S2VlWi46pOZmQgdT3SsQDw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756830634; c=relaxed/simple;
-	bh=M56tKrsVKfFswchTPIU4R0Df0h7cYm5qwl0t8I8lriY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qr4HfgjR06ezVi/aphZEr4c9fH66EBRSnJ+jsRpvSXVruJQJ6iC2VFu9eSNKnuefAbbCS3GCw89Eavl3fj8s9nE9StzaECUaWvSZwYETPwoeiyRkZBV7UfsHajNDQ4sGS78POCs7x/LFEY/o5JDaV/mDKcAu7WECpyRSb650C+g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RlZ9upI3; arc=none smtp.client-ip=209.85.215.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1756830839; c=relaxed/simple;
+	bh=3CKPjXS+62km7X0/6aJotIckvejq/CGVbLS5Rl+XgF4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ux26FVpAbdpe//qPF3z/EJ2aNgJumSrSzk/+XSgF/RJP7SUJtGHQUJR9xMfNT245/a1ynk77Hn7wpgOcKOJ1vm4jmq1JnEZ+3uyROI9v2P6LuX5HaM0jJBAqP4pPDmoQJ73qmXB+9ImN7cG7+dVLGFoYpiAOJaJyVMlXvFlCjy0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=S8oNdGl0; arc=none smtp.client-ip=185.125.188.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RlZ9upI3"
-Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-b4717543ed9so3555942a12.3
-        for <selinux@vger.kernel.org>; Tue, 02 Sep 2025 09:30:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756830631; x=1757435431; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=y6yq902p5IbsjXwwha9EJtS7u9gSx4+nYshY99QqUIg=;
-        b=RlZ9upI3Dedin3ejv2tpUYUtw6Zvz2RO3nDjdGr+cC1rDR0lqMt3RbNyBYwhFIRuKL
-         XGbBDngI2y/eWbD2r9DEFbGTtcKJAsCARmFwkKGnLpUfMMCqzVrF3xTnJRmn55I0EFhe
-         f2ur6bk7aGoRKGpWw3sNSkFSkLQgheYd7Aw0TVZJ1xjRfz3VLUH/SMQGCfC7OHi42njZ
-         LYyiAM7FfUF6w/kWSRmVQg8PAGiAcYrTPYZpoik4D/nnQ+FwifM1IRbXRRSdVvkpMRz3
-         USp+NdaRvTCmUKv2SoB8TcI8WlwkENkNz0dhzC1iaFmxapppza/2VQYzUoXRlFVXPH2K
-         5a9w==
+	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="S8oNdGl0"
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id BC83F3F289
+	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 16:33:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+	s=20210705; t=1756830834;
+	bh=sOZkHxXo1/YNUXVW+3Mywfo/hX5/YhPe3KHdeFDN1f0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type;
+	b=S8oNdGl0SYgU48NbMZ0wtJg5UUCmD33O4kGNlw1vjwPmr+QudmmuaQHFuTmjomoS2
+	 9/ZRlCo7RtaOZ71pW68DGpK8TSGBafw56uhN9cU9GMTmVDFHn8PlkAK4pN54wqOjal
+	 UekII21ZjRCuy1i4FIMeZF32GA2Z0uJYlcqxV6zYQtTymnMIT4vj49+zrFhN8AhdaI
+	 EshuxMbPeno8PK7GEfJv1bJVlVbuHOJfDj/Sqv4zAB59xipsNilTePw+kO6uO7pIIk
+	 dunqhHvRsfD9UzgFSvKqRYUsiMTlRCt5O/N9AOG38udv1ta0WJU1ZY7GTkAE4ES2sf
+	 btfkzLUhl76jA==
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-24a94fef521so55955945ad.1
+        for <selinux@vger.kernel.org>; Tue, 02 Sep 2025 09:33:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756830631; x=1757435431;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=y6yq902p5IbsjXwwha9EJtS7u9gSx4+nYshY99QqUIg=;
-        b=YWK45tIK4cBKbjRGf+bUR76RcoHUjOPK3/4FFhobDUdVlSTz8eSmAvnbr3G8yzEEbG
-         RbK1tDQetl5zh9S+3H8XQ/ni+s6EwvhaFn2YBDO43dapQYts0SC2H5laioaq+3TNDYZM
-         9sPQCTqyYw4EsHOYRKyYmSwW4PjaNZGHRB4QGUmJAz/UbBdC20KYI24ay+RCE/42Dezw
-         duP7X4ZR9xaNFWujfgP6deqlie1x4vpfSpaD28/AqpqJOso3ukTr6D8af9W0sg0Lgakg
-         YyEs+oe+nRz1sCFALn0vfxKQXbviaRJzI0bAVP8igqV2R7ZQCZWxWl3rwC+e+zwQvPk0
-         m3Gw==
-X-Forwarded-Encrypted: i=1; AJvYcCV/IBvDoaXnUb8j7GIO0S3ysBWgafE/pp6s9axR5ZCFoTEcWTDUD7jnkqEYKNlutT3ycmbauv3f@vger.kernel.org
-X-Gm-Message-State: AOJu0YyQ+vVjjD3MDnBGJuAGr8xNFZ0g3yrFQmPAJqS7kfShTmB/D0qt
-	dlsLcZP3iJIrMCdZSDsqSVtuUkYTj1+aOOZhm51XQXJTWf5YuTinITOKsr/WyooxYzd0aBH+bjl
-	SNKFuBpHrSCkxY+8JB3hOPRgCWjJ/nXs=
-X-Gm-Gg: ASbGncubIS3JXx4TbCPhPfwNBSVJlTiIavpbc5LSOLuVqd2EA4UNWTVBZdQNXCd/ny8
-	pfVb934wYGjXdjDw/BrOcRsoh5A7XOlhCuQLwaLQYuKfHNbRtIOhZ+Ez736fiMd6QCoIBHunwPY
-	dZsyGQq3V/iOW06W7eIhB10J7HuCz+JwrGT7MfQbjj7g61/ldoGM6etTI1LoYvHR1uKw6UO5knY
-	axhEmM=
-X-Google-Smtp-Source: AGHT+IFjv3XMjyQqYsWNX0oAcYDv6Xb0l7PC6s0BU3Y/Lay/kDgTWx9yxNI8QhG4n6crKP0dEkHDNbdGzJbablUS2YQ=
-X-Received: by 2002:a17:90b:3a87:b0:327:7334:d857 with SMTP id
- 98e67ed59e1d1-328156cd296mr13538981a91.28.1756830631209; Tue, 02 Sep 2025
- 09:30:31 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1756830833; x=1757435633;
+        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=sOZkHxXo1/YNUXVW+3Mywfo/hX5/YhPe3KHdeFDN1f0=;
+        b=cC4WNazJt7p7628n9mSVi1mhiOTxMmwKv6viBp2r18shewkpTtTgIMJF2HfT3ZojJQ
+         jbmMk5AutuN0RPcr4QnrPLacKIJHfibEt0vTdRPLuElkMZ+vSdSiB3HVaSNQA2yz+5m5
+         PavE97c3V7C2ohVb+7Z8g/F8GZSNEjiOhpe+CTQSrUZNnEtQURnYK/LOy/eBGq2NyC8b
+         Xnrg2TH2TX56F6lx+bSgSRZNSNv8MXuSdeyu8IPMAkD1BOORc7Fuaadrb8xEFsp6lU41
+         UUetroGQxeGCLVy4MpxAEsx0nNraU1NxJ2SlBNIJ8mREBEMC+p8Cn02tbfskZjUTEmyr
+         eT5w==
+X-Forwarded-Encrypted: i=1; AJvYcCX8ffN3KAIxlNUdgrKDMt8X92BqWhbIzGY2tCOKd9/EkAIyFBPw2n7bQ8sLh5Mz3CItfqhgAe8L@vger.kernel.org
+X-Gm-Message-State: AOJu0YyFbWbiRuP9eos70vT26OqDsYM6In7yYhRcodIkoGvcXvumtOCX
+	bz5Fas77dUqNipcdj9mHIu9hVVbq3HIUvaZLnJC80ZeOrUmAXDqiw+uG4gyA+19yy+AMP9TkSnt
+	5wfIu9mY+HfuK55TwGEXe8BfnC2QcdrE2VFRS1AE4mqUV9heAvHc3w881AVsWwEHA9+P/BFnTe1
+	I=
+X-Gm-Gg: ASbGncsXvJ/FT2v583+diIN39wE+J8oknRLZjwtp9NoU4RQjKDrrjBK/XZypv0mAcZJ
+	12IOJHCV6JLJX0TEMgR7/8vKmguMb/8mQzAZrfZ2VMtPg+Hpwohc8Y7iQ0gH2uDSSM6eWMZ9LWw
+	NkvPePd2t6meNfMvQsdstlpfapUDDF18IuYBeefXG4WfL90IKYElmR42wx4MAPpuZFXPzquNcD/
+	gQPtzwdvztd+HUMR0ebUOWdGqMWe1I3oCZ5aXzIrj6vbJ8h8wRGdtdU6w3Yg4zkvqQnFrRuItoP
+	0ZOOb/VYnOvCEArvCLguOqLZ9LilFHZj2mkUJWXGN75gxm/jgYQrrg==
+X-Received: by 2002:a17:902:ecc6:b0:249:1440:5999 with SMTP id d9443c01a7336-24944b90a10mr163464225ad.61.1756830833224;
+        Tue, 02 Sep 2025 09:33:53 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGM3sSE5hqRkohJHJ79GZFqFQPo94ZW/qo1PvBbWIWUDEh9i8cbS39dxmznTeUhUQcCIbd68A==
+X-Received: by 2002:a17:902:ecc6:b0:249:1440:5999 with SMTP id d9443c01a7336-24944b90a10mr163463885ad.61.1756830832788;
+        Tue, 02 Sep 2025 09:33:52 -0700 (PDT)
+Received: from [192.168.192.85] ([50.47.129.42])
+        by smtp.googlemail.com with ESMTPSA id d9443c01a7336-249037223d7sm133806205ad.32.2025.09.02.09.33.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 02 Sep 2025 09:33:52 -0700 (PDT)
+Message-ID: <b5b60236-3aa5-4dcc-add6-978bb6dfce31@canonical.com>
+Date: Tue, 2 Sep 2025 09:33:51 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250901143412.2904562-1-rjones@redhat.com> <20250901143412.2904562-2-rjones@redhat.com>
- <CAEjxPJ499HdhmsfX7kbchq7JFW07RD6jY5CrZMAAc3wZ+bbjXQ@mail.gmail.com> <871poo96ld.fsf@redhat.com>
-In-Reply-To: <871poo96ld.fsf@redhat.com>
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-Date: Tue, 2 Sep 2025 12:30:19 -0400
-X-Gm-Features: Ac12FXzD9eOKhQCIIVa8LjTWR_XwJJ_DcBR57SvAoeVbWXluSl9R-qHlF88Ico8
-Message-ID: <CAEjxPJ7qMBpEHxgFQJKo0_q2P+ObeQQ4xtLWEONg9=A8Kvvx7g@mail.gmail.com>
-Subject: Re: [PATCH] setfiles: Add -A option to disable SELINUX_RESTORECON_ADD_ASSOC
-To: Petr Lautrbach <lautrbach@redhat.com>
-Cc: "Richard W.M. Jones" <rjones@redhat.com>, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 03/34] lsm: consolidate lsm_allowed() and prepare_lsm()
+ into lsm_prepare()
+To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
+ linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Cc: Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu
+ <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
+ =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
+ =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
+ Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
+ Casey Schaufler <casey@schaufler-ca.com>,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+ Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
+ Xiu Jianfeng <xiujianfeng@huawei.com>
+References: <20250814225159.275901-36-paul@paul-moore.com>
+ <20250814225159.275901-39-paul@paul-moore.com>
+Content-Language: en-US
+From: John Johansen <john.johansen@canonical.com>
+Autocrypt: addr=john.johansen@canonical.com; keydata=
+ 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 lT9Q
+Organization: Canonical
+In-Reply-To: <20250814225159.275901-39-paul@paul-moore.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue, Sep 2, 2025 at 12:12=E2=80=AFPM Petr Lautrbach <lautrbach@redhat.co=
-m> wrote:
->
-> Stephen Smalley <stephen.smalley.work@gmail.com> writes:
->
-> > On Mon, Sep 1, 2025 at 10:34=E2=80=AFAM Richard W.M. Jones <rjones@redh=
-at.com> wrote:
-> >>
-> >> SELINUX_RESTORECON_ADD_ASSOC tracks conflicts between inodes that have
-> >> differing contexts.  However doing this involves building a large
-> >> internal hashtable that stores the full path of every file examined by
-> >> setfiles.  For filesystems that have very large numbers of files or
-> >> long pathnames, this uses a lot of memory, which makes SELinux
-> >> relabelling in constrained memory environments infeasible.
-> >>
-> >> This adds a new setfiles -A option that disables this tracking.
-> >>
-> >> For example, using setfiles to relabel a filesystem with 15 million
-> >> files took 3.7GB of RAM.  Using this option, the same filesystem can
-> >> be relabelled in 121MB (albeit with no warnings or errors possible for
-> >> conflicting labels, but for our use case we don't care about that.)
-> >>
-> >> Fixes: https://issues.redhat.com/browse/RHEL-111505
-> >> Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
-> >
-> > I don't think we usually include downstream issue tracker links in our
-> > upstream commit messages, but no need to re-submit just for that.
->
-> FTR in git log there are already about 60 references to bugzilla.redhat.c=
-om and
-> issues.redhat.com is replacement of bugzilla.redhat.com for issues
-> reported on RHEL or CentOS. There are also bugs.debian.org,
-> bugs.gentoo.org, bugs.chromium.org references.
->
->
-> Until these issue trackers disappear, it could be a good source for anoth=
-er
-> context or related discussions.
+On 8/14/25 15:50, Paul Moore wrote:
+> Simplify and consolidate the lsm_allowed() and prepare_lsm() functions
+> into a new function, lsm_prepare().
+> 
+> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 
-Ok, thanks for clarifying. I know that tends to be frowned upon in the
-kernel but wasn't sure what current userspace practice is.
-My only request then is that such issues be publicly accessible if
-they are going to be referenced upstream.
-But I won't die on that hill if others disagree.
+Looks good
 
->
-> > Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> >
-> >> ---
-> >>  policycoreutils/setfiles/setfiles.8 | 4 ++++
-> >>  policycoreutils/setfiles/setfiles.c | 5 ++++-
-> >>  2 files changed, 8 insertions(+), 1 deletion(-)
-> >>
-> >> diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/set=
-files/setfiles.8
-> >> index eabf0a1c..7c9c5d39 100644
-> >> --- a/policycoreutils/setfiles/setfiles.8
-> >> +++ b/policycoreutils/setfiles/setfiles.8
-> >> @@ -23,6 +23,7 @@ setfiles \- set SELinux file security contexts.
-> >>  .RB [ \-I | \-D ]
-> >>  .RB [ \-T
-> >>  .IR nthreads ]
-> >> +.RB [ \-A ]
-> >>  .I spec_file
-> >>  .IR pathname \ ...
-> >>
-> >> @@ -187,6 +188,9 @@ use up to
-> >>  threads.  Specify 0 to create as many threads as there are available
-> >>  CPU cores; 1 to use only a single thread (default); or any positive
-> >>  number to use the given number of threads (if possible).
-> >> +.TP
-> >> +.B \-A
-> >> +do not track conflicting inodes (saves memory)
-> >>
-> >>  .SH "ARGUMENTS"
-> >>  .TP
-> >> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/set=
-files/setfiles.c
-> >> index ad09f840..40f2e7fe 100644
-> >> --- a/policycoreutils/setfiles/setfiles.c
-> >> +++ b/policycoreutils/setfiles/setfiles.c
-> >> @@ -147,7 +147,7 @@ int main(int argc, char **argv)
-> >>         const char *base;
-> >>         int errors =3D 0;
-> >>         const char *ropts =3D "e:f:hiIDlmno:pqrsvFURW0xT:";
-> >> -       const char *sopts =3D "c:de:f:hiIDlmno:pqr:svCEFUR:W0T:";
-> >> +       const char *sopts =3D "c:de:f:hiIDlmno:pqr:svCEFUR:W0T:A";
-> >>         const char *opts;
-> >>         union selinux_callback cb;
-> >>         long unsigned skipped_errors;
-> >> @@ -375,6 +375,9 @@ int main(int argc, char **argv)
-> >>                         if (*optarg =3D=3D '\0' || *endptr !=3D '\0')
-> >>                                 usage(argv[0]);
-> >>                         break;
-> >> +               case 'A':
-> >> +                       r_opts.add_assoc =3D 0;
-> >> +                       break;
-> >>                 case 'h':
-> >>                 case '?':
-> >>                         usage(argv[0]);
-> >> --
-> >> 2.50.1
-> >>
-> >>
->
+Reviewed-by: John Johansen <john.johhansen@canonical.com>
+
+> ---
+>   security/lsm_init.c | 109 +++++++++++++++++++-------------------------
+>   1 file changed, 46 insertions(+), 63 deletions(-)
+> 
+> diff --git a/security/lsm_init.c b/security/lsm_init.c
+> index 124213b906af..6f40ab1d2f54 100644
+> --- a/security/lsm_init.c
+> +++ b/security/lsm_init.c
+> @@ -123,22 +123,6 @@ static void __init append_ordered_lsm(struct lsm_info *lsm, const char *from)
+>   		   is_enabled(lsm) ? "enabled" : "disabled");
+>   }
+>   
+> -/* Is an LSM allowed to be initialized? */
+> -static bool __init lsm_allowed(struct lsm_info *lsm)
+> -{
+> -	/* Skip if the LSM is disabled. */
+> -	if (!is_enabled(lsm))
+> -		return false;
+> -
+> -	/* Not allowed if another exclusive LSM already initialized. */
+> -	if ((lsm->flags & LSM_FLAG_EXCLUSIVE) && exclusive) {
+> -		init_debug("exclusive disabled: %s\n", lsm->name);
+> -		return false;
+> -	}
+> -
+> -	return true;
+> -}
+> -
+>   static void __init lsm_set_blob_size(int *need, int *lbs)
+>   {
+>   	int offset;
+> @@ -151,54 +135,53 @@ static void __init lsm_set_blob_size(int *need, int *lbs)
+>   	*need = offset;
+>   }
+>   
+> -static void __init lsm_set_blob_sizes(struct lsm_blob_sizes *needed)
+> +/**
+> + * lsm_prepare - Prepare the LSM framework for a new LSM
+> + * @lsm: LSM definition
+> + */
+> +static void __init lsm_prepare(struct lsm_info *lsm)
+>   {
+> -	if (!needed)
+> +	struct lsm_blob_sizes *blobs;
+> +
+> +	if (!is_enabled(lsm)) {
+> +		set_enabled(lsm, false);
+> +		return;
+> +	} else if ((lsm->flags & LSM_FLAG_EXCLUSIVE) && exclusive) {
+> +		init_debug("exclusive disabled: %s\n", lsm->name);
+> +		set_enabled(lsm, false);
+>   		return;
+> -
+> -	lsm_set_blob_size(&needed->lbs_cred, &blob_sizes.lbs_cred);
+> -	lsm_set_blob_size(&needed->lbs_file, &blob_sizes.lbs_file);
+> -	lsm_set_blob_size(&needed->lbs_ib, &blob_sizes.lbs_ib);
+> -	/*
+> -	 * The inode blob gets an rcu_head in addition to
+> -	 * what the modules might need.
+> -	 */
+> -	if (needed->lbs_inode && blob_sizes.lbs_inode == 0)
+> -		blob_sizes.lbs_inode = sizeof(struct rcu_head);
+> -	lsm_set_blob_size(&needed->lbs_inode, &blob_sizes.lbs_inode);
+> -	lsm_set_blob_size(&needed->lbs_ipc, &blob_sizes.lbs_ipc);
+> -	lsm_set_blob_size(&needed->lbs_key, &blob_sizes.lbs_key);
+> -	lsm_set_blob_size(&needed->lbs_msg_msg, &blob_sizes.lbs_msg_msg);
+> -	lsm_set_blob_size(&needed->lbs_perf_event, &blob_sizes.lbs_perf_event);
+> -	lsm_set_blob_size(&needed->lbs_sock, &blob_sizes.lbs_sock);
+> -	lsm_set_blob_size(&needed->lbs_superblock, &blob_sizes.lbs_superblock);
+> -	lsm_set_blob_size(&needed->lbs_task, &blob_sizes.lbs_task);
+> -	lsm_set_blob_size(&needed->lbs_tun_dev, &blob_sizes.lbs_tun_dev);
+> -	lsm_set_blob_size(&needed->lbs_xattr_count,
+> -			  &blob_sizes.lbs_xattr_count);
+> -	lsm_set_blob_size(&needed->lbs_bdev, &blob_sizes.lbs_bdev);
+> -	lsm_set_blob_size(&needed->lbs_bpf_map, &blob_sizes.lbs_bpf_map);
+> -	lsm_set_blob_size(&needed->lbs_bpf_prog, &blob_sizes.lbs_bpf_prog);
+> -	lsm_set_blob_size(&needed->lbs_bpf_token, &blob_sizes.lbs_bpf_token);
+> -}
+> -
+> -/* Prepare LSM for initialization. */
+> -static void __init prepare_lsm(struct lsm_info *lsm)
+> -{
+> -	int enabled = lsm_allowed(lsm);
+> -
+> -	/* Record enablement (to handle any following exclusive LSMs). */
+> -	set_enabled(lsm, enabled);
+> -
+> -	/* If enabled, do pre-initialization work. */
+> -	if (enabled) {
+> -		if ((lsm->flags & LSM_FLAG_EXCLUSIVE) && !exclusive) {
+> -			exclusive = lsm;
+> -			init_debug("exclusive chosen:   %s\n", lsm->name);
+> -		}
+> -
+> -		lsm_set_blob_sizes(lsm->blobs);
+>   	}
+> +
+> +	/* Mark the LSM as enabled. */
+> +	set_enabled(lsm, true);
+> +	if ((lsm->flags & LSM_FLAG_EXCLUSIVE) && !exclusive) {
+> +		init_debug("exclusive chosen:   %s\n", lsm->name);
+> +		exclusive = lsm;
+> +	}
+> +
+> +	/* Register the LSM blob sizes. */
+> +	blobs = lsm->blobs;
+> +	lsm_set_blob_size(&blobs->lbs_cred, &blob_sizes.lbs_cred);
+> +	lsm_set_blob_size(&blobs->lbs_file, &blob_sizes.lbs_file);
+> +	lsm_set_blob_size(&blobs->lbs_ib, &blob_sizes.lbs_ib);
+> +	/* inode blob gets an rcu_head in addition to LSM blobs. */
+> +	if (blobs->lbs_inode && blob_sizes.lbs_inode == 0)
+> +		blob_sizes.lbs_inode = sizeof(struct rcu_head);
+> +	lsm_set_blob_size(&blobs->lbs_inode, &blob_sizes.lbs_inode);
+> +	lsm_set_blob_size(&blobs->lbs_ipc, &blob_sizes.lbs_ipc);
+> +	lsm_set_blob_size(&blobs->lbs_key, &blob_sizes.lbs_key);
+> +	lsm_set_blob_size(&blobs->lbs_msg_msg, &blob_sizes.lbs_msg_msg);
+> +	lsm_set_blob_size(&blobs->lbs_perf_event, &blob_sizes.lbs_perf_event);
+> +	lsm_set_blob_size(&blobs->lbs_sock, &blob_sizes.lbs_sock);
+> +	lsm_set_blob_size(&blobs->lbs_superblock, &blob_sizes.lbs_superblock);
+> +	lsm_set_blob_size(&blobs->lbs_task, &blob_sizes.lbs_task);
+> +	lsm_set_blob_size(&blobs->lbs_tun_dev, &blob_sizes.lbs_tun_dev);
+> +	lsm_set_blob_size(&blobs->lbs_xattr_count,
+> +			  &blob_sizes.lbs_xattr_count);
+> +	lsm_set_blob_size(&blobs->lbs_bdev, &blob_sizes.lbs_bdev);
+> +	lsm_set_blob_size(&blobs->lbs_bpf_map, &blob_sizes.lbs_bpf_map);
+> +	lsm_set_blob_size(&blobs->lbs_bpf_prog, &blob_sizes.lbs_bpf_prog);
+> +	lsm_set_blob_size(&blobs->lbs_bpf_token, &blob_sizes.lbs_bpf_token);
+>   }
+>   
+>   /* Initialize a given LSM, if it is enabled. */
+> @@ -361,7 +344,7 @@ static void __init ordered_lsm_init(void)
+>   		ordered_lsm_parse(builtin_lsm_order, "builtin");
+>   
+>   	for (lsm = ordered_lsms; *lsm; lsm++)
+> -		prepare_lsm(*lsm);
+> +		lsm_prepare(*lsm);
+>   
+>   	report_lsm_order();
+>   
+> @@ -505,7 +488,7 @@ int __init early_security_init(void)
+>   	for (lsm = __start_early_lsm_info; lsm < __end_early_lsm_info; lsm++) {
+>   		if (!lsm->enabled)
+>   			lsm->enabled = &lsm_enabled_true;
+> -		prepare_lsm(lsm);
+> +		lsm_prepare(lsm);
+>   		initialize_lsm(lsm);
+>   	}
+>   
+
