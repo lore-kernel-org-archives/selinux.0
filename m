@@ -1,336 +1,168 @@
-Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp-out3.simply.com (smtp-out3.simply.com [94.231.106.210])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9861A1DED57
-	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 05:54:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61C6B2E612B;
+	Tue,  2 Sep 2025 07:02:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=94.231.106.210
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756792447; cv=none; b=oqwLtAYPoGdkGly9jHGcVthf++LRwaGhprpn5/4bjhW6u1AztRN5ZHcQjkFKSn8Vr35PwM0LEd+vef941zOiZBj4GFNA8D7VyBMn+BApmHVgitTigEmvL5YoTlFc74rLWlex0KHnZOvEMoLY1xEIjmSFkuqaULds1xrMnM+zAHM=
+	t=1756796575; cv=none; b=LY1DnuHFys5wkWVYv73rGWgcGgQuKateyV/RHgHDaacx78LOzp1a78VKol3/I65za/fHlx5Pg4v7lRUeeFVxBIYoUxYOfNyMaDgYkoZNowovVRnONy7uh4E5sfWBDW68912j2yBXrclJPjFn07g6Px84cLNQ62zZQehOacTny9Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756792447; c=relaxed/simple;
-	bh=YBhoNsz73E81IZnKKTFEx6cs/D8OtfpgynCyISt+sEw=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=D46Tpnjb1M09MiYYRboSkCsh4Qqw5h0TdtgElF/09u1nbzipHyOV3dKlrJ3IhK2S+0btzP0LXD7fDONZ/GBIVGrFfyDTUmWKIbL4KpqOzh/SpFQ7mnOh+MBBqadGoDvGAcB6025uvTUe5zGSivqC3hsiytIhOa+F0Un3ptmG6so=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=rsWaZXn6; arc=none smtp.client-ip=209.85.215.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
+	s=arc-20240116; t=1756796575; c=relaxed/simple;
+	bh=6SPdunicingxAcBfsldZqnJI+0vSclBx7oORnENDYxw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=s8RJ+pW+YFtQVqXbI8eiUSzm4Uk3o8I7G5qOEAYla3qiZhZcM976Ru+ZzN25tKh6jo3BeCAS8aT+u5YG5vzPEGS0BmpvrKJqq6B+kU66Rk/pKUkvWlqvx54IbqdP5yIzIMrraqSiEkSJvZ9G7ReNTm17qOsdNTtpoLVX94srTGg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gaisler.com; spf=pass smtp.mailfrom=gaisler.com; dkim=fail (0-bit key) header.d=gaisler.com header.i=@gaisler.com header.b=XV9R3DCg reason="key not found in DNS"; arc=none smtp.client-ip=94.231.106.210
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gaisler.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gaisler.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="rsWaZXn6"
-Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-b4f93fe3831so911659a12.0
-        for <selinux@vger.kernel.org>; Mon, 01 Sep 2025 22:54:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1756792445; x=1757397245; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=4Qykh9QD57dxn4AwwRkgUDtr3Jtznvh8YF8X9E2gIjk=;
-        b=rsWaZXn6e1MZsuhKCP4yG9Ce2G9oG+yVVAq/2K+QbeAiayOBF0LnkEAwJCp23zf7XR
-         0bFDGZqQSD4S8E7FfhyBGkEHshYJFyFCAebyR91Pan4o7e8OZCnpuImNmNxJg015II0N
-         DOETNfkJr+uUgyUpKhWnHXszXgFz3zknBwJUtoDvWpeGhIZvYBZnLvdAj2+8mpkYURvv
-         urK9BBj/oSCU1rP2kWFtUaieuwcA8KAJfIIexVta6/0wNGNVZ4FTbf2ncUCysd48pG68
-         vMroZVq6UETDARyzUoUNGcOIsxFDeMso2UUEWjhRB+gl6lUjvnaGkTnnN6AuoqOM22g7
-         toUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756792445; x=1757397245;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4Qykh9QD57dxn4AwwRkgUDtr3Jtznvh8YF8X9E2gIjk=;
-        b=ApdOvyNnM0obvjO7b0fk7pNRKg5NaLMOMeBwhstZhBcOyPbV0UE9G60gAd46itA4gJ
-         WgcTIrInKc8t7Eo6v63E657qVY6/VWbWaBp8A8dOQIeyIGq3VugxKxd3VQyJ0C++Rqia
-         RDJ813VPh+E3e/Eg/pz/M5/IiwlVam6opibaOWT61Pygj9yingkwqDrsvi9to8yZW+ro
-         adWt63sCxBEIbx0NxUErbleLQ3pYf2qTWNGjL7K2wqE/pG09Tfx00d/kpCiM81s5fjIS
-         Ni3MPIFCoTF587FhJdHtvf8yRWput+Zt301JTvBNRA3dewDvCaoz12kTrOO0kKAjzGPw
-         HLng==
-X-Forwarded-Encrypted: i=1; AJvYcCUAriFPktOyRMI4qlZ20pR1tU9mhFru2R2+uvnznHzXJOKYx/z0W6EluGvjnXppsgI6k98IycnG@vger.kernel.org
-X-Gm-Message-State: AOJu0YzDCpFTdeJ+QVgBp+bVQQ0NAnOw3a8YngnYUmTBSmNvRVDUdnEu
-	7+pWXrUd+Ze6+x7/EVWRH35DJgeTkNCCrlphU5voAnTVzF5Fq6ick/EEfvgLGqTDTkXbiRQ1GNe
-	tPw==
-X-Google-Smtp-Source: AGHT+IFZuFl4ULOJvLg8d523YWJ5/vkuuL4WchcIPXFMrMKY1KS+78R8m7uWYzaW1xUEB/ASw/nfj2kOhg==
-X-Received: from pfbdi11-n2.prod.google.com ([2002:a05:6a00:480b:20b0:76c:6ec8:ac2d])
- (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a21:6d9a:b0:243:b0a9:f900
- with SMTP id adf61e73a8af0-243d6bca369mr13909871637.0.1756792444867; Mon, 01
- Sep 2025 22:54:04 -0700 (PDT)
-Date: Tue,  2 Sep 2025 15:54:01 +1000
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=gaisler.com header.i=@gaisler.com header.b="XV9R3DCg"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp.simply.com (Simply.com) with ESMTP id 4cGGsM5nS0z1DDXQ;
+	Tue,  2 Sep 2025 09:02:47 +0200 (CEST)
+Received: from [192.168.0.25] (h-98-128-223-123.NA.cust.bahnhof.se [98.128.223.123])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by smtp.simply.com (Simply.com) with ESMTPSA id 4cGGsH2GP0z1FXjK;
+	Tue,  2 Sep 2025 09:02:43 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gaisler.com;
+	s=simplycom2; t=1756796567;
+	bh=h7e86hl0UV9Yd9fEU7lHS/lq+4/qNkF5NKsTGqMW0Gs=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=XV9R3DCgzqtpsDdLU5B6YmrRSDSwOb/e+RN3Y/eiKzfpmARJpEfk4rM3nFZX0bFUT
+	 Cgk+F60Qfnp/lcw23nKISESK50dxfqXIzcv7lABAQzI+QL2HTB89cK9os+EVA7PGjD
+	 2JhF3WzYfsb9MEQHgbmUEpzjWOe7UaJDN1f3QJPTIjlP5MtBhYOcxRaj/x5aIgyAIx
+	 VylpL5fKm3LmJNVO1eTnB/fXzhohsODH/8iwc5vr/F7Q+FJODNFYRjy3a+H0jjVZXA
+	 zhn5kjjNaRe2tU3x5rK51dkv4aqaegmt92utDpWIUQsQcnBLirXe5OB9CcfJT7NVBK
+	 WwxEwsTBW60LQ==
+Message-ID: <f2371539-cd4e-4d70-9576-4bb1c677104c@gaisler.com>
+Date: Tue, 2 Sep 2025 09:02:41 +0200
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.51.0.338.gd7d06c2dae-goog
-Message-ID: <20250902055401.618729-1-tweek@google.com>
-Subject: [PATCH testsuite] policy,tests: add tests for memfd_file class
-From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-To: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	James Morris <jmorris@namei.org>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
-	Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, Jeff Xu <jeffxu@google.com>
-Cc: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 3/4] arch: copy_thread: pass clone_flags as u64
+To: schuster.simon@siemens-energy.com, Dinh Nguyen <dinguyen@kernel.org>,
+ Christian Brauner <brauner@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ David Hildenbrand <david@redhat.com>,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Vlastimil Babka
+ <vbabka@suse.cz>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ Juri Lelli <juri.lelli@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+ Mel Gorman <mgorman@suse.de>, Valentin Schneider <vschneid@redhat.com>,
+ Kees Cook <kees@kernel.org>, Paul Walmsley <paul.walmsley@sifive.com>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Alexandre Ghiti <alex@ghiti.fr>, Guo Ren <guoren@kernel.org>,
+ Oleg Nesterov <oleg@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+ Alexander Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+ Tejun Heo <tj@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>,
+ =?UTF-8?Q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>,
+ Paul Moore <paul@paul-moore.com>, Serge Hallyn <sergeh@kernel.org>,
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
+ Anna-Maria Behnsen <anna-maria@linutronix.de>,
+ Frederic Weisbecker <frederic@kernel.org>,
+ Thomas Gleixner <tglx@linutronix.de>, Masami Hiramatsu
+ <mhiramat@kernel.org>, "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>,
+ John Johansen <john.johansen@canonical.com>,
+ Stephen Smalley <stephen.smalley.work@gmail.com>,
+ Ondrej Mosnacek <omosnace@redhat.com>,
+ Kentaro Takeda <takedakn@nttdata.co.jp>,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+ Richard Henderson <richard.henderson@linaro.org>,
+ Matt Turner <mattst88@gmail.com>, Vineet Gupta <vgupta@kernel.org>,
+ Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
+ Brian Cain <bcain@kernel.org>, Huacai Chen <chenhuacai@kernel.org>,
+ WANG Xuerui <kernel@xen0n.name>, Geert Uytterhoeven <geert@linux-m68k.org>,
+ Michal Simek <monstr@monstr.eu>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Jonas Bonn <jonas@southpole.se>,
+ Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>,
+ Stafford Horne <shorne@gmail.com>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ Helge Deller <deller@gmx.de>, Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <christophe.leroy@csgroup.eu>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>,
+ John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+ Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>,
+ Max Filippov <jcmvbkbc@gmail.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ linux-riscv@lists.infradead.org, linux-csky@vger.kernel.org,
+ linux-block@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ cgroups@vger.kernel.org, linux-security-module@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org, netdev@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, apparmor@lists.ubuntu.com,
+ selinux@vger.kernel.org, linux-alpha@vger.kernel.org,
+ linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+ linux-hexagon@vger.kernel.org, loongarch@lists.linux.dev,
+ linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org,
+ linux-openrisc@vger.kernel.org, linux-parisc@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org,
+ linux-sh@vger.kernel.org, sparclinux@vger.kernel.org,
+ linux-um@lists.infradead.org
+References: <20250901-nios2-implement-clone3-v2-0-53fcf5577d57@siemens-energy.com>
+ <20250901-nios2-implement-clone3-v2-3-53fcf5577d57@siemens-energy.com>
+Content-Language: en-US
+From: Andreas Larsson <andreas@gaisler.com>
+In-Reply-To: <20250901-nios2-implement-clone3-v2-3-53fcf5577d57@siemens-energy.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-A new class "memfd_file" is introduced to the kernel in [1]. This class
-is only used when the policy capability "memfd_class" is set. Add tests
-to validate this new class:
+On 2025-09-01 15:09, Simon Schuster via B4 Relay wrote:
+> From: Simon Schuster <schuster.simon@siemens-energy.com>
+> 
+> With the introduction of clone3 in commit 7f192e3cd316 ("fork: add
+> clone3") the effective bit width of clone_flags on all architectures was
+> increased from 32-bit to 64-bit, with a new type of u64 for the flags.
+> However, for most consumers of clone_flags the interface was not
+> changed from the previous type of unsigned long.
+> 
+> While this works fine as long as none of the new 64-bit flag bits
+> (CLONE_CLEAR_SIGHAND and CLONE_INTO_CGROUP) are evaluated, this is still
+> undesirable in terms of the principle of least surprise.
+> 
+> Thus, this commit fixes all relevant interfaces of the copy_thread
+> function that is called from copy_process to consistently pass
+> clone_flags as u64, so that no truncation to 32-bit integers occurs on
+> 32-bit architectures.
+> 
+> Signed-off-by: Simon Schuster <schuster.simon@siemens-energy.com>
+> ---
 
-  1. Validate that memfd_create() requires the "create" permission.
-  2. Validate that fexecve() on a memfd requires the "execute_no_trans"
-     permission.
+Thanks for this and for the whole series! Needed foundation for a
+sparc32 clone3 implementation as well.
 
-[1] https://lore.kernel.org/selinux/20250826031824.1227551-1-tweek@google.c=
-om/
+>  arch/sparc/kernel/process_32.c   | 2 +-
+>  arch/sparc/kernel/process_64.c   | 2 +-
 
-Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
----
- policy/Makefile             |  5 ++++
- policy/test_memfd.te        | 25 +++++++++++++++++
- tests/Makefile              |  5 ++++
- tests/memfd/Makefile        |  5 ++++
- tests/memfd/memfd.c         | 24 +++++++++++++++++
- tests/memfd/memfd_fexecve.c | 53 +++++++++++++++++++++++++++++++++++++
- tests/memfd/nothing.c       |  6 +++++
- tests/memfd/test            | 39 +++++++++++++++++++++++++++
- 8 files changed, 162 insertions(+)
- create mode 100644 policy/test_memfd.te
- create mode 100644 tests/memfd/Makefile
- create mode 100644 tests/memfd/memfd.c
- create mode 100644 tests/memfd/memfd_fexecve.c
- create mode 100644 tests/memfd/nothing.c
- create mode 100755 tests/memfd/test
+Acked-by: Andreas Larsson <andreas@gaisler.com> # sparc
 
-diff --git a/policy/Makefile b/policy/Makefile
-index ffd774d..d19f687 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -163,6 +163,11 @@ ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL=
-_POLICY) -ge 30 ] && [ -f
- TARGETS +=3D test_nlmsg.te
- endif
-=20
-+# memfd_file test dependencies: policy >=3D 30, memfd_file class, memfd_cl=
-ass capability
-+ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL_POLICY) -ge 30 ] &&=
- [ -d /sys/fs/selinux/class/memfd_file ] && grep -q 1 $(SELINUXFS)/policy_c=
-apabilities/memfd_class && echo true),true)
-+TARGETS +=3D test_memfd.te
-+endif
-+
- ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
- TARGETS:=3D$(filter-out test_overlayfs.te test_mqueue.te test_ibpkey.te, $=
-(TARGETS))
- endif
-diff --git a/policy/test_memfd.te b/policy/test_memfd.te
-new file mode 100644
-index 0000000..5ca1348
---- /dev/null
-+++ b/policy/test_memfd.te
-@@ -0,0 +1,25 @@
-+########################################
-+#
-+# Policy for testing memfd_file.
-+
-+attribute memfdtestdomain;
-+
-+type test_memfd_t;
-+typeattribute test_memfd_t memfdtestdomain;
-+testsuite_domain_type(test_memfd_t);
-+allow test_memfd_t self:memfd_file { create mmap_rw_file_perms };
-+
-+type test_memfd_nocreate_t;
-+typeattribute test_memfd_nocreate_t memfdtestdomain;
-+testsuite_domain_type(test_memfd_nocreate_t);
-+allow test_memfd_nocreate_t self:memfd_file mmap_rw_file_perms;
-+
-+type test_memfd_with_exec_t;
-+typeattribute test_memfd_with_exec_t memfdtestdomain;
-+testsuite_domain_type(test_memfd_with_exec_t);
-+allow test_memfd_with_exec_t self:memfd_file { create mmap_rw_file_perms e=
-xecute execute_no_trans };
-+
-+type test_memfd_with_noexec_t;
-+typeattribute test_memfd_with_noexec_t memfdtestdomain;
-+testsuite_domain_type(test_memfd_with_noexec_t);
-+allow test_memfd_with_noexec_t self:memfd_file { create mmap_rw_file_perms=
- execute };
-diff --git a/tests/Makefile b/tests/Makefile
-index 7a6aace..e6fa76b 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -158,6 +158,11 @@ ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL=
-_POLICY) -ge 30 ] && [ -f
- SUBDIRS +=3D nlmsg
- endif
-=20
-+# memfd_file test dependencies: policy >=3D 30, memfd_file class, memfd_cl=
-ass capability
-+ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL_POLICY) -ge 30 ] &&=
- [ -d /sys/fs/selinux/class/memfd_file ] && grep -q 1 $(SELINUXFS)/policy_c=
-apabilities/memfd_class && echo true),true)
-+SUBDIRS +=3D memfd
-+endif
-+
- ifeq ($(DISTRO),RHEL4)
-     SUBDIRS:=3D$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_=
-nosuid overlay unix_socket, $(SUBDIRS))
- endif
-diff --git a/tests/memfd/Makefile b/tests/memfd/Makefile
-new file mode 100644
-index 0000000..471900f
---- /dev/null
-+++ b/tests/memfd/Makefile
-@@ -0,0 +1,5 @@
-+TARGETS=3Dmemfd nothing memfd_fexecve
-+
-+all: $(TARGETS)
-+clean:
-+	rm -f $(TARGETS)
-diff --git a/tests/memfd/memfd.c b/tests/memfd/memfd.c
-new file mode 100644
-index 0000000..0d6f838
---- /dev/null
-+++ b/tests/memfd/memfd.c
-@@ -0,0 +1,24 @@
-+#ifndef _GNU_SOURCE
-+#define _GNU_SOURCE
-+#endif
-+#include <stdlib.h>
-+#include <stdio.h>
-+#include <string.h>
-+#include <errno.h>
-+#include <sys/mman.h>
-+#include <unistd.h>
-+
-+int main(int argc, char *argv[])
-+{
-+	int fd;
-+	char *name =3D "mymemfd";
-+
-+	fd =3D memfd_create(name, 0);
-+	if (fd < 0) {
-+		perror("memfd_create");
-+		exit(-1);
-+	}
-+
-+	close(fd);
-+	exit(0);
-+}
-diff --git a/tests/memfd/memfd_fexecve.c b/tests/memfd/memfd_fexecve.c
-new file mode 100644
-index 0000000..977081e
---- /dev/null
-+++ b/tests/memfd/memfd_fexecve.c
-@@ -0,0 +1,53 @@
-+#ifndef _GNU_SOURCE
-+#define _GNU_SOURCE
-+#endif
-+#include <errno.h>
-+#include <fcntl.h>
-+#include <stdint.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/mman.h>
-+#include <unistd.h>
-+
-+int main(int argc, char *argv[])
-+{
-+	int memfd_fd, exec_fd;
-+	int len, written, rc;
-+	char *name =3D "mymemfd";
-+
-+	if (argc !=3D 2) {
-+		printf("Usage: %s <fexec_binary>\n", argv[0]);
-+		exit(-1);
-+	}
-+
-+	memfd_fd =3D memfd_create(name, 0);
-+	if (memfd_fd < 0) {
-+		perror("memfd_create");
-+		exit(-1);
-+	}
-+
-+	exec_fd =3D open(argv[1], O_RDONLY);
-+	if (exec_fd < 0) {
-+		perror("open");
-+		exit(-1);
-+	}
-+
-+	char buf[8192];
-+	while ((len =3D read(exec_fd, buf, sizeof(buf))) > 0) {
-+		written =3D write(memfd_fd, buf, len);
-+		if (len !=3D written) {
-+			perror("read/write");
-+			exit(-1);
-+		}
-+	}
-+	close(exec_fd);
-+
-+	char *empty_env[] =3D {NULL};
-+	char *nothing_argv[] =3D {argv[1], NULL};
-+
-+	rc =3D fexecve(memfd_fd, nothing_argv, empty_env);
-+
-+	perror("fexecve");
-+	exit(rc);
-+}
-diff --git a/tests/memfd/nothing.c b/tests/memfd/nothing.c
-new file mode 100644
-index 0000000..fc53d37
---- /dev/null
-+++ b/tests/memfd/nothing.c
-@@ -0,0 +1,6 @@
-+#include <stdlib.h>
-+
-+int main(int argc, char *argv[])
-+{
-+	return 0;
-+}
-diff --git a/tests/memfd/test b/tests/memfd/test
-new file mode 100755
-index 0000000..a88a0db
---- /dev/null
-+++ b/tests/memfd/test
-@@ -0,0 +1,39 @@
-+#!/usr/bin/perl
-+#
-+# This test exercises the memfd_class support
-+#
-+
-+use Test;
-+
-+BEGIN {
-+    $test_count =3D 4;
-+    plan tests =3D> $test_count;
-+}
-+
-+$basedir =3D $0;
-+$basedir =3D~ s|(.*)/[^/]*|$1|;
-+
-+#
-+# Attempt to call memfd_create() from the allowed domain.
-+#
-+$result =3D system "runcon -t test_memfd_t -- $basedir/memfd 2>&1";
-+ok( $result, 0 );
-+
-+#
-+# Attempt to call memfd_create() from the not-allowed domain.
-+#
-+$result =3D system "runcon -t test_memfd_nocreate_t -- $basedir/memfd 2>&1=
-";
-+ok($result);
-+
-+#
-+# Attempt to fexecve() on a memfd_create() fd from the allowed domain.
-+#
-+$result =3D system "runcon -t test_memfd_with_exec_t -- $basedir/memfd_fex=
-ecve $basedir/nothing 2>&1";
-+ok( $result, 0 );
-+
-+#
-+# Attempt to fexecve() on a memfd_create() fd from the not-allowed domain.
-+#
-+$result =3D system "runcon -t test_memfd_with_noexec_t -- $basedir/memfd_f=
-execve $basedir/nothing 2>&1";
-+ok($result);
-+exit;
---=20
-2.51.0.338.gd7d06c2dae-goog
+Cheers,
+Andreas
 
