@@ -1,50 +1,74 @@
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 052B52D9784;
-	Tue,  2 Sep 2025 12:59:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=14.137.139.23
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4CDC2DD608
+	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 13:13:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756817996; cv=none; b=hR/xgvcDIkhjnjcV0HP0H/3maVj4Y4M5uPpCkOxJl2Mi6uHSjGx8SEY5NlowYVGmPTBoW8/EIOs68EOnqi9vNswbZlrJzF1dPsDWgNBkWHKZCXERniSctUf0hcFRoMq8wsg2JAD57b9mthzcM9DViE1KxUYgty2HKB9MYN10Y4U=
+	t=1756818794; cv=none; b=Lsij4dGlMJDdt86UNdnrWAWryeqBvliuC/UQY9aaNhihChiS4jUkoOK2mFDKEq2p6YfQ7QbLdkdEE7LCwoiQjj1Tm6bnpbS71vHrZeuODs6ND3cAud3IYOO0mtkmYpDZad5RI+l3aSNYEJGRS0C0FPH8dWqhDFaj6eR9HKuS5Zs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756817996; c=relaxed/simple;
-	bh=l7NMA9SCuOeZytQ1wMt0IZ0DxTjEV3/p7b8oa+JmsNg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Lyqu1Q9WxO9RcfyIuV+VUeROu0ERcY79aKaKicp1NuWkv8OcXfpqF9NOYlMDNbmbVjjjsrOkVKyK1qrZD5PXLrKsY5lM/DtTL/Zd0WNJtim2yKdF58gbuP5iCpNz0pUz/zX+AlKHsw+au7L5bx1Y+z1Kws3eThQ8WyEX0LDf7m8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=14.137.139.23
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
-Received: from mail.maildlp.com (unknown [172.18.186.29])
-	by frasgout11.his.huawei.com (SkyGuard) with ESMTPS id 4cGQlF3lMqz1HCj6;
-	Tue,  2 Sep 2025 20:58:01 +0800 (CST)
-Received: from mail02.huawei.com (unknown [7.182.16.47])
-	by mail.maildlp.com (Postfix) with ESMTP id 894C6140157;
-	Tue,  2 Sep 2025 20:58:46 +0800 (CST)
-Received: from huaweicloud.com (unknown [10.204.63.22])
-	by APP1 (Coremail) with SMTP id LxC2BwBHRqW26bZovoWeAA--.18504S2;
-	Tue, 02 Sep 2025 13:57:36 +0100 (CET)
-From: Roberto Sassu <roberto.sassu@huaweicloud.com>
-To: paul@paul-moore.com,
-	zohar@linux.ibm.com,
-	roberto.sassu@huawei.com
-Cc: linux-security-module@vger.kernel.org,
-	linux-integrity@vger.kernel.org,
-	selinux@vger.kernel.org,
-	john.johansen@canonical.com,
-	wufan@kernel.org,
-	mic@digikod.net,
-	kees@kernel.org,
-	mortonm@chromium.org,
-	casey@schaufler-ca.com,
-	penguin-kernel@i-love.sakura.ne.jp,
-	nicolas.bouchinet@oss.cyber.gouv.fr,
-	xiujianfeng@huawei.com
-Subject: [PATCH] ima,evm: move initcalls to the LSM framework
-Date: Tue,  2 Sep 2025 14:54:57 +0200
-Message-ID: <20250902125457.2689519-1-roberto.sassu@huaweicloud.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <9f35539de7188c6b853c55b76958a286131f5928.camel@huaweicloud.com>
-References: <9f35539de7188c6b853c55b76958a286131f5928.camel@huaweicloud.com>
+	s=arc-20240116; t=1756818794; c=relaxed/simple;
+	bh=/P0fn2jqvRWaOatTEpPvVFS3FIGlcANEmo+nxCJPzd0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NVgCrF+rUTYh9iM3WlwBc4q8ldQC1wVPID6bR1PB8X3ojakCZX2nVprrYfl5KceL3NpiF8uEpS6eEiWabwsMXwV5/B3kgDPJGuOcX5x0AC5g0TuC9coWvPXlyNqVMFgVwcyowNLx3HhsijkoLpq1O+LzuHGqIxpLR/1za5FkYuc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aQ5ZIEcw; arc=none smtp.client-ip=209.85.160.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aQ5ZIEcw"
+Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-4b33945989bso29733291cf.2
+        for <selinux@vger.kernel.org>; Tue, 02 Sep 2025 06:13:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1756818790; x=1757423590; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=fgtN0YfVxpl/kl53lVF3hZ78e5x/MECopDk+aVJVJg0=;
+        b=aQ5ZIEcwIXqDrgP/mMBDki+f+jXlpl0vRzUbHjOWv77yYziz1MXBKQwmEnUZ/McVpg
+         CqdnpLD4lulCSDIOzjO1HXvEFqBamNra1DivfVfqJ22W57SJl/jL21TpJWKC8TMtpdQr
+         jFCjP2GmKOhZxnNPkik/qyGRrmAizGPdyU3WQBi8N76WW4kzHw/G2qtoeHDfxGlvkBwg
+         8t0JIg57WZtjH+R7Miw3xZ8Lgum+3J+/zKOowIW7gT2bbJdEANU4TqUxKU/RG5J9TXg5
+         /La9x6YdkEt09Q6LkKjxLzbTiWSUWEoi1+fOHkDL8hRo4SA+tcUnzvBxsQ9uEsUEd7Os
+         4syA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756818790; x=1757423590;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=fgtN0YfVxpl/kl53lVF3hZ78e5x/MECopDk+aVJVJg0=;
+        b=i4/zj6C1L+dhYbDSdaLT/K8wYGg+2jbyExUUR9qinVvrk+rlhup+1m7tL+LTa/4Qdj
+         hpewdEXVludcdOk1cgt+3XynbruF9fKny+NKjs2PdqrXuy94wnoHkIxIl8S56uDYz3Ba
+         0HmE/4mAW5PC5iENLYYHTDrVWEDgvg9DF2kyPk6L9SaRjzddqKI+YUveBE1aWijk2hBA
+         eBJgzLHy2rkLd3SivYbS5BmC3LZDQEN9ldFK3/8jVwigLRldxUc/JiK4+cGJkeGturCB
+         8gj2ZPHIqA8CDvuY0fbqpu65q+ujKu+u0GHUF1/JNiCI3zGsVnwyrW3GmF5IdnCc3yS3
+         QsNw==
+X-Gm-Message-State: AOJu0YwuIITDazBeSnzP4jnd3KWq14m7K0ODKghWgdg1v2A7RFpRj2Y3
+	iL+9q6YjbdlUZjvhWz/Qnh4gMHGkWUjd16hO0WBfjJRcpF7z9nlF4+A7Hh2kEQ==
+X-Gm-Gg: ASbGncuL8HSLg8Ssq0n820ueXPqwQPE0/ky3tLa2R9XbiArCzBD9wGpWN8ehKG8MlTY
+	4jL5YoyEDHpUH2retcdDl1yKNDiJZONPcxgCmi+QgiTYERsLmSuDIeG63W3fYS2GaHWC8y2gDjq
+	nbFb9T5HwU+YwuuoPJckQws6AJ6xGE2GDk8nBh0wn0xxGGKI1/eyYVkbVQfs4s8rO7Joipocwoq
+	qAVczEx28vTvbnBGnVHiW6o/0yDiwRIL7NuMqPFfgAPEC2LWSX46yjd32leDsxqoIVCwyDhpZdZ
+	Cg5nwUHdiccY0vV2py4mgOHhDVqM43Be7FEc9J+nayT0iTcTZuov9VqmUGDoSzdjVQYweFB7Be8
+	etAk9togidy3Q7tQTCZ6GNzdfzWy3aec+4AVUSlNrwDmkZFXFRClYiSfsh2IgvdnEy96MADBszu
+	QoW5v1YqG1ecVfzTkqGo0DZ+HkjknUCU3YZYkMPSBMJXxxmPcHUDFrCHnfoCTFoQ==
+X-Google-Smtp-Source: AGHT+IGCR4YzNGmLHS17zje48igAHMJ4RFEdLZj6iXoqCpSEE+kr3F/aoMxnUJMVriQOIFhUwUYgjw==
+X-Received: by 2002:a05:620a:470b:b0:7e2:c5ff:2078 with SMTP id af79cd13be357-7ff28979e65mr1409093985a.37.1756818789929;
+        Tue, 02 Sep 2025 06:13:09 -0700 (PDT)
+Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8069d6b1ff7sm133609585a.69.2025.09.02.06.13.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Sep 2025 06:13:08 -0700 (PDT)
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+To: selinux@vger.kernel.org
+Cc: paul@paul-moore.com,
+	omosnace@redhat.com,
+	willy@infradead.org,
+	vishal.moola@gmail.com,
+	david@redhat.com,
+	mst@redhat.com,
+	Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v2] selinux: fix sel_read_bool() allocation and error handling
+Date: Tue,  2 Sep 2025 09:11:08 -0400
+Message-ID: <20250902131107.13509-2-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -52,178 +76,62 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:LxC2BwBHRqW26bZovoWeAA--.18504S2
-X-Coremail-Antispam: 1UD129KBjvJXoW3Xw1kuFWrGr1DGw1kAF4fKrg_yoW7XF45pa
-	1qgay8Gr18AFWIkF97Aa43CFWfK3yFg34UWws8Cw1vyasxZr1UXr97AryUCr13WrW5tFyr
-	twnIvw43Aw1DtFJanT9S1TB71UUUUUDqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUvFb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
-	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-	xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-	AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-	x7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-	0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAa
-	w2AFwI0_Wrv_ZF1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxV
-	Aqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q
-	6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6x
-	kF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AK
-	xVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvj
-	xUV-txDUUUU
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAQATBGi2lUAE-wAAsm
 
-From: Paul Moore <paul@paul-moore.com>
+Switch sel_read_bool() from using get_zeroed_page() and free_page()
+to a stack-allocated buffer. This also fixes a memory leak in the
+error path when security_get_bool_value() returns an error.
 
-This patch converts IMA and EVM to use the LSM frameworks's initcall
-mechanism. It moved the integrity_fs_init() call to ima_fs_init() and
-evm_init_secfs(), to work around the fact that there is no "integrity" LSM,
-and introduced integrity_fs_fini() to remove the integrity directory, if
-empty. Both integrity_fs_init() and integrity_fs_fini() support the
-scenario of being called by both the IMA and EVM LSMs.
-
-It is worth mentioning that this patch does not touch any of the
-"platform certs" code that lives in the security/integrity/platform_certs
-directory as the IMA/EVM maintainers have assured me that this code is
-unrelated to IMA/EVM, despite the location, and will be moved to a more
-relevant subsystem in the future.
-
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Reported-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/integrity/evm/evm_main.c  |  3 +--
- security/integrity/evm/evm_secfs.c | 11 +++++++++--
- security/integrity/iint.c          | 14 ++++++++++++--
- security/integrity/ima/ima_fs.c    | 11 +++++++++--
- security/integrity/ima/ima_main.c  |  4 ++--
- security/integrity/integrity.h     |  2 ++
- 6 files changed, 35 insertions(+), 10 deletions(-)
+ security/selinux/selinuxfs.c | 18 +++++-------------
+ 1 file changed, 5 insertions(+), 13 deletions(-)
 
-diff --git a/security/integrity/evm/evm_main.c b/security/integrity/evm/evm_main.c
-index db8e324ed4e6..73d500a375cb 100644
---- a/security/integrity/evm/evm_main.c
-+++ b/security/integrity/evm/evm_main.c
-@@ -1179,6 +1179,5 @@ DEFINE_LSM(evm) = {
- 	.init = init_evm_lsm,
- 	.order = LSM_ORDER_LAST,
- 	.blobs = &evm_blob_sizes,
-+	.initcall_late = init_evm,
- };
--
--late_initcall(init_evm);
-diff --git a/security/integrity/evm/evm_secfs.c b/security/integrity/evm/evm_secfs.c
-index b0d2aad27850..c26724690cec 100644
---- a/security/integrity/evm/evm_secfs.c
-+++ b/security/integrity/evm/evm_secfs.c
-@@ -302,10 +302,16 @@ int __init evm_init_secfs(void)
- 	int error = 0;
- 	struct dentry *dentry;
- 
--	evm_dir = securityfs_create_dir("evm", integrity_dir);
--	if (IS_ERR(evm_dir))
-+	error = integrity_fs_init();
-+	if (error < 0)
- 		return -EFAULT;
- 
-+	evm_dir = securityfs_create_dir("evm", integrity_dir);
-+	if (IS_ERR(evm_dir)) {
-+		error = -EFAULT;
-+		goto out;
-+	}
-+
- 	dentry = securityfs_create_file("evm", 0660,
- 				      evm_dir, NULL, &evm_key_ops);
- 	if (IS_ERR(dentry)) {
-@@ -329,5 +335,6 @@ int __init evm_init_secfs(void)
- out:
- 	securityfs_remove(evm_symlink);
- 	securityfs_remove(evm_dir);
-+	integrity_fs_fini();
- 	return error;
- }
-diff --git a/security/integrity/iint.c b/security/integrity/iint.c
-index 068ac6c2ae1e..8ec1a3436a71 100644
---- a/security/integrity/iint.c
-+++ b/security/integrity/iint.c
-@@ -42,8 +42,11 @@ void __init integrity_load_keys(void)
- 		evm_load_x509();
- }
- 
--static int __init integrity_fs_init(void)
-+int __init integrity_fs_init(void)
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 9aa1d03ab612..232e087bce3e 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1203,7 +1203,7 @@ static ssize_t sel_read_bool(struct file *filep, char __user *buf,
+ 			     size_t count, loff_t *ppos)
  {
-+	if (integrity_dir)
-+		return 0;
-+
- 	integrity_dir = securityfs_create_dir("integrity", NULL);
- 	if (IS_ERR(integrity_dir)) {
- 		int ret = PTR_ERR(integrity_dir);
-@@ -58,4 +61,11 @@ static int __init integrity_fs_init(void)
- 	return 0;
- }
+ 	struct selinux_fs_info *fsi = file_inode(filep)->i_sb->s_fs_info;
+-	char *page = NULL;
++	char buffer[4];
+ 	ssize_t length;
+ 	ssize_t ret;
+ 	int cur_enforcing;
+@@ -1217,27 +1217,19 @@ static ssize_t sel_read_bool(struct file *filep, char __user *buf,
+ 					     fsi->bool_pending_names[index]))
+ 		goto out_unlock;
  
--late_initcall(integrity_fs_init)
-+void __init integrity_fs_fini(void)
-+{
-+	if (!integrity_dir || !simple_empty(integrity_dir))
-+		return;
-+
-+	securityfs_remove(integrity_dir);
-+	integrity_dir = NULL;
-+}
-diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima_fs.c
-index 87045b09f120..012a58959ff0 100644
---- a/security/integrity/ima/ima_fs.c
-+++ b/security/integrity/ima/ima_fs.c
-@@ -499,9 +499,15 @@ int __init ima_fs_init(void)
- 	struct dentry *dentry;
- 	int ret;
- 
-+	ret = integrity_fs_init();
-+	if (ret < 0)
-+		return ret;
-+
- 	ima_dir = securityfs_create_dir("ima", integrity_dir);
--	if (IS_ERR(ima_dir))
--		return PTR_ERR(ima_dir);
-+	if (IS_ERR(ima_dir)) {
-+		ret = PTR_ERR(ima_dir);
-+		goto out;
-+	}
- 
- 	ima_symlink = securityfs_create_symlink("ima", NULL, "integrity/ima",
- 						NULL);
-@@ -555,6 +561,7 @@ int __init ima_fs_init(void)
- out:
- 	securityfs_remove(ima_symlink);
- 	securityfs_remove(ima_dir);
-+	integrity_fs_fini();
- 
- 	return ret;
- }
-diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-index eade8e1e3cb1..b703bfc2f470 100644
---- a/security/integrity/ima/ima_main.c
-+++ b/security/integrity/ima/ima_main.c
-@@ -1283,6 +1283,6 @@ DEFINE_LSM(ima) = {
- 	.init = init_ima_lsm,
- 	.order = LSM_ORDER_LAST,
- 	.blobs = &ima_blob_sizes,
-+	/* Start IMA after the TPM is available */
-+	.initcall_late = init_ima,
- };
+-	ret = -ENOMEM;
+-	page = (char *)get_zeroed_page(GFP_KERNEL);
+-	if (!page)
+-		goto out_unlock;
 -
--late_initcall(init_ima);	/* Start IMA after the TPM is available */
-diff --git a/security/integrity/integrity.h b/security/integrity/integrity.h
-index c2c2da691123..7b388b66cf80 100644
---- a/security/integrity/integrity.h
-+++ b/security/integrity/integrity.h
-@@ -114,6 +114,8 @@ struct ima_file_id {
+ 	cur_enforcing = security_get_bool_value(index);
+ 	if (cur_enforcing < 0) {
+ 		ret = cur_enforcing;
+ 		goto out_unlock;
+ 	}
+-	length = scnprintf(page, PAGE_SIZE, "%d %d", cur_enforcing,
+-			  fsi->bool_pending_values[index]);
++	length = scnprintf(buffer, sizeof(buffer), "%d %d", !!cur_enforcing,
++			  !!fsi->bool_pending_values[index]);
+ 	mutex_unlock(&selinux_state.policy_mutex);
+-	ret = simple_read_from_buffer(buf, count, ppos, page, length);
+-out_free:
+-	free_page((unsigned long)page);
+-	return ret;
++	return simple_read_from_buffer(buf, count, ppos, buffer, length);
  
- int integrity_kernel_read(struct file *file, loff_t offset,
- 			  void *addr, unsigned long count);
-+int __init integrity_fs_init(void);
-+void __init integrity_fs_fini(void);
+ out_unlock:
+ 	mutex_unlock(&selinux_state.policy_mutex);
+-	goto out_free;
++	return ret;
+ }
  
- #define INTEGRITY_KEYRING_EVM		0
- #define INTEGRITY_KEYRING_IMA		1
+ static ssize_t sel_write_bool(struct file *filep, const char __user *buf,
 -- 
-2.43.0
+2.51.0
 
