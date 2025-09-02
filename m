@@ -1,74 +1,74 @@
-Received: from smtp-relay-internal-1.canonical.com (smtp-relay-internal-1.canonical.com [185.125.188.123])
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F04DE345753
-	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 17:50:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.123
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 238022E283E
+	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 17:51:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756835418; cv=none; b=nrpYcDe44fO+9clxr4XHm6J2L/bXcLt6PQ/nG1K4dePendtj8UVLKcboLNX95OUeKqPzPbwU7ITol34DZJA4NjAJBQ/vu8vrVBQR0C8zNoU5fr5KHoO9DSuN/VY+8GrJzWEBC6bPhbL5BRWUJ7gpk6U5om4okq2QZ7WCWcHfaNU=
+	t=1756835481; cv=none; b=Zf8BVdvBwxL9mRE38UVmhZvWsKLVt7J81BDgRrc45Rz/FhUxelFhlPk37P783YCbiI4b9fpIWEXwFgiCck1QZFqPZncq5TWs75tNGjTo0asuE5miFIu/mZevZd9RaNyrzqkSUcEYLW3CQKhm7/JIjgKQpqjuIMD9nW47/J5HQ/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756835418; c=relaxed/simple;
-	bh=3Fv2/ufI8jD64LFiiiXr2/Eg7U3G44CQj24F9Ui5UsU=;
+	s=arc-20240116; t=1756835481; c=relaxed/simple;
+	bh=ij3QU8NGC7NeXdaBvPYfa9JhjcDXbQ6Y+v9D62BQ/uQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MD7GJgfwkLtaD49spY7KVLKehpylqZQCQTADcSkEF45edfS7wPt+oWDCeSQNnreJrwUdpHisJKQAnsa1a+I22PgZ77CKNOzeebKwE8hhFghiPO82FtTVRTdRKtE8DGUPiUOopjlWeCYpOGvFd1j2J846KhNQQ2tQX3HL3BAMrjg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=Z2WfQry5; arc=none smtp.client-ip=185.125.188.123
+	 In-Reply-To:Content-Type; b=Wh4rTmWGxqtUZnHkU5kCVhOXcscgbNdiB4n+mV8BZ4AC+oWQ8hevbEJqbYZQeVEeBnebqqyJw8lKj/Rs1hgzK7TZj/NhRLnKhbNrVKYvZ8+omBmxyAuaJOW8vUqjPihOR4rU/MVX5wjdVIZtjlzcm/wCCetUz99nkKFqi1pw8Fk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=v4X0mTI7; arc=none smtp.client-ip=185.125.188.122
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="Z2WfQry5"
+	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="v4X0mTI7"
 Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com [209.85.215.197])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id CA24E3F2A9
-	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 17:50:13 +0000 (UTC)
+	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 7E4B93F4A6
+	for <selinux@vger.kernel.org>; Tue,  2 Sep 2025 17:51:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1756835413;
-	bh=iwmgmAj/BeE2RuRtMZKCssemPgG4PZtfQ6IHtBailGM=;
+	s=20210705; t=1756835478;
+	bh=HfZznrJfB1dICVVaT+f4HXRi6Umt1xD9tUrHuERyGaU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
 	 In-Reply-To:Content-Type;
-	b=Z2WfQry5dThWkmUzfICSL9x56eKd2Eorxn5VftG7nDOWrp1+qOpdTKzrr8LW/U2w9
-	 Ol6W+trxT01M/nVpLDCbziLxgW50ihCERik5RxJCKby9NYN3nV8sbBpA0vzORnA6Qz
-	 O8E2l0sKU1Rp/jtr+U21Hn64lV4+B/P05fM3+bwZJ7TGUxmuIxhYvZFrcX9//Q+aQ5
-	 hESlo8Rsf00ctXvkD9w+CYkJqhun4KYmc3lDZKF/aQ3CrxGjGdpEygNj0f8pN7Qvec
-	 9YWc5DSdCjuY8vlyKwFe3az4Hxd8qtSiUi+NZx/RdhmZjLm0TEarj/Al0BDwg/pvGz
-	 fMto+MI1fhgtg==
-Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-b49da7c3ff6so3366580a12.0
-        for <selinux@vger.kernel.org>; Tue, 02 Sep 2025 10:50:13 -0700 (PDT)
+	b=v4X0mTI7Qg7WnA3lULG9zkSn5Z8vp/TGzgk2yka3RkGwuIOlKkAbLew+PWVrX8E42
+	 3/EnUy7rM09JP7nQpDfAXhN2QH4wAyJT+gjNfaizI0mPquIw/iEowRfi+eftYXnl0p
+	 IWjnhzzQI+fNuF8KvtKtsphKwdPyIsQIdwTJJKjFtA+y4jZviBtawgRASd0hE4F21K
+	 RNdzYiuKpExiXw4xCQ/GQZQNakSPW+MamJ4O42t0AVpEkKwhfvlDa/uxJA8vrTUs2u
+	 ZsTnFHaxu/0Xa2LVysAfibkiW39B7NAk01sVgGnZg6UfDL2r9XuQ9R+5hYy6Czief3
+	 bxo0GhO/NBXmA==
+Received: by mail-pg1-f197.google.com with SMTP id 41be03b00d2f7-b4c46fbb997so103953a12.0
+        for <selinux@vger.kernel.org>; Tue, 02 Sep 2025 10:51:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756835412; x=1757440212;
+        d=1e100.net; s=20230601; t=1756835476; x=1757440276;
         h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
          :content-language:references:cc:to:subject:user-agent:mime-version
          :date:message-id:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=iwmgmAj/BeE2RuRtMZKCssemPgG4PZtfQ6IHtBailGM=;
-        b=BGIU56snxF1RHQPmQziRiVqHvjclweQioLrr+gCtpiNP6MwfNULRDWPNoH7cdmc0x3
-         Wh4ILcZSKuyw+C7d52EcAqu+sIOmYTZIb2SE/Pvq+a4CSIljoer9L5XcvSM6oDWTG3sy
-         7HCQifHQ3PiibT+L+LWghB/exoXO+YPP9ZNVVsK3I7J4UjbqV+64Z+pZ2PnliiK1AksU
-         eijxAwJaIIh8IpRGgB0KqZvxQ03LDg+HwVoxcG6/Ctr/1Zr/lq6UbDhlxi7xz4N+AIOg
-         k3ayOjD+CWH18xRUdISeK/H7p0K95SgdluM/7tSiCUCIz9Hk/zOYSE4c5aeNW1YidvI0
-         +8SA==
-X-Forwarded-Encrypted: i=1; AJvYcCUGypbURHnDV/jsAXTffgZSfNSXywrdqMFyTyiWAOmsgltzyf9YMXVyclJicNdDWhUqtyOSiW0f@vger.kernel.org
-X-Gm-Message-State: AOJu0YzDUT/RaEcIBU/wq7GKvPoYqSieo3DrvH3BSNraCOX/kmKHwT+M
-	ih56u65xrDJcNwo2AwjbXX8uL4+Zh0esgZCsUF9QPGxMMGZqQzogZ3f0SPjBnXMc/+KN1mm7bkq
-	oXczYPnvDCyf2+c7DJ+b+A0DOdU9E+fSuhRtCH1rqXO9nvyb05R95kMRqdmcfwCAI5TSQZuggqF
-	I=
-X-Gm-Gg: ASbGncse5IGJsFrO19bhV8AlLPMj1Y8hmDJ/69R/uqCjeeyM3TzIRQ56Wnk9HGqfu50
-	r+F6KVwLcsV111AmX7WNraMik01uSof2dEs4q1oGlAf0DSOHyh40fx/eiikWN1hhSgdO1gmEwB4
-	zd0yIEz1KSEJoDswpOEw6ROSw5z/KFumGxJkProEKdeg7zLayHhFd8DWDmH8rxUFMpxq+hDmhev
-	bchL8AwzAazd8BhzvnmWPbngFmHboRWBziE9uivgzIGDOJH5gqsxvEADO58ccLfFtAeyVUb3g99
-	AHIdwCfGmb99qlsagSt1UgcDXvvx0F26Vb+BUk71D+Y+cp1cKAuY+w==
-X-Received: by 2002:a05:6a20:748c:b0:245:fdeb:d261 with SMTP id adf61e73a8af0-245fdebd578mr3388497637.54.1756835411689;
-        Tue, 02 Sep 2025 10:50:11 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEteBjyJgXg/M0oTnGVsnzvByLgONeS7SioVUYoAi9FUokotGbiolqG4x7REqXP/mM8qQJN/w==
-X-Received: by 2002:a05:6a20:748c:b0:245:fdeb:d261 with SMTP id adf61e73a8af0-245fdebd578mr3388466637.54.1756835411290;
-        Tue, 02 Sep 2025 10:50:11 -0700 (PDT)
+        bh=HfZznrJfB1dICVVaT+f4HXRi6Umt1xD9tUrHuERyGaU=;
+        b=JQx2Z4/sSbjmA8dGyPywp9OhdKSdLTiSbHD2hdAMa2bh+1eZuFi3u5u3Mx6yxteKyo
+         Y4F4opnJu0X/p6gDBJLrQVki1hT+35H3LYXPtqHi1/vlpM7LUCN6HBmWZ2yHBpePvrRr
+         3BUQq7D7ROLWSGwkDgc2oHbp7DlOncc0uQgCC8T52N8Cj+VgjJAWudkoYKljZl3owOkx
+         neR2aPq0G/5boK7zs9uFTTyg5YxZLkSeK6/xx1cJHYVtaCPaF6AVhP03gUT5BvB04Ib6
+         6o59srhQVVRqeWGqyXbWWn1pqDc66/f15sPv6FpEpGXgYlV6tkwjHzwY8NMjdHWHX2Q5
+         XXQg==
+X-Forwarded-Encrypted: i=1; AJvYcCW+QNRfVJ8L2SoV6pzcIu9teOu/r75e3sIQ0852OJkTDvHX4dv2LxRlbLVQrb/aeuuHpIgiQGtz@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzya23Fr27hpUYif0WvcPmt3C4wl/Nl6rTZUy6UWXd0RKYri4H+
+	PGGR9Iv3uAU2wT4V5KKhadOckuozQO7I7FPzL660YPt6ma1THkMt3JwtoseFGZEBGUdrcNsk74Y
+	JIH2pyjnDJYkiaz2B1zSbIh/SrJwc9afhP+HVWAuipx1g9uCfGe8zheEblqkRLcoYidlz1gm/hP
+	A=
+X-Gm-Gg: ASbGnctKA5s85YDotuG50grFahfeUYDCQBiSKkFTneZqSUXgij7HdvIiz/jCFnf85Kf
+	aVNGBLJT2lpB4KkpWG/tfO/pQL6iWjozAXEgW7I8mmPP5L66XWD3toPeOsFiXsmtWj0j4DcwCh0
+	4J4/4OmDQ3J9z3AUZrJuslgTNN+UKs6eAT1eQVDRnadUEc+sgQhFAbsmSlESZJc2+MTaR4nPBcB
+	OY59j1CYYmEAZuQRoTuFvSRnPYVwEgQNNzTHufX2ZMHHelRkqpFo7CCreFCxuChbY6a7t61/F8d
+	lEgxQYE01SVHgyOHEi6b2qegPf9QwXrvVA/9raPwDBlrxWB4uZZ1rA==
+X-Received: by 2002:a17:90b:3148:b0:325:6598:30d7 with SMTP id 98e67ed59e1d1-3280d364e5dmr16357087a91.16.1756835476420;
+        Tue, 02 Sep 2025 10:51:16 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IE3NfrNr0u5Dl1pH4RPhQ18KvyHS94K+Vbw2+IqYN4A6Mu17B0XKZuKf5zW+cDevvlZZMUBGA==
+X-Received: by 2002:a17:90b:3148:b0:325:6598:30d7 with SMTP id 98e67ed59e1d1-3280d364e5dmr16357053a91.16.1756835476018;
+        Tue, 02 Sep 2025 10:51:16 -0700 (PDT)
 Received: from [192.168.192.85] ([50.47.129.42])
-        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-7722a2d7c42sm14348033b3a.39.2025.09.02.10.50.10
+        by smtp.googlemail.com with ESMTPSA id 41be03b00d2f7-b4cd366a909sm12145798a12.52.2025.09.02.10.51.15
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Sep 2025 10:50:10 -0700 (PDT)
-Message-ID: <62165696-1b23-4f9b-82c9-650b49de04ae@canonical.com>
-Date: Tue, 2 Sep 2025 10:50:09 -0700
+        Tue, 02 Sep 2025 10:51:15 -0700 (PDT)
+Message-ID: <00faa5b3-819a-40b4-99b1-5f6a3b7d9831@canonical.com>
+Date: Tue, 2 Sep 2025 10:51:14 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -76,8 +76,7 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 23/34] lsm: introduce an initcall mechanism into the
- LSM framework
+Subject: Re: [PATCH v3 24/34] loadpin: move initcalls to the LSM framework
 To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
  linux-integrity@vger.kernel.org, selinux@vger.kernel.org
 Cc: Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu
@@ -90,7 +89,7 @@ Cc: Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu
  Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
  Xiu Jianfeng <xiujianfeng@huawei.com>
 References: <20250814225159.275901-36-paul@paul-moore.com>
- <20250814225159.275901-59-paul@paul-moore.com>
+ <20250814225159.275901-60-paul@paul-moore.com>
 Content-Language: en-US
 From: John Johansen <john.johansen@canonical.com>
 Autocrypt: addr=john.johansen@canonical.com; keydata=
@@ -136,181 +135,53 @@ Autocrypt: addr=john.johansen@canonical.com; keydata=
  +T7sv9+iY+e0Y+SolyJgTxMYeRnDWE6S77g6gzYYHmcQOWP7ZMX+MtD4SKlf0+Q8li/F9GUL
  p0rw8op9f0p1+YAhyAd+dXWNKf7zIfZ2ME+0qKpbQnr1oizLHuJX/Telo8KMmHter28DPJ03 lT9Q
 Organization: Canonical
-In-Reply-To: <20250814225159.275901-59-paul@paul-moore.com>
+In-Reply-To: <20250814225159.275901-60-paul@paul-moore.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 8/14/25 15:50, Paul Moore wrote:
-> Currently the individual LSMs register their own initcalls, and while
-> this should be harmless, it can be wasteful in the case where a LSM
-> is disabled at boot as the initcall will still be executed.  This
-> patch introduces support for managing the initcalls in the LSM
-> framework, and future patches will convert the existing LSMs over to
-> this new mechanism.
-> 
-> Only initcall types which are used by the current in-tree LSMs are
-> supported, additional initcall types can easily be added in the future
-> if needed.
-> 
-> Reviewed-by: Kees Cook <kees@kernel.org>
-> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+> Acked-by: Kees Cook <kees@kernel.org>
 > Signed-off-by: Paul Moore <paul@paul-moore.com>
 
 Reviewed-by: John Johansen <john.johansen@canonical.com>
 
 > ---
->   include/linux/lsm_hooks.h | 33 ++++++++++++---
->   security/lsm_init.c       | 89 +++++++++++++++++++++++++++++++++++++++
->   2 files changed, 117 insertions(+), 5 deletions(-)
+>   security/loadpin/loadpin.c | 15 ++++++++-------
+>   1 file changed, 8 insertions(+), 7 deletions(-)
 > 
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index 86e457aa8809..b92008641242 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -151,13 +151,36 @@ enum lsm_order {
->   	LSM_ORDER_LAST = 1,	/* This is only for integrity. */
->   };
->   
-> +/**
-> + * struct lsm_info - Define an individual LSM for the LSM framework.
-> + * @id: LSM name/ID info
-> + * @order: ordering with respect to other LSMs, optional
-> + * @flags: descriptive flags, optional
-> + * @blobs: LSM blob sharing, optional
-> + * @enabled: controlled by CONFIG_LSM, optional
-> + * @init: LSM specific initialization routine
-> + * @initcall_pure: LSM callback for initcall_pure() setup, optional
-> + * @initcall_early: LSM callback for early_initcall setup, optional
-> + * @initcall_core: LSM callback for core_initcall() setup, optional
-> + * @initcall_subsys: LSM callback for subsys_initcall() setup, optional
-> + * @initcall_fs: LSM callback for fs_initcall setup, optional
-> + * @nitcall_device: LSM callback for device_initcall() setup, optional
-> + * @initcall_late: LSM callback for late_initcall() setup, optional
-> + */
->   struct lsm_info {
->   	const struct lsm_id *id;
-> -	enum lsm_order order;	/* Optional: default is LSM_ORDER_MUTABLE */
-> -	unsigned long flags;	/* Optional: flags describing LSM */
-> -	int *enabled;		/* Optional: controlled by CONFIG_LSM */
-> -	int (*init)(void);	/* Required. */
-> -	struct lsm_blob_sizes *blobs; /* Optional: for blob sharing. */
-> +	enum lsm_order order;
-> +	unsigned long flags;
-> +	struct lsm_blob_sizes *blobs;
-> +	int *enabled;
-> +	int (*init)(void);
-> +	int (*initcall_pure)(void);
-> +	int (*initcall_early)(void);
-> +	int (*initcall_core)(void);
-> +	int (*initcall_subsys)(void);
-> +	int (*initcall_fs)(void);
-> +	int (*initcall_device)(void);
-> +	int (*initcall_late)(void);
->   };
->   
->   #define DEFINE_LSM(lsm)							\
-> diff --git a/security/lsm_init.c b/security/lsm_init.c
-> index 363aac92a8da..697482a22a02 100644
-> --- a/security/lsm_init.c
-> +++ b/security/lsm_init.c
-> @@ -39,6 +39,27 @@ static __initdata struct lsm_info *lsm_exclusive;
->   	for ((iter) = __start_early_lsm_info;				\
->   	     (iter) < __end_early_lsm_info; (iter)++)
->   
-> +#define lsm_initcall(level)						\
-> +	({								\
-> +		int _r, _rc = 0;					\
-> +		struct lsm_info **_lp, *_l;				\
-> +		lsm_order_for_each(_lp) {				\
-> +			_l = *_lp;					\
-> +			if (!_l->initcall_##level)			\
-> +				continue;				\
-> +			lsm_pr_dbg("running %s %s initcall",		\
-> +				   _l->id->name, #level);		\
-> +			_r = _l->initcall_##level();			\
-> +			if (_r) {					\
-> +				pr_warn("failed LSM %s %s initcall with errno %d\n", \
-> +					_l->id->name, #level, _r);	\
-> +				if (!_rc)				\
-> +					_rc = _r;			\
-> +			}						\
-> +		}							\
-> +		_rc;							\
-> +	})
-> +
->   /**
->    * lsm_choose_security - Legacy "major" LSM selection
->    * @str: kernel command line parameter
-> @@ -461,3 +482,71 @@ int __init security_init(void)
->   
+> diff --git a/security/loadpin/loadpin.c b/security/loadpin/loadpin.c
+> index b9ddf05c5c16..273ffbd6defe 100644
+> --- a/security/loadpin/loadpin.c
+> +++ b/security/loadpin/loadpin.c
+> @@ -270,11 +270,6 @@ static int __init loadpin_init(void)
 >   	return 0;
 >   }
+>   
+> -DEFINE_LSM(loadpin) = {
+> -	.id = &loadpin_lsmid,
+> -	.init = loadpin_init,
+> -};
+> -
+>   #ifdef CONFIG_SECURITY_LOADPIN_VERITY
+>   
+>   enum loadpin_securityfs_interface_index {
+> @@ -434,10 +429,16 @@ static int __init init_loadpin_securityfs(void)
+>   	return 0;
+>   }
+>   
+> -fs_initcall(init_loadpin_securityfs);
+> -
+>   #endif /* CONFIG_SECURITY_LOADPIN_VERITY */
+>   
+> +DEFINE_LSM(loadpin) = {
+> +	.id = &loadpin_lsmid,
+> +	.init = loadpin_init,
+> +#ifdef CONFIG_SECURITY_LOADPIN_VERITY
+> +	.initcall_fs = init_loadpin_securityfs,
+> +#endif /* CONFIG_SECURITY_LOADPIN_VERITY */
+> +};
 > +
-> +/**
-> + * security_initcall_pure - Run the LSM pure initcalls
-> + */
-> +static int __init security_initcall_pure(void)
-> +{
-> +	return lsm_initcall(pure);
-> +}
-> +pure_initcall(security_initcall_pure);
-> +
-> +/**
-> + * security_initcall_early - Run the LSM early initcalls
-> + */
-> +static int __init security_initcall_early(void)
-> +{
-> +	return lsm_initcall(early);
-> +}
-> +early_initcall(security_initcall_early);
-> +
-> +/**
-> + * security_initcall_core - Run the LSM core initcalls
-> + */
-> +static int __init security_initcall_core(void)
-> +{
-> +	return lsm_initcall(core);
-> +}
-> +core_initcall(security_initcall_core);
-> +
-> +/**
-> + * security_initcall_subsys - Run the LSM subsys initcalls
-> + */
-> +static int __init security_initcall_subsys(void)
-> +{
-> +	return lsm_initcall(subsys);
-> +}
-> +subsys_initcall(security_initcall_subsys);
-> +
-> +/**
-> + * security_initcall_fs - Run the LSM fs initcalls
-> + */
-> +static int __init security_initcall_fs(void)
-> +{
-> +	return lsm_initcall(fs);
-> +}
-> +fs_initcall(security_initcall_fs);
-> +
-> +/**
-> + * security_initcall_device - Run the LSM device initcalls
-> + */
-> +static int __init security_initcall_device(void)
-> +{
-> +	return lsm_initcall(device);
-> +}
-> +device_initcall(security_initcall_device);
-> +
-> +/**
-> + * security_initcall_late - Run the LSM late initcalls
-> + */
-> +static int __init security_initcall_late(void)
-> +{
-> +	int rc;
-> +
-> +	rc = lsm_initcall(late);
-> +	lsm_pr_dbg("all enabled LSMs fully activated\n");
-> +
-> +	return rc;
-> +}
-> +late_initcall(security_initcall_late);
+>   /* Should not be mutable after boot, so not listed in sysfs (perm == 0). */
+>   module_param(enforce, int, 0);
+>   MODULE_PARM_DESC(enforce, "Enforce module/firmware pinning");
 
