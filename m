@@ -1,434 +1,158 @@
-Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 026C2263F38
-	for <selinux@vger.kernel.org>; Wed,  3 Sep 2025 10:22:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.125.188.122
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44EA9275B12
+	for <selinux@vger.kernel.org>; Wed,  3 Sep 2025 12:50:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756894936; cv=none; b=Lmocyy0MOcfKVVTsbAxtqGTe1q8jVZ3MfdMv/ugQq0fHfyW0/NxnYkDYvO3mrKIc9exxiuD7g6u9gpYUD0pUuFEfQq/eHsikpyx8wOosCw/NbYbWDUQgrwpRk6FywQpXuDnFfhI0TAyVLPFF2gCeo4SWGH8LZCxZ9hixhn9J2xg=
+	t=1756903809; cv=none; b=CtD9phex0xglpExDX1fmbxH2R9k0wWrV9SmoPKtxcxy3EfooM4wnmeQR9abLxtjdX54mgZgHRMLF2Sn/ugL7rv/Erz5g+GCB39X2jD+EhxzIyIco+DH5V3OHl6TLUq5u5tWAaHICC81dcUlLismb4NT1gosMhMuPwIFGvjj86+c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756894936; c=relaxed/simple;
-	bh=6ldFftuBmSJ4jN2N2fWS+bZRb2qjKnaPwAXrXw3rlkY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=M//P94kOJ4AG5gy1BwPJ4HNAmMGwOicifNBABaaL98yHsGhl7mPiXbUG+r8Ga3Hsi/pPNnT7Y2wtrO9GBwl15seL+ZT+QHAjatkreWdC1k5Oo7J2pqiKrti27Hgcooll0S99PStRYfUQhRAUW+HLdz1EOkV7/w7krzeQe0T0zsI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com; spf=pass smtp.mailfrom=canonical.com; dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b=vtaN4XxF; arc=none smtp.client-ip=185.125.188.122
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=canonical.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=canonical.com
+	s=arc-20240116; t=1756903809; c=relaxed/simple;
+	bh=R/4v6xOtVysSjhZsWLTZuA5spdI96uL+tKyB5nJ5uCw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=p1KXI2x/PByESOQhpSpuBzXoRGKXIvA/fbYu+VEe+NFTM9daZbnHi42a1H4LXhd2IH6beKucsGeNFHLPuIWo6H+VTkQYddD4khAD0WJmT+QkQkRsXOdCqw+PZvhpOW/GVI7qli6+vcR7GXisYWbbLR13rRFTsgv+EdlzcCqf9hk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SA0LeXHR; arc=none smtp.client-ip=209.85.215.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=canonical.com header.i=@canonical.com header.b="vtaN4XxF"
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com [209.85.216.71])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 229893F5B7
-	for <selinux@vger.kernel.org>; Wed,  3 Sep 2025 10:22:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-	s=20210705; t=1756894929;
-	bh=lHCz3NMqznmzfsG/CHMRSMl43bn2mVbTvbWSD58QCHI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type;
-	b=vtaN4XxFoWmI72Obq3SZqXF/N1qCJharjtWJU8ly6vz80tu0SLiADLevmiHlKgh5I
-	 2FdS3pTs72f5qCmOZkNTrXe4hPoGyh55tD3N1XYcTBnSEOywoETQuwco2tbchtk4RB
-	 6PM3nY5KC1BslhcYZWerDJ1ELy5aMh92enlKiS7QXCZ5D//tOtkE39s3X7FTcPITcf
-	 euG8ah71TXVBsJoW3KjudlvJkAY9tyk+ojHnJpjs0ywVPDoauZwpX5buDvke03hUq4
-	 wSzgVrNt4x+9x7KAt4hp+bp9jZm/Y58aFh++m+fEWJO7mXrjSHbOJhnNY8aeMZ9Qis
-	 tzgBmC50Bm8BQ==
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-325ce108e16so9557631a91.1
-        for <selinux@vger.kernel.org>; Wed, 03 Sep 2025 03:22:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756894928; x=1757499728;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SA0LeXHR"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-b4717543ed9so4105033a12.3
+        for <selinux@vger.kernel.org>; Wed, 03 Sep 2025 05:50:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1756903807; x=1757508607; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lHCz3NMqznmzfsG/CHMRSMl43bn2mVbTvbWSD58QCHI=;
-        b=MJMP026pkllWwDc81ka/TMrVuHWsGxqz7WUijJvkMptl5YSSvQSfQ5YzdG9LGBHeqs
-         r+7JU1/Nssyh38mADnvK+5+CSxWlnU7ghGCW+aIMeGjrklDzJPSxPnTkKHgET0LOmkRg
-         DkVDoQbitFT7ryxdAvbDXBRoiTnQucQLHRlS7K0yTSDqjIFeYbQ4cUrcej1g5sqMCFM5
-         lYV6384c2f+4H0fQkqf4Y4gII9LGXPjZ2o98SIOLQdl4rGLSE1aJhYyCy1hoEhfIU2nv
-         OrxjOsq7xefNEh9HYepmo/DLjGfLYt03q9XNlFa0QGTZgPMrmBtGI0rw/95Z48u2Gk4n
-         bQig==
-X-Forwarded-Encrypted: i=1; AJvYcCUMCFFTMR7vLH60zKBirAyYaNzfzASvA+J3NCIvdAOgPCu8FRGez1f/GrXhPwuELbNpTKTewWFF@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz50/cfM3eIosgcob7D2w99gEylHs9b9OCdAnTKQ0Nq4yTiTzFN
-	KxrCFdgIGLjL/nyCwmf09MhwAOYZS9E+8nrSgU3G94JMEh9MXVUjgMvn2yj61sZb3R8ty7GLSkH
-	8n/q7xDSkErKaGs6SlqrMUSqI47PcPGrJFsqH1wyhVqqBKX9DgNPcIpDoL9DJof5ASxe41EkAA3
-	I=
-X-Gm-Gg: ASbGncv7G71HAX0kTZWBDP1y0+eP+dvk4JNlSPu2bAwEkxdEHbxoIOl7099v+QAgScz
-	7GK6AoSLjOErLTUXoC/169eB4t1F2ya2HLYh9rS/kcQkJPbQMdE6kG04GmVn74/4IOCuCCtOMvm
-	bMFZLbaPbyAc9r4MkfjR7Ww2Cpek4kBZV7aczrkNk3d2hScSj5vkwQ1FMJUUwxHXKlvyPsMS5QO
-	R3KoIhG+7bPwu9zZ0QEnBxRFOQRaNQOhnYob+wL2tvgVUfMfZNp0TNl1IbPjRjBpfd4QGGVzaLh
-	Rg0pml81yhA7MjJkIaH+K1MMMJ308tgobIgz0/yuNCjln5EST7c/bw==
-X-Received: by 2002:a17:90b:1e12:b0:31e:cc6b:320f with SMTP id 98e67ed59e1d1-32815412adcmr15553003a91.5.1756894927518;
-        Wed, 03 Sep 2025 03:22:07 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IEUc9MsEnOB5zFHhrC4GPIVt04uDe9KvRYLvyWLer3axOPYOd/tXBbTCGZA7oezno9EJ4CexQ==
-X-Received: by 2002:a17:90b:1e12:b0:31e:cc6b:320f with SMTP id 98e67ed59e1d1-32815412adcmr15552979a91.5.1756894926976;
-        Wed, 03 Sep 2025 03:22:06 -0700 (PDT)
-Received: from [192.168.192.85] ([50.47.129.42])
-        by smtp.googlemail.com with ESMTPSA id 98e67ed59e1d1-327da8e7186sm17157712a91.16.2025.09.03.03.22.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 03 Sep 2025 03:22:06 -0700 (PDT)
-Message-ID: <68fb24bf-46a9-4333-86df-654013468455@canonical.com>
-Date: Wed, 3 Sep 2025 03:22:05 -0700
+        bh=Zm41AWfuWUPDSnKfrBo+/YKznTzPGF4qpgJqGRZ59f0=;
+        b=SA0LeXHRgOUlndTfZb6sywG/rBiVWWPfcAO85n9l6xe1SGqGi3L/+X2MaWf0cygyS1
+         FHV8Jm5q/8YhWLEABM0Mxk3w8WoWl+7NOO2JEU6sTejDElBLIvcyHOmal2F8NW0yad8q
+         Z0dJVk+BkROJ3dAxaQMMfcMF7ue2eUiTjdNmDVMVQA2jJZINJTMgzA6X1wgE82y/7gUZ
+         uG3EYFOt/EA1SGpJdhp+7sN84KFUuHizoU8GrvmbJUZjjmplHQFTQle+yAEqn+0VZVeJ
+         ZcW48F6oTT3qDEgfn5F4u5sy8tQYaxI44u0eDH2lCk7URv1MkjPlaYbBE9pzZyZaIPC6
+         fC3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1756903807; x=1757508607;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Zm41AWfuWUPDSnKfrBo+/YKznTzPGF4qpgJqGRZ59f0=;
+        b=EUn9zIqFaZv/9Sz9cUI4xypzUZSDVx00/Z6wGnN8GnhXQkgDElqBIHPad3iLwoYYPO
+         0QUKcfHkSGq8NhppZFfqxc5uqguZBePb7ATcNCcVV2rY+ZEwnVM6plLK+jQTgarPY/Qx
+         PlBdeQqAcFJ5Nlb3zQJkyncGlL0AEvSQg0xI2IJqdWzra+1vdwWyMPzrF+SVc2i3tD9U
+         rkSWYr4Uqn76JtuFtd+0Wdy+MFLs9Vi/lW8/oQqF3cp8BpjtkO2VW7+nDUGtwDOEFnlZ
+         J5NpRG/vbozcPCxBPO/H5qGGCwD69LxD73fk2xgXlqSlPK+21ucfE0vTjt0NhjVOiEgJ
+         uRKA==
+X-Forwarded-Encrypted: i=1; AJvYcCVGqOdb+xdUx2FDKIw19iACvtPS3A5TWubdXZ+Q95/6ktD8mQbyemGq9296cXTq5bour3whkpAq@vger.kernel.org
+X-Gm-Message-State: AOJu0YxM75h1pCSloAYa+pfEYcqrB6+JwwueI0EGB7N4uYgrHf+FT70t
+	4pz6lOxzLSLMxcs1bH9CP58to8Gw9/tZElNClcBcVsc1oWqsdN2I/qZ4wWzJ/gXlg7xCEoShpYT
+	aKxNjaQM/AIT0tecwRZQHni2ykshD9H0=
+X-Gm-Gg: ASbGncsWMEmN1aU0hdoPn41aOtPaQJqy/DypPTHRjEqFAhlOB+tqLWhAnhWwvEWYQ++
+	acqXS3+TnRfFpVbJxGgEpISqDSTEBevt4o2H+SUmk7kTimO+TBeqSCKtrj+fKruhvrvtqPxBmvW
+	/EAGZ8oqLt1x8XzOzL4kPzRAcRF/CE0ShGRhQ2+jpVyPSlT/r6P2jWTgYu4ZGrtnQZ/k0UIgaTG
+	dgcuUA=
+X-Google-Smtp-Source: AGHT+IED+ybVL600yVcQC5NyN5tC7o3INivpcy8kb3yAZ3yDUqmxx7UxKpTlGR/6CfGl/AJEvgldphigD/ZbuW7WBac=
+X-Received: by 2002:a17:90b:1a8f:b0:325:ce00:fcb4 with SMTP id
+ 98e67ed59e1d1-328156e1719mr15878549a91.31.1756903807408; Wed, 03 Sep 2025
+ 05:50:07 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 20/34] lsm: cleanup the debug and console output in
- lsm_init.c
-To: Paul Moore <paul@paul-moore.com>, linux-security-module@vger.kernel.org,
- linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-Cc: Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu
- <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
- =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
- =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
- Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
- Casey Schaufler <casey@schaufler-ca.com>,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
- Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
- Xiu Jianfeng <xiujianfeng@huawei.com>
-References: <20250814225159.275901-36-paul@paul-moore.com>
- <20250814225159.275901-56-paul@paul-moore.com>
-Content-Language: en-US
-From: John Johansen <john.johansen@canonical.com>
-Autocrypt: addr=john.johansen@canonical.com; keydata=
- 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 lT9Q
-Organization: Canonical
-In-Reply-To: <20250814225159.275901-56-paul@paul-moore.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20250902055401.618729-1-tweek@google.com> <CAEjxPJ4UzRUKkWgoO80hpPF6HhkPM_DUq7BV4+Nh6RhRAdpP7g@mail.gmail.com>
+ <CA+zpnLdDjWK9Bz82moHrgEL4vtAkXvujPmj+JZcrk=TKidnpeA@mail.gmail.com>
+In-Reply-To: <CA+zpnLdDjWK9Bz82moHrgEL4vtAkXvujPmj+JZcrk=TKidnpeA@mail.gmail.com>
+From: Stephen Smalley <stephen.smalley.work@gmail.com>
+Date: Wed, 3 Sep 2025 08:49:55 -0400
+X-Gm-Features: Ac12FXwfeFCQINWPyRR5ofkUf372xMtSPnf7xWdZYyA_mbYLt0QlKzM9EiSxgIc
+Message-ID: <CAEjxPJ6pVpbMscEy-u+OBpaWe5JeO8H7xQ9MphpKxWQ3b7oTtQ@mail.gmail.com>
+Subject: Re: [PATCH testsuite] policy,tests: add tests for memfd_file class
+To: =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	James Morris <jmorris@namei.org>, Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, 
+	Jeff Xu <jeffxu@google.com>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 8/14/25 15:50, Paul Moore wrote:
-> Move away from an init specific init_debug() macro to a more general
-> lsm_pr()/lsm_pr_cont()/lsm_pr_dbg() set of macros that are available
-> both before and after init.  In the process we do a number of minor
-> changes to improve the LSM initialization output and cleanup the code
-> somewhat.
-> 
-> Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+On Wed, Sep 3, 2025 at 12:02=E2=80=AFAM Thi=C3=A9baud Weksteen <tweek@googl=
+e.com> wrote:
+>
+> On Wed, Sep 3, 2025 at 1:08=E2=80=AFAM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Tue, Sep 2, 2025 at 1:54=E2=80=AFAM Thi=C3=A9baud Weksteen <tweek@go=
+ogle.com> wrote:
+> > >
+> > > A new class "memfd_file" is introduced to the kernel in [1]. This cla=
+ss
+> > > is only used when the policy capability "memfd_class" is set. Add tes=
+ts
+> > > to validate this new class:
+> > >
+> > >   1. Validate that memfd_create() requires the "create" permission.
+> > >   2. Validate that fexecve() on a memfd requires the "execute_no_tran=
+s"
+> > >      permission.
+> >
+> > Thanks for this patch. Do you have example CIL modules for defining
+> > the memfd_file class and memfd_class policy capability that we can use
+> > to exercise these tests without needing to modify the base policy?
+> > And corresponding sed command for updating
+> > /usr/share/selinux/devel/include/support/obj_perm_sets.spt to define
+> > it for use by the test_memfd.te file?
+>
+> Thanks for the review. Here are the changes I added to the tmt
+> configuration for testing:
+>
+>     # Fix the current policy.
+>     semodule -c -E base
+>     sed -i \
+>       -e 's/\((class user_namespace (create ))\)/\1\n(class memfd_file
+> (execute_no_trans entrypoint ))\n(classcommon memfd_file file)/' \
+>       -e 's/\(anon_inode socket\)/memfd_file \1/' \
+>       base.cil
+>     echo "(policycap memfd_class)" >>base.cil
+>     semodule -X 456 -i base.cil
+>     rm -f base.cil
+>
+>     sed -i.orig \
+>       -e 's/\(define(`all_file_perms'\'',\)\(.*\)$/\1\2\ndefine(`all_memf=
+d_file_perms'\'',\2/'
+> \
+>       -e 's/\(class file all_file_perms;\)/\1\nclass memfd_file
+> all_memfd_file_perms;/' \
+>       /usr/share/selinux/devel/include/support/all_perms.spt
+>
+> I've pushed the complete tmt configuration I used to:
+>
+> https://github.com/tweksteen/selinux-testsuite/commit/6920c02f6d78a9ddd19=
+0c62479df3b7569c694cf
+>
+> I am not sure which part is suitable for upstreaming, probably the
+> policy update similar to nlmsg?
 
-Reviewed-by: John Johansen <john.johansen@canonical.com>
+Thanks, with those commands (which i would encourage you to add to the
+commit/patch description if you re-spin the patch), I was able to run
+your tests successfully in enforcing mode and also confirm that in
+permissive mode, 2 of the 4 test fail as expected. I don't actually
+know about what is expected for the tmt configuration - will defer to
+Ondrej on that since he created and maintains it.
 
-> ---
->   security/lsm.h      |  11 ++++
->   security/lsm_init.c | 123 +++++++++++++++++++-------------------------
->   security/security.c |   2 +
->   3 files changed, 66 insertions(+), 70 deletions(-)
-> 
-> diff --git a/security/lsm.h b/security/lsm.h
-> index dbe755c45e57..8dc267977ae0 100644
-> --- a/security/lsm.h
-> +++ b/security/lsm.h
-> @@ -6,9 +6,20 @@
->   #ifndef _LSM_H_
->   #define _LSM_H_
->   
-> +#include <linux/printk.h>
->   #include <linux/lsm_hooks.h>
->   #include <linux/lsm_count.h>
->   
-> +/* LSM debugging */
-> +extern bool lsm_debug;
-> +#define lsm_pr(...)		pr_info(__VA_ARGS__)
-> +#define lsm_pr_cont(...)	pr_cont(__VA_ARGS__)
-> +#define lsm_pr_dbg(...)							\
-> +	do {								\
-> +		if (lsm_debug)						\
-> +			pr_info(__VA_ARGS__);				\
-> +	} while (0)
-> +
->   /* List of configured LSMs */
->   extern unsigned int lsm_active_cnt;
->   extern const struct lsm_id *lsm_idlist[];
-> diff --git a/security/lsm_init.c b/security/lsm_init.c
-> index 37593805ba9e..2f7ae26fca0f 100644
-> --- a/security/lsm_init.c
-> +++ b/security/lsm_init.c
-> @@ -30,13 +30,6 @@ static __initdata const char *lsm_order_legacy;
->   static __initdata struct lsm_info *lsm_order[MAX_LSM_COUNT + 1];
->   static __initdata struct lsm_info *lsm_exclusive;
->   
-> -static __initdata bool debug;
-> -#define init_debug(...)							\
-> -	do {								\
-> -		if (debug)						\
-> -			pr_info(__VA_ARGS__);				\
-> -	} while (0)
-> -
->   #define lsm_order_for_each(iter)					\
->   	for ((iter) = lsm_order; *(iter); (iter)++)
->   #define lsm_for_each_raw(iter)						\
-> @@ -77,7 +70,7 @@ __setup("lsm=", lsm_choose_lsm);
->    */
->   static int __init lsm_debug_enable(char *str)
->   {
-> -	debug = true;
-> +	lsm_debug = true;
->   	return 1;
->   }
->   __setup("lsm.debug", lsm_debug_enable);
-> @@ -143,22 +136,28 @@ static void __init lsm_order_append(struct lsm_info *lsm, const char *src)
->   		return;
->   
->   	/* Skip explicitly disabled LSMs. */
-> -	if (lsm->enabled && !lsm_is_enabled(lsm))
-> -		goto out;
-> +	if (lsm->enabled && !lsm_is_enabled(lsm)) {
-> +		lsm_pr_dbg("skip previously disabled LSM %s:%s\n",
-> +			   src, lsm->id->name);
-> +		return;
-> +	}
->   
-> -	if (WARN(lsm_active_cnt == MAX_LSM_COUNT,
-> -		 "%s: out of LSM static calls!?\n", src)) {
-> +	if (lsm_active_cnt == MAX_LSM_COUNT) {
-> +		pr_warn("exceeded maximum LSM count on %s:%s\n",
-> +			src, lsm->id->name);
->   		lsm_enabled_set(lsm, false);
-> -		goto out;
-> +		return;
->   	}
->   
->   	if (lsm->flags & LSM_FLAG_EXCLUSIVE) {
->   		if (lsm_exclusive) {
-> -			init_debug("exclusive disabled: %s\n", lsm->id->name);
-> +			lsm_pr_dbg("skip exclusive LSM conflict %s:%s\n",
-> +				   src, lsm->id->name);
->   			lsm_enabled_set(lsm, false);
-> -			goto out;
-> +			return;
->   		} else {
-> -			init_debug("exclusive chosen:   %s\n", lsm->id->name);
-> +			lsm_pr_dbg("select exclusive LSM %s:%s\n",
-> +				   src, lsm->id->name);
->   			lsm_exclusive = lsm;
->   		}
->   	}
-> @@ -167,9 +166,7 @@ static void __init lsm_order_append(struct lsm_info *lsm, const char *src)
->   	lsm_order[lsm_active_cnt] = lsm;
->   	lsm_idlist[lsm_active_cnt++] = lsm->id;
->   
-> -out:
-> -	init_debug("%s ordered: %s (%s)\n", src, lsm->id->name,
-> -		   lsm_is_enabled(lsm) ? "enabled" : "disabled");
-> +	lsm_pr_dbg("enabling LSM %s:%s\n", src, lsm->id->name);
->   }
->   
->   /**
-> @@ -239,7 +236,7 @@ static void __init lsm_init_single(struct lsm_info *lsm)
->   	if (!lsm_is_enabled(lsm))
->   		return;
->   
-> -	init_debug("initializing %s\n", lsm->id->name);
-> +	lsm_pr_dbg("initializing %s\n", lsm->id->name);
->   	ret = lsm->init();
->   	WARN(ret, "%s failed to initialize: %d\n", lsm->id->name, ret);
->   }
-> @@ -266,8 +263,8 @@ static void __init lsm_order_parse(const char *list, const char *src)
->   			if ((lsm->flags & LSM_FLAG_LEGACY_MAJOR) &&
->   			     strcmp(lsm->id->name, lsm_order_legacy)) {
->   				lsm_enabled_set(lsm, false);
-> -				init_debug("security=%s disabled: %s (only one legacy major LSM)\n",
-> -					   lsm_order_legacy, lsm->id->name);
-> +				lsm_pr_dbg("skip legacy LSM conflict %s:%s\n",
-> +					   src, lsm->id->name);
->   			}
->   		}
->   	}
-> @@ -310,8 +307,7 @@ static void __init lsm_order_parse(const char *list, const char *src)
->   		if (lsm_order_exists(lsm))
->   			continue;
->   		lsm_enabled_set(lsm, false);
-> -		init_debug("%s skipped: %s (not in requested order)\n",
-> -			   src, lsm->id->name);
-> +		lsm_pr_dbg("skip disabled LSM %s:%s\n", src, lsm->id->name);
->   	}
->   }
->   
-> @@ -319,7 +315,7 @@ static void __init lsm_order_parse(const char *list, const char *src)
->    * lsm_static_call_init - Initialize a LSM's static calls
->    * @hl: LSM hook list
->    */
-> -static void __init lsm_static_call_init(struct security_hook_list *hl)
-> +static int __init lsm_static_call_init(struct security_hook_list *hl)
->   {
->   	struct lsm_static_call *scall = hl->scalls;
->   	int i;
-> @@ -331,11 +327,12 @@ static void __init lsm_static_call_init(struct security_hook_list *hl)
->   					     hl->hook.lsm_func_addr);
->   			scall->hl = hl;
->   			static_branch_enable(scall->active);
-> -			return;
-> +			return 0;
->   		}
->   		scall++;
->   	}
-> -	panic("%s - Ran out of static slots.\n", __func__);
-> +
-> +	return -ENOSPC;
->   }
->   
->   /**
-> @@ -353,7 +350,9 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
->   
->   	for (i = 0; i < count; i++) {
->   		hooks[i].lsmid = lsmid;
-> -		lsm_static_call_init(&hooks[i]);
-> +		if (lsm_static_call_init(&hooks[i]))
-> +			panic("exhausted LSM callback slots with LSM %s\n",
-> +			      lsmid->name);
->   	}
->   }
->   
-> @@ -384,19 +383,16 @@ int __init security_init(void)
->   {
->   	unsigned int cnt;
->   	struct lsm_info **lsm;
-> -	struct lsm_info *early;
-> -	unsigned int first = 0;
->   
-> -	init_debug("legacy security=%s\n", lsm_order_legacy ? : " *unspecified*");
-> -	init_debug("  CONFIG_LSM=%s\n", lsm_order_builtin);
-> -	init_debug("boot arg lsm=%s\n", lsm_order_cmdline ? : " *unspecified*");
-> +	if (lsm_debug) {
-> +		lsm_pr("built-in LSM list: %s\n", lsm_order_builtin);
-> +		lsm_pr("legacy LSM parameter: %s\n", lsm_order_legacy);
-> +		lsm_pr("boot LSM parameter: %s\n", lsm_order_cmdline);
-> +	}
->   
->   	if (lsm_order_cmdline) {
-> -		if (lsm_order_legacy) {
-> -			pr_warn("security=%s is ignored because it is superseded by lsm=%s\n",
-> -				lsm_order_legacy, lsm_order_cmdline);
-> +		if (lsm_order_legacy)
->   			lsm_order_legacy = NULL;
-> -		}
->   		lsm_order_parse(lsm_order_cmdline, "cmdline");
->   	} else
->   		lsm_order_parse(lsm_order_builtin, "builtin");
-> @@ -404,38 +400,25 @@ int __init security_init(void)
->   	lsm_order_for_each(lsm)
->   		lsm_prepare(*lsm);
->   
-> -	pr_info("initializing lsm=");
-> -	lsm_early_for_each_raw(early) {
-> -		if (lsm_is_enabled(early))
-> -			pr_cont("%s%s",
-> -				first++ == 0 ? "" : ",", early->id->name);
-> +	if (lsm_debug) {
-> +		lsm_pr("blob(cred) size %d\n", blob_sizes.lbs_cred);
-> +		lsm_pr("blob(file) size %d\n", blob_sizes.lbs_file);
-> +		lsm_pr("blob(ib) size %d\n", blob_sizes.lbs_ib);
-> +		lsm_pr("blob(inode) size %d\n", blob_sizes.lbs_inode);
-> +		lsm_pr("blob(ipc) size %d\n", blob_sizes.lbs_ipc);
-> +		lsm_pr("blob(key) size %d\n", blob_sizes.lbs_key);
-> +		lsm_pr("blob(msg_msg)_size %d\n", blob_sizes.lbs_msg_msg);
-> +		lsm_pr("blob(sock) size %d\n", blob_sizes.lbs_sock);
-> +		lsm_pr("blob(superblock) size %d\n", blob_sizes.lbs_superblock);
-> +		lsm_pr("blob(perf_event) size %d\n", blob_sizes.lbs_perf_event);
-> +		lsm_pr("blob(task) size %d\n", blob_sizes.lbs_task);
-> +		lsm_pr("blob(tun_dev) size %d\n", blob_sizes.lbs_tun_dev);
-> +		lsm_pr("blob(xattr) count %d\n", blob_sizes.lbs_xattr_count);
-> +		lsm_pr("blob(bdev) size %d\n", blob_sizes.lbs_bdev);
-> +		lsm_pr("blob(bpf_map) size %d\n", blob_sizes.lbs_bpf_map);
-> +		lsm_pr("blob(bpf_prog) size %d\n", blob_sizes.lbs_bpf_prog);
-> +		lsm_pr("blob(bpf_token) size %d\n", blob_sizes.lbs_bpf_token);
->   	}
-> -	lsm_order_for_each(lsm) {
-> -		if (lsm_is_enabled(*lsm))
-> -			pr_cont("%s%s",
-> -				first++ == 0 ? "" : ",", (*lsm)->id->name);
-> -	}
-> -	pr_cont("\n");
-> -
-> -	init_debug("cred blob size       = %d\n", blob_sizes.lbs_cred);
-> -	init_debug("file blob size       = %d\n", blob_sizes.lbs_file);
-> -	init_debug("ib blob size         = %d\n", blob_sizes.lbs_ib);
-> -	init_debug("inode blob size      = %d\n", blob_sizes.lbs_inode);
-> -	init_debug("ipc blob size        = %d\n", blob_sizes.lbs_ipc);
-> -#ifdef CONFIG_KEYS
-> -	init_debug("key blob size        = %d\n", blob_sizes.lbs_key);
-> -#endif /* CONFIG_KEYS */
-> -	init_debug("msg_msg blob size    = %d\n", blob_sizes.lbs_msg_msg);
-> -	init_debug("sock blob size       = %d\n", blob_sizes.lbs_sock);
-> -	init_debug("superblock blob size = %d\n", blob_sizes.lbs_superblock);
-> -	init_debug("perf event blob size = %d\n", blob_sizes.lbs_perf_event);
-> -	init_debug("task blob size       = %d\n", blob_sizes.lbs_task);
-> -	init_debug("tun device blob size = %d\n", blob_sizes.lbs_tun_dev);
-> -	init_debug("xattr slots          = %d\n", blob_sizes.lbs_xattr_count);
-> -	init_debug("bdev blob size       = %d\n", blob_sizes.lbs_bdev);
-> -	init_debug("bpf map blob size    = %d\n", blob_sizes.lbs_bpf_map);
-> -	init_debug("bpf prog blob size   = %d\n", blob_sizes.lbs_bpf_prog);
-> -	init_debug("bpf token blob size  = %d\n", blob_sizes.lbs_bpf_token);
->   
->   	if (blob_sizes.lbs_file)
->   		lsm_file_cache = kmem_cache_create("lsm_file_cache",
-> @@ -447,9 +430,9 @@ int __init security_init(void)
->   						    SLAB_PANIC, NULL);
->   
->   	if (lsm_cred_alloc((struct cred *)current->cred, GFP_KERNEL))
-> -		panic("%s: early cred alloc failed.\n", __func__);
-> +		panic("early LSM cred alloc failed\n");
->   	if (lsm_task_alloc(current))
-> -		panic("%s: early task alloc failed.\n", __func__);
-> +		panic("early LSM task alloc failed\n");
->   
->   	cnt = 0;
->   	lsm_order_for_each(lsm) {
-> diff --git a/security/security.c b/security/security.c
-> index add46073af0c..c9642020755e 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -73,6 +73,8 @@ const char *const lockdown_reasons[LOCKDOWN_CONFIDENTIALITY_MAX + 1] = {
->   	[LOCKDOWN_CONFIDENTIALITY_MAX] = "confidentiality",
->   };
->   
-> +bool lsm_debug __ro_after_init;
-> +
->   unsigned int lsm_active_cnt __ro_after_init;
->   const struct lsm_id *lsm_idlist[MAX_LSM_COUNT];
->   
+> > Is there an actual policy version dependency or is that just
+> > cut-and-pasted from prior examples?
+>
+> cut-and-paste, I'll remove it. I assume the check on capability is
+> sufficient here?
 
+Checking for both the class being defined and the policy capability
+being enabled is probably a good idea since nothing ties those
+together currently (that's a longstanding open issue on the selinux
+userspace, https://github.com/SELinuxProject/selinux/issues/55).
+
+> > And then lastly, please run ./toosl/check-syntax -f to fix up
+> > formatting issues with the C and perl code before submission.
+>
+> Ack. Thanks, I will run it for the next version of this patch.
+
+Thanks, happy to add an Acked-by once that is done.
