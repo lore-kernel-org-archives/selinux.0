@@ -1,238 +1,103 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDBBF1624C0;
-	Wed,  3 Sep 2025 19:28:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26A2F2DF12F
+	for <selinux@vger.kernel.org>; Wed,  3 Sep 2025 20:07:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756927731; cv=none; b=ERiefEVcVvaowBJhSbOly4Mt1ogvgEeQdVXJ/8/H6vXzMsbMe/xOB64+bW+glDoAKqKVuizxYqwVEhVWuEg7vgjkMEirRVSWIwqq+qtFxNDqSzE4XNevzumSBX0KI6bd11lJ/JzkPTHhTnHS2evG5z7PJUuErGWuMmg41r8AcpI=
+	t=1756930057; cv=none; b=PQFMrbiqHefy26+oHAofsTUIbdHbyy+HQFxn0Wd5a4D+8jWnHf2zuZdcpj5bv0/rNSb8uMewbI4Lv5oBbaJFeeWqtdbUqts+ihmApXA+FOXWkkVhww3BGbU0qSBfCzGGExJXAsoUQ22c+mvKC6KBE4B3Yw+lVElEOIJIaENW4S8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756927731; c=relaxed/simple;
-	bh=LnxooHGGnFvb25CXrFU4GtdZtT8rLYXVQKEaSL6QZrM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oV5kitC1uya/lRlUjpKyprO1WMX6+/Hz+fb5oU7zqj+SAagwOFMUsp66FfC/cKWwF8aEq8zmp/jh2fgZHLn3YCCVXULLH/jx4uzhhys7EgSXjpD+DcTLGSQZ1/o+uKlWaHIdjTJL2z94gODTFFkjgMiUqaFPMAAlY8vWYF39CIk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jx7MtI3W; arc=none smtp.client-ip=209.85.222.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1756930057; c=relaxed/simple;
+	bh=yngmQ/ltButix+LVvtj/TMZq5fYiyFfS8swlHEL00yM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=POdbR9bc8JpFMOKaLyv2nBGWEu6Ymnp/g7HtoFPfpfyqF8XJD9CzEA/uwRRB4Jfk9vl8om7nJSmSa7HRD5QlmdM6kQomnIgct5yPhR2YqhOZhJlAKJ9BuQnVgVMSo8KbF9CITQI2MvwWnrg/ruAzaj9WtPeeQEvvLUfxiSD8nGw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=F9NvoDhl; arc=none smtp.client-ip=209.85.214.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jx7MtI3W"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-80e2c527010so10276785a.1;
-        Wed, 03 Sep 2025 12:28:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="F9NvoDhl"
+Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-24cbd9d9f09so3488195ad.2
+        for <selinux@vger.kernel.org>; Wed, 03 Sep 2025 13:07:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756927728; x=1757532528; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=bpDeAr1QBcc2u/Mv7c11WaNYMQZEsUjqbXZP6iV3zNc=;
-        b=Jx7MtI3WB9wJoVZUwbjhWQyXEZmDZQlnGVbBykAyuSTkuvsS9AArx57/+jutLWGFzL
-         AEl4oUM0yjugLuHIXNPDZygyXW3QlaCvw7E7FXA9jedM5kazrY2lxGiFGHpzlgNrtDqN
-         BFN4SXQtoGTltTEP+UXyAiCEMcVCppB0pdk7hBk/AgJ+QxT+d+uaZib0BK3GIkCe3/9n
-         3FTOvJtEtCA32sisWVebeTqU7ZbC213dfNMa7JhPv9iIkb1SJ/htiMxHpowibkzTHE6g
-         iksBjHm0JKKJG0oflisHEdgnvTqhaIEgw8wURcLqlYKnSTcCHOUSLT90ZWgtK8YhtKCm
-         trVA==
+        d=paul-moore.com; s=google; t=1756930055; x=1757534855; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=V7BsOvy2TQZjlRoG4f8RUy2TF7CbbV+kzDpz7/CPYH0=;
+        b=F9NvoDhlAY1dl1glMsWEDjRfa0U//fMpkgS88uoGFcco6dl8m1oNuNB26SUGgwlUG/
+         m+WojV14evsY8vDoqkVXyHzYsHdA1gmf8CmDMhTTcQ34rMyeSUbT3pRLhWeBL0ZkViGC
+         dQUw0/g4qTjdMxbfHE4wzX4eCJOrsV9vM3c+5aTDFVjf0x8ChrPxYq/Wja2b6zKEhh4u
+         2yrnDKbPtNa5xm4OQposUE8dY1hkucCl/KaYPtTGwziGajWiZg4eJOKNUiPjc3EXrzYB
+         i1KpKWlFKX695pTqVRtpvgrRDY4yDuCjkMueHcb92zM8woATwBVsL22IFsOti1cukUVa
+         ecWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756927728; x=1757532528;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=bpDeAr1QBcc2u/Mv7c11WaNYMQZEsUjqbXZP6iV3zNc=;
-        b=JmWOPW1cMEGBLOaj22kxyXDqm+dBSBaozR7F29Qq092zWKxmUQnRRHeF7f+LigSST5
-         u5HeetK5S2Tycr+9KQeBrOQQgjw/lb79//VwWpNIAKZhkUYozC7Gu8GJVgdlQa8+Iz+E
-         NBddPBO7iobq4v2ljEHc09AcLXv5JRjbOcjM4uKN7FLOvi7E+Y8LclcJ5w4vNm6EbVlt
-         SqttrnFsmSncfz+22hAnCZ6IA0cm/8fVKjyW0B47oXjOYe7EhnGsnsKWy0fDmbp/sudk
-         Gl79mAxbR23gsze3M0dHkRgHTmGfFGAvXkT6XoyBKKSkcDl0Dvi6tBrB8tQiNJ7rA1ns
-         yUpg==
-X-Forwarded-Encrypted: i=1; AJvYcCXU/nor0Y7RUh4dKiKF9WKxhKufHuIR4yYvS646oZsq+kWkGWHlI6Ssdb4rI7KthBlPNByleMSmrRev2x1X6KT00RK+VRM=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyh5b5aWMXF9toW1Ilv2cxDbrOUrKxR4QS5zcwSKL/Dw/u7xfrw
-	186kjFyvH+PVzGO/8ZgmDcKSnKI/EUrdtV55FAZcBTuo15GGbHK1b7+DiISq9A==
-X-Gm-Gg: ASbGnctrL0dfNA9lMLZ5JgCaztm+oKiSFHBgmTyrTWo5bmSrzaN9P6l6HdCd6dSSs1v
-	+EciqWOYe/wRob4H9JEDWg9qtabF3lqmsyj+y+F2cE4EnYQgUF7lRpAwCKk6OgL0tLVpB42E06o
-	YMePm4R2PVBzViLJlyIp0ysLIWr0rEzgQ/YbvtkHLYJFoIk4HD6T2S56g0wGLPXoJbCPIhAR7fS
-	rliDsmrrFtwn3Ma9Tp27Bem2Qn1g+5eVFlhsXKdvmT9cgTU06+Xzl6W8Rekf9KtPgJRU6UUw9sc
-	HqxdSpP+Vn29aiApbwQSSW6ziSFRzCOHj8AnVVTxmdobwHxjIUHu1MRHx6wuwZjab07fjlsuhHv
-	8RF0WMpfb87UIM8LEJP5H09Uz3mh232Ohc9aVcuYqHLc/s6ju8l+2KJsaUDULBq2YSypZIst8dS
-	4nxiaBmm8bAbxTz3v7R0yX73k5gGeXbVbj3UeimYym/mI97MkGT6E=
-X-Google-Smtp-Source: AGHT+IEnRJqmnLkGkwD4X6t83BnUx8xtb3ojh1GEf/xswxTesSSmWCVsfAaanHyta1xFr9jwnsBh4g==
-X-Received: by 2002:a05:620a:3704:b0:7fa:aea2:24f8 with SMTP id af79cd13be357-7ff27b2249fmr2040694885a.23.1756927728242;
-        Wed, 03 Sep 2025 12:28:48 -0700 (PDT)
-Received: from fuse-fed34-svr.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-80aa62c789esm157146485a.11.2025.09.03.12.28.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Sep 2025 12:28:47 -0700 (PDT)
-From: Stephen Smalley <stephen.smalley.work@gmail.com>
-To: selinux@vger.kernel.org,
-	linux-security-module@vger.kernel.org
-Cc: paul@paul-moore.com,
-	omosnace@redhat.com,
-	john.johansen@canonical.com,
-	serge@hallyn.com,
-	casey@schaufler-ca.com,
-	Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [RFC PATCH] lsm,selinux: introduce LSM_ATTR_UNSHARE and wire it up for SELinux
-Date: Wed,  3 Sep 2025 15:24:26 -0400
-Message-ID: <20250903192426.215857-2-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.51.0
+        d=1e100.net; s=20230601; t=1756930055; x=1757534855;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=V7BsOvy2TQZjlRoG4f8RUy2TF7CbbV+kzDpz7/CPYH0=;
+        b=NVCdQrVR0MUNAWZItxF55GxJTIM4nnxr3BUtI4Br0Pqo9enPysbfC7jTwZIwoioHPl
+         j/hDH5owZT1X7Q5Hwyfz7QcgqYX7vaXLKJs0vDs7nRWpJVu3kEQ9EwBVY19VszmtBI48
+         gLNCLHHzwKVptM4MCSITsk8ifPtUrjiLSRmOyr60vwtt3k5R+xdZlznNufw7wOtrMQ1T
+         yGdcL+RysFWRoCaB03hT+KoXAMv/Xo6fMlPV7WUUpWUQeja5eKG5u4i/RkDFYUTo7VJH
+         atR4ErT5qPQs3Nz9A0nZ39saI9jVsz4kWtLWoMTByKvxqCZTxcZsjR4O057JOEfupWwR
+         lmEw==
+X-Forwarded-Encrypted: i=1; AJvYcCV8mWs3b0vxKDqdBWWrcprI3SJUU+zA/++mXN4z7AOCtP8Y1MuoX1PrLBeUnaX5VZAqsqNW5l8G@vger.kernel.org
+X-Gm-Message-State: AOJu0YxS8oPSnFidIlI3KDWiIQjYPcDCPJUmNny3OpxWZL8JKoTmLxYa
+	4wI7YXsxrq79ZkGIreGzCuXwIcGSYJJ+j+mKZOZL4Em3rEja/Z5+zw8+Et7V4nisnG83Nyd6wDr
+	pyNbtDA5LUvjWI7XE4emRmF3DiTjKXPhlKFhDGJoS
+X-Gm-Gg: ASbGncvrdaMMDkPtyxXXZ9TiTq3jt6rpO8lQxrKBhY9mV8IpTsULqFdo3tqVy1URCd0
+	uU6qbeHlWMU7EA+wArmIK4aWOlbOY8ekWwhLudbD4cpKUGhtqps57XG5h0D/geWknSOK/g0tdPj
+	bLX2CoKPTcIJHF2EX6g2SC5OBDSP0qsezKeh6fT429HVRC7LNNbz/MFY1SzLGqgdDn7uPw0oeA/
+	y5BcPBs//bKwlGKnw==
+X-Google-Smtp-Source: AGHT+IE/jxp5MGXQjY9oGumbm8NaKpkAlmwUE6015x88FR0z5hTMAkqxHgNJHhqTh4+JXLWysrNaHK0JYJQoNh58kjI=
+X-Received: by 2002:a17:903:41cc:b0:224:23be:c569 with SMTP id
+ d9443c01a7336-249448f4103mr192848795ad.22.1756930055424; Wed, 03 Sep 2025
+ 13:07:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20250814225159.275901-36-paul@paul-moore.com> <20250814225159.275901-40-paul@paul-moore.com>
+ <e3a54d30-85c4-482f-be91-6d10e0ff6e0e@canonical.com>
+In-Reply-To: <e3a54d30-85c4-482f-be91-6d10e0ff6e0e@canonical.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 3 Sep 2025 16:07:22 -0400
+X-Gm-Features: Ac12FXzD41H6XFdIb0vdFaRxcoKu4oQccezb2K9_6QR2TZu6fu1vwmKFxGVeaVs
+Message-ID: <CAHC9VhRUNPbHnjoOuv+Yby0WPSztSFJJ2GT3NHu32eJxEjiWmg@mail.gmail.com>
+Subject: Re: [PATCH v3 04/34] lsm: introduce looping macros for the
+ initialization code
+To: John Johansen <john.johansen@canonical.com>
+Cc: linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org, 
+	selinux@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>, 
+	Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>, 
+	=?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>, 
+	=?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>, 
+	Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, 
+	Casey Schaufler <casey@schaufler-ca.com>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, 
+	Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-In the hopes of nudging the conversation in [1] in a more focused
-direction with a goal of getting SELinux namespaces upstreamed, this
-RFC provides a starting point for a concrete discussion. This is RFC
-only and has only been build-tested thus far.
+On Tue, Sep 2, 2025 at 12:37=E2=80=AFPM John Johansen
+<john.johansen@canonical.com> wrote:
+>
+> On 8/14/25 15:50, Paul Moore wrote:
+> > There are three common for loop patterns in the LSM initialization code
+> > to loop through the ordered LSM list and the registered "early" LSMs.
+> > This patch implements these loop patterns as macros to help simplify th=
+e
+> > code and reduce the change for errors.
+>                        ^
+>                        chance
 
-This defines a new LSM_ATTR_UNSHARE attribute for the
-lsm_set_self_attr(2) system call and wires it up for SELinux to invoke
-the underlying function for unsharing the SELinux namespace. As with
-the selinuxfs interface, this immediately unshares the SELinux
-namespace of the current process just like an unshare(2) system call
-would do for other namespaces. I have not yet explored the
-alternatives of deferring the unshare to the next unshare(2),
-clone(2), or execve(2) call and would want to first confirm that doing
-so does not introduce any issues in the kernel or make it harder to
-integrate with existing container runtimes.
+Good catch, thanks.
 
-Differences between this syscall interface and the selinuxfs interface
-that need discussion before moving forward:
+> otherwise looks good, and you can add my
+>
+> Reviewed-by: John Johansen <john.johansen@canonical.com>
 
-1. The syscall interface does not currently check any Linux capability
-or DAC permissions, whereas the selinuxfs interface can only be set by
-uid-0 or CAP_DAC_OVERRIDE processes. We need to decide what if any
-capability or DAC check should apply to this syscall interface and if
-any, add the checks to either the LSM framework code or to the SELinux
-hook function.
-
-Pros: Checking a capability or DAC permissions prevents misuse of this
-interface by unprivileged processes, particularly on systems with
-policies that do not yet define any of the new SELinux permissions
-introduced for controlling this operation. This is a potential concern
-on Linux distributions that do not tightly coordinate kernel updates
-with policy updates (or where users may choose to deploy upstream
-kernels on their own), but not on Android.
-
-Cons: Checking a capability or DAC permissions requires any process
-that uses this facility to have the corresponding capability or
-permissions, which might otherwise be unnecessary and create
-additional risks. This is less likely if we use a capability already
-required by container runtimes and similar components that might
-leverage this facility for unsharing SELinux namespaces.
-
-2. The syscall interface checks a new SELinux unshare_selinuxns
-permission in the process2 class between the task SID and itself,
-similar to other checks for setting process attributes. This means
-that:
-    allow domain self:process2 *; -or-
-    allow domain self:process2 ~anything-other-than-unshare_selinuxns; -or-
-    allow domain self:process2 unshare_selinuxns;
-would allow a process to unshare its SELinux namespace.
-
-The selinuxfs interface checks a new unshare permission in the
-security class between the task SID and the security initial SID,
-likewise similar to other checks for setting selinuxfs attributes.
-This means that:
-    allow domain security_t:security *; -or-
-    allow domain security_t:security ~anything-other-than-unshare; -or-
-    allow domain security_t:security unshare;
-would allow a process to unshare its SELinux namespace.
-
-Technically, the selinuxfs interface also currently requires open and
-write access to the selinuxfs node; hence:
-    allow domain security_t:file { open write };
-is also required for the selinuxfs interface.
-
-We need to decide what we want the SELinux check(s) to be for the
-syscall and whether it should be more like the former (process
-attributes) or more like the latter (security policy settings). Note
-that the permission name itself is unimportant here and only differs
-because it seemed less evident in the process2 class that we are
-talking about a SELinux namespace otherwise.
-
-Regardless, either form of allow rule can be prohibited in policies
-via neverallow rules on systems that enforce their usage
-(e.g. Android, not necessarily on Linux distributions).
-
-3. The selinuxfs interface currently offers more functionality than I
-have implemented here for the sycall interface, including:
-
-a) the ability to read the selinuxfs node to see if your namespace has
-been unshared, which should be easily implementable via
-lsm_get_self_attr(2).  However, questions remain as to when that
-should return 1 versus 0 (currently returns 1 whenever your namespace
-is NOT the initial SELinux namespace, useful for the testsuite to
-detect it is in a child, but could instead be reset to 0 by a
-subsequent policy load to indicate completion of the setup of the
-namespace, thus hiding from child processes that they are in a child
-namespace once its policy has been loaded).
-
-b) the abilities to get and set the maximum number of SELinux
-namespaces (via a /sys/fs/selinux/maxns node) and to get and set the
-maximum depth for SELinux namespaces (via a /sys/fs/selinux/maxnsdepth
-node). These could be left in selinuxfs or migrated to some other LSM
-management APIs since they are global in scope, not per-process
-attributes.
-
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
- include/uapi/linux/lsm.h            | 1 +
- security/selinux/hooks.c            | 8 ++++++++
- security/selinux/include/classmap.h | 4 +++-
- 3 files changed, 12 insertions(+), 1 deletion(-)
-
-diff --git a/include/uapi/linux/lsm.h b/include/uapi/linux/lsm.h
-index 938593dfd5da..fb1b4a8aa639 100644
---- a/include/uapi/linux/lsm.h
-+++ b/include/uapi/linux/lsm.h
-@@ -83,6 +83,7 @@ struct lsm_ctx {
- #define LSM_ATTR_KEYCREATE	103
- #define LSM_ATTR_PREV		104
- #define LSM_ATTR_SOCKCREATE	105
-+#define LSM_ATTR_UNSHARE	106
- 
- /*
-  * LSM_FLAG_XXX definitions identify special handling instructions
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index c544b3e2fd5c..11b0b3c5b74a 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6812,6 +6812,10 @@ static int selinux_lsm_setattr(u64 attr, void *value, size_t size)
- 		error = avc_has_perm(state, mysid, mysid, SECCLASS_PROCESS,
- 				     PROCESS__SETCURRENT, NULL);
- 		break;
-+	case LSM_ATTR_UNSHARE:
-+		error = avc_has_perm(state, mysid, mysid, SECCLASS_PROCESS,
-+				     PROCESS2__UNSHARE_SELINUXNS, NULL);
-+		break;
- 	default:
- 		error = -EOPNOTSUPP;
- 		break;
-@@ -6923,6 +6927,10 @@ static int selinux_lsm_setattr(u64 attr, void *value, size_t size)
- 		}
- 
- 		tsec->sid = sid;
-+	} else if (attr == LSM_ATTR_UNSHARE) {
-+		error = selinux_state_create(new);
-+		if (error)
-+			goto abort_change;
- 	} else {
- 		error = -EINVAL;
- 		goto abort_change;
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index be52ebb6b94a..07fe316308cd 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -60,7 +60,9 @@ const struct security_class_mapping secclass_map[] = {
- 	    "siginh",	    "setrlimit",     "rlimitinh",   "dyntransition",
- 	    "setcurrent",   "execmem",	     "execstack",   "execheap",
- 	    "setkeycreate", "setsockcreate", "getrlimit",   NULL } },
--	{ "process2", { "nnp_transition", "nosuid_transition", NULL } },
-+	{ "process2",
-+	  { "nnp_transition", "nosuid_transition", "unshare_selinuxns",
-+	    NULL } },
- 	{ "system",
- 	  { "ipc_info", "syslog_read", "syslog_mod", "syslog_console",
- 	    "module_request", "module_load", "firmware_load",
--- 
-2.51.0
-
+--
+paul-moore.com
