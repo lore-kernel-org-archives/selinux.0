@@ -1,317 +1,282 @@
-Received: from wind.enjellic.com (wind.enjellic.com [76.10.64.91])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 96075221555;
-	Thu,  4 Sep 2025 02:17:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=76.10.64.91
+Received: from frasgout12.his.huawei.com (frasgout12.his.huawei.com [14.137.139.154])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0CF6275B0D;
+	Thu,  4 Sep 2025 08:13:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=14.137.139.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756952250; cv=none; b=oOPMoFOf/eglpnYhSx/XSKLtycvLcDVI28FDZ+0ZncpK9oZd05RaqtS/h8a3akrPN8BCOoHSp1EacoVqQdseQVnY2m/AVc4LAK5UhQBJweHGSI3DeQOnu/8oGfWCMPRo45lGAdMKvXIPJkGZIhyF0TzFW6ifZXGVpR2Poi7tZ/M=
+	t=1756973596; cv=none; b=KpsuSvOKRGfFbZoo4ND3Kbmf9h6apRb4m8UH5LoHvQxZvsj8O1ReN4stNHRsQbd4FWF7ob+aVvyVp7nd8+PW7ztPE1qsYugx4h/PKRlArrP1u+V+Fu9+6H8cdn/S7MyNODUh5/ISXhb70aC7iNOrZO/2YD5rXbHoCd7ynUNJ6pg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756952250; c=relaxed/simple;
-	bh=niObyJul1LMFoKhIqxMXVFoUE9gWJJhkeI89YA/fPmA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Mime-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VQqMoAZESheJFu7mF+ykzmZOe6jawponxRIFH0socul/n+JQOt+YZLiUdv1LMovRtFUkGQC2esQQczP65DMviCU9Arkp84uIEzzCIiwa/JyAKfGrX2VEfKosDSbgd04Y+ZOo5NF3nwUdJj67SdShtzSPABLZ24vYFUlsqqmbcyY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enjellic.com; spf=pass smtp.mailfrom=wind.enjellic.com; arc=none smtp.client-ip=76.10.64.91
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enjellic.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wind.enjellic.com
-Received: from wind.enjellic.com (localhost [127.0.0.1])
-	by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id 5842Gr3m007352;
-	Wed, 3 Sep 2025 21:16:53 -0500
-Received: (from greg@localhost)
-	by wind.enjellic.com (8.15.2/8.15.2/Submit) id 5842Goci007351;
-	Wed, 3 Sep 2025 21:16:50 -0500
-Date: Wed, 3 Sep 2025 21:16:50 -0500
-From: "Dr. Greg" <greg@enjellic.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: John Johansen <john.johansen@canonical.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Paul Moore <paul@paul-moore.com>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Subject: Re: LSM namespacing API
-Message-ID: <20250904021650.GA7191@wind.enjellic.com>
-Reply-To: "Dr. Greg" <greg@enjellic.com>
-References: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com> <CAEjxPJ5EvR+2fboLu_nBGZu+ZVUpX4KM6xdPUqDErCmw=iA37g@mail.gmail.com> <67e72960-c985-48e1-aaeb-a4286cc8508f@canonical.com> <aKcskclwVVe1X4kP@mail.hallyn.com> <6c69fc81-32a7-442c-8c7f-992eda9c2d18@canonical.com> <20250901160102.GA9179@wind.enjellic.com> <3826d6c2-164b-415f-8bf4-63060ce428df@schaufler-ca.com>
+	s=arc-20240116; t=1756973596; c=relaxed/simple;
+	bh=srK6FvFoKXEd9IdJ/rb3J0sDqetIDXmnxyjjhdEdNOU=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=YbUanKMAK2Z4B45dWvIK1pGt2xxIETwbn1sOukRoHZuq1fP66XFFN69bCZyUUro/QAM51kSOvT7mkhzEme4Uh9sRLkFkHk+k9hsXF3B0zD6nfd155eTqbLqwWaXPnfzztA8bdkuh+Akfxh2DXPk2dncE6kUnGeSwFZ3ukrvfNiA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com; spf=pass smtp.mailfrom=huaweicloud.com; arc=none smtp.client-ip=14.137.139.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=huaweicloud.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huaweicloud.com
+Received: from mail.maildlp.com (unknown [172.18.186.29])
+	by frasgout12.his.huawei.com (SkyGuard) with ESMTPS id 4cHXHc2qZNzsXB2;
+	Thu,  4 Sep 2025 16:11:24 +0800 (CST)
+Received: from mail02.huawei.com (unknown [7.182.16.27])
+	by mail.maildlp.com (Postfix) with ESMTP id A34F61402C4;
+	Thu,  4 Sep 2025 16:13:04 +0800 (CST)
+Received: from [10.204.63.22] (unknown [10.204.63.22])
+	by APP2 (Coremail) with SMTP id GxC2BwDXeT8GSrlofHW5AA--.9858S2;
+	Thu, 04 Sep 2025 09:13:04 +0100 (CET)
+Message-ID: <dd03266930a7b219c590c54bb2c210366f8d89a1.camel@huaweicloud.com>
+Subject: Re: [PATCH v3 11/34] lsm: get rid of the lsm_names list and do some
+ cleanup
+From: Roberto Sassu <roberto.sassu@huaweicloud.com>
+To: John Johansen <john.johansen@canonical.com>, Paul Moore
+	 <paul@paul-moore.com>, linux-security-module@vger.kernel.org, 
+	linux-integrity@vger.kernel.org, selinux@vger.kernel.org
+Cc: Mimi Zohar <zohar@linux.ibm.com>, Roberto Sassu
+ <roberto.sassu@huawei.com>,  Fan Wu <wufan@kernel.org>,
+ =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>, 
+ =?ISO-8859-1?Q?G=FCnther?= Noack <gnoack@google.com>, Kees Cook
+ <kees@kernel.org>, Micah Morton <mortonm@chromium.org>, Casey Schaufler
+ <casey@schaufler-ca.com>, Tetsuo Handa
+ <penguin-kernel@I-love.SAKURA.ne.jp>, Nicolas Bouchinet
+ <nicolas.bouchinet@oss.cyber.gouv.fr>, Xiu Jianfeng <xiujianfeng@huawei.com>
+Date: Thu, 04 Sep 2025 10:12:51 +0200
+In-Reply-To: <06a68323-b297-4be7-92eb-c2091207b9f0@canonical.com>
+References: <20250814225159.275901-36-paul@paul-moore.com>
+	 <20250814225159.275901-47-paul@paul-moore.com>
+	 <06a68323-b297-4be7-92eb-c2091207b9f0@canonical.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.52.3-0ubuntu1 
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3826d6c2-164b-415f-8bf4-63060ce428df@schaufler-ca.com>
-User-Agent: Mutt/1.4i
-X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Wed, 03 Sep 2025 21:16:53 -0500 (CDT)
+MIME-Version: 1.0
+X-CM-TRANSID:GxC2BwDXeT8GSrlofHW5AA--.9858S2
+X-Coremail-Antispam: 1UD129KBjvJXoW3GrW8Cr43tFyrXw1UXw48tFb_yoW7ur4xpF
+	Z0qFy3KFWrAFy7ur42qFnrKa4Sq393Cr47Gr47G3WxAw1vyrnaqr17GFya9ryDArZrGw4F
+	vF42vrnxCF45taDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUvjb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
+	6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+	vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+	xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWUJVW8JwA2z4x0Y4vEx4A2jsIEc7CjxV
+	AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+	x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+	0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7CjxVAaw2AF
+	wI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4
+	xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a6rW5
+	MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I
+	0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWU
+	JVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxUFk
+	u4UUUUU
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgABBGi5OGkBIwAAsl
 
-On Mon, Sep 01, 2025 at 10:31:43AM -0700, Casey Schaufler wrote:
+On Tue, 2025-09-02 at 10:20 -0700, John Johansen wrote:
+> On 8/14/25 15:50, Paul Moore wrote:
+> > The LSM currently has a lot of code to maintain a list of the currently
+> > active LSMs in a human readable string, with the only user being the
+> > "/sys/kernel/security/lsm" code.  Let's drop all of that code and
+> > generate the string on first use and then cache it for subsequent use.
+> >=20
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > ---
+> >   include/linux/lsm_hooks.h |  1 -
+> >   security/inode.c          | 59 +++++++++++++++++++++++++++++++++++++-=
+-
+> >   security/lsm_init.c       | 49 --------------------------------
+> >   3 files changed, 57 insertions(+), 52 deletions(-)
+> >=20
+> > diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> > index 7343dd60b1d5..65a8227bece7 100644
+> > --- a/include/linux/lsm_hooks.h
+> > +++ b/include/linux/lsm_hooks.h
+> > @@ -172,7 +172,6 @@ struct lsm_info {
+> >  =20
+> >  =20
+> >   /* DO NOT tamper with these variables outside of the LSM framework */
+> > -extern char *lsm_names;
+> >   extern struct lsm_static_calls_table static_calls_table __ro_after_in=
+it;
+> >  =20
+> >   /**
+> > diff --git a/security/inode.c b/security/inode.c
+> > index 43382ef8896e..a5e7a073e672 100644
+> > --- a/security/inode.c
+> > +++ b/security/inode.c
+> > @@ -22,6 +22,8 @@
+> >   #include <linux/lsm_hooks.h>
+> >   #include <linux/magic.h>
+> >  =20
+> > +#include "lsm.h"
+> > +
+> >   static struct vfsmount *mount;
+> >   static int mount_count;
+> >  =20
+> > @@ -315,12 +317,65 @@ void securityfs_remove(struct dentry *dentry)
+> >   EXPORT_SYMBOL_GPL(securityfs_remove);
+> >  =20
+> >   #ifdef CONFIG_SECURITY
+> > +#include <linux/spinlock.h>
+> > +
+> >   static struct dentry *lsm_dentry;
+> > +
+> > +/* NOTE: we never free the string below once it is set. */
+> > +static DEFINE_SPINLOCK(lsm_read_lock);
+>=20
+> nit, this is only used on the write side, so not the best name
+>=20
+> > +static char *lsm_read_str =3D NULL;
+> > +static ssize_t lsm_read_len =3D 0;
+> > +
+> >   static ssize_t lsm_read(struct file *filp, char __user *buf, size_t c=
+ount,
+> >   			loff_t *ppos)
+> >   {
+> > -	return simple_read_from_buffer(buf, count, ppos, lsm_names,
+> > -		strlen(lsm_names));
+> > +	int i;
+> > +	char *str;
+> > +	ssize_t len;
+> > +
+> > +restart:
+> > +
+> > +	rcu_read_lock();
 
-Hi, I hope mid-week has gone well for everyone.
+Uhm, it seems we cannot use plain RCU here, simple_read_from_buffer()
+can sleep.
 
-> On 9/1/2025 9:01 AM, Dr. Greg wrote:
-> > On Thu, Aug 21, 2025 at 07:57:11AM -0700, John Johansen wrote:
-> >
-> > Good morning, I hope the week is starting well for everyone.
-> >
-> > Now that everyone is getting past the summer holiday season, it would
-> > seem useful to specifically clarify some of the LSM namespace
-> > implementation details.
-> >
-> >> On 8/21/25 07:26, Serge E. Hallyn wrote:
-> >>> On Thu, Aug 21, 2025 at 12:46:10AM -0700, John Johansen wrote:
-> >>>> On 8/19/25 10:47, Stephen Smalley wrote:
-> >>>>> On Tue, Aug 19, 2025 at 10:56???AM Paul Moore <paul@paul-moore.com> 
-> >>>>> wrote:
-> >>>>>> Hello all,
-> >>>>>>
-> >>>>>> As most of you are likely aware, Stephen Smalley has been working on
-> >>>>>> adding namespace support to SELinux, and the work has now progressed
-> >>>>>> to the point where a serious discussion on the API is warranted.  For
-> >>>>>> those of you are unfamiliar with the details or Stephen's patchset, or
-> >>>>>> simply need a refresher, he has some excellent documentation in his
-> >>>>>> work-in-progress repo:
-> >>>>>>
-> >>>>>> * https://github.com/stephensmalley/selinuxns
-> >>>>>>
-> >>>>>> Stephen also gave a (pre-recorded) presentation at LSS-NA this year
-> >>>>>> about SELinux namespacing, you can watch the presentation here:
-> >>>>>>
-> >>>>>> * https://www.youtube.com/watch?v=AwzGCOwxLoM
-> >>>>>>
-> >>>>>> In the past you've heard me state, rather firmly at times, that I
-> >>>>>> believe namespacing at the LSM framework layer to be a mistake,
-> >>>>>> although if there is something that can be done to help facilitate the
-> >>>>>> namespacing of individual LSMs at the framework layer, I would be
-> >>>>>> supportive of that.  I think that a single LSM namespace API, similar
-> >>>>>> to our recently added LSM syscalls, may be such a thing, so I'd like
-> >>>>>> us to have a discussion to see if we all agree on that, and if so,
-> >>>>>> what such an API might look like.
-> >>>>>>
-> >>>>>> At LSS-NA this year, John Johansen and I had a brief discussion where
-> >>>>>> he suggested a single LSM wide clone*(2) flag that individual LSM's
-> >>>>>> could opt into via callbacks.  John is directly CC'd on this mail, so
-> >>>>>> I'll let him expand on this idea.
-> >>>>>>
-> >>>>>> While I agree with John that a fs based API is problematic (see all of
-> >>>>>> our discussions around the LSM syscalls), I'm concerned that a single
-> >>>>>> clone*(2) flag will significantly limit our flexibility around how
-> >>>>>> individual LSMs are namespaced, something I don't want to see happen.
-> >>>>>> This makes me wonder about the potential for expanding
-> >>>>>> lsm_set_self_attr(2) to support a new LSM attribute that would support
-> >>>>>> a namespace "unshare" operation, e.g. LSM_ATTR_UNSHARE.  This would
-> >>>>>> provide a single LSM framework API for an unshare operation while also
-> >>>>>> providing a mechanism to pass LSM specific via the lsm_ctx struct if
-> >>>>>> needed.  Just as we do with the other LSM_ATTR_* flags today,
-> >>>>>> individual LSMs can opt-in to the API fairly easily by providing a
-> >>>>>> setselfattr() LSM callback.
-> >>>>>>
-> >>>>>> Thoughts?
-> >>>>> I think we want to be able to unshare a specific security module
-> >>>>> namespace without unsharing the others, i.e. just SELinux or just
-> >>>>> AppArmor.
-> >>>> yes which is part of the problem with the single flag. That choice
-> >>>> would be entirely at the policy level, without any input from userspace.
-> >>> AIUI Paul's suggestion is the user can pre-set the details of which
-> >>> lsms to unshare and how with the lsm_set_self_attr(), and then a
-> >>> single CLONE_LSM effects that.
-> >> yes, I was specifically addressing the conversation I had with Paul at
-> >> LSS that Paul brought up. That is
-> >>
-> >>   At LSS-NA this year, John Johansen and I had a brief discussion where
-> >>   he suggested a single LSM wide clone*(2) flag that individual LSM's
-> >>   could opt into via callbacks.
-> >>
-> >> the idea there isn't all that different than what Paul proposed. You
-> >> could have a single flag, if you can provide ancillary information. But
-> >> a single flag on its own isn't sufficient.
-> > If one thing has come out of this thread, it would seem to be the fact
-> > that there is going to be little commonality in the requirements that
-> > various LSM's will have for the creation of a namespace.
-> >
-> > Given that, the most infrastructure that the LSM should provide would
-> > be a common API for a resource orchestrator to request namespace
-> > separation and to provide a framework for configuring the namespace
-> > prior to when execution begins in the context of the namespace.
-> >
-> > The first issue to resolve would seem to be what namespace separation
-> > implies.
-> >
-> > John, if I interpret your comments in this discussion correctly, your
-> > contention is that when namespace separation is requested, all of the
-> > LSM's that implement namespaces will create a subordinate namespace,
-> > is that a correct assumption?
-> >
-> > It would seem, consistent with the 'stacking' concept, that any LSM
-> > with namespace capability that chooses not to separate, will result in
-> > denial of the separation request.  That in turn will imply the need to
-> > unwind or delete any namespace context that other LSM's may have
-> > allocated before the refusal occurred.
+Roberto
 
-> Were it true that 'stacking' rated the status of a 'concept'.
+> > +	if (!lsm_read_str) {
+> should probably be
+> if (!rcu_access_pointer(lsm_read_str)) {
+>=20
+> > +		/* we need to generate the string and try again */
+> > +		rcu_read_unlock();
+> > +		goto generate_string;
+> > +	}
+> > +	len =3D simple_read_from_buffer(buf, count, ppos,
+> > +				      rcu_dereference(lsm_read_str),
+> > +				      lsm_read_len);
+> > +	rcu_read_unlock();
+> > +	return len;
+> > +
+> > +generate_string:
+> > +
+> > +	for (i =3D 0; i < lsm_active_cnt; i++)
+> > +		/* the '+ 1' accounts for either a comma or a NUL */
+> > +		len +=3D strlen(lsm_idlist[i]->name) + 1;
+> > +
+> > +	str =3D kmalloc(len, GFP_KERNEL);
+> > +	if (!str)
+> > +		return -ENOMEM;
+> > +	str[0] =3D '\0';
+> > +
+> > +	for (i =3D 0; i < lsm_active_cnt; i++) {
+> > +		if (i > 0)
+> > +			strcat(str, ",");
+> > +		strcat(str, lsm_idlist[i]->name);
+> > +	}
+> > +
+> > +	spin_lock(&lsm_read_lock);
+> > +	if (lsm_read_str) {
+> > +		/* we raced and lost */
+> > +		spin_unlock(&lsm_read_lock);
+> > +		kfree(str);
+> > +		goto restart;
+> > +	}
+> > +	lsm_read_str =3D str;
+> > +	lsm_read_len =3D len - 1;
+> > +	spin_unlock(&lsm_read_lock);
+> > +
+> > +	goto restart;
+> >   }
+> >  =20
+> >   static const struct file_operations lsm_ops =3D {
+> > diff --git a/security/lsm_init.c b/security/lsm_init.c
+> > index 9e495a36a332..87e2147016b3 100644
+> > --- a/security/lsm_init.c
+> > +++ b/security/lsm_init.c
+> > @@ -10,8 +10,6 @@
+> >  =20
+> >   #include "lsm.h"
+> >  =20
+> > -char *lsm_names;
+> > -
+> >   /* Pointers to LSM sections defined in include/asm-generic/vmlinux.ld=
+s.h */
+> >   extern struct lsm_info __start_lsm_info[], __end_lsm_info[];
+> >   extern struct lsm_info __start_early_lsm_info[], __end_early_lsm_info=
+[];
+> > @@ -371,42 +369,6 @@ static void __init lsm_init_ordered(void)
+> >   	}
+> >   }
+> >  =20
+> > -static bool match_last_lsm(const char *list, const char *lsm)
+> > -{
+> > -	const char *last;
+> > -
+> > -	if (WARN_ON(!list || !lsm))
+> > -		return false;
+> > -	last =3D strrchr(list, ',');
+> > -	if (last)
+> > -		/* Pass the comma, strcmp() will check for '\0' */
+> > -		last++;
+> > -	else
+> > -		last =3D list;
+> > -	return !strcmp(last, lsm);
+> > -}
+> > -
+> > -static int lsm_append(const char *new, char **result)
+> > -{
+> > -	char *cp;
+> > -
+> > -	if (*result =3D=3D NULL) {
+> > -		*result =3D kstrdup(new, GFP_KERNEL);
+> > -		if (*result =3D=3D NULL)
+> > -			return -ENOMEM;
+> > -	} else {
+> > -		/* Check if it is the last registered name */
+> > -		if (match_last_lsm(*result, new))
+> > -			return 0;
+> > -		cp =3D kasprintf(GFP_KERNEL, "%s,%s", *result, new);
+> > -		if (cp =3D=3D NULL)
+> > -			return -ENOMEM;
+> > -		kfree(*result);
+> > -		*result =3D cp;
+> > -	}
+> > -	return 0;
+> > -}
+> > -
+> >   static void __init lsm_static_call_init(struct security_hook_list *hl=
+)
+> >   {
+> >   	struct lsm_static_call *scall =3D hl->scalls;
+> > @@ -443,15 +405,6 @@ void __init security_add_hooks(struct security_hoo=
+k_list *hooks, int count,
+> >   		hooks[i].lsmid =3D lsmid;
+> >   		lsm_static_call_init(&hooks[i]);
+> >   	}
+> > -
+> > -	/*
+> > -	 * Don't try to append during early_security_init(), we'll come back
+> > -	 * and fix this up afterwards.
+> > -	 */
+> > -	if (slab_is_available()) {
+> > -		if (lsm_append(lsmid->name, &lsm_names) < 0)
+> > -			panic("%s - Cannot get early memory.\n", __func__);
+> > -	}
+> >   }
+> >  =20
+> >   int __init early_security_init(void)
+> > @@ -488,8 +441,6 @@ int __init security_init(void)
+> >   	lsm_early_for_each_raw(lsm) {
+> >   		init_debug("  early started: %s (%s)\n", lsm->id->name,
+> >   			   is_enabled(lsm) ? "enabled" : "disabled");
+> > -		if (lsm->enabled)
+> > -			lsm_append(lsm->id->name, &lsm_names);
+> >   	}
+> >  =20
+> >   	/* Load LSMs in specified order. */
+>=20
 
-If 'concept' doesn't work as a term, we can call it an agreement on
-the co-existence of multiple security models.
-
-> An LSM that is capable of namespacing (the definition of which is
-> elusive at this time) should be allowed to decline participation in
-> a namespace creation.
-
-Given the above, a full stop may be in order.
-
-Perhaps, in pursuit of wisdom, we should call for a general consensus
-among the group as to whether or not we have any clue as to what we
-are doing?
-
-> That, or there needs to be a convention for "null" namespaces, by
-> which an LSM can pretend that it isn't involved in the new
-> namespace. I think the latter smells funny and would invite
-> "security people don't understand performance" remarks. No LSM
-> should be allowed to prevent another from using namespaces.
-
-Unfortunately that would seem to collide with the general consensus
-that has evolved around 'stacking', as the means by which Linux
-supports multiple LSM based security models/architectures.
-
-The kernel security architecture admits to the notion that all of
-the active LSM's have to agree that a specific security event be
-allowed.  If any LSM elects to deny a hook call, permission is denied
-for the event.
-
-John responded to our e-mail in this thread and clarified that he
-doesn't believe that a POSIX 1e style capability for namespace
-separation is required.  However, our understanding from his reply is
-that he felt that LSM namespace creation itself should have its own
-LSM hook/event.
-
-If this is the case, to be consistent with the stacking architecture,
-any LSM should have the ability to deny security namespace creation
-through its interpretation of the LSM namespace creation hook.
-
-For example, it would certainly seem to be a valid concept for
-something like an enhanced 'lockdown' mode to deny the ability for any
-processes to escape into an LSM policy domain other than what was
-configured when the platform was placed in a locked down status.
-
-If we don't adhere to this model, we will have a 'snowflake' to
-contend with in the LSM security model.
-
-> > This model also implies that the orchestrator requesting the
-> > separation will need to pass a set of parameters describing the
-> > characteristics of each namespace, described by the LSM identifier
-> > that they pertain to.  Since there may be a need to configure multiple
-> > namespaces there would be a requirement to pass an array or list of
-> > these parameter sets.
-
-> Just like lsm_set_self_attr(2).
-
-That provides basic infrastructure, however, with concession to the
-general acknowledgement that every LSM is different, the requirement
-for every attribute to have a unique descriptive identity value may
-prove restrictive, particularly in model based LSM's.
-
-What may be needed is an agnostic attribute identifier that
-orchestration software could use, in combination with the 'flags'
-variable to specify exactly what type of attribute is being delivered
-by the system call to an LSM.  In other words, the attribute would
-tell an LSM to interpret the flags value as an indicator of the
-payload being delivered.
-
-> > There will also be a need to inject, possibly substantial amounts of
-> > policy or model information into the namespace, before execution in
-> > the context of the namespace begins.
-
-> Yup. A major downside of loadable policy.
-
-Irregardless of merit, it will be reality, see below.
-
-> > There will also be a need to decide whether namespace separation
-> > should occur at the request of the orchestrator or at the next fork,
-> > the latter model being what the other resource namespaces use.  We
-> > believe the argument for direct separation can be made by looking at
-> > the gymnastics that orchestrators need to jump through with the
-> > 'change-on-fork' model.
-> >
-> > Case in point, it would seem realistic that a process with sufficient
-> > privilege, may desire to place itself in a new LSM namespace context
-> > in a manner that does not require re-execution of itself.
-> >
-> > With respect to separation, the remaining issue is if a new security
-> > capability bit needs to be implemented to gate namespace separation.
-> > John, based on your comments, I believe you would support this need?
-
-> I don't like the notion of a new capability for this. But then, I
-> object to almost every new capability proposed. Existing namespaces
-> don't need their own capabilities. I don't see this case as special.
-
-It appears that John is thinking that an LSM hook is what will be
-needed, so no new capability bit would be required.
-
-That concept seems consistent with the precedence that was established
-by using this type of scheme to control the creation of user
-namespaces.
-
-> >> You can do a subset with a single flag and only policy directing things,
-> >> but that would cut container managers out of the decision. Without a
-> >> universal container identifier that really limits what you can do. In
-> >> another email I likend it to the MCS label approach to the container
-> >> where you have a single security policy for the container and each
-> >> container gets to be a unique instance of that policy. Its not a perfect
-> >> analogy as with namespace policy can be loaded into the namespace making
-> >> it unique. I don't think the approach is right because not all namespaces
-> >> implement a loadable policy, and even when they do I think we can do a
-> >> better job if the container manager is allowed to provide additional
-> >> context with the namespacing request.
-> > In order to be relevant, the configuration of LSM namespaces need to
-> > be under control of a resource orchestrator or container manager.
-
-> I do not approve of kernel features that are pointless without
-> specific user space support. If it can't be used in ways other than
-> those defined by a particular user space component they really don't
-> belong in the kernel.
-
-It appears you have already created the necessary infrastructure with
-lsm_set_self_attr(2).
-
-Given the apparent consensus that an LSM is free to implement
-namespaces in whatever manner it pleases, an LSM can offer
-configuration of an instance of its security namespace with an LSM
-specific pseudo-filesystem interface.
-
-If a centralized namespace separation is pursued, what will be
-required is a method for loading policy/configuration before execution
-starts in the context of the namespace.
-
-> > What we hear from people doing Kubernetes, at scale, is a desire to be
-> > able to request that a container be run somewhere in the hardware
-> > resource pool and for that container to implement a security model
-> > specific to the needs of the workload running in that container.  In a
-> > manner that is orthogonal from other security policies that may be in
-> > effect for other workloads, on the host or in other containers.
-
-> That sounds to me like they want per-container security policy. That
-> would require that the kernel have the 'concept' of a
-> container. That's not something I expect to see in my lifetime.
-
-Per-container security policy is the expectation that will be raised
-by the creation of LSM namespaces.  We can speak very directly to that
-fact, from conversations with groups that are running fleets of
-thousands of virtual machines supporting tens of thousands of
-container instances.
-
-A 'container' is a set of kernel resource domains applied to an
-execution workload.  An LSM namespace will be another resource domain
-that is placed around the workload by an orchestration system.
-
-Speaking from personal implementation experience.  If the LSM
-namespace is entered and configured before the container runtime
-engine is started, you have in effect, created a per container
-security policy for that workload.
-
-There are a plethora of issues surrounding this but it may be best to
-leave those to further evolution of this discussion.
-
-Have a good remainder of the week.
-
-As always,
-Dr. Greg
-
-The Quixote Project - Flailing at the Travails of Cybersecurity
-              https://github.com/Quixote-Project
