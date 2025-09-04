@@ -1,119 +1,970 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58411F9C0
-	for <selinux@vger.kernel.org>; Thu,  4 Sep 2025 20:15:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E588B278751
+	for <selinux@vger.kernel.org>; Thu,  4 Sep 2025 21:23:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757016957; cv=none; b=P+yKXYfW02ZEd49aWkNYr+qK/P08NxxETouGHBtpSlzIuwptZXTbxiv4ROBzzC7Rh/sW4uHZA7On7BzQqADL2L8chyOBIOoQwTboldbxEbQYEbVkAd5ZFSD8L5NpGiQj7Qb3SLP45Fo8mbi2ZBEsC90KhtKB06Dq5F/pFPJPbdU=
+	t=1757021038; cv=none; b=l18w9x2IyUnWx4YtlOulrrhrWBf7Ngc470+oi4QH5GcqC2UkuHv0QCeiNE9t4Wn+jYQRqxNb8GvUuMHRnk0Mrr/PFosMlPf7w4mR15aOgNNOpT/BkePWRPk+aae+v3FP3o3gAEYP8ijWtphl31DKz7Ttjjevk0XV5GJn16R0igA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757016957; c=relaxed/simple;
-	bh=qVNT0CbMSIOU8qDaxlLhQHgz+L25Hqq/GpRSW9zCIdY=;
-	h=Date:Message-ID:MIME-Version:Content-Type:From:To:Cc:Subject:
-	 References:In-Reply-To; b=f/efcsLLez18qoTEgH7N+rcy2ye1OMCMkYz+9VZFYFzG1hva0q/Ii4jiQySbwmAa/3B+4VI0QG0verhjT1QRYtDRg7T9Jd1hr4OWJFfety7Qn9vtVJ+lOLX8qlfyr86vbUq4l8fSI6eZFQLwISpPFA/aMPk0qLnpN83NtjfhBnk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=ccUHMCob; arc=none smtp.client-ip=209.85.222.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1757021038; c=relaxed/simple;
+	bh=2mhBTf2+Uk23HLaVwuw2Xgi07PupFXczqPEjYmc7mkM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Xdr40/9lYAjJnOPbQG4pmGGAqCfnQ+9WYqIHpDb2F8ypsnmBLOTPhPDC5/EmjhPxFbf32VBGOwhWCMvY61cx7QKZKG4yD8nsxJwwYNbleNz1cwO7t5Quh5ARl0Y3QqFEWmo3Ugve5dRqzFGc5x3SoAwJZtxoLsLxgW1RPWaUSCc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=DyvVork8; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="ccUHMCob"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-8072bb631daso149283385a.1
-        for <selinux@vger.kernel.org>; Thu, 04 Sep 2025 13:15:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1757016954; x=1757621754; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=/+680EUIEPlbLOYfx6FNfIkN7nwv+fre8jP7yiSa4FY=;
-        b=ccUHMCobupeqH2+VzoztjCjZ3AJELJhhDjD8Q+4NCV0hS871UpEGc97gES6tUXbbqj
-         gkkCVtT6YvSo4TkSYgDJIeQRxsmkT76wAMf+mphll2aLxjhE/AnEFBtky7IO6KnuHS1U
-         xahz65rDKJ/MeZwlgWQl0eqcd1M5RC9Qops6OqAP7wULdWU9js27mVnHjMvZzZSCYz/J
-         AOAQQvXwi1LUbGoLwV/4DRjW4KdgaygcfF4ew7RobT3WMKmI7iwsqh7Br3eOEMVA3Tkr
-         j+gJ0OzuhdjzsXRNJ4l1otjaFibTA3bDqrkYwzcaHBOCBNtaEShkuFctOpi14gVwYnmI
-         GQpw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757016954; x=1757621754;
-        h=in-reply-to:references:subject:cc:to:from:content-transfer-encoding
-         :mime-version:message-id:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=/+680EUIEPlbLOYfx6FNfIkN7nwv+fre8jP7yiSa4FY=;
-        b=shpNtSVYBUQqcfEA5SuaAce/2LhSX2TeJVQAuDBluyo9PPbgpMBipT9NTL0QQZvr80
-         /2LOE4RYU98IBGCywoLHZm8W1COW9Ge/I8DDTDCnF23uN2HYNztXnhbIA9u7JlXntPPA
-         eg2MCO83ppP6pzuC0ZW8S7WjkXzC/N0BzDXQeoV5LS+gtPM3FhwqfjqRhXT7bzCuzE1z
-         H+GcdxNSnu2NG1IfWwAGbfaqDkkjj7Eik6fA7ChIIlQfLuKLWo6cOWeFZyMjTvMSUA2F
-         VL0P39/mVbOHRmXyJwrQJy/INK6vlHxI6RtzUltyR8i2VEuwpNcnrT+IylVhYZktwXEg
-         YigA==
-X-Forwarded-Encrypted: i=1; AJvYcCV+JpHeqEIJmjIVtPcAM55TyFWLJnDJJstAth34tTccma0tKCGgP6uTK410ZybpuGPeUolfdoQ2@vger.kernel.org
-X-Gm-Message-State: AOJu0YxnRxoxK6W2LtUadZlKqeBqVKv5Px1jeQT6lJ47x/M7iyGUKmB8
-	FCzvxX/1Wb7B2G69fmi5AWxk4pNVLjJ0zsyN26p3HrFMWDs2tYjGh45zuJ98ODbRdA==
-X-Gm-Gg: ASbGnct0YD89ZspcFytSLPVb13ewzMLodtgsQa0cthihHeEQI/F6AI3J0INL98udD+a
-	2BEp68NszwfUbkz2XyM0MiBIbEqJjemgczwLd62bkh4X1Nzi0PHElGfQDPCjeHfG5cGoi6av5+e
-	l7Haxu33okXZtC5FyKaKjxBTTCtAf2u49CvtvGjROvjFxmLNknfZUO5JkcucS1FvNvhsQlDSx5i
-	7JwHLG7MDuRIXt96pGCgNBTU0L5xOclhjcsbIvY51tS8GTZOn4Y/W+PGWHJJg8CyD9Gq/dy3j+n
-	5wrMiDbP/FBVTgimRPvB4XIlPuJ7xj77W+zJq3IjtY6xAeQRiwKVJ44LlSvmUyvY1UEZ8HCF5Ix
-	O7C6gFPbhShcESlAYP2R+Jwdqt/T4VNpK+H9RdbPw2K98xi9Y/qwRsbuwB6JqMgrqXDbbaW3RdD
-	LDwjAXqsZXvL6ndw==
-X-Google-Smtp-Source: AGHT+IGcpdOqg5H1mkv4XguVPsHn1zuGxeD7ZQ/j0Cwgoh/FoGRTVROAIGg/0Ow4seoYOufr8Iy2Wg==
-X-Received: by 2002:a05:620a:28c2:b0:7ea:44c:d4a8 with SMTP id af79cd13be357-7ff26eaafa5mr2625182285a.14.1757016953965;
-        Thu, 04 Sep 2025 13:15:53 -0700 (PDT)
-Received: from localhost (pool-71-126-255-178.bstnma.fios.verizon.net. [71.126.255.178])
-        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-80aaacfeb4bsm342220885a.41.2025.09.04.13.15.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Sep 2025 13:15:53 -0700 (PDT)
-Date: Thu, 04 Sep 2025 16:15:52 -0400
-Message-ID: <e2c4c055ff356b4fe5d49bc9df3fd2ab@paul-moore.com>
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="DyvVork8"
+Received: from [10.137.198.68] (unknown [131.107.8.68])
+	by linux.microsoft.com (Postfix) with ESMTPSA id BABB220171AF;
+	Thu,  4 Sep 2025 14:23:53 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com BABB220171AF
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1757021033;
+	bh=KDg1d6rxYa7D0PcuW+2sImF5P4FL5EtsyOQaFbRYL6g=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=DyvVork8ZMFhHAhjg5TNYMGPi9SmcqzeariwWnW5yKTj1IAzO30O+GbwvjE1cRsQM
+	 yc/1Uhd9SdlNvOZXNo451s6kXZuuoiKNiOUJvvRwVNA4OadrpDAO0KhUjeBj8gLQ3Y
+	 V8AgRTeN0nv8DlSu31auoTmTI+K6zGOze+k8vLdw=
+Message-ID: <a873a1de-ddc5-4226-b68f-a7b494b7d520@linux.microsoft.com>
+Date: Thu, 4 Sep 2025 14:23:53 -0700
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0 
-Content-Type: text/plain; charset=UTF-8 
-Content-Transfer-Encoding: 8bit 
-X-Mailer: pstg-pwork:20250903_1645/pstg-lib:20250904_1609/pstg-pwork:20250903_1645
-From: Paul Moore <paul@paul-moore.com>
-To: Neill Kapron <nkapron@google.com>, Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>
-Cc: Neill Kapron <nkapron@google.com>, kernel-team@android.com, selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] selinux: enable per-file labeling for functionfs
-References: <20250828170317.2322582-1-nkapron@google.com>
-In-Reply-To: <20250828170317.2322582-1-nkapron@google.com>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH testsuite v4] tests/bpf: Add tests for SELinux BPF token
+ access control
+To: Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com,
+ danieldurning.work@gmail.com
+References: <20250829181746.1727-1-ericsu@linux.microsoft.com>
+ <CAEjxPJ5+kru_a1uUh1_F6vqVnpCzsLHYFaTe_V71D7AmxS0rug@mail.gmail.com>
+ <CAEjxPJ6eNvr3z6cvCnNtoqgyL2dAiVnNBSuAhxKf14FxBTZB_w@mail.gmail.com>
+ <CAEjxPJ5Zq9cnYJEnHsawZuQyTJ=QyhMHdBnuj1fwLtNwrih+VA@mail.gmail.com>
+Content-Language: en-US
+From: Eric Suen <ericsu@linux.microsoft.com>
+In-Reply-To: <CAEjxPJ5Zq9cnYJEnHsawZuQyTJ=QyhMHdBnuj1fwLtNwrih+VA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Aug 28, 2025 Neill Kapron <nkapron@google.com> wrote:
-> 
-> This patch adds support for genfscon per-file labeling of functionfs
-> files as well as support for userspace to apply labels after new
-> functionfs endpoints are created.
-> 
-> This allows for separate labels and therefore access control on a
-> per-endpoint basis. An example use case would be for the default
-> endpoint EP0 used as a restricted control endpoint, and additional
-> usb endpoints to be used by other more permissive domains.
-> 
-> It should be noted that if there are multiple functionfs mounts on a
-> system, genfs file labels will apply to all mounts, and therefore will not
-> likely be as useful as the userspace relabeling portion of this patch -
-> the addition to selinux_is_genfs_special_handling().
-> 
-> This patch introduces the functionfs_seclabel policycap to maintain
-> existing functionfs genfscon behavior unless explicitly enabled.
-> 
-> Signed-off-by: Neill Kapron <nkapron@google.com>
-> 
-> Changes since v1:
-> - Add functionfs_seclabel policycap
-> - Move new functionality to the end of existing lists
-> 
-> Changes since v2:
-> - Sending as separate patches
-> 
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  security/selinux/hooks.c                   | 8 ++++++--
->  security/selinux/include/policycap.h       | 1 +
->  security/selinux/include/policycap_names.h | 1 +
->  security/selinux/include/security.h        | 6 ++++++
->  4 files changed, 14 insertions(+), 2 deletions(-)
+On 9/3/2025 6:12 AM, Stephen Smalley wrote:
+> On Wed, Sep 3, 2025 at 9:01 AM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+>> On Tue, Sep 2, 2025 at 10:09 AM Stephen Smalley
+>> <stephen.smalley.work@gmail.com> wrote:
+>>> On Fri, Aug 29, 2025 at 2:17 PM Eric Suen <ericsu@linux.microsoft.com> wrote:
+>>>> This patch adds new tests to verify the SELinux support for BPF token
+>>>> access control, as introduced in the corresponding kernel patch:
+>>>>    https://lore.kernel.org/selinux/20250816201420.197-1-ericsu@linux.microsoft.com/
+>>> No need to re-spin just for this, but I would have also provided the
+>>> link to the libsepol patch on which this depends.
+>>> Just for future reference if you need to re-spin this for other
+>>> reasons or for future patches.
+>>>
+>>>> Four new tests are added to cover both positive and negative scenarios,
+>>>> ensuring that the SELinux policy enforcement on BPF token usage behaves
+>>>> as expected.
+>>>>    - Successful map_create and prog_load when SELinux permissions are
+>>>>      granted.
+>>>>    - Enforcement of SELinux policy restrictions when access is denied.
+>>>>
+>>>> For testing purposes, you can update the base policy by manually
+>>>> modifying your base module and tweaking /usr/share/selinux/devel as
+>>>> follows:
+>>>>    sudo semodule -c -E base
+>>>>    sudo cp base.cil base.cil.orig
+>>>>    sudo sed -i "s/map_create/map_create map_create_as/" base.cil
+>>>>    sudo sed -i "s/prog_load/prog_load prog_load_as/" base.cil
+>>>>    sudo semodule -i base.cil
+>>>>    echo "(policycap bpf_token_perms)" > bpf_token_perms.cil
+>>>>    sudo semodule -i bpf_token_perms.cil
+>>>>    sudo cp /usr/share/selinux/devel/include/support/all_perms.spt \
+>>>>        /usr/share/selinux/devel/include/support/all_perms.spt.orig
+>>>>    sudo sed -i "s/map_create/map_create map_create_as/" \
+>>>>        /usr/share/selinux/devel/include/support/all_perms.spt
+>>>>    sudo sed -i "s/prog_load/prog_load prog_load_as/" \
+>>>>        /usr/share/selinux/devel/include/support/all_perms.spt
+>>>>
+>>>> When finished testing, you can semodule -r base bpf_token_perms to
+>>>> undo the two module changes and restore your all_perms.spt file from
+>>>> the saved .orig file.
+>>>>
+>>>> Changes in v2:
+>>>> - Removed allow rule for 'kernel_t' in test_bpf.te which was added due
+>>>>    to a bug in the kernel
+>>>> - Cleaned up other unnecessary rules in test_bpf.te
+>>>> - Added token_test.c which was missing from previous patch
+>>>>
+>>>> Changes in v3:
+>>>> - Added original license in 'token_test.c'
+>>>> - Updated patch description to
+>>>>      - replace 'base.sil' with 'base.cil'
+>>>>      - Remove extra quotation mark in 'sudo 'sed -i "s/"map_create'
+>>>>
+>>>> Changes in v4:
+>>>> - Updated 'token_test.c' to write error messages only when DEBUG
+>>>>    is defined
+>>> Likewise, no need to re-spin just for this, but for future patches,
+>>> please put the Changelog below the "---" line just prior to the
+>>> diffstat output.
+>>> This allows the reviewer to see it for review purposes but omits it
+>>> from the final commit message since it ceases to be relevant once a
+>>> patch is merged.
+>> One item that will need to be fixed before this is merged is adding
+>> conditional guards to the policy/Makefile and tests/bpf/test so the
+>> policy rules with the new permissions are omitted if the policy
+>> headers do not yet define them and the tests are skipped if the loaded
+>> policy doesn't include the definitions. You can see existing examples
+>> of this elsewhere in the testsuite.
+> Likely the easiest way to handle this for the policy rules would be to
+> split the new rules into a separate .te file, e.g. test_bpf_token.te,
+> and then the policy/Makefile can just omit it entirely if the
+> requisite permission definitions and policy capability are not defined
+> (see the nlmsg test dependencies in policy/Makefile for an example but
+> note that your change does not depend on a specific policy version
+> number so those checks can be omitted). For the test itself, you can
+> follow the example of tests/nnp_nosuid/test, which checks to see if a
+> policy capability is defined and if so, enables additional tests to
+> run, and do likewise for your additions to tests/bpf/test.
 
-Merged into selinux/dev, thanks!
+This makes a lot of sense. Let me look into this. Thanks a lot for the 
+review and comments, Stephen.
 
---
-paul-moore.com
+>>>> Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
+>>>> Tested-by: Daniel Durning <danieldurning.work@gmail.com>
+>>>> ---
+>>>>   policy/test_bpf.te     |  39 +++
+>>>>   tests/bpf/Makefile     |   5 +-
+>>>>   tests/bpf/bpf_common.h |  10 +
+>>>>   tests/bpf/bpf_test.c   |  59 +++--
+>>>>   tests/bpf/test         |  21 +-
+>>>>   tests/bpf/token_test.c | 559 +++++++++++++++++++++++++++++++++++++++++
+>>>>   6 files changed, 674 insertions(+), 19 deletions(-)
+>>>>   create mode 100644 tests/bpf/token_test.c
+>>>>
+>>>> diff --git a/policy/test_bpf.te b/policy/test_bpf.te
+>>>> index 5eab0bd..45da852 100644
+>>>> --- a/policy/test_bpf.te
+>>>> +++ b/policy/test_bpf.te
+>>>> @@ -57,3 +57,42 @@ typeattribute test_bpf_deny_prog_run_t bpfdomain;
+>>>>   allow test_bpf_deny_prog_run_t self:process { setrlimit };
+>>>>   allow test_bpf_deny_prog_run_t self:capability { sys_resource sys_admin };
+>>>>   allow test_bpf_deny_prog_run_t self:bpf { map_create map_read map_write prog_load };
+>>>> +
+>>>> +################### Allow map_create_as and prog_load_as ###################
+>>>> +fs_list_bpf_dirs(test_bpf_t)
+>>>> +allow test_bpf_t bpf_t:filesystem mount;
+>>>> +allow test_bpf_t root_t:dir mounton;
+>>>> +allow test_bpf_t self:bpf { map_create_as prog_load_as };
+>>>> +allow test_bpf_t self:cap2_userns { bpf perfmon };
+>>>> +allow test_bpf_t self:cap_userns { net_admin setgid setuid sys_admin };
+>>>> +allow test_bpf_t self:user_namespace create;
+>>>> +
+>>>> +############################ Deny map_create_as ############################
+>>>> +type test_bpf_deny_map_create_as_t;
+>>>> +testsuite_domain_type(test_bpf_deny_map_create_as_t)
+>>>> +typeattribute test_bpf_deny_map_create_as_t bpfdomain;
+>>>> +allow test_bpf_deny_map_create_as_t self:process { setrlimit };
+>>>> +allow test_bpf_deny_map_create_as_t self:capability { sys_resource sys_admin };
+>>>> +
+>>>> +fs_list_bpf_dirs(test_bpf_deny_map_create_as_t)
+>>>> +allow test_bpf_deny_map_create_as_t bpf_t:filesystem mount;
+>>>> +allow test_bpf_deny_map_create_as_t root_t:dir mounton;
+>>>> +allow test_bpf_deny_map_create_as_t self:bpf { map_create map_read map_write prog_load prog_load_as };
+>>>> +allow test_bpf_deny_map_create_as_t self:cap2_userns { bpf };
+>>>> +allow test_bpf_deny_map_create_as_t self:cap_userns { setgid setuid sys_admin };
+>>>> +allow test_bpf_deny_map_create_as_t self:user_namespace create;
+>>>> +
+>>>> +############################ Deny prog_load_as #############################
+>>>> +type test_bpf_deny_prog_load_as_t;
+>>>> +testsuite_domain_type(test_bpf_deny_prog_load_as_t)
+>>>> +typeattribute test_bpf_deny_prog_load_as_t bpfdomain;
+>>>> +allow test_bpf_deny_prog_load_as_t self:process { setrlimit };
+>>>> +allow test_bpf_deny_prog_load_as_t self:capability { sys_resource sys_admin };
+>>>> +
+>>>> +fs_list_bpf_dirs(test_bpf_deny_prog_load_as_t)
+>>>> +allow test_bpf_deny_prog_load_as_t bpf_t:filesystem mount;
+>>>> +allow test_bpf_deny_prog_load_as_t root_t:dir mounton;
+>>>> +allow test_bpf_deny_prog_load_as_t self:bpf { map_create map_create_as map_read map_write prog_load };
+>>>> +allow test_bpf_deny_prog_load_as_t self:cap2_userns { bpf perfmon };
+>>>> +allow test_bpf_deny_prog_load_as_t self:cap_userns { net_admin setgid setuid sys_admin };
+>>>> +allow test_bpf_deny_prog_load_as_t self:user_namespace create;
+>>>> diff --git a/tests/bpf/Makefile b/tests/bpf/Makefile
+>>>> index 1ae8ce9..cacefbe 100644
+>>>> --- a/tests/bpf/Makefile
+>>>> +++ b/tests/bpf/Makefile
+>>>> @@ -1,5 +1,5 @@
+>>>>   TARGETS = bpf_test
+>>>> -DEPS = bpf_common.c bpf_common.h
+>>>> +SRCS = bpf_test.c bpf_common.c token_test.c
+>>>>   LDLIBS += -lselinux -lbpf
+>>>>
+>>>>   # export so that BPF_ENABLED entries get built correctly on local build
+>>>> @@ -14,4 +14,5 @@ clean:
+>>>>          rm -f $(TARGETS) test_sock flag *_flag
+>>>>          @set -e; for i in $(BPF_ENABLED); do $(MAKE) -C $$i clean ; done
+>>>>
+>>>> -$(TARGETS): $(DEPS)
+>>>> +$(TARGETS): $(SRCS)
+>>>> +       $(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+>>>> \ No newline at end of file
+>>>> diff --git a/tests/bpf/bpf_common.h b/tests/bpf/bpf_common.h
+>>>> index 44ac28f..adba522 100644
+>>>> --- a/tests/bpf/bpf_common.h
+>>>> +++ b/tests/bpf/bpf_common.h
+>>>> @@ -12,6 +12,8 @@
+>>>>   extern int create_bpf_map(void);
+>>>>   extern int create_bpf_prog(void);
+>>>>   extern void bpf_setrlimit(void);
+>>>> +extern int test_bpf_map_create(void);
+>>>> +extern int test_bpf_prog_load(void);
+>>>>
+>>>>   /* edited eBPF instruction library */
+>>>>   /* Short form of mov, dst_reg = imm32 */
+>>>> @@ -32,3 +34,11 @@ extern void bpf_setrlimit(void);
+>>>>                                                 .off   = 0,                      \
+>>>>                                                          .imm   = 0 })
+>>>>
+>>>> +/* Raw code statement block */
+>>>> +#define BPF_RAW_INSN(CODE, DST, SRC, OFF, IMM)                 \
+>>>> +       ((struct bpf_insn) {                                    \
+>>>> +               .code  = CODE,                                  \
+>>>> +                       .dst_reg = DST,                                 \
+>>>> +                               .src_reg = SRC,                                 \
+>>>> +                                       .off   = OFF,                                   \
+>>>> +                                               .imm   = IMM })
+>>>> diff --git a/tests/bpf/bpf_test.c b/tests/bpf/bpf_test.c
+>>>> index 3c6a29c..a8dc383 100644
+>>>> --- a/tests/bpf/bpf_test.c
+>>>> +++ b/tests/bpf/bpf_test.c
+>>>> @@ -1,28 +1,38 @@
+>>>>   #include "bpf_common.h"
+>>>>
+>>>> +#define write_verbose(verbose, fmt, ...) \
+>>>> +       do { \
+>>>> +               if (verbose) \
+>>>> +                       printf(fmt "\n", ##__VA_ARGS__); \
+>>>> +       } while (0)
+>>>> +
+>>>>   static void usage(char *progname)
+>>>>   {
+>>>>          fprintf(stderr,
+>>>> -               "usage:  %s -m|-p [-v]\n"
+>>>> +               "usage:  %s -m|-p|-c|-l [-v]\n"
+>>>>                  "Where:\n\t"
+>>>>                  "-m    Create BPF map fd\n\t"
+>>>>                  "-p    Create BPF prog fd\n\t"
+>>>> +               "-c    Test BPF token map create\n\t"
+>>>> +               "-l    Test BPF token program load\n\t"
+>>>>                  "-v Print information.\n", progname);
+>>>>          exit(-1);
+>>>>   }
+>>>>
+>>>>   int main(int argc, char *argv[])
+>>>>   {
+>>>> -       int opt, result, fd;
+>>>> -       bool verbose = false;
+>>>> +       int opt, result, ret;
+>>>> +       bool verbose = false, is_fd = true;
+>>>>          char *context;
+>>>>
+>>>>          enum {
+>>>>                  MAP_FD = 1,
+>>>> -               PROG_FD
+>>>> +               PROG_FD,
+>>>> +               MAP_CREATE,
+>>>> +               PROG_LOAD,
+>>>>          } bpf_fd_type;
+>>>>
+>>>> -       while ((opt = getopt(argc, argv, "mpv")) != -1) {
+>>>> +       while ((opt = getopt(argc, argv, "mpclv")) != -1) {
+>>>>                  switch (opt) {
+>>>>                  case 'm':
+>>>>                          bpf_fd_type = MAP_FD;
+>>>> @@ -30,6 +40,12 @@ int main(int argc, char *argv[])
+>>>>                  case 'p':
+>>>>                          bpf_fd_type = PROG_FD;
+>>>>                          break;
+>>>> +               case 'c':
+>>>> +                       bpf_fd_type = MAP_CREATE;
+>>>> +                       break;
+>>>> +               case 'l':
+>>>> +                       bpf_fd_type = PROG_LOAD;
+>>>> +                       break;
+>>>>                  case 'v':
+>>>>                          verbose = true;
+>>>>                          break;
+>>>> @@ -44,8 +60,7 @@ int main(int argc, char *argv[])
+>>>>                  exit(-1);
+>>>>          }
+>>>>
+>>>> -       if (verbose)
+>>>> -               printf("Process context:\n\t%s\n", context);
+>>>> +       write_verbose(verbose, "Process context:\n\n%s", context);
+>>>>
+>>>>          free(context);
+>>>>
+>>>> @@ -54,24 +69,36 @@ int main(int argc, char *argv[])
+>>>>
+>>>>          switch (bpf_fd_type) {
+>>>>          case MAP_FD:
+>>>> -               if (verbose)
+>>>> -                       printf("Creating BPF map\n");
+>>>> +               write_verbose(verbose, "Creating BPF map");
+>>>>
+>>>> -               fd = create_bpf_map();
+>>>> +               ret = create_bpf_map();
+>>>>                  break;
+>>>>          case PROG_FD:
+>>>> -               if (verbose)
+>>>> -                       printf("Creating BPF prog\n");
+>>>> +               write_verbose(verbose, "Creating BPF prog");
+>>>> +
+>>>> +               ret = create_bpf_prog();
+>>>> +               break;
+>>>> +       case MAP_CREATE:
+>>>> +               is_fd = false;
+>>>> +               write_verbose(verbose, "Testing BPF map create");
+>>>> +
+>>>> +               ret = test_bpf_map_create();
+>>>> +               break;
+>>>> +       case PROG_LOAD:
+>>>> +               is_fd = false;
+>>>> +               write_verbose(verbose, "Testing BPF prog load");
+>>>>
+>>>> -               fd = create_bpf_prog();
+>>>> +               ret = test_bpf_prog_load();
+>>>>                  break;
+>>>>          default:
+>>>>                  usage(argv[0]);
+>>>>          }
+>>>>
+>>>> -       if (fd < 0)
+>>>> -               return fd;
+>>>> +       if (ret < 0)
+>>>> +               return ret;
+>>>> +
+>>>> +       if (is_fd)
+>>>> +               close(ret);
+>>>>
+>>>> -       close(fd);
+>>>>          return 0;
+>>>>   }
+>>>> diff --git a/tests/bpf/test b/tests/bpf/test
+>>>> index a3fd856..14bda32 100755
+>>>> --- a/tests/bpf/test
+>>>> +++ b/tests/bpf/test
+>>>> @@ -9,8 +9,10 @@ BEGIN {
+>>>>
+>>>>       $test_bpf_count       = 7;
+>>>>       $test_fdreceive_count = 4;
+>>>> +    $test_bpf_token_count = 4;
+>>>>
+>>>> -    $test_count = $test_bpf_count + $test_fdreceive_count;
+>>>> +    $test_count =
+>>>> +      $test_bpf_count + $test_fdreceive_count + $test_bpf_token_count;
+>>>>
+>>>>       # allow info to be shown during tests
+>>>>       $v = $ARGV[0];
+>>>> @@ -67,6 +69,13 @@ ok( $result eq 0 );
+>>>>   $result = system "runcon -t test_bpf_t $basedir/bpf_test -p $v";
+>>>>   ok( $result eq 0 );
+>>>>
+>>>> +# BPF token - BPF_MAP_CREATE_AS, BPF_PROG_LOAD_AS
+>>>> +$result = system "runcon -t test_bpf_t $basedir/bpf_test -c $v";
+>>>> +ok( $result eq 0 );
+>>>> +
+>>>> +$result = system "runcon -t test_bpf_t $basedir/bpf_test -l $v";
+>>>> +ok( $result eq 0 );
+>>>> +
+>>>>   # Deny map_create permission
+>>>>   $result =
+>>>>     system "runcon -t test_bpf_deny_map_create_t $basedir/bpf_test -m $v 2>&1";
+>>>> @@ -92,6 +101,16 @@ $result =
+>>>>     system "runcon -t test_bpf_deny_prog_run_t $basedir/bpf_test -p $v 2>&1";
+>>>>   ok($result);
+>>>>
+>>>> +# BPF token - deny BPF_MAP_CREATE_AS
+>>>> +$result =
+>>>> +  system "runcon -t test_bpf_deny_map_create_as_t $basedir/bpf_test -c $v 2>&1";
+>>>> +ok($result);
+>>>> +
+>>>> +# BPF token - deny BPF_PROG_LOAD_AS
+>>>> +$result =
+>>>> +  system "runcon -t test_bpf_deny_prog_load_as_t $basedir/bpf_test -l $v 2>&1";
+>>>> +ok($result);
+>>>> +
+>>>>   #
+>>>>   ################ BPF Tests for fdreceive #######################
+>>>>   #
+>>>> diff --git a/tests/bpf/token_test.c b/tests/bpf/token_test.c
+>>>> new file mode 100644
+>>>> index 0000000..64f5222
+>>>> --- /dev/null
+>>>> +++ b/tests/bpf/token_test.c
+>>>> @@ -0,0 +1,559 @@
+>>>> +// SPDX-License-Identifier: GPL-2.0
+>>>> +/* Code derived from: linux/source/tools/testing/selftests/bpf/prog_tests/token.c
+>>>> + * Copyright (c) 2023 Meta Platforms, Inc. and affiliates.
+>>>> + */
+>>>> +
+>>>> +#include "bpf_common.h"
+>>>> +#include "signal.h"
+>>>> +#include "linux/mount.h"
+>>>> +#include <linux/unistd.h>
+>>>> +#include "sys/wait.h"
+>>>> +#include "sys/socket.h"
+>>>> +#include "fcntl.h"
+>>>> +#include "sched.h"
+>>>> +#include <bpf/btf.h>
+>>>> +
+>>>> +#define bit(n) (1ULL << (n))
+>>>> +
+>>>> +#define zclose(fd) do { if (fd >= 0) close(fd); fd = -1; } while (0)
+>>>> +#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+>>>> +
+>>>> +#ifdef DEBUG
+>>>> +#define _CHECK(condition, format...) ({    \
+>>>> +       int __ret = !!(condition); \
+>>>> +       int __save_errno = errno;   \
+>>>> +       if (__ret) {    \
+>>>> +               fprintf(stderr, ##format);   \
+>>>> +       }   \
+>>>> +       errno = __save_errno;   \
+>>>> +       __ret;  \
+>>>> +})
+>>>> +#else
+>>>> +#define _CHECK(condition, format...) ({    \
+>>>> +       int __ret = !!(condition); \
+>>>> +       __ret;  \
+>>>> +})
+>>>> +#endif
+>>>> +
+>>>> +#define ASSERT_OK(res, name) ({     \
+>>>> +       long long ___res = (res);       \
+>>>> +       bool ___ok = ___res == 0;       \
+>>>> +       _CHECK(!___ok, \
+>>>> +                       "%s failed. unexpected error: %lld (errno %d)\n",  \
+>>>> +                        name, ___res, errno);  \
+>>>> +       ___ok;                          \
+>>>> +})
+>>>> +
+>>>> +#define ASSERT_GT(actual, expected, name) ({    \
+>>>> +       typeof(actual) ___act = (actual);   \
+>>>> +       typeof(expected) ___exp = (expected);   \
+>>>> +       bool ___ok = ___act > ___exp;       \
+>>>> +       _CHECK(!___ok,  \
+>>>> +                       "unexpected %s: actual %lld <= expected %lld (errno %d)\n",   \
+>>>> +                       (name), (long long)(___act), (long long)(___exp), errno);  \
+>>>> +       ___ok;  \
+>>>> +})
+>>>> +
+>>>> +#define ASSERT_GE(actual, expected, name) ({    \
+>>>> +       typeof(actual) ___act = (actual);       \
+>>>> +       typeof(expected) ___exp = (expected);   \
+>>>> +       bool ___ok = ___act >= ___exp;          \
+>>>> +       _CHECK(!___ok,  \
+>>>> +                       "unexpected %s: actual %lld < expected %lld (errno %d)\n",   \
+>>>> +                       (name), (long long)(___act), (long long)(___exp), errno);          \
+>>>> +       ___ok;  \
+>>>> +})
+>>>> +
+>>>> +#define ASSERT_EQ(actual, expected, name) ({    \
+>>>> +       typeof(actual) ___act = (actual);           \
+>>>> +       typeof(expected) ___exp = (expected);       \
+>>>> +       bool ___ok = ___act == ___exp;              \
+>>>> +       _CHECK(!___ok,   \
+>>>> +                       "unexpected %s: actual %lld != expected %lld (errno %d)\n",   \
+>>>> +                       (name), (long long)(___act), (long long)(___exp), errno);          \
+>>>> +       ___ok;  \
+>>>> +})
+>>>> +
+>>>> +#define ASSERT_OK_PTR(ptr, name) ({     \
+>>>> +       const void *___res = (ptr);         \
+>>>> +       int ___err = libbpf_get_error(___res);  \
+>>>> +       bool ___ok = ___err == 0;           \
+>>>> +       _CHECK(!___ok,  \
+>>>> +                       "%s unexpected error: %d\n", name, ___err);  \
+>>>> +       ___ok;      \
+>>>> +})
+>>>> +
+>>>> +struct bpffs_opts {
+>>>> +       __u64 cmds;
+>>>> +       __u64 maps;
+>>>> +       __u64 progs;
+>>>> +       __u64 attachs;
+>>>> +       const char *cmds_str;
+>>>> +       const char *maps_str;
+>>>> +       const char *progs_str;
+>>>> +       const char *attachs_str;
+>>>> +};
+>>>> +
+>>>> +typedef int (*child_callback_fn)(int bpffs_fd);
+>>>> +
+>>>> +static inline int sys_mount(const char *dev_name, const char *dir_name,
+>>>> +                           const char *type, unsigned long flags,
+>>>> +                           const void *data)
+>>>> +{
+>>>> +       return syscall(__NR_mount, dev_name, dir_name, type, flags, data);
+>>>> +}
+>>>> +
+>>>> +static inline int sys_fsopen(const char *fsname, unsigned int flags)
+>>>> +{
+>>>> +       return syscall(__NR_fsopen, fsname, flags);
+>>>> +}
+>>>> +
+>>>> +static inline int sys_fsconfig(int fs_fd, unsigned int cmd, const char *key,
+>>>> +                              const void *val, int aux)
+>>>> +{
+>>>> +       return syscall(__NR_fsconfig, fs_fd, cmd, key, val, aux);
+>>>> +}
+>>>> +
+>>>> +static inline int sys_fsmount(int fs_fd, unsigned int flags,
+>>>> +                             unsigned int ms_flags)
+>>>> +{
+>>>> +       return syscall(__NR_fsmount, fs_fd, flags, ms_flags);
+>>>> +}
+>>>> +
+>>>> +static int set_delegate_mask(int fs_fd, const char *key, __u64 mask,
+>>>> +                            const char *mask_str)
+>>>> +{
+>>>> +       char buf[32];
+>>>> +       int err;
+>>>> +
+>>>> +       if (!mask_str) {
+>>>> +               if (mask == ~0ULL) {
+>>>> +                       mask_str = "any";
+>>>> +               } else {
+>>>> +                       snprintf(buf, sizeof(buf), "0x%llx", (unsigned long long)mask);
+>>>> +                       mask_str = buf;
+>>>> +               }
+>>>> +       }
+>>>> +
+>>>> +       err = sys_fsconfig(fs_fd, FSCONFIG_SET_STRING, key,
+>>>> +                          mask_str, 0);
+>>>> +       if (err < 0)
+>>>> +               err = -errno;
+>>>> +       return err;
+>>>> +}
+>>>> +
+>>>> +static int create_bpffs_fd(void)
+>>>> +{
+>>>> +       int fs_fd;
+>>>> +
+>>>> +       /* create VFS context */
+>>>> +       fs_fd = sys_fsopen("bpf", 0);
+>>>> +       ASSERT_GE(fs_fd, 0, "fs_fd");
+>>>> +
+>>>> +       return fs_fd;
+>>>> +}
+>>>> +
+>>>> +static int materialize_bpffs_fd(int fs_fd, struct bpffs_opts *opts)
+>>>> +{
+>>>> +       int mnt_fd, err;
+>>>> +
+>>>> +       /* set up token delegation mount options */
+>>>> +       err = set_delegate_mask(fs_fd, "delegate_cmds", opts->cmds, opts->cmds_str);
+>>>> +       if (!ASSERT_OK(err, "fs_cfg_cmd"))
+>>>> +               return err;
+>>>> +       err = set_delegate_mask(fs_fd, "delegate_maps", opts->maps, opts->maps_str);
+>>>> +       if (!ASSERT_OK(err, "fs_cfg_maps"))
+>>>> +               return err;
+>>>> +       err = set_delegate_mask(fs_fd, "delegate_progs", opts->progs, opts->progs_str);
+>>>> +       if (!ASSERT_OK(err, "fs_cfg_progs"))
+>>>> +               return err;
+>>>> +       err = set_delegate_mask(fs_fd, "delegate_attachs", opts->attachs,
+>>>> +                               opts->attachs_str);
+>>>> +       if (!ASSERT_OK(err, "fs_cfg_attachs"))
+>>>> +               return err;
+>>>> +
+>>>> +       /* instantiate FS object */
+>>>> +       err = sys_fsconfig(fs_fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0);
+>>>> +       if (err < 0)
+>>>> +               return -errno;
+>>>> +
+>>>> +       /* create O_PATH fd for detached mount */
+>>>> +       mnt_fd = sys_fsmount(fs_fd, 0, 0);
+>>>> +       if (err < 0)
+>>>> +               return -errno;
+>>>> +
+>>>> +       return mnt_fd;
+>>>> +}
+>>>> +
+>>>> +static ssize_t write_nointr(int fd, const void *buf, size_t count)
+>>>> +{
+>>>> +       ssize_t ret;
+>>>> +
+>>>> +       do {
+>>>> +               ret = write(fd, buf, count);
+>>>> +       } while (ret < 0 && errno == EINTR);
+>>>> +
+>>>> +       return ret;
+>>>> +}
+>>>> +
+>>>> +static int write_file(const char *path, const void *buf, size_t count)
+>>>> +{
+>>>> +       int fd;
+>>>> +       ssize_t ret;
+>>>> +
+>>>> +       fd = open(path, O_WRONLY | O_CLOEXEC | O_NOCTTY | O_NOFOLLOW);
+>>>> +       if (fd < 0)
+>>>> +               return -1;
+>>>> +
+>>>> +       ret = write_nointr(fd, buf, count);
+>>>> +       close(fd);
+>>>> +       if (ret < 0 || (size_t)ret != count)
+>>>> +               return -1;
+>>>> +
+>>>> +       return 0;
+>>>> +}
+>>>> +
+>>>> +static int create_and_enter_userns(void)
+>>>> +{
+>>>> +       uid_t uid;
+>>>> +       gid_t gid;
+>>>> +       char map[100];
+>>>> +
+>>>> +       uid = getuid();
+>>>> +       gid = getgid();
+>>>> +
+>>>> +       if (unshare(CLONE_NEWUSER))
+>>>> +               return -1;
+>>>> +
+>>>> +       if (write_file("/proc/self/setgroups", "deny", sizeof("deny") - 1) &&
+>>>> +           errno != ENOENT)
+>>>> +               return -1;
+>>>> +
+>>>> +       snprintf(map, sizeof(map), "0 %d 1", uid);
+>>>> +       if (write_file("/proc/self/uid_map", map, strlen(map)))
+>>>> +               return -1;
+>>>> +
+>>>> +
+>>>> +       snprintf(map, sizeof(map), "0 %d 1", gid);
+>>>> +       if (write_file("/proc/self/gid_map", map, strlen(map)))
+>>>> +               return -1;
+>>>> +
+>>>> +       if (setgid(0))
+>>>> +               return -1;
+>>>> +
+>>>> +       if (setuid(0))
+>>>> +               return -1;
+>>>> +
+>>>> +       return 0;
+>>>> +}
+>>>> +
+>>>> +static int sendfd(int sockfd, int fd)
+>>>> +{
+>>>> +       struct msghdr msg = {};
+>>>> +       struct cmsghdr *cmsg;
+>>>> +       int fds[1] = { fd }, err;
+>>>> +       char iobuf[1];
+>>>> +       struct iovec io = {
+>>>> +               .iov_base = iobuf,
+>>>> +               .iov_len = sizeof(iobuf),
+>>>> +       };
+>>>> +       union {
+>>>> +               char buf[CMSG_SPACE(sizeof(fds))];
+>>>> +               struct cmsghdr align;
+>>>> +       } u;
+>>>> +
+>>>> +       msg.msg_iov = &io;
+>>>> +       msg.msg_iovlen = 1;
+>>>> +       msg.msg_control = u.buf;
+>>>> +       msg.msg_controllen = sizeof(u.buf);
+>>>> +       cmsg = CMSG_FIRSTHDR(&msg);
+>>>> +       cmsg->cmsg_level = SOL_SOCKET;
+>>>> +       cmsg->cmsg_type = SCM_RIGHTS;
+>>>> +       cmsg->cmsg_len = CMSG_LEN(sizeof(fds));
+>>>> +       memcpy(CMSG_DATA(cmsg), fds, sizeof(fds));
+>>>> +
+>>>> +       err = sendmsg(sockfd, &msg, 0);
+>>>> +       if (err < 0)
+>>>> +               err = -errno;
+>>>> +       if (!ASSERT_EQ(err, 1, "sendmsg"))
+>>>> +               return -EINVAL;
+>>>> +
+>>>> +       return 0;
+>>>> +}
+>>>> +
+>>>> +static int recvfd(int sockfd, int *fd)
+>>>> +{
+>>>> +       struct msghdr msg = {};
+>>>> +       struct cmsghdr *cmsg;
+>>>> +       int fds[1], err;
+>>>> +       char iobuf[1];
+>>>> +       struct iovec io = {
+>>>> +               .iov_base = iobuf,
+>>>> +               .iov_len = sizeof(iobuf),
+>>>> +       };
+>>>> +       union {
+>>>> +               char buf[CMSG_SPACE(sizeof(fds))];
+>>>> +               struct cmsghdr align;
+>>>> +       } u;
+>>>> +
+>>>> +       msg.msg_iov = &io;
+>>>> +       msg.msg_iovlen = 1;
+>>>> +       msg.msg_control = u.buf;
+>>>> +       msg.msg_controllen = sizeof(u.buf);
+>>>> +
+>>>> +       err = recvmsg(sockfd, &msg, 0);
+>>>> +       if (err < 0)
+>>>> +               err = -errno;
+>>>> +       if (!ASSERT_EQ(err, 1, "recvmsg"))
+>>>> +               return -EINVAL;
+>>>> +
+>>>> +       cmsg = CMSG_FIRSTHDR(&msg);
+>>>> +       if (!ASSERT_OK_PTR(cmsg, "cmsg_null") ||
+>>>> +           !ASSERT_EQ(cmsg->cmsg_len, CMSG_LEN(sizeof(fds)), "cmsg_len") ||
+>>>> +           !ASSERT_EQ(cmsg->cmsg_level, SOL_SOCKET, "cmsg_level") ||
+>>>> +           !ASSERT_EQ(cmsg->cmsg_type, SCM_RIGHTS, "cmsg_type"))
+>>>> +               return -EINVAL;
+>>>> +
+>>>> +       memcpy(fds, CMSG_DATA(cmsg), sizeof(fds));
+>>>> +       *fd = fds[0];
+>>>> +
+>>>> +       return 0;
+>>>> +}
+>>>> +
+>>>> +static int wait_for_pid(pid_t pid)
+>>>> +{
+>>>> +       int status, ret;
+>>>> +
+>>>> +again:
+>>>> +       ret = waitpid(pid, &status, 0);
+>>>> +       if (ret == -1) {
+>>>> +               if (errno == EINTR)
+>>>> +                       goto again;
+>>>> +
+>>>> +               return -1;
+>>>> +       }
+>>>> +
+>>>> +       if (!WIFEXITED(status))
+>>>> +               return -1;
+>>>> +
+>>>> +       return WEXITSTATUS(status);
+>>>> +}
+>>>> +
+>>>> +static int child(int sock_fd, struct bpffs_opts *bpffs_opts,
+>>>> +                child_callback_fn callback)
+>>>> +{
+>>>> +       int mnt_fd = -1, fs_fd = -1, err = 0, bpffs_fd = -1, token_fd = -1;
+>>>> +
+>>>> +       err = create_and_enter_userns();
+>>>> +       if (!ASSERT_OK(err, "create_and_enter_userns"))
+>>>> +               goto cleanup;
+>>>> +
+>>>> +       err = unshare(CLONE_NEWNS);
+>>>> +       if (!ASSERT_OK(err, "create_mountns"))
+>>>> +               goto cleanup;
+>>>> +
+>>>> +       err = sys_mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, 0);
+>>>> +       if (!ASSERT_OK(err, "remount_root"))
+>>>> +               goto cleanup;
+>>>> +
+>>>> +       fs_fd = create_bpffs_fd();
+>>>> +       if (!ASSERT_GE(fs_fd, 0, "create_bpffs_fd")) {
+>>>> +               err = -EINVAL;
+>>>> +               goto cleanup;
+>>>> +       }
+>>>> +
+>>>> +       err = sendfd(sock_fd, fs_fd);
+>>>> +       if (!ASSERT_OK(err, "send_fs_fd"))
+>>>> +               goto cleanup;
+>>>> +       zclose(fs_fd);
+>>>> +
+>>>> +       err = recvfd(sock_fd, &mnt_fd);
+>>>> +       if (!ASSERT_OK(err, "recv_mnt_fd"))
+>>>> +               goto cleanup;
+>>>> +
+>>>> +       bpffs_fd = openat(mnt_fd, ".", 0, O_RDWR);
+>>>> +       if (!ASSERT_GE(bpffs_fd, 0, "bpffs_open")) {
+>>>> +               err = -EINVAL;
+>>>> +               goto cleanup;
+>>>> +       }
+>>>> +
+>>>> +       err = callback(bpffs_fd);
+>>>> +       if (!ASSERT_OK(err, "test_callback"))
+>>>> +               goto cleanup;
+>>>> +
+>>>> +       err = 0;
+>>>> +
+>>>> +cleanup:
+>>>> +       zclose(sock_fd);
+>>>> +       zclose(mnt_fd);
+>>>> +       zclose(fs_fd);
+>>>> +       zclose(bpffs_fd);
+>>>> +       zclose(token_fd);
+>>>> +
+>>>> +       exit(-err);
+>>>> +}
+>>>> +
+>>>> +static int parent(int child_pid, struct bpffs_opts *bpffs_opts, int sock_fd)
+>>>> +{
+>>>> +       int fs_fd = -1, mnt_fd = -1, token_fd = -1, err;
+>>>> +
+>>>> +       err = recvfd(sock_fd, &fs_fd);
+>>>> +       if (!ASSERT_OK(err, "recv_bpffs_fd"))
+>>>> +               goto cleanup;
+>>>> +
+>>>> +       mnt_fd = materialize_bpffs_fd(fs_fd, bpffs_opts);
+>>>> +       if (!ASSERT_GE(mnt_fd, 0, "materialize_bpffs_fd")) {
+>>>> +               err = -EINVAL;
+>>>> +               goto cleanup;
+>>>> +       }
+>>>> +       zclose(fs_fd);
+>>>> +
+>>>> +       err = sendfd(sock_fd, mnt_fd);
+>>>> +       if (!ASSERT_OK(err, "send_mnt_fd"))
+>>>> +               goto cleanup;
+>>>> +       zclose(mnt_fd);
+>>>> +
+>>>> +       err = wait_for_pid(child_pid);
+>>>> +       if (!ASSERT_OK(err, "waitpid_child")) {
+>>>> +               err = -EINVAL;
+>>>> +               goto cleanup;
+>>>> +       }
+>>>> +
+>>>> +cleanup:
+>>>> +       zclose(sock_fd);
+>>>> +       zclose(fs_fd);
+>>>> +       zclose(mnt_fd);
+>>>> +       zclose(token_fd);
+>>>> +
+>>>> +       if (child_pid > 0)
+>>>> +               (void)kill(child_pid, SIGKILL);
+>>>> +
+>>>> +       return err;
+>>>> +}
+>>>> +
+>>>> +static int subtest(struct bpffs_opts *bpffs_opts, child_callback_fn child_cb)
+>>>> +{
+>>>> +       int sock_fds[2] = { -1, -1 };
+>>>> +       int child_pid = 0, err;
+>>>> +
+>>>> +       err = socketpair(AF_UNIX, SOCK_STREAM, 0, sock_fds);
+>>>> +       if (!ASSERT_OK(err, "socketpair"))
+>>>> +               goto cleanup;
+>>>> +
+>>>> +       child_pid = fork();
+>>>> +       if (!ASSERT_GE(child_pid, 0, "fork"))
+>>>> +               goto cleanup;
+>>>> +
+>>>> +       if (child_pid == 0) {
+>>>> +               zclose(sock_fds[0]);
+>>>> +               return child(sock_fds[1], bpffs_opts, child_cb);
+>>>> +       } else {
+>>>> +               zclose(sock_fds[1]);
+>>>> +               return parent(child_pid, bpffs_opts, sock_fds[0]);
+>>>> +       }
+>>>> +
+>>>> +cleanup:
+>>>> +       zclose(sock_fds[0]);
+>>>> +       zclose(sock_fds[1]);
+>>>> +       if (child_pid > 0)
+>>>> +               (void)kill(child_pid, SIGKILL);
+>>>> +
+>>>> +       return -err;
+>>>> +}
+>>>> +
+>>>> +static int userns_map_create(int mnt_fd)
+>>>> +{
+>>>> +       LIBBPF_OPTS(bpf_map_create_opts, map_opts);
+>>>> +       int err = 0, token_fd = -1, map_fd = -1;
+>>>> +
+>>>> +       /* create BPF token from BPF FS mount */
+>>>> +       token_fd = bpf_token_create(mnt_fd, NULL);
+>>>> +       if (!ASSERT_GT(token_fd, 0, "userns_map_create/token_create")) {
+>>>> +               err = -EINVAL;
+>>>> +               goto cleanup;
+>>>> +       }
+>>>> +
+>>>> +       map_opts.map_flags = BPF_F_TOKEN_FD;
+>>>> +       map_opts.token_fd = token_fd;
+>>>> +       map_fd = bpf_map_create(BPF_MAP_TYPE_STACK, "userns_map_create", 0, 8, 1,
+>>>> +                               &map_opts);
+>>>> +       if (!ASSERT_GT(map_fd, 0, "userns_map_create/bpf_map_create")) {
+>>>> +               err = -EINVAL;
+>>>> +               goto cleanup;
+>>>> +       }
+>>>> +
+>>>> +cleanup:
+>>>> +       zclose(token_fd);
+>>>> +       zclose(map_fd);
+>>>> +
+>>>> +       if (err)
+>>>> +               fprintf(stderr, "Failed to create BPF map with BPF token enabled: %s\n",
+>>>> +                       strerror(errno));
+>>>> +
+>>>> +       return err;
+>>>> +}
+>>>> +
+>>>> +static int userns_prog_load(int mnt_fd)
+>>>> +{
+>>>> +       LIBBPF_OPTS(bpf_prog_load_opts, prog_opts);
+>>>> +       int err, token_fd = -1, prog_fd = -1;
+>>>> +       struct bpf_insn insns[] = {
+>>>> +               /* bpf_jiffies64() requires CAP_BPF */
+>>>> +               BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_jiffies64),
+>>>> +               /* bpf_get_current_task() requires CAP_PERFMON */
+>>>> +               BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_get_current_task),
+>>>> +               /* r0 = 0; exit; */
+>>>> +               BPF_MOV64_IMM(BPF_REG_0, 0),
+>>>> +               BPF_EXIT_INSN(),
+>>>> +       };
+>>>> +       size_t insn_cnt = ARRAY_SIZE(insns);
+>>>> +
+>>>> +       token_fd = bpf_token_create(mnt_fd, NULL);
+>>>> +       if (!ASSERT_GT(token_fd, 0, "userns_prog_load/token_create")) {
+>>>> +               err = -EINVAL;
+>>>> +               goto cleanup;
+>>>> +       }
+>>>> +
+>>>> +       prog_opts.prog_flags = BPF_F_TOKEN_FD;
+>>>> +       prog_opts.token_fd = token_fd;
+>>>> +       prog_opts.expected_attach_type = BPF_XDP;
+>>>> +       prog_fd = bpf_prog_load(BPF_PROG_TYPE_XDP, "token_prog", "GPL",
+>>>> +                               insns, insn_cnt, &prog_opts);
+>>>> +       if (!ASSERT_GT(prog_fd, 0, "userns_prog_load/bpf_prog_load")) {
+>>>> +               err = -EPERM;
+>>>> +               goto cleanup;
+>>>> +       }
+>>>> +
+>>>> +       err = 0;
+>>>> +
+>>>> +cleanup:
+>>>> +       zclose(prog_fd);
+>>>> +       zclose(token_fd);
+>>>> +
+>>>> +       if (err)
+>>>> +               fprintf(stderr, "Failed to load BPF prog with token enabled: %s\n",
+>>>> +                       strerror(errno));
+>>>> +
+>>>> +       return err;
+>>>> +}
+>>>> +
+>>>> +int test_bpf_map_create(void)
+>>>> +{
+>>>> +       struct bpffs_opts opts = {
+>>>> +               .cmds_str = "map_create",
+>>>> +               .maps_str = "stack"
+>>>> +       };
+>>>> +
+>>>> +       return subtest(&opts, userns_map_create);
+>>>> +}
+>>>> +
+>>>> +int test_bpf_prog_load(void)
+>>>> +{
+>>>> +       struct bpffs_opts opts = {
+>>>> +               .cmds_str = "prog_load",
+>>>> +               .progs_str = "XDP",
+>>>> +               .attachs_str = "xdp",
+>>>> +       };
+>>>> +
+>>>> +       return subtest(&opts, userns_prog_load);
+>>>> +}
+>>>> --
+>>>> 2.51.0.windows.1
+>>>>
+
