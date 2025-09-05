@@ -1,970 +1,317 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id E588B278751
-	for <selinux@vger.kernel.org>; Thu,  4 Sep 2025 21:23:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from mail-pf1-f194.google.com (mail-pf1-f194.google.com [209.85.210.194])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F1992BDC27;
+	Fri,  5 Sep 2025 10:05:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757021038; cv=none; b=l18w9x2IyUnWx4YtlOulrrhrWBf7Ngc470+oi4QH5GcqC2UkuHv0QCeiNE9t4Wn+jYQRqxNb8GvUuMHRnk0Mrr/PFosMlPf7w4mR15aOgNNOpT/BkePWRPk+aae+v3FP3o3gAEYP8ijWtphl31DKz7Ttjjevk0XV5GJn16R0igA=
+	t=1757066712; cv=none; b=XZTPSCk0Uxtj3m+JmghU8J0wbLA/ZGnS6UnfF0QJnlpFo+WwHvNiAbUCWdTe6ZYHs7fwUEGMUGLMkBGyJCivuUqygwnx0LhgxEnl388tmbtM4WryH2gugN2FIc65LP6Ibbuk3s694MDcQwFUvWFdym23FMUrIXdOTJwUM+Cce2k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757021038; c=relaxed/simple;
-	bh=2mhBTf2+Uk23HLaVwuw2Xgi07PupFXczqPEjYmc7mkM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Xdr40/9lYAjJnOPbQG4pmGGAqCfnQ+9WYqIHpDb2F8ypsnmBLOTPhPDC5/EmjhPxFbf32VBGOwhWCMvY61cx7QKZKG4yD8nsxJwwYNbleNz1cwO7t5Quh5ARl0Y3QqFEWmo3Ugve5dRqzFGc5x3SoAwJZtxoLsLxgW1RPWaUSCc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=DyvVork8; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+	s=arc-20240116; t=1757066712; c=relaxed/simple;
+	bh=oPvbbbOjryt/WcGRBP+qXOUYcls7O9i3llpIoPoD7YA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jXehNDkb893rseiCpcnUTIkfjxbFuQNR5UuzJA+tMbPJGEEhhM78pFPTEEpFo5uWpoEYLRju828SKGkpyS40S6MnlXccywadX0FUGmrXCIqQDTFCkrCtL3OPbnYUSSLqr6YFMAkODTzNJA13lROAxfTRaRCCB6jKMkquRaxhPSM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WEwEpqoO; arc=none smtp.client-ip=209.85.210.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="DyvVork8"
-Received: from [10.137.198.68] (unknown [131.107.8.68])
-	by linux.microsoft.com (Postfix) with ESMTPSA id BABB220171AF;
-	Thu,  4 Sep 2025 14:23:53 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com BABB220171AF
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1757021033;
-	bh=KDg1d6rxYa7D0PcuW+2sImF5P4FL5EtsyOQaFbRYL6g=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=DyvVork8ZMFhHAhjg5TNYMGPi9SmcqzeariwWnW5yKTj1IAzO30O+GbwvjE1cRsQM
-	 yc/1Uhd9SdlNvOZXNo451s6kXZuuoiKNiOUJvvRwVNA4OadrpDAO0KhUjeBj8gLQ3Y
-	 V8AgRTeN0nv8DlSu31auoTmTI+K6zGOze+k8vLdw=
-Message-ID: <a873a1de-ddc5-4226-b68f-a7b494b7d520@linux.microsoft.com>
-Date: Thu, 4 Sep 2025 14:23:53 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WEwEpqoO"
+Received: by mail-pf1-f194.google.com with SMTP id d2e1a72fcca58-76e6cbb991aso1608016b3a.1;
+        Fri, 05 Sep 2025 03:05:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1757066710; x=1757671510; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=mbYjVo+CtEVYvl1MNoJADrvhyhPGSDK3aQxvYcMbJPM=;
+        b=WEwEpqoO+XtbAHG43hcsYAR9uv2sU1aaXvhalpFk1kb7Wz2vobIy6FeO6Xr9CMpMuI
+         b5pdG4lN32PzrRTIEYtUdpqebxIq652nhNcD3jc5ZBfk5l4qUerOFG2YBt6d/vawaPfO
+         +m82M702qunc7jHaLHBdvvg5gYXCIw0B2vPx7y5O64f/HjQ30LGlgKCRz/DK9ccw0IAx
+         hxsnO1UGD8eRQGtiEvNZ0i/6IATbnsP3Q+S9SHEqcB+eEblKxOy3jJDwb+a86+HrMEa8
+         o6YZCmreydQIkTNRLRJDqJbGXsFHfigf55xliu7RjIqtsMXXQEIONU7SAhkdeQk0nC4o
+         zALQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757066710; x=1757671510;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=mbYjVo+CtEVYvl1MNoJADrvhyhPGSDK3aQxvYcMbJPM=;
+        b=hiEPwSbrrrG7lBfQkwoRRan6g4uNaw9SJDpttkPRTUdcX7m/4apWgxuLOekF0I+Jnd
+         J0RzVZOBQ5NJ/rZotbADzj/w0Kk4DM0HwCfvBqwOPA12D6vBCzuk7t7ijqv9Hu7nF+4m
+         NUF6rH2IuiI30HU73qIqJXDWm7OpY5huNFSqBDQGErBPTvzNSkgN9ZtatkAOEEPD0uxv
+         booAKlFJj/GLT6GfU+jI6ar9J87J89hgRdsIAN5zpdNSdLWUh3Ahm7bxwNyTedMMbiWc
+         LRkp9dCp/cLKkdHrafP6a9lFjN4bawOu9b0hpgbC+LNWhtZ2laDUGqQC5YeqRKgs00J+
+         4tQQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUPhfogmyefmeQ78EoWRTCG8DnpEoUQpF8HqJy5+TTXGKFfirpFuMO4NRhvpiG3azSuXik4KBsP@vger.kernel.org
+X-Gm-Message-State: AOJu0YxcuiK46sEy/bGSCr1c77uPVPuWURkah/Xiidy4nnoyv2VxJ/Ye
+	k+UmTr3beb+PcQqL3mXeQ20KRGO6Px34whJrTSoSOnVd5yX8hwwD7hh4
+X-Gm-Gg: ASbGnct5TqRPsziQyjPtei5WeSSCsuuz058AW9RR9H0iiRIs6ZDWqYzHVdY5XKoFZ+8
+	4cfLcUZqyN0VNd7n0RYhvGsRleAWc4eL+UIQgU7caG0pDr6kb8HaAqLa6lTaM6mzVaUEIWd6GqA
+	yQmgEbgzWUt7eKjC4d+5IlMxHWhE3DNOvuQtRpBB7J0ZMHFJf9waeOfo+3fgDyUmxQhJ2NBJM+x
+	0lcGIVL74mM9V0uEJMfI60KP/Ez0FMpcyhLAZSigaCiRwrIWd8A/VxTzhLcp9/F+WeisH1B0zBt
+	AcN4zsqm2WdNAf1pj8BtMi1hC0r/GXToaJHUt7JAkYFRSz0AIC98UZgfgs2AneVX9ONia9S48Jz
+	6WJb86tT3nz0p2a34iJCd4q5X+BWOukwu9joPyP8HU04sntYgswNC9+w=
+X-Google-Smtp-Source: AGHT+IHlaJDfiFBXDuvwpe5OnyRAPL5iAnxHlzgN0cRxqyls8/g4t1h3YvlkOpYazv5PhgUDqZzHKg==
+X-Received: by 2002:aa7:8882:0:b0:772:4b09:ba3b with SMTP id d2e1a72fcca58-7724b09c30bmr24061800b3a.1.1757066710403;
+        Fri, 05 Sep 2025 03:05:10 -0700 (PDT)
+Received: from zhr-ThinkStation-K.mioffice.cn ([43.224.245.231])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-772447058dbsm17611904b3a.38.2025.09.05.03.05.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 Sep 2025 03:05:10 -0700 (PDT)
+From: Hongru Zhang <zhanghongru06@gmail.com>
+X-Google-Original-From: Hongru Zhang <zhanghongru@xiaomi.com>
+To: paul@paul-moore.com,
+	stephen.smalley.work@gmail.com,
+	omosnace@redhat.com
+Cc: linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org,
+	Hongru Zhang <zhanghongru@xiaomi.com>
+Subject: [PATCH] selinux: Make avc cache slot size configurable during boot
+Date: Fri,  5 Sep 2025 18:04:54 +0800
+Message-ID: <20250905100454.685866-1-zhanghongru@xiaomi.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH testsuite v4] tests/bpf: Add tests for SELinux BPF token
- access control
-To: Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc: selinux@vger.kernel.org, paul@paul-moore.com, omosnace@redhat.com,
- danieldurning.work@gmail.com
-References: <20250829181746.1727-1-ericsu@linux.microsoft.com>
- <CAEjxPJ5+kru_a1uUh1_F6vqVnpCzsLHYFaTe_V71D7AmxS0rug@mail.gmail.com>
- <CAEjxPJ6eNvr3z6cvCnNtoqgyL2dAiVnNBSuAhxKf14FxBTZB_w@mail.gmail.com>
- <CAEjxPJ5Zq9cnYJEnHsawZuQyTJ=QyhMHdBnuj1fwLtNwrih+VA@mail.gmail.com>
-Content-Language: en-US
-From: Eric Suen <ericsu@linux.microsoft.com>
-In-Reply-To: <CAEjxPJ5Zq9cnYJEnHsawZuQyTJ=QyhMHdBnuj1fwLtNwrih+VA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 9/3/2025 6:12 AM, Stephen Smalley wrote:
-> On Wed, Sep 3, 2025 at 9:01 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
->> On Tue, Sep 2, 2025 at 10:09 AM Stephen Smalley
->> <stephen.smalley.work@gmail.com> wrote:
->>> On Fri, Aug 29, 2025 at 2:17 PM Eric Suen <ericsu@linux.microsoft.com> wrote:
->>>> This patch adds new tests to verify the SELinux support for BPF token
->>>> access control, as introduced in the corresponding kernel patch:
->>>>    https://lore.kernel.org/selinux/20250816201420.197-1-ericsu@linux.microsoft.com/
->>> No need to re-spin just for this, but I would have also provided the
->>> link to the libsepol patch on which this depends.
->>> Just for future reference if you need to re-spin this for other
->>> reasons or for future patches.
->>>
->>>> Four new tests are added to cover both positive and negative scenarios,
->>>> ensuring that the SELinux policy enforcement on BPF token usage behaves
->>>> as expected.
->>>>    - Successful map_create and prog_load when SELinux permissions are
->>>>      granted.
->>>>    - Enforcement of SELinux policy restrictions when access is denied.
->>>>
->>>> For testing purposes, you can update the base policy by manually
->>>> modifying your base module and tweaking /usr/share/selinux/devel as
->>>> follows:
->>>>    sudo semodule -c -E base
->>>>    sudo cp base.cil base.cil.orig
->>>>    sudo sed -i "s/map_create/map_create map_create_as/" base.cil
->>>>    sudo sed -i "s/prog_load/prog_load prog_load_as/" base.cil
->>>>    sudo semodule -i base.cil
->>>>    echo "(policycap bpf_token_perms)" > bpf_token_perms.cil
->>>>    sudo semodule -i bpf_token_perms.cil
->>>>    sudo cp /usr/share/selinux/devel/include/support/all_perms.spt \
->>>>        /usr/share/selinux/devel/include/support/all_perms.spt.orig
->>>>    sudo sed -i "s/map_create/map_create map_create_as/" \
->>>>        /usr/share/selinux/devel/include/support/all_perms.spt
->>>>    sudo sed -i "s/prog_load/prog_load prog_load_as/" \
->>>>        /usr/share/selinux/devel/include/support/all_perms.spt
->>>>
->>>> When finished testing, you can semodule -r base bpf_token_perms to
->>>> undo the two module changes and restore your all_perms.spt file from
->>>> the saved .orig file.
->>>>
->>>> Changes in v2:
->>>> - Removed allow rule for 'kernel_t' in test_bpf.te which was added due
->>>>    to a bug in the kernel
->>>> - Cleaned up other unnecessary rules in test_bpf.te
->>>> - Added token_test.c which was missing from previous patch
->>>>
->>>> Changes in v3:
->>>> - Added original license in 'token_test.c'
->>>> - Updated patch description to
->>>>      - replace 'base.sil' with 'base.cil'
->>>>      - Remove extra quotation mark in 'sudo 'sed -i "s/"map_create'
->>>>
->>>> Changes in v4:
->>>> - Updated 'token_test.c' to write error messages only when DEBUG
->>>>    is defined
->>> Likewise, no need to re-spin just for this, but for future patches,
->>> please put the Changelog below the "---" line just prior to the
->>> diffstat output.
->>> This allows the reviewer to see it for review purposes but omits it
->>> from the final commit message since it ceases to be relevant once a
->>> patch is merged.
->> One item that will need to be fixed before this is merged is adding
->> conditional guards to the policy/Makefile and tests/bpf/test so the
->> policy rules with the new permissions are omitted if the policy
->> headers do not yet define them and the tests are skipped if the loaded
->> policy doesn't include the definitions. You can see existing examples
->> of this elsewhere in the testsuite.
-> Likely the easiest way to handle this for the policy rules would be to
-> split the new rules into a separate .te file, e.g. test_bpf_token.te,
-> and then the policy/Makefile can just omit it entirely if the
-> requisite permission definitions and policy capability are not defined
-> (see the nlmsg test dependencies in policy/Makefile for an example but
-> note that your change does not depend on a specific policy version
-> number so those checks can be omitted). For the test itself, you can
-> follow the example of tests/nnp_nosuid/test, which checks to see if a
-> policy capability is defined and if so, enables additional tests to
-> run, and do likewise for your additions to tests/bpf/test.
+From: Hongru Zhang <zhanghongru@xiaomi.com>
 
-This makes a lot of sense. Let me look into this. Thanks a lot for the 
-review and comments, Stephen.
+On mobile device high-load situations, permission check can happen
+more than 90,000/s (8 core system). With default 512 cache nodes
+configuration, avc cache miss happens more often and occasionally
+leads to long time (>2ms) irqs off on both big and little cores,
+which decreases system real-time capability.
 
->>>> Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
->>>> Tested-by: Daniel Durning <danieldurning.work@gmail.com>
->>>> ---
->>>>   policy/test_bpf.te     |  39 +++
->>>>   tests/bpf/Makefile     |   5 +-
->>>>   tests/bpf/bpf_common.h |  10 +
->>>>   tests/bpf/bpf_test.c   |  59 +++--
->>>>   tests/bpf/test         |  21 +-
->>>>   tests/bpf/token_test.c | 559 +++++++++++++++++++++++++++++++++++++++++
->>>>   6 files changed, 674 insertions(+), 19 deletions(-)
->>>>   create mode 100644 tests/bpf/token_test.c
->>>>
->>>> diff --git a/policy/test_bpf.te b/policy/test_bpf.te
->>>> index 5eab0bd..45da852 100644
->>>> --- a/policy/test_bpf.te
->>>> +++ b/policy/test_bpf.te
->>>> @@ -57,3 +57,42 @@ typeattribute test_bpf_deny_prog_run_t bpfdomain;
->>>>   allow test_bpf_deny_prog_run_t self:process { setrlimit };
->>>>   allow test_bpf_deny_prog_run_t self:capability { sys_resource sys_admin };
->>>>   allow test_bpf_deny_prog_run_t self:bpf { map_create map_read map_write prog_load };
->>>> +
->>>> +################### Allow map_create_as and prog_load_as ###################
->>>> +fs_list_bpf_dirs(test_bpf_t)
->>>> +allow test_bpf_t bpf_t:filesystem mount;
->>>> +allow test_bpf_t root_t:dir mounton;
->>>> +allow test_bpf_t self:bpf { map_create_as prog_load_as };
->>>> +allow test_bpf_t self:cap2_userns { bpf perfmon };
->>>> +allow test_bpf_t self:cap_userns { net_admin setgid setuid sys_admin };
->>>> +allow test_bpf_t self:user_namespace create;
->>>> +
->>>> +############################ Deny map_create_as ############################
->>>> +type test_bpf_deny_map_create_as_t;
->>>> +testsuite_domain_type(test_bpf_deny_map_create_as_t)
->>>> +typeattribute test_bpf_deny_map_create_as_t bpfdomain;
->>>> +allow test_bpf_deny_map_create_as_t self:process { setrlimit };
->>>> +allow test_bpf_deny_map_create_as_t self:capability { sys_resource sys_admin };
->>>> +
->>>> +fs_list_bpf_dirs(test_bpf_deny_map_create_as_t)
->>>> +allow test_bpf_deny_map_create_as_t bpf_t:filesystem mount;
->>>> +allow test_bpf_deny_map_create_as_t root_t:dir mounton;
->>>> +allow test_bpf_deny_map_create_as_t self:bpf { map_create map_read map_write prog_load prog_load_as };
->>>> +allow test_bpf_deny_map_create_as_t self:cap2_userns { bpf };
->>>> +allow test_bpf_deny_map_create_as_t self:cap_userns { setgid setuid sys_admin };
->>>> +allow test_bpf_deny_map_create_as_t self:user_namespace create;
->>>> +
->>>> +############################ Deny prog_load_as #############################
->>>> +type test_bpf_deny_prog_load_as_t;
->>>> +testsuite_domain_type(test_bpf_deny_prog_load_as_t)
->>>> +typeattribute test_bpf_deny_prog_load_as_t bpfdomain;
->>>> +allow test_bpf_deny_prog_load_as_t self:process { setrlimit };
->>>> +allow test_bpf_deny_prog_load_as_t self:capability { sys_resource sys_admin };
->>>> +
->>>> +fs_list_bpf_dirs(test_bpf_deny_prog_load_as_t)
->>>> +allow test_bpf_deny_prog_load_as_t bpf_t:filesystem mount;
->>>> +allow test_bpf_deny_prog_load_as_t root_t:dir mounton;
->>>> +allow test_bpf_deny_prog_load_as_t self:bpf { map_create map_create_as map_read map_write prog_load };
->>>> +allow test_bpf_deny_prog_load_as_t self:cap2_userns { bpf perfmon };
->>>> +allow test_bpf_deny_prog_load_as_t self:cap_userns { net_admin setgid setuid sys_admin };
->>>> +allow test_bpf_deny_prog_load_as_t self:user_namespace create;
->>>> diff --git a/tests/bpf/Makefile b/tests/bpf/Makefile
->>>> index 1ae8ce9..cacefbe 100644
->>>> --- a/tests/bpf/Makefile
->>>> +++ b/tests/bpf/Makefile
->>>> @@ -1,5 +1,5 @@
->>>>   TARGETS = bpf_test
->>>> -DEPS = bpf_common.c bpf_common.h
->>>> +SRCS = bpf_test.c bpf_common.c token_test.c
->>>>   LDLIBS += -lselinux -lbpf
->>>>
->>>>   # export so that BPF_ENABLED entries get built correctly on local build
->>>> @@ -14,4 +14,5 @@ clean:
->>>>          rm -f $(TARGETS) test_sock flag *_flag
->>>>          @set -e; for i in $(BPF_ENABLED); do $(MAKE) -C $$i clean ; done
->>>>
->>>> -$(TARGETS): $(DEPS)
->>>> +$(TARGETS): $(SRCS)
->>>> +       $(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
->>>> \ No newline at end of file
->>>> diff --git a/tests/bpf/bpf_common.h b/tests/bpf/bpf_common.h
->>>> index 44ac28f..adba522 100644
->>>> --- a/tests/bpf/bpf_common.h
->>>> +++ b/tests/bpf/bpf_common.h
->>>> @@ -12,6 +12,8 @@
->>>>   extern int create_bpf_map(void);
->>>>   extern int create_bpf_prog(void);
->>>>   extern void bpf_setrlimit(void);
->>>> +extern int test_bpf_map_create(void);
->>>> +extern int test_bpf_prog_load(void);
->>>>
->>>>   /* edited eBPF instruction library */
->>>>   /* Short form of mov, dst_reg = imm32 */
->>>> @@ -32,3 +34,11 @@ extern void bpf_setrlimit(void);
->>>>                                                 .off   = 0,                      \
->>>>                                                          .imm   = 0 })
->>>>
->>>> +/* Raw code statement block */
->>>> +#define BPF_RAW_INSN(CODE, DST, SRC, OFF, IMM)                 \
->>>> +       ((struct bpf_insn) {                                    \
->>>> +               .code  = CODE,                                  \
->>>> +                       .dst_reg = DST,                                 \
->>>> +                               .src_reg = SRC,                                 \
->>>> +                                       .off   = OFF,                                   \
->>>> +                                               .imm   = IMM })
->>>> diff --git a/tests/bpf/bpf_test.c b/tests/bpf/bpf_test.c
->>>> index 3c6a29c..a8dc383 100644
->>>> --- a/tests/bpf/bpf_test.c
->>>> +++ b/tests/bpf/bpf_test.c
->>>> @@ -1,28 +1,38 @@
->>>>   #include "bpf_common.h"
->>>>
->>>> +#define write_verbose(verbose, fmt, ...) \
->>>> +       do { \
->>>> +               if (verbose) \
->>>> +                       printf(fmt "\n", ##__VA_ARGS__); \
->>>> +       } while (0)
->>>> +
->>>>   static void usage(char *progname)
->>>>   {
->>>>          fprintf(stderr,
->>>> -               "usage:  %s -m|-p [-v]\n"
->>>> +               "usage:  %s -m|-p|-c|-l [-v]\n"
->>>>                  "Where:\n\t"
->>>>                  "-m    Create BPF map fd\n\t"
->>>>                  "-p    Create BPF prog fd\n\t"
->>>> +               "-c    Test BPF token map create\n\t"
->>>> +               "-l    Test BPF token program load\n\t"
->>>>                  "-v Print information.\n", progname);
->>>>          exit(-1);
->>>>   }
->>>>
->>>>   int main(int argc, char *argv[])
->>>>   {
->>>> -       int opt, result, fd;
->>>> -       bool verbose = false;
->>>> +       int opt, result, ret;
->>>> +       bool verbose = false, is_fd = true;
->>>>          char *context;
->>>>
->>>>          enum {
->>>>                  MAP_FD = 1,
->>>> -               PROG_FD
->>>> +               PROG_FD,
->>>> +               MAP_CREATE,
->>>> +               PROG_LOAD,
->>>>          } bpf_fd_type;
->>>>
->>>> -       while ((opt = getopt(argc, argv, "mpv")) != -1) {
->>>> +       while ((opt = getopt(argc, argv, "mpclv")) != -1) {
->>>>                  switch (opt) {
->>>>                  case 'm':
->>>>                          bpf_fd_type = MAP_FD;
->>>> @@ -30,6 +40,12 @@ int main(int argc, char *argv[])
->>>>                  case 'p':
->>>>                          bpf_fd_type = PROG_FD;
->>>>                          break;
->>>> +               case 'c':
->>>> +                       bpf_fd_type = MAP_CREATE;
->>>> +                       break;
->>>> +               case 'l':
->>>> +                       bpf_fd_type = PROG_LOAD;
->>>> +                       break;
->>>>                  case 'v':
->>>>                          verbose = true;
->>>>                          break;
->>>> @@ -44,8 +60,7 @@ int main(int argc, char *argv[])
->>>>                  exit(-1);
->>>>          }
->>>>
->>>> -       if (verbose)
->>>> -               printf("Process context:\n\t%s\n", context);
->>>> +       write_verbose(verbose, "Process context:\n\n%s", context);
->>>>
->>>>          free(context);
->>>>
->>>> @@ -54,24 +69,36 @@ int main(int argc, char *argv[])
->>>>
->>>>          switch (bpf_fd_type) {
->>>>          case MAP_FD:
->>>> -               if (verbose)
->>>> -                       printf("Creating BPF map\n");
->>>> +               write_verbose(verbose, "Creating BPF map");
->>>>
->>>> -               fd = create_bpf_map();
->>>> +               ret = create_bpf_map();
->>>>                  break;
->>>>          case PROG_FD:
->>>> -               if (verbose)
->>>> -                       printf("Creating BPF prog\n");
->>>> +               write_verbose(verbose, "Creating BPF prog");
->>>> +
->>>> +               ret = create_bpf_prog();
->>>> +               break;
->>>> +       case MAP_CREATE:
->>>> +               is_fd = false;
->>>> +               write_verbose(verbose, "Testing BPF map create");
->>>> +
->>>> +               ret = test_bpf_map_create();
->>>> +               break;
->>>> +       case PROG_LOAD:
->>>> +               is_fd = false;
->>>> +               write_verbose(verbose, "Testing BPF prog load");
->>>>
->>>> -               fd = create_bpf_prog();
->>>> +               ret = test_bpf_prog_load();
->>>>                  break;
->>>>          default:
->>>>                  usage(argv[0]);
->>>>          }
->>>>
->>>> -       if (fd < 0)
->>>> -               return fd;
->>>> +       if (ret < 0)
->>>> +               return ret;
->>>> +
->>>> +       if (is_fd)
->>>> +               close(ret);
->>>>
->>>> -       close(fd);
->>>>          return 0;
->>>>   }
->>>> diff --git a/tests/bpf/test b/tests/bpf/test
->>>> index a3fd856..14bda32 100755
->>>> --- a/tests/bpf/test
->>>> +++ b/tests/bpf/test
->>>> @@ -9,8 +9,10 @@ BEGIN {
->>>>
->>>>       $test_bpf_count       = 7;
->>>>       $test_fdreceive_count = 4;
->>>> +    $test_bpf_token_count = 4;
->>>>
->>>> -    $test_count = $test_bpf_count + $test_fdreceive_count;
->>>> +    $test_count =
->>>> +      $test_bpf_count + $test_fdreceive_count + $test_bpf_token_count;
->>>>
->>>>       # allow info to be shown during tests
->>>>       $v = $ARGV[0];
->>>> @@ -67,6 +69,13 @@ ok( $result eq 0 );
->>>>   $result = system "runcon -t test_bpf_t $basedir/bpf_test -p $v";
->>>>   ok( $result eq 0 );
->>>>
->>>> +# BPF token - BPF_MAP_CREATE_AS, BPF_PROG_LOAD_AS
->>>> +$result = system "runcon -t test_bpf_t $basedir/bpf_test -c $v";
->>>> +ok( $result eq 0 );
->>>> +
->>>> +$result = system "runcon -t test_bpf_t $basedir/bpf_test -l $v";
->>>> +ok( $result eq 0 );
->>>> +
->>>>   # Deny map_create permission
->>>>   $result =
->>>>     system "runcon -t test_bpf_deny_map_create_t $basedir/bpf_test -m $v 2>&1";
->>>> @@ -92,6 +101,16 @@ $result =
->>>>     system "runcon -t test_bpf_deny_prog_run_t $basedir/bpf_test -p $v 2>&1";
->>>>   ok($result);
->>>>
->>>> +# BPF token - deny BPF_MAP_CREATE_AS
->>>> +$result =
->>>> +  system "runcon -t test_bpf_deny_map_create_as_t $basedir/bpf_test -c $v 2>&1";
->>>> +ok($result);
->>>> +
->>>> +# BPF token - deny BPF_PROG_LOAD_AS
->>>> +$result =
->>>> +  system "runcon -t test_bpf_deny_prog_load_as_t $basedir/bpf_test -l $v 2>&1";
->>>> +ok($result);
->>>> +
->>>>   #
->>>>   ################ BPF Tests for fdreceive #######################
->>>>   #
->>>> diff --git a/tests/bpf/token_test.c b/tests/bpf/token_test.c
->>>> new file mode 100644
->>>> index 0000000..64f5222
->>>> --- /dev/null
->>>> +++ b/tests/bpf/token_test.c
->>>> @@ -0,0 +1,559 @@
->>>> +// SPDX-License-Identifier: GPL-2.0
->>>> +/* Code derived from: linux/source/tools/testing/selftests/bpf/prog_tests/token.c
->>>> + * Copyright (c) 2023 Meta Platforms, Inc. and affiliates.
->>>> + */
->>>> +
->>>> +#include "bpf_common.h"
->>>> +#include "signal.h"
->>>> +#include "linux/mount.h"
->>>> +#include <linux/unistd.h>
->>>> +#include "sys/wait.h"
->>>> +#include "sys/socket.h"
->>>> +#include "fcntl.h"
->>>> +#include "sched.h"
->>>> +#include <bpf/btf.h>
->>>> +
->>>> +#define bit(n) (1ULL << (n))
->>>> +
->>>> +#define zclose(fd) do { if (fd >= 0) close(fd); fd = -1; } while (0)
->>>> +#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
->>>> +
->>>> +#ifdef DEBUG
->>>> +#define _CHECK(condition, format...) ({    \
->>>> +       int __ret = !!(condition); \
->>>> +       int __save_errno = errno;   \
->>>> +       if (__ret) {    \
->>>> +               fprintf(stderr, ##format);   \
->>>> +       }   \
->>>> +       errno = __save_errno;   \
->>>> +       __ret;  \
->>>> +})
->>>> +#else
->>>> +#define _CHECK(condition, format...) ({    \
->>>> +       int __ret = !!(condition); \
->>>> +       __ret;  \
->>>> +})
->>>> +#endif
->>>> +
->>>> +#define ASSERT_OK(res, name) ({     \
->>>> +       long long ___res = (res);       \
->>>> +       bool ___ok = ___res == 0;       \
->>>> +       _CHECK(!___ok, \
->>>> +                       "%s failed. unexpected error: %lld (errno %d)\n",  \
->>>> +                        name, ___res, errno);  \
->>>> +       ___ok;                          \
->>>> +})
->>>> +
->>>> +#define ASSERT_GT(actual, expected, name) ({    \
->>>> +       typeof(actual) ___act = (actual);   \
->>>> +       typeof(expected) ___exp = (expected);   \
->>>> +       bool ___ok = ___act > ___exp;       \
->>>> +       _CHECK(!___ok,  \
->>>> +                       "unexpected %s: actual %lld <= expected %lld (errno %d)\n",   \
->>>> +                       (name), (long long)(___act), (long long)(___exp), errno);  \
->>>> +       ___ok;  \
->>>> +})
->>>> +
->>>> +#define ASSERT_GE(actual, expected, name) ({    \
->>>> +       typeof(actual) ___act = (actual);       \
->>>> +       typeof(expected) ___exp = (expected);   \
->>>> +       bool ___ok = ___act >= ___exp;          \
->>>> +       _CHECK(!___ok,  \
->>>> +                       "unexpected %s: actual %lld < expected %lld (errno %d)\n",   \
->>>> +                       (name), (long long)(___act), (long long)(___exp), errno);          \
->>>> +       ___ok;  \
->>>> +})
->>>> +
->>>> +#define ASSERT_EQ(actual, expected, name) ({    \
->>>> +       typeof(actual) ___act = (actual);           \
->>>> +       typeof(expected) ___exp = (expected);       \
->>>> +       bool ___ok = ___act == ___exp;              \
->>>> +       _CHECK(!___ok,   \
->>>> +                       "unexpected %s: actual %lld != expected %lld (errno %d)\n",   \
->>>> +                       (name), (long long)(___act), (long long)(___exp), errno);          \
->>>> +       ___ok;  \
->>>> +})
->>>> +
->>>> +#define ASSERT_OK_PTR(ptr, name) ({     \
->>>> +       const void *___res = (ptr);         \
->>>> +       int ___err = libbpf_get_error(___res);  \
->>>> +       bool ___ok = ___err == 0;           \
->>>> +       _CHECK(!___ok,  \
->>>> +                       "%s unexpected error: %d\n", name, ___err);  \
->>>> +       ___ok;      \
->>>> +})
->>>> +
->>>> +struct bpffs_opts {
->>>> +       __u64 cmds;
->>>> +       __u64 maps;
->>>> +       __u64 progs;
->>>> +       __u64 attachs;
->>>> +       const char *cmds_str;
->>>> +       const char *maps_str;
->>>> +       const char *progs_str;
->>>> +       const char *attachs_str;
->>>> +};
->>>> +
->>>> +typedef int (*child_callback_fn)(int bpffs_fd);
->>>> +
->>>> +static inline int sys_mount(const char *dev_name, const char *dir_name,
->>>> +                           const char *type, unsigned long flags,
->>>> +                           const void *data)
->>>> +{
->>>> +       return syscall(__NR_mount, dev_name, dir_name, type, flags, data);
->>>> +}
->>>> +
->>>> +static inline int sys_fsopen(const char *fsname, unsigned int flags)
->>>> +{
->>>> +       return syscall(__NR_fsopen, fsname, flags);
->>>> +}
->>>> +
->>>> +static inline int sys_fsconfig(int fs_fd, unsigned int cmd, const char *key,
->>>> +                              const void *val, int aux)
->>>> +{
->>>> +       return syscall(__NR_fsconfig, fs_fd, cmd, key, val, aux);
->>>> +}
->>>> +
->>>> +static inline int sys_fsmount(int fs_fd, unsigned int flags,
->>>> +                             unsigned int ms_flags)
->>>> +{
->>>> +       return syscall(__NR_fsmount, fs_fd, flags, ms_flags);
->>>> +}
->>>> +
->>>> +static int set_delegate_mask(int fs_fd, const char *key, __u64 mask,
->>>> +                            const char *mask_str)
->>>> +{
->>>> +       char buf[32];
->>>> +       int err;
->>>> +
->>>> +       if (!mask_str) {
->>>> +               if (mask == ~0ULL) {
->>>> +                       mask_str = "any";
->>>> +               } else {
->>>> +                       snprintf(buf, sizeof(buf), "0x%llx", (unsigned long long)mask);
->>>> +                       mask_str = buf;
->>>> +               }
->>>> +       }
->>>> +
->>>> +       err = sys_fsconfig(fs_fd, FSCONFIG_SET_STRING, key,
->>>> +                          mask_str, 0);
->>>> +       if (err < 0)
->>>> +               err = -errno;
->>>> +       return err;
->>>> +}
->>>> +
->>>> +static int create_bpffs_fd(void)
->>>> +{
->>>> +       int fs_fd;
->>>> +
->>>> +       /* create VFS context */
->>>> +       fs_fd = sys_fsopen("bpf", 0);
->>>> +       ASSERT_GE(fs_fd, 0, "fs_fd");
->>>> +
->>>> +       return fs_fd;
->>>> +}
->>>> +
->>>> +static int materialize_bpffs_fd(int fs_fd, struct bpffs_opts *opts)
->>>> +{
->>>> +       int mnt_fd, err;
->>>> +
->>>> +       /* set up token delegation mount options */
->>>> +       err = set_delegate_mask(fs_fd, "delegate_cmds", opts->cmds, opts->cmds_str);
->>>> +       if (!ASSERT_OK(err, "fs_cfg_cmd"))
->>>> +               return err;
->>>> +       err = set_delegate_mask(fs_fd, "delegate_maps", opts->maps, opts->maps_str);
->>>> +       if (!ASSERT_OK(err, "fs_cfg_maps"))
->>>> +               return err;
->>>> +       err = set_delegate_mask(fs_fd, "delegate_progs", opts->progs, opts->progs_str);
->>>> +       if (!ASSERT_OK(err, "fs_cfg_progs"))
->>>> +               return err;
->>>> +       err = set_delegate_mask(fs_fd, "delegate_attachs", opts->attachs,
->>>> +                               opts->attachs_str);
->>>> +       if (!ASSERT_OK(err, "fs_cfg_attachs"))
->>>> +               return err;
->>>> +
->>>> +       /* instantiate FS object */
->>>> +       err = sys_fsconfig(fs_fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0);
->>>> +       if (err < 0)
->>>> +               return -errno;
->>>> +
->>>> +       /* create O_PATH fd for detached mount */
->>>> +       mnt_fd = sys_fsmount(fs_fd, 0, 0);
->>>> +       if (err < 0)
->>>> +               return -errno;
->>>> +
->>>> +       return mnt_fd;
->>>> +}
->>>> +
->>>> +static ssize_t write_nointr(int fd, const void *buf, size_t count)
->>>> +{
->>>> +       ssize_t ret;
->>>> +
->>>> +       do {
->>>> +               ret = write(fd, buf, count);
->>>> +       } while (ret < 0 && errno == EINTR);
->>>> +
->>>> +       return ret;
->>>> +}
->>>> +
->>>> +static int write_file(const char *path, const void *buf, size_t count)
->>>> +{
->>>> +       int fd;
->>>> +       ssize_t ret;
->>>> +
->>>> +       fd = open(path, O_WRONLY | O_CLOEXEC | O_NOCTTY | O_NOFOLLOW);
->>>> +       if (fd < 0)
->>>> +               return -1;
->>>> +
->>>> +       ret = write_nointr(fd, buf, count);
->>>> +       close(fd);
->>>> +       if (ret < 0 || (size_t)ret != count)
->>>> +               return -1;
->>>> +
->>>> +       return 0;
->>>> +}
->>>> +
->>>> +static int create_and_enter_userns(void)
->>>> +{
->>>> +       uid_t uid;
->>>> +       gid_t gid;
->>>> +       char map[100];
->>>> +
->>>> +       uid = getuid();
->>>> +       gid = getgid();
->>>> +
->>>> +       if (unshare(CLONE_NEWUSER))
->>>> +               return -1;
->>>> +
->>>> +       if (write_file("/proc/self/setgroups", "deny", sizeof("deny") - 1) &&
->>>> +           errno != ENOENT)
->>>> +               return -1;
->>>> +
->>>> +       snprintf(map, sizeof(map), "0 %d 1", uid);
->>>> +       if (write_file("/proc/self/uid_map", map, strlen(map)))
->>>> +               return -1;
->>>> +
->>>> +
->>>> +       snprintf(map, sizeof(map), "0 %d 1", gid);
->>>> +       if (write_file("/proc/self/gid_map", map, strlen(map)))
->>>> +               return -1;
->>>> +
->>>> +       if (setgid(0))
->>>> +               return -1;
->>>> +
->>>> +       if (setuid(0))
->>>> +               return -1;
->>>> +
->>>> +       return 0;
->>>> +}
->>>> +
->>>> +static int sendfd(int sockfd, int fd)
->>>> +{
->>>> +       struct msghdr msg = {};
->>>> +       struct cmsghdr *cmsg;
->>>> +       int fds[1] = { fd }, err;
->>>> +       char iobuf[1];
->>>> +       struct iovec io = {
->>>> +               .iov_base = iobuf,
->>>> +               .iov_len = sizeof(iobuf),
->>>> +       };
->>>> +       union {
->>>> +               char buf[CMSG_SPACE(sizeof(fds))];
->>>> +               struct cmsghdr align;
->>>> +       } u;
->>>> +
->>>> +       msg.msg_iov = &io;
->>>> +       msg.msg_iovlen = 1;
->>>> +       msg.msg_control = u.buf;
->>>> +       msg.msg_controllen = sizeof(u.buf);
->>>> +       cmsg = CMSG_FIRSTHDR(&msg);
->>>> +       cmsg->cmsg_level = SOL_SOCKET;
->>>> +       cmsg->cmsg_type = SCM_RIGHTS;
->>>> +       cmsg->cmsg_len = CMSG_LEN(sizeof(fds));
->>>> +       memcpy(CMSG_DATA(cmsg), fds, sizeof(fds));
->>>> +
->>>> +       err = sendmsg(sockfd, &msg, 0);
->>>> +       if (err < 0)
->>>> +               err = -errno;
->>>> +       if (!ASSERT_EQ(err, 1, "sendmsg"))
->>>> +               return -EINVAL;
->>>> +
->>>> +       return 0;
->>>> +}
->>>> +
->>>> +static int recvfd(int sockfd, int *fd)
->>>> +{
->>>> +       struct msghdr msg = {};
->>>> +       struct cmsghdr *cmsg;
->>>> +       int fds[1], err;
->>>> +       char iobuf[1];
->>>> +       struct iovec io = {
->>>> +               .iov_base = iobuf,
->>>> +               .iov_len = sizeof(iobuf),
->>>> +       };
->>>> +       union {
->>>> +               char buf[CMSG_SPACE(sizeof(fds))];
->>>> +               struct cmsghdr align;
->>>> +       } u;
->>>> +
->>>> +       msg.msg_iov = &io;
->>>> +       msg.msg_iovlen = 1;
->>>> +       msg.msg_control = u.buf;
->>>> +       msg.msg_controllen = sizeof(u.buf);
->>>> +
->>>> +       err = recvmsg(sockfd, &msg, 0);
->>>> +       if (err < 0)
->>>> +               err = -errno;
->>>> +       if (!ASSERT_EQ(err, 1, "recvmsg"))
->>>> +               return -EINVAL;
->>>> +
->>>> +       cmsg = CMSG_FIRSTHDR(&msg);
->>>> +       if (!ASSERT_OK_PTR(cmsg, "cmsg_null") ||
->>>> +           !ASSERT_EQ(cmsg->cmsg_len, CMSG_LEN(sizeof(fds)), "cmsg_len") ||
->>>> +           !ASSERT_EQ(cmsg->cmsg_level, SOL_SOCKET, "cmsg_level") ||
->>>> +           !ASSERT_EQ(cmsg->cmsg_type, SCM_RIGHTS, "cmsg_type"))
->>>> +               return -EINVAL;
->>>> +
->>>> +       memcpy(fds, CMSG_DATA(cmsg), sizeof(fds));
->>>> +       *fd = fds[0];
->>>> +
->>>> +       return 0;
->>>> +}
->>>> +
->>>> +static int wait_for_pid(pid_t pid)
->>>> +{
->>>> +       int status, ret;
->>>> +
->>>> +again:
->>>> +       ret = waitpid(pid, &status, 0);
->>>> +       if (ret == -1) {
->>>> +               if (errno == EINTR)
->>>> +                       goto again;
->>>> +
->>>> +               return -1;
->>>> +       }
->>>> +
->>>> +       if (!WIFEXITED(status))
->>>> +               return -1;
->>>> +
->>>> +       return WEXITSTATUS(status);
->>>> +}
->>>> +
->>>> +static int child(int sock_fd, struct bpffs_opts *bpffs_opts,
->>>> +                child_callback_fn callback)
->>>> +{
->>>> +       int mnt_fd = -1, fs_fd = -1, err = 0, bpffs_fd = -1, token_fd = -1;
->>>> +
->>>> +       err = create_and_enter_userns();
->>>> +       if (!ASSERT_OK(err, "create_and_enter_userns"))
->>>> +               goto cleanup;
->>>> +
->>>> +       err = unshare(CLONE_NEWNS);
->>>> +       if (!ASSERT_OK(err, "create_mountns"))
->>>> +               goto cleanup;
->>>> +
->>>> +       err = sys_mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, 0);
->>>> +       if (!ASSERT_OK(err, "remount_root"))
->>>> +               goto cleanup;
->>>> +
->>>> +       fs_fd = create_bpffs_fd();
->>>> +       if (!ASSERT_GE(fs_fd, 0, "create_bpffs_fd")) {
->>>> +               err = -EINVAL;
->>>> +               goto cleanup;
->>>> +       }
->>>> +
->>>> +       err = sendfd(sock_fd, fs_fd);
->>>> +       if (!ASSERT_OK(err, "send_fs_fd"))
->>>> +               goto cleanup;
->>>> +       zclose(fs_fd);
->>>> +
->>>> +       err = recvfd(sock_fd, &mnt_fd);
->>>> +       if (!ASSERT_OK(err, "recv_mnt_fd"))
->>>> +               goto cleanup;
->>>> +
->>>> +       bpffs_fd = openat(mnt_fd, ".", 0, O_RDWR);
->>>> +       if (!ASSERT_GE(bpffs_fd, 0, "bpffs_open")) {
->>>> +               err = -EINVAL;
->>>> +               goto cleanup;
->>>> +       }
->>>> +
->>>> +       err = callback(bpffs_fd);
->>>> +       if (!ASSERT_OK(err, "test_callback"))
->>>> +               goto cleanup;
->>>> +
->>>> +       err = 0;
->>>> +
->>>> +cleanup:
->>>> +       zclose(sock_fd);
->>>> +       zclose(mnt_fd);
->>>> +       zclose(fs_fd);
->>>> +       zclose(bpffs_fd);
->>>> +       zclose(token_fd);
->>>> +
->>>> +       exit(-err);
->>>> +}
->>>> +
->>>> +static int parent(int child_pid, struct bpffs_opts *bpffs_opts, int sock_fd)
->>>> +{
->>>> +       int fs_fd = -1, mnt_fd = -1, token_fd = -1, err;
->>>> +
->>>> +       err = recvfd(sock_fd, &fs_fd);
->>>> +       if (!ASSERT_OK(err, "recv_bpffs_fd"))
->>>> +               goto cleanup;
->>>> +
->>>> +       mnt_fd = materialize_bpffs_fd(fs_fd, bpffs_opts);
->>>> +       if (!ASSERT_GE(mnt_fd, 0, "materialize_bpffs_fd")) {
->>>> +               err = -EINVAL;
->>>> +               goto cleanup;
->>>> +       }
->>>> +       zclose(fs_fd);
->>>> +
->>>> +       err = sendfd(sock_fd, mnt_fd);
->>>> +       if (!ASSERT_OK(err, "send_mnt_fd"))
->>>> +               goto cleanup;
->>>> +       zclose(mnt_fd);
->>>> +
->>>> +       err = wait_for_pid(child_pid);
->>>> +       if (!ASSERT_OK(err, "waitpid_child")) {
->>>> +               err = -EINVAL;
->>>> +               goto cleanup;
->>>> +       }
->>>> +
->>>> +cleanup:
->>>> +       zclose(sock_fd);
->>>> +       zclose(fs_fd);
->>>> +       zclose(mnt_fd);
->>>> +       zclose(token_fd);
->>>> +
->>>> +       if (child_pid > 0)
->>>> +               (void)kill(child_pid, SIGKILL);
->>>> +
->>>> +       return err;
->>>> +}
->>>> +
->>>> +static int subtest(struct bpffs_opts *bpffs_opts, child_callback_fn child_cb)
->>>> +{
->>>> +       int sock_fds[2] = { -1, -1 };
->>>> +       int child_pid = 0, err;
->>>> +
->>>> +       err = socketpair(AF_UNIX, SOCK_STREAM, 0, sock_fds);
->>>> +       if (!ASSERT_OK(err, "socketpair"))
->>>> +               goto cleanup;
->>>> +
->>>> +       child_pid = fork();
->>>> +       if (!ASSERT_GE(child_pid, 0, "fork"))
->>>> +               goto cleanup;
->>>> +
->>>> +       if (child_pid == 0) {
->>>> +               zclose(sock_fds[0]);
->>>> +               return child(sock_fds[1], bpffs_opts, child_cb);
->>>> +       } else {
->>>> +               zclose(sock_fds[1]);
->>>> +               return parent(child_pid, bpffs_opts, sock_fds[0]);
->>>> +       }
->>>> +
->>>> +cleanup:
->>>> +       zclose(sock_fds[0]);
->>>> +       zclose(sock_fds[1]);
->>>> +       if (child_pid > 0)
->>>> +               (void)kill(child_pid, SIGKILL);
->>>> +
->>>> +       return -err;
->>>> +}
->>>> +
->>>> +static int userns_map_create(int mnt_fd)
->>>> +{
->>>> +       LIBBPF_OPTS(bpf_map_create_opts, map_opts);
->>>> +       int err = 0, token_fd = -1, map_fd = -1;
->>>> +
->>>> +       /* create BPF token from BPF FS mount */
->>>> +       token_fd = bpf_token_create(mnt_fd, NULL);
->>>> +       if (!ASSERT_GT(token_fd, 0, "userns_map_create/token_create")) {
->>>> +               err = -EINVAL;
->>>> +               goto cleanup;
->>>> +       }
->>>> +
->>>> +       map_opts.map_flags = BPF_F_TOKEN_FD;
->>>> +       map_opts.token_fd = token_fd;
->>>> +       map_fd = bpf_map_create(BPF_MAP_TYPE_STACK, "userns_map_create", 0, 8, 1,
->>>> +                               &map_opts);
->>>> +       if (!ASSERT_GT(map_fd, 0, "userns_map_create/bpf_map_create")) {
->>>> +               err = -EINVAL;
->>>> +               goto cleanup;
->>>> +       }
->>>> +
->>>> +cleanup:
->>>> +       zclose(token_fd);
->>>> +       zclose(map_fd);
->>>> +
->>>> +       if (err)
->>>> +               fprintf(stderr, "Failed to create BPF map with BPF token enabled: %s\n",
->>>> +                       strerror(errno));
->>>> +
->>>> +       return err;
->>>> +}
->>>> +
->>>> +static int userns_prog_load(int mnt_fd)
->>>> +{
->>>> +       LIBBPF_OPTS(bpf_prog_load_opts, prog_opts);
->>>> +       int err, token_fd = -1, prog_fd = -1;
->>>> +       struct bpf_insn insns[] = {
->>>> +               /* bpf_jiffies64() requires CAP_BPF */
->>>> +               BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_jiffies64),
->>>> +               /* bpf_get_current_task() requires CAP_PERFMON */
->>>> +               BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_get_current_task),
->>>> +               /* r0 = 0; exit; */
->>>> +               BPF_MOV64_IMM(BPF_REG_0, 0),
->>>> +               BPF_EXIT_INSN(),
->>>> +       };
->>>> +       size_t insn_cnt = ARRAY_SIZE(insns);
->>>> +
->>>> +       token_fd = bpf_token_create(mnt_fd, NULL);
->>>> +       if (!ASSERT_GT(token_fd, 0, "userns_prog_load/token_create")) {
->>>> +               err = -EINVAL;
->>>> +               goto cleanup;
->>>> +       }
->>>> +
->>>> +       prog_opts.prog_flags = BPF_F_TOKEN_FD;
->>>> +       prog_opts.token_fd = token_fd;
->>>> +       prog_opts.expected_attach_type = BPF_XDP;
->>>> +       prog_fd = bpf_prog_load(BPF_PROG_TYPE_XDP, "token_prog", "GPL",
->>>> +                               insns, insn_cnt, &prog_opts);
->>>> +       if (!ASSERT_GT(prog_fd, 0, "userns_prog_load/bpf_prog_load")) {
->>>> +               err = -EPERM;
->>>> +               goto cleanup;
->>>> +       }
->>>> +
->>>> +       err = 0;
->>>> +
->>>> +cleanup:
->>>> +       zclose(prog_fd);
->>>> +       zclose(token_fd);
->>>> +
->>>> +       if (err)
->>>> +               fprintf(stderr, "Failed to load BPF prog with token enabled: %s\n",
->>>> +                       strerror(errno));
->>>> +
->>>> +       return err;
->>>> +}
->>>> +
->>>> +int test_bpf_map_create(void)
->>>> +{
->>>> +       struct bpffs_opts opts = {
->>>> +               .cmds_str = "map_create",
->>>> +               .maps_str = "stack"
->>>> +       };
->>>> +
->>>> +       return subtest(&opts, userns_map_create);
->>>> +}
->>>> +
->>>> +int test_bpf_prog_load(void)
->>>> +{
->>>> +       struct bpffs_opts opts = {
->>>> +               .cmds_str = "prog_load",
->>>> +               .progs_str = "XDP",
->>>> +               .attachs_str = "xdp",
->>>> +       };
->>>> +
->>>> +       return subtest(&opts, userns_prog_load);
->>>> +}
->>>> --
->>>> 2.51.0.windows.1
->>>>
+An actual call stack is as follows:
+ => avc_compute_av
+ => avc_perm_nonode
+ => avc_has_perm_noaudit
+ => selinux_capable
+ => security_capable
+ => capable
+ => __sched_setscheduler
+ => do_sched_setscheduler
+ => __arm64_sys_sched_setscheduler
+ => invoke_syscall
+ => el0_svc_common
+ => do_el0_svc
+ => el0_svc
+ => el0t_64_sync_handler
+ => el0t_64_sync
+
+Although we can expand avc nodes through /sys/fs/selinux/cache_threshold
+to mitigate long time irqs off, hash conflicts make the bucket average
+length longer because of the fixed size of cache slots, leading to
+avc_search_node latency increase.
+
+Make avc cache slot size also configurable, and with fine tuning, we can
+mitigate long time irqs off with slightly avc_search_node performance
+regression.
+
+Theoretically‌, the main overhead is memory consumption.
+
+avc_search_node avg latency test results (about 100,000,000 times) on
+Qcom SM8750, 6.6.30-android15-8:
+
+Case 1:
++---------+---------------------+------------------------+
+|         | no-patch (512/512)  | with-patch (512/512)   |
++---------+---------------------+------------------------+
+| latency |        85 ns        |         87 ns          |
++---------+---------------------+------------------------+
+
+Case 2:
++---------+---------------------+------------------------+
+|         | no-patch (8192/512) | with-patch (8192/8192) |
++---------+---------------------+------------------------+
+| latency |        277 ns       |         106 ns         |
++---------+---------------------+------------------------+
+
+Case 1 shows 512 nodes configuration has ~2% performance regression
+with patch.
+Case 2 shows 8192 nodes configuration has ~61% latency benifit with
+patch.
+
+Signed-off-by: Hongru Zhang <zhanghongru@xiaomi.com>
+---
+ .../admin-guide/kernel-parameters.txt         |  4 ++
+ security/selinux/avc.c                        | 68 +++++++++++++------
+ 2 files changed, 50 insertions(+), 22 deletions(-)
+
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index 747a55abf494..70dc6d659117 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -6620,6 +6620,10 @@
+ 			1 -- enable.
+ 			Default value is 1.
+ 
++	selinux_avc_cache_slots= [SELINUX] Set the avc cache slot size.
++			Format: <int> (must be >0, power of 2)
++			Default: 512
++
+ 	serialnumber	[BUGS=X86-32]
+ 
+ 	sev=option[,option...] [X86-64]
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 430b0e23ee00..35f5436f5da0 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -34,7 +34,7 @@
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/avc.h>
+ 
+-#define AVC_CACHE_SLOTS			512
++int avc_cache_slots __ro_after_init = 512;
+ #define AVC_DEF_CACHE_THRESHOLD		512
+ #define AVC_CACHE_RECLAIM		16
+ 
+@@ -68,9 +68,13 @@ struct avc_xperms_node {
+ 	struct list_head xpd_head; /* list head of extended_perms_decision */
+ };
+ 
++struct avc_slot {
++	struct hlist_head	slot;		/* head for avc_node->list */
++	spinlock_t		slot_lock;	/* lock for writes */
++};
++
+ struct avc_cache {
+-	struct hlist_head	slots[AVC_CACHE_SLOTS]; /* head for avc_node->list */
+-	spinlock_t		slots_lock[AVC_CACHE_SLOTS]; /* lock for writes */
++	struct avc_slot		*slots;
+ 	atomic_t		lru_hint;	/* LRU hint for reclaim scan */
+ 	atomic_t		active_nodes;
+ 	u32			latest_notif;	/* latest revocation notification */
+@@ -93,14 +97,34 @@ struct selinux_avc {
+ 
+ static struct selinux_avc selinux_avc;
+ 
++static int __init set_selinux_avc_cache_slots(char *str)
++{
++	int val;
++
++	if ((kstrtoint(str, 0, &val)) || !is_power_of_2(val)) {
++		pr_warn("Unable to set selinux_avc_cache_slots, use default value\n");
++		return 1;
++	}
++
++	avc_cache_slots = val;
++
++	return 1;
++}
++__setup("selinux_avc_cache_slots=", set_selinux_avc_cache_slots);
++
+ void selinux_avc_init(void)
+ {
+ 	int i;
+ 
++	selinux_avc.avc_cache.slots =
++		kmalloc_array(avc_cache_slots, sizeof(struct avc_slot), GFP_KERNEL);
++	if (!selinux_avc.avc_cache.slots)
++		panic("SELinux: No memory to alloc avc cache slots\n");
++
+ 	selinux_avc.avc_cache_threshold = AVC_DEF_CACHE_THRESHOLD;
+-	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
+-		INIT_HLIST_HEAD(&selinux_avc.avc_cache.slots[i]);
+-		spin_lock_init(&selinux_avc.avc_cache.slots_lock[i]);
++	for (i = 0; i < avc_cache_slots; i++) {
++		INIT_HLIST_HEAD(&selinux_avc.avc_cache.slots[i].slot);
++		spin_lock_init(&selinux_avc.avc_cache.slots[i].slot_lock);
+ 	}
+ 	atomic_set(&selinux_avc.avc_cache.active_nodes, 0);
+ 	atomic_set(&selinux_avc.avc_cache.lru_hint, 0);
+@@ -124,7 +148,7 @@ static struct kmem_cache *avc_xperms_cachep __ro_after_init;
+ 
+ static inline u32 avc_hash(u32 ssid, u32 tsid, u16 tclass)
+ {
+-	return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (AVC_CACHE_SLOTS - 1);
++	return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (avc_cache_slots - 1);
+ }
+ 
+ /**
+@@ -150,8 +174,8 @@ int avc_get_hash_stats(char *page)
+ 
+ 	slots_used = 0;
+ 	max_chain_len = 0;
+-	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
+-		head = &selinux_avc.avc_cache.slots[i];
++	for (i = 0; i < avc_cache_slots; i++) {
++		head = &selinux_avc.avc_cache.slots[i].slot;
+ 		if (!hlist_empty(head)) {
+ 			slots_used++;
+ 			chain_len = 0;
+@@ -167,7 +191,7 @@ int avc_get_hash_stats(char *page)
+ 	return scnprintf(page, PAGE_SIZE, "entries: %d\nbuckets used: %d/%d\n"
+ 			 "longest chain: %d\n",
+ 			 atomic_read(&selinux_avc.avc_cache.active_nodes),
+-			 slots_used, AVC_CACHE_SLOTS, max_chain_len);
++			 slots_used, avc_cache_slots, max_chain_len);
+ }
+ 
+ /*
+@@ -463,11 +487,11 @@ static inline int avc_reclaim_node(void)
+ 	struct hlist_head *head;
+ 	spinlock_t *lock;
+ 
+-	for (try = 0, ecx = 0; try < AVC_CACHE_SLOTS; try++) {
++	for (try = 0, ecx = 0; try < avc_cache_slots; try++) {
+ 		hvalue = atomic_inc_return(&selinux_avc.avc_cache.lru_hint) &
+-			(AVC_CACHE_SLOTS - 1);
+-		head = &selinux_avc.avc_cache.slots[hvalue];
+-		lock = &selinux_avc.avc_cache.slots_lock[hvalue];
++			(avc_cache_slots - 1);
++		head = &selinux_avc.avc_cache.slots[hvalue].slot;
++		lock = &selinux_avc.avc_cache.slots[hvalue].slot_lock;
+ 
+ 		if (!spin_trylock_irqsave(lock, flags))
+ 			continue;
+@@ -524,7 +548,7 @@ static inline struct avc_node *avc_search_node(u32 ssid, u32 tsid, u16 tclass)
+ 	struct hlist_head *head;
+ 
+ 	hvalue = avc_hash(ssid, tsid, tclass);
+-	head = &selinux_avc.avc_cache.slots[hvalue];
++	head = &selinux_avc.avc_cache.slots[hvalue].slot;
+ 	hlist_for_each_entry_rcu(node, head, list) {
+ 		if (ssid == node->ae.ssid &&
+ 		    tclass == node->ae.tclass &&
+@@ -625,8 +649,8 @@ static void avc_insert(u32 ssid, u32 tsid, u16 tclass,
+ 	}
+ 
+ 	hvalue = avc_hash(ssid, tsid, tclass);
+-	head = &selinux_avc.avc_cache.slots[hvalue];
+-	lock = &selinux_avc.avc_cache.slots_lock[hvalue];
++	head = &selinux_avc.avc_cache.slots[hvalue].slot;
++	lock = &selinux_avc.avc_cache.slots[hvalue].slot_lock;
+ 	spin_lock_irqsave(lock, flag);
+ 	hlist_for_each_entry(pos, head, list) {
+ 		if (pos->ae.ssid == ssid &&
+@@ -846,8 +870,8 @@ static int avc_update_node(u32 event, u32 perms, u8 driver, u8 base_perm,
+ 	/* Lock the target slot */
+ 	hvalue = avc_hash(ssid, tsid, tclass);
+ 
+-	head = &selinux_avc.avc_cache.slots[hvalue];
+-	lock = &selinux_avc.avc_cache.slots_lock[hvalue];
++	head = &selinux_avc.avc_cache.slots[hvalue].slot;
++	lock = &selinux_avc.avc_cache.slots[hvalue].slot_lock;
+ 
+ 	spin_lock_irqsave(lock, flag);
+ 
+@@ -929,9 +953,9 @@ static void avc_flush(void)
+ 	unsigned long flag;
+ 	int i;
+ 
+-	for (i = 0; i < AVC_CACHE_SLOTS; i++) {
+-		head = &selinux_avc.avc_cache.slots[i];
+-		lock = &selinux_avc.avc_cache.slots_lock[i];
++	for (i = 0; i < avc_cache_slots; i++) {
++		head = &selinux_avc.avc_cache.slots[i].slot;
++		lock = &selinux_avc.avc_cache.slots[i].slot_lock;
+ 
+ 		spin_lock_irqsave(lock, flag);
+ 		/*
+-- 
+2.43.0
 
