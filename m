@@ -1,970 +1,390 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0358B305948
-	for <selinux@vger.kernel.org>; Fri,  5 Sep 2025 18:20:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from wind.enjellic.com (wind.enjellic.com [76.10.64.91])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E3015191F98;
+	Fri,  5 Sep 2025 22:15:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=76.10.64.91
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757096440; cv=none; b=EDU0gSHsn40KdzbqJ2Y3z5RWuSxUSwV1BiVtJQ8VNcuVLmEFseAXysLJycDz3gFB1p7iCT0OVLHmhEA3fTAKnYNYk5BaTEdmgtoscWMaDRePQVJzgUAR6I5ydT97NOoRhZOVFIlJ5IhOVrgKjwy/z1xu20qy19AzkAPnl87vwp4=
+	t=1757110541; cv=none; b=Hux0Ef6tzjydYc9P/ATWtn6AK/5qfeHWcOND/jXybp2hqI0kj3pb97Haac2s3YhJVsNYDc/qcHNqjvWmgp8UVduk9Y+tWwm6FqSB7gxd1hLGCK/Q0zf07oXNA8uFmMM62FdKxPDFPCBJnzGYXEtOv9/Rwtx1wBmSfbOBpMzFfpk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757096440; c=relaxed/simple;
-	bh=dB3oJlxuHi/7MiLpPq0Wobywolc6xkn8pAtFSGX0LSE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GTU4G8bAsoNFIAxhlZatBBKj8fiqdUVeeWh8uNoa8f5BYqZUXOlRqa4oaPWkjv/is3jzAQlp8CH4RIoKuydBNHu0iS/KpUoD+wR58s0Qq5KP2hQ5BQe0dhJecFCRxx4+dbHa+WHYWsc4vUB/u3przI99NkVi/gN2emDiMLMntcU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=BiLInWmB; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="BiLInWmB"
-Received: from ericsu-dev1 (unknown [131.107.1.202])
-	by linux.microsoft.com (Postfix) with ESMTPSA id 91B5120171D8;
-	Fri,  5 Sep 2025 11:13:16 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 91B5120171D8
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1757095996;
-	bh=9JGeDg4lQiRzdg0K6RY7FhcpqoPd+QYj0VIKdt5A7Fo=;
-	h=From:To:Cc:Subject:Date:From;
-	b=BiLInWmBVcaZ/n0IFkcMmkP/XbQTjTxi7L2RHSGzhaQBgLlExRnhxUwe81r9Gm3N3
-	 Ppn353k66E+Yj1Shmw12BhdtLg1I2BuOg2fOC9DBtqG/3EUPe4m+dG4ZFBMXWQzGZy
-	 Ch/Ph0wbMpphNAgcXb0+KINMbJmK7BEx+3IHgEIA=
-From: Eric Suen <ericsu@linux.microsoft.com>
-To: selinux@vger.kernel.org
-Cc: paul@paul-moore.com,
-	stephen.smalley.work@gmail.com,
-	omosnace@redhat.com,
-	danieldurning.work@gmail.com
-Subject: [PATCH] tests/bpf: Add tests for SELinux BPF token access control
-Date: Fri,  5 Sep 2025 11:13:13 -0700
-Message-ID: <20250905181314.59-1-ericsu@linux.microsoft.com>
-X-Mailer: git-send-email 2.51.0.windows.1
+	s=arc-20240116; t=1757110541; c=relaxed/simple;
+	bh=d/mKyr4rXN2CeC+eU4S4t7dwzeVxFlw5NccVZjZ8jM8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Mime-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=i9xfSnVvS1x+ftg74QfTtsaLdmRjbXP4yLWigiPThQ/QrKInRcCXtDF2T1OP21D41cZsCU0HrEgwIiuYmtAeapSJ6aO23BU34yUxaHEccRRt/Y/1cqqM+lGsVF2JJ8iJHIaBJyPNASod2vzIxZDW1OepMISB+3jRUj+/VFVLIbQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enjellic.com; spf=pass smtp.mailfrom=wind.enjellic.com; arc=none smtp.client-ip=76.10.64.91
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enjellic.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wind.enjellic.com
+Received: from wind.enjellic.com (localhost [127.0.0.1])
+	by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id 585MF0Mw001261;
+	Fri, 5 Sep 2025 17:15:00 -0500
+Received: (from greg@localhost)
+	by wind.enjellic.com (8.15.2/8.15.2/Submit) id 585MEuaZ001260;
+	Fri, 5 Sep 2025 17:14:56 -0500
+Date: Fri, 5 Sep 2025 17:14:56 -0500
+From: "Dr. Greg" <greg@enjellic.com>
+To: John Johansen <john.johansen@canonical.com>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Paul Moore <paul@paul-moore.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: LSM namespacing API
+Message-ID: <20250905221456.GA1206@wind.enjellic.com>
+Reply-To: "Dr. Greg" <greg@enjellic.com>
+References: <CAHC9VhRGMmhxbajwQNfGFy+ZFF1uN=UEBjqQZQ4UBy7yds3eVQ@mail.gmail.com> <CAEjxPJ5EvR+2fboLu_nBGZu+ZVUpX4KM6xdPUqDErCmw=iA37g@mail.gmail.com> <67e72960-c985-48e1-aaeb-a4286cc8508f@canonical.com> <aKcskclwVVe1X4kP@mail.hallyn.com> <6c69fc81-32a7-442c-8c7f-992eda9c2d18@canonical.com> <20250901160102.GA9179@wind.enjellic.com> <fc3aadf1-9598-4fc2-bdb9-290df425b5d8@canonical.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <fc3aadf1-9598-4fc2-bdb9-290df425b5d8@canonical.com>
+User-Agent: Mutt/1.4i
+X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Fri, 05 Sep 2025 17:15:00 -0500 (CDT)
 
-This patch adds new tests to verify the SELinux support for BPF token
-access control, as introduced in the corresponding kernel patch:
-  https://lore.kernel.org/selinux/20250816201420.197-1-ericsu@linux.microsoft.com/
+On Tue, Sep 02, 2025 at 03:55:39AM -0700, John Johansen wrote:
 
-Note that new tests require changes in libsepol which is covered in
-  https://lore.kernel.org/selinux/20250808183506.665-1-ericsu@linux.microsoft.com/
+Hi, I hope the week has gone well for everyone.
 
-Four new tests are added to cover both positive and negative scenarios,
-ensuring that the SELinux policy enforcement on BPF token usage behaves
-as expected.
-  - Successful map_create and prog_load when SELinux permissions are
-    granted.
-  - Enforcement of SELinux policy restrictions when access is denied.
+> On 9/1/25 09:01, Dr. Greg wrote:
+> >On Thu, Aug 21, 2025 at 07:57:11AM -0700, John Johansen wrote:
+> >
+> >Good morning, I hope the week is starting well for everyone.
+> >
+> >Now that everyone is getting past the summer holiday season, it would
+> >seem useful to specifically clarify some of the LSM namespace
+> >implementation details.
+> >
+> >>On 8/21/25 07:26, Serge E. Hallyn wrote:
+> >>>On Thu, Aug 21, 2025 at 12:46:10AM -0700, John Johansen wrote:
+> >>>>On 8/19/25 10:47, Stephen Smalley wrote:
+> >>>>>On Tue, Aug 19, 2025 at 10:56???AM Paul Moore <paul@paul-moore.com>
+> >>>>>wrote:
+> >>>>>>
+> >>>>>>Hello all,
+> >>>>>>
+> >>>>>>As most of you are likely aware, Stephen Smalley has been working on
+> >>>>>>adding namespace support to SELinux, and the work has now progressed
+> >>>>>>to the point where a serious discussion on the API is warranted.  For
+> >>>>>>those of you are unfamiliar with the details or Stephen's patchset, or
+> >>>>>>simply need a refresher, he has some excellent documentation in his
+> >>>>>>work-in-progress repo:
+> >>>>>>
+> >>>>>>* https://github.com/stephensmalley/selinuxns
+> >>>>>>
+> >>>>>>Stephen also gave a (pre-recorded) presentation at LSS-NA this year
+> >>>>>>about SELinux namespacing, you can watch the presentation here:
+> >>>>>>
+> >>>>>>* https://www.youtube.com/watch?v=AwzGCOwxLoM
+> >>>>>>
+> >>>>>>In the past you've heard me state, rather firmly at times, that I
+> >>>>>>believe namespacing at the LSM framework layer to be a mistake,
+> >>>>>>although if there is something that can be done to help facilitate the
+> >>>>>>namespacing of individual LSMs at the framework layer, I would be
+> >>>>>>supportive of that.  I think that a single LSM namespace API, similar
+> >>>>>>to our recently added LSM syscalls, may be such a thing, so I'd like
+> >>>>>>us to have a discussion to see if we all agree on that, and if so,
+> >>>>>>what such an API might look like.
+> >>>>>>
+> >>>>>>At LSS-NA this year, John Johansen and I had a brief discussion where
+> >>>>>>he suggested a single LSM wide clone*(2) flag that individual LSM's
+> >>>>>>could opt into via callbacks.  John is directly CC'd on this mail, so
+> >>>>>>I'll let him expand on this idea.
+> >>>>>>
+> >>>>>>While I agree with John that a fs based API is problematic (see all of
+> >>>>>>our discussions around the LSM syscalls), I'm concerned that a single
+> >>>>>>clone*(2) flag will significantly limit our flexibility around how
+> >>>>>>individual LSMs are namespaced, something I don't want to see happen.
+> >>>>>>This makes me wonder about the potential for expanding
+> >>>>>>lsm_set_self_attr(2) to support a new LSM attribute that would support
+> >>>>>>a namespace "unshare" operation, e.g. LSM_ATTR_UNSHARE.  This would
+> >>>>>>provide a single LSM framework API for an unshare operation while also
+> >>>>>>providing a mechanism to pass LSM specific via the lsm_ctx struct if
+> >>>>>>needed.  Just as we do with the other LSM_ATTR_* flags today,
+> >>>>>>individual LSMs can opt-in to the API fairly easily by providing a
+> >>>>>>setselfattr() LSM callback.
+> >>>>>>
+> >>>>>>Thoughts?
+> >>>>>
+> >>>>>I think we want to be able to unshare a specific security module
+> >>>>>namespace without unsharing the others, i.e. just SELinux or just
+> >>>>>AppArmor.
+> >>>>
+> >>>>yes which is part of the problem with the single flag. That choice
+> >>>>would be entirely at the policy level, without any input from userspace.
+> >>>
+> >>>AIUI Paul's suggestion is the user can pre-set the details of which
+> >>>lsms to unshare and how with the lsm_set_self_attr(), and then a
+> >>>single CLONE_LSM effects that.
+> >
+> >>yes, I was specifically addressing the conversation I had with Paul at
+> >>LSS that Paul brought up. That is
+> >>
+> >>   At LSS-NA this year, John Johansen and I had a brief discussion where
+> >>   he suggested a single LSM wide clone*(2) flag that individual LSM's
+> >>   could opt into via callbacks.
+> >>
+> >>the idea there isn't all that different than what Paul proposed. You
+> >>could have a single flag, if you can provide ancillary information. But
+> >>a single flag on its own isn't sufficient.
+> >
+> >If one thing has come out of this thread, it would seem to be the fact
+> >that there is going to be little commonality in the requirements that
+> >various LSM's will have for the creation of a namespace.
 
-For testing purposes, you can update the base policy by manually
-modifying your base module and tweaking /usr/share/selinux/devel as
-follows:
-  sudo semodule -c -E base
-  sudo cp base.cil base.cil.orig
-  sudo sed -i "s/map_create/map_create map_create_as/" base.cil
-  sudo sed -i "s/prog_load/prog_load prog_load_as/" base.cil
-  sudo semodule -i base.cil
-  echo "(policycap bpf_token_perms)" > bpf_token_perms.cil
-  sudo semodule -i bpf_token_perms.cil
-  sudo cp /usr/share/selinux/devel/include/support/all_perms.spt \
-      /usr/share/selinux/devel/include/support/all_perms.spt.orig
-  sudo sed -i "s/map_create/map_create map_create_as/" \
-      /usr/share/selinux/devel/include/support/all_perms.spt
-  sudo sed -i "s/prog_load/prog_load prog_load_as/" \
-      /usr/share/selinux/devel/include/support/all_perms.spt
+> yes
 
-When finished testing, you can semodule -r base bpf_token_perms to
-undo the two module changes and restore your all_perms.spt file from
-the saved .orig file.
+Given that and the conversations to date, the open question may be
+whether there needs to be a common 'LSM namespace' infrastructure at
+all or just punt everything to LSM's that choose to implement
+namespaces.
 
-Signed-off-by: Eric Suen <ericsu@linux.microsoft.com>
-Tested-by: Daniel Durning <danieldurning.work@gmail.com>
----
-Changes in v2:
-- Removed allow rule for 'kernel_t' in test_bpf.te which was added due
-  to a bug in the kernel
-- Cleaned up other unnecessary rules in test_bpf.te
-- Added token_test.c which was missing from previous patch
+> >Given that, the most infrastructure that the LSM should provide would
+> >be a common API for a resource orchestrator to request namespace
+> >separation and to provide a framework for configuring the namespace
+> >prior to when execution begins in the context of the namespace.
 
-Changes in v3:
-- Added original license in 'token_test.c'
-- Updated patch description to
-    - replace 'base.sil' with 'base.cil'
-    - Remove extra quotation mark in 'sudo 'sed -i "s/"map_create'
+> hrmmm, certainly a common API. Any task could theoretically use the API
+> it doesn't have to be a resource orchestrator, but I suppose you could
+> call it such.
 
-Changes in v4:
-- Updated 'token_test.c' to write error messages only when DEBUG
-  is defined
+No argument that any task could call for separation.
 
-Changes in v5:
-- Created test_bpf_token.te which gets loaded when required bpf
-  permissions (i.e. map_create_as, prog_load_as) are available, and
-  policy capability (i.e. bpf_token_perms) is defined
-- Added condition in tests/bpf/test to run new tests when policy
-  capability bpf_token_perms is defined
+We seem to be dancing around the notion that the primary use, nee
+demand, for a security namespace will be to allow container specific
+security policies.  In that scenario, the resource orchestrator or
+container runtime will be what is requesting a specific security
+model to be implemented in a namespace.
 
- policy/Makefile          |   7 +
- policy/test_bpf_token.te |  42 +++
- tests/bpf/Makefile       |   5 +-
- tests/bpf/bpf_common.h   |  10 +
- tests/bpf/bpf_test.c     |  59 +++--
- tests/bpf/test           |  35 +++
- tests/bpf/token_test.c   | 559 +++++++++++++++++++++++++++++++++++++++
- 7 files changed, 699 insertions(+), 18 deletions(-)
- create mode 100644 policy/test_bpf_token.te
- create mode 100644 tests/bpf/token_test.c
+> I also dont know that we need to provide a framework for configuring
+> the namespace prior to when execcution begins in the context of the
+> namespace. It might be a nice to have, but configuring of LSMs is
+> very LSM specific.
+>
+> We don't even have a common LSM policy load interface atm, though there
+> is a proposal. Configuration is a step beyond that. Would it be nice
+> to have, sure. Are we going to get that far, I don't know.
 
-diff --git a/policy/Makefile b/policy/Makefile
-index ffd774d..d45afb9 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -105,6 +105,13 @@ ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt && echo true),
- TARGETS += test_bpf.te test_fdreceive_bpf.te test_binder_bpf.te
- endif
- 
-+# bpf token test dependencies: policy >= 30, bpf permission, bpf_token capability
-+ifeq ($(shell [ -f /sys/fs/selinux/class/bpf/perms/map_create_as ] && [ -f /sys/fs/selinux/class/bpf/perms/prog_load_as ] && echo true),true)
-+ifeq ($(shell [ -f $(SELINUXFS)/policy_capabilities/bpf_token_perms ] && grep -q 1 $(SELINUXFS)/policy_capabilities/bpf_token_perms && echo true),true)
-+TARGETS += test_bpf_token.te
-+endif
-+endif
-+
- ifeq ($(shell grep -q all_key_perms $(POLDEV)/include/support/all_perms.spt && echo true),true)
- TARGETS += test_keys.te test_watchkey.te
- endif
-diff --git a/policy/test_bpf_token.te b/policy/test_bpf_token.te
-new file mode 100644
-index 0000000..4d209ba
---- /dev/null
-+++ b/policy/test_bpf_token.te
-@@ -0,0 +1,42 @@
-+########################################
-+#
-+# Policy for testing BPF map create and program load with BPF token
-+
-+################### Allow map_create_as and prog_load_as ###################
-+fs_list_bpf_dirs(test_bpf_t)
-+allow test_bpf_t bpf_t:filesystem mount;
-+allow test_bpf_t root_t:dir mounton;
-+allow test_bpf_t self:bpf { map_create_as prog_load_as };
-+allow test_bpf_t self:cap2_userns { bpf perfmon };
-+allow test_bpf_t self:cap_userns { net_admin setgid setuid sys_admin };
-+allow test_bpf_t self:user_namespace create;
-+
-+############################ Deny map_create_as ############################
-+type test_bpf_deny_map_create_as_t;
-+testsuite_domain_type(test_bpf_deny_map_create_as_t)
-+typeattribute test_bpf_deny_map_create_as_t bpfdomain;
-+allow test_bpf_deny_map_create_as_t self:process { setrlimit };
-+allow test_bpf_deny_map_create_as_t self:capability { sys_resource sys_admin };
-+
-+fs_list_bpf_dirs(test_bpf_deny_map_create_as_t)
-+allow test_bpf_deny_map_create_as_t bpf_t:filesystem mount;
-+allow test_bpf_deny_map_create_as_t root_t:dir mounton;
-+allow test_bpf_deny_map_create_as_t self:bpf { map_create map_read map_write prog_load prog_load_as };
-+allow test_bpf_deny_map_create_as_t self:cap2_userns { bpf };
-+allow test_bpf_deny_map_create_as_t self:cap_userns { setgid setuid sys_admin };
-+allow test_bpf_deny_map_create_as_t self:user_namespace create;
-+
-+############################ Deny prog_load_as #############################
-+type test_bpf_deny_prog_load_as_t;
-+testsuite_domain_type(test_bpf_deny_prog_load_as_t)
-+typeattribute test_bpf_deny_prog_load_as_t bpfdomain;
-+allow test_bpf_deny_prog_load_as_t self:process { setrlimit };
-+allow test_bpf_deny_prog_load_as_t self:capability { sys_resource sys_admin };
-+
-+fs_list_bpf_dirs(test_bpf_deny_prog_load_as_t)
-+allow test_bpf_deny_prog_load_as_t bpf_t:filesystem mount;
-+allow test_bpf_deny_prog_load_as_t root_t:dir mounton;
-+allow test_bpf_deny_prog_load_as_t self:bpf { map_create map_create_as map_read map_write prog_load };
-+allow test_bpf_deny_prog_load_as_t self:cap2_userns { bpf perfmon };
-+allow test_bpf_deny_prog_load_as_t self:cap_userns { net_admin setgid setuid sys_admin };
-+allow test_bpf_deny_prog_load_as_t self:user_namespace create;
-diff --git a/tests/bpf/Makefile b/tests/bpf/Makefile
-index 1ae8ce9..cacefbe 100644
---- a/tests/bpf/Makefile
-+++ b/tests/bpf/Makefile
-@@ -1,5 +1,5 @@
- TARGETS = bpf_test
--DEPS = bpf_common.c bpf_common.h
-+SRCS = bpf_test.c bpf_common.c token_test.c
- LDLIBS += -lselinux -lbpf
- 
- # export so that BPF_ENABLED entries get built correctly on local build
-@@ -14,4 +14,5 @@ clean:
- 	rm -f $(TARGETS) test_sock flag *_flag
- 	@set -e; for i in $(BPF_ENABLED); do $(MAKE) -C $$i clean ; done
- 
--$(TARGETS): $(DEPS)
-+$(TARGETS): $(SRCS)
-+	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
-\ No newline at end of file
-diff --git a/tests/bpf/bpf_common.h b/tests/bpf/bpf_common.h
-index 44ac28f..adba522 100644
---- a/tests/bpf/bpf_common.h
-+++ b/tests/bpf/bpf_common.h
-@@ -12,6 +12,8 @@
- extern int create_bpf_map(void);
- extern int create_bpf_prog(void);
- extern void bpf_setrlimit(void);
-+extern int test_bpf_map_create(void);
-+extern int test_bpf_prog_load(void);
- 
- /* edited eBPF instruction library */
- /* Short form of mov, dst_reg = imm32 */
-@@ -32,3 +34,11 @@ extern void bpf_setrlimit(void);
- 					       .off   = 0,			\
- 							.imm   = 0 })
- 
-+/* Raw code statement block */
-+#define BPF_RAW_INSN(CODE, DST, SRC, OFF, IMM)			\
-+	((struct bpf_insn) {					\
-+		.code  = CODE,					\
-+			.dst_reg = DST,					\
-+				.src_reg = SRC,					\
-+					.off   = OFF,					\
-+						.imm   = IMM })
-diff --git a/tests/bpf/bpf_test.c b/tests/bpf/bpf_test.c
-index 3c6a29c..a8dc383 100644
---- a/tests/bpf/bpf_test.c
-+++ b/tests/bpf/bpf_test.c
-@@ -1,28 +1,38 @@
- #include "bpf_common.h"
- 
-+#define write_verbose(verbose, fmt, ...) \
-+	do { \
-+		if (verbose) \
-+			printf(fmt "\n", ##__VA_ARGS__); \
-+	} while (0)
-+
- static void usage(char *progname)
- {
- 	fprintf(stderr,
--		"usage:  %s -m|-p [-v]\n"
-+		"usage:  %s -m|-p|-c|-l [-v]\n"
- 		"Where:\n\t"
- 		"-m    Create BPF map fd\n\t"
- 		"-p    Create BPF prog fd\n\t"
-+		"-c    Test BPF token map create\n\t"
-+		"-l    Test BPF token program load\n\t"
- 		"-v Print information.\n", progname);
- 	exit(-1);
- }
- 
- int main(int argc, char *argv[])
- {
--	int opt, result, fd;
--	bool verbose = false;
-+	int opt, result, ret;
-+	bool verbose = false, is_fd = true;
- 	char *context;
- 
- 	enum {
- 		MAP_FD = 1,
--		PROG_FD
-+		PROG_FD,
-+		MAP_CREATE,
-+		PROG_LOAD,
- 	} bpf_fd_type;
- 
--	while ((opt = getopt(argc, argv, "mpv")) != -1) {
-+	while ((opt = getopt(argc, argv, "mpclv")) != -1) {
- 		switch (opt) {
- 		case 'm':
- 			bpf_fd_type = MAP_FD;
-@@ -30,6 +40,12 @@ int main(int argc, char *argv[])
- 		case 'p':
- 			bpf_fd_type = PROG_FD;
- 			break;
-+		case 'c':
-+			bpf_fd_type = MAP_CREATE;
-+			break;
-+		case 'l':
-+			bpf_fd_type = PROG_LOAD;
-+			break;
- 		case 'v':
- 			verbose = true;
- 			break;
-@@ -44,8 +60,7 @@ int main(int argc, char *argv[])
- 		exit(-1);
- 	}
- 
--	if (verbose)
--		printf("Process context:\n\t%s\n", context);
-+	write_verbose(verbose, "Process context:\n\n%s", context);
- 
- 	free(context);
- 
-@@ -54,24 +69,36 @@ int main(int argc, char *argv[])
- 
- 	switch (bpf_fd_type) {
- 	case MAP_FD:
--		if (verbose)
--			printf("Creating BPF map\n");
-+		write_verbose(verbose, "Creating BPF map");
- 
--		fd = create_bpf_map();
-+		ret = create_bpf_map();
- 		break;
- 	case PROG_FD:
--		if (verbose)
--			printf("Creating BPF prog\n");
-+		write_verbose(verbose, "Creating BPF prog");
-+
-+		ret = create_bpf_prog();
-+		break;
-+	case MAP_CREATE:
-+		is_fd = false;
-+		write_verbose(verbose, "Testing BPF map create");
-+
-+		ret = test_bpf_map_create();
-+		break;
-+	case PROG_LOAD:
-+		is_fd = false;
-+		write_verbose(verbose, "Testing BPF prog load");
- 
--		fd = create_bpf_prog();
-+		ret = test_bpf_prog_load();
- 		break;
- 	default:
- 		usage(argv[0]);
- 	}
- 
--	if (fd < 0)
--		return fd;
-+	if (ret < 0)
-+		return ret;
-+
-+	if (is_fd)
-+		close(ret);
- 
--	close(fd);
- 	return 0;
- }
-diff --git a/tests/bpf/test b/tests/bpf/test
-index a3fd856..287576e 100755
---- a/tests/bpf/test
-+++ b/tests/bpf/test
-@@ -6,12 +6,25 @@ BEGIN {
-     $basedir =~ s|(.*)/[^/]*|$1|;
-     $fdr_basedir    = "$basedir/../fdreceive";
-     $binder_basedir = "$basedir/../binder";
-+    $test_bpf_token = 0;
- 
-     $test_bpf_count       = 7;
-     $test_fdreceive_count = 4;
- 
-     $test_count = $test_bpf_count + $test_fdreceive_count;
- 
-+    if (
-+        system(
-+"grep -q 1 /sys/fs/selinux/policy_capabilities/bpf_token_perms 2> /dev/null"
-+        ) == 0
-+      )
-+    {
-+        $test_bpf_token = 1;
-+
-+        $test_bpf_token_count = 4;
-+        $test_count += $test_bpf_token_count;
-+    }
-+
-     # allow info to be shown during tests
-     $v = $ARGV[0];
-     if ($v) {
-@@ -92,6 +105,28 @@ $result =
-   system "runcon -t test_bpf_deny_prog_run_t $basedir/bpf_test -p $v 2>&1";
- ok($result);
- 
-+if ($test_bpf_token) {
-+
-+    # BPF token - BPF_MAP_CREATE_AS, BPF_PROG_LOAD_AS
-+    $result = system "runcon -t test_bpf_t $basedir/bpf_test -c $v";
-+    ok( $result eq 0 );
-+
-+    $result = system "runcon -t test_bpf_t $basedir/bpf_test -l $v";
-+    ok( $result eq 0 );
-+
-+    # BPF token - deny BPF_MAP_CREATE_AS
-+    $result =
-+      system
-+      "runcon -t test_bpf_deny_map_create_as_t $basedir/bpf_test -c $v 2>&1";
-+    ok($result);
-+
-+    # BPF token - deny BPF_PROG_LOAD_AS
-+    $result =
-+      system
-+      "runcon -t test_bpf_deny_prog_load_as_t $basedir/bpf_test -l $v 2>&1";
-+    ok($result);
-+}
-+
- #
- ################ BPF Tests for fdreceive #######################
- #
-diff --git a/tests/bpf/token_test.c b/tests/bpf/token_test.c
-new file mode 100644
-index 0000000..64f5222
---- /dev/null
-+++ b/tests/bpf/token_test.c
-@@ -0,0 +1,559 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/* Code derived from: linux/source/tools/testing/selftests/bpf/prog_tests/token.c
-+ * Copyright (c) 2023 Meta Platforms, Inc. and affiliates.
-+ */
-+
-+#include "bpf_common.h"
-+#include "signal.h"
-+#include "linux/mount.h"
-+#include <linux/unistd.h>
-+#include "sys/wait.h"
-+#include "sys/socket.h"
-+#include "fcntl.h"
-+#include "sched.h"
-+#include <bpf/btf.h>
-+
-+#define bit(n) (1ULL << (n))
-+
-+#define zclose(fd) do { if (fd >= 0) close(fd); fd = -1; } while (0)
-+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-+
-+#ifdef DEBUG
-+#define _CHECK(condition, format...) ({    \
-+	int __ret = !!(condition); \
-+	int __save_errno = errno;   \
-+	if (__ret) {    \
-+		fprintf(stderr, ##format);   \
-+	}   \
-+	errno = __save_errno;   \
-+	__ret;  \
-+})
-+#else
-+#define _CHECK(condition, format...) ({    \
-+	int __ret = !!(condition); \
-+	__ret;  \
-+})
-+#endif
-+
-+#define ASSERT_OK(res, name) ({     \
-+	long long ___res = (res);       \
-+	bool ___ok = ___res == 0;       \
-+	_CHECK(!___ok, \
-+			"%s failed. unexpected error: %lld (errno %d)\n",  \
-+			 name, ___res, errno);  \
-+	___ok;                          \
-+})
-+
-+#define ASSERT_GT(actual, expected, name) ({    \
-+	typeof(actual) ___act = (actual);   \
-+	typeof(expected) ___exp = (expected);   \
-+	bool ___ok = ___act > ___exp;       \
-+	_CHECK(!___ok,  \
-+			"unexpected %s: actual %lld <= expected %lld (errno %d)\n",   \
-+			(name), (long long)(___act), (long long)(___exp), errno);  \
-+	___ok;  \
-+})
-+
-+#define ASSERT_GE(actual, expected, name) ({    \
-+	typeof(actual) ___act = (actual);       \
-+	typeof(expected) ___exp = (expected);   \
-+	bool ___ok = ___act >= ___exp;          \
-+	_CHECK(!___ok,  \
-+			"unexpected %s: actual %lld < expected %lld (errno %d)\n",   \
-+			(name), (long long)(___act), (long long)(___exp), errno);          \
-+	___ok;  \
-+})
-+
-+#define ASSERT_EQ(actual, expected, name) ({    \
-+	typeof(actual) ___act = (actual);           \
-+	typeof(expected) ___exp = (expected);       \
-+	bool ___ok = ___act == ___exp;              \
-+	_CHECK(!___ok,   \
-+			"unexpected %s: actual %lld != expected %lld (errno %d)\n",   \
-+			(name), (long long)(___act), (long long)(___exp), errno);          \
-+	___ok;  \
-+})
-+
-+#define ASSERT_OK_PTR(ptr, name) ({     \
-+	const void *___res = (ptr);         \
-+	int ___err = libbpf_get_error(___res);  \
-+	bool ___ok = ___err == 0;           \
-+	_CHECK(!___ok,  \
-+			"%s unexpected error: %d\n", name, ___err);  \
-+	___ok;      \
-+})
-+
-+struct bpffs_opts {
-+	__u64 cmds;
-+	__u64 maps;
-+	__u64 progs;
-+	__u64 attachs;
-+	const char *cmds_str;
-+	const char *maps_str;
-+	const char *progs_str;
-+	const char *attachs_str;
-+};
-+
-+typedef int (*child_callback_fn)(int bpffs_fd);
-+
-+static inline int sys_mount(const char *dev_name, const char *dir_name,
-+			    const char *type, unsigned long flags,
-+			    const void *data)
-+{
-+	return syscall(__NR_mount, dev_name, dir_name, type, flags, data);
-+}
-+
-+static inline int sys_fsopen(const char *fsname, unsigned int flags)
-+{
-+	return syscall(__NR_fsopen, fsname, flags);
-+}
-+
-+static inline int sys_fsconfig(int fs_fd, unsigned int cmd, const char *key,
-+			       const void *val, int aux)
-+{
-+	return syscall(__NR_fsconfig, fs_fd, cmd, key, val, aux);
-+}
-+
-+static inline int sys_fsmount(int fs_fd, unsigned int flags,
-+			      unsigned int ms_flags)
-+{
-+	return syscall(__NR_fsmount, fs_fd, flags, ms_flags);
-+}
-+
-+static int set_delegate_mask(int fs_fd, const char *key, __u64 mask,
-+			     const char *mask_str)
-+{
-+	char buf[32];
-+	int err;
-+
-+	if (!mask_str) {
-+		if (mask == ~0ULL) {
-+			mask_str = "any";
-+		} else {
-+			snprintf(buf, sizeof(buf), "0x%llx", (unsigned long long)mask);
-+			mask_str = buf;
-+		}
-+	}
-+
-+	err = sys_fsconfig(fs_fd, FSCONFIG_SET_STRING, key,
-+			   mask_str, 0);
-+	if (err < 0)
-+		err = -errno;
-+	return err;
-+}
-+
-+static int create_bpffs_fd(void)
-+{
-+	int fs_fd;
-+
-+	/* create VFS context */
-+	fs_fd = sys_fsopen("bpf", 0);
-+	ASSERT_GE(fs_fd, 0, "fs_fd");
-+
-+	return fs_fd;
-+}
-+
-+static int materialize_bpffs_fd(int fs_fd, struct bpffs_opts *opts)
-+{
-+	int mnt_fd, err;
-+
-+	/* set up token delegation mount options */
-+	err = set_delegate_mask(fs_fd, "delegate_cmds", opts->cmds, opts->cmds_str);
-+	if (!ASSERT_OK(err, "fs_cfg_cmd"))
-+		return err;
-+	err = set_delegate_mask(fs_fd, "delegate_maps", opts->maps, opts->maps_str);
-+	if (!ASSERT_OK(err, "fs_cfg_maps"))
-+		return err;
-+	err = set_delegate_mask(fs_fd, "delegate_progs", opts->progs, opts->progs_str);
-+	if (!ASSERT_OK(err, "fs_cfg_progs"))
-+		return err;
-+	err = set_delegate_mask(fs_fd, "delegate_attachs", opts->attachs,
-+				opts->attachs_str);
-+	if (!ASSERT_OK(err, "fs_cfg_attachs"))
-+		return err;
-+
-+	/* instantiate FS object */
-+	err = sys_fsconfig(fs_fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0);
-+	if (err < 0)
-+		return -errno;
-+
-+	/* create O_PATH fd for detached mount */
-+	mnt_fd = sys_fsmount(fs_fd, 0, 0);
-+	if (err < 0)
-+		return -errno;
-+
-+	return mnt_fd;
-+}
-+
-+static ssize_t write_nointr(int fd, const void *buf, size_t count)
-+{
-+	ssize_t ret;
-+
-+	do {
-+		ret = write(fd, buf, count);
-+	} while (ret < 0 && errno == EINTR);
-+
-+	return ret;
-+}
-+
-+static int write_file(const char *path, const void *buf, size_t count)
-+{
-+	int fd;
-+	ssize_t ret;
-+
-+	fd = open(path, O_WRONLY | O_CLOEXEC | O_NOCTTY | O_NOFOLLOW);
-+	if (fd < 0)
-+		return -1;
-+
-+	ret = write_nointr(fd, buf, count);
-+	close(fd);
-+	if (ret < 0 || (size_t)ret != count)
-+		return -1;
-+
-+	return 0;
-+}
-+
-+static int create_and_enter_userns(void)
-+{
-+	uid_t uid;
-+	gid_t gid;
-+	char map[100];
-+
-+	uid = getuid();
-+	gid = getgid();
-+
-+	if (unshare(CLONE_NEWUSER))
-+		return -1;
-+
-+	if (write_file("/proc/self/setgroups", "deny", sizeof("deny") - 1) &&
-+	    errno != ENOENT)
-+		return -1;
-+
-+	snprintf(map, sizeof(map), "0 %d 1", uid);
-+	if (write_file("/proc/self/uid_map", map, strlen(map)))
-+		return -1;
-+
-+
-+	snprintf(map, sizeof(map), "0 %d 1", gid);
-+	if (write_file("/proc/self/gid_map", map, strlen(map)))
-+		return -1;
-+
-+	if (setgid(0))
-+		return -1;
-+
-+	if (setuid(0))
-+		return -1;
-+
-+	return 0;
-+}
-+
-+static int sendfd(int sockfd, int fd)
-+{
-+	struct msghdr msg = {};
-+	struct cmsghdr *cmsg;
-+	int fds[1] = { fd }, err;
-+	char iobuf[1];
-+	struct iovec io = {
-+		.iov_base = iobuf,
-+		.iov_len = sizeof(iobuf),
-+	};
-+	union {
-+		char buf[CMSG_SPACE(sizeof(fds))];
-+		struct cmsghdr align;
-+	} u;
-+
-+	msg.msg_iov = &io;
-+	msg.msg_iovlen = 1;
-+	msg.msg_control = u.buf;
-+	msg.msg_controllen = sizeof(u.buf);
-+	cmsg = CMSG_FIRSTHDR(&msg);
-+	cmsg->cmsg_level = SOL_SOCKET;
-+	cmsg->cmsg_type = SCM_RIGHTS;
-+	cmsg->cmsg_len = CMSG_LEN(sizeof(fds));
-+	memcpy(CMSG_DATA(cmsg), fds, sizeof(fds));
-+
-+	err = sendmsg(sockfd, &msg, 0);
-+	if (err < 0)
-+		err = -errno;
-+	if (!ASSERT_EQ(err, 1, "sendmsg"))
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+static int recvfd(int sockfd, int *fd)
-+{
-+	struct msghdr msg = {};
-+	struct cmsghdr *cmsg;
-+	int fds[1], err;
-+	char iobuf[1];
-+	struct iovec io = {
-+		.iov_base = iobuf,
-+		.iov_len = sizeof(iobuf),
-+	};
-+	union {
-+		char buf[CMSG_SPACE(sizeof(fds))];
-+		struct cmsghdr align;
-+	} u;
-+
-+	msg.msg_iov = &io;
-+	msg.msg_iovlen = 1;
-+	msg.msg_control = u.buf;
-+	msg.msg_controllen = sizeof(u.buf);
-+
-+	err = recvmsg(sockfd, &msg, 0);
-+	if (err < 0)
-+		err = -errno;
-+	if (!ASSERT_EQ(err, 1, "recvmsg"))
-+		return -EINVAL;
-+
-+	cmsg = CMSG_FIRSTHDR(&msg);
-+	if (!ASSERT_OK_PTR(cmsg, "cmsg_null") ||
-+	    !ASSERT_EQ(cmsg->cmsg_len, CMSG_LEN(sizeof(fds)), "cmsg_len") ||
-+	    !ASSERT_EQ(cmsg->cmsg_level, SOL_SOCKET, "cmsg_level") ||
-+	    !ASSERT_EQ(cmsg->cmsg_type, SCM_RIGHTS, "cmsg_type"))
-+		return -EINVAL;
-+
-+	memcpy(fds, CMSG_DATA(cmsg), sizeof(fds));
-+	*fd = fds[0];
-+
-+	return 0;
-+}
-+
-+static int wait_for_pid(pid_t pid)
-+{
-+	int status, ret;
-+
-+again:
-+	ret = waitpid(pid, &status, 0);
-+	if (ret == -1) {
-+		if (errno == EINTR)
-+			goto again;
-+
-+		return -1;
-+	}
-+
-+	if (!WIFEXITED(status))
-+		return -1;
-+
-+	return WEXITSTATUS(status);
-+}
-+
-+static int child(int sock_fd, struct bpffs_opts *bpffs_opts,
-+		 child_callback_fn callback)
-+{
-+	int mnt_fd = -1, fs_fd = -1, err = 0, bpffs_fd = -1, token_fd = -1;
-+
-+	err = create_and_enter_userns();
-+	if (!ASSERT_OK(err, "create_and_enter_userns"))
-+		goto cleanup;
-+
-+	err = unshare(CLONE_NEWNS);
-+	if (!ASSERT_OK(err, "create_mountns"))
-+		goto cleanup;
-+
-+	err = sys_mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, 0);
-+	if (!ASSERT_OK(err, "remount_root"))
-+		goto cleanup;
-+
-+	fs_fd = create_bpffs_fd();
-+	if (!ASSERT_GE(fs_fd, 0, "create_bpffs_fd")) {
-+		err = -EINVAL;
-+		goto cleanup;
-+	}
-+
-+	err = sendfd(sock_fd, fs_fd);
-+	if (!ASSERT_OK(err, "send_fs_fd"))
-+		goto cleanup;
-+	zclose(fs_fd);
-+
-+	err = recvfd(sock_fd, &mnt_fd);
-+	if (!ASSERT_OK(err, "recv_mnt_fd"))
-+		goto cleanup;
-+
-+	bpffs_fd = openat(mnt_fd, ".", 0, O_RDWR);
-+	if (!ASSERT_GE(bpffs_fd, 0, "bpffs_open")) {
-+		err = -EINVAL;
-+		goto cleanup;
-+	}
-+
-+	err = callback(bpffs_fd);
-+	if (!ASSERT_OK(err, "test_callback"))
-+		goto cleanup;
-+
-+	err = 0;
-+
-+cleanup:
-+	zclose(sock_fd);
-+	zclose(mnt_fd);
-+	zclose(fs_fd);
-+	zclose(bpffs_fd);
-+	zclose(token_fd);
-+
-+	exit(-err);
-+}
-+
-+static int parent(int child_pid, struct bpffs_opts *bpffs_opts, int sock_fd)
-+{
-+	int fs_fd = -1, mnt_fd = -1, token_fd = -1, err;
-+
-+	err = recvfd(sock_fd, &fs_fd);
-+	if (!ASSERT_OK(err, "recv_bpffs_fd"))
-+		goto cleanup;
-+
-+	mnt_fd = materialize_bpffs_fd(fs_fd, bpffs_opts);
-+	if (!ASSERT_GE(mnt_fd, 0, "materialize_bpffs_fd")) {
-+		err = -EINVAL;
-+		goto cleanup;
-+	}
-+	zclose(fs_fd);
-+
-+	err = sendfd(sock_fd, mnt_fd);
-+	if (!ASSERT_OK(err, "send_mnt_fd"))
-+		goto cleanup;
-+	zclose(mnt_fd);
-+
-+	err = wait_for_pid(child_pid);
-+	if (!ASSERT_OK(err, "waitpid_child")) {
-+		err = -EINVAL;
-+		goto cleanup;
-+	}
-+
-+cleanup:
-+	zclose(sock_fd);
-+	zclose(fs_fd);
-+	zclose(mnt_fd);
-+	zclose(token_fd);
-+
-+	if (child_pid > 0)
-+		(void)kill(child_pid, SIGKILL);
-+
-+	return err;
-+}
-+
-+static int subtest(struct bpffs_opts *bpffs_opts, child_callback_fn child_cb)
-+{
-+	int sock_fds[2] = { -1, -1 };
-+	int child_pid = 0, err;
-+
-+	err = socketpair(AF_UNIX, SOCK_STREAM, 0, sock_fds);
-+	if (!ASSERT_OK(err, "socketpair"))
-+		goto cleanup;
-+
-+	child_pid = fork();
-+	if (!ASSERT_GE(child_pid, 0, "fork"))
-+		goto cleanup;
-+
-+	if (child_pid == 0) {
-+		zclose(sock_fds[0]);
-+		return child(sock_fds[1], bpffs_opts, child_cb);
-+	} else {
-+		zclose(sock_fds[1]);
-+		return parent(child_pid, bpffs_opts, sock_fds[0]);
-+	}
-+
-+cleanup:
-+	zclose(sock_fds[0]);
-+	zclose(sock_fds[1]);
-+	if (child_pid > 0)
-+		(void)kill(child_pid, SIGKILL);
-+
-+	return -err;
-+}
-+
-+static int userns_map_create(int mnt_fd)
-+{
-+	LIBBPF_OPTS(bpf_map_create_opts, map_opts);
-+	int err = 0, token_fd = -1, map_fd = -1;
-+
-+	/* create BPF token from BPF FS mount */
-+	token_fd = bpf_token_create(mnt_fd, NULL);
-+	if (!ASSERT_GT(token_fd, 0, "userns_map_create/token_create")) {
-+		err = -EINVAL;
-+		goto cleanup;
-+	}
-+
-+	map_opts.map_flags = BPF_F_TOKEN_FD;
-+	map_opts.token_fd = token_fd;
-+	map_fd = bpf_map_create(BPF_MAP_TYPE_STACK, "userns_map_create", 0, 8, 1,
-+				&map_opts);
-+	if (!ASSERT_GT(map_fd, 0, "userns_map_create/bpf_map_create")) {
-+		err = -EINVAL;
-+		goto cleanup;
-+	}
-+
-+cleanup:
-+	zclose(token_fd);
-+	zclose(map_fd);
-+
-+	if (err)
-+		fprintf(stderr, "Failed to create BPF map with BPF token enabled: %s\n",
-+			strerror(errno));
-+
-+	return err;
-+}
-+
-+static int userns_prog_load(int mnt_fd)
-+{
-+	LIBBPF_OPTS(bpf_prog_load_opts, prog_opts);
-+	int err, token_fd = -1, prog_fd = -1;
-+	struct bpf_insn insns[] = {
-+		/* bpf_jiffies64() requires CAP_BPF */
-+		BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_jiffies64),
-+		/* bpf_get_current_task() requires CAP_PERFMON */
-+		BPF_RAW_INSN(BPF_JMP | BPF_CALL, 0, 0, 0, BPF_FUNC_get_current_task),
-+		/* r0 = 0; exit; */
-+		BPF_MOV64_IMM(BPF_REG_0, 0),
-+		BPF_EXIT_INSN(),
-+	};
-+	size_t insn_cnt = ARRAY_SIZE(insns);
-+
-+	token_fd = bpf_token_create(mnt_fd, NULL);
-+	if (!ASSERT_GT(token_fd, 0, "userns_prog_load/token_create")) {
-+		err = -EINVAL;
-+		goto cleanup;
-+	}
-+
-+	prog_opts.prog_flags = BPF_F_TOKEN_FD;
-+	prog_opts.token_fd = token_fd;
-+	prog_opts.expected_attach_type = BPF_XDP;
-+	prog_fd = bpf_prog_load(BPF_PROG_TYPE_XDP, "token_prog", "GPL",
-+				insns, insn_cnt, &prog_opts);
-+	if (!ASSERT_GT(prog_fd, 0, "userns_prog_load/bpf_prog_load")) {
-+		err = -EPERM;
-+		goto cleanup;
-+	}
-+
-+	err = 0;
-+
-+cleanup:
-+	zclose(prog_fd);
-+	zclose(token_fd);
-+
-+	if (err)
-+		fprintf(stderr, "Failed to load BPF prog with token enabled: %s\n",
-+			strerror(errno));
-+
-+	return err;
-+}
-+
-+int test_bpf_map_create(void)
-+{
-+	struct bpffs_opts opts = {
-+		.cmds_str = "map_create",
-+		.maps_str = "stack"
-+	};
-+
-+	return subtest(&opts, userns_map_create);
-+}
-+
-+int test_bpf_prog_load(void)
-+{
-+	struct bpffs_opts opts = {
-+		.cmds_str = "prog_load",
-+		.progs_str = "XDP",
-+		.attachs_str = "xdp",
-+	};
-+
-+	return subtest(&opts, userns_prog_load);
-+}
--- 
-2.50.1
+At least for model based LSM's, the configuration needs to occur
+before execution within the namespace begins in order to avoid
+possible races with respect to the security policy that gets effected.
 
+Casey advocates for the use of lsm_set_self_attr(2), which has the
+advantage of a common API and is probably sufficient if an LSM elects
+to provide a generic management interface.
+
+The system call is currently not namespace aware so the challenge will
+be how to direct the configuration payload to the correct namespace.
+
+Given that limitation, it seems highly probably that individual LSM's
+will implement configuration/policy management via their various
+pseudo-filesystem implementations that will grow awareness for the
+namespace context that the commands are being issued for.
+
+> >The first issue to resolve would seem to be what namespace separation
+> >implies.
+> >
+> >John, if I interpret your comments in this discussion correctly, your
+> >contention is that when namespace separation is requested, all of the
+> >LSM's that implement namespaces will create a subordinate namespace,
+> >is that a correct assumption?
+
+> No, not necessarily. The task can request to "unshare/create" LSMs
+> similar to requesting a set of system namespaces. Then every LSM,
+> whether part of the request or not get to do their thing. If every
+> LSM agrees, then a transition hook will process and each LSM will
+> again do its thing. This would likely be what was requested but its
+> possible that an LSM not in the request will do something, based on
+> its model.
+>
+> In the end usespace gets to make a request, each security policy is
+> responsible for staying withing its security model/policy.
+
+This approach seems contrary to what Casey is advocating for in our
+conversations, but perhaps we misunderstand what he is saying.
+
+Casey indicated that no other LSM should be able to deny the ability
+of another LSM to create a namespace.
+
+As we noted in our exchange with him, this seems to violate the
+current LSM model where all of the LSM's need to agree that an event
+should be allowed, or it fails.
+
+> >It would seem, consistent with the 'stacking' concept, that any LSM
+> >with namespace capability that chooses not to separate, will result in
+> >denial of the separation request.  That in turn will imply the need to
+
+> Not necessarily. They could allow and choose not to transition. Or
+> they could not create a namespace but update some state.
+
+> >unwind or delete any namespace context that other LSM's may have
+> >allocated before the refusal occurred.
+
+> The request does need to be split into a permission hook and a
+> transition hook similar to exec. If any LSM in the permission hook
+> denies, the request is denied. If any LSM in the transition hook
+> fails again the request will fail, and the LSMs would get their
+> regular clean up hook called for the object associated.
+
+See above, the open question seems to be whether or not there is
+agreement that any LSM can generically deny the creation of namespace
+creation.
+
+Again, we may misunderstand Casey on this issue.
+
+> >This model also implies that the orchestrator requesting the
+> >separation will need to pass a set of parameters describing the
+> >characteristics of each namespace, described by the LSM identifier
+> >that they pertain to.  Since there may be a need to configure multiple
+> >namespaces there would be a requirement to pass an array or list of
+> >these parameter sets.
+
+> yes it will require a list/array see lsm_set_self_attr(2)
+
+Again, the issue is making this system call namespace aware.
+
+> >There will also be a need to inject, possibly substantial amounts of
+> >policy or model information into the namespace, before execution in
+> >the context of the namespace begins.
+
+> Allowing for this and requiring this are two different things. Like
+> I said above we don't even currently have a common policy load
+> interface.  Configuration is another step beyond policy load.
+
+It would seem the most straight forward path is to simply punt this to
+the LSM's itself.  If nothing else, it reduces the issues that
+everyone needs to agree on.
+
+> >There will also be a need to decide whether namespace separation
+> >should occur at the request of the orchestrator or at the next fork,
+
+> Or allow both, but yes a decision needs to be made
+
+Again, allow both at the discretion of the LSM.
+
+> >the latter model being what the other resource namespaces use.  We
+> >believe the argument for direct separation can be made by looking at
+> >the gymnastics that orchestrators need to jump through with the
+> >'change-on-fork' model.
+
+> Looking at current system namespacing we have clone/unshare which
+> really or on fork. setns enters existing namespaces.
+>
+> We either need to create new variants of clone/unshare or potentially
+> have an LSM syscall that setups addition parameters that then are
+> triggered by clone/unshare. If going the latter route then its just
+> a matter whether the LSM call returns a handle that can be operated
+> on or not.
+
+We will find that current namespace semantics are challenging with
+respect to being a good model for LSM namespaces.
+
+Current namespaces focus on managing a single resource.  In contrast,
+as we have seen in our discussions, an 'LSM namespace' involves
+multiple resources, each with their own specific requirements.  On top
+of that we have the complication of 'stacking' where anything that
+happens will be the composite of what all the LSM's agree on, some of
+which may be in the root namespace and some of which may be in
+subordinate namespaces.
+
+The notion of a process entering a security namespace, aka setns, will
+be interesting.  It would seem that this will require callbacks to
+every LSM that is participating in the namespace.  Presumably all of
+the references to LSM security contexts will need to be suspended and
+replaced with references to the context(s) for the security namespace
+that is being entered.
+
+With respect to managing this effectively, we would advocate for a
+64-bit global counter that gets incremented on each successful LSM
+namespace creation event.  That would provide a unique handle for the
+namespace that will never wrap.
+
+> >Case in point, it would seem realistic that a process with sufficient
+> >privilege, may desire to place itself in a new LSM namespace context
+> >in a manner that does not require re-execution of itself.
+
+> yes, but it is questionable whether security policy should allow that.
+> At the very least security policy should be consulted and may deny
+> it.
+
+What we are talking about here is the need to support a process
+requesting to run in an alternate LSM namespace without forking.
+
+The question of whether this should be allowed will be regulated by
+whatever composite security policy is operational, the same as would
+be the case with the switch on fork model.
+
+> >With respect to separation, the remaining issue is if a new security
+> >capability bit needs to be implemented to gate namespace separation.
+> >John, based on your comments, I believe you would support this need?
+
+> No, I don't think a capability (as in posix.1e) per say is needed. I
+> think an LSM permission request is.
+
+Once again, that seems inconsistent with what Casey is advocating.
+
+Although I'm sure he is happy that a new capability bit is not in the
+offing... :-)
+
+> >>You can do a subset with a single flag and only policy directing things,
+> >>but that would cut container managers out of the decision. Without a
+> >>universal container identifier that really limits what you can do. In
+> >>another email I likend it to the MCS label approach to the container
+> >>where you have a single security policy for the container and each
+> >>container gets to be a unique instance of that policy. Its not a perfect
+> >>analogy as with namespace policy can be loaded into the namespace making
+> >>it unique. I don't think the approach is right because not all namespaces
+> >>implement a loadable policy, and even when they do I think we can do a
+> >>better job if the container manager is allowed to provide additional
+> >>context with the namespacing request.
+> >
+> >In order to be relevant, the configuration of LSM namespaces need to
+> >be under control of a resource orchestrator or container manager.
+
+> No, the must be under the control of the LSMs.
+
+I think we are talking past one another.
+
+Configuration was perhaps a poor choice of vernacular, we were
+referring to policy or model load.
+
+As we mentioned in our exchange with Casey, the expection for all of
+this from the user community will be to allow resource orchestrators
+to run a workload under the constraints of a specific security policy.
+
+Where policy should be probably plural.
+
+Stephen even notes this on the slides that are linked from his GitHub
+selinuxns site.
+
+> >What we hear from people doing Kubernetes, at scale, is a desire to be
+> >able to request that a container be run somewhere in the hardware
+> >Resource pool and for that container to implement a security model
+> >specific to the needs of the workload running in that container.  In a
+> >manner that is orthogonal from other security policies that may be in
+> >effect for other workloads, on the host or in other containers.
+
+> sure, assuming the host policy allows it. Otherwise it is just a host
+> policy by-pass, which can not be allowed. K8s people have a specific
+> use case, they need to configure the host for that use case. They can
+> not expect that use case to work on host that has been configured
+> for say an MLS security constraint.
+
+Given that the concept of LSM stacking is overlaid on top of
+namespaces, the result of all this will be security policies that will
+be very interesting to reason about, particularly if multiple levels
+of namespacing are allowed.
+
+The other issue will be potential performance issues for LSM's that
+choose to chase permissions all the way back up to the root namespace.
+We've heard continuous suggestions that every pointer de-reference
+is problematic from a performance perspective.
+
+So, lots of issues to consider in all of this.
+
+Have a good weekend.
+
+As always,
+Dr. Greg
+
+The Quixote Project - Flailing at the Travails of Cybersecurity
+              https://github.com/Quixote-Project
