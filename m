@@ -1,116 +1,97 @@
-Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 907EB12D1F1;
-	Sun,  7 Sep 2025 07:42:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.181.97.72
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA289280A5F
+	for <selinux@vger.kernel.org>; Sun,  7 Sep 2025 16:58:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757230922; cv=none; b=HDGKrxNSCuGrpCkw+VgPDkbckG/YXtrode1HMd+/1BDz0k+ooofF7agwVAEn/5iJQHtoALBg3yNDN642+C70ISO2Oiyu6+5FsyUiWSzs/MaPZWwQS1wrePAfP4vSCfFUQNbArP1i/KS8XaCF2rJLiFMG5h/pU9aqusw/nvEc6Pg=
+	t=1757264327; cv=none; b=nch/VwUFWxQoeaaknyM6q2sbaAIt1ew2UZUUN5mvnY0s3VKi4L/HgPDTtuQ7qqbO0rqK6ZhO9jmD66HmTjQVZjLXsO3aTNQTdISQ5iDeUIiUuXw9z+65Ldcwcjr6Fgd1pojakWSEXd32GZw9N2JkGGjdfCvhktGGclGyf+rsSfs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757230922; c=relaxed/simple;
-	bh=uIBRNfeOntsaWXKl0FdR27t1eyl1VeE8XgL0h03PsI0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RDFoiwacmg/fSM/nrdXW3O4WzSYUdBkoVg8TyNvitSArMDbXvdzIw73tec6WpNIsScIOowffqls6Nkx8D5zkCpPeNXR1+gmq6oBqi3QmpNDDuIgyv02AVrgJyBdqhhJlvkFIABqFWygajeJe0he3WX/+iIlOEZKOHacHq0w+2eQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp; arc=none smtp.client-ip=202.181.97.72
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp
-Received: from www262.sakura.ne.jp (localhost [127.0.0.1])
-	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 5877Z9hk056152;
-	Sun, 7 Sep 2025 16:35:09 +0900 (JST)
-	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Received: from [192.168.1.10] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
-	(authenticated bits=0)
-	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 5877Z9B8056148
-	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
-	Sun, 7 Sep 2025 16:35:09 +0900 (JST)
-	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Message-ID: <6e4bb79d-ba8f-47fa-ad12-0bb79d4442e0@I-love.SAKURA.ne.jp>
-Date: Sun, 7 Sep 2025 16:35:08 +0900
+	s=arc-20240116; t=1757264327; c=relaxed/simple;
+	bh=UG6aaIt/J4hlqTLrVipzyXLPRoWjC628BnP36N7T3tU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=DFewgakAzxtGeYoa1ebGVuZL6ufiaBGXSazawuFTTk3+AIbOkhDuy525ljyF2EG8NrnGUmNv3fknRjhs/59yCfvnmDycfqxsoA1QMbvk2guLEX+rpaCiQ4EjgPjzbSlSAIOtoWik3zZCm7ee7o2ub7EDCP9P6ziLanv2NZwERa0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=QsRCqpT8; arc=none smtp.client-ip=209.85.214.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="QsRCqpT8"
+Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-24b2de2e427so25676295ad.2
+        for <selinux@vger.kernel.org>; Sun, 07 Sep 2025 09:58:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore.com; s=google; t=1757264325; x=1757869125; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=C8rxZBcVWqeQttZjBzXJXbXm94rgTwoH9ei9j3iaczA=;
+        b=QsRCqpT8mfEfDjQk9wir2rYkxZyBxKdUdVaAilyomOJ0wDXQ8sckCyP1nVibeeD7fI
+         5zCIukFyw1Ktrs3ABSvf2rGEJUUrrI8NF1QACheZoywakeAxqdlnLL4edIGrnDyJflKN
+         gZFQuzojroFnuBVyFc8rrrLTrdZ3C7JMiXYv5xZNmt8M9b2madgtQJ9S50BwAoFYOhzb
+         KATyqvucVbNudODuh4/tnUeOpKkXohZrHnGUdhP9dPnwldsdPUf7poMIgjjvQ9Q/Anpm
+         5ATc2UaxgwJlWCGHA9t+afOu97ghCPTKmNtAijd3yQYccDk5kD2JtTMKrCWgkKfRNzM7
+         ZPiA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1757264325; x=1757869125;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=C8rxZBcVWqeQttZjBzXJXbXm94rgTwoH9ei9j3iaczA=;
+        b=TzAIpPiW1OyupcCKunFk4ZPm3sxVADw6Yo0xzQnytUInXbB09MEEu2tRn0EQdxUJkO
+         fk9ANsZL4M/DEGh1d+rZnn+UZspqanSS3zwdn7taIBbFAiYfxrCiquZCfEyrFJbqDwNR
+         hUruy2dTGbjhjv52pm46/9mAYWjk89sAFIn3SGofXclEuMhxjsMm3YKgXcKY65wh8blx
+         US/LYXlYgLSGQG7S2uJInvDZ5kKhJGFUxX2/TfW2ZDDjXflVL2Z9xyH61h5joe0YfP0X
+         triSnzqVTlvF0LGXNZ1+3zYS9J3VFit1amiNKa4uySzxnB7wx4/Yrm7orgptAhq7HgFG
+         2Prw==
+X-Forwarded-Encrypted: i=1; AJvYcCXrzpKd30omPZ0ih0Ij1kZamscB53A8ja13b4lAkiqHE6DzES0escpr+2ZhMeuQ/5/YGZUt8y5F@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx3VULuQGvwY50vFx/5IQSrKpc5g9crpFqcTFPYFO7fFwrnXLGq
+	mKL3VYGcQqTpdX07sye50HRHrt/IQx+laXw4Rp5eDhZLn+uxE4nPlZ6NkVdKk2nIcgR3SZFB4YU
+	U0K71O141JstB3djIkCnvuxoUxDwJXL3iBHu0gXRP
+X-Gm-Gg: ASbGnculgGo/ZoVmPD3YVpcDy+GXl86em1D8gQT70kWQwGWyKw482wvKCwumEIVG12Z
+	ivMZwa8GpfilYRJZzU5zRA9RBnztwIASuyMPREre1OasEodBFPcGSeuL8U7c26FrSSqltMF9HjA
+	hQyOlwGpWWM9jQWBbJx12T0fwrTg5DPgAQAMEqPz2VJ4MYUDActT/hZl4IaMrAJRWKRA3b3zq48
+	CETbz9C9zEtORfJfA==
+X-Google-Smtp-Source: AGHT+IFaE++x7GtzCCIsBv907Sl2uWTltDpZX4herwHYVlHepL8ORXOJe8XeTw2pWIVYggy7DyLPn5X/oi9GlRRt5xk=
+X-Received: by 2002:a17:903:1b68:b0:246:b46b:1b09 with SMTP id
+ d9443c01a7336-251715f3129mr65953055ad.30.1757264325209; Sun, 07 Sep 2025
+ 09:58:45 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 11/34] lsm: get rid of the lsm_names list and do some
- cleanup
-To: Paul Moore <paul@paul-moore.com>,
-        John Johansen <john.johansen@canonical.com>
-Cc: Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
-        =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
-        =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
-        Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
-        Xiu Jianfeng <xiujianfeng@huawei.com>
-References: <20250814225159.275901-36-paul@paul-moore.com>
- <20250814225159.275901-47-paul@paul-moore.com>
- <06a68323-b297-4be7-92eb-c2091207b9f0@canonical.com>
- <dd03266930a7b219c590c54bb2c210366f8d89a1.camel@huaweicloud.com>
- <e92064a4-06c5-4913-917c-f9aca02378f3@canonical.com>
- <CAHC9VhQPmF-RCSUjZo-pe1+sWyw5ZGdnD7P0CWb7yXQQoo+92g@mail.gmail.com>
- <CAHC9VhRjQrjvsn65A-TGKKGrVFjZdnPBu+1vp=7w86SOjoyiUw@mail.gmail.com>
-Content-Language: en-US
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-In-Reply-To: <CAHC9VhRjQrjvsn65A-TGKKGrVFjZdnPBu+1vp=7w86SOjoyiUw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Virus-Status: clean
-X-Anti-Virus-Server: fsav202.rs.sakura.ne.jp
+References: <20250905222656.3692837-1-nkapron@google.com> <CAHC9VhT8NrsXMM-PPZJ0EPLxFHQ1vOu+ASCd+82Xth_mJPnDiA@mail.gmail.com>
+ <aLunR_0BPCrATnBP@google.com>
+In-Reply-To: <aLunR_0BPCrATnBP@google.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Sun, 7 Sep 2025 12:58:33 -0400
+X-Gm-Features: Ac12FXz4UWnBPZx5fAUVbpMVPdPjXX8qeZE7T_l2WMRkmXHmb_U-YFwEaovDvoA
+Message-ID: <CAHC9VhSaAm3G9bnJ86Aj+DnTio19ePE1Pu3voaB3XUvBveodbw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix logic issue with per-file labeling for functionfs
+To: Neill Kapron <nkapron@google.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	kernel-team@android.com, selinux@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2025/09/05 2:52, Paul Moore wrote:
-> +       if (unlikely(!str)) {
-> +               char *str_tmp;
-> +               size_t len_tmp = 0;
-> +
+On Fri, Sep 5, 2025 at 11:15=E2=80=AFPM Neill Kapron <nkapron@google.com> w=
+rote:
+> On Fri, Sep 05, 2025 at 10:13:01PM -0400, Paul Moore wrote:
+> >
+> > With the original patch sitting at the top of the selinux/dev branch,
+> > are you okay if I simply fixup the existing patch by adding the
+> > missing '!'?
+> >
+>
+> Yes, that is fine by me. I could submit a v4 if you would prefer that.
 
-Wants a comment that lsm_active_cnt > 0 is guaranteed, or someone
-(maybe static analyzers) thinks that we hit ZERO_SIZE_PTR pointer
-dereference when lsm_active_cnt == 0.
+No need for a v4, it's just a single missing '!' and the commit
+happens to still be at the top of the patch stack.  In cases like this
+it's easier for me to just apply the fix manually.
 
-> +               for (i = 0; i < lsm_active_cnt; i++)
-> +                       /* the '+ 1' accounts for either a comma or a NUL */
-> +                       len_tmp += strlen(lsm_idlist[i]->name) + 1;
-> +
-> +               str_tmp = kmalloc(len_tmp, GFP_KERNEL);
-> +               if (!str_tmp)
-> +                       return -ENOMEM;
-> +               str_tmp[0] = '\0';
-> +
-> +               for (i = 0; i < lsm_active_cnt; i++) {
-> +                       if (i > 0)
-> +                               strcat(str_tmp, ",");
-> +                       strcat(str_tmp, lsm_idlist[i]->name);
-> +               }
-> +
-> +               spin_lock(&lock);
-> +               if (!str) {
-> +                       str = str_tmp;
-> +                       len = len_tmp - 1;
+Fixed the upstream commit and pushed back up to selinux/dev; please
+take a look and verify that it looks okay to you.
 
-This needs to be
-
-			len = len_tmp - 1;
-			mb();
-			str = str_tmp;
-
-, or concurrent access might reach simple_read_from_buffer()
-with str != 0 and len == 0. (If you don't want mb(), you can use
-
--	if (unlikely(!str)) {
-+	if (unlikely(!str || !len)) {
-
-instead).
-
-> +               } else
-> +                       kfree(str_tmp);
-> +               spin_unlock(&lock);
-> +       }
-> +
-> +       return simple_read_from_buffer(buf, count, ppos, str, len);
-> }
-
+--=20
+paul-moore.com
