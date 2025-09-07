@@ -1,73 +1,62 @@
-Received: from mail-il1-f181.google.com (mail-il1-f181.google.com [209.85.166.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 029C310957
-	for <selinux@vger.kernel.org>; Sat,  6 Sep 2025 03:15:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB6CF29A2;
+	Sun,  7 Sep 2025 04:32:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757128524; cv=none; b=hFt8feH4az+Xnx6Usn/LLgqgkxE3EzZISH8/DP6CEkAe1I8Ixq6uU07BkPjpoYiyaRxIN4ta5jwd2V8NhoM8YyH00O8f7f7rKjZBZXo4kcEETaxDkCmFDgVl9MhoVHwsXDKAGDgT0g1o4QpFPVyUFC75fTBz/ZyoFaoqdNlXux0=
+	t=1757219536; cv=none; b=HZ9H7YdZNeSD1H0Jubz+YZaa9hRS+Nz9z1OZAnhcrhMyf2yppFxgg+z8J51wm4C1vhuARQMdvlw3WFnJuq/Ja7zMLNFMROin9PFfvjW5yj0lg2OT2LpOwFBgm0W/q2sCDEFlAVipxBjXWClbP0fA6C/JsFo4iXnEyg8GS0V9oWU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757128524; c=relaxed/simple;
-	bh=AvlMdw25eCgMu0dHMlriCCLoeoNd2IN9QRBLOBFWx7Q=;
+	s=arc-20240116; t=1757219536; c=relaxed/simple;
+	bh=+8yI6fgJ5qXRBIy4nAJK63uggFckulfZtEQH+td3NO0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OtDHui6XD1oGduvI6qqDlruvL4WWGrnUc1pobzOXTPMC5FP2TzXzb1UyNhZiSUxQpp3H9sd+FH0tzBCR+gLEyxGBKgpT4VDL4XUF57u5nRpn7FzwA9M24+o0usiUfnuKxxFCknSzvrl0HVy6Nv8nga+QLH9pEaioxviaWvCDq/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=MQlVNbzK; arc=none smtp.client-ip=209.85.166.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=nI7BYqVwoTKzfKv0D0RnbmgIjoYpDMhn8QbqV/3YjDYRxkzEyUHf/w8rWC5R6hsUYipehtPIq/fE9ijh0qk4ACQhrhdnmXvI4oiqNiDvCiSE638skNjc+YKzgQLi5xghpVum4FSNm2FLR05PaP3ehR13KF4WYcoWWyJ7X5/oWzI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=EwbpFKb4; arc=none smtp.client-ip=192.198.163.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="MQlVNbzK"
-Received: by mail-il1-f181.google.com with SMTP id e9e14a558f8ab-3f680ec2a03so21367715ab.3
-        for <selinux@vger.kernel.org>; Fri, 05 Sep 2025 20:15:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1757128522; x=1757733322; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=g44f+BPw5Hi5G4yK4fXujHmXwUWXbVPu3RwfoHic3HA=;
-        b=MQlVNbzK2Bw7FkR9TCxyaX09JnoIb3E+dRTTiprwhrB9FF964ngajLGdYZI8FT+UQ/
-         PwmDs3HId3pZ/gBzpMRrGE2rjY+dKaajO+cmJm2v7PxbP3vu8GFwtAm+bQD1kPXyQSD/
-         q4nYPz5OHLT06osuiR75mfsW601HjFfcCTkJbwJIAKYF9/OF6kzDDUN2R6BKT3LBCQS4
-         b98sTR7VUyFNGA0yws5PR0yIfPmsSNoq4Sh7mbE+OSqITpW8UiYbSot2fuflTfzYYo9W
-         cxQ8ZhZvvsMnSM/Z3YuLknkWL+ZrpByX2eX++sM4eEndOpDJIiobEEZR9xUeJ2+E1CtL
-         W64Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757128522; x=1757733322;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=g44f+BPw5Hi5G4yK4fXujHmXwUWXbVPu3RwfoHic3HA=;
-        b=FBt+fPJPg1bNVK7Xg0qUGvk8k6VQH6kyQ3ImwDueBMWwYQSzQI4bFPReBzoPSEr2Go
-         V4bDXtQ/g5MtYkzEa+CfGk7butT07CX8/cgpKIVKoA/+2YaPIG/Dabil4W6wJZ65SP4M
-         2F1kBE+w8N4SHHrSZjo7+HI1X5mPqxblmbOp71iM6cTcncetDGiIfTdYkTz8P7pOgfpq
-         DkzoW1eccPLMEmlvM1ioCitjxMcKUe8T8D7yWdbm2o2odqzjXhfYXa9+OHvdA2h4x5XR
-         fDAAL6Wreh2b0l8QArdPgmhdFlti9NW1s18ViEmN1BxifiH4iQDw2EoWlzuRc81NJYc7
-         nbFw==
-X-Forwarded-Encrypted: i=1; AJvYcCVSx0xKhNizUGaX9QtPxf+4qIHWV7WSatboKVRjgCmygpIfx5m4dstSeUpb7eFylIvX7NuzJQjk@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzph6RL9cCyBCyuxPXcers8DsyHDgjobU45CD16u2mWBt6xXnN8
-	LITqQq3HhA1QMvu/bRvuGRlF9wn6y1PFaTsNDSPBXPql4xok4B4cCRIKLiGPZe9BDw==
-X-Gm-Gg: ASbGncv4RoxnoWFyIxWCZVtnCSHfEa4d9Ttb4XnDJWKZ+QRpZ1l7mQ0PoiK1mNOxibR
-	DpQh7IKpF528lp0LA52k9ExSkDdmiiRes55l7CZ0n/vE1LASs90ugAVFUvDE2kDqP6tXNgZz8Kb
-	wuZ7JDgiHeFDKdj9N/RMgUX9T9MSNLcsPyyyfA6xsfKUSCJGy69rNsxFL9O9mkIeeT79T693NCs
-	tEOD4cycq2icaZu9V9Dtqx+i4Wrhe5nUKXCQgcaoWIiuBl96NbpTwmKFZeS8GgW8eCqkuh9Os99
-	5In05kwaQvkDzh0hs/xrkiRlEHDRQgdVJyj5JeJPYrbUFC0ObIiXCZmZKP7lw04LwxsiwJlC6gn
-	XlXHQt+3vSj0FmdImjlMBMUYu0OlAoDfY8Sy0BEcvmz0HAx9f5hPRdIuWSobsYc4jZ9AhHA==
-X-Google-Smtp-Source: AGHT+IGLw2fIxxDwuYWLRzhDla8WwJDRsF96LtIboEPn6HhOZqGVG9ZppVZ6OQM5ivQzCu68n0DXrQ==
-X-Received: by 2002:a05:6e02:214d:b0:3f6:63c5:74e3 with SMTP id e9e14a558f8ab-3fd94a140camr15675845ab.16.1757128521855;
-        Fri, 05 Sep 2025 20:15:21 -0700 (PDT)
-Received: from google.com (189.227.72.34.bc.googleusercontent.com. [34.72.227.189])
-        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3f3de24e723sm81698055ab.7.2025.09.05.20.15.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Sep 2025 20:15:21 -0700 (PDT)
-Date: Sat, 6 Sep 2025 03:15:19 +0000
-From: Neill Kapron <nkapron@google.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
-	Ondrej Mosnacek <omosnace@redhat.com>, kernel-team@android.com,
-	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] selinux: fix logic issue with per-file labeling for
- functionfs
-Message-ID: <aLunR_0BPCrATnBP@google.com>
-References: <20250905222656.3692837-1-nkapron@google.com>
- <CAHC9VhT8NrsXMM-PPZJ0EPLxFHQ1vOu+ASCd+82Xth_mJPnDiA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EwbpFKb4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1757219535; x=1788755535;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=+8yI6fgJ5qXRBIy4nAJK63uggFckulfZtEQH+td3NO0=;
+  b=EwbpFKb4wIELtU+A746UlnzfvN45cjOSBntz48Ss1VSAH2zf+fwAxUEA
+   iaDVUgwQwZnllBC/I8XMy/1QO7Np10UPPW/2v3n8B8Ad6o8GphnkK0dXY
+   eisY0Hz45Xcg0JgZi6L1PCtAfs3xJ3WDQsBSE89Ru3gBpbOj2+iB5xCAe
+   +hRPoKYPEqt+j/aZXacc7gwPLTVi0NOOJapldceB8ARfEEe80o/3ZjgBK
+   PYcFpiMRKcHfOu7LJwwDLY5MyKDuxFf3MrDObL90tRFvXOUcjMMxENtjx
+   vdT/WC4NXLkO9NVix1+7PVYvb2Oeite5awuBzOc9TTHeLWJJZv9nWvenC
+   w==;
+X-CSE-ConnectionGUID: hWtn2WjzS32tV7fcvOIlvA==
+X-CSE-MsgGUID: 2/lZ6kvoSAiJAFOu6e1BNQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11545"; a="47082792"
+X-IronPort-AV: E=Sophos;i="6.18,245,1751266800"; 
+   d="scan'208";a="47082792"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Sep 2025 21:32:14 -0700
+X-CSE-ConnectionGUID: UEUAutZoTamiLqUEzDzCKg==
+X-CSE-MsgGUID: eIAw2afWROWQEf3aazZtwQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.18,245,1751266800"; 
+   d="scan'208";a="172599663"
+Received: from lkp-server01.sh.intel.com (HELO 114d98da2b6c) ([10.239.97.150])
+  by orviesa008.jf.intel.com with ESMTP; 06 Sep 2025 21:32:11 -0700
+Received: from kbuild by 114d98da2b6c with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1uv74T-00021v-2A;
+	Sun, 07 Sep 2025 04:32:09 +0000
+Date: Sun, 7 Sep 2025 12:31:34 +0800
+From: kernel test robot <lkp@intel.com>
+To: Hongru Zhang <zhanghongru06@gmail.com>, paul@paul-moore.com,
+	stephen.smalley.work@gmail.com, omosnace@redhat.com
+Cc: oe-kbuild-all@lists.linux.dev, linux-kernel@vger.kernel.org,
+	selinux@vger.kernel.org, Hongru Zhang <zhanghongru@xiaomi.com>
+Subject: Re: [PATCH] selinux: Make avc cache slot size configurable during
+ boot
+Message-ID: <202509071211.k5n864Gr-lkp@intel.com>
+References: <20250905100454.685866-1-zhanghongru@xiaomi.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -76,16 +65,42 @@ List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHC9VhT8NrsXMM-PPZJ0EPLxFHQ1vOu+ASCd+82Xth_mJPnDiA@mail.gmail.com>
+In-Reply-To: <20250905100454.685866-1-zhanghongru@xiaomi.com>
 
-On Fri, Sep 05, 2025 at 10:13:01PM -0400, Paul Moore wrote:
-> 
-> With the original patch sitting at the top of the selinux/dev branch,
-> are you okay if I simply fixup the existing patch by adding the
-> missing '!'?
->
+Hi Hongru,
 
-Yes, that is fine by me. I could submit a v4 if you would prefer that.
+kernel test robot noticed the following build warnings:
 
-Sorry for the thrash,
-Neill
+[auto build test WARNING on pcmoore-selinux/next]
+[also build test WARNING on linus/master v6.17-rc4 next-20250905]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Hongru-Zhang/selinux-Make-avc-cache-slot-size-configurable-during-boot/20250905-180729
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
+patch link:    https://lore.kernel.org/r/20250905100454.685866-1-zhanghongru%40xiaomi.com
+patch subject: [PATCH] selinux: Make avc cache slot size configurable during boot
+config: i386-randconfig-063-20250907 (https://download.01.org/0day-ci/archive/20250907/202509071211.k5n864Gr-lkp@intel.com/config)
+compiler: gcc-13 (Debian 13.3.0-16) 13.3.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250907/202509071211.k5n864Gr-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202509071211.k5n864Gr-lkp@intel.com/
+
+sparse warnings: (new ones prefixed by >>)
+>> security/selinux/avc.c:37:5: sparse: sparse: symbol 'avc_cache_slots' was not declared. Should it be static?
+
+vim +/avc_cache_slots +37 security/selinux/avc.c
+
+    36	
+  > 37	int avc_cache_slots __ro_after_init = 512;
+    38	#define AVC_DEF_CACHE_THRESHOLD		512
+    39	#define AVC_CACHE_RECLAIM		16
+    40	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
