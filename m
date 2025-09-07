@@ -1,106 +1,116 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB6CF29A2;
-	Sun,  7 Sep 2025 04:32:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 907EB12D1F1;
+	Sun,  7 Sep 2025 07:42:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.181.97.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757219536; cv=none; b=HZ9H7YdZNeSD1H0Jubz+YZaa9hRS+Nz9z1OZAnhcrhMyf2yppFxgg+z8J51wm4C1vhuARQMdvlw3WFnJuq/Ja7zMLNFMROin9PFfvjW5yj0lg2OT2LpOwFBgm0W/q2sCDEFlAVipxBjXWClbP0fA6C/JsFo4iXnEyg8GS0V9oWU=
+	t=1757230922; cv=none; b=HDGKrxNSCuGrpCkw+VgPDkbckG/YXtrode1HMd+/1BDz0k+ooofF7agwVAEn/5iJQHtoALBg3yNDN642+C70ISO2Oiyu6+5FsyUiWSzs/MaPZWwQS1wrePAfP4vSCfFUQNbArP1i/KS8XaCF2rJLiFMG5h/pU9aqusw/nvEc6Pg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757219536; c=relaxed/simple;
-	bh=+8yI6fgJ5qXRBIy4nAJK63uggFckulfZtEQH+td3NO0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nI7BYqVwoTKzfKv0D0RnbmgIjoYpDMhn8QbqV/3YjDYRxkzEyUHf/w8rWC5R6hsUYipehtPIq/fE9ijh0qk4ACQhrhdnmXvI4oiqNiDvCiSE638skNjc+YKzgQLi5xghpVum4FSNm2FLR05PaP3ehR13KF4WYcoWWyJ7X5/oWzI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=EwbpFKb4; arc=none smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EwbpFKb4"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1757219535; x=1788755535;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=+8yI6fgJ5qXRBIy4nAJK63uggFckulfZtEQH+td3NO0=;
-  b=EwbpFKb4wIELtU+A746UlnzfvN45cjOSBntz48Ss1VSAH2zf+fwAxUEA
-   iaDVUgwQwZnllBC/I8XMy/1QO7Np10UPPW/2v3n8B8Ad6o8GphnkK0dXY
-   eisY0Hz45Xcg0JgZi6L1PCtAfs3xJ3WDQsBSE89Ru3gBpbOj2+iB5xCAe
-   +hRPoKYPEqt+j/aZXacc7gwPLTVi0NOOJapldceB8ARfEEe80o/3ZjgBK
-   PYcFpiMRKcHfOu7LJwwDLY5MyKDuxFf3MrDObL90tRFvXOUcjMMxENtjx
-   vdT/WC4NXLkO9NVix1+7PVYvb2Oeite5awuBzOc9TTHeLWJJZv9nWvenC
-   w==;
-X-CSE-ConnectionGUID: hWtn2WjzS32tV7fcvOIlvA==
-X-CSE-MsgGUID: 2/lZ6kvoSAiJAFOu6e1BNQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11545"; a="47082792"
-X-IronPort-AV: E=Sophos;i="6.18,245,1751266800"; 
-   d="scan'208";a="47082792"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Sep 2025 21:32:14 -0700
-X-CSE-ConnectionGUID: UEUAutZoTamiLqUEzDzCKg==
-X-CSE-MsgGUID: eIAw2afWROWQEf3aazZtwQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.18,245,1751266800"; 
-   d="scan'208";a="172599663"
-Received: from lkp-server01.sh.intel.com (HELO 114d98da2b6c) ([10.239.97.150])
-  by orviesa008.jf.intel.com with ESMTP; 06 Sep 2025 21:32:11 -0700
-Received: from kbuild by 114d98da2b6c with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1uv74T-00021v-2A;
-	Sun, 07 Sep 2025 04:32:09 +0000
-Date: Sun, 7 Sep 2025 12:31:34 +0800
-From: kernel test robot <lkp@intel.com>
-To: Hongru Zhang <zhanghongru06@gmail.com>, paul@paul-moore.com,
-	stephen.smalley.work@gmail.com, omosnace@redhat.com
-Cc: oe-kbuild-all@lists.linux.dev, linux-kernel@vger.kernel.org,
-	selinux@vger.kernel.org, Hongru Zhang <zhanghongru@xiaomi.com>
-Subject: Re: [PATCH] selinux: Make avc cache slot size configurable during
- boot
-Message-ID: <202509071211.k5n864Gr-lkp@intel.com>
-References: <20250905100454.685866-1-zhanghongru@xiaomi.com>
+	s=arc-20240116; t=1757230922; c=relaxed/simple;
+	bh=uIBRNfeOntsaWXKl0FdR27t1eyl1VeE8XgL0h03PsI0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=RDFoiwacmg/fSM/nrdXW3O4WzSYUdBkoVg8TyNvitSArMDbXvdzIw73tec6WpNIsScIOowffqls6Nkx8D5zkCpPeNXR1+gmq6oBqi3QmpNDDuIgyv02AVrgJyBdqhhJlvkFIABqFWygajeJe0he3WX/+iIlOEZKOHacHq0w+2eQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp; arc=none smtp.client-ip=202.181.97.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=I-love.SAKURA.ne.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=I-love.SAKURA.ne.jp
+Received: from www262.sakura.ne.jp (localhost [127.0.0.1])
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 5877Z9hk056152;
+	Sun, 7 Sep 2025 16:35:09 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from [192.168.1.10] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
+	(authenticated bits=0)
+	by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 5877Z9B8056148
+	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
+	Sun, 7 Sep 2025 16:35:09 +0900 (JST)
+	(envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Message-ID: <6e4bb79d-ba8f-47fa-ad12-0bb79d4442e0@I-love.SAKURA.ne.jp>
+Date: Sun, 7 Sep 2025 16:35:08 +0900
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250905100454.685866-1-zhanghongru@xiaomi.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 11/34] lsm: get rid of the lsm_names list and do some
+ cleanup
+To: Paul Moore <paul@paul-moore.com>,
+        John Johansen <john.johansen@canonical.com>
+Cc: Roberto Sassu <roberto.sassu@huaweicloud.com>,
+        linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>, Fan Wu <wufan@kernel.org>,
+        =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?= <mic@digikod.net>,
+        =?UTF-8?Q?G=C3=BCnther_Noack?= <gnoack@google.com>,
+        Kees Cook <kees@kernel.org>, Micah Morton <mortonm@chromium.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Nicolas Bouchinet <nicolas.bouchinet@oss.cyber.gouv.fr>,
+        Xiu Jianfeng <xiujianfeng@huawei.com>
+References: <20250814225159.275901-36-paul@paul-moore.com>
+ <20250814225159.275901-47-paul@paul-moore.com>
+ <06a68323-b297-4be7-92eb-c2091207b9f0@canonical.com>
+ <dd03266930a7b219c590c54bb2c210366f8d89a1.camel@huaweicloud.com>
+ <e92064a4-06c5-4913-917c-f9aca02378f3@canonical.com>
+ <CAHC9VhQPmF-RCSUjZo-pe1+sWyw5ZGdnD7P0CWb7yXQQoo+92g@mail.gmail.com>
+ <CAHC9VhRjQrjvsn65A-TGKKGrVFjZdnPBu+1vp=7w86SOjoyiUw@mail.gmail.com>
+Content-Language: en-US
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+In-Reply-To: <CAHC9VhRjQrjvsn65A-TGKKGrVFjZdnPBu+1vp=7w86SOjoyiUw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Virus-Status: clean
+X-Anti-Virus-Server: fsav202.rs.sakura.ne.jp
 
-Hi Hongru,
+On 2025/09/05 2:52, Paul Moore wrote:
+> +       if (unlikely(!str)) {
+> +               char *str_tmp;
+> +               size_t len_tmp = 0;
+> +
 
-kernel test robot noticed the following build warnings:
+Wants a comment that lsm_active_cnt > 0 is guaranteed, or someone
+(maybe static analyzers) thinks that we hit ZERO_SIZE_PTR pointer
+dereference when lsm_active_cnt == 0.
 
-[auto build test WARNING on pcmoore-selinux/next]
-[also build test WARNING on linus/master v6.17-rc4 next-20250905]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> +               for (i = 0; i < lsm_active_cnt; i++)
+> +                       /* the '+ 1' accounts for either a comma or a NUL */
+> +                       len_tmp += strlen(lsm_idlist[i]->name) + 1;
+> +
+> +               str_tmp = kmalloc(len_tmp, GFP_KERNEL);
+> +               if (!str_tmp)
+> +                       return -ENOMEM;
+> +               str_tmp[0] = '\0';
+> +
+> +               for (i = 0; i < lsm_active_cnt; i++) {
+> +                       if (i > 0)
+> +                               strcat(str_tmp, ",");
+> +                       strcat(str_tmp, lsm_idlist[i]->name);
+> +               }
+> +
+> +               spin_lock(&lock);
+> +               if (!str) {
+> +                       str = str_tmp;
+> +                       len = len_tmp - 1;
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Hongru-Zhang/selinux-Make-avc-cache-slot-size-configurable-during-boot/20250905-180729
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
-patch link:    https://lore.kernel.org/r/20250905100454.685866-1-zhanghongru%40xiaomi.com
-patch subject: [PATCH] selinux: Make avc cache slot size configurable during boot
-config: i386-randconfig-063-20250907 (https://download.01.org/0day-ci/archive/20250907/202509071211.k5n864Gr-lkp@intel.com/config)
-compiler: gcc-13 (Debian 13.3.0-16) 13.3.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250907/202509071211.k5n864Gr-lkp@intel.com/reproduce)
+This needs to be
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202509071211.k5n864Gr-lkp@intel.com/
+			len = len_tmp - 1;
+			mb();
+			str = str_tmp;
 
-sparse warnings: (new ones prefixed by >>)
->> security/selinux/avc.c:37:5: sparse: sparse: symbol 'avc_cache_slots' was not declared. Should it be static?
+, or concurrent access might reach simple_read_from_buffer()
+with str != 0 and len == 0. (If you don't want mb(), you can use
 
-vim +/avc_cache_slots +37 security/selinux/avc.c
+-	if (unlikely(!str)) {
++	if (unlikely(!str || !len)) {
 
-    36	
-  > 37	int avc_cache_slots __ro_after_init = 512;
-    38	#define AVC_DEF_CACHE_THRESHOLD		512
-    39	#define AVC_CACHE_RECLAIM		16
-    40	
+instead).
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+> +               } else
+> +                       kfree(str_tmp);
+> +               spin_unlock(&lock);
+> +       }
+> +
+> +       return simple_read_from_buffer(buf, count, ppos, str, len);
+> }
+
