@@ -1,97 +1,97 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-io1-f51.google.com (mail-io1-f51.google.com [209.85.166.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA289280A5F
-	for <selinux@vger.kernel.org>; Sun,  7 Sep 2025 16:58:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B5E223741
+	for <selinux@vger.kernel.org>; Sun,  7 Sep 2025 18:46:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757264327; cv=none; b=nch/VwUFWxQoeaaknyM6q2sbaAIt1ew2UZUUN5mvnY0s3VKi4L/HgPDTtuQ7qqbO0rqK6ZhO9jmD66HmTjQVZjLXsO3aTNQTdISQ5iDeUIiUuXw9z+65Ldcwcjr6Fgd1pojakWSEXd32GZw9N2JkGGjdfCvhktGGclGyf+rsSfs=
+	t=1757270821; cv=none; b=Ikc4sUdHivsotJU6S8iwkRuAUTO1j4WE2u9QwhOiaIfNpRz2s7vs933WVNeN4fVoszJA5PwAS1v1l6YhwhqxK4VyE7c+vv16dJ8lX073ygImdXYwN4u7T4DjJrGvFv+OITC3+M2Dtj9IS6yZRjAC2iGTRP+K+S5YSsAlDXWRzx0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757264327; c=relaxed/simple;
-	bh=UG6aaIt/J4hlqTLrVipzyXLPRoWjC628BnP36N7T3tU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=DFewgakAzxtGeYoa1ebGVuZL6ufiaBGXSazawuFTTk3+AIbOkhDuy525ljyF2EG8NrnGUmNv3fknRjhs/59yCfvnmDycfqxsoA1QMbvk2guLEX+rpaCiQ4EjgPjzbSlSAIOtoWik3zZCm7ee7o2ub7EDCP9P6ziLanv2NZwERa0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com; spf=pass smtp.mailfrom=paul-moore.com; dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b=QsRCqpT8; arc=none smtp.client-ip=209.85.214.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=paul-moore.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=paul-moore.com
+	s=arc-20240116; t=1757270821; c=relaxed/simple;
+	bh=T3EwPJtzj1SpjYFQ48lBl+QcPQwCf4Y2eCpeUVXk7Yk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=U6iaG8UMGpZztWeYQjhHZsfcGM4OMrcIONAdLYpqWcb+mFw+gD5mHZjHA0uuP18wvmln1n5nILIFowm83QhTAfenA5Z9oEz/3i8iCgHHfUJSjbZchCNErHxQi2jJ3xNpuL3CzafNrAOxHzODZb7GATVq2tBJRy+e749ocHdr03E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=4legIqKH; arc=none smtp.client-ip=209.85.166.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore.com header.i=@paul-moore.com header.b="QsRCqpT8"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-24b2de2e427so25676295ad.2
-        for <selinux@vger.kernel.org>; Sun, 07 Sep 2025 09:58:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="4legIqKH"
+Received: by mail-io1-f51.google.com with SMTP id ca18e2360f4ac-88432e31114so285505439f.2
+        for <selinux@vger.kernel.org>; Sun, 07 Sep 2025 11:46:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1757264325; x=1757869125; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=C8rxZBcVWqeQttZjBzXJXbXm94rgTwoH9ei9j3iaczA=;
-        b=QsRCqpT8mfEfDjQk9wir2rYkxZyBxKdUdVaAilyomOJ0wDXQ8sckCyP1nVibeeD7fI
-         5zCIukFyw1Ktrs3ABSvf2rGEJUUrrI8NF1QACheZoywakeAxqdlnLL4edIGrnDyJflKN
-         gZFQuzojroFnuBVyFc8rrrLTrdZ3C7JMiXYv5xZNmt8M9b2madgtQJ9S50BwAoFYOhzb
-         KATyqvucVbNudODuh4/tnUeOpKkXohZrHnGUdhP9dPnwldsdPUf7poMIgjjvQ9Q/Anpm
-         5ATc2UaxgwJlWCGHA9t+afOu97ghCPTKmNtAijd3yQYccDk5kD2JtTMKrCWgkKfRNzM7
-         ZPiA==
+        d=google.com; s=20230601; t=1757270819; x=1757875619; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZEQRuei5YFvs4wxgmlDYvTephk2WPSdhzkeIUgzcfhE=;
+        b=4legIqKHn0wflrNQKfcNmOqCGUkT8yxdhMEdaqmijgMTOBH8Q3Ue215LkfnV4Ru8cr
+         0LFDxb8HDMG+ZlYh4w+JlCeCZJc4OY1HIX/oF3fYFTOE6dpWcig/yfOl5mdex/2e3QYL
+         dBZ2xYdaOFCHGRE5RVUjbyme8cU6rsY/aT6gNA671YRj1cGxy1ntiZDiZTW+io/oeXYQ
+         IM6p0AAZSRJC/7qqagR+4qKE/KDROR7J/uhW3a5hdKxOooot7aSxMvIJc9GopywxUe7L
+         dZs/f1XLxCaCUPFYeecp7j+Y4w97IOHx8KclJ8Cngq5K7zUFCJ24Wq1oYfKGZSiZqDK6
+         92qg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757264325; x=1757869125;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=C8rxZBcVWqeQttZjBzXJXbXm94rgTwoH9ei9j3iaczA=;
-        b=TzAIpPiW1OyupcCKunFk4ZPm3sxVADw6Yo0xzQnytUInXbB09MEEu2tRn0EQdxUJkO
-         fk9ANsZL4M/DEGh1d+rZnn+UZspqanSS3zwdn7taIBbFAiYfxrCiquZCfEyrFJbqDwNR
-         hUruy2dTGbjhjv52pm46/9mAYWjk89sAFIn3SGofXclEuMhxjsMm3YKgXcKY65wh8blx
-         US/LYXlYgLSGQG7S2uJInvDZ5kKhJGFUxX2/TfW2ZDDjXflVL2Z9xyH61h5joe0YfP0X
-         triSnzqVTlvF0LGXNZ1+3zYS9J3VFit1amiNKa4uySzxnB7wx4/Yrm7orgptAhq7HgFG
-         2Prw==
-X-Forwarded-Encrypted: i=1; AJvYcCXrzpKd30omPZ0ih0Ij1kZamscB53A8ja13b4lAkiqHE6DzES0escpr+2ZhMeuQ/5/YGZUt8y5F@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx3VULuQGvwY50vFx/5IQSrKpc5g9crpFqcTFPYFO7fFwrnXLGq
-	mKL3VYGcQqTpdX07sye50HRHrt/IQx+laXw4Rp5eDhZLn+uxE4nPlZ6NkVdKk2nIcgR3SZFB4YU
-	U0K71O141JstB3djIkCnvuxoUxDwJXL3iBHu0gXRP
-X-Gm-Gg: ASbGnculgGo/ZoVmPD3YVpcDy+GXl86em1D8gQT70kWQwGWyKw482wvKCwumEIVG12Z
-	ivMZwa8GpfilYRJZzU5zRA9RBnztwIASuyMPREre1OasEodBFPcGSeuL8U7c26FrSSqltMF9HjA
-	hQyOlwGpWWM9jQWBbJx12T0fwrTg5DPgAQAMEqPz2VJ4MYUDActT/hZl4IaMrAJRWKRA3b3zq48
-	CETbz9C9zEtORfJfA==
-X-Google-Smtp-Source: AGHT+IFaE++x7GtzCCIsBv907Sl2uWTltDpZX4herwHYVlHepL8ORXOJe8XeTw2pWIVYggy7DyLPn5X/oi9GlRRt5xk=
-X-Received: by 2002:a17:903:1b68:b0:246:b46b:1b09 with SMTP id
- d9443c01a7336-251715f3129mr65953055ad.30.1757264325209; Sun, 07 Sep 2025
- 09:58:45 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1757270819; x=1757875619;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZEQRuei5YFvs4wxgmlDYvTephk2WPSdhzkeIUgzcfhE=;
+        b=sRIdUE9sQU5l7+td7RsVWsnGRnRQLJT0lqXzJBiMfcH16LI7rnsPhLQGtiF2SqnSHf
+         tVHJkBAVr5xL+fgJJly/nJtOme/eosvkaUT9K/qk5OLi5i45dw72c21PNJbJM6IEfwCS
+         2qNYRUcFgWcgdTpcKQ6D8uFh2NPNf4bBG8jKYPrvn169aQXJ2NMq95mFCGsIMpUMLXDT
+         LcX8qhxV1rY6PMpXblMIuL/HFzGChpSwClUhnxgrVIKdj1FEzijVy+aJJY/3Ihuk/sku
+         tC3VKDrSfbDk59lJhc6JjSMuLbifOVHF/O5dd56JSWht7yIJANbshdEaxnSbcct7ef5B
+         aqZw==
+X-Forwarded-Encrypted: i=1; AJvYcCXlBYnkwoInNzcHJOWOpfHa7/Zd9CsHk3PIt3zNVe416vTs1Pp55Uyg3tqPQixemaGVhVc95oJi@vger.kernel.org
+X-Gm-Message-State: AOJu0YzdwtgakXFYoS0xQjmsG/EzwWN4Kd6BGTy4wYpNTMFqvVIbknWg
+	WIv1E8vH1u8FaniGH8cBTX0rYA0peZf3yknq9QMm7zyWS8BeoYY+1hkwFxVFRpyj/A==
+X-Gm-Gg: ASbGnctB9hhVkzRh2KM4a3wg9etFXGryzG3wXzfAUEtAe/E+tnO2tFpUbP7rQk/3gvy
+	RdPCVAuDSeI9Kqpvk+q2TwbrAFw2uN3KSwqfgn8qkLfeAcdgcrhZTBulqr6CFJw3hc1zTIMO+bi
+	YRlj0o3mg7EC5xog2dwr1RJoJDgg6S5UKmXHEaP/6wLBVDTKrYkAKzqH9suOOw39gaF+fTrZN0X
+	QFLgy3PuVvLfmWG4fw54zxIjC/NuHBnrqVPbeJ95cz0u+CkPo8axfmjL+pi1poK53W3uMHn0LzM
+	Ve0c5RtlijO0UAqGvlwxW2SG/6tDSAmS57RY0u4HF2xjtExXjlvONDiNBy/mAk8YZKo6EMp2R+d
+	6734X6oen2el164SPdi9KEURKtuszGATY7dIur0mnPMo7hOSvKA0HO6hFk1keFSd9er1W4VLl0p
+	4R+2I=
+X-Google-Smtp-Source: AGHT+IFP4TFfhBSXgMSup1FEcAD1tiIYNyc16qd4c15z9i573dYTshH/4CnU2TUvpU2Gmbm/2gjnmw==
+X-Received: by 2002:a05:6e02:1607:b0:3f3:dd9a:63d6 with SMTP id e9e14a558f8ab-3fd961f424amr86831295ab.22.1757270819059;
+        Sun, 07 Sep 2025 11:46:59 -0700 (PDT)
+Received: from google.com (222.121.121.34.bc.googleusercontent.com. [34.121.121.222])
+        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3f3e0da92a3sm98600735ab.41.2025.09.07.11.46.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 07 Sep 2025 11:46:58 -0700 (PDT)
+Date: Sun, 7 Sep 2025 18:46:56 +0000
+From: Neill Kapron <nkapron@google.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <stephen.smalley.work@gmail.com>,
+	Ondrej Mosnacek <omosnace@redhat.com>, kernel-team@android.com,
+	selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] selinux: fix logic issue with per-file labeling for
+ functionfs
+Message-ID: <aL3TIN9UtGHKELuy@google.com>
+References: <20250905222656.3692837-1-nkapron@google.com>
+ <CAHC9VhT8NrsXMM-PPZJ0EPLxFHQ1vOu+ASCd+82Xth_mJPnDiA@mail.gmail.com>
+ <aLunR_0BPCrATnBP@google.com>
+ <CAHC9VhSaAm3G9bnJ86Aj+DnTio19ePE1Pu3voaB3XUvBveodbw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
 List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250905222656.3692837-1-nkapron@google.com> <CAHC9VhT8NrsXMM-PPZJ0EPLxFHQ1vOu+ASCd+82Xth_mJPnDiA@mail.gmail.com>
- <aLunR_0BPCrATnBP@google.com>
-In-Reply-To: <aLunR_0BPCrATnBP@google.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Sun, 7 Sep 2025 12:58:33 -0400
-X-Gm-Features: Ac12FXz4UWnBPZx5fAUVbpMVPdPjXX8qeZE7T_l2WMRkmXHmb_U-YFwEaovDvoA
-Message-ID: <CAHC9VhSaAm3G9bnJ86Aj+DnTio19ePE1Pu3voaB3XUvBveodbw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix logic issue with per-file labeling for functionfs
-To: Neill Kapron <nkapron@google.com>
-Cc: Stephen Smalley <stephen.smalley.work@gmail.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
-	kernel-team@android.com, selinux@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhSaAm3G9bnJ86Aj+DnTio19ePE1Pu3voaB3XUvBveodbw@mail.gmail.com>
 
-On Fri, Sep 5, 2025 at 11:15=E2=80=AFPM Neill Kapron <nkapron@google.com> w=
-rote:
-> On Fri, Sep 05, 2025 at 10:13:01PM -0400, Paul Moore wrote:
-> >
-> > With the original patch sitting at the top of the selinux/dev branch,
-> > are you okay if I simply fixup the existing patch by adding the
-> > missing '!'?
-> >
+On Sun, Sep 07, 2025 at 12:58:33PM -0400, Paul Moore wrote:
+> 
+> No need for a v4, it's just a single missing '!' and the commit
+> happens to still be at the top of the patch stack.  In cases like this
+> it's easier for me to just apply the fix manually.
+> 
+> Fixed the upstream commit and pushed back up to selinux/dev; please
+> take a look and verify that it looks okay to you.
 >
-> Yes, that is fine by me. I could submit a v4 if you would prefer that.
 
-No need for a v4, it's just a single missing '!' and the commit
-happens to still be at the top of the patch stack.  In cases like this
-it's easier for me to just apply the fix manually.
+The commit with the fixup looks good to me.
 
-Fixed the upstream commit and pushed back up to selinux/dev; please
-take a look and verify that it looks okay to you.
-
---=20
-paul-moore.com
+Thanks,
+Neill
