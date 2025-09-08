@@ -1,55 +1,55 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26CEF1CBEAA
-	for <selinux@vger.kernel.org>; Mon,  8 Sep 2025 01:34:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1D4615667D
+	for <selinux@vger.kernel.org>; Mon,  8 Sep 2025 01:35:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1757295276; cv=none; b=FdcR2H40nO48A8Q0TkpO0uOzjz5b81A5T2ROXt2RbrWxyBwS0bGFP5ICDaJZiJ8OC2F3i277CW3bTLcyto3XG7AkhEt2KMavrrTvGlB7BA097VWQVgIBzw+AIWHTJPWFVChghClvPahg6oRXezKg8/Nz6eUQ0NYbm/7KziW4rhw=
+	t=1757295352; cv=none; b=EgeDFh4MxrLHkz20wOEB3w/cqxDqkKZS9lqrI8gmbzNhs/NcfCnvbAW1E2R9GY2UEtGqgiChfV2t7jLxlPfINEKFOKCjHYTEngctdkaWCdnFJzCQWgqbGaqgSNdLjrNGHAPUmOV+iz4TP3p+VpNu/gk5+NHGqGdysqv7MY844Zw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1757295276; c=relaxed/simple;
-	bh=hPgnGfP1mh5OffDYgCOtxvRWTZFqQur0hG40PXSiw1U=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=JnCN2HsX8Kf89/jlxapz6zaExw6CK58lQBpsxmG1JcF2K6jMmVCBrnjDzbG3P3HBhFPiMaWcHMYDZSJhRimV/YH/m6XuR+OaRyYOOZGy2Pf3VIBg1tO8r7w4eGy32hfNygSQTszKYT/ECeLQVraYb91hAIiCrvnG0osjfzu3qHw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=iou2mYHU; arc=none smtp.client-ip=209.85.216.73
+	s=arc-20240116; t=1757295352; c=relaxed/simple;
+	bh=o/LaU5a3n+NJSG7OOjqZS9VJzoCzkskjxIMbXrWjrkc=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=qh+hMMCUknm4OLtj85u8ZR5BsJql7MofmLSFbIibiPhVRcWiMr8ev804XYZi9glveMAh77HDGeGBFw17WrbpYHZRBQEW6oA4E5gjy63tDf9TQCLymUeO+o/hd84uuaQHCr0sNNe5xYhgsEUxGW/P8MZiGw4raY9HxIlaV0ILF/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=wZ+mmLT+; arc=none smtp.client-ip=209.85.215.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tweek.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="iou2mYHU"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-329745d6b89so7830117a91.1
-        for <selinux@vger.kernel.org>; Sun, 07 Sep 2025 18:34:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="wZ+mmLT+"
+Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-b47174bdce2so3043691a12.2
+        for <selinux@vger.kernel.org>; Sun, 07 Sep 2025 18:35:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1757295274; x=1757900074; darn=vger.kernel.org;
+        d=google.com; s=20230601; t=1757295350; x=1757900150; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:from:subject:message-id
          :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=3JlhVnol+judhUzzwOogW+HmLUCIc8LS+J6IJKltRJA=;
-        b=iou2mYHU6HjdMCJqmrP6Lzqfd90MEC1mIEolVmSVgw/lcGe3/c0ZeFhmNRELZQy0Ou
-         800DyzBlpdw8XEBJOHmMRFmvCbYf12EFeTKuPK9ZRvMER+lRvsNlgCK35pNoSBeqvso5
-         OyhY2ZvCy1XR0EdzjHNpY8N1k6uOr5sbIKCxY9M/mIe1W68kWyRZBF3HwfzB3oNSnc1d
-         GttkoEMjXymVNl7Ca7A+2BtW1CM2MsmN+E+5mcUDrgGj9uKTkX7qHwzLHAVveT9dZXMm
-         x0eUuHZmLS9gboiCPQHT5V/8t0RwsHQYxSBWOZoC1rSL+rHDNq5PyNMVUpnFmG9wm2G+
-         Yf0A==
+        bh=WRmfAlepPh9QExmHTYBjow3NBeGfFMvyVF9526GPyN0=;
+        b=wZ+mmLT+NcSIJNEV26+BT5HXZpyGfnoGoC7qC9Gh7W98D98TFy2bYWHqVDsUxD2EJ6
+         Adj9gh7a/c1OXOkS9J1/tD8bAFX4DHp7NDXC7LmhA+ggyGpUvTwMsRYDchlt4J+31Cot
+         bF2Phw4kA2wZslxu4IiuYncy3L3wt4ig83v36XK76Y487aRco3Rq1qrtGDIiWHVkG+CN
+         YPMWuY95iglYBG2dLmOc0XeEM8fNKPBbeZq6DlmPO9i+fqh/texprYLGmI1cLspaK/IH
+         NrXv1L4Wq6h7mBRoxeGifCsVfmchguzMpUpX6ANUFO63s74T9QzLhU7NGewmk98iawee
+         xnmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1757295274; x=1757900074;
+        d=1e100.net; s=20230601; t=1757295350; x=1757900150;
         h=content-transfer-encoding:cc:to:from:subject:message-id
          :mime-version:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=3JlhVnol+judhUzzwOogW+HmLUCIc8LS+J6IJKltRJA=;
-        b=gNmW5OpEQlsJZu0dLbSaY2DsRXUGxIHuRHkvuuRu8JGfjjM2+0wGKWr37eRzS6kOiw
-         J6gWTOuiAPCYrh4nQHJxzFgHKfTgULOvidRNuzQotxxmmr/GLUgQqcJCbgAn5Bk/4foR
-         MQJ3py0VT1Vi4h3EXnwm/BrMKMGuinN6hvAcGs8vHed533ucTJ6L4GwQ67pfODWOjKba
-         I2MDqbbuRcCXL6K1lGWgbjLV/GF+KRoTrCJ+Bu+nY90dm8HIMCdZXEol+BbKZLXpC64R
-         Vrz14NurF0domxOdJOlvXWy8Zbnphs6YAVlGI5HhuGC3bDKH8o41cwRJxnIRCLqfT/oZ
-         ystw==
-X-Forwarded-Encrypted: i=1; AJvYcCX6GEozsc10+VBt0CLDpulo8xMkC4wGbppdF9MsK7ieWc5YXsomclWSo/LdbdW99ffqx6ys8nVq@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw38spX8KdtUNbXFVgGDiCQ+0zw6cqcuOBzdurHhF+53tmeG3UR
-	+nRNcG4XRWJKIw2lQ62VrMVDLSbN3lfKO2XZ6FBSVys4RrvoMVk5f/Bmyb0kArzD6Gdp9F+AKYI
-	auA==
-X-Google-Smtp-Source: AGHT+IErnV8Y/Sanjw9YO0m3nEGzcg/9CpvlG17Upovdj3N1XyUdkWC1vRs0c4mbxBDPi5LS5Z2j0ehPGw==
-X-Received: from pjtd14.prod.google.com ([2002:a17:90b:4e:b0:327:50fa:eff9])
- (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:530b:b0:32b:d502:6ff2
- with SMTP id 98e67ed59e1d1-32d440d9ef6mr7330684a91.34.1757295274251; Sun, 07
- Sep 2025 18:34:34 -0700 (PDT)
-Date: Mon,  8 Sep 2025 11:34:19 +1000
+        bh=WRmfAlepPh9QExmHTYBjow3NBeGfFMvyVF9526GPyN0=;
+        b=aCr6aAwC+XC/Rb6XV8EZR49g7QtShT3DXjM4qV6DXh4ai/GLwjsGhEc+IH6fe5HYpo
+         ar6wmo+wAgeVjOkFfm3qM/h4Ou39SgVtYz4YZBxWY9Pfuz4wOfcQuksuGf+AleU972+G
+         yHe7dK2Tdf53vIUyUTU4KSCjXdP6UuS9k0c9T2Ml0Frl0qncTRl10Mbf9gORQVu+TPVC
+         YsvpMj0KPhHx+5wgrl9W7xVxsCQr9z17dgMAMB6vhQ//8lmJbvqJ+s09JGYYMFYauxCc
+         ilWihTpQ/WT0pWG8lLEEMSueopodEtjF0heh52wt+xynnR6iAEU65mioQ2O339XITn0f
+         LeVw==
+X-Forwarded-Encrypted: i=1; AJvYcCX6a/TwqyJBYk+BW6c40I/9j31dpMpQV6CisqC3G61XwwORRk4mXz7h6yaBACEAJtUYdpalVGGG@vger.kernel.org
+X-Gm-Message-State: AOJu0YwtjWByJVg9XJJbhvULKPfXaEAC3S9Rc0V8yopFLQIDdHk2dPKc
+	h7g3G1a7X1vg6nvt0yvrQAxmwpTJ9Ow5dgJxBJrA49GEzLvc641J2BBnME1JSrtT4aPoSyM8Nka
+	9ow==
+X-Google-Smtp-Source: AGHT+IFMJF/X7c79vDOkyGk5ZPZabHkpKBBUdCtHG+uge+JSlmHJTHf1z+ooJFXq56wUPNZYsSDciG4F+A==
+X-Received: from pjg4.prod.google.com ([2002:a17:90b:3f44:b0:327:e021:e61d])
+ (user=tweek job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:e847:b0:250:c893:6cc1
+ with SMTP id d9443c01a7336-2516c8957d3mr69446245ad.8.1757295350143; Sun, 07
+ Sep 2025 18:35:50 -0700 (PDT)
+Date: Mon,  8 Sep 2025 11:35:42 +1000
 Precedence: bulk
 X-Mailing-List: selinux@vger.kernel.org
 List-Id: <selinux.vger.kernel.org>
@@ -57,265 +57,302 @@ List-Subscribe: <mailto:selinux+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:selinux+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.51.0.384.g4c02a37b29-goog
-Message-ID: <20250908013419.4186627-1-tweek@google.com>
-Subject: [PATCH v2] memfd,selinux: call security_inode_init_security_anon
+Message-ID: <20250908013542.4187488-1-tweek@google.com>
+Subject: [PATCH v2] policy,tests: add tests for memfd_file class
 From: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>
-To: Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>, 
-	Stephen Smalley <stephen.smalley.work@gmail.com>, Hugh Dickins <hughd@google.com>, 
-	Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, Jeff Xu <jeffxu@google.com>, 
-	Baolin Wang <baolin.wang@linux.alibaba.com>, Isaac Manjarres <isaacmanjarres@google.com>
-Cc: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>, linux-kernel@vger.kernel.org, 
-	linux-security-module@vger.kernel.org, selinux@vger.kernel.org, 
-	linux-mm@kvack.org
+To: Paul Moore <paul@paul-moore.com>, Ondrej Mosnacek <omosnace@redhat.com>, 
+	James Morris <jmorris@namei.org>, Stephen Smalley <stephen.smalley.work@gmail.com>, 
+	Jeff Vander Stoep <jeffv@google.com>, Nick Kralevich <nnk@google.com>, Jeff Xu <jeffxu@google.com>
+Cc: "=?UTF-8?q?Thi=C3=A9baud=20Weksteen?=" <tweek@google.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Prior to this change, no security hooks were called at the creation of a
-memfd file. It means that, for SELinux as an example, it will receive
-the default type of the filesystem that backs the in-memory inode. In
-most cases, that would be tmpfs, but if MFD_HUGETLB is passed, it will
-be hugetlbfs. Both can be considered implementation details of memfd.
+A new class "memfd_file" is introduced to the kernel in [1]. This class
+is only used when the policy capability "memfd_class" is set. Add tests
+to validate this new class:
 
-It also means that it is not possible to differentiate between a file
-coming from memfd_create and a file coming from a standard tmpfs mount
-point.
+  1. Validate that memfd_create() requires the "create" permission.
+  2. Validate that fexecve() on a memfd requires the "execute_no_trans"
+     permission.
 
-Additionally, no permission is validated at creation, which differs from
-the similar memfd_secret syscall.
+This can be tested by modifying the policy with:
 
-Call security_inode_init_security_anon during creation. This ensures
-that the file is setup similarly to other anonymous inodes. On SELinux,
-it means that the file will receive the security context of its task.
+  semodule -c -E base
+  sed -i \
+    -e 's/\((class user_namespace (create ))\)/\1\n(class memfd_file (execu=
+te_no_trans entrypoint ))\n(classcommon memfd_file file)/' \
+    -e 's/\(anon_inode socket\)/memfd_file \1/' \
+    base.cil
+  echo "(policycap memfd_class)" >>base.cil
+  semodule -X 456 -i base.cil
+  rm -f base.cil
 
-The ability to limit fexecve on memfd has been of interest to avoid
-potential pitfalls where /proc/self/exe or similar would be executed
-[1][2]. Reuse the "execute_no_trans" and "entrypoint" access vectors,
-similarly to the file class. These access vectors may not make sense for
-the existing "anon_inode" class. Therefore, define and assign a new
-class "memfd_file" to support such access vectors.
+  sed -i.orig \
+    -e 's/\(define(`all_file_perms'\'',\)\(.*\)$/\1\2\ndefine(`all_memfd_fi=
+le_perms'\'',\2/' \
+    -e 's/\(class file all_file_perms;\)/\1\nclass memfd_file all_memfd_fil=
+e_perms;/' \
+    /usr/share/selinux/devel/include/support/all_perms.spt
 
-Guard these changes behind a new policy capability named "memfd_class".
-
-[1] https://crbug.com/1305267
-[2] https://lore.kernel.org/lkml/20221215001205.51969-1-jeffxu@google.com/
+[1] https://lore.kernel.org/selinux/20250826031824.1227551-1-tweek@google.c=
+om/
 
 Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Tested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
-Changes since v1:
-- Move test of class earlier in selinux_bprm_creds_for_exec
-- Remove duplicate call to security_transition_sid
+Changelog since v1:
+- Add commands to test the policy to the commit message.
+- Only check for class and capability to include the new tests.
+- Ran check-syntax.
 
-Changes since RFC:
-- Remove enum argument, simply compare the anon inode name
-- Introduce a policy capability for compatility
-- Add validation of class in selinux_bprm_creds_for_exec
+ policy/Makefile             |  5 ++++
+ policy/test_memfd.te        | 25 +++++++++++++++++
+ tests/Makefile              |  5 ++++
+ tests/memfd/Makefile        |  5 ++++
+ tests/memfd/memfd.c         | 24 +++++++++++++++++
+ tests/memfd/memfd_fexecve.c | 53 +++++++++++++++++++++++++++++++++++++
+ tests/memfd/nothing.c       |  6 +++++
+ tests/memfd/test            | 41 ++++++++++++++++++++++++++++
+ 8 files changed, 164 insertions(+)
+ create mode 100644 policy/test_memfd.te
+ create mode 100644 tests/memfd/Makefile
+ create mode 100644 tests/memfd/memfd.c
+ create mode 100644 tests/memfd/memfd_fexecve.c
+ create mode 100644 tests/memfd/nothing.c
+ create mode 100755 tests/memfd/test
 
- include/linux/memfd.h                      |  2 ++
- mm/memfd.c                                 | 14 ++++++++++--
- security/selinux/hooks.c                   | 26 +++++++++++++++++-----
- security/selinux/include/classmap.h        |  2 ++
- security/selinux/include/policycap.h       |  1 +
- security/selinux/include/policycap_names.h |  1 +
- security/selinux/include/security.h        |  5 +++++
- 7 files changed, 44 insertions(+), 7 deletions(-)
-
-diff --git a/include/linux/memfd.h b/include/linux/memfd.h
-index 6f606d9573c3..cc74de3dbcfe 100644
---- a/include/linux/memfd.h
-+++ b/include/linux/memfd.h
-@@ -4,6 +4,8 @@
+diff --git a/policy/Makefile b/policy/Makefile
+index ffd774d..520f891 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -163,6 +163,11 @@ ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL=
+_POLICY) -ge 30 ] && [ -f
+ TARGETS +=3D test_nlmsg.te
+ endif
 =20
- #include <linux/file.h>
-=20
-+#define MEMFD_ANON_NAME "[memfd]"
++# memfd_file test dependencies: memfd_file class, memfd_class capability
++ifeq ($(shell [ -d /sys/fs/selinux/class/memfd_file ] && grep -q 1 $(SELIN=
+UXFS)/policy_capabilities/memfd_class && echo true),true)
++TARGETS +=3D test_memfd.te
++endif
 +
- #ifdef CONFIG_MEMFD_CREATE
- extern long memfd_fcntl(struct file *file, unsigned int cmd, unsigned int =
-arg);
- struct folio *memfd_alloc_folio(struct file *memfd, pgoff_t idx);
-diff --git a/mm/memfd.c b/mm/memfd.c
-index bbe679895ef6..63b439eb402a 100644
---- a/mm/memfd.c
-+++ b/mm/memfd.c
-@@ -433,6 +433,8 @@ static struct file *alloc_file(const char *name, unsign=
-ed int flags)
- {
- 	unsigned int *file_seals;
- 	struct file *file;
-+	struct inode *inode;
-+	int err =3D 0;
-=20
- 	if (flags & MFD_HUGETLB) {
- 		file =3D hugetlb_file_setup(name, 0, VM_NORESERVE,
-@@ -444,12 +446,20 @@ static struct file *alloc_file(const char *name, unsi=
-gned int flags)
- 	}
- 	if (IS_ERR(file))
- 		return file;
+ ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
+ TARGETS:=3D$(filter-out test_overlayfs.te test_mqueue.te test_ibpkey.te, $=
+(TARGETS))
+ endif
+diff --git a/policy/test_memfd.te b/policy/test_memfd.te
+new file mode 100644
+index 0000000..5ca1348
+--- /dev/null
++++ b/policy/test_memfd.te
+@@ -0,0 +1,25 @@
++########################################
++#
++# Policy for testing memfd_file.
 +
-+	inode =3D file_inode(file);
-+	err =3D security_inode_init_security_anon(inode,
-+			&QSTR(MEMFD_ANON_NAME), NULL);
-+	if (err) {
-+		fput(file);
-+		file =3D ERR_PTR(err);
-+		return file;
-+	}
++attribute memfdtestdomain;
 +
- 	file->f_mode |=3D FMODE_LSEEK | FMODE_PREAD | FMODE_PWRITE;
- 	file->f_flags |=3D O_LARGEFILE;
-=20
- 	if (flags & MFD_NOEXEC_SEAL) {
--		struct inode *inode =3D file_inode(file);
--
- 		inode->i_mode &=3D ~0111;
- 		file_seals =3D memfd_file_seals_ptr(file);
- 		if (file_seals) {
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index c95a5874bf7d..6adf2f393ed9 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -93,6 +93,7 @@
- #include <linux/fanotify.h>
- #include <linux/io_uring/cmd.h>
- #include <uapi/linux/lsm.h>
-+#include <linux/memfd.h>
-=20
- #include "avc.h"
- #include "objsec.h"
-@@ -2315,6 +2316,9 @@ static int selinux_bprm_creds_for_exec(struct linux_b=
-inprm *bprm)
- 	new_tsec =3D selinux_cred(bprm->cred);
- 	isec =3D inode_security(inode);
-=20
-+	if (isec->sclass !=3D SECCLASS_FILE && isec->sclass !=3D SECCLASS_MEMFD_F=
-ILE)
-+		return -EPERM;
++type test_memfd_t;
++typeattribute test_memfd_t memfdtestdomain;
++testsuite_domain_type(test_memfd_t);
++allow test_memfd_t self:memfd_file { create mmap_rw_file_perms };
 +
- 	/* Default to the current task SID. */
- 	new_tsec->sid =3D old_tsec->sid;
- 	new_tsec->osid =3D old_tsec->sid;
-@@ -2366,9 +2370,10 @@ static int selinux_bprm_creds_for_exec(struct linux_=
-binprm *bprm)
- 	ad.type =3D LSM_AUDIT_DATA_FILE;
- 	ad.u.file =3D bprm->file;
-=20
++type test_memfd_nocreate_t;
++typeattribute test_memfd_nocreate_t memfdtestdomain;
++testsuite_domain_type(test_memfd_nocreate_t);
++allow test_memfd_nocreate_t self:memfd_file mmap_rw_file_perms;
 +
- 	if (new_tsec->sid =3D=3D old_tsec->sid) {
--		rc =3D avc_has_perm(old_tsec->sid, isec->sid,
--				  SECCLASS_FILE, FILE__EXECUTE_NO_TRANS, &ad);
-+		rc =3D avc_has_perm(old_tsec->sid, isec->sid, isec->sclass,
-+				  FILE__EXECUTE_NO_TRANS, &ad);
- 		if (rc)
- 			return rc;
- 	} else {
-@@ -2378,8 +2383,8 @@ static int selinux_bprm_creds_for_exec(struct linux_b=
-inprm *bprm)
- 		if (rc)
- 			return rc;
-=20
--		rc =3D avc_has_perm(new_tsec->sid, isec->sid,
--				  SECCLASS_FILE, FILE__ENTRYPOINT, &ad);
-+		rc =3D avc_has_perm(new_tsec->sid, isec->sid, isec->sclass,
-+				  FILE__ENTRYPOINT, &ad);
- 		if (rc)
- 			return rc;
-=20
-@@ -2974,10 +2979,18 @@ static int selinux_inode_init_security_anon(struct =
-inode *inode,
- 	struct common_audit_data ad;
- 	struct inode_security_struct *isec;
- 	int rc;
-+	bool is_memfd =3D false;
-=20
- 	if (unlikely(!selinux_initialized()))
- 		return 0;
-=20
-+	if (name !=3D NULL && name->name !=3D NULL &&
-+	    !strcmp(name->name, MEMFD_ANON_NAME)) {
-+		if (!selinux_policycap_memfd_class())
-+			return 0;
-+		is_memfd =3D true;
-+	}
++type test_memfd_with_exec_t;
++typeattribute test_memfd_with_exec_t memfdtestdomain;
++testsuite_domain_type(test_memfd_with_exec_t);
++allow test_memfd_with_exec_t self:memfd_file { create mmap_rw_file_perms e=
+xecute execute_no_trans };
 +
- 	isec =3D selinux_inode(inode);
++type test_memfd_with_noexec_t;
++typeattribute test_memfd_with_noexec_t memfdtestdomain;
++testsuite_domain_type(test_memfd_with_noexec_t);
++allow test_memfd_with_noexec_t self:memfd_file { create mmap_rw_file_perms=
+ execute };
+diff --git a/tests/Makefile b/tests/Makefile
+index 7a6aace..903ab11 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -158,6 +158,11 @@ ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 -a $(MAX_KERNEL=
+_POLICY) -ge 30 ] && [ -f
+ SUBDIRS +=3D nlmsg
+ endif
 =20
- 	/*
-@@ -2997,7 +3010,10 @@ static int selinux_inode_init_security_anon(struct i=
-node *inode,
- 		isec->sclass =3D context_isec->sclass;
- 		isec->sid =3D context_isec->sid;
- 	} else {
--		isec->sclass =3D SECCLASS_ANON_INODE;
-+		if (is_memfd)
-+			isec->sclass =3D SECCLASS_MEMFD_FILE;
-+		else
-+			isec->sclass =3D SECCLASS_ANON_INODE;
- 		rc =3D security_transition_sid(
- 			sid, sid,
- 			isec->sclass, name, &isec->sid);
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include=
-/classmap.h
-index 5665aa5e7853..3ec85142771f 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -179,6 +179,8 @@ const struct security_class_mapping secclass_map[] =3D =
-{
- 	{ "anon_inode", { COMMON_FILE_PERMS, NULL } },
- 	{ "io_uring", { "override_creds", "sqpoll", "cmd", "allowed", NULL } },
- 	{ "user_namespace", { "create", NULL } },
-+	{ "memfd_file",
-+	  { COMMON_FILE_PERMS, "execute_no_trans", "entrypoint", NULL } },
- 	/* last one */ { NULL, {} }
- };
-=20
-diff --git a/security/selinux/include/policycap.h b/security/selinux/includ=
-e/policycap.h
-index 7405154e6c42..dabcc9f14dde 100644
---- a/security/selinux/include/policycap.h
-+++ b/security/selinux/include/policycap.h
-@@ -17,6 +17,7 @@ enum {
- 	POLICYDB_CAP_NETLINK_XPERM,
- 	POLICYDB_CAP_NETIF_WILDCARD,
- 	POLICYDB_CAP_GENFS_SECLABEL_WILDCARD,
-+	POLICYDB_CAP_MEMFD_CLASS,
- 	__POLICYDB_CAP_MAX
- };
- #define POLICYDB_CAP_MAX (__POLICYDB_CAP_MAX - 1)
-diff --git a/security/selinux/include/policycap_names.h b/security/selinux/=
-include/policycap_names.h
-index d8962fcf2ff9..8e96f2a816b6 100644
---- a/security/selinux/include/policycap_names.h
-+++ b/security/selinux/include/policycap_names.h
-@@ -20,6 +20,7 @@ const char *const selinux_policycap_names[__POLICYDB_CAP_=
-MAX] =3D {
- 	"netlink_xperm",
- 	"netif_wildcard",
- 	"genfs_seclabel_wildcard",
-+	"memfd_class",
- };
- /* clang-format on */
-=20
-diff --git a/security/selinux/include/security.h b/security/selinux/include=
-/security.h
-index 8201e6a3ac0f..72c963f54148 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -209,6 +209,11 @@ static inline bool selinux_policycap_netif_wildcard(vo=
-id)
- 		selinux_state.policycap[POLICYDB_CAP_NETIF_WILDCARD]);
- }
-=20
-+static inline bool selinux_policycap_memfd_class(void)
++# memfd_file test dependencies: memfd_file class, memfd_class capability
++ifeq ($(shell [ -d /sys/fs/selinux/class/memfd_file ] && grep -q 1 $(SELIN=
+UXFS)/policy_capabilities/memfd_class && echo true),true)
++SUBDIRS +=3D memfd
++endif
++
+ ifeq ($(DISTRO),RHEL4)
+     SUBDIRS:=3D$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_=
+nosuid overlay unix_socket, $(SUBDIRS))
+ endif
+diff --git a/tests/memfd/Makefile b/tests/memfd/Makefile
+new file mode 100644
+index 0000000..471900f
+--- /dev/null
++++ b/tests/memfd/Makefile
+@@ -0,0 +1,5 @@
++TARGETS=3Dmemfd nothing memfd_fexecve
++
++all: $(TARGETS)
++clean:
++	rm -f $(TARGETS)
+diff --git a/tests/memfd/memfd.c b/tests/memfd/memfd.c
+new file mode 100644
+index 0000000..0d6f838
+--- /dev/null
++++ b/tests/memfd/memfd.c
+@@ -0,0 +1,24 @@
++#ifndef _GNU_SOURCE
++#define _GNU_SOURCE
++#endif
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++#include <errno.h>
++#include <sys/mman.h>
++#include <unistd.h>
++
++int main(int argc, char *argv[])
 +{
-+	return READ_ONCE(selinux_state.policycap[POLICYDB_CAP_MEMFD_CLASS]);
++	int fd;
++	char *name =3D "mymemfd";
++
++	fd =3D memfd_create(name, 0);
++	if (fd < 0) {
++		perror("memfd_create");
++		exit(-1);
++	}
++
++	close(fd);
++	exit(0);
++}
+diff --git a/tests/memfd/memfd_fexecve.c b/tests/memfd/memfd_fexecve.c
+new file mode 100644
+index 0000000..977081e
+--- /dev/null
++++ b/tests/memfd/memfd_fexecve.c
+@@ -0,0 +1,53 @@
++#ifndef _GNU_SOURCE
++#define _GNU_SOURCE
++#endif
++#include <errno.h>
++#include <fcntl.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/mman.h>
++#include <unistd.h>
++
++int main(int argc, char *argv[])
++{
++	int memfd_fd, exec_fd;
++	int len, written, rc;
++	char *name =3D "mymemfd";
++
++	if (argc !=3D 2) {
++		printf("Usage: %s <fexec_binary>\n", argv[0]);
++		exit(-1);
++	}
++
++	memfd_fd =3D memfd_create(name, 0);
++	if (memfd_fd < 0) {
++		perror("memfd_create");
++		exit(-1);
++	}
++
++	exec_fd =3D open(argv[1], O_RDONLY);
++	if (exec_fd < 0) {
++		perror("open");
++		exit(-1);
++	}
++
++	char buf[8192];
++	while ((len =3D read(exec_fd, buf, sizeof(buf))) > 0) {
++		written =3D write(memfd_fd, buf, len);
++		if (len !=3D written) {
++			perror("read/write");
++			exit(-1);
++		}
++	}
++	close(exec_fd);
++
++	char *empty_env[] =3D {NULL};
++	char *nothing_argv[] =3D {argv[1], NULL};
++
++	rc =3D fexecve(memfd_fd, nothing_argv, empty_env);
++
++	perror("fexecve");
++	exit(rc);
++}
+diff --git a/tests/memfd/nothing.c b/tests/memfd/nothing.c
+new file mode 100644
+index 0000000..fc53d37
+--- /dev/null
++++ b/tests/memfd/nothing.c
+@@ -0,0 +1,6 @@
++#include <stdlib.h>
++
++int main(int argc, char *argv[])
++{
++	return 0;
++}
+diff --git a/tests/memfd/test b/tests/memfd/test
+new file mode 100755
+index 0000000..1b1e75f
+--- /dev/null
++++ b/tests/memfd/test
+@@ -0,0 +1,41 @@
++#!/usr/bin/perl
++#
++# This test exercises the memfd_class support
++#
++
++use Test;
++
++BEGIN {
++    $test_count =3D 4;
++    plan tests =3D> $test_count;
 +}
 +
- struct selinux_policy_convert_data;
-=20
- struct selinux_load_state {
++$basedir =3D $0;
++$basedir =3D~ s|(.*)/[^/]*|$1|;
++
++#
++# Attempt to call memfd_create() from the allowed domain.
++#
++$result =3D system "runcon -t test_memfd_t -- $basedir/memfd 2>&1";
++ok( $result, 0 );
++
++#
++# Attempt to call memfd_create() from the not-allowed domain.
++#
++$result =3D system "runcon -t test_memfd_nocreate_t -- $basedir/memfd 2>&1=
+";
++ok($result);
++
++#
++# Attempt to fexecve() on a memfd_create() fd from the allowed domain.
++#
++$result =3D system
++"runcon -t test_memfd_with_exec_t -- $basedir/memfd_fexecve $basedir/nothi=
+ng 2>&1";
++ok( $result, 0 );
++
++#
++# Attempt to fexecve() on a memfd_create() fd from the not-allowed domain.
++#
++$result =3D system
++"runcon -t test_memfd_with_noexec_t -- $basedir/memfd_fexecve $basedir/not=
+hing 2>&1";
++ok($result);
++exit;
 --=20
 2.51.0.384.g4c02a37b29-goog
 
